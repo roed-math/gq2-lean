@@ -318,6 +318,7 @@ import GQ2.Dyadic.MarkedCore.Variance
 import GQ2.Dyadic.MarkedCore.CoreMixM
 import GQ2.Dyadic.MarkedCore.M
 import GQ2.Dyadic.MarkedCore.N
+import GQ2.Dyadic.MarkedCore.CoVDischarge
 import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedRecipBundle

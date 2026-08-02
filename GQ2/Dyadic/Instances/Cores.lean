@@ -67,9 +67,15 @@ routing the marking through a *single* generator's powers replaces group commuta
 
 ## Homing (two recorded debts, both deliberate)
 
-* `mRelWord_of_commute` is a `MarkedCore` fact and belongs beside `MarkedCore.mRelWord_comm`
-  (`GQ2/Dyadic/MarkedCore/Cores.lean` §"Abelian collapse"); it is the `Commute`-hypothesis twin
-  of that lemma, exactly as `MarkedCore.commP_eq_one_of_commute` is of `Roe.commP_eq_one`.
+* `mRelWord_of_commute` is a `MarkedCore` fact; it is the `Commute`-hypothesis twin of
+  `MarkedCore.mRelWord_comm`, exactly as `MarkedCore.commP_eq_one_of_commute` is of
+  `Roe.commP_eq_one`.  ⚠ The destination originally recorded here (`MarkedCore/Cores.lean`
+  §"Abelian collapse") is NOT reachable: the proof needs `commP_eq_one_of_commute`, which
+  lives *above* that file in `MarkedCore/HandleMix.lean` (Lake-checked by MC-CoV-split; the
+  only other copy is `private` in `Roe/Labute/Levelwise.lean`).  Correct homes: beside the
+  dependency in `HandleMix.lean`, or move `commP_eq_one_of_commute` down first (wide
+  rebuild).  Consumer side is free either way — the single use is `mRelWord_zpow` below,
+  unqualified under an `open`.
 * §1's two `Z₂` facts belong beside `Ztwo` in `GQ2/BoundaryFrame.lean`.  They are stated here
   instead because that file is frozen (plan A6) and an addition to it forces a rebuild of the
   entire downstream tree for no mathematical gain; the Dyadic tree already proves `Ztwo`-valued
