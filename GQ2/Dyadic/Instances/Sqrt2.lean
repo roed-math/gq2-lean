@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Instances.KSupply
+import GQ2.Dyadic.Instances.Cores
 import GQ2.Dyadic.Count.ProTwo
 import GQ2.Dyadic.Count.Routine
 import GQ2.Dyadic.Count.WildDischarge
@@ -72,7 +73,10 @@ The inventory at `(n, q, R) = (2, 2, mCompactW 3 0)`:
 
 `hnuSigma`/`hnuWild` (F3's `prop_3_4_three` normalization of `ν_P` against the *dictionary's*
 marking) are arguments too; they are conditions on the abstract slot `(P, ν_P)`, exactly as in
-`Count.PilotN.n_exists_proTwo`, and §3 spells out what they say about `dmGen`.
+`Count.PilotN.n_exists_proTwo`, and §3 spells out what they say about `dmGen`.  **They are also
+satisfied**: §3's `mNu`/`mNu_sigma`/`mNu_wild`/`mNu_surjective` (AS3-b) build the witness
+`ν(μ₂) = 1, ν(μ₀) = −m`, so §7 carries a second headline
+`candidate_equiv_galK_sqrtTwo_nonvacuous` with all four `ν`-binders discharged.
 
 ## Numeric leaves
 
@@ -111,6 +115,7 @@ open GQ2.Dyadic.Words GQ2.Dyadic.Words.MCompact
 open GQ2.Dyadic.Count.PilotN TameSpec
 open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
 open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MCompact
+open GQ2.Dyadic.Instances.NuWitness
 
 /-! ## §1 The compact-`M` alphabet ↔ core dictionary
 
@@ -337,6 +342,67 @@ theorem mCompat (α h q : ℕ) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
   CorePresentation.nu_compat_coreHom (mCorePresentation α h hα) hq0 hqe hspec nuP hnuSigma
     hnuWild g
 
+/-! ### The `ν_P` witness at the compact-`M` row  (ticket AS3-b)
+
+The three `ν_P` conditions above are *satisfiable*, and here is the witness — so the row's
+headline is demonstrably non-vacuous rather than conditionally stated.  The exponent vector is
+`ν(μ₂) = 1`, `ν(μ₀) = −m`, all other slots `0`; the relator condition
+`2·ν(μ₀) + 2^α·ν(μ₂) = 0` is exactly WM0-a's `two_mul_mOf` (`2m = 2^α`, hence the `1 ≤ α`), and
+the wild conditions are the untwisting `x₀ ↦ (μ₀μ₂^m)⁻¹` cancelling `−m` against `m`.  The
+machinery is in `GQ2/Dyadic/Instances/Cores.lean`; only the exponent vector is branch-specific. -/
+
+/-- **The compact-`M` ν-exponent vector**: `ν(μ₂) = 1`, `ν(μ₀) = −m`, every other slot `0`. -/
+def mNuExp (α h : ℕ) : Fin (coreRank h) → ℤ :=
+  fun i => if (i : ℕ) = 0 then -(mOf α : ℤ) else if (i : ℕ) = 2 then 1 else 0
+
+@[simp] theorem mNuExp_zero (α h : ℕ) : mNuExp α h 0 = -(mOf α : ℤ) := if_pos (coreVal_zero h)
+
+@[simp] theorem mNuExp_two (α h : ℕ) : mNuExp α h 2 = 1 := by
+  rw [mNuExp, if_neg (by rw [coreVal_two]; omega), if_pos (coreVal_two h)]
+
+theorem mNuExp_eq_zero (α h : ℕ) {i : Fin (coreRank h)} (h0 : (i : ℕ) ≠ 0) (h2 : (i : ℕ) ≠ 2) :
+    mNuExp α h i = 0 := by rw [mNuExp, if_neg h0, if_neg h2]
+
+/-- The relation vector vanishes — WM0-a's `2m = 2^α`, and the row's only use of `1 ≤ α` here. -/
+theorem mNuExp_rel (α h : ℕ) (hα : 1 ≤ α) : 2 * mNuExp α h 0 + 2 ^ α * mNuExp α h 2 = 0 := by
+  have h2 : ((2 * mOf α : ℕ) : ℤ) = ((2 ^ α : ℕ) : ℤ) := congrArg _ (two_mul_mOf hα)
+  push_cast at h2
+  rw [mNuExp_zero, mNuExp_two, mul_one, mul_neg, ← h2]
+  ring
+
+/-- **The `ν_P` witness at the compact-`M` row.** -/
+noncomputable def mNu (α h : ℕ) (hα : 1 ≤ α) :
+    ContinuousMonoidHom ((DM α h : ProfiniteGrp) : Type) Ztwo :=
+  dmNu α h (mNuExp α h) (mNuExp_rel α h hα)
+
+/-- **`hnuSigma` at the witness**: the dictionary puts `σ` at core slot `2`, which carries `1`. -/
+theorem mNu_sigma (α h : ℕ) (hα : 1 ≤ α) :
+    mNu α h hα ((mCorePresentation α h hα).mark .sigma) = ztwoOne := by
+  rw [mCorePresentation_mark_sigma, mNu, dmNu_dmGen, mNuExp_two, zpow_one]
+
+/-- The wild letters never land on core slot `2`: `nWildIdx` skips it, which is the whole point of
+the compact-`N` letter table. -/
+theorem nWildIdx_val_ne_two (h : ℕ) (j : Fin (2 + 2 * h + 1)) :
+    ((nWildIdx h j : Fin (coreRank h)) : ℕ) ≠ 2 := by
+  simp only [nWildIdx]
+  split <;> omega
+
+/-- **`hnuWild` at the witness.**  Slot `0` is the untwisting `x₀ ↦ (μ₀μ₂^m)⁻¹`, whose exponent is
+`−(−m + m) = 0`; every other wild slot carries exponent `0` outright. -/
+theorem mNu_wild (α h : ℕ) (hα : 1 ≤ α) (j : Fin (2 + 2 * h + 1)) :
+    mNu α h hα ((mCorePresentation α h hα).mark (.wild j)) = 1 := by
+  rw [mCorePresentation_mark_wild]
+  by_cases h0 : ((nWildIdx h j : Fin (coreRank h)) : ℕ) = 0
+  · have hi : (nWildIdx h j : Fin (coreRank h)) = 0 := Fin.ext (by rw [h0, coreVal_zero])
+    rw [hi, mUntwist_zero, mNu, map_inv, map_mul, map_zpow, dmNu_dmGen, dmNu_dmGen, mNuExp_zero,
+      mNuExp_two, zpow_one, ← zpow_add, neg_add_cancel, zpow_zero, inv_one]
+  · rw [mUntwist_apply_ne _ _ _ h0, mNu, dmNu_dmGen,
+      mNuExp_eq_zero α h h0 (nWildIdx_val_ne_two h j), zpow_zero]
+
+/-- **`hnuP` at the witness**: `ν(μ₂) = 1` puts `ztwoOne` in the image, and `D_M` is compact. -/
+theorem mNu_surjective (α h : ℕ) (hα : 1 ≤ α) : Function.Surjective (mNu α h hα) :=
+  dmNu_surjective α h _ _ (i := 2) (mNuExp_two α h)
+
 end ProTwo
 
 /-! ## §4 The compact-`M` word certificate, modulo AS1's four analytic clauses
@@ -472,6 +538,11 @@ theorem sqrtTwoRow :
     (BranchData.M0 3).Valid ∧ (BranchData.M0 3).level = 0 ∧ mOf 3 = 4 :=
   ⟨branchData_sqrtTwo.1, branchData_sqrtTwo.2, rfl⟩
 
+/-- **The row's `ν_P`** — `MCompactCore`'s witness at `(α, h) = (3, 0)`.  It is what makes §7's
+`candidate_equiv_galK_sqrtTwo_nonvacuous` a theorem with no `ν`-binders. -/
+noncomputable abbrev nu : ContinuousMonoidHom ((core : ProfiniteGrp) : Type) Ztwo :=
+  mNu 3 0 alpha_valid
+
 /-- The tame modulus of `ℚ₂(√2)`: the field is **ramified** quadratic, so `f = 1` and
 `q_K = 2`.  ⚠ Never read the branch condition off `q_K` — FD2's erratum: `q_K` is the residue
 cardinality, and `ℚ₂(√5)` has `q_K = 4` with `i ∉ K` all the same. -/
@@ -576,6 +647,44 @@ theorem candidate_equiv_galK_sqrtTwo {q : ℕ} (hqK : qOf K FF = q)
     (mWordCertificate 3 0 (qOf K FF) alpha_valid (qOf_ne_zero K FF) (even_qOf K FF) nuP
       hnuSigma hnuWild exactLifting stokes scalar determinant)
     KS params params_n params_qK ramified ramifiedData hnuP
+
+/-- **Packet Theorem 1.1 at `K = ℚ₂(√2)`, with the `ν`-normalization discharged** (ticket AS3-b).
+
+The same conclusion as `candidate_equiv_galK_sqrtTwo`, at the *concrete* `ν_P = Sqrt2.nu`: the
+four binders `nuP`, `hnuSigma`, `hnuWild`, `hnuP` are gone from the statement, so the abstract
+slot `(P, ν_P)` is demonstrably inhabited at this row and the headline cannot be vacuous through
+it.  What remains is exactly AS1's divergence 4 (the four analytic clauses), ASK's `KSupply`, and
+packet §12's standard local inputs. -/
+theorem candidate_equiv_galK_sqrtTwo_nonvacuous {q : ℕ} (hqK : qOf K FF = q)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      q core nu (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      q core nu (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      q core nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) q word
+        (mTameSpecializes 3 0 q (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)))
+      (mPro2 3 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF))
+      (mCompat 3 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
+        (mTameSpecializes 3 0 q (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)) nu
+        (mNu_sigma 3 0 alpha_valid) (mNu_wild 3 0 alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) core (isProP_DM 3 0) nu (standardNumerics (2 + 2 * 0)))
+    (params : FieldParameters) (params_n : params.n = 2 + 2 * 0)
+    (params_qK : params.qK = q)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup (2 + 2 * 0) q word : Type)) (GalK K)) :=
+  candidate_equiv_galK_sqrtTwo hqK nu (mNu_sigma 3 0 alpha_valid) (mNu_wild 3 0 alpha_valid)
+    (mNu_surjective 3 0 alpha_valid) exactLifting stokes scalar determinant KS params params_n
+    params_qK ramified ramifiedData
 
 omit [FiniteDimensional ℚ_[2] ↥K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **The `√2` row's `κ_K ≠ 0`.**  The standing ramified-`i` binder forces the even-degree head

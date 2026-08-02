@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Instances.KSupply
+import GQ2.Dyadic.Instances.Cores
 import GQ2.Dyadic.Count.ProTwo
 import GQ2.Dyadic.Count.Routine
 import GQ2.Dyadic.Count.WildDischarge
@@ -113,6 +114,7 @@ open GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
 open GQ2.Dyadic.Count.PilotN TameSpec
 open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
 open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
+open GQ2.Dyadic.Instances.NuWitness
 
 /-! ## §1 The procyclic-`M` alphabet ↔ core dictionary (at `η = 1`)
 
@@ -327,6 +329,63 @@ theorem mpcCompat (α r pp q : ℕ) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even
   CorePresentation.nu_compat_coreHom (mpcCorePresentation α r pp hα) hq0 hqe hspec nuP
     hnuSigma hnuWild g
 
+/-! ### The `ν_P` witness at the procyclic-`M` row  (ticket AS3-b)
+
+The procyclic twin of `MCompactCore`'s witness, and the σ-offset convention is visible in it: `σ`
+sits at core slot **3**, so it is slot 3 that carries exponent `1`, and the *twisted* boundary
+letter `C₀ = x₂σ^s` at slot 2 carries `s` rather than `1`.  The exponent vector is
+`ν(μ₃, μ₂, μ₁, μ₀) = (1, s, p, −ms)`; the relation vector `2·(−ms) + 2^α·s = s(2^α − 2m)` vanishes
+by `two_mul_m`, and the three wild conditions are the three untwistings cancelling exactly.
+The machinery is in `GQ2/Dyadic/Instances/Cores.lean`. -/
+
+/-- **The procyclic-`M` ν-exponent vector**: `ν(μ₃) = 1`, `ν(μ₂) = s`, `ν(μ₁) = p`,
+`ν(μ₀) = −ms`. -/
+def mpcNuExp (α r pp : ℕ) : Fin (coreRank 0) → ℤ :=
+  ![-((m α : ℤ) * (s r : ℤ)), (pp : ℤ), (s r : ℤ), 1]
+
+@[simp] theorem mpcNuExp_zero (α r pp : ℕ) : mpcNuExp α r pp 0 = -((m α : ℤ) * (s r : ℤ)) := rfl
+@[simp] theorem mpcNuExp_one (α r pp : ℕ) : mpcNuExp α r pp 1 = (pp : ℤ) := rfl
+@[simp] theorem mpcNuExp_two (α r pp : ℕ) : mpcNuExp α r pp 2 = (s r : ℤ) := rfl
+@[simp] theorem mpcNuExp_three (α r pp : ℕ) : mpcNuExp α r pp 3 = 1 := rfl
+
+/-- The relation vector vanishes — `2m = 2^α` scaled by `s`, so the branch's `1 ≤ α` is again the
+only arithmetic input. -/
+theorem mpcNuExp_rel (α r pp : ℕ) (hα : 1 ≤ α) :
+    2 * mpcNuExp α r pp 0 + 2 ^ α * mpcNuExp α r pp 2 = 0 := by
+  have h2 : ((2 * m α : ℕ) : ℤ) = ((2 ^ α : ℕ) : ℤ) := congrArg _ (two_mul_m hα)
+  push_cast at h2
+  rw [mpcNuExp_zero, mpcNuExp_two, mul_neg, ← h2]
+  ring
+
+/-- **The `ν_P` witness at the procyclic-`M` row.** -/
+noncomputable def mpcNu (α r pp : ℕ) (hα : 1 ≤ α) :
+    ContinuousMonoidHom ((DM α 0 : ProfiniteGrp) : Type) Ztwo :=
+  dmNu α 0 (mpcNuExp α r pp) (mpcNuExp_rel α r pp hα)
+
+/-- **`hnuSigma` at the witness** — core slot `3`, the σ-offset. -/
+theorem mpcNu_sigma (α r pp : ℕ) (hα : 1 ≤ α) :
+    mpcNu α r pp hα ((mpcCorePresentation α r pp hα).mark .sigma) = ztwoOne := by
+  rw [mpcCorePresentation_mark_sigma, mpcNu, dmNu_dmGen, mpcNuExp_three, zpow_one]
+
+/-- **`hnuWild` at the witness**: `x₀ ↦ (μ₀μ₂^m)⁻¹` gives `−(−ms + sm) = 0`, `x₁ ↦ μ₁μ₃^{−p}`
+gives `p − p = 0`, and `x₂ ↦ μ₂μ₃^{−s}` gives `s − s = 0`. -/
+theorem mpcNu_wild (α r pp : ℕ) (hα : 1 ≤ α) (j : Fin (2 + 2 * 0 + 1)) :
+    mpcNu α r pp hα ((mpcCorePresentation α r pp hα).mark (.wild j)) = 1 := by
+  rw [mpcCorePresentation_mark_wild]
+  obtain rfl | rfl | rfl := wildIdx_cases j
+  · rw [mpcOfCore_x_zero, mpcNu, map_inv, map_mul, map_pow, dmNu_dmGen, dmNu_dmGen,
+      mpcNuExp_zero, mpcNuExp_two, ← zpow_natCast (ztwoOne ^ ((s r : ℤ))) (m α), ← zpow_mul,
+      ← zpow_add, show -((m α : ℤ) * (s r : ℤ)) + (s r : ℤ) * ((m α : ℕ) : ℤ) = 0 by ring,
+      zpow_zero, inv_one]
+  · rw [mpcOfCore_x_one, mpcNu, map_mul, map_inv, map_pow, dmNu_dmGen, dmNu_dmGen,
+      mpcNuExp_one, mpcNuExp_three, zpow_one, ← zpow_natCast ztwoOne pp, mul_inv_cancel]
+  · rw [mpcOfCore_x_two, mpcNu, map_mul, map_inv, map_pow, dmNu_dmGen, dmNu_dmGen,
+      mpcNuExp_two, mpcNuExp_three, zpow_one, ← zpow_natCast ztwoOne (s r), mul_inv_cancel]
+
+/-- **`hnuP` at the witness**: `ν(μ₃) = 1` puts `ztwoOne` in the image. -/
+theorem mpcNu_surjective (α r pp : ℕ) (hα : 1 ≤ α) : Function.Surjective (mpcNu α r pp hα) :=
+  dmNu_surjective α 0 _ _ (i := 3) (mpcNuExp_three α r pp)
+
 end ProTwo
 
 /-! ## §4 The procyclic-`M` word certificate, modulo AS1's four analytic clauses -/
@@ -454,6 +513,11 @@ theorem r_pos : 1 ≤ (BranchData.Mpc 2 1 false 1).level := by
 /-- The tame modulus of `ℚ₂(√10)`: `q_K = 2`. -/
 theorem qK_hyps : (2 : ℕ) ≠ 0 ∧ Even (2 : ℕ) := ⟨two_ne_zero, even_two⟩
 
+/-- **The row's `ν_P`** — `MProcyclicCore`'s witness at `(α, r, p) = (2, 1, 0)`; it is what makes
+§7's `candidate_equiv_galK_sqrtTen_nonvacuous` a theorem with no `ν`-binders (ticket AS3-b). -/
+noncomputable abbrev nu : ContinuousMonoidHom ((core : ProfiniteGrp) : Type) Ztwo :=
+  mpcNu 2 1 0 alpha_valid
+
 end Sqrt10
 
 /-! ## §7 Packet Theorem 1.1 at `ℚ₂(√10)` -/
@@ -511,6 +575,43 @@ theorem candidate_equiv_galK_sqrtTen {q : ℕ} (hqK : qOf K FF = q)
     (mpcWordCertificate 2 1 0 (qOf K FF) alpha_valid (qOf_ne_zero K FF) (even_qOf K FF) nuP
       hnuSigma hnuWild exactLifting stokes scalar determinant)
     KS params params_n params_qK ramified ramifiedData hnuP
+
+/-- **Packet Theorem 1.1 at `K = ℚ₂(√10)`, with the `ν`-normalization discharged**
+(ticket AS3-b).
+
+The procyclic twin of `candidate_equiv_galK_sqrtTwo_nonvacuous`: the four binders `nuP`,
+`hnuSigma`, `hnuWild`, `hnuP` are gone, at the concrete `ν_P = Sqrt10.nu`. -/
+theorem candidate_equiv_galK_sqrtTen_nonvacuous {q : ℕ} (hqK : qOf K FF = q)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
+      nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) q word
+        (mpcTameSpecializes 2 1 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
+          (hqK ▸ even_qOf K FF)))
+      (mpcPro2 2 1 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF))
+      (mpcCompat 2 1 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
+        (mpcTameSpecializes 2 1 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
+          (hqK ▸ even_qOf K FF)) nu (mpcNu_sigma 2 1 0 alpha_valid)
+        (mpcNu_wild 2 1 0 alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nu (standardNumerics (2 + 2 * 0)))
+    (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup (2 + 2 * 0) q word : Type)) (GalK K)) :=
+  candidate_equiv_galK_sqrtTen hqK nu (mpcNu_sigma 2 1 0 alpha_valid)
+    (mpcNu_wild 2 1 0 alpha_valid) (mpcNu_surjective 2 1 0 alpha_valid) exactLifting stokes
+    scalar determinant KS params params_n params_qK ramified ramifiedData
 
 omit [FiniteDimensional ℚ_[2] ↥K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **The `√10` row's `κ_K ≠ 0`** — as at every `M`/`N` row, from the standing ramified-`i`

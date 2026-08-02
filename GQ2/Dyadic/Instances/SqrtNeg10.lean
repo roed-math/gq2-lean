@@ -105,6 +105,12 @@ theorem r_pos : 1 ≤ (BranchData.Mpc 2 1 true 1).level := by
 /-- The tame modulus of `ℚ₂(√−10)`: `q_K = 2`. -/
 theorem qK_hyps : (2 : ℕ) ≠ 0 ∧ Even (2 : ℕ) := ⟨two_ne_zero, even_two⟩
 
+/-- **The row's `ν_P`** — `MProcyclicCore`'s witness at `(α, r, p) = (2, 1, 1)`; the same term as
+`√10`'s with `p : 0 ↦ 1`, which is the only slot of the exponent vector that moves between the
+two procyclic rows (ticket AS3-b). -/
+noncomputable abbrev nu : ContinuousMonoidHom ((core : ProfiniteGrp) : Type) Ztwo :=
+  mpcNu 2 1 1 alpha_valid
+
 /-- **The two procyclic rows differ in exactly one word parameter.**  `√10` is `ε = 0` (`p = 0`,
 the `B`-letter collapses to the bare `x₁`) and `√−10` is `ε = 1` (`p = 1`, `B = x₁σ`); everything
 else — `α`, `r`, the `η` display, the handle count, `q_K`, and the core `D_M` — agrees.  Recorded
@@ -197,6 +203,40 @@ theorem candidate_equiv_galK_sqrtNegTen {q : ℕ} (hqK : qOf K FF = q)
     (mpcWordCertificate 2 1 1 (qOf K FF) alpha_valid (qOf_ne_zero K FF) (even_qOf K FF) nuP
       hnuSigma hnuWild exactLifting stokes scalar determinant)
     KS params params_n params_qK ramified ramifiedData hnuP
+
+/-- **Packet Theorem 1.1 at `K = ℚ₂(√−10)`, with the `ν`-normalization discharged**
+(ticket AS3-b) — the merge-gate-9 field, at the concrete `ν_P = SqrtNeg10.nu`. -/
+theorem candidate_equiv_galK_sqrtNegTen_nonvacuous {q : ℕ} (hqK : qOf K FF = q)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
+      nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) q word
+        (mpcTameSpecializes 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
+          (hqK ▸ even_qOf K FF)))
+      (mpcPro2 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF))
+      (mpcCompat 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
+        (mpcTameSpecializes 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
+          (hqK ▸ even_qOf K FF)) nu (mpcNu_sigma 2 1 1 alpha_valid)
+        (mpcNu_wild 2 1 1 alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nu (standardNumerics (2 + 2 * 0)))
+    (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup (2 + 2 * 0) q word : Type)) (GalK K)) :=
+  candidate_equiv_galK_sqrtNegTen hqK nu (mpcNu_sigma 2 1 1 alpha_valid)
+    (mpcNu_wild 2 1 1 alpha_valid) (mpcNu_surjective 2 1 1 alpha_valid) exactLifting stokes
+    scalar determinant KS params params_n params_qK ramified ramifiedData
 
 omit [FiniteDimensional ℚ_[2] ↥K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **The `√−10` row's `κ_K ≠ 0`** — from the standing ramified-`i` binder through FD2. -/
