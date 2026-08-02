@@ -962,4 +962,43 @@ theorem affineDeterminant_galK (params : FieldParameters) {n q : ℕ} {PG : Prof
 
 end Determinant
 
+/-! ## §8 The acceptance test
+
+The `KSupply.determinant` field's type, verbatim, produced by §7.  This is the ticket's
+acceptance criterion: it type-checks *only* if `affineDeterminant_galK`'s conclusion is the
+record field's on the nose (carrier, slot, tame/pro-`2` pair, `compat` and the scalar action all
+identical), so it is the check that the binder is genuinely discharged rather than approximated.
+
+The remaining arguments are the ones AS1's `DyadicLocalInput` already carries: `params` + its two
+pins, `hdeg` (= `KSupply.hdeg`), the two numerics pins (`rfl` at `standardNumerics n`), and
+`ramifiedData` (= `DyadicLocalInput.ramifiedData`, the AX3 field-side interface). -/
+
+section Acceptance
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {R : LocalReciprocity} {B : MarkedRecip R K} {FF : DyadicUnitFiltration K}
+
+/-- **`KSupply.determinant`, discharged** — the field type of
+`GQ2/Dyadic/Instances/KSupply.lean:293`, produced. -/
+example (T : OrientedTameQuotientK B FF) {n : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n}
+    (pro2 : ContinuousMonoidHom (GalK K) P)
+    (nu_compat : ∀ g : GalK K, ztwoIota (nuP (pro2 g)) = B.nu_ur (toAbK K g))
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF) (hdeg : Module.finrank ℚ_[2] K = n)
+    (hgu : ∀ m : ℕ, SN.gaussUnram m = (-1 : ℤ) ^ n * 2 ^ (n * m))
+    (hgr : ∀ m : ℕ, SN.gaussRam m = (2 : ℤ) ^ (n * m))
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg) (rho : ContinuousMonoidHom ↥(GalKsub K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    AffineDeterminantCertificate (galKProfinite K) n (qOf K FF) P nuP SN
+      T.tameFK pro2 (fun g => T.compatF_K pro2 nuP nu_compat g) (smulZmod2GalK K) :=
+  affineDeterminant_galK K params params_n params_qK hdeg hgu hgr T.tameFK T.tameFK_surjective
+    pro2 (fun g => T.compatF_K pro2 nuP nu_compat g) ramifiedData
+
+end Acceptance
+
 end GQ2.Dyadic
