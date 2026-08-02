@@ -73,6 +73,24 @@ So §4 is a **re-use** of CB-VAR's ledger in the contrapositive direction rather
 development, and the ticket's predicted `heisEta1`-for-`mixedB_eq_relZPair` substitution never had
 to be made: `heisEta1` enters only at the very end, through `IsSelfDualN.pairing`'s own statement.
 
+## What §5 asks a branch for, and at which module
+
+`hpartialN`'s fork is `IsRightSeparating Γ DD.Vmod` — the **`V`-module** over `C = DD.C0`, not the
+`T`-module CB-VAR's ledger is instantiated at.  That is not an obstacle: §2–§5 are stated at an
+arbitrary finite `C`-module (CB-VAR's `pairHomN` was pinned to `Additive ↥D.T` only by its
+instance block, never by its mathematics), and CB-S's payloads (`nCompact_isSelfDualN` and the
+other frozen rows) are already module-generic.  What a branch owes is therefore the usual four:
+`StokesDuality`/`IsSelfDualN` at `Vmod`, the presentation, `IsWildTwo`, and the four resolutions —
+all at CB-VAR §2's **single** Heisenberg level, since `𝔽₂ ⋊ C`, `Vmod ⋊ C` and `Vmod^∨ ⋊ C` are
+subgroups of `H(Vmod) ⋊ C`.
+
+Two small measured facts about the binder list, both in the direction of less:
+
+* the dual-side compatibility `hcompatD` is **derived** from `hcompat` (§2's `elemDual_compat`),
+  where `ℚ₂` carries both as hypotheses;
+* `ContinuousSMul Γ A` is *not* used — only `ContinuousSMul Γ (ElemDual A)` is, and `hpartialN`
+  already carries both.
+
 ## Numeric leaves
 
 **Nothing in this file reads a count.**  Neither `sepWordN` nor `isRightSeparating_of_selfDualN`
@@ -87,7 +105,8 @@ Plain-import.  `Count.Separation` (CB-4, plain) carries the two forks; `Count.Va
 plain) carries the ledger, and through `Count.HTwo`/`Count.Compare` the rung, the comparison and
 `IsSelfDualN`.  No new module enters the `Count` closure.
 
-Axioms: no new axioms, no `sorry`.  All headline declarations print exactly the standard three.
+Axioms: no new axioms, no `sorry`, no `decide`.  All **seven** declarations print exactly the
+standard three (`propext`, `Classical.choice`, `Quot.sound`) — measured, not budgeted.
 -/
 
 namespace GQ2.Dyadic.Count
@@ -137,8 +156,8 @@ theorem sepWordN {c : ι → C} {w : ρ → FreeGroup ι} (hd : StokesDuality c 
     (hv : ∀ lam : ElemDual A, heisD0 (A := ElemDual A) c lam = 0 → lam (∑ k, v k) = 0) :
     v ∈ (heisD1 (A := A) c w).range := by
   classical
-  set d₀ : ElemDual A →+ (ι → ElemDual A) := heisD0 (A := ElemDual A) c with hd₀
-  set E : ElemDual A →+ ZMod 2 := (heisEta2 v : ElemDual (ElemDual A)) with hEdef
+  set d₀ : ElemDual A →+ (ι → ElemDual A) := heisD0 (A := ElemDual A) c
+  set E : ElemDual A →+ ZMod 2 := (heisEta2 v : ElemDual (ElemDual A))
   have hE : ∀ q ∈ d₀.ker, E q = 0 := fun q hq => hv q (AddMonoidHom.mem_ker.mp hq)
   obtain ⟨lam, hlam⟩ := elemDual_extend (A := ι → ElemDual A) (wordDual_two_torsion (A := A))
     (QuotientAddGroup.kerLift d₀) (QuotientAddGroup.kerLift_injective d₀)
@@ -148,5 +167,241 @@ theorem sepWordN {c : ι → C} {w : ρ → FreeGroup ι} (hd : StokesDuality c 
   exact hlam (QuotientAddGroup.mk q)
 
 end SepWord
+
+-- CB-VAR's `⊥`-topology on the Heisenberg lift (`Count/Variation.lean` §2).  Its instance
+-- attribute is `local`, so it is re-enabled here rather than redeclared.
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+/-! ## §2. The graph hom of a primal/dual pair of cocycles
+
+`Count/Variation.lean` §5b's `pairHomN`, with the recursion's `Additive ↥D.T` turned back into an
+arbitrary finite module.  The specialization there is not mathematical — it is only that the
+product module `A × A^∨` needs its own instance block, which the recursion's carrier supplies by
+name.  Nothing in the construction sees `D`.
+
+The dual compatibility is *derived*, not assumed: the contragredient action is functorial, so a
+`ρ`-factorization of the primal action gives one of the dual action (`ℚ₂`'s
+`elemDual_smul_eq_of_smul_eq`, which is `private` and `Γ_A`-pinned). -/
+
+section PairHom
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [DistribMulAction C A] [DistribMulAction Γ A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [TopologicalSpace (WordLift (A × ElemDual A) C)]
+  [DiscreteTopology (WordLift (A × ElemDual A) C)]
+  (rho : ContinuousMonoidHom Γ C) (hcompat : ∀ (γ : Γ) (a : A), γ • a = rho γ • a)
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology C] [Finite C] [TopologicalSpace A]
+  [DiscreteTopology A] [Finite A] [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [TopologicalSpace (WordLift (A × ElemDual A) C)]
+  [DiscreteTopology (WordLift (A × ElemDual A) C)] in
+include hcompat in
+/-- **The dual compatibility, for free.**  If the `Γ`-action on `A` factors through `ρ`, so does
+the contragredient action on `A^∨`. -/
+theorem elemDual_compat (γ : Γ) (l : ElemDual A) : γ • l = rho γ • l :=
+  ElemDual.ext fun a => by
+    rw [ElemDual.smul_apply, ElemDual.smul_apply, hcompat γ⁻¹ a, map_inv]
+
+include hcompat in
+/-- **The graph hom** `γ ↦ ((z γ, ξ γ), ρ γ)` of a primal/dual pair of continuous crossed
+cocycles, into the Heisenberg *base* `(A × A^∨) ⋊ C`.  `Count/Variation.lean`'s `pairHomN` at an
+arbitrary module. -/
+noncomputable def pairHom (z : Z1 Γ A) (φ : Z1 Γ (ElemDual A)) :
+    ContinuousMonoidHom Γ (WordLift (A × ElemDual A) C) where
+  toFun γ := ⟨(z.1 γ, φ.1 γ), rho γ⟩
+  map_one' := WordLift.ext (Prod.ext (Z1_apply_one z) (Z1_apply_one φ)) (map_one rho)
+  map_mul' γ δ := by
+    refine WordLift.ext (Prod.ext ?_ ?_) (map_mul rho γ δ)
+    · show z.1 (γ * δ) = z.1 γ + rho γ • z.1 δ
+      rw [(mem_Z1_iff.mp z.2).2 γ δ, hcompat]
+    · show φ.1 (γ * δ) = φ.1 γ + rho γ • φ.1 δ
+      rw [(mem_Z1_iff.mp φ.2).2 γ δ, elemDual_compat rho hcompat]
+  continuous_toFun := by
+    have hg : Continuous fun γ : Γ => (((z.1 γ, φ.1 γ), rho γ) : (A × ElemDual A) × C) :=
+      (((mem_Z1_iff.mp z.2).1).prodMk ((mem_Z1_iff.mp φ.2).1)).prodMk rho.continuous_toFun
+    exact (continuous_of_discreteTopology (f := (WordLift.equivProd
+      (A := A × ElemDual A) (C := C)).symm)).comp hg
+
+omit [IsTopologicalGroup Γ] [Finite C] [Finite A]
+  [DiscreteTopology (WordLift (A × ElemDual A) C)] in
+@[simp] theorem pairHom_apply (z : Z1 Γ A) (φ : Z1 Γ (ElemDual A)) (γ : Γ) :
+    pairHom rho hcompat z φ γ = ⟨(z.1 γ, φ.1 γ), rho γ⟩ := rfl
+
+/-! ## §3. The pair cochain is the Heisenberg cocycle, inflated
+
+`ℚ₂`'s `hunfold` step (`Phase140/GammaA/Hsep.lean`, inside `b1_of_pair_cochain_B2`), which is
+also `Count/Variation.lean`'s `varCoc_eq_kappaHeisN` read at a different cochain: `hpartial`'s
+pair cochain **is** `varCoc`'s, once the radical edge is replaced by an arbitrary dual cocycle.
+The whole content is that the `Γ`-action may be replaced by the `C`-action. -/
+
+omit [IsTopologicalGroup Γ] [Finite C] [Finite A]
+  [DiscreteTopology (WordLift (A × ElemDual A) C)] in
+include hcompat in
+/-- **The pair cochain, unfolded**: `(a, b) ↦ ξ(a)(a · z(b))` is the Heisenberg `2`-cocycle
+`kappaHeisN` pulled back along the graph hom. -/
+theorem pairCochain_eq_kappaHeisN (z : Z1 Γ A) (φ : Z1 Γ (ElemDual A)) (a b : Γ) :
+    (fun p : Γ × Γ => (φ.1 p.1) (p.1 • z.1 p.2)) (a, b)
+      = kappaHeisN.κ (pairHom rho hcompat z φ a) (pairHom rho hcompat z φ b) :=
+  congrArg (φ.1 a) (hcompat a (z.1 b))
+
+end PairHom
+
+/-! ## §4. The traced word pairing of a coboundary pair cochain vanishes
+
+`ℚ₂`'s `hmix0` step, degree-generic.  Three imported facts and no new mathematics:
+
+* CB-VAR's `pObsFam_inflation` computes the family obstruction of an inflated cocycle as the
+  relator obstruction of the pushed marking — this **is** the degree-generic
+  `MixedBObs.obs_inflation` the ticket asked for;
+* CB-VAR's `pRelZ_kappaHeisN` identifies that with the Heisenberg central coordinate — this is the
+  degree-generic `mixedB_eq_relZPair`, and it needed no `heisEta1` substitution: the `Fin 4`
+  traced-sum matching is replaced by one `PWord.map_eval` along `CentExt kappaHeisN ≅ H(A) ⋊ C`,
+  and `heisEta1` appears only when §5 hands the value to `IsSelfDualN.pairing`;
+* CB-H2's `pObsFam_B2_mem_range` plus CB-VAR's `sum_heisD1_zmod2`: a coboundary's obstruction lies
+  in `im d¹`, whose traced sum is zero.
+
+Note the asymmetry with CB-VAR §7, which runs the same three facts in the *contrapositive*: there
+a nonzero traced sum proves a class nonzero; here a vanishing class proves the traced sum zero. -/
+
+section WordPairing
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι]
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [DistribMulAction C A] [DistribMulAction Γ A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+  [TopologicalSpace (WordLift (A × ElemDual A) C)]
+  [DiscreteTopology (WordLift (A × ElemDual A) C)]
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
+  (rho : ContinuousMonoidHom Γ C) (hcompat : ∀ (γ : Γ) (a : A), γ • a = rho γ • a)
+  (hc : ∀ i, rho (gen i) = c i)
+
+include hcompat hc in
+/-- **The traced word pairing of a pair whose cochain is a coboundary vanishes.**
+
+If `(a, b) ↦ ξ(a)(a · z(b))` is a continuous `𝔽₂`-coboundary, then the traced Stokes pairing of
+the two evaluated word cocycles is `0`.  This is the whole cohomological content of the
+candidate-side `hpartial` fork; §5 is bookkeeping around it. -/
+theorem wordPairing_eq_zero_of_pair_B2
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) C)) (hresH : ResolvesAt W w (HeisLift A C))
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w)
+    (z : Z1 Γ A) (φ : Z1 Γ (ElemDual A))
+    (hB2 : (fun p : Γ × Γ => (φ.1 p.1) (p.1 • z.1 p.2)) ∈ B2 Γ (ZMod 2)) :
+    heisEta1 c w (fun i => z.1 (gen i)) (fun i => φ.1 (gen i)) = 0 := by
+  classical
+  have hmem : (fun p : Γ × Γ => (φ.1 p.1) (p.1 • z.1 p.2)) ∈ Z2 Γ (ZMod 2) := B2_le_Z2 hB2
+  set x : Z2 Γ (ZMod 2) := ⟨fun p : Γ × Γ => (φ.1 p.1) (p.1 • z.1 p.2), hmem⟩
+  have hobs : pObsFam W gen x
+      = fun k => (FreeGroup.lift (heisGen c (fun i => z.1 (gen i))
+          (fun i => φ.1 (gen i))) (w k)).z := by
+    rw [pObsFam_inflation W gen (pairHom rho hcompat z φ) kappaHeisN x
+      (fun a b => pairCochain_eq_kappaHeisN rho hcompat z φ a b)]
+    have hbase : (fun i => pairHom rho hcompat z φ (gen i))
+        = heisBase c (fun i => z.1 (gen i)) (fun i => φ.1 (gen i)) :=
+      funext fun i => WordLift.ext rfl (hc i)
+    funext k
+    rw [hbase, pRelZ_kappaHeisN, hresH _ k]
+  obtain ⟨v, hv⟩ := pObsFam_B2_mem_range (w := w) hpres hresS c (x := x) hB2
+  have hsum : ∑ k, pObsFam W gen x k = 0 := by
+    rw [← hv]
+    exact sum_heisD1_zmod2 hr hend v
+  rw [hobs] at hsum
+  exact hsum
+
+end WordPairing
+
+/-! ## §5. The candidate-side supplier of the `hpartial` fork
+
+`Phase140GammaA.b1_of_pair_cochain_B2` (`private`, `Fin 4`-pinned through `markC`, `Marking`,
+`mixedB`, `z1Equiv` over `Fin 4`, and `prop_5_15`), over an arbitrary alphabet, an arbitrary
+relator family, an arbitrary finite coefficient module and an arbitrary presented carrier — and
+therefore serving **all five frozen branch families in one theorem**, since none of them appears in
+the statement.
+
+Only clause **3** of `IsSelfDualN` is read.  The count clauses are not consumed, so CB-SG's
+exponent warning does not apply: there is no cardinality anywhere in the statement or the proof. -/
+
+section RightSeparating
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι]
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [DistribMulAction C A] [DistribMulAction Γ A] [ContinuousSMul Γ A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul Γ (ElemDual A)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+  [TopologicalSpace (WordLift A C)] [DiscreteTopology (WordLift A C)]
+  [TopologicalSpace (WordLift (ElemDual A) C)] [DiscreteTopology (WordLift (ElemDual A) C)]
+  [TopologicalSpace (WordLift (A × ElemDual A) C)]
+  [DiscreteTopology (WordLift (A × ElemDual A) C)]
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
+  (rho : ContinuousMonoidHom Γ C) (hcompat : ∀ (γ : Γ) (a : A), γ • a = rho γ • a)
+  (hc : ∀ i, rho (gen i) = c i)
+
+omit [ContinuousSMul Γ A] in
+include hcompat hc in
+/-- **`IsRightSeparating` from `IsSelfDualN.pairing`** — the candidate-side supplier of CB-4's
+`hpartial` fork, and the degree-generic clone of `ℚ₂`'s `b1_of_pair_cochain_B2`.
+
+A continuous dual `1`-cocycle whose pair cochain is a coboundary against *every* `A`-cocycle is
+itself a coboundary.  Route: §4 turns each pair-cochain coboundary into a vanishing traced word
+pairing; CB-1's `z1Equiv` says every word `1`-cocycle is the evaluation of a continuous one, so
+*all* word pairings against `[ξ]` vanish; clause 3's right-slot nondegeneracy kills the class; and
+`z1Equiv`-injectivity pulls the resulting word coboundary back to a continuous one.
+
+The three resolutions are at the three targets `𝔽₂ ⋊ C`, `A ⋊ C`, `A^∨ ⋊ C` plus the Heisenberg
+lift `H(A) ⋊ C`; CB-VAR §2 shows a *single* level serves all four, since the first three are
+subgroups of the fourth. -/
+theorem isRightSeparating_of_selfDualN {n : ℕ}
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J) (hwild2 : IsWildTwo J c)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) C)) (hresP : ResolvesAt W w (WordLift A C))
+    (hresD : ResolvesAt W w (WordLift (ElemDual A) C))
+    (hresH : ResolvesAt W w (HeisLift A C))
+    (hsd : IsSelfDualN n c w A) (hend : IsStokesEndpoint w) (hA₂ : ∀ a : A, a + a = 0) :
+    IsRightSeparating Γ A := by
+  classical
+  intro ξ hvan
+  have hD₂ : ∀ l : ElemDual A, l + l = 0 := fun l => l.add_self_eq_zero
+  have hcompatD := elemDual_compat rho hcompat
+  have hr : ∀ k, FreeGroup.lift c (w k) = 1 := fun k =>
+    lower_rel (A := A) rho hc hpres hresP k
+  set y : ↥(heisD1 (A := ElemDual A) c w).ker :=
+    ⟨fun i => ξ.1 (gen i), evalGen_mem_ker rho hcompatD hc hpres hresD ξ⟩ with hydef
+  obtain ⟨P, hPval, -, hright⟩ := hsd.pairing
+  have hcls0 : stokesH1Mk (heisD0 (A := ElemDual A) c) (heisD1 c w) y = 0 := by
+    by_contra hne
+    obtain ⟨hcl, hPne⟩ := hright _ hne
+    obtain ⟨xw, rfl⟩ := stokesH1Mk_surjective (heisD0 (A := A) c) (heisD1 c w) hcl
+    obtain ⟨zc, hzc⟩ := (z1Equiv rho hcompat hc hpres hresP hA₂ hwild2).surjective xw
+    refine hPne ?_
+    rw [hPval]
+    have hxw : (xw : ι → A) = fun i => zc.1 (gen i) := congrArg Subtype.val hzc.symm
+    rw [hxw]
+    exact wordPairing_eq_zero_of_pair_B2 rho hcompat hc hpres hresS hresH hr hend zc ξ (hvan zc)
+  rw [stokesH1Mk_eq_zero_iff] at hcls0
+  obtain ⟨m, hm⟩ := hcls0
+  refine ⟨m, congrArg Subtype.val
+    (show (⟨dZero Γ (ElemDual A) m, B1_le_Z1 ⟨m, rfl⟩⟩ : ↥(Z1 Γ (ElemDual A))) = ξ from ?_)⟩
+  refine (z1Equiv rho hcompatD hc hpres hresD hD₂ hwild2).injective
+    (Subtype.ext (funext fun i => ?_))
+  show gen i • m - m = ξ.1 (gen i)
+  rw [hcompatD (gen i) m, hc i]
+  exact congrFun hm i
+
+end RightSeparating
 
 end GQ2.Dyadic.Count
