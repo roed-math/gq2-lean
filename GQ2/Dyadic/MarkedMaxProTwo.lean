@@ -1,0 +1,66 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Codex GPT-5
+-/
+module
+
+public import GQ2.Dyadic.MarkedRecipBundle
+public import GQ2.ZtwoPowering
+
+@[expose] public section
+
+/-!
+# The marked characters on the maximal pro-2 quotient of `G_K`
+
+Both characters used by the dyadic marked-core certificates have pro-2 targets: the restricted
+cyclotomic character lands in `ℤ₂ˣ`, and the geometric unramified character lands in
+`Multiplicative ℤ₂`. They therefore descend canonically from `G_K` to `G_K(2)` by the universal
+property of `maxProPQuotient`.
+
+This direct descent is the common interface for the `L`, `M`, and `N` cores. In particular it
+does not require a (generally noncanonical) homomorphism from `G_K(2)` back to the full
+abelianization `G_Kᵃᵇ`.
+-/
+
+namespace GQ2.Dyadic
+
+noncomputable section
+
+variable {R : LocalReciprocity}
+  {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- The cyclotomic character of `G_K`, packaged as a continuous homomorphism. -/
+def chiCycKCont : ContinuousMonoidHom (GalK K) ℤ_[2]ˣ :=
+  ⟨chiCycK K, continuous_chiCycK K⟩
+
+/-- The cyclotomic character descended canonically to `G_K(2)`. -/
+def chiCycKTwo :
+    ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) ℤ_[2]ˣ :=
+  (maxProPHomEquiv isProP_two_unitsPadicInt).symm (chiCycKCont (K := K))
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Evaluation of the descended cyclotomic character on a class from `G_K`. -/
+@[simp] theorem chiCycKTwo_maxProPMk (g : GalK K) :
+    chiCycKTwo (K := K) (maxProPMk 2 (GalK K) g) = chiCycK K g :=
+  maxProPHomEquiv_symm_apply_maxProPMk isProP_two_unitsPadicInt (chiCycKCont (K := K)) g
+
+/-- `ν_ur ∘ toAbK`, packaged as a continuous homomorphism on `G_K`. -/
+def nuUrKComp (B : MarkedRecip R K) :
+    ContinuousMonoidHom (GalK K) (Multiplicative ℤ_[2]) :=
+  ⟨B.nu_ur.comp (toAbK K), B.continuous_nu_ur.comp (continuous_toAbK K)⟩
+
+/-- The geometric unramified character descended canonically to `G_K(2)`. -/
+def nuUrKTwo (B : MarkedRecip R K) :
+    ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative ℤ_[2]) :=
+  (maxProPHomEquiv PropOneOne.isProP_two_multPadicInt).symm (nuUrKComp B)
+
+/-- Evaluation of the descended unramified character on a class from `G_K`. -/
+@[simp] theorem nuUrKTwo_maxProPMk (B : MarkedRecip R K) (g : GalK K) :
+    nuUrKTwo B (maxProPMk 2 (GalK K) g) = B.nu_ur (toAbK K g) :=
+  maxProPHomEquiv_symm_apply_maxProPMk PropOneOne.isProP_two_multPadicInt (nuUrKComp B) g
+
+end
+
+end GQ2.Dyadic
