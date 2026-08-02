@@ -6,17 +6,17 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 import GQ2.Dyadic.Instances.Sqrt2
 
 /-!
-# The `ℚ₂(√5)` instance  (dyadic campaign, ticket AS3)
+# The `ℚ₂(√5)` instance  (dyadic campaign, tickets AS3, AS3-b)
 
 **Selection-freeze row 4** at its `α = 2` instance: `K = ℚ₂(√5)` is the *unramified* quadratic
 extension, so `n = [K : ℚ₂] = 2`, `f = 2`, `q_K = 4`, and the frozen branch word is
 `mCompactW 2 0` with `m = 2^{α−1} = 2` (`Words/M0.lean`, certificate
 `M-compact-alpha2-h0-q4-v001`).
 
-This file is **pure instantiation**: every construction it uses is `Sqrt2.lean`'s
-`MCompactCore` namespace, generic in `(α, h, q)`.  Only two numbers change against the `√2`
-row — `α : 3 ↦ 2` and `q_K : 2 ↦ 4` — and that is the whole difference between the two fields on
-the Lean side.
+This file is **pure instantiation**: every construction it uses is the `MCompactCore` namespace
+of `GQ2/Dyadic/Instances/Cores.lean` §4–§7, generic in `(α, h, q)`.  Only two numbers change
+against the `√2` row — `α : 3 ↦ 2` and `q_K : 2 ↦ 4` — and that is the whole difference between
+the two fields on the Lean side.
 
 ## ⚠ Two findings the pair `(√2, √5)` makes visible, and only the pair
 
@@ -53,8 +53,9 @@ against WM0-a's own `branchData_sqrtFive` plus `mOf 2 = 2`; the counts are cited
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; the headline
-prints std-3 + `{B1, B6, B7}`, i.e. ASK's surface, and neither B5-K nor B10-K.
+`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; **both**
+headlines — the conditional one and AS3-b's `_nonvacuous` corollary — print std-3 +
+`{B1, B6, B7}`, i.e. ASK's surface, and neither B5-K nor B10-K.
 -/
 
 namespace GQ2.Dyadic.Instances
@@ -87,6 +88,11 @@ theorem sqrtFiveRow :
 ⚠ This is the one place in AS3 where `q_K ≠ 2`, and it is *not* the ramified-`i` branch
 condition — see the module docstring, finding 2. -/
 theorem qK_hyps : (4 : ℕ) ≠ 0 ∧ Even (4 : ℕ) := ⟨by omega, by decide⟩
+
+/-- **The row's `ν_P`** — `MCompactCore`'s witness at `(α, h) = (2, 0)`, the same term as `√2`'s
+with `α : 3 ↦ 2` (ticket AS3-b). -/
+noncomputable abbrev nu : ContinuousMonoidHom ((core : ProfiniteGrp) : Type) Ztwo :=
+  mNu 2 0 alpha_valid
 
 /-- **The `√5` and `√2` rows are the same branch, different `α`.**  Recorded as a theorem because
 the two files' `word`s are different terms of the same family and the board's "row 4, two
@@ -174,6 +180,40 @@ theorem candidate_equiv_galK_sqrtFive {q : ℕ} (hqK : qOf K FF = q)
     (mWordCertificate 2 0 (qOf K FF) alpha_valid (qOf_ne_zero K FF) (even_qOf K FF) nuP
       hnuSigma hnuWild exactLifting stokes scalar determinant)
     KS params params_n params_qK ramified ramifiedData hnuP
+
+/-- **Packet Theorem 1.1 at `K = ℚ₂(√5)`, with the `ν`-normalization discharged** (ticket AS3-b).
+
+`√2`'s non-vacuous headline at `α = 2`; the witness is `MCompactCore`'s, so the two compact rows
+share it exactly as they share every other construction. -/
+theorem candidate_equiv_galK_sqrtFive_nonvacuous {q : ℕ} (hqK : qOf K FF = q)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
+      nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) q word
+        (mTameSpecializes 2 0 q (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)))
+      (mPro2 2 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF))
+      (mCompat 2 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
+        (mTameSpecializes 2 0 q (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)) nu
+        (mNu_sigma 2 0 alpha_valid) (mNu_wild 2 0 alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nu (standardNumerics (2 + 2 * 0)))
+    (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup (2 + 2 * 0) q word : Type)) (GalK K)) :=
+  candidate_equiv_galK_sqrtFive hqK nu (mNu_sigma 2 0 alpha_valid) (mNu_wild 2 0 alpha_valid)
+    (mNu_surjective 2 0 alpha_valid) exactLifting stokes scalar determinant KS params params_n
+    params_qK ramified ramifiedData
 
 omit [FiniteDimensional ℚ_[2] ↥K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **The `√5` row's `κ_K ≠ 0`.**  Identical to `√2`'s and worth stating twice: the standing

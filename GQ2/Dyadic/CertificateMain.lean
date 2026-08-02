@@ -353,12 +353,12 @@ Per branch, the instantiating ticket must produce:
 |---|---|---|
 | `tameSpecialization` | `Words/*.eval_killWildLetters_*` + `*_eq_one_of_odd` | one line: `TameSpec.tameSpecializes_of_tau_pow` (`N`, `Npc`, `L_sq`) or `_of_tau` (`M`, `Mpc`) |
 | `proTwoWord` | `Words/*.eval_pro2_*_eq_{n,m,sq}RelWord` | nothing — landed for all five |
-| `pro2`, `ker_pro2`, `compat` | `GQ2.Roe.exists_pro2R` at `ℚ₂` only | the generic `Γ_R(2) ≅ D_P` bridge (divergence 3) |
+| `pro2`, `ker_pro2`, `compat` | at `n = 1`: `exists_pro2R` transported by AS4-b's `comap_proPKernel`/`gammaR_hom_ext`; at compact-`M`/procyclic-`M`: AS3's `CoreReindex` dictionaries via `Count.CorePresentation` (`Instances/Cores.lean` §4, §8) | one `CoreReindex` per *remaining* branch; the generic `Γ_R(2) ≅ D_P` bridge (divergence 3) is no longer needed at the instantiated rows |
 | `tfg`, `smulZmod2`, `contSMulZmod2`, `htriv` | `Count.gammaR_topologicallyFinitelyGenerated` (`Count/Routine.lean` §3), and the scalar trio `gammaRSMulZmod2`/`gammaRContSMulZmod2`/`gammaR_htriv` (`GammaRHom.lean` §3, over any monoid) | nothing — closed generically for every `(n, q, R)` |
-| `exactLifting` | `FoxCertificate`/`FoxRowCertificate` per branch | the Fox ⇒ `#LiftsOver` bridge |
-| `stokes` | `IsStokesEndpoint` (all five, unconditional); `StokesDuality` **only modulo `hsimp`** | `hsimp` per simple module, then the duality ⇒ count bridge |
-| `scalar` | `stokesGram` kernel-`decide` pins | the Gram ⇒ `#Hom` bridge |
-| `determinant` | `HessianCertificate` (4 of 5) | the Hessian ⇒ `GaussZResidueK` bridge; **and L has no `HessianCertificate` at all** (its endpoint is `qDouble`, not `plusFormD`) and **Mpc has no word-side equation** (`HessRelZTarget` is a stated-open `Prop`) |
+| `exactLifting` | `FoxCertificate`/`FoxRowCertificate` per branch; **at `n = 1` discharged outright** (CB-TRN, below) | the Fox ⇒ `#LiftsOver` bridge |
+| `stokes` | `IsStokesEndpoint` (all five, unconditional); `StokesDuality` **only modulo `hsimp`**; **at `n = 1` discharged outright** (CB-TRN, below) | `hsimp` per simple module, then the duality ⇒ count bridge |
+| `scalar` | `stokesGram` kernel-`decide` pins; **at `n = 1` discharged outright** (CB-TRN, below) | the Gram ⇒ `#Hom` bridge |
+| `determinant` | `HessianCertificate` (4 of 5); **at `n = 1` discharged outright** (CB-TRN, below) | the Hessian ⇒ `GaussZResidueK` bridge; **and L has no `HessianCertificate` at all** (its endpoint is `qDouble`, not `plusFormD`) and **Mpc has no word-side equation** (`HessRelZTarget` is a stated-open `Prop`) |
 
 Named residuals that no lane owns and that AS2–AS5 must supply or assume, flagged here so the
 G3 census sign-off sees them in one place: **`hsimp`** (per-simple-module Stokes duality — the
@@ -368,7 +368,33 @@ witness**, **P4's central clause per module** (assumed; not expressible at the `
 and **`Mpc.hlinrow`** at general `(α, r, p, η)` (closed only at the `√−10` instance, by
 `MpcStokes.sqrtNeg10ProductCert`).  The `α`-threshold mismatch is also live: the Fox layers need
 `1 ≤ α`, the Stokes/Hessian layers need `2 ≤ α`, and compact `M`'s endpoint needs no `α` bound
-at all. -/
+at all.
+
+### ⚠ The `n = 1` row is fully discharged, and by a route the table does not describe
+
+CB-TRN (`GQ2/Dyadic/SourceTransport.lean`) closed the four analytic clauses at `n = 1` without
+any of the four bridges above, by **transporting the record rather than re-proving its fields**:
+`SourceDataN.transport` moves all 21 fields of a `SourceDataN` along an arbitrary
+`ContinuousMulEquiv` (generic; prints exactly the standard three), so SD-R1's `sourceR_N` over
+`GQ2.GammaR` crosses AS4's `gammaR_lSq_equiv_roe` to the dyadic carrier.  The results are
+`GQ2.Dyadic.wordCertificateLSq` — an **unconditional** `WordCertificate 1 2 (lSqW 0) …` printing
+exactly `sourceR_N`'s own axiom list, the packaging itself costing zero — and
+`GQ2.Dyadic.candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate`, a third unconditional proof
+of the `n = 1` theorem whose print is byte-identical to
+`GQ2.main_presentation_literal_roe_unconditional`.
+
+This does **not** close the general-`K` obligation: the *transport route* needs a `SourceDataN`
+on some carrier to start from, and outside `n = 1` there is none — so the four bridges above stay
+owed as **generic** constructions.
+
+⚠ They are no longer the only way to a certificate, though.  Recorded as status (this file
+imports neither module, and neither claim is checked here): AS2's
+`GQ2.Dyadic.SqrtNeg2.sqrtNegTwoWordCertificate` (`Instances/SqrtNeg2.lean`) is the first complete
+`WordCertificate` at a *branch* row and prints exactly the standard three; AS3's four
+compact-`M`/procyclic-`M` producers (`Instances/Cores.lean` §6, §11) fill thirteen of seventeen
+fields and take the four analytic clauses as explicit arguments, which is the posture this table
+describes.
+-/
 structure WordCertificate (n q : ℕ) (R : PWord (Generator n)) (P : ProfiniteGrp)
     (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n) where
   /-- **Ledger field 1.**  `specializeTame R = 1`, i.e. F3b's primary Gate-B predicate

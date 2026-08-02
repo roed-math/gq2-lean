@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 import GQ2.Dyadic.Instances.Sqrt10
 
 /-!
-# The `ℚ₂(√−10)` instance — **merge gate 9**  (dyadic campaign, ticket AS3)
+# The `ℚ₂(√−10)` instance — **merge gate 9**  (dyadic campaign, tickets AS3, AS3-b)
 
 **Selection-freeze row 5** at its `ε = 1` instance: `K = ℚ₂(√−10)`, `n = [K : ℚ₂] = 2`,
 `q_K = 2`, and the frozen branch word is `mpcW 2 1 1 .one 0` — `(α, r, ε, η) = (2, 1, 1, 1)`,
@@ -42,7 +42,7 @@ different depths, and `√−10` is the deeper one.
 ## Inventory
 
 Identical to `√10`'s: thirteen `WordCertificate` fields proved through `MProcyclicCore`
-(`GQ2/Dyadic/Instances/Sqrt10.lean` §1–§4), four — `exactLifting`, `stokes`, `scalar`,
+(`GQ2/Dyadic/Instances/Cores.lean` §8–§11), four — `exactLifting`, `stokes`, `scalar`,
 `determinant` — arguments (AS1 divergence 4).  The only parameter that changes is `p : 0 ↦ 1`.
 
 ## `r ≥ 1`
@@ -64,8 +64,9 @@ cross operator is identically zero at `r = 0` (`A = B = g`, `g² + g + 1 = 0`) a
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; the headline
-prints std-3 + `{B1, B6, B7}` — ASK's surface, with **no B5-K and no B10-K**.
+`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; **both**
+headlines — the conditional one and AS3-b's `_nonvacuous` corollary — print std-3 +
+`{B1, B6, B7}`, ASK's surface, with **no B5-K and no B10-K**.
 -/
 
 namespace GQ2.Dyadic.Instances
@@ -104,6 +105,12 @@ theorem r_pos : 1 ≤ (BranchData.Mpc 2 1 true 1).level := by
 
 /-- The tame modulus of `ℚ₂(√−10)`: `q_K = 2`. -/
 theorem qK_hyps : (2 : ℕ) ≠ 0 ∧ Even (2 : ℕ) := ⟨two_ne_zero, even_two⟩
+
+/-- **The row's `ν_P`** — `MProcyclicCore`'s witness at `(α, r, p) = (2, 1, 1)`; the same term as
+`√10`'s with `p : 0 ↦ 1`, which is the only slot of the exponent vector that moves between the
+two procyclic rows (ticket AS3-b). -/
+noncomputable abbrev nu : ContinuousMonoidHom ((core : ProfiniteGrp) : Type) Ztwo :=
+  mpcNu 2 1 1 alpha_valid
 
 /-- **The two procyclic rows differ in exactly one word parameter.**  `√10` is `ε = 0` (`p = 0`,
 the `B`-letter collapses to the bare `x₁`) and `√−10` is `ε = 1` (`p = 1`, `B = x₁σ`); everything
@@ -197,6 +204,40 @@ theorem candidate_equiv_galK_sqrtNegTen {q : ℕ} (hqK : qOf K FF = q)
     (mpcWordCertificate 2 1 1 (qOf K FF) alpha_valid (qOf_ne_zero K FF) (even_qOf K FF) nuP
       hnuSigma hnuWild exactLifting stokes scalar determinant)
     KS params params_n params_qK ramified ramifiedData hnuP
+
+/-- **Packet Theorem 1.1 at `K = ℚ₂(√−10)`, with the `ν`-normalization discharged**
+(ticket AS3-b) — the merge-gate-9 field, at the concrete `ν_P = SqrtNeg10.nu`. -/
+theorem candidate_equiv_galK_sqrtNegTen_nonvacuous {q : ℕ} (hqK : qOf K FF = q)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nu
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
+      nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) q word
+        (mpcTameSpecializes 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
+          (hqK ▸ even_qOf K FF)))
+      (mpcPro2 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF))
+      (mpcCompat 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
+        (mpcTameSpecializes 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
+          (hqK ▸ even_qOf K FF)) nu (mpcNu_sigma 2 1 1 alpha_valid)
+        (mpcNu_wild 2 1 1 alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nu (standardNumerics (2 + 2 * 0)))
+    (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup (2 + 2 * 0) q word : Type)) (GalK K)) :=
+  candidate_equiv_galK_sqrtNegTen hqK nu (mpcNu_sigma 2 1 1 alpha_valid)
+    (mpcNu_wild 2 1 1 alpha_valid) (mpcNu_surjective 2 1 1 alpha_valid) exactLifting stokes
+    scalar determinant KS params params_n params_qK ramified ramifiedData
 
 omit [FiniteDimensional ℚ_[2] ↥K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **The `√−10` row's `κ_K ≠ 0`** — from the standing ramified-`i` binder through FD2. -/
