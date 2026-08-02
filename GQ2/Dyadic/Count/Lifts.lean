@@ -391,4 +391,233 @@ theorem isWildTwo_corrected {J : Set ι} (hwild2 : IsWildTwo J c)
 
 end Correction
 
+/-! ## §3. `#(M_B^∨)^{Y_C} = 1`
+
+The `lemma_7_1_dual` bridge.  Like §1 this is source-generic and `private` in all three `ℚ₂`
+files; it is the *only* place the §7 block theory is consumed by this file, and it is consumed
+twice — once to make `#H²w(M_B) = 1` (§4) and once to make the count's `fixedPts` factor
+disappear (§6). -/
+
+section FixedPtsDual
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+
+/-- **`#(M_B^∨)^{Y_C} = 1`** — a nonzero `Y_C`-invariant functional `λ : M_B^∨` would push
+`ker λ` to an index-`2` `Y`-normal subgroup between `Φ(K)` and `K`, which `lemma_7_1_dual`
+forbids. -/
+theorem card_fixedPts_MB_dual (RF : RecursionFrame T Blk) :
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 := by
+  classical
+  letI := mbCommGroup RF
+  letI := mbConjActC RF
+  show Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1
+  have hzero : ∀ lam : ElemDual (Additive ↥RF.MB),
+      (∀ g : RF.YC, g • lam = lam) → lam = 0 := by
+    intro lam hlam
+    by_contra hlamne
+    have hinv : ∀ (c : RF.YC) (a : Additive ↥RF.MB), lam (c • a) = lam a := by
+      intro c a
+      have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
+      rwa [ElemDual.smul_apply, inv_inv] at h2
+    have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ RF.MB := by
+      intro k
+      rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
+    let s : ↥Blk.K →* ↥RF.MB :=
+      (RF.piB.comp Blk.K.subtype).codRestrict RF.MB (fun k => hmem k)
+    have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
+    have hs_surj : Function.Surjective s := by
+      intro m
+      obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
+      exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
+    let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
+      { toFun := fun k => Multiplicative.ofAdd (lam (Additive.ofMul (s k)))
+        map_one' := by simp
+        map_mul' := fun a b => by simp [map_mul] }
+    have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (lam (Additive.ofMul (s k))) := fun _ => rfl
+    have hφne : φ ≠ 1 := by
+      intro hφ1
+      apply hlamne
+      ext a
+      show lam a = 0
+      obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
+      have h0 : lam (Additive.ofMul (s k)) = 0 := by
+        simpa [hφ_apply] using congrArg Multiplicative.toAdd (show φ k = 1 by rw [hφ1]; rfl)
+      rw [hk] at h0
+      exact h0
+    have hφsurj : Function.Surjective φ := by
+      intro y
+      rcases eq_or_ne y 1 with rfl | hy
+      · exact ⟨1, map_one φ⟩
+      · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
+        refine ⟨k, ?_⟩
+        have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by
+          decide
+        rw [hpin _ hk, hpin _ hy]
+    set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
+    have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
+    have hRX : Blk.frattiniK ≤ X := by
+      intro r hr
+      have hrK : r ∈ Blk.K := SectionSeven.frattiniLike_le Blk.K hr
+      refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
+      rw [MonoidHom.mem_ker, hφ_apply]
+      have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
+        rw [hs]
+        show RF.piB r = 1
+        exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
+      rw [hs1]; simp
+    have hXnormal : X.Normal := by
+      rw [hXdef]
+      refine ⟨fun x hx y => ?_⟩
+      obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
+      have hxK : x ∈ Blk.K := hkeq ▸ k.2
+      have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
+      refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
+      rw [MonoidHom.mem_ker] at hkker ⊢
+      rw [hφ_apply] at hkker ⊢
+      have hconj : Additive.ofMul (s ⟨y * x * y⁻¹, hyk⟩)
+          = (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩) := by
+        have hact : (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩)
+            = Additive.ofMul (⟨mbSec RF (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
+                * (mbSec RF (RF.piBC (RF.piB y)))⁻¹,
+                RF.MB_normal.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ : ↥RF.MB) := rfl
+        rw [hact]
+        congr 1
+        apply Subtype.ext
+        rw [hs]
+        show RF.piB (y * x * y⁻¹)
+          = mbSec RF (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
+              * (mbSec RF (RF.piBC (RF.piB y)))⁻¹
+        rw [hs, map_mul, map_mul, map_inv]
+        exact (mbConjEq RF (mbSec_spec RF (RF.piBC (RF.piB y)))
+          ⟨RF.piB x, hmem ⟨x, hxK⟩⟩).symm
+      rw [hconj, hinv]
+      have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
+      rw [hkx]; exact hkker
+    have hidx : (X.subgroupOf Blk.K).index = 2 := by
+      have hcm : X.subgroupOf Blk.K = φ.ker := by
+        rw [hXdef, Subgroup.subgroupOf,
+          Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
+      show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
+      rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
+      simp
+    exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (SectionSeven.lemma_7_1_dual Blk)
+  rw [Nat.card_eq_one_iff_unique]
+  exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
+    ⟨⟨0, smul_zero⟩⟩⟩
+
+end FixedPtsDual
+
+/-! ## §4. Nonemptiness of the lift fibre, over the abstract carrier
+
+The `Γ_A` route (`MStageCountGammaA.lean:371`), made generic.  Set-lift the marking of `ρ` through
+`π_{BC}`; the relator values land in `M_B` because they die downstairs; `#H²w(M_B) = 1` — CB-S's
+clause 1 plus §3 — puts that vector in the image of `d¹`; §2's correction law turns a `d¹`-preimage
+into a marking that kills the family on the nose (the two copies of the relator value cancel, `M_B`
+being `2`-torsion); and CB-1's `extend` descends it to `Γ`.
+
+**No continuous `H²` anywhere.**  The `G_ℚ₂` proof's `#H²(Γ, M_B) = 1 ⟹ the factor set is a
+coboundary` is a genuinely different argument that needs a degree-`2` rung at *module*
+coefficients; CB-H2 built the rung at the scalars only, and this route does not want it. -/
+
+section Nonempty
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+  {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ]
+  [TotallyDisconnectedSpace Γ]
+  {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
+/-- **The `B`-lift fibre over a lower boundary lift is nonempty**, over the abstract carrier and
+degree-generically.
+
+Everything but `hd`/`hend` is the presentation interface a branch already supplies; `hd` and
+`hend` are the branch's own `StokesDuality` payload and Stokes endpoint — the same two inputs
+CB-1's `tcocycle_cardN`/`hZcardN` take, at the module `M_B`. -/
+theorem nonempty_liftsOverK {n : ℕ} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (ρ : BoundaryLiftsK b F RF.TC)
+    {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι} {c : ι → RF.YC} {J : Set ι}
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hc : ∀ i, ρ.1.1 (gen i) = c i) (hwild2 : IsWildTwo J c)
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1)) :
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    ResolvesAt W w (WordLift (Additive ↥RF.MB) RF.YC) →
+      StokesDuality c w (Additive ↥RF.MB) → IsStokesEndpoint w →
+      Nonempty (LiftsOverK RF b F ρ) := by
+  classical
+  letI := mbCommGroup RF
+  letI := mbConjActC RF
+  letI := mbConjActB RF
+  intro hres hd hend
+  -- the module-level data of §1
+  have hact : ∀ (g : RF.YB) (a : Additive ↥RF.MB), g • a = RF.piBC g • a := mbAct_compat RF
+  set j : Additive ↥RF.MB → RF.YB := fun a => (Additive.toMul a).1 with hjdef
+  have hjmul : ∀ a b : Additive ↥RF.MB, j (a + b) = j a * j b := fun _ _ => rfl
+  have hjconj : ∀ (g : RF.YB) (a : Additive ↥RF.MB), j (g • a) = g * j a * g⁻¹ := fun _ _ => rfl
+  have hjker : ∀ a : Additive ↥RF.MB, RF.piBC (j a) = 1 := fun a =>
+    MonoidHom.mem_ker.mp (by rw [RF.ker_piBC]; exact (Additive.toMul a).2)
+  have hker₂ : ∀ g : RF.YB, RF.piBC g = 1 → g * g = 1 := fun g hg =>
+    RF.MB_elem g (by rw [← RF.ker_piBC]; exact MonoidHom.mem_ker.mpr hg)
+  -- the set-lift marking of `ρ`, and its relator values
+  set f₀ : ι → RF.YB := fun i => mbSec RF (c i) with hf₀def
+  have hf₀ : ∀ i, RF.piBC (f₀ i) = c i := fun i => mbSec_spec RF (c i)
+  have hvmem : ∀ k : κ, PWord.eval f₀ (W k) ∈ RF.MB := by
+    intro k
+    rw [← RF.ker_piBC]
+    refine MonoidHom.mem_ker.mpr ?_
+    have h := PWord.map_eval (⟨RF.piBC, continuous_of_discreteTopology⟩ :
+      ContinuousMonoidHom RF.YB RF.YC) f₀ (W k)
+    have hmark : (fun i => (⟨RF.piBC, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom RF.YB RF.YC) (f₀ i)) = fun i => ρ.1.1 (gen i) :=
+      funext fun i => (hf₀ i).trans (hc i).symm
+    rw [hmark] at h
+    exact h.trans (hpres.rel ρ.1.1 k)
+  set v : κ → Additive ↥RF.MB := fun k => Additive.ofMul ⟨PWord.eval f₀ (W k), hvmem k⟩ with hvdef
+  -- `#H²w(M_B) = #(M_B^∨)^{Y_C} = 1`, so the relator vector is a `d¹`-boundary
+  have hgen : Subgroup.closure (Set.range c) = ⊤ :=
+    closure_range_lower_eq_top ρ.1.1 hc hpres ρ.1.2
+  have hS : IsSelfDualN n c w (Additive ↥RF.MB) :=
+    isSelfDualN_of_stokesDuality hdeg hd (lower_rel ρ.1.1 hc hpres hres) hend
+  have hH2w : Nat.card (WordH2 c w (Additive ↥RF.MB)) = 1 := by
+    rw [hS.cardH2, card_ker_heisD0_eq_card_fixedPts hgen, card_fixedPts_MB_dual RF]
+  haveI : Subsingleton ((κ → Additive ↥RF.MB) ⧸ (heisD1 (A := Additive ↥RF.MB) c w).range) :=
+    (Nat.card_eq_one_iff_unique.mp hH2w).1
+  obtain ⟨x, hx⟩ : v ∈ (heisD1 (A := Additive ↥RF.MB) c w).range := by
+    rw [← QuotientAddGroup.eq_zero_iff]
+    exact Subsingleton.elim _ _
+  -- §2: the corrected marking kills the whole family
+  have hkill : ∀ k, PWord.eval (fun i => j (x i) * f₀ i) (W k) = 1 := by
+    intro k
+    rw [eval_corrected_heisD1 RF.piBC j hact hjmul hjconj hf₀ hres x k,
+      show heisD1 (A := Additive ↥RF.MB) c w x k = v k from congrFun hx k]
+    exact RF.MB_elem _ (hvmem k)
+  have hwild2' : IsWildTwo J (fun i => j (x i) * f₀ i) :=
+    isWildTwo_corrected RF.piBC j hjker hf₀ hwild2 hker₂ x
+  -- CB-1's `extend` descends it, and rigidity pins it over `ρ`
+  obtain ⟨φ, hφ⟩ := hpres.extend (fun i => j (x i) * f₀ i) hkill hwild2'
+  refine ⟨⟨φ, ?_⟩⟩
+  have hpin : (⟨RF.piBC.comp φ.toMonoidHom,
+      (continuous_of_discreteTopology (f := ⇑RF.piBC)).comp φ.continuous_toFun⟩ :
+        ContinuousMonoidHom Γ RF.YC) = ρ.1.1 := by
+    refine eq_of_eqOn_gen hpres.gen_top fun i => ?_
+    show RF.piBC (φ (gen i)) = ρ.1.1 (gen i)
+    rw [hφ i, hc i]
+    exact pi_corrected RF.piBC j hjker hf₀ x i
+  exact fun γ => congrArg (fun ψ : ContinuousMonoidHom Γ RF.YC => ψ γ) hpin
+
+end Nonempty
+
 end GQ2.Dyadic.Count
