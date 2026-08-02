@@ -348,6 +348,21 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-08-02 (orchestrator, RESTART — AS wave dispatched; fable re-enabled):** session
+  restarted from `gq2-dyadic-orchestration-2026-08-02.md` at `2d86e3e` (docs-only over the
+  verified `4d7ea23`; build/audits not re-run — delta touches no Lean). **Owner re-authorized
+  fable in-session** ("delegate to Fable and Opus subagents as appropriate"), superseding the
+  08-01 opus-only rider. **AS2 dispatched on FABLE** (as worktree, branch `dyadic-as2`; the
+  model column's `opus` overridden upward — the pilot is the template AS3/AS5 follow) and
+  **AS3 dispatched on OPUS** (ww worktree, branch `dyadic-as3`), in parallel per the handoff
+  critical path **AS2 + AS3 → AS5 → G3**. Both briefs carry: the two live instantiation traps
+  (ASK instance-path, CB-DET `ContinuousSMul`), the §7 exponent-constant check against
+  `standardNumerics`, CB-5's root-collision scratch test, the two `hsimp` payload fold-ins
+  (`StokesDuality`-at-`Vmod` in the `Count/Separating.lean` §5 shape, `StokesDuality`-at-`T`
+  in the `hsepN_marking` shape), and the refutation-beats-forced-proof instruction. AS3
+  additionally carries WNP-c's ⚠ `r ≥ 1` load-bearing warning for the procyclic pair and
+  FD2's pins (√2 `m=4`, √5 `m=2`). CB-DD / CB-TRN / MC5-swap residue / MC-CoV-split stay
+  queued (low) until the critical path lands. CB-SG-Q remains with the owner, untouched.
 - **2026-08-01 (owner + orchestrator): THIRD INTERRUPTION → MODEL POLICY CHANGED — FABLE IS
   EXHAUSTED FOR THE WEEK; ALL TICKETS RUN ON OPUS.** A session-limit hit killed the three
   in-flight fable tickets (WM0-c, WNP-b, WMP-b); the owner then reported the weekly fable
