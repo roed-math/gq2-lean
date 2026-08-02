@@ -13,25 +13,26 @@ import GQ2.Dyadic.Count.Frozen
 import GQ2.Dyadic.Certificates.MpcStokes
 
 /-!
-# The `ℚ₂(√10)` instance, and the procyclic-`M` instantiation layer  (dyadic campaign, AS3)
+# The `ℚ₂(√10)` instance  (dyadic campaign, tickets AS3, AS3-b)
 
 **Selection-freeze row 5** at its `ε = 0` instance: `K = ℚ₂(√10)`, `n = [K : ℚ₂] = 2`,
 `q_K = 2`, and the frozen branch word is `mpcW 2 1 0 .one 0` — `(α, r, ε, η) = (2, 1, 0, 1)`,
 so `s = 2^r = 2`, `p = ε·2^{r−1} = 0`, `m = 2^{α−1} = 2` (`Words/Mpc.lean`, certificate
 `M-procyclic-alpha2-r1-eps0-eta1-h0-q2-v001`).
 
-As with the compact pair, this file carries **two** things:
+As with the compact pair, this file carries the `√10` **row** only: §1 the frozen parameters,
+§2 packet Thm 1.1 at `K` (conditional and non-vacuous).
 
-* **§1–§4, `MProcyclicCore`** — the procyclic-`M` branch layer, generic in `(α, r, p, q)` at the
-  `η = 1` display and `h = 0`: the alphabet ↔ core dictionary, the `CorePresentation`, and the
-  `WordCertificate` producer.  `√−10` (`GQ2/Dyadic/Instances/SqrtNeg10.lean`) consumes it
-  unchanged at `p = 1`.  ⚠ **branch machinery — should be hoisted**, see the note below.
-  §5 carries the two `hsimp` fold-ins, also branch-generic.
-* **§6–§7** — the `√10` row: frozen parameters and packet Thm 1.1 at `K`.
+The procyclic-`M` branch layer `MProcyclicCore` — generic in `(α, r, p, q)` at the `η = 1`
+display and `h = 0`: the alphabet ↔ core dictionary, the `CorePresentation`, the
+`WordCertificate` producer, the `ν_P` witness, and the two `hsimp` fold-ins — was built by AS3
+in this file and **hoisted by AS3-b** to `GQ2/Dyadic/Instances/Cores.lean` §8–§12 (a pure move;
+every fully-qualified name unchanged).  `√−10` (`GQ2/Dyadic/Instances/SqrtNeg10.lean`) consumes
+it unchanged at `p = 1`.
 
 ## The dictionary, and why it does not factor the way the compact one does
 
-`Sqrt2.lean`'s compact-`M` dictionary is the compact-`N` letter table plus a *core-side* change
+The compact-`M` dictionary is the compact-`N` letter table plus a *core-side* change
 of variable, so it factors through `Count.PilotN.nReindex`.  The procyclic dictionary does not,
 and the reason is structural rather than incidental:
 
@@ -43,7 +44,7 @@ procyclic M:  (μ₀, μ₁, μ₂, μ₃) = (x₀⁻¹C₀^{-m}, x₁σ^p,     
 `σ` sits at core slot **2** in the compact row and at slot **3** in the procyclic row, and slot 2
 carries the *twisted* boundary letter `C₀`.  So the two rows put `σ` and `x₂` in opposite slots;
 no relabelling of the compact table produces the procyclic one, and the dictionary has to be
-built from scratch (§1).  This is the same "σ-offset convention"
+built from scratch (`Cores.lean` §8).  This is the same "σ-offset convention"
 the WMP lane recorded as forcing a 4×4 Gram against the compact 5×5 — the two facts have one
 cause, and it is visible here at the level of the dictionary.
 
@@ -51,9 +52,9 @@ cause, and it is visible here at the level of the dictionary.
 means inverting a `ℤ̂`-power.  At the frozen displays that is free — both AS3 procyclic rows have
 `η = 1`, i.e. `EtaDisplay.one`, whose `zhat` is `Zhat.ofInt 1` — but it is **not** available at a
 general `.hat num den` display, where `σ^{η̂}` generates a proper closed subgroup of `⟨σ⟩` in
-general.  §1's `mpcReindex` is therefore stated at `EtaDisplay.one` and this is a genuine
-limitation, recorded rather than papered over: a `.hat`-display procyclic instance would need a
-different construction (or an `η̂`-invertibility hypothesis).  ⚠ **Finding, for the board.**
+general.  `Cores.lean` §8's `mpcReindex` is therefore stated at `EtaDisplay.one` and this is a
+genuine limitation, recorded rather than papered over: a `.hat`-display procyclic instance would
+need a different construction (or an `η̂`-invertibility hypothesis).  ⚠ **Finding, for the board.**
 
 ## `r ≥ 1` at the frozen procyclic rows
 
@@ -62,7 +63,7 @@ identically zero at `r = 0` (where `A = B = g` with `g² + g + 1 = 0`) and inver
 and that `r ≥ 1` is precisely the side condition the cross-operator layer deliberately does not
 consume — is discharged at both AS3 procyclic rows by inspection of the frozen parameters:
 **both are `r = 1`** (`Words/Mpc.lean`'s `branchData_sqrtNeg10` and `branchData_sqrt10`, whose
-`level` field is `1`).  §6's `sqrtTenRow` states it as a theorem so the discharge is checkable
+`level` field is `1`).  §1's `sqrtTenRow` states it as a theorem so the discharge is checkable
 and not a remark, and `r_pos` is the named handle.  Note this is a *parameter* fact, not a
 mathematical one: nothing here re-derives `L_c`'s dichotomy, and nothing here needs to — the
 degenerate `r = 0` row simply is not among the six frozen procyclic instances.
@@ -97,14 +98,9 @@ epimorphism enumeration.  All cited; no proof here depends on any of it.
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  §1–§6 print exactly the standard three; §7's headline
-prints std-3 + `{B1, B6, B7}` (ASK's surface) — no B5-K, no B10-K.  Measured, not budgeted.
-
-## ⚠ Orchestrator note
-
-`MProcyclicCore` (§1–§5) is branch machinery and belongs beside `Count.PilotN` and the compact-`M`
-layer, not in an instance file; it lives here only because AS3 owns four files.
-`SqrtNeg10.lean` imports this module solely to reach it.
+`sorry`-free, no new axiom, no `decide`.  §1 prints exactly the standard three; **both** of
+§2's headlines print std-3 + `{B1, B6, B7}` (ASK's surface) — no B5-K, no B10-K.  Measured, not
+budgeted.
 -/
 
 namespace GQ2.Dyadic.Instances
@@ -116,7 +112,7 @@ open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
 open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
 open GQ2.Dyadic.Instances.NuWitness
 
-/-! ## §6 The `ℚ₂(√10)` row
+/-! ## §1 The `ℚ₂(√10)` row
 
 `(α, r, ε, η) = (2, 1, 0, 1)`, `h = 0`, `s = 2`, `p = 0`, `m = 2`, `q_K = 2`, `n = 2`. -/
 
@@ -152,13 +148,13 @@ theorem r_pos : 1 ≤ (BranchData.Mpc 2 1 false 1).level := by
 theorem qK_hyps : (2 : ℕ) ≠ 0 ∧ Even (2 : ℕ) := ⟨two_ne_zero, even_two⟩
 
 /-- **The row's `ν_P`** — `MProcyclicCore`'s witness at `(α, r, p) = (2, 1, 0)`; it is what makes
-§7's `candidate_equiv_galK_sqrtTen_nonvacuous` a theorem with no `ν`-binders (ticket AS3-b). -/
+§2's `candidate_equiv_galK_sqrtTen_nonvacuous` a theorem with no `ν`-binders (ticket AS3-b). -/
 noncomputable abbrev nu : ContinuousMonoidHom ((core : ProfiniteGrp) : Type) Ztwo :=
   mpcNu 2 1 0 alpha_valid
 
 end Sqrt10
 
-/-! ## §7 Packet Theorem 1.1 at `ℚ₂(√10)` -/
+/-! ## §2 Packet Theorem 1.1 at `ℚ₂(√10)` -/
 
 section Main
 

@@ -6,17 +6,17 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 import GQ2.Dyadic.Instances.Sqrt2
 
 /-!
-# The `ℚ₂(√5)` instance  (dyadic campaign, ticket AS3)
+# The `ℚ₂(√5)` instance  (dyadic campaign, tickets AS3, AS3-b)
 
 **Selection-freeze row 4** at its `α = 2` instance: `K = ℚ₂(√5)` is the *unramified* quadratic
 extension, so `n = [K : ℚ₂] = 2`, `f = 2`, `q_K = 4`, and the frozen branch word is
 `mCompactW 2 0` with `m = 2^{α−1} = 2` (`Words/M0.lean`, certificate
 `M-compact-alpha2-h0-q4-v001`).
 
-This file is **pure instantiation**: every construction it uses is `Sqrt2.lean`'s
-`MCompactCore` namespace, generic in `(α, h, q)`.  Only two numbers change against the `√2`
-row — `α : 3 ↦ 2` and `q_K : 2 ↦ 4` — and that is the whole difference between the two fields on
-the Lean side.
+This file is **pure instantiation**: every construction it uses is the `MCompactCore` namespace
+of `GQ2/Dyadic/Instances/Cores.lean` §4–§7, generic in `(α, h, q)`.  Only two numbers change
+against the `√2` row — `α : 3 ↦ 2` and `q_K : 2 ↦ 4` — and that is the whole difference between
+the two fields on the Lean side.
 
 ## ⚠ Two findings the pair `(√2, √5)` makes visible, and only the pair
 
@@ -53,8 +53,9 @@ against WM0-a's own `branchData_sqrtFive` plus `mOf 2 = 2`; the counts are cited
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; the headline
-prints std-3 + `{B1, B6, B7}`, i.e. ASK's surface, and neither B5-K nor B10-K.
+`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; **both**
+headlines — the conditional one and AS3-b's `_nonvacuous` corollary — print std-3 +
+`{B1, B6, B7}`, i.e. ASK's surface, and neither B5-K nor B10-K.
 -/
 
 namespace GQ2.Dyadic.Instances

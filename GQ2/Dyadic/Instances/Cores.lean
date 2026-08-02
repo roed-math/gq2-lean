@@ -14,14 +14,32 @@ import GQ2.Dyadic.Count.Marking
 import GQ2.Dyadic.Certificates.MpcStokes
 
 /-!
-# The branch-core layer: the `ν_P` witness at `D_M`  (dyadic campaign, ticket AS3-b)
+# The branch-core layer  (dyadic campaign, ticket AS3-b)
 
-The four packet-Thm-1.1 instance headlines (`GQ2/Dyadic/Instances/{Sqrt2,Sqrt5,Sqrt10,SqrtNeg10}
-.lean`) each carry four binders `nuP`, `hnuSigma`, `hnuWild`, `hnuP` — F3's `prop_3_4_three`
-normalization of the abstract slot `(P, ν_P)`, read through the row's alphabet ↔ core dictionary.
-AS3 hand-verified that they are satisfiable but could not build the witness.  This file builds it,
-once, for **every** row whose core is `D_M`: both AS3 dictionaries land there, and so does every
-future compact-`M`/procyclic-`M` instance.
+**Branch machinery, shared by every instance whose core is `D_M`.**  The four field files
+(`GQ2/Dyadic/Instances/{Sqrt2,Sqrt5,Sqrt10,SqrtNeg10}.lean`) carry only the rows: their frozen
+parameters and their packet-Thm-1.1 headlines.  Everything generic in `(α, h, q)` or
+`(α, r, p, q)` lives here.
+
+| part | contents |
+|---|---|
+| **§1–§3** | the `ν_P` witness at `D_M`, branch-independent (AS3-b) |
+| **§4–§7** | `MCompactCore` — the compact-`M` layer (AS3, hoisted verbatim from `Sqrt2.lean`) |
+| **§8–§12** | `MProcyclicCore` — the procyclic-`M` layer (AS3, hoisted from `Sqrt10.lean`) |
+
+Each hoisted layer sits in a `section` that reproduces its source file's `open` list, so it
+elaborates in exactly its original scope and the two `Words`/`Certificates` sub-namespaces never
+meet; every fully-qualified name is byte-identical to AS3's.
+
+## §1–§3: the `ν_P` witness — what it is for
+
+The four headlines each carry four binders `nuP`, `hnuSigma`, `hnuWild`, `hnuP` — F3's
+`prop_3_4_three` normalization of the abstract slot `(P, ν_P)`, read through the row's
+alphabet ↔ core dictionary.  AS3 hand-verified that they are satisfiable but could not build the
+witness.  §3 builds it once, for **every** row whose core is `D_M`: both AS3 dictionaries land
+there, and so does every future compact-`M`/procyclic-`M` instance.  The four
+`candidate_equiv_galK_*_nonvacuous` corollaries are the payoff — the same conclusion with no
+`ν`-binders in the statement.
 
 ## The witness
 
@@ -63,7 +81,9 @@ Both are for a later dedup/hoist ticket that has the destination file in scope �
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  Every declaration prints exactly the standard three.
+`sorry`-free, no new axiom, no `decide`, no `native_decide`.  Every declaration in this file
+prints exactly the standard three; the `{B1, B6, B7}` surface of the field headlines enters
+downstream, through `KSupply`, and nothing here touches it.
 -/
 
 namespace GQ2.Dyadic.Instances
@@ -176,7 +196,7 @@ end NuWitness
 
 /-! # The compact-`M` branch layer
 
-Hoisted verbatim from `GQ2/Dyadic/Instances/Sqrt2.lean` §1–§5 (ticket AS3-b, pure move: every
+Hoisted verbatim from `GQ2/Dyadic/Instances/Sqrt2.lean` (ticket AS3-b, pure move: every
 fully-qualified name is unchanged).  The `open`s below are that file's, so the block elaborates
 in exactly its original scope. -/
 
@@ -189,7 +209,7 @@ open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
 open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MCompact
 open GQ2.Dyadic.Instances.NuWitness
 
-/-! ## §1 The compact-`M` alphabet ↔ core dictionary
+/-! ## §4 The compact-`M` alphabet ↔ core dictionary
 
 `Words/M0.lean`'s `eval_pro2_mCompact` reads the pro-`2` boundary of the compact-`M` word as
 `MarkedCore.mWord α A₀ x₁ σ x₂ · handleWord …` with `A₀ = x₀⁻¹σ^{-m}`.  Against
@@ -326,7 +346,7 @@ def mCoreRel (α h : ℕ) (G : Type) [Group G] [TopologicalSpace G] [IsTopologic
   mRelWord α (mCoreMark α h t)
 
 /-- **`WordCertificate.proTwoWord` at the compact-`M` row**, i.e. WM0-a's Gate-C headline
-(`GQ2/Dyadic/Words/M0.lean:648`) read through §1's dictionary, at every handle count.  `1 ≤ α` is
+(`GQ2/Dyadic/Words/M0.lean:648`) read through §4's dictionary, at every handle count.  `1 ≤ α` is
 genuine — WM0-a's own note: the third factor is `σ₂^{2m}` and `2m = 2^α` fails at `α = 0`. -/
 theorem mProTwoWord (α h : ℕ) (hα : 1 ≤ α) (G : Type) [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G]
@@ -346,7 +366,7 @@ theorem eval_pro2_mCompact_reindex (α h : ℕ) (hα : 1 ≤ α) {G : Type} [Gro
   mProTwoWord α h hα G t
 
 /-- **The compact-`M` core presentation.**  Inputs, all landed: `isProP_DM`, `presentedBy_DM`
-(`MarkedCore/Certificate.lean:292`), `dm_relation`, and §1's dictionary against WM0-a's
+(`MarkedCore/Certificate.lean:292`), `dm_relation`, and §4's dictionary against WM0-a's
 `eval_pro2_mCompact`.  Note that `presentedBy_DM`/`dm_relation` are used, **not**
 `markedRelator_DM`, so no `MMixHypothesis` and no Labute input is inherited — only WM0-a's own
 `1 ≤ α`. -/
@@ -366,9 +386,9 @@ noncomputable def mCorePresentation (α h : ℕ) (hα : 1 ≤ α) :
     (j : Fin (2 + 2 * h + 1)) :
     (mCorePresentation α h hα).mark (.wild j) = mUntwist α h (dmGen α h) (nWildIdx h j) := rfl
 
-/-! ## §3 The four pro-`2` fields
+/-! ## §5 The four pro-`2` fields
 
-`Count.CorePresentation`'s bridge at §1's presentation.  Nothing branch-specific survives: the
+`Count.CorePresentation`'s bridge at §4's presentation.  Nothing branch-specific survives: the
 `ℚ₂` ancestor is `GQ2.Roe.exists_pro2R`, which carries `BLabHypothesis`; this does not.
 
 All parameters are explicit: `h` occurs in these statements only inside `GammaR`/`DM`, so with it
@@ -400,7 +420,7 @@ theorem mTameSpecializes (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
   Count.tameSpecializes_mCompact hq0 hqe α h
 
 /-- **`WordCertificate.compat`**, against F3b's `tameOfSpec`.  The two `ν_P` conditions are F3's
-`prop_3_4_three` normalization *at the dictionary's marking*; §1's two `mark` lemmas say what
+`prop_3_4_three` normalization *at the dictionary's marking*; §4's two `mark` lemmas say what
 they are in terms of `dmGen`. -/
 theorem mCompat (α h q : ℕ) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
     (hspec : TameSpecializes (2 + 2 * h) q (mCompactW α h))
@@ -477,7 +497,7 @@ theorem mNu_surjective (α h : ℕ) (hα : 1 ≤ α) : Function.Surjective (mNu 
 
 end ProTwo
 
-/-! ## §4 The compact-`M` word certificate, modulo AS1's four analytic clauses
+/-! ## §6 The compact-`M` word certificate, modulo AS1's four analytic clauses
 
 Every field the landed stack proves is filled; `exactLifting`, `stokes`, `scalar` and
 `determinant` are arguments, because the certificate ⇒ count bridge does not exist at the
@@ -529,7 +549,7 @@ noncomputable def mWordCertificate (α h q : ℕ) (hα : 1 ≤ α) (hq0 : q ≠ 
 
 end Certificate
 
-/-! ## §5 The two `hsimp` fold-ins, compact-`M` row
+/-! ## §7 The two `hsimp` fold-ins, compact-`M` row
 
 Each frozen row carries a single per-simple-module Stokes-duality hypothesis `hsimp`
 (`Certificates/M0.lean:833`), carried by all five closers and discharged by none; the owner's
@@ -590,7 +610,7 @@ end CompactM
 
 /-! # The procyclic-`M` branch layer
 
-Hoisted verbatim from `GQ2/Dyadic/Instances/Sqrt10.lean` §1–§5 (ticket AS3-b, pure move). -/
+Hoisted verbatim from `GQ2/Dyadic/Instances/Sqrt10.lean` (ticket AS3-b, pure move). -/
 
 section ProcyclicM
 
@@ -601,7 +621,7 @@ open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
 open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
 open GQ2.Dyadic.Instances.NuWitness
 
-/-! ## §1 The procyclic-`M` alphabet ↔ core dictionary (at `η = 1`)
+/-! ## §8 The procyclic-`M` alphabet ↔ core dictionary (at `η = 1`)
 
 `Words/Mpc.lean`'s `eval_pro2_mpcW` reads the pro-`2` boundary as
 `mWord α A B C₀ D · handleWord …` with `A = x₀⁻¹(x₂σ^s)^{-m}`, `B = x₁σ^p`, `C₀ = x₂σ^s`,
@@ -727,7 +747,7 @@ noncomputable def mpcReindex (α r pp : ℕ) : CoreReindex (2 + 2 * 0) (Fin (cor
   toCore_nat := fun f t k => map_mpcCoreMark f α r pp t k
   ofCore_nat := fun f c g => map_mpcOfCore f α r pp c g
 
-/-! ## §2 The two word-level fields -/
+/-! ## §9 The two word-level fields -/
 
 /-- **`WordCertificate.coreRel` at the procyclic-`M` row.** -/
 def mpcCoreRel (α r pp : ℕ) (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
@@ -735,7 +755,7 @@ def mpcCoreRel (α r pp : ℕ) (G : Type) [Group G] [TopologicalSpace G] [IsTopo
   mRelWord α (mpcCoreMark α r pp t)
 
 /-- **`WordCertificate.proTwoWord` at the procyclic-`M` row**, i.e. WMP-a's Gate-C headline
-`eval_pro2_mpcW_zero` (`GQ2/Dyadic/Words/Mpc.lean`) read through §1's dictionary.  The `η = 1`
+`eval_pro2_mpcW_zero` (`GQ2/Dyadic/Words/Mpc.lean`) read through §8's dictionary.  The `η = 1`
 step is `Zhat.ofInt 1` followed by `zpow_one` — the one place the display's invertibility is
 used. -/
 theorem mpcProTwoWord (α r pp : ℕ) (hα : 1 ≤ α) (G : Type) [Group G] [TopologicalSpace G]
@@ -757,7 +777,7 @@ theorem eval_pro2_mpcW_reindex (α r pp : ℕ) (hα : 1 ≤ α) {G : Type} [Grou
   mpcProTwoWord α r pp hα G t
 
 /-- **The procyclic-`M` core presentation.**  Same core `D_M` as the compact row — both branches
-specialize to `MarkedCore.mWord` — with §1's dictionary in place of the compact one. -/
+specialize to `MarkedCore.mWord` — with §8's dictionary in place of the compact one. -/
 noncomputable def mpcCorePresentation (α r pp : ℕ) (hα : 1 ≤ α) :
     CorePresentation (2 + 2 * 0) (mpcW α r pp .one 0) (DM α 0) :=
   CorePresentation.ofPresentedBy (isProP_DM α 0) (presentedBy_DM α 0) (dm_relation α 0)
@@ -774,7 +794,7 @@ against the compact 5×5. -/
 @[simp] theorem mpcCorePresentation_mark_wild (α r pp : ℕ) (hα : 1 ≤ α) (j : Fin (2 + 2 * 0 + 1)) :
     (mpcCorePresentation α r pp hα).mark (.wild j) = (mpcOfCore α r pp (dmGen α 0)).x j := rfl
 
-/-! ## §3 The four pro-`2` fields -/
+/-! ## §10 The four pro-`2` fields -/
 
 section ProTwo
 
@@ -873,7 +893,7 @@ theorem mpcNu_surjective (α r pp : ℕ) (hα : 1 ≤ α) : Function.Surjective 
 
 end ProTwo
 
-/-! ## §4 The procyclic-`M` word certificate, modulo AS1's four analytic clauses -/
+/-! ## §11 The procyclic-`M` word certificate, modulo AS1's four analytic clauses -/
 
 section Certificate
 
@@ -921,7 +941,7 @@ noncomputable def mpcWordCertificate (α r pp q : ℕ) (hα : 1 ≤ α) (hq0 : q
 
 end Certificate
 
-/-! ## §5 The two `hsimp` fold-ins, procyclic-`M` row
+/-! ## §12 The two `hsimp` fold-ins, procyclic-`M` row
 
 The procyclic twins of `MCompactCore`'s pair, through WMP-c's `mpc_stokesDuality`
 (`Certificates/MpcStokes.lean:447`), whose `hsimp` slot is verbatim AS1's. -/

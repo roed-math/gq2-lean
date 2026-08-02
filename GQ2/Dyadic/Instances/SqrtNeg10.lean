@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 import GQ2.Dyadic.Instances.Sqrt10
 
 /-!
-# The `ℚ₂(√−10)` instance — **merge gate 9**  (dyadic campaign, ticket AS3)
+# The `ℚ₂(√−10)` instance — **merge gate 9**  (dyadic campaign, tickets AS3, AS3-b)
 
 **Selection-freeze row 5** at its `ε = 1` instance: `K = ℚ₂(√−10)`, `n = [K : ℚ₂] = 2`,
 `q_K = 2`, and the frozen branch word is `mpcW 2 1 1 .one 0` — `(α, r, ε, η) = (2, 1, 1, 1)`,
@@ -42,7 +42,7 @@ different depths, and `√−10` is the deeper one.
 ## Inventory
 
 Identical to `√10`'s: thirteen `WordCertificate` fields proved through `MProcyclicCore`
-(`GQ2/Dyadic/Instances/Sqrt10.lean` §1–§4), four — `exactLifting`, `stokes`, `scalar`,
+(`GQ2/Dyadic/Instances/Cores.lean` §8–§11), four — `exactLifting`, `stokes`, `scalar`,
 `determinant` — arguments (AS1 divergence 4).  The only parameter that changes is `p : 0 ↦ 1`.
 
 ## `r ≥ 1`
@@ -64,8 +64,9 @@ cross operator is identically zero at `r = 0` (`A = B = g`, `g² + g + 1 = 0`) a
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; the headline
-prints std-3 + `{B1, B6, B7}` — ASK's surface, with **no B5-K and no B10-K**.
+`sorry`-free, no new axiom, no `decide`.  The row lemmas print the standard three; **both**
+headlines — the conditional one and AS3-b's `_nonvacuous` corollary — print std-3 +
+`{B1, B6, B7}`, ASK's surface, with **no B5-K and no B10-K**.
 -/
 
 namespace GQ2.Dyadic.Instances
