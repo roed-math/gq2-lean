@@ -21,7 +21,7 @@ file records each as a theorem rather than a convention:
 
 | constant | `ℚ₂` value | value at `K` | moves? |
 |---|---|---|---|
-| the outer `#V` of `GaussZResidueK` | `#V` | `#V` | **no** — it is `#B¹`, and `B¹ ≅ V` at every `Γ` |
+| the outer `#V` of `GaussZResidueK` | `#V` | `#V` | **no** — it is `#B¹`, `B¹ ≅ V` at every `Γ` |
 | `#Z¹` (`GQ2/GaussZ/Reduction.lean:287`) | `#V * #V` | `#V * #H¹(G_K,V)` | **yes** |
 | the Gauss value `G₀` | `∓2^m` | `(−1)^n 2^{nm}` / `+2^{nm}` | **yes** |
 
@@ -50,26 +50,54 @@ clone.  Consumed verbatim by import:
   `rho0_descData_rhoPrimeK`, `boundaryLift_headK`, `blockEnrichmentDK`, `blockDatHVK`,
   `blockQbarK`, `hv_invK`.
 
-**Measured**: of the 25 declarations in the `ℚ₂` `Reduction`/`Local`/`Final`/`FinalD` chain,
-**17 are ambient-free and are used verbatim**; 5 are genuinely `G_ℚ₂`-typed and are retyped here
-(`iotaF_injective`, `iotaB_eq_iotaF`, `QZeroBar_eq_Q0loc`, `Q0loc_reindexHom_hom`,
-`finsum_sign_eq`); 3 (`gaussZResidue_local_*`, `headTameSurj`) are compositions replaced by the
-§4/§5 assemblies.  Substrate written here: ≈250 lines, not 1.3k.
+**Measured** (declaration counts, not budget estimates).  The `ℚ₂` chain
+`Reduction`/`Local`/`Final`/`FinalD` has **35 declarations / 885 code lines**, plus `IotaBridge`'s
+5 / 56.  Of the 35:
 
-## The `smul` trap and the instance-path trap
+* **24 are ambient-free and are used verbatim** — all 15 of `Reduction.lean` (its entire 206
+  code lines cost nothing), the 8 of `Local.lean` §(A)/(B), and `exists_smul_ne_of_card`;
+* **5 are genuinely `G_ℚ₂`-typed and are retyped here** — `QZeroBar_eq_Q0loc`, `finsum_sign_eq`,
+  `Q0loc_reindexHom_hom`, `headTameSurj`, `headTameSurj_surjective` (plus `IotaBridge`'s
+  `iotaF_injective`/`iotaB_eq_iotaF`, replaced by §1's shorter `H2congr` route);
+* **6 are compositions, replaced rather than cloned** — `sum_sign_Q0loc_{un,}ramified` by §4 off
+  LG5, and the four `gaussZResidue{,D}_local_*` by §6's two twins.
 
-Both are live and both are handled the same way as LG2/LG4c and CB-SG: the `ℚ₂` chain's
-`htriv` steps are `rfl`-lemmas at `AbsGalQ2` and are replaced by LG2's `smul_zmodTwo`; and every
-statement is taken at the `Subgroup AbsGalQ2` spelling `↥U`, never at `↥(galKProfinite K)`, so
-that `rw` never has to cross an instance path.  §6's consumer does the single `show` that pins
-`↥(galKProfinite K) = GalK K = ↥(GalKsub K)`.
+This file: **19 declarations / 616 code lines**, of which the two §6 twins are ≈300 (the `ℚ₂`
+twins are ≈230, so the head-inflated layer is the only place the clone is genuinely line-for-line)
+and the new substrate §1–§5 + §7 is ≈316.  Nothing near the 1.3k a verbatim clone implies, and
+the *new mathematics* is §2's two declarations.
 
-## Axioms
+## The three traps, and how each is handled
 
-Everything in §1–§4 is parametrized over the duality bundle `D : TateDualityG ↥U 2` and prints
-std-3.  §5's `sum_sign_Q0loc_K_*` inherit LG5's budget (B6/B7/B9/B11a through `local_gauss_K`),
-and §6's `affineDeterminant_galK` additionally builds `D` from B6 at `K`
-(`FieldData.tateDualityGalK`).  No new axiom, and none of the nine obligations is assumed.
+* **`smul` trap** (LG2/LG4c): the `ℚ₂` chain's `htriv` steps are `rfl`-lemmas at `AbsGalQ2`
+  (`htriv_local'`).  Every one is replaced by LG2's `smul_zmodTwo`.
+* **Instance-path trap, `ProfiniteGrp` flavour** (ASK's R6): `↥(galKProfinite K)` and
+  `↥(GalKsub K)` are the same type through two instance paths.  §1–§6 are stated *entirely* at
+  the `Subgroup AbsGalQ2` spelling (CB-SG's route), and §7's `boundaryMapSub` is the firewall
+  that keeps `sourceBoundaryMapK`'s bundled topology out of the twins' elaboration.
+* **Instance-path trap, `MuN` flavour** (new — recorded for AS2–AS5, which will hit it):
+  `ContinuousSMul ↥U (MuN 2)`'s `SMul` argument is fixed by the preceding
+  `DistribMulAction ↥U (MuN 2)` binder, while mathlib's `Subgroup.continuousSMul` concludes at
+  the `SMulMemClass` path.  The two are defeq but **not reducibly** so, and instance search runs
+  at reducible transparency — so at a *concrete* `U = GalKsub K` the pair fails to synthesize
+  even though each half synthesizes alone.  Every consumer of `local_gauss_K` at a concrete `K`
+  will meet this.  §7's fix: name the two binders and pass them explicitly, which moves the
+  check to default transparency.  (`ZMod 2` is unaffected — its two paths already agree.)
+
+## Axioms  (per-declaration prints, measured)
+
+* §1, §2, §3, §5, `headTameSurjK{,_surjective}`, `boundaryMapSub` — **std-3** (the numerics pins
+  print `[propext]` alone);
+* §4's `sum_sign_Q0loc_K_*` and §6's twins — std-3 ∪ {**B7** `absGalQ2_localEulerCharacteristic`,
+  **B9** `relativeStiefelWhitney_dyadic`, **B11a** `hilbertSymbol_normCriterion_finiteDyadic`},
+  i.e. LG5's budget **minus B6**, which stays out because everything is parametrized over the
+  bundle `D`;
+* §7's `affineDeterminant_galK` — the same plus **B6** `tateDualityAt`, entering exactly once,
+  where the bundle is built (`FieldData.tateDualityGalK`).
+
+That set is a subset of ASK's own `{B1, B6, B7}` ∪ LG5's, so discharging the `determinant`
+binder does not enlarge the K-side main theorem's axiom surface beyond what LG-K already carries.
+No new axiom, census unchanged at 11, and none of the nine obligations is assumed.
 -/
 
 namespace GQ2.Dyadic
