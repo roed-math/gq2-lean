@@ -66,7 +66,16 @@ CB-4 consumes it.  Everything here is a corollary, so it pays the import cost in
 * **§10** (CB-FR2) **all five rows** as matched `(hres, hend)` pairs at one arbitrary nonzero even
   level — the other four needed no new work, only `odd_omega2Exp` in place of the literal `Odd 3`,
   because their `resolvesAt_*` were already level-generic and only §3.1's *pins* were not.  With
-  §8.2's split level this leaves the count lane owing nothing about the target.
+  §8.2's split level this leaves the count lane owing nothing about the target.  (CB-LV2) Every
+  row is then *instantiated* at that split level, so no consumer has to assemble the pair itself:
+  rows 1–4 and 4' on the `T` side, and row 1's `V`-side twin at `2 · exp E` — the `V`-side lower
+  group being `E`, not `Bg ⧸ D.M`, which is why §8.2's level fact is proved for an arbitrary
+  finite group and `splitLevel_ne_zero_and_even` is its `Bg ⧸ D.M` instance.  Row 5 was already
+  instantiated at §8.2.  Only the branch-word conditions survive.
+* **§11** (CB-LV2) the same move on `Count/Presentation.lean` §8's two pilot compositions, which
+  CB-LV left level-generic because that file is upstream of this one: at `2 · exp(Bg ⧸ D.M)` and
+  `2 · exp E` respectively, `hN`, `hv` and `hord` are all theorems, so both `SourceDataN` field
+  values hold over `Γ_R` with **no arithmetic hypothesis about the counting target**.
 
 ## Axiom posture
 
@@ -994,17 +1003,31 @@ theorem orderOf_wordLift_vmod_dvd_exponent {D : RadicalCoverData Bg} (DD : DescD
     orderOf x ∣ 2 * Monoid.exponent E :=
   orderOf_wordLift_vmod_dvd DD (fun g => Monoid.order_dvd_exponent g) x
 
-/-- The split target's level `2 · exp(Bg ⧸ D.M)` is nonzero and even — the two facts §7.4's
-matched pair asks of a level, both automatic here.  The evenness is the lift level itself, so it
-costs nothing: it is the `2`-torsion of `Additive ↥D.T` showing up as a factor of `N`. -/
-theorem splitLevel_ne_zero_and_even (D : RadicalCoverData Bg) :
-    2 * Monoid.exponent (Bg ⧸ D.M) ≠ 0
-      ∧ (2 * Monoid.exponent (Bg ⧸ D.M)).factorization 2 ≠ 0 := by
-  have he : Monoid.exponent (Bg ⧸ D.M) ≠ 0 := Monoid.exponent_ne_zero_of_finite
+/-- **The level fact, at the generality both split targets need.**  `2 · exp G` is nonzero and
+even for every finite group `G` — the two conditions §7.4's matched pair asks of a level, both
+automatic.  The evenness is the lift level itself, so it costs nothing: it is the `2`-torsion of
+the coefficient module (`Additive ↥D.T` on the `T` side, `DD.Vmod` on the `V` side) showing up as
+a factor of `N`.
+
+⚠ The hypothesis is `[Group G]`, not `[Monoid G]`: `Monoid.exponent_ne_zero_of_finite` needs
+`LeftCancelMonoid`, and cancellation is exactly what a bare finite monoid does not give — the
+exponent of a finite monoid can be `0`.  Both call sites are groups (`Bg ⧸ D.M` and the `V`-side
+`E`), so nothing is lost. -/
+theorem twoMulExponent_ne_zero_and_even (G : Type*) [Group G] [Finite G] :
+    2 * Monoid.exponent G ≠ 0 ∧ (2 * Monoid.exponent G).factorization 2 ≠ 0 := by
+  have he : Monoid.exponent G ≠ 0 := Monoid.exponent_ne_zero_of_finite
   refine ⟨Nat.mul_ne_zero two_ne_zero he, ?_⟩
   rw [Nat.factorization_mul two_ne_zero he, Finsupp.add_apply,
     Nat.Prime.factorization_self Nat.prime_two]
   simp
+
+/-- The split target's level `2 · exp(Bg ⧸ D.M)` is nonzero and even — the `Bg ⧸ D.M` instance of
+`twoMulExponent_ne_zero_and_even`.  Kept under its own name because §7.4's and §10's split rows
+all cite it; the statement is unchanged, only the proof now goes through the general lemma. -/
+theorem splitLevel_ne_zero_and_even (D : RadicalCoverData Bg) :
+    2 * Monoid.exponent (Bg ⧸ D.M) ≠ 0
+      ∧ (2 * Monoid.exponent (Bg ⧸ D.M)).factorization 2 ≠ 0 :=
+  twoMulExponent_ne_zero_and_even _
 
 /-- **The procyclic-`N` row's matched pair at the count lane's own split target, with no
 hypothesis about the target at all.**
@@ -1182,7 +1205,15 @@ needs re-proving, because `odd_omega2Exp` supplies the endpoint's `Odd e` at the
 
 So the whole count lane runs at one level, and §8.2 says which: `2 · exp(Bg ⧸ D.M)`, nonzero and
 even for free.  Below, each of the five rows as a matched `(hres, hend)` pair at an arbitrary
-nonzero even level, then the split-target instantiation on the pilot row as the template. -/
+nonzero even level, then (CB-LV2) **every** row instantiated at that split target, where the two
+level conditions and `hord` are all discharged and what is left is only the branch-word conditions
+`1 ≤ α`, `Even q` and the display's `IsOmega2Only`.  The `V`-side twin of the pilot row runs at
+`2 · exp E` instead, which is why §8.2's level fact is proved for an arbitrary finite group
+(`twoMulExponent_ne_zero_and_even`) and `splitLevel_ne_zero_and_even` is its `Bg ⧸ D.M` instance.
+
+Rows 5 and 5' (procyclic `N`, and the procyclic-`M` `.hat` display's own resolver) are the two
+that need `npcResolver` rather than `omega2Exp`; the first is §8.2's
+`resolvesAt_and_endpoint_npcFamOf_split`, the second is below. -/
 
 section AllFive
 
@@ -1243,7 +1274,163 @@ theorem resolvesAt_and_endpoint_nCompactFam_split {Bg : Type} [Group Bg] [Finite
   resolvesAt_and_endpoint_nCompactFam (splitLevel_ne_zero_and_even D).1
     (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq
 
+omit hN hv hord in
+/-- **Row 2, compact `M`, at the split target.** -/
+theorem resolvesAt_and_endpoint_mCompactFam_split {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α h q : ℕ} (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+        (MCompact.mCompactFam α h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M))))
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint
+          (MCompact.mCompactFam α h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M)))) :=
+  resolvesAt_and_endpoint_mCompactFam (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hq
+
+omit hN hv hord in
+/-- **Row 3, `L_sq`, at the split target.** -/
+theorem resolvesAt_and_endpoint_lSqFam_split {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {h q : ℕ} (hq : Even q) :
+    ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+        (LSqStokes.lSqFam h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M))))
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint (LSqStokes.lSqFam h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M)))) :=
+  resolvesAt_and_endpoint_lSqFam (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hq
+
+omit hN hv hord in
+/-- **Row 4, procyclic `M` at an `ω₂`-only display, at the split target.** -/
+theorem resolvesAt_and_endpoint_mpcFam_split {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h))
+        (MProcyclic.mpcFam α r pp h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M))) η)
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint
+          (MProcyclic.mpcFam α r pp h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M))) η) :=
+  resolvesAt_and_endpoint_mpcFam (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq hη
+
+omit hN hv hord in
+/-- **Row 4', the procyclic-`M` `.hat` display, at the split target** — §9.3's matched pair at the
+count lane's own target.  Unlike rows 1–4 the resolver is `npcResolver`, not `omega2Exp`, because
+the `.hat` node is the `η̂` one (§5.4); the *level* fed to it is the same split level. -/
+theorem resolvesAt_and_endpoint_mpcFamOf_hat_split {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (num den : ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp (.hat num den) h))
+        (mpcFamOf α r pp h q (.hat num den)
+          (npcResolver (2 * Monoid.exponent (Bg ⧸ D.M)) ⟨num, den⟩) E₂)
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint (mpcFamOf α r pp h q (.hat num den)
+          (npcResolver (2 * Monoid.exponent (Bg ⧸ D.M)) ⟨num, den⟩) E₂) :=
+  resolvesAt_and_endpoint_mpcFamOf_hat (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq num den E₂
+
+omit hN hv hord in
+/-- **Row 1 on the `V` side, at the split target.**  The `V`-side counting target is
+`WordLift DD.Vmod E`, so its level is `2 · exp E` and not `2 · exp(Bg ⧸ D.M)`: the lift level is
+still the coefficient module's `2`-torsion (`vmod_add_self`), but the *lower group* is now `E`.
+This is exactly why §8.2's level fact is stated for an arbitrary finite group. -/
+theorem resolvesAt_and_endpoint_nCompactFam_vmod_split {Bg : Type} [Group Bg] [Finite Bg]
+    {D : RadicalCoverData Bg} (DD : DescData D)
+    {E : Type} [Group E] [Finite E] [DistribMulAction E DD.Vmod]
+    [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
+    {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+        (nCompactFam α h q (omega2Exp (2 * Monoid.exponent E))) (WordLift DD.Vmod E)
+      ∧ IsStokesEndpoint (nCompactFam α h q (omega2Exp (2 * Monoid.exponent E))) :=
+  resolvesAt_and_endpoint_nCompactFam (twoMulExponent_ne_zero_and_even E).1
+    (twoMulExponent_ne_zero_and_even E).2 (orderOf_wordLift_vmod_dvd_exponent DD) hα hq
+
 end AllFive
+
+/-! ## §11 The `√−2` pilot with nothing left to say about the target
+
+`Count/Presentation.lean` §8's two pilot compositions are stated at an arbitrary level `N` (ticket
+CB-LV), carrying `hN`, `hv` and `hord` because that file is *upstream* of this one and cannot see
+§8.2.  Here they can be: the level is `2 · exp` of the lower group, and all three conditions are
+theorems.  So the two field values of `SourceDataN` hold over `Γ_R` with no arithmetic hypothesis
+about the counting target at all — what a branch supplies is `rho`/`theta` and their
+compatibilities, surjectivity, and the `StokesDuality` payload, and nothing else.
+
+⚠ The two run at **different** levels, and that is not an oversight: the `T`-side target is
+`WordLift (Additive ↥D.T) (Bg ⧸ D.M)` and the `V`-side one is `WordLift DD.Vmod E`, so the lower
+groups are `Bg ⧸ D.M` and `E` respectively.  Only the lift factor `2` is common, and it is common
+for the same reason both times — the coefficient module is `2`-torsion (`radT_add_self`,
+`vmod_add_self`).  This is the pair `twoMulExponent_ne_zero_and_even` exists to serve. -/
+
+section PilotSplit
+
+open GQ2.FoxH GQ2.SectionEight GQ2.SectionEight.AffineTLift GQ2.SectionEight.CentralObstruction
+open GQ2.Dyadic.Certificates
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+
+/-- **The `√−2` pilot's `tcocycle_card` field value at the count lane's own target.**
+`Count.sqrtNegTwo_tcocycle_card_gammaR_nCompact` at `N = 2 · exp(Bg ⧸ D.M)`, with its three level
+hypotheses discharged: `hN` and `hv` by `splitLevel_ne_zero_and_even`, `hord` by
+`orderOf_wordLift_radT_dvd_exponent`.
+
+This is where the `orderOf x ∣ 6` that §6 reduced and §8.1 refuted finally goes away without
+being replaced by anything. -/
+theorem sqrtNegTwo_tcocycle_card_gammaR_nCompact_split
+    [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+    [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
+    [ContinuousSMul ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {t : Marking 2 (Bg ⧸ D.M)}
+    (rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Bg ⧸ D.M))
+    (hcomp : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (a : Additive ↥D.T),
+      γ • a = rho γ • a)
+    (hc : ∀ g, rho (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t)
+      (nCompactFam 2 0 2 (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M)))) (Additive ↥D.T)) :
+    Nat.card (TCocycle D rho)
+      = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
+        * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
+  sqrtNegTwo_tcocycle_card_gammaR_nCompact rho hcomp hc (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hsurj hd
+
+/-- **The `√−2` pilot's `hZcard` field value at the count lane's own target** — the `V`-side twin,
+at `N = 2 · exp E`, with `hN`/`hv` from `twoMulExponent_ne_zero_and_even` and `hord` from
+`orderOf_wordLift_vmod_dvd_exponent`. -/
+theorem sqrtNegTwo_hZcard_gammaR_nCompact_vmod_split {DD : DescData D}
+    {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [DistribMulAction E DD.Vmod]
+    [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) DD.Vmod]
+    [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
+    {t : Marking 2 E}
+    {rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Bg ⧸ D.M)}
+    (theta : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) E)
+    (hround : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod),
+      rho0 DD rho γ • v = theta γ • v)
+    (hact : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod), γ • v = theta γ • v)
+    (hc : ∀ g, theta (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hsurj : Function.Surjective theta)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 (omega2Exp (2 * Monoid.exponent E))) DD.Vmod)
+    (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
+    Nat.card (VCocycle DD rho)
+      = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
+  sqrtNegTwo_hZcard_gammaR_nCompact theta hround hact hc (twoMulExponent_ne_zero_and_even E).1
+    (twoMulExponent_ne_zero_and_even E).2 (orderOf_wordLift_vmod_dvd_exponent DD) hsurj hd
+    hsimple hnt
+
+end PilotSplit
 
 end Count
 
