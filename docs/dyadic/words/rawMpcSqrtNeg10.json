@@ -1,0 +1,1242 @@
+{
+  "ast_schema_version": 1,
+  "branch": "Mpc",
+  "interchange_version": 1,
+  "lean": {
+    "declaration": "rawMpcSqrtNeg10",
+    "module": "GQ2.Dyadic.Words.Mpc"
+  },
+  "name": "rawMpcSqrtNeg10",
+  "source": "selection-freeze row 5 (procyclic M, E-block + orbit-norm + shadow, (alpha,r,eps,eta) = (2,1,1,1), h = 0 \u2014 packet Cor. 8.2's sqrt(-10) parameters); certificate M-procyclic-alpha2-r1-eps1-eta1-h0-q2-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+  "word_ast": {
+    "children": [
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 2
+        },
+        "op": "IntegerPower",
+        "word": {
+          "definition": {
+            "children": [
+              {
+                "op": "Inverse",
+                "word": {
+                  "name": "x0",
+                  "op": "Generator"
+                }
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": -2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "children": [
+                      {
+                        "name": "x2",
+                        "op": "Generator"
+                      },
+                      {
+                        "exponent": {
+                          "type": "Int",
+                          "value": 2
+                        },
+                        "op": "IntegerPower",
+                        "word": {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "name": "sigma",
+                              "op": "Generator"
+                            }
+                          },
+                          "name": "sigma2",
+                          "op": "Auxiliary"
+                        }
+                      }
+                    ],
+                    "op": "Multiply"
+                  },
+                  "name": "C0",
+                  "op": "Auxiliary"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "A",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "left": {
+          "definition": {
+            "children": [
+              {
+                "op": "Inverse",
+                "word": {
+                  "name": "x0",
+                  "op": "Generator"
+                }
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": -2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "children": [
+                      {
+                        "name": "x2",
+                        "op": "Generator"
+                      },
+                      {
+                        "exponent": {
+                          "type": "Int",
+                          "value": 2
+                        },
+                        "op": "IntegerPower",
+                        "word": {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "name": "sigma",
+                              "op": "Generator"
+                            }
+                          },
+                          "name": "sigma2",
+                          "op": "Auxiliary"
+                        }
+                      }
+                    ],
+                    "op": "Multiply"
+                  },
+                  "name": "C0",
+                  "op": "Auxiliary"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "A",
+          "op": "Auxiliary"
+        },
+        "op": "Commutator",
+        "right": {
+          "definition": {
+            "children": [
+              {
+                "name": "x1",
+                "op": "Generator"
+              },
+              {
+                "definition": {
+                  "op": "Omega2Power",
+                  "word": {
+                    "name": "sigma",
+                    "op": "Generator"
+                  }
+                },
+                "name": "sigma2",
+                "op": "Auxiliary"
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "B",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 4
+        },
+        "op": "IntegerPower",
+        "word": {
+          "definition": {
+            "children": [
+              {
+                "name": "x2",
+                "op": "Generator"
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": 2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "op": "Omega2Power",
+                    "word": {
+                      "name": "sigma",
+                      "op": "Generator"
+                    }
+                  },
+                  "name": "sigma2",
+                  "op": "Auxiliary"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "C0",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "left": {
+          "definition": {
+            "children": [
+              {
+                "name": "x2",
+                "op": "Generator"
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": 2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "op": "Omega2Power",
+                    "word": {
+                      "name": "sigma",
+                      "op": "Generator"
+                    }
+                  },
+                  "name": "sigma2",
+                  "op": "Auxiliary"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "C0",
+          "op": "Auxiliary"
+        },
+        "op": "Commutator",
+        "right": {
+          "definition": {
+            "name": "sigma",
+            "op": "Generator"
+          },
+          "name": "D",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "definition": {
+          "children": [
+            {
+              "conjugator": {
+                "exponent": {
+                  "type": "Int",
+                  "value": 5
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "op": "Omega2Power",
+                    "word": {
+                      "name": "sigma",
+                      "op": "Generator"
+                    }
+                  },
+                  "name": "sigma2",
+                  "op": "Auxiliary"
+                }
+              },
+              "op": "Conjugate",
+              "word": {
+                "children": [
+                  {
+                    "conjugator": {
+                      "exponent": {
+                        "type": "Int",
+                        "value": 4
+                      },
+                      "op": "IntegerPower",
+                      "word": {
+                        "definition": {
+                          "op": "Omega2Power",
+                          "word": {
+                            "name": "sigma",
+                            "op": "Generator"
+                          }
+                        },
+                        "name": "sigma2",
+                        "op": "Auxiliary"
+                      }
+                    },
+                    "op": "Conjugate",
+                    "word": {
+                      "definition": {
+                        "children": [
+                          {
+                            "definition": {
+                              "op": "Omega2Power",
+                              "word": {
+                                "children": [
+                                  {
+                                    "name": "x1",
+                                    "op": "Generator"
+                                  },
+                                  {
+                                    "name": "tau",
+                                    "op": "Generator"
+                                  }
+                                ],
+                                "op": "Multiply"
+                              }
+                            },
+                            "name": "u1",
+                            "op": "Auxiliary"
+                          },
+                          {
+                            "op": "Inverse",
+                            "word": {
+                              "name": "x1",
+                              "op": "Generator"
+                            }
+                          }
+                        ],
+                        "op": "Multiply"
+                      },
+                      "name": "d1",
+                      "op": "Auxiliary"
+                    }
+                  },
+                  {
+                    "definition": {
+                      "children": [
+                        {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "children": [
+                                {
+                                  "name": "x1",
+                                  "op": "Generator"
+                                },
+                                {
+                                  "name": "tau",
+                                  "op": "Generator"
+                                }
+                              ],
+                              "op": "Multiply"
+                            }
+                          },
+                          "name": "u1",
+                          "op": "Auxiliary"
+                        },
+                        {
+                          "op": "Inverse",
+                          "word": {
+                            "name": "x1",
+                            "op": "Generator"
+                          }
+                        }
+                      ],
+                      "op": "Multiply"
+                    },
+                    "name": "d1",
+                    "op": "Auxiliary"
+                  },
+                  {
+                    "definition": {
+                      "children": [
+                        {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "children": [
+                                {
+                                  "name": "x0",
+                                  "op": "Generator"
+                                },
+                                {
+                                  "name": "tau",
+                                  "op": "Generator"
+                                }
+                              ],
+                              "op": "Multiply"
+                            }
+                          },
+                          "name": "u0",
+                          "op": "Auxiliary"
+                        },
+                        {
+                          "op": "Inverse",
+                          "word": {
+                            "name": "x0",
+                            "op": "Generator"
+                          }
+                        }
+                      ],
+                      "op": "Multiply"
+                    },
+                    "name": "d0",
+                    "op": "Auxiliary"
+                  }
+                ],
+                "op": "Multiply"
+              }
+            },
+            {
+              "definition": {
+                "children": [
+                  {
+                    "definition": {
+                      "op": "Omega2Power",
+                      "word": {
+                        "children": [
+                          {
+                            "name": "x0",
+                            "op": "Generator"
+                          },
+                          {
+                            "name": "tau",
+                            "op": "Generator"
+                          }
+                        ],
+                        "op": "Multiply"
+                      }
+                    },
+                    "name": "u0",
+                    "op": "Auxiliary"
+                  },
+                  {
+                    "op": "Inverse",
+                    "word": {
+                      "name": "x0",
+                      "op": "Generator"
+                    }
+                  }
+                ],
+                "op": "Multiply"
+              },
+              "name": "d0",
+              "op": "Auxiliary"
+            }
+          ],
+          "op": "Multiply"
+        },
+        "name": "E01",
+        "op": "Auxiliary"
+      },
+      {
+        "definition": {
+          "children": [
+            {
+              "conjugator": {
+                "exponent": {
+                  "type": "Int",
+                  "value": 2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "op": "Omega2Power",
+                    "word": {
+                      "name": "sigma",
+                      "op": "Generator"
+                    }
+                  },
+                  "name": "sigma2",
+                  "op": "Auxiliary"
+                }
+              },
+              "op": "Conjugate",
+              "word": {
+                "definition": {
+                  "children": [
+                    {
+                      "definition": {
+                        "op": "Omega2Power",
+                        "word": {
+                          "children": [
+                            {
+                              "name": "x2",
+                              "op": "Generator"
+                            },
+                            {
+                              "name": "tau",
+                              "op": "Generator"
+                            }
+                          ],
+                          "op": "Multiply"
+                        }
+                      },
+                      "name": "u2",
+                      "op": "Auxiliary"
+                    },
+                    {
+                      "op": "Inverse",
+                      "word": {
+                        "name": "x2",
+                        "op": "Generator"
+                      }
+                    }
+                  ],
+                  "op": "Multiply"
+                },
+                "name": "d2",
+                "op": "Auxiliary"
+              }
+            },
+            {
+              "conjugator": {
+                "exponent": {
+                  "type": "Int",
+                  "value": 4
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "op": "Omega2Power",
+                    "word": {
+                      "name": "sigma",
+                      "op": "Generator"
+                    }
+                  },
+                  "name": "sigma2",
+                  "op": "Auxiliary"
+                }
+              },
+              "op": "Conjugate",
+              "word": {
+                "length": {
+                  "type": "Int",
+                  "value": 2
+                },
+                "op": "OrbitNorm",
+                "step": {
+                  "exponent": {
+                    "type": "Int",
+                    "value": 2
+                  },
+                  "op": "IntegerPower",
+                  "word": {
+                    "definition": {
+                      "op": "Omega2Power",
+                      "word": {
+                        "name": "sigma",
+                        "op": "Generator"
+                      }
+                    },
+                    "name": "sigma2",
+                    "op": "Auxiliary"
+                  }
+                },
+                "word": {
+                  "children": [
+                    {
+                      "definition": {
+                        "children": [
+                          {
+                            "definition": {
+                              "op": "Omega2Power",
+                              "word": {
+                                "children": [
+                                  {
+                                    "name": "x2",
+                                    "op": "Generator"
+                                  },
+                                  {
+                                    "name": "tau",
+                                    "op": "Generator"
+                                  }
+                                ],
+                                "op": "Multiply"
+                              }
+                            },
+                            "name": "u2",
+                            "op": "Auxiliary"
+                          },
+                          {
+                            "op": "Inverse",
+                            "word": {
+                              "name": "x2",
+                              "op": "Generator"
+                            }
+                          }
+                        ],
+                        "op": "Multiply"
+                      },
+                      "name": "d2",
+                      "op": "Auxiliary"
+                    },
+                    {
+                      "conjugator": {
+                        "definition": {
+                          "op": "Omega2Power",
+                          "word": {
+                            "name": "sigma",
+                            "op": "Generator"
+                          }
+                        },
+                        "name": "sigma2",
+                        "op": "Auxiliary"
+                      },
+                      "op": "Conjugate",
+                      "word": {
+                        "definition": {
+                          "children": [
+                            {
+                              "definition": {
+                                "op": "Omega2Power",
+                                "word": {
+                                  "children": [
+                                    {
+                                      "name": "x2",
+                                      "op": "Generator"
+                                    },
+                                    {
+                                      "name": "tau",
+                                      "op": "Generator"
+                                    }
+                                  ],
+                                  "op": "Multiply"
+                                }
+                              },
+                              "name": "u2",
+                              "op": "Auxiliary"
+                            },
+                            {
+                              "op": "Inverse",
+                              "word": {
+                                "name": "x2",
+                                "op": "Generator"
+                              }
+                            }
+                          ],
+                          "op": "Multiply"
+                        },
+                        "name": "d2",
+                        "op": "Auxiliary"
+                      }
+                    }
+                  ],
+                  "op": "Multiply"
+                }
+              }
+            }
+          ],
+          "op": "Multiply"
+        },
+        "name": "E2",
+        "op": "Auxiliary"
+      },
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 2
+        },
+        "op": "IntegerPower",
+        "word": {
+          "definition": {
+            "children": [
+              {
+                "op": "Inverse",
+                "word": {
+                  "definition": {
+                    "children": [
+                      {
+                        "definition": {
+                          "op": "Omega2Power",
+                          "word": {
+                            "children": [
+                              {
+                                "name": "x0",
+                                "op": "Generator"
+                              },
+                              {
+                                "name": "tau",
+                                "op": "Generator"
+                              }
+                            ],
+                            "op": "Multiply"
+                          }
+                        },
+                        "name": "u0",
+                        "op": "Auxiliary"
+                      },
+                      {
+                        "op": "Inverse",
+                        "word": {
+                          "name": "x0",
+                          "op": "Generator"
+                        }
+                      }
+                    ],
+                    "op": "Multiply"
+                  },
+                  "name": "d0",
+                  "op": "Auxiliary"
+                }
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": -2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "exponent": {
+                      "type": "Int",
+                      "value": 2
+                    },
+                    "op": "IntegerPower",
+                    "word": {
+                      "definition": {
+                        "op": "Omega2Power",
+                        "word": {
+                          "name": "sigma",
+                          "op": "Generator"
+                        }
+                      },
+                      "name": "sigma2",
+                      "op": "Auxiliary"
+                    }
+                  },
+                  "name": "C0hat",
+                  "op": "Auxiliary"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "Ahat",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "left": {
+          "definition": {
+            "children": [
+              {
+                "op": "Inverse",
+                "word": {
+                  "definition": {
+                    "children": [
+                      {
+                        "definition": {
+                          "op": "Omega2Power",
+                          "word": {
+                            "children": [
+                              {
+                                "name": "x0",
+                                "op": "Generator"
+                              },
+                              {
+                                "name": "tau",
+                                "op": "Generator"
+                              }
+                            ],
+                            "op": "Multiply"
+                          }
+                        },
+                        "name": "u0",
+                        "op": "Auxiliary"
+                      },
+                      {
+                        "op": "Inverse",
+                        "word": {
+                          "name": "x0",
+                          "op": "Generator"
+                        }
+                      }
+                    ],
+                    "op": "Multiply"
+                  },
+                  "name": "d0",
+                  "op": "Auxiliary"
+                }
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": -2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "exponent": {
+                      "type": "Int",
+                      "value": 2
+                    },
+                    "op": "IntegerPower",
+                    "word": {
+                      "definition": {
+                        "op": "Omega2Power",
+                        "word": {
+                          "name": "sigma",
+                          "op": "Generator"
+                        }
+                      },
+                      "name": "sigma2",
+                      "op": "Auxiliary"
+                    }
+                  },
+                  "name": "C0hat",
+                  "op": "Auxiliary"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "Ahat",
+          "op": "Auxiliary"
+        },
+        "op": "Commutator",
+        "right": {
+          "definition": {
+            "children": [
+              {
+                "definition": {
+                  "children": [
+                    {
+                      "definition": {
+                        "op": "Omega2Power",
+                        "word": {
+                          "children": [
+                            {
+                              "name": "x1",
+                              "op": "Generator"
+                            },
+                            {
+                              "name": "tau",
+                              "op": "Generator"
+                            }
+                          ],
+                          "op": "Multiply"
+                        }
+                      },
+                      "name": "u1",
+                      "op": "Auxiliary"
+                    },
+                    {
+                      "op": "Inverse",
+                      "word": {
+                        "name": "x1",
+                        "op": "Generator"
+                      }
+                    }
+                  ],
+                  "op": "Multiply"
+                },
+                "name": "d1",
+                "op": "Auxiliary"
+              },
+              {
+                "definition": {
+                  "op": "Omega2Power",
+                  "word": {
+                    "name": "sigma",
+                    "op": "Generator"
+                  }
+                },
+                "name": "sigma2",
+                "op": "Auxiliary"
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "Bhat",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 4
+        },
+        "op": "IntegerPower",
+        "word": {
+          "definition": {
+            "exponent": {
+              "type": "Int",
+              "value": 2
+            },
+            "op": "IntegerPower",
+            "word": {
+              "definition": {
+                "op": "Omega2Power",
+                "word": {
+                  "name": "sigma",
+                  "op": "Generator"
+                }
+              },
+              "name": "sigma2",
+              "op": "Auxiliary"
+            }
+          },
+          "name": "C0hat",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "left": {
+          "definition": {
+            "exponent": {
+              "type": "Int",
+              "value": 2
+            },
+            "op": "IntegerPower",
+            "word": {
+              "definition": {
+                "op": "Omega2Power",
+                "word": {
+                  "name": "sigma",
+                  "op": "Generator"
+                }
+              },
+              "name": "sigma2",
+              "op": "Auxiliary"
+            }
+          },
+          "name": "C0hat",
+          "op": "Auxiliary"
+        },
+        "op": "Commutator",
+        "right": {
+          "definition": {
+            "name": "sigma",
+            "op": "Generator"
+          },
+          "name": "D",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "definition": {
+          "children": [
+            {
+              "conjugator": {
+                "exponent": {
+                  "type": "Int",
+                  "value": 5
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "definition": {
+                    "op": "Omega2Power",
+                    "word": {
+                      "name": "sigma",
+                      "op": "Generator"
+                    }
+                  },
+                  "name": "sigma2",
+                  "op": "Auxiliary"
+                }
+              },
+              "op": "Conjugate",
+              "word": {
+                "children": [
+                  {
+                    "conjugator": {
+                      "exponent": {
+                        "type": "Int",
+                        "value": 4
+                      },
+                      "op": "IntegerPower",
+                      "word": {
+                        "definition": {
+                          "op": "Omega2Power",
+                          "word": {
+                            "name": "sigma",
+                            "op": "Generator"
+                          }
+                        },
+                        "name": "sigma2",
+                        "op": "Auxiliary"
+                      }
+                    },
+                    "op": "Conjugate",
+                    "word": {
+                      "definition": {
+                        "children": [
+                          {
+                            "definition": {
+                              "op": "Omega2Power",
+                              "word": {
+                                "children": [
+                                  {
+                                    "name": "x1",
+                                    "op": "Generator"
+                                  },
+                                  {
+                                    "name": "tau",
+                                    "op": "Generator"
+                                  }
+                                ],
+                                "op": "Multiply"
+                              }
+                            },
+                            "name": "u1",
+                            "op": "Auxiliary"
+                          },
+                          {
+                            "op": "Inverse",
+                            "word": {
+                              "name": "x1",
+                              "op": "Generator"
+                            }
+                          }
+                        ],
+                        "op": "Multiply"
+                      },
+                      "name": "d1",
+                      "op": "Auxiliary"
+                    }
+                  },
+                  {
+                    "definition": {
+                      "children": [
+                        {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "children": [
+                                {
+                                  "name": "x1",
+                                  "op": "Generator"
+                                },
+                                {
+                                  "name": "tau",
+                                  "op": "Generator"
+                                }
+                              ],
+                              "op": "Multiply"
+                            }
+                          },
+                          "name": "u1",
+                          "op": "Auxiliary"
+                        },
+                        {
+                          "op": "Inverse",
+                          "word": {
+                            "name": "x1",
+                            "op": "Generator"
+                          }
+                        }
+                      ],
+                      "op": "Multiply"
+                    },
+                    "name": "d1",
+                    "op": "Auxiliary"
+                  },
+                  {
+                    "definition": {
+                      "children": [
+                        {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "children": [
+                                {
+                                  "name": "x0",
+                                  "op": "Generator"
+                                },
+                                {
+                                  "name": "tau",
+                                  "op": "Generator"
+                                }
+                              ],
+                              "op": "Multiply"
+                            }
+                          },
+                          "name": "u0",
+                          "op": "Auxiliary"
+                        },
+                        {
+                          "op": "Inverse",
+                          "word": {
+                            "name": "x0",
+                            "op": "Generator"
+                          }
+                        }
+                      ],
+                      "op": "Multiply"
+                    },
+                    "name": "d0",
+                    "op": "Auxiliary"
+                  }
+                ],
+                "op": "Multiply"
+              }
+            },
+            {
+              "definition": {
+                "children": [
+                  {
+                    "definition": {
+                      "op": "Omega2Power",
+                      "word": {
+                        "children": [
+                          {
+                            "name": "x0",
+                            "op": "Generator"
+                          },
+                          {
+                            "name": "tau",
+                            "op": "Generator"
+                          }
+                        ],
+                        "op": "Multiply"
+                      }
+                    },
+                    "name": "u0",
+                    "op": "Auxiliary"
+                  },
+                  {
+                    "op": "Inverse",
+                    "word": {
+                      "name": "x0",
+                      "op": "Generator"
+                    }
+                  }
+                ],
+                "op": "Multiply"
+              },
+              "name": "d0",
+              "op": "Auxiliary"
+            }
+          ],
+          "op": "Multiply"
+        },
+        "name": "E01",
+        "op": "Auxiliary"
+      },
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 2
+        },
+        "op": "IntegerPower",
+        "word": {
+          "definition": {
+            "children": [
+              {
+                "definition": {
+                  "op": "Omega2Power",
+                  "word": {
+                    "children": [
+                      {
+                        "name": "x0",
+                        "op": "Generator"
+                      },
+                      {
+                        "name": "tau",
+                        "op": "Generator"
+                      }
+                    ],
+                    "op": "Multiply"
+                  }
+                },
+                "name": "u0",
+                "op": "Auxiliary"
+              },
+              {
+                "op": "Inverse",
+                "word": {
+                  "name": "x0",
+                  "op": "Generator"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "d0",
+          "op": "Auxiliary"
+        }
+      },
+      {
+        "left": {
+          "definition": {
+            "children": [
+              {
+                "definition": {
+                  "op": "Omega2Power",
+                  "word": {
+                    "children": [
+                      {
+                        "name": "x0",
+                        "op": "Generator"
+                      },
+                      {
+                        "name": "tau",
+                        "op": "Generator"
+                      }
+                    ],
+                    "op": "Multiply"
+                  }
+                },
+                "name": "u0",
+                "op": "Auxiliary"
+              },
+              {
+                "op": "Inverse",
+                "word": {
+                  "name": "x0",
+                  "op": "Generator"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "d0",
+          "op": "Auxiliary"
+        },
+        "op": "Commutator",
+        "right": {
+          "definition": {
+            "children": [
+              {
+                "definition": {
+                  "op": "Omega2Power",
+                  "word": {
+                    "children": [
+                      {
+                        "name": "x1",
+                        "op": "Generator"
+                      },
+                      {
+                        "name": "tau",
+                        "op": "Generator"
+                      }
+                    ],
+                    "op": "Multiply"
+                  }
+                },
+                "name": "u1",
+                "op": "Auxiliary"
+              },
+              {
+                "op": "Inverse",
+                "word": {
+                  "name": "x1",
+                  "op": "Generator"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "name": "d1",
+          "op": "Auxiliary"
+        }
+      }
+    ],
+    "op": "Multiply"
+  },
+  "word_hash": "55b24a4b141274bc30d09468096f4fa021184c5dc22c17823e423457928a26cf"
+}

@@ -1,0 +1,77 @@
+{
+  "ast_schema_version": 1,
+  "branch": "N0",
+  "interchange_version": 1,
+  "lean": {
+    "declaration": "rawNCompact_alpha2_h0",
+    "module": "GQ2.Dyadic.Words.N0"
+  },
+  "name": "rawNCompact_alpha2_h0",
+  "source": "selection-freeze row 2 (compact N, alpha = 2, h = 0); certificate N-compact-alpha2-h0-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+  "word_ast": {
+    "children": [
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 6
+        },
+        "op": "IntegerPower",
+        "word": {
+          "name": "x0",
+          "op": "Generator"
+        }
+      },
+      {
+        "left": {
+          "name": "x0",
+          "op": "Generator"
+        },
+        "op": "Commutator",
+        "right": {
+          "name": "x1",
+          "op": "Generator"
+        }
+      },
+      {
+        "op": "Inverse",
+        "word": {
+          "conjugator": {
+            "name": "sigma",
+            "op": "Generator"
+          },
+          "op": "Conjugate",
+          "word": {
+            "name": "x2",
+            "op": "Generator"
+          }
+        }
+      },
+      {
+        "op": "Omega2Power",
+        "word": {
+          "children": [
+            {
+              "name": "x2",
+              "op": "Generator"
+            },
+            {
+              "name": "tau",
+              "op": "Generator"
+            }
+          ],
+          "op": "Multiply"
+        }
+      },
+      {
+        "count": {
+          "type": "Int",
+          "value": 0
+        },
+        "op": "HyperbolicHandles",
+        "start_index": 3
+      }
+    ],
+    "op": "Multiply"
+  },
+  "word_hash": "a940b6ad06d9728a6b0b5d20f27c76994d83103e65accc6b844fe6174755fc10"
+}
