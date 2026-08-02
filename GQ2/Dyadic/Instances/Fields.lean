@@ -444,21 +444,16 @@ theorem qOf_KSqrtNegTen (FF : DyadicUnitFiltration KSqrtNegTen) : qOf KSqrtNegTe
 
 end RowsQ
 
-/-! ## §6 The ramified-`i` witness at the pilot row `ℚ₂(√−2)`
+/-! ## §6 The ramified-`i` witness
 
 The instance headlines carry a binder `ramified : ∀ δi, δi² = −1 → ¬ HasEqualNormValueGroups K δi`
 — packet §8's statement that `K(i)/K` is *ramified*, phrased as "the value group grows".  At
-`K = ℚ₂(√−2)` it is a theorem, with an explicit witness.
+every ramified row it is a theorem, with an explicit witness.
 
-The witness is `ζ₈ − 1` scaled into shape.  Put `w = (−1 + i)/√−2`; then `w² = i` and `w⁴ = −1`,
-so `w` is a primitive `8`-th root of unity, and `z = √−2 · (w − 1) = (−1 − √−2) + 1·i` has
-
-`‖z‖⁴ = ‖√−2‖⁴ · ‖w − 1‖⁴ = ‖2‖² · ‖2‖ = ‖2‖³`,
-
-an **odd** power of `‖2‖`.  But §4's decomposition says `‖v‖² ∈ ‖ℚ₂ˣ‖` for every `v ∈ Kˣ`, so
-`‖v‖⁴` is always an *even* power.  ⚠ This construction is **not** uniform over the four
-ramified rows: `w` is an `8`-th root of unity exactly when `a = ±2` up to squares, because
-`ζ₈ ∈ K(i)` needs `√2 ∈ K(i)`, which fails at `√±10`. -/
+⚠ A remark on the search: the first witness found here was a scaled `ζ₈ − 1`
+(`w = (−1 + i)/√−2` is a primitive `8`-th root of unity, `z = √−2·(w − 1)`), and that witness
+is **not** uniform — `ζ₈ ∈ K(i)` needs `√2 ∈ K(i)`, which fails at `√±10`.  The `1 + √a + i`
+below has no such restriction and covers all four ramified rows at once. -/
 
 section RamifiedI
 
