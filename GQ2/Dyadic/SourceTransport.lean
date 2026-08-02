@@ -541,4 +541,111 @@ noncomputable def SourceDataN.transport {n q : ℕ} {P : ProfiniteGrp} {hP : IsP
     exact gaussZResidueK_comp htriv' S.htriv e _ F _ l h _
       (S.gaussZ_ramified T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hram)
 
+/-- Changing the tame leg of a boundary map along an equality of homs; the `compat` legs are
+proofs, so they need no relation.  (`rw [h]` cannot do this directly: `compat`'s *type* mentions
+`tame`.) -/
+theorem sourceBoundaryMapK_congr {q : ℕ} {P Γ : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {tame tame' : ContinuousMonoidHom Γ (Tq q)} {pro2 : ContinuousMonoidHom Γ P}
+    (h : tame = tame') (compat : ∀ g : Γ, nuTq q (tame g) = nuP (pro2 g))
+    (compat' : ∀ g : Γ, nuTq q (tame' g) = nuP (pro2 g)) :
+    sourceBoundaryMapK tame pro2 compat = sourceBoundaryMapK tame' pro2 compat' := by
+  subst h; rfl
+
+/-! ## §8 The application: the genuine `n = 1` `WordCertificate`
+
+AS4 left `WordCertificate`'s four analytic clauses open at `(n, q, R) = (1, 2, L_sq)` because
+`sourceR_N`'s counts are statements about the `ℚ₂` carrier `GQ2.GammaR`.  §7 moves the whole
+record across AS4's marked identification `gammaR_lSq_equiv_roe`, which closes them. -/
+
+section NEqOne
+
+open GQ2.Dyadic.QTwo GQ2.Dyadic.Words.LSq
+
+noncomputable local instance absGalQ2_compactSpace_cbtrn : CompactSpace AbsGalQ2 := by
+  change CompactSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
+noncomputable local instance absGalQ2_totallyDisconnectedSpace_cbtrn :
+    TotallyDisconnectedSpace AbsGalQ2 := by
+  change TotallyDisconnectedSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
+/-- **SD-R1's `n = 1` `Γ_R` source, read on the `L_sq` candidate group.**  `sourceR_N` at the
+L-campaign's `GQ2.Roe.Labute.bLab`, transported along AS4's `gammaR_lSq_equiv_roe`; the scalar
+trio is AS4-b's. -/
+noncomputable def sourceLSq :
+    SourceDataN 1 2 PiBd SectionThree.piBd_isProP nuTwo (standardNumerics 1) :=
+  (sourceR_N GQ2.Roe.Labute.bLab).transport (Γ' := candidateGroup 1 2 (lSqW 0))
+    gammaR_lSq_equiv_roe (gammaRSMulZmod2 1 2 (lSqW 0)) (gammaRContSMulZmod2 1 2 (lSqW 0))
+    (gammaR_htriv 1 2 (lSqW 0))
+
+@[simp] theorem sourceLSq_Γ : sourceLSq.Γ = candidateGroup 1 2 (lSqW 0) := rfl
+
+/-- **F3b's tame specialization at `L_sq` is Roe's `φ_R`, read through §4 of AS4.**  Both are
+continuous homs out of `Γ_{L_sq,1}`, so AS4-b's `gammaR_hom_ext` reduces the claim to the four
+marked letters; on the left they are `tameMarking`'s, on the right AS4's `toRoe_*` followed by
+`phiR_gamma*`. -/
+theorem tameOfSpec_lSq_eq :
+    TameSpec.tameOfSpec 1 2 (lSqW 0) tameSpecializes_lSq = sourceLSq.tame := by
+  refine gammaR_hom_ext fun x => ?_
+  -- ⚠ `rw` cannot be used to move to `sourceLSq.tame`: `sourceLSq.Γ` and `GammaR 1 2 (lSqW 0)`
+  -- are the same type through different instance paths (AS4-b's recorded friction), so the
+  -- rewrite motive fails at `instances` transparency where `show`/`exact` succeed.
+  refine Eq.trans (TameSpec.tameOfSpec_gammaGen _ x) ?_
+  show (tameMarking 1 2) x = phiR (toRoe (gammaGen 1 2 (lSqW 0) x))
+  match x with
+  | .sigma => rw [toRoe_sigma]; exact phiR_gammaSigma.symm
+  | .tau => rw [toRoe_tau]; exact phiR_gammaTau.symm
+  | .wild ⟨0, _⟩ =>
+    show tameMarking 1 2 (Generator.wild 0)
+      = phiR (toRoe (gammaGen 1 2 (lSqW 0) (Generator.wild 0)))
+    rw [toRoe_x0]; exact phiR_gammaX0.symm
+  | .wild ⟨1, _⟩ =>
+    show tameMarking 1 2 (Generator.wild 1)
+      = phiR (toRoe (gammaGen 1 2 (lSqW 0) (Generator.wild 1)))
+    rw [toRoe_x1]; exact phiR_gammaX1.symm
+  | .wild ⟨k + 2, hk⟩ => exact absurd hk (by omega)
+
+/-- **The `n = 1` word certificate** (ticket CB-TRN's deliverable).
+
+AS1's `WordCertificate` at `(n, q, R) = (1, 2, L_sq)` over SD-R1's slot
+`(Π, ν₂, standardNumerics 1)`, **unconditional**: the `B`-Lab binder is `GQ2.Roe.Labute.bLab`
+and the `AbsGalQ2` topology instances are file-local, exactly as in AS4's `DyadicRoute`.
+
+Field provenance: `tameSpecialization`/`coreRel`/`proTwoWord`/`htame`/`hwild` are AS4's §6, the
+scalar trio is AS4-b's §3, and the eight remaining fields — the whole eq.-(27) interface plus the
+four analytic clauses AS4 could not cite — are `sourceLSq`, i.e. `sourceR_N` transported. -/
+noncomputable def wordCertificateLSq :
+    WordCertificate 1 2 (lSqW 0) PiBd SectionThree.piBd_isProP nuTwo (standardNumerics 1) where
+  tameSpecialization := tameSpecializes_lSq
+  coreRel := coreRelLSq
+  proTwoWord := proTwoWord_lSq
+  pro2 := sourceLSq.pro2
+  ker_pro2 := sourceLSq.ker_pro2
+  hpro2 := sourceLSq.pro2_surjective
+  compat := fun g => by rw [tameOfSpec_lSq_eq]; exact sourceLSq.compat g
+  tfg := sourceLSq.tfg
+  smulZmod2 := gammaRSMulZmod2 1 2 (lSqW 0)
+  contSMulZmod2 := gammaRContSMulZmod2 1 2 (lSqW 0)
+  htriv := gammaR_htriv 1 2 (lSqW 0)
+  exactLifting := ⟨fun RF b F ρ => sourceLSq.liftsOver_card RF b F ρ,
+    fun D hnd ρ hρ => sourceLSq.lem86 D hnd ρ hρ,
+    fun hE2 hRK hR2 b F => sourceLSq.stageR136 hE2 hRK hR2 b F⟩
+  stokes := ⟨fun b F En l h ρ => sourceLSq.tcocycle_card b F En l h ρ,
+    fun b F En l h Dsc ρ c hc => sourceLSq.hsep b F En l h Dsc ρ c hc,
+    fun b F En l h Dsc ρ χ hχ => sourceLSq.hpartial b F En l h Dsc ρ χ hχ,
+    fun b F En l h hsimple hVne hnt ρ => sourceLSq.hZcard b F En l h hsimple hVne hnt ρ⟩
+  scalar := ⟨sourceLSq.homCard, sourceLSq.cardH2⟩
+  determinant :=
+    ⟨fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hunram => by
+      rw [sourceBoundaryMapK_congr tameOfSpec_lSq_eq _ sourceLSq.compat]
+      exact sourceLSq.gaussZ_unramified T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hunram,
+    fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hram => by
+      rw [sourceBoundaryMapK_congr tameOfSpec_lSq_eq _ sourceLSq.compat]
+      exact sourceLSq.gaussZ_ramified T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hram⟩
+  htame := htame_lSq
+  hwild := hwild_lSq_one
+
+end NEqOne
+
 end GQ2.Dyadic
