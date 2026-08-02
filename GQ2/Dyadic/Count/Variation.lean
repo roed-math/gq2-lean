@@ -546,6 +546,239 @@ theorem pObsFam_varCoc (W : ρ → PWord ι) (gen : ι → Γ) (u : TCocycle D r
 
 end Identity
 
+/-! ### §6. The shifted-edge dual cocycle, `Γ`-generic
+
+`GQ2/LedgerGammaA.lean`'s `exists_phiF` with `GA` turned back into a variable.  Nothing in that
+argument is about `Γ_A`: it constructs `φf γ = (s ↦ ε̄(ργ)(γ⁻¹ · s))` from the radical-cover data
+alone, proves it is a continuous dual `1`-cocycle by factoring through `ρ` into the *finite*
+`Bg ⧸ M`, and proves its class nonzero by contraposition against
+`CentralObstruction.not_noDescent_of_edge_trivial`, which is already `Γ`-free.
+
+The `ℚ₂` file writes it twice (`Γ_A` and `Γ_R`, ~200 lines each, `55%` textually identical —
+CB1 memo §3.1's measurement).  Here it is written once. -/
+
+section PhiVar
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (Additive ↥D.T)] [DistribMulAction Γ (ElemDual (Additive ↥D.T))]
+  (S : TComplement D) (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcompat : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+  (hcompatD : ∀ (γ : Γ) (l : ElemDual (Additive ↥D.T)), γ • l = rho γ • l)
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology Bg]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] in
+/-- Additivity of the shifted-edge functional in its argument. -/
+theorem phiVar_add (γ : Γ) (s s' : Additive ↥D.T) :
+    edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • (s + s')))
+      = edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s))
+        + edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s')) := by
+  have hmulcast : Additive.toMul ((γ⁻¹ : Γ) • (s + s'))
+      = Additive.toMul ((γ⁻¹ : Γ) • s) * Additive.toMul ((γ⁻¹ : Γ) • s') := by
+    rw [smul_add]; rfl
+  rw [hmulcast]
+  exact edge_add D S (Quotient.out (rho γ)) _ _
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology Bg]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] in
+/-- **The shifted-edge dual `1`-cochain** `γ ↦ (s ↦ ε̄(ργ)(γ⁻¹ · s))`. -/
+noncomputable def phiVar (γ : Γ) : ElemDual (Additive ↥D.T) :=
+  (AddMonoidHom.mk' (fun s => edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s)))
+    (phiVar_add S rho γ) : Additive ↥D.T →+ ZMod 2)
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology Bg]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] in
+@[simp] theorem phiVar_apply (γ : Γ) (s : Additive ↥D.T) :
+    phiVar S rho γ s = edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s)) := rfl
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology Bg]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] in
+include hcompat in
+/-- Transport of the `Γ`-action on `T` through `ρ` to the conjugation action `cactFun`. -/
+theorem toMul_smul_eq_cactFun (γ : Γ) (s : Additive ↥D.T) :
+    Additive.toMul (γ • s) = cactFun D (rho γ) (Additive.toMul s) := by
+  rw [hcompat]; exact cActT_toMul D (rho γ) s
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology Bg]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))]
+  [DiscreteTopology (ElemDual (Additive ↥D.T))] in
+include hcompat hcompatD in
+/-- Pointwise formula for the dual `Γ`-action: `(γ • l) a = l (γ⁻¹ · a)`. -/
+theorem dual_smul_apply (γ : Γ) (l : ElemDual (Additive ↥D.T)) (a : Additive ↥D.T) :
+    (γ • l) a = l (γ⁻¹ • a) := by
+  rw [hcompatD, ElemDual.smul_apply, hcompat γ⁻¹ a, map_inv]
+
+omit [IsTopologicalGroup Γ] [DiscreteTopology Bg]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] in
+include hcompat in
+/-- The crossed additive relation for the shifted-edge functional across a product. -/
+theorem phiVar_edgeQ_mul (γ δ : Γ) (s : Additive ↥D.T) :
+    edgeQ D S (rho (γ * δ)) (Additive.toMul ((γ * δ)⁻¹ • s))
+      = edgeQ D S (rho γ) (Additive.toMul (γ⁻¹ • s))
+        + edgeQ D S (rho δ) (Additive.toMul (δ⁻¹ • (γ⁻¹ : Γ) • s)) := by
+  have hactGA := toMul_smul_eq_cactFun rho hcompat
+  have hγ : (QuotientGroup.mk (Quotient.out (rho γ)) : Bg ⧸ D.M) = rho γ :=
+    QuotientGroup.out_eq' _
+  have hδ : (QuotientGroup.mk (Quotient.out (rho δ)) : Bg ⧸ D.M) = rho δ :=
+    QuotientGroup.out_eq' _
+  have hγδrep : (QuotientGroup.mk (Quotient.out (rho γ) * Quotient.out (rho δ)) : Bg ⧸ D.M)
+      = rho (γ * δ) := by rw [QuotientGroup.mk_mul, hγ, hδ, map_mul]
+  rw [edgeQ_eq D S (rho (γ * δ)) hγδrep, edge_mul]
+  have h2 : edge D S (Quotient.out (rho γ))
+        ⟨Quotient.out (rho δ) * (Additive.toMul ((γ * δ)⁻¹ • s)).1 * (Quotient.out (rho δ))⁻¹,
+          conj_mem_T D (Quotient.out (rho δ)) (Additive.toMul ((γ * δ)⁻¹ • s))⟩
+      = edgeQ D S (rho γ) (Additive.toMul (γ⁻¹ • s)) := by
+    rw [edgeQ_eq D S (rho γ) hγ]
+    congr 1
+    apply Subtype.ext
+    show Quotient.out (rho δ) * (Additive.toMul ((γ * δ)⁻¹ • s)).1 * (Quotient.out (rho δ))⁻¹
+        = (Additive.toMul (γ⁻¹ • s)).1
+    have hsplit : Additive.toMul ((γ * δ)⁻¹ • s)
+        = cactFun D (rho δ⁻¹) (Additive.toMul (γ⁻¹ • s)) := by
+      rw [hactGA, show ((γ * δ)⁻¹ : Γ) = δ⁻¹ * γ⁻¹ from mul_inv_rev γ δ, map_mul,
+        cactFun_mul, ← hactGA]
+    rw [hsplit]
+    have hδinv : (QuotientGroup.mk ((Quotient.out (rho δ))⁻¹) : Bg ⧸ D.M) = rho δ⁻¹ := by
+      rw [QuotientGroup.mk_inv, hδ, map_inv]
+    rw [cactFun_eq D (rho δ⁻¹) hδinv]
+    group
+  have h1 : edge D S (Quotient.out (rho δ)) (Additive.toMul ((γ * δ)⁻¹ • s))
+      = edgeQ D S (rho δ) (Additive.toMul (δ⁻¹ • (γ⁻¹ : Γ) • s)) := by
+    rw [edgeQ_eq D S (rho δ) hδ]
+    congr 1
+    rw [mul_inv_rev, mul_smul]
+  rw [h1, h2]
+
+omit [IsTopologicalGroup Γ] in
+include hcompat hcompatD in
+/-- **The shifted-edge cochain is a dual `1`-cocycle.**  Continuity is the whole reason the
+formula is written with `γ⁻¹ • s` rather than with a representative: it makes the cochain factor
+through `ρ` into the finite discrete `Bg ⧸ M`. -/
+theorem phiVar_mem_Z1 : phiVar S rho ∈ Z1 Γ (ElemDual (Additive ↥D.T)) := by
+  haveI := discreteTopology_quotient D
+  have hactGA := toMul_smul_eq_cactFun rho hcompat
+  have hsmulD := dual_smul_apply rho hcompat hcompatD
+  have hcrossZ := phiVar_edgeQ_mul S rho hcompat
+  rw [mem_Z1_iff]
+  refine ⟨?_, ?_⟩
+  · have hΦadd : ∀ (c : Bg ⧸ D.M) (s s' : Additive ↥D.T),
+        edgeQ D S c ⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul (s + s')).1
+            * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+            conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul (s + s'))⟩
+          = edgeQ D S c ⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s).1
+              * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+              conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul s)⟩
+            + edgeQ D S c ⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s').1
+                * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+                conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul s')⟩ := by
+      intro c s s'
+      have hsplit : (⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul (s + s')).1
+            * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+            conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul (s + s'))⟩ : ↥D.T)
+          = (⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s).1
+              * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+              conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul s)⟩ : ↥D.T)
+            * ⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s').1
+                * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+                conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul s')⟩ := by
+        apply Subtype.ext
+        show Quotient.out (c⁻¹ : Bg ⧸ D.M)
+            * ((Additive.toMul s).1 * (Additive.toMul s').1)
+            * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹
+          = (Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s).1
+              * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹)
+            * (Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s').1
+              * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹)
+        group
+      rw [hsplit]
+      exact edge_add D S (Quotient.out c) _ _
+    have hfac : phiVar S rho = (fun c : Bg ⧸ D.M =>
+        (AddMonoidHom.mk' (fun s : Additive ↥D.T =>
+          edgeQ D S c ⟨Quotient.out (c⁻¹ : Bg ⧸ D.M) * (Additive.toMul s).1
+              * (Quotient.out (c⁻¹ : Bg ⧸ D.M))⁻¹,
+            conj_mem_T D (Quotient.out (c⁻¹ : Bg ⧸ D.M)) (Additive.toMul s)⟩) (hΦadd c)
+          : ElemDual (Additive ↥D.T))) ∘ (fun γ : Γ => (rho γ : Bg ⧸ D.M)) := by
+      funext γ
+      refine DFunLike.ext _ _ fun s => ?_
+      rw [phiVar_apply]
+      show edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s))
+        = edgeQ D S (rho γ) ⟨Quotient.out ((rho γ)⁻¹ : Bg ⧸ D.M) * (Additive.toMul s).1
+            * (Quotient.out ((rho γ)⁻¹ : Bg ⧸ D.M))⁻¹,
+            conj_mem_T D (Quotient.out ((rho γ)⁻¹ : Bg ⧸ D.M)) (Additive.toMul s)⟩
+      refine congrArg (edgeQ D S (rho γ)) (Subtype.ext ?_)
+      rw [hactGA]
+      show Quotient.out (rho γ⁻¹) * (Additive.toMul s).1 * (Quotient.out (rho γ⁻¹))⁻¹
+        = Quotient.out ((rho γ)⁻¹ : Bg ⧸ D.M) * (Additive.toMul s).1
+          * (Quotient.out ((rho γ)⁻¹ : Bg ⧸ D.M))⁻¹
+      rw [map_inv]
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp rho.continuous_toFun
+  · intro γ δ
+    refine DFunLike.ext _ _ fun s => ?_
+    have hz := hcrossZ γ δ s
+    show (phiVar S rho (γ * δ)) s = (phiVar S rho γ + γ • phiVar S rho δ) s
+    rw [ElemDual.add_apply, hsmulD]
+    simpa only [phiVar_apply] using hz
+
+omit [IsTopologicalGroup Γ] in
+include hcompat hcompatD in
+/-- **The shifted-edge class is nonzero exactly when the cover does not descend.**  A coboundary
+would give an additive `ℓ : T → 𝔽₂` trivializing the edge, and `not_noDescent_of_edge_trivial`
+builds the descending complement from it. -/
+theorem phiVar_ne_zero (hρ : Function.Surjective rho) (hedge : D.NoDescent) :
+    H1mk Γ (ElemDual (Additive ↥D.T))
+        ⟨phiVar S rho, phiVar_mem_Z1 S rho hcompat hcompatD⟩ ≠ 0 := by
+  have hsmulD := dual_smul_apply rho hcompat hcompatD
+  have hactGA := toMul_smul_eq_cactFun rho hcompat
+  intro h0
+  have hmem : phiVar S rho ∈ B1 Γ (ElemDual (Additive ↥D.T)) := by
+    have h1 := (QuotientAddGroup.eq_zero_iff _).mp h0
+    rwa [AddSubgroup.mem_addSubgroupOf] at h1
+  obtain ⟨lam, hlam⟩ := hmem
+  set ℓ : ↥D.T → ZMod 2 :=
+    fun t => (lam : ElemDual (Additive ↥D.T)) (Additive.ofMul t) with hℓdef
+  have hℓadd : ∀ t t' : ↥D.T, ℓ (t * t') = ℓ t + ℓ t' := by
+    intro t t'
+    show (lam : ElemDual (Additive ↥D.T)) (Additive.ofMul (t * t')) = _
+    rw [show Additive.ofMul (t * t')
+        = Additive.ofMul t + Additive.ofMul t' from rfl, map_add]
+  refine (not_noDescent_of_edge_trivial D S ℓ hℓadd ?_) hedge
+  intro b t
+  obtain ⟨γ, hγ⟩ := hρ (QuotientGroup.mk b)
+  have hlamγ := congrFun hlam γ
+  have hval := congrArg
+    (fun ψ : ElemDual (Additive ↥D.T) => ψ ((γ : Γ) • Additive.ofMul t)) hlamγ
+  have hL : (dZero Γ (ElemDual (Additive ↥D.T)) lam γ) ((γ : Γ) • Additive.ofMul t)
+      = lam (Additive.ofMul t) - lam ((γ : Γ) • Additive.ofMul t) := by
+    show ((γ • lam - lam : ElemDual (Additive ↥D.T))) ((γ : Γ) • Additive.ofMul t) = _
+    rw [ElemDual.sub_apply, hsmulD, inv_smul_smul]
+  have hR : (phiVar S rho γ) ((γ : Γ) • Additive.ofMul t) = edge D S b t := by
+    rw [phiVar_apply, ← edgeQ_eq D S (rho γ) hγ.symm t]
+    refine congrArg (edgeQ D S (rho γ)) ?_
+    exact inv_smul_smul γ (Additive.ofMul t)
+  rw [hL, hR] at hval
+  have hbt : Additive.ofMul (⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ : ↥D.T)
+      = (γ : Γ) • Additive.ofMul t := by
+    have hcast : (γ : Γ) • Additive.ofMul t = Additive.ofMul (cactFun D (rho γ) t) :=
+      Additive.toMul.injective (by rw [hactGA]; rfl)
+    rw [hcast]
+    exact congrArg Additive.ofMul (Subtype.ext (cactFun_eq D (rho γ) hγ.symm t).symm)
+  show edge D S b t = ℓ (⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ : ↥D.T) + ℓ t
+  rw [hℓdef]
+  show edge D S b t
+    = lam (Additive.ofMul (⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ : ↥D.T)) + lam (Additive.ofMul t)
+  rw [hbt, ← hval]
+  exact (by decide : ∀ a e : ZMod 2, a - e = e + a) _ _
+
+end PhiVar
+
 end Ledger
 
 end GQ2.Dyadic.Count
