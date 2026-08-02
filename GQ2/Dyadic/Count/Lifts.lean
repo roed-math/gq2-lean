@@ -620,4 +620,115 @@ theorem nonempty_liftsOverK {n : ℕ} (RF : RecursionFrame T Blk)
 
 end Nonempty
 
+/-! ## §5. The `Z¹`-torsor bridge
+
+`liftsOver_card_local`'s Step 2 (`GQ2/MStageCount.lean:586`), whose own docstring says it "is
+source-generic once a base lift exists".  It is: translating by a fixed lift `f₀` identifies the
+fibre with `Z¹_cont(Γ, M_B)` for the conjugation action pulled back along `ρ`, and nothing in the
+argument mentions the source beyond its being a topological group.  Ported once, over the abstract
+carrier; the `ℚ₂` campaign wrote it three times. -/
+
+section Torsor
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+  {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ]
+  [TotallyDisconnectedSpace Γ]
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [IsTopologicalGroup Γ] [CompactSpace Γ]
+  [TotallyDisconnectedSpace Γ] in
+/-- **`#LiftsOver(ρ) = #Z¹(Γ, M_B)`**, given a base lift.  Generic in the source. -/
+theorem card_liftsOverK_eq_card_Z1 (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (ρ : BoundaryLiftsK b F RF.TC) (hne : Nonempty (LiftsOverK RF b F ρ)) :
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    letI : TopologicalSpace (Additive ↥RF.MB) := (inferInstance : TopologicalSpace ↥RF.MB)
+    letI : DistribMulAction Γ (Additive ↥RF.MB) :=
+      DistribMulAction.compHom _ ρ.1.1.toMonoidHom
+    Nat.card (LiftsOverK RF b F ρ) = Nat.card (Z1 Γ (Additive ↥RF.MB)) := by
+  classical
+  haveI hMBn : RF.MB.Normal := RF.MB_normal
+  letI := mbCommGroup RF
+  letI := mbConjActC RF
+  letI : TopologicalSpace (Additive ↥RF.MB) := (inferInstance : TopologicalSpace ↥RF.MB)
+  haveI : DiscreteTopology (Additive ↥RF.MB) :=
+    ⟨(inferInstance : DiscreteTopology ↥RF.MB).eq_bot⟩
+  letI actG : DistribMulAction Γ (Additive ↥RF.MB) :=
+    DistribMulAction.compHom _ ρ.1.1.toMonoidHom
+  have hcomp : ∀ (γ : Γ) (a : Additive ↥RF.MB), γ • a = ρ.1.1 γ • a := fun _ _ => rfl
+  obtain ⟨f₀⟩ := hne
+  -- the `Γ`-action on `M_B` is conjugation by the lift `f₀ γ` of `ρ γ`
+  have hsmul : ∀ (γ : Γ) (a : Additive ↥RF.MB),
+      γ • a = Additive.ofMul (⟨f₀.1 γ * (Additive.toMul a).1 * (f₀.1 γ)⁻¹,
+        hMBn.conj_mem _ (Additive.toMul a).2 _⟩ : ↥RF.MB) := by
+    intro γ a
+    rw [hcomp]
+    apply Additive.toMul.injective; apply Subtype.ext
+    show mbSec RF (ρ.1.1 γ) * (Additive.toMul a).1 * (mbSec RF (ρ.1.1 γ))⁻¹
+      = f₀.1 γ * (Additive.toMul a).1 * (f₀.1 γ)⁻¹
+    exact mbConjEq RF (by rw [mbSec_spec, f₀.2 γ]) (Additive.toMul a)
+  have hmemf : ∀ (f : LiftsOverK RF b F ρ) (γ : Γ), f.1 γ * (f₀.1 γ)⁻¹ ∈ RF.MB := by
+    intro f γ
+    rw [← RF.ker_piBC]
+    exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, f.2 γ, f₀.2 γ, mul_inv_cancel])
+  refine Nat.card_congr
+    { toFun := fun f => ⟨fun γ => Additive.ofMul ⟨f.1 γ * (f₀.1 γ)⁻¹, hmemf f γ⟩, ?_⟩
+      invFun := fun c => ⟨⟨MonoidHom.mk'
+          (fun γ => (Additive.toMul (c.1 γ)).1 * f₀.1 γ) ?_, ?_⟩, ?_⟩
+      left_inv := ?_
+      right_inv := ?_ }
+  · -- forward lands in `Z¹`
+    rw [mem_Z1_iff]
+    refine ⟨?_, ?_⟩
+    · have hg : Continuous (fun γ : Γ => f.1 γ * (f₀.1 γ)⁻¹) :=
+        (continuous_of_discreteTopology (f := fun p : RF.YB × RF.YB => p.1 * p.2⁻¹)).comp
+          (f.1.continuous_toFun.prodMk f₀.1.continuous_toFun)
+      exact hg.subtype_mk (hmemf f)
+    · intro g s
+      rw [hsmul g (Additive.ofMul ⟨f.1 s * (f₀.1 s)⁻¹, hmemf f s⟩)]
+      apply Additive.toMul.injective; apply Subtype.ext
+      show f.1 (g * s) * (f₀.1 (g * s))⁻¹
+        = f.1 g * (f₀.1 g)⁻¹ * (f₀.1 g * (f.1 s * (f₀.1 s)⁻¹) * (f₀.1 g)⁻¹)
+      rw [map_mul, map_mul]; group
+  · -- inverse is a hom
+    intro g h
+    show (Additive.toMul (c.1 (g * h))).1 * f₀.1 (g * h)
+      = (Additive.toMul (c.1 g)).1 * f₀.1 g * ((Additive.toMul (c.1 h)).1 * f₀.1 h)
+    rw [(mem_Z1_iff.mp c.2).2 g h, map_mul, hsmul g (c.1 h)]
+    show (Additive.toMul (c.1 g)).1 * (f₀.1 g * (Additive.toMul (c.1 h)).1 * (f₀.1 g)⁻¹)
+        * (f₀.1 g * f₀.1 h) = _
+    group
+  · -- inverse is continuous
+    exact (continuous_of_discreteTopology
+        (f := fun p : Additive ↥RF.MB × RF.YB => (Additive.toMul p.1).1 * p.2)).comp
+      ((mem_Z1_iff.mp c.2).1.prodMk f₀.1.continuous_toFun)
+  · -- inverse lands over `ρ`
+    intro γ
+    show RF.piBC ((Additive.toMul (c.1 γ)).1 * f₀.1 γ) = ρ.1.1 γ
+    have hcker : RF.piBC ((Additive.toMul (c.1 γ)).1) = 1 := by
+      have hmem : ((Additive.toMul (c.1 γ)).1 : RF.YB) ∈ RF.piBC.ker := by
+        rw [RF.ker_piBC]
+        exact (Additive.toMul (c.1 γ)).2
+      exact MonoidHom.mem_ker.mp hmem
+    rw [map_mul, hcker, one_mul, f₀.2 γ]
+  · -- left inverse
+    intro f
+    apply Subtype.ext; apply ContinuousMonoidHom.ext; intro γ
+    show f.1 γ * (f₀.1 γ)⁻¹ * f₀.1 γ = f.1 γ
+    group
+  · -- right inverse
+    intro c
+    apply Subtype.ext; funext γ
+    show Additive.ofMul (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩
+        : ↥RF.MB) = c.1 γ
+    rw [show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥RF.MB)
+        = Additive.toMul (c.1 γ) from Subtype.ext (by group)]
+    rfl
+
+end Torsor
+
 end GQ2.Dyadic.Count
