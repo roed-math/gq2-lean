@@ -285,12 +285,14 @@ import GQ2.Dyadic.Count.ProTwo
 import GQ2.Dyadic.Count.Wild
 import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Dyadic.Count.Compare
+import GQ2.Dyadic.Count.LocalDuality
 import GQ2.Dyadic.Count.Presentation
 import GQ2.Dyadic.Count.Resolve
 import GQ2.Dyadic.Count.Frozen
 import GQ2.Dyadic.Count.Scalar
 import GQ2.Dyadic.Count.HTwo
 import GQ2.Dyadic.Instances.KSupply
+import GQ2.Dyadic.Instances.KAnalytic
 import GQ2.Dyadic.Instances.QTwo
 import GQ2.Dyadic.Instances.NpcCore
 import GQ2.Dyadic.Instances.Cores
