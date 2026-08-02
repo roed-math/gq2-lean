@@ -1,6 +1,6 @@
 # Analytic bridges follow-up plan
 
-Date: 2026-08-02  
+Date: 2026-08-02
 Scope: the analytic fields of `WordCertificate` and `KSupply`, after the completed dyadic
 campaign at `ce2ccc0`.
 
@@ -450,4 +450,3 @@ meaning of the existing final theorems.
 5. **Candidate determinant — separate high-risk track.**  It is not solved by any theorem in
    this plan.  Do not report a complete `WordCertificate` merely because the arithmetic
    determinant field is closed.
-

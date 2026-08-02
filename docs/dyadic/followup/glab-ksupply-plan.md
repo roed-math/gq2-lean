@@ -1,7 +1,7 @@
 # From a ramified-`i` field to `KSupply`: G-Lab follow-up plan
 
-Date: 2026-08-02  
-Scope: theorem-level route for an arbitrary finite `K/ℚ₂` with `K(i)/K` ramified.  
+Date: 2026-08-02
+Scope: theorem-level route for an arbitrary finite `K/ℚ₂` with `K(i)/K` ramified.
 Trust rule: no new axioms and no `sorry`. Literature may enter only through the existing
 eleven-axiom boundary, or through explicitly named hypothesis `def`s while a proof is under
 construction.
