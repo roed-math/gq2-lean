@@ -635,4 +635,95 @@ theorem hpartial_field_goal
 
 end FieldGoal
 
+/-! ## §5. The `hsep` fork, and its arithmetic supplier -/
+
+section TwoSeparatingDef
+
+variable (Γ : Type) [Group Γ] [TopologicalSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  (A : Type) [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A]
+  [DistribMulAction Γ A]
+
+/-- **Degree-`2` separation for `(Γ, A)`** — the one input on which the two `ℚ₂` proofs of
+`hsep` diverge, isolated and stated *cup-free*: a continuous `2`-cocycle `φ` all of whose
+invariant-dual pushforwards `p ↦ n(φ p)` are `𝔽₂`-coboundaries is itself a coboundary.
+
+Equivalently: the pairing `H²(Γ, A) × H⁰(Γ, A^∨) → 𝔽₂` is nondegenerate in the **left** slot.
+The arithmetic side reads it off Tate's `(2,0)` clause (`isTwoSeparating_of_tateDualityG`); the
+candidate side reads the same proposition off the word-side `#H²w(A) = #H⁰w(A^∨)` — which is
+`IsSelfDualN`'s clause 1, the *only* clause `ℚ₂`'s `sep_word` consumes.  As with
+`IsRightSeparating`, neither vocabulary appears here, so one binder serves both sides and all
+five frozen branch families at once. -/
+def IsTwoSeparating : Prop :=
+  ∀ φ : ↥(Z2 Γ A),
+    (∀ n : ElemDual A, (∀ γ : Γ, γ • n = n) →
+      (fun p : Γ × Γ => n (φ.1 p)) ∈ B2 Γ (ZMod 2)) →
+    (φ.1 : Γ × Γ → A) ∈ B2 Γ A
+
+end TwoSeparatingDef
+
+section TwoSeparation
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [DistribMulAction Γ A] [ContinuousSMul Γ A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul Γ (ElemDual A)]
+
+/-- An invariant elementary dual is `Γ`-equivariant for the trivial target action. -/
+theorem elemDual_apply_smul {n : ElemDual A} (hn : ∀ γ : Γ, γ • n = n) (g : Γ) (a : A) :
+    n (g • a) = n a := by
+  conv_lhs => rw [← hn g]
+  rw [ElemDual.smul_apply, inv_smul_smul]
+
+/-- The pushforward of a continuous `2`-cocycle along an invariant elementary dual is a
+continuous `𝔽₂`-valued `2`-cocycle. -/
+theorem pushforward_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (φ : ↥(Z2 Γ A))
+    {n : ElemDual A} (hn : ∀ γ : Γ, γ • n = n) :
+    (fun p : Γ × Γ => n (φ.1 p)) ∈ Z2 Γ (ZMod 2) := by
+  refine mem_Z2_iff.mpr ⟨(continuous_of_discreteTopology (f := fun a : A => n a)).comp
+    (mem_Z2_iff.mp φ.2).1, fun g h k => ?_⟩
+  have hφ := congrArg n ((mem_Z2_iff.mp φ.2).2 g h k)
+  rw [map_add, map_add, elemDual_apply_smul hn g (φ.1 (h, k))] at hφ
+  rw [htriv]
+  exact hφ
+
+/-- **The arithmetic supplier of the `hsep` fork.**  Injectivity of the `(2,0)` evaluation cup
+(`prop_5_16` clause (vi), `Γ`-generically CB-SG's `bijective_cup20_dualEvalG`) is exactly
+`IsTwoSeparating`: the cup value at an invariant `n` is the class of the pushforward `n ∘ φ`,
+so universal `B²`-membership is universal cup-vanishing.
+
+`d` enters only as the implicit degree of the Euler binder `hE` and is **absent from the
+conclusion** — the same degree-uniformity §2 records for the `hpartial` fork.  Instantiated at
+`tateDualityGalK K` plus LG2a's Euler characteristic, this supplies `hsep` at every `K`. -/
+theorem isTwoSeparating_of_tateDualityG (Dl : TateDualityG Γ 2) {d : ℕ}
+    (hE : LocalEulerChar Γ d)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    IsTwoSeparating Γ A := by
+  intro φ hvan
+  have hzero : H2mk Γ A φ = 0 := by
+    apply (bijective_cup20_dualEvalG Dl hE hA₂ htriv hpair).1
+    show cup20 (dualEval A) hpair _ = cup20 (dualEval A) hpair 0
+    rw [map_zero]
+    refine AddMonoidHom.ext fun n => ?_
+    show cup20 (dualEval A) hpair (H2mk Γ A φ) n = 0
+    have hnn : ∀ γ : Γ, γ • n.1 = n.1 := fun γ => n.2 γ
+    have hval : cup20 (dualEval A) hpair (H2mk Γ A φ) n
+        = H2mk Γ (ZMod 2) ⟨fun p : Γ × Γ => n.1 (φ.1 p), pushforward_mem_Z2 htriv φ hnn⟩ := by
+      apply congrArg (H2mk Γ (ZMod 2))
+      apply Subtype.ext
+      funext gd
+      show dualEval A (φ.1 gd) ((gd.1 * gd.2) • n.1) = n.1 (φ.1 gd)
+      rw [n.2 (gd.1 * gd.2)]
+      rfl
+    rw [hval, H2mk_eq_zero_iff]
+    exact hvan n.1 hnn
+  exact AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff φ).mp hzero)
+
+end TwoSeparation
+
 end GQ2.Dyadic.Count
