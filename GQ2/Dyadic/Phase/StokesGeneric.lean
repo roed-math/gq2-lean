@@ -35,6 +35,11 @@ agree exactly at `d = 1`, i.e. at `Γ = G_ℚ₂`; for `[K : ℚ₂] > 1` the `�
 So the generic statement carries a **degree parameter** `d`, and `LocalEulerChar Γ d` below is the
 hypothesis, matching `absGalK_localEulerCharacteristic` on the nose at `d = G_K.index`.
 
+The refutation is Lean-checked, not just asserted: `card_Z1_zmod2G_eq_eight_iff` evaluates clause
+(ii) at the trivial module `A = 𝔽₂` (where the `ℚ₂` shape predicts `4 · 2 = 8`) and shows the true
+value `2^{d+2}` equals `8` **iff** `d = 1`; `card_Z1_zmod2_galK_eq_eight_iff` is the same statement
+at `G_K`, i.e. iff `[K : ℚ₂] = 1`.
+
 This is the same `n`-dependence the recursion layer already anticipated: `SourceDataN.hZcard` is
 stated as `#Z¹(V) = #V · SN.h1Mult #V` with `(standardNumerics n).h1Mult V = Vⁿ`
 (`GQ2/Dyadic/Recursion/Numerics.lean`), i.e. `#V^{n+1}` — SD-R3's "outer/inner" shape rule.  The
@@ -306,6 +311,42 @@ omit [ContinuousSMul Γ (ZMod 2)] in
 theorem finite_H2_zmod2G (D : TateDualityG Γ 2)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) : Finite (H2 Γ (ZMod 2)) :=
   Finite.of_equiv _ (invG D htriv).symm.toEquiv
+
+/-! ### The witness that clause (ii) is degree-sensitive
+
+Evaluated at the trivial module `A = 𝔽₂` (and the trivial `C`, where
+`fixedPts C (ElemDual 𝔽₂) = ElemDual 𝔽₂` has two elements), clause (ii) predicts
+`#Z¹(Γ, 𝔽₂) = #𝔽₂^{d+1} · 2 = 2^{d+2}`, whereas a verbatim `ℚ₂`-clone predicting `#A² · #fixedPts`
+would say `4 · 2 = 8`.  The next two theorems compute the true value and show the `ℚ₂` value is
+attained **exactly** at `d = 1`.  Independent cross-check: at `Γ = G_K` the true value `2^{n+2}`
+is `GQ2.Dyadic.card_hom_zmodTwo_galK` (`#Hom_c(G_K, 𝔽₂) = 2^{[K:ℚ₂]+2}`, proved from B7 by a
+different route in `GQ2/Dyadic/Instances/KSupply.lean`). -/
+
+/-- `#Z¹(Γ, 𝔽₂) = 2^{d+2}` for a trivial `𝔽₂`-action — clause (ii) at `A = 𝔽₂`, computed. -/
+theorem card_Z1_zmod2G (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) : Nat.card (Z1 Γ (ZMod 2)) = 2 ^ (d + 2) := by
+  have hH0 : Nat.card (H0 Γ (ZMod 2)) = 2 := by
+    rw [show H0 Γ (ZMod 2) = ⊤ from eq_top_iff.mpr fun m _ g => htriv g m,
+      Nat.card_congr (AddSubgroup.topEquiv (G := ZMod 2)).toEquiv, Nat.card_zmod]
+  have hB1 : Nat.card (B1 Γ (ZMod 2)) = 1 := by
+    have h := card_A_eq_B1_mul_H0G (Γ := Γ) (A := ZMod 2)
+    rw [Nat.card_zmod, hH0] at h
+    omega
+  rw [card_Z1_eq_H1_mul_B1G, (hE (ZMod 2)).2.2.2, hH0, card_H2_zmod2_eq_twoG D htriv, hB1,
+    Nat.card_zmod, show padicValNat 2 2 = 1 from padicValNat.self one_lt_two, mul_one, mul_one,
+    pow_add]
+  ring
+
+/-- **The refutation.**  The `ℚ₂` clause-(ii) value `#A² · #fixedPts = 8` at `A = 𝔽₂` holds
+**iff** `d = 1`.  So a verbatim `K`-clone of `GQ2.FoxH.prop_5_16`'s clause (ii) is *false* for
+every `K/ℚ₂` of degree `> 1`, and the degree parameter is not optional. -/
+theorem card_Z1_zmod2G_eq_eight_iff (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) :
+    Nat.card (Z1 Γ (ZMod 2)) = 2 ^ 2 * 2 ↔ d = 1 := by
+  rw [card_Z1_zmod2G D hE htriv, show (2 : ℕ) ^ 2 * 2 = 2 ^ 3 by norm_num]
+  refine ⟨fun h => ?_, fun h => by rw [h]⟩
+  have := Nat.pow_right_injective (le_refl 2) h
+  omega
 
 end ScalarH2
 
@@ -633,6 +674,34 @@ theorem prop_5_16_galK {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopol
     Function.Bijective (fun c : ↥(H0 (GalK K) A) => cup02 (dualEval A) hpair c) ∧
     Function.Bijective (fun c : H2 (GalK K) A => cup20 (dualEval A) hpair c) :=
   prop_5_16_galK_of K (tateDualityGalK K) ρ hρ hcomp hA₂ hcompD htriv hpair
+
+/-! ### The refutation, at the arithmetic carrier
+
+`card_Z1_zmod2G` evaluated at `Γ = G_K` says `#Z¹(G_K, 𝔽₂) = 2^{n+2}`, `n = [K : ℚ₂]`.  That
+number is the `ℚ₂` clause-(ii) value `8` **only** when `n = 1`.  So the `K`-clone ASK's ticket was
+originally scoped to write would have shipped a false clause for every `K ≠ ℚ₂`.
+
+The value also matches `GQ2.Dyadic.card_hom_zmodTwo_galK` (`#Hom_c(G_K,𝔽₂) = 2^{n+2}`, proved in
+`KSupply.lean` from `Count.card_hom_eq_card_Z1` + FD1's `card_H1_zmodTwo`), which is an
+independent derivation of the same number — so the degree-shifted clause (ii) is corroborated at
+`K` by already-landed mathematics, not only by the Euler bookkeeping here. -/
+
+/-- `#Z¹(G_K, 𝔽₂) = 2^{[K:ℚ₂]+2}` — the generic clause (ii) at the trivial module, at `G_K`. -/
+theorem card_Z1_zmod2_galK :
+    Nat.card (Z1 (GalK K) (ZMod 2)) = 2 ^ (Module.finrank ℚ_[2] K + 2) := by
+  have h := card_Z1_zmod2G (tateDualityGalK K) (localEulerChar_galK K) (fun _ _ => rfl)
+  have hidx : (GalKsub K).index = Module.finrank ℚ_[2] K :=
+    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm
+  rwa [hidx] at h
+
+/-- **A `ℚ₂`-clone of clause (ii) would be false at `K`.**  The `ℚ₂` value `#A² · #fixedPts = 8`
+at `A = 𝔽₂` is attained exactly when `[K : ℚ₂] = 1`. -/
+theorem card_Z1_zmod2_galK_eq_eight_iff :
+    Nat.card (Z1 (GalK K) (ZMod 2)) = 2 ^ 2 * 2 ↔ Module.finrank ℚ_[2] K = 1 := by
+  rw [card_Z1_zmod2_galK K, show (2 : ℕ) ^ 2 * 2 = 2 ^ 3 by norm_num]
+  refine ⟨fun h => ?_, fun h => by rw [h]⟩
+  have := Nat.pow_right_injective (le_refl 2) h
+  omega
 
 end GalKInstance
 
