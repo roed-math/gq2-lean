@@ -97,6 +97,57 @@ theorem iotaB_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
   · rw [key _ fun hc => h ((mem_B2_comp_iff htA htB e φ).mp (iotaB_eq_zero_iff.mp hc)),
       key _ fun hc => h (iotaB_eq_zero_iff.mp hc)]
 
+section H2
+
+variable [ContinuousSMul A (ZMod 2)] [ContinuousSMul B (ZMod 2)]
+
+omit [IsTopologicalGroup A] [IsTopologicalGroup B] [ContinuousSMul A (ZMod 2)]
+  [ContinuousSMul B (ZMod 2)] in
+/-- The equivariance `ContCoh.H2comap` asks for, at the identity coefficient map and two trivial
+actions. -/
+theorem zmodTwo_compat (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
+    (htB : ∀ (γ : B) (m : ZMod 2), γ • m = m) (e : A ≃ₜ* B) :
+    ∀ (g : A) (n : ZMod 2), (AddMonoidHom.id (ZMod 2)) ((e : ContinuousMonoidHom A B) g • n)
+      = g • (AddMonoidHom.id (ZMod 2)) n := fun g n => by
+  show (e : ContinuousMonoidHom A B) g • n = g • n
+  rw [htA, htB]
+
+/-- The identity of `𝔽₂` as a continuous additive map, at the exact type `H2comap` demands
+(`continuous_id` itself is stated at `id`, not at `⇑(AddMonoidHom.id _)`, and the coercion gap
+breaks later `simp` calls). -/
+theorem continuous_addMonoidHom_id_zmodTwo : Continuous ⇑(AddMonoidHom.id (ZMod 2)) :=
+  continuous_id
+
+/-- **`H²(−, 𝔽₂)` transports.**  `ContCoh.H2comap` in both directions; the two composites are the
+identity because the coefficient map is `id` and `e.symm ∘ e = id`. -/
+noncomputable def h2Equiv (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
+    (htB : ∀ (γ : B) (m : ZMod 2), γ • m = m) (e : A ≃ₜ* B) :
+    H2 B (ZMod 2) ≃ H2 A (ZMod 2) where
+  toFun := H2comap (e : ContinuousMonoidHom A B) (AddMonoidHom.id _)
+    continuous_addMonoidHom_id_zmodTwo (zmodTwo_compat htA htB e)
+  invFun := H2comap (e.symm : ContinuousMonoidHom B A) (AddMonoidHom.id _)
+    continuous_addMonoidHom_id_zmodTwo (zmodTwo_compat htB htA e.symm)
+  left_inv x := by
+    obtain ⟨φ, rfl⟩ := H2mk_surjective (G := B) (M := ZMod 2) x
+    refine congrArg (H2mk B (ZMod 2)) (Subtype.ext (funext fun p => ?_))
+    show φ.1 (e (e.symm p.1), e (e.symm p.2)) = φ.1 p
+    rw [e.apply_symm_apply, e.apply_symm_apply]
+  right_inv x := by
+    obtain ⟨φ, rfl⟩ := H2mk_surjective (G := A) (M := ZMod 2) x
+    refine congrArg (H2mk A (ZMod 2)) (Subtype.ext (funext fun p => ?_))
+    show φ.1 (e.symm (e p.1), e.symm (e p.2)) = φ.1 p
+    rw [e.symm_apply_apply, e.symm_apply_apply]
+
+omit [IsTopologicalGroup A] [IsTopologicalGroup B] [ContinuousSMul A (ZMod 2)]
+  [ContinuousSMul B (ZMod 2)] in
+/-- **`#H²(−, 𝔽₂)` is a transport invariant** — the `SourceDataN.cardH2` clause. -/
+theorem card_H2_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
+    (htB : ∀ (γ : B) (m : ZMod 2), γ • m = m) (e : A ≃ₜ* B) :
+    Nat.card (H2 A (ZMod 2)) = Nat.card (H2 B (ZMod 2)) :=
+  (Nat.card_congr (h2Equiv htA htB e)).symm
+
+end H2
+
 end Cohomology
 
 /-! ## §3 The `K`-boundary layer
