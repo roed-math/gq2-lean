@@ -25,7 +25,8 @@ As with the compact pair, this file carries **two** things:
   `η = 1` display and `h = 0`: the alphabet ↔ core dictionary, the `CorePresentation`, and the
   `WordCertificate` producer.  `√−10` (`GQ2/Dyadic/Instances/SqrtNeg10.lean`) consumes it
   unchanged at `p = 1`.  ⚠ **branch machinery — should be hoisted**, see the note below.
-* **§5–§7** — the `√10` row: frozen parameters, packet Thm 1.1 at `K`, the two `hsimp` fold-ins.
+  §5 carries the two `hsimp` fold-ins, also branch-generic.
+* **§6–§7** — the `√10` row: frozen parameters and packet Thm 1.1 at `K`.
 
 ## The dictionary, and why it does not factor the way the compact one does
 
@@ -60,7 +61,7 @@ identically zero at `r = 0` (where `A = B = g` with `g² + g + 1 = 0`) and inver
 and that `r ≥ 1` is precisely the side condition the cross-operator layer deliberately does not
 consume — is discharged at both AS3 procyclic rows by inspection of the frozen parameters:
 **both are `r = 1`** (`Words/Mpc.lean`'s `branchData_sqrtNeg10` and `branchData_sqrt10`, whose
-`level` field is `1`).  §5's `sqrtTenRow` states it as a theorem so the discharge is checkable
+`level` field is `1`).  §6's `sqrtTenRow` states it as a theorem so the discharge is checkable
 and not a remark, and `r_pos` is the named handle.  Note this is a *parameter* fact, not a
 mathematical one: nothing here re-derives `L_c`'s dichotomy, and nothing here needs to — the
 degenerate `r = 0` row simply is not among the six frozen procyclic instances.
@@ -95,12 +96,12 @@ epimorphism enumeration.  All cited; no proof here depends on any of it.
 
 ## Axioms
 
-`sorry`-free, no new axiom, no `decide`.  §1–§4 print the standard three; §6's headline prints
-std-3 + `{B1, B6, B7}` (ASK's surface) — no B5-K, no B10-K.
+`sorry`-free, no new axiom, no `decide`.  §1–§6 print exactly the standard three; §7's headline
+prints std-3 + `{B1, B6, B7}` (ASK's surface) — no B5-K, no B10-K.  Measured, not budgeted.
 
 ## ⚠ Orchestrator note
 
-`MProcyclicCore` (§1–§4) is branch machinery and belongs beside `Count.PilotN` and the compact-`M`
+`MProcyclicCore` (§1–§5) is branch machinery and belongs beside `Count.PilotN` and the compact-`M`
 layer, not in an instance file; it lives here only because AS3 owns four files.
 `SqrtNeg10.lean` imports this module solely to reach it.
 -/

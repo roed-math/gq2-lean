@@ -19,14 +19,14 @@ import GQ2.Dyadic.Count.Frozen
 
 This file carries **two** things, and the split matters for the orchestrator:
 
-* **§1–§4, `MCompactCore`** — the compact-`M` *branch* layer, generic in `(α, h, q)`: the
-  alphabet ↔ core dictionary (`CoreReindex`), the `CorePresentation` it produces, and the
-  `WordCertificate` producer that leaves exactly AS1's four analytic clauses open.  `√5`
-  (`GQ2/Dyadic/Instances/Sqrt5.lean`) consumes this namespace unchanged; only `α` and `q` differ.
-  ⚠ **This layer is not `√2`-specific and should be hoisted** — see the orchestrator note at the
-  bottom of the module docstring.
-* **§5–§7** — the `√2` row proper: the frozen parameters, the field's headline (packet Thm 1.1 at
-  `K`), and the two `hsimp` fold-ins.
+* **§1–§5, `MCompactCore`** — the compact-`M` *branch* layer, generic in `(α, h, q)`: the
+  alphabet ↔ core dictionary (`CoreReindex`), the `CorePresentation` it produces, the
+  `WordCertificate` producer that leaves exactly AS1's four analytic clauses open, and the two
+  `hsimp` fold-ins.  `√5` (`GQ2/Dyadic/Instances/Sqrt5.lean`) consumes this namespace unchanged;
+  only `α` and `q` differ.  ⚠ **This layer is not `√2`-specific and should be hoisted** — see the
+  orchestrator note at the bottom of the module docstring.
+* **§6–§7** — the `√2` row proper: the frozen parameters, the row's word certificate, and the
+  field's headline (packet Thm 1.1 at `K`).
 
 ## What was missing and is built here (the ticket's real content)
 
@@ -62,7 +62,7 @@ The inventory at `(n, q, R) = (2, 2, mCompactW 3 0)`:
 | `WordCertificate` field | status |
 |---|---|
 | `tameSpecialization` | **proved** (`Count.tameSpecializes_mCompact`) |
-| `coreRel`, `proTwoWord` | **proved** (§2, from WM0-a's `eval_pro2_mCompact`) |
+| `coreRel`, `proTwoWord` | **proved** (§1, from WM0-a's `eval_pro2_mCompact`) |
 | `pro2`, `ker_pro2`, `hpro2`, `compat` | **proved** — §1's dictionary + `Count.CorePresentation` |
 | `tfg` | **proved** (`Count.gammaR_topologicallyFinitelyGenerated`) |
 | `smulZmod2`, `contSMulZmod2`, `htriv` | **proved** (`Count.trivialSMulZmodTwo` &c.) |
@@ -78,26 +78,27 @@ marking) are arguments too; they are conditions on the abstract slot `(P, ν_P)`
 
 **Nothing in this file reads a count.**  No `Nat.card`, no exponent constant and no
 `SourceNumerics` *value* is written anywhere: the numerics enter only as the opaque parameter
-`SN`, and §6 instantiates it at `standardNumerics 2` by name, never by its formula.  CB-SG's
+`SN`, and §7 instantiates it at `standardNumerics 2` by name, never by its formula.  CB-SG's
 exponent warning (`2^{d·v₂(#A)}` versus `2^{v₂(#A)}`) therefore has nothing to bite on here.
 
 ## Regression cross-checks against the freeze (not proofs)
 
 `Words/M0.lean`'s F5 rows record `d = 2 ⇒ M(α = 3, r = 0)`, `m = 4`, `q_K = 2`, epimorphism
 counts `(S₃, D₈, A₄) = (6, 1568, 120)`, certificate `M-compact-alpha3-h0-q2-v001`, AST digest
-`0209b708538277e0…`.  §5's `sqrtTwoRow` pins the `(α, h, level)` triple against WM0-a's own
-`branchData_sqrtTwo` and `mOf 3 = 4`; the harness numbers are **cited only**, and no proof in
+`0209b708538277e0…`.  `Sqrt2.sqrtTwoRow` pins the `(α, h, level)` triple against WM0-a's own
+`branchData_sqrtTwo` and `mOf 3 = 4` (§6); the harness numbers are **cited only**, and no proof in
 this file depends on them.
 
 ## Axioms
 
-`sorry`-free.  No new axiom, no `decide`, no `native_decide`.  §1–§4 print the standard three;
-§6's headline prints std-3 plus whatever `KSupply` and AS1's assembly carry (B1/B6/B7 through
-ASK).  Per-declaration prints are in the ticket report.
+`sorry`-free.  No new axiom, no `decide`, no `native_decide`.  §1–§6 print exactly the standard
+three; §7's headline prints std-3 **plus exactly `{B1, B6, B7}`** — ASK's surface — and in
+particular **no B5-K and no B10-K**.  Measured, not budgeted; per-declaration prints are in the
+ticket report.
 
 ## ⚠ Orchestrator note
 
-`MCompactCore` (§1–§4) is branch machinery, not instance machinery, and belongs next to
+`MCompactCore` (§1–§5) is branch machinery, not instance machinery, and belongs next to
 `Count.PilotN` in `GQ2/Dyadic/Count/ProTwo.lean` (or in a new `GQ2/Dyadic/Instances/Cores.lean`).
 It lives here only because AS3 owns four files and may not create a fifth; `Sqrt5.lean` imports
 this module solely to reach it.  Hoisting is a pure move — nothing in §1–§4 mentions `√2`.
