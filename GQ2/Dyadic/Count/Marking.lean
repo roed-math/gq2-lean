@@ -167,4 +167,152 @@ theorem exists_coverJ_of_mem_ker {g : Q.cover} (hg : Q.p g = 1) : ∃ a : ZMod 2
 
 end CoverFibre
 
+/-! ## §2. The invariant-dual relator sum, over the abstract carrier
+
+`Phase140GammaA.invariant_dual_relatorSum_eq_zero` (`private`, `Fin 4`-pinned through `Marking`
+and `redValues_eq_of_coverLift`), at an arbitrary alphabet and relator family and over the
+abstract carrier `(D, DD, S, σ, ρ)`.
+
+This is the theorem that turns the `hsep` hypothesis — "every `χ`-obstruction of `c` vanishes" —
+into `sepWordN`'s hypothesis: *every `d⁰`-invariant elementary dual kills the traced sum of the
+relator values of a set-lift marking*.  The per-character `𝔽₂`-cover layer
+(`Phase140GammaA.charKer`/`charCover`/`charCoverMap`/`exists_lift_charCover`) is already
+`Γ`-generic and carrier-abstract and is used verbatim; the `Fin 4` content is §1's. -/
+
+section Reduction
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+
+/-- The reduction `B/T ↠ B/M` (`T ≤ M`). -/
+def piTM (D : RadicalCoverData Bg) : (Bg ⧸ D.T) →* Bg ⧸ D.M :=
+  QuotientGroup.map D.T D.M (MonoidHom.id Bg) (by rw [Subgroup.comap_id]; exact D.hTM)
+
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
+@[simp] theorem piTM_mk (b : Bg) : piTM D (QuotientGroup.mk b) = QuotientGroup.mk b := rfl
+
+variable {DD : DescData D}
+
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
+/-- **`liftC0` is injective** — the `hkerC0` clause read as injectivity.  Re-derived because the
+`ℚ₂` copies (`Phase140GammaA.mk_eq_of_mkT_eq`, `Count/Separation.lean`'s `fLift_mk_MN`) both keep
+it inline. -/
+theorem liftC0_injective (DD : DescData D) : Function.Injective (liftC0 DD) := by
+  intro x y hxy
+  induction x using QuotientGroup.induction_on with
+  | H bx =>
+    induction y using QuotientGroup.induction_on with
+    | H by' =>
+      rw [liftC0_mk, liftC0_mk] at hxy
+      refine (QuotientGroup.eq (s := D.M)).mpr ?_
+      rw [← DD.hkerC0, MonoidHom.mem_ker, map_mul, map_inv, hxy, inv_mul_cancel]
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
+
+omit [DiscreteTopology Bg] in
+/-- **A `π_T`-lift lies over `ρ` for `π_M` too** — `Phase140GammaA.mk_eq_of_mkT_eq` in the form the
+marking route wants: the whole hom, not one value at a time. -/
+theorem piTM_qLiftsOver (gQ : QLiftsOver DD rho) (γ : Γ) : piTM D (gQ.1 γ) = rho γ := by
+  obtain ⟨y, hy⟩ := QuotientGroup.mk_surjective (s := D.T) (gQ.1 γ)
+  rw [← hy, piTM_mk]
+  refine liftC0_injective DD ?_
+  rw [liftC0_mk, ← piQbar_mk DD y,
+    show (piT (D := D) y) = (QuotientGroup.mk y : Bg ⧸ D.T) from rfl, hy]
+  exact gQ.2 γ
+
+end Reduction
+
+section InvariantDual
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D} {σ : DD.C0 →* Bg ⧸ D.T}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)]
+  [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+  {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {cM : ι → Bg ⧸ D.M} {J : Set ι}
+
+open Phase140GammaA RadicalEdgeGammaA
+
+omit [Fintype ι] [Fintype ρ] [DecidableEq ι] [TopologicalSpace Bg] [DiscreteTopology Bg]
+  [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)]
+  [DistribMulAction (Bg ⧸ D.M) (ZMod 2)] in
+/-- **A `C`-fixed elementary dual of `Additive T` is conjugation-invariant** — the induced
+character is a `TCharC`.  `Phase140GammaA.fixed_elemDual_conj_apply`, over the abstract carrier. -/
+theorem fixed_elemDual_conj_applyN (lam : ElemDual (Additive ↥D.T))
+    (hfix : lam ∈ fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) (bb : Bg) (t : ↥D.T) :
+    lam (Additive.ofMul (⟨bb * (t : Bg) * bb⁻¹, D.hT.conj_mem (t : Bg) t.2 bb⟩ : ↥D.T))
+      = lam (Additive.ofMul t) := by
+  conv_lhs => rw [← hfix (QuotientGroup.mk bb)]
+  rw [ElemDual.smul_apply]
+  congr 1
+  refine Additive.toMul.injective (Subtype.ext ?_)
+  rw [cActT_toMul, cactFun_eq D _ (b := bb⁻¹) (by rw [QuotientGroup.mk_inv])]
+  show bb⁻¹ * (bb * (t : Bg) * bb⁻¹) * bb⁻¹⁻¹ = (t : Bg)
+  group
+
+/-- **The invariant-dual relator sum vanishes** — the candidate-side input of `sepWordN`.
+
+`Phase140GammaA.invariant_dual_relatorSum_eq_zero` at arbitrary `ι`/`ρ`.  A `d⁰`-invariant
+elementary dual `λ` induces a `C`-invariant character `χ_λ`; if `χ_λ = 0` every relator value is
+killed outright, and otherwise `β_{χ_λ}(c) = 0` produces a lift of `g_c` through the `χ_λ`-cover
+(`exists_lift_charCover`), which by §1 forces the traced sum of the reduced relator values — i.e.
+`∑ₖ χ_λ(vₖ)` — to vanish. -/
+theorem invariant_dual_relatorSum_eq_zeroN
+    (S : CountSections DD σ) (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (htrivC : ∀ (g : Bg ⧸ D.M) (m : ZMod 2), g • m = m)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres2 : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hcc : ∀ i, rho (gen i) = cM i) (hend : IsStokesEndpoint w)
+    (u : VCocycle DD rho) (hvan : ∀ χ : ↥(TCharC D), betaChi S hσ χ u = 0)
+    (f₀ : ι → Bg)
+    (hproj : ∀ i, (QuotientGroup.mk (f₀ i) : Bg ⧸ D.T) = (qOfCocycle DD rho σ hσ u).1 (gen i))
+    (hvmem : ∀ k, PWord.eval f₀ (W k) ∈ D.T)
+    (lam : ElemDual (Additive ↥D.T))
+    (hlam : lam ∈ fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :
+    lam (∑ k, Additive.ofMul (⟨PWord.eval f₀ (W k), hvmem k⟩ : ↥D.T)) = 0 := by
+  classical
+  set chi : ↥(TCharC D) := ⟨fun t => lam (Additive.ofMul t),
+    ⟨fun t t' => map_add lam (Additive.ofMul t) (Additive.ofMul t'),
+     fun bb t => fixed_elemDual_conj_applyN lam hlam bb t⟩⟩ with hchi
+  rw [map_sum]
+  by_cases hz : chi = 0
+  · refine Finset.sum_eq_zero fun k _ => ?_
+    have h0 := congrArg (fun ξ : ↥(TCharC D) => ξ.1 ⟨PWord.eval f₀ (W k), hvmem k⟩) hz
+    simpa using h0
+  · -- the lift of `g_c` through the `χ`-cover
+    obtain ⟨gc, hgclift⟩ := exists_lift_charCover htriv S hσ chi hz u
+      (iotaB_eq_zero_iff.mp (hvan chi))
+    -- §1's data: the word-complex base, and the `𝔽₂`-fibre of the cover
+    have hgc : ∀ i, ((piTM D).comp (charCover chi hz).p) (gc (gen i)) = cM i := by
+      intro i
+      show piTM D ((charCover chi hz).p (gc (gen i))) = cM i
+      rw [hgclift (gen i), piTM_qLiftsOver, hcc i]
+    have hcov : ∀ i, (charCover chi hz).p (charCoverMap chi hz (f₀ i))
+        = (charCover chi hz).p (gc (gen i)) := by
+      intro i
+      rw [hgclift (gen i),
+        show (charCover chi hz).p (charCoverMap chi hz (f₀ i))
+          = ((charCover chi hz).p.comp (charCoverMap chi hz)) (f₀ i) from rfl,
+        charCover_p_comp chi hz]
+      exact hproj i
+    obtain ⟨x, hx⟩ := exists_kernel_offset (ι := ι) (charCover chi hz).p
+      (coverJ (charCover chi hz)) (fun g hg => exists_coverJ_of_mem_ker _ hg)
+      (fun i => charCoverMap chi hz (f₀ i)) (fun i => gc (gen i)) hcov
+    refine sum_relatorFib_eq_zero ((piTM D).comp (charCover chi hz).p)
+      (coverJ (charCover chi hz)) htrivC (coverJ_add _) (coverJ_comm _) (coverJ_injective _)
+      hpres hres2 (fun k => lower_rel (A := ZMod 2) rho hcc hpres hres2 k) hend gc hgc x _ ?_
+    intro k
+    rw [show (fun i => coverJ (charCover chi hz) (x i) * gc (gen i))
+        = fun i => charCoverMap chi hz (f₀ i) from (funext hx).symm,
+      show (fun i => charCoverMap chi hz (f₀ i))
+        = fun i => discreteCMH (charCoverMap chi hz) (f₀ i) from rfl,
+      ← PWord.map_eval (discreteCMH (charCoverMap chi hz)) f₀ (W k)]
+    show charCoverMap chi hz ((⟨PWord.eval f₀ (W k), hvmem k⟩ : ↥D.T) : Bg) = _
+    exact charCoverMap_coe_eq_zpow chi hz ⟨PWord.eval f₀ (W k), hvmem k⟩
+
+end InvariantDual
+
 end GQ2.Dyadic.Count
