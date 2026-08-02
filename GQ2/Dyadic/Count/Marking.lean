@@ -448,4 +448,59 @@ theorem hsepN_marking
 
 end HSepMarking
 
+/-! ## §4. The verbatim `SourceDataN.hsep` field goal, marking-route form
+
+The same shape as `Count/Separation.lean` §7, with `h2sep : IsTwoSeparating Γ (Additive ↥T)`
+replaced by the marking route's word-side inputs.  Note what is *not* here and is in CB-4's
+version: no `hcompT` — the marking route never uses a `Γ`-action on `Additive ↥T`, only the
+campaign's canonical `cActT` over `Y_B ⧸ M`, so the record's `T`-layer `letI` block is not
+needed either. -/
+
+section HSepFieldGoal
+
+open GQ2.Dyadic
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+  {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+  {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+
+/-- **`SourceDataN.hsep`, verbatim at one frame** (`GQ2/Dyadic/SourceDataN.lean:229`), closed by
+the marking route.  The binders beyond the record's own data are the branch's word-side payload,
+all of which it already carries for the other clauses. -/
+theorem hsep_field_goal_marking
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (Dsc : Descent (En.radData l h)) (ρ : BoundaryLiftsK b F RF.TC)
+    (smulZmod2 : DistribMulAction Γ (ZMod 2))
+    (htriv : letI := smulZmod2; ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (smulZmod2C : DistribMulAction (RF.YB ⧸ (En.radData l h).M) (ZMod 2))
+    (htrivC : letI := smulZmod2C
+      ∀ (g : RF.YB ⧸ (En.radData l h).M) (m : ZMod 2), g • m = m)
+    {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι}
+    {cM : ι → RF.YB ⧸ (En.radData l h).M} {J : Set ι}
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hcc : ∀ i, rhoPrimeK RF b F (En.radData l h) rfl ρ (gen i) = cM i)
+    (hwild2 : IsWildTwo J cM)
+    (hres2 : letI := smulZmod2C
+      ResolvesAt W w (WordLift (ZMod 2) (RF.YB ⧸ (En.radData l h).M)))
+    (hresT : ResolvesAt W w
+      (WordLift (Additive ↥(En.radData l h).T) (RF.YB ⧸ (En.radData l h).M)))
+    (hd : StokesDuality cM w (Additive ↥(En.radData l h).T)) (hend : IsStokesEndpoint w)
+    (c : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+    (hvan : letI := smulZmod2
+      ∀ χ : ↥(TCharC (En.radData l h)),
+        betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c = 0) :
+    letI := smulZmod2
+    TLiftable (descSigma_spec En l h Dsc) c := by
+  letI := smulZmod2
+  letI := smulZmod2C
+  exact hsepN_marking (descSections En l h Dsc) (descSigma_spec En l h Dsc) htriv htrivC hpres
+    hcc hwild2 (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ) hres2 hresT hd hend c hvan
+
+end HSepFieldGoal
+
 end GQ2.Dyadic.Count
