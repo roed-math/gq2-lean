@@ -671,6 +671,156 @@ theorem gaussZResidueDK_unramified
         gaussZ_reduction smul_zmodTwo hfix
     _ = (Nat.card EnD.Vmod : ℤ) * ((-1 : ℤ) ^ FP.n * 2 ^ (FP.n * m)) := by rw [hQbar]
 
+set_option linter.unusedVariables false in
+/-- **`hGaussZ` at the head-inflated `K`-enrichment, ramified case** — the `K`-clone of
+`GQ2.SectionNine.gaussZResidueD_local_ramified`, at the degree-`n` value `+2^{nm}`
+(= `SourceNumerics.gaussRam m` at `standardNumerics n`), with **no parity condition**.
+
+The `ℚ₂` twin carried the tame-unit orientation `(R, horient)`; at `K` that input is inside
+LG5's `RamifiedCertificate`, which arrives through the `ramifiedData` binder — *literally*
+`DyadicLocalInput.ramifiedData`'s shape, so AS1's record supplies it unchanged. -/
+theorem gaussZResidueDK_ramified
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = FP.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    [CompactSpace ↥U] [TotallyDisconnectedSpace ↥U]
+    (D : TateDualityG ↥U 2)
+    (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : FP.qK ≠ 0) (hqe : Even FP.qK)
+    (F : BoundaryFrameK FP.qK PG H E)
+    (tameFK : ContinuousMonoidHom ↥U (Tq FP.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (b : ContinuousMonoidHom ↥U ↥(boundarySubgroupQ FP.qK nuP))
+    (hbtame : ∀ g : ↥U, (b g).val.1 = tameFK g)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq FP.qK) Dg) (rho : ContinuousMonoidHom ↥U Dg),
+      (∃ v : W, cc (tqTau FP.qK) • v ≠ v) → Nonempty (RamifiedCertificate FP U W cc rho))
+    (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+      (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+    (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+      (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+    (m : ℕ) (hm : 1 ≤ m)
+    (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+    (l : (SectionNine.blockFrame T Blk hE2).DR)
+    (h : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+    (hram :
+      letI := blockPS_commGroup Blk
+      letI := SectionNine.headAct T Blk
+      ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau FP.qK) • v ≠ v) :
+    GaussZResidueK b F (blockEnrichmentDK T Blk hE2 hq0 hqe F) l h ((2 : ℤ) ^ (FP.n * m)) := by
+  classical
+  letI := blockPS_commGroup Blk
+  letI := blockActVY Blk
+  letI := blockActV Blk
+  letI := SectionNine.headAct T Blk
+  letI := SectionNine.hvAct T Blk
+  letI : TopologicalSpace (SectionNine.HVq T Blk) := ⊥
+  haveI : DiscreteTopology (SectionNine.HVq T Blk) := ⟨rfl⟩
+  have hl' : l.1 ≠ Blk.frattiniK := fun heq => h (Subtype.ext heq)
+  set EnD := blockEnrichmentDK T Blk hE2 hq0 hqe F with hEnDdef
+  intro ρ
+  set ρM := rhoPrimeK (SectionNine.blockFrame T Blk hE2) b F (EnD.radData l h) rfl ρ with hρMdef
+  set cF : ContinuousMonoidHom (Tq FP.qK) (SectionNine.HVq T Blk) := headTameSurjK T Blk F
+    with hcFdef
+  have hcF : Function.Surjective ⇑cF := headTameSurjK_surjective T Blk F
+  set ρHV : ContinuousMonoidHom ↥U (SectionNine.HVq T Blk) :=
+    ⟨(SectionNine.blockProjF T Blk).comp ρ.1.1.toMonoidHom,
+      (continuous_of_discreteTopology
+        (f := fun c : (SectionNine.blockFrame T Blk hE2).YC => SectionNine.blockProjF T Blk c)).comp
+        ρ.1.1.continuous_toFun⟩ with hρHVdef
+  have hfacHV : ∀ g : ↥U, ρHV g = cF (tameFK g) := fun g => by
+    rw [← hbtame g]
+    exact congrArg (⇑(QuotientGroup.mk' (SectionNine.headActKer T Blk)))
+      (boundaryLift_headK T Blk hE2 b F ρ g)
+  letI instT : TopologicalSpace (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := ⊥
+  haveI instD : DiscreteTopology (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := ⟨rfl⟩
+  letI instA : DistribMulAction ↥U (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) :=
+    DistribMulAction.compHom _ ρHV.toMonoidHom
+  haveI instC : ContinuousSMul ↥U (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := ⟨by
+    show Continuous fun p : ↥U × Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) => ρHV p.1 • p.2
+    exact (continuous_of_discreteTopology
+        (f := fun z : SectionNine.HVq T Blk × Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) =>
+          z.1 • z.2)).comp
+      ((ρHV.continuous.comp continuous_fst).prodMk continuous_snd)⟩
+  letI : TopologicalSpace EnD.Vmod := instT
+  haveI : DiscreteTopology EnD.Vmod := instD
+  letI : DistribMulAction ↥U EnD.Vmod := instA
+  haveI : ContinuousSMul ↥U EnD.Vmod := instC
+  letI : TopologicalSpace (EnD.descData l h).Vmod := instT
+  haveI : DiscreteTopology (EnD.descData l h).Vmod := instD
+  letI : DistribMulAction ↥U (EnD.descData l h).Vmod := instA
+  haveI : ContinuousSMul ↥U (EnD.descData l h).Vmod := instC
+  letI : DistribMulAction (SectionNine.HVq T Blk) EnD.Vmod := SectionNine.hvAct T Blk
+  letI : DistribMulAction (SectionNine.HVq T Blk) (EnD.descData l h).Vmod :=
+    SectionNine.hvAct T Blk
+  letI : TopologicalSpace (EnD.descData l h).C0 :=
+    (inferInstance : TopologicalSpace (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : DiscreteTopology (EnD.descData l h).C0 :=
+    (inferInstance : DiscreteTopology (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : Finite (EnD.descData l h).C0 :=
+    (inferInstance : Finite (SectionNine.blockFrame T Blk hE2).YC)
+  letI : TopologicalSpace (Y ⧸ Blk.K) :=
+    (inferInstance : TopologicalSpace (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : DiscreteTopology (Y ⧸ Blk.K) :=
+    (inferInstance : DiscreteTopology (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : Finite (Y ⧸ Blk.K) := (inferInstance : Finite (SectionNine.blockFrame T Blk hE2).YC)
+  letI : DistribMulAction ((SectionNine.blockFrame T Blk hE2).YC)
+      (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := blockActV Blk
+  letI : DistribMulAction ((SectionNine.blockFrame T Blk hE2).YC) (EnD.descData l h).Vmod :=
+    blockActV Blk
+  have hround : ∀ γ : ↥U, rho0 (EnD.descData l h) ρM γ = ρ.1.1 γ :=
+    rho0_descData_rhoPrimeK b F EnD l h ρ
+  have hcomp : ∀ (γ : ↥U) (v : (EnD.descData l h).Vmod),
+      γ • v = rho0 (EnD.descData l h) ρM γ • v := by
+    intro γ v
+    rw [show rho0 (EnD.descData l h) ρM γ • v
+        = SectionNine.blockProjF T Blk (rho0 (EnD.descData l h) ρM γ) • v from
+      SectionNine.blockProjF_compat T Blk _ v, hround γ]
+    rfl
+  have hsurjρ' : Function.Surjective (fun γ : ↥U => rho0 (EnD.descData l h) ρM γ) :=
+    fun y => by
+      obtain ⟨γ, hγ⟩ := ρ.1.2 y
+      exact ⟨γ, (hround γ).trans hγ⟩
+  have hfix : ∀ v : (EnD.descData l h).Vmod,
+      (∀ γ : ↥U, rho0 (EnD.descData l h) ρM γ • v = v) → v = 0 :=
+    hfix_of_simple_nt hsurjρ' hsimple hnt
+  have hramF : ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF (tqTau FP.qK) • v ≠ v := hram
+  have hpinned := sum_sign_Q0loc_K_ramified FP U hU hn D tameFK htameFK cF hcF ρHV hfacHV
+    (fun _ _ => rfl) (SectionNine.hvAct_faithful T Blk) (SectionNine.hv_simple T Blk)
+    (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+    (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+    (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+    (hv_invK T Blk hq0 hqe F l hl') (blockDatHVK T Blk hq0 hqe F l hl')
+    (blockDatHV_specK T Blk hq0 hqe F l hl') m hm hcard hramF
+    (ramifiedData _ cF ρHV hramF)
+  have hH1c : Nat.card (H1 ↥U (EnD.descData l h).Vmod) = 2 ^ (2 * (m * FP.n)) :=
+    card_H1_eq_of_markingK FP U hU hn D tameFK htameFK cF hcF ρHV hfacHV (fun _ _ => rfl)
+      (SectionNine.hv_simple T Blk)
+      (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+      (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+      (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+      (hv_invK T Blk hq0 hqe F l hl') m hm hcard
+  haveI hfinZ : Finite (VCocycle (EnD.descData l h) ρM) :=
+    finite_vcocycleG hcomp hfix Nat.card_pos.ne' (by rw [hH1c]; positivity)
+  have hbij : Function.Bijective (h1OfVQuot hcomp) :=
+    ⟨h1OfVQuot_injective hcomp, h1OfVQuot_surjective hcomp⟩
+  have hQbar : ∑ᶠ x, SectionEight.sign (QZeroBar (EnD.descData l h) ρM smul_zmodTwo x)
+      = (2 : ℤ) ^ (FP.n * m) := by
+    rw [← hpinned]
+    refine finsum_eq_of_bijective (h1OfVQuot hcomp) hbij fun x => ?_
+    rw [QZeroBar_eq_Q0locG D hcomp ρ.1.1 (fun γ => (hround γ).symm) smul_zmodTwo x]
+    exact congrArg SectionEight.sign
+      (Q0loc_reindexHom_homG (C := SectionNine.HVq T Blk)
+        (C' := (SectionNine.blockFrame T Blk hE2).YC) D
+        (blockDatHVK T Blk hq0 hqe F l hl') (SectionNine.blockProjF T Blk)
+        (SectionNine.blockProjF_compat T Blk) ρ.1.1 ρHV (fun g => rfl) (h1OfVQuot hcomp x))
+  calc ∑ᶠ cc : VCocycle (EnD.descData l h) ρM,
+        SectionEight.sign (QZero (EnD.descData l h) ρM cc)
+      = (Nat.card EnD.Vmod : ℤ)
+          * ∑ᶠ x, SectionEight.sign (QZeroBar (EnD.descData l h) ρM smul_zmodTwo x) :=
+        gaussZ_reduction smul_zmodTwo hfix
+    _ = (Nat.card EnD.Vmod : ℤ) * ((2 : ℤ) ^ (FP.n * m)) := by rw [hQbar]
+
 end Twins
 
 end HeadInflated
