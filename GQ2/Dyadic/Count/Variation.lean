@@ -901,6 +901,134 @@ theorem exists_nonzero_varCoc
   rw [← hv]
   exact sum_heisD1_zmod2 hr hend v
 
+omit [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcompat hcompatD hc S in
+/-- **CB-H2's missing input, supplied**: the carrier's `H²(Γ, 𝔽₂)` is nontrivial.
+
+CB-H2 §7 proved this cannot come from a comparison theorem — `H² = 0` is consistent with every
+other hypothesis — and named the source-side witness it must come from.  This is that witness,
+converted by `nontrivial_H2_of_ne_zero`. -/
+theorem nontrivial_H2_of_variation
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J) (hwild2 : IsWildTwo J c)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hresP : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hresD : ResolvesAt W w (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)))
+    (hresH : ResolvesAt W w (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hd : StokesDuality c w (Additive ↥D.T)) (hend : IsStokesEndpoint w)
+    (hedge : D.NoDescent) (hρ : Function.Surjective rho) :
+    Nontrivial (H2 Γ (ZMod 2)) := by
+  obtain ⟨_, hu⟩ := exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2 hresS hresP hresD
+    hresH hd (fun k => lower_rel (A := ZMod 2) rho hc hpres hresS k) hend hedge hρ
+  exact nontrivial_H2_of_ne_zero hu
+
 end NonzeroVariation
+
+/-! ## §8. The three clauses
+
+`cardH2`, `lem86` and `stageR136`, closed against §7's witness.  CB-H2's sharpening is visible in
+the statements: `cardH2_of_variation` and `lem86_of_variation` take the *same* hypothesis block,
+because they consume the same witness.
+
+`tfg` — `SourceDataN`'s topological-finite-generation field — comes free from the presentation
+whenever the alphabet is finite, which it always is; that is recorded here since `lem86N` needs it
+and nothing else in the lane had produced it generically. -/
+
+/-! ### `SourceDataN.tfg`, for free
+
+`lem86N` needs it, and no one in the lane had produced it generically.  A finite alphabet's range
+is a `Finset`, and clause (i) of the presentation is exactly the closure statement the field asks
+for. -/
+
+section Tfg
+
+variable {ι ρ : Type*} [Fintype ι] {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+  [IsTopologicalGroup Γ] {gen : ι → Γ} {W : ρ → PWord ι} {J : Set ι}
+
+/-- **`SourceDataN.tfg` from the presentation.** -/
+theorem tfg_of_isAdmissibleMarkedPresentation
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J) :
+    ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨(Set.finite_range gen).toFinset, ?_⟩
+  rw [Set.Finite.coe_toFinset]
+  exact hpres.gen_top
+
+end Tfg
+
+section Clauses
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι]
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] [ContinuousSMul Γ (ElemDual (Additive ↥D.T))]
+  [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (ZMod 2) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (ZMod 2) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → (Bg ⧸ D.M)} {J : Set ι}
+  (S : TComplement D) (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcompat : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+  (hcompatD : ∀ (γ : Γ) (l : ElemDual (Additive ↥D.T)), γ • l = rho γ • l)
+  (hc : ∀ i, rho (gen i) = c i)
+
+omit [ContinuousSMul Γ (ZMod 2)] [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcompat hcompatD hc S in
+/-- **`SourceDataN.cardH2`, closed.**  CB-H2's `cardH2N_closed` with both of its owed inputs
+supplied: `hwildLevel` by §1 at `Γ_R` (a hypothesis here, since the theorem is carrier-generic)
+and the nontriviality by §7. -/
+theorem cardH2_of_variation
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hwild2 : IsWildTwo J c)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hresP : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hresD : ResolvesAt W w (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)))
+    (hresH : ResolvesAt W w (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hdT : StokesDuality c w (Additive ↥D.T)) (hdS : StokesDuality c w (ZMod 2))
+    (hend : IsStokesEndpoint w) (hedge : D.NoDescent) (hρ : Function.Surjective rho) :
+    Nat.card (H2 Γ (ZMod 2)) = 2 :=
+  cardH2N_closed hpres hwildLevel hresS c
+    (nontrivial_H2_of_variation S rho hcompat hcompatD hc hpres hwild2 hresS hresP hresD hresH
+      hdT hend hedge hρ)
+    hdS (fun k => lower_rel (A := ZMod 2) rho hc hpres hresS k) hend
+
+omit [ContinuousSMul Γ (ZMod 2)] [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcompat hcompatD hc S in
+/-- **`SourceDataN.lem86`, closed** — the half-torsor count at the abstract carrier.
+
+CB-2 §9 reduced this to `cardH2` + `tfg` + `hvar`; CB-H2 verified in scratch that the composition
+typechecks.  Here it is, as a theorem: the hypothesis block is *identical* to `cardH2`'s, which is
+the content of CB-H2's "the two share their one non-generic input". -/
+theorem lem86_of_variation
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hwild2 : IsWildTwo J c)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hresP : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hresD : ResolvesAt W w (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)))
+    (hresH : ResolvesAt W w (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hdT : StokesDuality c w (Additive ↥D.T)) (hdS : StokesDuality c w (ZMod 2))
+    (hend : IsStokesEndpoint w) (hedge : D.NoDescent) (hρ : Function.Surjective rho) :
+    2 * Nat.card {f : MLifts D rho // f.Central} = Nat.card (MLifts D rho) := by
+  obtain ⟨u, hu⟩ := exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2 hresS hresP hresD
+    hresH hdT (fun k => lower_rel (A := ZMod 2) rho hc hpres hresS k) hend hedge hρ
+  exact lem86N (tfg_of_isAdmissibleMarkedPresentation hpres)
+    (cardH2_of_variation S rho hcompat hcompatD hc hpres hwildLevel hwild2 hresS hresP hresD
+      hresH hdT hdS hend hedge hρ)
+    D rho S u hu
+
+end Clauses
 
 end GQ2.Dyadic.Count
