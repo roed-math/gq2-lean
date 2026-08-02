@@ -463,4 +463,216 @@ theorem h1Mult_standard_of_card (n m : ℕ) :
   congr 1
   ring
 
+/-! ## §6 The `GaussZResidueK` twins at the head-inflated enrichment
+
+The `K`-clone of `GQ2/GaussZ/FinalD.lean`'s `gaussZResidueD_local_{un,}ramified`, at SD-R1's
+`blockEnrichmentDK`.  Structure identical to the model:
+
+* the boundary equation's head component (`boundaryLift_headK`, SD-R1's *source-generic*
+  replacement for the model's two twins) tame-factors every lift through the **fixed**
+  `cF = mk'(headActKer) ∘ F.alpha`, so no per-lift `hpack` is needed;
+* `gaussZ_reduction` peels off the outer `#V = #B¹` — the non-mover of the degree-shift audit;
+* the transport `h1OfVQuot` + §3's `QZeroBar_eq_Q0locG` + §3's `Q0loc_reindexHom_homG` moves the
+  sum onto `(H¹(G_K, V), Q⁰_loc)` at the head datum `blockDatHVK`;
+* §4 pins the value, from LG5.
+
+The one structural change: `Finite Z¹` comes from §2 rather than from a `#Z¹ = #V²` count, so
+this file does **not** depend on a `K`-clone of `GQ2/Phase140/Local.lean`. -/
+
+section HeadInflated
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+variable (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+variable {q : ℕ} {PG : ProfiniteGrp}
+
+/-- **The fixed tame surjection into the faithful head quotient at the `K`-boundary**
+(`cF := mk'(headActKer) ∘ F.alpha`) — the `K`-clone of `GQ2.SectionNine.headTameSurj`
+(`GQ2/GaussZ/FinalD.lean:83`), retyped from `Ttame` to F3's `Tq q`. -/
+noncomputable def headTameSurjK (F : BoundaryFrameK q PG H E) :
+    letI : TopologicalSpace (SectionNine.HVq T Blk) := ⊥
+    ContinuousMonoidHom (Tq q) (SectionNine.HVq T Blk) :=
+  letI : TopologicalSpace (SectionNine.HVq T Blk) := ⊥
+  ⟨(QuotientGroup.mk' (SectionNine.headActKer T Blk)).comp F.alpha.toMonoidHom,
+    (continuous_of_discreteTopology
+      (f := fun hh : H => QuotientGroup.mk' (SectionNine.headActKer T Blk) hh)).comp
+      F.alpha.continuous_toFun⟩
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
+/-- `headTameSurjK` is surjective (`mk'` after the surjective `F.alpha`). -/
+theorem headTameSurjK_surjective (F : BoundaryFrameK q PG H E) :
+    Function.Surjective ⇑(headTameSurjK T Blk F) :=
+  (QuotientGroup.mk'_surjective _).comp F.alpha_surjective
+
+section Twins
+
+variable (FP : FieldParameters) (U : Subgroup AbsGalQ2)
+variable {nuP : ContinuousMonoidHom PG Ztwo}
+
+-- `hVne` is unused: `local_gauss_K` derives the mover from `hcard`/`hm`, where the `ℚ₂`
+-- `prop_6_18_unramified` took `∃ v ≠ 0` as an input.  The binder is kept for parity with the
+-- `AffineDeterminantCertificate` clause this theorem discharges.
+set_option linter.unusedVariables false in
+/-- **`hGaussZ` at the head-inflated `K`-enrichment, unramified case** — the `K`-clone of
+`GQ2.SectionNine.gaussZResidueD_local_unramified`, at the degree-`n` value
+`(−1)^n · 2^{nm}` (= `SourceNumerics.gaussUnram m` at `standardNumerics n`).
+
+`b` is any boundary map whose tame coordinate is `tameF_K` (`hbtame`); at the certificate's
+`b = sourceBoundaryMapK tame pro2 compat` that hypothesis is `rfl`.  No per-lift tame package:
+the dichotomy is the head-level `F.alpha (τ_q)`-triviality, uniform in `ρ`. -/
+theorem gaussZResidueDK_unramified
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = FP.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    [CompactSpace ↥U] [TotallyDisconnectedSpace ↥U]
+    (D : TateDualityG ↥U 2)
+    (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : FP.qK ≠ 0) (hqe : Even FP.qK)
+    (F : BoundaryFrameK FP.qK PG H E)
+    (tameFK : ContinuousMonoidHom ↥U (Tq FP.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (b : ContinuousMonoidHom ↥U ↥(boundarySubgroupQ FP.qK nuP))
+    (hbtame : ∀ g : ↥U, (b g).val.1 = tameFK g)
+    (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+      (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+    (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+      (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+    (m : ℕ) (hm : 1 ≤ m)
+    (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+    (l : (SectionNine.blockFrame T Blk hE2).DR)
+    (h : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+    (hunram :
+      letI := blockPS_commGroup Blk
+      letI := SectionNine.headAct T Blk
+      ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau FP.qK) • v = v) :
+    GaussZResidueK b F (blockEnrichmentDK T Blk hE2 hq0 hqe F) l h
+      ((-1 : ℤ) ^ FP.n * 2 ^ (FP.n * m)) := by
+  classical
+  letI := blockPS_commGroup Blk
+  letI := blockActVY Blk
+  letI := blockActV Blk
+  letI := SectionNine.headAct T Blk
+  letI := SectionNine.hvAct T Blk
+  letI : TopologicalSpace (SectionNine.HVq T Blk) := ⊥
+  haveI : DiscreteTopology (SectionNine.HVq T Blk) := ⟨rfl⟩
+  have hl' : l.1 ≠ Blk.frattiniK := fun heq => h (Subtype.ext heq)
+  set EnD := blockEnrichmentDK T Blk hE2 hq0 hqe F with hEnDdef
+  intro ρ
+  set ρM := rhoPrimeK (SectionNine.blockFrame T Blk hE2) b F (EnD.radData l h) rfl ρ with hρMdef
+  -- the fixed tame surjection into the faithful head quotient, and the per-`ρ` composite
+  set cF : ContinuousMonoidHom (Tq FP.qK) (SectionNine.HVq T Blk) := headTameSurjK T Blk F
+    with hcFdef
+  have hcF : Function.Surjective ⇑cF := headTameSurjK_surjective T Blk F
+  set ρHV : ContinuousMonoidHom ↥U (SectionNine.HVq T Blk) :=
+    ⟨(SectionNine.blockProjF T Blk).comp ρ.1.1.toMonoidHom,
+      (continuous_of_discreteTopology
+        (f := fun c : (SectionNine.blockFrame T Blk hE2).YC => SectionNine.blockProjF T Blk c)).comp
+        ρ.1.1.continuous_toFun⟩ with hρHVdef
+  have hfacHV : ∀ g : ↥U, ρHV g = cF (tameFK g) := fun g => by
+    rw [← hbtame g]
+    exact congrArg (⇑(QuotientGroup.mk' (SectionNine.headActKer T Blk)))
+      (boundaryLift_headK T Blk hE2 b F ρ g)
+  -- the module structure on `V` through the head-quotient composite
+  letI instT : TopologicalSpace (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := ⊥
+  haveI instD : DiscreteTopology (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := ⟨rfl⟩
+  letI instA : DistribMulAction ↥U (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) :=
+    DistribMulAction.compHom _ ρHV.toMonoidHom
+  haveI instC : ContinuousSMul ↥U (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := ⟨by
+    show Continuous fun p : ↥U × Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) => ρHV p.1 • p.2
+    exact (continuous_of_discreteTopology
+        (f := fun z : SectionNine.HVq T Blk × Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) =>
+          z.1 • z.2)).comp
+      ((ρHV.continuous.comp continuous_fst).prodMk continuous_snd)⟩
+  -- the same instances re-keyed at the syntactic projections
+  letI : TopologicalSpace EnD.Vmod := instT
+  haveI : DiscreteTopology EnD.Vmod := instD
+  letI : DistribMulAction ↥U EnD.Vmod := instA
+  haveI : ContinuousSMul ↥U EnD.Vmod := instC
+  letI : TopologicalSpace (EnD.descData l h).Vmod := instT
+  haveI : DiscreteTopology (EnD.descData l h).Vmod := instD
+  letI : DistribMulAction ↥U (EnD.descData l h).Vmod := instA
+  haveI : ContinuousSMul ↥U (EnD.descData l h).Vmod := instC
+  letI : DistribMulAction (SectionNine.HVq T Blk) EnD.Vmod := SectionNine.hvAct T Blk
+  letI : DistribMulAction (SectionNine.HVq T Blk) (EnD.descData l h).Vmod :=
+    SectionNine.hvAct T Blk
+  letI : TopologicalSpace (EnD.descData l h).C0 :=
+    (inferInstance : TopologicalSpace (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : DiscreteTopology (EnD.descData l h).C0 :=
+    (inferInstance : DiscreteTopology (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : Finite (EnD.descData l h).C0 :=
+    (inferInstance : Finite (SectionNine.blockFrame T Blk hE2).YC)
+  -- spelling covers: shadow the global quotient-topology at the raw `Y ⧸ K` spelling with
+  -- the frame's instances, and provide the `YC`-spelled action on the raw module
+  letI : TopologicalSpace (Y ⧸ Blk.K) :=
+    (inferInstance : TopologicalSpace (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : DiscreteTopology (Y ⧸ Blk.K) :=
+    (inferInstance : DiscreteTopology (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : Finite (Y ⧸ Blk.K) := (inferInstance : Finite (SectionNine.blockFrame T Blk hE2).YC)
+  letI : DistribMulAction ((SectionNine.blockFrame T Blk hE2).YC)
+      (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := blockActV Blk
+  letI : DistribMulAction ((SectionNine.blockFrame T Blk hE2).YC) (EnD.descData l h).Vmod :=
+    blockActV Blk
+  -- the roundtrip and the bridge
+  have hround : ∀ γ : ↥U, rho0 (EnD.descData l h) ρM γ = ρ.1.1 γ :=
+    rho0_descData_rhoPrimeK b F EnD l h ρ
+  have hcomp : ∀ (γ : ↥U) (v : (EnD.descData l h).Vmod),
+      γ • v = rho0 (EnD.descData l h) ρM γ • v := by
+    intro γ v
+    rw [show rho0 (EnD.descData l h) ρM γ • v
+        = SectionNine.blockProjF T Blk (rho0 (EnD.descData l h) ρM γ) • v from
+      SectionNine.blockProjF_compat T Blk _ v, hround γ]
+    rfl
+  -- the `V^{C₀} = 0` freeness input (hfaith-free)
+  have hsurjρ' : Function.Surjective (fun γ : ↥U => rho0 (EnD.descData l h) ρM γ) :=
+    fun y => by
+      obtain ⟨γ, hγ⟩ := ρ.1.2 y
+      exact ⟨γ, (hround γ).trans hγ⟩
+  have hfix : ∀ v : (EnD.descData l h).Vmod,
+      (∀ γ : ↥U, rho0 (EnD.descData l h) ρM γ • v = v) → v = 0 :=
+    hfix_of_simple_nt hsurjρ' hsimple hnt
+  -- the pinned value at the faithful head quotient (LG5, §4)
+  have hunramF : ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF (tqTau FP.qK) • v = v :=
+    hunram
+  have hpinned := sum_sign_Q0loc_K_unramified FP U hU hn D tameFK htameFK cF hcF ρHV hfacHV
+    (fun _ _ => rfl) (SectionNine.hvAct_faithful T Blk) (SectionNine.hv_simple T Blk)
+    (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+    (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+    (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+    (hv_invK T Blk hq0 hqe F l hl') (blockDatHVK T Blk hq0 hqe F l hl')
+    (blockDatHV_specK T Blk hq0 hqe F l hl') m hm hcard hunramF
+  -- `Z¹` is finite, from §2 and the Euler clause (no `#Z¹ = #V²` count needed)
+  have hH1c : Nat.card (H1 ↥U (EnD.descData l h).Vmod) = 2 ^ (2 * (m * FP.n)) :=
+    card_H1_eq_of_markingK FP U hU hn D tameFK htameFK cF hcF ρHV hfacHV (fun _ _ => rfl)
+      (SectionNine.hv_simple T Blk)
+      (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+      (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+      (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l hl')
+      (hv_invK T Blk hq0 hqe F l hl') m hm hcard
+  haveI hfinZ : Finite (VCocycle (EnD.descData l h) ρM) :=
+    finite_vcocycleG hcomp hfix Nat.card_pos.ne' (by rw [hH1c]; positivity)
+  -- the transport bijection `Z¹⧸B¹ ≅ H¹`
+  have hbij : Function.Bijective (h1OfVQuot hcomp) :=
+    ⟨h1OfVQuot_injective hcomp, h1OfVQuot_surjective hcomp⟩
+  have hQbar : ∑ᶠ x, SectionEight.sign (QZeroBar (EnD.descData l h) ρM smul_zmodTwo x)
+      = (-1 : ℤ) ^ FP.n * 2 ^ (FP.n * m) := by
+    rw [← hpinned]
+    refine finsum_eq_of_bijective (h1OfVQuot hcomp) hbij fun x => ?_
+    rw [QZeroBar_eq_Q0locG D hcomp ρ.1.1 (fun γ => (hround γ).symm) smul_zmodTwo x]
+    exact congrArg SectionEight.sign
+      (Q0loc_reindexHom_homG (C := SectionNine.HVq T Blk)
+        (C' := (SectionNine.blockFrame T Blk hE2).YC) D
+        (blockDatHVK T Blk hq0 hqe F l hl') (SectionNine.blockProjF T Blk)
+        (SectionNine.blockProjF_compat T Blk) ρ.1.1 ρHV (fun g => rfl) (h1OfVQuot hcomp x))
+  calc ∑ᶠ cc : VCocycle (EnD.descData l h) ρM,
+        SectionEight.sign (QZero (EnD.descData l h) ρM cc)
+      = (Nat.card EnD.Vmod : ℤ)
+          * ∑ᶠ x, SectionEight.sign (QZeroBar (EnD.descData l h) ρM smul_zmodTwo x) :=
+        gaussZ_reduction smul_zmodTwo hfix
+    _ = (Nat.card EnD.Vmod : ℤ) * ((-1 : ℤ) ^ FP.n * 2 ^ (FP.n * m)) := by rw [hQbar]
+
+end Twins
+
+end HeadInflated
+
 end GQ2.Dyadic
