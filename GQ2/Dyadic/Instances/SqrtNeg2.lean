@@ -264,6 +264,67 @@ theorem sqrtNegTwo_stokesDuality_T (hsimp : PilotHsimp q) (hqe : Even q)
 
 end Payloads
 
+/-! ## §3 The source-free radical-cover datum, reached from `Γ_R`
+
+`cardH2` (and through it `lem86`'s nonemptiness route and `stageR136`'s `hcard`) needs one
+concrete radical-cover datum with no descent **and** a surjection of the carrier onto its
+`Bg ⧸ M`.  The datum is `GQ2.CardH2GammaA.datum` — source-free, reused verbatim, exactly as
+CB-VAR §9 prescribes.  The surjection is rebuilt for the dyadic `Γ_R` (its `ℚ₂` sibling is
+`CardH2GammaA.rho` at `Γ_A` and `HalfTorsorGammaR`'s at Roe's `Γ_R`, both `Fin 4`-pinned):
+through the pro-2 core — `Γ_R ↠ D_N ↠ 𝔽₂²/⟨s̄⟩` — so relator death is `D_N`'s universal
+property and no word is ever evaluated by hand. -/
+
+section Datum
+
+open GQ2.CardH2GammaA DihedralGroup
+
+local instance : TopologicalSpace Base := ⊥
+local instance : DiscreteTopology Base := ⟨rfl⟩
+
+local instance : DiscreteTopology (Base ⧸ Mlayer) :=
+  (CentralObstruction.discreteTopology_quotient datum : DiscreteTopology (Base ⧸ datum.M))
+
+/-- `𝔽₂²/⟨s̄⟩` is elementary abelian of exponent `2`. -/
+theorem datumQuot_sq (y : Base ⧸ Mlayer) : y * y = 1 := by
+  obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective y
+  rw [← QuotientGroup.mk_mul, show b * b = 1 from by revert b; decide, QuotientGroup.mk_one]
+
+/-- The datum's quotient is a `2`-group, hence pro-`2` as a finite discrete group. -/
+theorem isProP_datumQuot : IsProP 2 (Base ⧸ Mlayer) :=
+  isProP_of_isPGroup fun y => ⟨1, by rw [pow_one, pow_two]; exact datumQuot_sq y⟩
+
+/-- **The core marking of the datum quotient**: `σ ↦ [r̄]`, everything else `↦ 1`.  The relator
+dies because the `N`-relator at a marking with trivial `x`-slots is a bare commutator. -/
+noncomputable def datumCoreHom : ContinuousMonoidHom ((DN 2 0) : Type) (Base ⧸ Mlayer) :=
+  nLiftHom 2 0 isProP_datumQuot (coreMark 1 1 (QuotientGroup.mk (r 1)) 1)
+    (by simp [nRelWord, nWord, commP])
+
+@[simp] theorem datumCoreHom_dnGen (i : Fin (coreRank 0)) :
+    datumCoreHom (dnGen 2 0 i) = coreMark (h := 0) 1 1 (QuotientGroup.mk (r 1)) 1 i :=
+  nLiftHom_gen 2 0 _ _ _ i
+
+variable {q : ℕ}
+
+/-- **The surjection `Γ_R ↠ 𝔽₂²/⟨s̄⟩`**, through the pro-2 core. -/
+noncomputable def datumRho (hq0 : q ≠ 0) (hqe : Even q) :
+    ContinuousMonoidHom ((pilotGamma q : Type)) (Base ⧸ Mlayer) :=
+  datumCoreHom.comp (CorePresentation.coreHom (nCorePresentation 2 0) hq0 hqe)
+
+theorem datumRho_surjective (hq0 : q ≠ 0) (hqe : Even q) :
+    Function.Surjective (datumRho hq0 hqe) := by
+  intro y
+  obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective y
+  rcases quotient_cases b with h | h
+  · exact ⟨1, by rw [map_one, h]⟩
+  · obtain ⟨γ, hγ⟩ := CorePresentation.coreHom_surjective (nCorePresentation 2 0)
+      (hq0 := hq0) (hqe := hqe) (dnSigma 2 0)
+    refine ⟨γ, ?_⟩
+    show datumCoreHom (CorePresentation.coreHom (nCorePresentation 2 0) hq0 hqe γ) = _
+    rw [hγ, h, show dnSigma 2 0 = dnGen 2 0 2 from rfl, datumCoreHom_dnGen]
+    simp
+
+end Datum
+
 end SqrtNeg2
 
 end GQ2.Dyadic
