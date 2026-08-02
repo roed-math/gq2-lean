@@ -215,6 +215,47 @@ cross-operator theorem `npc_cross_operators`); missing are a `CoreReindex` dicti
 dictionary needs `η = 1` — a `.hat`-display instance needs a new construction or an
 η̂-invertibility hypothesis.)
 
+### C.7 The literal fields: four headlines, instantiated (tickets AS-F, AS-F2)
+
+`GQ2/Dyadic/Instances/Fields.lean` builds `ℚ₂(√a) = ℚ_[2]⟮√a⟯` inside `ℚ̄₂` as a literal
+`IntermediateField`, and with it the campaign's five rows `KSqrtNegTwo`, `KSqrtTwo`,
+`KSqrtFive`, `KSqrtTen`, `KSqrtNegTen`.  ⚠ **This supersedes C.0's "no concrete field object
+exists in the repo" note**, which was accurate when §C was written and no longer is; the rest of
+the C.0 table stands unchanged — `B`, `FF` and `T` are still binders at every row, including the
+literal ones.
+
+Four headlines are now stated at a **literal** field, with every field-arithmetic binder
+discharged from that field's own arithmetic and nothing else:
+
+| Literal theorem (`GQ2.Dyadic.Fields.…`) | Parent | Measured axiom set |
+|---|---|---|
+| `sqrtNegTwo_candidate_equiv_galK_literal` (AS-F) | `SqrtNeg2.sqrtNegTwo_candidate_equiv_galK` | std-3 ∪ {B1, B6, B7, B9, B11a} |
+| `candidate_equiv_galK_sqrtTwo_literal` (AS-F2) | `Instances.candidate_equiv_galK_sqrtTwo_nonvacuous` | std-3 ∪ {B1, B6, B7} |
+| `candidate_equiv_galK_sqrtTen_literal` (AS-F2) | `Instances.candidate_equiv_galK_sqrtTen_nonvacuous` | std-3 ∪ {B1, B6, B7} |
+| `candidate_equiv_galK_sqrtNegTen_literal` (AS-F2) | `Instances.candidate_equiv_galK_sqrtNegTen_nonvacuous` | std-3 ∪ {B1, B6, B7} |
+
+Every print is **byte-identical to its parent's** (§A.2).  Specializing to a literal field costs
+no axiom, and in particular introduces neither B5-K nor B10-K, so §A.3's global invariant is
+untouched.  The three AS-F2 rows take AS3-b's `_nonvacuous` corollaries as parents, so their
+ν-binders (C.3, row 1) are already gone before specialization.
+
+**What this is evidence for.**  AS-F's finding, confirmed at three further rows by AS-F2: the
+binders a literal field can discharge are exactly `hdeg`, `params`/`params_qK`, `ramified`, and
+— at the `M` rows — the pin `hqK`, which also makes the *conclusion* literal (`candidateGroup
+2 2 R`, with no `qOf` left in it).  **Nothing else in a headline moved.**  The residual surface
+at a literal `K` is therefore not "arithmetic that has not been done yet": it is exactly the
+Galois/CFT layer — `ramifiedData` (C.1) together with the AX3/AX4 bundles `B` and `T`, i.e.
+B5-K and B10-K, local class field theory over a general local base, which Mathlib does not
+have.  That is the owner-approved endstate of the census (§B, gate G-AX), and these four
+theorems are the first *measured* evidence for it rather than an argument for it.
+
+⚠ One asymmetry worth recording: the three AS-F2 rows consume **no `hdeg`**.  The pilot builds
+its own `KSupply` (`sqrtNegTwoKSupply hdeg …`) and so carries `hdeg : finrank ℚ_[2] K = 2` as a
+binder (C.2, row 1); the `M`-row headlines carry `KSupply` itself as a binder (C.3, row 3), so
+the degree enters only inside a package nobody has built yet.  `Fields.finrank_KSqrtTwo`,
+`finrank_KSqrtTen` and `finrank_KSqrtNegTen` are proved and waiting: whoever writes the `M`-row
+`KSupply` producer consumes them then, with no change to the four statements above.
+
 ---
 
 ## D. What G3 signs
