@@ -84,6 +84,27 @@ families consume one copy.  (`MB_comm`, by contrast, *is* public — `SectionEig
 Nothing else is re-derived: the count is CB-S's `cardZ1` clause read through CB-1's transport,
 and no duality, no cohomology and no cardinality is re-proved here.
 
+## The hypothesis binders, and who owns them
+
+The clause has **no binder private to it**.  Beyond CB-1's presentation interface
+(`hpres`, `hc`, `hwild2`, `hres`) and the degree bookkeeping `hdeg`, it takes exactly the two
+inputs CB-1's `tcocycle_cardN`/`hZcardN` take — `hd : StokesDuality c w (Additive ↥M_B)` and
+`hend : IsStokesEndpoint w` — read at the module `M_B` and the marking `ρ ∘ gen`.
+
+`hd` at `M_B` is **not** a new obligation: `M_B` is `2`-torsion (`mb_add_self`), so WW3's
+dévissage engine `stokesDuality_of_simple` (`GQ2/Dyadic/Word/Stokes.lean:1637`) produces it from
+duality at the *simple* constituents — i.e. from `hsimp`, the memo's Q3 residual, which all five
+branches already carry for `hsep`.  So `liftsOver_card` inherits `hsimp` and adds nothing.
+
+Two `ℚ₂`-side inputs the CB1 memo predicted are **not** consumed here, and the second matters:
+
+* no `FoxCertificate` and no `FoxRowCertificate` — the memo's §2.2 warns that "`liftsOver_card`
+  is the Fox ⇒ `#LiftsOver` bridge, so CB-3 must not assume a Jacobian certificate exists per
+  branch" (divergence 6, raised because `LFox.lean` builds none).  It does not have to: `d¹`
+  enters only through `StokesDuality`/`IsSelfDualN`, never through a certificate record, so **L's
+  missing Jacobian does not reach this clause**;
+* no continuous `H²` at module coefficients — see §4.
+
 ## Import discipline
 
 Plain-import: `GQ2.Dyadic.Count.HTwo` (the CB-2/CB-H2 chain, itself plain over CB-1's
