@@ -158,6 +158,112 @@ theorem pilotNuP_surjective : Function.Surjective pilotNuP :=
   SectionThree.surjective_of_mem_range_topGen pilotNuP SectionThree.topGen_ztwo
     ⟨dnSigma 2 0, pilotNuP_dnSigma⟩
 
+/-! ## §1 The row's single analytic residual: `hsimp`
+
+Per-simple-module Stokes duality at the resolved compact-`N` family — packet Lem. 5.1's
+hypothesis slot, exactly the `hsimp` argument of WN0-c's `nCompact_stokesDuality`, quantified
+over the counting target `(C, t)` and the resolver `e` under the three honesty conditions the
+consumers all hold (`e` odd; both resolved relators die at `t`).  Gate-F / AS-lane discharge;
+owner ruling: an explicit hypothesis binder, never an axiom.
+
+The binder is stated at `Type`-level modules, which is where every consumer below lives
+(`Additive ↥D.T`, `DD.Vmod`, `Additive ↥RF.MB`, `ZMod 2`). -/
+
+/-- **The `√−2` row's `hsimp`** (the single per-branch analytic residual, ledger §5.2 /
+`CertificateMain.lean`'s named-residuals list): Stokes duality on every simple `𝔽₂[C]`-module
+at the resolved compact-`N₂` family, for every finite counting target and every honest odd
+resolver. -/
+def PilotHsimp (q : ℕ) : Prop :=
+  ∀ (C : Type) [Group C] [Finite C] (t : Marking 2 C) (e : ℕ), Odd e →
+    PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW 2 q) = 1 →
+    PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW 2 0) = 1 →
+    ∀ (V : Type) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
+      StokesDuality ⇑t (nCompactFam 2 0 q e) V
+
+/-! ## §2 The duality payloads, all from the one `hsimp`
+
+`sqrtNegTwo_stokesDuality` is the engine: for any marking obtained by pushing the tautological
+`Γ_R`-marking along a continuous hom (so the relators die — CB-1's `lower_rel`), `hsimp` plus
+WN0-c's `nCompact_stokesDuality` produce Stokes duality on **every** finite elementary module,
+not only the simple ones.  The two named corollaries are CB-6's hand-off shapes. -/
+
+section Payloads
+
+variable {q : ℕ}
+
+/-- The pilot candidate group at tame modulus `q`. -/
+noncomputable abbrev pilotGamma (q : ℕ) : ProfiniteGrp := GammaR 2 q pilotW
+
+/-- **The duality-payload engine.**  For a marking `ρ ∘ gammaGen` of a finite counting target
+and an honest odd resolver, `hsimp` yields `StokesDuality` at every finite elementary
+coefficient module.  The two relator conditions are not hypotheses: they are CB-1's
+`lower_rel` at the scalar resolution, i.e. consequences of `Γ_R`'s own presentation. -/
+theorem sqrtNegTwo_stokesDuality (hsimp : PilotHsimp q) (hqe : Even q)
+    {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    [DistribMulAction C (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+    (rho : ContinuousMonoidHom ((pilotGamma q : Type)) C) {e : ℕ} (he : Odd e)
+    (hres : ResolvesAt (gammaFam 2 q pilotW) (nCompactFam 2 0 q e) (WordLift (ZMod 2) C))
+    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) :
+    StokesDuality (fun g => rho (gammaGen 2 q pilotW g)) (nCompactFam 2 0 q e) A := by
+  set t : Marking 2 C := ⟨fun g => rho (gammaGen 2 q pilotW g)⟩ with ht
+  have hr : ∀ k, FreeGroup.lift (⇑t) (nCompactFam 2 0 q e k) = 1 := fun k =>
+    lower_rel (A := ZMod 2) rho (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) hres k
+  have hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW 2 q) = 1 :=
+    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 0)
+  have hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW 2 0) = 1 :=
+    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 1)
+  exact nCompact_stokesDuality (α := 2) (h := 0) (q := q) (e := e) t one_le_two hqe he hrt hrw
+    (hsimp C t e he hrt hrw) A hA₂
+
+/-- **Fold-in deliverable A — the `Vmod` payload** (CB-6's hand-off, `Count/Marking.lean` §5 /
+`Count/Separating.lean` §5): the `IsSelfDualN` package at `DD.Vmod`, in the exact shape
+`isRightSeparating_vmod_nCompactFam`'s `hsd` slot consumes, from the one `hsimp`. -/
+theorem sqrtNegTwo_selfDualN_vmod (hsimp : PilotHsimp q) (hqe : Even q)
+    {Bg : Type} [Group Bg] [Finite Bg] {D : RadicalCoverData Bg} {DD : DescData D}
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [DistribMulAction DD.C0 (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) DD.C0)] [DiscreteTopology (WordLift (ZMod 2) DD.C0)]
+    (rhoC : ContinuousMonoidHom ((pilotGamma q : Type)) DD.C0) :
+    IsSelfDualN 2 (fun g => rhoC (gammaGen 2 q pilotW g))
+      (nCompactFam 2 0 q (omega2Exp (vmodLevel DD))) DD.Vmod := by
+  have hb := resolvesAt_and_endpoint_nCompactFam (Q := WordLift (ZMod 2) DD.C0)
+    vmodLevel_ne_zero vmodLevel_even
+    (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) (α := 2) (h := 0) (q := q)
+    one_le_two hqe
+  have hres : ResolvesAt (gammaFam 2 q pilotW) (nCompactFam 2 0 q (omega2Exp (vmodLevel DD)))
+      (WordLift (ZMod 2) DD.C0) := hb.1
+  exact isSelfDualN_of_stokesDuality (nCompact_degree 0)
+    (sqrtNegTwo_stokesDuality hsimp hqe rhoC
+      (odd_omega2Exp vmodLevel_ne_zero vmodLevel_even) hres DD.Vmod (Vmod_exp2 (DD := DD)))
+    (fun k => lower_rel (A := ZMod 2) rhoC (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) hres k)
+    hb.2
+
+/-- **Fold-in deliverable B — the `T` payload** (CB-6's hand-off): `StokesDuality` at
+`Additive ↥D.T`, in the exact shape `hsepN_marking`'s `hd` slot consumes, from the one
+`hsimp`.  Stated at the count lane's own level `heisLevel D` (CB-VAR §2), which also resolves
+the split and dual targets `hsepN_marking` reads. -/
+theorem sqrtNegTwo_stokesDuality_T (hsimp : PilotHsimp q) (hqe : Even q)
+    {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+    {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (ZMod 2) (Bg ⧸ D.M))]
+    (rho : ContinuousMonoidHom ((pilotGamma q : Type)) (Bg ⧸ D.M)) :
+    StokesDuality (fun g => rho (gammaGen 2 q pilotW g))
+      (nCompactFam 2 0 q (omega2Exp (heisLevel D))) (Additive ↥D.T) := by
+  have hres : ResolvesAt (gammaFam 2 q pilotW) (nCompactFam 2 0 q (omega2Exp (heisLevel D)))
+      (WordLift (ZMod 2) (Bg ⧸ D.M)) :=
+    (resolvesAt_and_endpoint_nCompactFam (Q := WordLift (ZMod 2) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_scal (α := 2) (h := 0) (q := q)
+      one_le_two hqe).1
+  exact sqrtNegTwo_stokesDuality hsimp hqe rho
+    (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hres (Additive ↥D.T) (radT_add_self D)
+
+end Payloads
+
 end SqrtNeg2
 
 end GQ2.Dyadic
