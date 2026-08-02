@@ -9,7 +9,88 @@ import GQ2.Dyadic.GammaRHom
 /-!
 # `SourceDataN` transport across an isomorphism  (dyadic campaign, ticket CB-TRN)
 
-Work in progress.
+AS4 (`GQ2/Dyadic/Instances/QTwo.lean`) closed the `n = 1` recovery theorem twice over but could
+**not** produce AS1's `WordCertificate` at `(n, q, R) = (1, 2, L_sq)`: the four analytic clauses
+`exactLifting` / `stokes` / `scalar` / `determinant` are statements about the *carrier*, and the
+`ℚ₂` proofs of the corresponding counts are packaged (SD-R1's `sourceR_N`) over `GQ2.GammaR`
+rather than over the L-word candidate group.  This file supplies the missing transport and mints
+the certificate.
+
+## The mechanism, in one sentence
+
+Every object the degree-`n` recursion counts — `BoundaryLiftsK`, `LiftsOverK`, `MLifts`,
+`TCocycle`, `VCocycle`, `QLiftsOver` — is a set of **continuous maps out of the source** cut out
+by a **pointwise** condition, and every scalar the recursion extracts from one —
+`exactImageCountK`, `mBK`, `fLift`, `tDef`, `chiDef`, `graphPullback` — is computed pointwise; so
+a `ContinuousMulEquiv` of sources moves all of them by precomposition (§1), and the two genuinely
+cohomological invariants `ι_Γ` and `#H²(Γ, 𝔽₂)` move because they are, respectively, a membership
+test against `B²` and a `QuotientAddGroup` of pullbacks (§2).
+
+## What is generic and what is `n = 1`
+
+* **§§1–6 are fully generic** in the two sources: they take a bare `e : A ≃ₜ* B` between
+  topological groups, never mention `Γ_R`, `L_sq`, `q = 2`, or the `ℚ₂` layer, and none of them
+  reads a numeric constant.  Where a hypothesis on the *actions* is needed it is exactly
+  "both `ZMod 2`-actions are trivial" — the campaign's `htriv`, available on every source.
+* **§7's `SourceDataN.transport` is generic**: given `S : SourceDataN n q P hP nuP SN` and
+  `e : Γ' ≃ₜ* S.Γ` (plus `Γ'`'s own scalar trio) it returns the same source read on `Γ'`, all
+  21 fields.
+* **§8 is the only `n = 1` part**: `sourceLSq` is `sourceR_N` transported across AS4's
+  `gammaR_lSq_equiv_roe`, `wordCertificateLSq` assembles AS1's record from it, and
+  `candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate` runs the certificate through
+  `WordCertificate.toSource` + SD3 to re-derive AS4's headline — a **third** unconditional proof
+  of `Γ_{L_sq,1} ≅ G_ℚ₂`, and the first that never mentions `GQ2.GammaR` in its conclusion.
+
+## Scope, honestly stated
+
+At general `K` there is no isomorphism to transport across, so **nothing in the general-`K`
+pipeline depends on this file**; and AS4's route 2 already proves the `n = 1` theorem without a
+`WordCertificate`.  What §8 buys is *uniformity* for AS5's final story: `n = 1` now enters
+through the same `WordCertificate` interface as the five branch rows, and
+`WordCertificate.toSource` applies to it.
+
+## The one real hypothesis
+
+`ι_Γ` (`GQ2.SectionEight.iotaB`) is `0` iff its argument is a **continuous coboundary**, and the
+coboundary formula `(δ¹ψ)(g,h) = g·ψ(h) − ψ(gh) + ψ(g)` mentions the `ZMod 2`-action.  So the
+transport of `betaChi`, `QZero` and `#H²` needs the two sources' actions to correspond, and
+triviality on both sides (`SourceDataN.htriv` / `WordCertificate.htriv`) is what supplies that.
+The action itself is *not* transported: `Γ'` carries its own, exactly as every consumer expects.
+
+## Two recorded frictions, both hit
+
+1. AS4-b's instance-path trap is live at `tameOfSpec_lSq_eq`: `sourceLSq.Γ` and
+   `GammaR 1 2 (lSqW 0)` are the same type through different instance paths, so `rw` fails with a
+   misleading motive error where `show`/`exact` succeed.  The proof uses `Eq.trans` + `show`.
+2. `match x with | .wild ⟨0, _⟩` needs a `show … (Generator.wild 0) …` to normalise the `Fin`
+   literal (both wild branches of `tameOfSpec_lSq_eq`).
+
+## Axiom posture
+
+`sorry`-free; **no new axioms**, and **no hypothesis binder left open**.
+
+* §§1–6 and `SourceDataN.transport` are pure transport: every one of them prints exactly
+  `[propext, Classical.choice, Quot.sound]`.
+* `sourceLSq`, `tameOfSpec_lSq_eq` and `wordCertificateLSq` print
+  `[propext, Classical.choice, dyadicOrientation, localReciprocity, peripheralCyclotomicAction,
+  Quot.sound]` — **exactly `sourceR_N`'s own print** (SD-R1's recorded std-3 ∪ {B3c, B5, B8}),
+  i.e. packaging the transported source as a `WordCertificate` costs nothing.
+* `candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate` prints a list **byte-identical** to
+  `GQ2.main_presentation_literal_roe_unconditional`'s, matching AS4's two routes exactly.
+
+The dyadic census axioms **`B5-K`/`B10-K` (`markedRecipAt`, `orientedTameQuotientAt`) are
+consumed nowhere**: the `n = 1` route never enters the `K`-layer.
+
+Nothing here reads a count: no declaration in this file mentions `standardNumerics` or any
+numeric constant, and the `SourceNumerics` slot is carried opaquely throughout — §§1–7 never
+inspect it, and §8 only passes SD-R1's.
+
+## Sources
+
+Board `docs/dyadic/tickets.md` row CB-TRN; AS4's "⚠ What blocks the last two rows"
+(`GQ2/Dyadic/Instances/QTwo.lean`) and AS1's divergence 4 (`GQ2/Dyadic/CertificateMain.lean`);
+AS4-b's `GQ2/Dyadic/GammaRHom.lean`, whose `ker_comp_continuousMulEquiv`, `gammaR_hom_ext` and
+scalar trio are consumed here.
 -/
 
 namespace GQ2.Dyadic.SourceTransport
@@ -645,6 +726,26 @@ noncomputable def wordCertificateLSq :
       exact sourceLSq.gaussZ_ramified T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hram⟩
   htame := htame_lSq
   hwild := hwild_lSq_one
+
+/-- **The uniformity payoff, and the regression that checks it.**  With `wordCertificateLSq` in
+hand, `n = 1` reaches `Γ_{L_sq,1} ≅ G_ℚ₂` through *exactly* the route AS5 will use for the five
+branch rows: `WordCertificate.toSource` on the candidate side, `sourceF_N` on the arithmetic
+side, one call to SD3's `nonempty_continuousMulEquiv_of_sourcesN`.
+
+This is a third proof of AS4's headline and it is again **unconditional**.  Unlike AS4's two
+routes it does not compose with `gammaR_lSq_equiv_roe` at the end: the certificate's source is
+already carried on `candidateGroup 1 2 (L_sq)`, which is the whole point of the transport. -/
+theorem candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate :
+    Nonempty (ContinuousMulEquiv ((candidateGroup 1 2 (lSqW 0)) : Type) AbsGalQ2) := by
+  set SW := wordCertificateLSq.toSource (le_refl 2) even_two with hSW
+  set SF := sourceF_N SectionThree.boundaryMapsWitness GQ2.localReciprocity
+    GQ2.tameUnitOrientation_witness with hSF
+  have htame₂ : Function.Surjective SF.tame :=
+    SectionThree.boundaryMapsWitness.tameF_surjective
+  have hwild₂ : IsProP 2 SF.tame.toMonoidHom.ker := SectionThree.boundaryMapsWitness.wild_isProP
+  exact nonempty_continuousMulEquiv_of_sourcesN SW SF two_ne_zero even_two
+    SectionThree.nuTwo_surjective wordCertificateLSq.htame wordCertificateLSq.hwild
+    htame₂ hwild₂
 
 end NEqOne
 
