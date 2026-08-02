@@ -41,7 +41,10 @@ their own statements alongside it.
    *dyadic* pipeline closes the loop and not merely the frozen `ℚ₂` one.  `q2_capstones_agree` is
    the merge-gate-8 regression: `Γ_A ≅ G_ℚ₂`, `Γ_R ≅ G_ℚ₂` and `Γ_{L_sq,1} ≅ G_ℚ₂` side by side.
 5. **§6 AS1's `WordCertificate` fields, at `(n, q, R) = (1, 2, L_sq)`,** for the ones the landed
-   stack proves — see the inventory below.
+   stack proves — see the inventory below.  ⚠ The inventory has since gone **all-green**: AS4-b
+   and CB-TRN closed the last two rows downstream of this file, and CB-TRN's
+   `GQ2/Dyadic/SourceTransport.lean` assembles a genuine `n = 1` `WordCertificate`
+   (`wordCertificateLSq`) and a third recovery theorem from it.
 
 The only mathematics beyond bookkeeping is §3, and its one non-formal input is WL-a's
 `eval_lSqW_zero`: the certificate's tree for `L_sq` at `n = 1` denotes `Marking.wildRelatorR`,
@@ -65,42 +68,57 @@ the wild relator given by two *different trees* — the certificate's `x₀^{-3}
 | `tfg` | **done, and generic in `n, q, R`** (`gammaR_tfg`) |
 | `htame` | **done** (`htame_lSq`, F3b's `tameOfSpec_surjective`) |
 | `hwild` | **done** (`hwild_lSq_one`, GR1's generic discharge) |
-| `pro2`, `ker_pro2`, `hpro2`, `compat` | ⚠ **not built** — see below |
-| `smulZmod2`, `contSMulZmod2`, `htriv` | ⚠ not built (routine; unwritten for `GammaR`) |
-| `exactLifting`, `stokes`, `scalar`, `determinant` | ⚠ **not built; not citable** |
+| `pro2`, `ker_pro2`, `hpro2`, `compat` | **done** (AS4-b) — see below |
+| `smulZmod2`, `contSMulZmod2`, `htriv` | **done, generically in `(n, q, R)`** — see below |
+| `exactLifting`, `stokes`, `scalar`, `determinant` | **done at `n = 1`** (CB-TRN) — see below |
 
-### ⚠ What blocks the last two rows, precisely
+### How the last three rows were closed  (this note supersedes AS4's "⚠ What blocks…")
 
-* **`pro2` and friends.**  AS1's divergence 3 is *not* closed at `n = 1` by this file, and the
-  reason is a missing generic transport, not missing mathematics.  `GQ2.Roe.exists_pro2R`
-  (`GQ2/Roe/Main.lean:226`) supplies a `pro2R : Γ_R → Π` with `ν`-compatibility, surjectivity
-  and `ker = proPKernel 2 Γ_R`; composing with `toRoe` gives the map, and surjectivity is free.
-  What is missing is `Subgroup.comap e (proPKernel p B) = proPKernel p A` for a
-  `ContinuousMulEquiv e : A ≃ₜ* B` (needed for `ker_pro2`) and a "two continuous homs out of
-  `GammaR n q R` agreeing on `gammaGen` are equal" ext lemma (needed to identify F3b's
-  `tameOfSpec` with `phiR ∘ toRoe`, hence for `compat`).  Both are short, generic and belong in
-  `GQ2/MaxProP.lean` and `GQ2/Dyadic/AdmissibleR.lean` respectively — **owed by:** nobody
-  currently; they are the natural follow-on.
-* **The four analytic clauses.**  These are AS1's divergence 4 and they are *not* AS4-shaped.
-  `WordCertificate`'s `exactLifting`/`stokes`/`scalar`/`determinant` are stated at
-  `Γ := GammaR n q R`, in the `K`-layer vocabulary (`LiftsOverK`, `BoundaryFrameK`,
-  `GaussZResidueK`).  The `ℚ₂` proofs of the corresponding counts exist — SD-R1 already packaged
-  them as `GQ2.Dyadic.sourceR_N` (`GQ2/Dyadic/SourceDataN.lean:421`), a full
-  `SourceDataN 1 2 PiBd _ nuTwo (standardNumerics 1)` whose carrier is `GQ2.GammaR` — but every
-  one of them is a statement *about that carrier*, quantified over `BoundaryLiftsK`,
-  `RecursionFrame`, `TCocycle`, `VCocycle` and `GaussZResidueK` data all of which depend on `Γ`
-  through its boundary map.  Moving them across `gammaR_lSq_equiv_roe` is a `SourceDataN`
-  transport lemma, i.e. an equivalence of all of those dependent families — a ticket of its own,
-  and one nobody owns.  **This file therefore does not construct a `WordCertificate`, and the
-  recovery theorem deliberately does not go through `candidate_equiv_absoluteGalois`.**
+⚠ **This section is a status record, not a dependency**: nothing in this file imports or cites
+any follow-on module.  The rows are listed as done because the follow-ons landed, not because
+`QTwo.lean` changed.
 
-  ⚠ The consequence is worth stating plainly for AS5 and the G3 sign-off: at `n = 1` the dyadic
-  recursion *does* reach `Γ_R ≅ G_ℚ₂` without a `WordCertificate` — that is
-  `candidateGroup_lSq_equiv_absGalQ2_via_sourcesN` — but it reaches it with the record's `Γ`
-  spelled `GQ2.GammaR`, because `sourceR_N` is built from the frozen `ℚ₂` supply lemmas rather
-  than from a word certificate.  §4 is exactly the bridge between the two spellings.  So what
-  the missing `WordCertificate` costs at `n = 1` is *only* the record-level plumbing, not the
-  theorem; at general `K` it costs the theorem, and that is divergence 4's real content.
+* **The scalar trio** was never unbuilt, only unnamed at `Γ_R`: `tfg` is
+  `Count.gammaR_topologicallyFinitelyGenerated` (`Count/Routine.lean` §3) and the trio is
+  `gammaRSMulZmod2`/`gammaRContSMulZmod2`/`gammaR_htriv` (`GammaRHom.lean` §3), wrapping the
+  monoid-generic `scalarActionZmodTwo`/`_continuousSMul`/`_triv` — closed for **every**
+  `(n, q, R)`, not just `n = 1`.  (CB-DD corrected the equivalent row in
+  `GQ2/Dyadic/CertificateMain.lean`; this row is the same correction, deferred to AS3-b because
+  the lane was off-limits mid-flight.)
+* **`pro2` and friends** — closed by **AS4-b** (`GQ2/Dyadic/GammaRHom.lean`).  AS4 diagnosed the
+  gap correctly: `GQ2.Roe.exists_pro2R` (`GQ2/Roe/Main.lean:226`) already supplies a
+  `pro2R : Γ_R → Π` with `ν`-compatibility, surjectivity and `ker = proPKernel 2 Γ_R`, so
+  composing with `toRoe` gives the map; what was missing was
+  `Subgroup.comap e (proPKernel p B) = proPKernel p A` for a `ContinuousMulEquiv e` (for
+  `ker_pro2`) and a "two continuous homs out of `GammaR n q R` agreeing on `gammaGen` are equal"
+  ext lemma (for `compat`).  Both now exist — `comap_proPKernel` and `gammaR_hom_ext` — the first
+  as an instance of the strictly more general `proPKernel_le_comap` (naturality for *any*
+  continuous hom), the second from a density argument needing only `Group + T2Space` on the
+  target.  All four fields discharge at `n = 1`, printing exactly what `pro2R` already carries.
+* **The four analytic clauses** — closed at `n = 1` by **CB-TRN**
+  (`GQ2/Dyadic/SourceTransport.lean`).  AS4 named the obstruction exactly: the clauses are stated
+  at `Γ := GammaR n q R` in the `K`-layer vocabulary (`LiftsOverK`, `BoundaryFrameK`,
+  `GaussZResidueK`), whereas the `ℚ₂` proofs of the corresponding counts live on the *other*
+  carrier, packaged by SD-R1 as `GQ2.Dyadic.sourceR_N` (`GQ2/Dyadic/SourceDataN.lean:421`, a full
+  `SourceDataN 1 2 PiBd _ nuTwo (standardNumerics 1)` over `GQ2.GammaR`), quantified over
+  `BoundaryLiftsK`, `RecursionFrame`, `TCocycle`, `VCocycle` and `GaussZResidueK` families all of
+  which depend on `Γ` through its boundary map.  Moving them across `gammaR_lSq_equiv_roe` was
+  indeed "a ticket of its own"; that ticket is CB-TRN, and it produced
+
+  1. `SourceDataN.transport` — record-level transport of **all 21 fields** along an arbitrary
+     `ContinuousMulEquiv`, generic and printing exactly the standard three;
+  2. `GQ2.Dyadic.wordCertificateLSq` — the **unconditional** `n = 1` `WordCertificate`, printing
+     exactly `sourceR_N`'s own list (the packaging costs zero axioms); and
+  3. `GQ2.Dyadic.candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate` — a **third**
+     unconditional proof of the `n = 1` theorem, print byte-identical to
+     `GQ2.main_presentation_literal_roe_unconditional`.
+
+  So the `n = 1` row now reaches `Γ_R ≅ G_ℚ₂` by all three routes: §5's two (via Roe's terminal
+  theorem, and via SD3's degree-`n` reconstruction on `sourceR_N`) and CB-TRN's third, which goes
+  through `candidate_equiv_absoluteGalois` on a genuine `WordCertificate`.  **AS4's own
+  conclusion stands as written for general `K`**: what the certificate route costs at `n = 1` was
+  only record-level plumbing, and CB-TRN paid it; at general `K` it costs the theorem, and that
+  is divergence 4's real content — unchanged, and still open.
 
 ## Axiom posture
 
