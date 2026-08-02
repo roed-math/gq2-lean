@@ -21,10 +21,10 @@ the `ℚ₂(√−2)` row — assembled through `candidate_equiv_galK_of_supply`
 `Γ_{R_{N,2,0}} ≅ G_K` for a supplied quadratic `K` on the ramified-`i` branch.
 
 This file is the campaign's first complete general-`K` instance: it builds the **word
-certificate** (`sqrtNegTwoWordCertificate`, §4) with every count-lane clause discharged from
-the landed CB/WN0 stacks, builds the **`K`-side supply** (`sqrtNegTwoKSupply`, §5) with the
+certificate** (`sqrtNegTwoWordCertificate`, §5) with every count-lane clause discharged from
+the landed CB/WN0 stacks, builds the **`K`-side supply** (`sqrtNegTwoKSupply`, §6) with the
 marked-core composite written down and CB-DET's determinant discharge consumed, and closes the
-loop (`sqrtNegTwo_candidate_equiv_galK`, §6).
+loop (`sqrtNegTwo_candidate_equiv_galK`, §7).
 
 ## The residual hypothesis surface, named
 
@@ -43,21 +43,21 @@ obligations appears.  In dependency order:
   `blockStageR136K` leaves open (SD-R3); their `ℚ₂` ancestors are the `RStage` per-carrier
   computations (`GQ2/Block/RStage.lean`, `GQ2/CardH2GammaA.stageR136_gammaA`).  Owner: a
   follow-on candidate-side R-stage ticket (CB1 memo's "stokes 1800" block priced them).
-* `hdet` (§4) — **the candidate-side `AffineDeterminantCertificate`**, whole.  ⚠ The count
+* `hdet` (§5) — **the candidate-side `AffineDeterminantCertificate`**, whole.  ⚠ The count
   lane's clause list closed 9 of the 11 `SourceDataN` clauses on the candidate side; the two
   Gauss-`Z` clauses have **no candidate-side supplier in the repository** (CB-DET is the
   `K`-side bridge; the word-side Hessian layer (WN0-c) exists but the Hessian ⇒
   `GaussZResidueK` bridge does not).  Owner: CB1 memo's "gauss 1900" ticket, unopened.
-* the G-Lab pack (§5): `fLab` (Labute/Demushkin classification of `G_K(2)` — N-Lab, packet
+* the G-Lab pack (§6): `fLab` (Labute/Demushkin classification of `G_K(2)` — N-Lab, packet
   §7's hypothesis-binder state per gate G-Lab), `piAb`/`hpiAb`/`hpiNu` (the abelianization
   slot of the marked-core `K`-layer and its `ν`-compatibility with `toAbK` — the direct-factor
   inclusion `G_K(2)^{ab} ↪ G_K^{ab}`, which AS1's "composite" needs and which **nobody had
   written down**; recorded here as data), `horient` (the orientation datum), `hScal`
   (`NScalingHypothesis`, MC-N's S2 binder), `hpair` (marked-data pair-unimodularity).
-* `hexact`/`hstokes` (§5) — the `K`-side `ExactLiftingSemantics` and
+* `hexact`/`hstokes` (§6) — the `K`-side `ExactLiftingSemantics` and
   `StokesDualityCertificate` at `G_K`: ASK's carried leaves 2–3 (`KSupply` §6), still owed by
   the `Phase140/Local`-successor lane (CB-SG built the substrate).
-* `params`/`ramified`/`ramifiedData` (§6) — packet §12's field-side inputs at the concrete
+* `params`/`ramified`/`ramifiedData` (§6–§7) — packet §12's field-side inputs at the concrete
   `K`, in AS1's own shapes (`DyadicLocalInput`); `ramifiedData`'s intended constructor is
   LG5's `ramifiedCertificateOfSubtype`.
 * `hdeg : [K : ℚ₂] = 2` — the concrete field pin.  ⚠ The repository has **no** construction
