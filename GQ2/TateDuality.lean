@@ -253,6 +253,43 @@ theorem isLocalDualizingGroup_absGalQ2 (n : ℕ) [NeZero n] :
     by rw [MonoidHom.range_eq_top.mpr Function.surjective_id]; infer_instance,
     fun _ _ => rfl⟩
 
+/-! ## Bundle-parametric cardinality consequences
+
+These are the group-generic forms of the three cardinality lemmas historically stated below at
+`G = G_ℚ₂`.  Keeping them on `TateDualityG` prevents consumers over an open subgroup (in
+particular `G_K`) from reopening the `perfect02`/`perfect11`/`perfect20` fields by hand. -/
+
+section GeneralConsequences
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {n : ℕ} [NeZero n] [DistribMulAction G (MuN n)] [ContinuousSMul G (MuN n)]
+variable (D : TateDualityG G n)
+variable (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+  [DistribMulAction G M] [ContinuousSMul G M] [Finite M]
+  (htor : ∀ x : M, n • x = 0)
+
+include D htor
+
+/-- Duality over a general `G`, `(0,2)` cardinality form:
+`#H⁰(G, M′) = #Hom(H²(G, M), ℤ/n)`. -/
+theorem TateDualityG.card_H0_dual :
+    Nat.card (H0 G (MuDual n M)) = Nat.card (H2 G M →+ ZMod n) :=
+  Nat.card_congr (Equiv.ofBijective _ (D.perfect02 M htor))
+
+/-- Duality over a general `G`, `(1,1)` cardinality form:
+`#H¹(G, M′) = #Hom(H¹(G, M), ℤ/n)`. -/
+theorem TateDualityG.card_H1_dual :
+    Nat.card (H1 G (MuDual n M)) = Nat.card (H1 G M →+ ZMod n) :=
+  Nat.card_congr (Equiv.ofBijective _ (D.perfect11 M htor))
+
+/-- Duality over a general `G`, `(2,0)` cardinality form:
+`#H²(G, M′) = #Hom(H⁰(G, M), ℤ/n)`. -/
+theorem TateDualityG.card_H2_dual :
+    Nat.card (H2 G (MuDual n M)) = Nat.card ((H0 G M) →+ ZMod n) :=
+  Nat.card_congr (Equiv.ofBijective _ (D.perfect20 M htor))
+
+end GeneralConsequences
+
 /-! ## Stress tests (axiom-free: parametrized over an arbitrary bundle)
 
 Each consequence below takes `D : TateDuality n`, so it exercises the bundle's clauses without
@@ -276,19 +313,19 @@ include D htor
 theorem TateDuality.card_H0_dual :
     Nat.card (H0 AbsGalQ2 (MuDual n M))
       = Nat.card (H2 AbsGalQ2 M →+ ZMod n) :=
-  Nat.card_congr (Equiv.ofBijective _ (D.perfect02 M htor))
+  TateDualityG.card_H0_dual D M htor
 
 /-- Duality, `(1,1)` cardinality form: `#H¹(M′) = #Hom(H¹(M), ℤ/n)`. -/
 theorem TateDuality.card_H1_dual :
     Nat.card (H1 AbsGalQ2 (MuDual n M))
       = Nat.card (H1 AbsGalQ2 M →+ ZMod n) :=
-  Nat.card_congr (Equiv.ofBijective _ (D.perfect11 M htor))
+  TateDualityG.card_H1_dual D M htor
 
 /-- Duality, `(2,0)` cardinality form: `#H²(M′) = #Hom(H⁰(M), ℤ/n)`. -/
 theorem TateDuality.card_H2_dual :
     Nat.card (H2 AbsGalQ2 (MuDual n M))
       = Nat.card ((H0 AbsGalQ2 M) →+ ZMod n) :=
-  Nat.card_congr (Equiv.ofBijective _ (D.perfect20 M htor))
+  TateDualityG.card_H2_dual D M htor
 
 /-- Injectivity extraction (the form used for dimension counts): a nonzero `H¹(M′)`-class cups
 non-trivially against some `H¹(M)`-class. -/

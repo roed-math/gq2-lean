@@ -217,7 +217,7 @@ theorem card_H2_eq_fixedPtsG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerC
       = Nat.card (H2 Γ A →+ ZMod 2) :=
         (card_addHom_zmod2 (H2_two_torsionG (Γ := Γ) hA₂)).symm
     _ = Nat.card (H0 Γ (MuDual 2 A)) :=
-        (Nat.card_congr (Equiv.ofBijective _ (D.perfect02 A htor))).symm
+        (TateDualityG.card_H0_dual D A htor).symm
     _ = Nat.card (fixedPts C (ElemDual A)) := card_H0_muDual_eq_fixedPtsG hρ hcomp
 
 omit [TopologicalSpace Γ] [IsTopologicalGroup Γ] [DistribMulAction Γ (MuN 2)]
@@ -431,7 +431,7 @@ theorem bijective_cup11_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalE
   refine bijective_cup_of_commG D (H1_two_torsionG hA₂)
     (H1_two_torsionG ElemDual.add_self_eq_zero)
     (by rw [← Nat.card_congr (H1congr dualAddEquiv heD).toEquiv,
-      Nat.card_congr (Equiv.ofBijective _ (D.perfect11 A htor)),
+      TateDualityG.card_H1_dual D A htor,
       card_addHom_zmod2 (H1_two_torsionG (Γ := Γ) hA₂)])
     htriv (cup11 (dualEval A) hpair)
     (cup11 (muDualPairing 2 A) (muDualPairing_equivariant 2 A)) (H1congr dualAddEquiv heD)
@@ -457,7 +457,7 @@ theorem bijective_cup02_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalE
   have heD := edEquivariantG hpair htriv
   refine bijective_cup_of_commG D h0₂ (H2_two_torsionG ElemDual.add_self_eq_zero)
     (by rw [← Nat.card_congr (H2congr dualAddEquiv heD).toEquiv,
-      Nat.card_congr (Equiv.ofBijective _ (D.perfect20 A htor)), card_addHom_zmod2 h0₂])
+      TateDualityG.card_H2_dual D A htor, card_addHom_zmod2 h0₂])
     htriv (cup02 (dualEval A) hpair)
     (cup20 (muDualPairing 2 A) (muDualPairing_equivariant 2 A)) (H2congr dualAddEquiv heD)
     ((D.perfect20 A htor).2) (fun c d'' => ?_)
@@ -481,7 +481,7 @@ theorem bijective_cup20_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalE
   have heD := edEquivariantG hpair htriv
   refine bijective_cup_of_commG D (H2_two_torsionG hA₂) hED0₂
     (by rw [← Nat.card_congr (H0congr dualAddEquiv heD).toEquiv,
-      Nat.card_congr (Equiv.ofBijective _ (D.perfect02 A htor)),
+      TateDualityG.card_H0_dual D A htor,
       card_addHom_zmod2 (H2_two_torsionG (Γ := Γ) hA₂)])
     htriv (cup20 (dualEval A) hpair)
     (cup02 (muDualPairing 2 A) (muDualPairing_equivariant 2 A)) (H0congr dualAddEquiv heD)
