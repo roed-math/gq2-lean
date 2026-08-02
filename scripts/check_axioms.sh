@@ -86,10 +86,14 @@ GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
 # print is a growth failure by exactness.
 AUDIT_DYADIC='GQ2.Dyadic.ramifiedI_candidate_equiv_galK :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt GQ2.relativeStiefelWhitney_dyadic GQ2.hilbertSymbol_normCriterion_finiteDyadic
 GQ2.Dyadic.SqrtNeg2.sqrtNegTwo_candidate_equiv_galK :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt GQ2.relativeStiefelWhitney_dyadic GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.Fields.sqrtNegTwo_candidate_equiv_galK_literal :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt GQ2.relativeStiefelWhitney_dyadic GQ2.hilbertSymbol_normCriterion_finiteDyadic
 GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtTwo :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
 GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtFive :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
 GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtTen :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
 GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtNegTen :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.Fields.candidate_equiv_galK_sqrtTwo_literal :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.Fields.candidate_equiv_galK_sqrtTen_literal :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.Fields.candidate_equiv_galK_sqrtNegTen_literal :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
 GQ2.Dyadic.candidate_equiv_galK_of_frozenRow_certificates :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
 GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2 :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.dyadicOrientation GQ2.localReciprocity GQ2.tateDualityAt GQ2.peripheralCyclotomicAction GQ2.relativeStiefelWhitney_dyadic GQ2.tameQuotient GQ2.hilbertSymbol_normCriterion_finiteDyadic
 GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2_via_sourcesN :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.dyadicOrientation GQ2.localReciprocity GQ2.tateDualityAt GQ2.peripheralCyclotomicAction GQ2.relativeStiefelWhitney_dyadic GQ2.tameQuotient GQ2.hilbertSymbol_normCriterion_finiteDyadic
@@ -334,8 +338,8 @@ EOF
   # until the orchestrator registers that module in GQ2.lean, a plain `lake build` does not
   # produce its olean, so this block self-skips with a notice rather than failing a cold or
   # pre-registration tree (mirroring check 5's own skip).
-  if [ ! -f .lake/build/lib/lean/GQ2/Dyadic/Main.olean ]; then
-    echo "SKIP: dyadic-capstone axiom audit — GQ2.Dyadic.Main not built (run 'lake build GQ2.Dyadic.Main')"
+  if [ ! -f .lake/build/lib/lean/GQ2.olean ]; then
+    echo "SKIP: dyadic-capstone axiom audit — GQ2 root not built (run 'lake build')"
   else
     dyadic_ok=1
     dyadic_names=$(
@@ -344,7 +348,7 @@ EOF
         sed '/^$/d' | LC_ALL=C sort -u | sed 's/^/"/; s/$/"/' | paste -sd, -
     )
     cat > "$probe_dir/AxiomProbeDyadic.lean" <<LEAN
-import GQ2.Dyadic.Main
+import GQ2
 
 open Lean in
 run_cmd do

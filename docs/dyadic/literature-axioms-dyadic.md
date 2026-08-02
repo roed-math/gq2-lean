@@ -130,7 +130,7 @@ instance files, `KSupply.lean`).
 
 | Binder | Type | Producer | Notes |
 |---|---|---|---|
-| `K` | `IntermediateField ℚ_[2] ℚ̄₂` + `[FiniteDimensional ℚ_[2] K]` | caller (AS-F probing literal fields) | ⚠ **no concrete field object exists in the repo** — `ℚ₂(√−2)` etc. are not constructed; every instance theorem is honestly parametrized over a supplied `K` on its branch |
+| `K` | `IntermediateField ℚ_[2] ℚ̄₂` + `[FiniteDimensional ℚ_[2] K]` | caller (AS-F probing literal fields) | **superseded 2026-08-02 (AS-F/AS-F2 — see §C.7)**: concrete quadratic fields now exist (`Fields.quadField a = ℚ_[2]⟮√a⟯`; rows `KSqrtNegTwo` … `KSqrtNegTen`) and four rows carry literal instantiations printing byte-identically to their parametrized parents; the parametrized-over-`K` headlines remain the primary form |
 | `Rec` | `LocalReciprocity` | B5 (`GQ2.localReciprocity`) or abstract | slot only |
 | `B` | `MarkedRecip Rec K` | **B5-K** at a literal `K`; abstract otherwise | never consumed as an axiom by the landed theorems |
 | `FF` | `DyadicUnitFiltration K` | B13's discharged construction at ℚ₂; caller at `K` | fixes `q_K = qOf K FF` |
