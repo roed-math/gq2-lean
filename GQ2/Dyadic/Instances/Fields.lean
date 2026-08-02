@@ -805,6 +805,53 @@ theorem candidate_equiv_galK_sqrtTwo_literal
 
 end SqrtTwoRow
 
+section SqrtTenRow
+
+variable {B : MarkedRecip Rec KSqrtTen} {FF : DyadicUnitFiltration KSqrtTen}
+  {T : OrientedTameQuotientK B FF}
+
+set_option maxHeartbeats 800000 in
+/-- **Packet Thm. 1.1 at the literal field `ℚ₂(√10)`.**
+
+`⟨σ, τ, x₀, x₁, x₂ ∣ τ^σ = τ², R_{M,pc}(α=2, r=1, ε=0) = 1, ⟪x₀,x₁,x₂⟫ pro-2⟩_prof ≅ G_K` for
+`K = ℚ₂(√10)`.  Specializes `Instances.candidate_equiv_galK_sqrtTen_nonvacuous`. -/
+theorem candidate_equiv_galK_sqrtTen_literal
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) 2 Instances.Sqrt10.word) (2 + 2 * 0)
+      2 Instances.Sqrt10.core Instances.Sqrt10.nu (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) 2 Instances.Sqrt10.word) (2 + 2 * 0)
+      2 Instances.Sqrt10.core Instances.Sqrt10.nu (standardNumerics (2 + 2 * 0))
+      (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) 2 Instances.Sqrt10.word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) 2 Instances.Sqrt10.word)
+      (2 + 2 * 0) 2 Instances.Sqrt10.core Instances.Sqrt10.nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) 2 Instances.Sqrt10.word
+        (Instances.MProcyclicCore.mpcTameSpecializes 2 1 0 2 Instances.Sqrt10.alpha_valid
+          two_ne_zero even_two))
+      (Instances.MProcyclicCore.mpcPro2 2 1 0 2 Instances.Sqrt10.alpha_valid two_ne_zero even_two)
+      (Instances.MProcyclicCore.mpcCompat 2 1 0 2 Instances.Sqrt10.alpha_valid two_ne_zero
+        even_two
+        (Instances.MProcyclicCore.mpcTameSpecializes 2 1 0 2 Instances.Sqrt10.alpha_valid
+          two_ne_zero even_two) Instances.Sqrt10.nu
+        (Instances.MProcyclicCore.mpcNu_sigma 2 1 0 Instances.Sqrt10.alpha_valid)
+        (Instances.MProcyclicCore.mpcNu_wild 2 1 0 Instances.Sqrt10.alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) Instances.Sqrt10.core (isProP_DM 2 0)
+      Instances.Sqrt10.nu (standardNumerics (2 + 2 * 0)))
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq pilotParams.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub KSqrtTen) D),
+      (∃ v : V, c (tqTau pilotParams.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate pilotParams (GalKsub KSqrtTen) V c rho)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (2 + 2 * 0) 2 Instances.Sqrt10.word : Type)) (GalK KSqrtTen)) :=
+  Instances.candidate_equiv_galK_sqrtTen_nonvacuous (qOf_KSqrtTen FF) exactLifting stokes scalar
+    determinant KS pilotParams rfl rfl
+    (fun δi hδ => not_hasEqualNormValueGroups_KSqrtTen δi hδ) ramifiedData
+
+end SqrtTenRow
+
 end LiteralRows
 
 end GQ2.Dyadic.Fields
