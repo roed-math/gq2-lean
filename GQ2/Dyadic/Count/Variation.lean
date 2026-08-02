@@ -1031,4 +1031,271 @@ theorem lem86_of_variation
 
 end Clauses
 
+/-! ## §9. The five frozen branch families
+
+`~/claude/general_2adic/artifacts/reports/selection-freeze.md`'s five rows, each with its four
+resolutions discharged at §2's single level and **no hypothesis about any target**.
+
+This is where §2 pays.  Each row's `Count/Frozen.lean` §10 theorem is already generic in the level
+`N`, asking only `N ≠ 0`, `2 ∣ N` and `∀ x : Q, orderOf x ∣ N`; §2 supplies all three at
+`N = exp(H(T) ⋊ (Bg ⧸ M))` for each of the four targets the route reads — and it is the *same* `N`,
+so the four resolutions are four instances of one theorem at one resolver
+`e = ω₂ mod exp(H(T) ⋊ (Bg ⧸ M))`.
+
+What each row still asks for is exactly two things, and both are the branch's own data, not the
+count lane's:
+
+* `hdT : StokesDuality c w (Additive ↥D.T)` — but this is **not a new payload**: every row's
+  `*_stokesDuality` theorem is `stokesDuality_of_simple` instantiated, i.e. it is stated
+  `∀ A, (∀ a : A, a + a = 0) → StokesDuality c w A`, so the *same* `hsimp` gives both this and the
+  scalar one `cardH2` needs;
+* `hedge`/`hρ` — the radical-cover datum, which is source-free (`CardH2GammaA.datum` is reused
+  verbatim by every source, `RadicalCoverData` binding no `Γ`).
+
+The `hr` input is not asked for at all: `lower_rel` derives it from the presentation. -/
+
+section HeisLevelDef
+
+variable {Bg : Type} [Group Bg] [Finite Bg] {D : RadicalCoverData Bg}
+
+/-- **The count lane's level**, once and for all: the exponent of the Heisenberg lift over the
+branch's own radical datum.  Every one of the four targets the route reads is killed by it (§2),
+and it is even (§2), so `omega2Exp` of it is an honest odd resolver at every row. -/
+noncomputable def heisLevel (D : RadicalCoverData Bg) : ℕ :=
+  Monoid.exponent (HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+
+theorem heisLevel_ne_zero : heisLevel D ≠ 0 := heisLevel_ne_zero_and_even.1
+
+theorem heisLevel_even : (heisLevel D).factorization 2 ≠ 0 := heisLevel_ne_zero_and_even.2
+
+variable [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+
+theorem orderOf_dvd_heisLevel_scal (x : WordLift (ZMod 2) (Bg ⧸ D.M)) :
+    orderOf x ∣ heisLevel D := orderOf_wordLiftScal_dvd_heisExponent x
+
+end HeisLevelDef
+
+section HeisLevelDvd
+
+variable {Bg : Type} [Group Bg] [Finite Bg] {D : RadicalCoverData Bg}
+
+theorem orderOf_dvd_heisLevel_prim (x : WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :
+    orderOf x ∣ heisLevel D := orderOf_wordLift_dvd_heisExponent x
+
+theorem orderOf_dvd_heisLevel_dual (x : WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) :
+    orderOf x ∣ heisLevel D := orderOf_wordLiftDual_dvd_heisExponent x
+
+theorem orderOf_dvd_heisLevel_heis (x : HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) :
+    orderOf x ∣ heisLevel D := orderOf_heisLift_dvd x
+
+end HeisLevelDvd
+
+section Branches
+
+open GQ2.Dyadic.Certificates GQ2.FoxH GQ2.SectionEight.AffineTLift
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (Additive ↥D.T)]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] [ContinuousSMul Γ (ElemDual (Additive ↥D.T))]
+  [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (ZMod 2) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (ZMod 2) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  (S : TComplement D) (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcompat : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+  (hcompatD : ∀ (γ : Γ) (l : ElemDual (Additive ↥D.T)), γ • l = rho γ • l)
+  (hedge : D.NoDescent) (hρ : Function.Surjective rho)
+
+include hcompat hcompatD hedge hρ
+
+/-- **Row 1 — compact `N`** (`R(N,α,0) = x₀^{2+2^α}[x₀,x₁] · x₂^{-σ}(x₂τ)^{ω₂} · H_h`,
+selection-freeze row 2). -/
+theorem exists_nonzero_varCoc_nCompactFam {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.nCompactW α h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hdT : StokesDuality c (nCompactFam α h q (omega2Exp (heisLevel D))) (Additive ↥D.T)) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 :=
+  exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hα hq).1
+    hdT
+    (fun k => lower_rel (A := ZMod 2) rho hc hpres
+      (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_scal hα hq).1 k)
+    (resolvesAt_and_endpoint_nCompactFam (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq).2
+    hedge hρ
+
+/-- **Row 2 — compact `M`** (`R(M,0) = A₀²[A₀,x₁]σ₂^{2m} · J₂ · E_m^rev · H_h`,
+selection-freeze row 4). -/
+theorem exists_nonzero_varCoc_mCompactFam {α h q : ℕ} (hq : Even q)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hdT : StokesDuality c (MCompact.mCompactFam α h q (omega2Exp (heisLevel D)))
+      (Additive ↥D.T)) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 :=
+  exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2
+    (resolvesAt_and_endpoint_mCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal (α := α) hq).1
+    (resolvesAt_and_endpoint_mCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim (α := α) hq).1
+    (resolvesAt_and_endpoint_mCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual (α := α) hq).1
+    (resolvesAt_and_endpoint_mCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis (α := α) hq).1
+    hdT
+    (fun k => lower_rel (A := ZMod 2) rho hc hpres
+      (resolvesAt_and_endpoint_mCompactFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_scal (α := α) hq).1 k)
+    (resolvesAt_and_endpoint_mCompactFam (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis (α := α) hq).2
+    hedge hρ
+
+/-- **Row 3 — `L_sq`**, the R2-signed primary type-`L` word (selection-freeze row 1; its rank-3
+core is Roe's own `Γ_R`). -/
+theorem exists_nonzero_varCoc_lSqFam {h q : ℕ} (hq : Even q)
+    {gen : Generator (2 * h + 1) → Γ} {J : Set (Generator (2 * h + 1))}
+    {c : Generator (2 * h + 1) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 * h + 1) q (Words.LSq.lSqW h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hdT : StokesDuality c (LSqStokes.lSqFam h q (omega2Exp (heisLevel D))) (Additive ↥D.T)) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 :=
+  exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hq).1
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hq).1
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hq).1
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hq).1
+    hdT
+    (fun k => lower_rel (A := ZMod 2) rho hc hpres
+      (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_scal hq).1 k)
+    (resolvesAt_and_endpoint_lSqFam (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hq).2
+    hedge hρ
+
+/-- **Row 4 — procyclic `M`**, at an `ω₂`-only `η`-display (selection-freeze row 5). -/
+theorem exists_nonzero_varCoc_mpcFam {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hdT : StokesDuality c (MProcyclic.mpcFam α r pp h q (omega2Exp (heisLevel D)) η)
+      (Additive ↥D.T)) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 :=
+  exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2
+    (resolvesAt_and_endpoint_mpcFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hα hq hη).1
+    (resolvesAt_and_endpoint_mpcFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hα hq hη).1
+    (resolvesAt_and_endpoint_mpcFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hα hq hη).1
+    (resolvesAt_and_endpoint_mpcFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hα hq hη).1
+    hdT
+    (fun k => lower_rel (A := ZMod 2) rho hc hpres
+      (resolvesAt_and_endpoint_mpcFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_scal hα hq hη).1 k)
+    (resolvesAt_and_endpoint_mpcFam (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq hη).2
+    hedge hρ
+
+/-- **Row 5 — noncompact/procyclic `N`**, at CB-FR2's two-valued resolver (selection-freeze
+row 3, the corrected `L_c` row).
+
+This is the row CB-FR proved has **no honest constant resolver at all** at exponent level `6`
+(`no_constant_pin_npcFam_at_six`), because `ω₂` kills pro-odd elements while `η̂` fixes them.  It
+costs nothing here: the level is chosen at the target, and `npcResolver` is the two-valued
+resolver at that level. -/
+theorem exists_nonzero_varCoc_npcFamOf {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    (d : GQ2.Dyadic.EtaData) (E₂ : ℤ_[2] → ℤ)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d)) J)
+    (hwild2 : IsWildTwo J c)
+    (hdT : StokesDuality c (npcFamOf α r h q d (npcResolver (heisLevel D) d) E₂)
+      (Additive ↥D.T)) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 :=
+  exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2
+    (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hα hq d E₂).1
+    (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hα hq d E₂).1
+    (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hα hq d E₂).1
+    (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hα hq d E₂).1
+    hdT
+    (fun k => lower_rel (A := ZMod 2) rho hc hpres
+      (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_scal hα hq d E₂).1 k)
+    (resolvesAt_and_endpoint_npcFamOf (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq d E₂).2
+    hedge hρ
+
+/-- **Row 4', the procyclic-`M` `.hat` display** — CB-FR's §9 row, which is outside the `ω₂`-only
+fragment and shares row 5's resolver. -/
+theorem exists_nonzero_varCoc_mpcFamOf_hat {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    (num den : ℤ) (E₂ : ℤ_[2] → ℤ)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp (.hat num den) h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hdT : StokesDuality c (mpcFamOf α r pp h q (.hat num den)
+      (npcResolver (heisLevel D) ⟨num, den⟩) E₂) (Additive ↥D.T)) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 :=
+  exists_nonzero_varCoc S rho hcompat hcompatD hc hpres hwild2
+    (resolvesAt_and_endpoint_mpcFamOf_hat heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hα hq num den E₂).1
+    (resolvesAt_and_endpoint_mpcFamOf_hat heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hα hq num den E₂).1
+    (resolvesAt_and_endpoint_mpcFamOf_hat heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hα hq num den E₂).1
+    (resolvesAt_and_endpoint_mpcFamOf_hat heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hα hq num den E₂).1
+    hdT
+    (fun k => lower_rel (A := ZMod 2) rho hc hpres
+      (resolvesAt_and_endpoint_mpcFamOf_hat heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_scal hα hq num den E₂).1 k)
+    (resolvesAt_and_endpoint_mpcFamOf_hat (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq num den E₂).2
+    hedge hρ
+
+end Branches
+
 end GQ2.Dyadic.Count
