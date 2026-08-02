@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.CertificateMain
 import GQ2.Dyadic.Words.N0
+import GQ2.Dyadic.GammaRHom
 
 /-!
 # The generic candidate-side pro-`2` bridge  (dyadic campaign, ticket CB-P)
@@ -59,8 +60,8 @@ property.  Then:
   F3's, generic: tame ⇒ odd order ⇒ trivial in a 2-group) and `maxMarking.eval (pro2 R) = 1`
   (F2's `Marking.eval_pro2` plus `gammaMarking_eval_R`);
 * **mutual inverse** by `CorePresentation.hom_ext` one way and topological generation of `Γ_R(2)`
-  the other (§2 — `topGen_gammaR` did not exist and is proved here, two lines from F3's
-  `TopGen.map`).
+  the other (§2's `topGen_maxGammaR`, two lines from F3's `TopGen.map` on top of
+  `GQ2.Dyadic.topGen_gammaR`).
 
 Note the *keystone* of the ℚ₂ file, `wildValueR_eq_drWord_of_powOmega2_id` ("in a 2-group the wild
 value of the marking **is** the core relator"), is exactly `WordCertificate.proTwoWord`, and it is
@@ -155,22 +156,17 @@ namespace CorePresentation
 
 variable {n q : ℕ} {R : PWord (Generator n)} {P : ProfiniteGrp.{0}}
 
-/-! ## §2 Topological generation of `Γ_R` and of `Γ_R(2)`
+/-! ## §2 Topological generation of `Γ_R(2)`
 
 `GQ2/Roe/MaxPro2Bridge.lean:375`'s `topGen_maxR`, rank-generic.  Neither statement existed in the
-dyadic tree: `TameBoundary.lean` has `topGen_tameGammaR` for the *tame* quotient `Γ_R/W_R` but not
-for `Γ_R` itself, and `CertificateMain.lean:435` records the omission ("routine, but nobody has
-written them for `GammaR`").  Both are pushforwards of F3's `TopGen.freeProfiniteGroup` along
-quotient surjections. -/
+dyadic tree when this file was written: `TameBoundary.lean` has `topGen_tameGammaR` for the *tame*
+quotient `Γ_R/W_R` but not for `Γ_R` itself.  Both are pushforwards of F3's
+`TopGen.freeProfiniteGroup` along quotient surjections.
 
-/-- The image of the alphabet topologically generates `Γ_R` — `TopGen.map` along
-`F(Generator n) ↠ Γ_R`. -/
-theorem topGen_gammaR (n q : ℕ) (R : PWord (Generator n)) :
-    (Subgroup.closure (Set.range (gammaGen n q R))).topologicalClosure = ⊤ := by
-  have h := TopGen.map (gammaMk n q R).toMonoidHom (gammaMk n q R).continuous_toFun
-    (gammaMk_surjective n q R)
-    (TopGen.freeProfiniteGroup (Generator n))
-  rwa [← Set.range_comp] at h
+⚠ **De-duplicated (ticket CB-DD).**  The `Γ_R` half of §2 used to be a local
+`CorePresentation.topGen_gammaR`; it is now `GQ2.Dyadic.topGen_gammaR`
+(`GQ2/Dyadic/GammaRHom.lean` §2), which this file imports.  The bare name below resolves to the
+canonical one, and the statement is verbatim what stood here. -/
 
 /-- The image of the alphabet topologically generates `Γ_R(2)` — one more `TopGen.map`, along
 `Γ_R ↠ Γ_R(2)`. -/
@@ -335,8 +331,8 @@ theorem coreHom_surjective : Function.Surjective (coreHom CP hq0 hqe) := fun y =
 @[simp] theorem coreHom_tau : coreHom CP hq0 hqe (gammaGen n q R .tau) = 1 :=
   (coreHom_gammaGen CP hq0 hqe .tau).trans CP.mark_tau
 
-/-- **`compat`.**  ν-compatibility of the tame and pro-2 legs, checked on the alphabet (§2's
-`topGen_gammaR`) against the core's own ν-normalization.  The two hypotheses are exactly F3's
+/-- **`compat`.**  ν-compatibility of the tame and pro-2 legs, checked on the alphabet
+(`GQ2.Dyadic.topGen_gammaR`) against the core's own ν-normalization.  The two hypotheses are F3's
 `prop_3_4_three` on the core side: `ν_P(σ) = 1`, `ν_P(x_i) = 0`. -/
 theorem nu_compat_coreHom (hspec : TameSpecializes n q R)
     (nuP : ContinuousMonoidHom (P : Type) Ztwo)
