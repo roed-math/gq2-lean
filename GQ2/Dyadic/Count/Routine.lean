@@ -22,8 +22,8 @@ routine group, generically where it is generic:
 | field | status after this file |
 |---|---|
 | `tameSpecialization` | **CLOSED** — generic hook (§2) + all five branches instantiated (§7) |
-| `tfg` | **CLOSED generically** (§3) |
-| `smulZmod2`, `contSMulZmod2`, `htriv` | **CLOSED generically** (§4) |
+| `tfg` | **CLOSED generically** (§3; `topGen` input now in `GammaRHom.lean` §2) |
+| `smulZmod2`, `contSMulZmod2`, `htriv` | **CLOSED generically** (§4; the trio itself now in `GammaRHom.lean` §3, instantiated here at the pilot) |
 | `htame` | **CLOSED generically** (§5) — it is F3's `tameOfSpec_surjective`, free |
 | `hwild` | **CLOSED generically since ticket GR1** — see the ⚠ note on §6 |
 
@@ -216,33 +216,15 @@ end Tfg
 
 `Aut(𝔽₂) = 1`, so there is exactly one action and it is trivial.  Stated over an arbitrary
 monoid rather than over `Γ_R`, because nothing about `Γ_R` is used; the `ℚ₂` originals are
-`GQ2.RStageGammaR.instDistribMulActionGammaR` / `.htriv_gammaR`, which are per-group. -/
+`GQ2.RStageGammaR.instDistribMulActionGammaR` / `.htriv_gammaR`, which are per-group.
 
-section Scalar
-
-/-- **`WordCertificate.smulZmod2`, generically.**  The unique — hence trivial — action of any
-monoid on `𝔽₂`.  Deliberately a `def` and not an `instance`: `SourceDataN`/`WordCertificate`
-carry the action as *data*, and registering a global instance on every monoid would shadow the
-genuine `ZMod 2`-module structures the `(140)` layer builds. -/
-@[reducible] def trivialSMulZmodTwo (M : Type*) [Monoid M] : DistribMulAction M (ZMod 2) where
-  smul _ m := m
-  one_smul _ := rfl
-  mul_smul _ _ _ := rfl
-  smul_zero _ := rfl
-  smul_add _ _ _ := rfl
-
-/-- **`WordCertificate.contSMulZmod2`, generically.**  The action is the second projection. -/
-theorem trivialContSMulZmodTwo (M : Type*) [Monoid M] [TopologicalSpace M] :
-    letI := trivialSMulZmodTwo M; ContinuousSMul M (ZMod 2) := by
-  letI := trivialSMulZmodTwo M
-  exact ⟨continuous_snd⟩
-
-/-- **`WordCertificate.htriv`, generically.**  Definitional. -/
-theorem trivialHtrivZmodTwo (M : Type*) [Monoid M] :
-    letI := trivialSMulZmodTwo M; ∀ (γ : M) (m : ZMod 2), γ • m = m :=
-  fun _ _ => rfl
-
-end Scalar
+⚠ **De-duplicated (ticket CB-DD).**  This section used to declare the trio as
+`trivialSMulZmodTwo` / `trivialContSMulZmodTwo` / `trivialHtrivZmodTwo`.  They are now
+`GQ2.Dyadic.scalarActionZmodTwo` / `.scalarActionZmodTwo_continuousSMul` /
+`.scalarActionZmodTwo_triv` (`GQ2/Dyadic/GammaRHom.lean` §3), which this file imports — verbatim
+the same three statements over the same arbitrary `Monoid`, so the `(140)`-layer shadowing note
+that motivated `def`-not-`instance` carries over unchanged.  §5's pilot instantiations below are
+the consumers. -/
 
 /-! ## §5 `WordCertificate` field 16 — `htame`
 
@@ -451,16 +433,16 @@ theorem pilot_tfg :
 /-- Fields 9–11 at the pilot. -/
 @[reducible] noncomputable def pilot_smulZmod2 :
     DistribMulAction ↥(GammaR (2 + 2 * 0) 2 pilotW) (ZMod 2) :=
-  trivialSMulZmodTwo _
+  scalarActionZmodTwo _
 
 theorem pilot_contSMulZmod2 :
     letI := pilot_smulZmod2; ContinuousSMul ↥(GammaR (2 + 2 * 0) 2 pilotW) (ZMod 2) :=
-  trivialContSMulZmodTwo _
+  scalarActionZmodTwo_continuousSMul _
 
 theorem pilot_htriv :
     letI := pilot_smulZmod2;
     ∀ (γ : ↥(GammaR (2 + 2 * 0) 2 pilotW)) (m : ZMod 2), γ • m = m :=
-  trivialHtrivZmodTwo _
+  scalarActionZmodTwo_triv _
 
 /-- Field 16 at the pilot. -/
 theorem pilot_htame :

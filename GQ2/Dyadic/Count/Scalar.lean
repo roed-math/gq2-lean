@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.Count.Compare
 import GQ2.Dyadic.Count.Presentation
+import GQ2.Dyadic.GammaRHom
 
 /-!
 # Dyadic campaign, ticket CB-2: the scalar block
@@ -84,8 +85,10 @@ CB-4's `stokes` bundle, where CB1's memo already puts them.
 
 ## Import discipline
 
-Plain-import: the single import `GQ2.Dyadic.Count.Compare` is plain, and nothing is added to its
-closure — every ingredient above is already in it.
+Plain-import: `GQ2.Dyadic.Count.Compare` is plain, and nothing is added to its closure — every
+ingredient above is already in it.  Ticket CB-DD added `GQ2.Dyadic.GammaRHom`, also plain and
+sitting directly above `AdmissibleR.lean`, for the shared trivial `ZMod 2`-action (§1); it brings
+in no new mathematics.
 
 Axioms: no new axioms, no `sorry`.  `decide` is used only at kernel-decidable `ZMod 2`
 statements (`∀ a : ZMod 2, a + a = 0` and the two-element case split).  Every headline prints
@@ -127,28 +130,18 @@ theorem smul_zmod2 [DistribMulAction C (ZMod 2)] (g : C) (m : ZMod 2) : g • m 
   · exact smul_zero g
   · exact hone
 
-/-- **The trivial action on the scalars**, as a bundled instance for the places that need one
+/-! **The trivial action on the scalars**, as a bundled instance for the places that need one
 (the comparison isomorphism is stated over a `DistribMulAction Γ A`).  By `smul_zmod2` it is the
 *only* one, so no diamond can arise: any other instance is propositionally equal on values.
 
-⚠ **Duplicate, deliberately not merged.**  `Count/Routine.lean` §Scalar already has this def as
-`trivialSMulZmodTwo` (over `Monoid`, with `trivialContSMulZmodTwo`/`trivialHtrivZmodTwo`), and
-`HalfTorsorGammaA.lean:151` / `HalfTorsorGammaR.lean:173` each inline a third and fourth copy.
-Reusing CB-R's would cost this file an import of `Count/Routine.lean`, hence of
-`GQ2.Dyadic.CertificateMain` and the five `Words/` files — a large closure for six lines.  The
-merge belongs to whichever ticket first has both in scope; recorded here so it is not lost. -/
-@[reducible] def scalarAction (Γ : Type*) [Group Γ] : DistribMulAction Γ (ZMod 2) where
-  smul _ m := m
-  one_smul _ := rfl
-  mul_smul _ _ _ := rfl
-  smul_zero _ := rfl
-  smul_add _ _ _ := rfl
-
-theorem scalarAction_continuousSMul (Γ : Type*) [Group Γ] [TopologicalSpace Γ] :
-    letI := scalarAction Γ
-    ContinuousSMul Γ (ZMod 2) :=
-  letI := scalarAction Γ
-  ⟨continuous_snd⟩
+⚠ **De-duplicated (ticket CB-DD).**  This section used to declare its own `scalarAction` (over
+`Group`) and `scalarAction_continuousSMul`; the merge the note here reserved for "whichever
+ticket first has both in scope" has now happened.  Both are `GQ2.Dyadic.scalarActionZmodTwo`
+and `.scalarActionZmodTwo_continuousSMul` (`GQ2/Dyadic/GammaRHom.lean` §3), stated over
+`Monoid` — the same five-line trivial action, one typeclass weaker, so every `Group Γ` use site
+below is unchanged.  The import that made this affordable is `GQ2.Dyadic.GammaRHom`, upstream of
+`AdmissibleR.lean` — **not** the `Count/Routine.lean` route the old note priced and rejected
+(that one would have dragged in `GQ2.Dyadic.CertificateMain` and the five `Words/` files). -/
 
 /-- **The contragredient of a trivial action is trivial.**  Applied at `A = 𝔽₂`, this says the
 marking acts trivially on `(𝔽₂)^∨` as well — which is what `#H⁰w((𝔽₂)^∨) = 2` needs. -/
@@ -337,7 +330,8 @@ The first field value.  Three rewrites and no cohomology: §6 moves into `Z¹`, 
 `(standardNumerics n).homScalar = 2^{n+2}` is `rfl`.
 
 ⚠ The `DistribMulAction Γ (ZMod 2)` the comparison needs is supplied **internally** by
-`scalarAction` and never appears in the statement, so the clause composes with `SourceDataN`
+`scalarActionZmodTwo` and never appears in the statement, so the clause composes with
+`SourceDataN`
 without a `letI` at the call site — unlike `tcocycle_card`/`hZcard`, whose field goals mention
 their actions.  By §1 this is not a choice: any action a branch might supply agrees with it on
 values. -/
@@ -366,8 +360,8 @@ theorem homCardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hH2 : Nat.card (WordH2 c w (ZMod 2)) = 2) :
     Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
       = (standardNumerics n).homScalar := by
-  letI := scalarAction Γ
-  haveI := scalarAction_continuousSMul Γ
+  letI := scalarActionZmodTwo Γ
+  haveI := scalarActionZmodTwo_continuousSMul Γ
   rw [card_hom_eq_card_Z1,
     card_Z1_eq_card_wordZ1 rho (fun γ a => (smul_zmod2 (rho γ) a).symm) hc hpres hres
       zmod2_add_self hwild2,
@@ -384,8 +378,8 @@ theorem homCardN_of_stokes {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ 
     (hend : IsStokesEndpoint w) :
     Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
       = (standardNumerics n).homScalar := by
-  letI := scalarAction Γ
-  haveI := scalarAction_continuousSMul Γ
+  letI := scalarActionZmodTwo Γ
+  haveI := scalarActionZmodTwo_continuousSMul Γ
   exact homCardN rho hc hpres hres hwild2 hdeg
     (card_wordH2_zmod2 hd (lower_rel (A := ZMod 2) rho hc hpres hres) hend)
 
