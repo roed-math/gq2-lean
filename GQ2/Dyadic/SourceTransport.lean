@@ -424,3 +424,121 @@ theorem gaussZResidueK_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
 end GaussZ
 
 end GQ2.Dyadic.SourceTransport
+
+/-! ## §7 The record-level transport -/
+
+namespace GQ2.Dyadic
+
+open GQ2 GQ2.SectionEight GQ2.Dyadic.SourceTransport
+open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+
+/-- The boundary map of a precomposed tame/pro-2 pair **is** the precomposed boundary map —
+`rfl`, since `sourceBoundaryMapK` is a `codRestrict` of a pointwise pair. -/
+theorem sourceBoundaryMapK_comp {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {ΓA ΓB : ProfiniteGrp} (e : ContinuousMulEquiv ((ΓA : Type)) ((ΓB : Type)))
+    (tame : ContinuousMonoidHom ΓB (Tq q)) (pro2 : ContinuousMonoidHom ΓB P)
+    (compat : ∀ g : ΓB, nuTq q (tame g) = nuP (pro2 g)) :
+    sourceBoundaryMapK (nuP := nuP)
+        (tame.comp (e : ContinuousMonoidHom ((ΓA : Type)) ((ΓB : Type))))
+        (pro2.comp (e : ContinuousMonoidHom ((ΓA : Type)) ((ΓB : Type))))
+        (fun g => compat (e g))
+      = precompEquiv e _ (sourceBoundaryMapK tame pro2 compat) := rfl
+
+/-- **`SourceDataN` transport across a continuous isomorphism of carriers** (ticket CB-TRN).
+
+Given a source `S` over the abstract slot `(n, q, P, hP, νP, SN)` and a topological isomorphism
+`e : Γ' ≃ₜ* S.Γ`, this produces the *same* source read on `Γ'`: `tame`, `pro2` and the boundary
+map are precomposed with `e`, and every one of the seven supply-obligation families is moved by
+§§1–6.
+
+The scalar action is **not** transported: `Γ'` carries its own `DistribMulAction _ (ZMod 2)`,
+supplied here together with its continuity and triviality, because that is the shape every
+consumer (`WordCertificate.smulZmod2`, `SourceDataN.smulZmod2`) already has.  Triviality of
+*both* actions is what makes `ι_Γ` — hence `betaChi`, `QZero` and `#H²` — transportable at all;
+it is the one genuine hypothesis of the construction. -/
+noncomputable def SourceDataN.transport {n q : ℕ} {P : ProfiniteGrp} {hP : IsProP 2 P}
+    {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n}
+    (S : SourceDataN n q P hP nuP SN) {Γ' : ProfiniteGrp}
+    (e : ContinuousMulEquiv ((Γ' : Type)) ((S.Γ : Type)))
+    (smul' : DistribMulAction ↥Γ' (ZMod 2))
+    (hcont' : letI := smul'; ContinuousSMul ↥Γ' (ZMod 2))
+    (htriv' : letI := smul'; ∀ (γ : ↥Γ') (m : ZMod 2), γ • m = m) :
+    SourceDataN n q P hP nuP SN where
+  Γ := Γ'
+  tame := S.tame.comp (e : ContinuousMonoidHom ((Γ' : Type)) ((S.Γ : Type)))
+  pro2 := S.pro2.comp (e : ContinuousMonoidHom ((Γ' : Type)) ((S.Γ : Type)))
+  compat := fun g => S.compat (e g)
+  surj := fun z => by
+    obtain ⟨g, hg⟩ := S.surj z
+    obtain ⟨a, rfl⟩ := e.surjective g
+    exact ⟨a, hg⟩
+  ker_pro2 := ker_comp_continuousMulEquiv e S.pro2 S.ker_pro2
+  smulZmod2 := smul'
+  contSMulZmod2 := hcont'
+  htriv := htriv'
+  tfg := IsTopologicallyFinGen.of_surjective
+    (e.symm : ContinuousMonoidHom ((S.Γ : Type)) ((Γ' : Type))).toMonoidHom
+    (e.symm : ContinuousMonoidHom ((S.Γ : Type)) ((Γ' : Type))).continuous_toFun
+    e.symm.surjective S.tfg
+  homCard := (Nat.card_congr (precompEquiv e (Multiplicative (ZMod 2)))).symm.trans S.homCard
+  cardH2 := by
+    letI := S.smulZmod2
+    exact (card_H2_comp htriv' S.htriv e).trans S.cardH2
+  liftsOver_card := fun RF b₁ F ρ₁ => by
+    obtain ⟨b, rfl⟩ := (precompEquiv e _).surjective b₁
+    obtain ⟨ρ, rfl⟩ := (boundaryLiftsKEquiv e b F RF.TC).surjective ρ₁
+    exact (Nat.card_congr (liftsOverKEquiv e RF b F ρ)).symm.trans (S.liftsOver_card RF b F ρ)
+  lem86 := fun Dd hnd ρ₁ hρ₁ => by
+    obtain ⟨ρ, rfl⟩ := (precompEquiv e _).surjective ρ₁
+    have hρ : Function.Surjective ρ := fun y => by
+      obtain ⟨a, ha⟩ := hρ₁ y; exact ⟨e a, ha⟩
+    rw [(Nat.card_congr (Equiv.subtypeEquiv (mLiftsEquiv e Dd ρ)
+        fun f => (mLiftsEquiv_central e Dd ρ f).symm)).symm,
+      (Nat.card_congr (mLiftsEquiv e Dd ρ)).symm]
+    exact S.lem86 Dd hnd ρ hρ
+  stageR136 := fun hE2 hRK hR2 b₁ F => by
+    obtain ⟨b, rfl⟩ := (precompEquiv e _).surjective b₁
+    simp only [exactImageCountK_comp, mBK_comp]
+    exact S.stageR136 hE2 hRK hR2 b F
+  tcocycle_card := fun b₁ F En l h ρ₁ => by
+    obtain ⟨b, rfl⟩ := (precompEquiv e _).surjective b₁
+    obtain ⟨ρ, rfl⟩ := (boundaryLiftsKEquiv e b F _).surjective ρ₁
+    exact (Nat.card_congr (tCocycleEquiv e (rhoPrimeK _ b F (En.radData l h) rfl ρ))).symm.trans
+      (S.tcocycle_card b F En l h ρ)
+  hsep := fun b₁ F En l h Dsc ρ₁ c₁ hc => by
+    letI := S.smulZmod2
+    obtain ⟨b, rfl⟩ := (precompEquiv e _).surjective b₁
+    obtain ⟨ρ, rfl⟩ := (boundaryLiftsKEquiv e b F _).surjective ρ₁
+    obtain ⟨c, rfl⟩ := (vCocycleEquiv e (En.descData l h)
+      (rhoPrimeK _ b F (En.radData l h) rfl ρ)).surjective c₁
+    refine (tLiftable_comp (descSigma_spec En l h Dsc) e _ c).mpr
+      (S.hsep b F En l h Dsc ρ c fun χ => ?_)
+    exact (betaChi_comp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+      htriv' S.htriv e _ χ c).symm.trans (hc χ)
+  hpartial := fun b₁ F En l h Dsc ρ₁ χ hχ => by
+    letI := S.smulZmod2
+    obtain ⟨b, rfl⟩ := (precompEquiv e _).surjective b₁
+    obtain ⟨ρ, rfl⟩ := (boundaryLiftsKEquiv e b F _).surjective ρ₁
+    obtain ⟨c, hcne⟩ := S.hpartial b F En l h Dsc ρ χ hχ
+    refine ⟨vCocycleEquiv e (En.descData l h) _ c, fun heq => hcne ?_⟩
+    have h1 := betaChi_comp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+      htriv' S.htriv e (rhoPrimeK _ b F (En.radData l h) rfl ρ) χ c
+    have h2 := betaChi_comp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+      htriv' S.htriv e (rhoPrimeK _ b F (En.radData l h) rfl ρ) χ 0
+    exact h1.symm.trans (heq.trans h2)
+  hZcard := fun b₁ F En l h hsimple hVne hnt ρ₁ => by
+    obtain ⟨b, rfl⟩ := (precompEquiv e _).surjective b₁
+    obtain ⟨ρ, rfl⟩ := (boundaryLiftsKEquiv e b F _).surjective ρ₁
+    exact (Nat.card_congr (vCocycleEquiv e (En.descData l h)
+      (rhoPrimeK _ b F (En.radData l h) rfl ρ))).symm.trans
+      (S.hZcard b F En l h hsimple hVne hnt ρ)
+  gaussZ_unramified := fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hunram => by
+    letI := S.smulZmod2
+    exact gaussZResidueK_comp htriv' S.htriv e _ F _ l h _
+      (S.gaussZ_unramified T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hunram)
+  gaussZ_ramified := fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hram => by
+    letI := S.smulZmod2
+    exact gaussZResidueK_comp htriv' S.htriv e _ F _ l h _
+      (S.gaussZ_ramified T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hram)
+
+end GQ2.Dyadic
