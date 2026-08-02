@@ -84,10 +84,9 @@ gives `#H²(G_K, 𝔽₂) = 2`, while cup naturality and the nondegenerate field
 produce a nonzero class in the image.  Thus the correct order is **H² injection → field-specific
 H² equivalence**, not a general H²-equivalence theorem.
 
-## 3. The next missing theorem
+## 3. Degree-two injectivity has landed
 
-The exact next public target should be the following specialization (with the displayed
-`actionCompat` expanded in the actual declaration as in the landed H¹ theorem):
+`GQ2/MaxProPCohomology.lean` now proves the general low-degree statement:
 
 ```lean
 theorem injective_inf2_maxProPMk_zmodTwo
@@ -103,28 +102,32 @@ theorem injective_inf2_maxProPMk_zmodTwo
         (fun g m => (htrivQ (maxProPMk 2 G g) m).trans (htrivG g m).symm))
 ```
 
-Neither `GQ2/Cohomology.lean` nor vendored Mathlib currently contains the continuous
-Hochschild–Serre five-term sequence needed to obtain this in one line.  The existing
-`H2comap`/`inf2` APIs define the map, but do not prove its injectivity.
+The proof does not add a Hochschild–Serre axiom or a five-term-sequence API.  Instead it works
+directly with continuous cocycles:
 
-### Recommended proof decomposition
+1. normalize a representative `z : Z2 (G(2)) (ZMod 2)`;
+2. form its continuous central extension `G(2) ×_z ZMod 2`;
+3. prove directly from open normal subgroups that this extension is pro-2;
+4. turn a coboundary for the inflated cocycle into a continuous homomorphism from `G` to the
+   extension;
+5. factor that homomorphism through `G(2)` and read its fibre coordinate as the cochain showing
+   that `z` was already a coboundary.
 
-1. Prove that a continuous, `G`-conjugation-invariant character
-   `proPKernel 2 G → Multiplicative (ZMod 2)` is zero.  Its kernel is normal in `G`; a
-   nonzero character would produce a further pro-2 quotient of `G`, contradicting the defining
-   minimality of `proPKernel 2 G`.
-2. Prove the low-degree inflation kernel calculation directly on continuous cocycles.  If the
-   inflation of `z : Z2 (G(2)) 𝔽₂` is `d¹ψ`, restrict `ψ` to the pro-2 kernel.  Step 1 kills
-   the resulting invariant character, after which a normalized `ψ` descends through
-   `maxProPMk`; the descended cochain witnesses that `z` was already a coboundary.
-3. Package the result as injectivity of `inf2`.  Keep the direct cocycle theorem private unless
-   it exposes a clean reusable signature.
+The auxiliary `NormZ2` and `CentExt` constructions are collected in
+`GQ2.MaxProPH2Inflation`.  No new axiom, `sorry`, or finite computation is used.
 
-This is a moderate infrastructure ticket, not merely a rewrite.  If a reusable continuous
-five-term sequence is desired elsewhere, it may be worth building that instead, but it is a
-larger project than the specialized cocycle proof.
+`GQ2/Dyadic/MaxProTwoCohomology.lean` provides the field-specific map and theorem:
 
-## 4. Consequences immediately after H² injectivity
+```lean
+def h2InflationGalK :
+    H2 (maxProPQuotient 2 (GalK K)) (ZMod 2) →+
+      H2 (GalK K) (ZMod 2)
+
+theorem h2InflationGalK_injective :
+    Function.Injective (h2InflationGalK (K := K))
+```
+
+## 4. Next consequences and the current elaboration blocker
 
 The next declarations should be field-specific:
 
@@ -147,7 +150,7 @@ theorem demushkinRank_maxProTwoGalK :
       Module.finrank ℚ_[2] K + 2
 ```
 
-Proof dependencies are already present apart from H² injectivity:
+The mathematical proof dependencies are now present:
 
 - `isProP_maxProPQuotient` supplies the pro-2 clause;
 - `card_H1_zmodTwo_maxProTwoGalK` supplies finite `H¹` and the rank;
@@ -156,9 +159,24 @@ Proof dependencies are already present apart from H² injectivity:
 - `h1MaxProTwoEquivGalK` lifts both cup inputs;
 - `inf2_trivialCupPairing_maxProPMk_galK` transfers the cup value.
 
-The H² injection then bounds source `H²` by two elements, and a nonzero lifted cup class
-shows it has at least two.  This yields the field-specific H² equivalence and all Demushkin
-clauses.
+The H² injection bounds source `H²` by two elements, and a nonzero lifted cup class shows it has
+at least two.  This yields the field-specific H² equivalence and all Demushkin clauses.
+
+The immediate formal blocker is an instance-path mismatch, not a missing theorem.  Under the
+richer import closure of `MaxProTwoCohomology`, the field-side theorems elaborate over the literal
+subtype `↥K.fixingSubgroup`, while the transfer API is stated for the abbreviation `GalK K`.
+Lean does not currently identify the resulting `H2` types because their inferred coefficient and
+cohomology instance paths differ.  A clean next ticket is therefore either:
+
+```lean
+noncomputable def h2GalKFieldDataEquiv :
+    H2 (GalK K) (ZMod 2) ≃+ H2 ↥K.fixingSubgroup (ZMod 2)
+```
+
+with computation lemmas sufficient to transport cup products, or a small instance firewall /
+refactor that makes the two types definitionally equal.  Once that bridge is available,
+`FieldData.card_H2_zmodTwo`, `FieldData.nondegFp2_cupFormK`, cup naturality, and the injectivity
+proved here give the declarations listed above without further cohomological infrastructure.
 
 ## 5. What still remains for the conjectural presentation
 

@@ -7,11 +7,12 @@ import GQ2.Dyadic.Instances.KSupply
 import GQ2.MaxProPCohomology
 
 /-!
-# Mod-2 `H¹` on `G_K(2)`
+# Mod-2 cohomology on `G_K(2)`
 
-This file specializes the general degree-one maximal-pro-`p` comparison to
-`G_K → G_K(2)` and `𝔽₂`.  It is the first cohomological transfer needed to reuse the field-side
-dyadic data on the maximal pro-2 quotient.
+This file specializes the maximal-pro-`p` cohomology comparison to `G_K → G_K(2)` and
+`𝔽₂`.  Inflation is an equivalence in degree one and injective in degree two.  The latter is
+the general low-degree theorem needed before the field-side local-duality facts can identify the
+two degree-two groups.
 
 The quotient-side action is left as an instance argument because the continuous-cohomology type
 records it through typeclass synthesis.  Every such action on `ZMod 2` is automatically trivial,
@@ -79,6 +80,21 @@ theorem inf2_trivialCupPairing_maxProPMk_galK
       (maxProPMk 2 (GalK K) p.1 • b.1 (maxProPMk 2 (GalK K) p.2)) =
     a.1 (maxProPMk 2 (GalK K) p.1) * (p.1 • b.1 (maxProPMk 2 (GalK K) p.2))
   rw [smul_zmod2, htriv_galK]
+
+omit [FiniteDimensional ℚ_[2] K]
+  [ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2)] in
+/-- Degree-two inflation from `G_K(2)` to `G_K`. -/
+def h2InflationGalK :
+    H2 (maxProPQuotient 2 (GalK K)) (ZMod 2) →+
+      H2 (GalK K) (ZMod 2) :=
+  inf2 (maxProPMk 2 (GalK K))
+    (fun g m => (smul_zmod2 (maxProPMk 2 (GalK K) g) m).trans
+      (htriv_galK K g m).symm)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Degree-two inflation from `G_K(2)` to `G_K` is injective. -/
+theorem h2InflationGalK_injective : Function.Injective (h2InflationGalK (K := K)) :=
+  injective_inf2_maxProPMk_zmodTwo (htriv_galK K) smul_zmod2
 
 end
 
