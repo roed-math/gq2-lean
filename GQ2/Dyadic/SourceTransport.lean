@@ -393,4 +393,34 @@ theorem qZero_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
 
 end Cocycles
 
+/-! ## §6 The Gauss-`Z` residue
+
+The last clause-level family: a `finsum` of `sign ∘ Q⁰` over `V`-cocycles, so §5's
+`vCocycleEquiv` reindexes it and §5's `qZero_comp` matches the summands. -/
+
+section GaussZ
+
+variable {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+variable {Y : Type} [Group Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+variable {A B : Type} [Group A] [TopologicalSpace A] [DistribMulAction A (ZMod 2)]
+  [Group B] [TopologicalSpace B] [DistribMulAction B (ZMod 2)]
+
+/-- **The Gauss-`Z` residue is a transport invariant.** -/
+theorem gaussZResidueK_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
+    (htB : ∀ (γ : B) (m : ZMod 2), γ • m = m) (e : A ≃ₜ* B)
+    (b : ContinuousMonoidHom B ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) (G0 : ℤ)
+    (hG : GaussZResidueK b F En l h G0) : GaussZResidueK (precompEquiv e _ b) F En l h G0 := by
+  intro ρ₁
+  obtain ⟨ρ, rfl⟩ := (boundaryLiftsKEquiv e b F RF.TC).surjective ρ₁
+  refine Eq.trans ?_ (hG ρ)
+  refine Eq.trans (finsum_comp_equiv
+    (vCocycleEquiv e (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))).symm ?_
+  exact finsum_congr fun c => congrArg _ (qZero_comp htA htB e _ c)
+
+end GaussZ
+
 end GQ2.Dyadic.SourceTransport
