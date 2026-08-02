@@ -82,21 +82,34 @@ Q4, errata item 3), so the statements below thread the unit row as the explicit 
 `hpivot : IsUnit (toAdd (nu' (dmC α h)))`, with the standard marking as the non-vacuity pin
 (`isUnit_nuM_dmC`).
 
-`GQ2/Dyadic/MarkedCore/CompactCoV.lean` has since **derived** the compact substitution —
+`GQ2/Dyadic/MarkedCore/CoVDischarge.lean` has since **derived** the compact substitution —
 `A = x₀⁻¹σ^{−m}`, `B = x₁`, `C₀ = σ`, `D = x₂` with `m = 2^{α−1}`, whose `Ā`-row is forced by
 the abelianized relation at *every* marking (`nu_dmA_eq`), not by an `r`-exponent — and
 settled the datum's status: it is **not** dischargeable from nothing (unit-ness of `ν'(C̄₀)`
 is an `St_M`-invariant, `isUnit_nu_stab_iff`), but at rank four it is **equivalent** to the
 intrinsic clause "`ν'` is unimodular somewhere on `ker χ_M`" (`MChiKerUnimodular`,
 `isUnit_nu_dmC_iff_chiKer`), which is literally the packet's own branch condition `r = 0`
-selecting the compact row.  So on the compact row the datum is a **theorem**, and `CompactCoV`
-§6 restates the three M-side entry points with `hpivot` replaced by that clause
-(`mMarkedMatching_of_chiKer`, `marked_matching_certificate_M_of_chiKer`, and over `M.lean`
-`prop_MC_M_correction_of_chiKer`) — **that trio is the compact-`M` consumer API**.
+selecting the compact row.  So on the compact row the datum is a **theorem**, and
+`MarkedCore/CompactCoV.lean` restates the three M-side entry points with `hpivot` replaced by
+that clause (`mMarkedMatching_of_chiKer`, `marked_matching_certificate_M_of_chiKer`, and over
+`M.lean` `prop_MC_M_correction_of_chiKer`) — **that trio is the compact-`M` consumer API**.
 
-The statements *here* deliberately keep `hpivot` and stay uniform in `h`: the discharge is
-rank-four (`h = 0`) only, so folding it in would cost the general-`h` statements.  `CompactCoV`
-imports this file, so the swap is a pointer upward — it can never be an import downward.
+The statements *here* deliberately keep `hpivot` and stay uniform in `h`, and ticket
+MC-CoV-split settled that this is **forced, not a convenience**.  That ticket moved the
+derivation into `MarkedCore/CoVDischarge.lean`, which imports `M.lean` alone and so *can* be
+imported from here — MC5-swap's build cycle is gone (checked with Lake, not reasoned).  The
+datum still cannot be folded into the six sites below, for a reason orthogonal to the import
+graph:
+
+* **`h`.**  `isUnit_nu_dmC_of_chiKer` is typed at `DM α 0`, MC3's frame API
+  (`MDecomposition`, `mChi_row_extract`, `mStabilizer_classification`) being rank-four only.
+  At `h = 1` the citation is a *type error*, not a missing lemma.
+* **`α`.**  Even at `h = 0` the discharge needs `α ≥ 2`, and at `α = 1` it is **false**, not
+  merely unavailable: `mUnit 1 = −1 = χ_M(B̄)`, so `B̄D̄ ∈ ker χ_M`, while `mNu_frame` leaves
+  `ν'(B̄D̄) = ν'(B̄) + ν'(D̄)` free of `ν'(C̄₀)`.
+
+Every statement below carries only `hα : 1 ≤ α` and a variable `h`, so both obstructions are
+live at each of the six.  They keep the datum; the compact-row API stays the `CompactCoV` trio.
 
 On the N-side the packet's marked-data clause (`I = C`) pins the *pair*
 `(ν'(σ̄), ν'(x̄₂))` unimodular (MC1 §5.3), not the pivot itself; §2's plane solve

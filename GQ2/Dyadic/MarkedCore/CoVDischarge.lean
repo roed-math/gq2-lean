@@ -77,7 +77,10 @@ The MC5-facing reductions with the binder replaced (`mMarkedMatching_of_chiKer`,
    are quadratic (`n = [K:ℚ₂] + 2 = 4`), so `h = 0` is the load-bearing case.  §1 is uniform in
    `h`; §3/§4 are `h = 0`.  See the report for the `h ≥ 1` shape.  **This is why the discharge
    cannot be folded into `Certificate.lean`'s entry points**, which are deliberately uniform in
-   `h`: see the MC-CoV-split finding recorded in that file's §3 preamble.
+   `h`: at `h = 1` the citation is a type error, and at `α = 1` the discharge is outright false
+   (`mUnit 1 = −1 = χ_M(B̄)`, so `B̄D̄ ∈ ker χ_M` misses `C̄₀` entirely, and §2 leaves the triple
+   free).  Ticket MC-CoV-split established this; the finding is recorded in that file's module
+   docstring.
 2. **The hypothesis, not the conclusion, is what changes.**  `IsUnit (ν'(C̄₀))` is *provably*
    not derivable from nothing (a marking with `ν'(C̄₀) ∈ 2ℤ₂` and `ν'(D̄) ∈ ℤ₂ˣ` exists —
    `mNu_frame` shows the triple is free), so the binder is *replaced*, not deleted.  The

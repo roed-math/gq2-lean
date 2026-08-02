@@ -36,9 +36,10 @@ at rank four, so no strength is lost, and it costs a frame `B : MDecomposition �
 already consumes as a hypothesis throughout.  This trio **is** the compact-`M` consumer API.
 
 ⚠ The parent statements deliberately keep `hpivot` and stay uniform in `h`; the discharge is
-rank-four (`h = 0`, `α ≥ 2`) only, so it cannot be folded into them — see the MC-CoV-split
-finding recorded in `Certificate.lean`'s §3 preamble.  Splitting the file made the discharge
-*citable* from below; it did not make the parents' datum removable.
+rank-four (`h = 0`, `α ≥ 2`) only, so it cannot be folded into them — at `h = 1` the citation
+is a type error and at `α = 1` the discharge is false.  The finding is recorded in
+`Certificate.lean`'s module docstring.  Splitting the file made the discharge *citable* from
+below (MC5-swap's build cycle is gone); it did not make the parents' datum removable.
 -/
 
 namespace GQ2
