@@ -203,4 +203,143 @@ theorem mLiftsEquiv_central (e : A ≃ₜ* B) (D : RadicalCoverData Bg)
 
 end Obstruction
 
+/-! ## §5 Cocycles, the `χ`-obstruction and the base determinant form
+
+`TCocycle`/`VCocycle` are pointwise families again — their crossed identities are the only place
+where `e (γδ) = e γ · e δ` is needed rather than `rfl`.  Everything built on top of a `VCocycle`
+(`fLift`, `tDef`, `chiDef`, `graphPullback`) is *literally* pointwise, so it commutes with the
+transport definitionally, and `betaChi` / `QZero` then follow from §2's `iotaB_comp`. -/
+
+section Cocycles
+
+variable {A B : Type} [Group A] [TopologicalSpace A] [Group B] [TopologicalSpace B]
+variable {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+  {D : RadicalCoverData Bg}
+
+omit [DiscreteTopology Bg] in
+/-- Two `T`-cocycles with the same underlying function are equal (`VCocycle.ext`'s missing
+`T`-side twin). -/
+theorem tCocycle_ext {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+    {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)} {u v : TCocycle D ρ} (h : u.u = v.u) : u = v := by
+  cases u; cases v; simp only [TCocycle.mk.injEq]; exact h
+
+/-- **`T`-cocycles transport.** -/
+def tCocycleEquiv [IsTopologicalGroup A] [IsTopologicalGroup B] (e : A ≃ₜ* B)
+    (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) :
+    TCocycle D ρ ≃ TCocycle D (precompEquiv e _ ρ) where
+  toFun u :=
+    { u := fun a => u.u (e a)
+      mem := fun a => u.mem (e a)
+      cont := u.cont.comp e.continuous_toFun
+      crossed := fun γ δ b hb => by
+        have h := u.crossed (e γ) (e δ) b hb
+        rwa [← map_mul e γ δ] at h }
+  invFun v :=
+    { u := fun β => v.u (e.symm β)
+      mem := fun β => v.mem (e.symm β)
+      cont := v.cont.comp e.symm.continuous_toFun
+      crossed := fun γ δ b hb => by
+        have h := v.crossed (e.symm γ) (e.symm δ) b
+          (by show QuotientGroup.mk b = ρ (e (e.symm γ)); rwa [e.apply_symm_apply])
+        rwa [← map_mul e.symm γ δ] at h }
+  left_inv u := tCocycle_ext (funext fun β => congrArg u.u (e.apply_symm_apply β))
+  right_inv v := tCocycle_ext (funext fun a => congrArg v.u (e.symm_apply_apply a))
+
+variable {DD : DescData D}
+
+/-- **`V`-cocycles transport.** -/
+def vCocycleEquiv (e : A ≃ₜ* B) (DD : DescData D) (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) :
+    VCocycle DD ρ ≃ VCocycle DD (precompEquiv e _ ρ) where
+  toFun c :=
+    { c := fun a => c.c (e a)
+      cont := c.cont.comp e.continuous_toFun
+      crossed := fun γ δ => by
+        have h := c.crossed (e γ) (e δ)
+        rwa [← map_mul e γ δ] at h }
+  invFun v :=
+    { c := fun β => v.c (e.symm β)
+      cont := v.cont.comp e.symm.continuous_toFun
+      crossed := fun γ δ => by
+        have h := v.crossed (e.symm γ) (e.symm δ)
+        rw [← map_mul e.symm γ δ] at h
+        have hr : rho0 DD (precompEquiv e _ ρ) (e.symm γ) = rho0 DD ρ γ := by
+          show liftC0 DD (ρ (e (e.symm γ))) = liftC0 DD (ρ γ)
+          rw [e.apply_symm_apply]
+        rwa [hr] at h }
+  left_inv c := VCocycle.ext (funext fun β => congrArg c.c (e.apply_symm_apply β))
+  right_inv v := VCocycle.ext (funext fun a => congrArg v.c (e.symm_apply_apply a))
+
+omit [DiscreteTopology Bg] in
+@[simp] theorem vCocycleEquiv_c (e : A ≃ₜ* B) (DD : DescData D)
+    (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) (c : VCocycle DD ρ) (a : A) :
+    (vCocycleEquiv e DD ρ c).c a = c.c (e a) := rfl
+
+omit [DiscreteTopology Bg] in
+theorem vCocycleEquiv_zero (e : A ≃ₜ* B) (DD : DescData D)
+    (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) :
+    vCocycleEquiv e DD ρ 0 = 0 := VCocycle.ext rfl
+
+variable {σ : DD.C0 →* Bg ⧸ D.T} (S : CountSections DD σ)
+  (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
+
+omit [DiscreteTopology Bg] in
+/-- The pointwise `B`-lift is transported pointwise — `rfl`. -/
+theorem fLift_comp (e : A ≃ₜ* B) (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) (c : VCocycle DD ρ)
+    (a : A) : fLift S (vCocycleEquiv e DD ρ c) a = fLift S c (e a) := rfl
+
+include hσ in
+/-- The `T`-valued defect is transported along `e × e`. -/
+theorem tDef_comp (e : A ≃ₜ* B) (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) (c : VCocycle DD ρ)
+    (p : A × A) : tDef S hσ (vCocycleEquiv e DD ρ c) p = tDef S hσ c (e p.1, e p.2) :=
+  Subtype.ext (by
+    show fLift S c (e p.1) * fLift S c (e p.2) * (fLift S c (e (p.1 * p.2)))⁻¹
+      = fLift S c (e p.1) * fLift S c (e p.2) * (fLift S c (e p.1 * e p.2))⁻¹
+    rw [map_mul e])
+
+include hσ in
+/-- …and so is its `χ`-pushforward. -/
+theorem chiDef_comp (e : A ≃ₜ* B) (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) (χ : ↥(TCharC D))
+    (c : VCocycle DD ρ) :
+    chiDef S hσ χ (vCocycleEquiv e DD ρ c) = fun p : A × A => chiDef S hσ χ c (e p.1, e p.2) :=
+  funext fun p => congrArg (fun t : ↥D.T => χ.1 t) (tDef_comp S hσ e ρ c p)
+
+include hσ in
+/-- **`T`-liftability is a transport invariant.**  Both sides of the defining equation live in
+`QLiftsOver`, a subtype of `Hom_c(Γ, B/T)`, so the witness moves by precomposition. -/
+theorem tLiftable_comp (e : A ≃ₜ* B) (ρ : ContinuousMonoidHom B (Bg ⧸ D.M))
+    (c : VCocycle DD ρ) : TLiftable hσ (vCocycleEquiv e DD ρ c) ↔ TLiftable hσ c := by
+  constructor
+  · rintro ⟨f, hf⟩
+    refine ⟨(mLiftsEquiv e D ρ).symm f, Subtype.ext (ContinuousMonoidHom.ext fun β => ?_)⟩
+    have h := congrArg (fun g : QLiftsOver DD (precompEquiv e _ ρ) => g.1 (e.symm β)) hf
+    show QuotientGroup.mk (f.1 (e.symm β)) = _
+    refine h.trans ?_
+    show iV DD (Multiplicative.ofAdd (c.c (e (e.symm β)))) * σ (rho0 DD ρ (e (e.symm β)))
+      = iV DD (Multiplicative.ofAdd (c.c β)) * σ (rho0 DD ρ β)
+    rw [e.apply_symm_apply]
+  · rintro ⟨f, hf⟩
+    exact ⟨mLiftsEquiv e D ρ f, Subtype.ext (ContinuousMonoidHom.ext fun a =>
+      congrArg (fun g : QLiftsOver DD ρ => g.1 (e a)) hf)⟩
+
+variable [DistribMulAction A (ZMod 2)] [DistribMulAction B (ZMod 2)]
+
+include hσ in
+/-- **The `χ`-component of the `T`-lifting obstruction is a transport invariant.** -/
+theorem betaChi_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
+    (htB : ∀ (γ : B) (m : ZMod 2), γ • m = m) (e : A ≃ₜ* B)
+    (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) (χ : ↥(TCharC D)) (c : VCocycle DD ρ) :
+    betaChi S hσ χ (vCocycleEquiv e DD ρ c) = betaChi S hσ χ c := by
+  rw [betaChi, betaChi, chiDef_comp S hσ e ρ χ c, iotaB_comp htA htB]
+
+omit [DiscreteTopology Bg] in
+/-- **The base determinant form `Q⁰` is a transport invariant.**  `graphPullback` is pointwise,
+so this is `iotaB_comp` on the nose. -/
+theorem qZero_comp (htA : ∀ (γ : A) (m : ZMod 2), γ • m = m)
+    (htB : ∀ (γ : B) (m : ZMod 2), γ • m = m) (e : A ≃ₜ* B)
+    (ρ : ContinuousMonoidHom B (Bg ⧸ D.M)) (c : VCocycle DD ρ) :
+    QZero DD (precompEquiv e _ ρ) (vCocycleEquiv e DD ρ c) = QZero DD ρ c :=
+  iotaB_comp htA htB e (graphPullback DD.dat (fun β => rho0 DD ρ β) c.c)
+
+end Cocycles
+
 end GQ2.Dyadic.SourceTransport
