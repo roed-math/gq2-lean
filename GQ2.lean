@@ -290,6 +290,7 @@ import GQ2.Dyadic.Count.HTwo
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.Instances.QTwo
 import GQ2.Dyadic.LiftingDualityG
+import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
