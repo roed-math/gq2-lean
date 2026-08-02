@@ -1342,6 +1342,71 @@ theorem exists_nonzero_varCoc_mpcFamOf_hat {α r pp h q : ℕ} (hα : 1 ≤ α) 
       heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq num den E₂).2
     hedge hρ
 
+/-! ### The pilot row, end to end
+
+Row 1's two clause values read off from **one** duality payload.  Every branch's
+`*_stokesDuality` is `stokesDuality_of_simple` instantiated, i.e. it is stated in exactly the
+`∀ A` shape below — so the `Additive ↥D.T` payload §7 needs and the scalar payload `cardH2`'s
+upper bound needs are the *same* branch input, not two.
+
+`cardH2_nCompactFam` is an **equality, not a bound**: the `≤ 2` is CB-H2's rung composed with
+WW3b's `#WordH²(𝔽₂) = 2`, and §7 supplies the `> 1`.  Nothing here is left as an inequality. -/
+
+include S in
+/-- **`SourceDataN.cardH2` at the compact-`N` row**, from one duality payload. -/
+theorem cardH2_nCompactFam {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.nCompactW α h)) J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hwild2 : IsWildTwo J c)
+    (hdual : ∀ (A : Type) [AddCommGroup A] [DistribMulAction (Bg ⧸ D.M) A] [Finite A],
+      (∀ a : A, a + a = 0) → StokesDuality c (nCompactFam α h q (omega2Exp (heisLevel D))) A) :
+    Nat.card (H2 Γ (ZMod 2)) = 2 :=
+  cardH2_of_variation S rho hcompat hcompatD hc hpres hwildLevel hwild2
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hα hq).1
+    (hdual (Additive ↥D.T) (radT_add_self D)) (hdual (ZMod 2) zmod2_add_self)
+    (resolvesAt_and_endpoint_nCompactFam (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq).2
+    hedge hρ
+
+include S in
+/-- **`SourceDataN.lem86` at the compact-`N` row**, from the same payload — the half-torsor
+identity `2 · #{central M-lifts} = #(M-lifts)`. -/
+theorem lem86_nCompactFam {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → (Bg ⧸ D.M)} (hc : ∀ i, rho (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.nCompactW α h)) J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hwild2 : IsWildTwo J c)
+    (hdual : ∀ (A : Type) [AddCommGroup A] [DistribMulAction (Bg ⧸ D.M) A] [Finite A],
+      (∀ a : A, a + a = 0) → StokesDuality c (nCompactFam α h q (omega2Exp (heisLevel D))) A) :
+    2 * Nat.card {f : MLifts D rho // f.Central} = Nat.card (MLifts D rho) :=
+  lem86_of_variation S rho hcompat hcompatD hc hpres hwildLevel hwild2
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_scal hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis hα hq).1
+    (hdual (Additive ↥D.T) (radT_add_self D)) (hdual (ZMod 2) zmod2_add_self)
+    (resolvesAt_and_endpoint_nCompactFam (Q := HeisLift (Additive ↥D.T) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_heis hα hq).2
+    hedge hρ
+
 end Branches
 
 end GQ2.Dyadic.Count
