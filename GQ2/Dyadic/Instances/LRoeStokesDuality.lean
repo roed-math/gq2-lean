@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Geoffrey Roe
 -/
 import GQ2.Dyadic.Instances.LRoeStokesBridge
+import GQ2.Dyadic.Instances.LHandleCoordinates
 import GQ2.Dyadic.Word.StokesTransport
 
 /-!
