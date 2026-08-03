@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
-import GQ2.Dyadic.Count.HTwoRelationBasis
+import GQ2.Dyadic.Count.HTwoRelationFox
 import GQ2.Dyadic.Instances.GammaLRelationModuleGlobal
 
 /-!
@@ -39,6 +39,17 @@ local notation "genL" => gammaGen (2 * h + 1) q (Words.LSq.lSqW h)
 local notation "wC" => lSqFam h q (omega2Exp (4 * Monoid.exponent C))
 
 omit [Finite A] in
+/-- An equivariant left inverse to the universal Fox matrix of the two improved L relators
+constructs their mod-two relation coordinates at this finite target. -/
+noncomputable def lModTwoRelationBasisCoordinates_of_foxRetraction
+    (rho : ContinuousMonoidHom GammaL C)
+    (R : ModTwoFoxRelationRetraction
+      (fun i => rho (genL i)) wC) :
+    ModTwoRelationBasisCoordinates
+      (m := fun i => rho (genL i)) wC (lUniform_rel_death rho) :=
+  .ofFoxRetraction (lUniform_rel_death rho) R
+
+omit [Finite A] in
 /-- A strongly-free coordinate system at one finite target supplies relation characters with
 arbitrary prescribed values in every exponent-two coefficient module. -/
 theorem lRelationModuleRelatorSurjective_of_modTwoRelationBasis
@@ -58,6 +69,16 @@ variable {h q : ℕ}
 
 local notation "GammaL" => (gamma h q : Type)
 
+/-- The first-order Fox-matrix form of the remaining L relation-basis input: at every
+surjective finite target, the universal two-relator Fox matrix admits an explicit equivariant
+left inverse in the free regular generator module. -/
+noncomputable abbrev UniformModTwoFoxRelationRetractionSupply : Type _ :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom GammaL C), Function.Surjective rho →
+      ModTwoFoxRelationRetraction
+        (fun i => rho (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))
+        (lSqFam h q (omega2Exp (4 * Monoid.exponent C)))
+
 /-- Coefficient-independent strongly-free coordinates for the improved L relators at every
 surjective finite target.  Unlike the downstream relation-module supply, this quantifies over no
 coefficient group: a single regular-basis coordinate system works for all elementary modules. -/
@@ -68,6 +89,15 @@ noncomputable abbrev UniformModTwoRelationBasisSupply : Type _ :=
         (m := fun i => rho (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))
         (lSqFam h q (omega2Exp (4 * Monoid.exponent C)))
         (lUniform_rel_death rho)
+
+/-- A uniform equivariant retraction of the universal L Fox matrices supplies the uniform
+strongly-free coordinate boundary. -/
+noncomputable def uniformModTwoRelationBasisSupply_of_foxRetraction
+    (hR : UniformModTwoFoxRelationRetractionSupply (h := h) (q := q)) :
+    UniformModTwoRelationBasisSupply (h := h) (q := q) := by
+  intro C _ _ _ _ rho hrho
+  exact ModTwoRelationBasisCoordinates.ofFoxRetraction
+    (lUniform_rel_death rho) (hR C rho hrho)
 
 /-- Strongly-free coordinates imply the uniform classical relation-character theorem. -/
 theorem uniformElementaryRelationModuleSurjectiveSupply_of_modTwoRelationBasis
