@@ -194,6 +194,56 @@ def elemDualCongr {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
     (e : X ≃+ Y) (lam : ElemDual X) (y : Y) :
     elemDualCongr e lam y = lam (e.symm y) := rfl
 
+/-- The dual of a binary product is the product of the two elementary duals. -/
+def elemDualProdAddEquiv (X Y : Type*) [AddCommGroup X] [AddCommGroup Y] :
+    ElemDual (X × Y) ≃+ ElemDual X × ElemDual Y where
+  toFun lam :=
+    (((lam : X × Y →+ ZMod 2).comp
+      (AddMonoidHom.inl X Y) : ElemDual X),
+    ((lam : X × Y →+ ZMod 2).comp
+      (AddMonoidHom.inr X Y) : ElemDual Y))
+  invFun p := AddMonoidHom.mk'
+    (fun q : X × Y ↦ p.1 q.1 + p.2 q.2)
+    (fun q r ↦ by
+      simp only [Prod.fst_add, Prod.snd_add, map_add]
+      abel)
+  left_inv lam := by
+    apply ElemDual.ext
+    intro p
+    change lam (p.1, 0) + lam (0, p.2) = lam p
+    rw [← map_add]
+    congr
+    ext <;> simp
+  right_inv p := by
+    apply Prod.ext
+    · apply ElemDual.ext
+      intro x
+      change p.1 x + p.2 0 = p.1 x
+      simp
+    · apply ElemDual.ext
+      intro y
+      change p.1 0 + p.2 y = p.2 y
+      simp
+  map_add' _ _ := rfl
+
+@[simp] theorem elemDualProdAddEquiv_fst_apply
+    {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
+    (lam : ElemDual (X × Y)) (x : X) :
+    (elemDualProdAddEquiv X Y lam).1 x = lam (x, 0) := rfl
+
+@[simp] theorem elemDualProdAddEquiv_snd_apply
+    {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
+    (lam : ElemDual (X × Y)) (y : Y) :
+    (elemDualProdAddEquiv X Y lam).2 y = lam (0, y) := rfl
+
+/-- Dual core/handle coordinates on the middle target of the Stokes ladder. -/
+def lSqDualCoreHandleAddEquiv (h : ℕ) (A : Type*) [AddCommGroup A] :
+    ElemDual (Generator (2 * h + 1) → ElemDual A) ≃+
+      ElemDual (Generator 1 → ElemDual A) ×
+        ElemDual (LSqHandleCoords h (ElemDual A)) :=
+  (elemDualCongr (lSqCoreHandleAddEquiv h (ElemDual A))).trans
+    (elemDualProdAddEquiv (Generator 1 → ElemDual A) (LSqHandleCoords h (ElemDual A)))
+
 set_option maxHeartbeats 800000 in
 /-- **Roe self-duality proves generic Stokes duality for the uniform `L_sq` base word.**
 This is the final `h = 0`, `q = 2` transport: the only changes of coordinates are
@@ -276,6 +326,163 @@ theorem lSqStokesDuality_zero_two_uniform_of_roe
         (omega2Exp (4 * Monoid.exponent C))) A :=
   lSqStokesDuality_zero_two_uniform_of_isSelfDualW t ht hw hA₂
     ((isSelfDual_iff_W_R t hgen).mp (prop_5_15_R t ht hw hgen hA₂ hcore))
+
+set_option maxHeartbeats 1200000 in
+/-- **Uniform unramified handle stabilization.**  Roe duality on the degree-one core extends
+to every odd degree after adjoining the `h` standard hyperbolic handle planes.  The hypotheses
+`hwild` and `hτ` are exactly those used by the first- and second-order handle-stability theorems. -/
+theorem lSqStokesDuality_uniform_unramified_of_roe_core
+    {h : ℕ} (t : Marking (2 * h + 1) C)
+    (ht : (Marking.toQ2 (Certificates.LSq.coreMarking t)).TameRel)
+    (hw : (Marking.toQ2 (Certificates.LSq.coreMarking t)).WildRelR)
+    (hgen : (Marking.toQ2 (Certificates.LSq.coreMarking t)).Generates)
+    (hcore : (Marking.toQ2 (Certificates.LSq.coreMarking t)).Pro2Core)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a) :
+    StokesDuality ⇑t
+      (Certificates.LSqStokes.lSqFam h 2
+        (omega2Exp (4 * Monoid.exponent C))) A := by
+  let tc := Certificates.LSq.coreMarking t
+  let w₀ := Certificates.LSqStokes.lSqFam 0 2
+    (omega2Exp (4 * Monoid.exponent C))
+  let wh := Certificates.LSqStokes.lSqFam h 2
+    (omega2Exp (4 * Monoid.exponent C))
+  have hbase : StokesDuality ⇑tc w₀ A := by
+    simpa [tc, w₀] using lSqStokesDuality_zero_two_uniform_of_roe
+      (A := A) (Marking.toQ2 tc) ht hw hgen hA₂ hcore
+  have hwildD : ∀ (i : Fin (2 * h + 1 + 1)) (lam : ElemDual A), t.x i • lam = lam :=
+    fun i lam ↦ smul_elemDual_of_trivial (hwild i) lam
+  have hτD : ∀ lam : ElemDual A, t.τ • lam = lam :=
+    fun lam ↦ smul_elemDual_of_trivial hτ lam
+  have hd0A : ∀ a, lSqCoreHandleAddEquiv h A (heisD0 ⇑t a) =
+      (heisD0 ⇑tc a, 0) := by
+    intro a
+    apply Prod.ext
+    · rw [lSqCoreHandleAddEquiv_fst]
+      funext g
+      rfl
+    · funext p
+      rcases p with ⟨j, k⟩
+      obtain hk | hk := Nat.le_one_iff_eq_zero_or_eq_one.mp (Nat.le_of_lt_succ k.isLt)
+      · have hk' : k = 0 := Fin.ext hk
+        subst k
+        rw [lSqCoreHandleAddEquiv_snd_zero]
+        change t.x _ • a - a = 0
+        rw [hwild, sub_self]
+      · have hk' : k = 1 := Fin.ext hk
+        subst k
+        rw [lSqCoreHandleAddEquiv_snd_one]
+        change t.x _ • a - a = 0
+        rw [hwild, sub_self]
+  have hd0D : ∀ lam, lSqCoreHandleAddEquiv h (ElemDual A) (heisD0 ⇑t lam) =
+      (heisD0 ⇑tc lam, 0) := by
+    intro lam
+    apply Prod.ext
+    · rw [lSqCoreHandleAddEquiv_fst]
+      funext g
+      rfl
+    · funext p
+      rcases p with ⟨j, k⟩
+      obtain hk | hk := Nat.le_one_iff_eq_zero_or_eq_one.mp (Nat.le_of_lt_succ k.isLt)
+      · have hk' : k = 0 := Fin.ext hk
+        subst k
+        rw [lSqCoreHandleAddEquiv_snd_zero]
+        change t.x _ • lam - lam = 0
+        rw [hwildD, sub_self]
+      · have hk' : k = 1 := Fin.ext hk
+        subst k
+        rw [lSqCoreHandleAddEquiv_snd_one]
+        change t.x _ • lam - lam = 0
+        rw [hwildD, sub_self]
+  have hd1A : ∀ x, heisD1 ⇑t wh x =
+      heisD1 ⇑tc w₀ (lSqCoreHandleAddEquiv h A x).1 := by
+    intro x
+    rw [lSqCoreHandleAddEquiv_fst]
+    exact heisD1_lSqFam_eq_base_comp_unram t hA₂ hwild hτ x
+  have hd1D : ∀ y, heisD1 ⇑t wh y =
+      heisD1 ⇑tc w₀ (lSqCoreHandleAddEquiv h (ElemDual A) y).1 := by
+    intro y
+    rw [lSqCoreHandleAddEquiv_fst]
+    exact heisD1_lSqFam_eq_base_comp_unram t ElemDual.add_self_eq_zero hwildD hτD y
+  have heta : ∀ x y, heisEta1 ⇑t wh x y =
+      heisEta1 ⇑tc w₀ (lSqCoreHandleAddEquiv h A x).1
+        (lSqCoreHandleAddEquiv h (ElemDual A) y).1 +
+      lSqHandleHyperbolicMap (lSqCoreHandleAddEquiv h A x).2
+        (lSqCoreHandleAddEquiv h (ElemDual A) y).2 := by
+    intro x y
+    dsimp only [wh, w₀]
+    rw [heisEta1_lSqFam_eq_base_add_handles_unram t x y hA₂ hwild hτ,
+      lSqCoreHandleAddEquiv_fst, lSqCoreHandleAddEquiv_fst,
+      lSqHandleHyperbolicMap_apply]
+    congr 1
+    apply Finset.sum_congr rfl
+    intro j _
+    rw [lSqCoreHandleAddEquiv_snd_zero, lSqCoreHandleAddEquiv_snd_one,
+      lSqCoreHandleAddEquiv_snd_zero, lSqCoreHandleAddEquiv_snd_one]
+  change StokesDuality ⇑t wh A
+  have hstab := StokesQuasiIso.middleStabilization
+    (U := LSqHandleCoords h A) (V := ElemDual (LSqHandleCoords h (ElemDual A)))
+    (lSqHandleHyperbolicAddEquiv (h := h) hA₂) hbase
+  refine StokesQuasiIso.transport
+    (AddEquiv.refl A) (lSqCoreHandleAddEquiv h A).symm (AddEquiv.refl (Fin 2 → A))
+    (AddEquiv.refl (ElemDual (Fin 2 → ElemDual A)))
+    (lSqDualCoreHandleAddEquiv h A).symm (AddEquiv.refl (ElemDual (ElemDual A)))
+    ?_ ?_ ?_ ?_ ?_ ?_ ?_ hstab
+  · intro a
+    apply (lSqCoreHandleAddEquiv h A).injective
+    rw [(lSqCoreHandleAddEquiv h A).apply_symm_apply, hd0A]
+    rfl
+  · intro x
+    rw [hd1A, (lSqCoreHandleAddEquiv h A).apply_symm_apply]
+    rfl
+  · intro lam
+    apply (lSqDualCoreHandleAddEquiv h A).injective
+    rw [(lSqDualCoreHandleAddEquiv h A).apply_symm_apply]
+    apply Prod.ext
+    · apply ElemDual.ext
+      intro y
+      change lam (heisD1 ⇑tc w₀ y) =
+        lam (heisD1 ⇑t wh ((lSqCoreHandleAddEquiv h (ElemDual A)).symm (y, 0)))
+      rw [hd1D, (lSqCoreHandleAddEquiv h (ElemDual A)).apply_symm_apply]
+    · apply ElemDual.ext
+      intro y
+      change 0 = lam (heisD1 ⇑t wh
+        ((lSqCoreHandleAddEquiv h (ElemDual A)).symm (0, y)))
+      rw [hd1D, (lSqCoreHandleAddEquiv h (ElemDual A)).apply_symm_apply, map_zero]
+      exact (map_zero lam).symm
+  · intro lam
+    apply ElemDual.ext
+    intro a
+    change lam.1 (heisD0 ⇑tc a) =
+      lam.1 (lSqCoreHandleAddEquiv h (ElemDual A) (heisD0 ⇑t a)).1 +
+        lam.2 (lSqCoreHandleAddEquiv h (ElemDual A) (heisD0 ⇑t a)).2
+    rw [hd0D]
+    simp
+  · intro a
+    rfl
+  · intro x
+    apply (lSqDualCoreHandleAddEquiv h A).injective
+    rw [(lSqDualCoreHandleAddEquiv h A).apply_symm_apply]
+    apply Prod.ext
+    · apply ElemDual.ext
+      intro y
+      change heisEta1 ⇑tc w₀ x.1 y =
+        heisEta1 ⇑t wh ((lSqCoreHandleAddEquiv h A).symm x)
+          ((lSqCoreHandleAddEquiv h (ElemDual A)).symm (y, 0))
+      rw [heta, (lSqCoreHandleAddEquiv h A).apply_symm_apply,
+        (lSqCoreHandleAddEquiv h (ElemDual A)).apply_symm_apply]
+      simp
+    · apply ElemDual.ext
+      intro y
+      change lSqHandleHyperbolicMap x.2 y =
+        heisEta1 ⇑t wh ((lSqCoreHandleAddEquiv h A).symm x)
+          ((lSqCoreHandleAddEquiv h (ElemDual A)).symm (0, y))
+      rw [heta, (lSqCoreHandleAddEquiv h A).apply_symm_apply,
+        (lSqCoreHandleAddEquiv h (ElemDual A)).apply_symm_apply]
+      rw [map_zero, zero_add]
+  · intro p
+    rfl
 
 end LBase
 
