@@ -180,6 +180,19 @@ theorem fundamentalIdentity_iff_residueDegree_eq_normValPiToNat
     rw [hf]
     exact degree_eq_e_mul_normValPiToNat FF
 
+/-- Canonical residue-field form of the missing norm compatibility.  The left side mentions the
+filtration coordinate `FF.f`; the right side mentions only the intrinsic residue field and the
+norm of the chosen uniformizer. -/
+theorem residueDegree_eq_normValPiToNat_iff_residueField_card_eq
+    (FF : DyadicUnitFiltration K) :
+    FF.f = (GQ2.UnitNormIndex.normValPi K FF).toNat ↔
+      Nat.card (GQ2.UnitFiltrationCounts.ResidueField K) =
+        2 ^ (GQ2.UnitNormIndex.normValPi K FF).toNat := by
+  rw [GQ2.UnitFiltrationCounts.residueField_card_eq_pow_f K FF]
+  constructor
+  · exact fun h => congrArg (fun n : ℕ => 2 ^ n) h
+  · exact fun h => Nat.pow_right_injective (le_refl 2) h
+
 /-- Galois-layer constructor reduced to the exact residue/norm compatibility, rather than an
 externally supplied degree equation. -/
 def ofNormValPi (FF : DyadicUnitFiltration K)
@@ -187,6 +200,16 @@ def ofNormValPi (FF : DyadicUnitFiltration K)
     FiniteDyadicParameters K FF :=
   ofFundamentalIdentity FF
     ((fundamentalIdentity_iff_residueDegree_eq_normValPiToNat FF).2 hf)
+
+/-- Selector constructor whose sole arithmetic input is the canonical residue-cardinality/norm
+formula.  This is equivalent to `ofNormValPi`, but does not expose the filtration's chosen
+residue exponent to callers. -/
+def ofResidueFieldCardNormValPi (FF : DyadicUnitFiltration K)
+    (hcard : Nat.card (GQ2.UnitFiltrationCounts.ResidueField K) =
+      2 ^ (GQ2.UnitNormIndex.normValPi K FF).toNat) :
+    FiniteDyadicParameters K FF :=
+  ofNormValPi FF
+    ((residueDegree_eq_normValPiToNat_iff_residueField_card_eq FF).2 hcard)
 
 end Galois
 

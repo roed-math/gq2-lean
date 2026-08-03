@@ -349,7 +349,7 @@ private theorem gradeIHom_surjective {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖
   rw [gradeIHom_apply, hu, ha]; rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
-private theorem card_gradeI {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
+theorem card_gradeI {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
     (hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) {i : ℕ} (hi : 1 ≤ i) :
     Nat.card (↥(depthUnits k (π : ℚ̄₂) i) ⧸
         (depthUnits k (π : ℚ̄₂) (i + 1)).subgroupOf (depthUnits k (π : ℚ̄₂) i))
@@ -358,6 +358,26 @@ private theorem card_gradeI {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1
     Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective (gradeIHom k hπne hπlt hi)
       (gradeIHom_surjective k hπne hπlt hi)).toEquiv]
   rfl
+
+omit [FiniteDimensional ℚ_[2] ↥k] in
+/-- The exponent stored in an arbitrary `DyadicUnitFiltration` is the exponent of the
+cardinality of the intrinsic residue field `O/𝔪`.  This makes the structure field `FF.f`
+independent of the chosen filtration data at the level needed by the dyadic selector. -/
+theorem residueField_card_eq_pow_f (FF : DyadicUnitFiltration k) :
+    Nat.card (ResidueField k) = 2 ^ FF.f := by
+  let π : ↥k := ⟨FF.π, FF.hπ_mem⟩
+  have hπne : π ≠ 0 := by
+    intro h
+    exact FF.hπ_ne (congrArg Subtype.val h)
+  have hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖ := by
+    intro y hy
+    exact FF.hπ_max y y.2 hy
+  calc
+    Nat.card (ResidueField k) =
+        Nat.card (↥(depthUnits k (π : ℚ̄₂) 1) ⧸
+          (depthUnits k (π : ℚ̄₂) (1 + 1)).subgroupOf (depthUnits k (π : ℚ̄₂) 1)) :=
+      (card_gradeI k hπne FF.hπ_lt hπmax (by omega)).symm
+    _ = 2 ^ FF.f := FF.card_gr 1 (by omega)
 
 /-- **B13-4 result**: the graded counts `#(U⁰/U¹) = 2^f − 1` and `#(U^i/U^{i+1}) = 2^f`
 (same `f`), at a uniformizer `π`.  Fed into the `DyadicUnitFiltration` structure by B13-5. -/
