@@ -439,6 +439,66 @@ theorem lRamifiedPointwisePhaseIdentity_of_graphNormalForm
     exact QZero_eq_lSqWallHandlePhase_of_ramifiedNormal
       rho hdat hq cN hwildBase p.1 p.2 hnormal
 
+/-- The canonical source/word phase comparison supplied by the ramified graph normal form.
+Unlike `sourceWordPhaseComparison_of_lRamifiedPointwise`, this constructor has no pointwise
+phase hypothesis: the preceding theorem proves it from the improved presentation and the
+ramified action conditions. -/
+noncomputable def sourceWordPhaseComparison_lRamifiedGraphNormalForm
+    {h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [IsTopologicalAddGroup DD.Vmod]
+    [DiscreteTopology DD.Vmod] [Fintype DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [Finite DD.C0]
+    [DistribMulAction ((gamma h q : Type)) DD.Vmod]
+    [ContinuousSMul ((gamma h q : Type)) DD.Vmod]
+    {q0 : DD.Vmod → ZMod 2} (hdat : IsEquivariantFactorSet q0 DD.dat)
+    (hq : Even q)
+    (hcomp : ∀ (g : (gamma h q : Type)) (v : DD.Vmod),
+      g • v = rho0 DD rho g • v)
+    (hwildBase : ∀ i : Fin (2 * h + 1 + 1),
+      rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) (.wild i)) = 1)
+    (hτfpf : ∀ v : DD.Vmod,
+      rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .tau) • v = v → v = 0)
+    (hTodd : ∀ v : DD.Vmod,
+      powOmega2 (rho0 DD rho
+        (gammaGen (2 * h + 1) q (lSqW h) .tau)) • v = v) :
+    let L := SectionSix.SemiProd DD.C0 DD.Vmod
+    let N := 4 * Monoid.exponent L
+    let s := rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .sigma)
+    let U := smulAddEquiv ((s ^ (omega2Exp N : ℤ))⁻¹)
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo ((gamma h q : Type))
+    letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+    SourceWordPhaseComparison DD rho
+      (scalarActionZmodTwo_triv ((gamma h q : Type)))
+      (DD.Vmod × (Fin h → DD.Vmod × DD.Vmod))
+      (lSqWallHandlePhase q0 U h) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
+    scalarActionZmodTwo ((gamma h q : Type))
+  letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+    scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+  let L := SectionSix.SemiProd DD.C0 DD.Vmod
+  let N := 4 * Monoid.exponent L
+  let s := rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .sigma)
+  let U : DD.Vmod ≃+ DD.Vmod :=
+    smulAddEquiv (V := DD.Vmod) ((s ^ (omega2Exp N : ℤ))⁻¹)
+  change SourceWordPhaseComparison DD rho
+    (scalarActionZmodTwo_triv ((gamma h q : Type)))
+    (DD.Vmod × (Fin h → DD.Vmod × DD.Vmod))
+    (lSqWallHandlePhase q0 U h)
+  exact sourceWordPhaseComparison_of_lRamifiedPointwise
+    (scalarActionZmodTwo_triv ((gamma h q : Type))) hcomp q0 U h
+    (lSqRamifiedGraphSourceH1Equiv rho hcomp hwildBase hτfpf hTodd)
+    (lRamifiedPointwisePhaseIdentity_of_graphNormalForm
+      rho hdat hq hcomp hwildBase hτfpf hTodd)
+
 end
 
 end GQ2.Dyadic.LSquare
