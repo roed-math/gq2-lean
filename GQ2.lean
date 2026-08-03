@@ -335,6 +335,7 @@ import GQ2.Dyadic.Instances.LFlexibleH2Naturality
 import GQ2.Dyadic.Instances.LWordDelta
 import GQ2.Dyadic.Instances.LWordExact
 import GQ2.Dyadic.Instances.LDeltaComparison
+import GQ2.Dyadic.Instances.LH2ComparisonDevissage
 import GQ2.Dyadic.Instances.LComparisonSquares
 import GQ2.Dyadic.Instances.LSourceEulerCard
 import GQ2.Dyadic.Instances.LSourceDualityAdapter
@@ -364,6 +365,7 @@ import GQ2.Dyadic.Instances.GammaLActionImageDevissage
 import GQ2.Dyadic.Instances.GammaLAnalyticLeaves
 import GQ2.Dyadic.Instances.GammaLDeterminantBridge
 import GQ2.Dyadic.Instances.GammaLUnramifiedPhase
+import GQ2.Dyadic.Instances.GammaLGraphHessian
 import GQ2.Dyadic.Instances.GammaLDirectRegression
 import GQ2.Dyadic.Instances.GammaLDualityBoundary
 import GQ2.Dyadic.Instances.GammaLEulerH2Surjectivity
