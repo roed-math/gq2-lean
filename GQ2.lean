@@ -393,6 +393,8 @@ import GQ2.Dyadic.Instances.GammaLRelationModuleRefined
 import GQ2.Dyadic.Instances.GammaLRelationBasis
 import GQ2.Dyadic.Instances.GammaLStronglyFree
 import GQ2.Dyadic.Count.H2SplitRightExact
+import GQ2.Dyadic.Count.H2SylowTransfer
+import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLImageAsphericity
 import GQ2.Dyadic.Instances.GammaLDirectRegression
