@@ -350,6 +350,7 @@ import GQ2.Dyadic.Count.HTwoModuleAsphericity
 import GQ2.Dyadic.Instances.GammaLRelatorRealization
 import GQ2.Dyadic.Instances.GammaLRelatorRealizationQTwo
 import GQ2.Dyadic.Instances.GammaLTateDirect
+import GQ2.Dyadic.Instances.GammaLTateProviderCore
 import GQ2.Dyadic.Instances.GammaLActionImage
 import GQ2.Dyadic.Instances.GammaLDirectRegression
 import GQ2.Dyadic.Instances.GammaLDualityBoundary
