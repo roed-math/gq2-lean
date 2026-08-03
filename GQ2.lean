@@ -304,6 +304,7 @@ import GQ2.Dyadic.Instances.Sqrt2
 import GQ2.Dyadic.Instances.Sqrt5
 import GQ2.Dyadic.Instances.Sqrt10
 import GQ2.Dyadic.Instances.SqrtNeg2
+import GQ2.Dyadic.Instances.N0Exact
 import GQ2.Dyadic.Instances.Fields
 import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.LiftingDualityG
