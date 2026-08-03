@@ -203,6 +203,23 @@ structure ModTwoFoxRelationRetraction (m : I → L) (w : rel → FreeGroup I) wh
     retraction (regularModTwoTranslate L I g c) =
       regularModTwoTranslate L rel g (retraction c)
 
+/-- Any universal Fox retraction forces the relation matrix to be injective.  This small
+regression is useful for rejecting over-strong finite-target criteria before attempting a
+normal-form construction. -/
+theorem ModTwoFoxRelationRetraction.matrix_injective
+    {m : I → L} {w : rel → FreeGroup I}
+    (R : ModTwoFoxRelationRetraction m w) :
+    Function.Injective (modTwoFoxRelationMatrix m w) :=
+  R.leftInverse.injective
+
+/-- A noninjective universal Fox matrix admits no equivariant left retraction. -/
+theorem not_nonempty_modTwoFoxRelationRetraction_of_not_injective
+    {m : I → L} {w : rel → FreeGroup I}
+    (h : ¬ Function.Injective (modTwoFoxRelationMatrix m w)) :
+    ¬ Nonempty (ModTwoFoxRelationRetraction m w) := by
+  rintro ⟨R⟩
+  exact h R.matrix_injective
+
 /-! ### An explicit pivot normal form -/
 
 /-- Embed the regular relator basis into selected generator pivots. -/
