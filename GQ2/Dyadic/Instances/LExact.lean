@@ -129,20 +129,10 @@ theorem stokesDuality {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
     (hA₂ : ∀ a : A, a + a = 0) :
     StokesDuality (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
       (lSqFam h q e) A := by
-  set t : Marking (2 * h + 1) C :=
-    ⟨fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g)⟩ with ht
-  have hr : ∀ k, FreeGroup.lift ⇑t (lSqFam h q e k) = 1 := fun k =>
-    lower_rel (A := ZMod 2) rho (fun _ => rfl)
-      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)) hres k
-  have hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
-      (tameRelW (2 * h + 1) q) = 1 :=
-    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 0)
-  have hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h) = 1 :=
-    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 1)
-  exact lSq_stokesDuality t hqe he hrt hrw (hsimp C t e he hrt hrw) A hA₂
+  exact stokesDuality_of_pushed (pushedHsimp_of_hsimp hsimp) hqe rho he hres A hA₂
 
 /-- The primary-module Stokes payload needed by the variation argument. -/
-theorem stokesDuality_T {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+theorem stokesDuality_T_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
     {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
     {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
     [TopologicalSpace (WordLift (ZMod 2) (Bg ⧸ D.M))]
@@ -156,9 +146,20 @@ theorem stokesDuality_T {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
     (resolvesAt_and_endpoint_lSqFam
       (Q := WordLift (ZMod 2) (Bg ⧸ D.M)) heisLevel_ne_zero heisLevel_even
       orderOf_dvd_heisLevel_scal (h := h) (q := q) hqe).1
-  exact stokesDuality hsimp hqe rho
+  exact stokesDuality_of_pushed hsimp hqe rho
     (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hres
     (Additive ↥D.T) (radT_add_self D)
+
+/-- Historical all-markings wrapper for `stokesDuality_T_of_pushed`. -/
+theorem stokesDuality_T {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+    {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+    {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (ZMod 2) (Bg ⧸ D.M))]
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M)) :
+    StokesDuality (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
+      (lSqFam h q (omega2Exp (heisLevel D))) (Additive ↥D.T) :=
+  stokesDuality_T_of_pushed (pushedHsimp_of_hsimp hsimp) hqe rho
 
 /-! ## Degree and a uniform nonzero-variation quotient -/
 
@@ -243,7 +244,7 @@ theorem datumRho_surjective (h q : ℕ) : Function.Surjective (datumRho h q) := 
 
 /-- The scalar `H²` count required by the `R`-stage, derived from the uniform variation
 quotient and the same L-square Stokes residue used by the lift count. -/
-theorem cardH2 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q) :
+theorem cardH2_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q) :
     letI := scalarActionZmodTwo ((gamma h q : Type))
     Nat.card (H2 ((gamma h q : Type)) (ZMod 2)) = 2 := by
   letI := scalarActionZmodTwo ((gamma h q : Type))
@@ -294,14 +295,20 @@ theorem cardH2 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q) :
     (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))
     (fun V => hwildLevel_gammaR V)
     (isWildTwo_of_gammaGen rho (datumRho_surjective h q) (fun _ => rfl))
-    hresS hresP hresD hresH (stokesDuality_T hsimp hqe rho)
-    (stokesDuality hsimp hqe rho
+    hresS hresP hresD hresH (stokesDuality_T_of_pushed hsimp hqe rho)
+    (stokesDuality_of_pushed hsimp hqe rho
       (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
       (by decide : ∀ a : ZMod 2, a + a = 0))
     hb.2 datum_noDescent (datumRho_surjective h q)
 
+/-- Historical all-markings wrapper for `cardH2_of_pushed`. -/
+theorem cardH2 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q) :
+    letI := scalarActionZmodTwo ((gamma h q : Type))
+    Nat.card (H2 ((gamma h q : Type)) (ZMod 2)) = 2 :=
+  cardH2_of_pushed (pushedHsimp_of_hsimp hsimp) hqe
+
 /-- The lift count at every recursion frame. -/
-theorem liftsOver_card {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+theorem liftsOver_card_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
     ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -335,12 +342,26 @@ theorem liftsOver_card {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
     (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))
     (fun _ => rfl) (isWildTwo_of_gammaGen rho.1.1 rho.1.2 (fun _ => rfl))
     (degree h) hres
-    (stokesDuality hsimp hqe rho.1.1
+    (stokesDuality_of_pushed hsimp hqe rho.1.1
       (odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2)
       hresS (Additive ↥RF.MB) (mb_add_self RF)) hb.2
 
+/-- Historical all-markings wrapper for `liftsOver_card_of_pushed`. -/
+theorem liftsOver_card {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+      (RF : RecursionFrame T Blk)
+      (b : ContinuousMonoidHom ((gamma h q : Type)) ↥(boundarySubgroupQ q nuP))
+      (F : BoundaryFrameK q P H E) (rho : BoundaryLiftsK b F RF.TC),
+      Nat.card (LiftsOverK RF b F rho) =
+        (standardNumerics (2 * h + 1)).mMult (Nat.card ↥RF.MB) :=
+  liftsOver_card_of_pushed (pushedHsimp_of_hsimp hsimp) hqe
+
 /-- The universal half-torsor identity, derived from nonzero variation. -/
-theorem lem86 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+theorem lem86_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
     {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
     (D : RadicalCoverData Bg) (hedge : D.NoDescent)
     (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
@@ -393,11 +414,20 @@ theorem lem86 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
     (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))
     (fun V => hwildLevel_gammaR V)
     (isWildTwo_of_gammaGen rho hrho (fun _ => rfl)) hresS hresP hresD hresH
-    (stokesDuality_T hsimp hqe rho)
-    (stokesDuality hsimp hqe rho
+    (stokesDuality_T_of_pushed hsimp hqe rho)
+    (stokesDuality_of_pushed hsimp hqe rho
       (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
       (by decide : ∀ a : ZMod 2, a + a = 0))
     hb.2 hedge hrho
+
+/-- Historical all-markings wrapper for `lem86_of_pushed`. -/
+theorem lem86 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+    {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) (hedge : D.NoDescent)
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
+    (hrho : Function.Surjective rho) :
+    2 * Nat.card {f : MLifts D rho // f.Central} = Nat.card (MLifts D rho) :=
+  lem86_of_pushed (pushedHsimp_of_hsimp hsimp) hqe D hedge rho hrho
 
 /-! ## The two irreducible R-stage residues -/
 
@@ -436,34 +466,42 @@ def StageZ (h q : ℕ) : Prop :=
 /-! ## Assembly and constructor-table regression -/
 
 /-- Exact lifting for the improved odd/L presentation at every handle count. -/
-theorem exactLifting {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+theorem exactLifting_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
     (hsep : StageSep h q) (hZ : StageZ h q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemantics (gamma h q) (2 * h + 1) q P nuP
       (standardNumerics (2 * h + 1)) := by
-  refine ⟨liftsOver_card hsimp hqe, ?_, ?_⟩
+  refine ⟨liftsOver_card_of_pushed hsimp hqe, ?_, ?_⟩
   · intro Bg _ _ _ _ D hedge rho hrho
-    exact lem86 hsimp hqe D hedge rho hrho
+    exact lem86_of_pushed hsimp hqe D hedge rho hrho
   · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
     letI := scalarActionZmodTwo ((gamma h q : Type))
     haveI := scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
     exact blockStageR136K T Blk hE₂ (scalarActionZmodTwo_triv _)
-      (cardH2 hsimp hqe)
+      (cardH2_of_pushed hsimp hqe)
       (tfg_of_isAdmissibleMarkedPresentation
         (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))) b F
       (fun g hg => hsep T Blk hE₂ b F (scalarActionZmodTwo_triv _)
-        (cardH2 hsimp hqe) g hg)
+        (cardH2_of_pushed hsimp hqe) g hg)
       (fun f₀ => hZ T Blk hE₂ b F f₀)
+
+/-- Historical all-markings wrapper for `exactLifting_of_pushed`. -/
+theorem exactLifting {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+    (hsep : StageSep h q) (hZ : StageZ h q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) :=
+  exactLifting_of_pushed (pushedHsimp_of_hsimp hsimp) hqe hsep hZ nuP
 
 /-- Corrected exact lifting for the improved odd/L presentation.  Resolver and Stokes data
 discharge both former `R`-stage residues, with the degree-indexed `zRN` coefficient. -/
-theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+theorem exactLiftingRN_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
       (standardNumerics (2 * h + 1)) := by
-  refine ⟨liftsOver_card hsimp hqe, ?_, ?_⟩
+  refine ⟨liftsOver_card_of_pushed hsimp hqe, ?_, ?_⟩
   · intro Bg _ _ _ _ D hedge rho hrho
-    exact lem86 hsimp hqe D hedge rho hrho
+    exact lem86_of_pushed hsimp hqe D hedge rho hrho
   · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
     letI := scalarActionZmodTwo ((gamma h q : Type))
     haveI := scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
@@ -493,7 +531,7 @@ theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
       odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
     have hpres := isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)
     exact blockStageR136NK (standardNumerics (2 * h + 1)) T Blk hE₂
-      (scalarActionZmodTwo_triv _) (cardH2 hsimp hqe)
+      (scalarActionZmodTwo_triv _) (cardH2_of_pushed hsimp hqe)
       (tfg_of_isAdmissibleMarkedPresentation hpres) b F
       (fun g hg => by
         let qKR : (blockFrameImpl T Blk hE₂).YB →* (Y ⧸ Blk.K) :=
@@ -511,10 +549,10 @@ theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
                 (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
             (Additive ↑Blk.frattiniK) := by
           simpa only [hrho_apply] using
-            (stokesDuality hsimp hqe rho he hres2 (Additive ↑Blk.frattiniK)
+            (stokesDuality_of_pushed hsimp hqe rho he hres2 (Additive ↑Blk.frattiniK)
               (RStageLocal.frattiniK_add_self hRK hR₂))
         exact homLift_of_obs_zero_boundaryLiftK_markingN hE₂ hRK hR₂
-          (scalarActionZmodTwo_triv _) (cardH2 hsimp hqe) b F g hpres
+          (scalarActionZmodTwo_triv _) (cardH2_of_pushed hsimp hqe) b F g hpres
           (isWildTwo_of_gammaGen g.1.1 g.1.2 (fun _ => rfl)) hres2 hresR hd hb.2 hg)
       (fun f₀ => by
         let theta : ContinuousMonoidHom ((gamma h q : Type)) (Y ⧸ Blk.K) :=
@@ -536,11 +574,18 @@ theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
                 (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
             (Additive ↑Blk.frattiniK) := by
           simpa only [htheta_apply] using
-            (stokesDuality hsimp hqe theta he hres2 (Additive ↑Blk.frattiniK)
+            (stokesDuality_of_pushed hsimp hqe theta he hres2 (Additive ↑Blk.frattiniK)
               (RStageLocal.frattiniK_add_self hRK hR₂))
         exact rCocycle_card_standard_zRN hE₂ hRK hR₂ f₀.1.1 f₀.1.2 hpres
           hresR (isWildTwo_of_gammaGen theta htheta_surj (fun _ => rfl))
           (degree h) hd hb.2)
+
+/-- Historical all-markings wrapper for `exactLiftingRN_of_pushed`. -/
+theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) :=
+  exactLiftingRN_of_pushed (pushedHsimp_of_hsimp hsimp) hqe nuP
 
 /-- Regression theorem for the constructor table: the L-square exact-lifting carrier is
 definitionally the `GammaR` presentation on the improved `lSqW`, not the initial draft word. -/
@@ -549,11 +594,18 @@ theorem gamma_eq_improved (h q : ℕ) : gamma h q = GammaR (2 * h + 1) q (lSqW h
 /-- At handle count zero, corrected degree-one semantics agrees with the frozen API.  This
 regresses the new constructor against the historical theorem at the unique degree where their
 R-stage coefficients coincide definitionally. -/
-theorem exactLiftingRN_zero_regression {q : ℕ} (hsimp : Hsimp 0 q) (hqe : Even q)
+theorem exactLiftingRN_zero_regression_of_pushed {q : ℕ} (hsimp : PushedHsimp 0 q)
+    (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemantics (gamma 0 q) 1 q P nuP (standardNumerics 1) := by
   rw [← exactLiftingSemanticsRN_standard_one_iff]
-  simpa using exactLiftingRN hsimp hqe nuP
+  simpa using exactLiftingRN_of_pushed hsimp hqe nuP
+
+/-- Historical all-markings wrapper for `exactLiftingRN_zero_regression_of_pushed`. -/
+theorem exactLiftingRN_zero_regression {q : ℕ} (hsimp : Hsimp 0 q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (gamma 0 q) 1 q P nuP (standardNumerics 1) :=
+  exactLiftingRN_zero_regression_of_pushed (pushedHsimp_of_hsimp hsimp) hqe nuP
 
 /-! ## Field-selector handoff -/
 
@@ -575,11 +627,11 @@ theorem gamma_eq_fieldSelection
 
 /-- The selected `.L` presentation receives the presentation-level exact-lifting certificate.
 This theorem does not assert that an arbitrary field belongs to the L family. -/
-theorem exactLifting_of_fieldSelection
+theorem exactLifting_of_fieldSelection_pushed
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
-    (hsimp : Hsimp (handleCount FP .L) q) (hqe : Even q)
+    (hsimp : PushedHsimp (handleCount FP .L) q) (hqe : Even q)
     (hsep : StageSep (handleCount FP .L) q) (hZ : StageZ (handleCount FP .L) q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemantics
@@ -594,15 +646,29 @@ theorem exactLifting_of_fieldSelection
         (GammaR (2 * handleCount FP .L + 1) q (lSqW (handleCount FP .L)))
         (2 * handleCount FP .L + 1) q P nuP
         (standardNumerics (2 * handleCount FP .L + 1))
-      exact exactLifting hsimp hqe hsep hZ nuP
+      exact exactLifting_of_pushed hsimp hqe hsep hZ nuP
 
-/-- The selected improved L presentation receives corrected exact-lifting semantics directly;
-the former `StageSep` and `StageZ` arguments are no longer present. -/
-theorem exactLiftingRN_of_fieldSelection
+/-- Historical all-markings wrapper for `exactLifting_of_fieldSelection_pushed`. -/
+theorem exactLifting_of_fieldSelection
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
     (hsimp : Hsimp (handleCount FP .L) q) (hqe : Even q)
+    (hsep : StageSep (handleCount FP .L) q) (hZ : StageZ (handleCount FP .L) q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) :=
+  exactLifting_of_fieldSelection_pushed S hbranch (pushedHsimp_of_hsimp hsimp)
+    hqe hsep hZ nuP
+
+/-- The selected improved L presentation receives corrected exact-lifting semantics directly;
+the former `StageSep` and `StageZ` arguments are no longer present. -/
+theorem exactLiftingRN_of_fieldSelection_pushed
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : PushedHsimp (handleCount FP .L) q) (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemanticsRN
       (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
@@ -616,7 +682,19 @@ theorem exactLiftingRN_of_fieldSelection
         (GammaR (2 * handleCount FP .L + 1) q (lSqW (handleCount FP .L)))
         (2 * handleCount FP .L + 1) q P nuP
         (standardNumerics (2 * handleCount FP .L + 1))
-      exact exactLiftingRN hsimp hqe nuP
+      exact exactLiftingRN_of_pushed hsimp hqe nuP
+
+/-- Historical all-markings wrapper for `exactLiftingRN_of_fieldSelection_pushed`. -/
+theorem exactLiftingRN_of_fieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : Hsimp (handleCount FP .L) q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) :=
+  exactLiftingRN_of_fieldSelection_pushed S hbranch (pushedHsimp_of_hsimp hsimp) hqe nuP
 
 end
 

@@ -48,16 +48,16 @@ The equality carried by each constructor is intentional: it makes the displayed 
 arithmetic validity proof is duplicated here; `S.valid` supplies `2 ≤ alpha` and, on procyclic
 rows, `1 ≤ r` to the lifting constructors.
 
-The L row still takes `LSquare.Hsimp`, not merely `LSquare.PushedHsimp`: although the landed
-L comparison identifies `PushedHsimp` as the honest source-facing Stokes target, the current
-`cardH2`, `liftsOver_card`, and `lem86` APIs used by `LSquare.exactLiftingRN` have not yet been
-refactored through that weakening.  This interface keeps that remaining gap visible. -/
+The L row takes `LSquare.PushedHsimp`, the honest source-facing residue restricted to markings
+pushed forward from the candidate group.  The L count and exact-lifting chain is routed through
+that weakening; the historical all-markings `LSquare.Hsimp` API remains available separately as
+a compatibility wrapper. -/
 inductive SelectedHsimp
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) (q : ℕ) : Prop
   | L (hbranch : S.branch = .L)
-      (hsimp : LSquare.Hsimp (handleCount FP .L) q)
+      (hsimp : LSquare.PushedHsimp (handleCount FP .L) q)
   | N0 (alpha : ℕ) (hbranch : S.branch = .N0 alpha)
       (hsimp : NCompact.Hsimp alpha (handleCount FP (.N0 alpha)) q)
   | Npc (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
@@ -69,6 +69,19 @@ inductive SelectedHsimp
       (hbranch : S.branch = .Mpc alpha r epsilon eta)
       (hsimp : MProcyclicExact.Hsimp alpha r (p epsilon r)
         (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
+
+namespace SelectedHsimp
+
+/-- Compatibility constructor for callers which still prove the historical all-markings L
+residue.  The selected interface stores only its pushed consequence. -/
+theorem L_of_hsimp
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    {S : FieldBranchSelection K FP Q W} {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : LSquare.Hsimp (handleCount FP .L) q) : SelectedHsimp S q :=
+  .L hbranch (LSquare.pushedHsimp_of_hsimp hsimp)
+
+end SelectedHsimp
 
 /-- Dispatch a selected branch's unique Stokes residue through the corresponding improved
 `exactLiftingRN` constructor.  Branch validity is read from `S`; callers do not repeat alpha or
@@ -84,7 +97,7 @@ theorem exactLiftingRN_of_selectedHsimp
       (standardNumerics S.semantic.degree) := by
   cases hsimp with
   | L hbranch hsimp =>
-      exact LSquare.exactLiftingRN_of_fieldSelection S hbranch hsimp hqe nuP
+      exact LSquare.exactLiftingRN_of_fieldSelection_pushed S hbranch hsimp hqe nuP
   | N0 alpha hbranch hsimp =>
       have hvalid : 2 ≤ alpha := by
         have h := S.valid
