@@ -47,6 +47,85 @@ namespace GQ2
 
 namespace ContCoh
 
+/-! ## Representative formula for the degree-two coefficient map -/
+
+section CoefficientRepresentative
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DistribMulAction G M] [ContinuousSMul G M]
+variable {N : Type*} [AddCommGroup N] [TopologicalSpace N] [IsTopologicalAddGroup N]
+  [DistribMulAction G N] [ContinuousSMul G N]
+
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G N] in
+/-- `mapCoeff2` computes on classes: the image of `H2mk z` is `H2mk` of the
+pushed-forward cocycle (definitional). -/
+theorem mapCoeff2_H2mk_coeff (f : N →+ M) (hf : Continuous f)
+    (hcompat : ∀ (g : G) (n : N), f (g • n) = g • f n) (z : Z2 G N) :
+    mapCoeff2 f hf hcompat (H2mk G N z)
+      = H2mk G M (Z2comap (ContinuousMonoidHom.id G) f hf
+          (fun g n ↦ hcompat g n) z) :=
+  rfl
+
+end CoefficientRepresentative
+
+/-! ## Finite discrete coefficient short exact sequences -/
+
+section CoefficientSES
+
+variable {G A' A A'' : Type*}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [AddCommGroup A'] [TopologicalSpace A'] [IsTopologicalAddGroup A']
+  [DiscreteTopology A'] [Finite A'] [DistribMulAction G A'] [ContinuousSMul G A']
+  [AddCommGroup A] [TopologicalSpace A] [IsTopologicalAddGroup A]
+  [DiscreteTopology A] [Finite A] [DistribMulAction G A] [ContinuousSMul G A]
+  [AddCommGroup A''] [TopologicalSpace A''] [IsTopologicalAddGroup A'']
+  [DiscreteTopology A''] [Finite A''] [DistribMulAction G A''] [ContinuousSMul G A'']
+
+/-- A short exact sequence of finite discrete `G`-modules, bundling exactly the data needed
+by both the continuous and word coefficient long exact sequences. -/
+structure FiniteDiscreteCoeffSES where
+  f : A' →+ A
+  g : A →+ A''
+  f_equivariant : ∀ (c : G) (a : A'), f (c • a) = c • f a
+  g_equivariant : ∀ (c : G) (a : A), g (c • a) = c • g a
+  f_injective : Function.Injective f
+  g_surjective : Function.Surjective g
+  range_eq_ker : f.range = g.ker
+
+namespace FiniteDiscreteCoeffSES
+
+variable (S : FiniteDiscreteCoeffSES (G := G) (A' := A') (A := A) (A'' := A''))
+
+/-- Coefficient maps in a finite discrete sequence are automatically continuous. -/
+theorem continuous_f : Continuous S.f := continuous_of_discreteTopology
+
+/-- Coefficient maps in a finite discrete sequence are automatically continuous. -/
+theorem continuous_g : Continuous S.g := continuous_of_discreteTopology
+
+/-- Consecutive coefficient maps in the sequence compose to zero. -/
+theorem comp_zero (a : A') : S.g (S.f a) = 0 :=
+  AddMonoidHom.mem_ker.mp (S.range_eq_ker ▸ AddMonoidHom.mem_range.mpr ⟨a, rfl⟩)
+
+/-- The induced consecutive continuous `H²` coefficient maps compose to zero. -/
+theorem mapCoeff2_comp_apply (x : H2 G A') :
+    mapCoeff2 S.g S.continuous_g S.g_equivariant
+        (mapCoeff2 S.f S.continuous_f S.f_equivariant x) = 0 := by
+  obtain ⟨z, rfl⟩ := H2mk_surjective (G := G) (M := A') x
+  rw [mapCoeff2_H2mk_coeff, mapCoeff2_H2mk_coeff]
+  have hz : Z2comap (ContinuousMonoidHom.id G) S.g S.continuous_g
+      (fun c a ↦ S.g_equivariant c a)
+      (Z2comap (ContinuousMonoidHom.id G) S.f S.continuous_f
+        (fun c a ↦ S.f_equivariant c a) z) = 0 := by
+    apply Subtype.ext
+    funext p
+    exact S.comp_zero (z.1 p)
+  rw [hz, map_zero]
+
+end FiniteDiscreteCoeffSES
+
+end CoefficientSES
+
 /-! ## The four-term comparison chase -/
 
 section FourTerm
