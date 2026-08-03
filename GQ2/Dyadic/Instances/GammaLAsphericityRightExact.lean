@@ -8,6 +8,7 @@ import GQ2.Dyadic.Instances.GammaLH2RightExact
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLRelatorRealization
 import GQ2.Dyadic.Instances.GammaLSimpleDirectSurjectivity
+import GQ2.Dyadic.Instances.GammaLTateRightExact
 import GQ2.Dyadic.Instances.LH2ComparisonDevissage
 
 /-!
@@ -24,9 +25,14 @@ and use naturality plus injectivity of the target comparison.
 
 Conversely, when `q` is even, the existing direct simple theorem and coefficient devissage show
 that `GammaLH2RightExactSupply` implies precisely this all-coefficient realization condition.
-Thus the passage from the presently proved simple finite-extension asphericity to an
-all-elementary relation-module theorem is not merely sufficient for the CD-2 tail; in the
-current presentation API it is equivalent to it.
+Thus the passage from the presently proved simple finite-extension realization theorem to its
+all-elementary version is not merely sufficient for the CD-2 tail; in the current presentation
+API it is equivalent to it.
+
+The word “asphericity” in the declaration names is historical and local to this API.  The
+predicate asks for finite extensions realizing arbitrary relator fibres; it does not assert
+classical presentation asphericity or relation-module freeness.  The converse construction
+makes this limitation explicit by proving equivalence with finite-cocycle relator realization.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -238,7 +244,7 @@ theorem pairFiniteActionImage_equivariant
 
 end PairActionImage
 
-/-! ## The exact all-elementary relation-module interface -/
+/-! ## The exact all-elementary finite-extension interface -/
 
 section UniformAllElementary
 
@@ -257,7 +263,8 @@ noncomputable abbrev UniformElementaryRelatorRealizationSurjectiveSupply : Prop 
         LModuleRelatorRealization (A := A)
           (e := omega2Exp (4 * Monoid.exponent C)) rho
 
-/-- The corresponding all-elementary finite-extension asphericity supply. -/
+/-- The corresponding all-elementary finite-extension realization supply.  This custom
+predicate is not classical presentation asphericity. -/
 noncomputable abbrev UniformElementaryExtensionAsphericitySurjectiveSupply : Prop :=
   ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (rho : ContinuousMonoidHom GammaL C), Function.Surjective rho →
@@ -280,6 +287,15 @@ theorem uniformSimpleExtensionAsphericitySurjectiveSupply_direct
     UniformSimpleExtensionAsphericitySurjectiveSupply (h := h) (q := q) := by
   intro C _ _ _ _ rho hrho
   exact uniformSimpleExtensionAsphericitySingleProvider_of_surjective rho hrho hq
+
+/-- The all-elementary supply forgets to the simple supply proved directly.  There is
+intentionally no converse theorem here: constructing that simple-to-all upgrade is the exact
+remaining premise identified below. -/
+theorem uniformSimpleExtensionAsphericitySurjectiveSupply_of_allElementary
+    (hasph : UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q)) :
+    UniformSimpleExtensionAsphericitySurjectiveSupply (h := h) (q := q) := by
+  intro C _ _ _ _ rho hrho A _ _ _ hA₂ _hsimple
+  exact hasph C rho hrho A hA₂
 
 /-- All-elementary finite-extension asphericity gives all-elementary relator realization. -/
 theorem uniformElementaryRelatorRealizationSurjectiveSupply_of_extensionAsphericity
@@ -411,6 +427,43 @@ theorem gammaLH2RightExactSupply_iff_allElementaryExtensionAsphericity
       UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) :=
   ⟨allElementaryExtensionAsphericity_of_gammaLH2RightExactSupply hq,
     gammaLH2RightExactSupply_of_allElementaryExtensionAsphericity⟩
+
+/-! ## Logical-strength regressions -/
+
+/-- For even `q`, the custom all-elementary finite-extension realization predicate is also
+equivalent to the existence of the H⁰--H² perfect-duality fragment.  This theorem is an audit
+boundary: it prevents the extension predicate from being advertised as a separately proved
+route to duality unless its all-elementary instance is actually constructed. -/
+theorem allElementaryExtensionAsphericity_iff_nonempty_h02PerfectDualityG
+    (hq : Even q)
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)] :
+    UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) ↔
+      Nonempty (H02PerfectDualityG GammaL) := by
+  constructor
+  · intro hasph
+    let hright := gammaLH2RightExactSupply_of_allElementaryExtensionAsphericity hasph
+    exact ⟨h02PerfectDualityG_of_tateDualityG
+      (tateDualityG_of_gammaLH2RightExactSupply hq hright)⟩
+  · rintro ⟨D⟩
+    exact allElementaryExtensionAsphericity_of_gammaLH2RightExactSupply hq
+      (finiteTwoH2RightExactSupply_of_h02PerfectDualityG D)
+
+/-- For even `q`, the same all-elementary extension-realization predicate is equivalent to the
+existence of the full Tate-duality bundle.  The forward implication runs through the proved
+right-exactness/action-image assembly; the reverse implication uses only the `(0,2)` fragment
+of the supplied Tate bundle. -/
+theorem allElementaryExtensionAsphericity_iff_nonempty_tateDualityG
+    (hq : Even q)
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)] :
+    UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) ↔
+      Nonempty (TateDualityG GammaL 2) := by
+  constructor
+  · intro hasph
+    exact ⟨tateDualityG_of_gammaLH2RightExactSupply hq
+      (gammaLH2RightExactSupply_of_allElementaryExtensionAsphericity hasph)⟩
+  · rintro ⟨D⟩
+    exact allElementaryExtensionAsphericity_of_gammaLH2RightExactSupply hq
+      (gammaLH2RightExactSupply_of_tateDualityG D)
 
 end UniformAllElementary
 

@@ -508,8 +508,9 @@ theorem tateDualityG_reconstruct_projection
   exact addEquiv_zmodTwo_unique _ _
 
 /-- For the improved L presentation at even `q`, full Tate duality data are equivalent to the
-strictly smaller H⁰--H² fragment.  The forward map is the literal forgetful projection; the
-inverse is the noncircular right-exactness/action-image reconstruction above. -/
+syntactically smaller H⁰--H² fragment.  The forward map is the literal forgetful projection.
+The inverse does not use discarded perfectness fields, but it does assume the H⁰--H² fragment;
+this equivalence is therefore not an independent construction of either arithmetic input. -/
 noncomputable def tateDualityGEquivH02PerfectDualityG
     {h q : ℕ} (hq : Even q)
     [DistribMulAction (gamma h q : Type) (MuN 2)]

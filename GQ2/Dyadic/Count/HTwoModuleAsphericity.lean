@@ -8,7 +8,7 @@ import GQ2.Dyadic.Count.HTwoModuleSurjectivity
 /-!
 # Finite extension asphericity for the degree-two module comparison
 
-This file isolates a genuinely group-theoretic input that implies finite relator
+This file isolates a finite-group extension-realization input that implies finite relator
 realization.  A `FiniteModuleExtension L A` is an exact finite extension
 
 `1 → A → E → L → 1`
@@ -24,8 +24,16 @@ its relator vector is `r` modulo the Fox differential.  Consequently:
 `ModuleFiniteExtensionAsphericity → ModuleRelatorRealization`.
 
 Unlike `ModuleRelatorRealization`, the new hypothesis contains no cocycle or
-cohomology object and no word-cokernel.  It is the concrete finite-extension
-conclusion expected from a relation-module or profinite asphericity theorem.
+cohomology object and no word-cokernel.  It is a concrete finite-extension formulation
+of the same relator-realization obstruction.
+
+Terminological warning: `FiniteRelatorExtensionAsphericity` and
+`ModuleFiniteExtensionAsphericity` are not definitions of classical presentation
+asphericity (`π₂ = 0`) or of relation-module freeness/projectivity.  The converse file proves
+that, once the relators hold and a resolver is fixed, these predicates are equivalent to the
+finite-cocycle relator-realization criterion.  A genuine relation-module or profinite
+asphericity theorem could imply them, but that stronger structural assertion is not encoded
+here.
 -/
 
 namespace GQ2.Dyadic.Count
@@ -281,8 +289,9 @@ theorem relator_vector_mod_range {W : rel → PWord iota} {m : iota → L}
 end FiniteRelatorExtensionWitness
 
 /-- Every assignment of fibre labels to the defining relators is realized by a
-finite extension of the marked finite group.  This is a relation-theoretic
-asphericity condition: it mentions neither cocycles nor cohomology. -/
+finite extension of the marked finite group.  This is a finite extension-realization
+condition: it mentions neither cocycles nor cohomology.  Despite the historical name, it is
+not classical presentation asphericity. -/
 def FiniteRelatorExtensionAsphericity {iota rel L A : Type}
     [Group L] [AddCommGroup A] [DistribMulAction L A]
     (W : rel → PWord iota) (m : iota → L) : Prop :=
@@ -325,11 +334,12 @@ local instance extensionAsphericityQuotientDiscreteTopology
     (V : OpenNormalSubgroup G) : DiscreteTopology (G ⧸ V.toSubgroup) :=
   Subgroup.instDiscreteTopologyQuotientOfSeparatelyContinuousMul V.toOpenSubgroup
 
-/-- The profinite relation-module/asphericity input: each requested relator
+/-- The profinite finite-extension realization input: each requested relator
 vector is realized in a finite extension of some action-compatible quotient.
 
 The quotient and extension may depend on the vector.  There is no cocycle,
-continuous cohomology group, or word-cokernel in this definition. -/
+continuous cohomology group, or word-cokernel in this definition.  This is not a conventional
+asphericity or relation-module projectivity predicate. -/
 def ModuleFiniteExtensionAsphericity
     (W : rel → PWord iota) (gen : iota → G)
     (rho : ContinuousMonoidHom G C) : Prop :=

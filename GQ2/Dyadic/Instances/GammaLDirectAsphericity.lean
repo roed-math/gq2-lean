@@ -20,7 +20,8 @@ This result is noncircular: it uses neither Tate duality, an Euler characteristi
 realization, nor a cohomological-dimension premise.  Surjectivity of the finite target remains
 essential.  The existing direct simple proof uses it to ensure that simplicity is still visible
 to the source action; an arbitrary map to an unnecessarily large finite group has no such
-property.
+property.  Here “asphericity” means the custom finite-extension relator-realization predicate
+from `HTwoModuleAsphericity`, not classical presentation asphericity.
 -/
 
 namespace GQ2.Dyadic.LSquare

@@ -13,11 +13,12 @@ fibres, modulo the Fox differential.  This file proves the converse bookkeeping
 statement: it is enough to realize every relator vector, modulo that differential,
 by a normalized cocycle on a finite action-compatible quotient.
 
-This is deliberately not a synonym for surjectivity of the final `H²` map.  The
-hypothesis `ModuleRelatorRealizationAt` contains no continuous cohomology and no
-cohomology quotient.  Its witnesses are explicit finite-group cocycles, the objects
-to which a relation-module, Fox-resolution, or profinite asphericity theorem should
-naturally apply.
+This is deliberately stated without the final `H²` map.  The hypothesis
+`ModuleRelatorRealizationAt` contains no continuous cohomology and no cohomology quotient;
+its witnesses are explicit finite-group cocycles.  The theorems below nevertheless prove that
+the vector-dependent version is equivalent to surjectivity of the canonical comparison.  Thus
+this is a concrete reformulation of the obstruction, not by itself an independently stronger
+relation-module or asphericity theorem.
 
 The remaining mathematical direction for the L presentation is therefore isolated
 as follows.  Given a relator functional `r`, construct an action-compatible finite

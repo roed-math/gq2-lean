@@ -26,7 +26,7 @@ transports to `GammaL` without using Tate duality on `GammaL`.
 
 The first result is deliberately labelled as a boundary, not as a direct proof of the L Tate
 bundle.  Applying it to a supplied `TateDualityG GammaL 2` is circular for that campaign.  The
-second result reduces the missing input to the strictly smaller arithmetic statement
+second result reduces the missing input to the narrower arithmetic statement
 `FiniteTwoH2RightExactSupply (GalK K)` (or to the corresponding open-subgroup statement), but the
 current repository has no non-Tate constructor for that statement: continuous cohomology is
 implemented only through degree two, so there is no formal `H³ = 0`/`cd₂` theorem to invoke.
@@ -120,8 +120,10 @@ variable {G A B : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [AddCommGroup B] [TopologicalSpace B] [IsTopologicalAddGroup B]
   [DiscreteTopology B] [Finite B] [DistribMulAction G B] [ContinuousSMul G B]
 
-/-- The `(0,2)` fragment of local Tate duality.  This is strictly weaker than
-`TateDualityG`: it contains neither `(1,1)` nor `(2,0)` perfectness. -/
+/-- The `(0,2)` fragment of local Tate duality.  It is a syntactically smaller data structure
+than `TateDualityG`, containing neither `(1,1)` nor `(2,0)` perfectness.  For the improved L
+presentation at even `q`, `GammaLTateRightExact` later proves that this data already reconstructs
+the full bundle, so it must not be described there as logically weaker. -/
 structure H02PerfectDualityG
     (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [DistribMulAction G (MuN 2)] [ContinuousSMul G (MuN 2)] where
@@ -240,7 +242,7 @@ theorem finiteTwoH2RightExactSupply_of_tateDualityG (D : TateDualityG G 2) :
   intro A B _ _ _ _ _ _ _ _ _ _ _ _ _ _ g hgC hg hA₂ hB₂ hsurj
   exact H2RightExactAt.of_tateDualityG D g hgC hg hA₂ hB₂ hsurj
 
-/-- The strictly smaller `(0,2)` duality fragment already supplies the tail. -/
+/-- The syntactically smaller `(0,2)` duality fragment already supplies the tail. -/
 theorem finiteTwoH2RightExactSupply_of_h02PerfectDualityG
     (D : H02PerfectDualityG G) : FiniteTwoH2RightExactSupply G := by
   intro A B _ _ _ _ _ _ _ _ _ _ _ _ _ _ g hgC hg hA₂ hB₂ hsurj
@@ -347,7 +349,7 @@ theorem gammaLH2RightExactSupply_of_equiv {h q : ℕ} {G : Type}
     GammaLH2RightExactSupply h q :=
   finiteTwoH2RightExactSupply_congr e hG
 
-/-- A field realization reduces the L CD-2 tail to the same strictly smaller tail on its open
+/-- A field realization reduces the L CD-2 tail to the same narrower tail on its open
 subgroup.  No Tate bundle is constructed or consumed by this transport theorem. -/
 theorem gammaLH2RightExactSupply_of_fieldRealization {h q : ℕ}
     (R : GammaLFieldRealization h q)
@@ -359,7 +361,7 @@ theorem gammaLH2RightExactSupply_of_fieldRealization {h q : ℕ}
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
-/-- The strictly smaller arithmetic statement needed on the absolute/profinite Galois group of
+/-- The narrower arithmetic statement needed on the absolute/profinite Galois group of
 a finite extension of `ℚ₂`. -/
 noncomputable abbrev GalKH2RightExactSupply
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K] : Prop :=
