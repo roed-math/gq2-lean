@@ -475,7 +475,7 @@ noncomputable def h1Equiv_gammaR_range
     exact hcompat γ a
   have hwildR : IsWildTwo (wildAlphabet n) (fun i => rhoR (gammaGen n q R i)) :=
     isWildTwo_gammaGen_of_surjective rhoR rho.toMonoidHom.rangeRestrict_surjective
-  let eR := h1Equiv (C := ↥rho.toMonoidHom.range) rhoR hcompatR (fun _ => rfl)
+  let z1R := z1Equiv (C := ↥rho.toMonoidHom.range) rhoR hcompatR (fun _ => rfl)
     (isAdmissibleMarkedPresentation_gammaR n q R) hresR hA₂ hwildR
   have hd0 :
       heisD0 (A := A) (fun i => rhoR (gammaGen n q R i)) =
@@ -486,8 +486,78 @@ noncomputable def h1Equiv_gammaR_range
       heisD1 (A := A) (fun i => rhoR (gammaGen n q R i)) w =
         heisD1 (A := A) (fun i => rho (gammaGen n q R i)) w := by
     exact heisD1_map_base rho.toMonoidHom.range.subtype (fun _ _ => rfl) _ _
-  rw [← hd0, ← hd1]
-  exact eR
+  let z1D := toZ1w rho hcompat (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR n q R) hres
+  have hz1D_inj : Function.Injective z1D :=
+    toZ1w_injective rho hcompat (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR n q R) hres
+  have hz1D_surj : Function.Surjective z1D := by
+    intro y
+    let yR : ↥(heisD1 (A := A)
+        (fun i => rhoR (gammaGen n q R i)) w).ker :=
+      ⟨y.1, AddMonoidHom.mem_ker.mpr (by
+        rw [hd1]
+        exact AddMonoidHom.mem_ker.mp y.2)⟩
+    obtain ⟨z, hz⟩ := z1R.surjective yR
+    refine ⟨z, Subtype.ext ?_⟩
+    have hzv := congrArg Subtype.val hz
+    change (fun i ↦ z.1 (gammaGen n q R i)) = y.1
+    change (fun i ↦ z.1 (gammaGen n q R i)) = y.1 at hzv
+    exact hzv
+  let eD : Z1 ((GammaR n q R) : Type) A ≃+
+      ↥(heisD1 (A := A) (fun i => rho (gammaGen n q R i)) w).ker :=
+    AddEquiv.ofBijective z1D ⟨hz1D_inj, hz1D_surj⟩
+  have hmap :
+      ((B1 ((GammaR n q R) : Type) A).addSubgroupOf
+          (Z1 ((GammaR n q R) : Type) A)).map eD.toAddMonoidHom =
+        (heisD0 (A := A) (fun i => rho (gammaGen n q R i))).range.addSubgroupOf
+          (heisD1 (A := A) (fun i => rho (gammaGen n q R i)) w).ker := by
+    have hcob : ∀ (m : A) (z : Z1 ((GammaR n q R) : Type) A),
+        dZero ((GammaR n q R) : Type) A m = z.1 →
+          evalGen (gammaGen n q R) z =
+            heisD0 (A := A) (fun i => rho (gammaGen n q R i)) m := by
+      intro m z hm
+      funext i
+      show z.1 (gammaGen n q R i) = rho (gammaGen n q R i) • m - m
+      rw [← hm]
+      show gammaGen n q R i • m - m = rho (gammaGen n q R i) • m - m
+      rw [hcompat]
+    ext y
+    simp only [AddSubgroup.mem_map, AddSubgroup.mem_addSubgroupOf, AddMonoidHom.mem_range]
+    constructor
+    · rintro ⟨z, ⟨m, hm⟩, rfl⟩
+      exact ⟨m, (hcob m z hm).symm⟩
+    · rintro ⟨m, hm⟩
+      refine ⟨⟨dZero ((GammaR n q R) : Type) A m, B1_le_Z1 ⟨m, rfl⟩⟩,
+        ⟨m, rfl⟩, Subtype.ext ?_⟩
+      show evalGen (gammaGen n q R)
+          (⟨dZero ((GammaR n q R) : Type) A m, B1_le_Z1 ⟨m, rfl⟩⟩ :
+            Z1 ((GammaR n q R) : Type) A) = y.1
+      rw [hcob m _ rfl, hm]
+  exact QuotientAddGroup.congr _ _ eD hmap
+
+/-- Representative formula for the arbitrary-image `GammaR` degree-one comparison.  The range
+factorization is used only to prove that the direct evaluation map is surjective; the comparison
+itself therefore sends a continuous cocycle class to the class of its values on the marked
+generators without any transport cast. -/
+@[simp] theorem h1Equiv_gammaR_range_H1mk
+    [Finite Q]
+    {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction Q A] [DistribMulAction ((GammaR n q R) : Type) A]
+    [ContinuousSMul ((GammaR n q R) : Type) A]
+    [TopologicalSpace (WordLift A Q)] [DiscreteTopology (WordLift A Q)]
+    {w : Fin 2 → FreeGroup (Generator n)}
+    (rho : ContinuousMonoidHom ((GammaR n q R) : Type) Q)
+    (hcompat : ∀ (γ : (GammaR n q R : Type)) (a : A), γ • a = rho γ • a)
+    (hres : ResolvesAt (gammaFam n q R) w (WordLift A Q))
+    (hA₂ : ∀ a : A, a + a = 0) (z : Z1 ((GammaR n q R) : Type) A) :
+    h1Equiv_gammaR_range rho hcompat hres hA₂
+        (H1mk ((GammaR n q R) : Type) A z) =
+      stokesH1Mk
+        (heisD0 (A := A) (fun i => rho (gammaGen n q R i)))
+        (heisD1 (A := A) (fun i => rho (gammaGen n q R i)) w)
+        (toZ1w rho hcompat (fun _ => rfl)
+          (isAdmissibleMarkedPresentation_gammaR n q R) hres z) := rfl
 
 end Wild2
 
