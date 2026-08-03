@@ -29,13 +29,55 @@ open GQ2.Dyadic.Certificates.LSqStokes
 
 section Scalar
 
-variable {h q : ℕ} {C : Type}
+variable {h q e : ℕ} {C : Type}
   [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
 local notation "GammaL" => (gamma h q : Type)
 local notation "genL" => gammaGen (2 * h + 1) q (Words.LSq.lSqW h)
+local notation "wL" => lSqFam h q e
 local notation "eC" => omega2Exp (4 * Monoid.exponent C)
 local notation "wC" => lSqFam h q eC
+
+/-- At any odd L word which dies in the finite target, the canonical scalar flexible H² map
+is surjective.  Thus a common resolver already supplies all scalar input needed by the direct
+Tate comparison; no scalar asphericity hypothesis remains. -/
+theorem lScalarH2WordFlexible_surjective_of_actionImage
+    (rho : ContinuousMonoidHom GammaL C) (hq : Even q) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genL i)) (wL k) = 1) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+    letI : DistribMulAction GammaL (ZMod 2) := scalarActionZmodTwo GammaL
+    letI : ContinuousSMul GammaL (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaL
+    Function.Surjective (lScalarH2WordFlexible rho (fun _ _ ↦ rfl) he) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+  letI : DistribMulAction GammaL (ZMod 2) := scalarActionZmodTwo GammaL
+  letI : ContinuousSMul GammaL (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaL
+  letI : DistribMulAction GammaL (MuN 2) :=
+    { smul := fun _ m ↦ m
+      one_smul := fun _ ↦ rfl
+      mul_smul := fun _ _ _ ↦ rfl
+      smul_zero := fun _ ↦ rfl
+      smul_add := fun _ _ _ ↦ rfl }
+  letI : ContinuousSMul GammaL (MuN 2) := ⟨continuous_snd⟩
+  let f := lScalarH2WordFlexible rho (fun _ _ ↦ rfl) he
+  have hinj : Function.Injective f :=
+    lScalarH2WordFlexible_injective rho (fun _ _ ↦ rfl) he
+  letI : Finite (H2 GammaL (ZMod 2)) := Finite.of_injective f hinj
+  letI : Fintype (H2 GammaL (ZMod 2)) := Fintype.ofFinite _
+  letI : Fintype (WordH2 (fun i ↦ rho (genL i)) wL (ZMod 2)) := Fintype.ofFinite _
+  have hcard : Nat.card (H2 GammaL (ZMod 2)) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL (ZMod 2)) := by
+    calc
+      Nat.card (H2 GammaL (ZMod 2)) = 2 :=
+        cardH2_of_uniformPushed (uniformPushedHsimp_of_actionImage hq) hq
+      _ = Nat.card (ZMod 2) := (Nat.card_zmod 2).symm
+      _ = Nat.card (WordH2 (fun i ↦ rho (genL i)) wL (ZMod 2)) :=
+        (Nat.card_congr (lWordH2TraceEquiv (fun i ↦ rho (genL i)) hq he hr).toEquiv).symm
+  exact ((Fintype.bijective_iff_injective_and_card f).mpr
+    ⟨hinj, by simpa only [Nat.card_eq_fintype_card] using hcard⟩).2
 
 /-- The canonical scalar flexible H² map at the coefficient-independent L resolver is
 surjective, directly from action-image word duality and the scalar H² count. -/
@@ -70,22 +112,7 @@ theorem lUniform_scalarH2WordFlexible_surjective_of_actionImage
   have hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genL i)) (wC k) = 1 :=
     lower_rel (A := ZMod 2) rho (fun _ ↦ rfl)
       (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (Words.LSq.lSqW h)) hres
-  let f := lScalarH2WordFlexible rho (fun _ _ ↦ rfl) he
-  have hinj : Function.Injective f :=
-    lScalarH2WordFlexible_injective rho (fun _ _ ↦ rfl) he
-  letI : Finite (H2 GammaL (ZMod 2)) := Finite.of_injective f hinj
-  letI : Fintype (H2 GammaL (ZMod 2)) := Fintype.ofFinite _
-  letI : Fintype (WordH2 (fun i ↦ rho (genL i)) wC (ZMod 2)) := Fintype.ofFinite _
-  have hcard : Nat.card (H2 GammaL (ZMod 2)) =
-      Nat.card (WordH2 (fun i ↦ rho (genL i)) wC (ZMod 2)) := by
-    calc
-      Nat.card (H2 GammaL (ZMod 2)) = 2 :=
-        cardH2_of_uniformPushed (uniformPushedHsimp_of_actionImage hq) hq
-      _ = Nat.card (ZMod 2) := (Nat.card_zmod 2).symm
-      _ = Nat.card (WordH2 (fun i ↦ rho (genL i)) wC (ZMod 2)) :=
-        (Nat.card_congr (lWordH2TraceEquiv (fun i ↦ rho (genL i)) hq he hr).toEquiv).symm
-  exact ((Fintype.bijective_iff_injective_and_card f).mpr
-    ⟨hinj, by simpa only [Nat.card_eq_fintype_card] using hcard⟩).2
+  exact lScalarH2WordFlexible_surjective_of_actionImage rho hq he hr
 
 end Scalar
 
