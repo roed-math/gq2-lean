@@ -27,8 +27,6 @@ open GQ2 GQ2.FoxH GQ2.Dyadic
 
 section RefinedTarget
 
-set_option maxHeartbeats 2000000
-
 variable {iota rel : Type} [Fintype iota] [Fintype rel] [DecidableEq iota]
   {G A C : Type}
   [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
