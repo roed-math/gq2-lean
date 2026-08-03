@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Instances.N0Exact
+import GQ2.Dyadic.Count.RStage
 
 /-!
 # Exact lifting for the corrected procyclic-N presentation
@@ -424,6 +425,161 @@ def StageZ (alpha r h q : ℕ) (d : EtaData) : Prop :=
     Nat.card (RCocycle (blockFrameImpl T Blk hE₂) f₀.1.1) =
       (blockFrameImpl T Blk hE₂).zR
 
+/-! ## Corrected degree-indexed R-stage -/
+
+/-- Obstruction-zero separation for the displayed Npc presentation, derived from the same
+two-valued resolver and `Hsimp` payload used by the other exact-lifting clauses.  This is the
+sound replacement for the legacy `StageSep` premise: the block hypotheses `hRK` and `hR2`
+remain explicit. -/
+theorem homLift_of_obs_zeroRN {alpha r h q : ℕ} {d : EtaData}
+    (hsimp : Hsimp alpha r h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    [DistribMulAction ((displayedGamma alpha r h q d : Type)) (ZMod 2)]
+    [ContinuousSMul ((displayedGamma alpha r h q d : Type)) (ZMod 2)]
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE₂ : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ x ∈ Blk.frattiniK, ∀ k ∈ Blk.K, x * k = k * x)
+    (hR₂ : ∀ x ∈ Blk.frattiniK, x * x = 1)
+    (b : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type))
+      ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E)
+    (htriv : ∀ (γ : (displayedGamma alpha r h q d : Type)) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 ((displayedGamma alpha r h q d : Type)) (ZMod 2)) = 2)
+    (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE₂).TB)
+    (hg : obs (blockFrameImpl T Blk hE₂) (blockRObstructionData T Blk hE₂)
+      htriv hcard g.1.1 = 0) :
+    ∃ φ : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type)) Y,
+      ∀ γ, (blockFrameImpl T Blk hE₂).piB (φ γ) = g.1.1 γ := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  letI : DistribMulAction (Y ⧸ Blk.K) (ZMod 2) := scalarActionZmodTwo (Y ⧸ Blk.K)
+  have hb := resolvesAt_and_endpoint_npcFamOf
+    (Q := WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))
+    heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+    orderOf_wordLift_dvd_heisExponent (α := alpha) (r := r) (h := h) (q := q)
+    hα hqe d (fun _ ↦ 0)
+  have hresR : ResolvesAt
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW alpha r h d))
+      (resolvedFamily alpha r h q d
+        (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+      (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) := hb.1
+  have hresS : ResolvesAt
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW alpha r h d))
+      (resolvedFamily alpha r h q d
+        (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+      (WordLift (ZMod 2) (Y ⧸ Blk.K)) :=
+    (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero_and_even.1
+      heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
+      (α := alpha) (r := r) (h := h) (q := q) hα hqe d (fun _ ↦ 0)).1
+  have hRleK : Blk.frattiniK ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
+  set qKR : (blockFrameImpl T Blk hE₂).YB →* (Y ⧸ Blk.K) :=
+    QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+      (by rw [Subgroup.comap_id]; exact hRleK) with hqKR
+  set θ : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type)) (Y ⧸ Blk.K) :=
+    ⟨qKR.comp g.1.1.toMonoidHom,
+      (continuous_of_discreteTopology (f := qKR)).comp g.1.1.continuous_toFun⟩ with hθ
+  have hd : StokesDuality
+      (fun i => θ (gammaGen (2 + 2 * h) q (Words.Npc.npcW alpha r h d) i))
+      (resolvedFamily alpha r h q d
+        (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+      (Additive ↥Blk.frattiniK) :=
+    stokesDuality hsimp hα hqe θ heisLevel_ne_zero_and_even.1
+      heisLevel_ne_zero_and_even.2 hresS (Additive ↥Blk.frattiniK)
+      (RStageLocal.frattiniK_add_self hRK hR₂)
+  refine homLift_of_obs_zero_boundaryLiftK_markingN hE₂ hRK hR₂ htriv hcard b F g
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q
+      (Words.Npc.npcW alpha r h d))
+    (isWildTwo_gammaGen_of_surjective g.1.1 g.1.2) hresS hresR ?_ hb.2 hg
+  change StokesDuality (fun i => θ
+      (gammaGen (2 + 2 * h) q (Words.Npc.npcW alpha r h d) i))
+    (resolvedFamily alpha r h q d
+      (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+    (Additive ↥Blk.frattiniK)
+  exact hd
+
+/-- The corrected Npc R-cocycle coefficient, derived from its matched resolver and Stokes
+payload.  This eliminates the false rank-one-calibrated `StageZ` premise above degree one. -/
+theorem rCocycle_cardRN {alpha r h q : ℕ} {d : EtaData}
+    (hsimp : Hsimp alpha r h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE₂ : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ x ∈ Blk.frattiniK, ∀ k ∈ Blk.K, x * k = k * x)
+    (hR₂ : ∀ x ∈ Blk.frattiniK, x * x = 1)
+    (f₀ : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type)) Y)
+    (hf₀ : Function.Surjective f₀) :
+    Nat.card (RCocycle (blockFrameImpl T Blk hE₂) f₀) =
+      zRN (blockFrameImpl T Blk hE₂) (standardNumerics (2 * h + 2)) := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  letI : DistribMulAction (Y ⧸ Blk.K) (ZMod 2) := scalarActionZmodTwo (Y ⧸ Blk.K)
+  have hb := resolvesAt_and_endpoint_npcFamOf
+    (Q := WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))
+    heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+    orderOf_wordLift_dvd_heisExponent (α := alpha) (r := r) (h := h) (q := q)
+    hα hqe d (fun _ ↦ 0)
+  have hresR : ResolvesAt
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW alpha r h d))
+      (resolvedFamily alpha r h q d
+        (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+      (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) := hb.1
+  have hresS : ResolvesAt
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW alpha r h d))
+      (resolvedFamily alpha r h q d
+        (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+      (WordLift (ZMod 2) (Y ⧸ Blk.K)) :=
+    (resolvesAt_and_endpoint_npcFamOf heisLevel_ne_zero_and_even.1
+      heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
+      (α := alpha) (r := r) (h := h) (q := q) hα hqe d (fun _ ↦ 0)).1
+  set θ : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type)) (Y ⧸ Blk.K) :=
+    ⟨(QuotientGroup.mk' Blk.K).comp f₀.toMonoidHom,
+      (continuous_of_discreteTopology (f := QuotientGroup.mk' Blk.K)).comp
+        f₀.continuous_toFun⟩ with hθ
+  have hθsurj : Function.Surjective θ :=
+    (QuotientGroup.mk'_surjective Blk.K).comp hf₀
+  have hd : StokesDuality
+      (fun i => θ (gammaGen (2 + 2 * h) q (Words.Npc.npcW alpha r h d) i))
+      (resolvedFamily alpha r h q d
+        (Monoid.exponent (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))))
+      (Additive ↥Blk.frattiniK) :=
+    stokesDuality hsimp hα hqe θ heisLevel_ne_zero_and_even.1
+      heisLevel_ne_zero_and_even.2 hresS (Additive ↥Blk.frattiniK)
+      (RStageLocal.frattiniK_add_self hRK hR₂)
+  exact rCocycle_card_standard_zRN hE₂ hRK hR₂ f₀ hf₀
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q
+      (Words.Npc.npcW alpha r h d)) hresR
+    (isWildTwo_gammaGen_of_surjective θ hθsurj) (nCompact_degree h) hd hb.2
+
+/-- Corrected exact lifting for a displayed Npc presentation.  All three clauses now follow
+from `Hsimp` and arithmetic side conditions; no `StageSep` or `StageZ` premise remains. -/
+theorem exactLiftingDisplayedRN {alpha r h q : ℕ} {d : EtaData}
+    (hsimp : Hsimp alpha r h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (displayedGamma alpha r h q d) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  refine ⟨liftsOver_card hsimp hα hqe, ?_, ?_⟩
+  · intro Bg _ _ _ _ D hedge rho hrho
+    exact lem86 hsimp hα hqe D hedge rho hrho
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
+    letI := scalarActionZmodTwo ((displayedGamma alpha r h q d : Type))
+    haveI := scalarActionZmodTwo_continuousSMul
+      ((displayedGamma alpha r h q d : Type))
+    exact blockStageR136NK (standardNumerics (2 * h + 2)) T Blk hE₂
+      (scalarActionZmodTwo_triv _) (cardH2 hsimp hα hqe)
+      (tfg_of_isAdmissibleMarkedPresentation
+        (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q
+          (Words.Npc.npcW alpha r h d))) b F
+      (fun g hg => homLift_of_obs_zeroRN hsimp hα hqe T Blk hE₂ hRK hR₂ b F
+        (scalarActionZmodTwo_triv _) (cardH2 hsimp hα hqe) g hg)
+      (fun f₀ => rCocycle_cardRN hsimp hα hqe hE₂ hRK hR₂ f₀.1.1 f₀.1.2)
+
 /-! ## Assembly and the arbitrary-unit compatibility bridge -/
 
 /-- Exact lifting for a displayed corrected procyclic-`N` presentation. -/
@@ -465,6 +621,35 @@ theorem exactLifting {alpha r h q : ℕ} {eta : ℤ_[2]ˣ} (d : NpcDisplayFor et
       (standardNumerics (2 * h + 2)) := by
   rw [gamma_eq_display alpha r h q d]
   exact exactLiftingDisplayed hsimp hα hqe hsep hZ nuP
+
+/-- Corrected exact lifting for the arbitrary-unit Npc presentation.  The display equality is
+the only transport; both legacy R-stage premises have been discharged in
+`exactLiftingDisplayedRN`. -/
+theorem exactLiftingRN {alpha r h q : ℕ} {eta : ℤ_[2]ˣ} (d : NpcDisplayFor eta)
+    (hsimp : Hsimp alpha r h q d.data) (hα : 1 ≤ alpha) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma alpha r h q eta) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  rw [gamma_eq_display alpha r h q d]
+  exact exactLiftingDisplayedRN hsimp hα hqe nuP
+
+/-- Literal constructor regression: the RN theorem is about the corrected arbitrary-unit word
+`npcWUnit`, not the retired draft presentation. -/
+theorem exactLiftingRN_literal {alpha r h q : ℕ} {eta : ℤ_[2]ˣ} (d : NpcDisplayFor eta)
+    (hsimp : Hsimp alpha r h q d.data) (hα : 1 ≤ alpha) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR (2 + 2 * h) q (Words.Npc.npcWUnit alpha r h eta))
+      (2 * h + 2) q P nuP (standardNumerics (2 * h + 2)) :=
+  exactLiftingRN d hsimp hα hqe nuP
+
+/-- Transport only the numerical degree in the corrected RN semantics. -/
+theorem exactLiftingRN_standard_congr {Gam : ProfiniteGrp} {n m q : ℕ}
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} (hn : n = m) :
+    ExactLiftingSemanticsRN Gam n q P nuP (standardNumerics n) →
+      ExactLiftingSemanticsRN Gam m q P nuP (standardNumerics m) := by
+  subst m
+  exact id
 
 /-! ## Field-selector handoff -/
 
@@ -519,6 +704,35 @@ theorem exactLifting_of_fieldSelection
           2 + 2 * handleCount FP (.Npc alpha r eta) := by omega
       exact NCompact.exactLifting_standard_congr hn
         (exactLifting display hsimp (le_trans (by omega) valid.1) hqe hsep hZ nuP)
+
+/-- The field selector hands a chosen `.Npc` row to the corrected RN constructor with no
+legacy R-stage premises. -/
+theorem exactLiftingRN_of_fieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {alpha r q : ℕ} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Npc alpha r eta)
+    (hsimp : Hsimp alpha r (handleCount FP (.Npc alpha r eta)) q
+      (hbranch ▸ S.display).data)
+    (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      change ExactLiftingSemanticsRN
+        (GammaR (2 + 2 * handleCount FP (.Npc alpha r eta)) q
+          (Words.Npc.npcWUnit alpha r (handleCount FP (.Npc alpha r eta)) eta))
+        (2 + 2 * handleCount FP (.Npc alpha r eta)) q P nuP
+        (standardNumerics (2 + 2 * handleCount FP (.Npc alpha r eta)))
+      have hn : 2 * handleCount FP (.Npc alpha r eta) + 2 =
+          2 + 2 * handleCount FP (.Npc alpha r eta) := by omega
+      exact exactLiftingRN_standard_congr hn
+        (exactLiftingRN display hsimp (le_trans (by omega) valid.1) hqe nuP)
 
 end
 

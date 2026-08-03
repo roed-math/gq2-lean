@@ -11,6 +11,7 @@ import GQ2.Dyadic.LocalGauss.Main
 import GQ2.Dyadic.FieldDataEven
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.Dyadic.FinitelyGeneratedK
+import GQ2.Dyadic.Recursion.Recursion
 
 /-!
 # The certificate-main theorem  (dyadic campaign, ticket AS1)
