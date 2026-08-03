@@ -301,6 +301,7 @@ import GQ2.Dyadic.Count.HTwoModule
 import GQ2.Dyadic.Count.HTwoModuleGlobal
 import GQ2.Dyadic.Count.HTwoModuleNaturality
 import GQ2.Dyadic.Count.HTwoModuleHeisenberg
+import GQ2.Dyadic.Count.HTwoModuleMixed
 import GQ2.Dyadic.Count.HTwoModuleReflection
 import GQ2.Dyadic.Count.HTwoModuleAssembly
 import GQ2.Dyadic.Count.HTwoModuleFlexible
