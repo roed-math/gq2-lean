@@ -336,6 +336,7 @@ import GQ2.Dyadic.Instances.LWordDelta
 import GQ2.Dyadic.Instances.LWordExact
 import GQ2.Dyadic.Instances.LDeltaComparison
 import GQ2.Dyadic.Instances.LH2ComparisonDevissage
+import GQ2.Dyadic.Instances.GammaLH2RightExact
 import GQ2.Dyadic.Instances.LComparisonSquares
 import GQ2.Dyadic.Instances.LSourceEulerCard
 import GQ2.Dyadic.Instances.LSourceDualityAdapter
