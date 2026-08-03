@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
-import GQ2.Dyadic.Count.Compare
+import GQ2.Dyadic.Count.Marking
 import GQ2.Dyadic.Recursion.BlockRStage
 import GQ2.RStage.Local
 
@@ -30,6 +30,277 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable {T : MarkedTarget H E Y} {Blk : MinimalBlock T.LY}
+
+/-! ## Candidate-side separation by the marking route -/
+
+section Separation
+
+variable {ι κ : Type*} {Γ : Type} [Fintype ι] [Fintype κ] [DecidableEq ι]
+  [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι} {J : Set ι}
+
+/-- **Candidate-side `R`-separation, degree-generically.**
+
+Let `g : Γ → Y/R` be onto.  If its scalar obstruction vanishes for every
+`Y`-invariant character of `R`, then a Stokes-dual admissible presentation of `Γ` corrects a
+set-lift of the marked generators to a relator-killing marking in `Y`.  Admissible extension and
+marking rigidity then produce a continuous homomorphism `Γ → Y` over `g`.
+
+This is the generic core shared by all candidate presentations.  It does not assume its
+conclusion or an `R`-valued splitting cochain.  The two structural hypotheses `hRK` and `hR2`
+are essential: they make `R = Φ(K)` an elementary abelian `Y/K`-module and make the corrected
+marking admissible.  The proof uses only the presentation, its matched resolver, Stokes duality,
+and the already-proved scalar-cover characterization of `obs`. -/
+theorem homLift_of_obs_zero_markingN
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (g : ContinuousMonoidHom Γ (blockFrameImpl T Blk hE2).YB)
+    (hgsurj : Function.Surjective g)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwild2 : IsWildTwo J (fun i => g (gen i)))
+    (hres2 :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      letI := scalarActionZmodTwo (Y ⧸ Blk.K)
+      ResolvesAt W w (WordLift (ZMod 2) (Y ⧸ Blk.K)))
+    (hresR :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      ResolvesAt W w (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)))
+    (hd :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      StokesDuality
+        (fun i =>
+          QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+            (by rw [Subgroup.comap_id]; exact SectionSeven.frattiniLike_le Blk.K)
+            (g (gen i)))
+        w (Additive ↥Blk.frattiniK))
+    (hend : IsStokesEndpoint w)
+    (hg : obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+      htriv hcard g = 0) :
+    ∃ φ : ContinuousMonoidHom Γ Y,
+      ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g γ := by
+  classical
+  let RF := blockFrameImpl T Blk hE2
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  letI actC2 : DistribMulAction (Y ⧸ Blk.K) (ZMod 2) :=
+    scalarActionZmodTwo (Y ⧸ Blk.K)
+  have htrivC : ∀ (c : Y ⧸ Blk.K) (m : ZMod 2), c • m = m :=
+    scalarActionZmodTwo_triv _
+  have hRleK : Blk.frattiniK ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
+  set qKR : RF.YB →* (Y ⧸ Blk.K) :=
+    QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+      (by rw [Subgroup.comap_id]; exact hRleK) with hqKR
+  set θ : ContinuousMonoidHom Γ (Y ⧸ Blk.K) :=
+    ⟨qKR.comp g.toMonoidHom,
+      (continuous_of_discreteTopology (f := qKR)).comp g.continuous_toFun⟩ with hθ
+  have hθsurj : Function.Surjective θ := by
+    intro c
+    obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
+    obtain ⟨γ, hγ⟩ := hgsurj (RF.piB y)
+    refine ⟨γ, ?_⟩
+    show qKR (g γ) = QuotientGroup.mk' Blk.K y
+    rw [hγ]
+    rfl
+  set c : ι → (Y ⧸ Blk.K) := fun i => θ (gen i) with hc
+  have hdc : StokesDuality c w (Additive ↥Blk.frattiniK) := by
+    change StokesDuality (fun i => qKR (g (gen i))) w (Additive ↥Blk.frattiniK)
+    change StokesDuality (fun i => qKR (g (gen i))) w (Additive ↥Blk.frattiniK) at hd
+    exact hd
+  choose f₀ hf₀ using fun i => RF.piB_surj (g (gen i))
+  have hf₀C : ∀ i, QuotientGroup.mk' Blk.K (f₀ i) = c i := by
+    intro i
+    show QuotientGroup.mk' Blk.K (f₀ i) = qKR (g (gen i))
+    rw [← hf₀ i]
+    rfl
+  have hvmem : ∀ k, PWord.eval f₀ (W k) ∈ Blk.frattiniK := by
+    intro k
+    rw [← RF.ker_piB]
+    refine MonoidHom.mem_ker.mpr ?_
+    have hmap := PWord.map_eval
+      (⟨RF.piB, continuous_of_discreteTopology⟩ : ContinuousMonoidHom Y RF.YB) f₀ (W k)
+    rw [show RF.piB (PWord.eval f₀ (W k)) =
+        PWord.eval (fun i => RF.piB (f₀ i)) (W k) from hmap,
+      show (fun i => RF.piB (f₀ i)) = fun i => g (gen i) from funext hf₀,
+      hpres.rel g k]
+  set v : κ → Additive ↥Blk.frattiniK :=
+    fun k => Additive.ofMul ⟨PWord.eval f₀ (W k), hvmem k⟩ with hvdef
+  have hgen : Subgroup.closure (Set.range c) = ⊤ :=
+    closure_range_lower_eq_top θ (fun _ => rfl) hpres hθsurj
+  have hv : ∀ lam : ElemDual (Additive ↥Blk.frattiniK),
+      heisD0 (A := ElemDual (Additive ↥Blk.frattiniK)) c lam = 0 →
+        lam (∑ k, v k) = 0 := by
+    intro lam hlam
+    have hfix : lam ∈ fixedPts (Y ⧸ Blk.K) (ElemDual (Additive ↥Blk.frattiniK)) := by
+      have hmem : lam ∈
+          ((heisD0 (A := ElemDual (Additive ↥Blk.frattiniK)) c).ker : Set _) :=
+        AddMonoidHom.mem_ker.mpr hlam
+      rwa [ker_heisD0_eq_fixedPts hgen] at hmem
+    set dc : ↥(RCharSub Blk) :=
+      ⟨lam, fun y r => RStageLocal.elemDual_fixed_apply_conj hRK lam hfix y r⟩ with hdc
+    by_cases hdc0 : dc = 0
+    · have hlam0 : lam = 0 := congrArg Subtype.val hdc0
+      rw [hlam0]
+      rfl
+    · have hne : (blockRObstructionData T Blk hE2).toDR dc ≠ RF.zeroDR := by
+        intro heq
+        apply hdc0
+        rw [← Equiv.symm_apply_apply (blockRObstructionData T Blk hE2).toDR dc, heq]
+        exact (blockRObstructionData T Blk hE2).h0
+      let Q := RF.scalarCover ((blockRObstructionData T Blk hE2).toDR dc) hne
+      obtain ⟨gc, hgc⟩ := (obs_zero_iff_lifts RF (blockRObstructionData T Blk hE2)
+        htriv hcard g dc hne).mp (LinearMap.congr_fun hg dc)
+      have hgcC : ∀ i, qKR (Q.p (gc (gen i))) = c i := by
+        intro i
+        rw [hgc]
+        rfl
+      have hcov : ∀ i, Q.p
+          ((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne (f₀ i))
+          = Q.p (gc (gen i)) := by
+        intro i
+        rw [← MonoidHom.comp_apply,
+          (blockRObstructionData T Blk hE2).coverMap_lifts, hf₀ i, hgc]
+      obtain ⟨x, hx⟩ := exists_kernel_offset Q.p (coverJ Q)
+        (fun z hz => exists_coverJ_of_mem_ker Q hz)
+        (fun i => (blockRObstructionData T Blk hE2).coverMap
+          ((blockRObstructionData T Blk hE2).toDR dc) hne (f₀ i))
+        (fun i => gc (gen i)) hcov
+      have hker : ∀ k, Q.p
+          ((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne (PWord.eval f₀ (W k))) = 1 := by
+        intro k
+        rw [← MonoidHom.comp_apply,
+          (blockRObstructionData T Blk hE2).coverMap_lifts]
+        exact MonoidHom.mem_ker.mp (by rw [RF.ker_piB]; exact hvmem k)
+      choose ζ hζ using fun k => exists_coverJ_of_mem_ker Q (hker k)
+      have hζeval : ∀ k, PWord.eval (fun i => coverJ Q (x i) * gc (gen i)) (W k)
+          = coverJ Q (ζ k) := by
+        intro k
+        rw [show (fun i => coverJ Q (x i) * gc (gen i)) =
+            fun i => (blockRObstructionData T Blk hE2).coverMap
+              ((blockRObstructionData T Blk hE2).toDR dc) hne (f₀ i) from
+                funext fun i => (hx i).symm]
+        change PWord.eval
+            (fun i => discreteCMH ((blockRObstructionData T Blk hE2).coverMap
+              ((blockRObstructionData T Blk hE2).toDR dc) hne) (f₀ i)) (W k) = _
+        exact (PWord.map_eval
+          (discreteCMH ((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne)) f₀ (W k)).symm.trans (hζ k)
+      have hsum : ∑ k, ζ k = 0 :=
+        sum_relatorFib_eq_zero (qKR.comp Q.p) (coverJ Q) htrivC
+          (coverJ_add Q) (coverJ_comm Q) (coverJ_injective Q) hpres hres2
+          (lower_rel θ (fun _ => rfl) hpres hres2) hend gc hgcC x ζ hζeval
+      rw [map_sum]
+      calc
+        ∑ k, lam (v k) = ∑ k, ζ k := by
+          apply Finset.sum_congr rfl
+          intro k _
+          rw [hvdef]
+          change (blockRObstructionData T Blk hE2).pair dc
+              (Additive.ofMul (⟨PWord.eval f₀ (W k), hvmem k⟩ : ↥Blk.frattiniK)) = ζ k
+          rw [(blockRObstructionData T Blk hE2).pair_coverMap dc hne,
+            hζ k, show coverJ Q (ζ k) = Q.z ^ (ζ k).val from rfl]
+          change CentralObstruction.zsign (trivialRCD Q) (Q.z ^ (ζ k).val) = ζ k
+          exact CentralObstruction.zsign_z_pow (trivialRCD Q) (ζ k)
+        _ = 0 := hsum
+  obtain ⟨x, hx⟩ := AddMonoidHom.mem_range.mp (sepWordN hdc v hv)
+  letI actY : DistribMulAction Y (Additive ↥Blk.frattiniK) :=
+    DistribMulAction.compHom _ (QuotientGroup.mk' Blk.K)
+  set j : Additive ↥Blk.frattiniK → Y :=
+    fun a => ((Additive.toMul a : ↥Blk.frattiniK) : Y) with hj
+  have hact : ∀ (y : Y) (a : Additive ↥Blk.frattiniK),
+      y • a = QuotientGroup.mk' Blk.K y • a := fun _ _ => rfl
+  have hjmul : ∀ a b : Additive ↥Blk.frattiniK, j (a + b) = j a * j b := fun _ _ => rfl
+  have hjconj : ∀ (y : Y) (a : Additive ↥Blk.frattiniK),
+      j (y • a) = y * j a * y⁻¹ := by
+    intro y a
+    rw [hact y a]
+    have hs := RStageLocal.conjC_smul_of_mk hRK y (Additive.toMul a)
+    exact congrArg
+      (fun z : Additive ↥Blk.frattiniK => ((Additive.toMul z : ↥Blk.frattiniK) : Y)) hs
+  have hjker : ∀ a : Additive ↥Blk.frattiniK, RF.piB (j a) = 1 := fun a =>
+    MonoidHom.mem_ker.mp (by rw [RF.ker_piB]; exact (Additive.toMul a).2)
+  have hker2 : ∀ y : Y, RF.piB y = 1 → y * y = 1 := by
+    intro y hy
+    apply hR2 y
+    rw [← RF.ker_piB]
+    exact MonoidHom.mem_ker.mpr hy
+  have hkill : ∀ k, PWord.eval (fun i => j (x i) * f₀ i) (W k) = 1 := by
+    intro k
+    rw [eval_corrected_heisD1 (QuotientGroup.mk' Blk.K) j hact hjmul hjconj hf₀C hresR x k,
+      show heisD1 (A := Additive ↥Blk.frattiniK) c w x k = v k from congrFun hx k,
+      hvdef]
+    exact hR2 _ (hvmem k)
+  obtain ⟨φ, hφ⟩ := hpres.extend (fun i => j (x i) * f₀ i) hkill
+    (isWildTwo_corrected RF.piB j hjker hf₀ hwild2 hker2 x)
+  have hpin : (⟨RF.piB.comp φ.toMonoidHom,
+      (continuous_of_discreteTopology (f := ⇑RF.piB)).comp φ.continuous_toFun⟩ :
+        ContinuousMonoidHom Γ RF.YB) = g := by
+    refine eq_of_eqOn_gen hpres.gen_top fun i => ?_
+    show RF.piB (φ (gen i)) = g (gen i)
+    rw [hφ i]
+    exact pi_corrected RF.piB j hjker hf₀ x i
+  exact ⟨φ, fun γ => congrArg (fun ψ : ContinuousMonoidHom Γ RF.YB => ψ γ) hpin⟩
+
+/-- **Boundary-lift regression for candidate-side `R`-separation.**
+
+This is `homLift_of_obs_zero_markingN` in exactly the `BoundaryLiftsK` shape consumed by
+`stageR136_ofRSepDataK`.  In particular, the bundled surjectivity is used as an input; the
+boundary equation itself is irrelevant to the marking correction.  Unlike the old `StageSep`
+residuals, the theorem keeps the necessary block hypotheses `hRK` and `hR2` explicit. -/
+theorem homLift_of_obs_zero_boundaryLiftK_markingN
+    {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E)
+    (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwild2 : IsWildTwo J (fun i => g.1.1 (gen i)))
+    (hres2 :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      letI := scalarActionZmodTwo (Y ⧸ Blk.K)
+      ResolvesAt W w (WordLift (ZMod 2) (Y ⧸ Blk.K)))
+    (hresR :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      ResolvesAt W w (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)))
+    (hd :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      StokesDuality
+        (fun i =>
+          QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+            (by rw [Subgroup.comap_id]; exact SectionSeven.frattiniLike_le Blk.K)
+            (g.1.1 (gen i)))
+        w (Additive ↥Blk.frattiniK))
+    (hend : IsStokesEndpoint w)
+    (hg : obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+      htriv hcard g.1.1 = 0) :
+    ∃ φ : ContinuousMonoidHom Γ Y,
+      ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ := by
+  exact homLift_of_obs_zero_markingN hE2 hRK hR2 htriv hcard g.1.1 g.1.2 hpres
+    hwild2 hres2 hresR hd hend hg
+
+end Separation
 
 section Count
 
