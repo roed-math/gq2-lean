@@ -557,6 +557,31 @@ structure H2LongExactTail
 
 end ContinuousLESTail
 
+section ContinuousLESTailConstructor
+
+variable {G A' A A'' : Type*}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [AddCommGroup A'] [TopologicalSpace A'] [IsTopologicalAddGroup A']
+  [DiscreteTopology A'] [Finite A'] [DistribMulAction G A'] [ContinuousSMul G A']
+  [AddCommGroup A] [TopologicalSpace A] [IsTopologicalAddGroup A]
+  [DiscreteTopology A] [Finite A] [DistribMulAction G A] [ContinuousSMul G A]
+  [AddCommGroup A''] [TopologicalSpace A''] [IsTopologicalAddGroup A'']
+  [DiscreteTopology A''] [Finite A''] [DistribMulAction G A''] [ContinuousSMul G A'']
+
+/-- The finite-discrete coefficient snake supplies the entire degree-`1`/`2` exact window.
+Only the independent CD-2/right-surjectivity input remains to close `H2LongExactTail`. -/
+noncomputable def FiniteDiscreteCoeffSES.toH2LongExactTail
+    (S : FiniteDiscreteCoeffSES (G := G) (A' := A') (A := A) (A'' := A''))
+    (hright : H2RightExactAt S.g S.continuous_g S.g_equivariant) :
+    H2LongExactTail S.f S.g S.continuous_f S.continuous_g
+      S.f_equivariant S.g_equivariant where
+  delta1 := S.delta1
+  exact_left := S.exact_left
+  exact_middle := S.exact_middle
+  right_exact := hright
+
+end ContinuousLESTailConstructor
+
 /-! ## Composition-series induction for an arbitrary coefficient property -/
 
 universe u v
