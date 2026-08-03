@@ -55,13 +55,19 @@ theorem lUniform_scalarH2WordFlexible_surjective_of_actionImage
   letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
   letI : DistribMulAction GammaL (ZMod 2) := scalarActionZmodTwo GammaL
   letI : ContinuousSMul GammaL (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaL
+  letI : DistribMulAction GammaL (MuN 2) :=
+    { smul := fun _ m ↦ m
+      one_smul := fun _ ↦ rfl
+      mul_smul := fun _ _ _ ↦ rfl }
+  letI : ContinuousSMul GammaL (MuN 2) := ⟨continuous_snd⟩
   have he : Odd eC := odd_omega2Exp (fourMulExponent_ne_zero_and_even C).1
     (fourMulExponent_ne_zero_and_even C).2
   have hres : ResolvesAt
       (gammaFam (2 * h + 1) q (Words.LSq.lSqW h)) wC (WordLift (ZMod 2) C) :=
     lUniform_wordLift_resolver (C := C) (h := h) (q := q) (by decide)
   have hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genL i)) (wC k) = 1 :=
-    lSource_rel_death rho hres
+    lower_rel (A := ZMod 2) rho (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (Words.LSq.lSqW h)) hres
   let f := lScalarH2WordFlexible rho (fun _ _ ↦ rfl) he
   have hinj : Function.Injective f :=
     lScalarH2WordFlexible_injective rho (fun _ _ ↦ rfl) he
