@@ -386,6 +386,7 @@ import GQ2.Dyadic.Instances.GammaLRamifiedPhase
 import GQ2.Dyadic.Instances.GammaLRamifiedGraphPhase
 import GQ2.Dyadic.Instances.GammaLRelationModuleResolver
 import GQ2.Dyadic.Instances.GammaLRelationModuleGlobal
+import GQ2.Dyadic.Instances.GammaLRelationModuleRefined
 import GQ2.Dyadic.Instances.GammaLRelationBasis
 import GQ2.Dyadic.Instances.GammaLStronglyFree
 import GQ2.Dyadic.Count.H2SplitRightExact
