@@ -6,6 +6,7 @@ Authors: Geoffrey Roe
 import GQ2.Dyadic.Instances.LUniformHeisenbergResolver
 import GQ2.Dyadic.Certificates.LFox
 import GQ2.Dyadic.Certificates.Mpc
+import GQ2.Dyadic.Count.Variation
 import GQ2.Roe.DualityAssembly
 
 /-!
@@ -43,6 +44,18 @@ theorem resolverLifts_uniformHeis
     (orderOf_heisLift_dvd_four_mul hA₂
       (fun g : C ↦ Monoid.order_dvd_exponent g) p)
     (fourMulExponent_ne_zero_and_even C).1
+
+/-- The same uniform resolver on the primal split target, obtained by its faithful inclusion in
+the Heisenberg lift. -/
+theorem resolverLifts_uniformWordLift
+    {C A : Type*} [Group C] [Finite C] [AddCommGroup A] [Finite A]
+    [DistribMulAction C A] (hA₂ : ∀ a : A, a + a = 0) :
+    ResolverLifts
+      (fun _ ↦ (omega2Exp (4 * Monoid.exponent C) : ℤ))
+      (WordLift A C) := by
+  intro p
+  apply Count.heisPrim_injective
+  rw [map_zpow, resolverLifts_uniformHeis hA₂, powOmega2_map]
 
 /-- The generic Heisenberg generator marking at the `n = 1` adapter is the old Roe
 `heisMarking`, generator for generator. -/
@@ -348,6 +361,65 @@ theorem heisEta1_lSqFam_handle_decomposition_unram
   rw [Certificates.LSqStokes.heisZ_lSq_handle_stable t x y
     (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) hA₂ hwild hτ rfl]
   abel
+
+/-- The same handle decomposition with the two expanded core terms rebundled as the base
+middle Stokes map. -/
+theorem heisEta1_lSqFam_eq_base_add_handles_unram
+    {h q e : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking (2 * h + 1) C) (x : Generator (2 * h + 1) → A)
+    (y : Generator (2 * h + 1) → ElemDual A) (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a) :
+    heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h q e) x y
+      = heisEta1 ⇑(LSq.coreMarking t) (Certificates.LSqStokes.lSqFam 0 q e)
+          (LSq.coreRestrict h A x) (LSq.coreRestrict h (ElemDual A) y)
+        + ∑ j, (y (handleU j) (x (handleV j))
+          + y (handleV j) (x (handleU j))) := by
+  rw [heisEta1_lSqFam_handle_decomposition_unram t x y hA₂ hwild hτ]
+  rw [← Certificates.LSqStokes.heisEta1_lSqFam_apply
+    (h := 0) (q := q) (e := e) (t := LSq.coreMarking t) (x := LSq.coreRestrict h A x)
+    (y := LSq.coreRestrict h (ElemDual A) y)]
+
+/-- In the unramified class, the full first differential is the base first differential after
+forgetting the handle coordinates.  Both the tame and wild rows have zero handle columns. -/
+theorem heisD1_lSqFam_eq_base_comp_unram
+    {h : ℕ} {C A : Type*} [Group C] [Finite C] [AddCommGroup A] [Finite A]
+    [DistribMulAction C A]
+    (t : Marking (2 * h + 1) C) (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a) (x : Generator (2 * h + 1) → A) :
+    heisD1 ⇑t (Certificates.LSqStokes.lSqFam h 2
+        (omega2Exp (4 * Monoid.exponent C))) x
+      = heisD1 ⇑(LSq.coreMarking t) (Certificates.LSqStokes.lSqFam 0 2
+          (omega2Exp (4 * Monoid.exponent C))) (LSq.coreRestrict h A x) := by
+  let e := omega2Exp (4 * Monoid.exponent C)
+  funext k
+  fin_cases k
+  · change
+      (FreeGroup.lift (heisGen ⇑t x 0)
+        (heisToFree (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ))
+          (Certificates.tameRelW (2 * h + 1) 2))).a =
+      (FreeGroup.lift (heisGen ⇑(LSq.coreMarking t) (LSq.coreRestrict h A x) 0)
+        (heisToFree (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ))
+          (Certificates.tameRelW 1 2))).a
+    rw [← heisEvalZ_eq_lift, ← heisEvalZ_eq_lift,
+      Certificates.MProcyclic.heisEvalZ_a_eq_foxD (resolverLifts_uniformWordLift hA₂),
+      Certificates.MProcyclic.heisEvalZ_a_eq_foxD (resolverLifts_uniformWordLift hA₂),
+      Certificates.foxD_tameRelW_unram t _ _ hA₂ hτ (by decide),
+      Certificates.foxD_tameRelW_unram (LSq.coreMarking t) _ _ hA₂ hτ (by decide)]
+    rfl
+  · change
+      (FreeGroup.lift (heisGen ⇑t x 0)
+        (heisToFree (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (lSqW h))).a =
+      (FreeGroup.lift (heisGen ⇑(LSq.coreMarking t) (LSq.coreRestrict h A x) 0)
+        (heisToFree (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (lSqW 0))).a
+    rw [← heisEvalZ_eq_lift, ← heisEvalZ_eq_lift,
+      Certificates.MProcyclic.heisEvalZ_a_eq_foxD (resolverLifts_uniformWordLift hA₂),
+      Certificates.MProcyclic.heisEvalZ_a_eq_foxD (resolverLifts_uniformWordLift hA₂)]
+    have hrow := congrArg (fun f ↦ f x)
+      (LSq.foxDHom_lSq_eq_base_comp_unram t (fun _ ↦ (e : ℤ))
+        (fun _ ↦ (e : ℤ)) hA₂ hwild hτ)
+    simpa using hrow
 
 end
 
