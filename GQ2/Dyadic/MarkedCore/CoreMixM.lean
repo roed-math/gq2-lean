@@ -81,8 +81,10 @@ applies first.
 * **§4** the payoff: `MCoreMixHypothesisWide` for the **whole** displayed `M5` stratum, and the
   χ-preserving marked-generator form (`mMixFamily_coreMix`), the `M` mirror of
   `nMixPairHypothesis_coreMix`;
-* **§5** stress pins at `(α, h) = (2, 1)`;
-* **§6** what stays binder-shaped on `M` after this file.
+* **§5** the marking-level payoff: only M3 scaling remains conditional, and
+  `mMixHypothesis_of_scaling` derives the old all-in-one correction contract;
+* **§6** stress pins at `(α, h) = (2, 1)`;
+* **§7** the distinction between the family-level and marking-level residues.
 -/
 
 open Multiplicative
@@ -321,7 +323,120 @@ theorem nuFrame_mLambdaEquiv_eq (hα : 1 ≤ α) (k : ℤ_[2])
 
 end Payoff
 
-/-! ## §5 Stress pins at `(α, h) = (2, 1)`
+/-! ## §5 The marking correction needs only the M3 scaling face
+
+The family audit above has a sharper consequence than family-level stabilizer generation.  To
+correct one particular marking, the non-symplectic M4/M6/M7 directions are unnecessary:
+
+* M3 normalizes the unit `C̄₀`-value to `1`;
+* the handle theorem clears every handle row while preserving `C̄₀`;
+* exact M2 clears the `D̄`-value against that pivot;
+* exact M5 clears the `B̄`-value against the same pivot.
+
+The relation then forces the `Ā`-value.  Thus the old marking-shaped `MMixHypothesis` follows
+from the single M3 row binder below.  This is uniform in `h` and in every `α ≥ 2`; in particular
+the compact `(α,h)=(2,0)` frontier has no residual M4/M6/M7 assumption.
+-/
+
+section ScalingCorrection
+
+variable (α h : ℕ)
+
+/-- **The sole residual binder for correcting an M-marking.**  For every unit `γ`, a
+χ-preserving automorphism scales the `C̄₀`-value of every marking by `γ`.  This is precisely the
+M3/S2 face needed by the correction algorithm; no behavior on the other rows is assumed. -/
+def MScalingHypothesis (α h : ℕ) : Prop :=
+  ∀ γ : ℤ_[2]ˣ, ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+    (∀ x, chiM α h (Ψ x) = chiM α h x)
+      ∧ ∀ f : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]),
+        toAdd (f (Ψ (dmC α h))) = (γ : ℤ_[2]) * toAdd (f (dmC α h))
+
+/-- **Regression theorem for the old M correction contract.**  M3 scaling alone implies the
+whole marking-shaped `MMixHypothesis`: handles, M2, and the full M5 family are already exact
+theorems.  This is the strongest sound simplification supported by the current automorphism
+library; normalizing the unit `C̄₀`-value is the only remaining binder. -/
+theorem mMixHypothesis_of_scaling (hα : 2 ≤ α) (hScal : MScalingHypothesis α h) :
+    MMixHypothesis α h (by omega) := by
+  classical
+  intro nu' hc _hU _hV
+  -- Step 1 (M3/S2): normalize the pivot.  Other rows may move arbitrarily.
+  obtain ⟨Ψs, hsChi, hsC⟩ := hScal hc.unit⁻¹
+  set nu2 : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]) :=
+    nu'.comp (autHom Ψs) with hnu2
+  have hc2 : toAdd (nu2 (dmC α h)) = 1 := by
+    show toAdd (nu' (Ψs (dmC α h))) = 1
+    rw [hsC nu']
+    calc
+      ((hc.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * toAdd (nu' (dmC α h))
+          = ((hc.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((hc.unit : ℤ_[2]ˣ) : ℤ_[2]) := by
+              rw [hc.unit_spec]
+      _ = 1 := by rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  -- Step 2 (theorem): clear handles after scaling, preserving the normalized pivot.
+  obtain ⟨Ψh, -, hhChi, hU, hV, hpiv⟩ :=
+    mHandleMixLift α h nu2 (by rw [hc2]; exact isUnit_one)
+  set nu3 : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]) :=
+    nu2.comp (autHom Ψh) with hnu3
+  have hc3 : toAdd (nu3 (dmC α h)) = 1 := by
+    show toAdd (nu2 (Ψh (dmC α h))) = 1
+    rw [hpiv]
+    exact hc2
+  have hU3 : ∀ j : Fin h, nu3 (dmGen α h (handleIdxU j)) = 1 := hU
+  have hV3 : ∀ j : Fin h, nu3 (dmGen α h (handleIdxV j)) = 1 := hV
+  -- Step 3 (exact M2): clear D̄ against C̄₀ = 1.
+  set k : ℤ_[2] := -(toAdd (nu3 (dmD α h))) with hk
+  set nu4 : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]) :=
+    nu3.comp (autHom (dmTauDEquiv α h k)) with hnu4
+  have hgen4 : ∀ i : Fin (coreRank h),
+      nu4 (dmGen α h i) = nu3 (tauDMark (isProP_DM α h) k (dmGen α h) i) := fun i => by
+    show nu3 (dmTauDEquiv α h k (dmGen α h i)) = _
+    rw [dmTauDEquiv_gen]
+  have hc4 : toAdd (nu4 (dmC α h)) = 1 := by
+    rw [show dmC α h = dmGen α h 2 from rfl, hgen4, tauDMark_two]
+    exact hc3
+  have hd4 : toAdd (nu4 (dmD α h)) = 0 := by
+    rw [show dmD α h = dmGen α h 3 from rfl, hgen4, tauDMark_three, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo (isProP_DM α h) nu3, show dmGen α h 2 = dmC α h from rfl, hc3,
+      show dmGen α h 3 = dmD α h from rfl, hk, mul_one, neg_add_cancel]
+  have hU4 : ∀ j : Fin h, nu4 (dmGen α h (handleIdxU j)) = 1 := fun j => by
+    rw [hgen4, tauDMark_of_ne _ _ _ (handleIdxU_ne_three j)]
+    exact hU3 j
+  have hV4 : ∀ j : Fin h, nu4 (dmGen α h (handleIdxV j)) = 1 := fun j => by
+    rw [hgen4, tauDMark_of_ne _ _ _ (handleIdxV_ne_three j)]
+    exact hV3 j
+  -- Step 4 (exact M5): clear B̄ against the same pivot.
+  set b : ℤ_[2] := -(toAdd (nu4 (dmB α h))) with hb
+  obtain ⟨Ψ5, h5Chi, h5Frame⟩ := mMixFamily_coreMix α h hα b
+  refine ⟨Ψ5.trans ((dmTauDEquiv α h k).trans (Ψh.trans Ψs)), fun x => ?_, ?_⟩
+  · show chiM α h (Ψs (Ψh (dmTauDEquiv α h k (Ψ5 x)))) = chiM α h x
+    rw [hsChi, hhChi, chiM_dmTauDEquiv, h5Chi]
+  · intro i
+    have hrow := congrFun (h5Frame nu4) i
+    rw [nuFrame_apply, nFrameMixX1] at hrow
+    change nu4 (Ψ5 (dmGen α h i)) = nuM α h (by omega) (dmGen α h i)
+    refine Multiplicative.toAdd.injective ?_
+    rcases nCoreIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+    · rw [hrow, Function.update_of_ne nCoreZero_ne_one, nuFrame_apply,
+        show dmGen α h 0 = dmA α h from rfl, nuM_dmA, toAdd_ofAdd]
+      have hA := mChar_frameZero α h (by omega) nu4
+      change toAdd (nu4 (dmA α h)) =
+        -((2 : ℤ_[2]) ^ (α - 1) * toAdd (nu4 (dmC α h))) at hA
+      rw [hc4, mul_one] at hA
+      exact hA
+    · rw [hrow, Function.update_self, nuFrame_apply, nuFrame_apply,
+        show dmGen α h 1 = dmB α h from rfl, show dmGen α h 2 = dmC α h from rfl,
+        hc4, mul_one, hb, nuM_dmB, toAdd_ofAdd, add_neg_cancel]
+    · rw [hrow, Function.update_of_ne nCoreTwo_ne_one, nuFrame_apply,
+        show dmGen α h 2 = dmC α h from rfl, hc4, nuM_dmC, toAdd_ofAdd]
+    · rw [hrow, Function.update_of_ne nCoreThree_ne_one, nuFrame_apply,
+        show dmGen α h 3 = dmD α h from rfl, hd4, nuM_dmD, toAdd_ofAdd]
+    · rw [hrow, Function.update_of_ne (nHandleIdxU_ne_one j), nuFrame_apply, hU4 j,
+        nuM_handleU, toAdd_one]
+    · rw [hrow, Function.update_of_ne (nHandleIdxV_ne_one j), nuFrame_apply, hV4 j,
+        nuM_handleV, toAdd_one]
+
+end ScalingCorrection
+
+/-! ## §6 Stress pins at `(α, h) = (2, 1)`
 
 `α = 2` is the smallest valid exponent and `h = 1` the smallest instance with a genuine handle,
 matching the lane's pin idiom.  At `α = 2` the twist coefficient is `1 − 2 = −1`, so the pins
@@ -361,16 +476,21 @@ example (f : ContinuousMonoidHom (DM 2 1 : Type) (Multiplicative ℤ_[2])) :
     nuFrame f (dmGen 2 1) 0 = -(2 * nuFrame f (dmGen 2 1) 2) := by
   simpa using mChar_frameZero 2 1 one_le_two f
 
+/-- Regression pin at the smallest compact M-core: the old all-in-one correction contract now
+follows from the M3 scaling face alone. -/
+example (hScal : MScalingHypothesis 2 0) : MMixHypothesis 2 0 (by omega) :=
+  mMixHypothesis_of_scaling 2 0 le_rfl hScal
+
 end StressPin
 
-/-! ## §6 What stays binder-shaped on `M`
+/-! ## §7 What stays binder-shaped on `M`
 
 HM6ef's §6 listed two residues.  The first — "the `M5` isolation's last shear" — is closed by
 this file: `mCoreMixHypothesisWide_pureM5` lands MC1's *displayed* `M5` over `A⁺(P,h)` at every
 2-adic parameter, and `mMixFamily_coreMix` states it at the marked generators with χ.  What
 remains is:
 
-* **`⟨M4, M6, M7⟩`** (memo §4.2, §4.3) — unchanged, and unchanged *in kind*: these directions are
+* **`⟨M4, M6, M7⟩` at the family level** (memo §4.2, §4.3) — unchanged, and unchanged *in kind*: these directions are
   structurally obstructed rather than merely unbuilt (they are not symplectic, hence not reachable
   by any relator-preserving word automorphism), so no widening of the generating set produces
   them.  `MCoreMixHypothesisWide α h ⟨M4, M6, M7⟩` therefore stays a binder, with MC1 §8
@@ -379,16 +499,15 @@ remains is:
   (`HandleMixClear.lean:1154`), i.e. MC3's family `M3` (`Σ_γ : C₀ ↦ C₀^γ`), which runs through the
   *existing* axiom B8 exactly as its `N`-side counterpart does.  Untouched here.
 
-Two scoping notes, so that the boundary of this file is not mistaken for a mathematical one.
+Two scoping notes distinguish the family-generation question from the particular-marking
+correction actually consumed by compact certificates.
 
-1. **`MMixHypothesis` is not discharged, not even partially.**  MC3's binder
-   (`M.lean:1560`) is *marking-transport* shaped — "carry a cleared `ν'` to `ν_M`" — not
-   family shaped, and the `M` lane has no `mMixHypothesis_of_pair` analogue of MC4's
-   `nMixHypothesis_of_pair` to feed a family into it.  Consuming `mMixFamily_coreMix` there
-   needs the *other* strata as well (the `M4` unit scaling of the `B̄`-row and the `M3` unit
-   scaling of the `C̄₀`-row at least), so no corollary lands, and none is claimed.  Restating
-   `MMixHypothesis` in the consumed family form would change MC3's contract, which is an owner
-   call, not a worker one.
+1. **M4/M6/M7 are unnecessary for a particular marking.**  After M3 normalizes `C̄₀`, exact
+   M2 and M5 clear `D̄` and `B̄`; the handle theorem clears the remaining rows, and the relation
+   forces `Ā`.  This is `mMixHypothesis_of_scaling`, which derives MC3's full
+   `MMixHypothesis` contract from `MScalingHypothesis`.  No exact constructor for M3 itself is
+   present in the current library: its advertised B8/conjugator route therefore remains the
+   sole genuine correction binder.
 2. **`mCoreMixHypothesisWide_m5` is not superseded.**  HM6ef's statement is about the corrected
    twist `hm6FrameBDc k` at *general* `α ≥ 0`; this file's needs `α ≥ 2` for the unit, and `α ≥ 1`
    already for the pinning `Ā = −2^{α−1}C̄₀`.  Both stand.

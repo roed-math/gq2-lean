@@ -115,6 +115,37 @@ theorem marked_matching_certificate_KTwoM (B : MarkedRecip Rec K) (alpha h : ℕ
     (nuUrKTwo B).toMonoidHom f horient
     ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun) hMix hpivot
 
+/-- Preferred compact direct-`G_K(2)` constructor for the `M` core.  The genuine arithmetic
+level fact `r = 0` supplies a unit value on `ker χ`; the rank-four frame turns it into the
+`C̄₀` pivot; exact handle/M2/M5 corrections clear every other row.  Accordingly the only
+remaining group-theoretic input is the M3 unit-scaling face `MScalingHypothesis`, rather than
+the former all-in-one `MMixHypothesis`. -/
+theorem marked_matching_certificate_KTwoM_of_level_zero (B : MarkedRecip Rec K) (alpha : ℕ)
+    (halpha : 2 ≤ alpha) (D : MDecomposition alpha) (hr : B.r = 0)
+    (hScal : MScalingHypothesis alpha 0)
+    (f : ContinuousMulEquiv (DM alpha 0 : Type) (maxProPQuotient 2 (GalK K)))
+    (horient : ∀ x, chiCycKTwo (K := K) (f x) = chiM alpha 0 x) :
+    Nonempty (MarkedCoreCertificateKTwoM B alpha 0 (by omega)) := by
+  obtain ⟨gbar, hgchi, hgnu⟩ := B.nu_ker_chi_ge 1
+  obtain ⟨g, rfl⟩ := surjective_toAbK K gbar
+  let q : maxProPQuotient 2 (GalK K) := maxProPMk 2 (GalK K) g
+  let x : (DM alpha 0 : Type) := f.symm q
+  apply marked_matching_certificate_M_of_chiKer halpha (by omega) D
+    (chiCycKTwo (K := K)).toMonoidHom (nuUrKTwo B).toMonoidHom f horient
+    ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun) hScal
+  refine ⟨x, ?_, ?_⟩
+  · rw [← horient x]
+    change chiCycKTwo (K := K) (f (f.symm q)) = 1
+    rw [f.apply_symm_apply]
+    change chiCycKTwo (K := K) (maxProPMk 2 (GalK K) g) = 1
+    rw [chiCycKTwo_maxProPMk, ← chiCycKAb_toAbK]
+    exact hgchi
+  · change IsUnit (Multiplicative.toAdd (nuUrKTwo B (f (f.symm q))))
+    rw [f.apply_symm_apply]
+    change IsUnit (Multiplicative.toAdd (nuUrKTwo B (maxProPMk 2 (GalK K) g)))
+    rw [nuUrKTwo_maxProPMk, hgnu, hr, pow_zero, one_mul]
+    exact isUnit_one
+
 /-- Direct-`G_K(2)` production for an odd `L` marked-core certificate.  This is a certificate
 adapter, not a general odd-rank classification theorem: the abstract equivalence and both
 marked-correction strata remain explicit inputs. -/

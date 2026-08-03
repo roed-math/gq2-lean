@@ -61,17 +61,17 @@ The three lifting strata (MC1 §5):
   consumed through `nMarkedCorrection` / `prop_MC_M_correction`).
 * **S2** (unit scalings): the `NScalingHypothesis` remains relevant to realizing arbitrary
   `GL₂(ℤ₂)` plane actions, but is unnecessary for correcting a particular primitive marking:
-  `nSL2_normalize_pivot` uses the exact determinant-one N2/N3 action.  The M-side scaling face
-  remains part of `MMixHypothesis`.
+  `nSL2_normalize_pivot` uses the exact determinant-one N2/N3 action.  On M the residual face is
+  isolated as `MScalingHypothesis`.
 * **S3** (core mixing): **N-side a THEOREM** (`nMixHypothesis_coreMix`, via HM6ef's widened
-  `A⁺(P,h)`); **M-side** the marking-transport binder `MMixHypothesis` (NOT restated in family
-  form — owner call pending per the HM6g ruling; `mMixFamily_coreMix` is consumed as-is where
-  a family-shaped M5 row is wanted, see the §7 pins).
+  `A⁺(P,h)`); **M-side M5 is a THEOREM** (`mMixFamily_coreMix`).  The family-level M4/M6/M7
+  directions remain unavailable, but `mMixHypothesis_of_scaling` proves they are unnecessary
+  for correcting one particular marking.
 
-Net binder inventory for the N-core correction: **none**.  For the M-core:
-`MMixHypothesis` **alone** (it subsumes the M-side S2/S3 residual `⟨M4,M6,M7⟩` +
-`MLabHypothesis`-adjacent content in transport shape); the pivot-unit row below is *marked
-data*, the exact analogue of the N-side pair clause, and on the compact row it is a theorem.
+Net binder inventory for the N-core correction: **none**.  For the preferred compact M-core
+correction: **`MScalingHypothesis` alone**.  The older uniform API still accepts
+`MMixHypothesis` for compatibility; `mMixHypothesis_of_scaling` constructs it from the smaller
+binder at `α ≥ 2`.  The pivot-unit row below is marked data and on the compact row is a theorem.
 
 ## The compact-`M` change of variables (errata item 3 — DERIVED, ticket MC-CoV)
 
