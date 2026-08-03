@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.Dyadic.SemanticSelected
 import GQ2.Dyadic.MarkedCore.Cores
+import GQ2.UnitNormIndex
 
 /-!
 # Arithmetic branch selection for a finite dyadic field
@@ -55,8 +56,8 @@ noncomputable section
 /-! ## Field data already available in the repository -/
 
 /-- The minimal numerical identification between `FieldParameters` and a finite field carrying
-a unit filtration.  The divisibility `f ∣ n` remains part of `params`; the constructor below
-derives it from the single still-missing fundamental identity `[K : Q_2] = e f`. -/
+a unit filtration.  The only arithmetic content beyond the two displayed identifications is the
+divisibility `FF.f ∣ [K : Q_2]` already carried by `FieldParameters`. -/
 structure FiniteDyadicParameters (K : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] K] (FF : DyadicUnitFiltration K) where
   params : FieldParameters
@@ -72,15 +73,11 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
 theorem qK_eq_qOf (D : FiniteDyadicParameters K FF) : D.params.qK = qOf K FF := by
   rw [D.params.qK_eq, qOf, D.residueDegree_eq]
 
-/-- Construct the numerical parameter record directly from the unit-filtration invariants once
-the fundamental identity `[K : Q_2] = e f` is available.  That identity is deliberately the
-only hypothesis: the current `DyadicUnitFiltration` interface records `e` and `f` but does not
-relate their product to `Module.finrank`.
-
-In particular, callers no longer have to choose `qK`, prove positivity, or separately prove
-`f | n`; all of those fields are consequences of the filtration. -/
-def ofFundamentalIdentity (FF : DyadicUnitFiltration K)
-    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) : FiniteDyadicParameters K FF where
+/-- Construct the numerical parameter record from the weakest arithmetic fact it consumes:
+the filtration's residue degree divides the field degree.  In particular callers do not choose
+`qK` or separately prove positivity. -/
+def ofResidueDegreeDvd (FF : DyadicUnitFiltration K)
+    (hdiv : FF.f ∣ Module.finrank ℚ_[2] K) : FiniteDyadicParameters K FF where
   params :=
     { n := Module.finrank ℚ_[2] K
       f := FF.f
@@ -88,9 +85,37 @@ def ofFundamentalIdentity (FF : DyadicUnitFiltration K)
       qK_eq := rfl
       one_le_n := Module.finrank_pos
       one_le_f := FF.hf_pos
-      f_dvd_n := ⟨FF.e, by rw [hdegree, Nat.mul_comm]⟩ }
+      f_dvd_n := hdiv }
   degree_eq := rfl
   residueDegree_eq := rfl
+
+@[simp] theorem ofResidueDegreeDvd_n (FF : DyadicUnitFiltration K)
+    (hdiv : FF.f ∣ Module.finrank ℚ_[2] K) :
+    (ofResidueDegreeDvd FF hdiv).params.n = Module.finrank ℚ_[2] K := rfl
+
+@[simp] theorem ofResidueDegreeDvd_f (FF : DyadicUnitFiltration K)
+    (hdiv : FF.f ∣ Module.finrank ℚ_[2] K) :
+    (ofResidueDegreeDvd FF hdiv).params.f = FF.f := rfl
+
+@[simp] theorem ofResidueDegreeDvd_qK (FF : DyadicUnitFiltration K)
+    (hdiv : FF.f ∣ Module.finrank ℚ_[2] K) :
+    (ofResidueDegreeDvd FF hdiv).params.qK = qOf K FF := rfl
+
+/-- Exact existence boundary for the numerical selector package.  This is strictly weaker than
+the fundamental identity involving `FF.e`, and is the smallest missing arithmetic proposition
+for constructing `FiniteDyadicParameters`. -/
+theorem nonempty_iff_residueDegree_dvd (FF : DyadicUnitFiltration K) :
+    Nonempty (FiniteDyadicParameters K FF) ↔ FF.f ∣ Module.finrank ℚ_[2] K := by
+  constructor
+  · rintro ⟨D⟩
+    rw [← D.residueDegree_eq, ← D.degree_eq]
+    exact D.params.f_dvd_n
+  · exact fun hdiv => ⟨ofResidueDegreeDvd FF hdiv⟩
+
+/-- Construct the numerical parameter record from the classical fundamental identity. -/
+def ofFundamentalIdentity (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) : FiniteDyadicParameters K FF :=
+  ofResidueDegreeDvd FF ⟨FF.e, by rw [hdegree, Nat.mul_comm]⟩
 
 @[simp] theorem ofFundamentalIdentity_n (FF : DyadicUnitFiltration K)
     (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
@@ -103,6 +128,86 @@ def ofFundamentalIdentity (FF : DyadicUnitFiltration K)
 @[simp] theorem ofFundamentalIdentity_qK (FF : DyadicUnitFiltration K)
     (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
     (ofFundamentalIdentity FF hdegree).params.qK = qOf K FF := rfl
+
+/-- A numerical parameter package identifies the filtration ramification index exactly when the
+fundamental identity holds.  Thus the weaker divisibility package does not silently assert that
+its quotient `params.e` is `FF.e`. -/
+theorem params_e_eq_iff_fundamentalIdentity (D : FiniteDyadicParameters K FF) :
+    D.params.e = FF.e ↔ Module.finrank ℚ_[2] K = FF.e * FF.f := by
+  constructor
+  · intro he
+    calc
+      Module.finrank ℚ_[2] K = D.params.n := D.degree_eq.symm
+      _ = D.params.e * D.params.f := D.params.n_eq
+      _ = FF.e * FF.f := by rw [he, D.residueDegree_eq]
+  · intro hdegree
+    apply Nat.eq_of_mul_eq_mul_right FF.hf_pos
+    calc
+      D.params.e * FF.f = D.params.e * D.params.f := by rw [D.residueDegree_eq]
+      _ = D.params.n := D.params.e_mul_f
+      _ = Module.finrank ℚ_[2] K := D.degree_eq
+      _ = FF.e * FF.f := hdegree
+
+section Galois
+
+variable [IsGalois ℚ_[2] K]
+
+/-- The norm of a filtration uniformizer supplies an unconditional factorization of the degree
+in the Galois case.  The still-missing residue-field bridge is precisely the identification of
+this norm valuation with `FF.f`. -/
+theorem degree_eq_e_mul_normValPiToNat (FF : DyadicUnitFiltration K) :
+    Module.finrank ℚ_[2] K =
+      FF.e * (GQ2.UnitNormIndex.normValPi K FF).toNat := by
+  have hpos := GQ2.UnitNormIndex.normValPi_pos K FF
+  have hcast : (((GQ2.UnitNormIndex.normValPi K FF).toNat : ℕ) : ℤ) =
+      GQ2.UnitNormIndex.normValPi K FF := Int.toNat_of_nonneg (by omega)
+  have h := GQ2.UnitNormIndex.e_mul_normValPi K FF
+  rw [← hcast] at h
+  exact_mod_cast h.symm
+
+/-- In a Galois layer the fundamental identity is equivalent to the one missing compatibility:
+`FF.f` equals the valuation of the norm of the chosen uniformizer. -/
+theorem fundamentalIdentity_iff_residueDegree_eq_normValPiToNat
+    (FF : DyadicUnitFiltration K) :
+    Module.finrank ℚ_[2] K = FF.e * FF.f ↔
+      FF.f = (GQ2.UnitNormIndex.normValPi K FF).toNat := by
+  constructor
+  · intro hdegree
+    apply Nat.eq_of_mul_eq_mul_left FF.he_pos
+    rw [← hdegree]
+    exact degree_eq_e_mul_normValPiToNat FF
+  · intro hf
+    rw [hf]
+    exact degree_eq_e_mul_normValPiToNat FF
+
+/-- Galois-layer constructor reduced to the exact residue/norm compatibility, rather than an
+externally supplied degree equation. -/
+def ofNormValPi (FF : DyadicUnitFiltration K)
+    (hf : FF.f = (GQ2.UnitNormIndex.normValPi K FF).toNat) :
+    FiniteDyadicParameters K FF :=
+  ofFundamentalIdentity FF
+    ((fundamentalIdentity_iff_residueDegree_eq_normValPiToNat FF).2 hf)
+
+end Galois
+
+/-! ### Degree parity consequences -/
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Under the fundamental identity, the field degree is even exactly when at least one of the
+ramification index and residue degree is even. -/
+theorem degree_even_iff (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
+    Even (Module.finrank ℚ_[2] K) ↔ Even FF.e ∨ Even FF.f := by
+  rw [hdegree, Nat.even_mul]
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Under the fundamental identity, the field degree is odd exactly when both filtration
+invariants are odd. -/
+theorem degree_odd_iff (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
+    Odd (Module.finrank ℚ_[2] K) ↔ Odd FF.e ∧ Odd FF.f := by
+  rw [← Nat.not_even_iff_odd, degree_even_iff FF hdegree, not_or,
+    Nat.not_even_iff_odd, Nat.not_even_iff_odd]
 
 end FiniteDyadicParameters
 
@@ -163,6 +268,31 @@ def toMarkedSplitting (G : MarkedGeneratorData Q u) : MarkedSplitting Q.datum :=
     G.lambdaAdd_procyclic G.exists_decomp
 
 end MarkedGeneratorData
+
+namespace RamifiedIData
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+  [FiniteDimensional ℚ_[2] K]
+
+/-- The exact unconditional consequence of ramified `K(i)/K` currently available from the
+marked-reciprocity interface: for any supplied marked splitting, either the marked level is zero
+or its eta invariant is not even.  This does not choose between the alternatives and does not
+construct the splitting. -/
+theorem level_zero_or_not_even_eta (RI : RamifiedIData K) (B : MarkedRecip Rec K)
+    (FF : DyadicUnitFiltration K) {u : ℤ_[2]ˣ}
+    (G : MarkedGeneratorData (B.fieldMarkedPair FF) u) :
+    B.r = 0 ∨ (1 ≤ B.r ∧ ¬ Even G.toMarkedSplitting.eta) :=
+  B.level_zero_or_not_even_eta_of_ramified (B.nuUrSurjective FF) G.toMarkedSplitting
+    G.cyclotomic_trivial RI.deltaI RI.sq_deltaI RI.ramified
+
+/-- Positive marked level selects the non-even-eta side of the ramified-`i` dichotomy. -/
+theorem not_even_eta_of_level_ne_zero (RI : RamifiedIData K) (B : MarkedRecip Rec K)
+    (FF : DyadicUnitFiltration K) {u : ℤ_[2]ˣ}
+    (G : MarkedGeneratorData (B.fieldMarkedPair FF) u) (hr : B.r ≠ 0) :
+    1 ≤ B.r ∧ ¬ Even G.toMarkedSplitting.eta :=
+  (RI.level_zero_or_not_even_eta B FF G).resolve_left hr
+
+end RamifiedIData
 
 /-- The missing general Labute-family theorem, factored into its precise current residue.
 
