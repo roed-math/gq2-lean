@@ -29,6 +29,40 @@ noncomputable section
 open GQ2 GQ2.FoxH
 open Count Certificates Words.LSq Certificates.MProcyclic
 
+/-! ## A generic cohomological transport lemma -/
+
+/-- A three-term quasi-isomorphism only sees its middle map on degree-one cocycles.  Thus two
+middle maps which agree on `ker dX1` give equivalent `StokesQuasiIso` predicates. -/
+theorem stokesQuasiIso_congr_middle_on_cycles
+    {X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type*}
+    [AddCommGroup X₀] [AddCommGroup X₁] [AddCommGroup X₂]
+    [AddCommGroup Y₀] [AddCommGroup Y₁] [AddCommGroup Y₂]
+    {dX₀ : X₀ →+ X₁} {dX₁ : X₁ →+ X₂} {dY₀ : Y₀ →+ Y₁} {dY₁ : Y₁ →+ Y₂}
+    {φ₀ : X₀ →+ Y₀} {φ₁ ψ₁ : X₁ →+ Y₁} {φ₂ : X₂ →+ Y₂}
+    (hmid : ∀ x, dX₁ x = 0 → φ₁ x = ψ₁ x) :
+    StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ ↔
+      StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ ψ₁ φ₂ := by
+  have forward : ∀ {f g : X₁ →+ Y₁},
+      (∀ x, dX₁ x = 0 → f x = g x) →
+      StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ f φ₂ →
+        StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ g φ₂ := by
+    intro f g hfg H
+    exact
+      { h0_inj := H.h0_inj
+        h0_surj := H.h0_surj
+        h1_inj := by
+          intro x hx hg
+          apply H.h1_inj x hx
+          obtain ⟨y, hy⟩ := hg
+          exact ⟨y, hy.trans (hfg x hx).symm⟩
+        h1_surj := by
+          intro y hy
+          obtain ⟨x, z, hx, hsum⟩ := H.h1_surj y hy
+          exact ⟨x, z, hx, by rw [← hfg x hx]; exact hsum⟩
+        h2_inj := H.h2_inj
+        h2_surj := H.h2_surj }
+  exact ⟨forward hmid, forward fun x hx ↦ (hmid x hx).symm⟩
+
 /-! ## Binomial parity -/
 
 /-- For an even integer in the `2 mod 4` class, `C(q,2)` is odd. -/
@@ -151,6 +185,52 @@ theorem heisEta1_lSqFam_even_congr_unram
     _ = heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h r e) x y :=
       (Certificates.LSqStokes.heisEta1_lSqFam_apply t x y).symm
 
+/-- A cocycle in the unramified `L_sq` complex has zero `tau` coordinate.  This is exactly the
+invertible tame Fox row `S^-1 x_tau`; no wild-row calculation is involved. -/
+theorem tau_eq_zero_of_lSqFam_cocycle_unram
+    {h q e : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking (2 * h + 1) C) (hA₂ : ∀ a : A, a + a = 0)
+    (hτ : ∀ a : A, t.τ • a = a) (hq : Even q)
+    (x : Generator (2 * h + 1) → A)
+    (hx : heisD1 ⇑t (Certificates.LSqStokes.lSqFam h q e) x = 0) : x .tau = 0 := by
+  have hk := congrFun hx (0 : Fin 2)
+  change
+    (FreeGroup.lift (heisGen (⇑t) x 0)
+      (Certificates.LSqStokes.lSqFam h q e (0 : Fin 2))).a = 0 at hk
+  rw [Certificates.LSqStokes.lSqFam_zero, ← heisEvalZ_eq_lift,
+    heisA_tameRelW_unram t x 0 _ _ hA₂ hτ hq] at hk
+  have hs := congrArg (fun a : A ↦ t.σ • a) hk
+  rwa [smul_zero, smul_inv_smul] at hs
+
+/-- Although the middle Stokes maps at two even exponents need not be literally equal, they
+agree on every degree-one cocycle.  The only possible difference is the tame `tau` diagonal,
+and `tau_eq_zero_of_lSqFam_cocycle_unram` kills it. -/
+theorem heisEta1_lSqFam_even_congr_on_cocycles_unram
+    {h q r e : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking (2 * h + 1) C) (hA₂ : ∀ a : A, a + a = 0)
+    (hτ : ∀ a : A, t.τ • a = a) (hq : Even q) (hr : Even r)
+    (x : Generator (2 * h + 1) → A)
+    (hx : heisD1 ⇑t (Certificates.LSqStokes.lSqFam h q e) x = 0) :
+    heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h q e) x =
+      heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h r e) x := by
+  have hxτ := tau_eq_zero_of_lSqFam_cocycle_unram t hA₂ hτ hq x hx
+  apply AddMonoidHom.ext
+  intro y
+  calc
+    heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h q e) x y =
+        (heisEvalZ ⇑t x y (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ))
+          (tameRelW (2 * h + 1) q)).z
+          + (heisEvalZ ⇑t x y (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (lSqW h)).z :=
+      Certificates.LSqStokes.heisEta1_lSqFam_apply t x y
+    _ = (heisEvalZ ⇑t x y (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ))
+          (tameRelW (2 * h + 1) r)).z
+          + (heisEvalZ ⇑t x y (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (lSqW h)).z := by
+      rw [Certificates.heisZ_tameRelW_unram t x y _ _ hA₂ hτ hq,
+        Certificates.heisZ_tameRelW_unram t x y _ _ hA₂ hτ hr, hxτ]
+      simp
+    _ = heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h r e) x y :=
+      (Certificates.LSqStokes.heisEta1_lSqFam_apply t x y).symm
+
 /-- Full Stokes duality transports between even tame exponents with the same binomial parity,
 on an unramified elementary module.  Both the primal and contragredient degree-one rows are
 transported, as is the middle map; the end maps are independent of the relator words. -/
@@ -169,6 +249,34 @@ theorem stokesDuality_lSqFam_even_congr_unram
   have hη := heisEta1_lSqFam_even_congr_unram (e := e) t hA₂ hτ hq hr hchoose
   unfold StokesDuality
   rw [hdA, hdD, hη]
+
+/-- **Cohomological even-`q` invariance.**  On an unramified elementary module, full Stokes
+duality is independent of the even tame exponent.  Unlike
+`stokesDuality_lSqFam_even_congr_unram`, this theorem imposes no binomial-parity condition: the
+middle maps need only agree on cocycles, and the tame row forces their `tau` coordinate to
+vanish.  In particular this transports the Roe proof from `q = 2` to the `q = 4` class without
+a new Nielsen presentation. -/
+theorem stokesDuality_lSqFam_all_even_congr_unram
+    {h q r e : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking (2 * h + 1) C) (hA₂ : ∀ a : A, a + a = 0)
+    (hτ : ∀ a : A, t.τ • a = a) (hq : Even q) (hr : Even r) :
+    StokesDuality ⇑t (Certificates.LSqStokes.lSqFam h q e) A ↔
+      StokesDuality ⇑t (Certificates.LSqStokes.lSqFam h r e) A := by
+  have hτD : ∀ l : ElemDual A, t.τ • l = l :=
+    fun l ↦ smul_elemDual_of_trivial hτ l
+  have hdA := heisD1_lSqFam_even_congr_unram (e := e) t hA₂ hτ hq hr
+  have hdD := heisD1_lSqFam_even_congr_unram (e := e) t
+    ElemDual.add_self_eq_zero hτD hq hr
+  have hmid : ∀ x,
+      heisD1 (A := A) ⇑t (Certificates.LSqStokes.lSqFam h r e) x = 0 →
+      heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h q e) x =
+        heisEta1 ⇑t (Certificates.LSqStokes.lSqFam h r e) x := by
+    intro x hx
+    apply heisEta1_lSqFam_even_congr_on_cocycles_unram t hA₂ hτ hq hr x
+    rwa [hdA]
+  unfold StokesDuality
+  rw [hdA, hdD]
+  exact stokesQuasiIso_congr_middle_on_cycles hmid
 
 /-- The Roe `q = 2` Stokes ladder transports to every `q = 2 (mod 4)` on an unramified
 elementary module. -/
