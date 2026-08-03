@@ -375,6 +375,7 @@ import GQ2.Dyadic.Instances.GammaLDeterminantUnramified
 import GQ2.Dyadic.Instances.GammaLDeterminantRamified
 import GQ2.Dyadic.Instances.GammaLRamifiedPhase
 import GQ2.Dyadic.Instances.GammaLRamifiedGraphPhase
+import GQ2.Dyadic.Instances.GammaLRelationModuleResolver
 import GQ2.Dyadic.Count.H2SplitRightExact
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLImageAsphericity

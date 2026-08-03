@@ -34,6 +34,48 @@ open GQ2.FoxH GQ2.Dyadic
 
 noncomputable section
 
+/-! ## Uniform order bounds for transgressed extensions -/
+
+namespace ModuleExt
+
+variable {L A : Type} [Group L] [AddCommGroup A] [DistribMulAction L A]
+
+/-- Over an elementary coefficient group, the order of an element of a twisted module
+extension divides twice the order of its base coordinate.  This is the nonsplit analogue of
+`WordLift.orderOf_dvd_two_mul_orderOf_base`: after raising to the base order, the element lies
+in the fibre, and its square vanishes.  The argument uses only normalization of the module
+cocycle, so it applies in particular to cocycles transgressed from relation characters. -/
+theorem orderOf_dvd_two_mul_orderOf_base
+    (z : ModuleTwoCocycle L A) (hA₂ : ∀ a : A, a + a = 0) (p : ModuleExt z) :
+    orderOf p ∣ 2 * orderOf p.g := by
+  refine orderOf_dvd_of_pow_eq_one ?_
+  have hg : (p ^ orderOf p.g).g = 1 := by
+    change baseProj z (p ^ orderOf p.g) = 1
+    rw [map_pow]
+    change p.g ^ orderOf p.g = 1
+    exact pow_orderOf_eq_one _
+  have hsq : (p ^ orderOf p.g) * (p ^ orderOf p.g) = 1 := by
+    apply ModuleExt.ext
+    · simp only [mul_u, hg, one_smul, z.norm, add_zero, one_u]
+      exact hA₂ _
+    · simp [mul_g, hg]
+  calc
+    p ^ (2 * orderOf p.g) =
+        (p ^ orderOf p.g) * (p ^ orderOf p.g) := by
+      rw [two_mul, pow_add]
+    _ = 1 := hsq
+
+/-- Uniform form of `orderOf_dvd_two_mul_orderOf_base`: if `N` kills all base element
+orders, then `2 * N` kills every element of every normalized twisted module extension. -/
+theorem orderOf_dvd_two_mul
+    (z : ModuleTwoCocycle L A) (hA₂ : ∀ a : A, a + a = 0) {N : ℕ}
+    (hbase : ∀ g : L, orderOf g ∣ N) (p : ModuleExt z) :
+    orderOf p ∣ 2 * N :=
+  (orderOf_dvd_two_mul_orderOf_base z hA₂ p).trans
+    (mul_dvd_mul_left 2 (hbase p.g))
+
+end ModuleExt
+
 section RelationCharacter
 
 variable {X L A : Type} [Group L] [AddCommGroup A] [DistribMulAction L A]
