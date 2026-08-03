@@ -205,13 +205,17 @@ theorem card_H0_muDual_eq_fixedPtsG :
 
 include hρ hcomp in
 omit [DiscreteTopology C] [Finite C] in
-/-- **Clause (i)** at a general `Γ`: `#H²(A) = #fixedPts C (A′)`.  B6's `(0,2)` perfectness, the
-self-dual count `#Hom(H²(A), 𝔽₂) = #H²(A)`, and §4.  The Euler hypothesis is used only for the
-finiteness of `H²`. -/
-theorem card_H2_eq_fixedPtsG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
-    (hA₂ : ∀ a : A, a + a = 0) :
+/-- **Clause (i), with its exact finiteness hypothesis exposed.**  Tate duality identifies
+`Hom(H²(A), 𝔽₂)` with the invariants of the dual coefficient.  For an elementary
+coefficient module, the only extra input needed to turn that duality statement into the displayed
+cardinality equality is `Finite (H²(Γ,A))`.
+
+This is the non-Euler core of `card_H2_eq_fixedPtsG`.  In presentation applications the finite
+instance can instead come from an injection into a finite word `H²`, avoiding any appeal to a
+source Euler characteristic. -/
+theorem card_H2_eq_fixedPtsG_of_finite (D : TateDualityG Γ 2)
+    [Finite (H2 Γ A)] (hA₂ : ∀ a : A, a + a = 0) :
     Nat.card (H2 Γ A) = Nat.card (fixedPts C (ElemDual A)) := by
-  haveI : Finite (H2 Γ A) := (hE A).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   calc Nat.card (H2 Γ A)
       = Nat.card (H2 Γ A →+ ZMod 2) :=
@@ -219,6 +223,17 @@ theorem card_H2_eq_fixedPtsG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerC
     _ = Nat.card (H0 Γ (MuDual 2 A)) :=
         (TateDualityG.card_H0_dual D A htor).symm
     _ = Nat.card (fixedPts C (ElemDual A)) := card_H0_muDual_eq_fixedPtsG hρ hcomp
+
+include hρ hcomp in
+omit [DiscreteTopology C] [Finite C] in
+/-- **Clause (i)** at a general `Γ`: `#H²(A) = #fixedPts C (A′)`.  B6's `(0,2)` perfectness, the
+self-dual count `#Hom(H²(A), 𝔽₂) = #H²(A)`, and §4.  The Euler hypothesis is used only for the
+finiteness of `H²`. -/
+theorem card_H2_eq_fixedPtsG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+    (hA₂ : ∀ a : A, a + a = 0) :
+    Nat.card (H2 Γ A) = Nat.card (fixedPts C (ElemDual A)) := by
+  haveI : Finite (H2 Γ A) := (hE A).2.2.1
+  exact card_H2_eq_fixedPtsG_of_finite hρ hcomp D hA₂
 
 omit [TopologicalSpace Γ] [IsTopologicalGroup Γ] [DistribMulAction Γ (MuN 2)]
   [ContinuousSMul Γ (MuN 2)] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
@@ -391,6 +406,32 @@ theorem edEquivariantG
   rw [hEDsmul]
   simp only [dualAddEquiv_applyG, muDual_smul_apply, smul_muN_two_trivialG]
 
+omit [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul Γ (ElemDual A)] [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)] in
+/-- **Finite elementary `(0,2)` duality, without Euler.**  Once `H²(Γ,A)` is known finite,
+Tate duality and the coefficient bridge `MuDual 2 A ≃ ElemDual A` identify its cardinality
+with `H⁰(Γ, ElemDual A)`.
+
+The finiteness premise is deliberately an instance rather than a local Euler bundle.  For the L
+presentation it is furnished by the flexible injection into finite word `H²`; this is the seam
+that permits an exponent-two Euler bootstrap without circularly assuming Euler first. -/
+theorem card_H2_eq_H0_elemDualG_of_finite (D : TateDualityG Γ 2)
+    [Finite (H2 Γ A)] (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (g : Γ) (m : ZMod 2), g • m = m)
+    (hpair : ∀ (g : Γ) (a : A) (lam : ElemDual A),
+      dualEval A (g • a) (g • lam) = g • dualEval A a lam) :
+    Nat.card (H2 Γ A) = Nat.card (H0 Γ (ElemDual A)) := by
+  have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
+  have heD := edEquivariantG hpair htriv
+  calc Nat.card (H2 Γ A)
+      = Nat.card (H2 Γ A →+ ZMod 2) :=
+        (card_addHom_zmod2 (H2_two_torsionG (Γ := Γ) hA₂)).symm
+    _ = Nat.card (H0 Γ (MuDual 2 A)) :=
+        (TateDualityG.card_H0_dual D A htor).symm
+    _ = Nat.card (H0 Γ (ElemDual A)) :=
+        Nat.card_congr (H0congr dualAddEquiv heD).toEquiv
+
 omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **The shared cup-clause skeleton** at a general `Γ` — `bijective_cup` applied to the
 `τ`-transported opposite currying, where `τ = invG D htriv`. -/
@@ -417,15 +458,14 @@ private theorem bijective_cup_of_commG {V W Y : Type*} [AddCommGroup V] [AddComm
   exact bijective_cup hV₂ hW₂ hcardVW τ Φ hsurj
 
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **Clause (iv)** at a general `Γ`: the `(1,1)` evaluation cup is bijective. -/
-theorem bijective_cup11_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+/-- **Clause (iv), with exact finiteness hypotheses exposed.** -/
+theorem bijective_cup11_dualEvalG_of_finite (D : TateDualityG Γ 2)
+    [Finite (H1 Γ A)] [Finite (H1 Γ (ElemDual A))]
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Function.Bijective (fun c : H1 Γ A => cup11 (dualEval A) hpair c) := by
-  haveI : Finite (H1 Γ A) := (hE A).2.1
-  haveI : Finite (H1 Γ (ElemDual A)) := (hE (ElemDual A)).2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have heD := edEquivariantG hpair htriv
   refine bijective_cup_of_commG D (H1_two_torsionG hA₂)
@@ -444,14 +484,26 @@ theorem bijective_cup11_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalE
   congr 1
 
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **Clause (v)** at a general `Γ`: the `(0,2)` evaluation cup is bijective. -/
-theorem bijective_cup02_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+/-- **Clause (iv)** at a general `Γ`: the `(1,1)` evaluation cup is bijective. -/
+theorem bijective_cup11_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    Function.Bijective (fun c : H1 Γ A => cup11 (dualEval A) hpair c) := by
+  letI : Finite (H1 Γ A) := (hE A).2.1
+  letI : Finite (H1 Γ (ElemDual A)) := (hE (ElemDual A)).2.1
+  exact bijective_cup11_dualEvalG_of_finite D hA₂ htriv hpair
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **Clause (v), with its exact finiteness hypothesis exposed.** -/
+theorem bijective_cup02_dualEvalG_of_finite (D : TateDualityG Γ 2)
+    [Finite (H2 Γ (ElemDual A))]
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Function.Bijective (fun c : ↥(H0 Γ A) => cup02 (dualEval A) hpair c) := by
-  haveI : Finite (H2 Γ (ElemDual A)) := (hE (ElemDual A)).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have h0₂ : ∀ v : ↥(H0 Γ A), v + v = 0 := fun v => Subtype.ext (by simpa using hA₂ v.1)
   have heD := edEquivariantG hpair htriv
@@ -467,14 +519,25 @@ theorem bijective_cup02_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalE
   congr 1
 
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **Clause (vi)** at a general `Γ`: the `(2,0)` evaluation cup is bijective. -/
-theorem bijective_cup20_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+/-- **Clause (v)** at a general `Γ`: the `(0,2)` evaluation cup is bijective. -/
+theorem bijective_cup02_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    Function.Bijective (fun c : ↥(H0 Γ A) => cup02 (dualEval A) hpair c) := by
+  letI : Finite (H2 Γ (ElemDual A)) := (hE (ElemDual A)).2.2.1
+  exact bijective_cup02_dualEvalG_of_finite D hA₂ htriv hpair
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **Clause (vi), with its exact finiteness hypothesis exposed.** -/
+theorem bijective_cup20_dualEvalG_of_finite (D : TateDualityG Γ 2)
+    [Finite (H2 Γ A)]
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Function.Bijective (fun c : H2 Γ A => cup20 (dualEval A) hpair c) := by
-  haveI : Finite (H2 Γ A) := (hE A).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have hED0₂ : ∀ w : ↥(H0 Γ (ElemDual A)), w + w = 0 :=
     fun w => Subtype.ext (by simpa using ElemDual.add_self_eq_zero w.1)
@@ -490,6 +553,17 @@ theorem bijective_cup20_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalE
   obtain ⟨b, rfl⟩ := H2mk_surjective (G := Γ) (M := A) c
   rw [cup02_mk_mk, cup02_mk_mk, H2congr_mk]
   congr 1
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **Clause (vi)** at a general `Γ`: the `(2,0)` evaluation cup is bijective. -/
+theorem bijective_cup20_dualEvalG (D : TateDualityG Γ 2) {d : ℕ} (hE : LocalEulerChar Γ d)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    Function.Bijective (fun c : H2 Γ A => cup20 (dualEval A) hpair c) := by
+  letI : Finite (H2 Γ A) := (hE A).2.2.1
+  exact bijective_cup20_dualEvalG_of_finite D hA₂ htriv hpair
 
 end CupClauses
 

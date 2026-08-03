@@ -270,6 +270,52 @@ noncomputable def sourceComparisonPackage_lCanonical
     Count.smul_zmod2 hq lCanonicalHeisenbergExponent_odd
     lCanonicalFlexibleEulerTateSquares
 
+/-- Canonical one-target source comparison with the exact two non-scalar `H²` cardinal
+hypotheses exposed.  It is the no-`LocalEulerChar` counterpart of
+`sourceComparisonPackage_lCanonical`; the Heisenberg resolver, endpoint, scalar trace, all
+three cup bijectivities, and all comparison squares are still constructed internally. -/
+noncomputable def sourceComparisonPackage_lCanonical_of_card
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hcompatDual : ∀ (g : GammaL) (lam : ElemDual A), g • lam = rho g • lam)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hcardA : Nat.card (H2 GammaL A) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wHeis A))
+    (hcardDual : Nat.card (H2 GammaL (ElemDual A)) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wHeis (ElemDual A)))
+    (D : TateDualityG GammaL 2) (hq : Even q) :
+    SourceComparisonPackage (fun i ↦ rho (genL i)) wHeis
+      (lSource_rel_death rho lCanonicalFlexibleEulerTateSquares.hres)
+      (Certificates.LSqStokes.lSq_isStokesEndpoint hq lCanonicalHeisenbergExponent_odd)
+      (lSource_dualEval_equivariant rho hcompatA hcompatDual Count.smul_zmod2)
+      (lSourceH0Equiv rho hcompatA)
+      (lSourceH1Equiv rho hcompatA hA₂ lCanonicalFlexibleEulerTateSquares.hres)
+      (lSourceH0Equiv rho hcompatDual)
+      (lSourceH1Equiv rho hcompatDual
+        (fun lam : ElemDual A ↦ lam.add_self_eq_zero)
+        lCanonicalFlexibleEulerTateSquares.hresDual) :=
+  sourceComparisonPackage_of_lFlexibleH2_card_tateDuality rho hcompatA hcompatDual hA₂
+    hcardA hcardDual D Count.smul_zmod2 hq lCanonicalHeisenbergExponent_odd
+    lCanonicalFlexibleEulerTateSquares
+
+/-- Canonical no-Euler regression: the two explicit non-scalar `H²` cardinal equalities and
+Tate duality suffice for all three Stokes cohomology bijections. -/
+theorem stokesCohomologyBijections_lCanonical_of_card
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hcompatDual : ∀ (g : GammaL) (lam : ElemDual A), g • lam = rho g • lam)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hcardA : Nat.card (H2 GammaL A) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wHeis A))
+    (hcardDual : Nat.card (H2 GammaL (ElemDual A)) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wHeis (ElemDual A)))
+    (D : TateDualityG GammaL 2) (hq : Even q) :
+    StokesCohomologyBijections (fun i ↦ rho (genL i)) wHeis A
+      (lSource_rel_death rho lCanonicalFlexibleEulerTateSquares.hres)
+      (Certificates.LSqStokes.lSq_isStokesEndpoint hq lCanonicalHeisenbergExponent_odd) :=
+  (sourceComparisonPackage_lCanonical_of_card rho hcompatA hcompatDual hA₂
+    hcardA hcardDual D hq).stokesCohomologyBijections
+
 /-- Canonical regression: the target-local constructor reaches all three Stokes cohomology
 bijections with no resolver, endpoint, scalar-triviality, or comparison-square hypothesis. -/
 theorem stokesCohomologyBijections_lCanonical

@@ -13,7 +13,8 @@ The L source is the abstract profinite presentation
 
 `GammaL = gamma h q = GammaR (2 * h + 1) q (lSqW h)`.
 
-The lifting/counting pipeline needs two analytic inputs on this abstract group:
+The full field-style lifting/counting pipeline asks for two analytic inputs on this abstract
+group:
 
 * `LocalEulerChar GammaL (2 * h + 1)` for every finite discrete coefficient module;
 * `TateDualityG GammaL 2`, again quantified over every finite `2`-torsion module.
@@ -24,6 +25,35 @@ elementary `2`-torsion coefficients and becomes an equivalence only after the re
 cardinality is supplied.  `IsDemushkin` records only the scalar `F_2` cup form on a pro-`2`
 group.  In contrast, the two inputs above concern the full profinite group and all finite
 coefficients.
+
+## The sharper exponent-two boundary
+
+For the improved L source comparison, the full Euler bundle is stronger than necessary.  The
+Euler-free finiteness audit is now reflected in Lean as follows:
+
+* the proved `H¹` word equivalences make primal and dual source `H¹` finite;
+* the flexible `H²` injections make primal and dual source `H²` finite;
+* `bijective_cup02_dualEvalG_of_finite`, `bijective_cup11_dualEvalG_of_finite`, and
+  `bijective_cup20_dualEvalG_of_finite` therefore obtain all cup perfectness from
+  `TateDualityG` without `LocalEulerChar`;
+* scalar `H²` was already Euler-free.
+
+Consequently the exact remaining interface is the pair of non-scalar cardinal equalities in
+`sourceComparisonPackage_of_lFlexibleH2_card_tateDuality`; its canonical regression is
+`stokesCohomologyBijections_lCanonical_of_card`.  The old full-Euler constructors remain useful
+wrappers which supply those two equalities.
+
+The pair cannot presently be removed.  Write dimensions over `F_2` after the proved `H⁰` and
+`H¹` comparisons.  Tate `H¹` duality and the two pure word Euler identities imply only
+
+`dim WordH²(A) = dim H⁰(Aᵛ) + r` and
+`dim WordH²(Aᵛ) = dim H⁰(A) + r`
+
+for the same `r`; flexible injectivity proves merely `r ≥ 0`.  For a nontrivial simple module
+both invariant terms can vanish, so simplicity still does not force `r = 0`.  An independent
+word `(2,0)` Stokes theorem, flexible-`H²` surjectivity/asphericity theorem, or coefficient-wise
+source Euler equality is exactly what kills this common defect.  Feeding the final source
+comparison's own Stokes bijections back into this step would be circular.
 
 This file records the smallest currently available truth-side bridge.  A
 `LocalFieldRealization G d` identifies `G` with an open subgroup of `G_Q2` of index `d`.  That is

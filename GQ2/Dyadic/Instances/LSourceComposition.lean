@@ -289,6 +289,108 @@ theorem LFlexibleEulerTateSquares.square20_commutes
       (lScalarTraceCompatible rho hcompatScalar hq he (lSource_rel_death rho S.hres) D htriv)
 
 /--
+The exact no-Euler source constructor for the improved L presentation.
+
+Compared with `sourceComparisonPackage_of_lFlexibleH2_euler_tateDuality`, the full
+`LocalEulerChar` bundle is replaced by the two coefficient-wise cardinal equalities which it
+was used to prove.  The flexible injections make both source `H²` groups finite, the existing
+`H¹` comparisons make both source `H¹` groups finite, and the three Tate cup maps are therefore
+bijective by the `_of_finite` lemmas.  Scalar `H²` is still constructed from Tate duality alone.
+
+The two displayed cardinal hypotheses are genuine: the current presentation theory gives
+injections into the two word `H²` groups, but does not force their common possible excess to
+vanish. -/
+noncomputable def sourceComparisonPackage_of_lFlexibleH2_card_tateDuality
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hcompatDual : ∀ (g : GammaL) (lam : ElemDual A), g • lam = rho g • lam)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hcardA : Nat.card (H2 GammaL A) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL A))
+    (hcardDual : Nat.card (H2 GammaL (ElemDual A)) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL (ElemDual A)))
+    (D : TateDualityG GammaL 2)
+    (htriv : ∀ (g : GammaL) (m : ZMod 2), g • m = m)
+    (hq : Even q) (he : Odd e)
+    (S : LFlexibleEulerTateSquares (h := h) (q := q) (e := e) (C := C) (A := A)) :
+    SourceComparisonPackage (fun i ↦ rho (genL i)) wL (lSource_rel_death rho S.hres)
+      (lSq_isStokesEndpoint hq he)
+      (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+      (lSourceH0Equiv rho hcompatA) (lSourceH1Equiv rho hcompatA hA₂ S.hres)
+      (lSourceH0Equiv rho hcompatDual)
+      (lSourceH1Equiv rho hcompatDual
+        (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual) := by
+  let h2A := lModuleH2EquivFlexible_of_card_eq rho hcompatA hA₂ S.hres hcardA
+  let h2Dual := lModuleH2EquivFlexible_of_card_eq rho hcompatDual
+    (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual hcardDual
+  let h2Scalar :=
+    lScalarH2Equiv_of_tateDuality rho hq he (lSource_rel_death rho S.hres) D htriv
+  letI : Finite (H1 GammaL A) :=
+    Finite.of_equiv _ (lSourceH1Equiv rho hcompatA hA₂ S.hres).symm.toEquiv
+  letI : Finite (H1 GammaL (ElemDual A)) := Finite.of_equiv _
+    (lSourceH1Equiv rho hcompatDual
+      (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual).symm.toEquiv
+  letI : Finite (H2 GammaL A) := Finite.of_equiv _ h2A.symm.toEquiv
+  letI : Finite (H2 GammaL (ElemDual A)) := Finite.of_equiv _ h2Dual.symm.toEquiv
+  refine
+    { h2A := h2A
+      h2Dual := h2Dual
+      h2Scalar := h2Scalar
+      cup02_bijective := bijective_cup02_dualEvalG_of_finite D hA₂ htriv
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+      cup11_bijective := bijective_cup11_dualEvalG_of_finite D hA₂ htriv
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+      cup20_bijective := bijective_cup20_dualEvalG_of_finite D hA₂ htriv
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+      square02_commutes := ?_
+      square11_commutes := ?_
+      square20_commutes := ?_ }
+  · letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+    let hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s :=
+      fun g s ↦ (htriv g s).trans (smul_zmod2 (rho g) s).symm
+    simpa only [h2Dual, h2Scalar, lScalarH2Equiv_of_tateDuality] using
+      square02_commutes_of_scalarTrace WL genL rho wL hcompatDual hcompatScalar
+        (lSource_rel_death rho S.hres) (lSq_isStokesEndpoint hq he)
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+        (lSourceH0Equiv rho hcompatA) (fun _ ↦ rfl) h2Dual (fun _ ↦ rfl)
+        (lScalarH2TraceEquiv rho hcompatScalar hq he (lSource_rel_death rho S.hres) D htriv)
+        (lScalarTraceCompatible rho hcompatScalar hq he
+          (lSource_rel_death rho S.hres) D htriv)
+  · letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+    let hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s :=
+      fun g s ↦ (htriv g s).trans (smul_zmod2 (rho g) s).symm
+    let za := Count.toZ1w rho hcompatA (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (Words.LSq.lSqW h)) S.hres
+    let zb := Count.toZ1w rho hcompatDual (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (Words.LSq.lSqW h)) S.hresDual
+    simpa only [h2Scalar, lScalarH2Equiv_of_tateDuality] using
+      square11_commutes_of_scalarTrace WL genL rho wL hcompatA hcompatDual hcompatScalar
+        (lSource_rel_death rho S.hres) (lSq_isStokesEndpoint hq he) S.hresHeis
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+        (lSourceH1Equiv rho hcompatA hA₂ S.hres)
+        (lSourceH1Equiv rho hcompatDual
+          (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual)
+        za zb (fun _ ↦ rfl) (fun _ ↦ rfl)
+        (Count.h1Equiv_gammaR_range_H1mk rho hcompatA S.hres hA₂)
+        (Count.h1Equiv_gammaR_range_H1mk rho hcompatDual S.hresDual
+          (fun lam : ElemDual A ↦ lam.add_self_eq_zero))
+        (lScalarH2TraceEquiv rho hcompatScalar hq he
+          (lSource_rel_death rho S.hres) D htriv)
+        (lScalarTraceCompatible rho hcompatScalar hq he
+          (lSource_rel_death rho S.hres) D htriv)
+  · letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+    let hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s :=
+      fun g s ↦ (htriv g s).trans (smul_zmod2 (rho g) s).symm
+    simpa only [h2A, h2Scalar, lScalarH2Equiv_of_tateDuality] using
+      square20_commutes_of_scalarTrace WL genL rho wL hcompatA hcompatScalar
+        (lSource_rel_death rho S.hres) (lSq_isStokesEndpoint hq he)
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+        (lSourceH0Equiv rho hcompatDual) (fun _ ↦ rfl) h2A (fun _ ↦ rfl)
+        (lScalarH2TraceEquiv rho hcompatScalar hq he (lSource_rel_death rho S.hres) D htriv)
+        (lScalarTraceCompatible rho hcompatScalar hq he
+          (lSource_rel_death rho S.hres) D htriv)
+
+/--
 The strongest current one-target source constructor for the improved L presentation.
 
 It uses one common Heisenberg resolver, `LocalEulerChar` and `TateDualityG` on the actual source
@@ -313,20 +415,12 @@ noncomputable def sourceComparisonPackage_of_lFlexibleH2_euler_tateDuality
       (lSourceH0Equiv rho hcompatA) (lSourceH1Equiv rho hcompatA hA₂ S.hres)
       (lSourceH0Equiv rho hcompatDual)
       (lSourceH1Equiv rho hcompatDual
-        (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual) where
-  h2A := lModuleH2EquivFlexible_of_localEulerChar rho hcompatA hA₂ S.hres hE
-  h2Dual := lModuleH2EquivFlexible_of_localEulerChar rho hcompatDual
-    (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual hE
-  h2Scalar := lScalarH2Equiv_of_tateDuality rho hq he (lSource_rel_death rho S.hres) D htriv
-  cup02_bijective := bijective_cup02_dualEvalG D hE hA₂ htriv
-    (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
-  cup11_bijective := bijective_cup11_dualEvalG D hE hA₂ htriv
-    (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
-  cup20_bijective := bijective_cup20_dualEvalG D hE hA₂ htriv
-    (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
-  square02_commutes := S.square02_commutes rho hcompatA hcompatDual hA₂ hE D htriv hq he
-  square11_commutes := S.square11_commutes rho hcompatA hcompatDual hA₂ hE D htriv hq he
-  square20_commutes := S.square20_commutes rho hcompatA hcompatDual hA₂ hE D htriv hq he
+        (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual) :=
+  sourceComparisonPackage_of_lFlexibleH2_card_tateDuality rho hcompatA hcompatDual hA₂
+    (l_card_H2_eq_WordH2_of_localEulerChar rho hcompatA hA₂ S.hres hE)
+    (l_card_H2_eq_WordH2_of_localEulerChar rho hcompatDual
+      (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual hE)
+    D htriv hq he S
 
 /-- Regression: the composed constructor reaches the exact three Stokes bijections. -/
 theorem stokesCohomologyBijections_of_lFlexibleH2_euler_tateDuality
