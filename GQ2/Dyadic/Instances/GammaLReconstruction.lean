@@ -15,9 +15,8 @@ This file composes the completed word-level action-image argument with the corre
 finite-quotient reconstruction theorem.  It deliberately keeps the two genuinely separate
 remaining inputs visible.
 
-* `LSquareAnalyticLeavesRN` contains the two Stokes tail clauses and affine determinant not yet
-  produced by the direct action-image argument.  Scalar Hilbert and the first two Stokes clauses
-  are theorems.
+* `LSquareAnalyticLeavesRN` contains only the affine determinant not produced by the direct
+  action-image argument.  The complete Stokes and scalar Hilbert certificates are theorems.
 * `GammaLCorrectedArithmeticInput` is an arithmetic `SourceDataRN` over the same canonical
   square core, together with its identification with `G_K`, its tame/wild reconstruction
   hypotheses, and the expected degree.
@@ -37,9 +36,7 @@ namespace GQ2.Dyadic.LSquare
 
 noncomputable section
 
-open GQ2 GQ2.SectionEight
-open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
-open GQ2.Dyadic GQ2.Dyadic.Count
+open GQ2 GQ2.Dyadic GQ2.Dyadic.Count
 open GQ2.Dyadic.TameSpec
 
 local notation "LCore" => SqCore.DSq
@@ -83,49 +80,14 @@ theorem lNu_surjective (h : ℕ) : Function.Surjective (LNu h) :=
 
 /-! ## The exact remaining candidate-side analytic leaves -/
 
-/-- The exact analytic residue after the direct action-image consequences are used: character
-nondegeneracy, the `V`-cocycle count, and the affine determinant.
-
-The scalar certificate and the first two Stokes clauses (`tcocycle` and `hsep`) are deliberately
-absent: `GammaLAnalyticLeaves` constructs them from the same action-image theorem used for exact
-lifting. -/
+/-- The exact candidate-side analytic residue after the direct action-image consequences are
+used: the affine determinant alone.  `GammaLAnalyticLeaves` constructs the complete Stokes and
+scalar certificates from the same action-image theorem used for exact lifting. -/
 structure LSquareAnalyticLeavesRN (h q : ℕ) (hq2 : 2 ≤ q) (hqe : Even q) where
-  hpartial : letI := scalarActionZmodTwo (gamma h q : Type)
-    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
-      [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
-      {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
-      {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
-      (b : ContinuousMonoidHom (gamma h q) ↥(boundarySubgroupQ q (LNu h)))
-      (F : BoundaryFrameK q (LCore h) H E)
-      (En : RF.Enrichment) (l : RF.DR) (hl : l ≠ RF.zeroDR)
-      (Dsc : Descent (En.radData l hl)) (ρ : BoundaryLiftsK b F RF.TC)
-      (χ : ↥(TCharC (En.radData l hl))), χ ≠ 0 →
-      ∃ c : VCocycle (En.descData l hl) (rhoPrimeK RF b F (En.radData l hl) rfl ρ),
-        betaChi (descSections En l hl Dsc) (descSigma_spec En l hl Dsc) χ c ≠
-          betaChi (descSections En l hl Dsc) (descSigma_spec En l hl Dsc) χ
-            (0 : VCocycle (En.descData l hl)
-              (rhoPrimeK RF b F (En.radData l hl) rfl ρ))
-  hZcard : letI := scalarActionZmodTwo (gamma h q : Type)
-    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
-      [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
-      {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
-      {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
-      (b : ContinuousMonoidHom (gamma h q) ↥(boundarySubgroupQ q (LNu h)))
-      (F : BoundaryFrameK q (LCore h) H E)
-      (En : RF.Enrichment) (l : RF.DR) (hl : l ≠ RF.zeroDR),
-      (∀ W : AddSubgroup En.Vmod, (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤) →
-      (∃ v : En.Vmod, v ≠ 0) →
-      (∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v) →
-      ∀ ρ : BoundaryLiftsK b F RF.TC,
-        Nat.card (VCocycle (En.descData l hl)
-          (rhoPrimeK RF b F (En.radData l hl) rfl ρ)) =
-          Nat.card En.Vmod * (LSN (2 * h + 1)).h1Mult (Nat.card En.Vmod)
-  determinant : AffineDeterminantCertificate (gamma h q) (2 * h + 1) q
-    (LCore h) (LNu h) (LSN (2 * h + 1))
+  determinant : DeterminantResidue (LNu h)
     (tameOfSpec (2 * h + 1) q (Words.LSq.lSqW h)
       (lCanonicalTameSpecialization h q hq2 hqe))
     (lCanonicalPro2 h q hq2 hqe) (lCanonicalCompat h q hq2 hqe)
-    (scalarActionZmodTwo (gamma h q : Type))
 
 /-- The completed action-image theorem, composed with the canonical L structural data, builds a
 corrected word certificate.  In particular, corrected exact lifting is no longer a hypothesis. -/
@@ -151,9 +113,7 @@ noncomputable def wordCertificateRN_lSq_of_actionImage
   htriv := scalarActionZmodTwo_triv _
   exactLifting := exactLiftingRN_of_uniformPushed (uniformPushedHsimp_of_actionImage hqe)
     hqe (LNu h)
-  stokes := ⟨tcocycle_of_uniformPushed (uniformPushedHsimp_of_actionImage hqe) hqe,
-    hsep_of_uniformPushed (uniformPushedHsimp_of_actionImage hqe) hqe,
-    A.hpartial, A.hZcard⟩
+  stokes := stokesDualityCertificate_of_actionImage hqe
   scalar := scalarHilbertCertificate_of_actionImage hqe
   determinant := A.determinant
   htame := Count.htame_of_tameSpecializes (lCanonicalTameSpecialization h q hq2 hqe)
