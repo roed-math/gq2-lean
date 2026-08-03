@@ -76,6 +76,52 @@ theorem heisGen_q2Offsets
       | 1, _ => rfl
       | k + 2, h => exact absurd h (by omega)
 
+/-- The four-generator adapter as an additive equivalence. -/
+def q2OffsetsAddEquiv {A : Type*} [AddCommGroup A] :
+    (Fin 4 → A) ≃+ (Generator 1 → A) where
+  toFun := q2Offsets
+  invFun := q2OffsetsInv
+  left_inv x := by
+    funext i
+    fin_cases i <;> rfl
+  right_inv := q2Offsets_q2OffsetsInv
+  map_add' x y := by
+    funext g
+    cases g with
+    | sigma => rfl
+    | tau => rfl
+    | wild i =>
+        obtain ⟨v, hv⟩ := i
+        match v, hv with
+        | 0, _ => rfl
+        | 1, _ => rfl
+        | k + 2, h => exact absurd h (by omega)
+
+@[simp] theorem q2OffsetsAddEquiv_apply {A : Type*} [AddCommGroup A] (x : Fin 4 → A) :
+    q2OffsetsAddEquiv x = q2Offsets x := by
+  rfl
+
+@[simp] theorem q2OffsetsAddEquiv_symm_apply {A : Type*} [AddCommGroup A]
+    (x : Generator 1 → A) :
+    q2OffsetsAddEquiv.symm x = q2OffsetsInv x := by
+  rfl
+
+/-- Identify the generic two-relator output family with Roe's ordered product. -/
+def finTwoProdAddEquiv {A : Type*} [AddCommGroup A] : (Fin 2 → A) ≃+ A × A where
+  toFun v := (v 0, v 1)
+  invFun p := ![p.1, p.2]
+  left_inv v := by
+    funext i
+    fin_cases i <;> rfl
+  right_inv p := rfl
+  map_add' _ _ := rfl
+
+@[simp] theorem finTwoProdAddEquiv_apply {A : Type*} [AddCommGroup A] (v : Fin 2 → A) :
+    finTwoProdAddEquiv v = (v 0, v 1) := rfl
+
+@[simp] theorem finTwoProdAddEquiv_symm_apply {A : Type*} [AddCommGroup A] (p : A × A) :
+    finTwoProdAddEquiv.symm p = ![p.1, p.2] := rfl
+
 /-- The degree-zero differential is unchanged by the four-generator adapter. -/
 theorem heisD0_ofQ2_eq_q2Offsets_d0
     {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
@@ -223,6 +269,41 @@ theorem roeStokes_ladder_zero_two_uniform
   exact ⟨heisD0_ofQ2_eq_q2Offsets_d0 t,
     heisD1_lSqFam_zero_two_uniform_q2Offsets hA₂ t,
     heisEta1_lSqFam_zero_two_uniform_q2Offsets hA₂ t⟩
+
+/-- **The source word complexes are additively chain-isomorphic.**  This is the explicit
+three-term conjugacy needed by a quasi-isomorphism transport theorem: identity in degree zero,
+`q2OffsetsAddEquiv` in degree one, and `finTwoProdAddEquiv` in degree two.  The third clause is
+the middle ladder-map compatibility, included because it is the non-formal input to duality
+transport. -/
+theorem roeStokes_source_chain_equiv_zero_two_uniform
+    {C A : Type*} [Group C] [Finite C] [AddCommGroup A] [Finite A]
+    [DistribMulAction C A] (hA₂ : ∀ a : A, a + a = 0)
+    (t : _root_.GQ2.Marking C) :
+    (∀ a : A,
+      q2OffsetsAddEquiv (FoxH.d0 t a) = heisD0 (A := A) (⇑(Marking.ofQ2 t)) a) ∧
+      (∀ x : Fin 4 → A,
+        finTwoProdAddEquiv
+            (heisD1 (⇑(Marking.ofQ2 t))
+              (Certificates.LSqStokes.lSqFam 0 2
+                (omega2Exp (4 * Monoid.exponent C)))
+              (q2OffsetsAddEquiv x))
+          = FoxH.d1R t x) ∧
+      (∀ (x : Fin 4 → A) (y : Fin 4 → ElemDual A),
+        heisEta1 (⇑(Marking.ofQ2 t))
+            (Certificates.LSqStokes.lSqFam 0 2
+              (omega2Exp (4 * Monoid.exponent C)))
+            (q2OffsetsAddEquiv x) (q2OffsetsAddEquiv y)
+          = mixedB_R t x y) := by
+  refine ⟨fun a ↦ by
+      rw [q2OffsetsAddEquiv_apply]
+      exact (heisD0_ofQ2_eq_q2Offsets_d0 t a).symm,
+    ?_, fun x y ↦ by
+      rw [q2OffsetsAddEquiv_apply, q2OffsetsAddEquiv_apply]
+      exact heisEta1_lSqFam_zero_two_uniform_q2Offsets hA₂ t x y⟩
+  intro x
+  rw [q2OffsetsAddEquiv_apply]
+  rw [heisD1_lSqFam_zero_two_uniform_q2Offsets hA₂]
+  rfl
 
 /-! ## Handle stabilization of the full Stokes middle map -/
 
