@@ -13,10 +13,11 @@ This file states the classical relation-module theorem still needed for the impr
 presentation.  At every finite target, the regular module on the tame and improved L relator
 orbits must occur as a split equivariant summand of the explicit quotient `R / (R²[R,R])`.
 
-This is deliberately stronger than `UniformModTwoRelationBasisSupply`: it includes an embedding
-of the regular relator module and proves that the coordinate map is its retraction.  The theorem
-below constructs the previously isolated coordinate supply, after which the existing
-relation-module, H², and Tate-duality pipeline applies unchanged.
+This is the more explicit classical form of `UniformModTwoRelationBasisSupply`: it includes the
+canonical embedding of the regular relator module and proves that the coordinate map is its
+retraction.  Because every target marking here is generating, the generic theory proves the two
+existence statements equivalent.  Either form then feeds the existing relation-module, H², and
+Tate-duality pipeline unchanged.
 -/
 
 namespace GQ2.Dyadic.LSquare
