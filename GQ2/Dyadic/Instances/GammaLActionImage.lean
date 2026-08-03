@@ -6,6 +6,7 @@ Authors: Geoffrey Roe
 import GQ2.Dyadic.Instances.GammaLTateDirect
 import GQ2.Dyadic.Instances.LEvenQStokes
 import GQ2.Dyadic.Instances.LRoeStokesDuality
+import GQ2.Dyadic.Instances.LRamifiedStokes
 
 /-!
 # The finite action image of a `GammaL` coefficient
@@ -136,6 +137,148 @@ theorem finiteActionImage_eq_one_of_smul_eq
   apply Multiplicative.toAdd.injective
   ext m
   exact hg m
+
+/-- The intrinsic tame relator of `GammaL(h,q)` gives the q-parametric tame equation on its
+canonical finite action image. -/
+theorem finiteActionImage_tameRelAt
+    {h q : ℕ} {M : Type} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((gamma h q : Type)) M]
+    [ContinuousSMul ((gamma h q : Type)) M] [Finite M] :
+    (finiteActionImageMarking h q M).TameRelAt q := by
+  let t := finiteActionImageMarking h q M
+  have hrel := finiteActionImageGenerators_relator_death
+    (h := h) (q := q) (M := M) (0 : Fin 2)
+  change PWord.eval ⇑t (Certificates.tameRelW (2 * h + 1) q) = 1 at hrel
+  rw [← Marking.eval_def, Certificates.eval_tameRelW] at hrel
+  exact mul_inv_eq_one.mp hrel
+
+set_option maxHeartbeats 1200000 in
+/-- On a simple elementary coefficient, the two-primary part of the ramified tame generator
+acts trivially.  Its fixed space is stable under `sigma` by the q-parametric tame relation,
+under `tau` by commutation, and under every wild generator by Lemma 5.12. -/
+theorem finiteActionImage_tau_powOmega2_smul_trivial
+    {h q : ℕ} {M : Type} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((gamma h q : Type)) M]
+    [ContinuousSMul ((gamma h q : Type)) M] [Finite M]
+    (hM₂ : ∀ m : M, m + m = 0) (hsimple : IsSimpleModTwo (gamma h q : Type) M) :
+    ∀ m : M, powOmega2 (finiteActionImageMarking h q M).τ • m = m := by
+  let t := finiteActionImageMarking h q M
+  have ht : t.TameRelAt q := finiteActionImage_tameRelAt
+  have hwild : ∀ (i : Fin (2 * h + 1 + 1)) (m : M), t.x i • m = m :=
+    finiteActionImage_wild_smul hM₂ hsimple
+  refine pow2_smul_trivial_of_stable hM₂ (isSimpleModTwo_finiteActionImage hsimple)
+    (powOmega2 t.τ) (isPGroup_zpowers_powOmega2 t.τ) ?_
+  have hσ : ∀ v : M, powOmega2 t.τ • v = v →
+      powOmega2 t.τ • (t.σ • v) = t.σ • v :=
+    fun v hv ↦ powOmega2_fixed_sigma_stable_of_tameRelAt t ht hv
+  have hτ : ∀ v : M, powOmega2 t.τ • v = v →
+      powOmega2 t.τ • (t.τ • v) = t.τ • v := by
+    intro v hv
+    have hcomm : powOmega2 t.τ * t.τ = t.τ * powOmega2 t.τ := by
+      rw [powOmega2]
+      exact ((Commute.refl t.τ).pow_left _).eq
+    rw [← mul_smul, hcomm, mul_smul, hv]
+  let S : Subgroup (FiniteActionImage h q M) :=
+    { carrier := {c | ∀ v : M, powOmega2 t.τ • v = v →
+          powOmega2 t.τ • (c • v) = c • v}
+      one_mem' := fun v hv ↦ by rwa [one_smul]
+      mul_mem' := fun {a b} ha hb v hv ↦ by rw [mul_smul]; exact ha _ (hb v hv)
+      inv_mem' := fun {a} ha v hv ↦ by
+        let W : AddSubgroup M :=
+          { carrier := {w | powOmega2 t.τ • w = w}
+            zero_mem' := smul_zero _
+            add_mem' := fun {x y} hx hy ↦ by
+              show powOmega2 t.τ • (x + y) = x + y
+              rw [smul_add, hx, hy]
+            neg_mem' := fun {x} hx ↦ by
+              show powOmega2 t.τ • (-x) = -x
+              rw [smul_neg, hx] }
+        have hφinj : Function.Injective
+            (fun u : W ↦ (⟨a • u.1, ha u.1 u.2⟩ : W)) := by
+          intro x y hxy
+          exact Subtype.ext (MulAction.injective a (congrArg Subtype.val hxy))
+        obtain ⟨⟨u, hu⟩, hux⟩ :=
+          (Finite.injective_iff_surjective.mp hφinj) ⟨v, hv⟩
+        have huv : a • u = v := congrArg Subtype.val hux
+        rw [show a⁻¹ • v = u from by rw [← huv, inv_smul_smul]]
+        exact hu }
+  have hgenS : Subgroup.closure (Set.range (finiteActionImageGenerators h q M)) ≤ S := by
+    rw [Subgroup.closure_le]
+    rintro _ ⟨g, rfl⟩
+    cases g with
+    | sigma => exact hσ
+    | tau => exact hτ
+    | wild i =>
+        intro v hv
+        change powOmega2 t.τ • (t.x i • v) = t.x i • v
+        rw [hwild i v]
+        exact hv
+  rw [finiteActionImageGenerators_generate] at hgenS
+  exact fun c ↦ hgenS (Subgroup.mem_top c)
+
+/-- The intrinsic `L_sq` relator death agrees with the uniform integer resolver used by the
+ramified Stokes complex. -/
+theorem finiteActionImage_lSq_relator_death_resolved
+    {h q : ℕ} {M : Type} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((gamma h q : Type)) M]
+    [ContinuousSMul ((gamma h q : Type)) M] [Finite M] :
+    PWord.evalZ (finiteActionImageGenerators h q M)
+      (fun _ ↦ (omega2Exp
+        (4 * Monoid.exponent (FiniteActionImage h q M)) : ℤ))
+      (fun _ ↦ (omega2Exp
+        (4 * Monoid.exponent (FiniteActionImage h q M)) : ℤ))
+      (lSqW h) = 1 := by
+  let C := FiniteActionImage h q M
+  let N := 4 * Monoid.exponent C
+  have hN : N ≠ 0 := (fourMulExponent_ne_zero_and_even C).1
+  have hord : ∀ c : C, orderOf c ∣ N := by
+    intro c
+    exact (Monoid.order_dvd_exponent c).trans (by
+      simpa [N, mul_comm] using dvd_mul_right (Monoid.exponent C) 4)
+  have hresolved : PWord.ResolvedAt (finiteActionImageGenerators h q M)
+      (fun _ ↦ (omega2Exp N : ℤ)) (fun _ ↦ (omega2Exp N : ℤ)) (lSqW h) :=
+    PWord.resolvedAt_of_isOmega2Only _ _ _
+      (fun c ↦ PWord.zpowHat_omega2_zpow hN (hord c)) _ (isOmega2Only_lSq h)
+  have hrel := finiteActionImageGenerators_relator_death
+    (h := h) (q := q) (M := M) (1 : Fin 2)
+  change PWord.eval (finiteActionImageGenerators h q M) (lSqW h) = 1 at hrel
+  rw [PWord.eval_eq_evalZ _ _ _ _ hresolved] at hrel
+  simpa [C, N] using hrel
+
+set_option maxHeartbeats 2400000 in
+/-- The direct ramified-simple Stokes theorem for the canonical `GammaL(h,q)` action image at
+every even tame exponent.  Simplicity supplies nontriviality and wild triviality; presentation
+death supplies the tame and improved `L_sq` relations; the ramified hypothesis is precisely
+fixed-point-freeness of `tau`.  No Tate-duality hypothesis is used. -/
+theorem finiteActionImage_stokesDuality_ramified_simple
+    {h q : ℕ} {M : Type} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((gamma h q : Type)) M]
+    [ContinuousSMul ((gamma h q : Type)) M] [Finite M]
+    (hM₂ : ∀ m : M, m + m = 0)
+    (hsimple : IsSimpleModTwo (gamma h q : Type) M)
+    (hτfpf : ∀ m : M,
+      gammaGen (2 * h + 1) q (lSqW h) .tau • m = m → m = 0)
+    (hq : Even q) :
+    StokesDuality (finiteActionImageGenerators h q M)
+      (lSqFam h q
+        (omega2Exp (4 * Monoid.exponent (FiniteActionImage h q M)))) M := by
+  let t := finiteActionImageMarking h q M
+  have ht : t.TameRelAt q := finiteActionImage_tameRelAt
+  have hwild : ∀ (i : Fin (2 * h + 1 + 1)) (m : M), t.x i • m = m :=
+    finiteActionImage_wild_smul hM₂ hsimple
+  have hτfpf' : ∀ m : M, t.τ • m = m → m = 0 := by
+    intro m hm
+    exact hτfpf m hm
+  have hTodd : ∀ m : M, powOmega2 t.τ • m = m :=
+    finiteActionImage_tau_powOmega2_smul_trivial hM₂ hsimple
+  have hL : PWord.evalZ ⇑t
+      (fun _ ↦ (omega2Exp
+        (4 * Monoid.exponent (FiniteActionImage h q M)) : ℤ))
+      (fun _ ↦ (omega2Exp
+        (4 * Monoid.exponent (FiniteActionImage h q M)) : ℤ))
+      (lSqW h) = 1 :=
+    finiteActionImage_lSq_relator_death_resolved
+  exact lSqStokesDuality_ramified t hM₂ hq ht hwild hτfpf' hTodd hL
 
 set_option maxHeartbeats 1200000 in
 /-- In the unramified simple branch, the degree-one core of the canonical action-image marking
