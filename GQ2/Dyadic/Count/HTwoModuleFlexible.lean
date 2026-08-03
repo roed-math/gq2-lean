@@ -215,6 +215,86 @@ noncomputable def flexibleResolverSystemOfResolvers
   · exact hword
   · exact htarget
 
+/-- **Witness-preserving flexible global coboundary descent.**  If a continuous
+two-cocycle is explicitly the coboundary of `psi`, then its fixed-target obstruction
+is not merely in the range of the target word differential: it is the differential
+of the concrete normalized generator cochain
+
+`i ↦ psi (gen i) - psi 1`.
+
+The quotient-dependent resolver is used only to compute the finite relator fibre.
+`heisD1_eq_of_resolvers_action_map` then transports the *same differential* to the
+fixed target, retaining the cochain witness that the range-only descent theorem below
+intentionally forgets. -/
+theorem moduleObsFam_coboundary_eq_heisD1_flexible
+    (hpres : IsAdmissibleMarkedPresentation G gen W J)
+    (rho : ContinuousMonoidHom G C)
+    (hcompat : ∀ (g : G) (a : A), g • a = rho g • a)
+    (htarget : ResolvesAt W w (WordLift A C))
+    (hresolve : ∀ (V : OpenNormalSubgroup G)
+      (hV : V.toSubgroup ≤ rho.toMonoidHom.ker),
+      letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
+        DistribMulAction.compHom A (quotientActionHom rho V hV)
+      ModuleFlexibleResolverAt (A := A) W c w
+        (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hc : ∀ i, rho (gen i) = c i)
+    (f : Z2 G A) (psi : G → A) (hpsi : Continuous psi)
+    (hf1 : f.1 = dOne G A psi) :
+    moduleObsFam W gen rho hcompat f =
+      heisD1 (A := A) c w (fun i ↦ psi (gen i) - psi 1) := by
+  let psi0 : G → A := fun g ↦ psi g - psi 1
+  obtain ⟨V, hV, lam, hlam⟩ :=
+    exists_moduleOneCochain_factor rho psi0 (hpsi.sub continuous_const)
+  have hlam1 : lam 1 = 0 := by
+    have h := hlam 1
+    rw [show QuotientGroup.mk' V.toSubgroup (1 : G) = 1 from map_one _] at h
+    change psi 1 - psi 1 = lam 1 at h
+    simpa using h.symm
+  let rhoV : (G ⧸ V.toSubgroup) →* C := quotientActionHom rho V hV
+  letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
+    DistribMulAction.compHom A rhoV
+  have hfactor : ∀ x y : G, moduleNormalize f.1 (x, y) =
+      (ModuleTwoCocycle.coboundary lam hlam1).κ
+        (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y) := by
+    intro x y
+    change moduleNormalize f.1 (x, y) =
+      rhoV (QuotientGroup.mk' V.toSubgroup x) •
+          lam (QuotientGroup.mk' V.toSubgroup y) -
+        lam (QuotientGroup.mk' V.toSubgroup (x * y)) +
+          lam (QuotientGroup.mk' V.toSubgroup x)
+    rw [show rhoV (QuotientGroup.mk' V.toSubgroup x) = rho x from
+      quotientActionHom_mk rho V hV x]
+    rw [← hcompat]
+    rw [← hlam x, ← hlam y, ← hlam (x * y), hf1]
+    simp [moduleNormalize, psi0, dOne, smul_sub]
+    abel
+  let Fcb : ModuleLevelFactor rho (moduleNormalize f.1) :=
+    { V := V
+      hV := hV
+      z := ModuleTwoCocycle.coboundary lam hlam1
+      hfact := hfactor }
+  change moduleObsFun W gen rho hcompat f =
+    heisD1 (A := A) c w (fun i ↦ psi (gen i) - psi 1)
+  rw [moduleObsFun_eq W gen rho hcompat f Fcb]
+  let m : iota → G ⧸ V.toSubgroup :=
+    fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)
+  have hrel : ∀ k, PWord.eval m (W k) = 1 :=
+    fun k ↦ hpres.rel (GQ2.quotientMk V.toSubgroup) k
+  let R := hresolve V hV
+  have hd : heisD1 (A := A) m R.word = heisD1 (A := A) c w :=
+    heisD1_eq_of_resolvers_action_map R.word rhoV (fun _ _ ↦ rfl)
+      (fun i ↦ by
+        rw [quotientActionHom_mk rho V hV (gen i)]
+        exact hc i)
+      R.resolves htarget
+  have hcochain : (fun i ↦ lam (m i)) = (fun i ↦ psi (gen i) - psi 1) := by
+    funext i
+    exact (hlam (gen i)).symm
+  rw [← hcochain, ← hd]
+  funext k
+  exact moduleRel_coboundary_eq_heisD1 W R.word m lam hlam1
+    R.resolves hrel k
+
 /-- Flexible global `map_coboundary`: the finite quotient chosen by the splitting
 cochain may use its own resolving word.  Only the resulting differential range is
 transported to the fixed target. -/
