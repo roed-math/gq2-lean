@@ -195,6 +195,110 @@ noncomputable def lModuleH2EquivFlexible_of_card_eq
 
 end LMap
 
+/-! ## Source-comparison adapter without all-level fixed words -/
+
+section SourceAdapter
+
+variable {h q e : ℕ} {C A : Type}
+  [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [AddCommGroup A] [TopologicalSpace A] [IsTopologicalAddGroup A]
+  [DiscreteTopology A] [Finite A]
+  [DistribMulAction ((gamma h q : Type)) A]
+  [ContinuousSMul ((gamma h q : Type)) A]
+  [DistribMulAction C A]
+  [TopologicalSpace (ElemDual A)] [IsTopologicalAddGroup (ElemDual A)]
+  [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul ((gamma h q : Type)) (ElemDual A)]
+  [TopologicalSpace (ZMod 2)] [IsTopologicalAddGroup (ZMod 2)]
+  [DiscreteTopology (ZMod 2)]
+  [DistribMulAction ((gamma h q : Type)) (ZMod 2)]
+  [ContinuousSMul ((gamma h q : Type)) (ZMod 2)]
+
+local notation "GammaL" => (gamma h q : Type)
+local notation "genL" => gammaGen (2 * h + 1) q (Words.LSq.lSqW h)
+local notation "WL" => gammaFam (2 * h + 1) q (Words.LSq.lSqW h)
+local notation "wL" => Certificates.LSqStokes.lSqFam h q e
+
+/-- Build the L source-comparison package from the already supplied target-local
+primal and dual resolvers and three explicit cardinal equalities.
+
+The old adapter required the same fixed word `wL` to resolve at every
+action-compatible quotient.  Here quotient-local cardinality-level L words supply
+that comparison through `lFlexibleResolverSystem`.  The three Tate-cup bijectivities
+and the three comparison squares remain explicit hypotheses. -/
+noncomputable def sourceComparisonPackage_of_lFlexibleH2_card_eq
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hcompatDual : ∀ (g : GammaL) (lam : ElemDual A), g • lam = rho g • lam)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hres : ResolvesAt WL wL (WordLift A C))
+    (hresDual : ResolvesAt WL wL (WordLift (ElemDual A) C))
+    (hcardA : Nat.card (H2 GammaL A) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL A))
+    (hcardDual : Nat.card (H2 GammaL (ElemDual A)) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL (ElemDual A)))
+    (hcardScalar : Nat.card (H2 GammaL (ZMod 2)) = Nat.card (ZMod 2))
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genL i)) (wL k) = 1)
+    (hend : IsStokesEndpoint wL)
+    (hpair : ∀ (g : GammaL) (a : A) (lam : ElemDual A),
+      dualEval A (g • a) (g • lam) = g • dualEval A a lam)
+    (h0A : H0 GammaL A ≃+ ↥(heisD0 (A := A) (fun i ↦ rho (genL i))).ker)
+    (h1A : H1 GammaL A ≃+ WordH1 (fun i ↦ rho (genL i)) wL A)
+    (h0Dual : H0 GammaL (ElemDual A) ≃+
+      ↥(heisD0 (A := ElemDual A) (fun i ↦ rho (genL i))).ker)
+    (h1Dual : H1 GammaL (ElemDual A) ≃+
+      WordH1 (fun i ↦ rho (genL i)) wL (ElemDual A))
+    (cup02_bijective : Function.Bijective (sourceCup02 hpair))
+    (cup11_bijective : Function.Bijective (sourceCup11 hpair))
+    (cup20_bijective : Function.Bijective (sourceCup20 hpair))
+    (square02_commutes : ∀ x,
+      ((AddEquiv.ofBijective
+          (stokesUC0 (heisD1 (A := ElemDual A) (fun i ↦ rho (genL i)) wL))
+          (stokesUC0_bijective
+            (heisD1 (A := ElemDual A) (fun i ↦ rho (genL i)) wL))).trans
+        (scalarDualTransport
+          (lModuleH2EquivFlexible_of_card_eq rho hcompatDual
+            (fun lam : ElemDual A ↦ lam.add_self_eq_zero) hresDual hcardDual)
+          (sourceScalarH2Equiv_of_card_eq hcardScalar)))
+          (stokesH0Map
+            (stokes_square₀ (A := A) (fun i ↦ rho (genL i)) wL hr hend) x)
+        = sourceCup02 hpair (h0A.symm x))
+    (square11_commutes : ∀ x,
+      ((AddEquiv.ofBijective
+          (stokesUC1
+            (heisD0 (A := ElemDual A) (fun i ↦ rho (genL i)))
+            (heisD1 (A := ElemDual A) (fun i ↦ rho (genL i)) wL))
+          (wordH1_target_uc (A := A) (fun i ↦ rho (genL i)) wL hr)).trans
+        (scalarDualTransport h1Dual (sourceScalarH2Equiv_of_card_eq hcardScalar)))
+          (stokesH1Map
+            (stokes_square₀ (A := A) (fun i ↦ rho (genL i)) wL hr hend)
+            (stokes_square₁ (A := A) (fun i ↦ rho (genL i)) wL hr hend) x)
+        = sourceCup11 hpair (h1A.symm x))
+    (square20_commutes : ∀ x,
+      ((AddEquiv.ofBijective
+          (stokesUC2 (heisD0 (A := ElemDual A) (fun i ↦ rho (genL i))))
+          (stokesUC2_bijective ElemDual.add_self_eq_zero wordDual_two_torsion
+            (heisD0 (A := ElemDual A) (fun i ↦ rho (genL i))))).trans
+        (scalarDualTransport h0Dual (sourceScalarH2Equiv_of_card_eq hcardScalar)))
+          (stokesH2Map
+            (stokes_square₁ (A := A) (fun i ↦ rho (genL i)) wL hr hend) x)
+        = sourceCup20 hpair
+          ((lModuleH2EquivFlexible_of_card_eq rho hcompatA hA₂ hres hcardA).symm x)) :
+    SourceComparisonPackage (fun i ↦ rho (genL i)) wL hr hend hpair
+      h0A h1A h0Dual h1Dual where
+  h2A := lModuleH2EquivFlexible_of_card_eq rho hcompatA hA₂ hres hcardA
+  h2Dual := lModuleH2EquivFlexible_of_card_eq rho hcompatDual
+    (fun lam : ElemDual A ↦ lam.add_self_eq_zero) hresDual hcardDual
+  h2Scalar := sourceScalarH2Equiv_of_card_eq hcardScalar
+  cup02_bijective := cup02_bijective
+  cup11_bijective := cup11_bijective
+  cup20_bijective := cup20_bijective
+  square02_commutes := square02_commutes
+  square11_commutes := square11_commutes
+  square20_commutes := square20_commutes
+
+end SourceAdapter
+
 end
 
 end GQ2.Dyadic.LSquare
