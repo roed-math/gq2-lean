@@ -300,6 +300,7 @@ import GQ2.Dyadic.Count.HTwo
 import GQ2.Dyadic.Count.HTwoModule
 import GQ2.Dyadic.Count.HTwoModuleGlobal
 import GQ2.Dyadic.Count.HTwoModuleReflection
+import GQ2.Dyadic.Count.HTwoModuleAssembly
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.Instances.KAnalytic
 import GQ2.Dyadic.Instances.QTwo
