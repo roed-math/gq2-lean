@@ -196,6 +196,58 @@ theorem moduleRelatorRealization_of_at
   intro r
   exact ⟨V, hV, hreal r⟩
 
+/-- Surjectivity of the canonical flexible comparison produces finite relator
+realizations.
+
+For a requested relator vector, choose a continuous `H²` class mapping to its word
+class, choose a normalized cocycle representative, and factor that representative
+through an action-compatible finite quotient.  The defining representative formula
+for the comparison then says that the finite cocycle's relator fibres realize the
+requested vector modulo the Fox differential.
+
+Thus this direction does not assume a finite relation-module splitting.  It extracts
+the exact finite witnesses encoded by surjectivity, and is useful both for base-case
+regressions and for auditing the strength of `ModuleRelatorRealization`. -/
+theorem moduleRelatorRealization_of_surjective
+    (hpres : IsAdmissibleMarkedPresentation G gen W J)
+    (rho : ContinuousMonoidHom G C)
+    (hcompat : ∀ (g : G) (a : A), g • a = rho g • a)
+    (hwildLevel : ∀ V : OpenNormalSubgroup G,
+      IsWildTwo J (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hresolve : ∀ (V : OpenNormalSubgroup G)
+      (hV : V.toSubgroup ≤ rho.toMonoidHom.ker),
+      letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
+        DistribMulAction.compHom A (quotientActionHom rho V hV)
+      ModuleFlexibleResolverAt (A := A) W c w
+        (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hsurj : Function.Surjective
+      (globalModuleH2WordFlexible hpres rho hcompat hwildLevel hA₂ hresolve)) :
+    ModuleRelatorRealization (A := A) W gen rho c w := by
+  intro r
+  obtain ⟨x, hx⟩ := hsurj
+    (QuotientAddGroup.mk' (heisD1 (A := A) c w).range r)
+  obtain ⟨f, rfl⟩ := H2mk_surjective x
+  obtain ⟨V, hV, z, hfactor⟩ := exists_moduleTwoCocycle_factor rho hcompat f
+  let rhoV : (G ⧸ V.toSubgroup) →* C := quotientActionHom rho V hV
+  letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
+    DistribMulAction.compHom A rhoV
+  refine ⟨V, hV, z, ?_⟩
+  rw [globalModuleH2WordFlexible_mk] at hx
+  let F : ModuleLevelFactor rho (moduleNormalize f.1) :=
+    { V := V
+      hV := hV
+      z := z
+      hfact := hfactor }
+  have hread : moduleObsFam W gen rho hcompat f =
+      fun k ↦ moduleRel (W k)
+        (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)) z := by
+    change moduleObsFun W gen rho hcompat f = _
+    rw [moduleObsFun_eq W gen rho hcompat f F]
+    rfl
+  rw [hread] at hx
+  exact QuotientAddGroup.eq_iff_sub_mem.mp hx
+
 omit [Fintype iota] [Fintype rel] [DecidableEq iota] in
 /-- The global obstruction of an inflated finite cocycle is exactly its finite
 relator-fibre vector.  This is the representative-level regression behind the
@@ -262,6 +314,33 @@ theorem globalModuleH2WordFlexible_surjective_of_relatorRealization
       rw [globalModuleH2WordFlexible_mk,
         moduleObsFam_inflateModuleTwoCocycle W gen rho hcompat V hV z]
       exact QuotientAddGroup.eq_iff_sub_mem.mpr hz
+
+/-- Finite relator realization is exactly surjectivity of the canonical flexible
+continuous-to-word `H²` comparison.
+
+The forward implication factors a chosen continuous cocycle representative through a
+finite quotient.  The reverse implication inflates a finite realizing cocycle.  This
+equivalence identifies the mathematical content of the remaining relation-module
+theorem without replacing it by a differently named cohomological hypothesis. -/
+theorem globalModuleH2WordFlexible_surjective_iff_relatorRealization
+    (hpres : IsAdmissibleMarkedPresentation G gen W J)
+    (rho : ContinuousMonoidHom G C)
+    (hcompat : ∀ (g : G) (a : A), g • a = rho g • a)
+    (hwildLevel : ∀ V : OpenNormalSubgroup G,
+      IsWildTwo J (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hresolve : ∀ (V : OpenNormalSubgroup G)
+      (hV : V.toSubgroup ≤ rho.toMonoidHom.ker),
+      letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
+        DistribMulAction.compHom A (quotientActionHom rho V hV)
+      ModuleFlexibleResolverAt (A := A) W c w
+        (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i))) :
+    Function.Surjective
+        (globalModuleH2WordFlexible hpres rho hcompat hwildLevel hA₂ hresolve) ↔
+      ModuleRelatorRealization (A := A) W gen rho c w :=
+  ⟨moduleRelatorRealization_of_surjective hpres rho hcompat hwildLevel hA₂ hresolve,
+    globalModuleH2WordFlexible_surjective_of_relatorRealization
+      hpres rho hcompat hwildLevel hA₂ hresolve⟩
 
 /-- Fixed-quotient convenience form of
 `globalModuleH2WordFlexible_surjective_of_relatorRealization`. -/
