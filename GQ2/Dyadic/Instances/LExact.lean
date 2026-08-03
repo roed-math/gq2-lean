@@ -72,6 +72,54 @@ def PushedHsimp (h q : ℕ) : Prop :=
           (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
           (lSqFam h q e) V hr hend
 
+/-- The target-local source residue for the L row.  Unlike `PushedHsimp`, this does not ask for
+an arbitrary odd free resolver and then quantify over unrelated simple modules.  The resolver is
+supplied at the exact split targets `WordLift A C` and `WordLift (ElemDual A) C` whose
+continuous cohomology is to be compared, and the conclusion is already the three cohomology
+bijections for that same general elementary module `A`.
+
+Consequently a continuous-cohomology proof may use `h0Equiv` and `h1Equiv_gammaR_range` with
+these very primal and dual resolvers; after those existing comparisons, the unresolved input is general-
+coefficient `H²`, together with the three Tate/cup-product squares.  Relator death is not an
+extra premise: `lower_rel` derives it from the candidate presentation and the target-local
+resolver. -/
+def ResolvedPushedHsimp (h q : ℕ) : Prop :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) C) (e : ℕ), Odd e →
+    ∀ (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+      [TopologicalSpace (WordLift A C)] [DiscreteTopology (WordLift A C)]
+      [TopologicalSpace (WordLift (ElemDual A) C)]
+      [DiscreteTopology (WordLift (ElemDual A) C)],
+      (∀ a : A, a + a = 0) →
+      ∀ (hres : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+          (lSqFam h q e) (WordLift A C))
+        (_hresDual : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+          (lSqFam h q e) (WordLift (ElemDual A) C))
+        (hend : IsStokesEndpoint (lSqFam h q e)),
+        StokesCohomologyBijections
+          (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
+          (lSqFam h q e) A
+          (fun k => lower_rel rho (fun _ => rfl)
+            (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)) hres k)
+          hend
+
+/-- The older pushed residue implies the target-local general-coefficient residue.  The only
+work is the already-proved simple-module devissage; no new resolver is chosen. -/
+theorem resolvedPushedHsimp_of_pushedHsimp {h q : ℕ} (hsimp : PushedHsimp h q) :
+    ResolvedPushedHsimp h q := by
+  intro C _ _ _ _ rho e he A _ _ _ _ _ _ _ hA₂ hres _hresDual hend
+  set t : Marking (2 * h + 1) C :=
+    ⟨fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g)⟩ with ht
+  have hr : ∀ k, FreeGroup.lift ⇑t (lSqFam h q e k) = 1 := fun k =>
+    lower_rel (A := A) rho (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)) hres k
+  have hd : StokesDuality ⇑t (lSqFam h q e) A :=
+    stokesDuality_of_simple ⇑t (lSqFam h q e) hr hend
+      (fun V _ _ _ hV₂ hsimple =>
+        (stokesDuality_iff_cohomologyBijections ⇑t (lSqFam h q e) V hr hend).mpr
+          (hsimp C rho e he hr hend V hV₂ hsimple)) A hA₂
+  exact (stokesDuality_iff_cohomologyBijections ⇑t (lSqFam h q e) A hr hend).mp hd
+
 /-- The historical all-markings residue implies the pushed cohomological one.  This proves
 that `PushedHsimp` is a genuine weakening of the existing API; no consumer of `Hsimp` changes
 meaning.  The converse is intentionally absent because relator-killing markings need not be
@@ -87,6 +135,92 @@ theorem pushedHsimp_of_hsimp {h q : ℕ} (hsimp : Hsimp h q) : PushedHsimp h q :
     (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 1)
   exact (stokesDuality_iff_cohomologyBijections ⇑t (lSqFam h q e) V hr hend).mp
     (hsimp C t e he hrt hrw V hV₂ hsimple)
+
+/-- The historical all-markings residue also implies the target-local residue, through its
+unchanged pushed wrapper. -/
+theorem resolvedPushedHsimp_of_hsimp {h q : ℕ} (hsimp : Hsimp h q) :
+    ResolvedPushedHsimp h q :=
+  resolvedPushedHsimp_of_pushedHsimp (pushedHsimp_of_hsimp hsimp)
+
+/-- Upgrade the target-local residue to Stokes duality on exactly the supplied elementary
+module.  This is the direct continuous-cohomology adapter: the same primal and dual resolvers
+occur in the residue, and the primal one occurs in `lower_rel`, so there is no resolver-changing
+step. -/
+theorem stokesDuality_of_resolvedPushed {h q : ℕ} (hsimp : ResolvedPushedHsimp h q)
+    (hqe : Even q)
+    {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) C) {e : ℕ} (he : Odd e)
+    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    [TopologicalSpace (WordLift A C)] [DiscreteTopology (WordLift A C)]
+    [TopologicalSpace (WordLift (ElemDual A) C)]
+    [DiscreteTopology (WordLift (ElemDual A) C)]
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hres : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q e) (WordLift A C))
+    (hresDual : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q e) (WordLift (ElemDual A) C)) :
+    StokesDuality (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
+      (lSqFam h q e) A := by
+  set t : Marking (2 * h + 1) C :=
+    ⟨fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g)⟩ with ht
+  have hr : ∀ k, FreeGroup.lift ⇑t (lSqFam h q e k) = 1 := fun k =>
+    lower_rel (A := A) rho (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)) hres k
+  have hend : IsStokesEndpoint (lSqFam h q e) := lSq_isStokesEndpoint hqe he
+  exact (stokesDuality_iff_cohomologyBijections ⇑t (lSqFam h q e) A hr hend).mpr
+    (hsimp C rho e he A hA₂ hres hresDual hend)
+
+/-! The scalar coefficient is canonically self-dual.  The target-local interface nevertheless
+records its dual resolver explicitly, so the following embedding transports the scalar resolver
+without hiding a second target. -/
+
+/-- Evaluation at `1` identifies an elementary functional on `ZMod 2`. -/
+def scalarDualEval : ElemDual (ZMod 2) →+ ZMod 2 where
+  toFun f := f 1
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+theorem scalarDualEval_injective : Function.Injective scalarDualEval := by
+  intro f g hfg
+  apply ElemDual.ext
+  intro x
+  have hx : x = (x.cast : ℤ) • (1 : ZMod 2) := by
+    rw [← ZMod.intCast_zmod_cast x]
+    simp
+  change f 1 = g 1 at hfg
+  rw [hx, map_zsmul, map_zsmul, hfg]
+
+/-- The scalar-dual split target embeds into the scalar split target by evaluation at `1`. -/
+noncomputable def wordLiftScalarDualMap {C : Type} [Group C]
+    [DistribMulAction C (ZMod 2)] :
+    WordLift (ElemDual (ZMod 2)) C →* WordLift (ZMod 2) C :=
+  WordLift.map scalarDualEval (fun g lam => by
+    rw [smul_elemDual_zmod2, smul_zmod2])
+
+theorem wordLiftScalarDualMap_injective {C : Type} [Group C]
+    [DistribMulAction C (ZMod 2)] :
+    Function.Injective (wordLiftScalarDualMap (C := C)) := by
+  intro p p' hp
+  apply WordLift.ext
+  · apply scalarDualEval_injective
+    exact congrArg (fun z : WordLift (ZMod 2) C => z.u) hp
+  · exact congrArg (fun z : WordLift (ZMod 2) C => z.g) hp
+
+/-- A scalar resolution at a finite target gives the resolution at its canonically self-dual
+coefficient target, at the same integer resolver. -/
+theorem resolvesAt_scalarDual_of_scalar
+    {ι κ C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    [DistribMulAction C (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) C)]
+    [DiscreteTopology (WordLift (ZMod 2) C)]
+    [TopologicalSpace (WordLift (ElemDual (ZMod 2)) C)]
+    [DiscreteTopology (WordLift (ElemDual (ZMod 2)) C)]
+    {W : κ → PWord ι} {w : κ → FreeGroup ι}
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) :
+    ResolvesAt W w (WordLift (ElemDual (ZMod 2)) C) :=
+  hres.pullback
+    ⟨wordLiftScalarDualMap, continuous_of_discreteTopology⟩
+    wordLiftScalarDualMap_injective
 
 /-- Upgrade the pushed cohomological residue to every finite elementary module at the
 candidate marking.  This is the non-circular branch adapter intended for a future
@@ -140,15 +274,51 @@ theorem stokesDuality_T_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : E
     (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M)) :
     StokesDuality (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
       (lSqFam h q (omega2Exp (heisLevel D))) (Additive ↥D.T) := by
+  letI : TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M)) := ⊥
+  letI : DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M)) := ⟨rfl⟩
+  letI : TopologicalSpace (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) := ⊥
+  letI : DiscreteTopology (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) := ⟨rfl⟩
   have hres : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
       (lSqFam h q (omega2Exp (heisLevel D)))
-      (WordLift (ZMod 2) (Bg ⧸ D.M)) :=
+      (WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :=
     (resolvesAt_and_endpoint_lSqFam
-      (Q := WordLift (ZMod 2) (Bg ⧸ D.M)) heisLevel_ne_zero heisLevel_even
-      orderOf_dvd_heisLevel_scal (h := h) (q := q) hqe).1
-  exact stokesDuality_of_pushed hsimp hqe rho
-    (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hres
-    (Additive ↥D.T) (radT_add_self D)
+      (Q := WordLift (Additive ↥D.T) (Bg ⧸ D.M)) heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim (h := h) (q := q) hqe).1
+  have hresDual : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q (omega2Exp (heisLevel D)))
+      (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) :=
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual (h := h) (q := q) hqe).1
+  exact stokesDuality_of_resolvedPushed (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe rho
+    (odd_omega2Exp heisLevel_ne_zero heisLevel_even) (Additive ↥D.T)
+    (radT_add_self D) hres hresDual
+
+/-- Target-local primary-module Stokes payload.  Its resolver is constructed at
+`WordLift D.T (Bg ⧸ D.M)`, the same target named by `ResolvedPushedHsimp`. -/
+theorem stokesDuality_T_of_resolvedPushed {h q : ℕ}
+    (hsimp : ResolvedPushedHsimp h q) (hqe : Even q)
+    {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+    {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [TopologicalSpace (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M)) :
+    StokesDuality (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
+      (lSqFam h q (omega2Exp (heisLevel D))) (Additive ↥D.T) := by
+  have hres : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q (omega2Exp (heisLevel D)))
+      (WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :=
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim (h := h) (q := q) hqe).1
+  have hresDual : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q (omega2Exp (heisLevel D)))
+      (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) :=
+    (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual (h := h) (q := q) hqe).1
+  exact stokesDuality_of_resolvedPushed hsimp hqe rho
+    (odd_omega2Exp heisLevel_ne_zero heisLevel_even) (Additive ↥D.T)
+    (radT_add_self D) hres hresDual
 
 /-- Historical all-markings wrapper for `stokesDuality_T_of_pushed`. -/
 theorem stokesDuality_T {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
@@ -244,7 +414,8 @@ theorem datumRho_surjective (h q : ℕ) : Function.Surjective (datumRho h q) := 
 
 /-- The scalar `H²` count required by the `R`-stage, derived from the uniform variation
 quotient and the same L-square Stokes residue used by the lift count. -/
-theorem cardH2_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q) :
+theorem cardH2_of_resolvedPushed {h q : ℕ} (hsimp : ResolvedPushedHsimp h q)
+    (hqe : Even q) :
     letI := scalarActionZmodTwo ((gamma h q : Type))
     Nat.card (H2 ((gamma h q : Type)) (ZMod 2)) = 2 := by
   letI := scalarActionZmodTwo ((gamma h q : Type))
@@ -290,16 +461,28 @@ theorem cardH2_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q) :
       (HeisLift (Additive ↥datum.T) (Base ⧸ datum.M)) :=
     (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
       orderOf_dvd_heisLevel_heis (h := h) (q := q) hqe).1
+  letI : TopologicalSpace (WordLift (ElemDual (ZMod 2)) (Base ⧸ datum.M)) := ⊥
+  letI : DiscreteTopology (WordLift (ElemDual (ZMod 2)) (Base ⧸ datum.M)) := ⟨rfl⟩
+  have hresSD : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q (omega2Exp (heisLevel datum)))
+      (WordLift (ElemDual (ZMod 2)) (Base ⧸ datum.M)) :=
+    resolvesAt_scalarDual_of_scalar hresS
   exact cardH2_of_variation (tComplement_nonempty datum).some rho (fun _ _ => rfl)
     (fun _ _ => rfl) (fun _ => rfl)
     (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))
     (fun V => hwildLevel_gammaR V)
     (isWildTwo_of_gammaGen rho (datumRho_surjective h q) (fun _ => rfl))
-    hresS hresP hresD hresH (stokesDuality_T_of_pushed hsimp hqe rho)
-    (stokesDuality_of_pushed hsimp hqe rho
-      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
-      (by decide : ∀ a : ZMod 2, a + a = 0))
+    hresS hresP hresD hresH (stokesDuality_T_of_resolvedPushed hsimp hqe rho)
+    (stokesDuality_of_resolvedPushed hsimp hqe rho
+      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) (ZMod 2)
+      (by decide : ∀ a : ZMod 2, a + a = 0) hresS hresSD)
     hb.2 datum_noDescent (datumRho_surjective h q)
+
+/-- The original pushed residue reaches the target-local scalar count through devissage. -/
+theorem cardH2_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q) :
+    letI := scalarActionZmodTwo ((gamma h q : Type))
+    Nat.card (H2 ((gamma h q : Type)) (ZMod 2)) = 2 :=
+  cardH2_of_resolvedPushed (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe
 
 /-- Historical all-markings wrapper for `cardH2_of_pushed`. -/
 theorem cardH2 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q) :
@@ -308,7 +491,8 @@ theorem cardH2 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q) :
   cardH2_of_pushed (pushedHsimp_of_hsimp hsimp) hqe
 
 /-- The lift count at every recursion frame. -/
-theorem liftsOver_card_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+theorem liftsOver_card_of_resolvedPushed {h q : ℕ} (hsimp : ResolvedPushedHsimp h q)
+    (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
     ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -331,20 +515,34 @@ theorem liftsOver_card_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Ev
       (lSqFam h q
         (omega2Exp (Monoid.exponent (HeisLift (Additive ↥RF.MB) RF.YC))))
       (WordLift (Additive ↥RF.MB) RF.YC) := hb.1
-  have hresS : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+  have hresD : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
       (lSqFam h q
         (omega2Exp (Monoid.exponent (HeisLift (Additive ↥RF.MB) RF.YC))))
-      (WordLift (ZMod 2) RF.YC) :=
+      (WordLift (ElemDual (Additive ↥RF.MB)) RF.YC) :=
     (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero_and_even.1
-      heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
+      heisLevel_ne_zero_and_even.2 orderOf_wordLiftDual_dvd_heisExponent
       (h := h) (q := q) hqe).1
   exact liftsOver_cardN RF b F rho
     (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))
     (fun _ => rfl) (isWildTwo_of_gammaGen rho.1.1 rho.1.2 (fun _ => rfl))
     (degree h) hres
-    (stokesDuality_of_pushed hsimp hqe rho.1.1
+    (stokesDuality_of_resolvedPushed hsimp hqe rho.1.1
       (odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2)
-      hresS (Additive ↥RF.MB) (mb_add_self RF)) hb.2
+      (Additive ↥RF.MB) (mb_add_self RF) hres hresD) hb.2
+
+/-- The original pushed residue supplies the target-local lift-count residue by devissage. -/
+theorem liftsOver_card_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+      (RF : RecursionFrame T Blk)
+      (b : ContinuousMonoidHom ((gamma h q : Type)) ↥(boundarySubgroupQ q nuP))
+      (F : BoundaryFrameK q P H E) (rho : BoundaryLiftsK b F RF.TC),
+      Nat.card (LiftsOverK RF b F rho) =
+        (standardNumerics (2 * h + 1)).mMult (Nat.card ↥RF.MB) :=
+  liftsOver_card_of_resolvedPushed (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe
 
 /-- Historical all-markings wrapper for `liftsOver_card_of_pushed`. -/
 theorem liftsOver_card {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
@@ -361,7 +559,8 @@ theorem liftsOver_card {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
   liftsOver_card_of_pushed (pushedHsimp_of_hsimp hsimp) hqe
 
 /-- The universal half-torsor identity, derived from nonzero variation. -/
-theorem lem86_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+theorem lem86_of_resolvedPushed {h q : ℕ} (hsimp : ResolvedPushedHsimp h q)
+    (hqe : Even q)
     {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
     (D : RadicalCoverData Bg) (hedge : D.NoDescent)
     (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
@@ -409,16 +608,33 @@ theorem lem86_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
       (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) :=
     (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero heisLevel_even
       orderOf_dvd_heisLevel_heis (h := h) (q := q) hqe).1
+  letI : TopologicalSpace (WordLift (ElemDual (ZMod 2)) (Bg ⧸ D.M)) := ⊥
+  letI : DiscreteTopology (WordLift (ElemDual (ZMod 2)) (Bg ⧸ D.M)) := ⟨rfl⟩
+  have hresSD : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q (omega2Exp (heisLevel D)))
+      (WordLift (ElemDual (ZMod 2)) (Bg ⧸ D.M)) :=
+    resolvesAt_scalarDual_of_scalar hresS
   exact lem86_of_variation (tComplement_nonempty D).some rho (fun _ _ => rfl)
     (fun _ _ => rfl) (fun _ => rfl)
     (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))
     (fun V => hwildLevel_gammaR V)
     (isWildTwo_of_gammaGen rho hrho (fun _ => rfl)) hresS hresP hresD hresH
-    (stokesDuality_T_of_pushed hsimp hqe rho)
-    (stokesDuality_of_pushed hsimp hqe rho
-      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
-      (by decide : ∀ a : ZMod 2, a + a = 0))
+    (stokesDuality_of_resolvedPushed hsimp hqe rho
+      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) (Additive ↥D.T)
+      (radT_add_self D) hresP hresD)
+    (stokesDuality_of_resolvedPushed hsimp hqe rho
+      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) (ZMod 2)
+      (by decide : ∀ a : ZMod 2, a + a = 0) hresS hresSD)
     hb.2 hedge hrho
+
+/-- The original pushed residue supplies the target-local half-torsor residue by devissage. -/
+theorem lem86_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+    {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) (hedge : D.NoDescent)
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
+    (hrho : Function.Surjective rho) :
+    2 * Nat.card {f : MLifts D rho // f.Central} = Nat.card (MLifts D rho) :=
+  lem86_of_resolvedPushed (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe D hedge rho hrho
 
 /-- Historical all-markings wrapper for `lem86_of_pushed`. -/
 theorem lem86 {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
@@ -466,24 +682,35 @@ def StageZ (h q : ℕ) : Prop :=
 /-! ## Assembly and constructor-table regression -/
 
 /-- Exact lifting for the improved odd/L presentation at every handle count. -/
-theorem exactLifting_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+theorem exactLifting_of_resolvedPushed {h q : ℕ} (hsimp : ResolvedPushedHsimp h q)
+    (hqe : Even q)
     (hsep : StageSep h q) (hZ : StageZ h q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemantics (gamma h q) (2 * h + 1) q P nuP
       (standardNumerics (2 * h + 1)) := by
-  refine ⟨liftsOver_card_of_pushed hsimp hqe, ?_, ?_⟩
+  refine ⟨liftsOver_card_of_resolvedPushed hsimp hqe, ?_, ?_⟩
   · intro Bg _ _ _ _ D hedge rho hrho
-    exact lem86_of_pushed hsimp hqe D hedge rho hrho
+    exact lem86_of_resolvedPushed hsimp hqe D hedge rho hrho
   · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
     letI := scalarActionZmodTwo ((gamma h q : Type))
     haveI := scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
     exact blockStageR136K T Blk hE₂ (scalarActionZmodTwo_triv _)
-      (cardH2_of_pushed hsimp hqe)
+      (cardH2_of_resolvedPushed hsimp hqe)
       (tfg_of_isAdmissibleMarkedPresentation
         (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h))) b F
       (fun g hg => hsep T Blk hE₂ b F (scalarActionZmodTwo_triv _)
-        (cardH2_of_pushed hsimp hqe) g hg)
+        (cardH2_of_resolvedPushed hsimp hqe) g hg)
       (fun f₀ => hZ T Blk hE₂ b F f₀)
+
+/-- The original pushed residue reaches the target-local exact-lifting constructor through
+simple-module devissage. -/
+theorem exactLifting_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+    (hsep : StageSep h q) (hZ : StageZ h q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) :=
+  exactLifting_of_resolvedPushed (resolvedPushedHsimp_of_pushedHsimp hsimp)
+    hqe hsep hZ nuP
 
 /-- Historical all-markings wrapper for `exactLifting_of_pushed`. -/
 theorem exactLifting {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
@@ -495,13 +722,14 @@ theorem exactLifting {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
 
 /-- Corrected exact lifting for the improved odd/L presentation.  Resolver and Stokes data
 discharge both former `R`-stage residues, with the degree-indexed `zRN` coefficient. -/
-theorem exactLiftingRN_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+theorem exactLiftingRN_of_resolvedPushed {h q : ℕ}
+    (hsimp : ResolvedPushedHsimp h q) (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
       (standardNumerics (2 * h + 1)) := by
-  refine ⟨liftsOver_card_of_pushed hsimp hqe, ?_, ?_⟩
+  refine ⟨liftsOver_card_of_resolvedPushed hsimp hqe, ?_, ?_⟩
   · intro Bg _ _ _ _ D hedge rho hrho
-    exact lem86_of_pushed hsimp hqe D hedge rho hrho
+    exact lem86_of_resolvedPushed hsimp hqe D hedge rho hrho
   · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
     letI := scalarActionZmodTwo ((gamma h q : Type))
     haveI := scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
@@ -526,12 +754,20 @@ theorem exactLiftingRN_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Ev
       (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero_and_even.1
         heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
         (h := h) (q := q) hqe).1
+    have hresD : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+        (lSqFam h q
+          (omega2Exp (Monoid.exponent
+            (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+        (WordLift (ElemDual (Additive ↑Blk.frattiniK)) (Y ⧸ Blk.K)) :=
+      (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero_and_even.1
+        heisLevel_ne_zero_and_even.2 orderOf_wordLiftDual_dvd_heisExponent
+        (h := h) (q := q) hqe).1
     have he : Odd (omega2Exp (Monoid.exponent
         (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))) :=
       odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
     have hpres := isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)
     exact blockStageR136NK (standardNumerics (2 * h + 1)) T Blk hE₂
-      (scalarActionZmodTwo_triv _) (cardH2_of_pushed hsimp hqe)
+      (scalarActionZmodTwo_triv _) (cardH2_of_resolvedPushed hsimp hqe)
       (tfg_of_isAdmissibleMarkedPresentation hpres) b F
       (fun g hg => by
         let qKR : (blockFrameImpl T Blk hE₂).YB →* (Y ⧸ Blk.K) :=
@@ -549,10 +785,10 @@ theorem exactLiftingRN_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Ev
                 (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
             (Additive ↑Blk.frattiniK) := by
           simpa only [hrho_apply] using
-            (stokesDuality_of_pushed hsimp hqe rho he hres2 (Additive ↑Blk.frattiniK)
-              (RStageLocal.frattiniK_add_self hRK hR₂))
+            (stokesDuality_of_resolvedPushed hsimp hqe rho he (Additive ↑Blk.frattiniK)
+              (RStageLocal.frattiniK_add_self hRK hR₂) hresR hresD)
         exact homLift_of_obs_zero_boundaryLiftK_markingN hE₂ hRK hR₂
-          (scalarActionZmodTwo_triv _) (cardH2_of_pushed hsimp hqe) b F g hpres
+          (scalarActionZmodTwo_triv _) (cardH2_of_resolvedPushed hsimp hqe) b F g hpres
           (isWildTwo_of_gammaGen g.1.1 g.1.2 (fun _ => rfl)) hres2 hresR hd hb.2 hg)
       (fun f₀ => by
         let theta : ContinuousMonoidHom ((gamma h q : Type)) (Y ⧸ Blk.K) :=
@@ -574,11 +810,19 @@ theorem exactLiftingRN_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Ev
                 (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
             (Additive ↑Blk.frattiniK) := by
           simpa only [htheta_apply] using
-            (stokesDuality_of_pushed hsimp hqe theta he hres2 (Additive ↑Blk.frattiniK)
-              (RStageLocal.frattiniK_add_self hRK hR₂))
+            (stokesDuality_of_resolvedPushed hsimp hqe theta he (Additive ↑Blk.frattiniK)
+              (RStageLocal.frattiniK_add_self hRK hR₂) hresR hresD)
         exact rCocycle_card_standard_zRN hE₂ hRK hR₂ f₀.1.1 f₀.1.2 hpres
           hresR (isWildTwo_of_gammaGen theta htheta_surj (fun _ => rfl))
           (degree h) hd hb.2)
+
+/-- The original pushed residue reaches the target-local corrected exact-lifting constructor
+through simple-module devissage. -/
+theorem exactLiftingRN_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) :=
+  exactLiftingRN_of_resolvedPushed (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe nuP
 
 /-- Historical all-markings wrapper for `exactLiftingRN_of_pushed`. -/
 theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
@@ -594,12 +838,21 @@ theorem gamma_eq_improved (h q : ℕ) : gamma h q = GammaR (2 * h + 1) q (lSqW h
 /-- At handle count zero, corrected degree-one semantics agrees with the frozen API.  This
 regresses the new constructor against the historical theorem at the unique degree where their
 R-stage coefficients coincide definitionally. -/
-theorem exactLiftingRN_zero_regression_of_pushed {q : ℕ} (hsimp : PushedHsimp 0 q)
+theorem exactLiftingRN_zero_regression_of_resolvedPushed {q : ℕ}
+    (hsimp : ResolvedPushedHsimp 0 q)
     (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemantics (gamma 0 q) 1 q P nuP (standardNumerics 1) := by
   rw [← exactLiftingSemanticsRN_standard_one_iff]
-  simpa using exactLiftingRN_of_pushed hsimp hqe nuP
+  simpa using exactLiftingRN_of_resolvedPushed hsimp hqe nuP
+
+/-- Legacy pushed wrapper for the degree-one target-local regression theorem. -/
+theorem exactLiftingRN_zero_regression_of_pushed {q : ℕ} (hsimp : PushedHsimp 0 q)
+    (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (gamma 0 q) 1 q P nuP (standardNumerics 1) :=
+  exactLiftingRN_zero_regression_of_resolvedPushed
+    (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe nuP
 
 /-- Historical all-markings wrapper for `exactLiftingRN_zero_regression_of_pushed`. -/
 theorem exactLiftingRN_zero_regression {q : ℕ} (hsimp : Hsimp 0 q) (hqe : Even q)
@@ -627,11 +880,11 @@ theorem gamma_eq_fieldSelection
 
 /-- The selected `.L` presentation receives the presentation-level exact-lifting certificate.
 This theorem does not assert that an arbitrary field belongs to the L family. -/
-theorem exactLifting_of_fieldSelection_pushed
+theorem exactLifting_of_fieldSelection_resolvedPushed
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
-    (hsimp : PushedHsimp (handleCount FP .L) q) (hqe : Even q)
+    (hsimp : ResolvedPushedHsimp (handleCount FP .L) q) (hqe : Even q)
     (hsep : StageSep (handleCount FP .L) q) (hZ : StageZ (handleCount FP .L) q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemantics
@@ -646,7 +899,21 @@ theorem exactLifting_of_fieldSelection_pushed
         (GammaR (2 * handleCount FP .L + 1) q (lSqW (handleCount FP .L)))
         (2 * handleCount FP .L + 1) q P nuP
         (standardNumerics (2 * handleCount FP .L + 1))
-      exact exactLifting_of_pushed hsimp hqe hsep hZ nuP
+      exact exactLifting_of_resolvedPushed hsimp hqe hsep hZ nuP
+
+/-- Legacy pushed wrapper for the target-local selected L exact-lifting theorem. -/
+theorem exactLifting_of_fieldSelection_pushed
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : PushedHsimp (handleCount FP .L) q) (hqe : Even q)
+    (hsep : StageSep (handleCount FP .L) q) (hZ : StageZ (handleCount FP .L) q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) :=
+  exactLifting_of_fieldSelection_resolvedPushed S hbranch
+    (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe hsep hZ nuP
 
 /-- Historical all-markings wrapper for `exactLifting_of_fieldSelection_pushed`. -/
 theorem exactLifting_of_fieldSelection
@@ -664,11 +931,11 @@ theorem exactLifting_of_fieldSelection
 
 /-- The selected improved L presentation receives corrected exact-lifting semantics directly;
 the former `StageSep` and `StageZ` arguments are no longer present. -/
-theorem exactLiftingRN_of_fieldSelection_pushed
+theorem exactLiftingRN_of_fieldSelection_resolvedPushed
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
-    (hsimp : PushedHsimp (handleCount FP .L) q) (hqe : Even q)
+    (hsimp : ResolvedPushedHsimp (handleCount FP .L) q) (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemanticsRN
       (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
@@ -682,7 +949,20 @@ theorem exactLiftingRN_of_fieldSelection_pushed
         (GammaR (2 * handleCount FP .L + 1) q (lSqW (handleCount FP .L)))
         (2 * handleCount FP .L + 1) q P nuP
         (standardNumerics (2 * handleCount FP .L + 1))
-      exact exactLiftingRN_of_pushed hsimp hqe nuP
+      exact exactLiftingRN_of_resolvedPushed hsimp hqe nuP
+
+/-- Legacy pushed wrapper for the target-local corrected selected L exact-lifting theorem. -/
+theorem exactLiftingRN_of_fieldSelection_pushed
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : PushedHsimp (handleCount FP .L) q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) :=
+  exactLiftingRN_of_fieldSelection_resolvedPushed S hbranch
+    (resolvedPushedHsimp_of_pushedHsimp hsimp) hqe nuP
 
 /-- Historical all-markings wrapper for `exactLiftingRN_of_fieldSelection_pushed`. -/
 theorem exactLiftingRN_of_fieldSelection
