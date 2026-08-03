@@ -331,6 +331,7 @@ import GQ2.Dyadic.Instances.LFlexibleH2
 import GQ2.Dyadic.Instances.LSourceEulerCard
 import GQ2.Dyadic.Instances.LSourceDualityAdapter
 import GQ2.Dyadic.Instances.LSourceComposition
+import GQ2.Dyadic.Instances.GammaLDualityBoundary
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
 import GQ2.Dyadic.Count.Lifts
