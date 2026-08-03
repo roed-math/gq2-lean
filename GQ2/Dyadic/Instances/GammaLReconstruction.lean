@@ -217,6 +217,27 @@ noncomputable def ofKExactSupply_and_RStageResidues
   ofKExactSupplyRN (KExactSupplyRN.ofKExactSupplyAndRStageResidues S Rstage)
     params params_n params_qK ramifiedData
 
+/-- Corrected reconstruction from legacy arithmetic data and the sole remaining GalK R-stage
+residue.  The degree-corrected R-cocycle count is now a theorem of local duality. -/
+noncomputable def ofKExactSupply_and_RStageSeparation
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+    {T : OrientedTameQuotientK B FF} {h : ℕ}
+    (S : KExactSupply T (2 * h + 1) (LCore h) (SqCore.isProP_DSq h) (LNu h))
+    (Sep : CorrectedRStageSeparationGalK K (qOf K FF) (LCore h) (LNu h))
+    (params : FieldParameters) (params_n : params.n = 2 * h + 1)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    GammaLCorrectedArithmeticInput h (qOf K FF) K :=
+  ofKExactSupplyRN (KExactSupplyRN.ofKExactSupplyAndRStageSeparation S Sep)
+    params params_n params_qK ramifiedData
+
 /-- Degree-one specialization of the corrected arithmetic constructor.  Unlike the general
 odd-degree constructor, this needs no extra equation-(136) input because the corrected and
 legacy coefficients coincide at `n = 1`. -/

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Count.LocalDuality
+import GQ2.Dyadic.Instances.GammaLDualityBoundary
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.GaussZ.FinalDK
 import GQ2.Dyadic.SourceDataRN
@@ -274,6 +275,160 @@ structure CorrectedRStageResiduesGalK (K : IntermediateField ℚ_[2] ℚ̄₂)
     Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) =
       zRN (blockFrameImpl T Blk hE2) SN
 
+/-- The corrected R-cocycle count at `G_K`.  This is the degree-`n` version of
+`RStageLocal.hZcount_local`: the multiplicative cocycles are identified with continuous
+`Z¹(G_K, R)`, and `card_Z1_eqG` supplies the exponent `n + 1`. -/
+theorem correctedRStage_hZcount_galK
+    {n q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hdeg : Module.finrank ℚ_[2] K = n)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom (galKProfinite K) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (f₀ : BoundaryLiftsK b F T) :
+    Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) =
+      zRN (blockFrameImpl T Blk hE2) (standardNumerics n) := by
+  classical
+  let G : Type := ((galKProfinite K : ProfiniteGrp) : Type)
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  set θ : ContinuousMonoidHom (galKProfinite K) (Y ⧸ Blk.K) :=
+    ⟨(QuotientGroup.mk' Blk.K).comp f₀.1.1.toMonoidHom, by
+      show Continuous fun γ => QuotientGroup.mk' Blk.K (f₀.1.1 γ)
+      exact Continuous.comp continuous_of_discreteTopology f₀.1.1.continuous_toFun⟩ with hθdef
+  have hθs : Function.Surjective ⇑θ := by
+    intro c
+    obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+    obtain ⟨γ, hγ⟩ := f₀.1.2 y
+    exact ⟨γ, by show QuotientGroup.mk' Blk.K (f₀.1.1 γ) = c; rw [hγ, hy]⟩
+  letI actG : DistribMulAction G (Additive ↥Blk.frattiniK) :=
+    DistribMulAction.compHom _ θ.toMonoidHom
+  letI : TopologicalSpace (Additive ↥Blk.frattiniK) :=
+    (inferInstance : TopologicalSpace ↥Blk.frattiniK)
+  haveI : DiscreteTopology (Additive ↥Blk.frattiniK) :=
+    ⟨(inferInstance : DiscreteTopology ↥Blk.frattiniK).eq_bot⟩
+  haveI : Finite (Additive ↥Blk.frattiniK) := inferInstance
+  haveI csR : ContinuousSMul G (Additive ↥Blk.frattiniK) := by
+    refine ⟨?_⟩
+    have hfac : (fun p : G × Additive ↥Blk.frattiniK => p.1 • p.2) =
+        (fun p : (Y ⧸ Blk.K) × Additive ↥Blk.frattiniK => p.1 • p.2) ∘
+          (fun p : G × Additive ↥Blk.frattiniK => (θ p.1, p.2)) := rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hcomp : ∀ (γ : G) (a : Additive ↥Blk.frattiniK), γ • a = θ γ • a :=
+    fun _ _ => rfl
+  have hA2 : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 :=
+    RStageLocal.frattiniK_add_self hRK hR2
+  have hsmul : ∀ (γ : G) (a : Additive ↥Blk.frattiniK), γ • a = Additive.ofMul
+      (⟨f₀.1.1 γ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * (f₀.1.1 γ)⁻¹,
+        RStageLocal.conj_mem_R (f₀.1.1 γ) (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
+    intro γ a
+    have h1 : γ • a = (QuotientGroup.mk' Blk.K (f₀.1.1 γ) : Y ⧸ Blk.K) •
+        Additive.ofMul (Additive.toMul a) := rfl
+    rw [h1]
+    exact RStageLocal.conjC_smul_of_mk hRK (f₀.1.1 γ) (Additive.toMul a)
+  have hequiv : RCocycle (blockFrameImpl T Blk hE2) f₀.1.1 ≃
+      ↥(Z1 G (Additive ↥Blk.frattiniK)) :=
+    { toFun := fun c =>
+        ⟨fun γ => Additive.ofMul ⟨c.u γ, c.mem γ⟩, by
+          refine mem_Z1_iff.mpr ⟨?_, ?_⟩
+          · show Continuous fun γ => (⟨c.u γ, c.mem γ⟩ : ↥Blk.frattiniK)
+            exact Continuous.subtype_mk c.cont _
+          · intro γ δ
+            rw [hsmul γ (Additive.ofMul ⟨c.u δ, c.mem δ⟩)]
+            refine Additive.toMul.injective (Subtype.ext ?_)
+            exact c.crossed γ δ⟩
+      invFun := fun z =>
+        { u := fun γ => ((Additive.toMul (z.1 γ) : ↥Blk.frattiniK) : Y)
+          mem := fun γ => (Additive.toMul (z.1 γ)).2
+          cont := continuous_subtype_val.comp (mem_Z1_iff.mp z.2).1
+          crossed := by
+            intro γ δ
+            have hz := (mem_Z1_iff.mp z.2).2 γ δ
+            rw [hsmul γ (z.1 δ)] at hz
+            have := congrArg
+              (fun a => ((Additive.toMul a : ↥Blk.frattiniK) : Y)) hz
+            simpa using this }
+      left_inv := fun c => RCocycle.ext rfl
+      right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
+  let e : G ≃ₜ* GalK K := ContinuousMulEquiv.refl (GalK K)
+  letI dmTarget : DistribMulAction (GalK K) (MuN 2) := inferInstance
+  have hcontTarget : Continuous fun p : (GalK K) × MuN 2 => p.1 • p.2 := continuous_smul
+  letI dmMu : DistribMulAction G (MuN 2) :=
+    DistribMulAction.compHom _ e.toMonoidHom
+  haveI csMu : ContinuousSMul G (MuN 2) :=
+    ⟨hcontTarget.comp ((e.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
+  haveI : (GalKsub K).FiniteIndex :=
+    @Subgroup.finiteIndex_of_finite_quotient _ _ _
+      (finite_quotient_of_isOpen _ (isOpen_fixingSubgroup K))
+  let Dl : TateDualityG G 2 := LSquare.tateDualityG_two_of_equiv e
+    (subgroup_isLocalDualizingGroup 2 (GalKsub K) (isOpen_fixingSubgroup K))
+  let hEuler : LocalEulerChar G n := LocalEulerChar.congr e
+    (localEulerChar_galK_of_finrank K hdeg)
+  have key : Nat.card (Z1 G (Additive ↥Blk.frattiniK)) =
+      Nat.card (Additive ↥Blk.frattiniK) ^ (n + 1) *
+        Nat.card (GQ2.FoxH.fixedPts (Y ⧸ Blk.K)
+          (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK))) :=
+    card_Z1_eqG (Γ := G) (C := Y ⧸ Blk.K) (ρ := θ)
+      (A := Additive ↥Blk.frattiniK) hθs hcomp Dl hEuler hA2
+  rw [Nat.card_congr hequiv, key,
+    RStageLocal.card_fixedPts_eq_card_RCharSub hRK, blockRChar_card T Blk hE2,
+    Nat.card_congr (Additive.toMul (α := ↥Blk.frattiniK)), zRN]
+  rfl
+
+/-- After the generic Euler count above, radical-obstruction separation is the only remaining
+corrected R-stage input at `G_K`. -/
+structure CorrectedRStageSeparationGalK (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] (q : ℕ) (P : ProfiniteGrp)
+    (nuP : ContinuousMonoidHom P Ztwo)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] where
+  hsep_hom : ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (_hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (_hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom (galKProfinite K) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E)
+    (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB),
+    obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+        (htriv_galK K) (card_H2_zmodTwo_galK K) g.1.1 = 0 →
+      ∃ φ : ContinuousMonoidHom (galKProfinite K) Y,
+        ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ
+
+/-- Fill the two-field residue record from separation alone; the `zRN` count is the theorem
+`correctedRStage_hZcount_galK`. -/
+noncomputable def correctedRStageResiduesGalK_of_separation
+    {n q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hdeg : Module.finrank ℚ_[2] K = n)
+    (S : CorrectedRStageSeparationGalK K q P nuP) :
+    CorrectedRStageResiduesGalK K n q P nuP (standardNumerics n) where
+  hsep_hom := S.hsep_hom
+  hZcount := fun hE2 hRK hR2 b F f₀ =>
+    correctedRStage_hZcount_galK hdeg hE2 hRK hR2 b F f₀
+
+/-- The corrected equation-(136) semantics at `G_K` now reduces to separation alone. -/
+theorem correctedRStageSemantics_galK_of_separation
+    {n q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hdeg : Module.finrank ℚ_[2] K = n)
+    (S : CorrectedRStageSeparationGalK K q P nuP) :
+    CorrectedRStageSemantics (galKProfinite K) n q P nuP (standardNumerics n) := by
+  intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE2 hRK hR2 b F
+  exact blockStageR136NK (standardNumerics n) T Blk hE2 (htriv_galK K)
+    (card_H2_zmodTwo_galK K) (tfg_galK K) b F
+    (S.hsep_hom hE2 hRK hR2 b F)
+    (correctedRStage_hZcount_galK hdeg hE2 hRK hR2 b F)
+
 /-- `blockStageR136NK` reduces the corrected arithmetic equation exactly to separation and the
 degree-corrected R-cocycle count.  The existing GalK scalar and t.f.g. suppliers discharge all
 other source-side inputs. -/
@@ -333,6 +488,13 @@ noncomputable def ofKExactSupplyAndRStageResidues (S : KExactSupply T n P hP nuP
       (standardNumerics n)) :
     KExactSupplyRN T n P hP nuP :=
   ofKExactSupply S (correctedRStageSemantics_galK_of_residues Rstage)
+
+/-- Strongest corrected arithmetic upgrade currently available: the generic GalK Euler count
+fills `hZcount`, so only radical-obstruction separation is supplied. -/
+noncomputable def ofKExactSupplyAndRStageSeparation (S : KExactSupply T n P hP nuP)
+    (Sep : CorrectedRStageSeparationGalK K (qOf K FF) P nuP) :
+    KExactSupplyRN T n P hP nuP :=
+  ofKExactSupply S (correctedRStageSemantics_galK_of_separation S.hdeg Sep)
 
 /-- At degree one no corrected R-stage hypothesis is needed: `zRN` is definitionally the
 legacy frozen coefficient, so the exact-lifting packet converts directly. -/
