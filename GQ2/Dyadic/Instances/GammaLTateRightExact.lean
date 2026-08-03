@@ -440,6 +440,86 @@ noncomputable def tateDualityG_of_gammaLH2RightExactSupply
     exact (actionImageTateCupBijections_of_rightExact
       hq hright htriv invZ M hM₂).2.2
 
+/-! ## The H⁰--H² fragment is sufficient for the improved L presentation -/
+
+/-- At even `q`, the `(0,2)` perfectness fragment already reconstructs the complete Tate
+duality bundle for the improved L presentation.  The route is
+
+`H02PerfectDualityG -> GammaLH2RightExactSupply -> TateDualityG`.
+
+Thus neither `(1,1)` nor `(2,0)` perfectness is used as an input. -/
+noncomputable def tateDualityG_of_h02PerfectDualityG
+    {h q : ℕ} (hq : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (D : H02PerfectDualityG (gamma h q : Type)) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_gammaLH2RightExactSupply hq
+    (finiteTwoH2RightExactSupply_of_h02PerfectDualityG D)
+
+private theorem h02PerfectDualityG_eq_of_inv_eq
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [DistribMulAction G (MuN 2)] [ContinuousSMul G (MuN 2)]
+    (D E : H02PerfectDualityG G) (h : D.inv = E.inv) : D = E := by
+  cases D with
+  | mk invD perfectD =>
+    cases E with
+    | mk invE perfectE =>
+      dsimp at h
+      cases h
+      rfl
+
+private theorem tateDualityG_eq_of_inv_eq
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [DistribMulAction G (MuN 2)] [ContinuousSMul G (MuN 2)]
+    (D E : TateDualityG G 2) (h : D.inv = E.inv) : D = E := by
+  cases D with
+  | mk invD perfect02D perfect11D perfect20D =>
+    cases E with
+    | mk invE perfect02E perfect11E perfect20E =>
+      dsimp at h
+      cases h
+      rfl
+
+/-- Projecting the bundle reconstructed from an H⁰--H² fragment recovers that fragment.
+The invariant equivalence is unique because its codomain is `ZMod 2`; the perfectness field is
+a proposition. -/
+theorem h02PerfectDualityG_projection_reconstruct
+    {h q : ℕ} (hq : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (D : H02PerfectDualityG (gamma h q : Type)) :
+    h02PerfectDualityG_of_tateDualityG
+      (tateDualityG_of_h02PerfectDualityG hq D) = D := by
+  apply h02PerfectDualityG_eq_of_inv_eq
+  exact addEquiv_zmodTwo_unique _ _
+
+/-- Reconstructing from the H⁰--H² projection of a full Tate bundle recovers the full
+bundle.  This is an equality of proof packages, not a claim that the reconstruction used the
+discarded perfectness fields. -/
+theorem tateDualityG_reconstruct_projection
+    {h q : ℕ} (hq : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (D : TateDualityG (gamma h q : Type) 2) :
+    tateDualityG_of_h02PerfectDualityG hq
+      (h02PerfectDualityG_of_tateDualityG D) = D := by
+  apply tateDualityG_eq_of_inv_eq
+  exact addEquiv_zmodTwo_unique _ _
+
+/-- For the improved L presentation at even `q`, full Tate duality data are equivalent to the
+strictly smaller H⁰--H² fragment.  The forward map is the literal forgetful projection; the
+inverse is the noncircular right-exactness/action-image reconstruction above. -/
+noncomputable def tateDualityGEquivH02PerfectDualityG
+    {h q : ℕ} (hq : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)] :
+    TateDualityG (gamma h q : Type) 2 ≃ H02PerfectDualityG (gamma h q : Type) where
+  toFun := h02PerfectDualityG_of_tateDualityG
+  invFun := tateDualityG_of_h02PerfectDualityG hq
+  left_inv := tateDualityG_reconstruct_projection hq
+  right_inv := h02PerfectDualityG_projection_reconstruct hq
+
 /-! ## End-to-end carrier regressions -/
 
 /-- A field realization together with the finite elementary `H²` tail on its open subgroup
