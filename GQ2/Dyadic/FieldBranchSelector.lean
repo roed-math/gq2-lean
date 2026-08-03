@@ -180,6 +180,7 @@ theorem fundamentalIdentity_iff_residueDegree_eq_normValPiToNat
     rw [hf]
     exact degree_eq_e_mul_normValPiToNat FF
 
+omit [FiniteDimensional ℚ_[2] K] [IsGalois ℚ_[2] K] in
 /-- Canonical residue-field form of the missing norm compatibility.  The left side mentions the
 filtration coordinate `FF.f`; the right side mentions only the intrinsic residue field and the
 norm of the chosen uniformizer. -/
