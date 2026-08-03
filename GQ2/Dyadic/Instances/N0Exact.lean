@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Codex
 import GQ2.Dyadic.CertificateMain
 import GQ2.Dyadic.Count.Lifts
 import GQ2.Dyadic.Count.ProTwo
+import GQ2.Dyadic.Count.RStage
 import GQ2.Dyadic.Count.Variation
 import GQ2.Dyadic.FieldBranchSelector
 
@@ -20,7 +21,8 @@ follows.
 |---|---|---|
 | `liftsOver_card` | `Count.nCompact_liftsOver_card` | per-simple N0 Stokes duality |
 | `lem86` | `Count.lem86_of_variation` | the same Stokes input |
-| `stageR136` | `blockStageR136K` + the uniform variation witness | hom-lift separation and `R`-cocycle count |
+| frozen `stageR136` | `blockStageR136K` + the uniform variation witness | legacy hom-lift separation and `R`-cocycle count |
+| corrected `stageR136N` | `blockStageR136NK` + resolver/Stokes count | none beyond per-simple Stokes duality |
 
 The variation witness is not frozen at the quadratic pilot.  A uniform map
 `D_N(α,h) → 𝔽₂²/⟨s̄⟩`, and hence a surjection from the compact-`N` candidate, is
@@ -58,6 +60,13 @@ def Hsimp (α h q : ℕ) : Prop :=
     ∀ (V : Type) [AddCommGroup V] [DistribMulAction C V] [Finite V],
       (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
         StokesDuality ⇑t (nCompactFam α h q e) V
+
+/-- The improved compact-N presentation has deficiency `2h+2`. -/
+theorem degree (h : ℕ) :
+    Nat.card (Generator (2 + 2 * h)) = Nat.card (Fin 2) + ((2 * h + 2) + 1) := by
+  rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card, Generator.card_generator,
+    Fintype.card_fin]
+  omega
 
 /-- The N0 certificate upgrades `Hsimp` to Stokes duality on every finite elementary module
 at a marking pushed forward from the candidate group. -/
@@ -384,6 +393,101 @@ theorem exactLifting {α h q : ℕ} (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0
         (cardH2 hsimp hα hq0 hqe) g hg)
       (fun f₀ => hZ T Blk hE₂ b F f₀)
 
+/-- Corrected exact lifting for the improved compact-N presentation.  The resolver and Stokes
+data now prove both former `R`-stage residues, and the R-cocycle coefficient is the
+degree-indexed `zRN`. -/
+theorem exactLiftingRN {α h q : ℕ} (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
+    (hqe : Even q) {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma α h q) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  refine ⟨liftsOver_card hsimp hα hqe, ?_, ?_⟩
+  · intro Bg _ _ _ _ D hedge rho hrho
+    exact lem86 hsimp hα hqe D hedge rho hrho
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
+    letI := scalarActionZmodTwo ((gamma α h q : Type))
+    haveI := scalarActionZmodTwo_continuousSMul ((gamma α h q : Type))
+    letI : CommGroup ↑Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↑Blk.frattiniK) :=
+      RStageLocal.conjC Blk hRK
+    letI := scalarActionZmodTwo (Y ⧸ Blk.K)
+    have hb := resolvesAt_and_endpoint_nCompactFam
+      (Q := WordLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K))
+      heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+      orderOf_wordLift_dvd_heisExponent (α := α) (h := h) (q := q) hα hqe
+    have hresR : ResolvesAt (gammaFam (2 + 2 * h) q (nCompactW α h))
+        (nCompactFam α h q
+          (omega2Exp (Monoid.exponent
+            (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+        (WordLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)) := hb.1
+    have hres2 : ResolvesAt (gammaFam (2 + 2 * h) q (nCompactW α h))
+        (nCompactFam α h q
+          (omega2Exp (Monoid.exponent
+            (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+        (WordLift (ZMod 2) (Y ⧸ Blk.K)) :=
+      (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero_and_even.1
+        heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
+        (α := α) (h := h) (q := q) hα hqe).1
+    have he : Odd (omega2Exp (Monoid.exponent
+        (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))) :=
+      odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+    have hpres :=
+      isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (nCompactW α h)
+    exact blockStageR136NK (standardNumerics (2 * h + 2)) T Blk hE₂
+      (scalarActionZmodTwo_triv _) (cardH2 hsimp hα hq0 hqe)
+      (tfg_of_isAdmissibleMarkedPresentation hpres) b F
+      (fun g hg => by
+        let qKR : (blockFrameImpl T Blk hE₂).YB →* (Y ⧸ Blk.K) :=
+          QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+            (by rw [Subgroup.comap_id]; exact SectionSeven.frattiniLike_le Blk.K)
+        let rho : ContinuousMonoidHom ((gamma α h q : Type)) (Y ⧸ Blk.K) :=
+          ⟨qKR.comp g.1.1.toMonoidHom,
+            (continuous_of_discreteTopology (f := qKR)).comp g.1.1.continuous_toFun⟩
+        have hrho_apply (gamma : (gamma α h q : Type)) :
+            rho gamma = qKR (g.1.1 gamma) := rfl
+        have hd : StokesDuality
+            (fun i => qKR (g.1.1 (gammaGen (2 + 2 * h) q (nCompactW α h) i)))
+            (nCompactFam α h q
+              (omega2Exp (Monoid.exponent
+                (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+            (Additive ↑Blk.frattiniK) := by
+          simpa only [hrho_apply] using
+            (stokesDuality hsimp hα hqe rho he hres2 (Additive ↑Blk.frattiniK)
+              (RStageLocal.frattiniK_add_self hRK hR₂))
+        exact homLift_of_obs_zero_boundaryLiftK_markingN hE₂ hRK hR₂
+          (scalarActionZmodTwo_triv _) (cardH2 hsimp hα hq0 hqe) b F g hpres
+          (isWildTwo_of_gammaGen g.1.1 g.1.2 (fun _ => rfl)) hres2 hresR hd hb.2 hg)
+      (fun f₀ => by
+        let theta : ContinuousMonoidHom ((gamma α h q : Type)) (Y ⧸ Blk.K) :=
+          ⟨(QuotientGroup.mk' Blk.K).comp f₀.1.1.toMonoidHom, by
+            show Continuous fun gamma => QuotientGroup.mk' Blk.K (f₀.1.1 gamma)
+            exact Continuous.comp continuous_of_discreteTopology f₀.1.1.continuous_toFun⟩
+        have htheta_apply (gamma : (gamma α h q : Type)) :
+            theta gamma = QuotientGroup.mk' Blk.K (f₀.1.1 gamma) := rfl
+        have htheta_surj : Function.Surjective theta := by
+          intro c
+          obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+          obtain ⟨gamma, hgamma⟩ := f₀.1.2 y
+          exact ⟨gamma, by rw [htheta_apply, hgamma, hy]⟩
+        have hd : StokesDuality
+            (fun i => QuotientGroup.mk' Blk.K
+              (f₀.1.1 (gammaGen (2 + 2 * h) q (nCompactW α h) i)))
+            (nCompactFam α h q
+              (omega2Exp (Monoid.exponent
+                (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+            (Additive ↑Blk.frattiniK) := by
+          simpa only [htheta_apply] using
+            (stokesDuality hsimp hα hqe theta he hres2 (Additive ↑Blk.frattiniK)
+              (RStageLocal.frattiniK_add_self hRK hR₂))
+        exact rCocycle_card_standard_zRN hE₂ hRK hR₂ f₀.1.1 f₀.1.2 hpres
+          hresR
+          (isWildTwo_of_gammaGen theta htheta_surj (fun _ => rfl))
+          (degree h) hd hb.2)
+
+/-- Constructor-table regression: compact `N` uses the improved `nCompactW`, not the initial
+draft word. -/
+theorem gamma_eq_improved (α h q : ℕ) :
+    gamma α h q = GammaR (2 + 2 * h) q (nCompactW α h) := rfl
+
 /-! ## Field-selector handoff -/
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
@@ -396,6 +500,28 @@ theorem exactLifting_standard_congr {Gam : ProfiniteGrp} {n m q : ℕ}
       ExactLiftingSemantics Gam m q P nuP (standardNumerics m) := by
   subst m
   exact id
+
+/-- The corresponding harmless degree normalization for corrected `RN` semantics. -/
+theorem exactLiftingRN_standard_congr {Gam : ProfiniteGrp} {n m q : ℕ}
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} (hn : n = m) :
+    ExactLiftingSemanticsRN Gam n q P nuP (standardNumerics n) →
+      ExactLiftingSemanticsRN Gam m q P nuP (standardNumerics m) := by
+  subst m
+  exact id
+
+/-- A selected compact-N row literally uses the improved `nCompactW` presentation. -/
+theorem gamma_eq_fieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {α q : ℕ} (hbranch : S.branch = .N0 α) :
+    GammaR S.semantic.degree q S.semantic.word =
+      gamma α (handleCount FP (.N0 α)) q := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      rfl
 
 /-- On a field selection whose chosen row is compact `N`, the semantic presentation receives
 the handle-uniform exact-lifting certificate without changing back to the superseded draft word.
@@ -425,5 +551,31 @@ theorem exactLifting_of_fieldSelection
       have hn : 2 * handleCount FP (.N0 α) + 2 =
           2 + 2 * handleCount FP (.N0 α) := by omega
       exact exactLifting_standard_congr hn (exactLifting hsimp hα hq0 hqe hsep hZ nuP)
+
+/-- The selected compact-N presentation receives corrected exact-lifting semantics directly;
+the former `StageSep` and `StageZ` arguments are no longer present. -/
+theorem exactLiftingRN_of_fieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {α q : ℕ} (hbranch : S.branch = .N0 α)
+    (hsimp : Hsimp α (handleCount FP (.N0 α)) q) (hα : 1 ≤ α)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      change ExactLiftingSemanticsRN
+        (GammaR (2 + 2 * handleCount FP (.N0 α)) q
+        (nCompactW α (handleCount FP (.N0 α))))
+        (2 + 2 * handleCount FP (.N0 α)) q P nuP
+        (standardNumerics (2 + 2 * handleCount FP (.N0 α)))
+      have hn : 2 * handleCount FP (.N0 α) + 2 =
+          2 + 2 * handleCount FP (.N0 α) := by omega
+      exact exactLiftingRN_standard_congr hn (exactLiftingRN hsimp hα hq0 hqe nuP)
 
 end GQ2.Dyadic.NCompact

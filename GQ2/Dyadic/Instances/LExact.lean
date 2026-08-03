@@ -14,8 +14,10 @@ it is separate from the still-residual arithmetic theorem classifying an arbitra
 `L` family.
 
 The existing `lSqFam` resolver, endpoint, Stokes devissage, variation, and generic lift-count
-machinery derive the lift count, half-torsor identity, and scalar `#H² = 2`.  Only per-simple
-Stokes duality and the two low-level `R`-stage inputs remain explicit.
+machinery derive the lift count, half-torsor identity, and scalar `#H² = 2`.  The frozen
+`ExactLiftingSemantics` constructor retains its two historical `R`-stage inputs; the corrected
+`ExactLiftingSemanticsRN` constructor below derives both of them from the resolver and Stokes
+data, so only per-simple Stokes duality remains explicit there.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -387,9 +389,105 @@ theorem exactLifting {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
         (cardH2 hsimp hqe) g hg)
       (fun f₀ => hZ T Blk hE₂ b F f₀)
 
+/-- Corrected exact lifting for the improved odd/L presentation.  Resolver and Stokes data
+discharge both former `R`-stage residues, with the degree-indexed `zRN` coefficient. -/
+theorem exactLiftingRN {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) := by
+  refine ⟨liftsOver_card hsimp hqe, ?_, ?_⟩
+  · intro Bg _ _ _ _ D hedge rho hrho
+    exact lem86 hsimp hqe D hedge rho hrho
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
+    letI := scalarActionZmodTwo ((gamma h q : Type))
+    haveI := scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+    letI : CommGroup ↑Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↑Blk.frattiniK) :=
+      RStageLocal.conjC Blk hRK
+    letI := scalarActionZmodTwo (Y ⧸ Blk.K)
+    have hb := resolvesAt_and_endpoint_lSqFam
+      (Q := WordLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K))
+      heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+      orderOf_wordLift_dvd_heisExponent (h := h) (q := q) hqe
+    have hresR : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+        (lSqFam h q
+          (omega2Exp (Monoid.exponent
+            (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+        (WordLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)) := hb.1
+    have hres2 : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+        (lSqFam h q
+          (omega2Exp (Monoid.exponent
+            (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+        (WordLift (ZMod 2) (Y ⧸ Blk.K)) :=
+      (resolvesAt_and_endpoint_lSqFam heisLevel_ne_zero_and_even.1
+        heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
+        (h := h) (q := q) hqe).1
+    have he : Odd (omega2Exp (Monoid.exponent
+        (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))) :=
+      odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+    have hpres := isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)
+    exact blockStageR136NK (standardNumerics (2 * h + 1)) T Blk hE₂
+      (scalarActionZmodTwo_triv _) (cardH2 hsimp hqe)
+      (tfg_of_isAdmissibleMarkedPresentation hpres) b F
+      (fun g hg => by
+        let qKR : (blockFrameImpl T Blk hE₂).YB →* (Y ⧸ Blk.K) :=
+          QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+            (by rw [Subgroup.comap_id]; exact SectionSeven.frattiniLike_le Blk.K)
+        let rho : ContinuousMonoidHom ((gamma h q : Type)) (Y ⧸ Blk.K) :=
+          ⟨qKR.comp g.1.1.toMonoidHom,
+            (continuous_of_discreteTopology (f := qKR)).comp g.1.1.continuous_toFun⟩
+        have hrho_apply (gamma : (gamma h q : Type)) :
+            rho gamma = qKR (g.1.1 gamma) := rfl
+        have hd : StokesDuality
+            (fun i => qKR (g.1.1 (gammaGen (2 * h + 1) q (lSqW h) i)))
+            (lSqFam h q
+              (omega2Exp (Monoid.exponent
+                (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+            (Additive ↑Blk.frattiniK) := by
+          simpa only [hrho_apply] using
+            (stokesDuality hsimp hqe rho he hres2 (Additive ↑Blk.frattiniK)
+              (RStageLocal.frattiniK_add_self hRK hR₂))
+        exact homLift_of_obs_zero_boundaryLiftK_markingN hE₂ hRK hR₂
+          (scalarActionZmodTwo_triv _) (cardH2 hsimp hqe) b F g hpres
+          (isWildTwo_of_gammaGen g.1.1 g.1.2 (fun _ => rfl)) hres2 hresR hd hb.2 hg)
+      (fun f₀ => by
+        let theta : ContinuousMonoidHom ((gamma h q : Type)) (Y ⧸ Blk.K) :=
+          ⟨(QuotientGroup.mk' Blk.K).comp f₀.1.1.toMonoidHom, by
+            show Continuous fun gamma => QuotientGroup.mk' Blk.K (f₀.1.1 gamma)
+            exact Continuous.comp continuous_of_discreteTopology f₀.1.1.continuous_toFun⟩
+        have htheta_apply (gamma : (gamma h q : Type)) :
+            theta gamma = QuotientGroup.mk' Blk.K (f₀.1.1 gamma) := rfl
+        have htheta_surj : Function.Surjective theta := by
+          intro c
+          obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+          obtain ⟨gamma, hgamma⟩ := f₀.1.2 y
+          exact ⟨gamma, by rw [htheta_apply, hgamma, hy]⟩
+        have hd : StokesDuality
+            (fun i => QuotientGroup.mk' Blk.K
+              (f₀.1.1 (gammaGen (2 * h + 1) q (lSqW h) i)))
+            (lSqFam h q
+              (omega2Exp (Monoid.exponent
+                (HeisLift (Additive ↑Blk.frattiniK) (Y ⧸ Blk.K)))))
+            (Additive ↑Blk.frattiniK) := by
+          simpa only [htheta_apply] using
+            (stokesDuality hsimp hqe theta he hres2 (Additive ↑Blk.frattiniK)
+              (RStageLocal.frattiniK_add_self hRK hR₂))
+        exact rCocycle_card_standard_zRN hE₂ hRK hR₂ f₀.1.1 f₀.1.2 hpres
+          hresR (isWildTwo_of_gammaGen theta htheta_surj (fun _ => rfl))
+          (degree h) hd hb.2)
+
 /-- Regression theorem for the constructor table: the L-square exact-lifting carrier is
 definitionally the `GammaR` presentation on the improved `lSqW`, not the initial draft word. -/
 theorem gamma_eq_improved (h q : ℕ) : gamma h q = GammaR (2 * h + 1) q (lSqW h) := rfl
+
+/-- At handle count zero, corrected degree-one semantics agrees with the frozen API.  This
+regresses the new constructor against the historical theorem at the unique degree where their
+R-stage coefficients coincide definitionally. -/
+theorem exactLiftingRN_zero_regression {q : ℕ} (hsimp : Hsimp 0 q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (gamma 0 q) 1 q P nuP (standardNumerics 1) := by
+  rw [← exactLiftingSemanticsRN_standard_one_iff]
+  simpa using exactLiftingRN hsimp hqe nuP
 
 /-! ## Field-selector handoff -/
 
@@ -431,6 +529,28 @@ theorem exactLifting_of_fieldSelection
         (2 * handleCount FP .L + 1) q P nuP
         (standardNumerics (2 * handleCount FP .L + 1))
       exact exactLifting hsimp hqe hsep hZ nuP
+
+/-- The selected improved L presentation receives corrected exact-lifting semantics directly;
+the former `StageSep` and `StageZ` arguments are no longer present. -/
+theorem exactLiftingRN_of_fieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : Hsimp (handleCount FP .L) q) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      change ExactLiftingSemanticsRN
+        (GammaR (2 * handleCount FP .L + 1) q (lSqW (handleCount FP .L)))
+        (2 * handleCount FP .L + 1) q P nuP
+        (standardNumerics (2 * handleCount FP .L + 1))
+      exact exactLiftingRN hsimp hqe nuP
 
 end
 
