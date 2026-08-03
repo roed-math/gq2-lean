@@ -328,6 +328,7 @@ import GQ2.Dyadic.LiftingDualityG
 import GQ2.Dyadic.Instances.LSourceComparison
 import GQ2.Dyadic.Instances.LSourceComparisonCard
 import GQ2.Dyadic.Instances.LFlexibleH2
+import GQ2.Dyadic.Instances.LComparisonSquares
 import GQ2.Dyadic.Instances.LSourceEulerCard
 import GQ2.Dyadic.Instances.LSourceDualityAdapter
 import GQ2.Dyadic.Instances.LSourceComposition
