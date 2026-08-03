@@ -85,6 +85,73 @@ trivial.  Mathematically this is the `H³(U, ZMod 2)=0` tail. -/
 noncomputable abbrev GammaLSylowPreimageScalarKernelH2Tail (P : Sylow 2 C) : Prop :=
   TwoGroupActionScalarKernelH2Tail (sylowTwoPreimageHom rho P)
 
+/-- The sole scalar-kernel input left by the combined Sylow and coefficient-devissage
+reductions.  For each simultaneous finite coefficient-action image, choose a Sylow `2`-subgroup
+and prove H² right exactness only for quotients whose kernel has two elements on its preimage. -/
+noncomputable abbrev GammaLSylowPreimageScalarKernelH2TailSupply (h q : ℕ) : Prop :=
+  ∀ (A B : Type) [AddCommGroup A] [TopologicalSpace A]
+    [IsTopologicalAddGroup A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction (gamma h q : Type) A] [ContinuousSMul (gamma h q : Type) A]
+    [AddCommGroup B] [TopologicalSpace B]
+    [IsTopologicalAddGroup B] [DiscreteTopology B] [Finite B]
+    [DistribMulAction (gamma h q : Type) B] [ContinuousSMul (gamma h q : Type) B],
+      ∃ P : Sylow 2
+          (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)),
+        GammaLSylowPreimageScalarKernelH2Tail (h := h) (q := q) (A := A) (B := B) P
+
+/-- Scalar two-element-kernel tails on the Sylow preimages imply the transfer-free local H²
+right-exactness supply.  The strong induction is entirely coefficient-theoretic; no transfer
+data or higher-cohomology API is required at this point. -/
+theorem gammaLSylowTwoLocalH2RightExactSupply_of_scalarKernelTails
+    (S : GammaLSylowPreimageScalarKernelH2TailSupply h q) :
+    GammaLSylowTwoLocalH2RightExactSupply h q := by
+  intro A B _ _ _ _ _ _ _ _ _ _ _ _ _ _ g hgC hg hA₂ hB₂ hsurj
+  let c₀ := PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)
+  let rho₀ : ContinuousMonoidHom GammaL c₀ :=
+    pairFiniteActionImageHom (h := h) (q := q) (A := A) (B := B)
+  obtain ⟨pSylow, tail⟩ := S A B
+  let rhoP : ContinuousMonoidHom (sylowTwoPreimage rho₀ pSylow) pSylow :=
+    sylowTwoPreimageHom rho₀ pSylow
+  letI : DistribMulAction c₀ A :=
+    DistribMulAction.compHom A
+      (pairFiniteActionImageFst (h := h) (q := q) (A := A) (B := B))
+  letI : DistribMulAction c₀ B :=
+    DistribMulAction.compHom B
+      (pairFiniteActionImageSnd (h := h) (q := q) (A := A) (B := B))
+  letI : DistribMulAction pSylow A :=
+    DistribMulAction.compHom A
+      ((pairFiniteActionImageFst (h := h) (q := q) (A := A) (B := B)).comp
+        pSylow.toSubgroup.subtype)
+  letI : DistribMulAction pSylow B :=
+    DistribMulAction.compHom B
+      ((pairFiniteActionImageSnd (h := h) (q := q) (A := A) (B := B)).comp
+        pSylow.toSubgroup.subtype)
+  have hgP : ∀ (p : pSylow) (a : A), g (p • a) = p • g a := by
+    intro p a
+    change g (p.1 • a) = p.1 • g a
+    exact pairFiniteActionImage_equivariant g hg p.1 a
+  have hcompatA : ∀ (u : sylowTwoPreimage rho₀ pSylow) (a : A), u • a = rhoP u • a := by
+    intro u a
+    change u.1 • a = (rhoP u).1 • a
+    exact (pairFiniteActionImageHom_smul_fst u.1 a).symm
+  have hcompatB : ∀ (u : sylowTwoPreimage rho₀ pSylow) (b : B), u • b = rhoP u • b := by
+    intro u b
+    change u.1 • b = (rhoP u).1 • b
+    exact (pairFiniteActionImageHom_smul_snd u.1 b).symm
+  refine ⟨pSylow, ?_⟩
+  exact h2RightExactAt_of_twoGroupActionScalarKernelTail rhoP
+    (sylowTwoPreimageHom_surjective rho₀ pairFiniteActionImageHom_surjective pSylow)
+    pSylow.2 tail g (fun u a ↦ hg u.1 a) hgP hcompatA hcompatB hA₂ hB₂ hsurj
+
+/-- End-to-end scalar-kernel constructor for full Tate duality on the improved L presentation. -/
+noncomputable def tateDualityG_of_sylowPreimageScalarKernelTails
+    (hq : Even q)
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (S : GammaLSylowPreimageScalarKernelH2TailSupply h q) :
+    TateDualityG GammaL 2 :=
+  tateDualityG_of_sylowTwoLocal hq
+    (gammaLSylowTwoLocalH2RightExactSupply_of_scalarKernelTails S)
+
 end
 
 end GQ2.Dyadic.LSquare

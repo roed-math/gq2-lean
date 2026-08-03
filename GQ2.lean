@@ -395,6 +395,7 @@ import GQ2.Dyadic.Instances.GammaLStronglyFree
 import GQ2.Dyadic.Count.H2SplitRightExact
 import GQ2.Dyadic.Count.H2SylowTransfer
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
+import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLImageAsphericity
 import GQ2.Dyadic.Instances.GammaLDirectRegression

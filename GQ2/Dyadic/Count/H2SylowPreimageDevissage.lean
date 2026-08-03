@@ -14,10 +14,10 @@ through a finite `2`-group.  In characteristic two, the only simple module for s
 the trivial one-dimensional module.  This file formalizes that algebraic reduction and isolates
 the remaining cohomological input.
 
-The point is deliberately modest: passing to the Sylow preimage does not by itself prove
-degree-two right exactness.  It reduces the simple coefficient kernels occurring in a
-composition series to trivial `ZMod 2`; surjectivity across an extension by that kernel is
-exactly the `H^3(-, ZMod 2)`-vanishing/CD-2 input.
+Passing to the Sylow preimage does not by itself prove degree-two right exactness.  It reduces
+the simple coefficient kernels occurring in a composition series to trivial `ZMod 2`, then a
+strong induction reduces every elementary quotient to the scalar-kernel tail; surjectivity
+across each such extension is exactly the `H^3(-, ZMod 2)`-vanishing/CD-2 input.
 -/
 
 namespace GQ2

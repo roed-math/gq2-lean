@@ -17,7 +17,7 @@ argument reduces the remaining `GammaLH2RightExactSupply` to right exactness on 
 The original witness interface below retains the transfer square explicitly.  The second,
 transfer-free interface uses the canonical general-coefficient corestriction from
 `GQ2.Dyadic.Count.H2Corestriction`, so the only remaining input is right exactness on the
-Sylow preimage itself.
+Sylow preimage itself; it is the preferred endpoint for subsequent reductions.
 -/
 
 namespace GQ2.Dyadic.LSquare
