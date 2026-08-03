@@ -49,6 +49,21 @@ theorem proPCompletionMk_injective_of_isResiduallyP {p : ℕ} {A : Type} [Group 
   rw [proPCompletionLift_mk, map_one] at hmap
   exact haN ((QuotientGroup.eq_one_iff a).mp hmap)
 
+/-- A finite `2`-group quotient has uniformly bounded `2`-power exponent.  More precisely,
+if `A/N` has cardinality `2^k`, then every `2^k`-th power in `A` belongs to `N`.
+
+This is the purely group-theoretic half of the depth-cofinality argument.  It uses no topology
+on `A` and therefore does not silently assume that the abstract quotient map is continuous. -/
+theorem exists_twoPower_pow_mem_of_finiteTwoQuotient
+    {A : Type} [Group A] (N : FiniteIndexNormalSubgroup A)
+    (hN : IsPGroup 2 (A ⧸ N.toSubgroup)) :
+    ∃ k : ℕ, ∀ a : A, a ^ (2 ^ k) ∈ N.toSubgroup := by
+  obtain ⟨k, hcard⟩ := IsPGroup.exists_card_eq hN
+  refine ⟨k, fun a ↦ ?_⟩
+  apply (QuotientGroup.eq_one_iff (N := N.toSubgroup) (a ^ (2 ^ k))).mp
+  rw [QuotientGroup.mk_pow, ← hcard]
+  exact pow_card_eq_one'
+
 /-! ## When the abstract completion agrees with a compact topology -/
 
 /-- Every finite `p`-group quotient of the underlying abstract group has open kernel in the
@@ -169,6 +184,35 @@ theorem isOpen_depthUnits_subgroupOf (FF : DyadicUnitFiltration K) (i j : ℕ) :
   exact (IsUltrametricDist.isOpen_closedBall 0
     (ne_of_gt (pow_pos (norm_pos_iff.mpr FF.hπ_ne) j))).preimage hd
 
+/-- For a finite dyadic field, every depth-unit group is compact in its inherited topology. -/
+theorem compactSpace_depthUnits [FiniteDimensional ℚ_[2] K]
+    (FF : DyadicUnitFiltration K) (i : ℕ) :
+    CompactSpace ↥(depthUnits K FF.π i) := by
+  letI : ProperSpace ↥K := FiniteDimensional.proper ℚ_[2] ↥K
+  apply isCompact_iff_compactSpace.mp
+  rw [Units.isEmbedding_val₀.isCompact_iff]
+  have himage : ((fun u : (↥K)ˣ ↦ (u : ↥K)) ''
+        (depthUnits K FF.π i : Set (↥K)ˣ)) =
+      Metric.sphere (0 : ↥K) 1 ∩ Metric.closedBall 1 (‖FF.π‖ ^ i) := by
+    ext x
+    simp only [Set.mem_image, Set.mem_inter_iff, Metric.mem_sphere,
+      Metric.mem_closedBall, dist_eq_norm, sub_zero]
+    constructor
+    · rintro ⟨u, hu, rfl⟩
+      exact ⟨hu.1, hu.2⟩
+    · rintro ⟨hxnorm, hxdepth⟩
+      have hxne : x ≠ 0 := by
+        intro hx
+        subst x
+        simp only [norm_zero] at hxnorm
+        exact zero_ne_one hxnorm
+      let ux : (↥K)ˣ := Units.mk0 x hxne
+      have hux : ux ∈ depthUnits K FF.π i :=
+        ⟨by simpa [ux] using hxnorm, by simpa [ux] using hxdepth⟩
+      exact ⟨ux, hux, rfl⟩
+  rw [himage]
+  exact (isCompact_sphere (0 : ↥K) 1).inter_right Metric.isClosed_closedBall
+
 /-- The principal-unit depth filtration is cofinal among all finite-index normal subgroups
 with finite `2`-group quotient.  Unlike residual `2`-finiteness, this quantifies over *every*
 abstract finite `2`-quotient and therefore rules out discontinuous ones. -/
@@ -178,6 +222,37 @@ def DepthUnitsCofinalInFiniteTwoQuotients (FF : DyadicUnitFiltration K) (i : ℕ
       ∃ j : ℕ, i ≤ j ∧
         (depthUnits K FF.π j).subgroupOf (depthUnits K FF.π i) ≤ N.toSubgroup
 
+/-- The exact arithmetic input needed by the bounded-exponent argument: for every `k`, all
+sufficiently deep principal units are `2^k`-th powers of units at the fixed starting depth.
+
+This interface deliberately asks only for the containment needed below.  A logarithmic
+identification `U^(i) ≃ ℤ₂^[K:ℚ₂]`, or the usual sufficiently-deep power-map
+isomorphisms `U^(m) → U^(m+e)`, would imply it, but neither is currently available in the
+general-`K` arithmetic API. -/
+def DepthPowerCofinal (FF : DyadicUnitFiltration K) (i : ℕ) : Prop :=
+  ∀ k : ℕ, ∃ j : ℕ, i ≤ j ∧
+    ∀ u : (↥K)ˣ, u ∈ depthUnits K FF.π j →
+      ∃ v : (↥K)ˣ, v ∈ depthUnits K FF.π i ∧ v ^ (2 ^ k) = u
+
+/-- Bounded exponent plus depth-power cofinality gives cofinality among **all** abstract finite
+`2`-quotients.  This is the key separation between the remaining arithmetic lemma and the
+already formalized completion argument. -/
+theorem depthUnitsCofinalInFiniteTwoQuotients_of_powerCofinal
+    (FF : DyadicUnitFiltration K) (i : ℕ) (hpower : DepthPowerCofinal FF i) :
+    DepthUnitsCofinalInFiniteTwoQuotients FF i := by
+  intro N hN
+  obtain ⟨k, hk⟩ := exists_twoPower_pow_mem_of_finiteTwoQuotient N hN
+  obtain ⟨j, hij, hj⟩ := hpower k
+  refine ⟨j, hij, ?_⟩
+  intro u hu
+  obtain ⟨v, hvi, hvu⟩ := hj u.1 hu
+  let v' : ↥(depthUnits K FF.π i) := ⟨v, hvi⟩
+  have hv'u : v' ^ (2 ^ k) = u := by
+    apply Subtype.ext
+    exact hvu
+  rw [← hv'u]
+  exact hk v'
+
 /-- Depth cofinality implies that every abstract finite `2`-quotient is continuous. -/
 theorem finitePQuotientsAreOpen_depthUnits_of_cofinal
     (FF : DyadicUnitFiltration K) (i : ℕ)
@@ -186,6 +261,14 @@ theorem finitePQuotientsAreOpen_depthUnits_of_cofinal
   intro N hN
   obtain ⟨j, _, hjN⟩ := hcofinal N hN
   exact Subgroup.isOpen_mono hjN (isOpen_depthUnits_subgroupOf FF i j)
+
+/-- The power-cofinality interface is sufficient to make every abstract finite `2`-quotient
+continuous. -/
+theorem finitePQuotientsAreOpen_depthUnits_of_powerCofinal
+    (FF : DyadicUnitFiltration K) (i : ℕ) (hpower : DepthPowerCofinal FF i) :
+    FinitePQuotientsAreOpen 2 ↥(depthUnits K FF.π i) :=
+  finitePQuotientsAreOpen_depthUnits_of_cofinal FF i
+    (depthUnitsCofinalInFiniteTwoQuotients_of_powerCofinal FF i hpower)
 
 /-! ## The finite 2-group filtration quotients -/
 
@@ -284,6 +367,19 @@ theorem proTwoCompletionMk_depthUnits_succ_e_injective (FF : DyadicUnitFiltratio
     Function.Injective
       (proPCompletionMk 2 ↥(depthUnits K FF.π (FF.e + 1))) :=
   proTwoCompletionMk_depthUnits_injective FF (by omega)
+
+/-- Conditional whole-completion result.  Once the arithmetic power-cofinality statement is
+supplied, every abstract finite `2`-quotient is continuous, so compactness and torsion-freeness
+of the deep unit group transfer to its abstract pro-`2` completion. -/
+theorem isMulTorsionFree_proTwoCompletion_depthUnits_succ_e_of_powerCofinal
+    [FiniteDimensional ℚ_[2] K] (FF : DyadicUnitFiltration K)
+    (hpower : DepthPowerCofinal FF (FF.e + 1)) :
+    IsMulTorsionFree (proPCompletion 2 ↥(depthUnits K FF.π (FF.e + 1))) := by
+  letI := compactSpace_depthUnits FF (FF.e + 1)
+  letI := isMulTorsionFree_depthUnits_succ_e FF
+  exact isMulTorsionFree_proPCompletion_of_finitePQuotientsAreOpen
+    (proTwoCompletionMk_depthUnits_succ_e_injective FF)
+    (finitePQuotientsAreOpen_depthUnits_of_powerCofinal FF (FF.e + 1) hpower)
 
 /-- On the canonical image, completion creates no torsion: a deep unit whose image has finite
 order was already finite-order, hence equals `1`.  This says nothing about completion points
