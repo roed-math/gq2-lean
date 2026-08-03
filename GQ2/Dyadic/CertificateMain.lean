@@ -194,6 +194,46 @@ def ExactLiftingSemantics : Prop :=
               - exactImageCountK b F (blockFrameImpl T Blk hE2).TB))
 
 set_option linter.unusedVariables false in
+/-- **Corrected exact-lifting semantics with a degree-indexed R-stage coefficient.**
+
+The lift and half-torsor clauses are identical to `ExactLiftingSemantics`.  Only (136) changes:
+its coefficient is `zRN RF SN = SN.tMult #R * #D_R`, matching the generic Stokes count of
+`RCocycle`.  The frozen semantics is intentionally left unchanged. -/
+def ExactLiftingSemanticsRN : Prop :=
+  (∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y}
+      {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+      (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+      (ρ : BoundaryLiftsK b F RF.TC),
+      Nat.card (LiftsOverK RF b F ρ) = SN.mMult (Nat.card ↥RF.MB))
+  ∧ (∀ {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+      (D : RadicalCoverData Bg), D.NoDescent →
+      ∀ (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)), Function.Surjective ρ →
+        2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ))
+  ∧ (∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+      [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+      (hE2 : ∀ e : E, e ^ 2 = 1)
+      (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+      (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+      (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E),
+      (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCountK b F T
+        = zRN (blockFrameImpl T Blk hE2) SN
+            * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+              (2 * (mBK (blockFrameImpl T Blk hE2) b F l : ℤ)
+                - exactImageCountK b F (blockFrameImpl T Blk hE2).TB))
+
+/-- At degree one with standard numerics, the corrected and frozen exact-lifting APIs coincide
+definitionally. -/
+theorem exactLiftingSemanticsRN_standard_one_iff :
+    ExactLiftingSemanticsRN Γ 1 q P nuP (standardNumerics 1)
+      ↔ ExactLiftingSemantics Γ 1 q P nuP (standardNumerics 1) := by
+  rfl
+
+set_option linter.unusedVariables false in
 /-- **Ledger §5.2 field `stokes`** — `StokesDualityCertificate`.
 
 The recursion's (ii.6) family: the `T`-cocycle count, the `(T^∨)^C`-separation, nondegeneracy

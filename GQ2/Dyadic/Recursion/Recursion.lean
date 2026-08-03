@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.Recursion.Partition
+import GQ2.Dyadic.Recursion.Numerics
 import GQ2.SectionEight.Recursion
 
 /-!
@@ -42,9 +43,11 @@ This is the "finer split" the SD1 memo's §4.3 closing note anticipated ("reuse 
 SD3 instantiates `cS := SN.homScalar`, `mM := SN.mMult (Nat.card ↥RF.MB)`,
 `vH := SN.h1Mult (Nat.card En.Vmod)`.  Note `vH` is the **inner** `|V|` factor (`#H¹`), the
 one that moves with the degree; the *outer* `|V|` normalizing `GaussZResidue` is `#B¹` and
-stays put (memo §1.3) — it does not occur in this file.  `RF.zR`, eq. (136)'s `2`, eq. (140)'s
-`2 · #D_T` and `μ`/`G0`/`DT`/`phase` are degree-independent or already opaque, and are
-untouched.
+stays put (memo §1.3) — it does not occur in this file.  The original clone also left `RF.zR`
+untouched.  The degree audit later showed that this last choice was rank-one-specific, so this
+file now adds the parallel `zRN` coefficient and coefficient-parametric (136) core while retaining
+every frozen `RF.zR` API as its specialization.  Eq. (136)'s `2`, eq. (140)'s `2 · #D_T` and
+`μ`/`G0`/`DT`/`phase` remain unchanged.
 
 **Every proof in this file is verbatim modulo the substitutions above.**  No `omega` seam
 arises here: the two positivity-cancels the memo predicts (§4.1(a)) live at the *cancellation*
@@ -75,10 +78,19 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 variable (RF : RecursionFrame T Blk)
 variable (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
 
+/-- **The degree-indexed R-fibre coefficient.**  This is the `R`-module instance of the same
+`tMult` leaf used by the `T`-cocycle count, times the unchanged invariant-character index
+`#D_R`.  It lives beside, and does not redefine, the frozen rank-one `RecursionFrame.zR`. -/
+noncomputable def zRN {n : ℕ} (SN : SourceNumerics n) : ℕ :=
+  SN.tMult (Nat.card ↥Blk.frattiniK) * Nat.card RF.DR
+
+/-- The degree-one standard coefficient is definitionally the frozen `zR`. -/
+theorem zRN_standard_one : zRN RF (standardNumerics 1) = RF.zR := rfl
+
 /-! ## The five `b`-typed counts
 
-`RecursionFrame.zR` (`Recursion.lean:114`) is boundary-free and is **not** cloned; it is used
-below as `RF.zR`, the model's own. -/
+`RecursionFrame.zR` (`Recursion.lean:114`) remains the frozen rank-one coefficient.  The corrected
+degree-indexed lane uses the parallel `zRN`; neither definition mutates the other. -/
 
 open scoped Classical in
 /-- `m_{Γ,λ}(B)`.  Clone of `GQ2.SectionEight.RecursionFrame.mB` (`Recursion.lean:120`). -/
@@ -492,15 +504,18 @@ theorem prop_8_9_auxK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopolog
   eq140 := inp.phase140
 
 open scoped Classical in
-/-- **The (136) stage, combinatorial core** at the `K`-boundary.  Clone of
-`GQ2.SectionEight.stageR136_of` (`Recursion.lean:771`) — verbatim; the Fourier engine
-`lemma_8_4` is boundary-free and is the model's, by import. -/
-theorem stageR136_ofK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
+/-- **The (136) stage with an explicit R-fibre coefficient** at the `K`-boundary.
+
+This is the combinatorial core of `stageR136_ofK`, with the fibre cardinality exposed as `z`.
+No formula for `z` is used: the proof needs only that every nonempty obstruction fibre has that
+cardinality.  The frozen theorem below is the specialization `z := RF.zR`. -/
+theorem stageR136_ofCoeffK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
     [Finite Y] {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
     (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
     (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (z : ℕ)
     (W : Type) [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
     (o : BoundaryLiftsK b F RF.TB → W)
     (e : RF.DR ≃ Module.Dual (ZMod 2) W)
@@ -510,9 +525,9 @@ theorem stageR136_ofK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopolog
     (hobs : ∀ g : BoundaryLiftsK b F RF.TB,
       o g = 0 ↔ ∃ f : BoundaryLiftsK b F T, liftBK RF b F f = g)
     (hfib : ∀ g : BoundaryLiftsK b F RF.TB, o g = 0 →
-      Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} = RF.zR) :
+      Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} = z) :
     (Nat.card RF.DR : ℤ) * exactImageCountK b F T
-      = RF.zR * ∑ᶠ l : RF.DR,
+      = z * ∑ᶠ l : RF.DR,
           (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
   classical
   haveI : Finite (BoundaryLiftsK b F T) := finite_boundaryLiftsK b F T hfg
@@ -520,7 +535,7 @@ theorem stageR136_ofK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopolog
   haveI : Fintype (BoundaryLiftsK b F RF.TB) := Fintype.ofFinite _
   -- Step 1 (fibration): `e_Γ(Y) = z_R · #{o = 0}`.
   have h1 : exactImageCountK b F T
-      = RF.zR * Nat.card {g : BoundaryLiftsK b F RF.TB // o g = 0} := by
+      = z * Nat.card {g : BoundaryLiftsK b F RF.TB // o g = 0} := by
     have hsig : exactImageCountK b F T
         = ∑ g : BoundaryLiftsK b F RF.TB,
             Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} := by
@@ -529,7 +544,7 @@ theorem stageR136_ofK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopolog
     rw [hsig]
     have hterm : ∀ g : BoundaryLiftsK b F RF.TB,
         Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g}
-          = if o g = 0 then RF.zR else 0 := by
+          = if o g = 0 then z else 0 := by
       intro g
       by_cases hg : o g = 0
       · rw [if_pos hg]
@@ -577,16 +592,39 @@ theorem stageR136_ofK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopolog
     exact_mod_cast Nat.card_congr e
   calc (Nat.card RF.DR : ℤ) * exactImageCountK b F T
       = (Nat.card RF.DR : ℤ)
-        * (RF.zR * Nat.card {g : BoundaryLiftsK b F RF.TB // o g = 0}) := by
+        * (z * Nat.card {g : BoundaryLiftsK b F RF.TB // o g = 0}) := by
         rw [h1]; push_cast; ring
-    _ = RF.zR * ((Nat.card (Module.Dual (ZMod 2) W) : ℤ)
+    _ = z * ((Nat.card (Module.Dual (ZMod 2) W) : ℤ)
         * Nat.card {g : BoundaryLiftsK b F RF.TB // o g = 0}) := by
         rw [← hcardDR]; ring
-    _ = RF.zR * ∑ᶠ φ : Module.Dual (ZMod 2) W,
+    _ = z * ∑ᶠ φ : Module.Dual (ZMod 2) W,
           (2 * (Nat.card {g : BoundaryLiftsK b F RF.TB // φ (o g) = 0} : ℤ)
             - Nat.card (BoundaryLiftsK b F RF.TB)) := by
         rw [h2]
-    _ = RF.zR * ∑ᶠ l : RF.DR, (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
+    _ = z * ∑ᶠ l : RF.DR, (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
         rw [h3]
+
+/-- **The frozen rank-one (136) combinatorial core.**  API-compatible specialization of
+`stageR136_ofCoeffK` at the existing `RecursionFrame.zR`. -/
+theorem stageR136_ofK {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
+    [Finite Y] {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (W : Type) [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    (o : BoundaryLiftsK b F RF.TB → W)
+    (e : RF.DR ≃ Module.Dual (ZMod 2) W)
+    (he0 : e RF.zeroDR = 0)
+    (hmB : ∀ (l : RF.DR), l ≠ RF.zeroDR →
+      mBK RF b F l = Nat.card {g : BoundaryLiftsK b F RF.TB // e l (o g) = 0})
+    (hobs : ∀ g : BoundaryLiftsK b F RF.TB,
+      o g = 0 ↔ ∃ f : BoundaryLiftsK b F T, liftBK RF b F f = g)
+    (hfib : ∀ g : BoundaryLiftsK b F RF.TB, o g = 0 →
+      Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} = RF.zR) :
+    (Nat.card RF.DR : ℤ) * exactImageCountK b F T
+      = RF.zR * ∑ᶠ l : RF.DR,
+          (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) :=
+  stageR136_ofCoeffK RF hfg b F RF.zR W o e he0 hmB hobs hfib
 
 end GQ2.Dyadic

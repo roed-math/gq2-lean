@@ -28,9 +28,11 @@ term with `K`-typed names substituted.
 
 ## Parameterization delta versus the `ℚ₂` model
 
-Types only (`boundarySubgroup → boundarySubgroupQ q nuP`, `BoundaryFrame → BoundaryFrameK q P H E`,
-`exactImageCount → exactImageCountK`, `RF.mB → mBK`).  No numeric parameterization reaches this
-file.  Every proof is its model's, verbatim.
+The frozen declarations change types only (`boundarySubgroup → boundarySubgroupQ q nuP`,
+`BoundaryFrame → BoundaryFrameK q P H E`, `exactImageCount → exactImageCountK`,
+`RF.mB → mBK`).  The parallel `blockStageR136CoeffK` / `blockStageR136NK` API added after the
+degree audit exposes the corrected R-fibre coefficient without changing those declarations;
+their proofs reuse the same block obstruction datum verbatim.
 
 Plain-import (memo §5).
 
@@ -75,6 +77,74 @@ theorem blockStageR136K (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBloc
             - exactImageCountK b F (blockFrameImpl T Blk hE2).TB) :=
   stageR136_ofRSepDataK (RF := blockFrameImpl T Blk hE2) b F
     (blockRObstructionData T Blk hE2) htriv hcard hfg hE2 hsep_hom hZcount
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **(136) for the concrete block frame with an explicit R-fibre coefficient.**  This is the
+safe parameterized companion of `blockStageR136K`; the frozen theorem and `zR` definition remain
+unchanged. -/
+theorem blockStageR136CoeffK (z : ℕ) (T : MarkedTarget H E Y)
+    (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (hsep_hom : ∀ g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB,
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv hcard g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLiftsK b F T,
+      Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) = z) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCountK b F T
+      = z * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * (mBK (blockFrameImpl T Blk hE2) b F l : ℤ)
+            - exactImageCountK b F (blockFrameImpl T Blk hE2).TB) :=
+  stageR136_ofRSepDataCoeffK (RF := blockFrameImpl T Blk hE2) b F z
+    (blockRObstructionData T Blk hE2) htriv hcard hfg hE2 hsep_hom hZcount
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **The degree-indexed block-stage identity.**  Specializes the explicit-coefficient theorem
+at `zRN`, the same `SourceNumerics.tMult` value delivered by the generic R-cocycle count. -/
+theorem blockStageR136NK {n : ℕ} (SN : SourceNumerics n)
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (hsep_hom : ∀ g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB,
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv hcard g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLiftsK b F T,
+      Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1)
+        = zRN (blockFrameImpl T Blk hE2) SN) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCountK b F T
+      = zRN (blockFrameImpl T Blk hE2) SN
+          * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+              (2 * (mBK (blockFrameImpl T Blk hE2) b F l : ℤ)
+                - exactImageCountK b F (blockFrameImpl T Blk hE2).TB) :=
+  blockStageR136CoeffK (zRN (blockFrameImpl T Blk hE2) SN) T Blk hE2 htriv hcard hfg b F
+    hsep_hom hZcount
+
+/-- The degree-one block-stage theorem has exactly the frozen `blockStageR136K` conclusion. -/
+theorem blockStageR136NK_standard_one
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (hsep_hom : ∀ g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB,
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv hcard g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLiftsK b F T,
+      Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1)
+        = zRN (blockFrameImpl T Blk hE2) (standardNumerics 1)) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCountK b F T
+      = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * (mBK (blockFrameImpl T Blk hE2) b F l : ℤ)
+            - exactImageCountK b F (blockFrameImpl T Blk hE2).TB) := by
+  simpa only [zRN_standard_one] using
+    blockStageR136NK (standardNumerics 1) T Blk hE2 htriv hcard hfg b F hsep_hom hZcount
 
 omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- **The per-`Γ` residue interface: the split criterion** at the `K`-boundary.  Clone of

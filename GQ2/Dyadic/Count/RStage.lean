@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Count.Compare
+import GQ2.Dyadic.Recursion.BlockRStage
 import GQ2.RStage.Local
 
 /-!
@@ -151,6 +152,33 @@ theorem rCocycle_cardN {n : ℕ}
       (closure_range_lower_eq_top theta (fun _ => rfl) hpres htheta_surj),
     RStageLocal.card_fixedPts_eq_card_RCharSub hRK,
     blockRChar_card T Blk hE2]
+
+/-- `rCocycle_cardN` in the corrected recursion's own coefficient vocabulary. -/
+theorem rCocycle_card_standard_zRN {n : ℕ}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (f : ContinuousMonoidHom Γ Y) (hf : Function.Surjective f)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      ResolvesAt W w (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)))
+    (hwild2 : IsWildTwo J
+      (fun i => QuotientGroup.mk' Blk.K (f (gen i))))
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1))
+    (hd :
+      letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+      letI : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+        RStageLocal.conjC Blk hRK
+      StokesDuality (fun i => QuotientGroup.mk' Blk.K (f (gen i))) w
+        (Additive ↥Blk.frattiniK))
+    (hend : IsStokesEndpoint w) :
+    Nat.card (RCocycle (blockFrameImpl T Blk hE2) f)
+      = zRN (blockFrameImpl T Blk hE2) (standardNumerics n) := by
+  rw [rCocycle_cardN hE2 hRK hR2 f hf hpres hres hwild2 hdeg hd hend, zRN,
+    Nat.card_congr (Additive.toMul (α := ↥Blk.frattiniK))]
 
 /-- Above degree one, the generic `tMult` coefficient is strictly larger than the frozen square
 as soon as the coefficient group and the remaining factor are nontrivial. -/

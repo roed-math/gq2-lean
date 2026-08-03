@@ -41,10 +41,12 @@ the only copy in this file.
 
 ## Parameterization delta versus the `ℚ₂` model
 
-Types only: `boundarySubgroup → boundarySubgroupQ q nuP`, `BoundaryFrame → BoundaryFrameK q P H E`,
-and the counts to their SD-R1 clones (`exactImageCountK`, `mBK`, `liftBK`, `stageR136_ofK`).  No
-numeric parameterization reaches this file — eq. (136)'s `2` and `z_R` are degree-independent
-(memo §4.1 non-movers), so every proof is verbatim.
+The frozen lane still changes types only: `boundarySubgroup → boundarySubgroupQ q nuP`,
+`BoundaryFrame → BoundaryFrameK q P H E`, and the counts to their SD-R1 clones
+(`exactImageCountK`, `mBK`, `liftBK`, `stageR136_ofK`).  The subsequent degree audit found that
+the old `z_R` coefficient was rank-one-specific.  The `...CoeffK` declarations below therefore
+thread one explicit fibre cardinality alongside the untouched frozen declarations; all obstruction
+and torsor proofs remain otherwise verbatim.
 
 Plain-import (memo §5).
 
@@ -98,6 +100,40 @@ theorem stageR136_ofObstructionK
     ext φ
     rw [heval, h0]; simp
   refine stageR136_ofK RF hfg b F (Module.Dual (ZMod 2) DRmod) obs e he0 ?_ hobs hfib
+  intro l hl
+  rw [hmB l hl]
+  exact Nat.card_congr (Equiv.subtypeEquivRight fun g => by rw [heval l (obs g)])
+
+/-- **The obstruction-module reduction with an explicit R-fibre coefficient.**  This is the
+degree-indexed companion of `stageR136_ofObstructionK`; the obstruction and Fourier arguments
+are unchanged, while the uniform fibre count is `z`. -/
+theorem stageR136_ofObstructionCoeffK
+    (z : ℕ)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (DRmod : Type) [AddCommGroup DRmod] [Module (ZMod 2) DRmod] [Finite DRmod]
+    (toDR : DRmod ≃ RF.DR) (h0 : toDR.symm RF.zeroDR = 0)
+    (obs : BoundaryLiftsK b F RF.TB → Module.Dual (ZMod 2) DRmod)
+    (hmB : ∀ (l : RF.DR), l ≠ RF.zeroDR →
+      mBK RF b F l = Nat.card {g : BoundaryLiftsK b F RF.TB // obs g (toDR.symm l) = 0})
+    (hobs : ∀ g : BoundaryLiftsK b F RF.TB,
+      obs g = 0 ↔ ∃ f : BoundaryLiftsK b F T, liftBK RF b F f = g)
+    (hfib : ∀ g : BoundaryLiftsK b F RF.TB, obs g = 0 →
+      Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} = z) :
+    (Nat.card RF.DR : ℤ) * exactImageCountK b F T
+      = z * ∑ᶠ l : RF.DR,
+          (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
+  classical
+  set e : RF.DR ≃ Module.Dual (ZMod 2) (Module.Dual (ZMod 2) DRmod) :=
+    toDR.symm.trans (Module.evalEquiv (ZMod 2) DRmod).toEquiv with he_def
+  have heval : ∀ (l : RF.DR) (φ : Module.Dual (ZMod 2) DRmod),
+      e l φ = φ (toDR.symm l) := by
+    intro l φ
+    simp [he_def, Equiv.trans_apply, Module.evalEquiv_apply, Module.Dual.eval_apply]
+  have he0 : e RF.zeroDR = 0 := by
+    ext φ
+    rw [heval, h0]; simp
+  refine stageR136_ofCoeffK RF hfg b F z (Module.Dual (ZMod 2) DRmod) obs e he0 ?_ hobs hfib
   intro l hl
   rw [hmB l hl]
   exact Nat.card_congr (Equiv.subtypeEquivRight fun g => by rw [heval l (obs g)])
@@ -161,6 +197,37 @@ theorem stageR136_ofRObstructionDataK (D : RObstructionData RF)
       = RF.zR * ∑ᶠ l : RF.DR,
           (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
   refine stageR136_ofObstructionK RF hfg b F D.DRmod D.toDR D.h0
+    (fun g => obs RF D htriv hcard g.1.1) ?_ ?_ hfib
+  · exact hmB_holdsK RF D htriv hcard b F
+  · intro g
+    refine ⟨hsep g, ?_⟩
+    rintro ⟨f, hf⟩
+    show obs RF D htriv hcard g.1.1 = 0
+    refine LinearMap.ext fun d => ?_
+    rw [LinearMap.zero_apply]
+    by_cases h : D.toDR d = RF.zeroDR
+    · have hd : d = 0 := by rw [← D.toDR.symm_apply_apply d, h, D.h0]
+      rw [hd]; exact map_zero _
+    · rw [obs_zero_iff_lifts RF D htriv hcard g.1.1 d h]
+      obtain ⟨gc, hgc⟩ :=
+        lifts_scalarCover_of_liftBK RF D.toRCoverData b F (D.toDR d) h f
+      exact ⟨gc, fun γ => by rw [hgc γ, hf]⟩
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **(136) from an `RObstructionData` with an explicit R-fibre coefficient.** -/
+theorem stageR136_ofRObstructionDataCoeffK (z : ℕ) (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (hsep : ∀ g : BoundaryLiftsK b F RF.TB,
+      obs RF D htriv hcard g.1.1 = 0 → ∃ f : BoundaryLiftsK b F T, liftBK RF b F f = g)
+    (hfib : ∀ g : BoundaryLiftsK b F RF.TB, obs RF D htriv hcard g.1.1 = 0 →
+      Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} = z) :
+    (Nat.card RF.DR : ℤ) * exactImageCountK b F T
+      = z * ∑ᶠ l : RF.DR,
+          (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
+  refine stageR136_ofObstructionCoeffK RF z hfg b F D.DRmod D.toDR D.h0
     (fun g => obs RF D htriv hcard g.1.1) ?_ ?_ hfib
   · exact hmB_holdsK RF D htriv hcard b F
   · intro g
@@ -260,6 +327,15 @@ theorem hfib_holdsK (hE2 : ∀ e : E, e ^ 2 = 1)
   rw [← Nat.card_congr (fibreCocycleEquivK RF b F hE2 g f₀ hf₀), hcount]
 
 omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
+/-- **`hfib` with an explicit coefficient.**  The fibre equivalence is independent of the
+formula used to count `RCocycle`. -/
+theorem hfib_holdsCoeffK (z : ℕ) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (g : BoundaryLiftsK b F RF.TB) (f₀ : BoundaryLiftsK b F T) (hf₀ : liftBK RF b F f₀ = g)
+    (hcount : Nat.card (RCocycle RF f₀.1.1) = z) :
+    Nat.card {f : BoundaryLiftsK b F T // liftBK RF b F f = g} = z := by
+  rw [← Nat.card_congr (fibreCocycleEquivK RF b F hE2 g f₀ hf₀), hcount]
+
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
 /-- **Frattini/framing wrapper for `hsep`** at the `K`-boundary.  Clone of
 `GQ2.SectionEight.liftB_fibre_nonempty_of_homLift` (`GQ2/RStage/ObstructionBuild.lean:671`) —
 verbatim. -/
@@ -309,6 +385,30 @@ theorem stageR136_ofRSepDataK (D : RObstructionData RF)
     obtain ⟨φ, hφ⟩ := hsep_hom g hg
     obtain ⟨f₀, hf₀⟩ := liftB_fibre_nonempty_of_homLiftK RF b F g φ hφ
     exact hfib_holdsK RF b F hE2 g f₀ hf₀ (hZcount f₀)
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **The assembled (136) identity with an explicit R-fibre coefficient.**  Both remaining
+premises are strictly below the target equation: obstruction-zero gives a homomorphic lift, and
+every `RCocycle` torsor has cardinality `z`. -/
+theorem stageR136_ofRSepDataCoeffK (z : ℕ) (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hsep_hom : ∀ g : BoundaryLiftsK b F RF.TB, obs RF D htriv hcard g.1.1 = 0 →
+      ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, RF.piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLiftsK b F T, Nat.card (RCocycle RF f₀.1.1) = z) :
+    (Nat.card RF.DR : ℤ) * exactImageCountK b F T
+      = z * ∑ᶠ l : RF.DR,
+          (2 * (mBK RF b F l : ℤ) - exactImageCountK b F RF.TB) := by
+  refine stageR136_ofRObstructionDataCoeffK RF z D htriv hcard hfg b F ?_ ?_
+  · intro g hg
+    obtain ⟨φ, hφ⟩ := hsep_hom g hg
+    exact liftB_fibre_nonempty_of_homLiftK RF b F g φ hφ
+  · intro g hg
+    obtain ⟨φ, hφ⟩ := hsep_hom g hg
+    obtain ⟨f₀, hf₀⟩ := liftB_fibre_nonempty_of_homLiftK RF b F g φ hφ
+    exact hfib_holdsCoeffK RF b F z hE2 g f₀ hf₀ (hZcount f₀)
 
 end Assemble
 
