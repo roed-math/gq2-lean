@@ -64,16 +64,25 @@ it is enough:
 * the realization makes `G` a `GQ2.IsLocalDualizingGroup`, so foundational B6 applies.
 
 Thus `Nonempty (GammaLFieldRealization h q)` is an exact, non-analytic missing statement from
-which both requested bundles follow.  It is not currently constructed: obtaining it from the L
-presentation would already prove the unmarked carrier part of the desired presentation theorem,
-so using the final carrier equivalence to construct it upstream would be circular.
+which both requested bundles follow.  Apart from the independently proved `(h,q) = (0,2)` case,
+it is not currently constructed upstream: obtaining it from the general L presentation would
+already prove the unmarked carrier part of the desired presentation theorem, so using the final
+carrier equivalence to construct it upstream would be circular.
+
+At exponent two there is a slightly more flexible pure reduction:
+`isLocalDualizingGroup_two_of_equiv` transports the truth-side predicate along any topological
+group equivalence.  The corresponding `tateDualityG_two_of_equiv` is explicitly a B6 constructor,
+not a direct transport of a supplied duality bundle.  Such direct transport would additionally
+need group-variable naturality for all three cup maps; the current API provides the three
+cohomology equivalences but not those cup-natural squares.
 
 ## Axiom posture
 
-The transport theorem `LocalEulerChar.congr`, the realization-to-local-dualizing theorem, and
-the combined boundary theorem are pure and print exactly the standard three.  The two final
-bundle constructors expose the existing foundational inputs honestly: the Euler constructor
-adds B7 through `localEulerCharacteristic_open`, and the Tate constructor adds B6 through
+The transport theorem `LocalEulerChar.congr`, `isLocalDualizingGroup_two_of_equiv`, the
+realization-to-local-dualizing theorem, and the combined boundary theorem are pure and print
+exactly the standard three.  The bundle constructors expose the existing foundational inputs
+honestly: the Euler constructor adds B7 through `localEulerCharacteristic_open`, while
+`tateDualityG_two_of_equiv` and the realization Tate constructor add B6 through
 `tateDualityAt`.  There are no new axioms and no `sorry`s.
 -/
 
@@ -132,6 +141,47 @@ noncomputable section
 
 open GQ2 ContCoh
 open GQ2.Dyadic GQ2.Dyadic.LiftingDualityG
+
+/-! ## The exact equivalence transport available for B6 -/
+
+section DualizingEquiv
+
+variable {G G' : Type} [Group G] [TopologicalSpace G]
+  [Group G'] [TopologicalSpace G']
+
+/-- At exponent two, a topological group equivalence transports the truth-side local-dualizing
+predicate without an action-compatibility hypothesis.
+
+This is the strongest axiom-free transport needed here.  Both actions on `MuN 2` are trivial,
+the equivalence is an open embedding with image `⊤`, and that image has finite index.  Notice
+that the conclusion is `IsLocalDualizingGroup`, not `TateDualityG`: constructing the latter is
+the separate B6 step below. -/
+theorem isLocalDualizingGroup_two_of_equiv
+    [DistribMulAction G (MuN 2)] [DistribMulAction G' (MuN 2)]
+    (e : G ≃ₜ* G') (hG' : IsLocalDualizingGroup G' 2) :
+    IsLocalDualizingGroup G 2 := by
+  apply isLocalDualizingGroup_of_openEmbedding hG' e.toMonoidHom
+    e.toHomeomorph.isOpenEmbedding
+  · rw [MonoidHom.range_eq_top.mpr e.surjective]
+    infer_instance
+  · intro g x
+    rw [smul_muN_two_trivialG, smul_muN_two_trivialG]
+
+/-- **B6 after equivalence transport.**  An equivalence to a local-dualizing group reduces full
+Tate duality on the source to the existing foundational axiom `tateDualityAt`.
+
+This does not pretend to transport a supplied `TateDualityG` bundle.  Although the repository
+has `H0congrGroup`, `H1congrGroup`, and `H2congrGroup`, it has no corresponding naturality
+theorems for `cup02`, `cup11`, and `cup20` in the group variable.  B6 is therefore applied to
+the transported truth-side predicate rather than silently assuming those missing squares. -/
+noncomputable def tateDualityG_two_of_equiv
+    [IsTopologicalGroup G]
+    [DistribMulAction G (MuN 2)] [ContinuousSMul G (MuN 2)]
+    [DistribMulAction G' (MuN 2)]
+    (e : G ≃ₜ* G') (hG' : IsLocalDualizingGroup G' 2) : TateDualityG G 2 :=
+  tateDualityAt G 2 (isLocalDualizingGroup_two_of_equiv e hG')
+
+end DualizingEquiv
 
 /-! ## A local-field realization and its consequences -/
 

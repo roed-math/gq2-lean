@@ -18,7 +18,9 @@ There are two distinct results.
 
 * At `(h,q) = (0,2)`, the existing independently proved Q2 presentation theorem gives an actual
   realization, with open subgroup `top`.  This construction is genuinely upstream of the
-  general analytic residue.
+  general analytic residue.  The standard-three theorem
+  `gammaL_zero_two_isLocalDualizingGroup_of_equiv` isolates transport of the truth-side B6
+  predicate; `gammaL_tateDualityG_zero_two` then invokes the existing B6 axiom explicitly.
 * In general, `gammaLFieldRealization_of_reconstruction` applies the existing two-source
   reconstruction theorem to an L `WordCertificate` and an arithmetic `DyadicLocalInput`.  These
   inputs contain source-side counting and boundary data, but no equivalence between `GammaL` and
@@ -42,11 +44,14 @@ assembly interface once the analytic certificate exists, not a replacement proof
 certificate or of the unresolved GammaL duality input.
 
 The audit also rules out a shorter current route through `IsDemushkin`: that structure records
-only scalar mod-2 cohomology of a pro-2 group, whereas `GammaLFieldRealization` concerns the full
-profinite group.  The repository deliberately has no general odd-rank `SqLabHypothesis`, and an
-equivalence of maximal pro-2 quotients alone does not determine the tame extension.  Likewise,
-an arbitrary natural `q` need not be a residue cardinality.  `DyadicLocalInput.params_qK` keeps
-that necessary arithmetic restriction explicit.
+only scalar mod-2 cohomology of a pro-2 group, whereas `TateDualityG` quantifies over every finite
+exponent-two module for the full profinite group.  The maximal-pro-2 APIs currently identify
+`H¹` only for trivial pro-2 coefficients and inject `H²` only for trivial `ZMod 2`; a finite
+module can still have a nontrivial odd-order tame action, so those results cannot populate the
+bundle.  Moreover, an equivalence of maximal pro-2 quotients alone does not determine the tame
+extension.  The repository deliberately has no general odd-rank `SqLabHypothesis`, and an
+arbitrary natural `q` need not be a residue cardinality.  `DyadicLocalInput.params_qK` keeps that
+necessary arithmetic restriction explicit.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -86,6 +91,54 @@ noncomputable def gammaLFieldRealization_zero_two : GammaLFieldRealization 0 2 w
 theorem nonempty_gammaLFieldRealization_zero_two :
     Nonempty (GammaLFieldRealization 0 2) :=
   ⟨gammaLFieldRealization_zero_two⟩
+
+/-! ## The full Tate boundary at the base L row -/
+
+/-- A supplied topological equivalence `GammaL(0,2) ≃ G_Q2` makes the base L source a local
+dualizing group at two.
+
+The implication itself is standard-three: it transports only the truth-side predicate and does
+not invoke B6.  Keeping the equivalence explicit separates this formal transport from the
+arithmetic axiom footprint of the repository's unconditional Q2 presentation theorem. -/
+theorem gammaL_zero_two_isLocalDualizingGroup_of_equiv
+    [DistribMulAction (gamma 0 2 : Type) (MuN 2)]
+    (e : (gamma 0 2 : Type) ≃ₜ* AbsGalQ2) :
+    IsLocalDualizingGroup (gamma 0 2 : Type) 2 :=
+  isLocalDualizingGroup_two_of_equiv e (isLocalDualizingGroup_absGalQ2 2)
+
+/-- **Unconditional truth-side boundary at `(h,q) = (0,2)`.**
+
+The independently proved Q2 presentation supplies the equivalence consumed by the preceding
+standard-three transport theorem.  This corollary therefore inherits exactly the existing
+arithmetic dependencies of `candidateGroup_lSq_equiv_absGalQ2_via_sourcesN`; it adds no B6
+application of its own. -/
+theorem gammaL_zero_two_isLocalDualizingGroup
+    [DistribMulAction (gamma 0 2 : Type) (MuN 2)] :
+    IsLocalDualizingGroup (gamma 0 2 : Type) 2 :=
+  gammaL_zero_two_isLocalDualizingGroup_of_equiv
+    QTwo.candidateGroup_lSq_equiv_absGalQ2_via_sourcesN.some
+
+/-- **Full Tate duality at the base L row.**  This is the existing B6 axiom applied after the
+unconditional truth-side reduction above.  The final constructor adds B6 and no new arithmetic
+axiom; the total theorem still inherits the Q2 presentation's pre-existing B6/B7 footprint.
+
+For general `(h,q)`, no corresponding upstream theorem is currently available.  The maximal
+pro-2 APIs compare only trivial scalar `H¹` and inject scalar `H²`; they do not cover finite
+modules with nontrivial tame (possibly odd-order) action, as required by `TateDualityG`. -/
+noncomputable def gammaL_tateDualityG_zero_two
+    [DistribMulAction (gamma 0 2 : Type) (MuN 2)]
+    [ContinuousSMul (gamma 0 2 : Type) (MuN 2)] :
+    TateDualityG (gamma 0 2 : Type) 2 :=
+  tateDualityG_two_of_equiv
+    QTwo.candidateGroup_lSq_equiv_absGalQ2_via_sourcesN.some
+    (isLocalDualizingGroup_absGalQ2 2)
+
+/-- Regression in the proposition-valued shape used by downstream constructors. -/
+theorem nonempty_gammaL_tateDualityG_zero_two
+    [DistribMulAction (gamma 0 2 : Type) (MuN 2)]
+    [ContinuousSMul (gamma 0 2 : Type) (MuN 2)] :
+    Nonempty (TateDualityG (gamma 0 2 : Type) 2) :=
+  ⟨gammaL_tateDualityG_zero_two⟩
 
 /-! ## A carrier-noncircular, but analytically downstream, general reduction -/
 
