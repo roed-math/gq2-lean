@@ -370,6 +370,7 @@ import GQ2.Dyadic.Instances.GammaLDeterminantBridge
 import GQ2.Dyadic.Instances.GammaLUnramifiedPhase
 import GQ2.Dyadic.Instances.GammaLGraphHessian
 import GQ2.Dyadic.Instances.GammaLGraphNormalForm
+import GQ2.Dyadic.Instances.GammaLDeterminantUnramified
 import GQ2.Dyadic.Instances.GammaLRamifiedPhase
 import GQ2.Dyadic.Count.H2SplitRightExact
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
