@@ -162,14 +162,11 @@ This record replaces seven formerly independent fields (`coreRel`, `proTwoWord`,
 `ker_pro2`, `hpro2`, `compat`, and the now-derived tame specialization) by one coherent
 presentation and two equations.
 
-The current direct branch coverage is deliberately not overstated.  `nCorePresentation`,
+The five improved rows now all have direct branch coverage.  `nCorePresentation`,
 `mCorePresentation`, and `LSquareCore.lCorePresentation` provide the compact N/M and L
-presentations at every handle count.  `npcCorePresentationUnit` now provides the arbitrary-unit
-procyclic-N presentation, but its alphabet normalization is not the compact-N normalization and
-there is not yet a canonical `Ztwo` orientation for that dictionary.  The arbitrary-unit Mpc
-presentation is also available at every handle count, but likewise lacks a canonical `Ztwo`
-orientation normalized in its semantic alphabet.  These are orientation-supply gaps for this
-record, not additional certificate fields. -/
+presentations at every handle count.  The arbitrary-unit Npc and Mpc presentations are paired
+below with canonical `Ztwo` orientations obtained by solving the triangular dictionaries in
+additive `Z_2` coordinates. -/
 structure SelectedCoreLeavesRN
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
@@ -185,6 +182,9 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
   {S : FieldBranchSelection K FP Q W} {q : ℕ} {P : ProfiniteGrp}
   {nuP : ContinuousMonoidHom P Ztwo}
+
+open Multiplicative
+open MarkedCore Count.PilotN
 
 /-! ### Canonical compact-N orientation in the boundary target -/
 
@@ -291,7 +291,254 @@ theorem exists_of_branch_M0 (S : FieldBranchSelection K FP Q W) {alpha : ℕ}
     Instances.MCompactCore.mNu alpha (handleCount FP (.M0 alpha))
       (one_le_alpha_of_M0 S hbranch), ⟨ofM0 S hbranch⟩⟩
 
-/-! ### Procyclic-row interfaces -/
+/-! ### Canonical procyclic-row orientations -/
+
+/-- The arbitrary-unit Npc orientation before transport across the boundary seam.  In standard
+`D_N` coordinates its additive values are `(0, eta, 2^r, 0, 0, ...)`.  The N relator has only
+the first coordinate in its abelianization, so this is a genuine continuous group homomorphism,
+not merely a coordinate formula. -/
+noncomputable def npcNuPadic (alpha r h : ℕ) (eta : ℤ_[2]ˣ) :
+    ContinuousMonoidHom (DN alpha h : Type) (Multiplicative ℤ_[2]) :=
+  nLiftHom alpha h PropOneOne.isProP_two_multPadicInt
+    (coreMark (ofAdd 0) (ofAdd (eta : ℤ_[2])) (ofAdd ((2 : ℤ_[2]) ^ r)) (ofAdd 0)) (by
+      rw [nRelWord_comm, coreMark_zero, ← ofAdd_nsmul, ← ofAdd_zero]
+      congr 1
+      simp)
+
+/-- The canonical arbitrary-unit Npc orientation in the certificate target `Ztwo`. -/
+noncomputable def npcNu (alpha r h : ℕ) (eta : ℤ_[2]ˣ) :
+    ContinuousMonoidHom (DN alpha h : Type) Ztwo :=
+  (ztwoIota.symm : ContinuousMonoidHom (Multiplicative ℤ_[2]) Ztwo).comp
+    (npcNuPadic alpha r h eta)
+
+@[simp] theorem npcNuPadic_gen_zero (alpha r h : ℕ) (eta : ℤ_[2]ˣ) :
+    npcNuPadic alpha r h eta (dnGen alpha h 0) = ofAdd 0 := by
+  rw [npcNuPadic, nLiftHom_gen, coreMark_zero]
+
+@[simp] theorem npcNuPadic_gen_one (alpha r h : ℕ) (eta : ℤ_[2]ˣ) :
+    npcNuPadic alpha r h eta (dnGen alpha h 1) = ofAdd (eta : ℤ_[2]) := by
+  rw [npcNuPadic, nLiftHom_gen, coreMark_one]
+
+@[simp] theorem npcNuPadic_gen_two (alpha r h : ℕ) (eta : ℤ_[2]ˣ) :
+    npcNuPadic alpha r h eta (dnGen alpha h 2) = ofAdd ((2 : ℤ_[2]) ^ r) := by
+  rw [npcNuPadic, nLiftHom_gen, coreMark_two]
+
+@[simp] theorem npcNuPadic_gen_three (alpha r h : ℕ) (eta : ℤ_[2]ˣ) :
+    npcNuPadic alpha r h eta (dnGen alpha h 3) = ofAdd 0 := by
+  rw [npcNuPadic, nLiftHom_gen, coreMark_three]
+
+@[simp] theorem npcNuPadic_gen_handleU (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (j : Fin h) :
+    npcNuPadic alpha r h eta (dnGen alpha h (handleIdxU j)) = 1 := by
+  rw [npcNuPadic, nLiftHom_gen, coreMark_handleU]
+
+@[simp] theorem npcNuPadic_gen_handleV (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (j : Fin h) :
+    npcNuPadic alpha r h eta (dnGen alpha h (handleIdxV j)) = 1 := by
+  rw [npcNuPadic, nLiftHom_gen, coreMark_handleV]
+
+/-- The Npc semantic sigma is `core_1^(eta⁻¹)`, hence has additive value one. -/
+theorem npcNuPadic_sigma (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (d : NpcDisplayFor eta) :
+    npcNuPadic alpha r h eta
+      ((Instances.NProcyclicCore.npcCorePresentationUnit alpha r h eta d).mark .sigma) =
+        ofAdd 1 := by
+  change npcNuPadic alpha r h eta
+    (zpowZtwo (isProP_DN alpha h) (dnGen alpha h 1) ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) = _
+  rw [map_zpowZtwo (isProP_DN alpha h) PropOneOne.isProP_two_multPadicInt,
+    npcNuPadic_gen_one, SectionThree.zpowZtwo_ofAdd,
+    ← Units.val_mul, mul_inv_cancel, Units.val_one]
+
+/-- Every Npc wild letter has additive value zero, including all stabilizing handles. -/
+theorem npcNuPadic_wild (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (d : NpcDisplayFor eta)
+    (j : Fin (2 + 2 * h + 1)) :
+    npcNuPadic alpha r h eta
+      ((Instances.NProcyclicCore.npcCorePresentationUnit alpha r h eta d).mark (.wild j)) = 1 := by
+  change npcNuPadic alpha r h eta
+    (Instances.NProcyclicCore.npcUntwistUnit (isProP_DN alpha h) eta r h
+      (dnGen alpha h) (nWildIdx h j)) = 1
+  have hne := Instances.MCompactCore.nWildIdx_val_ne_two h j
+  rcases nCoreIdx_cases (nWildIdx h j) with
+      h0 | h1 | h2 | h3 | ⟨k, hU⟩ | ⟨k, hV⟩
+  · rw [h0, Instances.NProcyclicCore.npcUntwistUnit_apply_ne _ _ _ _ _
+        (by rw [coreVal_zero]; omega) (by rw [coreVal_zero]; omega),
+      npcNuPadic_gen_zero, ofAdd_zero]
+  · rw [h1, Instances.NProcyclicCore.npcUntwistUnit_one, map_mul, map_zpow,
+      npcNuPadic_gen_two]
+    have hs : npcNuPadic alpha r h eta
+        (zpowZtwo (isProP_DN alpha h) (dnGen alpha h 1)
+          ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) = ofAdd 1 := by
+      exact npcNuPadic_sigma alpha r h eta d
+    rw [hs, ← ofAdd_zsmul, ← ofAdd_add, ← ofAdd_zero]
+    congr 1
+    simp only [zsmul_eq_mul]
+    push_cast
+    ring
+  · exact (hne (by rw [h2, coreVal_two])).elim
+  · rw [h3, Instances.NProcyclicCore.npcUntwistUnit_apply_ne _ _ _ _ _
+        (by rw [coreVal_three]; omega) (by rw [coreVal_three]; omega),
+      npcNuPadic_gen_three, ofAdd_zero]
+  · rw [hU, Instances.NProcyclicCore.npcUntwistUnit_apply_ne _ _ _ _ _
+        (by rw [handleIdxU_val]; omega) (by rw [handleIdxU_val]; omega),
+      npcNuPadic_gen_handleU]
+  · rw [hV, Instances.NProcyclicCore.npcUntwistUnit_apply_ne _ _ _ _ _
+        (by rw [handleIdxV_val]; omega) (by rw [handleIdxV_val]; omega),
+      npcNuPadic_gen_handleV]
+
+theorem npcNu_sigma (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (d : NpcDisplayFor eta) :
+    npcNu alpha r h eta
+      ((Instances.NProcyclicCore.npcCorePresentationUnit alpha r h eta d).mark .sigma) =
+        ztwoOne := by
+  apply ztwoIota.injective
+  change ztwoIota (ztwoIota.symm (npcNuPadic alpha r h eta
+    ((Instances.NProcyclicCore.npcCorePresentationUnit alpha r h eta d).mark .sigma))) =
+      ztwoIota ztwoOne
+  rw [ztwoIota.apply_symm_apply, ztwoIota_ztwoOne, npcNuPadic_sigma]
+
+theorem npcNu_wild (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (d : NpcDisplayFor eta)
+    (j : Fin (2 + 2 * h + 1)) :
+    npcNu alpha r h eta
+      ((Instances.NProcyclicCore.npcCorePresentationUnit alpha r h eta d).mark (.wild j)) = 1 := by
+  apply ztwoIota.injective
+  change ztwoIota (ztwoIota.symm (npcNuPadic alpha r h eta
+    ((Instances.NProcyclicCore.npcCorePresentationUnit alpha r h eta d).mark (.wild j)))) =
+      ztwoIota 1
+  rw [ztwoIota.apply_symm_apply, map_one, npcNuPadic_wild]
+
+/-- The arbitrary-unit Mpc orientation before transport across the boundary seam.  Its standard
+`D_M` additive row is `(-m(alpha)s(r), p, s(r), eta, 0, ...)`. -/
+noncomputable def mpcNuPadic (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) :
+    ContinuousMonoidHom (DM alpha h : Type) (Multiplicative ℤ_[2]) :=
+  mLiftHom alpha h PropOneOne.isProP_two_multPadicInt
+    (coreMark
+      (ofAdd (-((m alpha : ℤ_[2]) * (s r : ℤ_[2]))))
+      (ofAdd (p : ℤ_[2])) (ofAdd (s r : ℤ_[2])) (ofAdd (eta : ℤ_[2]))) (by
+        rw [mRelWord_comm, coreMark_zero, coreMark_two,
+          ← ofAdd_nsmul, ← ofAdd_nsmul, ← ofAdd_add, ← ofAdd_zero]
+        congr 1
+        have h2 : ((2 * m alpha : ℕ) : ℤ_[2]) = ((2 ^ alpha : ℕ) : ℤ_[2]) :=
+          congrArg _ (two_mul_m halpha)
+        push_cast at h2
+        rw [nsmul_eq_mul, nsmul_eq_mul, mul_neg]
+        push_cast
+        rw [← h2]
+        ring)
+
+/-- The canonical arbitrary-unit Mpc orientation in the certificate target `Ztwo`. -/
+noncomputable def mpcNu (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) :
+    ContinuousMonoidHom (DM alpha h : Type) Ztwo :=
+  (ztwoIota.symm : ContinuousMonoidHom (Multiplicative ℤ_[2]) Ztwo).comp
+    (mpcNuPadic alpha r p h eta halpha)
+
+@[simp] theorem mpcNuPadic_gen_zero (alpha r p h : ℕ) (eta : ℤ_[2]ˣ)
+    (halpha : 1 ≤ alpha) :
+    mpcNuPadic alpha r p h eta halpha (dmGen alpha h 0) =
+      ofAdd (-((m alpha : ℤ_[2]) * (s r : ℤ_[2]))) := by
+  rw [mpcNuPadic, mLiftHom_gen, coreMark_zero]
+
+@[simp] theorem mpcNuPadic_gen_one (alpha r p h : ℕ) (eta : ℤ_[2]ˣ)
+    (halpha : 1 ≤ alpha) :
+    mpcNuPadic alpha r p h eta halpha (dmGen alpha h 1) = ofAdd (p : ℤ_[2]) := by
+  rw [mpcNuPadic, mLiftHom_gen, coreMark_one]
+
+@[simp] theorem mpcNuPadic_gen_two (alpha r p h : ℕ) (eta : ℤ_[2]ˣ)
+    (halpha : 1 ≤ alpha) :
+    mpcNuPadic alpha r p h eta halpha (dmGen alpha h 2) = ofAdd (s r : ℤ_[2]) := by
+  rw [mpcNuPadic, mLiftHom_gen, coreMark_two]
+
+@[simp] theorem mpcNuPadic_gen_three (alpha r p h : ℕ) (eta : ℤ_[2]ˣ)
+    (halpha : 1 ≤ alpha) :
+    mpcNuPadic alpha r p h eta halpha (dmGen alpha h 3) = ofAdd (eta : ℤ_[2]) := by
+  rw [mpcNuPadic, mLiftHom_gen, coreMark_three]
+
+@[simp] theorem mpcNuPadic_gen_handleU (alpha r p h : ℕ) (eta : ℤ_[2]ˣ)
+    (halpha : 1 ≤ alpha) (j : Fin h) :
+    mpcNuPadic alpha r p h eta halpha (dmGen alpha h (handleIdxU j)) = 1 := by
+  rw [mpcNuPadic, mLiftHom_gen, coreMark_handleU]
+
+@[simp] theorem mpcNuPadic_gen_handleV (alpha r p h : ℕ) (eta : ℤ_[2]ˣ)
+    (halpha : 1 ≤ alpha) (j : Fin h) :
+    mpcNuPadic alpha r p h eta halpha (dmGen alpha h (handleIdxV j)) = 1 := by
+  rw [mpcNuPadic, mLiftHom_gen, coreMark_handleV]
+
+theorem mpcNuPadic_sigma (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) :
+    mpcNuPadic alpha r p h eta halpha
+      ((Instances.MProcyclicCore.mpcCorePresentationUnit alpha r p eta h halpha).mark .sigma) =
+        ofAdd 1 := by
+  change mpcNuPadic alpha r p h eta halpha
+    (zpowZtwo (isProP_DM alpha h) (dmGen alpha h 3) ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) = _
+  rw [map_zpowZtwo (isProP_DM alpha h) PropOneOne.isProP_two_multPadicInt,
+    mpcNuPadic_gen_three, SectionThree.zpowZtwo_ofAdd,
+    ← Units.val_mul, mul_inv_cancel, Units.val_one]
+
+theorem mpcNuPadic_wild (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha)
+    (j : Fin (2 + 2 * h + 1)) :
+    mpcNuPadic alpha r p h eta halpha
+      ((Instances.MProcyclicCore.mpcCorePresentationUnit alpha r p eta h halpha).mark (.wild j)) =
+        1 := by
+  change mpcNuPadic alpha r p h eta halpha
+    (Instances.MProcyclicCore.mpcUnitUntwist (isProP_DM alpha h) alpha r p eta h
+      (dmGen alpha h) (nWildIdx h j)) = 1
+  have hne := Instances.MCompactCore.nWildIdx_val_ne_two h j
+  rcases nCoreIdx_cases (nWildIdx h j) with
+      h0 | h1 | h2 | h3 | ⟨k, hU⟩ | ⟨k, hV⟩
+  · rw [h0, Instances.MProcyclicCore.mpcUnitUntwist_zero, map_inv, map_mul, map_pow,
+      mpcNuPadic_gen_zero, mpcNuPadic_gen_two, ← ofAdd_nsmul, ← ofAdd_add]
+    rw [show -((m alpha : ℤ_[2]) * (s r : ℤ_[2])) +
+        (m alpha : ℕ) • (s r : ℤ_[2]) = 0 by
+      simp only [nsmul_eq_mul]
+      ring, ofAdd_zero, inv_one]
+  · rw [h1, Instances.MProcyclicCore.mpcUnitUntwist_one, map_mul, map_zpow,
+      mpcNuPadic_gen_one]
+    have hs : mpcNuPadic alpha r p h eta halpha
+        (zpowZtwo (isProP_DM alpha h) (dmGen alpha h 3)
+          ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) = ofAdd 1 :=
+      mpcNuPadic_sigma alpha r p h eta halpha
+    rw [hs, ← ofAdd_zsmul, ← ofAdd_add, ← ofAdd_zero]
+    congr 1
+    simp only [zsmul_eq_mul]
+    push_cast
+    ring
+  · exact (hne (by rw [h2, coreVal_two])).elim
+  · rw [h3, Instances.MProcyclicCore.mpcUnitUntwist_three, map_mul, map_zpow,
+      mpcNuPadic_gen_two]
+    have hs : mpcNuPadic alpha r p h eta halpha
+        (zpowZtwo (isProP_DM alpha h) (dmGen alpha h 3)
+          ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) = ofAdd 1 :=
+      mpcNuPadic_sigma alpha r p h eta halpha
+    rw [hs, ← ofAdd_zsmul, ← ofAdd_add, ← ofAdd_zero]
+    congr 1
+    simp only [zsmul_eq_mul]
+    push_cast
+    ring
+  · rw [hU, Instances.MProcyclicCore.mpcUnitUntwist_apply_ne _ _ _ _ _ _ _
+        (by rw [handleIdxU_val]; omega) (by rw [handleIdxU_val]; omega)
+        (by rw [handleIdxU_val]; omega) (by rw [handleIdxU_val]; omega),
+      mpcNuPadic_gen_handleU]
+  · rw [hV, Instances.MProcyclicCore.mpcUnitUntwist_apply_ne _ _ _ _ _ _ _
+        (by rw [handleIdxV_val]; omega) (by rw [handleIdxV_val]; omega)
+        (by rw [handleIdxV_val]; omega) (by rw [handleIdxV_val]; omega),
+      mpcNuPadic_gen_handleV]
+
+theorem mpcNu_sigma (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) :
+    mpcNu alpha r p h eta halpha
+      ((Instances.MProcyclicCore.mpcCorePresentationUnit alpha r p eta h halpha).mark .sigma) =
+        ztwoOne := by
+  apply ztwoIota.injective
+  change ztwoIota (ztwoIota.symm (mpcNuPadic alpha r p h eta halpha
+    ((Instances.MProcyclicCore.mpcCorePresentationUnit alpha r p eta h halpha).mark .sigma))) =
+      ztwoIota ztwoOne
+  rw [ztwoIota.apply_symm_apply, ztwoIota_ztwoOne, mpcNuPadic_sigma]
+
+theorem mpcNu_wild (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha)
+    (j : Fin (2 + 2 * h + 1)) :
+    mpcNu alpha r p h eta halpha
+      ((Instances.MProcyclicCore.mpcCorePresentationUnit alpha r p eta h halpha).mark (.wild j)) =
+        1 := by
+  apply ztwoIota.injective
+  change ztwoIota (ztwoIota.symm (mpcNuPadic alpha r p h eta halpha
+    ((Instances.MProcyclicCore.mpcCorePresentationUnit alpha r p eta h halpha).mark (.wild j)))) =
+      ztwoIota 1
+  rw [ztwoIota.apply_symm_apply, map_one, mpcNuPadic_wild]
+
+/-! ### Procyclic-row constructors -/
 
 /-- The landed arbitrary-unit Npc presentation specialized to the display stored by the field
 selection.  The semantic word remains `npcWUnit ... eta`; the display is used only to prove the
@@ -305,10 +552,9 @@ noncomputable def npcPresentation (S : FieldBranchSelection K FP Q W)
     (handleCount FP (.Npc alpha r eta)) eta
       (Eq.mp (congrArg BranchData.DisplayFor hbranch) S.display)
 
-/-- The arbitrary-unit Npc constructor with its exact remaining orientation interface.
-Presentation supply is unconditional; only a `Ztwo` map normalized on this procyclic alphabet
-is explicit.  In particular, this does not silently reuse the incompatible compact-N rows. -/
-noncomputable def ofNpc (S : FieldBranchSelection K FP Q W)
+/-- Low-level arbitrary-unit Npc constructor for callers carrying a different normalized
+orientation.  The canonical constructor `ofNpc` below needs no such binders. -/
+noncomputable def ofNpcWithOrientation (S : FieldBranchSelection K FP Q W)
     {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta)
     (nuP : ContinuousMonoidHom
       (MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta)) : Type) Ztwo)
@@ -326,6 +572,22 @@ noncomputable def ofNpc (S : FieldBranchSelection K FP Q W)
             (handleCount FP (.Npc alpha r eta)) eta display
           nu_sigma := hnuSigma
           nu_wild := hnuWild }
+
+/-- The arbitrary-unit, arbitrary-handle Npc selected core with its canonical orientation. -/
+noncomputable def ofNpc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta) :
+    SelectedCoreLeavesRN S (DN alpha (handleCount FP (.Npc alpha r eta)))
+      (npcNu alpha r (handleCount FP (.Npc alpha r eta)) eta) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      exact
+        { presentation := Instances.NProcyclicCore.npcCorePresentationUnit alpha r
+            (handleCount FP (.Npc alpha r eta)) eta display
+          nu_sigma := npcNu_sigma alpha r (handleCount FP (.Npc alpha r eta)) eta display
+          nu_wild := npcNu_wild alpha r (handleCount FP (.Npc alpha r eta)) eta display }
 
 /-- Low-level selected Mpc constructor from a presentation.  It pins the selected word with the
 literal arithmetic parameter `p epsilon r` and the literal selected unit `eta`; no transport to
@@ -373,10 +635,9 @@ noncomputable def mpcPresentation (S : FieldBranchSelection K FP Q W)
   Instances.MProcyclicCore.mpcCorePresentationUnit alpha r (p epsilon r) eta
     (handleCount FP (.Mpc alpha r epsilon eta)) (one_le_alpha_of_Mpc S hbranch)
 
-/-- The direct arbitrary-unit Mpc selected-core constructor.  The presentation is fully
-derived; the exact remaining residue is a `Ztwo` orientation together with its sigma and wild
-normalization rows at that presentation's marking. -/
-noncomputable def ofMpc (S : FieldBranchSelection K FP Q W)
+/-- Low-level arbitrary-unit Mpc constructor for callers carrying a different normalized
+orientation.  The canonical constructor `ofMpc` below needs no such binders. -/
+noncomputable def ofMpcWithOrientation (S : FieldBranchSelection K FP Q W)
     {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
     (hbranch : S.branch = .Mpc alpha r epsilon eta)
     (nuP : ContinuousMonoidHom
@@ -387,6 +648,48 @@ noncomputable def ofMpc (S : FieldBranchSelection K FP Q W)
     SelectedCoreLeavesRN S
       (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta))) nuP :=
   ofMpcPresentation S hbranch (mpcPresentation S hbranch) nuP hnuSigma hnuWild
+
+/-- The arbitrary-unit, arbitrary-handle Mpc selected core.  Its word retains the literal
+arithmetic parameter `p epsilon r`; the orientation uses the same literal `p`. -/
+noncomputable def ofMpc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) :
+    SelectedCoreLeavesRN S (DM alpha (handleCount FP (.Mpc alpha r epsilon eta)))
+      (mpcNu alpha r (p epsilon r) (handleCount FP (.Mpc alpha r epsilon eta)) eta
+        (one_le_alpha_of_Mpc S hbranch)) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      have halpha : 1 ≤ alpha := le_trans (by omega) valid.1
+      exact
+        { presentation := Instances.MProcyclicCore.mpcCorePresentationUnit alpha r
+            (p epsilon r) eta (handleCount FP (.Mpc alpha r epsilon eta)) halpha
+          nu_sigma := mpcNu_sigma alpha r (p epsilon r)
+            (handleCount FP (.Mpc alpha r epsilon eta)) eta halpha
+          nu_wild := mpcNu_wild alpha r (p epsilon r)
+            (handleCount FP (.Mpc alpha r epsilon eta)) eta halpha }
+
+/-- Constructor-table regression: every arbitrary-unit Npc row has fully derived structural
+core leaves at its selected handle count. -/
+theorem exists_of_branch_Npc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SelectedCoreLeavesRN S P nuP) :=
+  ⟨DN alpha (handleCount FP (.Npc alpha r eta)),
+    npcNu alpha r (handleCount FP (.Npc alpha r eta)) eta, ⟨ofNpc S hbranch⟩⟩
+
+/-- Constructor-table regression: every arbitrary-unit Mpc row, with literal `p epsilon r`,
+has fully derived structural core leaves at its selected handle count. -/
+theorem exists_of_branch_Mpc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SelectedCoreLeavesRN S P nuP) :=
+  ⟨DM alpha (handleCount FP (.Mpc alpha r epsilon eta)),
+    mpcNu alpha r (p epsilon r) (handleCount FP (.Mpc alpha r epsilon eta)) eta
+      (one_le_alpha_of_Mpc S hbranch), ⟨ofMpc S hbranch⟩⟩
 
 /-- **The L-row constructor.**  A field selection on the improved square-word row has a
 canonical structural core, with no certificate assumptions: `DSq` supplies the universal
@@ -411,6 +714,18 @@ theorem exists_of_branch_L (S : FieldBranchSelection K FP Q W) (hbranch : S.bran
       Nonempty (SelectedCoreLeavesRN S P nuP) :=
   ⟨SqCore.DSq (handleCount FP .L), Instances.LSquareCore.lNu (handleCount FP .L),
     ⟨ofL S hbranch⟩⟩
+
+/-- **Five-row structural regression.**  Every field-selected improved presentation has a
+presented pro-`2` core and a canonically normalized `Ztwo` orientation. -/
+theorem exists_of_fieldSelection (S : FieldBranchSelection K FP Q W) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SelectedCoreLeavesRN S P nuP) := by
+  cases hbranch : S.branch with
+  | L => exact exists_of_branch_L S hbranch
+  | N0 alpha => exact exists_of_branch_N0 S hbranch
+  | Npc alpha r eta => exact exists_of_branch_Npc S hbranch
+  | M0 alpha => exact exists_of_branch_M0 S hbranch
+  | Mpc alpha r epsilon eta => exact exists_of_branch_Mpc S hbranch
 
 /-- `WordCertificateRN.coreRel` and `proTwoWord` contain no mathematical residue: choosing the
 evaluated pro-`2` word makes the requested equality reflexive. -/
