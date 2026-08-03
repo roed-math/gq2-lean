@@ -361,6 +361,7 @@ import GQ2.Dyadic.Count.HTwoModuleAsphericity
 import GQ2.Dyadic.Count.HTwoRelationModule
 import GQ2.Dyadic.Count.HTwoRelationModuleGlobal
 import GQ2.Dyadic.Count.HTwoRelationModuleRefined
+import GQ2.Dyadic.Count.HTwoRelationModuleVectorwise
 import GQ2.Dyadic.Count.HTwoRelationBasis
 import GQ2.Dyadic.Count.HTwoStronglyFree
 import GQ2.Dyadic.Count.HTwoRelationFox
