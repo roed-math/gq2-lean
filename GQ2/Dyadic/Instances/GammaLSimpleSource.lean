@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
+import GQ2.Dyadic.Instances.LHeisenbergResolver
 import GQ2.Dyadic.Instances.LUniformHeisenbergResolver
 
 /-!
@@ -384,6 +385,41 @@ theorem stokesDuality_lUniform_of_h2Card_tateDuality
     StokesDuality (fun g => rho (genL g)) wC A :=
   stokesDuality_lUniform_of_simpleSourceProvider rho hq
     (uniformSimpleSourceProvider_of_h2Card_tateDuality rho hq D hcard) A hA₂
+
+/-! ## Uniform supply and corrected exact lifting -/
+
+/-- The paired simple-module `H²` cardinality residue at every finite quotient of `GammaL`.
+
+For each quotient `rho : GammaL → C`, every simple coefficient is measured against the one
+word at level `omega2Exp (4 * exponent C)`.  This is the exact quantifier order needed by
+`UniformPushedHsimp`. -/
+noncomputable abbrev UniformSimpleH2CardSupply : Prop :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom GammaL C),
+      UniformSimpleH2CardProvider rho
+
+/-- A uniform supply of the two simple `H²` cardinalities, together with Tate duality, proves
+the direct-Stokes residue consumed by the corrected L exact-lifting chain. -/
+theorem uniformPushedHsimp_of_h2Card_tateDuality
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (hq : Even q) (D : TateDualityG GammaL 2)
+    (hcard : UniformSimpleH2CardSupply (h := h) (q := q)) :
+    UniformPushedHsimp h q := by
+  intro C _ _ _ _ rho A _ _ _ hA₂
+  exact stokesDuality_lUniform_of_h2Card_tateDuality rho hq D (hcard C rho) A hA₂
+
+/-- End-to-end corrected L regression with no Euler, resolver, endpoint, cup, or square input.
+The only source-facing hypotheses are Tate duality and the paired simple-module `H²`
+cardinality supply at the coefficient-independent words. -/
+theorem exactLiftingRN_of_uniformH2Card_tateDuality
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (hq : Even q) (D : TateDualityG GammaL 2)
+    (hcard : UniformSimpleH2CardSupply (h := h) (q := q))
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) :=
+  exactLiftingRN_of_uniformPushed
+    (uniformPushedHsimp_of_h2Card_tateDuality hq D hcard) hq nuP
 
 end UniformProvider
 
