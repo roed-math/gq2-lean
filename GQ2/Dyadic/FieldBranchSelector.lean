@@ -267,9 +267,9 @@ end MarkedRecip
 
 /-! ## The exact residual arithmetic witnesses -/
 
-/-- The standard generator and topological splitting facts required by packet Proposition 8.1.
-The unit itself is a parameter so that `FieldBranchWitness` can separately pin it to the
-`M_alpha` or `N_alpha` formula. -/
+/-- The legacy product-type generator and topological splitting facts required by packet
+Proposition 8.1.  This is the `M_alpha` shape; it remains parameterized by the unit for source
+compatibility.  `not_nonempty_nUnit` below proves that it cannot carry a valid `N_alpha` unit. -/
 structure MarkedGeneratorData {A : Type*} [CommGroup A] (Q : MarkedPair A) (u : ℤ_[2]ˣ) where
   unit_mem : u ∈ Q.C
   negOne_mem : (-1 : ℤ_[2]ˣ) ∈ Q.C
@@ -423,10 +423,10 @@ theorem not_even_eta_of_level_ne_zero (RI : RamifiedIData K) (B : MarkedRecip Re
 
 end RamifiedIData
 
-/-- The missing general Labute-family theorem, factored into its precise current residue.
-
-The `M` and `N` constructors pin the standard unit formula as well as the splitting, preventing
-an arbitrary topological generator from being attached to the wrong `alpha`. -/
+/-- The legacy Labute-family witness.  Its `M` constructor pins the standard unit formula as well
+as the product splitting.  The retained `N` constructor uses the same historical field, but
+`CanonicalFieldBranchWitness.N_impossible` below proves that field contradictory at valid
+`alpha`; new code should use `FamilyMarkedGeneratorData` instead. -/
 inductive FieldBranchWitness {A : Type*} [CommGroup A] (P : FieldParameters)
     (Q : MarkedPair A) : Type
   | L (degree_odd : Odd P.n) (level_zero : Q.r = 0)
