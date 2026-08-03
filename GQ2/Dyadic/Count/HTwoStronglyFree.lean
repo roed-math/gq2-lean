@@ -50,6 +50,14 @@ instance freeRelationModTwoSubgroup_normal :
 abbrev FreeRelationModTwoQuotient :=
   FreeRelationKernel m ⧸ freeRelationModTwoSubgroup m
 
+/-- The canonical map `R → R/(R²[R,R])`. -/
+def freeRelationModTwoMk : FreeRelationKernel m →* FreeRelationModTwoQuotient m :=
+  QuotientGroup.mk' (freeRelationModTwoSubgroup m)
+
+theorem freeRelationModTwoMk_surjective :
+    Function.Surjective (freeRelationModTwoMk m) :=
+  QuotientGroup.mk'_surjective _
+
 theorem freeRelation_sq_mem_modTwoSubgroup (r : FreeRelationKernel m) :
     r ^ 2 ∈ freeRelationModTwoSubgroup m :=
   Subgroup.subset_normalClosure (Or.inl ⟨r, rfl⟩)
@@ -72,7 +80,105 @@ theorem freeRelation_commutator_mem_modTwoSubgroup
   rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
   exact freeRelation_commutator_mem_modTwoSubgroup m r s
 
+/-- Universal descent from `R/(R²[R,R])`: every homomorphism from the relation kernel to a
+commutative exponent-two group factors through the explicit quotient. -/
+def freeRelationModTwoLift {B : Type} [CommGroup B]
+    (f : FreeRelationKernel m →* B) (hB₂ : ∀ b : B, b ^ 2 = 1) :
+    FreeRelationModTwoQuotient m →* B := by
+  refine QuotientGroup.lift (freeRelationModTwoSubgroup m) f ?_
+  apply Subgroup.normalClosure_le_normal
+  intro x hx
+  rcases hx with ⟨r, rfl⟩ | ⟨r, s, rfl⟩
+  · change f (r ^ 2) = 1
+    rw [map_pow]
+    exact hB₂ _
+  · change f (r * s * r⁻¹ * s⁻¹) = 1
+    simp
+
+/-- The descended homomorphism agrees with the original map on the relation kernel. -/
+@[simp] theorem freeRelationModTwoLift_mk {B : Type} [CommGroup B]
+    (f : FreeRelationKernel m →* B) (hB₂ : ∀ b : B, b ^ 2 = 1)
+    (r : FreeRelationKernel m) :
+    freeRelationModTwoLift m f hB₂ (freeRelationModTwoMk m r) = f r := by
+  rfl
+
+/-- Homomorphism-level factorization through the explicit mod-two relation quotient. -/
+theorem freeRelationModTwoLift_comp_mk {B : Type} [CommGroup B]
+    (f : FreeRelationKernel m →* B) (hB₂ : ∀ b : B, b ^ 2 = 1) :
+    (freeRelationModTwoLift m f hB₂).comp (freeRelationModTwoMk m) = f := by
+  ext r
+  exact freeRelationModTwoLift_mk m f hB₂ r
+
+/-- Uniqueness in the universal property: a map out of the quotient is determined by its
+restriction to the relation kernel. -/
+theorem freeRelationModTwoLift_unique {B : Type} [CommGroup B]
+    (f : FreeRelationKernel m →* B) (hB₂ : ∀ b : B, b ^ 2 = 1)
+    (g : FreeRelationModTwoQuotient m →* B)
+    (hg : g.comp (freeRelationModTwoMk m) = f) :
+    g = freeRelationModTwoLift m f hB₂ := by
+  apply MonoidHom.ext
+  intro x
+  obtain ⟨r, hr⟩ := freeRelationModTwoMk_surjective m x
+  rw [← hr]
+  change (g.comp (freeRelationModTwoMk m)) r = _
+  rw [hg]
+  exact (freeRelationModTwoLift_mk m f hB₂ r).symm
+
 end ModTwoQuotient
+
+section QuotientFactorizations
+
+variable {X rel L A : Type} [Group L] [AddCommGroup A] [DistribMulAction L A]
+  {m : X → L} {w : rel → FreeGroup X}
+  {hrel : ∀ k, FreeGroup.lift m (w k) = 1}
+
+/-- Every coordinate map in the older relation-basis interface canonically descends to the
+genuine mod-two relation quotient. -/
+def ModTwoRelationBasisCoordinates.quotientCoordinates
+    (B : ModTwoRelationBasisCoordinates w hrel) :
+    FreeRelationModTwoQuotient m →*
+      Multiplicative (RegularModTwoRelationModule L rel) :=
+  freeRelationModTwoLift m B.coordinates (fun c => by
+    apply Multiplicative.toAdd.injective
+    simp only [toAdd_pow, toAdd_one, two_nsmul]
+    ext p
+    exact (by decide : ∀ a : ZMod 2, a + a = 0) _)
+
+/-- The descended map recovers the original relation-basis coordinates. -/
+@[simp] theorem ModTwoRelationBasisCoordinates.quotientCoordinates_mk
+    (B : ModTwoRelationBasisCoordinates w hrel) (s : FreeRelationKernel m) :
+    B.quotientCoordinates (freeRelationModTwoMk m s) = B.coordinates s :=
+  freeRelationModTwoLift_mk m _ _ _
+
+/-- Homomorphism-level factorization of any mod-two basis coordinate map. -/
+theorem ModTwoRelationBasisCoordinates.quotientCoordinates_comp_mk
+    (B : ModTwoRelationBasisCoordinates w hrel) :
+    B.quotientCoordinates.comp (freeRelationModTwoMk m) = B.coordinates :=
+  freeRelationModTwoLift_comp_mk m _ _
+
+/-- An exponent-two relation character factors canonically through `R/(R²[R,R])`. -/
+def FreeRelationCharacter.modTwoFactor
+    (chi : FreeRelationCharacter m A) (hA₂ : ∀ a : A, a + a = 0) :
+    FreeRelationModTwoQuotient m →* Multiplicative A :=
+  freeRelationModTwoLift m chi.toMonoidHom (fun b => by
+    apply Multiplicative.toAdd.injective
+    simpa only [toAdd_pow, toAdd_one, two_nsmul] using
+      hA₂ (Multiplicative.toAdd b))
+
+/-- The quotient factor recovers the original relation character on `R`. -/
+@[simp] theorem FreeRelationCharacter.modTwoFactor_mk
+    (chi : FreeRelationCharacter m A) (hA₂ : ∀ a : A, a + a = 0)
+    (s : FreeRelationKernel m) :
+    chi.modTwoFactor hA₂ (freeRelationModTwoMk m s) = chi.toMonoidHom s :=
+  freeRelationModTwoLift_mk m _ _ _
+
+/-- Homomorphism-level factorization of an elementary relation character. -/
+theorem FreeRelationCharacter.modTwoFactor_comp_mk
+    (chi : FreeRelationCharacter m A) (hA₂ : ∀ a : A, a + a = 0) :
+    (chi.modTwoFactor hA₂).comp (freeRelationModTwoMk m) = chi.toMonoidHom :=
+  freeRelationModTwoLift_comp_mk m _ _
+
+end QuotientFactorizations
 
 section StrongFreeness
 

@@ -81,9 +81,8 @@ section BasisCoordinates
 variable {X rel L : Type} [Group L] {m : X → L}
 
 /-- Explicit free-regular coordinates on the mod-two relation module.  A genuine theorem that
-the displayed relators are strongly free supplies this structure (normally with `coordinates`
-an isomorphism after passage to `R/(R²[R,R])`); only the resulting coordinate projection is
-needed below. -/
+the displayed relator orbits form a split regular summand supplies this structure by retracting
+`R/(R²[R,R])` onto that summand; only the resulting coordinate projection is needed below. -/
 structure ModTwoRelationBasisCoordinates (w : rel → FreeGroup X)
     (hrel : ∀ k, FreeGroup.lift m (w k) = 1) where
   coordinates : FreeRelationKernel m →*
