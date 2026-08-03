@@ -305,6 +305,7 @@ import GQ2.Dyadic.Instances.Sqrt5
 import GQ2.Dyadic.Instances.Sqrt10
 import GQ2.Dyadic.Instances.SqrtNeg2
 import GQ2.Dyadic.Instances.N0Exact
+import GQ2.Dyadic.Instances.LExact
 import GQ2.Dyadic.Instances.M0Exact
 import GQ2.Dyadic.Instances.NpcExact
 import GQ2.Dyadic.Instances.Fields
