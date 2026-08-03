@@ -1339,6 +1339,75 @@ section Composition
 
 variable (α h : ℕ)
 
+/-- The marked correction once the `σ`-row has already been normalized to `1`.
+
+This is the part of `nMarkedCorrection` which uses only the handle lift, the exact N2 shear,
+and the N5 mixing family.  Isolating it makes clear that unit *scaling* is not needed to correct
+a particular marking: any χ-preserving automorphism which normalizes its pivot can be composed
+with this theorem. -/
+theorem nMarkedCorrection_of_normalized (hMix : NMixHypothesis α h)
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hsig : toAdd (nu' (dnSigma α h)) = 1) :
+    ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nu' (u x) = nuN α h x := by
+  classical
+  -- Step 1 (handles): HM5's theorem.
+  obtain ⟨Ψh, -, hhChi, hU, hV, hpiv⟩ :=
+    nHandleMixLift α h nu' (by rw [hsig]; exact isUnit_one)
+  set nu2 : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
+    nu'.comp (autHom Ψh) with hnu2
+  have hsig2 : toAdd (nu2 (dnSigma α h)) = 1 := by
+    show toAdd (nu' (Ψh (dnSigma α h))) = 1
+    rw [hpiv]; exact hsig
+  have hU2 : ∀ j : Fin h, nu2 (dnGen α h (handleIdxU j)) = 1 := hU
+  have hV2 : ∀ j : Fin h, nu2 (dnGen α h (handleIdxV j)) = 1 := hV
+  -- Step 2 (S1, family N2): clear the `x̄₂`-row.
+  set k : ℤ_[2] := -(toAdd (nu2 (dnX2 α h))) with hk
+  set nu3 : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
+    nu2.comp (autHom (dnTauDEquiv α h k)) with hnu3
+  have hgen3 : ∀ i : Fin (coreRank h),
+      nu3 (dnGen α h i) = nu2 (tauDMark (isProP_DN α h) k (dnGen α h) i) := fun i => by
+    show nu2 (dnTauDEquiv α h k (dnGen α h i)) = _
+    rw [dnTauDEquiv_gen]
+  have hsig3 : toAdd (nu3 (dnSigma α h)) = 1 := by
+    rw [show dnSigma α h = dnGen α h 2 from rfl, hgen3, tauDMark_two]; exact hsig2
+  have hx23 : toAdd (nu3 (dnX2 α h)) = 0 := by
+    rw [show dnX2 α h = dnGen α h 3 from rfl, hgen3, tauDMark_three, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo (isProP_DN α h) nu2, show dnGen α h 2 = dnSigma α h from rfl, hsig2,
+      show dnGen α h 3 = dnX2 α h from rfl, hk, mul_one, neg_add_cancel]
+  have hU3 : ∀ j : Fin h, nu3 (dnGen α h (handleIdxU j)) = 1 := fun j => by
+    rw [hgen3, tauDMark_of_ne _ _ _ (handleIdxU_ne_three j)]; exact hU2 j
+  have hV3 : ∀ j : Fin h, nu3 (dnGen α h (handleIdxV j)) = 1 := fun j => by
+    rw [hgen3, tauDMark_of_ne _ _ _ (handleIdxV_ne_three j)]; exact hV2 j
+  -- Step 3 (S3, family N5): clear the `x̄₁`-row.
+  set p : ℤ_[2] := -(toAdd (nu3 (dnX1 α h))) with hp
+  obtain ⟨Ψ5, h5Chi, h5Frame⟩ := hMix p
+  refine ⟨Ψ5.trans ((dnTauDEquiv α h k).trans Ψh), fun x => ?_, ?_⟩
+  · show chiN α h (Ψh (dnTauDEquiv α h k (Ψ5 x))) = chiN α h x
+    rw [hhChi, chiN_dnTauDEquiv, h5Chi]
+  · have hgen : ∀ i : Fin (coreRank h), nu3 (Ψ5 (dnGen α h i)) = nuN α h (dnGen α h i) := by
+      intro i
+      have hrow := congrFun (h5Frame nu3) i
+      rw [nuFrame_apply, nFrameMixX1] at hrow
+      refine Multiplicative.toAdd.injective ?_
+      rcases nCoreIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+      · rw [hrow, Function.update_of_ne nCoreZero_ne_one, nuFrame_apply,
+          show dnGen α h 0 = dnX0 α h from rfl, nChar_dnX0, nuN_dnX0, toAdd_one, toAdd_ofAdd]
+      · rw [hrow, Function.update_self, nuFrame_apply, nuFrame_apply,
+          show dnGen α h 1 = dnX1 α h from rfl, show dnGen α h 2 = dnSigma α h from rfl,
+          hsig3, mul_one, hp, nuN_dnX1, toAdd_ofAdd, add_neg_cancel]
+      · rw [hrow, Function.update_of_ne nCoreTwo_ne_one, nuFrame_apply,
+          show dnGen α h 2 = dnSigma α h from rfl, hsig3, nuN_dnSigma, toAdd_ofAdd]
+      · rw [hrow, Function.update_of_ne nCoreThree_ne_one, nuFrame_apply,
+          show dnGen α h 3 = dnX2 α h from rfl, hx23, nuN_dnX2, toAdd_ofAdd]
+      · rw [hrow, Function.update_of_ne (nHandleIdxU_ne_one j), nuFrame_apply, hU3 j,
+          nuN_handleU, toAdd_one]
+      · rw [hrow, Function.update_of_ne (nHandleIdxV_ne_one j), nuFrame_apply, hV3 j,
+          nuN_handleV, toAdd_one]
+    have hEq : nu3.comp (autHom Ψ5) = nuN α h := dn_hom_ext _ _ hgen
+    intro x
+    exact DFunLike.congr_fun hEq x
+
 /-- **The marked correction at the `N`-core** (packet Prop. 7.2; MC4 deliverable 3).  Under the
 two S2/S3 binders, every `ν'` with unimodular pivot admits a χ-preserving continuous automorphism
 `u` of `D_N` transporting it to the standard marking `ν_N`.  The handle stratum is *not* a
@@ -1596,6 +1665,73 @@ theorem nCorePlane_sl2_lift {T : Matrix (Fin 2) (Fin 2) ℤ_[2]} (hT : T.det = 1
     obtain ⟨Ψ₁, hΨ₁⟩ := ih₁
     obtain ⟨Ψ₂, hΨ₂⟩ := ih₂
     exact ⟨Ψ₁.trans Ψ₂, hΨ₁.trans α h hΨ₂⟩
+
+/-- A unimodular `(σ, x₂)` marking can be normalized using the exact `SL₂(ℤ₂)` action alone.
+
+This is the key distinction between realizing an arbitrary plane automorphism and correcting one
+particular marking.  The former may need a determinant family; the latter only asks to send a
+primitive row to `(1, *)`, and determinant-one matrices already act transitively on primitive
+rows over `ℤ₂`.  Consequently this theorem has no `NScalingHypothesis`. -/
+theorem nSL2_normalize_pivot
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hpair : IsUnit (toAdd (nu' (dnSigma α h))) ∨
+      IsUnit (toAdd (nu' (dnX2 α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (Ψ x) = chiN α h x) ∧
+        toAdd (nu' (Ψ (dnSigma α h))) = 1 := by
+  classical
+  rcases hpair with ha | hb
+  · let T : Matrix (Fin 2) (Fin 2) ℤ_[2] :=
+      !![((ha.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]), 0; 0, ((ha.unit : ℤ_[2]ˣ) : ℤ_[2])]
+    have hdet : T.det = 1 := by
+      simp only [T, Matrix.det_fin_two_of]
+      simp only [mul_zero, sub_zero]
+      rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+    obtain ⟨Ψ, hΨ⟩ := nCorePlane_sl2_lift α h hdet
+    refine ⟨Ψ, hΨ.1, ?_⟩
+    have hrow := congrFun (hΨ.2 nu') 2
+    simp [nuFrame_apply, nCoreMat_two, T, smul_eq_mul] at hrow
+    rw [show dnSigma α h = dnGen α h 2 from rfl, hrow]
+    calc
+      ((ha.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * toAdd (nu' (dnGen α h 2))
+          = ((ha.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((ha.unit : ℤ_[2]ˣ) : ℤ_[2]) := by
+              rw [show dnGen α h 2 = dnSigma α h from rfl, ha.unit_spec]
+      _ = 1 := by rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  · let T : Matrix (Fin 2) (Fin 2) ℤ_[2] :=
+      !![0, ((hb.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]);
+        -((hb.unit : ℤ_[2]ˣ) : ℤ_[2]), 0]
+    have hdet : T.det = 1 := by
+      simp only [T, Matrix.det_fin_two_of]
+      simp only [zero_mul, zero_sub]
+      rw [mul_neg, neg_neg]
+      rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+    obtain ⟨Ψ, hΨ⟩ := nCorePlane_sl2_lift α h hdet
+    refine ⟨Ψ, hΨ.1, ?_⟩
+    have hrow := congrFun (hΨ.2 nu') 2
+    simp [nuFrame_apply, nCoreMat_two, T, smul_eq_mul] at hrow
+    rw [show dnSigma α h = dnGen α h 2 from rfl, hrow]
+    calc
+      ((hb.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * toAdd (nu' (dnGen α h 3))
+          = ((hb.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((hb.unit : ℤ_[2]ˣ) : ℤ_[2]) := by
+              rw [show dnGen α h 3 = dnX2 α h from rfl, hb.unit_spec]
+      _ = 1 := by rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+
+/-- Correct a marking whose `(σ, x₂)` row is primitive, with no scaling hypothesis.
+
+The first automorphism is `nSL2_normalize_pivot`; after it the normalized correction uses the
+handle theorem and the exact N2/N5 families. -/
+theorem nMarkedCorrection_of_pair (hMix : NMixHypothesis α h)
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hpair : IsUnit (toAdd (nu' (dnSigma α h))) ∨
+      IsUnit (toAdd (nu' (dnX2 α h)))) :
+    ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nu' (u x) = nuN α h x := by
+  obtain ⟨Ψ₀, hΨ₀chi, hpiv⟩ := nSL2_normalize_pivot α h nu' hpair
+  obtain ⟨u, huchi, hunu⟩ := nMarkedCorrection_of_normalized α h hMix
+    (nu'.comp (autHom Ψ₀)) hpiv
+  refine ⟨u.trans Ψ₀, fun x => ?_, fun x => hunu x⟩
+  show chiN α h (Ψ₀ (u x)) = chiN α h x
+  rw [hΨ₀chi, huchi]
 
 /-- **The S2 unit-scaling binder in plane form** (memo §3.4's family N4 "with its shears") — a
 `def`, **never an axiom**.  The whole `(σ, x₂)`-plane move `diag(κ, 1)`, realized by a

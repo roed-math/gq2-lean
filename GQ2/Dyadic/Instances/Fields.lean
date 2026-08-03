@@ -711,7 +711,6 @@ theorem sqrtNegTwo_candidate_equiv_galK_literal (T : OrientedTameQuotientK B FF)
     (hpiNu : ∀ g : GalK KSqrtNegTwo,
       B.nu_ur (piAb (maxProPMk 2 (GalK KSqrtNegTwo) g)) = B.nu_ur (toAbK KSqrtNegTwo g))
     (horient : ∀ x, chiCycKAb KSqrtNegTwo (piAb (fLab x)) = chiN 2 0 x)
-    (hScal : NScalingHypothesis 2 0)
     (hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
       ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0))))))
     (hexact : ExactLiftingSemantics (galKProfinite KSqrtNegTwo) 2 (qOf KSqrtNegTwo FF)
@@ -732,7 +731,7 @@ theorem sqrtNegTwo_candidate_equiv_galK_literal (T : OrientedTameQuotientK B FF)
     Nonempty (ContinuousMulEquiv ((candidateGroup 2 (qOf KSqrtNegTwo FF) Count.pilotW : Type))
       (GalK KSqrtNegTwo)) :=
   SqrtNeg2.sqrtNegTwo_candidate_equiv_galK T finrank_KSqrtNegTwo fLab piAb hpiAb hpiNu horient
-    hScal hpair hexact hstokes hsimp hsplit hZcount hdet pilotParams rfl
+    hpair hexact hstokes hsimp hsplit hZcount hdet pilotParams rfl
     (qOf_KSqrtNegTwo FF).symm
     (fun δi hδ => not_hasEqualNormValueGroups_KSqrtNegTwo δi hδ) ramifiedData
 

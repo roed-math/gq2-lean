@@ -59,17 +59,17 @@ The three lifting strata (MC1 §5):
   correction theorems.
 * **Handle stratum**: a THEOREM (HM4/HM5's `mLiftSplit_handle` / `nLiftSplit_handle`,
   consumed through `nMarkedCorrection` / `prop_MC_M_correction`).
-* **S2** (unit scalings): the binders `NScalingHypothesis` / `MMixHypothesis`'s scaling face —
-  kept as binders per MC4's deliberate deviation (B8 route cited, not executed; discharging
-  them is a separate small ticket and would introduce the census-neutral B8 print, which this
-  file must not do).
+* **S2** (unit scalings): the `NScalingHypothesis` remains relevant to realizing arbitrary
+  `GL₂(ℤ₂)` plane actions, but is unnecessary for correcting a particular primitive marking:
+  `nSL2_normalize_pivot` uses the exact determinant-one N2/N3 action.  The M-side scaling face
+  remains part of `MMixHypothesis`.
 * **S3** (core mixing): **N-side a THEOREM** (`nMixHypothesis_coreMix`, via HM6ef's widened
   `A⁺(P,h)`); **M-side** the marking-transport binder `MMixHypothesis` (NOT restated in family
   form — owner call pending per the HM6g ruling; `mMixFamily_coreMix` is consumed as-is where
   a family-shaped M5 row is wanted, see the §7 pins).
 
-Net binder inventory for the N-core: `NScalingHypothesis` **alone**.  For the M-core:
-`MMixHypothesis` **alone** as well (it subsumes the M-side S2/S3 residual `⟨M4,M6,M7⟩` +
+Net binder inventory for the N-core correction: **none**.  For the M-core:
+`MMixHypothesis` **alone** (it subsumes the M-side S2/S3 residual `⟨M4,M6,M7⟩` +
 `MLabHypothesis`-adjacent content in transport shape); the pivot-unit row below is *marked
 data*, the exact analogue of the N-side pair clause, and on the compact row it is a theorem.
 
@@ -96,8 +96,8 @@ that clause (`mMarkedMatching_of_chiKer`, `marked_matching_certificate_M_of_chiK
 
 The statements *here* deliberately keep `hpivot` and stay uniform in `h`, and ticket
 MC-CoV-split settled that this is **forced, not a convenience**.  That ticket moved the
-derivation into `MarkedCore/CoVDischarge.lean`, which imports `M.lean` alone and so *can* be
-imported from here — MC5-swap's build cycle is gone (checked with Lake, not reasoned).  The
+derivation into `MarkedCore/CoVDischarge.lean`, which imports only the per-core frame layers and
+so *can* sit below this file — MC5-swap's build cycle is gone (checked with Lake, not reasoned).  The
 datum still cannot be folded into the six sites below, for a reason orthogonal to the import
 graph:
 
@@ -562,30 +562,25 @@ end Contract
 /-! ## §3 The marked-matching reductions (packet Prop. 7.2, item 3)
 
 The per-core correction `u ∈ Aut(D_P)` with `χ_P ∘ u = χ_P` and `ν' ∘ u = ν_P`, from the
-marked-data hypotheses and the surviving binders.  The `N`-side consumes **one** binder
-(`NScalingHypothesis` — S2 through B8, cited not executed); its S3 stratum is HM6ef's
-theorem.  The `M`-side consumes `MMixHypothesis` plus the compact-`M` pivot datum
+marked-data hypotheses and the surviving binders.  The `N`-side consumes **no binder**:
+exact N2/N3 moves normalize the primitive plane row and its S3 stratum is HM6ef's theorem.
+The `M`-side consumes `MMixHypothesis` plus the compact-`M` pivot datum
 (errata item 3 — see the module docstring). -/
 
 section Reductions
 
 variable (α h : ℕ)
 
-/-- **The marked-matching reduction at the `N`-core** (packet Prop. 7.2): under the S2
-scaling binder alone, every transported marking with unimodular `(σ̄, x̄₂)`-pair admits a
-χ-preserving correction `u` with `ν' ∘ u = ν_N`.  Composition: the §2 plane solve, then
-MC4's `nMarkedCorrection` with its S3 hypothesis discharged by `nMixHypothesis_coreMix`. -/
-theorem nMarkedMatching (hScal : NScalingHypothesis α h)
+/-- **The marked-matching reduction at the `N`-core** (packet Prop. 7.2): every transported
+marking with unimodular `(σ̄, x̄₂)`-pair admits a χ-preserving correction `u` with
+`ν' ∘ u = ν_N`, without a scaling hypothesis.  The exact `SL₂(ℤ₂)` plane action normalizes
+the pivot, then the handle theorem and N2/N5 finish the correction. -/
+theorem nMarkedMatching
     (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
     (hpair : IsUnit (toAdd (nu' (dnSigma α h))) ∨ IsUnit (toAdd (nu' (dnX2 α h)))) :
     ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
       (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nu' (u x) = nuN α h x := by
-  obtain ⟨Ψ₀, hΨ₀chi, hpiv⟩ := nPivot_normalize α h nu' hpair
-  obtain ⟨u, huchi, hunu⟩ := nMarkedCorrection α h (nMixHypothesis_coreMix α h) hScal
-    (nu'.comp (autHom Ψ₀)) hpiv
-  refine ⟨u.trans Ψ₀, fun x => ?_, fun x => hunu x⟩
-  show chiN α h (Ψ₀ (u x)) = chiN α h x
-  rw [hΨ₀chi, huchi]
+  exact nMarkedCorrection_of_pair α h (nMixHypothesis_coreMix α h) nu' hpair
 
 /-- **The marked-matching reduction at the `M`-core**: under the transport binder
 `MMixHypothesis` and the compact-`M` pivot datum `IsUnit (ν'(C̄₀))` — threaded explicitly so
@@ -621,12 +616,12 @@ field is a theorem, so carrying the record adds no assumption — it exists so d
 can consume the reduction in the shape the split advertises (`nLiftSplit_iff` supplies two of
 three fields). -/
 theorem nMarkedMatching_of_liftSplit {S12 S3 : Set (Function.End (Fin (coreRank h) → ℤ_[2]))}
-    (_hs : NLiftSplit α h S12 S3) (hScal : NScalingHypothesis α h)
+    (_hs : NLiftSplit α h S12 S3)
     (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
     (hpair : IsUnit (toAdd (nu' (dnSigma α h))) ∨ IsUnit (toAdd (nu' (dnX2 α h)))) :
     ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
       (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nu' (u x) = nuN α h x :=
-  nMarkedMatching α h hScal nu' hpair
+  nMarkedMatching α h nu' hpair
 
 /-- The `M`-side reduction in `MLiftSplit` clothing. -/
 theorem mMarkedMatching_of_liftSplit {α h : ℕ} (hα : 1 ≤ α)
@@ -685,14 +680,12 @@ variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
 /-- **Certificate production, `N`-side** (packet Prop. 7.2 assembled): from the hypothesized
 abstract isomorphism (item 1), the orientation-matching datum (item 2), the continuity of the
-transported marking, the marked-data pair-unimodularity, and the single surviving binder
-`NScalingHypothesis`, the full certificate exists. -/
+transported marking, and marked-data pair-unimodularity, the full certificate exists. -/
 theorem marked_matching_certificate_N (α h : ℕ)
     (chiG : G →* ℤ_[2]ˣ) (nuG : G →* Multiplicative ℤ_[2])
     (f : ContinuousMulEquiv (DN α h : Type) G)
     (horient : ∀ x, chiG (f x) = chiN α h x)
     (hcont : Continuous fun x : (DN α h : Type) => nuG (f x))
-    (hScal : NScalingHypothesis α h)
     (hpair : IsUnit (toAdd (nuG (f (dnSigma α h)))) ∨ IsUnit (toAdd (nuG (f (dnX2 α h))))) :
     Nonempty (MarkedCoreCertificateN α h chiG nuG) := by
   set nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
@@ -700,7 +693,7 @@ theorem marked_matching_certificate_N (α h : ℕ)
       map_one' := by rw [map_one, map_one]
       map_mul' := fun x y => by rw [map_mul, map_mul]
       continuous_toFun := hcont } with hnu'
-  obtain ⟨u, huchi, hunu⟩ := nMarkedMatching α h hScal nu' hpair
+  obtain ⟨u, huchi, hunu⟩ := nMarkedMatching α h nu' hpair
   exact ⟨⟨f, horient, u, huchi, fun x => hunu x⟩⟩
 
 /-- **Certificate production, `M`-side**: as for `N`, with the `MMixHypothesis` binder and
@@ -734,7 +727,6 @@ theorem marked_matching_certificate_N_of_datum (α h : ℕ) (hα : 1 ≤ α)
     (hU : ∀ j : Fin h, chiG (f (dnGen α h (handleIdxU j))) = 1)
     (hV : ∀ j : Fin h, chiG (f (dnGen α h (handleIdxV j))) = 1)
     (hcont : Continuous fun x : (DN α h : Type) => nuG (f x))
-    (hScal : NScalingHypothesis α h)
     (hpair : IsUnit (toAdd (nuG (f (dnSigma α h)))) ∨ IsUnit (toAdd (nuG (f (dnX2 α h))))) :
     Nonempty (MarkedCoreCertificateN α h chiG nuG) := by
   set χ' : ContinuousMonoidHom (DN α h : Type) ℤ_[2]ˣ :=
@@ -744,7 +736,7 @@ theorem marked_matching_certificate_N_of_datum (α h : ℕ) (hα : 1 ≤ α)
       continuous_toFun := hχcont } with hχ'
   have horient : ∀ x, chiG (f x) = chiN α h x :=
     chiN_matching hα χ' hdatum hU hV
-  exact marked_matching_certificate_N α h chiG nuG f horient hcont hScal hpair
+  exact marked_matching_certificate_N α h chiG nuG f horient hcont hpair
 
 /-- Certificate production, `M`-side, orientation in datum form. -/
 theorem marked_matching_certificate_M_of_datum (α h : ℕ) (hα : 1 ≤ α)
@@ -768,8 +760,8 @@ theorem marked_matching_certificate_M_of_datum (α h : ℕ) (hα : 1 ≤ α)
     chiM_matching hα χ' hdatum hU hV
   exact marked_matching_certificate_M α h hα chiG nuG f horient hcont hMix hpivot
 
-/-- Certificate production consuming the `NLiftSplit` record (HM4's split API; the record's
-stratum sets are carried but the handle field is the theorem, so only `hScal` is real). -/
+/-- Certificate production consuming the `NLiftSplit` record (HM4's split API; its stratum sets
+are carried but no additional correction hypothesis is needed). -/
 theorem marked_matching_certificate_N_of_liftSplit (α h : ℕ)
     {S12 S3 : Set (Function.End (Fin (coreRank h) → ℤ_[2]))}
     (_hs : NLiftSplit α h S12 S3)
@@ -777,10 +769,9 @@ theorem marked_matching_certificate_N_of_liftSplit (α h : ℕ)
     (f : ContinuousMulEquiv (DN α h : Type) G)
     (horient : ∀ x, chiG (f x) = chiN α h x)
     (hcont : Continuous fun x : (DN α h : Type) => nuG (f x))
-    (hScal : NScalingHypothesis α h)
     (hpair : IsUnit (toAdd (nuG (f (dnSigma α h)))) ∨ IsUnit (toAdd (nuG (f (dnX2 α h))))) :
     Nonempty (MarkedCoreCertificateN α h chiG nuG) :=
-  marked_matching_certificate_N α h chiG nuG f horient hcont hScal hpair
+  marked_matching_certificate_N α h chiG nuG f horient hcont hpair
 
 /-- Certificate production consuming the `MLiftSplit` record. -/
 theorem marked_matching_certificate_M_of_liftSplit (α h : ℕ) (hα : 1 ≤ α)
@@ -832,12 +823,11 @@ theorem marked_matching_certificate_KN (B : MarkedRecip R K) (α h : ℕ)
     (π : G →* GalKab K) (hπ : Continuous π)
     (f : ContinuousMulEquiv (DN α h : Type) G)
     (horient : ∀ x, chiCycKAb K (π (f x)) = chiN α h x)
-    (hScal : NScalingHypothesis α h)
     (hpair : IsUnit (toAdd (B.nu_ur (π (f (dnSigma α h)))))
       ∨ IsUnit (toAdd (B.nu_ur (π (f (dnX2 α h)))))) :
     Nonempty (MarkedCoreCertificateKN B α h π) :=
   marked_matching_certificate_N α h ((chiCycKAb K).comp π) (B.nu_ur.comp π) f horient
-    (B.continuous_nu_ur.comp (hπ.comp f.continuous_toFun)) hScal hpair
+    (B.continuous_nu_ur.comp (hπ.comp f.continuous_toFun)) hpair
 
 /-- **The `K`-side production, `M`-family**, with the compact-`M` pivot datum threaded
 explicitly (errata item 3).  MC-CoV's derivation identifies that datum, at rank four, with
@@ -1014,18 +1004,17 @@ section StressTests
 open SqCore
 
 /-- The `N`-side reduction at `(2, 1)`, written out: one binder, one marked-data clause. -/
-example (hScal : NScalingHypothesis 2 1)
-    (nu' : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2]))
+example (nu' : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2]))
     (hpair : IsUnit (toAdd (nu' (dnSigma 2 1))) ∨ IsUnit (toAdd (nu' (dnX2 2 1)))) :
     ∃ u : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
       (∀ x, chiN 2 1 (u x) = chiN 2 1 x) ∧ ∀ x, nu' (u x) = nuN 2 1 x :=
-  nMarkedMatching 2 1 hScal nu' hpair
+  nMarkedMatching 2 1 nu' hpair
 
 /-- The `N`-side reduction is inhabited by the standard marking (pivot already a unit). -/
-example (hScal : NScalingHypothesis 2 1) :
+example :
     ∃ u : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
       (∀ x, chiN 2 1 (u x) = chiN 2 1 x) ∧ ∀ x, nuN 2 1 (u x) = nuN 2 1 x :=
-  nMarkedMatching 2 1 hScal (nuN 2 1) (Or.inl (isUnit_nuN_dnSigma 2 1))
+  nMarkedMatching 2 1 (nuN 2 1) (Or.inl (isUnit_nuN_dnSigma 2 1))
 
 /-- The `M`-side pivot row at `(2, 1)` — HM6g's data check at the standard marking. -/
 example (hMix : MMixHypothesis 2 1 one_le_two) :

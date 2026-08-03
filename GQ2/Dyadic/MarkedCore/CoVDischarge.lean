@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.Dyadic.MarkedCore.M
+public import GQ2.Dyadic.MarkedCore.N
 
 @[expose] public section
 
@@ -17,8 +18,8 @@ public import GQ2.Dyadic.MarkedCore.M
 converts MC5's threaded pivot datum `IsUnit (ν'(C̄₀))` into a theorem consequence of a strictly
 weaker, arithmetically automatic hypothesis.
 
-It imports **only `M.lean`** — the MC2/MC3 frame API is everything the derivation reads — so it
-sits *below* `Certificate.lean` in the module chain and can be cited from there.  The MC5-facing
+It imports the two per-core frame files `M.lean` and `N.lean`, but no certificate layer, so it
+sits *below* `Certificate.lean` in the module chain.  The MC5-facing
 restatements, which do name `Certificate.lean`'s entry points, stay above in
 `MarkedCore/CompactCoV.lean`.
 
@@ -334,6 +335,161 @@ theorem isUnit_nu_dmC_iff_chiKer {α : ℕ} (hα : 2 ≤ α) (B : MDecomposition
   ⟨mChiKerUnimodular_of_isUnit nu', isUnit_nu_dmC_of_chiKer hα B nu'⟩
 
 end Discharge
+
+/-! ## §3N The compact-`N` χ-kernel criterion
+
+The `N` correction needs a primitive `(σ, x₂)` row.  At rank four this is exactly the intrinsic
+condition that the marking be unimodular somewhere on `ker χ_N`: χ-triviality kills the `x₁`
+coordinate, `x₀` is torsion and hence invisible to every `ℤ₂`-valued marking, and the remaining
+two coordinates are precisely `(σ, x₂)`. -/
+
+section NDischarge
+
+/-- The intrinsic compact-`N` arithmetic pivot condition. -/
+def NChiKerUnimodular (α h : ℕ)
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2])) : Prop :=
+  ∃ x : (DN α h : Type), chiN α h x = 1 ∧ IsUnit (toAdd (nu' x))
+
+/-- A primitive plane row gives a unit value on `ker χ_N`, uniformly in the handle rank. -/
+theorem nChiKerUnimodular_of_pair {α h : ℕ}
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hpair : IsUnit (toAdd (nu' (dnSigma α h))) ∨
+      IsUnit (toAdd (nu' (dnX2 α h)))) : NChiKerUnimodular α h nu' := by
+  rcases hpair with hs | hx
+  · exact ⟨dnSigma α h, chiN_dnSigma α h, hs⟩
+  · exact ⟨dnX2 α h, chiN_dnX2 α h, hx⟩
+
+/-- `abMk` as a continuous hom for the `N` core. -/
+noncomputable def nAbMkHom (α h : ℕ) :
+    ContinuousMonoidHom (DN α h : Type) (topAbelianization (DN α h : Type)) :=
+  ⟨abMk, continuous_abMk⟩
+
+/-- The rank-four `N` frame as a continuous hom. -/
+noncomputable def nDecompositionHom {α : ℕ} (B : NDecomposition α) :
+    ContinuousMonoidHom (topAbelianization (DN α 0 : Type)) MModel :=
+  ⟨B.e.toMulEquiv.toMonoidHom, B.e.continuous_toFun⟩
+
+/-- The canonical `N` orientation on frame coordinates: only the `x₁` coordinate is visible. -/
+noncomputable def nChiModel (α : ℕ) : MModel →* ℤ_[2]ˣ where
+  toFun z := zpowZtwo isProP_two_unitsPadicInt (nUnit α) (toAdd z).2.1
+  map_one' := by rw [show (toAdd (1 : MModel)).2.1 = 0 from rfl, zpowZtwo_zero]
+  map_mul' x y := by
+    show zpowZtwo isProP_two_unitsPadicInt (nUnit α) ((toAdd x).2.1 + (toAdd y).2.1) = _
+    rw [zpowZtwo_add]
+
+theorem nChiModel_continuous (α : ℕ) : Continuous (nChiModel α) := by
+  have hb : Continuous fun z : MModel => (toAdd z).2.1 :=
+    continuous_fst.comp (continuous_snd.comp continuous_toAdd)
+  exact (continuous_zpowZtwo isProP_two_unitsPadicInt (nUnit α)).comp hb
+
+noncomputable def nChiModelHom (α : ℕ) : ContinuousMonoidHom MModel ℤ_[2]ˣ :=
+  ⟨nChiModel α, nChiModel_continuous α⟩
+
+/-- The canonical orientation is the `x₁` coordinate character in an `NDecomposition`. -/
+theorem nChi_frame_group {α : ℕ} (B : NDecomposition α) (x : (DN α 0 : Type)) :
+    chiN α 0 x = nChiModel α (B.e (abMk x)) := by
+  have hext : chiN α 0 =
+      (nChiModelHom α).comp ((nDecompositionHom B).comp (nAbMkHom α 0)) := by
+    refine dn_hom_ext _ _ fun i => ?_
+    have hval : ∀ z : (DN α 0 : Type),
+        ((nChiModelHom α).comp ((nDecompositionHom B).comp (nAbMkHom α 0))) z =
+          nChiModel α (B.e (abMk z)) := fun _ => rfl
+    rcases mCoreIdx_cases i with rfl | rfl | rfl | rfl
+    · rw [show dnGen α 0 0 = dnX0 α 0 from rfl, chiN_dnX0, hval, B.map_t]
+      change (1 : ℤ_[2]ˣ) = zpowZtwo isProP_two_unitsPadicInt (nUnit α) 0
+      rw [zpowZtwo_zero]
+    · rw [show dnGen α 0 1 = dnX1 α 0 from rfl, chiN_dnX1, hval, B.map_B]
+      simp [nChiModel, zpowZtwo_one_exp]
+    · rw [show dnGen α 0 2 = dnSigma α 0 from rfl, chiN_dnSigma, hval, B.map_C]
+      change (1 : ℤ_[2]ˣ) = zpowZtwo isProP_two_unitsPadicInt (nUnit α) 0
+      rw [zpowZtwo_zero]
+    · rw [show dnGen α 0 3 = dnX2 α 0 from rfl, chiN_dnX2, hval, B.map_D]
+      change (1 : ℤ_[2]ˣ) = zpowZtwo isProP_two_unitsPadicInt (nUnit α) 0
+      rw [zpowZtwo_zero]
+  exact DFunLike.congr_fun hext x
+
+/-- Every rank-four `N` marking is the linear form given by its three non-torsion rows. -/
+theorem nNu_frame {α : ℕ} (B : NDecomposition α)
+    (nu' : ContinuousMonoidHom (DN α 0 : Type) (Multiplicative ℤ_[2]))
+    (x : (DN α 0 : Type)) :
+    nu' x = mNuModel (toAdd (nu' (dnX1 α 0))) (toAdd (nu' (dnSigma α 0)))
+      (toAdd (nu' (dnX2 α 0))) (B.e (abMk x)) := by
+  set nb := toAdd (nu' (dnX1 α 0)) with hnb
+  set nc := toAdd (nu' (dnSigma α 0)) with hnc
+  set nd := toAdd (nu' (dnX2 α 0)) with hnd
+  have hext : nu' = (mNuModelHom nb nc nd).comp
+      ((nDecompositionHom B).comp (nAbMkHom α 0)) := by
+    refine dn_hom_ext _ _ fun i => ?_
+    have hval : ∀ z : (DN α 0 : Type),
+        ((mNuModelHom nb nc nd).comp ((nDecompositionHom B).comp (nAbMkHom α 0))) z =
+          mNuModel nb nc nd (B.e (abMk z)) := fun _ => rfl
+    rcases mCoreIdx_cases i with rfl | rfl | rfl | rfl
+    · rw [show dnGen α 0 0 = dnX0 α 0 from rfl, nChar_dnX0, hval, B.map_t,
+        mNuModel_ofAdd]
+      simp
+    · rw [show dnGen α 0 1 = dnX1 α 0 from rfl, hval, B.map_B, mNuModel_ofAdd]
+      rw [show nu' (dnX1 α 0) = ofAdd nb from rfl]
+      congr 1
+      ring
+    · rw [show dnGen α 0 2 = dnSigma α 0 from rfl, hval, B.map_C, mNuModel_ofAdd]
+      rw [show nu' (dnSigma α 0) = ofAdd nc from rfl]
+      congr 1
+      ring
+    · rw [show dnGen α 0 3 = dnX2 α 0 from rfl, hval, B.map_D, mNuModel_ofAdd]
+      rw [show nu' (dnX2 α 0) = ofAdd nd from rfl]
+      congr 1
+      ring
+  exact DFunLike.congr_fun hext x
+
+/-- At rank four, a unit value on `ker χ_N` forces the `(σ, x₂)` row to be primitive. -/
+theorem nPairUnimodular_of_chiKer {α : ℕ} (hα : 2 ≤ α) (B : NDecomposition α)
+    (nu' : ContinuousMonoidHom (DN α 0 : Type) (Multiplicative ℤ_[2]))
+    (hker : NChiKerUnimodular α 0 nu') :
+    IsUnit (toAdd (nu' (dnSigma α 0))) ∨ IsUnit (toAdd (nu' (dnX2 α 0))) := by
+  obtain ⟨x, hchi, hunit⟩ := hker
+  have hchif : nChiModel α (B.e (abMk x)) = 1 := by
+    rw [← nChi_frame_group B x, hchi]
+  have hb : (toAdd (B.e (abMk x))).2.1 = 0 := by
+    apply nUnit_zpowZtwo_injective hα
+    rw [zpowZtwo_zero]
+    exact hchif
+  by_contra hpair
+  push Not at hpair
+  have hpc : mParityZ (toAdd (nu' (dnSigma α 0))) = 0 := by
+    by_contra hne
+    exact hpair.1 (mIsUnit_of_parity_one (by
+      revert hne
+      generalize mParityZ (toAdd (nu' (dnSigma α 0))) = z
+      revert z
+      decide))
+  have hpd : mParityZ (toAdd (nu' (dnX2 α 0))) = 0 := by
+    by_contra hne
+    exact hpair.2 (mIsUnit_of_parity_one (by
+      revert hne
+      generalize mParityZ (toAdd (nu' (dnX2 α 0))) = z
+      revert z
+      decide))
+  have hnu := nNu_frame B nu' x
+  have hval : toAdd (nu' x) =
+      toAdd (nu' (dnX1 α 0)) * (toAdd (B.e (abMk x))).2.1
+        + toAdd (nu' (dnSigma α 0)) * (toAdd (B.e (abMk x))).2.2.1
+        + toAdd (nu' (dnX2 α 0)) * (toAdd (B.e (abMk x))).2.2.2 := by
+    rw [hnu]
+    rfl
+  have hpar := mParityZ_of_isUnit hunit
+  rw [hval, hb, mul_zero, zero_add, mParityZ_add, mParityZ_mul, mParityZ_mul, hpc, hpd,
+    zero_mul, zero_add] at hpar
+  have hzero : (0 : ZMod 2) = 1 := by simpa using hpar
+  exact absurd hzero (by decide)
+
+/-- The compact `N` pair condition and the intrinsic χ-kernel criterion are equivalent. -/
+theorem nPairUnimodular_iff_chiKer {α : ℕ} (hα : 2 ≤ α) (B : NDecomposition α)
+    (nu' : ContinuousMonoidHom (DN α 0 : Type) (Multiplicative ℤ_[2])) :
+    (IsUnit (toAdd (nu' (dnSigma α 0))) ∨ IsUnit (toAdd (nu' (dnX2 α 0)))) ↔
+      NChiKerUnimodular α 0 nu' :=
+  ⟨nChiKerUnimodular_of_pair nu', nPairUnimodular_of_chiKer hα B nu'⟩
+
+end NDischarge
 
 /-! ## §4 `St_M`-invariance, and the substitution itself
 

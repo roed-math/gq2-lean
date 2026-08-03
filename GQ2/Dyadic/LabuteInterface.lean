@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.MarkedMaxProTwo
 import GQ2.Dyadic.MarkedCore.Certificate
+import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.SelectedEta
 import GQ2.Dyadic.SqCore.Certificate
 
@@ -66,13 +67,41 @@ abbrev MarkedCoreCertificateKTwoSq (B : MarkedRecip Rec K) (h : ℕ) :=
 theorem marked_matching_certificate_KTwoN (B : MarkedRecip Rec K) (alpha h : ℕ)
     (f : ContinuousMulEquiv (DN alpha h : Type) (maxProPQuotient 2 (GalK K)))
     (horient : ∀ x, chiCycKTwo (K := K) (f x) = chiN alpha h x)
-    (hScal : NScalingHypothesis alpha h)
     (hpair : IsUnit (Multiplicative.toAdd (nuUrKTwo B (f (dnSigma alpha h)))) ∨
       IsUnit (Multiplicative.toAdd (nuUrKTwo B (f (dnX2 alpha h))))) :
     Nonempty (MarkedCoreCertificateKTwoN B alpha h) :=
   marked_matching_certificate_N alpha h (chiCycKTwo (K := K)).toMonoidHom
     (nuUrKTwo B).toMonoidHom f horient
-    ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun) hScal hpair
+    ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun) hpair
+
+/-- Preferred compact direct-`G_K(2)` constructor for the `N` core.  An oriented abstract
+equivalence, a rank-four frame, and the genuine arithmetic level fact `r = 0` suffice: the level
+clause produces a unit value on `ker χ`, the compact frame converts that to primitive
+`(σ, x₂)` data, and the exact `SL₂(ℤ₂)` correction finishes without a scaling hypothesis. -/
+theorem marked_matching_certificate_KTwoN_of_level_zero (B : MarkedRecip Rec K) (alpha : ℕ)
+    (halpha : 2 ≤ alpha) (D : NDecomposition alpha) (hr : B.r = 0)
+    (f : ContinuousMulEquiv (DN alpha 0 : Type) (maxProPQuotient 2 (GalK K)))
+    (horient : ∀ x, chiCycKTwo (K := K) (f x) = chiN alpha 0 x) :
+    Nonempty (MarkedCoreCertificateKTwoN B alpha 0) := by
+  obtain ⟨gbar, hgchi, hgnu⟩ := B.nu_ker_chi_ge 1
+  obtain ⟨g, rfl⟩ := surjective_toAbK K gbar
+  let q : maxProPQuotient 2 (GalK K) := maxProPMk 2 (GalK K) g
+  let x : (DN alpha 0 : Type) := f.symm q
+  apply marked_matching_certificate_N_of_chiKer halpha D
+    (chiCycKTwo (K := K)).toMonoidHom (nuUrKTwo B).toMonoidHom f horient
+    ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun)
+  refine ⟨x, ?_, ?_⟩
+  · rw [← horient x]
+    change chiCycKTwo (K := K) (f (f.symm q)) = 1
+    rw [f.apply_symm_apply]
+    change chiCycKTwo (K := K) (maxProPMk 2 (GalK K) g) = 1
+    rw [chiCycKTwo_maxProPMk, ← chiCycKAb_toAbK]
+    exact hgchi
+  · change IsUnit (Multiplicative.toAdd (nuUrKTwo B (f (f.symm q))))
+    rw [f.apply_symm_apply]
+    change IsUnit (Multiplicative.toAdd (nuUrKTwo B (maxProPMk 2 (GalK K) g)))
+    rw [nuUrKTwo_maxProPMk, hgnu, hr, pow_zero, one_mul]
+    exact isUnit_one
 
 /-- Direct-`G_K(2)` production for an `M` marked-core certificate. -/
 theorem marked_matching_certificate_KTwoM (B : MarkedRecip Rec K) (alpha h : ℕ)

@@ -67,7 +67,7 @@ campaign's named residual binders — nothing is repackaged into an opaque certi
 * `FieldInputs` (row-independent): the arithmetic bundles' tame quotient `T` (AX4's B10-K
   enters only through this binder's *type*), packet §12's `params`/`ramified`/`ramifiedData`.
 * `ResidualSqrtNegTwo` (pilot, compact `N`): the G-Lab pack (`fLab`, `piAb`/`hpiAb`/`hpiNu`,
-  `horient`, `hScal`, `hpair`), ASK's carried leaves (`hexact`/`hstokes`), the candidate-side
+  `horient`, `hpair`), ASK's carried leaves (`hexact`/`hstokes`), the candidate-side
   residuals (`hsimp`, `hsplit`/`hZcount`, `hdet`), and the degree pin `hdeg`.
 * `ResidualSqrtTwo`/`…Five`/`…Ten`/`…NegTen` (`M` rows): the ν-normalization
   (`nuP`/`hnuSigma`/`hnuWild`/`hnuP`), the four analytic clauses (AS1 divergence 4), and the
@@ -341,7 +341,7 @@ Provenance per field (the trust boundary; see also
 Demushkin-classification identification (gate G-Lab, obligation MC-N's per-core hypothesis
 state); `piAb`/`hpiAb`/`hpiNu` the abelianization slot AS2 discovered missing from the
 marked-core composite (`toAbK` does not factor through `G_K(2)`); `horient` packet §7's
-orientation datum; `hScal` MC-N's `NScalingHypothesis`; `hpair` marked-data
+orientation datum; `hpair` marked-data
 pair-unimodularity; `hexact`/`hstokes` ASK's carried leaves 2–3 (`KSupply.lean` §6); `hsimp`
 the per-simple-module Stokes duality (owner ruling B1/Q3: hypothesis binder, never axiom);
 `hsplit`/`hZcount` the `stageR136` recursion-side residues; `hdet` ⚠⚠ the candidate-side
@@ -359,8 +359,6 @@ structure ResidualSqrtNegTwo : Type 1 where
   hpiNu : ∀ g : GalK K, B.nu_ur (piAb (maxProPMk 2 (GalK K) g)) = B.nu_ur (toAbK K g)
   /-- G-Lab pack: packet §7's orientation datum. -/
   horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x
-  /-- G-Lab pack: MC-N's scaling hypothesis. -/
-  hScal : NScalingHypothesis 2 0
   /-- G-Lab pack: marked-data pair-unimodularity. -/
   hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
     ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0)))))
@@ -593,7 +591,7 @@ theorem rowEquiv_sqrtNegTwo (F : FieldInputs K B FF) (S : ResidualSqrtNegTwo K B
       ((candidateGroup 2 (qOf K FF) FrozenQuadRow.sqrtNegTwo.word : ProfiniteGrp) : Type)
       (GalK K)) :=
   SqrtNeg2.sqrtNegTwo_candidate_equiv_galK F.T S.hdeg S.fLab S.piAb S.hpiAb S.hpiNu
-    S.horient S.hScal S.hpair S.hexact S.hstokes S.hsimp S.hsplit S.hZcount S.hdet
+    S.horient S.hpair S.hexact S.hstokes S.hsimp S.hsplit S.hZcount S.hdet
     F.params F.params_n F.params_qK F.ramified F.ramifiedData
 
 /-- The `ℚ₂(√2)` row of the assembly (`Instances.candidate_equiv_galK_sqrtTwo` at

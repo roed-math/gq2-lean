@@ -14,7 +14,7 @@ public import GQ2.Dyadic.MarkedCore.CoVDischarge
 # MC-CoV — the compact-`M` change of variables, MC5-facing reductions (errata item 3)
 
 **Ticket MC-CoV** of the dyadic campaign (lane MC), upper half after the MC-CoV-split.  The
-derivation lives one level down in `MarkedCore/CoVDischarge.lean`, which imports only `M.lean`;
+derivation lives one level down in `MarkedCore/CoVDischarge.lean`, below the certificate layer;
 this file is the part that has to sit *above* `Certificate.lean`, because it names that file's
 `M`-side entry points.
 
@@ -56,6 +56,34 @@ open Multiplicative
 section MC5
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- **MC5's `nMarkedMatching`, with the compact-`N` pair datum replaced by the intrinsic
+χ-kernel criterion.**  No scaling hypothesis occurs: the exact `SL₂(ℤ₂)` action normalizes the
+primitive pair. -/
+theorem nMarkedMatching_of_chiKer {α : ℕ} (hα : 2 ≤ α) (B : NDecomposition α)
+    (nu' : ContinuousMonoidHom (DN α 0 : Type) (Multiplicative ℤ_[2]))
+    (hker : NChiKerUnimodular α 0 nu') :
+    ∃ u : ContinuousMulEquiv (DN α 0 : Type) (DN α 0 : Type),
+      (∀ x, chiN α 0 (u x) = chiN α 0 x) ∧ ∀ x, nu' (u x) = nuN α 0 x :=
+  nMarkedMatching α 0 nu' (nPairUnimodular_of_chiKer hα B nu' hker)
+
+/-- **Compact rank-four `N` certificate production from the intrinsic χ-kernel arithmetic
+fact.**  This is the preferred compact consumer API: neither `NScalingHypothesis` nor a
+generator-named pair condition appears. -/
+theorem marked_matching_certificate_N_of_chiKer {α : ℕ} (hα : 2 ≤ α)
+    (B : NDecomposition α) (chiG : G →* ℤ_[2]ˣ) (nuG : G →* Multiplicative ℤ_[2])
+    (f : ContinuousMulEquiv (DN α 0 : Type) G)
+    (horient : ∀ x, chiG (f x) = chiN α 0 x)
+    (hcont : Continuous fun x : (DN α 0 : Type) => nuG (f x))
+    (hker : ∃ x : (DN α 0 : Type), chiN α 0 x = 1 ∧ IsUnit (toAdd (nuG (f x)))) :
+    Nonempty (MarkedCoreCertificateN α 0 chiG nuG) := by
+  set nu' : ContinuousMonoidHom (DN α 0 : Type) (Multiplicative ℤ_[2]) :=
+    { toFun := fun x => nuG (f x)
+      map_one' := by rw [map_one, map_one]
+      map_mul' := fun x y => by rw [map_mul, map_mul]
+      continuous_toFun := hcont } with hnu'
+  exact marked_matching_certificate_N α 0 chiG nuG f horient hcont
+    (nPairUnimodular_of_chiKer hα B nu' hker)
 
 /-- **MC5's `mMarkedMatching`, with the compact-`M` datum discharged.** -/
 theorem mMarkedMatching_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα1 : 1 ≤ α) (B : MDecomposition α)

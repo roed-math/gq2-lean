@@ -52,8 +52,8 @@ obligations appears.  In dependency order:
   §7's hypothesis-binder state per gate G-Lab), `piAb`/`hpiAb`/`hpiNu` (the abelianization
   slot of the marked-core `K`-layer and its `ν`-compatibility with `toAbK` — the direct-factor
   inclusion `G_K(2)^{ab} ↪ G_K^{ab}`, which AS1's "composite" needs and which **nobody had
-  written down**; recorded here as data), `horient` (the orientation datum), `hScal`
-  (`NScalingHypothesis`, MC-N's S2 binder), `hpair` (marked-data pair-unimodularity).
+  written down**; recorded here as data), `horient` (the orientation datum), and `hpair`
+  (marked-data pair-unimodularity).
 * `hexact`/`hstokes` (§6) — the `K`-side `ExactLiftingSemantics` and
   `StokesDualityCertificate` at `G_K`: ASK's carried leaves 2–3 (`KSupply` §6), still owed by
   the `Phase140/Local`-successor lane (CB-SG built the substrate).
@@ -945,15 +945,14 @@ remaining carried leaves (`hexact`/`hstokes`) threaded.
 
 The G-Lab pack, with owners: `fLab` (the Labute/Demushkin classification of `G_K(2)` at the
 compact-`N` core — N-Lab, gate G-Lab), `piAb`/`hpiAb`/`hpiNu` (the abelianization slot, see
-the section docstring), `horient` (packet §7's orientation datum), `hScal` (MC-N's
-`NScalingHypothesis`), `hpair` (marked-data pair-unimodularity). -/
+the section docstring), `horient` (packet §7's orientation datum), and `hpair`
+(marked-data pair-unimodularity). -/
 noncomputable def sqrtNegTwoKSupply
     (hdeg : Module.finrank ℚ_[2] K = 2)
     (fLab : ContinuousMulEquiv ((DN 2 0) : Type) ((maxProPQuotient 2 (GalK K)) : Type))
     (piAb : ((maxProPQuotient 2 (GalK K)) : Type) →* GalKab K) (hpiAb : Continuous piAb)
     (hpiNu : ∀ g : GalK K, B.nu_ur (piAb (maxProPMk 2 (GalK K) g)) = B.nu_ur (toAbK K g))
     (horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x)
-    (hScal : NScalingHypothesis 2 0)
     (hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
       ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0))))))
     (hexact : ExactLiftingSemantics (galKProfinite K) 2 (qOf K FF) pilotP pilotNuP
@@ -969,7 +968,7 @@ noncomputable def sqrtNegTwoKSupply
         Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
     KSupply T 2 pilotP (isProP_DN 2 0) pilotNuP (standardNumerics 2) :=
   -- the marked-core certificate, and the ν-corrected identification `E : D_N ≅ G_K(2)`
-  letI C := (marked_matching_certificate_KN B 2 0 piAb hpiAb fLab horient hScal hpair).some
+  letI C := (marked_matching_certificate_KN B 2 0 piAb hpiAb fLab horient hpair).some
   letI E : ContinuousMulEquiv ((DN 2 0) : Type) ((maxProPQuotient 2 (GalK K)) : Type) :=
     C.correction.trans C.abstractEquiv
   letI pro2K : ContinuousMonoidHom (GalK K) ((DN 2 0) : Type) :=
@@ -1044,7 +1043,6 @@ theorem sqrtNegTwo_candidate_equiv_galK (T : OrientedTameQuotientK B FF)
     (piAb : ((maxProPQuotient 2 (GalK K)) : Type) →* GalKab K) (hpiAb : Continuous piAb)
     (hpiNu : ∀ g : GalK K, B.nu_ur (piAb (maxProPMk 2 (GalK K) g)) = B.nu_ur (toAbK K g))
     (horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x)
-    (hScal : NScalingHypothesis 2 0)
     (hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
       ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0))))))
     (hexact : ExactLiftingSemantics (galKProfinite K) 2 (qOf K FF) pilotP pilotNuP
@@ -1065,7 +1063,7 @@ theorem sqrtNegTwo_candidate_equiv_galK (T : OrientedTameQuotientK B FF)
     Nonempty (ContinuousMulEquiv ((candidateGroup 2 (qOf K FF) pilotW : Type)) (GalK K)) :=
   candidate_equiv_galK_of_supply (T := T)
     (sqrtNegTwoWordCertificate (qOf_ne_zero K FF) (even_qOf K FF) hsimp hsplit hZcount hdet)
-    (sqrtNegTwoKSupply hdeg fLab piAb hpiAb hpiNu horient hScal hpair hexact hstokes
+    (sqrtNegTwoKSupply hdeg fLab piAb hpiAb hpiNu horient hpair hexact hstokes
       params params_n params_qK ramifiedData)
     params params_n params_qK ramified ramifiedData pilotNuP_surjective
 
