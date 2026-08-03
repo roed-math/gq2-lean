@@ -51,6 +51,72 @@ def Hsimp (h q : ℕ) : Prop :=
       (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
         StokesDuality ⇑t (lSqFam h q e) V
 
+/-- The source-facing residue actually consumed by the exact-lifting chain.  It ranges only
+over markings pushed forward from the candidate group, and asks for bijectivity of the three
+induced word-cohomology maps rather than for the six clauses of `StokesDuality`.
+
+This restriction is mathematically essential: `Hsimp` ranges over *all* finite markings whose
+two relators die, including non-wild markings which need not extend across `GammaR`.  The
+continuous-cohomology comparison currently available for the candidate therefore cannot prove
+`Hsimp` as stated.  Every branch use below, however, starts with a homomorphism `rho` out of
+`gamma h q`, and honest resolver data supplies the `hr` argument here. -/
+def PushedHsimp (h q : ℕ) : Prop :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) C) (e : ℕ), Odd e →
+    ∀ (hr : ∀ k, FreeGroup.lift
+        (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g)) (lSqFam h q e k) = 1)
+      (hend : IsStokesEndpoint (lSqFam h q e))
+      (V : Type) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
+        StokesCohomologyBijections
+          (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
+          (lSqFam h q e) V hr hend
+
+/-- The historical all-markings residue implies the pushed cohomological one.  This proves
+that `PushedHsimp` is a genuine weakening of the existing API; no consumer of `Hsimp` changes
+meaning.  The converse is intentionally absent because relator-killing markings need not be
+wild, hence need not be pushed from `GammaR`. -/
+theorem pushedHsimp_of_hsimp {h q : ℕ} (hsimp : Hsimp h q) : PushedHsimp h q := by
+  intro C _ _ _ _ rho e he hr hend V _ _ _ hV₂ hsimple
+  set t : Marking (2 * h + 1) C :=
+    ⟨fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g)⟩ with ht
+  have hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      (tameRelW (2 * h + 1) q) = 1 :=
+    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 0)
+  have hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h) = 1 :=
+    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 1)
+  exact (stokesDuality_iff_cohomologyBijections ⇑t (lSqFam h q e) V hr hend).mp
+    (hsimp C t e he hrt hrw V hV₂ hsimple)
+
+/-- Upgrade the pushed cohomological residue to every finite elementary module at the
+candidate marking.  This is the non-circular branch adapter intended for a future
+continuous-cohomology proof of `PushedHsimp`. -/
+theorem stokesDuality_of_pushed {h q : ℕ} (hsimp : PushedHsimp h q) (hqe : Even q)
+    {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    [DistribMulAction C (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) C) {e : ℕ} (he : Odd e)
+    (hres : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q e) (WordLift (ZMod 2) C))
+    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) :
+    StokesDuality (fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g))
+      (lSqFam h q e) A := by
+  set t : Marking (2 * h + 1) C :=
+    ⟨fun g => rho (gammaGen (2 * h + 1) q (lSqW h) g)⟩ with ht
+  have hr : ∀ k, FreeGroup.lift ⇑t (lSqFam h q e k) = 1 := fun k =>
+    lower_rel (A := ZMod 2) rho (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (lSqW h)) hres k
+  have hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      (tameRelW (2 * h + 1) q) = 1 :=
+    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 0)
+  have hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h) = 1 :=
+    (lift_heisToFree_eq_one_iff ⇑t _ _ _).mp (hr 1)
+  have hend : IsStokesEndpoint (lSqFam h q e) := lSq_isStokesEndpoint hqe he
+  exact lSq_stokesDuality t hqe he hrt hrw (fun V _ _ _ hV₂ hsimple =>
+    (stokesDuality_iff_cohomologyBijections ⇑t (lSqFam h q e) V hr hend).mpr
+      (hsimp C rho e he hr hend V hV₂ hsimple)) A hA₂
+
 /-- Upgrade `Hsimp` to every finite elementary module at a pushed-forward candidate marking. -/
 theorem stokesDuality {h q : ℕ} (hsimp : Hsimp h q) (hqe : Even q)
     {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]

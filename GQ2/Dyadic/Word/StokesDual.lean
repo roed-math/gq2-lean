@@ -323,9 +323,127 @@ def stokesH2Map (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x)) : StokesH2 d
     refine AddSubgroup.mem_comap.mpr (AddMonoidHom.mem_range.mpr ⟨φ₁ x, ?_⟩)
     rw [hφ₁, hx])
 
+/-- A ladder whose induced maps on `H⁰`, `H¹`, and `H²` are bijective satisfies the six
+relative clauses of `StokesQuasiIso`.  This is the source-comparison handoff: a future
+continuous-cohomology comparison may prove the three bijectivity hypotheses without unfolding
+the representative-level Stokes clauses. -/
+theorem stokesQuasiIso_of_bijective_cohomology_maps
+    (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v))
+    (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x))
+    (h0 : Function.Bijective (stokesH0Map hφ₀))
+    (h1 : Function.Bijective (stokesH1Map hφ₀ hφ₁))
+    (h2 : Function.Bijective (stokesH2Map hφ₁)) :
+    StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ := by
+  constructor
+  · intro x hx hφx
+    let x' : ↥dX₀.ker := ⟨x, AddMonoidHom.mem_ker.mpr hx⟩
+    have hz : stokesH0Map hφ₀ x' = 0 := Subtype.ext hφx
+    have hx' : x' = 0 := by
+      apply h0.1
+      simpa using hz
+    exact congrArg Subtype.val hx'
+  · intro y hy
+    obtain ⟨x, hx⟩ := h0.2 ⟨y, AddMonoidHom.mem_ker.mpr hy⟩
+    exact ⟨x.1, AddMonoidHom.mem_ker.mp x.2, congrArg Subtype.val hx⟩
+  · intro x hx hbound
+    let x' : ↥dX₁.ker := ⟨x, AddMonoidHom.mem_ker.mpr hx⟩
+    have hz : stokesH1Map hφ₀ hφ₁ (stokesH1Mk dX₀ dX₁ x') = 0 := by
+      rw [stokesH1Mk, stokesH1Map, QuotientAddGroup.map_mk,
+        QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_addSubgroupOf]
+      exact AddMonoidHom.mem_range.mpr hbound
+    have hz' : stokesH1Mk dX₀ dX₁ x' = 0 := by
+      apply h1.1
+      simpa using hz
+    exact (stokesH1Mk_eq_zero_iff dX₀ dX₁ x').mp hz'
+  · intro y hy
+    let y' : ↥dY₁.ker := ⟨y, AddMonoidHom.mem_ker.mpr hy⟩
+    obtain ⟨z, hz⟩ := h1.2 (stokesH1Mk dY₀ dY₁ y')
+    obtain ⟨x, rfl⟩ := stokesH1Mk_surjective dX₀ dX₁ z
+    rw [stokesH1Mk, stokesH1Map, QuotientAddGroup.map_mk] at hz
+    unfold stokesH1Mk at hz
+    rw [QuotientAddGroup.eq_iff_sub_mem, AddSubgroup.mem_addSubgroupOf] at hz
+    obtain ⟨y₀, hy₀⟩ := AddMonoidHom.mem_range.mp hz
+    change dY₀ y₀ = φ₁ x.1 - y at hy₀
+    exact ⟨x.1, -y₀, AddMonoidHom.mem_ker.mp x.2, by rw [map_neg, hy₀]; abel⟩
+  · intro x hbound
+    have hz : stokesH2Map hφ₁ (QuotientAddGroup.mk x : StokesH2 dX₁) = 0 := by
+      rw [stokesH2Map, QuotientAddGroup.map_mk, QuotientAddGroup.eq_zero_iff]
+      exact AddMonoidHom.mem_range.mpr hbound
+    have hz' : (QuotientAddGroup.mk x : StokesH2 dX₁) = 0 := by
+      apply h2.1
+      simpa using hz
+    rw [QuotientAddGroup.eq_zero_iff] at hz'
+    exact AddMonoidHom.mem_range.mp hz'
+  · intro y
+    obtain ⟨z, hz⟩ := h2.2 (QuotientAddGroup.mk y : StokesH2 dY₁)
+    obtain ⟨x, rfl⟩ := QuotientAddGroup.mk_surjective z
+    rw [stokesH2Map, QuotientAddGroup.map_mk, QuotientAddGroup.eq_iff_sub_mem] at hz
+    obtain ⟨y₁, hy₁⟩ := AddMonoidHom.mem_range.mp hz
+    exact ⟨x, -y₁, by rw [map_neg, hy₁]; abel⟩
+
 variable (h : StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂)
 
 include h
+
+/-- The six relative clauses give bijectivity of the induced `H⁰` map. -/
+theorem StokesQuasiIso.bijective_stokesH0Map
+    (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v)) :
+    Function.Bijective (stokesH0Map hφ₀) := by
+  constructor
+  · rw [injective_iff_map_eq_zero]
+    intro x hx
+    exact Subtype.ext (h.h0_inj x.1 (AddMonoidHom.mem_ker.mp x.2)
+      (congrArg Subtype.val hx))
+  · intro y
+    obtain ⟨v, hv0, hvy⟩ := h.h0_surj y.1 (AddMonoidHom.mem_ker.mp y.2)
+    exact ⟨⟨v, AddMonoidHom.mem_ker.mpr hv0⟩, Subtype.ext hvy⟩
+
+/-- The six relative clauses give bijectivity of the induced `H¹` map. -/
+theorem StokesQuasiIso.bijective_stokesH1Map
+    (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v))
+    (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x)) :
+    Function.Bijective (stokesH1Map hφ₀ hφ₁) := by
+  constructor
+  · rw [injective_iff_map_eq_zero]
+    intro z hz
+    obtain ⟨x, rfl⟩ := QuotientAddGroup.mk_surjective z
+    rw [QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_addSubgroupOf]
+    rw [stokesH1Map, QuotientAddGroup.map_mk, QuotientAddGroup.eq_zero_iff,
+      AddSubgroup.mem_addSubgroupOf] at hz
+    obtain ⟨y₀, hy₀⟩ := AddMonoidHom.mem_range.mp hz
+    obtain ⟨v, hv⟩ := h.h1_inj x.1 (AddMonoidHom.mem_ker.mp x.2) ⟨y₀, hy₀⟩
+    exact AddMonoidHom.mem_range.mpr ⟨v, hv⟩
+  · intro z
+    obtain ⟨y, rfl⟩ := QuotientAddGroup.mk_surjective z
+    obtain ⟨x₁, y₀, hx₁, hsum⟩ := h.h1_surj y.1 (AddMonoidHom.mem_ker.mp y.2)
+    refine ⟨QuotientAddGroup.mk ⟨x₁, AddMonoidHom.mem_ker.mpr hx₁⟩, ?_⟩
+    rw [stokesH1Map, QuotientAddGroup.map_mk]
+    refine QuotientAddGroup.eq_iff_sub_mem.mpr ?_
+    rw [AddSubgroup.mem_addSubgroupOf]
+    refine AddMonoidHom.mem_range.mpr ⟨-y₀, ?_⟩
+    show dY₀ (-y₀) = φ₁ x₁ - y.1
+    rw [map_neg, ← hsum]
+    abel
+
+/-- The six relative clauses give bijectivity of the induced `H²` map. -/
+theorem StokesQuasiIso.bijective_stokesH2Map
+    (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x)) :
+    Function.Bijective (stokesH2Map hφ₁) := by
+  constructor
+  · rw [injective_iff_map_eq_zero]
+    intro z hz
+    obtain ⟨x₂, rfl⟩ := QuotientAddGroup.mk_surjective z
+    rw [stokesH2Map, QuotientAddGroup.map_mk, QuotientAddGroup.eq_zero_iff] at hz
+    obtain ⟨x₁, hx₁⟩ := h.h2_inj x₂ (AddMonoidHom.mem_range.mp hz)
+    exact (QuotientAddGroup.eq_zero_iff _).mpr (AddMonoidHom.mem_range.mpr ⟨x₁, hx₁⟩)
+  · intro z
+    obtain ⟨y₂, rfl⟩ := QuotientAddGroup.mk_surjective z
+    obtain ⟨x₂, y₁, hsum⟩ := h.h2_surj y₂
+    refine ⟨QuotientAddGroup.mk x₂, ?_⟩
+    rw [stokesH2Map, QuotientAddGroup.map_mk]
+    refine QuotientAddGroup.eq_iff_sub_mem.mpr (AddMonoidHom.mem_range.mpr ⟨-y₁, ?_⟩)
+    rw [map_neg, ← hsum]
+    abel
 
 /-- **The `H⁰` clause**: `#H⁰(X•) = #H⁰(Y•)`, from `h0_inj`/`h0_surj`. -/
 theorem stokesQuasiIso_card_H0 (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v)) :
@@ -439,6 +557,34 @@ noncomputable abbrev WordH1 (c : ι → C) (w : ρ → FreeGroup ι) (M : Type*)
 noncomputable abbrev WordH2 (c : ι → C) (w : ρ → FreeGroup ι) (M : Type*) [AddCommGroup M]
     [DistribMulAction C M] : Type _ :=
   StokesH2 (heisD1 (A := M) c w)
+
+/-- The source-facing form of Stokes duality: the three maps induced by the Stokes ladder on
+word cohomology are bijective.  Unlike `StokesDuality`, this predicate does not mention any of
+the six representative-level lifting clauses, so continuous-cohomology comparison theorems can
+target it directly. -/
+def StokesCohomologyBijections [DecidableEq ι] (c : ι → C) (w : ρ → FreeGroup ι)
+    (A : Type*) [AddCommGroup A] [DistribMulAction C A]
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) : Prop :=
+  Function.Bijective (stokesH0Map (stokes_square₀ (A := A) c w hr hend)) ∧
+  Function.Bijective (stokesH1Map (stokes_square₀ (A := A) c w hr hend)
+    (stokes_square₁ (A := A) c w hr hend)) ∧
+  Function.Bijective (stokesH2Map (stokes_square₁ (A := A) c w hr hend))
+
+/-- `StokesCohomologyBijections` is exactly the cohomological form of `StokesDuality`, once
+relator death and the endpoint condition supply the two ladder squares. -/
+theorem stokesDuality_iff_cohomologyBijections [DecidableEq ι]
+    (c : ι → C) (w : ρ → FreeGroup ι) (A : Type*) [AddCommGroup A]
+    [DistribMulAction C A] (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w) :
+    StokesDuality c w A ↔ StokesCohomologyBijections c w A hr hend := by
+  constructor
+  · intro hd
+    exact ⟨hd.bijective_stokesH0Map (stokes_square₀ c w hr hend),
+      hd.bijective_stokesH1Map (stokes_square₀ c w hr hend) (stokes_square₁ c w hr hend),
+      hd.bijective_stokesH2Map (stokes_square₁ c w hr hend)⟩
+  · rintro ⟨h0, h1, h2⟩
+    exact stokesQuasiIso_of_bijective_cohomology_maps
+      (stokes_square₀ c w hr hend) (stokes_square₁ c w hr hend) h0 h1 h2
 
 omit [Fintype ι] [Fintype ρ] in
 /-- `(ι → A^∨)` and `(ρ → A^∨)` are elementary — the `2`-torsion side condition of the
