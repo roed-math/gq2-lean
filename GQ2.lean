@@ -326,6 +326,7 @@ import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.LiftingDualityG
 import GQ2.Dyadic.Instances.LSourceComparison
 import GQ2.Dyadic.Instances.LSourceComparisonCard
+import GQ2.Dyadic.Instances.LFlexibleH2
 import GQ2.Dyadic.Instances.LSourceDualityAdapter
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
