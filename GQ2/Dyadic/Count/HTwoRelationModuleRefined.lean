@@ -27,7 +27,9 @@ open GQ2 GQ2.FoxH GQ2.Dyadic
 
 section RefinedTarget
 
-variable {iota rel : Type*} [Fintype iota] [Fintype rel] [DecidableEq iota]
+set_option maxHeartbeats 2000000
+
+variable {iota rel : Type} [Fintype iota] [Fintype rel] [DecidableEq iota]
   {G A C : Type}
   [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [CompactSpace G] [TotallyDisconnectedSpace G]
@@ -45,13 +47,15 @@ local instance relationModuleRefinedQuotientDiscreteTopology
 /-- Relation-module surjectivity at a deeper action-compatible finite quotient gives the exact
 finite relator realization at that quotient.  Unlike `moduleRelatorRealization_of_target`, the
 Schreier cocycle lives on `G / V`, not on the possibly much smaller action target `C`. -/
-set_option maxHeartbeats 1000000 in
 theorem moduleRelatorRealizationAt_of_refined_relationModule
     (rho : ContinuousMonoidHom G C)
+    (hc0 : ∀ i, rho (gen i) = c i)
     (V : OpenNormalSubgroup G) (hV : V.toSubgroup ≤ rho.toMonoidHom.ker)
     (refinedWord : rel → FreeGroup iota)
     (hgen : Subgroup.closure
       (Set.range (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i))) = ⊤)
+    (hfree : Function.Surjective (FreeGroup.lift
+      (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i))))
     (hrefined :
       letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
         DistribMulAction.compHom A (quotientActionHom rho V hV)
@@ -70,7 +74,7 @@ theorem moduleRelatorRealizationAt_of_refined_relationModule
           (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)) A,
         ResolvesAt W refinedWord
           (ModuleExt (relationCharacterCocycle
-            (freeGroup_lift_surjective_of_closure hgen) chi))) :
+            hfree chi))) :
     ModuleRelatorRealizationAt (A := A) W gen rho c targetWord V hV := by
   let rhoV : (G ⧸ V.toSubgroup) →* C := quotientActionHom rho V hV
   letI : DistribMulAction (G ⧸ V.toSubgroup) A :=
@@ -78,7 +82,7 @@ theorem moduleRelatorRealizationAt_of_refined_relationModule
   have hc : ∀ i, rhoV (QuotientGroup.mk' V.toSubgroup (gen i)) = c i := by
     intro i
     rw [quotientActionHom_mk]
-    rfl
+    exact hc0 i
   have hd : heisD1 (A := A)
       (fun i ↦ QuotientGroup.mk' V.toSubgroup (gen i)) refinedWord =
       heisD1 (A := A) c targetWord :=
