@@ -122,6 +122,95 @@ theorem mapCoeff2_comp_apply (x : H2 G A') :
     exact S.comp_zero (z.1 p)
   rw [hz, map_zero]
 
+/-! ### The continuous cochain snake -/
+
+/-- A chosen set-theoretic lift along the surjective coefficient map. -/
+noncomputable def liftCoeff (a'' : A'') : A := (S.g_surjective a'').choose
+
+@[simp] theorem g_liftCoeff (a'' : A'') : S.g (S.liftCoeff a'') = a'' :=
+  (S.g_surjective a'').choose_spec
+
+/-- A total set-theoretic inverse to `f` on `ker g`, extended by zero off the kernel. -/
+noncomputable def kernelLift (a : A) : A' :=
+  by
+    classical
+    exact if ha : S.g a = 0 then
+      (AddMonoidHom.mem_range.mp
+        (S.range_eq_ker ▸ AddMonoidHom.mem_ker.mpr ha)).choose
+    else 0
+
+theorem f_kernelLift_of_mem_ker {a : A} (ha : S.g a = 0) :
+    S.f (S.kernelLift a) = a := by
+  classical
+  rw [kernelLift, dif_pos ha]
+  exact (AddMonoidHom.mem_range.mp
+    (S.range_eq_ker ▸ AddMonoidHom.mem_ker.mpr ha)).choose_spec
+
+/-- The chosen continuous lift of a continuous one-cocycle.  It is not generally additive. -/
+noncomputable def snakeLift1 (z : Z1 G A'') : G → A :=
+  fun c ↦ S.liftCoeff (z.1 c)
+
+@[simp] theorem g_snakeLift1 (z : Z1 G A'') (c : G) :
+    S.g (S.snakeLift1 z c) = z.1 c :=
+  S.g_liftCoeff (z.1 c)
+
+theorem snakeLift1_continuous (z : Z1 G A'') : Continuous (S.snakeLift1 z) :=
+  continuous_of_discreteTopology.comp (mem_Z1_iff.mp z.2).1
+
+/-- The boundary of the chosen lift lands pointwise in `ker g`. -/
+theorem snakeBoundary_g_zero (z : Z1 G A'') (p : G × G) :
+    S.g (dOne G A (S.snakeLift1 z) p) = 0 := by
+  change S.g (p.1 • S.snakeLift1 z p.2 - S.snakeLift1 z (p.1 * p.2) +
+    S.snakeLift1 z p.1) = 0
+  rw [map_add, map_sub, S.g_equivariant, S.g_snakeLift1, S.g_snakeLift1,
+    S.g_snakeLift1, (mem_Z1_iff.mp z.2).2 p.1 p.2]
+  abel
+
+/-- The `A'`-valued two-cochain extracted by the continuous snake. -/
+noncomputable def snakeZFun (z : Z1 G A'') : G × G → A' :=
+  fun p ↦ S.kernelLift (dOne G A (S.snakeLift1 z) p)
+
+theorem f_snakeZFun (z : Z1 G A'') (p : G × G) :
+    S.f (S.snakeZFun z p) = dOne G A (S.snakeLift1 z) p :=
+  S.f_kernelLift_of_mem_ker (S.snakeBoundary_g_zero z p)
+
+theorem snakeBoundary_continuous (z : Z1 G A'') :
+    Continuous (dOne G A (S.snakeLift1 z)) := by
+  let hc := S.snakeLift1_continuous z
+  exact ((continuous_fst.smul (hc.comp continuous_snd)).sub
+    (hc.comp (continuous_fst.mul continuous_snd))).add (hc.comp continuous_fst)
+
+theorem snakeZFun_continuous (z : Z1 G A'') : Continuous (S.snakeZFun z) :=
+  continuous_of_discreteTopology.comp (S.snakeBoundary_continuous z)
+
+/-- The cochain extracted by the snake is a continuous two-cocycle. -/
+theorem snakeZFun_mem (z : Z1 G A'') : S.snakeZFun z ∈ Z2 G A' := by
+  refine AddSubgroup.mem_inf.mpr ⟨S.snakeZFun_continuous z, ?_⟩
+  rw [AddMonoidHom.mem_ker]
+  funext t
+  apply S.f_injective
+  change S.f (dTwo G A' (S.snakeZFun z) t) = S.f (0 : A')
+  rw [map_zero]
+  change S.f (t.1 • S.snakeZFun z (t.2.1, t.2.2) -
+    S.snakeZFun z (t.1 * t.2.1, t.2.2) +
+    S.snakeZFun z (t.1, t.2.1 * t.2.2) - S.snakeZFun z (t.1, t.2.1)) = 0
+  rw [map_sub, map_add, map_sub, S.f_equivariant, S.f_snakeZFun,
+    S.f_snakeZFun, S.f_snakeZFun, S.f_snakeZFun]
+  change dTwo G A (dOne G A (S.snakeLift1 z)) t = 0
+  rw [← AddMonoidHom.comp_apply, dTwo_comp_dOne, AddMonoidHom.zero_apply]
+  rfl
+
+/-- The canonical continuous snake cocycle attached to a continuous one-cocycle. -/
+noncomputable def snakeZ (z : Z1 G A'') : Z2 G A' :=
+  ⟨S.snakeZFun z, S.snakeZFun_mem z⟩
+
+@[simp] theorem snakeZ_apply (z : Z1 G A'') (p : G × G) :
+    (S.snakeZ z).1 p = S.snakeZFun z p := rfl
+
+theorem f_snakeZ (z : Z1 G A'') (p : G × G) :
+    S.f ((S.snakeZ z).1 p) = dOne G A (S.snakeLift1 z) p :=
+  S.f_snakeZFun z p
+
 end FiniteDiscreteCoeffSES
 
 end CoefficientSES
