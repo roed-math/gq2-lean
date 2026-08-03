@@ -130,6 +130,36 @@ theorem lSqWallHandlePhase_gaussSum_standardRam
   change (2 : ℤ) ^ (m * (2 * h + 1)) = (2 : ℤ) ^ ((2 * h + 1) * m)
   rw [Nat.mul_comm]
 
+/-- Arf zero transports from any equivalent source phase to the Wall head.  Hyperbolic handles
+have strictly positive Gauss factor, so they cannot change the sign.  This is the noncircular
+bridge used with the general local-field theorem `arf_zero_of_ramified_K`: the latter proves Arf
+zero for `Q0loc` independently of the word presentation. -/
+theorem arf_wallHead_eq_zero_of_phaseEquiv
+    {X V : Type} [Fintype X] [AddCommGroup V] [Module (ZMod 2) V] [Fintype V]
+    (qSource : X → ZMod 2) (qWord : V → ZMod 2)
+    (hq : IsQuadraticFp2 qWord) (hns : Nonsingular qWord)
+    {m : ℕ} (hcard : Fintype.card V = 2 ^ (2 * m))
+    (U : V ≃+ V) (h : ℕ) (e : X ≃ V × (Fin h → V × V))
+    (hphase : ∀ x, qSource x = lSqWallHandlePhase qWord U h (e x))
+    (harfSource : arf qSource = 0) : arf (qDouble qWord U) = 0 := by
+  have hsourcePos : 0 < QuadraticFp2.gaussSum qSource :=
+    (arf_eq_zero_iff_gaussSum_pos qSource).mp harfSource
+  have hgauss : QuadraticFp2.gaussSum qSource =
+      QuadraticFp2.gaussSum (lSqWallHandlePhase qWord U h) := by
+    rw [show qSource = fun x => lSqWallHandlePhase qWord U h (e x) from funext hphase]
+    exact gaussSum_comp_equiv (lSqWallHandlePhase qWord U h) e
+  have htotalPos : 0 < QuadraticFp2.gaussSum (lSqWallHandlePhase qWord U h) := by
+    rw [← hgauss]
+    exact hsourcePos
+  have hfactor : 0 < (2 : ℤ) ^ (2 * m * h) := by positivity
+  have hsplit := lSq_handle_form_gaussSum hq hns hcard (qDouble qWord U) h
+  change QuadraticFp2.gaussSum (lSqWallHandlePhase qWord U h) =
+    QuadraticFp2.gaussSum (qDouble qWord U) * 2 ^ (2 * m * h) at hsplit
+  have hheadPos : 0 < QuadraticFp2.gaussSum (qDouble qWord U) := by
+    rw [hsplit] at htotalPos
+    nlinarith
+  exact (arf_eq_zero_iff_gaussSum_pos (qDouble qWord U)).mpr hheadPos
+
 /-! ## Concrete ramified closure from the tame action -/
 
 /-- In the simple ramified `Ttame` action, the *actual quadratic diagonal* of the improved head
@@ -438,6 +468,55 @@ theorem lRamifiedPhasePackage_standardRam_of_pointwise
         (standardNumerics (2 * h + 1)).gaussRam m := by
   exact ⟨⟨sourceWordPhaseComparison_of_lRamifiedPointwise
       htriv hcomp qWord U h e hphase⟩,
+    lSqWallHandlePhase_gaussSum_standardRam
+      hq hns h2 hcard U hUq hU2 harf h⟩
+
+/-- General local-field closure: if the presentation-independent source form (in applications,
+`Q0loc`) has Arf zero and agrees with `QZeroBar`, then the pointwise word identity forces the
+explicit Wall head to have Arf zero and hence supplies the complete positive ramified word Gauss
+value.  This theorem is valid for arbitrary source groups and does not specialize the tame
+relation to `q = 2`. -/
+theorem lRamifiedPhasePackage_standardRam_of_sourceArf_zero
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    {Gamma : Type} [Group Gamma] [TopologicalSpace Gamma]
+    {rho : ContinuousMonoidHom Gamma (Bg ⧸ D.M)}
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [DistribMulAction Gamma DD.Vmod]
+    [DistribMulAction Gamma (ZMod 2)]
+    (htriv : ∀ (g : Gamma) (a : ZMod 2), g • a = a)
+    [Module (ZMod 2) DD.Vmod] [Fintype DD.Vmod]
+    (hcomp : ∀ (g : Gamma) (v : DD.Vmod), g • v = rho0 DD rho g • v)
+    (qSource : H1 Gamma DD.Vmod → ZMod 2)
+    (hsource : ∀ x, QZeroBar DD rho htriv x = qSource (h1OfVQuot hcomp x))
+    (harfSource : arf qSource = 0)
+    (qWord : DD.Vmod → ZMod 2)
+    (hq : IsQuadraticFp2 qWord) (hns : Nonsingular qWord)
+    (h2 : ∀ v : DD.Vmod, v + v = 0)
+    (m : ℕ) (hcard : Fintype.card DD.Vmod = 2 ^ (2 * m))
+    (U : DD.Vmod ≃+ DD.Vmod) (hUq : ∀ v, qWord (U v) = qWord v)
+    (hU2 : ∃ n, (⇑U)^[2 ^ n] = id) (h : ℕ)
+    (e : H1 Gamma DD.Vmod ≃ DD.Vmod × (Fin h → DD.Vmod × DD.Vmod))
+    (hphase : LRamifiedPointwisePhaseIdentity htriv hcomp qWord U h e) :
+    Nonempty (SourceWordPhaseComparison DD rho htriv
+        (DD.Vmod × (Fin h → DD.Vmod × DD.Vmod))
+        (lSqWallHandlePhase qWord U h)) ∧
+      arf (qDouble qWord U) = 0 ∧
+      QuadraticFp2.gaussSum (lSqWallHandlePhase qWord U h) =
+        (standardNumerics (2 * h + 1)).gaussRam m := by
+  letI : Fintype (H1 Gamma DD.Vmod) :=
+    Fintype.ofEquiv (DD.Vmod × (Fin h → DD.Vmod × DD.Vmod)) e.symm
+  have hphaseH1 : ∀ y : H1 Gamma DD.Vmod,
+      qSource y = lSqWallHandlePhase qWord U h (e y) := by
+    intro y
+    obtain ⟨x, hx⟩ := h1OfVQuot_surjective hcomp y
+    rw [← hx]
+    exact (hsource x).symm.trans (hphase x)
+  have harf : arf (qDouble qWord U) = 0 :=
+    arf_wallHead_eq_zero_of_phaseEquiv qSource qWord hq hns hcard U h e
+      hphaseH1 harfSource
+  exact ⟨⟨sourceWordPhaseComparison_of_lRamifiedPointwise
+      htriv hcomp qWord U h e hphase⟩, harf,
     lSqWallHandlePhase_gaussSum_standardRam
       hq hns h2 hcard U hUq hU2 harf h⟩
 
