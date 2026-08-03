@@ -27,9 +27,13 @@ by `ResolvedPushedHsimp`, and therefore makes no surjectivity assumption on the 
 map.  Universal coefficients on the word side and the three stated `H²` comparisons assemble
 the right vertical maps.
 
-Thus the final theorem below is a genuine reduction: a provider of the displayed source
-package at every target proves `ResolvedPushedHsimp`, while every unproved mathematical input
-remains a named field.
+The original `SourceComparisonPackage` below records the cup bijectivities because its consumer
+runs from continuous cohomology to word cohomology.  The noncircular
+`SourceComparisonCore` removes those three fields.  If word-level `StokesDuality` is obtained
+independently, the same comparison squares run backwards and *prove* all three continuous cup
+maps bijective; `SourceComparisonCore.toSourceComparisonPackage` then recovers the legacy
+package.  Thus the new direction isolates the genuinely remaining inputs: word Stokes duality,
+the three degree-two comparisons/orientation, and square compatibility.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -75,6 +79,37 @@ noncomputable def scalarDualTransport
     ext x
     simp
 
+/-- A perfect finite elementary pairing is perfect after transposition.
+
+The conclusion is not a formal consequence of currying alone: it uses the equal-cardinality
+theorem for finite elementary `ZMod 2`-modules.  This is the generic counting step needed to
+pass from the `ElemDual` orientation of the L source cups to the opposite orientation used by
+the Tate interface. -/
+theorem transpose_bijective_of_bijective
+    {V W H : Type*} [AddCommGroup V] [AddCommGroup W] [AddCommGroup H]
+    [Finite V] [Finite W] [Finite H]
+    (hVtwo : ∀ v : V, v + v = 0) (hWtwo : ∀ w : W, w + w = 0)
+    (tau : H ≃+ ZMod 2) (Phi : V →+ W →+ H) (Psi : W →+ V →+ H)
+    (hPhi : Function.Bijective Phi)
+    (htranspose : ∀ v w, Psi w v = Phi v w) : Function.Bijective Psi := by
+  have hcard : Nat.card W = Nat.card V := by
+    calc
+      Nat.card W = Nat.card (W →+ ZMod 2) :=
+        (GQ2.LocalLiftingDuality.card_addHom_zmod2 hWtwo).symm
+      _ = Nat.card (W →+ H) :=
+        (Nat.card_congr tau.addMonoidHomCongrRight.toEquiv).symm
+      _ = Nat.card V := (Nat.card_congr (Equiv.ofBijective Phi hPhi)).symm
+  apply GQ2.LocalLiftingDuality.bijective_cup hWtwo hVtwo hcard tau Psi
+  intro f
+  let fH : W →+ H := tau.symm.toAddMonoidHom.comp f
+  obtain ⟨v, hv⟩ := hPhi.2 fH
+  refine ⟨v, fun w => ?_⟩
+  rw [htranspose]
+  have hw := DFunLike.congr_fun hv w
+  change tau (Phi v w) = f w
+  rw [hw]
+  exact tau.apply_symm_apply (f w)
+
 /-! ## One-target source comparison package -/
 
 section Package
@@ -105,6 +140,50 @@ noncomputable abbrev sourceCup11 : H1 Γ A → (H1 Γ (ElemDual A) →+ H2 Γ (Z
 
 noncomputable abbrev sourceCup20 : H2 Γ A → (H0 Γ (ElemDual A) →+ H2 Γ (ZMod 2)) :=
   fun x => cup20 (dualEval A) hpair x
+
+/-- The noncircular core of a source comparison package.
+
+Unlike `SourceComparisonPackage`, this structure does not assume that any continuous cup
+product is perfect.  It contains only the three degree-two comparisons and the three
+comparison squares.  Consequently, word-level Stokes duality can be transported through it
+to *prove* source cup-product perfectness. -/
+structure SourceComparisonCore
+    (h0A : H0 Γ A ≃+ ↥(heisD0 (A := A) c).ker)
+    (h1A : H1 Γ A ≃+ WordH1 c w A)
+    (h0Dual : H0 Γ (ElemDual A) ≃+ ↥(heisD0 (A := ElemDual A) c).ker)
+    (h1Dual : H1 Γ (ElemDual A) ≃+ WordH1 c w (ElemDual A)) where
+  /-- The general-coefficient comparison in degree two, primal side. -/
+  h2A : H2 Γ A ≃+ WordH2 c w A
+  /-- The general-coefficient comparison in degree two, dual side. -/
+  h2Dual : H2 Γ (ElemDual A) ≃+ WordH2 c w (ElemDual A)
+  /-- The scalar degree-two comparison/orientation used to read cup values in `ZMod 2`. -/
+  h2Scalar : H2 Γ (ZMod 2) ≃+ ZMod 2
+  /-- Compatibility of the Stokes `(0,2)` map with continuous cup product. -/
+  square02_commutes : ∀ x,
+    ((AddEquiv.ofBijective
+        (stokesUC0 (heisD1 (A := ElemDual A) c w))
+        (stokesUC0_bijective (heisD1 (A := ElemDual A) c w))).trans
+      (scalarDualTransport h2Dual h2Scalar))
+        (stokesH0Map (stokes_square₀ (A := A) c w hr hend) x)
+      = sourceCup02 hpair (h0A.symm x)
+  /-- Compatibility of the Stokes `(1,1)` map with continuous cup product. -/
+  square11_commutes : ∀ x,
+    ((AddEquiv.ofBijective
+        (stokesUC1 (heisD0 (A := ElemDual A) c) (heisD1 (A := ElemDual A) c w))
+        (wordH1_target_uc (A := A) c w hr)).trans
+      (scalarDualTransport h1Dual h2Scalar))
+        (stokesH1Map (stokes_square₀ (A := A) c w hr hend)
+          (stokes_square₁ (A := A) c w hr hend) x)
+      = sourceCup11 hpair (h1A.symm x)
+  /-- Compatibility of the Stokes `(2,0)` map with continuous cup product. -/
+  square20_commutes : ∀ x,
+    ((AddEquiv.ofBijective
+        (stokesUC2 (heisD0 (A := ElemDual A) c))
+        (stokesUC2_bijective ElemDual.add_self_eq_zero wordDual_two_torsion
+          (heisD0 (A := ElemDual A) c))).trans
+      (scalarDualTransport h0Dual h2Scalar))
+        (stokesH2Map (stokes_square₁ (A := A) c w hr hend) x)
+      = sourceCup20 hpair (h2A.symm x)
 
 /--
 The exact continuous-cohomology obligations at one finite target.
@@ -156,6 +235,101 @@ structure SourceComparisonPackage
       (scalarDualTransport h0Dual h2Scalar))
         (stokesH2Map (stokes_square₁ (A := A) c w hr hend) x)
       = sourceCup20 hpair (h2A.symm x)
+
+/-- Word-level Stokes cohomology bijections and the noncircular comparison core prove the
+three continuous source cup maps bijective. -/
+theorem SourceComparisonCore.sourceCupBijections
+    {h0A : H0 Γ A ≃+ ↥(heisD0 (A := A) c).ker}
+    {h1A : H1 Γ A ≃+ WordH1 c w A}
+    {h0Dual : H0 Γ (ElemDual A) ≃+ ↥(heisD0 (A := ElemDual A) c).ker}
+    {h1Dual : H1 Γ (ElemDual A) ≃+ WordH1 c w (ElemDual A)}
+    (P : SourceComparisonCore c w hr hend hpair h0A h1A h0Dual h1Dual)
+    (hword : StokesCohomologyBijections c w A hr hend) :
+    Function.Bijective (sourceCup02 hpair) ∧
+      Function.Bijective (sourceCup11 hpair) ∧
+      Function.Bijective (sourceCup20 hpair) := by
+  let square02 : CohomologyComparisonSquare
+      (stokesH0Map (stokes_square₀ (A := A) c w hr hend)) (sourceCup02 hpair) :=
+    { left := h0A.symm
+      right := (AddEquiv.ofBijective
+        (stokesUC0 (heisD1 (A := ElemDual A) c w))
+        (stokesUC0_bijective (heisD1 (A := ElemDual A) c w))).trans
+        (scalarDualTransport P.h2Dual P.h2Scalar)
+      commutes := P.square02_commutes }
+  let square11 : CohomologyComparisonSquare
+      (stokesH1Map (stokes_square₀ (A := A) c w hr hend)
+        (stokes_square₁ (A := A) c w hr hend)) (sourceCup11 hpair) :=
+    { left := h1A.symm
+      right := (AddEquiv.ofBijective
+        (stokesUC1 (heisD0 (A := ElemDual A) c) (heisD1 (A := ElemDual A) c w))
+        (wordH1_target_uc (A := A) c w hr)).trans
+        (scalarDualTransport h1Dual P.h2Scalar)
+      commutes := P.square11_commutes }
+  let square20 : CohomologyComparisonSquare
+      (stokesH2Map (stokes_square₁ (A := A) c w hr hend)) (sourceCup20 hpair) :=
+    { left := P.h2A.symm
+      right := (AddEquiv.ofBijective
+        (stokesUC2 (heisD0 (A := ElemDual A) c))
+        (stokesUC2_bijective ElemDual.add_self_eq_zero wordDual_two_torsion
+          (heisD0 (A := ElemDual A) c))).trans
+        (scalarDualTransport h0Dual P.h2Scalar)
+      commutes := P.square20_commutes }
+  exact ⟨square02.source_bijective hword.1,
+    square11.source_bijective hword.2.1,
+    square20.source_bijective hword.2.2⟩
+
+/-- Representative-level word Stokes duality plus the noncircular comparison core proves all
+three continuous source cup products perfect.  In particular, none of these three
+bijectivities is an input to this theorem. -/
+theorem SourceComparisonCore.sourceCupBijections_of_stokesDuality
+    {h0A : H0 Γ A ≃+ ↥(heisD0 (A := A) c).ker}
+    {h1A : H1 Γ A ≃+ WordH1 c w A}
+    {h0Dual : H0 Γ (ElemDual A) ≃+ ↥(heisD0 (A := ElemDual A) c).ker}
+    {h1Dual : H1 Γ (ElemDual A) ≃+ WordH1 c w (ElemDual A)}
+    (P : SourceComparisonCore c w hr hend hpair h0A h1A h0Dual h1Dual)
+    (hword : StokesDuality c w A) :
+    Function.Bijective (sourceCup02 hpair) ∧
+      Function.Bijective (sourceCup11 hpair) ∧
+      Function.Bijective (sourceCup20 hpair) :=
+  SourceComparisonCore.sourceCupBijections
+    (c := c) (w := w) (hr := hr) (hend := hend) (hpair := hpair) P
+    ((stokesDuality_iff_cohomologyBijections c w A hr hend).mp hword)
+
+/-- Complete the old source package without assuming Tate perfectness: it is supplied by
+word-level Stokes duality through the comparison squares. -/
+def SourceComparisonCore.toSourceComparisonPackage
+    {h0A : H0 Γ A ≃+ ↥(heisD0 (A := A) c).ker}
+    {h1A : H1 Γ A ≃+ WordH1 c w A}
+    {h0Dual : H0 Γ (ElemDual A) ≃+ ↥(heisD0 (A := ElemDual A) c).ker}
+    {h1Dual : H1 Γ (ElemDual A) ≃+ WordH1 c w (ElemDual A)}
+    (P : SourceComparisonCore c w hr hend hpair h0A h1A h0Dual h1Dual)
+    (hword : StokesCohomologyBijections c w A hr hend) :
+    SourceComparisonPackage c w hr hend hpair h0A h1A h0Dual h1Dual := by
+  let hcups := SourceComparisonCore.sourceCupBijections
+    (c := c) (w := w) (hr := hr) (hend := hend) (hpair := hpair) P hword
+  exact
+    { h2A := P.h2A
+      h2Dual := P.h2Dual
+      h2Scalar := P.h2Scalar
+      cup02_bijective := hcups.1
+      cup11_bijective := hcups.2.1
+      cup20_bijective := hcups.2.2
+      square02_commutes := P.square02_commutes
+      square11_commutes := P.square11_commutes
+      square20_commutes := P.square20_commutes }
+
+/-- The same completion theorem with word Stokes duality in its representative-level form. -/
+def SourceComparisonCore.toSourceComparisonPackage_of_stokesDuality
+    {h0A : H0 Γ A ≃+ ↥(heisD0 (A := A) c).ker}
+    {h1A : H1 Γ A ≃+ WordH1 c w A}
+    {h0Dual : H0 Γ (ElemDual A) ≃+ ↥(heisD0 (A := ElemDual A) c).ker}
+    {h1Dual : H1 Γ (ElemDual A) ≃+ WordH1 c w (ElemDual A)}
+    (P : SourceComparisonCore c w hr hend hpair h0A h1A h0Dual h1Dual)
+    (hword : StokesDuality c w A) :
+    SourceComparisonPackage c w hr hend hpair h0A h1A h0Dual h1Dual :=
+  SourceComparisonCore.toSourceComparisonPackage
+    (c := c) (w := w) (hr := hr) (hend := hend) (hpair := hpair) P
+    ((stokesDuality_iff_cohomologyBijections c w A hr hend).mp hword)
 
 /-- A one-target source package proves the three word-cohomology bijections. -/
 theorem SourceComparisonPackage.stokesCohomologyBijections

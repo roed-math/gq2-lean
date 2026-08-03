@@ -570,7 +570,7 @@ def StokesCohomologyBijections [DecidableEq ι] (c : ι → C) (w : ρ → FreeG
     (stokes_square₁ (A := A) c w hr hend)) ∧
   Function.Bijective (stokesH2Map (stokes_square₁ (A := A) c w hr hend))
 
-/-! ### Transport from source cohomology
+/-! ### Transport between source and word cohomology
 
 The continuous-cohomology route does not prove the word maps directly.  It identifies their
 sources and targets with continuous cohomology, where Tate cup products are perfect, and proves
@@ -578,7 +578,9 @@ that the resulting squares commute.  The following tiny interface records exactl
 square.  In the intended use, the three source maps are the `(0,2)`, `(1,1)`, and `(2,0)` cup
 maps; the left equivalences are the `H⁰`/`H¹` comparison maps and the still-missing general
 `H²` comparison, while the right equivalences additionally use `stokesUC0/1/2` and the
-comparisons for the dual module. -/
+comparisons for the dual module.  The same square also transports in reverse: once the word
+map is proved bijective independently, `CohomologyComparisonSquare.source_bijective` proves
+the corresponding continuous source map bijective. -/
 
 /-- A word-cohomology map is conjugate, through two equivalences, to a source-cohomology map. -/
 structure CohomologyComparisonSquare {X Y X' Y' : Type*} (wordMap : X → Y)
@@ -600,6 +602,26 @@ theorem CohomologyComparisonSquare.bijective {X Y X' Y' : Type*} {wordMap : X �
     obtain ⟨x', hx'⟩ := hsource.2 (h.right y)
     refine ⟨h.left.symm x', h.right.injective ?_⟩
     rw [h.commutes, Equiv.apply_symm_apply, hx']
+
+/-- Bijectivity also transports in the reverse direction across a cohomology comparison
+square.  This is the direction needed when word-level Stokes duality is proved first and is
+then used to establish perfectness of the corresponding continuous cup product. -/
+theorem CohomologyComparisonSquare.source_bijective {X Y X' Y' : Type*} {wordMap : X → Y}
+    {sourceMap : X' → Y'} (h : CohomologyComparisonSquare wordMap sourceMap)
+    (hword : Function.Bijective wordMap) : Function.Bijective sourceMap := by
+  constructor
+  · intro x' y' hxy
+    obtain ⟨x, rfl⟩ := h.left.surjective x'
+    obtain ⟨y, rfl⟩ := h.left.surjective y'
+    apply congrArg h.left
+    apply hword.1
+    apply h.right.injective
+    rw [h.commutes, h.commutes, hxy]
+  · intro y'
+    obtain ⟨y, rfl⟩ := h.right.surjective y'
+    obtain ⟨x, hx⟩ := hword.2 y
+    refine ⟨h.left x, ?_⟩
+    rw [← h.commutes, hx]
 
 /-- The exact source-comparison reduction for Stokes cohomology.  It deliberately asks for
 three commuting comparison squares separately: this prevents a proof from hiding the absent
