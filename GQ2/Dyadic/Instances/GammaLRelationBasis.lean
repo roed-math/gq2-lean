@@ -124,6 +124,24 @@ noncomputable def tateDualityG_of_modTwoRelationBasis
   tateDualityG_of_relationModule hq
     (uniformElementaryRelationModuleSurjectiveSupply_of_modTwoRelationBasis hB)
 
+/-- A uniform equivariant retraction of the universal Fox matrices gives the continuous
+H² right-exact/CD2 tail for the improved L presentation. -/
+theorem gammaLH2RightExactSupply_of_foxRetraction
+    (hR : UniformModTwoFoxRelationRetractionSupply (h := h) (q := q)) :
+    GammaLH2RightExactSupply h q :=
+  gammaLH2RightExactSupply_of_modTwoRelationBasis
+    (uniformModTwoRelationBasisSupply_of_foxRetraction hR)
+
+/-- At even `q`, the universal Fox-retraction criterion gives the full Tate-duality package
+for the improved L presentation. -/
+noncomputable def tateDualityG_of_foxRetraction
+    (hq : Even q)
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (hR : UniformModTwoFoxRelationRetractionSupply (h := h) (q := q)) :
+    TateDualityG GammaL 2 :=
+  tateDualityG_of_modTwoRelationBasis hq
+    (uniformModTwoRelationBasisSupply_of_foxRetraction hR)
+
 end UniformSupply
 
 end
