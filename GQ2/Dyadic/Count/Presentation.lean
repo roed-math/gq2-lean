@@ -415,6 +415,80 @@ theorem isWildTwo_of_gammaGen {c : Generator n → Q}
   rw [← funext hc]
   exact isWildTwo_gammaGen_of_surjective rho hsurj
 
+/-! ### Degree one through the actual finite image
+
+`isWildTwo_gammaGen_of_surjective` is enough for the count lane, whose radical-cover maps are
+surjective.  A source-cohomology proof, however, naturally quantifies over an arbitrary finite
+continuous representation `rho`.  Requiring that representation to be onto would change the
+theorem.
+
+The correct repair is to replace `Q` temporarily by `rho.range`.  The range-restricted map is
+surjective, its action on the coefficient module is the restriction of the `Q`-action, and the
+word differential is unchanged by `heisD1_map_base`.  The resolver does not become a new
+hypothesis: `ResolvesAt.pullback` restricts the given resolver along the injective map
+`A ⋊ rho.range ↪ A ⋊ Q`. -/
+
+/-- **`H¹` comparison for an arbitrary finite image of `GammaR`.**  This is `h1Equiv` with its
+surjectivity-only admissibility seam discharged by factoring through `rho.range`.  The statement
+retains the original arbitrary `rho : GammaR → Q`, the original `Q`-action on `A`, and exactly
+the original resolver hypothesis at `WordLift A Q`; no surjectivity or normality of `rho.range`
+in `Q` is assumed.
+
+Normality really cannot be assumed here: the normal closure of the wild image in all of `Q` need
+not be a `2`-group when `rho.range` is not normal.  The factorization avoids that false claim by
+performing the presentation extension in the actual image group. -/
+noncomputable def h1Equiv_gammaR_range
+    [Finite Q]
+    {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction Q A] [DistribMulAction ((GammaR n q R) : Type) A]
+    [ContinuousSMul ((GammaR n q R) : Type) A]
+    [TopologicalSpace (WordLift A Q)] [DiscreteTopology (WordLift A Q)]
+    {w : Fin 2 → FreeGroup (Generator n)}
+    (rho : ContinuousMonoidHom ((GammaR n q R) : Type) Q)
+    (hcompat : ∀ (γ : (GammaR n q R : Type)) (a : A), γ • a = rho γ • a)
+    (hres : ResolvesAt (gammaFam n q R) w (WordLift A Q))
+    (hA₂ : ∀ a : A, a + a = 0) :
+    H1 ((GammaR n q R) : Type) A ≃+
+      StokesH1
+        (heisD0 (A := A) (fun i => rho (gammaGen n q R i)))
+        (heisD1 (A := A) (fun i => rho (gammaGen n q R i)) w) := by
+  let rhoR : ContinuousMonoidHom ((GammaR n q R) : Type) ↥rho.toMonoidHom.range :=
+    { toMonoidHom := rho.toMonoidHom.rangeRestrict
+      continuous_toFun := rho.continuous_toFun.subtype_mk _ }
+  letI actR : DistribMulAction ↥rho.toMonoidHom.range A :=
+    DistribMulAction.compHom A rho.toMonoidHom.range.subtype
+  letI : TopologicalSpace (WordLift A ↥rho.toMonoidHom.range) := ⊥
+  letI : DiscreteTopology (WordLift A ↥rho.toMonoidHom.range) := ⟨rfl⟩
+  let inclR : ContinuousMonoidHom (WordLift A ↥rho.toMonoidHom.range) (WordLift A Q) :=
+    ⟨wordLiftMapBase rho.toMonoidHom.range.subtype (fun _ _ => rfl),
+      continuous_of_discreteTopology⟩
+  have hinclR : Function.Injective inclR := by
+    intro p p' hp
+    apply WordLift.ext
+    · exact congrArg (fun z : WordLift A Q => z.u) hp
+    · exact Subtype.ext (congrArg (fun z : WordLift A Q => z.g) hp)
+  have hresR :
+      ResolvesAt (gammaFam n q R) w (WordLift A ↥rho.toMonoidHom.range) :=
+    hres.pullback inclR hinclR
+  have hcompatR : ∀ (γ : (GammaR n q R : Type)) (a : A), γ • a = rhoR γ • a := by
+    intro γ a
+    exact hcompat γ a
+  have hwildR : IsWildTwo (wildAlphabet n) (fun i => rhoR (gammaGen n q R i)) :=
+    isWildTwo_gammaGen_of_surjective rhoR rho.toMonoidHom.rangeRestrict_surjective
+  let eR := h1Equiv (C := ↥rho.toMonoidHom.range) rhoR hcompatR (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR n q R) hresR hA₂ hwildR
+  have hd0 :
+      heisD0 (A := A) (fun i => rhoR (gammaGen n q R i)) =
+        heisD0 (A := A) (fun i => rho (gammaGen n q R i)) := by
+    ext a i
+    rfl
+  have hd1 :
+      heisD1 (A := A) (fun i => rhoR (gammaGen n q R i)) w =
+        heisD1 (A := A) (fun i => rho (gammaGen n q R i)) w := by
+    exact heisD1_map_base rho.toMonoidHom.range.subtype (fun _ _ => rfl) _ _
+  rw [← hd0, ← hd1]
+  exact eR
+
 end Wild2
 
 /-! ## §6 The restriction is not vacuous

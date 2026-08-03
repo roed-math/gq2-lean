@@ -392,6 +392,56 @@ theorem ResolvesAt.pushforward {Q : Type} [Group Q] [TopologicalSpace Q] [Discre
     exact (congrArg (fun ψ : FreeGroup ι →* Q' => ψ (w k)) hcomp).symm
   rw [hlift, h f k, PWord.map_eval π f (W k), hfe]
 
+/-- **Resolutions pull back along embeddings.**  If `w` resolves `W` in `Q`, then it also
+resolves `W` in any finite discrete group embedded in `Q`: evaluate in the smaller group, push
+both evaluations into `Q`, use the resolving identity there, and cancel the embedding.
+
+The injectivity hypothesis is essential.  Unlike `ResolvesAt.pushforward`, this theorem covers
+*every* marking of the new target, and is the mechanism that lets degree-one comparison factor
+an arbitrary finite quotient through its actual image without changing the chosen resolver. -/
+theorem ResolvesAt.pullback {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q]
+    [Finite Q] {Q' : Type} [Group Q'] [TopologicalSpace Q'] [DiscreteTopology Q'] [Finite Q']
+    (h : ResolvesAt W w Q) (f : ContinuousMonoidHom Q' Q) (hf : Function.Injective f) :
+    ResolvesAt W w Q' := by
+  intro c k
+  apply hf
+  calc
+    f (FreeGroup.lift c (w k)) = FreeGroup.lift (fun i => f (c i)) (w k) :=
+      map_freeGroup_lift f.toMonoidHom c (w k)
+    _ = PWord.eval (fun i => f (c i)) (W k) := h _ k
+    _ = f (PWord.eval c (W k)) := (PWord.map_eval f c (W k)).symm
+
+/-- **The word differential is unchanged by a change of the acting base group.**
+More generally, no injectivity or surjectivity is needed: if the `B`-action on `A` is the
+pullback of the `C`-action along `f`, then evaluating the Fox differential over `B` or over the
+pushed marking in `C` gives the same additive map.
+
+This is the free-word counterpart of `foxD_comp_hom` for reflected words.  In particular it
+identifies the word `H¹` complexes before and after replacing a finite quotient by the range of
+the source homomorphism. -/
+theorem heisD1_map_base {A : Type*} [AddCommGroup A]
+    {B C : Type*} [Group B] [Group C] [DistribMulAction B A] [DistribMulAction C A]
+    (f : B →* C) (hf : ∀ (b : B) (a : A), b • a = f b • a)
+    (c : ι → B) (v : ρ → FreeGroup ι) :
+    heisD1 (A := A) c v = heisD1 (A := A) (fun i => f (c i)) v := by
+  have ha : ∀ (x : ι → A) (r : FreeGroup ι),
+      (FreeGroup.lift (heisGen c x (0 : ι → ElemDual A)) r).a =
+        (FreeGroup.lift (heisGen (fun i => f (c i)) x (0 : ι → ElemDual A)) r).a := by
+    intro x r
+    refine FreeGroup.induction_on r rfl
+      (fun i => by simp only [FreeGroup.lift_apply_of, heisGen_apply]) (fun r ih => ?_)
+      (fun r₁ r₂ ih₁ ih₂ => ?_)
+    · rw [map_inv, map_inv, HeisLift.inv_a, HeisLift.inv_a,
+        heisWord_g, heisWord_g, ih]
+      have hg := map_freeGroup_lift f c (FreeGroup.of r)
+      rw [← hg, hf, map_inv]
+    · rw [map_mul, map_mul, HeisLift.mul_a, HeisLift.mul_a,
+        heisWord_g, heisWord_g, ih₁, ih₂]
+      have hg := map_freeGroup_lift f c r₁
+      rw [← hg, hf]
+  ext x k
+  exact ha x (v k)
+
 /-- **The target-chosen resolver is correct.**  On `ω₂`-only words, the `heisToFree` family
 resolved at `omega2Exp N` — for *any* `N` killing the target — resolves the intrinsic family
 there.  This is `PWord.eval_eq_evalNat_of_dvd`, which is exactly the tool the seam always needed
