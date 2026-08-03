@@ -131,6 +131,69 @@ theorem lModuleH2WordFlexible_injective
     rho hcompat (fun V ↦ hwildLevel_gammaR V) hA₂
       (lFlexibleResolverSystem rho hres)
 
+/-- Surjectivity of the canonical flexible comparison is the map-level form of the remaining
+`H²` defect.  Injectivity is already proved, so this single hypothesis makes the concrete map
+bijective. -/
+theorem lModuleH2WordFlexible_bijective_of_surjective
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompat : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hres : ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+      (Certificates.LSqStokes.lSqFam h q e) (WordLift A C))
+    (hsurj : Function.Surjective (lModuleH2WordFlexible rho hcompat hA₂ hres)) :
+    Function.Bijective (lModuleH2WordFlexible rho hcompat hA₂ hres) :=
+  ⟨lModuleH2WordFlexible_injective rho hcompat hA₂ hres, hsurj⟩
+
+/-- The canonical flexible `H²` comparison upgraded to an equivalence from its exact map-level
+defect: surjectivity. -/
+noncomputable def lModuleH2EquivFlexible_of_surjective
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompat : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hres : ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+      (Certificates.LSqStokes.lSqFam h q e) (WordLift A C))
+    (hsurj : Function.Surjective (lModuleH2WordFlexible rho hcompat hA₂ hres)) :
+    H2 GammaL A ≃+
+      WordH2
+        (fun i ↦ rho (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))
+        (Certificates.LSqStokes.lSqFam h q e) A :=
+  AddEquiv.ofBijective (lModuleH2WordFlexible rho hcompat hA₂ hres)
+    (lModuleH2WordFlexible_bijective_of_surjective rho hcompat hA₂ hres hsurj)
+
+/-- Surjectivity of the canonical comparison implies the cardinal equality used by the existing
+no-Euler source-comparison constructor. -/
+theorem lModuleH2_card_eq_wordH2_of_surjective
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompat : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hres : ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+      (Certificates.LSqStokes.lSqFam h q e) (WordLift A C))
+    (hsurj : Function.Surjective (lModuleH2WordFlexible rho hcompat hA₂ hres)) :
+    Nat.card (H2 GammaL A) =
+      Nat.card (WordH2
+        (fun i ↦ rho (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))
+        (Certificates.LSqStokes.lSqFam h q e) A) :=
+  Nat.card_congr
+    (lModuleH2EquivFlexible_of_surjective rho hcompat hA₂ hres hsurj).toEquiv
+
+/-- Representative regression for the surjectivity-upgraded L equivalence. -/
+@[simp] theorem lModuleH2EquivFlexible_of_surjective_mk
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompat : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hres : ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+      (Certificates.LSqStokes.lSqFam h q e) (WordLift A C))
+    (hsurj : Function.Surjective (lModuleH2WordFlexible rho hcompat hA₂ hres))
+    (f : Z2 GammaL A) :
+    lModuleH2EquivFlexible_of_surjective rho hcompat hA₂ hres hsurj
+        (H2mk GammaL A f) =
+      QuotientAddGroup.mk'
+        (heisD1 (A := A)
+          (fun i ↦ rho (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))
+          (Certificates.LSqStokes.lSqFam h q e)).range
+        (moduleObsFam (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+          (gammaGen (2 * h + 1) q (Words.LSq.lSqW h)) rho hcompat f) := rfl
+
 /-- Equal cardinality makes the concrete flexible L map bijective. -/
 theorem lModuleH2WordFlexible_bijective_of_card_eq
     (rho : ContinuousMonoidHom GammaL C)
