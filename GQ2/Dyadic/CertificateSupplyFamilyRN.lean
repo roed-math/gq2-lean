@@ -244,6 +244,43 @@ theorem exists_of_branch_N0 (S : SemanticSelectionView FP) {alpha : ℕ}
   ⟨MarkedCore.DN alpha (handleCount FP (.N0 alpha)),
     SelectedCoreLeavesRN.nNuZtwo alpha (handleCount FP (.N0 alpha)), ⟨ofN0 S hbranch⟩⟩
 
+/-- Branch validity supplies the sole side condition of the compact-M presentation. -/
+theorem one_le_alpha_of_M0 (S : SemanticSelectionView FP) {alpha : ℕ}
+    (hbranch : S.branch = .M0 alpha) : 1 ≤ alpha := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha at hvalid
+  omega
+
+/-- Compact-M structural leaves over the common view. -/
+noncomputable def ofM0 (S : SemanticSelectionView FP) {alpha : ℕ}
+    (hbranch : S.branch = .M0 alpha) :
+    SemanticSelectedCoreLeavesRN S
+      (MarkedCore.DM alpha (handleCount FP (.M0 alpha)))
+      (Instances.MCompactCore.mNu alpha (handleCount FP (.M0 alpha))
+        (one_le_alpha_of_M0 S hbranch)) := by
+  cases S with
+  | mk branch valid display =>
+      dsimp only at hbranch
+      subst branch
+      have halpha : 1 ≤ alpha := le_trans (by omega) valid
+      exact
+        { presentation := Instances.MCompactCore.mCorePresentation alpha
+            (handleCount FP (.M0 alpha)) halpha
+          nu_sigma := Instances.MCompactCore.mNu_sigma alpha
+            (handleCount FP (.M0 alpha)) halpha
+          nu_wild := Instances.MCompactCore.mNu_wild alpha
+            (handleCount FP (.M0 alpha)) halpha }
+
+/-- Constructor regression: compact M is fully supplied through the corrected selection view. -/
+theorem exists_of_branch_M0 (S : SemanticSelectionView FP) {alpha : ℕ}
+    (hbranch : S.branch = .M0 alpha) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN S P nuP) :=
+  ⟨MarkedCore.DM alpha (handleCount FP (.M0 alpha)),
+    Instances.MCompactCore.mNu alpha (handleCount FP (.M0 alpha))
+      (one_le_alpha_of_M0 S hbranch), ⟨ofM0 S hbranch⟩⟩
+
 /-- The arbitrary-unit Npc presentation selected by the view's stored display. -/
 noncomputable def npcPresentation (S : SemanticSelectionView FP)
     {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta) :
@@ -254,9 +291,8 @@ noncomputable def npcPresentation (S : SemanticSelectionView FP)
     (handleCount FP (.Npc alpha r eta)) eta
       (Eq.mp (congrArg BranchData.DisplayFor hbranch) S.display)
 
-/-- Npc structural leaves; only the normalized `Ztwo` orientation remains explicit.
-The presentation and its arbitrary selected eta are derived. -/
-noncomputable def ofNpc (S : SemanticSelectionView FP)
+/-- Low-level Npc constructor for callers carrying a different normalized orientation. -/
+noncomputable def ofNpcWithOrientation (S : SemanticSelectionView FP)
     {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta)
     (nuP : ContinuousMonoidHom
       (MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta)) : Type) Ztwo)
@@ -274,6 +310,110 @@ noncomputable def ofNpc (S : SemanticSelectionView FP)
             (handleCount FP (.Npc alpha r eta)) eta display
           nu_sigma := hnuSigma
           nu_wild := hnuWild }
+
+/-- Arbitrary-unit Npc leaves with the canonical orientation
+`(0, eta, 2^r, 0, 0, ...)`; there are no orientation binders. -/
+noncomputable def ofNpc (S : SemanticSelectionView FP)
+    {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta) :
+    SemanticSelectedCoreLeavesRN S
+      (MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta)))
+      (SelectedCoreLeavesRN.npcNu alpha r (handleCount FP (.Npc alpha r eta)) eta) := by
+  cases S with
+  | mk branch valid display =>
+      dsimp only at hbranch
+      subst branch
+      exact
+        { presentation := Instances.NProcyclicCore.npcCorePresentationUnit alpha r
+            (handleCount FP (.Npc alpha r eta)) eta display
+          nu_sigma := SelectedCoreLeavesRN.npcNu_sigma alpha r
+            (handleCount FP (.Npc alpha r eta)) eta display
+          nu_wild := SelectedCoreLeavesRN.npcNu_wild alpha r
+            (handleCount FP (.Npc alpha r eta)) eta display }
+
+/-- Constructor regression: arbitrary-eta Npc is fully supplied through the corrected view. -/
+theorem exists_of_branch_Npc (S : SemanticSelectionView FP)
+    {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN S P nuP) :=
+  ⟨MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta)),
+    SelectedCoreLeavesRN.npcNu alpha r (handleCount FP (.Npc alpha r eta)) eta,
+    ⟨ofNpc S hbranch⟩⟩
+
+/-- Branch validity supplies the side condition of the literal-parameter Mpc presentation. -/
+theorem one_le_alpha_of_Mpc (S : SemanticSelectionView FP)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) : 1 ≤ alpha := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
+  omega
+
+/-- Arbitrary-unit Mpc leaves with literal `p epsilon r`, literal `eta`, and the canonical
+orientation `(-m(alpha)s(r), p epsilon r, s(r), eta, 0, ...)`. -/
+noncomputable def ofMpc (S : SemanticSelectionView FP)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) :
+    SemanticSelectedCoreLeavesRN S
+      (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta)))
+      (SelectedCoreLeavesRN.mpcNu alpha r (p epsilon r)
+        (handleCount FP (.Mpc alpha r epsilon eta)) eta
+        (one_le_alpha_of_Mpc S hbranch)) := by
+  cases S with
+  | mk branch valid display =>
+      dsimp only at hbranch
+      subst branch
+      have halpha : 1 ≤ alpha := le_trans (by omega) valid.1
+      exact
+        { presentation := Instances.MProcyclicCore.mpcCorePresentationUnit alpha r
+            (p epsilon r) eta (handleCount FP (.Mpc alpha r epsilon eta)) halpha
+          nu_sigma := SelectedCoreLeavesRN.mpcNu_sigma alpha r (p epsilon r)
+            (handleCount FP (.Mpc alpha r epsilon eta)) eta halpha
+          nu_wild := SelectedCoreLeavesRN.mpcNu_wild alpha r (p epsilon r)
+            (handleCount FP (.Mpc alpha r epsilon eta)) eta halpha }
+
+/-- Constructor regression: arbitrary-eta Mpc, with literal `p epsilon r`, is fully supplied. -/
+theorem exists_of_branch_Mpc (S : SemanticSelectionView FP)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN S P nuP) :=
+  ⟨MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta)),
+    SelectedCoreLeavesRN.mpcNu alpha r (p epsilon r)
+      (handleCount FP (.Mpc alpha r epsilon eta)) eta
+      (one_le_alpha_of_Mpc S hbranch), ⟨ofMpc S hbranch⟩⟩
+
+/-- Square-word L leaves at the selected handle count. -/
+noncomputable def ofL (S : SemanticSelectionView FP) (hbranch : S.branch = .L) :
+    SemanticSelectedCoreLeavesRN S (SqCore.DSq (handleCount FP .L))
+      (Instances.LSquareCore.lNu (handleCount FP .L)) := by
+  cases S with
+  | mk branch valid display =>
+      dsimp only at hbranch
+      subst branch
+      exact
+        { presentation := Instances.LSquareCore.lCorePresentation (handleCount FP .L)
+          nu_sigma := Instances.LSquareCore.lNu_sigma (handleCount FP .L)
+          nu_wild := Instances.LSquareCore.lNu_wild (handleCount FP .L) }
+
+/-- Constructor regression: L is fully supplied through the corrected selection view. -/
+theorem exists_of_branch_L (S : SemanticSelectionView FP) (hbranch : S.branch = .L) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN S P nuP) :=
+  ⟨SqCore.DSq (handleCount FP .L), Instances.LSquareCore.lNu (handleCount FP .L),
+    ⟨ofL S hbranch⟩⟩
+
+/-- **Corrected five-row constructor table.**  Every semantic selection has a presented
+pro-`2` core with a canonical normalized `Ztwo` orientation.  In particular, Npc retains its
+selected arbitrary `eta`, while Mpc retains both literal `p epsilon r` and literal `eta`. -/
+theorem exists_of_semanticSelection (S : SemanticSelectionView FP) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN S P nuP) := by
+  cases hbranch : S.branch with
+  | L => exact exists_of_branch_L S hbranch
+  | N0 alpha => exact exists_of_branch_N0 S hbranch
+  | Npc alpha r eta => exact exists_of_branch_Npc S hbranch
+  | M0 alpha => exact exists_of_branch_M0 S hbranch
+  | Mpc alpha r epsilon eta => exact exists_of_branch_Mpc S hbranch
 
 /-- The tautological pro-`2` evaluation relator. -/
 def coreRel (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
@@ -310,6 +450,31 @@ theorem compat (C : SemanticSelectedCoreLeavesRN S P nuP)
     (tameSpecialization_of_semanticSelection S hq0 hqe) nuP C.nu_sigma C.nu_wild
 
 end SemanticSelectedCoreLeavesRN
+
+/-- **Family-selector structural regression.**  Every output of the corrected family selector,
+including a genuine procyclic N-family witness, reaches one of the five canonical structural
+constructors without passing through the contradictory legacy N witness. -/
+theorem exists_core_of_familyFieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness FP Q}
+    (S : FamilyFieldBranchSelection K FP Q W) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN
+        (SemanticSelectionView.ofFamilyFieldBranchSelection S) P nuP) :=
+  SemanticSelectedCoreLeavesRN.exists_of_semanticSelection
+    (SemanticSelectionView.ofFamilyFieldBranchSelection S)
+
+/-- End-to-end structural regression from the corrected arithmetic selector. -/
+theorem exists_core_of_familyFieldBranch
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SemanticSelectedCoreLeavesRN
+        (SemanticSelectionView.ofFamilyFieldBranchSelection
+          (selectFieldBranchFamily B FF D RI W)) P nuP) :=
+  exists_core_of_familyFieldSelection (selectFieldBranchFamily B FF D RI W)
 
 /-- The three genuinely analytic leaves over the witness-polymorphic view. -/
 structure SemanticSelectedAnalyticLeavesRN
