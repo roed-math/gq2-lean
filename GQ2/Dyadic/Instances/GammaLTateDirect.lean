@@ -23,6 +23,9 @@ namespace GQ2.Dyadic.LSquare
 
 noncomputable section
 
+open GQ2 GQ2.FoxH
+open ContCoh GQ2.LocalLiftingDuality GQ2.Dyadic.LiftingDualityG
+
 /-! ## The canonical finite action target -/
 
 /-- The additive automorphism group used as a finite action target carries the discrete
@@ -91,6 +94,69 @@ noncomputable def finiteActionHom
     [DistribMulAction G M] [ContinuousSMul G M] [Finite M]
     (g : G) (m : M) : finiteActionHom (G := G) (M := M) g • m = g • m := rfl
 
+/-! ## Coefficient transport for the three Tate cups -/
+
+section CupTransport
+
+variable {G A : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [DistribMulAction G (MuN 2)] [ContinuousSMul G (MuN 2)]
+  [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [DistribMulAction G A] [ContinuousSMul G A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [DistribMulAction G (ElemDual A)] [ContinuousSMul G (ElemDual A)]
+  [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+
+variable
+  (htriv : ∀ (g : G) (m : ZMod 2), g • m = m)
+  (hpair : ∀ (g : G) (a : A) (lam : ElemDual A),
+    dualEval A (g • a) (g • lam) = g • dualEval A a lam)
+
+/-- Coefficient naturality of the Tate `(0,2)` cup under
+`MuDual 2 A ≃ ElemDual A` and `MuN 2 ≃ ZMod 2`.
+
+This is a representative calculation only; it assumes no duality or finiteness of cohomology. -/
+theorem H2congr_cup02_muDualPairing
+    (c : H0 G (MuDual 2 A)) (d : H2 G A) :
+    H2congr muNTwoEquiv (muNTwoEquiv_equivariantG htriv)
+        (cup02 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) c d) =
+      cup02 (dualEval A).flip (flip_equivariant (dualEval A) hpair)
+        (H0congr dualAddEquiv (edEquivariantG hpair htriv) c) d := by
+  obtain ⟨b, rfl⟩ := H2mk_surjective (G := G) (M := A) d
+  rw [cup02_mk_mk, cup02_mk_mk, H2congr_mk]
+  congr 1
+
+/-- Coefficient naturality of the Tate `(1,1)` cup under
+`MuDual 2 A ≃ ElemDual A` and `MuN 2 ≃ ZMod 2`.
+
+The equality is proved on two `H¹` representatives and introduces no mathematical hypothesis. -/
+theorem H2congr_cup11_muDualPairing
+    (c : H1 G (MuDual 2 A)) (d : H1 G A) :
+    H2congr muNTwoEquiv (muNTwoEquiv_equivariantG htriv)
+        (cup11 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) c d) =
+      cup11 (dualEval A).flip (flip_equivariant (dualEval A) hpair)
+        (H1congr dualAddEquiv (edEquivariantG hpair htriv) c) d := by
+  obtain ⟨a, rfl⟩ := H1mk_surjective (G := G) (M := MuDual 2 A) c
+  obtain ⟨b, rfl⟩ := H1mk_surjective (G := G) (M := A) d
+  rw [H1congr_mk, cup11_mk_mk, cup11_mk_mk, H2congr_mk]
+  congr 1
+
+/-- Coefficient naturality of the Tate `(2,0)` cup under
+`MuDual 2 A ≃ ElemDual A` and `MuN 2 ≃ ZMod 2`.
+
+As in the other degrees, this is the direct normalized-cocycle computation. -/
+theorem H2congr_cup20_muDualPairing
+    (c : H2 G (MuDual 2 A)) (d : H0 G A) :
+    H2congr muNTwoEquiv (muNTwoEquiv_equivariantG htriv)
+        (cup20 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) c d) =
+      cup20 (dualEval A).flip (flip_equivariant (dualEval A) hpair)
+        (H2congr dualAddEquiv (edEquivariantG hpair htriv) c) d := by
+  obtain ⟨a, rfl⟩ := H2mk_surjective (G := G) (M := MuDual 2 A) c
+  rw [H2congr_mk, cup20_mk_mk, cup20_mk_mk, H2congr_mk]
+  congr 1
+
+end CupTransport
+
 /-! ## Remaining direct-assembly interface
 
 For every finite exponent-two `G`-module `M`, a uniform direct proof should now apply the L
@@ -106,12 +172,12 @@ The provider must return a `SourceComparisonCore` and an independently proved wo
 evaluation-cup maps perfect.  `transpose_bijective_of_bijective` and cup symmetry reverse the
 currying, after which `dualAddEquiv`/`edEquivariantG` and
 `muNTwoEquiv`/`muNTwoEquiv_equivariantG` transport the result to the exact `MuDual` and `MuN`
-spelling of `TateDualityG`.
+spelling of `TateDualityG`; the three `H2congr_cup*_muDualPairing` theorems above are the exact
+coefficient-naturality identities needed for that last step.
 
 Thus the remaining mathematical data are the all-coefficient `H²` comparisons, a scalar
-orientation/trace proved without Tate duality, and independent word Stokes duality.  The final
-coefficient-congruence calculation is representative-level plumbing; it is intentionally not
-hidden in an assumed cup-perfectness field here.
+orientation/trace proved without Tate duality, and independent word Stokes duality.  No
+coefficient-congruence calculation remains hidden in an assumed cup-perfectness field here.
 -/
 
 end
