@@ -346,6 +346,109 @@ theorem exact_left (x : H2 G A') :
     funext p
     exact (S.f_snakeZ z p).symm
 
+/-! ### Exactness at the middle coefficient -/
+
+/-- Pointwise pullback of an `A`-valued two-cocycle known to lie in `ker g`. -/
+noncomputable def kernelZ2LiftFun (z : Z2 G A) : G × G → A' :=
+  fun p ↦ S.kernelLift (z.1 p)
+
+theorem kernelZ2LiftFun_continuous (z : Z2 G A) : Continuous (S.kernelZ2LiftFun z) :=
+  continuous_of_discreteTopology.comp (mem_Z2_iff.mp z.2).1
+
+theorem f_kernelZ2LiftFun (z : Z2 G A) (hgz : ∀ p, S.g (z.1 p) = 0) (p : G × G) :
+    S.f (S.kernelZ2LiftFun z p) = z.1 p :=
+  S.f_kernelLift_of_mem_ker (hgz p)
+
+theorem kernelZ2LiftFun_mem (z : Z2 G A) (hgz : ∀ p, S.g (z.1 p) = 0) :
+    S.kernelZ2LiftFun z ∈ Z2 G A' := by
+  refine AddSubgroup.mem_inf.mpr ⟨S.kernelZ2LiftFun_continuous z, ?_⟩
+  rw [AddMonoidHom.mem_ker]
+  funext t
+  apply S.f_injective
+  change S.f (dTwo G A' (S.kernelZ2LiftFun z) t) = S.f (0 : A')
+  rw [map_zero]
+  change S.f (t.1 • S.kernelZ2LiftFun z (t.2.1, t.2.2) -
+    S.kernelZ2LiftFun z (t.1 * t.2.1, t.2.2) +
+    S.kernelZ2LiftFun z (t.1, t.2.1 * t.2.2) -
+    S.kernelZ2LiftFun z (t.1, t.2.1)) = 0
+  rw [map_sub, map_add, map_sub, S.f_equivariant,
+    S.f_kernelZ2LiftFun z hgz, S.f_kernelZ2LiftFun z hgz,
+    S.f_kernelZ2LiftFun z hgz, S.f_kernelZ2LiftFun z hgz]
+  change dTwo G A z.1 t = 0
+  exact congrFun (AddMonoidHom.mem_ker.mp (AddSubgroup.mem_inf.mp z.2).2) t
+
+/-- The pulled-back continuous two-cocycle in the kernel of `g`. -/
+noncomputable def kernelZ2Lift (z : Z2 G A) (hgz : ∀ p, S.g (z.1 p) = 0) : Z2 G A' :=
+  ⟨S.kernelZ2LiftFun z, S.kernelZ2LiftFun_mem z hgz⟩
+
+theorem f_kernelZ2Lift (z : Z2 G A) (hgz : ∀ p, S.g (z.1 p) = 0) (p : G × G) :
+    S.f ((S.kernelZ2Lift z hgz).1 p) = z.1 p :=
+  S.f_kernelZ2LiftFun z hgz p
+
+/-- Exactness at `H²(G,A)`: the kernel of the quotient coefficient map is the image of the
+coefficient inclusion. -/
+theorem exact_middle (x : H2 G A) :
+    mapCoeff2 S.g S.continuous_g S.g_equivariant x = 0 ↔
+      x ∈ (mapCoeff2 S.f S.continuous_f S.f_equivariant).range := by
+  obtain ⟨z, rfl⟩ := H2mk_surjective (G := G) (M := A) x
+  constructor
+  · intro hker
+    let hgeq : ∀ (c : G) (a : A),
+        S.g ((ContinuousMonoidHom.id G) c • a) = c • S.g a := by
+      intro c a
+      exact S.g_equivariant c a
+    let zg : Z2 G A'' :=
+      Z2comap (ContinuousMonoidHom.id G) S.g S.continuous_g hgeq z
+    have hker' : H2mk G A'' zg = 0 := hker
+    change (QuotientAddGroup.mk zg : H2 G A'') = 0 at hker'
+    rw [QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_addSubgroupOf] at hker'
+    obtain ⟨psi'', hpsiC, hpsi⟩ := hker'
+    have hpsip : ∀ p, dOne G A'' psi'' p = S.g (z.1 p) := by
+      intro p
+      have hp := congrFun hpsi p
+      change dOne G A'' psi'' p = S.g (z.1 p) at hp
+      exact hp
+    let psi : G → A := fun c ↦ S.liftCoeff (psi'' c)
+    have hpsiLiftC : Continuous psi := by
+      have hlift : Continuous (fun a'' : A'' ↦ S.liftCoeff a'') :=
+        continuous_of_discreteTopology
+      exact hlift.comp hpsiC
+    have hgpsi : ∀ c, S.g (psi c) = psi'' c := fun c ↦ S.g_liftCoeff (psi'' c)
+    have hbmem : dOne G A psi ∈ B2 G A :=
+      ⟨psi, hpsiLiftC, rfl⟩
+    let b : Z2 G A := ⟨dOne G A psi, B2_le_Z2 hbmem⟩
+    let r : Z2 G A := z - b
+    have hgr : ∀ p, S.g (r.1 p) = 0 := by
+      intro p
+      change S.g (z.1 p - dOne G A psi p) = 0
+      rw [map_sub]
+      have hnat : S.g (dOne G A psi p) = dOne G A'' psi'' p := by
+        change S.g (p.1 • psi p.2 - psi (p.1 * p.2) + psi p.1) =
+          p.1 • psi'' p.2 - psi'' (p.1 * p.2) + psi'' p.1
+        rw [map_add, map_sub, S.g_equivariant, hgpsi, hgpsi, hgpsi]
+      rw [hnat, hpsip p, sub_self]
+    let w : Z2 G A' := S.kernelZ2Lift r hgr
+    refine ⟨H2mk G A' w, ?_⟩
+    change H2mk G A
+      (Z2comap (ContinuousMonoidHom.id G) S.f S.continuous_f
+        (fun c a ↦ S.f_equivariant c a) w) = H2mk G A z
+    have hw : Z2comap (ContinuousMonoidHom.id G) S.f S.continuous_f
+        (fun c a ↦ S.f_equivariant c a) w = r := by
+      apply Subtype.ext
+      funext p
+      exact S.f_kernelZ2Lift r hgr p
+    rw [hw]
+    change H2mk G A (z - b) = H2mk G A z
+    rw [map_sub]
+    have hbzero : H2mk G A b = 0 := by
+      apply (QuotientAddGroup.eq_zero_iff _).mpr
+      rw [AddSubgroup.mem_addSubgroupOf]
+      exact ⟨psi, hpsiLiftC, rfl⟩
+    rw [hbzero, sub_zero]
+  · rintro ⟨y, hy⟩
+    rw [← hy]
+    exact S.mapCoeff2_comp_apply y
+
 end FiniteDiscreteCoeffSES
 
 end CoefficientSES
