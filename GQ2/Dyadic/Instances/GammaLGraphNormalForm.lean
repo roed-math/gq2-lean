@@ -580,6 +580,149 @@ noncomputable def sourceWordPhaseComparison_of_lSqGraphNormalForm
   rw [hpc]
   exact hphase
 
+set_option maxHeartbeats 1600000 in
+/-- The intended nontrivial-simple unramified specialization.  Unlike
+`sourceWordPhaseComparison_of_lSqGraphNormalForm`, this theorem has no abstract normal-form
+hypotheses: the exact first-order rows prove them from trivial `tau`/wild action and
+fixed-point-free `sigma` action. -/
+noncomputable def sourceWordPhaseComparison_of_lSqUnramified
+    {h q e : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [IsTopologicalAddGroup DD.Vmod]
+    [DiscreteTopology DD.Vmod] [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    [DistribMulAction ((gamma h q : Type)) DD.Vmod]
+    [ContinuousSMul ((gamma h q : Type)) DD.Vmod]
+    (hcompat : ∀ (g : (gamma h q : Type)) (v : DD.Vmod),
+      g • v = rho0 DD rho g • v)
+    (hres : ResolvesAt
+      (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q e) (WordLift DD.Vmod DD.C0))
+    (hresolver : Certificates.MProcyclic.ResolverLifts
+      (fun _ ↦ (e : ℤ)) (WordLift DD.Vmod DD.C0))
+    (hA2 : ∀ v : DD.Vmod, v + v = 0)
+    (hwildTwo : IsWildTwo (wildAlphabet (2 * h + 1))
+      (fun i ↦ Count.rho0Continuous DD rho
+        (gammaGen (2 * h + 1) q (lSqW h) i)))
+    (hq : Even q) (s : DD.C0)
+    (hsigma : rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) .sigma) = s)
+    (htau : rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) .tau) = 1)
+    (hwild : ∀ i : Fin (2 * h + 1 + 1), rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) (.wild i)) = 1)
+    (hσfpf : ∀ v : DD.Vmod, s • v = v → v = 0) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo ((gamma h q : Type))
+    letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+    letI : Fintype DD.Vmod := Fintype.ofFinite DD.Vmod
+    SourceWordPhaseComparison DD rho (scalarActionZmodTwo_triv _)
+      (DD.Vmod × (Fin h → DD.Vmod × DD.Vmod))
+      (lSqWallHandlePhase DD.qbar
+        (smulAddEquiv
+          ((s ^ (omega2Exp
+            (4 * Monoid.exponent
+              (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))⁻¹)) h) := by
+  let theta := Count.rho0Continuous DD rho
+  let t : Marking (2 * h + 1) DD.C0 :=
+    ⟨fun i ↦ theta (gammaGen (2 * h + 1) q (lSqW h) i)⟩
+  have hτact : ∀ v : DD.Vmod, t.τ • v = v := by
+    intro v
+    change rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) .tau) • v = v
+    rw [htau]
+    exact one_smul _ _
+  have hwildAct : ∀ (i : Fin (2 * h + 1 + 1)) (v : DD.Vmod), t.x i • v = v := by
+    intro i v
+    change rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) (.wild i)) • v = v
+    rw [hwild i]
+    exact one_smul _ _
+  have hσfpf' : ∀ v : DD.Vmod, t.σ • v = v → v = 0 := by
+    intro v hv
+    apply hσfpf v
+    rw [← hsigma]
+    exact hv
+  have hmem : ∀ p : DD.Vmod × (Fin h → DD.Vmod × DD.Vmod),
+      heisD1
+        (fun i ↦ theta (gammaGen (2 * h + 1) q (lSqW h) i))
+        (lSqFam h q e) (lSqPhaseNormal h p) = 0 := by
+    exact heisD1_lSqPhaseNormal_eq_zero_unramified
+      t hA2 hq hresolver hwildAct hτact
+  have hnf : ∀ x,
+      heisD1
+        (fun i ↦ theta (gammaGen (2 * h + 1) q (lSqW h) i))
+        (lSqFam h q e) x = 0 →
+      ∃! p : DD.Vmod × (Fin h → DD.Vmod × DD.Vmod),
+        x - lSqPhaseNormal h p ∈ Set.range
+          (heisD0 (A := DD.Vmod)
+            (fun i ↦ theta (gammaGen (2 * h + 1) q (lSqW h) i))) := by
+    exact lSqFam_unramified_phaseNormalForm
+      t hA2 hq hresolver hwildAct hτact hσfpf'
+  exact sourceWordPhaseComparison_of_lSqGraphNormalForm
+    rho hcompat hres hA2 hwildTwo hq s hsigma htau hwild hmem hnf
+
+set_option maxHeartbeats 1600000 in
+/-- Closed unramified source phase comparison at the coefficient-independent uniform `C0`
+word.  Both the word resolver and the first-order Fox resolver are constructed internally; the
+only branch data left exposed are the literal graph marking, `sigma` fixed-point-freeness, and
+the existing wild-two lifting hypothesis. -/
+noncomputable def sourceWordPhaseComparison_of_lSqUnramified_uniform
+    {h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [IsTopologicalAddGroup DD.Vmod]
+    [DiscreteTopology DD.Vmod] [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    [DistribMulAction ((gamma h q : Type)) DD.Vmod]
+    [ContinuousSMul ((gamma h q : Type)) DD.Vmod]
+    (hcompat : ∀ (g : (gamma h q : Type)) (v : DD.Vmod),
+      g • v = rho0 DD rho g • v)
+    (hA2 : ∀ v : DD.Vmod, v + v = 0)
+    (hwildTwo : IsWildTwo (wildAlphabet (2 * h + 1))
+      (fun i ↦ Count.rho0Continuous DD rho
+        (gammaGen (2 * h + 1) q (lSqW h) i)))
+    (hq : Even q) (s : DD.C0)
+    (hsigma : rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) .sigma) = s)
+    (htau : rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) .tau) = 1)
+    (hwild : ∀ i : Fin (2 * h + 1 + 1), rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) (.wild i)) = 1)
+    (hσfpf : ∀ v : DD.Vmod, s • v = v → v = 0) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo ((gamma h q : Type))
+    letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+    letI : Fintype DD.Vmod := Fintype.ofFinite DD.Vmod
+    SourceWordPhaseComparison DD rho (scalarActionZmodTwo_triv _)
+      (DD.Vmod × (Fin h → DD.Vmod × DD.Vmod))
+      (lSqWallHandlePhase DD.qbar
+        (smulAddEquiv
+          ((s ^ (omega2Exp
+            (4 * Monoid.exponent
+              (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))⁻¹)) h) := by
+  let e := omega2Exp (4 * Monoid.exponent DD.C0)
+  have hbase : ∀ g : DD.C0, orderOf g ∣ Monoid.exponent DD.C0 :=
+    fun g ↦ Monoid.order_dvd_exponent g
+  have horder : ∀ p : WordLift DD.Vmod DD.C0,
+      orderOf p ∣ 4 * Monoid.exponent DD.C0 := fun p ↦
+    (WordLift.orderOf_dvd_two_mul hA2 hbase p).trans ⟨2, by ring⟩
+  have hres : ResolvesAt
+      (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q e) (WordLift DD.Vmod DD.C0) := by
+    exact Count.resolvesAt_lSqFam
+      (Count.fourMulExponent_ne_zero_and_even DD.C0).1 horder h q
+  exact sourceWordPhaseComparison_of_lSqUnramified
+    rho hcompat hres (resolverLifts_uniformWordLift hA2) hA2 hwildTwo
+    hq s hsigma htau hwild hσfpf
+
 end
 
 end GQ2.Dyadic.LSquare
