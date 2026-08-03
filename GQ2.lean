@@ -10,6 +10,7 @@ import GQ2.AppendixB
 import GQ2.Zhat
 import GQ2.DiscreteModule
 import GQ2.Cohomology
+import GQ2.CohomologyDevissage
 import GQ2.CupProduct
 import GQ2.CupSymmetry
 import GQ2.FreeProfinite
