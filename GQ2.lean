@@ -355,6 +355,7 @@ import GQ2.Dyadic.Instances.GammaLTateProviderCore
 import GQ2.Dyadic.Instances.GammaLActionImage
 import GQ2.Dyadic.Instances.GammaLDirectRegression
 import GQ2.Dyadic.Instances.GammaLDualityBoundary
+import GQ2.Dyadic.Instances.GammaLEulerH2Surjectivity
 import GQ2.Dyadic.Instances.GammaLRealizationRoute
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
