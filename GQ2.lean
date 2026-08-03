@@ -371,6 +371,7 @@ import GQ2.Dyadic.Recursion.Splice
 import GQ2.Dyadic.Recursion.Phase140
 import GQ2.Dyadic.Recursion.Phase140Assembly
 import GQ2.Dyadic.Recursion.Prop89Close
+import GQ2.Dyadic.Recursion.ClosedRN
 import GQ2.Dyadic.SourceDataN
 import GQ2.Dyadic.ThmFourTwoN
 import GQ2.Dyadic.Parameters

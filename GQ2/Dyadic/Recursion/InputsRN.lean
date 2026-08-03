@@ -8,11 +8,10 @@ import GQ2.Dyadic.Recursion.Recursion
 /-!
 # Degree-indexed input bundle for the R-stage
 
-This file leaves `RecursionInputsK` and `ClosedRecursionK` frozen.  It adds the smallest useful
-corrected companion: only the coefficient in (136) changes, from `RF.zR` to `zRN RF SN`.
-At degree one the bundles convert definitionally.  At general degree the exact frontier is the
-coefficient equality `zRN RF SN = RF.zR`; the existing `prop_8_9_auxK` consumes
-`RecursionInputsK`, and `ClosedRecursionK.eq136` still has the frozen coefficient.
+This file leaves `RecursionInputsK` and `ClosedRecursionK` frozen.  It adds the corrected input
+companion: only the coefficient in (136) changes, from `RF.zR` to `zRN RF SN`.  At degree one
+the input bundles convert definitionally.  The parallel general-degree closed path consuming
+this record is in `GQ2.Dyadic.Recursion.ClosedRN`; no coefficient equality is imposed there.
 -/
 
 namespace GQ2.Dyadic
@@ -102,10 +101,8 @@ def toRecursionInputsK_standard_one {H E Y : Type} [Group H] [TopologicalSpace H
     RecursionInputsK RF b F μ G0 DT phase mM vH :=
   I.toRecursionInputsK (zRN_standard_one RF)
 
-/-- The theorem-level frontier for the current closed recursion: the two (136) proposition
-types coincide exactly under coefficient equality.  For general `SN` no such equality is
-available, so `prop_8_9_auxK` cannot consume `RecursionInputsRN` without a corrected
-`ClosedRecursionRN` (which is deliberately not cloned here). -/
+/-- The exact bridge back to the frozen (136) proposition type under coefficient equality.
+The general corrected path does not use this theorem; it lives in `ClosedRN.lean`. -/
 theorem stageR136_iff_frozen_of_coeff_eq {H E Y : Type} [Group H] [TopologicalSpace H]
     [DiscreteTopology H] [Finite H] [CommGroup E] [TopologicalSpace E]
     [DiscreteTopology E] [Finite E] [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
