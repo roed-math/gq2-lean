@@ -24,9 +24,10 @@ uniform in the relator is filled here:
 * tame surjectivity and pro-`2`-ness of the wild kernel.
 
 Thus `SelectedWordLeavesRN` asks only for the genuinely presentation/source-specific leaves:
-the tame specialization, the marked pro-`2` quotient and its cyclotomic compatibility, and the
-three remaining analytic bundles.  In particular it does not ask for `ExactLiftingSemanticsRN`,
-`StageSep`, `StageZ`, or any copy of the reconstruction conclusion.
+a presented pro-`2` core with its two cyclotomic normalization rows, and the three remaining
+analytic bundles.  Tame specialization and all six word/core/pro-`2` fields are derived here.
+In particular it does not ask for `ExactLiftingSemanticsRN`, `StageSep`, `StageZ`, or any copy
+of the reconstruction conclusion.
 -/
 
 namespace GQ2.Dyadic
@@ -112,31 +113,125 @@ theorem exactLiftingRN_of_selectedHsimp
   | Mpc alpha r epsilon eta hbranch hsimp =>
       exact MProcyclicExact.exactLiftingRN_of_fieldSelection S hbranch hsimp hqe nuP
 
-/-! ## The non-routine certificate leaves -/
+/-! ## Tame specialization from the improved constructor table -/
 
-/-- The genuinely presentation/source-specific fields of `WordCertificateRN` for a selected
-improved word.  The seven routine fields (`tfg`, the scalar-action trio, `htame`, `hwild`, and
-corrected exact lifting) are deliberately absent and are reconstructed below.
+/-- Every selected improved word specializes to the tame quotient.  This is a genuine
+five-branch dispatch: Npc uses literal equality with the selected arbitrary unit's display,
+whereas Mpc uses the evaluation-level transport which deliberately keeps the arbitrary unit and
+the literal sign parameter `p epsilon r`. -/
+theorem tameSpecialization_of_fieldSelection
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hq0 : q ≠ 0) (hqe : Even q) :
+    TameSpecializes S.semantic.degree q S.semantic.word := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      cases branch with
+      | L =>
+          exact Count.tameSpecializes_lSq hq0 hqe (handleCount FP .L)
+      | N0 alpha =>
+          exact Count.tameSpecializes_nCompact hq0 hqe alpha (handleCount FP (.N0 alpha))
+      | Npc alpha r eta =>
+          change TameSpecializes (2 + 2 * handleCount FP (.Npc alpha r eta)) q
+            (Words.Npc.npcWUnit alpha r (handleCount FP (.Npc alpha r eta)) eta)
+          rw [Words.Npc.npcWUnit_eq_display alpha r (handleCount FP (.Npc alpha r eta)) display]
+          exact Count.tameSpecializes_npcW hq0 hqe alpha r
+            (handleCount FP (.Npc alpha r eta)) display.data
+      | M0 alpha =>
+          exact Count.tameSpecializes_mCompact hq0 hqe alpha (handleCount FP (.M0 alpha))
+      | Mpc alpha r epsilon eta =>
+          change (tameMarking (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)) q).eval
+            (Words.Mpc.mpcWUnit alpha r (p epsilon r) eta
+              (handleCount FP (.Mpc alpha r epsilon eta))) = 1
+          rw [Words.Mpc.eval_mpcWUnit_eq_display
+            (tameMarking (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)) q)
+            alpha r (p epsilon r) display]
+          exact Count.tameSpecializes_mpcW hq0 hqe (le_trans (by omega) valid.1)
+            r (p epsilon r) display.display (handleCount FP (.Mpc alpha r epsilon eta))
 
-Keeping `stokes`, `scalar`, and `determinant` explicit is honest: the five word-level
-`exactLiftingRN` constructors do not prove those source-side analytic certificates. -/
-structure SelectedWordLeavesRN
+/-! ## The exact structural residue -/
+
+/-- The minimal marked-core residue.  A `CorePresentation` is exactly the universal property
+needed to identify the maximal pro-`2` quotient of the selected `GammaR`; the two normalization
+rows are exactly what its generic compatibility theorem consumes.
+
+This record replaces seven formerly independent fields (`coreRel`, `proTwoWord`, `pro2`,
+`ker_pro2`, `hpro2`, `compat`, and the now-derived tame specialization) by one coherent
+presentation and two equations.
+
+The current direct branch coverage is deliberately not overstated.  `nCorePresentation` and
+`mCorePresentation` provide the compact N/M presentations at every handle count.  The landed
+procyclic dictionaries provide `npcCorePresentationOne` only at displayed unit one, and
+`mpcCorePresentation` only at displayed unit one and handle count zero; the arbitrary-unit
+Npc/Mpc words selected here still need the inverse-unit/profinite-powering dictionary.  The L
+core has all `DSq` universal-property ingredients, but they have not yet been packaged as a
+`Count.CorePresentation`.  These are constructor-supply gaps for this record, not additional
+certificate fields. -/
+structure SelectedCoreLeavesRN
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) (P : ProfiniteGrp)
+    (nuP : ContinuousMonoidHom P Ztwo) where
+  presentation : Count.CorePresentation S.semantic.degree S.semantic.word P
+  nu_sigma : nuP (presentation.mark .sigma) = ztwoOne
+  nu_wild : ∀ j : Fin (S.semantic.degree + 1), nuP (presentation.mark (.wild j)) = 1
+
+namespace SelectedCoreLeavesRN
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+  {S : FieldBranchSelection K FP Q W} {q : ℕ} {P : ProfiniteGrp}
+  {nuP : ContinuousMonoidHom P Ztwo}
+
+/-- `WordCertificateRN.coreRel` and `proTwoWord` contain no mathematical residue: choosing the
+evaluated pro-`2` word makes the requested equality reflexive. -/
+def coreRel (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking S.semantic.degree G) : G :=
+  t.eval (pro2 S.semantic.word)
+
+theorem proTwoWord (_C : SelectedCoreLeavesRN S P nuP)
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking S.semantic.degree G) :
+    t.eval (pro2 S.semantic.word) = coreRel G t := rfl
+
+/-- The selected candidate's map to its presented pro-`2` core. -/
+noncomputable def pro2 (C : SelectedCoreLeavesRN S P nuP) (hq0 : q ≠ 0) (hqe : Even q) :
+    ContinuousMonoidHom ((GammaR S.semantic.degree q S.semantic.word) : Type) P :=
+  Count.CorePresentation.coreHom C.presentation hq0 hqe
+
+/-- The core map has exactly the maximal pro-`2` kernel. -/
+theorem ker_pro2 (C : SelectedCoreLeavesRN S P nuP) (hq0 : q ≠ 0) (hqe : Even q) :
+    (C.pro2 hq0 hqe).toMonoidHom.ker =
+      proPKernel 2 ((GammaR S.semantic.degree q S.semantic.word) : Type) :=
+  Count.CorePresentation.ker_coreHom C.presentation hq0 hqe
+
+/-- The core map is onto. -/
+theorem hpro2 (C : SelectedCoreLeavesRN S P nuP) (hq0 : q ≠ 0) (hqe : Even q) :
+    Function.Surjective (C.pro2 hq0 hqe) :=
+  Count.CorePresentation.coreHom_surjective C.presentation hq0 hqe
+
+/-- Cyclotomic compatibility follows from the two normalization rows. -/
+theorem compat (C : SelectedCoreLeavesRN S P nuP) (hq0 : q ≠ 0) (hqe : Even q) :
+    ∀ g : ((GammaR S.semantic.degree q S.semantic.word) : Type),
+      nuTq q (tameOfSpec S.semantic.degree q S.semantic.word
+        (tameSpecialization_of_fieldSelection S hq0 hqe) g) = nuP (C.pro2 hq0 hqe g) :=
+  Count.CorePresentation.nu_compat_coreHom C.presentation hq0 hqe
+    (tameSpecialization_of_fieldSelection S hq0 hqe) nuP C.nu_sigma C.nu_wild
+
+end SelectedCoreLeavesRN
+
+/-! ## The analytic residue, separated from the core -/
+
+/-- The three analytic bundles not supplied by the improved word constructors or the generic
+core bridge.  Their dependent arguments are the derived tame specialization, core map, and
+compatibility theorem, so they cannot conceal an alternative presentation. -/
+structure SelectedAnalyticLeavesRN
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) (q : ℕ) (P : ProfiniteGrp)
-    (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo) where
-  tameSpecialization : TameSpecializes S.semantic.degree q S.semantic.word
-  coreRel : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [TotallyDisconnectedSpace G], Marking S.semantic.degree G → G
-  proTwoWord : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking S.semantic.degree G),
-    t.eval (pro2 S.semantic.word) = coreRel G t
-  pro2 : ContinuousMonoidHom ((GammaR S.semantic.degree q S.semantic.word) : Type) P
-  ker_pro2 : pro2.toMonoidHom.ker =
-    proPKernel 2 ((GammaR S.semantic.degree q S.semantic.word) : Type)
-  hpro2 : Function.Surjective pro2
-  compat : ∀ g : ((GammaR S.semantic.degree q S.semantic.word) : Type),
-    nuTq q (tameOfSpec S.semantic.degree q S.semantic.word tameSpecialization g) = nuP (pro2 g)
+    (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo)
+    (hq0 : q ≠ 0) (hqe : Even q) (C : SelectedCoreLeavesRN S P nuP) where
   stokes : StokesDualityCertificate
     (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
     (standardNumerics S.semantic.degree)
@@ -148,8 +243,27 @@ structure SelectedWordLeavesRN
   determinant : AffineDeterminantCertificate
     (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
     (standardNumerics S.semantic.degree)
-    (tameOfSpec S.semantic.degree q S.semantic.word tameSpecialization) pro2 compat
+    (tameOfSpec S.semantic.degree q S.semantic.word
+      (tameSpecialization_of_fieldSelection S hq0 hqe))
+    (C.pro2 hq0 hqe) (C.compat hq0 hqe)
     (scalarActionZmodTwo (GammaR S.semantic.degree q S.semantic.word))
+
+/-! ## The non-routine certificate leaves -/
+
+/-- The genuinely presentation/source-specific fields of `WordCertificateRN` for a selected
+improved word, now split into exact structural and analytic residues.  All routine fields and
+all consequences of the presented core are deliberately absent and reconstructed below.
+
+Keeping `stokes`, `scalar`, and `determinant` explicit is honest: the five word-level
+`exactLiftingRN` constructors do not prove those source-side analytic certificates. -/
+structure SelectedWordLeavesRN
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) (q : ℕ) (P : ProfiniteGrp)
+    (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo)
+    (hq0 : q ≠ 0) (hqe : Even q) where
+  core : SelectedCoreLeavesRN S P nuP
+  analytic : SelectedAnalyticLeavesRN S q P hP nuP hq0 hqe core
 
 /-- Assemble the corrected word certificate for the selected improved presentation. -/
 noncomputable def wordCertificateRN_of_fieldSelection
@@ -158,26 +272,102 @@ noncomputable def wordCertificateRN_of_fieldSelection
     (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
     (hq0 : q ≠ 0) (hqe : Even q)
     {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
-    (L : SelectedWordLeavesRN S q P hP nuP) :
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
     WordCertificateRN S.semantic.degree q S.semantic.word P hP nuP
       (standardNumerics S.semantic.degree) where
-  tameSpecialization := L.tameSpecialization
-  coreRel := L.coreRel
-  proTwoWord := L.proTwoWord
-  pro2 := L.pro2
-  ker_pro2 := L.ker_pro2
-  hpro2 := L.hpro2
-  compat := L.compat
+  tameSpecialization := tameSpecialization_of_fieldSelection S hq0 hqe
+  coreRel := SelectedCoreLeavesRN.coreRel
+  proTwoWord := L.core.proTwoWord
+  pro2 := L.core.pro2 hq0 hqe
+  ker_pro2 := L.core.ker_pro2 hq0 hqe
+  hpro2 := L.core.hpro2 hq0 hqe
+  compat := L.core.compat hq0 hqe
   tfg := Count.gammaR_topologicallyFinitelyGenerated _ _ _
   smulZmod2 := scalarActionZmodTwo _
   contSMulZmod2 := scalarActionZmodTwo_continuousSMul _
   htriv := scalarActionZmodTwo_triv _
   exactLifting := exactLiftingRN_of_selectedHsimp S hsimp hq0 hqe nuP
-  stokes := L.stokes
-  scalar := L.scalar
-  determinant := L.determinant
-  htame := Count.htame_of_tameSpecializes L.tameSpecialization
-  hwild := Count.hwild_of_tameSpecializes L.tameSpecialization
+  stokes := L.analytic.stokes
+  scalar := L.analytic.scalar
+  determinant := L.analytic.determinant
+  htame := Count.htame_of_tameSpecializes (tameSpecialization_of_fieldSelection S hq0 hqe)
+  hwild := Count.hwild_of_tameSpecializes (tameSpecialization_of_fieldSelection S hq0 hqe)
+
+/-! ### Exact structural-field regressions -/
+
+/-- The assembled certificate's tame specialization is exactly the five-row dispatch above. -/
+@[simp] theorem wordCertificateRN_of_fieldSelection_tameSpecialization
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).tameSpecialization =
+      tameSpecialization_of_fieldSelection S hq0 hqe := rfl
+
+/-- The two formerly caller-supplied word-level fields are definitionally the tautological
+evaluation and its reflexivity proof. -/
+@[simp] theorem wordCertificateRN_of_fieldSelection_coreRel
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).coreRel =
+      SelectedCoreLeavesRN.coreRel := rfl
+
+@[simp] theorem wordCertificateRN_of_fieldSelection_proTwoWord
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).proTwoWord =
+      L.core.proTwoWord := rfl
+
+/-- All four pro-`2` fields use the one generic map classified by the presented core. -/
+@[simp] theorem wordCertificateRN_of_fieldSelection_pro2
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).pro2 =
+      L.core.pro2 hq0 hqe := rfl
+
+@[simp] theorem wordCertificateRN_of_fieldSelection_ker_pro2
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).ker_pro2 =
+      L.core.ker_pro2 hq0 hqe := rfl
+
+@[simp] theorem wordCertificateRN_of_fieldSelection_hpro2
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).hpro2 =
+      L.core.hpro2 hq0 hqe := rfl
+
+@[simp] theorem wordCertificateRN_of_fieldSelection_compat
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SelectedWordLeavesRN S q P hP nuP hq0 hqe) :
+    (wordCertificateRN_of_fieldSelection S hsimp hq0 hqe L).compat =
+      L.core.compat hq0 hqe := rfl
 
 /-! ## Corrected reconstruction consequence -/
 
@@ -191,7 +381,8 @@ theorem nonempty_continuousMulEquiv_of_fieldSelection
     (S : FieldBranchSelection K FP Q W) {q : ℕ} (hsimp : SelectedHsimp S q)
     (hq2 : 2 ≤ q) (hqe : Even q)
     {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
-    (hnuP : Function.Surjective nuP) (L : SelectedWordLeavesRN S q P hP nuP)
+    (hnuP : Function.Surjective nuP)
+    (L : SelectedWordLeavesRN S q P hP nuP (by omega) hqe)
     {Rref : PWord (Generator S.semantic.degree)}
     (Wref : WordCertificateRN S.semantic.degree q Rref P hP nuP
       (standardNumerics S.semantic.degree)) :
@@ -214,7 +405,7 @@ noncomputable def wordCertificateRN_of_canonicalFieldBranch
     {q : ℕ} (hsimp : SelectedHsimp (selectFieldBranchCanonical B FF D RI CW) q)
     (hq0 : q ≠ 0) (hqe : Even q)
     {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
-    (L : SelectedWordLeavesRN (selectFieldBranchCanonical B FF D RI CW) q P hP nuP) :
+    (L : SelectedWordLeavesRN (selectFieldBranchCanonical B FF D RI CW) q P hP nuP hq0 hqe) :
     WordCertificateRN
       (selectFieldBranchCanonical B FF D RI CW).semantic.degree q
       (selectFieldBranchCanonical B FF D RI CW).semantic.word P hP nuP
