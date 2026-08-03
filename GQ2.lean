@@ -361,6 +361,7 @@ import GQ2.Dyadic.Count.HTwoRelationModuleGlobal
 import GQ2.Dyadic.Count.HTwoRelationBasis
 import GQ2.Dyadic.Count.HTwoStronglyFree
 import GQ2.Dyadic.Count.HTwoRelationFox
+import GQ2.Dyadic.Count.HTwoFoxStronglyFree
 import GQ2.Dyadic.Instances.GammaLRelatorRealization
 import GQ2.Dyadic.Instances.GammaLRelatorRealizationQTwo
 import GQ2.Dyadic.Instances.GammaLTateDirect

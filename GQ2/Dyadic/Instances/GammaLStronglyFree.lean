@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
-import GQ2.Dyadic.Count.HTwoStronglyFree
+import GQ2.Dyadic.Count.HTwoFoxStronglyFree
 import GQ2.Dyadic.Instances.GammaLRelationBasis
 
 /-!
@@ -43,6 +43,25 @@ noncomputable abbrev UniformStronglyFreeModTwoRelatorSummandSupply : Type _ :=
         (m := fun i => rho (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))
         (lSqFam h q (omega2Exp (4 * Monoid.exponent C)))
         (lUniform_rel_death rho)
+
+/-- A uniform equivariant retraction of the universal Fox matrices gives the explicit
+strongly-free split summand for the two improved L relators. -/
+noncomputable def uniformStronglyFreeModTwoRelatorSummandSupply_of_foxRetraction
+    (hR : UniformModTwoFoxRelationRetractionSupply (h := h) (q := q)) :
+    UniformStronglyFreeModTwoRelatorSummandSupply (h := h) (q := q) := by
+  intro C _ _ _ _ rho hrho
+  have hgen : Subgroup.closure
+      (Set.range (fun i => rho
+        (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))) = ⊤ :=
+    closure_range_lower_eq_top rho (fun _ => rfl)
+      (isAdmissibleMarkedPresentation_gammaR
+        (2 * h + 1) q (Words.LSq.lSqW h)) hrho
+  have heval : Function.Surjective
+      (FreeGroup.lift (fun i => rho
+        (gammaGen (2 * h + 1) q (Words.LSq.lSqW h) i))) :=
+    freeGroup_lift_surjective_of_closure hgen
+  exact (hR C rho hrho).toStronglyFreeModTwoRelatorSummand
+    (lUniform_rel_death rho) heval
 
 /-- A uniform strongly-free split summand constructs the exact coordinate supply isolated by
 the previous reduction. -/
