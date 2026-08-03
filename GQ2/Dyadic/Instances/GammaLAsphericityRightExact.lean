@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Instances.GammaLActionImage
 import GQ2.Dyadic.Instances.GammaLH2RightExact
+import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLRelatorRealization
 import GQ2.Dyadic.Instances.GammaLSimpleDirectSurjectivity
 import GQ2.Dyadic.Instances.LH2ComparisonDevissage
@@ -264,6 +265,22 @@ noncomputable abbrev UniformElementaryExtensionAsphericitySurjectiveSupply : Pro
       (∀ a : A, a + a = 0) →
         LModuleFiniteExtensionAsphericity (A := A) rho
 
+/-- The direct theorem currently available, packaged in the same generating-target shape as
+the all-elementary hypothesis above.  Its coefficient quantifier is restricted to simple
+modules. -/
+noncomputable abbrev UniformSimpleExtensionAsphericitySurjectiveSupply : Prop :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom GammaL C), Function.Surjective rho →
+      UniformSimpleExtensionAsphericitySingleProvider rho
+
+/-- Direct finite-extension asphericity is proved uniformly for simple coefficients at every
+generating finite target. -/
+theorem uniformSimpleExtensionAsphericitySurjectiveSupply_direct
+    (hq : Even q) :
+    UniformSimpleExtensionAsphericitySurjectiveSupply (h := h) (q := q) := by
+  intro C _ _ _ _ rho hrho
+  exact uniformSimpleExtensionAsphericitySingleProvider_of_surjective rho hrho hq
+
 /-- All-elementary finite-extension asphericity gives all-elementary relator realization. -/
 theorem uniformElementaryRelatorRealizationSurjectiveSupply_of_extensionAsphericity
     (hasph : UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q)) :
@@ -286,6 +303,28 @@ private theorem continuousSMul_comp_asphericityRightExact
   rw [hfac]
   exact continuous_of_discreteTopology.comp
     ((rho.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+
+/-- All-elementary relator realization also reconstructs actual finite extensions.  The
+converse construction uses the canonical twisted extension attached to a realizing cocycle. -/
+theorem uniformElementaryExtensionAsphericitySurjectiveSupply_of_relatorRealization
+    (hreal : UniformElementaryRelatorRealizationSurjectiveSupply (h := h) (q := q)) :
+    UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) := by
+  intro C _ _ _ _ rho hrho A _ _ _ hA₂
+  letI : TopologicalSpace A := ⊥
+  letI : DiscreteTopology A := ⟨rfl⟩
+  letI : DistribMulAction GammaL A := DistribMulAction.compHom A rho.toMonoidHom
+  letI : ContinuousSMul GammaL A :=
+    continuousSMul_comp_asphericityRightExact rho (fun _ _ ↦ rfl)
+  exact (lModuleFiniteExtensionAsphericity_iff_relatorRealization rho
+    (lUniform_wordLift_resolver hA₂)).2 (hreal C rho hrho A hA₂)
+
+/-- The finite-extension and finite-cocycle formulations of the all-elementary supply are
+equivalent, without parity or duality assumptions. -/
+theorem uniformElementaryExtensionAsphericitySurjectiveSupply_iff_relatorRealization :
+    UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) ↔
+      UniformElementaryRelatorRealizationSurjectiveSupply (h := h) (q := q) :=
+  ⟨uniformElementaryRelatorRealizationSurjectiveSupply_of_extensionAsphericity,
+    uniformElementaryExtensionAsphericitySurjectiveSupply_of_relatorRealization⟩
 
 /-- The all-elementary relator-realization supply proves the continuous H² right-exact tail.
 
@@ -346,6 +385,14 @@ theorem allElementaryRelatorRealization_of_gammaLH2RightExactSupply
     rho (fun _ _ ↦ rfl) (fun U ↦ hwildLevel_gammaR U) hA₂
       (lFlexibleResolverSystem rho (lUniform_wordLift_resolver hA₂)) hbij.2
 
+/-- At even `q`, the H² right-exact tail reconstructs the all-elementary finite-extension
+asphericity supply. -/
+theorem allElementaryExtensionAsphericity_of_gammaLH2RightExactSupply
+    (hq : Even q) (hright : GammaLH2RightExactSupply h q) :
+    UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) :=
+  uniformElementaryExtensionAsphericitySurjectiveSupply_of_relatorRealization
+    (allElementaryRelatorRealization_of_gammaLH2RightExactSupply hq hright)
+
 /-- At even `q`, all-elementary relator realization at generating finite targets is exactly
 the continuous CD-2 tail used by coefficient devissage. -/
 theorem gammaLH2RightExactSupply_iff_allElementaryRelatorRealization
@@ -354,6 +401,16 @@ theorem gammaLH2RightExactSupply_iff_allElementaryRelatorRealization
       UniformElementaryRelatorRealizationSurjectiveSupply (h := h) (q := q) :=
   ⟨allElementaryRelatorRealization_of_gammaLH2RightExactSupply hq,
     gammaLH2RightExactSupply_of_allElementaryRelatorRealization⟩
+
+/-- Headline finite-extension form: for even `q`, the all-elementary finite-extension
+asphericity theorem at generating finite action targets is exactly the continuous H²
+right-exact/CD-2 tail. -/
+theorem gammaLH2RightExactSupply_iff_allElementaryExtensionAsphericity
+    (hq : Even q) :
+    GammaLH2RightExactSupply h q ↔
+      UniformElementaryExtensionAsphericitySurjectiveSupply (h := h) (q := q) :=
+  ⟨allElementaryExtensionAsphericity_of_gammaLH2RightExactSupply hq,
+    gammaLH2RightExactSupply_of_allElementaryExtensionAsphericity⟩
 
 end UniformAllElementary
 
