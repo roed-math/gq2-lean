@@ -23,12 +23,14 @@ ramified : ∀ deltaI, deltaI ^ 2 = -1 →
 
 in `FieldInputs` and `DyadicLocalInput`.
 
-The theorem is **not yet proved**.  No available declaration identifies the torsion in the
-topological abelianization of `G_K(2)` with the 2-primary roots of unity of `K`.  The existing
-`MarkedRecip` bundle gives a dense reciprocity map and its two marked characters, not a
-topological decomposition of the pro-2 completion of `Kˣ`.  Therefore deriving `q = 2` merely
-from the cyclotomic image, residue cardinality, or the mod-2 Demushkin form would be an
-unsupported proxy.
+The theorem is **not yet proved**.  The completion campaign has now removed the purely
+group-theoretic part of the obstruction: maximal pro-`p` quotient commutes with topological
+abelianization, the repository has a concrete pro-`p` completion model, and dense marked
+reciprocity extends to a continuous surjection onto `(G_K(2))^ab`.  What remains is arithmetic:
+the present `MarkedRecip` fields do not identify the kernel of that surjection or the torsion of
+its target with the 2-primary roots of unity of `K`.  Therefore deriving `q = 2` merely from the
+cyclotomic image, residue cardinality, or the mod-2 Demushkin form would still be an unsupported
+proxy.
 
 In particular, the two unrelated uses of the letter `q` must remain separate:
 
@@ -49,7 +51,7 @@ demushkinRank_maxProTwoGalK :
     Module.finrank ℚ_[2] K + 2
 ```
 
-Ramified `K(i)/K` already has three honest consequences.
+Ramified `K(i)/K` already has the following honest consequences.
 
 ```lean
 kappaK_ne_zero_of_ramified :
@@ -76,7 +78,32 @@ exists_maxProTwo_inertia_chi_modFour_ne_one_of_ramifiedI :
     PadicInt.toZModPow 2 (((chiCycKTwo q : ℤ_[2]ˣ) : ℤ_[2])) ≠ 1
 ```
 
-The last theorem is the exact contrapositive of `MarkedRecip.ki_unramified`, lifted through
+The group/completion bridge is now also formalized:
+
+```lean
+maxProPTopAbEquiv (p : ℕ) (G : Type) :
+  maxProPQuotient p (topAbelianization G) ≃ₜ*
+    topAbelianization (maxProPQuotient p G)
+
+proPCompletion (p : ℕ) (A : Type) [Group A] : ProfiniteGrp
+
+proPCompletionLift_surjective_of_denseRange
+    (hP : IsProP p P) (f : ContinuousMonoidHom A P) (hf : DenseRange f) :
+  Function.Surjective (proPCompletionLift hP f.toMonoidHom)
+
+proTwoReciprocityToTopAb (B : MarkedRecip R K) :
+  ContinuousMonoidHom (proPCompletion 2 ((↥K)ˣ))
+    (topAbelianization (maxProPQuotient 2 (GalK K)))
+
+proTwoReciprocityToTopAb_surjective (B : MarkedRecip R K) :
+  Function.Surjective (proTwoReciprocityToTopAb B)
+```
+
+The first equivalence is the abstract identity `(G^ab)(p) ≃ (G(p))^ab`.  The last theorem
+uses exactly the `MarkedRecip.continuous_recip` and `denseRange_recip` fields plus compactness;
+it makes no kernel claim.
+
+The inertia theorem above is the exact contrapositive of `MarkedRecip.ki_unramified`, lifted through
 `G_K → G_K^ab` and descended through `G_K → G_K(2)`.  It says that pro-2 inertia acts
 nontrivially on fourth roots of unity.  It does not assert that its witness has finite order.
 
@@ -89,9 +116,9 @@ recip : (↥K)ˣ →* GalKab K
 denseRange_recip : DenseRange recip
 ```
 
-and the marked characters `chiCycKAb` and `nu_ur`.  Density is enough to prove equality of
-continuous maps out of `GalKab K`, but it does not identify the kernel of the induced map from
-the profinite or pro-2 completion of `Kˣ`.  `DyadicUnitFiltration` supplies a uniformizer and
+and the marked characters `chiCycKAb` and `nu_ur`.  Density is now used to prove the completed
+map `proTwoReciprocityToTopAb` is surjective, but it does not identify that map's kernel.
+`DyadicUnitFiltration` supplies a uniformizer and
 the cardinalities of successive unit-filtration quotients; it does not yet supply the power-map
 or logarithmic structure needed to split the completed principal units into a torsion part and a
 free `ℤ₂` part.
@@ -118,10 +145,13 @@ ramified K(i)/K
       |
       +--> nontrivial mod-4 cyclotomic action on inertia    [proved]
 
-dense local reciprocity + maximal-pro-2 universal property
+dense local reciprocity + completion/maximal-pro-2 universal properties
       |
       v
-topAb(G_K(2)) is the pro-2 completion of Kˣ                [missing]
+pro-2 completion(Kˣ) ↠ topAb(G_K(2))                       [proved]
+      |
+      v
+completed reciprocity is injective / exact kernel theorem        [missing]
       |
       v
 torsion(topAb(G_K(2))) ≃ μ_{2∞}(K)                         [missing]
@@ -134,18 +164,21 @@ Nat.card torsion = 2
 demushkinQ (G_K(2)) = 2
 ```
 
-A useful completion-level signature is:
+A completion-level equivalence would still be useful, but is strictly stronger than what
+density proves:
 
 ```lean
 noncomputable def proTwoReciprocityEquiv
     (B : MarkedRecip R K) :
-  ProTwoCompletion ((↥K)ˣ) ≃ₜ*
+  proPCompletion 2 ((↥K)ˣ) ≃ₜ*
     topAbelianization (maxProPQuotient 2 (GalK K))
 ```
 
-Here `ProTwoCompletion` still needs a repository definition (either the inverse limit over finite
-2-group quotients, or the maximal pro-2 quotient of the profinite completion).  Freezing this
-definition before choosing the categorical model would be premature.
+The source model is no longer missing: it is `proPCompletion 2 ((↥K)ˣ)`, the maximal
+pro-2 quotient of Mathlib's profinite completion.  The forward map and its surjectivity are
+`proTwoReciprocityToTopAb` and `proTwoReciprocityToTopAb_surjective`.  Proving the displayed
+equivalence now means proving injectivity, which requires an arithmetic kernel theorem not
+contained in `MarkedRecip`.
 
 The minimum missing theorem can avoid exposing that model.  The checked target type
 `TwoPowerRoots K` is already defined as `{x : K // ∃ n, x ^ (2 ^ n) = 1}`:
@@ -176,12 +209,15 @@ bridges currently exists.
 
 ## Recommended next ticket split
 
-1. Define the pro-2 completion model and prove its universal property.
-2. Generalize the `markedPi` construction of `SectionThree.lean` from `ℚ₂` to `K`, and identify
-   its completed reciprocity map.
-3. Extend `DyadicUnitFiltration` with the eventual squaring/logarithm theorem for principal
+1. ~~Define the pro-2 completion model and prove its universal property.~~ Done in
+   `GQ2.ProPAbelianization`.
+2. ~~Generalize the quotient/abelianization construction to `K` and construct the completed
+   reciprocity map.~~ Done, with surjectivity, in `GQ2.Dyadic.ProTwoReciprocity`.
+3. Prove the missing arithmetic kernel/injectivity theorem for completed reciprocity.  This may
+   be packaged as the full local-CFT completion isomorphism or as a field-specific kernel result.
+4. Extend `DyadicUnitFiltration` with the eventual squaring/logarithm theorem for principal
    units, then prove the torsion/free decomposition of completed `Kˣ`.
-4. Combine the torsion equivalence with
+5. Combine the torsion equivalence with
    `twoPowerRoot_eq_one_or_neg_one_of_ramifiedI` and close the `Nat.card` computation.
 
 This route is non-circular: it proves `q = 2` before invoking any `MLabHypothesis`,

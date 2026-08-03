@@ -45,6 +45,7 @@ import GQ2.FinitelyGenerated
 import GQ2.BoundaryFrame
 import GQ2.TameQuotient
 import GQ2.SectionThree
+import GQ2.ProPAbelianization
 import GQ2.Prop32
 import GQ2.TameTwoQuotient
 import GQ2.TameOrientationWitness
@@ -332,6 +333,7 @@ import GQ2.Dyadic.MarkedCore.CoVDischarge
 import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedMaxProTwo
+import GQ2.Dyadic.ProTwoReciprocity
 import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
