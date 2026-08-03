@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Codex
 import GQ2.Dyadic.Count.LocalDuality
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.GaussZ.FinalDK
+import GQ2.Dyadic.SourceDataRN
 
 /-!
 # The Stokes-duality certificate from local duality
@@ -202,5 +203,209 @@ theorem candidate_equiv_galK_of_exactSupply {Rw : PWord (Generator n)}
 end KExactSupply
 
 end ResidualSupply
+
+/-! ## The corrected arithmetic supply
+
+The corrected recursion changes only the coefficient in the R-stage identity.  The record below
+is therefore the `RN` analogue of `KExactSupply`: the marked pro-2 block is unchanged and the
+single analytic field has type `ExactLiftingSemanticsRN`.
+
+For comparison with the legacy arithmetic campaign, `CorrectedRStageSemantics` names precisely
+the changed third conjunct.  `KExactSupplyRN.ofKExactSupply` reuses the first two legacy exact
+lifting clauses and asks only for this corrected R-stage clause.
+-/
+
+section CorrectedResidualSupply
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  {R : LocalReciprocity} {B : MarkedRecip R K} {FF : DyadicUnitFiltration K}
+
+/-- The genuinely changed arithmetic clause: equation (136) with the degree-indexed `zRN`
+coefficient.  The lift count and half-torsor clauses are byte-for-byte the legacy ones. -/
+def CorrectedRStageSemantics (Γ : ProfiniteGrp) (n q : ℕ) (P : ProfiniteGrp)
+    (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n) : Prop :=
+  ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (_hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (_hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E),
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCountK b F T =
+      zRN (blockFrameImpl T Blk hE2) SN *
+        ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * (mBK (blockFrameImpl T Blk hE2) b F l : ℤ) -
+            exactImageCountK b F (blockFrameImpl T Blk hE2).TB)
+
+/-- The two concrete R-stage facts not contained in the existing Stokes or affine-determinant
+certificates at `G_K`.  Once these are supplied, `blockStageR136NK` performs the corrected
+equation-(136) assembly; scalar `H²`, triviality, and finite generation are already theorems. -/
+structure CorrectedRStageResiduesGalK (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] (n q : ℕ) (P : ProfiniteGrp)
+    (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] where
+  hsep_hom : ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (_hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (_hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom (galKProfinite K) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E)
+    (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB),
+    obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+        (htriv_galK K) (card_H2_zmodTwo_galK K) g.1.1 = 0 →
+      ∃ φ : ContinuousMonoidHom (galKProfinite K) Y,
+        ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ
+  hZcount : ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (_hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (_hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom (galKProfinite K) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (f₀ : BoundaryLiftsK b F T),
+    Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) =
+      zRN (blockFrameImpl T Blk hE2) SN
+
+/-- `blockStageR136NK` reduces the corrected arithmetic equation exactly to separation and the
+degree-corrected R-cocycle count.  The existing GalK scalar and t.f.g. suppliers discharge all
+other source-side inputs. -/
+theorem correctedRStageSemantics_galK_of_residues
+    {n q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {SN : SourceNumerics n} [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (R : CorrectedRStageResiduesGalK K n q P nuP SN) :
+    CorrectedRStageSemantics (galKProfinite K) n q P nuP SN := by
+  intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE2 hRK hR2 b F
+  exact blockStageR136NK SN T Blk hE2 (htriv_galK K)
+    (card_H2_zmodTwo_galK K) (tfg_galK K) b F
+    (R.hsep_hom hE2 hRK hR2 b F) (R.hZcount hE2 hRK hR2 b F)
+
+/-- Reuse the two unchanged legacy exact-lifting clauses and replace only equation (136). -/
+theorem exactLiftingSemanticsRN_of_legacy_and_correctedRStage
+    {Γ : ProfiniteGrp} {n q : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n}
+    (legacy : ExactLiftingSemantics Γ n q P nuP SN)
+    (stageRN : CorrectedRStageSemantics Γ n q P nuP SN) :
+    ExactLiftingSemanticsRN Γ n q P nuP SN :=
+  ⟨legacy.1, legacy.2.1, stageRN⟩
+
+/-- The corrected residual data needed to construct the arithmetic `SourceDataRN` at `G_K`. -/
+structure KExactSupplyRN (T : OrientedTameQuotientK B FF) (n : ℕ) (P : ProfiniteGrp)
+    (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] where
+  hdeg : Module.finrank ℚ_[2] K = n
+  pro2 : ContinuousMonoidHom (GalK K) P
+  hpro2 : Function.Surjective pro2
+  ker_pro2 : pro2.toMonoidHom.ker = proPKernel 2 (GalK K)
+  nu_compat : ∀ g : GalK K, ztwoIota (nuP (pro2 g)) = B.nu_ur (toAbK K g)
+  exactLifting : ExactLiftingSemanticsRN (galKProfinite K) n (qOf K FF) P nuP
+    (standardNumerics n)
+
+namespace KExactSupplyRN
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {T : OrientedTameQuotientK B FF} {n : ℕ} {P : ProfiniteGrp} {hP : IsProP 2 P}
+  {nuP : ContinuousMonoidHom P Ztwo}
+
+/-- Upgrade a legacy `KExactSupply` by supplying only the genuinely changed R-stage identity. -/
+noncomputable def ofKExactSupply (S : KExactSupply T n P hP nuP)
+    (stageRN : CorrectedRStageSemantics (galKProfinite K) n (qOf K FF) P nuP
+      (standardNumerics n)) :
+    KExactSupplyRN T n P hP nuP where
+  hdeg := S.hdeg
+  pro2 := S.pro2
+  hpro2 := S.hpro2
+  ker_pro2 := S.ker_pro2
+  nu_compat := S.nu_compat
+  exactLifting := exactLiftingSemanticsRN_of_legacy_and_correctedRStage
+    S.exactLifting stageRN
+
+/-- Upgrade legacy arithmetic data from the two concrete corrected R-stage residues. -/
+noncomputable def ofKExactSupplyAndRStageResidues (S : KExactSupply T n P hP nuP)
+    (Rstage : CorrectedRStageResiduesGalK K n (qOf K FF) P nuP
+      (standardNumerics n)) :
+    KExactSupplyRN T n P hP nuP :=
+  ofKExactSupply S (correctedRStageSemantics_galK_of_residues Rstage)
+
+/-- At degree one no corrected R-stage hypothesis is needed: `zRN` is definitionally the
+legacy frozen coefficient, so the exact-lifting packet converts directly. -/
+noncomputable def ofKExactSupplyStandardOne (S : KExactSupply T 1 P hP nuP) :
+    KExactSupplyRN T 1 P hP nuP where
+  hdeg := S.hdeg
+  pro2 := S.pro2
+  hpro2 := S.hpro2
+  ker_pro2 := S.ker_pro2
+  nu_compat := S.nu_compat
+  exactLifting := (exactLiftingSemanticsRN_standard_one_iff _ _ _ _).mpr S.exactLifting
+
+/-- Assemble the corrected arithmetic source.  Every non-RN field is the existing `KSupply`
+constructor or its local-duality/Gauss supplier; only `exactLifting` comes from the corrected
+record. -/
+noncomputable def toSourceRN (S : KExactSupplyRN T n P hP nuP)
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    SourceDataRN n (qOf K FF) P hP nuP (standardNumerics n) where
+  Γ := galKProfinite K
+  tame := T.tameFK
+  pro2 := S.pro2
+  compat := fun g => T.compatF_K S.pro2 nuP S.nu_compat g
+  surj := boundary_jointly_surjective_of_maxProP (qOf_ne_zero K FF) (even_qOf K FF) nuP
+    T.tameFK S.pro2 T.tameFK_surjective S.hpro2 S.ker_pro2
+    (fun g => T.compatF_K S.pro2 nuP S.nu_compat g)
+  ker_pro2 := S.ker_pro2
+  smulZmod2 := smulZmod2GalK K
+  contSMulZmod2 := contSMulZmod2GalK K
+  htriv := htriv_galK K
+  tfg := tfg_galK K
+  exactLifting := S.exactLifting
+  stokes := stokesDualityCertificate_galK K S.hdeg
+  scalar := scalarHilbert_galK K S.hdeg rfl
+  determinant := affineDeterminant_galK K params params_n params_qK S.hdeg
+    (gaussUnram_standard n) (gaussRam_standard n) T.tameFK T.tameFK_surjective S.pro2
+    (fun g => T.compatF_K S.pro2 nuP S.nu_compat g) ramifiedData
+
+/-- The corrected arithmetic source has carrier `G_K` definitionally. -/
+theorem toSourceRN_carrier (S : KExactSupplyRN T n P hP nuP)
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    (((S.toSourceRN params params_n params_qK ramifiedData).Γ : ProfiniteGrp) : Type) =
+      GalK K := rfl
+
+/-- The corrected arithmetic source's tame coordinate is onto. -/
+theorem toSourceRN_htame (S : KExactSupplyRN T n P hP nuP)
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF) (ramifiedData) :
+    Function.Surjective (S.toSourceRN params params_n params_qK ramifiedData).tame :=
+  T.tameFK_surjective
+
+/-- The corrected arithmetic source's wild kernel is pro-2. -/
+theorem toSourceRN_hwild (S : KExactSupplyRN T n P hP nuP)
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF) (ramifiedData) :
+    IsProP 2 (S.toSourceRN params params_n params_qK ramifiedData).tame.toMonoidHom.ker :=
+  T.ker_tameFK ▸ T.isProP
+
+end KExactSupplyRN
+
+end CorrectedResidualSupply
 
 end GQ2.Dyadic

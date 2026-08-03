@@ -7,6 +7,7 @@ import GQ2.Dyadic.CertificateSupplyRN
 import GQ2.Dyadic.Instances.GammaLAnalyticLeaves
 import GQ2.Dyadic.Instances.GammaLEulerH2Surjectivity
 import GQ2.Dyadic.Instances.GammaLRealizationRoute
+import GQ2.Dyadic.Instances.KAnalytic
 
 /-!
 # Corrected reconstruction for the improved L presentation
@@ -144,6 +145,100 @@ structure GammaLCorrectedArithmeticInput (h q : ℕ)
   tame_surjective : Function.Surjective source.tame
   wild_isProP : IsProP 2 source.tame.toMonoidHom.ker
   degree_eq : Module.finrank ℚ_[2] K = 2 * h + 1
+
+namespace GammaLCorrectedArithmeticInput
+
+/-- Build the corrected reconstruction input from the corrected arithmetic supply.  The source
+carrier is `G_K` definitionally, so the carrier equivalence is the identity; tame surjectivity,
+wild pro-2-ness, and the degree are also projected from the existing arithmetic packets. -/
+noncomputable def ofKExactSupplyRN
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+    {T : OrientedTameQuotientK B FF} {h : ℕ}
+    (S : KExactSupplyRN T (2 * h + 1) (LCore h) (SqCore.isProP_DSq h) (LNu h))
+    (params : FieldParameters) (params_n : params.n = 2 * h + 1)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    GammaLCorrectedArithmeticInput h (qOf K FF) K where
+  source := S.toSourceRN params params_n params_qK ramifiedData
+  equivGalK := ContinuousMulEquiv.refl (GalK K)
+  tame_surjective := T.tameFK_surjective
+  wild_isProP := T.ker_tameFK ▸ T.isProP
+  degree_eq := S.hdeg
+
+/-- Existing legacy arithmetic data upgrades to the corrected reconstruction input after
+supplying only the corrected equation-(136) clause.  This is the exact API-level difference
+between `KExactSupply` and the `RN` reconstruction. -/
+noncomputable def ofKExactSupply_and_correctedRStage
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+    {T : OrientedTameQuotientK B FF} {h : ℕ}
+    (S : KExactSupply T (2 * h + 1) (LCore h) (SqCore.isProP_DSq h) (LNu h))
+    (stageRN : CorrectedRStageSemantics (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (LCore h) (LNu h) (LSN (2 * h + 1)))
+    (params : FieldParameters) (params_n : params.n = 2 * h + 1)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    GammaLCorrectedArithmeticInput h (qOf K FF) K :=
+  ofKExactSupplyRN (KExactSupplyRN.ofKExactSupply S stageRN)
+    params params_n params_qK ramifiedData
+
+/-- More granular form of `ofKExactSupply_and_correctedRStage`: `blockStageR136NK` is applied
+internally, leaving precisely radical-obstruction separation and the corrected R-cocycle count. -/
+noncomputable def ofKExactSupply_and_RStageResidues
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+    {T : OrientedTameQuotientK B FF} {h : ℕ}
+    (S : KExactSupply T (2 * h + 1) (LCore h) (SqCore.isProP_DSq h) (LNu h))
+    (Rstage : CorrectedRStageResiduesGalK K (2 * h + 1) (qOf K FF)
+      (LCore h) (LNu h) (LSN (2 * h + 1)))
+    (params : FieldParameters) (params_n : params.n = 2 * h + 1)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    GammaLCorrectedArithmeticInput h (qOf K FF) K :=
+  ofKExactSupplyRN (KExactSupplyRN.ofKExactSupplyAndRStageResidues S Rstage)
+    params params_n params_qK ramifiedData
+
+/-- Degree-one specialization of the corrected arithmetic constructor.  Unlike the general
+odd-degree constructor, this needs no extra equation-(136) input because the corrected and
+legacy coefficients coincide at `n = 1`. -/
+noncomputable def ofKExactSupplyDegreeOne
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+    {T : OrientedTameQuotientK B FF}
+    (S : KExactSupply T 1 (LCore 0) (SqCore.isProP_DSq 0) (LNu 0))
+    (params : FieldParameters) (params_n : params.n = 1)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    GammaLCorrectedArithmeticInput 0 (qOf K FF) K :=
+  ofKExactSupplyRN (KExactSupplyRN.ofKExactSupplyStandardOne S)
+    params params_n params_qK ramifiedData
+
+end GammaLCorrectedArithmeticInput
 
 /-- Corrected finite-quotient reconstruction compares a certified L word source with an
 arithmetic corrected source.  This is the carrier-noncircular core of the realization route. -/
