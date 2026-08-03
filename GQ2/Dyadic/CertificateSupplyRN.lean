@@ -51,16 +51,18 @@ The equality carried by each constructor is intentional: it makes the displayed 
 arithmetic validity proof is duplicated here; `S.valid` supplies `2 ≤ alpha` and, on procyclic
 rows, `1 ≤ r` to the lifting constructors.
 
-The L row takes `LSquare.PushedHsimp`, the honest source-facing residue restricted to markings
-pushed forward from the candidate group.  The L count and exact-lifting chain is routed through
-that weakening; the historical all-markings `LSquare.Hsimp` API remains available separately as
-a compatibility wrapper. -/
+The L row retains its `LSquare.PushedHsimp` constructor for compatibility and also offers
+`LResolved`, whose `LSquare.ResolvedPushedHsimp` records the resolver for the exact target used
+by the count.  The latter is the weakest source-facing hypothesis of the two.  The historical
+all-markings `LSquare.Hsimp` API remains available separately as a compatibility wrapper. -/
 inductive SelectedHsimp
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
     (S : FieldBranchSelection K FP Q W) (q : ℕ) : Prop
   | L (hbranch : S.branch = .L)
       (hsimp : LSquare.PushedHsimp (handleCount FP .L) q)
+  | LResolved (hbranch : S.branch = .L)
+      (hsimp : LSquare.ResolvedPushedHsimp (handleCount FP .L) q)
   | N0 (alpha : ℕ) (hbranch : S.branch = .N0 alpha)
       (hsimp : NCompact.Hsimp alpha (handleCount FP (.N0 alpha)) q)
   | Npc (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
@@ -101,6 +103,8 @@ theorem exactLiftingRN_of_selectedHsimp
   cases hsimp with
   | L hbranch hsimp =>
       exact LSquare.exactLiftingRN_of_fieldSelection_pushed S hbranch hsimp hqe nuP
+  | LResolved hbranch hsimp =>
+      exact LSquare.exactLiftingRN_of_fieldSelection_resolvedPushed S hbranch hsimp hqe nuP
   | N0 alpha hbranch hsimp =>
       have hvalid : 2 ≤ alpha := by
         have h := S.valid

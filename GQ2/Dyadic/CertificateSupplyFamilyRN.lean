@@ -81,11 +81,16 @@ def ofFamilyFieldBranchSelection
 
 end SemanticSelectionView
 
-/-- The unique branch-dependent Stokes residue over the witness-polymorphic view. -/
+/-- The unique branch-dependent Stokes residue over the witness-polymorphic view.
+
+For L, `L` preserves the legacy pushed-resolver bundle while `LResolved` stores only the
+target-local resolver required by the exact-lifting count.  The other four rows are unchanged. -/
 inductive SemanticSelectedHsimpRN {FP : FieldParameters}
     (S : SemanticSelectionView FP) (q : ℕ) : Prop
   | L (hbranch : S.branch = .L)
       (hsimp : LSquare.PushedHsimp (handleCount FP .L) q)
+  | LResolved (hbranch : S.branch = .L)
+      (hsimp : LSquare.ResolvedPushedHsimp (handleCount FP .L) q)
   | N0 (alpha : ℕ) (hbranch : S.branch = .N0 alpha)
       (hsimp : NCompact.Hsimp alpha (handleCount FP (.N0 alpha)) q)
   | Npc (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
@@ -118,6 +123,17 @@ theorem exactLiftingRN_of_semanticSelectedHsimp
             (2 * handleCount FP .L + 1) q P nuP
             (standardNumerics (2 * handleCount FP .L + 1))
           exact LSquare.exactLiftingRN_of_pushed hsimp hqe nuP
+  | LResolved hbranch hsimp =>
+      cases S with
+      | mk branch valid display =>
+          dsimp only at hbranch
+          subst branch
+          change ExactLiftingSemanticsRN
+            (GammaR (2 * handleCount FP .L + 1) q
+              (Words.LSq.lSqW (handleCount FP .L)))
+            (2 * handleCount FP .L + 1) q P nuP
+            (standardNumerics (2 * handleCount FP .L + 1))
+          exact LSquare.exactLiftingRN_of_resolvedPushed hsimp hqe nuP
   | N0 alpha hbranch hsimp =>
       cases S with
       | mk branch valid display =>
@@ -546,6 +562,23 @@ noncomputable def wordCertificateRN_of_familyFieldSelection
       (standardNumerics S.semantic.degree) :=
   wordCertificateRN_of_semanticSelection
     (SemanticSelectionView.ofFamilyFieldBranchSelection S) hsimp hq0 hqe L
+
+/-- Target-local corrected-family handoff for the selected L row.  Unlike the legacy `L`
+constructor, this entry point consumes the resolver carried by `ResolvedPushedHsimp` directly;
+no universal resolver for every pushed marking is reintroduced. -/
+noncomputable def wordCertificateRN_of_familyFieldSelection_resolvedL
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness FP Q}
+    (S : FamilyFieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hsimp : LSquare.ResolvedPushedHsimp (handleCount FP .L) q)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection S) q P hP nuP hq0 hqe) :
+    WordCertificateRN S.semantic.degree q S.semantic.word P hP nuP
+      (standardNumerics S.semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection S
+    (.LResolved hbranch hsimp) hq0 hqe L
 
 /-- End-to-end certificate handoff from the corrected arithmetic selector itself. -/
 noncomputable def wordCertificateRN_of_familyFieldBranch
