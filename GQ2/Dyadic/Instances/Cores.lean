@@ -12,6 +12,7 @@ import GQ2.Dyadic.Count.Routine
 import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Dyadic.Count.Marking
 import GQ2.Dyadic.Certificates.MpcStokes
+import GQ2.Dyadic.Words.L
 
 /-!
 # The branch-core layer  (dyadic campaign, ticket AS3-b)
@@ -95,6 +96,140 @@ downstream, through `KSupply`, and nothing here touches it.
 namespace GQ2.Dyadic.Instances
 
 open GQ2 GQ2.Dyadic GQ2.Dyadic.MarkedCore
+
+/-! # The square-commutator `L` branch layer
+
+Unlike the compact/procyclic `M` dictionaries below, the `L_sq` dictionary is the literal
+ordering of `SqCore`: core index `0` is `sigma`, and core index `i+1` is wild letter `x_i`.
+`Words.LSq` already proves that the exact pro-`2` specialization of `lSqW h` is
+`SqCore.sqRelWord` through that dictionary.  The declarations here only package the existing
+`DSq` universal property as a `Count.CorePresentation`, and construct its canonical `Ztwo`
+normalization. -/
+
+section LSquare
+
+open GQ2.Dyadic.Count GQ2.Dyadic.Words GQ2.Dyadic.Words.LSq
+
+namespace LSquareCore
+
+/-! ## The alphabet-coordinate universal property -/
+
+/-- The existing `DSq` lift, read through the exact `L_sq` alphabet/core dictionary. -/
+noncomputable def lLiftHom (h : ℕ)
+    {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q] [CompactSpace Q]
+    [T2Space Q] [TotallyDisconnectedSpace Q] (hQ : IsProP 2 Q)
+    (t : Marking (2 * h + 1) Q) (hrel : t.eval (pro2 (lSqW h)) = 1) :
+    ContinuousMonoidHom (SqCore.DSq h : Type) Q :=
+  SqCore.sqLiftHom h hQ (sqIdxMark t) (by
+    rw [← eval_pro2_lSqW_eq_sqRelWord h t]
+    exact hrel)
+
+/-- Exact computation of the `L_sq` lift on every `DSq` generator. -/
+@[simp] theorem lLiftHom_sqGen (h : ℕ)
+    {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q] [CompactSpace Q]
+    [T2Space Q] [TotallyDisconnectedSpace Q] (hQ : IsProP 2 Q)
+    (t : Marking (2 * h + 1) Q) (hrel : t.eval (pro2 (lSqW h)) = 1)
+    (i : Fin (SqCore.sqRank h)) :
+    lLiftHom h hQ t hrel (SqCore.sqGen h i) = sqIdxMark t i :=
+  SqCore.sqLiftHom_gen h hQ (sqIdxMark t) _ i
+
+/-- Naturality of the literal `L_sq` alphabet/core dictionary. -/
+theorem map_sqIdxMark {h : ℕ} {G H : Type*} (f : G → H)
+    (t : Marking (2 * h + 1) G) (i : Fin (SqCore.sqRank h)) :
+    f (sqIdxMark t i) = sqIdxMark (t.map f) i := by
+  simp only [sqIdxMark]
+  split <;> rfl
+
+/-- **The uniform `L_sq` core presentation.**  No certificate or Labute hypothesis occurs:
+the only inputs are the exact word reduction in `Words.LSq` and the generic `DSq` lift/ext
+theorems. -/
+noncomputable def lCorePresentation (h : ℕ) :
+    CorePresentation (2 * h + 1) (lSqW h) (SqCore.DSq h) where
+  isProP := SqCore.isProP_DSq h
+  mark := dsqMarking h
+  mark_tau := rfl
+  rel := eval_pro2_lSqW_dsq h
+  liftHom := fun hQ t _ hrel => lLiftHom h hQ t hrel
+  liftHom_mark := fun hQ t hτ hrel g => by
+    cases g with
+    | sigma =>
+        change lLiftHom h hQ t hrel (SqCore.dsqSigma h) = t.σ
+        rw [SqCore.dsqSigma, lLiftHom_sqGen, sqIdxMark_zero]
+    | tau =>
+        change lLiftHom h hQ t hrel 1 = t.τ
+        rw [map_one, hτ]
+    | wild j =>
+        change lLiftHom h hQ t hrel
+            (SqCore.sqGen h ⟨(j : ℕ) + 1, by
+              have := j.isLt
+              simp only [SqCore.sqRank] at this ⊢
+              omega⟩) = t.x j
+        rw [lLiftHom_sqGen, sqIdxMark, if_neg (by simp)]
+        exact congrArg t.x (Fin.ext (by simp only; omega))
+  hom_ext := fun φ ψ hmark => SqCore.dsq_hom_ext φ ψ fun i => by
+    have hgen := congrFun (sqIdxMark_dsqMarking h) i
+    have hmaps : (dsqMarking h).map ⇑φ = (dsqMarking h).map ⇑ψ := by
+      ext g
+      exact hmark g
+    calc
+      φ (SqCore.sqGen h i) = φ (sqIdxMark (dsqMarking h) i) := congrArg φ hgen.symm
+      _ = sqIdxMark ((dsqMarking h).map ⇑φ) i := map_sqIdxMark φ _ _
+      _ = sqIdxMark ((dsqMarking h).map ⇑ψ) i := by rw [hmaps]
+      _ = ψ (sqIdxMark (dsqMarking h) i) := (map_sqIdxMark ψ _ _).symm
+      _ = ψ (SqCore.sqGen h i) := congrArg ψ hgen
+
+/-- The presentation marking sends `sigma` to the distinguished square-core generator. -/
+@[simp] theorem lCorePresentation_mark_sigma (h : ℕ) :
+    (lCorePresentation h).mark .sigma = SqCore.dsqSigma h := rfl
+
+/-- The presentation marking kills the tame letter. -/
+@[simp] theorem lCorePresentation_mark_tau (h : ℕ) :
+    (lCorePresentation h).mark .tau = 1 := rfl
+
+/-- The presentation marking sends `x_j` to square-core generator `j+1`, at every handle
+count. -/
+@[simp] theorem lCorePresentation_mark_wild (h : ℕ) (j : Fin (2 * h + 1 + 1)) :
+    (lCorePresentation h).mark (.wild j) =
+      SqCore.sqGen h ⟨(j : ℕ) + 1, by
+        have := j.isLt
+        simp only [SqCore.sqRank]
+        omega⟩ := rfl
+
+/-- Rank-one regression: the uniform core marking is exactly the already-checked `DSq(0)`
+marking transported to Roe's `DR`. -/
+theorem lCorePresentation_zero_mark_map_sqEquivDRMarked :
+    (lCorePresentation 0).mark.map ⇑SqCore.sqEquivDRMarked = drMarking :=
+  dsqMarking_map_sqEquivDRMarked
+
+/-! ## The canonical `Ztwo` normalization -/
+
+/-- The unramified `Ztwo` coordinate on `DSq h`: `sigma ↦ ztwoOne`, every wild and handle
+generator to `1`. -/
+noncomputable def lNu (h : ℕ) :
+    ContinuousMonoidHom (SqCore.DSq h : Type) Ztwo :=
+  SqCore.sqLiftHom h isProP_maxProPQuotient (SqCore.sqMark ztwoOne 1 1) (by
+    rw [SqCore.sqRelWord_sqMark]
+    show SqCore.sqWord ztwoOne 1 1 = 1
+    simp [SqCore.sqWord, GQ2.conjP, GQ2.commP])
+
+/-- The canonical `Ztwo` coordinate has the required sigma normalization. -/
+@[simp] theorem lNu_sigma (h : ℕ) :
+    lNu h ((lCorePresentation h).mark .sigma) = ztwoOne := by
+  rw [lCorePresentation_mark_sigma, SqCore.dsqSigma, lNu, SqCore.sqLiftHom_gen,
+    SqCore.sqMark_zero]
+
+/-- The canonical `Ztwo` coordinate kills every wild generator, uniformly including all
+stabilizing handle pairs. -/
+@[simp] theorem lNu_wild (h : ℕ) (j : Fin (2 * h + 1 + 1)) :
+    lNu h ((lCorePresentation h).mark (.wild j)) = 1 := by
+  rw [lCorePresentation_mark_wild, lNu, SqCore.sqLiftHom_gen]
+  simp only [SqCore.sqMark]
+  rw [if_neg (by omega)]
+  split_ifs <;> rfl
+
+end LSquareCore
+
+end LSquare
 
 namespace NuWitness
 

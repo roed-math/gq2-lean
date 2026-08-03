@@ -160,14 +160,13 @@ This record replaces seven formerly independent fields (`coreRel`, `proTwoWord`,
 `ker_pro2`, `hpro2`, `compat`, and the now-derived tame specialization) by one coherent
 presentation and two equations.
 
-The current direct branch coverage is deliberately not overstated.  `nCorePresentation` and
-`mCorePresentation` provide the compact N/M presentations at every handle count.  The landed
-procyclic dictionaries provide `npcCorePresentationOne` only at displayed unit one, and
-`mpcCorePresentation` only at displayed unit one and handle count zero; the arbitrary-unit
-Npc/Mpc words selected here still need the inverse-unit/profinite-powering dictionary.  The L
-core has all `DSq` universal-property ingredients, but they have not yet been packaged as a
-`Count.CorePresentation`.  These are constructor-supply gaps for this record, not additional
-certificate fields. -/
+The current direct branch coverage is deliberately not overstated.  `nCorePresentation`,
+`mCorePresentation`, and `LSquareCore.lCorePresentation` provide the compact N/M and L
+presentations at every handle count.  The landed procyclic dictionaries provide
+`npcCorePresentationOne` only at displayed unit one, and `mpcCorePresentation` only at displayed
+unit one and handle count zero; the arbitrary-unit Npc/Mpc words selected here still need the
+inverse-unit/profinite-powering dictionary.  These are constructor-supply gaps for this record,
+not additional certificate fields. -/
 structure SelectedCoreLeavesRN
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
@@ -183,6 +182,30 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
   {S : FieldBranchSelection K FP Q W} {q : ℕ} {P : ProfiniteGrp}
   {nuP : ContinuousMonoidHom P Ztwo}
+
+/-- **The L-row constructor.**  A field selection on the improved square-word row has a
+canonical structural core, with no certificate assumptions: `DSq` supplies the universal
+property and `LSquareCore.lNu` supplies both normalization equations at every handle count. -/
+noncomputable def ofL (S : FieldBranchSelection K FP Q W) (hbranch : S.branch = .L) :
+    SelectedCoreLeavesRN S (SqCore.DSq (handleCount FP .L))
+      (Instances.LSquareCore.lNu (handleCount FP .L)) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      exact
+        { presentation := Instances.LSquareCore.lCorePresentation (handleCount FP .L)
+          nu_sigma := Instances.LSquareCore.lNu_sigma (handleCount FP .L)
+          nu_wild := Instances.LSquareCore.lNu_wild (handleCount FP .L) }
+
+/-- Constructor-table regression: an L selection has a fully derived structural core, rather
+than a certificate-supplied presentation or normalization row. -/
+theorem exists_of_branch_L (S : FieldBranchSelection K FP Q W) (hbranch : S.branch = .L) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SelectedCoreLeavesRN S P nuP) :=
+  ⟨SqCore.DSq (handleCount FP .L), Instances.LSquareCore.lNu (handleCount FP .L),
+    ⟨ofL S hbranch⟩⟩
 
 /-- `WordCertificateRN.coreRel` and `proTwoWord` contain no mathematical residue: choosing the
 evaluated pro-`2` word makes the requested equality reflexive. -/
