@@ -23,11 +23,12 @@ existing word certificate APIs.  No Tate duality, local Euler characteristic, fi
 equivalence, or new axiom is used.
 
 For the improved L presentation, the final section packages the exact unramified and ramified
-comparison obligations and reconstructs `AffineDeterminantCertificate`.  The L Hessian formulas
-identify the endpoint and its polar form, but do not by themselves choose its Arf sign: the
-unramified `qDouble` theorem leaves `arf q + rank(1+U)`, and the ramified Hessian determines a
-nonsingular pairing but not the quadratic diagonal.  Consequently the two signed word Gauss
-values in the phase supplies below are genuine remaining inputs.
+comparison obligations and reconstructs `AffineDeterminantCertificate`.  The polar ramified
+Hessian alone does not choose an Arf sign, but `Certificates.L.hessRelZ_lSq` separately computes
+the actual quadratic diagonal as the Wall double `qDouble`, plus hyperbolic handles.  The finite
+ramified Arf/Gauss calculation for that explicit diagonal is closed in
+`GammaLRamifiedPhase`; the genuine remaining input is its pointwise identification with the
+descended continuous source form `QZeroBar`.
 -/
 
 namespace GQ2.Dyadic.LSquare
