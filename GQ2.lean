@@ -367,6 +367,7 @@ import GQ2.Dyadic.Instances.GammaLAnalyticLeaves
 import GQ2.Dyadic.Instances.GammaLDeterminantBridge
 import GQ2.Dyadic.Instances.GammaLUnramifiedPhase
 import GQ2.Dyadic.Instances.GammaLGraphHessian
+import GQ2.Dyadic.Instances.GammaLGraphNormalForm
 import GQ2.Dyadic.Instances.GammaLRamifiedPhase
 import GQ2.Dyadic.Instances.GammaLDirectRegression
 import GQ2.Dyadic.Instances.GammaLDualityBoundary
