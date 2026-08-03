@@ -20,8 +20,10 @@ The resulting constructor isolates two genuinely independent inputs which are no
 of map-level `H²` surjectivity alone:
 
 * one common Heisenberg resolver, needed by the mixed `(1,1)` square; and
-* agreement of the target-dependent scalar trace equivalence with the one common scalar
-  orientation used by a uniform Tate provider.
+* word-level Stokes duality.
+
+There is no separate scalar-orientation compatibility input: any two additive equivalences
+from `H²(GammaL, ZMod 2)` to `ZMod 2` are equal, so target-independence is automatic.
 
 No cup-product perfectness, Tate duality, Euler characteristic, or field realization is used.
 -/
@@ -34,6 +36,25 @@ open GQ2 GQ2.FoxH GQ2.SectionEight
 open ContCoh SectionSeven
 open GQ2.Dyadic GQ2.Dyadic.Count GQ2.Dyadic.LiftingDualityG
 open GQ2.Dyadic.Certificates.LSqStokes
+
+/-! ## Uniqueness of a scalar orientation -/
+
+/-- There is at most one additive equivalence from any additive group to `ZMod 2`.
+
+Both equivalences send zero to zero.  If the first sends `x` to one, then `x` is nonzero, so
+injectivity prevents the second from sending it to zero; `ZMod.eq_zero_or_eq_one` finishes. -/
+theorem addEquiv_zmodTwo_unique
+    {A : Type*} [AddCommGroup A] (e₁ e₂ : A ≃+ ZMod 2) : e₁ = e₂ := by
+  ext x
+  rcases ZMod.eq_zero_or_eq_one (e₁ x) with h₁ | h₁
+  · have hx : x = 0 := e₁.injective (by simpa using h₁)
+    subst x
+    simp
+  · rcases ZMod.eq_zero_or_eq_one (e₂ x) with h₂ | h₂
+    · have hx : x = 0 := e₂.injective (by simpa using h₂)
+      subst x
+      simp at h₁
+    · exact h₁.trans h₂.symm
 
 /-! ## The scalar flexible map from surjectivity alone -/
 
@@ -124,6 +145,24 @@ theorem lScalarTraceCompatible_of_surjective
     ScalarTraceCompatible WL genL rho hcompatScalar
       (lScalarH2TraceEquiv_of_surjective rho hcompatScalar hq he hr hsurj) :=
   fun f ↦ lScalarH2TraceEquiv_of_surjective_mk rho hcompatScalar hq he hr hsurj f
+
+/-- Scalar trace orientations built through any two finite action targets agree.  No comparison
+of chosen finite factorizations is needed: additive equivalences into `ZMod 2` are unique. -/
+theorem lScalarH2TraceEquiv_of_surjective_target_independent
+    {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+    [DistribMulAction D (ZMod 2)]
+    (rhoC : ContinuousMonoidHom GammaL C)
+    (rhoD : ContinuousMonoidHom GammaL D)
+    (hcompatC : ∀ (g : GammaL) (s : ZMod 2), g • s = rhoC g • s)
+    (hcompatD : ∀ (g : GammaL) (s : ZMod 2), g • s = rhoD g • s)
+    (hq : Even q) (he : Odd e)
+    (hrC : ∀ k, FreeGroup.lift (fun i ↦ rhoC (genL i)) (wL k) = 1)
+    (hrD : ∀ k, FreeGroup.lift (fun i ↦ rhoD (genL i)) (wL k) = 1)
+    (hsurjC : Function.Surjective (lScalarH2WordFlexible rhoC hcompatC he))
+    (hsurjD : Function.Surjective (lScalarH2WordFlexible rhoD hcompatD he)) :
+    lScalarH2TraceEquiv_of_surjective rhoC hcompatC hq he hrC hsurjC =
+      lScalarH2TraceEquiv_of_surjective rhoD hcompatD hq he hrD hsurjD :=
+  addEquiv_zmodTwo_unique _ _
 
 omit [DistribMulAction ((gamma h q : Type)) (MuN 2)]
   [ContinuousSMul ((gamma h q : Type)) (MuN 2)] in
@@ -278,9 +317,8 @@ local notation "wL" => lSqFam h q e
 machinery.
 
 The first four fields are finite presentation data: a common Heisenberg resolver and
-surjectivity of the three canonical continuous-to-word maps.  `scalar_orientation_eq` is the
-precise cross-target condition: the scalar trace orientation constructed using this target must
-equal the one common orientation used by the uniform provider.  Word Stokes duality remains an
+surjectivity of the three canonical continuous-to-word maps.  Scalar-orientation
+target-independence is automatic by `addEquiv_zmodTwo_unique`.  Word Stokes duality remains an
 independent algebraic input. -/
 structure LModuleTatePrecursor
     (rho : ContinuousMonoidHom GammaL C)
@@ -289,8 +327,7 @@ structure LModuleTatePrecursor
     (hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s)
     (htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s)
     (hA₂ : ∀ a : A, a + a = 0)
-    (hq : Even q) (he : Odd e)
-    (invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2) where
+    (hq : Even q) (he : Odd e) where
   /-- One resolver simultaneously supplies the primal, dual, and mixed comparison data. -/
   squares : LFlexibleEulerTateSquares (h := h) (q := q) (e := e) (C := C) (A := A)
   /-- Surjectivity of the canonical primal `H²` comparison. -/
@@ -303,10 +340,6 @@ structure LModuleTatePrecursor
   /-- Surjectivity of the canonical scalar `H²` comparison. -/
   h2Scalar_surjective : Function.Surjective
     (lScalarH2WordFlexible rho hcompatScalar he)
-  /-- Target-independence of the scalar trace orientation. -/
-  scalar_orientation_eq :
-    lScalarH2TraceEquiv_of_surjective rho hcompatScalar hq he
-        (lSource_rel_death rho squares.hres) h2Scalar_surjective = invZ
   /-- Independent word-complex duality; no continuous cup perfectness is assumed. -/
   stokes : StokesDuality (fun i ↦ rho (genL i)) wL A
 
@@ -319,9 +352,8 @@ noncomputable def LModuleTatePrecursor.core
     {htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s}
     {hA₂ : ∀ a : A, a + a = 0}
     {hq : Even q} {he : Odd e}
-    {invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2}
     (D : LModuleTatePrecursor rho hcompatA hcompatDual hcompatScalar
-      htriv hA₂ hq he invZ) :
+      htriv hA₂ hq he) :
     SourceComparisonCore (fun i ↦ rho (genL i)) wL
       (lSource_rel_death rho D.squares.hres) (lSq_isStokesEndpoint hq he)
       (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
@@ -335,8 +367,8 @@ noncomputable def LModuleTatePrecursor.core
       D.h2Dual_surjective D.h2Scalar_surjective
 
 /-- Finite-extension asphericity for the primal, dual, and scalar modules constructs the three
-surjectivity fields of `LModuleTatePrecursor`.  The displayed orientation equality and word
-Stokes duality are the exact remaining independent hypotheses. -/
+surjectivity fields of `LModuleTatePrecursor`.  Word Stokes duality is the remaining independent
+hypothesis. -/
 noncomputable def LModuleTatePrecursor.ofExtensionAsphericity
     (rho : ContinuousMonoidHom GammaL C)
     (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
@@ -345,19 +377,13 @@ noncomputable def LModuleTatePrecursor.ofExtensionAsphericity
     (htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s)
     (hA₂ : ∀ a : A, a + a = 0)
     (hq : Even q) (he : Odd e)
-    (invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2)
     (S : LFlexibleEulerTateSquares (h := h) (q := q) (e := e) (C := C) (A := A))
     (hasphA : LModuleFiniteExtensionAsphericity (A := A) rho)
     (hasphDual : LModuleFiniteExtensionAsphericity (A := ElemDual A) rho)
     (hasphScalar : LModuleFiniteExtensionAsphericity (A := ZMod 2) rho)
-    (horient :
-      lScalarH2TraceEquiv_of_surjective rho hcompatScalar hq he
-          (lSource_rel_death rho S.hres)
-          (lScalarH2WordFlexible_surjective_of_extensionAsphericity
-            rho hcompatScalar he hasphScalar) = invZ)
     (hstokes : StokesDuality (fun i ↦ rho (genL i)) wL A) :
     LModuleTatePrecursor rho hcompatA hcompatDual hcompatScalar
-      htriv hA₂ hq he invZ where
+      htriv hA₂ hq he where
   squares := S
   h2A_surjective :=
     lModuleH2WordFlexible_surjective_of_relatorRealization rho hcompatA hA₂ S.hres
@@ -369,12 +395,11 @@ noncomputable def LModuleTatePrecursor.ofExtensionAsphericity
   h2Scalar_surjective :=
     lScalarH2WordFlexible_surjective_of_extensionAsphericity
       rho hcompatScalar he hasphScalar
-  scalar_orientation_eq := horient
   stokes := hstokes
 
 /-- The coefficient-wise relation/asphericity input before conversion to map surjectivity.
-The only fields not finite-extension statements are the common resolver, scalar-orientation
-target-independence, and independent word Stokes duality. -/
+The only fields not finite-extension statements are the common resolver and independent word
+Stokes duality. -/
 structure LModuleTateAsphericityData
     (rho : ContinuousMonoidHom GammaL C)
     (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
@@ -382,8 +407,7 @@ structure LModuleTateAsphericityData
     (hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s)
     (htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s)
     (hA₂ : ∀ a : A, a + a = 0)
-    (hq : Even q) (he : Odd e)
-    (invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2) where
+    (hq : Even q) (he : Odd e) where
   /-- A common resolver for the primal, dual, and mixed square. -/
   squares : LFlexibleEulerTateSquares (h := h) (q := q) (e := e) (C := C) (A := A)
   /-- Finite-extension asphericity for the primal module. -/
@@ -392,12 +416,6 @@ structure LModuleTateAsphericityData
   asphericityDual : LModuleFiniteExtensionAsphericity (A := ElemDual A) rho
   /-- Finite-extension asphericity for the scalar coefficient. -/
   asphericityScalar : LModuleFiniteExtensionAsphericity (A := ZMod 2) rho
-  /-- Equality of this target's constructed trace orientation with the common orientation. -/
-  scalar_orientation_eq :
-    lScalarH2TraceEquiv_of_surjective rho hcompatScalar hq he
-        (lSource_rel_death rho squares.hres)
-        (lScalarH2WordFlexible_surjective_of_extensionAsphericity
-          rho hcompatScalar he asphericityScalar) = invZ
   /-- Independent word-level Stokes duality. -/
   stokes : StokesDuality (fun i ↦ rho (genL i)) wL A
 
@@ -410,14 +428,13 @@ noncomputable def LModuleTateAsphericityData.toPrecursor
     {htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s}
     {hA₂ : ∀ a : A, a + a = 0}
     {hq : Even q} {he : Odd e}
-    {invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2}
     (D : LModuleTateAsphericityData rho hcompatA hcompatDual hcompatScalar
-      htriv hA₂ hq he invZ) :
+      htriv hA₂ hq he) :
     LModuleTatePrecursor rho hcompatA hcompatDual hcompatScalar
-      htriv hA₂ hq he invZ :=
+      htriv hA₂ hq he :=
   LModuleTatePrecursor.ofExtensionAsphericity rho hcompatA hcompatDual
-    hcompatScalar htriv hA₂ hq he invZ D.squares D.asphericityA
-      D.asphericityDual D.asphericityScalar D.scalar_orientation_eq D.stokes
+    hcompatScalar htriv hA₂ hq he D.squares D.asphericityA
+      D.asphericityDual D.asphericityScalar D.stokes
 
 end Precursor
 
@@ -452,8 +469,7 @@ noncomputable abbrev LFiniteActionModuleTatePrecursor
     [DistribMulAction GammaL (ZMod 2)] [ContinuousSMul GammaL (ZMod 2)]
     [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
     (htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s)
-    (hM₂ : ∀ m : M, m + m = 0)
-    (invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2) : Prop := by
+    (hM₂ : ∀ m : M, m + m = 0) : Prop := by
   let C := Multiplicative (AddAut M)
   let rho : ContinuousMonoidHom GammaL C := finiteActionHom
   letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
@@ -463,7 +479,7 @@ noncomputable abbrev LFiniteActionModuleTatePrecursor
   let hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s :=
     fun g s ↦ (htriv g s).trans (smul_zmod2 (rho g) s).symm
   exact LModuleTatePrecursor rho hcompatM hcompatDual hcompatScalar
-    htriv hM₂ hq he invZ
+    htriv hM₂ hq he
 
 /-- The finite-extension/asphericity version of the canonical action-target module data. -/
 noncomputable abbrev LFiniteActionModuleTateAsphericityData
@@ -476,8 +492,7 @@ noncomputable abbrev LFiniteActionModuleTateAsphericityData
     [DistribMulAction GammaL (ZMod 2)] [ContinuousSMul GammaL (ZMod 2)]
     [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
     (htriv : ∀ (g : GammaL) (s : ZMod 2), g • s = s)
-    (hM₂ : ∀ m : M, m + m = 0)
-    (invZ : H2 GammaL (ZMod 2) ≃+ ZMod 2) : Prop := by
+    (hM₂ : ∀ m : M, m + m = 0) : Prop := by
   let C := Multiplicative (AddAut M)
   let rho : ContinuousMonoidHom GammaL C := finiteActionHom
   letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
@@ -487,13 +502,13 @@ noncomputable abbrev LFiniteActionModuleTateAsphericityData
   let hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s :=
     fun g s ↦ (htriv g s).trans (smul_zmod2 (rho g) s).symm
   exact LModuleTateAsphericityData rho hcompatM hcompatDual hcompatScalar
-    htriv hM₂ hq he invZ
+    htriv hM₂ hq he
 
 /-- A uniform all-module precursor for the direct L Tate provider.
 
 For every finite exponent-two source module, it supplies the three map-level surjectivity
-statements, a common Heisenberg resolver, independent word Stokes duality, and the explicit
-target-independence equality for the scalar orientation. -/
+statements, a common Heisenberg resolver, and independent word Stokes duality.  Scalar
+target-independence is automatic. -/
 structure LNoCupTateSurjectiveProviderCore (h q e : ℕ) (hq : Even q) (he : Odd e)
     [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
     [DistribMulAction ((gamma h q : Type)) (ZMod 2)]
@@ -512,7 +527,7 @@ structure LNoCupTateSurjectiveProviderCore (h q e : ℕ) (hq : Even q) (he : Odd
     [TopologicalSpace (ElemDual M)] [DiscreteTopology (ElemDual M)]
     [ContinuousSMul ((gamma h q : Type)) (ElemDual M)],
     (hM₂ : ∀ m : M, m + m = 0) →
-      LFiniteActionModuleTatePrecursor hq he M htriv hM₂ invZ
+      LFiniteActionModuleTatePrecursor hq he M htriv hM₂
 
 /-- The uniform finite-extension/asphericity precursor.  It makes the relation-theoretic input
 visible before conversion to canonical-map surjectivity. -/
@@ -526,7 +541,7 @@ structure LNoCupTateAsphericityProviderCore (h q e : ℕ) (hq : Even q) (he : Od
   invZ : H2 (gamma h q : Type) (ZMod 2) ≃+ ZMod 2
   /-- Triviality of the source scalar action. -/
   htriv : ∀ (g : (gamma h q : Type)) (s : ZMod 2), g • s = s
-  /-- Uniform finite-extension, resolver, orientation, and word-duality data. -/
+  /-- Uniform finite-extension, resolver, and word-duality data. -/
   moduleAsphericity : ∀ (M : Type) [AddCommGroup M]
     [TopologicalSpace M] [DiscreteTopology M]
     [DistribMulAction ((gamma h q : Type)) M]
@@ -534,7 +549,7 @@ structure LNoCupTateAsphericityProviderCore (h q e : ℕ) (hq : Even q) (he : Od
     [TopologicalSpace (ElemDual M)] [DiscreteTopology (ElemDual M)]
     [ContinuousSMul ((gamma h q : Type)) (ElemDual M)],
     (hM₂ : ∀ m : M, m + m = 0) →
-      LFiniteActionModuleTateAsphericityData hq he M htriv hM₂ invZ
+      LFiniteActionModuleTateAsphericityData hq he M htriv hM₂
 
 /-- The public uniform precursor fixes the source scalar topology and action canonically. -/
 noncomputable abbrev LNoCupTateSurjectiveProvider
@@ -587,11 +602,11 @@ noncomputable def LNoCupTateAsphericityProviderCore.toSurjectiveProviderCore
       fun g s ↦ (P.htriv g s).trans (smul_zmod2 (rho g) s).symm
     let D := P.moduleAsphericity M hM₂
     change LModuleTateAsphericityData rho hcompatM hcompatDual hcompatScalar
-      P.htriv hM₂ hq he P.invZ at D
+      P.htriv hM₂ hq he at D
     exact D.toPrecursor
 
-/-- The all-module surjectivity precursor produces the established no-cup provider.  The only
-cross-coefficient input used here is each module precursor's `scalar_orientation_eq` field. -/
+/-- The all-module surjectivity precursor produces the established no-cup provider.  The scalar
+orientation comparison with the provider's chosen `invZ` follows from uniqueness. -/
 noncomputable def lNoCupTateProviderCore_of_surjectiveProviderCore
     {h q e : ℕ} {hq : Even q} {he : Odd e}
     [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
@@ -617,7 +632,7 @@ noncomputable def lNoCupTateProviderCore_of_surjectiveProviderCore
       fun g s ↦ (P.htriv g s).trans (smul_zmod2 (rho g) s).symm
     let D := P.modulePrecursor M hM₂
     change LModuleTatePrecursor rho hcompatM hcompatDual hcompatScalar
-      P.htriv hM₂ hq he P.invZ at D
+      P.htriv hM₂ hq he at D
     let core := D.core
     exact
       { relator_death := lSource_rel_death rho D.squares.hres
@@ -627,12 +642,11 @@ noncomputable def lNoCupTateProviderCore_of_surjectiveProviderCore
         h1Dual := lSourceH1Equiv rho hcompatDual
           (fun lam : ElemDual M ↦ lam.add_self_eq_zero) D.squares.hresDual
         core := core
-        scalar_eq := D.scalar_orientation_eq
+        scalar_eq := addEquiv_zmodTwo_unique core.h2Scalar P.invZ
         stokes := D.stokes }
 
-/-- Public wrapper: all-module map surjectivity, one common scalar orientation, its explicit
-target-independence equality, and independent word Stokes duality produce
-`LNoCupTateProvider`. -/
+/-- Public wrapper: all-module map surjectivity, one common scalar orientation, and independent
+word Stokes duality produce `LNoCupTateProvider`.  Orientation compatibility is automatic. -/
 noncomputable def lNoCupTateProvider_of_surjectiveProvider
     {h q e : ℕ} {hq : Even q} {he : Odd e}
     [DistribMulAction ((gamma h q : Type)) (MuN 2)]
@@ -647,8 +661,8 @@ noncomputable def lNoCupTateProvider_of_surjectiveProvider
   change LNoCupTateSurjectiveProviderCore h q e hq he at P
   exact lNoCupTateProviderCore_of_surjectiveProviderCore P
 
-/-- Uniform finite-extension/asphericity data, together with its explicit common-orientation
-and word-Stokes fields, produces the established no-cup provider. -/
+/-- Uniform finite-extension/asphericity data, together with its common orientation and
+word-Stokes fields, produces the established no-cup provider. -/
 noncomputable def lNoCupTateProviderCore_of_extensionAsphericityProviderCore
     {h q e : ℕ} {hq : Even q} {he : Odd e}
     [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
