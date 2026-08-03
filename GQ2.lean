@@ -358,6 +358,7 @@ import GQ2.Dyadic.Instances.GammaLRelatorRealizationQTwo
 import GQ2.Dyadic.Instances.GammaLTateDirect
 import GQ2.Dyadic.Instances.GammaLTateProviderCore
 import GQ2.Dyadic.Instances.GammaLScalarH2Surjectivity
+import GQ2.Dyadic.Instances.GammaLSimpleDirectSurjectivity
 import GQ2.Dyadic.Instances.GammaLActionImage
 import GQ2.Dyadic.Instances.GammaLActionImageDevissage
 import GQ2.Dyadic.Instances.GammaLAnalyticLeaves
