@@ -8,6 +8,7 @@ import GQ2.Dyadic.Instances.N0Exact
 import GQ2.Dyadic.Instances.NpcExact
 import GQ2.Dyadic.Instances.M0Exact
 import GQ2.Dyadic.Instances.MpcExact
+import GQ2.Dyadic.Instances.NpcCore
 import GQ2.Dyadic.ThmFourTwoRN
 
 /-!
@@ -162,11 +163,12 @@ presentation and two equations.
 
 The current direct branch coverage is deliberately not overstated.  `nCorePresentation`,
 `mCorePresentation`, and `LSquareCore.lCorePresentation` provide the compact N/M and L
-presentations at every handle count.  The landed procyclic dictionaries provide
-`npcCorePresentationOne` only at displayed unit one, and `mpcCorePresentation` only at displayed
-unit one and handle count zero; the arbitrary-unit Npc/Mpc words selected here still need the
-inverse-unit/profinite-powering dictionary.  These are constructor-supply gaps for this record,
-not additional certificate fields. -/
+presentations at every handle count.  `npcCorePresentationUnit` now provides the arbitrary-unit
+procyclic-N presentation, but its alphabet normalization is not the compact-N normalization and
+there is not yet a canonical `Ztwo` orientation for that dictionary.  The arbitrary-unit Mpc
+lane still needs its inverse dictionary and `CorePresentation`; `ofMpcPresentation` below pins
+the exact interface that result will enter.  These are constructor/orientation-supply gaps for
+this record, not additional certificate fields. -/
 structure SelectedCoreLeavesRN
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
@@ -182,6 +184,173 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
   {S : FieldBranchSelection K FP Q W} {q : ℕ} {P : ProfiniteGrp}
   {nuP : ContinuousMonoidHom P Ztwo}
+
+/-! ### Canonical compact-N orientation in the boundary target -/
+
+/-- The canonical `nuN : DN → Multiplicative Z_2` read back through the boundary seam.
+This is the handle-generic form of `SqrtNeg2.pilotNuP`; it introduces no new orientation. -/
+noncomputable def nNuZtwo (alpha h : ℕ) :
+    ContinuousMonoidHom (MarkedCore.DN alpha h : Type) Ztwo :=
+  ⟨(ztwoIota.symm.toMulEquiv.toMonoidHom).comp (MarkedCore.nuN alpha h).toMonoidHom,
+    ztwoIota.symm.continuous_toFun.comp (MarkedCore.nuN alpha h).continuous_toFun⟩
+
+@[simp] theorem nNuZtwo_apply (alpha h : ℕ) (x : (MarkedCore.DN alpha h : Type)) :
+    nNuZtwo alpha h x = ztwoIota.symm (MarkedCore.nuN alpha h x) := rfl
+
+/-- Compact-N sigma normalization, uniformly in alpha and the handle count. -/
+theorem nNuZtwo_sigma (alpha h : ℕ) :
+    nNuZtwo alpha h ((Count.PilotN.nCorePresentation alpha h).mark .sigma) = ztwoOne := by
+  rw [Count.PilotN.nCorePresentation_mark_sigma, nNuZtwo_apply,
+    MarkedCore.nuN_dnSigma, ← ztwoIota_ztwoOne]
+  exact ztwoIota.symm_apply_apply ztwoOne
+
+/-- Compact-N wild normalization, uniformly including all handle letters. -/
+theorem nNuZtwo_wild (alpha h : ℕ) (j : Fin (2 + 2 * h + 1)) :
+    nNuZtwo alpha h ((Count.PilotN.nCorePresentation alpha h).mark (.wild j)) = 1 := by
+  rw [Count.PilotN.nCorePresentation_mark_wild, nNuZtwo_apply]
+  have hne := Instances.MCompactCore.nWildIdx_val_ne_two h j
+  rcases MarkedCore.nCoreIdx_cases (Count.PilotN.nWildIdx h j) with
+      h0 | h1 | h2 | h3 | ⟨k, hU⟩ | ⟨k, hV⟩
+  · rw [h0, show MarkedCore.dnGen alpha h 0 = MarkedCore.dnX0 alpha h from rfl,
+      MarkedCore.nuN_dnX0]
+    exact map_one ztwoIota.symm.toMulEquiv
+  · rw [h1, show MarkedCore.dnGen alpha h 1 = MarkedCore.dnX1 alpha h from rfl,
+      MarkedCore.nuN_dnX1]
+    exact map_one ztwoIota.symm.toMulEquiv
+  · exact (hne (by rw [h2, MarkedCore.coreVal_two])).elim
+  · rw [h3, show MarkedCore.dnGen alpha h 3 = MarkedCore.dnX2 alpha h from rfl,
+      MarkedCore.nuN_dnX2]
+    exact map_one ztwoIota.symm.toMulEquiv
+  · rw [hU, MarkedCore.nuN_handleU]
+    exact map_one ztwoIota.symm.toMulEquiv
+  · rw [hV, MarkedCore.nuN_handleV]
+    exact map_one ztwoIota.symm.toMulEquiv
+
+/-! ### Unconditional compact-row constructors -/
+
+/-- The selected compact-N row, with its presentation and both normalization rows derived. -/
+noncomputable def ofN0 (S : FieldBranchSelection K FP Q W) {alpha : ℕ}
+    (hbranch : S.branch = .N0 alpha) :
+    SelectedCoreLeavesRN S (MarkedCore.DN alpha (handleCount FP (.N0 alpha)))
+      (nNuZtwo alpha (handleCount FP (.N0 alpha))) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      exact
+        { presentation := Count.PilotN.nCorePresentation alpha (handleCount FP (.N0 alpha))
+          nu_sigma := nNuZtwo_sigma alpha (handleCount FP (.N0 alpha))
+          nu_wild := nNuZtwo_wild alpha (handleCount FP (.N0 alpha)) }
+
+/-- Branch validity supplies the sole side condition of the compact-M presentation. -/
+theorem one_le_alpha_of_M0 (S : FieldBranchSelection K FP Q W) {alpha : ℕ}
+    (hbranch : S.branch = .M0 alpha) : 1 ≤ alpha := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha at hvalid
+  omega
+
+/-- The selected compact-M row, with its presentation and both normalization rows derived. -/
+noncomputable def ofM0 (S : FieldBranchSelection K FP Q W) {alpha : ℕ}
+    (hbranch : S.branch = .M0 alpha) :
+    SelectedCoreLeavesRN S (MarkedCore.DM alpha (handleCount FP (.M0 alpha)))
+      (Instances.MCompactCore.mNu alpha (handleCount FP (.M0 alpha))
+        (one_le_alpha_of_M0 S hbranch)) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      have halpha : 1 ≤ alpha := le_trans (by omega) valid
+      exact
+        { presentation := Instances.MCompactCore.mCorePresentation alpha
+            (handleCount FP (.M0 alpha)) halpha
+          nu_sigma := Instances.MCompactCore.mNu_sigma alpha
+            (handleCount FP (.M0 alpha)) halpha
+          nu_wild := Instances.MCompactCore.mNu_wild alpha
+            (handleCount FP (.M0 alpha)) halpha }
+
+/-- Constructor-table regression: every selected compact-N row has fully derived structural
+core leaves. -/
+theorem exists_of_branch_N0 (S : FieldBranchSelection K FP Q W) {alpha : ℕ}
+    (hbranch : S.branch = .N0 alpha) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SelectedCoreLeavesRN S P nuP) :=
+  ⟨MarkedCore.DN alpha (handleCount FP (.N0 alpha)),
+    nNuZtwo alpha (handleCount FP (.N0 alpha)), ⟨ofN0 S hbranch⟩⟩
+
+/-- Constructor-table regression: every selected compact-M row has fully derived structural
+core leaves. -/
+theorem exists_of_branch_M0 (S : FieldBranchSelection K FP Q W) {alpha : ℕ}
+    (hbranch : S.branch = .M0 alpha) :
+    ∃ (P : ProfiniteGrp) (nuP : ContinuousMonoidHom P Ztwo),
+      Nonempty (SelectedCoreLeavesRN S P nuP) :=
+  ⟨MarkedCore.DM alpha (handleCount FP (.M0 alpha)),
+    Instances.MCompactCore.mNu alpha (handleCount FP (.M0 alpha))
+      (one_le_alpha_of_M0 S hbranch), ⟨ofM0 S hbranch⟩⟩
+
+/-! ### Procyclic-row interfaces -/
+
+/-- The landed arbitrary-unit Npc presentation specialized to the display stored by the field
+selection.  The semantic word remains `npcWUnit ... eta`; the display is used only to prove the
+presentation relation. -/
+noncomputable def npcPresentation (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta) :
+    Count.CorePresentation (2 + 2 * handleCount FP (.Npc alpha r eta))
+      (Words.Npc.npcWUnit alpha r (handleCount FP (.Npc alpha r eta)) eta)
+      (MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta))) :=
+  Instances.NProcyclicCore.npcCorePresentationUnit alpha r
+    (handleCount FP (.Npc alpha r eta)) eta
+      (Eq.mp (congrArg BranchData.DisplayFor hbranch) S.display)
+
+/-- The arbitrary-unit Npc constructor with its exact remaining orientation interface.
+Presentation supply is unconditional; only a `Ztwo` map normalized on this procyclic alphabet
+is explicit.  In particular, this does not silently reuse the incompatible compact-N rows. -/
+noncomputable def ofNpc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Npc alpha r eta)
+    (nuP : ContinuousMonoidHom
+      (MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta)) : Type) Ztwo)
+    (hnuSigma : nuP ((npcPresentation S hbranch).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * handleCount FP (.Npc alpha r eta) + 1),
+      nuP ((npcPresentation S hbranch).mark (.wild j)) = 1) :
+    SelectedCoreLeavesRN S (MarkedCore.DN alpha (handleCount FP (.Npc alpha r eta))) nuP := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      exact
+        { presentation := Instances.NProcyclicCore.npcCorePresentationUnit alpha r
+            (handleCount FP (.Npc alpha r eta)) eta display
+          nu_sigma := hnuSigma
+          nu_wild := hnuWild }
+
+/-- Preparation seam for the expected arbitrary-unit Mpc `CorePresentation`.  It pins the
+selected word with the literal arithmetic parameter `p epsilon r` and the literal selected
+unit `eta`; once `mpcCorePresentationUnit` lands, it is passed as `presentation` without any
+transport to the old unit-one, handle-zero row. -/
+noncomputable def ofMpcPresentation (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta)
+    (presentation : Count.CorePresentation
+      (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta))
+      (Words.Mpc.mpcWUnit alpha r (p epsilon r) eta
+        (handleCount FP (.Mpc alpha r epsilon eta)))
+      (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta))))
+    (nuP : ContinuousMonoidHom
+      (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta)) : Type) Ztwo)
+    (hnuSigma : nuP (presentation.mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta) + 1),
+      nuP (presentation.mark (.wild j)) = 1) :
+    SelectedCoreLeavesRN S (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta)))
+      nuP := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      exact { presentation := presentation, nu_sigma := hnuSigma, nu_wild := hnuWild }
 
 /-- **The L-row constructor.**  A field selection on the improved square-word row has a
 canonical structural core, with no certificate assumptions: `DSq` supplies the universal
