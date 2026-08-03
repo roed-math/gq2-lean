@@ -58,7 +58,9 @@ theorem lUniform_scalarH2WordFlexible_surjective_of_actionImage
   letI : DistribMulAction GammaL (MuN 2) :=
     { smul := fun _ m ↦ m
       one_smul := fun _ ↦ rfl
-      mul_smul := fun _ _ _ ↦ rfl }
+      mul_smul := fun _ _ _ ↦ rfl
+      smul_zero := fun _ ↦ rfl
+      smul_add := fun _ _ _ ↦ rfl }
   letI : ContinuousSMul GammaL (MuN 2) := ⟨continuous_snd⟩
   have he : Odd eC := odd_omega2Exp (fourMulExponent_ne_zero_and_even C).1
     (fourMulExponent_ne_zero_and_even C).2
