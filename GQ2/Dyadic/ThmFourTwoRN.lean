@@ -1,0 +1,451 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using OpenAI Codex
+-/
+import GQ2.Dyadic.ThmFourTwoN
+import GQ2.Dyadic.Recursion.ClosedRN
+
+/-!
+# The corrected two-sided degree-`n` exact-image theorem
+
+This is the additive companion to `ThmFourTwoN` whose `R`-stage uses the corrected
+degree-indexed coefficient `zRN RF SN`.  The terminal and `M` stages are unchanged.  The
+private strong-induction lanes are replayed over `SourceDataRN`, and the `R` stage consumes
+`prop_8_9_of_sourcesRN` and `count_eq_of_closedRecursionRN` directly.  No equality
+`zRN RF SN = RF.zR` is assumed.
+
+The public theorem `thm_4_2_of_sourcesRN` is the first corrected capstone boundary: two
+corrected sources over the same boundary slot and numerics have equal fixed-frame exact-image
+counts.  The file also records the exact degree-one regression to the frozen source records.
+-/
+
+namespace GQ2.Dyadic
+
+open GQ2 GQ2.SectionEight
+-- The model's open list (`GQ2/SourceData.lean:52`), minus `QuadraticFp2`: SD-R3's convention
+-- for the clone tree is never to open it in a file that mentions `sign`.
+open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+
+variable {n q : ℕ} {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+  {SN : SourceNumerics n}
+
+/-! ## The shared-`G0` Gauss obtain, two-sidedly
+
+Clone of `GQ2.gaussZ_obtain_blockD_of_sources` (`GQ2/SourceData.lean:387`) with the `G_ℚ₂` side
+replaced by a second record.  The exponent `m` (from the nonsingular form on `V`) and the head
+dichotomy (on `F.alpha (tqTau q)`) are **source-independent**, so they are decided once and each
+source then contributes exactly its own record leaf at the resulting shared
+`G0 = SN.gaussUnram m` resp. `SN.gaussRam m`. -/
+
+section GaussObtain
+
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+
+/-- **The shared-`G0` obtain over two abstract sources** at the `K`-boundary.  Two-sided clone of
+`GQ2.gaussZ_obtain_blockD_of_sources` (`GQ2/SourceData.lean:387`); `tameTau` becomes `tqTau q`
+and the `ℚ₂` twins `gaussZResidueD_local_*` are gone — both sides are record leaves. -/
+theorem gaussZ_obtain_blockDK_of_sourcesRN (T : MarkedTarget H E Y)
+    (Blk : SectionSeven.MinimalBlock T.LY)
+    [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+    (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+    (S₁ S₂ : SourceDataRN n q P hP nuP SN) (F : BoundaryFrameK q P H E)
+    (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+      (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+    (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+      (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v) :
+    ∃ G0 : ℤ,
+      (letI := S₁.smulZmod2
+        ∀ (l : (SectionNine.blockFrame T Blk hE2).DR)
+          (h : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR),
+          GaussZResidueK S₁.b F (blockEnrichmentDK T Blk hE2 hq0 hqe F) l h G0) ∧
+      (letI := S₂.smulZmod2
+        ∀ (l : (SectionNine.blockFrame T Blk hE2).DR)
+          (h : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR),
+          GaussZResidueK S₂.b F (blockEnrichmentDK T Blk hE2 hq0 hqe F) l h G0) := by
+  classical
+  letI := blockPS_commGroup Blk
+  letI := SectionNine.headAct T Blk
+  by_cases hex : ∃ l : (SectionNine.blockFrame T Blk hE2).DR,
+      l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR
+  · obtain ⟨l₀, hl₀⟩ := hex
+    have hl₀' : l₀.1 ≠ Blk.frattiniK := fun heq => hl₀ (Subtype.ext heq)
+    -- `m` from the nonsingular form on `V` (A-4.6b), `l`-free through `#V`
+    obtain ⟨m, hm, hcard⟩ := exists_one_le_card_eq_two_pow_of_nonsingular
+      (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l₀ hl₀')
+      (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l₀ hl₀')
+      (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l₀ hl₀')
+      (SectionNine.blockPS_exp2 T Blk) hVne
+    -- the source-uniform head dichotomy, at the general tame head element `tqTau q`
+    by_cases hd : ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau q) • v = v
+    · exact ⟨SN.gaussUnram m,
+        fun l h => S₁.determinant.1 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hd,
+        fun l h => S₂.determinant.1 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hd⟩
+    · push Not at hd
+      exact ⟨SN.gaussRam m,
+        fun l h => S₁.determinant.2 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hd,
+        fun l h => S₂.determinant.2 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l h hd⟩
+  · push Not at hex
+    exact ⟨0, fun l h => absurd (hex l) h, fun l h => absurd (hex l) h⟩
+
+end GaussObtain
+
+/-! ## The unchanged `M`-stage lane
+
+Clone of the `private` `GQ2.mStage_lane` (`GQ2/ThmFourTwo.lean:104-202`), two-sidedly.  The
+model's asymmetry — `S.tfg`/`S.liftsOver_card` on one side, `Foundations.absGalQ2_…`/
+`liftsOver_card_local` on the other — disappears: both sides read their record.  The
+multiplicity is `SN.mMult #M_B` in place of the model's `#M_B ^ 2`; `mStage_partitionK` is
+already multiplicity-generic (SD-R2), so nothing else moves. -/
+
+section Lanes
+
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+
+private theorem mStage_laneRN (S₁ S₂ : SourceDataRN n q P hP nuP SN) (F : BoundaryFrameK q P H E)
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (Blk : SectionSeven.MinimalBlock T.LY) (hR : Blk.frattiniK = ⊥) (N : ℕ)
+    (hcard : Nat.card ↥T.LY = N)
+    (IH : ∀ m, m < N → ∀ (Z : Type) [Group Z] [TopologicalSpace Z] [DiscreteTopology Z]
+      [Finite Z] (T' : MarkedTarget H E Z), Nat.card ↥T'.LY = m →
+      exactImageCountK S₁.b F T' = exactImageCountK S₂.b F T') :
+    exactImageCountK S₁.b F T = exactImageCountK S₂.b F T := by
+  classical
+  by_cases hhead : Function.Surjective
+      (fun x : ↥(boundarySubgroupQ q nuP) => (F.frameMap x).1)
+  · -- head covered: run the partition at both sources
+    have hhead₁ : Function.Surjective (fun γ : S₁.Γ => (F.frameMap (S₁.b γ)).1) :=
+      hhead.comp S₁.b_surjective
+    have hhead₂ : Function.Surjective (fun γ : S₂.Γ => (F.frameMap (S₂.b γ)).1) :=
+      hhead.comp S₂.b_surjective
+    -- the multiplicity `SN.mMult #M_B`, per source (each record's `liftsOver_card`)
+    have hmult₁ := S₁.liftsOver_card (blockFrameImpl T Blk hE2) S₁.b F
+    have hmult₂ := S₂.liftsOver_card (blockFrameImpl T Blk hE2) S₂.b F
+    -- the two partition identities (SD-R2's `mStage_partitionK`)
+    have hpart₁ := mStage_partitionK (blockFrameImpl T Blk hE2) S₁.tfg S₁.b F hhead₁
+      (SN.mMult (Nat.card ↥(blockFrameImpl T Blk hE2).MB)) hmult₁
+    have hpart₂ := mStage_partitionK (blockFrameImpl T Blk hE2) S₂.tfg S₂.b F hhead₂
+      (SN.mMult (Nat.card ↥(blockFrameImpl T Blk hE2).MB)) hmult₂
+    -- IH at the `C`-stage (`|L_C| < |L_Y| = N`, (145c))
+    have hTC : exactImageCountK S₁.b F (blockFrameImpl T Blk hE2).TC
+        = exactImageCountK S₂.b F (blockFrameImpl T Blk hE2).TC := by
+      refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TC rfl
+      exact hcard ▸ card_LC_lt T Blk hE2
+    -- IH at the proper `C`-onto strata (the `M`-stage bound, all-`R` valid)
+    have hstrata : ∀ J ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
+          J.map (blockFrameImpl T Blk hE2).piBC = ⊤} \ {⊤},
+        exactImageCountOnK S₁.b F (blockFrameImpl T Blk hE2).TB J
+          = exactImageCountOnK S₂.b F (blockFrameImpl T Blk hE2).TB J := by
+      rintro J ⟨hJC, hJne⟩
+      simp only [exactImageCountOnK]
+      by_cases hJ : Function.Surjective
+          ((blockFrameImpl T Blk hE2).TB.piY.comp J.subtype)
+      · rw [dif_pos hJ, dif_pos hJ]
+        refine IH _ ?_ _ ((blockFrameImpl T Blk hE2).TB.stratum J hJ) rfl
+        exact hcard ▸ card_stratum_mStage_lt T Blk hE2 J (by simpa using hJne) hJC hJ
+      · rw [dif_neg hJ, dif_neg hJ]
+    -- the `⊤`-stratum is the ambient count (`R = ⊥` ⟹ `π_B` iso)
+    have htop₁ : exactImageCountOnK S₁.b F (blockFrameImpl T Blk hE2).TB ⊤
+        = exactImageCountK S₁.b F T := by
+      rw [exactImageCountOnK_top,
+        exactImageCountK_TB_of_R_bot (blockFrameImpl T Blk hE2) S₁.b F hR]
+    have htop₂ : exactImageCountOnK S₂.b F (blockFrameImpl T Blk hE2).TB ⊤
+        = exactImageCountK S₂.b F T := by
+      rw [exactImageCountOnK_top,
+        exactImageCountK_TB_of_R_bot (blockFrameImpl T Blk hE2) S₂.b F hR]
+    -- split the `⊤` stratum off both partitions and cancel the (equal) proper parts
+    haveI : Finite (Subgroup (blockFrameImpl T Blk hE2).YB) :=
+      Finite.of_injective _ SetLike.coe_injective
+    have hS_top : (⊤ : Subgroup (blockFrameImpl T Blk hE2).YB)
+        ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
+            J.map (blockFrameImpl T Blk hE2).piBC = ⊤} :=
+      Subgroup.map_top_of_surjective _ (blockFrameImpl T Blk hE2).piBC_surj
+    have hsplit : ∀ g : Subgroup (blockFrameImpl T Blk hE2).YB → ℕ,
+        ∑ᶠ J ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
+            J.map (blockFrameImpl T Blk hE2).piBC = ⊤}, g J
+          = g ⊤ + ∑ᶠ J ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
+              J.map (blockFrameImpl T Blk hE2).piBC = ⊤} \ {⊤}, g J := by
+      intro g
+      rw [← finsum_mem_singleton
+        (a := (⊤ : Subgroup (blockFrameImpl T Blk hE2).YB)) (f := g)]
+      exact (finsum_mem_add_sdiff (Set.singleton_subset_iff.mpr hS_top)
+        (Set.toFinite _)).symm
+    have hSsum : ∑ᶠ J ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
+          J.map (blockFrameImpl T Blk hE2).piBC = ⊤},
+          exactImageCountOnK S₁.b F (blockFrameImpl T Blk hE2).TB J
+        = ∑ᶠ J ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
+            J.map (blockFrameImpl T Blk hE2).piBC = ⊤},
+            exactImageCountOnK S₂.b F (blockFrameImpl T Blk hE2).TB J := by
+      rw [← hpart₁, ← hpart₂, hTC]
+    rw [hsplit, hsplit, htop₁, htop₂, finsum_mem_congr rfl hstrata] at hSsum
+    exact Nat.add_right_cancel hSsum
+  · -- head not covered: both counts vanish
+    rw [exactImageCountK_eq_zero_of_not_headSurj S₁.b F T hhead,
+      exactImageCountK_eq_zero_of_not_headSurj S₂.b F T hhead]
+
+/-! ## The `R`-stage lane  (`R ≠ ⊥`) -/
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **`R`-stage IH at the pulled `B`-strata** ((148)), two-sidedly.  Clone of the `private`
+`GQ2.rStage_pull` (`GQ2/ThmFourTwo.lean:207-237`) — verbatim modulo the `K`-typed counts. -/
+private theorem rStage_pullRN (S₁ S₂ : SourceDataRN n q P hP nuP SN) (F : BoundaryFrameK q P H E)
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (Blk : SectionSeven.MinimalBlock T.LY) (hR : Blk.frattiniK ≠ ⊥) (N : ℕ)
+    (hcard : Nat.card ↥T.LY = N)
+    (IH : ∀ m, m < N → ∀ (Z : Type) [Group Z] [TopologicalSpace Z] [DiscreteTopology Z]
+      [Finite Z] (T' : MarkedTarget H E Z), Nat.card ↥T'.LY = m →
+      exactImageCountK S₁.b F T' = exactImageCountK S₂.b F T')
+    (l : (blockFrameImpl T Blk hE2).DR) (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR)
+    (J' : Subgroup ((blockFrameImpl T Blk hE2).scalarCover l h).cover)
+    (hJtop : J'.map ((blockFrameImpl T Blk hE2).scalarCover l h).p ≠ ⊤)
+    (hJC : (J'.map ((blockFrameImpl T Blk hE2).scalarCover l h).p).map
+        (blockFrameImpl T Blk hE2).piBC = ⊤) :
+    exactImageCountOnK S₁.b F
+        (((blockFrameImpl T Blk hE2).scalarCover l h).pullTarget
+          (blockFrameImpl T Blk hE2).TB) J'
+      = exactImageCountOnK S₂.b F
+          (((blockFrameImpl T Blk hE2).scalarCover l h).pullTarget
+            (blockFrameImpl T Blk hE2).TB) J' := by
+  simp only [exactImageCountOnK]
+  by_cases hJ' : Function.Surjective
+      ((((blockFrameImpl T Blk hE2).scalarCover l h).pullTarget
+        (blockFrameImpl T Blk hE2).TB).piY.comp J'.subtype)
+  · rw [dif_pos hJ', dif_pos hJ']
+    refine IH _ ?_ _
+      ((((blockFrameImpl T Blk hE2).scalarCover l h).pullTarget
+        (blockFrameImpl T Blk hE2).TB).stratum J' hJ') rfl
+    exact hcard ▸ card_stratum_LB_lt T Blk hE2 hR
+      ((blockFrameImpl T Blk hE2).scalarCover l h) J' hJ' hJtop
+      (sup_MB_eq_top_of_map_piBC T Blk hE2 hJC)
+  · rw [dif_neg hJ', dif_neg hJ']
+
+/-- **`R`-stage phase-cover counts agree** ((141)/(142)), two-sidedly.  The `lemma_8_3` half and
+the scalar cancellation are SD-R3's `nPhaseK_eq_of_strata` (which is where the model's `omega` on
+the literal `8` became a positivity-cancel at the opaque `cS`); this theorem supplies only its
+`hstr` — the induction hypothesis at the (153) bound, which SD-R3 deliberately left to SD3
+because deriving it *is* the induction step.  The positivity feed is `SN.homScalar_pos`. -/
+private theorem rStage_phaseRN (S₁ S₂ : SourceDataRN n q P hP nuP SN) (F : BoundaryFrameK q P H E)
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (Blk : SectionSeven.MinimalBlock T.LY) (N : ℕ) (hcard : Nat.card ↥T.LY = N)
+    (IH : ∀ m, m < N → ∀ (Z : Type) [Group Z] [TopologicalSpace Z] [DiscreteTopology Z]
+      [Finite Z] (T' : MarkedTarget H E Z), Nat.card ↥T'.LY = m →
+      exactImageCountK S₁.b F T' = exactImageCountK S₂.b F T')
+    (Cζ : CentralCover (blockFrameImpl T Blk hE2).YC) :
+    nPhaseK (blockFrameImpl T Blk hE2) S₁.b F Cζ
+      = nPhaseK (blockFrameImpl T Blk hE2) S₂.b F Cζ := by
+  refine nPhaseK_eq_of_strata (blockFrameImpl T Blk hE2) F S₁.b S₂.b S₁.tfg S₂.tfg
+    SN.homScalar SN.homScalar_pos S₁.homCard S₂.homCard Cζ ?_
+  intro J' _
+  simp only [exactImageCountOnK]
+  by_cases hJ' : Function.Surjective
+      ((Cζ.pullTarget (blockFrameImpl T Blk hE2).TC).piY.comp J'.subtype)
+  · rw [dif_pos hJ', dif_pos hJ']
+    refine IH _ ?_ _
+      ((Cζ.pullTarget (blockFrameImpl T Blk hE2).TC).stratum J' hJ') rfl
+    exact hcard ▸ card_stratum_LC_lt T Blk hE2 Cζ J' hJ'
+  · rw [dif_neg hJ', dif_neg hJ']
+
+/-- **The `R`-stage lane** (`R ≠ ⊥`), two-sidedly.  Clone of the `private` `GQ2.rStage_lane`
+(`GQ2/ThmFourTwo.lean:290-377`): the closed system from `prop_8_9_of_sourcesRN` at the
+head-inflated enrichment `blockEnrichmentDK`, solved by `count_eq_of_closedRecursionRN`
+against the IH at the (145)/(148)/(153) bounds.
+
+The model's `(R, horient)` reciprocity binders are gone — they were the `G_ℚ₂` side's ramified
+Gauss input, and that side is now a record (memo §3.1). -/
+private theorem rStage_laneRN (S₁ S₂ : SourceDataRN n q P hP nuP SN) (F : BoundaryFrameK q P H E)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (Blk : SectionSeven.MinimalBlock T.LY)
+    (_hstack : ¬ SectionSeven.IsScalarStack T.LY) (hR : Blk.frattiniK ≠ ⊥) (N : ℕ)
+    (hcard : Nat.card ↥T.LY = N)
+    (IH : ∀ m, m < N → ∀ (Z : Type) [Group Z] [TopologicalSpace Z] [DiscreteTopology Z]
+      [Finite Z] (T' : MarkedTarget H E Z), Nat.card ↥T'.LY = m →
+      exactImageCountK S₁.b F T' = exactImageCountK S₂.b F T') :
+    exactImageCountK S₁.b F T = exactImageCountK S₂.b F T := by
+  classical
+  by_cases hhead : Function.Surjective
+      (fun x : ↥(boundarySubgroupQ q nuP) => (F.frameMap x).1)
+  · -- head covered: obtain the closed system and feed the solver
+    have hhead₁ : Function.Surjective (fun γ : S₁.Γ => (F.frameMap (S₁.b γ)).1) :=
+      hhead.comp S₁.b_surjective
+    have hhead₂ : Function.Surjective (fun γ : S₂.Γ => (F.frameMap (S₂.b γ)).1) :=
+      hhead.comp S₂.b_surjective
+    -- block normality instances (the `blockEnrichmentDK` section hypotheses)
+    haveI : (Blk.S.subgroupOf Blk.P).Normal := Blk.hS.subgroupOf Blk.P
+    haveI : Blk.K.Normal := Blk.hK
+    haveI : Blk.frattiniK.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
+    -- Lemma 7.2's block facts, source-independent (SD-R1's `lemma_7_2_core`)
+    obtain ⟨hRK, hR2, -⟩ := lemma_7_2_core Blk
+    -- the chief-factor structure of the enrichment module
+    have hSimp := SectionNine.blockHsimple T Blk
+    have hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+        (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
+      hSimp.2
+    have hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0 := by
+      haveI : Nontrivial (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod := hSimp.1
+      exact exists_ne 0
+    have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
+        (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v :=
+      SectionNine.blockHnt T Blk
+    -- the Gauss-`Z` residues at the shared `G0`, each side contributing its record leaf
+    obtain ⟨G0, hGaussZ₁, hGaussZ₂⟩ := gaussZ_obtain_blockDK_of_sourcesRN T Blk hE2 hq0 hqe
+      S₁ S₂ F hsimple hVne hnt
+    -- the closed system (Prop. 8.9 over the two records)
+    obtain ⟨μ, G0', DT, instDT, phase, hDTpos, h₁, h₂⟩ :=
+      prop_8_9_of_sourcesRN S₁ S₂ T Blk hE2 (blockEnrichmentDK T Blk hE2 hq0 hqe F) F
+        hhead₁ hhead₂ hRK hR2 hsimple hVne hnt G0 hGaussZ₁ hGaussZ₂
+    letI := instDT
+    -- IH at the `B`-stage ((145b), needs `R ≠ ⊥`)
+    have hTB : exactImageCountK S₁.b F (blockFrameImpl T Blk hE2).TB
+        = exactImageCountK S₂.b F (blockFrameImpl T Blk hE2).TB := by
+      refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TB rfl
+      exact hcard ▸ card_LB_lt T Blk hE2 hR
+    -- IH at the `C`-stage ((145c))
+    have hTC : exactImageCountK S₁.b F (blockFrameImpl T Blk hE2).TC
+        = exactImageCountK S₂.b F (blockFrameImpl T Blk hE2).TC := by
+      refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TC rfl
+      exact hcard ▸ card_LC_lt T Blk hE2
+    -- IH at the pulled `B`-strata ((148)) and phase-cover agreement ((141)/(142)); then solve.
+    exact count_eq_of_closedRecursionRN (blockFrameImpl T Blk hE2) SN S₁.b S₂.b F μ G0' DT phase
+      SN.homScalar _ _ SN.homScalar_pos h₁ h₂ hDTpos.ne' hTB hTC
+      (fun l h J' hJtop hJC =>
+        rStage_pullRN S₁ S₂ F T hE2 Blk hR N hcard IH l h J' hJtop hJC)
+      (fun l h ζ => rStage_phaseRN S₁ S₂ F T hE2 Blk N hcard IH (phase l h ζ))
+  · -- head not covered: both counts vanish
+    rw [exactImageCountK_eq_zero_of_not_headSurj S₁.b F T hhead,
+      exactImageCountK_eq_zero_of_not_headSurj S₂.b F T hhead]
+
+end Lanes
+
+/-! ## The two-sided degree-`n` theorem (packet Thm 11.1, exact-image clause) -/
+
+/-- **Theorem 4.2 over two abstract degree-`n` sources** — the SD-n obligation at the generic
+level (packet Thm 11.1 `thm:source-abstract`, exact-image clause).  For any two sources over the
+same slot `(q, P, hP, νP)` with the same numerics `SN`, any `K`-boundary frame and any
+boundary-framed marked target, the exact-image lift counts agree.
+
+Same strong induction on `|L_Y|` as the frozen `GQ2.thm_4_2_of_sources`
+(`GQ2/ThmFourTwo.lean:386`), with all three lanes two-sided.  Everything that pinned the second
+source to `G_ℚ₂` (memo §3.1's removal list: `BoundaryMaps`, `(R, horient)`, the `AbsGalQ2`
+instance binders, `absGalQ2_isTopologicallyFinitelyGenerated`, `liftsOver_card_local`,
+`lemma_8_2_local`, `B.pro2F`/`ker_pro2F`, the `gaussZResidueD_local_*` twins and the whole
+`prop_8_9` `_local` discharge block) is gone; what remains are the three slot conditions
+`hq0`/`hqe`/`hnuP`, which are properties of the slot rather than of either source.
+
+**Axiom-wise this is the theorem's whole point**: its print is std-3 — no B-axiom whatsoever.
+The B-axioms of the `ℚ₂` capstone entered only through the `G_ℚ₂` side's `_local` leaves, so
+under the two-sided restatement they leave the spine entirely and re-enter only at an
+instantiation (at `n = 1` through `sourceF_N`, at general `K` through the ASK supply package). -/
+theorem thm_4_2_of_sourcesRN (S₁ S₂ : SourceDataRN n q P hP nuP SN)
+    (F : BoundaryFrameK q P H E) (hq0 : q ≠ 0) (hqe : Even q)
+    (hnuP : Function.Surjective nuP)
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    exactImageCountK S₁.b F T = exactImageCountK S₂.b F T := by
+  -- Strong induction on the marked-kernel size `N = |L_Y|` (§9, pp. 44–47), generalizing the
+  -- whole target `(Y, 𝒴)` exactly as in the model.
+  suffices h : ∀ (N : ℕ) (Y : Type) [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
+      [Finite Y] (T : MarkedTarget H E Y), Nat.card ↥T.LY = N →
+      exactImageCountK S₁.b F T = exactImageCountK S₂.b F T by
+    exact h (Nat.card ↥T.LY) Y T rfl
+  intro N
+  induction N using Nat.strong_induction_on with
+  | _ N IH =>
+    intro Y instGY instTY instDY instFY T hcard
+    by_cases hstack : SectionSeven.IsScalarStack T.LY
+    · -- **Terminal lane** (§9.1–9.2): the two exact-image problems are identified through the
+      -- common marked pro-2 quotient (SD-R2's `terminal_count_eqK`, via `ker_pro2`).
+      exact terminal_count_eqK hq0 hqe hP hnuP F S₁.b S₁.b_surjective S₁.pro2
+        S₁.pro2_surjective (fun _ => rfl) S₁.ker_pro2 S₂.b S₂.b_surjective S₂.pro2
+        S₂.pro2_surjective (fun _ => rfl) S₂.ker_pro2 T hE2 hstack
+    · -- Inductive case: a nonscalar chief factor exists; choose the §7 minimal block.
+      obtain ⟨Blk⟩ := SectionSeven.exists_minimalBlock T.normal T.isPGroup_two hstack
+      by_cases hR : Blk.frattiniK = ⊥
+      · -- **`M`-stage lane** (`R = ⊥`, §9.2)
+        exact mStage_laneRN S₁ S₂ F T hE2 Blk hR N hcard IH
+      · -- **`R`-stage lane** (`R ≠ ⊥`, §9.3)
+        exact rStage_laneRN S₁ S₂ F hq0 hqe T hE2 Blk hstack hR N hcard IH
+
+/-! ## Finite-quotient and reconstruction capstones -/
+
+/-- Two corrected sources have equal continuous-surjection counts onto every finite group.
+This is the corrected companion of `contSurj_card_eq_of_sourcesN`; the §10 frame summation is
+unchanged, while its fixed-frame input is `thm_4_2_of_sourcesRN`. -/
+theorem contSurj_card_eq_of_sourcesRN (S₁ S₂ : SourceDataRN n q P hP nuP SN)
+    (hq0 : q ≠ 0) (hqe : Even q) (hnuP : Function.Surjective nuP)
+    (htame₁ : Function.Surjective S₁.tame) (hwild₁ : IsProP 2 S₁.tame.toMonoidHom.ker)
+    (htame₂ : Function.Surjective S₂.tame) (hwild₂ : IsProP 2 S₂.tame.toMonoidHom.ker)
+    (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G] :
+    Nat.card (ContSurj S₁.Γ G) = Nat.card (ContSurj S₂.Γ G) := by
+  have hE2 : ∀ e : SectionTen.E₀, e ^ 2 = 1 := fun _ => Subsingleton.elim _ _
+  rw [card_contSurjK_eq S₁.b G htame₁ hwild₁ S₁.tfg,
+    card_contSurjK_eq S₂.b G htame₂ hwild₂ S₂.tfg]
+  exact finsum_congr fun α =>
+    thm_4_2_of_sourcesRN S₁ S₂ (tameFrameK α.1 α.2) hq0 hqe hnuP
+      (SectionTen.tameTarget G) hE2
+
+/-- Reconstruction from the corrected finite-quotient count theorem. -/
+theorem nonempty_continuousMulEquiv_of_sourcesRN
+    (S₁ S₂ : SourceDataRN n q P hP nuP SN)
+    (hq0 : q ≠ 0) (hqe : Even q) (hnuP : Function.Surjective nuP)
+    (htame₁ : Function.Surjective S₁.tame) (hwild₁ : IsProP 2 S₁.tame.toMonoidHom.ker)
+    (htame₂ : Function.Surjective S₂.tame) (hwild₂ : IsProP 2 S₂.tame.toMonoidHom.ker) :
+    Nonempty (ContinuousMulEquiv S₁.Γ S₂.Γ) :=
+  reconstruction S₁.tfg S₂.tfg fun G _ _ _ _ =>
+    contSurj_card_eq_of_sourcesRN S₁ S₂ hq0 hqe hnuP
+      htame₁ hwild₁ htame₂ hwild₂ G
+
+/-- Certificate-level corrected capstone: any two certified degree-`n` presentation words
+over the same boundary slot and numerics define isomorphic profinite groups. -/
+theorem nonempty_continuousMulEquiv_of_wordCertificatesRN
+    {R₁ R₂ : PWord (Generator n)}
+    (W₁ : WordCertificateRN n q R₁ P hP nuP SN)
+    (W₂ : WordCertificateRN n q R₂ P hP nuP SN)
+    (hq2 : 2 ≤ q) (hqe : Even q) (hnuP : Function.Surjective nuP) :
+    Nonempty (ContinuousMulEquiv (GammaR n q R₁) (GammaR n q R₂)) := by
+  let S₁ := W₁.toSourceRN hq2 hqe
+  let S₂ := W₂.toSourceRN hq2 hqe
+  exact nonempty_continuousMulEquiv_of_sourcesRN S₁ S₂ (by omega) hqe hnuP
+    W₁.htame W₁.hwild W₂.htame W₂.hwild
+
+/-! ## Exact degree-one regression -/
+
+/-- At degree one, corrected source records recover the frozen exact-image theorem without
+any transport or coefficient hypothesis. -/
+theorem thm_4_2_of_sourcesRN_standard_one
+    (S₁ S₂ : SourceDataN 1 q P hP nuP (standardNumerics 1))
+    (F : BoundaryFrameK q P H E) (hq0 : q ≠ 0) (hqe : Even q)
+    (hnuP : Function.Surjective nuP)
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    exactImageCountK S₁.b F T = exactImageCountK S₂.b F T :=
+  thm_4_2_of_sourcesRN (SourceDataRN.ofSourceDataNStandardOne S₁)
+    (SourceDataRN.ofSourceDataNStandardOne S₂) F hq0 hqe hnuP T hE2
+
+/-- The frozen `GQ2.thm_4_2` statement, re-derived through the corrected recursion at degree
+one.  All boundary and source conversions are definitional. -/
+theorem thm_4_2_via_RN (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    exactImageCount B.bA F T = exactImageCount B.bF F T :=
+  thm_4_2_of_sourcesRN_standard_one (sourceA_N B) (sourceF_N B R horient)
+    (boundaryFrameK F) two_ne_zero even_two SectionThree.nuTwo_surjective T hE2
+
+/-- Candidate-side degree-one regression through the corrected recursion. -/
+theorem thm_4_2_gammaR_via_RN [CompactSpace AbsGalQ2]
+    [TotallyDisconnectedSpace AbsGalQ2]
+    (hBLab : BLabHypothesis) (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    exactImageCount (GQ2.sourceR hBLab).b F T = exactImageCount B.bF F T :=
+  thm_4_2_of_sourcesRN_standard_one (sourceR_N hBLab) (sourceF_N B R horient)
+    (boundaryFrameK F) two_ne_zero even_two SectionThree.nuTwo_surjective T hE2
+
+end GQ2.Dyadic
