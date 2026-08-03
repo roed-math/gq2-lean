@@ -103,6 +103,34 @@ The first equivalence is the abstract identity `(G^ab)(p) ≃ (G(p))^ab`.  The l
 uses exactly the `MarkedRecip.continuous_recip` and `denseRange_recip` fields plus compactness;
 it makes no kernel claim.
 
+The first principal-unit torsion step is now formalized as well:
+
+```lean
+rootOfUnity_eq_one_of_norm_sub_one_lt_norm_two :
+  IsOfFinOrder x → ‖x - 1‖ < ‖(2 : AlgebraicClosure ℚ_[2])‖ → x = 1
+
+isMulTorsionFree_depthUnits_succ_e (FF : DyadicUnitFiltration K) :
+  IsMulTorsionFree ↥(depthUnits K FF.π (FF.e + 1))
+
+depthUnits_succ_e_pow_injective (FF : DyadicUnitFiltration K) (hn : n ≠ 0) :
+  Function.Injective (fun u : ↥(depthUnits K FF.π (FF.e + 1)) ↦ u ^ n)
+
+quotientMk_depthUnits_succ_e_injective_on_isOfFinOrder
+    (FF : DyadicUnitFiltration K) {u v : ↥(normUnits K)} :
+  IsOfFinOrder u → IsOfFinOrder v →
+  QuotientGroup.mk'
+      ((depthUnits K FF.π (FF.e + 1)).subgroupOf (normUnits K)) u =
+    QuotientGroup.mk'
+      ((depthUnits K FF.π (FF.e + 1)).subgroupOf (normUnits K)) v →
+  u = v
+```
+
+The depth comparison is explicit: membership gives `‖u - 1‖ ≤ ‖π‖^(e+1)`, while
+`‖π‖^(e+1) < ‖π‖^e = ‖2‖`.  Odd-order roots are excluded by Teichmüller odd-root
+separation; for even order, the half-order power is `-1` and the ultrametric power-difference
+bound forces `‖2‖ ≤ ‖u - 1‖`.  Hence actual torsion in `O_Kˣ` is detected modulo
+`U^(e+1)`.
+
 The inertia theorem above is the exact contrapositive of `MarkedRecip.ki_unramified`, lifted through
 `G_K → G_K^ab` and descended through `G_K → G_K(2)`.  It says that pro-2 inertia acts
 nontrivially on fourth roots of unity.  It does not assert that its witness has finite order.
@@ -119,9 +147,11 @@ denseRange_recip : DenseRange recip
 and the marked characters `chiCycKAb` and `nu_ur`.  Density is now used to prove the completed
 map `proTwoReciprocityToTopAb` is surjective, but it does not identify that map's kernel.
 `DyadicUnitFiltration` supplies a uniformizer and
-the cardinalities of successive unit-filtration quotients; it does not yet supply the power-map
-or logarithmic structure needed to split the completed principal units into a torsion part and a
-free `ℤ₂` part.
+the cardinalities of successive unit-filtration quotients.  Together with odd-root separation,
+that now suffices to prove torsion-freeness and positive-power injectivity of the **abstract**
+group `U^(e+1)`.  Mathlib has no `p`-adic logarithm or exponential API, and the filtration does
+not supply power-map surjectivity or additive coordinates.  Consequently the current API still
+cannot prove that the **pro-2 completion** of `U^(e+1)` is torsion-free or free over `ℤ₂`.
 
 The `K = ℚ₂` proof in `SectionThree.lean` cannot simply be reused.  It proves an explicit
 equivalence
@@ -144,6 +174,14 @@ ramified K(i)/K
       +--> no 2-power roots in K except +/-1               [proved]
       |
       +--> nontrivial mod-4 cyclotomic action on inertia    [proved]
+
+unit filtration + odd-root separation
+      |
+      +--> U^(e+1) is torsion-free                         [proved]
+      |
+      +--> actual unit torsion detected mod U^(e+1)        [proved]
+      v
+pro-2 completion(U^(e+1)) is torsion-free / Z₂-free       [missing]
 
 dense local reciprocity + completion/maximal-pro-2 universal properties
       |
@@ -215,9 +253,24 @@ bridges currently exists.
    reciprocity map.~~ Done, with surjectivity, in `GQ2.Dyadic.ProTwoReciprocity`.
 3. Prove the missing arithmetic kernel/injectivity theorem for completed reciprocity.  This may
    be packaged as the full local-CFT completion isomorphism or as a field-specific kernel result.
-4. Extend `DyadicUnitFiltration` with the eventual squaring/logarithm theorem for principal
-   units, then prove the torsion/free decomposition of completed `Kˣ`.
-5. Combine the torsion equivalence with
+4. ~~Prove that sufficiently deep principal units have no actual torsion and that positive power
+   maps there are injective.~~ Done at the sharp depth `e + 1` in
+   `GQ2.Dyadic.PrincipalUnitTorsion`.
+5. Supply the missing completed principal-unit theorem.  A sharply minimal useful signature is
+
+   ```lean
+   theorem isMulTorsionFree_proPCompletion_depthUnits_succ_e
+       (FF : DyadicUnitFiltration K) :
+     IsMulTorsionFree
+       (proPCompletion 2 ↥(depthUnits K FF.π (FF.e + 1)))
+   ```
+
+   A logarithm equivalence with a finite free `ℤ₂`-module, or an eventual power-map
+   bijectivity theorem strong enough to construct it, would prove this and also provide the
+   exactness needed to assemble the completed `Kˣ` decomposition.
+6. Prove the torsion/free decomposition of completed `Kˣ` and combine it with completed
+   reciprocity injectivity.
+7. Combine the torsion equivalence with
    `twoPowerRoot_eq_one_or_neg_one_of_ramifiedI` and close the `Nat.card` computation.
 
 This route is non-circular: it proves `q = 2` before invoking any `MLabHypothesis`,
