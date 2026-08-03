@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
-import GQ2.Dyadic.Count.HTwo
+import GQ2.Dyadic.Count.Lifts
 
 /-!
 # Degree-two comparison with nontrivial module coefficients: the exact frontier
@@ -30,6 +30,10 @@ constructed, identities among relators can give it a cokernel.
 * pullback and coefficient additivity of module cocycles;
 * `moduleNormalize`: the correct normalization for nontrivial coefficients,
   together with its normalization, cocycle, additivity, and cohomology lemmas;
+* the semidirect lift-shift law `moduleWord_eval_shift`, identifying the correction
+  with `heisD1` for arbitrary module coefficients;
+* `moduleRelFam_coboundary_mem_range`, the finite-level coboundary-to-`heisD1`
+  computation required by the descent half of the comparison;
 * `ModuleH2WordData`: the exact two obstruction properties needed to descend an
   additive obstruction to `H²` and prove injectivity;
 * `moduleH2Word` and `moduleH2Word_injective`: the coefficient-generic assembly,
@@ -37,19 +41,19 @@ constructed, identities among relators can give it a cokernel.
 
 ## What remains
 
-To instantiate `ModuleH2WordData` for the dyadic presentation one must equivariantize
-four scalar constructions from `Count.HTwo`:
+To instantiate `ModuleH2WordData` for the dyadic presentation, two global assembly
+steps remain after the finite factorization and shift calculations in this file:
 
-1. factor `moduleNormalize φ` through a finite level lying inside the kernel of the
-   lower action map `ρ : Γ → C`;
-2. evaluate the intrinsic `PWord` relators in `ModuleExt` and prove independence of
-   the chosen finite level;
-3. prove that changing the chosen lifts changes the relator vector by
-   `heisD1 c w` (the semidirect replacement for scalar `pWord_eval_shift`);
-4. use the admissible presentation to show that a vanishing word obstruction splits
-   `ModuleExt` (the semidirect replacement for `mem_B2_of_pObsFam_mem_range`).
+1. package the finite-level vectors `moduleRel` into a choice-independent additive map
+   `Z2 Γ A →+ (rel → A)`.  `moduleRel_comap` supplies refinement naturality and
+   `moduleRelFam_coboundary_mem_range` supplies the finite-level coboundary law; the
+   common-refinement/additivity bookkeeping is not yet assembled;
+2. use the admissible presentation to show that a word-coboundary obstruction splits
+   `ModuleExt` (the semidirect replacement for `mem_B2_of_pObsFam_mem_range`).  For an
+   elementary `2`-module this additionally needs the explicit wildness check for the
+   shifted semidirect marking.
 
-Items 2--4 are algebraic equivariance work.  Surjectivity onto `WordH²` is a separate,
+Surjectivity onto `WordH²` is a separate,
 stronger asphericity/identities-among-relators assertion and is deliberately absent.
 -/
 
@@ -115,6 +119,18 @@ instance : Add (ModuleTwoCocycle L A) where
 
 @[simp] theorem add_κ (z z' : ModuleTwoCocycle L A) (g h : L) :
     (z + z').κ g h = z.κ g h + z'.κ g h := rfl
+
+/-- The normalized module cocycle attached to a normalized `1`-cochain. -/
+def coboundary (lam : L → A) (hlam1 : lam 1 = 0) : ModuleTwoCocycle L A where
+  κ g h := g • lam h - lam (g * h) + lam g
+  norm := by simp [hlam1]
+  cocyc g h k := by
+    simp only [smul_add, smul_sub, mul_smul]
+    rw [mul_assoc g h k]
+    abel
+
+@[simp] theorem coboundary_κ (lam : L → A) (hlam1 : lam 1 = 0) (g h : L) :
+    (coboundary lam hlam1).κ g h = g • lam h - lam (g * h) + lam g := rfl
 
 /-- Push a cocycle through an equivariant additive homomorphism. -/
 def map (f : A →+ B) (hf : ∀ (g : L) (a : A), f (g • a) = g • f a)
@@ -224,6 +240,24 @@ def incl (z : ModuleTwoCocycle L A) (a : A) : ModuleExt z := ⟨a, 1⟩
 @[simp] theorem incl_g (a : A) : (incl z a).g = 1 := rfl
 @[simp] theorem incl_zero : incl z (0 : A) = 1 := rfl
 
+/-- Multiplication in the identity fibre is addition in the coefficient module. -/
+theorem incl_add (a b : A) : incl z (a + b) = incl z a * incl z b := by
+  apply ModuleExt.ext
+  · simp [z.κ_one_left]
+  · simp
+
+/-- Moving a fibre element past an extension element applies the base action. -/
+theorem mul_incl (p : ModuleExt z) (a : A) :
+    p * incl z a = incl z (p.g • a) * p := by
+  apply ModuleExt.ext
+  · simp [z.κ_one_left, z.κ_one_right, add_comm]
+  · simp
+
+/-- Conjugation on the fibre is exactly the action of the base coordinate. -/
+theorem conj_incl (p : ModuleExt z) (a : A) :
+    incl z (p.g • a) = p * incl z a * p⁻¹ := by
+  rw [mul_incl, mul_inv_cancel_right]
+
 theorem base_eq_one_iff (p : ModuleExt z) : p.g = 1 ↔ p = incl z p.u :=
   ⟨fun h => ModuleExt.ext rfl h, fun h => by rw [h]; rfl⟩
 
@@ -233,6 +267,36 @@ def lift (z : ModuleTwoCocycle L A) {X : Type*} (m : X → L) : X → ModuleExt 
 
 @[simp] theorem lift_u {X : Type*} (m : X → L) (x : X) : (lift z m x).u = 0 := rfl
 @[simp] theorem lift_g {X : Type*} (m : X → L) (x : X) : (lift z m x).g = m x := rfl
+
+/-- A normalized coboundary extension maps to the split semidirect product by adding the
+splitting cochain to the fibre coordinate. -/
+def coboundaryToSplit (lam : L → A) (hlam1 : lam 1 = 0) :
+    ModuleExt (ModuleTwoCocycle.coboundary lam hlam1) →* WordLift A L where
+  toFun p := ⟨p.u + lam p.g, p.g⟩
+  map_one' := by
+    apply WordLift.ext
+    · simp [hlam1]
+    · rfl
+  map_mul' p q := by
+    apply WordLift.ext
+    · simp only [mul_u, mul_g, ModuleTwoCocycle.coboundary_κ, WordLift.mul_u,
+        smul_add]
+      abel
+    · rfl
+
+@[simp] theorem coboundaryToSplit_u (lam : L → A) (hlam1 : lam 1 = 0)
+    (p : ModuleExt (ModuleTwoCocycle.coboundary lam hlam1)) :
+    (coboundaryToSplit lam hlam1 p).u = p.u + lam p.g := rfl
+
+@[simp] theorem coboundaryToSplit_g (lam : L → A) (hlam1 : lam 1 = 0)
+    (p : ModuleExt (ModuleTwoCocycle.coboundary lam hlam1)) :
+    (coboundaryToSplit lam hlam1 p).g = p.g := rfl
+
+@[simp] theorem coboundaryToSplit_lift {X : Type*} (lam : L → A) (hlam1 : lam 1 = 0)
+    (m : X → L) (x : X) :
+    coboundaryToSplit lam hlam1 (lift (ModuleTwoCocycle.coboundary lam hlam1) m x) =
+      foxLift m (fun i => lam (m i)) x := by
+  apply WordLift.ext <;> simp [coboundaryToSplit, lift, foxLift]
 
 /-- `ModuleExt` has the expected finite carrier. -/
 def equivProd (z : ModuleTwoCocycle L A) : ModuleExt z ≃ A × L where
@@ -305,6 +369,89 @@ theorem moduleWord_eval_lift_eq_incl (W : PWord X) (m : X → L)
   · rfl
   · rw [moduleRel_base, hrel]
     rfl
+
+/-- **The module-valued shift law.**  Changing the zero-fibre lift of each generator by
+`a x` changes every intrinsic relator value by exactly the word differential.  The
+`ResolvesAt` hypothesis is target-local: it resolves the reflected relator in the split
+word lift `A ⋊ L`, which is precisely the target in which `heisD1` is evaluated.
+
+No triviality of the action and no exponent-sum simplification is used.  The proof applies
+the generic correction law to the twisted extension `ModuleExt z`; conjugation in its fibre
+is the given `L`-action by `ModuleExt.conj_incl`. -/
+theorem moduleWord_eval_shift {rel : Type*} (W : rel → PWord X)
+    (w : rel → FreeGroup X) (m : X → L) (z : ModuleTwoCocycle L A)
+    (hres : ResolvesAt W w (WordLift A L)) (a : X → A) (k : rel) :
+    PWord.eval (fun x => ModuleExt.incl z (a x) * ModuleExt.lift z m x) (W k)
+      = ModuleExt.incl z (heisD1 (A := A) m w a k) *
+          PWord.eval (ModuleExt.lift z m) (W k) := by
+  letI actExt : DistribMulAction (ModuleExt z) A :=
+    DistribMulAction.compHom A (ModuleExt.baseProj z)
+  apply eval_corrected_heisD1
+    (pi := ModuleExt.baseProj z) (j := ModuleExt.incl z)
+    (hact := fun _ _ => rfl)
+    (hjmul := ModuleExt.incl_add)
+    (hjconj := fun p b => ModuleExt.conj_incl p b)
+    (hf₀ := fun _ => rfl) hres a k
+
+/-- Fibre-coordinate form of `moduleWord_eval_shift`: the shifted relator fibre is
+`heisD1` plus the zero-fibre relator obstruction. -/
+theorem moduleRel_shift {rel : Type*} (W : rel → PWord X)
+    (w : rel → FreeGroup X) (m : X → L) (z : ModuleTwoCocycle L A)
+    (hres : ResolvesAt W w (WordLift A L)) (a : X → A) (k : rel) :
+    (PWord.eval (fun x => ModuleExt.incl z (a x) * ModuleExt.lift z m x) (W k)).u
+      = heisD1 (A := A) m w a k + moduleRel (W k) m z := by
+  have h := congrArg ModuleExt.u (moduleWord_eval_shift W w m z hres a k)
+  simpa [moduleRel, z.κ_one_left] using h
+
+/-- A zero-fibre relator in a normalized coboundary extension is the word differential,
+up to the value of the splitting cochain on the downstairs relator.  This is the strongest
+form of the coboundary computation: it does not yet assume that the relator dies downstairs. -/
+theorem moduleRel_coboundary_add_base {rel : Type*} (W : rel → PWord X)
+    (w : rel → FreeGroup X) (m : X → L) (lam : L → A) (hlam1 : lam 1 = 0)
+    (hres : ResolvesAt W w (WordLift A L)) (k : rel) :
+    moduleRel (W k) m (ModuleTwoCocycle.coboundary lam hlam1) +
+        lam (PWord.eval m (W k))
+      = heisD1 (A := A) m w (fun x => lam (m x)) k := by
+  let z := ModuleTwoCocycle.coboundary lam hlam1
+  let F : ContinuousMonoidHom (ModuleExt z) (WordLift A L) :=
+    ⟨ModuleExt.coboundaryToSplit lam hlam1, continuous_of_discreteTopology⟩
+  have hmap := PWord.map_eval F (ModuleExt.lift z m) (W k)
+  have hgen : (fun x => F (ModuleExt.lift z m x)) =
+      foxLift m (fun x => lam (m x)) := by
+    funext x
+    exact ModuleExt.coboundaryToSplit_lift lam hlam1 m x
+  rw [hgen] at hmap
+  have hu := congrArg WordLift.u hmap
+  have hbase := moduleRel_base (W k) m z
+  have hfibre : moduleRel (W k) m z + lam (PWord.eval m (W k)) =
+      (PWord.eval (foxLift m (fun x => lam (m x))) (W k)).u := by
+    change (PWord.eval (ModuleExt.lift z m) (W k)).u +
+        lam (PWord.eval m (W k)) = _
+    rw [← hbase]
+    exact hu
+  rw [hfibre, heisD1_eq_lift_foxLift_u, hres (foxLift m (fun x => lam (m x))) k]
+
+/-- When the relator holds downstairs, the relator fibre of a normalized coboundary
+extension is exactly `heisD1` of the generator values of its splitting cochain. -/
+theorem moduleRel_coboundary_eq_heisD1 {rel : Type*} (W : rel → PWord X)
+    (w : rel → FreeGroup X) (m : X → L) (lam : L → A) (hlam1 : lam 1 = 0)
+    (hres : ResolvesAt W w (WordLift A L)) (hrel : ∀ k, PWord.eval m (W k) = 1)
+    (k : rel) :
+    moduleRel (W k) m (ModuleTwoCocycle.coboundary lam hlam1) =
+      heisD1 (A := A) m w (fun x => lam (m x)) k := by
+  have h := moduleRel_coboundary_add_base W w m lam hlam1 hres k
+  simpa [hrel k, hlam1] using h
+
+/-- Finite-level `map_coboundary`: the full relator-fibre vector of a coboundary
+extension lies in the image of the word differential. -/
+theorem moduleRelFam_coboundary_mem_range {rel : Type*} (W : rel → PWord X)
+    (w : rel → FreeGroup X) (m : X → L) (lam : L → A) (hlam1 : lam 1 = 0)
+    (hres : ResolvesAt W w (WordLift A L)) (hrel : ∀ k, PWord.eval m (W k) = 1) :
+    (fun k => moduleRel (W k) m (ModuleTwoCocycle.coboundary lam hlam1)) ∈
+      (heisD1 (A := A) m w).range := by
+  refine ⟨fun x => lam (m x), ?_⟩
+  funext k
+  exact (moduleRel_coboundary_eq_heisD1 W w m lam hlam1 hres hrel k).symm
 
 section Pullback
 
