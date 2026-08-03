@@ -260,6 +260,105 @@ noncomputable abbrev UniformSimpleSourceProvider
       (odd_omega2Exp (fourMulExponent_ne_zero_and_even C).1
         (fourMulExponent_ne_zero_and_even C).2))
 
+/-! ## Constructing the provider from the exact simple `H²` defects -/
+
+/-- The two source-to-word `H²` cardinal equalities at the uniform word for one coefficient.
+
+All topologies and source actions are installed canonically: `V` is discrete, its `GammaL`
+action is pulled back through `rho`, and `ElemDual V` has the resulting contragredient action.
+The primal and dual equalities are kept separate because no theorem identifying simplicity of
+`V` with simplicity of `ElemDual V` is needed by this interface. -/
+noncomputable abbrev UniformSimpleH2CardAt
+    (rho : ContinuousMonoidHom GammaL C)
+    (V : Type) [AddCommGroup V] [DistribMulAction C V] [Finite V] : Prop := by
+  letI : TopologicalSpace V := ⊥
+  letI : DiscreteTopology V := ⟨rfl⟩
+  letI : DistribMulAction GammaL V :=
+    DistribMulAction.compHom V rho.toMonoidHom
+  letI : ContinuousSMul GammaL V :=
+    continuousSMul_comp_finite_simple rho (fun _ _ => rfl)
+  letI : TopologicalSpace (ElemDual V) := ⊥
+  letI : DiscreteTopology (ElemDual V) := ⟨rfl⟩
+  letI : ContinuousSMul GammaL (ElemDual V) :=
+    continuousSMul_comp_finite_simple rho (fun g lam => by
+      apply ElemDual.ext
+      intro v
+      rw [ElemDual.smul_apply, ElemDual.smul_apply]
+      change lam (rho (g⁻¹) • v) = lam ((rho g)⁻¹ • v)
+      rw [map_inv])
+  exact
+    Nat.card (H2 GammaL V) =
+        Nat.card (WordH2 (fun g => rho (genL g)) wC V) ∧
+      Nat.card (H2 GammaL (ElemDual V)) =
+        Nat.card (WordH2 (fun g => rho (genL g)) wC (ElemDual V))
+
+/-- The exact uniform cardinality residue, quantified only over simple elementary
+`F₂[C]`-modules and always at the same word `wC`.
+
+The exponent is outside the module binder.  Thus these hypotheses compose with
+`stokesDuality_of_simple`; a module-dependent word would not. -/
+noncomputable abbrev UniformSimpleH2CardProvider
+    (rho : ContinuousMonoidHom GammaL C) : Prop :=
+  ∀ (V : Type) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+    (∀ v : V, v + v = 0) → IsSimpleModTwo C V → UniformSimpleH2CardAt rho V
+
+/-- Full Tate duality plus the two simple-module `H²` cardinal equalities constructs the
+uniform simple source provider.
+
+The common Heisenberg resolver, its primal and dual restrictions, the endpoint, scalar trace,
+all three cup bijectivities, and all three comparison squares are constructed internally.
+There is no `LocalEulerChar`, resolver, endpoint, relator-death, pairing, or square hypothesis.
+This direction is noncircular: the cardinal provider is an explicit source-to-word input and
+does not use the Stokes duality produced below. -/
+noncomputable def uniformSimpleSourceProvider_of_h2Card_tateDuality
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (rho : ContinuousMonoidHom GammaL C) (hq : Even q)
+    (D : TateDualityG GammaL 2) (hcard : UniformSimpleH2CardProvider rho) :
+    UniformSimpleSourceProvider rho hq := by
+  intro V _ _ _ hV₂ hsimp
+  letI : TopologicalSpace V := ⊥
+  letI : DiscreteTopology V := ⟨rfl⟩
+  letI : DistribMulAction GammaL V :=
+    DistribMulAction.compHom V rho.toMonoidHom
+  letI : ContinuousSMul GammaL V :=
+    continuousSMul_comp_finite_simple rho (fun _ _ => rfl)
+  letI : TopologicalSpace (ElemDual V) := ⊥
+  letI : DiscreteTopology (ElemDual V) := ⟨rfl⟩
+  letI : ContinuousSMul GammaL (ElemDual V) :=
+    continuousSMul_comp_finite_simple rho (fun g lam => by
+      apply ElemDual.ext
+      intro v
+      rw [ElemDual.smul_apply, ElemDual.smul_apply]
+      change lam (rho (g⁻¹) • v) = lam ((rho g)⁻¹ • v)
+      rw [map_inv])
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction GammaL (ZMod 2) := scalarActionZmodTwo _
+  letI : ContinuousSMul GammaL (ZMod 2) := scalarActionZmodTwo_continuousSMul _
+  letI : TopologicalSpace (HeisLift V C) := ⊥
+  letI : DiscreteTopology (HeisLift V C) := ⟨rfl⟩
+  have hcompatV : ∀ (g : GammaL) (v : V), g • v = rho g • v := fun _ _ => rfl
+  have hcompatDual : ∀ (g : GammaL) (lam : ElemDual V), g • lam = rho g • lam := by
+    intro g lam
+    apply ElemDual.ext
+    intro v
+    rw [ElemDual.smul_apply, ElemDual.smul_apply]
+    change lam (rho (g⁻¹) • v) = lam ((rho g)⁻¹ • v)
+    rw [map_inv]
+  have he : Odd eC := odd_omega2Exp (fourMulExponent_ne_zero_and_even C).1
+    (fourMulExponent_ne_zero_and_even C).2
+  let S : LFlexibleEulerTateSquares (h := h) (q := q) (e := eC) (C := C) (A := V) :=
+    ⟨resolvesAt_lSqFam_uniformHeis hV₂ h q⟩
+  obtain ⟨hcardV, hcardDual⟩ := hcard V hV₂ hsimp
+  exact
+    { h0A := lSourceH0Equiv rho hcompatV
+      h1A := lSourceH1Equiv rho hcompatV hV₂ S.hres
+      h0Dual := lSourceH0Equiv rho hcompatDual
+      h1Dual := lSourceH1Equiv rho hcompatDual
+        (fun lam : ElemDual V => lam.add_self_eq_zero) S.hresDual
+      package := sourceComparisonPackage_of_lFlexibleH2_card_tateDuality
+        rho hcompatV hcompatDual hV₂ hcardV hcardDual D Count.smul_zmod2 hq he S }
+
 /-- Uniform regression: simple coefficient-local source data at the single word `wC` gives
 Stokes duality for every finite elementary `C`-module. -/
 theorem stokesDuality_lUniform_of_simpleSourceProvider
@@ -273,6 +372,18 @@ theorem stokesDuality_lUniform_of_simpleSourceProvider
       (odd_omega2Exp (fourMulExponent_ne_zero_and_even C).1
         (fourMulExponent_ne_zero_and_even C).2))
     provider A hA₂
+
+/-- End-to-end no-Euler regression: full Tate duality and only the two uniform simple `H²`
+cardinality defects imply Stokes duality for every finite elementary `C`-module. -/
+theorem stokesDuality_lUniform_of_h2Card_tateDuality
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (rho : ContinuousMonoidHom GammaL C) (hq : Even q)
+    (D : TateDualityG GammaL 2) (hcard : UniformSimpleH2CardProvider rho)
+    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) :
+    StokesDuality (fun g => rho (genL g)) wC A :=
+  stokesDuality_lUniform_of_simpleSourceProvider rho hq
+    (uniformSimpleSourceProvider_of_h2Card_tateDuality rho hq D hcard) A hA₂
 
 end UniformProvider
 
