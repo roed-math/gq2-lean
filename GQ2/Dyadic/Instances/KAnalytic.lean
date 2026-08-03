@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Count.LocalDuality
 import GQ2.Dyadic.Instances.KSupply
+import GQ2.Dyadic.GaussZ.FinalDK
 
 /-!
 # The Stokes-duality certificate from local duality
@@ -97,5 +98,109 @@ theorem stokesDualityCertificate_galK
   exact key
 
 end GalK
+
+/-! ## The residual arithmetic supply
+
+`KSupply` predates the generic local-duality and determinant bridges, so it stores their
+conclusions as two opaque fields.  The record below is the smaller constructor interface after
+those bridges have landed.  Its only analytic field is `exactLifting`: the Stokes and determinant
+packages are reconstructed in `toKSupply` from local duality and the standard packet inputs.
+
+| old `KSupply` payload | `KExactSupply` status | supplier |
+|---|---|---|
+| pro-`2` quotient and orientation | stored | marked-core branch |
+| `ExactLiftingSemantics` | stored | word/presentation branch |
+| `StokesDualityCertificate` | derived | `stokesDualityCertificate_galK` |
+| `AffineDeterminantCertificate` | derived | `affineDeterminant_galK` |
+
+The restriction to `standardNumerics n` is intentional: it eliminates all numerical pin
+hypotheses, and it is the slot used by every arbitrary-`K` presentation row.
+-/
+
+section ResidualSupply
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  {R : LocalReciprocity} {B : MarkedRecip R K} {FF : DyadicUnitFiltration K}
+
+/-- The genuine residual data needed to construct the arithmetic source at `G_K`.
+
+The four pro-`2` fields are branch arithmetic.  `exactLifting` remains word-specific: its lift
+count needs an admissible presentation and resolver, its half-torsor clause needs a nonzero
+variation class, and its stage clause needs the corresponding variation/separation inputs.
+Neither local duality nor the Gauss bridge manufactures those data. -/
+structure KExactSupply (T : OrientedTameQuotientK B FF) (n : ℕ) (P : ProfiniteGrp)
+    (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] where
+  /-- The degree of the shared standard-numerics slot. -/
+  hdeg : Module.finrank ℚ_[2] K = n
+  /-- The standard core coordinate. -/
+  pro2 : ContinuousMonoidHom (GalK K) P
+  /-- Surjectivity of the standard core coordinate. -/
+  hpro2 : Function.Surjective pro2
+  /-- The coordinate is the maximal pro-`2` quotient. -/
+  ker_pro2 : pro2.toMonoidHom.ker = proPKernel 2 (GalK K)
+  /-- Compatibility with the oriented unramified coordinate. -/
+  nu_compat : ∀ g : GalK K, ztwoIota (nuP (pro2 g)) = B.nu_ur (toAbK K g)
+  /-- The only remaining analytic residue. -/
+  exactLifting : ExactLiftingSemantics (galKProfinite K) n (qOf K FF) P nuP
+    (standardNumerics n)
+
+namespace KExactSupply
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {T : OrientedTameQuotientK B FF} {n : ℕ} {P : ProfiniteGrp} {hP : IsProP 2 P}
+  {nuP : ContinuousMonoidHom P Ztwo}
+
+/-- Upgrade the genuine residual data to the legacy `KSupply` interface.
+
+No Stokes or determinant conclusion is assumed: local duality constructs the former, while the
+field packet's existing `ramifiedData` input and the signed Gauss bridge construct the latter.
+-/
+noncomputable def toKSupply (S : KExactSupply T n P hP nuP) (params : FieldParameters)
+    (params_n : params.n = n) (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    KSupply T n P hP nuP (standardNumerics n) where
+  hdeg := S.hdeg
+  hhom := rfl
+  pro2 := S.pro2
+  hpro2 := S.hpro2
+  ker_pro2 := S.ker_pro2
+  nu_compat := S.nu_compat
+  exactLifting := S.exactLifting
+  stokes := stokesDualityCertificate_galK K S.hdeg
+  determinant := affineDeterminant_galK K params params_n params_qK S.hdeg
+    (gaussUnram_standard n) (gaussRam_standard n) T.tameFK T.tameFK_surjective S.pro2
+    (fun g => T.compatF_K S.pro2 nuP S.nu_compat g) ramifiedData
+
+/-- Regression theorem: a word certificate and the residual arithmetic supply suffice for the
+presentation theorem.  In particular, there are no arithmetic-side Stokes or determinant
+binders in this statement. -/
+theorem candidate_equiv_galK_of_exactSupply {Rw : PWord (Generator n)}
+    (W : WordCertificate n (qOf K FF) Rw P hP nuP (standardNumerics n))
+    (S : KExactSupply T n P hP nuP) (params : FieldParameters)
+    (params_n : params.n = n) (params_qK : params.qK = qOf K FF)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (V : Type) [AddCommGroup V] [DistribMulAction Dg V]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : V, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V cc rho))
+    (hnuP : Function.Surjective nuP) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup n (qOf K FF) Rw : Type)) (GalK K)) :=
+  candidate_equiv_galK_of_supply W
+    (S.toKSupply params params_n params_qK ramifiedData)
+    params params_n params_qK ramified ramifiedData hnuP
+
+end KExactSupply
+
+end ResidualSupply
 
 end GQ2.Dyadic
