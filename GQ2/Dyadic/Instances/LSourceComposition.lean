@@ -288,7 +288,7 @@ theorem LFlexibleEulerTateSquares.square20_commutes
       (lScalarH2TraceEquiv rho hcompatScalar hq he (lSource_rel_death rho S.hres) D htriv)
       (lScalarTraceCompatible rho hcompatScalar hq he (lSource_rel_death rho S.hres) D htriv)
 
-/--
+/-
 The exact no-Euler source constructor for the improved L presentation.
 
 Compared with `sourceComparisonPackage_of_lFlexibleH2_euler_tateDuality`, the full
@@ -300,6 +300,120 @@ bijective by the `_of_finite` lemmas.  Scalar `H²` is still constructed from Ta
 The two displayed cardinal hypotheses are genuine: the current presentation theory gives
 injections into the two word `H²` groups, but does not force their common possible excess to
 vanish. -/
+section CoefficientLocalDuality
+
+variable [DistribMulAction C (ZMod 2)]
+
+/-- The coefficient-local part of `TateDualityG` actually used by the L comparison argument.
+
+Unlike `TateDualityG GammaL 2`, this record is tied to one finite quotient, one elementary
+coefficient module, and the single coefficient-independent resolved L word under consideration.
+It asks for the scalar orientation (with its representative formula) and perfectness of exactly
+the three cup maps appearing in the Stokes ladder.  The comparison squares are deliberately not
+fields: coefficient naturality and the common Heisenberg resolver prove them below.
+
+This record is useful as a noncircular target for arithmetic input.  Deriving its cup fields from
+the word Stokes maps would already assume the desired word duality; deriving it independently
+from local duality, on the other hand, is sufficient for the constructor below. -/
+structure LCoefficientSourceDuality
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s)
+    (hpair : ∀ (g : GammaL) (a : A) (lam : ElemDual A),
+      dualEval A (g • a) (g • lam) = g • dualEval A a lam) where
+  /-- The scalar orientation used to read all three source cups in `ZMod 2`. -/
+  h2Scalar : H2 GammaL (ZMod 2) ≃+ ZMod 2
+  /-- The orientation reads a scalar class as the trace of its relator obstruction. -/
+  scalarTrace : ScalarTraceCompatible WL genL rho hcompatScalar h2Scalar
+  /-- Perfectness in bidegree `(0,2)`, for this coefficient only. -/
+  cup02_bijective : Function.Bijective (sourceCup02 hpair)
+  /-- Perfectness in bidegree `(1,1)`, for this coefficient only. -/
+  cup11_bijective : Function.Bijective (sourceCup11 hpair)
+  /-- Perfectness in bidegree `(2,0)`, for this coefficient only. -/
+  cup20_bijective : Function.Bijective (sourceCup20 hpair)
+
+/--
+The exact no-Tate source constructor for the improved L presentation.
+
+The two module-valued `H²` cardinal equalities upgrade the canonical flexible injections to
+equivalences.  `LCoefficientSourceDuality` supplies only the scalar orientation and the three
+coefficient-local cup-perfectness statements.  All three comparison squares are then theorems
+from representative formulas and the common Heisenberg resolver.  In particular this theorem
+contains no `TateDualityG` hypothesis and does not assume any comparison square.
+-/
+noncomputable def sourceComparisonPackage_of_lFlexibleH2_card_sourceDuality
+    (rho : ContinuousMonoidHom GammaL C)
+    (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
+    (hcompatDual : ∀ (g : GammaL) (lam : ElemDual A), g • lam = rho g • lam)
+    (hcompatScalar : ∀ (g : GammaL) (s : ZMod 2), g • s = rho g • s)
+    (htriv : ∀ (g : GammaL) (m : ZMod 2), g • m = m)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hcardA : Nat.card (H2 GammaL A) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL A))
+    (hcardDual : Nat.card (H2 GammaL (ElemDual A)) =
+      Nat.card (WordH2 (fun i ↦ rho (genL i)) wL (ElemDual A)))
+    (hq : Even q) (he : Odd e)
+    (S : LFlexibleEulerTateSquares (h := h) (q := q) (e := e) (C := C) (A := A))
+    (D : LCoefficientSourceDuality rho hcompatScalar
+      (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)) :
+    SourceComparisonPackage (fun i ↦ rho (genL i)) wL (lSource_rel_death rho S.hres)
+      (lSq_isStokesEndpoint hq he)
+      (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+      (lSourceH0Equiv rho hcompatA) (lSourceH1Equiv rho hcompatA hA₂ S.hres)
+      (lSourceH0Equiv rho hcompatDual)
+      (lSourceH1Equiv rho hcompatDual
+        (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual) := by
+  let h2A := lModuleH2EquivFlexible_of_card_eq rho hcompatA hA₂ S.hres hcardA
+  let h2Dual := lModuleH2EquivFlexible_of_card_eq rho hcompatDual
+    (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual hcardDual
+  refine
+    { h2A := h2A
+      h2Dual := h2Dual
+      h2Scalar := D.h2Scalar
+      cup02_bijective := D.cup02_bijective
+      cup11_bijective := D.cup11_bijective
+      cup20_bijective := D.cup20_bijective
+      square02_commutes := ?_
+      square11_commutes := ?_
+      square20_commutes := ?_ }
+  · simpa only [h2Dual] using
+      square02_commutes_of_scalarTrace WL genL rho wL hcompatDual hcompatScalar
+        (lSource_rel_death rho S.hres) (lSq_isStokesEndpoint hq he)
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+        (lSourceH0Equiv rho hcompatA) (fun _ ↦ rfl) h2Dual (fun _ ↦ rfl)
+        D.h2Scalar D.scalarTrace
+  · let za := Count.toZ1w rho hcompatA (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (Words.LSq.lSqW h)) S.hres
+    let zb := Count.toZ1w rho hcompatDual (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 * h + 1) q (Words.LSq.lSqW h)) S.hresDual
+    exact
+      square11_commutes_of_scalarTrace WL genL rho wL hcompatA hcompatDual hcompatScalar
+        (lSource_rel_death rho S.hres) (lSq_isStokesEndpoint hq he) S.hresHeis
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+        (lSourceH1Equiv rho hcompatA hA₂ S.hres)
+        (lSourceH1Equiv rho hcompatDual
+          (fun lam : ElemDual A ↦ lam.add_self_eq_zero) S.hresDual)
+        za zb (fun _ ↦ rfl) (fun _ ↦ rfl)
+        (Count.h1Equiv_gammaR_range_H1mk rho hcompatA S.hres hA₂)
+        (Count.h1Equiv_gammaR_range_H1mk rho hcompatDual S.hresDual
+          (fun lam : ElemDual A ↦ lam.add_self_eq_zero))
+        D.h2Scalar D.scalarTrace
+  · simpa only [h2A] using
+      square20_commutes_of_scalarTrace WL genL rho wL hcompatA hcompatScalar
+        (lSource_rel_death rho S.hres) (lSq_isStokesEndpoint hq he)
+        (lSource_dualEval_equivariant rho hcompatA hcompatDual htriv)
+        (lSourceH0Equiv rho hcompatDual) (fun _ ↦ rfl) h2A (fun _ ↦ rfl)
+        D.h2Scalar D.scalarTrace
+
+end CoefficientLocalDuality
+
+/--
+The exact no-Euler source constructor using full Tate duality.
+
+The two displayed cardinal hypotheses upgrade the flexible module-valued `H²` injections;
+`TateDualityG` supplies the scalar orientation and the three cup-perfectness fields.  The sharper
+`sourceComparisonPackage_of_lFlexibleH2_card_sourceDuality` above shows that full Tate duality is
+not otherwise used.
+-/
 noncomputable def sourceComparisonPackage_of_lFlexibleH2_card_tateDuality
     (rho : ContinuousMonoidHom GammaL C)
     (hcompatA : ∀ (g : GammaL) (a : A), g • a = rho g • a)
