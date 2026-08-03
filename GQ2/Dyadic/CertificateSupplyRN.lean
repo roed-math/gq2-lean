@@ -9,6 +9,7 @@ import GQ2.Dyadic.Instances.NpcExact
 import GQ2.Dyadic.Instances.M0Exact
 import GQ2.Dyadic.Instances.MpcExact
 import GQ2.Dyadic.Instances.NpcCore
+import GQ2.Dyadic.Instances.MpcCoreUnit
 import GQ2.Dyadic.ThmFourTwoRN
 
 /-!
@@ -166,9 +167,9 @@ The current direct branch coverage is deliberately not overstated.  `nCorePresen
 presentations at every handle count.  `npcCorePresentationUnit` now provides the arbitrary-unit
 procyclic-N presentation, but its alphabet normalization is not the compact-N normalization and
 there is not yet a canonical `Ztwo` orientation for that dictionary.  The arbitrary-unit Mpc
-lane still needs its inverse dictionary and `CorePresentation`; `ofMpcPresentation` below pins
-the exact interface that result will enter.  These are constructor/orientation-supply gaps for
-this record, not additional certificate fields. -/
+presentation is also available at every handle count, but likewise lacks a canonical `Ztwo`
+orientation normalized in its semantic alphabet.  These are orientation-supply gaps for this
+record, not additional certificate fields. -/
 structure SelectedCoreLeavesRN
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
@@ -326,10 +327,9 @@ noncomputable def ofNpc (S : FieldBranchSelection K FP Q W)
           nu_sigma := hnuSigma
           nu_wild := hnuWild }
 
-/-- Preparation seam for the expected arbitrary-unit Mpc `CorePresentation`.  It pins the
-selected word with the literal arithmetic parameter `p epsilon r` and the literal selected
-unit `eta`; once `mpcCorePresentationUnit` lands, it is passed as `presentation` without any
-transport to the old unit-one, handle-zero row. -/
+/-- Low-level selected Mpc constructor from a presentation.  It pins the selected word with the
+literal arithmetic parameter `p epsilon r` and the literal selected unit `eta`; no transport to
+the old unit-one, handle-zero row is permitted. -/
 noncomputable def ofMpcPresentation (S : FieldBranchSelection K FP Q W)
     {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
     (hbranch : S.branch = .Mpc alpha r epsilon eta)
@@ -351,6 +351,42 @@ noncomputable def ofMpcPresentation (S : FieldBranchSelection K FP Q W)
       dsimp only at hbranch
       subst branch
       exact { presentation := presentation, nu_sigma := hnuSigma, nu_wild := hnuWild }
+
+/-- Branch validity supplies the side condition of the arbitrary-unit Mpc presentation. -/
+theorem one_le_alpha_of_Mpc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) : 1 ≤ alpha := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
+  omega
+
+/-- The landed arbitrary-unit, arbitrary-handle Mpc presentation specialized to the literal
+parameters selected for the field. -/
+noncomputable def mpcPresentation (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) :
+    Count.CorePresentation (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta))
+      (Words.Mpc.mpcWUnit alpha r (p epsilon r) eta
+        (handleCount FP (.Mpc alpha r epsilon eta)))
+      (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta))) :=
+  Instances.MProcyclicCore.mpcCorePresentationUnit alpha r (p epsilon r) eta
+    (handleCount FP (.Mpc alpha r epsilon eta)) (one_le_alpha_of_Mpc S hbranch)
+
+/-- The direct arbitrary-unit Mpc selected-core constructor.  The presentation is fully
+derived; the exact remaining residue is a `Ztwo` orientation together with its sigma and wild
+normalization rows at that presentation's marking. -/
+noncomputable def ofMpc (S : FieldBranchSelection K FP Q W)
+    {alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta)
+    (nuP : ContinuousMonoidHom
+      (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta)) : Type) Ztwo)
+    (hnuSigma : nuP ((mpcPresentation S hbranch).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta) + 1),
+      nuP ((mpcPresentation S hbranch).mark (.wild j)) = 1) :
+    SelectedCoreLeavesRN S
+      (MarkedCore.DM alpha (handleCount FP (.Mpc alpha r epsilon eta))) nuP :=
+  ofMpcPresentation S hbranch (mpcPresentation S hbranch) nuP hnuSigma hnuWild
 
 /-- **The L-row constructor.**  A field selection on the improved square-word row has a
 canonical structural core, with no certificate assumptions: `DSq` supplies the universal
