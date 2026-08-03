@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
-import GQ2.Dyadic.Count.HTwoModuleSurjectivity
+import GQ2.Dyadic.Count.HTwoModuleAsphericity
 import GQ2.Dyadic.Instances.GammaLSimpleDualSurjectivity
 
 /-!
@@ -36,6 +36,21 @@ open ContCoh SectionSeven
 open GQ2.Dyadic GQ2.Dyadic.Count GQ2.Dyadic.LiftingDualityG
 open GQ2.Dyadic.Certificates.LSqStokes
 
+private theorem continuousSMul_comp_finite_extensionAsphericity
+    {G D A : Type} [Monoid G] [TopologicalSpace G]
+    [Monoid D] [TopologicalSpace D] [DiscreteTopology D]
+    [TopologicalSpace A] [DiscreteTopology A] [SMul D A]
+    (rho : ContinuousMonoidHom G D) [SMul G A]
+    (hcompat : ∀ (g : G) (a : A), g • a = rho g • a) : ContinuousSMul G A := by
+  constructor
+  have hfac : (fun p : G × A ↦ p.1 • p.2) =
+      (fun p : D × A ↦ p.1 • p.2) ∘ (fun p : G × A ↦ (rho p.1, p.2)) := by
+    funext p
+    exact hcompat p.1 p.2
+  rw [hfac]
+  exact continuous_of_discreteTopology.comp
+    ((rho.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+
 section LRealizationAt
 
 variable {h q e : ℕ} {C A : Type}
@@ -65,6 +80,32 @@ vector. -/
 abbrev LModuleRelatorRealization
     (rho : ContinuousMonoidHom GammaL C) : Prop :=
   ModuleRelatorRealization (A := A) WL genL rho (fun i ↦ rho (genL i)) wL
+
+/-- The finite-extension asphericity condition for the improved L presentation.
+For each requested pair of relator fibres it asks for an actual finite extension
+of an action-compatible quotient in which lifted generators realize those fibres.
+It contains no cocycles or cohomology groups. -/
+abbrev LModuleFiniteExtensionAsphericity
+    (rho : ContinuousMonoidHom GammaL C) : Prop :=
+  ModuleFiniteExtensionAsphericity (A := A) WL genL rho
+
+omit [TopologicalSpace A] [IsTopologicalAddGroup A] [DiscreteTopology A]
+  [DistribMulAction GammaL A] [ContinuousSMul GammaL A] in
+/-- Finite-extension asphericity implies the finite-cocycle relator realization
+criterion for the improved L presentation. -/
+theorem lModuleRelatorRealization_of_extensionAsphericity
+    (rho : ContinuousMonoidHom GammaL C)
+    (hres : ResolvesAt WL wL (WordLift A C))
+    (hasph : LModuleFiniteExtensionAsphericity (A := A) rho) :
+    LModuleRelatorRealization (A := A) (e := e) rho := by
+  letI : TopologicalSpace A := ⊥
+  letI : DiscreteTopology A := ⟨rfl⟩
+  letI : DistribMulAction GammaL A :=
+    DistribMulAction.compHom A rho.toMonoidHom
+  letI : ContinuousSMul GammaL A :=
+    continuousSMul_comp_finite_extensionAsphericity rho (fun _ _ ↦ rfl)
+  exact moduleRelatorRealization_of_extensionAsphericity WL genL rho
+    (fun i ↦ rho (genL i)) wL (lFlexibleResolverSystem rho hres) hasph
 
 /-- Vector-dependent finite relator realization makes the canonical flexible L H²
 comparison surjective. -/
@@ -128,6 +169,38 @@ abbrev UniformSimpleRelatorRealizationSingleSupply : Prop :=
     (rho : ContinuousMonoidHom GammaL C),
       UniformSimpleRelatorRealizationSingleProvider rho
 
+/-- Finite-extension asphericity for one simple coefficient at one finite action
+quotient, using the fixed coefficient-independent L word. -/
+abbrev UniformSimpleExtensionAsphericitySingleAt
+    (rho : ContinuousMonoidHom GammaL C)
+    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A] : Prop :=
+  LModuleFiniteExtensionAsphericity (A := A) rho
+
+/-- The relation-module-shaped finite-extension input, uniformly over simple
+elementary coefficients of one finite quotient. -/
+abbrev UniformSimpleExtensionAsphericitySingleProvider
+    (rho : ContinuousMonoidHom GammaL C) : Prop :=
+  ∀ (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A],
+    (∀ a : A, a + a = 0) → IsSimpleModTwo C A →
+      UniformSimpleExtensionAsphericitySingleAt rho A
+
+/-- Finite-extension asphericity at every finite quotient of `GammaL`.  This is
+the precise remaining input expected from a profinite relation-module theorem. -/
+abbrev UniformSimpleExtensionAsphericitySingleSupply : Prop :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom GammaL C),
+      UniformSimpleExtensionAsphericitySingleProvider rho
+
+/-- Uniform finite-extension asphericity supplies uniform finite relator
+realization.  Factor-set cocycles and the Fox-image congruence are constructed by
+`moduleRelatorRealization_of_extensionAsphericity`. -/
+theorem uniformSimpleRelatorRealizationSingleSupply_of_extensionAsphericity
+    (hasph : UniformSimpleExtensionAsphericitySingleSupply (h := h) (q := q)) :
+    UniformSimpleRelatorRealizationSingleSupply (h := h) (q := q) := by
+  intro C _ _ _ _ rho A _ _ _ hA₂ hsimple
+  exact lModuleRelatorRealization_of_extensionAsphericity rho
+    (lUniform_wordLift_resolver hA₂) (hasph C rho A hA₂ hsimple)
+
 /-- Uniform finite relator realization supplies the established one-map H²
 surjectivity interface.  The source action may be any discrete action compatible with
 `rho`; the finite realization condition itself only uses the descended quotient action. -/
@@ -139,6 +212,14 @@ theorem uniformSimpleH2SurjectiveSingleSupply_of_relatorRealization
     rho hcompat hA₂ (lUniform_wordLift_resolver hA₂)
       (hreal C rho A hA₂ hsimple)
 
+/-- The finite-extension asphericity supply therefore proves the canonical
+continuous-to-word H² surjectivity interface for all simple coefficients. -/
+theorem uniformSimpleH2SurjectiveSingleSupply_of_extensionAsphericity
+    (hasph : UniformSimpleExtensionAsphericitySingleSupply (h := h) (q := q)) :
+    UniformSimpleH2SurjectiveSingleSupply (h := h) (q := q) :=
+  uniformSimpleH2SurjectiveSingleSupply_of_relatorRealization
+    (uniformSimpleRelatorRealizationSingleSupply_of_extensionAsphericity hasph)
+
 /-- Uniform finite relator realization supplies the paired primal/dual H²
 surjectivity interface used by the corrected L campaign.  Dual simplicity is handled
 by the already-proved one-map reduction. -/
@@ -147,6 +228,14 @@ theorem uniformSimpleH2SurjectiveSupply_of_relatorRealization
     UniformSimpleH2SurjectiveSupply (h := h) (q := q) :=
   uniformSimpleH2SurjectiveSupply_of_single
     (uniformSimpleH2SurjectiveSingleSupply_of_relatorRealization hreal)
+
+/-- Finite-extension asphericity also supplies the paired primal/dual H²
+surjectivity interface used by the exact-lifting theorem. -/
+theorem uniformSimpleH2SurjectiveSupply_of_extensionAsphericity
+    (hasph : UniformSimpleExtensionAsphericitySingleSupply (h := h) (q := q)) :
+    UniformSimpleH2SurjectiveSupply (h := h) (q := q) :=
+  uniformSimpleH2SurjectiveSupply_of_relatorRealization
+    (uniformSimpleRelatorRealizationSingleSupply_of_extensionAsphericity hasph)
 
 /-- End-to-end corrected L regression from Tate duality and the finite
 relation-module-shaped realization supply. -/
@@ -159,6 +248,18 @@ theorem exactLiftingRN_of_uniformRelatorRealization_tateDuality
       (standardNumerics (2 * h + 1)) :=
   exactLiftingRN_of_uniformSingleH2Surjective_tateDuality hq D
     (uniformSimpleH2SurjectiveSingleSupply_of_relatorRealization hreal) nuP
+
+/-- End-to-end corrected L regression from Tate duality and the purely
+finite-extension asphericity supply. -/
+theorem exactLiftingRN_of_uniformExtensionAsphericity_tateDuality
+    [DistribMulAction GammaL (MuN 2)] [ContinuousSMul GammaL (MuN 2)]
+    (hq : Even q) (D : TateDualityG GammaL 2)
+    (hasph : UniformSimpleExtensionAsphericitySingleSupply (h := h) (q := q))
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma h q) (2 * h + 1) q P nuP
+      (standardNumerics (2 * h + 1)) :=
+  exactLiftingRN_of_uniformRelatorRealization_tateDuality hq D
+    (uniformSimpleRelatorRealizationSingleSupply_of_extensionAsphericity hasph) nuP
 
 end UniformSimpleRealization
 

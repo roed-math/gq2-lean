@@ -346,6 +346,7 @@ import GQ2.Dyadic.Instances.GammaLSimpleSource
 import GQ2.Dyadic.Instances.GammaLH2Surjectivity
 import GQ2.Dyadic.Instances.GammaLSimpleDualReduction
 import GQ2.Dyadic.Instances.GammaLSimpleDualSurjectivity
+import GQ2.Dyadic.Count.HTwoModuleAsphericity
 import GQ2.Dyadic.Instances.GammaLRelatorRealization
 import GQ2.Dyadic.Instances.GammaLRelatorRealizationQTwo
 import GQ2.Dyadic.Instances.GammaLTateDirect
