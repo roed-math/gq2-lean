@@ -145,7 +145,7 @@ end ConjAction
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `R = Φ(K)` is elementary abelian: `Additive R` is 2-torsion. -/
-private lemma frattiniK_add_self
+theorem frattiniK_add_self
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1) :
     letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
@@ -159,7 +159,7 @@ omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- A `C = Y/K`-invariant character of `R` takes equal values on `Y`-conjugates: the fixed-point
 condition, evaluated through `conjC_smul_of_mk` at `y⁻¹`. -/
-private lemma elemDual_fixed_apply_conj
+theorem elemDual_fixed_apply_conj
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
     letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
     letI := conjC Blk hRK
@@ -192,7 +192,7 @@ private lemma elemDual_fixed_apply_conj
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The invariant-character bridge `(R^∨)^C ≃ D_Rmod`: `#fixedPts C (R^∨) = #RCharSub`. -/
-private lemma card_fixedPts_eq_card_RCharSub
+theorem card_fixedPts_eq_card_RCharSub
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
     letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
     letI := conjC Blk hRK

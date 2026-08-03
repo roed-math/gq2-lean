@@ -289,6 +289,7 @@ import GQ2.Dyadic.Count.ProTwo
 import GQ2.Dyadic.Count.Wild
 import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Dyadic.Count.Compare
+import GQ2.Dyadic.Count.RStage
 import GQ2.Dyadic.Count.LocalDuality
 import GQ2.Dyadic.Count.Presentation
 import GQ2.Dyadic.Count.Resolve
