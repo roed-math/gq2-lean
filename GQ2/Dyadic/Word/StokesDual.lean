@@ -570,6 +570,60 @@ def StokesCohomologyBijections [DecidableEq ι] (c : ι → C) (w : ρ → FreeG
     (stokes_square₁ (A := A) c w hr hend)) ∧
   Function.Bijective (stokesH2Map (stokes_square₁ (A := A) c w hr hend))
 
+/-! ### Transport from source cohomology
+
+The continuous-cohomology route does not prove the word maps directly.  It identifies their
+sources and targets with continuous cohomology, where Tate cup products are perfect, and proves
+that the resulting squares commute.  The following tiny interface records exactly one such
+square.  In the intended use, the three source maps are the `(0,2)`, `(1,1)`, and `(2,0)` cup
+maps; the left equivalences are the `H⁰`/`H¹` comparison maps and the still-missing general
+`H²` comparison, while the right equivalences additionally use `stokesUC0/1/2` and the
+comparisons for the dual module. -/
+
+/-- A word-cohomology map is conjugate, through two equivalences, to a source-cohomology map. -/
+structure CohomologyComparisonSquare {X Y X' Y' : Type*} (wordMap : X → Y)
+    (sourceMap : X' → Y') where
+  left : X ≃ X'
+  right : Y ≃ Y'
+  commutes : ∀ x, right (wordMap x) = sourceMap (left x)
+
+/-- Bijectivity transports across a cohomology comparison square. -/
+theorem CohomologyComparisonSquare.bijective {X Y X' Y' : Type*} {wordMap : X → Y}
+    {sourceMap : X' → Y'} (h : CohomologyComparisonSquare wordMap sourceMap)
+    (hsource : Function.Bijective sourceMap) : Function.Bijective wordMap := by
+  constructor
+  · intro x y hxy
+    apply h.left.injective
+    apply hsource.1
+    rw [← h.commutes, ← h.commutes, hxy]
+  · intro y
+    obtain ⟨x', hx'⟩ := hsource.2 (h.right y)
+    refine ⟨h.left.symm x', h.right.injective ?_⟩
+    rw [h.commutes, Equiv.apply_symm_apply, hx']
+
+/-- The exact source-comparison reduction for Stokes cohomology.  It deliberately asks for
+three commuting comparison squares separately: this prevents a proof from hiding the absent
+general-coefficient `H²` comparison inside a monolithic `StokesDuality` hypothesis. -/
+theorem stokesCohomologyBijections_of_source_comparison [DecidableEq ι]
+    (c : ι → C) (w : ρ → FreeGroup ι) (A : Type*) [AddCommGroup A]
+    [DistribMulAction C A] (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w)
+    {S₀ T₀ S₁ T₁ S₂ T₂ : Type*}
+    (source₀ : S₀ → T₀) (source₁ : S₁ → T₁) (source₂ : S₂ → T₂)
+    (hsource₀ : Function.Bijective source₀)
+    (hsource₁ : Function.Bijective source₁)
+    (hsource₂ : Function.Bijective source₂)
+    (hcompare₀ : CohomologyComparisonSquare
+      (stokesH0Map (stokes_square₀ (A := A) c w hr hend)) source₀)
+    (hcompare₁ : CohomologyComparisonSquare
+      (stokesH1Map (stokes_square₀ (A := A) c w hr hend)
+        (stokes_square₁ (A := A) c w hr hend)) source₁)
+    (hcompare₂ : CohomologyComparisonSquare
+      (stokesH2Map (stokes_square₁ (A := A) c w hr hend)) source₂) :
+    StokesCohomologyBijections c w A hr hend :=
+  ⟨hcompare₀.bijective hsource₀, hcompare₁.bijective hsource₁,
+    hcompare₂.bijective hsource₂⟩
+
 /-- `StokesCohomologyBijections` is exactly the cohomological form of `StokesDuality`, once
 relator death and the endpoint condition supply the two ladder squares. -/
 theorem stokesDuality_iff_cohomologyBijections [DecidableEq ι]

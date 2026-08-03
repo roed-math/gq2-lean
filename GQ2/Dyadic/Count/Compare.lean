@@ -721,6 +721,43 @@ omit [ContinuousSMul Γ A] in
     ((z1Equiv rho hcompat hc hpres hres hA₂ hwild2 z : ↥(heisD1 (A := A) c w).ker) : ι → A)
       = fun i => z.1 (gen i) := rfl
 
+/-! ### The `H⁰` comparison
+
+Unlike `H¹`, degree zero has no relator or resolution input: a vector fixed by every marked
+letter is fixed by the dense subgroup they generate, because its stabilizer is open (hence
+closed).  This is the continuous counterpart of `ker_heisD0_eq_fixedPts`, with the presentation's
+topological generation clause replacing algebraic generation in the finite quotient. -/
+
+include hcompat hc in
+/-- **`H⁰` of a topologically marked `Γ` is the word complex's `H⁰`.** -/
+noncomputable def h0Equiv (hpres : IsAdmissibleMarkedPresentation Γ gen W J) :
+    H0 Γ A ≃+ ↥(heisD0 (A := A) c).ker where
+  toFun x := ⟨x.1, (mem_ker_heisD0_iff c x.1).mpr fun i => by
+    rw [← hc i, ← hcompat]
+    exact x.2 (gen i)⟩
+  invFun x := ⟨x.1, fun γ => by
+    have hgen : Subgroup.closure (Set.range gen) ≤ MulAction.stabilizer Γ x.1 :=
+      (Subgroup.closure_le _).mpr (by
+        rintro _ ⟨i, rfl⟩
+        show gen i • x.1 = x.1
+        rw [hcompat, hc i]
+        exact (mem_ker_heisD0_iff c x.1).mp x.2 i)
+    have hclosed : IsClosed
+        ((MulAction.stabilizer Γ x.1 : Subgroup Γ) : Set Γ) :=
+      (OpenSubgroup.mk _ (isOpen_stabilizer x.1)).isClosed
+    have hall := Subgroup.topologicalClosure_minimal _ hgen hclosed
+    rw [hpres.gen_top] at hall
+    exact MulAction.mem_stabilizer_iff.mp (hall (Subgroup.mem_top γ))⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+
+omit [DiscreteTopology C] [Finite C] [Finite A] [TopologicalSpace (WordLift A C)]
+  [DiscreteTopology (WordLift A C)] in
+@[simp] theorem h0Equiv_coe (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (x : H0 Γ A) :
+    ((h0Equiv rho hcompat hc hpres x : ↥(heisD0 (A := A) c).ker) : A) = x.1 := rfl
+
 omit [ContinuousSMul Γ A] in
 include hcompat hc in
 /-- The cardinality form: **this is the equation the whole count lane transports along.** -/
