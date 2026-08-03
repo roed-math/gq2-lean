@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
-import GQ2.Dyadic.Instances.LHeisenbergResolver
+import GQ2.Dyadic.Count.Frozen
 import GQ2.FoxHeisenberg.Traced
 
 /-!
