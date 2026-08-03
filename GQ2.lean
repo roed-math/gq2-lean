@@ -336,6 +336,7 @@ import GQ2.Dyadic.Instances.LSourceDualityAdapter
 import GQ2.Dyadic.Instances.LSourceComposition
 import GQ2.Dyadic.Instances.LScalarTrace
 import GQ2.Dyadic.Instances.LHeisenbergResolver
+import GQ2.Dyadic.Instances.LUniformHeisenbergResolver
 import GQ2.Dyadic.Instances.GammaLDualityBoundary
 import GQ2.Dyadic.Instances.GammaLRealizationRoute
 import GQ2.Dyadic.GammaRHom
