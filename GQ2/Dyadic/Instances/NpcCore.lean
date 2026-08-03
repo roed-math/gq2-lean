@@ -8,10 +8,10 @@ import GQ2.Dyadic.SelectedEta
 import GQ2.Dyadic.Words.Npc
 
 /-!
-# The procyclic-`N` core dictionary at `eta = 1`
+# The procyclic-`N` core dictionary at an arbitrary selected unit
 
-This file supplies the first missing structural layer of the procyclic-`N` branch.  It constructs
-the alphabet/core dictionary, uniformly in the handle count, for the display `eta = 1`:
+This file constructs the alphabet/core dictionary and `CorePresentation`, uniformly in the
+handle count, for every selected unit `eta : Z_2^*` carrying its compatible display:
 
 ```text
 (mu0, mu1, mu2, mu3, handles)
@@ -19,10 +19,10 @@ the alphabet/core dictionary, uniformly in the handle count, for the display `et
 ```
 
 The construction factors through the compact-`N` dictionary and a triangular change of core
-generators.  The general-unit display has the same triangular part, but recovering `sigma` from
-`sigma^etaHat` additionally needs an inverse-unit theorem for profinite exponentiation; that API
-does not yet exist.  The exact general dictionary and the missing interface are recorded in
-`docs/dyadic/followup/npc-branch-plan.md`.
+generators.  Recovering `sigma` from `sigma^etaHat` is done only where the universal property
+actually needs it: in pro-2 groups, using `Z_2`-powering by `eta⁻¹`.  The bridge
+`zpowHat_etaHatZ_eq_zpowZtwo` proves that the semantic profinite exponent is exactly this
+`Z_2`-power.  The original `eta = 1` dictionary remains below as a regression endpoint.
 
 No lower bound on `alpha` or `r` is needed here.  This is group-presentation plumbing only.
 -/
@@ -445,6 +445,98 @@ theorem npcProTwoWordUnit (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (d : NpcDisplayFor
     npcTwistUnit_three, npcTwistUnit_handleIdxU, npcTwistUnit_handleIdxV,
     nIdx_zero, nIdx_one, nIdx_two, nIdx_three, nIdx_handleIdxU, nIdx_handleIdxV,
     Marking.apply_sigma]
+
+theorem npcToCoreUnit_nat {P Q : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+    [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
+    [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q] [CompactSpace Q] [T2Space Q]
+    [TotallyDisconnectedSpace Q] (hP : IsProP 2 P) (hQ : IsProP 2 Q)
+    (f : ContinuousMonoidHom P Q) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (t : Marking (2 + 2 * h) P) :
+    (fun i ↦ f (npcToCoreUnit hP eta r h t i)) =
+      npcToCoreUnit hQ eta r h (t.map ⇑f) := by
+  rw [npcToCoreUnit, npcToCoreUnit]
+  calc
+    (fun i ↦ f (npcTwistUnit hP eta r h ((nReindex h).toCore t) i)) =
+        npcTwistUnit hQ eta r h (fun i ↦ f ((nReindex h).toCore t i)) :=
+      map_npcTwistUnit hP hQ f eta r h _
+    _ = npcTwistUnit hQ eta r h ((nReindex h).toCore (t.map ⇑f)) := by
+      congr 1
+
+theorem npcOfCoreUnit_nat {P Q : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+    [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
+    [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q] [CompactSpace Q] [T2Space Q]
+    [TotallyDisconnectedSpace Q] (hP : IsProP 2 P) (hQ : IsProP 2 Q)
+    (f : ContinuousMonoidHom P Q) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) (g : Generator (2 + 2 * h)) :
+    f (npcOfCoreUnit hP eta r h c g) =
+      npcOfCoreUnit hQ eta r h (fun i ↦ f (c i)) g := by
+  rw [npcOfCoreUnit, npcOfCoreUnit, (nReindex h).ofCore_nat]
+  exact congrArg (fun m ↦ (nReindex h).ofCore m g)
+    (map_npcUntwistUnit hP hQ f eta r h c)
+
+/-- Naturality needed for uniqueness into an arbitrary profinite codomain.  The source is pro-2,
+but the target need not be: rewrite its `Z_2`-power as the semantic `Zhat`-power first. -/
+theorem npcTwistUnit_hom_eq {P A : Type} [Group P] [TopologicalSpace P]
+    [IsTopologicalGroup P] [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
+    [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [CompactSpace A] [T2Space A]
+    [TotallyDisconnectedSpace A] (hP : IsProP 2 P)
+    (phi psi : ContinuousMonoidHom P A) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) (hc : ∀ i, phi (c i) = psi (c i)) :
+    ∀ i, phi (npcTwistUnit hP eta r h c i) =
+      psi (npcTwistUnit hP eta r h c i) := by
+  intro i
+  by_cases h1 : (i : ℕ) = 1
+  · have hi : i = 1 := Fin.ext (by rw [h1, coreVal_one])
+    subst hi
+    rw [npcTwistUnit_one, ← zpowHat_etaHatZ_eq_zpowZtwo hP,
+      map_zpowHat, map_zpowHat, hc]
+  · by_cases h2 : (i : ℕ) = 2
+    · have hi : i = 2 := Fin.ext (by rw [h2, coreVal_two])
+      subst hi
+      rw [npcTwistUnit_two, map_mul, map_mul, map_zpow, map_zpow, hc, hc]
+    · rw [npcTwistUnit_apply_ne _ _ _ _ _ h1 h2]
+      exact hc i
+
+/-- The procyclic-`N` core presentation for an arbitrary selected unit and every handle count. -/
+noncomputable def npcCorePresentationUnit (alpha r h : ℕ) (eta : ℤ_[2]ˣ)
+    (d : NpcDisplayFor eta) :
+    CorePresentation (2 + 2 * h) (npcWUnit alpha r h eta) (DN alpha h) where
+  isProP := isProP_DN alpha h
+  mark := npcOfCoreUnit (isProP_DN alpha h) eta r h (dnGen alpha h)
+  mark_tau := npcOfCoreUnit_tau _ _ _ _ _
+  rel := by
+    rw [npcProTwoWordUnit alpha r h eta d (isProP_DN alpha h),
+      npcToCoreUnit_ofCore, dn_relation]
+  liftHom := fun hQ t _ hrel ↦
+    (presentedBy_DN alpha h).liftHom hQ (npcToCoreUnit hQ eta r h t) (by
+      change nRelWord alpha (npcToCoreUnit hQ eta r h t) = 1
+      rw [← npcProTwoWordUnit alpha r h eta d hQ]
+      exact hrel)
+  liftHom_mark := fun hQ t ht hrel g ↦ by
+    rw [npcOfCoreUnit_nat (isProP_DN alpha h) hQ]
+    have hpt : (fun i ↦ (presentedBy_DN alpha h).liftHom hQ
+        (npcToCoreUnit hQ eta r h t) (by
+          change nRelWord alpha (npcToCoreUnit hQ eta r h t) = 1
+          rw [← npcProTwoWordUnit alpha r h eta d hQ]
+          exact hrel) (dnGen alpha h i)) = npcToCoreUnit hQ eta r h t := by
+      funext i
+      exact (presentedBy_DN alpha h).liftHom_mark hQ (npcToCoreUnit hQ eta r h t) _ i
+    rw [hpt, npcOfCoreUnit_toCore _ _ _ _ t ht]
+  hom_ext := fun phi psi heq ↦ (presentedBy_DN alpha h).hom_ext phi psi fun i ↦ by
+    have hletters : ∀ k, phi ((nReindex h).toCore
+        (npcOfCoreUnit (isProP_DN alpha h) eta r h (dnGen alpha h)) k) =
+        psi ((nReindex h).toCore
+          (npcOfCoreUnit (isProP_DN alpha h) eta r h (dnGen alpha h)) k) := by
+      intro k
+      exact heq (nIdx h k)
+    have htwist := npcTwistUnit_hom_eq (isProP_DN alpha h) phi psi eta r h
+      ((nReindex h).toCore
+        (npcOfCoreUnit (isProP_DN alpha h) eta r h (dnGen alpha h))) hletters i
+    have hcore := congrFun (npcToCoreUnit_ofCore (isProP_DN alpha h) eta r h
+      (dnGen alpha h)) i
+    rw [npcToCoreUnit] at hcore
+    rw [hcore] at htwist
+    exact htwist
 
 /-- The procyclic-`N` dictionary at `eta = 1`, uniformly in the handle count. -/
 noncomputable def npcReindexOne (r h : ℕ) :
