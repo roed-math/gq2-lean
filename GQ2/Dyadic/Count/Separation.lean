@@ -727,16 +727,43 @@ theorem pushforward_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (�
   exact hφ
 
 omit [ContinuousSMul Γ (ZMod 2)] in
+/-- Tate's `(0,2)` perfectness already makes `H²(Γ,A)` finite for every finite elementary
+coefficient module `A`.  Indeed, perfectness identifies its elementary dual with the finite
+group `H⁰(Γ, μ₂-dual A)`, and elementary functionals separate points of `H²(Γ,A)`.
+
+This is the missing Euler-free finiteness input for the `(2,0)` separation clause. -/
+theorem finite_H2_of_tateDualityG (Dl : TateDualityG Γ 2)
+    (hA₂ : ∀ a : A, a + a = 0) : Finite (H2 Γ A) := by
+  let htor : ∀ a : A, (2 : ℕ) • a = 0 := fun a => by
+    rw [two_nsmul]
+    exact hA₂ a
+  let f : H0 Γ (MuDual 2 A) → (H2 Γ A →+ ZMod 2) := fun c =>
+    Dl.inv.toAddMonoidHom.comp
+      (cup02 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) c)
+  letI hfinDual : Finite (ElemDual (H2 Γ A)) := by
+    change Finite (H2 Γ A →+ ZMod 2)
+    exact Finite.of_surjective f (Dl.perfect02 A htor).2
+  letI : Finite (ElemDual (H2 Γ A) →+ ZMod 2) :=
+    Finite.of_injective
+      (fun lam : ElemDual (H2 Γ A) →+ ZMod 2 =>
+        (lam : ElemDual (H2 Γ A) → ZMod 2)) DFunLike.coe_injective
+  apply Finite.of_injective (dualEval (H2 Γ A))
+  intro x y hxy
+  have heq : ∀ lam : ElemDual (H2 Γ A), lam x = lam y := fun lam => by
+    simpa using DFunLike.congr_fun hxy lam
+  by_contra hne
+  obtain ⟨lam, hlam⟩ := elemDual_separates (H2_two_torsionG hA₂)
+    (sub_ne_zero_of_ne hne)
+  exact hlam (by rw [map_sub, heq lam, sub_self])
+
 /-- **The arithmetic supplier of the `hsep` fork.**  Injectivity of the `(2,0)` evaluation cup
-(`prop_5_16` clause (vi), `Γ`-generically CB-SG's `bijective_cup20_dualEvalG`) is exactly
+(`prop_5_16` clause (vi), `Γ`-generically CB-SG's `bijective_cup20_dualEvalG_of_finite`) is exactly
 `IsTwoSeparating`: the cup value at an invariant `n` is the class of the pushforward `n ∘ φ`,
 so universal `B²`-membership is universal cup-vanishing.
 
-`d` enters only as the implicit degree of the Euler binder `hE` and is **absent from the
-conclusion** — the same degree-uniformity §2 records for the `hpartial` fork.  Instantiated at
-`tateDualityGalK K` plus LG2a's Euler characteristic, this supplies `hsep` at every `K`. -/
-theorem isTwoSeparating_of_tateDualityG (Dl : TateDualityG Γ 2) {d : ℕ}
-    (hE : LocalEulerChar Γ d)
+Unlike the numeric clauses, this uses no Euler characteristic: `finite_H2_of_tateDualityG`
+extracts the sole finiteness input directly from Tate `(0,2)` perfectness. -/
+theorem isTwoSeparating_of_tateDualityG (Dl : TateDualityG Γ 2)
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : Γ) (a : A) (lam : ElemDual A),
@@ -744,7 +771,8 @@ theorem isTwoSeparating_of_tateDualityG (Dl : TateDualityG Γ 2) {d : ℕ}
     IsTwoSeparating Γ A := by
   intro φ hvan
   have hzero : H2mk Γ A φ = 0 := by
-    apply (bijective_cup20_dualEvalG Dl hE hA₂ htriv hpair).1
+    letI : Finite (H2 Γ A) := finite_H2_of_tateDualityG Dl hA₂
+    apply (bijective_cup20_dualEvalG_of_finite Dl hA₂ htriv hpair).1
     show cup20 (dualEval A) hpair _ = cup20 (dualEval A) hpair 0
     rw [map_zero]
     refine AddMonoidHom.ext fun n => ?_

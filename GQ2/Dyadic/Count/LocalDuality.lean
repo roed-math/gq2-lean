@@ -208,7 +208,7 @@ theorem hZcard_field_of_localDualityG
 
 /-- The second `StokesDualityCertificate` field, supplied by Tate `(2,0)` separation. -/
 theorem hsep_field_of_localDualityG
-    (Dl : TateDualityG (Gam : Type) 2) (hE : LocalEulerChar (Gam : Type) d)
+    (Dl : TateDualityG (Gam : Type) 2)
     (smulZ2 : DistribMulAction (Gam : Type) (ZMod 2))
     (_contZ2 : letI := smulZ2; ContinuousSMul (Gam : Type) (ZMod 2))
     (htriv : letI := smulZ2; ∀ (gam : (Gam : Type)) (m : ZMod 2), gam • m = m)
@@ -244,7 +244,7 @@ theorem hsep_field_of_localDualityG
   haveI : ContinuousSMul (Gam : Type) (ElemDual (Additive ↥(En.radData l h).T)) :=
     continuousSMul_of_comp_discrete (rhoPrimeK RF b F (En.radData l h) rfl rho) hcompD
   exact hsep_field_goal b F En l h Dsc rho smulZ2
-    (isTwoSeparating_of_tateDualityG Dl hE (radT_add_self (En.radData l h)) htriv
+    (isTwoSeparating_of_tateDualityG Dl (radT_add_self (En.radData l h)) htriv
       (dualEval_equivariant_of_trivial htriv)) c hc
 
 /-- The third `StokesDualityCertificate` field, supplied by Tate `(1,1)` right separation and

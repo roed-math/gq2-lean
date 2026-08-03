@@ -10,11 +10,12 @@ import GQ2.Dyadic.GaussZ.FinalDK
 import GQ2.Dyadic.SourceDataRN
 
 /-!
-# The Stokes-duality certificate from local duality
+# Arithmetic analytic certificates from local duality
 
-The four fields are assembled from `GQ2.Dyadic.Count.LocalDuality`; this file contains no new
-cohomological argument.  A field-level specialization can therefore be assembly-only once the
-`galKProfinite` instance-path elaboration is isolated.
+The Stokes fields are assembled from `GQ2.Dyadic.Count.LocalDuality`.  The corrected R-stage
+section additionally ports the legacy `AbsGalQ2` hom-lift argument to an arbitrary profinite
+source, isolating its sole arithmetic input as Tate `(2,0)` separation, and specializes it to
+`G_K`.
 -/
 
 namespace GQ2.Dyadic
@@ -37,7 +38,7 @@ theorem stokesDualityCertificate_of_localDualityG
     StokesDualityCertificate Gam d q P nuP (standardNumerics d) smulZ2 :=
   ⟨fun b F En l h rho => Count.tcocycle_field_of_localDualityG Dl hE b F En l h rho,
    fun b F En l h Dsc rho c hc =>
-    Count.hsep_field_of_localDualityG Dl hE smulZ2 contZ2 htriv
+    Count.hsep_field_of_localDualityG Dl smulZ2 contZ2 htriv
       b F En l h Dsc rho c hc,
    fun b F En l h Dsc rho chi hchi =>
     Count.hpartial_field_of_localDualityG Dl smulZ2 contZ2 htriv
@@ -383,8 +384,286 @@ theorem correctedRStage_hZcount_galK
     Nat.card_congr (Additive.toMul (α := ↥Blk.frattiniK)), zRN]
   rfl
 
-/-- After the generic Euler count above, radical-obstruction separation is the only remaining
-corrected R-stage input at `G_K`. -/
+/-! ### Generic R-stage separation
+
+The legacy `RStageLocal.hsep_hom_local` proof is tied syntactically to `AbsGalQ2`, although its
+only arithmetic step is left separation of the Tate `(2,0)` cup pairing.  The theorem below
+ports the group-theoretic construction to an arbitrary profinite source and obtains precisely
+that step from `Count.isTwoSeparating_of_tateDualityG`. -/
+
+/-- Vanishing of the R-stage obstruction lifts a surjective boundary map to `Y` over any
+profinite source carrying Tate duality at `2`.
+
+The scalar action and cardinality equality are explicit because they occur in the obstruction
+API.  The actual separation step uses only `Dl`; in particular it does not use a local Euler
+characteristic. -/
+theorem rStage_hsep_hom_of_tateDualityG
+    {Gam : ProfiniteGrp} {q : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo}
+    [DistribMulAction (Gam : Type) (MuN 2)] [ContinuousSMul (Gam : Type) (MuN 2)]
+    (Dl : TateDualityG (Gam : Type) 2)
+    (smulZ2 : DistribMulAction (Gam : Type) (ZMod 2))
+    (contZ2 : letI := smulZ2; ContinuousSMul (Gam : Type) (ZMod 2))
+    (htriv : letI := smulZ2;
+      ∀ (gam : (Gam : Type)) (m : ZMod 2), gam • m = m)
+    (hcard : letI := smulZ2; Nat.card (H2 (Gam : Type) (ZMod 2)) = 2)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom Gam ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB)
+    (hg : obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+      htriv hcard g.1.1 = 0) :
+    ∃ φ : ContinuousMonoidHom Gam Y,
+      ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ := by
+  classical
+  let G : Type := Gam
+  letI := smulZ2
+  haveI : ContinuousSMul G (ZMod 2) := contZ2
+  -- The obstruction functional kills every paired scalar defect class.
+  have hall : ∀ d : (blockRObstructionData T Blk hE2).DRmod,
+      H2mk G (ZMod 2)
+        ⟨fun gd => (blockRObstructionData T Blk hE2).pair d
+            (Additive.ofMul
+              (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+          pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2)
+            (blockRObstructionData T Blk hE2) htriv g.1.1 d⟩ = 0 := by
+    intro d
+    by_cases hd : (blockRObstructionData T Blk hE2).toDR d =
+        (blockFrameImpl T Blk hE2).zeroDR
+    · have hd0 : d = 0 := by
+        rw [← (blockRObstructionData T Blk hE2).h0, ← hd, Equiv.symm_apply_apply]
+      subst hd0
+      have hz : (⟨fun gd => (blockRObstructionData T Blk hE2).pair 0
+          (Additive.ofMul
+            (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+          pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2)
+            (blockRObstructionData T Blk hE2) htriv g.1.1 0⟩ :
+          ↥(Z2 G (ZMod 2))) = 0 := by
+        apply Subtype.ext
+        funext gd
+        simp only [map_zero, AddMonoidHom.zero_apply]
+        rfl
+      rw [hz, map_zero]
+    · exact (obs_zero_iff_pairClass_zero (blockFrameImpl T Blk hE2)
+        (blockRObstructionData T Blk hE2) htriv hcard g.1.1 d hd).mp
+          (LinearMap.congr_fun hg d)
+  -- Pull the quotient-conjugation action on R back along the lower boundary map.
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  have hRleK : Blk.frattiniK ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
+  set θ : ContinuousMonoidHom Gam (Y ⧸ Blk.K) :=
+    ⟨MonoidHom.mk' (fun γ => QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))) (fun γ δ => by
+      rw [← map_mul]
+      apply (QuotientGroup.mk'_eq_mk' Blk.K).mpr
+      refine ⟨(slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹
+          * (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ : Y)
+          * slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)),
+        hRleK (by
+          have hmem := (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem _
+            (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ).2
+            (slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹
+          rwa [inv_inv] at hmem), ?_⟩
+      show slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ))
+          * ((slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+              * slift (blockFrameImpl T Blk hE2) (g.1.1 δ)
+              * (slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹)
+            * slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))
+        = slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * slift (blockFrameImpl T Blk hE2) (g.1.1 δ)
+      group), by
+      show Continuous fun γ => QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))
+      exact Continuous.comp continuous_of_discreteTopology
+        (Continuous.comp continuous_of_discreteTopology g.1.1.continuous_toFun)⟩ with hθdef
+  have hθs : Function.Surjective ⇑θ := by
+    intro c
+    obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+    obtain ⟨γ, hγ⟩ := g.1.2 ((blockFrameImpl T Blk hE2).piB y)
+    refine ⟨γ, ?_⟩
+    show QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)) = c
+    rw [hγ, ← hy]
+    apply (QuotientGroup.mk'_eq_mk' Blk.K).mpr
+    have hker :
+        (slift (blockFrameImpl T Blk hE2)
+          ((blockFrameImpl T Blk hE2).piB y))⁻¹ * y ∈ Blk.frattiniK := by
+      rw [← (blockFrameImpl T Blk hE2).ker_piB, MonoidHom.mem_ker, map_mul, map_inv,
+        piB_slift]
+      group
+    exact ⟨(slift (blockFrameImpl T Blk hE2)
+        ((blockFrameImpl T Blk hE2).piB y))⁻¹ * y, hRleK hker, by group⟩
+  letI actG : DistribMulAction G (Additive ↥Blk.frattiniK) :=
+    DistribMulAction.compHom _ θ.toMonoidHom
+  letI : TopologicalSpace (Additive ↥Blk.frattiniK) :=
+    (inferInstance : TopologicalSpace ↥Blk.frattiniK)
+  haveI : DiscreteTopology (Additive ↥Blk.frattiniK) :=
+    ⟨(inferInstance : DiscreteTopology ↥Blk.frattiniK).eq_bot⟩
+  haveI : Finite (Additive ↥Blk.frattiniK) := inferInstance
+  haveI : ContinuousSMul G (Additive ↥Blk.frattiniK) := by
+    refine ⟨?_⟩
+    have hfac : (fun p : G × Additive ↥Blk.frattiniK => p.1 • p.2) =
+        (fun p : (Y ⧸ Blk.K) × Additive ↥Blk.frattiniK => p.1 • p.2) ∘
+          (fun p : G × Additive ↥Blk.frattiniK => (θ p.1, p.2)) := rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hA2 : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 :=
+    RStageLocal.frattiniK_add_self hRK hR2
+  have hsmul : ∀ (γ : G) (a : Additive ↥Blk.frattiniK), γ • a =
+      Additive.ofMul
+        (⟨slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * ((Additive.toMul a : ↥Blk.frattiniK) : Y)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹,
+          RStageLocal.conj_mem_R _ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
+    intro γ a
+    have h1 : γ • a = QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)) •
+          Additive.ofMul (Additive.toMul a) := rfl
+    rw [h1]
+    exact RStageLocal.conjC_smul_of_mk hRK _ (Additive.toMul a)
+  have hdefZ2 : (fun p : G × G =>
+      Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2)) ∈
+      Z2 G (Additive ↥Blk.frattiniK) := by
+    refine mem_Z2_iff.mpr ⟨?_, ?_⟩
+    · show Continuous fun p : G × G =>
+          (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2 : ↥Blk.frattiniK)
+      apply Continuous.subtype_mk
+      have hs : Continuous fun x : (blockFrameImpl T Blk hE2).YB =>
+          slift (blockFrameImpl T Blk hE2) x := continuous_of_discreteTopology
+      have h1 : Continuous fun p : G × G =>
+          slift (blockFrameImpl T Blk hE2) (g.1.1 p.1) :=
+        hs.comp (g.1.1.continuous_toFun.comp continuous_fst)
+      have h2 : Continuous fun p : G × G =>
+          slift (blockFrameImpl T Blk hE2) (g.1.1 p.2) :=
+        hs.comp (g.1.1.continuous_toFun.comp continuous_snd)
+      have h3 : Continuous fun p : G × G =>
+          slift (blockFrameImpl T Blk hE2) (g.1.1 (p.1 * p.2)) :=
+        hs.comp (g.1.1.continuous_toFun.comp continuous_mul)
+      exact (h1.mul h2).mul h3.inv
+    · intro γ δ ε
+      rw [hsmul γ]
+      apply Additive.toMul.injective
+      show (⟨slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * (rDefect (blockFrameImpl T Blk hE2) g.1.1 δ ε : Y)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹, _⟩ :
+            ↥Blk.frattiniK) * rDefect (blockFrameImpl T Blk hE2) g.1.1 γ (δ * ε)
+        = rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε
+          * rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ
+      rw [mul_comm (rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε)
+        (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ)]
+      apply Subtype.ext
+      show slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * (rDefect (blockFrameImpl T Blk hE2) g.1.1 δ ε : Y)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹
+            * (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ (δ * ε) : Y)
+        = (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ : Y)
+          * (rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε : Y)
+      have hrd : ∀ α β : G,
+          (rDefect (blockFrameImpl T Blk hE2) g.1.1 α β : Y) =
+            slift (blockFrameImpl T Blk hE2) (g.1.1 α)
+              * slift (blockFrameImpl T Blk hE2) (g.1.1 β)
+              * (slift (blockFrameImpl T Blk hE2) (g.1.1 (α * β)))⁻¹ :=
+        fun _ _ => rfl
+      rw [hrd, hrd, hrd, hrd,
+        show γ * (δ * ε) = γ * δ * ε from (mul_assoc γ δ ε).symm]
+      group
+  -- Tate `(2,0)` supplies the exact cup-free separation predicate.
+  letI : TopologicalSpace (ElemDual (Additive ↥Blk.frattiniK)) := ⊥
+  haveI : DiscreteTopology (ElemDual (Additive ↥Blk.frattiniK)) := ⟨rfl⟩
+  have hcompD : ∀ (γ : G) (lam : ElemDual (Additive ↥Blk.frattiniK)),
+      γ • lam = θ γ • lam := by
+    intro γ lam
+    apply ElemDual.ext
+    intro a
+    rw [ElemDual.smul_apply, ElemDual.smul_apply]
+    congr 1
+    change θ γ⁻¹ • a = (θ γ)⁻¹ • a
+    rw [map_inv]
+  haveI : ContinuousSMul G (ElemDual (Additive ↥Blk.frattiniK)) := by
+    refine ⟨?_⟩
+    have hfac : (fun p : G × ElemDual (Additive ↥Blk.frattiniK) =>
+        p.1 • p.2) =
+        (fun p : (Y ⧸ Blk.K) × ElemDual (Additive ↥Blk.frattiniK) => p.1 • p.2) ∘
+          (fun p => (θ p.1, p.2)) := by
+      funext p
+      exact hcompD p.1 p.2
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hpair : ∀ (γ : G) (a : Additive ↥Blk.frattiniK)
+      (lam : ElemDual (Additive ↥Blk.frattiniK)),
+      dualEval _ (γ • a) (γ • lam) = γ • dualEval _ a lam := by
+    intro γ a lam
+    rw [dualEval_apply, ElemDual.smul_apply, inv_smul_smul, dualEval_apply,
+      htriv]
+  have hsep : Count.IsTwoSeparating G
+      (Additive ↥Blk.frattiniK) :=
+    Count.isTwoSeparating_of_tateDualityG Dl hA2 htriv hpair
+  have hmem : (fun p : G × G =>
+      Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2)) ∈
+      B2 G (Additive ↥Blk.frattiniK) := by
+    apply hsep ⟨_, hdefZ2⟩
+    intro n hn
+    have hYinv : ∀ (y : Y) (r : ↥Blk.frattiniK),
+        n (Additive.ofMul
+          (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.frattiniK)) =
+          n (Additive.ofMul r) := by
+      intro y r
+      obtain ⟨γ, hγ⟩ := hθs (QuotientGroup.mk' Blk.K y)
+      have hfix := hn γ
+      have h1 := congrArg (fun mu : ElemDual (Additive ↥Blk.frattiniK) =>
+        mu (Additive.ofMul
+          (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.frattiniK))) hfix
+      have h2 : (γ • n) (Additive.ofMul
+          (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.frattiniK)) =
+          n (Additive.ofMul r) := by
+        rw [hcompD γ n]
+        show (θ γ • n) _ = _
+        rw [ElemDual.smul_apply, hγ, ← map_inv,
+          RStageLocal.conjC_smul_of_mk hRK y⁻¹
+            ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
+        refine congrArg _ (congrArg _ (Subtype.ext ?_))
+        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
+        group
+      exact h1.symm.trans h2
+    exact (H2mk_eq_zero_iff _).mp
+      (hall ⟨(n : Additive ↥Blk.frattiniK →+ ZMod 2), fun y r => hYinv y r⟩)
+  -- Extract the continuous splitting cochain and assemble the homomorphic lift.
+  obtain ⟨ψ, hψC1, hψeq⟩ := hmem
+  have hψc : Continuous ψ := hψC1
+  refine homLift_of_split (blockFrameImpl T Blk hE2) g.1.1
+    (fun γ => Additive.toMul (ψ γ)) ?_ ?_
+  · show Continuous fun γ => ((Additive.toMul (ψ γ) : ↥Blk.frattiniK) : Y)
+    exact continuous_subtype_val.comp hψc
+  · intro γ δ
+    have h : γ • ψ δ - ψ (γ * δ) + ψ γ =
+        Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) :=
+      congrFun hψeq (γ, δ)
+    have hD : -(Additive.ofMul
+        (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ)) =
+        Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) :=
+      neg_eq_of_add_eq_zero_left (hA2 _)
+    have h2 : ψ (γ * δ) = ψ γ + γ • ψ δ +
+        Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) := by
+      have h3 : ψ (γ * δ) = γ • ψ δ + ψ γ -
+          Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) := by
+        rw [← h]
+        abel
+      rw [h3, sub_eq_add_neg, hD, add_comm (γ • ψ δ) (ψ γ)]
+    rw [hsmul γ (ψ δ)] at h2
+    exact congrArg
+      (fun a : Additive ↥Blk.frattiniK => ((Additive.toMul a : ↥Blk.frattiniK) : Y)) h2
+
+/-- The one-field interface isolating radical-obstruction separation.  It is retained as a
+useful compatibility boundary even though `correctedRStageSeparation_galK` now constructs it. -/
 structure CorrectedRStageSeparationGalK (K : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] K] (q : ℕ) (P : ProfiniteGrp)
     (nuP : ContinuousMonoidHom P Ztwo)
@@ -403,6 +682,33 @@ structure CorrectedRStageSeparationGalK (K : IntermediateField ℚ_[2] ℚ̄₂)
         (htriv_galK K) (card_H2_zmodTwo_galK K) g.1.1 = 0 →
       ∃ φ : ContinuousMonoidHom (galKProfinite K) Y,
         ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ
+
+/-- Tate duality at the open subgroup `G_K` supplies the corrected R-stage separation record.
+
+The record API is unchanged: this is a constructor for its single field.  No degree or Euler
+characteristic is required. -/
+noncomputable def correctedRStageSeparation_galK
+    {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+    CorrectedRStageSeparationGalK K q P nuP := by
+  let G : Type := ((galKProfinite K : ProfiniteGrp) : Type)
+  let e : G ≃ₜ* GalK K := ContinuousMulEquiv.refl (GalK K)
+  letI dmTarget : DistribMulAction (GalK K) (MuN 2) := inferInstance
+  have hcontTarget : Continuous fun p : (GalK K) × MuN 2 => p.1 • p.2 := continuous_smul
+  letI dmMu : DistribMulAction G (MuN 2) :=
+    DistribMulAction.compHom _ e.toMonoidHom
+  haveI csMu : ContinuousSMul G (MuN 2) :=
+    ⟨hcontTarget.comp ((e.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
+  haveI : (GalKsub K).FiniteIndex :=
+    @Subgroup.finiteIndex_of_finite_quotient _ _ _
+      (finite_quotient_of_isOpen _ (isOpen_fixingSubgroup K))
+  let Dl : TateDualityG G 2 := LSquare.tateDualityG_two_of_equiv e
+    (subgroup_isLocalDualizingGroup 2 (GalKsub K) (isOpen_fixingSubgroup K))
+  refine ⟨?_⟩
+  intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE2 hRK hR2 b F g hg
+  exact rStage_hsep_hom_of_tateDualityG Dl (smulZmod2GalK K)
+    (contSMulZmod2GalK K) (htriv_galK K) (card_H2_zmodTwo_galK K)
+    hE2 hRK hR2 b F g hg
 
 /-- Fill the two-field residue record from separation alone; the `zRN` count is the theorem
 `correctedRStage_hZcount_galK`. -/
@@ -428,6 +734,15 @@ theorem correctedRStageSemantics_galK_of_separation
     (card_H2_zmodTwo_galK K) (tfg_galK K) b F
     (S.hsep_hom hE2 hRK hR2 b F)
     (correctedRStage_hZcount_galK hdeg hE2 hRK hR2 b F)
+
+/-- The corrected equation-(136) semantics at `G_K`, with both analytic residues discharged.
+The R-cocycle count uses the degree-`n` Euler formula; separation uses only Tate duality. -/
+theorem correctedRStageSemantics_galK
+    {n q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hdeg : Module.finrank ℚ_[2] K = n) :
+    CorrectedRStageSemantics (galKProfinite K) n q P nuP (standardNumerics n) :=
+  correctedRStageSemantics_galK_of_separation hdeg correctedRStageSeparation_galK
 
 /-- `blockStageR136NK` reduces the corrected arithmetic equation exactly to separation and the
 degree-corrected R-cocycle count.  The existing GalK scalar and t.f.g. suppliers discharge all
@@ -489,12 +804,19 @@ noncomputable def ofKExactSupplyAndRStageResidues (S : KExactSupply T n P hP nuP
     KExactSupplyRN T n P hP nuP :=
   ofKExactSupply S (correctedRStageSemantics_galK_of_residues Rstage)
 
-/-- Strongest corrected arithmetic upgrade currently available: the generic GalK Euler count
-fills `hZcount`, so only radical-obstruction separation is supplied. -/
+/-- Compatibility upgrade accepting an explicit separation record.  The canonical constructor
+below now supplies that record from Tate duality. -/
 noncomputable def ofKExactSupplyAndRStageSeparation (S : KExactSupply T n P hP nuP)
     (Sep : CorrectedRStageSeparationGalK K (qOf K FF) P nuP) :
     KExactSupplyRN T n P hP nuP :=
   ofKExactSupply S (correctedRStageSemantics_galK_of_separation S.hdeg Sep)
+
+/-- Canonical corrected upgrade of a legacy arithmetic supply.  Local Euler counting supplies
+the new `zRN` coefficient and Tate `(2,0)` supplies R-stage separation, so no corrected-stage
+residue remains in the constructor API. -/
+noncomputable def ofKExactSupplyCanonical (S : KExactSupply T n P hP nuP) :
+    KExactSupplyRN T n P hP nuP :=
+  ofKExactSupply S (correctedRStageSemantics_galK S.hdeg)
 
 /-- At degree one no corrected R-stage hypothesis is needed: `zRN` is definitionally the
 legacy frozen coefficient, so the exact-lifting packet converts directly. -/
