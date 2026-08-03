@@ -8,13 +8,13 @@ import GQ2.Dyadic.Instances.LSourceComparison
 /-!
 # Direct Tate-duality assembly from the improved L presentation
 
-This file begins the non-field-theoretic route from the abstract L presentation to
-`TateDualityG`.  Its first task is structural: every continuous action on a finite discrete
+This file gives the non-field-theoretic assembly route from the abstract L presentation to
+`TateDualityG`.  Its first ingredient is structural: every continuous action on a finite discrete
 coefficient module has a canonical finite discrete target, namely the full additive
 automorphism group of the coefficient.  This avoids choosing an arbitrary quotient before a
 uniform source-comparison provider is applied.
 
-The remaining assembly is described after `finiteActionHom`.  Crucially, it must consume
+The final constructor consumes
 `SourceComparisonCore`, not `SourceComparisonPackage`: continuous cup perfectness is a
 conclusion of word Stokes duality and the comparison squares, never an input.
 -/
@@ -414,23 +414,104 @@ theorem LNoCupModuleData.tateCupBijections
         invZ (cup20 (dualEval M).flip (flip_equivariant (dualEval M) hpair) (e2 c) d)
     rw [H2congr_cup20_muDualPairing htriv hpair]
 
-/-! ## Remaining direct-assembly interface
+set_option maxHeartbeats 800000 in
+/-- Apply a uniform provider to an arbitrary finite continuous exponent-two module.  The
+elementary-dual continuity and both word-lift topologies are installed canonically here, so the
+caller sees exactly the coefficient signature quantified by `TateDualityG`. -/
+theorem LNoCupTateProviderCore.tateCupBijections
+    {h q e : ℕ} {hq : Even q} {he : Odd e}
+    [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+    [DistribMulAction ((gamma h q : Type)) (ZMod 2)]
+    [ContinuousSMul ((gamma h q : Type)) (ZMod 2)]
+    [DistribMulAction ((gamma h q : Type)) (MuN 2)]
+    [ContinuousSMul ((gamma h q : Type)) (MuN 2)]
+    (P : LNoCupTateProviderCore h q e hq he)
+    (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((gamma h q : Type)) M]
+    [ContinuousSMul ((gamma h q : Type)) M] [Finite M]
+    (hMtwo : ∀ m : M, m + m = 0) :
+    Function.Bijective (fun c : H0 (gamma h q : Type) (MuDual 2 M) =>
+      ((H2congr muNTwoEquiv (muNTwoEquiv_equivariantG P.htriv)).trans
+        P.invZ).toAddMonoidHom.comp
+          (cup02 (muDualPairing 2 M) (muDualPairing_equivariant 2 M) c)) ∧
+    Function.Bijective (fun c : H1 (gamma h q : Type) (MuDual 2 M) =>
+      ((H2congr muNTwoEquiv (muNTwoEquiv_equivariantG P.htriv)).trans
+        P.invZ).toAddMonoidHom.comp
+          (cup11 (muDualPairing 2 M) (muDualPairing_equivariant 2 M) c)) ∧
+    Function.Bijective (fun c : H2 (gamma h q : Type) (MuDual 2 M) =>
+      ((H2congr muNTwoEquiv (muNTwoEquiv_equivariantG P.htriv)).trans
+        P.invZ).toAddMonoidHom.comp
+          (cup20 (muDualPairing 2 M) (muDualPairing_equivariant 2 M) c)) := by
+  letI : TopologicalSpace (ElemDual M) := ⊥
+  letI : DiscreteTopology (ElemDual M) := ⟨rfl⟩
+  letI : ContinuousSMul ((gamma h q : Type)) (ElemDual M) :=
+    finiteElemDualContinuousSMul
+  letI : TopologicalSpace (WordLift M (Multiplicative (AddAut M))) := ⊥
+  letI : DiscreteTopology (WordLift M (Multiplicative (AddAut M))) := ⟨rfl⟩
+  letI : TopologicalSpace (WordLift (ElemDual M) (Multiplicative (AddAut M))) := ⊥
+  letI : DiscreteTopology (WordLift (ElemDual M) (Multiplicative (AddAut M))) := ⟨rfl⟩
+  let Q := P.moduleData M hMtwo
+  exact Q.tateCupBijections P.htriv P.invZ hMtwo
 
-For every finite exponent-two `G`-module `M`, a uniform direct proof should now apply the L
-provider with
+/-- The final direct constructor: a common scalar orientation, noncircular L comparison cores,
+and independent word Stokes duality for all finite exponent-two modules imply the full
+`TateDualityG` bundle. -/
+noncomputable def tateDualityG_of_lNoCupTateProviderCore
+    {h q e : ℕ} {hq : Even q} {he : Odd e}
+    [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+    [DistribMulAction ((gamma h q : Type)) (ZMod 2)]
+    [ContinuousSMul ((gamma h q : Type)) (ZMod 2)]
+    [DistribMulAction ((gamma h q : Type)) (MuN 2)]
+    [ContinuousSMul ((gamma h q : Type)) (MuN 2)]
+    (P : LNoCupTateProviderCore h q e hq he) :
+    TateDualityG (gamma h q : Type) 2 where
+  inv := (H2congr muNTwoEquiv (muNTwoEquiv_equivariantG P.htriv)).trans P.invZ
+  perfect02 := by
+    intro M _ _ _ _ _ _ htor
+    have hMtwo : ∀ m : M, m + m = 0 := fun m => by
+      simpa only [two_nsmul] using htor m
+    exact (P.tateCupBijections M hMtwo).1
+  perfect11 := by
+    intro M _ _ _ _ _ _ htor
+    have hMtwo : ∀ m : M, m + m = 0 := fun m => by
+      simpa only [two_nsmul] using htor m
+    exact (P.tateCupBijections M hMtwo).2.1
+  perfect20 := by
+    intro M _ _ _ _ _ _ htor
+    have hMtwo : ∀ m : M, m + m = 0 := fun m => by
+      simpa only [two_nsmul] using htor m
+    exact (P.tateCupBijections M hMtwo).2.2
+
+/-- Public wrapper using the canonical discrete/trivial `ZMod 2` coefficient structure. -/
+noncomputable def tateDualityG_of_lNoCupTateProvider
+    {h q e : ℕ} {hq : Even q} {he : Odd e}
+    [DistribMulAction ((gamma h q : Type)) (MuN 2)]
+    [ContinuousSMul ((gamma h q : Type)) (MuN 2)]
+    (P : LNoCupTateProvider h q e hq he) : TateDualityG (gamma h q : Type) 2 := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) := scalarActionZmodTwo _
+  letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+    scalarActionZmodTwo_continuousSMul _
+  change LNoCupTateProviderCore h q e hq he at P
+  exact tateDualityG_of_lNoCupTateProviderCore P
+
+/-! ## Mathematical frontier
+
+For every finite exponent-two `G`-module `M`, `LNoCupTateProvider` applies the L provider with
 
 * `C := Multiplicative (AddAut M)`,
 * `rho := finiteActionHom`, and
 * the tautological target action above.
 
-The provider must return a `SourceComparisonCore` and an independently proved word
+The provider returns a `SourceComparisonCore` and an independently proved word
 `StokesDuality`, sharing a scalar orientation `H²(G, ZMod 2) ≃+ ZMod 2`.  The theorem
-`SourceComparisonCore.sourceCupBijections_of_stokesDuality` then proves the three continuous
+`SourceComparisonCore.sourceCupBijections_of_stokesDuality` proves the three continuous
 evaluation-cup maps perfect.  `transpose_bijective_of_bijective` and cup symmetry reverse the
 currying, after which `dualAddEquiv`/`edEquivariantG` and
 `muNTwoEquiv`/`muNTwoEquiv_equivariantG` transport the result to the exact `MuDual` and `MuN`
-spelling of `TateDualityG`; the three `H2congr_cup*_muDualPairing` theorems above are the exact
-coefficient-naturality identities needed for that last step.
+spelling of `TateDualityG`.  This entire assembly is implemented by
+`tateDualityG_of_lNoCupTateProvider`.
 
 Thus the remaining mathematical data are the all-coefficient `H²` comparisons, a scalar
 orientation/trace proved without Tate duality, and independent word Stokes duality.  No
