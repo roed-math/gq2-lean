@@ -206,6 +206,52 @@ theorem eval_mpcWAt_congr {G : Type} [Group G] [TopologicalSpace G] [IsTopologic
   simp only [linFactorsAt, hatFactorsAt, List.map_append, List.prod_append, List.map_cons,
     List.map_nil, List.prod_cons, List.prod_nil, meval_comm, hD]
 
+/-! ### The semantic pro-`2` boundary
+
+Unlike the display comparison above, this statement needs no rational display for `eta`.  It
+computes the semantic `.profPow` node directly, so it applies to every `2`-adic unit and keeps
+the complete handle block. -/
+
+/-- **Gate C for the semantic arbitrary-unit `Mpc` word, at every handle count.** -/
+theorem eval_pro2_mpcWUnit {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G]
+    {alpha : ℕ} (halpha : 1 ≤ alpha) (r p : ℕ) (eta : ℤ_[2]ˣ) (h : ℕ)
+    (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (mpcWUnit alpha r p eta h))
+      = MarkedCore.mWord alpha
+          ((t (coreLetter h 0))⁻¹ * ((t (coreLetter h 2) * t.σ ^ s r) ^ m alpha)⁻¹)
+          (t (coreLetter h 1) * t.σ ^ p)
+          (t (coreLetter h 2) * t.σ ^ s r)
+          (t.σ ^ᶻ etaHatZ (eta : ℤ_[2]))
+        * MarkedCore.handleWord (fun j ↦ t (handleU j)) (fun j ↦ t (handleV j)) := by
+  have heta :
+      t.eval (pro2 (.profPow (.gen .sigma) (etaHatZ (eta : ℤ_[2]))))
+        = t.σ ^ᶻ etaHatZ (eta : ℤ_[2]) := by
+    rw [pro2_profPow_of_ne _ (Npc.etaHatZ_ne_omega2 (eta : ℤ_[2]))]
+    rfl
+  have htail : (((handleTailW h).map pro2).map (t.eval ·)).prod
+      = t.eval (pro2 (handlesW h)) := by
+    match h with
+    | 0 => simp [handleTailW, handlesW]
+    | h + 1 => simp [handleTailW]
+  rw [mpcWUnit, mpcWAt, pro2_prodList, eval_prodListM, List.map_append,
+    List.map_append, List.map_append, List.map_append, List.map_append, List.map_append,
+    List.prod_append, List.prod_append, List.prod_append, htail]
+  simp only [linFactorsAt, hatFactorsAt, List.map_cons, List.map_nil, pro2_zpow, pro2_comm,
+    List.prod_cons, List.prod_nil, meval_zpow, meval_comm, mul_one, eval_pro2_aW,
+    eval_pro2_bW, eval_pro2_c0W, eval_pro2_e01W, eval_pro2_e2W, eval_pro2_aHatW,
+    eval_pro2_bHatW, eval_pro2_c0HatW, heta, eval_pro2_dW, one_zpow, commR_one_left,
+    pro2_handlesW, eval_handlesW]
+  rw [commR_eq_one_iff.mpr
+      (((Commute.refl t.σ).pow_pow (s r * m alpha) p).inv_left),
+    commR_eq_one_iff.mpr
+      (commute_pow_zpowHat t.σ (s r) (etaHatZ (eta : ℤ_[2])))]
+  simp only [zpow_natCast, one_mul, mul_one]
+  rw [← pow_mul, s_mul_two_pow halpha r, mul_comm 2 (s r * m alpha), pow_mul]
+  rw [MarkedCore.mWord]
+  simp only [commR, GQ2.commP, mul_assoc]
+  group
+
 /-- A compatible `Mpc` display evaluates exactly like the semantic arbitrary-unit word.  This
 does not claim literal word equality for `.one` or `.lit`. -/
 theorem eval_mpcWUnit_eq_display {G : Type} [Group G] [TopologicalSpace G]

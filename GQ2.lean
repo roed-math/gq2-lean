@@ -302,6 +302,7 @@ import GQ2.Dyadic.Instances.KAnalytic
 import GQ2.Dyadic.Instances.QTwo
 import GQ2.Dyadic.Instances.NpcCore
 import GQ2.Dyadic.Instances.Cores
+import GQ2.Dyadic.Instances.MpcCoreUnit
 import GQ2.Dyadic.Instances.Sqrt2
 import GQ2.Dyadic.Instances.Sqrt5
 import GQ2.Dyadic.Instances.Sqrt10
