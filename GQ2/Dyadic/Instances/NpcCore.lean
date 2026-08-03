@@ -252,7 +252,199 @@ theorem map_npcUntwistOne {H : Type*} [Group H] {F : Type*} [FunLike F G H]
     · simp only [npcUntwistOne, if_neg h1, if_pos h2]
     · simp only [npcUntwistOne, if_neg h1, if_neg h2]
 
+/-! ## The arbitrary-unit triangular dictionary on pro-2 groups -/
+
+section UnitTwist
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+  [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
+
+/-- Forward `Npc` core twist for an arbitrary selected unit. -/
+noncomputable def npcTwistUnit (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) : Fin (coreRank h) → P :=
+  fun i ↦ if (i : ℕ) = 1 then zpowZtwo hP (c 2) (eta : ℤ_[2])
+    else if (i : ℕ) = 2 then c 1 * c 2 ^ ((2 : ℤ) ^ r)
+    else c i
+
+/-- Inverse `Npc` twist: recover the alphabet `sigma` by the `eta⁻¹`-power. -/
+noncomputable def npcUntwistUnit (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) : Fin (coreRank h) → P :=
+  let s := zpowZtwo hP (c 1) ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+  fun i ↦ if (i : ℕ) = 1 then c 2 * s ^ (-((2 : ℤ) ^ r))
+    else if (i : ℕ) = 2 then s
+    else c i
+
+@[simp] theorem npcTwistUnit_one (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcTwistUnit hP eta r h c 1 = zpowZtwo hP (c 2) (eta : ℤ_[2]) := by
+  rw [npcTwistUnit, if_pos (coreVal_one h)]
+
+@[simp] theorem npcTwistUnit_two (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcTwistUnit hP eta r h c 2 = c 1 * c 2 ^ ((2 : ℤ) ^ r) := by
+  rw [npcTwistUnit, if_neg (by rw [coreVal_two]; omega), if_pos (coreVal_two h)]
+
+theorem npcTwistUnit_apply_ne (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) {i : Fin (coreRank h)}
+    (h1 : (i : ℕ) ≠ 1) (h2 : (i : ℕ) ≠ 2) : npcTwistUnit hP eta r h c i = c i := by
+  simp only [npcTwistUnit, if_neg h1, if_neg h2]
+
+@[simp] theorem npcTwistUnit_zero (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) : npcTwistUnit hP eta r h c 0 = c 0 :=
+  npcTwistUnit_apply_ne hP eta r h c (by rw [coreVal_zero]; omega)
+    (by rw [coreVal_zero]; omega)
+
+@[simp] theorem npcTwistUnit_three (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) : npcTwistUnit hP eta r h c 3 = c 3 :=
+  npcTwistUnit_apply_ne hP eta r h c (by rw [coreVal_three]; omega)
+    (by rw [coreVal_three]; omega)
+
+@[simp] theorem npcTwistUnit_handleIdxU (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) (j : Fin h) :
+    npcTwistUnit hP eta r h c (handleIdxU j) = c (handleIdxU j) :=
+  npcTwistUnit_apply_ne hP eta r h c (by rw [handleIdxU_val]; omega)
+    (by rw [handleIdxU_val]; omega)
+
+@[simp] theorem npcTwistUnit_handleIdxV (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) (j : Fin h) :
+    npcTwistUnit hP eta r h c (handleIdxV j) = c (handleIdxV j) :=
+  npcTwistUnit_apply_ne hP eta r h c (by rw [handleIdxV_val]; omega)
+    (by rw [handleIdxV_val]; omega)
+
+@[simp] theorem npcUntwistUnit_one (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcUntwistUnit hP eta r h c 1 =
+      c 2 * zpowZtwo hP (c 1) ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ (-((2 : ℤ) ^ r)) := by
+  simp only [npcUntwistUnit]
+  rw [if_pos (coreVal_one h)]
+
+@[simp] theorem npcUntwistUnit_two (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcUntwistUnit hP eta r h c 2 =
+      zpowZtwo hP (c 1) ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) := by
+  simp only [npcUntwistUnit]
+  rw [if_neg (by rw [coreVal_two]; omega), if_pos (coreVal_two h)]
+
+theorem npcUntwistUnit_apply_ne (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) {i : Fin (coreRank h)}
+    (h1 : (i : ℕ) ≠ 1) (h2 : (i : ℕ) ≠ 2) : npcUntwistUnit hP eta r h c i = c i := by
+  simp only [npcUntwistUnit, if_neg h1, if_neg h2]
+
+theorem zpowZtwo_unit_inv_cancel (hP : IsProP 2 P) (x : P) (eta : ℤ_[2]ˣ) :
+    zpowZtwo hP (zpowZtwo hP x (eta : ℤ_[2])) ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = x := by
+  rw [zpowZtwo_zpowZtwo, ← Units.val_mul, mul_inv_cancel, Units.val_one,
+    zpowZtwo_one_exp]
+
+theorem zpowZtwo_inv_unit_cancel (hP : IsProP 2 P) (x : P) (eta : ℤ_[2]ˣ) :
+    zpowZtwo hP (zpowZtwo hP x ((eta⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) (eta : ℤ_[2]) = x := by
+  rw [zpowZtwo_zpowZtwo, ← Units.val_mul, inv_mul_cancel, Units.val_one,
+    zpowZtwo_one_exp]
+
+theorem npcTwistUnit_npcUntwistUnit (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcTwistUnit hP eta r h (npcUntwistUnit hP eta r h c) = c := by
+  funext i
+  by_cases h1 : (i : ℕ) = 1
+  · have hi : i = 1 := Fin.ext (by rw [h1, coreVal_one])
+    subst hi
+    rw [npcTwistUnit_one, npcUntwistUnit_two, zpowZtwo_inv_unit_cancel]
+  · by_cases h2 : (i : ℕ) = 2
+    · have hi : i = 2 := Fin.ext (by rw [h2, coreVal_two])
+      subst hi
+      rw [npcTwistUnit_two, npcUntwistUnit_one, npcUntwistUnit_two]
+      group
+    · rw [npcTwistUnit_apply_ne _ _ _ _ _ h1 h2,
+        npcUntwistUnit_apply_ne _ _ _ _ _ h1 h2]
+
+theorem npcUntwistUnit_npcTwistUnit (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcUntwistUnit hP eta r h (npcTwistUnit hP eta r h c) = c := by
+  funext i
+  by_cases h1 : (i : ℕ) = 1
+  · have hi : i = 1 := Fin.ext (by rw [h1, coreVal_one])
+    subst hi
+    rw [npcUntwistUnit_one, npcTwistUnit_two, npcTwistUnit_one,
+      zpowZtwo_unit_inv_cancel]
+    group
+  · by_cases h2 : (i : ℕ) = 2
+    · have hi : i = 2 := Fin.ext (by rw [h2, coreVal_two])
+      subst hi
+      rw [npcUntwistUnit_two, npcTwistUnit_one, zpowZtwo_unit_inv_cancel]
+    · rw [npcUntwistUnit_apply_ne _ _ _ _ _ h1 h2,
+        npcTwistUnit_apply_ne _ _ _ _ _ h1 h2]
+
+theorem map_npcTwistUnit {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+    [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q]
+    (hP : IsProP 2 P) (hQ : IsProP 2 Q) (f : ContinuousMonoidHom P Q)
+    (eta : ℤ_[2]ˣ) (r h : ℕ) (c : Fin (coreRank h) → P) :
+    (fun i ↦ f (npcTwistUnit hP eta r h c i)) =
+      npcTwistUnit hQ eta r h (fun i ↦ f (c i)) := by
+  funext i
+  by_cases h1 : (i : ℕ) = 1
+  · simp only [npcTwistUnit, if_pos h1, map_zpowZtwo hP hQ]
+  · by_cases h2 : (i : ℕ) = 2
+    · simp only [npcTwistUnit, if_neg h1, if_pos h2, map_mul, map_zpow]
+    · simp only [npcTwistUnit, if_neg h1, if_neg h2]
+
+theorem map_npcUntwistUnit {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+    [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q]
+    (hP : IsProP 2 P) (hQ : IsProP 2 Q) (f : ContinuousMonoidHom P Q)
+    (eta : ℤ_[2]ˣ) (r h : ℕ) (c : Fin (coreRank h) → P) :
+    (fun i ↦ f (npcUntwistUnit hP eta r h c i)) =
+      npcUntwistUnit hQ eta r h (fun i ↦ f (c i)) := by
+  funext i
+  by_cases h1 : (i : ℕ) = 1
+  · simp only [npcUntwistUnit, if_pos h1, map_mul, map_zpow, map_zpowZtwo hP hQ]
+  · by_cases h2 : (i : ℕ) = 2
+    · simp only [npcUntwistUnit, if_neg h1, if_pos h2, map_zpowZtwo hP hQ]
+    · simp only [npcUntwistUnit, if_neg h1, if_neg h2]
+
+/-- Alphabet marking to standard `D_N` core coordinates, specialized to pro-2 groups. -/
+noncomputable def npcToCoreUnit (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (t : Marking (2 + 2 * h) P) : Fin (coreRank h) → P :=
+  npcTwistUnit hP eta r h ((nReindex h).toCore t)
+
+/-- Standard `D_N` core coordinates to the arbitrary-unit `Npc` alphabet marking. -/
+noncomputable def npcOfCoreUnit (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) : Marking (2 + 2 * h) P :=
+  (nReindex h).ofCore (npcUntwistUnit hP eta r h c)
+
+@[simp] theorem npcOfCoreUnit_tau (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) : (npcOfCoreUnit hP eta r h c).τ = 1 :=
+  (nReindex h).ofCore_tau _
+
+theorem npcToCoreUnit_ofCore (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (c : Fin (coreRank h) → P) :
+    npcToCoreUnit hP eta r h (npcOfCoreUnit hP eta r h c) = c := by
+  rw [npcToCoreUnit, npcOfCoreUnit, (nReindex h).toCore_ofCore,
+    npcTwistUnit_npcUntwistUnit]
+
+theorem npcOfCoreUnit_toCore (hP : IsProP 2 P) (eta : ℤ_[2]ˣ) (r h : ℕ)
+    (t : Marking (2 + 2 * h) P) (ht : t.τ = 1) :
+    npcOfCoreUnit hP eta r h (npcToCoreUnit hP eta r h t) = t := by
+  rw [npcOfCoreUnit, npcToCoreUnit, npcUntwistUnit_npcTwistUnit,
+    (nReindex h).ofCore_toCore t ht]
+
+end UnitTwist
+
 /-! ## Dictionary, relation transport, and core presentation -/
+
+/-- The arbitrary-unit semantic `Npc` word reads as the standard `N` relator after the
+pro-2-specialized dictionary. -/
+theorem npcProTwoWordUnit (alpha r h : ℕ) (eta : ℤ_[2]ˣ) (d : NpcDisplayFor eta)
+    {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+    [T2Space P] [TotallyDisconnectedSpace P] (hP : IsProP 2 P)
+    (t : Marking (2 + 2 * h) P) :
+    t.eval (pro2 (npcWUnit alpha r h eta)) =
+      nRelWord alpha (npcToCoreUnit hP eta r h t) := by
+  rw [npcWUnit_eq_display alpha r h d, eval_pro2_npcW,
+    EtaData.toZhat_eq_etaHatZ d.represents, zpowHat_etaHatZ_eq_zpowZtwo hP]
+  show _ = nRelWord alpha
+    (npcTwistUnit hP eta r h (fun i ↦ t (nIdx h i)))
+  simp only [nRelWord, npcTwistUnit_zero, npcTwistUnit_one, npcTwistUnit_two,
+    npcTwistUnit_three, npcTwistUnit_handleIdxU, npcTwistUnit_handleIdxV,
+    nIdx_zero, nIdx_one, nIdx_two, nIdx_three, nIdx_handleIdxU, nIdx_handleIdxV,
+    Marking.apply_sigma]
 
 /-- The procyclic-`N` dictionary at `eta = 1`, uniformly in the handle count. -/
 noncomputable def npcReindexOne (r h : ℕ) :
