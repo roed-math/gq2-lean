@@ -14,25 +14,32 @@ import GQ2.UnitNormIndex
 This file carries the general presentation as far as the current field formalization permits.
 For `B : MarkedRecip Rec K` and `FF : DyadicUnitFiltration K`, the filtration supplies a
 uniformizer, hence surjectivity of `B.nu_ur`; `B.toMarkedPair` then constructs the complete
-`CyclotomicFrobeniusDatum`.  On an even Labute family, an explicitly supplied marked generator
-and splitting determine the compact/procyclic row.  Under the explicit ramified-`i` hypothesis,
-`MarkedRecip.level_zero_or_not_even_eta_of_ramified` excludes the even-eta row.  The procyclic
-selector applies `exists_isEtaFor_with_display_of_not_even`, so the eta stored in the selected
-branch is the arithmetic lift chosen by that theorem and carries its own honest display.
+`CyclotomicFrobeniusDatum`.  On an even Labute family, explicitly supplied family-specific
+marked-generator data determine the compact/procyclic row.  For `M`, the product splitting and
+the ramified-`i` hypothesis exclude the even-eta row.  For `N`, the whole procyclic orientation
+image directly makes the canonical generator odd.  The procyclic selector applies
+`exists_isEtaFor_with_display_of_not_even`, so the eta stored in the selected branch is the
+arithmetic lift chosen by that theorem and carries its own honest display.
 
-The unresolved general Labute theorem is visible in `FieldBranchWitness`:
+The unresolved general Labute theorem is visible in the corrected
+`FamilyFieldBranchWitness`:
 
 * the caller chooses `L`, `M alpha`, or `N alpha` and proves the required degree parity;
 * on `L`, the caller supplies the still-missing theorem that the marked level is zero;
-* on `M` and `N`, the caller supplies the topological splitting facts used by packet
-  Proposition 8.1, now at the library's canonical `mUnit alpha` or `nUnit alpha`.
+* on `M`, the caller supplies the product splitting used by packet Proposition 8.1 at the
+  canonical `mUnit alpha`;
+* on `N`, the caller supplies whole-image procyclic generator data at the canonical
+  `nUnit alpha`, never the contradictory product splitting.
 
 `FieldDataEven` proves the even cup-form normal form, but it does not determine `M` versus `N` or
 the integer `alpha`; `LabuteInterface` deliberately keeps that classification conditional.
 The inverse equations for the standard M/N units are no longer part of the residual interface:
-they uniquely determine, and are discharged by, `mUnit alpha` and `nUnit alpha`.  Consequently no
-stronger all-field selector is currently justified.  There is no uniqueness claim for eta: a
-residue class has many 2-adic lifts, and the semantic presentation works with the one chosen here.
+they uniquely determine, and are discharged by, `mUnit alpha` and `nUnit alpha`.  No selector
+without this residual family-classification witness is currently justified.  There is no
+uniqueness claim for eta: a residue class has many 2-adic lifts, and the semantic presentation
+works with the one chosen here.  The older `FieldBranchWitness` and `FieldBranchSelection` remain
+below for source compatibility, with an explicit theorem showing why their legacy `N` path is
+uninhabited.
 
 The resulting semantic word is exactly the improved five-row table:
 
@@ -789,6 +796,246 @@ theorem semantic_word_eq_improved_of_canonical
       FieldBranchSelection.improvedWord D.params
         (selectFieldBranchCanonical B FF D RI W).branch :=
   FieldBranchSelection.semantic_word_eq_improved _
+
+/-! ## Corrected family-indexed selector
+
+The legacy selector above cannot honestly select an `N` field: its `N` witness asks for the
+product splitting `MarkedGeneratorData`, which is contradictory for the canonical `nUnit` at
+every valid `alpha`.  The parallel interface below is the non-breaking migration path.  Its `M`
+constructor is exactly the old product splitting, while its `N` constructor uses the whole-image
+procyclic datum and its odd-generator theorem.  The selected five-row words are unchanged.
+-/
+
+/-- The corrected residual family witness.  The marked-generator field is indexed by the
+Labute family, so an `N` witness can no longer accidentally demand the `M` product splitting. -/
+inductive FamilyFieldBranchWitness {A : Type*} [CommGroup A] (P : FieldParameters)
+    (Q : MarkedPair A) : Type
+  | L (degree_odd : Odd P.n) (level_zero : Q.r = 0)
+  | M (alpha : ℕ) (alpha_valid : 2 ≤ alpha) (degree_even : Even P.n)
+      (marked : FamilyMarkedGeneratorData Q (.M alpha))
+  | N (alpha : ℕ) (alpha_valid : 2 ≤ alpha) (degree_even : Even P.n)
+      (marked : FamilyMarkedGeneratorData Q (.N alpha))
+
+namespace FamilyFieldBranchWitness
+
+variable {A : Type*} [CommGroup A] {P : FieldParameters} {Q : MarkedPair A}
+
+/-- The Labute family carried by the corrected witness. -/
+def family : FamilyFieldBranchWitness P Q → LabuteType
+  | .L .. => .L
+  | .M alpha .. => .M alpha
+  | .N alpha .. => .N alpha
+
+/-- Arithmetic correctness for the corrected selector.  The `Mpc` row retains the product
+splitting's sign and eta equations.  The `Npc` row instead marks the canonical generator of the
+whole procyclic image; it has no artificial `-1` factor. -/
+def Matches : (W : FamilyFieldBranchWitness P Q) → BranchData → Prop
+  | .L .., B => B = .L
+  | .M alpha _ _ _, .M0 beta => beta = alpha ∧ Q.r = 0
+  | .M alpha _ _ G, .Mpc beta r epsilon eta =>
+      beta = alpha ∧ r = Q.r ∧
+        G.toMarkedSplitting.negOneVal =
+          ((epsVal epsilon * 2 ^ (Q.r - 1) : ℕ) : ZMod (2 ^ Q.r)) ∧
+        IsEtaFor Q.datum G.toMarkedSplitting.u eta
+  | .N alpha _ _ _, .N0 beta => beta = alpha ∧ Q.r = 0
+  | .N alpha _ _ G, .Npc beta r eta =>
+      beta = alpha ∧ r = Q.r ∧
+        IsEtaFor Q.datum
+          (⟨MarkedCore.nUnit alpha, G.unit_mem⟩ : ↥Q.C) eta
+  | _, _ => False
+
+/-- Every legacy canonical witness has a corrected interpretation.  The old `N` case is
+eliminated by the regression theorem showing that its product splitting is impossible. -/
+noncomputable def ofCanonical :
+    CanonicalFieldBranchWitness P Q → FamilyFieldBranchWitness P Q
+  | .L degree_odd level_zero => .L degree_odd level_zero
+  | .M alpha alpha_valid degree_even marked =>
+      .M alpha alpha_valid degree_even marked
+  | .N _alpha alpha_valid _ marked =>
+      (CanonicalFieldBranchWitness.N_impossible alpha_valid marked).elim
+
+end FamilyFieldBranchWitness
+
+/-- A selected arithmetic branch over the corrected family witness.  This intentionally
+parallels `FieldBranchSelection` instead of changing it under existing exact-lifting clients. -/
+structure FamilyFieldBranchSelection (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] (P : FieldParameters) (Q : MarkedPair (GalKab K))
+    (W : FamilyFieldBranchWitness P Q) where
+  branch : BranchData
+  valid : branch.Valid
+  compatible : Compatible P branch
+  level_eq : branch.level = Q.r
+  family_eq : branch.labuteType = W.family
+  arithmetic_matches : W.Matches branch
+  display : branch.DisplayFor
+  degree_eq_params :
+    (SemanticPresentation.ofBranch (handleCount P branch) branch).degree = P.n
+  degree_eq_field :
+    (SemanticPresentation.ofBranch (handleCount P branch) branch).degree =
+      Module.finrank ℚ_[2] K
+
+namespace FamilyFieldBranchSelection
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  {P : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness P Q}
+
+/-- The semantic presentation selected by the corrected family path. -/
+def semantic (S : FamilyFieldBranchSelection K P Q W) : SemanticPresentation :=
+  SemanticPresentation.ofBranch (handleCount P S.branch) S.branch
+
+@[simp] theorem semantic_degree (S : FamilyFieldBranchSelection K P Q W) :
+    S.semantic.degree = P.n := S.degree_eq_params
+
+theorem semantic_degree_field (S : FamilyFieldBranchSelection K P Q W) :
+    S.semantic.degree = Module.finrank ℚ_[2] K := S.degree_eq_field
+
+/-- Regression: the corrected selector still uses the improved five-row constructor table,
+including arbitrary eta and the literal `p epsilon r` in the `Mpc` word. -/
+theorem semantic_word_eq_improved (S : FamilyFieldBranchSelection K P Q W) :
+    S.semantic.word = FieldBranchSelection.improvedWord P S.branch := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      cases branch <;> rfl
+
+end FamilyFieldBranchSelection
+
+/-- Select a five-row branch from the corrected family-indexed arithmetic witness.
+
+The positive `M` case keeps the ramified-`i` exclusion argument based on the product splitting.
+The positive `N` case does not manufacture that splitting: the generator of the whole procyclic
+orientation image is odd by `ProcyclicMarkedGeneratorData.not_even_lambdaAdd`, which is exactly
+the input needed to choose an eta lift together with its display. -/
+noncomputable def selectFieldBranchFamily
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) :
+    FamilyFieldBranchSelection K D.params (B.fieldMarkedPair FF) W := by
+  classical
+  cases W with
+  | L degree_odd level_zero =>
+      have hcompat : Compatible D.params .L := compatible_L.mpr degree_odd
+      refine
+        { branch := .L
+          valid := trivial
+          compatible := hcompat
+          level_eq := level_zero.symm
+          family_eq := rfl
+          arithmetic_matches := rfl
+          display := PUnit.unit
+          degree_eq_params := ?_
+          degree_eq_field := ?_ }
+      · change 2 * handleCount D.params .L + 1 = D.params.n
+        exact two_mul_handleCount_add_one hcompat rfl
+      · exact (two_mul_handleCount_add_one hcompat rfl).trans D.degree_eq
+  | M alpha alpha_valid degree_even marked =>
+      by_cases level_zero : B.r = 0
+      · have hcompat : Compatible D.params (.M0 alpha) := compatible_M0.mpr degree_even
+        refine
+          { branch := .M0 alpha
+            valid := alpha_valid
+            compatible := hcompat
+            level_eq := level_zero.symm
+            family_eq := rfl
+            arithmetic_matches := ⟨rfl, level_zero⟩
+            display := PUnit.unit
+            degree_eq_params := ?_
+            degree_eq_field := ?_ }
+        · change 2 + 2 * handleCount D.params (.M0 alpha) = D.params.n
+          exact two_add_two_mul_handleCount hcompat rfl
+        · exact (two_add_two_mul_handleCount hcompat rfl).trans D.degree_eq
+      · have level_pos : 1 ≤ B.r := Nat.one_le_iff_ne_zero.mpr level_zero
+        let S := marked.toMarkedSplitting
+        have hodd : ¬ Even S.eta :=
+          ((B.level_zero_or_not_even_eta_of_ramified (B.nuUrSurjective FF) S
+            marked.cyclotomic_trivial RI.deltaI RI.sq_deltaI RI.ramified).resolve_left
+              level_zero).2
+        let hetaExists := exists_isEtaFor_with_display_of_not_even
+          (d := (B.fieldMarkedPair FF).datum) (u := S.u) hodd
+        let eta := Classical.choose hetaExists
+        have hdisplayExists : ∃ _display : NpcDisplayFor eta,
+            IsEtaFor (B.fieldMarkedPair FF).datum S.u eta :=
+          Classical.choose_spec hetaExists
+        let etaDisplay := Classical.choose hdisplayExists
+        have heta : IsEtaFor (B.fieldMarkedPair FF).datum S.u eta :=
+          Classical.choose_spec hdisplayExists
+        let epsilon := (S.exists_eps level_pos).choose
+        have hepsilon :
+            S.negOneVal =
+              ((epsVal epsilon * 2 ^ (B.r - 1) : ℕ) : ZMod (2 ^ B.r)) :=
+          (S.exists_eps level_pos).choose_spec
+        have hcompat : Compatible D.params (.Mpc alpha B.r epsilon eta) :=
+          compatible_Mpc.mpr degree_even
+        refine
+          { branch := .Mpc alpha B.r epsilon eta
+            valid := ⟨alpha_valid, level_pos⟩
+            compatible := hcompat
+            level_eq := rfl
+            family_eq := rfl
+            arithmetic_matches := ⟨rfl, rfl, hepsilon, heta⟩
+            display := MpcDisplayFor.ofNpc etaDisplay
+            degree_eq_params := ?_
+            degree_eq_field := ?_ }
+        · change 2 + 2 * handleCount D.params (.Mpc alpha B.r epsilon eta) = D.params.n
+          exact two_add_two_mul_handleCount hcompat rfl
+        · exact (two_add_two_mul_handleCount hcompat rfl).trans D.degree_eq
+  | N alpha alpha_valid degree_even marked =>
+      by_cases level_zero : B.r = 0
+      · have hcompat : Compatible D.params (.N0 alpha) := compatible_N0.mpr degree_even
+        refine
+          { branch := .N0 alpha
+            valid := alpha_valid
+            compatible := hcompat
+            level_eq := level_zero.symm
+            family_eq := rfl
+            arithmetic_matches := ⟨rfl, level_zero⟩
+            display := PUnit.unit
+            degree_eq_params := ?_
+            degree_eq_field := ?_ }
+        · change 2 + 2 * handleCount D.params (.N0 alpha) = D.params.n
+          exact two_add_two_mul_handleCount hcompat rfl
+        · exact (two_add_two_mul_handleCount hcompat rfl).trans D.degree_eq
+      · have level_pos : 1 ≤ B.r := Nat.one_le_iff_ne_zero.mpr level_zero
+        let u : ↥(B.fieldMarkedPair FF).C :=
+          ⟨MarkedCore.nUnit alpha, marked.unit_mem⟩
+        have hodd : ¬ Even ((B.fieldMarkedPair FF).lambdaAdd u) := by
+          exact marked.not_even_lambdaAdd level_pos
+        let hetaExists := exists_isEtaFor_with_display_of_not_even
+          (d := (B.fieldMarkedPair FF).datum) (u := u) hodd
+        let eta := Classical.choose hetaExists
+        have hdisplayExists : ∃ _display : NpcDisplayFor eta,
+            IsEtaFor (B.fieldMarkedPair FF).datum u eta :=
+          Classical.choose_spec hetaExists
+        let etaDisplay := Classical.choose hdisplayExists
+        have heta : IsEtaFor (B.fieldMarkedPair FF).datum u eta :=
+          Classical.choose_spec hdisplayExists
+        have hcompat : Compatible D.params (.Npc alpha B.r eta) :=
+          compatible_Npc.mpr degree_even
+        refine
+          { branch := .Npc alpha B.r eta
+            valid := ⟨alpha_valid, level_pos⟩
+            compatible := hcompat
+            level_eq := rfl
+            family_eq := rfl
+            arithmetic_matches := ⟨rfl, rfl, heta⟩
+            display := etaDisplay
+            degree_eq_params := ?_
+            degree_eq_field := ?_ }
+        · change 2 + 2 * handleCount D.params (.Npc alpha B.r eta) = D.params.n
+          exact two_add_two_mul_handleCount hcompat rfl
+        · exact (two_add_two_mul_handleCount hcompat rfl).trans D.degree_eq
+
+/-- End-to-end improved-word preservation for the corrected all-family selector. -/
+theorem semantic_word_eq_improved_of_family
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) :
+    (selectFieldBranchFamily B FF D RI W).semantic.word =
+      FieldBranchSelection.improvedWord D.params
+        (selectFieldBranchFamily B FF D RI W).branch :=
+  FamilyFieldBranchSelection.semantic_word_eq_improved _
 
 end
 
