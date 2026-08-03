@@ -14,11 +14,11 @@ surjectivity of a coefficient map on `H²(G,-)` to surjectivity on `H²(U,-)` wh
 `[G:U]` is odd and the coefficients have exponent two.  This file formalizes the diagram
 chase independently of a construction of corestriction.
 
-The current continuous-cohomology API has restriction in degree two, but its only explicit
-degree-two corestriction is `Corestriction.cor2Fun`, for trivial `ZMod 2` coefficients.  The
-structure `H2RestrictionTransferSquare` therefore records exactly the two missing
-general-coefficient properties: naturality in coefficients and
-`cor ∘ res = [G:U]`.  Once those are supplied, the reduction is unconditional.
+The structure `H2RestrictionTransferSquare` isolates the two transfer identities used by the
+diagram chase: naturality in coefficients and `cor ∘ res = [G:U]`.  Its canonical
+general-coefficient implementation is constructed downstream in
+`GQ2.Dyadic.Count.H2Corestriction`; keeping the chase phrased through this structure avoids a
+dependency cycle and makes the argument reusable with any equivalent transfer construction.
 
 The final section identifies the relevant subgroup as the preimage of a Sylow `2`-subgroup
 of a finite surjective action image and proves that this preimage is open of odd index.
@@ -28,7 +28,7 @@ namespace GQ2.ContCoh
 
 noncomputable section
 
-variable {G A B : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {G A B : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [AddCommGroup A] [TopologicalSpace A] [IsTopologicalAddGroup A]
   [DistribMulAction G A] [ContinuousSMul G A]
   [AddCommGroup B] [TopologicalSpace B] [IsTopologicalAddGroup B]
@@ -110,7 +110,7 @@ theorem H2RightExactAt.of_oddIndex_restriction
 
 /-! ## Preimage of a Sylow subgroup of the finite action image -/
 
-variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
 /-- The subgroup of `G` lying over a chosen Sylow `2`-subgroup of a finite quotient. -/
 def sylowTwoPreimage (rho : ContinuousMonoidHom G C) (P : Sylow 2 C) : Subgroup G :=

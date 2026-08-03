@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
-import GQ2.Dyadic.Count.H2SylowTransfer
+import GQ2.Dyadic.Count.H2Corestriction
 import GQ2.Dyadic.Instances.GammaLAsphericityRightExact
 
 /-!
@@ -14,9 +14,10 @@ actual image of the simultaneous action on source and target.  Restricting `Gamm
 preimage of a Sylow `2`-subgroup of this image has odd index.  Hence the standard transfer
 argument reduces the remaining `GammaLH2RightExactSupply` to right exactness on this preimage.
 
-The witness interface below deliberately retains the general-coefficient transfer square as
-an input: the repository currently constructs degree-two corestriction only for trivial
-`ZMod 2` coefficients, whereas nonsplit elementary extensions require arbitrary modules.
+The original witness interface below retains the transfer square explicitly.  The second,
+transfer-free interface uses the canonical general-coefficient corestriction from
+`GQ2.Dyadic.Count.H2Corestriction`, so the only remaining input is right exactness on the
+Sylow preimage itself.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -63,12 +64,47 @@ theorem gammaLH2RightExactSupply_of_sylowTwoPreimages
   obtain ⟨W⟩ := S A B g hgC hg hA₂ hB₂ hsurj
   exact W.toH2RightExact rho pairFiniteActionImageHom_surjective g hgC hg hB₂
 
-/-- For even `q`, the Sylow-local witnesses give the full Tate-duality package directly.
+/-! ## Transfer-free endpoint -/
 
-This is the end-to-end constructor for the transfer route: each elementary coefficient
-epimorphism is restricted to the preimage of a Sylow `2`-subgroup of its simultaneous action
-image, right exactness is descended across the resulting odd-index inclusion, and the standard
-improved-L reconstruction turns the resulting uniform H² tail into `TateDualityG`. -/
+/-- The residual Sylow-local input after constructing general-coefficient corestriction.
+
+For each elementary coefficient quotient, one only has to prove right exactness over the
+preimage of a Sylow `2`-subgroup of the simultaneous finite action image. -/
+noncomputable abbrev GammaLSylowTwoLocalH2RightExactSupply (h q : ℕ) : Prop :=
+  ∀ (A B : Type) [AddCommGroup A] [TopologicalSpace A]
+    [IsTopologicalAddGroup A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction (gamma h q : Type) A] [ContinuousSMul (gamma h q : Type) A]
+    [AddCommGroup B] [TopologicalSpace B]
+    [IsTopologicalAddGroup B] [DiscreteTopology B] [Finite B]
+    [DistribMulAction (gamma h q : Type) B] [ContinuousSMul (gamma h q : Type) B]
+    (g : A →+ B) (hgC : Continuous g)
+    (hg : ∀ (c : (gamma h q : Type)) (a : A), g (c • a) = c • g a),
+    (∀ a : A, a + a = 0) → (∀ b : B, b + b = 0) → Function.Surjective g →
+      ∃ P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)),
+        H2RightExactAt (G := sylowTwoPreimage
+          (pairFiniteActionImageHom (h := h) (q := q) (A := A) (B := B)) P)
+          g hgC (fun u a ↦ hg u.1 a)
+
+/-- Canonical general-coefficient transfer removes the transfer square from the `GammaL`
+Sylow reduction.  Thus the sole remaining obstruction is right exactness on the open Sylow
+preimage. -/
+theorem gammaLH2RightExactSupply_of_sylowTwoLocal
+    {h q : ℕ} (S : GammaLSylowTwoLocalH2RightExactSupply h q) :
+    GammaLH2RightExactSupply h q := by
+  intro A B _ _ _ _ _ _ _ _ _ _ _ _ _ _ g hgC hg hA₂ hB₂ hsurj
+  let rho : ContinuousMonoidHom (gamma h q : Type)
+      (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)) :=
+    pairFiniteActionImageHom (h := h) (q := q) (A := A) (B := B)
+  obtain ⟨P, hP⟩ := S A B g hgC hg hA₂ hB₂ hsurj
+  let U : Subgroup (gamma h q : Type) := sylowTwoPreimage rho P
+  have hU : IsOpen (U : Set (gamma h q : Type)) := isOpen_sylowTwoPreimage rho P
+  letI : Finite ((gamma h q : Type) ⧸ U) :=
+    Subgroup.quotient_finite_of_isOpen U hU
+  exact H2RightExactAt.of_sylowTwoPreimage rho pairFiniteActionImageHom_surjective P
+    g hgC hg hB₂ (h2RestrictionTransferSquare U hU g hgC hg) hP
+
+/-- For even `q`, explicit Sylow witnesses (including a transfer square) give the full
+Tate-duality package directly. -/
 noncomputable def tateDualityG_of_sylowTwoPreimages
     {h q : ℕ} (hq : Even q)
     [DistribMulAction (gamma h q : Type) (MuN 2)]
@@ -77,6 +113,17 @@ noncomputable def tateDualityG_of_sylowTwoPreimages
     TateDualityG (gamma h q : Type) 2 :=
   tateDualityG_of_gammaLH2RightExactSupply hq
     (gammaLH2RightExactSupply_of_sylowTwoPreimages S)
+
+/-- For even `q`, right exactness on the Sylow preimages is the sole remaining input to the
+full Tate-duality package; general-coefficient transfer is supplied canonically. -/
+noncomputable def tateDualityG_of_sylowTwoLocal
+    {h q : ℕ} (hq : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (S : GammaLSylowTwoLocalH2RightExactSupply h q) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_gammaLH2RightExactSupply hq
+    (gammaLH2RightExactSupply_of_sylowTwoLocal S)
 
 end
 
