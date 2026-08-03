@@ -359,6 +359,8 @@ import GQ2.Dyadic.Instances.GammaLSimpleDualReduction
 import GQ2.Dyadic.Instances.GammaLSimpleDualSurjectivity
 import GQ2.Dyadic.Count.HTwoModuleAsphericity
 import GQ2.Dyadic.Count.HTwoRelationModule
+import GQ2.Dyadic.Count.HTwoRelationModuleCokernel
+import GQ2.Dyadic.Count.HTwoRelationModuleCokernelCounterexample
 import GQ2.Dyadic.Count.HTwoRelationModuleGlobal
 import GQ2.Dyadic.Count.HTwoRelationModuleRefined
 import GQ2.Dyadic.Count.HTwoRelationModuleVectorwise
