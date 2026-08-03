@@ -94,4 +94,73 @@ theorem StokesQuasiIso.transport
 
 end Transport
 
+/-! ## Stabilization by a middle-degree isomorphism -/
+
+section MiddleStabilization
+
+variable {X₀ X₁ X₂ Y₀ Y₁ Y₂ U V : Type*}
+  [AddCommGroup X₀] [AddCommGroup X₁] [AddCommGroup X₂]
+  [AddCommGroup Y₀] [AddCommGroup Y₁] [AddCommGroup Y₂]
+  [AddCommGroup U] [AddCommGroup V]
+
+/-- Adjoin a summand with zero incoming differential to the middle term of a complex. -/
+def middleExtendD0 (d : X₀ →+ X₁) : X₀ →+ X₁ × U := d.prod 0
+
+@[simp] theorem middleExtendD0_apply (d : X₀ →+ X₁) (x : X₀) :
+    middleExtendD0 (U := U) d x = (d x, 0) := rfl
+
+/-- Adjoin a summand killed by the outgoing differential to the middle term of a complex. -/
+def middleExtendD1 (d : X₁ →+ X₂) : X₁ × U →+ X₂ :=
+  d.comp (AddMonoidHom.fst X₁ U)
+
+@[simp] theorem middleExtendD1_apply (d : X₁ →+ X₂) (x : X₁ × U) :
+    middleExtendD1 d x = d x.1 := rfl
+
+/-- Extend a middle ladder map by an additive equivalence on the new summand. -/
+def middleExtendMap (f : X₁ →+ Y₁) (e : U ≃+ V) : X₁ × U →+ Y₁ × V :=
+  (f.comp (AddMonoidHom.fst X₁ U)).prod
+    (e.toAddMonoidHom.comp (AddMonoidHom.snd X₁ U))
+
+@[simp] theorem middleExtendMap_apply (f : X₁ →+ Y₁) (e : U ≃+ V) (x : X₁ × U) :
+    middleExtendMap f e x = (f x.1, e x.2) := rfl
+
+/-- A quasi-isomorphism remains one after adjoining a complex concentrated in degree one and
+mapping that new summand by an additive equivalence.  This is the abstract handle-stabilization
+step: the hyperbolic handle block will supply `e`. -/
+theorem StokesQuasiIso.middleStabilization
+    {dX₀ : X₀ →+ X₁} {dX₁ : X₁ →+ X₂} {dY₀ : Y₀ →+ Y₁} {dY₁ : Y₁ →+ Y₂}
+    {φ₀ : X₀ →+ Y₀} {φ₁ : X₁ →+ Y₁} {φ₂ : X₂ →+ Y₂}
+    (e : U ≃+ V)
+    (h : StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂) :
+    StokesQuasiIso (middleExtendD0 (U := U) dX₀) (middleExtendD1 (U := U) dX₁)
+      (middleExtendD0 (U := V) dY₀) (middleExtendD1 (U := V) dY₁)
+      φ₀ (middleExtendMap φ₁ e) φ₂ := by
+  constructor
+  · intro x hx hφx
+    exact h.h0_inj x (congrArg Prod.fst hx) hφx
+  · intro y hy
+    obtain ⟨x, hx, hφx⟩ := h.h0_surj y (congrArg Prod.fst hy)
+    exact ⟨x, by ext <;> simp [hx], hφx⟩
+  · intro x hx hbound
+    obtain ⟨y, hy⟩ := hbound
+    have hezero : e x.2 = 0 := (congrArg Prod.snd hy).symm
+    obtain ⟨x₀, hx₀⟩ := h.h1_inj x.1 hx ⟨y, congrArg Prod.fst hy⟩
+    refine ⟨x₀, Prod.ext hx₀ ?_⟩
+    exact (e.injective (hezero.trans (map_zero e).symm)).symm
+  · intro y hy
+    obtain ⟨x, y₀, hx, hsum⟩ := h.h1_surj y.1 hy
+    refine ⟨(x, e.symm y.2), y₀, hx, ?_⟩
+    apply Prod.ext
+    · exact hsum
+    · simp
+  · intro x hbound
+    obtain ⟨y, hy⟩ := hbound
+    obtain ⟨x₁, hx₁⟩ := h.h2_inj x ⟨y.1, hy⟩
+    exact ⟨(x₁, 0), hx₁⟩
+  · intro y
+    obtain ⟨x, y₁, hsum⟩ := h.h2_surj y
+    exact ⟨x, (y₁, 0), hsum⟩
+
+end MiddleStabilization
+
 end GQ2.Dyadic
