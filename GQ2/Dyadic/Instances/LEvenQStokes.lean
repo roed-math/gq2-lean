@@ -29,6 +29,105 @@ noncomputable section
 open GQ2 GQ2.FoxH
 open Count Certificates Words.LSq Certificates.MProcyclic
 
+/-! ## The q-parametric tame relation and its ramified pivot -/
+
+namespace Marking
+
+/-- The tame relation at an arbitrary residue-cardinality parameter.  This is the generic
+dyadic analogue of the old Roe predicate `GQ2.Marking.TameRel`, which is hard-coded at `q = 2`.
+Keeping the exponent explicit prevents q-parametric arguments from silently falling back to the
+Roe presentation. -/
+def TameRelAt {n : ℕ} {C : Type*} [Group C] (t : Marking n C) (q : ℕ) : Prop :=
+  conjR t.τ t.σ = t.τ ^ q
+
+end Marking
+
+/-- The `tau`-fixed subspace is preserved by `sigma` under the tame relation at every natural
+exponent `q`.  The old simple-module dichotomy only proved this calculation at `q = 2`. -/
+theorem tau_fixed_sigma_stable_of_tameRelAt
+    {n q : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking n C) (ht : t.TameRelAt q) {v : A} (hv : t.τ • v = v) :
+    t.τ • (t.σ • v) = t.σ • v := by
+  have hcomm : t.τ * t.σ = t.σ * t.τ ^ q := by
+    rw [← ht]
+    simp only [conjR]
+    group
+  have hpowfix : ∀ k : ℕ, (t.τ ^ k) • v = v := by
+    intro k
+    induction k with
+    | zero => simp
+    | succ k ih => rw [pow_succ, mul_smul, hv, ih]
+  calc
+    t.τ • (t.σ • v) = (t.τ * t.σ) • v := (mul_smul _ _ _).symm
+    _ = (t.σ * t.τ ^ q) • v := by rw [hcomm]
+    _ = t.σ • ((t.τ ^ q) • v) := mul_smul _ _ _
+    _ = t.σ • v := by rw [hpowfix q]
+
+/-- The arbitrary-`q` version of Roe's `conj_powOmega2_tau`: conjugation by `sigma` carries the
+2-primary part of `tau` to its `q`-th power. -/
+theorem conj_powOmega2_tau_of_tameRelAt
+    {n q : ℕ} {C : Type*} [Group C] [Finite C]
+    (t : Marking n C) (ht : t.TameRelAt q) :
+    t.σ⁻¹ * powOmega2 t.τ * t.σ = (powOmega2 t.τ) ^ q := by
+  have htame : t.σ⁻¹ * t.τ * t.σ = t.τ ^ q := by
+    simpa only [Marking.TameRelAt, conjR] using ht
+  have hconj : t.σ⁻¹ * powOmega2 t.τ * t.σ = powOmega2 (t.σ⁻¹ * t.τ * t.σ) := by
+    simpa [MulAut.conj_apply, mul_assoc] using powOmega2_map (MulAut.conj t.σ⁻¹).toMonoidHom t.τ
+  have hne : orderOf t.τ ≠ 0 := (orderOf_pos t.τ).ne'
+  have hdvd : orderOf (t.τ ^ q) ∣ orderOf t.τ := orderOf_pow_dvd q
+  have hpowq : powOmega2 (t.τ ^ q) = (powOmega2 t.τ) ^ q := by
+    rw [← powOmega2_pow_eq (t.τ ^ q) hdvd hne, ← pow_mul, mul_comm q, pow_mul]
+    rfl
+  rw [hconj, htame, hpowq]
+
+/-- Consequently the fixed space of the 2-primary part of `tau` is `sigma`-stable for every
+`q`.  This is the only tame-relation calculation used in Roe's odd-order argument. -/
+theorem powOmega2_fixed_sigma_stable_of_tameRelAt
+    {n q : ℕ} {C A : Type*} [Group C] [Finite C]
+    [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking n C) (ht : t.TameRelAt q) {v : A}
+    (hv : powOmega2 t.τ • v = v) :
+    powOmega2 t.τ • (t.σ • v) = t.σ • v := by
+  have hcomm : powOmega2 t.τ * t.σ = t.σ * (powOmega2 t.τ) ^ q := by
+    rw [← conj_powOmega2_tau_of_tameRelAt t ht]
+    group
+  have hpowfix : ∀ k : ℕ, ((powOmega2 t.τ) ^ k) • v = v := by
+    intro k
+    induction k with
+    | zero => simp
+    | succ k ih => rw [pow_succ, mul_smul, hv, ih]
+  calc
+    powOmega2 t.τ • (t.σ • v) = (powOmega2 t.τ * t.σ) • v := (mul_smul _ _ _).symm
+    _ = (t.σ * (powOmega2 t.τ) ^ q) • v := by rw [hcomm]
+    _ = t.σ • (((powOmega2 t.τ) ^ q) • v) := mul_smul _ _ _
+    _ = t.σ • v := by rw [hpowfix q]
+
+/-- On a cochain with zero `tau` coordinate, the q-dependent norm term in the tame Fox row
+vanishes.  The surviving `sigma` column is independent of `q`. -/
+theorem foxD_tameRelW_of_tau_eq_zero
+    {n q : ℕ} {C A : Type*} [Group C] [Finite C] [AddCommGroup A] [Finite A]
+    [DistribMulAction C A]
+    (t : Marking n C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (ht : t.TameRelAt q) (x : Generator n → A) (hxτ : x .tau = 0) :
+    foxD ⇑t x E E₂ (tameRelW n q) = t.σ⁻¹ • (t.τ • x .sigma - x .sigma) := by
+  rw [Certificates.foxD_tameRelW_of_tameRel t E E₂ ht x, hxτ]
+  simp
+
+/-- The q-independent `sigma` column of the tame row is a pivot on every ramified module. -/
+theorem tameSigmaColumn_surjective_of_fixedPointFree
+    {n : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [Finite A]
+    [DistribMulAction C A]
+    (t : Marking n C) (htau : ∀ v : A, t.τ • v = v → v = 0) :
+    Function.Surjective (fun v : A ↦ t.σ⁻¹ • (t.τ • v - v)) := by
+  have hsurj : Function.Surjective (fun v : A ↦ t.τ • v - v) :=
+    surjective_smul_sub_of_fixedPointFree htau
+  intro a
+  obtain ⟨v, hv⟩ := hsurj (t.σ • a)
+  refine ⟨v, ?_⟩
+  change t.τ • v - v = t.σ • a at hv
+  change t.σ⁻¹ • (t.τ • v - v) = a
+  rw [hv, inv_smul_smul]
+
 /-! ## A generic cohomological transport lemma -/
 
 /-- A three-term quasi-isomorphism only sees its middle map on degree-one cocycles.  Thus two
