@@ -320,6 +320,7 @@ import GQ2.Dyadic.Instances.MpcExact
 import GQ2.Dyadic.Instances.Fields
 import GQ2.Dyadic.ResidueNormBridge
 import GQ2.Dyadic.ResidueLocalFieldBridge
+import GQ2.Dyadic.RamificationInertiaBridge
 import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.LiftingDualityG
 import GQ2.Dyadic.Instances.LSourceComparison
