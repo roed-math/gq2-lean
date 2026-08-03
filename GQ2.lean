@@ -341,6 +341,7 @@ import GQ2.Dyadic.Instances.LRoeStokesBridge
 import GQ2.Dyadic.Instances.LRoeStokesDuality
 import GQ2.Dyadic.Instances.LEvenQStokes
 import GQ2.Dyadic.Instances.LRamifiedHessian
+import GQ2.Dyadic.Instances.LRamifiedStokes
 import GQ2.Dyadic.Instances.GammaLSimpleSource
 import GQ2.Dyadic.Instances.GammaLH2Surjectivity
 import GQ2.Dyadic.Instances.GammaLSimpleDualReduction
