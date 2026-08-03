@@ -63,6 +63,21 @@ theorem gammaLH2RightExactSupply_of_sylowTwoPreimages
   obtain ⟨W⟩ := S A B g hgC hg hA₂ hB₂ hsurj
   exact W.toH2RightExact rho pairFiniteActionImageHom_surjective g hgC hg hB₂
 
+/-- For even `q`, the Sylow-local witnesses give the full Tate-duality package directly.
+
+This is the end-to-end constructor for the transfer route: each elementary coefficient
+epimorphism is restricted to the preimage of a Sylow `2`-subgroup of its simultaneous action
+image, right exactness is descended across the resulting odd-index inclusion, and the standard
+improved-L reconstruction turns the resulting uniform H² tail into `TateDualityG`. -/
+noncomputable def tateDualityG_of_sylowTwoPreimages
+    {h q : ℕ} (hq : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (S : GammaLSylowTwoH2RightExactWitnessSupply h q) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_gammaLH2RightExactSupply hq
+    (gammaLH2RightExactSupply_of_sylowTwoPreimages S)
+
 end
 
 end GQ2.Dyadic.LSquare
