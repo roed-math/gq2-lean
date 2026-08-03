@@ -142,4 +142,75 @@ theorem moduleObsFun_mapCoeff (W : rel → PWord iota) (gen : iota → G)
 
 end Global
 
+section EvaluationCup
+
+variable {iota rel : Type*}
+  {G C A : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G]
+  [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [AddCommGroup A] [TopologicalSpace A] [IsTopologicalAddGroup A]
+  [DiscreteTopology A] [Finite A] [DistribMulAction G A] [ContinuousSMul G A]
+  [DistribMulAction C A]
+  [TopologicalSpace (ElemDual A)] [IsTopologicalAddGroup (ElemDual A)]
+  [DiscreteTopology (ElemDual A)] [ContinuousSMul G (ElemDual A)]
+  [TopologicalSpace (ZMod 2)] [IsTopologicalAddGroup (ZMod 2)]
+  [DiscreteTopology (ZMod 2)] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [DistribMulAction C (ZMod 2)]
+
+/-- The global obstruction of an `(0,2)` evaluation cup is obtained by evaluating the
+dual-valued obstruction in the invariant primal element, relator by relator. -/
+theorem moduleObsFun_cup02 (W : rel → PWord iota) (gen : iota → G)
+    (rho : ContinuousMonoidHom G C)
+    (hcompatDual : ∀ (g : G) (lam : ElemDual A), g • lam = rho g • lam)
+    (hcompatScalar : ∀ (g : G) (s : ZMod 2), g • s = rho g • s)
+    (hpair : ∀ (g : G) (a : A) (lam : ElemDual A),
+      dualEval A (g • a) (g • lam) = g • dualEval A a lam)
+    (x : H0 G A) (z : Z2 G (ElemDual A)) :
+    moduleObsFun W gen rho hcompatScalar
+        ⟨cup02Fun (dualEval A) x.1 z.1, cup02_mem_Z2 (dualEval A) hpair x z⟩ =
+      fun k ↦ (moduleObsFun W gen rho hcompatDual z k) x.1 := by
+  let ev : ElemDual A →+ ZMod 2 := dualEval A x.1
+  have hev : ∀ (g : G) (lam : ElemDual A), ev (g • lam) = g • ev lam := by
+    intro g lam
+    change dualEval A x.1 (g • lam) = g • dualEval A x.1 lam
+    simpa only [x.2 g] using hpair g x.1 lam
+  let z' : Z2 G (ZMod 2) :=
+    Z2comap (ContinuousMonoidHom.id G) ev continuous_of_discreteTopology hev z
+  have hz' : z' =
+      ⟨cup02Fun (dualEval A) x.1 z.1, cup02_mem_Z2 (dualEval A) hpair x z⟩ := by
+    apply Subtype.ext
+    rfl
+  rw [← hz']
+  exact moduleObsFun_mapCoeff W gen rho hcompatDual hcompatScalar ev hev z
+
+/-- The global obstruction of a `(2,0)` evaluation cup is obtained by applying the
+invariant dual element to the primal-valued obstruction, relator by relator. -/
+theorem moduleObsFun_cup20 (W : rel → PWord iota) (gen : iota → G)
+    (rho : ContinuousMonoidHom G C)
+    (hcompatA : ∀ (g : G) (a : A), g • a = rho g • a)
+    (hcompatScalar : ∀ (g : G) (s : ZMod 2), g • s = rho g • s)
+    (hpair : ∀ (g : G) (a : A) (lam : ElemDual A),
+      dualEval A (g • a) (g • lam) = g • dualEval A a lam)
+    (z : Z2 G A) (lam : H0 G (ElemDual A)) :
+    moduleObsFun W gen rho hcompatScalar
+        ⟨cup20Fun (dualEval A) z.1 lam.1, cup20_mem_Z2 (dualEval A) hpair z lam⟩ =
+      fun k ↦ lam.1 (moduleObsFun W gen rho hcompatA z k) := by
+  let ev : A →+ ZMod 2 := lam.1
+  have hev : ∀ (g : G) (a : A), ev (g • a) = g • ev a := by
+    intro g a
+    change dualEval A (g • a) lam.1 = g • dualEval A a lam.1
+    simpa only [lam.2 g] using hpair g a lam.1
+  let z' : Z2 G (ZMod 2) :=
+    Z2comap (ContinuousMonoidHom.id G) ev continuous_of_discreteTopology hev z
+  have hz' : z' =
+      ⟨cup20Fun (dualEval A) z.1 lam.1, cup20_mem_Z2 (dualEval A) hpair z lam⟩ := by
+    apply Subtype.ext
+    funext p
+    change lam.1 (z.1 p) = dualEval A (z.1 p) ((p.1 * p.2) • lam.1)
+    rw [lam.2, dualEval_apply]
+  rw [← hz']
+  exact moduleObsFun_mapCoeff W gen rho hcompatA hcompatScalar ev hev z
+
+end EvaluationCup
+
 end GQ2.Dyadic.Count
