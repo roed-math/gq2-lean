@@ -359,6 +359,7 @@ import GQ2.Dyadic.Count.HTwoModuleAsphericity
 import GQ2.Dyadic.Count.HTwoRelationModule
 import GQ2.Dyadic.Count.HTwoRelationModuleGlobal
 import GQ2.Dyadic.Count.HTwoRelationBasis
+import GQ2.Dyadic.Count.HTwoStronglyFree
 import GQ2.Dyadic.Instances.GammaLRelatorRealization
 import GQ2.Dyadic.Instances.GammaLRelatorRealizationQTwo
 import GQ2.Dyadic.Instances.GammaLTateDirect
@@ -380,6 +381,7 @@ import GQ2.Dyadic.Instances.GammaLRamifiedGraphPhase
 import GQ2.Dyadic.Instances.GammaLRelationModuleResolver
 import GQ2.Dyadic.Instances.GammaLRelationModuleGlobal
 import GQ2.Dyadic.Instances.GammaLRelationBasis
+import GQ2.Dyadic.Instances.GammaLStronglyFree
 import GQ2.Dyadic.Count.H2SplitRightExact
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLImageAsphericity
