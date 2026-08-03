@@ -83,6 +83,33 @@ def OrientedContinuousMulEquiv (chiC : ContinuousMonoidHom C A)
     (chiG : ContinuousMonoidHom G A) : Type :=
   {e : ContinuousMulEquiv C G // OrientationMatches chiC.toMonoidHom chiG.toMonoidHom e}
 
+/-- A character predicate singles out `chi` uniquely.  This is deliberately a property of a
+predicate already supplied by the mathematics, not a proposed definition of the (as yet
+unformalized) dualizing-module orientation. -/
+def CharacterizesCharacter (P : ContinuousMonoidHom C A → Prop)
+    (chi : ContinuousMonoidHom C A) : Prop :=
+  P chi ∧ ∀ chi', P chi' → chi' = chi
+
+/-- Pullback naturality for character predicates across continuous group equivalences. -/
+def PullbackNatural (PC : ContinuousMonoidHom C A → Prop)
+    (PG : ContinuousMonoidHom G A → Prop) : Prop :=
+  ∀ (e : ContinuousMulEquiv C G) (chi : ContinuousMonoidHom G A),
+    PG chi → PC (pullbackCharacter chi e)
+
+/-- **Naturality plus uniqueness orients an abstract equivalence.**  This is the exact formal
+transport principle needed after an unoriented Labute-classification output: pull the target
+character predicate back along the supplied equivalence, then use uniqueness on the standard
+core.  The theorem assumes no new orientation or classification principle. -/
+def orientedEquiv_of_natural_unique
+    (PC : ContinuousMonoidHom C A → Prop) (PG : ContinuousMonoidHom G A → Prop)
+    (chiC : ContinuousMonoidHom C A) (chiG : ContinuousMonoidHom G A)
+    (hcore : CharacterizesCharacter PC chiC) (hnatural : PullbackNatural PC PG)
+    (hG : PG chiG) (e : ContinuousMulEquiv C G) :
+    OrientedContinuousMulEquiv chiC chiG := by
+  have hpull : PC (pullbackCharacter chiG e) := hnatural e chiG hG
+  have heq : pullbackCharacter chiG e = chiC := hcore.2 _ hpull
+  exact ⟨e, fun x => DFunLike.congr_fun heq x⟩
+
 /-- Pointwise inversion of a continuous character into a commutative topological group. -/
 def inverseCharacter (chi : ContinuousMonoidHom C A) : ContinuousMonoidHom C A where
   toFun x := (chi x)⁻¹
@@ -106,6 +133,35 @@ theorem range_inverseCharacter (chi : ContinuousMonoidHom C A) :
     simp
 
 end Generic
+
+/-! ## Why the mod-two cup--Bockstein layer cannot choose the orientation
+
+Every `2`-adic unit has the same reduction in `ZMod 2`.  Thus a character and its pointwise
+inverse induce literally equal mod-two scalar functions.  This does not rule out a future
+integral dualizing-module characterization, but it formally records why the repository's
+present mod-two cup and Bockstein data cannot distinguish the counterexamples below. -/
+
+section ModTwoBlindness
+
+variable {C : Type} [Group C] [TopologicalSpace C]
+
+/-- Every value of a `2`-adic-unit character reduces to `1` modulo `2`. -/
+theorem character_toZModPow_one (chi : ContinuousMonoidHom C ℤ_[2]ˣ) (x : C) :
+    PadicInt.toZModPow 1 ((chi x : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+  haveI : Fact (1 < 2 ^ 1) := ⟨by norm_num⟩
+  have hunit : IsUnit (PadicInt.toZModPow 1 ((chi x : ℤ_[2]ˣ) : ℤ_[2])) :=
+    (chi x).isUnit.map (PadicInt.toZModPow (p := 2) 1)
+  exact (by decide : ∀ z : ZMod (2 ^ 1), z ≠ 0 → z = 1) _ hunit.ne_zero
+
+/-- In particular, mod-two scalar reduction sees no difference between a character and its
+pointwise inverse. -/
+theorem inverseCharacter_modTwo_eq (chi : ContinuousMonoidHom C ℤ_[2]ˣ) :
+    (fun x => PadicInt.toZModPow 1 (((inverseCharacter chi) x : ℤ_[2]ˣ) : ℤ_[2])) =
+      fun x => PadicInt.toZModPow 1 ((chi x : ℤ_[2]ˣ) : ℤ_[2]) := by
+  funext x
+  rw [character_toZModPow_one, character_toZModPow_one]
+
+end ModTwoBlindness
 
 /-! ## Exact images of the standard even-rank characters -/
 
@@ -306,6 +362,94 @@ section Recognition
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
+/-! ### The actual presented-core predicates
+
+These predicates package the improved closed-form four-letter descent data together with
+triviality on all appended handles.  They are presentation-level recognition predicates, not a
+definition of the intrinsic dualizing orientation on an arbitrary profinite group. -/
+
+/-- The complete presentation-level orientation predicate for the improved `M` core. -/
+def IsPresentedOrientationM (alpha h : ℕ)
+    (chi : ContinuousMonoidHom (DM alpha h : Type) ℤ_[2]ˣ) : Prop :=
+  IsLabuteOrientationDatumM alpha
+      (chi (dmA alpha h)) (chi (dmB alpha h)) (chi (dmC alpha h)) (chi (dmD alpha h)) ∧
+    (∀ j : Fin h, chi (dmGen alpha h (handleIdxU j)) = 1) ∧
+    ∀ j : Fin h, chi (dmGen alpha h (handleIdxV j)) = 1
+
+/-- The complete presentation-level orientation predicate for the improved `N` core. -/
+def IsPresentedOrientationN (alpha h : ℕ)
+    (chi : ContinuousMonoidHom (DN alpha h : Type) ℤ_[2]ˣ) : Prop :=
+  IsLabuteOrientationDatumN alpha
+      (chi (dnX0 alpha h)) (chi (dnX1 alpha h)) (chi (dnSigma alpha h))
+      (chi (dnX2 alpha h)) ∧
+    (∀ j : Fin h, chi (dnGen alpha h (handleIdxU j)) = 1) ∧
+    ∀ j : Fin h, chi (dnGen alpha h (handleIdxV j)) = 1
+
+/-- The improved closed-form `M` character satisfies its full presented-core predicate. -/
+theorem isPresentedOrientationM_chiM {alpha : ℕ} (h : ℕ) (halpha : 1 ≤ alpha) :
+    IsPresentedOrientationM alpha h (chiM alpha h) := by
+  exact ⟨chiM_isLabuteOrientationDatum h halpha,
+    fun j => chiM_handleU alpha h j, fun j => chiM_handleV alpha h j⟩
+
+/-- The improved closed-form `N` character satisfies its full presented-core predicate. -/
+theorem isPresentedOrientationN_chiN {alpha : ℕ} (h : ℕ) (halpha : 1 ≤ alpha) :
+    IsPresentedOrientationN alpha h (chiN alpha h) := by
+  exact ⟨chiN_isLabuteOrientationDatum h halpha,
+    fun j => chiN_handleU alpha h j, fun j => chiN_handleV alpha h j⟩
+
+/-- The full `M` presented-core predicate characterizes `chiM` pointwise. -/
+theorem isPresentedOrientationM_iff {alpha h : ℕ} (halpha : 1 ≤ alpha)
+    (chi : ContinuousMonoidHom (DM alpha h : Type) ℤ_[2]ˣ) :
+    IsPresentedOrientationM alpha h chi ↔ chi = chiM alpha h := by
+  constructor
+  · rintro ⟨hdatum, hU, hV⟩
+    exact ContinuousMonoidHom.ext fun x => chiM_matching halpha chi hdatum hU hV x
+  · rintro rfl
+    exact isPresentedOrientationM_chiM h halpha
+
+/-- The full `N` presented-core predicate characterizes `chiN` pointwise. -/
+theorem isPresentedOrientationN_iff {alpha h : ℕ} (halpha : 1 ≤ alpha)
+    (chi : ContinuousMonoidHom (DN alpha h : Type) ℤ_[2]ˣ) :
+    IsPresentedOrientationN alpha h chi ↔ chi = chiN alpha h := by
+  constructor
+  · rintro ⟨hdatum, hU, hV⟩
+    exact ContinuousMonoidHom.ext fun x => chiN_matching halpha chi hdatum hU hV x
+  · rintro rfl
+    exact isPresentedOrientationN_chiN h halpha
+
+/-- Uniqueness package for the improved `M` presentation. -/
+theorem characterizes_isPresentedOrientationM {alpha h : ℕ} (halpha : 1 ≤ alpha) :
+    CharacterizesCharacter (IsPresentedOrientationM alpha h) (chiM alpha h) :=
+  ⟨isPresentedOrientationM_chiM h halpha,
+    fun chi hchi => (isPresentedOrientationM_iff halpha chi).mp hchi⟩
+
+/-- Uniqueness package for the improved `N` presentation. -/
+theorem characterizes_isPresentedOrientationN {alpha h : ℕ} (halpha : 1 ≤ alpha) :
+    CharacterizesCharacter (IsPresentedOrientationN alpha h) (chiN alpha h) :=
+  ⟨isPresentedOrientationN_chiN h halpha,
+    fun chi hchi => (isPresentedOrientationN_iff halpha chi).mp hchi⟩
+
+/-- A target-side intrinsic predicate orients every abstract `M` equivalence as soon as it is
+natural under pullback to the proved presentation-level predicate. -/
+def orientedEquivM_of_pullback_natural {alpha h : ℕ} (halpha : 1 ≤ alpha)
+    (PG : ContinuousMonoidHom G ℤ_[2]ˣ → Prop)
+    (hnatural : PullbackNatural (IsPresentedOrientationM alpha h) PG)
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) (hG : PG chiG)
+    (f : ContinuousMulEquiv (DM alpha h : Type) G) :
+    OrientedContinuousMulEquiv (chiM alpha h) chiG :=
+  orientedEquiv_of_natural_unique _ _ _ _
+    (characterizes_isPresentedOrientationM halpha) hnatural hG f
+
+/-- The corresponding transport theorem for the improved `N` presentation. -/
+def orientedEquivN_of_pullback_natural {alpha h : ℕ} (halpha : 1 ≤ alpha)
+    (PG : ContinuousMonoidHom G ℤ_[2]ˣ → Prop)
+    (hnatural : PullbackNatural (IsPresentedOrientationN alpha h) PG)
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) (hG : PG chiG)
+    (f : ContinuousMulEquiv (DN alpha h : Type) G) :
+    OrientedContinuousMulEquiv (chiN alpha h) chiG :=
+  orientedEquiv_of_natural_unique _ _ _ _
+    (characterizes_isPresentedOrientationN halpha) hnatural hG f
+
 /-- The precise positive precursor on the `M` side: no automorphism is required.  Once the
 pulled character satisfies the unique four-value Labute datum and is trivial on every handle,
 the supplied abstract equivalence itself is oriented. -/
@@ -356,6 +500,60 @@ def orientedEquivSq_of_values {h : ℕ} (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
   exact ⟨f, chiSq_matching (pullbackCharacter chiG f) hsigma' hx0' hx1' hU' hV'⟩
 
 end Recognition
+
+/-! ## Orientation recovery from the existing even-rank classification interfaces
+
+These two theorems consume the *existing* `MLabHypothesis`/`NLabHypothesis` outputs.  Their
+extra premise is exactly the still-missing intrinsic statement: a target-side canonical
+predicate must pull back to the proved presentation-level predicate.  In particular the
+theorems neither strengthen the Labute hypotheses nor infer character equality from image
+equality. -/
+
+section AbstractClassificationOrientation
+
+variable {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+  [DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2)]
+  [ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2)]
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- `MLabHypothesis` yields an oriented equivalence once its own canonical predicate is proved
+pullback-natural to the complete `M` presentation predicate. -/
+theorem orientedAbstractEquiv_KTwoM (alpha h : ℕ) (halpha : 1 ≤ alpha)
+    (mIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (hLab : MLabHypothesis alpha h mIsCanonical)
+    (hD : IsDemushkin 2 (maxProPQuotient 2 (GalK K)))
+    (hrank : demushkinRank 2 (maxProPQuotient 2 (GalK K)) = coreRank h)
+    (hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2)
+    (hcanonical : mIsCanonical (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)).toMonoidHom)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (hnatural : PullbackNatural (IsPresentedOrientationM alpha h)
+      (fun chi => mIsCanonical (maxProPQuotient 2 (GalK K)) chi.toMonoidHom)) :
+    Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨f⟩ := abstractEquiv_KTwoM alpha h mIsCanonical hLab hD hrank hq hcanonical hrange
+  exact ⟨orientedEquivM_of_pullback_natural halpha _ hnatural _ hcanonical f⟩
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- `NLabHypothesis` yields an oriented equivalence after supplying an intrinsic target
+predicate, its truth for the cyclotomic character, and pullback naturality to the complete `N`
+presentation predicate.  The separate predicate is essential because `NLabHypothesis` itself
+records only the image invariant. -/
+theorem orientedAbstractEquiv_KTwoN (alpha h : ℕ) (halpha : 1 ≤ alpha)
+    (nIsCanonical : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) ℤ_[2]ˣ → Prop)
+    (hLab : NLabHypothesis alpha h)
+    (hD : IsDemushkin 2 (maxProPQuotient 2 (GalK K)))
+    (hrank : demushkinRank 2 (maxProPQuotient 2 (GalK K)) = coreRank h)
+    (hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
+    (hcanonical : nIsCanonical (chiCycKTwo (K := K)))
+    (hnatural : PullbackNatural (IsPresentedOrientationN alpha h) nIsCanonical) :
+    Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨f⟩ := abstractEquiv_KTwoN alpha h hLab hD hrank hq hrange
+  exact ⟨orientedEquivN_of_pullback_natural halpha _ hnatural _ hcanonical f⟩
+
+end AbstractClassificationOrientation
 
 end
 

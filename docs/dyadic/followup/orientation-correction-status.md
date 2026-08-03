@@ -49,6 +49,9 @@ The positive orientation boundary is packaged by
 
 ```lean
 OrientedContinuousMulEquiv chiCore chiG
+CharacterizesCharacter P chiCore
+PullbackNatural PC PG
+orientedEquiv_of_natural_unique
 orientedEquivM_of_datum
 orientedEquivN_of_datum
 orientedEquivSq_of_values
@@ -60,39 +63,90 @@ datum and be trivial on all appended handles.  `isLabuteOrientationDatumM_unique
 the full pointwise orientation equation.  These are actual recognition theorems, not new
 classification hypotheses.
 
+The complete recognition predicates are now named:
+
+```lean
+IsPresentedOrientationM alpha h chi
+IsPresentedOrientationN alpha h chi
+```
+
+They use the improved four-letter presentations actually formalized in `MarkedCore/Cores.lean`:
+
+* `M`: `A^2 [A,B] C^(2^alpha) [C,D]`, with values
+  `(1, -1, 1, (1 - 2^alpha)^(-1))`;
+* `N`: `A^(2 + 2^alpha) [A,B] [C,D]`, with values
+  `(1, -(1 + 2^alpha)^(-1), 1, 1)`;
+* every appended symplectic handle has character value `1`.
+
+Theorems `isPresentedOrientationM_iff` and `isPresentedOrientationN_iff` prove, for
+`1 <= alpha`, that these predicates are respectively equivalent to equality with `chiM` and
+`chiN`.  Thus the uniqueness half of canonical-orientation transport is now fully proved for
+the presentations selected by the new plan.  This is not a regression to the draft's retired
+relative-norm word: `Main.lean`'s constructor-table regressions identify every frozen row with
+the improved `N0`, `M0`, or `Mpc` word, including both procyclic `M` rows.
+
+The generic theorem `orientedEquiv_of_natural_unique` proves the categorical step: if a
+target-side character predicate pulls back along continuous equivalences to a predicate that
+uniquely characterizes the standard core character, then the supplied abstract equivalence is
+an `OrientedContinuousMulEquiv`.  Its two specializations are
+`orientedEquivM_of_pullback_natural` and `orientedEquivN_of_pullback_natural`.
+
+Finally, `orientedAbstractEquiv_KTwoM` and `orientedAbstractEquiv_KTwoN` feed actual abstract
+equivalences returned by `MLabHypothesis` and `NLabHypothesis` into that transport theorem.
+They do not alter either hypothesis: all new input is the separately named pullback-naturality
+premise described below.
+
 ## What theorem is still needed
 
-For an arbitrary equivalence
+The exact remaining input is no longer an informal prose obligation.  For the `M` output it is
+the following premise of `orientedAbstractEquiv_KTwoM`:
 
 ```lean
-f : ContinuousMulEquiv (DM alpha h) (maxProPQuotient 2 (GalK K))
+PullbackNatural (IsPresentedOrientationM alpha h)
+  (fun chi => mIsCanonical (maxProPQuotient 2 (GalK K)) chi.toMonoidHom)
 ```
 
-obtained from `MLabHypothesis`, it is enough to prove that the pullback
-`chiCycKTwo.comp f` satisfies `IsLabuteOrientationDatumM` on the four core letters and is `1`
-on every handle.  The `N` signature is identical with `IsLabuteOrientationDatumN`.  A more
-intrinsic and reusable theorem would be naturality of a canonical-orientation predicate:
+For `N`, whose current classification hypothesis records only the character image, the minimal
+signature additionally names a target predicate and requires:
 
 ```lean
-theorem canonicalOrientation_comp_equiv
-    (e : ContinuousMulEquiv G H)
-    (hcanonical : IsCanonicalOrientation H chiH) :
-  IsCanonicalOrientation G (chiH.comp e)
-
-theorem canonicalOrientation_unique_M
-    (hcanonical : IsCanonicalOrientation (DM alpha h) chi) :
-  chi = chiM alpha h
-
-theorem canonicalOrientation_unique_N
-    (hcanonical : IsCanonicalOrientation (DN alpha h) chi) :
-  chi = chiN alpha h
+nIsCanonical (chiCycKTwo (K := K))
+PullbackNatural (IsPresentedOrientationN alpha h) nIsCanonical
 ```
 
-No abstract `IsCanonicalOrientation` is presently defined.  Formalizing it through the
-dualizing module, or proving the concrete pullback Labute-data statements directly, is the
-remaining orientation step.  The existing `mIsCanonical` parameter cannot supply this on its
-own: `MLabHypothesis` accepts the predicate in its antecedent but returns an equivalence without
-any theorem relating the predicate across that equivalence.
+Either an intrinsic dualizing-orientation construction can prove these premises uniformly, or
+the concrete four-letter and handle values can prove them for the cyclotomic character at the
+particular `K`.  Once either statement is available, the new wrapper returns the oriented
+equivalence with no further group-theoretic correction.
+
+The existing `mIsCanonical` parameter still cannot supply naturality on its own:
+`MLabHypothesis` accepts it in its antecedent but returns an equivalence without any theorem
+relating the predicate across that equivalence.  The new wrapper exposes precisely that missing
+law rather than silently strengthening `MLabHypothesis`.
+
+## Duality and cup--Bockstein audit
+
+There is currently no abstract dualizing orientation to instantiate the new transport theorem.
+
+* `TateDualityG G n` contains an unnormalized isomorphism
+  `H2 G (MuN n) ≃+ ZMod n` and perfect finite-`n` cup pairings.  It does not define an integral
+  dualizing module, its `G`-action character, or transport of such a character along a
+  `ContinuousMulEquiv`.
+* `IsLocalDualizingGroup` records an open finite-index embedding into `AbsGalQ2`, compatible
+  with the finite `MuN n` action.  It likewise produces no `Z_2^×`-valued character.
+* `DyadicOrientation` is the deliberately composite B3c interface at `AbsGalQ2`; its own
+  documentation says the abstract dualizing-module characterization is deferred.
+* The field-side cup form, Bockstein diagonal, and Tate perfectness are all presently used at
+  mod `2`.  The new theorem `character_toZModPow_one` proves that every value of every
+  `Z_2^×`-valued character reduces to `1` mod `2`, and `inverseCharacter_modTwo_eq` proves the
+  entire mod-2 scalar functions of `chi` and `chi⁻¹` are equal.  Thus the current
+  cup--Bockstein data cannot distinguish the same-image inverse-character counterexamples.
+  An integral dualizing-module action could still distinguish them; it simply is not yet an
+  object in the repository.
+* Rank three has a genuine theorem, `isLabuteOrientation_comp_iso`, but its proof is specific to
+  `DR ≃ D0`: it constructs `D0`-side WordLift master derivations, proves their evaluation matrix
+  invertible mod `2`, and solves for arbitrary derivation values.  No current API transports
+  that argument from an arbitrary `G_K(2)` to the improved even-rank cores.
 
 ## Odd `L` audit
 
