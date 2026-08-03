@@ -69,9 +69,10 @@ The three lifting strata (MC1 §5):
   for correcting one particular marking.
 
 Net binder inventory for the N-core correction: **none**.  For the preferred compact M-core
-correction: **`MScalingHypothesis` alone**.  The older uniform API still accepts
-`MMixHypothesis` for compatibility; `mMixHypothesis_of_scaling` constructs it from the smaller
-binder at `α ≥ 2`.  The pivot-unit row below is marked data and on the compact row is a theorem.
+correction: **none** as well: `MScaling.lean` constructs the remaining scaling face from existing
+B8.  The older uniform API still accepts `MMixHypothesis` for compatibility;
+`mMixHypothesis_of_scaling` constructs it from `MScalingHypothesis` at `α ≥ 2`.  The pivot-unit
+row below is marked data and on the compact row is a theorem.
 
 ## The compact-`M` change of variables (errata item 3 — DERIVED, ticket MC-CoV)
 

@@ -87,13 +87,11 @@ frame `MDecomposition`, and the B8 transport `peripheralTriple_scaling`) and the
 4. **`DmRealizes` is scoped to the handle stratum**, so no core-stratum piece is routed through
    it here; `MMixHypothesis` demands χ-preservation directly, and `MCoreMixHypothesis` /
    `MLiftSplit` are threaded *literally* in `prop_MC_M_correction_split`.  See §7's preamble.
-5. **The S2 (unit-scaling) lift is NOT built here.**  Memo §5.2's construction — `Σ_γ` from two
-   nested applications of B8 through MC2's `deltaHom` transport — needs the two conjugators of
-   `w_M = A·A^B` matched by an inner twist, and MC2's `mOuter_scaling`/`mInner_scaling` supply
-   only the scaled *triple identity*, not a marking whose relator dies.  Turning that into a
-   `ContinuousMulEquiv` is a self-contained piece of work and is left to MC5/G-Lab; §5's family
-   `mFamM3` records the frame row it must realise.  Consequence for the axiom ledger: this file
-   has **no B8 consumer at all** (see below).
+5. **The S2 (unit-scaling) lift is built one layer above this file.**
+   `MarkedCore/MScaling.lean` retains the canonical `deltaHom` conjugators from the two nested
+   B8 triples, splices them at `w_M = A·A^B`, proves Frattini surjectivity, and constructs the
+   χ-preserving `ContinuousMulEquiv` at handle level zero.  This file itself still has **no B8
+   consumer**; §5's family `mFamM3` records the frame row realized by that construction.
 6. The classification takes the orientation as an abstract character with pinned generator
    values (`hχA`–`hχD`), exactly as `prop_3_8_classification` does on the ℚ₂ side — no descended
    `chiMab` is constructed, and `mChi_frame` shows none is needed.
@@ -1613,8 +1611,8 @@ The pivot datum `hc` stays a hypothesis here so the statement remains uniform in
 four it is not an extra assumption at all: `MarkedCore/CompactCoV.lean` (ticket MC-CoV) proves
 it **equivalent** to the compact row's own branch condition `r = 0`, and
 `prop_MC_M_correction_of_chiKer` is this theorem with `hc` replaced by that clause.  So the
-`M`-core's residual binder list is `MMixHypothesis` alone, matching the `N`-core's
-`NScalingHypothesis` alone. -/
+preferred compact `M` API has no marked-core binder: `MScaling.lean` supplies its M3 face from
+existing B8 and exact M2/M5/handle moves supply the remainder. -/
 theorem prop_MC_M_correction {α h : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α h hα)
     (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
     (hc : IsUnit (toAdd (nu' (dmC α h)))) :
@@ -1632,10 +1630,9 @@ theorem prop_MC_M_correction {α h : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesi
     rw [hΨ₁chi, hΨ₂chi]
   · exact hΨ₂nu i
 
-/-- **MC-M at rank four** (`h = 0`, no handles): the same statement with the handle stratum
-absent, so the S3 binder is the *only* input.  This is the shape MC-CoV's discharge applies
-to — see `CompactCoV.prop_MC_M_correction_of_chiKer`, which drops `hc` for the χ-kernel
-clause at the cost of a frame `B : MDecomposition α` that MC3 already consumes throughout. -/
+/-- **MC-M at rank four** (`h = 0`, no handles): the uniform compatibility form still accepts
+the old S3 binder.  The preferred `CompactCoV.prop_MC_M_correction_of_chiKer` drops both it and
+`hc`, using existing B8 through `MScaling.lean` and the intrinsic χ-kernel clause. -/
 theorem prop_MC_M_correction_zero {α : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α 0 hα)
     (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
     (hc : IsUnit (toAdd (nu' (dmC α 0)))) :

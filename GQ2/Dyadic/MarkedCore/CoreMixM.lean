@@ -497,7 +497,8 @@ remains is:
   Decision 2(A)'s levelwise/graded-Lie price and its "unknown risk" label intact.
 * **The S2 unit-scaling binder** — the S2 half of `MNielsenScalingHypothesis`
   (`HandleMixClear.lean:1154`), i.e. MC3's family `M3` (`Σ_γ : C₀ ↦ C₀^γ`), which runs through the
-  *existing* axiom B8 exactly as its `N`-side counterpart does.  Untouched here.
+  *existing* axiom B8 exactly as its `N`-side counterpart does.  It is untouched in this file,
+  but `MScaling.lean` now constructs it at `h = 0`.
 
 Two scoping notes distinguish the family-generation question from the particular-marking
 correction actually consumed by compact certificates.
@@ -505,9 +506,8 @@ correction actually consumed by compact certificates.
 1. **M4/M6/M7 are unnecessary for a particular marking.**  After M3 normalizes `C̄₀`, exact
    M2 and M5 clear `D̄` and `B̄`; the handle theorem clears the remaining rows, and the relation
    forces `Ā`.  This is `mMixHypothesis_of_scaling`, which derives MC3's full
-   `MMixHypothesis` contract from `MScalingHypothesis`.  No exact constructor for M3 itself is
-   present in the current library: its advertised B8/conjugator route therefore remains the
-   sole genuine correction binder.
+   `MMixHypothesis` contract from `MScalingHypothesis`.  `MScaling.lean` constructs M3 from B8
+   at `h = 0`; only the general-h form remains a binder.
 2. **`mCoreMixHypothesisWide_m5` is not superseded.**  HM6ef's statement is about the corrected
    twist `hm6FrameBDc k` at *general* `α ≥ 0`; this file's needs `α ≥ 2` for the unit, and `α ≥ 1`
    already for the pinning `Ā = −2^{α−1}C̄₀`.  Both stand.

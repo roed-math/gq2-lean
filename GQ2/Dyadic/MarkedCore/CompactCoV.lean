@@ -7,6 +7,7 @@ module
 
 public import GQ2.Dyadic.MarkedCore.Certificate
 public import GQ2.Dyadic.MarkedCore.CoVDischarge
+public import GQ2.Dyadic.MarkedCore.MScaling
 
 @[expose] public section
 
@@ -31,11 +32,10 @@ selecting the compact row.  So on the compact branch the datum is a **theorem**.
 ## This file
 
 Each M theorem below is the `Certificate.lean` (resp. `M.lean`) statement with
-`hpivot : IsUnit (ν'(C̄₀))` replaced by `MChiKerUnimodular`, and with the former all-in-one
-`MMixHypothesis` replaced by `MScalingHypothesis`.  The first replacement is an *equivalence*
-at rank four; the second uses `mMixHypothesis_of_scaling`, whose exact M2/M5 and handle moves
-show that only M3 unit scaling is needed to correct a particular marking.  This trio **is** the
-preferred compact-`M` consumer API.
+`hpivot : IsUnit (ν'(C̄₀))` replaced by `MChiKerUnimodular`.  The replacement is an *equivalence*
+at rank four.  The former all-in-one `MMixHypothesis` is now discharged as well: canonical B8
+transport constructs `MScalingHypothesis α 0`, and `mMixHypothesis_of_scaling` combines it with
+the exact M2/M5 and handle moves.  This trio **is** the preferred compact-`M` consumer API.
 
 ⚠ The parent statements deliberately keep `hpivot` and stay uniform in `h`; the discharge is
 rank-four (`h = 0`, `α ≥ 2`) only, so it cannot be folded into them — at `h = 1` the citation
@@ -87,28 +87,26 @@ theorem marked_matching_certificate_N_of_chiKer {α : ℕ} (hα : 2 ≤ α)
   exact marked_matching_certificate_N α 0 chiG nuG f horient hcont
     (nPairUnimodular_of_chiKer hα B nu' hker)
 
-/-- **MC5's `mMarkedMatching`, with the compact-`M` datum discharged and only the M3 scaling
-face left conditional.**  Exact M2/M5 plus the handle theorem supply the rest through
-`mMixHypothesis_of_scaling`. -/
+/-- **MC5's `mMarkedMatching`, with both compact-`M` residues discharged.**  Existing B8 supplies
+M3 scaling; exact M2/M5 plus the handle theorem supply the rest. -/
 theorem mMarkedMatching_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα1 : 1 ≤ α) (B : MDecomposition α)
-    (hScal : MScalingHypothesis α 0)
     (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
     (hker : MChiKerUnimodular α 0 nu') :
     ∃ u : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type),
       (∀ x, chiM α 0 (u x) = chiM α 0 x) ∧ ∀ x, nu' (u x) = nuM α 0 hα1 x :=
-  mMarkedMatching hα1 (mMixHypothesis_of_scaling α 0 hα hScal) nu'
+  mMarkedMatching hα1 (mMixHypothesis_of_scaling α 0 hα (mScalingHypothesis_zero α)) nu'
     (isUnit_nu_dmC_of_chiKer hα B nu' hker)
 
-/-- **MC-M (correction form), with the compact-`M` datum discharged and only M3 scaling
-conditional.** -/
+/-- **MC-M (correction form), with the compact-`M` datum and M3 scaling discharged.** -/
 theorem prop_MC_M_correction_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα1 : 1 ≤ α)
-    (B : MDecomposition α) (hScal : MScalingHypothesis α 0)
+    (B : MDecomposition α)
     (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
     (hker : MChiKerUnimodular α 0 nu') :
     ∃ Ψ : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type),
       (∀ x, chiM α 0 (Ψ x) = chiM α 0 x)
         ∧ ∀ i, nu' (Ψ (dmGen α 0 i)) = nuM α 0 hα1 (dmGen α 0 i) :=
-  prop_MC_M_correction hα1 (mMixHypothesis_of_scaling α 0 hα hScal) nu'
+  prop_MC_M_correction hα1
+    (mMixHypothesis_of_scaling α 0 hα (mScalingHypothesis_zero α)) nu'
     (isUnit_nu_dmC_of_chiKer hα B nu' hker)
 
 /-- **Certificate production, `M`-side, with the compact-`M` datum discharged.**  The pivot row
@@ -119,7 +117,6 @@ theorem marked_matching_certificate_M_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα
     (f : ContinuousMulEquiv (DM α 0 : Type) G)
     (horient : ∀ x, chiG (f x) = chiM α 0 x)
     (hcont : Continuous fun x : (DM α 0 : Type) => nuG (f x))
-    (hScal : MScalingHypothesis α 0)
     (hker : ∃ x : (DM α 0 : Type), chiM α 0 x = 1 ∧ IsUnit (toAdd (nuG (f x)))) :
     Nonempty (MarkedCoreCertificateM α 0 hα1 chiG nuG) := by
   set nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]) :=
@@ -128,7 +125,7 @@ theorem marked_matching_certificate_M_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα
       map_mul' := fun x y => by rw [map_mul, map_mul]
       continuous_toFun := hcont } with hnu'
   exact marked_matching_certificate_M α 0 hα1 chiG nuG f horient hcont
-    (mMixHypothesis_of_scaling α 0 hα hScal)
+    (mMixHypothesis_of_scaling α 0 hα (mScalingHypothesis_zero α))
     (isUnit_nu_dmC_of_chiKer hα B nu' hker)
 
 end MC5

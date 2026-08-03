@@ -1558,6 +1558,33 @@ theorem delta_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGr
   exact ContinuousMonoidHom.ext fun z =>
     (hsub.closure φ.continuous_toFun ψ.continuous_toFun) (hdense z)
 
+/-- The canonical transport of a peripheral conjugator lies in the closed subgroup generated
+by the transported peripheral pair.  Keeping this support information is essential when B8 is
+used to build an endomorphism and prove its Frattini surjectivity. -/
+theorem deltaHom_mem_topologicalClosure (hH : IsProP 2 H) (X Y : H) (z : Delta) :
+    deltaHom hH X Y z ∈ (Subgroup.closure ({X, Y} : Set H)).topologicalClosure := by
+  have hcl : IsClosed (((Subgroup.closure ({X, Y} : Set H)).topologicalClosure : Subgroup H) :
+      Set H) := Subgroup.isClosed_topologicalClosure _
+  have hX : X ∈ (Subgroup.closure ({X, Y} : Set H)).topologicalClosure :=
+    Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (Set.mem_insert _ _))
+  have hY : Y ∈ (Subgroup.closure ({X, Y} : Set H)).topologicalClosure :=
+    Subgroup.le_topologicalClosure _
+      (Subgroup.subset_closure (Set.mem_insert_of_mem _ rfl))
+  have hle :
+      (Subgroup.closure ({deltaP, deltaT} : Set Delta)).topologicalClosure ≤
+        ((Subgroup.closure ({X, Y} : Set H)).topologicalClosure).comap
+          (deltaHom hH X Y).toMonoidHom := by
+    refine Subgroup.topologicalClosure_minimal _
+      ((Subgroup.closure_le _).mpr fun x hx => Subgroup.mem_comap.mpr ?_) ?_
+    · rcases hx with rfl | rfl
+      · simpa using hX
+      · simpa using hY
+    · exact hcl.preimage (deltaHom hH X Y).continuous_toFun
+  have hz : z ∈ (Subgroup.closure ({deltaP, deltaT} : Set Delta)).topologicalClosure := by
+    rw [delta_topGen]
+    exact Subgroup.mem_top z
+  exact Subgroup.mem_comap.mp (hle hz)
+
 /-- A free pro-2 pair transports along any injective continuous hom of pro-2 groups. -/
 theorem IsFreePro2Pair.comp {K : Type} [Group K] [TopologicalSpace K] [IsTopologicalGroup K]
     [CompactSpace K] [T2Space K] [TotallyDisconnectedSpace K] (hH : IsProP 2 H)
@@ -1570,6 +1597,50 @@ theorem IsFreePro2Pair.comp {K : Type} [Group K] [TopologicalSpace K] [IsTopolog
   have h1 : deltaHom hK (φ X) (φ Y) a = φ (deltaHom hH X Y a) := by rw [hEq]; rfl
   have h2 : deltaHom hK (φ X) (φ Y) b = φ (deltaHom hH X Y b) := by rw [hEq]; rfl
   rw [h1, h2, hab]
+
+/-- The canonical `P`-conjugator obtained by transporting B8 along `(X,Y)`. -/
+noncomputable def peripheralScaleP (R : PeripheralCyclotomicAction) (hH : IsProP 2 H)
+    (X Y : H) (u : ℤ_[2]ˣ) : H := deltaHom hH X Y (R.cP u)
+
+/-- The canonical `T`-conjugator obtained by transporting B8 along `(X,Y)`. -/
+noncomputable def peripheralScaleT (R : PeripheralCyclotomicAction) (hH : IsProP 2 H)
+    (X Y : H) (u : ℤ_[2]ˣ) : H := deltaHom hH X Y (R.cT u)
+
+/-- The canonical `C`-conjugator obtained by transporting B8 along `(X,Y)`. -/
+noncomputable def peripheralScaleC (R : PeripheralCyclotomicAction) (hH : IsProP 2 H)
+    (X Y : H) (u : ℤ_[2]ˣ) : H := deltaHom hH X Y (R.cC u)
+
+/-- **B8 transport with its canonical witnesses retained.**  This is the strengthened form of
+`peripheralTriple_scaling` needed by automorphism constructions: unlike an existential triple,
+the displayed witnesses still carry `deltaHom_mem_topologicalClosure` support. -/
+theorem peripheralTriple_scaling_canonical (R : PeripheralCyclotomicAction) (hH : IsProP 2 H)
+    {X Y Z : H} (hXYZ : X * Y * Z = 1) (u : ℤ_[2]ˣ) :
+    conjP (zpowZtwo hH X (u : ℤ_[2])) (peripheralScaleP R hH X Y u) *
+        conjP (zpowZtwo hH Y (u : ℤ_[2])) (peripheralScaleT R hH X Y u) *
+        conjP (zpowZtwo hH Z (u : ℤ_[2])) (peripheralScaleC R hH X Y u) = 1 := by
+  have hZ : (X * Y)⁻¹ = Z := (eq_inv_of_mul_eq_one_right hXYZ).symm
+  set f := deltaHom hH X Y with hf
+  have hDelta : IsProP 2 (Delta : Type) := isProP_maxProPQuotient
+  have hpow : ∀ (w : (Delta : Type)) (W : H), f w = W →
+      f (w ^ᶻ R.ι u) = zpowZtwo hH W (u : ℤ_[2]) := by
+    intro w W hw
+    rw [zpowHat_eq_zpowZtwo hDelta, R.hι_proj u, toAdd_ofAdd,
+      map_zpowZtwo hDelta hH f w (u : ℤ_[2]), hw]
+  have hconj : ∀ (w g : (Delta : Type)), f (conjP w g) = conjP (f w) (f g) := by
+    intro w g
+    simp only [conjP, map_mul, map_inv]
+  have hPTC : deltaP * deltaT * deltaC = 1 := by rw [deltaC, mul_inv_cancel]
+  have key : f (R.aut u deltaP) * f (R.aut u deltaT) * f (R.aut u deltaC) = 1 := by
+    rw [← map_mul, ← map_mul, ← map_mul, ← map_mul, hPTC, map_one, map_one]
+  simpa only [peripheralScaleP, peripheralScaleT, peripheralScaleC, hf] using (show
+    conjP (zpowZtwo hH X (u : ℤ_[2])) (f (R.cP u)) *
+        conjP (zpowZtwo hH Y (u : ℤ_[2])) (f (R.cT u)) *
+        conjP (zpowZtwo hH Z (u : ℤ_[2])) (f (R.cC u)) = 1 by
+      rw [R.hP u, R.hT u, R.hC u, hconj, hconj, hconj,
+        hpow deltaP X (deltaHom_deltaP hH X Y),
+        hpow deltaT Y (deltaHom_deltaT hH X Y),
+        hpow deltaC Z (by rw [deltaHom_deltaC, hZ])] at key
+      exact key)
 
 /-- **The B8 transport lemma** (memo §5.2, §10; the MC2 asset).  Given a three-term
 factorisation `X·Y·Z = 1` in a pro-2 group `H` and a unit `u ∈ ℤ₂ˣ`, the **existing** axiom B8
@@ -1584,27 +1655,9 @@ No new axiom is introduced: the statement consumes `PeripheralCyclotomicAction`
 theorem peripheralTriple_scaling (R : PeripheralCyclotomicAction) (hH : IsProP 2 H)
     {X Y Z : H} (hXYZ : X * Y * Z = 1) (u : ℤ_[2]ˣ) :
     ∃ p t c : H, conjP (zpowZtwo hH X (u : ℤ_[2])) p * conjP (zpowZtwo hH Y (u : ℤ_[2])) t
-      * conjP (zpowZtwo hH Z (u : ℤ_[2])) c = 1 := by
-  have hZ : (X * Y)⁻¹ = Z := (eq_inv_of_mul_eq_one_right hXYZ).symm
-  set f := deltaHom hH X Y with hf
-  have hDelta : IsProP 2 (Delta : Type) := isProP_maxProPQuotient
-  -- the transported peripheral powers
-  have hpow : ∀ (w : (Delta : Type)) (W : H), f w = W →
-      f (w ^ᶻ R.ι u) = zpowZtwo hH W (u : ℤ_[2]) := by
-    intro w W hw
-    rw [zpowHat_eq_zpowZtwo hDelta, R.hι_proj u, toAdd_ofAdd,
-      map_zpowZtwo hDelta hH f w (u : ℤ_[2]), hw]
-  have hconj : ∀ (w g : (Delta : Type)), f (conjP w g) = conjP (f w) (f g) := by
-    intro w g
-    simp only [conjP, map_mul, map_inv]
-  refine ⟨f (R.cP u), f (R.cT u), f (R.cC u), ?_⟩
-  have hPTC : deltaP * deltaT * deltaC = 1 := by rw [deltaC, mul_inv_cancel]
-  have key : f (R.aut u deltaP) * f (R.aut u deltaT) * f (R.aut u deltaC) = 1 := by
-    rw [← map_mul, ← map_mul, ← map_mul, ← map_mul, hPTC, map_one, map_one]
-  rw [R.hP u, R.hT u, R.hC u, hconj, hconj, hconj,
-    hpow deltaP X (deltaHom_deltaP hH X Y), hpow deltaT Y (deltaHom_deltaT hH X Y),
-    hpow deltaC Z (by rw [deltaHom_deltaC, hZ])] at key
-  exact key
+      * conjP (zpowZtwo hH Z (u : ℤ_[2])) c = 1 :=
+  ⟨peripheralScaleP R hH X Y u, peripheralScaleT R hH X Y u,
+    peripheralScaleC R hH X Y u, peripheralTriple_scaling_canonical R hH hXYZ u⟩
 
 end Peripheral
 

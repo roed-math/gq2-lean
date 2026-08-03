@@ -117,12 +117,11 @@ theorem marked_matching_certificate_KTwoM (B : MarkedRecip Rec K) (alpha h : ℕ
 
 /-- Preferred compact direct-`G_K(2)` constructor for the `M` core.  The genuine arithmetic
 level fact `r = 0` supplies a unit value on `ker χ`; the rank-four frame turns it into the
-`C̄₀` pivot; exact handle/M2/M5 corrections clear every other row.  Accordingly the only
-remaining group-theoretic input is the M3 unit-scaling face `MScalingHypothesis`, rather than
-the former all-in-one `MMixHypothesis`. -/
+`C̄₀` pivot; canonical B8 transport supplies M3 unit scaling; exact handle/M2/M5 corrections
+clear every other row.  Thus the compact level-zero constructor has no residual marked-core
+hypothesis. -/
 theorem marked_matching_certificate_KTwoM_of_level_zero (B : MarkedRecip Rec K) (alpha : ℕ)
     (halpha : 2 ≤ alpha) (D : MDecomposition alpha) (hr : B.r = 0)
-    (hScal : MScalingHypothesis alpha 0)
     (f : ContinuousMulEquiv (DM alpha 0 : Type) (maxProPQuotient 2 (GalK K)))
     (horient : ∀ x, chiCycKTwo (K := K) (f x) = chiM alpha 0 x) :
     Nonempty (MarkedCoreCertificateKTwoM B alpha 0 (by omega)) := by
@@ -132,7 +131,7 @@ theorem marked_matching_certificate_KTwoM_of_level_zero (B : MarkedRecip Rec K) 
   let x : (DM alpha 0 : Type) := f.symm q
   apply marked_matching_certificate_M_of_chiKer halpha (by omega) D
     (chiCycKTwo (K := K)).toMonoidHom (nuUrKTwo B).toMonoidHom f horient
-    ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun) hScal
+    ((nuUrKTwo B).continuous_toFun.comp f.continuous_toFun)
   refine ⟨x, ?_, ?_⟩
   · rw [← horient x]
     change chiCycKTwo (K := K) (f (f.symm q)) = 1
