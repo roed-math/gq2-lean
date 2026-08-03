@@ -199,7 +199,8 @@ theorem QZero_eq_lSqWallHandlePhase_of_ramifiedNormal
       c.c (gammaGen (2 * h + 1) q (lSqW h) i) = lSqRamifiedNormal h d z i) :
     let s := rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .sigma)
     let N := 4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)
-    let U := smulAddEquiv ((s ^ (omega2Exp N : ℤ))⁻¹)
+    let U : DD.Vmod ≃+ DD.Vmod :=
+      smulAddEquiv (V := DD.Vmod) ((s ^ (omega2Exp N : ℤ))⁻¹)
     letI : TopologicalSpace (ZMod 2) := ⊥
     letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
     letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
@@ -261,6 +262,182 @@ theorem QZero_eq_lSqWallHandlePhase_of_ramifiedNormal
       exact lSqRamifiedNormal_handleU d z j
     · change lSqRamifiedNormal h d z (LSq.handleV j) = z (j, 1)
       exact lSqRamifiedNormal_handleV d z j
+
+/-! ## Quotient-level phase identity -/
+
+/-- The full pointwise ramified phase identity for the canonical graph normal coordinates.
+
+Every quotient class is represented by a crossed cocycle.  The proved L degree-one normal form
+finds a principal-coboundary translate whose generator values are exactly
+`lSqRamifiedNormal`.  The representative theorem above evaluates that translate, while
+`QZeroBar` and `h1OfVQuot` identify the translated and original quotient classes.  Thus the
+former opaque pointwise phase premise is discharged from:
+
+* the improved L presentation and its direct scalar orientation;
+* wild death in the lower `C0` marking; and
+* the two standard ramified fixed-point hypotheses on `tau`.
+-/
+theorem lRamifiedPointwisePhaseIdentity_of_graphNormalForm
+    {h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom ((gamma h q : Type)) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [IsTopologicalAddGroup DD.Vmod]
+    [DiscreteTopology DD.Vmod] [Finite DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [Finite DD.C0]
+    [DistribMulAction ((gamma h q : Type)) DD.Vmod]
+    [ContinuousSMul ((gamma h q : Type)) DD.Vmod]
+    {q0 : DD.Vmod → ZMod 2} (hdat : IsEquivariantFactorSet q0 DD.dat)
+    (hq : Even q)
+    (hcomp : ∀ (g : (gamma h q : Type)) (v : DD.Vmod),
+      g • v = rho0 DD rho g • v)
+    (hwildBase : ∀ i : Fin (2 * h + 1 + 1),
+      rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) (.wild i)) = 1)
+    (hτfpf : ∀ v : DD.Vmod,
+      rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .tau) • v = v → v = 0)
+    (hTodd : ∀ v : DD.Vmod,
+      powOmega2 (rho0 DD rho
+        (gammaGen (2 * h + 1) q (lSqW h) .tau)) • v = v) :
+    let L := SectionSix.SemiProd DD.C0 DD.Vmod
+    let N := 4 * Monoid.exponent L
+    let s := rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .sigma)
+    let U := smulAddEquiv ((s ^ (omega2Exp N : ℤ))⁻¹)
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo ((gamma h q : Type))
+    letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+    LRamifiedPointwisePhaseIdentity
+      (scalarActionZmodTwo_triv ((gamma h q : Type))) hcomp q0 U h
+      (lSqRamifiedGraphSourceH1Equiv rho hcomp hwildBase hτfpf hTodd) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction ((gamma h q : Type)) (ZMod 2) :=
+    scalarActionZmodTwo ((gamma h q : Type))
+  letI : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
+    scalarActionZmodTwo_continuousSMul ((gamma h q : Type))
+  let L := SectionSix.SemiProd DD.C0 DD.Vmod
+  letI : Finite L := inferInstanceAs (Finite (DD.Vmod × DD.C0))
+  letI : DistribMulAction L DD.Vmod :=
+    DistribMulAction.compHom DD.Vmod (sdSnd : L →* DD.C0)
+  letI : TopologicalSpace (WordLift DD.Vmod L) := ⊥
+  letI : DiscreteTopology (WordLift DD.Vmod L) := ⟨rfl⟩
+  let rhoL : ContinuousMonoidHom ((gamma h q : Type)) L := lGraphLineHom DD rho
+  let t := lTargetMarking (h := h) (q := q) rhoL
+  let N := 4 * Monoid.exponent L
+  let eN := omega2Exp N
+  let s := rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) .sigma)
+  let U : DD.Vmod ≃+ DD.Vmod :=
+    smulAddEquiv (V := DD.Vmod) ((s ^ (eN : ℤ))⁻¹)
+  have hcompatL : ∀ (g : (gamma h q : Type)) (v : DD.Vmod),
+      g • v = rhoL g • v := by
+    intro g v
+    exact hcomp g v
+  have hV₂ : ∀ v : DD.Vmod, v + v = 0 := Vmod_exp2 DD
+  have hres : ResolvesAt (gammaFam (2 * h + 1) q (lSqW h))
+      (lSqFam h q eN) (WordLift DD.Vmod L) := by
+    simpa only [eN, N, L] using
+      (lUniform_wordLift_resolver (C := L) (h := h) (q := q) hV₂)
+  have ht : t.TameRelAt q := by
+    have hrel := (isAdmissibleMarkedPresentation_gammaR
+      (2 * h + 1) q (lSqW h)).rel rhoL (0 : Fin 2)
+    change PWord.eval ⇑t (tameRelW (2 * h + 1) q) = 1 at hrel
+    rw [← Marking.eval_def, Certificates.eval_tameRelW] at hrel
+    exact mul_inv_eq_one.mp hrel
+  have hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : DD.Vmod), t.x i • v = v := by
+    intro i v
+    change (rho0 DD rho
+      (gammaGen (2 * h + 1) q (lSqW h) (.wild i))) • v = v
+    rw [hwildBase i, one_smul]
+  have hτfpfL : ∀ v : DD.Vmod, t.τ • v = v → v = 0 := by
+    intro v hv
+    exact hτfpf v hv
+  have hToddL : ∀ v : DD.Vmod, powOmega2 t.τ • v = v := by
+    intro v
+    change sdSnd (powOmega2 (rhoL
+      (gammaGen (2 * h + 1) q (lSqW h) .tau))) • v = v
+    rw [powOmega2_map (sdSnd : L →* DD.C0), lGraphLineHom_apply]
+    exact hTodd v
+  have hL : PWord.evalZ ⇑t
+      (fun _ ↦ (eN : ℤ)) (fun _ ↦ (eN : ℤ)) (lSqW h) = 1 := by
+    have hrel := (isAdmissibleMarkedPresentation_gammaR
+      (2 * h + 1) q (lSqW h)).rel rhoL (1 : Fin 2)
+    change PWord.eval ⇑t (lSqW h) = 1 at hrel
+    have hN : N ≠ 0 := (fourMulExponent_ne_zero_and_even L).1
+    have hord : ∀ c : L, orderOf c ∣ N := by
+      intro c
+      exact (Monoid.order_dvd_exponent c).trans (by
+        simpa [N, mul_comm] using dvd_mul_right (Monoid.exponent L) 4)
+    have hresolved : PWord.ResolvedAt ⇑t (fun _ ↦ (eN : ℤ))
+        (fun _ ↦ (eN : ℤ)) (lSqW h) :=
+      PWord.resolvedAt_of_isOmega2Only _ _ _
+        (fun c ↦ PWord.zpowHat_omega2_zpow hN (hord c)) _ (isOmega2Only_lSq h)
+    rw [PWord.eval_eq_evalZ _ _ _ _ hresolved] at hrel
+    exact hrel
+  change LRamifiedPointwisePhaseIdentity
+    (scalarActionZmodTwo_triv ((gamma h q : Type))) hcomp q0 U h
+    (lSqRamifiedGraphSourceH1Equiv rho hcomp hwildBase hτfpf hTodd)
+  intro x
+  induction x using QuotientAddGroup.induction_on with
+  | H c =>
+    let zc : ↥(heisD1 (A := DD.Vmod) ⇑t (lSqFam h q eN)).ker :=
+      lSourceZ1Map rhoL hcompatL hres (toZ1 hcomp c)
+    obtain ⟨p, hp, _⟩ := lSqFam_ramified_normalForm t hV₂ ht hwild hτfpfL hToddL hL
+      zc.1 (AddMonoidHom.mem_ker.mp zc.2)
+    obtain ⟨a, ha⟩ := AddMonoidHom.mem_range.mp hp
+    let cN : VCocycle DD rho := c + vCob DD rho (-a)
+    have hnormal : ∀ i : Generator (2 * h + 1),
+        cN.c (gammaGen (2 * h + 1) q (lSqW h) i) =
+          lSqRamifiedNormal h p.1 p.2 i := by
+      intro i
+      have hai := congrFun ha i
+      change (rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) i)) • a - a =
+        c.c (gammaGen (2 * h + 1) q (lSqW h) i) -
+          lSqRamifiedNormal h p.1 p.2 i at hai
+      change c.c (gammaGen (2 * h + 1) q (lSqW h) i) +
+          ((rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) i)) • (-a) - (-a)) =
+        lSqRamifiedNormal h p.1 p.2 i
+      rw [smul_neg, show
+        -((rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) i)) • a) - (-a) =
+          -((rho0 DD rho (gammaGen (2 * h + 1) q (lSqW h) i)) • a - a) by abel,
+        hai]
+      abel
+    have hquot : (QuotientAddGroup.mk c : VCocycle DD rho ⧸ vCobRange DD rho) =
+        QuotientAddGroup.mk cN := by
+      rw [QuotientAddGroup.eq_iff_sub_mem]
+      refine AddMonoidHom.mem_range.mpr ⟨a, ?_⟩
+      rw [vCobHom_apply]
+      dsimp [cN]
+      have hneg : vCob DD rho (-a) = -vCob DD rho a := by
+        simpa only [vCobHom_apply] using (vCobHom DD rho).map_neg a
+      rw [hneg]
+      abel
+    let normalZ : ↥(heisD1 (A := DD.Vmod) ⇑t (lSqFam h q eN)).ker :=
+      ⟨lSqRamifiedNormal h p.1 p.2,
+        AddMonoidHom.mem_ker.mpr
+          (heisD1_lSqRamifiedNormal_eq_zero t hV₂ ht hwild hτfpfL hToddL p.1 p.2)⟩
+    have hsourceMap : lSourceZ1Map rhoL hcompatL hres (toZ1 hcomp cN) = normalZ := by
+      apply Subtype.ext
+      funext i
+      exact hnormal i
+    have hcoord :
+        lSqRamifiedGraphSourceH1Equiv rho hcomp hwildBase hτfpf hTodd
+            (H1mk (gamma h q : Type) DD.Vmod (toZ1 hcomp cN)) =
+          (p.1, fun j ↦ (p.2 (j, 0), p.2 (j, 1))) := by
+      change lSqRamifiedWordH1Equiv t hV₂ ht hwild hτfpfL hToddL hL
+          (lSourceH1Equiv rhoL hcompatL hV₂ hres
+            (H1mk (gamma h q : Type) DD.Vmod (toZ1 hcomp cN))) = _
+      rw [lSourceH1Equiv_mk, hsourceMap]
+      exact lSqRamifiedWordH1Equiv_normalClass
+        t hV₂ ht hwild hτfpfL hToddL hL p.1 p.2
+    rw [hquot, QZeroBar_mk]
+    change QZero DD rho cN = lSqWallHandlePhase q0 U h
+      (lSqRamifiedGraphSourceH1Equiv rho hcomp hwildBase hτfpf hTodd
+        (H1mk (gamma h q : Type) DD.Vmod (toZ1 hcomp cN)))
+    rw [hcoord]
+    exact QZero_eq_lSqWallHandlePhase_of_ramifiedNormal
+      rho hdat hq cN hwildBase p.1 p.2 hnormal
 
 end
 
