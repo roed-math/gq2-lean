@@ -297,6 +297,55 @@ noncomputable def delta1 : H1 G A'' →+ H2 G A' :=
     S.delta1 (H1mk G A'' z) = H2mk G A' (S.snakeZ z) :=
   rfl
 
+/-- Exactness at `H²(G,A')`: the kernel of the coefficient inclusion is the image of the
+continuous connecting map. -/
+theorem exact_left (x : H2 G A') :
+    mapCoeff2 S.f S.continuous_f S.f_equivariant x = 0 ↔ x ∈ S.delta1.range := by
+  obtain ⟨z, rfl⟩ := H2mk_surjective (G := G) (M := A') x
+  constructor
+  · intro hker
+    let hfeq : ∀ (c : G) (a : A'),
+        S.f ((ContinuousMonoidHom.id G) c • a) = c • S.f a := by
+      intro c a
+      exact S.f_equivariant c a
+    let zf : Z2 G A :=
+      Z2comap (ContinuousMonoidHom.id G) S.f S.continuous_f hfeq z
+    have hker' : H2mk G A zf = 0 := hker
+    change (QuotientAddGroup.mk zf : H2 G A) = 0 at hker'
+    rw [QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_addSubgroupOf] at hker'
+    obtain ⟨psi, hpsiC, hpsi⟩ := hker'
+    have hpsip : ∀ p, dOne G A psi p = S.f (z.1 p) := by
+      intro p
+      have hp := congrFun hpsi p
+      change dOne G A psi p = S.f (z.1 p) at hp
+      exact hp
+    have hz1mem : (fun c ↦ S.g (psi c)) ∈ Z1 G A'' := by
+      refine AddSubgroup.mem_inf.mpr ⟨S.continuous_g.comp hpsiC, ?_⟩
+      rw [AddMonoidHom.mem_ker]
+      funext p
+      change p.1 • S.g (psi p.2) - S.g (psi (p.1 * p.2)) + S.g (psi p.1) = 0
+      rw [← S.g_equivariant, ← map_sub, ← map_add]
+      change S.g (dOne G A psi p) = 0
+      rw [hpsip p]
+      exact S.comp_zero (z.1 p)
+    let z1 : Z1 G A'' := ⟨fun c ↦ S.g (psi c), hz1mem⟩
+    refine ⟨H1mk G A'' z1, ?_⟩
+    rw [S.delta1_H1mk]
+    exact (S.snakeZ_welldef z1 psi hpsiC z (fun _ ↦ rfl)
+      (fun p ↦ (hpsip p).symm)).symm
+  · rintro ⟨y, hy⟩
+    rw [← hy]
+    obtain ⟨z, rfl⟩ := H1mk_surjective (G := G) (M := A'') y
+    rw [S.delta1_H1mk]
+    change H2mk G A
+      (Z2comap (ContinuousMonoidHom.id G) S.f S.continuous_f
+        (fun c a ↦ S.f_equivariant c a) (S.snakeZ z)) = 0
+    apply (QuotientAddGroup.eq_zero_iff _).mpr
+    rw [AddSubgroup.mem_addSubgroupOf]
+    refine ⟨S.snakeLift1 z, S.snakeLift1_continuous z, ?_⟩
+    funext p
+    exact (S.f_snakeZ z p).symm
+
 end FiniteDiscreteCoeffSES
 
 end CoefficientSES
