@@ -2,8 +2,28 @@
 
 **Milestone status (2026-08-02):** the `eta = <1,1>` precursor described below is landed in
 `GQ2/Dyadic/Instances/NpcCore.lean`, uniformly in `h`, through `npcCorePresentationOne`.  The
-remaining structural blocker is exactly the arbitrary-unit inverse-power interface; the analytic
-work starts only after that generalization.
+remaining structural blocker for a full `WordCertificate` is exactly the arbitrary-unit
+inverse-power interface.
+
+The exact-lifting lane no longer waits on that dictionary.  `GQ2/Dyadic/Instances/NpcExact.lean`
+works directly from the corrected `GammaR` presentation and the two-valued `npcResolver`.  It
+proves the following constructor table uniformly in `alpha`, `r`, `h`, even `q`, and every
+displayed unit:
+
+| `ExactLiftingSemantics` clause | construction | genuine residual |
+|---|---|---|
+| lift cardinality | `liftsOver_cardN` at `npcFamOf` | per-simple `Hsimp` |
+| half-torsor identity | `lem86_of_variation` | the same `Hsimp` |
+| scalar `#H^2 = 2` | `cardH2_of_variation` plus the uniform two-element quotient | none beyond `Hsimp` |
+| equation (136) stage | `blockStageR136K` | `StageSep` and `StageZ` |
+
+The semantic arbitrary-unit constructor uses `Words.Npc.npcWUnit`; the regression theorem
+`NProcyclic.gamma_eq_display` rewrites it exactly once through
+`Words.Npc.npcWUnit_eq_display` to the corrected frozen `npcW`.  The selector theorem
+`NProcyclic.exactLifting_of_fieldSelection` applies this constructor to a selected `.Npc` row.
+No exact-lifting theorem mentions the retired uncorrected word.  The inverse-power work below
+remains relevant to the stronger structural `WordCertificate` assembly, not to these three
+exact-lifting clauses.
 
 ## Scope and current boundary
 
