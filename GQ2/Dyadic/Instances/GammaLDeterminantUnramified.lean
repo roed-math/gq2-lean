@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Instances.GammaLGraphNormalForm
 import GQ2.Dyadic.Instances.GammaLUnramifiedPhase
+import GQ2.Dyadic.Instances.GammaLDeterminantBridge
 
 /-!
 # Closing the unramified determinant phase for the improved L presentation
@@ -189,6 +190,87 @@ theorem lSqUnramifiedPhaseModel_of_graphData
     (by simpa only [Nat.card_eq_fintype_card] using hcard)
     t.σ hgen hfaith hsimpleAI.2 hinv
     (smulAddEquiv ((G.sigma ^ (omega2Exp N : ℤ))⁻¹)) hU h).2
+
+/-! ## Boundary-lift packaging -/
+
+set_option maxHeartbeats 2400000 in
+/-- The one-representation theorem in the exact boundary-lift signature consumed by the
+determinant residue.  All topology and pulled-back action instances are constructed here.  The
+only phase-relevant input is the concrete graph marking `hgraph`; no source phase comparison or
+Gauss value is assumed. -/
+theorem wordPhaseResidueK_unramified_of_graphData
+    {h q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+    (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+    (F : BoundaryFrameK q P H E)
+    {b : ContinuousMonoidHom ((gamma h q : Type)) ↥(boundarySubgroupQ q nuP)}
+    (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+      (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) →
+        W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+    (m : ℕ) (hm : 1 ≤ m)
+    (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+    (l : (SectionNine.blockFrame T Blk hE2).DR)
+    (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+    (hgraph :
+      let DD := (blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl
+      letI : TopologicalSpace DD.C0 :=
+        (inferInstance : TopologicalSpace (SectionNine.blockFrame T Blk hE2).YC)
+      letI : DiscreteTopology DD.C0 :=
+        (inferInstance : DiscreteTopology (SectionNine.blockFrame T Blk hE2).YC)
+      ∀ rho : BoundaryLiftsK b F (SectionNine.blockFrame T Blk hE2).TC,
+        LUnramifiedGraphData (DD := DD)
+          (rhoPrimeK (SectionNine.blockFrame T Blk hE2) b F
+            ((blockEnrichmentDK T Blk hE2 hq0 hqe F).radData l hl) rfl rho)) :
+    letI := scalarActionZmodTwo ((gamma h q : Type))
+    WordPhaseResidueK b F (blockEnrichmentDK T Blk hE2 hq0 hqe F) l hl
+      (scalarActionZmodTwo_triv _)
+      ((standardNumerics (2 * h + 1)).gaussUnram m) := by
+  let En := blockEnrichmentDK T Blk hE2 hq0 hqe F
+  let DD := En.descData l hl
+  intro rho
+  let rhoM := rhoPrimeK (SectionNine.blockFrame T Blk hE2) b F
+    (En.radData l hl) rfl rho
+  letI : TopologicalSpace DD.C0 :=
+    (inferInstance : TopologicalSpace (SectionNine.blockFrame T Blk hE2).YC)
+  haveI : DiscreteTopology DD.C0 :=
+    (inferInstance : DiscreteTopology (SectionNine.blockFrame T Blk hE2).YC)
+  letI : TopologicalSpace DD.Vmod := ⊥
+  haveI : DiscreteTopology DD.Vmod := ⟨rfl⟩
+  letI : DistribMulAction (SectionNine.blockFrame T Blk hE2).YC DD.Vmod :=
+    (inferInstance : DistribMulAction (SectionNine.blockFrame T Blk hE2).YC En.Vmod)
+  letI : DistribMulAction ((gamma h q : Type)) DD.Vmod :=
+    DistribMulAction.compHom _ rho.1.1.toMonoidHom
+  haveI : ContinuousSMul ((gamma h q : Type)) DD.Vmod := by
+    constructor
+    have hfac :
+        (fun p : ((gamma h q : Type)) × DD.Vmod => p.1 • p.2) =
+          (fun p : (SectionNine.blockFrame T Blk hE2).YC × DD.Vmod => p.1 • p.2) ∘
+            (fun p : ((gamma h q : Type)) × DD.Vmod => (rho.1.1 p.1, p.2)) := by
+      funext p
+      rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((rho.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hcompat : ∀ (g : (gamma h q : Type)) (v : DD.Vmod),
+      g • v = rho0 DD rhoM g • v := by
+    intro g v
+    exact congrArg (fun c : (SectionNine.blockFrame T Blk hE2).YC => c • v)
+      (rho0_descData_rhoPrimeK b F En l hl rho g).symm
+  have hsimpleGamma : IsSimpleModTwo (gamma h q : Type) DD.Vmod := by
+    obtain ⟨v, hv⟩ := hVne
+    refine ⟨nontrivial_of_ne v 0 hv, ?_⟩
+    intro W hW
+    apply hsimple W
+    intro c w hw
+    obtain ⟨g, rfl⟩ := rho.1.2 c
+    exact hW g w hw
+  exact lSqUnramifiedPhaseModel_of_graphData rhoM hcompat (Vmod_exp2 DD)
+    hsimpleGamma hqe m hm hcard (hgraph rho)
 
 end
 
