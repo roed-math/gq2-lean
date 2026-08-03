@@ -344,6 +344,7 @@ import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedMaxProTwo
 import GQ2.Dyadic.ProTwoReciprocity
 import GQ2.Dyadic.PrincipalUnitTorsion
+import GQ2.Dyadic.PrincipalUnitCompletion
 import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
