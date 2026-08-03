@@ -49,6 +49,91 @@ theorem proPCompletionMk_injective_of_isResiduallyP {p : ℕ} {A : Type} [Group 
   rw [proPCompletionLift_mk, map_one] at hmap
   exact haN ((QuotientGroup.eq_one_iff a).mp hmap)
 
+/-! ## When the abstract completion agrees with a compact topology -/
+
+/-- Every finite `p`-group quotient of the underlying abstract group has open kernel in the
+given topology.  This is the precise "no discontinuous finite `p`-quotients" condition needed
+to compare the abstract pro-`p` completion with an already compact group topology. -/
+def FinitePQuotientsAreOpen (p : ℕ) (A : Type) [Group A] [TopologicalSpace A] : Prop :=
+  ∀ N : FiniteIndexNormalSubgroup A, IsPGroup p (A ⧸ N.toSubgroup) →
+    IsOpen (N.toSubgroup : Set A)
+
+/-- The canonical map to the abstract pro-`p` completion always has dense range. -/
+theorem proPCompletionMk_denseRange {p : ℕ} {A : Type} [Group A] :
+    DenseRange (proPCompletionMk p A) := by
+  change DenseRange
+    ((⇑(maxProPMk p (ProfiniteGrp.ProfiniteCompletion.completion (GrpCat.of A)))) ∘
+      ProfiniteGrp.ProfiniteCompletion.etaFn (GrpCat.of A))
+  exact DenseRange.comp
+    (Function.Surjective.denseRange (maxProPMk_surjective
+      (p := p) (ProfiniteGrp.ProfiniteCompletion.completion (GrpCat.of A))))
+    (ProfiniteGrp.ProfiniteCompletion.denseRange _)
+    (maxProPMk p
+      (ProfiniteGrp.ProfiniteCompletion.completion (GrpCat.of A))).continuous_toFun
+
+/-- If all abstract finite `p`-group quotients are continuous, then so is the canonical map
+from a topological group to its abstract pro-`p` completion. -/
+theorem continuous_proPCompletionMk_of_finitePQuotientsAreOpen
+    {p : ℕ} {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
+    (hopen : FinitePQuotientsAreOpen p A) : Continuous (proPCompletionMk p A) := by
+  apply continuous_of_tendsto_nhds_one
+  intro O hO
+  rw [mem_nhds_iff] at hO
+  obtain ⟨W, hWO, hWopen, h1W⟩ := hO
+  obtain ⟨V, hVW⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+    hWopen h1W
+  let f : A →* proPCompletion p A := proPCompletionMk p A
+  let φ : A →* (proPCompletion p A ⧸ V.toSubgroup) :=
+    (QuotientGroup.mk' V.toSubgroup).comp f
+  letI : Finite φ.range := Finite.of_injective Subtype.val Subtype.val_injective
+  let N : FiniteIndexNormalSubgroup A := FiniteIndexNormalSubgroup.ofSubgroup φ.ker
+  have hNp : IsPGroup p (A ⧸ N.toSubgroup) := by
+    change IsPGroup p (A ⧸ φ.ker)
+    exact ((isProP_maxProPQuotient
+      (p := p) (G := ProfiniteGrp.ProfiniteCompletion.completion (GrpCat.of A)) V).to_subgroup
+        φ.range).of_equiv (QuotientGroup.quotientKerEquivRange φ).symm
+  have hNopen : IsOpen (N.toSubgroup : Set A) := hopen N hNp
+  have hker : (N.toSubgroup : Set A) = f ⁻¹' (V.toSubgroup : Set (proPCompletion p A)) := by
+    ext a
+    change a ∈ φ.ker ↔ f a ∈ V.toSubgroup
+    simp only [MonoidHom.mem_ker, φ, MonoidHom.comp_apply, QuotientGroup.mk'_apply,
+      QuotientGroup.eq_one_iff]
+  refine Filter.mem_of_superset ?_ (fun a ha ↦ hWO (hVW ha))
+  change (proPCompletionMk p A) ⁻¹' (V.toSubgroup : Set (proPCompletion p A)) ∈ nhds 1
+  rw [← hker]
+  exact hNopen.mem_nhds (N.toSubgroup.one_mem)
+
+/-- A continuous canonical map from a compact group onto its abstract pro-`p` completion is
+surjective: its range is simultaneously compact (hence closed) and dense. -/
+theorem proPCompletionMk_surjective_of_continuous
+    {p : ℕ} {A : Type} [Group A] [TopologicalSpace A] [CompactSpace A]
+    (hcont : Continuous (proPCompletionMk p A)) :
+    Function.Surjective (proPCompletionMk p A) := by
+  have hclosed : IsClosed (Set.range (proPCompletionMk p A)) :=
+    (isCompact_range hcont).isClosed
+  rw [← Set.range_eq_univ, ← hclosed.closure_eq,
+    (proPCompletionMk_denseRange (p := p) (A := A)).closure_eq]
+
+/-- **Abstract completion reduction.**  A compact torsion-free group has torsion-free abstract
+pro-`p` completion as soon as its finite `p`-group quotients are all continuous and the
+canonical map is injective.  Thus the only arithmetic issue is openness of the abstract finite
+`p`-quotient kernels; no assertion about completion points is smuggled in. -/
+theorem isMulTorsionFree_proPCompletion_of_finitePQuotientsAreOpen
+    {p : ℕ} {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
+    [CompactSpace A] [IsMulTorsionFree A]
+    (hinj : Function.Injective (proPCompletionMk p A))
+    (hopen : FinitePQuotientsAreOpen p A) : IsMulTorsionFree (proPCompletion p A) := by
+  have hcont := continuous_proPCompletionMk_of_finitePQuotientsAreOpen hopen
+  have hsurj := proPCompletionMk_surjective_of_continuous hcont
+  constructor
+  intro n hn x y hxy
+  obtain ⟨a, rfl⟩ := hsurj x
+  obtain ⟨b, rfl⟩ := hsurj y
+  congr 1
+  apply IsMulTorsionFree.pow_left_injective hn
+  apply hinj
+  simpa only [map_pow] using hxy
+
 namespace Dyadic
 
 open scoped Classical
@@ -56,6 +141,51 @@ open scoped Classical
 local notation "ℚbar2" => AlgebraicClosure ℚ_[2]
 
 variable {K : IntermediateField ℚ_[2] ℚbar2}
+
+/-! ## The exact depth-cofinality interface -/
+
+/-- Each deeper unit subgroup is open in a fixed positive-depth unit group.  This is the
+unconditional topological half of the cofinality problem. -/
+theorem isOpen_depthUnits_subgroupOf (FF : DyadicUnitFiltration K) (i j : ℕ) :
+    IsOpen (((depthUnits K FF.π j).subgroupOf (depthUnits K FF.π i) :
+      Subgroup ↥(depthUnits K FF.π i)) : Set ↥(depthUnits K FF.π i)) := by
+  let d : ↥(depthUnits K FF.π i) → ℚbar2 := fun u ↦
+    (((u.1 : (↥K)ˣ) : ↥K) : ℚbar2) - 1
+  have hd : Continuous d := by
+    exact ((continuous_subtype_val.comp
+      (Units.continuous_val.comp continuous_subtype_val)).sub continuous_const)
+  have hset :
+      (((depthUnits K FF.π j).subgroupOf (depthUnits K FF.π i) :
+        Subgroup ↥(depthUnits K FF.π i)) : Set ↥(depthUnits K FF.π i)) =
+        d ⁻¹' Metric.closedBall 0 (‖FF.π‖ ^ j) := by
+    ext u
+    rw [Set.mem_preimage, Metric.mem_closedBall, dist_zero_right]
+    constructor
+    · intro hu
+      exact ((mem_depthUnits K FF.π j u.1).mp hu).2
+    · intro hu
+      exact (mem_depthUnits K FF.π j u.1).mpr ⟨u.2.1, hu⟩
+  rw [hset]
+  exact (IsUltrametricDist.isOpen_closedBall 0
+    (ne_of_gt (pow_pos (norm_pos_iff.mpr FF.hπ_ne) j))).preimage hd
+
+/-- The principal-unit depth filtration is cofinal among all finite-index normal subgroups
+with finite `2`-group quotient.  Unlike residual `2`-finiteness, this quantifies over *every*
+abstract finite `2`-quotient and therefore rules out discontinuous ones. -/
+def DepthUnitsCofinalInFiniteTwoQuotients (FF : DyadicUnitFiltration K) (i : ℕ) : Prop :=
+  ∀ N : FiniteIndexNormalSubgroup ↥(depthUnits K FF.π i),
+    IsPGroup 2 (↥(depthUnits K FF.π i) ⧸ N.toSubgroup) →
+      ∃ j : ℕ, i ≤ j ∧
+        (depthUnits K FF.π j).subgroupOf (depthUnits K FF.π i) ≤ N.toSubgroup
+
+/-- Depth cofinality implies that every abstract finite `2`-quotient is continuous. -/
+theorem finitePQuotientsAreOpen_depthUnits_of_cofinal
+    (FF : DyadicUnitFiltration K) (i : ℕ)
+    (hcofinal : DepthUnitsCofinalInFiniteTwoQuotients FF i) :
+    FinitePQuotientsAreOpen 2 ↥(depthUnits K FF.π i) := by
+  intro N hN
+  obtain ⟨j, _, hjN⟩ := hcofinal N hN
+  exact Subgroup.isOpen_mono hjN (isOpen_depthUnits_subgroupOf FF i j)
 
 /-! ## The finite 2-group filtration quotients -/
 
