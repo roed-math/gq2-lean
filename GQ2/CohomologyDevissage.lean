@@ -211,6 +211,92 @@ theorem f_snakeZ (z : Z1 G A'') (p : G × G) :
     S.f ((S.snakeZ z).1 p) = dOne G A (S.snakeLift1 z) p :=
   S.f_snakeZFun z p
 
+/-- Given any other lift of `z`, the difference from the chosen lift is pulled back to `A'`. -/
+noncomputable def snakeLiftDiff (z : Z1 G A'') (c : G → A) : G → A' :=
+  fun x ↦ S.kernelLift (c x - S.snakeLift1 z x)
+
+theorem snakeLiftDiff_continuous (z : Z1 G A'') {c : G → A} (hc : Continuous c) :
+    Continuous (S.snakeLiftDiff z c) :=
+  continuous_of_discreteTopology.comp (hc.sub (S.snakeLift1_continuous z))
+
+theorem f_snakeLiftDiff (z : Z1 G A'') (c : G → A)
+    (hgc : ∀ x, S.g (c x) = z.1 x) (x : G) :
+    S.f (S.snakeLiftDiff z c x) = c x - S.snakeLift1 z x := by
+  apply S.f_kernelLift_of_mem_ker
+  rw [map_sub, hgc, S.g_snakeLift1, sub_self]
+
+/-- **Lift-independence of the continuous snake.**  Any continuous lift `c` of the same
+one-cocycle, together with any `A'`-valued cocycle whose image is `d¹c`, represents the
+canonical snake class. -/
+theorem snakeZ_welldef (z : Z1 G A'') (c : G → A) (hc : Continuous c) (w : Z2 G A')
+    (hgc : ∀ x, S.g (c x) = z.1 x)
+    (hfw : ∀ p, S.f (w.1 p) = dOne G A c p) :
+    H2mk G A' w = H2mk G A' (S.snakeZ z) := by
+  have hdiff : w.1 - (S.snakeZ z).1 = dOne G A' (S.snakeLiftDiff z c) := by
+    funext p
+    apply S.f_injective
+    change S.f (w.1 p - (S.snakeZ z).1 p) =
+      S.f (p.1 • S.snakeLiftDiff z c p.2 - S.snakeLiftDiff z c (p.1 * p.2) +
+        S.snakeLiftDiff z c p.1)
+    rw [map_sub, hfw, S.f_snakeZ, map_add, map_sub, S.f_equivariant,
+      S.f_snakeLiftDiff z c hgc p.2, S.f_snakeLiftDiff z c hgc (p.1 * p.2),
+      S.f_snakeLiftDiff z c hgc p.1]
+    simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, smul_sub]
+    abel
+  rw [← sub_eq_zero, ← map_sub]
+  apply (QuotientAddGroup.eq_zero_iff _).mpr
+  rw [AddSubgroup.mem_addSubgroupOf]
+  refine ⟨S.snakeLiftDiff z c, S.snakeLiftDiff_continuous z hc, ?_⟩
+  exact hdiff.symm
+
+/-- The connecting map on continuous one-cocycles, before quotienting by coboundaries. -/
+noncomputable def delta1Raw : Z1 G A'' →+ H2 G A' where
+  toFun z := H2mk G A' (S.snakeZ z)
+  map_zero' :=
+    ((S.snakeZ_welldef 0 0 continuous_const 0 (by intro x; simp)
+      (by intro p; simp)).symm).trans (map_zero (H2mk G A'))
+  map_add' x y := by
+    refine ((S.snakeZ_welldef (x + y) (S.snakeLift1 x + S.snakeLift1 y)
+      ((S.snakeLift1_continuous x).add (S.snakeLift1_continuous y))
+      (S.snakeZ x + S.snakeZ y) ?_ ?_).symm).trans (map_add (H2mk G A') _ _)
+    · intro c
+      simp only [Pi.add_apply, map_add, S.g_snakeLift1]
+      rfl
+    · intro p
+      change S.f ((S.snakeZ x).1 p + (S.snakeZ y).1 p) =
+        dOne G A (S.snakeLift1 x + S.snakeLift1 y) p
+      rw [map_add, S.f_snakeZ, S.f_snakeZ]
+      exact (congrFun (map_add (dOne G A) _ _) p).symm
+
+/-- The continuous coefficient connecting map `H¹(G,A'') → H²(G,A')`. -/
+noncomputable def delta1 : H1 G A'' →+ H2 G A' :=
+  QuotientAddGroup.lift _ S.delta1Raw <| by
+    intro z hz
+    rw [AddSubgroup.mem_addSubgroupOf] at hz
+    obtain ⟨a'', ha''⟩ := AddMonoidHom.mem_range.mp hz
+    let a : A := S.liftCoeff a''
+    have hc : Continuous (dZero G A a) :=
+      (continuous_id.smul continuous_const).sub continuous_const
+    have hgc : ∀ x, S.g (dZero G A a x) = z.1 x := by
+      intro x
+      change S.g (x • a - a) = z.1 x
+      rw [map_sub, S.g_equivariant, show S.g a = a'' from S.g_liftCoeff a'']
+      exact congrFun ha'' x
+    have hfw : ∀ p, S.f ((0 : Z2 G A').1 p) = dOne G A (dZero G A a) p := by
+      intro p
+      change S.f (0 : A') = dOne G A (dZero G A a) p
+      rw [map_zero]
+      change 0 = dOne G A (dZero G A a) p
+      rw [← AddMonoidHom.comp_apply, dOne_comp_dZero, AddMonoidHom.zero_apply]
+      rfl
+    exact ((S.snakeZ_welldef z (dZero G A a) hc 0 hgc hfw).symm).trans
+      (map_zero (H2mk G A'))
+
+/-- Representative formula for the continuous connecting map. -/
+@[simp] theorem delta1_H1mk (z : Z1 G A'') :
+    S.delta1 (H1mk G A'' z) = H2mk G A' (S.snakeZ z) :=
+  rfl
+
 end FiniteDiscreteCoeffSES
 
 end CoefficientSES
