@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Instances.LComparisonSquares
-import GQ2.Dyadic.Instances.LSourceComposition
 
 /-!
 # The canonical scalar trace orientation for the L source
