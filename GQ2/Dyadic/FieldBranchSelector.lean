@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.Dyadic.SemanticSelected
+import GQ2.Dyadic.MarkedCore.Cores
 
 /-!
 # Arithmetic branch selection for a finite dyadic field
@@ -22,14 +23,15 @@ The unresolved general Labute theorem is visible in `FieldBranchWitness`:
 
 * the caller chooses `L`, `M alpha`, or `N alpha` and proves the required degree parity;
 * on `L`, the caller supplies the still-missing theorem that the marked level is zero;
-* on `M` and `N`, the caller supplies the correct standard unit and the topological splitting
-  facts used by packet Proposition 8.1.
+* on `M` and `N`, the caller supplies the topological splitting facts used by packet
+  Proposition 8.1, now at the library's canonical `mUnit alpha` or `nUnit alpha`.
 
 `FieldDataEven` proves the even cup-form normal form, but it does not determine `M` versus `N` or
 the integer `alpha`; `LabuteInterface` deliberately keeps that classification conditional.
-Consequently no stronger all-field selector is currently justified.  There is no uniqueness
-claim: a residue class has many 2-adic lifts, and the semantic presentation works with the one
-chosen here.
+The inverse equations for the standard M/N units are no longer part of the residual interface:
+they uniquely determine, and are discharged by, `mUnit alpha` and `nUnit alpha`.  Consequently no
+stronger all-field selector is currently justified.  There is no uniqueness claim for eta: a
+residue class has many 2-adic lifts, and the semantic presentation works with the one chosen here.
 
 The resulting semantic word is exactly the improved five-row table:
 
@@ -53,8 +55,8 @@ noncomputable section
 /-! ## Field data already available in the repository -/
 
 /-- The minimal numerical identification between `FieldParameters` and a finite field carrying
-a unit filtration.  The divisibility `f ∣ n` remains part of `params`: no existing theorem
-constructs that field automatically from `DyadicUnitFiltration`. -/
+a unit filtration.  The divisibility `f ∣ n` remains part of `params`; the constructor below
+derives it from the single still-missing fundamental identity `[K : Q_2] = e f`. -/
 structure FiniteDyadicParameters (K : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] K] (FF : DyadicUnitFiltration K) where
   params : FieldParameters
@@ -69,6 +71,38 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
 /-- The carried numerical data has the residue cardinality supplied by the filtration. -/
 theorem qK_eq_qOf (D : FiniteDyadicParameters K FF) : D.params.qK = qOf K FF := by
   rw [D.params.qK_eq, qOf, D.residueDegree_eq]
+
+/-- Construct the numerical parameter record directly from the unit-filtration invariants once
+the fundamental identity `[K : Q_2] = e f` is available.  That identity is deliberately the
+only hypothesis: the current `DyadicUnitFiltration` interface records `e` and `f` but does not
+relate their product to `Module.finrank`.
+
+In particular, callers no longer have to choose `qK`, prove positivity, or separately prove
+`f | n`; all of those fields are consequences of the filtration. -/
+def ofFundamentalIdentity (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) : FiniteDyadicParameters K FF where
+  params :=
+    { n := Module.finrank ℚ_[2] K
+      f := FF.f
+      qK := 2 ^ FF.f
+      qK_eq := rfl
+      one_le_n := Module.finrank_pos
+      one_le_f := FF.hf_pos
+      f_dvd_n := ⟨FF.e, by rw [hdegree, Nat.mul_comm]⟩ }
+  degree_eq := rfl
+  residueDegree_eq := rfl
+
+@[simp] theorem ofFundamentalIdentity_n (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
+    (ofFundamentalIdentity FF hdegree).params.n = Module.finrank ℚ_[2] K := rfl
+
+@[simp] theorem ofFundamentalIdentity_f (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
+    (ofFundamentalIdentity FF hdegree).params.f = FF.f := rfl
+
+@[simp] theorem ofFundamentalIdentity_qK (FF : DyadicUnitFiltration K)
+    (hdegree : Module.finrank ℚ_[2] K = FF.e * FF.f) :
+    (ofFundamentalIdentity FF hdegree).params.qK = qOf K FF := rfl
 
 end FiniteDyadicParameters
 
@@ -148,6 +182,8 @@ namespace FieldBranchWitness
 
 variable {A : Type*} [CommGroup A] {P : FieldParameters} {Q : MarkedPair A}
 
+open MarkedCore
+
 /-- The Labute family explicitly supplied by the residual classification witness. -/
 def family : FieldBranchWitness P Q → LabuteType
   | .L .. => .L
@@ -170,7 +206,92 @@ def Matches : (W : FieldBranchWitness P Q) → BranchData → Prop
       beta = alpha ∧ r = Q.r ∧ IsEtaFor Q.datum G.toMarkedSplitting.u eta
   | _, _ => False
 
+/-! ### Canonical orientation units
+
+The two unit fields in the original witness are not arithmetic hypotheses.  Their displayed
+inverse equations determine them uniquely, and the marked-core library already constructs the
+canonical units `mUnit alpha` and `nUnit alpha`. -/
+
+/-- The `M_alpha` inverse equation uniquely pins the unit to `mUnit alpha`. -/
+theorem unit_eq_mUnit {alpha : ℕ} (halpha : 1 ≤ alpha) {u : ℤ_[2]ˣ}
+    (hu : (u : ℤ_[2]) * (1 - 2 ^ alpha) = 1) : u = mUnit alpha := by
+  apply Units.ext
+  have hne : (1 - 2 ^ alpha : ℤ_[2]) ≠ 0 := by
+    rw [← oneSubTwoPow_val halpha]
+    exact Units.ne_zero _
+  exact mul_right_cancel₀ hne (hu.trans (mUnit_mul halpha).symm)
+
+/-- The `N_alpha` inverse equation uniquely pins the unit to `nUnit alpha`. -/
+theorem unit_eq_nUnit {alpha : ℕ} (halpha : 1 ≤ alpha) {u : ℤ_[2]ˣ}
+    (hu : (u : ℤ_[2]) * (-(1 + 2 ^ alpha)) = 1) : u = nUnit alpha := by
+  apply Units.ext
+  have hne : (-(1 + 2 ^ alpha) : ℤ_[2]) ≠ 0 := by
+    rw [neg_ne_zero, ← onePlusTwoPow_val halpha]
+    exact Units.ne_zero _
+  apply mul_right_cancel₀ hne
+  rw [hu]
+  rw [mul_neg, nUnit_mul halpha, neg_neg]
+
 end FieldBranchWitness
+
+/-! ## The exact residual arithmetic classification interface
+
+`CanonicalFieldBranchWitness` removes the artificial arbitrary-unit choices from
+`FieldBranchWitness`.  Its remaining fields are precisely what the current local-field library
+does not construct: the L/M/N family (and `alpha`), the parity consequence of that family, the
+odd-family level-zero theorem, and the topological marked splitting for the appropriate
+canonical standard unit.  In particular `FieldDataEven` cannot select M versus N: its cup-form
+normal form is shared by both families.
+-/
+
+/-- The still-missing arithmetic classification, with the standard orientation units filled by
+the marked-core library rather than supplied by the caller. -/
+inductive CanonicalFieldBranchWitness {A : Type*} [CommGroup A] (P : FieldParameters)
+    (Q : MarkedPair A) : Type
+  | L (degree_odd : Odd P.n) (level_zero : Q.r = 0)
+  | M (alpha : ℕ) (alpha_valid : 2 ≤ alpha) (degree_even : Even P.n)
+      (marked : MarkedGeneratorData Q (MarkedCore.mUnit alpha))
+  | N (alpha : ℕ) (alpha_valid : 2 ≤ alpha) (degree_even : Even P.n)
+      (marked : MarkedGeneratorData Q (MarkedCore.nUnit alpha))
+
+namespace CanonicalFieldBranchWitness
+
+variable {A : Type*} [CommGroup A] {P : FieldParameters} {Q : MarkedPair A}
+
+/-- Expand the minimal arithmetic classification into the legacy witness expected by the
+selector.  The standard-unit equations are theorems, not new hypotheses. -/
+noncomputable def toFieldBranchWitness :
+    CanonicalFieldBranchWitness P Q → FieldBranchWitness P Q
+  | .L degree_odd level_zero => .L degree_odd level_zero
+  | .M alpha alpha_valid degree_even marked =>
+      .M alpha alpha_valid degree_even (MarkedCore.mUnit alpha)
+        (MarkedCore.mUnit_mul (le_trans (by omega) alpha_valid)) marked
+  | .N alpha alpha_valid degree_even marked =>
+      .N alpha alpha_valid degree_even (MarkedCore.nUnit alpha) (by
+        rw [mul_neg, MarkedCore.nUnit_mul (le_trans (by omega) alpha_valid), neg_neg]) marked
+
+/-- Normalize an older witness to the canonical-unit interface.  Thus the new record loses no
+information: the arbitrary unit in an old M/N witness was already uniquely determined by its
+equation. -/
+noncomputable def ofFieldBranchWitness :
+    FieldBranchWitness P Q → CanonicalFieldBranchWitness P Q
+  | .L degree_odd level_zero => .L degree_odd level_zero
+  | .M alpha alpha_valid degree_even u unit_spec marked =>
+      .M alpha alpha_valid degree_even
+        (FieldBranchWitness.unit_eq_mUnit (le_trans (by omega) alpha_valid) unit_spec ▸ marked)
+  | .N alpha alpha_valid degree_even u unit_spec marked =>
+      .N alpha alpha_valid degree_even
+        (FieldBranchWitness.unit_eq_nUnit (le_trans (by omega) alpha_valid) unit_spec ▸ marked)
+
+@[simp] theorem family_toFieldBranchWitness (W : CanonicalFieldBranchWitness P Q) :
+    W.toFieldBranchWitness.family =
+      match W with
+      | .L .. => .L
+      | .M alpha .. => .M alpha
+      | .N alpha .. => .N alpha := by
+  cases W <;> rfl
+
+end CanonicalFieldBranchWitness
 
 /-! ## The selected arithmetic branch -/
 
@@ -218,6 +339,30 @@ noncomputable def improvedWord (P : FieldParameters) (B : BranchData) :
   | .M0 alpha => Words.MCompact.mCompactW alpha (handleCount P (.M0 alpha))
   | .Mpc alpha r epsilon eta =>
       Words.Mpc.mpcWUnit alpha r (p epsilon r) eta (handleCount P (.Mpc alpha r epsilon eta))
+
+@[simp] theorem improvedWord_L (P : FieldParameters) :
+    improvedWord P .L = Words.LSq.lSqW (handleCount P .L) := rfl
+
+@[simp] theorem improvedWord_N0 (P : FieldParameters) (alpha : ℕ) :
+    improvedWord P (.N0 alpha) = Words.nCompactW alpha (handleCount P (.N0 alpha)) := rfl
+
+/-- Arbitrary-unit regression: field selection uses `npcWUnit`, not the display-restricted or
+uncorrected N word. -/
+@[simp] theorem improvedWord_Npc (P : FieldParameters) (alpha r : ℕ) (eta : ℤ_[2]ˣ) :
+    improvedWord P (.Npc alpha r eta) =
+      Words.Npc.npcWUnit alpha r (handleCount P (.Npc alpha r eta)) eta := rfl
+
+@[simp] theorem improvedWord_M0 (P : FieldParameters) (alpha : ℕ) :
+    improvedWord P (.M0 alpha) =
+      Words.MCompact.mCompactW alpha (handleCount P (.M0 alpha)) := rfl
+
+/-- Arbitrary-unit and sign regression: field selection uses `mpcWUnit` with the literal
+arithmetic parameter `p epsilon r`. -/
+@[simp] theorem improvedWord_Mpc (P : FieldParameters) (alpha r : ℕ) (epsilon : Bool)
+    (eta : ℤ_[2]ˣ) :
+    improvedWord P (.Mpc alpha r epsilon eta) =
+      Words.Mpc.mpcWUnit alpha r (p epsilon r) eta
+        (handleCount P (.Mpc alpha r epsilon eta)) := rfl
 
 /-- The selected semantic word is definitionally one of the five improved constructors. -/
 theorem semantic_word_eq_improved (S : FieldBranchSelection K P Q W) :
@@ -354,6 +499,29 @@ noncomputable def selectFieldBranch
         · change 2 + 2 * handleCount D.params (.Npc alpha B.r eta) = D.params.n
           exact two_add_two_mul_handleCount hcompat rfl
         · exact (two_add_two_mul_handleCount hcompat rfl).trans D.degree_eq
+
+/-- The strongest current field-family selector: all data already formalized from local
+reciprocity and the unit filtration is discharged by `selectFieldBranch`; its sole classification
+input is the canonical residual witness above.  In particular the caller no longer supplies or
+pins an arbitrary M/N orientation unit. -/
+noncomputable def selectFieldBranchCanonical
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : CanonicalFieldBranchWitness D.params (B.fieldMarkedPair FF)) :
+    FieldBranchSelection K D.params (B.fieldMarkedPair FF) W.toFieldBranchWitness :=
+  selectFieldBranch B FF D RI W.toFieldBranchWitness
+
+/-- Exact improved-word preservation for the canonical arithmetic interface. -/
+theorem semantic_word_eq_improved_of_canonical
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : CanonicalFieldBranchWitness D.params (B.fieldMarkedPair FF)) :
+    (selectFieldBranchCanonical B FF D RI W).semantic.word =
+      FieldBranchSelection.improvedWord D.params
+        (selectFieldBranchCanonical B FF D RI W).branch :=
+  FieldBranchSelection.semantic_word_eq_improved _
 
 end
 
