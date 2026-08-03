@@ -379,6 +379,7 @@ import GQ2.Dyadic.SourceDataN
 import GQ2.Dyadic.ThmFourTwoN
 import GQ2.Dyadic.ThmFourTwoRN
 import GQ2.Dyadic.CertificateSupplyRN
+import GQ2.Dyadic.CertificateSupplyFamilyRN
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
