@@ -415,6 +415,7 @@ import GQ2.Dyadic.Count.H3SqEventualRelationGeneration
 import GQ2.Dyadic.Count.H3FiniteUniversalDegreeThreeComparison
 import GQ2.Dyadic.Count.H3SqUnconditionalDegreeThree
 import GQ2.Dyadic.Count.H3SqCofinalTransitionDetector
+import GQ2.Dyadic.Count.H3SqCofinalTransitionNoGo
 import GQ2.Dyadic.Count.H3CompatibleFoxInjectivity
 import GQ2.Dyadic.Count.H3AugmentationFiltration
 import GQ2.Dyadic.Count.H3FiniteStronglyFreeNoGo
