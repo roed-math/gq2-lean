@@ -510,6 +510,7 @@ import GQ2.Dyadic.FiniteTwoLocalReciprocityTateKummer
 import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherKummer
 import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherMuNDual
 import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherKummerExact
+import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherHilbert90
 import GQ2.Dyadic.PrincipalUnitTorsion
 import GQ2.Dyadic.PrincipalUnitCompletion
 import GQ2.Dyadic.DepthPower
