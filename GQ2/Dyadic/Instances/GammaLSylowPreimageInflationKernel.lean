@@ -843,7 +843,7 @@ theorem finiteElementaryMaxProTwoKernelAmbientH1RestrictionVanishes :
   intro M _ _ _ _ _ _ _ _ _ hM2 hcompat z k
   exact maxProTwoKernel_ambientZ1_apply_eq_zero hM2 hcompat z k
 
-/-- First genuinely residual input for inflation: literal continuous `H²`-vanishing on the
+/-- The genuinely residual input for inflation: literal continuous `H²`-vanishing on the
 maximal-pro-`2` kernel, uniformly for finite elementary quotient-compatible coefficients. -/
 def FiniteElementaryMaxProTwoKernelH2VanishesSupply : Prop :=
   ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
@@ -860,7 +860,7 @@ def FiniteElementaryMaxProTwoKernelH2VanishesSupply : Prop :=
 The quotient-compatible action is trivial on `K₂(G)`, so all one-coboundaries there are zero;
 thus `∀ z : Z¹(K₂(G),M), z = 0` is exactly the useful cochain form of `H¹(K₂(G),M)=0`.
 Unlike ambient-cocycle restriction vanishing, this quantifies cocycles defined intrinsically on
-the kernel. -/
+the kernel.  The ambient-normal-core argument above proves this supply unconditionally. -/
 def FiniteElementaryMaxProTwoKernelH1VanishesSupply : Prop :=
   ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
     [DiscreteTopology M] [Finite M]
@@ -870,6 +870,13 @@ def FiniteElementaryMaxProTwoKernelH1VanishesSupply : Prop :=
     (∀ m : M, m + m = 0) →
     ∀ _hcompat : ∀ (g : G) (m : M), maxProPMk 2 G g • m = g • m,
       ContinuousH1CocyclesVanish (proPKernel 2 G) M
+
+/-- Intrinsic kernel `H¹`-vanishing is unconditional for finite elementary coefficients whose
+action factors through the maximal pro-`2` quotient. -/
+theorem finiteElementaryMaxProTwoKernelH1VanishesSupply :
+    FiniteElementaryMaxProTwoKernelH1VanishesSupply (G := G) := by
+  intro M _ _ _ _ _ _ _ _ _ hM2 hcompat
+  exact maxProTwoKernel_intrinsicH1CocyclesVanish hM2 hcompat
 
 /-- The original degree-one/transgression field of `KernelHochschildSerreOneTwoPackage`, split
 from the independent kernel `H²` statement.  The equivalent cross-term-only form below makes
@@ -892,7 +899,7 @@ def FiniteElementaryMaxProTwoKernelTransgressionSupply : Prop :=
             (z.1 + dOne G M psi) (g, n.1) = 0 ∧
             (z.1 + dOne G M psi) (n.1, g) = 0
 
-/-- The genuinely residual transgression input after continuous extension has been discharged.
+/-- The cross-term formulation of the transgression input after continuous extension.
 
 Starting from any continuous extension `psi0` of `-phi`, find a continuous correction `theta`
 which is zero on `K₂(G)` and makes `psi0 + theta` kill both cross terms.  Requiring this for an
@@ -994,7 +1001,20 @@ theorem finiteElementaryMaxProTwoKernelTransgression_of_h1Vanishes
   finiteElementaryMaxProTwoKernelTransgressionSupply_iff_crossTermCorrection.mpr
     (finiteElementaryMaxProTwoKernelCrossTermCorrection_of_h1Vanishes D1)
 
-/-- The two residual statements reconstruct the existing honest Hochschild--Serre package. -/
+/-- The cross-term correction supply is unconditional: the only obstruction is an intrinsic
+kernel one-cocycle, and those cocycles vanish by the ambient-normal-core argument. -/
+theorem finiteElementaryMaxProTwoKernelCrossTermCorrection :
+    FiniteElementaryMaxProTwoKernelCrossTermCorrectionSupply (G := G) :=
+  finiteElementaryMaxProTwoKernelCrossTermCorrection_of_h1Vanishes
+    finiteElementaryMaxProTwoKernelH1VanishesSupply
+
+/-- Hence the original Hochschild--Serre transgression supply is unconditional as well. -/
+theorem finiteElementaryMaxProTwoKernelTransgression :
+    FiniteElementaryMaxProTwoKernelTransgressionSupply (G := G) :=
+  finiteElementaryMaxProTwoKernelTransgression_of_h1Vanishes
+    finiteElementaryMaxProTwoKernelH1VanishesSupply
+
+/-- The split kernel statements reconstruct the existing honest Hochschild--Serre package. -/
 theorem finiteElementaryMaxProTwoKernelOneTwoSupply_of_h2Vanishes_transgression
     (D2 : FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := G))
     (Dtr : FiniteElementaryMaxProTwoKernelTransgressionSupply (G := G)) :
@@ -1030,6 +1050,15 @@ theorem finiteElementaryH2InflationSurjective_of_kernelH1H2Vanishes
   finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_crossTermCorrection D2
     (finiteElementaryMaxProTwoKernelCrossTermCorrection_of_h1Vanishes D1)
 
+/-- Final maximal-pro-`2` kernel boundary: literal continuous kernel `H²`-vanishing alone
+implies finite-elementary degree-two inflation.  The degree-one/transgression input is supplied
+unconditionally by `finiteElementaryMaxProTwoKernelH1VanishesSupply`. -/
+theorem finiteElementaryH2InflationSurjective_of_kernelH2Vanishes
+    (D2 : FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := G)) :
+    FiniteElementaryH2InflationSurjective (maxProPMk 2 G) :=
+  finiteElementaryH2InflationSurjective_of_kernelH1H2Vanishes
+    finiteElementaryMaxProTwoKernelH1VanishesSupply D2
+
 end UniformBoundary
 
 end
@@ -1057,17 +1086,18 @@ local notation "rhoAB" =>
 
 local notation "U" P => sylowTwoPreimage rhoAB P
 
-/-- The first residual inflation statement, specialized to a `GammaL` Sylow preimage. -/
+/-- The sole residual inflation statement, specialized to a `GammaL` Sylow preimage. -/
 noncomputable abbrev GammaLSylowPreimageKernelH2VanishesSupply
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
   FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := U P)
 
-/-- Intrinsic kernel `H¹`-vanishing, specialized to a `GammaL` Sylow preimage. -/
+/-- Intrinsic kernel `H¹`-vanishing, specialized to a `GammaL` Sylow preimage.  This is
+discharged unconditionally below. -/
 noncomputable abbrev GammaLSylowPreimageKernelH1VanishesSupply
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
   FiniteElementaryMaxProTwoKernelH1VanishesSupply (G := U P)
 
-/-- The second residual inflation statement, specialized to a `GammaL` Sylow preimage. -/
+/-- The transgression field, specialized to a `GammaL` Sylow preimage.  It is automatic below. -/
 noncomputable abbrev GammaLSylowPreimageKernelTransgressionSupply
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
   FiniteElementaryMaxProTwoKernelTransgressionSupply (G := U P)
@@ -1083,8 +1113,21 @@ theorem gammaLSylowPreimageKernelAmbientH1RestrictionVanishes
     FiniteElementaryMaxProTwoKernelAmbientH1RestrictionVanishes (G := U P) :=
   finiteElementaryMaxProTwoKernelAmbientH1RestrictionVanishes
 
-/-- The exact two residual kernel statements imply the sought degree-two inflation theorem for
-`U P`. -/
+/-- Intrinsic kernel `H¹`-vanishing is unconditional for every `GammaL` Sylow preimage. -/
+theorem gammaLSylowPreimageKernelH1Vanishes
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
+    GammaLSylowPreimageKernelH1VanishesSupply P :=
+  finiteElementaryMaxProTwoKernelH1VanishesSupply
+
+/-- The kernel transgression field is therefore unconditional for every `GammaL` Sylow
+preimage. -/
+theorem gammaLSylowPreimageKernelTransgression
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
+    GammaLSylowPreimageKernelTransgressionSupply P :=
+  finiteElementaryMaxProTwoKernelTransgression
+
+/-- The legacy split kernel statements imply the sought degree-two inflation theorem for `U P`.
+The transgression hypothesis is discharged unconditionally below. -/
 theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH2Vanishes_transgression
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
     (D2 : GammaLSylowPreimageKernelH2VanishesSupply P)
@@ -1109,6 +1152,14 @@ theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH1H2Vanishes
     (D2 : GammaLSylowPreimageKernelH2VanishesSupply P) :
     FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)) :=
   finiteElementaryH2InflationSurjective_of_kernelH1H2Vanishes D1 D2
+
+/-- Final boundary for a `GammaL` Sylow preimage: literal kernel `H²`-vanishing alone implies
+the sought degree-two inflation theorem. -/
+theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH2Vanishes
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (D2 : GammaLSylowPreimageKernelH2VanishesSupply P) :
+    FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)) :=
+  finiteElementaryH2InflationSurjective_of_kernelH2Vanishes D2
 
 end
 
