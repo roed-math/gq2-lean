@@ -25,7 +25,7 @@ namespace GQ2.Dyadic.LSquare
 
 noncomputable section
 
-open GQ2 GQ2.Roe.Labute
+open GQ2 GQ2.Roe.Labute ContCoh
 
 variable {h : ℕ}
 
@@ -130,6 +130,230 @@ def SqTwoCentralLayerCardAgreement
     (h : ℕ) : Prop :=
   ∀ k : ℕ,
     Nat.card (zLayer (SqCore.DSq h : Type) k) = Nat.card (zLayer G k)
+
+/-! ## The first graded layer and continuous mod-`2` characters -/
+
+/-- The first interesting layer is the whole level-two quotient:
+`Z₁ = λ₁/λ₂ = G/λ₂`.  (The formal layer `Z₀` is the junk-convention
+quotient `λ₀/λ₁ = 1`.) -/
+theorem zLayer_one_eq_top
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    zLayer G 1 = ⊤ := by
+  change (twoCentralSeries G 1).map (levelMk G 2) = ⊤
+  rw [twoCentralSeries_one, Subgroup.map_top_of_surjective _ (levelMk_surjective G 2)]
+
+/-- Every continuous mod-`2` character kills squares and commutators, hence kills `λ₂`. -/
+theorem twoCentralSeries_two_le_continuousCharacter_ker
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (c : ContinuousMonoidHom G (Multiplicative (ZMod 2))) :
+    twoCentralSeries G 2 ≤ c.toMonoidHom.ker := by
+  rw [twoCentralSeries_succ G (by omega), twoCentralSucc]
+  refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) ?_
+  · refine (Subgroup.closure_le _).mpr ?_
+    rintro _ ⟨v, -, rfl⟩
+    change v ^ 2 ∈ c.toMonoidHom.ker
+    rw [MonoidHom.mem_ker, map_pow]
+    apply Multiplicative.toAdd.injective
+    rw [toAdd_pow, toAdd_one, two_nsmul, Count.zmod2_add_self]
+  · rw [Subgroup.commutator_le]
+    intro a ha b hb
+    rw [MonoidHom.mem_ker, map_commutatorElement]
+    exact commutatorElement_eq_one_iff_mul_comm.mpr (mul_comm _ _)
+  · have hset : (c.toMonoidHom.ker : Set G) = c ⁻¹' {1} := by
+      ext g
+      simp [MonoidHom.mem_ker]
+    rw [hset]
+    exact IsClosed.preimage c.continuous_toFun isClosed_singleton
+
+/-- Restriction along `G → G/λ₂` is an equivalence on continuous mod-`2` characters. -/
+noncomputable def continuousCharacterLevelTwoEquiv
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    ContinuousMonoidHom (levelQuot G 2) (Multiplicative (ZMod 2)) ≃
+      ContinuousMonoidHom G (Multiplicative (ZMod 2)) where
+  toFun f := f.comp ⟨levelMk G 2, continuous_levelMk G 2⟩
+  invFun c := quotientLift (twoCentralSeries G 2) c
+    (twoCentralSeries_two_le_continuousCharacter_ker c)
+  left_inv f := by
+    ext q
+    obtain ⟨g, rfl⟩ := levelMk_surjective G 2 q
+    rfl
+  right_inv c := by
+    ext g
+    rfl
+
+/-- On a discrete group, multiplicative mod-`2` characters are additive homomorphisms out of
+the additive spelling of that group. -/
+def continuousCharacterEquivAddHom
+    (A : Type) [Group A] [TopologicalSpace A] [DiscreteTopology A] :
+    ContinuousMonoidHom A (Multiplicative (ZMod 2)) ≃ (Additive A →+ ZMod 2) where
+  toFun f :=
+    { toFun := fun a => Multiplicative.toAdd (f a.toMul)
+      map_zero' := congrArg Multiplicative.toAdd f.map_one
+      map_add' := fun a b => congrArg Multiplicative.toAdd (f.map_mul a.toMul b.toMul) }
+  invFun f :=
+    { toFun := fun a => Multiplicative.ofAdd (f (Additive.ofMul a))
+      map_one' := congrArg Multiplicative.ofAdd f.map_zero
+      map_mul' := fun a b =>
+        congrArg Multiplicative.ofAdd (f.map_add (Additive.ofMul a) (Additive.ofMul b))
+      continuous_toFun := continuous_of_discreteTopology }
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+/-- **Frattini/character cardinal bridge.**  For a finitely generated pro-`2` group, the
+number of continuous mod-`2` characters is exactly the order of `Z₁ = λ₁/λ₂`.
+This is finite elementary-abelian duality after factoring every character through `G/λ₂`. -/
+theorem card_continuousCharacter_eq_card_zLayer_one
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    Nat.card (ContinuousMonoidHom G (Multiplicative (ZMod 2))) =
+      Nat.card (zLayer G 1) := by
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : Finite Q := finite_levelQuot G hfg hpro 2
+  letI : CommGroup Q :=
+    { (inferInstance : Group Q) with
+      mul_comm := fun a b => by
+        have ha : a ∈ zLayer G 1 := by rw [zLayer_one_eq_top]; trivial
+        exact (Subgroup.mem_center_iff.mp (zLayer_le_center G 1 ha) b).symm }
+  have htwo : ∀ a : Additive Q, a + a = 0 := by
+    intro a
+    apply Additive.toMul.injective
+    change a.toMul * a.toMul = 1
+    rw [← pow_two]
+    exact zLayer_sq G (by rw [zLayer_one_eq_top]; trivial)
+  calc
+    Nat.card (ContinuousMonoidHom G (Multiplicative (ZMod 2))) =
+        Nat.card (ContinuousMonoidHom Q (Multiplicative (ZMod 2))) :=
+      Nat.card_congr (continuousCharacterLevelTwoEquiv G).symm
+    _ = Nat.card (Additive Q →+ ZMod 2) :=
+      Nat.card_congr (continuousCharacterEquivAddHom Q)
+    _ = Nat.card (Additive Q) := QuadraticFp2.card_addHom_zmod2 _ htwo
+    _ = Nat.card Q := Nat.card_congr Additive.toMul
+    _ = Nat.card (zLayer G 1) := by
+      rw [zLayer_one_eq_top]
+      exact (Nat.card_congr Subgroup.topEquiv.toEquiv).symm
+
+/-- **Frattini/`H¹` bridge.**  With the (unique) scalar action on `𝔽₂`, the first
+two-central layer has the same cardinality as continuous `H¹`. -/
+theorem card_H1_zmodTwo_eq_card_zLayer_one
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    Nat.card (H1 G (ZMod 2)) = Nat.card (zLayer G 1) := by
+  calc
+    Nat.card (H1 G (ZMod 2)) = Nat.card (Z1 G (ZMod 2)) :=
+      Nat.card_congr (H1equivZ1OfTrivial Count.smul_zmod2).toEquiv
+    _ = Nat.card (ContinuousMonoidHom G (Multiplicative (ZMod 2))) :=
+      Count.card_hom_eq_card_Z1.symm
+    _ = Nat.card (zLayer G 1) := card_continuousCharacter_eq_card_zLayer_one hfg hpro
+
+private theorem multiplicativeZModTwo_sq (x : Multiplicative (ZMod 2)) : x ^ 2 = 1 := by
+  apply Multiplicative.toAdd.injective
+  rw [toAdd_pow, toAdd_one, two_nsmul, Count.zmod2_add_self]
+
+private theorem multiplicativeZModTwo_fourth (x : Multiplicative (ZMod 2)) : x ^ 4 = 1 := by
+  rw [show 4 = 2 * 2 by norm_num, pow_mul, multiplicativeZModTwo_sq]
+
+/-- Mod-`2` characters of the improved square presentation are arbitrary generator values:
+its literal square-commutator relator dies in every elementary abelian target. -/
+noncomputable def dsqCharacterEquivFun (h : ℕ) :
+    ContinuousMonoidHom (SqCore.DSq h : Type) (Multiplicative (ZMod 2)) ≃
+      (Fin (SqCore.sqRank h) → Multiplicative (ZMod 2)) where
+  toFun f i := f (SqCore.sqGen h i)
+  invFun m := SqCore.sqLiftHom h isProPTwo_multiplicativeZModTwo m (by
+    rw [SqCore.sqRelWord_comm, multiplicativeZModTwo_fourth, multiplicativeZModTwo_sq]
+    simp)
+  left_inv f := SqCore.dsq_hom_ext _ _ fun i => by simp
+  right_inv m := funext fun i => by simp
+
+/-- The improved `DSq h` presentation has exactly `2^(3+2h)` mod-`2` characters. -/
+theorem card_continuousCharacter_dsq (h : ℕ) :
+    Nat.card (ContinuousMonoidHom (SqCore.DSq h : Type) (Multiplicative (ZMod 2))) =
+      2 ^ SqCore.sqRank h := by
+  rw [Nat.card_congr (dsqCharacterEquivFun h), Nat.card_fun, Nat.card_fin,
+    Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
+
+/-- The first positive layer of `DSq h` has rank `sqRank h = 3 + 2h`. -/
+theorem card_zLayer_one_dsq (h : ℕ) :
+    Nat.card (zLayer (SqCore.DSq h : Type) 1) = 2 ^ SqCore.sqRank h := by
+  rw [← card_continuousCharacter_eq_card_zLayer_one
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)]
+  exact card_continuousCharacter_dsq h
+
+/-- The formal junk layer `Z₀ = λ₀/λ₁` is trivial for every group. -/
+theorem card_zLayer_zero
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    Nat.card (zLayer G 0) = 1 := by
+  letI : Subsingleton (levelQuot G 1) := QuotientGroup.subsingleton_quotient_top
+  exact Nat.card_unique
+
+/-! ## The exact lower two-central Hilbert-function supply -/
+
+/-- The `n`-th positive lower two-central Hilbert coefficient, indexed so coefficient `0` is
+`Z₁ = λ₁/λ₂`.  Since every layer is elementary abelian, this is its `𝔽₂`-dimension. -/
+noncomputable def lowerTwoCentralHilbertCoefficient
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (n : ℕ) : ℕ :=
+  padicValNat 2 (Nat.card (zLayer G (n + 1)))
+
+/-- Every positive layer order is `2` to its lower two-central Hilbert coefficient. -/
+theorem card_zLayer_succ_eq_two_pow_hilbertCoefficient
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) (n : ℕ) :
+    Nat.card (zLayer G (n + 1)) = 2 ^ lowerTwoCentralHilbertCoefficient G n := by
+  haveI : Finite (levelQuot G (n + 2)) := finite_levelQuot G hfg hpro (n + 2)
+  have hP : IsPGroup 2 (zLayer G (n + 1)) := fun z => ⟨1, by
+    rw [pow_one]
+    apply Subtype.ext
+    exact zLayer_sq G z.property⟩
+  obtain ⟨d, hd⟩ := IsPGroup.iff_card.mp hP
+  rw [lowerTwoCentralHilbertCoefficient, hd, padicValNat.prime_pow]
+
+/-- Coefficientwise equality of the positive lower two-central Hilbert functions.  This is
+the weakest all-degree numerical supply: it asks for dimensions only, with no bases, bracket,
+restricted-power operation, or orientation data. -/
+def SqTwoCentralHilbertSeriesAgreement
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (h : ℕ) : Prop :=
+  ∀ n, lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) n =
+    lowerTwoCentralHilbertCoefficient G n
+
+/-- **Exact Hilbert-series boundary.**  Coefficient agreement is equivalent to agreement of
+all formal layer orders; `Z₀` is automatic and positive layer orders are powers of `2`. -/
+theorem twoCentralHilbertSeriesAgreement_iff_layerCardAgreement
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] {h : ℕ}
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    SqTwoCentralHilbertSeriesAgreement G h ↔ SqTwoCentralLayerCardAgreement G h := by
+  constructor
+  · intro hcoeff k
+    cases k with
+    | zero => rw [card_zLayer_zero, card_zLayer_zero]
+    | succ n =>
+        rw [card_zLayer_succ_eq_two_pow_hilbertCoefficient
+              (G := (SqCore.DSq h : Type)) (dsqFinsetTopGen h) (SqCore.isProP_DSq h),
+          card_zLayer_succ_eq_two_pow_hilbertCoefficient hfg hpro, hcoeff n]
+  · intro hlayer n
+    exact congrArg (padicValNat 2) (hlayer (n + 1))
+
+/-- Low-degree model regression: coefficient `0` of the improved presentation is its literal
+generator rank. -/
+theorem dsq_lowerTwoCentralHilbertCoefficient_zero (h : ℕ) :
+    lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 0 = SqCore.sqRank h := by
+  change padicValNat 2 (Nat.card (zLayer (SqCore.DSq h : Type) 1)) = SqCore.sqRank h
+  rw [card_zLayer_one_dsq, padicValNat.prime_pow]
+
+/-- Low-degree group regression: coefficient `0` is the mod-`2` `H¹`/Demushkin rank. -/
+theorem lowerTwoCentralHilbertCoefficient_zero_eq_demushkinRank
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    lowerTwoCentralHilbertCoefficient G 0 = demushkinRank 2 G := by
+  change padicValNat 2 (Nat.card (zLayer G 1)) =
+    padicValNat 2 (Nat.card (H1 G (ZMod 2)))
+  exact congrArg (padicValNat 2) (card_H1_zmodTwo_eq_card_zLayer_one hfg hpro).symm
 
 /-- The order of a level quotient is obtained from the preceding level by multiplying by the
 order of its two-central graded layer. -/
@@ -358,6 +582,62 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_la
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
+/-! ### Degree-zero Hilbert regression on the arithmetic group -/
+
+/-- The first positive lower two-central Hilbert coefficient of `G_K(2)` is the existing
+field-side Demushkin rank `[K : ℚ₂] + 2`.  Topological finite generation is explicit because
+it is supplied below by the already-built forward presentation data. -/
+theorem maxProTwoGalK_lowerTwoCentralHilbertCoefficient_zero
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    lowerTwoCentralHilbertCoefficient (maxProPQuotient 2 (GalK K)) 0 =
+      Module.finrank ℚ_[2] K + 2 := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  rw [lowerTwoCentralHilbertCoefficient_zero_eq_demushkinRank hfg
+      isProP_maxProPQuotient,
+    demushkinRank_maxProTwoGalK (K := K)]
+
+/-- **Literal odd-degree rank regression.**  At coefficient `0`, the lower two-central
+Hilbert functions of the improved `DSq ((n-1)/2)` presentation and `G_K(2)` agree.  No `q = 2`
+or classification input is used: this is just the `H¹` rank theorem and odd-degree arithmetic. -/
+theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    lowerTwoCentralHilbertCoefficient
+        (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 0 =
+      lowerTwoCentralHilbertCoefficient (maxProPQuotient 2 (GalK K)) 0 := by
+  rw [dsq_lowerTwoCentralHilbertCoefficient_zero,
+    maxProTwoGalK_lowerTwoCentralHilbertCoefficient_zero K hfg]
+  obtain ⟨k, hk⟩ := hodd
+  rw [hk]
+  simp only [SqCore.sqRank]
+  omega
+
+/-- In the repository's formal indexing, the preceding theorem proves agreement at `Z₁`;
+agreement at junk layer `Z₀` is automatic. -/
+theorem oddDegreeGalKSq_firstTwoLayerCardAgreement
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    ∀ k < 2,
+      Nat.card (zLayer
+          (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) k) =
+        Nat.card (zLayer (maxProPQuotient 2 (GalK K)) k) := by
+  intro k hk
+  interval_cases k
+  · rw [card_zLayer_zero, card_zLayer_zero]
+  · rw [card_zLayer_succ_eq_two_pow_hilbertCoefficient
+        (G := (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type))
+        (dsqFinsetTopGen _) (SqCore.isProP_DSq _),
+      card_zLayer_succ_eq_two_pow_hilbertCoefficient hfg isProP_maxProPQuotient,
+      oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero K hodd hfg]
+
 /-- Sharpened finite-level field presentation.  The forward clause still uses the literal
 improved relator and the corrected cyclotomic value fibres.  The reverse clause is replaced,
 equivalently, by the order equality on the canonical two-central tower. -/
@@ -505,6 +785,13 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_layerCardPresentation
     (oddDegreeGalKSqCyclotomicLevelCardPresentation_of_layerCardPresentation hlayer)
 
 #print axioms sqReverseFiniteQuotientSurjections_iff_twoCentralLevel
+#print axioms card_continuousCharacter_eq_card_zLayer_one
+#print axioms card_H1_zmodTwo_eq_card_zLayer_one
+#print axioms card_continuousCharacter_dsq
+#print axioms card_zLayer_one_dsq
+#print axioms twoCentralHilbertSeriesAgreement_iff_layerCardAgreement
+#print axioms oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero
+#print axioms oddDegreeGalKSq_firstTwoLayerCardAgreement
 #print axioms twoCentralLevelMap_surjective
 #print axioms card_levelQuot_succ
 #print axioms twoCentralLevelCardAgreement_of_layerCardAgreement
