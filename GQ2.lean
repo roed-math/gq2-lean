@@ -417,6 +417,7 @@ import GQ2.Dyadic.Count.H3SqUnconditionalDegreeThree
 import GQ2.Dyadic.Count.H3SqCofinalTransitionDetector
 import GQ2.Dyadic.Count.H3SqCofinalTransitionNoGo
 import GQ2.Dyadic.Count.H3RelationCharacterTransition
+import GQ2.Dyadic.Count.H3CorrectedCocycleFiber
 import GQ2.Dyadic.Count.H3CompatibleFoxInjectivity
 import GQ2.Dyadic.Count.H3AugmentationFiltration
 import GQ2.Dyadic.Count.H3FiniteStronglyFreeNoGo
