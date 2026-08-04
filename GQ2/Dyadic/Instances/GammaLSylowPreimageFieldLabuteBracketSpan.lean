@@ -176,6 +176,139 @@ theorem sharpNeutralShiftHom_range_eq_bracketSpan {h k : ℕ}
   (sharpNeutralShiftHom_range_eq_coordinateSpan T hk).trans
     (sharpNeutralCoordinateSpan_eq_bracketSpan T hk)
 
+/-- Changing the sharp-admissible base point changes the residual by the inverse of a
+neutral shift.  Thus its class modulo the literal bracket span is canonical. -/
+theorem sharpNeutralResidualElement_changeBase
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W W' : SharpAdmissibleCorrection T (by omega)) :
+    sharpNeutralResidualElement T hk W' =
+      (sharpNeutralShiftHom T hk (W.differenceNeutral W'))⁻¹ *
+        sharpNeutralResidualElement T hk W := by
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  let V : SharpNeutralCorrection T (by omega) := W.differenceNeutral W'
+  have hmul := W.sqCoreHandleDbarWord_mulNeutral (hk := hk) V
+  have hrecover := W.mulNeutral_difference_correction W'
+  have hfactor : sqCoreHandleDbarWord base W'.correction =
+      sqCoreHandleDbarWord base W.correction *
+        sqCoreHandleDbarWord base V.correction := by
+    rw [← hrecover]
+    exact hmul
+  apply Subtype.ext
+  change (sqCoreHandleDbarWord base W'.correction)⁻¹ *
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ =
+    (sqCoreHandleDbarWord base V.correction)⁻¹ *
+      ((sqCoreHandleDbarWord base W.correction)⁻¹ *
+        (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹)
+  rw [hfactor]
+  group
+
+/-- A central layer is multiplicatively commutative as a group in its own right. -/
+noncomputable instance sharpZLayerIsMulCommutative (k : ℕ) :
+    IsMulCommutative (zLayer (maxProPQuotient 2 (GalK K)) k) where
+  is_comm := ⟨fun (a b : zLayer (maxProPQuotient 2 (GalK K)) k) ↦
+      Subtype.ext
+        (Subgroup.mem_center_iff.mp
+          (zLayer_le_center (maxProPQuotient 2 (GalK K)) k a.2) b.1).symm⟩
+
+/-- The residual has a base-independent image in the quotient by the literal bracket span. -/
+theorem sharpNeutralResidualElement_quotient_eq
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W W' : SharpAdmissibleCorrection T (by omega)) :
+    QuotientGroup.mk' (sharpNeutralBracketSpan T hk)
+        (sharpNeutralResidualElement T hk W') =
+      QuotientGroup.mk' (sharpNeutralBracketSpan T hk)
+        (sharpNeutralResidualElement T hk W) := by
+  rw [sharpNeutralResidualElement_changeBase W W', map_mul, map_inv]
+  have hmem : sharpNeutralShiftHom T hk (W.differenceNeutral W') ∈
+      sharpNeutralBracketSpan T hk := by
+    rw [← sharpNeutralShiftHom_range_eq_bracketSpan T hk]
+    exact ⟨W.differenceNeutral W', rfl⟩
+  have hmk : QuotientGroup.mk' (sharpNeutralBracketSpan T hk)
+      (sharpNeutralShiftHom T hk (W.differenceNeutral W')) = 1 :=
+    (QuotientGroup.eq_one_iff _).mpr hmem
+  rw [hmk, inv_one, one_mul]
+
+/-! ## The finite sharp-character obstruction for a raw Labute correction -/
+
+/-- A raw depth correction has the same finite sharp-character vector as a chosen
+sharp-admissible base point.  This is a coordinatewise identity in the finite unit group
+`(Z/2^(k+2))ˣ`; it is the exact obstruction to their quotient being sharp-neutral. -/
+def RawCorrectionSharpCharacterMatches
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W : SharpAdmissibleCorrection T hk)
+    (correction : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)) : Prop :=
+  ∀ i, sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (correction i) =
+    sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (W.correction i)
+
+/-- When the finite character vectors match, the coordinatewise quotient of the raw
+correction by the sharp base point is a genuine sharp-neutral direction. -/
+noncomputable def SharpNeutralCorrection.ofRawCharacterMatch
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W : SharpAdmissibleCorrection T hk)
+    (correction : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) (k + 1))
+    (hdepth : ∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1))
+    (hmatch : RawCorrectionSharpCharacterMatches W correction) :
+    SharpNeutralCorrection T hk where
+  correction i := (W.correction i)⁻¹ * correction i
+  depth i := Subgroup.mul_mem _ (Subgroup.inv_mem _ (W.depth i)) (hdepth i)
+  sharpKernel i := by
+    rw [map_mul, map_inv, hmatch i, inv_mul_cancel]
+
+/-- Acting on the sharp base point by its raw relative correction recovers the raw
+correction literally, coordinate by coordinate. -/
+theorem SharpAdmissibleCorrection.mulNeutral_ofRawCharacterMatch_correction
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W : SharpAdmissibleCorrection T hk)
+    (correction : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) (k + 1))
+    (hdepth : ∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1))
+    (hmatch : RawCorrectionSharpCharacterMatches W correction) :
+    (W.mulNeutral (SharpNeutralCorrection.ofRawCharacterMatch
+      W correction hdepth hmatch)).correction = correction := by
+  funext i
+  dsimp only [SharpAdmissibleCorrection.mulNeutral,
+    SharpNeutralCorrection.ofRawCharacterMatch]
+  group
+
+/-- A raw actual-defect correction upgrades to the sharp exact supply as soon as its finite
+sharp-character vector agrees with one sharp-admissible base point.  Consequently the only
+extra arithmetic datum beyond raw Labute reachability is the displayed finite scalar
+identity. -/
+noncomputable def CoreHandleSharpActualDefectSupply.ofRawCharacterMatch
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (correction : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) (k + 1))
+    (hdepth : ∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1))
+    (hkill : stageShift
+      (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+      correction =
+        (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹)
+    (hmatch : RawCorrectionSharpCharacterMatches W correction) :
+    CoreHandleSharpActualDefectSupply T hk := by
+  let V := SharpNeutralCorrection.ofRawCharacterMatch W correction hdepth hmatch
+  refine {
+    correction := W.mulNeutral V
+    hitsDefect := ?_ }
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  have hcorrection : (W.mulNeutral V).correction = correction :=
+    W.mulNeutral_ofRawCharacterMatch_correction correction hdepth hmatch
+  change sqCoreHandleDbarWord base (W.mulNeutral V).correction =
+    (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+  rw [hcorrection, sqCoreHandleDbarWord,
+    ← stageShift_eq_dbarWordR2_mul_sqHandleDbarWord
+    h k hk base correction hdepth]
+  exact hkill
+
 /-- Residual reachability is precisely membership in the literal bracket span. -/
 theorem sharpNeutralResidualReachable_iff_mem_bracketSpan
     {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
@@ -219,6 +352,9 @@ end SqCyclotomicStageTuple
 
 #print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateHomImageSet_eq_bracketAtomSet
 #print axioms SqCyclotomicStageTuple.sharpNeutralShiftHom_range_eq_bracketSpan
+#print axioms SqCyclotomicStageTuple.sharpNeutralResidualElement_changeBase
+#print axioms SqCyclotomicStageTuple.sharpNeutralResidualElement_quotient_eq
+#print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofRawCharacterMatch
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_iff_mem_bracketSpan
 #print axioms SqCyclotomicStageTuple.sharpNeutralBracketSpanSupply_iff_nonempty_actualDefectSupply
 
