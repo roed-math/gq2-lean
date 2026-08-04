@@ -241,6 +241,86 @@ theorem ofCoreTable_sqRelWord_regression
       1 :=
   hrelation
 
+/-- The carrier of an oriented square equivalence, named separately to keep coercion elaboration
+stable inside quotient-word calculations. -/
+def orientedCarrier {h : ℕ}
+    (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K))) :
+    ContinuousMulEquiv (SqCore.DSq h : Type) (maxProPQuotient 2 (GalK K)) :=
+  e.1
+
+/-- Any already-proved oriented square equivalence gives an exact oriented stage at every
+tower level.  This transport theorem is primarily a regression tool for `h = 0`: it confirms
+that the new stage architecture really specializes to the existing `Q₂` classification. -/
+noncomputable def ofOrientedEquiv {h k : ℕ}
+    (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K))) :
+    SqCyclotomicStageTuple K h k where
+  generators i := levelMk (maxProPQuotient 2 (GalK K)) k
+    (orientedCarrier e (SqCore.sqGen h i))
+  sigma := by
+    refine ⟨orientedCarrier e (SqCore.sqGen h 0), ?_, rfl⟩
+    exact (e.2 _).trans (SqCore.chiSq_sigma h)
+  x0 := by
+    refine ⟨orientedCarrier e (SqCore.sqGen h 1), ?_, rfl⟩
+    exact (e.2 _).trans (SqCore.chiSq_x0 h)
+  x1 := by
+    refine ⟨orientedCarrier e (SqCore.sqGen h 2), ?_, rfl⟩
+    exact (e.2 _).trans (SqCore.chiSq_x1 h)
+  handleU := by
+    intro j
+    refine ⟨orientedCarrier e (SqCore.sqGen h (SqCore.sqHandleIdxU j)), ?_, rfl⟩
+    rw [MonoidHom.mem_ker]
+    exact (e.2 _).trans (SqCore.chiSq_handleU h j)
+  handleV := by
+    intro j
+    refine ⟨orientedCarrier e (SqCore.sqGen h (SqCore.sqHandleIdxV j)), ?_, rfl⟩
+    rw [MonoidHom.mem_ker]
+    exact (e.2 _).trans (SqCore.chiSq_handleV h j)
+  relation := by
+    calc
+      SqCore.sqRelWord (fun i ↦ levelMk (maxProPQuotient 2 (GalK K)) k
+          (orientedCarrier e (SqCore.sqGen h i))) =
+          levelMk (maxProPQuotient 2 (GalK K)) k
+            (SqCore.sqRelWord (fun i ↦ orientedCarrier e (SqCore.sqGen h i))) :=
+        (SqCore.map_sqRelWord (levelMk (maxProPQuotient 2 (GalK K)) k)
+          (fun i ↦ orientedCarrier e (SqCore.sqGen h i))).symm
+      _ = levelMk (maxProPQuotient 2 (GalK K)) k
+          (orientedCarrier e (SqCore.sqRelWord (SqCore.sqGen h))) :=
+        congrArg (levelMk (maxProPQuotient 2 (GalK K)) k)
+          (SqCore.map_sqRelWord (orientedCarrier e).toMonoidHom (SqCore.sqGen h)).symm
+      _ = 1 := by rw [SqCore.dsq_relation, map_one, map_one]
+  topGen := by
+    let Q := maxProPQuotient 2 (GalK K)
+    let f := orientedCarrier e
+    have hfgQ : IsTopologicallyFinGen Q :=
+      IsTopologicallyFinGen.of_surjective f.toMonoidHom f.continuous_toFun
+        f.surjective (dsqFinsetTopGen h)
+    letI := discreteTopology_levelQuot Q hfgQ isProP_maxProPQuotient k
+    let p : ContinuousMonoidHom (SqCore.DSq h : Type) (levelQuot Q k) :=
+      ⟨(levelMk Q k).comp f.toMonoidHom,
+        (continuous_levelMk Q k).comp f.continuous_toFun⟩
+    have hp : Function.Surjective p :=
+      (levelMk_surjective Q k).comp f.surjective
+    let H : Subgroup (levelQuot Q k) :=
+      Subgroup.closure (Set.range fun i ↦ p (SqCore.sqGen h i))
+    have hclosed : IsClosed (H : Set (levelQuot Q k)) := isClosed_discrete _
+    have hgen : Subgroup.closure (Set.range (SqCore.sqGen h)) ≤
+        Subgroup.comap p.toMonoidHom H := by
+      rw [Subgroup.closure_le]
+      rintro _ ⟨i, rfl⟩
+      exact Subgroup.subset_closure ⟨i, rfl⟩
+    have hpreclosed : IsClosed
+        (Subgroup.comap p.toMonoidHom H : Set (SqCore.DSq h : Type)) :=
+      hclosed.preimage p.continuous_toFun
+    have htoppre :
+        (Subgroup.closure (Set.range (SqCore.sqGen h))).topologicalClosure ≤
+          Subgroup.comap p.toMonoidHom H :=
+      Subgroup.topologicalClosure_minimal _ hgen hpreclosed
+    rw [SqCore.dsq_topGen] at htoppre
+    apply top_unique
+    intro y _
+    obtain ⟨x, rfl⟩ := hp y
+    exact htoppre (by trivial)
+
 /-- Restriction down the two-central tower preserves the literal improved relation,
 generation, and all exact cyclotomic fibres. -/
 noncomputable def levelProj {h k : ℕ}
@@ -314,10 +394,10 @@ noncomputable def toFiniteLevelEpiData {h k : ℕ}
     (U : OpenNormalSubgroup
       (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
     (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
-    SqCyclotomicFiniteLevelEpiData (K := K) h U := by
+    GQ2.Dyadic.LSquare.SqCyclotomicFiniteLevelEpiData (K := K) h U := by
   let p := toOpenMap (K := K) k U hle
   let generators := fun i ↦ p (T.generators i)
-  apply finiteLevelEpiDataOfTuple h U generators
+  apply GQ2.Dyadic.LSquare.finiteLevelEpiDataOfTuple h U generators
   · obtain ⟨x, hxchi, hx⟩ := T.sigma
     refine ⟨x, hxchi, ?_⟩
     change p (T.generators 0) = QuotientGroup.mk x
@@ -484,10 +564,20 @@ structure AdmissibleCorrection {h k : ℕ}
           (SqCore.sqHandleIdxV j) =
         levelMk (maxProPQuotient 2 (GalK K)) (k + 1) x
 
-/-- The exact presentation-independent replacement for the rank-three span calculation:
-every element of the graded defect layer is the literal improved-relator shift of an
-admissible depth-`k-1` correction.  Proving this predicate is the remaining arithmetic theorem;
-all group-theoretic stage work is downstream of it. -/
+/-- The exact arithmetic premise needed by one stage step: the inverse of the *current*
+literal improved-relator defect is realized by an admissible depth-`k-1` correction.  This is
+strictly weaker than surjectivity of the entire correction map, and matches the conclusion of
+the existing rank-three `stageSL1R2` theorem. -/
+def DefectReachable {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) : Prop :=
+  ∃ W : AdmissibleCorrection T,
+    stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction =
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+
+/-- A stronger, reusable span statement: every element of the graded defect layer is the
+literal improved-relator shift of an admissible depth-`k-1` correction.  The stage induction
+does not require this full surjectivity; it is retained as a convenient sufficient interface
+for a future crossed-derivation calculation. -/
 def CorrectionSurjective {h k : ℕ}
     (T : SqCyclotomicStageTuple K h k) : Prop :=
   ∀ δ ∈ zLayer (maxProPQuotient 2 (GalK K)) k,
@@ -520,26 +610,38 @@ theorem CrossedDerivationSpanSupply.toCorrectionSurjective {h k : ℕ}
   rw [S.realizes v]
   exact congrArg Subtype.val hv
 
-/-- A correction selected from surjectivity at the inverse defect. -/
+/-- Full correction surjectivity is sufficient for the sharp, actual-defect premise. -/
+theorem CorrectionSurjective.toDefectReachable {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} (H : CorrectionSurjective T) :
+    DefectReachable T := by
+  have hδ : (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ ∈
+      zLayer (maxProPQuotient 2 (GalK K)) k :=
+    Subgroup.inv_mem _ (sqStageDefect_mem_zLayer h k T.relation)
+  exact H _ hδ
+
+/-- A crossed-derivation supply covering the whole graded layer in particular reaches the
+actual defect. -/
+theorem CrossedDerivationSpanSupply.toDefectReachable {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} (S : CrossedDerivationSpanSupply T) :
+    DefectReachable T :=
+  S.toCorrectionSurjective.toDefectReachable
+
+/-- An admissible correction equipped with the exact equation that kills the current defect. -/
 structure DefectKillingCorrection {h k : ℕ}
     (T : SqCyclotomicStageTuple K h k) extends AdmissibleCorrection T where
   kills : stageShift (fun i ↦ canonLift _ k (T.generators i)) correction =
     (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
 
-/-- Surjectivity on `zLayer` supplies a defect-killing admissible correction. -/
-noncomputable def CorrectionSurjective.defectKillingCorrection {h k : ℕ}
-    (T : SqCyclotomicStageTuple K h k) (H : CorrectionSurjective T) :
+/-- Actual-defect reachability supplies a defect-killing admissible correction. -/
+noncomputable def DefectReachable.defectKillingCorrection {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (H : DefectReachable T) :
     DefectKillingCorrection T := by
-  have hδ : (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ ∈
-      zLayer (maxProPQuotient 2 (GalK K)) k :=
-    Subgroup.inv_mem _ (sqStageDefect_mem_zLayer h k T.relation)
-  let W := Classical.choose (H _ hδ)
-  exact { W with kills := Classical.choose_spec (H _ hδ) }
+  let W := Classical.choose H
+  exact { W with kills := Classical.choose_spec H }
 
-/-- Every non-arithmetic part of the variable-rank stage step.  Once the exact correction map
-is surjective on the graded defect layer, the inverse defect kills the literal improved
-relator; depth preserves generation by the Frattini argument; and admissibility preserves the
-three core fibres and both handle families. -/
+/-- Every non-arithmetic part of the variable-rank stage step.  Once the inverse defect is
+reachable, it kills the literal improved relator; depth preserves generation by the Frattini
+argument; and admissibility preserves the three core fibres and both handle families. -/
 noncomputable def DefectKillingCorrection.toNext
     {h k : ℕ} (T : SqCyclotomicStageTuple K h k)
     (W : DefectKillingCorrection T) (hk : 3 ≤ k)
@@ -571,15 +673,25 @@ noncomputable def DefectKillingCorrection.toNext
       (maxProPQuotient 2 (GalK K)) hfg isProP_maxProPQuotient _ _ hbase
       (fun i ↦ lambdaImage_le_of_le (by omega) (W.depth i))
 
-/-- The sharp stage theorem exposed to arithmetic: exact correction surjectivity alone implies
-existence of the next oriented stage. -/
+/-- The sharp stage theorem exposed to arithmetic: reaching the inverse of the current defect
+alone implies existence of the next oriented stage. -/
+noncomputable def DefectReachable.toNext
+    {h k : ℕ} (T : SqCyclotomicStageTuple K h k) (H : DefectReachable T)
+    (hk : 3 ≤ k)
+    (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
+      (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤) :
+    SqCyclotomicStageTuple K h (k + 1) :=
+  (H.defectKillingCorrection T).toNext T hk hfg
+
+/-- Backward-compatible strong adapter: full correction surjectivity still yields the next
+stage, but only through `DefectReachable`. -/
 noncomputable def CorrectionSurjective.toNext
     {h k : ℕ} (T : SqCyclotomicStageTuple K h k) (H : CorrectionSurjective T)
     (hk : 3 ≤ k)
     (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
       (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤) :
     SqCyclotomicStageTuple K h (k + 1) :=
-  (H.defectKillingCorrection T).toNext T hk hfg
+  H.toDefectReachable.toNext T hk hfg
 
 /-! ## Base, induction, and all-finite-level assembly -/
 
@@ -593,14 +705,14 @@ private theorem stage_nonempty_of_add (h : ℕ) :
       exact H.elim fun T ↦ ⟨T.levelProj⟩
 
 /-- Upward induction from the precise base premise: one exact oriented level-three tuple.
-The only inductive arithmetic input is correction surjectivity for every oriented stage at
-every level at least three. -/
+The only inductive arithmetic input is reachability of the actual defect for every oriented
+stage at every level at least three. -/
 private theorem stage_nonempty_three_add
     (h : ℕ) (base : SqCyclotomicStageTuple K h 3)
     (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
       (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤)
     (Hcorr : ∀ (k : ℕ), 3 ≤ k → ∀ T : SqCyclotomicStageTuple K h k,
-      CorrectionSurjective T) :
+      DefectReachable T) :
     ∀ d : ℕ, Nonempty (SqCyclotomicStageTuple K h (3 + d))
   | 0 => ⟨base⟩
   | d + 1 => by
@@ -615,7 +727,7 @@ theorem stage_nonempty_all_levels
     (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
       (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤)
     (Hcorr : ∀ (k : ℕ), 3 ≤ k → ∀ T : SqCyclotomicStageTuple K h k,
-      CorrectionSurjective T)
+      DefectReachable T)
     (k : ℕ) : Nonempty (SqCyclotomicStageTuple K h k) := by
   apply stage_nonempty_of_add h 3 k
   simpa only [Nat.add_comm] using stage_nonempty_three_add h base hfg Hcorr k
@@ -623,16 +735,16 @@ theorem stage_nonempty_all_levels
 /-- Cofinality endpoint: the exact level-three base and the correction theorem produce the
 corrected finite datum at every open normal quotient.  This is the complete bridge required by
 `SqCyclotomicFiniteLevelEpiData` compactness; no presentation-dependent arithmetic remains
-after `Hcorr`. -/
+after the actual-defect premise `Hcorr`. -/
 theorem finiteLevelEpiData_nonempty_of_base_and_corrections
     (h : ℕ) (base : SqCyclotomicStageTuple K h 3)
     (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
       (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤)
     (Hcorr : ∀ (k : ℕ), 3 ≤ k → ∀ T : SqCyclotomicStageTuple K h k,
-      CorrectionSurjective T)
+      DefectReachable T)
     (U : OpenNormalSubgroup
       (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) :
-    Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U) := by
+    Nonempty (GQ2.Dyadic.LSquare.SqCyclotomicFiniteLevelEpiData (K := K) h U) := by
   obtain ⟨k, hk⟩ := exists_twoCentralSeries_le (maxProPQuotient 2 (GalK K)) hfg
     isProP_maxProPQuotient U.isOpen'
   exact (stage_nonempty_all_levels h base hfg Hcorr k).elim fun T ↦
@@ -649,10 +761,13 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.levelProj
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData_sqRelWord_regression
+#print axioms SqCyclotomicStageTuple.ofOrientedEquiv
 #print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
+#print axioms SqCyclotomicStageTuple.DefectReachable.toNext
 #print axioms SqCyclotomicStageTuple.CorrectionSurjective.toNext
 #print axioms SqCyclotomicStageTuple.ofCoreTable_sqRelWord_regression
 #print axioms SqCyclotomicStageTuple.CrossedDerivationSpanSupply.toCorrectionSurjective
+#print axioms SqCyclotomicStageTuple.CrossedDerivationSpanSupply.toDefectReachable
 #print axioms SqCyclotomicStageTuple.stage_nonempty_all_levels
 #print axioms SqCyclotomicStageTuple.finiteLevelEpiData_nonempty_of_base_and_corrections
 
