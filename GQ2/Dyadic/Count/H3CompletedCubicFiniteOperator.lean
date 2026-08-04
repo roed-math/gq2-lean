@@ -1763,6 +1763,96 @@ theorem sqCubicXFromSRelatorUnit_val_perturbation (h : ℕ)
       (sqCubicHomogeneousOperatorLetter h 0)
       (sqCubicHomogeneousOperatorLetter_augmentation h 0)
 
+/-- On the empty PBW column, the named perturbation has the prescribed value `v`. -/
+theorem sqCubicXFromSPrefixDelta_snd_apply_empty (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    ((sqCubicXFromSPrefixDelta h v hv).snd.1 :
+      Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicEmptyVector h) = v := by
+  rw [sqCubicXFromSPrefixDelta, Unitization.snd_add]
+  simp only [sqCubicCorrectionOperatorElement,
+    sqCubicHomogeneousOperatorLetter, Unitization.snd_mul,
+    Unitization.fst_inr, Unitization.snd_inr, zero_smul, zero_add]
+  change
+    ((sqCubicXFromSColumnCorrection h v hv).operator 1 *
+        sqCubicTruncatedLeftLetter h 0 +
+      sqCubicTruncatedLeftLetter h 0 *
+        (sqCubicXFromSColumnCorrection h v hv).operator 1)
+      (sqCubicEmptyVector h) = v
+  rw [LinearMap.add_apply, Module.End.mul_apply, Module.End.mul_apply,
+    sqCubicTruncatedLeftLetter_apply_empty,
+    sqCubicXFromSColumnCorrection_X_on_S,
+    sqCubicXFromSColumnCorrection_X,
+    sqCubicRankOneLetterColumn_empty, map_zero, add_zero]
+
+theorem sqCubicXFromSPrefixDelta_snd_raises_three (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    SqCubicRaisesBy
+      ((sqCubicXFromSPrefixDelta h v hv).snd.1 :
+        Module.End (ZMod 2) (SqCubicNormalSpace h)) 3 := by
+  rw [sqCubicXFromSPrefixDelta, Unitization.snd_add]
+  simp only [sqCubicCorrectionOperatorElement,
+    sqCubicHomogeneousOperatorLetter, Unitization.snd_mul,
+    Unitization.fst_inr, Unitization.snd_inr, zero_smul, zero_add]
+  apply SqCubicRaisesBy.add
+  · change SqCubicRaisesBy
+      ((sqCubicXFromSColumnCorrection h v hv).operator 1 *
+        sqCubicTruncatedLeftLetter h 0) 3
+    simpa using (sqCubicXFromSColumnCorrection h v hv).raises_two 1 |>.mul
+      (sqCubicTruncatedLeftLetter_raises_one h 0)
+  · change SqCubicRaisesBy
+      (sqCubicTruncatedLeftLetter h 0 *
+        (sqCubicXFromSColumnCorrection h v hv).operator 1) 3
+    simpa [add_comm] using (sqCubicTruncatedLeftLetter_raises_one h 0).mul
+      ((sqCubicXFromSColumnCorrection h v hv).raises_two 1)
+
+theorem sqCubicXFromSRelatorEnd_eq_add_delta (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    sqCubicCorrectedRelatorEnd h (sqCubicXFromSColumnCorrection h v hv) =
+      sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h) +
+        ((sqCubicXFromSPrefixDelta h v hv).snd.1 :
+          Module.End (ZMod 2) (SqCubicNormalSpace h)) := by
+  apply LinearMap.ext
+  intro x
+  have H := congrArg
+    (fun a : SqCubicOperatorAlgebra h =>
+      (a.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h)) x)
+    (sqCubicXFromSRelatorUnit_val_perturbation h v hv)
+  exact H.trans (by rfl)
+
+/-- The corrected literal relator's empty column is the old residual plus the prescribed
+rank-one target. -/
+theorem sqCubicXFromSRelatorEnd_apply_empty (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    sqCubicCorrectedRelatorEnd h (sqCubicXFromSColumnCorrection h v hv)
+        (sqCubicEmptyVector h) =
+      sqCubicHomogeneousRelatorResidual h + v := by
+  rw [sqCubicXFromSRelatorEnd_eq_add_delta h v hv, LinearMap.add_apply,
+    sqCubicXFromSPrefixDelta_snd_apply_empty]
+  rfl
+
+/-- At the homogeneous residual itself, the concrete perturbation contributes exactly that
+residual on the empty column. -/
+theorem sqCubicResidualPrefixDelta_snd_apply_empty (h : ℕ)
+    (hres : sqCubicHomogeneousRelatorResidual h ∈
+      sqCubicNormalFiltration h 3) :
+    ((sqCubicXFromSPrefixDelta h (sqCubicHomogeneousRelatorResidual h) hres).snd.1 :
+      Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicEmptyVector h) = sqCubicHomogeneousRelatorResidual h :=
+  sqCubicXFromSPrefixDelta_snd_apply_empty h _ hres
+
+theorem sqCubicResidualCorrection_relatorEnd_apply_empty (h : ℕ)
+    (hres : sqCubicHomogeneousRelatorResidual h ∈
+      sqCubicNormalFiltration h 3) :
+    sqCubicCorrectedRelatorEnd h
+        (sqCubicXFromSColumnCorrection h
+          (sqCubicHomogeneousRelatorResidual h) hres)
+      (sqCubicEmptyVector h) = 0 := by
+  rw [sqCubicXFromSRelatorEnd_apply_empty]
+  have htwo : 2 • sqCubicHomogeneousRelatorResidual h = 0 :=
+    ZModModule.char_nsmul_eq_zero 2 _
+  simpa [two_smul] using htwo
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
