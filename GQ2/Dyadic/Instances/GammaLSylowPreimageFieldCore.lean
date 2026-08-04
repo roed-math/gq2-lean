@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 import GQ2.Dyadic.Instances.GammaLSylowPreimageVariableCore
 import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.OrientationCorrection
+import GQ2.Reconstruction
 
 /-!
 # A field-model route to variable GammaL Sylow cores
@@ -90,6 +91,55 @@ open GQ2 GQ2.ContCoh
 
 variable {h q : ℕ}
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-! ## A two-epimorphism endpoint for a higher-rank Labute proof -/
+
+/-- The improved square core is topologically finitely generated, in the `Finset` form needed
+by the profinite Hopfian theorem. -/
+theorem dsqFinsetTopGen (h : ℕ) :
+    ∃ s : Finset (SqCore.DSq h : Type),
+      (Subgroup.closure (s : Set (SqCore.DSq h : Type))).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨Finset.univ.image (SqCore.sqGen h), ?_⟩
+  have hset : ((Finset.univ.image (SqCore.sqGen h) : Finset (SqCore.DSq h : Type)) :
+      Set (SqCore.DSq h : Type)) = Set.range (SqCore.sqGen h) := by
+    ext x
+    simp
+  rw [hset]
+  exact SqCore.dsq_topGen h
+
+/-- The concrete output expected from a levelwise Labute argument: an oriented epimorphism out
+of the improved square presentation and an epimorphism back.  The orientation is recorded only
+on the finite generator table. -/
+structure SqCyclotomicBiEpiData (h : ℕ)
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) where
+  forward : ContinuousMonoidHom (SqCore.DSq h : Type) G
+  forward_surjective : Function.Surjective forward
+  sigma : chiG (forward (SqCore.dsqSigma h)) = GQ2.Roe.SvalUnit
+  x0 : chiG (forward (SqCore.dsqX0 h)) = GQ2.Roe.rootXUnit
+  x1 : chiG (forward (SqCore.dsqX1 h)) = GQ2.Roe.YvalUnit
+  handleU : ∀ j : Fin h,
+    chiG (forward (SqCore.sqGen h (SqCore.sqHandleIdxU j))) = 1
+  handleV : ∀ j : Fin h,
+    chiG (forward (SqCore.sqGen h (SqCore.sqHandleIdxV j))) = 1
+  backward : ContinuousMonoidHom G (SqCore.DSq h : Type)
+  backward_surjective : Function.Surjective backward
+
+/-- The Hopfian endgame for the higher-rank square classification.  Two epimorphisms produce
+an equivalence, and the five generator rows orient that equivalence. -/
+noncomputable def orientedEquivSq_of_biEpiData {h : ℕ}
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) (D : SqCyclotomicBiEpiData h chiG) :
+    OrientedContinuousMulEquiv (SqCore.chiSq h) chiG := by
+  have hcomp : Function.Surjective (D.backward.comp D.forward) :=
+    D.backward_surjective.comp D.forward_surjective
+  have hinj : Function.Injective (⇑D.backward ∘ ⇑D.forward) :=
+    profinite_hopfian (dsqFinsetTopGen h) (D.backward.comp D.forward) hcomp
+  let e : ContinuousMulEquiv (SqCore.DSq h : Type) G :=
+    continuousMulEquivOfBijective D.forward ⟨hinj.of_comp, D.forward_surjective⟩
+  exact orientedEquivSq_of_values chiG e D.sigma D.x0 D.x1 D.handleU D.handleV
 
 /-! ## The exact field identification -/
 
@@ -283,6 +333,8 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 
 #print axioms maxProPQuotientCongr
 #print axioms maxProPQuotientCongr_maxProPMk
+#print axioms dsqFinsetTopGen
+#print axioms orientedEquivSq_of_biEpiData
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
 #print axioms oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification
