@@ -674,6 +674,28 @@ theorem SharpCharacterFiltrationExact.toSharpExactLevelFibreLiftSupply
     have hrone : levelMk G n r = 1 := (QuotientGroup.eq_one_iff r).mpr hr
     rw [hrone, mul_one]
 
+/-- For an odd-degree dyadic field, the descended cyclotomic character carries the lower
+two-central series onto the sharp principal-unit filtration.  No field-side filtration
+assumption remains: surjectivity comes from marked local reciprocity, and the target-side
+filtration is `sharpUnitsFiltrationExact`. -/
+theorem oddDegreeGalKSq_sharpCharacterFiltrationExact
+    {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    SharpCharacterFiltrationExact
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) := by
+  apply SharpCharacterFiltrationExact.of_surjective
+  · exact chiCycKTwo_surjective_of_odd_finrank K B hodd
+  · exact sharpUnitsFiltrationExact
+
+/-- Odd-degree marked reciprocity therefore supplies exact representatives in every sharp
+cyclotomic level fibre. -/
+theorem oddDegreeGalKSq_sharpExactLevelFibreLiftSupply
+    {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    SharpExactLevelFibreLiftSupply
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) :=
+  (oddDegreeGalKSq_sharpCharacterFiltrationExact B hodd).toSharpExactLevelFibreLiftSupply
+
 /-- Regression: an exact character representative of a level-`n` coset necessarily fixes
 the extra mod-`2^(n+1)` digit. -/
 theorem exactFibre_implies_sharpChiLevel
@@ -1250,6 +1272,8 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.sharpChiLevel_levelProj_eq_chiLevel_succ
 #print axioms SqCyclotomicStageTuple.sharpUnitsFiltrationExact
 #print axioms SqCyclotomicStageTuple.SharpCharacterFiltrationExact.toSharpExactLevelFibreLiftSupply
+#print axioms SqCyclotomicStageTuple.oddDegreeGalKSq_sharpCharacterFiltrationExact
+#print axioms SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply
 #print axioms SqCyclotomicStageTuple.exactFibre_implies_sharpChiLevel
 #print axioms SqCyclotomicStageTuple.no_exactFibre_of_sharpChiLevel_ne
 #print axioms SqCyclotomicStageTuple.exactLevelSuccFibre_implies_mod_k_add_two
