@@ -471,6 +471,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteFinite
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStage
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageHandles
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteForwardSpanAudit
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteTransgression
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteElementaryH2
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteHilbertTail
