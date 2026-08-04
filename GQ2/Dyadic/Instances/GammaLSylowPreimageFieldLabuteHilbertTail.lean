@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteElementaryH2
+import GQ2.Dyadic.FinitelyGeneratedK
 
 /-!
 # The higher lower-two-central Hilbert tail
@@ -92,6 +93,140 @@ theorem sqTwoCentralHilbertTailAgreement_iff_exists_commonFormula
     exact SqTwoCentralHilbertTailAgreement.of_commonFormula dimensions hmodel hgroup
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-! ## Finite generation and premise-free low-degree field supplies -/
+
+/-- The maximal pro-`2` quotient of the absolute Galois group of a finite dyadic field is
+topologically finitely generated.  This is the existing profinite Nielsen--Schreier theorem for
+`G_K`, pushed through the canonical maximal-pro-`2` quotient map. -/
+theorem maxProTwoGalK_isTopologicallyFinGen
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] :
+    IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)) :=
+  IsTopologicallyFinGen.of_surjective
+    (maxProPMk 2 (GalK K)).toMonoidHom
+    (maxProPMk 2 (GalK K)).continuous_toFun
+    (quotientMk_surjective _)
+    (absGalK_isTopologicallyFinitelyGenerated K)
+
+/-- Premise-free specialization of the elementary Frattini-quotient `H²` count to a finite
+dyadic field. -/
+theorem maxProTwoGalK_lowerTwoCentralElementaryH2CardFormula_finiteDyadic
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] :
+    LowerTwoCentralElementaryH2CardFormula (maxProPQuotient 2 (GalK K))
+      (Module.finrank ℚ_[2] K + 2) :=
+  maxProTwoGalK_lowerTwoCentralElementaryH2CardFormula H K
+    (maxProTwoGalK_isTopologicallyFinGen K)
+
+/-- The kernel-duality route to the arithmetic five-term formula no longer needs an explicit
+finite-generation premise. -/
+theorem maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteDyadic
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hdual : LowerTwoCentralFiveTermKernelDuality
+      (maxProPQuotient 2 (GalK K))) :
+    let Q := maxProPQuotient 2 (GalK K)
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    LowerTwoCentralFiveTermCardFormula Q :=
+  maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary
+    H K (maxProTwoGalK_isTopologicallyFinGen K) hdual
+
+/-- Exact five-term cardinality for every finite dyadic field, with topological finite
+generation discharged internally. -/
+theorem maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] :
+    let Q := maxProPQuotient 2 (GalK K)
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    LowerTwoCentralFiveTermCardFormula Q :=
+  maxProTwoGalK_lowerTwoCentralFiveTermCardFormula K
+    (maxProTwoGalK_isTopologicallyFinGen K)
+
+/-- Exact arithmetic quadratic-layer cardinality for every finite dyadic field, with no
+explicit finite-generation premise. -/
+theorem maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] :
+    LowerTwoCentralDegreeTwoExpectedCard (maxProPQuotient 2 (GalK K))
+      (Module.finrank ℚ_[2] K + 2) :=
+  maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard K
+    (maxProTwoGalK_isTopologicallyFinGen K)
+
+/-- Premise-free degree-zero Hilbert coefficient formula for the arithmetic group. -/
+theorem maxProTwoGalK_lowerTwoCentralHilbertCoefficient_zero_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] :
+    lowerTwoCentralHilbertCoefficient (maxProPQuotient 2 (GalK K)) 0 =
+      Module.finrank ℚ_[2] K + 2 :=
+  maxProTwoGalK_lowerTwoCentralHilbertCoefficient_zero K
+    (maxProTwoGalK_isTopologicallyFinGen K)
+
+/-- Premise-free comparison of the quadratic layer in the degree-one field case. -/
+theorem degreeOneGalKSq_zLayer_two_cardAgreement_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hone : Module.finrank ℚ_[2] K = 1) :
+    Nat.card (zLayer (SqCore.DSq 0 : Type) 2) =
+      Nat.card (zLayer (maxProPQuotient 2 (GalK K)) 2) :=
+  degreeOneGalKSq_zLayer_two_cardAgreement K hone
+    (maxProTwoGalK_isTopologicallyFinGen K)
+
+/-- Premise-free quadratic-layer comparison for every odd-degree finite dyadic field. -/
+theorem oddDegreeGalKSq_zLayer_two_cardAgreement_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    Nat.card (zLayer
+        (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 2) =
+      Nat.card (zLayer (maxProPQuotient 2 (GalK K)) 2) :=
+  oddDegreeGalKSq_zLayer_two_cardAgreement_of_expectedCards K hodd
+    (sqLowerTwoCentralDegreeTwoExpectedCardSupply
+      ((Module.finrank ℚ_[2] K - 1) / 2))
+    (maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_finiteDyadic K)
+
+/-- Hilbert-coefficient spelling of the premise-free odd-degree quadratic comparison. -/
+theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_one_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    lowerTwoCentralHilbertCoefficient
+        (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 1 =
+      lowerTwoCentralHilbertCoefficient (maxProPQuotient 2 (GalK K)) 1 :=
+  congrArg (padicValNat 2)
+    (oddDegreeGalKSq_zLayer_two_cardAgreement_finiteDyadic K hodd)
+
+/-- For odd-degree fields, the improved model and arithmetic group agree through the quadratic
+layer without any finite-generation or low-degree supply premise. -/
+theorem oddDegreeGalKSq_firstThreeLayerCardAgreement_finiteDyadic
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    ∀ k < 3,
+      Nat.card (zLayer
+          (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) k) =
+        Nat.card (zLayer (maxProPQuotient 2 (GalK K)) k) := by
+  intro k hk
+  by_cases hk' : k < 2
+  · exact oddDegreeGalKSq_firstTwoLayerCardAgreement K hodd
+      (maxProTwoGalK_isTopologicallyFinGen K) k hk'
+  · have hk2 : k = 2 := by omega
+    subst k
+    exact oddDegreeGalKSq_zLayer_two_cardAgreement_finiteDyadic K hodd
 
 /-- Once the already-proved rank and quadratic-layer inputs are fixed, the higher Hilbert tail
 is not merely sufficient for the reverse finite-quotient family: it is equivalent to it. -/
@@ -292,6 +427,16 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_com
 #print axioms sqTwoCentralHilbertTailAgreement_iff_gradedTailCardAgreement
 #print axioms SqTwoCentralHilbertTailAgreement.of_commonFormula
 #print axioms sqTwoCentralHilbertTailAgreement_iff_exists_commonFormula
+#print axioms maxProTwoGalK_isTopologicallyFinGen
+#print axioms maxProTwoGalK_lowerTwoCentralElementaryH2CardFormula_finiteDyadic
+#print axioms maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteDyadic
+#print axioms maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_finiteDyadic
+#print axioms maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_finiteDyadic
+#print axioms maxProTwoGalK_lowerTwoCentralHilbertCoefficient_zero_finiteDyadic
+#print axioms degreeOneGalKSq_zLayer_two_cardAgreement_finiteDyadic
+#print axioms oddDegreeGalKSq_zLayer_two_cardAgreement_finiteDyadic
+#print axioms oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_one_finiteDyadic
+#print axioms oddDegreeGalKSq_firstThreeLayerCardAgreement_finiteDyadic
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_hilbertTail_of_modelDegreeTwo
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_hilbertTail
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_hilbertTail
