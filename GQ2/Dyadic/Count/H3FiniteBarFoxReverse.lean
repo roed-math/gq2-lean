@@ -291,6 +291,144 @@ theorem finiteBarToMarkedOne_natural_of_section
         regularModTwoPushforward_translate]
       rw [finiteSectionPath_natural_of_section phi m heval heval' hsection]
 
+/-! ### Arbitrary sections are natural up to an explicit relation cell -/
+
+/-- The target-kernel word measuring the failure of the two normalized sections to commute
+with `phi`.  Both factors evaluate to `phi q` at the pushed marking. -/
+def relationSectionRefinementDefect
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (q : Q) : FreeRelationKernel (fun i ↦ phi (m i)) :=
+  ⟨relationSection heval' (phi q) * (relationSection heval q)⁻¹, by
+    rw [MonoidHom.mem_ker, map_mul, map_inv, relationSection_spec,
+      ← map_freeGroup_lift phi m, relationSection_spec]
+    simp⟩
+
+/-- The Fox row of the refinement defect is exactly the sum of the target section path and the
+pushforward of the source section path.  In characteristic two this is their difference. -/
+theorem modTwoFoxDerivative_relationSectionRefinementDefect
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (q : Q) :
+    modTwoFoxDerivative (fun i ↦ phi (m i))
+        (relationSectionRefinementDefect phi m heval heval' q).1 =
+      finiteSectionPath (fun i ↦ phi (m i)) heval' (phi q) +
+        regularModTwoPushforward phi I (finiteSectionPath m heval q) := by
+  simp only [modTwoFoxDerivative, relationSectionRefinementDefect,
+    Subgroup.coe_mk, map_mul, map_inv, WordLift.mul_u, WordLift.inv_u,
+    lift_foxLift_g, relationSection_spec, finiteSectionPath]
+  rw [← map_freeGroup_lift phi m, relationSection_spec]
+  rw [smul_neg, ← mul_smul]
+  simp only [mul_inv_cancel, one_smul, ZModModule.neg_eq_self]
+  change _ + modTwoFoxDerivative (fun i ↦ phi (m i)) (relationSection heval q) =
+    _ + regularModTwoPushforward phi I
+      (modTwoFoxDerivative m (relationSection heval q))
+  rw [regularModTwoPushforward_modTwoFoxDerivative]
+
+/-- Minimal relator-coordinate data which turns the arbitrary section defect into a specified
+presentation two-chain.  No coordinate is requested on unrelated elements of the full relation
+kernel. -/
+structure FiniteSectionRefinementRelatorCoordinates
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (rel : Type) (w : rel → FreeGroup I) where
+  /-- A presentation relation-chain correcting the section at `q`. -/
+  coordinate : Q → RegularModTwoRelationModule Q' rel
+  /-- Its presentation Fox boundary is the universal section-refinement defect row. -/
+  fox : ∀ q,
+    (finiteLevelModTwoFoxBoundary (fun i ↦ phi (m i)) w).map (coordinate q) =
+      modTwoFoxDerivative (fun i ↦ phi (m i))
+        (relationSectionRefinementDefect phi m heval heval' q).1
+
+/-- Extend the pointwise refinement coordinates equivariantly to bar one-chains. -/
+def finiteBarSectionRefinementRelatorCorrection
+    {rel : Type} {w : rel → FreeGroup I}
+    {phi : Q →* Q'} {m : I → Q}
+    {heval : Function.Surjective (FreeGroup.lift m)}
+    {heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i)))}
+    (C : FiniteSectionRefinementRelatorCoordinates
+      phi m heval heval' rel w) :
+    FiniteModTwoBarChainOne Q →ₗ[ZMod 2]
+      RegularModTwoRelationModule Q' rel :=
+  (Finsupp.lsum (ZMod 2)) fun p : Q × Q =>
+    LinearMap.toSpanSingleton (ZMod 2) _
+      (regularModTwoTranslate Q' rel (phi p.1) (C.coordinate p.2))
+
+@[simp] theorem finiteBarSectionRefinementRelatorCorrection_single
+    {rel : Type} {w : rel → FreeGroup I}
+    {phi : Q →* Q'} {m : I → Q}
+    {heval : Function.Surjective (FreeGroup.lift m)}
+    {heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i)))}
+    (C : FiniteSectionRefinementRelatorCoordinates
+      phi m heval heval' rel w)
+    (g q : Q) (a : ZMod 2) :
+    finiteBarSectionRefinementRelatorCorrection C (Finsupp.single (g, q) a) =
+      a • regularModTwoTranslate Q' rel (phi g) (C.coordinate q) := by
+  classical
+  rw [finiteBarSectionRefinementRelatorCorrection, Finsupp.lsum_single]
+  simp
+
+/-- The boundary of a basis correction chain is the translated universal refinement-defect
+row. -/
+theorem finiteBarSectionRefinementRelatorCorrection_boundary_single
+    {rel : Type} {w : rel → FreeGroup I}
+    {phi : Q →* Q'} {m : I → Q}
+    {heval : Function.Surjective (FreeGroup.lift m)}
+    {heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i)))}
+    (C : FiniteSectionRefinementRelatorCoordinates
+      phi m heval heval' rel w)
+    (g q : Q) (a : ZMod 2) :
+    (finiteLevelModTwoFoxBoundary (fun i ↦ phi (m i)) w).map
+        (finiteBarSectionRefinementRelatorCorrection C
+          (Finsupp.single (g, q) a)) =
+      a • regularModTwoTranslate Q' I (phi g)
+        (modTwoFoxDerivative (fun i ↦ phi (m i))
+          (relationSectionRefinementDefect phi m heval heval' q).1) := by
+  rw [finiteBarSectionRefinementRelatorCorrection_single, map_smul]
+  congr 1
+  calc
+    (finiteLevelModTwoFoxBoundary (fun i ↦ phi (m i)) w).map
+        (regularModTwoTranslate Q' rel (phi g) (C.coordinate q)) =
+      regularModTwoTranslate Q' I (phi g)
+        ((finiteLevelModTwoFoxBoundary (fun i ↦ phi (m i)) w).map
+          (C.coordinate q)) :=
+      (finiteLevelModTwoFoxBoundary (fun i ↦ phi (m i)) w).equivariant
+        (phi g) (C.coordinate q)
+    _ = _ := congrArg (regularModTwoTranslate Q' I (phi g)) (C.fox q)
+
+/-- **Exact corrected naturality.** Arbitrary normalized finite sections give a reverse
+degree-one comparison natural up to the displayed presentation Fox boundary precisely when the
+minimal section-refinement defects admit the specified relator coordinates. -/
+theorem finiteBarToMarkedOne_refinement_up_to_fox
+    {rel : Type} {w : rel → FreeGroup I}
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (C : FiniteSectionRefinementRelatorCoordinates
+      phi m heval heval' rel w)
+    (c : FiniteModTwoBarChainOne Q) :
+    regularModTwoPushforward phi I (finiteBarToMarkedOne m heval c) +
+        finiteBarToMarkedOne (fun i ↦ phi (m i)) heval'
+          (finiteModTwoBarMapOne phi c) =
+      (finiteLevelModTwoFoxBoundary (fun i ↦ phi (m i)) w).map
+        (finiteBarSectionRefinementRelatorCorrection C c) := by
+  classical
+  induction c using Finsupp.induction with
+  | zero => simp
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, q⟩
+      simp only [map_add, finiteBarToMarkedOne_single,
+        finiteModTwoBarMapOne, regularModTwoMap_single,
+        finiteBarSectionRefinementRelatorCorrection_boundary_single,
+        map_smul, regularModTwoPushforward_translate,
+        modTwoFoxDerivative_relationSectionRefinementDefect]
+      simp only [smul_add]
+      rw [← ih]
+      abel
+
 /-- **Strict-section no-go.** If normalized section words were literally compatible along a
 homomorphism, that homomorphism would have to be injective.  Thus a proper refinement quotient
 cannot be handled by choosing word lifts that commute on the nose; relation-cell corrections
@@ -356,6 +494,54 @@ theorem sqOpenQuotientFreeEvaluation_surjective (h : ℕ)
     Function.Surjective (FreeGroup.lift (sqOpenQuotientMarking h V)) :=
   freeGroup_lift_surjective_of_closure (sqOpenQuotientMarking_closure_eq_top h V)
 
+/-- Surjectivity at the coarser quotient, written with the pushed finer marking. -/
+theorem sqOpenQuotientProjectedFreeEvaluation_surjective
+    (h : ℕ) {V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup) :
+    Function.Surjective (FreeGroup.lift (fun i ↦
+      openNormalQuotientProj hWV (sqOpenQuotientMarking h W i))) := by
+  simpa only [openNormalQuotientProj_sqOpenQuotientMarking] using
+    sqOpenQuotientFreeEvaluation_surjective h V
+
+/-- The exact remaining single-relator coordinate datum along one actual refinement.  It asks
+only for coordinates of the normalized section defects, and its Fox row is the literal improved
+square row at the coarser quotient. -/
+abbrev SqOpenQuotientSectionRefinementRelatorCoordinates
+    (h : ℕ) {V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup) :=
+  FiniteSectionRefinementRelatorCoordinates
+    (openNormalQuotientProj hWV) (sqOpenQuotientMarking h W)
+    (sqOpenQuotientFreeEvaluation_surjective h W)
+    (sqOpenQuotientProjectedFreeEvaluation_surjective h hWV)
+    Unit (fun _ : Unit ↦ sqDiscreteRelator h)
+
+/-- Coherent single-relator coordinates for the section failures throughout the open-normal
+inverse system.  The `composition` field is the cocycle law for chain homotopies along a tower
+`W ≤ V ≤ U`: the direct correction is the coarser correction plus pushforward of the finer
+one.  This is precisely the extra compatibility needed to turn the quotient-wise corrected
+naturality theorem below into a coherent inverse-system reverse comparison in degree one.
+
+It deliberately does not claim the degree-three cochain reconstruction fields of
+`SqFiniteToCompletedBarFoxAssembly`; those still require the higher bar/relation comparison. -/
+structure SqOpenQuotientReverseSectionCoordinateSystem (h : ℕ) where
+  /-- Minimal actual improved-relator coordinates at every refinement. -/
+  level : ∀ {V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup),
+    SqOpenQuotientSectionRefinementRelatorCoordinates h hWV
+  /-- The identity refinement has zero correction. -/
+  identity : ∀ (V : OpenNormalSubgroup (DSq h : Type))
+    (q : (DSq h : Type) ⧸ V.toSubgroup),
+    (level (le_refl V.toSubgroup)).coordinate q = 0
+  /-- Corrections compose additively and by extension of scalars along a refinement tower. -/
+  composition : ∀ {U V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hVU : V.toSubgroup ≤ U.toSubgroup)
+    (q : (DSq h : Type) ⧸ W.toSubgroup),
+    (level (hWV.trans hVU)).coordinate q =
+      (level hVU).coordinate (openNormalQuotientProj hWV q) +
+        regularModTwoPushforward (openNormalQuotientProj hVU) Unit
+          ((level hWV).coordinate q)
+
 /-- The section-dependent reverse map on bar one-chains for an actual improved-square quotient. -/
 def sqOpenQuotientBarToMarkedOne (h : ℕ)
     (V : OpenNormalSubgroup (DSq h : Type)) :
@@ -372,6 +558,102 @@ theorem sqOpenQuotientBarToMarkedOne_boundary (h : ℕ)
         (sqOpenQuotientBarToMarkedOne h V c) =
       finiteModTwoBarBoundaryOne c :=
   finiteBarToMarkedOne_boundary _ _ c
+
+/-- The single-relator correction chain attached to one actual refinement. -/
+def sqOpenQuotientSectionRefinementCorrection
+    (h : ℕ) {V W : OpenNormalSubgroup (DSq h : Type)}
+    {hWV : W.toSubgroup ≤ V.toSubgroup}
+    (C : SqOpenQuotientSectionRefinementRelatorCoordinates h hWV) :
+    FiniteModTwoBarChainOne ((DSq h : Type) ⧸ W.toSubgroup) →ₗ[ZMod 2]
+      RegularModTwoRelationModule ((DSq h : Type) ⧸ V.toSubgroup) Unit :=
+  finiteBarSectionRefinementRelatorCorrection C
+
+@[simp] theorem sqOpenQuotientSectionRefinementCorrection_single
+    (h : ℕ) {V W : OpenNormalSubgroup (DSq h : Type)}
+    {hWV : W.toSubgroup ≤ V.toSubgroup}
+    (C : SqOpenQuotientSectionRefinementRelatorCoordinates h hWV)
+    (g q : (DSq h : Type) ⧸ W.toSubgroup) (a : ZMod 2) :
+    sqOpenQuotientSectionRefinementCorrection h C (Finsupp.single (g, q) a) =
+      a • regularModTwoTranslate ((DSq h : Type) ⧸ V.toSubgroup) Unit
+        (openNormalQuotientProj hWV g) (C.coordinate q) :=
+  finiteBarSectionRefinementRelatorCorrection_single C g q a
+
+/-- Quotient projections compose along a tower of open-normal subgroups. -/
+theorem sqOpenNormalQuotientProj_comp
+    (h : ℕ) {U V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hVU : V.toSubgroup ≤ U.toSubgroup)
+    (q : (DSq h : Type) ⧸ W.toSubgroup) :
+    openNormalQuotientProj hVU (openNormalQuotientProj hWV q) =
+      openNormalQuotientProj (hWV.trans hVU) q := by
+  obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective W.toSubgroup q
+  simp only [openNormalQuotientProj_mk]
+
+/-- **Actual corrected refinement identity.** Once the section defects have coordinates in the
+literal improved relator row, the two section-dependent reverse maps commute up to that actual
+presentation Fox boundary.  This is the honest replacement for impossible strict section
+compatibility. -/
+theorem sqOpenQuotientBarToMarkedOne_refinement_up_to_fox
+    (h : ℕ) {V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (C : SqOpenQuotientSectionRefinementRelatorCoordinates h hWV)
+    (c : FiniteModTwoBarChainOne ((DSq h : Type) ⧸ W.toSubgroup)) :
+    regularModTwoPushforward (openNormalQuotientProj hWV) (Fin (sqRank h))
+          (sqOpenQuotientBarToMarkedOne h W c) +
+        sqOpenQuotientBarToMarkedOne h V
+          (finiteModTwoBarMapOne (openNormalQuotientProj hWV) c) =
+      (sqFiniteLevelModTwoFoxBoundary h (sqOpenQuotientMarking h V)).map
+        (sqOpenQuotientSectionRefinementCorrection h C c) := by
+  simpa only [sqOpenQuotientBarToMarkedOne,
+    sqOpenQuotientSectionRefinementCorrection,
+    sqFiniteLevelModTwoFoxBoundary,
+    openNormalQuotientProj_sqOpenQuotientMarking] using
+    finiteBarToMarkedOne_refinement_up_to_fox
+      (openNormalQuotientProj hWV) (sqOpenQuotientMarking h W)
+      (sqOpenQuotientFreeEvaluation_surjective h W)
+      (sqOpenQuotientProjectedFreeEvaluation_surjective h hWV) C c
+
+/-- A coherent coordinate system supplies the actual corrected reverse square at every
+open-normal refinement. -/
+theorem SqOpenQuotientReverseSectionCoordinateSystem.corrected_naturality
+    {h : ℕ} (S : SqOpenQuotientReverseSectionCoordinateSystem h)
+    {V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (c : FiniteModTwoBarChainOne ((DSq h : Type) ⧸ W.toSubgroup)) :
+    regularModTwoPushforward (openNormalQuotientProj hWV) (Fin (sqRank h))
+          (sqOpenQuotientBarToMarkedOne h W c) +
+        sqOpenQuotientBarToMarkedOne h V
+          (finiteModTwoBarMapOne (openNormalQuotientProj hWV) c) =
+      (sqFiniteLevelModTwoFoxBoundary h (sqOpenQuotientMarking h V)).map
+      (sqOpenQuotientSectionRefinementCorrection h (S.level hWV) c) :=
+  sqOpenQuotientBarToMarkedOne_refinement_up_to_fox h hWV (S.level hWV) c
+
+/-- The correction homotopies themselves satisfy the tower cocycle law.  This is the concrete
+chain-level content of `SqOpenQuotientReverseSectionCoordinateSystem.composition`. -/
+theorem SqOpenQuotientReverseSectionCoordinateSystem.correction_composition
+    {h : ℕ} (S : SqOpenQuotientReverseSectionCoordinateSystem h)
+    {U V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hVU : V.toSubgroup ≤ U.toSubgroup)
+    (c : FiniteModTwoBarChainOne ((DSq h : Type) ⧸ W.toSubgroup)) :
+    sqOpenQuotientSectionRefinementCorrection h
+        (S.level (hWV.trans hVU)) c =
+      sqOpenQuotientSectionRefinementCorrection h (S.level hVU)
+          (finiteModTwoBarMapOne (openNormalQuotientProj hWV) c) +
+        regularModTwoPushforward (openNormalQuotientProj hVU) Unit
+          (sqOpenQuotientSectionRefinementCorrection h (S.level hWV) c) := by
+  classical
+  induction c using Finsupp.induction with
+  | zero => simp
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, q⟩
+      simp only [map_add, ih,
+        sqOpenQuotientSectionRefinementCorrection_single,
+        finiteModTwoBarMapOne, regularModTwoMap_single,
+        regularModTwoPushforward_translate, map_smul]
+      rw [S.composition hWV hVU q]
+      simp only [map_add, smul_add, sqOpenNormalQuotientProj_comp]
+      abel
 
 /-- The universal relation-kernel reverse two-cell map for an actual improved-square quotient. -/
 def sqOpenQuotientBarToUniversalRelationTwo (h : ℕ)
