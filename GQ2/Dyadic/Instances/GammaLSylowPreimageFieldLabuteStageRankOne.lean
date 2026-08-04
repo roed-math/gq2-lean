@@ -477,6 +477,29 @@ theorem sqCyclotomicStageTuple_bot_sharpDefectReachable
   rw [SqCyclotomicStageTuple.stageShift, congrFun hmodifiedF, hnextFrel, mul_one]
   rfl
 
+/-- The bottom-field cyclotomic character on the maximal pro-`2` quotient is surjective. -/
+theorem chiCycKTwo_bot_surjective : Function.Surjective
+    (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) := by
+  intro u
+  obtain ⟨g, hg⟩ := orientBundle.surjective_chiTwo u
+  refine ⟨d0EquivBotMaxProTwo (orientBundle.equiv g), ?_⟩
+  rw [d0EquivBotMaxProTwo_orientation, ← chiD0pres_eq_chiD0G]
+  exact hg
+
+/-- Sharp target-filtration exactness upgrades the transported finite correction to an
+admissible correction without changing its literal improved-word shift. -/
+theorem sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
+    (Hunits : SqCyclotomicStageTuple.SharpUnitsFiltrationExact)
+    (k : ℕ) (hk : 3 ≤ k)
+    (T : SqCyclotomicStageTuple
+      (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0 k) :
+    T.DefectReachable := by
+  obtain ⟨W, hW⟩ := sqCyclotomicStageTuple_bot_sharpDefectReachable k hk T
+  let Hexact := SqCyclotomicStageTuple.SharpCharacterFiltrationExact.of_surjective
+    chiCycKTwo_bot_surjective Hunits
+  let Hlift := Hexact.toSharpExactLevelFibreLiftSupply
+  exact ⟨W.toAdmissible Hlift, hW⟩
+
 #print axioms sqCyclotomicStageTuple_bot_nonempty
 #print axioms chiD0pres_eq_chiD0G
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
@@ -486,6 +509,8 @@ theorem sqCyclotomicStageTuple_bot_sharpDefectReachable
 #print axioms stageSL12R2_truncatedCorrection
 #print axioms stageSL12R2_sharpCorrection
 #print axioms sqCyclotomicStageTuple_bot_sharpDefectReachable
+#print axioms chiCycKTwo_bot_surjective
+#print axioms sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
 
 end
 
