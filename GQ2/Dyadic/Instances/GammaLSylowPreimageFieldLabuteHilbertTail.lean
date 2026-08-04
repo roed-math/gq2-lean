@@ -124,6 +124,33 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_hi
   · exact D.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_hilbertTail
       K hrank hmodel
 
+/-- With the global model degree-two supply discharged, coefficient agreement from degree `2`
+onward is the sole remaining reverse-side input. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_hilbertTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    {h : ℕ}
+    (D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)))
+    (hrank : SqCore.sqRank h = Module.finrank ℚ_[2] K + 2) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K)) h ↔
+      SqTwoCentralHilbertTailAgreement (maxProPQuotient 2 (GalK K)) h :=
+  D.reverseFiniteQuotientSurjections_iff_hilbertTail_of_modelDegreeTwo K hrank
+    (sqLowerTwoCentralDegreeTwoExpectedCardSupply h)
+
+/-- Direct consumer form of `reverseFiniteQuotientSurjections_iff_hilbertTail`. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_hilbertTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    {h : ℕ}
+    (D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)))
+    (hrank : SqCore.sqRank h = Module.finrank ℚ_[2] K + 2)
+    (htail : SqTwoCentralHilbertTailAgreement
+      (maxProPQuotient 2 (GalK K)) h) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K)) h :=
+  (D.reverseFiniteQuotientSurjections_iff_hilbertTail K hrank).mpr htail
+
 /-- **Sharp remaining theorem.**  Under the completed low-degree supplies, the old reverse
 finite-quotient family is exactly equality of the depth-`≥ 3` graded-layer orders. -/
 theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_gradedTail_of_modelDegreeTwo
@@ -149,6 +176,22 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_gr
     (sqTwoCentralHilbertTailAgreement_iff_gradedTailCardAgreement
       hfg isProP_maxProPQuotient)
 
+/-- Model-degree-two-free form of the sharp remaining theorem.  Apart from the unchanged
+forward data and rank match, the only input is equality of graded-layer orders in depths
+`k ≥ 3`. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_gradedTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    {h : ℕ}
+    (D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)))
+    (hrank : SqCore.sqRank h = Module.finrank ℚ_[2] K + 2) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K)) h ↔
+      SqTwoCentralGradedTailCardAgreement
+        (maxProPQuotient 2 (GalK K)) h :=
+  D.reverseFiniteQuotientSurjections_iff_gradedTail_of_modelDegreeTwo K hrank
+    (sqLowerTwoCentralDegreeTwoExpectedCardSupply h)
+
 /-- Odd-degree form of the sharp remaining theorem.  Here the improved model rank
 `3 + 2 * (([K : ℚ₂] - 1) / 2)` simplifies to `[K : ℚ₂] + 2`, so no separate rank
 hypothesis remains. -/
@@ -173,6 +216,42 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDeg
   omega
   exact hmodel
 
+/-- **Odd-degree exact endpoint.**  The completed model degree-two calculation removes the
+last low-degree premise: the reverse finite-quotient family is equivalent solely to equality
+of the depth-`≥ 3` graded-layer orders. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_iff_gradedTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K))) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K))
+        ((Module.finrank ℚ_[2] K - 1) / 2) ↔
+      SqTwoCentralGradedTailCardAgreement (maxProPQuotient 2 (GalK K))
+        ((Module.finrank ℚ_[2] K - 1) / 2) :=
+  D.reverseFiniteQuotientSurjections_oddDegree_iff_gradedTail_of_modelDegreeTwo
+    K hodd (sqLowerTwoCentralDegreeTwoExpectedCardSupply
+      ((Module.finrank ℚ_[2] K - 1) / 2))
+
+/-- Hilbert-coefficient spelling of the odd-degree exact endpoint. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_iff_hilbertTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K))) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K))
+        ((Module.finrank ℚ_[2] K - 1) / 2) ↔
+      SqTwoCentralHilbertTailAgreement (maxProPQuotient 2 (GalK K))
+        ((Module.finrank ℚ_[2] K - 1) / 2) := by
+  apply D.reverseFiniteQuotientSurjections_iff_hilbertTail K
+  obtain ⟨m, hm⟩ := hodd
+  rw [hm]
+  simp only [SqCore.sqRank]
+  omega
+
 /-- Field-facing consumer for a future explicit graded-Lie dimension calculation. -/
 theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_commonHilbertTailFormula
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
@@ -192,13 +271,37 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_mod
   D.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_hilbertTail K hrank hmodel
     (SqTwoCentralHilbertTailAgreement.of_commonFormula dimensions hmodelTail hfieldTail)
 
+/-- Model-degree-two-free consumer for a future explicit graded-Lie dimension calculation. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_commonHilbertTailFormula
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    {h : ℕ}
+    (D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)))
+    (hrank : SqCore.sqRank h = Module.finrank ℚ_[2] K + 2)
+    (dimensions : ℕ → ℕ)
+    (hmodelTail : LowerTwoCentralHilbertTailFormula
+      (SqCore.DSq h : Type) dimensions)
+    (hfieldTail : LowerTwoCentralHilbertTailFormula
+      (maxProPQuotient 2 (GalK K)) dimensions) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K)) h :=
+  D.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_commonHilbertTailFormula
+    K hrank (sqLowerTwoCentralDegreeTwoExpectedCardSupply h) dimensions
+      hmodelTail hfieldTail
+
 #print axioms sqTwoCentralHilbertTailAgreement_iff_gradedTailCardAgreement
 #print axioms SqTwoCentralHilbertTailAgreement.of_commonFormula
 #print axioms sqTwoCentralHilbertTailAgreement_iff_exists_commonFormula
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_hilbertTail_of_modelDegreeTwo
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_hilbertTail
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_hilbertTail
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_gradedTail_of_modelDegreeTwo
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_gradedTail
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_iff_gradedTail_of_modelDegreeTwo
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_iff_gradedTail
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_iff_hilbertTail
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_commonHilbertTailFormula
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_commonHilbertTailFormula
 
 end
 
