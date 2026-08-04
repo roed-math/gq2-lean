@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherKummerExact
+import GQ2.DiscreteModule
 import Mathlib.RepresentationTheory.Homological.GroupCohomology.Hilbert90
 
 /-!
@@ -29,6 +30,34 @@ noncomputable section
 local notation "ℚbar2" => AlgebraicClosure ℚ_[2]
 
 variable {K : IntermediateField ℚ_[2] ℚbar2} [FiniteDimensional ℚ_[2] K]
+
+section FiniteCocycle
+
+variable {G M : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G]
+  [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+  [DistribMulAction G M] [ContinuousSMul G M] [Finite M]
+
+/-- A continuous cocycle into a finite discrete module is killed, together with the coefficient
+action, by one open normal subgroup. -/
+theorem exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
+    (z : Z1 G M) :
+    ∃ U : OpenNormalSubgroup G,
+      (∀ u ∈ U, z.1 u = 0) ∧ (∀ u ∈ U, ∀ m : M, u • m = m) := by
+  have hzOpen : IsOpen (z.1 ⁻¹' ({0} : Set M)) :=
+    (isOpen_discrete {0}).preimage (mem_Z1_iff.mp z.2).1
+  have haOpen :
+      IsOpen ((⨅ m : M, MulAction.stabilizer G m : Subgroup G) : Set G) :=
+    GQ2.isOpen_iInf_stabilizer
+  obtain ⟨U, hU⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+    (hzOpen.inter haOpen) ⟨by simpa using Z1_apply_one z, Subgroup.one_mem _⟩
+  refine ⟨U, ?_, ?_⟩
+  · intro u hu
+    simpa using (hU hu).1
+  · intro u hu m
+    exact MulAction.mem_stabilizer_iff.mp (Subgroup.mem_iInf.mp (hU hu).2 m)
+
+end FiniteCocycle
 
 set_option synthInstance.maxHeartbeats 200000 in
 /-- Explicit data saying that a multiplicative cocycle on `G_K` is inflated from a cocycle on
@@ -150,6 +179,7 @@ theorem muNContinuousHilbert90_of_finiteFactorizationSupply
   exact ⟨beta, fun g => by simpa [muNCocycleUnits] using hbeta g⟩
 
 #print axioms FiniteHilbert90Factorization.exists_coboundary
+#print axioms exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
 #print axioms continuous_muNCocycleUnits
 #print axioms muNCocycleUnits_mul
 #print axioms muNCocycleUnits_pow
