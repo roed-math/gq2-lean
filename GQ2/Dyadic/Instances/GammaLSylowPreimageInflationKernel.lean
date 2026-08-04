@@ -515,6 +515,22 @@ def FiniteElementaryMaxProTwoKernelH2VanishesSupply : Prop :=
     ∀ _hcompat : ∀ (g : G) (m : M), maxProPMk 2 G g • m = g • m,
       ContinuousH2Vanishes (proPKernel 2 G) M
 
+/-- Intrinsic kernel `H¹`-vanishing in the literal cocycle form needed by transgression.
+
+The quotient-compatible action is trivial on `K₂(G)`, so all one-coboundaries there are zero;
+thus `∀ z : Z¹(K₂(G),M), z = 0` is exactly the useful cochain form of `H¹(K₂(G),M)=0`.
+Unlike ambient-cocycle restriction vanishing, this quantifies cocycles defined intrinsically on
+the kernel. -/
+def FiniteElementaryMaxProTwoKernelH1VanishesSupply : Prop :=
+  ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+    [DiscreteTopology M] [Finite M]
+    [DistribMulAction G M] [ContinuousSMul G M]
+    [DistribMulAction (maxProPQuotient 2 G) M]
+    [ContinuousSMul (maxProPQuotient 2 G) M],
+    (∀ m : M, m + m = 0) →
+    ∀ _hcompat : ∀ (g : G) (m : M), maxProPMk 2 G g • m = g • m,
+      ContinuousH1CocyclesVanish (proPKernel 2 G) M
+
 /-- The original degree-one/transgression field of `KernelHochschildSerreOneTwoPackage`, split
 from the independent kernel `H²` statement.  The equivalent cross-term-only form below makes
 clear that its continuous-extension clause is automatic. -/
@@ -593,6 +609,51 @@ theorem finiteElementaryMaxProTwoKernelTransgressionSupply_iff_crossTermCorrecti
     change psi0 n.1 + theta n.1 = -phi n
     rw [hext0 n, htheta0 n, add_zero]
 
+/-- Intrinsic kernel `H¹`-vanishing discharges the whole cross-term supply.
+
+For a chosen extension `psi0`, the corrected cocycle `c = z + d psi0` vanishes on the kernel
+square.  Its conjugation defect is an intrinsic kernel one-cocycle, hence zero by `D1`; the
+profinite defect-zero theorem then constructs the continuous correction. -/
+theorem finiteElementaryMaxProTwoKernelCrossTermCorrection_of_h1Vanishes
+    (D1 : FiniteElementaryMaxProTwoKernelH1VanishesSupply (G := G)) :
+    FiniteElementaryMaxProTwoKernelCrossTermCorrectionSupply (G := G) := by
+  intro M _ _ _ _ _ _ _ _ _ hM2 hcompat z phi hphi hprim psi0 hpsi0 hext0
+  let N : Subgroup G := proPKernel 2 G
+  have htriv : ∀ (n : N) (m : M), n.1 • m = m :=
+    maxProTwoKernel_smul_eq hcompat
+  have htrivN : ∀ (n : N) (m : M), n • m = m := htriv
+  have hcob : dOne G M psi0 ∈ Z2 G M := by
+    apply B2_le_Z2
+    exact ⟨psi0, hpsi0, rfl⟩
+  let c : Z2 G M := ⟨z.1 + dOne G M psi0, (Z2 G M).add_mem z.2 hcob⟩
+  have hzero (n k : N) : c.1 (n.1, k.1) = 0 := by
+    change z.1 (n.1, k.1) + dOne G M psi0 (n.1, k.1) = 0
+    rw [← hprim n k]
+    have hext_mul : psi0 (n.1 * k.1) = -phi (n * k) := by
+      simpa using hext0 (n * k)
+    simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk]
+    rw [hext0 n, hext0 k, hext_mul, htrivN n, htriv n]
+    abel
+  have hdefect (g : G) (n : N) : H2KernelConjugationDefect N c g n = 0 :=
+    h2KernelConjugationDefect_eq_zero_of_h1CocyclesVanish N htriv
+      (D1 M hM2 hcompat) c hzero g n
+  obtain ⟨theta, htheta, htheta0, hcross⟩ :=
+    h2CrossTermCorrection_of_conjugationDefect_eq_zero N htriv c hzero hdefect
+  refine ⟨theta, htheta, htheta0, ?_⟩
+  have hdadd : dOne G M (fun x => psi0 x + theta x) =
+      dOne G M psi0 + dOne G M theta := map_add (dOne G M) psi0 theta
+  intro g n
+  constructor
+  · simpa only [c, hdadd, Pi.add_apply, add_assoc] using (hcross g n).1
+  · simpa only [c, hdadd, Pi.add_apply, add_assoc] using (hcross g n).2
+
+/-- Equivalently, intrinsic kernel `H¹`-vanishing supplies the original transgression field. -/
+theorem finiteElementaryMaxProTwoKernelTransgression_of_h1Vanishes
+    (D1 : FiniteElementaryMaxProTwoKernelH1VanishesSupply (G := G)) :
+    FiniteElementaryMaxProTwoKernelTransgressionSupply (G := G) :=
+  finiteElementaryMaxProTwoKernelTransgressionSupply_iff_crossTermCorrection.mpr
+    (finiteElementaryMaxProTwoKernelCrossTermCorrection_of_h1Vanishes D1)
+
 /-- The two residual statements reconstruct the existing honest Hochschild--Serre package. -/
 theorem finiteElementaryMaxProTwoKernelOneTwoSupply_of_h2Vanishes_transgression
     (D2 : FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := G))
@@ -619,6 +680,15 @@ theorem finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_crossTermCorre
     FiniteElementaryH2InflationSurjective (maxProPMk 2 G) :=
   finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_transgression D2
     (finiteElementaryMaxProTwoKernelTransgressionSupply_iff_crossTermCorrection.mpr Dcross)
+
+/-- The classical kernel-acyclicity boundary: intrinsic `H¹`- and `H²`-vanishing on
+`K₂(G)` imply finite-elementary degree-two inflation from `G(2)`. -/
+theorem finiteElementaryH2InflationSurjective_of_kernelH1H2Vanishes
+    (D1 : FiniteElementaryMaxProTwoKernelH1VanishesSupply (G := G))
+    (D2 : FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := G)) :
+    FiniteElementaryH2InflationSurjective (maxProPMk 2 G) :=
+  finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_crossTermCorrection D2
+    (finiteElementaryMaxProTwoKernelCrossTermCorrection_of_h1Vanishes D1)
 
 end UniformBoundary
 
@@ -651,6 +721,11 @@ local notation "U" P => sylowTwoPreimage rhoAB P
 noncomputable abbrev GammaLSylowPreimageKernelH2VanishesSupply
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
   FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := U P)
+
+/-- Intrinsic kernel `H¹`-vanishing, specialized to a `GammaL` Sylow preimage. -/
+noncomputable abbrev GammaLSylowPreimageKernelH1VanishesSupply
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
+  FiniteElementaryMaxProTwoKernelH1VanishesSupply (G := U P)
 
 /-- The second residual inflation statement, specialized to a `GammaL` Sylow preimage. -/
 noncomputable abbrev GammaLSylowPreimageKernelTransgressionSupply
@@ -685,6 +760,15 @@ theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH2Vanishes_crossTermCo
     (Dcross : GammaLSylowPreimageKernelCrossTermCorrectionSupply P) :
     FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)) :=
   finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_crossTermCorrection D2 Dcross
+
+/-- For a `GammaL` Sylow preimage, intrinsic kernel `H¹`- and `H²`-vanishing suffice for
+the sought degree-two inflation theorem. -/
+theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH1H2Vanishes
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (D1 : GammaLSylowPreimageKernelH1VanishesSupply P)
+    (D2 : GammaLSylowPreimageKernelH2VanishesSupply P) :
+    FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)) :=
+  finiteElementaryH2InflationSurjective_of_kernelH1H2Vanishes D1 D2
 
 end
 
