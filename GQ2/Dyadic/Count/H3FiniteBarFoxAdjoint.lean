@@ -330,6 +330,59 @@ theorem finiteModTwoBarFullCoboundaryFour_invariant
     sub_eq_add_neg, ZMod.neg_eq_self_mod_two]
   rw [show q • c (r, s, t) = c (r, s, t) by rfl]
 
+/-! ## The canonical contraction in bar degree three -/
+
+/-- Insert a bar three-cell `g[q|r|s]` as the bar four-cell `[g|q|r|s]`. -/
+def finiteModTwoBarContractThree :
+    FiniteModTwoBarChainThree Q →ₗ[ZMod 2] FiniteModTwoBarChainFour Q :=
+  (Finsupp.lsum (ZMod 2)) fun p : Q × (Q × Q × Q) =>
+    LinearMap.toSpanSingleton (ZMod 2) _
+      (Finsupp.single (1, (p.1, p.2.1, p.2.2.1, p.2.2.2)) 1)
+
+@[simp] theorem finiteModTwoBarContractThree_single
+    (g q r s : Q) (a : ZMod 2) :
+    finiteModTwoBarContractThree (Finsupp.single (g, (q, r, s)) a) =
+      Finsupp.single (1, (g, q, r, s)) a := by
+  classical
+  rw [finiteModTwoBarContractThree, Finsupp.lsum_single]
+  simp [LinearMap.toSpanSingleton_apply, smul_eq_mul]
+
+/-- The all-chain contraction identity `∂₄s₃ + s₂∂₃ = id` on bar degree three. -/
+theorem finiteModTwoBar_contracting_identity_three
+    (c : FiniteModTwoBarChainThree Q) :
+    finiteModTwoBarBoundaryFour (finiteModTwoBarContractThree c) +
+        finiteModTwoBarContractTwo (finiteModTwoBarBoundaryThree c) = c := by
+  classical
+  induction c using Finsupp.induction with
+  | zero => simp
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, q, r, s⟩
+      simp only [map_add, finiteModTwoBarContractThree_single,
+        finiteModTwoBarBoundaryFour_single,
+        finiteModTwoBarBoundaryThree_single,
+        finiteModTwoBarContractTwo_single, one_mul]
+      let A : FiniteModTwoBarChainThree Q := Finsupp.single (1, (g * q, r, s)) a
+      let B : FiniteModTwoBarChainThree Q := Finsupp.single (1, (g, q * r, s)) a
+      let C : FiniteModTwoBarChainThree Q := Finsupp.single (1, (g, q, r * s)) a
+      let D : FiniteModTwoBarChainThree Q := Finsupp.single (1, (g, q, r)) a
+      let S : FiniteModTwoBarChainThree Q := Finsupp.single (g, (q, r, s)) a
+      let T : FiniteModTwoBarChainThree Q :=
+        finiteModTwoBarBoundaryFour (finiteModTwoBarContractThree c)
+      let U : FiniteModTwoBarChainThree Q :=
+        finiteModTwoBarContractTwo (finiteModTwoBarBoundaryThree c)
+      change S + A + B + C + D + T + (A + B + C + D + U) = S + c
+      calc
+        S + A + B + C + D + T + (A + B + C + D + U) =
+            S + (T + U) + (A + A) + (B + B) + (C + C) + (D + D) := by
+              abel
+        _ = S + (T + U) := by
+          rw [regularModTwoRelationModule_add_self,
+            regularModTwoRelationModule_add_self,
+            regularModTwoRelationModule_add_self,
+            regularModTwoRelationModule_add_self]
+          simp
+        _ = S + c := by rw [ih]
+
 /-! ## What the proved `B₂` identity gives on actual cochains -/
 
 /-- The actual cochain adjoint `C³ → C²` of the proved chain homotopy `H₂ : B₂ → B₃`. -/
@@ -385,11 +438,139 @@ theorem finiteBarForwardReverseHomotopyTwo_cochainTwo_identity
     finiteFinsuppFullAdjoint_apply,
     finiteRegularAtOne, finiteRegularInvariantCoe] using ha
 
-/-! ## The exact chain-degree-three input still required -/
+/-! ## The explicit chain comparison in degree three -/
+
+/-- The degree-three reverse comparison is the already constructed reverse degree-two map
+applied to the bar boundary. -/
+def finiteBarToUniversalRelationThree
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarChainThree Q →ₗ[ZMod 2]
+      RegularModTwoRelationModule Q (FreeRelationKernel m) :=
+  (finiteBarToUniversalRelationTwo m heval).comp finiteModTwoBarBoundaryThree
+
+/-- The degree-three forward comparison contracts the existing universal relation-to-bar
+two-chain. -/
+def finiteUniversalRelationToBarThree (m : I → Q) :
+    RegularModTwoRelationModule Q (FreeRelationKernel m) →ₗ[ZMod 2]
+      FiniteModTwoBarChainThree Q :=
+  (finiteModTwoBarContractTwo (Q := Q)).comp
+    (finiteUniversalRelationToBarTwo m)
+
+/-- On the image of the degree-three reverse map, the contracted universal comparison has
+boundary equal to the original universal bar two-chain. -/
+theorem finiteUniversalRelationToBarThree_boundary
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (x : FiniteModTwoBarChainThree Q) :
+    finiteModTwoBarBoundaryThree
+        (finiteUniversalRelationToBarThree m
+          (finiteBarToUniversalRelationThree m heval x)) =
+      finiteUniversalRelationToBarTwo m
+        (finiteBarToUniversalRelationThree m heval x) := by
+  have hboundary :
+      finiteModTwoBarBoundaryTwo (finiteModTwoBarBoundaryThree x) = 0 := by
+    have h := LinearMap.congr_fun
+      (finiteModTwoBarBoundaryTwo_comp_boundaryThree (Q := Q)) x
+    simpa using h
+  have hfox :
+      (finiteUniversalRelationFoxBoundary m).map
+          (finiteBarToUniversalRelationThree m heval x) = 0 := by
+    rw [finiteBarToUniversalRelationThree, LinearMap.comp_apply,
+      ← finiteBarToMarkedOne_boundaryTwo, hboundary, map_zero]
+  have huniversalBoundary :
+      finiteModTwoBarBoundaryTwo
+          (finiteUniversalRelationToBarTwo m
+            (finiteBarToUniversalRelationThree m heval x)) = 0 := by
+    rw [finiteUniversalRelationToBarTwo_boundary, hfox, map_zero]
+  have hcontract := finiteModTwoBar_contracting_identity_two
+    (Q := Q)
+    (finiteUniversalRelationToBarTwo m
+      (finiteBarToUniversalRelationThree m heval x))
+  rw [huniversalBoundary, map_zero, add_zero] at hcontract
+  simpa [finiteUniversalRelationToBarThree] using hcontract
+
+/-- The degree-three error before applying the canonical bar contraction. -/
+def finiteBarForwardReverseDifferenceThree
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarChainThree Q →ₗ[ZMod 2] FiniteModTwoBarChainThree Q :=
+  (finiteBarForwardReverseHomotopyTwo m heval).comp finiteModTwoBarBoundaryThree +
+    (finiteUniversalRelationToBarThree m).comp
+      (finiteBarToUniversalRelationThree m heval) +
+    LinearMap.id
+
+/-- The degree-three forward--reverse error is a bar cycle. -/
+theorem finiteBarForwardReverseDifferenceThree_boundary
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (x : FiniteModTwoBarChainThree Q) :
+    finiteModTwoBarBoundaryThree
+        (finiteBarForwardReverseDifferenceThree m heval x) = 0 := by
+  have hboundary :
+      finiteModTwoBarBoundaryTwo (finiteModTwoBarBoundaryThree x) = 0 := by
+    have h := LinearMap.congr_fun
+      (finiteModTwoBarBoundaryTwo_comp_boundaryThree (Q := Q)) x
+    simpa using h
+  have htwo := finiteBarForwardReverseHomotopyTwo_identity
+    m heval (finiteModTwoBarBoundaryThree x)
+  rw [hboundary, map_zero, add_zero] at htwo
+  simp only [finiteBarForwardReverseDifferenceThree, LinearMap.add_apply,
+    LinearMap.comp_apply, LinearMap.id_apply, map_add,
+    finiteUniversalRelationToBarThree_boundary]
+  let A : FiniteModTwoBarChainTwo Q :=
+    finiteModTwoBarBoundaryThree
+      (finiteBarForwardReverseHomotopyTwo m heval
+        (finiteModTwoBarBoundaryThree x))
+  let B : FiniteModTwoBarChainTwo Q :=
+    finiteUniversalRelationToBarTwo m
+      (finiteBarToUniversalRelationThree m heval x)
+  let C : FiniteModTwoBarChainTwo Q := finiteModTwoBarBoundaryThree x
+  change A + B + C = 0
+  have hAB : A + B = C := by simpa [A, B, C, finiteBarToUniversalRelationThree] using htwo
+  rw [hAB]
+  exact regularModTwoRelationModule_add_self Q (Q × Q) C
+
+/-- Fill the degree-three error by the canonical bar contraction. -/
+def finiteBarForwardReverseHomotopyThree
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarChainThree Q →ₗ[ZMod 2] FiniteModTwoBarChainFour Q :=
+  (finiteModTwoBarContractThree (Q := Q)).comp
+    (finiteBarForwardReverseDifferenceThree m heval)
+
+/-- **Concrete degree-three chain-homotopy identity.** The universal-Fox comparison is
+chain-homotopic to the identity on every bar three-chain. -/
+theorem finiteBarForwardReverseHomotopyThree_identity
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (x : FiniteModTwoBarChainThree Q) :
+    finiteModTwoBarBoundaryFour
+        (finiteBarForwardReverseHomotopyThree m heval x) +
+      finiteBarForwardReverseHomotopyTwo m heval
+        (finiteModTwoBarBoundaryThree x) +
+      finiteUniversalRelationToBarThree m
+        (finiteBarToUniversalRelationThree m heval x) = x := by
+  have hcontract := finiteModTwoBar_contracting_identity_three
+    (Q := Q) (finiteBarForwardReverseDifferenceThree m heval x)
+  rw [finiteBarForwardReverseDifferenceThree_boundary m heval x,
+    map_zero, add_zero] at hcontract
+  change finiteModTwoBarBoundaryFour
+      (finiteModTwoBarContractThree
+        (finiteBarForwardReverseDifferenceThree m heval x)) + _ + _ = x
+  rw [hcontract]
+  simp only [finiteBarForwardReverseDifferenceThree, LinearMap.comp_apply,
+    LinearMap.add_apply, LinearMap.id_apply]
+  let A : FiniteModTwoBarChainThree Q :=
+    finiteBarForwardReverseHomotopyTwo m heval
+      (finiteModTwoBarBoundaryThree x)
+  let B : FiniteModTwoBarChainThree Q :=
+    finiteUniversalRelationToBarThree m
+      (finiteBarToUniversalRelationThree m heval x)
+  change A + B + x + A + B = x
+  calc
+    A + B + x + A + B = x + (A + A) + (B + B) := by abel
+    _ = x := by
+      rw [regularModTwoRelationModule_add_self,
+        regularModTwoRelationModule_add_self]
+      simp
 
 /-- A one-degree-higher chain comparison is the fixed-quotient datum whose invariant full
-adjoint would yield the desired `C³` reconstruction.  None of its three new maps or its identity
-is contained in `FiniteUniversalBarFoxChainHomotopy`, which stops with the identity on `B₂`. -/
+adjoint yields a degree-three full-coefficient reconstruction. -/
 structure FiniteUniversalBarFoxChainHomotopyThree
     (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) where
   /-- The new bar homotopy `B₃ → B₄`. -/
@@ -410,6 +591,215 @@ structure FiniteUniversalBarFoxChainHomotopyThree
         finiteBarForwardReverseHomotopyTwo m heval
           (finiteModTwoBarBoundaryThree x) +
         universalToBarThree (barToUniversalThree x) = x
+
+/-- The explicit degree-three chain comparison assembled from the degree-two comparison and
+the canonical bar contractions. -/
+def finiteUniversalBarFoxChainHomotopyThree
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteUniversalBarFoxChainHomotopyThree m heval where
+  homotopyThree := finiteBarForwardReverseHomotopyThree m heval
+  barToUniversalThree := finiteBarToUniversalRelationThree m heval
+  universalToBarThree := finiteUniversalRelationToBarThree m
+  homotopyThree_identity := finiteBarForwardReverseHomotopyThree_identity m heval
+
+/-! ## Full adjoint and fixed-level degree-three identities -/
+
+/-- The full coefficient adjoint of the explicit degree-three bar homotopy. -/
+def finiteBarForwardReverseHomotopyThreeFullAdjoint
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    (Q × Q × Q × Q × Q → ZMod 2) →ₗ[ZMod 2]
+      FiniteModTwoBarCochainFour Q :=
+  finiteFinsuppFullAdjoint (finiteBarForwardReverseHomotopyThree m heval)
+
+/-- The full coefficient adjoint of the degree-three universal comparison term. -/
+def finiteUniversalForwardReverseThreeFullAdjoint
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainFour Q →ₗ[ZMod 2]
+      FiniteModTwoBarCochainFour Q :=
+  finiteFinsuppFullAdjoint
+    ((finiteUniversalRelationToBarThree m).comp
+      (finiteBarToUniversalRelationThree m heval))
+
+/-- **Raw transposed degree-three identity.** This is the exact full-coefficient adjoint of
+`finiteBarForwardReverseHomotopyThree_identity`, before imposing invariance or finite support. -/
+theorem finiteBarForwardReverseHomotopyThree_fullAdjoint_identity
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainFour Q) :
+    finiteBarForwardReverseHomotopyThreeFullAdjoint m heval
+        (finiteModTwoBarFullCoboundaryFour c) +
+      finiteModTwoBarFullCoboundaryThree
+        (finiteBarForwardReverseHomotopyTwoFullAdjoint m heval c) +
+      finiteUniversalForwardReverseThreeFullAdjoint m heval c = c := by
+  let H₂ := finiteBarForwardReverseHomotopyTwo m heval
+  let H₃ := finiteBarForwardReverseHomotopyThree m heval
+  let U₃ := finiteUniversalRelationToBarThree m
+  let R₃ := finiteBarToUniversalRelationThree m heval
+  have hchain :
+      (finiteModTwoBarBoundaryFour (Q := Q)).comp H₃ +
+          H₂.comp finiteModTwoBarBoundaryThree + U₃.comp R₃ =
+        LinearMap.id := by
+    apply LinearMap.ext
+    intro x
+    exact finiteBarForwardReverseHomotopyThree_identity m heval x
+  have hadjoint := congrArg finiteFinsuppFullAdjoint hchain
+  rw [finiteFinsuppFullAdjoint_add, finiteFinsuppFullAdjoint_add,
+    finiteFinsuppFullAdjoint_comp, finiteFinsuppFullAdjoint_comp,
+    finiteFinsuppFullAdjoint_comp, finiteFinsuppFullAdjoint_id] at hadjoint
+  simpa [finiteBarForwardReverseHomotopyThreeFullAdjoint,
+    finiteUniversalForwardReverseThreeFullAdjoint,
+    finiteBarForwardReverseHomotopyTwoFullAdjoint,
+    finiteModTwoBarFullCoboundaryThree,
+    finiteModTwoBarFullCoboundaryFour, finiteFinsuppFullAdjoint_comp,
+    H₂, H₃, U₃, R₃] using LinearMap.congr_fun hadjoint c
+
+/-- The actual-cochain adjoint of `H₃ : B₃ → B₄`. -/
+def finiteBarForwardReverseHomotopyThreeCochainAdjoint
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainFour Q →ₗ[ZMod 2]
+      FiniteModTwoBarCochainThree Q :=
+  (finiteRegularAtOne (Q := Q) (Q × Q × Q)).comp
+    ((finiteBarForwardReverseHomotopyThreeFullAdjoint m heval).comp
+      (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q × Q)))
+
+/-- The raw restricted adjoint of the `H₂∂₃` term.  This is kept distinct from
+`d²(H₂†c)`, because the canonical contraction defining `H₂` is not equivariant. -/
+def finiteBarHomotopyTwoBoundaryRawCochainCorrection
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainThree Q →ₗ[ZMod 2]
+      FiniteModTwoBarCochainThree Q :=
+  (finiteRegularAtOne (Q := Q) (Q × Q × Q)).comp
+    ((finiteModTwoBarFullCoboundaryThree (Q := Q)).comp
+      ((finiteBarForwardReverseHomotopyTwoFullAdjoint m heval).comp
+        (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q))))
+
+/-- The explicit failure of the full adjoint of `H₂` to turn the boundary adjoint into the
+ordinary inhomogeneous `d²` after restriction to invariant coefficients. -/
+def finiteBarHomotopyTwoAdjointBarDefect
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q) :
+    FiniteModTwoBarCochainThree Q :=
+  finiteBarHomotopyTwoBoundaryRawCochainCorrection m heval c +
+    finiteModTwoBarDTwo Q
+      (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c)
+
+/-- The unrestricted universal degree-three correction on actual three-cochains. -/
+def finiteUniversalForwardReverseThreeCochainCorrection
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainThree Q →ₗ[ZMod 2]
+      FiniteModTwoBarCochainThree Q :=
+  (finiteRegularAtOne (Q := Q) (Q × Q × Q)).comp
+    ((finiteUniversalForwardReverseThreeFullAdjoint m heval).comp
+      (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q)))
+
+/-- A finitely supported universal relation coefficient can be transposed through the
+bar-to-universal degree-three map and then restricted to an actual three-cochain. -/
+def finiteUniversalRelationThreeFiniteSupportCorrection
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    RegularModTwoRelationModule Q (FreeRelationKernel m) →ₗ[ZMod 2]
+      FiniteModTwoBarCochainThree Q :=
+  (finiteRegularAtOne (Q := Q) (Q × Q × Q)).comp
+    ((finiteFinsuppFullAdjoint
+      (finiteBarToUniversalRelationThree m heval)).comp Finsupp.lcoeFun)
+
+/-- A witness that the adjoint of the universal-to-bar map has finite support. -/
+def FiniteUniversalToBarThreeAdjointSupportWitness
+    (m : I → Q) (c : FiniteModTwoBarCochainThree Q)
+    (u : RegularModTwoRelationModule Q (FreeRelationKernel m)) : Prop :=
+  finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
+      (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c) =
+    (Finsupp.lcoeFun :
+      RegularModTwoRelationModule Q (FreeRelationKernel m) →ₗ[ZMod 2]
+        (Q × FreeRelationKernel m → ZMod 2)) u
+
+/-- The separate finite-support defect of the universal adjoint, relative to a proposed
+finitely supported universal relation coefficient. -/
+def finiteUniversalThreeAdjointFiniteSupportDefect
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q)
+    (u : RegularModTwoRelationModule Q (FreeRelationKernel m)) :
+    FiniteModTwoBarCochainThree Q :=
+  finiteUniversalForwardReverseThreeCochainCorrection m heval c +
+    finiteUniversalRelationThreeFiniteSupportCorrection m heval u
+
+/-- A genuine support witness makes the universal finite-support defect vanish. -/
+theorem finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q)
+    (u : RegularModTwoRelationModule Q (FreeRelationKernel m))
+    (hu : FiniteUniversalToBarThreeAdjointSupportWitness m c u) :
+    finiteUniversalThreeAdjointFiniteSupportDefect m heval c u = 0 := by
+  funext a
+  have hcombined := finiteFinsuppFullAdjoint_comp
+    (finiteUniversalRelationToBarThree m)
+    (finiteBarToUniversalRelationThree m heval)
+  simp only [finiteUniversalThreeAdjointFiniteSupportDefect,
+    finiteUniversalForwardReverseThreeCochainCorrection,
+    finiteUniversalForwardReverseThreeFullAdjoint,
+    finiteUniversalRelationThreeFiniteSupportCorrection,
+    LinearMap.comp_apply, finiteRegularAtOne]
+  rw [hcombined]
+  change
+    finiteFinsuppFullAdjoint (finiteBarToUniversalRelationThree m heval)
+          (finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
+            (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c)) (1, a) +
+        finiteFinsuppFullAdjoint (finiteBarToUniversalRelationThree m heval)
+          (Finsupp.lcoeFun u) (1, a) = 0
+  unfold FiniteUniversalToBarThreeAdjointSupportWitness at hu
+  rw [hu]
+  exact ZModModule.add_self _
+
+/-- The raw degree-three identity restricted to actual cochains.  No invariance claim for
+`H₂†`, and no finite-support claim for the universal adjoint, is used here. -/
+theorem finiteBarForwardReverseHomotopyThree_cochain_raw_identity
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q) :
+    finiteBarForwardReverseHomotopyThreeCochainAdjoint m heval
+        (finiteModTwoBarDThree Q c) +
+      finiteBarHomotopyTwoBoundaryRawCochainCorrection m heval c +
+      finiteUniversalForwardReverseThreeCochainCorrection m heval c = c := by
+  have hfull := finiteBarForwardReverseHomotopyThree_fullAdjoint_identity
+    m heval (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c)
+  rw [finiteModTwoBarFullCoboundaryFour_invariant] at hfull
+  have hatOne := congrArg
+    (finiteRegularAtOne (Q := Q) (Q × Q × Q)) hfull
+  funext a
+  exact congrFun hatOne a
+
+/-- **Fixed-level degree-three reconstruction with explicit defects.**  The bar defect records
+non-invariance of `H₂†`; the universal defect independently records the failure of the
+universal adjoint coefficient to equal the proposed finite-support coefficient `u`. -/
+theorem finiteBarForwardReverseHomotopyThree_cochain_identity_with_defects
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q)
+    (u : RegularModTwoRelationModule Q (FreeRelationKernel m)) :
+    finiteBarForwardReverseHomotopyThreeCochainAdjoint m heval
+        (finiteModTwoBarDThree Q c) +
+      finiteModTwoBarDTwo Q
+        (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c) +
+      finiteUniversalRelationThreeFiniteSupportCorrection m heval u +
+      finiteBarHomotopyTwoAdjointBarDefect m heval c +
+      finiteUniversalThreeAdjointFiniteSupportDefect m heval c u = c := by
+  funext a
+  have hraw := congrFun
+    (finiteBarForwardReverseHomotopyThree_cochain_raw_identity m heval c) a
+  rw [← hraw]
+  simp only [finiteBarHomotopyTwoAdjointBarDefect,
+    finiteUniversalThreeAdjointFiniteSupportDefect]
+  let A : ZMod 2 :=
+    finiteBarForwardReverseHomotopyThreeCochainAdjoint m heval
+      (finiteModTwoBarDThree Q c) a
+  let B : ZMod 2 := finiteBarHomotopyTwoBoundaryRawCochainCorrection m heval c a
+  let D : ZMod 2 := finiteModTwoBarDTwo Q
+    (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c) a
+  let U : ZMod 2 := finiteUniversalRelationThreeFiniteSupportCorrection m heval u a
+  let V : ZMod 2 := finiteUniversalForwardReverseThreeCochainCorrection m heval c a
+  change A + D + U + (B + D) + (V + U) = A + B + V
+  calc
+    A + D + U + (B + D) + (V + U) =
+        A + B + V + (D + D) + (U + U) := by abel
+    _ = A + B + V := by
+      rw [ZModModule.add_self, ZModModule.add_self]
+      simp
 
 end
 
