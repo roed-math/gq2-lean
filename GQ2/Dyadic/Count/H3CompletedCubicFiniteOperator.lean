@@ -1525,6 +1525,138 @@ theorem sqCubicXFromSCorePrefix_perturbation (h : ℕ)
   · exact sqCubicCorrectionOperatorElement_sq_zero h
       (sqCubicXFromSColumnCorrection h v hv) 1
 
+/-! ## Propagation through the unchanged suffix -/
+
+/-- The factors of the literal relator following the conjugate/cube prefix. -/
+def sqCubicCorrectedRelatorSuffix (h : ℕ) (D : SqCubicDegreeTwoCorrection h) :
+    (SqCubicOperatorAlgebra h)ˣ :=
+  (sqCubicCorrectedMarkedUnit h D 2) ^ 2 *
+    commP (sqCubicCorrectedMarkedUnit h D 2)
+      (conjP (sqCubicCorrectedMarkedUnit h D 2)
+        (sqCubicCorrectedMarkedUnit h D 0)) *
+    MarkedCore.handleWord
+      (fun j => sqCubicCorrectedMarkedUnit h D (sqHandleIdxU j))
+      (fun j => sqCubicCorrectedMarkedUnit h D (sqHandleIdxV j))
+
+/-- The literal improved relator factors into the perturbed prefix and a common suffix. -/
+theorem sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    sqCubicCorrectedRelatorUnit h D =
+      sqCubicCorrectedCorePrefix h D * sqCubicCorrectedRelatorSuffix h D := by
+  simp only [sqCubicCorrectedRelatorUnit, sqRelWord, sqWord,
+    sqCubicCorrectedCorePrefix, sqCubicCorrectedRelatorSuffix, mul_assoc]
+
+@[simp] theorem sqCubicZeroCorrectionOperatorElement (h : ℕ)
+    (i : Fin (sqRank h)) :
+    sqCubicCorrectionOperatorElement h (sqCubicZeroDegreeTwoCorrection h) i = 0 := by
+  apply Unitization.ext
+  · simp [sqCubicCorrectionOperatorElement]
+  · apply Subtype.ext
+    rfl
+
+theorem sqCubicXFromSCorrectionOperatorElement_ne_X (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3)
+    (i : Fin (sqRank h)) (hi : i ≠ 1) :
+    sqCubicCorrectionOperatorElement h
+      (sqCubicXFromSColumnCorrection h v hv) i = 0 := by
+  apply Unitization.ext
+  · simp [sqCubicCorrectionOperatorElement]
+  · apply Subtype.ext
+    exact sqCubicXFromSColumnCorrection_ne_X h v hv i hi
+
+theorem sqCubicXFromSCorrectedMarkedUnit_ne_X (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3)
+    (i : Fin (sqRank h)) (hi : i ≠ 1) :
+    sqCubicCorrectedMarkedUnit h (sqCubicXFromSColumnCorrection h v hv) i =
+      sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) i := by
+  apply Units.ext
+  simp only [sqCubicCorrectedMarkedUnit, oneAddUnitOfPowFourZero_val]
+  rw [sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction,
+    sqCubicXFromSCorrectionOperatorElement_ne_X h v hv i hi, add_zero,
+    sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction,
+    sqCubicZeroCorrectionOperatorElement, add_zero]
+
+private theorem sqCubicFin_two_ne_one (h : ℕ) :
+    (2 : Fin (sqRank h)) ≠ 1 := by
+  intro e
+  have he := congrArg Fin.val e
+  have h2 : ((2 : Fin (sqRank h)) : Nat) = 2 := by
+    change 2 % sqRank h = 2
+    apply Nat.mod_eq_of_lt
+    rw [sqRank]
+    omega
+  have h1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
+    change 1 % sqRank h = 1
+    apply Nat.mod_eq_of_lt
+    rw [sqRank]
+    omega
+  rw [h2, h1] at he
+  omega
+
+private theorem sqCubicFin_zero_ne_one (h : ℕ) :
+    (0 : Fin (sqRank h)) ≠ 1 := by
+  intro e
+  have he := congrArg Fin.val e
+  have h1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
+    change 1 % sqRank h = 1
+    apply Nat.mod_eq_of_lt
+    rw [sqRank]
+    omega
+  rw [h1] at he
+  simp at he
+
+private theorem sqCubicHandleU_ne_one {h : ℕ} (j : Fin h) :
+    sqHandleIdxU j ≠ (1 : Fin (sqRank h)) := by
+  intro e
+  have he := congrArg Fin.val e
+  have h1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
+    change 1 % sqRank h = 1
+    apply Nat.mod_eq_of_lt
+    rw [sqRank]
+    omega
+  rw [h1] at he
+  change 3 + 2 * (j : Nat) = 1 at he
+  omega
+
+private theorem sqCubicHandleV_ne_one {h : ℕ} (j : Fin h) :
+    sqHandleIdxV j ≠ (1 : Fin (sqRank h)) := by
+  intro e
+  have he := congrArg Fin.val e
+  have h1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
+    change 1 % sqRank h = 1
+    apply Nat.mod_eq_of_lt
+    rw [sqRank]
+    omega
+  rw [h1] at he
+  change 4 + 2 * (j : Nat) = 1 at he
+  omega
+
+/-- The rank-one correction changes only `X`, hence leaves the entire relator suffix fixed. -/
+theorem sqCubicXFromSRelatorSuffix_eq_zero (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    sqCubicCorrectedRelatorSuffix h (sqCubicXFromSColumnCorrection h v hv) =
+      sqCubicCorrectedRelatorSuffix h (sqCubicZeroDegreeTwoCorrection h) := by
+  have hy := sqCubicXFromSCorrectedMarkedUnit_ne_X h v hv 2
+    (sqCubicFin_two_ne_one h)
+  have hs := sqCubicXFromSCorrectedMarkedUnit_ne_X h v hv 0
+    (sqCubicFin_zero_ne_one h)
+  have hu : (fun j : Fin h => sqCubicCorrectedMarkedUnit h
+        (sqCubicXFromSColumnCorrection h v hv) (sqHandleIdxU j)) =
+      (fun j : Fin h => sqCubicCorrectedMarkedUnit h
+        (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j)) := by
+    funext j
+    exact sqCubicXFromSCorrectedMarkedUnit_ne_X h v hv _
+      (sqCubicHandleU_ne_one j)
+  have hv' : (fun j : Fin h => sqCubicCorrectedMarkedUnit h
+        (sqCubicXFromSColumnCorrection h v hv) (sqHandleIdxV j)) =
+      (fun j : Fin h => sqCubicCorrectedMarkedUnit h
+        (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j)) := by
+    funext j
+    exact sqCubicXFromSCorrectedMarkedUnit_ne_X h v hv _
+      (sqCubicHandleV_ne_one j)
+  simp only [sqCubicCorrectedRelatorSuffix]
+  rw [hy, hs, hu, hv']
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
