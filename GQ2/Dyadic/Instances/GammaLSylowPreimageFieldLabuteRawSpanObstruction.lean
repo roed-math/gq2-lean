@@ -503,8 +503,48 @@ theorem sqCore_sigma_rawTail_not_mem_rawShiftSpan (h : ℕ) :
   rw [sqDerivFour_sigma_pow_four_u] at hdvd
   exact eight_not_dvd_twelve_mod_sixteen hdvd
 
+/-! ## Public cubic regressions -/
+
+/-- The literal improved-relator shift is not onto the cubic central layer. -/
+theorem sqCore_rawShiftSpan_ne_zLayer (h : ℕ) :
+    rawShiftSpan (rawMarkedBase (SqCore.sqGen h) 3) (by omega) ≠
+      zLayer (SqCore.DSq h : Type) 3 := by
+  intro heq
+  apply sqCore_sigma_rawTail_not_mem_rawShiftSpan h
+  rw [heq]
+  simpa using pow_two_pow_mem_lambdaImage
+    (rawMarkedBase (SqCore.sqGen h) 3 0) 2
+
+/-- The non-twisted tails enlarge the literal raw shift span already at the cubic layer. -/
+theorem sqCore_rawAugmentedSpan_ne_rawShiftSpan (h : ℕ) :
+    rawAugmentedSpan (SqCore.sqGen h) 3 (by omega) ≠
+      rawShiftSpan (rawMarkedBase (SqCore.sqGen h) 3) (by omega) := by
+  intro heq
+  apply sqCore_sigma_rawTail_not_mem_rawShiftSpan h
+  rw [← heq]
+  exact rawTail_mem_rawAugmentedSpan (SqCore.sqGen h) (by omega) 0 (by
+    intro heq
+    have hv := congrArg Fin.val heq
+    rw [SqCore.sqVal_zero, SqCore.sqVal_two] at hv
+    omega)
+
+/-- Consequently the cubic pure-square supply isolated by the raw-span analysis is false
+for the actual improved square presentation. -/
+theorem sqCore_not_rawPureSquareSpanSupply_three (h : ℕ) :
+    ¬RawPureSquareSpanSupply (rawMarkedBase (SqCore.sqGen h) 3) (by omega) := by
+  intro hsupply
+  apply sqCore_rawShiftSpan_ne_zLayer h
+  exact (rawPureSquareSpanSupply_iff_rawShiftSpan_eq_zLayer
+    (rawMarkedBase (SqCore.sqGen h) 3) (by omega)
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+    (closure_rawMarkedBase_eq_top (SqCore.sqGen h)
+      (dsqFinsetTopGen h) (SqCore.isProP_DSq h) (SqCore.dsq_topGen h) 3)).mp hsupply
+
 #print axioms sqCore_rawShiftSpan_le_derivKer
 #print axioms sqCore_sigma_rawTail_not_mem_rawShiftSpan
+#print axioms sqCore_rawShiftSpan_ne_zLayer
+#print axioms sqCore_rawAugmentedSpan_ne_rawShiftSpan
+#print axioms sqCore_not_rawPureSquareSpanSupply_three
 
 end
 
