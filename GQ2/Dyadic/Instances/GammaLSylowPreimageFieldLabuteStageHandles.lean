@@ -99,6 +99,40 @@ theorem handlePair_mul_lambdaImage
   rw [(zLayer_commute hqu (commP u v)).eq]
   group
 
+/-- For a depth-`k-1` element, the bracket with a fixed ambient element is multiplicative
+in the correction coordinate.  This is the one-coordinate linearity used below. -/
+theorem commP_mul_left_of_depth
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (k : ℕ) (hk : 3 ≤ k) {p p' u : levelQuot G (k + 1)}
+    (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP (p * p') u = commP p u * commP p' u := by
+  rw [commP_mul_left, conj_eq_self_of_commP_eq_one
+    (commP_eq_one_of_mul_comm
+      (zLayer_commute (commP_mem_zLayer k hk hp u) p').eq)]
+
+/-- The linearized contribution of one handle pair is multiplicative under pointwise
+multiplication of two depth corrections. -/
+theorem handlePairDbar_mul
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (k : ℕ) (hk : 3 ≤ k) (u v : levelQuot G (k + 1))
+    {p q p' q' : levelQuot G (k + 1)}
+    (hp : p ∈ lambdaImage G (k - 1) (k + 1))
+    (hq : q ∈ lambdaImage G (k - 1) (k + 1))
+    (_hp' : p' ∈ lambdaImage G (k - 1) (k + 1))
+    (hq' : q' ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP (q * q') u * commP (p * p') v =
+      (commP q u * commP p v) * (commP q' u * commP p' v) := by
+  rw [commP_mul_left_of_depth k hk hq, commP_mul_left_of_depth k hk hp]
+  have hq'u : commP q' u ∈ zLayer G k := commP_mem_zLayer k hk hq' u
+  calc
+    (commP q u * commP q' u) * (commP p v * commP p' v) =
+        commP q u * (commP q' u * commP p v) * commP p' v := by group
+    _ = commP q u * (commP p v * commP q' u) * commP p' v := by
+      rw [(zLayer_commute hq'u (commP p v)).eq]
+    _ = (commP q u * commP p v) * (commP q' u * commP p' v) := by group
+
 /-! ## The full handle block -/
 
 private theorem list_prod_mul_of_right_central
@@ -127,6 +161,117 @@ def sqHandleDbarWord
   ((List.finRange h).map fun j ↦
     commP (correction (SqCore.sqHandleIdxV j)) (base (SqCore.sqHandleIdxU j)) *
       commP (correction (SqCore.sqHandleIdxU j)) (base (SqCore.sqHandleIdxV j))).prod
+
+/-- The complete handle contribution lands in the central involutive layer. -/
+theorem sqHandleDbarWord_mem_zLayer
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    sqHandleDbarWord base correction ∈ zLayer G k := by
+  rw [sqHandleDbarWord]
+  apply Subgroup.list_prod_mem
+  intro z hz
+  simp only [List.mem_map] at hz
+  obtain ⟨j, _hj, rfl⟩ := hz
+  exact Subgroup.mul_mem _
+    (commP_mem_zLayer k hk (hdepth (SqCore.sqHandleIdxV j)) _)
+    (commP_mem_zLayer k hk (hdepth (SqCore.sqHandleIdxU j)) _)
+
+/-- The entire handle block is multiplicative in the depth correction.  Thus every handle
+pair contributes a genuine linear coordinate in the central graded layer. -/
+theorem sqHandleDbarWord_mul
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    {correction correction' : Fin (SqCore.sqRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, correction' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    sqHandleDbarWord base (fun i ↦ correction i * correction' i) =
+      sqHandleDbarWord base correction * sqHandleDbarWord base correction' := by
+  rw [sqHandleDbarWord, sqHandleDbarWord, sqHandleDbarWord]
+  simp_rw [handlePairDbar_mul k hk _ _
+    (hdepth (SqCore.sqHandleIdxU _)) (hdepth (SqCore.sqHandleIdxV _))
+    (hdepth' (SqCore.sqHandleIdxU _)) (hdepth' (SqCore.sqHandleIdxV _))]
+  apply list_prod_mul_of_right_central
+  intro j t
+  have hz : commP (correction' (SqCore.sqHandleIdxV j))
+          (base (SqCore.sqHandleIdxU j)) *
+        commP (correction' (SqCore.sqHandleIdxU j))
+          (base (SqCore.sqHandleIdxV j)) ∈ zLayer G k :=
+    Subgroup.mul_mem _
+      (commP_mem_zLayer k hk (hdepth' (SqCore.sqHandleIdxV j)) _)
+      (commP_mem_zLayer k hk (hdepth' (SqCore.sqHandleIdxU j)) _)
+  exact (zLayer_commute hz t).eq
+
+/-- The full explicit core-plus-handle shift map. -/
+def sqCoreHandleDbarWord
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (base correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  dbarWordR2 (base 0) (base 1) (base 2)
+      ![correction 0, correction 1, correction 2] *
+    sqHandleDbarWord base correction
+
+/-- The full explicit core-plus-handle shift is a homomorphism on depth corrections.  This
+reduces the remaining span problem to the images of individual core and handle coordinates. -/
+theorem sqCoreHandleDbarWord_mul
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    {correction correction' : Fin (SqCore.sqRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, correction' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    sqCoreHandleDbarWord base (fun i ↦ correction i * correction' i) =
+      sqCoreHandleDbarWord base correction * sqCoreHandleDbarWord base correction' := by
+  have hcoreDepth : ∀ i : Fin 3,
+      ![correction 0, correction 1, correction 2] i ∈
+        lambdaImage G (k - 1) (k + 1) := by
+    intro i
+    fin_cases i
+    · exact hdepth 0
+    · exact hdepth 1
+    · exact hdepth 2
+  have hcoreDepth' : ∀ i : Fin 3,
+      ![correction' 0, correction' 1, correction' 2] i ∈
+        lambdaImage G (k - 1) (k + 1) := by
+    intro i
+    fin_cases i
+    · exact hdepth' 0
+    · exact hdepth' 1
+    · exact hdepth' 2
+  rw [sqCoreHandleDbarWord, sqCoreHandleDbarWord, sqCoreHandleDbarWord,
+    show ![correction 0 * correction' 0, correction 1 * correction' 1,
+        correction 2 * correction' 2] =
+      fun i ↦ ![correction 0, correction 1, correction 2] i *
+        ![correction' 0, correction' 1, correction' 2] i by
+          funext i
+          fin_cases i <;> rfl,
+    dbarWordR2_mul k hk _ _ _ hcoreDepth hcoreDepth',
+    sqHandleDbarWord_mul h k hk base hdepth hdepth']
+  have hcore' : dbarWordR2 (base 0) (base 1) (base 2)
+      ![correction' 0, correction' 1, correction' 2] ∈ zLayer G k :=
+    dbarWordR2_mem_zLayer k hk _ _ _ hcoreDepth'
+  calc
+    (_ * _) * (_ * _) =
+        dbarWordR2 (base 0) (base 1) (base 2)
+            ![correction 0, correction 1, correction 2] *
+          (dbarWordR2 (base 0) (base 1) (base 2)
+              ![correction' 0, correction' 1, correction' 2] *
+            sqHandleDbarWord base correction) *
+          sqHandleDbarWord base correction' := by group
+    _ = dbarWordR2 (base 0) (base 1) (base 2)
+            ![correction 0, correction 1, correction 2] *
+          (sqHandleDbarWord base correction *
+            dbarWordR2 (base 0) (base 1) (base 2)
+              ![correction' 0, correction' 1, correction' 2]) *
+          sqHandleDbarWord base correction' := by
+      rw [(zLayer_commute hcore' (sqHandleDbarWord base correction)).eq]
+    _ = (_ * _) * (_ * _) := by group
 
 /-- The full handle product factors into its old value and the explicit linearized handle
 word. -/
@@ -382,7 +527,10 @@ theorem CoreHandleSharpActualDefectSupply.toDefectReachable
 end SqCyclotomicStageTuple
 
 #print axioms handlePair_mul_lambdaImage
+#print axioms handlePairDbar_mul
 #print axioms handleWord_mul_lambdaImage
+#print axioms sqHandleDbarWord_mul
+#print axioms sqCoreHandleDbarWord_mul
 #print axioms stageShift_eq_dbarWordR2_mul_sqHandleDbarWord
 #print axioms SqCyclotomicStageTuple.exists_exactStageRepresentative
 #print axioms SqCyclotomicStageTuple.admissibleCorrection_nonempty
