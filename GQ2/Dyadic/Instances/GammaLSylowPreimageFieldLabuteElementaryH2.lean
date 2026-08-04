@@ -571,6 +571,66 @@ theorem degreeOneGalKSq_zLayer_two_cardAgreement
   degreeOneGalKSq_zLayer_two_cardAgreement_of_fiveTerm K hone
     (maxProTwoGalK_lowerTwoCentralFiveTermCardFormula K hfg)
 
+/-! ### The remaining all-level reverse boundary -/
+
+/-- Agreement of the lower-two-central Hilbert coefficients strictly beyond the quadratic
+coefficient.  The coefficients `0` and `1` are intentionally absent: they are supplied by
+generator rank and the elementary-abelian `H²` calculation above. -/
+def SqTwoCentralHilbertTailAgreement
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h : ℕ) : Prop :=
+  ∀ n : ℕ, 2 ≤ n →
+    lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) n =
+      lowerTwoCentralHilbertCoefficient G n
+
+/-- With a forward improved-relator map fixed, the full reverse finite-quotient family reduces
+to two model-side inputs: the expected quadratic-layer order and equality of Hilbert
+coefficients from degree `2` onward.  The arithmetic quadratic coefficient is unconditional. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_hilbertTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    {h : ℕ}
+    (D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)))
+    (hrank : SqCore.sqRank h = Module.finrank ℚ_[2] K + 2)
+    (hmodel : LowerTwoCentralDegreeTwoExpectedCard
+      (SqCore.DSq h : Type) (SqCore.sqRank h))
+    (htail : SqTwoCentralHilbertTailAgreement
+      (maxProPQuotient 2 (GalK K)) h) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K)) h := by
+  let Q := maxProPQuotient 2 (GalK K)
+  have hfg : IsTopologicallyFinGen Q :=
+    IsTopologicallyFinGen.of_surjective
+      (D.forward isProP_maxProPQuotient).toMonoidHom
+      (D.forward isProP_maxProPQuotient).continuous_toFun
+      (D.forward_surjective isProP_maxProPQuotient) (dsqFinsetTopGen h)
+  have hfield : LowerTwoCentralDegreeTwoExpectedCard Q
+      (Module.finrank ℚ_[2] K + 2) :=
+    maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard K hfg
+  have hzero :
+      lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 0 =
+        lowerTwoCentralHilbertCoefficient Q 0 := by
+    rw [dsq_lowerTwoCentralHilbertCoefficient_zero,
+      maxProTwoGalK_lowerTwoCentralHilbertCoefficient_zero K hfg, hrank]
+  have hone :
+      lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 1 =
+        lowerTwoCentralHilbertCoefficient Q 1 := by
+    apply congrArg (padicValNat 2)
+    change Nat.card (zLayer (SqCore.DSq h : Type) 2) = Nat.card (zLayer Q 2)
+    unfold LowerTwoCentralDegreeTwoExpectedCard at hmodel hfield
+    rw [hmodel, hfield, hrank]
+  have hseries : SqTwoCentralHilbertSeriesAgreement Q h := by
+    intro n
+    rcases lt_trichotomy n 1 with hn | rfl | hn
+    · have : n = 0 := by omega
+      simpa [this] using hzero
+    · exact hone
+    · exact htail n (by omega)
+  apply D.reverseFiniteQuotientSurjections_of_layerCardAgreement
+    isProP_maxProPQuotient
+  exact (twoCentralHilbertSeriesAgreement_iff_layerCardAgreement hfg
+    isProP_maxProPQuotient).mp hseries
+
 #print axioms elementaryNormalizedCocycle_identity
 #print axioms elementaryCocycleQuadraticMap
 #print axioms elementaryH2ToQuadratic
@@ -585,6 +645,7 @@ theorem degreeOneGalKSq_zLayer_two_cardAgreement
 #print axioms maxProTwoGalK_lowerTwoCentralFiveTermCardFormula
 #print axioms maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard
 #print axioms degreeOneGalKSq_zLayer_two_cardAgreement
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_hilbertTail
 
 end
 
