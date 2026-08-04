@@ -2090,6 +2090,47 @@ theorem commP_oneAddUnitOfPowFourZero_val_expansion
   abel_nf
   simp only [htwoZ, hthreeZ, zero_add]
 
+theorem commP_oneAdd_conjugate_val_expansion
+    {A : Type} [Ring A] [Algebra (ZMod 2) A]
+    (aug : A →ₐ[ZMod 2] ZMod 2)
+    (hfour : ∀ a b c d : A,
+      aug a = 0 → aug b = 0 → aug c = 0 → aug d = 0 →
+        a * b * c * d = 0)
+    (s y : A) (hs : aug s = 0) (hy : aug y = 0) :
+    let us := oneAddUnitOfPowFourZero s
+      (pow_four_zero_of_augmentation_product_four_zero aug hfour s hs)
+    let uy := oneAddUnitOfPowFourZero y
+      (pow_four_zero_of_augmentation_product_four_zero aug hfour y hy)
+    (commP uy (conjP uy us)).val = 1 + s * y * y + y * y * s := by
+  dsimp only
+  rw [commP, conjP]
+  simp only [mul_inv_rev, inv_inv, Units.val_mul,
+    oneAddUnitOfPowFourZero_val, oneAddUnitOfPowFourZero_inv_val]
+  have hfourR (a b c d : A) (ha : aug a = 0) (hb : aug b = 0)
+      (hc : aug c = 0) (hd : aug d = 0) : a * (b * (c * d)) = 0 := by
+    simpa [mul_assoc] using hfour a b c d ha hb hc hd
+  have htwo (a : A) : 2 • a = 0 := ZModModule.char_nsmul_eq_zero 2 a
+  have htwoZ (a : A) : (2 : ℤ) • a = 0 := by
+    simpa [two_zsmul] using htwo a
+  have hthreeZ (a : A) : (3 : ℤ) • a = a := by
+    rw [show (3 : ℤ) = 2 + 1 by omega, add_zsmul, htwoZ, one_zsmul, zero_add]
+  have hevenZ (k : ℤ) (a : A) : (2 * k) • a = 0 := by
+    rw [mul_zsmul, htwoZ]
+  have hoddZ (k : ℤ) (a : A) : (2 * k + 1) • a = a := by
+    rw [add_zsmul, hevenZ, one_zsmul, zero_add]
+  simp (discharger := simp [hs, hy]) only [add_mul, mul_add, mul_assoc,
+    pow_zero, pow_succ, one_mul, mul_one, zero_mul, mul_zero, hfourR]
+  abel_nf
+  simp only [show (4 : ℤ) = 2 * 2 by norm_num,
+    show (6 : ℤ) = 2 * 3 by norm_num,
+    show (8 : ℤ) = 2 * 4 by norm_num,
+    show (10 : ℤ) = 2 * 5 by norm_num,
+    show (12 : ℤ) = 2 * 6 by norm_num,
+    show (14 : ℤ) = 2 * 7 by norm_num,
+    show (5 : ℤ) = 2 * 2 + 1 by norm_num,
+    show (17 : ℤ) = 2 * 8 + 1 by norm_num,
+    hevenZ, hoddZ, zero_add, add_zero]
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
