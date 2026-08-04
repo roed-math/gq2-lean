@@ -64,6 +64,250 @@ def FiniteUniversalThreeAdjointCocycleBarRange
   let L := finiteUniversalThreeBarInputCorrection m heval
   LinearMap.range (T.domRestrict (LinearMap.ker d)) ≤ LinearMap.range L
 
+/-- Fox boundary of a universal relation output arising from a bar-two input. -/
+def finiteUniversalThreeBarInputFoxBoundary
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarChainTwo Q →ₗ[ZMod 2]
+      RegularModTwoRelationModule Q I :=
+  (finiteUniversalRelationFoxBoundary m).map.comp
+    (finiteBarToUniversalRelationTwo m heval)
+
+/-- The proved reverse degree-two chain identity identifies the new Fox-zero condition with
+vanishing of the reverse marked boundary of the bar-two input. -/
+theorem finiteUniversalThreeBarInputFoxBoundary_eq_reverseBoundary
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (b : FiniteModTwoBarChainTwo Q) :
+    finiteUniversalThreeBarInputFoxBoundary m heval b =
+      finiteBarToMarkedOne m heval (finiteModTwoBarBoundaryTwo b) := by
+  exact (finiteBarToMarkedOne_boundaryTwo m heval b).symm
+
+/-- Exact local existence statement: one linear bar-two lift simultaneously realizes the
+coupled adjoint target and has Fox-zero universal output on every three-cocycle. -/
+def FiniteUniversalThreeAdjointCocycleSyzygyBarLiftExists
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) : Prop :=
+  ∃ B : FiniteModTwoBarCochainThree Q →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo Q,
+    ∀ c : FiniteModTwoBarCochainThree Q,
+      finiteModTwoBarDThree Q c = 0 →
+        finiteUniversalThreeBarInputCorrection m heval (B c) =
+            finiteUniversalThreeAdjointCocycleTarget m heval c ∧
+          finiteUniversalThreeBarInputFoxBoundary m heval (B c) = 0
+
+/-- The smallest linear range condition which imposes both requirements: the coupled target on
+cocycles must lie in the range of the correction map restricted to bar-two inputs whose
+universal Fox boundary is zero. -/
+def FiniteUniversalThreeAdjointCocycleSyzygyBarRange
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) : Prop :=
+  let d := (finiteModTwoBarDThree Q).toZModLinearMap 2
+  let T := (finiteUniversalThreeAdjointCocycleTarget m heval).toZModLinearMap 2
+  let L := finiteUniversalThreeBarInputCorrection m heval
+  let J := finiteUniversalThreeBarInputFoxBoundary m heval
+  LinearMap.range (T.domRestrict (LinearMap.ker d)) ≤
+    LinearMap.range (L.domRestrict (LinearMap.ker J))
+
+/-- The syzygy range condition is exact: it is equivalent to existence of a linear local lift
+with both adjoint cancellation and Fox-zero on cocycles. -/
+theorem finiteUniversalThreeAdjointCocycleSyzygyBarRange_iff
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteUniversalThreeAdjointCocycleSyzygyBarRange m heval ↔
+      FiniteUniversalThreeAdjointCocycleSyzygyBarLiftExists m heval := by
+  let d := (finiteModTwoBarDThree Q).toZModLinearMap 2
+  let T := (finiteUniversalThreeAdjointCocycleTarget m heval).toZModLinearMap 2
+  let L := finiteUniversalThreeBarInputCorrection m heval
+  let J := finiteUniversalThreeBarInputFoxBoundary m heval
+  constructor
+  · intro hrange
+    let Tker := T.domRestrict (LinearMap.ker d)
+    let Lker := L.domRestrict (LinearMap.ker J)
+    let intoRange : LinearMap.ker d →ₗ[ZMod 2] LinearMap.range Lker :=
+      Tker.codRestrict (LinearMap.range Lker) fun c =>
+        hrange (LinearMap.mem_range_self Tker c)
+    let hRight := Lker.rangeRestrict.exists_rightInverse_of_surjective
+      Lker.range_rangeRestrict
+    let right := Classical.choose hRight
+    have hright := Classical.choose_spec hRight
+    let onKer : LinearMap.ker d →ₗ[ZMod 2] FiniteModTwoBarChainTwo Q :=
+      (LinearMap.ker J).subtype.comp (right.comp intoRange)
+    let hExtend := LinearMap.exists_extend onKer
+    let B := Classical.choose hExtend
+    have hB := Classical.choose_spec hExtend
+    refine ⟨B, fun c hc => ?_⟩
+    have hc' : c ∈ LinearMap.ker d := by
+      rw [LinearMap.mem_ker]
+      simpa [d] using hc
+    let cz : LinearMap.ker d := ⟨c, hc'⟩
+    have hBc : B c = onKer cz := LinearMap.congr_fun hB cz
+    have hright_c := LinearMap.congr_fun hright (intoRange cz)
+    constructor
+    · change L (B c) = T c
+      rw [hBc]
+      exact congrArg Subtype.val hright_c
+    · change J (B c) = 0
+      rw [hBc]
+      exact (right (intoRange cz)).2
+  · rintro ⟨B, hB⟩
+    intro z hz
+    obtain ⟨c, rfl⟩ := hz
+    have hc : finiteModTwoBarDThree Q c.1 = 0 := by
+      exact c.2
+    let b : LinearMap.ker J := ⟨B c.1, (hB c.1 hc).2⟩
+    refine ⟨b, ?_⟩
+    exact (hB c.1 hc).1
+
+/-- The strengthened syzygy range condition implies the earlier cancellation-only range
+condition, by forgetting that the chosen bar input lies in the Fox kernel. -/
+theorem FiniteUniversalThreeAdjointCocycleSyzygyBarRange.toBarRange
+    {Q I : Type} [Group Q]
+    {m : I → Q} {heval : Function.Surjective (FreeGroup.lift m)}
+    (hrange : FiniteUniversalThreeAdjointCocycleSyzygyBarRange m heval) :
+    FiniteUniversalThreeAdjointCocycleBarRange m heval := by
+  let d := (finiteModTwoBarDThree Q).toZModLinearMap 2
+  let T := (finiteUniversalThreeAdjointCocycleTarget m heval).toZModLinearMap 2
+  let L := finiteUniversalThreeBarInputCorrection m heval
+  let J := finiteUniversalThreeBarInputFoxBoundary m heval
+  intro z hz
+  obtain ⟨b, hb⟩ := hrange hz
+  exact ⟨b.1, hb⟩
+
+/-- Any bar input realizing the coupled target gives the desired defect cancellation.  The
+Fox-zero requirement is deliberately absent from this lemma and remains the second, independent
+half of the syzygy range condition. -/
+theorem finiteUniversalThreeAdjointBarInput_cancels_of_spec
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q) (b : FiniteModTwoBarChainTwo Q)
+    (hspec : finiteUniversalThreeBarInputCorrection m heval b =
+      finiteUniversalThreeAdjointCocycleTarget m heval c) :
+    finiteBarHomotopyTwoAdjointBarDefect m heval c +
+      finiteUniversalThreeAdjointFiniteSupportDefect m heval c
+        (finiteBarToUniversalRelationTwo m heval b) = 0 := by
+  funext a
+  have ha := congrFun hspec a
+  simp only [finiteUniversalThreeAdjointFiniteSupportDefect,
+    finiteUniversalThreeBarInputCorrection,
+    finiteUniversalThreeAdjointCocycleTarget,
+    LinearMap.comp_apply, AddMonoidHom.add_apply] at ha ⊢
+  let B : ZMod 2 := finiteBarHomotopyTwoAdjointBarDefect m heval c a
+  let U : ZMod 2 := finiteUniversalForwardReverseThreeCochainCorrection m heval c a
+  let F : ZMod 2 := finiteUniversalRelationThreeFiniteSupportCorrection m heval
+    (finiteBarToUniversalRelationTwo m heval b) a
+  change B + (U + F) = 0
+  change F = U + B at ha
+  rw [ha]
+  calc
+    B + (U + (U + B)) = (B + B) + (U + U) := by abel
+    _ = 0 := by
+      rw [ZModModule.add_self, ZModModule.add_self]
+      simp
+
+/-! ### Refined-input version for the square quotient system -/
+
+/-- The coupled target at `U`, pulled back from an input cochain at `V`. -/
+def sqFiniteUniversalThreeAdjointCocycleTargetAt
+    (h : ℕ) {V U : OpenNormalSubgroup (DSq h : Type)}
+    (hUV : U.toSubgroup ≤ V.toSubgroup) :
+    SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ U.toSubgroup) :=
+  ((finiteUniversalThreeAdjointCocycleTarget
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)).toZModLinearMap 2).comp
+      ((sqFiniteModTwoBarRefineThree h hUV).toZModLinearMap 2)
+
+/-- Refined local existence of a linear bar lift which realizes the coupled target and has
+Fox-zero universal output on input cocycles. -/
+def SqFiniteUniversalThreeAdjointCocycleSyzygyBarLiftExistsAt
+    (h : ℕ) (V U : OpenNormalSubgroup (DSq h : Type))
+    (hUV : U.toSubgroup ≤ V.toSubgroup) : Prop :=
+  ∃ B : SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup),
+    ∀ c : SqAdjointInputThree h V,
+      finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+        finiteUniversalThreeBarInputCorrection
+            (sqOpenQuotientMarking h U)
+            (sqOpenQuotientFreeEvaluation_surjective h U) (B c) =
+            sqFiniteUniversalThreeAdjointCocycleTargetAt h hUV c ∧
+          finiteUniversalThreeBarInputFoxBoundary
+            (sqOpenQuotientMarking h U)
+            (sqOpenQuotientFreeEvaluation_surjective h U) (B c) = 0
+
+/-- Minimal refined range condition: the coupled target on input cocycles is lifted through the
+correction map restricted to the Fox kernel at the refining quotient. -/
+def SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt
+    (h : ℕ) (V U : OpenNormalSubgroup (DSq h : Type))
+    (hUV : U.toSubgroup ≤ V.toSubgroup) : Prop :=
+  let d := (finiteModTwoBarDThree
+    ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2
+  let T := sqFiniteUniversalThreeAdjointCocycleTargetAt h hUV
+  let L := finiteUniversalThreeBarInputCorrection
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)
+  let J := finiteUniversalThreeBarInputFoxBoundary
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)
+  LinearMap.range (T.domRestrict (LinearMap.ker d)) ≤
+    LinearMap.range (L.domRestrict (LinearMap.ker J))
+
+/-- The refined range premise is again exactly equivalent to existence of the desired linear
+local lift. -/
+theorem sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt_iff
+    (h : ℕ) (V U : OpenNormalSubgroup (DSq h : Type))
+    (hUV : U.toSubgroup ≤ V.toSubgroup) :
+    SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V U hUV ↔
+      SqFiniteUniversalThreeAdjointCocycleSyzygyBarLiftExistsAt h V U hUV := by
+  let d := (finiteModTwoBarDThree
+    ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2
+  let T := sqFiniteUniversalThreeAdjointCocycleTargetAt h hUV
+  let L := finiteUniversalThreeBarInputCorrection
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)
+  let J := finiteUniversalThreeBarInputFoxBoundary
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)
+  constructor
+  · intro hrange
+    let Tker := T.domRestrict (LinearMap.ker d)
+    let Lker := L.domRestrict (LinearMap.ker J)
+    let intoRange : LinearMap.ker d →ₗ[ZMod 2] LinearMap.range Lker :=
+      Tker.codRestrict (LinearMap.range Lker) fun c =>
+        hrange (LinearMap.mem_range_self Tker c)
+    let hRight := Lker.rangeRestrict.exists_rightInverse_of_surjective
+      Lker.range_rangeRestrict
+    let right := Classical.choose hRight
+    have hright := Classical.choose_spec hRight
+    let onKer : LinearMap.ker d →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+      (LinearMap.ker J).subtype.comp (right.comp intoRange)
+    let hExtend := LinearMap.exists_extend onKer
+    let B := Classical.choose hExtend
+    have hB := Classical.choose_spec hExtend
+    refine ⟨B, fun c hc => ?_⟩
+    have hc' : c ∈ LinearMap.ker d := by
+      rw [LinearMap.mem_ker]
+      simpa [d] using hc
+    let cz : LinearMap.ker d := ⟨c, hc'⟩
+    have hBc : B c = onKer cz := LinearMap.congr_fun hB cz
+    have hright_c := LinearMap.congr_fun hright (intoRange cz)
+    constructor
+    · change L (B c) = T c
+      rw [hBc]
+      exact congrArg Subtype.val hright_c
+    · change J (B c) = 0
+      rw [hBc]
+      exact (right (intoRange cz)).2
+  · rintro ⟨B, hB⟩
+    intro z hz
+    obtain ⟨c, rfl⟩ := hz
+    have hc : finiteModTwoBarDThree
+        ((DSq h : Type) ⧸ V.toSubgroup) c.1 = 0 := by
+      exact c.2
+    let b : LinearMap.ker J := ⟨B c.1, (hB c.1 hc).2⟩
+    exact ⟨b, (hB c.1 hc).1⟩
+
 /-- Finite-dimensional linear algebra turns the cocycle range condition into an additive
 bar-two input map.  The lift is first chosen through `L.rangeRestrict` on `ker d³`, then extended
 from the cocycle subspace to all three-cochains. -/
@@ -241,6 +485,45 @@ structure SqUniversalCocycleOutputFiber
   cases y
   cases hout
   rfl
+
+/-- A solution of the strengthened refined range condition supplies an actual local fiber.
+Bar representability is built into the output; the two conclusions of the exact lift theorem
+give Fox-zero and cocycle cancellation respectively. -/
+noncomputable def sqUniversalCocycleOutputFiberOfSyzygyBarRangeAt
+    (h : ℕ) (V U : OpenNormalSubgroup (DSq h : Type))
+    (hUV : U.toSubgroup ≤ V.toSubgroup)
+    (hrange : SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V U hUV) :
+    SqUniversalCocycleOutputFiber h V U := by
+  let hexists := (sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt_iff
+    h V U hUV).mp hrange
+  let B := Classical.choose hexists
+  have hB := Classical.choose_spec hexists
+  refine {
+    output := (finiteBarToUniversalRelationTwo
+      (sqOpenQuotientMarking h U)
+      (sqOpenQuotientFreeEvaluation_surjective h U)).comp B
+    bar_representable := ⟨B, rfl⟩
+    fox_zero_on_cocycles := fun c hc => ?_
+    cancels_on_refinements := fun hUV' c hc => ?_
+  }
+  · change finiteUniversalThreeBarInputFoxBoundary
+      (sqOpenQuotientMarking h U)
+      (sqOpenQuotientFreeEvaluation_surjective h U) (B c) = 0
+    exact (hB c hc).2
+  · have hproof : hUV' = hUV := Subsingleton.elim _ _
+    cases hproof
+    have hspec : finiteUniversalThreeBarInputCorrection
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U) (B c) =
+      finiteUniversalThreeAdjointCocycleTarget
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U)
+        (sqFiniteModTwoBarRefineThree h hUV c) := by
+      simpa [B, sqFiniteUniversalThreeAdjointCocycleTargetAt] using (hB c hc).1
+    exact finiteUniversalThreeAdjointBarInput_cancels_of_spec
+      (sqOpenQuotientMarking h U)
+      (sqOpenQuotientFreeEvaluation_surjective h U)
+      (sqFiniteModTwoBarRefineThree h hUV c) (B c) hspec
 
 /-- Each output fiber is finite: choose one bar-two representative of every output and inject
 the fiber into the finite type of linear maps between the two finite quotient spaces. -/
@@ -514,6 +797,27 @@ def SqUniversalCocycleOutputEventuallyNonempty
   ∀ U : OpenNormalSubgroup (DSq h : Type),
     ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
       Nonempty (SqUniversalCocycleOutputFiber h V W)
+
+/-- Concrete cofinal local obligation which implies eventual fiber nonemptiness: below every
+requested quotient, find a common refinement of it and the input quotient where the coupled
+target lifts through the correction map restricted to the Fox kernel. -/
+def SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
+      ∃ hWV : W ≤ V,
+        SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V W hWV
+
+/-- The cofinal strengthened range premise produces the exact eventual nonemptiness premise
+used by finite cofiltered compactness. -/
+theorem sqUniversalCocycleOutputEventuallyNonempty_of_syzygyBarCofinalRange
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (hrange : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V) :
+    SqUniversalCocycleOutputEventuallyNonempty h V := by
+  intro U
+  obtain ⟨W, hWU, hWV, hrangeW⟩ := hrange U
+  exact ⟨W, hWU,
+    ⟨sqUniversalCocycleOutputFiberOfSyzygyBarRangeAt h V W hWV hrangeW⟩⟩
 
 theorem sqUniversalCocycleOutputFiber_nonempty_of_eventuallyNonempty
     {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
@@ -899,6 +1203,29 @@ theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_eventuallyNonempty
     Nonempty (SqFiniteInputCompletedSyzygyBoundaryAt h V) :=
   (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventuallyNonempty
     h V hclosed heventual).map fun S => S.completedSyzygyBoundary hgen
+
+/-- Strongest honest endpoint from the local calculation: the Fox-kernel range condition is
+required only cofinally, while quotient-transition closure remains a separate premise. -/
+theorem nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_syzygyBarCofinalRange
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (hrange : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V) :
+    Nonempty (SqFiniteInputUniversalDegreeThreeComparisonAt h V) :=
+  nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_eventuallyNonempty
+    h V hclosed
+      (sqUniversalCocycleOutputEventuallyNonempty_of_syzygyBarCofinalRange hrange)
+
+/-- Adding the independent eventual generation of the improved relator reaches the completed
+single-relator syzygy boundary. -/
+theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_syzygyBarCofinalRange
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (hrange : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    Nonempty (SqFiniteInputCompletedSyzygyBoundaryAt h V) :=
+  nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_eventuallyNonempty
+    h V hclosed
+      (sqUniversalCocycleOutputEventuallyNonempty_of_syzygyBarCofinalRange hrange) hgen
 
 end
 
