@@ -87,6 +87,8 @@ local instance : Module (ZMod 2) (Additive V) :=
     rw [two_nsmul]
     exact additive_exponent_two V v)
 
+local instance : Module.Finite (ZMod 2) (Additive V) := Module.Finite.of_finite
+
 /-- The normalized diagonal of a cocycle. -/
 def elementaryCocycleDiagonal (z : Z2 V (ZMod 2)) (v : Additive V) : ZMod 2 :=
   elementaryNormalizedCocycle V z v v
@@ -276,12 +278,60 @@ theorem elementaryH2ToQuadratic_injective :
     exact hmap
   rwa [elementaryH2ToQuadratic_H2mk] at hmapz
 
+/-- The bilinear refinement selected from a basis turns a quadratic map back into a cocycle. -/
+def elementaryQuadraticCocycle
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) : Z2 V (ZMod 2) := by
+  let bm := Module.finBasis (ZMod 2) (Additive V)
+  let B := Q.toBilin bm
+  refine ⟨fun p => B (Additive.ofMul p.1) (Additive.ofMul p.2), ?_⟩
+  apply mem_Z2_iff.mpr
+  refine ⟨continuous_of_discreteTopology, ?_⟩
+  intro g h k
+  rw [scalarActionZmodTwo_triv V]
+  change B (Additive.ofMul h) (Additive.ofMul k) +
+      B (Additive.ofMul g) (Additive.ofMul (h * k)) =
+    B (Additive.ofMul (g * h)) (Additive.ofMul k) +
+      B (Additive.ofMul g) (Additive.ofMul h)
+  change B (Additive.ofMul h) (Additive.ofMul k) +
+      B (Additive.ofMul g) (Additive.ofMul h + Additive.ofMul k) =
+    B (Additive.ofMul g + Additive.ofMul h) (Additive.ofMul k) +
+      B (Additive.ofMul g) (Additive.ofMul h)
+  simp only [map_add, LinearMap.add_apply]
+  abel
+
+/-- The cocycle built from a quadratic map has that map as normalized diagonal. -/
+@[simp] theorem elementaryCocycleQuadraticMap_elementaryQuadraticCocycle
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :
+    elementaryCocycleQuadraticMap V (elementaryQuadraticCocycle V Q) = Q := by
+  let bm := Module.finBasis (ZMod 2) (Additive V)
+  apply QuadraticMap.ext
+  intro v
+  change Q.toBilin bm v v - Q.toBilin bm 0 0 = Q v
+  rw [map_zero, sub_zero]
+  exact DFunLike.congr_fun (QuadraticMap.toQuadraticMap_toBilin Q bm) v
+
+/-- Every quadratic map occurs as the normalized diagonal of an `H²` class. -/
+theorem elementaryH2ToQuadratic_surjective :
+    Function.Surjective (elementaryH2ToQuadratic V) := by
+  intro Q
+  refine ⟨H2mk V (ZMod 2) (elementaryQuadraticCocycle V Q), ?_⟩
+  simp
+
+/-- Cohomology of a finite elementary abelian two-group is additively equivalent to its
+quadratic maps. -/
+def elementaryH2EquivQuadratic :
+    H2 V (ZMod 2) ≃+ QuadraticMap (ZMod 2) (Additive V) (ZMod 2) :=
+  AddEquiv.ofBijective (elementaryH2ToQuadratic V)
+    ⟨elementaryH2ToQuadratic_injective V, elementaryH2ToQuadratic_surjective V⟩
+
 end Quadratic
 
 #print axioms elementaryNormalizedCocycle_identity
 #print axioms elementaryCocycleQuadraticMap
 #print axioms elementaryH2ToQuadratic
 #print axioms elementaryH2ToQuadratic_injective
+#print axioms elementaryH2ToQuadratic_surjective
+#print axioms elementaryH2EquivQuadratic
 
 end
 
