@@ -474,6 +474,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteFinite
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStage
+import GQ2.Dyadic.Instances.GammaLFieldPresentationRightExact
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageHandles
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteForwardSpanAudit
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteBracketSpan
