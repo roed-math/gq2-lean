@@ -467,6 +467,7 @@ import GQ2.Dyadic.Count.H3SqTateDualityCapstone
 import GQ2.Dyadic.Count.H3SqTateDualityVariableCoreCapstone
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFixedCoreCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteFinite
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRealizationCore
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageArithmeticResidual
