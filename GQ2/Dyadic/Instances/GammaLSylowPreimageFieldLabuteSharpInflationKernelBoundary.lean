@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteTransgressionAtoms
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteCyclotomicBockstein
+import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherHilbert90
 
 /-!
 # The sharp Labute boundary on the higher inflation kernel
@@ -219,6 +220,56 @@ theorem sharpCyclotomicInflationKernelResidualCompatibility_of_primitiveVanishin
     G k (by omega) hfg isProP_maxProPQuotient eta z hz b hdb]
   exact hbzero
 
+/-- The exact bridge still needed after the all-exponent higher Kummer and Artin campaigns.
+
+The premise is the canonical higher Kummer package together with the (existential) local
+Tate--Kummer--Artin compatibility at every `2`-power exponent.  The conclusion asks for its
+cochain-level compatibility with Hochschild--Serre transgression: a primitive of an inflated
+stage cocycle has zero normalized value on the sharp residual.
+
+This implication is deliberately named rather than folded into either endpoint.  The current
+higher Kummer/Hilbert--90 API constructs explicit degree-one Kummer cocycles, while the higher
+Artin API identifies only cohomology classes and abelian characters.  Neither endpoint mentions
+the `C1` primitive of a vanishing `H2` class occurring here. -/
+def HigherKummerArtinSharpPrimitiveRestrictionBridge
+    {R : LocalReciprocity} (B : MarkedRecip R K)
+    {h k : ℕ} (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) : Prop :=
+  (∀ m : ℕ, HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m))
+      (canonicalHigherKummerClassData K (2 ^ m))) →
+    SharpCyclotomicInflationPrimitiveResidualVanishing T hk W hfg
+
+/-- The higher Kummer--Artin bridge has exactly the same input strength as finite-layer norm
+reciprocity.  This regression follows from the existing all-exponent equivalence and confirms
+that no extra higher-Kummer exactness or coefficient scalarization is hidden in the bridge. -/
+theorem higherKummerArtinSharpPrimitiveRestrictionBridge_iff_finiteLayerNormReciprocity
+    {R : LocalReciprocity} {B : MarkedRecip R K}
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    HigherKummerArtinSharpPrimitiveRestrictionBridge B T hk W hfg ↔
+      (FiniteLayerNormReciprocity B →
+        SharpCyclotomicInflationPrimitiveResidualVanishing T hk W hfg) := by
+  unfold HigherKummerArtinSharpPrimitiveRestrictionBridge
+  rw [allCanonicalHigherTateKummerArtinCompatibility_iff_finiteLayerNormReciprocity]
+
+/-- All-exponent higher Tate--Kummer--Artin compatibility, together with the missing
+transgression bridge, proves the desired residual vanishing on the higher inflation kernel. -/
+theorem sharpCyclotomicInflationKernelResidualCompatibility_of_higherKummerArtinBridge
+    {R : LocalReciprocity} {B : MarkedRecip R K}
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (HArtin : ∀ m : ℕ, HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m))
+      (canonicalHigherKummerClassData K (2 ^ m)))
+    (Hbridge : HigherKummerArtinSharpPrimitiveRestrictionBridge B T hk W hfg) :
+    SharpCyclotomicInflationKernelResidualCompatibility T hk W hfg :=
+  sharpCyclotomicInflationKernelResidualCompatibility_of_primitiveVanishing W hfg
+    (Hbridge HArtin)
+
 /-- The named higher arithmetic compatibility is neither stronger nor weaker than the remaining
 regression goal: transgression duality identifies it exactly with residual bracket-span
 membership. -/
@@ -271,6 +322,8 @@ end SqCyclotomicStageTuple
 
 #print axioms lowerTwoCentralInflationKernelEvaluationAt_apply
 #print axioms SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_of_primitiveVanishing
+#print axioms SqCyclotomicStageTuple.higherKummerArtinSharpPrimitiveRestrictionBridge_iff_finiteLayerNormReciprocity
+#print axioms SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_of_higherKummerArtinBridge
 #print axioms SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_iff_mem_bracketSpan
 
 end
