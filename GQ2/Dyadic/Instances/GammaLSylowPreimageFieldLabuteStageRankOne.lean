@@ -500,6 +500,17 @@ theorem sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
   let Hlift := Hexact.toSharpExactLevelFibreLiftSupply
   exact ⟨W.toAdmissible Hlift, hW⟩
 
+/-- Every bottom-field stage tuple at level `k >= 3` has its literal improved-word defect
+reachable.  This is unconditional because the sharp filtration of `ℤ₂ˣ` has been proved
+exact. -/
+theorem sqCyclotomicStageTuple_bot_all_defectReachable
+    (k : ℕ) (hk : 3 ≤ k)
+    (T : SqCyclotomicStageTuple
+      (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0 k) :
+    T.DefectReachable :=
+  sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
+    SqCyclotomicStageTuple.sharpUnitsFiltrationExact k hk T
+
 #print axioms sqCyclotomicStageTuple_bot_nonempty
 #print axioms chiD0pres_eq_chiD0G
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
@@ -511,6 +522,7 @@ theorem sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
 #print axioms sqCyclotomicStageTuple_bot_sharpDefectReachable
 #print axioms chiCycKTwo_bot_surjective
 #print axioms sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
+#print axioms sqCyclotomicStageTuple_bot_all_defectReachable
 
 end
 
