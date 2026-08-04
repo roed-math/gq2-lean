@@ -6,6 +6,8 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationCriterion
 import GQ2.SectionSix
 import GQ2.Prop32
+import Mathlib.Data.Set.UnionLift
+import Mathlib.Topology.Separation.Profinite
 
 /-!
 # The maximal-pro-2 kernel boundary for GammaL inflation
@@ -126,6 +128,74 @@ theorem maxProTwoKernel_ambientZ1_apply_eq_zero
   exact congrArg Prod.fst hk'
 
 end AutomaticDegreeOne
+
+section ContinuousExtension
+
+variable {G M : Type*}
+  [TopologicalSpace G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+  [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M] [Finite M]
+
+/-- A continuous map from a closed subgroup of a profinite space to a finite discrete additive
+group extends to a continuous function on the ambient space.
+
+This is purely topological.  The fibers of the original map are a finite disjoint family of
+closed subsets; `exists_clopen_partition_of_clopen_cover` enlarges them to a disjoint clopen
+partition of the ambient space, on which the extension is locally constant. -/
+theorem exists_continuous_extension_of_closed_subgroup
+    [Group G] (N : Subgroup G) [IsClosed (N : Set G)]
+    (phi : N → M) (hphi : Continuous phi) :
+    ∃ psi : G → M, Continuous psi ∧ ∀ n : N, psi n.1 = phi n := by
+  let Z : M → Set G := fun m => ((↑) : N → G) '' (phi ⁻¹' {m})
+  have hemb : Topology.IsClosedEmbedding ((↑) : N → G) :=
+    (show IsClosed (N : Set G) from inferInstance).isClosedEmbedding_subtypeVal
+  have Z_closed (m : M) : IsClosed (Z m) :=
+    hemb.isClosed_iff_image_isClosed.mp
+      (IsClosed.preimage hphi isClosed_singleton)
+  have Z_disj : (Set.univ : Set M).PairwiseDisjoint Z := by
+    rw [Set.pairwiseDisjoint_iff]
+    simp only [Set.image_inter_nonempty_iff, Z]
+    rintro _ _ _ _ ⟨_, rfl, ⟨_, rfl, hy⟩⟩
+    rw [Subtype.val_injective hy]
+  let D : M → Set G := fun _ => Set.univ
+  have D_clopen (m : M) : IsClopen (D m) := isClopen_univ
+  have Z_subset_D (m : M) : Z m ⊆ D m := Set.subset_univ _
+  obtain ⟨C, C_clopen, Z_subset_C, _C_subset_D, C_cover_D, C_disj⟩ :=
+    exists_clopen_partition_of_clopen_cover Z_closed D_clopen Z_subset_D Z_disj
+  have D_cover_univ : Set.univ ⊆ ⋃ m, D m := by
+    intro g _
+    exact Set.mem_iUnion.mpr ⟨(0 : M), Set.mem_univ g⟩
+  have C_cover_univ : ⋃ m, C m = Set.univ :=
+    Set.univ_subset_iff.mp (Set.Subset.trans D_cover_univ C_cover_D)
+  have h_glue (i j : M) (g : G) (hgi : g ∈ C i) (hgj : g ∈ C j) : i = j := by
+    rw [Set.pairwiseDisjoint_iff] at C_disj
+    exact C_disj (by simp) (by simp) ⟨g, by grind⟩
+  let psi : G → M := Set.liftCover C (fun m _ => m) h_glue C_cover_univ
+  have hpsi : Continuous psi := by
+    refine IsLocallyConstant.continuous ?_
+    rw [IsLocallyConstant.iff_isOpen_fiber]
+    intro m
+    convert! (C_clopen m).isOpen
+    ext g
+    simp [psi, Set.preimage_liftCover]
+  refine ⟨psi, hpsi, ?_⟩
+  intro n
+  have hnZ : n.1 ∈ Z (phi n) := ⟨n, by simp, rfl⟩
+  exact Set.liftCover_of_mem (Z_subset_C (phi n) hnZ)
+
+variable [Group G] [IsTopologicalGroup G]
+
+/-- In particular, the negative of every continuous kernel primitive has a continuous ambient
+extension.  Thus the unresolved transgression input is not the existence of a continuous
+extension as a function; it is the two cross-term identities. -/
+theorem exists_continuous_neg_extension_maxProTwoKernel
+    (phi : proPKernel 2 G → M) (hphi : Continuous phi) :
+    ∃ psi : G → M, Continuous psi ∧
+      ∀ n : proPKernel 2 G, psi n.1 = -phi n := by
+  letI : IsClosed (proPKernel 2 G : Set G) := proPKernel_isClosed 2 G
+  exact exists_continuous_extension_of_closed_subgroup (proPKernel 2 G)
+    (fun n => -phi n) hphi.neg
+
+end ContinuousExtension
 
 section UniformBoundary
 
