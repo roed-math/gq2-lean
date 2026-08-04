@@ -406,6 +406,8 @@ import GQ2.Dyadic.Count.CompletedModTwoFoxBoundary
 import GQ2.Dyadic.Count.CompletedRankOneFox
 import GQ2.Dyadic.Count.H3FiniteBarFoxAssembly
 import GQ2.Dyadic.Count.H3CompatibleFoxInjectivity
+import GQ2.Dyadic.Count.H3AugmentationFiltration
+import GQ2.Dyadic.Count.H3FiniteStronglyFreeNoGo
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
