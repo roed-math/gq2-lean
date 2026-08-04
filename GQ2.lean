@@ -403,6 +403,7 @@ import GQ2.Dyadic.Count.H3FiniteLevelFoxBoundary
 import GQ2.Dyadic.Count.ContinuousCochainFiniteLevel
 import GQ2.Dyadic.Count.CompletedModTwoGroupAlgebra
 import GQ2.Dyadic.Count.CompletedModTwoFoxBoundary
+import GQ2.Dyadic.Count.H3FiniteBarFoxAssembly
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage

@@ -161,6 +161,12 @@ theorem continuous_modTwoInflateFour (V : OpenNormalSubgroup G)
           (QuotientGroup.continuous_mk.comp
             (continuous_snd.comp (continuous_snd.comp continuous_snd))))))
 
+/-- A representative-section descent of a two-cochain.  Uniform coset constancy makes its
+inflation equal to the original cochain; no algebraic choice enters downstream statements. -/
+def modTwoDescendTwo (V : OpenNormalSubgroup G) (k : G × G → ZMod 2) :
+    (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) → ZMod 2 :=
+  fun p ↦ k (Quotient.out p.1, Quotient.out p.2)
+
 /-- A representative-section descent of a three-cochain.  Uniform coset constancy makes its
 inflation equal to the original cochain; no algebraic choice enters downstream statements. -/
 def modTwoDescendThree (V : OpenNormalSubgroup G) (F : G × G × G → ZMod 2) :
@@ -178,6 +184,16 @@ private theorem out_inv_mul_mem (V : OpenNormalSubgroup G) (x : G) :
     (Quotient.out (QuotientGroup.mk' V.toSubgroup x))⁻¹ * x ∈ V := by
   apply QuotientGroup.leftRel_apply.mp
   exact Quotient.exact (Quotient.out_eq _)
+
+theorem inflate_descendTwo_eq (V : OpenNormalSubgroup G) (k : G × G → ZMod 2)
+    (hV : ∀ a b : G, ∀ u ∈ V, ∀ v ∈ V, k (a * u, b * v) = k (a, b)) :
+    modTwoInflateTwo V (modTwoDescendTwo V k) = k := by
+  funext p
+  let a := Quotient.out (QuotientGroup.mk' V.toSubgroup p.1)
+  let b := Quotient.out (QuotientGroup.mk' V.toSubgroup p.2)
+  have h := hV a b (a⁻¹ * p.1) (out_inv_mul_mem V p.1)
+    (b⁻¹ * p.2) (out_inv_mul_mem V p.2)
+  simpa [modTwoInflateTwo, modTwoDescendTwo, a, b] using h.symm
 
 theorem inflate_descendThree_eq (V : OpenNormalSubgroup G) (F : G × G × G → ZMod 2)
     (hV : ∀ a b c : G, ∀ u ∈ V, ∀ v ∈ V, ∀ w ∈ V,
@@ -207,6 +223,14 @@ theorem inflate_descendFour_eq (V : OpenNormalSubgroup G)
     (c⁻¹ * p.2.2.1) (out_inv_mul_mem V p.2.2.1)
     (d⁻¹ * p.2.2.2) (out_inv_mul_mem V p.2.2.2)
   simpa [modTwoInflateFour, modTwoDescendFour, a, b, c, d] using h.symm
+
+/-- Every continuous mod-two two-cochain is inflated from one finite quotient. -/
+theorem exists_modTwoCochainTwo_factor (k : G × G → ZMod 2) (hk : Continuous k) :
+    ∃ (V : OpenNormalSubgroup G)
+      (c : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) → ZMod 2),
+      modTwoInflateTwo V c = k := by
+  obtain ⟨V, hV⟩ := GQ2.Dyadic.WordCoh.exists_openNormalSubgroup_factor_two k hk
+  exact ⟨V, modTwoDescendTwo V k, inflate_descendTwo_eq V k hV⟩
 
 /-- Every continuous mod-two three-cochain is inflated from one finite quotient. -/
 theorem exists_modTwoCochainThree_factor (F : G × G × G → ZMod 2) (hF : Continuous F) :
@@ -291,12 +315,28 @@ def openNormalQuotientProj {V W : OpenNormalSubgroup G}
   rw [openNormalQuotientProj, QuotientGroup.map_mk']
   rfl
 
+/-- Pull a two-cochain to a finer finite quotient. -/
+def modTwoRefineTwo {V W : OpenNormalSubgroup G} (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (k : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) → ZMod 2) :
+    (G ⧸ W.toSubgroup) × (G ⧸ W.toSubgroup) → ZMod 2 :=
+  fun p ↦ k (openNormalQuotientProj hWV p.1, openNormalQuotientProj hWV p.2)
+
 /-- Pull a three-cochain to a finer finite quotient. -/
 def modTwoRefineThree {V W : OpenNormalSubgroup G} (hWV : W.toSubgroup ≤ V.toSubgroup)
     (F : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) → ZMod 2) :
     (G ⧸ W.toSubgroup) × (G ⧸ W.toSubgroup) × (G ⧸ W.toSubgroup) → ZMod 2 :=
   fun p ↦ F (openNormalQuotientProj hWV p.1,
     openNormalQuotientProj hWV p.2.1, openNormalQuotientProj hWV p.2.2)
+
+/-- Pull a four-cochain to a finer finite quotient. -/
+def modTwoRefineFour {V W : OpenNormalSubgroup G} (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (F : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) ×
+      (G ⧸ V.toSubgroup) → ZMod 2) :
+    (G ⧸ W.toSubgroup) × (G ⧸ W.toSubgroup) × (G ⧸ W.toSubgroup) ×
+      (G ⧸ W.toSubgroup) → ZMod 2 :=
+  fun p ↦ F (openNormalQuotientProj hWV p.1,
+    openNormalQuotientProj hWV p.2.1, openNormalQuotientProj hWV p.2.2.1,
+    openNormalQuotientProj hWV p.2.2.2)
 
 theorem inflate_refineThree {V W : OpenNormalSubgroup G}
     (hWV : W.toSubgroup ≤ V.toSubgroup)
@@ -309,6 +349,74 @@ theorem inflate_refineThree {V W : OpenNormalSubgroup G}
       F (QuotientGroup.mk' V.toSubgroup p.1, QuotientGroup.mk' V.toSubgroup p.2.1,
         QuotientGroup.mk' V.toSubgroup p.2.2)
   rw [openNormalQuotientProj_mk, openNormalQuotientProj_mk, openNormalQuotientProj_mk]
+
+theorem inflate_refineTwo {V W : OpenNormalSubgroup G}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (k : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) → ZMod 2) :
+    modTwoInflateTwo W (modTwoRefineTwo hWV k) = modTwoInflateTwo V k := by
+  funext p
+  change k (openNormalQuotientProj hWV (QuotientGroup.mk' W.toSubgroup p.1),
+    openNormalQuotientProj hWV (QuotientGroup.mk' W.toSubgroup p.2)) =
+      k (QuotientGroup.mk' V.toSubgroup p.1, QuotientGroup.mk' V.toSubgroup p.2)
+  rw [openNormalQuotientProj_mk, openNormalQuotientProj_mk]
+
+theorem inflate_refineFour {V W : OpenNormalSubgroup G}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (F : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) ×
+      (G ⧸ V.toSubgroup) → ZMod 2) :
+    modTwoInflateFour W (modTwoRefineFour hWV F) = modTwoInflateFour V F := by
+  funext p
+  change F (openNormalQuotientProj hWV (QuotientGroup.mk' W.toSubgroup p.1),
+    openNormalQuotientProj hWV (QuotientGroup.mk' W.toSubgroup p.2.1),
+    openNormalQuotientProj hWV (QuotientGroup.mk' W.toSubgroup p.2.2.1),
+    openNormalQuotientProj hWV (QuotientGroup.mk' W.toSubgroup p.2.2.2)) =
+      F (QuotientGroup.mk' V.toSubgroup p.1, QuotientGroup.mk' V.toSubgroup p.2.1,
+        QuotientGroup.mk' V.toSubgroup p.2.2.1, QuotientGroup.mk' V.toSubgroup p.2.2.2)
+  rw [openNormalQuotientProj_mk, openNormalQuotientProj_mk,
+    openNormalQuotientProj_mk, openNormalQuotientProj_mk]
+
+/-- Inflation of finite three-cochains is injective because the quotient map is surjective. -/
+theorem modTwoInflateThree_injective (V : OpenNormalSubgroup G) :
+    Function.Injective (modTwoInflateThree V) := by
+  intro c c' h
+  funext p
+  rcases p with ⟨p₁, p₂, p₃⟩
+  obtain ⟨a, rfl⟩ := QuotientGroup.mk'_surjective V.toSubgroup p₁
+  obtain ⟨b, rfl⟩ := QuotientGroup.mk'_surjective V.toSubgroup p₂
+  obtain ⟨d, rfl⟩ := QuotientGroup.mk'_surjective V.toSubgroup p₃
+  exact congrFun h (a, b, d)
+
+/-- Refinement commutes with the mod-two `d²` differential. -/
+theorem dTwo_modTwoRefineTwo {V W : OpenNormalSubgroup G}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (k : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) → ZMod 2) :
+    letI := trivialZModTwoAction (G ⧸ V.toSubgroup)
+    letI := trivialZModTwoAction (G ⧸ W.toSubgroup)
+    dTwo (G ⧸ W.toSubgroup) (ZMod 2) (modTwoRefineTwo hWV k) =
+      modTwoRefineThree hWV (dTwo (G ⧸ V.toSubgroup) (ZMod 2) k) := by
+  letI := trivialZModTwoAction (G ⧸ V.toSubgroup)
+  letI := trivialZModTwoAction (G ⧸ W.toSubgroup)
+  funext p
+  have hsmulV (g : G ⧸ V.toSubgroup) (x : ZMod 2) : g • x = x := rfl
+  have hsmulW (g : G ⧸ W.toSubgroup) (x : ZMod 2) : g • x = x := rfl
+  simp [dTwo, modTwoRefineTwo, modTwoRefineThree, hsmulV, hsmulW, map_mul]
+
+/-- Refinement commutes with the mod-two `d³` differential. -/
+theorem dThree_modTwoRefineThree {V W : OpenNormalSubgroup G}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (F : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) ×
+      (G ⧸ V.toSubgroup) → ZMod 2) :
+    letI := trivialZModTwoAction (G ⧸ V.toSubgroup)
+    letI := trivialZModTwoAction (G ⧸ W.toSubgroup)
+    dThree (G := G ⧸ W.toSubgroup) (A := ZMod 2) (modTwoRefineThree hWV F) =
+      modTwoRefineFour hWV
+        (dThree (G := G ⧸ V.toSubgroup) (A := ZMod 2) F) := by
+  letI := trivialZModTwoAction (G ⧸ V.toSubgroup)
+  letI := trivialZModTwoAction (G ⧸ W.toSubgroup)
+  funext p
+  have hsmulV (g : G ⧸ V.toSubgroup) (x : ZMod 2) : g • x = x := rfl
+  have hsmulW (g : G ⧸ W.toSubgroup) (x : ZMod 2) : g • x = x := rfl
+  simp [dThree, modTwoRefineThree, modTwoRefineFour, hsmulV, hsmulW, map_mul]
 
 /-- A finite-level `d²` primitive at any refinement inflates to a continuous primitive of the
 original continuous three-cochain. -/
@@ -324,6 +432,61 @@ theorem continuous_primitive_of_finite_refinement
   let K := modTwoInflateTwo W k
   refine ⟨K, continuous_modTwoInflateTwo W k, ?_⟩
   rw [dTwo_modTwoInflateTwo W k, hk, inflate_refineThree hWV c, hF]
+
+/-! ## The finite-refinement criterion for continuous `H³` -/
+
+/-- The exact finite-level form of continuous mod-two degree-three exactness.  It does **not**
+ask a finite quotient to have vanishing `H³`: a cocycle at level `V` need only acquire a
+primitive after inflation to some finer level `W ≤ V`.  This is the direct-limit statement
+which a quotient-natural finite bar--Fox comparison must prove. -/
+def FiniteRefinementModTwoHThreeExact (G : Type)
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] : Prop :=
+  ∀ (V : OpenNormalSubgroup G)
+    (c : (G ⧸ V.toSubgroup) × (G ⧸ V.toSubgroup) ×
+      (G ⧸ V.toSubgroup) → ZMod 2),
+    (letI := trivialZModTwoAction (G ⧸ V.toSubgroup);
+      dThree (G := G ⧸ V.toSubgroup) (A := ZMod 2) c = 0) →
+      ∃ (W : OpenNormalSubgroup G) (hWV : W.toSubgroup ≤ V.toSubgroup)
+        (k : (G ⧸ W.toSubgroup) × (G ⧸ W.toSubgroup) → ZMod 2),
+        (letI := trivialZModTwoAction (G ⧸ W.toSubgroup);
+          dTwo (G ⧸ W.toSubgroup) (ZMod 2) k = modTwoRefineThree hWV c)
+
+/-- Finite-level primitives after refinement assemble to continuous primitives upstairs. -/
+theorem modTwoHThreeExact_of_finiteRefinement
+    (S : FiniteRefinementModTwoHThreeExact G) : ModTwoHThreeExact G := by
+  intro F hFcontinuous hFcocycle
+  obtain ⟨V, c, hfactor, hcocycle⟩ :=
+    exists_modTwoThreeCocycle_factor F hFcontinuous hFcocycle
+  obtain ⟨W, hWV, k, hk⟩ := S V c hcocycle
+  exact continuous_primitive_of_finite_refinement F V W hWV c hfactor k hk
+
+/-- Conversely, continuous degree-three exactness supplies a primitive at a common finite
+refinement.  Thus `FiniteRefinementModTwoHThreeExact` is exactly the finite algebraic target,
+not a stronger (and false) demand for pointwise finite-quotient exactness. -/
+theorem finiteRefinement_of_modTwoHThreeExact
+    (S : ModTwoHThreeExact G) : FiniteRefinementModTwoHThreeExact G := by
+  intro V c hcocycle
+  let F := modTwoInflateThree V c
+  have hFcontinuous : Continuous F := continuous_modTwoInflateThree V c
+  have hFcocycle : dThree (G := G) (A := ZMod 2) F = 0 := by
+    rw [dThree_modTwoInflateThree V c, hcocycle]
+    rfl
+  obtain ⟨K, hKcontinuous, hK⟩ := S F hFcontinuous hFcocycle
+  obtain ⟨U, k, hkfactor⟩ := exists_modTwoCochainTwo_factor K hKcontinuous
+  let W : OpenNormalSubgroup G := U ⊓ V
+  have hWU : W.toSubgroup ≤ U.toSubgroup := inf_le_left
+  have hWV : W.toSubgroup ≤ V.toSubgroup := inf_le_right
+  refine ⟨W, hWV, modTwoRefineTwo hWU k, ?_⟩
+  letI := trivialZModTwoAction (G ⧸ W.toSubgroup)
+  apply modTwoInflateThree_injective W
+  rw [← dTwo_modTwoInflateTwo W, inflate_refineTwo hWU, hkfactor, hK,
+    inflate_refineThree hWV]
+
+/-- Continuous exactness and eventual finite-level exactness are equivalent. -/
+theorem finiteRefinementModTwoHThreeExact_iff :
+    FiniteRefinementModTwoHThreeExact G ↔ ModTwoHThreeExact G :=
+  ⟨modTwoHThreeExact_of_finiteRefinement, finiteRefinement_of_modTwoHThreeExact⟩
 
 end ContCoh
 
