@@ -501,6 +501,63 @@ noncomputable def CorrectionSurjective.toNext
     SqCyclotomicStageTuple K h (k + 1) :=
   (H.defectKillingCorrection T).toNext T hk hfg
 
+/-! ## Base, induction, and all-finite-level assembly -/
+
+/-- Restrict a nonempty oriented stage through an arbitrary finite number of tower maps. -/
+private theorem stage_nonempty_of_add (h : ℕ) :
+    ∀ (d k : ℕ), Nonempty (SqCyclotomicStageTuple K h (k + d)) →
+      Nonempty (SqCyclotomicStageTuple K h k)
+  | 0, _, H => by simpa using H
+  | d + 1, k, H => by
+      apply stage_nonempty_of_add h d k
+      exact H.elim fun T ↦ ⟨T.levelProj⟩
+
+/-- Upward induction from the precise base premise: one exact oriented level-three tuple.
+The only inductive arithmetic input is correction surjectivity for every oriented stage at
+every level at least three. -/
+private theorem stage_nonempty_three_add
+    (h : ℕ) (base : SqCyclotomicStageTuple K h 3)
+    (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
+      (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤)
+    (Hcorr : ∀ (k : ℕ), 3 ≤ k → ∀ T : SqCyclotomicStageTuple K h k,
+      CorrectionSurjective T) :
+    ∀ d : ℕ, Nonempty (SqCyclotomicStageTuple K h (3 + d))
+  | 0 => ⟨base⟩
+  | d + 1 => by
+      exact (stage_nonempty_three_add h base hfg Hcorr d).elim fun T ↦
+        ⟨by simpa only [Nat.add_assoc] using
+          (Hcorr (3 + d) (by omega) T).toNext T (by omega) hfg⟩
+
+/-- Exact levelwise nonemptiness.  Above level three this is the correction induction; below
+level three it is restriction from a higher stage. -/
+theorem stage_nonempty_all_levels
+    (h : ℕ) (base : SqCyclotomicStageTuple K h 3)
+    (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
+      (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤)
+    (Hcorr : ∀ (k : ℕ), 3 ≤ k → ∀ T : SqCyclotomicStageTuple K h k,
+      CorrectionSurjective T)
+    (k : ℕ) : Nonempty (SqCyclotomicStageTuple K h k) := by
+  apply stage_nonempty_of_add h 3 k
+  simpa only [Nat.add_comm] using stage_nonempty_three_add h base hfg Hcorr k
+
+/-- Cofinality endpoint: the exact level-three base and the correction theorem produce the
+corrected finite datum at every open normal quotient.  This is the complete bridge required by
+`SqCyclotomicFiniteLevelEpiData` compactness; no presentation-dependent arithmetic remains
+after `Hcorr`. -/
+theorem finiteLevelEpiData_nonempty_of_base_and_corrections
+    (h : ℕ) (base : SqCyclotomicStageTuple K h 3)
+    (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
+      (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤)
+    (Hcorr : ∀ (k : ℕ), 3 ≤ k → ∀ T : SqCyclotomicStageTuple K h k,
+      CorrectionSurjective T)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) :
+    Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U) := by
+  obtain ⟨k, hk⟩ := exists_twoCentralSeries_le (maxProPQuotient 2 (GalK K)) hfg
+    isProP_maxProPQuotient U.isOpen'
+  exact (stage_nonempty_all_levels h base hfg Hcorr k).elim fun T ↦
+    ⟨T.toFiniteLevelEpiData U hk⟩
+
 end SqCyclotomicStageTuple
 
 #print axioms sqStageZero_levelProj
@@ -514,6 +571,8 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData_sqRelWord_regression
 #print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
 #print axioms SqCyclotomicStageTuple.CorrectionSurjective.toNext
+#print axioms SqCyclotomicStageTuple.stage_nonempty_all_levels
+#print axioms SqCyclotomicStageTuple.finiteLevelEpiData_nonempty_of_base_and_corrections
 
 end
 
