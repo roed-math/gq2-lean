@@ -55,20 +55,32 @@ variable {h : ℕ}
 /-! ## Finite-level marked epimorphisms -/
 
 /-- A finite-quotient output of the variable-rank Labute construction.  The homomorphism comes
-from the improved presentation `DSq h`; the fields record its literal generator table.  The
-handle clauses are deliberately existential: only liftability to `ker χ` is needed, and this
-property is preserved on passing to a coarser quotient. -/
+from the improved presentation `DSq h`; the fields record its literal generator table.
+
+All five orientation clauses are deliberately stated by **liftability to the appropriate
+cyclotomic fibre**.  In particular the first three rows are not required to be the images of
+particular witnesses such as `T.sigma`, `T.x0`, and `T.x1` from a constructor table.  Such
+witnesses are chosen noncanonically from surjectivity of `χ`; an oriented Labute theorem fixes
+their values, not the elements themselves.  Fibre liftability is preserved on passing to a
+coarser quotient and is exactly what compactness needs to recover the global orientation
+equalities. -/
 structure SqCyclotomicFiniteLevelEpiData
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
-    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (h : ℕ)
     (U : OpenNormalSubgroup
       (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) where
   epi : ContSurj (SqCore.DSq h : Type)
     ((maxProPQuotient 2 (GalK K)) ⧸ U.toSubgroup)
-  sigma : epi.1 (SqCore.dsqSigma h) = QuotientGroup.mk T.sigma
-  x0 : epi.1 (SqCore.dsqX0 h) = QuotientGroup.mk T.x0
-  x1 : epi.1 (SqCore.dsqX1 h) = QuotientGroup.mk T.x1
+  sigma : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit ∧
+      epi.1 (SqCore.dsqSigma h) = QuotientGroup.mk x
+  x0 : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit ∧
+      epi.1 (SqCore.dsqX0 h) = QuotientGroup.mk x
+  x1 : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit ∧
+      epi.1 (SqCore.dsqX1 h) = QuotientGroup.mk x
   handleU : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
     x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
       epi.1 (SqCore.sqGen h (SqCore.sqHandleIdxU j)) = QuotientGroup.mk x
@@ -86,12 +98,11 @@ namespace SqCyclotomicFiniteLevelEpiData
 variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   [CompactSpace (GalK K)] [T2Space (GalK K)]
   [TotallyDisconnectedSpace (GalK K)]
-  {T : OddDegreeGalKSqCyclotomicCoreTable K}
   {U U' : OpenNormalSubgroup
     (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))}
 
 @[ext] theorem ext
-    {D E : SqCyclotomicFiniteLevelEpiData T h U}
+    {D E : SqCyclotomicFiniteLevelEpiData (K := K) h U}
     (hepi : D.epi = E.epi) : D = E := by
   cases D
   cases E
@@ -100,18 +111,24 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
 
 /-- Restrict finite-level data along a coarser quotient. -/
 noncomputable def map (hle : U ≤ U')
-    (D : SqCyclotomicFiniteLevelEpiData T h U) :
-    SqCyclotomicFiniteLevelEpiData T h U' where
+    (D : SqCyclotomicFiniteLevelEpiData (K := K) h U) :
+    SqCyclotomicFiniteLevelEpiData (K := K) h U' where
   epi := ⟨(projMap hle).comp D.epi.1, (projMap_surjective hle).comp D.epi.2⟩
   sigma := by
-    change projMap hle (D.epi.1 (SqCore.dsqSigma h)) = QuotientGroup.mk T.sigma
-    rw [D.sigma, projMap_quotientMk]
+    obtain ⟨x, hxchi, hx⟩ := D.sigma
+    refine ⟨x, hxchi, ?_⟩
+    change projMap hle (D.epi.1 (SqCore.dsqSigma h)) = QuotientGroup.mk x
+    rw [hx, projMap_quotientMk]
   x0 := by
-    change projMap hle (D.epi.1 (SqCore.dsqX0 h)) = QuotientGroup.mk T.x0
-    rw [D.x0, projMap_quotientMk]
+    obtain ⟨x, hxchi, hx⟩ := D.x0
+    refine ⟨x, hxchi, ?_⟩
+    change projMap hle (D.epi.1 (SqCore.dsqX0 h)) = QuotientGroup.mk x
+    rw [hx, projMap_quotientMk]
   x1 := by
-    change projMap hle (D.epi.1 (SqCore.dsqX1 h)) = QuotientGroup.mk T.x1
-    rw [D.x1, projMap_quotientMk]
+    obtain ⟨x, hxchi, hx⟩ := D.x1
+    refine ⟨x, hxchi, ?_⟩
+    change projMap hle (D.epi.1 (SqCore.dsqX1 h)) = QuotientGroup.mk x
+    rw [hx, projMap_quotientMk]
   handleU j := by
     obtain ⟨x, hx, hmap⟩ := D.handleU j
     refine ⟨x, hx, ?_⟩
@@ -154,9 +171,9 @@ noncomputable def map (hle : U ≤ U')
 
 /-- Finite-level markings form a cofiltered functor under quotient restriction. -/
 noncomputable def functor
-    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ) :
+    (h : ℕ) :
     OpenNormalSubgroup (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))) ⥤ Type where
-  obj U := SqCyclotomicFiniteLevelEpiData T h U
+  obj U := SqCyclotomicFiniteLevelEpiData (K := K) h U
   map {U U'} f := ↾(map (leOfHom f))
   map_id U := by
     apply ConcreteCategory.hom_ext
@@ -175,10 +192,10 @@ noncomputable def functor
 
 /-- Each finite-level data type is finite: it injects into the finite set of continuous
 homomorphisms from the topologically finitely generated `DSq h` to the finite quotient. -/
-instance finite (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+instance finite (h : ℕ)
     (U : OpenNormalSubgroup
       (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) :
-    Finite (SqCyclotomicFiniteLevelEpiData T h U) := by
+    Finite (SqCyclotomicFiniteLevelEpiData (K := K) h U) := by
   haveI : Finite ((maxProPQuotient 2 (GalK K)) ⧸ U.toSubgroup) :=
     Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
   haveI := finite_continuousMonoidHom (dsqFinsetTopGen h)
@@ -190,24 +207,25 @@ end SqCyclotomicFiniteLevelEpiData
 
 /-! ## Compact realization lemmas -/
 
-/-- A closed subgroup of a profinite group contains any element which can be approximated by
-that subgroup in every finite quotient. -/
-private theorem mem_closedSubgroup_of_finiteQuotient_approximations
+/-- A closed subset of a profinite group contains any element which can be approximated by
+that subset in every finite quotient.  The subset form is needed for nontrivial cyclotomic
+fibres; the subgroup form below is the special case used for the handle rows. -/
+private theorem mem_closedSet_of_finiteQuotient_approximations
     {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
-    (H : Subgroup G) (hH : IsClosed (H : Set G)) (x : G)
+    (S : Set G) (hS : IsClosed S) (x : G)
     (happrox : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G),
-      ∃ y : G, y ∈ H ∧ QuotientGroup.mk y =
+      ∃ y : G, y ∈ S ∧ QuotientGroup.mk y =
         (QuotientGroup.mk x : G ⧸ U.toSubgroup)) :
-    x ∈ H := by
-  letI : CompactSpace H := isCompact_iff_compactSpace.mp hH.isCompact
+    x ∈ S := by
+  letI : CompactSpace S := isCompact_iff_compactSpace.mp hS.isCompact
   haveI : Nonempty (OpenNormalSubgroup (ProfiniteGrp.of G)) :=
     ⟨⟨⊤, Subgroup.normal_top⟩⟩
   haveI hdisc : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G),
       DiscreteTopology (G ⧸ U.toSubgroup) := fun U ↦ inferInstance
   have hnonempty :
       (⋂ U : OpenNormalSubgroup (ProfiniteGrp.of G),
-        {y : H | QuotientGroup.mk y.1 =
+        {y : S | QuotientGroup.mk y.1 =
           (QuotientGroup.mk x : G ⧸ U.toSubgroup)}).Nonempty := by
     apply IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed
     · intro U U'
@@ -238,6 +256,17 @@ private theorem mem_closedSubgroup_of_finiteQuotient_approximations
   rw [← hyx]
   exact y.property
 
+/-- Subgroup specialization of `mem_closedSet_of_finiteQuotient_approximations`. -/
+private theorem mem_closedSubgroup_of_finiteQuotient_approximations
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (H : Subgroup G) (hH : IsClosed (H : Set G)) (x : G)
+    (happrox : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G),
+      ∃ y : G, y ∈ H ∧ QuotientGroup.mk y =
+        (QuotientGroup.mk x : G ⧸ U.toSubgroup)) :
+    x ∈ H :=
+  mem_closedSet_of_finiteQuotient_approximations (H : Set G) hH x happrox
+
 /-! ## König assembly -/
 
 /-- **Finite-level forward assembly.**  Pointwise nonemptiness of the finite improved-relator
@@ -248,23 +277,23 @@ theorem forwardGeneratorData_of_finiteLevel
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)]
-    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (h : ℕ)
     (hne : ∀ U : OpenNormalSubgroup
       (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
-      Nonempty (SqCyclotomicFiniteLevelEpiData T h U)) :
+      Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) :
     Nonempty (SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K))) := by
   classical
   let Q := maxProPQuotient 2 (GalK K)
-  let F := SqCyclotomicFiniteLevelEpiData.functor T h
+  let F := SqCyclotomicFiniteLevelEpiData.functor (K := K) h
   haveI hne' : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of Q),
       Nonempty (F.obj U) := hne
   haveI hfin' : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of Q),
       Finite (F.obj U) := fun U ↦ by
-    change Finite (SqCyclotomicFiniteLevelEpiData T h U)
+    change Finite (SqCyclotomicFiniteLevelEpiData (K := K) h U)
     infer_instance
   obtain ⟨sec, hsec⟩ := nonempty_sections_of_finite_cofiltered_system F
   let D : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of Q),
-      SqCyclotomicFiniteLevelEpiData T h U := fun U ↦ sec U
+      SqCyclotomicFiniteLevelEpiData (K := K) h U := fun U ↦ sec U
   have hcompat : ∀ {U U' : OpenNormalSubgroup (ProfiniteGrp.of Q)} (hle : U ≤ U')
       (i : Fin (SqCore.sqRank h)),
       projMap hle ((D U).epi.1 (SqCore.sqGen h i)) =
@@ -272,7 +301,7 @@ theorem forwardGeneratorData_of_finiteLevel
     intro U U' hle i
     have hs := hsec hle.hom
     exact congrArg
-      (fun E : SqCyclotomicFiniteLevelEpiData T h U' ↦
+      (fun E : SqCyclotomicFiniteLevelEpiData (K := K) h U' ↦
         E.epi.1 (SqCore.sqGen h i)) hs
   haveI : Nonempty (OpenNormalSubgroup (ProfiniteGrp.of Q)) :=
     ⟨⟨⊤, Subgroup.normal_top⟩⟩
@@ -306,30 +335,30 @@ theorem forwardGeneratorData_of_finiteLevel
       (i : Fin (SqCore.sqRank h)) :
       QuotientGroup.mk (generators i) = (D U).epi.1 (SqCore.sqGen h i) :=
     (hrealise i).choose_spec U
-  have heq_of_quotients {x y : Q}
-      (heq : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of Q),
-        (QuotientGroup.mk x : Q ⧸ U.toSubgroup) = QuotientGroup.mk y) : x = y := by
-    rw [← inv_mul_eq_one]
-    apply eq_one_of_forall_mem_openNormalSubgroup
+  have hsigma : chiCycKTwo (K := K) (generators 0) = GQ2.Roe.SvalUnit := by
+    apply mem_closedSet_of_finiteQuotient_approximations
+      {x | chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit}
+      (isClosed_singleton.preimage (chiCycKTwo (K := K)).continuous_toFun)
     intro U
-    have hq := heq U
-    rw [QuotientGroup.eq] at hq
-    exact hq
-  have hsigma : generators 0 = T.sigma := by
-    apply heq_of_quotients
+    obtain ⟨x, hxchi, hx⟩ := (D U).sigma
+    refine ⟨x, hxchi, ?_⟩
+    exact hx.symm.trans (by simpa [SqCore.dsqSigma] using (hgenerators U 0).symm)
+  have hx0 : chiCycKTwo (K := K) (generators 1) = GQ2.Roe.rootXUnit := by
+    apply mem_closedSet_of_finiteQuotient_approximations
+      {x | chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit}
+      (isClosed_singleton.preimage (chiCycKTwo (K := K)).continuous_toFun)
     intro U
-    rw [hgenerators U 0]
-    simpa [SqCore.dsqSigma] using (D U).sigma
-  have hx0 : generators 1 = T.x0 := by
-    apply heq_of_quotients
+    obtain ⟨x, hxchi, hx⟩ := (D U).x0
+    refine ⟨x, hxchi, ?_⟩
+    exact hx.symm.trans (by simpa [SqCore.dsqX0] using (hgenerators U 1).symm)
+  have hx1 : chiCycKTwo (K := K) (generators 2) = GQ2.Roe.YvalUnit := by
+    apply mem_closedSet_of_finiteQuotient_approximations
+      {x | chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit}
+      (isClosed_singleton.preimage (chiCycKTwo (K := K)).continuous_toFun)
     intro U
-    rw [hgenerators U 1]
-    simpa [SqCore.dsqX0] using (D U).x0
-  have hx1 : generators 2 = T.x1 := by
-    apply heq_of_quotients
-    intro U
-    rw [hgenerators U 2]
-    simpa [SqCore.dsqX1] using (D U).x1
+    obtain ⟨x, hxchi, hx⟩ := (D U).x1
+    refine ⟨x, hxchi, ?_⟩
+    exact hx.symm.trans (by simpa [SqCore.dsqX1] using (hgenerators U 2).symm)
   have hhandleU : ∀ j : Fin h,
       generators (SqCore.sqHandleIdxU j) ∈
         (chiCycKTwo (K := K)).toMonoidHom.ker := by
@@ -390,32 +419,195 @@ theorem forwardGeneratorData_of_finiteLevel
     rw [himage, ← MonoidHom.map_closure] at hy
     obtain ⟨z, hzA, hz⟩ := hy
     exact ⟨z, Subgroup.le_topologicalClosure A hzA, hz⟩
-  refine ⟨T.toForwardGeneratorData h generators hsigma hx0 hx1 hhandleU hhandleV
-    hrelation ?_⟩
-  exact htopGen
+  exact ⟨
+    { generators := generators
+      relation := hrelation
+      topGen := htopGen
+      sigma := hsigma
+      x0 := hx0
+      x1 := hx1
+      handleU := fun j ↦ MonoidHom.mem_ker.mp (hhandleU j)
+      handleV := fun j ↦ MonoidHom.mem_ker.mp (hhandleV j) }⟩
+
+/-! ## Exactness of the value-fibre finite seam -/
+
+namespace SqCyclotomicForwardGeneratorData
+
+/-- Project a global oriented generator tuple to any finite quotient.  This is the converse of
+`forwardGeneratorData_of_finiteLevel` at the forward seam.  Notice that it uses only the five
+orientation values of the tuple: no equality with the table's noncanonical witnesses is
+required. -/
+noncomputable def toCyclotomicFiniteLevelEpiData
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ)
+    (D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)))
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) :
+    SqCyclotomicFiniteLevelEpiData (K := K) h U := by
+  let Q := maxProPQuotient 2 (GalK K)
+  let q : ContinuousMonoidHom Q (Q ⧸ U.toSubgroup) :=
+    ⟨QuotientGroup.mk' U.toSubgroup, continuous_quotient_mk'⟩
+  let f : ContinuousMonoidHom (SqCore.DSq h : Type) (Q ⧸ U.toSubgroup) :=
+    q.comp (D.forward isProP_maxProPQuotient)
+  have hfsurj : Function.Surjective f :=
+    QuotientGroup.mk_surjective.comp (D.forward_surjective isProP_maxProPQuotient)
+  have hfgen (i : Fin (SqCore.sqRank h)) :
+      f (SqCore.sqGen h i) = QuotientGroup.mk (D.generators i) := by
+    change QuotientGroup.mk (D.forward isProP_maxProPQuotient (SqCore.sqGen h i)) = _
+    rw [D.forward_gen]
+  have htopGen : Subgroup.closure
+      (Set.range fun i ↦ f (SqCore.sqGen h i)) = ⊤ := by
+    let H : Subgroup (Q ⧸ U.toSubgroup) :=
+      Subgroup.closure (Set.range fun i ↦ f (SqCore.sqGen h i))
+    have hHclosed : IsClosed (H : Set (Q ⧸ U.toSubgroup)) := isClosed_discrete _
+    have hle : Subgroup.closure (Set.range D.generators) ≤
+        Subgroup.comap q.toMonoidHom H := by
+      rw [Subgroup.closure_le]
+      rintro _ ⟨i, rfl⟩
+      change q (D.generators i) ∈ H
+      exact Subgroup.subset_closure ⟨i, hfgen i⟩
+    have htopLe :
+        (Subgroup.closure (Set.range D.generators)).topologicalClosure ≤
+          Subgroup.comap q.toMonoidHom H :=
+      Subgroup.topologicalClosure_minimal _ hle (hHclosed.preimage q.continuous_toFun)
+    rw [D.topGen] at htopLe
+    rw [eq_top_iff]
+    intro y _
+    obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective y
+    exact htopLe (Subgroup.mem_top x)
+  exact
+    { epi := ⟨f, hfsurj⟩
+      sigma := ⟨D.generators 0, D.sigma, by
+        change f (SqCore.sqGen h 0) = QuotientGroup.mk (D.generators 0)
+        exact hfgen 0⟩
+      x0 := ⟨D.generators 1, D.x0, by
+        change f (SqCore.sqGen h 1) = QuotientGroup.mk (D.generators 1)
+        exact hfgen 1⟩
+      x1 := ⟨D.generators 2, D.x1, by
+        change f (SqCore.sqGen h 2) = QuotientGroup.mk (D.generators 2)
+        exact hfgen 2⟩
+      handleU := fun j ↦ ⟨D.generators (SqCore.sqHandleIdxU j),
+        MonoidHom.mem_ker.mpr (D.handleU j), hfgen _⟩
+      handleV := fun j ↦ ⟨D.generators (SqCore.sqHandleIdxV j),
+        MonoidHom.mem_ker.mpr (D.handleV j), hfgen _⟩
+      topGen := htopGen
+      relation := by
+        change SqCore.sqRelWord
+          (fun i ↦ f (SqCore.sqGen h i)) = 1
+        have heval : (fun i ↦ f (SqCore.sqGen h i)) =
+            (fun i ↦ q (D.generators i)) := funext hfgen
+        rw [heval, ← SqCore.map_sqRelWord q D.generators, D.relation, map_one] }
+
+end SqCyclotomicForwardGeneratorData
+
+/-- The corrected finite forward seam is exact: value-fibre data at every finite quotient are
+equivalent to one global oriented generator tuple.  This regression prevents reintroducing the
+strictly stronger requirement that the three core generators equal arbitrary chosen fibre
+witnesses. -/
+theorem finiteLevelEpiData_nonempty_iff_forwardGeneratorData
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ) :
+    (∀ U : OpenNormalSubgroup
+        (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+        Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) ↔
+      Nonempty (SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K))) := by
+  constructor
+  · exact forwardGeneratorData_of_finiteLevel h
+  · rintro ⟨D⟩ U
+    exact ⟨D.toCyclotomicFiniteLevelEpiData h U⟩
+
+/-- Value and improved-relator regression for the global tuple assembled from finite data. -/
+theorem forwardGeneratorData_of_finiteLevel_value_regression
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ)
+    (hne : ∀ U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+      Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) :
+    ∃ D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)),
+      chiCycKTwo (K := K) (D.generators 0) = GQ2.Roe.SvalUnit ∧
+      chiCycKTwo (K := K) (D.generators 1) = GQ2.Roe.rootXUnit ∧
+      chiCycKTwo (K := K) (D.generators 2) = GQ2.Roe.YvalUnit ∧
+      (∀ j : Fin h, chiCycKTwo (K := K)
+        (D.generators (SqCore.sqHandleIdxU j)) = 1) ∧
+      (∀ j : Fin h, chiCycKTwo (K := K)
+        (D.generators (SqCore.sqHandleIdxV j)) = 1) ∧
+      SqCore.sqRelWord D.generators = 1 := by
+  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel h hne
+  exact ⟨D, D.sigma, D.x0, D.x1, D.handleU, D.handleV, D.relation⟩
+
+/-- An equivalence with the five standard orientation rows gives the corresponding forward
+generator package.  This is the global-to-finite regression used to show that the corrected
+finite seam has exactly the strength of the oriented presentation. -/
+noncomputable def forwardGeneratorDataOfEquiv
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ)
+    (f : ContinuousMulEquiv (SqCore.DSq h : Type)
+      (maxProPQuotient 2 (GalK K)))
+    (hv : SqOrientationGeneratorValues (chiCycKTwo (K := K)) f) :
+    SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)) := by
+  let generators : Fin (SqCore.sqRank h) → maxProPQuotient 2 (GalK K) :=
+    fun i ↦ f (SqCore.sqGen h i)
+  have htopGen :
+      (Subgroup.closure (Set.range generators)).topologicalClosure = ⊤ := by
+    let H := (Subgroup.closure (Set.range generators)).topologicalClosure
+    have hHclosed : IsClosed (H : Set (maxProPQuotient 2 (GalK K))) :=
+      Subgroup.isClosed_topologicalClosure _
+    have hle : Subgroup.closure (Set.range (SqCore.sqGen h)) ≤
+        Subgroup.comap f.toMonoidHom H := by
+      rw [Subgroup.closure_le]
+      rintro _ ⟨i, rfl⟩
+      exact Subgroup.le_topologicalClosure _
+        (Subgroup.subset_closure ⟨i, rfl⟩)
+    have htopLe :
+        (Subgroup.closure (Set.range (SqCore.sqGen h))).topologicalClosure ≤
+          Subgroup.comap f.toMonoidHom H :=
+      Subgroup.topologicalClosure_minimal _ hle (hHclosed.preimage f.continuous_toFun)
+    rw [SqCore.dsq_topGen h] at htopLe
+    rw [eq_top_iff]
+    intro y _
+    obtain ⟨x, rfl⟩ := f.surjective y
+    exact htopLe (Subgroup.mem_top x)
+  exact
+    { generators := generators
+      relation := by
+        change SqCore.sqRelWord (fun i ↦ f (SqCore.sqGen h i)) = 1
+        rw [← SqCore.map_sqRelWord f (SqCore.sqGen h), SqCore.dsq_relation, map_one]
+      topGen := htopGen
+      sigma := hv.sigma
+      x0 := hv.x0
+      x1 := hv.x1
+      handleU := hv.handleU
+      handleV := hv.handleV }
 
 /-! ## Exact field-level reduction -/
 
 /-- The finite-level theorem which remains for an odd-degree field.  Unlike the earlier
 generator-presentation seam, this premise contains no global tuple and no map to `G_K(2)`.
 It asks only for nonempty finite sets of improved-relator epimorphisms at every finite quotient,
-plus the reverse finite quotients used by the Hopfian endgame.  Marked reciprocity is existential
-and explicit, so this interface introduces no axiom and does not name the census supplier. -/
+plus the reverse finite quotients used by the Hopfian endgame.  The orientation rows are the
+explicit values `(SvalUnit, rootXUnit, YvalUnit, 1, 1)`; no local-reciprocity structure or
+noncanonical fibre representative is part of this presentation statement. -/
 def OddDegreeGalKSqCyclotomicFiniteLevelPresentation : Prop :=
   ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)],
-    (hodd : Odd (Module.finrank ℚ_[2] K)) →
+    (_hodd : Odd (Module.finrank ℚ_[2] K)) →
       demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
-        ∃ (R : LocalReciprocity) (B : MarkedRecip R K),
-          let h := (Module.finrank ℚ_[2] K - 1) / 2
-          let T := oddDegreeGalKSqCyclotomicCoreTable K B hodd
-          (∀ U : OpenNormalSubgroup
-              (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
-              Nonempty (SqCyclotomicFiniteLevelEpiData T h U)) ∧
-            (∀ V : OpenNormalSubgroup (ProfiniteGrp.of (SqCore.DSq h : Type)),
-              Nonempty (ContSurj (maxProPQuotient 2 (GalK K))
-                ((SqCore.DSq h : Type) ⧸ V.toSubgroup)))
+        let h := (Module.finrank ℚ_[2] K - 1) / 2
+        (∀ U : OpenNormalSubgroup
+            (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+            Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) ∧
+          (∀ V : OpenNormalSubgroup (ProfiniteGrp.of (SqCore.DSq h : Type)),
+            Nonempty (ContSurj (maxProPQuotient 2 (GalK K))
+              ((SqCore.DSq h : Type) ⧸ V.toSubgroup)))
 
 /-- The finite-level presentation supplies the full oriented odd-degree classification.  The
 forward inverse limit is `forwardGeneratorData_of_finiteLevel`; the reverse inverse limit and
@@ -424,10 +616,9 @@ theorem oddDegreeGalKSqOrientedLabuteClassification_of_finiteLevelPresentation
     (hfinite : OddDegreeGalKSqCyclotomicFiniteLevelPresentation) :
     OddDegreeGalKSqOrientedLabuteClassification := by
   intro K _ _ _ _ hodd hq
-  obtain ⟨R, B, hforward, hbackward⟩ := hfinite K hodd hq
+  obtain ⟨hforward, hbackward⟩ := hfinite K hodd hq
   let h := (Module.finrank ℚ_[2] K - 1) / 2
-  let T := oddDegreeGalKSqCyclotomicCoreTable K B hodd
-  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel T h hforward
+  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel h hforward
   obtain ⟨E⟩ := D.toBiEpiData_of_finiteQuotientSurjections
     isProP_maxProPQuotient hbackward
   exact ⟨orientedEquivSq_of_biEpiData (chiCycKTwo (K := K)) E⟩
@@ -439,10 +630,124 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_finiteLevelPresentation
   oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification
     (oddDegreeGalKSqOrientedLabuteClassification_of_finiteLevelPresentation hfinite)
 
+/-- Conversely, a global generator presentation projects to the corrected value-fibre data at
+every finite quotient, and its inverse equivalence supplies all reverse finite quotients. -/
+theorem oddDegreeGalKSqFiniteLevelPresentation_of_generatorPresentation
+    (hpres : OddDegreeGalKSqCyclotomicGeneratorPresentation) :
+    OddDegreeGalKSqCyclotomicFiniteLevelPresentation := by
+  intro K _ _ _ _ hodd hq
+  dsimp only
+  obtain ⟨f, hv⟩ := hpres K hodd hq
+  let h := (Module.finrank ℚ_[2] K - 1) / 2
+  let D : SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)) :=
+    forwardGeneratorDataOfEquiv h f hv
+  constructor
+  · intro U
+    exact ⟨D.toCyclotomicFiniteLevelEpiData h U⟩
+  · intro V
+    let q : ContinuousMonoidHom (SqCore.DSq h : Type)
+        ((SqCore.DSq h : Type) ⧸ V.toSubgroup) :=
+      ⟨QuotientGroup.mk' V.toSubgroup, continuous_quotient_mk'⟩
+    let g : ContinuousMonoidHom (maxProPQuotient 2 (GalK K))
+        ((SqCore.DSq h : Type) ⧸ V.toSubgroup) :=
+      q.comp (f.symm : ContinuousMonoidHom _ _)
+    exact ⟨⟨g, QuotientGroup.mk_surjective.comp f.symm.surjective⟩⟩
+
+/-- The field-facing finite-level statement is exactly equivalent to the global generator
+presentation.  In particular, its forward half does not encode an arbitrary choice of core
+representatives. -/
+theorem oddDegreeGalKSqFiniteLevelPresentation_iff_generatorPresentation :
+    OddDegreeGalKSqCyclotomicFiniteLevelPresentation ↔
+      OddDegreeGalKSqCyclotomicGeneratorPresentation :=
+  ⟨oddDegreeGalKSqGeneratorPresentation_of_finiteLevelPresentation,
+    oddDegreeGalKSqFiniteLevelPresentation_of_generatorPresentation⟩
+
+/-- Exact oriented form of the corrected finite-level reduction. -/
+theorem oddDegreeGalKSqFiniteLevelPresentation_iff_orientedLabuteClassification :
+    OddDegreeGalKSqCyclotomicFiniteLevelPresentation ↔
+      OddDegreeGalKSqOrientedLabuteClassification :=
+  oddDegreeGalKSqFiniteLevelPresentation_iff_generatorPresentation.trans
+    oddDegreeGalKSqOrientedLabuteClassification_iff_generatorPresentation.symm
+
 /-! ## Literal constructor and regression -/
 
+/-- Construct value-fibre finite data from a generating tuple which kills the literal improved
+relator.  This is the direct endpoint for a variable-rank Labute stage calculation: the three
+core rows may use arbitrary lifts in the prescribed cyclotomic fibres, while every handle uses
+an arbitrary lift in `ker χ`. -/
+noncomputable def finiteLevelEpiDataOfTuple
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (generators : Fin (SqCore.sqRank h) →
+      (maxProPQuotient 2 (GalK K) ⧸ U.toSubgroup))
+    (hsigma : ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit ∧
+        generators 0 = QuotientGroup.mk x)
+    (hx0 : ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit ∧
+        generators 1 = QuotientGroup.mk x)
+    (hx1 : ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit ∧
+        generators 2 = QuotientGroup.mk x)
+    (hhandleU : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        generators (SqCore.sqHandleIdxU j) = QuotientGroup.mk x)
+    (hhandleV : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        generators (SqCore.sqHandleIdxV j) = QuotientGroup.mk x)
+    (hrelation : SqCore.sqRelWord generators = 1)
+    (htopGen : Subgroup.closure (Set.range generators) = ⊤) :
+    SqCyclotomicFiniteLevelEpiData (K := K) h U := by
+  let Q := maxProPQuotient 2 (GalK K) ⧸ U.toSubgroup
+  have hproQ : IsProP 2 Q := isProP_of_isPGroup (isProP_maxProPQuotient U)
+  let f : ContinuousMonoidHom (SqCore.DSq h : Type) Q :=
+    SqCore.sqLiftHom h hproQ generators hrelation
+  have hfgen (i : Fin (SqCore.sqRank h)) : f (SqCore.sqGen h i) = generators i :=
+    SqCore.sqLiftHom_gen h hproQ generators hrelation i
+  have hfsurj : Function.Surjective f := by
+    intro y
+    have hle : Subgroup.closure (Set.range generators) ≤ f.toMonoidHom.range := by
+      rw [Subgroup.closure_le]
+      rintro _ ⟨i, rfl⟩
+      exact ⟨SqCore.sqGen h i, hfgen i⟩
+    exact hle (by rw [htopGen]; trivial)
+  exact
+    { epi := ⟨f, hfsurj⟩
+      sigma := by
+        obtain ⟨x, hxchi, hx⟩ := hsigma
+        exact ⟨x, hxchi, by
+          change f (SqCore.sqGen h 0) = QuotientGroup.mk x
+          rw [hfgen, hx]⟩
+      x0 := by
+        obtain ⟨x, hxchi, hx⟩ := hx0
+        exact ⟨x, hxchi, by
+          change f (SqCore.sqGen h 1) = QuotientGroup.mk x
+          rw [hfgen, hx]⟩
+      x1 := by
+        obtain ⟨x, hxchi, hx⟩ := hx1
+        exact ⟨x, hxchi, by
+          change f (SqCore.sqGen h 2) = QuotientGroup.mk x
+          rw [hfgen, hx]⟩
+      handleU := by
+        intro j
+        obtain ⟨x, hxchi, hx⟩ := hhandleU j
+        exact ⟨x, hxchi, by rw [hfgen, hx]⟩
+      handleV := by
+        intro j
+        obtain ⟨x, hxchi, hx⟩ := hhandleV j
+        exact ⟨x, hxchi, by rw [hfgen, hx]⟩
+      topGen := by simpa only [hfgen] using htopGen
+      relation := by simpa only [hfgen] using hrelation }
+
 /-- Construct one finite-level datum directly from a tuple killing the literal improved
-relator.  This is the endpoint expected from a parameterized Labute stage calculation. -/
+relator.  The stronger hypotheses pin the first three coordinates to the table's chosen
+witnesses; the resulting datum forgets that unnecessary choice and retains only the three
+cyclotomic fibre conditions.  This exact-witness constructor remains convenient for any stage
+calculation which naturally produces those representatives. -/
 noncomputable def OddDegreeGalKSqCyclotomicCoreTable.toFiniteLevelEpiData
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
@@ -463,7 +768,7 @@ noncomputable def OddDegreeGalKSqCyclotomicCoreTable.toFiniteLevelEpiData
         generators (SqCore.sqHandleIdxV j) = QuotientGroup.mk x)
     (hrelation : SqCore.sqRelWord generators = 1)
     (htopGen : Subgroup.closure (Set.range generators) = ⊤) :
-    SqCyclotomicFiniteLevelEpiData T h U := by
+    SqCyclotomicFiniteLevelEpiData (K := K) h U := by
   let Q := maxProPQuotient 2 (GalK K) ⧸ U.toSubgroup
   have hproQ : IsProP 2 Q := isProP_of_isPGroup (isProP_maxProPQuotient U)
   let f : ContinuousMonoidHom (SqCore.DSq h : Type) Q :=
@@ -480,14 +785,17 @@ noncomputable def OddDegreeGalKSqCyclotomicCoreTable.toFiniteLevelEpiData
   exact
     { epi := ⟨f, hfsurj⟩
       sigma := by
-        change f (SqCore.sqGen h 0) = QuotientGroup.mk T.sigma
-        rw [hfgen, hsigma]
+        exact ⟨T.sigma, T.sigma_value, by
+          change f (SqCore.sqGen h 0) = QuotientGroup.mk T.sigma
+          rw [hfgen, hsigma]⟩
       x0 := by
-        change f (SqCore.sqGen h 1) = QuotientGroup.mk T.x0
-        rw [hfgen, hx0]
+        exact ⟨T.x0, T.x0_value, by
+          change f (SqCore.sqGen h 1) = QuotientGroup.mk T.x0
+          rw [hfgen, hx0]⟩
       x1 := by
-        change f (SqCore.sqGen h 2) = QuotientGroup.mk T.x1
-        rw [hfgen, hx1]
+        exact ⟨T.x1, T.x1_value, by
+          change f (SqCore.sqGen h 2) = QuotientGroup.mk T.x1
+          rw [hfgen, hx1]⟩
       handleU := by
         intro j
         obtain ⟨x, hx, heq⟩ := hhandleU j
@@ -527,8 +835,16 @@ theorem OddDegreeGalKSqCyclotomicCoreTable.toFiniteLevelEpiData_sqRelWord_regres
     hrelation htopGen).relation
 
 #print axioms forwardGeneratorData_of_finiteLevel
+#print axioms SqCyclotomicForwardGeneratorData.toCyclotomicFiniteLevelEpiData
+#print axioms finiteLevelEpiData_nonempty_iff_forwardGeneratorData
+#print axioms forwardGeneratorData_of_finiteLevel_value_regression
+#print axioms forwardGeneratorDataOfEquiv
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_finiteLevelPresentation
 #print axioms oddDegreeGalKSqGeneratorPresentation_of_finiteLevelPresentation
+#print axioms oddDegreeGalKSqFiniteLevelPresentation_of_generatorPresentation
+#print axioms oddDegreeGalKSqFiniteLevelPresentation_iff_generatorPresentation
+#print axioms oddDegreeGalKSqFiniteLevelPresentation_iff_orientedLabuteClassification
+#print axioms finiteLevelEpiDataOfTuple
 #print axioms OddDegreeGalKSqCyclotomicCoreTable.toFiniteLevelEpiData
 #print axioms OddDegreeGalKSqCyclotomicCoreTable.toFiniteLevelEpiData_sqRelWord_regression
 
