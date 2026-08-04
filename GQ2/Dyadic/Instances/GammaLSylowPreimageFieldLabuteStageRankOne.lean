@@ -27,6 +27,17 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+/-- The presentation-side character used by the Labute stage calculation is the canonical
+Galois-side character transported to `D₀`.  The two constructions are kept separate in their
+home files to preserve the census-free Labute lane; at the rank-one bridge they agree because
+they have the same values on the three topological generators. -/
+theorem chiD0pres_eq_chiD0G : chiD0pres = chiD0G := by
+  apply GQ2.d0Hom_ext
+  · rw [chiD0pres_d0A, chiD0G_values.1]
+  · rw [chiD0pres_d0S, chiD0G_values.2.1]
+  · rw [chiD0pres_d0Y, chiD0G_values.2.2]
+    rfl
+
 /-- Every lower two-central level of the bottom field has an exact oriented square marking,
 obtained from the proved oriented `Q_2` equivalence. -/
 theorem sqCyclotomicStageTuple_bot_nonempty (k : ℕ) :
@@ -212,6 +223,7 @@ theorem stageSL12R2_sharpCorrection (k : ℕ) (hk : 3 ≤ k)
       chiD0pres (k + 1) (by omega) (deep i)).trans (hdeep.2 i)
 
 #print axioms sqCyclotomicStageTuple_bot_nonempty
+#print axioms chiD0pres_eq_chiD0G
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
 #print axioms sqCyclotomicStageTuple_bot_defectReachable
 #print axioms sqCyclotomicStageTuple_bot_three_defectReachable
