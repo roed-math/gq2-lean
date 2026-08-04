@@ -2035,6 +2035,61 @@ theorem sqCubicTruncated_quadraticRelation (h : ℕ) :
     simp_rw [LinearMap.add_apply, hpair]
     simp
 
+/-! ## Universal second-order word expansions -/
+
+theorem cubicConjugateCubePrefix_expansion
+    {A : Type} [Ring A] [Algebra (ZMod 2) A]
+    (aug : A →ₐ[ZMod 2] ZMod 2)
+    (hfour : ∀ a b c d : A,
+      aug a = 0 → aug b = 0 → aug c = 0 → aug d = 0 →
+        a * b * c * d = 0)
+    (s x : A) (has : aug s = 0) (hax : aug x = 0) :
+    (1 + s + s ^ 2 + s ^ 3) * (1 + x + x ^ 2 + x ^ 3) *
+        (1 + s) * (1 + x) =
+      1 + s * x + x * s + s * s * x + s * x * s +
+        x * s * x + x * x * s := by
+  have hfourR (a b c d : A) (ha : aug a = 0) (hb : aug b = 0)
+      (hc : aug c = 0) (hd : aug d = 0) : a * (b * (c * d)) = 0 := by
+    simpa [mul_assoc] using hfour a b c d ha hb hc hd
+  have htwo (a : A) : 2 • a = 0 := ZModModule.char_nsmul_eq_zero 2 a
+  have htwoZ (a : A) : (2 : ℤ) • a = 0 := by
+    simpa [two_zsmul] using htwo a
+  have hthreeZ (a : A) : (3 : ℤ) • a = a := by
+    rw [show (3 : ℤ) = 2 + 1 by omega, add_zsmul, htwoZ, one_zsmul, zero_add]
+  simp (discharger := simp [has, hax]) only [add_mul, mul_add, mul_assoc,
+    pow_zero, pow_succ, one_mul, mul_one, zero_mul, mul_zero, hfourR]
+  abel_nf
+  simp only [htwoZ, hthreeZ, zero_add]
+
+theorem commP_oneAddUnitOfPowFourZero_val_expansion
+    {A : Type} [Ring A] [Algebra (ZMod 2) A]
+    (aug : A →ₐ[ZMod 2] ZMod 2)
+    (hfour : ∀ a b c d : A,
+      aug a = 0 → aug b = 0 → aug c = 0 → aug d = 0 →
+        a * b * c * d = 0)
+    (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+    (commP
+      (oneAddUnitOfPowFourZero a
+        (pow_four_zero_of_augmentation_product_four_zero aug hfour a ha))
+      (oneAddUnitOfPowFourZero b
+        (pow_four_zero_of_augmentation_product_four_zero aug hfour b hb))).val =
+      1 + a * b + b * a + a * a * b + a * b * a +
+        b * a * b + b * b * a := by
+  change (1 + a + a ^ 2 + a ^ 3) * (1 + b + b ^ 2 + b ^ 3) *
+      (1 + a) * (1 + b) = _
+  have hfourR (c d e f : A) (hc : aug c = 0) (hd : aug d = 0)
+      (he : aug e = 0) (hf : aug f = 0) : c * (d * (e * f)) = 0 := by
+    simpa [mul_assoc] using hfour c d e f hc hd he hf
+  have htwo (c : A) : 2 • c = 0 := ZModModule.char_nsmul_eq_zero 2 c
+  have htwoZ (c : A) : (2 : ℤ) • c = 0 := by
+    simpa [two_zsmul] using htwo c
+  have hthreeZ (c : A) : (3 : ℤ) • c = c := by
+    rw [show (3 : ℤ) = 2 + 1 by omega, add_zsmul, htwoZ, one_zsmul, zero_add]
+  simp (discharger := simp [ha, hb]) only [add_mul, mul_add, mul_assoc,
+    pow_zero, pow_succ, one_mul, mul_one, zero_mul, mul_zero, hfourR]
+  abel_nf
+  simp only [htwoZ, hthreeZ, zero_add]
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
