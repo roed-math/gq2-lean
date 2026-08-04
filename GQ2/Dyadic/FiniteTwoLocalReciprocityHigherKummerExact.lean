@@ -12,10 +12,12 @@ This file constructs the connecting class `Kˣ → H¹(G_K, μ_n)` directly from
 `ℚbar2`.  It proves continuity, the cocycle identity, root independence, multiplicativity, and
 the exact kernel `(Kˣ)^n` without class field theory or an Artin map.
 
-Surjectivity is separated cleanly: `ContinuousHilbert90 K` states precisely the continuous
-multiplicative Hilbert-90 theorem missing from mathlib for the infinite extension `ℚbar2/K`, and
-`higherKummerClassDataOfContinuousHilbert90` turns that theorem into the abstract
-`HigherKummerClassData` consumed by the reciprocity layer.
+Surjectivity is separated cleanly: `MuNContinuousHilbert90 K n` asks only for Hilbert 90 on the
+finite, discrete-image cocycles `G_K → μ_n` that actually occur in the Kummer argument, and
+`higherKummerClassDataOfMuNContinuousHilbert90` turns that theorem into the abstract
+`HigherKummerClassData` consumed by the reciprocity layer.  This finite-image restriction is
+essential: arbitrary cocycles into the p-adically topologized group `ℚbar2ˣ` need not factor
+through a finite quotient.
 -/
 
 namespace GQ2.Dyadic
@@ -311,34 +313,25 @@ theorem higherKummerClassMonoidHom_eq_one_iff (n : ℕ) [NeZero n] (a : (↥K)ˣ
   · intro h
     exact congrArg Multiplicative.ofAdd ((higherKummerClass_eq_zero_iff n a).mpr h)
 
-/-- The exact continuous Hilbert-90 input missing from mathlib for the infinite extension
-`ℚbar2/K`.  Its cocycle convention is the one used by `ContCoh`: `f(gh)=f(g)·g(f(h))`. -/
-def ContinuousHilbert90 (K : IntermediateField ℚ_[2] ℚbar2) : Prop :=
-  ∀ f : ↥(K.fixingSubgroup) → ℚbar2ˣ,
-    Continuous f →
-    (∀ g h, f (g * h) = f g * (g • f h)) →
-    ∃ beta : ℚbar2ˣ, ∀ g, f g = (g • beta) * beta⁻¹
+/-- The exact finite-image Hilbert-90 input needed at exponent `n`.  A `Z1` value already carries
+continuity and the crossed-homomorphism law; coercion from `μ_n` to `ℚbar2ˣ` gives the
+multiplicative cocycle trivialized here. -/
+def MuNContinuousHilbert90 (K : IntermediateField ℚ_[2] ℚbar2)
+    (n : ℕ) [NeZero n] : Prop :=
+  ∀ z : Z1 ↥(K.fixingSubgroup) (MuN n),
+    ∃ beta : ℚbar2ˣ, ∀ g,
+      (z.1 g).toMul.1 = (g • beta) * beta⁻¹
 
-theorem higherKummerClassMonoidHom_surjective_of_continuousHilbert90
-    (hH90 : ContinuousHilbert90 K) (n : ℕ) [NeZero n] :
+theorem higherKummerClassMonoidHom_surjective_of_muNContinuousHilbert90
+    (n : ℕ) [NeZero n] (hH90 : MuNContinuousHilbert90 K n) :
     Function.Surjective (higherKummerClassMonoidHom (K := K) n) := by
   intro y
   obtain ⟨z, hz⟩ := H1mk_surjective (G := ↥(K.fixingSubgroup))
     (M := MuN n) y.toAdd
-  let f : ↥(K.fixingSubgroup) → ℚbar2ˣ := fun g => (z.1 g).toMul.1
-  have hfcont : Continuous f := by
-    have hcoe : Continuous (fun x : MuN n => x.toMul.1) := continuous_of_discreteTopology
-    simpa [f, Function.comp_def] using hcoe.comp (mem_Z1_iff.mp z.2).1
-  have hfcross : ∀ g h, f (g * h) = f g * (g • f h) := by
-    intro g h
-    have hcross := (mem_Z1_iff.mp z.2).2 g h
-    have hu := congrArg (fun x : MuN n => x.toMul.1) hcross
-    change f (g * h) = f g * (g • f h) at hu
-    exact hu
-  obtain ⟨beta, hbeta⟩ := hH90 f hfcont hfcross
+  obtain ⟨beta, hbeta⟩ := hH90 z
   have hbetaPowFix : ∀ g : ↥(K.fixingSubgroup), g • (beta ^ n) = beta ^ n := by
     intro g
-    have hfpow : (f g) ^ n = 1 :=
+    have hfpow : ((z.1 g).toMul.1) ^ n = 1 :=
       (mem_rootsOfUnity n ((z.1 g).toMul : ℚbar2ˣ)).mp (z.1 g).toMul.2
     have hratioPow : ((g • beta) * beta⁻¹) ^ n = 1 := by
       rw [← hbeta g]
@@ -372,13 +365,13 @@ theorem higherKummerClassMonoidHom_surjective_of_continuousHilbert90
   apply Subtype.ext
   exact (hbeta g).symm
 
-/-- The standard Kummer exact sequence follows from continuous Hilbert 90, with no Artin-map
-input.  This is the adapter consumed by the reciprocity layer. -/
-noncomputable def higherKummerClassDataOfContinuousHilbert90
-    (hH90 : ContinuousHilbert90 K) (n : ℕ) [NeZero n] :
+/-- The standard Kummer exact sequence follows from finite-image Hilbert 90 on `μ_n`, with no
+Artin-map input.  This is the adapter consumed by the reciprocity layer. -/
+noncomputable def higherKummerClassDataOfMuNContinuousHilbert90
+    (n : ℕ) [NeZero n] (hH90 : MuNContinuousHilbert90 K n) :
     HigherKummerClassData K n where
   kummer := higherKummerClassMonoidHom n
-  surjective := higherKummerClassMonoidHom_surjective_of_continuousHilbert90 hH90 n
+  surjective := higherKummerClassMonoidHom_surjective_of_muNContinuousHilbert90 n hH90
   eq_one_iff := higherKummerClassMonoidHom_eq_one_iff n
 
 /-! ## Exact regression to the existing mod-2 Kummer class -/
@@ -450,22 +443,22 @@ theorem higherKummerClassMonoidHom_two_eq_modTwoHigherKummerClassData :
   apply Multiplicative.toAdd.injective
   exact higherKummerClass_two_eq_modTwoTransport a
 
-/-- **Full package regression.**  Under continuous Hilbert 90, the constructed `n = 2` Kummer
+/-- **Full package regression.**  Under finite-image Hilbert 90, the constructed `n = 2` Kummer
 data equals the repository's pre-existing mod-2 data.  The proof fields agree by proof
 irrelevance once the Kummer homomorphisms have been identified. -/
-theorem higherKummerClassDataOfContinuousHilbert90_two_eq_modTwo
-    (hH90 : ContinuousHilbert90 K) :
-    higherKummerClassDataOfContinuousHilbert90 hH90 2 =
+theorem higherKummerClassDataOfMuNContinuousHilbert90_two_eq_modTwo
+    (hH90 : MuNContinuousHilbert90 K 2) :
+    higherKummerClassDataOfMuNContinuousHilbert90 2 hH90 =
       modTwoHigherKummerClassData (K := K) := by
   rw [HigherKummerClassData.mk.injEq]
   exact higherKummerClassMonoidHom_two_eq_modTwoHigherKummerClassData
 
 #print axioms higherKummerClassOfRoot_eq
 #print axioms higherKummerClass_eq_zero_iff
-#print axioms higherKummerClassMonoidHom_surjective_of_continuousHilbert90
-#print axioms higherKummerClassDataOfContinuousHilbert90
+#print axioms higherKummerClassMonoidHom_surjective_of_muNContinuousHilbert90
+#print axioms higherKummerClassDataOfMuNContinuousHilbert90
 #print axioms higherKummerClass_two_eq_modTwoTransport
-#print axioms higherKummerClassDataOfContinuousHilbert90_two_eq_modTwo
+#print axioms higherKummerClassDataOfMuNContinuousHilbert90_two_eq_modTwo
 
 end
 end GQ2.Dyadic
