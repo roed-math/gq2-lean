@@ -837,6 +837,44 @@ theorem sqCubicRawShiftLayer_eq_combinedCoordinateKernel (h : ℕ) :
   rw [hs, mul_one] at hrt
   rwa [← hrt]
 
+/-- The finite residual condition exposed to the corrected forward route: every non-twisted
+mod-`16` coordinate derivation has vanishing cubic digit. -/
+def SqCubicCoordinateResidualVanishes
+    (h : ℕ) (z : levelQuot (SqCore.DSq h : Type) 4) : Prop :=
+  ∀ i : SqNonTwistedIndex h,
+    z ∈ derivKer (sqDerivFour h (sqCubicCoordinateVector h i.1)) 3
+
+private def sqSigmaNonTwistedIndex (h : ℕ) : SqNonTwistedIndex h :=
+  ⟨0, by
+    intro heq
+    have hv := congrArg Fin.val heq
+    rw [SqCore.sqVal_zero, SqCore.sqVal_two] at hv
+    omega⟩
+
+/-- **Cubic residual criterion for the forward route.**  A central residual is reachable by
+the literal improved-relator shifts exactly when all explicit coordinate derivations vanish.
+The right side itself forces central-layer membership, so no separate `z ∈ Z₃` premise is
+needed. -/
+theorem sqCore_mem_rawShiftSpan_iff_cubicCoordinateResidualVanishes
+    (h : ℕ) (z : levelQuot (SqCore.DSq h : Type) 4) :
+    z ∈ rawShiftSpan (rawMarkedBase (SqCore.sqGen h) 3) (by omega) ↔
+      SqCubicCoordinateResidualVanishes h z := by
+  constructor
+  · intro hz i
+    exact sqCore_rawShiftSpan_le_derivKer h (sqCubicCoordinateVector h i.1) hz
+  · intro hvan
+    have hsigma := hvan (sqSigmaNonTwistedIndex h)
+    obtain ⟨a, ha, haz, _⟩ := hsigma
+    have hzlayer : z ∈ zLayer (SqCore.DSq h : Type) 3 := ⟨a, ha, haz⟩
+    let z' : zLayer (SqCore.DSq h : Type) 3 := ⟨z, hzlayer⟩
+    have hzcombined : z' ∈ sqCubicCombinedCoordinateKernel h := by
+      rw [sqCubicCombinedCoordinateKernel, Subgroup.mem_iInf]
+      exact hvan
+    have hzraw : z' ∈ sqCubicRawShiftLayer h := by
+      rw [sqCubicRawShiftLayer_eq_combinedCoordinateKernel h]
+      exact hzcombined
+    exact hzraw
+
 /-- The `σ⁴` tail is a genuine cokernel class: it is one of the non-twisted tails in the
 augmented theorem, but it does not belong to the literal raw shift span. -/
 theorem sqCore_sigma_rawTail_not_mem_rawShiftSpan (h : ℕ) :
@@ -876,6 +914,16 @@ theorem sqCore_rawAugmentedSpan_ne_rawShiftSpan (h : ℕ) :
     rw [SqCore.sqVal_zero, SqCore.sqVal_two] at hv
     omega)
 
+/-- **Regression against augmented-tail elimination.**  At the cubic layer the augmented
+span is not even contained in the literal raw shift span.  In particular, a future forward
+proof cannot silently discharge the extra tail generators as improved-relator shifts. -/
+theorem sqCore_rawAugmentedSpan_not_le_rawShiftSpan (h : ℕ) :
+    ¬rawAugmentedSpan (SqCore.sqGen h) 3 (by omega) ≤
+      rawShiftSpan (rawMarkedBase (SqCore.sqGen h) 3) (by omega) := by
+  intro hle
+  exact sqCore_rawAugmentedSpan_ne_rawShiftSpan h
+    (le_antisymm hle (rawShiftSpan_le_rawAugmentedSpan (SqCore.sqGen h) (by omega)))
+
 /-- Consequently the cubic pure-square supply isolated by the raw-span analysis is false
 for the actual improved square presentation. -/
 theorem sqCore_not_rawPureSquareSpanSupply_three (h : ℕ) :
@@ -899,6 +947,8 @@ theorem sqCore_not_rawPureSquareSpanSupply_three (h : ℕ) :
 #print axioms sqCubicRawShiftLayer_sup_tailLayerSpan_eq_top
 #print axioms sqCubicTailLayerSpan_exists_finset_prod
 #print axioms sqCubicRawShiftLayer_eq_combinedCoordinateKernel
+#print axioms sqCore_mem_rawShiftSpan_iff_cubicCoordinateResidualVanishes
+#print axioms sqCore_rawAugmentedSpan_not_le_rawShiftSpan
 
 end
 
