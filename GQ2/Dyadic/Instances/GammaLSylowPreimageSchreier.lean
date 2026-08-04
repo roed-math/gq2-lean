@@ -209,6 +209,147 @@ theorem gammaLSylowPreimageProTwoKernelEquality_iff_finiteTwoQuotientExtension
   · exact gammaLSylowPreimageFiniteTwoQuotientExtension_of_kernelEquality hq2 hqe P
   · exact gammaLSylowPreimageProTwoKernelEquality_of_finiteTwoQuotientExtension hq2 hqe P
 
+/-! ## The normal-core finite quotient and its exact `2`-residual obstruction
+
+For `V ◁ₒ U`, regard `V` as an open subgroup of `GammaL` and take its normal core there.  The
+normal core is again open, so the resulting ambient quotient is finite.  Its pro-`2` kernel is
+the ordinary finite-group `2`-residual.  The only possible obstruction is that this residual
+may meet the image of `U` outside `V`.
+
+This is precisely where a naive normal-core argument can fail: passing from `V` to its ambient
+normal core introduces a finite quotient which need not itself be a `2`-group.  One must still
+show that taking its maximal `2`-quotient does not collapse any additional class of `U/V`. -/
+
+/-- The ambient normal core of an intrinsic open normal subgroup `V ◁ₒ U`, bundled as an open
+normal subgroup of `GammaL`. -/
+noncomputable def gammaLSylowPreimageAmbientNormalCore
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (V : OpenNormalSubgroup (U P)) : OpenNormalSubgroup (gamma h q : Type) := by
+  let i := subgroupIncl (gamma h q : Type) (U P)
+  let W : Subgroup (gamma h q : Type) := V.toSubgroup.map i.toMonoidHom
+  have hUopen : IsOpen ((U P : Subgroup (gamma h q : Type)) : Set (gamma h q : Type)) :=
+    isOpen_sylowTwoPreimage rhoAB P
+  have hWopen : IsOpen (W : Set (gamma h q : Type)) := by
+    rw [Subgroup.coe_map]
+    exact hUopen.isOpenMap_subtype_val _ V.isOpen'
+  haveI : Finite ((gamma h q : Type) ⧸ W) :=
+    W.quotient_finite_of_isOpen hWopen
+  haveI : W.FiniteIndex := Subgroup.finiteIndex_of_finite_quotient
+  exact
+    { toSubgroup := W.normalCore
+      isOpen' := W.normalCore.isOpen_of_isClosed_of_finiteIndex
+        (W.normalCore_isClosed (W.isClosed_of_isOpen hWopen)) }
+
+/-- The ambient normal core really lies in the image of `V`; this is the algebraic input that
+allows any extension of `U/V` to descend to the finite normal-core quotient. -/
+theorem gammaLSylowPreimageAmbientNormalCore_le_map
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (V : OpenNormalSubgroup (U P)) :
+    (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup ≤
+      V.toSubgroup.map
+        (subgroupIncl (gamma h q : Type) (U P)).toMonoidHom := by
+  change (V.toSubgroup.map
+    (subgroupIncl (gamma h q : Type) (U P)).toMonoidHom).normalCore ≤ _
+  exact Subgroup.normalCore_le _
+
+/-- The finite ambient quotient by the normal core of `V`. -/
+noncomputable def gammaLSylowPreimageNormalCoreQuotientHom
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (V : OpenNormalSubgroup (U P)) :
+    ContinuousMonoidHom (gamma h q : Type)
+      ((gamma h q : Type) ⧸ (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup) :=
+  quotientMk (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup
+
+/-- The exact normal-core obstruction: the `2`-residual of the finite ambient normal-core
+quotient must pull back to `U` inside `V`.
+
+Equivalently, the maximal `2`-quotient of that finite ambient quotient must still separate all
+nontrivial classes of `U/V`. -/
+def GammaLSylowPreimageNormalCoreTwoResidualSeparation
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
+  ∀ (V : OpenNormalSubgroup (U P))
+      (_hV : IsPGroup 2 ((U P) ⧸ V.toSubgroup)),
+    Subgroup.comap
+        ((gammaLSylowPreimageNormalCoreQuotientHom P V).comp
+          (subgroupIncl (gamma h q : Type) (U P))).toMonoidHom
+        (proPKernel 2
+          ((gamma h q : Type) ⧸
+            (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup)) ≤
+      V.toSubgroup
+
+/-- Normal-core `2`-residual separation implies the reverse pro-`2` kernel inclusion.  This is
+just naturality of `proPKernel` into each finite normal-core quotient, followed by the assumed
+separation inside `U`. -/
+theorem gammaLSylowPreimageProTwoKernelEquality_of_normalCoreTwoResidualSeparation
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hsep : GammaLSylowPreimageNormalCoreTwoResidualSeparation P) :
+    GammaLSylowPreimageProTwoKernelEquality P := by
+  apply (gammaLSylowPreimageProTwoKernelEquality_iff_reverse P).2
+  intro u hu
+  rw [proPKernel, Subgroup.mem_iInf]
+  rintro ⟨V, hV⟩
+  apply hsep V hV
+  rw [Subgroup.mem_comap]
+  apply proPKernel_le_comap
+    (p := 2) (gammaLSylowPreimageNormalCoreQuotientHom P V)
+  exact hu
+
+/-- Kernel equality forces normal-core `2`-residual separation.  Extend `U/V` through the
+improved core, observe that the resulting ambient map kills the normal core of `V`, descend it
+to the finite normal-core quotient, and use naturality of its pro-`2` kernel. -/
+theorem gammaLSylowPreimageNormalCoreTwoResidualSeparation_of_kernelEquality
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hker : GammaLSylowPreimageProTwoKernelEquality P) :
+    GammaLSylowPreimageNormalCoreTwoResidualSeparation P := by
+  intro V hV u hu
+  obtain ⟨f, hf⟩ :=
+    gammaLSylowPreimageFiniteTwoQuotientExtension_of_kernelEquality hq2 hqe P hker V hV
+  let a : ContinuousMonoidHom (gamma h q : Type) ((U P) ⧸ V.toSubgroup) :=
+    f.comp (lCanonicalPro2 h q hq2 hqe)
+  have hmap : V.toSubgroup.map
+      (subgroupIncl (gamma h q : Type) (U P)).toMonoidHom ≤ a.toMonoidHom.ker := by
+    rintro g ⟨v, hv, rfl⟩
+    rw [MonoidHom.mem_ker]
+    have happ := DFunLike.congr_fun hf v
+    change a v.1 = quotientMk V.toSubgroup v at happ
+    change a v.1 = 1
+    rw [happ]
+    exact (QuotientGroup.eq_one_iff v).mpr hv
+  have hcore : (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup ≤
+      a.toMonoidHom.ker :=
+    (gammaLSylowPreimageAmbientNormalCore_le_map P V).trans hmap
+  let aCore : ContinuousMonoidHom
+      ((gamma h q : Type) ⧸ (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup)
+      ((U P) ⧸ V.toSubgroup) :=
+    quotientLift (gammaLSylowPreimageAmbientNormalCore P V).toSubgroup a hcore
+  have hres : aCore
+      (gammaLSylowPreimageNormalCoreQuotientHom P V u.1) = 1 := by
+    apply MonoidHom.mem_ker.mp
+    apply proPKernel_le_ker (isProP_of_isPGroup hV) aCore
+    rw [Subgroup.mem_comap] at hu
+    exact hu
+  have ha : a u.1 = 1 := by
+    exact hres
+  have happ := DFunLike.congr_fun hf u
+  change a u.1 = quotientMk V.toSubgroup u at happ
+  exact (QuotientGroup.eq_one_iff u).mp (happ.symm.trans ha)
+
+/-- **Exact normal-core reduction.**  The desired Sylow-preimage kernel equality is equivalent
+to one explicit finite-group statement at every intrinsic finite `2`-quotient: after taking the
+ambient normal core, its finite quotient's `2`-residual must not kill any extra class of `U/V`.
+
+The forward direction uses the improved presentation through the finite-quotient extension
+equivalence above; the reverse direction is pure pro-`2` kernel naturality. -/
+theorem gammaLSylowPreimageProTwoKernelEquality_iff_normalCoreTwoResidualSeparation
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
+    GammaLSylowPreimageProTwoKernelEquality P ↔
+      GammaLSylowPreimageNormalCoreTwoResidualSeparation P := by
+  constructor
+  · exact gammaLSylowPreimageNormalCoreTwoResidualSeparation_of_kernelEquality hq2 hqe P
+  · exact gammaLSylowPreimageProTwoKernelEquality_of_normalCoreTwoResidualSeparation P
+
 /-! ## The quotient-dependent action retained on the improved core -/
 
 /-- Once the exact kernel equality is proved, transport the Sylow action quotient from `U(2)`
