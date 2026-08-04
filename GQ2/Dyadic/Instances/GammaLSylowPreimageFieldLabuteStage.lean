@@ -32,6 +32,8 @@ noncomputable section
 open GQ2
 open GQ2.Roe.Labute
 
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
 /-! ## Level sets and restriction -/
 
 /-- A relator-killing generating marking of the `k`-th lower two-central quotient. -/
@@ -144,12 +146,167 @@ theorem sqStageDefect_eq_one_iff_lift_relation
     sqStageDefect G h k T = 1 ↔ SqCore.sqRelWord T' = 1 := by
   rw [sqStageDefect_eq_of_lift h k T T' hT']
 
+/-! ## Oriented stage tuples and descent to arbitrary finite quotients -/
+
+/-- A level-`k` marking for the improved square presentation, with the orientation conditions
+stated by liftability to the exact cyclotomic fibres.  This is the variable-rank analogue of
+the rank-three sets `sPR0`/`sPR2`, stripped of presentation-dependent auxiliary invariants.
+
+Using exact fibre liftability here is important: congruences for a truncated character would
+not by themselves imply the value-fibre clauses required by finite-level compactness. -/
+structure SqCyclotomicStageTuple
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (h k : ℕ) where
+  generators : Fin (SqCore.sqRank h) →
+    levelQuot (maxProPQuotient 2 (GalK K)) k
+  sigma : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit ∧
+      generators 0 = levelMk (maxProPQuotient 2 (GalK K)) k x
+  x0 : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit ∧
+      generators 1 = levelMk (maxProPQuotient 2 (GalK K)) k x
+  x1 : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit ∧
+      generators 2 = levelMk (maxProPQuotient 2 (GalK K)) k x
+  handleU : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+    x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+      generators (SqCore.sqHandleIdxU j) =
+        levelMk (maxProPQuotient 2 (GalK K)) k x
+  handleV : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+    x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+      generators (SqCore.sqHandleIdxV j) =
+        levelMk (maxProPQuotient 2 (GalK K)) k x
+  relation : SqCore.sqRelWord generators = 1
+  topGen : Subgroup.closure (Set.range generators) = ⊤
+
+namespace SqCyclotomicStageTuple
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)]
+  [TotallyDisconnectedSpace (GalK K)]
+
+/-- Restriction down the two-central tower preserves the literal improved relation,
+generation, and all exact cyclotomic fibres. -/
+noncomputable def levelProj {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h (k + 1)) :
+    SqCyclotomicStageTuple K h k where
+  generators i := GQ2.Roe.Labute.levelProj _ k (T.generators i)
+  sigma := by
+    obtain ⟨x, hxchi, hx⟩ := T.sigma
+    exact ⟨x, hxchi, by rw [hx, levelProj_levelMk]⟩
+  x0 := by
+    obtain ⟨x, hxchi, hx⟩ := T.x0
+    exact ⟨x, hxchi, by rw [hx, levelProj_levelMk]⟩
+  x1 := by
+    obtain ⟨x, hxchi, hx⟩ := T.x1
+    exact ⟨x, hxchi, by rw [hx, levelProj_levelMk]⟩
+  handleU := by
+    intro j
+    obtain ⟨x, hxchi, hx⟩ := T.handleU j
+    exact ⟨x, hxchi, by rw [hx, levelProj_levelMk]⟩
+  handleV := by
+    intro j
+    obtain ⟨x, hxchi, hx⟩ := T.handleV j
+    exact ⟨x, hxchi, by rw [hx, levelProj_levelMk]⟩
+  relation := by
+    rw [← SqCore.map_sqRelWord (GQ2.Roe.Labute.levelProj _ k) T.generators,
+      T.relation, map_one]
+  topGen := closure_range_levelProj T.topGen
+
+/-- The underlying tuple of an oriented stage belongs to `sqStageZero`. -/
+theorem generators_mem_sqStageZero {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) :
+    T.generators ∈ sqStageZero (maxProPQuotient 2 (GalK K)) h k :=
+  ⟨T.relation, T.topGen⟩
+
+/-- The plain homomorphism from a tower quotient to a coarser quotient.  Unlike `projMap`,
+this algebraic form needs no temporary discrete-topology instance. -/
+noncomputable def toOpenMap (k : ℕ)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    levelQuot (maxProPQuotient 2 (GalK K)) k →*
+      (maxProPQuotient 2 (GalK K) ⧸ U.toSubgroup) :=
+  QuotientGroup.lift (twoCentralSeries (maxProPQuotient 2 (GalK K)) k)
+    (QuotientGroup.mk' U.toSubgroup) (by
+      rw [QuotientGroup.ker_mk']
+      exact hle)
+
+@[simp] theorem toOpenMap_levelMk (k : ℕ)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup)
+    (x : maxProPQuotient 2 (GalK K)) :
+    toOpenMap (K := K) k U hle
+        (levelMk (maxProPQuotient 2 (GalK K)) k x) = QuotientGroup.mk x :=
+  rfl
+
+theorem toOpenMap_surjective (k : ℕ)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    Function.Surjective (toOpenMap (K := K) k U hle) := by
+  intro q
+  obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective q
+  exact ⟨levelMk (maxProPQuotient 2 (GalK K)) k x, rfl⟩
+
+/-- A single oriented stage at any tower level contained in `U` produces the corrected
+finite-level datum for `U`.  Thus all cofinality/compactness work after the stage lemma is now
+independent of the arithmetic correction calculation. -/
+noncomputable def toFiniteLevelEpiData {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    SqCyclotomicFiniteLevelEpiData (K := K) h U := by
+  let p := toOpenMap (K := K) k U hle
+  let generators := fun i ↦ p (T.generators i)
+  apply finiteLevelEpiDataOfTuple h U generators
+  · obtain ⟨x, hxchi, hx⟩ := T.sigma
+    refine ⟨x, hxchi, ?_⟩
+    change p (T.generators 0) = QuotientGroup.mk x
+    rw [hx]
+    exact toOpenMap_levelMk (K := K) k U hle x
+  · obtain ⟨x, hxchi, hx⟩ := T.x0
+    refine ⟨x, hxchi, ?_⟩
+    change p (T.generators 1) = QuotientGroup.mk x
+    rw [hx]
+    exact toOpenMap_levelMk (K := K) k U hle x
+  · obtain ⟨x, hxchi, hx⟩ := T.x1
+    refine ⟨x, hxchi, ?_⟩
+    change p (T.generators 2) = QuotientGroup.mk x
+    rw [hx]
+    exact toOpenMap_levelMk (K := K) k U hle x
+  · intro j
+    obtain ⟨x, hxchi, hx⟩ := T.handleU j
+    refine ⟨x, hxchi, ?_⟩
+    change p (T.generators (SqCore.sqHandleIdxU j)) = QuotientGroup.mk x
+    rw [hx]
+    exact toOpenMap_levelMk (K := K) k U hle x
+  · intro j
+    obtain ⟨x, hxchi, hx⟩ := T.handleV j
+    refine ⟨x, hxchi, ?_⟩
+    change p (T.generators (SqCore.sqHandleIdxV j)) = QuotientGroup.mk x
+    rw [hx]
+    exact toOpenMap_levelMk (K := K) k U hle x
+  · exact (SqCore.map_sqRelWord p T.generators).symm.trans (by rw [T.relation, map_one])
+  · have h := congrArg (Subgroup.map p) T.topGen
+    rw [MonoidHom.map_closure, Subgroup.map_top_of_surjective _
+      (toOpenMap_surjective (K := K) k U hle), ← Set.range_comp] at h
+    exact h
+
+end SqCyclotomicStageTuple
+
 #print axioms sqStageZero_levelProj
 #print axioms handleWord_central_shift
 #print axioms sqRelWord_zLayer_shift
 #print axioms sqStageDefect_eq_of_lift
 #print axioms sqStageDefect_mem_zLayer
 #print axioms sqStageDefect_eq_one_iff_lift_relation
+#print axioms SqCyclotomicStageTuple.levelProj
+#print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData
 
 end
 
