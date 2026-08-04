@@ -48,7 +48,10 @@ noncomputable def cyclotomicBocksteinVectorAt (k : ℕ) (hk : 2 ≤ k) :
   let Q := levelQuot G k
   letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
-  exact lowerTwoCentralH1LiftAt G k hk (cyclotomicModFourClassKTwo (K := K))
+  let cQ : ContinuousMonoidHom Q (Multiplicative (ZMod 2)) :=
+    (continuousCharacterLevelEquivAt G k hk).symm
+      (cyclotomicModFourCharacterKTwo (K := K))
+  exact H1mk Q (ZMod 2) (Count.homEquivZ1 cQ)
 
 @[simp] theorem lowerTwoCentralH1InflationAt_cyclotomicBocksteinVectorAt
     (k : ℕ) (hk : 2 ≤ k) :
@@ -66,7 +69,12 @@ noncomputable def cyclotomicBocksteinVectorAt (k : ℕ) (hk : 2 ≤ k) :
   let Q := levelQuot G k
   letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
-  exact lowerTwoCentralH1InflationAt_lift G k hk _
+  unfold cyclotomicBocksteinVectorAt cyclotomicModFourClassKTwo
+  dsimp only
+  rw [show lowerTwoCentralH1InflationAt G k =
+      inf1 ⟨levelMk G k, continuous_levelMk G k⟩ (fun _ _ => rfl) from rfl,
+    inf1_H1mk]
+  congr 1
 
 /-- The stage-`k` quotient Bockstein defect for a degree-one class. -/
 noncomputable def cyclotomicBocksteinDefectAt (k : ℕ) (hk : 2 ≤ k)
