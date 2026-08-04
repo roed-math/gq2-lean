@@ -631,6 +631,30 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_mod
   exact (twoCentralHilbertSeriesAgreement_iff_layerCardAgreement hfg
     isProP_maxProPQuotient).mp hseries
 
+/-- Odd-degree specialization of the preceding reverse reduction, with the improved model rank
+`3 + 2 * (([K : ℚ₂] - 1) / 2)` simplified automatically to `[K : ℚ₂] + 2`. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_of_modelDegreeTwo_and_hilbertTail
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
+    (hmodel : LowerTwoCentralDegreeTwoExpectedCard
+      (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
+      (SqCore.sqRank ((Module.finrank ℚ_[2] K - 1) / 2)))
+    (htail : SqTwoCentralHilbertTailAgreement
+      (maxProPQuotient 2 (GalK K)) ((Module.finrank ℚ_[2] K - 1) / 2)) :
+    SqReverseFiniteQuotientSurjections (maxProPQuotient 2 (GalK K))
+      ((Module.finrank ℚ_[2] K - 1) / 2) := by
+  apply D.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_hilbertTail K
+  · obtain ⟨m, hm⟩ := hodd
+    rw [hm]
+    simp only [SqCore.sqRank]
+    omega
+  · exact hmodel
+  · exact htail
+
 #print axioms elementaryNormalizedCocycle_identity
 #print axioms elementaryCocycleQuadraticMap
 #print axioms elementaryH2ToQuadratic
@@ -646,6 +670,7 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_mod
 #print axioms maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard
 #print axioms degreeOneGalKSq_zLayer_two_cardAgreement
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_modelDegreeTwo_and_hilbertTail
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDegree_of_modelDegreeTwo_and_hilbertTail
 
 end
 
