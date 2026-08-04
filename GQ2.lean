@@ -437,6 +437,7 @@ import GQ2.Dyadic.Count.H3CompletedCubicObstruction
 import GQ2.Dyadic.Count.H3CompletedCubicAlgebraDetector
 import GQ2.Dyadic.Count.H3SqAdjointReconstructionDefect
 import GQ2.Dyadic.Count.H3SqReconstructionFiniteDetector
+import GQ2.Dyadic.Count.H3SqReconstructionCoordinateDetector
 import GQ2.Dyadic.Count.H3SqFiniteResidualCapstone
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
