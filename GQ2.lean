@@ -399,6 +399,7 @@ import GQ2.Dyadic.Count.MaxProTwoSubgroupCriterion
 import GQ2.Dyadic.Count.H2MaxProTwoInflationCriterion
 import GQ2.Dyadic.Count.H2ProTwoScalarCDTwo
 import GQ2.Dyadic.Count.H3OneRelatorAsphericity
+import GQ2.Dyadic.Count.H3FiniteLevelFoxBoundary
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
