@@ -880,6 +880,9 @@ theorem demushkinEpimorphism_bijective
     f hf hDG hDH hrank hrankPos
     (h1H2InflationDetectsInvariantKernelCharacters f hf)
 
+#print axioms h1H2InflationDetectsInvariantKernelCharacters
+#print axioms demushkinEpimorphism_bijective
+
 end FiveTerm
 
 end
