@@ -990,6 +990,143 @@ theorem zassenhausJenningsCubicPrimitiveRemainder_three :
     lowerTwoCentralOneRelatorQuadraticDimension,
     lowerTwoCentralQuadraticDimension]
 
+/-! ## Deprecated compatibility aliases
+
+These names preserve the pre-audit API.  Their replacements make the filtration explicit.
+In particular, every alias whose conclusion concerns `zLayer` or
+`lowerTwoCentralHilbertCoefficient` still requires the displayed legacy cross-filtration
+input; none packages the Zassenhaus primitive calculation as a lower-series theorem. -/
+
+/-- Deprecated numerical alias; this is a Zassenhaus primitive dimension. -/
+@[deprecated zassenhausFreeCubicPrimitiveDimension (since := "2026-08-04")]
+abbrev lowerTwoCentralFreeCubicDimension := zassenhausFreeCubicPrimitiveDimension
+
+/-- Deprecated numerical alias; this is a Zassenhaus primitive dimension. -/
+@[deprecated zassenhausOneRelatorCubicPrimitiveDimension (since := "2026-08-04")]
+abbrev lowerTwoCentralOneRelatorCubicDimension :=
+  zassenhausOneRelatorCubicPrimitiveDimension
+
+/-- Deprecated cross-filtration proposition, not a consequence of Labute's Zassenhaus
+formula alone. -/
+@[deprecated LowerTwoCentralDegreeThreeCrossFiltrationCard (since := "2026-08-04")]
+abbrev LowerTwoCentralDegreeThreeExpectedCard :=
+  LowerTwoCentralDegreeThreeCrossFiltrationCard
+
+/-- Deprecated numerical regression alias; it has no lower-series content. -/
+@[deprecated zassenhausOneRelatorCubicPrimitiveDimension_three (since := "2026-08-04")]
+alias lowerTwoCentralOneRelatorCubicDimension_three :=
+  zassenhausOneRelatorCubicPrimitiveDimension_three
+
+/-- Deprecated conversion alias.  Its premise is the cross-filtration equality. -/
+@[deprecated lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient
+  (since := "2026-08-04")]
+alias lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient :=
+  lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient
+
+/-- Deprecated name for the legacy model cross-filtration bridge. -/
+@[deprecated LegacySqDegreeThreeJenningsCrossFiltrationBridge (since := "2026-08-04")]
+abbrev SqDegreeThreeJenningsPrimitiveBridge :=
+  LegacySqDegreeThreeJenningsCrossFiltrationBridge
+
+/-- Deprecated theorem alias; the required bridge is a legacy cross-filtration assumption. -/
+@[deprecated lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyJenningsCrossFiltration
+  (since := "2026-08-04")]
+alias lowerTwoCentralDegreeThreeExpectedCard_DSq_of_jenningsBridge :=
+  lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyJenningsCrossFiltration
+
+/-- Deprecated name for the universal legacy cross-filtration supply. -/
+@[deprecated LegacyDemushkinDegreeThreeCrossFiltrationSupply (since := "2026-08-04")]
+abbrev DemushkinDegreeThreeLabuteFormulaSupply :=
+  LegacyDemushkinDegreeThreeCrossFiltrationSupply
+
+/-- Deprecated theorem alias; the conclusion uses the legacy cross-filtration supply, not
+the Zassenhaus Labute formula alone. -/
+@[deprecated lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyCrossFiltration
+  (since := "2026-08-04")]
+alias lowerTwoCentralDegreeThreeExpectedCard_DSq_of_labute :=
+  lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyCrossFiltration
+
+/-- Deprecated theorem alias; the value `32` is conditional on the legacy cross-filtration
+supply. -/
+@[deprecated card_zLayer_three_dsq_zero_of_legacyCrossFiltration (since := "2026-08-04")]
+alias card_zLayer_three_dsq_zero_of_labute :=
+  card_zLayer_three_dsq_zero_of_legacyCrossFiltration
+
+/-- Deprecated theorem alias; its field-layer conclusion is conditional on the legacy
+cross-filtration supply. -/
+@[deprecated
+  maxProTwoGalK_lowerTwoCentralDegreeThreeCrossFiltrationCard_of_legacyCrossFiltration
+  (since := "2026-08-04")]
+alias maxProTwoGalK_lowerTwoCentralDegreeThreeExpectedCard_of_labute :=
+  maxProTwoGalK_lowerTwoCentralDegreeThreeCrossFiltrationCard_of_legacyCrossFiltration
+
+/-- Deprecated theorem alias; layer-cardinality agreement is conditional on the legacy
+cross-filtration supply. -/
+@[deprecated oddDegreeGalKSq_zLayer_three_cardAgreement_of_legacyCrossFiltration
+  (since := "2026-08-04")]
+alias oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute :=
+  oddDegreeGalKSq_zLayer_three_cardAgreement_of_legacyCrossFiltration
+
+/-- Deprecated theorem alias; coefficient agreement is conditional on the legacy
+cross-filtration supply. -/
+@[deprecated oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_legacyCrossFiltration
+  (since := "2026-08-04")]
+alias oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_labute :=
+  oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_legacyCrossFiltration
+
+/-- Deprecated Zassenhaus PBW numerical alias. -/
+@[deprecated zassenhausPBWCubicDimension (since := "2026-08-04")]
+abbrev lowerTwoCentralPBWCubicDimension := zassenhausPBWCubicDimension
+
+/-- Deprecated Zassenhaus primitive-remainder alias. -/
+@[deprecated zassenhausJenningsCubicPrimitiveRemainder (since := "2026-08-04")]
+abbrev lowerTwoCentralJenningsCubicRemainder :=
+  zassenhausJenningsCubicPrimitiveRemainder
+
+/-- Deprecated formula alias; this formula is a legacy cross-filtration assertion. -/
+@[deprecated LegacyLowerTwoCentralTruncatedJenningsCrossFiltrationFormula
+  (since := "2026-08-04")]
+abbrev LowerTwoCentralTruncatedJenningsCoefficientFormula :=
+  LegacyLowerTwoCentralTruncatedJenningsCrossFiltrationFormula
+
+/-- Deprecated theorem alias; its premise is the legacy truncated cross-filtration formula. -/
+@[deprecated lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+  (since := "2026-08-04")]
+alias lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings :=
+  lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+
+/-- Deprecated name for the purely numerical Zassenhaus primitive arithmetic supply. -/
+@[deprecated SqDegreeThreeZassenhausPrimitiveArithmetic (since := "2026-08-04")]
+abbrev SqDegreeThreeJenningsArithmetic := SqDegreeThreeZassenhausPrimitiveArithmetic
+
+/-- Deprecated theorem alias for purely numerical Zassenhaus primitive arithmetic. -/
+@[deprecated sqDegreeThreeZassenhausPrimitiveArithmetic (since := "2026-08-04")]
+alias sqDegreeThreeJenningsArithmetic := sqDegreeThreeZassenhausPrimitiveArithmetic
+
+/-- Deprecated supply alias; it is explicitly a legacy cross-filtration assertion. -/
+@[deprecated LegacySqDegreeThreeTruncatedJenningsCrossFiltrationSupply
+  (since := "2026-08-04")]
+abbrev SqDegreeThreeTruncatedJenningsSupply :=
+  LegacySqDegreeThreeTruncatedJenningsCrossFiltrationSupply
+
+/-- Deprecated theorem alias; its premise is the legacy truncated cross-filtration supply. -/
+@[deprecated dsq_lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+  (since := "2026-08-04")]
+alias dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings :=
+  dsq_lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+
+/-- Deprecated theorem alias; its exact layer conclusion is conditional on the legacy
+truncated cross-filtration supply. -/
+@[deprecated lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyTruncatedJennings
+  (since := "2026-08-04")]
+alias lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings :=
+  lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyTruncatedJennings
+
+/-- Deprecated numerical Zassenhaus primitive regression alias. -/
+@[deprecated zassenhausJenningsCubicPrimitiveRemainder_three (since := "2026-08-04")]
+alias lowerTwoCentralJenningsCubicRemainder_three :=
+  zassenhausJenningsCubicPrimitiveRemainder_three
+
 #print axioms dsqCoordinateHOne_bijective
 #print axioms obsH2_DSq_coordinateCup
 #print axioms isDemushkin_DSq
