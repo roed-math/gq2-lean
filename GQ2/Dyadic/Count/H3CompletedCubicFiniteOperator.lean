@@ -2253,6 +2253,182 @@ theorem sqCubicZeroCorePrefix_val_expansion (h : ℕ) :
     (sqCubicHomogeneousOperatorLetter_augmentation h 0)
     (sqCubicHomogeneousOperatorLetter_augmentation h 1)
 
+theorem sqCubicHomogeneousOperatorElement_raises_one (h : ℕ)
+    (i : Fin (sqRank h)) :
+    SqCubicOperatorElementRaisesBy h (sqCubicHomogeneousOperatorLetter h i) 1 := by
+  constructor
+  · simpa [sqCubicOperatorAugmentation] using
+      sqCubicHomogeneousOperatorLetter_augmentation h i
+  · change SqCubicRaisesBy (sqCubicTruncatedLeftLetter h i) 1
+    exact sqCubicTruncatedLeftLetter_raises_one h i
+
+theorem sqCubicHomogeneousOperatorTriple_raises (h : ℕ)
+    (i j k : Fin (sqRank h)) :
+    SqCubicOperatorElementRaisesBy h
+      (sqCubicHomogeneousOperatorLetter h i *
+        sqCubicHomogeneousOperatorLetter h j *
+        sqCubicHomogeneousOperatorLetter h k) 3 := by
+  exact ((sqCubicHomogeneousOperatorElement_raises_one h i).mul
+    (sqCubicHomogeneousOperatorElement_raises_one h j)).mul
+    (sqCubicHomogeneousOperatorElement_raises_one h k)
+
+def sqCubicZeroCorePrefixQuadratic (h : ℕ) : SqCubicOperatorAlgebra h :=
+  let s := sqCubicHomogeneousOperatorLetter h 0
+  let x := sqCubicHomogeneousOperatorLetter h 1
+  s * x + x * s
+
+def sqCubicZeroCorePrefixCubic (h : ℕ) : SqCubicOperatorAlgebra h :=
+  let s := sqCubicHomogeneousOperatorLetter h 0
+  let x := sqCubicHomogeneousOperatorLetter h 1
+  s * s * x + s * x * s + x * s * x + x * x * s
+
+theorem sqCubicZeroCorePrefixQuadratic_raises (h : ℕ) :
+    SqCubicOperatorElementRaisesBy h (sqCubicZeroCorePrefixQuadratic h) 2 := by
+  exact (sqCubicHomogeneousOperatorElement_raises_one h 0 |>.mul
+    (sqCubicHomogeneousOperatorElement_raises_one h 1)).add
+    (sqCubicHomogeneousOperatorElement_raises_one h 1 |>.mul
+      (sqCubicHomogeneousOperatorElement_raises_one h 0))
+
+set_option maxHeartbeats 1000000 in
+theorem sqCubicZeroCorePrefixCubic_raises (h : ℕ) :
+    SqCubicOperatorElementRaisesBy h (sqCubicZeroCorePrefixCubic h) 3 := by
+  rw [sqCubicZeroCorePrefixCubic]
+  exact (((sqCubicHomogeneousOperatorTriple_raises h 0 0 1).add
+    (sqCubicHomogeneousOperatorTriple_raises h 0 1 0)).add
+    (sqCubicHomogeneousOperatorTriple_raises h 1 0 1)).add
+    (sqCubicHomogeneousOperatorTriple_raises h 1 1 0)
+
+theorem sqCubicZeroCorePrefix_val_secondOrder (h : ℕ) :
+    (sqCubicCorrectedCorePrefix h (sqCubicZeroDegreeTwoCorrection h)).val =
+      1 + sqCubicZeroCorePrefixQuadratic h + sqCubicZeroCorePrefixCubic h := by
+  rw [sqCubicZeroCorePrefixQuadratic, sqCubicZeroCorePrefixCubic]
+  calc
+    (sqCubicCorrectedCorePrefix h
+        (sqCubicZeroDegreeTwoCorrection h)).val =
+      1 + sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicHomogeneousOperatorLetter h 1 +
+        sqCubicHomogeneousOperatorLetter h 1 *
+          sqCubicHomogeneousOperatorLetter h 0 +
+        sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicHomogeneousOperatorLetter h 1 +
+        sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicHomogeneousOperatorLetter h 1 *
+          sqCubicHomogeneousOperatorLetter h 0 +
+        sqCubicHomogeneousOperatorLetter h 1 *
+          sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicHomogeneousOperatorLetter h 1 +
+        sqCubicHomogeneousOperatorLetter h 1 *
+          sqCubicHomogeneousOperatorLetter h 1 *
+          sqCubicHomogeneousOperatorLetter h 0 :=
+      sqCubicZeroCorePrefix_val_expansion h
+    _ = _ := by noncomm_ring
+
+def sqCubicZeroCorePrefix_secondOrder (h : ℕ) :
+    SqCubicSecondOrderExpansion h
+      (sqCubicCorrectedCorePrefix h (sqCubicZeroDegreeTwoCorrection h)).val where
+  quadratic := sqCubicZeroCorePrefixQuadratic h
+  cubic := sqCubicZeroCorePrefixCubic h
+  value_eq := sqCubicZeroCorePrefix_val_secondOrder h
+  quadratic_raises := sqCubicZeroCorePrefixQuadratic_raises h
+  cubic_raises := sqCubicZeroCorePrefixCubic_raises h
+
+set_option maxHeartbeats 1000000 in
+def sqCubicZeroYSquare_secondOrder (h : ℕ) :
+    SqCubicSecondOrderExpansion h
+      ((sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2) ^ 2).val := by
+  let y := sqCubicHomogeneousOperatorLetter h 2
+  let hy := sqCubicHomogeneousOperatorElement_raises_one h 2
+  refine
+    { quadratic := y * y
+      cubic := 0
+      value_eq := ?_
+      quadratic_raises := hy.mul hy
+      cubic_raises := SqCubicOperatorElementRaisesBy.zero h 3 }
+  change (1 + sqCubicCorrectedOperatorLetter h
+      (sqCubicZeroDegreeTwoCorrection h) 2) ^ 2 = 1 + y * y + 0
+  rw [sqCubicZeroCorrectedOperatorLetter, one_add_sq_charTwo]
+  simp [pow_two, y]
+
+theorem sqCubicZeroCorrectedMarkedUnit (h : ℕ)
+    (i : Fin (sqRank h)) :
+    sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) i =
+      oneAddUnitOfPowFourZero (sqCubicHomogeneousOperatorLetter h i)
+        (pow_four_zero_of_augmentation_product_four_zero
+          (sqCubicOperatorAugmentation h)
+          (sqCubicOperatorAugmentation_product_four_zero h)
+          (sqCubicHomogeneousOperatorLetter h i)
+          (sqCubicHomogeneousOperatorLetter_augmentation h i)) := by
+  apply Units.ext
+  simp only [sqCubicCorrectedMarkedUnit, oneAddUnitOfPowFourZero_val,
+    sqCubicZeroCorrectedOperatorLetter]
+
+set_option maxHeartbeats 1000000 in
+def sqCubicZeroCoreCommutator_secondOrder (h : ℕ) :
+    SqCubicSecondOrderExpansion h
+      (commP
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
+        (conjP
+          (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
+          (sqCubicCorrectedMarkedUnit h
+            (sqCubicZeroDegreeTwoCorrection h) 0))).val := by
+  let s := sqCubicHomogeneousOperatorLetter h 0
+  let y := sqCubicHomogeneousOperatorLetter h 2
+  refine
+    { quadratic := 0
+      cubic := s * y * y + y * y * s
+      value_eq := ?_
+      quadratic_raises := SqCubicOperatorElementRaisesBy.zero h 2
+      cubic_raises := (sqCubicHomogeneousOperatorTriple_raises h 0 2 2).add
+        (sqCubicHomogeneousOperatorTriple_raises h 2 2 0) }
+  have H := commP_oneAdd_conjugate_val_expansion
+    (sqCubicOperatorAugmentation h)
+    (sqCubicOperatorAugmentation_product_four_zero h)
+    s y
+    (sqCubicHomogeneousOperatorLetter_augmentation h 0)
+    (sqCubicHomogeneousOperatorLetter_augmentation h 2)
+  rw [sqCubicZeroCorrectedMarkedUnit, sqCubicZeroCorrectedMarkedUnit]
+  dsimp only [s, y] at H ⊢
+  simpa only [add_assoc, zero_add] using H
+
+set_option maxHeartbeats 1000000 in
+def sqCubicZeroHandleCommutator_secondOrder (h : ℕ) (j : Fin h) :
+    SqCubicSecondOrderExpansion h
+      (commP
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+          (sqHandleIdxU j))
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+          (sqHandleIdxV j))).val := by
+  let u := sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j)
+  let v := sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j)
+  refine
+    { quadratic := u * v + v * u
+      cubic := u * u * v + u * v * u + v * u * v + v * v * u
+      value_eq := ?_
+      quadratic_raises :=
+        ((sqCubicHomogeneousOperatorElement_raises_one h (sqHandleIdxU j)).mul
+          (sqCubicHomogeneousOperatorElement_raises_one h (sqHandleIdxV j))).add
+        ((sqCubicHomogeneousOperatorElement_raises_one h (sqHandleIdxV j)).mul
+          (sqCubicHomogeneousOperatorElement_raises_one h (sqHandleIdxU j)))
+      cubic_raises :=
+        (((sqCubicHomogeneousOperatorTriple_raises h
+          (sqHandleIdxU j) (sqHandleIdxU j) (sqHandleIdxV j)).add
+          (sqCubicHomogeneousOperatorTriple_raises h
+            (sqHandleIdxU j) (sqHandleIdxV j) (sqHandleIdxU j))).add
+          (sqCubicHomogeneousOperatorTriple_raises h
+            (sqHandleIdxV j) (sqHandleIdxU j) (sqHandleIdxV j))).add
+        (sqCubicHomogeneousOperatorTriple_raises h
+          (sqHandleIdxV j) (sqHandleIdxV j) (sqHandleIdxU j)) }
+  have H := commP_oneAddUnitOfPowFourZero_val_expansion
+    (sqCubicOperatorAugmentation h)
+    (sqCubicOperatorAugmentation_product_four_zero h)
+    u v
+    (sqCubicHomogeneousOperatorLetter_augmentation h (sqHandleIdxU j))
+    (sqCubicHomogeneousOperatorLetter_augmentation h (sqHandleIdxV j))
+  rw [sqCubicZeroCorrectedMarkedUnit, sqCubicZeroCorrectedMarkedUnit]
+  dsimp only [u, v] at H ⊢
+  simpa only [add_assoc] using H
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
