@@ -456,6 +456,10 @@ theorem sqCore_rawShiftSpan_le_derivKer
 
 /-! ## A surviving non-twisted tail -/
 
+def sqCubicCoordinateVector (h : ℕ) (i : Fin (SqCore.sqRank h)) :
+    Fin (SqCore.sqRank h) → ℤ_[2] :=
+  Pi.single i 1
+
 private def sigmaCoordinate (h : ℕ) : Fin (SqCore.sqRank h) → ℤ_[2] :=
   Pi.single 0 1
 
@@ -480,6 +484,49 @@ private theorem sqDerivFour_sigma_pow_four_u (h : ℕ) :
   simp [sigmaCoordinate]
   decide
 
+private theorem sqDerivFour_x0_pow_four_u (h : ℕ) :
+    (sqDerivFour h (sqCubicCoordinateVector h 1) ((SqCore.sqGen h 1) ^ 4)).u =
+      (12 : ZMod (2 ^ 4)) := by
+  rw [map_pow, sqDerivFour_sqGen, wl_pow_four_u]
+  change (1 + PadicInt.toZModPow 4
+      ((SqCore.chiSq h (SqCore.sqGen h 1) : ℤ_[2])) +
+        (PadicInt.toZModPow 4 ((SqCore.chiSq h (SqCore.sqGen h 1) : ℤ_[2]))) ^ 2 +
+        (PadicInt.toZModPow 4 ((SqCore.chiSq h (SqCore.sqGen h 1) : ℤ_[2]))) ^ 3) *
+      PadicInt.toZModPow 4 ((sqCubicCoordinateVector h 1) 1) = _
+  rw [show SqCore.sqGen h 1 = SqCore.dsqX0 h from rfl, SqCore.chiSq_x0,
+    GQ2.Roe.val_rootXUnit, GQ2.Roe.rootX_toZModPow_four]
+  simp [sqCubicCoordinateVector]
+  decide
+
+private theorem sqDerivFour_handleU_pow_four_u
+    (h : ℕ) (j : Fin h) :
+    (sqDerivFour h (sqCubicCoordinateVector h (SqCore.sqHandleIdxU j))
+      ((SqCore.sqGen h (SqCore.sqHandleIdxU j)) ^ 4)).u =
+        (4 : ZMod (2 ^ 4)) := by
+  rw [map_pow, sqDerivFour_sqGen, wl_pow_four_u]
+  simp [sqDerivMark, sqCubicCoordinateVector, SqCore.chiSq_handleU]
+  norm_num
+
+private theorem sqDerivFour_handleV_pow_four_u
+    (h : ℕ) (j : Fin h) :
+    (sqDerivFour h (sqCubicCoordinateVector h (SqCore.sqHandleIdxV j))
+      ((SqCore.sqGen h (SqCore.sqHandleIdxV j)) ^ 4)).u =
+        (4 : ZMod (2 ^ 4)) := by
+  rw [map_pow, sqDerivFour_sqGen, wl_pow_four_u]
+  simp [sqDerivMark, sqCubicCoordinateVector, SqCore.chiSq_handleV]
+  norm_num
+
+private theorem sqDerivFour_other_pow_four_u
+    (h : ℕ) (i j : Fin (SqCore.sqRank h)) (hij : i ≠ j) :
+    (sqDerivFour h (sqCubicCoordinateVector h i) ((SqCore.sqGen h j) ^ 4)).u = 0 := by
+  rw [map_pow, sqDerivFour_sqGen, wl_pow_four_u]
+  change (1 + PadicInt.toZModPow 4
+      ((SqCore.chiSq h (SqCore.sqGen h j) : ℤ_[2])) +
+        (PadicInt.toZModPow 4 ((SqCore.chiSq h (SqCore.sqGen h j) : ℤ_[2]))) ^ 2 +
+        (PadicInt.toZModPow 4 ((SqCore.chiSq h (SqCore.sqGen h j) : ℤ_[2]))) ^ 3) *
+      PadicInt.toZModPow 4 ((sqCubicCoordinateVector h i) j) = 0
+  simp [sqCubicCoordinateVector, hij]
+
 private theorem eight_not_dvd_twelve_mod_sixteen :
     ¬(2 : ZMod (2 ^ 4)) ^ 3 ∣ (12 : ZMod (2 ^ 4)) := by
   rintro ⟨c, hc⟩
@@ -488,6 +535,179 @@ private theorem eight_not_dvd_twelve_mod_sixteen :
   change (12 : ZMod 8) = (8 : ZMod 8) * ZMod.cast c at hc'
   rw [show (12 : ZMod 8) = 4 by decide, show (8 : ZMod 8) = 0 by decide, zero_mul] at hc'
   exact (by decide : (4 : ZMod 8) ≠ 0) hc'
+
+private theorem eight_not_dvd_four_mod_sixteen :
+    ¬(2 : ZMod (2 ^ 4)) ^ 3 ∣ (4 : ZMod (2 ^ 4)) := by
+  rintro ⟨c, hc⟩
+  have hc' := congrArg (ZMod.castHom (by norm_num : 2 ^ 3 ∣ 2 ^ 4) (ZMod (2 ^ 3))) hc
+  rw [map_mul, map_pow, map_ofNat, ZMod.castHom_apply] at hc'
+  change (4 : ZMod 8) = (8 : ZMod 8) * ZMod.cast c at hc'
+  rw [show (8 : ZMod 8) = 0 by decide, zero_mul] at hc'
+  exact (by decide : (4 : ZMod 8) ≠ 0) hc'
+
+private theorem sqDerivFour_coordinate_tail_not_dvd
+    (h : ℕ) (i : Fin (SqCore.sqRank h)) (hi : i ≠ 2) :
+    ¬(2 : ZMod (2 ^ 4)) ^ 3 ∣
+      (sqDerivFour h (sqCubicCoordinateVector h i) ((SqCore.sqGen h i) ^ 4)).u := by
+  rcases SqCore.sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+  · have hv : sqCubicCoordinateVector h 0 = sigmaCoordinate h := rfl
+    rw [hv, sqDerivFour_sigma_pow_four_u]
+    exact eight_not_dvd_twelve_mod_sixteen
+  · rw [sqDerivFour_x0_pow_four_u]
+    exact eight_not_dvd_twelve_mod_sixteen
+  · exact (hi rfl).elim
+  · rw [sqDerivFour_handleU_pow_four_u]
+    exact eight_not_dvd_four_mod_sixteen
+  · rw [sqDerivFour_handleV_pow_four_u]
+    exact eight_not_dvd_four_mod_sixteen
+
+private theorem sqGen_pow_four_mem_twoCentralSeries_three
+    (h : ℕ) (i : Fin (SqCore.sqRank h)) :
+    (SqCore.sqGen h i) ^ 4 ∈ twoCentralSeries (SqCore.DSq h : Type) 3 := by
+  have h1 : SqCore.sqGen h i ∈ twoCentralSeries (SqCore.DSq h : Type) 1 := by
+    rw [twoCentralSeries_one]
+    trivial
+  have h2 := sq_mem_twoCentralSeries_succ (SqCore.DSq h : Type) h1
+  have h3 := sq_mem_twoCentralSeries_succ (SqCore.DSq h : Type) h2
+  simpa [← pow_mul] using h3
+
+/-- A non-twisted tail survives under its matching coordinate derivation. -/
+theorem sqCore_rawTail_not_mem_coordinateDerivKer
+    (h : ℕ) (i : Fin (SqCore.sqRank h)) (hi : i ≠ 2) :
+    rawMarkedBase (SqCore.sqGen h) 3 i ^ 2 ^ (3 - 1) ∉
+      derivKer (sqDerivFour h (sqCubicCoordinateVector h i)) 3 := by
+  intro hmem
+  have hmem' : levelMk (SqCore.DSq h : Type) 4 ((SqCore.sqGen h i) ^ 4) ∈
+      derivKer (sqDerivFour h (sqCubicCoordinateVector h i)) 3 := by
+    simpa [rawMarkedBase, ← map_pow] using hmem
+  exact sqDerivFour_coordinate_tail_not_dvd h i hi
+    (derivKer_dvd_four (sqDerivFour h (sqCubicCoordinateVector h i)) hmem')
+
+/-- Every off-diagonal coordinate derivation kills a tail. -/
+theorem sqCore_rawTail_mem_coordinateDerivKer_of_ne
+    (h : ℕ) (i j : Fin (SqCore.sqRank h)) (hij : i ≠ j) :
+    rawMarkedBase (SqCore.sqGen h) 3 j ^ 2 ^ (3 - 1) ∈
+      derivKer (sqDerivFour h (sqCubicCoordinateVector h i)) 3 := by
+  refine ⟨(SqCore.sqGen h j) ^ 4, sqGen_pow_four_mem_twoCentralSeries_three h j, ?_, ?_⟩
+  · simp [rawMarkedBase, ← map_pow]
+  · rw [sqDerivFour_other_pow_four_u h i j hij]
+    exact dvd_zero _
+
+/-- Exact detector matrix on the non-twisted tails: the `i`-th kernel contains precisely
+the tails away from coordinate `i`. -/
+theorem sqCore_rawTail_mem_coordinateDerivKer_iff
+    (h : ℕ) (i j : Fin (SqCore.sqRank h)) (hj : j ≠ 2) :
+    rawMarkedBase (SqCore.sqGen h) 3 j ^ 2 ^ (3 - 1) ∈
+        derivKer (sqDerivFour h (sqCubicCoordinateVector h i)) 3 ↔ i ≠ j := by
+  constructor
+  · intro hmem hij
+    subst j
+    exact sqCore_rawTail_not_mem_coordinateDerivKer h i hj hmem
+  · exact sqCore_rawTail_mem_coordinateDerivKer_of_ne h i j
+
+/-! ## The combined cubic detector -/
+
+/-- Indices of the relator-adapted tails: every displayed generator except twisted `x₁`. -/
+abbrev SqNonTwistedIndex (h : ℕ) :=
+  {i : Fin (SqCore.sqRank h) // i ≠ 2}
+
+/-- The raw shift span, regarded inside the cubic central layer. -/
+noncomputable def sqCubicRawShiftLayer (h : ℕ) :
+    Subgroup (zLayer (SqCore.DSq h : Type) 3) :=
+  (rawShiftSpan (rawMarkedBase (SqCore.sqGen h) 3) (by omega)).comap
+    (zLayer (SqCore.DSq h : Type) 3).subtype
+
+/-- The `i`-th coordinate-derivation kernel, restricted to the cubic central layer. -/
+noncomputable def sqCubicCoordinateKernel
+    (h : ℕ) (i : Fin (SqCore.sqRank h)) :
+    Subgroup (zLayer (SqCore.DSq h : Type) 3) :=
+  (derivKer (sqDerivFour h (sqCubicCoordinateVector h i)) 3).comap
+    (zLayer (SqCore.DSq h : Type) 3).subtype
+
+/-- Simultaneous vanishing of all non-twisted coordinate derivations.  This is the precise
+finite-level condition that a corrected forward residual must satisfy. -/
+noncomputable def sqCubicCombinedCoordinateKernel (h : ℕ) :
+    Subgroup (zLayer (SqCore.DSq h : Type) 3) :=
+  ⨅ i : SqNonTwistedIndex h, sqCubicCoordinateKernel h i.1
+
+/-- Literal raw shifts satisfy the simultaneous coordinate-vanishing condition. -/
+theorem sqCubicRawShiftLayer_le_combinedCoordinateKernel (h : ℕ) :
+    sqCubicRawShiftLayer h ≤ sqCubicCombinedCoordinateKernel h := by
+  intro z hz
+  rw [sqCubicCombinedCoordinateKernel, Subgroup.mem_iInf]
+  intro i
+  exact sqCore_rawShiftSpan_le_derivKer h (sqCubicCoordinateVector h i.1) hz
+
+/-- A non-twisted fourth-power tail, bundled in the cubic central layer. -/
+noncomputable def sqCubicTailLayer (h : ℕ) (i : SqNonTwistedIndex h) :
+    zLayer (SqCore.DSq h : Type) 3 :=
+  ⟨rawMarkedBase (SqCore.sqGen h) 3 i.1 ^ 2 ^ (3 - 1), by
+    simpa using pow_two_pow_mem_lambdaImage
+      (rawMarkedBase (SqCore.sqGen h) 3 i.1) 2⟩
+
+/-- The detector matrix is diagonal on the explicit tail coordinates. -/
+theorem sqCubicTailLayer_mem_coordinateKernel_iff
+    (h : ℕ) (i j : SqNonTwistedIndex h) :
+    sqCubicTailLayer h j ∈ sqCubicCoordinateKernel h i.1 ↔ i.1 ≠ j.1 := by
+  exact sqCore_rawTail_mem_coordinateDerivKer_iff h i.1 j.1 j.2
+
+/-- No displayed tail satisfies all coordinate-vanishing conditions. -/
+theorem sqCubicTailLayer_not_mem_combinedCoordinateKernel
+    (h : ℕ) (i : SqNonTwistedIndex h) :
+    sqCubicTailLayer h i ∉ sqCubicCombinedCoordinateKernel h := by
+  intro hmem
+  have hii : sqCubicTailLayer h i ∈ sqCubicCoordinateKernel h i.1 :=
+    (Subgroup.mem_iInf.mp hmem) i
+  exact (sqCubicTailLayer_mem_coordinateKernel_iff h i i).mp hii rfl
+
+/-- The span of the explicit non-twisted tails inside the cubic layer. -/
+noncomputable def sqCubicTailLayerSpan (h : ℕ) :
+    Subgroup (zLayer (SqCore.DSq h : Type) 3) :=
+  Subgroup.closure (Set.range (sqCubicTailLayer h))
+
+/-- At degree three the augmented span is exactly the central layer. -/
+theorem sqCore_rawAugmentedSpan_eq_zLayer_three (h : ℕ) :
+    rawAugmentedSpan (SqCore.sqGen h) 3 (by omega) =
+      zLayer (SqCore.DSq h : Type) 3 := by
+  apply le_antisymm
+  · rw [rawAugmentedSpan]
+    apply sup_le (rawShiftSpan_le_zLayer (rawMarkedBase (SqCore.sqGen h) 3) (by omega))
+    refine (Subgroup.closure_le _).2 ?_
+    rintro z ⟨i, _, rfl⟩
+    simpa using pow_two_pow_mem_lambdaImage
+      (rawMarkedBase (SqCore.sqGen h) 3 i) 2
+  · exact sqCore_rawAugmentedSpan_all h 3 (by omega)
+
+/-- Sharp generation bound for the cubic cokernel: raw shifts together with the explicit
+non-twisted tails generate the entire central layer. -/
+theorem sqCubicRawShiftLayer_sup_tailLayerSpan_eq_top (h : ℕ) :
+    sqCubicRawShiftLayer h ⊔ sqCubicTailLayerSpan h = ⊤ := by
+  apply top_unique
+  intro z _
+  have hzaug : z.1 ∈ rawAugmentedSpan (SqCore.sqGen h) 3 (by omega) := by
+    rw [sqCore_rawAugmentedSpan_eq_zLayer_three h]
+    exact z.2
+  have hraw : rawShiftSpan (rawMarkedBase (SqCore.sqGen h) 3) (by omega) ≤
+      Subgroup.map (zLayer (SqCore.DSq h : Type) 3).subtype
+        (sqCubicRawShiftLayer h ⊔ sqCubicTailLayerSpan h) := by
+    intro r hr
+    refine ⟨⟨r, rawShiftSpan_le_zLayer (rawMarkedBase (SqCore.sqGen h) 3)
+      (by omega) hr⟩, Subgroup.mem_sup_left ?_, rfl⟩
+    exact hr
+  have htail : rawTailSpan (SqCore.sqGen h) 3 ≤
+      Subgroup.map (zLayer (SqCore.DSq h : Type) 3).subtype
+        (sqCubicRawShiftLayer h ⊔ sqCubicTailLayerSpan h) := by
+    refine (Subgroup.closure_le _).2 ?_
+    rintro t ⟨i, hi, rfl⟩
+    let j : SqNonTwistedIndex h := ⟨i, hi⟩
+    refine ⟨sqCubicTailLayer h j, Subgroup.mem_sup_right
+      (Subgroup.subset_closure ⟨j, rfl⟩), rfl⟩
+  have hzmap : z.1 ∈ Subgroup.map (zLayer (SqCore.DSq h : Type) 3).subtype
+      (sqCubicRawShiftLayer h ⊔ sqCubicTailLayerSpan h) := by
+    exact (sup_le hraw htail) hzaug
+  obtain ⟨y, hy, hyz⟩ := hzmap
+  have : y = z := Subtype.ext hyz
+  rwa [this] at hy
 
 /-- The `σ⁴` tail is a genuine cokernel class: it is one of the non-twisted tails in the
 augmented theorem, but it does not belong to the literal raw shift span. -/
@@ -545,6 +765,10 @@ theorem sqCore_not_rawPureSquareSpanSupply_three (h : ℕ) :
 #print axioms sqCore_rawShiftSpan_ne_zLayer
 #print axioms sqCore_rawAugmentedSpan_ne_rawShiftSpan
 #print axioms sqCore_not_rawPureSquareSpanSupply_three
+#print axioms sqCore_rawTail_mem_coordinateDerivKer_iff
+#print axioms sqCubicRawShiftLayer_le_combinedCoordinateKernel
+#print axioms sqCubicTailLayer_mem_coordinateKernel_iff
+#print axioms sqCubicRawShiftLayer_sup_tailLayerSpan_eq_top
 
 end
 
