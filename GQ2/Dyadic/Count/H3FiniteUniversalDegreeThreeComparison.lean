@@ -160,6 +160,46 @@ theorem finiteUniversalThreeAdjointBarChainLiftOfCocycleRange_cancels
       rw [ZModModule.add_self, ZModModule.add_self]
       simp
 
+/-- Quotientwise form of the exact finite-dimensional range premise for the actual improved
+square marking.  This is a new universal-comparison input; it is not implied merely by
+finiteness of the quotient. -/
+def SqUniversalThreeAdjointCocycleBarRange (h : ℕ) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    FiniteUniversalThreeAdjointCocycleBarRange
+      (sqOpenQuotientMarking h U)
+      (sqOpenQuotientFreeEvaluation_surjective h U)
+
+/-- The additive local bar-chain lift supplied by the quotientwise range premise. -/
+noncomputable def sqOpenQuotientUniversalThreeAdjointBarChainLift
+    (h : ℕ) (U : OpenNormalSubgroup (DSq h : Type))
+    (hrange : SqUniversalThreeAdjointCocycleBarRange h) :
+    FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+  finiteUniversalThreeAdjointBarChainLiftOfCocycleRange
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)
+    (hrange U)
+
+/-- Each local actual-quotient lift cancels the raw bar defect on cocycles.  Coherence of these
+local choices under quotient transition remains a separate inverse-system condition. -/
+theorem sqOpenQuotientUniversalThreeAdjointBarChainLift_cancels
+    (h : ℕ) (U : OpenNormalSubgroup (DSq h : Type))
+    (hrange : SqUniversalThreeAdjointCocycleBarRange h)
+    (c : FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ U.toSubgroup))
+    (hc : finiteModTwoBarDThree ((DSq h : Type) ⧸ U.toSubgroup) c = 0) :
+    finiteBarHomotopyTwoAdjointBarDefect
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U) c +
+      finiteUniversalThreeAdjointFiniteSupportDefect
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U) c
+        (sqOpenQuotientBarToUniversalRelationTwo h U
+          (sqOpenQuotientUniversalThreeAdjointBarChainLift h U hrange c)) = 0 :=
+  finiteUniversalThreeAdjointBarChainLiftOfCocycleRange_cancels
+    (sqOpenQuotientMarking h U)
+    (sqOpenQuotientFreeEvaluation_surjective h U)
+    (hrange U) c hc
+
 /-- The combined fixed-quotient residual that must factor through `d³`.  It contains the
 refined input, the `d²H₂†` term, and the finite-support universal correction chosen by the
 compatible universal syzygy. -/
@@ -413,6 +453,21 @@ noncomputable def
     (.of_ker_le_ker U W hWV
       (sqFiniteInputUniversalAdjoint_ker_le_ker_of_cocycleCancellation
         U W hWV hcancel))
+
+/-- Once universal cocycle cancellation has produced the genuine comparison interface, the
+existing eventual relation-generation theorem performs the logically separate lift from the
+universal relation kernel to the single improved relator. -/
+noncomputable def
+    SqFiniteInputCompletedSyzygyBoundaryAt.ofAdjointCocycleCancellation
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (U : SqFiniteInputUniversalSyzygyBoundaryAt h V)
+    (W : OpenNormalSubgroup (DSq h : Type))
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hcancel : SqFiniteInputUniversalAdjointCocycleCancellationAt U W hWV)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    SqFiniteInputCompletedSyzygyBoundaryAt h V :=
+  (SqFiniteInputUniversalDegreeThreeComparisonAt.ofAdjointCocycleCancellation
+    U W hWV hcancel).completedSyzygyBoundaryOfEventualGeneration hgen
 
 end
 
