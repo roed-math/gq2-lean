@@ -130,6 +130,87 @@ theorem maxProTwoKernel_ambientZ1_apply_eq_zero
 
 end AutomaticDegreeOne
 
+section IntrinsicH1Topology
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G]
+
+/-- An open subgroup of a closed normal subgroup has open ambient normalizer.
+
+This is the compactness input for promoting an intrinsic finite quotient of a closed normal
+subgroup to ambient finite data.  Conjugation maps `{1} × K` into `K`; compactness of `K`
+gives one neighborhood of `1` which conjugates all of `K` into itself.  Intersecting it with
+its inverse gives a neighborhood contained in the normalizer. -/
+theorem isOpen_normalizer_map_of_isOpen_closedNormalSubgroup
+    (N : Subgroup G) [N.Normal] [IsClosed (N : Set G)]
+    (K : Subgroup N) (hKopen : IsOpen (K : Set N)) :
+    IsOpen ((Subgroup.normalizer (K.map N.subtype) : Subgroup G) : Set G) := by
+  letI : CompactSpace N := isCompact_iff_compactSpace.mp
+    (show IsCompact (N : Set G) from
+      (show IsClosed (N : Set G) from inferInstance).isCompact)
+  have hKclosed : IsClosed (K : Set N) := Subgroup.isClosed_of_isOpen K hKopen
+  letI : CompactSpace K := isCompact_iff_compactSpace.mp hKclosed.isCompact
+  let conjToN : G × K → N := fun p => ⟨p.1 * p.2.1.1 * p.1⁻¹, by
+    exact (inferInstance : N.Normal).conj_mem p.2.1.1 p.2.1.2 p.1⟩
+  have hconj : Continuous conjToN := by
+    apply continuous_induced_rng.mpr
+    change Continuous fun p : G × K => p.1 * p.2.1.1 * p.1⁻¹
+    fun_prop
+  let S : Set (G × K) := conjToN ⁻¹' (K : Set N)
+  have hSopen : IsOpen S := hKopen.preimage hconj
+  have hbase : ({1} : Set G) ×ˢ (Set.univ : Set K) ⊆ S := by
+    rintro ⟨_, k⟩ ⟨rfl, -⟩
+    change conjToN (1, k) ∈ K
+    simpa only [conjToN, one_mul, inv_one, mul_one] using k.2
+  obtain ⟨U, _V, hUopen, _hVopen, h1U, _hKV, hUV⟩ :=
+    generalized_tube_lemma (isCompact_singleton : IsCompact ({1} : Set G))
+      (isCompact_univ : IsCompact (Set.univ : Set K)) hSopen hbase
+  let U0 : Set G := U ∩ (fun g : G => g⁻¹) ⁻¹' U
+  have hU0open : IsOpen U0 := hUopen.inter (hUopen.preimage continuous_inv)
+  have h1U0 : (1 : G) ∈ U0 := ⟨h1U rfl, by simpa using h1U rfl⟩
+  let KG : Subgroup G := K.map N.subtype
+  change IsOpen ((Subgroup.normalizer KG : Subgroup G) : Set G)
+  apply Subgroup.isOpen_of_mem_nhds (Subgroup.normalizer KG) (g := (1 : G))
+  apply Filter.mem_of_superset (hU0open.mem_nhds h1U0)
+  intro g hg
+  change g ∈ Subgroup.normalizer (KG : Set G)
+  apply (Subgroup.mem_set_normalizer_iff).2
+  intro x
+  constructor
+  · intro hx
+    change x ∈ K.map N.subtype at hx
+    rw [Subgroup.mem_map] at hx
+    obtain ⟨k, hk, rfl⟩ := hx
+    change g * k.1 * g⁻¹ ∈ K.map N.subtype
+    rw [Subgroup.mem_map]
+    refine ⟨⟨g * k.1 * g⁻¹, ?_⟩, ?_, rfl⟩
+    · exact (inferInstance : N.Normal).conj_mem k.1 k.2 g
+    · change conjToN (g, ⟨k, hk⟩) ∈ K
+      have hkV : (⟨k, hk⟩ : K) ∈ _V := _hKV (Set.mem_univ _)
+      exact hUV ⟨hg.1, hkV⟩
+  · intro hx
+    change g * x * g⁻¹ ∈ K.map N.subtype at hx
+    rw [Subgroup.mem_map] at hx
+    obtain ⟨k, hk, hkx⟩ := hx
+    change x ∈ K.map N.subtype
+    rw [Subgroup.mem_map]
+    let y : N := ⟨g⁻¹ * k.1 * g, by
+      simpa only [inv_inv] using
+        (inferInstance : N.Normal).conj_mem k.1 k.2 g⁻¹⟩
+    have hyK : y ∈ K := by
+      have hkV : (⟨k, hk⟩ : K) ∈ _V := _hKV (Set.mem_univ _)
+      have hy := hUV
+        (show (g⁻¹, (⟨k, hk⟩ : K)) ∈ U ×ˢ _V from ⟨hg.2, hkV⟩)
+      change conjToN (g⁻¹, ⟨k, hk⟩) ∈ K at hy
+      simpa only [conjToN, y, inv_inv] using hy
+    refine ⟨y, hyK, ?_⟩
+    dsimp [y]
+    change k.1 = g * x * g⁻¹ at hkx
+    rw [hkx]
+    group
+
+end IntrinsicH1Topology
+
 section ContinuousExtension
 
 variable {G M : Type*}
