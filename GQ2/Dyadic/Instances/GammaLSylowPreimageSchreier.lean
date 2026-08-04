@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.MaxProTwoSubgroupCriterion
+import GQ2.Dyadic.Instances.GammaLH2RightExact
 import GQ2.Dyadic.Instances.GammaLSylowPreimageProTwo
 
 /-!
@@ -154,6 +155,35 @@ point in the improved core and then to `P` recovers the Sylow-preimage action ex
         (gammaLSylowPreimageMaxProTwoCoreEquiv hq2 hqe P hker
           (maxProPMk 2 (U P) u))) = _
   rw [ContinuousMulEquiv.symm_apply_apply, sylowPreimageMaxProTwoHom_mk]
+
+/-! ## Feeding the exact presentation criterion back into the CD-2 package -/
+
+/-- Once the kernel equality identifies `U(2)` with the improved square core, the genuine
+finite-elementary CD-2 tail on that core supplies the `cdTwo` field for `U(2)`.  This is honest
+transport along the constructed topological equivalence, not an inference from scalar
+Demushkin data. -/
+theorem gammaLSylowPreimageMaxProTwoCDTwo_of_kernelEquality
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hker : GammaLSylowPreimageProTwoKernelEquality P)
+    (hcore : FiniteElementaryH2RightExactSupply (SqCore.DSq h)) :
+    FiniteElementaryH2RightExactSupply (maxProPQuotient 2 (U P)) :=
+  finiteTwoH2RightExactSupply_congr
+    (gammaLSylowPreimageMaxProTwoCoreEquiv hq2 hqe P hker) hcore
+
+/-- Constructor for the exact two-field maximal-pro-`2` package.  The improved presentation
+now discharges its `cdTwo` field from a core theorem once the sharp kernel equality is known;
+degree-two inflation `U(2) → U` remains the independent comparison input. -/
+theorem sylowPreimageMaxProTwoCDTwoPackage_of_kernelEquality
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hinf : FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)))
+    (hker : GammaLSylowPreimageProTwoKernelEquality P)
+    (hcore : FiniteElementaryH2RightExactSupply (SqCore.DSq h)) :
+    SylowPreimageMaxProTwoCDTwoPackage rhoAB P where
+  inflation := hinf
+  cdTwo := gammaLSylowPreimageMaxProTwoCDTwo_of_kernelEquality
+    hq2 hqe P hker hcore
 
 end
 
