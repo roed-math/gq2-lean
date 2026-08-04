@@ -596,6 +596,14 @@ theorem sharpChiLevel_levelProj_eq_chiLevel_succ
   obtain ⟨g, rfl⟩ := levelMk_surjective G (n + 1) q
   rw [levelProj_levelMk, sharpChiLevel_levelMk, chiLevel_levelMk]
 
+/-- The remaining target-side arithmetic statement: the lower two-central series of
+`ℤ₂ˣ` is exactly the principal-unit filtration with the sharp indexing.  The forward
+containment is `twoCentralSeries_units_le`; the reverse containment is not currently in the
+library. -/
+def SharpUnitsFiltrationExact : Prop :=
+  ∀ n, 2 ≤ n → twoCentralSeries ℤ_[2]ˣ n =
+    (Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom).ker
+
 /-- Exactness of a character on the lower two-central filtration, with the necessary
 one-step shift in precision: `χ(λ_n)` must be the kernel modulo `2^(n+1)`. -/
 structure SharpCharacterFiltrationExact
@@ -604,6 +612,17 @@ structure SharpCharacterFiltrationExact
   map_twoCentralSeries_eq_succKernel : ∀ n, 2 ≤ n →
     (twoCentralSeries G n).map chi.toMonoidHom =
       (Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom).ker
+
+/-- For a continuous epimorphism from a compact group, sharp character-filtration exactness
+reduces entirely to the target-side unit-filtration equality. -/
+theorem SharpCharacterFiltrationExact.of_surjective
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} (hchi : Function.Surjective chi)
+    (Hunits : SharpUnitsFiltrationExact) : SharpCharacterFiltrationExact G chi := by
+  constructor
+  intro n hn
+  rw [map_twoCentralSeries_eq chi.toMonoidHom chi.continuous_toFun hchi n]
+  exact Hunits n hn
 
 /-- Direct sharp level-coset formulation of exact character lifting. -/
 structure SharpExactLevelFibreLiftSupply
