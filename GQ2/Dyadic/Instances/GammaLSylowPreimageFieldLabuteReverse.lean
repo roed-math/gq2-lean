@@ -405,6 +405,130 @@ def LowerTwoCentralFiveTermCardFormula
   Nat.card (zLayer G 2) * Nat.card (H2 G (ZMod 2)) =
     2 ^ lowerTwoCentralQuadraticDimension (demushkinRank 2 G)
 
+/-! ### A canonical field-side five-term interface -/
+
+/-- Canonical degree-two inflation for the Frattini/lower-two-central extension
+`1 → λ₂(G) → G → G/λ₂(G) → 1`, with trivial `𝔽₂` coefficients. -/
+noncomputable def lowerTwoCentralH2Inflation
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    H2 Q (ZMod 2) →+ H2 G (ZMod 2) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  exact inf2 ⟨levelMk G 2, continuous_levelMk G 2⟩ (fun _ _ => rfl)
+
+/-- The exact five-term input still absent from the cohomology library: the mod-`2` dual of
+`λ₂/λ₃` is the kernel of canonical degree-two inflation from `G/λ₂`.  Stating an additive
+equivalence is exactly the `H¹(λ₂,𝔽₂)^G ≃ ker(inf²)` portion of Hochschild--Serre, after the
+standard identification of invariants with `Hom(λ₂/λ₃,𝔽₂)`. -/
+def LowerTwoCentralFiveTermKernelDuality
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] : Prop :=
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  Nonempty ((Additive (zLayer G 2) →+ ZMod 2) ≃+
+    ↥(lowerTwoCentralH2Inflation G).ker)
+
+/-- Surjectivity of canonical degree-two inflation.  For a positive-rank Demushkin group this
+is the cup-product consequence: lift two degree-one classes to `G/λ₂`, then use a nonzero cup
+to hit the one-dimensional `H²(G,𝔽₂)`.  It is separated from the actual five-term kernel
+identification because the two statements have different proofs. -/
+def LowerTwoCentralH2InflationSurjective
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] : Prop :=
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  Function.Surjective (lowerTwoCentralH2Inflation G)
+
+/-- The second independent finite-group input: for the elementary-abelian Frattini quotient of
+rank `d`, degree-two mod-`2` cohomology has dimension `d(d+1)/2`. -/
+def LowerTwoCentralElementaryH2CardFormula
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (d : ℕ) : Prop :=
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  Nat.card (H2 Q (ZMod 2)) = 2 ^ lowerTwoCentralQuadraticDimension d
+
+/-- **Sharp assembly of the field-side seam.**  Kernel duality from the five-term sequence,
+surjectivity of inflation, and the standard elementary-abelian `H²` count imply the exact
+cardinal formula used by the degree-two presentation reduction.  This theorem contains all
+finite duality and rank-nullity bookkeeping; future cohomological work need only provide the
+three mathematically standard inputs in its statement. -/
+theorem lowerTwoCentralFiveTermCardFormula_of_kernelDuality
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (hdual : LowerTwoCentralFiveTermKernelDuality G)
+    (hsurj : LowerTwoCentralH2InflationSurjective G)
+    (helem : LowerTwoCentralElementaryH2CardFormula G
+      (letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+       demushkinRank 2 G)) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    LowerTwoCentralFiveTermCardFormula G := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  let inf := lowerTwoCentralH2Inflation G
+  dsimp only [LowerTwoCentralFiveTermKernelDuality] at hdual
+  dsimp only [LowerTwoCentralH2InflationSurjective] at hsurj
+  dsimp only [LowerTwoCentralElementaryH2CardFormula] at helem
+  obtain ⟨edual⟩ := hdual
+  haveI : Finite (H2 Q (ZMod 2)) :=
+    Nat.finite_of_card_ne_zero (by rw [helem]; exact (Nat.two_pow_pos _).ne')
+  haveI : Finite (H2 G (ZMod 2)) := Finite.of_surjective inf hsurj
+  haveI : Finite (levelQuot G 3) := finite_levelQuot G hfg hpro 3
+  haveI : Finite (zLayer G 2) := Subtype.finite
+  letI : CommGroup (zLayer G 2) :=
+    { (inferInstance : Group (zLayer G 2)) with
+      mul_comm := fun a b =>
+        Subtype.ext (Subgroup.mem_center_iff.mp (zLayer_le_center G 2 a.2) b.1).symm }
+  have htwo : ∀ a : Additive (zLayer G 2), a + a = 0 := by
+    intro a
+    apply Additive.toMul.injective
+    change a.toMul * a.toMul = 1
+    apply Subtype.ext
+    simpa [pow_two] using zLayer_sq G a.toMul.2
+  have hdualCard : Nat.card (Additive (zLayer G 2) →+ ZMod 2) =
+      Nat.card (zLayer G 2) := by
+    rw [QuadraticFp2.card_addHom_zmod2 _ htwo, Nat.card_congr Additive.toMul]
+  have hkerCard : Nat.card (Additive (zLayer G 2) →+ ZMod 2) =
+      Nat.card ↥inf.ker := Nat.card_congr edual.toEquiv
+  have hquotRange : Nat.card (H2 Q (ZMod 2) ⧸ inf.ker) =
+      Nat.card ↥inf.range :=
+    Nat.card_congr (QuotientAddGroup.quotientKerEquivRange inf).toEquiv
+  have hrangeCard : Nat.card ↥inf.range = Nat.card (H2 G (ZMod 2)) := by
+    rw [AddMonoidHom.range_eq_top_of_surjective inf hsurj]
+    exact Nat.card_congr AddSubgroup.topEquiv.toEquiv
+  have hdomain : Nat.card (H2 Q (ZMod 2)) =
+      Nat.card (H2 Q (ZMod 2) ⧸ inf.ker) * Nat.card ↥inf.ker :=
+    AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup inf.ker
+  unfold LowerTwoCentralFiveTermCardFormula
+  calc
+    Nat.card (zLayer G 2) * Nat.card (H2 G (ZMod 2)) =
+        Nat.card (Additive (zLayer G 2) →+ ZMod 2) *
+          Nat.card (H2 G (ZMod 2)) := by rw [hdualCard]
+    _ = Nat.card ↥inf.ker * Nat.card (H2 G (ZMod 2)) := by rw [hkerCard]
+    _ = Nat.card (H2 Q (ZMod 2)) := by
+      rw [← hrangeCard, ← hquotRange, mul_comm]
+      exact hdomain.symm
+    _ = 2 ^ lowerTwoCentralQuadraticDimension (demushkinRank 2 G) := helem
+
 /-- The model-side degree-two supply.  The completed Magnus/PBW development already proves
 that the certified quadratic relation generates the entire completed degree-two relation
 kernel.  What is not yet in the library is the bridge from that augmentation-ideal statement
@@ -1059,6 +1183,8 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_layerCardPresentation
 #print axioms twoCentralHilbertSeriesAgreement_iff_layerCardAgreement
 #print axioms oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero
 #print axioms oddDegreeGalKSq_firstTwoLayerCardAgreement
+#print axioms lowerTwoCentralH2Inflation
+#print axioms lowerTwoCentralFiveTermCardFormula_of_kernelDuality
 #print axioms lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
 #print axioms card_zLayer_two_dr
 #print axioms card_zLayer_two_dsq_zero
