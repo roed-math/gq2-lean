@@ -370,6 +370,129 @@ theorem card_levelQuot_succ
         (levelProj_surjective G k)).toEquiv]
   simpa [hindex] using Subgroup.card_mul_index (zLayer G k)
 
+/-! ## The quadratic lower two-central layer -/
+
+/-- The dimension of the unrestricted quadratic restricted-Lie words on `d` degree-one
+generators: `d` squares and `d(d-1)/2` brackets. -/
+def lowerTwoCentralQuadraticDimension (d : ℕ) : ℕ :=
+  d * (d + 1) / 2
+
+/-- The expected dimension after one nonzero quadratic relation.  This is the coefficient of
+degree two in the lower `2`-central Hilbert function; it is not a Jennings--Zassenhaus
+coefficient. -/
+def lowerTwoCentralOneRelatorQuadraticDimension (d : ℕ) : ℕ :=
+  lowerTwoCentralQuadraticDimension d - 1
+
+/-- Cardinal form of the expected degree-two lower `2`-central calculation for a group of
+degree-one rank `d`. -/
+def LowerTwoCentralDegreeTwoExpectedCard
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (d : ℕ) : Prop :=
+  Nat.card (zLayer G 2) = 2 ^ lowerTwoCentralOneRelatorQuadraticDimension d
+
+/-- **Exact cohomological seam for degree two.**  This is the cardinal shadow of the
+Hochschild--Serre five-term sequence for
+`1 → λ₂(G) → G → G/λ₂(G) → 1`: the dual of `λ₂/λ₃` is the kernel of inflation from the
+degree-two cohomology of the elementary-abelian quotient.  The right side records the standard
+`d(d+1)/2` count for that cohomology.  For a Demushkin group, cup-product nondegeneracy makes
+inflation onto its one-dimensional `H²`; the theorem immediately below isolates the remaining
+formal consequence.
+
+This definition is deliberately an interface, not an axiom.  The current cohomology library
+does not yet connect its five-term/transgression API to `twoCentralSeries`. -/
+def LowerTwoCentralFiveTermCardFormula
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)] : Prop :=
+  Nat.card (zLayer G 2) * Nat.card (H2 G (ZMod 2)) =
+    2 ^ lowerTwoCentralQuadraticDimension (demushkinRank 2 G)
+
+/-- The model-side degree-two supply.  The completed Magnus/PBW development already proves
+that the certified quadratic relation generates the entire completed degree-two relation
+kernel.  What is not yet in the library is the bridge from that augmentation-ideal statement
+to the primitive lower `2`-central quotient `λ₂/λ₃`; this proposition records exactly the
+cardinality consequence needed from such a bridge. -/
+def SqLowerTwoCentralDegreeTwoExpectedCardSupply : Prop :=
+  ∀ h : ℕ,
+    LowerTwoCentralDegreeTwoExpectedCard (SqCore.DSq h : Type) (SqCore.sqRank h)
+
+/-- A positive-rank Demushkin group satisfying the exact five-term cardinal formula has the
+predicted one-relator degree-two layer.  Thus the missing arithmetic-side input is now exactly
+the bridge stated above, rather than an assumed presentation or an all-degree Hilbert series. -/
+theorem lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+    (hD : IsDemushkin 2 G) (hrank : 0 < demushkinRank 2 G)
+    (hfive : LowerTwoCentralFiveTermCardFormula G) :
+    LowerTwoCentralDegreeTwoExpectedCard G (demushkinRank 2 G) := by
+  let d := demushkinRank 2 G
+  have hmul : 2 ≤ d * (d + 1) := by
+    dsimp [d]
+    nlinarith
+  have hquad : 0 < lowerTwoCentralQuadraticDimension d := by
+    exact Nat.div_pos hmul (by omega)
+  have hsplit : lowerTwoCentralQuadraticDimension d =
+      lowerTwoCentralOneRelatorQuadraticDimension d + 1 := by
+    rw [lowerTwoCentralOneRelatorQuadraticDimension]
+    omega
+  unfold LowerTwoCentralFiveTermCardFormula at hfive
+  rw [hD.cardH2] at hfive
+  change Nat.card (zLayer G 2) =
+    2 ^ lowerTwoCentralOneRelatorQuadraticDimension d
+  have hcancel : Nat.card (zLayer G 2) * 2 =
+      2 ^ lowerTwoCentralOneRelatorQuadraticDimension d * 2 := by
+    rw [← pow_succ, ← hsplit]
+    exact hfive
+  exact Nat.mul_right_cancel (m := 2) (by omega) hcancel
+
+/-- Cardinal exactness at degree two computes coefficient `1` of the lower `2`-central Hilbert
+function. -/
+theorem lowerTwoCentralHilbertCoefficient_one_of_expectedCard
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) {d : ℕ}
+    (hcard : LowerTwoCentralDegreeTwoExpectedCard G d) :
+    lowerTwoCentralHilbertCoefficient G 1 =
+      lowerTwoCentralOneRelatorQuadraticDimension d := by
+  unfold LowerTwoCentralDegreeTwoExpectedCard at hcard
+  have hpows : 2 ^ lowerTwoCentralHilbertCoefficient G 1 =
+      2 ^ lowerTwoCentralOneRelatorQuadraticDimension d :=
+    (card_zLayer_succ_eq_two_pow_hilbertCoefficient hfg hpro 1).symm.trans hcard
+  simpa only [padicValNat.prime_pow] using congrArg (padicValNat 2) hpows
+
+/-- The frozen rank-three Roe calculation determines the first genuinely quadratic layer
+exactly: `|λ₂(D_R)/λ₃(D_R)| = 256 / 8 = 32`.  The upper and lower bounds themselves were proved
+in `Levelwise`; here we expose the layer cardinality through the general tower recurrence. -/
+theorem card_zLayer_two_dr : Nat.card (zLayer (DR : Type) 2) = 32 := by
+  have hcard := card_levelQuot_succ (DR : Type) drFinsetTopGen isProP_DR 2
+  rw [GQ2.Roe.Labute.card_levelQuot_two,
+    GQ2.Roe.Labute.card_levelQuot_three] at hcard
+  omega
+
+/-- Rank-three model regression: the improved square presentation is the frozen Roe group, so
+its quadratic lower `2`-central layer also has order `2^5`. -/
+theorem card_zLayer_two_dsq_zero :
+    Nat.card (zLayer (SqCore.DSq 0 : Type) 2) = 32 := by
+  exact SqCore.dsq_zero ▸ card_zLayer_two_dr
+
+/-- The rank-three improved presentation satisfies the expected one-relator quadratic formula
+without any cohomological seam. -/
+theorem lowerTwoCentralDegreeTwoExpectedCard_dsq_zero :
+    LowerTwoCentralDegreeTwoExpectedCard (SqCore.DSq 0 : Type) (SqCore.sqRank 0) := by
+  rw [LowerTwoCentralDegreeTwoExpectedCard, card_zLayer_two_dsq_zero]
+  norm_num [lowerTwoCentralOneRelatorQuadraticDimension,
+    lowerTwoCentralQuadraticDimension, SqCore.sqRank]
+
+/-- The model-side degree-two supply is already discharged at `h = 0`. -/
+theorem sqLowerTwoCentralDegreeTwoExpectedCardSupply_zero :
+    LowerTwoCentralDegreeTwoExpectedCard (SqCore.DSq 0 : Type) (SqCore.sqRank 0) :=
+  lowerTwoCentralDegreeTwoExpectedCard_dsq_zero
+
+/-- Equivalently, coefficient `1` of the rank-three lower `2`-central Hilbert function is `5`. -/
+theorem dsq_lowerTwoCentralHilbertCoefficient_one_zero :
+    lowerTwoCentralHilbertCoefficient (SqCore.DSq 0 : Type) 1 = 5 := by
+  change padicValNat 2 (Nat.card (zLayer (SqCore.DSq 0 : Type) 2)) = 5
+  rw [card_zLayer_two_dsq_zero, show (32 : ℕ) = 2 ^ 5 by norm_num,
+    padicValNat.prime_pow]
+
 /-- Agreement of all graded-layer orders implies agreement of all level-quotient orders. -/
 theorem twoCentralLevelCardAgreement_of_layerCardAgreement
     {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
@@ -584,6 +707,41 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-! ### Degree-zero Hilbert regression on the arithmetic group -/
 
+/-- Field-side form of the exact five-term seam.  The explicit local instances ensure that
+`H²(-, 𝔽₂)` uses the same trivial scalar action as the existing Demushkin theorem. -/
+def OddDegreeGalKLowerTwoCentralFiveTermCardSupply : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      let Q := maxProPQuotient 2 (GalK K)
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      LowerTwoCentralFiveTermCardFormula Q
+
+/-- The exact five-term seam plus the already-proved Demushkin cup-product theorem computes
+the arithmetic quadratic layer. -/
+theorem maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hfive :
+      let Q := maxProPQuotient 2 (GalK K)
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      LowerTwoCentralFiveTermCardFormula Q) :
+    LowerTwoCentralDegreeTwoExpectedCard (maxProPQuotient 2 (GalK K))
+      (Module.finrank ℚ_[2] K + 2) := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  have hrank : 0 < demushkinRank 2 Q := by
+    rw [demushkinRank_maxProTwoGalK (K := K)]
+    omega
+  have hcard := lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
+    (isDemushkin_maxProTwoGalK (K := K)) hrank hfive
+  rwa [demushkinRank_maxProTwoGalK (K := K)] at hcard
+
 /-- The first positive lower two-central Hilbert coefficient of `G_K(2)` is the existing
 field-side Demushkin rank `[K : ℚ₂] + 2`.  Topological finite generation is explicit because
 it is supplied below by the already-built forward presentation data. -/
@@ -637,6 +795,115 @@ theorem oddDegreeGalKSq_firstTwoLayerCardAgreement
         (dsqFinsetTopGen _) (SqCore.isProP_DSq _),
       card_zLayer_succ_eq_two_pow_hilbertCoefficient hfg isProP_maxProPQuotient,
       oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero K hodd hfg]
+
+/-! ### Degree-two reduction and regressions -/
+
+/-- If the model and arithmetic quadratic layers have their common one-relator cardinal, then
+their `Z₂ = λ₂/λ₃` orders agree.  Oddness is used only to identify the literal improved-model
+rank `3 + 2h` with `[K : ℚ₂] + 2`. -/
+theorem oddDegreeGalKSq_zLayer_two_cardAgreement_of_expectedCards
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hmodel : LowerTwoCentralDegreeTwoExpectedCard
+      (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
+      (SqCore.sqRank ((Module.finrank ℚ_[2] K - 1) / 2)))
+    (hfield : LowerTwoCentralDegreeTwoExpectedCard
+      (maxProPQuotient 2 (GalK K)) (Module.finrank ℚ_[2] K + 2)) :
+    Nat.card (zLayer
+        (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 2) =
+      Nat.card (zLayer (maxProPQuotient 2 (GalK K)) 2) := by
+  have hrank : SqCore.sqRank ((Module.finrank ℚ_[2] K - 1) / 2) =
+      Module.finrank ℚ_[2] K + 2 := by
+    obtain ⟨k, hk⟩ := hodd
+    rw [hk]
+    simp only [SqCore.sqRank]
+    omega
+  unfold LowerTwoCentralDegreeTwoExpectedCard at hmodel hfield
+  rw [hmodel, hfield, hrank]
+
+/-- The two exact missing supplies prove the first genuinely quadratic layer-card agreement for
+every odd-degree field. -/
+theorem oddDegreeGalKSq_zLayer_two_cardAgreement_of_degreeTwoSupplies
+    (hmodel : SqLowerTwoCentralDegreeTwoExpectedCardSupply)
+    (hfield : OddDegreeGalKLowerTwoCentralFiveTermCardSupply)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    Nat.card (zLayer
+        (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 2) =
+      Nat.card (zLayer (maxProPQuotient 2 (GalK K)) 2) :=
+  oddDegreeGalKSq_zLayer_two_cardAgreement_of_expectedCards K hodd
+    (hmodel ((Module.finrank ℚ_[2] K - 1) / 2))
+    (maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm K
+      (hfield K hodd))
+
+/-- Coefficient `1` (the quadratic lower `2`-central coefficient) agrees under the same two
+exact supplies. -/
+theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_one_of_degreeTwoSupplies
+    (hmodel : SqLowerTwoCentralDegreeTwoExpectedCardSupply)
+    (hfield : OddDegreeGalKLowerTwoCentralFiveTermCardSupply)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    lowerTwoCentralHilbertCoefficient
+        (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 1 =
+      lowerTwoCentralHilbertCoefficient (maxProPQuotient 2 (GalK K)) 1 := by
+  exact congrArg (padicValNat 2)
+    (oddDegreeGalKSq_zLayer_two_cardAgreement_of_degreeTwoSupplies
+      hmodel hfield K hodd)
+
+/-- Together with the unconditional degree-zero calculation, the two exact degree-two supplies
+prove layer-card agreement for all formal layers `k < 3`. -/
+theorem oddDegreeGalKSq_firstThreeLayerCardAgreement_of_degreeTwoSupplies
+    (hmodel : SqLowerTwoCentralDegreeTwoExpectedCardSupply)
+    (hfield : OddDegreeGalKLowerTwoCentralFiveTermCardSupply)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    ∀ k < 3,
+      Nat.card (zLayer
+          (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) k) =
+        Nat.card (zLayer (maxProPQuotient 2 (GalK K)) k) := by
+  intro k hk
+  by_cases hk' : k < 2
+  · exact oddDegreeGalKSq_firstTwoLayerCardAgreement K hodd hfg k hk'
+  · have hk2 : k = 2 := by omega
+    subst k
+    exact oddDegreeGalKSq_zLayer_two_cardAgreement_of_degreeTwoSupplies
+      hmodel hfield K hodd
+
+/-- **Degree-one specialization.**  At `n = 1` the model side of the quadratic calculation is
+already unconditional (`DSq 0 = D_R`).  Consequently only the arithmetic five-term seam remains;
+the `ℚ₂` case is not used as an inductive base for higher degree. -/
+theorem degreeOneGalKSq_zLayer_two_cardAgreement_of_fiveTerm
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hone : Module.finrank ℚ_[2] K = 1)
+    (hfive :
+      let Q := maxProPQuotient 2 (GalK K)
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      LowerTwoCentralFiveTermCardFormula Q) :
+    Nat.card (zLayer (SqCore.DSq 0 : Type) 2) =
+      Nat.card (zLayer (maxProPQuotient 2 (GalK K)) 2) := by
+  have hh : (Module.finrank ℚ_[2] K - 1) / 2 = 0 := by omega
+  have hodd : Odd (Module.finrank ℚ_[2] K) := by rw [hone]; exact odd_one
+  have hmodel : LowerTwoCentralDegreeTwoExpectedCard
+      (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
+      (SqCore.sqRank ((Module.finrank ℚ_[2] K - 1) / 2)) := by
+    rw [hh]
+    exact lowerTwoCentralDegreeTwoExpectedCard_dsq_zero
+  have hagree := oddDegreeGalKSq_zLayer_two_cardAgreement_of_expectedCards K hodd hmodel
+    (maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm K hfive)
+  rw [hh] at hagree
+  exact hagree
 
 /-- Sharpened finite-level field presentation.  The forward clause still uses the literal
 improved relator and the corrected cyclotomic value fibres.  The reverse clause is replaced,
@@ -792,6 +1059,15 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_layerCardPresentation
 #print axioms twoCentralHilbertSeriesAgreement_iff_layerCardAgreement
 #print axioms oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero
 #print axioms oddDegreeGalKSq_firstTwoLayerCardAgreement
+#print axioms lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
+#print axioms card_zLayer_two_dr
+#print axioms card_zLayer_two_dsq_zero
+#print axioms lowerTwoCentralDegreeTwoExpectedCard_dsq_zero
+#print axioms dsq_lowerTwoCentralHilbertCoefficient_one_zero
+#print axioms maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
+#print axioms oddDegreeGalKSq_zLayer_two_cardAgreement_of_degreeTwoSupplies
+#print axioms oddDegreeGalKSq_firstThreeLayerCardAgreement_of_degreeTwoSupplies
+#print axioms degreeOneGalKSq_zLayer_two_cardAgreement_of_fiveTerm
 #print axioms twoCentralLevelMap_surjective
 #print axioms card_levelQuot_succ
 #print axioms twoCentralLevelCardAgreement_of_layerCardAgreement
