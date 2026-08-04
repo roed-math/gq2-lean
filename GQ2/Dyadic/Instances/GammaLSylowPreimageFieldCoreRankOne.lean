@@ -151,12 +151,43 @@ theorem oddDegreeGalKSqOrientedLabuteClassification_bot_of_qTwo
       (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂)))) :=
   oddDegreeGalKSqOrientedLabuteClassification_bot
 
+/-! ## Every degree-one field is the bottom field -/
+
+/-- The rank-one theorem is not restricted to a syntactically bottom intermediate field.
+Any finite intermediate field of degree one is `bot`, so the normalized `Q_2` equivalence
+above supplies the oriented classification for it. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_of_finrank_one
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hdegree : Module.finrank ℚ_[2] K = 1) :
+    Nonempty (OrientedContinuousMulEquiv
+      (chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K))) := by
+  have hK : K = (⊥ : IntermediateField ℚ_[2] ℚ̄₂) :=
+    IntermediateField.finrank_eq_one_iff.mp hdegree
+  subst K
+  exact oddDegreeGalKSqOrientedLabuteClassification_bot
+
+/-- Exact specialization of the general classification seam to an arbitrary degree-one
+intermediate field.  As at `bot`, the `q = 2` premise is not needed. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_of_finrank_one_of_qTwo
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hdegree : Module.finrank ℚ_[2] K = 1)
+    (_hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2) :
+    Nonempty (OrientedContinuousMulEquiv
+      (chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K))) :=
+  oddDegreeGalKSqOrientedLabuteClassification_of_finrank_one K hdegree
+
 #print axioms chiD0G_comp_rankThreeLabuteEquiv
 #print axioms orientedSqZeroEquivAbsGalQ2
 #print axioms dyadicChiTwo_maxProPQuotientCongr_bot
 #print axioms orientedSqZeroEquivGalKBot
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_bot
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_bot_of_qTwo
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_of_finrank_one
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_of_finrank_one_of_qTwo
 
 end
 
