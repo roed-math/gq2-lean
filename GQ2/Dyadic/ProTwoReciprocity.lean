@@ -100,6 +100,90 @@ def ReciprocityFiniteTwoKernelAgreement (B : MarkedRecip R K) : Prop :=
         topAbToTopAbMaxProP (p := 2) (GalK K) (B.recip a) ∈ V ↔
           proPCompletionMk 2 ((↥K)ˣ) a ∈ U
 
+/-! ### A relative finite-abelian norm theorem
+
+The odd-degree and ramified-`i` hypotheses used elsewhere in the dyadic campaign constrain the
+torsion of the source and target completions; they do not add a relative local-reciprocity
+theorem.  In particular, neither Mathlib nor the current repository constructs the Artin map
+for a finite extension `L/K`.  The following structures expose the exact conventional local-CFT
+input which would prove `ReciprocityFiniteTwoKernelAgreement`.
+
+There are two logically distinct finite-CFT assertions here:
+
+* **existence:** every finite `2`-primary quotient kernel of `Kˣ` is a norm subgroup
+  `N_{L/K}(Lˣ)` for a finite abelian `2`-extension `L/K`;
+* **norm reciprocity:** restriction of `rec_K` to `Gal(L/K)` has precisely that kernel.
+
+Stating only norm reciprocity for each already-given `L/K` is not enough for cofinality: the
+existence theorem is what realizes an arbitrary finite quotient of `Kˣ` by such a layer. -/
+
+/-- The relative norm subgroup `N_{L/K}(Lˣ) ≤ Kˣ`. -/
+noncomputable def relativeNormSubgroup
+    (K : IntermediateField ℚ_[2] ℚbar2)
+    (L : IntermediateField (↥K) ℚbar2) [FiniteDimensional (↥K) L] :
+    Subgroup (↥K)ˣ :=
+  (Units.map (Algebra.norm (↥K) (S := L))).range
+
+/-- One finite abelian `2`-extension realizing a prescribed finite-index kernel, together with
+the finite-layer norm-reciprocity map.  The `artin` map is stated on `G_K(2)^ab`, the exact
+target consumed by this campaign.  A full local-CFT library would construct it by restricting
+`G_K` to `L` and factoring through the maximal pro-`2` abelian quotient. -/
+structure FiniteAbelianTwoNormLayer
+    (B : MarkedRecip R K) (N : FiniteIndexNormalSubgroup ((↥K)ˣ)) where
+  L : IntermediateField (↥K) ℚbar2
+  [finiteDimensional : FiniteDimensional (↥K) L]
+  [isGalois : IsGalois (↥K) L]
+  commutative : ∀ σ τ : (L ≃ₐ[↥K] L), σ * τ = τ * σ
+  twoGroup : IsPGroup 2 (L ≃ₐ[↥K] L)
+  norm_eq : relativeNormSubgroup K L = N.toSubgroup
+  artin : (topAbelianization (maxProPQuotient 2 (GalK K))) →* (L ≃ₐ[↥K] L)
+  isOpen_ker_artin : IsOpen
+    (artin.ker.carrier : Set (topAbelianization (maxProPQuotient 2 (GalK K))))
+  artin_eq_one_iff_norm : ∀ a : (↥K)ˣ,
+    artin (topAbToTopAbMaxProP (p := 2) (GalK K) (B.recip a)) = 1 ↔
+      a ∈ relativeNormSubgroup K L
+
+/-- **Minimal relative finite-layer norm theorem.**  Every finite `2`-primary quotient kernel
+of `Kˣ` is realized by a finite abelian `2`-extension and its norm-reciprocity map.
+
+This packages both the existence theorem and the norm-residue theorem.  It is an ordinary
+proposition parameter, not a new axiom. -/
+def FiniteAbelianTwoNormReciprocity (B : MarkedRecip R K) : Prop :=
+  ∀ (N : FiniteIndexNormalSubgroup ((↥K)ˣ)),
+    IsPGroup 2 ((↥K)ˣ ⧸ N.toSubgroup) →
+      Nonempty (FiniteAbelianTwoNormLayer B N)
+
+/-- The relative finite-abelian norm theorem gives exact kernel agreement on the dense copy of
+`Kˣ`.  This is the complete formal adapter from the traditional `L/K` statement to the
+completion-shaped interface. -/
+theorem reciprocityFiniteTwoKernelAgreement_of_finiteAbelianTwoNormReciprocity
+    (B : MarkedRecip R K) (H : FiniteAbelianTwoNormReciprocity B) :
+    ReciprocityFiniteTwoKernelAgreement B := by
+  intro U
+  let P := proPCompletion 2 ((↥K)ˣ) ⧸ U.toSubgroup
+  letI : Finite P := Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
+  let f : ((↥K)ˣ) →* P :=
+    (QuotientGroup.mk' U.toSubgroup).comp (proPCompletionMk 2 ((↥K)ˣ))
+  let N : FiniteIndexNormalSubgroup ((↥K)ˣ) :=
+    FiniteIndexNormalSubgroup.ofSubgroup f.ker
+  have hP : IsPGroup 2 P := isProP_maxProPQuotient U
+  have hquot : IsPGroup 2 (((↥K)ˣ) ⧸ N.toSubgroup) := by
+    exact (hP.to_subgroup f.range).of_equiv
+      (QuotientGroup.quotientKerEquivRange f).symm
+  obtain ⟨D⟩ := H N hquot
+  let V : OpenNormalSubgroup
+      (topAbelianization (maxProPQuotient 2 (GalK K))) :=
+    { toSubgroup := D.artin.ker
+      isOpen' := D.isOpen_ker_artin
+      isNormal' := MonoidHom.normal_ker D.artin }
+  refine ⟨V, fun a => ?_⟩
+  change D.artin (topAbToTopAbMaxProP (p := 2) (GalK K) (B.recip a)) = 1 ↔
+    proPCompletionMk 2 ((↥K)ˣ) a ∈ U
+  rw [D.artin_eq_one_iff_norm, D.norm_eq]
+  change a ∈ f.ker ↔ proPCompletionMk 2 ((↥K)ˣ) a ∈ U
+  change QuotientGroup.mk' U.toSubgroup (proPCompletionMk 2 ((↥K)ˣ) a) = 1 ↔ _
+  exact QuotientGroup.eq_one_iff _
+
 /-- **Finite-layer reciprocity kernels are cofinal.**  For every finite continuous quotient of
 the pro-`2` completion of `Kˣ`, there is a finite continuous quotient of `(G_K(2))^ab` whose
 reciprocity kernel is smaller.  This is deliberately a separate premise rather than a field of
@@ -214,6 +298,18 @@ theorem reciprocityFiniteTwoKernelAgreement_iff_injective (B : MarkedRecip R K) 
   ⟨fun h ↦ proTwoReciprocityToTopAb_injective_of_finiteLayerCofinal B
       (completedFiniteLayerCofinal_of_kernelAgreement B h),
     kernelAgreement_of_proTwoReciprocityToTopAb_injective B⟩
+
+/-- The traditional relative finite-abelian norm theorem therefore proves injectivity of
+completed pro-`2` reciprocity.  No odd-degree or ramified-`i` hypothesis is needed for this
+local-CFT implication; those hypotheses enter only in the later torsion calculation. -/
+theorem proTwoReciprocityToTopAb_injective_of_finiteAbelianTwoNormReciprocity
+    (B : MarkedRecip R K) (H : FiniteAbelianTwoNormReciprocity B) :
+    Function.Injective (proTwoReciprocityToTopAb B) :=
+  (reciprocityFiniteTwoKernelAgreement_iff_injective B).mp
+    (reciprocityFiniteTwoKernelAgreement_of_finiteAbelianTwoNormReciprocity B H)
+
+#print axioms reciprocityFiniteTwoKernelAgreement_of_finiteAbelianTwoNormReciprocity
+#print axioms proTwoReciprocityToTopAb_injective_of_finiteAbelianTwoNormReciprocity
 
 end
 
