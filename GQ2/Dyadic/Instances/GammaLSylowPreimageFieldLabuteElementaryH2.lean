@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteTransgression
+import GQ2.Dyadic.Count.H3CompletedQuadraticRelation
 import GQ2.Transgression
 import Mathlib.Data.Finset.Sym
 
@@ -481,6 +482,298 @@ theorem finiteElementaryAbelianTwoH2CardFormula :
   letI : Fact (∀ v : V, v ^ 2 = 1) := ⟨htwo⟩
   exact card_H2_finiteElementary V d hcard
 
+/-! ### The literal improved one-relator model in degree two -/
+
+/-- The improved square word is a Frattini relator: it dies under every elementary-abelian
+`2`-marking.  This uses the literal square/commutator presentation, not an abstract
+one-relator hypothesis. -/
+theorem sqNatWord_isFrattini (h : ℕ) :
+    (MarkedCore.sqNatWord h).IsFrattini := by
+  intro nu
+  change SqCore.sqRelWord nu = 1
+  rw [SqCore.sqRelWord_comm]
+  have hsquare (x : Multiplicative (ZMod 2)) : x ^ 2 = 1 := by
+    apply Multiplicative.toAdd.injective
+    rw [toAdd_pow, toAdd_one, two_nsmul, Count.zmod2_add_self]
+  rw [show 4 = 2 * 2 by omega, pow_mul, hsquare, hsquare]
+  simp
+
+/-- The literal improved relation together with the canonical marked generators is a marked
+relator in the generic one-relator cohomology API. -/
+theorem markedRelator_DSq (h : ℕ) :
+    WordCoh.MarkedRelator (SqCore.DSq h : Type)
+      (MarkedCore.sqNatWord h) (SqCore.sqGen h) :=
+  ⟨sqNatWord_isFrattini h, SqCore.dsq_relation h⟩
+
+/-- The generic marked-presentation API is supplied directly by the defining universal
+property of `DSq h`. -/
+noncomputable def presentedBy_DSq (h : ℕ) :
+    WordCoh.PresentedBy (SqCore.DSq h : Type)
+      (MarkedCore.sqNatWord h) (SqCore.sqGen h) where
+  liftHom := fun hP nu hnu => SqCore.sqLiftHom h hP nu hnu
+  liftHom_mark := fun hP nu hnu i => SqCore.sqLiftHom_gen h hP nu hnu i
+  hom_ext := fun phi psi hgen => SqCore.dsq_hom_ext phi psi hgen
+
+/-- The `Y²` coefficient functional on the literal quadratic initial form. -/
+def dsqYQuadraticMatrix (h : ℕ)
+    (i j : Fin (SqCore.sqRank h)) : ZMod 2 :=
+  if i = 2 ∧ j = 2 then 1 else 0
+
+private theorem sqZero_ne_two (h : ℕ) :
+    (0 : Fin (SqCore.sqRank h)) ≠ 2 := by
+  intro heq
+  have := congrArg Fin.val heq
+  rw [SqCore.sqVal_zero, SqCore.sqVal_two] at this
+  omega
+
+private theorem sqOne_ne_two (h : ℕ) :
+    (1 : Fin (SqCore.sqRank h)) ≠ 2 := by
+  intro heq
+  have := congrArg Fin.val heq
+  rw [SqCore.sqVal_one, SqCore.sqVal_two] at this
+  omega
+
+private theorem sqHandleIdxU_ne_two {h : ℕ} (j : Fin h) :
+    SqCore.sqHandleIdxU j ≠ (2 : Fin (SqCore.sqRank h)) := by
+  intro heq
+  have := congrArg Fin.val heq
+  rw [SqCore.sqHandleIdxU_val, SqCore.sqVal_two] at this
+  omega
+
+private theorem sqHandleIdxV_ne_two {h : ℕ} (j : Fin h) :
+    SqCore.sqHandleIdxV j ≠ (2 : Fin (SqCore.sqRank h)) := by
+  intro heq
+  have := congrArg Fin.val heq
+  rw [SqCore.sqHandleIdxV_val, SqCore.sqVal_two] at this
+  omega
+
+/-- The constructor table reads the `Y²` coefficient as one.  This is the nonzero entry of
+the improved relator used below to detect the unique nonzero `H²` class. -/
+theorem sqRelatorQuadraticInitialGram_dsqY (h : ℕ) :
+    sqRelatorQuadraticInitialGram h (dsqYQuadraticMatrix h) = 1 := by
+  rw [sqRelatorQuadraticInitialGram]
+  simp [dsqYQuadraticMatrix, sqZero_ne_two h, sqOne_ne_two h,
+    sqHandleIdxU_ne_two, sqHandleIdxV_ne_two]
+
+/-- The detector associated to the `Y²` matrix is simply the cup cocycle of the
+`Y`-coordinate character. -/
+theorem sqQuadraticDetectorCocycle_dsqY (h : ℕ)
+    (p q : SqQuadraticDetectorBase h) :
+    (sqQuadraticDetectorCocycle h (dsqYQuadraticMatrix h)).κ p q =
+      Multiplicative.toAdd p 2 * Multiplicative.toAdd q 2 := by
+  classical
+  change (∑ i, ∑ j, Multiplicative.toAdd p i * Multiplicative.toAdd q j *
+      dsqYQuadraticMatrix h i j) = _
+  rw [Finset.sum_eq_single (2 : Fin (SqCore.sqRank h))]
+  · rw [Finset.sum_eq_single (2 : Fin (SqCore.sqRank h))]
+    · simp [dsqYQuadraticMatrix]
+    · intro j hj hne
+      simp [dsqYQuadraticMatrix, hne]
+    · simp
+  · intro i hi hne
+    apply Finset.sum_eq_zero
+    intro j hj
+    simp [dsqYQuadraticMatrix, hne]
+  · simp
+
+/-- The degree-one `Y`-coordinate character of the elementary-abelian Magnus quotient. -/
+noncomputable def dsqYCharacter (h : ℕ) :
+    ContinuousMonoidHom (SqCore.DSq h : Type) (Multiplicative (ZMod 2)) where
+  toFun g := Multiplicative.ofAdd
+    (sqMagnusOneCoordinate h 2 (Multiplicative.toAdd (sqMagnusOneHom h g)))
+  map_one' := by simp
+  map_mul' g k := by
+    apply Multiplicative.toAdd.injective
+    simp
+  continuous_toFun := by
+    exact (continuous_of_discreteTopology : Continuous fun q : SqMagnusOneTarget h =>
+      sqMagnusOneCoordinate h 2 (Multiplicative.toAdd q)).comp
+        (sqMagnusOneHom h).continuous_toFun
+
+local instance (h : ℕ) : DistribMulAction (SqCore.DSq h : Type) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+local instance (h : ℕ) : ContinuousSMul (SqCore.DSq h : Type) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+/-- The corresponding normalized continuous `1`-cocycle. -/
+noncomputable def dsqYZOne (h : ℕ) : Z1 (SqCore.DSq h : Type) (ZMod 2) :=
+  Count.homEquivZ1 (dsqYCharacter h)
+
+/-- The corresponding degree-one cohomology class. -/
+noncomputable def dsqYHOne (h : ℕ) : H1 (SqCore.DSq h : Type) (ZMod 2) :=
+  H1mk _ _ (dsqYZOne h)
+
+/-- A cocycle representative for the cup square of the `Y`-coordinate class. -/
+noncomputable def dsqYCupZTwo (h : ℕ) : Z2 (SqCore.DSq h : Type) (ZMod 2) :=
+  ⟨cup11Fun AddMonoidHom.mul (dsqYZOne h).1 (dsqYZOne h).1,
+    cup11_mem_Z2 AddMonoidHom.mul (fun _ _ _ => rfl) (dsqYZOne h) (dsqYZOne h)⟩
+
+/-- The literal cup square is represented by `dsqYCupZTwo`. -/
+theorem dsqYHOne_cup_self (h : ℕ) :
+    trivialCupPairing 2 (SqCore.DSq h : Type) (fun _ _ => rfl)
+        (dsqYHOne h) (dsqYHOne h) =
+      H2mk (SqCore.DSq h : Type) (ZMod 2) (dsqYCupZTwo h) := by
+  rfl
+
+/-- The one-relator obstruction evaluates the `Y` cup square to one.  The calculation is
+the constructor table of the literal improved relator: its quadratic initial form contains
+`Y²` with coefficient one. -/
+theorem obsH2_DSq_dsqYCup (h : ℕ) :
+    WordCoh.obsH2 (fun _ _ => rfl) (MarkedCore.sqNatWord h)
+        (SqCore.sqGen h) (markedRelator_DSq h)
+        (H2mk (SqCore.DSq h : Type) (ZMod 2) (dsqYCupZTwo h)) = 1 := by
+  let rho := (sqMagnusOneHom h).toMonoidHom
+  let c := sqQuadraticDetectorCocycle h (dsqYQuadraticMatrix h)
+  have hfactor : ∀ g k : (SqCore.DSq h : Type),
+      (dsqYCupZTwo h).1 (g, k) =
+        (WordCoh.ofDRCoh c).κ (rho g) (rho k) := by
+    intro g k
+    change (dsqYCupZTwo h).1 (g, k) = c.κ (rho g) (rho k)
+    rw [sqQuadraticDetectorCocycle_dsqY]
+    simp [dsqYCupZTwo, cup11Fun, dsqYZOne, dsqYCharacter, c, rho,
+      scalarActionZmodTwo_triv]
+    rfl
+  rw [WordCoh.obsH2_eq_of_factor (fun _ _ => rfl)
+    (MarkedCore.sqNatWord h) (SqCore.sqGen h) (markedRelator_DSq h)
+    (dsqYCupZTwo h) rho (WordCoh.ofDRCoh c) hfactor]
+  have hmark : (fun i => rho (SqCore.sqGen h i)) = sqMagnusOneMark h := by
+    funext i
+    exact sqMagnusOneHom_gen h i
+  rw [hmark, WordCoh.relZ_ofDRCoh]
+  change (SqCore.sqRelWord (fun i => MarkedCore.centLift c (sqMagnusOneMark h i))).fib = 1
+  rw [sqRelWord_centLift_fib_eq_quadraticInitialGram
+      (sqQuadraticDetectorCocycle_isCup h (dsqYQuadraticMatrix h)),
+    show (fun i j => c.κ (sqMagnusOneMark h i) (sqMagnusOneMark h j)) =
+        dsqYQuadraticMatrix h from funext fun i => funext fun j =>
+          sqQuadraticDetectorCocycle_mark h (dsqYQuadraticMatrix h) i j,
+    sqRelatorQuadraticInitialGram_dsqY]
+
+/-- The `Y` cup square is a nonzero class in the cohomology of the literal improved model. -/
+theorem dsqYHOne_cup_self_ne_zero (h : ℕ) :
+    trivialCupPairing 2 (SqCore.DSq h : Type) (fun _ _ => rfl)
+        (dsqYHOne h) (dsqYHOne h) ≠ 0 := by
+  rw [dsqYHOne_cup_self]
+  intro hzero
+  have hobs := congrArg
+    (WordCoh.obsH2 (fun _ _ => rfl) (MarkedCore.sqNatWord h)
+      (SqCore.sqGen h) (markedRelator_DSq h)) hzero
+  rw [obsH2_DSq_dsqYCup, map_zero] at hobs
+  exact one_ne_zero hobs
+
+/-- The completed improved one-relator model has one-dimensional mod-`2` `H²`. -/
+theorem card_H2_DSq (h : ℕ) :
+    Nat.card (H2 (SqCore.DSq h : Type) (ZMod 2)) = 2 := by
+  letI : Finite (H2 (SqCore.DSq h : Type) (ZMod 2)) :=
+    WordCoh.finite_H2 (fun _ _ => rfl) (MarkedCore.sqNatWord h)
+      (SqCore.sqGen h) (markedRelator_DSq h) (presentedBy_DSq h)
+      (SqCore.isProP_DSq h)
+  have hle : Nat.card (H2 (SqCore.DSq h : Type) (ZMod 2)) ≤ 2 :=
+    WordCoh.card_H2_le_two (fun _ _ => rfl) (MarkedCore.sqNatWord h)
+      (SqCore.sqGen h) (markedRelator_DSq h) (presentedBy_DSq h)
+      (SqCore.isProP_DSq h)
+  letI : Nontrivial (H2 (SqCore.DSq h : Type) (ZMod 2)) :=
+    ⟨trivialCupPairing 2 (SqCore.DSq h : Type) (fun _ _ => rfl)
+        (dsqYHOne h) (dsqYHOne h), 0, dsqYHOne_cup_self_ne_zero h⟩
+  have hgt : 1 < Nat.card (H2 (SqCore.DSq h : Type) (ZMod 2)) :=
+    Finite.one_lt_card_iff_nontrivial.mpr inferInstance
+  omega
+
+/-- The cohomological generator rank of the improved model is its literal marking rank. -/
+theorem demushkinRank_DSq (h : ℕ) :
+    demushkinRank 2 (SqCore.DSq h : Type) = SqCore.sqRank h := by
+  rw [← lowerTwoCentralHilbertCoefficient_zero_eq_demushkinRank
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)]
+  exact dsq_lowerTwoCentralHilbertCoefficient_zero h
+
+/-- Inflation from the Frattini quotient onto model `H²` is surjective.  The explicit
+nonzero `Y` cup square supplies the sole nonzero target class. -/
+theorem lowerTwoCentralH2InflationSurjective_DSq (h : ℕ) :
+    LowerTwoCentralH2InflationSurjective (SqCore.DSq h : Type) := by
+  let Q := levelQuot (SqCore.DSq h : Type) 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  dsimp only [LowerTwoCentralH2InflationSurjective]
+  obtain ⟨yQ, hyQ⟩ := lowerTwoCentralH1Inflation_surjective
+    (SqCore.DSq h : Type) (dsqYHOne h)
+  let cupQ := trivialCupPairing 2 Q (fun _ _ => rfl) yQ yQ
+  have hcupImage : lowerTwoCentralH2Inflation (SqCore.DSq h : Type) cupQ =
+      trivialCupPairing 2 (SqCore.DSq h : Type) (fun _ _ => rfl)
+        (dsqYHOne h) (dsqYHOne h) := by
+    dsimp only [cupQ]
+    rw [lowerTwoCentralH2Inflation_trivialCupPairing, hyQ]
+  letI : Finite (H2 (SqCore.DSq h : Type) (ZMod 2)) :=
+    Nat.finite_of_card_ne_zero (by rw [card_H2_DSq]; decide)
+  obtain ⟨w, hw, hwuniq⟩ :=
+    (Nat.card_eq_two_iff' (0 : H2 (SqCore.DSq h : Type) (ZMod 2))).mp
+      (card_H2_DSq h)
+  intro z
+  by_cases hz : z = 0
+  · exact ⟨0, by rw [map_zero, hz]⟩
+  · have hcupw : trivialCupPairing 2 (SqCore.DSq h : Type) (fun _ _ => rfl)
+        (dsqYHOne h) (dsqYHOne h) = w :=
+      hwuniq _ (dsqYHOne_cup_self_ne_zero h)
+    have hzw : z = w := hwuniq z hz
+    refine ⟨cupQ, ?_⟩
+    rw [hcupImage, hcupw, hzw]
+
+/-- The elementary Frattini quotient of the improved model has the expected degree-two
+cohomology cardinality. -/
+theorem lowerTwoCentralElementaryH2CardFormula_DSq (h : ℕ) :
+    LowerTwoCentralElementaryH2CardFormula (SqCore.DSq h : Type)
+      (SqCore.sqRank h) := by
+  apply lowerTwoCentralElementaryH2CardFormula_of_finiteElementary
+    finiteElementaryAbelianTwoH2CardFormula (SqCore.DSq h : Type)
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+  calc
+    Nat.card (levelQuot (SqCore.DSq h : Type) 2) =
+        Nat.card (zLayer (SqCore.DSq h : Type) 1) := by
+      rw [zLayer_one_eq_top]
+      exact (Nat.card_congr Subgroup.topEquiv.toEquiv).symm
+    _ = 2 ^ SqCore.sqRank h := card_zLayer_one_dsq h
+
+/-- The universal transgression sequence, the explicit nonzero cup square, and the finite
+elementary-abelian computation give the exact five-term cardinal identity for `DSq h`. -/
+theorem lowerTwoCentralFiveTermCardFormula_DSq (h : ℕ) :
+    LowerTwoCentralFiveTermCardFormula (SqCore.DSq h : Type) := by
+  apply lowerTwoCentralFiveTermCardFormula_of_kernelDuality
+    (SqCore.DSq h : Type) (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+  · exact lowerTwoCentralFiveTermKernelDuality (SqCore.DSq h : Type)
+      (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+  · exact lowerTwoCentralH2InflationSurjective_DSq h
+  · rw [demushkinRank_DSq]
+    exact lowerTwoCentralElementaryH2CardFormula_DSq h
+
+/-- Every improved square model has the one-relator degree-two lower-central cardinality. -/
+theorem lowerTwoCentralDegreeTwoExpectedCard_DSq (h : ℕ) :
+    LowerTwoCentralDegreeTwoExpectedCard (SqCore.DSq h : Type)
+      (SqCore.sqRank h) := by
+  let d := SqCore.sqRank h
+  have hmul : 2 ≤ d * (d + 1) := by
+    dsimp [d, SqCore.sqRank]
+    nlinarith
+  have hquad : 0 < lowerTwoCentralQuadraticDimension d :=
+    Nat.div_pos hmul (by omega)
+  have hsplit : lowerTwoCentralQuadraticDimension d =
+      lowerTwoCentralOneRelatorQuadraticDimension d + 1 := by
+    rw [lowerTwoCentralOneRelatorQuadraticDimension]
+    omega
+  have hfive := lowerTwoCentralFiveTermCardFormula_DSq h
+  unfold LowerTwoCentralFiveTermCardFormula at hfive
+  rw [demushkinRank_DSq, card_H2_DSq] at hfive
+  change Nat.card (zLayer (SqCore.DSq h : Type) 2) =
+    2 ^ lowerTwoCentralOneRelatorQuadraticDimension d
+  have hcancel : Nat.card (zLayer (SqCore.DSq h : Type) 2) * 2 =
+      2 ^ lowerTwoCentralOneRelatorQuadraticDimension d * 2 := by
+    rw [← pow_succ, ← hsplit]
+    exact hfive
+  exact Nat.mul_right_cancel (m := 2) (by omega) hcancel
+
+/-- Discharged model-side degree-two supply for all handle counts. -/
+theorem sqLowerTwoCentralDegreeTwoExpectedCardSupply :
+    SqLowerTwoCentralDegreeTwoExpectedCardSupply :=
+  lowerTwoCentralDegreeTwoExpectedCard_DSq
+
 /-! ### Closing the lower-two-central five-term seam -/
 
 /-- Every positive-rank finitely generated Demushkin pro-`2` group satisfies the exact
@@ -664,6 +957,14 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_oddDeg
 #print axioms card_elementaryQuadraticMap
 #print axioms card_H2_finiteElementary
 #print axioms finiteElementaryAbelianTwoH2CardFormula
+#print axioms markedRelator_DSq
+#print axioms presentedBy_DSq
+#print axioms obsH2_DSq_dsqYCup
+#print axioms card_H2_DSq
+#print axioms lowerTwoCentralH2InflationSurjective_DSq
+#print axioms lowerTwoCentralFiveTermCardFormula_DSq
+#print axioms lowerTwoCentralDegreeTwoExpectedCard_DSq
+#print axioms sqLowerTwoCentralDegreeTwoExpectedCardSupply
 #print axioms lowerTwoCentralFiveTermCardFormula_of_demushkin
 #print axioms lowerTwoCentralDegreeTwoExpectedCard_of_demushkin
 #print axioms maxProTwoGalK_lowerTwoCentralFiveTermCardFormula
