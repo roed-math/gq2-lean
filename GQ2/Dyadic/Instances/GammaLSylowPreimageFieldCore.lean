@@ -264,6 +264,39 @@ def GammaLOddIndexOpenSubgroupFieldIdentificationSupply (h q : ℕ) : Prop :=
     IsOpen (U' : Set (gamma h q : Type)) → Odd U'.index →
       Nonempty (GammaLOpenSubgroupFieldIdentification U')
 
+/-! ## Cyclotomic image transport -/
+
+/-- Passing from `G_K` to its maximal pro-`2` quotient loses no cyclotomic values.  Equivalently,
+the image of the descended character is exactly the cyclotomic image in `G_K^ab` recorded by
+the marked-reciprocity branch selector. -/
+theorem range_chiCycKTwo_eq_chiCycKAb
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom =
+      MonoidHom.range (chiCycKAb K) := by
+  ext u
+  constructor
+  · rintro ⟨x, rfl⟩
+    obtain ⟨g, rfl⟩ := quotientMk_surjective _ x
+    refine ⟨toAbK K g, ?_⟩
+    exact (chiCycKAb_toAbK K g).trans (chiCycKTwo_maxProPMk (K := K) g).symm
+  · rintro ⟨a, rfl⟩
+    obtain ⟨g, rfl⟩ := surjective_toAbK K a
+    refine ⟨maxProPMk 2 (GalK K) g, ?_⟩
+    exact (chiCycKTwo_maxProPMk (K := K) g).trans (chiCycKAb_toAbK K g).symm
+
+/-- Bundle-facing form: the values available on `G_K(2)` are exactly the subgroup `C` used by
+`fieldMarkedPair`.  Thus choosing any of the five square rows is reduced to a concrete
+membership statement in the existing branch data; this theorem does not assert those missing
+memberships. -/
+theorem range_chiCycKTwo_eq_fieldMarkedPairC
+    {Rec : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = (B.fieldMarkedPair FF).C :=
+  range_chiCycKTwo_eq_chiCycKAb K
+
 /-! ## The two substantive missing inputs -/
 
 /-- The missing local-reciprocity/completion calculation: the maximal pro-`2` Galois group of
@@ -522,6 +555,8 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms SqCyclotomicForwardGeneratorData.backward_of_finiteQuotientSurjections
 #print axioms SqCyclotomicForwardGeneratorData.toBiEpiData_of_finiteQuotientSurjections
 #print axioms orientedEquivSq_of_biEpiData
+#print axioms range_chiCycKTwo_eq_chiCycKAb
+#print axioms range_chiCycKTwo_eq_fieldMarkedPairC
 #print axioms oddDegreeGalKSqInvariantData_of_qTwo
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
