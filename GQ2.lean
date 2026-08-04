@@ -464,6 +464,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationCriterion
 import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationKernel
 import GQ2.Dyadic.Instances.GammaLSylowPreimageKernelFiniteLevel
 import GQ2.Dyadic.Count.H3SqTateDualityCapstone
+import GQ2.Dyadic.Count.H3SqTateDualityVariableCoreCapstone
 import GQ2.Dyadic.Instances.GammaLSylowPreimageArithmeticResidual
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
