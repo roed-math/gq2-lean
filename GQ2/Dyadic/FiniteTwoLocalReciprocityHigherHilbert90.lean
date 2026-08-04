@@ -488,6 +488,41 @@ theorem canonicalHigherKummerClassData_two_eq_modTwo
   higherKummerClassDataOfMuNContinuousHilbert90_two_eq_modTwo
     (muNContinuousHilbert90 K 2)
 
+/-- With higher Kummer exactness and the canonical B6 bundle now fixed, only the higher
+Tate--Kummer--Artin compatibility remains to supply the standard `2^m` character layers. -/
+theorem twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : ∀ m : ℕ, HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m)) (canonicalHigherKummerClassData K (2 ^ m))) :
+    TwoPowerReciprocityCharacterSupply B := by
+  apply twoPowerReciprocityCharacterSupply_of_canonical_higherKummer_artin
+  intro m
+  exact ⟨canonicalHigherKummerClassData K (2 ^ m), H m⟩
+
+/-- Canonical higher Kummer exactness reduces finite local reciprocity to the higher Artin
+compatibility alone. -/
+theorem finiteTwoLocalReciprocitySupply_of_canonicalKummer_artin
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : ∀ m : ℕ, HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m)) (canonicalHigherKummerClassData K (2 ^ m))) :
+    FiniteTwoLocalReciprocitySupply B :=
+  TwoPowerReciprocityCharacterSupply.iff_finiteTwoLocalReciprocitySupply.mp
+    (twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin H)
+
+/-- The same single compatibility hypothesis implies injectivity of completed reciprocity. -/
+theorem completed_reciprocity_injective_of_canonicalKummer_artin
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : ∀ m : ℕ, HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m)) (canonicalHigherKummerClassData K (2 ^ m))) :
+    Function.Injective (proTwoReciprocityToTopAb B) :=
+  (twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin H).completed_injective
+
 #print axioms FiniteHilbert90Factorization.exists_coboundary
 #print axioms exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
 #print axioms finiteGaloisLayerOfOpenNormal
@@ -501,6 +536,9 @@ theorem canonicalHigherKummerClassData_two_eq_modTwo
 #print axioms higherKummerClassMonoidHom_surjective
 #print axioms canonicalHigherKummerClassData
 #print axioms canonicalHigherKummerClassData_two_eq_modTwo
+#print axioms twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin
+#print axioms finiteTwoLocalReciprocitySupply_of_canonicalKummer_artin
+#print axioms completed_reciprocity_injective_of_canonicalKummer_artin
 
 end
 end GQ2.Dyadic
