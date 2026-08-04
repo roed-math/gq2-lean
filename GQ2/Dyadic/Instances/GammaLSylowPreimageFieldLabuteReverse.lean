@@ -243,21 +243,19 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_le
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-- Sharpened finite-level field presentation.  The forward clause still uses the literal
-improved relator and constructor table.  The reverse clause is replaced, equivalently, by the
-order equality on the canonical two-central tower. -/
+improved relator and the corrected cyclotomic value fibres.  The reverse clause is replaced,
+equivalently, by the order equality on the canonical two-central tower. -/
 def OddDegreeGalKSqCyclotomicLevelCardPresentation : Prop :=
   ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)],
-    (hodd : Odd (Module.finrank ℚ_[2] K)) →
+    (_hodd : Odd (Module.finrank ℚ_[2] K)) →
       demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
-        ∃ (R : LocalReciprocity) (B : MarkedRecip R K),
-          let h := (Module.finrank ℚ_[2] K - 1) / 2
-          let T := oddDegreeGalKSqCyclotomicCoreTable K B hodd
-          (∀ U : OpenNormalSubgroup
-              (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
-              Nonempty (SqCyclotomicFiniteLevelEpiData T h U)) ∧
-            SqTwoCentralLevelCardAgreement (maxProPQuotient 2 (GalK K)) h
+        let h := (Module.finrank ℚ_[2] K - 1) / 2
+        (∀ U : OpenNormalSubgroup
+            (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+            Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) ∧
+          SqTwoCentralLevelCardAgreement (maxProPQuotient 2 (GalK K)) h
 
 /-- The sharpened tower-cardinality presentation supplies the original finite-level seam; the
 equivalence theorem above is the only place where the old all-open-normal reverse family is
@@ -266,11 +264,11 @@ theorem oddDegreeGalKSqCyclotomicFiniteLevelPresentation_of_levelCardPresentatio
     (hlevel : OddDegreeGalKSqCyclotomicLevelCardPresentation) :
     OddDegreeGalKSqCyclotomicFiniteLevelPresentation := by
   intro K _ _ _ _ hodd hq
-  obtain ⟨R, B, hforward, hcard⟩ := hlevel K hodd hq
+  dsimp only
+  obtain ⟨hforward, hcard⟩ := hlevel K hodd hq
   let h := (Module.finrank ℚ_[2] K - 1) / 2
-  let T := oddDegreeGalKSqCyclotomicCoreTable K B hodd
-  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel T h hforward
-  exact ⟨R, B, hforward,
+  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel h hforward
+  exact ⟨hforward,
     D.reverseFiniteQuotientSurjections_of_levelCardAgreement
       isProP_maxProPQuotient hcard⟩
 
@@ -281,11 +279,11 @@ theorem oddDegreeGalKSqCyclotomicLevelCardPresentation_of_finiteLevelPresentatio
     (hfinite : OddDegreeGalKSqCyclotomicFiniteLevelPresentation) :
     OddDegreeGalKSqCyclotomicLevelCardPresentation := by
   intro K _ _ _ _ hodd hq
-  obtain ⟨R, B, hforward, hback⟩ := hfinite K hodd hq
+  dsimp only
+  obtain ⟨hforward, hback⟩ := hfinite K hodd hq
   let h := (Module.finrank ℚ_[2] K - 1) / 2
-  let T := oddDegreeGalKSqCyclotomicCoreTable K B hodd
-  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel T h hforward
-  exact ⟨R, B, hforward,
+  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel h hforward
+  exact ⟨hforward,
     (D.reverseFiniteQuotientSurjections_iff_levelCardAgreement
       isProP_maxProPQuotient).mp hback⟩
 
