@@ -22,19 +22,17 @@ finite semidirect product of `M` by the action image.  That action image is a `2
 it is a finite continuous quotient of `G(2)`, so the graph target is a finite `2`-group and the
 universal property of `K₂(G)` kills the graph.
 
-This is deliberately not promoted to intrinsic `H¹(K₂(G),M)=0`: a finite quotient of the
-subgroup `K₂(G)` need not extend to an ambient finite quotient of `G`.  For the same reason,
-absence of ambient finite `2`-quotients does not imply `H²(K₂(G),M)=0`.
+The intrinsic degree-one statement can in fact also be proved.  Given a continuous cocycle on
+`K₂(G)`, take the ambient normal core `C` of its kernel.  The image of `K₂(G)` in `G/C` has
+exponent two: every ambient conjugate of `n²` is killed by the cocycle.  Since `G/K₂(G)` is
+pro-`2`, the extension `G/C` is pro-`2`; the universal property of `K₂(G)` then forces the
+cocycle to vanish.
 
-The final definitions split the exact remaining inflation input into:
-
-* literal continuous `H²(K₂(G),M)` vanishing; and
-* the primitive-extension/cross-term theorem (the Hochschild--Serre transgression coherence).
-
-Together they reconstruct `FiniteElementaryMaxProTwoKernelOneTwoSupply`, hence degree-two
-inflation.  Existing odd-index corestriction applies to the open Sylow preimage `U ≤ GammaL`;
-it does not directly apply to `K₂(U)`, which is only known closed and generally has infinite
-index.
+Consequently the primitive-extension/cross-term (Hochschild--Serre transgression) field is
+automatic.  The exact remaining inflation input is only literal continuous
+`H²(K₂(G),M)`-vanishing.  Existing odd-index corestriction applies to the open Sylow preimage
+`U ≤ GammaL`; it does not directly apply to `K₂(U)`, which is only known closed and generally
+has infinite index.
 -/
 
 namespace GQ2.ContCoh
@@ -307,6 +305,179 @@ theorem normalCore_subgroupOf_isOpen_of_continuous_discrete
 
 end IntrinsicH1Topology
 
+section ProPExtension
+
+variable {p : ℕ} {G : Type*}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- A normal extension of a pro-`p` group by a `p`-group is pro-`p`, in the quotient form needed
+for ambient normal cores.
+
+For every open normal `V` of `G/K`, let `F = (G/K)/V` and let `H` be the image of `N` in `F`.
+The group `H` is a `p`-group by hypothesis.  The quotient `F/H` is a continuous quotient of the
+pro-`p` group `G/N`, hence is a `p`-group.  Elementwise, a `p`-power first moves an element of
+`F` into `H`, and a second `p`-power kills it. -/
+theorem isProP_quotient_of_normal_isPGroup_image
+    (N K : Subgroup G) [N.Normal] [K.Normal]
+    (hN : IsPGroup p (N.map (QuotientGroup.mk' K)))
+    (hGN : IsProP p (G ⧸ N)) :
+    IsProP p (G ⧸ K) := by
+  intro V
+  let Q := G ⧸ K
+  let F := Q ⧸ V.toSubgroup
+  let q : ContinuousMonoidHom G F :=
+    (GQ2.quotientMk V.toSubgroup).comp (GQ2.quotientMk K)
+  let H : Subgroup F := N.map q.toMonoidHom
+  have hq_surj : Function.Surjective q :=
+    (QuotientGroup.mk'_surjective V.toSubgroup).comp (QuotientGroup.mk'_surjective K)
+  letI : H.Normal := Subgroup.Normal.map (inferInstance : N.Normal) q.toMonoidHom hq_surj
+  have hH : IsPGroup p H := by
+    have hh := hN.map (QuotientGroup.mk' V.toSubgroup)
+    change IsPGroup p (N.map ((QuotientGroup.mk' V.toSubgroup).comp
+      (QuotientGroup.mk' K)))
+    rw [← Subgroup.map_map]
+    exact hh
+  let qH : ContinuousMonoidHom G (F ⧸ H) := (GQ2.quotientMk H).comp q
+  have hNker : N ≤ qH.toMonoidHom.ker := by
+    intro n hn
+    change qH n = 1
+    apply (QuotientGroup.eq_one_iff (q n)).mpr
+    exact ⟨n, hn, rfl⟩
+  let qbar : ContinuousMonoidHom (G ⧸ N) (F ⧸ H) := GQ2.quotientLift N qH hNker
+  have hqH_surj : Function.Surjective qH :=
+    (QuotientGroup.mk'_surjective H).comp hq_surj
+  have hqbar_surj : Function.Surjective qbar :=
+    QuotientGroup.lift_surjective_of_surjective N qH.toMonoidHom hqH_surj hNker
+  letI : DiscreteTopology F := QuotientGroup.discreteTopology V.isOpen
+  let Hopen : OpenSubgroup F := ⟨H, isOpen_discrete _⟩
+  letI : DiscreteTopology (F ⧸ H) := QuotientGroup.discreteTopology Hopen.isOpen
+  have hFHpro : IsProP p (F ⧸ H) :=
+    SectionThree.isProP_of_surjective qbar.toMonoidHom qbar.continuous_toFun hqbar_surj hGN
+  let botFH : OpenNormalSubgroup (F ⧸ H) :=
+    ⟨⟨⊥, isOpen_discrete _⟩, inferInstance⟩
+  have hFH : IsPGroup p (F ⧸ H) :=
+    (hFHpro botFH).of_equiv QuotientGroup.quotientBot
+  intro x
+  obtain ⟨j, hj⟩ := hFH (QuotientGroup.mk' H x)
+  have hxH : x ^ p ^ j ∈ H := by
+    exact (QuotientGroup.eq_one_iff (x ^ p ^ j)).mp (by simpa using hj)
+  obtain ⟨k, hk⟩ := hH ⟨x ^ p ^ j, hxH⟩
+  refine ⟨j + k, ?_⟩
+  have hk' := congrArg Subtype.val hk
+  simpa only [Subgroup.coe_pow, Subgroup.coe_mk, Subgroup.coe_one,
+    ← pow_mul, ← pow_add] using hk'
+
+end ProPExtension
+
+/-- Literal vanishing of continuous one-cocycles.  When the action is trivial this is the
+cochain-level form of `H¹(H,M)=0`, since every one-coboundary is zero. -/
+def ContinuousH1CocyclesVanish
+    (H : Type*) [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+    (M : Type*) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+    [DistribMulAction H M] : Prop :=
+  ∀ z : Z1 H M, z = 0
+
+section IntrinsicH1Automatic
+
+variable {G M : Type}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+  [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [Finite M]
+  [DistribMulAction G M]
+  [DistribMulAction (maxProPQuotient 2 G) M]
+  [ContinuousSMul (maxProPQuotient 2 G) M]
+
+/-- Every intrinsic continuous one-cocycle on the maximal-pro-`2` kernel vanishes for finite
+elementary quotient-compatible coefficients.
+
+The action on `N = K₂(G)` is trivial, so the cocycle is a continuous homomorphism
+`f : N → Multiplicative M`.  Let `C` be the ambient normal core of its kernel.  Conjugates of
+squares lie in `ker f`, so the image of `N` in `G/C` has exponent two.  The normal-extension
+lemma makes `G/C` pro-`2`; the universal property `K₂(G) ≤ ker(G → G/C)` then gives
+`N ≤ C ≤ ker f`. -/
+theorem maxProTwoKernel_intrinsicH1CocyclesVanish
+    (hM2 : ∀ m : M, m + m = 0)
+    (hcompat : ∀ (g : G) (m : M), maxProPMk 2 G g • m = g • m) :
+    ContinuousH1CocyclesVanish (proPKernel 2 G) M := by
+  let N : Subgroup G := proPKernel 2 G
+  have htriv : ∀ (n : N) (m : M), n • m = m := by
+    intro n m
+    exact maxProTwoKernel_smul_eq hcompat n m
+  intro z
+  let f : ContinuousMonoidHom N (Multiplicative M) := {
+    toFun n := Multiplicative.ofAdd (z.1 n)
+    map_one' := by rw [Z1_apply_one]; rfl
+    map_mul' := by
+      intro n k
+      change Multiplicative.ofAdd (z.1 (n * k)) =
+        Multiplicative.ofAdd (z.1 n) * Multiplicative.ofAdd (z.1 k)
+      rw [(mem_Z1_iff.mp z.2).2, htriv n]
+      rfl
+    continuous_toFun := (mem_Z1_iff.mp z.2).1 }
+  let K : Subgroup N := f.toMonoidHom.ker
+  have hKopen : IsOpen (K : Set N) := by
+    change IsOpen (f ⁻¹' {1})
+    exact (isOpen_discrete {1}).preimage f.continuous_toFun
+  have hKclosed : IsClosed (K : Set N) := Subgroup.isClosed_of_isOpen K hKopen
+  let KG : Subgroup G := K.map N.subtype
+  have hKGclosed : IsClosed (KG : Set G) := by
+    have hemb : Topology.IsClosedEmbedding ((↑) : N → G) :=
+      (show IsClosed (N : Set G) from proPKernel_isClosed 2 G).isClosedEmbedding_subtypeVal
+    rw [show (KG : Set G) = N.subtype '' (K : Set N) by ext; simp [KG]]
+    exact hemb.isClosed_iff_image_isClosed.mp hKclosed
+  let C : Subgroup G := KG.normalCore
+  letI : C.Normal := Subgroup.normalCore_normal KG
+  letI : IsClosed (C : Set G) := KG.normalCore_isClosed hKGclosed
+  have hNimage : IsPGroup 2 (N.map (QuotientGroup.mk' C)) := by
+    intro x
+    refine ⟨1, ?_⟩
+    obtain ⟨n, hn, hnx⟩ := x.2
+    apply Subtype.ext
+    change x.1 ^ 2 ^ 1 = 1
+    rw [← hnx]
+    change (QuotientGroup.mk' C n) ^ 2 ^ 1 = 1
+    rw [pow_one, ← map_pow]
+    apply (QuotientGroup.eq_one_iff (n ^ 2)).mpr
+    change n ^ 2 ∈ KG.normalCore
+    intro b
+    have hconjN : b * n * b⁻¹ ∈ N :=
+      (inferInstance : N.Normal).conj_mem n hn b
+    let nb : N := ⟨b * n * b⁻¹, hconjN⟩
+    have hfb : f nb ^ 2 = 1 := by
+      change Multiplicative.ofAdd (z.1 nb) ^ 2 = 1
+      rw [pow_two, ← ofAdd_add, hM2, ofAdd_zero]
+    have hnb2 : nb ^ 2 ∈ K := by
+      change f (nb ^ 2) = 1
+      rw [map_pow]
+      exact hfb
+    change b * n ^ 2 * b⁻¹ ∈ K.map N.subtype
+    rw [Subgroup.mem_map]
+    refine ⟨nb ^ 2, hnb2, ?_⟩
+    change (b * n * b⁻¹) ^ 2 = b * n ^ 2 * b⁻¹
+    simp only [pow_two]
+    group
+  have hquot : IsProP 2 (G ⧸ C) :=
+    isProP_quotient_of_normal_isPGroup_image N C hNimage isProP_maxProPQuotient
+  let qC : ContinuousMonoidHom G (G ⧸ C) := GQ2.quotientMk C
+  have hNleC : N ≤ C := by
+    intro n hn
+    have hnker := proPKernel_le_ker hquot qC hn
+    exact (QuotientGroup.eq_one_iff n).mp hnker
+  apply Subtype.ext
+  funext n
+  change z.1 n = 0
+  have hnKG : n.1 ∈ KG := Subgroup.normalCore_le KG (hNleC n.2)
+  change n.1 ∈ K.map N.subtype at hnKG
+  rw [Subgroup.mem_map] at hnKG
+  obtain ⟨k, hk, hkn⟩ := hnKG
+  have hkeq : k = n := Subtype.ext hkn
+  subst k
+  change f n = 1 at hk
+  exact congrArg Multiplicative.toAdd hk
+
+end IntrinsicH1Automatic
+
 section ContinuousExtension
 
 variable {G M : Type*}
@@ -440,14 +611,6 @@ theorem h2KernelConjugationDefect_mem_Z1
       exact h3.symm
     rw [h1, ← h2, hx]
     abel
-
-/-- Literal vanishing of continuous one-cocycles.  When the action is trivial this is the
-cochain-level form of `H¹(H,M)=0`, since every one-coboundary is zero. -/
-def ContinuousH1CocyclesVanish
-    (H : Type*) [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
-    (M : Type*) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
-    [DistribMulAction H M] : Prop :=
-  ∀ z : Z1 H M, z = 0
 
 /-- Intrinsic one-cocycle vanishing kills the conjugation defect. -/
 theorem h2KernelConjugationDefect_eq_zero_of_h1CocyclesVanish
