@@ -865,6 +865,21 @@ theorem h1H2InflationDetectsInvariantKernelCharacters
   h1H2InflationDetectsInvariantKernelCharacters_of_equivariantExtension f hf
     (invariantKernelCharacterEquivariantExtensionSupply f)
 
+/-- **Equal-rank Demushkin epimorphism rigidity.**
+
+A continuous epimorphism between positive equal-rank profinite pro-two Demushkin groups is
+bijective.  The proof combines low-degree Demushkin cup-product rigidity with the explicit
+continuous Hochschild--Serre five-term argument above. -/
+theorem demushkinEpimorphism_bijective
+    (hf : Function.Surjective f)
+    (hDG : IsDemushkin 2 G) (hDH : IsDemushkin 2 H)
+    (hrank : demushkinRank 2 G = demushkinRank 2 H)
+    (hrankPos : 0 < demushkinRank 2 G) :
+    Function.Bijective f :=
+  demushkinEpimorphism_bijective_of_fiveTermKernelDetection
+    f hf hDG hDH hrank hrankPos
+    (h1H2InflationDetectsInvariantKernelCharacters f hf)
+
 end FiveTerm
 
 end
