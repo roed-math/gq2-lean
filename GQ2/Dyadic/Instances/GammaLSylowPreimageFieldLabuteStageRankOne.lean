@@ -325,6 +325,158 @@ theorem stageSL12R2_sharpCorrection (k : ℕ) (hk : 3 ≤ k)
     exact (SqCyclotomicStageTuple.sharpChiLevel_levelProj_eq_chiLevel_succ
       chiD0pres (k + 1) (by omega) (deep i)).trans (hdeep.2 i)
 
+/-! ## Transport of the sharp correction to the bottom field -/
+
+/-- Every rank-one bottom-field stage tuple has a sharp depth correction realizing the
+inverse of its actual literal improved-word defect.  The corrected `D₀` tuple is transported
+across the lower-tower equivalence and then rebased against the bottom field's own
+`canonLift`; no naturality assertion about the chosen `canonLift` is needed. -/
+set_option maxHeartbeats 800000 in
+theorem sqCyclotomicStageTuple_bot_sharpDefectReachable
+    (k : ℕ) (hk : 3 ≤ k)
+    (T : SqCyclotomicStageTuple
+      (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0 k) :
+    ∃ W : T.SharpAdmissibleCorrection (by omega),
+      SqCyclotomicStageTuple.stageShift (h := 0) (k := k)
+          (fun i ↦ canonLift
+            (maxProPQuotient 2 (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) k
+            (T.generators i)) W.correction =
+        (sqStageDefect
+          (maxProPQuotient 2 (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂)))
+          0 k T.generators)⁻¹ := by
+  let F := maxProPQuotient 2
+    (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))
+  let e : ContinuousMulEquiv (D0 : Type) F := d0EquivBotMaxProTwo
+  let E : levelQuot (D0 : Type) k ≃* levelQuot F k := levelQuotCongr e k
+  let pull : Fin 3 → levelQuot (D0 : Type) k :=
+    fun i ↦ E.symm (T.generators i)
+  have hpullRelSq : SqCore.sqRelWord (h := 0) pull = 1 := by
+    apply E.injective
+    rw [map_one]
+    calc
+      E (SqCore.sqRelWord (h := 0) pull) =
+          SqCore.sqRelWord (h := 0) (fun i ↦ E (pull i)) :=
+        SqCore.map_sqRelWord (h := 0) E pull
+      _ = SqCore.sqRelWord (h := 0) T.generators := by
+        congr 1
+        funext i
+        exact E.apply_symm_apply (T.generators i)
+      _ = 1 := T.relation
+  have hpullRel : drWord (pull 0) (pull 1) (pull 2) = 1 := by
+    rw [SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord] at hpullRelSq
+    exact hpullRelSq
+  have hpullGen : Subgroup.closure (Set.range pull) = ⊤ := by
+    have hinj : Function.Injective (Subgroup.map E.toMonoidHom) :=
+      Subgroup.map_injective E.injective
+    apply hinj
+    have himg : E '' Set.range pull = Set.range T.generators := by
+      rw [← Set.range_comp]
+      congr 1
+      funext i
+      exact E.apply_symm_apply (T.generators i)
+    change (Subgroup.closure (Set.range pull)).map E.toMonoidHom =
+      (⊤ : Subgroup (levelQuot (D0 : Type) k)).map E.toMonoidHom
+    rw [MonoidHom.map_closure, himg, T.topGen,
+      Subgroup.map_top_of_surjective _ E.surjective]
+  have hTchi : ∀ i, chiLevel
+      (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) k
+      (T.generators i) = chiTargetR2 k i := by
+    have h0 : chiLevel
+        (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) k
+        (T.generators 0) = chiTargetR2 k 0 := by
+      obtain ⟨x, hxchi, hx⟩ := T.sigma
+      rw [hx, chiLevel_levelMk, hxchi]
+      rfl
+    have h1 : chiLevel
+        (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) k
+        (T.generators 1) = chiTargetR2 k 1 := by
+      obtain ⟨x, hxchi, hx⟩ := T.x0
+      rw [hx, chiLevel_levelMk, hxchi]
+      rfl
+    have h2 : chiLevel
+        (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) k
+        (T.generators 2) = chiTargetR2 k 2 := by
+      obtain ⟨x, hxchi, hx⟩ := T.x1
+      rw [hx, chiLevel_levelMk, hxchi]
+      rfl
+    intro i
+    fin_cases i <;> assumption
+  have hpullChi : ∀ i, chiLevel chiD0pres k (pull i) = chiTargetR2 k i := by
+    intro i
+    have htransport := chiLevel_levelQuotCongr e chiD0pres
+      (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂)))
+      d0EquivBotMaxProTwo_orientation k (pull i)
+    rw [show levelQuotCongr e k (pull i) = T.generators i by
+      exact E.apply_symm_apply (T.generators i)] at htransport
+    exact htransport.symm.trans (hTchi i)
+  have hpull : pull ∈ sPR2 k := ⟨⟨hpullRel, hpullGen⟩, hpullChi⟩
+  obtain ⟨cD, hdepthD, hkillD, hsharpD⟩ :=
+    stageSL12R2_sharpCorrection k hk hpull
+  let baseD : Fin 3 → levelQuot (D0 : Type) (k + 1) :=
+    fun i ↦ canonLift (D0 : Type) k (pull i)
+  let nextD : Fin 3 → levelQuot (D0 : Type) (k + 1) :=
+    SqCyclotomicStageTuple.stageModified
+      (G := (D0 : Type)) (h := 0) (k := k) baseD cD
+  let E1 : levelQuot (D0 : Type) (k + 1) ≃* levelQuot F (k + 1) :=
+    levelQuotCongr e (k + 1)
+  let nextF : Fin 3 → levelQuot F (k + 1) := fun i ↦ E1 (nextD i)
+  let baseF : Fin 3 → levelQuot F (k + 1) :=
+    fun i ↦ canonLift F k (T.generators i)
+  let correctionF : Fin 3 → levelQuot F (k + 1) :=
+    fun i ↦ (baseF i)⁻¹ * nextF i
+  have hmodifiedF : SqCyclotomicStageTuple.stageModified
+      (G := F) (h := 0) (k := k) baseF correctionF = nextF := by
+    funext i
+    dsimp only [SqCyclotomicStageTuple.stageModified, correctionF]
+    group
+  have hnextDrel : SqCore.sqRelWord (h := 0) nextD = 1 := by
+    have h := hkillD
+    change (SqCore.sqRelWord baseD)⁻¹ * SqCore.sqRelWord nextD =
+      (SqCore.sqRelWord baseD)⁻¹ at h
+    calc
+      SqCore.sqRelWord nextD = SqCore.sqRelWord baseD *
+          ((SqCore.sqRelWord baseD)⁻¹ * SqCore.sqRelWord nextD) := by group
+      _ = SqCore.sqRelWord baseD * (SqCore.sqRelWord baseD)⁻¹ := by rw [h]
+      _ = 1 := by group
+  have hnextFrel : SqCore.sqRelWord (h := 0) nextF = 1 := by
+    rw [← levelQuotCongr_sqRelWord e 0 (k + 1) nextD, hnextDrel, map_one]
+  have hdepthF : ∀ i, correctionF i ∈ lambdaImage F (k - 1) (k + 1) := by
+    intro i
+    apply SqCyclotomicStageTuple.mem_lambdaImage_succ_of_levelProj_mem (by omega)
+    have hprojD := levelProj_mem_lambdaImage (D0 : Type) (hdepthD i)
+    have hmapped : E (levelProj (D0 : Type) k (cD i)) ∈
+        lambdaImage F (k - 1) k := by
+      rw [← levelQuotCongr_map_lambdaImage e (k - 1) k]
+      exact ⟨levelProj (D0 : Type) k (cD i), hprojD, rfl⟩
+    simpa only [correctionF, baseF, nextF, nextD,
+      SqCyclotomicStageTuple.stageModified, map_mul, map_inv,
+      levelProj_canonLift, ← levelQuotCongr_levelProj,
+      pull, E.apply_symm_apply, mul_assoc, inv_mul_cancel_left] using hmapped
+  have hsharpF : ∀ i, SqCyclotomicStageTuple.sharpChiLevel
+      (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) (k + 1) (by omega)
+      (nextF i) = chiTargetR2 (k + 2) i := by
+    intro i
+    exact (sharpChiLevel_levelQuotCongr e chiD0pres
+      (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂)))
+      d0EquivBotMaxProTwo_orientation (k + 1) (by omega) (nextD i)).trans (hsharpD i)
+  let W : T.SharpAdmissibleCorrection (by omega) := {
+    correction := correctionF
+    depth := hdepthF
+    sigma := by
+      rw [congrFun hmodifiedF 0]
+      simpa [chiTargetR2, chiTargetUnitsR2] using hsharpF 0
+    x0 := by
+      rw [congrFun hmodifiedF 1]
+      simpa [chiTargetR2, chiTargetUnitsR2] using hsharpF 1
+    x1 := by
+      rw [congrFun hmodifiedF 2]
+      simpa [chiTargetR2, chiTargetUnitsR2] using hsharpF 2
+    handleU := fun j ↦ Fin.elim0 j
+    handleV := fun j ↦ Fin.elim0 j }
+  refine ⟨W, ?_⟩
+  rw [SqCyclotomicStageTuple.stageShift, congrFun hmodifiedF, hnextFrel, mul_one]
+  rfl
+
 #print axioms sqCyclotomicStageTuple_bot_nonempty
 #print axioms chiD0pres_eq_chiD0G
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
@@ -333,6 +485,7 @@ theorem stageSL12R2_sharpCorrection (k : ℕ) (hk : 3 ≤ k)
 #print axioms stageSL1R2_sqRawDefectReachable
 #print axioms stageSL12R2_truncatedCorrection
 #print axioms stageSL12R2_sharpCorrection
+#print axioms sqCyclotomicStageTuple_bot_sharpDefectReachable
 
 end
 
