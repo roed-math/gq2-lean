@@ -550,43 +550,77 @@ theorem mem_lambdaImage_succ_of_levelProj_mem
   have := Subgroup.mul_mem _ hzj hxj
   simpa only [mul_assoc, inv_mul_cancel, mul_one] using this
 
-/-- Exactness of a character on the lower two-central filtration.  This is the concrete
-arithmetic condition needed to replace a representative whose character is correct modulo
-`2^n` by one in the same level-`n` coset whose character is exactly the desired `2`-adic
-unit. -/
-structure CharacterFiltrationExact
-    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop where
-  map_twoCentralSeries_eq_modKernel : ∀ n,
-    (twoCentralSeries G n).map chi.toMonoidHom =
-      (Units.map (PadicInt.toZModPow n).toMonoidHom).ker
+/-- The one-step-sharper character shadow on `Q_n = G / λ_n`, defined for `n ≥ 2`.
+The extra digit is well-defined because `χ(λ_n) ⊆ 1 + 2^(n+1) ℤ₂`.  This is the shadow
+that detects whether a level-`n` coset can contain an exact prescribed character value. -/
+noncomputable def sharpChiLevel
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) (n : ℕ) (hn : 2 ≤ n) :
+    levelQuot G n →* (ZMod (2 ^ (n + 1)))ˣ :=
+  QuotientGroup.lift (twoCentralSeries G n)
+    ((Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom).comp chi.toMonoidHom)
+    (fun g hg ↦ by
+      have hchi : chi g ∈ twoCentralSeries ℤ_[2]ˣ n :=
+        map_twoCentralSeries_le chi.toMonoidHom chi.continuous_toFun n ⟨g, hg, rfl⟩
+      exact MonoidHom.mem_ker.mp (twoCentralSeries_units_le n hn hchi))
 
-/-- Direct level-coset formulation of exact character lifting. -/
-structure ExactLevelFibreLiftSupply
+@[simp] theorem sharpChiLevel_levelMk
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) (n : ℕ) (hn : 2 ≤ n) (g : G) :
+    sharpChiLevel chi n hn (levelMk G n g) =
+      Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom (chi g) :=
+  rfl
+
+/-- The sharp shadow reduces to the ordinary level shadow after forgetting its last digit. -/
+theorem sharpChiLevel_cast_eq_chiLevel
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) (n : ℕ) (hn : 2 ≤ n)
+    (q : levelQuot G n) :
+    Units.map (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ n))
+        (ZMod (2 ^ n))).toMonoidHom (sharpChiLevel chi n hn q) =
+      chiLevel chi n q := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G n q
+  rw [sharpChiLevel_levelMk, chiLevel_levelMk]
+  ext
+  simp
+
+/-- Exactness of a character on the lower two-central filtration, with the necessary
+one-step shift in precision: `χ(λ_n)` must be the kernel modulo `2^(n+1)`. -/
+structure SharpCharacterFiltrationExact
     (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop where
-  lift : ∀ (n : ℕ) (target : ℤ_[2]ˣ) (q : levelQuot G n),
-    chiLevel chi n q = Units.map (PadicInt.toZModPow n).toMonoidHom target →
+  map_twoCentralSeries_eq_succKernel : ∀ n, 2 ≤ n →
+    (twoCentralSeries G n).map chi.toMonoidHom =
+      (Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom).ker
+
+/-- Direct sharp level-coset formulation of exact character lifting. -/
+structure SharpExactLevelFibreLiftSupply
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop where
+  lift : ∀ (n : ℕ) (hn : 2 ≤ n) (target : ℤ_[2]ˣ) (q : levelQuot G n),
+    sharpChiLevel chi n hn q =
+        Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom target →
       ∃ x : G, chi x = target ∧ q = levelMk G n x
 
-/-- Filtration exactness supplies exact representatives in every character fibre without
-changing the prescribed level coset. -/
-theorem CharacterFiltrationExact.toExactLevelFibreLiftSupply
+/-- Sharp filtration exactness supplies exact representatives without changing a level
+coset.  The correction lies in `λ_n`, so its character can change precisely the kernel
+modulo `2^(n+1)`. -/
+theorem SharpCharacterFiltrationExact.toSharpExactLevelFibreLiftSupply
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} (H : CharacterFiltrationExact G chi) :
-    ExactLevelFibreLiftSupply G chi := by
+    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} (H : SharpCharacterFiltrationExact G chi) :
+    SharpExactLevelFibreLiftSupply G chi := by
   constructor
-  intro n target q hq
+  intro n hn target q hq
   obtain ⟨g, rfl⟩ := levelMk_surjective G n q
-  have hmod : Units.map (PadicInt.toZModPow n).toMonoidHom (chi g) =
-      Units.map (PadicInt.toZModPow n).toMonoidHom target := by
-    simpa only [chiLevel_levelMk] using hq
+  have hmod : Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom (chi g) =
+      Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom target := by
+    simpa only [sharpChiLevel_levelMk] using hq
   let d : ℤ_[2]ˣ := (chi g)⁻¹ * target
-  have hdker : d ∈ (Units.map (PadicInt.toZModPow n).toMonoidHom).ker := by
+  have hdker : d ∈ (Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom).ker := by
     rw [MonoidHom.mem_ker]
-    change Units.map (PadicInt.toZModPow n).toMonoidHom ((chi g)⁻¹ * target) = 1
+    change Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom ((chi g)⁻¹ * target) = 1
     rw [map_mul, map_inv, hmod, inv_mul_cancel]
-  rw [← H.map_twoCentralSeries_eq_modKernel n] at hdker
+  rw [← H.map_twoCentralSeries_eq_succKernel n hn] at hdker
   obtain ⟨r, hr, hrd⟩ := hdker
   refine ⟨g * r, ?_, ?_⟩
   · change chi r = d at hrd
@@ -596,6 +630,42 @@ theorem CharacterFiltrationExact.toExactLevelFibreLiftSupply
   · rw [map_mul]
     have hrone : levelMk G n r = 1 := (QuotientGroup.eq_one_iff r).mpr hr
     rw [hrone, mul_one]
+
+/-- Regression: an exact character representative of a level-`n` coset necessarily fixes
+the extra mod-`2^(n+1)` digit. -/
+theorem exactFibre_implies_sharpChiLevel
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {n : ℕ} (hn : 2 ≤ n)
+    {target : ℤ_[2]ˣ} {q : levelQuot G n}
+    (H : ∃ x : G, chi x = target ∧ q = levelMk G n x) :
+    sharpChiLevel chi n hn q =
+      Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom target := by
+  obtain ⟨x, hxchi, rfl⟩ := H
+  rw [sharpChiLevel_levelMk, hxchi]
+
+/-- If the fresh digit is wrong, no exact representative exists in that level coset.  At
+the stage output `n = k+1`, this obstruction is measured modulo `2^(k+2)`, one digit beyond
+the `chiLevel (k+1)` conclusion of `StageTwo`. -/
+theorem no_exactFibre_of_sharpChiLevel_ne
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {n : ℕ} (hn : 2 ≤ n)
+    {target : ℤ_[2]ˣ} {q : levelQuot G n}
+    (Hne : sharpChiLevel chi n hn q ≠
+      Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom target) :
+    ¬ ∃ x : G, chi x = target ∧ q = levelMk G n x := by
+  exact fun H ↦ Hne (exactFibre_implies_sharpChiLevel hn H)
+
+/-- Stage-indexed form of the fresh-digit regression.  An exact fibre in the output quotient
+`Q_(k+1)` forces equality modulo `2^(k+2)`, not merely the mod-`2^(k+1)` row recorded by
+`TruncatedAdmissibleCorrection`. -/
+theorem exactLevelSuccFibre_implies_mod_k_add_two
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {k : ℕ} (hk : 1 ≤ k)
+    {target : ℤ_[2]ˣ} {q : levelQuot G (k + 1)}
+    (H : ∃ x : G, chi x = target ∧ q = levelMk G (k + 1) x) :
+    sharpChiLevel chi (k + 1) (by omega) q =
+      Units.map (PadicInt.toZModPow (k + 2)).toMonoidHom target :=
+  exactFibre_implies_sharpChiLevel (by omega) H
 
 /-- Tautological but load-bearing shift identity: it fixes the multiplication orientation used
 by the future crossed-derivation/span calculation. -/
@@ -662,7 +732,8 @@ structure AdmissibleCorrection {h k : ℕ}
 
 /-- The finite-precision version of `AdmissibleCorrection`.  Its modified tuple has the five
 correct character rows modulo `2^(k+1)`, but no exact global representatives are chosen yet.
-`ExactLevelFibreLiftSupply` is precisely what upgrades these fields. -/
+This is exactly the precision delivered by the existing `StageTwo`; a separate fresh-digit
+step is required before exact character lifting applies. -/
 structure TruncatedAdmissibleCorrection {h k : ℕ}
     (T : SqCyclotomicStageTuple K h k) where
   correction : Fin (SqCore.sqRank h) →
@@ -685,36 +756,104 @@ structure TruncatedAdmissibleCorrection {h k : ℕ}
       (stageModified (fun i ↦ canonLift _ k (T.generators i)) correction
         (SqCore.sqHandleIdxV j)) = 1
 
-/-- Exact lifting of the character rows upgrades a truncated correction without changing its
-level-`k+1` tuple or literal-word shift. -/
-noncomputable def TruncatedAdmissibleCorrection.toAdmissible {h k : ℕ}
-    {T : SqCyclotomicStageTuple K h k} (W : TruncatedAdmissibleCorrection T)
-    (Hlift : ExactLevelFibreLiftSupply
+/-- A correction with all character rows fixed at the *sharp* level-`k+1` precision,
+namely modulo `2^(k+2)`.  This is the finite condition equivalent to the possibility of
+choosing exact character representatives in its level-`k+1` cosets, once sharp filtration
+exactness is available. -/
+structure SharpAdmissibleCorrection {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 1 ≤ k) where
+  correction : Fin (SqCore.sqRank h) →
+    levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)
+  depth : ∀ i, correction i ∈
+    lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1)
+  sigma : sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (stageModified (fun i ↦ canonLift _ k (T.generators i)) correction 0) =
+    Units.map (PadicInt.toZModPow (k + 2)).toMonoidHom GQ2.Roe.SvalUnit
+  x0 : sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (stageModified (fun i ↦ canonLift _ k (T.generators i)) correction 1) =
+    Units.map (PadicInt.toZModPow (k + 2)).toMonoidHom GQ2.Roe.rootXUnit
+  x1 : sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (stageModified (fun i ↦ canonLift _ k (T.generators i)) correction 2) =
+    Units.map (PadicInt.toZModPow (k + 2)).toMonoidHom GQ2.Roe.YvalUnit
+  handleU : ∀ j : Fin h, sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (stageModified (fun i ↦ canonLift _ k (T.generators i)) correction
+        (SqCore.sqHandleIdxU j)) = 1
+  handleV : ∀ j : Fin h, sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+      (stageModified (fun i ↦ canonLift _ k (T.generators i)) correction
+        (SqCore.sqHandleIdxV j)) = 1
+
+/-- Forgetting the fresh digit recovers the ordinary finite-precision correction.  The
+reverse implication is deliberately absent: it is precisely the new arithmetic obligation. -/
+noncomputable def SharpAdmissibleCorrection.toTruncated {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W : SharpAdmissibleCorrection T hk) : TruncatedAdmissibleCorrection T where
+  correction := W.correction
+  depth := W.depth
+  sigma := by
+    rw [← sharpChiLevel_cast_eq_chiLevel (chiCycKTwo (K := K)) (k + 1) (by omega), W.sigma]
+    ext
+    simp
+  x0 := by
+    rw [← sharpChiLevel_cast_eq_chiLevel (chiCycKTwo (K := K)) (k + 1) (by omega), W.x0]
+    ext
+    simp
+  x1 := by
+    rw [← sharpChiLevel_cast_eq_chiLevel (chiCycKTwo (K := K)) (k + 1) (by omega), W.x1]
+    ext
+    simp
+  handleU := by
+    intro j
+    rw [← sharpChiLevel_cast_eq_chiLevel (chiCycKTwo (K := K)) (k + 1) (by omega),
+      W.handleU j, map_one]
+  handleV := by
+    intro j
+    rw [← sharpChiLevel_cast_eq_chiLevel (chiCycKTwo (K := K)) (k + 1) (by omega),
+      W.handleV j, map_one]
+
+/-- Sharp exact lifting upgrades the sharp finite rows without changing the level-`k+1`
+tuple or its literal-word shift. -/
+noncomputable def SharpAdmissibleCorrection.toAdmissible {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W : SharpAdmissibleCorrection T hk)
+    (Hlift : SharpExactLevelFibreLiftSupply
       (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
     AdmissibleCorrection T where
   correction := W.correction
   depth := W.depth
   sigma := by
-    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) GQ2.Roe.SvalUnit _ W.sigma
+    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) (by omega)
+      GQ2.Roe.SvalUnit _ W.sigma
     exact ⟨x, hxchi, hx⟩
   x0 := by
-    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) GQ2.Roe.rootXUnit _ W.x0
+    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) (by omega)
+      GQ2.Roe.rootXUnit _ W.x0
     exact ⟨x, hxchi, hx⟩
   x1 := by
-    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) GQ2.Roe.YvalUnit _ W.x1
+    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) (by omega)
+      GQ2.Roe.YvalUnit _ W.x1
     exact ⟨x, hxchi, hx⟩
   handleU := by
     intro j
     have hj := W.handleU j
-    rw [← map_one (Units.map (PadicInt.toZModPow (k + 1)).toMonoidHom)] at hj
-    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) 1 _ hj
+    rw [← map_one (Units.map (PadicInt.toZModPow (k + 2)).toMonoidHom)] at hj
+    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) (by omega) 1 _ hj
     exact ⟨x, MonoidHom.mem_ker.mpr hxchi, hx⟩
   handleV := by
     intro j
     have hj := W.handleV j
-    rw [← map_one (Units.map (PadicInt.toZModPow (k + 1)).toMonoidHom)] at hj
-    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) 1 _ hj
+    rw [← map_one (Units.map (PadicInt.toZModPow (k + 2)).toMonoidHom)] at hj
+    obtain ⟨x, hxchi, hx⟩ := Hlift.lift (k + 1) (by omega) 1 _ hj
     exact ⟨x, MonoidHom.mem_ker.mpr hxchi, hx⟩
+
+/-- The exact additional output missing from `StageTwo`: replace any mod-`2^(k+1)`
+correction by one with the mod-`2^(k+2)` fresh digit fixed, while preserving its literal
+improved-word shift. -/
+def FreshDigitStrictificationSupply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 1 ≤ k) : Prop :=
+  ∀ W : TruncatedAdmissibleCorrection T,
+    ∃ Wsharp : SharpAdmissibleCorrection T hk,
+      stageShift (fun i ↦ canonLift _ k (T.generators i)) Wsharp.correction =
+        stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction
 
 /-- The exact arithmetic premise needed by one stage step: the inverse of the *current*
 literal improved-relator defect is realized by an admissible depth-`k-1` correction.  This is
@@ -734,15 +873,18 @@ def TruncatedDefectReachable {h k : ℕ}
     stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction =
       (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
 
-/-- Filtration-exact character lifting upgrades the finite-precision Labute output to the
-exact-fibre premise consumed by stage induction. -/
+/-- The finite-precision Labute output upgrades to exact fibres only after the missing fresh
+digit is fixed.  This theorem records both independent arithmetic inputs with their explicit
+precisions. -/
 theorem TruncatedDefectReachable.toDefectReachable {h k : ℕ}
     {T : SqCyclotomicStageTuple K h k} (H : TruncatedDefectReachable T)
-    (Hlift : ExactLevelFibreLiftSupply
+    (hk : 1 ≤ k) (Hfresh : FreshDigitStrictificationSupply T hk)
+    (Hlift : SharpExactLevelFibreLiftSupply
       (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
     DefectReachable T := by
   obtain ⟨W, hW⟩ := H
-  exact ⟨W.toAdmissible Hlift, hW⟩
+  obtain ⟨Wsharp, hsharp⟩ := Hfresh W
+  exact ⟨Wsharp.toAdmissible Hlift, hsharp.trans hW⟩
 
 /-- Forgetting the exact cyclotomic fibre witnesses leaves the raw one-point Labute
 reachability statement. -/
@@ -1061,8 +1203,13 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.ofOrientedEquiv
 #print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
 #print axioms SqCyclotomicStageTuple.stageShift_zero_eq_dbarWordR2
-#print axioms SqCyclotomicStageTuple.CharacterFiltrationExact.toExactLevelFibreLiftSupply
-#print axioms SqCyclotomicStageTuple.TruncatedAdmissibleCorrection.toAdmissible
+#print axioms SqCyclotomicStageTuple.sharpChiLevel_cast_eq_chiLevel
+#print axioms SqCyclotomicStageTuple.SharpCharacterFiltrationExact.toSharpExactLevelFibreLiftSupply
+#print axioms SqCyclotomicStageTuple.exactFibre_implies_sharpChiLevel
+#print axioms SqCyclotomicStageTuple.no_exactFibre_of_sharpChiLevel_ne
+#print axioms SqCyclotomicStageTuple.exactLevelSuccFibre_implies_mod_k_add_two
+#print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.toTruncated
+#print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.toAdmissible
 #print axioms SqCyclotomicStageTuple.TruncatedDefectReachable.toDefectReachable
 #print axioms SqCyclotomicStageTuple.DefectReachable.of_raw_of_exactFibreStrictification
 #print axioms SqCyclotomicStageTuple.ActualDefectSpanSupply.toDefectReachable
