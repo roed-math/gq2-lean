@@ -209,6 +209,102 @@ theorem isOpen_normalizer_map_of_isOpen_closedNormalSubgroup
     rw [hkx]
     group
 
+/-- The ambient normal core of an intrinsic discrete quotient kernel remains open inside the
+closed normal subgroup.
+
+The preceding normalizer theorem makes `G / N_G(K)` finite.  Intersecting the corresponding
+finite family of conjugate kernels is open in `N`; a coset-representative calculation identifies
+that intersection with the restriction of the ambient normal core. -/
+theorem normalCore_subgroupOf_isOpen_of_continuous_discrete
+    {P : Type*} [Group P] [TopologicalSpace P] [DiscreteTopology P]
+    (N : Subgroup G) [N.Normal] [IsClosed (N : Set G)]
+    (f : ContinuousMonoidHom N P) :
+    IsOpen (((f.toMonoidHom.ker.map N.subtype).normalCore.subgroupOf N : Subgroup N) : Set N) := by
+  let K : Subgroup N := f.toMonoidHom.ker
+  have hKopen : IsOpen (K : Set N) := by
+    change IsOpen (f ⁻¹' {1})
+    exact (isOpen_discrete {1}).preimage f.continuous_toFun
+  let KG : Subgroup G := K.map N.subtype
+  let J : Subgroup G := Subgroup.normalizer (KG : Set G)
+  have hJopen : IsOpen (J : Set G) := by
+    exact isOpen_normalizer_map_of_isOpen_closedNormalSubgroup N K hKopen
+  letI : Finite (G ⧸ J) := Subgroup.quotient_finite_of_isOpen J hJopen
+  let rep : (G ⧸ J) → G := fun i => Quotient.out i
+  let conjN : (G ⧸ J) → N →* N := fun i =>
+    (((MulAut.conj (rep i)⁻¹).toMonoidHom.restrict N).codRestrict N (fun n => by
+      simpa only [MulEquiv.coe_toMonoidHom, MulAut.conj_apply, inv_inv,
+        MonoidHom.restrict_apply] using
+          (inferInstance : N.Normal).conj_mem n.1 n.2 (rep i)⁻¹))
+  have hconjN_val (i : G ⧸ J) (n : N) :
+      (conjN i n).1 = (rep i)⁻¹ * n.1 * rep i := by
+    simp only [conjN, MonoidHom.codRestrict_apply, MulEquiv.coe_toMonoidHom,
+      MulAut.conj_apply, MonoidHom.restrict_apply, inv_inv]
+  let KcoreN : Subgroup N := ⨅ i : G ⧸ J, K.comap (conjN i)
+  have hKcoreNopen : IsOpen (KcoreN : Set N) := by
+    dsimp only [KcoreN]
+    rw [Subgroup.coe_iInf]
+    apply isOpen_iInter_of_finite
+    intro i
+    change IsOpen ((conjN i) ⁻¹' (K : Set N))
+    apply hKopen.preimage
+    apply continuous_induced_rng.mpr
+    have hfun : (Subtype.val ∘ (conjN i : N → N)) =
+        fun n : N => (rep i)⁻¹ * n.1 * rep i := by
+      funext n
+      exact hconjN_val i n
+    rw [hfun]
+    fun_prop
+  suffices ((KG.normalCore.subgroupOf N : Subgroup N)) = KcoreN by
+    rwa [this]
+  ext n
+  constructor
+  · intro hn
+    change n ∈ ⨅ i : G ⧸ J, K.comap (conjN i)
+    rw [Subgroup.mem_iInf]
+    intro i
+    change conjN i n ∈ K
+    change f (conjN i n) = 1
+    have hKG : (rep i)⁻¹ * n.1 * rep i ∈ KG := by
+      have hn' : n.1 ∈ KG.normalCore := hn
+      simpa only [inv_inv] using hn' (rep i)⁻¹
+    change (rep i)⁻¹ * n.1 * rep i ∈ K.map N.subtype at hKG
+    rw [Subgroup.mem_map] at hKG
+    obtain ⟨k, hk, hkval⟩ := hKG
+    have heq : k = conjN i n := by
+      apply Subtype.ext
+      rw [hconjN_val]
+      change k.1 = (rep i)⁻¹ * n.1 * rep i at hkval
+      exact hkval
+    rw [← heq]
+    exact hk
+  · intro hn
+    change n ∈ ⨅ i : G ⧸ J, K.comap (conjN i) at hn
+    rw [Subgroup.mem_iInf] at hn
+    change n.1 ∈ KG.normalCore
+    intro b
+    let ib : G ⧸ J := QuotientGroup.mk b⁻¹
+    have hrel : QuotientGroup.leftRel J (rep ib) b⁻¹ :=
+      Quotient.exact (Quotient.out_eq ib)
+    have hj : (rep ib)⁻¹ * b⁻¹ ∈ J :=
+      QuotientGroup.leftRel_apply.mp hrel
+    let j : J := ⟨(rep ib)⁻¹ * b⁻¹, hj⟩
+    have hb : b⁻¹ = rep ib * j.1 := by dsimp [j]; group
+    have hcoord : conjN ib n ∈ K := hn ib
+    have hcoordKG : (conjN ib n).1 ∈ KG := by
+      change (conjN ib n).1 ∈ K.map N.subtype
+      rw [Subgroup.mem_map]
+      exact ⟨conjN ib n, hcoord, rfl⟩
+    have hj_norm : j.1⁻¹ * (conjN ib n).1 * j.1 ∈ KG := by
+      have hjmem : j.1 ∈ Subgroup.normalizer (KG : Set G) := j.2
+      exact (Subgroup.mem_set_normalizer_iff''.mp hjmem _).mp hcoordKG
+    rw [← inv_inv b, hb]
+    simp only [inv_inv]
+    have heqconj : (rep ib * j.1)⁻¹ * n.1 * (rep ib * j.1) =
+        j.1⁻¹ * ((rep ib)⁻¹ * n.1 * rep ib) * j.1 := by group
+    rw [heqconj]
+    rw [← hconjN_val ib n]
+    exact hj_norm
+
 end IntrinsicH1Topology
 
 section ContinuousExtension
