@@ -1184,6 +1184,50 @@ def sqCubicHomogeneousRelatorResidual (h : ℕ) : SqCubicNormalSpace h :=
   sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)
     (sqCubicEmptyVector h)
 
+/-! ## Literal perturbation at the `X` letter -/
+
+set_option maxHeartbeats 4000000 in
+/-- Universal filtered ring calculation for the only prefix of the improved square core which
+contains `X`.  Here `e` has filtration degree at least two, while `s` and `x` have degree at
+least one.  The inverse polynomial of `1 + x + e` therefore changes the conjugate/cube prefix
+by exactly the derivative of the quadratic initial form, `e*s + s*e`. -/
+theorem cubicConjugateCubePrefix_perturbation
+    {A : Type} [Ring A] [Algebra (ZMod 2) A]
+    (aug : A →ₐ[ZMod 2] ZMod 2)
+    (hfour : ∀ a b c d : A,
+      aug a = 0 → aug b = 0 → aug c = 0 → aug d = 0 →
+        a * b * c * d = 0)
+    (s x e : A) (has : aug s = 0) (hax : aug x = 0) (hae : aug e = 0)
+    (heab : ∀ a b : A, aug a = 0 → aug b = 0 → e * a * b = 0)
+    (haeb : ∀ a b : A, aug a = 0 → aug b = 0 → a * e * b = 0)
+    (habe : ∀ a b : A, aug a = 0 → aug b = 0 → a * b * e = 0)
+    (hee : e * e = 0) :
+    (1 + s + s ^ 2 + s ^ 3) *
+        (1 + x + x ^ 2 + x ^ 3 + e + x * e + e * x) *
+        (1 + s) * (1 + x + e) =
+      (1 + s + s ^ 2 + s ^ 3) *
+        (1 + x + x ^ 2 + x ^ 3) * (1 + s) * (1 + x) +
+          e * s + s * e := by
+  have hfourR (a b c d : A) (ha : aug a = 0) (hb : aug b = 0)
+      (hc : aug c = 0) (hd : aug d = 0) : a * (b * (c * d)) = 0 := by
+    simpa [mul_assoc] using hfour a b c d ha hb hc hd
+  have heabR (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+      e * (a * b) = 0 := by simpa [mul_assoc] using heab a b ha hb
+  have haebR (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+      a * (e * b) = 0 := by simpa [mul_assoc] using haeb a b ha hb
+  have habeR (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+      a * (b * e) = 0 := by simpa [mul_assoc] using habe a b ha hb
+  have htwo (a : A) : 2 • a = 0 := ZModModule.char_nsmul_eq_zero 2 a
+  have htwoZ (a : A) : (2 : ℤ) • a = 0 := by
+    simpa [two_zsmul] using htwo a
+  have hthreeZ (a : A) : (3 : ℤ) • a = a := by
+    rw [show (3 : ℤ) = 2 + 1 by omega, add_zsmul, htwoZ, one_zsmul, zero_add]
+  simp (discharger := simp [has, hax, hae]) only [add_mul, mul_add, mul_assoc,
+    pow_zero, pow_succ, one_mul, mul_one, zero_mul, mul_zero,
+    hfourR, heabR, haebR, habeR, hee]
+  abel_nf
+  simp only [htwoZ, hthreeZ, zero_add]
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
