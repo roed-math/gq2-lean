@@ -23,6 +23,7 @@ noncomputable section
 
 open GQ2.ContCoh GQ2.FoxH
 open GQ2.Dyadic.SqCore
+open CategoryTheory
 
 private abbrev SqAdjointInputThree (h : ℕ)
     (V : OpenNormalSubgroup (DSq h : Type)) :=
@@ -200,6 +201,374 @@ theorem sqOpenQuotientUniversalThreeAdjointBarChainLift_cancels
     (sqOpenQuotientFreeEvaluation_surjective h U)
     (hrange U) c hc
 
+/-! ## Finite fibers for quotient-compatible cocycle-cancelling outputs -/
+
+/-- A finite-level candidate is recorded by its universal relation output.  It must admit an
+actual bar-two representative, have zero universal Fox boundary on input cocycles, and satisfy
+the reconstruction cancellation whenever its quotient refines the input quotient. -/
+structure SqUniversalCocycleOutputFiber
+    (h : ℕ) (V U : OpenNormalSubgroup (DSq h : Type)) where
+  output : SqAdjointInputThree h V →ₗ[ZMod 2]
+    RegularModTwoRelationModule
+      ((DSq h : Type) ⧸ U.toSubgroup)
+      (FreeRelationKernel (sqOpenQuotientMarking h U))
+  bar_representable : ∃ B : SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup),
+    output = (finiteBarToUniversalRelationTwo
+      (sqOpenQuotientMarking h U)
+      (sqOpenQuotientFreeEvaluation_surjective h U)).comp B
+  fox_zero_on_cocycles : ∀ c,
+    finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+      (finiteUniversalRelationFoxBoundary
+        (sqOpenQuotientMarking h U)).map (output c) = 0
+  cancels_on_refinements : ∀
+    (hUV : U.toSubgroup ≤ V.toSubgroup) (c : SqAdjointInputThree h V),
+    finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) (output c) = 0
+
+@[ext] theorem SqUniversalCocycleOutputFiber.ext
+    {h : ℕ} {V U : OpenNormalSubgroup (DSq h : Type)}
+    {x y : SqUniversalCocycleOutputFiber h V U}
+    (hout : x.output = y.output) : x = y := by
+  cases x
+  cases y
+  cases hout
+  rfl
+
+/-- Each output fiber is finite: choose one bar-two representative of every output and inject
+the fiber into the finite type of linear maps between the two finite quotient spaces. -/
+noncomputable instance SqUniversalCocycleOutputFiber.instFinite
+    (h : ℕ) (V U : OpenNormalSubgroup (DSq h : Type)) :
+    Finite (SqUniversalCocycleOutputFiber h V U) := by
+  classical
+  letI : Finite ((DSq h : Type) ⧸ V.toSubgroup) :=
+    Subgroup.quotient_finite_of_isOpen V.toSubgroup V.isOpen'
+  letI : Finite ((DSq h : Type) ⧸ U.toSubgroup) :=
+    Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
+  letI : Fintype ((DSq h : Type) ⧸ V.toSubgroup) := Fintype.ofFinite _
+  letI : Fintype ((DSq h : Type) ⧸ U.toSubgroup) := Fintype.ofFinite _
+  letI : Fintype (SqAdjointInputThree h V) := Fintype.ofFinite _
+  letI : Fintype
+      (FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :=
+    Finsupp.fintype
+  letI : Finite (SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :=
+    Finite.of_injective
+      (fun f : SqAdjointInputThree h V →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) =>
+          (f : SqAdjointInputThree h V →
+            FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)))
+      LinearMap.coe_injective
+  let representative (x : SqUniversalCocycleOutputFiber h V U) :
+      SqAdjointInputThree h V →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+    Classical.choose x.bar_representable
+  apply Finite.of_injective representative
+  intro x y hxy
+  apply SqUniversalCocycleOutputFiber.ext
+  have hx := Classical.choose_spec x.bar_representable
+  have hy := Classical.choose_spec y.bar_representable
+  rw [hx, hy]
+  apply congrArg
+  simpa [representative] using hxy
+
+/-- The exact transition-closure premise.  Pushforward of a candidate universal output is
+required to remain bar-representable and to retain cocycle cancellation at the coarser level.
+Fox-zero preservation is automatic from naturality of the universal Fox boundary. -/
+def SqUniversalCocycleOutputTransitionClosed
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (x : SqUniversalCocycleOutputFiber h V U),
+    (∃ B' : SqAdjointInputThree h V →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup),
+      (sqUniversalRelationModuleTransition h hUU').comp x.output =
+        (finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')).comp B') ∧
+    (∀ (hU'V : U'.toSubgroup ≤ V.toSubgroup)
+      (c : SqAdjointInputThree h V),
+      finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+        finiteBarHomotopyTwoAdjointBarDefect
+            (sqOpenQuotientMarking h U')
+            (sqOpenQuotientFreeEvaluation_surjective h U')
+            (sqFiniteModTwoBarRefineThree h hU'V c) +
+          finiteUniversalThreeAdjointFiniteSupportDefect
+            (sqOpenQuotientMarking h U')
+            (sqOpenQuotientFreeEvaluation_surjective h U')
+            (sqFiniteModTwoBarRefineThree h hU'V c)
+            (sqUniversalRelationModuleTransition h hUU' (x.output c)) = 0)
+
+/-- Push a candidate fiber point to a coarser quotient under the exact closure premise. -/
+noncomputable def sqUniversalCocycleOutputFiberTransition
+    {h : ℕ} {V U U' : OpenNormalSubgroup (DSq h : Type)}
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (hUU' : U ≤ U') :
+    SqUniversalCocycleOutputFiber h V U →
+      SqUniversalCocycleOutputFiber h V U' := fun x => by
+  let output' := (sqUniversalRelationModuleTransition h hUU').comp x.output
+  refine {
+    output := output'
+    bar_representable := (hclosed hUU' x).1
+    fox_zero_on_cocycles := fun c hc => ?_
+    cancels_on_refinements := (hclosed hUU' x).2
+  }
+  have hfox := sqUniversalRelationFoxBoundary_natural h hUU' (x.output c)
+  rw [x.fox_zero_on_cocycles c hc, map_zero] at hfox
+  exact hfox.symm
+
+@[simp] theorem sqUniversalCocycleOutputFiberTransition_output
+    {h : ℕ} {V U U' : OpenNormalSubgroup (DSq h : Type)}
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (hUU' : U ≤ U') (x : SqUniversalCocycleOutputFiber h V U) :
+    (sqUniversalCocycleOutputFiberTransition hclosed hUU' x).output =
+      (sqUniversalRelationModuleTransition h hUU').comp x.output := by
+  rfl
+
+/-- Universal relation-module transition is the identity at an identity refinement. -/
+theorem sqUniversalRelationModuleTransition_id
+    (h : ℕ) (U : OpenNormalSubgroup (DSq h : Type))
+    (c : RegularModTwoRelationModule
+      ((DSq h : Type) ⧸ U.toSubgroup)
+      (FreeRelationKernel (sqOpenQuotientMarking h U))) :
+    sqUniversalRelationModuleTransition h (le_refl U) c = c := by
+  classical
+  induction c using Finsupp.induction with
+  | zero => simp
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, r⟩
+      simp only [map_add, ih, sqUniversalRelationModuleTransition_single]
+      congr 2
+      obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective U.toSubgroup g
+      rfl
+
+/-- Universal relation-module transitions compose along refinement towers. -/
+theorem sqUniversalRelationModuleTransition_comp
+    (h : ℕ) {U U' U'' : OpenNormalSubgroup (DSq h : Type)}
+    (hUU' : U ≤ U') (hU'U'' : U' ≤ U'')
+    (c : RegularModTwoRelationModule
+      ((DSq h : Type) ⧸ U.toSubgroup)
+      (FreeRelationKernel (sqOpenQuotientMarking h U))) :
+    sqUniversalRelationModuleTransition h hU'U''
+        (sqUniversalRelationModuleTransition h hUU' c) =
+      sqUniversalRelationModuleTransition h (hUU'.trans hU'U'') c := by
+  classical
+  induction c using Finsupp.induction with
+  | zero => simp
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, r⟩
+      simp only [map_add, ih, sqUniversalRelationModuleTransition_single]
+      congr 2
+      apply Prod.ext
+      · exact DFunLike.congr_fun
+          (modTwoQuotientTransition_comp (DSq h : Type) hUU' hU'U'') g
+      · apply Subtype.ext
+        rfl
+
+/-- The finite cocycle-output fibers form a cofiltered functor once the exact transition-closure
+equations are supplied. -/
+noncomputable def sqUniversalCocycleOutputFiberFunctor
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V) :
+    OpenNormalSubgroup (DSq h : Type) ⥤ Type where
+  obj U := SqUniversalCocycleOutputFiber h V U
+  map f := ↾(sqUniversalCocycleOutputFiberTransition hclosed (leOfHom f))
+  map_id U := by
+    ext x c z
+    exact congrArg (fun y => y z)
+      (sqUniversalRelationModuleTransition_id h U (x.output c))
+  map_comp f g := by
+    ext x c z
+    exact congrArg (fun y => y z)
+      (sqUniversalRelationModuleTransition_comp h
+        (leOfHom f) (leOfHom g) (x.output c)).symm
+
+/-- Output of the finite compactness argument: a literally compatible universal bar syzygy,
+with completed Fox boundary zero on input cocycles and with the required cancellation at the
+input quotient. -/
+structure SqCompatibleUniversalCocycleCancellingSyzygyAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) where
+  universalSyzygy : SqCompatibleFiniteUniversalBarSyzygyAt h V
+  fox_zero_on_cocycles : ∀ c,
+    finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+      universalSyzygy.toCompletedFox c = 0
+  cancels_at_input : ∀ c,
+    finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h V)
+          (sqOpenQuotientFreeEvaluation_surjective h V)
+          (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h V)
+          (sqOpenQuotientFreeEvaluation_surjective h V)
+          (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c)
+          (universalSyzygy.coordinate V c) = 0
+
+/-- **Finite cofiltered compactness for the corrected universal outputs.** Transition closure
+and nonemptiness of every finite fiber produce a compatible universal syzygy.  No surjectivity
+of transition maps is assumed. -/
+theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_fibers
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (hnonempty : ∀ U : OpenNormalSubgroup (DSq h : Type),
+      Nonempty (SqUniversalCocycleOutputFiber h V U)) :
+    Nonempty (SqCompatibleUniversalCocycleCancellingSyzygyAt h V) := by
+  classical
+  let F := sqUniversalCocycleOutputFiberFunctor h V hclosed
+  letI (U : OpenNormalSubgroup (DSq h : Type)) : Nonempty (F.obj U) :=
+    hnonempty U
+  letI (U : OpenNormalSubgroup (DSq h : Type)) : Finite (F.obj U) :=
+    SqUniversalCocycleOutputFiber.instFinite h V U
+  obtain ⟨sec, hsec⟩ := nonempty_sections_of_finite_cofiltered_system F
+  let barRepresentative (U : OpenNormalSubgroup (DSq h : Type)) :
+      SqAdjointInputThree h V →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+    Classical.choose (sec U).bar_representable
+  have hbarRepresentative (U : OpenNormalSubgroup (DSq h : Type)) :
+      (sec U).output =
+        (finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)).comp
+            (barRepresentative U) :=
+    Classical.choose_spec (sec U).bar_representable
+  let S : SqCompatibleFiniteUniversalBarSyzygyAt h V := {
+    barChain := fun U => (barRepresentative U).toAddMonoidHom
+    compatible := by
+      intro U U' hUU' c
+      have hs := hsec (homOfLE hUU')
+      have hsout := congrArg
+        (fun z : SqUniversalCocycleOutputFiber h V U' => z.output c) hs
+      have hsout' :
+          (sqUniversalCocycleOutputFiberTransition hclosed hUU' (sec U)).output c =
+            (sec U').output c := hsout
+      have hbarU := DFunLike.congr_fun (hbarRepresentative U) c
+      have hbarU' := DFunLike.congr_fun (hbarRepresentative U') c
+      change sqUniversalRelationModuleTransition h hUU'
+          (finiteBarToUniversalRelationTwo
+            (sqOpenQuotientMarking h U)
+            (sqOpenQuotientFreeEvaluation_surjective h U)
+            (barRepresentative U c)) =
+        finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')
+          (barRepresentative U' c)
+      calc
+        _ = sqUniversalRelationModuleTransition h hUU' ((sec U).output c) :=
+          congrArg (sqUniversalRelationModuleTransition h hUU') hbarU.symm
+        _ = (sqUniversalCocycleOutputFiberTransition hclosed hUU' (sec U)).output c :=
+          (DFunLike.congr_fun
+            (sqUniversalCocycleOutputFiberTransition_output hclosed hUU' (sec U)) c).symm
+        _ = (sec U').output c := hsout'
+        _ = _ := hbarU'
+  }
+  refine ⟨{
+    universalSyzygy := S
+    fox_zero_on_cocycles := fun c hc => ?_
+    cancels_at_input := fun c hc => ?_
+  }⟩
+  · apply ModTwoCompletedRegularModule.ext (DSq h : Type) (Fin (sqRank h))
+    intro U
+    rw [SqCompatibleFiniteUniversalBarSyzygyAt.coordinate_toCompletedFox]
+    change (finiteUniversalRelationFoxBoundary
+        (sqOpenQuotientMarking h U)).map
+      (finiteBarToUniversalRelationTwo
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U)
+        (barRepresentative U c)) = 0
+    have hbarU := DFunLike.congr_fun (hbarRepresentative U) c
+    calc
+      _ = (finiteUniversalRelationFoxBoundary
+          (sqOpenQuotientMarking h U)).map ((sec U).output c) :=
+        congrArg (finiteUniversalRelationFoxBoundary
+          (sqOpenQuotientMarking h U)).map hbarU.symm
+      _ = 0 := (sec U).fox_zero_on_cocycles c hc
+  · change finiteBarHomotopyTwoAdjointBarDefect
+        (sqOpenQuotientMarking h V)
+        (sqOpenQuotientFreeEvaluation_surjective h V)
+        (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c) +
+      finiteUniversalThreeAdjointFiniteSupportDefect
+        (sqOpenQuotientMarking h V)
+        (sqOpenQuotientFreeEvaluation_surjective h V)
+        (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c)
+        (finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h V)
+          (sqOpenQuotientFreeEvaluation_surjective h V)
+          (barRepresentative V c)) = 0
+    have hbarV := DFunLike.congr_fun (hbarRepresentative V) c
+    simp only [LinearMap.comp_apply] at hbarV
+    rw [← hbarV]
+    exact (sec V).cancels_on_refinements (le_refl V.toSubgroup) c hc
+
+/-- The cofinal version of local existence.  It is enough to find a candidate below every
+finite quotient: transition closure then pushes that candidate to the requested quotient.
+This is the exact refinement condition needed when literal nonemptiness of every fiber is not
+available directly. -/
+def SqUniversalCocycleOutputEventuallyNonempty
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
+      Nonempty (SqUniversalCocycleOutputFiber h V W)
+
+theorem sqUniversalCocycleOutputFiber_nonempty_of_eventuallyNonempty
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (heventual : SqUniversalCocycleOutputEventuallyNonempty h V)
+    (U : OpenNormalSubgroup (DSq h : Type)) :
+    Nonempty (SqUniversalCocycleOutputFiber h V U) := by
+  obtain ⟨W, hWU, ⟨x⟩⟩ := heventual U
+  exact ⟨sqUniversalCocycleOutputFiberTransition hclosed hWU x⟩
+
+/-- Cofinal local existence plus transition closure gives the same compatible global package.
+No transition-surjectivity hypothesis is needed. -/
+theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventuallyNonempty
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (heventual : SqUniversalCocycleOutputEventuallyNonempty h V) :
+    Nonempty (SqCompatibleUniversalCocycleCancellingSyzygyAt h V) :=
+  nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_fibers h V hclosed
+    (sqUniversalCocycleOutputFiber_nonempty_of_eventuallyNonempty hclosed heventual)
+
+/-- Fox-zero on cocycles is exactly the kernel condition needed to factor the completed
+universal Fox output through `d³`.  The factorization is independent of the later adjoint
+reconstruction factorization. -/
+noncomputable def SqCompatibleUniversalCocycleCancellingSyzygyAt.syzygyBoundary
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleUniversalCocycleCancellingSyzygyAt h V) :
+    SqFiniteInputUniversalSyzygyBoundaryAt h V := by
+  let d := (finiteModTwoBarDThree
+    ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2
+  let T := S.universalSyzygy.toCompletedFox.toZModLinearMap 2
+  have hker : LinearMap.ker d ≤ LinearMap.ker T := by
+    intro c hc
+    rw [LinearMap.mem_ker] at hc ⊢
+    apply S.fox_zero_on_cocycles c
+    simpa [d] using hc
+  let onRange : LinearMap.range d →ₗ[ZMod 2]
+      ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)) :=
+    ((LinearMap.ker d).liftQ T hker).comp
+      d.quotKerEquivRange.symm.toLinearMap
+  let hExtend := LinearMap.exists_extend onRange
+  let D := Classical.choose hExtend
+  have hD := Classical.choose_spec hExtend
+  refine {
+    universalSyzygy := S.universalSyzygy
+    boundaryDefect := D.toAddMonoidHom
+    boundary_universalSyzygy := fun c => ?_
+  }
+  change T c = D (d c)
+  let dc : LinearMap.range d := ⟨d c, ⟨c, rfl⟩⟩
+  symm
+  calc
+    D (d c) = D ((LinearMap.range d).subtype dc) := rfl
+    _ = onRange dc := LinearMap.congr_fun hD dc
+    _ = T c := by simp [onRange, dc]
+
 /-- The combined fixed-quotient residual that must factor through `d³`.  It contains the
 refined input, the `d²H₂†` term, and the finite-support universal correction chosen by the
 compatible universal syzygy. -/
@@ -316,6 +685,16 @@ def SqFiniteInputUniversalAdjointCocycleCancellationAt
           (sqOpenQuotientFreeEvaluation_surjective h W)
           (sqFiniteModTwoBarRefineThree h hWV c)
           (U.universalSyzygy.coordinate W c) = 0
+
+/-- The compactness output satisfies the exact fixed-input cancellation premise for its
+induced universal syzygy boundary. -/
+theorem SqCompatibleUniversalCocycleCancellingSyzygyAt.cocycleCancellation
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleUniversalCocycleCancellingSyzygyAt h V) :
+    SqFiniteInputUniversalAdjointCocycleCancellationAt
+      S.syzygyBoundary V (le_refl V.toSubgroup) := by
+  intro c hc
+  exact S.cancels_at_input c hc
 
 /-- Cocycle cancellation is precisely enough for the kernel inclusion required by the linear
 factorization constructor. -/
@@ -468,6 +847,58 @@ noncomputable def
     SqFiniteInputCompletedSyzygyBoundaryAt h V :=
   (SqFiniteInputUniversalDegreeThreeComparisonAt.ofAdjointCocycleCancellation
     U W hWV hcancel).completedSyzygyBoundaryOfEventualGeneration hgen
+
+/-- End-to-end constructor from the compactness output to the genuine universal
+degree-three comparison. -/
+noncomputable def
+    SqCompatibleUniversalCocycleCancellingSyzygyAt.degreeThreeComparison
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleUniversalCocycleCancellingSyzygyAt h V) :
+    SqFiniteInputUniversalDegreeThreeComparisonAt h V :=
+  .ofAdjointCocycleCancellation S.syzygyBoundary V (le_refl V.toSubgroup)
+    S.cocycleCancellation
+
+/-- Finite cofiltered compactness, stated directly at the genuine comparison endpoint. -/
+theorem nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_fibers
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (hnonempty : ∀ U : OpenNormalSubgroup (DSq h : Type),
+      Nonempty (SqUniversalCocycleOutputFiber h V U)) :
+    Nonempty (SqFiniteInputUniversalDegreeThreeComparisonAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_fibers
+    h V hclosed hnonempty).map
+      SqCompatibleUniversalCocycleCancellingSyzygyAt.degreeThreeComparison
+
+/-- The cofinal/refinement form of the compactness endpoint. -/
+theorem nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_eventuallyNonempty
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (heventual : SqUniversalCocycleOutputEventuallyNonempty h V) :
+    Nonempty (SqFiniteInputUniversalDegreeThreeComparisonAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventuallyNonempty
+    h V hclosed heventual).map
+      SqCompatibleUniversalCocycleCancellingSyzygyAt.degreeThreeComparison
+
+/-- After the separate eventual relation-generation theorem, the same compactness output
+reaches the completed single-relator syzygy boundary used by the counting theorem. -/
+noncomputable def
+    SqCompatibleUniversalCocycleCancellingSyzygyAt.completedSyzygyBoundary
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    SqFiniteInputCompletedSyzygyBoundaryAt h V :=
+  S.degreeThreeComparison.completedSyzygyBoundaryOfEventualGeneration hgen
+
+/-- Cofinal local solvability, transition closure, and the independent eventual
+single-relator generation premise give the completed comparison package. -/
+theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_eventuallyNonempty
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hclosed : SqUniversalCocycleOutputTransitionClosed h V)
+    (heventual : SqUniversalCocycleOutputEventuallyNonempty h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    Nonempty (SqFiniteInputCompletedSyzygyBoundaryAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventuallyNonempty
+    h V hclosed heventual).map fun S => S.completedSyzygyBoundary hgen
 
 end
 
