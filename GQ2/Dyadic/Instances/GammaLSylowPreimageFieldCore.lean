@@ -146,6 +146,48 @@ def OddDegreeGalKSqOrientedLabuteClassification : Prop :=
           (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
           (chiCycKTwo (K := K)))
 
+/-- A concrete, generator-level form of the missing odd-degree field-presentation theorem.
+It asks for an equivalence from the **improved square core** `DSq h` and pins exactly the
+cyclotomic values on its three distinguished generators and every appended handle pair.
+
+This is the minimal presentation-shaped input: `orientationMatches_chiSq_iff_generatorValues`
+shows that no additional global orientation argument remains after these finitely many rows.
+Like the oriented classification above, this is a `def`-shaped hypothesis, not an axiom. -/
+def OddDegreeGalKSqCyclotomicGeneratorPresentation : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
+        ∃ f : ContinuousMulEquiv
+            (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
+            (maxProPQuotient 2 (GalK K)),
+          SqOrientationGeneratorValues (chiCycKTwo (K := K)) f
+
+/-- The generator-level field presentation supplies the oriented classification directly. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
+    (hpres : OddDegreeGalKSqCyclotomicGeneratorPresentation) :
+    OddDegreeGalKSqOrientedLabuteClassification := by
+  intro K _ _ _ _ hodd hq
+  obtain ⟨f, hvalues⟩ := hpres K hodd hq
+  exact ⟨orientedEquivSq_of_generatorValues (chiCycKTwo (K := K)) f hvalues⟩
+
+/-- Conversely, an oriented equivalence evaluates to the explicit generator table. -/
+theorem oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
+    OddDegreeGalKSqCyclotomicGeneratorPresentation := by
+  intro K _ _ _ _ hodd hq
+  obtain ⟨e⟩ := hLab K hodd hq
+  exact ⟨e.1, (orientationMatches_chiSq_iff_generatorValues _ _).1 e.2⟩
+
+/-- **Exact reduction of the higher odd-degree seam.**  Proving the oriented classification is
+equivalent to constructing the improved square presentation with the displayed cyclotomic
+generator values. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_iff_generatorPresentation :
+    OddDegreeGalKSqOrientedLabuteClassification ↔
+      OddDegreeGalKSqCyclotomicGeneratorPresentation :=
+  ⟨oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification,
+    oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation⟩
+
 /-- The unmarked carrier shadow of the oriented field-specific classification.  This property
 is retained as a convenient statement of the presentation alone, but it is not the primary
 classification seam: by itself it forgets the orientation equation used to distinguish the
@@ -242,6 +284,9 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms maxProPQuotientCongr
 #print axioms maxProPQuotientCongr_maxProPMk
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
+#print axioms oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_iff_generatorPresentation
 #print axioms gammaLOpenSubgroupHandleCount_rank
 #print axioms gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
 #print axioms gammaLOpenSubgroupVariableCorePresentation_indexOne_zero
