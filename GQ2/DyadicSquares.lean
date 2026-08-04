@@ -67,6 +67,100 @@ theorem exists_unit_sq_of_toZModPow_eq_one {m : ℤ_[2]ˣ} (hm : toZModPow 3 (m 
   obtain ⟨w, hw⟩ := hru
   exact ⟨w, Units.ext (by rw [Units.val_pow_eq_pow_val, hw, sq, ← hr])⟩
 
+/-- A controlled version of the dyadic square criterion.  A unit which is `1` modulo
+`2^(n+2)` has a square root which is itself `1` modulo `2^(n+1)`.
+
+Writing `m = 1 + 2^(n+2) a`, solve
+`b + 2^n b² = a` by Hensel at the approximate root `b = a`.  Its derivative is odd, while
+the error `2^n a²` is even.  Then `w = 1 + 2^(n+1)b` has the required properties. -/
+theorem exists_deep_unit_sq {n : ℕ} (hn : 2 ≤ n) {m : ℤ_[2]ˣ}
+    (hm : toZModPow (n + 2) (m : ℤ_[2]) = 1) :
+    ∃ w : ℤ_[2]ˣ, m = w ^ 2 ∧ toZModPow (n + 1) (w : ℤ_[2]) = 1 := by
+  have hmem : (m : ℤ_[2]) - 1 ∈ RingHom.ker (toZModPow (n + 2) : ℤ_[2] →+* ZMod (2 ^ (n + 2))) := by
+    rw [RingHom.mem_ker, map_sub, map_one, hm, sub_self]
+  rw [ker_toZModPow, Ideal.mem_span_singleton] at hmem
+  obtain ⟨a, ha⟩ := hmem
+  let F : Polynomial ℤ_[2] :=
+    X + C (((2 : ℕ) : ℤ_[2]) ^ n) * X ^ 2 - C a
+  have hval : aeval a F = (((2 : ℕ) : ℤ_[2]) ^ n) * a ^ 2 := by
+    simp [F]
+  have hder : aeval a F.derivative = 1 + (((2 : ℕ) : ℤ_[2]) ^ (n + 1)) * a := by
+    simp [F, Polynomial.derivative_add, Polynomial.derivative_sub,
+      Polynomial.derivative_mul, Polynomial.derivative_pow]
+    ring
+  have hdermod : toZModPow 1 (aeval a F.derivative) = 1 := by
+    rw [hder, map_add, map_one, map_mul, map_pow]
+    have htwo : toZModPow (p := 2) 1 (((2 : ℕ) : ℤ_[2])) = 0 := by
+      rw [map_natCast]
+      decide
+    rw [htwo, zero_pow (by omega), zero_mul, add_zero]
+  have hderunit : IsUnit (aeval a F.derivative) := by
+    by_contra hu
+    have hmax : aeval a F.derivative ∈ IsLocalRing.maximalIdeal ℤ_[2] :=
+      (IsLocalRing.mem_maximalIdeal _).mpr hu
+    rw [PadicInt.maximalIdeal_eq_span_p] at hmax
+    have hker : aeval a F.derivative ∈ RingHom.ker (toZModPow (p := 2) 1) := by
+      rw [ker_toZModPow, pow_one]
+      exact hmax
+    rw [RingHom.mem_ker, hdermod] at hker
+    exact (by decide : (1 : ZMod (2 ^ 1)) ≠ 0) hker
+  have herror : ‖aeval a F‖ < ‖aeval a F.derivative‖ ^ 2 := by
+    rw [PadicInt.isUnit_iff.mp hderunit, one_pow, hval]
+    have htwo : ‖(((2 : ℕ) : ℤ_[2]))‖ = (1 / 2 : ℝ) := by
+      rw [PadicInt.norm_p]
+      norm_num
+    have hanorm : ‖a‖ ^ 2 ≤ (1 : ℝ) :=
+      pow_le_one₀ (norm_nonneg _) (PadicInt.norm_le_one a)
+    calc
+      ‖(((2 : ℕ) : ℤ_[2]) ^ n) * a ^ 2‖ = (1 / 2 : ℝ) ^ n * ‖a‖ ^ 2 := by
+        rw [norm_mul, norm_pow, norm_pow, htwo]
+      _ ≤ (1 / 2 : ℝ) ^ n * 1 :=
+        mul_le_mul_of_nonneg_left hanorm (pow_nonneg (by norm_num) n)
+      _ < 1 := by
+        simpa only [mul_one] using
+          (pow_lt_one₀ (a := (1 / 2 : ℝ)) (by norm_num) (by norm_num) (by omega))
+  obtain ⟨b, hb, -⟩ := hensels_lemma (F := F) (a := a) herror
+  have hb' : b + (((2 : ℕ) : ℤ_[2]) ^ n) * b ^ 2 = a := by
+    have := hb
+    simp [F] at this
+    linear_combination this
+  let r : ℤ_[2] := 1 + (((2 : ℕ) : ℤ_[2]) ^ (n + 1)) * b
+  have hrmodone : toZModPow 1 r = 1 := by
+    dsimp only [r]
+    rw [map_add, map_one, map_mul, map_pow]
+    have htwo : toZModPow (p := 2) 1 (((2 : ℕ) : ℤ_[2])) = 0 := by
+      rw [map_natCast]
+      decide
+    rw [htwo, zero_pow (by omega), zero_mul, add_zero]
+  have hrunit : IsUnit r := by
+    by_contra hu
+    have hmax : r ∈ IsLocalRing.maximalIdeal ℤ_[2] := (IsLocalRing.mem_maximalIdeal _).mpr hu
+    rw [PadicInt.maximalIdeal_eq_span_p] at hmax
+    have hker : r ∈ RingHom.ker (toZModPow (p := 2) 1) := by
+      rw [ker_toZModPow, pow_one]
+      exact hmax
+    rw [RingHom.mem_ker, hrmodone] at hker
+    exact (by decide : (1 : ZMod (2 ^ 1)) ≠ 0) hker
+  let w : ℤ_[2]ˣ := hrunit.unit
+  refine ⟨w, ?_, ?_⟩
+  · apply Units.ext
+    rw [Units.val_pow_eq_pow_val, hrunit.unit_spec]
+    dsimp only [r]
+    calc
+      (m : ℤ_[2]) = 1 + (((2 : ℕ) : ℤ_[2]) ^ (n + 2)) * a := by
+        linear_combination ha
+      _ = (1 + (((2 : ℕ) : ℤ_[2]) ^ (n + 1)) * b) ^ 2 := by
+        rw [← hb']
+        simp only [pow_add]
+        ring
+  · rw [hrunit.unit_spec]
+    dsimp only [r]
+    rw [map_add, map_one, map_mul, map_pow]
+    have htwo : toZModPow (n + 1) (((2 : ℕ) : ℤ_[2])) ^ (n + 1) = 0 := by
+      rw [map_natCast, ← Nat.cast_pow]
+      exact ZMod.natCast_self _
+    rw [htwo, zero_mul, add_zero]
+
 /-- **Two units equal mod `8` differ by a unit square.**  The square-class reduction driving the
 Hilbert-symbol parity/residue dispatch (B7′-2). -/
 theorem exists_unit_sq_eq {u v : ℤ_[2]ˣ}
