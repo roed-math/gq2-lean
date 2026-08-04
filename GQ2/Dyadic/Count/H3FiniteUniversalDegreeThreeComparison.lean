@@ -644,6 +644,14 @@ def SqUniversalBarInputTransitionRange (h : ℕ) : Prop :=
           (sqOpenQuotientBarToUniversalRelationTwo h U)) ≤
       LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')
 
+/-- Range-goodness of one specified quotient transition. -/
+def SqUniversalBarInputTransitionRangeAt
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') : Prop :=
+  LinearMap.range
+      ((sqUniversalRelationModuleTransition h hUU').comp
+        (sqOpenQuotientBarToUniversalRelationTwo h U)) ≤
+    LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')
+
 /-- Exact cokernel obstruction to transporting a reverse-two bar input across one quotient
 transition. -/
 def sqUniversalBarInputTransitionCokernelObstruction
@@ -660,10 +668,7 @@ def sqUniversalBarInputTransitionCokernelObstruction
 /-- At one transition, range transport is equivalent to vanishing of its cokernel obstruction. -/
 theorem sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
     (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') :
-    LinearMap.range
-        ((sqUniversalRelationModuleTransition h hUU').comp
-          (sqOpenQuotientBarToUniversalRelationTwo h U)) ≤
-        LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U') ↔
+    SqUniversalBarInputTransitionRangeAt h hUU' ↔
       sqUniversalBarInputTransitionCokernelObstruction h hUU' = 0 := by
   let A := (sqUniversalRelationModuleTransition h hUU').comp
     (sqOpenQuotientBarToUniversalRelationTwo h U)
@@ -751,6 +756,23 @@ def SqUniversalBarInputTransitionEventuallyRange (h : ℕ) : Prop :=
             (sqOpenQuotientBarToUniversalRelationTwo h W)) ≤
         LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')
 
+/-- The additional coherence needed to turn pairwise eventual range into a cofiltered
+range-good subsystem: once `U → U'` is range-good, every further refinement of `U` remains
+range-good to `U'`.  Pairwise eventual range alone does not imply this stability. -/
+def SqUniversalBarInputTransitionRangeDownwardStable (h : ℕ) : Prop :=
+  ∀ {W U U' : OpenNormalSubgroup (DSq h : Type)}
+    (hWU : W ≤ U) (hUU' : U ≤ U'),
+    SqUniversalBarInputTransitionRangeAt h hUU' →
+      SqUniversalBarInputTransitionRangeAt h (hWU.trans hUU')
+
+/-- The simultaneous condition actually needed to make range-good transitions cofiltered:
+every pair of quotients has one finer source whose maps to both are range-good. -/
+def SqUniversalBarInputTransitionCommonRefinementRange (h : ℕ) : Prop :=
+  ∀ U U' : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U, ∃ hWU' : W ≤ U',
+      SqUniversalBarInputTransitionRangeAt h hWU ∧
+        SqUniversalBarInputTransitionRangeAt h hWU'
+
 /-- Exact obstruction form of the cofinal weakening. -/
 theorem sqUniversalBarInputTransitionEventuallyRange_iff_obstruction
     (h : ℕ) :
@@ -770,6 +792,87 @@ theorem sqUniversalBarInputTransitionEventuallyRange_iff_obstruction
     exact ⟨W, hWU,
       (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
         h (hWU.trans hUU')).mpr hzeroW⟩
+
+/-- The simultaneous common-refinement condition in exact cokernel-obstruction form. -/
+theorem sqUniversalBarInputTransitionCommonRefinementRange_iff_obstruction
+    (h : ℕ) :
+    SqUniversalBarInputTransitionCommonRefinementRange h ↔
+      ∀ U U' : OpenNormalSubgroup (DSq h : Type),
+        ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U, ∃ hWU' : W ≤ U',
+          sqUniversalBarInputTransitionCokernelObstruction h hWU = 0 ∧
+            sqUniversalBarInputTransitionCokernelObstruction h hWU' = 0 := by
+  constructor
+  · intro hrange U U'
+    obtain ⟨W, hWU, hWU', hgoodU, hgoodU'⟩ := hrange U U'
+    exact ⟨W, hWU, hWU',
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero h hWU).mp hgoodU,
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero h hWU').mp hgoodU'⟩
+  · intro hzero U U'
+    obtain ⟨W, hWU, hWU', hzeroU, hzeroU'⟩ := hzero U U'
+    exact ⟨W, hWU, hWU',
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero h hWU).mpr hzeroU,
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero h hWU').mpr hzeroU'⟩
+
+/-- A single transition is range-good exactly when its cokernel obstruction vanishes on the
+finite bar-two basis. -/
+theorem sqUniversalBarInputTransitionRangeAt_iff_generators
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') :
+    SqUniversalBarInputTransitionRangeAt h hUU' ↔
+      ∀ (g q r : (DSq h : Type) ⧸ U.toSubgroup),
+        sqUniversalBarInputTransitionCokernelObstruction h hUU'
+          (Finsupp.single (g, (q, r)) 1) = 0 := by
+  rw [sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero]
+  constructor
+  · intro hzero g q r
+    rw [hzero]
+    rfl
+  · intro hgen
+    apply Finsupp.lhom_ext'
+    intro p
+    apply LinearMap.ext_ring
+    rcases p with ⟨g, q, r⟩
+    exact hgen g q r
+
+/-- Finite-generator form of simultaneous range-good common refinements. -/
+theorem sqUniversalBarInputTransitionCommonRefinementRange_iff_generators
+    (h : ℕ) :
+    SqUniversalBarInputTransitionCommonRefinementRange h ↔
+      ∀ U U' : OpenNormalSubgroup (DSq h : Type),
+        ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U, ∃ hWU' : W ≤ U',
+          (∀ (g q r : (DSq h : Type) ⧸ W.toSubgroup),
+            sqUniversalBarInputTransitionCokernelObstruction h hWU
+              (Finsupp.single (g, (q, r)) 1) = 0) ∧
+          (∀ (g q r : (DSq h : Type) ⧸ W.toSubgroup),
+            sqUniversalBarInputTransitionCokernelObstruction h hWU'
+              (Finsupp.single (g, (q, r)) 1) = 0) := by
+  constructor
+  · intro hrange U U'
+    obtain ⟨W, hWU, hWU', hgoodU, hgoodU'⟩ := hrange U U'
+    exact ⟨W, hWU, hWU',
+      (sqUniversalBarInputTransitionRangeAt_iff_generators h hWU).mp hgoodU,
+      (sqUniversalBarInputTransitionRangeAt_iff_generators h hWU').mp hgoodU'⟩
+  · intro hgen U U'
+    obtain ⟨W, hWU, hWU', hgenU, hgenU'⟩ := hgen U U'
+    exact ⟨W, hWU, hWU',
+      (sqUniversalBarInputTransitionRangeAt_iff_generators h hWU).mpr hgenU,
+      (sqUniversalBarInputTransitionRangeAt_iff_generators h hWU').mpr hgenU'⟩
+
+/-- Pairwise eventual range implies simultaneous common refinements once range-goodness is
+stable under making the source finer. -/
+theorem sqUniversalBarInputTransitionCommonRefinementRange_of_eventuallyRange_downwardStable
+    {h : ℕ} (heventual : SqUniversalBarInputTransitionEventuallyRange h)
+    (hstable : SqUniversalBarInputTransitionRangeDownwardStable h) :
+    SqUniversalBarInputTransitionCommonRefinementRange h := by
+  intro U U'
+  let Z := U ⊓ U'
+  obtain ⟨W, hWZ, hgoodWU⟩ := heventual (show Z ≤ U from inf_le_left)
+  have hWU' : W ≤ U' := hWZ.trans inf_le_right
+  obtain ⟨W', hW'W, hgoodW'U'⟩ := heventual hWU'
+  have hgoodW'U : SqUniversalBarInputTransitionRangeAt h
+      (hW'W.trans (hWZ.trans inf_le_left)) :=
+    hstable hW'W (hWZ.trans inf_le_left) hgoodWU
+  exact ⟨W', hW'W.trans (hWZ.trans inf_le_left), hW'W.trans hWU',
+    hgoodW'U, hgoodW'U'⟩
 
 /-- Cofinal vanishing is still a finite generator test at each chosen refinement. -/
 theorem sqUniversalBarInputTransitionEventuallyRange_iff_generators
@@ -892,6 +995,43 @@ theorem sqUniversalBarInputTransitionRange_iff (h : ℕ) :
     obtain ⟨P, hP⟩ := hlift hUU'
     refine ⟨P b, ?_⟩
     exact DFunLike.congr_fun hP b
+
+/-- A range-good individual transition admits a linear lift on bar-two inputs. -/
+theorem exists_sqUniversalBarInputTransitionLift_of_rangeAt
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (hrange : SqUniversalBarInputTransitionRangeAt h hUU') :
+    ∃ P : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup),
+      (sqOpenQuotientBarToUniversalRelationTwo h U').comp P =
+        (sqUniversalRelationModuleTransition h hUU').comp
+          (sqOpenQuotientBarToUniversalRelationTwo h U) := by
+  classical
+  let A := (sqUniversalRelationModuleTransition h hUU').comp
+    (sqOpenQuotientBarToUniversalRelationTwo h U)
+  let R := sqOpenQuotientBarToUniversalRelationTwo h U'
+  let pre (p : ((DSq h : Type) ⧸ U.toSubgroup) ×
+      (((DSq h : Type) ⧸ U.toSubgroup) ×
+        ((DSq h : Type) ⧸ U.toSubgroup))) :
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup) :=
+    Classical.choose (hrange (LinearMap.mem_range_self A (Finsupp.single p 1)))
+  have hpre (p : ((DSq h : Type) ⧸ U.toSubgroup) ×
+      (((DSq h : Type) ⧸ U.toSubgroup) ×
+        ((DSq h : Type) ⧸ U.toSubgroup))) :
+      R (pre p) = A (Finsupp.single p 1) :=
+    Classical.choose_spec (hrange (LinearMap.mem_range_self A (Finsupp.single p 1)))
+  let P : FiniteModTwoBarChainTwo
+        ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup) :=
+    (Finsupp.lsum (ZMod 2)) fun p =>
+      LinearMap.toSpanSingleton (ZMod 2) _ (pre p)
+  refine ⟨P, ?_⟩
+  apply Finsupp.lhom_ext'
+  intro p
+  apply LinearMap.ext_ring
+  change R (P (Finsupp.single p 1)) = A (Finsupp.single p 1)
+  rw [show P (Finsupp.single p 1) = pre p by
+    simp [P, LinearMap.toSpanSingleton_apply]]
+  exact hpre p
 
 /-- The coupled defect associated to an arbitrary linear universal output at one quotient. -/
 def sqFiniteUniversalOutputCocycleDefectAt
@@ -1194,6 +1334,183 @@ theorem sqUniversalRelationModuleTransition_comp
       · apply Subtype.ext
         rfl
 
+/-! ## The cofinal category of range-good transitions -/
+
+theorem sqUniversalBarInputTransitionRangeAt_id
+    (h : ℕ) (U : OpenNormalSubgroup (DSq h : Type)) :
+    SqUniversalBarInputTransitionRangeAt h (le_refl U) := by
+  intro z hz
+  obtain ⟨b, rfl⟩ := hz
+  refine ⟨b, ?_⟩
+  simpa only [LinearMap.comp_apply] using
+    (sqUniversalRelationModuleTransition_id h U
+      (sqOpenQuotientBarToUniversalRelationTwo h U b)).symm
+
+theorem sqUniversalBarInputTransitionRangeAt_comp
+    (h : ℕ) {U U' U'' : OpenNormalSubgroup (DSq h : Type)}
+    (hUU' : U ≤ U') (hU'U'' : U' ≤ U'')
+    (hgood₁ : SqUniversalBarInputTransitionRangeAt h hUU')
+    (hgood₂ : SqUniversalBarInputTransitionRangeAt h hU'U'') :
+    SqUniversalBarInputTransitionRangeAt h (hUU'.trans hU'U'') := by
+  intro z hz
+  obtain ⟨b, rfl⟩ := hz
+  obtain ⟨b', hb'⟩ := hgood₁ (LinearMap.mem_range_self
+    ((sqUniversalRelationModuleTransition h hUU').comp
+      (sqOpenQuotientBarToUniversalRelationTwo h U)) b)
+  obtain ⟨b'', hb''⟩ := hgood₂ (LinearMap.mem_range_self
+    ((sqUniversalRelationModuleTransition h hU'U'').comp
+      (sqOpenQuotientBarToUniversalRelationTwo h U')) b')
+  refine ⟨b'', ?_⟩
+  calc
+    sqOpenQuotientBarToUniversalRelationTwo h U'' b'' =
+        sqUniversalRelationModuleTransition h hU'U''
+          (sqOpenQuotientBarToUniversalRelationTwo h U' b') := hb''
+    _ = sqUniversalRelationModuleTransition h hU'U''
+          (sqUniversalRelationModuleTransition h hUU'
+            (sqOpenQuotientBarToUniversalRelationTwo h U b)) :=
+      congrArg (sqUniversalRelationModuleTransition h hU'U'') hb'
+    _ = sqUniversalRelationModuleTransition h (hUU'.trans hU'U'')
+          (sqOpenQuotientBarToUniversalRelationTwo h U b) :=
+      sqUniversalRelationModuleTransition_comp h hUU' hU'U'' _
+
+/-- Same open-normal objects, but only range-good quotient transitions are retained. -/
+structure SqUniversalBarTransitionIndex (h : ℕ) where
+  subgroup : OpenNormalSubgroup (DSq h : Type)
+
+instance (h : ℕ) : Nonempty (SqUniversalBarTransitionIndex h) :=
+  ⟨⟨⟨⊤, Subgroup.normal_top⟩⟩⟩
+
+def SqUniversalBarTransitionHom {h : ℕ}
+    (X Y : SqUniversalBarTransitionIndex h) :=
+  {hXY : X.subgroup ≤ Y.subgroup //
+    SqUniversalBarInputTransitionRangeAt h hXY}
+
+instance {h : ℕ} (X Y : SqUniversalBarTransitionIndex h) :
+    Subsingleton (SqUniversalBarTransitionHom X Y) := ⟨fun _ _ => Subtype.ext (Subsingleton.elim _ _)⟩
+
+instance sqUniversalBarTransitionIndexCategory (h : ℕ) :
+    Category (SqUniversalBarTransitionIndex h) where
+  Hom := SqUniversalBarTransitionHom
+  id X := ⟨le_refl X.subgroup,
+    sqUniversalBarInputTransitionRangeAt_id h X.subgroup⟩
+  comp f g := ⟨f.1.trans g.1,
+    sqUniversalBarInputTransitionRangeAt_comp h f.1 g.1 f.2 g.2⟩
+  assoc _ _ _ := Subsingleton.elim _ _
+  id_comp _ := Subsingleton.elim _ _
+  comp_id _ := Subsingleton.elim _ _
+
+/-- Simultaneous range-good common refinements are exactly what the preorder-valued
+range-good transition category needs for cofilteredness (parallel arrows are subsingletons). -/
+@[reducible] def sqUniversalBarTransitionIndexIsCofilteredOrEmptyOfCommonRefinement
+    (h : ℕ) (hcommon : SqUniversalBarInputTransitionCommonRefinementRange h) :
+    IsCofilteredOrEmpty (SqUniversalBarTransitionIndex h) where
+  cone_objs X Y := by
+    obtain ⟨W, hWX, hWY, hgoodX, hgoodY⟩ := hcommon X.subgroup Y.subgroup
+    exact ⟨⟨W⟩, ⟨hWX, hgoodX⟩, ⟨hWY, hgoodY⟩, trivial⟩
+  cone_maps := by
+    intro X Y f g
+    refine ⟨X, 𝟙 X, ?_⟩
+    apply Subtype.ext
+    exact Subsingleton.elim _ _
+
+/-- Convenient sufficient instance obtained from pairwise eventual range and downward
+stability. -/
+@[reducible] def sqUniversalBarTransitionIndexIsCofilteredOrEmpty
+    (h : ℕ) (heventual : SqUniversalBarInputTransitionEventuallyRange h)
+    (hstable : SqUniversalBarInputTransitionRangeDownwardStable h) :
+    IsCofilteredOrEmpty (SqUniversalBarTransitionIndex h) :=
+  sqUniversalBarTransitionIndexIsCofilteredOrEmptyOfCommonRefinement h
+    (sqUniversalBarInputTransitionCommonRefinementRange_of_eventuallyRange_downwardStable
+      heventual hstable)
+
+/-- A range-good transition pushes a local fiber under the cancellation-kernel premise. -/
+noncomputable def sqUniversalCocycleOutputFiberTransitionOfRange
+    {h : ℕ} {V U U' : OpenNormalSubgroup (DSq h : Type)}
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V)
+    (hUU' : U ≤ U') (hrange : SqUniversalBarInputTransitionRangeAt h hUU') :
+    SqUniversalCocycleOutputFiber h V U →
+      SqUniversalCocycleOutputFiber h V U' := fun x => by
+  classical
+  let B : SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+    Classical.choose x.bar_representable
+  have hB : x.output =
+      (sqOpenQuotientBarToUniversalRelationTwo h U).comp B :=
+    Classical.choose_spec x.bar_representable
+  let hPexists := exists_sqUniversalBarInputTransitionLift_of_rangeAt
+    h hUU' hrange
+  let P := Classical.choose hPexists
+  have hP := Classical.choose_spec hPexists
+  let output' := (sqUniversalRelationModuleTransition h hUU').comp x.output
+  refine {
+    output := output'
+    bar_representable := ⟨P.comp B, ?_⟩
+    fox_zero_on_cocycles := fun c hc => ?_
+    cancels_on_refinements := fun hU'V c hc => ?_
+  }
+  · apply LinearMap.ext
+    intro c
+    have hBc := DFunLike.congr_fun hB c
+    simp only [LinearMap.comp_apply] at hBc ⊢
+    change sqUniversalRelationModuleTransition h hUU' (x.output c) =
+      sqOpenQuotientBarToUniversalRelationTwo h U' (P (B c))
+    rw [hBc]
+    exact (DFunLike.congr_fun hP (B c)).symm
+  · exact sqUniversalRelationModuleTransition_fox_zero hUU' (x.output c)
+      (x.fox_zero_on_cocycles c hc)
+  · have hcancel : SqUniversalBarInputCocycleCancellationTransitionClosed h V :=
+      (sqUniversalBarInputCocycleCancellationTransitionKernel_iff h V).mp hkernel
+    have hsource := x.cancels_on_refinements (hUU'.trans hU'V) c hc
+    have hBc := DFunLike.congr_fun hB c
+    simp only [LinearMap.comp_apply] at hBc
+    rw [hBc] at hsource
+    change finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')
+          (sqFiniteModTwoBarRefineThree h hU'V c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')
+          (sqFiniteModTwoBarRefineThree h hU'V c)
+          (sqUniversalRelationModuleTransition h hUU' (x.output c)) = 0
+    rw [hBc]
+    exact hcancel hUU' B hU'V c hc hsource
+
+@[simp] theorem sqUniversalCocycleOutputFiberTransitionOfRange_output
+    {h : ℕ} {V U U' : OpenNormalSubgroup (DSq h : Type)}
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V)
+    (hUU' : U ≤ U') (hrange : SqUniversalBarInputTransitionRangeAt h hUU')
+    (x : SqUniversalCocycleOutputFiber h V U) :
+    (sqUniversalCocycleOutputFiberTransitionOfRange hkernel hUU' hrange x).output =
+      (sqUniversalRelationModuleTransition h hUU').comp x.output := by
+  rfl
+
+/-- The finite fibers form a functor on the cofinal category of range-good transitions. -/
+noncomputable def sqUniversalCocycleOutputGoodTransitionFunctor
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    SqUniversalBarTransitionIndex h ⥤ Type where
+  obj U := SqUniversalCocycleOutputFiber h V U.subgroup
+  map f := ↾(sqUniversalCocycleOutputFiberTransitionOfRange hkernel f.1 f.2)
+  map_id U := by
+    ext x c z
+    change ((sqUniversalCocycleOutputFiberTransitionOfRange hkernel
+      (𝟙 U : U ⟶ U).1 (𝟙 U : U ⟶ U).2 x).output c) z = (x.output c) z
+    rw [sqUniversalCocycleOutputFiberTransitionOfRange_output]
+    exact congrArg (fun y => y z)
+      (sqUniversalRelationModuleTransition_id h U.subgroup (x.output c))
+  map_comp f g := by
+    ext x c z
+    change ((sqUniversalCocycleOutputFiberTransitionOfRange hkernel
+        (f ≫ g).1 (f ≫ g).2 x).output c) z =
+      ((sqUniversalCocycleOutputFiberTransitionOfRange hkernel g.1 g.2
+        (sqUniversalCocycleOutputFiberTransitionOfRange hkernel f.1 f.2 x)).output c) z
+    rw [sqUniversalCocycleOutputFiberTransitionOfRange_output,
+      sqUniversalCocycleOutputFiberTransitionOfRange_output,
+      sqUniversalCocycleOutputFiberTransitionOfRange_output]
+    exact congrArg (fun y => y z)
+      (sqUniversalRelationModuleTransition_comp h f.1 g.1 (x.output c)).symm
+
 /-- The finite cocycle-output fibers form a cofiltered functor once the exact transition-closure
 equations are supplied. -/
 noncomputable def sqUniversalCocycleOutputFiberFunctor
@@ -1232,6 +1549,85 @@ structure SqCompatibleUniversalCocycleCancellingSyzygyAt
           (sqOpenQuotientFreeEvaluation_surjective h V)
           (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c)
           (universalSyzygy.coordinate V c) = 0
+
+/-- Concrete cofinal local obligation: below every requested quotient, find a common
+refinement of it and the input quotient where the coupled target lifts through the correction
+map restricted to the Fox kernel. -/
+def SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
+      ∃ hWV : W ≤ V,
+        SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V W hWV
+
+/-- The local condition exactly synchronized with the range-good subsystem: below each
+requested quotient there is a range-good source where the Fox-kernel lifting problem is
+solvable. -/
+def SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+      SqUniversalBarInputTransitionRangeAt h hWU ∧
+        ∃ hWV : W ≤ V,
+          SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V W hWV
+
+/-- Ordinary cofinal local solvability becomes range-good cofinal solvability under eventual
+range and downward stability. -/
+theorem sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt_of_eventualStable
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (heventual : SqUniversalBarInputTransitionEventuallyRange h)
+    (hstable : SqUniversalBarInputTransitionRangeDownwardStable h) :
+    SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V := by
+  intro U
+  obtain ⟨W, hWU, hgoodWU⟩ := heventual (le_refl U)
+  obtain ⟨Y, hYW, hYV, hrangeY⟩ := hlocal W
+  exact ⟨Y, hYW.trans (hWU.trans (le_refl U)),
+    hstable hYW (hWU.trans (le_refl U)) hgoodWU, hYV, hrangeY⟩
+
+/-- Exact obstruction form of range-good cofinal local solvability. -/
+theorem sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt_iff_obstruction
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V ↔
+      ∀ U : OpenNormalSubgroup (DSq h : Type),
+        ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+          sqUniversalBarInputTransitionCokernelObstruction h hWU = 0 ∧
+            ∃ hWV : W ≤ V,
+              SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V W hWV := by
+  constructor
+  · intro hrange U
+    obtain ⟨W, hWU, hgood, hWV, hlocal⟩ := hrange U
+    exact ⟨W, hWU,
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero h hWU).mp hgood,
+      hWV, hlocal⟩
+  · intro hzero U
+    obtain ⟨W, hWU, hzeroW, hWV, hlocal⟩ := hzero U
+    exact ⟨W, hWU,
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero h hWU).mpr hzeroW,
+      hWV, hlocal⟩
+
+/-- Finite-generator form of range-good cofinal local solvability. -/
+theorem sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt_iff_generators
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V ↔
+      ∀ U : OpenNormalSubgroup (DSq h : Type),
+        ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+          (∀ (g q r : (DSq h : Type) ⧸ W.toSubgroup),
+            sqUniversalBarInputTransitionCokernelObstruction h hWU
+              (Finsupp.single (g, (q, r)) 1) = 0) ∧
+            ∃ hWV : W ≤ V,
+              SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V W hWV := by
+  constructor
+  · intro hrange U
+    obtain ⟨W, hWU, hgood, hWV, hlocal⟩ := hrange U
+    exact ⟨W, hWU,
+      (sqUniversalBarInputTransitionRangeAt_iff_generators h hWU).mp hgood,
+      hWV, hlocal⟩
+  · intro hgen U
+    obtain ⟨W, hWU, hgenW, hWV, hlocal⟩ := hgen U
+    exact ⟨W, hWU,
+      (sqUniversalBarInputTransitionRangeAt_iff_generators h hWU).mpr hgenW,
+      hWV, hlocal⟩
 
 /-- **Finite cofiltered compactness for the corrected universal outputs.** Transition closure
 and nonemptiness of every finite fiber produce a compatible universal syzygy.  No surjectivity
@@ -1328,6 +1724,158 @@ theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_fibers
     rw [← hbarV]
     exact (sec V).cancels_on_refinements (le_refl V.toSubgroup) c hc
 
+/-- **Cofinal compactness using only range-good transitions.**  Range-good cofinal local
+solvability makes every fiber in the range-good subsystem nonempty.  Compactness produces a
+section on that subsystem, and simultaneous common refinements recover compatibility across
+an arbitrary quotient transition by comparing both endpoints at one finer source. -/
+theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofinal
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V)
+    (hcommon : SqUniversalBarInputTransitionCommonRefinementRange h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    Nonempty (SqCompatibleUniversalCocycleCancellingSyzygyAt h V) := by
+  classical
+  letI : IsCofilteredOrEmpty (SqUniversalBarTransitionIndex h) :=
+    sqUniversalBarTransitionIndexIsCofilteredOrEmptyOfCommonRefinement h hcommon
+  let F := sqUniversalCocycleOutputGoodTransitionFunctor h V hkernel
+  have hobj (X : SqUniversalBarTransitionIndex h) : Nonempty (F.obj X) := by
+    obtain ⟨Y, hYX, hgoodYX, hYV, hrangeY⟩ := hlocal X.subgroup
+    let y := sqUniversalCocycleOutputFiberOfSyzygyBarRangeAt h V Y hYV hrangeY
+    exact ⟨sqUniversalCocycleOutputFiberTransitionOfRange
+      hkernel hYX hgoodYX y⟩
+  letI (X : SqUniversalBarTransitionIndex h) : Nonempty (F.obj X) := hobj X
+  letI (X : SqUniversalBarTransitionIndex h) : Finite (F.obj X) :=
+    SqUniversalCocycleOutputFiber.instFinite h V X.subgroup
+  obtain ⟨sec, hsec⟩ := nonempty_sections_of_finite_cofiltered_system F
+  have houtputCompatibility
+      {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+      (c : SqAdjointInputThree h V) :
+      sqUniversalRelationModuleTransition h hUU' ((sec ⟨U⟩).output c) =
+        (sec ⟨U'⟩).output c := by
+    obtain ⟨X, hXU, hXU', hgoodXU, hgoodXU'⟩ := hcommon U U'
+    let fXU : (⟨X⟩ : SqUniversalBarTransitionIndex h) ⟶ ⟨U⟩ :=
+      ⟨hXU, hgoodXU⟩
+    let fXU' : (⟨X⟩ : SqUniversalBarTransitionIndex h) ⟶ ⟨U'⟩ :=
+      ⟨hXU', hgoodXU'⟩
+    have hsUraw := congrArg
+      (fun z : SqUniversalCocycleOutputFiber h V U => z.output c) (hsec fXU)
+    have hsU'raw := congrArg
+      (fun z : SqUniversalCocycleOutputFiber h V U' => z.output c) (hsec fXU')
+    have hsU :
+        sqUniversalRelationModuleTransition h hXU
+            ((sec ⟨X⟩).output c) =
+          (sec ⟨U⟩).output c := by
+      change (sqUniversalCocycleOutputFiberTransitionOfRange hkernel
+        fXU.1 fXU.2 (sec ⟨X⟩)).output c = (sec ⟨U⟩).output c at hsUraw
+      rw [sqUniversalCocycleOutputFiberTransitionOfRange_output] at hsUraw
+      exact hsUraw
+    have hsU' :
+        sqUniversalRelationModuleTransition h hXU'
+            ((sec ⟨X⟩).output c) =
+          (sec ⟨U'⟩).output c := by
+      change (sqUniversalCocycleOutputFiberTransitionOfRange hkernel
+        fXU'.1 fXU'.2 (sec ⟨X⟩)).output c = (sec ⟨U'⟩).output c at hsU'raw
+      rw [sqUniversalCocycleOutputFiberTransitionOfRange_output] at hsU'raw
+      exact hsU'raw
+    calc
+      sqUniversalRelationModuleTransition h hUU' ((sec ⟨U⟩).output c) =
+          sqUniversalRelationModuleTransition h hUU'
+            (sqUniversalRelationModuleTransition h hXU
+              ((sec ⟨X⟩).output c)) := congrArg _ hsU.symm
+      _ = sqUniversalRelationModuleTransition h
+            (hXU.trans hUU') ((sec ⟨X⟩).output c) :=
+        sqUniversalRelationModuleTransition_comp h hXU hUU' _
+      _ = sqUniversalRelationModuleTransition h
+            hXU' ((sec ⟨X⟩).output c) := by
+        congr 2
+      _ = (sec ⟨U'⟩).output c := hsU'
+  let barRepresentative (U : OpenNormalSubgroup (DSq h : Type)) :
+      SqAdjointInputThree h V →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+    Classical.choose (sec ⟨U⟩).bar_representable
+  have hbarRepresentative (U : OpenNormalSubgroup (DSq h : Type)) :
+      (sec ⟨U⟩).output =
+        (finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)).comp
+            (barRepresentative U) :=
+    Classical.choose_spec (sec ⟨U⟩).bar_representable
+  let S : SqCompatibleFiniteUniversalBarSyzygyAt h V := {
+    barChain := fun U => (barRepresentative U).toAddMonoidHom
+    compatible := by
+      intro U U' hUU' c
+      have hbarU := DFunLike.congr_fun (hbarRepresentative U) c
+      have hbarU' := DFunLike.congr_fun (hbarRepresentative U') c
+      change sqUniversalRelationModuleTransition h hUU'
+          (finiteBarToUniversalRelationTwo
+            (sqOpenQuotientMarking h U)
+            (sqOpenQuotientFreeEvaluation_surjective h U)
+            (barRepresentative U c)) =
+        finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')
+          (barRepresentative U' c)
+      calc
+        _ = sqUniversalRelationModuleTransition h hUU' ((sec ⟨U⟩).output c) :=
+          congrArg (sqUniversalRelationModuleTransition h hUU') hbarU.symm
+        _ = (sec ⟨U'⟩).output c := houtputCompatibility hUU' c
+        _ = _ := hbarU'
+  }
+  refine ⟨{
+    universalSyzygy := S
+    fox_zero_on_cocycles := fun c hc => ?_
+    cancels_at_input := fun c hc => ?_
+  }⟩
+  · apply ModTwoCompletedRegularModule.ext (DSq h : Type) (Fin (sqRank h))
+    intro U
+    rw [SqCompatibleFiniteUniversalBarSyzygyAt.coordinate_toCompletedFox]
+    change (finiteUniversalRelationFoxBoundary
+        (sqOpenQuotientMarking h U)).map
+      (finiteBarToUniversalRelationTwo
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U)
+        (barRepresentative U c)) = 0
+    have hbarU := DFunLike.congr_fun (hbarRepresentative U) c
+    calc
+      _ = (finiteUniversalRelationFoxBoundary
+          (sqOpenQuotientMarking h U)).map ((sec ⟨U⟩).output c) :=
+        congrArg (finiteUniversalRelationFoxBoundary
+          (sqOpenQuotientMarking h U)).map hbarU.symm
+      _ = 0 := (sec ⟨U⟩).fox_zero_on_cocycles c hc
+  · change finiteBarHomotopyTwoAdjointBarDefect
+        (sqOpenQuotientMarking h V)
+        (sqOpenQuotientFreeEvaluation_surjective h V)
+        (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c) +
+      finiteUniversalThreeAdjointFiniteSupportDefect
+        (sqOpenQuotientMarking h V)
+        (sqOpenQuotientFreeEvaluation_surjective h V)
+        (sqFiniteModTwoBarRefineThree h (le_refl V.toSubgroup) c)
+        (finiteBarToUniversalRelationTwo
+          (sqOpenQuotientMarking h V)
+          (sqOpenQuotientFreeEvaluation_surjective h V)
+          (barRepresentative V c)) = 0
+    have hbarV := DFunLike.congr_fun (hbarRepresentative V) c
+    simp only [LinearMap.comp_apply] at hbarV
+    rw [← hbarV]
+    exact (sec ⟨V⟩).cancels_on_refinements (le_refl V.toSubgroup) c hc
+
+/-- Pairwise eventual range and downward stability imply the exact simultaneous hypotheses
+of the range-good compactness theorem. -/
+theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventualTransitions
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (heventual : SqUniversalBarInputTransitionEventuallyRange h)
+    (hstable : SqUniversalBarInputTransitionRangeDownwardStable h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    Nonempty (SqCompatibleUniversalCocycleCancellingSyzygyAt h V) :=
+  nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofinal
+    h V
+      (sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt_of_eventualStable
+        hlocal heventual hstable)
+      (sqUniversalBarInputTransitionCommonRefinementRange_of_eventuallyRange_downwardStable
+        heventual hstable)
+      hkernel
+
 /-- The cofinal version of local existence.  It is enough to find a candidate below every
 finite quotient: transition closure then pushes that candidate to the requested quotient.
 This is the exact refinement condition needed when literal nonemptiness of every fiber is not
@@ -1337,16 +1885,6 @@ def SqUniversalCocycleOutputEventuallyNonempty
   ∀ U : OpenNormalSubgroup (DSq h : Type),
     ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
       Nonempty (SqUniversalCocycleOutputFiber h V W)
-
-/-- Concrete cofinal local obligation which implies eventual fiber nonemptiness: below every
-requested quotient, find a common refinement of it and the input quotient where the coupled
-target lifts through the correction map restricted to the Fox kernel. -/
-def SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt
-    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
-  ∀ U : OpenNormalSubgroup (DSq h : Type),
-    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
-      ∃ hWV : W ≤ V,
-        SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt h V W hWV
 
 /-- The cofinal strengthened range premise produces the exact eventual nonemptiness premise
 used by finite cofiltered compactness. -/
@@ -1794,6 +2332,56 @@ theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_concreteCoherence
     h V
       (sqUniversalCocycleOutputTransitionClosed_of_barInputKernelCoherence
         h V hbar hcancel) hlocal hgen
+
+/-- Minimal cofinal range-good endpoint for the genuine universal degree-three comparison. -/
+theorem nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_rangeGoodCofinal
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V)
+    (hcommon : SqUniversalBarInputTransitionCommonRefinementRange h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    Nonempty (SqFiniteInputUniversalDegreeThreeComparisonAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofinal
+    h V hlocal hcommon hkernel).map
+      SqCompatibleUniversalCocycleCancellingSyzygyAt.degreeThreeComparison
+
+/-- Minimal cofinal range-good endpoint for the completed single-relator syzygy boundary. -/
+theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_rangeGoodCofinal
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V)
+    (hcommon : SqUniversalBarInputTransitionCommonRefinementRange h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    Nonempty (SqFiniteInputCompletedSyzygyBoundaryAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofinal
+    h V hlocal hcommon hkernel).map fun S =>
+      S.completedSyzygyBoundary hgen
+
+/-- Cofinal range-good transition gluing reaches the genuine universal degree-three
+comparison without assuming range transport for every quotient transition. -/
+theorem nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_eventualTransitionRange
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (heventual : SqUniversalBarInputTransitionEventuallyRange h)
+    (hstable : SqUniversalBarInputTransitionRangeDownwardStable h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    Nonempty (SqFiniteInputUniversalDegreeThreeComparisonAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventualTransitions
+    h V hlocal heventual hstable hkernel).map
+      SqCompatibleUniversalCocycleCancellingSyzygyAt.degreeThreeComparison
+
+/-- The same cofinal transition argument, followed by eventual generation of the improved
+relator, reaches the completed single-relator syzygy boundary. -/
+theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_eventualTransitionRange
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (heventual : SqUniversalBarInputTransitionEventuallyRange h)
+    (hstable : SqUniversalBarInputTransitionRangeDownwardStable h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    Nonempty (SqFiniteInputCompletedSyzygyBoundaryAt h V) :=
+  (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_eventualTransitions
+    h V hlocal heventual hstable hkernel).map fun S =>
+      S.completedSyzygyBoundary hgen
 
 end
 
