@@ -252,6 +252,75 @@ theorem finiteBarToMarkedOne_comp_markedToBarOne
       rw [← ih]
       abel
 
+/-! ## Refinement: conditional naturality and the strict-section obstruction -/
+
+variable {Q' : Type} [Group Q']
+
+/-- A section path commutes with pushforward provided the chosen normalized word sections agree
+strictly.  The following no-go theorem explains why this premise cannot hold across a proper
+quotient and therefore has to be weakened by relation-cell corrections in an inverse system. -/
+theorem finiteSectionPath_natural_of_section
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (hsection : ∀ q, relationSection heval' (phi q) = relationSection heval q)
+    (q : Q) :
+    regularModTwoPushforward phi I (finiteSectionPath m heval q) =
+      finiteSectionPath (fun i ↦ phi (m i)) heval' (phi q) := by
+  rw [finiteSectionPath, finiteSectionPath,
+    regularModTwoPushforward_modTwoFoxDerivative, hsection]
+
+/-- Under strict compatibility of the word sections, the reverse degree-one comparison is
+natural for a group homomorphism. -/
+theorem finiteBarToMarkedOne_natural_of_section
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (hsection : ∀ q, relationSection heval' (phi q) = relationSection heval q)
+    (c : FiniteModTwoBarChainOne Q) :
+    regularModTwoPushforward phi I (finiteBarToMarkedOne m heval c) =
+      finiteBarToMarkedOne (fun i ↦ phi (m i)) heval'
+        (finiteModTwoBarMapOne phi c) := by
+  classical
+  induction c using Finsupp.induction with
+  | zero => simp
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, q⟩
+      simp only [map_add, ih, finiteBarToMarkedOne_single,
+        finiteModTwoBarMapOne, regularModTwoMap_single, map_smul,
+        regularModTwoPushforward_translate]
+      rw [finiteSectionPath_natural_of_section phi m heval heval' hsection]
+
+/-- **Strict-section no-go.** If normalized section words were literally compatible along a
+homomorphism, that homomorphism would have to be injective.  Thus a proper refinement quotient
+cannot be handled by choosing word lifts that commute on the nose; relation-cell corrections
+are mathematically unavoidable. -/
+theorem injective_of_strictlyNatural_relationSection
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (hsection : ∀ q, relationSection heval' (phi q) = relationSection heval q) :
+    Function.Injective phi := by
+  intro q r hqr
+  have hs : relationSection heval q = relationSection heval r := by
+    rw [← hsection q, ← hsection r, hqr]
+  calc
+    q = FreeGroup.lift m (relationSection heval q) :=
+      (relationSection_spec heval q).symm
+    _ = FreeGroup.lift m (relationSection heval r) := congrArg _ hs
+    _ = r := relationSection_spec heval r
+
+/-- Contrapositive form of the strict-section no-go, convenient at a proper quotient map. -/
+theorem not_strictlyNatural_relationSection_of_not_injective
+    (phi : Q →* Q') (m : I → Q)
+    (heval : Function.Surjective (FreeGroup.lift m))
+    (heval' : Function.Surjective (FreeGroup.lift (fun i ↦ phi (m i))))
+    (hninj : ¬ Function.Injective phi) :
+    ¬ (∀ q, relationSection heval' (phi q) = relationSection heval q) := by
+  intro hsection
+  exact hninj
+    (injective_of_strictlyNatural_relationSection phi m heval heval' hsection)
+
 /-! ## Actual finite quotients of the improved square core -/
 
 /-- The images of the improved-presentation generators generate every open-normal quotient
@@ -303,6 +372,40 @@ theorem sqOpenQuotientBarToMarkedOne_boundary (h : ℕ)
         (sqOpenQuotientBarToMarkedOne h V c) =
       finiteModTwoBarBoundaryOne c :=
   finiteBarToMarkedOne_boundary _ _ c
+
+/-- The universal relation-kernel reverse two-cell map for an actual improved-square quotient. -/
+def sqOpenQuotientBarToUniversalRelationTwo (h : ℕ)
+    (V : OpenNormalSubgroup (DSq h : Type)) :
+    FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ V.toSubgroup) →ₗ[ZMod 2]
+      RegularModTwoRelationModule ((DSq h : Type) ⧸ V.toSubgroup)
+        (FreeRelationKernel (sqOpenQuotientMarking h V)) :=
+  finiteBarToUniversalRelationTwo (sqOpenQuotientMarking h V)
+    (sqOpenQuotientFreeEvaluation_surjective h V)
+
+/-- The actual reverse degree-two identity, landing in the full relation kernel. -/
+theorem sqOpenQuotientBarToMarkedOne_boundaryTwo (h : ℕ)
+    (V : OpenNormalSubgroup (DSq h : Type))
+    (c : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ V.toSubgroup)) :
+    sqOpenQuotientBarToMarkedOne h V (finiteModTwoBarBoundaryTwo c) =
+      (finiteUniversalRelationFoxBoundary (sqOpenQuotientMarking h V)).map
+        (sqOpenQuotientBarToUniversalRelationTwo h V c) :=
+  finiteBarToMarkedOne_boundaryTwo _ _ c
+
+/-- Strict normalized word-section compatibility along an actual refinement projection is
+impossible whenever that projection has nontrivial kernel. -/
+theorem not_sqOpenQuotientRelationSection_strict_natural
+    (h : ℕ) {V W : OpenNormalSubgroup (DSq h : Type)}
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hninj : ¬ Function.Injective (openNormalQuotientProj hWV)) :
+    ¬ (∀ q,
+      relationSection (sqOpenQuotientFreeEvaluation_surjective h V)
+          (openNormalQuotientProj hWV q) =
+        relationSection (sqOpenQuotientFreeEvaluation_surjective h W) q) := by
+  apply not_strictlyNatural_relationSection_of_not_injective
+    (openNormalQuotientProj hWV) (sqOpenQuotientMarking h W)
+    (sqOpenQuotientFreeEvaluation_surjective h W)
+    (sqOpenQuotientFreeEvaluation_surjective h V)
+    hninj
 
 end
 
