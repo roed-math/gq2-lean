@@ -506,6 +506,7 @@ import GQ2.Dyadic.DemushkinQRamifiedI
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDemushkinQSupply
 import GQ2.Dyadic.OddDegreeRamifiedI
 import GQ2.Dyadic.MultiplicativeDecomposition
+import GQ2.ProPCompletionFunctor
 import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
