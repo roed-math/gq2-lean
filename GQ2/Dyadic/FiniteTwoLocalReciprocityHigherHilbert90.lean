@@ -466,6 +466,28 @@ theorem muNContinuousHilbert90 (K : IntermediateField ℚ_[2] ℚbar2)
   muNContinuousHilbert90_of_finiteFactorizationSupply
     (muNFiniteHilbert90FactorizationSupply K n)
 
+/-- Premise-free surjectivity of the explicit higher Kummer homomorphism. -/
+theorem higherKummerClassMonoidHom_surjective
+    (K : IntermediateField ℚ_[2] ℚbar2) [FiniteDimensional ℚ_[2] K]
+    (n : ℕ) [NeZero n] :
+    Function.Surjective (higherKummerClassMonoidHom (K := K) n) :=
+  higherKummerClassMonoidHom_surjective_of_muNContinuousHilbert90
+    n (muNContinuousHilbert90 K n)
+
+/-- Canonical higher Kummer exact-sequence data, with no Hilbert-90 premise left to supply. -/
+noncomputable def canonicalHigherKummerClassData
+    (K : IntermediateField ℚ_[2] ℚbar2) [FiniteDimensional ℚ_[2] K]
+    (n : ℕ) [NeZero n] : HigherKummerClassData K n :=
+  higherKummerClassDataOfMuNContinuousHilbert90 n (muNContinuousHilbert90 K n)
+
+/-- At exponent two, the premise-free higher Kummer package is exactly the repository's existing
+mod-two Kummer package. -/
+theorem canonicalHigherKummerClassData_two_eq_modTwo
+    (K : IntermediateField ℚ_[2] ℚbar2) [FiniteDimensional ℚ_[2] K] :
+    canonicalHigherKummerClassData K 2 = modTwoHigherKummerClassData (K := K) :=
+  higherKummerClassDataOfMuNContinuousHilbert90_two_eq_modTwo
+    (muNContinuousHilbert90 K 2)
+
 #print axioms FiniteHilbert90Factorization.exists_coboundary
 #print axioms exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
 #print axioms finiteGaloisLayerOfOpenNormal
@@ -476,6 +498,9 @@ theorem muNContinuousHilbert90 (K : IntermediateField ℚ_[2] ℚbar2)
 #print axioms muNFiniteHilbert90FactorizationSupply
 #print axioms muNContinuousHilbert90_of_finiteFactorizationSupply
 #print axioms muNContinuousHilbert90
+#print axioms higherKummerClassMonoidHom_surjective
+#print axioms canonicalHigherKummerClassData
+#print axioms canonicalHigherKummerClassData_two_eq_modTwo
 
 end
 end GQ2.Dyadic
