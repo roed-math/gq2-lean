@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
-import GQ2.Dyadic.Count.H2SylowPreimageDevissage
+import GQ2.Dyadic.Count.H2ScalarKernelObstruction
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 
 /-!
