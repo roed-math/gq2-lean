@@ -587,6 +587,85 @@ def LowerTwoCentralElementaryH2CardFormula
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
   Nat.card (H2 Q (ZMod 2)) = 2 ^ lowerTwoCentralQuadraticDimension d
 
+/-- **Narrow finite-group cohomology API.**  Every finite elementary-abelian `2`-group of
+order `2^d` has mod-`2` `H²` of order `2^(d(d+1)/2)`.  This is the standard computation
+`H*(C₂^d,𝔽₂) ≅ 𝔽₂[t₁,…,t_d]` in degree two.
+
+The repository currently has no comparison from its continuous inhomogeneous cochains to
+Mathlib's finite-group cohomology, and no Künneth theorem for this `H2`; consequently this is a
+`def`-shaped reusable interface, not an axiom. -/
+def FiniteElementaryAbelianTwoH2CardFormula : Prop :=
+  ∀ (V : Type) [CommGroup V] [TopologicalSpace V] [IsTopologicalGroup V]
+    [DiscreteTopology V] [Finite V],
+    (∀ v : V, v ^ 2 = 1) → ∀ d : ℕ, Nat.card V = 2 ^ d →
+      letI : DistribMulAction V (ZMod 2) := scalarActionZmodTwo V
+      letI : ContinuousSMul V (ZMod 2) := scalarActionZmodTwo_continuousSMul V
+      Nat.card (H2 V (ZMod 2)) = 2 ^ lowerTwoCentralQuadraticDimension d
+
+/-- The universal finite elementary-abelian computation specializes to the Frattini quotient
+once its order is known. -/
+theorem lowerTwoCentralElementaryH2CardFormula_of_finiteElementary
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) {d : ℕ}
+    (hcard : Nat.card (levelQuot G 2) = 2 ^ d) :
+    LowerTwoCentralElementaryH2CardFormula G d := by
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : Finite Q := finite_levelQuot G hfg hpro 2
+  letI : CommGroup Q :=
+    { (inferInstance : Group Q) with
+      mul_comm := fun a b => by
+        have ha : a ∈ zLayer G 1 := by rw [zLayer_one_eq_top]; trivial
+        exact (Subgroup.mem_center_iff.mp (zLayer_le_center G 1 ha) b).symm }
+  have htwo : ∀ q : Q, q ^ 2 = 1 := by
+    intro q
+    exact zLayer_sq G (by rw [zLayer_one_eq_top]; trivial)
+  dsimp only [LowerTwoCentralElementaryH2CardFormula]
+  exact H Q htwo d hcard
+
+/-- A finitely generated Demushkin group's Frattini quotient has order `2^rank`. -/
+theorem card_levelQuot_two_eq_two_pow_demushkinRank
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G)
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G) :
+    Nat.card (levelQuot G 2) =
+      2 ^ (letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+        demushkinRank 2 G) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  calc
+    Nat.card (levelQuot G 2) = Nat.card (zLayer G 1) := by
+      rw [zLayer_one_eq_top]
+      exact (Nat.card_congr Subgroup.topEquiv.toEquiv).symm
+    _ = Nat.card (H1 G (ZMod 2)) :=
+      (card_H1_zmodTwo_eq_card_zLayer_one hfg hD.isProP).symm
+    _ = 2 ^ demushkinRank 2 G := hD.card_H1_eq_pow
+
+/-- Hence the universal finite-group theorem supplies the elementary-abelian input for every
+finitely generated Demushkin group. -/
+theorem lowerTwoCentralElementaryH2CardFormula_of_demushkin
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G)
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G) :
+    LowerTwoCentralElementaryH2CardFormula G
+      (letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+       demushkinRank 2 G) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  exact lowerTwoCentralElementaryH2CardFormula_of_finiteElementary H G hfg hD.isProP
+    (card_levelQuot_two_eq_two_pow_demushkinRank G hfg hD)
+
 /-- **Sharp assembly of the field-side seam.**  Kernel duality from the five-term sequence,
 surjectivity of inflation, and the standard elementary-abelian `H²` count imply the exact
 cardinal formula used by the degree-two presentation reduction.  This theorem contains all
@@ -679,6 +758,30 @@ theorem lowerTwoCentralFiveTermCardFormula_of_kernelDuality_demushkin
   letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
   exact lowerTwoCentralFiveTermCardFormula_of_kernelDuality G hfg hD.isProP hdual
     (lowerTwoCentralH2InflationSurjective_of_demushkin G hD hrank) helem
+
+/-- After isolating the universal finite elementary-abelian computation, the full cardinal
+formula for a positive-rank finitely generated Demushkin group has only the five-term kernel
+duality as a group-specific input. -/
+theorem lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G)
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G)
+    (hrank :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      0 < demushkinRank 2 G)
+    (hdual : LowerTwoCentralFiveTermKernelDuality G) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    LowerTwoCentralFiveTermCardFormula G := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  exact lowerTwoCentralFiveTermCardFormula_of_kernelDuality_demushkin G hfg hD hrank hdual
+    (lowerTwoCentralElementaryH2CardFormula_of_demushkin H G hfg hD)
 
 /-- The model-side degree-two supply.  The completed Magnus/PBW development already proves
 that the certified quadratic relation generates the entire completed degree-two relation
@@ -1009,6 +1112,46 @@ theorem maxProTwoGalK_lowerTwoCentralH2InflationSurjective
   · exact isDemushkin_maxProTwoGalK (K := K)
   · rw [demushkinRank_maxProTwoGalK (K := K)]
     omega
+
+/-- The universal finite elementary-abelian `H²` computation specializes to the Frattini
+quotient of `G_K(2)`, with dimension `[K : ℚ₂] + 2`. -/
+theorem maxProTwoGalK_lowerTwoCentralElementaryH2CardFormula
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    LowerTwoCentralElementaryH2CardFormula (maxProPQuotient 2 (GalK K))
+      (Module.finrank ℚ_[2] K + 2) := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  have helem := lowerTwoCentralElementaryH2CardFormula_of_demushkin H Q hfg
+    (isDemushkin_maxProTwoGalK (K := K))
+  rwa [demushkinRank_maxProTwoGalK (K := K)] at helem
+
+/-- Consequently, for `G_K(2)` the exact lower-two-central cardinal formula is reduced to the
+universal finite elementary-abelian computation and the five-term kernel-duality statement. -/
+theorem maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary
+    (H : FiniteElementaryAbelianTwoH2CardFormula)
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (hdual : LowerTwoCentralFiveTermKernelDuality
+      (maxProPQuotient 2 (GalK K))) :
+    let Q := maxProPQuotient 2 (GalK K)
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    LowerTwoCentralFiveTermCardFormula Q := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  apply lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary H Q hfg
+    (isDemushkin_maxProTwoGalK (K := K))
+  · rw [demushkinRank_maxProTwoGalK (K := K)]
+    omega
+  · exact hdual
 
 /-- The exact five-term seam plus the already-proved Demushkin cup-product theorem computes
 the arithmetic quadratic layer. -/
@@ -1354,9 +1497,15 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_layerCardPresentation
 #print axioms lowerTwoCentralH1Inflation_surjective
 #print axioms lowerTwoCentralH2Inflation_trivialCupPairing
 #print axioms lowerTwoCentralH2InflationSurjective_of_demushkin
+#print axioms lowerTwoCentralElementaryH2CardFormula_of_finiteElementary
+#print axioms card_levelQuot_two_eq_two_pow_demushkinRank
+#print axioms lowerTwoCentralElementaryH2CardFormula_of_demushkin
 #print axioms lowerTwoCentralFiveTermCardFormula_of_kernelDuality
 #print axioms lowerTwoCentralFiveTermCardFormula_of_kernelDuality_demushkin
+#print axioms lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary
 #print axioms maxProTwoGalK_lowerTwoCentralH2InflationSurjective
+#print axioms maxProTwoGalK_lowerTwoCentralElementaryH2CardFormula
+#print axioms maxProTwoGalK_lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary
 #print axioms lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
 #print axioms card_zLayer_two_dr
 #print axioms card_zLayer_two_dsq_zero
