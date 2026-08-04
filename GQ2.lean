@@ -431,6 +431,7 @@ import GQ2.Dyadic.Count.H3CompletedMagnusKernelIdentity
 import GQ2.Dyadic.Count.H3CompletedQuadraticRelation
 import GQ2.Dyadic.Count.H3CompletedMagnusPropagation
 import GQ2.Dyadic.Count.H3SqRelationReconstructionTransport
+import GQ2.Dyadic.Count.H3CompletedCubicObstruction
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
