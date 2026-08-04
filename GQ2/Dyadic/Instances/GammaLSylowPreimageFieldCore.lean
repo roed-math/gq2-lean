@@ -191,6 +191,37 @@ noncomputable def toBiEpiData (D : SqCyclotomicForwardGeneratorData h chiG)
   backward := backward
   backward_surjective := hbackward
 
+/-- The generic reconstruction step for the reverse epimorphism.  Once the forward generator
+tuple is known, the target `G` is topologically finitely generated.  Therefore surjections from
+`G` onto every finite quotient of `DSq h` assemble to a continuous surjection back to `DSq h`.
+
+This is the exact reusable part of the rank-three Labute assembly; constructing the finite-level
+surjections remains the presentation-specific mathematics. -/
+theorem backward_of_finiteQuotientSurjections
+    (D : SqCyclotomicForwardGeneratorData h chiG) (hpro : IsProP 2 G)
+    (hne : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of (SqCore.DSq h : Type)),
+      Nonempty (ContSurj G ((SqCore.DSq h : Type) ⧸ U.toSubgroup))) :
+    Nonempty (ContSurj G (SqCore.DSq h : Type)) := by
+  have hGfg : IsTopologicallyFinGen G :=
+    IsTopologicallyFinGen.of_surjective (D.forward hpro).toMonoidHom
+      (D.forward hpro).continuous_toFun (D.forward_surjective hpro) (dsqFinsetTopGen h)
+  apply exists_contSurj_of_levelwise_nonempty hne
+  intro U
+  haveI : Finite ((SqCore.DSq h : Type) ⧸ U.toSubgroup) :=
+    Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
+  haveI := finite_continuousMonoidHom hGfg ((SqCore.DSq h : Type) ⧸ U.toSubgroup)
+  exact Subtype.finite
+
+/-- Generator data plus the finite-quotient reverse construction give the complete
+two-epimorphism package. -/
+theorem toBiEpiData_of_finiteQuotientSurjections
+    (D : SqCyclotomicForwardGeneratorData h chiG) (hpro : IsProP 2 G)
+    (hne : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of (SqCore.DSq h : Type)),
+      Nonempty (ContSurj G ((SqCore.DSq h : Type) ⧸ U.toSubgroup))) :
+    Nonempty (SqCyclotomicBiEpiData h chiG) := by
+  obtain ⟨⟨backward, hbackward⟩⟩ := D.backward_of_finiteQuotientSurjections hpro hne
+  exact ⟨D.toBiEpiData hpro backward hbackward⟩
+
 end SqCyclotomicForwardGeneratorData
 
 /-- The Hopfian endgame for the higher-rank square classification.  Two epimorphisms produce
@@ -488,6 +519,8 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms dsqFinsetTopGen
 #print axioms SqCyclotomicForwardGeneratorData.forward_surjective
 #print axioms SqCyclotomicForwardGeneratorData.toBiEpiData
+#print axioms SqCyclotomicForwardGeneratorData.backward_of_finiteQuotientSurjections
+#print axioms SqCyclotomicForwardGeneratorData.toBiEpiData_of_finiteQuotientSurjections
 #print axioms orientedEquivSq_of_biEpiData
 #print axioms oddDegreeGalKSqInvariantData_of_qTwo
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
