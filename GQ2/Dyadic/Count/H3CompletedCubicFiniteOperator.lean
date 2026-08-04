@@ -1402,7 +1402,7 @@ def sqCubicCorrectedCorePrefix (h : ℕ) (D : SqCubicDegreeTwoCorrection h) :
       (sqCubicCorrectedMarkedUnit h D 0))⁻¹ *
     ((sqCubicCorrectedMarkedUnit h D 1) ^ 3)⁻¹
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 4000000 in
 theorem sqCubicCorrectedCorePrefix_val (h : ℕ)
     (D : SqCubicDegreeTwoCorrection h) :
     (sqCubicCorrectedCorePrefix h D).val =
@@ -1424,6 +1424,106 @@ theorem sqCubicCorrectedCorePrefix_val (h : ℕ)
   simp only [Units.val_mul, sqCubicCorrectedMarkedUnit,
     oneAddUnitOfPowFourZero_val, oneAddUnitOfPowFourZero_inv_val]
   simp only [mul_assoc]
+
+set_option maxHeartbeats 1000000 in
+theorem sqCubicCorrectedCorePrefix_perturbation_of_letters (h : ℕ)
+    (D D0 : SqCubicDegreeTwoCorrection h) (s x e : SqCubicOperatorAlgebra h)
+    (hs : sqCubicCorrectedOperatorLetter h D 0 = s)
+    (hx : sqCubicCorrectedOperatorLetter h D 1 = x + e)
+    (hs0 : sqCubicCorrectedOperatorLetter h D0 0 = s)
+    (hx0 : sqCubicCorrectedOperatorLetter h D0 1 = x)
+    (has : sqCubicOperatorAugmentation h s = 0)
+    (hax : sqCubicOperatorAugmentation h x = 0)
+    (hae : sqCubicOperatorAugmentation h e = 0)
+    (heab : ∀ a b : SqCubicOperatorAlgebra h,
+      sqCubicOperatorAugmentation h a = 0 →
+      sqCubicOperatorAugmentation h b = 0 → e * a * b = 0)
+    (haeb : ∀ a b : SqCubicOperatorAlgebra h,
+      sqCubicOperatorAugmentation h a = 0 →
+      sqCubicOperatorAugmentation h b = 0 → a * e * b = 0)
+    (habe : ∀ a b : SqCubicOperatorAlgebra h,
+      sqCubicOperatorAugmentation h a = 0 →
+      sqCubicOperatorAugmentation h b = 0 → a * b * e = 0)
+    (hee : e * e = 0) :
+    (sqCubicCorrectedCorePrefix h D).val =
+      (sqCubicCorrectedCorePrefix h D0).val + e * s + s * e := by
+  rw [sqCubicCorrectedCorePrefix_val, sqCubicCorrectedCorePrefix_val,
+    hs, hx, hs0, hx0]
+  rw [cubicInversePolynomial_add_degreeTwo
+    (sqCubicOperatorAugmentation h) x e hax hae heab haeb habe hee]
+  simpa only [add_assoc] using cubicConjugateCubePrefix_perturbation
+    (sqCubicOperatorAugmentation h)
+    (sqCubicOperatorAugmentation_product_four_zero h)
+    s x e has hax hae heab haeb habe hee
+
+theorem sqCubicXFromSCorePrefix_perturbation (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    (sqCubicCorrectedCorePrefix h
+      (sqCubicXFromSColumnCorrection h v hv)).val =
+      (sqCubicCorrectedCorePrefix h (sqCubicZeroDegreeTwoCorrection h)).val +
+        sqCubicCorrectionOperatorElement h
+            (sqCubicXFromSColumnCorrection h v hv) 1 *
+          sqCubicHomogeneousOperatorLetter h 0 +
+        sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicCorrectionOperatorElement h
+            (sqCubicXFromSColumnCorrection h v hv) 1 := by
+  apply sqCubicCorrectedCorePrefix_perturbation_of_letters h
+    (sqCubicXFromSColumnCorrection h v hv)
+    (sqCubicZeroDegreeTwoCorrection h)
+    (sqCubicHomogeneousOperatorLetter h 0)
+    (sqCubicHomogeneousOperatorLetter h 1)
+    (sqCubicCorrectionOperatorElement h
+      (sqCubicXFromSColumnCorrection h v hv) 1)
+  · have he0 : sqCubicCorrectionOperatorElement h
+        (sqCubicXFromSColumnCorrection h v hv) 0 = 0 := by
+      apply Unitization.ext
+      · simp [sqCubicCorrectionOperatorElement]
+      · apply Subtype.ext
+        apply sqCubicXFromSColumnCorrection_ne_X h v hv 0
+        intro e01
+        have hv1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
+          change 1 % sqRank h = 1
+          apply Nat.mod_eq_of_lt
+          rw [sqRank]
+          omega
+        have he := congrArg Fin.val e01
+        rw [hv1] at he
+        simp at he
+    rw [sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction, he0,
+      add_zero]
+  · exact sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction h
+      (sqCubicXFromSColumnCorrection h v hv) 1
+  · have hD0 : sqCubicCorrectionOperatorElement h
+        (sqCubicZeroDegreeTwoCorrection h) 0 = 0 := by
+      apply Unitization.ext
+      · simp [sqCubicCorrectionOperatorElement]
+      · apply Subtype.ext
+        rfl
+    rw [sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction, hD0,
+      add_zero]
+  · have hD0 : sqCubicCorrectionOperatorElement h
+        (sqCubicZeroDegreeTwoCorrection h) 1 = 0 := by
+      apply Unitization.ext
+      · simp [sqCubicCorrectionOperatorElement]
+      · apply Subtype.ext
+        rfl
+    rw [sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction, hD0,
+      add_zero]
+  · exact sqCubicHomogeneousOperatorLetter_augmentation h 0
+  · exact sqCubicHomogeneousOperatorLetter_augmentation h 1
+  · exact sqCubicCorrectionOperatorElement_augmentation h
+      (sqCubicXFromSColumnCorrection h v hv) 1
+  · intro a b ha hb
+    exact sqCubicCorrectionOperatorElement_mul_two_kernel_zero h
+      (sqCubicXFromSColumnCorrection h v hv) 1 a b ha hb
+  · intro a b ha hb
+    exact sqCubicKernel_mul_correction_mul_kernel_zero h
+      (sqCubicXFromSColumnCorrection h v hv) 1 a b ha hb
+  · intro a b ha hb
+    exact sqCubicTwoKernel_mul_correction_zero h
+      (sqCubicXFromSColumnCorrection h v hv) 1 a b ha hb
+  · exact sqCubicCorrectionOperatorElement_sq_zero h
+      (sqCubicXFromSColumnCorrection h v hv) 1
 
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
