@@ -5,6 +5,8 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3CompletedMagnusGradedBridge
 import GQ2.Dyadic.Count.H3FiniteBarFoxReverse
+import Mathlib.CategoryTheory.CofilteredSystem
+import Mathlib.Data.Finsupp.Fintype
 
 /-!
 # Finite generator differences and the completed augmentation kernel
@@ -32,6 +34,7 @@ noncomputable section
 
 open GQ2 GQ2.FoxH GQ2.Dyadic GQ2.Dyadic.Count
 open GQ2.Dyadic.SqCore
+open CategoryTheory
 
 /-! ## Finite telescoping -/
 
@@ -140,6 +143,36 @@ theorem sqOpenQuotientMarkedAugmentationIdeal_eq
   modTwoMarkedAugmentationIdeal_eq_finiteAugmentationIdeal
     (sqOpenQuotientMarking h V) (sqOpenQuotientMarking_closure_eq_top h V)
 
+/-! ## Augmentation is independent of the finite coordinate -/
+
+/-- Algebra transition maps preserve the coefficient-sum augmentation. -/
+theorem modTwoFiniteAugmentation_transition
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    {U V : OpenNormalSubgroup G} (hUV : U ≤ V)
+    (z : ModTwoGroupAlgebraLevel G U) :
+    modTwoFiniteAugmentation (G ⧸ V.toSubgroup)
+        (modTwoGroupAlgebraTransition G hUV z) =
+      modTwoFiniteAugmentation (G ⧸ U.toSubgroup) z := by
+  induction z using MonoidAlgebra.induction_on with
+  | hM q => simp
+  | hadd z w hz hw => simp only [map_add, hz, hw]
+  | hsmul a z hz => simp only [map_smul, hz]
+
+/-- All finite coordinates of a completed element have the same augmentation. -/
+theorem modTwoCompletedAugmentationCoordinate_eq
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (x : ModTwoCompletedGroupAlgebra G) (U V : OpenNormalSubgroup G) :
+    modTwoCompletedAugmentationCoordinate G U x =
+      modTwoCompletedAugmentationCoordinate G V x := by
+  let W : OpenNormalSubgroup G := U ⊓ V
+  change modTwoFiniteAugmentation (G ⧸ U.toSubgroup)
+      (ModTwoCompletedGroupAlgebra.coordinate G U x) =
+    modTwoFiniteAugmentation (G ⧸ V.toSubgroup)
+      (ModTwoCompletedGroupAlgebra.coordinate G V x)
+  rw [← ModTwoCompletedGroupAlgebra.coordinate_compatible G x (show W ≤ U from inf_le_left),
+    ← ModTwoCompletedGroupAlgebra.coordinate_compatible G x (show W ≤ V from inf_le_right),
+    modTwoFiniteAugmentation_transition, modTwoFiniteAugmentation_transition]
+
 /-! ## The exact completed inverse-limit theorem -/
 
 /-- A finite marking admits completed augmentation-generator coordinates if every
@@ -153,6 +186,136 @@ def CompletedAugmentationGeneratorLifting
     modTwoCompletedAugmentationCoordinate G U x = 0 →
       ∃ c : I → ModTwoCompletedGroupAlgebra G,
         x = ∑ i, c i * (ModTwoCompletedGroupAlgebra.of G (m i) - 1)
+
+/-! ### The concrete finite affine system for the improved square generators -/
+
+/-- At level `U`, the finite affine space of coefficient tuples expressing the prescribed
+completed coordinate in the improved generator differences. -/
+abbrev SqCompletedAugmentationCoefficientFiber
+    (h : ℕ) (x : ModTwoCompletedGroupAlgebra (DSq h : Type))
+    (U : OpenNormalSubgroup (DSq h : Type)) : Type :=
+  {c : Fin (sqRank h) → ModTwoGroupAlgebraLevel (DSq h : Type) U //
+    ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) U x =
+      ∑ i, c i * (MonoidAlgebra.single (sqOpenQuotientMarking h U i) 1 - 1)}
+
+/-- Refinement sends a finite coefficient solution to a solution at every coarser quotient. -/
+noncomputable def sqCompletedAugmentationCoefficientFunctor
+    (h : ℕ) (x : ModTwoCompletedGroupAlgebra (DSq h : Type)) :
+    OpenNormalSubgroup (DSq h : Type) ⥤ Type where
+  obj U := SqCompletedAugmentationCoefficientFiber h x U
+  map {U V} f := ↾(fun c => ⟨fun i =>
+      modTwoGroupAlgebraTransition (DSq h : Type) (leOfHom f) (c.1 i), by
+    calc
+      ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) V x =
+          modTwoGroupAlgebraTransition (DSq h : Type) (leOfHom f)
+            (ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) U x) :=
+        (ModTwoCompletedGroupAlgebra.coordinate_compatible
+          (DSq h : Type) x (leOfHom f)).symm
+      _ = modTwoGroupAlgebraTransition (DSq h : Type) (leOfHom f)
+          (∑ i, c.1 i *
+            (MonoidAlgebra.single (sqOpenQuotientMarking h U i) 1 - 1)) := by
+        exact congrArg
+          (modTwoGroupAlgebraTransition (DSq h : Type) (leOfHom f)) c.2
+      _ = ∑ i,
+          modTwoGroupAlgebraTransition (DSq h : Type) (leOfHom f) (c.1 i) *
+            (MonoidAlgebra.single (sqOpenQuotientMarking h V i) 1 - 1) := by
+        rw [map_sum]
+        apply Finset.sum_congr rfl
+        intro i hi
+        rw [map_mul, map_sub, modTwoGroupAlgebraTransition_single,
+          map_one]
+        rfl⟩)
+  map_id U := by
+    apply ConcreteCategory.hom_ext
+    intro c
+    apply Subtype.ext
+    funext i
+    change modTwoGroupAlgebraTransition (DSq h : Type) (le_refl U) (c.1 i) = c.1 i
+    rw [modTwoGroupAlgebraTransition_refl]
+    rfl
+  map_comp {U V W} f g := by
+    apply ConcreteCategory.hom_ext
+    intro c
+    apply Subtype.ext
+    funext i
+    change modTwoGroupAlgebraTransition (DSq h : Type)
+      ((leOfHom f).trans (leOfHom g)) (c.1 i) = _
+    rw [modTwoGroupAlgebraTransition_comp]
+    rfl
+
+/-- Each finite solution fiber is finite. -/
+instance sqCompletedAugmentationCoefficientFiber_finite
+    (h : ℕ) (x : ModTwoCompletedGroupAlgebra (DSq h : Type))
+    (U : OpenNormalSubgroup (DSq h : Type)) :
+    Finite (SqCompletedAugmentationCoefficientFiber h x U) := by
+  letI : Fintype ((DSq h : Type) ⧸ U.toSubgroup) := Fintype.ofFinite _
+  letI : DecidableEq ((DSq h : Type) ⧸ U.toSubgroup) := Classical.decEq _
+  letI : Fintype (ModTwoGroupAlgebraLevel (DSq h : Type) U) := Finsupp.fintype
+  exact Finite.of_injective Subtype.val Subtype.val_injective
+
+/-- Augmentation zero at one coordinate makes every finite affine solution fiber nonempty. -/
+theorem sqCompletedAugmentationCoefficientFiber_nonempty
+    (h : ℕ) (x : ModTwoCompletedGroupAlgebra (DSq h : Type))
+    (hx : modTwoCompletedAugmentationCoordinate (DSq h : Type)
+      (sqMagnusOneKernel h) x = 0)
+    (U : OpenNormalSubgroup (DSq h : Type)) :
+    Nonempty (SqCompletedAugmentationCoefficientFiber h x U) := by
+  have haug : modTwoFiniteAugmentation
+      ((DSq h : Type) ⧸ U.toSubgroup)
+      (ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) U x) = 0 := by
+    change modTwoCompletedAugmentationCoordinate (DSq h : Type) U x = 0
+    rw [modTwoCompletedAugmentationCoordinate_eq x U (sqMagnusOneKernel h)]
+    exact hx
+  have hmem : ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) U x ∈
+      modTwoMarkedAugmentationIdeal (sqOpenQuotientMarking h U) := by
+    rw [sqOpenQuotientMarkedAugmentationIdeal_eq]
+    change ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) U x ∈
+      modTwoFiniteAugmentationIdeal ((DSq h : Type) ⧸ U.toSubgroup)
+    rw [modTwoFiniteAugmentationIdeal, RingHom.mem_ker]
+    exact haug
+  obtain ⟨c, hc⟩ := (Ideal.mem_span_range_iff_exists_fun).1 hmem
+  exact ⟨⟨c, hc.symm⟩⟩
+
+/-- **Completed Cayley-boundary theorem for the improved square presentation.**  Kőnig
+compactness chooses the finite generator coefficients compatibly over every open-normal
+quotient. -/
+theorem completedAugmentationGeneratorLifting_sq (h : ℕ) :
+    CompletedAugmentationGeneratorLifting (DSq h : Type) (sqGen h) := by
+  intro U x hx
+  have hxMagnus : modTwoCompletedAugmentationCoordinate (DSq h : Type)
+      (sqMagnusOneKernel h) x = 0 := by
+    rw [← modTwoCompletedAugmentationCoordinate_eq x U (sqMagnusOneKernel h)]
+    exact hx
+  let F := sqCompletedAugmentationCoefficientFunctor h x
+  letI hfin : ∀ V : OpenNormalSubgroup (DSq h : Type), Finite (F.obj V) :=
+    fun V => sqCompletedAugmentationCoefficientFiber_finite h x V
+  letI hnonempty : ∀ V : OpenNormalSubgroup (DSq h : Type), Nonempty (F.obj V) :=
+    fun V => sqCompletedAugmentationCoefficientFiber_nonempty h x hxMagnus V
+  obtain ⟨sec, hsec⟩ := nonempty_sections_of_finite_cofiltered_system F
+  let c : Fin (sqRank h) → ModTwoCompletedGroupAlgebra (DSq h : Type) := fun i =>
+    ⟨fun V => (sec V).1 i, by
+      intro V W hVW
+      have hs := congrFun
+        (congrArg Subtype.val (hsec (homOfLE hVW))) i
+      change modTwoGroupAlgebraTransition (DSq h : Type) hVW ((sec V).1 i) =
+        (sec W).1 i at hs
+      exact hs⟩
+  refine ⟨c, ?_⟩
+  apply ModTwoCompletedGroupAlgebra.ext (DSq h : Type)
+  intro V
+  calc
+    ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) V x =
+        ∑ i, (sec V).1 i *
+          (MonoidAlgebra.single (sqOpenQuotientMarking h V i) 1 - 1) :=
+      (sec V).2
+    _ = ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type) V
+        (∑ i, c i *
+          (ModTwoCompletedGroupAlgebra.of (DSq h : Type) (sqGen h i) - 1)) := by
+      rw [map_sum]
+      apply Finset.sum_congr rfl
+      intro i hi
+      rw [map_mul]
+      rfl
 
 /-- The reusable compactness/Nakayama theorem still needed: finite topological generation of a
 profinite group implies compatible completed generator coordinates.  The finite theorem above
@@ -306,6 +469,35 @@ theorem sqCompletedMagnusDegreeZeroOneExact_of_finiteGeneratorTheorem
     SqCompletedMagnusDegreeZeroOneExact h :=
   sqCompletedMagnusDegreeZeroOneExact_of_generatorLifting h
     (completedAugmentationGeneratorLifting_sq_of_finiteGeneratorTheorem H h)
+
+/-! ## Unconditional square reverse kernels -/
+
+/-- The augmentation-zero kernel of the improved square completed group algebra is its
+algebraic augmentation ideal. -/
+theorem sqCompletedDegreeZero_reverse
+    (h : ℕ) (x : ModTwoCompletedGroupAlgebra (DSq h : Type))
+    (hx : modTwoCompletedAugmentationCoordinate (DSq h : Type)
+      (sqMagnusOneKernel h) x = 0) :
+    x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) :=
+  sqCompletedDegreeZero_reverse_of_generatorLifting h
+    (completedAugmentationGeneratorLifting_sq h) x hx
+
+/-- On the improved square augmentation ideal, zero first moment is exactly membership in
+the square of the augmentation ideal. -/
+theorem sqCompletedDegreeOne_reverse
+    (h : ℕ) (x : ModTwoCompletedGroupAlgebra (DSq h : Type))
+    (hxJ : x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type))
+    (hx : sqCompletedFirstMomentMap h x = 0) :
+    x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) ^ 2 :=
+  sqCompletedDegreeOne_reverse_of_generatorLifting h
+    (completedAugmentationGeneratorLifting_sq h) x hxJ hx
+
+/-- **Unconditional degree-zero/one completed Magnus exactness for the improved square
+presentation.** -/
+theorem sqCompletedMagnusDegreeZeroOneExact (h : ℕ) :
+    SqCompletedMagnusDegreeZeroOneExact h :=
+  sqCompletedMagnusDegreeZeroOneExact_of_generatorLifting h
+    (completedAugmentationGeneratorLifting_sq h)
 
 end
 
