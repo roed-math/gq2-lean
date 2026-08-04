@@ -1349,6 +1349,82 @@ theorem sqCubicCorrectionOperatorElement_sq_zero (h : ℕ)
   simpa only [← Unitization.inr_mul, Unitization.inr_zero] using
     congrArg (fun z : sqCubicStrictEnd h => (z : SqCubicOperatorAlgebra h)) hz
 
+/-- The inverse polynomial after adding a degree-two correction. -/
+theorem cubicInversePolynomial_add_degreeTwo
+    {A : Type} [Ring A] [Algebra (ZMod 2) A]
+    (aug : A →ₐ[ZMod 2] ZMod 2)
+    (x e : A) (hax : aug x = 0) (hae : aug e = 0)
+    (heab : ∀ a b : A, aug a = 0 → aug b = 0 → e * a * b = 0)
+    (haeb : ∀ a b : A, aug a = 0 → aug b = 0 → a * e * b = 0)
+    (habe : ∀ a b : A, aug a = 0 → aug b = 0 → a * b * e = 0)
+    (hee : e * e = 0) :
+    1 + (x + e) + (x + e) ^ 2 + (x + e) ^ 3 =
+      1 + x + x ^ 2 + x ^ 3 + e + x * e + e * x := by
+  have heabR (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+      e * (a * b) = 0 := by simpa [mul_assoc] using heab a b ha hb
+  have haebR (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+      a * (e * b) = 0 := by simpa [mul_assoc] using haeb a b ha hb
+  have habeR (a b : A) (ha : aug a = 0) (hb : aug b = 0) :
+      a * (b * e) = 0 := by simpa [mul_assoc] using habe a b ha hb
+  simp (discharger := simp [hax, hae]) only [add_mul, mul_add, mul_assoc,
+    pow_zero, pow_succ, one_mul, zero_mul, mul_zero,
+    heabR, haebR, habeR, hee]
+  abel
+
+theorem oneAddUnitOfPowFourZero_pow_four {A : Type} [Ring A]
+    [Algebra (ZMod 2) A] (x : A) (hx : x ^ 4 = 0) :
+    oneAddUnitOfPowFourZero x hx ^ 4 = 1 := by
+  apply Units.ext
+  change (1 + x) ^ 4 = 1
+  calc
+    (1 + x) ^ 4 = ((1 + x) ^ 2) ^ 2 := by
+      rw [show 4 = 2 * 2 by omega, pow_mul]
+    _ = (1 + x ^ 2) ^ 2 := by rw [one_add_sq_charTwo]
+    _ = 1 + (x ^ 2) ^ 2 := one_add_sq_charTwo (x ^ 2)
+    _ = 1 + x ^ 4 := by rw [← pow_mul]
+    _ = 1 := by rw [hx, add_zero]
+
+@[simp] theorem oneAddUnitOfPowFourZero_inv_val {A : Type} [Ring A]
+    [Algebra (ZMod 2) A] (x : A) (hx : x ^ 4 = 0) :
+    ((oneAddUnitOfPowFourZero x hx)⁻¹ : Aˣ).val = 1 + x + x ^ 2 + x ^ 3 :=
+  rfl
+
+theorem inv_cube_eq_self_of_pow_four_eq_one {G : Type} [Group G]
+    (u : G) (hu : u ^ 4 = 1) : (u ^ 3)⁻¹ = u := by
+  calc
+    (u ^ 3)⁻¹ = u * (u ^ 4)⁻¹ := by group
+    _ = u := by rw [hu, inv_one, mul_one]
+
+/-- The two-factor prefix `(x^s)^{-1} x^{-3}` of the improved square core. -/
+def sqCubicCorrectedCorePrefix (h : ℕ) (D : SqCubicDegreeTwoCorrection h) :
+    (SqCubicOperatorAlgebra h)ˣ :=
+  (conjP (sqCubicCorrectedMarkedUnit h D 1)
+      (sqCubicCorrectedMarkedUnit h D 0))⁻¹ *
+    ((sqCubicCorrectedMarkedUnit h D 1) ^ 3)⁻¹
+
+set_option maxHeartbeats 1000000 in
+theorem sqCubicCorrectedCorePrefix_val (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    (sqCubicCorrectedCorePrefix h D).val =
+      (1 + sqCubicCorrectedOperatorLetter h D 0 +
+          (sqCubicCorrectedOperatorLetter h D 0) ^ 2 +
+          (sqCubicCorrectedOperatorLetter h D 0) ^ 3) *
+        (1 + sqCubicCorrectedOperatorLetter h D 1 +
+          (sqCubicCorrectedOperatorLetter h D 1) ^ 2 +
+          (sqCubicCorrectedOperatorLetter h D 1) ^ 3) *
+        (1 + sqCubicCorrectedOperatorLetter h D 0) *
+        (1 + sqCubicCorrectedOperatorLetter h D 1) := by
+  have hx4 := oneAddUnitOfPowFourZero_pow_four
+    (sqCubicCorrectedOperatorLetter h D 1)
+    (sqCubicCorrectedOperatorLetter_pow_four_zero h D 1)
+  have hx4' : (sqCubicCorrectedMarkedUnit h D 1) ^ 4 = 1 := hx4
+  rw [sqCubicCorrectedCorePrefix, conjP]
+  simp only [mul_inv_rev, inv_inv]
+  rw [inv_cube_eq_self_of_pow_four_eq_one _ hx4']
+  simp only [Units.val_mul, sqCubicCorrectedMarkedUnit,
+    oneAddUnitOfPowFourZero_val, oneAddUnitOfPowFourZero_inv_val]
+  simp only [mul_assoc]
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
