@@ -630,6 +630,147 @@ theorem sqQuadraticNormalEval_repr_word (h : ℕ)
         sqQuadraticNormalEval_leftLetter, ih]
       rfl
 
+/-- A free word is the corresponding monomial basis vector under the standard equivalence
+between a free algebra and the monoid algebra of the free monoid. -/
+theorem sqQuadraticFreeWord_equiv (h : ℕ)
+    (w : List (Fin (sqRank h))) :
+    FreeAlgebra.equivMonoidAlgebraFreeMonoid
+        (quadraticWordEval (FreeAlgebra (ZMod 2) (Fin (sqRank h)))
+          (sqQuadraticFreeLetter h) w) =
+      MonoidAlgebra.single (FreeMonoid.ofList w) 1 := by
+  induction w with
+  | nil =>
+      change FreeAlgebra.equivMonoidAlgebraFreeMonoid
+          (1 : FreeAlgebra (ZMod 2) (Fin (sqRank h))) =
+        MonoidAlgebra.single 1 1
+      rw [map_one, ← MonoidAlgebra.one_def]
+  | cons i w ih =>
+      rw [show quadraticWordEval (FreeAlgebra (ZMod 2) (Fin (sqRank h)))
+          (sqQuadraticFreeLetter h) (i :: w) =
+        sqQuadraticFreeLetter h i *
+          quadraticWordEval (FreeAlgebra (ZMod 2) (Fin (sqRank h)))
+            (sqQuadraticFreeLetter h) w by rfl,
+        map_mul, ih]
+      simp [FreeAlgebra.equivMonoidAlgebraFreeMonoid,
+        sqQuadraticFreeLetter, MonoidAlgebra.single_mul_single]
+
+/-- Pulling a monoid-algebra basis vector back to the free algebra gives the corresponding
+scalar multiple of the free word. -/
+theorem sqQuadraticFreeWord_equiv_symm_single (h : ℕ)
+    (w : FreeMonoid (Fin (sqRank h))) (a : ZMod 2) :
+    FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
+        (MonoidAlgebra.single w a) =
+      a • quadraticWordEval (FreeAlgebra (ZMod 2) (Fin (sqRank h)))
+        (sqQuadraticFreeLetter h) w.toList := by
+  apply FreeAlgebra.equivMonoidAlgebraFreeMonoid.injective
+  rw [FreeAlgebra.equivMonoidAlgebraFreeMonoid.apply_symm_apply,
+    map_smul, sqQuadraticFreeWord_equiv,
+    FreeMonoid.ofList_toList]
+  exact (Finsupp.smul_single_one w a).symm
+
+/-- The quotient map carries a free word to the same word in the marked quotient letters. -/
+theorem sqQuadraticFreeWord_mk (h : ℕ)
+    (w : List (Fin (sqRank h))) :
+    Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
+        (quadraticWordEval (FreeAlgebra (ZMod 2) (Fin (sqRank h)))
+          (sqQuadraticFreeLetter h) w) =
+      quadraticWordEval (SqQuadraticAlgebra h)
+        (sqQuadraticQuotientLetter h) w := by
+  induction w with
+  | nil => simp [quadraticWordEval]
+  | cons i w ih =>
+      change Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
+          (sqQuadraticFreeLetter h i *
+            quadraticWordEval (FreeAlgebra (ZMod 2) (Fin (sqRank h)))
+              (sqQuadraticFreeLetter h) w) = _
+      rw [map_mul, ih]
+      rfl
+
+/-- Normalization followed by evaluation is the identity on the image of every free-algebra
+element in the quadratic quotient. -/
+theorem sqQuadraticNormalEval_repr_mk (h : ℕ)
+    (a : FreeAlgebra (ZMod 2) (Fin (sqRank h))) :
+    sqQuadraticNormalEval h
+        (sqQuadraticNormalRepr h
+          (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) a)) =
+      Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) a := by
+  let c : FreeMonoid (Fin (sqRank h)) →₀ ZMod 2 :=
+    FreeAlgebra.equivMonoidAlgebraFreeMonoid a
+  have ha : a = FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm c := by simp [c]
+  rw [ha]
+  induction c using Finsupp.induction with
+  | zero =>
+      have hz : FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
+          (0 : MonoidAlgebra (ZMod 2) (FreeMonoid (Fin (sqRank h)))) = 0 :=
+        map_zero _
+      calc
+        sqQuadraticNormalEval h
+            (sqQuadraticNormalRepr h
+              (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
+                (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm 0))) =
+          sqQuadraticNormalEval h
+            (sqQuadraticNormalRepr h
+              (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) 0)) := by
+                rw [hz]
+        _ = Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) 0 := by
+          simp
+        _ = Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
+            (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm 0) := by rw [hz]
+  | single_add w r c hw hr ih =>
+      have hadd : FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
+          (Finsupp.single w r + c) =
+        FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm (Finsupp.single w r) +
+          FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm c := map_add _ _ _
+      rw [hadd, map_add, map_add, map_add]
+      have hs : sqQuadraticNormalEval h
+          (sqQuadraticNormalRepr h
+            (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
+              (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
+                (Finsupp.single w r)))) =
+          Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
+            (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
+              (Finsupp.single w r)) := by
+        rw [sqQuadraticFreeWord_equiv_symm_single,
+          map_smul, map_smul, map_smul,
+          sqQuadraticFreeWord_mk, sqQuadraticNormalEval_repr_word]
+      rw [hs, ih]
+
+/-- Normalization followed by evaluation is the identity on the entire quadratic quotient. -/
+theorem sqQuadraticNormalEval_repr (h : ℕ) (a : SqQuadraticAlgebra h) :
+    sqQuadraticNormalEval h (sqQuadraticNormalRepr h a) = a := by
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mkₐ_surjective
+    (ZMod 2) (sqQuadraticRelationIdeal h) a
+  exact sqQuadraticNormalEval_repr_mk h a
+
+/-! ## The completed Diamond/PBW theorem -/
+
+/-- The explicit normal-form equivalence for the square quadratic quotient. -/
+def sqQuadraticNormalLinearEquiv (h : ℕ) :
+    SqQuadraticAlgebra h ≃ₗ[ZMod 2] SqQuadraticNormalSpace h where
+  toLinearMap := sqQuadraticNormalRepr h
+  invFun := sqQuadraticNormalEval h
+  left_inv := sqQuadraticNormalEval_repr h
+  right_inv := sqQuadraticNormalRepr_eval h
+
+/-- **Diamond lemma for the improved square relation.**  The words avoiding `X S` form a
+basis of the free associative `F₂`-algebra modulo
+`X S = Y Y + S X + Σ(UV+VU)`. -/
+def sqQuadraticPBW (h : ℕ) : SqQuadraticPBW h where
+  repr := sqQuadraticNormalLinearEquiv h
+  repr_normalWord := sqQuadraticNormalRepr_word h
+
+/-- Right multiplication by `Y` is unconditionally injective in the actual square quadratic
+quotient. -/
+theorem sqQuadraticQuotient_rightMulY_injective' (h : ℕ) :
+    Function.Injective (fun a : SqQuadraticAlgebra h =>
+      a * sqQuadraticQuotientLetter h 2) :=
+  sqQuadraticQuotient_rightMulY_injective h (sqQuadraticPBW h)
+
+/-- The formal Fox row in the actual quadratic quotient has zero common left annihilator. -/
+theorem sqQuadraticQuotientFoxRow_commonLeftAnnihilatorFree' (h : ℕ) :
+    RowCommonLeftAnnihilatorFree (sqQuadraticQuotientFoxRow h) :=
+  sqQuadraticQuotientFoxRow_commonLeftAnnihilatorFree h (sqQuadraticPBW h)
+
 end
 
 end GQ2.ContCoh
