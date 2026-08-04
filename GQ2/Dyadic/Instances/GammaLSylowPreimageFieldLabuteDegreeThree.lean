@@ -852,31 +852,85 @@ def SqDegreeThreeJenningsArithmetic : Prop :=
     lowerTwoCentralJenningsCubicRemainder (SqCore.sqRank h) =
       lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h)
 
+/-- The finite coefficient remainder simplifies to `(d^3-4d)/3` for every actual improved
+rank `d = 3 + 2h`. -/
+theorem sqDegreeThreeJenningsArithmetic : SqDegreeThreeJenningsArithmetic := by
+  intro h
+  let d := SqCore.sqRank h
+  let q := d * (d + 1) / 2
+  let c := d.choose 3
+  let r := (d ^ 3 - 4 * d) / 3
+  have hd : d = 3 + 2 * h := rfl
+  have hd3 : 3 ≤ d := by omega
+  have hq2 : 2 * q = d * (d + 1) := by
+    dsimp [q]
+    exact Nat.two_mul_div_two_of_even (Nat.even_mul_succ_self d)
+  have hc6 : 6 * c = d * (d - 1) * (d - 2) := by
+    have hc := Nat.descFactorial_eq_factorial_mul_choose d 3
+    calc
+      6 * c = d.descFactorial 3 := by
+        norm_num [c] at hc ⊢
+        exact hc.symm
+      _ = d * (d - 1) * (d - 2) := by
+        simp [Nat.descFactorial]
+        ring
+  have hfactor : d ^ 3 - 4 * d = d * (d - 2) * (d + 2) := by
+    rw [tsub_eq_iff_eq_add_of_le]
+    · have hdsub : d - 2 + 2 = d := Nat.sub_add_cancel (by omega)
+      nlinarith
+    · nlinarith
+  have hfactor_dvd : 3 ∣ d * (d - 2) * (d + 2) := by
+    have hmod : d % 3 = 0 ∨ d % 3 = 1 ∨ d % 3 = 2 := by omega
+    rcases hmod with hmod | hmod | hmod
+    · exact dvd_mul_of_dvd_left
+        (dvd_mul_of_dvd_left (Nat.dvd_of_mod_eq_zero hmod) (d - 2)) (d + 2)
+    · have hdvd : 3 ∣ d + 2 := Nat.dvd_of_mod_eq_zero (by omega)
+      exact dvd_mul_of_dvd_right hdvd (d * (d - 2))
+    · have hdvd : 3 ∣ d - 2 := Nat.dvd_of_mod_eq_zero (by omega)
+      exact dvd_mul_of_dvd_left (dvd_mul_of_dvd_right hdvd d) (d + 2)
+  have hdiv : 3 ∣ d ^ 3 - 4 * d := by
+    rw [hfactor]
+    exact hfactor_dvd
+  have hr3 : 3 * r = d ^ 3 - 4 * d := by
+    dsimp [r]
+    rw [mul_comm, Nat.div_mul_cancel hdiv]
+  have hqpos : 1 ≤ q := by nlinarith
+  have hqsub : q - 1 + 1 = q := Nat.sub_add_cancel hqpos
+  have hAle : 2 * d ≤ d ^ 3 := by nlinarith
+  have hAsub : d ^ 3 - 2 * d + 2 * d = d ^ 3 := Nat.sub_add_cancel hAle
+  have hRle : 4 * d ≤ d ^ 3 := by nlinarith
+  have hRsub : d ^ 3 - 4 * d + 4 * d = d ^ 3 := Nat.sub_add_cancel hRle
+  have hdsub1 : d - 1 + 1 = d := Nat.sub_add_cancel (by omega)
+  have hdsub2 : d - 2 + 2 = d := Nat.sub_add_cancel (by omega)
+  have hsum : d ^ 3 - 2 * d = c + d * (q - 1) + r := by
+    nlinarith
+  change (d ^ 3 - 2 * d) - (c + d * (q - 1)) = r
+  omega
+
 /-- Model-side truncated Jennings supply, sharply limited to coefficient three. -/
 def SqDegreeThreeTruncatedJenningsSupply : Prop :=
   ∀ h : ℕ,
     LowerTwoCentralTruncatedJenningsCoefficientFormula
       (SqCore.DSq h : Type) (SqCore.sqRank h)
 
-/-- A truncated Jennings coefficient proof plus its finite arithmetic normalization computes
-the model's Hilbert coefficient `2`. -/
+/-- A truncated Jennings coefficient proof computes the model's Hilbert coefficient `2`;
+the finite arithmetic normalization is discharged by `sqDegreeThreeJenningsArithmetic`. -/
 theorem dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
-    (Hj : SqDegreeThreeTruncatedJenningsSupply)
-    (Ha : SqDegreeThreeJenningsArithmetic) (h : ℕ) :
+    (Hj : SqDegreeThreeTruncatedJenningsSupply) (h : ℕ) :
     lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 2 =
       lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h) := by
-  rw [lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings (Hj h), Ha h]
+  rw [lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings (Hj h),
+    sqDegreeThreeJenningsArithmetic h]
 
 /-- Consequently the sharply truncated Jennings route, unlike an all-degree Hilbert-series
 assumption, is sufficient for the exact third model layer. -/
 theorem lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
-    (Hj : SqDegreeThreeTruncatedJenningsSupply)
-    (Ha : SqDegreeThreeJenningsArithmetic) (h : ℕ) :
+    (Hj : SqDegreeThreeTruncatedJenningsSupply) (h : ℕ) :
     LowerTwoCentralDegreeThreeExpectedCard (SqCore.DSq h : Type)
       (SqCore.sqRank h) := by
   apply lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient
     (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
-  exact dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings Hj Ha h
+  exact dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings Hj h
 
 /-- The rank-three arithmetic normalization is already executable. -/
 theorem lowerTwoCentralJenningsCubicRemainder_three :
@@ -899,6 +953,7 @@ theorem lowerTwoCentralJenningsCubicRemainder_three :
 #print axioms oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute
 #print axioms sqQuadraticPBWFirstThreeDimensionSupply
 #print axioms lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
+#print axioms sqDegreeThreeJenningsArithmetic
 #print axioms dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
 #print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
 #print axioms lowerTwoCentralJenningsCubicRemainder_three
