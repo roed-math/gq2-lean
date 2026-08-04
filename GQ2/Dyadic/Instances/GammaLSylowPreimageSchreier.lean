@@ -70,6 +70,62 @@ theorem gammaLSylowPreimageProTwoKernelEquality_iff_reverse
       (proPKernel_le_comap (p := 2)
         (subgroupIncl (gamma h q : Type) (U P))) hreverse
 
+/-! ## Finite-quotient extension criterion
+
+The reverse containment can be tested without mentioning elements of either pro-`2` kernel.
+The following condition says that every finite `2`-quotient of the Sylow preimage extends across
+the canonical improved-L pro-`2` core.  Composing the supplied map with `lCanonicalPro2` gives an
+ambient homomorphism from `GammaL` whose restriction is the original quotient map.
+
+This is stronger and more useful than odd-index surjectivity: it controls *all* intrinsic finite
+`2`-quotients of `U`, including ones not visibly induced by the coefficient-action quotient. -/
+
+/-- Every intrinsic finite `2`-quotient of the Sylow preimage factors through the canonical
+improved square core.  This is the finite Reidemeister--Schreier extension property needed for
+the reverse pro-`2` kernel inclusion. -/
+def GammaLSylowPreimageFiniteTwoQuotientExtension
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
+  ∀ (V : OpenNormalSubgroup (U P))
+      (_hV : IsPGroup 2 ((U P) ⧸ V.toSubgroup)),
+    ∃ f : ContinuousMonoidHom (SqCore.DSq h) ((U P) ⧸ V.toSubgroup),
+      (f.comp (lCanonicalPro2 h q hq2 hqe)).comp
+          (subgroupIncl (gamma h q : Type) (U P)) =
+        quotientMk V.toSubgroup
+
+/-- Finite-quotient extension supplies the missing reverse kernel containment.  Indeed, an
+ambient-pro-`2`-invisible element is killed by `lCanonicalPro2`, hence by every extended finite
+quotient of `U`; intersecting those quotient kernels is exactly `proPKernel 2 U`. -/
+theorem gammaLSylowPreimageProTwoKernelEquality_of_finiteTwoQuotientExtension
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hext : GammaLSylowPreimageFiniteTwoQuotientExtension hq2 hqe P) :
+    GammaLSylowPreimageProTwoKernelEquality P := by
+  apply (gammaLSylowPreimageProTwoKernelEquality_iff_reverse P).2
+  intro u hu
+  rw [proPKernel, Subgroup.mem_iInf]
+  rintro ⟨V, hV⟩
+  obtain ⟨f, hf⟩ := hext V hV
+  have hcore : lCanonicalPro2 h q hq2 hqe u.1 = 1 := by
+    rw [Subgroup.mem_comap] at hu
+    apply MonoidHom.mem_ker.mp
+    have hu' : u.1 ∈ (lCanonicalPro2 h q hq2 hqe).toMonoidHom.ker := by
+      change u.1 ∈ (Count.CorePresentation.coreHom
+        (Instances.LSquareCore.lCorePresentation h)
+        (q_ne_zero_of_two_le hq2) hqe).toMonoidHom.ker
+      rw [Count.CorePresentation.ker_coreHom
+        (Instances.LSquareCore.lCorePresentation h) (q_ne_zero_of_two_le hq2) hqe]
+      exact hu
+    exact hu'
+  have hquot : quotientMk V.toSubgroup u = 1 := by
+    have happ := DFunLike.congr_fun hf u
+    change f (lCanonicalPro2 h q hq2 hqe u.1) = quotientMk V.toSubgroup u at happ
+    calc
+      quotientMk V.toSubgroup u = f (lCanonicalPro2 h q hq2 hqe u.1) := happ.symm
+      _ = f 1 := congrArg f hcore
+      _ = 1 := map_one f
+  exact (QuotientGroup.eq_one_iff u).mp hquot
+
 /-- **Sharp presentation criterion.**  The already-constructed epimorphism from the Sylow
 preimage's maximal pro-`2` quotient to the improved L core is injective if and only if the
 subgroup pro-`2` kernel is exactly the pullback of the ambient pro-`2` kernel.
@@ -114,6 +170,44 @@ element of the Sylow preimage. -/
       lCanonicalPro2 h q hq2 hqe u.1 := by
   exact sylowPreimageMaxProTwoLift_mk rhoAB P (SqCore.isProP_DSq h)
     (lCanonicalPro2 h q hq2 hqe) u
+
+/-- Conversely, the kernel equality extends every finite `2`-quotient of `U` through the
+improved square core.  First factor the quotient map through `U(2)` by the maximal-pro-`2`
+universal property, then transport that factor across the canonical core equivalence. -/
+theorem gammaLSylowPreimageFiniteTwoQuotientExtension_of_kernelEquality
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hker : GammaLSylowPreimageProTwoKernelEquality P) :
+    GammaLSylowPreimageFiniteTwoQuotientExtension hq2 hqe P := by
+  intro V hV
+  let qV : ContinuousMonoidHom (U P) ((U P) ⧸ V.toSubgroup) :=
+    quotientMk V.toSubgroup
+  let liftV : ContinuousMonoidHom
+      (maxProPQuotient 2 (U P)) ((U P) ⧸ V.toSubgroup) :=
+    (maxProPHomEquiv (isProP_of_isPGroup hV)).symm qV
+  let e := gammaLSylowPreimageMaxProTwoCoreEquiv hq2 hqe P hker
+  refine ⟨liftV.comp (e.symm : ContinuousMonoidHom (SqCore.DSq h)
+    (maxProPQuotient 2 (U P))), ?_⟩
+  ext u
+  change liftV (e.symm (lCanonicalPro2 h q hq2 hqe u.1)) = qV u
+  rw [← gammaLSylowPreimageMaxProTwoCoreEquiv_mk hq2 hqe P hker u,
+    ContinuousMulEquiv.symm_apply_apply]
+  exact DFunLike.congr_fun ((maxProPHomEquiv (isProP_of_isPGroup hV)).apply_symm_apply qV) u
+
+/-- **Exact finite-quotient form of the Reidemeister--Schreier boundary.**  For the improved
+`GammaL` presentation, the subgroup pro-`2` kernel equality is equivalent to extending every
+finite `2`-quotient of the Sylow preimage through the already-constructed square core.
+
+Thus the unresolved theorem is now a concrete quotient-extension problem: given
+`V ◁ₒ U`, construct the displayed map from `DSq h`. -/
+theorem gammaLSylowPreimageProTwoKernelEquality_iff_finiteTwoQuotientExtension
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
+    GammaLSylowPreimageProTwoKernelEquality P ↔
+      GammaLSylowPreimageFiniteTwoQuotientExtension hq2 hqe P := by
+  constructor
+  · exact gammaLSylowPreimageFiniteTwoQuotientExtension_of_kernelEquality hq2 hqe P
+  · exact gammaLSylowPreimageProTwoKernelEquality_of_finiteTwoQuotientExtension hq2 hqe P
 
 /-! ## The quotient-dependent action retained on the improved core -/
 
