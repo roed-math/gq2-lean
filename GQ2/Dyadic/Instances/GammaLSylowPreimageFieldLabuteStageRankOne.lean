@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStage
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRigidity
 import GQ2.Roe.Labute.StageLemma.StageTwo
 
 /-!
@@ -533,6 +534,43 @@ theorem sqCyclotomicStageTuple_bot_all_defectReachable
   sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
     SqCyclotomicStageTuple.sharpUnitsFiltrationExact k hk T
 
+/-! ## Rank-one specialization of the forward rigidity capstone -/
+
+/-- **`n = 1` is a specialization of the general forward construction.**
+
+The exact bottom-field level-three tuple and the unconditional rank-one actual-defect theorem
+feed the same stage induction, finite-level König assembly, and Demushkin rigidity capstone used
+for arbitrary odd degree.  Thus the resulting equivalence is built from the literal improved
+square presentation and retains its three constructor rows; no reverse-map or layer-cardinality
+argument is used in this specialization.
+
+The already-proved `Q₂` classification is used only by the existing theorem supplying the
+level-three regression tuple.  The all-level correction input below is the independent sharp
+rank-one stage calculation. -/
+theorem nonempty_orientedEquiv_bot_of_forwardStageRigidity :
+    Nonempty (OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2]
+        (⊥ : IntermediateField ℚ_[2] ℚ̄₂) - 1) / 2))
+      (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂)))) := by
+  have hodd : Odd (Module.finrank ℚ_[2]
+      (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) := by
+    rw [IntermediateField.finrank_bot]
+    exact odd_one
+  have hhandles : ((Module.finrank ℚ_[2]
+      (⊥ : IntermediateField ℚ_[2] ℚ̄₂) - 1) / 2) = 0 := by
+    simp [IntermediateField.finrank_bot]
+  obtain ⟨base⟩ := sqCyclotomicStageTuple_bot_three_nonempty
+  have base' : SqCyclotomicStageTuple
+      (⊥ : IntermediateField ℚ_[2] ℚ̄₂)
+      ((Module.finrank ℚ_[2]
+        (⊥ : IntermediateField ℚ_[2] ℚ̄₂) - 1) / 2) 3 := by
+    rw [hhandles]
+    exact base
+  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_corrections hodd base'
+  rw [hhandles]
+  intro k hk T
+  exact sqCyclotomicStageTuple_bot_all_defectReachable k hk T
+
 #print axioms sqCyclotomicStageTuple_bot_nonempty
 #print axioms chiD0pres_eq_chiD0G
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
@@ -545,6 +583,7 @@ theorem sqCyclotomicStageTuple_bot_all_defectReachable
 #print axioms chiCycKTwo_bot_surjective
 #print axioms sqCyclotomicStageTuple_bot_defectReachable_of_sharpUnitsFiltrationExact
 #print axioms sqCyclotomicStageTuple_bot_all_defectReachable
+#print axioms nonempty_orientedEquiv_bot_of_forwardStageRigidity
 
 end
 
