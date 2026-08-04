@@ -8,13 +8,23 @@ import GQ2.Dyadic.Count.H3SqReconstructionFiniteDetector
 import GQ2.Dyadic.Count.H3SqCofinalTransitionDetector
 
 /-!
-# End-to-end capstones from the finite square-presentation residuals
+# Conditional capstones from the finite square-presentation residuals
 
-This file combines the three independent boundaries left by the completed Magnus and finite
-bar--Fox campaigns:
+This file combines the independent boundaries left by the completed Magnus and finite bar--Fox
+campaigns.  Its first two theorems are the live abstract endpoint: they start from an already
+compatible family of universal comparisons and ask for either the reconstruction defect or its
+explicit generator table to vanish.
+
+The later theorems retain an earlier attempted construction of that family from literal
+range-good universal-relation transitions.  `H3SqCofinalTransitionNoGo` proves that those
+transition premises are false for the present free universal-relation alphabet.  They remain
+here as regression lemmas documenting exactly what a corrected transition object must replace;
+they are not viable hypotheses for the final proof.
+
+The three independent live boundaries are:
 
 * all-degree completed Magnus--PBW kernel exactness;
-* cofinal local solvability with simultaneous range-good transition refinements;
+* construction of a compatible universal family using corrected relation-cell transport;
 * vanishing of the finite-support reconstruction defect for the chosen single-relator lift.
 
 No eventual relation-generation premise occurs: it is already unconditional for `DSq h`.
@@ -62,9 +72,10 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleReconstructionGenera
     (fun V => ((S V).sqPresentationFiniteSupportTransportDefect_eq_zero_iff_generators).2
       (hgenerators V))
 
-/-- A fully decomposed current end-to-end theorem.  Range-good compactness constructs the
-universal degree-three comparisons; the displayed defect-zero condition turns each of them into
-the single-relator reconstruction required by the completed bar--Fox assembly. -/
+/-- Historical conditional endpoint.  Range-good compactness would construct the universal
+degree-three comparisons, but `not_sqUniversalBarInputTransitionCommonRefinementRange` proves
+that its literal transition premise is false.  The theorem is retained to specify the interface
+that a corrected relation-cell transition construction should recover. -/
 theorem finiteElementaryH2RightExactSupply_DSq_of_finiteResiduals
     (h : ℕ)
     (H : SqCompletedMonomialPBWKernelIdentityAll h)
@@ -85,8 +96,9 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_finiteResiduals
   exact finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero h H S
     (fun V => hdefect V (S V))
 
-/-- Detector form of the capstone.  An effective marking of each paired finite transition
-detector supplies the simultaneous common refinements used above. -/
+/-- Historical detector form of the capstone.  Its effective-marking premise is refuted by
+`not_sqUniversalBarInputTransitionPairDetectorEffectiveMarking`; a corrected detector must
+first quotient the universal relation coordinates or carry explicit relation-cell corrections. -/
 theorem finiteElementaryH2RightExactSupply_DSq_of_effectiveTransitionDetectors
     (h : ℕ)
     (H : SqCompletedMonomialPBWKernelIdentityAll h)
@@ -104,8 +116,8 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_effectiveTransitionDetectors
       h heffective)
     hcancel hdefect
 
-/-- Fully finite detector form: the transition condition is an effective marking of the paired
-finite obstruction, and reconstruction is the explicit standard-basis linear system. -/
+/-- Historical fully finite detector form.  The reconstruction table is a live finite target,
+whereas the literal paired-transition marking is now known to be impossible. -/
 theorem finiteElementaryH2RightExactSupply_DSq_of_transitionAndReconstructionDetectors
     (h : ℕ)
     (H : SqCompletedMonomialPBWKernelIdentityAll h)
@@ -125,9 +137,9 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_transitionAndReconstructionDet
       (S.sqPresentationFiniteSupportTransportDefect_eq_zero_iff_generators).2
         (hgenerators V S)
 
-/-- Fully decomposed regression: degrees zero, one, and two are already unconditional, so
-last-letter row exactness from degree two onward plus the two finite degree-three detector
-conditions prove the complete finite-coefficient `H²` tail for the improved square core. -/
+/-- Historical decomposed regression.  Degrees zero, one, and two are unconditional and the
+last-letter premise is live, but the literal effective transition detector must be replaced by
+corrected relation-cell transport. -/
 theorem finiteElementaryH2RightExactSupply_DSq_of_lastLetterAndFiniteDetectors
     (h : ℕ)
     (Hstep : ∀ n (Hn : SqCompletedMonomialPBWKernelIdentity h n), 2 ≤ n →
