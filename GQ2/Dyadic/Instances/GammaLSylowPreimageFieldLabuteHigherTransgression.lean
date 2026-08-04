@@ -433,6 +433,178 @@ noncomputable def lowerTwoCentralH2InflationAt (k : ℕ) :
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
   exact inf2 ⟨levelMk G k, continuous_levelMk G k⟩ (fun _ _ => rfl)
 
+/-- Canonical degree-one inflation from the stage-`k` quotient. -/
+noncomputable def lowerTwoCentralH1InflationAt (k : ℕ) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    H1 Q (ZMod 2) →+ H1 G (ZMod 2) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  exact inf1 ⟨levelMk G k, continuous_levelMk G k⟩ (fun _ _ => rfl)
+
+/-- For `k ≥ 2`, restriction along `G → G/λ_k(G)` is an equivalence on continuous mod-two
+characters.  The point is the elementary arithmetic fact that every such character kills
+`λ₂(G)`, hence also the deeper subgroup `λ_k(G)`. -/
+noncomputable def continuousCharacterLevelEquivAt (k : ℕ) (hk : 2 ≤ k) :
+    ContinuousMonoidHom (levelQuot G k) (Multiplicative (ZMod 2)) ≃
+      ContinuousMonoidHom G (Multiplicative (ZMod 2)) where
+  toFun f := f.comp ⟨levelMk G k, continuous_levelMk G k⟩
+  invFun c := quotientLift (twoCentralSeries G k) c
+    (fun g hg => twoCentralSeries_two_le_continuousCharacter_ker c
+      (twoCentralSeries_antitone G hk hg))
+  left_inv f := by
+    ext q
+    obtain ⟨g, rfl⟩ := levelMk_surjective G k q
+    rfl
+  right_inv c := by
+    ext g
+    rfl
+
+/-- Every mod-two degree-one class factors through every lower-two-central quotient of stage at
+least two. -/
+theorem lowerTwoCentralH1InflationAt_surjective (k : ℕ) (hk : 2 ≤ k) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    Function.Surjective (lowerTwoCentralH1InflationAt G k) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  dsimp only
+  intro x
+  obtain ⟨z, rfl⟩ := H1mk_surjective (G := G) (M := ZMod 2) x
+  let cG : ContinuousMonoidHom G (Multiplicative (ZMod 2)) := Count.homEquivZ1.symm z
+  let cQ : ContinuousMonoidHom Q (Multiplicative (ZMod 2)) :=
+    (continuousCharacterLevelEquivAt G k hk).symm cG
+  let zQ : Z1 Q (ZMod 2) := Count.homEquivZ1 cQ
+  refine ⟨H1mk Q (ZMod 2) zQ, ?_⟩
+  rw [show lowerTwoCentralH1InflationAt G k =
+      inf1 ⟨levelMk G k, continuous_levelMk G k⟩ (fun _ _ => rfl) from rfl,
+    inf1_H1mk]
+  congr 1
+
+/-- A fixed (not generally additive) lift of degree-one classes from `G` to the stage-`k`
+quotient.  Its only intended interface is the following inflation identity. -/
+noncomputable def lowerTwoCentralH1LiftAt (k : ℕ) (hk : 2 ≤ k) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    H1 G (ZMod 2) → H1 Q (ZMod 2) :=
+  Function.surjInv (lowerTwoCentralH1InflationAt_surjective G k hk)
+
+@[simp] theorem lowerTwoCentralH1InflationAt_lift (k : ℕ) (hk : 2 ≤ k)
+    (x :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      H1 G (ZMod 2)) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    lowerTwoCentralH1InflationAt G k (lowerTwoCentralH1LiftAt G k hk x) = x := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  exact Function.surjInv_eq (lowerTwoCentralH1InflationAt_surjective G k hk) x
+
+/-- Inflation along `G → G/λ_k(G)` respects the trivial-coefficient cup product. -/
+theorem lowerTwoCentralH2InflationAt_trivialCupPairing (k : ℕ)
+    (x y :
+      let Q := levelQuot G k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      H1 Q (ZMod 2)) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    lowerTwoCentralH2InflationAt G k
+        (trivialCupPairing 2 Q (fun _ _ => rfl) x y) =
+      trivialCupPairing 2 G (fun _ _ => rfl)
+        (lowerTwoCentralH1InflationAt G k x) (lowerTwoCentralH1InflationAt G k y) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  obtain ⟨a, rfl⟩ := H1mk_surjective (G := Q) (M := ZMod 2) x
+  obtain ⟨b, rfl⟩ := H1mk_surjective (G := Q) (M := ZMod 2) y
+  simp only [trivialCupPairing]
+  rw [show lowerTwoCentralH2InflationAt G k =
+      inf2 ⟨levelMk G k, continuous_levelMk G k⟩ (fun _ _ => rfl) from rfl,
+    show lowerTwoCentralH1InflationAt G k =
+      inf1 ⟨levelMk G k, continuous_levelMk G k⟩ (fun _ _ => rfl) from rfl,
+    cup11_mk_mk, inf2_H2mk, inf1_H1mk, inf1_H1mk, cup11_mk_mk]
+  congr 1
+
+/-- The quotient-level Bockstein defect associated to a proposed Bockstein vector `κ`.
+
+For the dyadic Galois group, `κ` will be the mod-four cyclotomic/Kummer class.  Keeping this
+definition generic separates the formal cup-product naturality from that arithmetic input. -/
+noncomputable def lowerTwoCentralBocksteinDefectAt (k : ℕ)
+    (κ x :
+      let Q := levelQuot G k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      H1 Q (ZMod 2)) :
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    H2 Q (ZMod 2) := by
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  exact trivialCupPairing 2 Q (fun _ _ => rfl) x x -
+    trivialCupPairing 2 Q (fun _ _ => rfl) κ x
+
+/-- If the inflated classes satisfy the cup--Bockstein identity in `G`, their quotient-level
+defect is a genuine class in the kernel of stage-`k` degree-two inflation. -/
+theorem lowerTwoCentralBocksteinDefectAt_mem_inflationKernel (k : ℕ)
+    (κ x :
+      let Q := levelQuot G k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      H1 Q (ZMod 2))
+    (hcup :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      trivialCupPairing 2 G (fun _ _ => rfl)
+          (lowerTwoCentralH1InflationAt G k x) (lowerTwoCentralH1InflationAt G k x) =
+        trivialCupPairing 2 G (fun _ _ => rfl)
+          (lowerTwoCentralH1InflationAt G k κ) (lowerTwoCentralH1InflationAt G k x)) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    lowerTwoCentralBocksteinDefectAt G k κ x ∈
+      (lowerTwoCentralH2InflationAt G k).ker := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  rw [AddMonoidHom.mem_ker]
+  simp only [lowerTwoCentralBocksteinDefectAt, map_sub,
+    lowerTwoCentralH2InflationAt_trivialCupPairing]
+  exact sub_eq_zero.mpr hcup
+
 /-- Every stage-`k` transgression class lies in the kernel of inflation to `G`. -/
 theorem lowerTwoCentralTransgressionH2At_mem_inflationKernel (k : ℕ)
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)

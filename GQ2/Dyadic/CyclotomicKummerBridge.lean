@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.FieldData
 import GQ2.Dyadic.MarkedMaxProTwo
+import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.Count.Scalar
 
 /-!
@@ -138,8 +139,59 @@ theorem cyclotomicModFourClassK_eq_kappaK :
   funext g
   exact cyclotomicModFourCocycleFun_eq_kummerNegOne g
 
+section MaxProTwo
+
+variable [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+  [TotallyDisconnectedSpace (GalK K)]
+variable [DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2)]
+  [ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2)]
+
+/-- The mod-four cyclotomic sign, formed directly from the descended cyclotomic character on
+`G_K(2)`. -/
+def cyclotomicModFourCharacterKTwo :
+    ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2)) :=
+  padicUnitsModFourParity.comp (chiCycKTwo (K := K))
+
+/-- The degree-one class of the mod-four cyclotomic sign on `G_K(2)`. -/
+noncomputable def cyclotomicModFourClassKTwo :
+    H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  H1mk _ _ (Count.homEquivZ1 (cyclotomicModFourCharacterKTwo (K := K)))
+
+/-- Inflation identifies the directly descended mod-four class on `G_K(2)` with the class on
+the absolute Galois group. -/
+theorem h1MaxProTwoEquivGalK_cyclotomicModFourClassKTwo :
+    h1MaxProTwoEquivGalK (K := K) (cyclotomicModFourClassKTwo (K := K)) =
+      cyclotomicModFourClassK (K := K) := by
+  rw [h1MaxProTwoEquivGalK_apply]
+  unfold cyclotomicModFourClassKTwo cyclotomicModFourClassK
+  rw [inf1_H1mk]
+  congr 1
+
+/-- On `G_K(2)`, the mod-four cyclotomic class is the Bockstein vector: cupping it with any
+degree-one class gives that class's self-cup. -/
+theorem trivialCupPairing_cyclotomicModFourClassKTwo
+    (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :
+    trivialCupPairing 2 (maxProPQuotient 2 (GalK K)) smul_zmod2
+        (cyclotomicModFourClassKTwo (K := K)) x =
+      trivialCupPairing 2 (maxProPQuotient 2 (GalK K)) smul_zmod2 x x := by
+  apply h2InflationGalK_injective (K := K)
+  rw [show h2InflationGalK (K := K) =
+      inf2 (maxProPMk 2 (GalK K))
+        (fun g m => (smul_zmod2 (maxProPMk 2 (GalK K) g) m).trans
+          (htriv_galK K g m).symm) from rfl,
+    inf2_trivialCupPairing_maxProPMk_galK,
+    inf2_trivialCupPairing_maxProPMk_galK,
+    h1MaxProTwoEquivGalK_cyclotomicModFourClassKTwo,
+    cyclotomicModFourClassK_eq_kappaK]
+  apply (FieldData.invGalK K).injective
+  exact FieldData.cupFormK_kappa K (h1MaxProTwoEquivGalK (K := K) x)
+
+end MaxProTwo
+
 #print axioms cyclotomicModFourCocycleFun_eq_kummerNegOne
 #print axioms cyclotomicModFourClassK_eq_kappaK
+#print axioms h1MaxProTwoEquivGalK_cyclotomicModFourClassKTwo
+#print axioms trivialCupPairing_cyclotomicModFourClassKTwo
 
 end
 
