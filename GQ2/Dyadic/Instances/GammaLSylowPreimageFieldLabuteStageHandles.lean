@@ -179,6 +179,14 @@ theorem sqHandleDbarWord_mem_zLayer
     (commP_mem_zLayer k hk (hdepth (SqCore.sqHandleIdxV j)) _)
     (commP_mem_zLayer k hk (hdepth (SqCore.sqHandleIdxU j)) _)
 
+/-- The zero handle correction has trivial handle shift. -/
+theorem sqHandleDbarWord_one
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (base : Fin (SqCore.sqRank h) → levelQuot G (k + 1)) :
+    sqHandleDbarWord base (fun _ ↦ 1) = 1 := by
+  simp [sqHandleDbarWord, commP]
+
 /-- The entire handle block is multiplicative in the depth correction.  Thus every handle
 pair contributes a genuine linear coordinate in the central graded layer. -/
 theorem sqHandleDbarWord_mul
@@ -215,6 +223,31 @@ def sqCoreHandleDbarWord
   dbarWordR2 (base 0) (base 1) (base 2)
       ![correction 0, correction 1, correction 2] *
     sqHandleDbarWord base correction
+
+/-- The full linearized shift lands in the central defect layer. -/
+theorem sqCoreHandleDbarWord_mem_zLayer
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    sqCoreHandleDbarWord base correction ∈ zLayer G k := by
+  apply Subgroup.mul_mem
+  · exact dbarWordR2_mem_zLayer k hk _ _ _ fun i ↦ by
+      fin_cases i
+      · exact hdepth 0
+      · exact hdepth 1
+      · exact hdepth 2
+  · exact sqHandleDbarWord_mem_zLayer h k hk base correction hdepth
+
+/-- The zero correction has trivial full shift. -/
+theorem sqCoreHandleDbarWord_one
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (base : Fin (SqCore.sqRank h) → levelQuot G (k + 1)) :
+    sqCoreHandleDbarWord base (fun _ ↦ 1) = 1 := by
+  rw [sqCoreHandleDbarWord, sqHandleDbarWord_one, mul_one]
+  exact dbarWordR2_one _ _ _
 
 /-- The full explicit core-plus-handle shift is a homomorphism on depth corrections.  This
 reduces the remaining span problem to the images of individual core and handle coordinates. -/
@@ -488,6 +521,99 @@ structure SharpNeutralCorrection {h k : ℕ}
   sharpKernel : ∀ i, sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
     (correction i) = 1
 
+@[ext]
+theorem SharpNeutralCorrection.ext {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    {V V' : SharpNeutralCorrection T hk}
+    (H : V.correction = V'.correction) : V = V' := by
+  cases V
+  cases V'
+  cases H
+  rfl
+
+protected noncomputable def SharpNeutralCorrection.one {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k} :
+    SharpNeutralCorrection T hk where
+  correction _ := 1
+  depth _ := Subgroup.one_mem _
+  sharpKernel _ := map_one _
+
+protected noncomputable def SharpNeutralCorrection.mul {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (V V' : SharpNeutralCorrection T hk) : SharpNeutralCorrection T hk where
+  correction i := V.correction i * V'.correction i
+  depth i := Subgroup.mul_mem _ (V.depth i) (V'.depth i)
+  sharpKernel i := by rw [map_mul, V.sharpKernel, V'.sharpKernel, one_mul]
+
+protected noncomputable def SharpNeutralCorrection.inv {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (V : SharpNeutralCorrection T hk) : SharpNeutralCorrection T hk where
+  correction i := (V.correction i)⁻¹
+  depth i := Subgroup.inv_mem _ (V.depth i)
+  sharpKernel i := by rw [map_inv, V.sharpKernel, inv_one]
+
+noncomputable instance {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k} :
+    Group (SharpNeutralCorrection T hk) where
+  one := SharpNeutralCorrection.one
+  mul := SharpNeutralCorrection.mul
+  inv := SharpNeutralCorrection.inv
+  mul_assoc V₁ V₂ V₃ := by
+    ext i
+    exact mul_assoc _ _ _
+  one_mul V := by
+    ext i
+    exact one_mul _
+  mul_one V := by
+    ext i
+    exact mul_one _
+  inv_mul_cancel V := by
+    ext i
+    exact inv_mul_cancel _
+
+@[simp] theorem SharpNeutralCorrection.one_correction {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (i : Fin (SqCore.sqRank h)) :
+    (1 : SharpNeutralCorrection T hk).correction i = 1 := rfl
+
+@[simp] theorem SharpNeutralCorrection.mul_correction {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (V V' : SharpNeutralCorrection T hk) (i : Fin (SqCore.sqRank h)) :
+    (V * V').correction i = V.correction i * V'.correction i := rfl
+
+@[simp] theorem SharpNeutralCorrection.inv_correction {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (V : SharpNeutralCorrection T hk) (i : Fin (SqCore.sqRank h)) :
+    V⁻¹.correction i = (V.correction i)⁻¹ := rfl
+
+/-- The literal core-plus-handle shift as a homomorphism from the group of neutral depth
+directions into the central defect layer. -/
+noncomputable def sharpNeutralShiftHom {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k) :
+    SharpNeutralCorrection T (by omega) →* zLayer
+      (maxProPQuotient 2 (GalK K)) k where
+  toFun V := ⟨sqCoreHandleDbarWord
+    (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+    V.correction, sqCoreHandleDbarWord_mem_zLayer h k hk _ _ V.depth⟩
+  map_one' := by
+    apply Subtype.ext
+    change sqCoreHandleDbarWord
+      (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+      (fun _ ↦ 1) = 1
+    exact sqCoreHandleDbarWord_one _
+  map_mul' V V' := by
+    apply Subtype.ext
+    change sqCoreHandleDbarWord
+      (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+      (fun i ↦ V.correction i * V'.correction i) =
+      sqCoreHandleDbarWord
+          (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+          V.correction *
+        sqCoreHandleDbarWord
+          (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+          V'.correction
+    exact sqCoreHandleDbarWord_mul h k hk _ V.depth V'.depth
+
 /-- Pointwise multiplication by a sharp-neutral correction preserves sharp admissibility. -/
 noncomputable def SharpAdmissibleCorrection.mulNeutral {h k : ℕ}
     {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
@@ -602,6 +728,36 @@ def SharpNeutralResidualReachable {h k : ℕ}
       (sqCoreHandleDbarWord base W.correction)⁻¹ *
         (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
 
+/-- The residual target as an element of the central defect layer. -/
+noncomputable def sharpNeutralResidualElement {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (W : SharpAdmissibleCorrection T (by omega)) :
+    zLayer (maxProPQuotient 2 (GalK K)) k :=
+  ⟨(let base := fun i ↦
+      canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+    (sqCoreHandleDbarWord base W.correction)⁻¹ *
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹),
+    Subgroup.mul_mem _
+      (Subgroup.inv_mem _ (sqCoreHandleDbarWord_mem_zLayer h k hk _ _ W.depth))
+      (Subgroup.inv_mem _ (sqStageDefect_mem_zLayer h k T.relation))⟩
+
+/-- Neutral residual reachability is exactly membership in the range of the explicit shift
+homomorphism. -/
+theorem sharpNeutralResidualReachable_iff_mem_range
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega)) :
+    SharpNeutralResidualReachable T hk W ↔
+      sharpNeutralResidualElement T hk W ∈
+        (sharpNeutralShiftHom T hk).range := by
+  constructor
+  · rintro ⟨V, hV⟩
+    refine ⟨V, ?_⟩
+    apply Subtype.ext
+    exact hV
+  · rintro ⟨V, hV⟩
+    refine ⟨V, ?_⟩
+    exact congrArg Subtype.val hV
+
 /-- A neutral direction hitting the residual defect produces the required affine correction. -/
 noncomputable def CoreHandleSharpActualDefectSupply.ofNeutralResidual
     {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
@@ -620,6 +776,21 @@ noncomputable def CoreHandleSharpActualDefectSupply.ofNeutralResidual
   dsimp only at hmul hV
   rw [hmul, hV]
   group
+
+/-- The stronger full-surjectivity form of the neutral span theorem implies the required
+one-point actual-defect supply. -/
+noncomputable def CoreHandleSharpActualDefectSupply.ofNeutralShiftSurjective
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (Hsurj : Function.Surjective (sharpNeutralShiftHom T hk)) :
+    CoreHandleSharpActualDefectSupply T hk := by
+  let W : SharpAdmissibleCorrection T (by omega) :=
+    Classical.choice (sharpAdmissibleCorrection_nonempty T (by omega))
+  have Hmem : sharpNeutralResidualElement T hk W ∈
+      (sharpNeutralShiftHom T hk).range := by
+    obtain ⟨V, hV⟩ := Hsurj (sharpNeutralResidualElement T hk W)
+    exact ⟨V, hV⟩
+  exact CoreHandleSharpActualDefectSupply.ofNeutralResidual W
+    ((sharpNeutralResidualReachable_iff_mem_range W).mpr Hmem)
 
 /-- Conversely, any successful affine correction differs from any chosen sharp-admissible
 base point by a neutral direction hitting exactly the stated residual. -/
@@ -716,7 +887,10 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.sharpAdmissibleCorrection_nonempty
 #print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.mulNeutral
 #print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.differenceNeutral
+#print axioms SqCyclotomicStageTuple.sharpNeutralShiftHom
+#print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_iff_mem_range
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofNeutralResidual
+#print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofNeutralShiftSurjective
 #print axioms SqCyclotomicStageTuple.nonempty_coreHandleSharpActualDefectSupply_iff_neutralResidual
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.toDefectReachable
 
