@@ -421,6 +421,7 @@ import GQ2.Dyadic.Count.H3FoxMagnusJet
 import GQ2.Dyadic.Count.H3SqQuadraticPBW
 import GQ2.Dyadic.Count.H3SqQuadraticDiamond
 import GQ2.Dyadic.Count.H3CompletedMagnusGradedBridge
+import GQ2.Dyadic.Count.H3CompletedAugmentationGenerators
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
