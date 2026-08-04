@@ -187,6 +187,60 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   [CompactSpace (GalK K)] [T2Space (GalK K)]
   [TotallyDisconnectedSpace (GalK K)]
 
+/-- Maximal honest use of the existing constructor table at the base level.  The table supplies
+the three exceptional value fibres.  What remains, and is therefore displayed explicitly in
+the premise, is a generating level-three tuple killing the literal improved relator together
+with kernel lifts for all handles. -/
+def ofCoreTable
+    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (generators : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) 3)
+    (hsigma : generators 0 = levelMk (maxProPQuotient 2 (GalK K)) 3 T.sigma)
+    (hx0 : generators 1 = levelMk (maxProPQuotient 2 (GalK K)) 3 T.x0)
+    (hx1 : generators 2 = levelMk (maxProPQuotient 2 (GalK K)) 3 T.x1)
+    (hhandleU : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        generators (SqCore.sqHandleIdxU j) =
+          levelMk (maxProPQuotient 2 (GalK K)) 3 x)
+    (hhandleV : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        generators (SqCore.sqHandleIdxV j) =
+          levelMk (maxProPQuotient 2 (GalK K)) 3 x)
+    (hrelation : SqCore.sqRelWord generators = 1)
+    (htopGen : Subgroup.closure (Set.range generators) = ⊤) :
+    SqCyclotomicStageTuple K h 3 where
+  generators := generators
+  sigma := ⟨T.sigma, T.sigma_value, hsigma⟩
+  x0 := ⟨T.x0, T.x0_value, hx0⟩
+  x1 := ⟨T.x1, T.x1_value, hx1⟩
+  handleU := hhandleU
+  handleV := hhandleV
+  relation := hrelation
+  topGen := htopGen
+
+/-- Regression: the constructor-table base adapter retains the improved `sqRelWord`. -/
+theorem ofCoreTable_sqRelWord_regression
+    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (generators : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) 3)
+    (hsigma : generators 0 = levelMk (maxProPQuotient 2 (GalK K)) 3 T.sigma)
+    (hx0 : generators 1 = levelMk (maxProPQuotient 2 (GalK K)) 3 T.x0)
+    (hx1 : generators 2 = levelMk (maxProPQuotient 2 (GalK K)) 3 T.x1)
+    (hhandleU : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        generators (SqCore.sqHandleIdxU j) =
+          levelMk (maxProPQuotient 2 (GalK K)) 3 x)
+    (hhandleV : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        generators (SqCore.sqHandleIdxV j) =
+          levelMk (maxProPQuotient 2 (GalK K)) 3 x)
+    (hrelation : SqCore.sqRelWord generators = 1)
+    (htopGen : Subgroup.closure (Set.range generators) = ⊤) :
+    SqCore.sqRelWord
+      (ofCoreTable T h generators hsigma hx0 hx1 hhandleU hhandleV hrelation htopGen).generators =
+      1 :=
+  hrelation
+
 /-- Restriction down the two-central tower preserves the literal improved relation,
 generation, and all exact cyclotomic fibres. -/
 noncomputable def levelProj {h k : ℕ}
@@ -440,6 +494,32 @@ def CorrectionSurjective {h k : ℕ}
     ∃ W : AdmissibleCorrection T,
       stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction = δ
 
+/-- A reusable crossed-derivation/span package.  An implementation may take `Parameter` to be
+a finite-dimensional coefficient space and `shiftValue` its linear crossed-derivation map.
+The adapter below needs only its mathematical output: every parameter yields an admissible
+literal-word correction, the computed shift agrees with `stageShift`, and the shift map is
+onto the graded layer. -/
+structure CrossedDerivationSpanSupply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) where
+  Parameter : Type
+  correction : Parameter → AdmissibleCorrection T
+  shiftValue : Parameter → zLayer (maxProPQuotient 2 (GalK K)) k
+  realizes : ∀ v,
+    stageShift (fun i ↦ canonLift _ k (T.generators i)) (correction v).correction =
+      (shiftValue v : levelQuot (maxProPQuotient 2 (GalK K)) (k + 1))
+  onto : Function.Surjective shiftValue
+
+/-- A surjective crossed-derivation span calculation implies the exact correction premise used
+by the stage theorem. -/
+theorem CrossedDerivationSpanSupply.toCorrectionSurjective {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} (S : CrossedDerivationSpanSupply T) :
+    CorrectionSurjective T := by
+  intro δ hδ
+  obtain ⟨v, hv⟩ := S.onto ⟨δ, hδ⟩
+  refine ⟨S.correction v, ?_⟩
+  rw [S.realizes v]
+  exact congrArg Subtype.val hv
+
 /-- A correction selected from surjectivity at the inverse defect. -/
 structure DefectKillingCorrection {h k : ℕ}
     (T : SqCyclotomicStageTuple K h k) extends AdmissibleCorrection T where
@@ -571,6 +651,8 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData_sqRelWord_regression
 #print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
 #print axioms SqCyclotomicStageTuple.CorrectionSurjective.toNext
+#print axioms SqCyclotomicStageTuple.ofCoreTable_sqRelWord_regression
+#print axioms SqCyclotomicStageTuple.CrossedDerivationSpanSupply.toCorrectionSurjective
 #print axioms SqCyclotomicStageTuple.stage_nonempty_all_levels
 #print axioms SqCyclotomicStageTuple.finiteLevelEpiData_nonempty_of_base_and_corrections
 
