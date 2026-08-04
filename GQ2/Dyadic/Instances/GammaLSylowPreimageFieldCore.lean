@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageVariableCore
 import GQ2.Dyadic.MaxProTwoCohomology
+import GQ2.Dyadic.OrientationCorrection
 
 /-!
 # A field-model route to variable GammaL Sylow cores
@@ -117,14 +118,28 @@ def OddDegreeGalKDemushkinQTwo : Prop :=
     Odd (Module.finrank ℚ_[2] K) →
       demushkinQ (maxProPQuotient 2 (GalK K)) = 2
 
-/-- The absent odd-degree dyadic-field specialization of Labute's classification.  Conditional
-on `q = 2`, the maximal pro-`2` Galois group of the concrete field `K` has the improved square
-presentation with `(degree - 1) / 2` handles.
+/-- The absent **oriented** odd-degree dyadic-field specialization of Labute's classification.
+Conditional on `q = 2`, the improved square presentation with `(degree - 1) / 2` handles is
+identified with the maximal pro-`2` Galois group of the concrete field `K`, and its standard
+orientation `chiSq` is identified with the descended cyclotomic character `chiCycKTwo`.
 
 The field specialization is essential.  In the exceptional `q = 2` case, abstract Demushkin
 rank and `q` alone omit the image of the canonical orientation character.  Quantifying over
-`GalK K` keeps its canonical cyclotomic orientation implicit rather than asserting the false or
-underspecified all-profinite-groups statement.  This is a `def`-shaped hypothesis, not an axiom. -/
+`GalK K` and recording the orientation equation avoids the false or underspecified
+all-profinite-groups statement.  This is a `def`-shaped hypothesis, not an axiom. -/
+def OddDegreeGalKSqOrientedLabuteClassification : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
+        Nonempty (OrientedContinuousMulEquiv
+          (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+          (chiCycKTwo (K := K)))
+
+/-- The unmarked carrier shadow of the oriented field-specific classification.  This property
+is retained as a convenient statement of the presentation alone, but it is not the primary
+classification seam: by itself it forgets the orientation equation used to distinguish the
+exceptional `q = 2` Labute type. -/
 def OddDegreeGalKSqLabuteClassification : Prop :=
   ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
@@ -133,6 +148,15 @@ def OddDegreeGalKSqLabuteClassification : Prop :=
         Nonempty (ContinuousMulEquiv
           (maxProPQuotient 2 (GalK K))
           (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2)))
+
+/-- Forgetting the explicitly recorded cyclotomic-orientation equation gives the carrier
+classification. -/
+theorem oddDegreeGalKSqLabuteClassification_of_oriented
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
+    OddDegreeGalKSqLabuteClassification := by
+  intro K _ _ _ _ hodd hq
+  obtain ⟨e⟩ := hLab K hodd hq
+  exact ⟨e.1.symm⟩
 
 /-! ## Arithmetic and pointwise composition -/
 
@@ -154,7 +178,7 @@ theorem gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
     (U' : Subgroup (gamma h q : Type)) [CompactSpace U']
     (hodd : Odd U'.index) (F : GammaLOpenSubgroupFieldIdentification U')
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddDegreeGalKSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
     Nonempty (ContinuousMulEquiv
       (maxProPQuotient 2 U')
       (SqCore.DSq (gammaLOpenSubgroupHandleCount U'))) := by
@@ -173,8 +197,9 @@ theorem gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
     rw [F.degree_eq, gammaLOpenSubgroupHandleCount]
     congr 2
     ring
-  rw [hhandle] at eField
-  exact ⟨(maxProPQuotientCongr F.equivGalK).trans eField⟩
+  let eCarrier := eField.1.symm
+  rw [hhandle] at eCarrier
+  exact ⟨(maxProPQuotientCongr F.equivGalK).trans eCarrier⟩
 
 /-- Regression at ambient handle `0` and subgroup index `1`: the field route lands in the
 rank-three improved presentation `DSq 0`, not in an abstract orientation-forgetting core. -/
@@ -182,7 +207,7 @@ theorem gammaLOpenSubgroupVariableCorePresentation_indexOne_zero
     {q : ℕ} (U' : Subgroup (gamma 0 q : Type)) [CompactSpace U']
     (hindex : U'.index = 1) (F : GammaLOpenSubgroupFieldIdentification U')
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddDegreeGalKSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
     Nonempty (ContinuousMulEquiv (maxProPQuotient 2 U') (SqCore.DSq 0)) := by
   have hodd : Odd U'.index := by rw [hindex]; exact odd_one
   have hhandle : gammaLOpenSubgroupHandleCount U' = 0 := by
@@ -197,7 +222,7 @@ identification, exactly the two named substantive inputs remain. -/
 theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
     (hfield : GammaLOddIndexOpenSubgroupFieldIdentificationSupply h q)
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddDegreeGalKSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
     GammaLOddIndexOpenSubgroupVariableCorePresentationSupply h q := by
   intro U' _ hUopen hodd
   obtain ⟨F⟩ := hfield U' hUopen hodd
@@ -205,6 +230,7 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
     U' hodd F hqTwo hLab
 
 #print axioms maxProPQuotientCongr
+#print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms gammaLOpenSubgroupHandleCount_rank
 #print axioms gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
 #print axioms gammaLOpenSubgroupVariableCorePresentation_indexOne_zero

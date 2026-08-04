@@ -108,7 +108,7 @@ canonical cyclotomic orientation implicitly through its `GalK K` carrier. -/
 theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_fieldRealization
     (R : GammaLFieldRealization h q)
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddDegreeGalKSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
     GammaLOddIndexOpenSubgroupVariableCorePresentationSupply h q :=
   gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
     (gammaLOddIndexOpenSubgroupFieldIdentificationSupply_of_fieldRealization R)
