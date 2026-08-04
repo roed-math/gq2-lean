@@ -587,4 +587,5 @@ import GQ2.Dyadic.Instances.GammaLFoxCounterexample
 import GQ2.Dyadic.Instances.GammaLRelationCharacterVectorwise
 import GQ2.Dyadic.Instances.GammaLRelationCharacterTrivialAction
 import GQ2.Dyadic.Instances.GammaLScalarKernelRelationStep
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteDegreeThree
 import GQ2.Dyadic.Main
