@@ -65,6 +65,33 @@ theorem finiteFinsuppCoefficientEval_smul_function {A : Type}
         ih, smul_eq_mul]
       ring
 
+/-- Coefficient evaluation only depends on values on the finite support of the vector. -/
+theorem finiteFinsuppCoefficientEval_congr_on_support {A : Type}
+    (c d : A → ZMod 2) (x : A →₀ ZMod 2)
+    (h : ∀ a ∈ x.support, c a = d a) :
+    finiteFinsuppCoefficientEval c x = finiteFinsuppCoefficientEval d x := by
+  classical
+  induction x using Finsupp.induction with
+  | zero => simp
+  | single_add a z x ha hz ih =>
+      simp only [map_add, finiteFinsuppCoefficientEval_single]
+      have haSupport : a ∈ (Finsupp.single a z + x).support := by
+        rw [Finsupp.mem_support_iff, Finsupp.add_apply,
+          Finsupp.single_eq_same, Finsupp.notMem_support_iff.mp ha, add_zero]
+        exact hz
+      rw [h a haSupport]
+      congr 1
+      apply ih
+      intro b hb
+      have hba : b ≠ a := by
+        intro hba
+        subst b
+        exact ha hb
+      apply h b
+      rw [Finsupp.mem_support_iff, Finsupp.add_apply,
+        Finsupp.single_eq_of_ne hba]
+      simpa using Finsupp.mem_support_iff.mp hb
+
 /-- The full coefficient adjoint of a linear map between finitely supported modules. -/
 def finiteFinsuppFullAdjoint {A B : Type}
     (T : (A →₀ ZMod 2) →ₗ[ZMod 2] (B →₀ ZMod 2)) :
@@ -675,12 +702,12 @@ def finiteBarHomotopyTwoBoundaryRawCochainCorrection
 /-- The explicit failure of the full adjoint of `H₂` to turn the boundary adjoint into the
 ordinary inhomogeneous `d²` after restriction to invariant coefficients. -/
 def finiteBarHomotopyTwoAdjointBarDefect
-    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
-    (c : FiniteModTwoBarCochainThree Q) :
-    FiniteModTwoBarCochainThree Q :=
-  finiteBarHomotopyTwoBoundaryRawCochainCorrection m heval c +
-    finiteModTwoBarDTwo Q
-      (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c)
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainThree Q →+
+      FiniteModTwoBarCochainThree Q :=
+  (finiteBarHomotopyTwoBoundaryRawCochainCorrection m heval).toAddMonoidHom +
+    (finiteModTwoBarDTwo Q).comp
+      (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval).toAddMonoidHom
 
 /-- The unrestricted universal degree-three correction on actual three-cochains. -/
 def finiteUniversalForwardReverseThreeCochainCorrection
@@ -710,6 +737,51 @@ def FiniteUniversalToBarThreeAdjointSupportWitness
     (Finsupp.lcoeFun :
       RegularModTwoRelationModule Q (FreeRelationKernel m) →ₗ[ZMod 2]
         (Q × FreeRelationKernel m → ZMod 2)) u
+
+/-- Existence of a finitely supported universal adjoint coefficient is exactly finite support
+of the unrestricted coefficient function.  Finiteness of `Q` alone does not discharge the
+right-hand side, since the universal relation alphabet `FreeRelationKernel m` need not be
+finite. -/
+theorem exists_finiteUniversalToBarThreeAdjointSupportWitness_iff
+    (m : I → Q) (c : FiniteModTwoBarCochainThree Q) :
+    (∃ u : RegularModTwoRelationModule Q (FreeRelationKernel m),
+        FiniteUniversalToBarThreeAdjointSupportWitness m c u) ↔
+      (finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
+        (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c)).HasFiniteSupport := by
+  let f := finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
+    (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c)
+  constructor
+  · rintro ⟨u, hu⟩
+    unfold FiniteUniversalToBarThreeAdjointSupportWitness at hu
+    rw [hu]
+    exact u.hasFiniteSupport
+  · intro hf
+    let u : RegularModTwoRelationModule Q (FreeRelationKernel m) :=
+      Finsupp.mk hf.toFinset f fun _a => Set.Finite.mem_toFinset _
+    refine ⟨u, ?_⟩
+    unfold FiniteUniversalToBarThreeAdjointSupportWitness
+    rfl
+
+/-- When the full universal relation index is finite, the unrestricted adjoint has a canonical
+finitely supported representative.  At the intended finite quotients the extra finiteness of
+`FreeRelationKernel m`, not finiteness of `Q`, is the substantive hypothesis. -/
+def finiteUniversalToBarThreeAdjointFiniteSupportCoefficient
+    (m : I → Q) [Finite Q] [Finite (FreeRelationKernel m)]
+    (c : FiniteModTwoBarCochainThree Q) :
+    RegularModTwoRelationModule Q (FreeRelationKernel m) :=
+  Finsupp.equivFunOnFinite.symm
+    (finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
+      (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c))
+
+/-- The canonical coefficient on a finite universal relation index is a support witness. -/
+theorem finiteUniversalToBarThreeAdjointSupportWitness_of_finite
+    (m : I → Q) [Finite Q] [Finite (FreeRelationKernel m)]
+    (c : FiniteModTwoBarCochainThree Q) :
+    FiniteUniversalToBarThreeAdjointSupportWitness m c
+      (finiteUniversalToBarThreeAdjointFiniteSupportCoefficient m c) := by
+  unfold FiniteUniversalToBarThreeAdjointSupportWitness
+  rw [finiteUniversalToBarThreeAdjointFiniteSupportCoefficient]
+  exact (Finsupp.coe_equivFunOnFinite_symm _).symm
 
 /-- The separate finite-support defect of the universal adjoint, relative to a proposed
 finitely supported universal relation coefficient. -/
@@ -746,6 +818,55 @@ theorem finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
           (Finsupp.lcoeFun u) (1, a) = 0
   unfold FiniteUniversalToBarThreeAdjointSupportWitness at hu
   rw [hu]
+  exact ZModModule.add_self _
+
+/-- At a finite quotient, the universal adjoint can always be truncated to a finitely supported
+coefficient without changing its image under `R₃†`.  This is weaker than the generally false
+claim that the unrestricted coefficient function itself has finite support: one takes the union
+of the supports of `R₃` on the finitely many bar-three basis vectors read at group coordinate
+`1`. -/
+theorem exists_finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
+    [Fintype Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q) :
+    ∃ u : RegularModTwoRelationModule Q (FreeRelationKernel m),
+      finiteUniversalThreeAdjointFiniteSupportDefect m heval c u = 0 := by
+  classical
+  let R₃ := finiteBarToUniversalRelationThree m heval
+  let f := finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
+    (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c)
+  let S : Finset (Q × FreeRelationKernel m) :=
+    Finset.univ.biUnion fun a : Q × Q × Q =>
+      (R₃ (Finsupp.single (1, a) 1)).support
+  let u : RegularModTwoRelationModule Q (FreeRelationKernel m) :=
+    Finsupp.onFinset S (fun z => if z ∈ S then f z else 0) (by
+      intro z hz
+      by_contra hzS
+      simp [hzS] at hz)
+  refine ⟨u, ?_⟩
+  have hR₃ (a : Q × Q × Q) :
+      finiteFinsuppFullAdjoint R₃ f (1, a) =
+        finiteFinsuppFullAdjoint R₃
+          (u : Q × FreeRelationKernel m → ZMod 2) (1, a) := by
+    apply finiteFinsuppCoefficientEval_congr_on_support
+    intro z hz
+    have hzS : z ∈ S := by
+      apply Finset.mem_biUnion.mpr
+      exact ⟨a, Finset.mem_univ a, hz⟩
+    simp [u, hzS]
+  funext a
+  have hcombined := finiteFinsuppFullAdjoint_comp
+    (finiteUniversalRelationToBarThree m) R₃
+  simp only [finiteUniversalThreeAdjointFiniteSupportDefect,
+    finiteUniversalForwardReverseThreeCochainCorrection,
+    finiteUniversalForwardReverseThreeFullAdjoint,
+    finiteUniversalRelationThreeFiniteSupportCorrection,
+    LinearMap.comp_apply, finiteRegularAtOne]
+  rw [hcombined]
+  change finiteFinsuppFullAdjoint R₃ f (1, a) +
+      finiteFinsuppFullAdjoint R₃
+        (u : Q × FreeRelationKernel m → ZMod 2) (1, a) = 0
+  rw [hR₃]
   exact ZModModule.add_self _
 
 /-- The raw degree-three identity restricted to actual cochains.  No invariance claim for
