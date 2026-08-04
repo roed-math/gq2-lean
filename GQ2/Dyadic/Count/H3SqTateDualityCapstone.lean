@@ -140,6 +140,26 @@ noncomputable def tateDualityG_of_sqCorrectedJointLiftSystems
     (finiteElementaryH2RightExactSupply_DSq_of_correctedJointLiftSystems
       h H C T hjoint)
 
+/-- Fully scalar finite-certificate form of the corrected-transition arithmetic endpoint. -/
+noncomputable def tateDualityG_of_sqCorrectedScalarBilinearCertificates
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (C : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCorrectedCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (T : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      (C V).RawStrictification)
+    (hscalar : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionScalarBilinearCertificateAt
+        (T V).raw.degreeThreeComparison
+        (T V).raw.universalSyzygy.relationLiftOfSqPresentation)
+    (R : GammaLSylowPreimageKernelH2AndCoreEqualitySupply h q) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_sqCoreAndSylowKernelResiduals hq2 hqe R
+    (finiteElementaryH2RightExactSupply_DSq_of_correctedScalarBilinearCertificates
+      h H C T hscalar)
+
 /-- Specialization of the preceding route to the named canonical square-presentation lift. -/
 noncomputable def tateDualityG_of_sqCompatibleReconstructionGenerators
     (hq2 : 2 ≤ q) (hqe : Even q)

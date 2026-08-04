@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3RelationCharacterTransition
-import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
+import GQ2.Dyadic.Count.H3SqReconstructionJointLiftScalarCertificate
 
 /-!
 # Corrected finite cocycle fibers and their strictification obstruction
@@ -354,6 +354,22 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_correctedJointLiftSystems
   GQ2.ContCoh.finiteElementaryH2RightExactSupply_DSq_of_jointReconstructionLiftSystems
     h H (fun V ↦ (T V).raw) hjoint
 
+/-- Fully scalar finite endpoint after corrected-transition strictification. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_correctedScalarBilinearCertificates
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (C : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCorrectedCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (T : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      (C V).RawStrictification)
+    (hscalar : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionScalarBilinearCertificateAt
+        (T V).raw.degreeThreeComparison
+        (T V).raw.universalSyzygy.relationLiftOfSqPresentation) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) :=
+  finiteElementaryH2RightExactSupply_DSq_of_scalarBilinearCertificates
+    h H (fun V ↦ (T V).raw) hscalar
+
 /-! ## Terminal regression -/
 
 /-- Corrected finite transition data and its Fox-kernel defect exist everywhere, including the
@@ -373,6 +389,7 @@ theorem sqCorrectedCocycleFiber_strictification_regression (h : ℕ) :
 #print axioms sqUniversalBarInputCorrectedStrictifiableAt_iff_obstruction_eq_zero
 #print axioms finiteElementaryH2RightExactSupply_DSq_of_correctedStrictifications
 #print axioms finiteElementaryH2RightExactSupply_DSq_of_correctedJointLiftSystems
+#print axioms finiteElementaryH2RightExactSupply_DSq_of_correctedScalarBilinearCertificates
 #print axioms sqCorrectedCocycleFiber_strictification_regression
 
 end

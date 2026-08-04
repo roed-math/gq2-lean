@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3SqReconstructionJointLiftObstruction
+import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
 import GQ2.Dyadic.Count.H3SectionRefinementCoordinates
 import Mathlib.LinearAlgebra.Dimension.Finite
 
@@ -454,11 +455,33 @@ theorem SqCompatibleUniversalCocycleCancellingSyzygyAt.firstParity_compatibleLif
     S.degreeThreeComparison
     S.universalSyzygy.relationLiftOfSqPresentation
 
+/-! ## Global scalar-certificate consumer -/
+
+/-- One finite basis-indexed bilinear certificate at every input quotient supplies the square
+core `H²` right-exactness theorem. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_scalarBilinearCertificates
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (S : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (hscalar : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionScalarBilinearCertificateAt
+        (S V).degreeThreeComparison
+        (S V).universalSyzygy.relationLiftOfSqPresentation) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) :=
+  GQ2.ContCoh.finiteElementaryH2RightExactSupply_DSq_of_jointReconstructionLiftSystems
+    h H S (fun V ↦
+      (S V).exists_reconstructionCompatibleLift_iff_jointSystem.mp
+        ((sqFiniteInputRelationReconstructionCompatibleLiftExistsAt_iff_scalarBilinearCertificate
+          (S V).degreeThreeComparison
+          (S V).universalSyzygy.relationLiftOfSqPresentation).mpr (hscalar V)))
+
 #print axioms linearMap_ker_le_ker_iff_finrank_range_prod_eq
 #print axioms sqFiniteInputRelationReconstructionCompatibleLiftExistsAt_iff_reachableRankCertificate
 #print axioms sqFiniteInputRelationReconstructionCompatibleLiftExistsAt_iff_scalarBilinearCertificate
 #print axioms SqCompatibleUniversalCocycleCancellingSyzygyAt.terminal_jointLiftSystem
 #print axioms SqCompatibleUniversalCocycleCancellingSyzygyAt.firstParity_compatibleLiftExists_iff_rank
+#print axioms finiteElementaryH2RightExactSupply_DSq_of_scalarBilinearCertificates
 
 end
 
