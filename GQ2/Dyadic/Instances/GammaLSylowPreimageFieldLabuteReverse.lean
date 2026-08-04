@@ -122,6 +122,90 @@ def SqTwoCentralLevelCardAgreement
   ∀ k : ℕ,
     Nat.card (levelQuot (SqCore.DSq h : Type) k) = Nat.card (levelQuot G k)
 
+/-- Equality of the orders of the successive graded pieces
+`λₖ / λₖ₊₁`.  This is the weakest purely numerical associated-graded input needed below:
+it remembers no chosen basis and no bracket, restricted-power, or orientation structure. -/
+def SqTwoCentralLayerCardAgreement
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h : ℕ) : Prop :=
+  ∀ k : ℕ,
+    Nat.card (zLayer (SqCore.DSq h : Type) k) = Nat.card (zLayer G k)
+
+/-- The order of a level quotient is obtained from the preceding level by multiplying by the
+order of its two-central graded layer. -/
+theorem card_levelQuot_succ
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) (k : ℕ) :
+    Nat.card (zLayer G k) * Nat.card (levelQuot G k) =
+      Nat.card (levelQuot G (k + 1)) := by
+  haveI : Finite (levelQuot G (k + 1)) := finite_levelQuot G hfg hpro (k + 1)
+  have hindex : (zLayer G k).index = Nat.card (levelQuot G k) := by
+    rw [zLayer_eq_ker_levelProj, Subgroup.index,
+      Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective (levelProj G k)
+        (levelProj_surjective G k)).toEquiv]
+  simpa [hindex] using Subgroup.card_mul_index (zLayer G k)
+
+/-- Agreement of all graded-layer orders implies agreement of all level-quotient orders. -/
+theorem twoCentralLevelCardAgreement_of_layerCardAgreement
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hGfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (hlayer : SqTwoCentralLayerCardAgreement G h) :
+    SqTwoCentralLevelCardAgreement G h := by
+  intro k
+  induction k with
+  | zero =>
+      haveI : Subsingleton (levelQuot (SqCore.DSq h : Type) 0) :=
+        QuotientGroup.subsingleton_quotient_top
+      haveI : Subsingleton (levelQuot G 0) := QuotientGroup.subsingleton_quotient_top
+      rw [Nat.card_unique, Nat.card_unique]
+  | succ k ih =>
+      calc
+        Nat.card (levelQuot (SqCore.DSq h : Type) (k + 1)) =
+            Nat.card (zLayer (SqCore.DSq h : Type) k) *
+              Nat.card (levelQuot (SqCore.DSq h : Type) k) :=
+          (card_levelQuot_succ (SqCore.DSq h : Type) (dsqFinsetTopGen h)
+            (SqCore.isProP_DSq h) k).symm
+        _ = Nat.card (zLayer G k) * Nat.card (levelQuot G k) := by
+          rw [hlayer k, ih]
+        _ = Nat.card (levelQuot G (k + 1)) := card_levelQuot_succ G hGfg hpro k
+
+/-- Conversely, level-order agreement determines every graded-layer order by cancellation in
+the finite extension `1 → Zₖ → Qₖ₊₁ → Qₖ → 1`. -/
+theorem twoCentralLayerCardAgreement_of_levelCardAgreement
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hGfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (hlevel : SqTwoCentralLevelCardAgreement G h) :
+    SqTwoCentralLayerCardAgreement G h := by
+  intro k
+  haveI : Finite (levelQuot (SqCore.DSq h : Type) k) :=
+    finite_levelQuot (SqCore.DSq h : Type) (dsqFinsetTopGen h)
+      (SqCore.isProP_DSq h) k
+  apply Nat.mul_right_cancel (Nat.card_pos (α := levelQuot (SqCore.DSq h : Type) k))
+  calc
+    Nat.card (zLayer (SqCore.DSq h : Type) k) *
+          Nat.card (levelQuot (SqCore.DSq h : Type) k) =
+        Nat.card (levelQuot (SqCore.DSq h : Type) (k + 1)) :=
+      card_levelQuot_succ (SqCore.DSq h : Type) (dsqFinsetTopGen h)
+        (SqCore.isProP_DSq h) k
+    _ = Nat.card (levelQuot G (k + 1)) := hlevel (k + 1)
+    _ = Nat.card (zLayer G k) * Nat.card (levelQuot G k) :=
+      (card_levelQuot_succ G hGfg hpro k).symm
+    _ = Nat.card (zLayer G k) *
+          Nat.card (levelQuot (SqCore.DSq h : Type) k) := by rw [hlevel k]
+
+/-- **Exact graded numerical boundary.**  For finitely generated pro-2 groups, equality of the
+successive two-central layer orders is equivalent to equality of all tower orders. -/
+theorem twoCentralLayerCardAgreement_iff_levelCardAgreement
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hGfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    SqTwoCentralLayerCardAgreement G h ↔ SqTwoCentralLevelCardAgreement G h :=
+  ⟨twoCentralLevelCardAgreement_of_layerCardAgreement hGfg hpro,
+    twoCentralLayerCardAgreement_of_levelCardAgreement hGfg hpro⟩
+
 /-- At one level, a forward epimorphism together with equality of quotient orders produces a
 reverse epimorphism. -/
 theorem nonempty_reverseTwoCentralLevel_of_card_eq
@@ -238,6 +322,38 @@ theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_le
   reverseFiniteQuotientSurjections_iff_twoCentralLevelCardAgreement hpro
     (D.forward hpro) (D.forward_surjective hpro)
 
+/-- Graded-cardinality specialization of the forward-generator package.  No bases or
+associated-graded operations need to be chosen: equality of the order of each elementary
+abelian layer already reconstructs the entire tower cardinality. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_layerCardAgreement
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    {chiG : ContinuousMonoidHom G ℤ_[2]ˣ}
+    (D : SqCyclotomicForwardGeneratorData h chiG) (hpro : IsProP 2 G)
+    (hlayer : SqTwoCentralLayerCardAgreement G h) :
+    SqReverseFiniteQuotientSurjections G h := by
+  have hGfg : IsTopologicallyFinGen G :=
+    IsTopologicallyFinGen.of_surjective (D.forward hpro).toMonoidHom
+      (D.forward hpro).continuous_toFun (D.forward_surjective hpro)
+      (dsqFinsetTopGen h)
+  exact D.reverseFiniteQuotientSurjections_of_levelCardAgreement hpro
+    (twoCentralLevelCardAgreement_of_layerCardAgreement hGfg hpro hlayer)
+
+/-- With the improved-relator forward data fixed, the original reverse family is exactly
+agreement of the cardinalities of the successive two-central graded pieces. -/
+theorem SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_layerCardAgreement
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    {chiG : ContinuousMonoidHom G ℤ_[2]ˣ}
+    (D : SqCyclotomicForwardGeneratorData h chiG) (hpro : IsProP 2 G) :
+    SqReverseFiniteQuotientSurjections G h ↔ SqTwoCentralLayerCardAgreement G h := by
+  have hGfg : IsTopologicallyFinGen G :=
+    IsTopologicallyFinGen.of_surjective (D.forward hpro).toMonoidHom
+      (D.forward hpro).continuous_toFun (D.forward_surjective hpro)
+      (dsqFinsetTopGen h)
+  exact (D.reverseFiniteQuotientSurjections_iff_levelCardAgreement hpro).trans
+    (twoCentralLayerCardAgreement_iff_levelCardAgreement hGfg hpro).symm
+
 /-! ## Field-facing composition -/
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
@@ -256,6 +372,61 @@ def OddDegreeGalKSqCyclotomicLevelCardPresentation : Prop :=
             (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
             Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) ∧
           SqTwoCentralLevelCardAgreement (maxProPQuotient 2 (GalK K)) h
+
+/-- Graded numerical form of the field presentation.  Its only reverse-side premise is equality
+of the orders of `λₖ/λₖ₊₁` for the arithmetic group and the improved square presentation. -/
+def OddDegreeGalKSqCyclotomicLayerCardPresentation : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)],
+    (_hodd : Odd (Module.finrank ℚ_[2] K)) →
+      demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
+        let h := (Module.finrank ℚ_[2] K - 1) / 2
+        (∀ U : OpenNormalSubgroup
+            (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+            Nonempty (SqCyclotomicFiniteLevelEpiData (K := K) h U)) ∧
+          SqTwoCentralLayerCardAgreement (maxProPQuotient 2 (GalK K)) h
+
+/-- Graded-layer orders reconstruct the field-facing level-cardinality presentation. -/
+theorem oddDegreeGalKSqCyclotomicLevelCardPresentation_of_layerCardPresentation
+    (hlayer : OddDegreeGalKSqCyclotomicLayerCardPresentation) :
+    OddDegreeGalKSqCyclotomicLevelCardPresentation := by
+  intro K _ _ _ _ hodd hq
+  dsimp only
+  obtain ⟨hforward, hgraded⟩ := hlayer K hodd hq
+  let h := (Module.finrank ℚ_[2] K - 1) / 2
+  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel h hforward
+  have hGfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)) :=
+    IsTopologicallyFinGen.of_surjective
+      (D.forward isProP_maxProPQuotient).toMonoidHom
+      (D.forward isProP_maxProPQuotient).continuous_toFun
+      (D.forward_surjective isProP_maxProPQuotient) (dsqFinsetTopGen h)
+  exact ⟨hforward, twoCentralLevelCardAgreement_of_layerCardAgreement hGfg
+    isProP_maxProPQuotient hgraded⟩
+
+/-- Level-cardinality agreement also recovers every graded-layer order. -/
+theorem oddDegreeGalKSqCyclotomicLayerCardPresentation_of_levelCardPresentation
+    (hlevel : OddDegreeGalKSqCyclotomicLevelCardPresentation) :
+    OddDegreeGalKSqCyclotomicLayerCardPresentation := by
+  intro K _ _ _ _ hodd hq
+  dsimp only
+  obtain ⟨hforward, htower⟩ := hlevel K hodd hq
+  let h := (Module.finrank ℚ_[2] K - 1) / 2
+  obtain ⟨D⟩ := forwardGeneratorData_of_finiteLevel h hforward
+  have hGfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)) :=
+    IsTopologicallyFinGen.of_surjective
+      (D.forward isProP_maxProPQuotient).toMonoidHom
+      (D.forward isProP_maxProPQuotient).continuous_toFun
+      (D.forward_surjective isProP_maxProPQuotient) (dsqFinsetTopGen h)
+  exact ⟨hforward, twoCentralLayerCardAgreement_of_levelCardAgreement hGfg
+    isProP_maxProPQuotient htower⟩
+
+/-- The graded-layer and tower-cardinality field seams are exactly equivalent. -/
+theorem oddDegreeGalKSqCyclotomicLayerCardPresentation_iff_levelCardPresentation :
+    OddDegreeGalKSqCyclotomicLayerCardPresentation ↔
+      OddDegreeGalKSqCyclotomicLevelCardPresentation :=
+  ⟨oddDegreeGalKSqCyclotomicLevelCardPresentation_of_layerCardPresentation,
+    oddDegreeGalKSqCyclotomicLayerCardPresentation_of_levelCardPresentation⟩
 
 /-- The sharpened tower-cardinality presentation supplies the original finite-level seam; the
 equivalence theorem above is the only place where the old all-open-normal reverse family is
@@ -296,6 +467,14 @@ theorem oddDegreeGalKSqCyclotomicLevelCardPresentation_iff_finiteLevelPresentati
   ⟨oddDegreeGalKSqCyclotomicFiniteLevelPresentation_of_levelCardPresentation,
     oddDegreeGalKSqCyclotomicLevelCardPresentation_of_finiteLevelPresentation⟩
 
+/-- **Field-facing graded regression.**  Forward finite value-fibre data plus equality of the
+successive layer orders is exactly the original finite-level presentation. -/
+theorem oddDegreeGalKSqCyclotomicLayerCardPresentation_iff_finiteLevelPresentation :
+    OddDegreeGalKSqCyclotomicLayerCardPresentation ↔
+      OddDegreeGalKSqCyclotomicFiniteLevelPresentation :=
+  oddDegreeGalKSqCyclotomicLayerCardPresentation_iff_levelCardPresentation.trans
+    oddDegreeGalKSqCyclotomicLevelCardPresentation_iff_finiteLevelPresentation
+
 /-- Field-facing endpoint: forward improved-relator finite data plus equality of two-central
 quotient orders proves the full oriented Labute classification. -/
 theorem oddDegreeGalKSqOrientedLabuteClassification_of_levelCardPresentation
@@ -311,18 +490,41 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_levelCardPresentation
   oddDegreeGalKSqGeneratorPresentation_of_finiteLevelPresentation
     (oddDegreeGalKSqCyclotomicFiniteLevelPresentation_of_levelCardPresentation hlevel)
 
+/-- Field-facing endpoint from the weakest numerical associated-graded seam. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_of_layerCardPresentation
+    (hlayer : OddDegreeGalKSqCyclotomicLayerCardPresentation) :
+    OddDegreeGalKSqOrientedLabuteClassification :=
+  oddDegreeGalKSqOrientedLabuteClassification_of_levelCardPresentation
+    (oddDegreeGalKSqCyclotomicLevelCardPresentation_of_layerCardPresentation hlayer)
+
+/-- Generator-presentation form of the graded-layer endpoint. -/
+theorem oddDegreeGalKSqGeneratorPresentation_of_layerCardPresentation
+    (hlayer : OddDegreeGalKSqCyclotomicLayerCardPresentation) :
+    OddDegreeGalKSqCyclotomicGeneratorPresentation :=
+  oddDegreeGalKSqGeneratorPresentation_of_levelCardPresentation
+    (oddDegreeGalKSqCyclotomicLevelCardPresentation_of_layerCardPresentation hlayer)
+
 #print axioms sqReverseFiniteQuotientSurjections_iff_twoCentralLevel
 #print axioms twoCentralLevelMap_surjective
+#print axioms card_levelQuot_succ
+#print axioms twoCentralLevelCardAgreement_of_layerCardAgreement
+#print axioms twoCentralLayerCardAgreement_of_levelCardAgreement
+#print axioms twoCentralLayerCardAgreement_iff_levelCardAgreement
 #print axioms nonempty_reverseTwoCentralLevel_of_card_eq
 #print axioms reverseFiniteQuotientSurjections_of_twoCentralLevelCardAgreement
 #print axioms twoCentralLevelCardAgreement_of_reverseFiniteQuotientSurjections
 #print axioms reverseFiniteQuotientSurjections_iff_twoCentralLevelCardAgreement
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_levelCardAgreement
 #print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_levelCardAgreement
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_of_layerCardAgreement
+#print axioms SqCyclotomicForwardGeneratorData.reverseFiniteQuotientSurjections_iff_layerCardAgreement
+#print axioms oddDegreeGalKSqCyclotomicLayerCardPresentation_iff_levelCardPresentation
 #print axioms oddDegreeGalKSqCyclotomicFiniteLevelPresentation_of_levelCardPresentation
 #print axioms oddDegreeGalKSqCyclotomicLevelCardPresentation_of_finiteLevelPresentation
 #print axioms oddDegreeGalKSqCyclotomicLevelCardPresentation_iff_finiteLevelPresentation
+#print axioms oddDegreeGalKSqCyclotomicLayerCardPresentation_iff_finiteLevelPresentation
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_levelCardPresentation
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_of_layerCardPresentation
 
 end
 
