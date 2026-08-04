@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3FiniteBarFoxChainHomotopy
+import Mathlib.Algebra.Module.ZMod
+import Mathlib.CategoryTheory.CofilteredSystem
+import Mathlib.Data.Finsupp.Fintype
+import Mathlib.LinearAlgebra.StdBasis
 
 /-!
 # Lifting the universal relation-kernel comparison to the completed one-relator module
@@ -32,10 +36,17 @@ noncomputable section
 
 open GQ2.ContCoh GQ2.FoxH
 open GQ2.Dyadic.SqCore
+open CategoryTheory
 
 private abbrev SqInputThree (h : ℕ)
     (V : OpenNormalSubgroup (DSq h : Type)) :=
   FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ V.toSubgroup)
+
+private abbrev SqInputThreeBasisIndex (h : ℕ)
+    (V : OpenNormalSubgroup (DSq h : Type)) :=
+  ((DSq h : Type) ⧸ V.toSubgroup) ×
+    ((DSq h : Type) ⧸ V.toSubgroup) ×
+      ((DSq h : Type) ⧸ V.toSubgroup)
 
 /-! ## The inverse system of universal relation kernels -/
 
@@ -271,6 +282,264 @@ theorem nonempty_sqCompatibleUniversalBarRelationLiftAt_iff
     }⟩
     simpa using hR c
 
+/-! ## Finite inverse-limit compactness for affine Fox fibers -/
+
+/-- The affine fiber of the finite improved-square Fox boundary over the `U`-coordinate of a
+completed generator coefficient. -/
+def SqCompletedFoxFiber (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (U : OpenNormalSubgroup (DSq h : Type)) :=
+  {d : RegularModTwoRelationModule ((DSq h : Type) ⧸ U.toSubgroup) Unit //
+    (sqFiniteLevelModTwoFoxBoundary h (sqOpenQuotientMarking h U)).map d =
+      ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+        (Fin (sqRank h)) U y}
+
+/-- Push an affine Fox-fiber point to a coarser quotient. -/
+def sqCompletedFoxFiberTransition
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') :
+    SqCompletedFoxFiber h y U → SqCompletedFoxFiber h y U' :=
+  fun d ↦ ⟨modTwoRegularModuleTransition (DSq h : Type) hUU' Unit d.1, by
+    have hproj : modTwoQuotientTransition (DSq h : Type) hUU' =
+        openNormalQuotientProj hUU' := by rfl
+    calc
+      (sqFiniteLevelModTwoFoxBoundary h (sqOpenQuotientMarking h U')).map
+          (modTwoRegularModuleTransition (DSq h : Type) hUU' Unit d.1) =
+        modTwoRegularModuleTransition (DSq h : Type) hUU' (Fin (sqRank h))
+          ((sqFiniteLevelModTwoFoxBoundary h
+            (sqOpenQuotientMarking h U)).map d.1) := by
+              symm
+              simpa [modTwoRegularModuleTransition, hproj] using
+                sqOpenQuotientFoxBoundary_natural h hUU' d.1
+      _ = modTwoRegularModuleTransition (DSq h : Type) hUU' (Fin (sqRank h))
+          (ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+            (Fin (sqRank h)) U y) := congrArg _ d.2
+      _ = ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+          (Fin (sqRank h)) U' y :=
+        ModTwoCompletedRegularModule.coordinate_compatible
+          (DSq h : Type) (Fin (sqRank h)) y hUU'⟩
+
+/-- The affine fibers and their quotient pushforwards form a cofiltered functor of finite
+types. -/
+def sqCompletedFoxFiberFunctor
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))) :
+    OpenNormalSubgroup (DSq h : Type) ⥤ Type where
+  obj U := SqCompletedFoxFiber h y U
+  map f := ↾(sqCompletedFoxFiberTransition h y (leOfHom f))
+  map_id U := by
+    ext d
+    apply Subtype.ext
+    change modTwoRegularModuleTransition (DSq h : Type) (le_refl U) Unit d.1 = d.1
+    rw [modTwoRegularModuleTransition]
+    have htransition :
+        modTwoQuotientTransition (DSq h : Type) (le_refl U) =
+          MonoidHom.id ((DSq h : Type) ⧸ U.toSubgroup) := by
+      ext g
+      rfl
+    rw [htransition, regularModTwoPushforward_id]
+  map_comp f g := by
+    ext d
+    apply Subtype.ext
+    exact (modTwoRegularModuleTransition_comp (DSq h : Type)
+      (leOfHom f) (leOfHom g) Unit d.1).symm
+
+/-- Cofinal finite-level range condition for one completed generator coefficient.  Detection is
+allowed only after passage to a finer quotient `W ≤ U`. -/
+def SqCompletedFoxCofinalRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), W ≤ U ∧
+      ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+          (Fin (sqRank h)) W y ∈
+        (sqFiniteLevelModTwoFoxBoundary h
+          (sqOpenQuotientMarking h W)).map.range
+
+/-- The weaker finite-refinement condition actually needed by compactness.  A coefficient may
+be constructed at a finer quotient `W`; only its pushforward Fox image is required to equal the
+prescribed coordinate at `U`.  This is the natural target of an eventual normal-closure
+approximation argument. -/
+def SqCompletedFoxEventualRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+      ∃ d : RegularModTwoRelationModule
+          ((DSq h : Type) ⧸ W.toSubgroup) Unit,
+        modTwoRegularModuleTransition (DSq h : Type) hWU (Fin (sqRank h))
+            ((sqFiniteLevelModTwoFoxBoundary h
+              (sqOpenQuotientMarking h W)).map d) =
+          ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+            (Fin (sqRank h)) U y
+
+/-- A cofinal range witness makes every affine fiber nonempty by pushing a finer preimage down
+to the prescribed quotient. -/
+theorem sqCompletedFoxFiber_nonempty_of_cofinalRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (hy : SqCompletedFoxCofinalRange h y)
+    (U : OpenNormalSubgroup (DSq h : Type)) :
+    Nonempty (SqCompletedFoxFiber h y U) := by
+  obtain ⟨W, hWU, d, hd⟩ := hy U
+  refine ⟨sqCompletedFoxFiberTransition h y hWU ⟨d, ?_⟩⟩
+  exact hd
+
+/-- An eventual finer-level preimage pushes down to an element of the prescribed affine fiber. -/
+theorem sqCompletedFoxFiber_nonempty_of_eventualRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (hy : SqCompletedFoxEventualRange h y)
+    (U : OpenNormalSubgroup (DSq h : Type)) :
+    Nonempty (SqCompletedFoxFiber h y U) := by
+  obtain ⟨W, hWU, d, hd⟩ := hy U
+  refine ⟨⟨modTwoRegularModuleTransition (DSq h : Type) hWU Unit d, ?_⟩⟩
+  have hproj : modTwoQuotientTransition (DSq h : Type) hWU =
+      openNormalQuotientProj hWU := by rfl
+  calc
+    (sqFiniteLevelModTwoFoxBoundary h (sqOpenQuotientMarking h U)).map
+        (modTwoRegularModuleTransition (DSq h : Type) hWU Unit d) =
+      modTwoRegularModuleTransition (DSq h : Type) hWU (Fin (sqRank h))
+        ((sqFiniteLevelModTwoFoxBoundary h
+          (sqOpenQuotientMarking h W)).map d) := by
+            symm
+            simpa [modTwoRegularModuleTransition, hproj] using
+              sqOpenQuotientFoxBoundary_natural h hWU d
+    _ = ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+        (Fin (sqRank h)) U y := hd
+
+/-- **Finite inverse-limit compactness.** Nonemptiness of every finite affine fiber produces a
+compatible completed preimage under the improved-square Fox boundary.  No transition map between
+individual fibers is assumed surjective.  This is the reusable compactness core. -/
+theorem exists_sqCompletedFox_preimage_of_nonempty_fibers
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (hy : ∀ U : OpenNormalSubgroup (DSq h : Type),
+      Nonempty (SqCompletedFoxFiber h y U)) :
+    ∃ x : ModTwoCompletedRegularModule (DSq h : Type) Unit,
+      (sqCompletedModTwoFoxBoundary h).map x = y := by
+  classical
+  let F := sqCompletedFoxFiberFunctor h y
+  letI (U : OpenNormalSubgroup (DSq h : Type)) : Nonempty (F.obj U) :=
+    hy U
+  letI (U : OpenNormalSubgroup (DSq h : Type)) : Finite (F.obj U) := by
+    dsimp [F, sqCompletedFoxFiberFunctor, SqCompletedFoxFiber]
+    letI : Finite ((DSq h : Type) ⧸ U.toSubgroup) :=
+      Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
+    letI : Fintype ((DSq h : Type) ⧸ U.toSubgroup) := Fintype.ofFinite _
+    letI : Fintype
+        (RegularModTwoRelationModule ((DSq h : Type) ⧸ U.toSubgroup) Unit) :=
+      Finsupp.fintype
+    exact Finite.of_injective Subtype.val Subtype.val_injective
+  obtain ⟨sec, hsec⟩ := nonempty_sections_of_finite_cofiltered_system F
+  let x : ModTwoCompletedRegularModule (DSq h : Type) Unit :=
+    ⟨fun U ↦ (sec U).1, by
+      intro U U' hUU'
+      have hs := hsec (homOfLE hUU')
+      exact congrArg Subtype.val hs⟩
+  refine ⟨x, ?_⟩
+  apply ModTwoCompletedRegularModule.ext (DSq h : Type) (Fin (sqRank h))
+  intro U
+  rw [sqCompletedModTwoFoxBoundary_coordinate]
+  exact (sec U).2
+
+/-- The stronger exact cofinal-range condition implies a completed Fox preimage. -/
+theorem exists_sqCompletedFox_preimage_of_cofinalRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (hy : SqCompletedFoxCofinalRange h y) :
+    ∃ x : ModTwoCompletedRegularModule (DSq h : Type) Unit,
+      (sqCompletedModTwoFoxBoundary h).map x = y :=
+  exists_sqCompletedFox_preimage_of_nonempty_fibers h y
+    (sqCompletedFoxFiber_nonempty_of_cofinalRange h y hy)
+
+/-- The weaker eventual-refinement range condition also implies a completed Fox preimage. -/
+theorem exists_sqCompletedFox_preimage_of_eventualRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (hy : SqCompletedFoxEventualRange h y) :
+    ∃ x : ModTwoCompletedRegularModule (DSq h : Type) Unit,
+      (sqCompletedModTwoFoxBoundary h).map x = y :=
+  exists_sqCompletedFox_preimage_of_nonempty_fibers h y
+    (sqCompletedFoxFiber_nonempty_of_eventualRange h y hy)
+
+/-- Cofinal range for every output of one compatible universal bar syzygy. -/
+def SqUniversalBarFoxCofinalRange
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V) : Prop :=
+  ∀ c, SqCompletedFoxCofinalRange h (S.toCompletedFox c)
+
+/-- Eventual-refinement range for every output of one compatible universal bar syzygy. -/
+def SqUniversalBarFoxEventualRange
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V) : Prop :=
+  ∀ c, SqCompletedFoxEventualRange h (S.toCompletedFox c)
+
+/-- Basiswise completed Fox preimages suffice to build an additive lift.  This avoids using
+completed Fox injectivity: the finite input is the function space on a finite quotient cube, and
+the standard `F₂`-basis extends arbitrary chosen basis preimages uniquely to a linear map. -/
+noncomputable def sqCompatibleUniversalBarRelationLiftAtOfBasisPreimages
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V)
+    (hpreimage : ∀ i : SqInputThreeBasisIndex h V,
+      ∃ x : ModTwoCompletedRegularModule (DSq h : Type) Unit,
+        (sqCompletedModTwoFoxBoundary h).map x =
+          S.toCompletedFox (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V) i)) :
+    SqCompatibleUniversalBarRelationLiftAt S := by
+  classical
+  letI : Finite ((DSq h : Type) ⧸ V.toSubgroup) :=
+    Subgroup.quotient_finite_of_isOpen V.toSubgroup V.isOpen'
+  choose lift hlift using hpreimage
+  let Rlin : SqInputThree h V →ₗ[ZMod 2]
+      ModTwoCompletedRegularModule (DSq h : Type) Unit :=
+    (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V)).constr (ZMod 2) lift
+  let R : SqInputThree h V →+
+      ModTwoCompletedRegularModule (DSq h : Type) Unit := Rlin.toAddMonoidHom
+  have hlinear : (sqCompletedModTwoFoxBoundary h).map.comp Rlin =
+      S.toCompletedFox.toZModLinearMap 2 := by
+    apply (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V)).ext
+    intro i
+    change (sqCompletedModTwoFoxBoundary h).map
+        (Rlin (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V) i)) =
+      S.toCompletedFox (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V) i)
+    rw [show Rlin (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V) i) =
+        lift i from
+      (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V)).constr_basis
+        (ZMod 2) lift i]
+    exact hlift i
+  refine {
+    relationSyzygy := sqCompatibleFiniteRelationSyzygyAtOfCompleted R
+    fox_lift := fun c ↦ ?_
+  }
+  rw [toCompleted_sqCompatibleFiniteRelationSyzygyAtOfCompleted]
+  exact LinearMap.congr_fun hlinear c
+
+/-- **Compactness construction of the compatible lift.** Cofinal finite-level range gives
+completed preimages of the standard basis.  Extending those choices linearly constructs the
+additive compatible lift, without any injectivity hypothesis on completed Fox. -/
+noncomputable def sqCompatibleUniversalBarRelationLiftAtOfCofinalRange
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V)
+    (hrange : SqUniversalBarFoxCofinalRange S) :
+    SqCompatibleUniversalBarRelationLiftAt S :=
+  sqCompatibleUniversalBarRelationLiftAtOfBasisPreimages S fun i ↦
+    exists_sqCompletedFox_preimage_of_cofinalRange h
+      (S.toCompletedFox (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V) i))
+      (hrange _)
+
+/-- The weaker eventual-refinement condition likewise constructs the compatible lift.  This is
+the endpoint expected from profinite normal-closure approximation. -/
+noncomputable def sqCompatibleUniversalBarRelationLiftAtOfEventualRange
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V)
+    (hrange : SqUniversalBarFoxEventualRange S) :
+    SqCompatibleUniversalBarRelationLiftAt S :=
+  sqCompatibleUniversalBarRelationLiftAtOfBasisPreimages S fun i ↦
+    exists_sqCompletedFox_preimage_of_eventualRange h
+      (S.toCompletedFox (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V) i))
+      (hrange _)
+
 /-- The universal Fox image factors through `d³`, before making any single-relator lift.  This is
 the chain-map identity that the next-degree universal bar comparison must supply. -/
 structure SqFiniteInputUniversalSyzygyBoundaryAt
@@ -294,6 +563,16 @@ def SqFiniteInputCompletedSyzygyBoundaryAt.ofUniversalLift
   boundaryDefect := U.boundaryDefect
   boundary_relationSyzygy c :=
     (L.fox_lift c).trans (U.boundary_universalSyzygy c)
+
+/-- Eventual finite-refinement Fox range closes the single-relator lifting part of the residual
+boundary constructor.  The independent universal `d³` factorization remains packaged in `U`. -/
+noncomputable def SqFiniteInputCompletedSyzygyBoundaryAt.ofUniversalEventualRange
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (U : SqFiniteInputUniversalSyzygyBoundaryAt h V)
+    (hrange : SqUniversalBarFoxEventualRange U.universalSyzygy) :
+    SqFiniteInputCompletedSyzygyBoundaryAt h V :=
+  .ofUniversalLift U
+    (sqCompatibleUniversalBarRelationLiftAtOfEventualRange U.universalSyzygy hrange)
 
 /-! ## Injectivity gives uniqueness, not existence -/
 
