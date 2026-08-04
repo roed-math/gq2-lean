@@ -409,6 +409,7 @@ import GQ2.Dyadic.Count.H3CompatibleFoxInjectivity
 import GQ2.Dyadic.Count.H3AugmentationFiltration
 import GQ2.Dyadic.Count.H3FiniteStronglyFreeNoGo
 import GQ2.Dyadic.Count.H3CompletedFoxReduction
+import GQ2.Dyadic.Count.H3AugmentationSeparation
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
