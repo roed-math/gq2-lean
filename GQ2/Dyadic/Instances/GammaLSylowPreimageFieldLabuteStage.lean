@@ -297,6 +297,77 @@ noncomputable def toFiniteLevelEpiData {h k : ℕ}
       (toOpenMap_surjective (K := K) k U hle), ← Set.range_comp] at h
     exact h
 
+/-! The following regressions deliberately restate the six load-bearing output fields.  They
+prevent a future stage refactor from silently reverting either to the obsolete collector word
+or to arbitrarily pinned core representatives. -/
+
+/-- Regression: stage descent records the literal improved core-plus-handle relator. -/
+theorem toFiniteLevelEpiData_sqRelWord_regression {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    SqCore.sqRelWord (fun i ↦
+      (T.toFiniteLevelEpiData U hle).epi.1 (SqCore.sqGen h i)) = 1 :=
+  (T.toFiniteLevelEpiData U hle).relation
+
+/-- Regression: the `sigma` row remains liftability to the `SvalUnit` fibre. -/
+theorem toFiniteLevelEpiData_sigma_fibre_regression {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit ∧
+        (T.toFiniteLevelEpiData U hle).epi.1 (SqCore.dsqSigma h) = QuotientGroup.mk x :=
+  (T.toFiniteLevelEpiData U hle).sigma
+
+/-- Regression: the `x0` row remains liftability to the `rootXUnit` fibre. -/
+theorem toFiniteLevelEpiData_x0_fibre_regression {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit ∧
+        (T.toFiniteLevelEpiData U hle).epi.1 (SqCore.dsqX0 h) = QuotientGroup.mk x :=
+  (T.toFiniteLevelEpiData U hle).x0
+
+/-- Regression: the `x1` row remains liftability to the `YvalUnit` fibre. -/
+theorem toFiniteLevelEpiData_x1_fibre_regression {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit ∧
+        (T.toFiniteLevelEpiData U hle).epi.1 (SqCore.dsqX1 h) = QuotientGroup.mk x :=
+  (T.toFiniteLevelEpiData U hle).x1
+
+/-- Regression: every `U`-handle row remains liftability to `ker χ`. -/
+theorem toFiniteLevelEpiData_handleU_fibre_regression {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        (T.toFiniteLevelEpiData U hle).epi.1
+          (SqCore.sqGen h (SqCore.sqHandleIdxU j)) = QuotientGroup.mk x :=
+  (T.toFiniteLevelEpiData U hle).handleU
+
+/-- Regression: every `V`-handle row remains liftability to `ker χ`. -/
+theorem toFiniteLevelEpiData_handleV_fibre_regression {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k)
+    (U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))))
+    (hle : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ U.toSubgroup) :
+    ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+      x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+        (T.toFiniteLevelEpiData U hle).epi.1
+          (SqCore.sqGen h (SqCore.sqHandleIdxV j)) = QuotientGroup.mk x :=
+  (T.toFiniteLevelEpiData U hle).handleV
+
 end SqCyclotomicStageTuple
 
 #print axioms sqStageZero_levelProj
@@ -307,6 +378,7 @@ end SqCyclotomicStageTuple
 #print axioms sqStageDefect_eq_one_iff_lift_relation
 #print axioms SqCyclotomicStageTuple.levelProj
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData
+#print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData_sqRelWord_regression
 
 end
 
