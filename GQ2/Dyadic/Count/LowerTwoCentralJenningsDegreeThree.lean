@@ -25,7 +25,7 @@ namespace GQ2.ContCoh
 
 noncomputable section
 
-open GQ2.Roe.Labute
+open GQ2.Roe GQ2.Roe.Labute
 open scoped commutatorElement
 
 universe u
@@ -123,6 +123,17 @@ theorem modTwoFiniteGroupDifference_sq_mem_succ {n : ℕ} (hn : 1 ≤ n)
       modTwoFiniteAugmentationIdeal Q ^ (n + 1) := by
   rw [modTwoFiniteGroupDifference_sq, Submodule.pow_succ]
   exact Ideal.mul_mem_mul hq (modTwoFiniteGroupDifference_mem_augmentation Q q)
+
+/-- Squaring doubles augmentation order.  The weaker successor bound above is the one needed
+for the easy lower-two-central containment, but the exact doubled bound is essential in degree
+three: squares of second-layer elements already vanish modulo `I^4`. -/
+theorem modTwoFiniteGroupDifference_sq_mem_double {n : ℕ} (hn : n ≠ 0)
+    {q : Q} (hq : q ∈ modTwoFiniteDimensionSubgroup Q n) :
+    modTwoFiniteGroupDifference Q (q ^ 2) ∈
+      modTwoFiniteAugmentationIdeal Q ^ (n + n) := by
+  rw [modTwoFiniteGroupDifference_sq,
+    Submodule.pow_add (modTwoFiniteAugmentationIdeal Q) hn]
+  exact Ideal.mul_mem_mul hq hq
 
 /-- The difference of a group commutator is the degree-`(n,1)` commutator of differences,
 up to multiplication by group-like units on the right. -/
@@ -462,10 +473,175 @@ theorem dsqZLayerToFourthAugmentationLayer_eq_zero_iff
   modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
     (SqFourthLevel h) n hn (Additive.ofMul (dsqZLayerFourthDimensionLift h n z.toMul))
 
+/-! ## The degree-three filtration mismatch
+
+The lower exponent-two series used by `zLayer` assigns weight three to a square from
+`lambda_2`.  The augmentation filtration assigns that square order at least four.  Thus the
+degree-three map above necessarily kills the whole square contribution from `Z_2`; it is not
+the primitive-layer injection required by the Zassenhaus Jennings formula. -/
+
+/-- The square of a chosen representative of a second lower-two-central layer class, viewed in
+the third layer. -/
+noncomputable def dsqZLayerTwoSquareToThree (h : ℕ)
+    (z : zLayer (DSq h : Type) 2) : zLayer (DSq h : Type) 3 :=
+  ⟨levelMk (DSq h : Type) 4 (dsqZLayerRepresentative h 2 z ^ 2),
+    ⟨dsqZLayerRepresentative h 2 z ^ 2,
+      sq_mem_twoCentralSeries_succ (DSq h : Type)
+        (dsqZLayerRepresentative_mem h 2 z), rfl⟩⟩
+
+/-- In degree three the common fourth-level lift is literally the underlying layer value. -/
+theorem dsqZLayerFourthLift_three_eq_val (h : ℕ)
+    (z : zLayer (DSq h : Type) 3) :
+    dsqZLayerFourthLift h 3 z = z.1 := by
+  exact levelMk_dsqZLayerRepresentative h 3 z
+
+/-- Every square coming from `Z_2` is killed by the proposed degree-three augmentation-layer
+map: its group-like difference has order at least `2 + 2 = 4`. -/
+theorem dsqZLayerThreeToFourthAugmentationLayer_square_eq_zero (h : ℕ)
+    (z : zLayer (DSq h : Type) 2) :
+    dsqZLayerThreeToFourthAugmentationLayer h
+        (Additive.ofMul (dsqZLayerTwoSquareToThree h z)) = 0 := by
+  rw [dsqZLayerThreeToFourthAugmentationLayer,
+    dsqZLayerToFourthAugmentationLayer_eq_zero_iff]
+  rw [dsqZLayerFourthLift_three_eq_val]
+  change levelMk (DSq h : Type) 4 (dsqZLayerRepresentative h 2 z ^ 2) ∈
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) 4
+  rw [map_pow]
+  have hzTwo : levelMk (DSq h : Type) 4 (dsqZLayerRepresentative h 2 z) ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) 2 := by
+    exact dsqZLayerFourthLift_mem_dimension h 2 z
+  exact modTwoFiniteGroupDifference_sq_mem_double (SqFourthLevel h) (by omega) hzTwo
+
+/-- If the degree-three map were injective, the lower-two-central square operation from
+`Z_2` to `Z_3` would have to vanish identically. -/
+theorem dsqZLayerTwoSquareToThree_eq_one_of_injective (h : ℕ)
+    (hinj : Function.Injective (dsqZLayerThreeToFourthAugmentationLayer h))
+    (z : zLayer (DSq h : Type) 2) :
+    dsqZLayerTwoSquareToThree h z = 1 := by
+  have hz : Additive.ofMul (dsqZLayerTwoSquareToThree h z) = 0 := by
+    apply hinj
+    simpa using dsqZLayerThreeToFourthAugmentationLayer_square_eq_zero h z
+  exact congrArg Additive.toMul hz
+
+/-- The square of `sigma` in the second lower-two-central layer. -/
+def dsqSigmaSquareClass (h : ℕ) : zLayer (DSq h : Type) 2 :=
+  ⟨levelMk (DSq h : Type) 3 (dsqSigma h ^ 2),
+    ⟨dsqSigma h ^ 2,
+      sq_mem_twoCentralSeries_succ (DSq h : Type)
+        (Subgroup.mem_top (dsqSigma h)), rfl⟩⟩
+
+/-- The explicit fourth-power class of the distinguished `sigma` generator in `Z_3`. -/
+def dsqSigmaFourthClass (h : ℕ) : zLayer (DSq h : Type) 3 :=
+  ⟨levelMk (DSq h : Type) 4 (dsqSigma h ^ 4),
+    ⟨dsqSigma h ^ 4, by
+      rw [show 4 = 2 * 2 by omega, pow_mul]
+      exact sq_mem_twoCentralSeries_succ (DSq h : Type)
+        (sq_mem_twoCentralSeries_succ (DSq h : Type)
+          (Subgroup.mem_top (dsqSigma h))), rfl⟩⟩
+
+/-- The explicit fourth-power witness is genuinely in the image of the layer-square
+operation, independently of the representatives chosen to define that operation. -/
+theorem dsqZLayerTwoSquareToThree_sigmaSquare (h : ℕ) :
+    dsqZLayerTwoSquareToThree h (dsqSigmaSquareClass h) =
+      dsqSigmaFourthClass h := by
+  apply Subtype.ext
+  change levelMk (DSq h : Type) 4
+      (dsqZLayerRepresentative h 2 (dsqSigmaSquareClass h) ^ 2) =
+    levelMk (DSq h : Type) 4 (dsqSigma h ^ 4)
+  rw [map_pow]
+  have hpow : dsqSigma h ^ 4 = (dsqSigma h ^ 2) ^ 2 := by
+    rw [show 4 = 2 * 2 by omega, pow_mul]
+  rw [hpow, map_pow,
+    sq_levelMk_eq_sq_canonLift (DSq h : Type) 3
+      (dsqZLayerRepresentative h 2 (dsqSigmaSquareClass h)),
+    sq_levelMk_eq_sq_canonLift (DSq h : Type) 3 (dsqSigma h ^ 2),
+    levelMk_dsqZLayerRepresentative]
+  rfl
+
+/-- The mod-`32` value of the distinguished orientation coordinate is `29`. -/
+theorem Sval_toZModPow_five :
+    PadicInt.toZModPow 5 (SvalUnit : ℤ_[2]) = 29 := by
+  rw [val_SvalUnit]
+  have h := congrArg (PadicInt.toZModPow (p := 2) 5) Sval_mul_denom
+  simp only [map_mul, map_add, map_pow, map_one, map_neg] at h
+  rw [rootX_toZModPow_five] at h
+  exact (by decide : ∀ z : ZMod (2 ^ 5),
+    z * ((21 : ZMod (2 ^ 5)) ^ 2 + 21 + 1) = -(21 : ZMod (2 ^ 5)) ^ 3 →
+      z = 29) _ h
+
+/-- The fourth power of `sigma` is not in the fourth lower-two-central subgroup.  Its
+cyclotomic value is `29^4 = 17`, not `1`, modulo `32`, whereas every element of `lambda_4`
+has trivial mod-`32` cyclotomic shadow. -/
+theorem dsqSigma_pow_four_not_mem_twoCentralSeries_four (h : ℕ) :
+    dsqSigma h ^ 4 ∉ twoCentralSeries (DSq h : Type) 4 := by
+  intro hs
+  have himage : chiSq h (dsqSigma h ^ 4) ∈ twoCentralSeries ℤ_[2]ˣ 4 :=
+    map_twoCentralSeries_le (chiSq h).toMonoidHom (chiSq h).continuous_toFun 4
+      ⟨dsqSigma h ^ 4, hs, rfl⟩
+  have hker := twoCentralSeries_units_le 4 (by omega) himage
+  have hunit := MonoidHom.mem_ker.mp hker
+  have hval := congrArg Units.val hunit
+  change PadicInt.toZModPow 5 ((chiSq h (dsqSigma h ^ 4) : ℤ_[2]ˣ) : ℤ_[2]) = 1 at hval
+  rw [map_pow, chiSq_sigma, Units.val_pow_eq_pow_val,
+    map_pow, Sval_toZModPow_five] at hval
+  exact (by decide : (707281 : ZMod (2 ^ 5)) ≠ 1) hval
+
+/-- Consequently the explicit fourth-power class is nonzero in `Z_3`. -/
+theorem dsqSigmaFourthClass_ne_one (h : ℕ) : dsqSigmaFourthClass h ≠ 1 := by
+  intro hs
+  apply dsqSigma_pow_four_not_mem_twoCentralSeries_four h
+  rw [← QuotientGroup.eq_one_iff]
+  exact congrArg Subtype.val hs
+
+/-- In particular, the layer-square operation itself is nonzero on the distinguished
+second-layer square class. -/
+theorem dsqZLayerTwoSquareToThree_sigmaSquare_ne_one (h : ℕ) :
+    dsqZLayerTwoSquareToThree h (dsqSigmaSquareClass h) ≠ 1 := by
+  rw [dsqZLayerTwoSquareToThree_sigmaSquare]
+  exact dsqSigmaFourthClass_ne_one h
+
+/-- The explicit nonzero fourth-power class is nevertheless killed by the degree-three
+augmentation-layer map. -/
+theorem dsqZLayerThreeToFourthAugmentationLayer_sigmaFourth_eq_zero (h : ℕ) :
+    dsqZLayerThreeToFourthAugmentationLayer h
+        (Additive.ofMul (dsqSigmaFourthClass h)) = 0 := by
+  rw [dsqZLayerThreeToFourthAugmentationLayer,
+    dsqZLayerToFourthAugmentationLayer_eq_zero_iff,
+    dsqZLayerFourthLift_three_eq_val]
+  change levelMk (DSq h : Type) 4 (dsqSigma h ^ 4) ∈
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) 4
+  have hpow : dsqSigma h ^ 4 = (dsqSigma h ^ 2) ^ 2 := by
+    rw [show 4 = 2 * 2 by omega, pow_mul]
+  rw [hpow, map_pow]
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  have hsTwo : levelMk (DSq h : Type) 4 (dsqSigma h ^ 2) ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) 2 := by
+    apply twoCentralSeries_le_modTwoFiniteDimensionSubgroup (SqFourthLevel h) 2
+    rw [← lambdaImage_eq_twoCentralSeries_levelQuot
+      (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 2 4]
+    exact ⟨dsqSigma h ^ 2,
+      sq_mem_twoCentralSeries_succ (DSq h : Type)
+        (Subgroup.mem_top (dsqSigma h)), rfl⟩
+  exact modTwoFiniteGroupDifference_sq_mem_double (SqFourthLevel h) (by omega) hsTwo
+
+/-- Regression: the proposed degree-three lower-two-central augmentation map is not
+injective. -/
+theorem not_injective_dsqZLayerThreeToFourthAugmentationLayer (h : ℕ) :
+    ¬ Function.Injective (dsqZLayerThreeToFourthAugmentationLayer h) := by
+  intro hinj
+  exact dsqZLayerTwoSquareToThree_sigmaSquare_ne_one h
+    (dsqZLayerTwoSquareToThree_eq_one_of_injective h hinj (dsqSigmaSquareClass h))
+
 #print axioms modTwoFiniteDimensionToAugmentationLayer
 #print axioms modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
 #print axioms dsqZLayerToFourthAugmentationLayer
 #print axioms dsqZLayerToFourthAugmentationLayer_eq_zero_iff
+#print axioms dsqZLayerThreeToFourthAugmentationLayer_square_eq_zero
+#print axioms dsqZLayerTwoSquareToThree_sigmaSquare_ne_one
+#print axioms not_injective_dsqZLayerThreeToFourthAugmentationLayer
 
 end
 
