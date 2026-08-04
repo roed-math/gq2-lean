@@ -2489,7 +2489,8 @@ def sqCubicZeroHandleWord_secondOrder (h : ℕ) :
           (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val :=
   (sqCubicZeroHandleList_secondOrder h (List.finRange h)).congr (by
     rw [MarkedCore.handleWord, sqCubicUnitsVal_listProd]
-    rfl)
+    rw [List.map_map]
+    congr 1)
 
 theorem sqCubicZeroHandleWord_secondOrder_quadratic (h : ℕ) :
     (sqCubicZeroHandleWord_secondOrder h).quadratic =
@@ -2500,69 +2501,103 @@ theorem sqCubicZeroHandleWord_secondOrder_quadratic (h : ℕ) :
   change (sqCubicZeroHandleList_secondOrder h (List.finRange h)).quadratic = _
   rw [sqCubicZeroHandleList_secondOrder_quadratic, ← Fin.sum_univ_def]
 
-def sqCubicZeroRelatorSuffix_secondOrder (h : ℕ) :
-    SqCubicSecondOrderExpansion h
-      (sqCubicCorrectedRelatorSuffix h (sqCubicZeroDegreeTwoCorrection h)).val := by
-  let E := (sqCubicZeroYSquare_secondOrder h).mul
-    (sqCubicZeroCoreCommutator_secondOrder h) |>.mul
-      (sqCubicZeroHandleWord_secondOrder h)
-  refine E.congr ?_
-  simp only [sqCubicCorrectedRelatorSuffix, Units.val_mul]
-
+set_option maxHeartbeats 1000000 in
+set_option maxRecDepth 10000 in
 def sqCubicZeroRelator_secondOrder (h : ℕ) :
     SqCubicSecondOrderExpansion h
       (sqCubicCorrectedRelatorUnit h (sqCubicZeroDegreeTwoCorrection h)).val := by
-  let E := (sqCubicZeroCorePrefix_secondOrder h).mul
-    (sqCubicZeroRelatorSuffix_secondOrder h)
-  have heq := congrArg Units.val
-    (sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix h
-      (sqCubicZeroDegreeTwoCorrection h))
+  let E := ((sqCubicZeroCorePrefix_secondOrder h).mul
+    (sqCubicZeroYSquare_secondOrder h) |>.mul
+      (sqCubicZeroCoreCommutator_secondOrder h)) |>.mul
+        (sqCubicZeroHandleWord_secondOrder h)
   refine E.congr ?_
-  simpa only [Units.val_mul] using heq.symm
+  simp only [sqCubicCorrectedRelatorUnit, sqRelWord, sqWord,
+    sqCubicCorrectedCorePrefix, Units.val_mul, mul_assoc]
 
+def sqCubicZeroRelatorStrictQuadratic (h : ℕ) : sqCubicStrictEnd h :=
+  sqCubicHomogeneousStrictLetter h 0 * sqCubicHomogeneousStrictLetter h 1 +
+    sqCubicHomogeneousStrictLetter h 1 * sqCubicHomogeneousStrictLetter h 0 +
+    sqCubicHomogeneousStrictLetter h 2 * sqCubicHomogeneousStrictLetter h 2 +
+    ∑ j, (sqCubicHomogeneousStrictLetter h (sqHandleIdxU j) *
+        sqCubicHomogeneousStrictLetter h (sqHandleIdxV j) +
+      sqCubicHomogeneousStrictLetter h (sqHandleIdxV j) *
+        sqCubicHomogeneousStrictLetter h (sqHandleIdxU j))
+
+/-- The literal quadratic part, embedded in the unitized finite operator algebra. -/
 def sqCubicZeroRelatorQuadratic (h : ℕ) : SqCubicOperatorAlgebra h :=
-  sqCubicHomogeneousOperatorLetter h 0 * sqCubicHomogeneousOperatorLetter h 1 +
-    sqCubicHomogeneousOperatorLetter h 1 * sqCubicHomogeneousOperatorLetter h 0 +
-    sqCubicHomogeneousOperatorLetter h 2 * sqCubicHomogeneousOperatorLetter h 2 +
-    ∑ j, (sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j) *
-        sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) +
-      sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) *
-        sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j))
+  (sqCubicZeroRelatorStrictQuadratic h : SqCubicOperatorAlgebra h)
 
+theorem sqCubicZeroRelatorQuadratic_explicit (h : ℕ) :
+    sqCubicZeroRelatorQuadratic h =
+      sqCubicHomogeneousOperatorLetter h 0 * sqCubicHomogeneousOperatorLetter h 1 +
+        sqCubicHomogeneousOperatorLetter h 1 * sqCubicHomogeneousOperatorLetter h 0 +
+        sqCubicHomogeneousOperatorLetter h 2 * sqCubicHomogeneousOperatorLetter h 2 +
+        ∑ j, (sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j) *
+            sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) +
+          sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) *
+            sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j)) := by
+  change (Unitization.inrNonUnitalAlgHom (ZMod 2) (sqCubicStrictEnd h))
+    (sqCubicZeroRelatorStrictQuadratic h) = _
+  rw [sqCubicZeroRelatorStrictQuadratic]
+  simp only [map_add, map_mul, map_sum]
+  rfl
+
+set_option maxHeartbeats 1000000 in
+set_option maxRecDepth 10000 in
 theorem sqCubicZeroRelator_secondOrder_quadratic (h : ℕ) :
     (sqCubicZeroRelator_secondOrder h).quadratic =
       sqCubicZeroRelatorQuadratic h := by
-  change sqCubicZeroCorePrefixQuadratic h +
-    (((sqCubicZeroYSquare_secondOrder h).quadratic +
+  change ((sqCubicZeroCorePrefixQuadratic h +
+    (sqCubicZeroYSquare_secondOrder h).quadratic) +
       (sqCubicZeroCoreCommutator_secondOrder h).quadratic) +
-      (sqCubicZeroHandleWord_secondOrder h).quadratic) = _
+        (sqCubicZeroHandleWord_secondOrder h).quadratic = _
   rw [sqCubicZeroHandleWord_secondOrder_quadratic]
-  rfl
+  simp only [sqCubicZeroCorePrefixQuadratic, sqCubicZeroYSquare_secondOrder,
+    sqCubicZeroCoreCommutator_secondOrder, add_zero]
+  exact (sqCubicZeroRelatorQuadratic_explicit h).symm
+
+set_option maxHeartbeats 1000000 in
+set_option maxRecDepth 10000 in
+/-- The strict quadratic term vanishes by the oriented Diamond relation. -/
+theorem sqCubicZeroRelatorStrictQuadratic_eq_zero (h : ℕ) :
+    sqCubicZeroRelatorStrictQuadratic h = 0 := by
+  rw [sqCubicZeroRelatorStrictQuadratic]
+  apply Subtype.ext
+  change (NonUnitalSubalgebraClass.subtype (sqCubicStrictEnd h))
+      (sqCubicHomogeneousStrictLetter h 0 * sqCubicHomogeneousStrictLetter h 1 +
+        sqCubicHomogeneousStrictLetter h 1 * sqCubicHomogeneousStrictLetter h 0 +
+        sqCubicHomogeneousStrictLetter h 2 * sqCubicHomogeneousStrictLetter h 2 +
+        ∑ j, (sqCubicHomogeneousStrictLetter h (sqHandleIdxU j) *
+            sqCubicHomogeneousStrictLetter h (sqHandleIdxV j) +
+          sqCubicHomogeneousStrictLetter h (sqHandleIdxV j) *
+            sqCubicHomogeneousStrictLetter h (sqHandleIdxU j))) =
+    (NonUnitalSubalgebraClass.subtype (sqCubicStrictEnd h)) 0
+  simp only [map_add, map_mul, map_sum, map_zero]
+  change
+    sqCubicTruncatedLeftLetter h 0 * sqCubicTruncatedLeftLetter h 1 +
+        sqCubicTruncatedLeftLetter h 1 * sqCubicTruncatedLeftLetter h 0 +
+        sqCubicTruncatedLeftLetter h 2 * sqCubicTruncatedLeftLetter h 2 +
+        ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxU j)) = 0
+  rw [sqCubicTruncated_quadraticRelation h]
+  have hTT (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) : T + T = 0 := by
+    rw [← two_nsmul T]
+    exact ZModModule.char_nsmul_eq_zero 2 T
+  have htwoZ (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) :
+      (2 : ℤ) • T = 0 := by
+    simpa only [two_zsmul] using hTT T
+  abel_nf
+  simp only [htwoZ, zero_add]
 
 /-- The quadratic part of the homogeneous relator vanishes by the oriented Diamond
 relation.  This is the point where the improved presentation is used: its literal
 quadratic term is exactly `XS + SX + YY + ∑ (UV + VU)`. -/
 theorem sqCubicZeroRelatorQuadratic_eq_zero (h : ℕ) :
     sqCubicZeroRelatorQuadratic h = 0 := by
-  apply Unitization.ext
-  · simp [sqCubicZeroRelatorQuadratic, sqCubicHomogeneousOperatorLetter]
-  · apply Subtype.ext
-    change
-      sqCubicTruncatedLeftLetter h 0 * sqCubicTruncatedLeftLetter h 1 +
-          sqCubicTruncatedLeftLetter h 1 * sqCubicTruncatedLeftLetter h 0 +
-          sqCubicTruncatedLeftLetter h 2 * sqCubicTruncatedLeftLetter h 2 +
-          ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
-              sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
-            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
-              sqCubicTruncatedLeftLetter h (sqHandleIdxU j)) = 0
-    rw [sqCubicTruncated_quadraticRelation h]
-    have htwo (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) : 2 • T = 0 :=
-      ZModModule.char_nsmul_eq_zero 2 T
-    have htwoZ (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) :
-        (2 : ℤ) • T = 0 := by
-      simpa [two_zsmul] using htwo T
-    abel_nf
-    simp only [htwoZ]
+  rw [sqCubicZeroRelatorQuadratic, sqCubicZeroRelatorStrictQuadratic_eq_zero]
+  rfl
 
 /-- Unconditionally, the zero-correction improved relator begins in filtration degree
 three.  Its exact second-order expansion has no quadratic part, by
@@ -2581,7 +2616,8 @@ theorem sqCubicHomogeneousRelatorEnd_raises_three (h : ℕ) :
       sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h) =
         (E.cubic.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h)) := by
     simpa only [sqCubicCorrectedRelatorEnd, zero_add, Unitization.snd_add,
-      Unitization.snd_one, zero_smul, Unitization.inr_zero] using hsnd
+      Unitization.snd_one, Unitization.snd_zero, zero_smul, add_zero,
+      Unitization.inr_zero] using hsnd
   rw [hend]
   exact E.cubic_raises.2
 
