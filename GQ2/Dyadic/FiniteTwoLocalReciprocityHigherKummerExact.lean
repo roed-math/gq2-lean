@@ -381,10 +381,91 @@ noncomputable def higherKummerClassDataOfContinuousHilbert90
   surjective := higherKummerClassMonoidHom_surjective_of_continuousHilbert90 hH90 n
   eq_one_iff := higherKummerClassMonoidHom_eq_one_iff n
 
+/-! ## Exact regression to the existing mod-2 Kummer class -/
+
+/-- At `n = 2`, the explicit root ratio, transported through the repository's coefficient
+equivalence `μ₂ ≃ Z/2`, is exactly the existing sign-valued Kummer cocycle. -/
+theorem muNTwoEquiv_rootRatio (a : (↥K)ˣ) (alpha : ℚbar2ˣ)
+    (halpha : alpha ^ 2 = unitInQbar (K := K) a)
+    (g : ↥(K.fixingSubgroup)) :
+    LocalLiftingDuality.muNTwoEquiv (rootRatio 2 a alpha halpha g) =
+      Kummer.kummerCocycleFun (alpha : ℚbar2) g.1 := by
+  by_cases hfix : g • alpha = alpha
+  · have hval : g.1 • (alpha : ℚbar2) = (alpha : ℚbar2) := congrArg Units.val hfix
+    rw [Kummer.kummerCocycleFun_eq0 hval]
+    rw [← map_zero LocalLiftingDuality.muNTwoEquiv]
+    congr 1
+    apply Additive.toMul.injective
+    apply Subtype.ext
+    change (g • alpha) * alpha⁻¹ = 1
+    rw [hfix]
+    simp
+  · have hval : ¬g.1 • (alpha : ℚbar2) = (alpha : ℚbar2) := by
+      intro h
+      exact hfix (Units.ext h)
+    rw [Kummer.kummerCocycleFun, if_neg hval]
+    have hratio : rootRatio 2 a alpha halpha g ≠ 0 := by
+      intro hzero
+      have h := congrArg (fun x : MuN 2 => x.toMul.1) hzero
+      change (g • alpha) * alpha⁻¹ = 1 at h
+      exact hfix (mul_inv_eq_one.mp h)
+    have himage : LocalLiftingDuality.muNTwoEquiv (rootRatio 2 a alpha halpha g) ≠ 0 := by
+      intro hzero
+      apply hratio
+      apply LocalLiftingDuality.muNTwoEquiv.injective
+      rw [hzero, map_zero]
+    have key : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by decide
+    exact key _ himage
+
+/-- **Class-level `n = 2` regression.**  The explicit higher Kummer class is exactly the
+repository's existing `kummerClassK`, transported from `ZMod 2` to `μ₂`. -/
+theorem higherKummerClass_two_eq_modTwoTransport (a : (↥K)ˣ) :
+    higherKummerClass 2 a =
+      H1congr (G := ↥(K.fixingSubgroup)) LocalLiftingDuality.muNTwoEquiv.symm
+        (FieldData.muNTwoEquiv_symm_equivariant K) (kummerClassK K a) := by
+  let alpha : ℚbar2ˣ := Units.mk0 (sqrtCl ((a : ↥K) : ℚbar2))
+    (sqrtCl_ne_zero (unitCoe_ne_zero K a))
+  have halpha : alpha ^ 2 = unitInQbar (K := K) a := by
+    apply Units.ext
+    exact sqrtCl_sq _
+  rw [← higherKummerClassOfRoot_eq 2 a alpha halpha]
+  unfold kummerClassK
+  rw [H1congr_mk]
+  congr 1
+  apply Subtype.ext
+  funext g
+  change rootRatio 2 a alpha halpha g =
+    LocalLiftingDuality.muNTwoEquiv.symm
+      (Kummer.kummerCocycleFun (alpha : ℚbar2) g.1)
+  apply LocalLiftingDuality.muNTwoEquiv.injective
+  rw [LocalLiftingDuality.muNTwoEquiv.apply_symm_apply]
+  exact muNTwoEquiv_rootRatio a alpha halpha g
+
+/-- The explicit higher Kummer homomorphism at `n = 2` is the homomorphism already stored in
+`modTwoHigherKummerClassData`. -/
+theorem higherKummerClassMonoidHom_two_eq_modTwoHigherKummerClassData :
+    higherKummerClassMonoidHom (K := K) 2 =
+      (modTwoHigherKummerClassData (K := K)).kummer := by
+  ext a
+  apply Multiplicative.toAdd.injective
+  exact higherKummerClass_two_eq_modTwoTransport a
+
+/-- **Full package regression.**  Under continuous Hilbert 90, the constructed `n = 2` Kummer
+data equals the repository's pre-existing mod-2 data.  The proof fields agree by proof
+irrelevance once the Kummer homomorphisms have been identified. -/
+theorem higherKummerClassDataOfContinuousHilbert90_two_eq_modTwo
+    (hH90 : ContinuousHilbert90 K) :
+    higherKummerClassDataOfContinuousHilbert90 hH90 2 =
+      modTwoHigherKummerClassData (K := K) := by
+  rw [HigherKummerClassData.mk.injEq]
+  exact higherKummerClassMonoidHom_two_eq_modTwoHigherKummerClassData
+
 #print axioms higherKummerClassOfRoot_eq
 #print axioms higherKummerClass_eq_zero_iff
 #print axioms higherKummerClassMonoidHom_surjective_of_continuousHilbert90
 #print axioms higherKummerClassDataOfContinuousHilbert90
+#print axioms higherKummerClass_two_eq_modTwoTransport
+#print axioms higherKummerClassDataOfContinuousHilbert90_two_eq_modTwo
 
 end
 end GQ2.Dyadic
