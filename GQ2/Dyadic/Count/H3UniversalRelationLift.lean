@@ -670,6 +670,146 @@ theorem exists_sqRelationCoefficient_for_barToUniversal_of_normalClosure
           (sqOpenQuotientBarToUniversalRelationTwo h U b) :=
   exists_sqRelationCoefficient_for_universal_of_normalClosure h U hnormal _
 
+/-! ## Eventual relation efficiency -/
+
+/-- The weakest uniform word-level input used below.  For every target quotient `U`, after
+passing to a sufficiently fine `W ≤ U`, every relation word at level `W` has its `U`-level
+mod-two Fox derivative in the single-relator row.  Membership in `modTwoFoxRangeKernel` also
+records the automatic fact that the word dies at `U`. -/
+def SqEventualRelationFoxGeneration (h : ℕ) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
+      ∀ r : FreeRelationKernel (sqOpenQuotientMarking h W),
+        r.1 ∈ modTwoFoxRangeKernel (sqOpenQuotientMarking h U)
+          (fun _ : Unit ↦ sqDiscreteRelator h)
+
+/-- A more recognizably presentation-theoretic sufficient input.  At a fine enough quotient,
+each relation word has the same target-level Fox derivative as an abstract product of conjugates
+of the improved relator.  Proving this from the pro-2 presentation is the remaining relation-
+efficiency theorem; it is strictly stronger than the exact Fox-generation condition above. -/
+def SqEventualNormalClosureApproximation (h : ℕ) : Prop :=
+  ∀ U : OpenNormalSubgroup (DSq h : Type),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ _hWU : W ≤ U,
+      ∀ r : FreeRelationKernel (sqOpenQuotientMarking h W),
+        ∃ n : FreeGroup (Fin (sqRank h)),
+          n ∈ Subgroup.normalClosure
+              (Set.range (fun _ : Unit ↦ sqDiscreteRelator h)) ∧
+            modTwoFoxDerivative (sqOpenQuotientMarking h U) r.1 =
+              modTwoFoxDerivative (sqOpenQuotientMarking h U) n
+
+/-- Eventual normal-closure approximation implies the exact eventual Fox-generation input. -/
+theorem sqEventualRelationFoxGeneration_of_normalClosureApproximation
+    (h : ℕ) (hnormal : SqEventualNormalClosureApproximation h) :
+    SqEventualRelationFoxGeneration h := by
+  intro U
+  obtain ⟨W, hWU, hW⟩ := hnormal U
+  refine ⟨W, hWU, fun r ↦ ?_⟩
+  constructor
+  · exact (sqOpenQuotientFreeRelationKernelMap h hWU r).2
+  · obtain ⟨n, hn, hderiv⟩ := hW r
+    rw [hderiv]
+    exact modTwoFoxDerivative_mem_range_of_mem_normalClosure
+      (sqOpenQuotientMarking h U)
+      (fun _ : Unit ↦ sqDiscreteRelator h)
+      (fun _ ↦ sqOpenQuotientMarking_sqDiscreteRelator h U) hn
+
+/-- Uniform eventual Fox generation sends every universal relation chain at the fine level into
+the single-relator Fox range after pushforward to the target quotient. -/
+theorem sqUniversalRelationFoxBoundary_push_mem_sqFoxRange_of_eventualGeneration
+    (h : ℕ) {W U : OpenNormalSubgroup (DSq h : Type)} (hWU : W ≤ U)
+    (hgen : ∀ r : FreeRelationKernel (sqOpenQuotientMarking h W),
+      r.1 ∈ modTwoFoxRangeKernel (sqOpenQuotientMarking h U)
+        (fun _ : Unit ↦ sqDiscreteRelator h))
+    (c : RegularModTwoRelationModule
+      ((DSq h : Type) ⧸ W.toSubgroup)
+      (FreeRelationKernel (sqOpenQuotientMarking h W))) :
+    modTwoRegularModuleTransition (DSq h : Type) hWU (Fin (sqRank h))
+        ((finiteUniversalRelationFoxBoundary
+          (sqOpenQuotientMarking h W)).map c) ∈
+      (modTwoFoxRelationMatrixLinear (sqOpenQuotientMarking h U)
+        (fun _ : Unit ↦ sqDiscreteRelator h)).range := by
+  classical
+  rw [sqUniversalRelationFoxBoundary_natural]
+  induction c using Finsupp.induction with
+  | zero => exact Submodule.zero_mem _
+  | single_add p a c hp ha ih =>
+      rcases p with ⟨g, r⟩
+      rw [map_add, map_add]
+      apply Submodule.add_mem _
+      · simp only [sqUniversalRelationModuleTransition_single,
+          finiteUniversalRelationFoxBoundary,
+          finiteLevelModTwoFoxBoundary_single]
+        apply Submodule.smul_mem
+        exact modTwoFoxRelationMatrixLinear_range_translate
+          (sqOpenQuotientMarking h U)
+          (fun _ : Unit ↦ sqDiscreteRelator h)
+          (modTwoQuotientTransition (DSq h : Type) hWU g) (hgen r).2
+      · exact ih
+
+/-- Eventual relation efficiency supplies the stronger exact cofinal-range premise for every
+compatible universal bar syzygy. -/
+theorem sqUniversalBarFoxCofinalRange_of_eventualRelationGeneration
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    SqUniversalBarFoxCofinalRange S := by
+  intro c U
+  obtain ⟨W, hWU, hW⟩ := hgen U
+  have hmem :=
+    sqUniversalRelationFoxBoundary_push_mem_sqFoxRange_of_eventualGeneration
+      h hWU hW (S.coordinate W c)
+  have hcoordinate :
+      modTwoRegularModuleTransition (DSq h : Type) hWU (Fin (sqRank h))
+          ((finiteUniversalRelationFoxBoundary
+            (sqOpenQuotientMarking h W)).map (S.coordinate W c)) =
+        ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+          (Fin (sqRank h)) U (S.toCompletedFox c) := by
+    calc
+      _ = (finiteUniversalRelationFoxBoundary
+            (sqOpenQuotientMarking h U)).map
+          (sqUniversalRelationModuleTransition h hWU (S.coordinate W c)) :=
+        sqUniversalRelationFoxBoundary_natural h hWU (S.coordinate W c)
+      _ = (finiteUniversalRelationFoxBoundary
+            (sqOpenQuotientMarking h U)).map (S.coordinate U c) := by
+        congr 1
+        exact S.compatible hWU c
+      _ = _ := rfl
+  rw [hcoordinate] at hmem
+  refine ⟨U, le_rfl, ?_⟩
+  simpa [sqFiniteLevelModTwoFoxBoundary,
+    modTwoFoxRelationMatrixLinear_apply] using hmem
+
+/-- Every exact cofinal-range witness is, in particular, an eventual-pushdown witness. -/
+theorem sqCompletedFoxEventualRange_of_cofinalRange
+    (h : ℕ)
+    (y : ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
+    (hy : SqCompletedFoxCofinalRange h y) :
+    SqCompletedFoxEventualRange h y := by
+  intro U
+  obtain ⟨W, hWU, d, hd⟩ := hy U
+  refine ⟨W, hWU, d, ?_⟩
+  calc
+    modTwoRegularModuleTransition (DSq h : Type) hWU (Fin (sqRank h))
+        ((sqFiniteLevelModTwoFoxBoundary h
+          (sqOpenQuotientMarking h W)).map d) =
+      modTwoRegularModuleTransition (DSq h : Type) hWU (Fin (sqRank h))
+        (ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+          (Fin (sqRank h)) W y) := congrArg _ hd
+    _ = ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+        (Fin (sqRank h)) U y :=
+      ModTwoCompletedRegularModule.coordinate_compatible
+        (DSq h : Type) (Fin (sqRank h)) y hWU
+
+/-- Consequently, the weakest eventual relation-generation condition discharges the exact
+eventual-range premise used by the compactness constructor. -/
+theorem sqUniversalBarFoxEventualRange_of_eventualRelationGeneration
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteUniversalBarSyzygyAt h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    SqUniversalBarFoxEventualRange S :=
+  fun c ↦ sqCompletedFoxEventualRange_of_cofinalRange h (S.toCompletedFox c)
+    (sqUniversalBarFoxCofinalRange_of_eventualRelationGeneration S hgen c)
+
 end
 
 end GQ2.Dyadic.Count
