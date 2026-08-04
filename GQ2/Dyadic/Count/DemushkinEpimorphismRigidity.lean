@@ -173,6 +173,14 @@ def IsInvariantKernelCharacter {G H : Type} [Group G] [TopologicalSpace G]
       rw [map_mul, map_mul, map_inv, hn]
       group⟩ = chi n
 
+/-- The group-theoretic kernel input in the rigidity argument: every nontrivial kernel has a
+nonzero ambient-conjugation-invariant continuous mod-two character. -/
+def InvariantKernelCharacterSupply {G H : Type} [Group G] [TopologicalSpace G]
+    [Group H] [TopologicalSpace H] (f : ContinuousMonoidHom G H) : Prop :=
+  (∃ n : ↥f.toMonoidHom.ker, n ≠ 1) →
+    ∃ chi : ContinuousMonoidHom ↥f.toMonoidHom.ker (Multiplicative (ZMod 2)),
+      IsInvariantKernelCharacter f chi ∧ ∃ n, chi n ≠ 1
+
 section FiniteInvariantCharacter
 
 variable {P Q : Type} [Group P] [Finite P] [Group Q] [Finite Q]
@@ -313,16 +321,103 @@ local instance scalarActionBoundaryH : DistribMulAction H (ZMod 2) := scalarActi
 local instance scalarContinuousBoundaryH : ContinuousSMul H (ZMod 2) :=
   scalarActionZmodTwo_continuousSMul H
 
-/-- The group-theoretic kernel input in the rigidity argument: every nontrivial kernel has a
-nonzero ambient-conjugation-invariant continuous mod-two character.
+/-- Quotients by open normal subgroups of a profinite group have discrete quotient topology. -/
+private theorem discreteTopology_openNormalQuotient
+    {K : Type} [Group K] [TopologicalSpace K] [IsTopologicalGroup K]
+    (U : OpenNormalSubgroup K) : DiscreteTopology (K ⧸ U.toSubgroup) := by
+  refine discreteTopology_of_isOpen_singleton_one ?_
+  have hpre : (QuotientGroup.mk : K → K ⧸ U.toSubgroup) ⁻¹' {1} =
+      (U.toSubgroup : Set K) := by
+    ext x
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe,
+      QuotientGroup.eq_one_iff]
+  rw [← (QuotientGroup.isQuotientMap_mk U.toSubgroup).isOpen_preimage, hpre]
+  exact U.isOpen'
 
-For pro-`2` `G`, the expected proof passes to a finite `2`-group quotient in which the kernel
-has nontrivial image, takes the elementary Frattini quotient of that image, and applies the
-fixed-vector theorem to its dual. -/
-def InvariantKernelCharacterSupply (f : ContinuousMonoidHom G H) : Prop :=
-  (∃ n : ↥f.toMonoidHom.ker, n ≠ 1) →
-    ∃ chi : ContinuousMonoidHom ↥f.toMonoidHom.ker (Multiplicative (ZMod 2)),
-      IsInvariantKernelCharacter f chi ∧ ∃ n, chi n ≠ 1
+/-- A nontrivial closed normal subgroup of a profinite pro-two group has a nonzero continuous
+mod-two character fixed by ambient conjugation.  The character is constructed in a finite
+two-group quotient separating a chosen nontrivial kernel element, then pulled back. -/
+theorem invariantKernelCharacterSupply_of_isProP
+    (hG : IsProP 2 G) (f : ContinuousMonoidHom G H) :
+    InvariantKernelCharacterSupply f := by
+  rintro ⟨n, hn⟩
+  have hnG : n.1 ≠ 1 := by
+    intro h
+    apply hn
+    exact Subtype.ext h
+  obtain ⟨U, hUsub⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+    (U := ({n.1}ᶜ : Set G)) isOpen_compl_singleton
+    (Set.mem_compl_singleton_iff.mpr fun h ↦ hnG h.symm)
+  have hnU : n.1 ∉ U := by
+    intro hnmem
+    exact (hUsub hnmem) rfl
+  let P := G ⧸ U.toSubgroup
+  let q : ContinuousMonoidHom G P := quotientMk U.toSubgroup
+  letI : Finite P := Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
+  letI : DiscreteTopology P := discreteTopology_openNormalQuotient U
+  let Nbar : Subgroup P := f.toMonoidHom.ker.map q.toMonoidHom
+  letI : Nbar.Normal := Subgroup.Normal.map (inferInstance : f.toMonoidHom.ker.Normal)
+    q.toMonoidHom (quotientMk_surjective U.toSubgroup)
+  let V : OpenNormalSubgroup P :=
+    { toSubgroup := Nbar
+      isOpen' := isOpen_discrete _ }
+  let Q := P ⧸ V.toSubgroup
+  let qbar : ContinuousMonoidHom P Q := quotientMk V.toSubgroup
+  letI : Finite Q := Subgroup.quotient_finite_of_isOpen V.toSubgroup V.isOpen'
+  letI : DiscreteTopology Q := discreteTopology_openNormalQuotient V
+  have hP : IsPGroup 2 P := hG U
+  let m : ↥qbar.toMonoidHom.ker := ⟨q n.1, by
+    show qbar (q n.1) = 1
+    rw [quotientMk_eq_one_iff]
+    change q n.1 ∈ Nbar
+    exact ⟨n.1, n.2, rfl⟩⟩
+  have hm : m ≠ 1 := by
+    intro hm1
+    apply hnU
+    apply (quotientMk_eq_one_iff U.toSubgroup).mp
+    exact congrArg Subtype.val hm1
+  obtain ⟨chiBar, hchiBar, m₀, hm₀⟩ :=
+    finiteTwoGroup_invariantKernelCharacterSupply qbar
+      (quotientMk_surjective V.toSubgroup) hP ⟨m, hm⟩
+  have hqKer (x : ↥f.toMonoidHom.ker) : q x.1 ∈ qbar.toMonoidHom.ker := by
+    show qbar (q x.1) = 1
+    rw [quotientMk_eq_one_iff]
+    change q x.1 ∈ Nbar
+    exact ⟨x.1, x.2, rfl⟩
+  let kMap : ContinuousMonoidHom ↥f.toMonoidHom.ker ↥qbar.toMonoidHom.ker :=
+    { toFun := fun x ↦ ⟨q x.1, hqKer x⟩
+      map_one' := Subtype.ext (map_one q)
+      map_mul' := fun x y ↦ Subtype.ext (map_mul q x.1 y.1)
+      continuous_toFun := Continuous.subtype_mk
+        (q.continuous_toFun.comp continuous_subtype_val) hqKer }
+  let chi : ContinuousMonoidHom ↥f.toMonoidHom.ker (Multiplicative (ZMod 2)) :=
+    chiBar.comp kMap
+  refine ⟨chi, ?_, ?_⟩
+  · intro g x
+    change chiBar (kMap ⟨g * x.1 * g⁻¹, _⟩) = chiBar (kMap x)
+    calc
+      chiBar (kMap ⟨g * x.1 * g⁻¹, _⟩) =
+          chiBar ⟨q g * (kMap x).1 * (q g)⁻¹, by
+            show qbar (q g * (kMap x).1 * (q g)⁻¹) = 1
+            have hxker : qbar (kMap x).1 = 1 := (kMap x).2
+            rw [map_mul, map_mul, map_inv, hxker]
+            group⟩ := by
+        apply congrArg chiBar
+        apply Subtype.ext
+        change q (g * x.1 * g⁻¹) = q g * q x.1 * (q g)⁻¹
+        rw [map_mul, map_mul, map_inv]
+      _ = chiBar (kMap x) := hchiBar (q g) (kMap x)
+  · have hm₀N : m₀.1 ∈ Nbar := by
+      exact (quotientMk_eq_one_iff V.toSubgroup).mp m₀.2
+    obtain ⟨g, hgker, hqg⟩ := hm₀N
+    let x : ↥f.toMonoidHom.ker := ⟨g, hgker⟩
+    refine ⟨x, ?_⟩
+    have hk : kMap x = m₀ := by
+      apply Subtype.ext
+      exact hqg
+    change chiBar (kMap x) ≠ 1
+    rw [hk]
+    exact hm₀
 
 /-- The exact missing continuous Hochschild--Serre five-term assertion, stated without an
 unimplemented invariant-cohomology object.  Surjectivity of degree-one inflation and
@@ -354,6 +449,17 @@ theorem injective_of_H1H2Inflation_of_invariantKernelCharacter
   obtain ⟨chi, hchi, m, hm⟩ := hsupply ⟨n, hn1⟩
   exact hm (hdetect hH1 hH2 chi hchi m)
 
+/-- For a profinite pro-two source, the finite-quotient construction supplies the invariant
+kernel character automatically.  Thus low-degree five-term detection alone implies injectivity. -/
+theorem injective_of_H1H2Inflation_of_isProP
+    (f : ContinuousMonoidHom G H) (hG : IsProP 2 G)
+    (hH1 : Function.Surjective (demushkinH1Inflation f))
+    (hH2 : Function.Injective (demushkinH2Inflation f))
+    (hdetect : H1H2InflationDetectsInvariantKernelCharacters f) :
+    Function.Injective f :=
+  injective_of_H1H2Inflation_of_invariantKernelCharacter f hH1 hH2 hdetect
+    (invariantKernelCharacterSupply_of_isProP hG f)
+
 /-- **Demushkin epimorphism rigidity, reduced to the two generic kernel facts.**
 
 A continuous surjection between positive equal-rank pro-two Demushkin groups is an isomorphism
@@ -373,6 +479,20 @@ theorem demushkinEpimorphism_bijective_of_kernelCharacterBoundary
     f hDG hDH hrankPos hH1.2
   exact ⟨injective_of_H1H2Inflation_of_invariantKernelCharacter
     f hH1.2 hH2.1 hdetect hsupply, hf⟩
+
+/-- **Demushkin epimorphism rigidity, reduced solely to Hochschild--Serre detection.**
+
+The finite-quotient invariant-character supply is now a theorem, so the continuous five-term
+kernel-detection statement is the only remaining generic input. -/
+theorem demushkinEpimorphism_bijective_of_fiveTermKernelDetection
+    (f : ContinuousMonoidHom G H) (hf : Function.Surjective f)
+    (hDG : IsDemushkin 2 G) (hDH : IsDemushkin 2 H)
+    (hrank : demushkinRank 2 G = demushkinRank 2 H)
+    (hrankPos : 0 < demushkinRank 2 G)
+    (hdetect : H1H2InflationDetectsInvariantKernelCharacters f) :
+    Function.Bijective f :=
+  demushkinEpimorphism_bijective_of_kernelCharacterBoundary f hf hDG hDH hrank hrankPos
+    hdetect (invariantKernelCharacterSupply_of_isProP hDG.isProP f)
 
 end KernelBoundary
 
