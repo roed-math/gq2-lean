@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3CompletedCubicObstruction
-import GQ2.Dyadic.Count.H3SqAdjointReconstructionDefect
+import GQ2.Dyadic.Count.H3SqReconstructionFiniteDetector
 import GQ2.Dyadic.Count.H3SqCofinalTransitionDetector
 
 /-!
@@ -47,6 +47,21 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero
   exact ((S V).reconstructionKernel_iff_defect_eq_zero
     (S V).universalSyzygy.relationLiftOfSqPresentation).2 (hdefect V)
 
+/-- Standard-basis detector form of the minimal assembled endpoint. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleReconstructionGenerators
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (S : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (hgenerators : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionGeneratorSystemAt
+        (S V).degreeThreeComparison
+        (S V).universalSyzygy.relationLiftOfSqPresentation) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) :=
+  finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero h H S
+    (fun V => ((S V).sqPresentationFiniteSupportTransportDefect_eq_zero_iff_generators).2
+      (hgenerators V))
+
 /-- A fully decomposed current end-to-end theorem.  Range-good compactness constructs the
 universal degree-three comparisons; the displayed defect-zero condition turns each of them into
 the single-relator reconstruction required by the completed bar--Fox assembly. -/
@@ -88,6 +103,27 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_effectiveTransitionDetectors
     (sqUniversalBarInputTransitionCommonRefinementRange_of_effectivePairDetectorMarking
       h heffective)
     hcancel hdefect
+
+/-- Fully finite detector form: the transition condition is an effective marking of the paired
+finite obstruction, and reconstruction is the explicit standard-basis linear system. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_transitionAndReconstructionDetectors
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (hlocal : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeGoodCofinalAt h V)
+    (heffective : SqUniversalBarInputTransitionPairDetectorEffectiveMarking h)
+    (hcancel : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqUniversalBarInputCocycleCancellationTransitionKernel h V)
+    (hgenerators : ∀ (V : OpenNormalSubgroup (DSq h : Type))
+      (S : SqCompatibleUniversalCocycleCancellingSyzygyAt h V),
+      SqFiniteInputRelationReconstructionGeneratorSystemAt
+        S.degreeThreeComparison
+        S.universalSyzygy.relationLiftOfSqPresentation) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) :=
+  finiteElementaryH2RightExactSupply_DSq_of_effectiveTransitionDetectors h H
+    hlocal heffective hcancel fun V S =>
+      (S.sqPresentationFiniteSupportTransportDefect_eq_zero_iff_generators).2
+        (hgenerators V S)
 
 /-- Fully decomposed regression: degrees zero, one, and two are already unconditional, so
 last-letter row exactness from degree two onward plus the two finite degree-three detector
