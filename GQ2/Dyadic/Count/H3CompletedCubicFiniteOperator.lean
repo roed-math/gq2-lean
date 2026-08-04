@@ -957,13 +957,117 @@ theorem sqCubicCorrectedOperatorLetter_pow_four_zero (h : ℕ)
     (sqCubicCorrectedOperatorLetter h D i)
     (sqCubicCorrectedOperatorLetter_augmentation h D i)
 
+/-- The corrected augmentation-one marking in the finite operator algebra. -/
+def sqCubicCorrectedMarkedUnit (h : ℕ) (D : SqCubicDegreeTwoCorrection h)
+    (i : Fin (sqRank h)) : (SqCubicOperatorAlgebra h)ˣ :=
+  oneAddUnitOfPowFourZero
+    (sqCubicCorrectedOperatorLetter h D i)
+    (sqCubicCorrectedOperatorLetter_pow_four_zero h D i)
+
+/-- The literal improved relator evaluated on the corrected finite marking. -/
+def sqCubicCorrectedRelatorUnit (h : ℕ) (D : SqCubicDegreeTwoCorrection h) :
+    (SqCubicOperatorAlgebra h)ˣ :=
+  sqRelWord (sqCubicCorrectedMarkedUnit h D)
+
+/-- The non-scalar endomorphism block of the corrected literal relator. -/
+def sqCubicCorrectedRelatorEnd (h : ℕ) (D : SqCubicDegreeTwoCorrection h) :
+    Module.End (ZMod 2) (SqCubicNormalSpace h) :=
+  (sqCubicCorrectedRelatorUnit h D).val.snd.1
+
+/-- A matrix entry of the corrected literal relator on the PBW-normal basis. -/
+def sqCubicCorrectedRelatorBlock (h : ℕ) (D : SqCubicDegreeTwoCorrection h)
+    (source target : SqCubicNormalIndex h) : ZMod 2 :=
+  sqCubicCorrectedRelatorEnd h D
+    (Finsupp.single source 1) target
+
+@[simp] theorem sqCubicCorrectedMarkedUnit_augmentation (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h)) :
+    Units.map (sqCubicOperatorAugmentation h).toMonoidHom
+        (sqCubicCorrectedMarkedUnit h D i) = 1 := by
+  apply Units.ext
+  simp [sqCubicCorrectedMarkedUnit,
+    sqCubicCorrectedOperatorLetter_augmentation]
+
+theorem sqRelWord_one {G : Type} [Group G] {h : ℕ} :
+    sqRelWord (fun _ : Fin (sqRank h) => (1 : G)) = 1 := by
+  rw [sqRelWord]
+  have hh : GQ2.Dyadic.MarkedCore.handleWord
+      (fun _ : Fin h => (1 : G)) (fun _ : Fin h => (1 : G)) = 1 :=
+    GQ2.Dyadic.MarkedCore.handleWord_of_one _ _ (fun _ => rfl) (fun _ => rfl)
+  rw [hh]
+  simp [sqWord, conjP, commP]
+
+@[simp] theorem sqCubicCorrectedRelatorUnit_fst (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    (sqCubicCorrectedRelatorUnit h D).val.fst = 1 := by
+  let ε := Units.map (sqCubicOperatorAugmentation h).toMonoidHom
+  have hmark : (λ i => ε (sqCubicCorrectedMarkedUnit h D i)) =
+      (fun _ : Fin (sqRank h) => (1 : (ZMod 2)ˣ)) := by
+    funext i
+    exact sqCubicCorrectedMarkedUnit_augmentation h D i
+  have hrel : ε (sqCubicCorrectedRelatorUnit h D) = 1 := by
+    rw [sqCubicCorrectedRelatorUnit, map_sqRelWord, hmark, sqRelWord_one]
+  have hval := congrArg Units.val hrel
+  simpa [ε, sqCubicOperatorAugmentation] using hval
+
 /-- The one remaining finite equation for a degree-two correction: the full literal improved
 relator must die on the corrected unipotent marked letters. -/
 def SqCubicInhomogeneousRelatorEquation (h : ℕ)
     (D : SqCubicDegreeTwoCorrection h) : Prop :=
-  sqRelWord (fun i => oneAddUnitOfPowFourZero
-    (sqCubicCorrectedOperatorLetter h D i)
-    (sqCubicCorrectedOperatorLetter_pow_four_zero h D i)) = 1
+  sqCubicCorrectedRelatorUnit h D = 1
+
+/-- The literal relator equation is exactly the vanishing of its finite endomorphism block. -/
+theorem sqCubicInhomogeneousRelatorEquation_iff_end_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    SqCubicInhomogeneousRelatorEquation h D ↔
+      sqCubicCorrectedRelatorEnd h D = 0 := by
+  constructor
+  · intro hrel
+    have hval := congrArg Units.val hrel
+    exact congrArg (fun a : SqCubicOperatorAlgebra h =>
+      (a.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h))) hval
+  · intro hend
+    apply Units.ext
+    apply Unitization.ext
+    · exact sqCubicCorrectedRelatorUnit_fst h D
+    · apply Subtype.ext
+      exact hend
+
+/-- Equivalently, every source column of the finite relator endomorphism vanishes. -/
+theorem sqCubicInhomogeneousRelatorEquation_iff_columns_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    SqCubicInhomogeneousRelatorEquation h D ↔
+      ∀ source : SqCubicNormalIndex h,
+        sqCubicCorrectedRelatorEnd h D (Finsupp.single source 1) = 0 := by
+  rw [sqCubicInhomogeneousRelatorEquation_iff_end_zero]
+  constructor
+  · intro hend source
+    rw [hend]
+    rfl
+  · intro hcolumns
+    apply Finsupp.lhom_ext
+    intro source a
+    rw [← Finsupp.smul_single_one, map_smul, hcolumns, smul_zero]
+    rfl
+
+/-- Fully scalar form: the correction problem is the simultaneous vanishing of the finite
+PBW-basis matrix of the literal improved relator. -/
+theorem sqCubicInhomogeneousRelatorEquation_iff_blocks_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    SqCubicInhomogeneousRelatorEquation h D ↔
+      ∀ source target : SqCubicNormalIndex h,
+        sqCubicCorrectedRelatorBlock h D source target = 0 := by
+  rw [sqCubicInhomogeneousRelatorEquation_iff_columns_zero]
+  constructor
+  · intro hcolumns source target
+    change sqCubicCorrectedRelatorEnd h D
+      (Finsupp.single source 1) target = 0
+    rw [hcolumns source]
+    rfl
+  · intro hblocks source
+    apply Finsupp.ext
+    intro target
+    exact hblocks source target
 
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
