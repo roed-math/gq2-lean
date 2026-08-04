@@ -523,6 +523,105 @@ theorem completed_reciprocity_injective_of_canonicalKummer_artin
     Function.Injective (proTwoReciprocityToTopAb B) :=
   (twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin H).completed_injective
 
+/-! ## Finite-layer norm reciprocity and abstract Artin compatibility
+
+The conventional finite-layer norm-residue theorem over `K` is not available in Mathlib or in
+the repository's arithmetic bundles.  Mathlib supplies field norms and restriction maps, but no
+local Artin map.  `LocalReciprocity.norm_reciprocity` is specialized to layers over `ℚ₂`, and
+`MarkedRecip.norm_compat` compares `rec_K` with that base map only after applying
+`N_{K/ℚ₂}`.  It cannot recover a norm subgroup for a further layer `L/K`.
+
+The existing `ReciprocityFiniteTwoKernelAgreement` is therefore already the narrowest usable
+formal landing point for finite-layer norm reciprocity: it states exactly that the finite
+reciprocity kernels on `Kˣ` are the kernels defining its pro-`2` completion.  The
+literature-facing alias below records that interpretation.
+
+Kernel reciprocity does recover the *existential* higher Artin compatibility needed by the
+closure theorem.  It cannot recover the stronger canonical scalar equality below: B6 explicitly
+leaves `TateDualityG.inv` unnormalized for `n > 2`, and multiplying that invariant by a unit
+preserves perfectness and every norm kernel while changing the pointwise `ZMod n` value. -/
+
+/-- Literature-facing spelling of the exact finite-layer norm-reciprocity kernel input over
+`K`.  This is an abbreviation, not a new assumption or axiom. -/
+abbrev FiniteLayerNormReciprocity
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K) : Prop :=
+  ReciprocityFiniteTwoKernelAgreement B
+
+/-- The multiplicative character of `Kˣ` defined by one row of the Tate pairing and the
+higher Kummer homomorphism.  This construction uses no reciprocity theorem. -/
+def higherTateKummerUnitCharacter
+    {K : IntermediateField ℚ_[2] ℚbar2} [FiniteDimensional ℚ_[2] K]
+    {n : ℕ} [NeZero n] (D : TateDualityG ↥(K.fixingSubgroup) n)
+    (κ : HigherKummerClassData K n)
+    (c : H1 ↥(K.fixingSubgroup) (MuDual n (MuN n))) :
+    (↥K)ˣ →* Multiplicative (ZMod n) :=
+  (D.inv.toAddMonoidHom.comp
+      ((cup11 (muDualPairing n (MuN n))
+        (muDualPairing_equivariant n (MuN n))) c)).toMultiplicative.comp κ.kummer
+
+@[simp] theorem higherTateKummerUnitCharacter_apply
+    {n : ℕ} [NeZero n] (D : TateDualityG ↥(K.fixingSubgroup) n)
+    (κ : HigherKummerClassData K n)
+    (c : H1 ↥(K.fixingSubgroup) (MuDual n (MuN n))) (a : (↥K)ˣ) :
+    higherTateKummerUnitCharacter D κ c a =
+      Multiplicative.ofAdd
+        (D.inv (cup11 (muDualPairing n (MuN n))
+          (muDualPairing_equivariant n (MuN n)) c (κ.kummer a).toAdd)) :=
+  rfl
+
+/-- Standard `2^m` character factorization supplies the existential Artin character for every
+Tate row.  The witness need not be the choice-dependent canonical scalar character. -/
+theorem higherTateKummerArtinCompatibilityAt_of_twoPowerSupply
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (S : TwoPowerReciprocityCharacterSupply B) (m : ℕ)
+    (D : TateDualityG ↥(K.fixingSubgroup) (2 ^ m))
+    (κ : HigherKummerClassData K (2 ^ m)) :
+    HigherTateKummerArtinCompatibilityAt B D κ := by
+  intro c
+  obtain ⟨chi, hchi⟩ := S m (higherTateKummerUnitCharacter D κ c)
+  refine ⟨chi, fun a => ?_⟩
+  rw [hchi a]
+  exact higherTateKummerUnitCharacter_apply D κ c a
+
+/-- Finite-layer norm reciprocity over `K` supplies the canonical-Kummer abstract compatibility
+at every `2^m`.  No normalization of the existential character is required. -/
+theorem canonicalHigherTateKummerArtinCompatibilityAt_of_finiteLayerNormReciprocity
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : FiniteLayerNormReciprocity B) (m : ℕ) :
+    HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m))
+      (canonicalHigherKummerClassData K (2 ^ m)) := by
+  apply higherTateKummerArtinCompatibilityAt_of_twoPowerSupply
+  exact TwoPowerReciprocityCharacterSupply.iff_finiteTwoLocalReciprocitySupply.mpr
+    (FiniteTwoLocalReciprocitySupply.ofKernelAgreement H)
+
+/-- **Exact regression.**  With canonical higher Kummer exactness and B6 fixed, abstract higher
+Artin compatibility at all `2^m` is equivalent to finite-layer norm-reciprocity kernel
+agreement.  Thus the existential compatibility interface carries precisely the arithmetic
+strength required for completed reciprocity, no more and no less. -/
+theorem allCanonicalHigherTateKummerArtinCompatibility_iff_finiteLayerNormReciprocity
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K} :
+    (∀ m : ℕ, HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m))
+      (canonicalHigherKummerClassData K (2 ^ m))) ↔
+        FiniteLayerNormReciprocity B := by
+  constructor
+  · intro H
+    have S : TwoPowerReciprocityCharacterSupply B :=
+      twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin H
+    exact FiniteTwoLocalReciprocitySupply.kernelAgreement
+      (TwoPowerReciprocityCharacterSupply.iff_finiteTwoLocalReciprocitySupply.mp S)
+  · intro H m
+    exact canonicalHigherTateKummerArtinCompatibilityAt_of_finiteLayerNormReciprocity H m
+
 /-! ## The remaining higher Artin formula
 
 The higher Kummer and coefficient campaigns leave no construction hidden in the final local
@@ -652,6 +751,10 @@ theorem completed_reciprocity_injective_of_canonicalHigherArtinFormula
 #print axioms twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin
 #print axioms finiteTwoLocalReciprocitySupply_of_canonicalKummer_artin
 #print axioms completed_reciprocity_injective_of_canonicalKummer_artin
+#print axioms higherTateKummerUnitCharacter
+#print axioms higherTateKummerArtinCompatibilityAt_of_twoPowerSupply
+#print axioms canonicalHigherTateKummerArtinCompatibilityAt_of_finiteLayerNormReciprocity
+#print axioms allCanonicalHigherTateKummerArtinCompatibility_iff_finiteLayerNormReciprocity
 #print axioms canonicalHigherTateDualCharacter
 #print axioms canonicalHigherTateKummerArtinFormulaAt_zero
 #print axioms canonicalHigherTateKummerArtinCompatibilityAt_of_formula
