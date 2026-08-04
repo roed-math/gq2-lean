@@ -1853,12 +1853,61 @@ theorem sqCubicResidualCorrection_relatorEnd_apply_empty (h : ℕ)
     ZModModule.char_nsmul_eq_zero 2 _
   simpa [two_smul] using htwo
 
+theorem sqCubicHomogeneousRelatorResidual_mem_three_of_raises_three (h : ℕ)
+    (hhom : SqCubicRaisesBy
+      (sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)) 3) :
+    sqCubicHomogeneousRelatorResidual h ∈ sqCubicNormalFiltration h 3 := by
+  exact hhom 0 (sqCubicEmptyVector h) (by simp)
+
+/-- Once the homogeneous literal relator is known to start in degree three, the rank-one
+residual correction makes the entire relator endomorphism vanish. -/
+theorem sqCubicResidualCorrection_relatorEnd_zero_of_homogeneous_raises_three
+    (h : ℕ)
+    (hres : sqCubicHomogeneousRelatorResidual h ∈
+      sqCubicNormalFiltration h 3)
+    (hhom : SqCubicRaisesBy
+      (sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)) 3) :
+    sqCubicCorrectedRelatorEnd h
+      (sqCubicXFromSColumnCorrection h
+        (sqCubicHomogeneousRelatorResidual h) hres) = 0 := by
+  apply sqCubicEnd_eq_of_raises_three
+  · rw [sqCubicXFromSRelatorEnd_eq_add_delta h
+      (sqCubicHomogeneousRelatorResidual h) hres]
+    exact hhom.add
+      (sqCubicXFromSPrefixDelta_snd_raises_three h
+        (sqCubicHomogeneousRelatorResidual h) hres)
+  · exact fun _ _ _ => Submodule.zero_mem _
+  · exact sqCubicResidualCorrection_relatorEnd_apply_empty h hres
+
+theorem sqCubicResidualCorrection_relatorEquation_of_homogeneous_raises_three
+    (h : ℕ)
+    (hres : sqCubicHomogeneousRelatorResidual h ∈
+      sqCubicNormalFiltration h 3)
+    (hhom : SqCubicRaisesBy
+      (sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)) 3) :
+    SqCubicInhomogeneousRelatorEquation h
+      (sqCubicXFromSColumnCorrection h
+        (sqCubicHomogeneousRelatorResidual h) hres) := by
+  rw [sqCubicInhomogeneousRelatorEquation_iff_end_zero]
+  exact sqCubicResidualCorrection_relatorEnd_zero_of_homogeneous_raises_three
+    h hres hhom
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
 structure SqCubicInhomogeneousCorrection (h : ℕ) where
   correction : SqCubicDegreeTwoCorrection h
   relatorEquation : SqCubicInhomogeneousRelatorEquation h correction
+
+/-- The homogeneous degree-three start supplies the explicit residual correction package. -/
+def sqCubicResidualInhomogeneousCorrectionOfRaisesThree (h : ℕ)
+    (hhom : SqCubicRaisesBy
+      (sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)) 3) :
+    SqCubicInhomogeneousCorrection h :=
+  let hres := sqCubicHomogeneousRelatorResidual_mem_three_of_raises_three h hhom
+  ⟨sqCubicXFromSColumnCorrection h (sqCubicHomogeneousRelatorResidual h) hres,
+    sqCubicResidualCorrection_relatorEquation_of_homogeneous_raises_three
+      h hres hhom⟩
 
 theorem nonempty_sqCubicInhomogeneousCorrection_iff (h : ℕ) :
     Nonempty (SqCubicInhomogeneousCorrection h) ↔
