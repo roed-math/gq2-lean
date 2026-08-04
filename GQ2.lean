@@ -473,6 +473,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStage
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageHandles
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteTransgression
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteElementaryH2
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteHilbertTail
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRealizationCore
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageRankOne
