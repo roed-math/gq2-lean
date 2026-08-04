@@ -266,6 +266,77 @@ def GammaLOddIndexOpenSubgroupFieldIdentificationSupply (h q : ℕ) : Prop :=
 
 /-! ## Cyclotomic image transport -/
 
+/-- A `2`-adic unit, first embedded in `ℚ₂ˣ` and then base changed to `Kˣ`.  Scalar
+units are enough to detect the entire cyclotomic image when `[K : ℚ₂]` is odd. -/
+noncomputable def baseChangedPadicUnit
+    (K : IntermediateField ℚ_[2] ℚ̄₂) (u : ℤ_[2]ˣ) : (↥K)ˣ :=
+  Units.map (algebraMap ℚ_[2] (↥K)).toMonoidHom (unitEmbed u)
+
+@[simp] theorem baseChangedPadicUnit_val
+    (K : IntermediateField ℚ_[2] ℚ̄₂) (u : ℤ_[2]ˣ) :
+    ((baseChangedPadicUnit K u : (↥K)ˣ) : ↥K) =
+      algebraMap ℚ_[2] (↥K) ((unitEmbed u : ℚ_[2]ˣ) : ℚ_[2]) :=
+  rfl
+
+/-- The norm of a scalar unit is its `[K : ℚ₂]`-th power.  This is the arithmetic
+calculation behind the full odd-degree cyclotomic-image theorem below. -/
+theorem normUnitsK_baseChangedPadicUnit
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    (u : ℤ_[2]ˣ) :
+    normUnitsK K (baseChangedPadicUnit K u) =
+      unitEmbed (u ^ Module.finrank ℚ_[2] K) := by
+  apply Units.ext
+  rw [normUnitsK_val, baseChangedPadicUnit_val, Algebra.norm_algebraMap]
+  change (algebraMap ℤ_[2] ℚ_[2] (u : ℤ_[2])) ^ Module.finrank ℚ_[2] K =
+    algebraMap ℤ_[2] ℚ_[2] ((u : ℤ_[2]) ^ Module.finrank ℚ_[2] K)
+  rw [map_pow]
+
+/-- Raising `ℤ₂ˣ` to an odd natural power is surjective.  The proof realizes the odd
+integer as a unit of `ℤ₂` and uses the existing `ℤ₂`-powering equivalence on pro-`2`
+groups. -/
+theorem unitsPadicInt_pow_surjective_of_odd {n : ℕ} (hn : Odd n) :
+    Function.Surjective (fun u : ℤ_[2]ˣ ↦ u ^ n) := by
+  obtain ⟨k, hk⟩ := hn
+  have hoddZ : Odd (n : ℤ) := ⟨k, by omega⟩
+  have hunit : IsUnit ((n : ℤ) : ℤ_[2]) := isUnit_intCast_of_odd hoddZ
+  let nunit : ℤ_[2]ˣ := hunit.unit
+  intro c
+  obtain ⟨u, hu⟩ := (zpowZtwo_bijective isProP_two_unitsPadicInt nunit).2 c
+  refine ⟨u, ?_⟩
+  change u ^ n = c
+  calc
+    u ^ n = zpowZtwo isProP_two_unitsPadicInt u (n : ℤ_[2]) :=
+      (zpowZtwo_natCast isProP_two_unitsPadicInt u n).symm
+    _ = zpowZtwo isProP_two_unitsPadicInt u (nunit : ℤ_[2]) := by
+      congr 1
+    _ = c := hu
+
+/-- **Full odd-degree cyclotomic image before the maximal pro-`2` quotient.**  For a desired
+`c : ℤ₂ˣ`, choose an `[K : ℚ₂]`-th root of `c⁻¹`.  Reciprocity of the corresponding
+scalar unit has cyclotomic value `c`, because its norm is that odd power and the arithmetic
+reciprocity normalization sends a unit to its inverse.
+
+No `K(i)/K` ramification hypothesis is needed: odd degree alone forces the full image. -/
+theorem chiCycKAb_surjective_of_odd_finrank
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    Function.Surjective (chiCycKAb K) := by
+  intro c
+  obtain ⟨u, hu⟩ := unitsPadicInt_pow_surjective_of_odd hodd c⁻¹
+  change u ^ Module.finrank ℚ_[2] K = c⁻¹ at hu
+  refine ⟨B.recip (baseChangedPadicUnit K u), ?_⟩
+  rw [← chiCycAb_inclAbK, B.norm_compat, normUnitsK_baseChangedPadicUnit,
+    R.chiCyc_recip_unit, hu, inv_inv]
+
+/-- Subgroup form of `chiCycKAb_surjective_of_odd_finrank`. -/
+theorem range_chiCycKAb_eq_top_of_odd_finrank
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    MonoidHom.range (chiCycKAb K) = ⊤ := by
+  exact MonoidHom.range_eq_top.mpr (chiCycKAb_surjective_of_odd_finrank K B hodd)
+
 /-- Passing from `G_K` to its maximal pro-`2` quotient loses no cyclotomic values.  Equivalently,
 the image of the descended character is exactly the cyclotomic image in `G_K^ab` recorded by
 the marked-reciprocity branch selector. -/
@@ -296,6 +367,94 @@ theorem range_chiCycKTwo_eq_fieldMarkedPairC
     (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) :
     MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = (B.fieldMarkedPair FF).C :=
   range_chiCycKTwo_eq_chiCycKAb K
+
+/-- **Full odd-degree cyclotomic image on `G_K(2)`.**  This closes the arithmetic image seam
+for the improved square presentation: all three exceptional square values, and indeed every
+`2`-adic unit, occur on the maximal pro-`2` Galois group. -/
+theorem range_chiCycKTwo_eq_top_of_odd_finrank
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = ⊤ := by
+  rw [range_chiCycKTwo_eq_chiCycKAb,
+    range_chiCycKAb_eq_top_of_odd_finrank K B hodd]
+
+/-- Surjectivity form of the full image theorem. -/
+theorem chiCycKTwo_surjective_of_odd_finrank
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    Function.Surjective (chiCycKTwo (K := K)) :=
+  MonoidHom.range_eq_top.mp (range_chiCycKTwo_eq_top_of_odd_finrank K B hodd)
+
+/-- The branch selector's cyclotomic subgroup is the full `ℤ₂ˣ` for odd-degree fields. -/
+theorem fieldMarkedPair_C_eq_top_of_odd_finrank
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K)
+    (FF : DyadicUnitFiltration K) (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    (B.fieldMarkedPair FF).C = ⊤ := by
+  rw [← range_chiCycKTwo_eq_fieldMarkedPairC K B FF,
+    range_chiCycKTwo_eq_top_of_odd_finrank K B hodd]
+
+/-- Membership regression for the three nontrivial values in the improved square constructor
+table.  This is the exact arithmetic fact formerly missing from the presentation plan. -/
+theorem squareOrientationValues_mem_fieldMarkedPairC_of_odd_finrank
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K)
+    (FF : DyadicUnitFiltration K) (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    GQ2.Roe.SvalUnit ∈ (B.fieldMarkedPair FF).C ∧
+      GQ2.Roe.rootXUnit ∈ (B.fieldMarkedPair FF).C ∧
+      GQ2.Roe.YvalUnit ∈ (B.fieldMarkedPair FF).C := by
+  rw [fieldMarkedPair_C_eq_top_of_odd_finrank K B FF hodd]
+  simp
+
+/-- A constructor table of actual elements of `G_K(2)` realizing the three exceptional
+orientation rows of the improved square presentation.  Handle rows need no arithmetic
+choice: their prescribed value is `1`, realized by every element of the cyclotomic kernel. -/
+structure OddDegreeGalKSqCyclotomicCoreTable
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] where
+  sigma : maxProPQuotient 2 (GalK K)
+  x0 : maxProPQuotient 2 (GalK K)
+  x1 : maxProPQuotient 2 (GalK K)
+  sigma_value : chiCycKTwo (K := K) sigma = GQ2.Roe.SvalUnit
+  x0_value : chiCycKTwo (K := K) x0 = GQ2.Roe.rootXUnit
+  x1_value : chiCycKTwo (K := K) x1 = GQ2.Roe.YvalUnit
+
+/-- Construct the improved square core-value table from odd degree and marked reciprocity. -/
+noncomputable def oddDegreeGalKSqCyclotomicCoreTable
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    OddDegreeGalKSqCyclotomicCoreTable K := by
+  let hsurj := chiCycKTwo_surjective_of_odd_finrank K B hodd
+  exact
+    { sigma := (hsurj GQ2.Roe.SvalUnit).choose
+      x0 := (hsurj GQ2.Roe.rootXUnit).choose
+      x1 := (hsurj GQ2.Roe.YvalUnit).choose
+      sigma_value := (hsurj GQ2.Roe.SvalUnit).choose_spec
+      x0_value := (hsurj GQ2.Roe.rootXUnit).choose_spec
+      x1_value := (hsurj GQ2.Roe.YvalUnit).choose_spec }
+
+/-- Regression: the constructor table retains the improved presentation's literal
+`(SvalUnit, rootXUnit, YvalUnit)` rows. -/
+theorem oddDegreeGalKSqCyclotomicCoreTable_regression
+    {R : LocalReciprocity} (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    let T := oddDegreeGalKSqCyclotomicCoreTable K B hodd
+    chiCycKTwo (K := K) T.sigma = GQ2.Roe.SvalUnit ∧
+      chiCycKTwo (K := K) T.x0 = GQ2.Roe.rootXUnit ∧
+      chiCycKTwo (K := K) T.x1 = GQ2.Roe.YvalUnit := by
+  exact ⟨(oddDegreeGalKSqCyclotomicCoreTable K B hodd).sigma_value,
+    (oddDegreeGalKSqCyclotomicCoreTable K B hodd).x0_value,
+    (oddDegreeGalKSqCyclotomicCoreTable K B hodd).x1_value⟩
 
 /-! ## The two substantive missing inputs -/
 
@@ -555,8 +714,17 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms SqCyclotomicForwardGeneratorData.backward_of_finiteQuotientSurjections
 #print axioms SqCyclotomicForwardGeneratorData.toBiEpiData_of_finiteQuotientSurjections
 #print axioms orientedEquivSq_of_biEpiData
+#print axioms normUnitsK_baseChangedPadicUnit
+#print axioms unitsPadicInt_pow_surjective_of_odd
+#print axioms chiCycKAb_surjective_of_odd_finrank
+#print axioms range_chiCycKAb_eq_top_of_odd_finrank
 #print axioms range_chiCycKTwo_eq_chiCycKAb
 #print axioms range_chiCycKTwo_eq_fieldMarkedPairC
+#print axioms range_chiCycKTwo_eq_top_of_odd_finrank
+#print axioms chiCycKTwo_surjective_of_odd_finrank
+#print axioms fieldMarkedPair_C_eq_top_of_odd_finrank
+#print axioms squareOrientationValues_mem_fieldMarkedPairC_of_odd_finrank
+#print axioms oddDegreeGalKSqCyclotomicCoreTable_regression
 #print axioms oddDegreeGalKSqInvariantData_of_qTwo
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
