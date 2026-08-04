@@ -398,6 +398,10 @@ theorem finiteElementaryH2RightExactSupply_maxProPQuotient_of_inflation_surjecti
   finiteElementaryH2RightExactSupply_maxProPQuotient_of_inflation_surjective_injective
     hG hsurj finiteElementaryH2InflationInjective_maxProPMk
 
+#print axioms injective_inf2_maxProPMk_finiteElementary
+#print axioms finiteElementaryH2InflationInjective_maxProPMk
+#print axioms finiteElementaryH2RightExactSupply_maxProPQuotient_of_inflation_surjective
+
 end
 
 end ContCoh
