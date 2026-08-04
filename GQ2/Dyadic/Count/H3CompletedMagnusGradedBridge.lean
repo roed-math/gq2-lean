@@ -327,6 +327,260 @@ theorem sqCompletedFirstMoment_eq_zero_of_mem_augmentation_sq
   exact modTwoCompletedAugmentationIdealPow_coordinate
     (DSq h : Type) (sqMagnusOneKernel h) 2 hx
 
+/-! ## Algebraic realization of literal completed Fox derivatives -/
+
+/-- Send the ordinary group algebra `F₂[G]` to the explicit completed group algebra by sending
+each basis group element to its compatible family of finite-quotient basis elements. -/
+def modTwoGroupAlgebraToCompleted
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] :
+    MonoidAlgebra (ZMod 2) G →ₐ[ZMod 2] ModTwoCompletedGroupAlgebra G :=
+  MonoidAlgebra.lift (ZMod 2) (ModTwoCompletedGroupAlgebra G) G
+    (ModTwoCompletedGroupAlgebra.of G)
+
+@[simp] theorem modTwoGroupAlgebraToCompleted_of
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (g : G) :
+    modTwoGroupAlgebraToCompleted G (MonoidAlgebra.of (ZMod 2) G g) =
+      ModTwoCompletedGroupAlgebra.of G g := by
+  simp [modTwoGroupAlgebraToCompleted]
+
+/-- At every finite level, the algebraic-to-completed map is ordinary pushforward along the
+quotient homomorphism. -/
+theorem modTwoGroupAlgebraToCompleted_coordinate
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (U : OpenNormalSubgroup G) (x : MonoidAlgebra (ZMod 2) G) :
+    ModTwoCompletedGroupAlgebra.coordinate G U
+        (modTwoGroupAlgebraToCompleted G x) =
+      MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2)
+        (QuotientGroup.mk' U.toSubgroup) x := by
+  induction x using MonoidAlgebra.induction_on with
+  | hM g =>
+      rw [modTwoGroupAlgebraToCompleted_of,
+        ModTwoCompletedGroupAlgebra.coordinate_of]
+      change MonoidAlgebra.single (QuotientGroup.mk' U.toSubgroup g) 1 =
+        MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2)
+          (QuotientGroup.mk' U.toSubgroup) (MonoidAlgebra.single g 1)
+      rw [MonoidAlgebra.mapDomainAlgHom_apply, MonoidAlgebra.mapDomain_single]
+  | hadd x y hx hy => simp only [map_add, hx, hy]
+  | hsmul a x hx => simp only [map_smul, hx]
+
+/-- A literal completed Fox derivative is the image of the same finite-support Fox derivative
+computed directly in `F₂[G]`. -/
+theorem completedModTwoFoxDerivativeRow_eq_toCompleted
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    {I : Type} (m : I → G) (w : FreeGroup I) (i : I) :
+    completedModTwoFoxDerivativeRow G m w i =
+      modTwoGroupAlgebraToCompleted G
+        (regularModTwoComponent i (modTwoFoxDerivative m w)) := by
+  apply ModTwoCompletedGroupAlgebra.ext G
+  intro U
+  rw [completedModTwoFoxDerivativeRow_coordinate,
+    modTwoGroupAlgebraToCompleted_coordinate,
+    ← regularModTwoComponent_pushforward,
+    regularModTwoPushforward_modTwoFoxDerivative]
+
+/-- Every ordinary group-algebra element differs from its augmentation scalar by an element
+which maps into the algebraic completed augmentation ideal. -/
+theorem modTwoGroupAlgebraToCompleted_sub_augmentation_mem
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (x : MonoidAlgebra (ZMod 2) G) :
+    modTwoGroupAlgebraToCompleted G x -
+        algebraMap (ZMod 2) (ModTwoCompletedGroupAlgebra G)
+          (modTwoFiniteAugmentation G x) ∈
+      modTwoCompletedAugmentationIdeal G := by
+  induction x using MonoidAlgebra.induction_on with
+  | hM g =>
+      have haug : modTwoFiniteAugmentation G
+          (MonoidAlgebra.of (ZMod 2) G g) = 1 := by
+        simp [modTwoFiniteAugmentation]
+      rw [modTwoGroupAlgebraToCompleted_of, haug, map_one]
+      rw [modTwoCompletedAugmentationIdeal]
+      apply Submodule.subset_span
+      exact ⟨g, rfl⟩
+  | hadd x y hx hy =>
+      simp only [map_add]
+      convert (modTwoCompletedAugmentationIdeal G).add_mem hx hy using 1
+      abel
+  | hsmul a x hx =>
+      simp only [map_smul]
+      have hm := (modTwoCompletedAugmentationIdeal G).mul_mem_left
+        (algebraMap (ZMod 2) (ModTwoCompletedGroupAlgebra G) a) hx
+      simpa [Algebra.smul_def, mul_sub] using hm
+
+/-- Augmentation-zero ordinary group-algebra elements therefore map into the algebraic
+completed augmentation ideal. -/
+theorem modTwoGroupAlgebraToCompleted_mem_augmentation_of_aug_eq_zero
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    {x : MonoidAlgebra (ZMod 2) G} (hx : modTwoFiniteAugmentation G x = 0) :
+    modTwoGroupAlgebraToCompleted G x ∈ modTwoCompletedAugmentationIdeal G := by
+  have h := modTwoGroupAlgebraToCompleted_sub_augmentation_mem G x
+  rw [hx, map_zero, sub_zero] at h
+  exact h
+
+/-- The actual completed improved-square Fox row lies in augmentation degree one. -/
+theorem sqCompletedModTwoFoxDerivativeRow_mem_augmentation
+    (h : ℕ) (i : Fin (sqRank h)) :
+    sqCompletedModTwoFoxDerivativeRow h i ∈
+      modTwoCompletedAugmentationIdeal (DSq h : Type) := by
+  rw [sqCompletedModTwoFoxDerivativeRow,
+    completedModTwoFoxDerivativeRow_eq_toCompleted]
+  apply modTwoGroupAlgebraToCompleted_mem_augmentation_of_aug_eq_zero
+  rw [modTwoFiniteAugmentation_regularModTwoComponent,
+    regularModTwoComponentAugmentation_modTwoFoxDerivative]
+  have hu := congrArg
+    (regularModTwoComponentAugmentation (L := Unit) i)
+    (modTwoFoxDerivative_sqDiscreteRelator_unit h)
+  rw [map_zero,
+    regularModTwoComponentAugmentation_modTwoFoxDerivative] at hu
+  exact hu
+
+/-! ## Unconditional degree-zero and degree-one maps -/
+
+/-- Augmentation of a completed group algebra, evaluated at one finite coordinate.  Transition
+compatibility implies the same scalar is obtained at every coordinate; the present form is the
+one needed for the canonical square Magnus quotient. -/
+def modTwoCompletedAugmentationCoordinate
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (U : OpenNormalSubgroup G) :
+    ModTwoCompletedGroupAlgebra G →ₗ[ZMod 2] ZMod 2 :=
+  (modTwoFiniteAugmentation (G ⧸ U.toSubgroup)).toLinearMap.comp
+    (ModTwoCompletedGroupAlgebra.coordinate G U).toLinearMap
+
+@[simp] theorem modTwoCompletedAugmentationCoordinate_one
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (U : OpenNormalSubgroup G) :
+    modTwoCompletedAugmentationCoordinate G U 1 = 1 := by
+  simp [modTwoCompletedAugmentationCoordinate]
+
+/-- The algebraic completed augmentation ideal is contained in the kernel of every finite
+coordinate augmentation.  Equality is the genuine degree-zero generation theorem. -/
+theorem modTwoCompletedAugmentationCoordinate_eq_zero_of_mem
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (U : OpenNormalSubgroup G) {x : ModTwoCompletedGroupAlgebra G}
+    (hx : x ∈ modTwoCompletedAugmentationIdeal G) :
+    modTwoCompletedAugmentationCoordinate G U x = 0 := by
+  have hcoord := modTwoCompletedAugmentationIdeal_coordinate G U hx
+  change modTwoFiniteAugmentation (G ⧸ U.toSubgroup)
+    (ModTwoCompletedGroupAlgebra.coordinate G U x) = 0 at hcoord
+  exact hcoord
+
+/-- Every finite-coordinate completed augmentation is onto. -/
+theorem modTwoCompletedAugmentationCoordinate_surjective
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    (U : OpenNormalSubgroup G) :
+    Function.Surjective (modTwoCompletedAugmentationCoordinate G U) := by
+  intro r
+  refine ⟨r • (1 : ModTwoCompletedGroupAlgebra G), ?_⟩
+  simp
+
+/-- The simultaneous actual first-moment map on the completed square group algebra. -/
+def sqCompletedFirstMomentMap (h : ℕ) :
+    ModTwoCompletedGroupAlgebra (DSq h : Type) →ₗ[ZMod 2]
+      (Fin (sqRank h) → ZMod 2) where
+  toFun x a :=
+    modTwoGroupAlgebraLinearMoment
+      ((multiplicativeModTwoCharacter (sqMagnusOneCoordinate h a)).comp
+        (sqMagnusOneQuotientHom h))
+      (ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type)
+        (sqMagnusOneKernel h) x)
+  map_add' x y := by
+    funext a
+    simp
+  map_smul' r x := by
+    funext a
+    simp
+
+/-- The degree-one map kills the square of the completed augmentation ideal. -/
+theorem sqCompletedFirstMomentMap_eq_zero_of_mem_augmentation_sq
+    (h : ℕ) {x : ModTwoCompletedGroupAlgebra (DSq h : Type)}
+    (hx : x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) ^ 2) :
+    sqCompletedFirstMomentMap h x = 0 := by
+  funext a
+  exact sqCompletedFirstMoment_eq_zero_of_mem_augmentation_sq h a hx
+
+/-- The degree-one map sends every literal completed Fox derivative to its certified formal
+linear initial form. -/
+theorem sqCompletedFirstMomentMap_foxRow (h : ℕ) (i : Fin (sqRank h)) :
+    sqCompletedFirstMomentMap h (sqCompletedModTwoFoxDerivativeRow h i) =
+      sqQuadraticFoxLinearInitialCoefficient h i := by
+  funext a
+  exact sqCompletedModTwoFoxDerivativeRow_firstAugmentationCoordinate h i a
+
+/-- The literal Fox rows map to a permuted standard basis, so the actual completed first-moment
+map is onto unconditionally. -/
+theorem sqCompletedFirstMomentMap_surjective (h : ℕ) :
+    Function.Surjective (sqCompletedFirstMomentMap h) := by
+  intro v
+  refine ⟨∑ a, v a •
+    sqCompletedModTwoFoxDerivativeRow h (sqInitialPartner h a), ?_⟩
+  rw [map_sum]
+  simp_rw [map_smul, sqCompletedFirstMomentMap_foxRow]
+  funext b
+  simp [sqQuadraticFoxLinearInitialCoefficient_eq]
+
+/-- Restrict the completed first-moment map to the actual augmentation ideal. -/
+def sqCompletedFirstMomentOnAugmentationIdeal (h : ℕ) :
+    (modTwoCompletedAugmentationIdeal (DSq h : Type)).toAddSubgroup →ₗ[ZMod 2]
+      (Fin (sqRank h) → ZMod 2) where
+  toFun x := sqCompletedFirstMomentMap h x.1
+  map_add' x y := by simp
+  map_smul' r x := by simp
+
+/-- Because every literal completed Fox row lies in `J`, their permuted-basis calculation makes
+the degree-one map onto even after restricting its domain to the augmentation ideal. -/
+theorem sqCompletedFirstMomentOnAugmentationIdeal_surjective (h : ℕ) :
+    Function.Surjective (sqCompletedFirstMomentOnAugmentationIdeal h) := by
+  intro v
+  let x : ModTwoCompletedGroupAlgebra (DSq h : Type) :=
+    ∑ a, v a • sqCompletedModTwoFoxDerivativeRow h (sqInitialPartner h a)
+  have hx : x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) := by
+    apply Ideal.sum_mem
+    intro a ha
+    rw [Algebra.smul_def]
+    exact (modTwoCompletedAugmentationIdeal (DSq h : Type)).mul_mem_left _
+      (sqCompletedModTwoFoxDerivativeRow_mem_augmentation h
+        (sqInitialPartner h a))
+  refine ⟨⟨x, hx⟩, ?_⟩
+  change sqCompletedFirstMomentMap h x = v
+  rw [show x = ∑ a, v a •
+      sqCompletedModTwoFoxDerivativeRow h (sqInitialPartner h a) from rfl,
+    map_sum]
+  simp_rw [map_smul, sqCompletedFirstMomentMap_foxRow]
+  funext b
+  simp [sqQuadraticFoxLinearInitialCoefficient_eq]
+
+/-- The exact remaining degree-zero/one theorem.  The forward kernel containments are proved
+above; the reverse containments assert finite generation of the completed augmentation ideal
+and completeness of the simultaneous first moments. -/
+def SqCompletedMagnusDegreeZeroOneExact (h : ℕ) : Prop :=
+  (∀ x : ModTwoCompletedGroupAlgebra (DSq h : Type),
+      modTwoCompletedAugmentationCoordinate (DSq h : Type) (sqMagnusOneKernel h) x = 0 ↔
+        x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type)) ∧
+  Function.Surjective (sqCompletedFirstMomentMap h) ∧
+  (∀ (x : ModTwoCompletedGroupAlgebra (DSq h : Type)),
+      x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) →
+      (sqCompletedFirstMomentMap h x = 0 ↔
+        x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) ^ 2))
+
+/-- Only the two reverse kernel containments remain in the degree-zero/one theorem: all forward
+containments and both surjectivity statements are now unconditional. -/
+theorem sqCompletedMagnusDegreeZeroOneExact_of_reverseKernels
+    (h : ℕ)
+    (hzero : ∀ x : ModTwoCompletedGroupAlgebra (DSq h : Type),
+      modTwoCompletedAugmentationCoordinate (DSq h : Type) (sqMagnusOneKernel h) x = 0 →
+        x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type))
+    (hone : ∀ x : ModTwoCompletedGroupAlgebra (DSq h : Type),
+      x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) →
+      sqCompletedFirstMomentMap h x = 0 →
+        x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) ^ 2) :
+    SqCompletedMagnusDegreeZeroOneExact h := by
+  refine ⟨?_, sqCompletedFirstMomentMap_surjective h, ?_⟩
+  · intro x
+    exact ⟨hzero x, modTwoCompletedAugmentationCoordinate_eq_zero_of_mem
+      (DSq h : Type) (sqMagnusOneKernel h)⟩
+  · intro x hx
+    exact ⟨hone x hx, sqCompletedFirstMomentMap_eq_zero_of_mem_augmentation_sq h⟩
+
 /-! ## An honest all-layer completed Magnus interface -/
 
 section GradedIdentification
@@ -454,6 +708,123 @@ quadratic Fox row. -/
 abbrev SqCompletedMagnusGradedIdentification (h : ℕ) : Type :=
   CompletedMagnusGradedIdentification (DSq h : Type) (SqQuadraticAlgebra h)
     (sqCompletedModTwoFoxDerivativeRow h) (sqQuadraticQuotientFoxRow h)
+
+/-! ## Exact homogeneous normal-coefficient theorem -/
+
+/-- A normal quadratic word of homogeneous degree `n`. -/
+abbrev SqQuadraticHomogeneousNormalWord (h n : ℕ) :=
+  {w : SqQuadraticNormalWord h // w.1.length = n}
+
+/-- Finitely supported coefficients on the degree-`n` normal words.  This is the PBW model of
+the degree-`n` piece of the quadratic algebra. -/
+abbrev SqQuadraticHomogeneousNormalSpace (h n : ℕ) :=
+  SqQuadraticHomogeneousNormalWord h n →₀ ZMod 2
+
+/-- Forget homogeneity and include degree-`n` normal coefficients in the full normal space. -/
+def sqQuadraticHomogeneousInclude (h n : ℕ) :
+    SqQuadraticHomogeneousNormalSpace h n →ₗ[ZMod 2]
+      SqQuadraticNormalSpace h :=
+  Finsupp.lmapDomain (ZMod 2) (ZMod 2)
+    (fun w : SqQuadraticHomogeneousNormalWord h n => w.1)
+
+theorem sqQuadraticHomogeneousInclude_injective (h n : ℕ) :
+    Function.Injective (sqQuadraticHomogeneousInclude h n) := by
+  apply Finsupp.mapDomain_injective
+  intro w v hwv
+  exact Subtype.ext hwv
+
+/-- Evaluate homogeneous normal coefficients in the actual quadratic quotient. -/
+def sqQuadraticHomogeneousEval (h n : ℕ) :
+    SqQuadraticHomogeneousNormalSpace h n →ₗ[ZMod 2]
+      SqQuadraticAlgebra h :=
+  (sqQuadraticNormalEval h).comp (sqQuadraticHomogeneousInclude h n)
+
+/-- PBW makes evaluation injective on every homogeneous normal layer. -/
+theorem sqQuadraticHomogeneousEval_injective (h n : ℕ) :
+    Function.Injective (sqQuadraticHomogeneousEval h n) :=
+  (sqQuadraticNormalEval_injective h).comp
+    (sqQuadraticHomogeneousInclude_injective h n)
+
+/-- The unique empty homogeneous normal word. -/
+def sqQuadraticHomogeneousEmpty (h : ℕ) :
+    SqQuadraticHomogeneousNormalWord h 0 :=
+  ⟨sqQuadraticNormalEmpty h, rfl⟩
+
+@[simp] theorem sqQuadraticHomogeneousEval_empty (h : ℕ) :
+    sqQuadraticHomogeneousEval h 0
+        (Finsupp.single (sqQuadraticHomogeneousEmpty h) 1) = 1 := by
+  simp [sqQuadraticHomogeneousEval, sqQuadraticHomogeneousInclude,
+    sqQuadraticHomogeneousEmpty, sqQuadraticNormalEmpty,
+    sqQuadraticNormalEval, quadraticWordEval]
+
+/-- The exact tensor/normal-word coefficient theorem whose construction supplies the missing
+completed associated graded.
+
+For every `n`, `coefficient n` identifies `J^n/J^(n+1)` with the degree-`n` PBW normal-word
+space: it is onto and its kernel is exactly the next augmentation power.  The final field is
+the all-degree Fox--Magnus multiplication law for the actual completed row.  These fields are
+purely algebraic; in particular they do not assert completed Fox injectivity or cohomology. -/
+structure SqCompletedMagnusNormalCoefficientSystem (h : ℕ) where
+  row_mem : ∀ i, sqCompletedModTwoFoxDerivativeRow h i ∈
+    modTwoCompletedAugmentationIdeal (DSq h : Type)
+  coefficient : ∀ n : ℕ,
+    (modTwoCompletedAugmentationIdeal (DSq h : Type) ^ n).toAddSubgroup →ₗ[ZMod 2]
+      SqQuadraticHomogeneousNormalSpace h n
+  coefficient_surjective : ∀ n, Function.Surjective (coefficient n)
+  coefficient_eq_zero_iff : ∀ (n : ℕ)
+      (a : (modTwoCompletedAugmentationIdeal (DSq h : Type) ^ n).toAddSubgroup),
+    coefficient n a = 0 ↔
+      a.1 ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) ^ (n + 1)
+  coefficient_one : coefficient 0 ⟨1, by
+      rw [Submodule.pow_zero, Ideal.one_eq_top]
+      exact Set.mem_univ 1⟩ =
+    Finsupp.single (sqQuadraticHomogeneousEmpty h) 1
+  coefficient_mul_row : ∀ (n : ℕ)
+      (a : (modTwoCompletedAugmentationIdeal (DSq h : Type) ^ n).toAddSubgroup)
+      (i : Fin (sqRank h)),
+    sqQuadraticHomogeneousEval h (n + 1)
+        (coefficient (n + 1) ⟨a.1 * sqCompletedModTwoFoxDerivativeRow h i, by
+          change a.1 * sqCompletedModTwoFoxDerivativeRow h i ∈
+            modTwoCompletedAugmentationIdeal (DSq h : Type) ^ n *
+              modTwoCompletedAugmentationIdeal (DSq h : Type)
+          exact Ideal.mul_mem_mul a.2 (row_mem i)⟩) =
+      sqQuadraticHomogeneousEval h n (coefficient n a) *
+        sqQuadraticQuotientFoxRow h i
+
+namespace SqCompletedMagnusNormalCoefficientSystem
+
+/-- The exact homogeneous coefficient theorem constructs the previously isolated completed
+graded identification. -/
+def toGradedIdentification {h : ℕ}
+    (C : SqCompletedMagnusNormalCoefficientSystem h) :
+    SqCompletedMagnusGradedIdentification h where
+  row_mem := C.row_mem
+  leading n := (sqQuadraticHomogeneousEval h n).comp (C.coefficient n)
+  leading_eq_zero_iff n a := by
+    constructor
+    · intro hz
+      apply (C.coefficient_eq_zero_iff n a).1
+      apply sqQuadraticHomogeneousEval_injective h n
+      simpa only [LinearMap.comp_apply, map_zero] using hz
+    · intro ha
+      change sqQuadraticHomogeneousEval h n (C.coefficient n a) = 0
+      rw [(C.coefficient_eq_zero_iff n a).2 ha, map_zero]
+  leading_one := by
+    rw [LinearMap.comp_apply, C.coefficient_one,
+      sqQuadraticHomogeneousEval_empty]
+  leading_mul_row n a i := by
+    exact C.coefficient_mul_row n a i
+
+/-- Thus the exact normal-coefficient theorem is sufficient for the completed initial-form
+regularity target, using the unconditional square PBW theorem. -/
+theorem completedRowAugmentationInitialRegular {h : ℕ}
+    (C : SqCompletedMagnusNormalCoefficientSystem h) :
+    CompletedRowAugmentationInitialRegular (DSq h : Type)
+      (sqCompletedModTwoFoxDerivativeRow h) :=
+  C.toGradedIdentification.completedRowAugmentationInitialRegular
+    (sqQuadraticQuotientFoxRow_commonLeftAnnihilatorFree' h)
+
+end SqCompletedMagnusNormalCoefficientSystem
 
 /-- **Capstone graded adapter.**  Once the completed Magnus graded identification is built,
 the now-formalized quadratic PBW cancellation supplies the actual completed initial regularity
