@@ -627,6 +627,37 @@ theorem dsqZLayerThreeToFourthAugmentationLayer_sigmaFourth_eq_zero (h : ℕ) :
         (Subgroup.mem_top (dsqSigma h)), rfl⟩
   exact modTwoFiniteGroupDifference_sq_mem_double (SqFourthLevel h) (by omega) hsTwo
 
+/-- The fourth-power witness belongs to the fourth mod-two dimension subgroup of `Q_4`. -/
+theorem dsqSigmaFourthClass_mem_dimension_four (h : ℕ) :
+    (dsqSigmaFourthClass h).1 ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) 4 := by
+  have hmem := (dsqZLayerToFourthAugmentationLayer_eq_zero_iff h 3 (by omega)
+    (Additive.ofMul (dsqSigmaFourthClass h))).1
+      (dsqZLayerThreeToFourthAugmentationLayer_sigmaFourth_eq_zero h)
+  rwa [dsqZLayerFourthLift_three_eq_val] at hmem
+
+/-- The fourth dimension subgroup of `Q_4` is nontrivial. -/
+theorem modTwoFiniteDimensionSubgroup_four_sqFourthLevel_ne_bot (h : ℕ) :
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) 4 ≠ ⊥ := by
+  intro hbot
+  have hmem := dsqSigmaFourthClass_mem_dimension_four h
+  rw [hbot, Subgroup.mem_bot] at hmem
+  apply dsqSigmaFourthClass_ne_one h
+  exact Subtype.ext hmem
+
+/-- Sharp filtration regression: at degree four the mod-two dimension/Zassenhaus filtration
+and the lower exponent-two central filtration on `Q_4` are different. -/
+theorem modTwoFiniteDimensionSubgroup_four_ne_twoCentralSeries_sqFourthLevel (h : ℕ) :
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) 4 ≠
+      twoCentralSeries (SqFourthLevel h) 4 := by
+  intro heq
+  apply modTwoFiniteDimensionSubgroup_four_sqFourthLevel_ne_bot h
+  rw [heq]
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  exact twoCentralSeries_levelQuot_self (DSq h : Type)
+    (dsqFinsetTopGen h) (isProP_DSq h) 4
+
 /-- Regression: the proposed degree-three lower-two-central augmentation map is not
 injective. -/
 theorem not_injective_dsqZLayerThreeToFourthAugmentationLayer (h : ℕ) :
@@ -635,13 +666,28 @@ theorem not_injective_dsqZLayerThreeToFourthAugmentationLayer (h : ℕ) :
   exact dsqZLayerTwoSquareToThree_sigmaSquare_ne_one h
     (dsqZLayerTwoSquareToThree_eq_one_of_injective h hinj (dsqSigmaSquareClass h))
 
+/-- The tempting supply asserting injectivity of all degree-three lower-two-central layer
+maps.  It is isolated as a named proposition so that the truncated Jennings seam cannot
+silently assume it. -/
+def SqDegreeThreeLowerTwoCentralAugmentationInjectionSupply : Prop :=
+  ∀ h : ℕ, Function.Injective (dsqZLayerThreeToFourthAugmentationLayer h)
+
+/-- The lower-two-central augmentation-injection supply is false, already for every individual
+improved square presentation. -/
+theorem not_sqDegreeThreeLowerTwoCentralAugmentationInjectionSupply :
+    ¬ SqDegreeThreeLowerTwoCentralAugmentationInjectionSupply := by
+  intro H
+  exact not_injective_dsqZLayerThreeToFourthAugmentationLayer 0 (H 0)
+
 #print axioms modTwoFiniteDimensionToAugmentationLayer
 #print axioms modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
 #print axioms dsqZLayerToFourthAugmentationLayer
 #print axioms dsqZLayerToFourthAugmentationLayer_eq_zero_iff
 #print axioms dsqZLayerThreeToFourthAugmentationLayer_square_eq_zero
 #print axioms dsqZLayerTwoSquareToThree_sigmaSquare_ne_one
+#print axioms modTwoFiniteDimensionSubgroup_four_ne_twoCentralSeries_sqFourthLevel
 #print axioms not_injective_dsqZLayerThreeToFourthAugmentationLayer
+#print axioms not_sqDegreeThreeLowerTwoCentralAugmentationInjectionSupply
 
 end
 

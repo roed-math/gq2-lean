@@ -907,7 +907,22 @@ theorem sqDegreeThreeJenningsArithmetic : SqDegreeThreeJenningsArithmetic := by
   change (d ^ 3 - 2 * d) - (c + d * (q - 1)) = r
   omega
 
-/-- Model-side truncated Jennings supply, sharply limited to coefficient three. -/
+/-- Model-side truncated Jennings supply, sharply limited to coefficient three.
+
+**Filtration warning.**  The mod-two augmentation/PBW coefficient on the left is naturally a
+Zassenhaus coefficient.  The `lowerTwoCentralHilbertCoefficient` on the right is currently
+defined from the repository's lower exponent-two series
+`lambda_(n+1) = closure(lambda_n^2 [lambda_n,G])`.  Thus this proposition is an explicit
+additional compatibility assertion; it is not a consequence of the finite layer maps in
+`LowerTwoCentralJenningsDegreeThree`.  Indeed
+`not_sqDegreeThreeLowerTwoCentralAugmentationInjectionSupply` proves that the naive cubic
+injection route is false: nonzero squares from `Z_2` die in `I^3/I^4`.  More sharply,
+`modTwoFiniteDimensionSubgroup_four_ne_twoCentralSeries_sqFourthLevel` proves on every improved
+model that the two filtrations have already diverged in the common finite quotient `Q_4`.
+
+A proof of this supply therefore requires either an actual Zassenhaus tower on the group side,
+or a mixed integral/2-adic augmentation filtration in which multiplication by `2` has degree
+one and hence records lower-two-central squares. -/
 def SqDegreeThreeTruncatedJenningsSupply : Prop :=
   ∀ h : ℕ,
     LowerTwoCentralTruncatedJenningsCoefficientFormula
