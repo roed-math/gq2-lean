@@ -105,6 +105,42 @@ theorem isMulTorsionFree_proTwoCompletion_depthUnits_succ_e
   isMulTorsionFree_proTwoCompletion_depthUnits_succ_e_of_powerCofinal FF
     (depthPowerCofinal_depthUnits_succ_e FF)
 
+/-! ## The whole completion at every positive depth -/
+
+/-- At every positive depth, the canonical map to the abstract pro-2 completion is continuous.
+Power cofinality says precisely that every abstract finite 2-group quotient kernel is open. -/
+theorem continuous_proTwoCompletionMk_depthUnits [FiniteDimensional ℚ_[2] K]
+    (FF : DyadicUnitFiltration K) (i : ℕ) :
+    Continuous (proPCompletionMk 2 ↥(depthUnits K FF.π i)) :=
+  continuous_proPCompletionMk_of_finitePQuotientsAreOpen
+    (finitePQuotientsAreOpen_depthUnits_of_powerCofinal FF i
+      (depthPowerCofinal_depthUnits FF i))
+
+/-- **No new completion points at positive depth.**  The canonical map
+`U^(i) → (U^(i))^(2)` is bijective for every `i ≥ 1`: residual 2-finiteness gives
+injectivity, while compactness, continuity, and dense range give surjectivity. -/
+theorem proTwoCompletionMk_depthUnits_bijective [FiniteDimensional ℚ_[2] K]
+    (FF : DyadicUnitFiltration K) {i : ℕ} (hi : 1 ≤ i) :
+    Function.Bijective (proPCompletionMk 2 ↥(depthUnits K FF.π i)) := by
+  letI := compactSpace_depthUnits FF i
+  exact ⟨proTwoCompletionMk_depthUnits_injective FF hi,
+    proPCompletionMk_surjective_of_continuous
+      (continuous_proTwoCompletionMk_depthUnits FF i)⟩
+
+/-- Topological group form of `proTwoCompletionMk_depthUnits_bijective`. -/
+noncomputable def depthUnitsEquivProTwoCompletion [FiniteDimensional ℚ_[2] K]
+    (FF : DyadicUnitFiltration K) {i : ℕ} (hi : 1 ≤ i) :
+    ContinuousMulEquiv ↥(depthUnits K FF.π i)
+      (proPCompletion 2 ↥(depthUnits K FF.π i)) := by
+  letI := compactSpace_depthUnits FF i
+  exact continuousMulEquivOfBijective
+    ⟨proPCompletionMk 2 ↥(depthUnits K FF.π i),
+      continuous_proTwoCompletionMk_depthUnits FF i⟩
+    (proTwoCompletionMk_depthUnits_bijective FF hi)
+
+#print axioms proTwoCompletionMk_depthUnits_bijective
+#print axioms depthUnitsEquivProTwoCompletion
+
 end
 
 end GQ2.Dyadic
