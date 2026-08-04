@@ -197,6 +197,105 @@ theorem exists_continuous_neg_extension_maxProTwoKernel
 
 end ContinuousExtension
 
+section ConjugationDefect
+
+variable {G M : Type*}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DistribMulAction G M]
+
+variable (N : Subgroup G) [N.Normal]
+
+/-- After a two-cocycle has been made zero on `N × N`, its remaining conjugation mismatch at
+`g` is the function
+
+`n ↦ c(g,n) - c(gng⁻¹,g)`.
+
+If both cross terms vanished this function would be zero. -/
+def H2KernelConjugationDefect (c : Z2 G M) (g : G) (n : N) : M :=
+  c.1 (g, n.1) - c.1 (g * n.1 * g⁻¹, g)
+
+/-- The conjugation mismatch is an intrinsic continuous kernel one-cocycle.
+
+This is the precise `H¹(N,M)`-shaped obstruction left by kernelwise splitting.  It is intrinsic:
+the ambient-Z1 theorem above controls only restrictions of cocycles already defined on `G`, and
+does not force this newly constructed cocycle on `N` to vanish. -/
+theorem h2KernelConjugationDefect_mem_Z1
+    (htriv : ∀ (n : N) (m : M), n.1 • m = m)
+    (c : Z2 G M) (hzero : ∀ n k : N, c.1 (n.1, k.1) = 0)
+    (g : G) : H2KernelConjugationDefect N c g ∈ Z1 N M := by
+  refine mem_Z1_iff.mpr ⟨?_, ?_⟩
+  · have hc : Continuous c.1 := (mem_Z2_iff.mp c.2).1
+    have hconj : Continuous fun n : N => g * n.1 * g⁻¹ :=
+      (continuous_const.mul continuous_subtype_val).mul continuous_const
+    exact (hc.comp (continuous_const.prodMk continuous_subtype_val)).sub
+      (hc.comp (hconj.prodMk continuous_const))
+  · intro n k
+    let a : N := ⟨g * n.1 * g⁻¹, by
+      simpa using (inferInstance : N.Normal).conj_mem n.1 n.2 g⟩
+    let b : N := ⟨g * k.1 * g⁻¹, by
+      simpa using (inferInstance : N.Normal).conj_mem k.1 k.2 g⟩
+    have hconjmul : g * (n.1 * k.1) * g⁻¹ = a.1 * b.1 := by
+      dsimp [a, b]
+      group
+    have hag : a.1 * g = g * n.1 := by dsimp [a]; group
+    have hbg : b.1 * g = g * k.1 := by dsimp [b]; group
+    have h1 := (mem_Z2_iff.mp c.2).2 g n.1 k.1
+    rw [hzero n k, smul_zero, zero_add] at h1
+    have h2 := (mem_Z2_iff.mp c.2).2 a.1 b.1 g
+    rw [htriv a, hzero a b, add_zero] at h2
+    have h3 := (mem_Z2_iff.mp c.2).2 a.1 g k.1
+    rw [htriv a, hag] at h3
+    change H2KernelConjugationDefect N c g (n * k) =
+      H2KernelConjugationDefect N c g n + n • H2KernelConjugationDefect N c g k
+    rw [show n • H2KernelConjugationDefect N c g k =
+      H2KernelConjugationDefect N c g k from htriv n _]
+    dsimp [H2KernelConjugationDefect]
+    rw [hconjmul]
+    change c.1 (g, n.1 * k.1) - c.1 (a.1 * b.1, g) =
+      (c.1 (g, n.1) - c.1 (a.1, g)) +
+        (c.1 (g, k.1) - c.1 (b.1, g))
+    rw [← hbg] at h3
+    have hx : c.1 (g * n.1, k.1) =
+        c.1 (g, k.1) + c.1 (a.1, b.1 * g) - c.1 (a.1, g) := by
+      rw [eq_sub_iff_add_eq]
+      exact h3.symm
+    rw [h1, ← h2, hx]
+    abel
+
+/-- Any correction which is zero on `N` and kills both cross terms forces the intrinsic
+conjugation-defect cocycle to vanish pointwise.  Thus this `Z¹(N,M)` class is a necessary
+obstruction to the cross-term correction supply; ambient-Z1 restriction vanishing does not
+discharge it. -/
+theorem h2KernelConjugationDefect_eq_zero_of_crossTermCorrection
+    (htriv : ∀ (n : N) (m : M), n.1 • m = m)
+    (c : Z2 G M) (theta : G → M)
+    (htheta0 : ∀ n : N, theta n.1 = 0)
+    (hcross : ∀ (g : G) (n : N),
+      (c.1 + dOne G M theta) (g, n.1) = 0 ∧
+      (c.1 + dOne G M theta) (n.1, g) = 0)
+    (g : G) (n : N) : H2KernelConjugationDefect N c g n = 0 := by
+  let a : N := ⟨g * n.1 * g⁻¹, by
+    simpa using (inferInstance : N.Normal).conj_mem n.1 n.2 g⟩
+  have hag : a.1 * g = g * n.1 := by dsimp [a]; group
+  have hd : dOne G M theta (g, n.1) = dOne G M theta (a.1, g) := by
+    simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk]
+    rw [htheta0 n, htheta0 a, htriv a, hag]
+    simp only [smul_zero]
+    abel
+  have hr := (hcross g n).1
+  have hl := (hcross g a).2
+  change c.1 (g, n.1) + dOne G M theta (g, n.1) = 0 at hr
+  change c.1 (a.1, g) + dOne G M theta (a.1, g) = 0 at hl
+  dsimp [H2KernelConjugationDefect]
+  change c.1 (g, n.1) - c.1 (a.1, g) = 0
+  rw [hd] at hr
+  have heq : c.1 (g, n.1) = c.1 (a.1, g) :=
+    add_right_cancel (hr.trans hl.symm)
+  rw [heq, sub_self]
+
+end ConjugationDefect
+
 section UniformBoundary
 
 variable {G : Type}
@@ -235,10 +334,9 @@ def FiniteElementaryMaxProTwoKernelH2VanishesSupply : Prop :=
     ∀ _hcompat : ∀ (g : G) (m : M), maxProPMk 2 G g • m = g • m,
       ContinuousH2Vanishes (proPKernel 2 G) M
 
-/-- Second genuinely residual input for inflation: extend each negative kernel primitive to a
-continuous ambient one-cochain which kills both cross terms.  This is exactly the
-degree-one/transgression field of `KernelHochschildSerreOneTwoPackage`, without re-bundling the
-independent kernel `H²` statement. -/
+/-- The original degree-one/transgression field of `KernelHochschildSerreOneTwoPackage`, split
+from the independent kernel `H²` statement.  The equivalent cross-term-only form below makes
+clear that its continuous-extension clause is automatic. -/
 def FiniteElementaryMaxProTwoKernelTransgressionSupply : Prop :=
   ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
     [DiscreteTopology M] [Finite M]
@@ -257,6 +355,63 @@ def FiniteElementaryMaxProTwoKernelTransgressionSupply : Prop :=
             (z.1 + dOne G M psi) (g, n.1) = 0 ∧
             (z.1 + dOne G M psi) (n.1, g) = 0
 
+/-- The genuinely residual transgression input after continuous extension has been discharged.
+
+Starting from any continuous extension `psi0` of `-phi`, find a continuous correction `theta`
+which is zero on `K₂(G)` and makes `psi0 + theta` kill both cross terms.  Requiring this for an
+arbitrary extension records that the obstruction is conjugation/coset coherence, not a choice
+of topological extension. -/
+def FiniteElementaryMaxProTwoKernelCrossTermCorrectionSupply : Prop :=
+  ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+    [DiscreteTopology M] [Finite M]
+    [DistribMulAction G M] [ContinuousSMul G M]
+    [DistribMulAction (maxProPQuotient 2 G) M]
+    [ContinuousSMul (maxProPQuotient 2 G) M],
+    (∀ m : M, m + m = 0) →
+    ∀ _hcompat : ∀ (g : G) (m : M), maxProPMk 2 G g • m = g • m,
+      ∀ (z : Z2 G M) (phi : proPKernel 2 G → M),
+        Continuous phi →
+        (∀ n k : proPKernel 2 G,
+          dOne (proPKernel 2 G) M phi (n, k) = z.1 (n.1, k.1)) →
+        ∀ (psi0 : G → M), Continuous psi0 →
+          (∀ n : proPKernel 2 G, psi0 n.1 = -phi n) →
+          ∃ theta : G → M, Continuous theta ∧
+            (∀ n : proPKernel 2 G, theta n.1 = 0) ∧
+            ∀ (g : G) (n : proPKernel 2 G),
+              (z.1 + dOne G M (fun x => psi0 x + theta x)) (g, n.1) = 0 ∧
+              (z.1 + dOne G M (fun x => psi0 x + theta x)) (n.1, g) = 0
+
+/-- The original transgression supply is equivalent to cross-term coherence after an arbitrary
+continuous extension.  The reverse implication uses the unconditional clopen-extension theorem;
+the forward implication subtracts the arbitrary extension from a successful one. -/
+theorem finiteElementaryMaxProTwoKernelTransgressionSupply_iff_crossTermCorrection :
+    FiniteElementaryMaxProTwoKernelTransgressionSupply (G := G) ↔
+      FiniteElementaryMaxProTwoKernelCrossTermCorrectionSupply (G := G) := by
+  constructor
+  · intro Dtr M _ _ _ _ _ _ _ _ _ hM2 hcompat z phi hphi hprim psi0 hpsi0 hext0
+    obtain ⟨psi, hpsi, hext, hcross⟩ :=
+      Dtr M hM2 hcompat z phi hphi hprim
+    let theta : G → M := fun g => psi g - psi0 g
+    refine ⟨theta, hpsi.sub hpsi0, ?_, ?_⟩
+    · intro n
+      dsimp [theta]
+      rw [hext n, hext0 n]
+      exact sub_self _
+    · have hsum : (fun x => psi0 x + theta x) = psi := by
+        funext x
+        dsimp [theta]
+        abel
+      simpa only [hsum] using hcross
+  · intro Dcross M _ _ _ _ _ _ _ _ _ hM2 hcompat z phi hphi hprim
+    obtain ⟨psi0, hpsi0, hext0⟩ :=
+      exists_continuous_neg_extension_maxProTwoKernel phi hphi
+    obtain ⟨theta, htheta, htheta0, hcross⟩ :=
+      Dcross M hM2 hcompat z phi hphi hprim psi0 hpsi0 hext0
+    refine ⟨fun x => psi0 x + theta x, hpsi0.add htheta, ?_, hcross⟩
+    intro n
+    change psi0 n.1 + theta n.1 = -phi n
+    rw [hext0 n, htheta0 n, add_zero]
+
 /-- The two residual statements reconstruct the existing honest Hochschild--Serre package. -/
 theorem finiteElementaryMaxProTwoKernelOneTwoSupply_of_h2Vanishes_transgression
     (D2 : FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := G))
@@ -274,6 +429,15 @@ theorem finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_transgression
     FiniteElementaryH2InflationSurjective (maxProPMk 2 G) :=
   finiteElementaryH2InflationSurjective_of_kernelOneTwo
     (finiteElementaryMaxProTwoKernelOneTwoSupply_of_h2Vanishes_transgression D2 Dtr)
+
+/-- Sharpened constructor: kernel `H²`-vanishing plus the cross-term-only coherence statement
+imply degree-two inflation. -/
+theorem finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_crossTermCorrection
+    (D2 : FiniteElementaryMaxProTwoKernelH2VanishesSupply (G := G))
+    (Dcross : FiniteElementaryMaxProTwoKernelCrossTermCorrectionSupply (G := G)) :
+    FiniteElementaryH2InflationSurjective (maxProPMk 2 G) :=
+  finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_transgression D2
+    (finiteElementaryMaxProTwoKernelTransgressionSupply_iff_crossTermCorrection.mpr Dcross)
 
 end UniformBoundary
 
@@ -312,6 +476,11 @@ noncomputable abbrev GammaLSylowPreimageKernelTransgressionSupply
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
   FiniteElementaryMaxProTwoKernelTransgressionSupply (G := U P)
 
+/-- The sharpened cross-term-only transgression statement for a `GammaL` Sylow preimage. -/
+noncomputable abbrev GammaLSylowPreimageKernelCrossTermCorrectionSupply
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : Prop :=
+  FiniteElementaryMaxProTwoKernelCrossTermCorrectionSupply (G := U P)
+
 /-- The ambient degree-one edge statement is unconditional for each `GammaL` Sylow preimage. -/
 theorem gammaLSylowPreimageKernelAmbientH1RestrictionVanishes
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
@@ -326,6 +495,15 @@ theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH2Vanishes_transgressi
     (Dtr : GammaLSylowPreimageKernelTransgressionSupply P) :
     FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)) :=
   finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_transgression D2 Dtr
+
+/-- Final sharpened boundary for the inflation field on `U P`: literal kernel `H²`-vanishing
+and cross-term coherence after continuous extension. -/
+theorem gammaLSylowPreimageH2InflationSurjective_of_kernelH2Vanishes_crossTermCorrection
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (D2 : GammaLSylowPreimageKernelH2VanishesSupply P)
+    (Dcross : GammaLSylowPreimageKernelCrossTermCorrectionSupply P) :
+    FiniteElementaryH2InflationSurjective (maxProPMk 2 (U P)) :=
+  finiteElementaryH2InflationSurjective_of_kernelH2Vanishes_crossTermCorrection D2 Dcross
 
 end
 
