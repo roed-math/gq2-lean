@@ -216,6 +216,24 @@ noncomputable def rawMarkedBase
     Fin (SqCore.sqRank h) → levelQuot G (k + 1) :=
   fun i ↦ levelMk G (k + 1) (generators i)
 
+/-- Topological generation upstairs gives ordinary subgroup generation by the marked
+classes in every finite discrete level quotient. -/
+theorem closure_rawMarkedBase_eq_top
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (generators : Fin (SqCore.sqRank h) → G)
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G)
+    (htop : (Subgroup.closure (Set.range generators)).topologicalClosure = ⊤)
+    (k : ℕ) : Subgroup.closure (Set.range (rawMarkedBase generators k)) = ⊤ := by
+  haveI := discreteTopology_levelQuot G hfg hpro (k + 1)
+  have himg : (Subgroup.closure (Set.range generators)).map (levelMk G (k + 1)) =
+      Subgroup.closure (Set.range (rawMarkedBase generators k)) := by
+    rw [MonoidHom.map_closure, ← Set.range_comp]
+    rfl
+  rw [← himg, ← map_topologicalClosure_eq_of_discrete G _ _
+      (continuous_levelMk G (k + 1)), htop]
+  exact Subgroup.map_top_of_surjective _ (levelMk_surjective G (k + 1))
+
 /-- Relator-adapted tails: every generator except the twisted `x₁` slot. -/
 def rawTailAtomSet
     (generators : Fin (SqCore.sqRank h) → G) (k : ℕ) :
@@ -263,6 +281,61 @@ theorem rawTail_mem_rawAugmentedSpan
     rawMarkedBase generators k i ^ 2 ^ (k - 1) ∈ rawAugmentedSpan generators k hk :=
   rawTailSpan_le_rawAugmentedSpan generators hk
     (Subgroup.subset_closure ⟨i, hi, rfl⟩)
+
+/-! ## The cubic base from the literal constructor table -/
+
+/-- The improved constructor rows prove the cubic augmented-span base case for every
+rank.  The only ambient input beyond finite generation and the pro-`2` property is that
+the displayed generator classes generate `Q₄`.
+
+The five branches below are the literal constructor table.  The first two core rows are
+the crossed bracket columns, index `2` is the diagonal `v²[v,x₁]`, and the two handle
+branches use the opposite member of each hyperbolic pair. -/
+theorem rawAugmentedSpanBaseSupply_of_generates
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (generators : Fin (SqCore.sqRank h) → G)
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G)
+    (hgen : Subgroup.closure (Set.range (rawMarkedBase generators 3)) = ⊤) :
+    RawAugmentedSpanBaseSupply generators := by
+  apply span_base_core_of_generators (rawMarkedBase generators 3) hgen hfg hpro
+    (rawAugmentedSpan generators 3 (by omega)) (2 : Fin (SqCore.sqRank h))
+  · intro v hv
+    apply rawShiftSpan_le_rawAugmentedSpan generators (by omega)
+    let p : lambdaImage G 2 4 := ⟨v, hv⟩
+    have hmem := rawDepthShift_mem_rawShiftSpan (rawMarkedBase generators 3) (by omega)
+      (rawDepthCoordinateCorrection 2 p : RawDepthCorrection G h 3)
+    rwa [rawDepthShiftHom_two_apply (rawMarkedBase generators 3) (by omega) p] at hmem
+  · intro i hi v hv
+    let p : lambdaImage G 2 4 := ⟨v, hv⟩
+    apply rawShiftSpan_le_rawAugmentedSpan generators (by omega)
+    rcases SqCore.sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+    · have hmem := rawDepthShift_mem_rawShiftSpan (rawMarkedBase generators 3) (by omega)
+        (rawDepthCoordinateCorrection 1 p : RawDepthCorrection G h 3)
+      rwa [rawDepthShiftHom_one_apply (rawMarkedBase generators 3) (by omega) p] at hmem
+    · have hmem := rawDepthShift_mem_rawShiftSpan (rawMarkedBase generators 3) (by omega)
+        (rawDepthCoordinateCorrection 0 p : RawDepthCorrection G h 3)
+      rwa [rawDepthShiftHom_zero_apply (rawMarkedBase generators 3) (by omega) p] at hmem
+    · exact (hi rfl).elim
+    · have hmem := rawDepthShift_mem_rawShiftSpan (rawMarkedBase generators 3) (by omega)
+        (rawDepthCoordinateCorrection (SqCore.sqHandleIdxV j) p : RawDepthCorrection G h 3)
+      rwa [rawDepthShiftHom_handleV_apply
+        (rawMarkedBase generators 3) (by omega) j p] at hmem
+    · have hmem := rawDepthShift_mem_rawShiftSpan (rawMarkedBase generators 3) (by omega)
+        (rawDepthCoordinateCorrection (SqCore.sqHandleIdxU j) p : RawDepthCorrection G h 3)
+      rwa [rawDepthShiftHom_handleU_apply
+        (rawMarkedBase generators 3) (by omega) j p] at hmem
+  · intro i hi
+    simpa using rawTail_mem_rawAugmentedSpan generators (k := 3) (by omega) i hi
+
+/-- The cubic base proposition for the actual improved square presentation, uniformly
+in the number `h` of hyperbolic handle pairs. -/
+theorem sqCore_rawAugmentedSpanBaseSupply (h : ℕ) :
+    RawAugmentedSpanBaseSupply (SqCore.sqGen h) := by
+  apply rawAugmentedSpanBaseSupply_of_generates (SqCore.sqGen h)
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+  exact closure_rawMarkedBase_eq_top (SqCore.sqGen h)
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h) (SqCore.dsq_topGen h) 3
 
 /-! ## The lift-with-square engine -/
 
@@ -519,10 +592,27 @@ theorem rawAugmentedSpan_of_base_of_step
         rawAugmentedSpan_step generators hfg hpro (3 + n) hkn
           (hgen (3 + n) hkn) (ih hkn)
 
+/-- Regression theorem for the improved square presentation: its literal raw shifts,
+together with the relator-adapted non-twisted tails, span every central layer from degree
+three onward, uniformly in the number of handle pairs. -/
+theorem sqCore_rawAugmentedSpan_all (h : ℕ) :
+    ∀ (k : ℕ) (hk : 3 ≤ k),
+      zLayer (SqCore.DSq h : Type) k ≤
+        rawAugmentedSpan (SqCore.sqGen h) k hk := by
+  apply rawAugmentedSpan_of_base_of_step (SqCore.sqGen h)
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+  · intro k _
+    exact closure_rawMarkedBase_eq_top (SqCore.sqGen h)
+      (dsqFinsetTopGen h) (SqCore.isProP_DSq h) (SqCore.dsq_topGen h) (k + 1)
+  · exact sqCore_rawAugmentedSpanBaseSupply h
+
 #print axioms sqCoreHandleDbarWord_sq
+#print axioms rawAugmentedSpanBaseSupply_of_generates
+#print axioms sqCore_rawAugmentedSpanBaseSupply
 #print axioms rawSquare_mem_augmentedSpan_succ
 #print axioms rawAugmentedSpan_step
 #print axioms rawAugmentedSpan_of_base_of_step
+#print axioms sqCore_rawAugmentedSpan_all
 
 end
 

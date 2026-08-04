@@ -420,16 +420,131 @@ private theorem closure_mgen : Subgroup.closure (Set.range mgen) = ⊤ := by
     ← Set.range_comp] at h
   exact h.symm
 
-private theorem mem_of_mgen_mem {S : Subgroup (levelQuot (freeProTwo : Type) 4)}
-    (h : ∀ i, mgen i ∈ S) (a : levelQuot (freeProTwo : Type) 4) : a ∈ S := by
-  have htop : S = ⊤ := by
-    rw [← top_le_iff, ← closure_mgen, Subgroup.closure_le]
-    rintro _ ⟨i, rfl⟩
-    exact h i
-  rw [htop]
-  trivial
-
 /-! ## The base case, role-generic core -/
+
+/-- **The `k = 3` span base case for an arbitrary marked generating family.**
+
+This is the rank-free algebraic core of `span_base_core`.  One distinguished generator
+`marked t` carries the diagonal column `v² [v,marked t]`; every other generator carries a
+plain bracket column and a fourth-power tail.  These data generate `Z₃` for any topologically
+finitely generated pro-`2` ambient group once the displayed classes generate `Q₄`.
+
+The proof is the same cubic calculation as the original `Fin 3` theorem.  Generalizing the
+index is what allows the improved square presentation's hyperbolic handle rows to participate
+without reducing them to the rank-three model. -/
+theorem span_base_core_of_generators
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    {ι : Type*} (marked : ι → levelQuot G 4)
+    (hgen : Subgroup.closure (Set.range marked) = ⊤)
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G)
+    (K : Subgroup (levelQuot G 4)) (t : ι)
+    (hcol : ∀ v ∈ lambdaImage G 2 4, v ^ 2 * commP v (marked t) ∈ K)
+    (hbr : ∀ i : ι, i ≠ t → ∀ v ∈ lambdaImage G 2 4,
+      commP v (marked i) ∈ K)
+    (htail : ∀ i : ι, i ≠ t → marked i ^ 4 ∈ K) :
+    zLayer G 3 ≤ K := by
+  have mem_of_marked_mem {S : Subgroup (levelQuot G 4)}
+      (hs : ∀ i, marked i ∈ S) (a : levelQuot G 4) : a ∈ S := by
+    have hle : Subgroup.closure (Set.range marked) ≤ S := by
+      rw [Subgroup.closure_le]
+      rintro _ ⟨i, rfl⟩
+      exact hs i
+    exact hle (by rw [hgen]; trivial)
+  -- Generator fourth powers: tails away from `t`, and the diagonal row at `t`.
+  have hgen4 : ∀ i : ι, marked i ^ 4 ∈ K := by
+    intro i
+    by_cases hi : i = t
+    · subst hi
+      have h := hcol _ (sq_mem_lam2 (marked i))
+      have hc : commP (marked i ^ 2) (marked i) = 1 :=
+        commP_eq_one_of_mul_comm ((Commute.refl (marked i)).pow_left 2).eq
+      have hpm : (marked i ^ 2) ^ 2 = marked i ^ 4 := by rw [← pow_mul]
+      rwa [hc, mul_one, hpm] at h
+    · exact htail i hi
+  -- Every square-generator bracket column is available.
+  have hcolsq : ∀ i j : ι, commP (marked i ^ 2) (marked j) ∈ K := by
+    intro i j
+    by_cases hj : j = t
+    · subst hj
+      have h := hcol _ (sq_mem_lam2 (marked i))
+      have hpm : (marked i ^ 2) ^ 2 = marked i ^ 4 := by rw [← pow_mul]
+      rw [hpm] at h
+      have h3 := K.mul_mem (K.inv_mem (hgen4 i)) h
+      rwa [← mul_assoc, inv_mul_cancel, one_mul] at h3
+    · exact hbr j hj _ (sq_mem_lam2 (marked i))
+  -- Squares of brackets between displayed generators.
+  have hbrsq_gen : ∀ i j : ι, commP (marked i) (marked j) ^ 2 ∈ K := by
+    have main : ∀ i j : ι, i ≠ t → commP (marked i) (marked j) ^ 2 ∈ K := by
+      intro i j hi
+      rw [commP_sq_eq]
+      exact K.mul_mem (hcolsq i j)
+        (K.inv_mem (hbr i hi _ (commP_mem_lam2 (marked i) (marked j))))
+    intro i j
+    by_cases hi : i = t
+    · by_cases hj : j = t
+      · subst i
+        subst j
+        rw [commP_self', one_pow]
+        exact K.one_mem
+      · rw [commP_symm (marked i) (marked j), inv_pow]
+        exact K.inv_mem (main j i hj)
+    · exact main i j hi
+  -- Bimultiplicativity upgrades displayed bracket squares to all bracket squares.
+  have hbrsq : ∀ a b : levelQuot G 4, commP a b ^ 2 ∈ K := by
+    have inner : ∀ i : ι, ∀ b, commP (marked i) b ^ 2 ∈ K := fun i b =>
+      mem_of_marked_mem (S := brSqRight K (marked i)) (fun j => hbrsq_gen i j) b
+    intro a b
+    exact mem_of_marked_mem (S := brSqLeft K) inner a b
+  -- Hence all fourth powers are in the target.
+  have hpow4 : ∀ a : levelQuot G 4, a ^ 4 ∈ K := fun a =>
+    mem_of_marked_mem (S := powFourSupport K hbrsq) hgen4 a
+  -- Squares of arbitrary `Λ₂` elements.
+  have key_sq : ∀ v ∈ lambdaImage G 2 4, v ^ 2 ∈ K := by
+    intro v hv
+    have H : v ∈ lambdaImage G 2 4 ∧ v ^ 2 ∈ K := by
+      refine lambdaImage_induction G hfg hpro
+        (j := 1) (m := 4) le_rfl
+        (p := fun q => q ∈ lambdaImage G 2 4 ∧ q ^ 2 ∈ K)
+        ?_ ?_ ⟨one_mem _, by rw [one_pow]; exact K.one_mem⟩ ?_ ?_ hv
+      · intro u _
+        rw [map_pow]
+        refine ⟨sq_mem_lam2 _, ?_⟩
+        rw [← pow_mul]
+        exact hpow4 _
+      · intro u _ g
+        rw [levelMk_commutator]
+        exact ⟨commP_mem_lam2 _ _, hbrsq _ _⟩
+      · rintro x y ⟨hx, hx2⟩ ⟨hy, hy2⟩
+        exact ⟨Subgroup.mul_mem _ hx hy, by
+          rw [(lam2_commute hx hy).mul_pow]
+          exact K.mul_mem hx2 hy2⟩
+      · rintro x ⟨hx, hx2⟩
+        exact ⟨Subgroup.inv_mem _ hx, by rw [inv_pow]; exact K.inv_mem hx2⟩
+    exact H.2
+  -- Brackets of arbitrary `Λ₂` elements against arbitrary ambient classes.
+  have hbratom : ∀ v ∈ lambdaImage G 2 4,
+      ∀ g : levelQuot G 4, commP v g ∈ K := by
+    intro v hv g
+    refine mem_of_marked_mem (S := brAtomSupport K hv) (fun i => ?_) g
+    show commP v (marked i) ∈ K
+    by_cases hi : i = t
+    · subst hi
+      have h3 := K.mul_mem (K.inv_mem (key_sq v hv)) (hcol v hv)
+      rwa [← mul_assoc, inv_mul_cancel, one_mul] at h3
+    · exact hbr i hi v hv
+  -- Atomize `Z₃ = Λ₃` and assemble.
+  intro q hq
+  refine lambdaImage_induction G hfg hpro
+    (j := 2) (m := 4) (by omega) ?_ ?_ K.one_mem
+    (fun x y hx hy => K.mul_mem hx hy) (fun x hx => K.inv_mem hx) hq
+  · intro u hu
+    rw [map_pow]
+    exact key_sq _ ⟨u, hu, rfl⟩
+  · intro u hu g
+    rw [levelMk_commutator]
+    exact hbratom _ (Subgroup.inv_mem _ ⟨u, hu, rfl⟩) _
 
 /-- **The `k = 3` span base case, uniform in the twisted role** (memo §2.2).
 
@@ -442,96 +557,8 @@ private theorem span_base_core (K : Subgroup (levelQuot (freeProTwo : Type) 4)) 
       commP v (mgen i) ∈ K)
     (htail : ∀ i : Fin 3, i ≠ t → mgen i ^ 4 ∈ K) :
     zLayer (freeProTwo : Type) 3 ≤ K := by
-  -- Stage 1: generator fourth powers (tails, plus the diagonal trick at `τ`).
-  have hgen4 : ∀ i : Fin 3, mgen i ^ 4 ∈ K := by
-    intro i
-    by_cases hi : i = t
-    · subst hi
-      have h := hcol _ (sq_mem_lam2 (mgen i))
-      have hc : commP (mgen i ^ 2) (mgen i) = 1 :=
-        commP_eq_one_of_mul_comm ((Commute.refl (mgen i)).pow_left 2).eq
-      have hpm : (mgen i ^ 2) ^ 2 = mgen i ^ 4 := by rw [← pow_mul]
-      rwa [hc, mul_one, hpm] at h
-    · exact htail i hi
-  -- Stage 1(c): the `π`-tower columns `[z², ζ] ∈ K`.
-  have hcolsq : ∀ i j : Fin 3, commP (mgen i ^ 2) (mgen j) ∈ K := by
-    intro i j
-    by_cases hj : j = t
-    · subst hj
-      have h := hcol _ (sq_mem_lam2 (mgen i))
-      have hpm : (mgen i ^ 2) ^ 2 = mgen i ^ 4 := by rw [← pow_mul]
-      rw [hpm] at h
-      have h3 := K.mul_mem (K.inv_mem (hgen4 i)) h
-      rwa [← mul_assoc, inv_mul_cancel, one_mul] at h3
-    · exact hbr j hj _ (sq_mem_lam2 (mgen i))
-  -- Stage 2: squares of generator brackets.
-  have hbrsq_gen : ∀ i j : Fin 3, commP (mgen i) (mgen j) ^ 2 ∈ K := by
-    have main : ∀ i j : Fin 3, i ≠ t → commP (mgen i) (mgen j) ^ 2 ∈ K := by
-      intro i j hi
-      rw [commP_sq_eq]
-      exact K.mul_mem (hcolsq i j)
-        (K.inv_mem (hbr i hi _ (commP_mem_lam2 (mgen i) (mgen j))))
-    intro i j
-    by_cases hi : i = t
-    · by_cases hj : j = t
-      · rw [hi, hj, commP_self', one_pow]
-        exact K.one_mem
-      · rw [commP_symm (mgen i) (mgen j), inv_pow]
-        exact K.inv_mem (main j i hj)
-    · exact main i j hi
-  -- Stage 3: squares of all brackets, by bimultiplicativity.
-  have hbrsq : ∀ a b : levelQuot (freeProTwo : Type) 4, commP a b ^ 2 ∈ K := by
-    have inner : ∀ i : Fin 3, ∀ b, commP (mgen i) b ^ 2 ∈ K := fun i b =>
-      mem_of_mgen_mem (S := brSqRight K (mgen i)) (fun j => hbrsq_gen i j) b
-    intro a b
-    exact mem_of_mgen_mem (S := brSqLeft K) inner a b
-  -- Stage 4: all fourth powers.
-  have hpow4 : ∀ a : levelQuot (freeProTwo : Type) 4, a ^ 4 ∈ K := fun a =>
-    mem_of_mgen_mem (S := powFourSupport K hbrsq) hgen4 a
-  -- Stage 5: squares of `Λ₂`-elements.
-  have key_sq : ∀ v ∈ lambdaImage (freeProTwo : Type) 2 4, v ^ 2 ∈ K := by
-    intro v hv
-    have H : v ∈ lambdaImage (freeProTwo : Type) 2 4 ∧ v ^ 2 ∈ K := by
-      refine lambdaImage_induction (freeProTwo : Type) freeTopGenFinset isProP_maxProPQuotient
-        (j := 1) (m := 4) le_rfl
-        (p := fun q => q ∈ lambdaImage (freeProTwo : Type) 2 4 ∧ q ^ 2 ∈ K)
-        ?_ ?_ ⟨one_mem _, by rw [one_pow]; exact K.one_mem⟩ ?_ ?_ hv
-      · intro u _
-        rw [map_pow]
-        refine ⟨sq_mem_lam2 _, ?_⟩
-        rw [← pow_mul]
-        exact hpow4 _
-      · intro u _ g
-        rw [levelMk_commutator]
-        exact ⟨commP_mem_lam2 _ _, hbrsq _ _⟩
-      · rintro x y ⟨hx, hx2⟩ ⟨hy, hy2⟩
-        exact ⟨Subgroup.mul_mem _ hx hy, by
-          rw [(lam2_commute hx hy).mul_pow]; exact K.mul_mem hx2 hy2⟩
-      · rintro x ⟨hx, hx2⟩
-        exact ⟨Subgroup.inv_mem _ hx, by rw [inv_pow]; exact K.inv_mem hx2⟩
-    exact H.2
-  -- Stage 6: bracket atoms at `Λ₂`-modifications.
-  have hbratom : ∀ v ∈ lambdaImage (freeProTwo : Type) 2 4,
-      ∀ g : levelQuot (freeProTwo : Type) 4, commP v g ∈ K := by
-    intro v hv g
-    refine mem_of_mgen_mem (S := brAtomSupport K hv) (fun i => ?_) g
-    show commP v (mgen i) ∈ K
-    by_cases hi : i = t
-    · subst hi
-      have h3 := K.mul_mem (K.inv_mem (key_sq v hv)) (hcol v hv)
-      rwa [← mul_assoc, inv_mul_cancel, one_mul] at h3
-    · exact hbr i hi v hv
-  -- Stage 7: assemble.
-  intro q hq
-  refine lambdaImage_induction (freeProTwo : Type) freeTopGenFinset isProP_maxProPQuotient
-    (j := 2) (m := 4) (by omega) ?_ ?_ K.one_mem (fun x y hx hy => K.mul_mem hx hy)
-    (fun x hx => K.inv_mem hx) hq
-  · intro u hu
-    rw [map_pow]
-    exact key_sq _ ⟨u, hu, rfl⟩
-  · intro u hu g
-    rw [levelMk_commutator]
-    exact hbratom _ (Subgroup.inv_mem _ ⟨u, hu, rfl⟩) _
+  exact span_base_core_of_generators mgen closure_mgen freeTopGenFinset
+    isProP_maxProPQuotient K t hcol hbr htail
 
 /-! ## The two frozen statements -/
 
