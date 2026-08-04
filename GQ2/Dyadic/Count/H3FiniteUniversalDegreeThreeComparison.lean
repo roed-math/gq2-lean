@@ -32,6 +32,134 @@ private abbrev SqAdjointInputFour (h : ℕ)
     (V : OpenNormalSubgroup (DSq h : Type)) :=
   FiniteModTwoBarCochainFour ((DSq h : Type) ⧸ V.toSubgroup)
 
+/-! ## The finite-quotient cocycle lifting problem -/
+
+/-- Apply the degree-three relation correction to an actual universal output `R₂(b)`.  This is
+the correction map available to a `SqCompatibleFiniteUniversalBarSyzygyAt`, whose coordinates
+are required to arise from bar two-chains. -/
+def finiteUniversalThreeBarInputCorrection
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarChainTwo Q →ₗ[ZMod 2] FiniteModTwoBarCochainThree Q :=
+  (finiteUniversalRelationThreeFiniteSupportCorrection m heval).comp
+    (finiteBarToUniversalRelationTwo m heval)
+
+/-- The coupled relation correction required on cocycles: raw universal adjoint plus the raw
+bar non-invariance defect. -/
+def finiteUniversalThreeAdjointCocycleTarget
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainThree Q →+ FiniteModTwoBarCochainThree Q :=
+  (finiteUniversalForwardReverseThreeCochainCorrection m heval).toAddMonoidHom +
+    finiteBarHomotopyTwoAdjointBarDefect m heval
+
+/-- Exact finite-level range condition: on the cocycle subspace, the coupled target is in the
+range of the correction attached to a genuine bar-two input. -/
+def FiniteUniversalThreeAdjointCocycleBarRange
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) : Prop :=
+  let d := (finiteModTwoBarDThree Q).toZModLinearMap 2
+  let T := (finiteUniversalThreeAdjointCocycleTarget m heval).toZModLinearMap 2
+  let L := finiteUniversalThreeBarInputCorrection m heval
+  LinearMap.range (T.domRestrict (LinearMap.ker d)) ≤ LinearMap.range L
+
+/-- Finite-dimensional linear algebra turns the cocycle range condition into an additive
+bar-two input map.  The lift is first chosen through `L.rangeRestrict` on `ker d³`, then extended
+from the cocycle subspace to all three-cochains. -/
+noncomputable def finiteUniversalThreeAdjointBarChainLiftOfCocycleRange
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (hrange : FiniteUniversalThreeAdjointCocycleBarRange m heval) :
+    FiniteModTwoBarCochainThree Q →ₗ[ZMod 2] FiniteModTwoBarChainTwo Q := by
+  let d := (finiteModTwoBarDThree Q).toZModLinearMap 2
+  let T := (finiteUniversalThreeAdjointCocycleTarget m heval).toZModLinearMap 2
+  let L := finiteUniversalThreeBarInputCorrection m heval
+  let Tker := T.domRestrict (LinearMap.ker d)
+  let intoRange : LinearMap.ker d →ₗ[ZMod 2] LinearMap.range L :=
+    Tker.codRestrict (LinearMap.range L) fun c =>
+      hrange (LinearMap.mem_range_self Tker c)
+  let hRight := L.rangeRestrict.exists_rightInverse_of_surjective L.range_rangeRestrict
+  let right := Classical.choose hRight
+  have hright := Classical.choose_spec hRight
+  let onKer : LinearMap.ker d →ₗ[ZMod 2] FiniteModTwoBarChainTwo Q :=
+    right.comp intoRange
+  let hExtend := LinearMap.exists_extend onKer
+  exact Classical.choose hExtend
+
+/-- The finite-level bar-chain lift realizes the coupled target on every three-cocycle. -/
+theorem finiteUniversalThreeAdjointBarChainLiftOfCocycleRange_spec
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (hrange : FiniteUniversalThreeAdjointCocycleBarRange m heval)
+    (c : FiniteModTwoBarCochainThree Q)
+    (hc : finiteModTwoBarDThree Q c = 0) :
+    finiteUniversalThreeBarInputCorrection m heval
+        (finiteUniversalThreeAdjointBarChainLiftOfCocycleRange m heval hrange c) =
+      finiteUniversalThreeAdjointCocycleTarget m heval c := by
+  let d := (finiteModTwoBarDThree Q).toZModLinearMap 2
+  let T := (finiteUniversalThreeAdjointCocycleTarget m heval).toZModLinearMap 2
+  let L := finiteUniversalThreeBarInputCorrection m heval
+  let Tker := T.domRestrict (LinearMap.ker d)
+  let intoRange : LinearMap.ker d →ₗ[ZMod 2] LinearMap.range L :=
+    Tker.codRestrict (LinearMap.range L) fun z =>
+      hrange (LinearMap.mem_range_self Tker z)
+  let hRight := L.rangeRestrict.exists_rightInverse_of_surjective L.range_rangeRestrict
+  let right := Classical.choose hRight
+  have hright := Classical.choose_spec hRight
+  let onKer : LinearMap.ker d →ₗ[ZMod 2] FiniteModTwoBarChainTwo Q :=
+    right.comp intoRange
+  let hExtend := LinearMap.exists_extend onKer
+  let lift := Classical.choose hExtend
+  have hlift := Classical.choose_spec hExtend
+  have hc' : c ∈ LinearMap.ker d := by
+    rw [LinearMap.mem_ker]
+    simpa [d] using hc
+  let cz : LinearMap.ker d := ⟨c, hc'⟩
+  change L (lift c) = T c
+  have hlift_c : lift c = onKer cz := by
+    have h := LinearMap.congr_fun hlift cz
+    exact h
+  rw [hlift_c]
+  have hright_c := LinearMap.congr_fun hright (intoRange cz)
+  change L (right (intoRange cz)) = T c
+  exact congrArg Subtype.val hright_c
+
+/-- Consequently, the universal coefficient `R₂(barChainLift c)` cancels the raw bar defect on
+cocycles.  This is the exact local condition later required of a compatible inverse-system
+family. -/
+theorem finiteUniversalThreeAdjointBarChainLiftOfCocycleRange_cancels
+    {Q I : Type} [Group Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (hrange : FiniteUniversalThreeAdjointCocycleBarRange m heval)
+    (c : FiniteModTwoBarCochainThree Q)
+    (hc : finiteModTwoBarDThree Q c = 0) :
+    finiteBarHomotopyTwoAdjointBarDefect m heval c +
+      finiteUniversalThreeAdjointFiniteSupportDefect m heval c
+        (finiteBarToUniversalRelationTwo m heval
+          (finiteUniversalThreeAdjointBarChainLiftOfCocycleRange
+            m heval hrange c)) = 0 := by
+  have hspec := finiteUniversalThreeAdjointBarChainLiftOfCocycleRange_spec
+    m heval hrange c hc
+  funext a
+  have ha := congrFun hspec a
+  simp only [finiteUniversalThreeAdjointFiniteSupportDefect,
+    finiteUniversalThreeBarInputCorrection,
+    finiteUniversalThreeAdjointCocycleTarget,
+    LinearMap.comp_apply, AddMonoidHom.add_apply] at ha ⊢
+  let B : ZMod 2 := finiteBarHomotopyTwoAdjointBarDefect m heval c a
+  let U : ZMod 2 := finiteUniversalForwardReverseThreeCochainCorrection m heval c a
+  let F : ZMod 2 := finiteUniversalRelationThreeFiniteSupportCorrection m heval
+    (finiteBarToUniversalRelationTwo m heval
+      (finiteUniversalThreeAdjointBarChainLiftOfCocycleRange m heval hrange c)) a
+  change B + (U + F) = 0
+  change F = U + B at ha
+  rw [ha]
+  calc
+    B + (U + (U + B)) = (B + B) + (U + U) := by abel
+    _ = 0 := by
+      rw [ZModModule.add_self, ZModModule.add_self]
+      simp
+
 /-- The combined fixed-quotient residual that must factor through `d³`.  It contains the
 refined input, the `d²H₂†` term, and the finite-support universal correction chosen by the
 compatible universal syzygy. -/
