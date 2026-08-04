@@ -126,6 +126,73 @@ structure SqCyclotomicBiEpiData (h : ℕ)
   backward : ContinuousMonoidHom G (SqCore.DSq h : Type)
   backward_surjective : Function.Surjective backward
 
+/-- Generator-level data for the forward epimorphism.  This is exactly what the universal
+property of the improved square presentation consumes: the relator dies, the chosen tuple
+topologically generates the target, and its cyclotomic values are the five standard rows. -/
+structure SqCyclotomicForwardGeneratorData (h : ℕ)
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) where
+  generators : Fin (SqCore.sqRank h) → G
+  relation : SqCore.sqRelWord generators = 1
+  topGen :
+    (Subgroup.closure (Set.range generators)).topologicalClosure = ⊤
+  sigma : chiG (generators 0) = GQ2.Roe.SvalUnit
+  x0 : chiG (generators 1) = GQ2.Roe.rootXUnit
+  x1 : chiG (generators 2) = GQ2.Roe.YvalUnit
+  handleU : ∀ j : Fin h, chiG (generators (SqCore.sqHandleIdxU j)) = 1
+  handleV : ∀ j : Fin h, chiG (generators (SqCore.sqHandleIdxV j)) = 1
+
+namespace SqCyclotomicForwardGeneratorData
+
+variable {h : ℕ} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+  {chiG : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+/-- The homomorphism classified by a relator-killing generator tuple. -/
+noncomputable def forward (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hpro : IsProP 2 G) :
+    ContinuousMonoidHom (SqCore.DSq h : Type) G :=
+  SqCore.sqLiftHom h hpro D.generators D.relation
+
+@[simp] theorem forward_gen (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hpro : IsProP 2 G) (i : Fin (SqCore.sqRank h)) :
+    D.forward hpro (SqCore.sqGen h i) = D.generators i :=
+  SqCore.sqLiftHom_gen h hpro D.generators D.relation i
+
+/-- Topological generation of the chosen tuple makes the classified map surjective. -/
+theorem forward_surjective (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hpro : IsProP 2 G) : Function.Surjective (D.forward hpro) := by
+  let f := D.forward hpro
+  have hclosed : IsClosed (f.toMonoidHom.range : Set G) := by
+    rw [MonoidHom.coe_range]
+    exact (isCompact_range f.continuous_toFun).isClosed
+  have hgen : Subgroup.closure (Set.range D.generators) ≤ f.toMonoidHom.range := by
+    rw [Subgroup.closure_le]
+    rintro _ ⟨i, rfl⟩
+    exact ⟨SqCore.sqGen h i, D.forward_gen hpro i⟩
+  have htop : (Subgroup.closure (Set.range D.generators)).topologicalClosure ≤
+      f.toMonoidHom.range :=
+    Subgroup.topologicalClosure_minimal _ hgen hclosed
+  rw [D.topGen] at htop
+  intro y
+  exact htop (Subgroup.mem_top y)
+
+/-- Add any epimorphism in the reverse direction to obtain the two-epimorphism package. -/
+noncomputable def toBiEpiData (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hpro : IsProP 2 G) (backward : ContinuousMonoidHom G (SqCore.DSq h : Type))
+    (hbackward : Function.Surjective backward) : SqCyclotomicBiEpiData h chiG where
+  forward := D.forward hpro
+  forward_surjective := D.forward_surjective hpro
+  sigma := by rw [SqCore.dsqSigma, D.forward_gen]; exact D.sigma
+  x0 := by rw [SqCore.dsqX0, D.forward_gen]; exact D.x0
+  x1 := by rw [SqCore.dsqX1, D.forward_gen]; exact D.x1
+  handleU j := by rw [D.forward_gen]; exact D.handleU j
+  handleV j := by rw [D.forward_gen]; exact D.handleV j
+  backward := backward
+  backward_surjective := hbackward
+
+end SqCyclotomicForwardGeneratorData
+
 /-- The Hopfian endgame for the higher-rank square classification.  Two epimorphisms produce
 an equivalence, and the five generator rows orient that equivalence. -/
 noncomputable def orientedEquivSq_of_biEpiData {h : ℕ}
@@ -419,6 +486,8 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms maxProPQuotientCongr
 #print axioms maxProPQuotientCongr_maxProPMk
 #print axioms dsqFinsetTopGen
+#print axioms SqCyclotomicForwardGeneratorData.forward_surjective
+#print axioms SqCyclotomicForwardGeneratorData.toBiEpiData
 #print axioms orientedEquivSq_of_biEpiData
 #print axioms oddDegreeGalKSqInvariantData_of_qTwo
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
