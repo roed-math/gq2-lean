@@ -5,6 +5,8 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.DemushkinEpimorphismRigidity
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteDegreeThree
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteHilbertTail
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteSharpInflationKernelBoundary
 
 /-!
 # Field-facing rigidity for the improved square presentation
@@ -268,6 +270,81 @@ theorem nonempty_orientedEquiv_oddDegree_of_forwardGeneratorData
       (chiCycKTwo (K := K))) :=
   hdata.map fun D => D.orientedEquiv_oddDegree hodd
 
+/-! ## Forward stage capstones
+
+These capstones compose the corrected stage induction with finite-level König assembly and
+Demushkin rigidity.  In particular, no reverse finite-quotient map, lower-series cardinality
+comparison, Jennings formula, or Hilbert-tail premise remains in their signatures. -/
+
+/-- The most direct corrected-forward capstone.  One exact level-three stage and actual-defect
+reachability at every subsequent stage produce the odd-degree oriented presentation. -/
+theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_corrections
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (base : SqCyclotomicStageTuple K
+      ((Module.finrank ℚ_[2] K - 1) / 2) 3)
+    (Hcorr : ∀ (k : ℕ), 3 ≤ k →
+      ∀ T : SqCyclotomicStageTuple K
+        ((Module.finrank ℚ_[2] K - 1) / 2) k,
+        SqCyclotomicStageTuple.DefectReachable T) :
+    Nonempty (OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K))) := by
+  apply nonempty_orientedEquiv_oddDegree_of_forwardGeneratorData hodd
+  apply forwardGeneratorData_of_finiteLevel _
+  intro U
+  exact SqCyclotomicStageTuple.finiteLevelEpiData_nonempty_of_base_and_corrections
+    _ base (maxProTwoGalK_isTopologicallyFinGen K) Hcorr U
+
+/-- The concrete actual-defect interface is enough for the direct capstone.  Sharp exact fibre
+lifting is supplied by odd-degree marked reciprocity, so it is not an additional open premise. -/
+theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (base : SqCyclotomicStageTuple K
+      ((Module.finrank ℚ_[2] K - 1) / 2) 3)
+    (Hactual : ∀ (k : ℕ) (hk : 3 ≤ k)
+      (T : SqCyclotomicStageTuple K
+        ((Module.finrank ℚ_[2] K - 1) / 2) k),
+      Nonempty (SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply T hk)) :
+    Nonempty (OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K))) := by
+  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_corrections hodd base
+  intro k hk T
+  obtain ⟨S⟩ := Hactual k hk T
+  exact S.toDefectReachable
+    (SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply
+      (markedRecipAt K) hodd)
+
+/-- Chain-level form of the remaining arithmetic boundary.  It suffices, at every stage, to
+choose one sharp-admissible affine base whose residual is annihilated by normalized primitives
+of the relevant inflation-kernel cocycles.  Transgression duality converts this statement to
+literal bracket-span membership and hence to the actual-defect correction used above. -/
+theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (base : SqCyclotomicStageTuple K
+      ((Module.finrank ℚ_[2] K - 1) / 2) 3)
+    (Hprimitive : ∀ (k : ℕ) (hk : 3 ≤ k)
+      (T : SqCyclotomicStageTuple K
+        ((Module.finrank ℚ_[2] K - 1) / 2) k),
+      ∃ W : SqCyclotomicStageTuple.SharpAdmissibleCorrection T (by omega),
+        SqCyclotomicStageTuple.SharpCyclotomicInflationPrimitiveResidualVanishing
+          T hk W (maxProTwoGalK_isTopologicallyFinGen K)) :
+    Nonempty (OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K))) := by
+  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply hodd base
+  intro k hk T
+  obtain ⟨W, hprimitive⟩ := Hprimitive k hk T
+  have hcompat :=
+    SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_of_primitiveVanishing
+      W (maxProTwoGalK_isTopologicallyFinGen K) hprimitive
+  have hmem :=
+    (SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_iff_mem_bracketSpan
+      W (maxProTwoGalK_isTopologicallyFinGen K)).mp hcompat
+  exact
+    (SqCyclotomicStageTuple.nonempty_coreHandleSharpActualDefectSupply_iff_mem_bracketSpan
+      W).mpr hmem
+
 /-! Deprecated odd-degree adapters for the former boundary arguments. -/
 
 @[deprecated SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree
@@ -357,6 +434,9 @@ noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree_of_ke
 #print axioms SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree
 #print axioms SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree
 #print axioms nonempty_orientedEquiv_oddDegree_of_forwardGeneratorData
+#print axioms nonempty_orientedEquiv_oddDegree_of_stageBase_and_corrections
+#print axioms nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply
+#print axioms nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing
 
 end OddDegreeField
 
