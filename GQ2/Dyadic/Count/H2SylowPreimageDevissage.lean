@@ -235,6 +235,36 @@ variable {A B : Type}
   [DiscreteTopology B] [Finite B] [DistribMulAction G B] [ContinuousSMul G B]
   [DistribMulAction C B]
 
+/-- The coefficient action on the kernel of an equivariant additive map. -/
+@[reducible] def coefficientKernelAction
+    (g : A →+ B)
+    (hgC : ∀ (c : C) (a : A), g (c • a) = c • g a) :
+    DistribMulAction C ↑g.ker :=
+  FoxH.stableSubAction g.ker (by
+    intro c a ha
+    rw [AddMonoidHom.mem_ker, hgC, AddMonoidHom.mem_ker.mp ha, smul_zero])
+
+/-- A two-element kernel acted on through a finite `2`-group is a trivial scalar kernel.
+
+This makes explicit the representation-theoretic assertion used in the scalar-kernel tail:
+once the kernel has cardinality two, its induced action is trivial.  The remaining obstruction
+is therefore cohomological, not an unaccounted-for action on the kernel. -/
+theorem coefficientKernelAction_smul_eq_self_of_isPGroup_two
+    (hP : IsPGroup 2 C)
+    (g : A →+ B)
+    (hgC : ∀ (c : C) (a : A), g (c • a) = c • g a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hcard : Nat.card ↑g.ker = 2) :
+    letI : DistribMulAction C ↑g.ker := coefficientKernelAction g hgC
+    ∀ (c : C) (a : ↑g.ker), c • a = a := by
+  letI : DistribMulAction C ↑g.ker := coefficientKernelAction g hgC
+  have hker₂ : ∀ a : ↑g.ker, a + a = 0 := by
+    intro a
+    apply Subtype.ext
+    exact hA₂ a.1
+  exact FoxH.smul_eq_self_of_isPGroup_two_of_simple hP hker₂
+    (FoxH.isSimpleModTwo_of_natCard_eq_two hcard)
+
 /-- The residual CD-2 premise after the acting finite image is a `2`-group: right exactness only
 for elementary coefficient quotients whose kernel has two elements.
 
