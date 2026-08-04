@@ -19,10 +19,17 @@ belongs to the normal closure of that one word.
 
 The converse condition needed for the reverse comparison is weaker: only the derivatives of the
 specific section defects need lie in the Fox range.  We prove that this restricted range condition
-is equivalent to nonemptiness of `FiniteSectionRefinementRelatorCoordinates`, and specialize the
-equivalence to actual open-normal quotients of `DSq h`.  This is strictly below the full
-finite-to-completed bar--Fox assembly: it concerns degree-one refinement homotopies only, asks
-nothing about arbitrary relation-kernel elements, and contains no degree-three primitive.
+is equivalent to nonemptiness of `FiniteSectionRefinementRelatorCoordinates`.  An explicit parity
+quotient then shows that this target-level condition is false: after projection to the terminal
+group, its section defect has a nonzero first exponent coordinate while the improved Fox row is
+zero.
+
+The final section replaces that refuted pointwise target with the correct inverse-system object.
+A relation syzygy is given by compatible coefficients over every open-normal quotient; this is
+proved equivalent to an additive map into the completed relation module.  Reconstruction may
+occur at a chosen finer `W ≤ V`.  The resulting finite-input chain package is exactly equivalent
+in nonemptiness to `SqFiniteToCompletedBarFoxHomotopyAt`, and adapters in both directions retain
+all chain identities.  No condition asks for a degree-three primitive or cohomological vanishing.
 -/
 
 namespace GQ2.Dyadic.Count
@@ -357,6 +364,279 @@ theorem not_nonempty_sqFirstParity_terminalSectionRefinementRelatorCoordinates (
     (fun z : RegularModTwoRelationModule Unit (Fin (sqRank h)) ↦
       z ((1 : Unit), (0 : Fin (sqRank h)))) hfox
   simp [q, terminalSectionDefect_sqFirstParityGenerator_apply_zero h] at hcoord
+
+/-! ## The correct eventual/completed replacement -/
+
+private abbrev SqFiniteInputThree (h : ℕ)
+    (V : OpenNormalSubgroup (DSq h : Type)) :=
+  FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ V.toSubgroup)
+
+/-- A relation syzygy for one finite input quotient, presented by all of its compatible finite
+coordinates.  Unlike the refuted pointwise section coordinates, the coefficient is not required
+to be manufactured at the target quotient: it is retained throughout the inverse system, so a
+nonzero correction may first become visible after passage to a finer quotient. -/
+structure SqCompatibleFiniteRelationSyzygyAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) where
+  /-- The relation coefficient at every finite quotient. -/
+  coordinate : ∀ U : OpenNormalSubgroup (DSq h : Type),
+    SqFiniteInputThree h V →+
+      RegularModTwoRelationModule ((DSq h : Type) ⧸ U.toSubgroup) Unit
+  /-- The coordinates form an inverse-limit compatible family. -/
+  compatible : ∀ {U U' : OpenNormalSubgroup (DSq h : Type)}
+    (hUU' : U ≤ U') (c : SqFiniteInputThree h V),
+    modTwoRegularModuleTransition (DSq h : Type) hUU' Unit
+        (coordinate U c) = coordinate U' c
+
+/-- Assemble a compatible family of finite relation coefficients into the completed relation
+module. -/
+def SqCompatibleFiniteRelationSyzygyAt.toCompleted
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteRelationSyzygyAt h V) :
+    SqFiniteInputThree h V →+
+      ModTwoCompletedRegularModule (DSq h : Type) Unit where
+  toFun c := ⟨fun U ↦ S.coordinate U c, fun _ _ hUU' ↦ S.compatible hUU' c⟩
+  map_zero' := by
+    apply ModTwoCompletedRegularModule.ext (DSq h : Type) Unit
+    intro U
+    exact map_zero (S.coordinate U)
+  map_add' c d := by
+    apply ModTwoCompletedRegularModule.ext (DSq h : Type) Unit
+    intro U
+    exact map_add (S.coordinate U) c d
+
+@[simp] theorem SqCompatibleFiniteRelationSyzygyAt.coordinate_toCompleted
+    {h : ℕ} {V U : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteRelationSyzygyAt h V) (c : SqFiniteInputThree h V) :
+    ModTwoCompletedRegularModule.coordinate (DSq h : Type) Unit U
+        (S.toCompleted c) = S.coordinate U c :=
+  rfl
+
+/-- Expose an already completed relation syzygy as its compatible family of finite
+coordinates. -/
+def sqCompatibleFiniteRelationSyzygyAtOfCompleted
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqFiniteInputThree h V →+
+      ModTwoCompletedRegularModule (DSq h : Type) Unit) :
+    SqCompatibleFiniteRelationSyzygyAt h V where
+  coordinate U := {
+    toFun := fun c ↦
+      ModTwoCompletedRegularModule.coordinate (DSq h : Type) Unit U (S c)
+    map_zero' := by simp
+    map_add' := by simp
+  }
+  compatible hUU' c :=
+    ModTwoCompletedRegularModule.coordinate_compatible
+      (DSq h : Type) Unit (S c) hUU'
+
+/-- Passing from a completed syzygy to its coordinates and assembling them again loses no
+information. -/
+@[simp] theorem toCompleted_sqCompatibleFiniteRelationSyzygyAtOfCompleted
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqFiniteInputThree h V →+
+      ModTwoCompletedRegularModule (DSq h : Type) Unit) :
+    (sqCompatibleFiniteRelationSyzygyAtOfCompleted S).toCompleted = S := by
+  apply AddMonoidHom.ext
+  intro c
+  apply ModTwoCompletedRegularModule.ext (DSq h : Type) Unit
+  intro U
+  rfl
+
+/-- Replacing a compatible family by the coordinates of its assembled completed syzygy also
+loses no information. -/
+@[simp] theorem sqCompatibleFiniteRelationSyzygyAtOfCompleted_toCompleted
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (S : SqCompatibleFiniteRelationSyzygyAt h V) :
+    sqCompatibleFiniteRelationSyzygyAtOfCompleted S.toCompleted = S := by
+  cases S with
+  | mk coordinate compatible =>
+      congr
+
+/-- Compatible finite relation coordinates are canonically equivalent to an additive map into
+the completed relation module. -/
+def sqCompatibleFiniteRelationSyzygyAtEquiv
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    SqCompatibleFiniteRelationSyzygyAt h V ≃
+      (SqFiniteInputThree h V →+
+        ModTwoCompletedRegularModule (DSq h : Type) Unit) where
+  toFun := SqCompatibleFiniteRelationSyzygyAt.toCompleted
+  invFun := sqCompatibleFiniteRelationSyzygyAtOfCompleted
+  left_inv := sqCompatibleFiniteRelationSyzygyAtOfCompleted_toCompleted
+  right_inv := toCompleted_sqCompatibleFiniteRelationSyzygyAtOfCompleted
+
+/-- Thus compatible finite relation coordinates and a completed relation syzygy are exactly
+equivalent descriptions. -/
+theorem nonempty_sqCompatibleFiniteRelationSyzygyAt_iff_completed
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    Nonempty (SqCompatibleFiniteRelationSyzygyAt h V) ↔
+      Nonempty (SqFiniteInputThree h V →+
+        ModTwoCompletedRegularModule (DSq h : Type) Unit) := by
+  constructor
+  · rintro ⟨S⟩
+    exact ⟨S.toCompleted⟩
+  · rintro ⟨S⟩
+    exact ⟨sqCompatibleFiniteRelationSyzygyAtOfCompleted S⟩
+
+/-- The finite-input, eventual form of the missing bar--Fox comparison.
+
+For a three-cochain at `V`, the comparison may first pass to a chosen `W ≤ V`.  Its relation
+syzygy is a compatible family over *all* finite quotients, and reconstruction uses its
+`W`-coordinate.  Both identities are imposed on every cochain and both defects factor through
+`d³`; this is strictly chain-level data and contains neither a cocycle primitive nor a vanishing
+claim. -/
+structure SqFiniteInputEventualBarFoxCorrectionAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) where
+  /-- The quotient where finite reconstruction is performed. -/
+  W : OpenNormalSubgroup (DSq h : Type)
+  /-- Reconstruction is allowed to refine the finite input quotient. -/
+  le : W.toSubgroup ≤ V.toSubgroup
+  /-- The degree-lowering part of the bar homotopy. -/
+  homotopyTwo :
+    SqFiniteInputThree h V →+
+      FiniteModTwoBarCochainTwo ((DSq h : Type) ⧸ W.toSubgroup)
+  /-- The relation syzygy as compatible finite coordinates. -/
+  relationSyzygy : SqCompatibleFiniteRelationSyzygyAt h V
+  /-- Reconstruction of the finite bar error from the chosen `W`-coordinate. -/
+  relationError :
+    RegularModTwoRelationModule ((DSq h : Type) ⧸ W.toSubgroup) Unit →+
+      FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ W.toSubgroup)
+  /-- The completed Fox-boundary defect factors through the degree-four coboundary. -/
+  boundaryDefect :
+    FiniteModTwoBarCochainFour ((DSq h : Type) ⧸ V.toSubgroup) →+
+      ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))
+  /-- The residual bar error also factors through the degree-four coboundary. -/
+  barDefect :
+    FiniteModTwoBarCochainFour ((DSq h : Type) ⧸ V.toSubgroup) →+
+      FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ W.toSubgroup)
+  /-- Chain-map identity in the completed relation module. -/
+  boundary_relationSyzygy : ∀ c,
+    (sqCompletedModTwoFoxBoundary h).map (relationSyzygy.toCompleted c) =
+      boundaryDefect (finiteModTwoBarDThree _ c)
+  /-- Reconstruction after passing to the chosen finer quotient. -/
+  reconstruct : ∀ c,
+    finiteModTwoBarDTwo _ (homotopyTwo c) +
+        relationError (relationSyzygy.coordinate W c) +
+        barDefect (finiteModTwoBarDThree _ c) =
+      sqFiniteModTwoBarRefineThree h le c
+
+/-- Assemble the finite-coordinate version into the existing completed bar--Fox homotopy
+interface. -/
+def SqFiniteInputEventualBarFoxCorrectionAt.toCompletedHomotopy
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (C : SqFiniteInputEventualBarFoxCorrectionAt h V) :
+    SqFiniteToCompletedBarFoxHomotopyAt h V where
+  W := C.W
+  le := C.le
+  homotopyTwo := C.homotopyTwo
+  relationSyzygy := C.relationSyzygy.toCompleted
+  relationError := C.relationError
+  boundaryDefect := C.boundaryDefect
+  barDefect := C.barDefect
+  boundary_relationSyzygy := C.boundary_relationSyzygy
+  reconstruct c := by
+    rw [SqCompatibleFiniteRelationSyzygyAt.coordinate_toCompleted]
+    exact C.reconstruct c
+
+/-- Conversely, the existing completed homotopy exposes a compatible family at every finite
+quotient. -/
+def sqFiniteInputEventualBarFoxCorrectionAtOfCompleted
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (C : SqFiniteToCompletedBarFoxHomotopyAt h V) :
+    SqFiniteInputEventualBarFoxCorrectionAt h V where
+  W := C.W
+  le := C.le
+  homotopyTwo := C.homotopyTwo
+  relationSyzygy :=
+    sqCompatibleFiniteRelationSyzygyAtOfCompleted C.relationSyzygy
+  relationError := C.relationError
+  boundaryDefect := C.boundaryDefect
+  barDefect := C.barDefect
+  boundary_relationSyzygy c := by
+    simpa using C.boundary_relationSyzygy c
+  reconstruct c := by
+    exact C.reconstruct c
+
+/-- **Exact adapter.** The eventual finite-coordinate condition is equivalent to the existing
+finite-to-completed homotopy datum at each input quotient. -/
+theorem nonempty_sqFiniteInputEventualBarFoxCorrectionAt_iff
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    Nonempty (SqFiniteInputEventualBarFoxCorrectionAt h V) ↔
+      Nonempty (SqFiniteToCompletedBarFoxHomotopyAt h V) := by
+  constructor
+  · rintro ⟨C⟩
+    exact ⟨C.toCompletedHomotopy⟩
+  · rintro ⟨C⟩
+    exact ⟨sqFiniteInputEventualBarFoxCorrectionAtOfCompleted C⟩
+
+/-- At the chosen finer quotient, the finite coordinate of the syzygy satisfies the literal
+improved-square Fox identity.  This is the finite-coordinate form of the completed chain-map
+field, and ensures that the eventual package cannot silently substitute a different relator
+row. -/
+theorem SqFiniteInputEventualBarFoxCorrectionAt.finite_boundary_relationSyzygy
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (C : SqFiniteInputEventualBarFoxCorrectionAt h V)
+    (c : SqFiniteInputThree h V) :
+    (sqFiniteLevelModTwoFoxBoundary h
+        (fun i ↦ QuotientGroup.mk' C.W.toSubgroup (sqGen h i))).map
+        (C.relationSyzygy.coordinate C.W c) =
+      ModTwoCompletedRegularModule.coordinate (DSq h : Type)
+        (Fin (sqRank h)) C.W
+        (C.boundaryDefect (finiteModTwoBarDThree _ c)) := by
+  have hboundary := C.toCompletedHomotopy.finite_boundary_relationSyzygy c
+  change (sqFiniteLevelModTwoFoxBoundary h
+      (fun i ↦ QuotientGroup.mk' C.W.toSubgroup (sqGen h i))).map
+      (ModTwoCompletedRegularModule.coordinate (DSq h : Type) Unit C.W
+        (C.relationSyzygy.toCompleted c)) = _ at hboundary
+  rw [C.relationSyzygy.coordinate_toCompleted] at hboundary
+  exact hboundary
+
+/-- Eventual finite-coordinate correction data at every finite input quotient. -/
+abbrev SqFiniteInputEventualBarFoxAssembly (h : ℕ) :=
+  ∀ V : OpenNormalSubgroup (DSq h : Type),
+    SqFiniteInputEventualBarFoxCorrectionAt h V
+
+/-- Eventual finite-coordinate data at every input quotient supplies the completed assembly. -/
+def sqFiniteToCompletedBarFoxAssembly_of_eventual
+    (h : ℕ)
+    (S : SqFiniteInputEventualBarFoxAssembly h) :
+    SqFiniteToCompletedBarFoxAssembly h :=
+  fun V ↦ (S V).toCompletedHomotopy
+
+/-- The assembly conversely exposes the finite-coordinate, eventually reconstructed form. -/
+def sqFiniteInputEventualBarFoxCorrection_of_assembly
+    (h : ℕ) (S : SqFiniteToCompletedBarFoxAssembly h)
+    (V : OpenNormalSubgroup (DSq h : Type)) :
+    SqFiniteInputEventualBarFoxCorrectionAt h V :=
+  sqFiniteInputEventualBarFoxCorrectionAtOfCompleted (S V)
+
+/-- A completed assembly conversely supplies eventual finite-coordinate correction data at
+every input quotient. -/
+def sqFiniteInputEventualBarFoxAssembly_of_completed
+    (h : ℕ) (S : SqFiniteToCompletedBarFoxAssembly h) :
+    SqFiniteInputEventualBarFoxAssembly h :=
+  fun V ↦ sqFiniteInputEventualBarFoxCorrection_of_assembly h S V
+
+/-- **Global exact adapter.** Existence of eventual compatible finite-coordinate data at every
+input quotient is equivalent to existence of the completed bar--Fox assembly. -/
+theorem nonempty_sqFiniteInputEventualBarFoxAssembly_iff (h : ℕ) :
+    Nonempty (SqFiniteInputEventualBarFoxAssembly h) ↔
+      Nonempty (SqFiniteToCompletedBarFoxAssembly h) := by
+  constructor
+  · rintro ⟨S⟩
+    exact ⟨sqFiniteToCompletedBarFoxAssembly_of_eventual h S⟩
+  · rintro ⟨S⟩
+    exact ⟨sqFiniteInputEventualBarFoxAssembly_of_completed h S⟩
+
+/-- The earlier parity-to-terminal calculation rules out replacing the completed family above
+by a coefficient in the target-level relation module.  The eventual `W` and the finer
+coordinates are therefore essential, rather than administrative weakening. -/
+theorem sqFirstParity_pointwise_terminal_obstruction (h : ℕ) :
+    ¬ Nonempty (FiniteSectionRefinementRelatorCoordinates
+      (sqFirstParityToUnit h)
+      (sqOpenQuotientMarking h (sqFirstParityKernel h))
+      (sqOpenQuotientFreeEvaluation_surjective h (sqFirstParityKernel h))
+      (sqFirstParityTerminalEvaluation_surjective h)
+      Unit (fun _ : Unit ↦ sqDiscreteRelator h)) :=
+  not_nonempty_sqFirstParity_terminalSectionRefinementRelatorCoordinates h
 
 end
 
