@@ -308,6 +308,68 @@ theorem sqFiniteUniversalThreeAdjointCocycleSyzygyBarRangeAt_iff
     let b : LinearMap.ker J := ⟨B c.1, (hB c.1 hc).2⟩
     exact ⟨b, (hB c.1 hc).1⟩
 
+/-! ### What corrected reverse-section naturality gives unconditionally -/
+
+/-- Bar boundary commutes with pushforward in degrees two and one. -/
+theorem finiteModTwoBarBoundaryTwo_map
+    {Q Q' : Type} [Group Q] [Group Q'] (φ : Q →* Q')
+    (b : FiniteModTwoBarChainTwo Q) :
+    finiteModTwoBarBoundaryTwo (finiteModTwoBarMapTwo φ b) =
+      finiteModTwoBarMapOne φ (finiteModTwoBarBoundaryTwo b) := by
+  classical
+  induction b using Finsupp.induction with
+  | zero => simp
+  | single_add p a b hp ha ih =>
+      rcases p with ⟨g, q, r⟩
+      rw [map_add, map_add, ih]
+      simp [finiteModTwoBarMapTwo, finiteModTwoBarMapOne, map_mul]
+
+/-- **Strongest unconditional transition identity presently available.**  After applying the
+universal Fox boundary, the discrepancy between transporting the finer reverse-two output and
+recomputing it at the coarser quotient is exactly the corrected reverse-section Fox boundary.
+The theorem does not identify the two universal relation coefficients themselves: that module
+is free on relation-kernel elements, so equality of their Fox images is insufficient. -/
+theorem SqOpenQuotientReverseSectionCoordinateSystem.universalRelationTransition_fox_defect
+    {h : ℕ} (S : SqOpenQuotientReverseSectionCoordinateSystem h)
+    {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :
+    (finiteUniversalRelationFoxBoundary
+        (sqOpenQuotientMarking h U')).map
+          (sqUniversalRelationModuleTransition h hUU'
+            (sqOpenQuotientBarToUniversalRelationTwo h U b)) +
+      (finiteUniversalRelationFoxBoundary
+        (sqOpenQuotientMarking h U')).map
+          (sqOpenQuotientBarToUniversalRelationTwo h U'
+            (finiteModTwoBarMapTwo (openNormalQuotientProj hUU') b)) =
+      (sqFiniteLevelModTwoFoxBoundary h
+        (sqOpenQuotientMarking h U')).map
+          (sqOpenQuotientSectionRefinementCorrection h (S.level hUU')
+            (finiteModTwoBarBoundaryTwo b)) := by
+  rw [← sqUniversalRelationFoxBoundary_natural h hUU',
+    ← sqOpenQuotientBarToMarkedOne_boundaryTwo,
+    ← sqOpenQuotientBarToMarkedOne_boundaryTwo,
+    finiteModTwoBarBoundaryTwo_map]
+  exact S.corrected_naturality hUU' (finiteModTwoBarBoundaryTwo b)
+
+/-- The correction in the preceding Fox-defect identity obeys the expected tower law.  Together
+with composition of universal relation transitions, this makes the Fox-level discrepancy a
+coherent cocycle even though it still does not give equality of universal relation outputs. -/
+theorem SqOpenQuotientReverseSectionCoordinateSystem.universalRelationTransition_foxDefect_correction_composition
+    {h : ℕ} (S : SqOpenQuotientReverseSectionCoordinateSystem h)
+    {U U' U'' : OpenNormalSubgroup (DSq h : Type)}
+    (hUU' : U ≤ U') (hU'U'' : U' ≤ U'')
+    (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :
+    sqOpenQuotientSectionRefinementCorrection h
+        (S.level (hUU'.trans hU'U'')) (finiteModTwoBarBoundaryTwo b) =
+      sqOpenQuotientSectionRefinementCorrection h (S.level hU'U'')
+          (finiteModTwoBarBoundaryTwo
+            (finiteModTwoBarMapTwo (openNormalQuotientProj hUU') b)) +
+        regularModTwoPushforward (openNormalQuotientProj hU'U'') Unit
+          (sqOpenQuotientSectionRefinementCorrection h (S.level hUU')
+            (finiteModTwoBarBoundaryTwo b)) := by
+  rw [finiteModTwoBarBoundaryTwo_map]
+  exact S.correction_composition hUU' hU'U'' (finiteModTwoBarBoundaryTwo b)
+
 /-- Finite-dimensional linear algebra turns the cocycle range condition into an additive
 bar-two input map.  The lift is first chosen through `L.rangeRestrict` on `ker d³`, then extended
 from the cocycle subspace to all three-cochains. -/
@@ -562,6 +624,217 @@ noncomputable instance SqUniversalCocycleOutputFiber.instFinite
   apply congrArg
   simpa [representative] using hxy
 
+/-! ## Concrete transition obligations -/
+
+/-- Literal bar-input transport: every reverse-two output transported to a coarser quotient is
+again obtained from a bar-two input there, linearly in the original input. -/
+def SqUniversalBarInputTransitionLiftExists (h : ℕ) : Prop :=
+  ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U'),
+    ∃ P : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup),
+      (sqOpenQuotientBarToUniversalRelationTwo h U').comp P =
+        (sqUniversalRelationModuleTransition h hUU').comp
+          (sqOpenQuotientBarToUniversalRelationTwo h U)
+
+/-- Pointwise range form of literal bar-input transport. -/
+def SqUniversalBarInputTransitionRange (h : ℕ) : Prop :=
+  ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U'),
+    LinearMap.range
+        ((sqUniversalRelationModuleTransition h hUU').comp
+          (sqOpenQuotientBarToUniversalRelationTwo h U)) ≤
+      LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')
+
+/-- The range condition is exactly equivalent to a linear choice of transported bar inputs. -/
+theorem sqUniversalBarInputTransitionRange_iff (h : ℕ) :
+    SqUniversalBarInputTransitionRange h ↔
+      SqUniversalBarInputTransitionLiftExists h := by
+  classical
+  constructor
+  · intro hrange U U' hUU'
+    let A := (sqUniversalRelationModuleTransition h hUU').comp
+      (sqOpenQuotientBarToUniversalRelationTwo h U)
+    let R := sqOpenQuotientBarToUniversalRelationTwo h U'
+    let pre (p : ((DSq h : Type) ⧸ U.toSubgroup) ×
+        (((DSq h : Type) ⧸ U.toSubgroup) ×
+          ((DSq h : Type) ⧸ U.toSubgroup))) :
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup) :=
+      Classical.choose
+        (hrange hUU' (LinearMap.mem_range_self A (Finsupp.single p 1)))
+    have hpre (p : ((DSq h : Type) ⧸ U.toSubgroup) ×
+        (((DSq h : Type) ⧸ U.toSubgroup) ×
+          ((DSq h : Type) ⧸ U.toSubgroup))) :
+        R (pre p) = A (Finsupp.single p 1) :=
+      Classical.choose_spec
+        (hrange hUU' (LinearMap.mem_range_self A (Finsupp.single p 1)))
+    let P : FiniteModTwoBarChainTwo
+          ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+        FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup) :=
+      (Finsupp.lsum (ZMod 2)) fun p =>
+        LinearMap.toSpanSingleton (ZMod 2) _ (pre p)
+    refine ⟨P, ?_⟩
+    apply Finsupp.lhom_ext'
+    intro p
+    apply LinearMap.ext_ring
+    change R (P (Finsupp.single p 1)) = A (Finsupp.single p 1)
+    rw [show P (Finsupp.single p 1) = pre p by
+      simp [P, LinearMap.toSpanSingleton_apply]]
+    exact hpre p
+  · rintro hlift U U' hUU' z ⟨b, rfl⟩
+    obtain ⟨P, hP⟩ := hlift hUU'
+    refine ⟨P b, ?_⟩
+    exact DFunLike.congr_fun hP b
+
+/-- The coupled defect associated to an arbitrary linear universal output at one quotient. -/
+def sqFiniteUniversalOutputCocycleDefectAt
+    (h : ℕ) {V U : OpenNormalSubgroup (DSq h : Type)}
+    (hUV : U.toSubgroup ≤ V.toSubgroup)
+    (output : SqAdjointInputThree h V →ₗ[ZMod 2]
+      RegularModTwoRelationModule
+        ((DSq h : Type) ⧸ U.toSubgroup)
+        (FreeRelationKernel (sqOpenQuotientMarking h U))) :
+    SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ U.toSubgroup) :=
+  sqFiniteUniversalThreeAdjointCocycleTargetAt h hUV +
+    (finiteUniversalRelationThreeFiniteSupportCorrection
+      (sqOpenQuotientMarking h U)
+      (sqOpenQuotientFreeEvaluation_surjective h U)).comp output
+
+/-- The preceding linear map is exactly the raw bar defect plus universal finite-support defect
+used in the cancellation fields. -/
+theorem sqFiniteUniversalOutputCocycleDefectAt_eq_explicit
+    (h : ℕ) {V U : OpenNormalSubgroup (DSq h : Type)}
+    (hUV : U.toSubgroup ≤ V.toSubgroup)
+    (output : SqAdjointInputThree h V →ₗ[ZMod 2]
+      RegularModTwoRelationModule
+        ((DSq h : Type) ⧸ U.toSubgroup)
+        (FreeRelationKernel (sqOpenQuotientMarking h U)))
+    (c : SqAdjointInputThree h V) :
+    sqFiniteUniversalOutputCocycleDefectAt h hUV output c =
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) (output c) := by
+  funext a
+  simp only [sqFiniteUniversalOutputCocycleDefectAt,
+    sqFiniteUniversalThreeAdjointCocycleTargetAt,
+    finiteUniversalThreeAdjointCocycleTarget,
+    finiteUniversalThreeAdjointFiniteSupportDefect,
+    LinearMap.add_apply, LinearMap.comp_apply]
+  change
+    (finiteUniversalForwardReverseThreeCochainCorrection
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) a +
+        finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) a) +
+      finiteUniversalRelationThreeFiniteSupportCorrection
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U) (output c) a =
+    finiteBarHomotopyTwoAdjointBarDefect
+        (sqOpenQuotientMarking h U)
+        (sqOpenQuotientFreeEvaluation_surjective h U)
+        (sqFiniteModTwoBarRefineThree h hUV c) a +
+      (finiteUniversalForwardReverseThreeCochainCorrection
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h hUV c) a +
+        finiteUniversalRelationThreeFiniteSupportCorrection
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U) (output c) a)
+  abel
+
+/-- Kernel-inclusion form of cancellation transport.  The source must be both an input cocycle
+and a zero of the finer coupled defect; then it is a zero of the transported coarser defect. -/
+def SqUniversalBarInputCocycleCancellationTransitionKernel
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (B : SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup))
+    (hU'V : U'.toSubgroup ≤ V.toSubgroup),
+    let d := (finiteModTwoBarDThree
+      ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2
+    let output := (sqOpenQuotientBarToUniversalRelationTwo h U).comp B
+    let source := sqFiniteUniversalOutputCocycleDefectAt h
+      (hUU'.trans hU'V) output
+    let target := sqFiniteUniversalOutputCocycleDefectAt h hU'V
+      ((sqUniversalRelationModuleTransition h hUU').comp output)
+    LinearMap.ker d ⊓ LinearMap.ker source ≤ LinearMap.ker target
+
+/-- The remaining adjoint coherence is a zero-locus statement on concrete bar inputs.  If a
+bar input cancels the coupled defect at a finer quotient, its transported universal output must
+cancel the coupled defect at the coarser quotient.  There is no direct cochain pushforward with
+which to replace this implication by equality: both cochains are pullbacks from `V`. -/
+def SqUniversalBarInputCocycleCancellationTransitionClosed
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) : Prop :=
+  ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (B : SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup))
+    (hU'V : U'.toSubgroup ≤ V.toSubgroup)
+    (c : SqAdjointInputThree h V),
+    finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h (hUU'.trans hU'V) c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h U)
+          (sqOpenQuotientFreeEvaluation_surjective h U)
+          (sqFiniteModTwoBarRefineThree h (hUU'.trans hU'V) c)
+          (sqOpenQuotientBarToUniversalRelationTwo h U (B c)) = 0 →
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')
+          (sqFiniteModTwoBarRefineThree h hU'V c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h U')
+          (sqOpenQuotientFreeEvaluation_surjective h U')
+          (sqFiniteModTwoBarRefineThree h hU'V c)
+          (sqUniversalRelationModuleTransition h hUU'
+            (sqOpenQuotientBarToUniversalRelationTwo h U (B c))) = 0
+
+/-- The implication and finite kernel-inclusion formulations of cancellation transport are
+equivalent. -/
+theorem sqUniversalBarInputCocycleCancellationTransitionKernel_iff
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    SqUniversalBarInputCocycleCancellationTransitionKernel h V ↔
+      SqUniversalBarInputCocycleCancellationTransitionClosed h V := by
+  constructor
+  · intro hker U U' hUU' B hU'V c hc hsource
+    let d := (finiteModTwoBarDThree
+      ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2
+    let output := (sqOpenQuotientBarToUniversalRelationTwo h U).comp B
+    let source := sqFiniteUniversalOutputCocycleDefectAt h
+      (hUU'.trans hU'V) output
+    let target := sqFiniteUniversalOutputCocycleDefectAt h hU'V
+      ((sqUniversalRelationModuleTransition h hUU').comp output)
+    have hdc : c ∈ LinearMap.ker d := by
+      rw [LinearMap.mem_ker]
+      simpa [d] using hc
+    have hsc : c ∈ LinearMap.ker source := by
+      rw [LinearMap.mem_ker]
+      rw [sqFiniteUniversalOutputCocycleDefectAt_eq_explicit]
+      exact hsource
+    have htc := hker hUU' B hU'V ⟨hdc, hsc⟩
+    rw [LinearMap.mem_ker] at htc
+    rw [sqFiniteUniversalOutputCocycleDefectAt_eq_explicit] at htc
+    exact htc
+  · intro hclosed U U' hUU' B hU'V
+    dsimp only
+    intro c hc
+    rcases hc with ⟨hdc, hsource⟩
+    have hdc' := (LinearMap.mem_ker).mp hdc
+    have hsource' := (LinearMap.mem_ker).mp hsource
+    rw [sqFiniteUniversalOutputCocycleDefectAt_eq_explicit] at hsource'
+    apply (LinearMap.mem_ker).mpr
+    rw [sqFiniteUniversalOutputCocycleDefectAt_eq_explicit]
+    exact hclosed hUU' B hU'V c (by simpa using hdc') hsource'
+
 /-- The exact transition-closure premise.  Pushforward of a candidate universal output is
 required to remain bar-representable and to retain cocycle cancellation at the coarser level.
 Fox-zero preservation is automatic from naturality of the universal Fox boundary. -/
@@ -587,6 +860,64 @@ def SqUniversalCocycleOutputTransitionClosed
             (sqOpenQuotientFreeEvaluation_surjective h U')
             (sqFiniteModTwoBarRefineThree h hU'V c)
             (sqUniversalRelationModuleTransition h hUU' (x.output c)) = 0)
+
+/-- Fox-zero is the automatic part of transition closure. -/
+theorem sqUniversalRelationModuleTransition_fox_zero
+    {h : ℕ} {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (u : RegularModTwoRelationModule
+      ((DSq h : Type) ⧸ U.toSubgroup)
+      (FreeRelationKernel (sqOpenQuotientMarking h U)))
+    (hu : (finiteUniversalRelationFoxBoundary
+      (sqOpenQuotientMarking h U)).map u = 0) :
+    (finiteUniversalRelationFoxBoundary
+      (sqOpenQuotientMarking h U')).map
+        (sqUniversalRelationModuleTransition h hUU' u) = 0 := by
+  have hnatural := sqUniversalRelationFoxBoundary_natural h hUU' u
+  rw [hu, map_zero] at hnatural
+  exact hnatural.symm
+
+/-- The two concrete obligations above imply the abstract fiber transition-closure premise.
+Bar-input range supplies a linear coarser representative; cancellation transport supplies the
+only remaining field.  Fox-zero is not assumed, since it is automatic by naturality. -/
+theorem sqUniversalCocycleOutputTransitionClosed_of_barInputCoherence
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hrange : SqUniversalBarInputTransitionRange h)
+    (hcancel : SqUniversalBarInputCocycleCancellationTransitionClosed h V) :
+    SqUniversalCocycleOutputTransitionClosed h V := by
+  classical
+  have hlift : SqUniversalBarInputTransitionLiftExists h :=
+    (sqUniversalBarInputTransitionRange_iff h).mp hrange
+  intro U U' hUU' x
+  let B : SqAdjointInputThree h V →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) :=
+    Classical.choose x.bar_representable
+  have hB : x.output =
+      (sqOpenQuotientBarToUniversalRelationTwo h U).comp B :=
+    Classical.choose_spec x.bar_representable
+  obtain ⟨P, hP⟩ := hlift hUU'
+  constructor
+  · refine ⟨P.comp B, ?_⟩
+    apply LinearMap.ext
+    intro c
+    have hBc := DFunLike.congr_fun hB c
+    simp only [LinearMap.comp_apply] at hBc ⊢
+    rw [hBc]
+    exact (DFunLike.congr_fun hP (B c)).symm
+  · intro hU'V c hc
+    have hsource := x.cancels_on_refinements (hUU'.trans hU'V) c hc
+    have hBc := DFunLike.congr_fun hB c
+    simp only [LinearMap.comp_apply] at hBc
+    rw [hBc] at hsource ⊢
+    exact hcancel hUU' B hU'V c hc hsource
+
+/-- Kernel-inclusion version of the concrete transition-closure constructor. -/
+theorem sqUniversalCocycleOutputTransitionClosed_of_barInputKernelCoherence
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hrange : SqUniversalBarInputTransitionRange h)
+    (hkernel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    SqUniversalCocycleOutputTransitionClosed h V :=
+  sqUniversalCocycleOutputTransitionClosed_of_barInputCoherence h V hrange
+    ((sqUniversalBarInputCocycleCancellationTransitionKernel_iff h V).mp hkernel)
 
 /-- Push a candidate fiber point to a coarser quotient under the exact closure premise. -/
 noncomputable def sqUniversalCocycleOutputFiberTransition
@@ -1226,6 +1557,34 @@ theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_syzygyBarCofinalRange
   nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_eventuallyNonempty
     h V hclosed
       (sqUniversalCocycleOutputEventuallyNonempty_of_syzygyBarCofinalRange hrange) hgen
+
+/-- Fully concrete endpoint with abstract transition closure eliminated.  The remaining inputs
+are exactly: cofinal local lifting through the Fox kernel, range transport of reverse-two bar
+inputs, and preservation of the coupled cancellation zero locus. -/
+theorem nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_concreteCoherence
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (hbar : SqUniversalBarInputTransitionRange h)
+    (hcancel : SqUniversalBarInputCocycleCancellationTransitionKernel h V) :
+    Nonempty (SqFiniteInputUniversalDegreeThreeComparisonAt h V) :=
+  nonempty_sqFiniteInputUniversalDegreeThreeComparisonAt_of_syzygyBarCofinalRange
+    h V
+      (sqUniversalCocycleOutputTransitionClosed_of_barInputKernelCoherence
+        h V hbar hcancel) hlocal
+
+/-- The corresponding completed endpoint, retaining eventual improved-relator generation as
+the independent final premise. -/
+theorem nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_concreteCoherence
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type))
+    (hlocal : SqFiniteUniversalThreeAdjointCocycleSyzygyBarCofinalRangeAt h V)
+    (hbar : SqUniversalBarInputTransitionRange h)
+    (hcancel : SqUniversalBarInputCocycleCancellationTransitionKernel h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    Nonempty (SqFiniteInputCompletedSyzygyBoundaryAt h V) :=
+  nonempty_sqFiniteInputCompletedSyzygyBoundaryAt_of_syzygyBarCofinalRange
+    h V
+      (sqUniversalCocycleOutputTransitionClosed_of_barInputKernelCoherence
+        h V hbar hcancel) hlocal hgen
 
 end
 
