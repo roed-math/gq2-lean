@@ -25,6 +25,85 @@ open GQ2.Roe.Labute
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
+/-! ## Functoriality of the lower two-central tower under equivalence -/
+
+/-- A continuous group equivalence induces an equivalence at every lower two-central
+quotient. -/
+noncomputable def levelQuotCongr {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H) (k : ℕ) : levelQuot G k ≃* levelQuot H k :=
+  QuotientGroup.congr (twoCentralSeries G k) (twoCentralSeries H k) e.toMulEquiv
+    (map_twoCentralSeries_eq e.toMonoidHom e.continuous_toFun e.surjective k)
+
+/-- The induced quotient equivalence carries the class of `g` to the class of `e g`. -/
+@[simp] theorem levelQuotCongr_levelMk {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H) (k : ℕ) (g : G) :
+    levelQuotCongr e k (levelMk G k g) = levelMk H k (e g) := rfl
+
+/-- Quotient transport commutes with the transition maps in the lower two-central tower. -/
+theorem levelQuotCongr_levelProj {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H) (k : ℕ) (q : levelQuot G (k + 1)) :
+    levelQuotCongr e k (levelProj G k q) =
+      levelProj H k (levelQuotCongr e (k + 1) q) := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G (k + 1) q
+  rw [levelProj_levelMk, levelQuotCongr_levelMk,
+    levelQuotCongr_levelMk, levelProj_levelMk]
+
+/-- Quotient transport identifies every two-index filtration image. -/
+theorem levelQuotCongr_map_lambdaImage {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H) (j k : ℕ) :
+    (lambdaImage G j k).map (levelQuotCongr e k).toMonoidHom =
+      lambdaImage H j k := by
+  rw [lambdaImage, lambdaImage, Subgroup.map_map]
+  have hcomp : (levelQuotCongr e k).toMonoidHom.comp (levelMk G k) =
+      (levelMk H k).comp e.toMonoidHom := by
+    ext g
+    exact levelQuotCongr_levelMk e k g
+  rw [hcomp, ← Subgroup.map_map,
+    map_twoCentralSeries_eq e.toMonoidHom e.continuous_toFun e.surjective j]
+
+/-- The literal improved square relator is natural under lower-tower transport. -/
+theorem levelQuotCongr_sqRelWord {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H) (h k : ℕ)
+    (T : Fin (SqCore.sqRank h) → levelQuot G k) :
+    levelQuotCongr e k (SqCore.sqRelWord T) =
+      SqCore.sqRelWord (fun i ↦ levelQuotCongr e k (T i)) :=
+  SqCore.map_sqRelWord (levelQuotCongr e k) T
+
+/-- Ordinary finite character shadows are natural under an oriented equivalence. -/
+theorem chiLevel_levelQuotCongr {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H)
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) (chiH : ContinuousMonoidHom H ℤ_[2]ˣ)
+    (horient : ∀ g, chiH (e g) = chiG g) (k : ℕ) (q : levelQuot G k) :
+    chiLevel chiH k (levelQuotCongr e k q) = chiLevel chiG k q := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G k q
+  rw [levelQuotCongr_levelMk, chiLevel_levelMk, chiLevel_levelMk, horient]
+
+/-- The one-extra-digit character shadows are natural under an oriented equivalence. -/
+theorem sharpChiLevel_levelQuotCongr {G H : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (e : ContinuousMulEquiv G H)
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ) (chiH : ContinuousMonoidHom H ℤ_[2]ˣ)
+    (horient : ∀ g, chiH (e g) = chiG g) (k : ℕ) (hk : 2 ≤ k)
+    (q : levelQuot G k) :
+    SqCyclotomicStageTuple.sharpChiLevel chiH k hk (levelQuotCongr e k q) =
+      SqCyclotomicStageTuple.sharpChiLevel chiG k hk q := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G k q
+  rw [levelQuotCongr_levelMk, SqCyclotomicStageTuple.sharpChiLevel_levelMk,
+    SqCyclotomicStageTuple.sharpChiLevel_levelMk, horient]
+
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 /-- The presentation-side character used by the Labute stage calculation is the canonical
