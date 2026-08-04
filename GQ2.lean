@@ -441,6 +441,7 @@ import GQ2.Dyadic.Count.H3CompletedCubicPBWColumnSound
 import GQ2.Dyadic.Count.H3CompletedCubicFiniteOperator
 import GQ2.Dyadic.Count.LowerTwoCentralJenningsDegreeThree
 import GQ2.Dyadic.Count.LowerTwoCentralJenningsDegreeOneReverse
+import GQ2.Dyadic.Count.LowerTwoCentralJenningsDegreeTwoReverse
 import GQ2.Dyadic.Count.H3SqAdjointReconstructionDefect
 import GQ2.Dyadic.Count.H3SqReconstructionFiniteDetector
 import GQ2.Dyadic.Count.H3SqReconstructionCoordinateDetector
