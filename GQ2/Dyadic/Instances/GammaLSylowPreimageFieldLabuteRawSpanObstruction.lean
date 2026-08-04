@@ -709,6 +709,134 @@ theorem sqCubicRawShiftLayer_sup_tailLayerSpan_eq_top (h : ℕ) :
   have : y = z := Subtype.ext hyz
   rwa [this] at hy
 
+local instance sqCubicZLayerCommGroup (h : ℕ) :
+    CommGroup (zLayer (SqCore.DSq h : Type) 3) :=
+  { (inferInstance : Group (zLayer (SqCore.DSq h : Type) 3)) with
+    mul_comm := fun a b ↦ Subtype.ext (zLayer_commute a.2 b.1).eq }
+
+private theorem finset_prod_mul_prod_eq_prod_symmDiff
+    {I H : Type*} [DecidableEq I] [CommGroup H]
+    (f : I → H) (hsq : ∀ i, f i * f i = 1) (s t : Finset I) :
+    (∏ i ∈ s, f i) * (∏ i ∈ t, f i) = ∏ i ∈ symmDiff s t, f i := by
+  induction s using Finset.induction generalizing t with
+  | empty => simp [Finset.symmDiff_def]
+  | @insert a s ha ih =>
+      by_cases hat : a ∈ t
+      · let t' := t.erase a
+        have hat' : a ∉ t' := by simp [t']
+        have ht : insert a t' = t := Finset.insert_erase hat
+        have hsd : symmDiff (insert a s) t = symmDiff s t' := by
+          ext x
+          simp only [Finset.mem_symmDiff, Finset.mem_insert]
+          by_cases hxa : x = a
+          · subst x
+            simp [ha, hat, t']
+          · simp [hxa, t']
+        calc
+          (∏ i ∈ insert a s, f i) * (∏ i ∈ t, f i) =
+              (f a * ∏ i ∈ s, f i) * (f a * ∏ i ∈ t', f i) := by
+                rw [Finset.prod_insert ha, ← ht, Finset.prod_insert hat']
+          _ = (f a * f a) * ((∏ i ∈ s, f i) * (∏ i ∈ t', f i)) := by ac_rfl
+          _ = (∏ i ∈ s, f i) * (∏ i ∈ t', f i) := by rw [hsq, one_mul]
+          _ = ∏ i ∈ symmDiff s t', f i := ih t'
+          _ = ∏ i ∈ symmDiff (insert a s) t, f i := by rw [hsd]
+      · have hnot : a ∉ symmDiff s t := by simp [Finset.mem_symmDiff, ha, hat]
+        have hsd : symmDiff (insert a s) t = insert a (symmDiff s t) := by
+          ext x
+          simp only [Finset.mem_symmDiff, Finset.mem_insert]
+          by_cases hxa : x = a
+          · subst x
+            simp [ha, hat]
+          · simp [hxa]
+        calc
+          (∏ i ∈ insert a s, f i) * (∏ i ∈ t, f i) =
+              (f a * ∏ i ∈ s, f i) * (∏ i ∈ t, f i) := by
+                rw [Finset.prod_insert ha]
+          _ = f a * ((∏ i ∈ s, f i) * (∏ i ∈ t, f i)) := by rw [mul_assoc]
+          _ = f a * ∏ i ∈ symmDiff s t, f i := by rw [ih t]
+          _ = ∏ i ∈ insert a (symmDiff s t), f i := (Finset.prod_insert hnot).symm
+          _ = ∏ i ∈ symmDiff (insert a s) t, f i := by rw [hsd]
+
+/-- Every point of the tail span has a squarefree normal form. -/
+theorem sqCubicTailLayerSpan_exists_finset_prod
+    (h : ℕ) (z : zLayer (SqCore.DSq h : Type) 3)
+    (hz : z ∈ sqCubicTailLayerSpan h) :
+    ∃ s : Finset (SqNonTwistedIndex h), z = ∏ i ∈ s, sqCubicTailLayer h i := by
+  let P : Subgroup (zLayer (SqCore.DSq h : Type) 3) :=
+    { carrier := {x | ∃ s : Finset (SqNonTwistedIndex h),
+          x = ∏ i ∈ s, sqCubicTailLayer h i}
+      one_mem' := ⟨∅, by simp⟩
+      mul_mem' := by
+        rintro x y ⟨s, rfl⟩ ⟨t, rfl⟩
+        refine ⟨symmDiff s t, ?_⟩
+        exact finset_prod_mul_prod_eq_prod_symmDiff (sqCubicTailLayer h) (fun i ↦ by
+          apply Subtype.ext
+          simpa [pow_two] using zLayer_sq (SqCore.DSq h : Type) (sqCubicTailLayer h i).2) s t
+      inv_mem' := by
+        rintro x ⟨s, rfl⟩
+        refine ⟨s, ?_⟩
+        apply inv_eq_of_mul_eq_one_right
+        apply Subtype.ext
+        simpa [pow_two] using zLayer_sq (SqCore.DSq h : Type)
+          (show (∏ i ∈ s, sqCubicTailLayer h i).1 ∈
+            zLayer (SqCore.DSq h : Type) 3 from (∏ i ∈ s, sqCubicTailLayer h i).2) }
+  have hle : sqCubicTailLayerSpan h ≤ P := by
+    refine (Subgroup.closure_le P).2 ?_
+    rintro x ⟨i, rfl⟩
+    exact ⟨{i}, by simp⟩
+  exact hle hz
+
+/-- **Exact cubic cokernel theorem.**  Simultaneous vanishing of all explicit mod-`16`
+coordinate derivations is not merely necessary: on the cubic central layer it is exactly
+membership in the literal raw shift span. -/
+theorem sqCubicRawShiftLayer_eq_combinedCoordinateKernel (h : ℕ) :
+    sqCubicRawShiftLayer h = sqCubicCombinedCoordinateKernel h := by
+  apply le_antisymm (sqCubicRawShiftLayer_le_combinedCoordinateKernel h)
+  intro z hz
+  have hzsup : z ∈ sqCubicRawShiftLayer h ⊔ sqCubicTailLayerSpan h := by
+    rw [sqCubicRawShiftLayer_sup_tailLayerSpan_eq_top h]
+    trivial
+  obtain ⟨r, hr, t, ht, hrt⟩ := Subgroup.mem_sup.mp hzsup
+  have hrker : r ∈ sqCubicCombinedCoordinateKernel h :=
+    sqCubicRawShiftLayer_le_combinedCoordinateKernel h hr
+  have htker : t ∈ sqCubicCombinedCoordinateKernel h := by
+    have htEq : t = r⁻¹ * z := by rw [← hrt]; group
+    rw [htEq]
+    exact Subgroup.mul_mem _ (Subgroup.inv_mem _ hrker) hz
+  obtain ⟨s, hs⟩ := sqCubicTailLayerSpan_exists_finset_prod h t ht
+  have hsempty : s = ∅ := by
+    by_contra hsne
+    obtain ⟨i, hi⟩ := Finset.nonempty_iff_ne_empty.mpr hsne
+    have hfull : (∏ j ∈ s, sqCubicTailLayer h j) ∈
+        sqCubicCoordinateKernel h i.1 := by
+      rw [← hs]
+      exact (Subgroup.mem_iInf.mp htker) i
+    have hother : (∏ j ∈ s.erase i, sqCubicTailLayer h j) ∈
+        sqCubicCoordinateKernel h i.1 := by
+      apply Subgroup.prod_mem
+      intro j hj
+      have hji : j ≠ i := by
+        intro hji
+        subst j
+        simp at hj
+      have hval : i.1 ≠ j.1 := by
+        intro hv
+        exact hji (Subtype.ext hv.symm)
+      exact (sqCubicTailLayer_mem_coordinateKernel_iff h i j).2 hval
+    have hprod := Finset.prod_erase_mul s (sqCubicTailLayer h) hi
+    have hone : sqCubicTailLayer h i ∈ sqCubicCoordinateKernel h i.1 := by
+      have hm := Subgroup.mul_mem _ (Subgroup.inv_mem _ hother) hfull
+      have heq : (∏ j ∈ s.erase i, sqCubicTailLayer h j)⁻¹ *
+          (∏ j ∈ s, sqCubicTailLayer h j) = sqCubicTailLayer h i := by
+        rw [← hprod]
+        group
+      rwa [heq] at hm
+    exact (sqCubicTailLayer_mem_coordinateKernel_iff h i i).mp hone rfl
+  rw [hsempty] at hs
+  simp at hs
+  rw [hs, mul_one] at hrt
+  rwa [← hrt]
+
 /-- The `σ⁴` tail is a genuine cokernel class: it is one of the non-twisted tails in the
 augmented theorem, but it does not belong to the literal raw shift span. -/
 theorem sqCore_sigma_rawTail_not_mem_rawShiftSpan (h : ℕ) :
@@ -769,6 +897,8 @@ theorem sqCore_not_rawPureSquareSpanSupply_three (h : ℕ) :
 #print axioms sqCubicRawShiftLayer_le_combinedCoordinateKernel
 #print axioms sqCubicTailLayer_mem_coordinateKernel_iff
 #print axioms sqCubicRawShiftLayer_sup_tailLayerSpan_eq_top
+#print axioms sqCubicTailLayerSpan_exists_finset_prod
+#print axioms sqCubicRawShiftLayer_eq_combinedCoordinateKernel
 
 end
 
