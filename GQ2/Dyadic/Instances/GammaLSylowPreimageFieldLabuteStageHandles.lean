@@ -150,6 +150,33 @@ private theorem list_prod_mul_of_right_central
           rw [hd i]
         _ = (a i * (List.map a l).prod) * (d i * (List.map d l).prod) := by group
 
+/-- A list product in an arbitrary monoid can be evaluated at its unique nontrivial index;
+commutativity is not needed because every other factor is literally one. -/
+private theorem list_map_prod_eq_single_of_nodup
+    {H Ι : Type*} [Monoid H] (l : List Ι) (j : Ι) (f : Ι → H)
+    (hj : j ∈ l) (hnodup : l.Nodup)
+    (hf : ∀ i ∈ l, i ≠ j → f i = 1) :
+    (l.map f).prod = f j := by
+  induction l with
+  | nil => simp at hj
+  | cons a l ih =>
+      have hnd := List.nodup_cons.mp hnodup
+      rcases List.mem_cons.mp hj with haj | hj
+      · subst a
+        have htail : (l.map f).prod = 1 := by
+          apply List.prod_eq_one
+          intro x hx
+          obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hx
+          exact hf b (List.mem_cons_of_mem _ hb) (fun hbj ↦ hnd.1 (hbj ▸ hb))
+        simp only [List.map_cons, List.prod_cons, htail, mul_one]
+      · have haj : a ≠ j := by
+          intro haj
+          exact hnd.1 (haj ▸ hj)
+        have hfa : f a = 1 := hf a (by simp) haj
+        have htail := ih hj hnd.2 (fun i hi hij ↦
+          hf i (List.mem_cons_of_mem _ hi) hij)
+        simp only [List.map_cons, List.prod_cons, hfa, one_mul, htail]
+
 /-- The explicit linearized contribution of every hyperbolic handle.  For the `j`-th pair,
 the `V`-correction brackets with the old `U`-slot and the `U`-correction brackets with the
 old `V`-slot. -/
@@ -728,6 +755,225 @@ theorem sharpNeutralCoordinateShiftHom_zero_apply {h k : ℕ}
   rw [sqCoreHandleDbarWord, hhandle, mul_one]
   simp [sharpNeutralCoordinateHom_correction, dbarWordR2, commP, h10, h20]
 
+/-- The second core coordinate contributes exactly its crossed bracket with the old `σ`
+coordinate; its handle contribution is literally trivial. -/
+theorem sharpNeutralCoordinateShiftHom_one_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (p : sharpNeutralCoordinateSubgroup (K := K)
+      (le_trans (by decide : 1 ≤ 3) hk)) :
+    ((sharpNeutralCoordinateShiftHom T hk 1) p).1 =
+      commP p.1
+        (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 0)) := by
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  have hu1 : ∀ j : Fin h, SqCore.sqHandleIdxU j ≠ (1 : Fin (SqCore.sqRank h)) := by
+    intro j hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqHandleIdxU_val, SqCore.sqVal_one] at hv
+    omega
+  have hv1 : ∀ j : Fin h, SqCore.sqHandleIdxV j ≠ (1 : Fin (SqCore.sqRank h)) := by
+    intro j hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqHandleIdxV_val, SqCore.sqVal_one] at hv
+    omega
+  have h01 : (0 : Fin (SqCore.sqRank h)) ≠ 1 := by
+    intro hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqVal_zero, SqCore.sqVal_one] at hv
+    omega
+  have h21 : (2 : Fin (SqCore.sqRank h)) ≠ 1 := by
+    intro hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqVal_two, SqCore.sqVal_one] at hv
+    omega
+  have hhandle : sqHandleDbarWord base
+      (sharpNeutralCoordinateHom T
+        (le_trans (by decide : 1 ≤ 3) hk) 1 p).correction = 1 := by
+    simp [sqHandleDbarWord, sharpNeutralCoordinateHom_correction, hu1, hv1, commP]
+  change sqCoreHandleDbarWord base
+      (sharpNeutralCoordinateHom T
+        (le_trans (by decide : 1 ≤ 3) hk) 1 p).correction = commP p.1 (base 0)
+  rw [sqCoreHandleDbarWord, hhandle, mul_one]
+  simp [sharpNeutralCoordinateHom_correction, dbarWordR2, commP, h01, h21]
+
+/-- The third core coordinate is the twisted row: its exact image is the square of the
+correction times its crossed bracket with the old `x₁` coordinate. -/
+theorem sharpNeutralCoordinateShiftHom_two_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (p : sharpNeutralCoordinateSubgroup (K := K)
+      (le_trans (by decide : 1 ≤ 3) hk)) :
+    ((sharpNeutralCoordinateShiftHom T hk 2) p).1 =
+      p.1 ^ 2 * commP p.1
+        (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 2)) := by
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  have hu2 : ∀ j : Fin h, SqCore.sqHandleIdxU j ≠ (2 : Fin (SqCore.sqRank h)) := by
+    intro j hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqHandleIdxU_val, SqCore.sqVal_two] at hv
+    omega
+  have hv2 : ∀ j : Fin h, SqCore.sqHandleIdxV j ≠ (2 : Fin (SqCore.sqRank h)) := by
+    intro j hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqHandleIdxV_val, SqCore.sqVal_two] at hv
+    omega
+  have h02 : (0 : Fin (SqCore.sqRank h)) ≠ 2 := by
+    intro hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqVal_zero, SqCore.sqVal_two] at hv
+    omega
+  have h12 : (1 : Fin (SqCore.sqRank h)) ≠ 2 := by
+    intro hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqVal_one, SqCore.sqVal_two] at hv
+    omega
+  have hhandle : sqHandleDbarWord base
+      (sharpNeutralCoordinateHom T
+        (le_trans (by decide : 1 ≤ 3) hk) 2 p).correction = 1 := by
+    simp [sqHandleDbarWord, sharpNeutralCoordinateHom_correction, hu2, hv2, commP]
+  change sqCoreHandleDbarWord base
+      (sharpNeutralCoordinateHom T
+        (le_trans (by decide : 1 ≤ 3) hk) 2 p).correction =
+        p.1 ^ 2 * commP p.1 (base 2)
+  rw [sqCoreHandleDbarWord, hhandle, mul_one]
+  simp [sharpNeutralCoordinateHom_correction, dbarWordR2, commP, h02, h12]
+
+/-- A correction in the `U_j` handle coordinate contributes the improved-presentation atom
+`[p,V_j]`.  The other handle factors and the three core factors are literally trivial. -/
+theorem sharpNeutralCoordinateShiftHom_handleU_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k) (j : Fin h)
+    (p : sharpNeutralCoordinateSubgroup (K := K)
+      (le_trans (by decide : 1 ≤ 3) hk)) :
+    ((sharpNeutralCoordinateShiftHom T hk (SqCore.sqHandleIdxU j)) p).1 =
+      commP p.1 (canonLift (maxProPQuotient 2 (GalK K)) k
+        (T.generators (SqCore.sqHandleIdxV j))) := by
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  let correction := (sharpNeutralCoordinateHom T
+    (le_trans (by decide : 1 ≤ 3) hk) (SqCore.sqHandleIdxU j) p).correction
+  have hVU : ∀ l : Fin h,
+      SqCore.sqHandleIdxV l ≠ SqCore.sqHandleIdxU j := by
+    intro l hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqHandleIdxV_val, SqCore.sqHandleIdxU_val] at hv
+    omega
+  have hUU : ∀ l : Fin h, l ≠ j →
+      SqCore.sqHandleIdxU l ≠ SqCore.sqHandleIdxU j := by
+    intro l hlj hEq
+    apply hlj
+    apply Fin.ext
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqHandleIdxU_val, SqCore.sqHandleIdxU_val] at hv
+    omega
+  have h0 : (0 : Fin (SqCore.sqRank h)) ≠ SqCore.sqHandleIdxU j := by
+    intro hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqVal_zero, SqCore.sqHandleIdxU_val] at hv
+    omega
+  have h1 : (1 : Fin (SqCore.sqRank h)) ≠ SqCore.sqHandleIdxU j := by
+    intro hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqVal_one, SqCore.sqHandleIdxU_val] at hv
+    omega
+  have h2 : (2 : Fin (SqCore.sqRank h)) ≠ SqCore.sqHandleIdxU j := by
+    intro hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqVal_two, SqCore.sqHandleIdxU_val] at hv
+    omega
+  have hcore : dbarWordR2 (base 0) (base 1) (base 2)
+      ![correction 0, correction 1, correction 2] = 1 := by
+    simp [correction, sharpNeutralCoordinateHom_correction, dbarWordR2, commP,
+      h0, h1, h2]
+  let f := fun l : Fin h ↦
+    commP (correction (SqCore.sqHandleIdxV l))
+        (base (SqCore.sqHandleIdxU l)) *
+      commP (correction (SqCore.sqHandleIdxU l))
+        (base (SqCore.sqHandleIdxV l))
+  have hf : ∀ l ∈ List.finRange h, l ≠ j → f l = 1 := by
+    intro l _hl hlj
+    simp [f, correction, sharpNeutralCoordinateHom_correction, hVU l,
+      hUU l hlj, commP]
+  have hprod : ((List.finRange h).map f).prod = f j :=
+    list_map_prod_eq_single_of_nodup (List.finRange h) j f
+      (by simp) (List.nodup_finRange h) hf
+  have hhandle : sqHandleDbarWord base correction =
+      commP p.1 (base (SqCore.sqHandleIdxV j)) := by
+    rw [sqHandleDbarWord]
+    change ((List.finRange h).map f).prod = _
+    rw [hprod]
+    simp [f, correction, sharpNeutralCoordinateHom_correction, hVU j, commP]
+  change sqCoreHandleDbarWord base correction =
+    commP p.1 (base (SqCore.sqHandleIdxV j))
+  rw [sqCoreHandleDbarWord, hcore, one_mul, hhandle]
+
+/-- A correction in the `V_j` handle coordinate contributes the other
+improved-presentation atom `[p,U_j]`. -/
+theorem sharpNeutralCoordinateShiftHom_handleV_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k) (j : Fin h)
+    (p : sharpNeutralCoordinateSubgroup (K := K)
+      (le_trans (by decide : 1 ≤ 3) hk)) :
+    ((sharpNeutralCoordinateShiftHom T hk (SqCore.sqHandleIdxV j)) p).1 =
+      commP p.1 (canonLift (maxProPQuotient 2 (GalK K)) k
+        (T.generators (SqCore.sqHandleIdxU j))) := by
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  let correction := (sharpNeutralCoordinateHom T
+    (le_trans (by decide : 1 ≤ 3) hk) (SqCore.sqHandleIdxV j) p).correction
+  have hUV : ∀ l : Fin h,
+      SqCore.sqHandleIdxU l ≠ SqCore.sqHandleIdxV j := by
+    intro l hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqHandleIdxU_val, SqCore.sqHandleIdxV_val] at hv
+    omega
+  have hVV : ∀ l : Fin h, l ≠ j →
+      SqCore.sqHandleIdxV l ≠ SqCore.sqHandleIdxV j := by
+    intro l hlj hEq
+    apply hlj
+    apply Fin.ext
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqHandleIdxV_val, SqCore.sqHandleIdxV_val] at hv
+    omega
+  have h0 : (0 : Fin (SqCore.sqRank h)) ≠ SqCore.sqHandleIdxV j := by
+    intro hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqVal_zero, SqCore.sqHandleIdxV_val] at hv
+    omega
+  have h1 : (1 : Fin (SqCore.sqRank h)) ≠ SqCore.sqHandleIdxV j := by
+    intro hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqVal_one, SqCore.sqHandleIdxV_val] at hv
+    omega
+  have h2 : (2 : Fin (SqCore.sqRank h)) ≠ SqCore.sqHandleIdxV j := by
+    intro hEq
+    have hv := congrArg Fin.val hEq
+    rw [SqCore.sqVal_two, SqCore.sqHandleIdxV_val] at hv
+    omega
+  have hcore : dbarWordR2 (base 0) (base 1) (base 2)
+      ![correction 0, correction 1, correction 2] = 1 := by
+    simp [correction, sharpNeutralCoordinateHom_correction, dbarWordR2, commP,
+      h0, h1, h2]
+  let f := fun l : Fin h ↦
+    commP (correction (SqCore.sqHandleIdxV l))
+        (base (SqCore.sqHandleIdxU l)) *
+      commP (correction (SqCore.sqHandleIdxU l))
+        (base (SqCore.sqHandleIdxV l))
+  have hf : ∀ l ∈ List.finRange h, l ≠ j → f l = 1 := by
+    intro l _hl hlj
+    simp [f, correction, sharpNeutralCoordinateHom_correction, hUV l,
+      hVV l hlj, commP]
+  have hprod : ((List.finRange h).map f).prod = f j :=
+    list_map_prod_eq_single_of_nodup (List.finRange h) j f
+      (by simp) (List.nodup_finRange h) hf
+  have hhandle : sqHandleDbarWord base correction =
+      commP p.1 (base (SqCore.sqHandleIdxU j)) := by
+    rw [sqHandleDbarWord]
+    change ((List.finRange h).map f).prod = _
+    rw [hprod]
+    simp [f, correction, sharpNeutralCoordinateHom_correction, hUV j, commP]
+  change sqCoreHandleDbarWord base correction =
+    commP p.1 (base (SqCore.sqHandleIdxU j))
+  rw [sqCoreHandleDbarWord, hcore, one_mul, hhandle]
+
 /-- Pointwise multiplication by a sharp-neutral correction preserves sharp admissibility. -/
 noncomputable def SharpAdmissibleCorrection.mulNeutral {h k : ℕ}
     {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
@@ -1029,6 +1275,10 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateHom
 #print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom
 #print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom_zero_apply
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom_one_apply
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom_two_apply
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom_handleU_apply
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom_handleV_apply
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_iff_mem_range
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_of_mem_coordinate_range
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofNeutralResidual
