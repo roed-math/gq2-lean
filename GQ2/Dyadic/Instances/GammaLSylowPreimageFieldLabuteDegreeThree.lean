@@ -608,6 +608,199 @@ def lowerTwoCentralJenningsCubicRemainder (d : ℕ) : ℕ :=
   lowerTwoCentralPBWCubicDimension d -
     (d.choose 3 + d * lowerTwoCentralOneRelatorQuadraticDimension d)
 
+/-- A single marked letter as a homogeneous normal word. -/
+def sqQuadraticHomogeneousOneOfLetter (h : ℕ)
+    (i : Fin (SqCore.sqRank h)) : SqQuadraticHomogeneousNormalWord h 1 :=
+  ⟨⟨[i], by simp⟩, by simp⟩
+
+theorem sqQuadraticHomogeneousOneOfLetter_bijective (h : ℕ) :
+    Function.Bijective (sqQuadraticHomogeneousOneOfLetter h) := by
+  constructor
+  · intro i j hij
+    have hl := congrArg (fun w : SqQuadraticHomogeneousNormalWord h 1 => w.1.1) hij
+    simpa [sqQuadraticHomogeneousOneOfLetter] using hl
+  · rintro ⟨⟨w, hw⟩, hlen⟩
+    rcases w with _ | ⟨i, w⟩
+    · simp at hlen
+    rcases w with _ | ⟨j, w⟩
+    · exact ⟨i, rfl⟩
+    · simp at hlen
+
+/-- Normal quadratic words, displayed as their two letters. -/
+abbrev SqQuadraticNormalPair (h : ℕ) :=
+  {p : Fin (SqCore.sqRank h) × Fin (SqCore.sqRank h) //
+    ¬(p.1 = 1 ∧ p.2 = 0)}
+
+/-- A normal pair as a homogeneous normal word. -/
+def sqQuadraticHomogeneousTwoOfPair (h : ℕ) (p : SqQuadraticNormalPair h) :
+    SqQuadraticHomogeneousNormalWord h 2 :=
+  ⟨⟨[p.1.1, p.1.2], by simpa using p.2⟩, by simp⟩
+
+theorem sqQuadraticHomogeneousTwoOfPair_bijective (h : ℕ) :
+    Function.Bijective (sqQuadraticHomogeneousTwoOfPair h) := by
+  constructor
+  · intro p q hpq
+    have hl := congrArg (fun w : SqQuadraticHomogeneousNormalWord h 2 => w.1.1) hpq
+    apply Subtype.ext
+    have hpairs : p.1.1 = q.1.1 ∧ p.1.2 = q.1.2 := by
+      simpa [sqQuadraticHomogeneousTwoOfPair] using hl
+    exact Prod.ext hpairs.1 hpairs.2
+  · rintro ⟨⟨w, hw⟩, hlen⟩
+    rcases w with _ | ⟨a, w⟩
+    · simp at hlen
+    rcases w with _ | ⟨b, w⟩
+    · simp at hlen
+    rcases w with _ | ⟨c, w⟩
+    · refine ⟨⟨(a, b), ?_⟩, rfl⟩
+      simpa using hw
+    · simp at hlen
+
+/-- A cubic word is normal precisely when neither adjacent pair is the leading word `XS`. -/
+abbrev SqQuadraticNormalTriple (h : ℕ) :=
+  {p : (Fin (SqCore.sqRank h) × Fin (SqCore.sqRank h)) ×
+      Fin (SqCore.sqRank h) //
+    ¬((p.1.1 = 1 ∧ p.1.2 = 0) ∨ (p.1.2 = 1 ∧ p.2 = 0))}
+
+/-- A normal triple as a homogeneous normal word. -/
+def sqQuadraticHomogeneousThreeOfTriple (h : ℕ) (p : SqQuadraticNormalTriple h) :
+    SqQuadraticHomogeneousNormalWord h 3 :=
+  ⟨⟨[p.1.1.1, p.1.1.2, p.1.2], by simpa [not_or] using p.2⟩, by simp⟩
+
+theorem sqQuadraticHomogeneousThreeOfTriple_bijective (h : ℕ) :
+    Function.Bijective (sqQuadraticHomogeneousThreeOfTriple h) := by
+  constructor
+  · intro p q hpq
+    have hl := congrArg (fun w : SqQuadraticHomogeneousNormalWord h 3 => w.1.1) hpq
+    apply Subtype.ext
+    have htriples : p.1.1.1 = q.1.1.1 ∧ p.1.1.2 = q.1.1.2 ∧
+        p.1.2 = q.1.2 := by
+      simpa [sqQuadraticHomogeneousThreeOfTriple] using hl
+    exact Prod.ext (Prod.ext htriples.1 htriples.2.1) htriples.2.2
+  · rintro ⟨⟨w, hw⟩, hlen⟩
+    rcases w with _ | ⟨a, w⟩
+    · simp at hlen
+    rcases w with _ | ⟨b, w⟩
+    · simp at hlen
+    rcases w with _ | ⟨c, w⟩
+    · simp at hlen
+    rcases w with _ | ⟨d, w⟩
+    · refine ⟨⟨((a, b), c), ?_⟩, rfl⟩
+      simpa [not_or] using hw
+    · simp at hlen
+
+/-- There is only one forbidden quadratic word. -/
+private def sqQuadraticBadPairEquiv (h : ℕ) :
+    {p : Fin (SqCore.sqRank h) × Fin (SqCore.sqRank h) //
+      p.1 = 1 ∧ p.2 = 0} ≃ Unit where
+  toFun _ := ()
+  invFun _ := ⟨(1, 0), rfl, rfl⟩
+  left_inv p := by
+    apply Subtype.ext
+    rcases p with ⟨⟨a, b⟩, ha, hb⟩
+    change a = 1 at ha
+    change b = 0 at hb
+    exact Prod.ext ha.symm hb.symm
+  right_inv _ := rfl
+
+theorem card_sqQuadraticNormalPair (h : ℕ) :
+    Fintype.card (SqQuadraticNormalPair h) = SqCore.sqRank h ^ 2 - 1 := by
+  classical
+  rw [Fintype.card_subtype_compl]
+  have hbad : Fintype.card
+      {p : Fin (SqCore.sqRank h) × Fin (SqCore.sqRank h) //
+        p.1 = 1 ∧ p.2 = 0} = 1 := by
+    rw [Fintype.card_congr (sqQuadraticBadPairEquiv h)]
+    exact Fintype.card_unit
+  rw [hbad]
+  simp [pow_two]
+
+private abbrev sqCubicBadLeft (h : ℕ)
+    (p : (Fin (SqCore.sqRank h) × Fin (SqCore.sqRank h)) ×
+      Fin (SqCore.sqRank h)) : Prop :=
+  p.1.1 = 1 ∧ p.1.2 = 0
+
+private abbrev sqCubicBadRight (h : ℕ)
+    (p : (Fin (SqCore.sqRank h) × Fin (SqCore.sqRank h)) ×
+      Fin (SqCore.sqRank h)) : Prop :=
+  p.1.2 = 1 ∧ p.2 = 0
+
+private def sqCubicBadLeftEquiv (h : ℕ) :
+    {p // sqCubicBadLeft h p} ≃ Fin (SqCore.sqRank h) where
+  toFun p := p.1.2
+  invFun c := ⟨((1, 0), c), rfl, rfl⟩
+  left_inv p := by
+    apply Subtype.ext
+    rcases p with ⟨⟨⟨a, b⟩, c⟩, ha, hb⟩
+    change a = 1 at ha
+    change b = 0 at hb
+    subst a
+    subst b
+    rfl
+  right_inv _ := rfl
+
+private def sqCubicBadRightEquiv (h : ℕ) :
+    {p // sqCubicBadRight h p} ≃ Fin (SqCore.sqRank h) where
+  toFun p := p.1.1.1
+  invFun a := ⟨((a, 1), 0), rfl, rfl⟩
+  left_inv p := by
+    apply Subtype.ext
+    rcases p with ⟨⟨⟨a, b⟩, c⟩, hb, hc⟩
+    change b = 1 at hb
+    change c = 0 at hc
+    subst b
+    subst c
+    rfl
+  right_inv _ := rfl
+
+/-- The two forbidden placements of `XS` in a cubic word are disjoint, and each leaves one
+free letter. -/
+theorem card_sqQuadraticNormalTriple (h : ℕ) :
+    Fintype.card (SqQuadraticNormalTriple h) =
+      lowerTwoCentralPBWCubicDimension (SqCore.sqRank h) := by
+  classical
+  let P := sqCubicBadLeft h
+  let Q := sqCubicBadRight h
+  have hdisj : Disjoint P Q := by
+    rw [Pi.disjoint_iff]
+    intro p
+    rw [disjoint_iff_inf_le]
+    rintro ⟨hp, hq⟩
+    exact sqCore_zero_ne_one h (hp.2.symm.trans hq.1)
+  have hbad : Fintype.card {p // P p ∨ Q p} = 2 * SqCore.sqRank h := by
+    rw [Fintype.card_subtype_or_disjoint P Q hdisj,
+      Fintype.card_congr (sqCubicBadLeftEquiv h),
+      Fintype.card_congr (sqCubicBadRightEquiv h), Fintype.card_fin]
+    omega
+  change Fintype.card {p // ¬(P p ∨ Q p)} = _
+  rw [Fintype.card_subtype_compl, hbad]
+  unfold lowerTwoCentralPBWCubicDimension
+  simp only [Fintype.card_prod, Fintype.card_fin]
+  congr 1 <;> ring
+
+/-- The finite PBW normal-word spaces have dimensions `d`, `d²-1`, and `d³-2d` in the only
+three degrees needed by the truncated Jennings calculation. -/
+theorem sqQuadraticPBWFirstThreeDimensions (h : ℕ) :
+    Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 1) =
+        SqCore.sqRank h ∧
+      Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 2) =
+        SqCore.sqRank h ^ 2 - 1 ∧
+      Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 3) =
+        lowerTwoCentralPBWCubicDimension (SqCore.sqRank h) := by
+  constructor
+  · rw [Module.finrank_finsupp_self,
+      Fintype.card_congr
+        (Equiv.ofBijective _ (sqQuadraticHomogeneousOneOfLetter_bijective h)).symm,
+      Fintype.card_fin]
+  constructor
+  · rw [Module.finrank_finsupp_self,
+      Fintype.card_congr
+        (Equiv.ofBijective _ (sqQuadraticHomogeneousTwoOfPair_bijective h)).symm,
+      card_sqQuadraticNormalPair]
+  · rw [Module.finrank_finsupp_self,
+      Fintype.card_congr
+        (Equiv.ofBijective _ (sqQuadraticHomogeneousThreeOfTriple_bijective h)).symm,
+      card_sqQuadraticNormalTriple]
+
 /-- The current normal-word PBW development has finite homogeneous spaces but does not yet
 expose these three symbolic finrank counts.  This is the exact finite combinatorial counting
 package: one letter, all quadratic words except `XS`, and all cubic words except the two
@@ -620,6 +813,11 @@ def SqQuadraticPBWFirstThreeDimensionSupply : Prop :=
         SqCore.sqRank h ^ 2 - 1 ∧
       Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 3) =
         lowerTwoCentralPBWCubicDimension (SqCore.sqRank h)
+
+/-- The symbolic finite normal-word count is fully discharged. -/
+theorem sqQuadraticPBWFirstThreeDimensionSupply :
+    SqQuadraticPBWFirstThreeDimensionSupply :=
+  sqQuadraticPBWFirstThreeDimensions
 
 /-- The coefficient-of-`t^3` truncation of the restricted PBW/Jennings product
 
@@ -699,6 +897,7 @@ theorem lowerTwoCentralJenningsCubicRemainder_three :
 #print axioms card_zLayer_three_dsq_zero_of_labute
 #print axioms maxProTwoGalK_lowerTwoCentralDegreeThreeExpectedCard_of_labute
 #print axioms oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute
+#print axioms sqQuadraticPBWFirstThreeDimensionSupply
 #print axioms lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
 #print axioms dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
 #print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
