@@ -626,6 +626,74 @@ theorem CrossedDerivationSpanSupply.toDefectReachable {h k : ℕ}
     DefectReachable T :=
   S.toCorrectionSurjective.toDefectReachable
 
+/-- Regression for the corrected seam: the level-`k` stage transported from an oriented
+equivalence has a reachable actual defect.  The witness is the coordinatewise difference
+between the canonical lift of the level-`k` marking and the same oriented marking at level
+`k+1`.  It lies in `Z_k`, hence already has the required depth `k-1`; its modified marking is
+literally the level-`k+1` oriented marking, so all exact fibres and the relation are automatic.
+
+This theorem is deliberately independent of the stage induction: it starts from an already
+proved global oriented equivalence and serves as the noncircular `h = 0`/`Q_2` regression. -/
+theorem ofOrientedEquiv_defectReachable {h k : ℕ}
+    (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K))) :
+    DefectReachable (ofOrientedEquiv (k := k) e) := by
+  let T : SqCyclotomicStageTuple K h k := ofOrientedEquiv e
+  let Tnext : SqCyclotomicStageTuple K h (k + 1) := ofOrientedEquiv e
+  let base := fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  let correction := fun i ↦ (base i)⁻¹ * Tnext.generators i
+  have hproj : ∀ i,
+      GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k
+        (Tnext.generators i) = T.generators i := by
+    intro i
+    simp only [T, Tnext, ofOrientedEquiv, levelProj_levelMk]
+  have hmodified : stageModified base correction = Tnext.generators := by
+    funext i
+    simp only [stageModified, correction, base]
+    group
+  have hdepth : ∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1) := by
+    intro i
+    apply lambdaImage_le_of_le (Nat.sub_le k 1)
+    change correction i ∈ zLayer (maxProPQuotient 2 (GalK K)) k
+    rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker]
+    simp only [correction, map_mul, map_inv, base, levelProj_canonLift, hproj]
+    exact inv_mul_cancel _
+  let W : AdmissibleCorrection T :=
+    { correction := correction
+      depth := hdepth
+      sigma := by
+        change ∃ x, chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit ∧
+          stageModified base correction 0 = levelMk _ (k + 1) x
+        rw [hmodified]
+        exact Tnext.sigma
+      x0 := by
+        change ∃ x, chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit ∧
+          stageModified base correction 1 = levelMk _ (k + 1) x
+        rw [hmodified]
+        exact Tnext.x0
+      x1 := by
+        change ∃ x, chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit ∧
+          stageModified base correction 2 = levelMk _ (k + 1) x
+        rw [hmodified]
+        exact Tnext.x1
+      handleU := by
+        intro j
+        change ∃ x, x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+          stageModified base correction (SqCore.sqHandleIdxU j) = levelMk _ (k + 1) x
+        rw [hmodified]
+        exact Tnext.handleU j
+      handleV := by
+        intro j
+        change ∃ x, x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+          stageModified base correction (SqCore.sqHandleIdxV j) = levelMk _ (k + 1) x
+        rw [hmodified]
+        exact Tnext.handleV j }
+  refine ⟨W, ?_⟩
+  change stageShift base correction =
+    (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+  rw [stageShift, hmodified, Tnext.relation, mul_one]
+  rfl
+
 /-- An admissible correction equipped with the exact equation that kills the current defect. -/
 structure DefectKillingCorrection {h k : ℕ}
     (T : SqCyclotomicStageTuple K h k) extends AdmissibleCorrection T where
@@ -768,6 +836,7 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.ofCoreTable_sqRelWord_regression
 #print axioms SqCyclotomicStageTuple.CrossedDerivationSpanSupply.toCorrectionSurjective
 #print axioms SqCyclotomicStageTuple.CrossedDerivationSpanSupply.toDefectReachable
+#print axioms SqCyclotomicStageTuple.ofOrientedEquiv_defectReachable
 #print axioms SqCyclotomicStageTuple.stage_nonempty_all_levels
 #print axioms SqCyclotomicStageTuple.finiteLevelEpiData_nonempty_of_base_and_corrections
 

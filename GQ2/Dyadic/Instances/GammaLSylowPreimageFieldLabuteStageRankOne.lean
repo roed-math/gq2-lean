@@ -39,8 +39,28 @@ theorem sqCyclotomicStageTuple_bot_three_nonempty :
       (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0 3) :=
   sqCyclotomicStageTuple_bot_nonempty 3
 
+/-- Strongest noncircular correction regression currently available at `Q_2`: at every
+level, the exact oriented stage transported from the already-proved global classification has
+its actual defect reachable by an admissible correction. -/
+theorem sqCyclotomicStageTuple_bot_defectReachable (k : ℕ) :
+    ∃ T : SqCyclotomicStageTuple
+        (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0 k,
+      T.DefectReachable := by
+  obtain ⟨e⟩ := orientedSqZeroEquivGalKBot
+  exact ⟨SqCyclotomicStageTuple.ofOrientedEquiv e,
+    SqCyclotomicStageTuple.ofOrientedEquiv_defectReachable e⟩
+
+/-- The preceding correction regression at the base level used by stage induction. -/
+theorem sqCyclotomicStageTuple_bot_three_defectReachable :
+    ∃ T : SqCyclotomicStageTuple
+        (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0 3,
+      T.DefectReachable :=
+  sqCyclotomicStageTuple_bot_defectReachable 3
+
 #print axioms sqCyclotomicStageTuple_bot_nonempty
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
+#print axioms sqCyclotomicStageTuple_bot_defectReachable
+#print axioms sqCyclotomicStageTuple_bot_three_defectReachable
 
 end
 
