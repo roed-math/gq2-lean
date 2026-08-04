@@ -150,6 +150,75 @@ def SharpCyclotomicInflationKernelResidualCompatibility {h k : ℕ}
     SharpNeutralFiveAtomInflationKernelCondition T hk hfg eta →
       sharpNeutralResidualInflationKernelFunctional T hk W hfg eta = 0
 
+/-- Chain-level arithmetic form of the missing compatibility.
+
+For every inflation-kernel class satisfying the five improved-presentation equations, every
+primitive of an inflated cocycle representative must vanish, after normalization at `1`, on a
+lift of the residual layer element.  The quantification over primitives is harmless:
+`lowerTwoCentralPrimitive_restriction_uniqueAt` proves that all primitives have the same
+normalized restriction to `λ_k`.
+
+This is the exact datum absent from B11a as currently exposed.  The norm-criterion axiom proves
+only equality in `H²`; it does not return the Hilbert-90 cochain whose restriction can be
+compared with the sharp cyclotomic digit. -/
+def SharpCyclotomicInflationPrimitiveResidualVanishing {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) : Prop :=
+  let G := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DiscreteTopology Q :=
+    discreteTopology_levelQuot G hfg isProP_maxProPQuotient k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  ∀ (eta : ↥(lowerTwoCentralH2InflationAt G k).ker),
+    SharpNeutralFiveAtomInflationKernelCondition T hk hfg eta →
+      ∀ (z : Z2 Q (ZMod 2)) (b : C1 G (ZMod 2)),
+        H2mk Q (ZMod 2) z = eta.1 →
+        dOne G (ZMod 2) b.1 =
+            (Z2comap ⟨levelMk G k, continuous_levelMk G k⟩
+              (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z).1 →
+          ∀ n : twoCentralSeries G k,
+            levelMk G (k + 1) n.1 = (sharpNeutralResidualElement T hk W).1 →
+              b.1 n.1 - b.1 1 = 0
+
+/-- The primitive restriction calculation implies the desired residual vanishing on the higher
+inflation kernel.  This theorem is the handoff point for an explicit local-class-field-theory
+or Hilbert-90 cochain construction. -/
+theorem sharpCyclotomicInflationKernelResidualCompatibility_of_primitiveVanishing
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (H : SharpCyclotomicInflationPrimitiveResidualVanishing T hk W hfg) :
+    SharpCyclotomicInflationKernelResidualCompatibility T hk W hfg := by
+  let G := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DiscreteTopology Q :=
+    discreteTopology_levelQuot G hfg isProP_maxProPQuotient k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  unfold SharpCyclotomicInflationKernelResidualCompatibility
+  dsimp only
+  intro eta heta
+  obtain ⟨z, b, hz, hdb⟩ := exists_lowerTwoCentralInflationPrimitiveAt G k eta
+  obtain ⟨g, hg, hgr⟩ := (sharpNeutralResidualElement T hk W).2
+  let n : twoCentralSeries G k := ⟨g, hg⟩
+  have hbzero : b.1 n.1 - b.1 1 = 0 := by
+    apply H eta heta z b hz hdb n
+    exact hgr
+  change (lowerTwoCentralTransgressionEquivAt G k (by omega) hfg
+      isProP_maxProPQuotient).symm eta
+        (Additive.ofMul (sharpNeutralResidualElement T hk W)) = 0
+  have hr : sharpNeutralResidualElement T hk W =
+      ⟨levelMk G (k + 1) n.1, ⟨n.1, n.2, rfl⟩⟩ := Subtype.ext hgr.symm
+  rw [hr, lowerTwoCentralTransgressionEquivAt_symm_apply_eq_primitive
+    G k (by omega) hfg isProP_maxProPQuotient eta z hz b hdb]
+  exact hbzero
+
 /-- The named higher arithmetic compatibility is neither stronger nor weaker than the remaining
 regression goal: transgression duality identifies it exactly with residual bracket-span
 membership. -/
@@ -201,6 +270,7 @@ theorem sharpCyclotomicInflationKernelResidualCompatibility_iff_mem_bracketSpan
 end SqCyclotomicStageTuple
 
 #print axioms lowerTwoCentralInflationKernelEvaluationAt_apply
+#print axioms SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_of_primitiveVanishing
 #print axioms SqCyclotomicStageTuple.sharpCyclotomicInflationKernelResidualCompatibility_iff_mem_bracketSpan
 
 end

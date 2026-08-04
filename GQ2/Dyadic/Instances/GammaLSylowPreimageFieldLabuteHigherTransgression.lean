@@ -1137,6 +1137,81 @@ noncomputable def lowerTwoCentralTransgressionEquivAt (k : ℕ) (hk : 2 ≤ k)
   exact AddEquiv.ofBijective (lowerTwoCentralTransgressionAt G k hfg hpro)
     (lowerTwoCentralTransgressionAt_bijective G k hk hfg hpro)
 
+/-- Evaluate inverse transgression directly from any primitive of a cocycle representative.
+
+This is the chain-level reading rule needed by arithmetic consumers: if `z` represents an
+inflation-kernel class `eta` and `b` is a primitive of its inflation, then the inverse
+transgression character at the class of `n ∈ λ_k` is exactly `b(n) - b(1)`.  Primitive
+independence is guaranteed by `lowerTwoCentralPrimitive_restriction_uniqueAt`. -/
+theorem lowerTwoCentralTransgressionEquivAt_symm_apply_eq_primitive
+    (k : ℕ) (hk : 2 ≤ k)
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (eta :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      let Q := levelQuot G k
+      letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      ↥(lowerTwoCentralH2InflationAt G k).ker)
+    (z :
+      let Q := levelQuot G k
+      letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      Z2 Q (ZMod 2))
+    (hz :
+      let Q := levelQuot G k
+      letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      H2mk Q (ZMod 2) z = eta.1)
+    (b :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      C1 G (ZMod 2))
+    (hdb :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      let Q := levelQuot G k
+      letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      dOne G (ZMod 2) b.1 =
+        (Z2comap ⟨levelMk G k, continuous_levelMk G k⟩
+          (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z).1)
+    (n : twoCentralSeries G k) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    (lowerTwoCentralTransgressionEquivAt G k hk hfg hpro).symm eta
+        (Additive.ofMul
+          ⟨levelMk G (k + 1) n.1, ⟨n.1, n.2, rfl⟩⟩) =
+      b.1 n.1 - b.1 1 := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  let E := lowerTwoCentralTransgressionEquivAt G k hk hfg hpro
+  let phi : Additive (zLayer G k) →+ ZMod 2 := E.symm eta
+  obtain ⟨chi, hchi⟩ :=
+    exists_lowerTwoCentralLayerCharacterAt_of_inflation_coboundary G k hk z b hdb
+  have hphi : lowerTwoCentralTransgressionH2At G k hfg hpro phi = eta.1 := by
+    exact congrArg Subtype.val (E.apply_symm_apply eta)
+  have hchi_trans : lowerTwoCentralTransgressionH2At G k hfg hpro chi = eta.1 := by
+    rw [lowerTwoCentralTransgressionH2At_eq_of_primitive G k hfg hpro z b hdb chi hchi,
+      hz]
+  have heq : phi = chi :=
+    lowerTwoCentralTransgressionH2At_injective G k hk hfg hpro (hphi.trans hchi_trans.symm)
+  change phi (Additive.ofMul
+    ⟨levelMk G (k + 1) n.1, ⟨n.1, n.2, rfl⟩⟩) = b.1 n.1 - b.1 1
+  rw [heq, hchi]
+
 end Cocycle
 
 #print axioms lowerTwoCentralSectionDefectAt_cocycle
@@ -1149,6 +1224,7 @@ end Cocycle
 #print axioms lowerTwoCentralTransgressionAt_surjective
 #print axioms lowerTwoCentralTransgressionAt_bijective
 #print axioms lowerTwoCentralTransgressionEquivAt
+#print axioms lowerTwoCentralTransgressionEquivAt_symm_apply_eq_primitive
 
 end
 
