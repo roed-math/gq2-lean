@@ -441,6 +441,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageSchreier
 import GQ2.Dyadic.Instances.GammaLSylowPreimageBurnside
 import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationCriterion
 import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationKernel
+import GQ2.Dyadic.Instances.GammaLSylowPreimageKernelFiniteLevel
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
 import GQ2.Dyadic.Count.Lifts
