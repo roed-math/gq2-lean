@@ -500,6 +500,7 @@ import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedMaxProTwo
 import GQ2.Dyadic.ProTwoReciprocity
 import GQ2.Dyadic.FiniteTwoLocalReciprocity
+import GQ2.Dyadic.FiniteTwoLocalReciprocityKummer
 import GQ2.Dyadic.PrincipalUnitTorsion
 import GQ2.Dyadic.PrincipalUnitCompletion
 import GQ2.Dyadic.DepthPower
