@@ -441,6 +441,90 @@ noncomputable def oddDegreeGalKSqCyclotomicCoreTable
       x0_value := (hsurj GQ2.Roe.rootXUnit).choose_spec
       x1_value := (hsurj GQ2.Roe.YvalUnit).choose_spec }
 
+namespace OddDegreeGalKSqCyclotomicCoreTable
+
+/-- Complete a cyclotomic core table to the forward-generator package for the improved square
+presentation.  The caller supplies a full tuple whose first three entries are the table, whose
+handle entries lie in the cyclotomic kernel, and which topologically generates while killing
+the literal improved relator `sqRelWord`.  All five orientation rows are then automatic.
+
+This constructor deliberately leaves the handle elements unrestricted inside `ker χ`: setting
+them to `1` would make topological generation impossible in higher rank. -/
+def toForwardGeneratorData
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (generators : Fin (SqCore.sqRank h) → maxProPQuotient 2 (GalK K))
+    (hsigma : generators 0 = T.sigma)
+    (hx0 : generators 1 = T.x0)
+    (hx1 : generators 2 = T.x1)
+    (hhandleU : ∀ j : Fin h,
+      generators (SqCore.sqHandleIdxU j) ∈
+        (chiCycKTwo (K := K)).toMonoidHom.ker)
+    (hhandleV : ∀ j : Fin h,
+      generators (SqCore.sqHandleIdxV j) ∈
+        (chiCycKTwo (K := K)).toMonoidHom.ker)
+    (hrelation : SqCore.sqRelWord generators = 1)
+    (htopGen :
+      (Subgroup.closure (Set.range generators)).topologicalClosure = ⊤) :
+    SqCyclotomicForwardGeneratorData h (chiCycKTwo (K := K)) where
+  generators := generators
+  relation := hrelation
+  topGen := htopGen
+  sigma := by rw [hsigma]; exact T.sigma_value
+  x0 := by rw [hx0]; exact T.x0_value
+  x1 := by rw [hx1]; exact T.x1_value
+  handleU j := MonoidHom.mem_ker.mp (hhandleU j)
+  handleV j := MonoidHom.mem_ker.mp (hhandleV j)
+
+@[simp] theorem toForwardGeneratorData_generators
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (generators : Fin (SqCore.sqRank h) → maxProPQuotient 2 (GalK K))
+    (hsigma : generators 0 = T.sigma)
+    (hx0 : generators 1 = T.x0)
+    (hx1 : generators 2 = T.x1)
+    (hhandleU : ∀ j : Fin h,
+      generators (SqCore.sqHandleIdxU j) ∈
+        (chiCycKTwo (K := K)).toMonoidHom.ker)
+    (hhandleV : ∀ j : Fin h,
+      generators (SqCore.sqHandleIdxV j) ∈
+        (chiCycKTwo (K := K)).toMonoidHom.ker)
+    (hrelation : SqCore.sqRelWord generators = 1)
+    (htopGen :
+      (Subgroup.closure (Set.range generators)).topologicalClosure = ⊤) :
+    (T.toForwardGeneratorData h generators hsigma hx0 hx1 hhandleU hhandleV
+      hrelation htopGen).generators = generators :=
+  rfl
+
+/-- Improved-relator regression for the constructor: the retained relation is literally
+`SqCore.sqRelWord` on the supplied tuple.  In particular, this endpoint cannot silently regress
+to the obsolete collector presentation. -/
+theorem toForwardGeneratorData_sqRelWord_regression
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (T : OddDegreeGalKSqCyclotomicCoreTable K) (h : ℕ)
+    (generators : Fin (SqCore.sqRank h) → maxProPQuotient 2 (GalK K))
+    (hsigma : generators 0 = T.sigma)
+    (hx0 : generators 1 = T.x0)
+    (hx1 : generators 2 = T.x1)
+    (hhandleU : ∀ j : Fin h,
+      generators (SqCore.sqHandleIdxU j) ∈
+        (chiCycKTwo (K := K)).toMonoidHom.ker)
+    (hhandleV : ∀ j : Fin h,
+      generators (SqCore.sqHandleIdxV j) ∈
+        (chiCycKTwo (K := K)).toMonoidHom.ker)
+    (hrelation : SqCore.sqRelWord generators = 1)
+    (htopGen :
+      (Subgroup.closure (Set.range generators)).topologicalClosure = ⊤) :
+    SqCore.sqRelWord
+      (T.toForwardGeneratorData h generators hsigma hx0 hx1 hhandleU hhandleV
+        hrelation htopGen).generators = 1 :=
+  hrelation
+
+end OddDegreeGalKSqCyclotomicCoreTable
+
 /-- Regression: the constructor table retains the improved presentation's literal
 `(SvalUnit, rootXUnit, YvalUnit)` rows. -/
 theorem oddDegreeGalKSqCyclotomicCoreTable_regression
@@ -725,6 +809,8 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms fieldMarkedPair_C_eq_top_of_odd_finrank
 #print axioms squareOrientationValues_mem_fieldMarkedPairC_of_odd_finrank
 #print axioms oddDegreeGalKSqCyclotomicCoreTable_regression
+#print axioms OddDegreeGalKSqCyclotomicCoreTable.toForwardGeneratorData
+#print axioms OddDegreeGalKSqCyclotomicCoreTable.toForwardGeneratorData_sqRelWord_regression
 #print axioms oddDegreeGalKSqInvariantData_of_qTwo
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
