@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.LowerTwoCentralJenningsDegreeOneReverse
 import GQ2.Dyadic.Count.H3CompletedQuadraticRelation
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteElementaryH2
 
 /-!
 # Quadratic moments for the reverse degree-two Jennings containment
@@ -30,6 +31,234 @@ open GQ2.Dyadic.MarkedCore
 open scoped commutatorElement
 
 variable {L : Type} [Group L] {c : GQ2.DRCoh.TwoCocycle L}
+
+/-! ## The elementary first lower-central quotient -/
+
+/-- The quotient by `lambda_2` has exponent two. -/
+theorem levelQuot_two_pow_two {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (q : levelQuot G 2) : q ^ 2 = 1 := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G 2 q
+  rw [← map_pow]
+  exact (QuotientGroup.eq_one_iff _).mpr
+    (sq_mem_twoCentralSeries_succ G (Subgroup.mem_top g))
+
+/-- The quotient by `lambda_2` is commutative. -/
+theorem levelQuot_two_mul_comm {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (q r : levelQuot G 2) : q * r = r * q := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G 2 q
+  obtain ⟨k, rfl⟩ := levelMk_surjective G 2 r
+  apply commutatorElement_eq_one_iff_mul_comm.mp
+  rw [← map_commutatorElement]
+  exact (QuotientGroup.eq_one_iff _).mpr
+    (commutator_mem_twoCentralSeries_succ G (Subgroup.mem_top g) k)
+
+/-! ## Central extensions attached to intrinsic quadratic forms -/
+
+section ElementaryQuadraticDetector
+
+variable (V : Type) [CommGroup V] [TopologicalSpace V] [IsTopologicalGroup V]
+  [DiscreteTopology V] [Finite V] [Fact (∀ v : V, v ^ 2 = 1)]
+
+local instance : Module (ZMod 2) (Additive V) :=
+  GQ2.Dyadic.LSquare.instModuleZModOfNatNatAdditive_gQ2 V
+
+local instance : Module.Finite (ZMod 2) (Additive V) := Module.Finite.of_finite
+
+local instance : DistribMulAction V (ZMod 2) :=
+  GQ2.Dyadic.LSquare.instDistribMulActionZModOfNatNat_gQ2_1 V
+
+local instance : ContinuousSMul V (ZMod 2) :=
+  GQ2.Dyadic.LSquare.instContinuousSMulZModOfNatNat_gQ2_1 V
+
+/-- The `DRCoh` normalized cocycle obtained from the canonical upper-triangular bilinear
+refinement of a quadratic form. -/
+def elementaryQuadraticDRCocycle
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :
+    GQ2.DRCoh.TwoCocycle V := by
+  let B := Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+  refine
+    { κ := fun v w => B (Additive.ofMul v) (Additive.ofMul w)
+      norm := by simp [B]
+      cocyc := ?_ }
+  intro g h k
+  change B (Additive.ofMul g) (Additive.ofMul h) +
+      B (Additive.ofMul g + Additive.ofMul h) (Additive.ofMul k) =
+    B (Additive.ofMul g) (Additive.ofMul h + Additive.ofMul k) +
+      B (Additive.ofMul h) (Additive.ofMul k)
+  simp only [map_add, LinearMap.add_apply]
+  abel
+
+/-- The intrinsic quadratic detector is a cup-cocycle extension when its base is elementary
+abelian of exponent two. -/
+theorem elementaryQuadraticDRCocycle_isCup
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :
+    IsCupCocycle (elementaryQuadraticDRCocycle V Q) where
+  comm v w := mul_comm v w
+  expTwo v := by simpa [pow_two] using (Fact.out : ∀ x : V, x ^ 2 = 1) v
+  addLeft v w t := by
+    change Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+        (Additive.ofMul v + Additive.ofMul w) (Additive.ofMul t) =
+      Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+          (Additive.ofMul v) (Additive.ofMul t) +
+        Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+          (Additive.ofMul w) (Additive.ofMul t)
+    have hadd := congrArg
+      (fun f : Additive V →ₗ[ZMod 2] ZMod 2 => f (Additive.ofMul t))
+      (map_add (Q.toBilin (Module.finBasis (ZMod 2) (Additive V)))
+        (Additive.ofMul v) (Additive.ofMul w))
+    simpa using hadd
+  addRight v w t := by
+    change Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+        (Additive.ofMul v) (Additive.ofMul w + Additive.ofMul t) =
+      Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+          (Additive.ofMul v) (Additive.ofMul w) +
+        Q.toBilin (Module.finBasis (ZMod 2) (Additive V))
+          (Additive.ofMul v) (Additive.ofMul t)
+    rw [map_add]
+
+/-- The cohomological and `DRCoh` versions of the intrinsic quadratic cocycle have the same
+pointwise cocycle. -/
+theorem elementaryQuadraticCocycle_eq_elementaryQuadraticDRCocycle
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) (v w : V) :
+    (GQ2.Dyadic.LSquare.elementaryQuadraticCocycle V Q).1 (v, w) =
+      (elementaryQuadraticDRCocycle V Q).κ v w :=
+  rfl
+
+/-- The canonical quadratic cocycle represents the cohomology class from which its quadratic
+form was extracted. -/
+theorem H2mk_elementaryQuadraticCocycle_equiv
+    (η : H2 V (ZMod 2)) :
+    H2mk V (ZMod 2)
+        (GQ2.Dyadic.LSquare.elementaryQuadraticCocycle V
+          (GQ2.Dyadic.LSquare.elementaryH2EquivQuadratic V η)) = η := by
+  apply GQ2.Dyadic.LSquare.elementaryH2ToQuadratic_injective V
+  rw [GQ2.Dyadic.LSquare.elementaryH2ToQuadratic_H2mk,
+    GQ2.Dyadic.LSquare.elementaryCocycleQuadraticMap_elementaryQuadraticCocycle]
+  rfl
+
+end ElementaryQuadraticDetector
+
+/-! ## Quadratic realization of layer characters -/
+
+/-- Every additive character of `lambda_2/lambda_3` is the fibre restriction of a homomorphism
+to a cup-cocycle central extension of the elementary first quotient. -/
+theorem exists_elementaryQuadraticDetector_of_zLayerCharacter (h : ℕ)
+    (chi : Additive (zLayer (DSq h : Type) 2) →+ ZMod 2) :
+    ∃ (c : GQ2.DRCoh.TwoCocycle (levelQuot (DSq h : Type) 2))
+      (_hc : IsCupCocycle c)
+      (φ : (DSq h : Type) →* GQ2.DRCoh.CentExt c),
+      ∀ (g : DSq h) (hg : g ∈ twoCentralSeries (DSq h : Type) 2),
+        (φ g).fib = chi (Additive.ofMul
+          (⟨levelMk (DSq h : Type) 3 g, ⟨g, hg, rfl⟩⟩ :
+            zLayer (DSq h : Type) 2)) := by
+  let G := (DSq h : Type)
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q :=
+    discreteTopology_levelQuot G (dsqFinsetTopGen h) (isProP_DSq h) 2
+  letI : Finite Q :=
+    finite_levelQuot G (dsqFinsetTopGen h) (isProP_DSq h) 2
+  letI : CommGroup Q :=
+    { (inferInstance : Group Q) with
+      mul_comm := levelQuot_two_mul_comm }
+  letI : Fact (∀ q : Q, q ^ 2 = 1) := ⟨levelQuot_two_pow_two⟩
+  letI : Module (ZMod 2) (Additive Q) :=
+    GQ2.Dyadic.LSquare.instModuleZModOfNatNatAdditive_gQ2 Q
+  letI : Module.Finite (ZMod 2) (Additive Q) := Module.Finite.of_finite
+  letI : DistribMulAction Q (ZMod 2) :=
+    GQ2.Dyadic.LSquare.instDistribMulActionZModOfNatNat_gQ2_1 Q
+  letI : ContinuousSMul Q (ZMod 2) :=
+    GQ2.Dyadic.LSquare.instContinuousSMulZModOfNatNat_gQ2_1 Q
+  letI : DistribMulAction G (ZMod 2) := GQ2.Dyadic.scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) :=
+    GQ2.Dyadic.scalarActionZmodTwo_continuousSMul G
+  let z := GQ2.Dyadic.LSquare.lowerTwoCentralTransgressionCocycle G
+    (dsqFinsetTopGen h) (isProP_DSq h) chi
+  let η := H2mk Q (ZMod 2) z
+  let qform := GQ2.Dyadic.LSquare.elementaryH2EquivQuadratic Q η
+  let zq := GQ2.Dyadic.LSquare.elementaryQuadraticCocycle Q qform
+  let c := elementaryQuadraticDRCocycle Q qform
+  have hclass : H2mk Q (ZMod 2) zq = H2mk Q (ZMod 2) z := by
+    change H2mk Q (ZMod 2)
+      (GQ2.Dyadic.LSquare.elementaryQuadraticCocycle Q
+        (GQ2.Dyadic.LSquare.elementaryH2EquivQuadratic Q η)) = η
+    exact H2mk_elementaryQuadraticCocycle_equiv Q η
+  change (QuotientAddGroup.mk zq : H2 Q (ZMod 2)) =
+      QuotientAddGroup.mk z at hclass
+  rw [QuotientAddGroup.eq_iff_sub_mem, AddSubgroup.mem_addSubgroupOf] at hclass
+  change (zq - z).1 ∈ B2 Q (ZMod 2) at hclass
+  obtain ⟨psi, hpsiC, hpsi⟩ := hclass
+  let b0 := GQ2.Dyadic.LSquare.lowerTwoCentralKernelPartC1 G
+    (dsqFinsetTopGen h) (isProP_DSq h) chi
+  let psiInf : G → ZMod 2 := fun g => psi (levelMk G 2 g)
+  let b : G → ZMod 2 := fun g => b0.1 g + psiInf g
+  have hpsi_one : psi 1 = 0 := by
+    have hp := congrFun hpsi (1, 1)
+    change (1 : Q) • psi 1 - psi (1 * 1) + psi 1 =
+      zq.1 (1, 1) - z.1 (1, 1) at hp
+    rw [GQ2.Dyadic.scalarActionZmodTwo_triv Q, one_mul] at hp
+    simp only [sub_self, zero_add] at hp
+    have hzq : zq.1 (1, 1) = 0 := by
+      change c.κ 1 1 = 0
+      exact c.norm
+    have hz : z.1 (1, 1) = 0 := by
+      change chi (Additive.ofMul
+        (GQ2.Dyadic.LSquare.lowerTwoCentralSectionDefect G 1 1)) = 0
+      rw [GQ2.Dyadic.LSquare.lowerTwoCentralSectionDefect_one_one]
+      exact map_zero chi
+    rwa [hzq, hz, sub_zero] at hp
+  have hb_one : b 1 = 0 := by
+    change b0.1 1 + psi 1 = 0
+    rw [hpsi_one]
+    simp [b0, GQ2.Dyadic.LSquare.lowerTwoCentralKernelPartC1]
+  have hb_cocycle (g k : G) :
+      b (g * k) = b g + b k + c.κ (levelMk G 2 g) (levelMk G 2 k) := by
+    have hb0 := congrFun
+      (GQ2.Dyadic.LSquare.lowerTwoCentralTransgression_inflated_eq_dOne G
+        (dsqFinsetTopGen h) (isProP_DSq h) chi) (g, k)
+    have hp := congrFun hpsi (levelMk G 2 g, levelMk G 2 k)
+    change z.1 (levelMk G 2 g, levelMk G 2 k) =
+      g • b0.1 k - b0.1 (g * k) + b0.1 g at hb0
+    change (levelMk G 2 g) • psi (levelMk G 2 k) -
+        psi (levelMk G 2 g * levelMk G 2 k) + psi (levelMk G 2 g) =
+      zq.1 (levelMk G 2 g, levelMk G 2 k) -
+        z.1 (levelMk G 2 g, levelMk G 2 k) at hp
+    rw [GQ2.Dyadic.scalarActionZmodTwo_triv G] at hb0
+    rw [GQ2.Dyadic.scalarActionZmodTwo_triv Q] at hp
+    change z.1 (levelMk G 2 g, levelMk G 2 k) =
+      b0.1 k - b0.1 (g * k) + b0.1 g at hb0
+    rw [← map_mul (levelMk G 2) g k] at hp
+    change psi (levelMk G 2 k) - psi (levelMk G 2 (g * k)) +
+        psi (levelMk G 2 g) =
+      zq.1 (levelMk G 2 g, levelMk G 2 k) -
+        z.1 (levelMk G 2 g, levelMk G 2 k) at hp
+    change b0.1 (g * k) + psi (levelMk G 2 (g * k)) =
+      (b0.1 g + psi (levelMk G 2 g)) +
+        (b0.1 k + psi (levelMk G 2 k)) +
+          c.κ (levelMk G 2 g) (levelMk G 2 k)
+    rw [← elementaryQuadraticCocycle_eq_elementaryQuadraticDRCocycle
+      Q qform]
+    dsimp only [zq] at hp
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) -hb0 - hp
+  let φ : G →* GQ2.DRCoh.CentExt c :=
+    { toFun := fun g => ((levelMk G 2 g, b g) : GQ2.DRCoh.CentExt c)
+      map_one' := GQ2.DRCoh.CentExt.ext (map_one (levelMk G 2)) hb_one
+      map_mul' := by
+        intro g k
+        apply GQ2.DRCoh.CentExt.ext
+        · exact map_mul (levelMk G 2) g k
+        · change b (g * k) = b g + b k +
+            c.κ (levelMk G 2 g) (levelMk G 2 k)
+          exact hb_cocycle g k }
+  refine ⟨c, elementaryQuadraticDRCocycle_isCup Q qform, φ, ?_⟩
+  intro g hg
+  change b0.1 g + psi (levelMk G 2 g) = _
+  have hlevel : levelMk G 2 g = 1 := (QuotientGroup.eq_one_iff g).mpr hg
+  rw [hlevel, hpsi_one, add_zero]
+  change chi (Additive.ofMul
+      (GQ2.Dyadic.LSquare.lowerTwoCentralKernelPart G g)) = _
+  congr 2
+  apply Subtype.ext
+  exact GQ2.Dyadic.LSquare.lowerTwoCentralKernelPart_coe_of_mem G hg
 
 /-- The second lower two-central subgroup of a cup-cocycle central extension lies in its
 central fibre. -/
