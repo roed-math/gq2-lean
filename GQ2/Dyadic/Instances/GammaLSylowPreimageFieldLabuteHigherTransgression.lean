@@ -605,6 +605,95 @@ theorem lowerTwoCentralBocksteinDefectAt_mem_inflationKernel (k : ℕ)
     lowerTwoCentralH2InflationAt_trivialCupPairing]
   exact sub_eq_zero.mpr hcup
 
+/-- Every class in the stage-`k` inflation kernel admits a cocycle representative together
+with an explicit (existentially chosen) continuous primitive after inflation to `G`.
+
+This is the chain-level content of kernel membership.  It is kept separate from the later
+transgression equivalence so arithmetic arguments can inspect the primitive itself. -/
+theorem exists_lowerTwoCentralInflationPrimitiveAt (k : ℕ)
+    (y :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      let Q := levelQuot G k
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      ↥(lowerTwoCentralH2InflationAt G k).ker) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G k
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    ∃ (z : Z2 Q (ZMod 2)) (b : C1 G (ZMod 2)),
+      H2mk Q (ZMod 2) z = y.1 ∧
+        dOne G (ZMod 2) b.1 =
+          (Z2comap ⟨levelMk G k, continuous_levelMk G k⟩
+            (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z).1 := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G k
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  obtain ⟨z, hz⟩ := H2mk_surjective (G := Q) (M := ZMod 2) y.1
+  have hinflated_zero : H2mk G (ZMod 2)
+      (Z2comap ⟨levelMk G k, continuous_levelMk G k⟩
+        (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z) = 0 := by
+    rw [← inf2_H2mk]
+    change lowerTwoCentralH2InflationAt G k (H2mk Q (ZMod 2) z) = 0
+    rw [hz]
+    exact AddMonoidHom.mem_ker.mp y.2
+  have hcob := (QuotientAddGroup.eq_zero_iff
+    (Z2comap ⟨levelMk G k, continuous_levelMk G k⟩
+      (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z)).mp hinflated_zero
+  rw [AddSubgroup.mem_addSubgroupOf] at hcob
+  obtain ⟨bfun, hbcont, hbfun⟩ := hcob
+  exact ⟨z, ⟨bfun, hbcont⟩, hz, hbfun⟩
+
+/-- The restriction of an inflation primitive to `λ_k`, normalized by its value at `1`, is
+independent of the chosen primitive for `k ≥ 2`.
+
+Indeed, the difference of two primitives is a continuous mod-two `1`-cocycle, hence a
+continuous character; every such character kills `λ₂`, and therefore kills `λ_k`.  This is the
+chain-level reason that the secondary transgression character is canonical even though its
+primitive is not. -/
+theorem lowerTwoCentralPrimitive_restriction_uniqueAt (k : ℕ) (hk : 2 ≤ k)
+    (b c :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      C1 G (ZMod 2))
+    (hdbc :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      dOne G (ZMod 2) b.1 = dOne G (ZMod 2) c.1)
+    (n : twoCentralSeries G k) :
+    b.1 n.1 - b.1 1 = c.1 n.1 - c.1 1 := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let a : C1 G (ZMod 2) := b - c
+  have hda : dOne G (ZMod 2) a.1 = 0 := by
+    change dOne G (ZMod 2) (b.1 - c.1) = 0
+    rw [map_sub, hdbc, sub_self]
+  have ha_mul (g h : G) : a.1 (g * h) = a.1 g + a.1 h := by
+    have hd := congrFun hda (g, h)
+    change g • a.1 h - a.1 (g * h) + a.1 g = 0 at hd
+    rw [scalarActionZmodTwo_triv G] at hd
+    linear_combination -hd
+  let za : Z1 G (ZMod 2) :=
+    ⟨a.1, (mem_Z1_iff_of_trivial (scalarActionZmodTwo_triv G)).mpr
+      ⟨a.2, ha_mul⟩⟩
+  let chi : ContinuousMonoidHom G (Multiplicative (ZMod 2)) := Count.homEquivZ1.symm za
+  have hn2 : n.1 ∈ twoCentralSeries G 2 := twoCentralSeries_antitone G hk n.2
+  have hchi : chi n.1 = 1 := MonoidHom.mem_ker.mp
+    (twoCentralSeries_two_le_continuousCharacter_ker chi hn2)
+  have han : a.1 n.1 = 0 := by
+    apply Multiplicative.ofAdd.injective
+    change chi n.1 = Multiplicative.ofAdd 0
+    simpa using hchi
+  have ha1 : a.1 1 = 0 := Z1_apply_one za
+  have han' : b.1 n.1 - c.1 n.1 = 0 := by simpa [a] using han
+  have ha1' : b.1 1 - c.1 1 = 0 := by simpa [a] using ha1
+  rw [← sub_eq_zero]
+  linear_combination han' - ha1'
+
 /-- Every stage-`k` transgression class lies in the kernel of inflation to `G`. -/
 theorem lowerTwoCentralTransgressionH2At_mem_inflationKernel (k : ℕ)
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
