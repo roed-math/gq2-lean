@@ -194,6 +194,139 @@ theorem regularModTwoComponent_sqDiscreteRelator_mem_augmentation
     regularModTwoComponentAugmentation_modTwoFoxDerivative] at hu
   exact hu
 
+/-! ## The actual completed first-layer coordinate -/
+
+/-- The elementary-abelian target carrying all first Magnus coordinates at once. -/
+abbrev SqMagnusOneTarget (h : ℕ) :=
+  Multiplicative (Fin (sqRank h) → ZMod 2)
+
+/-- The improved square relator dies under the universal elementary-abelian marking. -/
+theorem sqMagnusOneMark_relator (h : ℕ) :
+    sqRelWord (sqMagnusOneMark h) = 1 := by
+  rw [sqRelWord_comm]
+  have hsquare (z : SqMagnusOneTarget h) : z ^ 2 = 1 := by
+    rw [pow_two]
+    apply toAdd.injective
+    ext i
+    exact CharTwo.add_self_eq_zero _
+  have hfourth (z : SqMagnusOneTarget h) : z ^ 4 = 1 := by
+    rw [show 4 = 2 * 2 by omega, pow_mul, hsquare]
+  rw [hfourth, hsquare]
+  simp
+
+/-- The simultaneous elementary-abelian first Magnus quotient of `DSq h`. -/
+noncomputable def sqMagnusOneHom (h : ℕ) :
+    ContinuousMonoidHom (DSq h : Type) (SqMagnusOneTarget h) :=
+  sqLiftHom h
+    (isProP_of_isPGroup (IsPGroup.of_card (p := 2) (n := sqRank h) (by
+      rw [Nat.card_eq_fintype_card]
+      simp [SqMagnusOneTarget])))
+    (sqMagnusOneMark h) (sqMagnusOneMark_relator h)
+
+@[simp] theorem sqMagnusOneHom_gen (h : ℕ) (i : Fin (sqRank h)) :
+    sqMagnusOneHom h (sqGen h i) = sqMagnusOneMark h i := by
+  rw [sqMagnusOneHom, sqLiftHom_gen]
+
+/-- The open-normal kernel defining the actual finite quotient used for the completed first
+Magnus coordinate. -/
+noncomputable def sqMagnusOneKernel (h : ℕ) :
+    OpenNormalSubgroup (DSq h : Type) where
+  toSubgroup := (sqMagnusOneHom h).toMonoidHom.ker
+  isOpen' := by
+    change IsOpen ((sqMagnusOneHom h) ⁻¹'
+      ({1} : Set (SqMagnusOneTarget h)))
+    exact (isOpen_discrete ({1} : Set (SqMagnusOneTarget h))).preimage
+      (sqMagnusOneHom h).continuous_toFun
+
+/-- The induced homomorphism from the kernel quotient to the simultaneous Magnus target. -/
+noncomputable def sqMagnusOneQuotientHom (h : ℕ) :
+    ((DSq h : Type) ⧸ (sqMagnusOneKernel h).toSubgroup) →*
+      SqMagnusOneTarget h :=
+  QuotientGroup.lift (sqMagnusOneKernel h).toSubgroup
+    (sqMagnusOneHom h).toMonoidHom (by
+      change (sqMagnusOneHom h).toMonoidHom.ker ≤ _
+      exact le_refl _)
+
+@[simp] theorem sqMagnusOneQuotientHom_marking
+    (h : ℕ) (i : Fin (sqRank h)) :
+    sqMagnusOneQuotientHom h
+        (QuotientGroup.mk' (sqMagnusOneKernel h).toSubgroup (sqGen h i)) =
+      sqMagnusOneMark h i := by
+  exact (QuotientGroup.lift_mk' _ _ (sqGen h i)).trans
+    (sqMagnusOneHom_gen h i)
+
+/-- First moments commute with pushforward of group algebras. -/
+theorem modTwoGroupAlgebraLinearMoment_mapDomain
+    {Q' : Type} [Group Q'] (phi : Q →* Q')
+    (chi : Q' →* Multiplicative (ZMod 2))
+    (x : MonoidAlgebra (ZMod 2) Q) :
+    modTwoGroupAlgebraLinearMoment chi
+        (MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2) phi x) =
+      modTwoGroupAlgebraLinearMoment (chi.comp phi) x := by
+  induction x using MonoidAlgebra.induction_on with
+  | hM q => simp
+  | hadd x y hx hy => simp only [map_add, hx, hy]
+  | hsmul a x hx => simp only [map_smul, hx]
+
+/-- **Actual completed first jet.**  Evaluate the completed Fox row at the canonical open
+elementary-abelian quotient, then apply any coordinate character.  The result is exactly the
+formal quadratic coefficient table.  Together with
+`modTwoGroupAlgebraLinearMoment_eq_zero_of_mem_augmentation_sq`, this identifies the row's
+finite-coordinate class modulo the square of the augmentation ideal. -/
+theorem sqCompletedModTwoFoxDerivativeRow_firstAugmentationCoordinate
+    (h : ℕ) (i a : Fin (sqRank h)) :
+    modTwoGroupAlgebraLinearMoment
+        ((multiplicativeModTwoCharacter (sqMagnusOneCoordinate h a)).comp
+          (sqMagnusOneQuotientHom h))
+        (ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type)
+          (sqMagnusOneKernel h) (sqCompletedModTwoFoxDerivativeRow h i)) =
+      sqQuadraticFoxLinearInitialCoefficient h i a := by
+  rw [sqCompletedModTwoFoxDerivativeRow_coordinate]
+  let m : Fin (sqRank h) →
+      ((DSq h : Type) ⧸ (sqMagnusOneKernel h).toSubgroup) :=
+    fun k => QuotientGroup.mk' (sqMagnusOneKernel h).toSubgroup (sqGen h k)
+  let phi := sqMagnusOneQuotientHom h
+  let chi := multiplicativeModTwoCharacter (sqMagnusOneCoordinate h a)
+  calc
+    modTwoGroupAlgebraLinearMoment (chi.comp phi)
+        (regularModTwoComponent i
+          (modTwoFoxDerivative m (sqDiscreteRelator h))) =
+      modTwoGroupAlgebraLinearMoment chi
+        (MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2) phi
+          (regularModTwoComponent i
+            (modTwoFoxDerivative m (sqDiscreteRelator h)))) := by
+              rw [modTwoGroupAlgebraLinearMoment_mapDomain]
+    _ = modTwoGroupAlgebraLinearMoment chi
+        (regularModTwoComponent i
+          (regularModTwoPushforward phi (Fin (sqRank h))
+            (modTwoFoxDerivative m (sqDiscreteRelator h)))) := by
+              rw [regularModTwoComponent_pushforward]
+    _ = modTwoGroupAlgebraLinearMoment chi
+        (regularModTwoComponent i
+          (modTwoFoxDerivative (sqMagnusOneMark h) (sqDiscreteRelator h))) := by
+              rw [regularModTwoPushforward_modTwoFoxDerivative]
+              congr 3
+              funext k
+              exact sqMagnusOneQuotientHom_marking h k
+    _ = sqQuadraticFoxLinearInitialCoefficient h i a :=
+      modTwoFoxDerivative_sqDiscreteRelator_firstAugmentationCoordinate h i a
+
+/-- The actual completed first-layer functional kills the square of the completed augmentation
+ideal.  This is the finite-coordinate quotient statement needed before constructing all graded
+layers. -/
+theorem sqCompletedFirstMoment_eq_zero_of_mem_augmentation_sq
+    (h : ℕ) (a : Fin (sqRank h))
+    {x : ModTwoCompletedGroupAlgebra (DSq h : Type)}
+    (hx : x ∈ modTwoCompletedAugmentationIdeal (DSq h : Type) ^ 2) :
+    modTwoGroupAlgebraLinearMoment
+        ((multiplicativeModTwoCharacter (sqMagnusOneCoordinate h a)).comp
+          (sqMagnusOneQuotientHom h))
+        (ModTwoCompletedGroupAlgebra.coordinate (DSq h : Type)
+          (sqMagnusOneKernel h) x) = 0 := by
+  apply modTwoGroupAlgebraLinearMoment_eq_zero_of_mem_augmentation_sq
+  exact modTwoCompletedAugmentationIdealPow_coordinate
+    (DSq h : Type) (sqMagnusOneKernel h) 2 hx
+
 /-! ## An honest all-layer completed Magnus interface -/
 
 section GradedIdentification
