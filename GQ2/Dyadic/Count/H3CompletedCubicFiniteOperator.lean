@@ -2429,6 +2429,106 @@ def sqCubicZeroHandleCommutator_secondOrder (h : ℕ) (j : Fin h) :
   dsimp only [u, v] at H ⊢
   simpa only [add_assoc] using H
 
+def sqCubicZeroHandleList_secondOrder (h : ℕ) :
+    (l : List (Fin h)) →
+      SqCubicSecondOrderExpansion h
+        ((l.map fun j =>
+          (commP
+            (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+              (sqHandleIdxU j))
+            (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+              (sqHandleIdxV j))).val).prod)
+  | [] => SqCubicSecondOrderExpansion.one h
+  | j :: l => (sqCubicZeroHandleCommutator_secondOrder h j).mul
+      (sqCubicZeroHandleList_secondOrder h l)
+
+theorem sqCubicZeroHandleList_secondOrder_quadratic (h : ℕ)
+    (l : List (Fin h)) :
+    (sqCubicZeroHandleList_secondOrder h l).quadratic =
+      (l.map fun j =>
+        sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j) *
+            sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) +
+          sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) *
+            sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j)).sum := by
+  induction l with
+  | nil => rfl
+  | cons j l ih =>
+      change
+        (sqCubicZeroHandleCommutator_secondOrder h j).quadratic +
+          (sqCubicZeroHandleList_secondOrder h l).quadratic = _
+      rw [ih]
+      rfl
+
+def sqCubicZeroHandleWord_secondOrder (h : ℕ) :
+    SqCubicSecondOrderExpansion h
+      (MarkedCore.handleWord
+        (fun j => sqCubicCorrectedMarkedUnit h
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
+        (fun j => sqCubicCorrectedMarkedUnit h
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val := by
+  simpa only [MarkedCore.handleWord, List.map_map, Function.comp_apply,
+    Units.val_mul, Units.val_one] using
+    sqCubicZeroHandleList_secondOrder h (List.finRange h)
+
+theorem sqCubicZeroHandleWord_secondOrder_quadratic (h : ℕ) :
+    (sqCubicZeroHandleWord_secondOrder h).quadratic =
+      ∑ j, (sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j) *
+          sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) +
+        sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) *
+          sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j)) := by
+  change (sqCubicZeroHandleList_secondOrder h (List.finRange h)).quadratic = _
+  rw [sqCubicZeroHandleList_secondOrder_quadratic, ← Fin.sum_univ_def]
+
+def sqCubicZeroRelatorSuffix_secondOrder (h : ℕ) :
+    SqCubicSecondOrderExpansion h
+      (sqCubicCorrectedRelatorSuffix h (sqCubicZeroDegreeTwoCorrection h)).val := by
+  let E := (sqCubicZeroYSquare_secondOrder h).mul
+    (sqCubicZeroCoreCommutator_secondOrder h) |>.mul
+      (sqCubicZeroHandleWord_secondOrder h)
+  change SqCubicSecondOrderExpansion h
+    (((sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2) ^ 2).val *
+      (commP
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
+        (conjP
+          (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
+          (sqCubicCorrectedMarkedUnit h
+            (sqCubicZeroDegreeTwoCorrection h) 0))).val) *
+      (MarkedCore.handleWord
+        (fun j => sqCubicCorrectedMarkedUnit h
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
+        (fun j => sqCubicCorrectedMarkedUnit h
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val
+  exact E
+
+def sqCubicZeroRelator_secondOrder (h : ℕ) :
+    SqCubicSecondOrderExpansion h
+      (sqCubicCorrectedRelatorUnit h (sqCubicZeroDegreeTwoCorrection h)).val := by
+  let E := (sqCubicZeroCorePrefix_secondOrder h).mul
+    (sqCubicZeroRelatorSuffix_secondOrder h)
+  have heq := congrArg Units.val
+    (sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix h
+      (sqCubicZeroDegreeTwoCorrection h))
+  exact heq.symm ▸ E
+
+def sqCubicZeroRelatorQuadratic (h : ℕ) : SqCubicOperatorAlgebra h :=
+  sqCubicHomogeneousOperatorLetter h 0 * sqCubicHomogeneousOperatorLetter h 1 +
+    sqCubicHomogeneousOperatorLetter h 1 * sqCubicHomogeneousOperatorLetter h 0 +
+    sqCubicHomogeneousOperatorLetter h 2 * sqCubicHomogeneousOperatorLetter h 2 +
+    ∑ j, (sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j) *
+        sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) +
+      sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) *
+        sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j))
+
+theorem sqCubicZeroRelator_secondOrder_quadratic (h : ℕ) :
+    (sqCubicZeroRelator_secondOrder h).quadratic =
+      sqCubicZeroRelatorQuadratic h := by
+  change sqCubicZeroCorePrefixQuadratic h +
+    (((sqCubicZeroYSquare_secondOrder h).quadratic +
+      (sqCubicZeroCoreCommutator_secondOrder h).quadratic) +
+      (sqCubicZeroHandleWord_secondOrder h).quadratic) = _
+  rw [sqCubicZeroHandleWord_secondOrder_quadratic]
+  rfl
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
