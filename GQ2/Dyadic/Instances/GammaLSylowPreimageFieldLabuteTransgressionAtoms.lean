@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteBracketSpan
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteHigherTransgression
 
 /-!
@@ -208,6 +209,216 @@ theorem lowerTwoCentralTransgressionCocycleAt_sq_apply (k : ℕ)
     sq_lowerTwoCentralSectionLiftAt G k _ hx]
 
 end CocycleEvaluations
+
+section DepthEvaluations
+
+variable (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- A depth-`k-1` modification has central image in `Q_k`. -/
+theorem levelProj_mul_comm_of_mem_lambdaImage_pred (k : ℕ) (hk : 3 ≤ k)
+    (p g : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    levelProj G k p * levelProj G k g = levelProj G k g * levelProj G k p := by
+  have hz := commP_mem_zLayer (G := G) k hk hp g
+  rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker] at hz
+  have hc : commP (levelProj G k p) (levelProj G k g) = 1 := by
+    simpa only [commP, map_mul, map_inv] using hz
+  calc
+    levelProj G k p * levelProj G k g =
+        levelProj G k g * levelProj G k p *
+          commP (levelProj G k p) (levelProj G k g) := by simp only [commP]; group
+    _ = levelProj G k g * levelProj G k p := by rw [hc, mul_one]
+
+/-- A depth-`k-1` modification has order at most two after projection to `Q_k`. -/
+theorem levelProj_sq_of_mem_lambdaImage_pred (k : ℕ) (hk : 3 ≤ k)
+    (p : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    levelProj G k p ^ 2 = 1 := by
+  have hz := sq_mem_zLayer (G := G) k hk hp
+  rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, map_pow] at hz
+  exact hz
+
+/-- Cocycle polarization on the literal bracket atom `[p,g]`, for a depth-`k-1`
+modification `p`. -/
+theorem lowerTwoCentralTransgressionCocycleAt_depth_commP_apply (k : ℕ) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (phi : Additive (zLayer G k) →+ ZMod 2)
+    (p g : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    phi (Additive.ofMul
+      (⟨commP p g, commP_mem_zLayer (G := G) k hk hp g⟩ : zLayer G k)) =
+      (lowerTwoCentralTransgressionCocycleAt G k hfg hpro phi).1
+          (levelProj G k p, levelProj G k g) +
+        (lowerTwoCentralTransgressionCocycleAt G k hfg hpro phi).1
+          (levelProj G k g, levelProj G k p) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_commP_apply G k hfg hpro phi p g
+    (levelProj_mul_comm_of_mem_lambdaImage_pred G k hk p g hp)
+
+/-- Cocycle diagonal evaluation on the literal square atom `p²`, for a depth-`k-1`
+modification `p`. -/
+theorem lowerTwoCentralTransgressionCocycleAt_depth_sq_apply (k : ℕ) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (phi : Additive (zLayer G k) →+ ZMod 2)
+    (p : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    phi (Additive.ofMul
+      (⟨p ^ 2, sq_mem_zLayer (G := G) k hk hp⟩ : zLayer G k)) =
+      (lowerTwoCentralTransgressionCocycleAt G k hfg hpro phi).1
+        (levelProj G k p, levelProj G k p) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_sq_apply G k hfg hpro phi p
+    (levelProj_sq_of_mem_lambdaImage_pred G k hk p hp)
+
+/-- The mixed literal atom `p²[p,g]` evaluates as the sum of the diagonal and
+polarization terms of the factor-set cocycle. -/
+theorem lowerTwoCentralTransgressionCocycleAt_depth_sq_mul_commP_apply
+    (k : ℕ) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (phi : Additive (zLayer G k) →+ ZMod 2)
+    (p g : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    phi (Additive.ofMul
+      (⟨p ^ 2 * commP p g,
+        Subgroup.mul_mem (zLayer G k) (sq_mem_zLayer (G := G) k hk hp)
+          (commP_mem_zLayer (G := G) k hk hp g)⟩ : zLayer G k)) =
+      (lowerTwoCentralTransgressionCocycleAt G k hfg hpro phi).1
+          (levelProj G k p, levelProj G k p) +
+        (lowerTwoCentralTransgressionCocycleAt G k hfg hpro phi).1
+          (levelProj G k p, levelProj G k g) +
+        (lowerTwoCentralTransgressionCocycleAt G k hfg hpro phi).1
+          (levelProj G k g, levelProj G k p) := by
+  change phi (Additive.ofMul
+      (⟨p ^ 2, sq_mem_zLayer (G := G) k hk hp⟩ : zLayer G k) +
+    Additive.ofMul
+      (⟨commP p g, commP_mem_zLayer (G := G) k hk hp g⟩ : zLayer G k)) = _
+  rw [map_add,
+    lowerTwoCentralTransgressionCocycleAt_depth_sq_apply G k hk hfg hpro phi p hp,
+    lowerTwoCentralTransgressionCocycleAt_depth_commP_apply G k hk hfg hpro phi p g hp,
+    add_assoc]
+
+end DepthEvaluations
+
+namespace SqCyclotomicStageTuple
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)]
+  [TotallyDisconnectedSpace (GalK K)]
+
+/-- The first improved core atom `[p,x₁]` is cocycle polarization against generator `1`. -/
+theorem sharpNeutralCoreOneTransgressionCocycle_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2)
+    (p : sharpNeutralCoordinateSubgroup (K := K) (by omega)) :
+    phi (Additive.ofMul
+      (⟨commP p.1 (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 1)),
+        commP_mem_zLayer (G := maxProPQuotient 2 (GalK K)) k hk p.2.1 _⟩ :
+          zLayer (maxProPQuotient 2 (GalK K)) k)) =
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1, T.generators 1) +
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (T.generators 1, GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_depth_commP_apply
+    (maxProPQuotient 2 (GalK K)) k hk hfg isProP_maxProPQuotient phi p.1
+      (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 1)) p.2.1
+
+/-- The second improved core atom `[p,x₀]` is cocycle polarization against generator `0`. -/
+theorem sharpNeutralCoreZeroTransgressionCocycle_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2)
+    (p : sharpNeutralCoordinateSubgroup (K := K) (by omega)) :
+    phi (Additive.ofMul
+      (⟨commP p.1 (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 0)),
+        commP_mem_zLayer (G := maxProPQuotient 2 (GalK K)) k hk p.2.1 _⟩ :
+          zLayer (maxProPQuotient 2 (GalK K)) k)) =
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1, T.generators 0) +
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (T.generators 0, GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_depth_commP_apply
+    (maxProPQuotient 2 (GalK K)) k hk hfg isProP_maxProPQuotient phi p.1
+      (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 0)) p.2.1
+
+/-- The mixed improved core atom `p²[p,x₂]` is the diagonal plus polarization against
+generator `2`. -/
+theorem sharpNeutralCoreTwoTransgressionCocycle_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2)
+    (p : sharpNeutralCoordinateSubgroup (K := K) (by omega)) :
+    phi (Additive.ofMul
+      (⟨p.1 ^ 2 * commP p.1
+          (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 2)),
+        Subgroup.mul_mem _ (sq_mem_zLayer (G := maxProPQuotient 2 (GalK K)) k hk p.2.1)
+          (commP_mem_zLayer (G := maxProPQuotient 2 (GalK K)) k hk p.2.1 _)⟩ :
+          zLayer (maxProPQuotient 2 (GalK K)) k)) =
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1,
+          GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1) +
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1, T.generators 2) +
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (T.generators 2, GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_depth_sq_mul_commP_apply
+    (maxProPQuotient 2 (GalK K)) k hk hfg isProP_maxProPQuotient phi p.1
+      (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 2)) p.2.1
+
+/-- The improved `V_j` handle atom `[p,V_j]` is cocycle polarization against its marked
+generator. -/
+theorem sharpNeutralHandleVTransgressionCocycle_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2)
+    (j : Fin h) (p : sharpNeutralCoordinateSubgroup (K := K) (by omega)) :
+    phi (Additive.ofMul
+      (⟨commP p.1 (canonLift (maxProPQuotient 2 (GalK K)) k
+          (T.generators (SqCore.sqHandleIdxV j))),
+        commP_mem_zLayer (G := maxProPQuotient 2 (GalK K)) k hk p.2.1 _⟩ :
+          zLayer (maxProPQuotient 2 (GalK K)) k)) =
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1,
+          T.generators (SqCore.sqHandleIdxV j)) +
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (T.generators (SqCore.sqHandleIdxV j),
+          GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_depth_commP_apply
+    (maxProPQuotient 2 (GalK K)) k hk hfg isProP_maxProPQuotient phi p.1
+      (canonLift (maxProPQuotient 2 (GalK K)) k
+        (T.generators (SqCore.sqHandleIdxV j))) p.2.1
+
+/-- The improved `U_j` handle atom `[p,U_j]` is cocycle polarization against its marked
+generator. -/
+theorem sharpNeutralHandleUTransgressionCocycle_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2)
+    (j : Fin h) (p : sharpNeutralCoordinateSubgroup (K := K) (by omega)) :
+    phi (Additive.ofMul
+      (⟨commP p.1 (canonLift (maxProPQuotient 2 (GalK K)) k
+          (T.generators (SqCore.sqHandleIdxU j))),
+        commP_mem_zLayer (G := maxProPQuotient 2 (GalK K)) k hk p.2.1 _⟩ :
+          zLayer (maxProPQuotient 2 (GalK K)) k)) =
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1,
+          T.generators (SqCore.sqHandleIdxU j)) +
+      (lowerTwoCentralTransgressionCocycleAt (maxProPQuotient 2 (GalK K)) k hfg
+          isProP_maxProPQuotient phi).1
+        (T.generators (SqCore.sqHandleIdxU j),
+          GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k p.1) := by
+  simpa using lowerTwoCentralTransgressionCocycleAt_depth_commP_apply
+    (maxProPQuotient 2 (GalK K)) k hk hfg isProP_maxProPQuotient phi p.1
+      (canonLift (maxProPQuotient 2 (GalK K)) k
+        (T.generators (SqCore.sqHandleIdxU j))) p.2.1
+
+end SqCyclotomicStageTuple
 
 end
 
