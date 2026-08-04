@@ -2201,6 +2201,18 @@ structure SqCubicSecondOrderExpansion (h : ℕ)
   quadratic_raises : SqCubicOperatorElementRaisesBy h quadratic 2
   cubic_raises : SqCubicOperatorElementRaisesBy h cubic 3
 
+/-- Transport a second-order expansion across an equality of the represented algebra
+elements without unfolding its quadratic and cubic witnesses. -/
+def SqCubicSecondOrderExpansion.congr {h : ℕ}
+    {a b : SqCubicOperatorAlgebra h}
+    (E : SqCubicSecondOrderExpansion h a) (hab : a = b) :
+    SqCubicSecondOrderExpansion h b where
+  quadratic := E.quadratic
+  cubic := E.cubic
+  value_eq := hab.symm.trans E.value_eq
+  quadratic_raises := E.quadratic_raises
+  cubic_raises := E.cubic_raises
+
 def SqCubicSecondOrderExpansion.one (h : ℕ) :
     SqCubicSecondOrderExpansion h 1 where
   quadratic := 0
@@ -2442,6 +2454,15 @@ def sqCubicZeroHandleList_secondOrder (h : ℕ) :
   | j :: l => (sqCubicZeroHandleCommutator_secondOrder h j).mul
       (sqCubicZeroHandleList_secondOrder h l)
 
+/-- Taking values commutes with an ordered list product of units.  Stating this
+explicitly avoids relying on `simp` to recurse through the noncommutative product. -/
+theorem sqCubicUnitsVal_listProd (h : ℕ)
+    (l : List (SqCubicOperatorAlgebra h)ˣ) :
+    l.prod.val = (l.map fun u => u.val).prod := by
+  induction l with
+  | nil => rfl
+  | cons u l ih => simp only [List.prod_cons, Units.val_mul, List.map_cons, ih]
+
 theorem sqCubicZeroHandleList_secondOrder_quadratic (h : ℕ)
     (l : List (Fin h)) :
     (sqCubicZeroHandleList_secondOrder h l).quadratic =
@@ -2465,10 +2486,10 @@ def sqCubicZeroHandleWord_secondOrder (h : ℕ) :
         (fun j => sqCubicCorrectedMarkedUnit h
           (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
         (fun j => sqCubicCorrectedMarkedUnit h
-          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val := by
-  simpa only [MarkedCore.handleWord, List.map_map, Function.comp_apply,
-    Units.val_mul, Units.val_one] using
-    sqCubicZeroHandleList_secondOrder h (List.finRange h)
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val :=
+  (sqCubicZeroHandleList_secondOrder h (List.finRange h)).congr (by
+    rw [MarkedCore.handleWord, sqCubicUnitsVal_listProd]
+    rfl)
 
 theorem sqCubicZeroHandleWord_secondOrder_quadratic (h : ℕ) :
     (sqCubicZeroHandleWord_secondOrder h).quadratic =
@@ -2485,20 +2506,8 @@ def sqCubicZeroRelatorSuffix_secondOrder (h : ℕ) :
   let E := (sqCubicZeroYSquare_secondOrder h).mul
     (sqCubicZeroCoreCommutator_secondOrder h) |>.mul
       (sqCubicZeroHandleWord_secondOrder h)
-  change SqCubicSecondOrderExpansion h
-    (((sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2) ^ 2).val *
-      (commP
-        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
-        (conjP
-          (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
-          (sqCubicCorrectedMarkedUnit h
-            (sqCubicZeroDegreeTwoCorrection h) 0))).val) *
-      (MarkedCore.handleWord
-        (fun j => sqCubicCorrectedMarkedUnit h
-          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
-        (fun j => sqCubicCorrectedMarkedUnit h
-          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val
-  exact E
+  refine E.congr ?_
+  simp only [sqCubicCorrectedRelatorSuffix, Units.val_mul]
 
 def sqCubicZeroRelator_secondOrder (h : ℕ) :
     SqCubicSecondOrderExpansion h
@@ -2508,7 +2517,8 @@ def sqCubicZeroRelator_secondOrder (h : ℕ) :
   have heq := congrArg Units.val
     (sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix h
       (sqCubicZeroDegreeTwoCorrection h))
-  exact heq.symm ▸ E
+  refine E.congr ?_
+  simpa only [Units.val_mul] using heq.symm
 
 def sqCubicZeroRelatorQuadratic (h : ℕ) : SqCubicOperatorAlgebra h :=
   sqCubicHomogeneousOperatorLetter h 0 * sqCubicHomogeneousOperatorLetter h 1 +
@@ -2528,6 +2538,52 @@ theorem sqCubicZeroRelator_secondOrder_quadratic (h : ℕ) :
       (sqCubicZeroHandleWord_secondOrder h).quadratic) = _
   rw [sqCubicZeroHandleWord_secondOrder_quadratic]
   rfl
+
+/-- The quadratic part of the homogeneous relator vanishes by the oriented Diamond
+relation.  This is the point where the improved presentation is used: its literal
+quadratic term is exactly `XS + SX + YY + ∑ (UV + VU)`. -/
+theorem sqCubicZeroRelatorQuadratic_eq_zero (h : ℕ) :
+    sqCubicZeroRelatorQuadratic h = 0 := by
+  apply Unitization.ext
+  · simp [sqCubicZeroRelatorQuadratic, sqCubicHomogeneousOperatorLetter]
+  · apply Subtype.ext
+    change
+      sqCubicTruncatedLeftLetter h 0 * sqCubicTruncatedLeftLetter h 1 +
+          sqCubicTruncatedLeftLetter h 1 * sqCubicTruncatedLeftLetter h 0 +
+          sqCubicTruncatedLeftLetter h 2 * sqCubicTruncatedLeftLetter h 2 +
+          ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+              sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+              sqCubicTruncatedLeftLetter h (sqHandleIdxU j)) = 0
+    rw [sqCubicTruncated_quadraticRelation h]
+    have htwo (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) : 2 • T = 0 :=
+      ZModModule.char_nsmul_eq_zero 2 T
+    have htwoZ (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) :
+        (2 : ℤ) • T = 0 := by
+      simpa [two_zsmul] using htwo T
+    abel_nf
+    simp only [htwoZ]
+
+/-- Unconditionally, the zero-correction improved relator begins in filtration degree
+three.  Its exact second-order expansion has no quadratic part, by
+`sqCubicTruncated_quadraticRelation`; the remaining cubic term raises by three. -/
+theorem sqCubicHomogeneousRelatorEnd_raises_three (h : ℕ) :
+    SqCubicRaisesBy
+      (sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)) 3 := by
+  let E := sqCubicZeroRelator_secondOrder h
+  have hvalue := E.value_eq
+  rw [sqCubicZeroRelator_secondOrder_quadratic,
+    sqCubicZeroRelatorQuadratic_eq_zero] at hvalue
+  have hsnd := congrArg
+    (fun a : SqCubicOperatorAlgebra h =>
+      (a.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h))) hvalue
+  have hend :
+      sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h) =
+        (E.cubic.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h)) := by
+    simpa only [sqCubicCorrectedRelatorEnd, zero_add, Unitization.snd_add,
+      Unitization.snd_one, zero_smul, Unitization.inr_zero] using hsnd
+  rw [hend]
+  exact E.cubic_raises.2
 
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
