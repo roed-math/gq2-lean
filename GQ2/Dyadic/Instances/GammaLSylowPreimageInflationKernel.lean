@@ -42,6 +42,7 @@ namespace GQ2.ContCoh
 noncomputable section
 
 open GQ2.Dyadic.LSquare GQ2.SectionSix
+open scoped Pointwise
 
 section AutomaticDegreeOne
 
@@ -263,6 +264,26 @@ theorem h2KernelConjugationDefect_mem_Z1
     rw [h1, ← h2, hx]
     abel
 
+/-- Literal vanishing of continuous one-cocycles.  When the action is trivial this is the
+cochain-level form of `H¹(H,M)=0`, since every one-coboundary is zero. -/
+def ContinuousH1CocyclesVanish
+    (H : Type*) [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+    (M : Type*) [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+    [DistribMulAction H M] : Prop :=
+  ∀ z : Z1 H M, z = 0
+
+/-- Intrinsic one-cocycle vanishing kills the conjugation defect. -/
+theorem h2KernelConjugationDefect_eq_zero_of_h1CocyclesVanish
+    (htriv : ∀ (n : N) (m : M), n.1 • m = m)
+    (hH1 : ContinuousH1CocyclesVanish N M)
+    (c : Z2 G M) (hzero : ∀ n k : N, c.1 (n.1, k.1) = 0)
+    (g : G) (n : N) : H2KernelConjugationDefect N c g n = 0 := by
+  let defect : Z1 N M :=
+    ⟨H2KernelConjugationDefect N c g,
+      h2KernelConjugationDefect_mem_Z1 N htriv c hzero g⟩
+  have hdefect := congrArg (fun z : Z1 N M => z.1 n) (hH1 defect)
+  simpa only [defect, Subtype.coe_eta, AddSubgroup.coe_zero, Pi.zero_apply] using hdefect
+
 /-- Any correction which is zero on `N` and kills both cross terms forces the intrinsic
 conjugation-defect cocycle to vanish pointwise.  Thus this `Z¹(N,M)` class is a necessary
 obstruction to the cross-term correction supply; ambient-Z1 restriction vanishing does not
@@ -293,6 +314,166 @@ theorem h2KernelConjugationDefect_eq_zero_of_crossTermCorrection
   have heq : c.1 (g, n.1) = c.1 (a.1, g) :=
     add_right_cancel (hr.trans hl.symm)
   rw [heq, sub_self]
+
+/-- For a profinite ambient group, vanishing of the intrinsic conjugation defect is also
+sufficient for a continuous cross-term correction.
+
+Continuity introduces no further quotient-cochain obstruction.  The cocycle is locally zero
+on both axes through the identity, hence on both cross terms of some open normal subgroup `L`.
+After enlarging `L` by `N`, the cocycle vanishes on an open normal subgroup `H`.  Representatives
+of the finite quotient `G/H` then give a continuous right-coset primitive; defect-zero is exactly
+the compatibility which makes the left cross terms vanish as well. -/
+theorem h2CrossTermCorrection_of_conjugationDefect_eq_zero
+    [CompactSpace G] [TotallyDisconnectedSpace G] [DiscreteTopology M]
+    (htriv : ∀ (n : N) (m : M), n.1 • m = m)
+    (c : Z2 G M) (hzero : ∀ n k : N, c.1 (n.1, k.1) = 0)
+    (hdefect : ∀ (g : G) (n : N), H2KernelConjugationDefect N c g n = 0) :
+    ∃ theta : G → M, Continuous theta ∧
+      (∀ n : N, theta n.1 = 0) ∧
+      ∀ (g : G) (n : N),
+        (c.1 + dOne G M theta) (g, n.1) = 0 ∧
+        (c.1 + dOne G M theta) (n.1, g) = 0 := by
+  have hcoc := (mem_Z2_iff.mp c.2).2
+  have hc11 : c.1 (1, 1) = 0 := by
+    simpa using hzero (1 : N) (1 : N)
+  have hc_one_right (g : G) : c.1 (g, 1) = 0 := by
+    have h := hcoc g 1 1
+    rw [hc11, smul_zero, zero_add] at h
+    simp only [mul_one] at h
+    apply add_left_cancel (a := c.1 (g, 1))
+    simpa using h.symm
+  have hc_one_left (g : G) : c.1 (1, g) = 0 := by
+    have h := hcoc 1 1 g
+    rw [hc11, one_smul, add_zero] at h
+    simp only [one_mul] at h
+    apply add_left_cancel (a := c.1 (1, g))
+    simpa using h
+  let Z : Set (G × G) := c.1 ⁻¹' {0}
+  have hZopen : IsOpen Z :=
+    (mem_Z2_iff.mp c.2).1.isOpen_preimage _ (isOpen_discrete {0})
+  have hright : (Set.univ : Set G) ×ˢ ({1} : Set G) ⊆ Z := by
+    rintro ⟨g, _⟩ ⟨-, rfl⟩
+    exact hc_one_right g
+  obtain ⟨_u, v, _huo, hvo, _huniv, h1v, huv⟩ :=
+    generalized_tube_lemma (isCompact_univ : IsCompact (Set.univ : Set G))
+      (isCompact_singleton : IsCompact ({1} : Set G)) hZopen hright
+  have hleft : ({1} : Set G) ×ˢ (Set.univ : Set G) ⊆ Z := by
+    rintro ⟨_, g⟩ ⟨rfl, -⟩
+    exact hc_one_left g
+  obtain ⟨u, _v, huo, _hvo, h1u, _hvuniv, huv'⟩ :=
+    generalized_tube_lemma (isCompact_singleton : IsCompact ({1} : Set G))
+      (isCompact_univ : IsCompact (Set.univ : Set G)) hZopen hleft
+  obtain ⟨L, hL⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+    (huo.inter hvo) ⟨h1u rfl, h1v rfl⟩
+  have hc_right_L (g : G) (l : L) : c.1 (g, l.1) = 0 := by
+    exact huv ⟨_huniv (Set.mem_univ g), (hL l.2).2⟩
+  have hc_left_L (l : L) (g : G) : c.1 (l.1, g) = 0 := by
+    exact huv' ⟨(hL l.2).1, _hvuniv (Set.mem_univ g)⟩
+  let Hsub : Subgroup G := N ⊔ (L : Subgroup G)
+  let H : OpenNormalSubgroup G := {
+    toSubgroup := Hsub
+    isOpen' := Subgroup.isOpen_mono
+      (show (L : Subgroup G) ≤ Hsub from le_sup_right) L.isOpen
+    isNormal' := Subgroup.sup_normal N (L : Subgroup G) }
+  have hNleH : N ≤ (H : Subgroup G) := le_sup_left
+  have hc_right_L' (g l : G) (hl : l ∈ L) : c.1 (g, l) = 0 :=
+    hc_right_L g ⟨l, hl⟩
+  have hc_left_L' (l : G) (hl : l ∈ L) (g : G) : c.1 (l, g) = 0 :=
+    hc_left_L ⟨l, hl⟩ g
+  have hc_right_coset_L (g h l : G) (hl : l ∈ L) :
+      c.1 (g, h * l) = c.1 (g, h) := by
+    have hc := hcoc g h l
+    rw [hc_right_L' h l hl, hc_right_L' (g * h) l hl,
+      smul_zero, zero_add, zero_add] at hc
+    exact hc
+  have hc_left_coset_L (g h l : G) (hl : l ∈ L) :
+      c.1 (g * l, h) = c.1 (g, h) := by
+    let l' : L := ⟨h⁻¹ * l * h, by
+      change h⁻¹ * l * h ∈ L.toSubgroup
+      simpa only [inv_inv] using
+        (inferInstance : L.toSubgroup.Normal).conj_mem l hl h⁻¹⟩
+    have hc := hcoc g l h
+    rw [hc_left_L' l hl h, hc_right_L' g l hl,
+      smul_zero, zero_add, add_zero] at hc
+    have hlh : l * h = h * l'.1 := by dsimp [l']; group
+    rw [hlh, hc_right_coset_L g h l'.1 l'.2] at hc
+    exact hc.symm
+  have hc_H_zero (x y : H) : c.1 (x.1, y.1) = 0 := by
+    have hx : x.1 ∈ ((↑(N ⊔ L.toSubgroup) : Set G)) := x.2
+    rw [Subgroup.normal_mul N L.toSubgroup] at hx
+    have hy : y.1 ∈ ((↑(N ⊔ L.toSubgroup) : Set G)) := y.2
+    rw [Subgroup.normal_mul N L.toSubgroup] at hy
+    obtain ⟨n, hn, l, hl, hxl⟩ := hx
+    obtain ⟨k, hk, r, hr, hyr⟩ := hy
+    rw [← hxl, ← hyr]
+    rw [hc_right_coset_L (n * l) k r hr,
+      hc_left_coset_L n k l hl]
+    exact hzero ⟨n, hn⟩ ⟨k, hk⟩
+  let rep : G → G := fun g => Quotient.out (quotientMk (H : Subgroup G) g)
+  letI : DiscreteTopology (G ⧸ (H : Subgroup G)) :=
+    QuotientGroup.discreteTopology H.isOpen
+  have hrep_cont : Continuous rep := by
+    exact continuous_of_discreteTopology.comp
+      (quotientMk (H : Subgroup G)).continuous_toFun
+  have hrep_quot (g : G) : quotientMk (H : Subgroup G) (rep g) =
+      quotientMk (H : Subgroup G) g := Quotient.out_eq _
+  have htail (g : G) : (rep g)⁻¹ * g ∈ (H : Subgroup G) := by
+    exact QuotientGroup.leftRel_apply.mp (Quotient.exact (hrep_quot g))
+  let theta : G → M := fun g => c.1 (rep g, (rep g)⁻¹ * g)
+  have htheta : Continuous theta := by
+    exact (mem_Z2_iff.mp c.2).1.comp
+      (hrep_cont.prodMk (by fun_prop))
+  have hrep_mul_N (g : G) (n : N) : rep (g * n.1) = rep g := by
+    dsimp [rep]
+    apply congrArg Quotient.out
+    change (quotientMk (H : Subgroup G) g) * quotientMk (H : Subgroup G) n.1 =
+      quotientMk (H : Subgroup G) g
+    have hnq : quotientMk (H : Subgroup G) n.1 = 1 := by
+      change (n.1 : G ⧸ (H : Subgroup G)) = 1
+      exact (QuotientGroup.eq_one_iff n.1).mpr (hNleH n.2)
+    rw [hnq, mul_one]
+  have htheta_N (n : N) : theta n.1 = 0 := by
+    apply hc_H_zero ⟨rep n.1, ?_⟩ ⟨(rep n.1)⁻¹ * n.1, htail n.1⟩
+    have ht := htail n.1
+    have hn := hNleH n.2
+    have heq : rep n.1 = n.1 * ((rep n.1)⁻¹ * n.1)⁻¹ := by group
+    rw [heq]
+    exact (H : Subgroup G).mul_mem hn ((H : Subgroup G).inv_mem ht)
+  have htheta_right (g : G) (n : N) :
+      theta (g * n.1) - theta g = c.1 (g, n.1) := by
+    have ha : (rep g)⁻¹ * g ∈ (H : Subgroup G) := htail g
+    have hnH : n.1 ∈ (H : Subgroup G) := hNleH n.2
+    have hc := hcoc (rep g) ((rep g)⁻¹ * g) n.1
+    rw [hc_H_zero ⟨(rep g)⁻¹ * g, ha⟩ ⟨n.1, hnH⟩,
+      smul_zero, zero_add] at hc
+    dsimp [theta]
+    have hr := hrep_mul_N g n
+    rw [hr]
+    have hmul : (rep g)⁻¹ * (g * n.1) = ((rep g)⁻¹ * g) * n.1 := by group
+    rw [hmul, hc]
+    have hrg : rep g * ((rep g)⁻¹ * g) = g := by group
+    rw [hrg]
+    abel
+  refine ⟨theta, htheta, htheta_N, ?_⟩
+  intro g n
+  constructor
+  · simp only [Pi.add_apply, dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
+      htheta_N, smul_zero, zero_sub]
+    rw [← htheta_right g n]
+    abel
+  · let k : N := ⟨g⁻¹ * n.1 * g, by
+      simpa using (inferInstance : N.Normal).conj_mem n.1 n.2 g⁻¹⟩
+    have hgk : g * k.1 = n.1 * g := by dsimp [k]; group
+    have hd := hdefect g k
+    have hcrossEq : c.1 (g, k.1) = c.1 (n.1, g) := by
+      dsimp [H2KernelConjugationDefect] at hd
+      have hconj : g * k.1 * g⁻¹ = n.1 := by dsimp [k]; group
+      rw [hconj] at hd
+      exact sub_eq_zero.mp hd
+    simp only [Pi.add_apply, dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
+      htheta_N, htriv, add_zero]
+    rw [← hgk, ← hcrossEq, ← htheta_right g k]
+    abel
 
 end ConjugationDefect
 
