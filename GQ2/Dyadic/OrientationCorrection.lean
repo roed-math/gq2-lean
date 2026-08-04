@@ -476,6 +476,18 @@ def orientedEquivN_of_datum {alpha h : ℕ} (halpha : 1 ≤ alpha)
     OrientedContinuousMulEquiv (chiN alpha h) chiG :=
   ⟨f, chiN_matching halpha (pullbackCharacter chiG f) hdatum hU hV⟩
 
+/-- The finite generator table that recognizes the canonical orientation on the improved
+odd square core.  It names the three exceptional core values and requires every stabilizing
+handle to have trivial character. -/
+structure SqOrientationGeneratorValues {h : ℕ}
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
+    (f : ContinuousMulEquiv (DSq h : Type) G) : Prop where
+  sigma : chiG (f (dsqSigma h)) = Roe.SvalUnit
+  x0 : chiG (f (dsqX0 h)) = Roe.rootXUnit
+  x1 : chiG (f (dsqX1 h)) = Roe.YvalUnit
+  handleU : ∀ j : Fin h, chiG (f (sqGen h (sqHandleIdxU j))) = 1
+  handleV : ∀ j : Fin h, chiG (f (sqGen h (sqHandleIdxV j))) = 1
+
 /-- The odd square-commutator precursor is deliberately stated separately.  At general handle
 count the repository has generator-value recognition, but no theorem transporting the rank-three
 `BLabHypothesis` or the `DR` descent predicate to arbitrary `DSq h`. -/
@@ -498,6 +510,35 @@ def orientedEquivSq_of_values {h : ℕ} (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
   have hV' : ∀ j : Fin h, (pullbackCharacter chiG f) (sqGen h (sqHandleIdxV j)) = 1 :=
     hV
   exact ⟨f, chiSq_matching (pullbackCharacter chiG f) hsigma' hx0' hx1' hU' hV'⟩
+
+/-- The five generator rows are exactly equivalent to pointwise compatibility with `chiSq`.
+This turns a future field-presentation theorem into a finite list of cyclotomic value checks;
+there is no further orientation-transport obligation after those checks. -/
+theorem orientationMatches_chiSq_iff_generatorValues {h : ℕ}
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
+    (f : ContinuousMulEquiv (DSq h : Type) G) :
+    OrientationMatches (chiSq h).toMonoidHom chiG.toMonoidHom f ↔
+      SqOrientationGeneratorValues chiG f := by
+  constructor
+  · intro horient
+    refine ⟨?_, ?_, ?_, ?_, ?_⟩
+    · simpa using horient (dsqSigma h)
+    · simpa using horient (dsqX0 h)
+    · simpa using horient (dsqX1 h)
+    · intro j
+      simpa using horient (sqGen h (sqHandleIdxU j))
+    · intro j
+      simpa using horient (sqGen h (sqHandleIdxV j))
+  · rintro ⟨hsigma, hx0, hx1, hU, hV⟩
+    exact (orientedEquivSq_of_values chiG f hsigma hx0 hx1 hU hV).2
+
+/-- Bundled version of generator-value recognition. -/
+def orientedEquivSq_of_generatorValues {h : ℕ}
+    (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
+    (f : ContinuousMulEquiv (DSq h : Type) G)
+    (hvalues : SqOrientationGeneratorValues chiG f) :
+    OrientedContinuousMulEquiv (chiSq h) chiG :=
+  ⟨f, (orientationMatches_chiSq_iff_generatorValues chiG f).2 hvalues⟩
 
 end Recognition
 
