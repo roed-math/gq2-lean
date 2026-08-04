@@ -54,6 +54,12 @@ local notation "U" P => sylowTwoPreimage rhoAB P
 
 /-! ## Index and handle-count arithmetic -/
 
+/-- The expected handle count for an arbitrary finite-index open subgroup of `GammaL`.  The
+oddness premise needed to make the displayed quotient exact is kept on the theorems that use
+this definition. -/
+def gammaLOpenSubgroupHandleCount (U' : Subgroup (gamma h q : Type)) : ℕ :=
+  (U'.index * (1 + 2 * h) - 1) / 2
+
 /-- The actual finite index of the Sylow preimage. -/
 def gammaLSylowPreimageIndex
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : ℕ :=
@@ -62,7 +68,7 @@ def gammaLSylowPreimageIndex
 /-- The handle count predicted by the Demushkin open-subgroup rank formula. -/
 def gammaLSylowPreimageHandleCount
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) : ℕ :=
-  (gammaLSylowPreimageIndex P * (1 + 2 * h) - 1) / 2
+  gammaLOpenSubgroupHandleCount (U P)
 
 /-- The preimage index agrees with the finite Sylow index. -/
 theorem gammaLSylowPreimageIndex_eq_sylowIndex
@@ -76,15 +82,26 @@ theorem odd_gammaLSylowPreimageIndex
     Odd (gammaLSylowPreimageIndex P) :=
   odd_sylowTwoPreimage_index rhoAB pairFiniteActionImageHom_surjective P
 
+/-- At index one the variable-core handle count specializes back to the ambient handle count. -/
+theorem gammaLSylowPreimageHandleCount_eq_of_index_one
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B)))
+    (hindex : gammaLSylowPreimageIndex P = 1) :
+    gammaLSylowPreimageHandleCount P = h := by
+  change (U P).index = 1 at hindex
+  rw [gammaLSylowPreimageHandleCount, gammaLOpenSubgroupHandleCount, hindex]
+  omega
+
 /-- The computed handle count has exactly the expected open-subgroup rank. -/
 theorem gammaLSylowPreimageHandleCount_rank
     (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
     3 + 2 * gammaLSylowPreimageHandleCount P =
       2 + gammaLSylowPreimageIndex P * (1 + 2 * h) := by
   obtain ⟨k, hk⟩ := odd_gammaLSylowPreimageIndex P
+  change (U P).index = 2 * k + 1 at hk
   have hprod : (2 * k + 1) * (1 + 2 * h) =
       2 * (2 * k * h + k + h) + 1 := by ring
-  rw [gammaLSylowPreimageHandleCount, hk, hprod]
+  rw [gammaLSylowPreimageHandleCount, gammaLOpenSubgroupHandleCount,
+    gammaLSylowPreimageIndex, hk, hprod]
   rw [Nat.add_sub_cancel,
     Nat.mul_div_right _ (by norm_num : 0 < 2)]
   ring
@@ -112,6 +129,30 @@ def GammaLSylowPreimageVariableCorePresentation
   Nonempty (ContinuousMulEquiv
     (maxProPQuotient 2 (U P))
     (SqCore.DSq (gammaLSylowPreimageHandleCount P)))
+
+/-- The natural group-theoretic theorem which would supply the pointwise presentation above:
+every odd-index open subgroup of `GammaL` has the variable-rank square presentation predicted by
+the Demushkin Schreier formula.
+
+For an arithmetic realization of `GammaL`, this is the exact place to use Galois
+correspondence, the degree formula for the corresponding finite extension, and the local-field
+Demushkin presentation theorem.  None of those steps is currently exposed by the repository as
+one theorem. -/
+def GammaLOddIndexOpenSubgroupVariableCorePresentationSupply (h q : ℕ) : Prop :=
+  ∀ (U' : Subgroup (gamma h q : Type)) [CompactSpace U'],
+    IsOpen (U' : Set (gamma h q : Type)) → Odd U'.index →
+      Nonempty (ContinuousMulEquiv
+        (maxProPQuotient 2 U')
+        (SqCore.DSq (gammaLOpenSubgroupHandleCount U')))
+
+/-- The open-subgroup presentation theorem specializes immediately to every coefficient-action
+Sylow preimage. -/
+theorem gammaLSylowPreimageVariableCorePresentation_of_oddIndexOpenSubgroups
+    (S : GammaLOddIndexOpenSubgroupVariableCorePresentationSupply h q)
+    (P : Sylow 2 (PairFiniteActionImage (h := h) (q := q) (A := A) (B := B))) :
+    GammaLSylowPreimageVariableCorePresentation P :=
+  S (U P) (isOpen_sylowTwoPreimage rhoAB P)
+    (odd_sylowTwoPreimage_index rhoAB pairFiniteActionImageHom_surjective P)
 
 /-- A supplied variable-core presentation transports the square-core finite-elementary CD-2
 tail to the maximal pro-`2` quotient of the actual Sylow preimage. -/
