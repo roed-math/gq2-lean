@@ -9,6 +9,8 @@ import GQ2.Dyadic.Count.H2SylowPreimageDevissage
 import GQ2.Dyadic.Count.Scalar
 import GQ2.Dyadic.LocalGauss.PairingK
 import GQ2.MaxProPCohomology
+import Mathlib.Topology.ContinuousMap.Basic
+import Mathlib.Topology.Separation.Hausdorff
 
 /-!
 # Epimorphism rigidity for pro-two Demushkin groups
@@ -373,6 +375,239 @@ theorem demushkinEpimorphism_bijective_of_kernelCharacterBoundary
     f hH1.2 hH2.1 hdetect hsupply, hf⟩
 
 end KernelBoundary
+
+section FiveTerm
+
+variable {G H : Type}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+  [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+  [T2Space H]
+
+local instance scalarActionG_fiveTerm : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+local instance scalarContinuousG_fiveTerm : ContinuousSMul G (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul G
+local instance scalarActionH_fiveTerm : DistribMulAction H (ZMod 2) := scalarActionZmodTwo H
+local instance scalarContinuousH_fiveTerm : ContinuousSMul H (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul H
+
+variable (f : ContinuousMonoidHom G H)
+
+private abbrev EpiKernel : Subgroup G := f.toMonoidHom.ker
+
+local instance scalarActionKernel : DistribMulAction (EpiKernel f) (ZMod 2) :=
+  scalarActionZmodTwo (EpiKernel f)
+local instance scalarContinuousKernel : ContinuousSMul (EpiKernel f) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul (EpiKernel f)
+
+/-- The exact continuous-cochain input needed to construct transgression.
+
+An arbitrary continuous extension of `chi` is not enough: its coboundary need not be constant
+on kernel cosets.  The extension must satisfy `b(gn) = b(g) + chi(n)`.  Algebraically such an
+extension is obtained from right-coset representatives.  Continuously, for profinite groups and
+finite coefficients, one expects to choose the representatives after factoring `chi` through a
+finite normal-core quotient. -/
+def InvariantKernelCharacterEquivariantExtensionSupply : Prop :=
+  ∀ (chi : ContinuousMonoidHom (EpiKernel f) (Multiplicative (ZMod 2))),
+    IsInvariantKernelCharacter f chi →
+    ∃ b : G → ZMod 2, Continuous b ∧
+      (∀ n : EpiKernel f, b n.1 = Multiplicative.toAdd (chi n)) ∧
+      ∀ (g : G) (n : EpiKernel f),
+        b (g * n.1) = b g + Multiplicative.toAdd (chi n)
+
+private theorem equivariantExtension_coboundary_right_coset
+    (chi : ContinuousMonoidHom (EpiKernel f) (Multiplicative (ZMod 2)))
+    (b : G → ZMod 2)
+    (hb : ∀ (g : G) (n : EpiKernel f),
+      b (g * n.1) = b g + Multiplicative.toAdd (chi n))
+    (g h : G) (n : EpiKernel f) :
+    dOne G (ZMod 2) b (g, h * n.1) = dOne G (ZMod 2) b (g, h) := by
+  simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
+    scalarActionZmodTwo_triv G]
+  rw [hb h n, show g * (h * n.1) = (g * h) * n.1 by group, hb (g * h) n]
+  abel
+
+private theorem equivariantExtension_coboundary_left_coset
+    (chi : ContinuousMonoidHom (EpiKernel f) (Multiplicative (ZMod 2)))
+    (hchi : IsInvariantKernelCharacter f chi)
+    (b : G → ZMod 2)
+    (hb : ∀ (g : G) (n : EpiKernel f),
+      b (g * n.1) = b g + Multiplicative.toAdd (chi n))
+    (g h : G) (n : EpiKernel f) :
+    dOne G (ZMod 2) b (g * n.1, h) = dOne G (ZMod 2) b (g, h) := by
+  let nh : EpiKernel f := ⟨h⁻¹ * n.1 * h, by
+    change f (h⁻¹ * n.1 * h) = 1
+    have hn : f n.1 = 1 := n.2
+    rw [map_mul, map_mul, map_inv, hn, mul_one, inv_mul_cancel]⟩
+  have hmul : (g * n.1) * h = (g * h) * nh.1 := by
+    dsimp [nh]
+    group
+  have hchin : Multiplicative.toAdd (chi nh) = Multiplicative.toAdd (chi n) := by
+    have hval := congrArg Multiplicative.toAdd (hchi h⁻¹ n)
+    convert hval using 1
+    apply congrArg (fun m : EpiKernel f => Multiplicative.toAdd (chi m))
+    apply Subtype.ext
+    simp [nh]
+  simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
+    scalarActionZmodTwo_triv G]
+  rw [hmul, hb (g * h) nh, hb g n, hchin]
+  abel
+
+/-- An equivariant extension gives the literal continuous transgression cocycle downstairs.
+
+The quotient-map lift is along `f × f`; no continuous section of `f` is assumed. -/
+private theorem exists_kernelCharacter_transgressionCocycle
+    (hf : Function.Surjective f)
+    (chi : ContinuousMonoidHom (EpiKernel f) (Multiplicative (ZMod 2)))
+    (hchi : IsInvariantKernelCharacter f chi)
+    (b : G → ZMod 2) (hbcont : Continuous b)
+    (hb : ∀ (g : G) (n : EpiKernel f),
+      b (g * n.1) = b g + Multiplicative.toAdd (chi n)) :
+    ∃ c : Z2 H (ZMod 2), ∀ g h : G,
+      c.1 (f g, f h) = dOne G (ZMod 2) b (g, h) := by
+  let f2 : C(G × G, H × H) :=
+    ⟨fun p => (f p.1, f p.2),
+      (f.continuous_toFun.comp continuous_fst).prodMk
+        (f.continuous_toFun.comp continuous_snd)⟩
+  have hf2 : Function.Surjective f2 := by
+    rintro ⟨x, y⟩
+    obtain ⟨g, rfl⟩ := hf x
+    obtain ⟨h, rfl⟩ := hf y
+    exact ⟨(g, h), rfl⟩
+  have hq : Topology.IsQuotientMap f2 :=
+    IsQuotientMap.of_surjective_continuous hf2 f2.continuous
+  let db : C(G × G, ZMod 2) :=
+    ⟨dOne G (ZMod 2) b,
+      ((continuous_fst.smul (hbcont.comp continuous_snd)).sub
+        (hbcont.comp (continuous_fst.mul continuous_snd))).add
+          (hbcont.comp continuous_fst)⟩
+  have hfactor : Function.FactorsThrough db f2 := by
+    rintro ⟨g₁, h₁⟩ ⟨g₂, h₂⟩ hp
+    have hg : f g₁ = f g₂ := congrArg Prod.fst hp
+    have hh : f h₁ = f h₂ := congrArg Prod.snd hp
+    let ng : EpiKernel f := ⟨g₁⁻¹ * g₂, by
+      change f (g₁⁻¹ * g₂) = 1
+      rw [map_mul, map_inv, hg, inv_mul_cancel]⟩
+    let nh : EpiKernel f := ⟨h₁⁻¹ * h₂, by
+      change f (h₁⁻¹ * h₂) = 1
+      rw [map_mul, map_inv, hh, inv_mul_cancel]⟩
+    have hgmul : g₁ * ng.1 = g₂ := by dsimp [ng]; group
+    have hhmul : h₁ * nh.1 = h₂ := by dsimp [nh]; group
+    change dOne G (ZMod 2) b (g₁, h₁) = dOne G (ZMod 2) b (g₂, h₂)
+    rw [← hgmul, ← hhmul,
+      equivariantExtension_coboundary_left_coset f chi hchi b hb,
+      equivariantExtension_coboundary_right_coset f chi b hb]
+  let bar : C(H × H, ZMod 2) := hq.lift db hfactor
+  have hbar (g h : G) : bar (f g, f h) = dOne G (ZMod 2) b (g, h) := by
+    have happ := congrArg (fun k : C(G × G, ZMod 2) => k (g, h))
+      (Topology.IsQuotientMap.lift_comp hq db hfactor)
+    exact happ
+  have hbarZ2 : (bar : H × H → ZMod 2) ∈ Z2 H (ZMod 2) := by
+    refine mem_Z2_iff.mpr ⟨bar.continuous, ?_⟩
+    intro x y z
+    obtain ⟨g, rfl⟩ := hf x
+    obtain ⟨h, rfl⟩ := hf y
+    obtain ⟨k, rfl⟩ := hf z
+    rw [hbar h k, ← map_mul, hbar g (h * k), ← map_mul,
+      hbar (g * h) k, hbar g h]
+    have hcob : dOne G (ZMod 2) b ∈ Z2 G (ZMod 2) := by
+      apply B2_le_Z2
+      exact ⟨b, hbcont, rfl⟩
+    exact (mem_Z2_iff.mp hcob).2 g h k
+  exact ⟨⟨bar, hbarZ2⟩, hbar⟩
+
+/-- The transgression of an invariant kernel character always inflates to zero: its pullback is
+the explicit coboundary `d¹ b`. -/
+private theorem kernelCharacter_transgression_inflation_eq_zero
+    (hf : Function.Surjective f)
+    (chi : ContinuousMonoidHom (EpiKernel f) (Multiplicative (ZMod 2)))
+    (hchi : IsInvariantKernelCharacter f chi)
+    (b : G → ZMod 2) (hbcont : Continuous b)
+    (hb : ∀ (g : G) (n : EpiKernel f),
+      b (g * n.1) = b g + Multiplicative.toAdd (chi n)) :
+    ∃ c : Z2 H (ZMod 2),
+      demushkinH2Inflation f (H2mk H (ZMod 2) c) = 0 ∧
+      ∀ g h : G, c.1 (f g, f h) = dOne G (ZMod 2) b (g, h) := by
+  obtain ⟨c, hc⟩ :=
+    exists_kernelCharacter_transgressionCocycle f hf chi hchi b hbcont hb
+  refine ⟨c, ?_, hc⟩
+  rw [demushkinH2Inflation, inf2_H2mk]
+  apply (QuotientAddGroup.eq_zero_iff _).mpr
+  rw [AddSubgroup.mem_addSubgroupOf]
+  refine ⟨b, hbcont, ?_⟩
+  funext p
+  exact (hc p.1 p.2).symm
+
+/-- The explicit continuous-cochain five-term argument.
+
+Injectivity in degree two kills the transgression.  A primitive downstairs then changes the
+equivariant extension into an ambient one-cocycle extending `chi`.  Surjectivity in degree one
+forces that ambient cocycle to descend from `H`, and hence to vanish on `ker f`. -/
+theorem h1H2InflationDetectsInvariantKernelCharacters_of_equivariantExtension
+    (hf : Function.Surjective f)
+    (hext : InvariantKernelCharacterEquivariantExtensionSupply f) :
+    H1H2InflationDetectsInvariantKernelCharacters f := by
+  intro hH1 hH2 chi hchi
+  obtain ⟨b, hbcont, hbker, hb⟩ := hext chi hchi
+  obtain ⟨c, hcinf, hc⟩ :=
+    kernelCharacter_transgression_inflation_eq_zero f hf chi hchi b hbcont hb
+  have hc0 : H2mk H (ZMod 2) c = 0 := hH2 (by simpa using hcinf)
+  have hcmem := (QuotientAddGroup.eq_zero_iff c).mp hc0
+  rw [AddSubgroup.mem_addSubgroupOf] at hcmem
+  obtain ⟨a, hacont, ha⟩ := hcmem
+  let zfun : G → ZMod 2 := fun g => b g - a (f g)
+  have hzcont : Continuous zfun := hbcont.sub (hacont.comp f.continuous_toFun)
+  have hzmem : zfun ∈ Z1 G (ZMod 2) := by
+    refine mem_Z1_iff.mpr ⟨hzcont, ?_⟩
+    intro g h
+    have hca := congrFun ha (f g, f h)
+    change dOne H (ZMod 2) a (f g, f h) = c.1 (f g, f h) at hca
+    rw [hc] at hca
+    simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
+      scalarActionZmodTwo_triv H, scalarActionZmodTwo_triv G, map_mul] at hca ⊢
+    dsimp [zfun]
+    rw [map_mul]
+    rw [← sub_eq_zero]
+    rw [← sub_eq_zero] at hca
+    abel_nf at hca ⊢
+    exact hca
+  let z : Z1 G (ZMod 2) := ⟨zfun, hzmem⟩
+  have hb1 : b 1 = 0 := by
+    change b (1 : EpiKernel f).1 = 0
+    rw [hbker (1 : EpiKernel f)]
+    change Multiplicative.toAdd (chi 1) = 0
+    rw [map_one]
+    rfl
+  have ha1 : a 1 = 0 := by
+    have hz1 := Z1_apply_one z
+    change b 1 - a (f 1) = 0 at hz1
+    simpa [hb1] using hz1
+  obtain ⟨x, hx⟩ := hH1 (H1mk G (ZMod 2) z)
+  obtain ⟨w, rfl⟩ := H1mk_surjective (G := H) (M := ZMod 2) x
+  rw [demushkinH1Inflation, inf1_H1mk] at hx
+  have hmk_inj : Function.Injective (H1mk G (ZMod 2)) := by
+    apply (injective_iff_map_eq_zero _).mpr
+    intro u hu
+    have hmem := (QuotientAddGroup.eq_zero_iff u).mp hu
+    rw [AddSubgroup.mem_addSubgroupOf,
+      B1_eq_bot_of_trivial (scalarActionZmodTwo_triv G), AddSubgroup.mem_bot] at hmem
+    exact Subtype.ext hmem
+  have hxz := hmk_inj hx
+  intro n
+  have hn : f n.1 = 1 := n.2
+  have hw1 : w.1 1 = 0 := Z1_apply_one w
+  have hzn : z.1 n.1 = 0 := by
+    have happ := congrArg (fun u : Z1 G (ZMod 2) => u.1 n.1) hxz
+    simpa only [Z1comap, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
+      AddMonoidHom.id_apply, hn, hw1] using happ.symm
+  apply Multiplicative.toAdd.injective
+  change Multiplicative.toAdd (chi n) = 0
+  have hzker : z.1 n.1 = Multiplicative.toAdd (chi n) := by
+    change b n.1 - a (f n.1) = Multiplicative.toAdd (chi n)
+    rw [hbker n, hn, ha1, sub_zero]
+  exact hzker ▸ hzn
+
+end FiveTerm
 
 end
 
