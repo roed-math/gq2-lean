@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteBracketSpan
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteCharacterBoundary
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteHigherTransgression
 
 /-!
@@ -215,6 +216,7 @@ section DepthEvaluations
 variable (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- A depth-`k-1` modification has central image in `Q_k`. -/
 theorem levelProj_mul_comm_of_mem_lambdaImage_pred (k : ℕ) (hk : 3 ≤ k)
     (p g : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
@@ -229,6 +231,7 @@ theorem levelProj_mul_comm_of_mem_lambdaImage_pred (k : ℕ) (hk : 3 ≤ k)
           commP (levelProj G k p) (levelProj G k g) := by simp only [commP]; group
     _ = levelProj G k g * levelProj G k p := by rw [hc, mul_one]
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- A depth-`k-1` modification has order at most two after projection to `Q_k`. -/
 theorem levelProj_sq_of_mem_lambdaImage_pred (k : ℕ) (hk : 3 ≤ k)
     (p : levelQuot G (k + 1)) (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
@@ -418,7 +421,169 @@ theorem sharpNeutralHandleUTransgressionCocycle_apply {h k : ℕ}
       (canonLift (maxProPQuotient 2 (GalK K)) k
         (T.generators (SqCore.sqHandleIdxU j))) p.2.1
 
+/-- The five literal annihilation hypotheses, written entirely as identities for the
+transgression cocycle.  The third equation records the inseparable improved atom
+`p²[p,x₂]`; it is deliberately not split into separate square and bracket equations. -/
+def SharpNeutralFiveAtomTransgressionCocycleCondition {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2) : Prop :=
+  let G := maxProPQuotient 2 (GalK K)
+  let c := lowerTwoCentralTransgressionCocycleAt G k hfg isProP_maxProPQuotient phi
+  ∀ p : sharpNeutralCoordinateSubgroup (K := K) (by omega),
+    c.1 (GQ2.Roe.Labute.levelProj G k p.1, T.generators 1) +
+        c.1 (T.generators 1, GQ2.Roe.Labute.levelProj G k p.1) = 0 ∧
+    c.1 (GQ2.Roe.Labute.levelProj G k p.1, T.generators 0) +
+        c.1 (T.generators 0, GQ2.Roe.Labute.levelProj G k p.1) = 0 ∧
+    c.1 (GQ2.Roe.Labute.levelProj G k p.1,
+          GQ2.Roe.Labute.levelProj G k p.1) +
+        c.1 (GQ2.Roe.Labute.levelProj G k p.1, T.generators 2) +
+          c.1 (T.generators 2, GQ2.Roe.Labute.levelProj G k p.1) = 0 ∧
+    (∀ j : Fin h,
+      c.1 (GQ2.Roe.Labute.levelProj G k p.1,
+          T.generators (SqCore.sqHandleIdxV j)) +
+        c.1 (T.generators (SqCore.sqHandleIdxV j),
+          GQ2.Roe.Labute.levelProj G k p.1) = 0) ∧
+    ∀ j : Fin h,
+      c.1 (GQ2.Roe.Labute.levelProj G k p.1,
+          T.generators (SqCore.sqHandleIdxU j)) +
+        c.1 (T.generators (SqCore.sqHandleIdxU j),
+          GQ2.Roe.Labute.levelProj G k p.1) = 0
+
+/-- Annihilating the literal improved bracket-atom set is exactly the package of five
+cocycle identities above. -/
+theorem sharpNeutralBracketAtom_annihilation_iff_fiveAtomTransgressionCocycleCondition
+    {h k : ℕ} (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2) :
+    (∀ z : zLayer (maxProPQuotient 2 (GalK K)) k,
+      z ∈ sharpNeutralBracketAtomSet T hk → phi (Additive.ofMul z) = 0) ↔
+      SharpNeutralFiveAtomTransgressionCocycleCondition T hk hfg phi := by
+  let G := maxProPQuotient 2 (GalK K)
+  unfold SharpNeutralFiveAtomTransgressionCocycleCondition
+  dsimp only
+  constructor
+  · intro H p
+    refine ⟨?_, ?_, ?_, ?_, ?_⟩
+    · let z : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators 1)),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hz : phi (Additive.ofMul z) = 0 := H z (Or.inl ⟨p, rfl⟩)
+      rw [sharpNeutralCoreOneTransgressionCocycle_apply T hk hfg phi p] at hz
+      exact hz
+    · let z : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators 0)),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hz : phi (Additive.ofMul z) = 0 := H z (Or.inr (Or.inl ⟨p, rfl⟩))
+      rw [sharpNeutralCoreZeroTransgressionCocycle_apply T hk hfg phi p] at hz
+      exact hz
+    · let z : zLayer G k :=
+        ⟨p.1 ^ 2 * commP p.1 (canonLift G k (T.generators 2)),
+          Subgroup.mul_mem _ (sq_mem_zLayer (G := G) k hk p.2.1)
+            (commP_mem_zLayer (G := G) k hk p.2.1 _)⟩
+      have hz : phi (Additive.ofMul z) = 0 :=
+        H z (Or.inr (Or.inr (Or.inl ⟨p, rfl⟩)))
+      rw [sharpNeutralCoreTwoTransgressionCocycle_apply T hk hfg phi p] at hz
+      exact hz
+    · intro j
+      let z : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators (SqCore.sqHandleIdxV j))),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hz : phi (Additive.ofMul z) = 0 :=
+        H z (Or.inr (Or.inr (Or.inr (Or.inl ⟨j, p, rfl⟩))))
+      rw [sharpNeutralHandleVTransgressionCocycle_apply T hk hfg phi j p] at hz
+      exact hz
+    · intro j
+      let z : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators (SqCore.sqHandleIdxU j))),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hz : phi (Additive.ofMul z) = 0 :=
+        H z (Or.inr (Or.inr (Or.inr (Or.inr ⟨j, p, rfl⟩))))
+      rw [sharpNeutralHandleUTransgressionCocycle_apply T hk hfg phi j p] at hz
+      exact hz
+  · intro H z hz
+    rcases hz with ⟨p, hp⟩ | ⟨p, hp⟩ | ⟨p, hp⟩ | ⟨j, p, hp⟩ | ⟨j, p, hp⟩
+    · obtain ⟨h1, h0, h2, hV, hU⟩ := H p
+      let a : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators 1)),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hza : z = a := Subtype.ext hp
+      rw [hza, sharpNeutralCoreOneTransgressionCocycle_apply T hk hfg phi p]
+      exact h1
+    · obtain ⟨h1, h0, h2, hV, hU⟩ := H p
+      let a : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators 0)),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hza : z = a := Subtype.ext hp
+      rw [hza, sharpNeutralCoreZeroTransgressionCocycle_apply T hk hfg phi p]
+      exact h0
+    · obtain ⟨h1, h0, h2, hV, hU⟩ := H p
+      let a : zLayer G k :=
+        ⟨p.1 ^ 2 * commP p.1 (canonLift G k (T.generators 2)),
+          Subgroup.mul_mem _ (sq_mem_zLayer (G := G) k hk p.2.1)
+            (commP_mem_zLayer (G := G) k hk p.2.1 _)⟩
+      have hza : z = a := Subtype.ext hp
+      rw [hza, sharpNeutralCoreTwoTransgressionCocycle_apply T hk hfg phi p]
+      exact h2
+    · obtain ⟨h1, h0, h2, hV, hU⟩ := H p
+      let a : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators (SqCore.sqHandleIdxV j))),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hza : z = a := Subtype.ext hp
+      rw [hza, sharpNeutralHandleVTransgressionCocycle_apply T hk hfg phi j p]
+      exact hV j
+    · obtain ⟨h1, h0, h2, hV, hU⟩ := H p
+      let a : zLayer G k :=
+        ⟨commP p.1 (canonLift G k (T.generators (SqCore.sqHandleIdxU j))),
+          commP_mem_zLayer (G := G) k hk p.2.1 _⟩
+      have hza : z = a := Subtype.ext hp
+      rw [hza, sharpNeutralHandleUTransgressionCocycle_apply T hk hfg phi j p]
+      exact hU j
+
+/-- The existing five-family character boundary is exactly residual vanishing under the
+five transgression-cocycle equations.  This isolates the remaining arithmetic premise: any
+layer character whose transgressed factor set obeys those five equations must annihilate the
+stage residual. -/
+theorem sharpNeutralResidualFiveAtomCharacterCondition_iff_transgressionCocycleBoundary
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    SharpNeutralResidualFiveAtomCharacterCondition T hk W ↔
+      ∀ phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2,
+        SharpNeutralFiveAtomTransgressionCocycleCondition T hk hfg phi →
+          phi (Additive.ofMul (sharpNeutralResidualElement T hk W)) = 0 := by
+  rw [← sharpNeutralResidualBracketCharacterCondition_iff_fiveAtomCharacterCondition W]
+  unfold SharpNeutralResidualBracketCharacterCondition
+  constructor
+  · intro H phi hcocycle
+    apply H phi
+    exact (sharpNeutralBracketAtom_annihilation_iff_fiveAtomTransgressionCocycleCondition
+      T hk hfg phi).mpr hcocycle
+  · intro H phi hatom
+    apply H phi
+    exact (sharpNeutralBracketAtom_annihilation_iff_fiveAtomTransgressionCocycleCondition
+      T hk hfg phi).mp hatom
+
+/-- Bracket-span membership is equivalently the same residual-vanishing statement expressed
+through the five cocycle equations. -/
+theorem sharpNeutralResidual_mem_bracketSpan_iff_transgressionCocycleBoundary
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    sharpNeutralResidualElement T hk W ∈ sharpNeutralBracketSpan T hk ↔
+      ∀ phi : Additive (zLayer (maxProPQuotient 2 (GalK K)) k) →+ ZMod 2,
+        SharpNeutralFiveAtomTransgressionCocycleCondition T hk hfg phi →
+          phi (Additive.ofMul (sharpNeutralResidualElement T hk W)) = 0 := by
+  rw [sharpNeutralResidual_mem_bracketSpan_iff_bracketCharacterCondition W,
+    sharpNeutralResidualBracketCharacterCondition_iff_fiveAtomCharacterCondition W,
+    sharpNeutralResidualFiveAtomCharacterCondition_iff_transgressionCocycleBoundary W hfg]
+
 end SqCyclotomicStageTuple
+
+#print axioms lowerTwoCentralTransgressionCocycleAt_commP_apply
+#print axioms lowerTwoCentralTransgressionCocycleAt_sq_apply
+#print axioms SqCyclotomicStageTuple.sharpNeutralBracketAtom_annihilation_iff_fiveAtomTransgressionCocycleCondition
+#print axioms SqCyclotomicStageTuple.sharpNeutralResidual_mem_bracketSpan_iff_transgressionCocycleBoundary
 
 end
 
