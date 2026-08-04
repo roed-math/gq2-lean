@@ -1892,6 +1892,149 @@ theorem sqCubicResidualCorrection_relatorEquation_of_homogeneous_raises_three
   exact sqCubicResidualCorrection_relatorEnd_zero_of_homogeneous_raises_three
     h hres hhom
 
+/-! ## The homogeneous quadratic start -/
+
+theorem sqCubicTruncatedPair_apply_homogeneousEmbed (h n : ℕ)
+    (hn : n < 2) (i j : Fin (sqRank h))
+    (w : SqQuadraticHomogeneousNormalWord h n) :
+    (sqCubicTruncatedLeftLetter h i * sqCubicTruncatedLeftLetter h j)
+        (sqCubicHomogeneousEmbed h n (by omega) (Finsupp.single w 1)) =
+      sqCubicHomogeneousEmbed h (n + 2) (by omega)
+        (sqQuadraticHomogeneousProject h (n + 2)
+          (sqNormalLeftLetter h i
+            (sqNormalLeftLetter h j (Finsupp.single w.1 1)))) := by
+  rw [Module.End.mul_apply,
+    sqCubicTruncatedLeftLetter_embed h n (by omega),
+    sqCubicTruncatedLeftLetter_embed h (n + 1) (by omega)]
+  have hsupp0 : SqQuadraticNormalSupportedInDegree h n
+      (sqQuadraticHomogeneousInclude h n (Finsupp.single w 1)) := by
+    simpa [sqQuadraticHomogeneousInclude] using
+      sqQuadraticNormalSupported_single_of_length h n w.1 1 w.2
+  have hsupp1 := sqQuadraticNormalSupported_leftLetter h n j hsupp0
+  rw [sqQuadraticHomogeneousInclude_project_of_supported h (n + 1) _ hsupp1]
+  simp [sqQuadraticHomogeneousInclude]
+
+/- The four-step homogeneous operators inherit the exact oriented quadratic Diamond
+relation. -/
+set_option maxHeartbeats 1000000 in
+theorem sqCubicTruncated_quadraticRelation (h : ℕ) :
+    sqCubicTruncatedLeftLetter h 1 * sqCubicTruncatedLeftLetter h 0 =
+      sqCubicTruncatedLeftLetter h 2 * sqCubicTruncatedLeftLetter h 2 +
+        sqCubicTruncatedLeftLetter h 0 * sqCubicTruncatedLeftLetter h 1 +
+        ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxU j)) := by
+  apply Finsupp.lhom_ext
+  intro source a
+  rw [← Finsupp.smul_single_one]
+  simp only [map_smul]
+  apply congrArg (fun z : SqCubicNormalSpace h => a • z)
+  rcases source with ⟨n, w⟩
+  by_cases hn : n.1 < 2
+  · have H := congrArg
+      (fun T : Module.End (ZMod 2) (SqQuadraticNormalSpace h) =>
+        T (Finsupp.single w.1 1)) (sqNormal_quadraticRelation h)
+    simp only [Module.End.mul_apply, LinearMap.add_apply] at H
+    rw [show
+      (∑ j, (sqNormalLeftLetter h (sqHandleIdxU j) *
+          sqNormalLeftLetter h (sqHandleIdxV j) +
+        sqNormalLeftLetter h (sqHandleIdxV j) *
+          sqNormalLeftLetter h (sqHandleIdxU j))) (Finsupp.single w.1 1) =
+        ∑ j, (sqNormalLeftLetter h (sqHandleIdxU j) *
+            sqNormalLeftLetter h (sqHandleIdxV j) +
+          sqNormalLeftLetter h (sqHandleIdxV j) *
+            sqNormalLeftLetter h (sqHandleIdxU j)) (Finsupp.single w.1 1) by simp] at H
+    have H' := congrArg
+      (fun f : SqQuadraticNormalSpace h =>
+        sqCubicHomogeneousEmbed h (n.1 + 2) (by omega)
+          (sqQuadraticHomogeneousProject h (n.1 + 2) f)) H
+    simp only [map_add] at H'
+    have hmapsum :
+        sqCubicHomogeneousEmbed h (n.1 + 2) (by omega)
+            (sqQuadraticHomogeneousProject h (n.1 + 2)
+              (∑ j, (sqNormalLeftLetter h (sqHandleIdxU j) *
+                  sqNormalLeftLetter h (sqHandleIdxV j) +
+                sqNormalLeftLetter h (sqHandleIdxV j) *
+                  sqNormalLeftLetter h (sqHandleIdxU j))
+                (Finsupp.single w.1 1))) =
+          ∑ j, sqCubicHomogeneousEmbed h (n.1 + 2) (by omega)
+            (sqQuadraticHomogeneousProject h (n.1 + 2)
+              ((sqNormalLeftLetter h (sqHandleIdxU j) *
+                  sqNormalLeftLetter h (sqHandleIdxV j) +
+                sqNormalLeftLetter h (sqHandleIdxV j) *
+                  sqNormalLeftLetter h (sqHandleIdxU j))
+                (Finsupp.single w.1 1))) := by
+      rw [map_sum, map_sum]
+    rw [hmapsum] at H'
+    simp only [LinearMap.add_apply, map_add] at H'
+    have hpair (i j : Fin (sqRank h)) :
+        (sqCubicTruncatedLeftLetter h i * sqCubicTruncatedLeftLetter h j)
+          (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) =
+        sqCubicHomogeneousEmbed h (n.1 + 2) (by omega)
+          (sqQuadraticHomogeneousProject h (n.1 + 2)
+            (sqNormalLeftLetter h i
+              (sqNormalLeftLetter h j (Finsupp.single w.1 1)))) := by
+      have hp := sqCubicTruncatedPair_apply_homogeneousEmbed h n.1 hn i j w
+      rw [sqCubicHomogeneousEmbed_single] at hp
+      have hidx : sqCubicNormalIndexOfHomogeneous h n.1 (by omega) w =
+          (⟨n, w⟩ : SqCubicNormalIndex h) := by
+        apply Sigma.ext
+        · rfl
+        · apply heq_of_eq
+          rfl
+      rw [hidx] at hp
+      exact hp
+    simp only [LinearMap.add_apply]
+    rw [show
+      (∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+        sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+          sqCubicTruncatedLeftLetter h (sqHandleIdxU j)))
+          (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) =
+        ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxU j))
+            (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) by simp]
+    simp only [LinearMap.add_apply]
+    simp_rw [hpair]
+    exact H'
+  · have hn2 : 2 ≤ n.1 := by omega
+    have hsource : Finsupp.single
+        (⟨n, w⟩ : SqCubicNormalIndex h) 1 ∈ sqCubicNormalFiltration h 2 := by
+      rw [sqCubicNormalFiltration, Finsupp.mem_supported]
+      intro target ht
+      have heq : target = (⟨n, w⟩ : SqCubicNormalIndex h) := by
+        simpa using ht
+      subst target
+      exact hn2
+    have hpair (i j : Fin (sqRank h)) :
+        (sqCubicTruncatedLeftLetter h i * sqCubicTruncatedLeftLetter h j)
+          (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) = 0 := by
+      have hz := (sqCubicTruncatedLeftLetter_raises_one h i).mul
+        (sqCubicTruncatedLeftLetter_raises_one h j) 2 _ hsource
+      have hz4 :
+          (sqCubicTruncatedLeftLetter h i * sqCubicTruncatedLeftLetter h j)
+            (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) ∈
+          sqCubicNormalFiltration h 4 := by simpa using hz
+      rw [sqCubicNormalFiltration_four] at hz4
+      exact hz4
+    simp only [LinearMap.add_apply]
+    rw [show
+      (∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+        sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+          sqCubicTruncatedLeftLetter h (sqHandleIdxU j)))
+          (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) =
+        ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxU j))
+            (Finsupp.single (⟨n, w⟩ : SqCubicNormalIndex h) 1) by simp]
+    simp_rw [LinearMap.add_apply, hpair]
+    simp
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
