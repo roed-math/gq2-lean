@@ -15,9 +15,10 @@ source coefficient `A` and injective for the target coefficient `B`.
 
 Consequently, a coefficient-uniform surjectivity supply together with a coefficient-uniform
 injectivity supply transports `FiniteElementaryH2RightExactSupply G` to
-`FiniteElementaryH2RightExactSupply Q`.  For the maximal pro-`2` quotient, the remaining
-comparison input beyond the currently constructed surjectivity supply is exactly injectivity
-of degree-two inflation for every finite elementary quotient module.  The existing scalar
+`FiniteElementaryH2RightExactSupply Q`.  For the maximal pro-`2` quotient, surjectivity is
+available elsewhere only from additional kernel/transgression hypotheses; it is not automatic.
+After such a surjectivity input is supplied, the other exact comparison input is injectivity of
+degree-two inflation for every finite elementary quotient module.  The existing scalar
 `ZMod 2` theorem does not provide this action-dependent assertion.
 -/
 
