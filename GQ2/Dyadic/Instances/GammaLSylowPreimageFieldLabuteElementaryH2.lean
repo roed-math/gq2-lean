@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteTransgression
 import GQ2.Transgression
 import Mathlib.Data.Finset.Sym
 
@@ -19,7 +20,7 @@ namespace GQ2.Dyadic.LSquare
 
 noncomputable section
 
-open GQ2 ContCoh
+open GQ2 GQ2.Roe.Labute ContCoh
 
 section Normalized
 
@@ -480,6 +481,96 @@ theorem finiteElementaryAbelianTwoH2CardFormula :
   letI : Fact (∀ v : V, v ^ 2 = 1) := ⟨htwo⟩
   exact card_H2_finiteElementary V d hcard
 
+/-! ### Closing the lower-two-central five-term seam -/
+
+/-- Every positive-rank finitely generated Demushkin pro-`2` group satisfies the exact
+lower-two-central five-term cardinal formula. -/
+theorem lowerTwoCentralFiveTermCardFormula_of_demushkin
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G)
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G)
+    (hrank :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      0 < demushkinRank 2 G) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    LowerTwoCentralFiveTermCardFormula G := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  exact lowerTwoCentralFiveTermCardFormula_of_kernelDuality_finiteElementary
+    finiteElementaryAbelianTwoH2CardFormula G hfg hD hrank
+    (lowerTwoCentralFiveTermKernelDuality G hfg hD.isProP)
+
+/-- Consequently the first quadratic lower-two-central layer of a positive-rank finitely
+generated Demushkin group has the one-relator cardinality. -/
+theorem lowerTwoCentralDegreeTwoExpectedCard_of_demushkin
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G)
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G)
+    (hrank :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      0 < demushkinRank 2 G) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    LowerTwoCentralDegreeTwoExpectedCard G (demushkinRank 2 G) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  exact lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm hD hrank
+    (lowerTwoCentralFiveTermCardFormula_of_demushkin G hfg hD hrank)
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- Exact five-term cardinality for the maximal pro-`2` Galois group of any finite dyadic
+field.  No odd-degree or `q = 2` hypothesis is needed. -/
+theorem maxProTwoGalK_lowerTwoCentralFiveTermCardFormula
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    let Q := maxProPQuotient 2 (GalK K)
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    LowerTwoCentralFiveTermCardFormula Q := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  apply lowerTwoCentralFiveTermCardFormula_of_demushkin Q hfg
+    (isDemushkin_maxProTwoGalK (K := K))
+  rw [demushkinRank_maxProTwoGalK (K := K)]
+  omega
+
+/-- The arithmetic quadratic layer therefore has the exact one-relator order for every finite
+dyadic field. -/
+theorem maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    LowerTwoCentralDegreeTwoExpectedCard (maxProPQuotient 2 (GalK K))
+      (Module.finrank ℚ_[2] K + 2) := by
+  exact maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm K
+    (maxProTwoGalK_lowerTwoCentralFiveTermCardFormula K hfg)
+
+/-- In degree one, the improved rank-three model and the arithmetic group now agree on their
+quadratic lower-two-central layers with no cohomological premise. -/
+theorem degreeOneGalKSq_zLayer_two_cardAgreement
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    (hone : Module.finrank ℚ_[2] K = 1)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
+    Nat.card (zLayer (SqCore.DSq 0 : Type) 2) =
+      Nat.card (zLayer (maxProPQuotient 2 (GalK K)) 2) :=
+  degreeOneGalKSq_zLayer_two_cardAgreement_of_fiveTerm K hone
+    (maxProTwoGalK_lowerTwoCentralFiveTermCardFormula K hfg)
+
 #print axioms elementaryNormalizedCocycle_identity
 #print axioms elementaryCocycleQuadraticMap
 #print axioms elementaryH2ToQuadratic
@@ -489,6 +580,11 @@ theorem finiteElementaryAbelianTwoH2CardFormula :
 #print axioms card_elementaryQuadraticMap
 #print axioms card_H2_finiteElementary
 #print axioms finiteElementaryAbelianTwoH2CardFormula
+#print axioms lowerTwoCentralFiveTermCardFormula_of_demushkin
+#print axioms lowerTwoCentralDegreeTwoExpectedCard_of_demushkin
+#print axioms maxProTwoGalK_lowerTwoCentralFiveTermCardFormula
+#print axioms maxProTwoGalK_lowerTwoCentralDegreeTwoExpectedCard
+#print axioms degreeOneGalKSq_zLayer_two_cardAgreement
 
 end
 
