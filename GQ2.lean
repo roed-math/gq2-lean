@@ -502,6 +502,7 @@ import GQ2.Dyadic.PrincipalUnitTorsion
 import GQ2.Dyadic.PrincipalUnitCompletion
 import GQ2.Dyadic.DepthPower
 import GQ2.Dyadic.DemushkinQRamifiedI
+import GQ2.Dyadic.Instances.GammaLSylowPreimageDemushkinQSupply
 import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
