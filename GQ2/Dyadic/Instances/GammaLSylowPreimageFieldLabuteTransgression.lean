@@ -26,12 +26,21 @@ section Defect
 variable (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
 /-- The chosen set-theoretic section of `G -> G/lambda_2`. -/
-def lowerTwoCentralSection (q : levelQuot G 2) : G :=
-  Quotient.out q
+def lowerTwoCentralSection (q : levelQuot G 2) : G := by
+  classical
+  exact if q = 1 then 1 else Quotient.out q
+
+@[simp] theorem lowerTwoCentralSection_one :
+    lowerTwoCentralSection G 1 = 1 := by
+  simp [lowerTwoCentralSection]
 
 @[simp] theorem levelMk_lowerTwoCentralSection (q : levelQuot G 2) :
-    levelMk G 2 (lowerTwoCentralSection G q) = q :=
-  Quotient.out_eq q
+    levelMk G 2 (lowerTwoCentralSection G q) = q := by
+  classical
+  by_cases hq : q = 1
+  · simp [lowerTwoCentralSection, hq]
+  · rw [lowerTwoCentralSection, if_neg hq]
+    exact QuotientGroup.out_eq' q
 
 /-- The section factor set, projected from `lambda_2` to `lambda_2/lambda_3`. -/
 def lowerTwoCentralSectionDefect (q r : levelQuot G 2) : zLayer G 2 := by
@@ -57,6 +66,25 @@ def lowerTwoCentralKernelPart (g : G) : zLayer G 2 := by
     rw [map_mul, map_inv, levelMk_lowerTwoCentralSection]
     group
   exact ⟨levelMk G 3 x, ⟨x, hx, rfl⟩⟩
+
+@[simp] theorem lowerTwoCentralSectionDefect_one_one :
+    lowerTwoCentralSectionDefect G 1 1 = 1 := by
+  apply Subtype.ext
+  simp [lowerTwoCentralSectionDefect]
+
+@[simp] theorem lowerTwoCentralKernelPart_one :
+    lowerTwoCentralKernelPart G 1 = 1 := by
+  apply Subtype.ext
+  simp [lowerTwoCentralKernelPart]
+
+/-- On `lambda_2`, the kernel component is the element itself modulo `lambda_3`. -/
+theorem lowerTwoCentralKernelPart_coe_of_mem
+    {g : G} (hg : g ∈ twoCentralSeries G 2) :
+    (lowerTwoCentralKernelPart G g).1 = levelMk G 3 g := by
+  have hq : levelMk G 2 g = 1 := (QuotientGroup.eq_one_iff g).mpr hg
+  dsimp [lowerTwoCentralKernelPart]
+  rw [hq, lowerTwoCentralSection_one]
+  simp
 
 /-- The factor set satisfies the additive cocycle identity after projection to the central
 layer `lambda_2/lambda_3`. -/
@@ -337,6 +365,116 @@ noncomputable def lowerTwoCentralTransgression
     (lowerTwoCentralH2Inflation G).ker
     (lowerTwoCentralTransgressionH2_mem_inflationKernel G hfg hpro)
 
+/-- The explicit transgression has trivial kernel.  The proof is the low-degree exactness
+argument at cochain level: a coboundary downstairs, subtracted from the kernel-part cochain
+upstairs, is a continuous character of `G`; every such character kills `lambda_2`. -/
+theorem lowerTwoCentralTransgression_eq_zero_only
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (chi : Additive (zLayer G 2) →+ ZMod 2)
+    (hzero :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      let Q := levelQuot G 2
+      letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      lowerTwoCentralTransgression G hfg hpro chi = 0) :
+    chi = 0 := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  have hclass : lowerTwoCentralTransgressionH2 G hfg hpro chi = 0 :=
+    congrArg Subtype.val hzero
+  change H2mk Q (ZMod 2) (lowerTwoCentralTransgressionCocycle G hfg hpro chi) = 0 at hclass
+  have hcob := (QuotientAddGroup.eq_zero_iff
+    (lowerTwoCentralTransgressionCocycle G hfg hpro chi)).mp hclass
+  rw [AddSubgroup.mem_addSubgroupOf] at hcob
+  obtain ⟨psi, hpsi, hpsi_eq⟩ := hcob
+  let b := lowerTwoCentralKernelPartC1 G hfg hpro chi
+  let a : G → ZMod 2 := fun g => b.1 g - psi (levelMk G 2 g)
+  have ha_cont : Continuous a :=
+    b.2.sub (hpsi.comp (continuous_levelMk G 2))
+  have ha_mul : ∀ g h : G, a (g * h) = a g + a h := by
+    intro g h
+    have hb := congrFun
+      (lowerTwoCentralTransgression_inflated_eq_dOne G hfg hpro chi) (g, h)
+    have hp := congrFun hpsi_eq (levelMk G 2 g, levelMk G 2 h)
+    change chi (Additive.ofMul
+        (lowerTwoCentralSectionDefect G (levelMk G 2 g) (levelMk G 2 h))) =
+      b.1 h - b.1 (g * h) + b.1 g at hb
+    change psi (levelMk G 2 h) - psi (levelMk G 2 (g * h)) + psi (levelMk G 2 g) =
+      chi (Additive.ofMul
+        (lowerTwoCentralSectionDefect G (levelMk G 2 g) (levelMk G 2 h))) at hp
+    have hbmul : b.1 (g * h) = b.1 g + b.1 h -
+        chi (Additive.ofMul
+          (lowerTwoCentralSectionDefect G (levelMk G 2 g) (levelMk G 2 h))) := by
+      rw [hb]
+      abel
+    have hpmul : psi (levelMk G 2 (g * h)) =
+        psi (levelMk G 2 g) + psi (levelMk G 2 h) -
+          chi (Additive.ofMul
+            (lowerTwoCentralSectionDefect G (levelMk G 2 g) (levelMk G 2 h))) := by
+      rw [← hp]
+      abel
+    dsimp [a]
+    rw [hbmul, hpmul]
+    abel
+  let za : Z1 G (ZMod 2) :=
+    ⟨a, (mem_Z1_iff_of_trivial (scalarActionZmodTwo_triv G)).mpr ⟨ha_cont, ha_mul⟩⟩
+  have hpsi_one : psi 1 = 0 := by
+    have ha_one := Z1_apply_one za
+    change b.1 1 - psi 1 = 0 at ha_one
+    simpa [b, lowerTwoCentralKernelPartC1] using ha_one
+  let c : ContinuousMonoidHom G (Multiplicative (ZMod 2)) := Count.homEquivZ1.symm za
+  apply AddMonoidHom.ext
+  intro z
+  obtain ⟨g, hg, hgz⟩ := z.2
+  have hcg : c g = 1 := MonoidHom.mem_ker.mp
+    (twoCentralSeries_two_le_continuousCharacter_ker c hg)
+  have hazero : za.1 g = 0 := by
+    change Multiplicative.ofAdd (za.1 g) = 1 at hcg
+    apply Multiplicative.ofAdd.injective
+    simpa using hcg
+  have hq : levelMk G 2 g = 1 := (QuotientGroup.eq_one_iff g).mpr hg
+  have hkernel : Additive.ofMul (lowerTwoCentralKernelPart G g) = z := by
+    apply Additive.toMul.injective
+    change lowerTwoCentralKernelPart G g = Additive.toMul z
+    apply Subtype.ext
+    rw [lowerTwoCentralKernelPart_coe_of_mem G hg]
+    exact hgz
+  have hag : za.1 g = chi z := by
+    change b.1 g - psi (levelMk G 2 g) = chi z
+    rw [hq, hpsi_one, sub_zero]
+    change chi (Additive.ofMul (lowerTwoCentralKernelPart G g)) = chi z
+    rw [hkernel]
+  change chi z = 0
+  rw [← hag, hazero]
+
+/-- Injectivity half of the five-term kernel identification, now unconditional. -/
+theorem lowerTwoCentralTransgression_injective
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    Function.Injective (lowerTwoCentralTransgression G hfg hpro) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  dsimp only
+  intro chi psi heq
+  apply sub_eq_zero.mp
+  apply lowerTwoCentralTransgression_eq_zero_only G hfg hpro (chi - psi)
+  rw [map_sub, heq, sub_self]
+
 /-- The remaining five-term theorem is precisely bijectivity of the explicit transgression. -/
 def LowerTwoCentralTransgressionBijective
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) : Prop :=
@@ -368,6 +506,7 @@ end Cocycle
 #print axioms lowerTwoCentralKernelPart_mul
 #print axioms lowerTwoCentralTransgression_inflated_eq_dOne
 #print axioms lowerTwoCentralTransgressionH2_mem_inflationKernel
+#print axioms lowerTwoCentralTransgression_injective
 #print axioms lowerTwoCentralFiveTermKernelDuality_of_transgressionBijective
 
 end
