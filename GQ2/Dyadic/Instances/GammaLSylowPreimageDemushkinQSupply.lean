@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.DemushkinQRamifiedI
-import GQ2.Dyadic.FiniteTwoLocalReciprocity
+import GQ2.Dyadic.FiniteTwoLocalReciprocityKummer
 import GQ2.Dyadic.OddDegreeRamifiedI
 import GQ2.Dyadic.ProTwoCompletionDecomposition
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
@@ -121,6 +121,16 @@ theorem demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity
   demushkinQ_maxProTwoGalK_eq_two_of_odd_completion K hodd
     hfinite.completed_injective
 
+/-- Pointwise adapter from the sharper cyclic-character formulation of finite local CFT. -/
+theorem demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteCyclicTwoReciprocity
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hcyclic : FiniteCyclicTwoReciprocitySupply (markedRecipAt K)) :
+    demushkinQ (maxProPQuotient 2 (GalK K)) = 2 :=
+  demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity K hodd
+    hcyclic.toFiniteTwoLocalReciprocitySupply
+
 /-- Compatibility spelling of the uniform completed-injectivity supply. -/
 abbrev OddDegreeGalKCompletionReciprocitySupply :=
   OddDegreeGalKCompletedReciprocityInjectivitySupply
@@ -139,6 +149,22 @@ def OddDegreeGalKFiniteTwoLocalReciprocitySupply : Prop :=
     Odd (Module.finrank ℚ_[2] K) →
       FiniteTwoLocalReciprocitySupply (markedRecipAt K)
 
+/-- Uniform field-facing cyclic-character supply.  This is the natural landing point for the
+higher `2^m` Kummer--Tate--Artin theorem: unlike its mod-`2` shadow, it quantifies over every
+finite cyclic `2`-group and therefore separates the full pro-`2` completion. -/
+def OddDegreeGalKFiniteCyclicTwoReciprocitySupply : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      FiniteCyclicTwoReciprocitySupply (markedRecipAt K)
+
+/-- Uniform cyclic characters assemble into the existing uniform finite local-CFT supply. -/
+theorem OddDegreeGalKFiniteCyclicTwoReciprocitySupply.toFiniteTwoLocalReciprocitySupply
+    (hSupply : OddDegreeGalKFiniteCyclicTwoReciprocitySupply) :
+    OddDegreeGalKFiniteTwoLocalReciprocitySupply := by
+  intro K _ _ _ _ hodd
+  exact (hSupply K hodd).toFiniteTwoLocalReciprocitySupply
+
 /-- A uniform finite local-CFT supply proves the uniform odd-degree `q = 2` theorem, deriving
 completed reciprocity injectivity internally at every field. -/
 theorem oddDegreeGalKDemushkinQTwo_of_finiteTwoLocalReciprocitySupply
@@ -148,6 +174,13 @@ theorem oddDegreeGalKDemushkinQTwo_of_finiteTwoLocalReciprocitySupply
   have hfinite := hSupply K hodd
   exact demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity
     K hodd hfinite
+
+/-- A uniform cyclic-character reciprocity supply feeds the campaign endpoint directly. -/
+theorem oddDegreeGalKDemushkinQTwo_of_finiteCyclicTwoReciprocitySupply
+    (hSupply : OddDegreeGalKFiniteCyclicTwoReciprocitySupply) :
+    OddDegreeGalKDemushkinQTwo :=
+  oddDegreeGalKDemushkinQTwo_of_finiteTwoLocalReciprocitySupply
+    hSupply.toFiniteTwoLocalReciprocitySupply
 
 /-- Compatibility name for the earlier uniform supply. -/
 abbrev OddDegreeGalKRamifiedITorsionSupply :=
@@ -166,6 +199,7 @@ theorem oddDegreeGalKDemushkinQTwo_of_ramifiedITorsionSupply
 #print axioms demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity
 #print axioms oddDegreeGalKDemushkinQTwo_of_completionReciprocitySupply
 #print axioms oddDegreeGalKDemushkinQTwo_of_finiteTwoLocalReciprocitySupply
+#print axioms oddDegreeGalKDemushkinQTwo_of_finiteCyclicTwoReciprocitySupply
 
 end
 
