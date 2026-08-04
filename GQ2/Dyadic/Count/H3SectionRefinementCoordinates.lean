@@ -183,6 +183,181 @@ theorem nonempty_finiteSectionRefinementRelatorCoordinates_of_normalClosure
       (sectionRefinementDefectsInFoxRange_of_normalClosure
         phi m heval heval' w hrel hnormal)
 
+/-! ## The terminal-target obstruction for the actual improved square core -/
+
+/-- The mod-two parity marking which reads the first improved-square generator. -/
+def sqFirstParityMark (h : ℕ) :
+    Fin (sqRank h) → Multiplicative (ZMod 2) :=
+  fun i ↦ heisEps (0 : Fin (sqRank h)) (FreeGroup.of i)
+
+@[simp] theorem sqFirstParityMark_zero (h : ℕ) :
+    sqFirstParityMark h 0 = Multiplicative.ofAdd 1 := by
+  simp [sqFirstParityMark, heisEps]
+
+/-- The improved square relator dies under the first parity marking. -/
+theorem sqFirstParityMark_relator (h : ℕ) :
+    sqRelWord (sqFirstParityMark h) = 1 := by
+  rw [sqRelWord_comm]
+  have hsquare (z : Multiplicative (ZMod 2)) : z ^ 2 = 1 := by
+    rw [pow_two]
+    revert z
+    decide
+  have hfourth (z : Multiplicative (ZMod 2)) : z ^ 4 = 1 := by
+    rw [show 4 = 2 * 2 by omega, pow_mul, hsquare]
+  rw [hfourth, hsquare]
+  simp
+
+/-- The continuous parity quotient of `DSq h` detecting its first marked generator. -/
+noncomputable def sqFirstParityHom (h : ℕ) :
+    ContinuousMonoidHom (DSq h : Type) (Multiplicative (ZMod 2)) :=
+  sqLiftHom h
+    (isProP_of_isPGroup (IsPGroup.of_card (p := 2) (n := 1)
+      (by rw [Nat.card_eq_fintype_card]; decide)))
+    (sqFirstParityMark h) (sqFirstParityMark_relator h)
+
+@[simp] theorem sqFirstParityHom_gen (h : ℕ) (i : Fin (sqRank h)) :
+    sqFirstParityHom h (sqGen h i) = sqFirstParityMark h i := by
+  rw [sqFirstParityHom, sqLiftHom_gen]
+
+@[simp] theorem sqFirstParityHom_gen_zero (h : ℕ) :
+    sqFirstParityHom h (sqGen h 0) = Multiplicative.ofAdd 1 := by
+  rw [sqFirstParityHom, sqLiftHom_gen, sqFirstParityMark_zero]
+
+/-- The open-normal kernel of the first parity quotient. -/
+noncomputable def sqFirstParityKernel (h : ℕ) :
+    OpenNormalSubgroup (DSq h : Type) where
+  toSubgroup := (sqFirstParityHom h).toMonoidHom.ker
+  isOpen' := by
+    change IsOpen ((sqFirstParityHom h) ⁻¹'
+      ({1} : Set (Multiplicative (ZMod 2))))
+    exact (isOpen_discrete ({1} : Set (Multiplicative (ZMod 2)))).preimage
+      (sqFirstParityHom h).continuous_toFun
+
+/-- The induced map from the parity quotient to `Multiplicative (ZMod 2)`. -/
+noncomputable def sqFirstParityQuotientHom (h : ℕ) :
+    ((DSq h : Type) ⧸ (sqFirstParityKernel h).toSubgroup) →*
+      Multiplicative (ZMod 2) :=
+  QuotientGroup.lift (sqFirstParityKernel h).toSubgroup
+    (sqFirstParityHom h).toMonoidHom (by
+      change (sqFirstParityHom h).toMonoidHom.ker ≤ _
+      exact le_refl _)
+
+/-- The first marked generator remains parity-nontrivial in the parity quotient. -/
+theorem sqFirstParityQuotientHom_marking_zero (h : ℕ) :
+    sqFirstParityQuotientHom h
+        (sqOpenQuotientMarking h (sqFirstParityKernel h) 0) =
+      Multiplicative.ofAdd 1 := by
+  exact (QuotientGroup.lift_mk' _ _ (sqGen h 0)).trans
+    (sqFirstParityHom_gen_zero h)
+
+/-- The unique homomorphism from a group to the terminal group. -/
+def groupToUnit (Q : Type) [Group Q] : Q →* Unit where
+  toFun _ := ()
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- Surjectivity of free evaluation at the terminal pushed marking. -/
+theorem freeGroupLift_groupToUnit_surjective
+    {Q : Type} [Group Q] (m : I → Q) :
+    Function.Surjective (FreeGroup.lift (fun i ↦ groupToUnit Q (m i))) :=
+  Function.surjective_to_subsingleton _
+
+private abbrev SqFirstParityQuotient (h : ℕ) :=
+  (DSq h : Type) ⧸ (sqFirstParityKernel h).toSubgroup
+
+/-- The terminal homomorphism out of the actual first-parity quotient. -/
+def sqFirstParityToUnit (h : ℕ) : SqFirstParityQuotient h →* Unit :=
+  groupToUnit (SqFirstParityQuotient h)
+
+/-- Surjectivity of the pushed first-parity marking at the terminal target. -/
+theorem sqFirstParityTerminalEvaluation_surjective (h : ℕ) :
+    Function.Surjective (FreeGroup.lift (fun i ↦
+      sqFirstParityToUnit h
+        (sqOpenQuotientMarking h (sqFirstParityKernel h) i))) :=
+  freeGroupLift_groupToUnit_surjective
+    (sqOpenQuotientMarking h (sqFirstParityKernel h))
+
+/-- The canonical section word of the parity generator has odd first exponent. -/
+theorem heisEps_relationSection_sqFirstParityGenerator (h : ℕ) :
+    heisEps (0 : Fin (sqRank h))
+        (relationSection
+          (sqOpenQuotientFreeEvaluation_surjective h (sqFirstParityKernel h))
+          (sqOpenQuotientMarking h (sqFirstParityKernel h) 0)) =
+      Multiplicative.ofAdd 1 := by
+  let W := sqFirstParityKernel h
+  let m := sqOpenQuotientMarking h W
+  let heval := sqOpenQuotientFreeEvaluation_surjective h W
+  let q := m 0
+  have hmap := map_freeGroup_lift (sqFirstParityQuotientHom h) m
+    (relationSection heval q)
+  rw [relationSection_spec] at hmap
+  have hmark : (fun i ↦ sqFirstParityQuotientHom h (m i)) =
+      sqFirstParityMark h := by
+    funext i
+    dsimp [m]
+    exact (QuotientGroup.lift_mk' _ _ (sqGen h i)).trans
+      (sqFirstParityHom_gen h i)
+  rw [hmark] at hmap
+  have hlift : FreeGroup.lift (sqFirstParityMark h) =
+      heisEps (0 : Fin (sqRank h)) := by
+    apply FreeGroup.ext_hom
+    intro i
+    simp [sqFirstParityMark]
+  rw [hlift, sqFirstParityQuotientHom_marking_zero] at hmap
+  exact hmap.symm
+
+/-- At the terminal target, the section-refinement defect of the parity generator has nonzero
+first Fox coordinate. -/
+theorem terminalSectionDefect_sqFirstParityGenerator_apply_zero (h : ℕ) :
+    modTwoFoxDerivative
+        (fun i ↦ sqFirstParityToUnit h
+          (sqOpenQuotientMarking h (sqFirstParityKernel h) i))
+        (relationSectionRefinementDefect
+          (sqFirstParityToUnit h)
+          (sqOpenQuotientMarking h (sqFirstParityKernel h))
+          (sqOpenQuotientFreeEvaluation_surjective h (sqFirstParityKernel h))
+          (sqFirstParityTerminalEvaluation_surjective h)
+          (sqOpenQuotientMarking h (sqFirstParityKernel h) 0)).1
+        ((1 : Unit), (0 : Fin (sqRank h))) = 1 := by
+  rw [GQ2.Dyadic.LSquare.modTwoFoxDerivative_unit_apply_eq_heisEps]
+  simp only [relationSectionRefinementDefect, Subgroup.coe_mk, map_mul, map_inv]
+  rw [relationSection_one]
+  simp only [map_one, one_mul]
+  rw [heisEps_relationSection_sqFirstParityGenerator]
+  decide
+
+/-- **Terminal pointwise-coordinate no-go.** For the actual parity quotient of `DSq h`, the
+section defect along the map to the trivial target cannot be expressed by the improved square
+Fox row: that row is zero, while the defect has nonzero first exponent coordinate.
+
+Thus a pointwise same-target coordinate system over all finite quotients is impossible.  The
+continuous proof must allow eventual correction after passing to a finer level (or work directly
+in the completed inverse system). -/
+theorem not_nonempty_sqFirstParity_terminalSectionRefinementRelatorCoordinates (h : ℕ) :
+    ¬ Nonempty (FiniteSectionRefinementRelatorCoordinates
+      (sqFirstParityToUnit h)
+      (sqOpenQuotientMarking h (sqFirstParityKernel h))
+      (sqOpenQuotientFreeEvaluation_surjective h (sqFirstParityKernel h))
+      (sqFirstParityTerminalEvaluation_surjective h)
+      Unit (fun _ : Unit ↦ sqDiscreteRelator h)) := by
+  rintro ⟨C⟩
+  let q := sqOpenQuotientMarking h (sqFirstParityKernel h) 0
+  have hfox := C.fox q
+  change modTwoFoxRelationMatrixLinear
+      (fun _ : Fin (sqRank h) ↦ (1 : Unit))
+      (fun _ : Unit ↦ sqDiscreteRelator h) (C.coordinate q) =
+    modTwoFoxDerivative (fun _ : Fin (sqRank h) ↦ (1 : Unit))
+      (relationSectionRefinementDefect
+        (sqFirstParityToUnit h)
+        (sqOpenQuotientMarking h (sqFirstParityKernel h))
+        (sqOpenQuotientFreeEvaluation_surjective h (sqFirstParityKernel h))
+        (sqFirstParityTerminalEvaluation_surjective h) q).1 at hfox
+  rw [sqFiniteLevelModTwoFoxBoundary_unit_eq_zero h] at hfox
+  have hcoord := congrArg
+    (fun z : RegularModTwoRelationModule Unit (Fin (sqRank h)) ↦
+      z ((1 : Unit), (0 : Fin (sqRank h)))) hfox
+  simp [q, terminalSectionDefect_sqFirstParityGenerator_apply_zero h] at hcoord
+
 end
 
 end GQ2.Dyadic.Count
