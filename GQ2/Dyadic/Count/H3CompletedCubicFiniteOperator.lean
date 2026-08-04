@@ -2638,6 +2638,13 @@ def sqCubicResidualInhomogeneousCorrectionOfRaisesThree (h : ℕ)
     sqCubicResidualCorrection_relatorEquation_of_homogeneous_raises_three
       h hres hhom⟩
 
+/-- The explicit residual correction for the improved presentation.  The preceding
+second-order computation discharges the only hypothesis of the conditional constructor. -/
+def sqCubicResidualInhomogeneousCorrection (h : ℕ) :
+    SqCubicInhomogeneousCorrection h :=
+  sqCubicResidualInhomogeneousCorrectionOfRaisesThree h
+    (sqCubicHomogeneousRelatorEnd_raises_three h)
+
 theorem nonempty_sqCubicInhomogeneousCorrection_iff (h : ℕ) :
     Nonempty (SqCubicInhomogeneousCorrection h) ↔
       ∃ D : SqCubicDegreeTwoCorrection h,
@@ -2663,6 +2670,12 @@ def SqCubicInhomogeneousCorrection.toMagnusAlgebraCertificate
   normal_independent :=
     sqCubicCorrectedOperator_normal_independent h C.correction
 
+/-- An unconditional finite Magnus--Labute algebra certificate for the improved
+dyadic relator. -/
+def sqCubicResidualMagnusAlgebraCertificate (h : ℕ) :
+    SqCubicMagnusAlgebraCertificate h (SqCubicOperatorAlgebra h) :=
+  (sqCubicResidualInhomogeneousCorrection h).toMagnusAlgebraCertificate
+
 /-- The exact finite correction equation gives an explicit nonempty cubic Magnus detector. -/
 theorem nonempty_sqCubicMagnusAlgebraCertificate_of_inhomogeneousCorrection
     {h : ℕ} (C : SqCubicInhomogeneousCorrection h) :
@@ -2676,6 +2689,13 @@ theorem sqCompletedMonomialPBWKernelIdentity_three_of_inhomogeneousCorrection
     SqCompletedMonomialPBWKernelIdentity h 3 :=
   C.toMagnusAlgebraCertificate.completedCubicKernelIdentity_of_columnSound
     (sqCompletedCubicPBWColumnSound h)
+
+/-- The completed monomial/PBW kernel identity in degree three for every handle rank.
+This is the unconditional endpoint of the finite-operator correction construction. -/
+theorem sqCompletedMonomialPBWKernelIdentity_three (h : ℕ) :
+    SqCompletedMonomialPBWKernelIdentity h 3 :=
+  sqCompletedMonomialPBWKernelIdentity_three_of_inhomogeneousCorrection
+    (sqCubicResidualInhomogeneousCorrection h)
 
 end
 
