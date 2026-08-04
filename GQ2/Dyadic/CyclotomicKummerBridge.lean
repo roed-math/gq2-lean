@@ -171,13 +171,13 @@ theorem h1MaxProTwoEquivGalK_cyclotomicModFourClassKTwo :
 degree-one class gives that class's self-cup. -/
 theorem trivialCupPairing_cyclotomicModFourClassKTwo
     (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :
-    trivialCupPairing 2 (maxProPQuotient 2 (GalK K)) smul_zmod2
+    trivialCupPairing 2 (maxProPQuotient 2 (GalK K)) Count.smul_zmod2
         (cyclotomicModFourClassKTwo (K := K)) x =
-      trivialCupPairing 2 (maxProPQuotient 2 (GalK K)) smul_zmod2 x x := by
+      trivialCupPairing 2 (maxProPQuotient 2 (GalK K)) Count.smul_zmod2 x x := by
   apply h2InflationGalK_injective (K := K)
   rw [show h2InflationGalK (K := K) =
       inf2 (maxProPMk 2 (GalK K))
-        (fun g m => (smul_zmod2 (maxProPMk 2 (GalK K) g) m).trans
+        (fun g m => (Count.smul_zmod2 (maxProPMk 2 (GalK K) g) m).trans
           (htriv_galK K g m).symm) from rfl,
     inf2_trivialCupPairing_maxProPMk_galK,
     inf2_trivialCupPairing_maxProPMk_galK,
