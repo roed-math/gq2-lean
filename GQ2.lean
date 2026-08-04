@@ -507,6 +507,7 @@ import GQ2.Dyadic.FiniteTwoLocalReciprocity
 import GQ2.Dyadic.FiniteTwoLocalReciprocityKummer
 import GQ2.Dyadic.FiniteTwoLocalReciprocityTateKummer
 import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherKummer
+import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherMuNDual
 import GQ2.Dyadic.PrincipalUnitTorsion
 import GQ2.Dyadic.PrincipalUnitCompletion
 import GQ2.Dyadic.DepthPower
