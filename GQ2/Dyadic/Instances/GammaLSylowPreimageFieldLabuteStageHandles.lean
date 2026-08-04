@@ -614,6 +614,120 @@ noncomputable def sharpNeutralShiftHom {h k : ℕ}
           V'.correction
     exact sqCoreHandleDbarWord_mul h k hk _ V.depth V'.depth
 
+/-- The subgroup of depth-`k-1` corrections in one coordinate which preserve the sharp
+cyclotomic row.  The full neutral correction group is the finite product of copies of this
+subgroup, one for each core or handle coordinate. -/
+noncomputable def sharpNeutralCoordinateSubgroup {k : ℕ} (hk : 1 ≤ k) :
+    Subgroup (levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)) :=
+  lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1) ⊓
+    (sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)).ker
+
+/-- Insert a one-coordinate neutral correction into the full correction vector. -/
+noncomputable def sharpNeutralCoordinateHom {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 1 ≤ k)
+    (i : Fin (SqCore.sqRank h)) :
+    sharpNeutralCoordinateSubgroup (K := K) hk →*
+      SharpNeutralCorrection T hk where
+  toFun p := {
+    correction := fun j ↦ if j = i then p.1 else 1
+    depth := by
+      intro j
+      by_cases hji : j = i
+      · simpa [hji] using p.2.1
+      · simp [hji]
+    sharpKernel := by
+      intro j
+      by_cases hji : j = i
+      · simpa [hji] using MonoidHom.mem_ker.mp p.2.2
+      · simp [hji] }
+  map_one' := by
+    apply SharpNeutralCorrection.ext
+    funext j
+    by_cases hji : j = i <;> simp [hji]
+  map_mul' p q := by
+    apply SharpNeutralCorrection.ext
+    funext j
+    by_cases hji : j = i <;> simp [hji]
+
+@[simp] theorem sharpNeutralCoordinateHom_correction {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 1 ≤ k)
+    (i j : Fin (SqCore.sqRank h))
+    (p : sharpNeutralCoordinateSubgroup (K := K) hk) :
+    (sharpNeutralCoordinateHom T hk i p).correction j =
+      if j = i then p.1 else 1 := rfl
+
+/-- The image in the defect layer of a neutral correction supported on one coordinate. -/
+noncomputable def sharpNeutralCoordinateShiftHom {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (i : Fin (SqCore.sqRank h)) :
+    sharpNeutralCoordinateSubgroup (K := K)
+      (le_trans (by decide : 1 ≤ 3) hk) →*
+      zLayer (maxProPQuotient 2 (GalK K)) k :=
+  (sharpNeutralShiftHom T hk).comp
+    (sharpNeutralCoordinateHom T (le_trans (by decide : 1 ≤ 3) hk) i)
+
+/-- Every one-coordinate shift lies in the range of the full neutral shift. -/
+theorem sharpNeutralCoordinateShiftHom_range_le {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (i : Fin (SqCore.sqRank h)) :
+    (sharpNeutralCoordinateShiftHom T hk i).range ≤
+      (sharpNeutralShiftHom T hk).range := by
+  rintro y ⟨p, rfl⟩
+  exact ⟨sharpNeutralCoordinateHom T (le_trans (by decide : 1 ≤ 3) hk) i p, rfl⟩
+
+/-- Surjectivity of even one coordinate shift is a sufficient (usually stronger than
+necessary) finite-rank criterion for surjectivity of the full neutral shift. -/
+theorem sharpNeutralShiftHom_surjective_of_coordinate {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (i : Fin (SqCore.sqRank h))
+    (Hsurj : Function.Surjective (sharpNeutralCoordinateShiftHom T hk i)) :
+    Function.Surjective (sharpNeutralShiftHom T hk) := by
+  intro y
+  obtain ⟨p, hp⟩ := Hsurj y
+  exact ⟨sharpNeutralCoordinateHom T (le_trans (by decide : 1 ≤ 3) hk) i p, hp⟩
+
+/-- The first core coordinate contributes exactly its crossed bracket with the old `x₀`
+coordinate.  In particular, none of the improved handle factors is lost in the definition:
+they are all literally trivial for a correction supported at core coordinate zero. -/
+theorem sharpNeutralCoordinateShiftHom_zero_apply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (p : sharpNeutralCoordinateSubgroup (K := K)
+      (le_trans (by decide : 1 ≤ 3) hk)) :
+    ((sharpNeutralCoordinateShiftHom T hk 0) p).1 =
+      commP p.1
+        (canonLift (maxProPQuotient 2 (GalK K)) k (T.generators 1)) := by
+  let base := fun i ↦
+    canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  have hu0 : ∀ j : Fin h, SqCore.sqHandleIdxU j ≠ (0 : Fin (SqCore.sqRank h)) := by
+    intro j hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqHandleIdxU_val, SqCore.sqVal_zero] at hv
+    omega
+  have hv0 : ∀ j : Fin h, SqCore.sqHandleIdxV j ≠ (0 : Fin (SqCore.sqRank h)) := by
+    intro j hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqHandleIdxV_val, SqCore.sqVal_zero] at hv
+    omega
+  have h10 : (1 : Fin (SqCore.sqRank h)) ≠ 0 := by
+    intro hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqVal_one, SqCore.sqVal_zero] at hv
+    omega
+  have h20 : (2 : Fin (SqCore.sqRank h)) ≠ 0 := by
+    intro hj
+    have hv := congrArg Fin.val hj
+    rw [SqCore.sqVal_two, SqCore.sqVal_zero] at hv
+    omega
+  have hhandle : sqHandleDbarWord base
+      (sharpNeutralCoordinateHom T
+        (le_trans (by decide : 1 ≤ 3) hk) 0 p).correction = 1 := by
+    simp [sqHandleDbarWord, sharpNeutralCoordinateHom_correction, hu0, hv0, commP]
+  change sqCoreHandleDbarWord base
+      (sharpNeutralCoordinateHom T
+        (le_trans (by decide : 1 ≤ 3) hk) 0 p).correction = commP p.1 (base 1)
+  rw [sqCoreHandleDbarWord, hhandle, mul_one]
+  simp [sharpNeutralCoordinateHom_correction, dbarWordR2, commP, h10, h20]
+
 /-- Pointwise multiplication by a sharp-neutral correction preserves sharp admissibility. -/
 noncomputable def SharpAdmissibleCorrection.mulNeutral {h k : ℕ}
     {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
@@ -758,6 +872,18 @@ theorem sharpNeutralResidualReachable_iff_mem_range
     refine ⟨V, ?_⟩
     exact congrArg Subtype.val hV
 
+/-- It is enough to hit the concrete residual using a single coordinate shift.  This is the
+one-point version of the coordinate reduction and avoids assuming full surjectivity. -/
+theorem sharpNeutralResidualReachable_of_mem_coordinate_range
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (i : Fin (SqCore.sqRank h))
+    (Hmem : sharpNeutralResidualElement T hk W ∈
+      (sharpNeutralCoordinateShiftHom T hk i).range) :
+    SharpNeutralResidualReachable T hk W :=
+  (sharpNeutralResidualReachable_iff_mem_range W).mpr
+    (sharpNeutralCoordinateShiftHom_range_le T hk i Hmem)
+
 /-- A neutral direction hitting the residual defect produces the required affine correction. -/
 noncomputable def CoreHandleSharpActualDefectSupply.ofNeutralResidual
     {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
@@ -776,6 +902,18 @@ noncomputable def CoreHandleSharpActualDefectSupply.ofNeutralResidual
   dsimp only at hmul hV
   rw [hmul, hV]
   group
+
+/-- A one-coordinate witness for the residual already supplies the required affine
+correction.  No claim of surjectivity onto the whole graded layer is needed. -/
+noncomputable def CoreHandleSharpActualDefectSupply.ofCoordinateResidual
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (i : Fin (SqCore.sqRank h))
+    (Hmem : sharpNeutralResidualElement T hk W ∈
+      (sharpNeutralCoordinateShiftHom T hk i).range) :
+    CoreHandleSharpActualDefectSupply T hk :=
+  CoreHandleSharpActualDefectSupply.ofNeutralResidual W
+    (sharpNeutralResidualReachable_of_mem_coordinate_range W i Hmem)
 
 /-- The stronger full-surjectivity form of the neutral span theorem implies the required
 one-point actual-defect supply. -/
@@ -888,8 +1026,13 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.mulNeutral
 #print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.differenceNeutral
 #print axioms SqCyclotomicStageTuple.sharpNeutralShiftHom
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateHom
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom
+#print axioms SqCyclotomicStageTuple.sharpNeutralCoordinateShiftHom_zero_apply
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_iff_mem_range
+#print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_of_mem_coordinate_range
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofNeutralResidual
+#print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofCoordinateResidual
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofNeutralShiftSurjective
 #print axioms SqCyclotomicStageTuple.nonempty_coreHandleSharpActualDefectSupply_iff_neutralResidual
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.toDefectReachable
