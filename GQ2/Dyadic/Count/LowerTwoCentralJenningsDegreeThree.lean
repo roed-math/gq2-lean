@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3CompletedAugmentationPowers
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
+import GQ2.Roe.Labute.SpanFoundation
 
 /-!
 # The low-degree lower-two-central to augmentation map
@@ -174,6 +176,93 @@ theorem modTwoFiniteGroupDifference_commutator_mem_succ {n : ℕ} (hn : 1 ≤ n)
   exact (I ^ (n + 1)).mul_mem_right _
     ((I ^ (n + 1)).mul_mem_right _ ((I ^ (n + 1)).sub_mem hab hba))
 
+/-! ## The actual finite augmentation layer and its dimension-subgroup map -/
+
+/-- The additive quotient of the finite group algebra modulo `I^(n+1)`. -/
+abbrev ModTwoFiniteAugmentationTruncation (n : ℕ) :=
+  MonoidAlgebra (ZMod 2) Q ⧸
+    (modTwoFiniteAugmentationIdeal Q ^ (n + 1)).toAddSubgroup
+
+/-- The actual augmentation layer `I^n/I^(n+1)`, represented as the image of `I^n` in the
+additive quotient of the whole finite group algebra by `I^(n+1)`. -/
+def modTwoFiniteAugmentationLayer (n : ℕ) :
+    AddSubgroup (ModTwoFiniteAugmentationTruncation Q n) :=
+  AddSubgroup.map
+    (QuotientAddGroup.mk'
+      (modTwoFiniteAugmentationIdeal Q ^ (n + 1)).toAddSubgroup)
+    (modTwoFiniteAugmentationIdeal Q ^ n).toAddSubgroup
+
+/-- The group-like difference of an `n`th dimension-subgroup element, viewed in the actual
+augmentation layer `I^n/I^(n+1)`. -/
+def modTwoFiniteDimensionToAugmentationLayer (n : ℕ) (hn : 1 ≤ n) :
+    Additive (modTwoFiniteDimensionSubgroup Q n) →+
+      modTwoFiniteAugmentationLayer Q n where
+  toFun q := ⟨QuotientAddGroup.mk'
+      (modTwoFiniteAugmentationIdeal Q ^ (n + 1)).toAddSubgroup
+      (modTwoFiniteGroupDifference Q q.toMul.1),
+    ⟨modTwoFiniteGroupDifference Q q.toMul.1, q.toMul.2, rfl⟩⟩
+  map_zero' := by
+    apply Subtype.ext
+    simp
+  map_add' := by
+    intro a b
+    apply Subtype.ext
+    apply QuotientAddGroup.eq_iff_sub_mem.mpr
+    change modTwoFiniteGroupDifference Q (a.toMul.1 * b.toMul.1) -
+        (modTwoFiniteGroupDifference Q a.toMul.1 +
+          modTwoFiniteGroupDifference Q b.toMul.1) ∈
+      (modTwoFiniteAugmentationIdeal Q ^ (n + 1)).toAddSubgroup
+    have hdiff : modTwoFiniteGroupDifference Q (a.toMul.1 * b.toMul.1) -
+          (modTwoFiniteGroupDifference Q a.toMul.1 +
+            modTwoFiniteGroupDifference Q b.toMul.1) =
+        modTwoFiniteGroupDifference Q a.toMul.1 *
+          modTwoFiniteGroupDifference Q b.toMul.1 := by
+      rw [modTwoFiniteGroupDifference_mul]
+      unfold modTwoFiniteGroupDifference
+      noncomm_ring
+    rw [hdiff]
+    change modTwoFiniteGroupDifference Q a.toMul.1 *
+        modTwoFiniteGroupDifference Q b.toMul.1 ∈
+      modTwoFiniteAugmentationIdeal Q ^ (n + 1)
+    rw [Submodule.pow_succ]
+    exact Ideal.mul_mem_mul a.toMul.2
+      (modTwoFiniteGroupDifference_mem_augmentation Q b.toMul.1)
+
+/-- The dimension-subgroup map vanishes exactly one augmentation step deeper.  Thus its
+injectivity after quotienting is precisely the reverse Jennings containment. -/
+theorem modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
+    (n : ℕ) (hn : 1 ≤ n) (q : Additive (modTwoFiniteDimensionSubgroup Q n)) :
+    modTwoFiniteDimensionToAugmentationLayer Q n hn q = 0 ↔
+      q.toMul.1 ∈ modTwoFiniteDimensionSubgroup Q (n + 1) := by
+  constructor
+  · intro hq
+    have hval := congrArg Subtype.val hq
+    change QuotientAddGroup.mk'
+        (modTwoFiniteAugmentationIdeal Q ^ (n + 1)).toAddSubgroup
+        (modTwoFiniteGroupDifference Q q.toMul.1) = 0 at hval
+    exact (QuotientAddGroup.eq_zero_iff _).mp hval
+  · intro hq
+    apply Subtype.ext
+    change QuotientAddGroup.mk'
+        (modTwoFiniteAugmentationIdeal Q ^ (n + 1)).toAddSubgroup
+        (modTwoFiniteGroupDifference Q q.toMul.1) = 0
+    exact (QuotientAddGroup.eq_zero_iff _).mpr hq
+
+/-- Two dimension-subgroup elements have the same augmentation-layer class whenever their
+quotient lies one step deeper.  This is the choice-independence lemma used for layer lifts. -/
+theorem modTwoFiniteDimensionToAugmentationLayer_eq_of_mul_inv_mem_succ
+    (n : ℕ) (hn : 1 ≤ n)
+    (a b : modTwoFiniteDimensionSubgroup Q n)
+    (hab : a.1 * b.1⁻¹ ∈ modTwoFiniteDimensionSubgroup Q (n + 1)) :
+    modTwoFiniteDimensionToAugmentationLayer Q n hn (Additive.ofMul a) =
+      modTwoFiniteDimensionToAugmentationLayer Q n hn (Additive.ofMul b) := by
+  apply sub_eq_zero.mp
+  rw [← map_sub,
+    modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff Q n hn]
+  rw [toMul_sub]
+  simpa only [toMul_ofMul, div_eq_mul_inv, Subgroup.coe_mul,
+    Subgroup.coe_inv] using hab
+
 section Finite
 
 variable [TopologicalSpace Q] [IsTopologicalGroup Q] [T1Space Q] [Finite Q]
@@ -209,6 +298,174 @@ theorem twoCentralSeries_le_modTwoFiniteDimensionSubgroup (n : ℕ) :
           exact modTwoFiniteGroupDifference_commutator_mem_succ Q (by omega) (ih ha) b
 
 end Finite
+
+/-! ## The first three `DSq` layers inside the finite fourth quotient -/
+
+open GQ2.Dyadic.SqCore
+open GQ2.Dyadic.LSquare
+
+/-- The finite fourth lower-two-central quotient of the improved square presentation. -/
+abbrev SqFourthLevel (h : ℕ) := levelQuot (DSq h : Type) 4
+
+/-- Choose a representative in `λₙ(DSq h)` for a class in `Zₙ = λₙ/λₙ₊₁`. -/
+noncomputable def dsqZLayerRepresentative (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) : (DSq h : Type) :=
+  Classical.choose z.2
+
+theorem dsqZLayerRepresentative_mem (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) :
+    dsqZLayerRepresentative h n z ∈ twoCentralSeries (DSq h : Type) n :=
+  (Classical.choose_spec z.2).1
+
+theorem levelMk_dsqZLayerRepresentative (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) :
+    levelMk (DSq h : Type) (n + 1) (dsqZLayerRepresentative h n z) = z.1 :=
+  (Classical.choose_spec z.2).2
+
+/-- Lift a lower-two-central class to the common finite quotient `Q₄`. -/
+noncomputable def dsqZLayerFourthLift (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) : SqFourthLevel h :=
+  levelMk (DSq h : Type) 4 (dsqZLayerRepresentative h n z)
+
+/-- A lifted `Zₙ` class lies in `λₙ(Q₄)`. -/
+theorem dsqZLayerFourthLift_mem_twoCentral (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) :
+    dsqZLayerFourthLift h n z ∈ twoCentralSeries (SqFourthLevel h) n := by
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  rw [← lambdaImage_eq_twoCentralSeries_levelQuot
+    (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) n 4]
+  exact ⟨dsqZLayerRepresentative h n z, dsqZLayerRepresentative_mem h n z, rfl⟩
+
+/-- Hence a lifted `Zₙ` class has augmentation order at least `n` in `F₂[Q₄]`. -/
+theorem dsqZLayerFourthLift_mem_dimension (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) :
+    dsqZLayerFourthLift h n z ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) n := by
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  exact twoCentralSeries_le_modTwoFiniteDimensionSubgroup (SqFourthLevel h) n
+    (dsqZLayerFourthLift_mem_twoCentral h n z)
+
+/-- The lifted class, bundled in the `n`th dimension subgroup of `Q₄`. -/
+noncomputable def dsqZLayerFourthDimensionLift (h n : ℕ)
+    (z : zLayer (DSq h : Type) n) :
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) n :=
+  ⟨dsqZLayerFourthLift h n z, dsqZLayerFourthLift_mem_dimension h n z⟩
+
+/-- The chosen representative of the identity class is one lower-two-central step deeper. -/
+theorem dsqZLayerRepresentative_one_mem_succ (h n : ℕ) :
+    dsqZLayerRepresentative h n (1 : zLayer (DSq h : Type) n) ∈
+      twoCentralSeries (DSq h : Type) (n + 1) := by
+  rw [← QuotientGroup.eq_one_iff]
+  exact levelMk_dsqZLayerRepresentative h n 1
+
+/-- The multiplicative defect of the chosen representatives is one layer deeper. -/
+theorem dsqZLayerRepresentative_mul_defect_mem_succ (h n : ℕ)
+    (z w : zLayer (DSq h : Type) n) :
+    dsqZLayerRepresentative h n (z * w) *
+        (dsqZLayerRepresentative h n z * dsqZLayerRepresentative h n w)⁻¹ ∈
+      twoCentralSeries (DSq h : Type) (n + 1) := by
+  rw [← QuotientGroup.eq_one_iff]
+  change levelMk (DSq h : Type) (n + 1)
+    (dsqZLayerRepresentative h n (z * w) *
+      (dsqZLayerRepresentative h n z * dsqZLayerRepresentative h n w)⁻¹) = 1
+  rw [map_mul, map_inv, map_mul,
+    levelMk_dsqZLayerRepresentative, levelMk_dsqZLayerRepresentative,
+    levelMk_dsqZLayerRepresentative]
+  exact mul_inv_cancel (z.1 * w.1)
+
+/-- The identity lift dies in the next dimension subgroup of `Q₄`. -/
+theorem dsqZLayerFourthLift_one_mem_dimension_succ (h n : ℕ) :
+    dsqZLayerFourthLift h n (1 : zLayer (DSq h : Type) n) ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) (n + 1) := by
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  apply twoCentralSeries_le_modTwoFiniteDimensionSubgroup (SqFourthLevel h) (n + 1)
+  rw [← lambdaImage_eq_twoCentralSeries_levelQuot
+    (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) (n + 1) 4]
+  exact ⟨dsqZLayerRepresentative h n 1,
+    dsqZLayerRepresentative_one_mem_succ h n, rfl⟩
+
+/-- The multiplicative defect of fourth-level lifts dies in the next dimension subgroup. -/
+theorem dsqZLayerFourthLift_mul_defect_mem_dimension_succ (h n : ℕ)
+    (z w : zLayer (DSq h : Type) n) :
+    dsqZLayerFourthLift h n (z * w) *
+        (dsqZLayerFourthLift h n z * dsqZLayerFourthLift h n w)⁻¹ ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) (n + 1) := by
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  apply twoCentralSeries_le_modTwoFiniteDimensionSubgroup (SqFourthLevel h) (n + 1)
+  rw [← lambdaImage_eq_twoCentralSeries_levelQuot
+    (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) (n + 1) 4]
+  exact ⟨dsqZLayerRepresentative h n (z * w) *
+      (dsqZLayerRepresentative h n z * dsqZLayerRepresentative h n w)⁻¹,
+    dsqZLayerRepresentative_mul_defect_mem_succ h n z w, by
+      simp only [dsqZLayerFourthLift, map_mul, map_inv]⟩
+
+/-- The induced `g ↦ [g]-1` homomorphism from `Zₙ(DSq h)` to the common finite
+augmentation layer `I(Q₄)^n/I(Q₄)^(n+1)`. -/
+noncomputable def dsqZLayerToFourthAugmentationLayer (h n : ℕ) (hn : 1 ≤ n) :
+    Additive (zLayer (DSq h : Type) n) →+
+      modTwoFiniteAugmentationLayer (SqFourthLevel h) n where
+  toFun z := modTwoFiniteDimensionToAugmentationLayer (SqFourthLevel h) n hn
+    (Additive.ofMul (dsqZLayerFourthDimensionLift h n z.toMul))
+  map_zero' := by
+    apply (modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
+      (SqFourthLevel h) n hn _).2
+    exact dsqZLayerFourthLift_one_mem_dimension_succ h n
+  map_add' := by
+    intro z w
+    let a := dsqZLayerFourthDimensionLift h n z.toMul
+    let b := dsqZLayerFourthDimensionLift h n w.toMul
+    let c := dsqZLayerFourthDimensionLift h n (z + w).toMul
+    have hdef : c.1 * (a * b).1⁻¹ ∈
+        modTwoFiniteDimensionSubgroup (SqFourthLevel h) (n + 1) := by
+      exact dsqZLayerFourthLift_mul_defect_mem_dimension_succ h n z.toMul w.toMul
+    calc
+      modTwoFiniteDimensionToAugmentationLayer (SqFourthLevel h) n hn
+          (Additive.ofMul c) =
+          modTwoFiniteDimensionToAugmentationLayer (SqFourthLevel h) n hn
+            (Additive.ofMul (a * b)) :=
+        modTwoFiniteDimensionToAugmentationLayer_eq_of_mul_inv_mem_succ
+          (SqFourthLevel h) n hn c (a * b) hdef
+      _ = modTwoFiniteDimensionToAugmentationLayer (SqFourthLevel h) n hn
+            (Additive.ofMul a) +
+          modTwoFiniteDimensionToAugmentationLayer (SqFourthLevel h) n hn
+            (Additive.ofMul b) := by rw [ofMul_mul, map_add]
+
+/-- Degree-one contribution to the third-order finite Jennings calculation. -/
+noncomputable def dsqZLayerOneToFourthAugmentationLayer (h : ℕ) :=
+  dsqZLayerToFourthAugmentationLayer h 1 (by omega)
+
+/-- Degree-two contribution to the third-order finite Jennings calculation. -/
+noncomputable def dsqZLayerTwoToFourthAugmentationLayer (h : ℕ) :=
+  dsqZLayerToFourthAugmentationLayer h 2 (by omega)
+
+/-- Degree-three primitive contribution to the third-order finite Jennings calculation. -/
+noncomputable def dsqZLayerThreeToFourthAugmentationLayer (h : ℕ) :=
+  dsqZLayerToFourthAugmentationLayer h 3 (by omega)
+
+/-- Kernel formula for the induced layer map.  Proving its right side forces `z=0` is exactly
+the reverse dimension-subgroup containment still needed for injectivity. -/
+theorem dsqZLayerToFourthAugmentationLayer_eq_zero_iff
+    (h n : ℕ) (hn : 1 ≤ n) (z : Additive (zLayer (DSq h : Type) n)) :
+    dsqZLayerToFourthAugmentationLayer h n hn z = 0 ↔
+      dsqZLayerFourthLift h n z.toMul ∈
+        modTwoFiniteDimensionSubgroup (SqFourthLevel h) (n + 1) :=
+  modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
+    (SqFourthLevel h) n hn (Additive.ofMul (dsqZLayerFourthDimensionLift h n z.toMul))
+
+#print axioms modTwoFiniteDimensionToAugmentationLayer
+#print axioms modTwoFiniteDimensionToAugmentationLayer_eq_zero_iff
+#print axioms dsqZLayerToFourthAugmentationLayer
+#print axioms dsqZLayerToFourthAugmentationLayer_eq_zero_iff
 
 end
 
