@@ -820,40 +820,87 @@ theorem finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
   rw [hu]
   exact ZModModule.add_self _
 
-/-- At a finite quotient, the universal adjoint can always be truncated to a finitely supported
-coefficient without changing its image under `R₃†`.  This is weaker than the generally false
-claim that the unrestricted coefficient function itself has finite support: one takes the union
-of the supports of `R₃` on the finitely many bar-three basis vectors read at group coordinate
-`1`. -/
-theorem exists_finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
+/-- The finite set of universal relation coordinates read by `R₃†` on actual three-cochains.
+Only bar-three basis vectors with regular coordinate `1` occur after restriction to actual
+cochains. -/
+noncomputable def finiteBarToUniversalRelationThreeReadSupport
+    [Fintype Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    Finset (Q × FreeRelationKernel m) := by
+  classical
+  exact Finset.univ.biUnion fun a : Q × Q × Q =>
+    (finiteBarToUniversalRelationThree m heval
+      (Finsupp.single (1, a) 1)).support
+
+/-- Restrict a coefficient function to a specified finite set, as a linear map into finitely
+supported functions. -/
+noncomputable def finiteFunctionRestrictionToFinsupp {A : Type}
+    (S : Finset A) :
+    (A → ZMod 2) →ₗ[ZMod 2] (A →₀ ZMod 2) := by
+  classical
+  exact {
+    toFun := fun f =>
+      Finsupp.onFinset S (fun z => if z ∈ S then f z else 0) (by
+        intro z hz
+        by_contra hzS
+        simp [hzS] at hz)
+    map_add' := by
+      intro c d
+      ext z
+      by_cases hz : z ∈ S <;> simp [hz, Finsupp.onFinset_apply]
+    map_smul' := by
+      intro a c
+      ext z
+      by_cases hz : z ∈ S <;> simp [hz, Finsupp.onFinset_apply, smul_eq_mul]
+  }
+
+@[simp] theorem finiteFunctionRestrictionToFinsupp_apply_mem {A : Type}
+    (S : Finset A) (f : A → ZMod 2) {a : A} (ha : a ∈ S) :
+    finiteFunctionRestrictionToFinsupp S f a = f a := by
+  classical
+  simp [finiteFunctionRestrictionToFinsupp, Finsupp.onFinset_apply, ha]
+
+@[simp] theorem finiteFunctionRestrictionToFinsupp_apply_notMem {A : Type}
+    (S : Finset A) (f : A → ZMod 2) {a : A} (ha : a ∉ S) :
+    finiteFunctionRestrictionToFinsupp S f a = 0 := by
+  classical
+  simp [finiteFunctionRestrictionToFinsupp, Finsupp.onFinset_apply, ha]
+
+/-- Canonically truncate `U₃†c` to the finite set of relation coordinates that `R₃†` reads.
+The support set is independent of `c`, so this is a linear map rather than a pointwise choice. -/
+def finiteUniversalThreeAdjointTruncation
+    [Fintype Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m)) :
+    FiniteModTwoBarCochainThree Q →ₗ[ZMod 2]
+      RegularModTwoRelationModule Q (FreeRelationKernel m) :=
+  (finiteFunctionRestrictionToFinsupp
+      (finiteBarToUniversalRelationThreeReadSupport m heval)).comp
+    ((finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)).comp
+      (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q)))
+
+/-- The canonical additive truncation has zero universal finite-support defect. -/
+theorem finiteUniversalThreeAdjointFiniteSupportDefect_truncation
     [Fintype Q]
     (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
     (c : FiniteModTwoBarCochainThree Q) :
-    ∃ u : RegularModTwoRelationModule Q (FreeRelationKernel m),
-      finiteUniversalThreeAdjointFiniteSupportDefect m heval c u = 0 := by
+    finiteUniversalThreeAdjointFiniteSupportDefect m heval c
+      (finiteUniversalThreeAdjointTruncation m heval c) = 0 := by
   classical
   let R₃ := finiteBarToUniversalRelationThree m heval
   let f := finiteFinsuppFullAdjoint (finiteUniversalRelationToBarThree m)
     (finiteRegularInvariantCoe (Q := Q) (Q × Q × Q) c)
-  let S : Finset (Q × FreeRelationKernel m) :=
-    Finset.univ.biUnion fun a : Q × Q × Q =>
-      (R₃ (Finsupp.single (1, a) 1)).support
-  let u : RegularModTwoRelationModule Q (FreeRelationKernel m) :=
-    Finsupp.onFinset S (fun z => if z ∈ S then f z else 0) (by
-      intro z hz
-      by_contra hzS
-      simp [hzS] at hz)
-  refine ⟨u, ?_⟩
+  let u := finiteUniversalThreeAdjointTruncation m heval c
   have hR₃ (a : Q × Q × Q) :
       finiteFinsuppFullAdjoint R₃ f (1, a) =
         finiteFinsuppFullAdjoint R₃
           (u : Q × FreeRelationKernel m → ZMod 2) (1, a) := by
     apply finiteFinsuppCoefficientEval_congr_on_support
     intro z hz
-    have hzS : z ∈ S := by
+    have hzS : z ∈ finiteBarToUniversalRelationThreeReadSupport m heval := by
+      rw [finiteBarToUniversalRelationThreeReadSupport]
       apply Finset.mem_biUnion.mpr
-      exact ⟨a, Finset.mem_univ a, hz⟩
-    simp [u, hzS]
+      exact ⟨a, Finset.mem_univ a, by simpa [R₃] using hz⟩
+    simp [u, finiteUniversalThreeAdjointTruncation, hzS, f]
   funext a
   have hcombined := finiteFinsuppFullAdjoint_comp
     (finiteUniversalRelationToBarThree m) R₃
@@ -868,6 +915,20 @@ theorem exists_finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
         (u : Q × FreeRelationKernel m → ZMod 2) (1, a) = 0
   rw [hR₃]
   exact ZModModule.add_self _
+
+/-- At a finite quotient, the universal adjoint can always be truncated to a finitely supported
+coefficient without changing its image under `R₃†`.  This is weaker than the generally false
+claim that the unrestricted coefficient function itself has finite support: one takes the union
+of the supports of `R₃` on the finitely many bar-three basis vectors read at group coordinate
+`1`. -/
+theorem exists_finiteUniversalThreeAdjointFiniteSupportDefect_eq_zero
+    [Fintype Q]
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q) :
+    ∃ u : RegularModTwoRelationModule Q (FreeRelationKernel m),
+      finiteUniversalThreeAdjointFiniteSupportDefect m heval c u = 0 := by
+  exact ⟨finiteUniversalThreeAdjointTruncation m heval c,
+    finiteUniversalThreeAdjointFiniteSupportDefect_truncation m heval c⟩
 
 /-- The raw degree-three identity restricted to actual cochains.  No invariance claim for
 `H₂†`, and no finite-support claim for the universal adjoint, is used here. -/
