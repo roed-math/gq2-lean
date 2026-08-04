@@ -52,6 +52,13 @@ theorem levelQuot_two_mul_comm {G : Type} [Group G] [TopologicalSpace G]
   exact (QuotientGroup.eq_one_iff _).mpr
     (commutator_mem_twoCentralSeries_succ G (Subgroup.mem_top g) k)
 
+/-- The finite dimension filtration is antitone in its augmentation degree. -/
+theorem modTwoFiniteDimensionSubgroup_antitone {Q : Type} [Group Q]
+    {m n : ℕ} (hmn : m ≤ n) :
+    modTwoFiniteDimensionSubgroup Q n ≤ modTwoFiniteDimensionSubgroup Q m := by
+  intro q hq
+  exact Ideal.pow_le_pow_right hmn hq
+
 /-! ## Central extensions attached to intrinsic quadratic forms -/
 
 section ElementaryQuadraticDetector
@@ -146,7 +153,7 @@ theorem exists_elementaryQuadraticDetector_of_zLayerCharacter (h : ℕ)
     (chi : Additive (zLayer (DSq h : Type) 2) →+ ZMod 2) :
     ∃ (c : GQ2.DRCoh.TwoCocycle (levelQuot (DSq h : Type) 2))
       (_hc : IsCupCocycle c)
-      (φ : (DSq h : Type) →* GQ2.DRCoh.CentExt c),
+      (φ : ContinuousMonoidHom (DSq h : Type) (GQ2.DRCoh.CentExt c)),
       ∀ (g : DSq h) (hg : g ∈ twoCentralSeries (DSq h : Type) 2),
         (φ g).fib = chi (Additive.ofMul
           (⟨levelMk (DSq h : Type) 3 g, ⟨g, hg, rfl⟩⟩ :
@@ -239,16 +246,26 @@ theorem exists_elementaryQuadraticDetector_of_zLayerCharacter (h : ℕ)
       Q qform]
     dsimp only [zq] at hp
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) -hb0 - hp
-  let φ : G →* GQ2.DRCoh.CentExt c :=
-    { toFun := fun g => ((levelMk G 2 g, b g) : GQ2.DRCoh.CentExt c)
-      map_one' := GQ2.DRCoh.CentExt.ext (map_one (levelMk G 2)) hb_one
-      map_mul' := by
-        intro g k
-        apply GQ2.DRCoh.CentExt.ext
-        · exact map_mul (levelMk G 2) g k
-        · change b (g * k) = b g + b k +
-            c.κ (levelMk G 2 g) (levelMk G 2 k)
-          exact hb_cocycle g k }
+  let φ : ContinuousMonoidHom G (GQ2.DRCoh.CentExt c) :=
+    { toMonoidHom :=
+        { toFun := fun g => ((levelMk G 2 g, b g) : GQ2.DRCoh.CentExt c)
+          map_one' := GQ2.DRCoh.CentExt.ext (map_one (levelMk G 2)) hb_one
+          map_mul' := by
+            intro g k
+            apply GQ2.DRCoh.CentExt.ext
+            · exact map_mul (levelMk G 2) g k
+            · change b (g * k) = b g + b k +
+                c.κ (levelMk G 2 g) (levelMk G 2 k)
+              exact hb_cocycle g k }
+      continuous_toFun := by
+        have hpair : Continuous fun g : G =>
+            (levelMk G 2 g, b0.1 g + psi (levelMk G 2 g)) :=
+          (continuous_levelMk G 2).prodMk
+            (b0.2.add (hpsiC.comp (continuous_levelMk G 2)))
+        rw [DiscreteTopology.eq_bot (α := Q × ZMod 2)] at hpair
+        change @Continuous G (Q × ZMod 2) _ ⊥
+          (fun g => (levelMk G 2 g, b0.1 g + psi (levelMk G 2 g)))
+        exact hpair }
   refine ⟨c, elementaryQuadraticDRCocycle_isCup Q qform, φ, ?_⟩
   intro g hg
   change b0.1 g + psi (levelMk G 2 g) = _
@@ -381,9 +398,141 @@ theorem centExtFib_eq_zero_of_groupDifference_mem_augmentation_cube
     modTwoGroupAlgebraFunctionMoment_single, one_mul, hone, sub_zero] at hzero
   exact hzero
 
+/-! ## The reverse degree-two Jennings containment -/
+
+/-- **Reverse Jennings containment in degree two on the common fourth quotient.**  Quadratic
+detectors realize every character of `lambda_2/lambda_3`; their fibre moments kill the
+augmentation cube, so they force the degree-two layer class to vanish. -/
+theorem modTwoFiniteDimensionSubgroup_three_le_twoCentralSeries_sqFourthLevel (h : ℕ) :
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) 3 ≤
+      twoCentralSeries (SqFourthLevel h) 3 := by
+  let G := (DSq h : Type)
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot G (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot G (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Fintype (SqFourthLevel h) := Fintype.ofFinite (SqFourthLevel h)
+  intro q hq
+  have hqTwo : q ∈ modTwoFiniteDimensionSubgroup (SqFourthLevel h) 2 :=
+    modTwoFiniteDimensionSubgroup_antitone (by omega : 2 ≤ 3) hq
+  have hqLambdaTwo : q ∈ twoCentralSeries (SqFourthLevel h) 2 :=
+    modTwoFiniteDimensionSubgroup_two_le_twoCentralSeries_sqFourthLevel h hqTwo
+  rw [← lambdaImage_eq_twoCentralSeries_levelQuot G
+    (dsqFinsetTopGen h) (isProP_DSq h) 2 4] at hqLambdaTwo
+  obtain ⟨u, hu, rfl⟩ := hqLambdaTwo
+  let z : zLayer G 2 := ⟨levelMk G 3 u, ⟨u, hu, rfl⟩⟩
+  have hz : z = 1 := by
+    by_contra hzne
+    letI : CommGroup (zLayer G 2) :=
+      { (inferInstance : Group (zLayer G 2)) with
+        mul_comm := fun a b =>
+          Subtype.ext
+            (Subgroup.mem_center_iff.mp (zLayer_le_center G 2 a.2) b.1).symm }
+    have htwo : ∀ a : Additive (zLayer G 2), a + a = 0 := by
+      intro a
+      apply Additive.toMul.injective
+      change a.toMul * a.toMul = 1
+      apply Subtype.ext
+      simpa [pow_two] using zLayer_sq G a.toMul.2
+    have hzneAdd : Additive.ofMul z ≠ 0 := by
+      intro hz0
+      apply hzne
+      exact congrArg Additive.toMul hz0
+    obtain ⟨chi, hchi⟩ :=
+      GQ2.FoxH.elemDual_separates htwo hzneAdd
+    obtain ⟨c, hc, φ, hφ⟩ :=
+      exists_elementaryQuadraticDetector_of_zLayerCharacter h chi
+    have hkerThree : twoCentralSeries G 3 ≤ φ.toMonoidHom.ker := by
+      intro x hx
+      have himage : φ x ∈
+          twoCentralSeries (GQ2.DRCoh.CentExt c) 3 :=
+        map_twoCentralSeries_le φ.toMonoidHom φ.continuous_toFun 3 ⟨x, hx, rfl⟩
+      rw [twoCentralSeries_three_centExt_eq_bot hc] at himage
+      exact MonoidHom.mem_ker.mpr (Subgroup.mem_bot.mp himage)
+    have hkerFour : twoCentralSeries G 4 ≤ φ.toMonoidHom.ker :=
+      (twoCentralSeries_antitone G (by omega : 3 ≤ 4)).trans hkerThree
+    let φfour : SqFourthLevel h →* GQ2.DRCoh.CentExt c :=
+      QuotientGroup.lift (twoCentralSeries G 4) φ.toMonoidHom hkerFour
+    have hfib : (φfour (levelMk G 4 u)).fib = 0 :=
+      centExtFib_eq_zero_of_groupDifference_mem_augmentation_cube
+        hc φfour (levelMk G 4 u) hq
+    have hrestrict := hφ u hu
+    have hzrestrict : chi (Additive.ofMul z) = (φ u).fib := by
+      rw [hrestrict]
+      congr 2
+    have hzero : chi (Additive.ofMul z) = 0 := hzrestrict.trans hfib
+    exact hchi hzero
+  have huThree : u ∈ twoCentralSeries G 3 := by
+    apply (QuotientGroup.eq_one_iff u).mp
+    exact congrArg Subtype.val hz
+  exact map_twoCentralSeries_le (levelMk G 4) (continuous_levelMk G 4) 3
+    ⟨u, huThree, rfl⟩
+
+/-- Degree three of the dimension filtration and lower two-central filtration agree on
+`Q_4`. -/
+theorem modTwoFiniteDimensionSubgroup_three_eq_twoCentralSeries_sqFourthLevel (h : ℕ) :
+    modTwoFiniteDimensionSubgroup (SqFourthLevel h) 3 =
+      twoCentralSeries (SqFourthLevel h) 3 := by
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  exact le_antisymm
+    (modTwoFiniteDimensionSubgroup_three_le_twoCentralSeries_sqFourthLevel h)
+    (twoCentralSeries_le_modTwoFiniteDimensionSubgroup (SqFourthLevel h) 3)
+
+/-- A degree-two `DSq` layer class whose fourth-level lift has augmentation order three is
+trivial. -/
+theorem dsqZLayerFourthLift_mem_dimension_three_imp_eq_one (h : ℕ)
+    (z : zLayer (DSq h : Type) 2)
+    (hz : dsqZLayerFourthLift h 2 z ∈
+      modTwoFiniteDimensionSubgroup (SqFourthLevel h) 3) :
+    z = 1 := by
+  letI : DiscreteTopology (SqFourthLevel h) :=
+    discreteTopology_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  letI : Finite (SqFourthLevel h) :=
+    finite_levelQuot (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 4
+  have hlift : dsqZLayerFourthLift h 2 z ∈
+      twoCentralSeries (SqFourthLevel h) 3 :=
+    modTwoFiniteDimensionSubgroup_three_le_twoCentralSeries_sqFourthLevel h hz
+  rw [← lambdaImage_eq_twoCentralSeries_levelQuot
+    (DSq h : Type) (dsqFinsetTopGen h) (isProP_DSq h) 3 4] at hlift
+  obtain ⟨u, hu, hulift⟩ := hlift
+  apply Subtype.ext
+  rw [← levelMk_dsqZLayerRepresentative h 2 z]
+  change levelMk (DSq h : Type) 3 (dsqZLayerRepresentative h 2 z) = 1
+  apply (QuotientGroup.eq_one_iff (dsqZLayerRepresentative h 2 z)).mpr
+  have hsame : dsqZLayerRepresentative h 2 z * u⁻¹ ∈
+      twoCentralSeries (DSq h : Type) 4 := by
+    apply (QuotientGroup.eq_one_iff
+      (dsqZLayerRepresentative h 2 z * u⁻¹)).mp
+    change levelMk (DSq h : Type) 4
+      (dsqZLayerRepresentative h 2 z * u⁻¹) = 1
+    rw [map_mul, map_inv]
+    change dsqZLayerFourthLift h 2 z *
+      (levelMk (DSq h : Type) 4 u)⁻¹ = 1
+    rw [hulift]
+    exact mul_inv_cancel _
+  have hsameThree :=
+    (twoCentralSeries_antitone (DSq h : Type) (by omega : 3 ≤ 4)) hsame
+  simpa [mul_assoc] using
+    (twoCentralSeries (DSq h : Type) 3).mul_mem hsameThree hu
+
+/-- The degree-two lower-two-central-to-augmentation-layer map is injective. -/
+theorem dsqZLayerTwoToFourthAugmentationLayer_injective (h : ℕ) :
+    Function.Injective (dsqZLayerTwoToFourthAugmentationLayer h) := by
+  apply (injective_iff_map_eq_zero (dsqZLayerTwoToFourthAugmentationLayer h)).2
+  intro z hz
+  apply Additive.toMul.injective
+  apply dsqZLayerFourthLift_mem_dimension_three_imp_eq_one h z.toMul
+  exact (dsqZLayerToFourthAugmentationLayer_eq_zero_iff h 2 (by omega) z).1 hz
+
 #print axioms twoCentralSeries_three_centExt_eq_bot
 #print axioms twoCentralSeries_three_le_sqQuadraticDetectorHom_ker
 #print axioms centExtFib_eq_zero_of_groupDifference_mem_augmentation_cube
+#print axioms exists_elementaryQuadraticDetector_of_zLayerCharacter
+#print axioms modTwoFiniteDimensionSubgroup_three_eq_twoCentralSeries_sqFourthLevel
+#print axioms dsqZLayerTwoToFourthAugmentationLayer_injective
 
 end
 
