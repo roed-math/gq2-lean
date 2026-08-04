@@ -12,10 +12,8 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteDegreeThree
 This module bypasses every higher lower-two-central cardinal comparison.  A forward map from
 the literal improved square presentation is already an epimorphism.  The source and target are
 positive equal-rank Demushkin pro-two groups, so the generic low-degree rigidity theorem reduces
-injectivity to exactly two inputs:
-
-* `H1H2InflationDetectsInvariantKernelCharacters`;
-* `InvariantKernelCharacterSupply`.
+injectivity without any further field-facing hypothesis.  The invariant kernel character and
+the continuous five-term detection argument are constructed automatically.
 
 The resulting equivalence is built from the original forward map.  Consequently the improved
 constructor table and all five cyclotomic orientation rows are preserved definitionally.
@@ -40,59 +38,47 @@ local instance rigidityContinuousScalarG : ContinuousSMul G (ZMod 2) :=
   scalarActionZmodTwo_continuousSMul G
 
 /-- The generic field-facing bypass.  The forward presentation map is bijective once the
-target is Demushkin of the literal improved rank and the two invariant-kernel-character
-boundary inputs are supplied.  No lower-series or Jennings hypothesis occurs. -/
-theorem SqCyclotomicForwardGeneratorData.forward_bijective_of_kernelCharacterBoundary
+target is Demushkin of the literal improved rank.  No kernel-boundary, lower-series, or Jennings
+hypothesis occurs. -/
+theorem SqCyclotomicForwardGeneratorData.forward_bijective
     (D : SqCyclotomicForwardGeneratorData h chiG)
     (hD : IsDemushkin 2 G)
-    (hrank : demushkinRank 2 G = SqCore.sqRank h)
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
-    (hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP)) :
+    (hrank : demushkinRank 2 G = SqCore.sqRank h) :
     Function.Bijective (D.forward hD.isProP) := by
-  apply demushkinEpimorphism_bijective_of_kernelCharacterBoundary
+  apply demushkinEpimorphism_bijective
     (D.forward hD.isProP) (D.forward_surjective hD.isProP)
     (isDemushkin_DSq h) hD
   · rw [demushkinRank_DSq, hrank]
   · rw [demushkinRank_DSq]
     simp only [SqCore.sqRank]
     omega
-  · exact hdetect
-  · exact hsupply
 
 /-- The bijective forward map, bundled as a topological group equivalence. -/
-noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_of_kernelCharacterBoundary
+noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv
     (D : SqCyclotomicForwardGeneratorData h chiG)
     (hD : IsDemushkin 2 G)
-    (hrank : demushkinRank 2 G = SqCore.sqRank h)
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
-    (hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP)) :
+    (hrank : demushkinRank 2 G = SqCore.sqRank h) :
     ContinuousMulEquiv (SqCore.DSq h : Type) G :=
   continuousMulEquivOfBijective (D.forward hD.isProP)
-    (D.forward_bijective_of_kernelCharacterBoundary hD hrank hdetect hsupply)
+    (D.forward_bijective hD hrank)
 
 /-- The bundled equivalence has exactly the original forward homomorphism as its forward map. -/
-@[simp] theorem SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_of_kernelCharacterBoundary_apply
+@[simp] theorem SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_apply
     (D : SqCyclotomicForwardGeneratorData h chiG)
     (hD : IsDemushkin 2 G)
     (hrank : demushkinRank 2 G = SqCore.sqRank h)
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
-    (hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP))
     (x : SqCore.DSq h) :
-    D.forwardContinuousMulEquiv_of_kernelCharacterBoundary
-        hD hrank hdetect hsupply x = D.forward hD.isProP x :=
+    D.forwardContinuousMulEquiv hD hrank x = D.forward hD.isProP x :=
   rfl
 
 /-- Oriented form of the rigidity bypass.  The proof reuses the five rows stored in `D`, so
 the improved constructor table is not reconstructed or weakened. -/
-noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_of_kernelCharacterBoundary
+noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv
     (D : SqCyclotomicForwardGeneratorData h chiG)
     (hD : IsDemushkin 2 G)
-    (hrank : demushkinRank 2 G = SqCore.sqRank h)
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
-    (hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP)) :
+    (hrank : demushkinRank 2 G = SqCore.sqRank h) :
     OrientedContinuousMulEquiv (SqCore.chiSq h) chiG := by
-  let e := D.forwardContinuousMulEquiv_of_kernelCharacterBoundary
-    hD hrank hdetect hsupply
+  let e := D.forwardContinuousMulEquiv hD hrank
   apply orientedEquivSq_of_values chiG e
   · change chiG (D.forward hD.isProP (SqCore.dsqSigma h)) = GQ2.Roe.SvalUnit
     rw [SqCore.dsqSigma, D.forward_gen]
@@ -113,6 +99,95 @@ noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_of_kernelCharac
       (SqCore.sqGen h (SqCore.sqHandleIdxV j))) = 1
     rw [D.forward_gen]
     exact D.handleV j
+
+/-! The former one- and two-input boundary APIs remain available for downstream compatibility.
+Their boundary arguments are no longer used. -/
+
+@[deprecated SqCyclotomicForwardGeneratorData.forward_bijective (since := "2026-08-04")]
+theorem SqCyclotomicForwardGeneratorData.forward_bijective_of_fiveTermKernelDetection
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP)) :
+    Function.Bijective (D.forward hD.isProP) :=
+  D.forward_bijective hD hrank
+
+@[deprecated SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_of_fiveTermKernelDetection
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP)) :
+    ContinuousMulEquiv (SqCore.DSq h : Type) G :=
+  D.forwardContinuousMulEquiv hD hrank
+
+@[deprecated SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_apply
+    (since := "2026-08-04")]
+theorem SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_of_fiveTermKernelDetection_apply
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
+    (x : SqCore.DSq h) :
+    D.forwardContinuousMulEquiv_of_fiveTermKernelDetection
+        hD hrank hdetect x = D.forward hD.isProP x :=
+  rfl
+
+@[deprecated SqCyclotomicForwardGeneratorData.orientedEquiv (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_of_fiveTermKernelDetection
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP)) :
+    OrientedContinuousMulEquiv (SqCore.chiSq h) chiG :=
+  D.orientedEquiv hD hrank
+
+@[deprecated SqCyclotomicForwardGeneratorData.forward_bijective
+    (since := "2026-08-04")]
+theorem SqCyclotomicForwardGeneratorData.forward_bijective_of_kernelCharacterBoundary
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
+    (_hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP)) :
+    Function.Bijective (D.forward hD.isProP) :=
+  D.forward_bijective hD hrank
+
+@[deprecated SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_of_kernelCharacterBoundary
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
+    (_hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP)) :
+    ContinuousMulEquiv (SqCore.DSq h : Type) G :=
+  D.forwardContinuousMulEquiv hD hrank
+
+@[deprecated SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_apply
+    (since := "2026-08-04")]
+theorem SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_of_kernelCharacterBoundary_apply
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
+    (hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP))
+    (x : SqCore.DSq h) :
+    D.forwardContinuousMulEquiv_of_kernelCharacterBoundary
+        hD hrank hdetect hsupply x = D.forward hD.isProP x :=
+  rfl
+
+@[deprecated SqCyclotomicForwardGeneratorData.orientedEquiv
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_of_kernelCharacterBoundary
+    (D : SqCyclotomicForwardGeneratorData h chiG)
+    (hD : IsDemushkin 2 G)
+    (hrank : demushkinRank 2 G = SqCore.sqRank h)
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters (D.forward hD.isProP))
+    (_hsupply : InvariantKernelCharacterSupply (D.forward hD.isProP)) :
+    OrientedContinuousMulEquiv (SqCore.chiSq h) chiG :=
+  D.orientedEquiv hD hrank
 
 end GeneralTarget
 
@@ -146,61 +221,142 @@ theorem demushkinRank_maxProTwoGalK_eq_sqRank_half_pred
   simp only [SqCore.sqRank]
   omega
 
-/-- Odd-degree field specialization of forward-map bijectivity.  Its only unproved inputs are
-the two generic kernel-character boundary statements for this particular forward epimorphism. -/
-theorem SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree_of_kernelCharacterBoundary
+/-- Unconditional odd-degree field specialization of forward-map bijectivity. -/
+theorem SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (D : SqCyclotomicForwardGeneratorData
-      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters
-      (D.forward isProP_maxProPQuotient))
-    (hsupply : InvariantKernelCharacterSupply
-      (D.forward isProP_maxProPQuotient)) :
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K))) :
     Function.Bijective (D.forward isProP_maxProPQuotient) := by
-  exact D.forward_bijective_of_kernelCharacterBoundary
+  exact D.forward_bijective
     (isDemushkin_maxProTwoGalK (K := K))
     (demushkinRank_maxProTwoGalK_eq_sqRank_half_pred (K := K) hodd)
-    hdetect hsupply
 
 /-- The corresponding odd-degree field equivalence, with forward map equal to `D.forward`. -/
-noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_oddDegree_of_kernelCharacterBoundary
+noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_oddDegree
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K))) :
+    ContinuousMulEquiv
+      (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
+      (maxProPQuotient 2 (GalK K)) :=
+  D.forwardContinuousMulEquiv
+    (isDemushkin_maxProTwoGalK (K := K))
+    (demushkinRank_maxProTwoGalK_eq_sqRank_half_pred (K := K) hodd)
+
+/-- The odd-degree field equivalence with the improved square orientation attached. -/
+noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K))) :
+    OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K)) :=
+  D.orientedEquiv
+    (isDemushkin_maxProTwoGalK (K := K))
+    (demushkinRank_maxProTwoGalK_eq_sqRank_half_pred (K := K) hodd)
+
+omit [T2Space (GalK K)] in
+/-- A finite-level assembly may hand rigidity merely a nonempty forward-generator package.
+The resulting oriented equivalence uses that package's original forward map and hence preserves
+the three core constructor rows and both handle rows. -/
+theorem nonempty_orientedEquiv_oddDegree_of_forwardGeneratorData
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hdata : Nonempty (SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))) :
+    Nonempty (OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K))) :=
+  hdata.map fun D => D.orientedEquiv_oddDegree hodd
+
+/-! Deprecated odd-degree adapters for the former boundary arguments. -/
+
+@[deprecated SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree
+    (since := "2026-08-04")]
+theorem SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree_of_fiveTermKernelDetection
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (D : SqCyclotomicForwardGeneratorData
       ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters
-      (D.forward isProP_maxProPQuotient))
-    (hsupply : InvariantKernelCharacterSupply
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters
+      (D.forward isProP_maxProPQuotient)) :
+    Function.Bijective (D.forward isProP_maxProPQuotient) :=
+  D.forward_bijective_oddDegree hodd
+
+@[deprecated SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_oddDegree
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_oddDegree_of_fiveTermKernelDetection
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters
       (D.forward isProP_maxProPQuotient)) :
     ContinuousMulEquiv
       (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
       (maxProPQuotient 2 (GalK K)) :=
-  D.forwardContinuousMulEquiv_of_kernelCharacterBoundary
-    (isDemushkin_maxProTwoGalK (K := K))
-    (demushkinRank_maxProTwoGalK_eq_sqRank_half_pred (K := K) hodd)
-    hdetect hsupply
+  D.forwardContinuousMulEquiv_oddDegree hodd
 
-/-- The odd-degree field equivalence with the improved square orientation attached. -/
-noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree_of_kernelCharacterBoundary
+@[deprecated SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree_of_fiveTermKernelDetection
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (D : SqCyclotomicForwardGeneratorData
       ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
-    (hdetect : H1H2InflationDetectsInvariantKernelCharacters
-      (D.forward isProP_maxProPQuotient))
-    (hsupply : InvariantKernelCharacterSupply
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters
       (D.forward isProP_maxProPQuotient)) :
     OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K)) :=
-  D.orientedEquiv_of_kernelCharacterBoundary
-    (isDemushkin_maxProTwoGalK (K := K))
-    (demushkinRank_maxProTwoGalK_eq_sqRank_half_pred (K := K) hodd)
-    hdetect hsupply
+  D.orientedEquiv_oddDegree hodd
 
-#print axioms SqCyclotomicForwardGeneratorData.forward_bijective_of_kernelCharacterBoundary
-#print axioms SqCyclotomicForwardGeneratorData.orientedEquiv_of_kernelCharacterBoundary
+@[deprecated SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree
+    (since := "2026-08-04")]
+theorem SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree_of_kernelCharacterBoundary
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters
+      (D.forward isProP_maxProPQuotient))
+    (_hsupply : InvariantKernelCharacterSupply
+      (D.forward isProP_maxProPQuotient)) :
+    Function.Bijective (D.forward isProP_maxProPQuotient) :=
+  D.forward_bijective_oddDegree hodd
+
+@[deprecated
+    SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_oddDegree
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.forwardContinuousMulEquiv_oddDegree_of_kernelCharacterBoundary
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters
+      (D.forward isProP_maxProPQuotient))
+    (_hsupply : InvariantKernelCharacterSupply
+      (D.forward isProP_maxProPQuotient)) :
+    ContinuousMulEquiv
+      (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type)
+      (maxProPQuotient 2 (GalK K)) :=
+  D.forwardContinuousMulEquiv_oddDegree hodd
+
+@[deprecated SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree
+    (since := "2026-08-04")]
+noncomputable def SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree_of_kernelCharacterBoundary
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (D : SqCyclotomicForwardGeneratorData
+      ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
+    (_hdetect : H1H2InflationDetectsInvariantKernelCharacters
+      (D.forward isProP_maxProPQuotient))
+    (_hsupply : InvariantKernelCharacterSupply
+      (D.forward isProP_maxProPQuotient)) :
+    OrientedContinuousMulEquiv
+      (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
+      (chiCycKTwo (K := K)) :=
+  D.orientedEquiv_oddDegree hodd
+
+#print axioms SqCyclotomicForwardGeneratorData.forward_bijective
+#print axioms SqCyclotomicForwardGeneratorData.orientedEquiv
 #print axioms demushkinRank_maxProTwoGalK_eq_sqRank_half_pred
-#print axioms SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree_of_kernelCharacterBoundary
-#print axioms SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree_of_kernelCharacterBoundary
+#print axioms SqCyclotomicForwardGeneratorData.forward_bijective_oddDegree
+#print axioms SqCyclotomicForwardGeneratorData.orientedEquiv_oddDegree
+#print axioms nonempty_orientedEquiv_oddDegree_of_forwardGeneratorData
 
 end OddDegreeField
 
