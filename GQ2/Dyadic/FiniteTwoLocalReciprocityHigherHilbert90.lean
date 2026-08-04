@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherKummerExact
 import GQ2.DiscreteModule
+import GQ2.KummerKrullBridge
 import Mathlib.RepresentationTheory.Homological.GroupCohomology.Hilbert90
 
 /-!
@@ -58,6 +59,75 @@ theorem exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
     exact MulAction.mem_stabilizer_iff.mp (Subgroup.mem_iInf.mp (hU hu).2 m)
 
 end FiniteCocycle
+
+/-- A finite normal layer over `K` whose absolute fixing subgroup is a prescribed open normal
+subgroup of `G_K`. -/
+structure FiniteGaloisLayerOfOpenNormal
+    (K : IntermediateField ℚ_[2] ℚbar2)
+    (U : OpenNormalSubgroup ↥(K.fixingSubgroup)) where
+  L : IntermediateField (↥K) ℚbar2
+  [finiteDimensional : FiniteDimensional (↥K) L]
+  [normal : Normal (↥K) L]
+  fixingSubgroup_eq :
+    L.fixingSubgroup = U.toSubgroup.map (IntermediateField.fixingSubgroupEquiv K).toMonoidHom
+
+/-- Krull's Galois correspondence realizes every open normal subgroup of `G_K` as the fixing
+subgroup of a finite normal extension of `K` inside `ℚ̄₂`. -/
+theorem finiteGaloisLayerOfOpenNormal
+    (K : IntermediateField ℚ_[2] ℚbar2) [FiniteDimensional ℚ_[2] K]
+    (U : OpenNormalSubgroup ↥(K.fixingSubgroup)) :
+    Nonempty (FiniteGaloisLayerOfOpenNormal K U) := by
+  set U' := U.toSubgroup.map K.fixingSubgroup.subtype with hU'
+  have hU'leK : U' ≤ K.fixingSubgroup := Subgroup.map_subtype_le U.toSubgroup
+  have hKopen : IsOpen (↑(K.fixingSubgroup) : Set (ℚbar2 ≃ₐ[ℚ_[2]] ℚbar2)) :=
+    IntermediateField.fixingSubgroup_isOpen K
+  have hU'open : IsOpen (↑U' : Set (ℚbar2 ≃ₐ[ℚ_[2]] ℚbar2)) := by
+    rw [hU', Subgroup.coe_map, Subgroup.coe_subtype]
+    exact hKopen.isOpenMap_subtype_val _ U.isOpen'
+  have hU'closed : IsClosed (↑U' : Set (ℚbar2 ≃ₐ[ℚ_[2]] ℚbar2)) :=
+    Subgroup.isClosed_of_isOpen U' hU'open
+  set L0 := IntermediateField.fixedField U' with hL0
+  have hL0fix : L0.fixingSubgroup = U' :=
+    InfiniteGalois.fixingSubgroup_fixedField ⟨U', hU'closed⟩
+  have hKL0 : K ≤ L0 := by
+    intro x hx
+    rw [hL0, IntermediateField.mem_fixedField_iff]
+    intro g hg
+    exact (IntermediateField.mem_fixingSubgroup_iff K g).mp (hU'leK hg) x hx
+  have hL0fin : FiniteDimensional ℚ_[2] L0 := by
+    rw [← InfiniteGalois.isOpen_iff_finite L0, hL0fix]
+    exact hU'open
+  have hsub : L0.fixingSubgroup.subgroupOf K.fixingSubgroup = U.toSubgroup := by
+    rw [hL0fix, hU']
+    exact Subgroup.comap_map_eq_self_of_injective K.fixingSubgroup.subtype_injective U.toSubgroup
+  let L : IntermediateField (↥K) ℚbar2 := IntermediateField.extendScalars hKL0
+  have hmap : U.toSubgroup.map (IntermediateField.fixingSubgroupEquiv K).toMonoidHom =
+      L.fixingSubgroup := by
+    rw [← hsub]
+    ext g
+    rw [Subgroup.mem_map_equiv, Subgroup.mem_subgroupOf,
+      IntermediateField.mem_fixingSubgroup_iff, IntermediateField.mem_fixingSubgroup_iff]
+    exact ⟨fun h y hy => h y (IntermediateField.mem_extendScalars hKL0 |>.mp hy),
+      fun h y hy => h y (IntermediateField.mem_extendScalars hKL0 |>.mpr hy)⟩
+  letI : FiniteDimensional ℚ_[2] L0 := hL0fin
+  haveI hLfinQ2 : FiniteDimensional ℚ_[2] L := by
+    let e : ↥L0 ≃ₗ[ℚ_[2]] ↥L :=
+      { toFun := fun x => ⟨x.1, x.2⟩
+        invFun := fun x => ⟨x.1, x.2⟩
+        left_inv := fun _ => rfl
+        right_inv := fun _ => rfl
+        map_add' := fun _ _ => rfl
+        map_smul' := fun _ _ => rfl }
+    exact Module.Finite.equiv e
+  letI hLfin : FiniteDimensional (↥K) L := Module.Finite.right ℚ_[2] (↥K) L
+  have hmapNormal :
+      (U.toSubgroup.map (IntermediateField.fixingSubgroupEquiv K).toMonoidHom).Normal :=
+    Subgroup.Normal.map (by infer_instance) _ (IntermediateField.fixingSubgroupEquiv K).surjective
+  have hfixNormal : L.fixingSubgroup.Normal := hmap ▸ hmapNormal
+  letI : L.fixingSubgroup.Normal := hfixNormal
+  letI : IsGalois (↥K) L := (InfiniteGalois.normal_iff_isGalois L).mp hfixNormal
+  letI hLnormal : Normal (↥K) L := inferInstance
+  exact ⟨{ L := L, fixingSubgroup_eq := hmap.symm }⟩
 
 set_option synthInstance.maxHeartbeats 200000 in
 /-- Explicit data saying that a multiplicative cocycle on `G_K` is inflated from a cocycle on
@@ -180,6 +250,7 @@ theorem muNContinuousHilbert90_of_finiteFactorizationSupply
 
 #print axioms FiniteHilbert90Factorization.exists_coboundary
 #print axioms exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
+#print axioms finiteGaloisLayerOfOpenNormal
 #print axioms continuous_muNCocycleUnits
 #print axioms muNCocycleUnits_mul
 #print axioms muNCocycleUnits_pow
