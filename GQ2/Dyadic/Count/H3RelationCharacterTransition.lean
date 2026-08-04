@@ -283,6 +283,150 @@ theorem nonempty_sqFiniteCorrectedUniversalBarTransition
     Nonempty (SqFiniteCorrectedUniversalBarTransition h hUU' b) :=
   ⟨sqFiniteCorrectedUniversalBarTransition h hUU' b⟩
 
+/-! ## Quotient-level compatibility and composition -/
+
+/-- Equality modulo the kernel of the universal Fox boundary.  This is the smallest concrete
+quotient needed for corrected transport; it retains exactly the generator-chain information
+consumed by the completed comparison. -/
+def SqUniversalRelationFoxEquivalent
+    (h : ℕ) (U : OpenNormalSubgroup (DSq h : Type))
+    (x y : RegularModTwoRelationModule
+      ((DSq h : Type) ⧸ U.toSubgroup)
+      (FreeRelationKernel (sqOpenQuotientMarking h U))) : Prop :=
+  (finiteUniversalRelationFoxBoundary
+      (sqOpenQuotientMarking h U)).map x =
+    (finiteUniversalRelationFoxBoundary
+      (sqOpenQuotientMarking h U)).map y
+
+/-- The canonical finite transition is an equality modulo the universal Fox kernel. -/
+theorem sqUniversalBarInput_correctedTransition
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :
+    SqUniversalRelationFoxEquivalent h U'
+      (sqUniversalRelationModuleTransition h hUU'
+          (sqOpenQuotientBarToUniversalRelationTwo h U b) +
+        sqOpenQuotientBarToUniversalRelationTwo h U'
+          (finiteModTwoBarMapTwo (openNormalQuotientProj hUU') b))
+      (sqUniversalSectionRefinementCorrection h hUU'
+        (finiteModTwoBarBoundaryTwo b)) := by
+  change _ = _
+  rw [map_add]
+  exact sqUniversalBarInput_correctedTransition_fox h hUU' b
+
+/-- Bar-two pushforwards compose strictly. -/
+theorem finiteModTwoBarMapTwo_comp
+    {Q₀ Q₁ Q₂ : Type} [Group Q₀] [Group Q₁] [Group Q₂]
+    (phi : Q₀ →* Q₁) (psi : Q₁ →* Q₂)
+    (b : FiniteModTwoBarChainTwo Q₀) :
+    finiteModTwoBarMapTwo psi (finiteModTwoBarMapTwo phi b) =
+      finiteModTwoBarMapTwo (psi.comp phi) b := by
+  classical
+  induction b using Finsupp.induction with
+  | zero => simp
+  | single_add p a b hp ha ih =>
+      rcases p with ⟨g, q, r⟩
+      rw [map_add, map_add, map_add, ih]
+      simp [finiteModTwoBarMapTwo]
+
+set_option maxHeartbeats 800000 in
+/-- The explicit relation-cell corrections obey the tower law modulo the universal Fox
+kernel.  Thus corrected transitions compose even though raw relation-word transitions do not. -/
+theorem sqUniversalSectionRefinementCorrection_comp
+    (h : ℕ) {U U' U'' : OpenNormalSubgroup (DSq h : Type)}
+    (hUU' : U ≤ U') (hU'U'' : U' ≤ U'')
+    (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :
+    SqUniversalRelationFoxEquivalent h U''
+      (sqUniversalSectionRefinementCorrection h (hUU'.trans hU'U'')
+        (finiteModTwoBarBoundaryTwo b))
+      (sqUniversalSectionRefinementCorrection h hU'U''
+          (finiteModTwoBarBoundaryTwo
+            (finiteModTwoBarMapTwo (openNormalQuotientProj hUU') b)) +
+        sqUniversalRelationModuleTransition h hU'U''
+          (sqUniversalSectionRefinementCorrection h hUU'
+            (finiteModTwoBarBoundaryTwo b))) := by
+  let b' := finiteModTwoBarMapTwo (openNormalQuotientProj hUU') b
+  let R₀ := sqOpenQuotientBarToUniversalRelationTwo h U b
+  let R₁ := sqOpenQuotientBarToUniversalRelationTwo h U' b'
+  let R₂ := sqOpenQuotientBarToUniversalRelationTwo h U''
+    (finiteModTwoBarMapTwo (openNormalQuotientProj hU'U'') b')
+  let C₀₁ := sqUniversalSectionRefinementCorrection h hUU'
+    (finiteModTwoBarBoundaryTwo b)
+  let C₁₂ := sqUniversalSectionRefinementCorrection h hU'U''
+    (finiteModTwoBarBoundaryTwo b')
+  let C₀₂ := sqUniversalSectionRefinementCorrection h (hUU'.trans hU'U'')
+    (finiteModTwoBarBoundaryTwo b)
+  let F₁ := (finiteUniversalRelationFoxBoundary
+    (sqOpenQuotientMarking h U')).map
+  let F₂ := (finiteUniversalRelationFoxBoundary
+    (sqOpenQuotientMarking h U'')).map
+  have H₀₁ :
+      F₁ (sqUniversalRelationModuleTransition h hUU' R₀) + F₁ R₁ = F₁ C₀₁ :=
+    sqUniversalBarInput_correctedTransition_fox h hUU' b
+  have H₁₂ :
+      F₂ (sqUniversalRelationModuleTransition h hU'U'' R₁) + F₂ R₂ = F₂ C₁₂ :=
+    sqUniversalBarInput_correctedTransition_fox h hU'U'' b'
+  have Hpushed := congrArg
+    (modTwoRegularModuleTransition (DSq h : Type) hU'U'' (Fin (sqRank h))) H₀₁
+  simp only [map_add] at Hpushed
+  rw [sqUniversalRelationFoxBoundary_natural,
+    sqUniversalRelationFoxBoundary_natural,
+    sqUniversalRelationFoxBoundary_natural,
+    sqUniversalRelationModuleTransition_comp] at Hpushed
+  change
+    F₂ (sqUniversalRelationModuleTransition h (hUU'.trans hU'U'') R₀) +
+        F₂ (sqUniversalRelationModuleTransition h hU'U'' R₁) =
+      F₂ (sqUniversalRelationModuleTransition h hU'U'' C₀₁) at Hpushed
+  have hprojcomp :
+      (openNormalQuotientProj hU'U'').comp (openNormalQuotientProj hUU') =
+        openNormalQuotientProj (hUU'.trans hU'U'') := by
+    apply MonoidHom.ext
+    intro q
+    obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective U.toSubgroup q
+    rfl
+  have hbcomp :
+      finiteModTwoBarMapTwo (openNormalQuotientProj hU'U'') b' =
+        finiteModTwoBarMapTwo
+          (openNormalQuotientProj (hUU'.trans hU'U'')) b := by
+    change finiteModTwoBarMapTwo (openNormalQuotientProj hU'U'')
+        (finiteModTwoBarMapTwo (openNormalQuotientProj hUU') b) = _
+    rw [finiteModTwoBarMapTwo_comp, hprojcomp]
+  have H₀₂ := sqUniversalBarInput_correctedTransition_fox h
+    (hUU'.trans hU'U'') b
+  change F₂ C₀₂ =
+    F₂ (C₁₂ + sqUniversalRelationModuleTransition h hU'U'' C₀₁)
+  rw [map_add]
+  change F₂
+      (sqUniversalRelationModuleTransition h (hUU'.trans hU'U'') R₀) +
+      F₂ (sqOpenQuotientBarToUniversalRelationTwo h U''
+        (finiteModTwoBarMapTwo
+          (openNormalQuotientProj (hUU'.trans hU'U'')) b)) = F₂ C₀₂ at H₀₂
+  rw [← hbcomp] at H₀₂
+  change
+    F₂ (sqUniversalRelationModuleTransition h (hUU'.trans hU'U'') R₀) + F₂ R₂ =
+      F₂ C₀₂ at H₀₂
+  rw [← H₀₂, ← H₁₂, ← Hpushed]
+  calc
+    F₂ (sqUniversalRelationModuleTransition h (hUU'.trans hU'U'') R₀) + F₂ R₂ =
+        (F₂ (sqUniversalRelationModuleTransition h hU'U'' R₁) +
+          F₂ (sqUniversalRelationModuleTransition h hU'U'' R₁)) +
+            (F₂ (sqUniversalRelationModuleTransition h (hUU'.trans hU'U'') R₀) +
+              F₂ R₂) := by
+        rw [ZModModule.add_self, zero_add]
+    _ = _ := by abel
+
+/-! ## Regression against the literal no-go -/
+
+/-- Corrected transitions exist for every quotient map even though the literal eventual-range
+condition is false.  In particular, the terminal quotient causes no contradiction after the
+section relation cell is retained. -/
+theorem sqCorrectedTransition_noGo_regression (h : ℕ) :
+    (∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+      (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)),
+      Nonempty (SqFiniteCorrectedUniversalBarTransition h hUU' b)) ∧
+      ¬ SqUniversalBarInputTransitionEventuallyRange h :=
+  ⟨fun hUU' b ↦ nonempty_sqFiniteCorrectedUniversalBarTransition h hUU' b,
+    not_sqUniversalBarInputTransitionEventuallyRange h⟩
+
 end
 
 end GQ2.Dyadic.Count
