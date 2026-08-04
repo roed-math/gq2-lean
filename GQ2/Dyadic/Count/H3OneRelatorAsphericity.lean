@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H2ProTwoScalarCDTwo
-import GQ2.Dyadic.SqCore.Cores
+import GQ2.Dyadic.SqCore.InitialForm
 
 /-!
 # A continuous bar--Fox interface for one-relator pro-2 asphericity
@@ -203,6 +203,12 @@ theorem isNonSquareInFreeProTwo_of_continuous_image
     _ = fbar (z ^ 2) := congrArg fbar hz
     _ = fbar z ^ 2 := map_pow fbar z 2
 
+/-- The explicit order-32 initial-form witness discharges the presentation-side non-power
+condition for every improved square-core relator. -/
+theorem isNonSquareInFreeProTwo_sqRelator (h : ℕ) :
+    IsNonSquareInFreeProTwo (GQ2.Dyadic.SqCore.sqRelator h) :=
+  GQ2.Dyadic.SqCore.sqRelator_maxProTwo_not_square h
+
 /-- The comparison interface specialized to the genuine presentation `presPro2 r`. -/
 abbrev ContinuousModTwoOneRelatorFoxComparison
     {n : ℕ} (r : FreeProfiniteGroup (Fin n))
@@ -314,6 +320,23 @@ theorem modTwoHThreeExact_DSq_of_nonSquare
     ModTwoHThreeExact (GQ2.Dyadic.SqCore.DSq h : Type) :=
   modTwoHThreeExact_of_barFoxComparison fox comparison
     (foxInjectivity.injective hnonsquare)
+
+/-- The improved presentation has now discharged its nonsquare field unconditionally.  Thus
+only the completed Fox injectivity theorem and continuous bar/Fox comparison remain in the
+one-relator route to scalar `H³` exactness. -/
+theorem modTwoHThreeExact_DSq_of_completedFox
+    (h : ℕ)
+    {R X : Type}
+    [AddCommGroup R] [Module (ZMod 2) R]
+    [AddCommGroup X] [Module (ZMod 2) X]
+    [DistribMulAction (GQ2.Dyadic.SqCore.DSq h : Type) R]
+    [DistribMulAction (GQ2.Dyadic.SqCore.DSq h : Type) X]
+    (fox : ModTwoFoxBoundary (GQ2.Dyadic.SqCore.DSq h : Type) R X)
+    (comparison : ContinuousModTwoBarFoxComparison R X fox)
+    (foxInjectivity : NonSquareDSqFoxInjectivity h R X fox) :
+    ModTwoHThreeExact (GQ2.Dyadic.SqCore.DSq h : Type) :=
+  modTwoHThreeExact_DSq_of_nonSquare h fox comparison foxInjectivity
+    (isNonSquareInFreeProTwo_sqRelator h)
 
 end
 
