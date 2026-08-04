@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteFinite
 import GQ2.Roe.Labute.Levelwise
+import GQ2.Roe.Labute.SharpUnitsFiltration
 
 /-!
 # Variable-rank stage foundation for the improved square Labute word
@@ -603,6 +604,17 @@ library. -/
 def SharpUnitsFiltrationExact : Prop :=
   ∀ n, 2 ≤ n → twoCentralSeries ℤ_[2]ˣ n =
     (Units.map (PadicInt.toZModPow (n + 1)).toMonoidHom).ker
+
+/-- The lower two-central series of `ℤ₂ˣ` is exactly the sharp principal-unit
+filtration: `λ_n(ℤ₂ˣ) = 1 + 2^(n+1)ℤ₂` for every `n ≥ 2`.
+
+The forward inclusion is `twoCentralSeries_units_le`.  For the reverse inclusion, the
+base case is the mod-`8` square criterion.  At each later step,
+`DyadicSquares.exists_deep_unit_sq` chooses a square root one digit shallower, so induction
+puts the root in `λ_n` and its square in `λ_(n+1)`. -/
+theorem sharpUnitsFiltrationExact : SharpUnitsFiltrationExact := by
+  intro n hn
+  exact twoCentralSeries_units_eq_sharpKernel n hn
 
 /-- Exactness of a character on the lower two-central filtration, with the necessary
 one-step shift in precision: `χ(λ_n)` must be the kernel modulo `2^(n+1)`. -/
@@ -1236,6 +1248,7 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.stageShift_zero_eq_dbarWordR2
 #print axioms SqCyclotomicStageTuple.sharpChiLevel_cast_eq_chiLevel
 #print axioms SqCyclotomicStageTuple.sharpChiLevel_levelProj_eq_chiLevel_succ
+#print axioms SqCyclotomicStageTuple.sharpUnitsFiltrationExact
 #print axioms SqCyclotomicStageTuple.SharpCharacterFiltrationExact.toSharpExactLevelFibreLiftSupply
 #print axioms SqCyclotomicStageTuple.exactFibre_implies_sharpChiLevel
 #print axioms SqCyclotomicStageTuple.no_exactFibre_of_sharpChiLevel_ne
