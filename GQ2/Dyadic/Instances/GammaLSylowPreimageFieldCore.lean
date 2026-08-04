@@ -21,11 +21,13 @@ reduces the desired presentation of `U(2)` to the concrete local-field classific
 
 `DSq h' ≃ GalK K(2)`.
 
-The field model also carries the expected degree identity.  Existing theorems then prove that
-`GalK K(2)` is Demushkin and that its rank is exactly `sqRank h'`.  What is not currently in the
-repository is the final odd-rank square classification (nor the intermediate general theorem
-`demushkinQ (GalK K(2)) = 2`).  Accordingly that one concrete field presentation remains an
-explicit premise; no broad all-open-subgroups supply and no unproved isomorphism is introduced.
+The field model also carries the expected degree identity.  What is not currently in the
+repository is the final odd-degree dyadic-field square classification (nor the intermediate
+general theorem `demushkinQ (GalK K(2)) = 2`).  The classification premise below is deliberately
+field-specific: it does not claim that abstract Demushkin rank and `q = 2` determine the group
+while forgetting Labute's canonical-orientation image.  The field carrier keeps the canonical
+cyclotomic orientation implicit.  No broad all-groups classification and no unproved
+isomorphism is introduced.
 -/
 
 namespace GQ2
@@ -115,19 +117,22 @@ def OddDegreeGalKDemushkinQTwo : Prop :=
     Odd (Module.finrank ℚ_[2] K) →
       demushkinQ (maxProPQuotient 2 (GalK K)) = 2
 
-/-- The absent arbitrary odd-rank Labute classification.  A Demushkin pro-`2` group of
-square-core rank and `q = 2` is topologically isomorphic to the improved square presentation
-`DSq h'`.
+/-- The absent odd-degree dyadic-field specialization of Labute's classification.  Conditional
+on `q = 2`, the maximal pro-`2` Galois group of the concrete field `K` has the improved square
+presentation with `(degree - 1) / 2` handles.
 
-This deliberately contains no orientation or field premise: it is the unmarked carrier theorem
-needed here, in the same hypothesis style as the repository's `NLabHypothesis` and
-`MLabHypothesis`. -/
-def OddRankSqLabuteClassification : Prop :=
-  ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
-    [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)] (h' : ℕ),
-    IsDemushkin 2 G → demushkinRank 2 G = SqCore.sqRank h' → demushkinQ G = 2 →
-      Nonempty (ContinuousMulEquiv G (SqCore.DSq h'))
+The field specialization is essential.  In the exceptional `q = 2` case, abstract Demushkin
+rank and `q` alone omit the image of the canonical orientation character.  Quantifying over
+`GalK K` keeps its canonical cyclotomic orientation implicit rather than asserting the false or
+underspecified all-profinite-groups statement.  This is a `def`-shaped hypothesis, not an axiom. -/
+def OddDegreeGalKSqLabuteClassification : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
+        Nonempty (ContinuousMulEquiv
+          (maxProPQuotient 2 (GalK K))
+          (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2)))
 
 /-! ## Arithmetic and pointwise composition -/
 
@@ -143,14 +148,13 @@ theorem gammaLOpenSubgroupHandleCount_rank
   rw [Nat.add_sub_cancel, Nat.mul_div_right _ (by norm_num : 0 < 2)]
   ring
 
-/-- A field identification, the `q = 2` calculation, and odd-rank Labute classification give
-the variable square presentation of one odd-index open subgroup.  Demushkin-ness and the rank
-formula are existing theorems. -/
+/-- A field identification, the `q = 2` calculation, and the honest field-specific Labute
+classification give the variable square presentation of one odd-index open subgroup. -/
 theorem gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
     (U' : Subgroup (gamma h q : Type)) [CompactSpace U']
     (hodd : Odd U'.index) (F : GammaLOpenSubgroupFieldIdentification U')
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddRankSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqLabuteClassification) :
     Nonempty (ContinuousMulEquiv
       (maxProPQuotient 2 U')
       (SqCore.DSq (gammaLOpenSubgroupHandleCount U'))) := by
@@ -159,36 +163,41 @@ theorem gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
   letI : T2Space (GalK F.K) := F.t2Space
   letI : TotallyDisconnectedSpace (GalK F.K) := F.totallyDisconnectedSpace
   let Q := maxProPQuotient 2 (GalK F.K)
-  letI : DistribMulAction Q (ZMod 2) := {
-    smul _ m := m
-    one_smul _ := rfl
-    mul_smul _ _ _ := rfl
-    smul_zero _ := rfl
-    smul_add _ _ _ := rfl }
-  letI : ContinuousSMul Q (ZMod 2) := ⟨continuous_snd⟩
   have hdegreeOdd : Odd (Module.finrank ℚ_[2] F.K) := by
     rw [F.degree_eq]
     exact hodd.mul ⟨h, by omega⟩
-  have hrank : demushkinRank 2 Q =
-      SqCore.sqRank (gammaLOpenSubgroupHandleCount U') := by
-    rw [GQ2.Dyadic.demushkinRank_maxProTwoGalK, F.degree_eq]
-    calc
-      U'.index * (2 * h + 1) + 2 = 2 + U'.index * (1 + 2 * h) := by ring
-      _ = 3 + 2 * gammaLOpenSubgroupHandleCount U' :=
-        (gammaLOpenSubgroupHandleCount_rank U' hodd).symm
-      _ = SqCore.sqRank (gammaLOpenSubgroupHandleCount U') := rfl
-  have hD : IsDemushkin 2 Q :=
-    GQ2.Dyadic.isDemushkin_maxProTwoGalK (K := F.K)
   have hq : demushkinQ Q = 2 := hqTwo F.K hdegreeOdd
-  obtain ⟨eField⟩ := hLab Q (gammaLOpenSubgroupHandleCount U') hD hrank hq
+  obtain ⟨eField⟩ := hLab F.K hdegreeOdd hq
+  have hhandle : (Module.finrank ℚ_[2] F.K - 1) / 2 =
+      gammaLOpenSubgroupHandleCount U' := by
+    rw [F.degree_eq, gammaLOpenSubgroupHandleCount]
+    congr 2
+    ring
+  rw [hhandle] at eField
   exact ⟨(maxProPQuotientCongr F.equivGalK).trans eField⟩
+
+/-- Regression at ambient handle `0` and subgroup index `1`: the field route lands in the
+rank-three improved presentation `DSq 0`, not in an abstract orientation-forgetting core. -/
+theorem gammaLOpenSubgroupVariableCorePresentation_indexOne_zero
+    {q : ℕ} (U' : Subgroup (gamma 0 q : Type)) [CompactSpace U']
+    (hindex : U'.index = 1) (F : GammaLOpenSubgroupFieldIdentification U')
+    (hqTwo : OddDegreeGalKDemushkinQTwo)
+    (hLab : OddDegreeGalKSqLabuteClassification) :
+    Nonempty (ContinuousMulEquiv (maxProPQuotient 2 U') (SqCore.DSq 0)) := by
+  have hodd : Odd U'.index := by rw [hindex]; exact odd_one
+  have hhandle : gammaLOpenSubgroupHandleCount U' = 0 := by
+    rw [gammaLOpenSubgroupHandleCount, hindex]
+  obtain ⟨e⟩ := gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
+    U' hodd F hqTwo hLab
+  rw [hhandle] at e
+  exact ⟨e⟩
 
 /-- Uniform composition to the already-audited variable-core supply.  After the routine field
 identification, exactly the two named substantive inputs remain. -/
 theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
     (hfield : GammaLOddIndexOpenSubgroupFieldIdentificationSupply h q)
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddRankSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqLabuteClassification) :
     GammaLOddIndexOpenSubgroupVariableCorePresentationSupply h q := by
   intro U' _ hUopen hodd
   obtain ⟨F⟩ := hfield U' hUopen hodd
@@ -198,6 +207,7 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms maxProPQuotientCongr
 #print axioms gammaLOpenSubgroupHandleCount_rank
 #print axioms gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
+#print axioms gammaLOpenSubgroupVariableCorePresentation_indexOne_zero
 #print axioms gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 
 end

@@ -12,8 +12,8 @@ import GQ2.Dyadic.LocalGauss.Q0
 
 This optional plumbing layer proves that an ambient `GammaLFieldRealization` supplies the
 field-identification interface used by `GammaLSylowPreimageFieldCore`.  It contains no local
-classification input: the separate `q = 2` and arbitrary odd-rank Labute hypotheses remain
-explicit in the final composition theorem.
+classification input: the separate `q = 2` calculation and honest odd-degree dyadic-field
+Labute hypothesis remain explicit in the final composition theorem.
 -/
 
 namespace GQ2
@@ -103,11 +103,12 @@ theorem gammaLOddIndexOpenSubgroupFieldIdentificationSupply_of_fieldRealization
     degree_eq := hdegree }⟩
 
 /-- Strong field-route endpoint: an ambient field realization leaves precisely the `q = 2`
-calculation and the arbitrary odd-rank Labute classification. -/
+calculation and the odd-degree dyadic-field Labute classification.  The latter retains the
+canonical cyclotomic orientation implicitly through its `GalK K` carrier. -/
 theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_fieldRealization
     (R : GammaLFieldRealization h q)
     (hqTwo : OddDegreeGalKDemushkinQTwo)
-    (hLab : OddRankSqLabuteClassification) :
+    (hLab : OddDegreeGalKSqLabuteClassification) :
     GammaLOddIndexOpenSubgroupVariableCorePresentationSupply h q :=
   gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
     (gammaLOddIndexOpenSubgroupFieldIdentificationSupply_of_fieldRealization R)
