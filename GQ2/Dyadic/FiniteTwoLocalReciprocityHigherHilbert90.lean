@@ -523,6 +523,119 @@ theorem completed_reciprocity_injective_of_canonicalKummer_artin
     Function.Injective (proTwoReciprocityToTopAb B) :=
   (twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin H).completed_injective
 
+/-! ## The remaining higher Artin formula
+
+The higher Kummer and coefficient campaigns leave no construction hidden in the final local
+reciprocity input.  For each `m`, the canonical scalarization turns every class in
+`H¹(G_K, Hom(μ_(2^m), μ_(2^m)))` into a continuous `Z/2^m`-valued character of
+`G_K(2)^ab`.  We now name that character without any hypothesis and isolate the remaining
+theorem as its pointwise equality with the invariant of the Tate cup product.
+
+That equality is the higher Hilbert-symbol/Artin-reciprocity formula.  It does not follow from
+the present `MarkedRecip` interface: the bundle deliberately omits finite-layer norm
+reciprocity over `K`. -/
+
+/-- The continuous `Z/2^m`-valued character canonically produced from a class in the Tate-dual
+coefficient slot.  Its construction uses the trivial conjugation action on
+`Hom(μ_(2^m), μ_(2^m))`, scalarization by `Z/2^m`, and the maximal pro-`2` abelian quotient.
+No Artin or norm-residue compatibility is used here. -/
+noncomputable def canonicalHigherTateDualCharacter
+    (K : IntermediateField ℚ_[2] ℚbar2) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] (m : ℕ)
+    (c : H1 ↥(K.fixingSubgroup) (MuDual (2 ^ m) (MuN (2 ^ m)))) :
+    ContinuousMonoidHom
+      (topAbelianization (maxProPQuotient 2 (GalK K)))
+        (Multiplicative (ZMod (2 ^ m))) := by
+  letI := higherTrivialZModAction ↥(K.fixingSubgroup) m
+  letI : ContinuousSMul ↥(K.fixingSubgroup) (ZMod (2 ^ m)) :=
+    continuousSMul_higherTrivialZModAction ↥(K.fixingSubgroup) m
+  exact higherTateDualCharacter (K := K) m
+    (canonicalHigherMuNDualScalarization K m) c
+
+/-- **Canonical higher Tate--Kummer--Artin formula at `2^m`.**
+
+The character on the left is already constructed.  The Kummer class and Tate invariant on the
+right are also already constructed.  Thus this proposition contains only the classical local
+Artin/Hilbert equality, with no existential coefficient or character data left to choose. -/
+def CanonicalHigherTateKummerArtinFormulaAt
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K) (m : ℕ) : Prop :=
+  ∀ (c : H1 ↥(K.fixingSubgroup) (MuDual (2 ^ m) (MuN (2 ^ m)))) (a : (↥K)ˣ),
+    canonicalHigherTateDualCharacter K m c
+        (topAbToTopAbMaxProP (p := 2) (GalK K) (B.recip a)) =
+      Multiplicative.ofAdd
+        ((tateDualityGalKAt K (2 ^ m)).inv
+          (cup11 (muDualPairing (2 ^ m) (MuN (2 ^ m)))
+            (muDualPairing_equivariant (2 ^ m) (MuN (2 ^ m))) c
+            ((canonicalHigherKummerClassData K (2 ^ m)).kummer a).toAdd))
+
+/-- The exponent-one (`m = 0`) Artin formula is automatic: both sides take values in the
+trivial group `ZMod 1`.  Thus the genuine compatibility boundary starts at `m = 1`. -/
+theorem canonicalHigherTateKummerArtinFormulaAt_zero
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K) :
+    CanonicalHigherTateKummerArtinFormulaAt B 0 := by
+  intro c a
+  apply Multiplicative.toAdd.injective
+  change (_ : ZMod 1) = _
+  exact Subsingleton.elim _ _
+
+/-- The canonical pointwise formula supplies the abstract existential compatibility interface.
+The witness is the already-defined `canonicalHigherTateDualCharacter`. -/
+theorem canonicalHigherTateKummerArtinCompatibilityAt_of_formula
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K} {m : ℕ}
+    (H : CanonicalHigherTateKummerArtinFormulaAt B m) :
+    HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K (2 ^ m))
+      (canonicalHigherKummerClassData K (2 ^ m)) := by
+  intro c
+  exact ⟨canonicalHigherTateDualCharacter K m c, H c⟩
+
+/-- Consequently the abstract higher Tate--Kummer--Artin compatibility at exponent one is a
+theorem, not an additional local-class-field-theory input. -/
+theorem canonicalHigherTateKummerArtinCompatibilityAt_one
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip R K) :
+    HigherTateKummerArtinCompatibilityAt B
+      (tateDualityGalKAt K 1) (canonicalHigherKummerClassData K 1) := by
+  simpa using canonicalHigherTateKummerArtinCompatibilityAt_of_formula
+    (canonicalHigherTateKummerArtinFormulaAt_zero B)
+
+/-- The pointwise formula at every `2^m` supplies every cyclic `2`-power character layer. -/
+theorem twoPowerReciprocityCharacterSupply_of_canonicalHigherArtinFormula
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : ∀ m : ℕ, CanonicalHigherTateKummerArtinFormulaAt B m) :
+    TwoPowerReciprocityCharacterSupply B :=
+  twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin
+    (fun m => canonicalHigherTateKummerArtinCompatibilityAt_of_formula (H m))
+
+/-- The pointwise formula at every `2^m` supplies all finite `2`-group reciprocity characters. -/
+theorem finiteTwoLocalReciprocitySupply_of_canonicalHigherArtinFormula
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : ∀ m : ℕ, CanonicalHigherTateKummerArtinFormulaAt B m) :
+    FiniteTwoLocalReciprocitySupply B :=
+  TwoPowerReciprocityCharacterSupply.iff_finiteTwoLocalReciprocitySupply.mp
+    (twoPowerReciprocityCharacterSupply_of_canonicalHigherArtinFormula H)
+
+/-- The pointwise formula at every `2^m` implies injectivity of completed pro-`2`
+reciprocity. -/
+theorem completed_reciprocity_injective_of_canonicalHigherArtinFormula
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚbar2}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] {B : MarkedRecip R K}
+    (H : ∀ m : ℕ, CanonicalHigherTateKummerArtinFormulaAt B m) :
+    Function.Injective (proTwoReciprocityToTopAb B) :=
+  (twoPowerReciprocityCharacterSupply_of_canonicalHigherArtinFormula H).completed_injective
+
 #print axioms FiniteHilbert90Factorization.exists_coboundary
 #print axioms exists_openNormalSubgroup_cocycle_eq_zero_and_smul_eq_self
 #print axioms finiteGaloisLayerOfOpenNormal
@@ -539,6 +652,13 @@ theorem completed_reciprocity_injective_of_canonicalKummer_artin
 #print axioms twoPowerReciprocityCharacterSupply_of_canonicalKummer_artin
 #print axioms finiteTwoLocalReciprocitySupply_of_canonicalKummer_artin
 #print axioms completed_reciprocity_injective_of_canonicalKummer_artin
+#print axioms canonicalHigherTateDualCharacter
+#print axioms canonicalHigherTateKummerArtinFormulaAt_zero
+#print axioms canonicalHigherTateKummerArtinCompatibilityAt_of_formula
+#print axioms canonicalHigherTateKummerArtinCompatibilityAt_one
+#print axioms twoPowerReciprocityCharacterSupply_of_canonicalHigherArtinFormula
+#print axioms finiteTwoLocalReciprocitySupply_of_canonicalHigherArtinFormula
+#print axioms completed_reciprocity_injective_of_canonicalHigherArtinFormula
 
 end
 end GQ2.Dyadic
