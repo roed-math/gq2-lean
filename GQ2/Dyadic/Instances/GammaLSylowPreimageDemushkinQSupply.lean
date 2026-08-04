@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.DemushkinQRamifiedI
+import GQ2.Dyadic.FiniteTwoLocalReciprocity
 import GQ2.Dyadic.OddDegreeRamifiedI
 import GQ2.Dyadic.ProTwoCompletionDecomposition
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
@@ -19,7 +20,10 @@ completion of `K×` comes from a field root.  Its single remaining premise is th
 injectivity of the canonical completed reciprocity map.
 
 There is no separate reciprocity field in the package: `localReciprocity` and
-`markedRecipAt K` are the repository's canonical APIs.
+`markedRecipAt K` are the repository's canonical APIs.  Thus the only genuinely variable data
+left is the finite local-CFT calculation.  The adapters below retain both interfaces: one
+accepts completed reciprocity injectivity directly, while the arithmetic-facing route accepts
+`FiniteTwoLocalReciprocitySupply` and derives injectivity internally.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -92,6 +96,59 @@ theorem oddDegreeGalKDemushkinQTwo_of_torsionGenerationSupply
 now proved rather than supplied. -/
 abbrev GalKRamifiedITorsionData := GalKCompletedReciprocityInjectivityData
 
+/-! ## Completion-shaped adapters -/
+
+/-- Compatibility spelling of the pointwise completed-injectivity adapter. -/
+theorem demushkinQ_maxProTwoGalK_eq_two_of_odd_completion
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hinjective : Function.Injective
+      (proTwoReciprocityToTopAb (markedRecipAt K))) :
+    demushkinQ (maxProPQuotient 2 (GalK K)) = 2 :=
+  demushkinQ_maxProTwoGalK_eq_two_of_odd_completedReciprocityInjective
+    K hodd hinjective
+
+/-- **Pointwise arithmetic-facing adapter.**  A finite local-CFT supply derives completed
+reciprocity injectivity internally; the source-completion torsion and odd-degree ramification
+theorems then prove `demushkinQ = 2`. -/
+theorem demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hfinite : FiniteTwoLocalReciprocitySupply (markedRecipAt K)) :
+    demushkinQ (maxProPQuotient 2 (GalK K)) = 2 :=
+  demushkinQ_maxProTwoGalK_eq_two_of_odd_completion K hodd
+    hfinite.completed_injective
+
+/-- Compatibility spelling of the uniform completed-injectivity supply. -/
+abbrev OddDegreeGalKCompletionReciprocitySupply :=
+  OddDegreeGalKCompletedReciprocityInjectivitySupply
+
+/-- The direct injectivity supply implies the uniform odd-degree `q = 2` theorem. -/
+theorem oddDegreeGalKDemushkinQTwo_of_completionReciprocitySupply
+    (hSupply : OddDegreeGalKCompletionReciprocitySupply) :
+    OddDegreeGalKDemushkinQTwo :=
+  oddDegreeGalKDemushkinQTwo_of_completedReciprocityInjectivitySupply hSupply
+
+/-- The uniform arithmetic-facing supply.  Its reciprocity component is finite local CFT, not
+an already-completed injectivity assertion. -/
+def OddDegreeGalKFiniteTwoLocalReciprocitySupply : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      FiniteTwoLocalReciprocitySupply (markedRecipAt K)
+
+/-- A uniform finite local-CFT supply proves the uniform odd-degree `q = 2` theorem, deriving
+completed reciprocity injectivity internally at every field. -/
+theorem oddDegreeGalKDemushkinQTwo_of_finiteTwoLocalReciprocitySupply
+    (hSupply : OddDegreeGalKFiniteTwoLocalReciprocitySupply) :
+    OddDegreeGalKDemushkinQTwo := by
+  intro K _ _ _ _ hodd
+  have hfinite := hSupply K hodd
+  exact demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity
+    K hodd hfinite
+
 /-- Compatibility name for the earlier uniform supply. -/
 abbrev OddDegreeGalKRamifiedITorsionSupply :=
   OddDegreeGalKCompletedReciprocityInjectivitySupply
@@ -105,6 +162,10 @@ theorem oddDegreeGalKDemushkinQTwo_of_ramifiedITorsionSupply
 #print axioms oddDegreeGalKDemushkinQTwo_of_torsionGenerationSupply
 #print axioms demushkinQ_maxProTwoGalK_eq_two_of_odd_completedReciprocityInjective
 #print axioms oddDegreeGalKDemushkinQTwo_of_completedReciprocityInjectivitySupply
+#print axioms demushkinQ_maxProTwoGalK_eq_two_of_odd_completion
+#print axioms demushkinQ_maxProTwoGalK_eq_two_of_odd_finiteTwoLocalReciprocity
+#print axioms oddDegreeGalKDemushkinQTwo_of_completionReciprocitySupply
+#print axioms oddDegreeGalKDemushkinQTwo_of_finiteTwoLocalReciprocitySupply
 
 end
 
