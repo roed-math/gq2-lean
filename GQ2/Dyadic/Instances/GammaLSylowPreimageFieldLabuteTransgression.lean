@@ -20,6 +20,7 @@ namespace GQ2.Dyadic.LSquare
 noncomputable section
 
 open GQ2 GQ2.Roe.Labute ContCoh
+open scoped commutatorElement
 
 section Defect
 
@@ -475,6 +476,185 @@ theorem lowerTwoCentralTransgression_injective
   apply lowerTwoCentralTransgression_eq_zero_only G hfg hpro (chi - psi)
   rw [map_sub, heq, sub_self]
 
+/-- A primitive for an inflated cocycle restricts to a character of `lambda_2`, invariant
+under ambient conjugation and therefore descending to `lambda_2/lambda_3`.  This is the
+well-definedness core of five-term surjectivity. -/
+theorem exists_lowerTwoCentralLayerCharacter_of_inflation_coboundary
+    (z :
+      let Q := levelQuot G 2
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      Z2 Q (ZMod 2))
+    (b :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      C1 G (ZMod 2))
+    (hdb :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      let Q := levelQuot G 2
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      dOne G (ZMod 2) b.1 =
+        (Z2comap ⟨levelMk G 2, continuous_levelMk G 2⟩
+          (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z).1) :
+    ∃ chi : Additive (zLayer G 2) →+ ZMod 2,
+      ∀ n : twoCentralSeries G 2,
+        chi (Additive.ofMul
+          ⟨levelMk G 3 n.1, ⟨n.1, n.2, rfl⟩⟩) = b.1 n.1 - b.1 1 := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  let N := twoCentralSeries G 2
+  have hb_one : b.1 1 = z.1 (1, 1) := by
+    have h := congrFun hdb (1, 1)
+    simpa [dOne, Z2comap] using h
+  let cN : ContinuousMonoidHom N (Multiplicative (ZMod 2)) :=
+    { toFun := fun n => Multiplicative.ofAdd (b.1 n.1 - b.1 1)
+      map_one' := by simp
+      map_mul' := by
+        intro n m
+        apply Multiplicative.ofAdd.injective
+        change b.1 (n.1 * m.1) - b.1 1 =
+          (b.1 n.1 - b.1 1) + (b.1 m.1 - b.1 1)
+        have hnq : levelMk G 2 n.1 = 1 := (QuotientGroup.eq_one_iff n.1).mpr n.2
+        have hmq : levelMk G 2 m.1 = 1 := (QuotientGroup.eq_one_iff m.1).mpr m.2
+        have hd : b.1 m.1 - b.1 (n.1 * m.1) + b.1 n.1 = z.1 (1, 1) := by
+          have hd' := congrFun hdb (n.1, m.1)
+          dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at hd'
+          change n.1 • b.1 m.1 - b.1 (n.1 * m.1) + b.1 n.1 =
+            z.1 (levelMk G 2 n.1, levelMk G 2 m.1) at hd'
+          rw [scalarActionZmodTwo_triv G, hnq, hmq] at hd'
+          simpa using hd'
+        rw [hb_one, ← hd]
+        abel
+      continuous_toFun := by
+        change Continuous fun n : N => b.1 n.1 - b.1 1
+        exact (b.2.comp continuous_subtype_val).sub continuous_const }
+  have hz_right (q : Q) : z.1 (q, 1) = z.1 (1, 1) := by
+    have hz := (mem_Z2_iff.mp z.2).2 q 1 1
+    rw [scalarActionZmodTwo_triv Q] at hz
+    have hz' : z.1 (1, 1) + z.1 (q, 1) = z.1 (q, 1) + z.1 (q, 1) := by
+      simpa using hz
+    exact (add_right_cancel hz').symm
+  have hcN_conj (g : G) (n : N) :
+      cN ⟨g * n.1 * g⁻¹, by
+        exact (twoCentralSeries_normal G 2).conj_mem n.1 n.2 g⟩ = cN n := by
+    apply Multiplicative.ofAdd.injective
+    change b.1 (g * n.1 * g⁻¹) - b.1 1 = b.1 n.1 - b.1 1
+    have hnq : levelMk G 2 n.1 = 1 := (QuotientGroup.eq_one_iff n.1).mpr n.2
+    have hgn : b.1 n.1 - b.1 (g * n.1) + b.1 g = z.1 (levelMk G 2 g, 1) := by
+      have h := congrFun hdb (g, n.1)
+      dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at h
+      change g • b.1 n.1 - b.1 (g * n.1) + b.1 g =
+        z.1 (levelMk G 2 g, levelMk G 2 n.1) at h
+      rw [scalarActionZmodTwo_triv G, hnq] at h
+      simpa using h
+    have hstep : b.1 g⁻¹ - b.1 (g * n.1 * g⁻¹) + b.1 (g * n.1) =
+        z.1 (levelMk G 2 g, (levelMk G 2 g)⁻¹) := by
+      have h := congrFun hdb (g * n.1, g⁻¹)
+      dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at h
+      change (g * n.1) • b.1 g⁻¹ - b.1 (g * n.1 * g⁻¹) + b.1 (g * n.1) =
+        z.1 (levelMk G 2 (g * n.1), levelMk G 2 g⁻¹) at h
+      rw [scalarActionZmodTwo_triv G, map_mul, hnq, mul_one, map_inv] at h
+      simpa using h
+    have hgg : b.1 g⁻¹ - b.1 1 + b.1 g =
+        z.1 (levelMk G 2 g, (levelMk G 2 g)⁻¹) := by
+      have h := congrFun hdb (g, g⁻¹)
+      dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at h
+      change g • b.1 g⁻¹ - b.1 (g * g⁻¹) + b.1 g =
+        z.1 (levelMk G 2 g, levelMk G 2 g⁻¹) at h
+      rw [scalarActionZmodTwo_triv G] at h
+      simpa using h
+    have hgn' : b.1 (g * n.1) = b.1 n.1 + b.1 g - b.1 1 := by
+      rw [hb_one, ← hz_right (levelMk G 2 g), ← hgn]
+      abel
+    have hconj' : b.1 (g * n.1 * g⁻¹) =
+        b.1 g⁻¹ + b.1 (g * n.1) -
+          z.1 (levelMk G 2 g, (levelMk G 2 g)⁻¹) := by
+      rw [eq_sub_iff_add_eq, ← hstep]
+      abel
+    rw [hconj', ← hgg, hgn']
+    abel
+  let K : Subgroup G := cN.toMonoidHom.ker.map N.subtype
+  have hK_closed : IsClosed (K : Set G) := by
+    have hker_closed : IsClosed (cN.toMonoidHom.ker : Set N) := by
+      have hset : (cN.toMonoidHom.ker : Set N) = cN ⁻¹' {1} := by
+        ext n
+        simp [MonoidHom.mem_ker]
+      rw [hset]
+      exact isClosed_singleton.preimage cN.continuous_toFun
+    have hset : (K : Set G) = Subtype.val '' (cN.toMonoidHom.ker : Set N) := by
+      ext g
+      simp [K]
+    rw [hset]
+    exact (isClosed_twoCentralSeries G 2).isClosedEmbedding_subtypeVal.isClosedMap _ hker_closed
+  have hsucc : twoCentralSucc N ≤ K := by
+    apply Subgroup.topologicalClosure_minimal
+    · apply sup_le
+      · refine (Subgroup.closure_le K).mpr ?_
+        rintro _ ⟨n, hn, rfl⟩
+        refine ⟨⟨n ^ 2, N.pow_mem hn 2⟩, ?_, rfl⟩
+        apply MonoidHom.mem_ker.mpr
+        change cN.toMonoidHom ((⟨n, hn⟩ : N) ^ 2) = 1
+        rw [map_pow]
+        apply Multiplicative.toAdd.injective
+        rw [toAdd_pow, toAdd_one, two_nsmul, Count.zmod2_add_self]
+      · rw [Subgroup.commutator_le]
+        intro n hn g _hg
+        let nn : N := ⟨n, hn⟩
+        let ng : N := ⟨g * n⁻¹ * g⁻¹,
+          (twoCentralSeries_normal G 2).conj_mem n⁻¹ (N.inv_mem hn) g⟩
+        have hcommN : ⁅n, g⁆ ∈ N := (Subgroup.commutator_le_left N ⊤)
+          (Subgroup.commutator_mem_commutator hn (Subgroup.mem_top g))
+        refine ⟨⟨⁅n, g⁆, hcommN⟩, ?_, rfl⟩
+        apply MonoidHom.mem_ker.mpr
+        have hdecomp : (⟨⁅n, g⁆,
+            hcommN⟩ : N) = nn * ng := by
+          apply Subtype.ext
+          change ⁅n, g⁆ = n * (g * n⁻¹ * g⁻¹)
+          rw [commutatorElement_def]
+          group
+        rw [hdecomp, map_mul]
+        change cN nn * cN ⟨g * (nn⁻¹).1 * g⁻¹, _⟩ = 1
+        rw [hcN_conj g nn⁻¹, map_inv, mul_inv_cancel]
+    · exact hK_closed
+  have hthree_le : twoCentralSeries G 3 ≤ K := by
+    rw [twoCentralSeries_succ G (by omega)]
+    exact hsucc
+  let layerMk : N →* zLayer G 2 :=
+    { toFun := fun n => ⟨levelMk G 3 n.1, ⟨n.1, n.2, rfl⟩⟩
+      map_one' := Subtype.ext (map_one (levelMk G 3))
+      map_mul' := fun n m => Subtype.ext (map_mul (levelMk G 3) n.1 m.1) }
+  have hlayer_surj : Function.Surjective layerMk := by
+    intro x
+    obtain ⟨g, hg, hgx⟩ := x.2
+    exact ⟨⟨g, hg⟩, Subtype.ext hgx⟩
+  have hker : layerMk.ker ≤ cN.toMonoidHom.ker := by
+    intro n hn
+    have hn3 : n.1 ∈ twoCentralSeries G 3 := by
+      apply (QuotientGroup.eq_one_iff n.1).mp
+      exact congrArg Subtype.val (MonoidHom.mem_ker.mp hn)
+    obtain ⟨m, hm, hmn⟩ := hthree_le hn3
+    have hmval : m.1 = n.1 := by simpa using hmn
+    have hmker : cN m = 1 := MonoidHom.mem_ker.mp hm
+    have hmn : m = n := Subtype.ext hmval
+    rw [← hmn]
+    exact hmker
+  let cL : zLayer G 2 →* Multiplicative (ZMod 2) :=
+    MonoidHom.liftOfSurjective layerMk hlayer_surj ⟨cN.toMonoidHom, hker⟩
+  let chi : Additive (zLayer G 2) →+ ZMod 2 :=
+    { toFun := fun x => Multiplicative.toAdd (cL x.toMul)
+      map_zero' := congrArg Multiplicative.toAdd (map_one cL)
+      map_add' := fun x y => congrArg Multiplicative.toAdd (map_mul cL x.toMul y.toMul) }
+  refine ⟨chi, ?_⟩
+  intro n
+  change Multiplicative.toAdd (cL (layerMk n)) = b.1 n.1 - b.1 1
+  rw [show cL (layerMk n) = cN n from by simp [cL]]
+  rfl
+
 /-- The remaining five-term theorem is precisely bijectivity of the explicit transgression. -/
 def LowerTwoCentralTransgressionBijective
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) : Prop :=
@@ -507,6 +687,7 @@ end Cocycle
 #print axioms lowerTwoCentralTransgression_inflated_eq_dOne
 #print axioms lowerTwoCentralTransgressionH2_mem_inflationKernel
 #print axioms lowerTwoCentralTransgression_injective
+#print axioms exists_lowerTwoCentralLayerCharacter_of_inflation_coboundary
 #print axioms lowerTwoCentralFiveTermKernelDuality_of_transgressionBijective
 
 end
