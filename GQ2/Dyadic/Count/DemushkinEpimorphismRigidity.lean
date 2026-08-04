@@ -535,6 +535,132 @@ def InvariantKernelCharacterEquivariantExtensionSupply : Prop :=
       ∀ (g : G) (n : EpiKernel f),
         b (g * n.1) = b g + Multiplicative.toAdd (chi n)
 
+/-- Purely algebraic coset representatives extend a character of a normal subgroup to a
+right-equivariant function.  The subtraction at `1` removes the arbitrary representative of
+the identity coset, so the extension restricts literally to `chi`. -/
+private theorem exists_rightEquivariantExtension
+    {F : Type} [Group F] (N : Subgroup F) [N.Normal]
+    (chi : N →* Multiplicative (ZMod 2)) :
+    ∃ b : F → ZMod 2,
+      (∀ n : N, b n.1 = Multiplicative.toAdd (chi n)) ∧
+      ∀ (x : F) (n : N), b (x * n.1) = b x + Multiplicative.toAdd (chi n) := by
+  let rep : F → F := fun x => Quotient.out (QuotientGroup.mk' N x)
+  have hrep_quot (x : F) : QuotientGroup.mk' N (rep x) = QuotientGroup.mk' N x :=
+    Quotient.out_eq _
+  have htail (x : F) : (rep x)⁻¹ * x ∈ N := by
+    apply (QuotientGroup.eq_one_iff ((rep x)⁻¹ * x)).mp
+    change QuotientGroup.mk' N ((rep x)⁻¹ * x) = 1
+    rw [map_mul, map_inv, hrep_quot, inv_mul_cancel]
+  let tail (x : F) : N := ⟨(rep x)⁻¹ * x, htail x⟩
+  have hrep_mul_N (x : F) (n : N) : rep (x * n.1) = rep x := by
+    dsimp [rep]
+    apply congrArg Quotient.out
+    change (QuotientGroup.mk' N x) * QuotientGroup.mk' N n.1 =
+      QuotientGroup.mk' N x
+    have hnq : QuotientGroup.mk' N n.1 = 1 :=
+      (QuotientGroup.eq_one_iff n.1).mpr n.2
+    rw [hnq, mul_one]
+  have htail_mul_N (x : F) (n : N) : tail (x * n.1) = tail x * n := by
+    apply Subtype.ext
+    dsimp [tail]
+    rw [hrep_mul_N]
+    group
+  let raw : F → ZMod 2 := fun x => Multiplicative.toAdd (chi (tail x))
+  have hraw (x : F) (n : N) : raw (x * n.1) = raw x + Multiplicative.toAdd (chi n) := by
+    dsimp [raw]
+    rw [htail_mul_N, map_mul]
+    rfl
+  let b : F → ZMod 2 := fun x => raw x - raw 1
+  refine ⟨b, ?_, ?_⟩
+  · intro n
+    dsimp [b]
+    rw [show n.1 = (1 : F) * n.1 by simp, hraw]
+    abel
+  · intro x n
+    dsimp [b]
+    rw [hraw]
+    abel
+
+/-- Every invariant continuous mod-two kernel character has the equivariant extension required
+by transgression.
+
+The character kernel is open in `ker f`.  An ambient open normal subgroup `U` is chosen whose
+intersection with `ker f` lies in that kernel.  The character therefore factors through the
+image of `ker f` in the finite quotient `G/U`; ordinary coset representatives there give the
+extension, and pullback from the discrete finite quotient makes it continuous. -/
+theorem invariantKernelCharacterEquivariantExtensionSupply :
+    InvariantKernelCharacterEquivariantExtensionSupply f := by
+  intro chi _hchi
+  let N : Subgroup G := EpiKernel f
+  let K : Subgroup N := chi.toMonoidHom.ker
+  have hKopen : IsOpen (K : Set N) := by
+    change IsOpen (chi ⁻¹' {1})
+    exact (isOpen_discrete {1}).preimage chi.continuous_toFun
+  obtain ⟨O, hOopen, hOK⟩ := isOpen_induced_iff.mp hKopen
+  have h1O : (1 : G) ∈ O := by
+    have h1K : (1 : N) ∈ Subtype.val ⁻¹' O := by
+      rw [hOK]
+      exact K.one_mem
+    exact h1K
+  obtain ⟨U, hUO⟩ :=
+    ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one hOopen h1O
+  let F : Type := G ⧸ U.toSubgroup
+  letI : DiscreteTopology F := QuotientGroup.discreteTopology U.isOpen
+  letI : Finite F := Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen
+  let q : ContinuousMonoidHom G F := GQ2.quotientMk U.toSubgroup
+  let Nbar : Subgroup F := N.map q.toMonoidHom
+  letI : Nbar.Normal :=
+    Subgroup.Normal.map (inferInstance : N.Normal) q.toMonoidHom
+      (GQ2.quotientMk_surjective U.toSubgroup)
+  let qN : ContinuousMonoidHom N Nbar := {
+    toFun := fun n => ⟨q n.1, Subgroup.mem_map_of_mem q.toMonoidHom n.2⟩
+    map_one' := Subtype.ext (map_one q)
+    map_mul' := fun n m => Subtype.ext (map_mul q n.1 m.1)
+    continuous_toFun := by
+      apply continuous_induced_rng.mpr
+      exact q.continuous_toFun.comp continuous_subtype_val }
+  have hqN : Function.Surjective qN := by
+    intro y
+    obtain ⟨g, hgN, hgy⟩ := y.2
+    exact ⟨⟨g, hgN⟩, Subtype.ext hgy⟩
+  have hqNker : qN.toMonoidHom.ker ≤ chi.toMonoidHom.ker := by
+    intro n hn
+    have hnqN : qN n = 1 := MonoidHom.mem_ker.mp hn
+    have hnq : q n.1 = 1 := congrArg Subtype.val hnqN
+    have hnU : n.1 ∈ U.toSubgroup :=
+      (QuotientGroup.eq_one_iff n.1).mp hnq
+    have hnO : n.1 ∈ O := hUO hnU
+    have hnK : n ∈ K := by
+      have : n ∈ Subtype.val ⁻¹' O := hnO
+      rwa [hOK] at this
+    exact hnK
+  let chiBarHom : Nbar →* Multiplicative (ZMod 2) :=
+    qN.toMonoidHom.liftOfSurjective hqN ⟨chi.toMonoidHom, hqNker⟩
+  let chiBar : ContinuousMonoidHom Nbar (Multiplicative (ZMod 2)) :=
+    ⟨chiBarHom, continuous_of_discreteTopology⟩
+  have hchiBar (n : N) : chiBar (qN n) = chi n := by
+    exact qN.toMonoidHom.liftOfRightInverse_comp_apply
+      (Function.surjInv hqN) (Function.rightInverse_surjInv hqN)
+      ⟨chi.toMonoidHom, hqNker⟩ n
+  obtain ⟨bbar, hbbarN, hbbar⟩ :=
+    exists_rightEquivariantExtension Nbar chiBar.toMonoidHom
+  let b : G → ZMod 2 := fun g => bbar (q g)
+  refine ⟨b, continuous_of_discreteTopology.comp q.continuous_toFun, ?_, ?_⟩
+  · intro n
+    change bbar (q n.1) = Multiplicative.toAdd (chi n)
+    have h := hbbarN (qN n)
+    change bbar (q n.1) = Multiplicative.toAdd (chiBar (qN n)) at h
+    rw [hchiBar] at h
+    exact h
+  · intro g n
+    change bbar (q (g * n.1)) = bbar (q g) + Multiplicative.toAdd (chi n)
+    rw [map_mul]
+    have h := hbbar (q g) (qN n)
+    change bbar (q g * q n.1) =
+      bbar (q g) + Multiplicative.toAdd (chiBar (qN n)) at h
+    rw [hchiBar] at h
+    exact h
+
 private theorem equivariantExtension_coboundary_right_coset
     (chi : ContinuousMonoidHom (EpiKernel f) (Multiplicative (ZMod 2)))
     (b : G → ZMod 2)
@@ -684,7 +810,7 @@ theorem h1H2InflationDetectsInvariantKernelCharacters_of_equivariantExtension
     change dOne H (ZMod 2) a (f g, f h) = c.1 (f g, f h) at hca
     rw [hc] at hca
     simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk,
-      scalarActionZmodTwo_triv H, scalarActionZmodTwo_triv G, map_mul] at hca ⊢
+      scalarActionZmodTwo_triv H, scalarActionZmodTwo_triv G] at hca ⊢
     dsimp [zfun]
     rw [map_mul]
     rw [← sub_eq_zero]
@@ -726,6 +852,18 @@ theorem h1H2InflationDetectsInvariantKernelCharacters_of_equivariantExtension
     change b n.1 - a (f n.1) = Multiplicative.toAdd (chi n)
     rw [hbker n, hn, ha1, sub_zero]
   exact hzker ▸ hzn
+
+/-- **Continuous Hochschild--Serre five-term kernel detection.**
+
+For a continuous epimorphism of profinite groups, surjectivity of mod-two degree-one inflation
+and injectivity of degree-two inflation force every ambient-conjugation-invariant continuous
+mod-two character of the kernel to vanish.  The proof is fully explicit in continuous
+inhomogeneous cochains; no five-term exact-sequence API or continuous section is assumed. -/
+theorem h1H2InflationDetectsInvariantKernelCharacters
+    (hf : Function.Surjective f) :
+    H1H2InflationDetectsInvariantKernelCharacters f :=
+  h1H2InflationDetectsInvariantKernelCharacters_of_equivariantExtension f hf
+    (invariantKernelCharacterEquivariantExtensionSupply f)
 
 end FiveTerm
 
