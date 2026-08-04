@@ -309,6 +309,68 @@ noncomputable def CoreHandleSharpActualDefectSupply.ofRawCharacterMatch
     h k hk base correction hdepth]
   exact hkill
 
+/-- The exact combined endpoint of the raw Labute calculation and its finite
+sharp-character refinement. -/
+def RawDefectSharpCharacterMatchSupply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k) : Prop :=
+  ∃ (W : SharpAdmissibleCorrection T (by omega))
+      (correction : Fin (SqCore.sqRank h) →
+        levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)),
+    (∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1)) ∧
+    stageShift
+        (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+        correction =
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ ∧
+    RawCorrectionSharpCharacterMatches W correction
+
+/-- The sharp actual-defect correction exists exactly when a raw depth correction kills the
+defect and its finite sharp-character vector agrees with one sharp-admissible base point. -/
+theorem rawDefectSharpCharacterMatchSupply_iff_nonempty_actualDefectSupply
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k} :
+    RawDefectSharpCharacterMatchSupply T hk ↔
+      Nonempty (CoreHandleSharpActualDefectSupply T hk) := by
+  constructor
+  · rintro ⟨W, correction, hdepth, hkill, hmatch⟩
+    exact ⟨CoreHandleSharpActualDefectSupply.ofRawCharacterMatch
+      W correction hdepth hkill hmatch⟩
+  · rintro ⟨S⟩
+    let W := S.correction
+    refine ⟨W, W.correction, W.depth, ?_, fun _ ↦ rfl⟩
+    let base := fun i ↦
+      canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+    rw [stageShift_eq_dbarWordR2_mul_sqHandleDbarWord
+      h k hk base W.correction W.depth]
+    exact S.hitsDefect
+
+/-- The finite refinement premise separated from raw reachability: every raw correction
+hitting the actual defect admits a sharp base point with the same finite character vector. -/
+def RawDefectSharpCharacterRefinement {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k) : Prop :=
+  ∀ (correction : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)),
+    (∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1)) →
+    stageShift
+        (fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i))
+        correction =
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ →
+    ∃ W : SharpAdmissibleCorrection T (by omega),
+      RawCorrectionSharpCharacterMatches W correction
+
+/-- Thus the two independent remaining inputs—raw variable-rank Labute reachability and the
+finite character refinement—supply the exact sharp actual-defect correction. -/
+theorem nonempty_actualDefectSupply_of_raw_of_characterRefinement
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (Hraw : sqRawDefectReachable
+      (maxProPQuotient 2 (GalK K)) h k T.generators)
+    (Hrefine : RawDefectSharpCharacterRefinement T hk) :
+    Nonempty (CoreHandleSharpActualDefectSupply T hk) := by
+  obtain ⟨correction, hdepth, hkill⟩ := Hraw
+  obtain ⟨W, hmatch⟩ := Hrefine correction hdepth hkill
+  apply (rawDefectSharpCharacterMatchSupply_iff_nonempty_actualDefectSupply).mp
+  exact ⟨W, correction, hdepth, hkill, hmatch⟩
+
 /-- Residual reachability is precisely membership in the literal bracket span. -/
 theorem sharpNeutralResidualReachable_iff_mem_bracketSpan
     {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
@@ -355,6 +417,8 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualElement_changeBase
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualElement_quotient_eq
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofRawCharacterMatch
+#print axioms SqCyclotomicStageTuple.rawDefectSharpCharacterMatchSupply_iff_nonempty_actualDefectSupply
+#print axioms SqCyclotomicStageTuple.nonempty_actualDefectSupply_of_raw_of_characterRefinement
 #print axioms SqCyclotomicStageTuple.sharpNeutralResidualReachable_iff_mem_bracketSpan
 #print axioms SqCyclotomicStageTuple.sharpNeutralBracketSpanSupply_iff_nonempty_actualDefectSupply
 
