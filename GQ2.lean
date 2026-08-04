@@ -495,6 +495,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldVariableCoreRigidity
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldVariableCoreTate
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageRankOne
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteLevelThreeSeed
 import GQ2.Dyadic.Instances.GammaLSylowPreimageArithmeticResidual
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
@@ -525,6 +526,7 @@ import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedMaxProTwo
 import GQ2.Dyadic.CyclotomicKummerBridge
+import GQ2.Dyadic.CyclotomicKummerBridgeModEight
 import GQ2.Dyadic.ProTwoReciprocity
 import GQ2.Dyadic.FiniteTwoLocalReciprocity
 import GQ2.Dyadic.FiniteTwoLocalReciprocityKummer
