@@ -1069,6 +1069,121 @@ theorem sqCubicInhomogeneousRelatorEquation_iff_blocks_zero (h : ℕ)
     intro target
     exact hblocks source target
 
+/-! ## The rank-one `X`-column correction -/
+
+/-- The degree-one PBW index represented by a marked letter. -/
+def sqCubicLetterIndex (h : ℕ) (i : Fin (sqRank h)) : SqCubicNormalIndex h :=
+  sqCubicNormalIndexOfHomogeneous h 1 (by omega)
+    (sqQuadraticHomogeneousLetter h i)
+
+@[simp] theorem sqCubicLetterIndex_degree (h : ℕ) (i : Fin (sqRank h)) :
+    sqCubicNormalIndexDegree (sqCubicLetterIndex h i) = 1 :=
+  rfl
+
+theorem sqCubicLetterIndex_ne_empty (h : ℕ) (i : Fin (sqRank h)) :
+    sqCubicLetterIndex h i ≠ sqCubicEmptyIndex h := by
+  intro e
+  have := congrArg sqCubicNormalIndexDegree e
+  simp [sqCubicLetterIndex, sqCubicEmptyIndex] at this
+
+@[simp] theorem sqCubicTruncatedLeftLetter_apply_empty (h : ℕ)
+    (i : Fin (sqRank h)) :
+    sqCubicTruncatedLeftLetter h i (sqCubicEmptyVector h) =
+      Finsupp.single (sqCubicLetterIndex h i) 1 := by
+  have H := sqCubicTruncatedWord_apply_empty h [i] (by simp)
+  change sqCubicTruncatedLeftLetter h i (sqCubicEmptyVector h) = _ at H
+  rw [H]
+  change sqCubicHomogeneousEmbed h 1 _ (sqCubicListPBWNormal h [i]) = _
+  have hone := sqQuadraticWordPBWNormal_one h i
+  change sqCubicListPBWNormal h [i] =
+      Finsupp.single (sqQuadraticHomogeneousLetter h i) 1 at hone
+  rw [hone, sqCubicHomogeneousEmbed_single]
+  rfl
+
+/-- A rank-one endomorphism supported on the column of the degree-one letter `i`. -/
+def sqCubicRankOneLetterColumn (h : ℕ) (i : Fin (sqRank h))
+    (v : SqCubicNormalSpace h) :
+    Module.End (ZMod 2) (SqCubicNormalSpace h) :=
+  (LinearMap.toSpanSingleton (ZMod 2) (SqCubicNormalSpace h) v).comp
+    (Finsupp.lapply (sqCubicLetterIndex h i))
+
+@[simp] theorem sqCubicRankOneLetterColumn_apply (h : ℕ)
+    (i : Fin (sqRank h)) (v x : SqCubicNormalSpace h) :
+    sqCubicRankOneLetterColumn h i v x =
+      x (sqCubicLetterIndex h i) • v :=
+  rfl
+
+@[simp] theorem sqCubicRankOneLetterColumn_own_basis (h : ℕ)
+    (i : Fin (sqRank h)) (v : SqCubicNormalSpace h) :
+    sqCubicRankOneLetterColumn h i v
+        (Finsupp.single (sqCubicLetterIndex h i) 1) = v := by
+  simp
+
+@[simp] theorem sqCubicRankOneLetterColumn_empty (h : ℕ)
+    (i : Fin (sqRank h)) (v : SqCubicNormalSpace h) :
+    sqCubicRankOneLetterColumn h i v (sqCubicEmptyVector h) = 0 := by
+  rw [sqCubicRankOneLetterColumn_apply, sqCubicEmptyVector_eq_single]
+  simp [sqCubicLetterIndex_ne_empty]
+
+theorem sqCubicRankOneLetterColumn_raises_two (h : ℕ)
+    (i : Fin (sqRank h)) (v : SqCubicNormalSpace h)
+    (hv : v ∈ sqCubicNormalFiltration h 3) :
+    SqCubicRaisesBy (sqCubicRankOneLetterColumn h i v) 2 := by
+  intro n x hx
+  by_cases hn : n ≤ 1
+  · exact sqCubicNormalFiltration_antitone h (by omega)
+      (Submodule.smul_mem _ _ hv)
+  · have hcoeff : x (sqCubicLetterIndex h i) = 0 := by
+      by_contra hne
+      have hsupp : sqCubicLetterIndex h i ∈ x.support :=
+        Finsupp.mem_support_iff.mpr hne
+      rw [sqCubicNormalFiltration, Finsupp.mem_supported] at hx
+      have := hx hsupp
+      change n ≤ sqCubicNormalIndexDegree (sqCubicLetterIndex h i) at this
+      rw [sqCubicLetterIndex_degree] at this
+      omega
+    rw [sqCubicRankOneLetterColumn_apply, hcoeff, zero_smul]
+    exact Submodule.zero_mem _
+
+/-- A correction supported only at the marked generator `X` (index `1`), on the source
+column represented by the degree-one letter `S` (index `0`). -/
+def sqCubicXFromSColumnCorrection (h : ℕ) (v : SqCubicNormalSpace h)
+    (hv : v ∈ sqCubicNormalFiltration h 3) : SqCubicDegreeTwoCorrection h where
+  operator i := if i = 1 then sqCubicRankOneLetterColumn h 0 v else 0
+  raises_two i := by
+    split_ifs with hi
+    · exact sqCubicRankOneLetterColumn_raises_two h 0 v hv
+    · exact fun _ _ _ => Submodule.zero_mem _
+
+@[simp] theorem sqCubicXFromSColumnCorrection_X (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    (sqCubicXFromSColumnCorrection h v hv).operator 1 =
+      sqCubicRankOneLetterColumn h 0 v := by
+  simp [sqCubicXFromSColumnCorrection]
+
+theorem sqCubicXFromSColumnCorrection_ne_X (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3)
+    (i : Fin (sqRank h)) (hi : i ≠ 1) :
+    (sqCubicXFromSColumnCorrection h v hv).operator i = 0 := by
+  simp [sqCubicXFromSColumnCorrection, hi]
+
+@[simp] theorem sqCubicXFromSColumnCorrection_X_on_S (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    (sqCubicXFromSColumnCorrection h v hv).operator 1
+        (Finsupp.single (sqCubicLetterIndex h 0) 1) = v := by
+  rw [sqCubicXFromSColumnCorrection_X,
+    sqCubicRankOneLetterColumn_own_basis]
+
+/-- The zero degree-two correction, used to name the uncorrected cubic residual. -/
+def sqCubicZeroDegreeTwoCorrection (h : ℕ) : SqCubicDegreeTwoCorrection h where
+  operator := 0
+  raises_two := fun _ _ _ _ => Submodule.zero_mem _
+
+/-- The source-empty residual of the literal improved relator before the rank-one correction. -/
+def sqCubicHomogeneousRelatorResidual (h : ℕ) : SqCubicNormalSpace h :=
+  sqCubicCorrectedRelatorEnd h (sqCubicZeroDegreeTwoCorrection h)
+    (sqCubicEmptyVector h)
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
