@@ -424,6 +424,82 @@ noncomputable def lowerTwoCentralH2Inflation
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
   exact inf2 ⟨levelMk G 2, continuous_levelMk G 2⟩ (fun _ _ => rfl)
 
+/-- Canonical degree-one inflation for the same Frattini quotient. -/
+noncomputable def lowerTwoCentralH1Inflation
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    H1 Q (ZMod 2) →+ H1 G (ZMod 2) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  exact inf1 ⟨levelMk G 2, continuous_levelMk G 2⟩ (fun _ _ => rfl)
+
+/-- Every mod-`2` degree-one class factors through `G/λ₂(G)`: in character language this is
+exactly `continuousCharacterLevelTwoEquiv`. -/
+theorem lowerTwoCentralH1Inflation_surjective
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    Function.Surjective (lowerTwoCentralH1Inflation G) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  dsimp only
+  intro x
+  obtain ⟨z, rfl⟩ := H1mk_surjective (G := G) (M := ZMod 2) x
+  let cG : ContinuousMonoidHom G (Multiplicative (ZMod 2)) := Count.homEquivZ1.symm z
+  let cQ : ContinuousMonoidHom Q (Multiplicative (ZMod 2)) :=
+    (continuousCharacterLevelTwoEquiv G).symm cG
+  let zQ : Z1 Q (ZMod 2) := Count.homEquivZ1 cQ
+  refine ⟨H1mk Q (ZMod 2) zQ, ?_⟩
+  rw [show lowerTwoCentralH1Inflation G =
+      inf1 ⟨levelMk G 2, continuous_levelMk G 2⟩ (fun _ _ => rfl) from rfl,
+    inf1_H1mk]
+  congr 1
+
+/-- Inflation along `G → G/λ₂(G)` respects the trivial-coefficient cup product. -/
+theorem lowerTwoCentralH2Inflation_trivialCupPairing
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (x y :
+      let Q := levelQuot G 2
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      H1 Q (ZMod 2)) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    lowerTwoCentralH2Inflation G
+        (trivialCupPairing 2 Q (fun _ _ => rfl) x y) =
+      trivialCupPairing 2 G (fun _ _ => rfl)
+        (lowerTwoCentralH1Inflation G x) (lowerTwoCentralH1Inflation G y) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  obtain ⟨a, rfl⟩ := H1mk_surjective (G := Q) (M := ZMod 2) x
+  obtain ⟨b, rfl⟩ := H1mk_surjective (G := Q) (M := ZMod 2) y
+  simp only [trivialCupPairing]
+  rw [show lowerTwoCentralH2Inflation G =
+      inf2 ⟨levelMk G 2, continuous_levelMk G 2⟩ (fun _ _ => rfl) from rfl,
+    show lowerTwoCentralH1Inflation G =
+      inf1 ⟨levelMk G 2, continuous_levelMk G 2⟩ (fun _ _ => rfl) from rfl,
+    cup11_mk_mk, inf2_H2mk, inf1_H1mk, inf1_H1mk, cup11_mk_mk]
+  congr 1
+
 /-- The exact five-term input still absent from the cohomology library: the mod-`2` dual of
 `λ₂/λ₃` is the kernel of canonical degree-two inflation from `G/λ₂`.  Stating an additive
 equivalence is exactly the `H¹(λ₂,𝔽₂)^G ≃ ker(inf²)` portion of Hochschild--Serre, after the
@@ -450,6 +526,55 @@ def LowerTwoCentralH2InflationSurjective
   letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
   Function.Surjective (lowerTwoCentralH2Inflation G)
+
+/-- **The inflation-surjectivity component is unconditional for positive-rank Demushkin
+groups.**  Degree-one classes factor through the Frattini quotient, cup products commute with
+inflation, and nondegeneracy produces a nonzero class in the image.  Since Demushkin `H²` has
+order two, that nonzero class together with zero exhausts the codomain. -/
+theorem lowerTwoCentralH2InflationSurjective_of_demushkin
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G)
+    (hrank :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      0 < demushkinRank 2 G) :
+    LowerTwoCentralH2InflationSurjective G := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  dsimp only [LowerTwoCentralH2InflationSurjective]
+  letI : Finite (H1 G (ZMod 2)) := hD.finiteH1
+  letI : Fintype (H1 G (ZMod 2)) := Fintype.ofFinite _
+  have hH1card : Fintype.card (H1 G (ZMod 2)) = 2 ^ demushkinRank 2 G := by
+    rw [← Nat.card_eq_fintype_card]
+    exact hD.card_H1_eq_pow
+  have hH1large : 1 < Fintype.card (H1 G (ZMod 2)) := by
+    rw [hH1card]
+    exact Nat.one_lt_pow hrank.ne' (by omega)
+  obtain ⟨a, b, hab⟩ := Fintype.one_lt_card_iff.mp hH1large
+  let x := a - b
+  have hx : x ≠ 0 := sub_ne_zero.mpr hab
+  obtain ⟨y, hcup⟩ := hD.nondegen_left' (fun _ _ => rfl) x hx
+  obtain ⟨xQ, hxQ⟩ := lowerTwoCentralH1Inflation_surjective G x
+  obtain ⟨yQ, hyQ⟩ := lowerTwoCentralH1Inflation_surjective G y
+  let cupQ := trivialCupPairing 2 Q (fun _ _ => rfl) xQ yQ
+  have hcupImage : lowerTwoCentralH2Inflation G cupQ =
+      trivialCupPairing 2 G (fun _ _ => rfl) x y := by
+    dsimp only [cupQ]
+    rw [lowerTwoCentralH2Inflation_trivialCupPairing, hxQ, hyQ]
+  obtain ⟨w, hw, hwuniq⟩ :=
+    (Nat.card_eq_two_iff' (0 : H2 G (ZMod 2))).mp hD.cardH2
+  intro z
+  by_cases hz : z = 0
+  · exact ⟨0, by rw [map_zero, hz]⟩
+  · have hcupw : trivialCupPairing 2 G (fun _ _ => rfl) x y = w := hwuniq _ hcup
+    have hzw : z = w := hwuniq z hz
+    refine ⟨cupQ, ?_⟩
+    rw [hcupImage, hcupw, hzw]
 
 /-- The second independent finite-group input: for the elementary-abelian Frattini quotient of
 rank `d`, degree-two mod-`2` cohomology has dimension `d(d+1)/2`. -/
@@ -528,6 +653,32 @@ theorem lowerTwoCentralFiveTermCardFormula_of_kernelDuality
       rw [← hrangeCard, ← hquotRange, mul_comm]
       exact hdomain.symm
     _ = 2 ^ lowerTwoCentralQuadraticDimension (demushkinRank 2 G) := helem
+
+/-- For a positive-rank Demushkin group, inflation surjectivity is no longer an input.  Thus the
+field-side cardinal formula is reduced to exactly two missing ingredients: five-term kernel
+duality and the elementary-abelian `H²` cardinal computation. -/
+theorem lowerTwoCentralFiveTermCardFormula_of_kernelDuality_demushkin
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G)
+    (hD :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      IsDemushkin 2 G)
+    (hrank :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      0 < demushkinRank 2 G)
+    (hdual : LowerTwoCentralFiveTermKernelDuality G)
+    (helem : LowerTwoCentralElementaryH2CardFormula G
+      (letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+       demushkinRank 2 G)) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    LowerTwoCentralFiveTermCardFormula G := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  exact lowerTwoCentralFiveTermCardFormula_of_kernelDuality G hfg hD.isProP hdual
+    (lowerTwoCentralH2InflationSurjective_of_demushkin G hD hrank) helem
 
 /-- The model-side degree-two supply.  The completed Magnus/PBW development already proves
 that the certified quadratic relation generates the entire completed degree-two relation
@@ -842,6 +993,22 @@ def OddDegreeGalKLowerTwoCentralFiveTermCardSupply : Prop :=
       letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
       letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
       LowerTwoCentralFiveTermCardFormula Q
+
+/-- Canonical degree-two inflation from the Frattini quotient of `G_K(2)` is surjective for
+every finite dyadic field.  This is the direct field specialization of Demushkin
+nondegeneracy; no odd-degree or `q = 2` assumption is involved. -/
+theorem maxProTwoGalK_lowerTwoCentralH2InflationSurjective
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] :
+    LowerTwoCentralH2InflationSurjective (maxProPQuotient 2 (GalK K)) := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  apply lowerTwoCentralH2InflationSurjective_of_demushkin Q
+  · exact isDemushkin_maxProTwoGalK (K := K)
+  · rw [demushkinRank_maxProTwoGalK (K := K)]
+    omega
 
 /-- The exact five-term seam plus the already-proved Demushkin cup-product theorem computes
 the arithmetic quadratic layer. -/
@@ -1184,7 +1351,12 @@ theorem oddDegreeGalKSqGeneratorPresentation_of_layerCardPresentation
 #print axioms oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_zero
 #print axioms oddDegreeGalKSq_firstTwoLayerCardAgreement
 #print axioms lowerTwoCentralH2Inflation
+#print axioms lowerTwoCentralH1Inflation_surjective
+#print axioms lowerTwoCentralH2Inflation_trivialCupPairing
+#print axioms lowerTwoCentralH2InflationSurjective_of_demushkin
 #print axioms lowerTwoCentralFiveTermCardFormula_of_kernelDuality
+#print axioms lowerTwoCentralFiveTermCardFormula_of_kernelDuality_demushkin
+#print axioms maxProTwoGalK_lowerTwoCentralH2InflationSurjective
 #print axioms lowerTwoCentralDegreeTwoExpectedCard_of_fiveTerm
 #print axioms card_zLayer_two_dr
 #print axioms card_zLayer_two_dsq_zero
