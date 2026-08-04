@@ -452,6 +452,7 @@ import GQ2.Dyadic.Count.H3SqFiniteResidualCapstone
 import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
+import GQ2.Dyadic.Count.DemushkinEpimorphismRigidity
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
 import GQ2.Dyadic.Instances.GammaLDirectAsphericity
 import GQ2.Dyadic.Instances.GammaLImageAsphericity
