@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
-import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
+import GQ2.Dyadic.Count.H3CorrectedCocycleFiber
 import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationKernel
 
 /-!
@@ -117,6 +117,28 @@ noncomputable def tateDualityG_of_sqJointReconstructionLiftSystems
   tateDualityG_of_sqCoreAndSylowKernelResiduals hq2 hqe R
     (finiteElementaryH2RightExactSupply_DSq_of_jointReconstructionLiftSystems
       h H S hjoint)
+
+/-- Corrected-transition form of the honest arithmetic endpoint.  The transition family is
+first strictified through its explicit affine Fox-kernel obstruction; the one-relator lift is
+then chosen jointly with its reconstruction table. -/
+noncomputable def tateDualityG_of_sqCorrectedJointLiftSystems
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (C : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCorrectedCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (T : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      (C V).RawStrictification)
+    (hjoint : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionJointLiftSystemAt
+        (T V).raw.degreeThreeComparison
+        (T V).raw.universalSyzygy.relationLiftOfSqPresentation)
+    (R : GammaLSylowPreimageKernelH2AndCoreEqualitySupply h q) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_sqCoreAndSylowKernelResiduals hq2 hqe R
+    (finiteElementaryH2RightExactSupply_DSq_of_correctedJointLiftSystems
+      h H C T hjoint)
 
 /-- Specialization of the preceding route to the named canonical square-presentation lift. -/
 noncomputable def tateDualityG_of_sqCompatibleReconstructionGenerators

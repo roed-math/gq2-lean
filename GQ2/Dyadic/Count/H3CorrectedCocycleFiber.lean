@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3RelationCharacterTransition
-import GQ2.Dyadic.Count.H3SqFiniteResidualCapstone
+import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
 
 /-!
 # Corrected finite cocycle fibers and their strictification obstruction
@@ -336,6 +336,24 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_correctedStrictifications
   GQ2.ContCoh.finiteElementaryH2RightExactSupply_DSq_of_compatibleLiftReconstructionGenerators
     h H (fun V ↦ (T V).raw) L hgenerators
 
+/-- Preferred corrected-fiber endpoint.  Once the corrected family is strictly represented,
+the one-relator lift may still be chosen jointly with its reconstruction table; it need not be
+fixed before strictification. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_correctedJointLiftSystems
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (C : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCorrectedCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (T : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      (C V).RawStrictification)
+    (hjoint : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionJointLiftSystemAt
+        (T V).raw.degreeThreeComparison
+        (T V).raw.universalSyzygy.relationLiftOfSqPresentation) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) :=
+  GQ2.ContCoh.finiteElementaryH2RightExactSupply_DSq_of_jointReconstructionLiftSystems
+    h H (fun V ↦ (T V).raw) hjoint
+
 /-! ## Terminal regression -/
 
 /-- Corrected finite transition data and its Fox-kernel defect exist everywhere, including the
@@ -354,6 +372,7 @@ theorem sqCorrectedCocycleFiber_strictification_regression (h : ℕ) :
 #print axioms sqUniversalBarInputCorrectedKernelDefect_mem_ker
 #print axioms sqUniversalBarInputCorrectedStrictifiableAt_iff_obstruction_eq_zero
 #print axioms finiteElementaryH2RightExactSupply_DSq_of_correctedStrictifications
+#print axioms finiteElementaryH2RightExactSupply_DSq_of_correctedJointLiftSystems
 #print axioms sqCorrectedCocycleFiber_strictification_regression
 
 end
