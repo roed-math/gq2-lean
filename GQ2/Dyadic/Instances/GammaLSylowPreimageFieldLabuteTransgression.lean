@@ -655,6 +655,118 @@ theorem exists_lowerTwoCentralLayerCharacter_of_inflation_coboundary
   rw [show cL (layerMk n) = cN n from by simp [cL]]
   rfl
 
+/-- The character descended from an inflation primitive transgresses back to the original
+cohomology class.  The comparison cochain is `q ↦ b (section q)`. -/
+theorem lowerTwoCentralTransgressionH2_eq_of_primitive
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (z :
+      let Q := levelQuot G 2
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      Z2 Q (ZMod 2))
+    (b :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      C1 G (ZMod 2))
+    (hdb :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      let Q := levelQuot G 2
+      letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+      letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+      dOne G (ZMod 2) b.1 =
+        (Z2comap ⟨levelMk G 2, continuous_levelMk G 2⟩
+          (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z).1)
+    (chi : Additive (zLayer G 2) →+ ZMod 2)
+    (hchi : ∀ n : twoCentralSeries G 2,
+      chi (Additive.ofMul
+        ⟨levelMk G 3 n.1, ⟨n.1, n.2, rfl⟩⟩) = b.1 n.1 - b.1 1) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    lowerTwoCentralTransgressionH2 G hfg hpro chi = H2mk Q (ZMod 2) z := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  let psi : C1 Q (ZMod 2) :=
+    ⟨fun q => b.1 (lowerTwoCentralSection G q), continuous_of_discreteTopology⟩
+  have hd_mem : dOne Q (ZMod 2) psi.1 ∈ B2 Q (ZMod 2) := by
+    exact ⟨psi.1, psi.2, rfl⟩
+  let dz : Z2 Q (ZMod 2) :=
+    ⟨dOne Q (ZMod 2) psi.1, B2_le_Z2 hd_mem⟩
+  have hcochain : lowerTwoCentralTransgressionCocycle G hfg hpro chi = z + dz := by
+    apply Subtype.ext
+    funext p
+    obtain ⟨q, r⟩ := p
+    let sq := lowerTwoCentralSection G q
+    let sr := lowerTwoCentralSection G r
+    let sqr := lowerTwoCentralSection G (q * r)
+    let nraw := sq * sr * sqr⁻¹
+    have hnraw : nraw ∈ twoCentralSeries G 2 := by
+      apply (QuotientGroup.eq_one_iff nraw).mp
+      change levelMk G 2 nraw = 1
+      dsimp [nraw, sq, sr, sqr]
+      rw [map_mul, map_mul, map_inv, levelMk_lowerTwoCentralSection,
+        levelMk_lowerTwoCentralSection, levelMk_lowerTwoCentralSection]
+      group
+    let n : twoCentralSeries G 2 := ⟨nraw, hnraw⟩
+    have hchi_defect :
+        chi (Additive.ofMul (lowerTwoCentralSectionDefect G q r)) =
+          b.1 nraw - b.1 1 := by
+      simpa [lowerTwoCentralSectionDefect, n, nraw, sq, sr, sqr] using hchi n
+    have hone : z.1 (1, q * r) = b.1 1 := by
+      have h := congrFun hdb (1, sqr)
+      dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at h
+      change (1 : G) • b.1 sqr - b.1 (1 * sqr) + b.1 1 =
+        z.1 (levelMk G 2 1, levelMk G 2 sqr) at h
+      rw [scalarActionZmodTwo_triv G, one_mul, map_one,
+        show levelMk G 2 sqr = q * r from levelMk_lowerTwoCentralSection G (q * r)] at h
+      simpa using h.symm
+    have hnprod : nraw * sqr = sq * sr := by
+      dsimp [nraw]
+      group
+    have hnprimitive : b.1 nraw - b.1 1 = b.1 (sq * sr) - b.1 sqr := by
+      have h := congrFun hdb (nraw, sqr)
+      dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at h
+      change nraw • b.1 sqr - b.1 (nraw * sqr) + b.1 nraw =
+        z.1 (levelMk G 2 nraw, levelMk G 2 sqr) at h
+      have hnq : levelMk G 2 nraw = 1 :=
+        (QuotientGroup.eq_one_iff nraw).mpr hnraw
+      rw [scalarActionZmodTwo_triv G, hnq,
+        show levelMk G 2 sqr = q * r from levelMk_lowerTwoCentralSection G (q * r),
+        hone, hnprod] at h
+      rw [← h]
+      abel
+    have hqr : z.1 (q, r) = b.1 sr - b.1 (sq * sr) + b.1 sq := by
+      have h := congrFun hdb (sq, sr)
+      dsimp only [dOne, AddMonoidHom.coe_mk, Z2comap, AddMonoidHom.id_apply] at h
+      change sq • b.1 sr - b.1 (sq * sr) + b.1 sq =
+        z.1 (levelMk G 2 sq, levelMk G 2 sr) at h
+      rw [scalarActionZmodTwo_triv G,
+        show levelMk G 2 sq = q from levelMk_lowerTwoCentralSection G q,
+        show levelMk G 2 sr = r from levelMk_lowerTwoCentralSection G r] at h
+      exact h.symm
+    change chi (Additive.ofMul (lowerTwoCentralSectionDefect G q r)) =
+      z.1 (q, r) + (q • psi.1 r - psi.1 (q * r) + psi.1 q)
+    rw [scalarActionZmodTwo_triv Q, hchi_defect, hnprimitive, hqr]
+    dsimp [psi, sq, sr, sqr]
+    ring_nf
+    simp [show (2 : ZMod 2) = 0 by decide, CharTwo.neg_eq]
+  change H2mk Q (ZMod 2) (lowerTwoCentralTransgressionCocycle G hfg hpro chi) =
+    H2mk Q (ZMod 2) z
+  rw [hcochain, map_add]
+  have hdz_zero : H2mk Q (ZMod 2) dz = 0 := by
+    apply (QuotientAddGroup.eq_zero_iff _).mpr
+    rw [AddSubgroup.mem_addSubgroupOf]
+    exact hd_mem
+  rw [hdz_zero, add_zero]
+
 /-- The remaining five-term theorem is precisely bijectivity of the explicit transgression. -/
 def LowerTwoCentralTransgressionBijective
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) : Prop :=
@@ -688,6 +800,7 @@ end Cocycle
 #print axioms lowerTwoCentralTransgressionH2_mem_inflationKernel
 #print axioms lowerTwoCentralTransgression_injective
 #print axioms exists_lowerTwoCentralLayerCharacter_of_inflation_coboundary
+#print axioms lowerTwoCentralTransgressionH2_eq_of_primitive
 #print axioms lowerTwoCentralFiveTermKernelDuality_of_transgressionBijective
 
 end
