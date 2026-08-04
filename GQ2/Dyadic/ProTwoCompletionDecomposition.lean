@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 import GQ2.Dyadic.MultiplicativeDecomposition
 import GQ2.Dyadic.DemushkinQRamifiedI
 import GQ2.ProPCompletionFunctor
+import GQ2.ProPCompletionOddIndex
 
 /-!
 # Splitting the pro-2 completion of a dyadic multiplicative group
@@ -25,6 +26,65 @@ noncomputable section
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+
+/-! ## Passing from principal units to all norm units -/
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Every positive-depth unit is a norm-one unit. -/
+theorem depthUnits_one_le_normUnits (FF : DyadicUnitFiltration K) :
+    depthUnits K FF.π 1 ≤ normUnits K :=
+  fun _ hu ↦ ((mem_depthUnits K FF.π 1 _).mp hu).1
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The residue-unit index `2^f - 1` is odd. -/
+theorem odd_two_pow_f_sub_one (FF : DyadicUnitFiltration K) : Odd (2 ^ FF.f - 1) := by
+  exact Nat.Even.sub_odd Nat.one_le_two_pow
+    (Nat.even_pow.mpr ⟨even_two, Nat.one_le_iff_ne_zero.mp FF.hf_pos⟩) odd_one
+
+/-- `U¹`, regarded as a subgroup of the norm-one units. -/
+def normUnitsDepthOneSubgroup (FF : DyadicUnitFiltration K) : Subgroup ↥(normUnits K) :=
+  (depthUnits K FF.π 1).subgroupOf (normUnits K)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Lagrange in the residue-unit quotient: every norm unit raised to `2^f - 1` lies in
+`U¹`. -/
+theorem normUnits_pow_residueIndex_mem_depthOne (FF : DyadicUnitFiltration K)
+    (u : ↥(normUnits K)) : u ^ (2 ^ FF.f - 1) ∈ normUnitsDepthOneSubgroup FF := by
+  let H := normUnitsDepthOneSubgroup FF
+  have hcard : Nat.card (↥(normUnits K) ⧸ H) = 2 ^ FF.f - 1 := FF.card_gr_zero
+  have hgpow : (QuotientGroup.mk' H u) ^ Nat.card (↥(normUnits K) ⧸ H) = 1 :=
+    pow_card_eq_one'
+  rw [hcard, ← map_pow] at hgpow
+  change u ^ (2 ^ FF.f - 1) ∈ H
+  exact (QuotientGroup.eq_one_iff _).mp hgpow
+
+/-- Forgetting the redundant norm-unit membership identifies the subgroup form of `U¹` with
+the original depth-unit group. -/
+noncomputable def normUnitsDepthOneSubgroupEquiv (FF : DyadicUnitFiltration K) :
+    normUnitsDepthOneSubgroup FF ≃* ↥(depthUnits K FF.π 1) :=
+  Subgroup.subgroupOfEquivOfLe (depthUnits_one_le_normUnits FF)
+
+/-- **Odd-index completion bridge.**  Inclusion `U¹ ↪ O_Kˣ` induces an equivalence on
+abstract pro-2 completions. -/
+noncomputable def proTwoCompletionDepthOneEquivNormUnits
+    (FF : DyadicUnitFiltration K) :
+    ContinuousMulEquiv (proPCompletion 2 ↥(depthUnits K FF.π 1))
+      (proPCompletion 2 ↥(normUnits K)) := by
+  exact (proPCompletionCongr (p := 2) (normUnitsDepthOneSubgroupEquiv FF).symm).trans
+    (proTwoCompletionSubgroupEquivOfOddPowerMem (normUnitsDepthOneSubgroup FF)
+      (2 ^ FF.f - 1) (odd_two_pow_f_sub_one FF)
+      (normUnits_pow_residueIndex_mem_depthOne FF))
+
+omit [FiniteDimensional ℚ_[2] K] in
+@[simp] theorem proTwoCompletionDepthOneEquivNormUnits_mk
+    (FF : DyadicUnitFiltration K) (u : ↥(depthUnits K FF.π 1)) :
+    proTwoCompletionDepthOneEquivNormUnits FF
+        (proPCompletionMk 2 ↥(depthUnits K FF.π 1) u) =
+      proPCompletionMk 2 ↥(normUnits K)
+        ⟨u.1, (depthUnits_one_le_normUnits FF) u.2⟩ := by
+  rw [proTwoCompletionDepthOneEquivNormUnits, ContinuousMulEquiv.trans_apply,
+    proPCompletionCongr_mk, proTwoCompletionSubgroupEquivOfOddPowerMem_mk]
+  rfl
 
 /-- Completion-level form of `K× ≃ O_K× × ℤ`. -/
 def proTwoCompletionUnitsEquiv :

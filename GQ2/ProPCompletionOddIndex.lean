@@ -138,7 +138,50 @@ noncomputable def proTwoCompletionSubgroupEquivOfOddPowerMem
   exact continuousMulEquivOfBijective I
     (Function.bijective_iff_has_inverse.mpr ⟨J, hleft, hright⟩)
 
+@[simp] theorem proTwoCompletionSubgroupEquivOfOddPowerMem_mk
+    {A : Type} [CommGroup A] (H : Subgroup A) (m : ℕ) (hmodd : Odd m)
+    (hpow : ∀ a : A, a ^ m ∈ H) (h : H) :
+    proTwoCompletionSubgroupEquivOfOddPowerMem H m hmodd hpow
+        (proPCompletionMk 2 H h) = proPCompletionMk 2 A h.1 := by
+  change proPCompletionMap (p := 2) H.subtype (proPCompletionMk 2 H h) = _
+  exact proPCompletionMap_mk H.subtype h
+
+/-! ## Finite-order elements of a profinite pro-2 group -/
+
+/-- Every finite-order element of a profinite pro-2 group is killed by a power of `2`.
+
+After removing the maximal power of `2` from an annihilating exponent, any surviving odd-order
+part can be separated from `1` in a finite continuous quotient.  That quotient is a finite
+2-group, where a nonidentity element cannot have odd order. -/
+theorem exists_twoPower_pow_eq_one_of_isOfFinOrder
+    {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+    [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
+    (hP : IsProP 2 P) (x : P) (hx : IsOfFinOrder x) :
+    ∃ k : ℕ, x ^ (2 ^ k) = 1 := by
+  rw [isOfFinOrder_iff_pow_eq_one] at hx
+  obtain ⟨n, hnpos, hxn⟩ := hx
+  obtain ⟨k, m, hmodd, rfl⟩ := Nat.exists_eq_two_pow_mul_odd (Nat.ne_of_gt hnpos)
+  let z := x ^ (2 ^ k)
+  have hzm : z ^ m = 1 := by
+    change (x ^ (2 ^ k)) ^ m = 1
+    rw [← pow_mul, hxn]
+  refine ⟨k, ?_⟩
+  change z = 1
+  by_contra hz
+  obtain ⟨U, hUsub⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+    (U := ({z}ᶜ : Set P)) isOpen_compl_singleton
+    (Set.mem_compl_singleton_iff.mpr fun h ↦ hz h.symm)
+  let π : P →* (P ⧸ U.toSubgroup) := QuotientGroup.mk' U.toSubgroup
+  have hπz : π z ≠ 1 := fun h ↦
+    (Set.mem_compl_singleton_iff.mp
+      (hUsub ((QuotientGroup.eq_one_iff z).mp h))) rfl
+  have hπzm : (π z) ^ m = 1 := by rw [← map_pow, hzm, map_one]
+  have hord : orderOf (π z) ∣ m := orderOf_dvd_of_pow_eq_one hπzm
+  have htwo : 2 ∣ orderOf (π z) := (hP U).dvd_orderOf hπz
+  exact hmodd.not_two_dvd_nat (htwo.trans hord)
+
 #print axioms proTwoCompletionSubgroupEquivOfOddPowerMem
+#print axioms exists_twoPower_pow_eq_one_of_isOfFinOrder
 
 end
 
