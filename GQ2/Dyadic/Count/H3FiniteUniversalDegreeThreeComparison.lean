@@ -644,6 +644,215 @@ def SqUniversalBarInputTransitionRange (h : ℕ) : Prop :=
           (sqOpenQuotientBarToUniversalRelationTwo h U)) ≤
       LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')
 
+/-- Exact cokernel obstruction to transporting a reverse-two bar input across one quotient
+transition. -/
+def sqUniversalBarInputTransitionCokernelObstruction
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') :
+    FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+      (RegularModTwoRelationModule
+          ((DSq h : Type) ⧸ U'.toSubgroup)
+          (FreeRelationKernel (sqOpenQuotientMarking h U')) ⧸
+        LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')) :=
+  (LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')).mkQ.comp
+    ((sqUniversalRelationModuleTransition h hUU').comp
+      (sqOpenQuotientBarToUniversalRelationTwo h U))
+
+/-- At one transition, range transport is equivalent to vanishing of its cokernel obstruction. -/
+theorem sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') :
+    LinearMap.range
+        ((sqUniversalRelationModuleTransition h hUU').comp
+          (sqOpenQuotientBarToUniversalRelationTwo h U)) ≤
+        LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U') ↔
+      sqUniversalBarInputTransitionCokernelObstruction h hUU' = 0 := by
+  let A := (sqUniversalRelationModuleTransition h hUU').comp
+    (sqOpenQuotientBarToUniversalRelationTwo h U)
+  let R := sqOpenQuotientBarToUniversalRelationTwo h U'
+  constructor
+  · intro hrange
+    apply LinearMap.ext
+    intro b
+    change (LinearMap.range R).mkQ (A b) = 0
+    rw [← LinearMap.mem_ker, Submodule.ker_mkQ]
+    exact hrange (LinearMap.mem_range_self A b)
+  · intro hzero z hz
+    obtain ⟨b, rfl⟩ := hz
+    have hb := DFunLike.congr_fun hzero b
+    change (LinearMap.range R).mkQ (A b) = 0 at hb
+    rw [← LinearMap.mem_ker, Submodule.ker_mkQ] at hb
+    exact hb
+
+/-- Global range transport is precisely vanishing of every transition obstruction. -/
+theorem sqUniversalBarInputTransitionRange_iff_obstruction_eq_zero (h : ℕ) :
+    SqUniversalBarInputTransitionRange h ↔
+      ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U'),
+        sqUniversalBarInputTransitionCokernelObstruction h hUU' = 0 := by
+  constructor
+  · intro hrange U U' hUU'
+    exact (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
+      h hUU').mp (hrange hUU')
+  · intro hzero U U' hUU'
+    exact (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
+      h hUU').mpr (hzero hUU')
+
+/-- Explicit value of the obstruction on a reverse-two basis generator. -/
+theorem sqUniversalBarInputTransitionCokernelObstruction_single
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (g q r : (DSq h : Type) ⧸ U.toSubgroup) (a : ZMod 2) :
+    sqUniversalBarInputTransitionCokernelObstruction h hUU'
+        (Finsupp.single (g, (q, r)) a) =
+      (LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')).mkQ
+        (Finsupp.single
+          (modTwoQuotientTransition (DSq h : Type) hUU' g,
+            sqOpenQuotientFreeRelationKernelMap h hUU'
+              (relationDefect
+                (sqOpenQuotientFreeEvaluation_surjective h U) q r)) a) := by
+  change (LinearMap.range
+      (sqOpenQuotientBarToUniversalRelationTwo h U')).mkQ
+        (sqUniversalRelationModuleTransition h hUU'
+          (finiteBarToUniversalRelationTwo
+            (sqOpenQuotientMarking h U)
+            (sqOpenQuotientFreeEvaluation_surjective h U)
+            (Finsupp.single (g, (q, r)) a))) = _
+  rw [finiteBarToUniversalRelationTwo_single,
+    sqUniversalRelationModuleTransition_single]
+
+/-- Finite generator criterion for transition range.  Although the cokernel itself has the
+infinite universal relation alphabet, the obstruction domain is the finite bar-two module, so
+only the displayed finite family of basis classes must vanish. -/
+theorem sqUniversalBarInputTransitionRange_iff_generators
+    (h : ℕ) :
+    SqUniversalBarInputTransitionRange h ↔
+      ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+        (g q r : (DSq h : Type) ⧸ U.toSubgroup),
+        sqUniversalBarInputTransitionCokernelObstruction h hUU'
+          (Finsupp.single (g, (q, r)) 1) = 0 := by
+  rw [sqUniversalBarInputTransitionRange_iff_obstruction_eq_zero]
+  constructor
+  · intro hzero U U' hUU' g q r
+    rw [hzero hUU']
+    rfl
+  · intro hgen U U' hUU'
+    apply Finsupp.lhom_ext'
+    intro p
+    apply LinearMap.ext_ring
+    rcases p with ⟨g, q, r⟩
+    exact hgen hUU' g q r
+
+/-- Cofinal weakening of transition range: after replacing the finer source by a still finer
+quotient, its reverse-two outputs become representable at the fixed coarser target.  Unlike the
+vacuous condition obtained by refining only a single target, this retains the original
+transition `U ≤ U'` and asks for a refinement below `U`. -/
+def SqUniversalBarInputTransitionEventuallyRange (h : ℕ) : Prop :=
+  ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U'),
+    ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+      LinearMap.range
+          ((sqUniversalRelationModuleTransition h (hWU.trans hUU')).comp
+            (sqOpenQuotientBarToUniversalRelationTwo h W)) ≤
+        LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')
+
+/-- Exact obstruction form of the cofinal weakening. -/
+theorem sqUniversalBarInputTransitionEventuallyRange_iff_obstruction
+    (h : ℕ) :
+    SqUniversalBarInputTransitionEventuallyRange h ↔
+      ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U'),
+        ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+          sqUniversalBarInputTransitionCokernelObstruction h
+            (hWU.trans hUU') = 0 := by
+  constructor
+  · intro hrange U U' hUU'
+    obtain ⟨W, hWU, hrangeW⟩ := hrange hUU'
+    exact ⟨W, hWU,
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
+        h (hWU.trans hUU')).mp hrangeW⟩
+  · intro hzero U U' hUU'
+    obtain ⟨W, hWU, hzeroW⟩ := hzero hUU'
+    exact ⟨W, hWU,
+      (sqUniversalBarInputTransitionRangeAt_iff_obstruction_eq_zero
+        h (hWU.trans hUU')).mpr hzeroW⟩
+
+/-- Cofinal vanishing is still a finite generator test at each chosen refinement. -/
+theorem sqUniversalBarInputTransitionEventuallyRange_iff_generators
+    (h : ℕ) :
+    SqUniversalBarInputTransitionEventuallyRange h ↔
+      ∀ {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U'),
+        ∃ W : OpenNormalSubgroup (DSq h : Type), ∃ hWU : W ≤ U,
+          ∀ (g q r : (DSq h : Type) ⧸ W.toSubgroup),
+            sqUniversalBarInputTransitionCokernelObstruction h
+              (hWU.trans hUU') (Finsupp.single (g, (q, r)) 1) = 0 := by
+  rw [sqUniversalBarInputTransitionEventuallyRange_iff_obstruction]
+  constructor
+  · intro hzero U U' hUU'
+    obtain ⟨W, hWU, hzeroW⟩ := hzero hUU'
+    refine ⟨W, hWU, fun g q r => ?_⟩
+    rw [hzeroW]
+    rfl
+  · intro hgen U U' hUU'
+    obtain ⟨W, hWU, hgenW⟩ := hgen hUU'
+    refine ⟨W, hWU, ?_⟩
+    apply Finsupp.lhom_ext'
+    intro p
+    apply LinearMap.ext_ring
+    rcases p with ⟨g, q, r⟩
+    exact hgenW g q r
+
+/-- Global transition range implies its cofinal weakening (take no additional refinement).
+The converse is not used: exploiting the weaker premise would require rebuilding compactness on
+a chosen cofinal subsystem. -/
+theorem SqUniversalBarInputTransitionRange.toEventuallyRange
+    {h : ℕ} (hrange : SqUniversalBarInputTransitionRange h) :
+    SqUniversalBarInputTransitionEventuallyRange h := by
+  intro U U' hUU'
+  exact ⟨U, le_refl U, by simpa using hrange hUU'⟩
+
+/-- Adding any bar-two chain at the coarser quotient cannot change the obstruction class.  Thus
+a section-refinement homotopy made from coarser bar cells can represent the transported output
+only if the original cokernel obstruction already vanishes. -/
+theorem sqUniversalBarInputTransitionCokernelObstruction_add_coarserBar
+    (h : ℕ) {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup))
+    (b' : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup)) :
+    (LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')).mkQ
+        (sqUniversalRelationModuleTransition h hUU'
+            (sqOpenQuotientBarToUniversalRelationTwo h U b) +
+          sqOpenQuotientBarToUniversalRelationTwo h U' b') =
+      sqUniversalBarInputTransitionCokernelObstruction h hUU' b := by
+  rw [map_add]
+  have hzero :
+      (LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')).mkQ
+        (sqOpenQuotientBarToUniversalRelationTwo h U' b') = 0 := by
+    rw [← LinearMap.mem_ker, Submodule.ker_mkQ]
+    exact LinearMap.mem_range_self _ b'
+  rw [hzero, add_zero]
+  rfl
+
+/-- The explicit bar-two chain obtained from the corrected section coefficient through the
+literal improved-relator Fox-to-bar map. -/
+def SqOpenQuotientReverseSectionCoordinateSystem.sectionCorrectionBarTwo
+    {h : ℕ} (S : SqOpenQuotientReverseSectionCoordinateSystem h)
+    {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U') :
+    FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup) →ₗ[ZMod 2]
+      FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U'.toSubgroup) :=
+  (sqOpenQuotientFoxToBarTwo h U').comp
+    ((sqOpenQuotientSectionRefinementCorrection h (S.level hUU')).comp
+      finiteModTwoBarBoundaryTwo)
+
+/-- In particular, the canonical section-correction bar chain leaves the cokernel obstruction
+unchanged.  The Fox-defect theorem controls the boundary image of this correction, but cannot
+promote it to equality in the universal relation module. -/
+theorem SqOpenQuotientReverseSectionCoordinateSystem.cokernelObstruction_add_sectionCorrectionBarTwo
+    {h : ℕ} (S : SqOpenQuotientReverseSectionCoordinateSystem h)
+    {U U' : OpenNormalSubgroup (DSq h : Type)} (hUU' : U ≤ U')
+    (b : FiniteModTwoBarChainTwo ((DSq h : Type) ⧸ U.toSubgroup)) :
+    (LinearMap.range (sqOpenQuotientBarToUniversalRelationTwo h U')).mkQ
+        (sqUniversalRelationModuleTransition h hUU'
+            (sqOpenQuotientBarToUniversalRelationTwo h U b) +
+          sqOpenQuotientBarToUniversalRelationTwo h U'
+            (S.sectionCorrectionBarTwo hUU' b)) =
+      sqUniversalBarInputTransitionCokernelObstruction h hUU' b :=
+  sqUniversalBarInputTransitionCokernelObstruction_add_coarserBar
+    h hUU' b (S.sectionCorrectionBarTwo hUU' b)
+
 /-- The range condition is exactly equivalent to a linear choice of transported bar inputs. -/
 theorem sqUniversalBarInputTransitionRange_iff (h : ℕ) :
     SqUniversalBarInputTransitionRange h ↔
