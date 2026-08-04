@@ -533,6 +533,23 @@ def sqRawDefectReachable
       stageShift (fun i ↦ canonLift G k (T i)) correction =
         (sqStageDefect G h k T)⁻¹
 
+/-- A layer element detected after projection already comes from the same layer one level up.
+The kernel ambiguity is `Z_k`, which is contained in every `lambdaImage j` with `j ≤ k`. -/
+theorem mem_lambdaImage_succ_of_levelProj_mem
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {j k : ℕ} (hjk : j ≤ k) {q : levelQuot G (k + 1)}
+    (hq : GQ2.Roe.Labute.levelProj G k q ∈ lambdaImage G j k) :
+    q ∈ lambdaImage G j (k + 1) := by
+  obtain ⟨x, hx, hqx⟩ := hq
+  have hz : q * (levelMk G (k + 1) x)⁻¹ ∈ zLayer G k := by
+    rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, map_mul, map_inv,
+      ← hqx, levelProj_levelMk, mul_inv_cancel]
+  have hzj : q * (levelMk G (k + 1) x)⁻¹ ∈ lambdaImage G j (k + 1) :=
+    lambdaImage_le_of_le hjk hz
+  have hxj : levelMk G (k + 1) x ∈ lambdaImage G j (k + 1) := ⟨x, hx, rfl⟩
+  have := Subgroup.mul_mem _ hzj hxj
+  simpa only [mul_assoc, inv_mul_cancel, mul_one] using this
+
 /-- Exactness of a character on the lower two-central filtration.  This is the concrete
 arithmetic condition needed to replace a representative whose character is correct modulo
 `2^n` by one in the same level-`n` coset whose character is exactly the desired `2`-adic
