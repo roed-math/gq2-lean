@@ -339,9 +339,10 @@ def lowerTwoCentralFreeCubicDimension (d : ℕ) : ℕ :=
   (d ^ 3 - d) / 3
 
 /-- The degree-three dimension after quotienting by one nondegenerate quadratic relator.
-The degree-three part of the relator ideal has rank `d`, so this is
-`((d^3-d)/3)-d = (d^3-4d)/3`.  The latter integral form is convenient for cardinal
-statements. -/
+For `d ≥ 2`, the degree-three part of the restricted-Lie relator ideal has rank `d`, so this
+is `((d^3-d)/3)-d = (d^3-4d)/3`.  Rank one is exceptional: its cubic bracket is zero, while
+the Nat-valued formula below still has the intended value zero.  The integral form is
+convenient for cardinal statements. -/
 def lowerTwoCentralOneRelatorCubicDimension (d : ℕ) : ℕ :=
   (d ^ 3 - 4 * d) / 3
 
@@ -354,6 +355,111 @@ def LowerTwoCentralDegreeThreeExpectedCard
 theorem lowerTwoCentralOneRelatorCubicDimension_three :
     lowerTwoCentralOneRelatorCubicDimension 3 = 5 := by
   norm_num [lowerTwoCentralOneRelatorCubicDimension]
+
+/-! ### The literal rank-`d` cubic relation space -/
+
+/-- A length-three word displayed by its three letters, in the recursive finite-word type
+used by the completed Magnus/PBW development. -/
+def sqCubicGeneratorWord (h : ℕ) (a b c : Fin (SqCore.sqRank h)) :
+    FiniteGeneratorWord (Fin (SqCore.sqRank h)) 3 :=
+  (((PUnit.unit, a), b), c)
+
+/-- The tensor coefficient of `[v,r₂] = v r₂ + r₂ v` in characteristic two, where `r₂` is
+the literal quadratic initial form `YY + SX + XS + Σ(UV + VU)`. -/
+def sqCubicRelatorBracketCoefficient (h : ℕ)
+    (v : Fin (SqCore.sqRank h) → ZMod 2)
+    (w : FiniteGeneratorWord (Fin (SqCore.sqRank h)) 3) : ZMod 2 :=
+  v w.1.1.2 * sqRelatorQuadraticInitialCoefficient h w.1.2 w.2 +
+    sqRelatorQuadraticInitialCoefficient h w.1.1.2 w.1.2 * v w.2
+
+/-- Bracketing the quadratic initial relator with an arbitrary degree-one vector, as a
+linear map into the free cubic tensor coefficient space used by `sqCubicScalarPBWNormalMap`. -/
+def sqCubicRelatorBracketMap (h : ℕ) :
+    (Fin (SqCore.sqRank h) → ZMod 2) →ₗ[ZMod 2]
+      (FiniteGeneratorWord (Fin (SqCore.sqRank h)) 3 → ZMod 2) where
+  toFun := sqCubicRelatorBracketCoefficient h
+  map_add' v w := by
+    funext word
+    simp only [sqCubicRelatorBracketCoefficient, Pi.add_apply]
+    ring
+  map_smul' a v := by
+    funext word
+    simp only [sqCubicRelatorBracketCoefficient, Pi.smul_apply, smul_eq_mul,
+      RingHom.id_apply]
+    ring
+
+@[simp] theorem sqCubicRelatorBracketMap_generatorWord (h : ℕ)
+    (v : Fin (SqCore.sqRank h) → ZMod 2)
+    (a b c : Fin (SqCore.sqRank h)) :
+    sqCubicRelatorBracketMap h v (sqCubicGeneratorWord h a b c) =
+      v a * sqRelatorQuadraticInitialCoefficient h b c +
+        sqRelatorQuadraticInitialCoefficient h a b * v c := by
+  rfl
+
+@[simp] theorem sqRelatorQuadraticInitialCoefficient_two_two (h : ℕ) :
+    sqRelatorQuadraticInitialCoefficient h 2 2 = 1 := by
+  simp [sqRelatorQuadraticInitialCoefficient]
+
+@[simp] theorem sqRelatorQuadraticInitialCoefficient_zero_one (h : ℕ) :
+    sqRelatorQuadraticInitialCoefficient h 0 1 = 1 := by
+  simp [sqRelatorQuadraticInitialCoefficient]
+
+@[simp] theorem sqRelatorQuadraticInitialCoefficient_two_zero (h : ℕ) :
+    sqRelatorQuadraticInitialCoefficient h 2 0 = 0 := by
+  simp [sqRelatorQuadraticInitialCoefficient, sqCore_zero_ne_two h]
+
+theorem sqRelatorQuadraticInitialCoefficient_right_two_of_ne (h : ℕ)
+    {i : Fin (SqCore.sqRank h)} (hi : i ≠ 2) :
+    sqRelatorQuadraticInitialCoefficient h i 2 = 0 := by
+  unfold sqRelatorQuadraticInitialCoefficient
+  split_ifs with e
+  · exfalso
+    apply hi
+    have ep := congrArg (sqInitialPartner h) e
+    simpa only [sqInitialPartner_two, sqInitialPartner_involutive] using ep.symm
+  · rfl
+
+/-- **Literal degree-three relation-rank theorem.**  The map `v ↦ [v,r₂]` is injective for
+every improved square relator.  The proof reads two constructor-table columns: `(i,Y,Y)`
+recovers every coordinate except `Y`, and `(Y,S,X)` recovers the `Y` coordinate.  The
+rank-one exception cannot occur here because `sqRank h = 3 + 2h`. -/
+theorem sqCubicRelatorBracketMap_injective (h : ℕ) :
+    Function.Injective (sqCubicRelatorBracketMap h) := by
+  intro v w hvw
+  funext i
+  by_cases hi : i = 2
+  · subst i
+    have hentry := congrFun hvw (sqCubicGeneratorWord h 2 0 1)
+    change v 2 * sqRelatorQuadraticInitialCoefficient h 0 1 +
+        sqRelatorQuadraticInitialCoefficient h 2 0 * v 1 =
+      w 2 * sqRelatorQuadraticInitialCoefficient h 0 1 +
+        sqRelatorQuadraticInitialCoefficient h 2 0 * w 1 at hentry
+    simpa only [
+      sqRelatorQuadraticInitialCoefficient_zero_one,
+      sqRelatorQuadraticInitialCoefficient_two_zero,
+      mul_one, zero_mul, add_zero] using hentry
+  · have hentry := congrFun hvw (sqCubicGeneratorWord h i 2 2)
+    change v i * sqRelatorQuadraticInitialCoefficient h 2 2 +
+        sqRelatorQuadraticInitialCoefficient h i 2 * v 2 =
+      w i * sqRelatorQuadraticInitialCoefficient h 2 2 +
+        sqRelatorQuadraticInitialCoefficient h i 2 * w 2 at hentry
+    simpa only [
+      sqRelatorQuadraticInitialCoefficient_two_two,
+      sqRelatorQuadraticInitialCoefficient_right_two_of_ne h hi,
+      mul_one, zero_mul, add_zero] using hentry
+
+/-- The degree-three restricted-Lie relation space generated by the literal quadratic initial
+form, represented inside the free cubic tensor coefficient space. -/
+def sqCubicRelatorBracketSpace (h : ℕ) : Submodule (ZMod 2)
+    (FiniteGeneratorWord (Fin (SqCore.sqRank h)) 3 → ZMod 2) :=
+  LinearMap.range (sqCubicRelatorBracketMap h)
+
+/-- The literal cubic relation space has exactly the degree-one rank `3 + 2h`. -/
+theorem finrank_sqCubicRelatorBracketSpace (h : ℕ) :
+    Module.finrank (ZMod 2) (sqCubicRelatorBracketSpace h) = SqCore.sqRank h := by
+  unfold sqCubicRelatorBracketSpace
+  rw [LinearMap.finrank_range_of_inj (sqCubicRelatorBracketMap_injective h),
+    Module.finrank_fintype_fun_eq_card, Fintype.card_fin]
 
 /-- A coefficient calculation at Hilbert index `2` is exactly the desired cardinality of
 `Z₃ = λ₃/λ₄`. -/
@@ -393,10 +499,12 @@ theorem lowerTwoCentralDegreeThreeExpectedCard_DSq_of_jenningsBridge
   exact H h (sqCompletedCubicMagnusPBWKernelIdentity h)
 
 /-- **The narrow universal degree-three theorem still absent from the library.**  For every
-finitely generated Demushkin pro-`2` group, the degree-three part of the initial quadratic
-relation ideal has rank equal to the degree-one rank.  Equivalently, Hilbert coefficient `2`
-is `(d^3-4d)/3`.  This single proposition packages the degree-three Labute relation-space
-calculation together with the generic Jennings primitive identification. -/
+finitely generated Demushkin pro-`2` group of rank at least two, the degree-three part of the
+initial quadratic relation ideal has rank equal to the degree-one rank.  Rank one is the
+exceptional zero-bracket case; the displayed Nat formula still evaluates to zero there.
+Equivalently, Hilbert coefficient `2` is `(d^3-4d)/3`.  This single proposition packages the
+degree-three Labute relation-space calculation together with the generic Jennings primitive
+identification. -/
 def DemushkinDegreeThreeLabuteFormulaSupply : Prop :=
   ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
@@ -489,6 +597,8 @@ theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_labute
 #print axioms dsqCoordinateHOne_bijective
 #print axioms obsH2_DSq_coordinateCup
 #print axioms isDemushkin_DSq
+#print axioms sqCubicRelatorBracketMap_injective
+#print axioms finrank_sqCubicRelatorBracketSpace
 #print axioms sqCompletedCubicMagnusPBWKernelIdentity
 #print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_jenningsBridge
 #print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_labute
