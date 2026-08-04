@@ -1657,6 +1657,112 @@ theorem sqCubicXFromSRelatorSuffix_eq_zero (h : ℕ)
   simp only [sqCubicCorrectedRelatorSuffix]
   rw [hy, hs, hu, hv']
 
+theorem right_mul_eq_self_of_augmentation_one
+    {A : Type} [Ring A] [Algebra (ZMod 2) A]
+    (aug : A →ₐ[ZMod 2] ZMod 2) (d z : A)
+    (hz : aug z = 1)
+    (hd : ∀ a : A, aug a = 0 → d * a = 0) :
+    d * z = d := by
+  have hz0 : aug (z - 1) = 0 := by simp [hz]
+  calc
+    d * z = d * (1 + (z - 1)) := by
+      congr 1
+      abel
+    _ = d * 1 + d * (z - 1) := by rw [mul_add]
+    _ = d := by rw [hd _ hz0, mul_one, add_zero]
+
+@[simp] theorem sqCubicCorrectedRelatorSuffix_augmentation (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    sqCubicOperatorAugmentation h (sqCubicCorrectedRelatorSuffix h D).val = 1 := by
+  have hunit : Units.map (sqCubicOperatorAugmentation h).toMonoidHom
+      (sqCubicCorrectedRelatorSuffix h D) = 1 := Subsingleton.elim _ _
+  exact congrArg Units.val hunit
+
+/-- A degree-three prefix perturbation is unchanged by multiplication by the common
+augmentation-one suffix. -/
+theorem sqCubicPrefixDelta_mul_suffix (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (s : SqCubicOperatorAlgebra h)
+    (hs : sqCubicOperatorAugmentation h s = 0) :
+    let e := sqCubicCorrectionOperatorElement h D 1
+    let z := (sqCubicCorrectedRelatorSuffix h D).val
+    (e * s + s * e) * z = e * s + s * e := by
+  dsimp only
+  apply right_mul_eq_self_of_augmentation_one
+    (sqCubicOperatorAugmentation h)
+  · exact sqCubicCorrectedRelatorSuffix_augmentation h D
+  · intro a ha
+    rw [add_mul,
+      sqCubicCorrectionOperatorElement_mul_two_kernel_zero h D 1 s a hs ha,
+      sqCubicKernel_mul_correction_mul_kernel_zero h D 1 s a hs ha,
+      add_zero]
+
+/-- The named degree-three change produced by the rank-one `X`-from-`S` correction. -/
+def sqCubicXFromSPrefixDelta (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    SqCubicOperatorAlgebra h :=
+  sqCubicCorrectionOperatorElement h
+      (sqCubicXFromSColumnCorrection h v hv) 1 *
+    sqCubicHomogeneousOperatorLetter h 0 +
+  sqCubicHomogeneousOperatorLetter h 0 *
+    sqCubicCorrectionOperatorElement h
+      (sqCubicXFromSColumnCorrection h v hv) 1
+
+theorem sqCubicXFromSCorePrefix_perturbation_delta (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    (sqCubicCorrectedCorePrefix h
+      (sqCubicXFromSColumnCorrection h v hv)).val =
+      (sqCubicCorrectedCorePrefix h
+        (sqCubicZeroDegreeTwoCorrection h)).val +
+      sqCubicXFromSPrefixDelta h v hv := by
+  calc
+    (sqCubicCorrectedCorePrefix h
+        (sqCubicXFromSColumnCorrection h v hv)).val =
+      (sqCubicCorrectedCorePrefix h
+          (sqCubicZeroDegreeTwoCorrection h)).val +
+        sqCubicCorrectionOperatorElement h
+            (sqCubicXFromSColumnCorrection h v hv) 1 *
+          sqCubicHomogeneousOperatorLetter h 0 +
+        sqCubicHomogeneousOperatorLetter h 0 *
+          sqCubicCorrectionOperatorElement h
+            (sqCubicXFromSColumnCorrection h v hv) 1 :=
+      sqCubicXFromSCorePrefix_perturbation h v hv
+    _ = (sqCubicCorrectedCorePrefix h
+          (sqCubicZeroDegreeTwoCorrection h)).val +
+        sqCubicXFromSPrefixDelta h v hv := by
+      rw [sqCubicXFromSPrefixDelta, add_assoc]
+
+theorem sqCubicCorrectedRelatorUnit_val_perturbation_of
+    (h : ℕ) (D D0 : SqCubicDegreeTwoCorrection h)
+    (delta : SqCubicOperatorAlgebra h)
+    (hprefix : (sqCubicCorrectedCorePrefix h D).val =
+      (sqCubicCorrectedCorePrefix h D0).val + delta)
+    (hsuffix : sqCubicCorrectedRelatorSuffix h D =
+      sqCubicCorrectedRelatorSuffix h D0)
+    (hdelta : delta * (sqCubicCorrectedRelatorSuffix h D).val = delta) :
+    (sqCubicCorrectedRelatorUnit h D).val =
+      (sqCubicCorrectedRelatorUnit h D0).val + delta := by
+  rw [sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix,
+    sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix,
+    Units.val_mul, Units.val_mul,
+    ← hsuffix, hprefix, add_mul, hdelta]
+
+/-- The full literal relator changes by the same named degree-three term as its prefix. -/
+theorem sqCubicXFromSRelatorUnit_val_perturbation (h : ℕ)
+    (v : SqCubicNormalSpace h) (hv : v ∈ sqCubicNormalFiltration h 3) :
+    (sqCubicCorrectedRelatorUnit h
+      (sqCubicXFromSColumnCorrection h v hv)).val =
+      (sqCubicCorrectedRelatorUnit h
+        (sqCubicZeroDegreeTwoCorrection h)).val +
+      sqCubicXFromSPrefixDelta h v hv := by
+  apply sqCubicCorrectedRelatorUnit_val_perturbation_of h
+  · exact sqCubicXFromSCorePrefix_perturbation_delta h v hv
+  · exact sqCubicXFromSRelatorSuffix_eq_zero h v hv
+  · exact sqCubicPrefixDelta_mul_suffix h
+      (sqCubicXFromSColumnCorrection h v hv)
+      (sqCubicHomogeneousOperatorLetter h 0)
+      (sqCubicHomogeneousOperatorLetter_augmentation h 0)
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
