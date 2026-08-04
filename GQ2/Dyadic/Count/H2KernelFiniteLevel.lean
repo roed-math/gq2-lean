@@ -288,6 +288,75 @@ theorem finiteRefinementTrivialHTwoVanishes_iff_continuousH2Vanishes
 
 end ExactCriterion
 
+section ElementaryCoefficientReduction
+
+variable {G M : Type}
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [Finite M]
+  [DistribMulAction G M] [ContinuousSMul G M]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+
+/-- For trivial actions, mod-two `H²`-vanishing implies `H²`-vanishing for every finite
+elementary abelian coefficient group.
+
+The proof is at cochain level.  Choose a finite `𝔽₂`-basis of `M`, project a given
+`M`-valued two-cocycle to each scalar coordinate, choose scalar primitives, and assemble the
+finitely many primitives through the inverse basis equivalence.  Finiteness of the basis makes
+the assembled cochain continuous. -/
+theorem continuousH2Vanishes_of_zmodTwo
+    (hM₂ : ∀ m : M, m + m = 0)
+    (htrivM : ∀ (g : G) (m : M), g • m = m)
+    (htriv₂ : ∀ (g : G) (a : ZMod 2), g • a = a)
+    (hscalar : ContinuousH2Vanishes G (ZMod 2)) :
+    ContinuousH2Vanishes G M := by
+  classical
+  letI : Module (ZMod 2) M :=
+    AddCommGroup.zmodModule (fun m ↦ by rw [two_nsmul]; exact hM₂ m)
+  letI : Module.Finite (ZMod 2) M := Module.Finite.of_finite
+  let b := Module.finBasis (ZMod 2) M
+  let e : M ≃ₗ[ZMod 2] (Fin (Module.finrank (ZMod 2) M) → ZMod 2) := b.equivFun
+  intro x
+  obtain ⟨z, rfl⟩ := H2mk_surjective (G := G) (M := M) x
+  let zi (i : Fin (Module.finrank (ZMod 2) M)) : Z2 G (ZMod 2) :=
+    ⟨fun p ↦ e (z.1 p) i, by
+      apply mem_Z2_iff.mpr
+      have heval : Continuous (fun m : M ↦ e m i) := continuous_of_discreteTopology
+      refine ⟨heval.comp (mem_Z2_iff.mp z.2).1, ?_⟩
+      intro g h k
+      have hz := (mem_Z2_iff.mp z.2).2 g h k
+      have hz' : z.1 (h, k) + z.1 (g, h * k) =
+          z.1 (g * h, k) + z.1 (g, h) := by
+        simpa only [htrivM] using hz
+      simpa only [htriv₂, map_add, Pi.add_apply] using
+        congrArg (fun m : M ↦ e m i) hz'⟩
+  have hex : ∀ i : Fin (Module.finrank (ZMod 2) M),
+      ∃ psi : G → ZMod 2, Continuous psi ∧ dOne G (ZMod 2) psi = (zi i).1 := by
+    intro i
+    have hzero : H2mk G (ZMod 2) (zi i) = 0 := hscalar (H2mk G (ZMod 2) (zi i))
+    have hmem := (QuotientAddGroup.eq_zero_iff (zi i)).mp hzero
+    rw [AddSubgroup.mem_addSubgroupOf] at hmem
+    exact hmem
+  choose psi hpsi hdpsi using hex
+  let Psi : G → (Fin (Module.finrank (ZMod 2) M) → ZMod 2) :=
+    fun g i ↦ psi i g
+  have hPsi : Continuous Psi := continuous_pi fun i ↦ hpsi i
+  let phi : G → M := fun g ↦ e.symm (Psi g)
+  have hphi : Continuous phi := continuous_of_discreteTopology.comp hPsi
+  have hdphi : dOne G M phi = z.1 := by
+    funext p
+    apply e.injective
+    ext i
+    have hi := congrFun (hdpsi i) p
+    simpa only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, phi, Psi, zi,
+      htrivM, htriv₂, map_sub, map_add, LinearEquiv.apply_symm_apply,
+      Pi.sub_apply, Pi.add_apply] using hi
+  apply (QuotientAddGroup.eq_zero_iff z).mpr
+  rw [AddSubgroup.mem_addSubgroupOf]
+  exact ⟨phi, hphi, hdphi⟩
+
+end ElementaryCoefficientReduction
+
 end
 
 end GQ2.ContCoh
