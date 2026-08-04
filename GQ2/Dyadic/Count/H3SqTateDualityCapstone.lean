@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
-import GQ2.Dyadic.Count.H3SqFiniteResidualCapstone
+import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
 import GQ2.Dyadic.Instances.GammaLSylowPreimageInflationKernel
 
 /-!
@@ -97,6 +97,26 @@ noncomputable def tateDualityG_of_sqCompatibleLiftReconstructionGenerators
   tateDualityG_of_sqCoreAndSylowKernelResiduals hq2 hqe R
     (finiteElementaryH2RightExactSupply_DSq_of_compatibleLiftReconstructionGenerators
       h H S L hgenerators)
+
+/-- Finite affine-system form of the honest Tate-duality endpoint.  At each input quotient the
+joint system chooses a globally reachable correction of the one-relator lift together with its
+reconstruction table. -/
+noncomputable def tateDualityG_of_sqJointReconstructionLiftSystems
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (S : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (hjoint : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionJointLiftSystemAt
+        (S V).degreeThreeComparison
+        (S V).universalSyzygy.relationLiftOfSqPresentation)
+    (R : GammaLSylowPreimageKernelH2AndCoreEqualitySupply h q) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_sqCoreAndSylowKernelResiduals hq2 hqe R
+    (finiteElementaryH2RightExactSupply_DSq_of_jointReconstructionLiftSystems
+      h H S hjoint)
 
 /-- Specialization of the preceding route to the named canonical square-presentation lift. -/
 noncomputable def tateDualityG_of_sqCompatibleReconstructionGenerators
