@@ -1228,6 +1228,127 @@ theorem cubicConjugateCubePrefix_perturbation
   abel_nf
   simp only [htwoZ, hthreeZ, zero_add]
 
+/-- Regard one degree-two correction block as an augmentation-zero element of the unitized
+operator algebra. -/
+def sqCubicCorrectionOperatorElement (h : ℕ) (D : SqCubicDegreeTwoCorrection h)
+    (i : Fin (sqRank h)) : SqCubicOperatorAlgebra h :=
+  (⟨D.operator i, (D.raises_two i).strict (by omega)⟩ : sqCubicStrictEnd h)
+
+@[simp] theorem sqCubicCorrectionOperatorElement_augmentation (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h)) :
+    sqCubicOperatorAugmentation h (sqCubicCorrectionOperatorElement h D i) = 0 := by
+  simp [sqCubicCorrectionOperatorElement, sqCubicOperatorAugmentation]
+
+theorem sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h)) :
+    sqCubicCorrectedOperatorLetter h D i =
+      sqCubicHomogeneousOperatorLetter h i +
+        sqCubicCorrectionOperatorElement h D i := by
+  apply Unitization.ext
+  · simp [sqCubicCorrectedOperatorLetter, sqCubicHomogeneousOperatorLetter,
+      sqCubicCorrectionOperatorElement]
+  · apply Subtype.ext
+    rfl
+
+theorem sqCubicCorrectionOperatorElement_mul_two_kernel_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h))
+    (a b : SqCubicOperatorAlgebra h)
+    (ha : sqCubicOperatorAugmentation h a = 0)
+    (hb : sqCubicOperatorAugmentation h b = 0) :
+    sqCubicCorrectionOperatorElement h D i * a * b = 0 := by
+  have ea : a = (a.snd : SqCubicOperatorAlgebra h) := by
+    apply Unitization.ext
+    · simpa [sqCubicOperatorAugmentation] using ha
+    · simp
+  have eb : b = (b.snd : SqCubicOperatorAlgebra h) := by
+    apply Unitization.ext
+    · simpa [sqCubicOperatorAugmentation] using hb
+    · simp
+  rw [ea, eb]
+  change ((⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+      sqCubicStrictEnd h) : SqCubicOperatorAlgebra h) *
+        (a.snd : SqCubicOperatorAlgebra h) *
+          (b.snd : SqCubicOperatorAlgebra h) = 0
+  have hz : (⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+        sqCubicStrictEnd h) * a.snd * b.snd = 0 := by
+    apply Subtype.ext
+    exact (((D.raises_two i).mul a.snd.2).mul b.snd.2).eq_zero_of_four_le (by omega)
+  simpa only [← Unitization.inr_mul, Unitization.inr_zero] using
+    congrArg (fun z : sqCubicStrictEnd h => (z : SqCubicOperatorAlgebra h)) hz
+
+theorem sqCubicKernel_mul_correction_mul_kernel_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h))
+    (a b : SqCubicOperatorAlgebra h)
+    (ha : sqCubicOperatorAugmentation h a = 0)
+    (hb : sqCubicOperatorAugmentation h b = 0) :
+    a * sqCubicCorrectionOperatorElement h D i * b = 0 := by
+  have ea : a = (a.snd : SqCubicOperatorAlgebra h) := by
+    apply Unitization.ext
+    · simpa [sqCubicOperatorAugmentation] using ha
+    · simp
+  have eb : b = (b.snd : SqCubicOperatorAlgebra h) := by
+    apply Unitization.ext
+    · simpa [sqCubicOperatorAugmentation] using hb
+    · simp
+  rw [ea, eb]
+  change (a.snd : SqCubicOperatorAlgebra h) *
+      ((⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+        sqCubicStrictEnd h) : SqCubicOperatorAlgebra h) *
+          (b.snd : SqCubicOperatorAlgebra h) = 0
+  have hz : a.snd *
+        (⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+          sqCubicStrictEnd h) * b.snd = 0 := by
+    apply Subtype.ext
+    exact ((SqCubicRaisesBy.mul a.snd.2 (D.raises_two i)).mul b.snd.2)
+      |>.eq_zero_of_four_le (by omega)
+  simpa only [← Unitization.inr_mul, Unitization.inr_zero] using
+    congrArg (fun z : sqCubicStrictEnd h => (z : SqCubicOperatorAlgebra h)) hz
+
+theorem sqCubicTwoKernel_mul_correction_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h))
+    (a b : SqCubicOperatorAlgebra h)
+    (ha : sqCubicOperatorAugmentation h a = 0)
+    (hb : sqCubicOperatorAugmentation h b = 0) :
+    a * b * sqCubicCorrectionOperatorElement h D i = 0 := by
+  have ea : a = (a.snd : SqCubicOperatorAlgebra h) := by
+    apply Unitization.ext
+    · simpa [sqCubicOperatorAugmentation] using ha
+    · simp
+  have eb : b = (b.snd : SqCubicOperatorAlgebra h) := by
+    apply Unitization.ext
+    · simpa [sqCubicOperatorAugmentation] using hb
+    · simp
+  rw [ea, eb]
+  change (a.snd : SqCubicOperatorAlgebra h) *
+      (b.snd : SqCubicOperatorAlgebra h) *
+        ((⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+          sqCubicStrictEnd h) : SqCubicOperatorAlgebra h) = 0
+  have hz : a.snd * b.snd *
+        (⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+          sqCubicStrictEnd h) = 0 := by
+    apply Subtype.ext
+    exact ((SqCubicRaisesBy.mul a.snd.2 b.snd.2).mul (D.raises_two i))
+      |>.eq_zero_of_four_le (by omega)
+  simpa only [← Unitization.inr_mul, Unitization.inr_zero] using
+    congrArg (fun z : sqCubicStrictEnd h => (z : SqCubicOperatorAlgebra h)) hz
+
+theorem sqCubicCorrectionOperatorElement_sq_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h)) :
+    sqCubicCorrectionOperatorElement h D i *
+        sqCubicCorrectionOperatorElement h D i = 0 := by
+  change ((⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+      sqCubicStrictEnd h) : SqCubicOperatorAlgebra h) *
+        ((⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+          sqCubicStrictEnd h) : SqCubicOperatorAlgebra h) = 0
+  have hz : (⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+        sqCubicStrictEnd h) *
+      (⟨D.operator i, (D.raises_two i).strict (by omega)⟩ :
+        sqCubicStrictEnd h) = 0 := by
+    apply Subtype.ext
+    exact ((D.raises_two i).mul (D.raises_two i)).eq_zero_of_four_le (by omega)
+  simpa only [← Unitization.inr_mul, Unitization.inr_zero] using
+    congrArg (fun z : sqCubicStrictEnd h => (z : SqCubicOperatorAlgebra h)) hz
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
