@@ -490,6 +490,7 @@ import GQ2.Dyadic.LocalGauss.VanishCloseK
 import GQ2.Dyadic.LocalGauss.Ramified
 import GQ2.Dyadic.LocalGauss.Main
 import GQ2.Dyadic.SqCore.Cores
+import GQ2.Dyadic.SqCore.InitialForm
 import GQ2.Dyadic.SqCore.Rank3
 import GQ2.Dyadic.SqCore.PivotLemma
 import GQ2.Dyadic.SqCore.Certificate
