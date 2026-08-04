@@ -117,6 +117,30 @@ theorem chiD0pres_eq_chiD0G : chiD0pres = chiD0G := by
   · rw [chiD0pres_d0Y, chiD0G_values.2.2]
     rfl
 
+/-- The direct continuous equivalence from the presentation group `D₀` to the maximal
+pro-`2` quotient of the bottom-field Galois group. -/
+noncomputable def d0EquivBotMaxProTwo :
+    ContinuousMulEquiv (D0 : Type)
+      (maxProPQuotient 2 (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) :=
+  orientBundle.equiv.symm.trans
+    (maxProPQuotientCongr (p := 2) botGalContinuousMulEquiv).symm
+
+/-- The direct bottom-field equivalence preserves the presentation-side cyclotomic
+orientation. -/
+theorem d0EquivBotMaxProTwo_orientation (d : D0) :
+    chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))
+        (d0EquivBotMaxProTwo d) = chiD0pres d := by
+  let eBot := maxProPQuotientCongr (p := 2) botGalContinuousMulEquiv
+  have hcompat := dyadicChiTwo_maxProPQuotientCongr_bot
+    (eBot.symm (orientBundle.equiv.symm d))
+  rw [eBot.apply_symm_apply] at hcompat
+  calc
+    chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))
+        (d0EquivBotMaxProTwo d) =
+        dyadicChiTwoContinuous (orientBundle.equiv.symm d) := hcompat.symm
+    _ = chiD0G d := rfl
+    _ = chiD0pres d := (DFunLike.congr_fun chiD0pres_eq_chiD0G d).symm
+
 /-- Every lower two-central level of the bottom field has an exact oriented square marking,
 obtained from the proved oriented `Q_2` equivalence. -/
 theorem sqCyclotomicStageTuple_bot_nonempty (k : ℕ) :
