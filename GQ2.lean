@@ -411,6 +411,7 @@ import GQ2.Dyadic.Count.H3SectionRefinementCoordinates
 import GQ2.Dyadic.Count.H3FiniteBarFoxChainHomotopy
 import GQ2.Dyadic.Count.H3FiniteBarFoxAdjoint
 import GQ2.Dyadic.Count.H3UniversalRelationLift
+import GQ2.Dyadic.Count.H3FiniteUniversalDegreeThreeComparison
 import GQ2.Dyadic.Count.H3CompatibleFoxInjectivity
 import GQ2.Dyadic.Count.H3AugmentationFiltration
 import GQ2.Dyadic.Count.H3FiniteStronglyFreeNoGo

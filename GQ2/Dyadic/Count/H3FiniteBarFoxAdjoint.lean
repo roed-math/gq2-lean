@@ -886,6 +886,68 @@ theorem finiteBarForwardReverseHomotopyThree_cochain_raw_identity
   funext a
   exact congrFun hatOne a
 
+/-- On a three-cocycle, the non-invariant bar defect is coupled exactly to the unrestricted
+universal adjoint: together they give the residual `c + d²(H₂†c)`.  Thus the bar defect is not
+an independent term that may simply be required to vanish. -/
+theorem finiteBarHomotopyTwoAdjointBarDefect_add_universal_of_cocycle
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q)
+    (hc : finiteModTwoBarDThree Q c = 0) :
+    finiteBarHomotopyTwoAdjointBarDefect m heval c +
+      finiteUniversalForwardReverseThreeCochainCorrection m heval c =
+        c + finiteModTwoBarDTwo Q
+          (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c) := by
+  have hraw := finiteBarForwardReverseHomotopyThree_cochain_raw_identity m heval c
+  rw [hc, map_zero, zero_add] at hraw
+  funext a
+  have ha := congrFun hraw a
+  simp only [finiteBarHomotopyTwoAdjointBarDefect, AddMonoidHom.add_apply]
+  let B : ZMod 2 := finiteBarHomotopyTwoBoundaryRawCochainCorrection m heval c a
+  let D : ZMod 2 := finiteModTwoBarDTwo Q
+    (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c) a
+  let U : ZMod 2 := finiteUniversalForwardReverseThreeCochainCorrection m heval c a
+  let C : ZMod 2 := c a
+  change B + D + U = C + D
+  change B + U = C at ha
+  calc
+    B + D + U = (B + U) + D := by abel
+    _ = C + D := by rw [ha]
+
+/-- If a finitely supported universal coefficient has zero truncation defect, it satisfies the
+same cocycle coupling formula.  The finite-quotient truncation theorem above supplies such a
+coefficient pointwise without any global support assumption. -/
+theorem finiteBarHomotopyTwoAdjointBarDefect_add_finiteSupport_of_cocycle
+    (m : I → Q) (heval : Function.Surjective (FreeGroup.lift m))
+    (c : FiniteModTwoBarCochainThree Q)
+    (u : RegularModTwoRelationModule Q (FreeRelationKernel m))
+    (hc : finiteModTwoBarDThree Q c = 0)
+    (hu : finiteUniversalThreeAdjointFiniteSupportDefect m heval c u = 0) :
+    finiteBarHomotopyTwoAdjointBarDefect m heval c +
+      finiteUniversalRelationThreeFiniteSupportCorrection m heval u =
+        c + finiteModTwoBarDTwo Q
+          (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c) := by
+  have hcoupled :=
+    finiteBarHomotopyTwoAdjointBarDefect_add_universal_of_cocycle m heval c hc
+  funext a
+  have hcoupA := congrFun hcoupled a
+  have huA := congrFun hu a
+  simp only [finiteUniversalThreeAdjointFiniteSupportDefect] at huA
+  let B : ZMod 2 := finiteBarHomotopyTwoAdjointBarDefect m heval c a
+  let U : ZMod 2 := finiteUniversalForwardReverseThreeCochainCorrection m heval c a
+  let F : ZMod 2 := finiteUniversalRelationThreeFiniteSupportCorrection m heval u a
+  let R : ZMod 2 :=
+    (c + finiteModTwoBarDTwo Q
+      (finiteBarForwardReverseHomotopyTwoCochainAdjoint m heval c)) a
+  change B + F = R
+  change B + U = R at hcoupA
+  change U + F = 0 at huA
+  have hUF : U = F := by
+    calc
+      U = U + (F + F) := by rw [ZModModule.add_self, add_zero]
+      _ = (U + F) + F := by abel
+      _ = F := by rw [huA, zero_add]
+  rw [← hUF, hcoupA]
+
 /-- **Fixed-level degree-three reconstruction with explicit defects.**  The bar defect records
 non-invariance of `H₂†`; the universal defect independently records the failure of the
 universal adjoint coefficient to equal the proposed finite-support coefficient `u`. -/
