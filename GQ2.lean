@@ -439,6 +439,7 @@ import GQ2.Dyadic.Count.H3CompletedCubicObstruction
 import GQ2.Dyadic.Count.H3CompletedCubicAlgebraDetector
 import GQ2.Dyadic.Count.H3CompletedCubicPBWColumnSound
 import GQ2.Dyadic.Count.H3CompletedCubicFiniteOperator
+import GQ2.Dyadic.Count.LowerTwoCentralJenningsDegreeThree
 import GQ2.Dyadic.Count.H3SqAdjointReconstructionDefect
 import GQ2.Dyadic.Count.H3SqReconstructionFiniteDetector
 import GQ2.Dyadic.Count.H3SqReconstructionCoordinateDetector
@@ -474,6 +475,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageHandles
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteForwardSpanAudit
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteBracketSpan
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteCharacterBoundary
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteRawSpan
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteTransgression
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteHigherTransgression
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteElementaryH2
