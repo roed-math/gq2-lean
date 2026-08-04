@@ -594,6 +594,100 @@ theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_labute
   exact congrArg (padicValNat 2)
     (oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute H K hodd hfg)
 
+/-! ## A sharply truncated Jennings/PBW route -/
+
+/-- The cubic associative-PBW coefficient of a one-quadratic-relator algebra.  In degree
+three, the two forbidden occurrences of the leading quadratic word are disjoint, leaving
+`d^3 - 2d` normal words. -/
+def lowerTwoCentralPBWCubicDimension (d : ℕ) : ℕ :=
+  d ^ 3 - 2 * d
+
+/-- What the degree-three restricted-Lie coefficient must be after removing from the cubic
+PBW coefficient the contributions `choose(d,3)` and `d * ell₂`. -/
+def lowerTwoCentralJenningsCubicRemainder (d : ℕ) : ℕ :=
+  lowerTwoCentralPBWCubicDimension d -
+    (d.choose 3 + d * lowerTwoCentralOneRelatorQuadraticDimension d)
+
+/-- The current normal-word PBW development has finite homogeneous spaces but does not yet
+expose these three symbolic finrank counts.  This is the exact finite combinatorial counting
+package: one letter, all quadratic words except `XS`, and all cubic words except the two
+disjoint placements of `XS`. -/
+def SqQuadraticPBWFirstThreeDimensionSupply : Prop :=
+  ∀ h : ℕ,
+    Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 1) =
+        SqCore.sqRank h ∧
+      Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 2) =
+        SqCore.sqRank h ^ 2 - 1 ∧
+      Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 3) =
+        lowerTwoCentralPBWCubicDimension (SqCore.sqRank h)
+
+/-- The coefficient-of-`t^3` truncation of the restricted PBW/Jennings product
+
+`A(t) = ∏ (1+t^n)^ell_n  (mod t^4)`.
+
+After inserting `ell₁=d`, the already-proved quadratic value
+`ell₂=d(d+1)/2-1`, and the one-relator associative PBW value `A₃=d^3-2d`, its entire content is
+the displayed finite Nat equality.  No all-degree Hilbert series is hidden in this interface. -/
+def LowerTwoCentralTruncatedJenningsCoefficientFormula
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (d : ℕ) : Prop :=
+  lowerTwoCentralPBWCubicDimension d =
+    d.choose 3 + d * lowerTwoCentralOneRelatorQuadraticDimension d +
+      lowerTwoCentralHilbertCoefficient G 2
+
+/-- The truncated Jennings coefficient formula isolates its cubic restricted-Lie coefficient
+as the explicit PBW remainder. -/
+theorem lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
+    {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {d : ℕ}
+    (H : LowerTwoCentralTruncatedJenningsCoefficientFormula G d) :
+    lowerTwoCentralHilbertCoefficient G 2 =
+      lowerTwoCentralJenningsCubicRemainder d := by
+  unfold LowerTwoCentralTruncatedJenningsCoefficientFormula at H
+  unfold lowerTwoCentralJenningsCubicRemainder
+  omega
+
+/-- The remaining elementary arithmetic normalization on the actual improved ranks.  It says
+that the coefficient extracted from the finite PBW product is the familiar Labute number
+`(d^3-4d)/3`.  Keeping this separate makes it impossible to confuse the Jennings theorem with
+polynomial simplification. -/
+def SqDegreeThreeJenningsArithmetic : Prop :=
+  ∀ h : ℕ,
+    lowerTwoCentralJenningsCubicRemainder (SqCore.sqRank h) =
+      lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h)
+
+/-- Model-side truncated Jennings supply, sharply limited to coefficient three. -/
+def SqDegreeThreeTruncatedJenningsSupply : Prop :=
+  ∀ h : ℕ,
+    LowerTwoCentralTruncatedJenningsCoefficientFormula
+      (SqCore.DSq h : Type) (SqCore.sqRank h)
+
+/-- A truncated Jennings coefficient proof plus its finite arithmetic normalization computes
+the model's Hilbert coefficient `2`. -/
+theorem dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
+    (Hj : SqDegreeThreeTruncatedJenningsSupply)
+    (Ha : SqDegreeThreeJenningsArithmetic) (h : ℕ) :
+    lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 2 =
+      lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h) := by
+  rw [lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings (Hj h), Ha h]
+
+/-- Consequently the sharply truncated Jennings route, unlike an all-degree Hilbert-series
+assumption, is sufficient for the exact third model layer. -/
+theorem lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
+    (Hj : SqDegreeThreeTruncatedJenningsSupply)
+    (Ha : SqDegreeThreeJenningsArithmetic) (h : ℕ) :
+    LowerTwoCentralDegreeThreeExpectedCard (SqCore.DSq h : Type)
+      (SqCore.sqRank h) := by
+  apply lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient
+    (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
+  exact dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings Hj Ha h
+
+/-- The rank-three arithmetic normalization is already executable. -/
+theorem lowerTwoCentralJenningsCubicRemainder_three :
+    lowerTwoCentralJenningsCubicRemainder 3 = 5 := by
+  norm_num [lowerTwoCentralJenningsCubicRemainder,
+    lowerTwoCentralPBWCubicDimension,
+    lowerTwoCentralOneRelatorQuadraticDimension,
+    lowerTwoCentralQuadraticDimension]
+
 #print axioms dsqCoordinateHOne_bijective
 #print axioms obsH2_DSq_coordinateCup
 #print axioms isDemushkin_DSq
@@ -605,6 +699,10 @@ theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_labute
 #print axioms card_zLayer_three_dsq_zero_of_labute
 #print axioms maxProTwoGalK_lowerTwoCentralDegreeThreeExpectedCard_of_labute
 #print axioms oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute
+#print axioms lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
+#print axioms dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
+#print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
+#print axioms lowerTwoCentralJenningsCubicRemainder_three
 
 end
 
