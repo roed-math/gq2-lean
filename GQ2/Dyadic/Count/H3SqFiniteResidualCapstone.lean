@@ -57,7 +57,32 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero
   exact ((S V).reconstructionKernel_iff_defect_eq_zero
     (S V).universalSyzygy.relationLiftOfSqPresentation).2 (hdefect V)
 
-/-- Standard-basis detector form of the minimal assembled endpoint. -/
+/-- Live joint-lift form of the finite endpoint.  The compatible one-relator lift is chosen
+together with its reconstruction table instead of first fixing the canonical Fox-preserving
+lift.  This retains the freedom in the universal Fox kernel exposed by the scalar-coordinate
+detector. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleLiftReconstructionGenerators
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (S : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (L : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalBarRelationLiftAt (S V).universalSyzygy)
+    (hgenerators : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionGeneratorSystemAt
+        (S V).degreeThreeComparison (L V)) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) := by
+  apply finiteElementaryH2RightExactSupply_DSq_of_kernelIdentity_reconstructionTransport h H
+  refine {
+    comparison := fun V => (S V).degreeThreeComparison
+    reconstructionTransport := fun V => ⟨L V, ?_⟩ }
+  exact (sqFiniteInputRelationReconstructionTransportAt_iff_kernel
+      (S V).degreeThreeComparison (L V)).1
+    ((sqFiniteInputRelationReconstructionGeneratorSystemAt_iff
+      (S V).degreeThreeComparison (L V)).1 (hgenerators V))
+
+/-- Standard-basis detector form using the named canonical square-presentation lift.  This is
+a specialization of the joint-lift endpoint above. -/
 theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleReconstructionGenerators
     (h : ℕ)
     (H : SqCompletedMonomialPBWKernelIdentityAll h)
@@ -68,9 +93,8 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleReconstructionGenera
         (S V).degreeThreeComparison
         (S V).universalSyzygy.relationLiftOfSqPresentation) :
     FiniteElementaryH2RightExactSupply (DSq h : Type) :=
-  finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero h H S
-    (fun V => ((S V).sqPresentationFiniteSupportTransportDefect_eq_zero_iff_generators).2
-      (hgenerators V))
+  finiteElementaryH2RightExactSupply_DSq_of_compatibleLiftReconstructionGenerators
+    h H S (fun V => (S V).universalSyzygy.relationLiftOfSqPresentation) hgenerators
 
 /-- Historical conditional endpoint.  Range-good compactness would construct the universal
 degree-three comparisons, but `not_sqUniversalBarInputTransitionCommonRefinementRange` proves

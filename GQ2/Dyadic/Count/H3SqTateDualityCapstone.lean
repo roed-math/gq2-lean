@@ -77,9 +77,28 @@ noncomputable def tateDualityG_of_sqCoreAndSylowKernelResiduals
     (gammaLSylowPreimageMaxProTwoKernelOneTwoCDTwoSupply_of_coreAndKernelResiduals
       hq2 hqe R hcore)
 
-/-- Current nonvacuous finite certificate route to `GammaL` Tate duality.  A compatible family
-of universal degree-three comparisons and its reconstruction constructor table prove the
-square-core tail; the two displayed Sylow-kernel residuals then feed the existing devissage. -/
+/-- Current preferred finite certificate route to `GammaL` Tate duality.  The compatible
+one-relator lift is chosen jointly with its reconstruction table, retaining the freedom in the
+universal Fox kernel. -/
+noncomputable def tateDualityG_of_sqCompatibleLiftReconstructionGenerators
+    (hq2 : 2 ≤ q) (hqe : Even q)
+    [DistribMulAction (gamma h q : Type) (MuN 2)]
+    [ContinuousSMul (gamma h q : Type) (MuN 2)]
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (S : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (L : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalBarRelationLiftAt (S V).universalSyzygy)
+    (hgenerators : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputRelationReconstructionGeneratorSystemAt
+        (S V).degreeThreeComparison (L V))
+    (R : GammaLSylowPreimageKernelH2AndCoreEqualitySupply h q) :
+    TateDualityG (gamma h q : Type) 2 :=
+  tateDualityG_of_sqCoreAndSylowKernelResiduals hq2 hqe R
+    (finiteElementaryH2RightExactSupply_DSq_of_compatibleLiftReconstructionGenerators
+      h H S L hgenerators)
+
+/-- Specialization of the preceding route to the named canonical square-presentation lift. -/
 noncomputable def tateDualityG_of_sqCompatibleReconstructionGenerators
     (hq2 : 2 ≤ q) (hqe : Even q)
     [DistribMulAction (gamma h q : Type) (MuN 2)]
