@@ -168,6 +168,10 @@ noncomputable def tateDualityG_of_orientedFieldPresentation_B6
   tateDualityG_of_orientedFieldPresentation_B6_of_inflation_surjective_injective
     hq2 hqe K e hinf.surjective hinf.injective R
 
+#print axioms galKMaxProTwoH2RightExactSupply_of_B6_and_inflation_surjective_injective
+#print axioms finiteElementaryH2RightExactSupply_DSq_of_orientedFieldPresentation_B6_of_inflation_surjective_injective
+#print axioms tateDualityG_of_orientedFieldPresentation_B6_of_inflation_surjective_injective
+
 end
 
 end GQ2.Dyadic.LSquare
