@@ -138,12 +138,86 @@ theorem stageSL12R2_truncatedCorrection (k : ℕ) (hk : 3 ≤ k)
   · rw [hmodified]
     exact hnext
 
+/-- One additional look-ahead stage supplies the fresh character digit without changing the
+already-killed word shift.  Concretely, a level-`k+2` `S^P` tuple is projected back to
+`Q_(k+1)`; its ordinary mod-`2^(k+2)` rows become the sharp rows of that projection.  Both
+the first corrected tuple and the projected look-ahead tuple satisfy the relation in
+`Q_(k+1)`, so their shifts from the original canonical lift agree. -/
+theorem stageSL12R2_sharpCorrection (k : ℕ) (hk : 3 ≤ k)
+    {T : Fin 3 → levelQuot (D0 : Type) k} (hT : T ∈ sPR2 k) :
+    ∃ correction : Fin 3 → levelQuot (D0 : Type) (k + 1),
+      (∀ i, correction i ∈ lambdaImage (D0 : Type) (k - 1) (k + 1)) ∧
+      SqCyclotomicStageTuple.stageShift (h := 0)
+          (fun i : Fin 3 ↦ canonLift (D0 : Type) k (T i)) correction =
+        (sqStageDefect (D0 : Type) 0 k T)⁻¹ ∧
+      ∀ i, SqCyclotomicStageTuple.sharpChiLevel chiD0pres (k + 1) (by omega)
+          (SqCyclotomicStageTuple.stageModified
+            (G := (D0 : Type)) (h := 0) (k := k)
+            (fun i : Fin 3 ↦ canonLift (D0 : Type) k (T i)) correction i) =
+        chiTargetR2 (k + 2) i := by
+  obtain ⟨c, hcdepth, _hckill, hT₁⟩ := stageSL12R2_truncatedCorrection k hk hT
+  let base : Fin 3 → levelQuot (D0 : Type) (k + 1) :=
+    fun i ↦ canonLift (D0 : Type) k (T i)
+  let T₁ : Fin 3 → levelQuot (D0 : Type) (k + 1) :=
+    SqCyclotomicStageTuple.stageModified
+      (G := (D0 : Type)) (h := 0) (k := k) base c
+  have hT₁' : T₁ ∈ sPR2 (k + 1) := by
+    simpa only [SqCore.sqRank_zero, T₁, base] using hT₁
+  obtain ⟨c', hc'depth, _hc'kill, hT₂⟩ :=
+    stageSL12R2_truncatedCorrection (k + 1) (by omega) hT₁'
+  let deep : Fin 3 → levelQuot (D0 : Type) (k + 2) :=
+    SqCyclotomicStageTuple.stageModified
+      (G := (D0 : Type)) (h := 0) (k := k + 1)
+      (fun i ↦ canonLift (D0 : Type) (k + 1) (T₁ i)) c'
+  have hdeep : deep ∈ sPR2 (k + 2) := by
+    simpa only [SqCore.sqRank_zero, Nat.add_assoc, deep] using hT₂
+  let next : Fin 3 → levelQuot (D0 : Type) (k + 1) :=
+    fun i ↦ GQ2.Roe.Labute.levelProj (D0 : Type) (k + 1) (deep i)
+  let correction : Fin 3 → levelQuot (D0 : Type) (k + 1) :=
+    fun i ↦ (base i)⁻¹ * next i
+  have hmodified : SqCyclotomicStageTuple.stageModified
+      (G := (D0 : Type)) (h := 0) (k := k) base correction = next := by
+    funext i
+    dsimp only [SqCyclotomicStageTuple.stageModified, correction]
+    group
+  have hdepth : ∀ i, correction i ∈
+      lambdaImage (D0 : Type) (k - 1) (k + 1) := by
+    intro i
+    have hc'proj0 := levelProj_mem_lambdaImage (D0 : Type) (hc'depth i)
+    have hc'proj : GQ2.Roe.Labute.levelProj (D0 : Type) (k + 1) (c' i) ∈
+        lambdaImage (D0 : Type) k (k + 1) := by
+      simpa only [Nat.add_sub_cancel] using hc'proj0
+    have hc'pred : GQ2.Roe.Labute.levelProj (D0 : Type) (k + 1) (c' i) ∈
+        lambdaImage (D0 : Type) (k - 1) (k + 1) :=
+      lambdaImage_le_of_le (by omega) hc'proj
+    have hprod := Subgroup.mul_mem _ (hcdepth i) hc'pred
+    have hcorr : correction i =
+        c i * GQ2.Roe.Labute.levelProj (D0 : Type) (k + 1) (c' i) := by
+      dsimp only [correction, next, deep, SqCyclotomicStageTuple.stageModified]
+      rw [map_mul, levelProj_canonLift]
+      dsimp only [T₁, SqCyclotomicStageTuple.stageModified]
+      group
+    rwa [hcorr]
+  have hnext : next ∈ sPR2 (k + 1) := by
+    simpa only [next] using sPR2_levelProj hdeep
+  refine ⟨correction, hdepth, ?_, ?_⟩
+  · have hnextrel : SqCore.sqRelWord (h := 0) next = 1 := by
+      rw [SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord]
+      exact hnext.1.1
+    rw [SqCyclotomicStageTuple.stageShift, hmodified, hnextrel, mul_one]
+    rfl
+  · intro i
+    rw [congrFun hmodified i]
+    exact (SqCyclotomicStageTuple.sharpChiLevel_levelProj_eq_chiLevel_succ
+      chiD0pres (k + 1) (by omega) (deep i)).trans (hdeep.2 i)
+
 #print axioms sqCyclotomicStageTuple_bot_nonempty
 #print axioms sqCyclotomicStageTuple_bot_three_nonempty
 #print axioms sqCyclotomicStageTuple_bot_defectReachable
 #print axioms sqCyclotomicStageTuple_bot_three_defectReachable
 #print axioms stageSL1R2_sqRawDefectReachable
 #print axioms stageSL12R2_truncatedCorrection
+#print axioms stageSL12R2_sharpCorrection
 
 end
 

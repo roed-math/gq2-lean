@@ -584,6 +584,18 @@ theorem sharpChiLevel_cast_eq_chiLevel
   ext
   simp
 
+/-- Projecting a level-`n+1` element to `Q_n` and reading the sharp shadow retains exactly
+the ordinary level-`n+1` character data.  This is the formal mechanism by which one further
+Labute stage supplies the missing fresh digit at the preceding level. -/
+theorem sharpChiLevel_levelProj_eq_chiLevel_succ
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) (n : ℕ) (hn : 2 ≤ n)
+    (q : levelQuot G (n + 1)) :
+    sharpChiLevel chi n hn (GQ2.Roe.Labute.levelProj G n q) =
+      chiLevel chi (n + 1) q := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G (n + 1) q
+  rw [levelProj_levelMk, sharpChiLevel_levelMk, chiLevel_levelMk]
+
 /-- Exactness of a character on the lower two-central filtration, with the necessary
 one-step shift in precision: `χ(λ_n)` must be the kernel modulo `2^(n+1)`. -/
 structure SharpCharacterFiltrationExact
@@ -1204,6 +1216,7 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
 #print axioms SqCyclotomicStageTuple.stageShift_zero_eq_dbarWordR2
 #print axioms SqCyclotomicStageTuple.sharpChiLevel_cast_eq_chiLevel
+#print axioms SqCyclotomicStageTuple.sharpChiLevel_levelProj_eq_chiLevel_succ
 #print axioms SqCyclotomicStageTuple.SharpCharacterFiltrationExact.toSharpExactLevelFibreLiftSupply
 #print axioms SqCyclotomicStageTuple.exactFibre_implies_sharpChiLevel
 #print axioms SqCyclotomicStageTuple.no_exactFibre_of_sharpChiLevel_ne
