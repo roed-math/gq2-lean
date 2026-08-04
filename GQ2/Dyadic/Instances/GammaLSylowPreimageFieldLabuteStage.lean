@@ -368,6 +368,139 @@ theorem toFiniteLevelEpiData_handleV_fibre_regression {h k : ℕ}
           (SqCore.sqGen h (SqCore.sqHandleIdxV j)) = QuotientGroup.mk x :=
   (T.toFiniteLevelEpiData U hle).handleV
 
+/-! ## The exact variable-rank correction interface -/
+
+/-- Coordinatewise right modification of a level-`k+1` marking. -/
+def stageModified
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (base correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1)) :=
+  fun i ↦ base i * correction i
+
+/-- The exact relator shift caused by a coordinatewise modification.  This definition is
+presentation-independent, but because it evaluates `SqCore.sqRelWord`, it includes every
+hyperbolic handle commutator of the improved presentation. -/
+def stageShift
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (base correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  (SqCore.sqRelWord base)⁻¹ * SqCore.sqRelWord (stageModified base correction)
+
+/-- Tautological but load-bearing shift identity: it fixes the multiplication orientation used
+by the future crossed-derivation/span calculation. -/
+theorem sqRelWord_stageModified
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (base correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1)) :
+    SqCore.sqRelWord (stageModified base correction) =
+      SqCore.sqRelWord base * stageShift base correction := by
+  simp only [stageShift]
+  group
+
+/-- A depth-`k-1` correction whose modified canonical lifts remain in all five exact
+cyclotomic fibres.  This is the affine domain on which the arithmetic span theorem must be
+surjective.  In particular, handle corrections are not silently discarded. -/
+structure AdmissibleCorrection {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) where
+  correction : Fin (SqCore.sqRank h) →
+    levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)
+  depth : ∀ i, correction i ∈
+    lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1)
+  sigma : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.SvalUnit ∧
+      stageModified (fun i ↦ canonLift _ k (T.generators i)) correction 0 =
+        levelMk (maxProPQuotient 2 (GalK K)) (k + 1) x
+  x0 : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.rootXUnit ∧
+      stageModified (fun i ↦ canonLift _ k (T.generators i)) correction 1 =
+        levelMk (maxProPQuotient 2 (GalK K)) (k + 1) x
+  x1 : ∃ x : maxProPQuotient 2 (GalK K),
+    chiCycKTwo (K := K) x = GQ2.Roe.YvalUnit ∧
+      stageModified (fun i ↦ canonLift _ k (T.generators i)) correction 2 =
+        levelMk (maxProPQuotient 2 (GalK K)) (k + 1) x
+  handleU : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+    x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+      stageModified (fun i ↦ canonLift _ k (T.generators i)) correction
+          (SqCore.sqHandleIdxU j) =
+        levelMk (maxProPQuotient 2 (GalK K)) (k + 1) x
+  handleV : ∀ j : Fin h, ∃ x : maxProPQuotient 2 (GalK K),
+    x ∈ (chiCycKTwo (K := K)).toMonoidHom.ker ∧
+      stageModified (fun i ↦ canonLift _ k (T.generators i)) correction
+          (SqCore.sqHandleIdxV j) =
+        levelMk (maxProPQuotient 2 (GalK K)) (k + 1) x
+
+/-- The exact presentation-independent replacement for the rank-three span calculation:
+every element of the graded defect layer is the literal improved-relator shift of an
+admissible depth-`k-1` correction.  Proving this predicate is the remaining arithmetic theorem;
+all group-theoretic stage work is downstream of it. -/
+def CorrectionSurjective {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) : Prop :=
+  ∀ δ ∈ zLayer (maxProPQuotient 2 (GalK K)) k,
+    ∃ W : AdmissibleCorrection T,
+      stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction = δ
+
+/-- A correction selected from surjectivity at the inverse defect. -/
+structure DefectKillingCorrection {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) extends AdmissibleCorrection T where
+  kills : stageShift (fun i ↦ canonLift _ k (T.generators i)) correction =
+    (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+
+/-- Surjectivity on `zLayer` supplies a defect-killing admissible correction. -/
+noncomputable def CorrectionSurjective.defectKillingCorrection {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (H : CorrectionSurjective T) :
+    DefectKillingCorrection T := by
+  have hδ : (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ ∈
+      zLayer (maxProPQuotient 2 (GalK K)) k :=
+    Subgroup.inv_mem _ (sqStageDefect_mem_zLayer h k T.relation)
+  let W := Classical.choose (H _ hδ)
+  exact { W with kills := Classical.choose_spec (H _ hδ) }
+
+/-- Every non-arithmetic part of the variable-rank stage step.  Once the exact correction map
+is surjective on the graded defect layer, the inverse defect kills the literal improved
+relator; depth preserves generation by the Frattini argument; and admissibility preserves the
+three core fibres and both handle families. -/
+noncomputable def DefectKillingCorrection.toNext
+    {h k : ℕ} (T : SqCyclotomicStageTuple K h k)
+    (W : DefectKillingCorrection T) (hk : 3 ≤ k)
+    (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
+      (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤) :
+    SqCyclotomicStageTuple K h (k + 1) where
+  generators := stageModified (fun i ↦ canonLift _ k (T.generators i)) W.correction
+  sigma := W.sigma
+  x0 := W.x0
+  x1 := W.x1
+  handleU := W.handleU
+  handleV := W.handleV
+  relation := by
+    rw [sqRelWord_stageModified, sqStageDefect_eq_of_lift h k T.generators
+      (fun i ↦ canonLift _ k (T.generators i)) (fun i ↦ levelProj_canonLift _ k _), W.kills]
+    exact mul_inv_cancel _
+  topGen := by
+    have hbase : Subgroup.closure
+        (Set.range fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)) = ⊤ := by
+      refine eq_top_of_map_levelProj_eq_top (maxProPQuotient 2 (GalK K)) hfg
+        isProP_maxProPQuotient (by omega) ?_
+      have himg : (GQ2.Roe.Labute.levelProj (maxProPQuotient 2 (GalK K)) k) ''
+          (Set.range fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k
+            (T.generators i)) = Set.range T.generators := by
+        rw [← Set.range_comp]
+        exact congrArg Set.range (funext fun i ↦ levelProj_canonLift _ k (T.generators i))
+      rw [MonoidHom.map_closure, himg, T.topGen]
+    exact closure_range_mul_eq_top_of_mem_lambdaImage_two
+      (maxProPQuotient 2 (GalK K)) hfg isProP_maxProPQuotient _ _ hbase
+      (fun i ↦ lambdaImage_le_of_le (by omega) (W.depth i))
+
+/-- The sharp stage theorem exposed to arithmetic: exact correction surjectivity alone implies
+existence of the next oriented stage. -/
+noncomputable def CorrectionSurjective.toNext
+    {h k : ℕ} (T : SqCyclotomicStageTuple K h k) (H : CorrectionSurjective T)
+    (hk : 3 ≤ k)
+    (hfg : ∃ s : Finset (maxProPQuotient 2 (GalK K)),
+      (Subgroup.closure (s : Set (maxProPQuotient 2 (GalK K)))).topologicalClosure = ⊤) :
+    SqCyclotomicStageTuple K h (k + 1) :=
+  (H.defectKillingCorrection T).toNext T hk hfg
+
 end SqCyclotomicStageTuple
 
 #print axioms sqStageZero_levelProj
@@ -379,6 +512,8 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.levelProj
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData_sqRelWord_regression
+#print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
+#print axioms SqCyclotomicStageTuple.CorrectionSurjective.toNext
 
 end
 
