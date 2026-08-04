@@ -443,6 +443,7 @@ import GQ2.Dyadic.Count.H3SqReconstructionFiniteDetector
 import GQ2.Dyadic.Count.H3SqReconstructionCoordinateDetector
 import GQ2.Dyadic.Count.H3SqReconstructionJointLift
 import GQ2.Dyadic.Count.H3SqReconstructionJointLiftObstruction
+import GQ2.Dyadic.Count.H3SqReconstructionJointLiftScalarCertificate
 import GQ2.Dyadic.Count.H3SqFiniteResidualCapstone
 import GQ2.Dyadic.Count.H3SqReconstructionJointLiftCapstone
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
