@@ -552,6 +552,80 @@ structure SqFiniteInputUniversalSyzygyBoundaryAt
     universalSyzygy.toCompletedFox c =
       boundaryDefect (finiteModTwoBarDThree _ c)
 
+/-- The weak syzygy-boundary projection is unconditionally inhabited.  This diagnostic
+constructor is important: without a reconstruction field, the zero universal syzygy and zero
+defect satisfy the interface and therefore do not encode the missing degree-three comparison. -/
+def SqFiniteInputUniversalSyzygyBoundaryAt.zero
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) :
+    SqFiniteInputUniversalSyzygyBoundaryAt h V where
+  universalSyzygy := {
+    barChain := fun _ ↦ 0
+    compatible := by simp
+  }
+  boundaryDefect := 0
+  boundary_universalSyzygy c := by
+    apply ModTwoCompletedRegularModule.ext (DSq h : Type) (Fin (sqRank h))
+    intro U
+    simp [SqCompatibleFiniteUniversalBarSyzygyAt.toCompletedFox,
+      SqCompatibleFiniteUniversalBarSyzygyAt.coordinate]
+
+/-- The genuinely missing degree-three comparison package.  It strengthens
+`SqFiniteInputUniversalSyzygyBoundaryAt` by coupling the compatible universal relation output to
+the actual cochain reconstruction identity.  The already-proved degree-two chain homotopy
+supplies the fixed-quotient chain maps occurring conceptually here, but it does not yet supply:
+
+* their finite-group-ring adjoints on cochains;
+* a choice compatible over every open-normal quotient;
+* the two defects factoring through `d³`.
+
+Those are recorded, and only those, in this structure. -/
+structure SqFiniteInputUniversalDegreeThreeComparisonAt
+    (h : ℕ) (V : OpenNormalSubgroup (DSq h : Type)) where
+  /-- The finite quotient where the reconstructed cochain identity is read. -/
+  W : OpenNormalSubgroup (DSq h : Type)
+  /-- Reconstruction may pass to a finer quotient. -/
+  le : W.toSubgroup ≤ V.toSubgroup
+  /-- The degree-lowering cochain homotopy, adjoint to the bar-chain homotopy. -/
+  homotopyTwo :
+    SqInputThree h V →+
+      FiniteModTwoBarCochainTwo ((DSq h : Type) ⧸ W.toSubgroup)
+  /-- The compatible universal relation output at chain degree three. -/
+  universalSyzygy : SqCompatibleFiniteUniversalBarSyzygyAt h V
+  /-- Reconstruct the cochain contribution of a universal relation chain at `W`. -/
+  universalRelationError :
+    RegularModTwoRelationModule
+        ((DSq h : Type) ⧸ W.toSubgroup)
+        (FreeRelationKernel (sqOpenQuotientMarking h W)) →+
+      FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ W.toSubgroup)
+  /-- The universal Fox-boundary failure factors through the input `d³`. -/
+  boundaryDefect :
+    FiniteModTwoBarCochainFour ((DSq h : Type) ⧸ V.toSubgroup) →+
+      ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))
+  /-- The remaining bar-homotopy failure also factors through `d³`. -/
+  barDefect :
+    FiniteModTwoBarCochainFour ((DSq h : Type) ⧸ V.toSubgroup) →+
+      FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ W.toSubgroup)
+  /-- Degree-three relation/Fox comparison identity. -/
+  boundary_universalSyzygy : ∀ c,
+    universalSyzygy.toCompletedFox c =
+      boundaryDefect (finiteModTwoBarDThree _ c)
+  /-- The missing degree-three reconstruction identity after refinement. -/
+  reconstruct : ∀ c,
+    finiteModTwoBarDTwo _ (homotopyTwo c) +
+        universalRelationError (universalSyzygy.coordinate W c) +
+        barDefect (finiteModTwoBarDThree _ c) =
+      sqFiniteModTwoBarRefineThree h le c
+
+/-- Forgetting reconstruction from a genuine degree-three comparison gives the universal
+syzygy-boundary input used by the compactness/lifting layer. -/
+def SqFiniteInputUniversalDegreeThreeComparisonAt.syzygyBoundary
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (C : SqFiniteInputUniversalDegreeThreeComparisonAt h V) :
+    SqFiniteInputUniversalSyzygyBoundaryAt h V where
+  universalSyzygy := C.universalSyzygy
+  boundaryDefect := C.boundaryDefect
+  boundary_universalSyzygy := C.boundary_universalSyzygy
+
 /-- A compatible lift of the universal relation-kernel output constructs exactly the residual
 completed single-relator syzygy/boundary datum. -/
 def SqFiniteInputCompletedSyzygyBoundaryAt.ofUniversalLift
@@ -809,6 +883,19 @@ theorem sqUniversalBarFoxEventualRange_of_eventualRelationGeneration
     SqUniversalBarFoxEventualRange S :=
   fun c ↦ sqCompletedFoxEventualRange_of_cofinalRange h (S.toCompletedFox c)
     (sqUniversalBarFoxCofinalRange_of_eventualRelationGeneration S hgen c)
+
+/-- A genuine degree-three comparison plus eventual relation efficiency produces the completed
+single-relator syzygy/boundary datum.  Reconstruction remains available in `C`; transporting its
+universal relation error across the single-relator lift is a separate comparison step. -/
+noncomputable def
+    SqFiniteInputUniversalDegreeThreeComparisonAt.completedSyzygyBoundaryOfEventualGeneration
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (C : SqFiniteInputUniversalDegreeThreeComparisonAt h V)
+    (hgen : SqEventualRelationFoxGeneration h) :
+    SqFiniteInputCompletedSyzygyBoundaryAt h V :=
+  .ofUniversalEventualRange C.syzygyBoundary
+    (sqUniversalBarFoxEventualRange_of_eventualRelationGeneration
+      C.universalSyzygy hgen)
 
 end
 
