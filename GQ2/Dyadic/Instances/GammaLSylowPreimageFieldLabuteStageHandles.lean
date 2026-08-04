@@ -477,6 +477,106 @@ theorem sharpAdmissibleCorrection_nonempty {h k : ℕ}
       ⟨x, MonoidHom.mem_ker.mp hxchi, hx⟩
     simpa using exactFibre_implies_sharpChiLevel (by omega) H
 
+/-- A homogeneous depth correction which preserves every sharp cyclotomic row.  These are
+the linear directions of the affine space of sharp-admissible corrections. -/
+structure SharpNeutralCorrection {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 1 ≤ k) where
+  correction : Fin (SqCore.sqRank h) →
+    levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)
+  depth : ∀ i, correction i ∈
+    lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1)
+  sharpKernel : ∀ i, sharpChiLevel (chiCycKTwo (K := K)) (k + 1) (by omega)
+    (correction i) = 1
+
+/-- Pointwise multiplication by a sharp-neutral correction preserves sharp admissibility. -/
+noncomputable def SharpAdmissibleCorrection.mulNeutral {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W : SharpAdmissibleCorrection T hk) (V : SharpNeutralCorrection T hk) :
+    SharpAdmissibleCorrection T hk where
+  correction i := W.correction i * V.correction i
+  depth i := Subgroup.mul_mem _ (W.depth i) (V.depth i)
+  sigma := by
+    have hW := W.sigma
+    dsimp only [stageModified] at hW
+    dsimp only [stageModified]
+    rw [← mul_assoc, map_mul, hW, V.sharpKernel, mul_one]
+  x0 := by
+    have hW := W.x0
+    dsimp only [stageModified] at hW
+    dsimp only [stageModified]
+    rw [← mul_assoc, map_mul, hW, V.sharpKernel, mul_one]
+  x1 := by
+    have hW := W.x1
+    dsimp only [stageModified] at hW
+    dsimp only [stageModified]
+    rw [← mul_assoc, map_mul, hW, V.sharpKernel, mul_one]
+  handleU j := by
+    have hW := W.handleU j
+    dsimp only [stageModified] at hW
+    dsimp only [stageModified]
+    rw [← mul_assoc, map_mul, hW, V.sharpKernel, one_mul]
+  handleV j := by
+    have hW := W.handleV j
+    dsimp only [stageModified] at hW
+    dsimp only [stageModified]
+    rw [← mul_assoc, map_mul, hW, V.sharpKernel, one_mul]
+
+/-- The explicit shift of a sharp correction acted on by a neutral direction is the product
+of the old shift and the neutral direction's linear value. -/
+theorem SharpAdmissibleCorrection.sqCoreHandleDbarWord_mulNeutral
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (V : SharpNeutralCorrection T (by omega)) :
+    let base := fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+    sqCoreHandleDbarWord base (W.mulNeutral V).correction =
+      sqCoreHandleDbarWord base W.correction *
+        sqCoreHandleDbarWord base V.correction := by
+  dsimp only [SharpAdmissibleCorrection.mulNeutral]
+  exact sqCoreHandleDbarWord_mul h k hk _ W.depth V.depth
+
+/-- If two right modifications of the same base have the same sharp character, their
+coordinatewise quotient is sharp-neutral. -/
+theorem sharpChiLevel_inv_mul_eq_one_of_base_mul_eq
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {n : ℕ} {hn : 2 ≤ n}
+    {a p q : levelQuot G n}
+    (H : sharpChiLevel chi n hn (a * p) = sharpChiLevel chi n hn (a * q)) :
+    sharpChiLevel chi n hn (p⁻¹ * q) = 1 := by
+  rw [map_mul, map_mul] at H
+  have hpq : sharpChiLevel chi n hn p = sharpChiLevel chi n hn q :=
+    mul_left_cancel H
+  rw [map_mul, map_inv, hpq, inv_mul_cancel]
+
+/-- The quotient of any two points in the sharp-admissible affine space is a neutral
+direction. -/
+noncomputable def SharpAdmissibleCorrection.differenceNeutral {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W W' : SharpAdmissibleCorrection T hk) : SharpNeutralCorrection T hk where
+  correction i := (W.correction i)⁻¹ * W'.correction i
+  depth i := Subgroup.mul_mem _ (Subgroup.inv_mem _ (W.depth i)) (W'.depth i)
+  sharpKernel i := by
+    rcases SqCore.sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+    · apply sharpChiLevel_inv_mul_eq_one_of_base_mul_eq
+      simpa only [stageModified] using W.sigma.trans W'.sigma.symm
+    · apply sharpChiLevel_inv_mul_eq_one_of_base_mul_eq
+      simpa only [stageModified] using W.x0.trans W'.x0.symm
+    · apply sharpChiLevel_inv_mul_eq_one_of_base_mul_eq
+      simpa only [stageModified] using W.x1.trans W'.x1.symm
+    · apply sharpChiLevel_inv_mul_eq_one_of_base_mul_eq
+      simpa only [stageModified] using (W.handleU j).trans (W'.handleU j).symm
+    · apply sharpChiLevel_inv_mul_eq_one_of_base_mul_eq
+      simpa only [stageModified] using (W.handleV j).trans (W'.handleV j).symm
+
+/-- Acting by the quotient neutral direction recovers the second affine point literally. -/
+theorem SharpAdmissibleCorrection.mulNeutral_difference_correction {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} {hk : 1 ≤ k}
+    (W W' : SharpAdmissibleCorrection T hk) :
+    (W.mulNeutral (W.differenceNeutral W')).correction = W'.correction := by
+  funext i
+  dsimp only [SharpAdmissibleCorrection.mulNeutral,
+    SharpAdmissibleCorrection.differenceNeutral]
+  group
+
 /-- The finite, handle-sensitive statement still needed from a variable-rank Labute
 calculation.  It asks for one sharp-admissible correction hitting the current actual defect
 through the explicit core-plus-handle word; it does not assert unnecessary surjectivity onto
@@ -490,6 +590,85 @@ structure CoreHandleSharpActualDefectSupply {h k : ℕ}
         ![correction.correction 0, correction.correction 1, correction.correction 2] *
       sqHandleDbarWord base correction.correction =
         (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+
+/-- Relative to one point of the nonempty sharp-admissible affine space, the remaining
+problem is linear: a sharp-neutral direction must hit the residual defect. -/
+def SharpNeutralResidualReachable {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) (hk : 3 ≤ k)
+    (W : SharpAdmissibleCorrection T (by omega)) : Prop :=
+  ∃ V : SharpNeutralCorrection T (by omega),
+    let base := fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+    sqCoreHandleDbarWord base V.correction =
+      (sqCoreHandleDbarWord base W.correction)⁻¹ *
+        (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+
+/-- A neutral direction hitting the residual defect produces the required affine correction. -/
+noncomputable def CoreHandleSharpActualDefectSupply.ofNeutralResidual
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega))
+    (H : SharpNeutralResidualReachable T hk W) :
+    CoreHandleSharpActualDefectSupply T hk := by
+  let V := H.choose
+  have hV := H.choose_spec
+  refine {
+    correction := W.mulNeutral V
+    hitsDefect := ?_ }
+  let base := fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  change sqCoreHandleDbarWord base (W.mulNeutral V).correction =
+    (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+  have hmul := W.sqCoreHandleDbarWord_mulNeutral (hk := hk) V
+  dsimp only at hmul hV
+  rw [hmul, hV]
+  group
+
+/-- Conversely, any successful affine correction differs from any chosen sharp-admissible
+base point by a neutral direction hitting exactly the stated residual. -/
+theorem CoreHandleSharpActualDefectSupply.toNeutralResidual
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (S : CoreHandleSharpActualDefectSupply T hk)
+    (W : SharpAdmissibleCorrection T (by omega)) :
+    SharpNeutralResidualReachable T hk W := by
+  let V : SharpNeutralCorrection T (by omega) :=
+    W.differenceNeutral S.correction
+  refine ⟨V, ?_⟩
+  dsimp only
+  let base := fun i ↦ canonLift (maxProPQuotient 2 (GalK K)) k (T.generators i)
+  change sqCoreHandleDbarWord base V.correction =
+    (sqCoreHandleDbarWord base W.correction)⁻¹ *
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+  have hmul := W.sqCoreHandleDbarWord_mulNeutral (hk := hk) V
+  dsimp only at hmul
+  have hrecover := W.mulNeutral_difference_correction S.correction
+  have hfactor : sqCoreHandleDbarWord base S.correction.correction =
+      sqCoreHandleDbarWord base W.correction *
+        sqCoreHandleDbarWord base V.correction := by
+    rw [← hrecover]
+    exact hmul
+  have hS : sqCoreHandleDbarWord base S.correction.correction =
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ :=
+    S.hitsDefect
+  calc
+    sqCoreHandleDbarWord base V.correction =
+        (sqCoreHandleDbarWord base W.correction)⁻¹ *
+          (sqCoreHandleDbarWord base W.correction *
+            sqCoreHandleDbarWord base V.correction) := by group
+    _ = (sqCoreHandleDbarWord base W.correction)⁻¹ *
+          sqCoreHandleDbarWord base S.correction.correction := by rw [hfactor]
+    _ = (sqCoreHandleDbarWord base W.correction)⁻¹ *
+          (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ := by rw [hS]
+
+/-- The affine actual-defect theorem is equivalent to the neutral residual statement from
+any chosen sharp-admissible base point. -/
+theorem nonempty_coreHandleSharpActualDefectSupply_iff_neutralResidual
+    {h k : ℕ} {T : SqCyclotomicStageTuple K h k} {hk : 3 ≤ k}
+    (W : SharpAdmissibleCorrection T (by omega)) :
+    Nonempty (CoreHandleSharpActualDefectSupply T hk) ↔
+      SharpNeutralResidualReachable T hk W := by
+  constructor
+  · rintro ⟨S⟩
+    exact S.toNeutralResidual W
+  · intro H
+    exact ⟨CoreHandleSharpActualDefectSupply.ofNeutralResidual W H⟩
 
 /-- The explicit core-plus-handle one-point span statement supplies the abstract
 `ActualDefectSpanSupply` as soon as sharp exact fibre lifting is available. -/
@@ -535,6 +714,10 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.exists_exactStageRepresentative
 #print axioms SqCyclotomicStageTuple.admissibleCorrection_nonempty
 #print axioms SqCyclotomicStageTuple.sharpAdmissibleCorrection_nonempty
+#print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.mulNeutral
+#print axioms SqCyclotomicStageTuple.SharpAdmissibleCorrection.differenceNeutral
+#print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.ofNeutralResidual
+#print axioms SqCyclotomicStageTuple.nonempty_coreHandleSharpActualDefectSupply_iff_neutralResidual
 #print axioms SqCyclotomicStageTuple.CoreHandleSharpActualDefectSupply.toDefectReachable
 
 end
