@@ -27,9 +27,29 @@ noncomputable section
 open GQ2.Dyadic.Count
 open GQ2.Dyadic.SqCore
 
-/-- The exact current end-to-end theorem.  Range-good compactness constructs the universal
-degree-three comparisons; the displayed defect-zero condition turns each of them into the
-single-relator reconstruction required by the completed bar--Fox assembly. -/
+/-- The minimal assembled endpoint: a compatible cocycle-cancelling universal output with
+zero square-presentation transport defect at every finite input quotient, together with the
+all-degree Magnus identity, proves the complete finite-coefficient `H²` tail. -/
+theorem finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero
+    (h : ℕ)
+    (H : SqCompletedMonomialPBWKernelIdentityAll h)
+    (S : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqCompatibleUniversalCocycleCancellingSyzygyAt h V)
+    (hdefect : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      (S V).sqPresentationFiniteSupportTransportDefect = 0) :
+    FiniteElementaryH2RightExactSupply (DSq h : Type) := by
+  let C : ∀ V : OpenNormalSubgroup (DSq h : Type),
+      SqFiniteInputUniversalDegreeThreeComparisonAt h V := fun V =>
+    (S V).degreeThreeComparison
+  apply finiteElementaryH2RightExactSupply_DSq_of_kernelIdentity_universalComparisonKernel
+    h H C
+  intro V
+  exact ((S V).reconstructionKernel_iff_defect_eq_zero
+    (S V).universalSyzygy.relationLiftOfSqPresentation).2 (hdefect V)
+
+/-- A fully decomposed current end-to-end theorem.  Range-good compactness constructs the
+universal degree-three comparisons; the displayed defect-zero condition turns each of them into
+the single-relator reconstruction required by the completed bar--Fox assembly. -/
 theorem finiteElementaryH2RightExactSupply_DSq_of_finiteResiduals
     (h : ℕ)
     (H : SqCompletedMonomialPBWKernelIdentityAll h)
@@ -47,14 +67,8 @@ theorem finiteElementaryH2RightExactSupply_DSq_of_finiteResiduals
     Classical.choice
       (nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofinal
         h V (hlocal V) hcommon (hcancel V))
-  let C : ∀ V : OpenNormalSubgroup (DSq h : Type),
-      SqFiniteInputUniversalDegreeThreeComparisonAt h V := fun V =>
-    (S V).degreeThreeComparison
-  apply finiteElementaryH2RightExactSupply_DSq_of_kernelIdentity_universalComparisonKernel
-    h H C
-  intro V
-  exact ((S V).reconstructionKernel_iff_defect_eq_zero
-    (S V).universalSyzygy.relationLiftOfSqPresentation).2 (hdefect V (S V))
+  exact finiteElementaryH2RightExactSupply_DSq_of_compatibleDefectZero h H S
+    (fun V => hdefect V (S V))
 
 /-- Detector form of the capstone.  An effective marking of each paired finite transition
 detector supplies the simultaneous common refinements used above. -/
