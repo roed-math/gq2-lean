@@ -405,6 +405,7 @@ import GQ2.Dyadic.Count.CompletedModTwoGroupAlgebra
 import GQ2.Dyadic.Count.CompletedModTwoFoxBoundary
 import GQ2.Dyadic.Count.CompletedRankOneFox
 import GQ2.Dyadic.Count.H3FiniteBarFoxAssembly
+import GQ2.Dyadic.Count.H3FiniteBarFoxComparison
 import GQ2.Dyadic.Count.H3CompatibleFoxInjectivity
 import GQ2.Dyadic.Count.H3AugmentationFiltration
 import GQ2.Dyadic.Count.H3FiniteStronglyFreeNoGo
