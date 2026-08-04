@@ -29,6 +29,7 @@ open GQ2.Roe.Labute
 /-! ## Layer helpers -/
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {h : ℕ}
 
 private theorem sq_mem_lambdaImage_succ_raw {j m : ℕ} {q : levelQuot G m}
     (hq : q ∈ lambdaImage G j m) : q ^ 2 ∈ lambdaImage G (j + 1) m := by
