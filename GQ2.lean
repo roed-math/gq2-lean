@@ -395,6 +395,7 @@ import GQ2.Dyadic.Instances.GammaLStronglyFree
 import GQ2.Dyadic.Count.H2SplitRightExact
 import GQ2.Dyadic.Count.H2SylowTransfer
 import GQ2.Dyadic.Count.H2MaxProTwoTransport
+import GQ2.Dyadic.Count.MaxProTwoSubgroupCriterion
 import GQ2.Dyadic.Instances.GammaLSylowRightExact
 import GQ2.Dyadic.Count.DemushkinCDTwoCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageDevissage
@@ -406,6 +407,7 @@ import GQ2.Dyadic.Instances.GammaLEulerH2Surjectivity
 import GQ2.Dyadic.Instances.GammaLRealizationRoute
 import GQ2.Dyadic.Instances.GammaLReconstruction
 import GQ2.Dyadic.Instances.GammaLSylowPreimageProTwo
+import GQ2.Dyadic.Instances.GammaLSylowPreimageSchreier
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
 import GQ2.Dyadic.Count.Lifts
