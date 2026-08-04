@@ -103,6 +103,73 @@ theorem sqFiniteInputUniversalAdjointReconstructionResidual_eq_explicitDefects
       rw [ZModModule.add_self, ZModModule.add_self]
       simp
 
+/-- On an input three-cocycle, the `H₃†d³` term vanishes after refinement.  The combined
+residual is therefore exactly the raw bar defect plus the universal finite-support defect. -/
+theorem sqFiniteInputUniversalAdjointReconstructionResidual_of_cocycle
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (U : SqFiniteInputUniversalSyzygyBoundaryAt h V)
+    (W : OpenNormalSubgroup (DSq h : Type))
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (c : SqAdjointInputThree h V)
+    (hc : finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0) :
+    sqFiniteInputUniversalAdjointReconstructionResidual U W hWV c =
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h W)
+          (sqOpenQuotientFreeEvaluation_surjective h W)
+          (sqFiniteModTwoBarRefineThree h hWV c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h W)
+          (sqOpenQuotientFreeEvaluation_surjective h W)
+          (sqFiniteModTwoBarRefineThree h hWV c)
+          (U.universalSyzygy.coordinate W c) := by
+  rw [sqFiniteInputUniversalAdjointReconstructionResidual_eq_explicitDefects]
+  have hrefine := DFunLike.congr_fun (finiteModTwoBarDThree_refine h hWV) c
+  simp only [AddMonoidHom.comp_apply] at hrefine
+  rw [hc, map_zero] at hrefine
+  rw [hrefine, map_zero, zero_add]
+
+/-- The exact quotient-coordinate condition needed from a compatible universal syzygy: on
+three-cocycles, its universal defect cancels the raw non-invariance defect.  Requiring the
+universal defect itself to vanish would be too strong in the wrong direction unless the raw bar
+defect also vanished. -/
+def SqFiniteInputUniversalAdjointCocycleCancellationAt
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (U : SqFiniteInputUniversalSyzygyBoundaryAt h V)
+    (W : OpenNormalSubgroup (DSq h : Type))
+    (hWV : W.toSubgroup ≤ V.toSubgroup) : Prop :=
+  ∀ c : SqAdjointInputThree h V,
+    finiteModTwoBarDThree ((DSq h : Type) ⧸ V.toSubgroup) c = 0 →
+      finiteBarHomotopyTwoAdjointBarDefect
+          (sqOpenQuotientMarking h W)
+          (sqOpenQuotientFreeEvaluation_surjective h W)
+          (sqFiniteModTwoBarRefineThree h hWV c) +
+        finiteUniversalThreeAdjointFiniteSupportDefect
+          (sqOpenQuotientMarking h W)
+          (sqOpenQuotientFreeEvaluation_surjective h W)
+          (sqFiniteModTwoBarRefineThree h hWV c)
+          (U.universalSyzygy.coordinate W c) = 0
+
+/-- Cocycle cancellation is precisely enough for the kernel inclusion required by the linear
+factorization constructor. -/
+theorem sqFiniteInputUniversalAdjoint_ker_le_ker_of_cocycleCancellation
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (U : SqFiniteInputUniversalSyzygyBoundaryAt h V)
+    (W : OpenNormalSubgroup (DSq h : Type))
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hcancel : SqFiniteInputUniversalAdjointCocycleCancellationAt U W hWV) :
+    LinearMap.ker
+        ((finiteModTwoBarDThree
+          ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2) ≤
+      LinearMap.ker
+        ((sqFiniteInputUniversalAdjointReconstructionResidual U W hWV).toZModLinearMap 2) := by
+  intro c hc
+  rw [LinearMap.mem_ker] at hc ⊢
+  have hc' : finiteModTwoBarDThree
+      ((DSq h : Type) ⧸ V.toSubgroup) c = 0 := by
+    simpa using hc
+  simpa using (sqFiniteInputUniversalAdjointReconstructionResidual_of_cocycle
+    U W hWV c hc').trans (hcancel c hc')
+
 /-- The exact residual factorization needed by the existing universal degree-three comparison
 interface.  The field is deliberately named for its role in that interface; it need not equal
 the raw non-invariance defect of `H₂†`. -/
@@ -202,6 +269,22 @@ def SqFiniteInputUniversalDegreeThreeComparisonAt.ofAdjointResidualFactorization
       _ = C := by
         rw [ZModModule.add_self, ZModModule.add_self]
         simp
+
+/-- Final fixed-quotient constructor: a compatible universal syzygy whose coordinate cancels
+the raw bar defect on cocycles automatically supplies the residual factorization and hence the
+full existing degree-three comparison interface. -/
+noncomputable def
+    SqFiniteInputUniversalDegreeThreeComparisonAt.ofAdjointCocycleCancellation
+    {h : ℕ} {V : OpenNormalSubgroup (DSq h : Type)}
+    (U : SqFiniteInputUniversalSyzygyBoundaryAt h V)
+    (W : OpenNormalSubgroup (DSq h : Type))
+    (hWV : W.toSubgroup ≤ V.toSubgroup)
+    (hcancel : SqFiniteInputUniversalAdjointCocycleCancellationAt U W hWV) :
+    SqFiniteInputUniversalDegreeThreeComparisonAt h V :=
+  .ofAdjointResidualFactorization U W hWV
+    (.of_ker_le_ker U W hWV
+      (sqFiniteInputUniversalAdjoint_ker_le_ker_of_cocycleCancellation
+        U W hWV hcancel))
 
 end
 
