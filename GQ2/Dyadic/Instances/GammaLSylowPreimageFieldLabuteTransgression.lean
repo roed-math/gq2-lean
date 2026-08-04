@@ -767,6 +767,50 @@ theorem lowerTwoCentralTransgressionH2_eq_of_primitive
     exact hd_mem
   rw [hdz_zero, add_zero]
 
+/-- Surjectivity half of the five-term kernel identification.  An arbitrary class in the
+inflation kernel is represented by a cocycle whose inflation has a continuous primitive;
+the preceding descent and comparison theorems recover a layer character mapping to it. -/
+theorem lowerTwoCentralTransgression_surjective
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+    letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+    let Q := levelQuot G 2
+    letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+    letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+    letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+    Function.Surjective (lowerTwoCentralTransgression G hfg hpro) := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  dsimp only
+  intro y
+  obtain ⟨z, hz⟩ := H2mk_surjective (G := Q) (M := ZMod 2) y.1
+  have hinflated_zero : H2mk G (ZMod 2)
+      (Z2comap ⟨levelMk G 2, continuous_levelMk G 2⟩
+        (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z) = 0 := by
+    rw [← inf2_H2mk]
+    change lowerTwoCentralH2Inflation G (H2mk Q (ZMod 2) z) = 0
+    rw [hz]
+    exact AddMonoidHom.mem_ker.mp y.2
+  have hcob := (QuotientAddGroup.eq_zero_iff
+    (Z2comap ⟨levelMk G 2, continuous_levelMk G 2⟩
+      (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z)).mp hinflated_zero
+  rw [AddSubgroup.mem_addSubgroupOf] at hcob
+  obtain ⟨bfun, hbcont, hbfun⟩ := hcob
+  let b : C1 G (ZMod 2) := ⟨bfun, hbcont⟩
+  have hdb : dOne G (ZMod 2) b.1 =
+      (Z2comap ⟨levelMk G 2, continuous_levelMk G 2⟩
+        (AddMonoidHom.id (ZMod 2)) continuous_id (fun _ _ => rfl) z).1 := by
+    exact hbfun
+  obtain ⟨chi, hchi⟩ :=
+    exists_lowerTwoCentralLayerCharacter_of_inflation_coboundary G z b hdb
+  refine ⟨chi, Subtype.ext ?_⟩
+  change lowerTwoCentralTransgressionH2 G hfg hpro chi = y.1
+  rw [lowerTwoCentralTransgressionH2_eq_of_primitive G hfg hpro z b hdb chi hchi, hz]
+
 /-- The remaining five-term theorem is precisely bijectivity of the explicit transgression. -/
 def LowerTwoCentralTransgressionBijective
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) : Prop :=
@@ -777,6 +821,19 @@ def LowerTwoCentralTransgressionBijective
   letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
   Function.Bijective (lowerTwoCentralTransgression G hfg hpro)
+
+/-- The explicit lower-two-central transgression is bijective. -/
+theorem lowerTwoCentralTransgression_bijective
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    LowerTwoCentralTransgressionBijective G hfg hpro := by
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  exact ⟨lowerTwoCentralTransgression_injective G hfg hpro,
+    lowerTwoCentralTransgression_surjective G hfg hpro⟩
 
 /-- Bijectivity of the explicit transgression supplies the earlier equivalence-shaped
 five-term kernel-duality interface. -/
@@ -792,6 +849,14 @@ theorem lowerTwoCentralFiveTermKernelDuality_of_transgressionBijective
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
   exact ⟨AddEquiv.ofBijective (lowerTwoCentralTransgression G hfg hpro) hbij⟩
 
+/-- The lower-two-central five-term kernel-duality interface, with no remaining
+five-term exactness hypothesis. -/
+theorem lowerTwoCentralFiveTermKernelDuality
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) :
+    LowerTwoCentralFiveTermKernelDuality G :=
+  lowerTwoCentralFiveTermKernelDuality_of_transgressionBijective G hfg hpro
+    (lowerTwoCentralTransgression_bijective G hfg hpro)
+
 end Cocycle
 
 #print axioms lowerTwoCentralSectionDefect_cocycle
@@ -801,6 +866,9 @@ end Cocycle
 #print axioms lowerTwoCentralTransgression_injective
 #print axioms exists_lowerTwoCentralLayerCharacter_of_inflation_coboundary
 #print axioms lowerTwoCentralTransgressionH2_eq_of_primitive
+#print axioms lowerTwoCentralTransgression_surjective
+#print axioms lowerTwoCentralTransgression_bijective
+#print axioms lowerTwoCentralFiveTermKernelDuality
 #print axioms lowerTwoCentralFiveTermKernelDuality_of_transgressionBijective
 
 end
