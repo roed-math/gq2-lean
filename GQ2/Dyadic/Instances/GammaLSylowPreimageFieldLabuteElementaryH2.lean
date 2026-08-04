@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
 import GQ2.Transgression
+import Mathlib.Data.Finset.Sym
 
 /-!
 # Degree-two cohomology of finite elementary abelian two-groups
@@ -324,7 +325,160 @@ def elementaryH2EquivQuadratic :
   AddEquiv.ofBijective (elementaryH2ToQuadratic V)
     ⟨elementaryH2ToQuadratic_injective V, elementaryH2ToQuadratic_surjective V⟩
 
+/-! ### Coordinates and counting quadratic maps -/
+
+/-- The canonical finite basis used to coordinatize quadratic maps. -/
+def elementaryQuadraticBasis :
+    Module.Basis (Fin (Module.finrank (ZMod 2) (Additive V))) (ZMod 2) (Additive V) :=
+  Module.finBasis (ZMod 2) (Additive V)
+
+/-- Coordinates of a quadratic map, indexed by unordered pairs of basis vectors. -/
+def elementaryQuadraticBasisCode
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :
+    Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2 :=
+  Sym2.lift ⟨fun i j =>
+    Q.toBilin (elementaryQuadraticBasis V)
+      (elementaryQuadraticBasis V (min i j))
+      (elementaryQuadraticBasis V (max i j)), by
+        intro i j
+        change Q.toBilin (elementaryQuadraticBasis V)
+            (elementaryQuadraticBasis V (min i j))
+            (elementaryQuadraticBasis V (max i j)) =
+          Q.toBilin (elementaryQuadraticBasis V)
+            (elementaryQuadraticBasis V (min j i))
+            (elementaryQuadraticBasis V (max j i))
+        rw [min_comm i j, max_comm i j]⟩
+
+/-- The upper-triangular bilinear map with prescribed unordered-pair coordinates. -/
+def elementaryUpperBilin
+    (f : Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2) :
+    LinearMap.BilinForm (ZMod 2) (Additive V) :=
+  (elementaryQuadraticBasis V).constr (ZMod 2) fun i =>
+    (elementaryQuadraticBasis V).constr (ZMod 2) fun j =>
+      if i ≤ j then f s(i, j) else 0
+
+@[simp] theorem elementaryUpperBilin_basis
+    (f : Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2)
+    (i j : Fin (Module.finrank (ZMod 2) (Additive V))) :
+    elementaryUpperBilin V f (elementaryQuadraticBasis V i)
+        (elementaryQuadraticBasis V j) =
+      if i ≤ j then f s(i, j) else 0 := by
+  unfold elementaryUpperBilin
+  rw [(elementaryQuadraticBasis V).constr_basis,
+    (elementaryQuadraticBasis V).constr_basis]
+
+/-- Decode unordered-pair coordinates as the diagonal of their upper-triangular bilinear map. -/
+def elementaryQuadraticOfBasisCode
+    (f : Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2) :
+    QuadraticMap (ZMod 2) (Additive V) (ZMod 2) :=
+  (elementaryUpperBilin V f).toQuadraticMap
+
+theorem elementaryUpperBilin_basisCode
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :
+    elementaryUpperBilin V (elementaryQuadraticBasisCode V Q) =
+      Q.toBilin (elementaryQuadraticBasis V) := by
+  apply (elementaryQuadraticBasis V).ext
+  intro i
+  apply (elementaryQuadraticBasis V).ext
+  intro j
+  obtain hij | rfl | hij := lt_trichotomy i j
+  · simp [elementaryQuadraticBasisCode, QuadraticMap.toBilin_apply, hij, hij.le,
+      hij.ne, hij.ne']
+  · simp [elementaryQuadraticBasisCode, QuadraticMap.toBilin_apply]
+  · simp [elementaryQuadraticBasisCode, QuadraticMap.toBilin_apply, hij,
+      not_le_of_gt hij, not_lt_of_ge hij.le, hij.ne, hij.ne']
+
+@[simp] theorem elementaryQuadraticOfBasisCode_basisCode
+    (Q : QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :
+    elementaryQuadraticOfBasisCode V (elementaryQuadraticBasisCode V Q) = Q := by
+  rw [elementaryQuadraticOfBasisCode, elementaryUpperBilin_basisCode,
+    QuadraticMap.toQuadraticMap_toBilin]
+
+theorem elementaryToBilin_quadraticOfBasisCode
+    (f : Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2) :
+    (elementaryQuadraticOfBasisCode V f).toBilin (elementaryQuadraticBasis V) =
+      elementaryUpperBilin V f := by
+  apply (elementaryQuadraticBasis V).ext
+  intro i
+  apply (elementaryQuadraticBasis V).ext
+  intro j
+  obtain hij | rfl | hij := lt_trichotomy i j
+  · simp [elementaryQuadraticOfBasisCode, QuadraticMap.toBilin_apply, hij, hij.le,
+      hij.ne, hij.ne', LinearMap.BilinMap.polar_toQuadraticMap, not_le_of_gt hij]
+  · simp [elementaryQuadraticOfBasisCode, QuadraticMap.toBilin_apply]
+  · simp [elementaryQuadraticOfBasisCode, QuadraticMap.toBilin_apply, hij,
+      not_le_of_gt hij, not_lt_of_ge hij.le, hij.ne, hij.ne']
+
+@[simp] theorem elementaryQuadraticBasisCode_quadraticOfBasisCode
+    (f : Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2) :
+    elementaryQuadraticBasisCode V (elementaryQuadraticOfBasisCode V f) = f := by
+  funext p
+  induction p using Sym2.ind with
+  | _ i j =>
+      change (elementaryQuadraticOfBasisCode V f).toBilin (elementaryQuadraticBasis V)
+          (elementaryQuadraticBasis V (min i j))
+          (elementaryQuadraticBasis V (max i j)) = f s(i, j)
+      rw [elementaryToBilin_quadraticOfBasisCode, elementaryUpperBilin_basis]
+      rcases le_total i j with hij | hji
+      · simp [min_eq_left hij, max_eq_right hij, hij]
+      · simp [min_eq_right hji, max_eq_left hji, hji, Sym2.eq_swap]
+
+/-- Quadratic maps are freely parametrized by unordered pairs of basis indices. -/
+def elementaryQuadraticEquivBasisCode :
+    QuadraticMap (ZMod 2) (Additive V) (ZMod 2) ≃
+      (Sym2 (Fin (Module.finrank (ZMod 2) (Additive V))) → ZMod 2) where
+  toFun := elementaryQuadraticBasisCode V
+  invFun := elementaryQuadraticOfBasisCode V
+  left_inv := elementaryQuadraticOfBasisCode_basisCode V
+  right_inv := elementaryQuadraticBasisCode_quadraticOfBasisCode V
+
+/-- There are `2^(d(d+1)/2)` quadratic maps on an elementary abelian two-group of
+`F₂`-dimension `d`. -/
+theorem card_elementaryQuadraticMap :
+    Nat.card (QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) =
+      2 ^ lowerTwoCentralQuadraticDimension
+        (Module.finrank (ZMod 2) (Additive V)) := by
+  let d := Module.finrank (ZMod 2) (Additive V)
+  have hsym : Nat.card (Sym2 (Fin d)) = Nat.choose (d + 1) 2 := by
+    rw [Nat.card_eq_fintype_card]
+    change (Finset.univ : Finset (Sym2 (Fin d))).card = Nat.choose (d + 1) 2
+    rw [show (Finset.univ : Finset (Sym2 (Fin d))) =
+        (Finset.univ : Finset (Fin d)).sym2 by ext p; simp]
+    rw [Finset.card_sym2, Finset.card_univ, Fintype.card_fin]
+  rw [Nat.card_congr (elementaryQuadraticEquivBasisCode V), Nat.card_fun,
+    Nat.card_zmod, hsym]
+  dsimp only [d]
+  unfold lowerTwoCentralQuadraticDimension
+  rw [Nat.choose_two_right, Nat.add_sub_cancel, Nat.mul_comm]
+
+/-- Degree-two mod-`2` cohomology of a finite elementary abelian two-group has the expected
+cardinality.  The dimension is recovered from the asserted order of the group. -/
+theorem card_H2_finiteElementary (d : ℕ) (hcard : Nat.card V = 2 ^ d) :
+    Nat.card (H2 V (ZMod 2)) =
+      2 ^ lowerTwoCentralQuadraticDimension d := by
+  have hpow : 2 ^ Module.finrank (ZMod 2) (Additive V) = 2 ^ d := by
+    rw [← hcard, ← Nat.card_congr Additive.toMul]
+    simpa using
+      (Module.natCard_eq_pow_finrank (K := ZMod 2) (V := Additive V)).symm
+  have hdim : Module.finrank (ZMod 2) (Additive V) = d :=
+    Nat.pow_right_injective (by omega) hpow
+  calc
+    Nat.card (H2 V (ZMod 2)) =
+        Nat.card (QuadraticMap (ZMod 2) (Additive V) (ZMod 2)) :=
+      Nat.card_congr (elementaryH2EquivQuadratic V).toEquiv
+    _ = 2 ^ lowerTwoCentralQuadraticDimension
+          (Module.finrank (ZMod 2) (Additive V)) := card_elementaryQuadraticMap V
+    _ = 2 ^ lowerTwoCentralQuadraticDimension d := by rw [hdim]
+
 end Quadratic
+
+/-- The standard finite elementary-abelian `H²` cardinal formula, discharged internally by
+normalized cocycles and quadratic maps. -/
+theorem finiteElementaryAbelianTwoH2CardFormula :
+    FiniteElementaryAbelianTwoH2CardFormula := by
+  intro V _ _ _ _ _ htwo d hcard
+  letI : Fact (∀ v : V, v ^ 2 = 1) := ⟨htwo⟩
+  exact card_H2_finiteElementary V d hcard
 
 #print axioms elementaryNormalizedCocycle_identity
 #print axioms elementaryCocycleQuadraticMap
@@ -332,6 +486,9 @@ end Quadratic
 #print axioms elementaryH2ToQuadratic_injective
 #print axioms elementaryH2ToQuadratic_surjective
 #print axioms elementaryH2EquivQuadratic
+#print axioms card_elementaryQuadraticMap
+#print axioms card_H2_finiteElementary
+#print axioms finiteElementaryAbelianTwoH2CardFormula
 
 end
 
