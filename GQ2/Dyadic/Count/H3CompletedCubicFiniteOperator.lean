@@ -115,6 +115,14 @@ def sqCubicStrictEnd (h : ℕ) :
 abbrev SqCubicOperatorAlgebra (h : ℕ) :=
   Unitization (ZMod 2) (sqCubicStrictEnd h)
 
+/-- Typeclass search does not recover the scalar ring from the subtype alone, so expose the
+inherited nonunital ring instance explicitly. -/
+noncomputable instance sqCubicStrictEnd_nonUnitalRing (h : ℕ) :
+    NonUnitalRing (sqCubicStrictEnd h) :=
+  @NonUnitalSubalgebra.toNonUnitalRing
+    (ZMod 2) (Module.End (ZMod 2) (SqCubicNormalSpace h))
+    inferInstance inferInstance inferInstance (sqCubicStrictEnd h)
+
 instance sqCubicStrictEnd_finite (h : ℕ) : Finite (sqCubicStrictEnd h) := by
   exact Finite.of_injective
     (fun T : sqCubicStrictEnd h =>
@@ -356,6 +364,29 @@ def sqCubicEmptyVector (h : ℕ) : SqCubicNormalSpace h :=
   sqCubicHomogeneousEmbed h 0 (by omega)
     (Finsupp.single (sqQuadraticHomogeneousEmpty h) 1)
 
+/-- The degree-zero empty index. -/
+def sqCubicEmptyIndex (h : ℕ) : SqCubicNormalIndex h :=
+  sqCubicNormalIndexOfHomogeneous h 0 (by omega)
+    (sqQuadraticHomogeneousEmpty h)
+
+@[simp] theorem sqCubicEmptyVector_eq_single (h : ℕ) :
+    sqCubicEmptyVector h = Finsupp.single (sqCubicEmptyIndex h) 1 := by
+  simp [sqCubicEmptyVector, sqCubicEmptyIndex]
+
+theorem sqCubicNormalIndex_eq_empty_of_degree_zero (h : ℕ)
+    (w : SqCubicNormalIndex h) (hw : sqCubicNormalIndexDegree w = 0) :
+    w = sqCubicEmptyIndex h := by
+  rcases w with ⟨n, w⟩
+  have hn : n = 0 := Fin.ext hw
+  subst n
+  have hl : w.1.1 = [] := List.eq_nil_of_length_eq_zero w.2
+  apply Sigma.ext
+  · rfl
+  · apply heq_of_eq
+    apply Subtype.ext
+    apply Subtype.ext
+    exact hl
+
 theorem sqCubicEmptyVector_mem_filtration_zero (h : ℕ) :
     sqCubicEmptyVector h ∈ sqCubicNormalFiltration h 0 := by simp
 
@@ -451,6 +482,13 @@ theorem SqCubicRaisesBy.sub {h r : ℕ}
   intro n x hx
   exact Submodule.sub_mem _ (hT n x hx) (hU n x hx)
 
+theorem SqCubicRaisesBy.smul {h r : ℕ}
+    {T : Module.End (ZMod 2) (SqCubicNormalSpace h)}
+    (hT : SqCubicRaisesBy T r) (a : ZMod 2) :
+    SqCubicRaisesBy (a • T) r := by
+  intro n x hx
+  exact Submodule.smul_mem _ a (hT n x hx)
+
 theorem SqCubicRaisesBy.mul {h r s : ℕ}
     {T U : Module.End (ZMod 2) (SqCubicNormalSpace h)}
     (hT : SqCubicRaisesBy T r) (hU : SqCubicRaisesBy U s) :
@@ -485,6 +523,43 @@ theorem SqCubicRaisesBy.eq_zero_of_four_le {h r : ℕ}
     sqCubicNormalFiltration_antitone h (by simpa using hr) hTx
   rw [sqCubicNormalFiltration_four] at hTx4
   exact hTx4
+
+theorem SqCubicRaisesBy.apply_eq_zero_of_mem_one {h r : ℕ}
+    {T : Module.End (ZMod 2) (SqCubicNormalSpace h)}
+    (hT : SqCubicRaisesBy T r) (hr : 3 ≤ r)
+    (x : SqCubicNormalSpace h) (hx : x ∈ sqCubicNormalFiltration h 1) :
+    T x = 0 := by
+  have hTx := hT 1 x hx
+  have hTx4 : T x ∈ sqCubicNormalFiltration h 4 :=
+    sqCubicNormalFiltration_antitone h (by omega) hTx
+  rw [sqCubicNormalFiltration_four] at hTx4
+  exact hTx4
+
+/-- A filtration-three endomorphism is determined by its value on the empty vector. -/
+theorem sqCubicEnd_eq_of_raises_three
+    {h : ℕ} {T U : Module.End (ZMod 2) (SqCubicNormalSpace h)}
+    (hT : SqCubicRaisesBy T 3) (hU : SqCubicRaisesBy U 3)
+    (he : T (sqCubicEmptyVector h) = U (sqCubicEmptyVector h)) :
+    T = U := by
+  apply Finsupp.lhom_ext
+  intro w a
+  by_cases hw : sqCubicNormalIndexDegree w = 0
+  · rw [sqCubicNormalIndex_eq_empty_of_degree_zero h w hw,
+      ← Finsupp.smul_single_one, ← sqCubicEmptyVector_eq_single,
+      map_smul, map_smul, he]
+  · have hw1 : 1 ≤ sqCubicNormalIndexDegree w := Nat.one_le_iff_ne_zero.mpr hw
+    have hsingle : Finsupp.single w a ∈ sqCubicNormalFiltration h 1 := by
+      rw [sqCubicNormalFiltration, Finsupp.mem_supported]
+      intro v hv
+      by_cases ha : a = 0
+      · subst a
+        simp at hv
+      have hvw : v = w := by
+        simpa [Finsupp.mem_support_iff, ha] using hv
+      subst v
+      exact hw1
+    rw [hT.apply_eq_zero_of_mem_one (by omega) _ hsingle,
+      hU.apply_eq_zero_of_mem_one (by omega) _ hsingle]
 
 /-- A family of corrections which starts two degrees deeper than an ordinary marked
 letter. -/
@@ -582,6 +657,359 @@ theorem sqCubicCorrectedWord_apply_empty_recursive (h : ℕ)
       sqCubicTruncatedLeftLetter h j *
       sqCubicTruncatedLeftLetter h k) (sqCubicEmptyVector h) = _ at H
   exact H
+
+/-- A corrected word operator raises filtration by its word length. -/
+theorem sqCubicCorrectedWord_raises (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    ∀ l : List (Fin (sqRank h)),
+      SqCubicRaisesBy
+        (quadraticWordEval
+          (Module.End (ZMod 2) (SqCubicNormalSpace h))
+          (sqCubicCorrectedLeftLetter h D) l) l.length := by
+  intro l
+  induction l with
+  | nil =>
+      intro n x hx
+      simpa [quadraticWordEval] using hx
+  | cons i l ih =>
+      change SqCubicRaisesBy
+        (sqCubicCorrectedLeftLetter h D i *
+          quadraticWordEval
+            (Module.End (ZMod 2) (SqCubicNormalSpace h))
+            (sqCubicCorrectedLeftLetter h D) l) (i :: l).length
+      simpa only [List.length_cons, Nat.add_comm] using
+        (sqCubicCorrectedLeftLetter_raises_one h D i).mul ih
+
+/-- A normal cubic word acts on the empty vector by its own embedded basis vector. -/
+theorem sqCubicCorrectedNormalWord_apply_empty (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (v : SqQuadraticHomogeneousNormalWord h 3) :
+    quadraticWordEval
+        (Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicCorrectedLeftLetter h D) v.1.1 (sqCubicEmptyVector h) =
+      sqCubicHomogeneousEmbed h 3 (by omega) (Finsupp.single v 1) := by
+  obtain ⟨w, hw⟩ := finiteGeneratorWordList_exists 3 v.1.1 v.2
+  have H := sqCubicCorrectedWord_apply_empty_recursive h D w
+  rw [hw] at H
+  have hnormal : sqQuadraticWordPBWNormal h 3 w = Finsupp.single v 1 := by
+    rw [sqQuadraticWordPBWNormal, hw, sqQuadraticNormalRepr_word h v.1]
+    ext u
+    by_cases hu : u = v
+    · subst u
+      simp [sqQuadraticHomogeneousProject]
+    · have hu' : u.1 ≠ v.1 := by
+        intro e
+        apply hu
+        exact Subtype.ext e
+      simp [sqQuadraticHomogeneousProject, hu]
+  rwa [hnormal] at H
+
+/-- Linear evaluation of cubic normal words in corrected endomorphisms. -/
+def sqCubicCorrectedNormalEndEval (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    SqQuadraticHomogeneousNormalSpace h 3 →ₗ[ZMod 2]
+      Module.End (ZMod 2) (SqCubicNormalSpace h) :=
+  Finsupp.lsum (ZMod 2) fun v =>
+    LinearMap.toSpanSingleton (ZMod 2)
+      (Module.End (ZMod 2) (SqCubicNormalSpace h))
+      (quadraticWordEval
+        (Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicCorrectedLeftLetter h D) v.1.1)
+
+@[simp] theorem sqCubicCorrectedNormalEndEval_single (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (v : SqQuadraticHomogeneousNormalWord h 3) (a : ZMod 2) :
+    sqCubicCorrectedNormalEndEval h D (Finsupp.single v a) =
+      a • quadraticWordEval
+        (Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicCorrectedLeftLetter h D) v.1.1 := by
+  simp [sqCubicCorrectedNormalEndEval]
+
+theorem sqCubicCorrectedNormalEndEval_raises_three (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (f : SqQuadraticHomogeneousNormalSpace h 3) :
+    SqCubicRaisesBy (sqCubicCorrectedNormalEndEval h D f) 3 := by
+  classical
+  induction f using Finsupp.induction with
+  | zero =>
+      intro n x hx
+      exact Submodule.zero_mem _
+  | single_add v a f hv ha ih =>
+      rw [map_add, sqCubicCorrectedNormalEndEval_single]
+      apply SqCubicRaisesBy.add
+      · apply SqCubicRaisesBy.smul
+        simpa [v.2] using sqCubicCorrectedWord_raises h D v.1.1
+      · exact ih
+
+theorem sqCubicCorrectedNormalEndEval_apply_empty (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (f : SqQuadraticHomogeneousNormalSpace h 3) :
+    sqCubicCorrectedNormalEndEval h D f (sqCubicEmptyVector h) =
+      sqCubicHomogeneousEmbed h 3 (by omega) f := by
+  classical
+  induction f using Finsupp.induction with
+  | zero => simp
+  | single_add v a f hv ha ih =>
+      rw [map_add, LinearMap.add_apply,
+        sqCubicCorrectedNormalEndEval_single, LinearMap.smul_apply,
+        sqCubicCorrectedNormalWord_apply_empty, map_add, ih]
+      apply congrArg₂ (· + ·)
+      · have hs : Finsupp.single v a = a • Finsupp.single v 1 := by simp
+        rw [hs, map_smul]
+      · rfl
+
+/-- **Finite cubic confluence.**  Every corrected literal cubic word operator equals the
+linear combination of normal cubic word operators prescribed by the quadratic Diamond
+normalizer.  The proof uses only the four-step filtration and the empty-vector regressions. -/
+theorem sqCubicCorrectedCubicEndNormalization (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (w : FiniteGeneratorWord (Fin (sqRank h)) 3) :
+    quadraticWordEval
+        (Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicCorrectedLeftLetter h D) (finiteGeneratorWordList 3 w) =
+      sqCubicCorrectedNormalEndEval h D (sqQuadraticWordPBWNormal h 3 w) := by
+  apply sqCubicEnd_eq_of_raises_three
+  · simpa [finiteGeneratorWordList_length] using
+      sqCubicCorrectedWord_raises h D (finiteGeneratorWordList 3 w)
+  · exact sqCubicCorrectedNormalEndEval_raises_three h D _
+  · rw [sqCubicCorrectedWord_apply_empty_recursive,
+      sqCubicCorrectedNormalEndEval_apply_empty]
+
+/-! ## Translation to the unitized finite algebra -/
+
+theorem sqCubicCorrectedOperatorWord_fst_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (l : List (Fin (sqRank h))) (hl : l ≠ []) :
+    (quadraticWordEval (SqCubicOperatorAlgebra h)
+      (sqCubicCorrectedOperatorLetter h D) l).fst = 0 := by
+  induction l with
+  | nil => exact (hl rfl).elim
+  | cons i l ih =>
+      change (sqCubicCorrectedOperatorLetter h D i *
+        quadraticWordEval (SqCubicOperatorAlgebra h)
+          (sqCubicCorrectedOperatorLetter h D) l).fst = 0
+      rw [Unitization.fst_mul]
+      have hi := sqCubicCorrectedOperatorLetter_augmentation h D i
+      change (sqCubicCorrectedOperatorLetter h D i).fst = 0 at hi
+      rw [hi, zero_mul]
+
+theorem sqCubicCorrectedOperatorWord_snd (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (l : List (Fin (sqRank h))) (hl : l.length = 3) :
+    ((quadraticWordEval (SqCubicOperatorAlgebra h)
+        (sqCubicCorrectedOperatorLetter h D) l).snd.1 :
+      Module.End (ZMod 2) (SqCubicNormalSpace h)) =
+      quadraticWordEval
+        (Module.End (ZMod 2) (SqCubicNormalSpace h))
+        (sqCubicCorrectedLeftLetter h D) l := by
+  cases l with
+  | nil => simp at hl
+  | cons i l =>
+      cases l with
+      | nil => simp at hl
+      | cons j l =>
+          cases l with
+          | nil => simp at hl
+          | cons k l =>
+              have hl0 : l = [] :=
+                List.eq_nil_of_length_eq_zero (by simpa using hl)
+              subst l
+              simp only [quadraticWordEval, List.map_cons, List.prod_cons,
+                List.map_nil, List.prod_nil, mul_one]
+              simp [sqCubicCorrectedOperatorLetter,
+                sqCubicCorrectedStrictLetter, Unitization.snd_mul]
+
+theorem sqCubicCorrectedNormalOperatorLinearCombination_fst_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (f : SqQuadraticHomogeneousNormalSpace h 3) :
+    (Finsupp.linearCombination (ZMod 2)
+      (fun v : SqQuadraticHomogeneousNormalWord h 3 =>
+        quadraticWordEval (SqCubicOperatorAlgebra h)
+          (sqCubicCorrectedOperatorLetter h D) v.1.1) f).fst = 0 := by
+  classical
+  induction f using Finsupp.induction with
+  | zero => simp
+  | single_add v a f hv ha ih =>
+      rw [map_add, Unitization.fst_add, ih]
+      simp only [Finsupp.linearCombination_single]
+      rw [Unitization.fst_smul,
+        sqCubicCorrectedOperatorWord_fst_zero h D v.1.1]
+      · simp
+      · intro e
+        have hvlen := v.2
+        rw [e] at hvlen
+        simp at hvlen
+
+theorem sqCubicCorrectedNormalOperatorLinearCombination_snd (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (f : SqQuadraticHomogeneousNormalSpace h 3) :
+    ((Finsupp.linearCombination (ZMod 2)
+        (fun v : SqQuadraticHomogeneousNormalWord h 3 =>
+          quadraticWordEval (SqCubicOperatorAlgebra h)
+            (sqCubicCorrectedOperatorLetter h D) v.1.1) f).snd.1 :
+      Module.End (ZMod 2) (SqCubicNormalSpace h)) =
+      sqCubicCorrectedNormalEndEval h D f := by
+  classical
+  induction f using Finsupp.induction with
+  | zero => simp [sqCubicCorrectedNormalEndEval]
+  | single_add v a f hv ha ih =>
+      rw [map_add, Unitization.snd_add, map_add]
+      change
+        ((Finsupp.linearCombination (ZMod 2)
+          (fun u : SqQuadraticHomogeneousNormalWord h 3 =>
+            quadraticWordEval (SqCubicOperatorAlgebra h)
+              (sqCubicCorrectedOperatorLetter h D) u.1.1)
+          (Finsupp.single v a)).snd.1 :
+            Module.End (ZMod 2) (SqCubicNormalSpace h)) +
+          ((Finsupp.linearCombination (ZMod 2)
+            (fun u : SqQuadraticHomogeneousNormalWord h 3 =>
+              quadraticWordEval (SqCubicOperatorAlgebra h)
+                (sqCubicCorrectedOperatorLetter h D) u.1.1) f).snd.1 :
+            Module.End (ZMod 2) (SqCubicNormalSpace h)) =
+          sqCubicCorrectedNormalEndEval h D (Finsupp.single v a) +
+            sqCubicCorrectedNormalEndEval h D f
+      rw [ih, Finsupp.linearCombination_single,
+        Unitization.snd_smul, sqCubicCorrectedNormalEndEval_single]
+      apply congrArg₂ (· + ·)
+      · apply congrArg (fun T => a • T)
+        exact sqCubicCorrectedOperatorWord_snd h D v.1.1 v.2
+      · rfl
+
+/-- Cubic normalization in the actual unitized finite operator algebra. -/
+theorem sqCubicCorrectedOperator_cubic_normalization (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h)
+    (w : FiniteGeneratorWord (Fin (sqRank h)) 3) :
+    quadraticWordEval (SqCubicOperatorAlgebra h)
+        (sqCubicCorrectedOperatorLetter h D) (finiteGeneratorWordList 3 w) =
+      Finsupp.linearCombination (ZMod 2)
+        (fun v : SqQuadraticHomogeneousNormalWord h 3 =>
+          quadraticWordEval (SqCubicOperatorAlgebra h)
+            (sqCubicCorrectedOperatorLetter h D) v.1.1)
+        (sqQuadraticWordPBWNormal h 3 w) := by
+  apply Unitization.ext
+  · rw [sqCubicCorrectedOperatorWord_fst_zero h D]
+    · exact sqCubicCorrectedNormalOperatorLinearCombination_fst_zero h D _ |>.symm
+    · intro e
+      have := finiteGeneratorWordList_length 3 w
+      rw [e] at this
+      simp at this
+  · apply Subtype.ext
+    exact (sqCubicCorrectedOperatorWord_snd h D _
+      (finiteGeneratorWordList_length 3 w)).trans
+        ((sqCubicCorrectedCubicEndNormalization h D w).trans
+          (sqCubicCorrectedNormalOperatorLinearCombination_snd h D _).symm)
+
+theorem sqCubicNormalIndexOfHomogeneous_injective (h n : ℕ) (hn : n < 4) :
+    Function.Injective (sqCubicNormalIndexOfHomogeneous h n hn) := by
+  intro u v e
+  have huv := congrArg (fun z : SqCubicNormalIndex h => z.2.1.1) e
+  apply Subtype.ext
+  apply Subtype.ext
+  exact huv
+
+theorem sqCubicHomogeneousEmbed_injective (h n : ℕ) (hn : n < 4) :
+    Function.Injective (sqCubicHomogeneousEmbed h n hn) := by
+  intro f g e
+  change Finsupp.mapDomain (sqCubicNormalIndexOfHomogeneous h n hn) f =
+      Finsupp.mapDomain (sqCubicNormalIndexOfHomogeneous h n hn) g at e
+  exact Finsupp.mapDomain_injective
+    (sqCubicNormalIndexOfHomogeneous_injective h n hn) e
+
+/-- Corrected normal cubic word values are independent in the finite operator algebra. -/
+theorem sqCubicCorrectedOperator_normal_independent (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    LinearIndependent (ZMod 2)
+      (fun v : SqQuadraticHomogeneousNormalWord h 3 =>
+        quadraticWordEval (SqCubicOperatorAlgebra h)
+          (sqCubicCorrectedOperatorLetter h D) v.1.1) := by
+  change Function.Injective (Finsupp.linearCombination (ZMod 2)
+    (fun v : SqQuadraticHomogeneousNormalWord h 3 =>
+      quadraticWordEval (SqCubicOperatorAlgebra h)
+        (sqCubicCorrectedOperatorLetter h D) v.1.1))
+  intro f g hfg
+  have hsnd := congrArg (fun a : SqCubicOperatorAlgebra h =>
+    ((a.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h))
+      (sqCubicEmptyVector h))) hfg
+  have heval (k : SqQuadraticHomogeneousNormalSpace h 3) :
+      (((Finsupp.linearCombination (ZMod 2)
+          (fun v : SqQuadraticHomogeneousNormalWord h 3 =>
+            quadraticWordEval (SqCubicOperatorAlgebra h)
+              (sqCubicCorrectedOperatorLetter h D) v.1.1) k).snd.1 :
+        Module.End (ZMod 2) (SqCubicNormalSpace h))
+          (sqCubicEmptyVector h)) =
+        sqCubicHomogeneousEmbed h 3 (by omega) k := by
+    rw [sqCubicCorrectedNormalOperatorLinearCombination_snd,
+      sqCubicCorrectedNormalEndEval_apply_empty]
+  have hemb : sqCubicHomogeneousEmbed h 3 (by omega) f =
+      sqCubicHomogeneousEmbed h 3 (by omega) g := by
+    exact (heval f).symm.trans (hsnd.trans (heval g))
+  exact sqCubicHomogeneousEmbed_injective h 3 (by omega)
+    hemb
+
+/-! ## The exact finite inhomogeneous correction equation -/
+
+theorem sqCubicCorrectedOperatorLetter_pow_four_zero (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h)) :
+    (sqCubicCorrectedOperatorLetter h D i) ^ 4 = 0 :=
+  pow_four_zero_of_augmentation_product_four_zero
+    (sqCubicOperatorAugmentation h)
+    (sqCubicOperatorAugmentation_product_four_zero h)
+    (sqCubicCorrectedOperatorLetter h D i)
+    (sqCubicCorrectedOperatorLetter_augmentation h D i)
+
+/-- The one remaining finite equation for a degree-two correction: the full literal improved
+relator must die on the corrected unipotent marked letters. -/
+def SqCubicInhomogeneousRelatorEquation (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) : Prop :=
+  sqRelWord (fun i => oneAddUnitOfPowFourZero
+    (sqCubicCorrectedOperatorLetter h D i)
+    (sqCubicCorrectedOperatorLetter_pow_four_zero h D i)) = 1
+
+/-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
+operator blocks together with the single literal relator equation.  Cubic confluence,
+nilpotence, and PBW independence are consequences, not fields of this structure. -/
+structure SqCubicInhomogeneousCorrection (h : ℕ) where
+  correction : SqCubicDegreeTwoCorrection h
+  relatorEquation : SqCubicInhomogeneousRelatorEquation h correction
+
+theorem nonempty_sqCubicInhomogeneousCorrection_iff (h : ℕ) :
+    Nonempty (SqCubicInhomogeneousCorrection h) ↔
+      ∃ D : SqCubicDegreeTwoCorrection h,
+        SqCubicInhomogeneousRelatorEquation h D := by
+  constructor
+  · rintro ⟨C⟩
+    exact ⟨C.correction, C.relatorEquation⟩
+  · rintro ⟨D, hD⟩
+    exact ⟨⟨D, hD⟩⟩
+
+/-- The finite correction equation constructs the full algebra detector certificate. -/
+def SqCubicInhomogeneousCorrection.toMagnusAlgebraCertificate
+    {h : ℕ} (C : SqCubicInhomogeneousCorrection h) :
+    SqCubicMagnusAlgebraCertificate h (SqCubicOperatorAlgebra h) where
+  augmentation := sqCubicOperatorAugmentation h
+  letter := sqCubicCorrectedOperatorLetter h C.correction
+  letter_augmentation := sqCubicCorrectedOperatorLetter_augmentation h C.correction
+  augmentation_product_four_zero :=
+    sqCubicOperatorAugmentation_product_four_zero h
+  relator := C.relatorEquation
+  cubic_normalization :=
+    sqCubicCorrectedOperator_cubic_normalization h C.correction
+  normal_independent :=
+    sqCubicCorrectedOperator_normal_independent h C.correction
+
+/-- The exact finite correction equation gives an explicit nonempty cubic Magnus detector. -/
+theorem nonempty_sqCubicMagnusAlgebraCertificate_of_inhomogeneousCorrection
+    {h : ℕ} (C : SqCubicInhomogeneousCorrection h) :
+    Nonempty (SqCubicMagnusAlgebraCertificate h (SqCubicOperatorAlgebra h)) :=
+  ⟨C.toMagnusAlgebraCertificate⟩
+
+/-- Consequently the finite correction equation proves the unconditional completed cubic
+Magnus--Labute kernel identity. -/
+theorem sqCompletedMonomialPBWKernelIdentity_three_of_inhomogeneousCorrection
+    {h : ℕ} (C : SqCubicInhomogeneousCorrection h) :
+    SqCompletedMonomialPBWKernelIdentity h 3 :=
+  C.toMagnusAlgebraCertificate.completedCubicKernelIdentity_of_columnSound
+    (sqCompletedCubicPBWColumnSound h)
 
 end
 
