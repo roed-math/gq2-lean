@@ -2131,6 +2131,128 @@ theorem commP_oneAdd_conjugate_val_expansion
     show (17 : ℤ) = 2 * 8 + 1 by norm_num,
     hevenZ, hoddZ, zero_add, add_zero]
 
+/-! ## Composable second-order expansions in the finite operator algebra -/
+
+def SqCubicOperatorElementRaisesBy (h : ℕ)
+    (a : SqCubicOperatorAlgebra h) (r : ℕ) : Prop :=
+  a.fst = 0 ∧ SqCubicRaisesBy
+    (a.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h)) r
+
+theorem SqCubicOperatorElementRaisesBy.zero (h r : ℕ) :
+    SqCubicOperatorElementRaisesBy h 0 r := by
+  constructor
+  · rfl
+  · exact fun _ _ _ => Submodule.zero_mem _
+
+theorem SqCubicOperatorElementRaisesBy.add {h r : ℕ}
+    {a b : SqCubicOperatorAlgebra h}
+    (ha : SqCubicOperatorElementRaisesBy h a r)
+    (hb : SqCubicOperatorElementRaisesBy h b r) :
+    SqCubicOperatorElementRaisesBy h (a + b) r := by
+  constructor
+  · rw [Unitization.fst_add, ha.1, hb.1, add_zero]
+  · rw [Unitization.snd_add]
+    exact ha.2.add hb.2
+
+theorem SqCubicOperatorElementRaisesBy.mul {h r s : ℕ}
+    {a b : SqCubicOperatorAlgebra h}
+    (ha : SqCubicOperatorElementRaisesBy h a r)
+    (hb : SqCubicOperatorElementRaisesBy h b s) :
+    SqCubicOperatorElementRaisesBy h (a * b) (r + s) := by
+  constructor
+  · rw [Unitization.fst_mul, ha.1, hb.1, zero_mul]
+  · rw [Unitization.snd_mul, ha.1, hb.1]
+    simp only [zero_smul, zero_add]
+    change SqCubicRaisesBy
+      ((a.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h)) *
+        (b.snd.1 : Module.End (ZMod 2) (SqCubicNormalSpace h))) (r + s)
+    exact ha.2.mul hb.2
+
+theorem SqCubicOperatorElementRaisesBy.eq_zero_of_four_le {h r : ℕ}
+    {a : SqCubicOperatorAlgebra h}
+    (ha : SqCubicOperatorElementRaisesBy h a r) (hr : 4 ≤ r) : a = 0 := by
+  apply Unitization.ext
+  · exact ha.1
+  · apply Subtype.ext
+    exact ha.2.eq_zero_of_four_le hr
+
+theorem sqCubicOneAddTwoThree_mul
+    {h : ℕ} (q e r f : SqCubicOperatorAlgebra h)
+    (hq : SqCubicOperatorElementRaisesBy h q 2)
+    (he : SqCubicOperatorElementRaisesBy h e 3)
+    (hr : SqCubicOperatorElementRaisesBy h r 2)
+    (hf : SqCubicOperatorElementRaisesBy h f 3) :
+    (1 + q + e) * (1 + r + f) = 1 + (q + r) + (e + f) := by
+  have hqr : q * r = 0 := (hq.mul hr).eq_zero_of_four_le (by omega)
+  have hqf : q * f = 0 := (hq.mul hf).eq_zero_of_four_le (by omega)
+  have her : e * r = 0 := (he.mul hr).eq_zero_of_four_le (by omega)
+  have hef : e * f = 0 := (he.mul hf).eq_zero_of_four_le (by omega)
+  calc
+    (1 + q + e) * (1 + r + f) =
+        1 + (q + r) + (e + f) + (q * r + q * f + e * r + e * f) := by
+      noncomm_ring
+    _ = 1 + (q + r) + (e + f) := by rw [hqr, hqf, her, hef]; simp
+
+structure SqCubicSecondOrderExpansion (h : ℕ)
+    (a : SqCubicOperatorAlgebra h) where
+  quadratic : SqCubicOperatorAlgebra h
+  cubic : SqCubicOperatorAlgebra h
+  value_eq : a = 1 + quadratic + cubic
+  quadratic_raises : SqCubicOperatorElementRaisesBy h quadratic 2
+  cubic_raises : SqCubicOperatorElementRaisesBy h cubic 3
+
+def SqCubicSecondOrderExpansion.one (h : ℕ) :
+    SqCubicSecondOrderExpansion h 1 where
+  quadratic := 0
+  cubic := 0
+  value_eq := by simp
+  quadratic_raises := SqCubicOperatorElementRaisesBy.zero h 2
+  cubic_raises := SqCubicOperatorElementRaisesBy.zero h 3
+
+def SqCubicSecondOrderExpansion.mul {h : ℕ}
+    {a b : SqCubicOperatorAlgebra h}
+    (ha : SqCubicSecondOrderExpansion h a)
+    (hb : SqCubicSecondOrderExpansion h b) :
+    SqCubicSecondOrderExpansion h (a * b) where
+  quadratic := ha.quadratic + hb.quadratic
+  cubic := ha.cubic + hb.cubic
+  value_eq := by
+    calc
+      a * b = (1 + ha.quadratic + ha.cubic) *
+          (1 + hb.quadratic + hb.cubic) :=
+        congrArg₂ (· * ·) ha.value_eq hb.value_eq
+      _ = 1 + (ha.quadratic + hb.quadratic) +
+          (ha.cubic + hb.cubic) :=
+        sqCubicOneAddTwoThree_mul _ _ _ _
+          ha.quadratic_raises ha.cubic_raises
+          hb.quadratic_raises hb.cubic_raises
+  quadratic_raises := ha.quadratic_raises.add hb.quadratic_raises
+  cubic_raises := ha.cubic_raises.add hb.cubic_raises
+
+@[simp] theorem sqCubicZeroCorrectedOperatorLetter (h : ℕ)
+    (i : Fin (sqRank h)) :
+    sqCubicCorrectedOperatorLetter h (sqCubicZeroDegreeTwoCorrection h) i =
+      sqCubicHomogeneousOperatorLetter h i := by
+  rw [sqCubicCorrectedOperatorLetter_eq_homogeneous_add_correction,
+    sqCubicZeroCorrectionOperatorElement, add_zero]
+
+set_option maxHeartbeats 1000000 in
+theorem sqCubicZeroCorePrefix_val_expansion (h : ℕ) :
+    let s := sqCubicHomogeneousOperatorLetter h 0
+    let x := sqCubicHomogeneousOperatorLetter h 1
+    (sqCubicCorrectedCorePrefix h (sqCubicZeroDegreeTwoCorrection h)).val =
+      1 + s * x + x * s + s * s * x + s * x * s + x * s * x + x * x * s := by
+  dsimp only
+  rw [sqCubicCorrectedCorePrefix_val]
+  simp only [sqCubicZeroCorrectedOperatorLetter]
+  exact cubicConjugateCubePrefix_expansion
+    (sqCubicOperatorAugmentation h)
+    (sqCubicOperatorAugmentation_product_four_zero h)
+    (sqCubicHomogeneousOperatorLetter h 0)
+    (sqCubicHomogeneousOperatorLetter h 1)
+    (sqCubicHomogeneousOperatorLetter_augmentation h 0)
+    (sqCubicHomogeneousOperatorLetter_augmentation h 1)
+
 /-- An explicit finite inhomogeneous correction consists only of filtration-degree-two
 operator blocks together with the single literal relator equation.  Cubic confluence,
 nilpotence, and PBW independence are consequences, not fields of this structure. -/
