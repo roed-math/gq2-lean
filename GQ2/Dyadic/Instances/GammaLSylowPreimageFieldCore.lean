@@ -178,6 +178,41 @@ def OddDegreeGalKDemushkinQTwo : Prop :=
     Odd (Module.finrank ℚ_[2] K) →
       demushkinQ (maxProPQuotient 2 (GalK K)) = 2
 
+/-! ## The already-proved invariant package -/
+
+/-- The invariant data needed by the square row.  The first two fields are already theorems
+for every finite dyadic field; only `qTwo` is the separate local-class-field-theory input.
+
+For odd degree `n`, the equality identifies the field rank `n + 2` with the improved square
+rank `sqRank ((n - 1) / 2) = 3 + 2 ((n - 1) / 2)`. -/
+structure OddDegreeGalKSqInvariantData
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
+  demushkin : @IsDemushkin 2 (maxProPQuotient 2 (GalK K)) _ _
+    (scalarActionZmodTwo _) (scalarActionZmodTwo_continuousSMul _)
+  rank_eq : @demushkinRank 2 (maxProPQuotient 2 (GalK K)) _ _
+    (scalarActionZmodTwo _) =
+    SqCore.sqRank ((Module.finrank ℚ_[2] K - 1) / 2)
+  qTwo : demushkinQ (maxProPQuotient 2 (GalK K)) = 2
+
+/-- Odd degree and the `q = 2` calculation supply all abstract Demushkin invariants of the
+improved square presentation.  No classification theorem is used here. -/
+theorem oddDegreeGalKSqInvariantData_of_qTwo
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (hodd : Odd (Module.finrank ℚ_[2] K))
+    (hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2) :
+    OddDegreeGalKSqInvariantData K := by
+  let Q := maxProPQuotient 2 (GalK K)
+  letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
+  letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
+  refine ⟨isDemushkin_maxProTwoGalK (K := K), ?_, hq⟩
+  rw [demushkinRank_maxProTwoGalK (K := K)]
+  obtain ⟨k, hk⟩ := hodd
+  rw [hk]
+  simp only [SqCore.sqRank]
+  omega
+
 /-- The absent **oriented** odd-degree dyadic-field specialization of Labute's classification.
 Conditional on `q = 2`, the improved square presentation with `(degree - 1) / 2` handles is
 identified with the maximal pro-`2` Galois group of the concrete field `K`, and its standard
@@ -237,6 +272,56 @@ theorem oddDegreeGalKSqOrientedLabuteClassification_iff_generatorPresentation :
       OddDegreeGalKSqCyclotomicGeneratorPresentation :=
   ⟨oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification,
     oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation⟩
+
+/-! ## The finite-level Labute construction boundary -/
+
+/-- The field-uniform two-epimorphism form of the missing classification.  Compared with the
+generator-presentation seam, this asks only for the concrete output of a levelwise Labute
+argument: a surjection from the improved square core with the five cyclotomic rows, and any
+surjection back.  The profinite Hopfian theorem constructs the carrier equivalence. -/
+def OddDegreeGalKSqCyclotomicBiEpiPresentation : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    Odd (Module.finrank ℚ_[2] K) →
+      demushkinQ (maxProPQuotient 2 (GalK K)) = 2 →
+        Nonempty (SqCyclotomicBiEpiData
+          ((Module.finrank ℚ_[2] K - 1) / 2) (chiCycKTwo (K := K)))
+
+/-- A two-epimorphism construction supplies the oriented field classification by the Hopfian
+endgame `orientedEquivSq_of_biEpiData`. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_of_biEpiPresentation
+    (hbi : OddDegreeGalKSqCyclotomicBiEpiPresentation) :
+    OddDegreeGalKSqOrientedLabuteClassification := by
+  intro K _ _ _ _ hodd hq
+  obtain ⟨D⟩ := hbi K hodd hq
+  exact ⟨orientedEquivSq_of_biEpiData (chiCycKTwo (K := K)) D⟩
+
+/-- An oriented equivalence supplies the two epimorphisms and their five generator rows. -/
+theorem oddDegreeGalKSqBiEpiPresentation_of_orientedLabuteClassification
+    (hLab : OddDegreeGalKSqOrientedLabuteClassification) :
+    OddDegreeGalKSqCyclotomicBiEpiPresentation := by
+  intro K _ _ _ _ hodd hq
+  obtain ⟨e⟩ := hLab K hodd hq
+  have hvalues : SqOrientationGeneratorValues (chiCycKTwo (K := K)) e.1 :=
+    (orientationMatches_chiSq_iff_generatorValues _ _).1 e.2
+  exact ⟨
+    { forward := e.1
+      forward_surjective := e.1.surjective
+      sigma := hvalues.sigma
+      x0 := hvalues.x0
+      x1 := hvalues.x1
+      handleU := hvalues.handleU
+      handleV := hvalues.handleV
+      backward := e.1.symm
+      backward_surjective := e.1.symm.surjective }⟩
+
+/-- Exact reduction of the higher odd-degree theorem to the output expected from a finite-level
+Labute construction. -/
+theorem oddDegreeGalKSqOrientedLabuteClassification_iff_biEpiPresentation :
+    OddDegreeGalKSqOrientedLabuteClassification ↔
+      OddDegreeGalKSqCyclotomicBiEpiPresentation :=
+  ⟨oddDegreeGalKSqBiEpiPresentation_of_orientedLabuteClassification,
+    oddDegreeGalKSqOrientedLabuteClassification_of_biEpiPresentation⟩
 
 /-- The unmarked carrier shadow of the oriented field-specific classification.  This property
 is retained as a convenient statement of the presentation alone, but it is not the primary
@@ -335,10 +420,14 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
 #print axioms maxProPQuotientCongr_maxProPMk
 #print axioms dsqFinsetTopGen
 #print axioms orientedEquivSq_of_biEpiData
+#print axioms oddDegreeGalKSqInvariantData_of_qTwo
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_of_generatorPresentation
 #print axioms oddDegreeGalKSqGeneratorPresentation_of_orientedLabuteClassification
 #print axioms oddDegreeGalKSqOrientedLabuteClassification_iff_generatorPresentation
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_of_biEpiPresentation
+#print axioms oddDegreeGalKSqBiEpiPresentation_of_orientedLabuteClassification
+#print axioms oddDegreeGalKSqOrientedLabuteClassification_iff_biEpiPresentation
 #print axioms gammaLOpenSubgroupHandleCount_rank
 #print axioms gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
 #print axioms gammaLOpenSubgroupVariableCorePresentation_indexOne_zero
