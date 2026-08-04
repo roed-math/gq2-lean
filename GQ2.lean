@@ -469,6 +469,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFixedCoreCounterexample
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteFinite
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStage
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRealizationCore
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageArithmeticResidual

@@ -1,0 +1,156 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using OpenAI Codex
+-/
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteFinite
+import GQ2.Roe.Labute.Levelwise
+
+/-!
+# Variable-rank stage foundation for the improved square Labute word
+
+This file lifts the rank-three defect calculus to the literal variable-rank word
+`SqCore.sqRelWord` on `Fin (SqCore.sqRank h)`.  It supplies the presentation-independent part
+of a future Labute stage argument:
+
+* relator-killing generating tuples in the lower two-central tower;
+* restriction down the tower;
+* invariance of the full core-and-handles word under the central exponent-two kernel;
+* a canonical variable-rank defect, independent of all coordinate lifts; and
+* the fact that a relator-killing tuple's defect lies in the next graded layer.
+
+The remaining hard theorem is now sharply isolated: a variable-rank span/correction result
+must kill `sqStageDefect` while preserving the five cyclotomic value fibres.  The handle block
+below is the improved presentation's genuine product of commutators, not an obsolete collector
+word.
+-/
+
+namespace GQ2.Dyadic.LSquare
+
+noncomputable section
+
+open GQ2
+open GQ2.Roe.Labute
+
+/-! ## Level sets and restriction -/
+
+/-- A relator-killing generating marking of the `k`-th lower two-central quotient. -/
+def sqStageZero
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) : Set (Fin (SqCore.sqRank h) → levelQuot G k) :=
+  {T | SqCore.sqRelWord T = 1 ∧ Subgroup.closure (Set.range T) = ⊤}
+
+/-- Restriction of a variable-rank improved marking down one level preserves both its literal
+relation and generation. -/
+theorem sqStageZero_levelProj
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ} {T : Fin (SqCore.sqRank h) → levelQuot G (k + 1)}
+    (hT : T ∈ sqStageZero G h (k + 1)) :
+    (fun i ↦ levelProj G k (T i)) ∈ sqStageZero G h k := by
+  obtain ⟨hrel, hgen⟩ := hT
+  refine ⟨?_, closure_range_levelProj hgen⟩
+  rw [← SqCore.map_sqRelWord (levelProj G k) T, hrel, map_one]
+
+/-! ## Central-kernel invariance of the improved word -/
+
+/-- The full hyperbolic handle block is insensitive to coordinatewise central shifts. -/
+theorem handleWord_central_shift
+    {H : Type*} [Group H] {h : ℕ}
+    (u v zu zv : Fin h → H)
+    (hzu : ∀ j t, Commute (zu j) t)
+    (hzv : ∀ j t, Commute (zv j) t) :
+    GQ2.Dyadic.MarkedCore.handleWord (fun j ↦ zu j * u j) (fun j ↦ zv j * v j) =
+      GQ2.Dyadic.MarkedCore.handleWord u v := by
+  rw [GQ2.Dyadic.MarkedCore.handleWord, GQ2.Dyadic.MarkedCore.handleWord]
+  apply congrArg List.prod
+  apply List.map_congr_left
+  intro j _
+  rw [commP_central_left (hzu j), commP_central_right (hzv j)]
+
+/-- The literal improved square relator is insensitive to arbitrary coordinatewise shifts from
+the central exponent-two layer `Z_k`.  The rank-three core uses the existing exact `drWord`
+calculus; every appended handle is handled as an honest commutator. -/
+theorem sqRelWord_zLayer_shift
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {h k : ℕ}
+    (z m : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    (hz : ∀ i, z i ∈ zLayer G k) :
+    SqCore.sqRelWord (fun i ↦ z i * m i) = SqCore.sqRelWord m := by
+  have hcore : SqCore.sqWord (z 0 * m 0) (z 1 * m 1) (z 2 * m 2) =
+      SqCore.sqWord (m 0) (m 1) (m 2) := by
+    exact drWord_zLayer_shift (hz 0) (hz 1) (hz 2) _ _ _
+  have hhandles :
+      GQ2.Dyadic.MarkedCore.handleWord
+          (fun j ↦ z (SqCore.sqHandleIdxU j) * m (SqCore.sqHandleIdxU j))
+          (fun j ↦ z (SqCore.sqHandleIdxV j) * m (SqCore.sqHandleIdxV j)) =
+        GQ2.Dyadic.MarkedCore.handleWord
+          (fun j ↦ m (SqCore.sqHandleIdxU j))
+          (fun j ↦ m (SqCore.sqHandleIdxV j)) := by
+    apply handleWord_central_shift
+    · intro j t
+      exact zLayer_commute (hz (SqCore.sqHandleIdxU j)) t
+    · intro j t
+      exact zLayer_commute (hz (SqCore.sqHandleIdxV j)) t
+  rw [SqCore.sqRelWord, SqCore.sqRelWord, hcore, hhandles]
+
+/-! ## The variable-rank defect -/
+
+/-- The improved-relator defect of the canonical coordinatewise lift to level `k+1`. -/
+noncomputable def sqStageDefect
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) (T : Fin (SqCore.sqRank h) → levelQuot G k) :
+    levelQuot G (k + 1) :=
+  SqCore.sqRelWord (fun i ↦ canonLift G k (T i))
+
+/-- Any coordinatewise lift computes the same variable-rank defect. -/
+theorem sqStageDefect_eq_of_lift
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) (T : Fin (SqCore.sqRank h) → levelQuot G k)
+    (T' : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    (hT' : ∀ i, levelProj G k (T' i) = T i) :
+    SqCore.sqRelWord T' = sqStageDefect G h k T := by
+  choose z hz heq using fun i ↦ exists_zLayer_mul (G := G)
+    (show levelProj G k (T' i) = levelProj G k (canonLift G k (T i)) by
+      rw [hT', levelProj_canonLift])
+  have hfun : T' = fun i ↦ z i * canonLift G k (T i) := funext heq
+  rw [hfun, sqStageDefect]
+  exact sqRelWord_zLayer_shift z (fun i ↦ canonLift G k (T i)) hz
+
+/-- The defect of a relator-killing variable-rank marking lies in the graded kernel `Z_k`. -/
+theorem sqStageDefect_mem_zLayer
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) {T : Fin (SqCore.sqRank h) → levelQuot G k}
+    (hrel : SqCore.sqRelWord T = 1) :
+    sqStageDefect G h k T ∈ zLayer G k := by
+  rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, sqStageDefect,
+    SqCore.map_sqRelWord]
+  simpa only [levelProj_canonLift] using hrel
+
+/-- A tuple in `sqStageZero` has a graded-layer defect. -/
+theorem sqStageZero_defect_mem_zLayer
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) {T : Fin (SqCore.sqRank h) → levelQuot G k}
+    (hT : T ∈ sqStageZero G h k) :
+    sqStageDefect G h k T ∈ zLayer G k :=
+  sqStageDefect_mem_zLayer h k hT.1
+
+/-- Vanishing of the canonical defect is equivalent to the literal improved relation for any
+chosen coordinatewise lift. -/
+theorem sqStageDefect_eq_one_iff_lift_relation
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) (T : Fin (SqCore.sqRank h) → levelQuot G k)
+    (T' : Fin (SqCore.sqRank h) → levelQuot G (k + 1))
+    (hT' : ∀ i, levelProj G k (T' i) = T i) :
+    sqStageDefect G h k T = 1 ↔ SqCore.sqRelWord T' = 1 := by
+  rw [sqStageDefect_eq_of_lift h k T T' hT']
+
+#print axioms sqStageZero_levelProj
+#print axioms handleWord_central_shift
+#print axioms sqRelWord_zLayer_shift
+#print axioms sqStageDefect_eq_of_lift
+#print axioms sqStageDefect_mem_zLayer
+#print axioms sqStageDefect_eq_one_iff_lift_relation
+
+end
+
+end GQ2.Dyadic.LSquare
