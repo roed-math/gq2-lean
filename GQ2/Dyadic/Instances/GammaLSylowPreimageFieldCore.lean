@@ -68,6 +68,16 @@ noncomputable def maxProPQuotientCongr {p : ℕ}
     rw [hg_mk, hf_mk, e.apply_symm_apply]
   exact continuousMulEquivOfBijective f ⟨hleft.injective, hright.surjective⟩
 
+/-- The equivalence induced on maximal pro-`p` quotients carries quotient classes to quotient
+classes. -/
+@[simp] theorem maxProPQuotientCongr_maxProPMk {p : ℕ}
+    {G H : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+    [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H]
+    (e : G ≃ₜ* H) (x : G) :
+    maxProPQuotientCongr e (maxProPMk p G x) = maxProPMk p H (e x) := rfl
+
 end
 
 end GQ2
@@ -230,6 +240,7 @@ theorem gammaLOddIndexOpenSubgroupVariableCorePresentationSupply_of_field
     U' hodd F hqTwo hLab
 
 #print axioms maxProPQuotientCongr
+#print axioms maxProPQuotientCongr_maxProPMk
 #print axioms oddDegreeGalKSqLabuteClassification_of_oriented
 #print axioms gammaLOpenSubgroupHandleCount_rank
 #print axioms gammaLOpenSubgroupVariableCorePresentation_of_fieldIdentification
