@@ -31,7 +31,15 @@ not prove either member of this stronger Sylow-preimage supply.  The final regre
 specializes the exact finite reduction to that row.  In particular, the Q2 theorem does not
 silently supply norm-residue generation on the generally infinite maximal pro-`2` fixed field,
 nor does it identify maximal pro-`2` quotients of arbitrary odd-index Sylow preimages with the
-fixed four-generator square core.
+fixed square core.
+
+The latter warning is substantive, not merely an API gap.  Informally, let the Q2 action factor
+through the unramified quotient of order three acting irreducibly on `F₂²`.  Its Sylow-`2`
+preimage is the absolute Galois group of the unramified cubic extension.  Its maximal pro-`2`
+quotient has scalar `H¹`-dimension `3 + 2 = 5`, whereas `DSq 0` has scalar `H¹`-dimension three.
+Thus the fixed-core kernel equality cannot hold for that action.  The present file records the
+exact formal boundary but does not assemble this counterexample, since the needed local-field
+rank comparison is not exposed through the current GammaL Sylow-preimage API.
 -/
 
 namespace GQ2.Dyadic.LSquare
