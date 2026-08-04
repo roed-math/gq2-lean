@@ -335,26 +335,32 @@ theorem isDemushkin_DSq (h : ℕ) : IsDemushkin 2 (SqCore.DSq h : Type) :=
 
 /-- The degree-three dimension of the free restricted Lie algebra on `d` degree-one
 generators.  Since three is prime to two, this is the ordinary Witt number. -/
-def lowerTwoCentralFreeCubicDimension (d : ℕ) : ℕ :=
+def zassenhausFreeCubicPrimitiveDimension (d : ℕ) : ℕ :=
   (d ^ 3 - d) / 3
 
-/-- The degree-three dimension after quotienting by one nondegenerate quadratic relator.
-For `d ≥ 2`, the degree-three part of the restricted-Lie relator ideal has rank `d`, so this
-is `((d^3-d)/3)-d = (d^3-4d)/3`.  Rank one is exceptional: its cubic bracket is zero, while
-the Nat-valued formula below still has the intended value zero.  The integral form is
-convenient for cardinal statements. -/
-def lowerTwoCentralOneRelatorCubicDimension (d : ℕ) : ℕ :=
+/-- The Zassenhaus/restricted-Lie primitive dimension in degree three after quotienting by one
+nondegenerate quadratic relator.  For `d ≥ 2`, the degree-three bracket part of the relator
+ideal has rank `d`, so this is `((d^3-d)/3)-d = (d^3-4d)/3`.
+
+This number is **not by itself** the degree-three rank of the repository's lower exponent-two
+central series: that layer also receives squares from degree two.  Rank one is exceptional:
+its cubic bracket is zero, while the Nat-valued formula below still has the intended primitive
+value zero. -/
+def zassenhausOneRelatorCubicPrimitiveDimension (d : ℕ) : ℕ :=
   (d ^ 3 - 4 * d) / 3
 
-/-- Cardinal form of the first higher Labute coefficient for a rank-`d` group. -/
-def LowerTwoCentralDegreeThreeExpectedCard
+/-- Cardinal form of the formerly expected third lower-two-central layer.  Because `zLayer`
+uses the lower exponent-two central series while the displayed exponent is the Zassenhaus
+primitive coefficient, this proposition is now an explicit cross-filtration compatibility
+assertion, not a consequence of the completed mod-two PBW calculation. -/
+def LowerTwoCentralDegreeThreeCrossFiltrationCard
     (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (d : ℕ) : Prop :=
-  Nat.card (zLayer G 3) = 2 ^ lowerTwoCentralOneRelatorCubicDimension d
+  Nat.card (zLayer G 3) = 2 ^ zassenhausOneRelatorCubicPrimitiveDimension d
 
-/-- The rank-three regression is the first higher value: the cubic coefficient is `5`. -/
-theorem lowerTwoCentralOneRelatorCubicDimension_three :
-    lowerTwoCentralOneRelatorCubicDimension 3 = 5 := by
-  norm_num [lowerTwoCentralOneRelatorCubicDimension]
+/-- The rank-three Zassenhaus primitive regression is the first higher value: `5`. -/
+theorem zassenhausOneRelatorCubicPrimitiveDimension_three :
+    zassenhausOneRelatorCubicPrimitiveDimension 3 = 5 := by
+  norm_num [zassenhausOneRelatorCubicPrimitiveDimension]
 
 /-! ### The literal rank-`d` cubic relation space -/
 
@@ -461,105 +467,128 @@ theorem finrank_sqCubicRelatorBracketSpace (h : ℕ) :
   rw [LinearMap.finrank_range_of_inj (sqCubicRelatorBracketMap_injective h),
     Module.finrank_fintype_fun_eq_card, Fintype.card_fin]
 
-/-- A coefficient calculation at Hilbert index `2` is exactly the desired cardinality of
-`Z₃ = λ₃/λ₄`. -/
-theorem lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient
+/-- Once an explicit cross-filtration equality identifies the lower-series Hilbert
+coefficient with the Zassenhaus primitive dimension, it gives the corresponding cardinality
+of `Z₃ = λ₃/λ₄`.  The premise, not this conversion lemma, carries that identification. -/
+theorem lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient
     {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
     (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G) {d : ℕ}
     (hcubic : lowerTwoCentralHilbertCoefficient G 2 =
-      lowerTwoCentralOneRelatorCubicDimension d) :
-    LowerTwoCentralDegreeThreeExpectedCard G d := by
-  unfold LowerTwoCentralDegreeThreeExpectedCard
+      zassenhausOneRelatorCubicPrimitiveDimension d) :
+    LowerTwoCentralDegreeThreeCrossFiltrationCard G d := by
+  unfold LowerTwoCentralDegreeThreeCrossFiltrationCard
   change Nat.card (zLayer G (2 + 1)) =
-    2 ^ lowerTwoCentralOneRelatorCubicDimension d
+    2 ^ zassenhausOneRelatorCubicPrimitiveDimension d
   rw [card_zLayer_succ_eq_two_pow_hilbertCoefficient hfg hpro, hcubic]
 
-/-- The model-specific missing primitive bridge.  The completed augmentation calculation
-already proves its premise unconditionally; the missing content is the Jennings--Lazard
-identification of its cubic PBW quotient with the primitive lower-two-central layer. -/
-def SqDegreeThreeJenningsPrimitiveBridge : Prop :=
-  ∀ h : ℕ, SqCompletedMonomialPBWKernelIdentity h 3 →
-    lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 2 =
-      lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h)
-
 /-- The finite-operator campaign has already discharged the completed cubic Magnus/PBW
-premise appearing in the preceding bridge. -/
+kernel identity. -/
 theorem sqCompletedCubicMagnusPBWKernelIdentity (h : ℕ) :
     SqCompletedMonomialPBWKernelIdentity h 3 :=
   sqCompletedMonomialPBWKernelIdentity_three h
 
-/-- Thus a Jennings primitive bridge immediately computes the model's third layer. -/
-theorem lowerTwoCentralDegreeThreeExpectedCard_DSq_of_jenningsBridge
-    (H : SqDegreeThreeJenningsPrimitiveBridge) (h : ℕ) :
-    LowerTwoCentralDegreeThreeExpectedCard (SqCore.DSq h : Type)
+/-- The corrected model-side Zassenhaus cubic interface: the completed PBW kernel identity
+and the literal rank-`d` cubic relation-space theorem.  Both clauses are proved without
+identifying a Zassenhaus dimension subgroup with a lower exponent-two central layer. -/
+def SqDegreeThreeZassenhausPrimitiveSupply : Prop :=
+  ∀ h : ℕ,
+    SqCompletedMonomialPBWKernelIdentity h 3 ∧
+      Module.finrank (ZMod 2) (sqCubicRelatorBracketSpace h) = SqCore.sqRank h
+
+/-- The finite completed-PBW and constructor-table campaigns discharge the corrected
+Zassenhaus primitive supply unconditionally. -/
+theorem sqDegreeThreeZassenhausPrimitiveSupply :
+    SqDegreeThreeZassenhausPrimitiveSupply := by
+  intro h
+  exact ⟨sqCompletedCubicMagnusPBWKernelIdentity h,
+    finrank_sqCubicRelatorBracketSpace h⟩
+
+/-- **Legacy model cross-filtration bridge.**  The completed augmentation calculation proves
+its premise unconditionally.  Its conclusion, however, identifies a Zassenhaus cubic PBW
+quotient with a lower exponent-two `zLayer` coefficient.  The regression in
+`LowerTwoCentralJenningsDegreeThree` shows that the naive identification is impossible: the
+layer-square image is nonzero but dies in the mod-two cubic quotient.  Consequently this
+proposition needs a corrected filtration or an additional square summand, rather than merely
+a proof of injectivity of the existing layer map. -/
+def LegacySqDegreeThreeJenningsCrossFiltrationBridge : Prop :=
+  ∀ h : ℕ, SqCompletedMonomialPBWKernelIdentity h 3 →
+    lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 2 =
+      zassenhausOneRelatorCubicPrimitiveDimension (SqCore.sqRank h)
+
+/-- The legacy model cross-filtration bridge would compute the third lower-series layer.
+The theorem name records that the disputed bridge, not the proved Zassenhaus supply, is the
+source of the conclusion. -/
+theorem lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyJenningsCrossFiltration
+    (H : LegacySqDegreeThreeJenningsCrossFiltrationBridge) (h : ℕ) :
+    LowerTwoCentralDegreeThreeCrossFiltrationCard (SqCore.DSq h : Type)
       (SqCore.sqRank h) := by
-  apply lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient
+  apply lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient
     (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
   exact H h (sqCompletedCubicMagnusPBWKernelIdentity h)
 
-/-- **The narrow universal degree-three theorem still absent from the library.**  For every
-finitely generated Demushkin pro-`2` group of rank at least two, the degree-three part of the
-initial quadratic relation ideal has rank equal to the degree-one rank.  Rank one is the
-exceptional zero-bracket case; the displayed Nat formula still evaluates to zero there.
-Equivalently, Hilbert coefficient `2` is `(d^3-4d)/3`.  This single proposition packages the
-degree-three Labute relation-space calculation together with the generic Jennings primitive
-identification. -/
-def DemushkinDegreeThreeLabuteFormulaSupply : Prop :=
+/-- **Legacy cross-filtration universal degree-three supply.**  The bracket calculation says
+that the degree-three part of the initial quadratic relation ideal has rank equal to the
+degree-one rank, producing the Zassenhaus primitive coefficient `(d^3-4d)/3`.  The conclusion
+below applies that number to the lower exponent-two Hilbert coefficient.  After the explicit
+square-kernel regression, this is no longer a neutral packaging of a missing theorem: it also
+asserts the disputed cross-filtration identification.  New proofs should split the
+Zassenhaus Labute formula from the additional lower-series square contribution. -/
+def LegacyDemushkinDegreeThreeCrossFiltrationSupply : Prop :=
   ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
     [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)],
     IsTopologicallyFinGen G → IsDemushkin 2 G →
       lowerTwoCentralHilbertCoefficient G 2 =
-        lowerTwoCentralOneRelatorCubicDimension (demushkinRank 2 G)
+        zassenhausOneRelatorCubicPrimitiveDimension (demushkinRank 2 G)
 
-/-- The universal degree-three Labute formula specializes to every improved square model,
-because the constructor-table calculation above proves that model is Demushkin. -/
-theorem lowerTwoCentralDegreeThreeExpectedCard_DSq_of_labute
-    (H : DemushkinDegreeThreeLabuteFormulaSupply) (h : ℕ) :
-    LowerTwoCentralDegreeThreeExpectedCard (SqCore.DSq h : Type)
+/-- The legacy universal cross-filtration assumption specializes to every improved square
+model because the constructor-table calculation proves that model is Demushkin.  This is not
+a consequence of the Zassenhaus Labute formula alone. -/
+theorem lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyCrossFiltration
+    (H : LegacyDemushkinDegreeThreeCrossFiltrationSupply) (h : ℕ) :
+    LowerTwoCentralDegreeThreeCrossFiltrationCard (SqCore.DSq h : Type)
       (SqCore.sqRank h) := by
-  apply lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient
+  apply lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient
     (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
   rw [← demushkinRank_DSq h]
   exact H (SqCore.DSq h : Type) (dsqFinsetTopGen h) (isDemushkin_DSq h)
 
-/-- Rank-three model regression: the universal Labute formula gives
-`|λ₃(DSq 0)/λ₄(DSq 0)| = 2^5 = 32`. -/
-theorem card_zLayer_three_dsq_zero_of_labute
-    (H : DemushkinDegreeThreeLabuteFormulaSupply) :
+/-- Rank-three regression under the explicit legacy cross-filtration assumption:
+`|λ₃(DSq 0)/λ₄(DSq 0)| = 2^5 = 32`.  The value is not asserted as a Labute consequence. -/
+theorem card_zLayer_three_dsq_zero_of_legacyCrossFiltration
+    (H : LegacyDemushkinDegreeThreeCrossFiltrationSupply) :
     Nat.card (zLayer (SqCore.DSq 0 : Type) 3) = 32 := by
-  have hcard := lowerTwoCentralDegreeThreeExpectedCard_DSq_of_labute H 0
-  unfold LowerTwoCentralDegreeThreeExpectedCard at hcard
-  rw [SqCore.sqRank, lowerTwoCentralOneRelatorCubicDimension_three] at hcard
+  have hcard := lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyCrossFiltration H 0
+  unfold LowerTwoCentralDegreeThreeCrossFiltrationCard at hcard
+  rw [SqCore.sqRank, zassenhausOneRelatorCubicPrimitiveDimension_three] at hcard
   norm_num at hcard ⊢
   exact hcard
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
-/-- The same universal theorem gives the exact third lower-two-central layer of every finite
-dyadic field group. -/
-theorem maxProTwoGalK_lowerTwoCentralDegreeThreeExpectedCard_of_labute
-    (H : DemushkinDegreeThreeLabuteFormulaSupply)
+/-- The legacy universal cross-filtration assumption gives the asserted third lower-series
+cardinality for a finite dyadic field group. -/
+theorem maxProTwoGalK_lowerTwoCentralDegreeThreeCrossFiltrationCard_of_legacyCrossFiltration
+    (H : LegacyDemushkinDegreeThreeCrossFiltrationSupply)
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)]
     (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))) :
-    LowerTwoCentralDegreeThreeExpectedCard (maxProPQuotient 2 (GalK K))
+    LowerTwoCentralDegreeThreeCrossFiltrationCard (maxProPQuotient 2 (GalK K))
       (Module.finrank ℚ_[2] K + 2) := by
   let Q := maxProPQuotient 2 (GalK K)
   letI : DistribMulAction Q (ZMod 2) := scalarActionZmodTwo Q
   letI : ContinuousSMul Q (ZMod 2) := scalarActionZmodTwo_continuousSMul Q
-  apply lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient hfg
+  apply lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient hfg
     isProP_maxProPQuotient
   have hcubic := H Q hfg (isDemushkin_maxProTwoGalK (K := K))
   rwa [demushkinRank_maxProTwoGalK (K := K)] at hcubic
 
-/-- At the first unresolved higher layer `k = 3`, the improved odd-degree model and the
-arithmetic group have equal order as soon as the universal degree-three Labute formula is
-available. -/
-theorem oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute
-    (H : DemushkinDegreeThreeLabuteFormulaSupply)
+/-- At `k = 3`, the improved odd-degree model and arithmetic group have equal order under the
+same explicit legacy cross-filtration assumption. -/
+theorem oddDegreeGalKSq_zLayer_three_cardAgreement_of_legacyCrossFiltration
+    (H : LegacyDemushkinDegreeThreeCrossFiltrationSupply)
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)]
@@ -575,14 +604,18 @@ theorem oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute
     rw [hm]
     simp only [SqCore.sqRank]
     omega
-  have hmodel := lowerTwoCentralDegreeThreeExpectedCard_DSq_of_labute H h
-  have hfield := maxProTwoGalK_lowerTwoCentralDegreeThreeExpectedCard_of_labute H K hfg
-  unfold LowerTwoCentralDegreeThreeExpectedCard at hmodel hfield
+  have hmodel :=
+    lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyCrossFiltration H h
+  have hfield :=
+    maxProTwoGalK_lowerTwoCentralDegreeThreeCrossFiltrationCard_of_legacyCrossFiltration
+      H K hfg
+  unfold LowerTwoCentralDegreeThreeCrossFiltrationCard at hmodel hfield
   rw [hmodel, hfield, hrank]
 
-/-- Equivalently, Hilbert coefficient `2` agrees for every odd-degree field. -/
-theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_labute
-    (H : DemushkinDegreeThreeLabuteFormulaSupply)
+/-- Equivalently, lower-series Hilbert coefficient `2` agrees under the explicit legacy
+cross-filtration assumption. -/
+theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_legacyCrossFiltration
+    (H : LegacyDemushkinDegreeThreeCrossFiltrationSupply)
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)]
@@ -592,20 +625,20 @@ theorem oddDegreeGalKSq_lowerTwoCentralHilbertCoefficient_two_of_labute
         (SqCore.DSq ((Module.finrank ℚ_[2] K - 1) / 2) : Type) 2 =
       lowerTwoCentralHilbertCoefficient (maxProPQuotient 2 (GalK K)) 2 := by
   exact congrArg (padicValNat 2)
-    (oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute H K hodd hfg)
+    (oddDegreeGalKSq_zLayer_three_cardAgreement_of_legacyCrossFiltration H K hodd hfg)
 
 /-! ## A sharply truncated Jennings/PBW route -/
 
 /-- The cubic associative-PBW coefficient of a one-quadratic-relator algebra.  In degree
 three, the two forbidden occurrences of the leading quadratic word are disjoint, leaving
 `d^3 - 2d` normal words. -/
-def lowerTwoCentralPBWCubicDimension (d : ℕ) : ℕ :=
+def zassenhausPBWCubicDimension (d : ℕ) : ℕ :=
   d ^ 3 - 2 * d
 
 /-- What the degree-three restricted-Lie coefficient must be after removing from the cubic
 PBW coefficient the contributions `choose(d,3)` and `d * ell₂`. -/
-def lowerTwoCentralJenningsCubicRemainder (d : ℕ) : ℕ :=
-  lowerTwoCentralPBWCubicDimension d -
+def zassenhausJenningsCubicPrimitiveRemainder (d : ℕ) : ℕ :=
+  zassenhausPBWCubicDimension d -
     (d.choose 3 + d * lowerTwoCentralOneRelatorQuadraticDimension d)
 
 /-- A single marked letter as a homogeneous normal word. -/
@@ -756,7 +789,7 @@ private def sqCubicBadRightEquiv (h : ℕ) :
 free letter. -/
 theorem card_sqQuadraticNormalTriple (h : ℕ) :
     Fintype.card (SqQuadraticNormalTriple h) =
-      lowerTwoCentralPBWCubicDimension (SqCore.sqRank h) := by
+      zassenhausPBWCubicDimension (SqCore.sqRank h) := by
   classical
   let P := sqCubicBadLeft h
   let Q := sqCubicBadRight h
@@ -773,7 +806,7 @@ theorem card_sqQuadraticNormalTriple (h : ℕ) :
     omega
   change Fintype.card {p // ¬(P p ∨ Q p)} = _
   rw [Fintype.card_subtype_compl, hbad]
-  unfold lowerTwoCentralPBWCubicDimension
+  unfold zassenhausPBWCubicDimension
   simp only [Fintype.card_prod, Fintype.card_fin]
   congr 1 <;> ring
 
@@ -785,7 +818,7 @@ theorem sqQuadraticPBWFirstThreeDimensions (h : ℕ) :
       Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 2) =
         SqCore.sqRank h ^ 2 - 1 ∧
       Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 3) =
-        lowerTwoCentralPBWCubicDimension (SqCore.sqRank h) := by
+        zassenhausPBWCubicDimension (SqCore.sqRank h) := by
   constructor
   · rw [Module.finrank_finsupp_self,
       Fintype.card_congr
@@ -812,7 +845,7 @@ def SqQuadraticPBWFirstThreeDimensionSupply : Prop :=
       Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 2) =
         SqCore.sqRank h ^ 2 - 1 ∧
       Module.finrank (ZMod 2) (SqQuadraticHomogeneousNormalSpace h 3) =
-        lowerTwoCentralPBWCubicDimension (SqCore.sqRank h)
+        zassenhausPBWCubicDimension (SqCore.sqRank h)
 
 /-- The symbolic finite normal-word count is fully discharged. -/
 theorem sqQuadraticPBWFirstThreeDimensionSupply :
@@ -826,35 +859,36 @@ theorem sqQuadraticPBWFirstThreeDimensionSupply :
 After inserting `ell₁=d`, the already-proved quadratic value
 `ell₂=d(d+1)/2-1`, and the one-relator associative PBW value `A₃=d^3-2d`, its entire content is
 the displayed finite Nat equality.  No all-degree Hilbert series is hidden in this interface. -/
-def LowerTwoCentralTruncatedJenningsCoefficientFormula
+def LegacyLowerTwoCentralTruncatedJenningsCrossFiltrationFormula
     (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (d : ℕ) : Prop :=
-  lowerTwoCentralPBWCubicDimension d =
+  zassenhausPBWCubicDimension d =
     d.choose 3 + d * lowerTwoCentralOneRelatorQuadraticDimension d +
       lowerTwoCentralHilbertCoefficient G 2
 
-/-- The truncated Jennings coefficient formula isolates its cubic restricted-Lie coefficient
-as the explicit PBW remainder. -/
-theorem lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
+/-- The legacy truncated Jennings cross-filtration formula isolates its claimed cubic
+lower-series coefficient as the explicit Zassenhaus PBW remainder. -/
+theorem lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
     {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {d : ℕ}
-    (H : LowerTwoCentralTruncatedJenningsCoefficientFormula G d) :
+    (H : LegacyLowerTwoCentralTruncatedJenningsCrossFiltrationFormula G d) :
     lowerTwoCentralHilbertCoefficient G 2 =
-      lowerTwoCentralJenningsCubicRemainder d := by
-  unfold LowerTwoCentralTruncatedJenningsCoefficientFormula at H
-  unfold lowerTwoCentralJenningsCubicRemainder
+      zassenhausJenningsCubicPrimitiveRemainder d := by
+  unfold LegacyLowerTwoCentralTruncatedJenningsCrossFiltrationFormula at H
+  unfold zassenhausJenningsCubicPrimitiveRemainder
   omega
 
 /-- The remaining elementary arithmetic normalization on the actual improved ranks.  It says
 that the coefficient extracted from the finite PBW product is the familiar Labute number
 `(d^3-4d)/3`.  Keeping this separate makes it impossible to confuse the Jennings theorem with
 polynomial simplification. -/
-def SqDegreeThreeJenningsArithmetic : Prop :=
+def SqDegreeThreeZassenhausPrimitiveArithmetic : Prop :=
   ∀ h : ℕ,
-    lowerTwoCentralJenningsCubicRemainder (SqCore.sqRank h) =
-      lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h)
+    zassenhausJenningsCubicPrimitiveRemainder (SqCore.sqRank h) =
+      zassenhausOneRelatorCubicPrimitiveDimension (SqCore.sqRank h)
 
 /-- The finite coefficient remainder simplifies to `(d^3-4d)/3` for every actual improved
 rank `d = 3 + 2h`. -/
-theorem sqDegreeThreeJenningsArithmetic : SqDegreeThreeJenningsArithmetic := by
+theorem sqDegreeThreeZassenhausPrimitiveArithmetic :
+    SqDegreeThreeZassenhausPrimitiveArithmetic := by
   intro h
   let d := SqCore.sqRank h
   let q := d * (d + 1) / 2
@@ -923,35 +957,36 @@ model that the two filtrations have already diverged in the common finite quotie
 A proof of this supply therefore requires either an actual Zassenhaus tower on the group side,
 or a mixed integral/2-adic augmentation filtration in which multiplication by `2` has degree
 one and hence records lower-two-central squares. -/
-def SqDegreeThreeTruncatedJenningsSupply : Prop :=
+def LegacySqDegreeThreeTruncatedJenningsCrossFiltrationSupply : Prop :=
   ∀ h : ℕ,
-    LowerTwoCentralTruncatedJenningsCoefficientFormula
+    LegacyLowerTwoCentralTruncatedJenningsCrossFiltrationFormula
       (SqCore.DSq h : Type) (SqCore.sqRank h)
 
-/-- A truncated Jennings coefficient proof computes the model's Hilbert coefficient `2`;
-the finite arithmetic normalization is discharged by `sqDegreeThreeJenningsArithmetic`. -/
-theorem dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
-    (Hj : SqDegreeThreeTruncatedJenningsSupply) (h : ℕ) :
+/-- The legacy truncated cross-filtration supply computes the model's lower-series Hilbert
+coefficient `2`; the independent Zassenhaus arithmetic normalization is already proved. -/
+theorem dsq_lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+    (Hj : LegacySqDegreeThreeTruncatedJenningsCrossFiltrationSupply) (h : ℕ) :
     lowerTwoCentralHilbertCoefficient (SqCore.DSq h : Type) 2 =
-      lowerTwoCentralOneRelatorCubicDimension (SqCore.sqRank h) := by
-  rw [lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings (Hj h),
-    sqDegreeThreeJenningsArithmetic h]
+      zassenhausOneRelatorCubicPrimitiveDimension (SqCore.sqRank h) := by
+  rw [lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration (Hj h),
+    sqDegreeThreeZassenhausPrimitiveArithmetic h]
 
-/-- Consequently the sharply truncated Jennings route, unlike an all-degree Hilbert-series
-assumption, is sufficient for the exact third model layer. -/
-theorem lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
-    (Hj : SqDegreeThreeTruncatedJenningsSupply) (h : ℕ) :
-    LowerTwoCentralDegreeThreeExpectedCard (SqCore.DSq h : Type)
+/-- Consequently the legacy truncated cross-filtration supply implies the expected exact
+third lower-series layer.  The conclusion is not attributed to Jennings alone. -/
+theorem lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyTruncatedJennings
+    (Hj : LegacySqDegreeThreeTruncatedJenningsCrossFiltrationSupply) (h : ℕ) :
+    LowerTwoCentralDegreeThreeCrossFiltrationCard (SqCore.DSq h : Type)
       (SqCore.sqRank h) := by
-  apply lowerTwoCentralDegreeThreeExpectedCard_of_hilbertCoefficient
+  apply lowerTwoCentralDegreeThreeCrossFiltrationCard_of_coefficient
     (dsqFinsetTopGen h) (SqCore.isProP_DSq h)
-  exact dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings Hj h
+  exact
+    dsq_lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration Hj h
 
 /-- The rank-three arithmetic normalization is already executable. -/
-theorem lowerTwoCentralJenningsCubicRemainder_three :
-    lowerTwoCentralJenningsCubicRemainder 3 = 5 := by
-  norm_num [lowerTwoCentralJenningsCubicRemainder,
-    lowerTwoCentralPBWCubicDimension,
+theorem zassenhausJenningsCubicPrimitiveRemainder_three :
+    zassenhausJenningsCubicPrimitiveRemainder 3 = 5 := by
+  norm_num [zassenhausJenningsCubicPrimitiveRemainder,
+    zassenhausPBWCubicDimension,
     lowerTwoCentralOneRelatorQuadraticDimension,
     lowerTwoCentralQuadraticDimension]
 
@@ -961,17 +996,18 @@ theorem lowerTwoCentralJenningsCubicRemainder_three :
 #print axioms sqCubicRelatorBracketMap_injective
 #print axioms finrank_sqCubicRelatorBracketSpace
 #print axioms sqCompletedCubicMagnusPBWKernelIdentity
-#print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_jenningsBridge
-#print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_labute
-#print axioms card_zLayer_three_dsq_zero_of_labute
-#print axioms maxProTwoGalK_lowerTwoCentralDegreeThreeExpectedCard_of_labute
-#print axioms oddDegreeGalKSq_zLayer_three_cardAgreement_of_labute
+#print axioms sqDegreeThreeZassenhausPrimitiveSupply
+#print axioms lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyJenningsCrossFiltration
+#print axioms lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyCrossFiltration
+#print axioms card_zLayer_three_dsq_zero_of_legacyCrossFiltration
+#print axioms maxProTwoGalK_lowerTwoCentralDegreeThreeCrossFiltrationCard_of_legacyCrossFiltration
+#print axioms oddDegreeGalKSq_zLayer_three_cardAgreement_of_legacyCrossFiltration
 #print axioms sqQuadraticPBWFirstThreeDimensionSupply
-#print axioms lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
-#print axioms sqDegreeThreeJenningsArithmetic
-#print axioms dsq_lowerTwoCentralHilbertCoefficient_two_of_truncatedJennings
-#print axioms lowerTwoCentralDegreeThreeExpectedCard_DSq_of_truncatedJennings
-#print axioms lowerTwoCentralJenningsCubicRemainder_three
+#print axioms lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+#print axioms sqDegreeThreeZassenhausPrimitiveArithmetic
+#print axioms dsq_lowerTwoCentralHilbertCoefficient_two_of_legacyTruncatedJenningsCrossFiltration
+#print axioms lowerTwoCentralDegreeThreeCrossFiltrationCard_DSq_of_legacyTruncatedJennings
+#print axioms zassenhausJenningsCubicPrimitiveRemainder_three
 
 end
 
