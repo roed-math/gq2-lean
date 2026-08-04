@@ -521,6 +521,18 @@ def stageShift
     levelQuot G (k + 1) :=
   (SqCore.sqRelWord base)⁻¹ * SqCore.sqRelWord (stageModified base correction)
 
+/-- The presentation-theoretic actual-defect statement, before imposing exact cyclotomic
+fibres.  This is the precise conclusion of a Labute `SL1` calculation: one depth-`k-1`
+correction hits the inverse of the current literal improved-relator defect.  It asks only for
+that single value, never for surjectivity onto the whole graded layer. -/
+def sqRawDefectReachable
+    (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (h k : ℕ) (T : Fin (SqCore.sqRank h) → levelQuot G k) : Prop :=
+  ∃ correction : Fin (SqCore.sqRank h) → levelQuot G (k + 1),
+    (∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) ∧
+      stageShift (fun i ↦ canonLift G k (T i)) correction =
+        (sqStageDefect G h k T)⁻¹
+
 /-- Tautological but load-bearing shift identity: it fixes the multiplication orientation used
 by the future crossed-derivation/span calculation. -/
 theorem sqRelWord_stageModified
@@ -530,6 +542,26 @@ theorem sqRelWord_stageModified
     SqCore.sqRelWord (stageModified base correction) =
       SqCore.sqRelWord base * stageShift base correction := by
   simp only [stageShift]
+  group
+
+/-- At handle count zero, the literal improved-word shift is exactly the existing rank-three
+`r₂` crossed-derivation word.  This is the algebraic comparison needed to reuse
+`stageSL1R2`; it also guards against replacing the improved core by an obsolete collector
+presentation. -/
+theorem stageShift_zero_eq_dbarWordR2
+    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin 3 → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    stageShift (h := 0) (k := k) base correction =
+      dbarWordR2 (base 0) (base 1) (base 2) correction := by
+  rw [stageShift, SqCore.sqRelWord_zero, SqCore.sqRelWord_zero,
+    SqCore.sqWord_eq_drWord, SqCore.sqWord_eq_drWord]
+  change (drWord (base 0) (base 1) (base 2))⁻¹ *
+      drWord (base 0 * correction 0) (base 1 * correction 1)
+        (base 2 * correction 2) = _
+  rw [drWord_mul_lambdaImage k hk _ _ _ hdepth]
   group
 
 /-- A depth-`k-1` correction whose modified canonical lifts remain in all five exact
@@ -573,6 +605,65 @@ def DefectReachable {h k : ℕ}
   ∃ W : AdmissibleCorrection T,
     stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction =
       (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+
+/-- Forgetting the exact cyclotomic fibre witnesses leaves the raw one-point Labute
+reachability statement. -/
+theorem DefectReachable.toRaw {h k : ℕ} {T : SqCyclotomicStageTuple K h k}
+    (H : DefectReachable T) :
+    sqRawDefectReachable (maxProPQuotient 2 (GalK K)) h k T.generators := by
+  obtain ⟨W, hW⟩ := H
+  exact ⟨W.correction, W.depth, hW⟩
+
+/-- The exact-fibre upgrade isolated from the Labute span calculation.  It says only that a
+depth correction already known to kill the *actual* defect can be replaced by an admissible
+correction with the same literal-word shift.  No other graded-layer value is mentioned.
+
+This is the narrow missing arithmetic interface between the existing rank-three `SL1`
+theorem (which supplies `sqRawDefectReachable`) and the exact field-stage induction. -/
+def ExactFibreStrictification {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) : Prop :=
+  ∀ (correction : Fin (SqCore.sqRank h) →
+      levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)),
+    (∀ i, correction i ∈
+      lambdaImage (maxProPQuotient 2 (GalK K)) (k - 1) (k + 1)) →
+    stageShift (fun i ↦ canonLift _ k (T.generators i)) correction =
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹ →
+    ∃ W : AdmissibleCorrection T,
+      stageShift (fun i ↦ canonLift _ k (T.generators i)) W.correction =
+        stageShift (fun i ↦ canonLift _ k (T.generators i)) correction
+
+/-- Raw actual-defect reachability plus the exact-fibre upgrade is precisely sufficient for
+the field-stage premise. -/
+theorem DefectReachable.of_raw_of_exactFibreStrictification {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k}
+    (Hraw : sqRawDefectReachable
+      (maxProPQuotient 2 (GalK K)) h k T.generators)
+    (Hstrict : ExactFibreStrictification T) : DefectReachable T := by
+  obtain ⟨correction, hdepth, hkill⟩ := Hraw
+  obtain ⟨W, hW⟩ := Hstrict correction hdepth hkill
+  exact ⟨W, hW.trans hkill⟩
+
+/-- A one-point crossed-derivation/span package, sharpened to the current defect.  Compared
+with `CrossedDerivationSpanSupply`, `hitsDefect` replaces global surjectivity of `shiftValue`.
+This is the strongest linear/cardinal output the stage proof actually consumes. -/
+structure ActualDefectSpanSupply {h k : ℕ}
+    (T : SqCyclotomicStageTuple K h k) where
+  Parameter : Type
+  correction : Parameter → AdmissibleCorrection T
+  shiftValue : Parameter → zLayer (maxProPQuotient 2 (GalK K)) k
+  realizes : ∀ v,
+    stageShift (fun i ↦ canonLift _ k (T.generators i)) (correction v).correction =
+      (shiftValue v : levelQuot (maxProPQuotient 2 (GalK K)) (k + 1))
+  hitsDefect : ∃ v,
+    (shiftValue v : levelQuot (maxProPQuotient 2 (GalK K)) (k + 1)) =
+      (sqStageDefect (maxProPQuotient 2 (GalK K)) h k T.generators)⁻¹
+
+/-- The one-point span package implies actual-defect reachability directly. -/
+theorem ActualDefectSpanSupply.toDefectReachable {h k : ℕ}
+    {T : SqCyclotomicStageTuple K h k} (S : ActualDefectSpanSupply T) :
+    DefectReachable T := by
+  obtain ⟨v, hv⟩ := S.hitsDefect
+  exact ⟨S.correction v, (S.realizes v).trans hv⟩
 
 /-- A stronger, reusable span statement: every element of the graded defect layer is the
 literal improved-relator shift of an admissible depth-`k-1` correction.  The stage induction
@@ -831,6 +922,9 @@ end SqCyclotomicStageTuple
 #print axioms SqCyclotomicStageTuple.toFiniteLevelEpiData_sqRelWord_regression
 #print axioms SqCyclotomicStageTuple.ofOrientedEquiv
 #print axioms SqCyclotomicStageTuple.sqRelWord_stageModified
+#print axioms SqCyclotomicStageTuple.stageShift_zero_eq_dbarWordR2
+#print axioms SqCyclotomicStageTuple.DefectReachable.of_raw_of_exactFibreStrictification
+#print axioms SqCyclotomicStageTuple.ActualDefectSpanSupply.toDefectReachable
 #print axioms SqCyclotomicStageTuple.DefectReachable.toNext
 #print axioms SqCyclotomicStageTuple.CorrectionSurjective.toNext
 #print axioms SqCyclotomicStageTuple.ofCoreTable_sqRelWord_regression
