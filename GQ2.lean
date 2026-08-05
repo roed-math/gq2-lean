@@ -309,6 +309,9 @@ import GQ2.Dyadic.Count.HTwoModuleFlexible
 import GQ2.Dyadic.Count.HTwoModuleEquiv
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.Instances.KAnalytic
+import GQ2.Dyadic.Instances.KExactLifting
+import GQ2.Dyadic.Instances.KExactLiftingVar
+import GQ2.Dyadic.Instances.KExactLiftingGalK
 import GQ2.Dyadic.Instances.QTwo
 import GQ2.Dyadic.Instances.NpcCore
 import GQ2.Dyadic.Instances.Cores
