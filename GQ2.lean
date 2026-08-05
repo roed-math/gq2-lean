@@ -498,6 +498,10 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldKernelDescent
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteLevelThreeSeed
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageRegression
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteVariableStage
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteCharacterRefinementObstruction
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteKummerArtinRecon
 import GQ2.Dyadic.Instances.GammaLSylowPreimageArithmeticResidual
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.SourceTransport
