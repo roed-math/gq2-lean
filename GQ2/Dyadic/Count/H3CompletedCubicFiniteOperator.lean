@@ -2213,6 +2213,18 @@ def SqCubicSecondOrderExpansion.congr {h : ℕ}
   quadratic_raises := E.quadratic_raises
   cubic_raises := E.cubic_raises
 
+@[simp] theorem SqCubicSecondOrderExpansion.congr_quadratic {h : ℕ}
+    {a b : SqCubicOperatorAlgebra h}
+    (E : SqCubicSecondOrderExpansion h a) (hab : a = b) :
+    (E.congr hab).quadratic = E.quadratic :=
+  rfl
+
+@[simp] theorem SqCubicSecondOrderExpansion.congr_cubic {h : ℕ}
+    {a b : SqCubicOperatorAlgebra h}
+    (E : SqCubicSecondOrderExpansion h a) (hab : a = b) :
+    (E.congr hab).cubic = E.cubic :=
+  rfl
+
 def SqCubicSecondOrderExpansion.one (h : ℕ) :
     SqCubicSecondOrderExpansion h 1 where
   quadratic := 0
@@ -2463,6 +2475,41 @@ theorem sqCubicUnitsVal_listProd (h : ℕ)
   | nil => rfl
   | cons u l ih => simp only [List.prod_cons, Units.val_mul, List.map_cons, ih]
 
+theorem sqCubicZeroHandleList_val_eq_listProd (h : ℕ)
+    (l : List (Fin h)) :
+    (l.map fun j =>
+      (commP
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+          (sqHandleIdxU j))
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+          (sqHandleIdxV j))).val).prod =
+      (l.map fun j =>
+        commP
+          (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+            (sqHandleIdxU j))
+          (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+            (sqHandleIdxV j))).prod.val := by
+  induction l with
+  | nil => rfl
+  | cons j l ih => simp only [List.map_cons, List.prod_cons, Units.val_mul, ih]
+
+/-- The value of the literal handle word is the ordered product of the values of its
+commutator factors. -/
+theorem sqCubicZeroHandleWord_val_eq_listProd (h : ℕ) :
+    ((List.finRange h).map fun j =>
+      (commP
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+          (sqHandleIdxU j))
+        (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h)
+          (sqHandleIdxV j))).val).prod =
+      (MarkedCore.handleWord
+        (fun j => sqCubicCorrectedMarkedUnit h
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
+        (fun j => sqCubicCorrectedMarkedUnit h
+          (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val := by
+  rw [MarkedCore.handleWord]
+  exact sqCubicZeroHandleList_val_eq_listProd h (List.finRange h)
+
 theorem sqCubicZeroHandleList_secondOrder_quadratic (h : ℕ)
     (l : List (Fin h)) :
     (sqCubicZeroHandleList_secondOrder h l).quadratic =
@@ -2487,10 +2534,14 @@ def sqCubicZeroHandleWord_secondOrder (h : ℕ) :
           (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
         (fun j => sqCubicCorrectedMarkedUnit h
           (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val :=
-  (sqCubicZeroHandleList_secondOrder h (List.finRange h)).congr (by
-    rw [MarkedCore.handleWord, sqCubicUnitsVal_listProd]
-    rw [List.map_map]
-    congr 1)
+  (sqCubicZeroHandleList_secondOrder h (List.finRange h)).congr
+    (sqCubicZeroHandleWord_val_eq_listProd h)
+
+theorem sqCubicZeroHandleWord_secondOrder_quadratic_eq_list (h : ℕ) :
+    (sqCubicZeroHandleWord_secondOrder h).quadratic =
+      (sqCubicZeroHandleList_secondOrder h (List.finRange h)).quadratic := by
+  simp only [sqCubicZeroHandleWord_secondOrder,
+    SqCubicSecondOrderExpansion.congr_quadratic]
 
 theorem sqCubicZeroHandleWord_secondOrder_quadratic (h : ℕ) :
     (sqCubicZeroHandleWord_secondOrder h).quadratic =
@@ -2498,8 +2549,35 @@ theorem sqCubicZeroHandleWord_secondOrder_quadratic (h : ℕ) :
           sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) +
         sqCubicHomogeneousOperatorLetter h (sqHandleIdxV j) *
           sqCubicHomogeneousOperatorLetter h (sqHandleIdxU j)) := by
-  change (sqCubicZeroHandleList_secondOrder h (List.finRange h)).quadratic = _
-  rw [sqCubicZeroHandleList_secondOrder_quadratic, ← Fin.sum_univ_def]
+  rw [sqCubicZeroHandleWord_secondOrder_quadratic_eq_list,
+    sqCubicZeroHandleList_secondOrder_quadratic, ← Fin.sum_univ_def]
+
+/-- The value of the literal relator suffix is the ordered product of the values of its
+three factors. -/
+theorem sqCubicZeroRelatorSuffix_val_eq_factors (h : ℕ) :
+    (sqCubicCorrectedRelatorSuffix h (sqCubicZeroDegreeTwoCorrection h)).val =
+      ((sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2) ^ 2).val *
+        (commP
+          (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
+          (conjP
+            (sqCubicCorrectedMarkedUnit h (sqCubicZeroDegreeTwoCorrection h) 2)
+            (sqCubicCorrectedMarkedUnit h
+              (sqCubicZeroDegreeTwoCorrection h) 0))).val *
+        (MarkedCore.handleWord
+          (fun j => sqCubicCorrectedMarkedUnit h
+            (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxU j))
+          (fun j => sqCubicCorrectedMarkedUnit h
+            (sqCubicZeroDegreeTwoCorrection h) (sqHandleIdxV j))).val := by
+  simp only [sqCubicCorrectedRelatorSuffix, Units.val_mul]
+
+set_option maxRecDepth 2000 in
+/-- The value form of `sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix`. -/
+theorem sqCubicCorrectedRelator_val_eq_prefix_mul_suffix (h : ℕ)
+    (D : SqCubicDegreeTwoCorrection h) :
+    (sqCubicCorrectedRelatorUnit h D).val =
+      (sqCubicCorrectedCorePrefix h D).val *
+        (sqCubicCorrectedRelatorSuffix h D).val := by
+  rw [sqCubicCorrectedRelatorUnit_eq_prefix_mul_suffix, Units.val_mul]
 
 set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
@@ -2558,6 +2636,28 @@ theorem sqCubicZeroRelator_secondOrder_quadratic (h : ℕ) :
 
 set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
+/-- The endomorphism-valued quadratic expression vanishes before it is lifted into the
+unitization. -/
+theorem sqCubicZeroRelatorQuadraticEnd_eq_zero (h : ℕ) :
+    sqCubicTruncatedLeftLetter h 0 * sqCubicTruncatedLeftLetter h 1 +
+        sqCubicTruncatedLeftLetter h 1 * sqCubicTruncatedLeftLetter h 0 +
+        sqCubicTruncatedLeftLetter h 2 * sqCubicTruncatedLeftLetter h 2 +
+        ∑ j, (sqCubicTruncatedLeftLetter h (sqHandleIdxU j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
+          sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
+            sqCubicTruncatedLeftLetter h (sqHandleIdxU j)) = 0 := by
+  rw [sqCubicTruncated_quadraticRelation h]
+  have hTT (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) : T + T = 0 := by
+    rw [← two_nsmul T]
+    exact ZModModule.char_nsmul_eq_zero 2 T
+  have htwoZ (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) :
+      (2 : ℤ) • T = 0 := by
+    simpa only [two_zsmul] using hTT T
+  abel_nf
+  simp only [htwoZ, add_zero]
+
+set_option maxHeartbeats 1000000 in
+set_option maxRecDepth 10000 in
 /-- The strict quadratic term vanishes by the oriented Diamond relation. -/
 theorem sqCubicZeroRelatorStrictQuadratic_eq_zero (h : ℕ) :
     sqCubicZeroRelatorStrictQuadratic h = 0 := by
@@ -2581,15 +2681,7 @@ theorem sqCubicZeroRelatorStrictQuadratic_eq_zero (h : ℕ) :
             sqCubicTruncatedLeftLetter h (sqHandleIdxV j) +
           sqCubicTruncatedLeftLetter h (sqHandleIdxV j) *
             sqCubicTruncatedLeftLetter h (sqHandleIdxU j)) = 0
-  rw [sqCubicTruncated_quadraticRelation h]
-  have hTT (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) : T + T = 0 := by
-    rw [← two_nsmul T]
-    exact ZModModule.char_nsmul_eq_zero 2 T
-  have htwoZ (T : Module.End (ZMod 2) (SqCubicNormalSpace h)) :
-      (2 : ℤ) • T = 0 := by
-    simpa only [two_zsmul] using hTT T
-  abel_nf
-  simp only [htwoZ, zero_add]
+  exact sqCubicZeroRelatorQuadraticEnd_eq_zero h
 
 /-- The quadratic part of the homogeneous relator vanishes by the oriented Diamond
 relation.  This is the point where the improved presentation is used: its literal
