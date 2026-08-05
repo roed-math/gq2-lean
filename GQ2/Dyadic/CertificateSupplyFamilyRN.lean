@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.CertificateSupplyRN
+import GQ2.Dyadic.Instances.GammaLActionImageDevissage
 
 /-!
 # Witness-polymorphic certificate supply for the corrected field selector
@@ -17,6 +18,11 @@ validity, and its display.  Both selector types forget to this semantic view, wh
 witness-specific arithmetic matching stays upstream.  The corrected `FamilyFieldBranchSelection`
 therefore reaches Stokes residue dispatch, selected cores, and `WordCertificateRN` without ever
 constructing a legacy `FieldBranchWitness`.
+
+The `L` case of the Stokes residue is no longer hypothesis-shaped: the action-image theorem
+(`LSquare.uniformPushedHsimp_of_actionImage`) proves the uniform interface from `Even q` alone,
+and the `LUniform` case plus `SemanticSelectedHsimpRN.of_L_actionImage` feed it into the same
+five-row assembler.  The legacy `L`/`LResolved` cases remain as compatibility entry points.
 -/
 
 namespace GQ2.Dyadic
@@ -84,13 +90,18 @@ end SemanticSelectionView
 /-- The unique branch-dependent Stokes residue over the witness-polymorphic view.
 
 For L, `L` preserves the legacy pushed-resolver bundle while `LResolved` stores only the
-target-local resolver required by the exact-lifting count.  The other four rows are unchanged. -/
+target-local resolver required by the exact-lifting count.  `LUniform` carries the
+coefficient-independent uniform-word interface, which the action-image theorem proves outright
+for even `q` (`SemanticSelectedHsimpRN.of_L_actionImage`); on the `L` row the residue is
+therefore a theorem, not a hypothesis.  The other four rows are unchanged. -/
 inductive SemanticSelectedHsimpRN {FP : FieldParameters}
     (S : SemanticSelectionView FP) (q : ℕ) : Prop
   | L (hbranch : S.branch = .L)
       (hsimp : LSquare.PushedHsimp (handleCount FP .L) q)
   | LResolved (hbranch : S.branch = .L)
       (hsimp : LSquare.ResolvedPushedHsimp (handleCount FP .L) q)
+  | LUniform (hbranch : S.branch = .L)
+      (hsimp : LSquare.UniformPushedHsimp (handleCount FP .L) q)
   | N0 (alpha : ℕ) (hbranch : S.branch = .N0 alpha)
       (hsimp : NCompact.Hsimp alpha (handleCount FP (.N0 alpha)) q)
   | Npc (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
@@ -102,6 +113,15 @@ inductive SemanticSelectedHsimpRN {FP : FieldParameters}
       (hbranch : S.branch = .Mpc alpha r epsilon eta)
       (hsimp : MProcyclicExact.Hsimp alpha r (p epsilon r)
         (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
+
+/-- **The L Stokes residue is a theorem.**  For even `q`, the action-image route
+(`LSquare.uniformPushedHsimp_of_actionImage`) supplies the `L` case of the five-row residue
+with no hypothesis beyond the branch equation; no pushed or resolved bundle is ever
+constructed. -/
+theorem SemanticSelectedHsimpRN.of_L_actionImage {FP : FieldParameters}
+    {S : SemanticSelectionView FP} {q : ℕ} (hbranch : S.branch = .L) (hqe : Even q) :
+    SemanticSelectedHsimpRN S q :=
+  .LUniform hbranch (LSquare.uniformPushedHsimp_of_actionImage hqe)
 
 /-- Dispatch exact lifting using only the semantic view. -/
 theorem exactLiftingRN_of_semanticSelectedHsimp
@@ -134,6 +154,17 @@ theorem exactLiftingRN_of_semanticSelectedHsimp
             (2 * handleCount FP .L + 1) q P nuP
             (standardNumerics (2 * handleCount FP .L + 1))
           exact LSquare.exactLiftingRN_of_resolvedPushed hsimp hqe nuP
+  | LUniform hbranch hsimp =>
+      cases S with
+      | mk branch valid display =>
+          dsimp only at hbranch
+          subst branch
+          change ExactLiftingSemanticsRN
+            (GammaR (2 * handleCount FP .L + 1) q
+              (Words.LSq.lSqW (handleCount FP .L)))
+            (2 * handleCount FP .L + 1) q P nuP
+            (standardNumerics (2 * handleCount FP .L + 1))
+          exact LSquare.exactLiftingRN_of_uniformPushed hsimp hqe nuP
   | N0 alpha hbranch hsimp =>
       cases S with
       | mk branch valid display =>
@@ -580,6 +611,23 @@ noncomputable def wordCertificateRN_of_familyFieldSelection_resolvedL
   wordCertificateRN_of_familyFieldSelection S
     (.LResolved hbranch hsimp) hq0 hqe L
 
+/-- Action-image corrected-family handoff for the selected L row.  Unlike both legacy L entry
+points, this consumes **no** Stokes residue input: for even `q` the action-image theorem
+supplies the `LUniform` case outright, so the selected-L certificate needs only the structural
+and analytic leaves. -/
+noncomputable def wordCertificateRN_of_familyFieldSelection_actionImageL
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness FP Q}
+    (S : FamilyFieldBranchSelection K FP Q W) {q : ℕ} (hbranch : S.branch = .L)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection S) q P hP nuP hq0 hqe) :
+    WordCertificateRN S.semantic.degree q S.semantic.word P hP nuP
+      (standardNumerics S.semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection S
+    (.of_L_actionImage hbranch hqe) hq0 hqe L
+
 /-- End-to-end certificate handoff from the corrected arithmetic selector itself. -/
 noncomputable def wordCertificateRN_of_familyFieldBranch
     {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
@@ -600,6 +648,27 @@ noncomputable def wordCertificateRN_of_familyFieldBranch
       (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
   wordCertificateRN_of_familyFieldSelection
     (selectFieldBranchFamily B FF D RI W) hsimp hq0 hqe L
+
+/-- End-to-end selector handoff on the L row with the Stokes residue supplied theorem-side:
+whenever the corrected selector picks `L`, even `q` alone feeds the action-image residue into
+the five-row assembler. -/
+noncomputable def wordCertificateRN_of_familyFieldBranch_actionImageL
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) {q : ℕ}
+    (hbranch : (selectFieldBranchFamily B FF D RI W).branch = .L)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection
+        (selectFieldBranchFamily B FF D RI W)) q P hP nuP hq0 hqe) :
+    WordCertificateRN
+      (selectFieldBranchFamily B FF D RI W).semantic.degree q
+      (selectFieldBranchFamily B FF D RI W).semantic.word P hP nuP
+      (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection_actionImageL
+    (selectFieldBranchFamily B FF D RI W) hbranch hq0 hqe L
 
 end
 

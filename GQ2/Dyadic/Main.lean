@@ -41,14 +41,15 @@ the delta):
    quantifies over `FrozenQuadRow`, and §2 records — as *theorems* — exactly which of F4's five
    constructor shapes the table realizes (`frozen_realizes_N0`/`_M0`/`_Mpc_both_signs`) and
    which it does not (`no_frozen_Npc`, `no_frozen_L`).
-2. ⚠ **The procyclic-`N` shape (`Npc`) has NO instance** — `no_frozen_Npc` is a theorem, not a
-   footnote.  Its frozen word exists (`GQ2/Dyadic/Words/Npc.lean`, certificate
-   `N-noncompact-alpha2-r1-eta1_1-h0-v001`), its certificate layers landed (WNP lanes), but no
-   `CoreReindex` dictionary and no `WordCertificate` constructor exist for it (AS3 built the
-   compact-`M` and procyclic-`M` dictionaries; the procyclic-`N` one has no owner), and no
-   quadratic field among the frozen five is on that row.  A packet-faithful "every branch"
-   statement is therefore **not provable from the landed pieces**; this file states the
-   provable frozen-table form and flags the gap here and on the board.
+2. ⚠ **The procyclic-`N` shape (`Npc`) has no frozen-table row** — `no_frozen_Npc` is a
+   theorem, not a footnote.  Its presentation machinery is now complete: the frozen word
+   (`GQ2/Dyadic/Words/Npc.lean`, certificate `N-noncompact-alpha2-r1-eta1_1-h0-v001`), the WNP
+   certificate lanes, and the presented-core constructor `npcCorePresentationUnit`
+   (`GQ2/Dyadic/Instances/NpcCore.lean`, over the compact-`N` dictionary) at every
+   `(α, r, h, η)`.  What remains true is purely arithmetic: no quadratic field among the
+   frozen five is on that row, so the frozen table cannot realize the shape and the packet's
+   "every branch" statement quantifies over more rows than the table supplies; this file
+   states the provable frozen-table form.
 3. **`K` is supplied, not constructed.**  No concrete field object `ℚ₂(√−2)` etc. exists in
    the repository (ticket AS-F is probing literal instantiation); every statement is honestly
    parametrized over a `K` carrying the row's arithmetic through the binders
@@ -275,10 +276,12 @@ theorem frozen_realizes_Mpc_both_signs :
   ⟨⟨.sqrtTen, rfl⟩, ⟨.sqrtNegTen, rfl⟩⟩
 
 /-- ⚠ **The procyclic-`N` shape is NOT realized by the frozen table** — the honest negative
-result (module docstring, delta 2).  The `Npc` word and its certificate layers exist
-(`Words/Npc.lean`, the WNP lanes); what does not exist is a `CoreReindex` dictionary and a
-`WordCertificate` constructor for the shape, nor a frozen quadratic field on the row.  The
-packet's "every branch" final theorem is exactly this theorem away from the landed one. -/
+result (module docstring, delta 2).  The shape's presentation machinery exists in full: the
+`Npc` word and its certificate layers (`Words/Npc.lean`, the WNP lanes) and the presented-core
+constructor `npcCorePresentationUnit` (`Instances/NpcCore.lean`) at every `(α, r, h, η)`.
+What does not exist is a frozen quadratic field on the row: this theorem is true for that
+arithmetic reason alone, and it is what still separates the packet's "every branch" final
+theorem from the landed one. -/
 theorem no_frozen_Npc (r : FrozenQuadRow) (α rr : ℕ) (η : ℤ_[2]ˣ) :
     r.branch ≠ .Npc α rr η := by
   cases r <;> simp [FrozenQuadRow.branch]
