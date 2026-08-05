@@ -494,6 +494,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRigidity
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRealizationCore
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldVariableCoreRigidity
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldVariableCoreTate
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldKernelDescent
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteLevelThreeSeed
