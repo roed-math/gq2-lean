@@ -745,18 +745,18 @@ candidate group, one displayed word per finite target at the level `4 * Monoid.e
 established branch-by-branch in `NpcUnramifiedScalar` (unramified, scalar sub-branch needing `η` a
 `2`-adic unit) and `NpcRamifiedBranch` (ramified).
 
-⚠ Layering note.  `NProcyclic.UniformPushedHsimp` is *defined* in
-`GQ2/Dyadic/Instances/NpcActionImageDevissage.lean`, which **imports this file**; the residue
-therefore cannot be named here.  `UniformHsimp` below is its statement verbatim, so the two are
-definitionally interchangeable and a term of either type is accepted where the other is expected.
-When the two files are next touched together the duplicate should collapse: either
-`NpcActionImageDevissage` re-exports `UniformHsimp`, or its `UniformPushedHsimp` is replaced by
-this one.  Nothing here weakens or replaces the `Hsimp` clauses above; every one of them is kept. -/
+⚠ Layering note.  The row-uniform name used by the other rows is `UniformPushedHsimp`
+(`LSquare.UniformPushedHsimp`, `NCompact.UniformPushedHsimp`, ...), and on this row that name has
+to be introduced in `GQ2/Dyadic/Instances/NpcActionImageDevissage.lean`, which **imports this
+file**.  The statement is therefore written once, here, as `UniformHsimp`, and that file's
+`NProcyclic.UniformPushedHsimp` is now a re-export of it rather than a second copy: the two names
+denote the same proposition, and a term of either type is accepted where the other is expected.
+Nothing here weakens or replaces the `Hsimp` clauses above; every one of them is kept. -/
 
 /-- The coefficient-independent residue at the uniform level `4 * Monoid.exponent C`, in the
-shape produced by action-image devissage.  This is verbatim the statement later named
-`NProcyclic.UniformPushedHsimp` in `NpcActionImageDevissage.lean`, which cannot be referenced
-from here because that file imports this one. -/
+shape produced by action-image devissage.  This is the single statement of the row's uniform
+residue; `NProcyclic.UniformPushedHsimp` in `NpcActionImageDevissage.lean` re-exports it under the
+name the other rows use, and cannot host it because that file imports this one. -/
 def UniformHsimp (alpha r h q : ℕ) (d : EtaData) : Prop :=
   ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (rho : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type)) C)
