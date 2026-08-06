@@ -1149,8 +1149,8 @@ theorem exactLiftingRN_of_uniformPushed {alpha r h q : ℕ} {epsilon : Bool} {et
 
 /-- Literal constructor regression at the uniform residue: both the arbitrary unit and
 `p epsilon r` occur visibly in the RN carrier.  Same statement as `exactLiftingRN_literal`. -/
-theorem exactLiftingRN_literal_of_uniformPushed {alpha r h q : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
-    (d : MpcDisplayFor eta)
+theorem exactLiftingRN_literal_of_uniformPushed {alpha r h q : ℕ} {epsilon : Bool}
+    {eta : ℤ_[2]ˣ} (d : MpcDisplayFor eta)
     (hsimp : UniformHsimp alpha r (p epsilon r) h q d.display)
     (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q)
     {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
