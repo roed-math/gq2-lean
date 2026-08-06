@@ -814,17 +814,13 @@ the procyclic-`N` row's conjugator is: at its own resolver the display's value i
 because `η̂` has odd components and the unramified action image has odd order
 (`RowActionImage.actionImage_unramified_sigma_etaPow`).  This is the `η = −1/3` instance.
 
-⚠ The third constructor `.lit k` has **no** such discharge by this route: its value is the
-literal `σ^k`, and `σ^k = 1` as soon as `orderOf σ ∣ k`.  Nothing in the unramified branch rules
-that out — the tame relation is vacuous at `tau = 1`, so `orderOf σ` is unconstrained beyond
-being odd (`RowActionImage.actionImage_unramified_orderOf_sigma_odd`), and `k` is odd at both
-frozen `.lit` instances (`k = 5` at `r = 2`, `k = 3` at `α = 3`).  At such a marking the row's
-`x₂`-column would be identically zero while `sigma` acts nontrivially, so the complex would be
-neither the generic one nor the scalar one and the branch would need a third case.  Whether the
-actual `Γ_R` admits such a quotient is *not* settled here; what is settled is that the two
-displays above do not need the question answered and `.lit` does.  This is the procyclic-`M`
-analogue of the procyclic-`N` scalar sub-branch's unit condition, and it lives on the *display*,
-not on `η`. -/
+⚠ The third constructor `.lit k` is **not** free at an arbitrary `k`: its value is the literal
+`σ^k`, and `σ^k = 1` as soon as `orderOf σ ∣ k` — which the branch's own hypotheses do not
+forbid, since the tame relation is vacuous at `tau = 1` and leaves `orderOf σ` unconstrained
+beyond being odd.  At such a marking the row's `x₂`-column would be identically zero while
+`sigma` acts nontrivially, so the complex would be neither the generic one nor the scalar one.
+What rescues it is not the branch but the *seam*: a literal exponent is only a representative,
+and `RepresentsUnit` pins it — see `displayFixedPointFree_lit`. -/
 theorem displayFixedPointFree_hat {alpha r pp h q : ℕ} (num den : ℤ) :
     DisplayFixedPointFree alpha r pp h q (.hat num den) := by
   intro M _ _ _ _ _ _ hM₂ hsimple hτ hσfpf
@@ -840,6 +836,53 @@ theorem displayFixedPointFree_hat {alpha r pp h q : ℕ} (num den : ℤ) :
     RowActionImage.actionImage_unramified_sigma_etaPow hM₂ hsimple hτ ⟨num, den⟩
       (fourMulExponent_ne_zero_and_even C₀).1
       ((Monoid.order_dvd_exponent t.σ).trans ⟨4, by ring⟩)] at hm
+
+set_option maxHeartbeats 800000 in
+/-- **A literal display that represents a `2`-adic unit is fixed-point free** — and, it turns
+out, its value is `σ` itself.  `RepresentsUnit` says `Zhat.ofInt k = etaHatZ η`, the unramified
+action image has odd order (`actionImage_unramified_orderOf_sigma_odd`), and `η̂` fixes every
+element of odd order (`zpowHat_etaHatZ_of_odd`), so `σ^k = σ ^ᶻ Zhat.ofInt k = σ ^ᶻ η̂ = σ`.
+
+This is what closes the `.lit` gap flagged on `displayFixedPointFree_hat`: the literal exponent
+is only ever a *representative*, and the seam's `RepresentsUnit` obligation is exactly the
+statement that it represents the branch's field unit. -/
+theorem displayFixedPointFree_lit {alpha r pp h q : ℕ} {k : ℤ} {eta : ℤ_[2]ˣ}
+    (hd : (EtaDisplay.lit k).RepresentsUnit eta) :
+    DisplayFixedPointFree alpha r pp h q (.lit k) := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτ hσfpf
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  have hodd : Odd (orderOf (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp (.lit k) h) M).σ) :=
+    RowActionImage.actionImage_unramified_orderOf_sigma_odd hM₂ hsimple hτ
+  refine ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+    resolverLifts_uniformWordLift_ramified hM₂, resolverLifts_uniformWordLift_ramified hM₂D,
+    fun m hm ↦ hσfpf m ?_⟩
+  rwa [show (EtaDisplay.lit k).toPWord (n := 2 + 2 * h) = .zpow (.gen Generator.sigma) k from rfl,
+    PWord.evalFin_zpow, PWord.evalFin_gen, Marking.apply_sigma, ← zpowHat_ofInt,
+    show Zhat.ofInt k = etaHatZ (eta : ℤ_[2]) from hd, zpowHat_etaHatZ_of_odd hodd] at hm
+
+/-- **The arithmetic residue is discharged for every display that represents a field unit** — so
+for every display the campaign's selection seam can produce (`MpcDisplayFor` carries exactly a
+`RepresentsUnit` obligation, and its two constructors `one` and `ofNpc` produce `.one` and
+`.hat`).
+
+The three constructors close by three different routes, and only the middle one is free:
+
+* `.one` — the value is `σ` syntactically, at every marking and resolver;
+* `.lit k` — the value is `σ^k`, and `RepresentsUnit` plus odd order collapses it to `σ`;
+* `.hat num den` — the value is the resolver's reading of `σ^{η̂}`, and
+  `actionImage_unramified_sigma_etaPow` collapses it to `σ`.
+
+So on the selected row the procyclic-`M` unramified branch needs **no** condition on `η` beyond
+the one the seam already carries.  Compare the procyclic-`N` row, whose *scalar* sub-branch needs
+the genuinely stronger `d.toPadic = 1 + 2z`
+(`NpcDisplayFor.exists_toPadic_eq_one_add_two_mul`) because its scalar Gram matrix sees `η` only
+through the parity of `1 + padicOmega2Exp(η − 1, N)`. -/
+theorem displayFixedPointFree_of_representsUnit {alpha r pp h q : ℕ} {d : EtaDisplay}
+    {eta : ℤ_[2]ˣ} (hd : d.RepresentsUnit eta) : DisplayFixedPointFree alpha r pp h q d := by
+  cases d with
+  | one => exact displayFixedPointFree_one
+  | lit k => exact displayFixedPointFree_lit hd
+  | hat num den => exact displayFixedPointFree_hat num den
 
 set_option maxHeartbeats 3200000 in
 /-- **The generic unramified sub-branch of the corrected procyclic-`M` row.**  On a simple
@@ -959,6 +1002,19 @@ theorem uniformPushedHsimp_of_residues_hat {alpha r pp h q : ℕ} (num den : ℤ
     UniformPushedHsimp alpha r pp h q (.hat num den) :=
   uniformPushedHsimp_of_residues hα hqe (displayFixedPointFree_hat num den) hpair hsc hsep
 
+/-- **The procyclic-`M` uniform pushed residue on the selected row, on three second-order inputs
+only.**  Every display the seam can produce carries a `RepresentsUnit` obligation
+(`MpcDisplayFor.represents`), and that is exactly what the arithmetic residue needs — so on the
+selected row the only remaining inputs are the two unramified pairing statements and the ramified
+one, all three of them second-order. -/
+theorem uniformPushedHsimp_of_pairings {alpha r pp h q : ℕ} {d : EtaDisplay} {eta : ℤ_[2]ˣ}
+    (hα : 1 ≤ alpha) (hqe : Even q) (hd : d.RepresentsUnit eta)
+    (hpair : UnramifiedNormalPairingIsCompact alpha r pp h q d)
+    (hsc : ScalarActionImageStokes alpha r pp h q d)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
+    UniformPushedHsimp alpha r pp h q d :=
+  uniformPushedHsimp_of_residues hα hqe (displayFixedPointFree_of_representsUnit hd) hpair hsc hsep
+
 end
 
 end GQ2.Dyadic.MProcyclicExact
@@ -990,10 +1046,13 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split
 #print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_one
 #print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_hat
+#print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_lit
+#print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_of_representsUnit
 #print axioms GQ2.Dyadic.MProcyclicExact.stokesDuality_actionImage_generic
 #print axioms GQ2.Dyadic.MProcyclicExact.unramifiedActionImageStokes_of_scalar
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues_one
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues_hat
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_pairings
 
 end AxiomAudit
