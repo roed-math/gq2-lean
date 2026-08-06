@@ -17,6 +17,7 @@ proves, with an explicit witness and at std-3,
 not_sqPivotUnitizer          : 0 < h → ¬ SqPivotUnitizer h
 not_sqNuOrientedClear        : 0 < h → ¬ SqNuOrientedClear h
 not_sqHandleToCoreMove_handleU (j : Fin h) : ¬ SqHandleToCoreMove h (sqHandleIdxU j)
+not_sqHandleToCoreMove_handleV (j : Fin h) : ¬ SqHandleToCoreMove h (sqHandleIdxV j)
 ```
 
 so at every positive handle count the unitizer **cannot be filled**, the transfers that were
@@ -45,7 +46,15 @@ Read this file as: **the `h = 0` lane, plus the record of a route that was close
   hypothesis is paid *arithmetically* by P3's `SqMarkedForwardSupply`
   (`Instances/GammaLOddDegreeBridge.lean` §1′), never by an automorphism.
 * **Not refuted, and not affected:** `SqHandleMixFixesCore h sqPivotExp` — the cup form raises no
-  obstruction to it, and it remains the live residual.  Nor is `SqNuJointClearing h`.
+  obstruction to it, and it remains the live residual.  Nor is `SqNuJointClearing h`, nor
+  `SqNuClearHypothesis h` (no arrow runs into `SqNuOrientedClear`, so the grand assembly
+  `gammaR_lSq_equiv_galK_oddDegree` is untouched).
+* **Vacuous consumers *outside* this file** (not edited by W41-PIVOTFIX; recorded here so they
+  are not read as live): `JointClearing.isUnit_pivot_of_handleToCore`,
+  `JointClearing.sqNuOrientedClear_of_moves` (the committed assembly this file's
+  `sqNuOrientedClear_of_moves'` regresses against), `JointClearing.sqNuJointClear_of_orientedClear`
+  as a *route*, and `PivotCoreMoves.sqNuOrientedClear_of_families` (the general-`h` headline of
+  its §7).  Every `h = 0` statement in those files is live.
 
 The reduction recorded here is still *correct*, and it is what made the refutation possible: it
 is precisely because the transfers' whole contribution is this one bit that refuting the one bit
