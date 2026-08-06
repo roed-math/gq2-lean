@@ -581,6 +581,136 @@ theorem not_sqNuOrientedClear' (hh : 0 < h) :
 
 end Witness
 
+/-! ## §8 The corrected residual, and what it costs -/
+
+section Corrected
+
+variable {h : ℕ}
+
+/-- **The corrected oriented clearing residual**: the same statement as `SqNuOrientedClear`, with
+the marking's pivot row required to be a **unit**.  §7 shows the extra hypothesis cannot be
+dropped at `h ≥ 1`, and §4 shows it cannot be arranged by an automorphism — so this is the
+strongest model-side statement of this shape that is not already refuted. -/
+def SqNuOrientedClearAtUnitPivot (h : ℕ) : Prop :=
+  ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+    SqJointSurjective h nu' → IsUnit (toAdd (nu' (sqPivot h))) →
+      ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+        (∀ x, chiSq h (Ψ x) = chiSq h x) ∧ ∀ x, nu' (Ψ x) = nuSq h x
+
+/-- **The exact split of the old residual**: `SqNuOrientedClear` is the corrected residual plus
+the unitizer, and the second factor is exactly what §7 refutes. -/
+theorem sqNuOrientedClear_iff :
+    SqNuOrientedClear h ↔ SqNuOrientedClearAtUnitPivot h ∧ SqPivotUnitizer h := by
+  constructor
+  · exact fun H => ⟨fun nu' hjs _ => H nu' hjs, sqPivotUnitizer_of_orientedClear H⟩
+  · exact fun ⟨H, hu⟩ nu' hjs => H nu' hjs (sqPivotUnitizer_iff.mp hu nu' hjs)
+
+/-- **The corrected residual over the banked handle stratum and the pivot family.**  Same three
+steps as `sqNuOrientedClear_of_pivotMoves_of_unitizer`, with the (now refuted) unitizer replaced
+by the hypothesis it was supposed to produce — so the `h ≥ 1` model-side supply list loses one
+entry and gains no new one. -/
+theorem sqNuOrientedClearAtUnitPivot_of_pivotMoves
+    (hfix : SqHandleMixFixesCore h sqPivotExp)
+    (hmv : ∀ m k : ℤ_[2], IsUnit (sqPivotDet m k) → SqPivotCoreMove h m k) :
+    SqNuOrientedClearAtUnitPivot h := by
+  intro nu' _ hpiv
+  obtain ⟨Ψ₁, hchi₁, hU₁, hV₁, hs₁, hx₁⟩ := hfix nu' hpiv
+  set rho : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]) :=
+    nu'.comp (autHom Ψ₁) with hrhodef
+  have hrhopiv : IsUnit (toAdd (rho (sqPivot h))) := by
+    have hval : toAdd (rho (sqPivot h)) = toAdd (nu' (sqPivot h)) := by
+      show toAdd (nu' (Ψ₁ (sqPivot h))) = _
+      rw [toAdd_aut_sqPivot, hs₁, hx₁, toAdd_nu_sqPivot]
+    rw [hval]
+    exact hpiv
+  obtain ⟨Ψ₂, hchi₂, hs₂, hx₂, hU₂, hV₂⟩ := sqCoreRows_of_pivotMove hmv rho hrhopiv
+  refine ⟨Ψ₂.trans Ψ₁, fun x => ?_, fun x => ?_⟩
+  · show chiSq h (Ψ₁ (Ψ₂ x)) = chiSq h x
+    rw [hchi₁, hchi₂]
+  · have hcore : ∀ y, (rho.comp (autHom Ψ₂)) y = nuSq h y := by
+      refine nu_eq_nuSq_of_core _ hs₂ hx₂ (fun j => ?_) (fun j => ?_)
+      · show rho (Ψ₂ (sqGen h (sqHandleIdxU j))) = 1
+        rw [hU₂ j]
+        exact hU₁ j
+      · show rho (Ψ₂ (sqGen h (sqHandleIdxV j))) = 1
+        rw [hV₂ j]
+        exact hV₁ j
+    exact hcore x
+
+/-- The corrected residual over the two one-parameter pivot subgroups and the handle stratum. -/
+theorem sqNuOrientedClearAtUnitPivot_of_families
+    (hfix : SqHandleMixFixesCore h sqPivotExp)
+    (htr : ∀ c : ℤ_[2], SqPivotTranslation h c)
+    (hsc : ∀ a : ℤ_[2], IsUnit a → SqPivotScaling h a) : SqNuOrientedClearAtUnitPivot h :=
+  sqNuOrientedClearAtUnitPivot_of_pivotMoves hfix
+    (fun m k hd => sqPivotCoreMove_of_translation_scaling m k (htr k) (hsc _ hd))
+
+/-- **The unit-pivot hypothesis is sharp**: adding it is not a convenience, since without it the
+statement is refuted (§7).  Recorded as an implication so the two forms sit side by side. -/
+theorem not_sqNuOrientedClearAtUnitPivot_without_hypothesis (hh : 0 < h) :
+    ¬ ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+        SqJointSurjective h nu' →
+          ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+            (∀ x, chiSq h (Ψ x) = chiSq h x) ∧ ∀ x, nu' (Ψ x) = nuSq h x :=
+  not_sqNuOrientedClear hh
+
+/-- At `h = 0` the two forms coincide, since the unitizer is a theorem there. -/
+theorem sqNuOrientedClear_zero_of_atUnitPivot (H : SqNuOrientedClearAtUnitPivot 0) :
+    SqNuOrientedClear 0 :=
+  sqNuOrientedClear_iff.mpr ⟨H, sqPivotUnitizer_zero⟩
+
+end Corrected
+
+/-! ## §9 The `K`-facing form: the parity of the transported pivot row is not a choice -/
+
+section Transported
+
+variable {h : ℕ}
+
+/-- **Any two oriented equivalences give the same pivot-row parity.**  Two topological
+isomorphisms `f₁, f₂ : D_sq h ≅ G` inducing the same orientation differ by the χ-preserving
+automorphism `f₁⁻¹ ∘ f₂`, so §4 applies: the parity of `ν_G(fᵢ w)` is the same for both.
+
+Consequence for the odd-degree bridge: whether the transported pivot row `ν_ur(f w)` is a unit
+is an **invariant of `(G, χ_G, ν_G)`**, not something the choice of `f` can arrange, and — by §7
+— not something a further automorphism of the model can repair.  So the `h ≥ 1` bridge genuinely
+needs the *arithmetic* input (P3's `SqMarkedForwardSupply`, whose two `ν`-rows force
+`ν(f w) = 1`); the model-side supply list cannot produce it. -/
+theorem two_dvd_toAdd_transported_sqPivot_sub {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
+    (nuG : ContinuousMonoidHom G (Multiplicative ℤ_[2]))
+    (f₁ f₂ : ContinuousMulEquiv (DSq h : Type) G)
+    (hc₁ : ∀ x, chiG (f₁ x) = chiSq h x) (hc₂ : ∀ x, chiG (f₂ x) = chiSq h x) :
+    (2 : ℤ_[2]) ∣ toAdd (nuG (f₂ (sqPivot h))) - toAdd (nuG (f₁ (sqPivot h))) := by
+  set Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type) := f₂.trans f₁.symm with hΨ
+  have happ : ∀ x, f₁ (Ψ x) = f₂ x := fun x => f₁.apply_symm_apply (f₂ x)
+  have hchi : ∀ x, chiSq h (Ψ x) = chiSq h x := by
+    intro x
+    rw [← hc₁ (Ψ x), happ, hc₂]
+  have hpull := two_dvd_toAdd_nu_aut_sqPivot_sub Ψ hchi
+    (nuG.comp ⟨f₁.toMonoidHom, f₁.continuous_toFun⟩)
+  rw [show (nuG.comp ⟨f₁.toMonoidHom, f₁.continuous_toFun⟩) (Ψ (sqPivot h))
+      = nuG (f₁ (Ψ (sqPivot h))) from rfl, happ,
+    show (nuG.comp ⟨f₁.toMonoidHom, f₁.continuous_toFun⟩) (sqPivot h)
+      = nuG (f₁ (sqPivot h)) from rfl] at hpull
+  exact hpull
+
+/-- The unit-locus form of the same statement. -/
+theorem isUnit_toAdd_transported_sqPivot_iff {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (chiG : ContinuousMonoidHom G ℤ_[2]ˣ)
+    (nuG : ContinuousMonoidHom G (Multiplicative ℤ_[2]))
+    (f₁ f₂ : ContinuousMulEquiv (DSq h : Type) G)
+    (hc₁ : ∀ x, chiG (f₁ x) = chiSq h x) (hc₂ : ∀ x, chiG (f₂ x) = chiSq h x) :
+    IsUnit (toAdd (nuG (f₂ (sqPivot h)))) ↔ IsUnit (toAdd (nuG (f₁ (sqPivot h)))) := by
+  obtain ⟨s, hs⟩ := two_dvd_toAdd_transported_sqPivot_sub chiG nuG f₁ f₂ hc₁ hc₂
+  constructor
+  · exact fun hu => isUnit_iff_not_two_dvd.mpr fun ⟨p, hp⟩ =>
+      (isUnit_iff_not_two_dvd.mp hu) ⟨s + p, by linear_combination hs + hp⟩
+  · exact fun hu => isUnit_iff_not_two_dvd.mpr fun ⟨p, hp⟩ =>
+      (isUnit_iff_not_two_dvd.mp hu) ⟨p - s, by linear_combination hp - hs⟩
+
+end Transported
+
 end SqCore
 
 end Dyadic
