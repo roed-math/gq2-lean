@@ -61,7 +61,15 @@ The procyclic-`N` row likewise keeps its historical `Npc` constructor and adds `
 *theorem* on this row (`NProcyclicUnram.uniformPushedHsimp`, given `2 ≤ α`, `Even q` and the unit
 pair supplied by the selected display), so `NpcUniform` is the constructor through which the row's
 unconditionality reaches certificate supply; see `SelectedHsimp.of_Npc_actionImage` in
-`CertificateSupplyFamilyRN`, which is where the branch files become visible. -/
+`CertificateSupplyFamilyRN`, which is where the branch files become visible.
+
+The procyclic-`M` row now has the same pair: the historical `Mpc` constructor and `MpcUniform`
+over `MProcyclicExact.UniformHsimp`.  Unlike `Npc`, the `Mpc` uniform residue is *not* yet a
+theorem: `MProcyclicExact.uniformPushedHsimp_of_pairings` reduces it to three named second-order
+inputs (`UnramifiedNormalPairingIsCompact`, `ScalarActionImageStokes`,
+`RamifiedNormalPairingSeparates`), which remain open.  `MpcUniform` is nevertheless the weaker
+binder — `Hsimp` ranges over all finite markings, `UniformHsimp` only over pushed ones — so it
+is the constructor a source-side proof should target; see `SelectedHsimp.of_Mpc_actionImage`. -/
 inductive SelectedHsimp
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
@@ -83,6 +91,10 @@ inductive SelectedHsimp
   | Mpc (alpha r : ℕ) (epsilon : Bool) (eta : ℤ_[2]ˣ)
       (hbranch : S.branch = .Mpc alpha r epsilon eta)
       (hsimp : MProcyclicExact.Hsimp alpha r (p epsilon r)
+        (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
+  | MpcUniform (alpha r : ℕ) (epsilon : Bool) (eta : ℤ_[2]ˣ)
+      (hbranch : S.branch = .Mpc alpha r epsilon eta)
+      (hsimp : MProcyclicExact.UniformHsimp alpha r (p epsilon r)
         (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
 
 namespace SelectedHsimp
@@ -130,6 +142,8 @@ theorem exactLiftingRN_of_selectedHsimp
       exact MCompact.exactLiftingRN_of_fieldSelection S hbranch hsimp hq0 hqe nuP
   | Mpc alpha r epsilon eta hbranch hsimp =>
       exact MProcyclicExact.exactLiftingRN_of_fieldSelection S hbranch hsimp hqe nuP
+  | MpcUniform alpha r epsilon eta hbranch hsimp =>
+      exact MProcyclicExact.exactLiftingRN_of_fieldSelection_uniformPushed S hbranch hsimp hqe nuP
 
 /-! ## Tame specialization from the improved constructor table -/
 

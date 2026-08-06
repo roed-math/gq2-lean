@@ -408,15 +408,21 @@ def PushedHsimp (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
           (resolvedFamily alpha r pp h q d N) V hr hend
 
 /-- The coefficient-independent residue at the uniform level `4 * Monoid.exponent C`, in the
-shape produced by action-image devissage. -/
+shape produced by action-image devissage.
+
+The statement itself is written once, upstream, as `MProcyclicExact.UniformHsimp` in
+`GQ2/Dyadic/Instances/MpcExact.lean`: that is the file which restates the whole clause stack over
+the uniform residue, and it cannot name a definition living here because this file imports it.
+This declaration is the row-uniform *name* for that one statement, matching the other rows
+(`LSquare.UniformPushedHsimp`, `MCompact.UniformPushedHsimp`, `NProcyclic.UniformPushedHsimp`).
+The two names denote the same proposition, so a term of either type is accepted where the other
+is expected and every existing consumer of this name is unaffected. -/
 def UniformPushedHsimp (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
-  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
-    (rho : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) C)
-    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A],
-      (∀ a : A, a + a = 0) →
-        StokesDuality
-          (fun g ↦ rho (gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) g))
-          (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C)) A
+  UniformHsimp alpha r pp h q d
+
+/-- Collapse regression: the row-uniform name and the upstream statement are the same
+proposition, definitionally in both directions. -/
+example : @UniformPushedHsimp = @UniformHsimp := rfl
 
 /-- The historical all-markings residue implies the pushed cohomological one. -/
 theorem pushedHsimp_of_hsimp {alpha r pp h q : ℕ} {d : EtaDisplay}
