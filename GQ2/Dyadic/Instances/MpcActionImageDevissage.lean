@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.NpcActionImageDevissage
 import GQ2.Dyadic.Instances.MpcExact
+import GQ2.Dyadic.Instances.M0RamifiedStokes
 import GQ2.Dyadic.Word.FoxProd
 
 /-!
@@ -168,6 +169,209 @@ theorem foxD_mpcW_smul {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay
   rw [foxD_mpcW_x2 t E E₂ a hα r pp hwild hτfpf hTodd hη hV₂, mul_smul]
 
 end FullRow
+
+/-! ## The ramified normal-form route at a `u`-scaled wild pivot
+
+`M0RamifiedStokes` runs the whole first-order half of the ramified even route — surjectivity of
+the differential, the unique normal representative, and Stokes duality from a left-separating
+traced pairing — but it states its three lemmas at the *compact* row `−S⁻¹·x(x₂)` literally.
+The procyclic-`M` row is `S₂^{−s}σ^{−n}·x(x₂)`: the same shape with a different unit, so the
+arguments go through verbatim once the pivot is written `u • x(x₂)` for an arbitrary group
+element `u` (the only property used is that `u` acts invertibly, which for a group element is
+free).
+
+⚠ These four are **generalizations of `GQ2.Dyadic.{heisD1_surjective_of_ramified_row,
+heisD1_evenNormal_eq_zero_of_ramified_row, evenNormalForm_of_ramified_row,
+evenRamifiedStokesDuality_of_row}`**, not new mathematics, and they are here rather than there
+only because `M0RamifiedStokes.lean` is not this ticket's file.  The compact row is the case
+`u = −S⁻¹` — which is `u = S⁻¹` on a characteristic-two coefficient — so a hoist would let
+`M0RamifiedStokes` delete its four copies and keep them as specializations.
+-/
+
+section SmulPivot
+
+variable {h q : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [Finite A]
+  [DistribMulAction C A]
+
+/-- Surjectivity of a differential whose wild row is a group element applied to the
+`x₂`-coordinate. -/
+theorem heisD1_surjective_of_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+            - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau,
+          u • x (coreLetter h 2)])
+    (hτfpf : ∀ a : A, t.τ • a = a → a = 0) :
+    Function.Surjective (heisD1 (A := A) ⇑t w) := by
+  classical
+  intro r
+  obtain ⟨v, hv⟩ := tameSigmaColumn_surjective_of_fixedPointFree t hτfpf (r 0)
+  let x : Generator (2 + 2 * h) → A := fun g ↦
+    if g = .sigma then v else if g = coreLetter h 2 then u⁻¹ • r 1 else 0
+  refine ⟨x, ?_⟩
+  rw [hrow x]
+  funext k
+  have hσx2 : (.sigma : Generator (2 + 2 * h)) ≠ coreLetter h 2 :=
+    Certificates.sigma_ne_coreLetter_two h
+  have hτσ : (.tau : Generator (2 + 2 * h)) ≠ .sigma := by simp
+  have hτx2 : (.tau : Generator (2 + 2 * h)) ≠ coreLetter h 2 :=
+    Certificates.tau_ne_coreLetter_two h
+  fin_cases k
+  · change t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+        - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau = r 0
+    simp only [x, if_pos, if_neg hτσ, if_neg hτx2, zero_add, smul_zero, Finset.sum_const_zero,
+      sub_zero]
+    exact hv
+  · change u • x (coreLetter h 2) = r 1
+    have hx2 : x (coreLetter h 2) = u⁻¹ • r 1 := by simp [x, hσx2.symm]
+    rw [hx2, smul_inv_smul]
+
+omit [Finite A] in
+/-- Every ramified normal cochain is a cocycle for a `u`-scaled wild pivot. -/
+theorem heisD1_evenNormal_eq_zero_of_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+            - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau,
+          u • x (coreLetter h 2)])
+    (d₀ d₁ : A) (z : Fin h × Fin 2 → A) :
+    heisD1 ⇑t w (evenNormal h d₀ d₁ z) = 0 := by
+  rw [hrow]
+  funext k
+  fin_cases k <;> simp
+
+set_option maxHeartbeats 1600000 in
+/-- The ramified normal form at a `u`-scaled wild pivot: `u` kills `x₂` because it is
+invertible, a coboundary kills `tau`, and the `q`-independent tame pivot kills `sigma`. -/
+theorem evenNormalForm_of_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+            - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau,
+          u • x (coreLetter h 2)])
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτfpf : ∀ a : A, t.τ • a = a → a = 0)
+    (hr : ∀ k, FreeGroup.lift ⇑t (w k) = 1) :
+    ∀ x, heisD1 (A := A) ⇑t w x = 0 → ∃! p : A × A × (Fin h × Fin 2 → A),
+      x - evenNormal h p.1 p.2.1 p.2.2 ∈ Set.range (heisD0 ⇑t) := by
+  have hTsurj : Function.Surjective (fun v : A ↦ t.τ • v - v) :=
+    surjective_smul_sub_of_fixedPointFree hτfpf
+  have hcoreTriv : ∀ (i : Fin 3) (a : A), t (coreLetter h i) • a = a := fun i a ↦ hwild _ a
+  have hhandleUTriv : ∀ (j : Fin h) (a : A), t (handleU j) • a = a := fun j a ↦ hwild _ a
+  have hhandleVTriv : ∀ (j : Fin h) (a : A), t (handleV j) • a = a := fun j a ↦ hwild _ a
+  intro x hx
+  have hxcore2 : x (coreLetter h 2) = 0 := by
+    have hz := congrFun hx 1
+    rw [hrow x] at hz
+    have hz' : u • x (coreLetter h 2) = 0 := by simpa using hz
+    rwa [smul_eq_zero_iff_eq] at hz'
+  obtain ⟨v, hv⟩ := hTsurj (x .tau)
+  let x' := x - heisD0 (⇑t) v
+  have hx' : heisD1 (⇑t) w x' = 0 := by
+    change heisD1 (⇑t) w (x - heisD0 (⇑t) v) = 0
+    rw [map_sub, hx, heisD1_comp_heisD0 (⇑t) w hr v, sub_zero]
+  have hx'τ : x' .tau = 0 := by simp [x', heisD0_apply, hv]
+  have hx'core2 : x' (coreLetter h 2) = 0 := by
+    simp [x', heisD0_apply, hcoreTriv, hxcore2]
+  have hx'σ : x' .sigma = 0 := by
+    have hz := congrFun hx' 0
+    rw [hrow x'] at hz
+    have hz' : t.σ⁻¹ • (t.τ • x' .sigma - x' .sigma) = 0 := by simpa [hx'τ] using hz
+    have hdiff : t.τ • x' .sigma - x' .sigma = 0 := by
+      have hs := congrArg (t.σ • ·) hz'
+      simpa using hs
+    exact hτfpf _ (sub_eq_zero.mp hdiff)
+  let z := (EvenCore.coreHandleAddEquiv h A x).2
+  let p₀ : A × A × (Fin h × Fin 2 → A) := (x (coreLetter h 0), x (coreLetter h 1), z)
+  have hnormal : evenNormal h p₀.1 p₀.2.1 p₀.2.2 = x' := by
+    apply (EvenCore.coreHandleAddEquiv h A).injective
+    apply Prod.ext
+    · funext g
+      cases g with
+      | sigma => simpa [p₀] using hx'σ.symm
+      | tau => simpa [p₀] using hx'τ.symm
+      | wild i =>
+          fin_cases i
+          · simp [p₀, x', heisD0_apply, hcoreTriv]
+          · simp [p₀, x', heisD0_apply, hcoreTriv]
+          · simpa [p₀] using hx'core2.symm
+    · funext jk
+      rcases jk with ⟨j, k⟩
+      fin_cases k
+      · simp [p₀, z, x', heisD0_apply, hhandleUTriv]
+      · simp [p₀, z, x', heisD0_apply, hhandleVTriv]
+  refine ⟨p₀, ?_, ?_⟩
+  · refine ⟨v, ?_⟩
+    rw [hnormal]
+    simp [x']
+  · intro p hp
+    obtain ⟨_, hu⟩ := hp
+    apply Prod.ext
+    · have hc := congrFun hu (coreLetter h 0)
+      rw [heisD0_apply, hcoreTriv, sub_self] at hc
+      simp only [Pi.sub_apply, evenNormal_coreLetter, Matrix.cons_val_zero] at hc
+      exact (sub_eq_zero.mp hc.symm).symm
+    · apply Prod.ext
+      · have hc := congrFun hu (coreLetter h 1)
+        rw [heisD0_apply, hcoreTriv, sub_self] at hc
+        simp only [Pi.sub_apply, evenNormal_coreLetter, Matrix.cons_val_one,
+          Matrix.cons_val_zero] at hc
+        exact (sub_eq_zero.mp hc.symm).symm
+      · funext jk
+        rcases jk with ⟨j, k⟩
+        fin_cases k
+        · have hc := congrFun hu (handleU j)
+          rw [heisD0_apply, hhandleUTriv, sub_self] at hc
+          simp only [Pi.sub_apply, evenNormal_handleU] at hc
+          have hpj := (sub_eq_zero.mp hc.symm).symm
+          simpa [p₀, z] using hpj
+        · have hc := congrFun hu (handleV j)
+          rw [heisD0_apply, hhandleVTriv, sub_self] at hc
+          simp only [Pi.sub_apply, evenNormal_handleV] at hc
+          have hpj := (sub_eq_zero.mp hc.symm).symm
+          simpa [p₀, z] using hpj
+
+set_option maxHeartbeats 3200000 in
+/-- **Stokes duality for an even complex with a `u`-scaled wild pivot.**  The word enters only
+through its first Fox row and through left nondegeneracy of the traced pairing on the normal
+coordinates. -/
+theorem evenRamifiedStokesDuality_of_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hr : ∀ k, FreeGroup.lift ⇑t (w k) = 1) (hend : IsStokesEndpoint w)
+    (hrowA : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+            - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau,
+          u • x (coreLetter h 2)])
+    (hrowD : ∀ y : Generator (2 + 2 * h) → ElemDual A, heisD1 ⇑t w y
+      = ![t.σ⁻¹ • (y .tau + t.τ • y .sigma - y .sigma)
+            - ∑ i ∈ Finset.range q, (t.τ ^ i) • y .tau,
+          u • y (coreLetter h 2)])
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτfpf : ∀ a : A, t.τ • a = a → a = 0)
+    (hsep : ∀ p : A × A × (Fin h × Fin 2 → A), p ≠ 0 →
+      ∃ r : ElemDual A × ElemDual A × (Fin h × Fin 2 → ElemDual A),
+        heisEta1 ⇑t w (evenNormal h p.1 p.2.1 p.2.2)
+          (evenNormal h r.1 r.2.1 r.2.2) ≠ 0) :
+    StokesDuality ⇑t w A := by
+  have hA₂D : ∀ lam : ElemDual A, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  have hwildD : ∀ (i : Fin (2 + 2 * h + 1)) (lam : ElemDual A), t.x i • lam = lam :=
+    fun i lam ↦ elemDual_smul_eq_self (hwild i) lam
+  have hτfpfD : ∀ lam : ElemDual A, t.τ • lam = lam → lam = 0 :=
+    fun lam hlam ↦ elemDual_fpf hτfpf lam hlam
+  exact evenNormalStokesDuality t w hA₂ hr hend
+    (heisD0_injective_of_tau_fixedPointFree t hτfpf)
+    (heisD0_injective_of_tau_fixedPointFree (A := ElemDual A) t hτfpfD)
+    (heisD1_surjective_of_smul_row t w u hrowA hτfpf)
+    (heisD1_surjective_of_smul_row (A := ElemDual A) t w u hrowD hτfpfD)
+    (fun p ↦ heisD1_evenNormal_eq_zero_of_smul_row t w u hrowA p.1 p.2.1 p.2.2)
+    (fun r ↦ heisD1_evenNormal_eq_zero_of_smul_row (A := ElemDual A) t w u hrowD
+      r.1 r.2.1 r.2.2)
+    (evenNormalForm_of_smul_row t w u hrowA hwild hτfpf hr)
+    (evenNormalForm_of_smul_row (A := ElemDual A) t w u hrowD hwildD hτfpfD hr)
+    hsep
+
+end SmulPivot
 
 /-! ## The row's level-indexed resolver -/
 
@@ -387,6 +591,10 @@ end
 #print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_eq_lin
 #print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_x2
 #print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_smul
+#print axioms GQ2.Dyadic.MProcyclicExact.heisD1_surjective_of_smul_row
+#print axioms GQ2.Dyadic.MProcyclicExact.heisD1_evenNormal_eq_zero_of_smul_row
+#print axioms GQ2.Dyadic.MProcyclicExact.evenNormalForm_of_smul_row
+#print axioms GQ2.Dyadic.MProcyclicExact.evenRamifiedStokesDuality_of_smul_row
 #print axioms GQ2.Dyadic.MProcyclicExact.levelResolver
 #print axioms GQ2.Dyadic.MProcyclicExact.pushedHsimp_of_hsimp
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_hsimp
