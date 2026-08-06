@@ -1352,10 +1352,10 @@ theorem scalarActionImageStokes_of_supply {alpha r pp h q : ℕ} {d : EtaDisplay
   rw [hfam]
   exact evenScalarStokesDuality_of_separation t _ hM₂ hr hend
     (heisD0_eq_zero_of_split t htriv) (heisD0_eq_zero_of_split t htrivD)
-    (MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split (alpha := alpha) (r := r) (pp := pp) t E E₂ hliftM hM₂
-      (by omega) hqe htriv)
-    (MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split (A := ElemDual M) (alpha := alpha) (r := r) (pp := pp) t E
-      E₂ hliftD hM₂D (by omega) hqe htrivD)
+    (MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split (alpha := alpha) (r := r) (pp := pp)
+      t E E₂ hliftM hM₂ (by omega) hqe htriv)
+    (MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split (A := ElemDual M) (alpha := alpha) (r := r)
+      (pp := pp) t E E₂ hliftD hM₂D (by omega) hqe htrivD)
     (fun p hp ↦ MProcyclicNormal.mpc_scalarNormal_pairing_separates_left
       (α := alpha) (r := r) (pp := pp) (q := q) t E E₂ hM₂ htriv hEω
       (omega2Exp_fourMulExponent_mod_four C₀) hα hqe hjet.1

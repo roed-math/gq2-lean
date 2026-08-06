@@ -40,8 +40,44 @@ four are `heisCommR_of_trivial_right`'s `μ(b) + λ(b) + μ(a) + μ(gb)`; `heisC
 below rederives that specialization from the general law, which is the law's own regression test.
 
 The companion laws `heisSq_general` (`p²`) and `heisConjR_general` (`p^q`) are proved the same
-way and are the other two arbitrary-base primitives the procyclic-`M` row needs: its live
-factors are `A²`, `[A,B]` and `E₀₁^pc` (a nest of conjugations), plus their hat twins.
+way and are the other two arbitrary-base primitives the row needs.
+
+## What the ramified row still owes, exactly
+
+`isPure_mpcW_factor` below settles five of the eleven displayed factors of `R_lin^pc · R̂^pc`
+unconditionally.  The live set is therefore **eight** factors:
+
+```
+A²,  [A,B],  E₀₁^pc      (linear copy)
+Â²,  [Â,B̂],  Ê₀₁^pc      (hat copy)
+δ₀²,  [δ₀,δ₁]            (plus block)
+```
+
+— one more than the handoff's note, which omitted the plus block.  The plus block is live on the
+ramified reading precisely because `MProcyclicNormal.isDead_dW` needs `τ` to act trivially.
+
+But the eight split cleanly in two, and only the first four need this file's general laws:
+
+* **`E₀₁^pc`, `Ê₀₁^pc` and the plus block stay inside the existing trivial-base calculus.**
+  `MCompactRam.heisEvalZ_deltaCert_ram` says that in the *ramified* class a `δ`-letter still has
+  jets `(x_i, y_i)` and — the load-bearing clause — a **trivially acting base**.  Every
+  conjugator inside `E₀₁^pc` is a pure `σ₂`-power, and `heisConjR_pure_right` twists such a
+  factor's jets by `S⁻¹` while leaving its charge alone and (by `trivAct_conjR`) its base
+  trivially acting.  So `heisMul_of_trivial_left`, `heisCommR_of_trivial` and
+  `MProcyclicNormal.Triv` already cover all four of those factors.
+* **`A²`, `[A,B]`, `Â²`, `[Â,B̂]` are the four that genuinely need arbitrary bases.**  `A`'s base
+  is `x₀⁻¹(C₀^m)⁻¹`, acting as `S₂^{−sm}` because `x₀` and `x₂` act trivially (`hwild`); `B`'s is
+  `x₁σ₂^{p}`, acting as `S₂^{p}`; the hat twins are the same with `δ₀`, `δ₁` in place of `x₀`,
+  `x₁`.  `heisSq_general` gives `z(A²) = λ₀(g_A·d₀)`, and `heisCommR_general` gives `z([A,B])` as
+  its eight-term centre at `g_A = S₂^{−sm}`, `g_B = S₂^{p}`.
+
+So what remains is not a missing law but the **cancellation**: whether the `S₂`-twisted atoms of
+those four factors cancel against the `S₂`-twisted atoms `E₀₁^pc` contributes through its
+conjugators `σ₂^{a}`, `σ₂^{b}` (`a = p + sm`, `b = sm`), leaving a unimodular core on
+`(d₀, d₁)`.  That is the cancellation `MCompactRam.heisZ_mCompact_ram` performs for the compact
+row — but there the conjugator pair is the *symmetric* `𝓔(σ₂^m, σ₂^m; ·)`, whereas here it is
+asymmetric and the `p`-shift on the outer conjugator is exactly the `ε`-visible part of the
+block, so the compact computation does not transfer verbatim.
 -/
 
 namespace GQ2.Dyadic
