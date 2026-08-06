@@ -679,6 +679,8 @@ import GQ2.Dyadic.SqCore.NuSeedWide
 import GQ2.Dyadic.SqCore.JointClearing
 import GQ2.Dyadic.SqCore.PivotCoreMoves
 import GQ2.Dyadic.SqCore.PivotUnitizer
+import GQ2.Dyadic.SqCore.PivotSeedTransport
+import GQ2.Dyadic.SqCore.PivotSeedD0
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
