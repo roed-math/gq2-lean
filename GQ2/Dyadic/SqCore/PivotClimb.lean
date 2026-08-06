@@ -7,9 +7,101 @@ import GQ2.Dyadic.SqCore.PivotSeedTransport
 import GQ2.Dyadic.Instances.SqModelPresentingFrameCupAdapted
 
 /-!
-# The parity of the pivot row is an invariant of the χ-preserving automorphism group
+# W41 — the `h ≥ 1` climb: the pivot unitizer is **false**, with witness
 
-Work in progress.
+`SqCore/PivotUnitizer.lean` reduced the oriented clearing residual at every handle count to three
+inputs — the banked handle stratum `SqHandleMixFixesCore h c₀`, the pivot core family, and the
+**one-bit unitizer** `SqPivotUnitizer h` ("every jointly-surjective marking can be moved, by a
+χ-preserving automorphism, to one whose pivot row is a unit").  At `h = 0` the unitizer is a
+theorem because joint surjectivity there *is* the unit pivot row.  This file settles the `h ≥ 1`
+case, and the answer is a refutation.
+
+## Headline
+
+```text
+theorem not_sqPivotUnitizer  : 0 < h → ¬ SqPivotUnitizer h
+theorem not_sqNuOrientedClear : 0 < h → ¬ SqNuOrientedClear h
+theorem not_sqHandleToCoreMove_handleU (j : Fin h) : ¬ SqHandleToCoreMove h (sqHandleIdxU j)
+```
+
+all at std-3, with an explicit witness.  So the residual's `h ≥ 1` supply list as it stands is
+**unsatisfiable**: `gammaR_lSq_equiv_galK_oddDegree_of_subgroups`'s `hunit` slot cannot be
+filled, and the theorem is vacuous above degree one (§10 pins this).
+
+## The mechanism: the pivot row's parity is a cup-form invariant
+
+The refutation is not a word-level computation.  It is one line of linear algebra over `𝔽₂`,
+made available by three things already in the tree:
+
+1. **The cup form is an invariant of the *whole* automorphism group** (§2,
+   `sqGram_comp_autHom`), with **no orientation clause**.  Proof: the improved word's obstruction
+   functional `H²(D_sq h, 𝔽₂) →+ 𝔽₂` is injective at *any* presenting marking
+   (`WordCoh.obsH2_injective` at the transported presentation `presentedBy_aut`), and two
+   injective additive maps to `𝔽₂` are equal (`addMonoidHom_zmodTwo_eq_of_injective`).  So the
+   functional at `Ψ ∘ sqGen h` *is* the functional at `sqGen h`, and
+   `obsH2_sqNatWord_characterCup` reads both sides as the relator's quadratic initial Gram.
+
+2. **The χ-exponent row `λ` is `Aut_χ`-invariant modulo `2`** (§3), from `χ_sq² = X^{2λ}` and
+   `X² ≠ 1` — the same parity engine `JointClearing` §3 already runs.
+
+3. **The Gram identity that names the pivot** (§3, `sqGram_nuLam`):
+
+   ```text
+   λ̄ ⌣ c = c(w)     for every mod-two character c,     w = σ·x₀^{−c₀}.
+   ```
+
+   In the relator's constructor table `Gram κ = κ₂₂ + (κ₀₁ + κ₁₀) + Σⱼ(κ_{UⱼVⱼ} + κ_{VⱼUⱼ})`
+   this is `0·c₂ + (1·c₁ + 1·c₀) + 0 = c₀ + c₁ = c(w)`: the reduced row `λ̄ = (1,1,0,…,0)` is
+   cup-dual to `w̄ = σ̄ + x̄₀`.
+
+Combining: for χ-preserving `Ψ`, `c(Ψ w) = λ̄ ⌣ (c∘Ψ) = (λ̄∘Ψ) ⌣ (c∘Ψ) = λ̄ ⌣ c = c(w)`.  So
+**`Ψ` fixes `w` in the Frattini quotient**, and every marking's pivot row keeps its parity
+(§4, `isUnit_toAdd_nu_aut_sqPivot_iff`).
+
+The same machinery hands back a second fixed direction for free: `c ⌣ c = c(x₁)` in the
+constructor table, so the **torsion coordinate is fixed by the whole automorphism group**
+(`modTwoChar_aut_dsqX1`, no orientation clause) — the mod-two shadow of the forced row
+`ν(x₁) = 2ν(x₀)`.
+
+## The witness
+
+`nuHandleU h 0 0 j` (§5): rows `(0, 0, 0, …, u_j ↦ 1, …, 0)`.  Its pivot row is `0` — even —
+while its `u_j`-row is a unit, which is precisely the second disjunct that
+`sqJointSurjective_isUnit_pivot_or_handle` allows at `h ≥ 1` and forbids at `h = 0`.  It is
+jointly surjective because `χ_sq` is onto `ℤ₂ˣ` (§7, `chiSq_surjective`, the `χ_R` Burnside
+argument re-run at `χ_sq`) and `χ_sq(u_j) = 1`.
+
+## What this costs, and what it does not
+
+* **`SqPivotUnitizer` is dead, and so is every route to it.**  The handle-to-core transfers
+  `SqHandleToCoreMove h i` — the only known producer (`sqPivotUnitizer_of_handleToCore`) — are
+  refuted at every handle letter, by the same invariant: they shift the pivot row by the
+  transferred letter's row.
+* **`SqHandleMixFixesCore h c₀` is untouched.**  Its clearing automorphism fixes both core rows,
+  hence fixes the pivot row exactly, which is consistent with the invariance; and the mod-`2`
+  shape the Eichler family needs (`u_j ↦ u_j + k·w̄` with the compensating `k·v̄_j` on *both*
+  core slots, invisible once the `v_j`-row vanishes) is an isometry fixing `w̄`.  The cup form
+  therefore raises no obstruction there.  It remains open.
+* **The corrected residual** (§8) is `SqNuOrientedClearAtUnitPivot h`: the same statement with
+  `IsUnit ν'(w)` as a hypothesis.  It follows from the handle stratum and the pivot family alone
+  (`sqNuOrientedClearAtUnitPivot_of_families`) — the supply list *loses* an entry.  And
+  `SqNuOrientedClear h ↔ SqNuOrientedClearAtUnitPivot h ∧ SqPivotUnitizer h` is exact, so the
+  refutation is confined to the second factor.
+* **The odd-degree bridge needs an arithmetic input at `h ≥ 1`** (§9).  Any two oriented
+  equivalences `D_sq h ≅ G` differ by a χ-preserving automorphism, so the parity of the
+  transported pivot row `ν_ur(f w)` is an **invariant of the target**, not a choice
+  (`isUnit_toAdd_transported_sqPivot_iff`).  `GammaLOddDegreeBridge` currently feeds
+  `SqNuOrientedClear h` an arbitrary `orientedEquiv_of_oddDegree`; at `h ≥ 1` it must instead
+  supply P3's `SqMarkedForwardSupply` (whose two `ν`-rows give `ν(f w) = 1` on the nose,
+  `nuUrKTwo_sqMixPivotElem_eq_one`).  P3 already recorded that the row is *selected*; this file
+  upgrades that to: the model side **cannot** repair it.
+
+## Axiom hygiene
+
+No `sorry`, no new axiom, no `native_decide`.  Every declaration prints **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) — in particular the two `Instances` imports contribute nothing:
+`dsqObs_injective`, `card_H2_DSq`, `obsH2_sqNatWord_characterCup` and
+`addMonoidHom_zmodTwo_eq_of_injective` are all axiom-free.  Census unchanged at **11**.
 -/
 
 open Multiplicative
@@ -355,6 +447,40 @@ theorem isUnit_toAdd_nu_aut_sqPivot_iff
   · exact fun hu => isUnit_iff_not_two_dvd.mpr fun ⟨p, hp⟩ =>
       (isUnit_iff_not_two_dvd.mp hu) ⟨p - s, by linear_combination hp - hs⟩
 
+/-- The cup square of a mod-two character is its `x₁`-coordinate: in the constructor table the
+two off-diagonal blocks each appear twice, so they die in characteristic two, and `z² = z` on
+`𝔽₂`. -/
+theorem sqGram_self (c : ContinuousMonoidHom (DSq h : Type) (Multiplicative (ZMod 2))) :
+    sqGram h c c = toAdd (c (sqGen h 2)) := by
+  have hsq : ∀ z : ZMod 2, z * z = z := by decide
+  have hsum : ∑ j : Fin h,
+      (toAdd (c (sqGen h (sqHandleIdxU j))) * toAdd (c (sqGen h (sqHandleIdxV j))) +
+        toAdd (c (sqGen h (sqHandleIdxV j))) * toAdd (c (sqGen h (sqHandleIdxU j)))) = 0 :=
+    Finset.sum_eq_zero fun j _ => by
+      generalize toAdd (c (sqGen h (sqHandleIdxU j))) = p
+      generalize toAdd (c (sqGen h (sqHandleIdxV j))) = q
+      revert p q
+      decide
+  show GQ2.ContCoh.sqRelatorQuadraticInitialGram h
+      (fun i j => toAdd (c (sqGen h i)) * toAdd (c (sqGen h j))) = _
+  rw [GQ2.ContCoh.sqRelatorQuadraticInitialGram_eq, hsum, hsq, add_zero]
+  generalize toAdd (c (sqGen h 0)) = p
+  generalize toAdd (c (sqGen h 1)) = q
+  generalize toAdd (c (sqGen h 2)) = r
+  revert p q r
+  decide
+
+/-- **The torsion direction is fixed by the *whole* automorphism group** — no orientation clause.
+`x₁` spans the radical of the polar form of the relator's quadratic initial form, and its
+coordinate is read off by the cup square `c ⌣ c`, which §2 shows is `Aut`-invariant.  This is the
+mod-two shadow of the forced row `ν(x₁) = 2ν(x₀)`. -/
+theorem modTwoChar_aut_dsqX1 (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type))
+    (c : ContinuousMonoidHom (DSq h : Type) (Multiplicative (ZMod 2))) :
+    c (Ψ (dsqX1 h)) = c (dsqX1 h) := by
+  have hinv := sqGram_comp_autHom Ψ c c
+  rw [sqGram_self, sqGram_self] at hinv
+  exact Multiplicative.toAdd.injective hinv
+
 end PivotParity
 
 /-! ## §5 A marking with a unit handle row -/
@@ -571,10 +697,10 @@ so it fails at every `h ≥ 1`, at the same witness. -/
 theorem not_sqNuOrientedClear (hh : 0 < h) : ¬ SqNuOrientedClear h := fun H =>
   not_sqPivotUnitizer hh (sqPivotUnitizer_of_orientedClear H)
 
-/-- …and so does the un-oriented one, since the clearing automorphism of `SqNuJointClear`
-carries the pivot row to `ν_sq(w) = 1` — but here without any χ-clause the invariance is not
-available, so this is recorded only in the oriented form above. -/
-theorem not_sqNuOrientedClear' (hh : 0 < h) :
+/-- **The numerical form**: at `h ≥ 1` joint surjectivity does **not** force a unit pivot row —
+the missing disjunct of `sqJointSurjective_isUnit_pivot_or_handle` genuinely occurs.  (At
+`h = 0` the same statement is the theorem `sqJointSurjective_isUnit_pivot_zero`.) -/
+theorem not_forall_isUnit_toAdd_sqPivot (hh : 0 < h) :
     ¬ ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
       SqJointSurjective h nu' → IsUnit (toAdd (nu' (sqPivot h))) := fun H =>
   not_sqPivotUnitizer hh (sqPivotUnitizer_iff.mpr H)
@@ -710,6 +836,89 @@ theorem isUnit_toAdd_transported_sqPivot_iff {G : Type} [Group G] [TopologicalSp
       (isUnit_iff_not_two_dvd.mp hu) ⟨p - s, by linear_combination hp - hs⟩
 
 end Transported
+
+/-! ## §10 Stress pins -/
+
+section StressTests
+
+/-- The `h = 0` unitizer, reproved through §6's characterization: at `h = 0` the right-hand side
+of `sqPivotUnitizer_iff` is `sqJointSurjective_isUnit_pivot_zero`. -/
+example : SqPivotUnitizer 0 :=
+  sqPivotUnitizer_iff.mpr fun _ hjs => sqJointSurjective_isUnit_pivot_zero hjs
+
+/-- …and it agrees with the committed `h = 0` theorem. -/
+example : SqPivotUnitizer 0 := sqPivotUnitizer_zero
+
+/-- **The `h ≥ 1` supply list of `gammaR_lSq_equiv_galK_oddDegree_of_subgroups` is
+unsatisfiable.**  Whatever the other three binders are, the fourth cannot be filled — so that
+theorem is *vacuous* at every positive handle count. -/
+example (_hfix : SqHandleMixFixesCore 1 sqPivotExp) (_htr : ∀ c : ℤ_[2], SqPivotTranslation 1 c)
+    (_hsc : ∀ a : ℤ_[2], IsUnit a → SqPivotScaling 1 a) (hunit : SqPivotUnitizer 1) : False :=
+  not_sqPivotUnitizer (by omega) hunit
+
+/-- The one-handle witness marking has an even pivot row… -/
+example : toAdd (nuHandleU 1 0 0 ⟨0, by omega⟩ (sqPivot 1)) = 0 := by
+  rw [toAdd_nuHandleU_sqPivot]; ring
+
+/-- …and a unit handle row… -/
+example :
+    IsUnit (toAdd (nuHandleU 1 0 0 ⟨0, by omega⟩ (sqGen 1 (sqHandleIdxU ⟨0, by omega⟩)))) := by
+  rw [nuHandleU_self, toAdd_ofAdd]
+  exact isUnit_one
+
+/-- …and is jointly surjective with `χ_sq`. -/
+example : SqJointSurjective 1 (nuHandleU 1 0 0 ⟨0, by omega⟩) :=
+  sqJointSurjective_nuHandleU 0 0 ⟨0, by omega⟩
+
+/-- At one handle the transfers do not exist. -/
+example : ¬ SqHandleToCoreMove 1 (sqHandleIdxU ⟨0, by omega⟩) :=
+  not_sqHandleToCoreMove_handleU ⟨0, by omega⟩
+
+/-- The corrected residual at one handle, over the two one-parameter subgroups and the handle
+stratum — the shape that survives. -/
+example (hfix : SqHandleMixFixesCore 1 sqPivotExp) (htr : ∀ c : ℤ_[2], SqPivotTranslation 1 c)
+    (hsc : ∀ a : ℤ_[2], IsUnit a → SqPivotScaling 1 a) : SqNuOrientedClearAtUnitPivot 1 :=
+  sqNuOrientedClearAtUnitPivot_of_families hfix htr hsc
+
+/-- The split is exact. -/
+example (h : ℕ) : SqNuOrientedClear h ↔ SqNuOrientedClearAtUnitPivot h ∧ SqPivotUnitizer h :=
+  sqNuOrientedClear_iff
+
+/-- The `h = 0` milestone is untouched: there the corrected residual gives the old one back. -/
+example (H : SqNuOrientedClearAtUnitPivot 0) : SqNuOrientedClear 0 :=
+  sqNuOrientedClear_zero_of_atUnitPivot H
+
+end StressTests
+
+/-! ## §11 Axiom pins -/
+
+section AxiomPins
+
+#print axioms sqModTwo
+#print axioms sqRedMark_eq_iff
+#print axioms sqGram_comp_autHom
+#print axioms two_dvd_toAdd_nuLam_sub_of_chiPreserving
+#print axioms sqGram_nuLam
+#print axioms modTwoChar_aut_sqPivot
+#print axioms isUnit_toAdd_nu_aut_sqPivot_iff
+#print axioms sqGram_self
+#print axioms modTwoChar_aut_dsqX1
+#print axioms nuHandleU
+#print axioms two_dvd_toAdd_of_sqHandleToCoreMove
+#print axioms not_sqHandleToCoreMove_handleU
+#print axioms sqPivotUnitizer_iff
+#print axioms chiSq_surjective
+#print axioms sqJointSurjective_nuHandleU
+#print axioms not_sqPivotUnitizer
+#print axioms not_sqNuOrientedClear
+#print axioms not_forall_isUnit_toAdd_sqPivot
+#print axioms SqNuOrientedClearAtUnitPivot
+#print axioms sqNuOrientedClear_iff
+#print axioms sqNuOrientedClearAtUnitPivot_of_families
+#print axioms two_dvd_toAdd_transported_sqPivot_sub
+#print axioms isUnit_toAdd_transported_sqPivot_iff
+
+end AxiomPins
 
 end SqCore
 
