@@ -47,16 +47,24 @@ whole marked forward supply.  Its relator hypothesis is a relator statement abou
 frame — i.e. the shift route converts the `ν`-half of the residual back into a relator half.
 The two horns are therefore coupled, not independent.
 
+## Cup-adaptation (closed elsewhere)
+
+This file originally recorded as open the question whether `frameOfOrientedEquiv` is
+cup-adapted — the converse Labute direction, that the cup form of `G_K(2)` in the basis dual to
+a *presenting* tuple is the relator's quadratic initial Gram.  It is now a theorem:
+`isCupAdapted_frameOfOrientedEquiv` in `SqModelPresentingFrameCupAdapted.lean`, with no
+orientation clause.  The route taken was cheaper than the transport sketched here: the
+one-relator cup obstruction is proved for an arbitrary marked group
+(`obsH2_sqNatWord_characterCup` in `SqModelCupForm.lean`), so it can be read directly at
+`G_K(2)` with the marking `f ∘ sqGen h`, and the two `𝔽₂`-valued functionals on
+`H²(G_K(2), 𝔽₂)` are identified by injectivity alone — no cup-functoriality lemma and no
+`card_H² = 2` input.
+
 ## What is *not* proved here
 
-`frameOfOrientedEquiv` is **not** shown to be cup-adapted.  Cup-adaptation is never derived from
-a presentation anywhere in the repo: it is always constructed from the arithmetic by Witt
-adaptation of the Frattini cup form.  The missing step is the converse Labute direction — that
-the cup form of `G_K(2)` in the basis dual to a *presenting* tuple is the relator's quadratic
-initial Gram.  Since the cup form is functorial along an isomorphism and `H²(·, 𝔽₂)` is
-one-dimensional here (so its identification with `𝔽₂` is unique), that statement transports
-along `f` to a statement about the model group `D_sq(h)` alone; the repo has no `H²(D_sq(h))`
-cup computation to land it on, so it is recorded as an open reduction rather than proved.
+The residual is a `ν`-gap, not a cup-gap.  The arithmetic frame (`GammaLNuAdaptedFrame.lean`)
+carries the cup form and all `ν`-rows but not the relator; the presenting frame here carries the
+cup form and the relator but not `ν`.  Reconciling them is `SqNuAdaptedFrameRelator`.
 -/
 
 namespace GQ2.Dyadic.LSquare
