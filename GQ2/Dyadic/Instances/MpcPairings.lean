@@ -1387,6 +1387,20 @@ theorem scalarActionImageStokes_hat {alpha r pp h q : ℕ} {num den : ℤ} (z : 
     ScalarActionImageStokes alpha r pp h q (.hat num den) :=
   scalarActionImageStokes_of_supply hα hqe (resolverJetSupply_hat z hz)
 
+/-- **The unit hypothesis is free at the selection seam.**
+
+`MpcDisplayFor` has *no* analogue of `NpcDisplayFor.exists_toPadic_eq_one_add_two_mul`: its
+`represents` field is an equation in `ℤ̂` (`d.zhat = etaHatZ η`), and reading `toPadic` back off
+it would need injectivity of `etaHatZ`, equivalently of `padicOmega2 : ℤ₂ → ℤ̂`, which is not in
+the tree.  But every `.hat`-shaped `MpcDisplayFor` the campaign builds comes from
+`MpcDisplayFor.ofNpc` — `FieldBranchSelector`'s two construction sites — and there the `Npc`
+producer applies verbatim, because `ofNpc` keeps the underlying `EtaData`. -/
+theorem scalarActionImageStokes_ofNpc {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ}
+    (hα : 2 ≤ alpha) (hqe : Even q) (d : NpcDisplayFor eta) :
+    ScalarActionImageStokes alpha r pp h q (MpcDisplayFor.ofNpc d).display := by
+  obtain ⟨z, hz⟩ := NpcDisplayFor.exists_toPadic_eq_one_add_two_mul d
+  exact scalarActionImageStokes_hat z hα hqe hz
+
 /-- **The procyclic-`M` uniform pushed residue on the selected row, on two second-order inputs**
 — the generic unramified pairing is now a theorem. -/
 theorem uniformPushedHsimp_of_two {alpha r pp h q : ℕ} {d : EtaDisplay} {eta : ℤ_[2]ˣ}
@@ -1413,6 +1427,15 @@ theorem uniformPushedHsimp_of_ramified_hat {alpha r pp h q : ℕ} {num den : ℤ
     UniformPushedHsimp alpha r pp h q (.hat num den) :=
   uniformPushedHsimp_of_residues_hat num den (by omega) hqe unramifiedNormalPairingIsCompact
     (scalarActionImageStokes_hat z hα hqe hz) hsep
+
+/-- **The selected `.hat` row's uniform pushed residue, on the single ramified input** — the
+seam-level form, with no arithmetic side condition left. -/
+theorem uniformPushedHsimp_of_ramified_ofNpc {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ}
+    (hα : 2 ≤ alpha) (hqe : Even q) (d : NpcDisplayFor eta)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q (MpcDisplayFor.ofNpc d).display) :
+    UniformPushedHsimp alpha r pp h q (MpcDisplayFor.ofNpc d).display :=
+  uniformPushedHsimp_of_pairings (by omega) hqe (MpcDisplayFor.ofNpc d).represents
+    unramifiedNormalPairingIsCompact (scalarActionImageStokes_ofNpc hα hqe d) hsep
 
 end
 
@@ -1475,8 +1498,10 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_one
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_lit
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_hat
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_ofNpc
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_two
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_one
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_hat
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_ofNpc
 
 end AxiomAudit
