@@ -82,6 +82,93 @@ footprint split: the *translation* family can be made axiom-free via `thetaEquiv
 (`thetaHom : A ↦ A^{S^b}, S ↦ S, Y ↦ Y·S^b` preserves `d0Word` on the nose, verified by hand),
 while the `u`-scaling is genuinely where B8 sits.
 
+### Update 2026-08-06 (W42-NEST): §1b is **resolved** — B5-K was plumbing, and the check now nests
+
+**Measurement.** `markedRecipAt` is **not mathematically load-bearing** anywhere on the
+degree-one path. Of the 64 367 declarations in the milestone's reachable closure, exactly
+**three** apply the axiom, and all three apply it at the *ambient* field `K`, as the argument of
+a lemma that is generic in the bundle and prints the standard three:
+
+| consumer | applies | the generic lemma's binder |
+| --- | --- | --- |
+| `oddDegreeGalKSq_allStagePrimitiveResidualVanishing` (`…LabuteVariableStageTwo.lean:117`) | `chiCycKTwo_surjective_of_odd_finrank K (markedRecipAt K) hodd` | `{R : LocalReciprocity} (B : MarkedRecip R K)` |
+| `nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply` (`…FieldRigidity.lean:316`) | `SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply (markedRecipAt K) hodd` | same |
+| `oddDegreeSqCyclotomicFrattiniFrameSupply_holds` (`…LabuteFrattiniFrame.lean:940,951`) | both, plus `cyclotomicModEightOmegaClassKTwo_ne_zero (markedRecipAt K) hodd` | same |
+
+(`EvenDemushkinQ.lean:178-180` is the fourth call site in the tree and is **not** reachable from
+the odd-degree route.) So B5-K's entire contribution here is surjectivity of `chiCycKTwo` at odd
+degree, which the caller's own `B : MarkedRecip Rec K` supplies at std-3. B5 comes along only
+because `markedRecipAt`'s *type* mentions `localReciprocity`.
+
+Two of the three consumers simply never took a bundle binder; the third cannot, because
+`OddDegreeSqCyclotomicFrattiniFrameSupply`
+(`GammaLSylowPreimageFieldLabuteLevelThreeSeed.lean:168`) quantifies over **every** `K`
+internally, so no `K`-indexed bundle is in scope.
+
+**Result.** `GQ2/Dyadic/Instances/DegreeOneNesting.lean` re-derives the forward route with the
+bundle threaded (the committed proofs verbatim, `(markedRecipAt K)` → `B`) and reaches
+`Nesting.gammaR_lSq_equiv_galK_degreeOne_nested_unconditional`, which has **exactly the
+committed milestone's type** (pinned by two `example`s) and whose verified root-level print is
+
+    std-3 + {B1, B3c, B6, B7, B8, B9, B11a}
+
+i.e. the frozen `ℚ₂` capstone's nine **minus** `localReciprocity` (B5) and `tameQuotient` (B10) —
+a **strict subset**. The degree-one check therefore nests.
+
+On independence, measured rather than asserted: the new endpoint depends on **none** of
+`main_presentation_literal_roe{,_unconditional}`, `main_presentation_literal`,
+`Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2`, `candidate_equiv_absoluteGalois`,
+`Roe.gammaR_lSq_equiv_roe`, `eq_154_R`, so it is not circular against the theorem it checks. It
+*does* depend on `GQ2.Roe.Labute.bLab` — but so does the committed milestone, by the same route
+(the two pivot subgroups at `h = 0`), so that is not a difference between the two.
+
+Per-headline prints, all measured at the root:
+
+| declaration | print (beyond std-3) |
+| --- | --- |
+| `Nesting.allStagePrimitiveResidualVanishing_of_markedRecip` | B1 |
+| `Nesting.orientedEquiv_of_oddDegree_of_base` | B1, B6, B7 |
+| `Nesting.exists_cupAdaptedFrattiniFrame_of_markedRecip` | B1, B6, B7, B11a |
+| `Nesting.sqCyclotomicStageTuple_levelThree_of_markedRecip` | B1, B6, B7, B11a |
+| `Nesting.gammaR_lSq_equiv_galK_oddDegree_of_orientedClear_nested` | B1, B6, B7, B9, B11a |
+| `Nesting.gammaR_lSq_equiv_galK_degreeOne_nested_unconditional` | B1, B3c, B6, B7, B8, B9, B11a |
+| *(for comparison)* `NuAdapted.gammaR_lSq_equiv_galK_degreeOne` | B1, B3c, B5, **B5-K**, B6, B7, B8, B9, B11a |
+| *(for comparison)* `main_presentation_literal_roe_unconditional` | B1, B3c, B5, B6, B7, B8, B9, B10, B11a |
+
+B3c and B8 are inherited exactly as the previous update explains (the two pivot subgroups); they
+are *inside* the nine, so they do not affect nesting.
+
+**Two side findings worth recording.**
+
+1. The corrected (W41) routes were already B5-K-free — `…oddDegree_of_orientedClearAtUnitPivot`,
+   `…_of_subgroups_of_markedSupply`, `…_of_subgroups_of_presentation` and the grand assembly's
+   own `LSquare.gammaR_lSq_equiv_galK_degreeOne` all print std-3 + {B1, B6, B7, B9, B11a}. The
+   axiom survived only on the *unconditional* milestone, which still routes through
+   `…_of_orientedClear` → `orientedEquiv_of_oddDegree`.
+2. A `B5-K`-free degree-one route already existed:
+   `nonempty_orientedEquiv_bot_of_forwardStageRigidity` (the `K = ⊥` route), print
+   std-3 + {B1, B3c, B6, B7}. It is not circular against the ℚ₂ presentation theorem either —
+   but it gets its level-three stage base from `sqCyclotomicStageTuple_bot_three_nonempty`, i.e.
+   by transporting the `D₀` classification of `G_ℚ₂(2)` itself, so it does not exercise the
+   general-`K` frame construction at degree one. The new route builds that base through the
+   machine (§0 of `DegreeOneNesting.lean`), which is what makes it a check on the machine. Both
+   statements are honest; they test different things, and the memo's framing should say which.
+
+**Recommended follow-up (not done — outside W42-NEST's file ownership).** Make the threading
+durable in place and delete the duplicate: give `OddDegreeSqCyclotomicFrattiniFrameSupply` a
+bundle binder (`∀ K [insts] {R} (B : MarkedRecip R K), Odd … → ∃ F, F.IsCupAdapted`), replace the
+five `(markedRecipAt K)` occurrences at `…LabuteVariableStageTwo.lean:117`,
+`…FieldRigidity.lean:316` and `…LabuteFrattiniFrame.lean:940,951` (plus the supply's own
+signature) by that binder, and thread `B` through the nine downstream statements
+(`oddDegree_sqCyclotomicStageTuple_levelThree`,
+`nonempty_orientedEquiv_oddDegree_of_{stageBase_and_actualDefectSupply,
+stageBase_and_primitiveResidualVanishing, kernelAdaptedSupply, family_of_cubicNeutralDamage,
+cubicNeutralDamage}`, `nonempty_orientedEquiv_oddDegree`, `orientedEquiv_of_oddDegree`, and the
+`NuAdapted` `…_of_orientedClear` trio). Each is a one-line signature change; the proofs are
+unchanged. That drops B5-K and B5 from **every** general-`K` odd-degree endpoint, not only at
+degree one, and lets `DegreeOneNesting.lean` §0 (a 131-line verbatim duplicate kept only as the
+demonstrator) be deleted. Census stays at 11; B5-K remains live on the even/boundary lanes.
+
 ## 2. `LRamifiedSourceArfSupply` is missing a hypothesis
 
 `GQ2/Dyadic/Instances/GammaLDeterminantResidue.lean:44` quantifies over every block, level
