@@ -68,8 +68,8 @@ over `MProcyclicExact.UniformHsimp`.  Unlike `Npc`, the `Mpc` uniform residue is
 theorem: `MProcyclicExact.uniformPushedHsimp_of_pairings` reduces it to three named second-order
 inputs (`UnramifiedNormalPairingIsCompact`, `ScalarActionImageStokes`,
 `RamifiedNormalPairingSeparates`), which remain open.  `MpcUniform` is nevertheless the weaker
-binder — `Hsimp` ranges over all finite markings, `UniformHsimp` only over pushed ones — so it is
-the constructor a source-side proof should target; see `SelectedHsimp.of_Mpc_actionImage`. -/
+binder — `Hsimp` ranges over all finite markings, `UniformHsimp` only over pushed ones — so it
+is the constructor a source-side proof should target; see `SelectedHsimp.of_Mpc_actionImage`. -/
 inductive SelectedHsimp
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
