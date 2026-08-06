@@ -238,6 +238,7 @@ with Kronecker parities at the exact-fibre lifts, together with neutral realizat
 `2h` half-damage bracket squares, deliver the oriented presentation equivalence at every
 stage.  These two per-stage statements are the campaign's entire remaining L-row gap. -/
 theorem nonempty_orientedEquiv_oddDegree_of_cocycleParity_of_bracketSquare
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hpar : ∀ (k : ℕ), 3 ≤ k →
       ∀ T : SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) k,
@@ -248,7 +249,7 @@ theorem nonempty_orientedEquiv_oddDegree_of_cocycleParity_of_bracketSquare
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply hodd
+  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply B hodd
     (sqKernelAdaptedDefectSupply_of_cocycleParity_of_bracketSquare Hpar Hsq)
 
 #print axioms chiShadowDerivOfCocycle

@@ -36,19 +36,23 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 /-- **The forward presentation theorem over the kernel-adapted supply.**  For an odd-degree
 field, the kernel-adapted raw supply at its handle count is the only remaining input: the
 level-three stage base is unconditional, and the sharp correction chain turns the supply into
-the primitive-residual premise of the direct rigidity capstone. -/
+the primitive-residual premise of the direct rigidity capstone.
+
+Marked reciprocity is the caller's bundle `B` throughout — the level-three base, the sharp
+fibre lifting and the cyclotomic surjectivity are all generic in it — so no declaration on this
+route names the axiom `markedRecipAt` (B5-K). -/
 theorem nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply
-    {K : IntermediateField ℚ_[2] ℚ̄₂}
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
     [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [T2Space (GalK K)]
-    [TotallyDisconnectedSpace (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hsupply : SqKernelAdaptedDefectSupply K ((Module.finrank ℚ_[2] K - 1) / 2)) :
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) := by
-  obtain ⟨base⟩ := oddDegree_sqCyclotomicStageTuple_levelThree K hodd
-  exact nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing hodd base
-    (oddDegreeGalKSq_allStagePrimitiveResidualVanishing hodd Hsupply)
+  obtain ⟨base⟩ := oddDegree_sqCyclotomicStageTuple_levelThree K B hodd
+  exact nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing B hodd base
+    (oddDegreeGalKSq_allStagePrimitiveResidualVanishing B hodd Hsupply)
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
@@ -67,7 +71,7 @@ theorem nonempty_orientedEquiv_bot_of_kernelAdaptedSupply :
   have hhandles : ((Module.finrank ℚ_[2]
       (⊥ : IntermediateField ℚ_[2] ℚ̄₂) - 1) / 2) = 0 := by
     simp [IntermediateField.finrank_bot]
-  refine nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply hodd ?_
+  refine nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply (markedRecipAt _) hodd ?_
   rw [hhandles]
   exact sqKernelAdaptedDefectSupply_bot
 

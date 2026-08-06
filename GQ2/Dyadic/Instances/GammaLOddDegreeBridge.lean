@@ -123,7 +123,7 @@ theorem exists_orientedEquiv_fullNu_of_orientedClear (B : MarkedRecip Rec K)
         ∀ x, nuUrKTwo B (f x) = nuSq h x := by
   have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
   have hr : B.r = 0 := B.level_eq_zero_of_odd_finrank FF hodd
-  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) hdeg
+  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) B hdeg
   obtain ⟨Ψ, hchi, hnu⟩ := hclear (transportedNuUr B f)
     (fun u y => jointSurjective_transportedNuUr B hodd hr f horient u y)
   refine ⟨Ψ.trans f, fun x => ?_, fun x => hnu x⟩

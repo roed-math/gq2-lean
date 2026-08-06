@@ -236,7 +236,7 @@ theorem exists_cupAdapted_presentingFrame_oddDegree {h : ℕ}
     ∃ F : SqCyclotomicFrattiniFrame K h, F.IsCupAdapted ∧ sqRelWord F.generators = 1 ∧
       (Subgroup.closure (Set.range F.generators)).topologicalClosure = ⊤ ∧
         F.LevelThreeRelation := by
-  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) hdeg
+  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) (markedRecipAt _) hdeg
   exact ⟨frameOfOrientedEquiv f horient, isCupAdapted_frameOfOrientedEquiv f horient,
     sqRelWord_frameOfOrientedEquiv f horient,
     topologicalClosure_frameOfOrientedEquiv f horient,
@@ -251,10 +251,10 @@ cup-adapted frame supply of `GammaLSylowPreimageFieldLabuteLevelThreeSeed` is di
 presenting frame, with no arithmetic Witt-adaptation input. -/
 theorem oddDegreeSqCyclotomicFrattiniFrameSupply_of_presentingFrame :
     OddDegreeSqCyclotomicFrattiniFrameSupply := by
-  intro K _ _ _ _ hodd
+  intro K _ _ _ _ _ B hodd
   obtain ⟨m, hm⟩ := hodd
   obtain ⟨f, horient⟩ :=
-    orientedEquiv_of_oddDegree (K := K) (h := (Module.finrank ℚ_[2] K - 1) / 2) (by omega)
+    orientedEquiv_of_oddDegree (K := K) B (h := (Module.finrank ℚ_[2] K - 1) / 2) (by omega)
   exact ⟨frameOfOrientedEquiv f horient, isCupAdapted_frameOfOrientedEquiv f horient⟩
 
 #print axioms addMonoidHom_zmodTwo_eq_of_injective

@@ -242,12 +242,16 @@ theorem sqKernelAdaptedDefectSupply_of_finrank {h : ℕ}
 /-- **The forward presentation theorem for odd-degree fields.**  The sole remaining per-`K`
 input of the forward route — the mod-16 cubic neutral damage supply — is a theorem, so the
 oriented presentation equivalence between the improved square presentation and `G_K(2)`
-holds for every odd-degree `K` unconditionally. -/
-theorem nonempty_orientedEquiv_oddDegree (hodd : Odd (Module.finrank ℚ_[2] K)) :
+holds for every odd-degree `K` over the caller's marked bundle and nothing else.
+
+`B` is a binder, never the axiom `markedRecipAt` (B5-K): marked reciprocity is used only
+through cyclotomic surjectivity and sharp fibre lifting, both generic in the bundle. -/
+theorem nonempty_orientedEquiv_oddDegree {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_cubicNeutralDamage hodd
+  nonempty_orientedEquiv_oddDegree_of_cubicNeutralDamage B hodd
     (sqCubicNeutralDamageSupply_holds _)
 
 #print axioms cubicNeutral_jacobi

@@ -241,6 +241,7 @@ odd-degree field, the neutral realizations of the `2h` half-damage bracket squar
 every stage are the campaign's entire remaining L-row gap: the twisted-cocycle parity
 supply is now unconditional. -/
 theorem nonempty_orientedEquiv_oddDegree_of_bracketSquare
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hsq : ∀ (k : ℕ) (hk : 3 ≤ k),
       ∀ T : SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) k,
@@ -248,7 +249,7 @@ theorem nonempty_orientedEquiv_oddDegree_of_bracketSquare
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_cocycleParity_of_bracketSquare hodd
+  nonempty_orientedEquiv_oddDegree_of_cocycleParity_of_bracketSquare B hodd
     (fun _ hk T ↦ sqStageTwistedCocycleParitySupply_oddDegree hodd hk T) Hsq
 
 /-- **The forward presentation theorem over the cubic residual alone.**  Combining the now
@@ -256,12 +257,13 @@ unconditional parity supply with the bracket-square tower collapse: for every od
 field, the mod-16 neutral damage supply at the single cubic stage delivers the oriented
 presentation equivalence. -/
 theorem nonempty_orientedEquiv_oddDegree_of_cubicNeutralDamage
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hcubic : SqCubicNeutralDamageSupply K ((Module.finrank ℚ_[2] K - 1) / 2)) :
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_family_of_cubicNeutralDamage hodd
+  nonempty_orientedEquiv_oddDegree_of_family_of_cubicNeutralDamage B hodd
     (fun _ hk T ↦ nonempty_family_of_twistedCocycleParitySupply
       (sqStageTwistedCocycleParitySupply_oddDegree hodd hk T))
     Hcubic

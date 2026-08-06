@@ -262,7 +262,8 @@ theorem nonempty_orientedEquiv_bot_of_primitiveResidualVanishing :
         (⊥ : IntermediateField ℚ_[2] ℚ̄₂) - 1) / 2) 3 := by
     rw [hhandles]
     exact base
-  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing hodd base'
+  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing
+    (markedRecipAt _) hodd base'
   rw [hhandles]
   intro k hk T
   exact sqCyclotomicStageTuple_bot_primitiveResidualVanishing k hk T

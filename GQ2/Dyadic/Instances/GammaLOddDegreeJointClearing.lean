@@ -108,7 +108,7 @@ theorem sqFullNuForwardSupply_of_jointClearing (B : MarkedRecip Rec K)
     (hjoint : SqNuJointClearing h) : MarkingAudit.SqFullNuForwardSupply B h := by
   have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
   have hr : B.r = 0 := B.level_eq_zero_of_odd_finrank FF hodd
-  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) hdeg
+  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) B hdeg
   obtain ⟨Ψ, hΨ⟩ := hjoint (transportedNuUr B f)
     (jointSurjective_transportedNuUr B hodd hr f horient)
   exact ⟨Ψ.trans f, fun x ↦ hΨ x⟩
@@ -191,7 +191,7 @@ example (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) {h : ℕ}
       ∀ (u : ℤ_[2]ˣ) (y : ℤ_[2]), ∃ g : (DSq h : Type),
         chiSq h g = u ∧ nu' g = ofAdd y := by
   have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
-  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) hdeg
+  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) B hdeg
   exact ⟨transportedNuUr B f, jointSurjective_transportedNuUr B hodd
     (B.level_eq_zero_of_odd_finrank FF hodd) f horient⟩
 

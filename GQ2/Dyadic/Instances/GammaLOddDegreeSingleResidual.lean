@@ -234,14 +234,17 @@ variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [Fini
   [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
-/-- **An equivalence is free at odd degree.**  This is `nonempty_orientedEquiv_oddDegree` with
-the orientation clause spelled out and the handle count normalized to `h`. -/
-theorem orientedEquiv_of_oddDegree {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+/-- **An equivalence is free at odd degree, over the caller's bundle.**  This is
+`nonempty_orientedEquiv_oddDegree` with the orientation clause spelled out and the handle count
+normalized to `h`.  The marked bundle `B` is a binder the callers already carry; it replaces
+what used to be an application of the axiom `markedRecipAt` (B5-K) deep in the frame supply. -/
+theorem orientedEquiv_of_oddDegree (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
     ∃ f : ContinuousMulEquiv (DSq h : Type) (maxProPQuotient 2 (GalK K)),
       ∀ x, chiCycKTwo (K := K) (f x) = chiSq h x := by
   have hh : (Module.finrank ℚ_[2] K - 1) / 2 = h := by omega
   have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
-  have hne := nonempty_orientedEquiv_oddDegree (K := K) hodd
+  have hne := nonempty_orientedEquiv_oddDegree (K := K) B hodd
   rw [hh] at hne
   obtain ⟨e⟩ := hne
   exact ⟨e.1, e.2⟩
