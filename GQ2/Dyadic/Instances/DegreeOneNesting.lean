@@ -61,11 +61,19 @@ strict subset.  So the degree-one check nests.  `B3c` and `B8` arrive with the t
 subgroups (`prop_3_8_lift` and the Labute-orientation transport) and are inside the nine, so
 they cost the nesting nothing.
 
-The route is also **not circular**: nothing here depends on `GQ2.Roe.Labute.bLab`.  That matters,
-because the one pre-existing `B5-K`-free degree-one route —
-`nonempty_orientedEquiv_bot_of_forwardStageRigidity`, print std-3 + {B1, B3c, B6, B7} — reaches
-its level-three base by transporting the already-proved `ℚ₂` classification, and so cannot serve
-as an independent check on that same classification.
+**What the route does and does not assume**, measured rather than asserted.  No declaration here
+depends on the `ℚ₂` presentation theorem (`main_presentation_literal_roe_unconditional`,
+`Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2`, `candidate_equiv_absoluteGalois`,
+`Roe.gammaR_lSq_equiv_roe`, `eq_154_R`), so the check is not circular against the theorem it is
+checking.  It *does* depend on `GQ2.Roe.Labute.bLab` — but so does the committed milestone, and
+by the same route (the two pivot subgroups at `h = 0`), so that is not a difference between them.
+
+The difference from the one pre-existing `B5-K`-free degree-one route
+(`nonempty_orientedEquiv_bot_of_forwardStageRigidity`, print std-3 + {B1, B3c, B6, B7}) is which
+step of the machine gets exercised: that route obtains its level-three base from
+`sqCyclotomicStageTuple_bot_three_nonempty`, i.e. by transporting the `D₀` classification of
+`G_ℚ₂(2)` itself, whereas §0 builds the base by the general-`K` Frattini-frame construction.
+Both are honest theorems; only the second tests the general-`K` machinery at degree one.
 
 ## Axioms
 

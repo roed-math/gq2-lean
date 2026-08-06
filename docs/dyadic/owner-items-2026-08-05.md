@@ -113,8 +113,14 @@ committed milestone's type** (pinned by two `example`s) and whose verified root-
     std-3 + {B1, B3c, B6, B7, B8, B9, B11a}
 
 i.e. the frozen `ℚ₂` capstone's nine **minus** `localReciprocity` (B5) and `tameQuotient` (B10) —
-a **strict subset**. The degree-one check therefore nests, and the "independent check" framing
-stands: the route does not touch `GQ2.Roe.Labute.bLab`.
+a **strict subset**. The degree-one check therefore nests.
+
+On independence, measured rather than asserted: the new endpoint depends on **none** of
+`main_presentation_literal_roe{,_unconditional}`, `main_presentation_literal`,
+`Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2`, `candidate_equiv_absoluteGalois`,
+`Roe.gammaR_lSq_equiv_roe`, `eq_154_R`, so it is not circular against the theorem it checks. It
+*does* depend on `GQ2.Roe.Labute.bLab` — but so does the committed milestone, by the same route
+(the two pivot subgroups at `h = 0`), so that is not a difference between the two.
 
 Per-headline prints, all measured at the root:
 
@@ -139,10 +145,14 @@ are *inside* the nine, so they do not affect nesting.
    own `LSquare.gammaR_lSq_equiv_galK_degreeOne` all print std-3 + {B1, B6, B7, B9, B11a}. The
    axiom survived only on the *unconditional* milestone, which still routes through
    `…_of_orientedClear` → `orientedEquiv_of_oddDegree`.
-2. `nonempty_orientedEquiv_bot_of_forwardStageRigidity` (the `K = ⊥` route) prints
-   std-3 + {B1, B3c, B6, B7} and so nests trivially — but it depends on `GQ2.Roe.Labute.bLab`
-   via `sqCyclotomicStageTuple_bot_three_nonempty`, i.e. it is built *on* the ℚ₂ classification.
-   Using it for this check would be circular, which is why the new route does not.
+2. A `B5-K`-free degree-one route already existed:
+   `nonempty_orientedEquiv_bot_of_forwardStageRigidity` (the `K = ⊥` route), print
+   std-3 + {B1, B3c, B6, B7}. It is not circular against the ℚ₂ presentation theorem either —
+   but it gets its level-three stage base from `sqCyclotomicStageTuple_bot_three_nonempty`, i.e.
+   by transporting the `D₀` classification of `G_ℚ₂(2)` itself, so it does not exercise the
+   general-`K` frame construction at degree one. The new route builds that base through the
+   machine (§0 of `DegreeOneNesting.lean`), which is what makes it a check on the machine. Both
+   statements are honest; they test different things, and the memo's framing should say which.
 
 **Recommended follow-up (not done — outside W42-NEST's file ownership).** Make the threading
 durable in place and delete the duplicate: give `OddDegreeSqCyclotomicFrattiniFrameSupply` a
