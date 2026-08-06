@@ -687,6 +687,225 @@ theorem heisZ_mpcW_evenNormal (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1)
 
 end Letters
 
+/-! ## The procyclic-`M` second-order row at a completely trivial action
+
+The scalar sub-branch reads the row with a **free `sigma`-coordinate**: with every generator
+acting trivially the bottom differential vanishes, so `x_σ` and `y_σ` survive in a normal
+cochain.  Every `δ`-letter is still dead (that only needs `x_τ = y_τ = 0` and `e ≡ 1 (mod 4)`),
+so `E₀₁^pc`, `E₂^pc` and the plus block are still silent; what wakes up is the `σ`-content of
+`C₀ = x₂σ₂^s`, `B = x₁σ₂^p`, `Ĉ₀`, `B̂` and the `η̂`-display.
+
+Two hypotheses beyond the unramified ones do all the collapsing, and both are `α ≥ 2`:
+`m = 2^{α−1}` is even, which kills the whole hat copy and `A`'s `C₀`-tail, and `C(2^α, 2)` is
+even, which kills `C₀^{2^α}` and `Ĉ₀^{2^α}`.  At `α = 1` neither holds and the row is different.
+-/
+
+section Scalar
+
+variable {h : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+  (y : Generator (2 + 2 * h) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+variable (hA₂ : ∀ a : A, a + a = 0)
+  (htriv : ∀ (g : Generator (2 + 2 * h)) (v : A), t g • v = v)
+  (hxτ : x .tau = 0) (hyτ : y .tau = 0)
+
+variable {e : ℕ}
+
+include hA₂ htriv in
+/-- **`σ₂` has the plain `σ`-jets and no charge** at a trivial action on the honest resolver
+class: the exponent `e` is odd, so it is invisible on the jets, and `C(e,2)` is even. -/
+theorem triv_sigma2W (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) :
+    Triv ⇑t x y E E₂ (sigma2W : PWord (Generator (2 + 2 * h))) (x .sigma) (y .sigma) 0 := by
+  have h0 : Triv ⇑t x y E E₂ (.gen (Generator.sigma : Generator (2 + 2 * h)))
+      (x .sigma) (y .sigma) 0 := triv_gen _ _ _ _ _ _ (htriv _)
+  have h1 : Triv ⇑t x y E E₂ (sigma2W : PWord (Generator (2 + 2 * h)))
+      (e • x .sigma) (e • y .sigma) (e • (0 : ZMod 2) + (e.choose 2) • y .sigma (x .sigma)) :=
+    h0.profPow hE
+  rwa [Certificates.MCompact.nsmul_self_of_odd hA₂ (odd_of_mod_four_eq_one he),
+    Certificates.MCompact.nsmul_self_of_odd ElemDual.add_self_eq_zero
+      (odd_of_mod_four_eq_one he),
+    smul_zero, zero_add, nsmul_zmod2_even (choose_two_even_of_mod_four he)] at h1
+
+include hA₂ htriv in
+/-- `σ₂^k` at a trivial action, in the display's two shapes. -/
+theorem triv_sig2PowW (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (k : ℕ) :
+    ∃ Z, Triv ⇑t x y E E₂ (sig2PowW h k) (k • x .sigma) (k • y .sigma) Z := by
+  have h2 := triv_sigma2W t x y E E₂ hA₂ htriv hE he
+  match k with
+  | 0 => exact ⟨_, h2.npow 0⟩
+  | 1 =>
+      refine ⟨0, ?_⟩
+      rw [one_nsmul, one_nsmul]
+      exact h2
+  | (j + 2) => exact ⟨_, h2.npow (j + 2)⟩
+
+include hA₂ htriv hxτ hyτ in
+/-- The `δ`-letters are dead at a trivial action too — `heisF_deltaCert_trivial` needs only the
+`τ`-free offsets and the honest resolver class. -/
+theorem triv_dW (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (i : Fin 3) :
+    Triv ⇑t x y E E₂ (dW h i) 0 0 0 :=
+  (isDead_dW t x y E E₂ hxτ hyτ hA₂ (fun _ v ↦ htriv _ v) (fun v ↦ htriv _ v) hE he i).triv
+
+set_option maxHeartbeats 3200000 in
+include hA₂ htriv hxτ hyτ in
+/-- **The corrected procyclic-`M` second-order row at a completely trivial action, with a free
+`sigma`-coordinate and `tau`-free offsets** (`α ≥ 2`):
+
+```
+y₀(x₀) ⊕ (y₀(x₁) + y₁(x₀)) ⊕ p·(x₀,x_σ) ⊕ n_η·(x₂,x_σ) ⊕ Σ_j planes.
+```
+
+The compact scalar core `((1,1),(1,0))` on `(x₀,x₁)`, plus two `sigma`-hyperbolic planes whose
+coefficients are the conjugator exponents `p` and `n_η` read modulo `2` — the analogue of
+`NProcyclicUnram.heisZ_npc_scalar_free`, with `2^r` there replaced by `p` here.
+
+The **entire hat copy is silent**: `Â`'s two halves are a dead `δ₀` and an even power of `Ĉ₀`,
+so `Â` is jet-zero and both `Â²` and `[Â,B̂]` vanish, while `Ĉ₀^{2^α}` dies on `C(2^α,2)` and
+`[Ĉ₀,D]` on the symmetry of the `σ`-pairing.  So no shadow cancellation is used here either. -/
+theorem heisZ_mpcW_scalar {α r pp : ℕ} {η : EtaDisplay} {nn : ℕ} {zη : ZMod 2}
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (hα : 2 ≤ α)
+    (hη : Triv ⇑t x y E E₂ (η.toPWord (n := 2 + 2 * h))
+      (nn • x .sigma) (nn • y .sigma) zη) :
+    (heisEvalZ ⇑t x y E E₂ (mpcW α r pp η h)).z
+      = y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 0) (x (coreLetter h 1)) + y (coreLetter h 1) (x (coreLetter h 0)))
+        + pp • (y (coreLetter h 0) (x .sigma) + y .sigma (x (coreLetter h 0)))
+        + nn • (y (coreLetter h 2) (x .sigma) + y .sigma (x (coreLetter h 2)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v := fun _ v ↦ htriv _ v
+  have hτ : ∀ v : A, t.τ • v = v := fun v ↦ htriv _ v
+  have hmE : Even (m α) := Words.MCompact.even_mOf hα
+  have h2m : (2 : ℕ) ^ α = 2 * m α := two_pow_eq_two_mul_m (by omega)
+  have h2aE : Even ((2 : ℕ) ^ α) := by rw [h2m]; exact even_two_mul _
+  have hc2aE : Even (((2 : ℕ) ^ α).choose 2) := by
+    rw [h2m, Nat.choose_two_right,
+      show 2 * m α * (2 * m α - 1) = m α * (2 * m α - 1) * 2 by ring,
+      Nat.mul_div_cancel _ (by norm_num)]
+    exact hmE.mul_right _
+  have hg0 : Triv ⇑t x y E E₂ (.gen (coreLetter h 0))
+      (x (coreLetter h 0)) (y (coreLetter h 0)) 0 := triv_gen _ _ _ _ _ _ (htriv _)
+  have hg1 : Triv ⇑t x y E E₂ (.gen (coreLetter h 1))
+      (x (coreLetter h 1)) (y (coreLetter h 1)) 0 := triv_gen _ _ _ _ _ _ (htriv _)
+  have hg2 : Triv ⇑t x y E E₂ (.gen (coreLetter h 2))
+      (x (coreLetter h 2)) (y (coreLetter h 2)) 0 := triv_gen _ _ _ _ _ _ (htriv _)
+  have h2 := triv_sigma2W t x y E E₂ hA₂ htriv hE he
+  have hd := triv_dW t x y E E₂ hA₂ htriv hxτ hyτ hE he
+  obtain ⟨Zc, hc0⟩ : ∃ Z, Triv ⇑t x y E E₂ (c0W h (s r))
+      (x (coreLetter h 2) + (s r) • x .sigma)
+      (y (coreLetter h 2) + (s r) • y .sigma) Z := ⟨_, hg2.pair (h2.npow (s r))⟩
+  obtain ⟨Zch, hch⟩ : ∃ Z, Triv ⇑t x y E E₂ (c0HatW h (s r))
+      ((s r) • x .sigma) ((s r) • y .sigma) Z := ⟨_, h2.npow (s r)⟩
+  obtain ⟨ZA, hA⟩ : ∃ Z, Triv ⇑t x y E E₂ (aW h (s r) (m α))
+      (-x (coreLetter h 0)) (-y (coreLetter h 0)) Z := by
+    have hraw := (hg0.inv).pair (hc0.zpowNeg (m α))
+    simp only [even_nsmul_eq_zero hA₂ hmE, even_nsmul_eq_zero ElemDual.add_self_eq_zero hmE,
+      neg_zero, add_zero, zero_add, map_zero] at hraw
+    exact ⟨_, hraw⟩
+  obtain ⟨ZAh, hAh⟩ : ∃ Z, Triv ⇑t x y E E₂ (aHatW h (s r) (m α)) 0 0 Z := by
+    have hraw := ((hd 0).inv).pair (hch.zpowNeg (m α))
+    simp only [even_nsmul_eq_zero hA₂ hmE, even_nsmul_eq_zero ElemDual.add_self_eq_zero hmE,
+      neg_zero, add_zero, zero_add, map_zero] at hraw
+    exact ⟨_, hraw⟩
+  obtain ⟨ZB, hB⟩ : ∃ Z, Triv ⇑t x y E E₂ (bW h pp)
+      (x (coreLetter h 1) + pp • x .sigma) (y (coreLetter h 1) + pp • y .sigma) Z := by
+    match pp with
+    | 0 => exact ⟨0, by rw [zero_nsmul, zero_nsmul, add_zero, add_zero]; exact hg1⟩
+    | (j + 1) =>
+        obtain ⟨Zs, hs⟩ := triv_sig2PowW t x y E E₂ hA₂ htriv hE he (j + 1)
+        exact ⟨_, hg1.pair hs⟩
+  obtain ⟨bh, mh, ZBh, hBh⟩ : ∃ b' m' Z, Triv ⇑t x y E E₂ (bHatW h pp) b' m' Z := by
+    match pp with
+    | 0 => exact ⟨_, _, _, hd 1⟩
+    | (j + 1) =>
+        obtain ⟨Zs, hs⟩ := triv_sig2PowW t x y E E₂ hA₂ htriv hE he (j + 1)
+        exact ⟨_, _, _, (hd 1).pair hs⟩
+  have hf1 : Triv ⇑t x y E E₂ (.zpow (aW h (s r) (m α)) ((2 : ℕ) : ℤ)) 0 0
+      ((2 : ℕ) • ZA + ((2 : ℕ).choose 2) • (-y (coreLetter h 0)) (-x (coreLetter h 0))) := by
+    have hraw := hA.npow 2
+    rwa [even_nsmul_eq_zero hA₂ (by decide),
+      even_nsmul_eq_zero ElemDual.add_self_eq_zero (by decide)] at hraw
+  have hf2 := hA.comm hB
+  have hf3 : Triv ⇑t x y E E₂ (.zpow (c0W h (s r)) (((2 : ℕ) ^ α : ℕ) : ℤ)) 0 0
+      (((2 : ℕ) ^ α) • Zc + (((2 : ℕ) ^ α).choose 2)
+        • (y (coreLetter h 2) + (s r) • y .sigma)
+            (x (coreLetter h 2) + (s r) • x .sigma)) := by
+    have hraw := hc0.npow ((2 : ℕ) ^ α)
+    rwa [even_nsmul_eq_zero hA₂ h2aE,
+      even_nsmul_eq_zero ElemDual.add_self_eq_zero h2aE] at hraw
+  have hf4 := hc0.comm hη
+  have hf5 := (isDead_e01W t x y E E₂ hxτ hyτ hA₂ hwild hτ hE he
+    (pp + s r * m α) (s r * m α)).triv
+  have hf6 := (isDead_e2W t x y E E₂ hxτ hyτ hA₂ hwild hτ hE he (s r) (m α) pp).triv
+  have hf7 : Triv ⇑t x y E E₂ (.zpow (aHatW h (s r) (m α)) ((2 : ℕ) : ℤ)) 0 0
+      ((2 : ℕ) • ZAh + ((2 : ℕ).choose 2) • (0 : ElemDual A) (0 : A)) := by
+    have hraw := hAh.npow 2
+    rwa [smul_zero, smul_zero] at hraw
+  have hf8 := hAh.comm hBh
+  have hf9 : Triv ⇑t x y E E₂ (.zpow (c0HatW h (s r)) (((2 : ℕ) ^ α : ℕ) : ℤ)) 0 0
+      (((2 : ℕ) ^ α) • Zch + (((2 : ℕ) ^ α).choose 2)
+        • ((s r) • y .sigma) ((s r) • x .sigma)) := by
+    have hraw := hch.npow ((2 : ℕ) ^ α)
+    rwa [even_nsmul_eq_zero hA₂ h2aE,
+      even_nsmul_eq_zero ElemDual.add_self_eq_zero h2aE] at hraw
+  have hf10 := hch.comm hη
+  have hf12 : Triv ⇑t x y E E₂ (.zpow (dW h 0) ((2 : ℕ) : ℤ)) 0 0
+      ((2 : ℕ) • (0 : ZMod 2) + ((2 : ℕ).choose 2) • (0 : ElemDual A) (0 : A)) := by
+    have hraw := (hd 0).npow 2
+    rwa [smul_zero, smul_zero] at hraw
+  have hf13 := (hd 0).comm (hd 1)
+  have hmem : ∀ w ∈ (linFactors α r pp η h ++ hatFactors α r pp η h ++
+      [PWord.zpow (dW h 0) ((2 : ℕ) : ℤ), PWord.comm (dW h 0) (dW h 1)] ++ handleTailW h),
+      heisEvalZ ⇑t x y E E₂ w ∈ heisJetZero A C := by
+    intro w hw
+    rw [List.mem_append, List.mem_append, List.mem_append] at hw
+    rcases hw with ((hlin | hhat) | hplus) | htail
+    · simp only [linFactors, List.mem_cons, List.not_mem_nil, or_false] at hlin
+      rcases hlin with rfl | rfl | rfl | rfl | rfl | rfl
+      · exact hf1.jetZero
+      · exact hf2.jetZero
+      · exact hf3.jetZero
+      · exact hf4.jetZero
+      · exact hf5.jetZero
+      · exact hf6.jetZero
+    · simp only [hatFactors, List.mem_cons, List.not_mem_nil, or_false] at hhat
+      rcases hhat with rfl | rfl | rfl | rfl | rfl
+      · exact hf7.jetZero
+      · exact hf8.jetZero
+      · exact hf9.jetZero
+      · exact hf10.jetZero
+      · exact hf5.jetZero
+    · simp only [List.mem_cons, List.not_mem_nil, or_false] at hplus
+      rcases hplus with rfl | rfl
+      · exact hf12.jetZero
+      · exact hf13.jetZero
+    · exact jetZero_of_mem_handleTailW t x y E E₂ hwild htail
+  rw [mpcW, (heisEvalZ_prodList_jetZero ⇑t x y E E₂ hmem).2, List.map_append, List.map_append,
+    List.map_append, List.sum_append, List.sum_append, List.sum_append,
+    sum_z_handleTailW t x y E E₂ hwild]
+  simp only [linFactors, hatFactors, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    hf1.zEq, hf2.zEq, hf3.zEq, hf4.zEq, hf5.zEq, hf6.zEq, hf7.zEq, hf8.zEq, hf9.zEq, hf10.zEq,
+    hf12.zEq, hf13.zEq]
+  simp only [nsmul_zmod2_even (show Even 2 by decide), nsmul_zmod2_even h2aE,
+    nsmul_zmod2_even hc2aE, ElemDual.zero_apply, smul_zero, zero_add, add_zero,
+    ElemDual.add_apply, ElemDual.neg_apply, map_add, map_neg, map_zero, map_nsmul,
+    Certificates.Npc.elemDual_nsmul_apply, CharTwo.neg_eq, smul_add, smul_smul,
+    Nat.choose_self, one_nsmul]
+  rw [mul_comm (s r) nn]
+  generalize y (coreLetter h 0) (x (coreLetter h 0)) = c₁
+  generalize y (coreLetter h 0) (x (coreLetter h 1)) = c₂
+  generalize pp • y (coreLetter h 0) (x .sigma) = c₃
+  generalize y (coreLetter h 1) (x (coreLetter h 0)) = c₄
+  generalize pp • y .sigma (x (coreLetter h 0)) = c₅
+  generalize nn • y (coreLetter h 2) (x .sigma) = c₆
+  generalize (nn * s r) • y .sigma (x .sigma) = c₇
+  generalize nn • y .sigma (x (coreLetter h 2)) = c₈
+  generalize (∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j)))) = c₉
+  revert c₁ c₂ c₃ c₄ c₅ c₆ c₇ c₈ c₉
+  decide
+
+end Scalar
+
 /-! ## The traced pairing of the resolved family on even normal coordinates -/
 
 section Pairing
