@@ -552,7 +552,24 @@ theorem sqNuOrientedClear_zero_of_families
   sqNuOrientedClear_zero_of_pivotMoves fun m k hunit =>
     sqPivotCoreMove_of_translation_scaling m k (htr k) (hsc _ hunit)
 
-/-- The same at every handle count, over the banked handle stratum and the transfers. -/
+/-- The same at every handle count, over the banked handle stratum and the transfers.
+
+⚠ **DEAD at `h ≥ 1`, on both sides: this §7 headline is vacuous, and its conclusion is false.**
+Its two transfer hypotheses are refuted — `hmixU` by
+`PivotClimb.not_sqHandleToCoreMove_handleU`, `hmixV` by
+`PivotClimb.not_sqHandleToCoreMove_handleV` — so no `h ≥ 1` instance can fire; and its
+conclusion `SqNuOrientedClear h` is itself refuted at every positive handle count by
+`PivotClimb.not_sqNuOrientedClear`, with the explicit witness `nuHandleU h 0 0 j`.  The
+mechanism is a cup-form invariance, not a word-level gap: the pivot row's parity cannot be moved
+by any automorphism, so no strengthening of the two families repairs this.
+
+Live replacement at `h ≥ 1`: the corrected target
+`PivotClimb.SqNuOrientedClearAtUnitPivot h` via
+`PivotClimb.sqNuOrientedClearAtUnitPivot_of_pivotMoves`, which consumes `hfix` and the two
+families of §3 and needs **no** transfer at all.  `sqNuOrientedClear_zero_of_families` (the
+`h = 0` milestone above) is untouched, as are `hfix`
+(`SqHandleMixFixesCore h sqPivotExp`, cut to `HandleEichler.SqChiNuClearHypothesis h`) and the
+two one-parameter families, none of which is refuted. -/
 theorem sqNuOrientedClear_of_families {h : ℕ} (hfix : SqHandleMixFixesCore h sqPivotExp)
     (htr : ∀ c : ℤ_[2], SqPivotTranslation h c)
     (hsc : ∀ a : ℤ_[2], IsUnit a → SqPivotScaling h a)
