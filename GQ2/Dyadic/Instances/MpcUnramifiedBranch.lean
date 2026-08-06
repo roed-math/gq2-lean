@@ -43,6 +43,27 @@ below at the unramified reading.  That lemma is class-independent — it only ev
 `δ`-letters to act trivially and to be blind to `σ`-column offsets — so it is reused verbatim
 rather than re-proved, and it is the reason the two copies' `σ`-entries never have to be
 evaluated.
+
+## What else is in this file
+
+The row makes the whole first-order half of the branch available, so the rest of the file spends
+it:
+
+* the even unramified Stokes route generalized from the compact pivot `σ⁻¹` to an arbitrary
+  fixed-point-free `u` (`evenUnramifiedStokesDuality_of_smul_row` and its three helpers), the
+  unramified twin of `MpcActionImageDevissage`'s `SmulPivot` section;
+* the family's complete differential, in both `sigma` classes
+  (`heisD1_mpcFamOf_unramified_apply`, `heisD1_mpcFamOf_tauRow_of_split`);
+* the branch itself, `unramifiedActionImageStokes_of_scalar`, over three named residues — one
+  arithmetic and two second-order — and the four-residue `uniformPushedHsimp_of_residues`.
+
+The arithmetic residue `DisplayFixedPointFree` is **discharged** for every display that
+represents a field unit, i.e. for everything `SelectedEta.MpcDisplayFor` can produce
+(`displayFixedPointFree_of_representsUnit`).  The two second-order residues,
+`UnramifiedNormalPairingIsCompact` (generic sub-branch) and `ScalarActionImageStokes` (scalar
+sub-branch), are the honest remainder; the scalar one's *first*-order half is discharged here
+too, so what it still needs is exactly the scalar second-order row of `mpcW`, the analogue of
+`NpcScalarRow`.
 -/
 
 namespace GQ2.Dyadic.MProcyclicUnram
