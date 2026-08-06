@@ -67,18 +67,30 @@ with `demushkinRank_DSq h = 3 + 2h` and `card_H2_DSq h = 2` from
 lives — together with the nondegeneracy input in the form this file actually uses, so that the
 Demushkin clause and the cup-form calculus are visibly the same statement.
 
-`demushkinQ (D_sq h) = 2` is **not** proved here (the `D_R` precedent
-`GQ2/Roe/DRDemushkin.lean` gets it from an explicit abelianization decomposition, which the
-handle family does not yet have); nothing below uses it.
+`demushkinQ (D_sq h) = 2` is **not** proved, here or anywhere in the tree.  Both precedents get
+it from an explicit abelianization decomposition — `GQ2/Roe/DRDemushkin.lean`'s `demushkinQ_DR`
+from `BRDecomposition`, and `MarkedCore/N.lean`'s `demushkinQ_DN_nFrame` from an `NFrame α h`
+(a `ContinuousMulEquiv (topAbelianization G) (NFrameModel h)`) — and the square family has no
+such frame yet.  Nothing below uses it.
 
 ## What this file does **not** settle
 
 `SqLamNuClearHypothesis h` at `h ≥ 1` is open, exactly as `SqChiNuClearHypothesis h` was — the
-two are now equivalent.  §6 records the transitivity statement that would discharge it, as an
-explicit `Prop` (`SqLamMarkTransitivity`) together with the reduction of the residual to it, so
-that the remaining input is a single named hypothesis rather than a research direction.  See the
-report for what filling it costs; the `q = 2` case of the Demushkin classification is the
-delicate one and the invariant `Im χ` is not currently available for `D_sq h`.
+two are now equivalent.  §6 names the transitivity statement that would discharge it
+(`SqLamMarkTransitivity`), and §6b reduces it to a **word-level** existence statement: it is
+enough to exhibit, per selected marking, one relator-killing frame with a surjective lift and
+the prescribed rows — no inverse substitution and no composition identity, because `D_sq h` is
+Hopfian.
+
+What §6b does *not* do is produce the frame.  Nor does the Demushkin classification hand one
+over: the classification's uniqueness clause yields an *abstract* isomorphism, with no control
+over `ν`, whereas the residual needs the finer `Aut`-transitivity on markings.  And the odd-rank
+classification input is itself absent by design — `GQ2/Dyadic/LabuteInterface.lean` records that
+there is deliberately no `SqLabHypothesis`, because the repository has not fixed an abstract
+characterization of the canonical orientation, and `q = 2` is exactly the case of Labute's
+classification where the pair `(n, q)` does not suffice and the extra invariant `im χ` is needed
+(compare `MLabHypothesis`/`NLabHypothesis`, which carry an `im χ` clause).  For `D_sq h` that
+invariant is at least *available*: `chiSq_surjective` (`PivotClimb` §7) gives `im χ_sq = ℤ₂ˣ`.
 
 ## Contents
 
@@ -88,6 +100,7 @@ delicate one and the invariant `Im χ` is not currently available for `D_sq h`.
 * **§4** `chiSq_preserving_iff_nuLam`, `SqLamNuClearHypothesis`, and the cut restated;
 * **§5** the Demushkin package of `D_sq h`, restated in `SqCore`;
 * **§6** the transitivity statement and the reduction of the residual to it;
+* **§6b** `sqAutOfMark` and `sqLamMarkTransitivity_of_frames` — the frame form, with no inverse;
 * **§7** stress pins, **§8** committed axiom prints.
 
 ## Axiom hygiene
@@ -592,6 +605,24 @@ exponent. -/
 example {c : ℤ_[2]} (hc : IsUnit c) (H : SqLamMarkTransitivity 1) :
     SqHandleMixFixesCore 1 c :=
   sqHandleMixFixesCore_of_lamMarkTransitivity hc (by omega) H
+
+/-- Stress: the frame route is not vacuous — the identity frame kills the relator and its lift
+is surjective, so `sqAutOfMark` really produces automorphisms. -/
+example (h : ℕ) (i : Fin (sqRank h)) :
+    sqAutOfMark (dsq_relation h) sqSurjective_sqGen (sqGen h i) = sqGen h i :=
+  sqAutOfMark_gen _ _ i
+
+/-- Stress: the frame form of the residual, at one handle — five words and a surjectivity
+check, where the seed calculus asks for ten words and two composition identities. -/
+example {c : ℤ_[2]} (hc : IsUnit c)
+    (H : ∀ nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2]),
+      nu' (dsqSigma 1) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 1) = ofAdd (0 : ℤ_[2]) →
+        ∃ (m : Fin (sqRank 1) → (DSq 1 : Type)) (hrel : sqRelWord m = 1),
+          Function.Surjective (sqLiftHom 1 (isProP_DSq 1) m hrel) ∧
+            (∀ i, nuLam 1 (m i) = nuLam 1 (sqGen 1 i)) ∧
+              ∀ i, nu' (m i) = nuSq 1 (sqGen 1 i)) :
+    SqHandleMixFixesCore 1 c :=
+  sqHandleMixFixesCore_of_frames hc (by omega) H
 
 end StressTests
 
