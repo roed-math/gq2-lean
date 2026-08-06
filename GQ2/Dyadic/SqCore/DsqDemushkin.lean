@@ -434,6 +434,108 @@ theorem sqLamMarkTransitivity_zero : SqLamMarkTransitivity 0 := sqLamNuClearHypo
 
 end Transitivity
 
+/-! ## §6b The frame form: no inverse substitution is needed
+
+`JointClearing` §7 has the easy half of the basis-transitivity route.  This section supplies the
+**hard half**, and it is cheap: a relator-killing frame whose lift is *surjective* is
+automatically an automorphism, because `D_sq h` is topologically finitely generated profinite and
+therefore **Hopfian** (`profinite_hopfian`, paper Lemma 2.5).
+
+This is a real reduction of the search burden.  The seed calculus in `SqCore/NuSeeds.lean` and
+`SqCore/NuSeedWide.lean` currently asks a residual seed for **ten** words — five forward slots and
+five inverse slots — plus the two composition identities `comp_fwd`/`comp_bwd` that certify the
+substitution is invertible.  `sqAutOfMark` replaces all of that by surjectivity of the forward
+substitution alone, and `sqSurjective_of_gens_mem_range` reduces *that* to "each standard
+generator lies in the image", which is what the Frattini/Burnside criterion checks. -/
+
+section Frames
+
+/-- **Surjectivity from a topological generating set inside the range**: the set form of
+`SectionThree.surjective_of_mem_range_topGen` (the range of a continuous map out of a compact
+group is closed, so it swallows the topological closure of the subgroup it generates). -/
+theorem surjective_of_topGen_subset_range {G : Type*} [Group G] [TopologicalSpace G]
+    [CompactSpace G] [IsTopologicalGroup G] [T2Space G] {S : Set G}
+    (hgen : (Subgroup.closure S).topologicalClosure = ⊤)
+    (f : ContinuousMonoidHom G G) (hS : S ⊆ Set.range f) : Function.Surjective f := by
+  have hclosed : IsClosed ((f.toMonoidHom.range : Subgroup G) : Set G) := by
+    rw [MonoidHom.coe_range]
+    exact (isCompact_range f.continuous_toFun).isClosed
+  have h1 : Subgroup.closure S ≤ f.toMonoidHom.range :=
+    Subgroup.closure_le _ |>.mpr (by rw [MonoidHom.coe_range]; exact hS)
+  have h2 : (Subgroup.closure S).topologicalClosure ≤ f.toMonoidHom.range :=
+    Subgroup.topologicalClosure_minimal _ h1 hclosed
+  rw [hgen] at h2
+  exact fun y => h2 (Subgroup.mem_top y)
+
+variable {h : ℕ} {m : Fin (sqRank h) → (DSq h : Type)}
+
+/-- **A relator-killing frame whose lift is surjective is an automorphism.**  The injectivity is
+free: `D_sq h` is topologically finitely generated profinite, hence Hopfian. -/
+noncomputable def sqAutOfMark (hrel : sqRelWord m = 1)
+    (hsurj : Function.Surjective (sqLiftHom h (isProP_DSq h) m hrel)) :
+    ContinuousMulEquiv (DSq h : Type) (DSq h : Type) :=
+  continuousMulEquivOfBijective (sqLiftHom h (isProP_DSq h) m hrel)
+    ⟨profinite_hopfian (dsqFinsetTopGen h) _ hsurj, hsurj⟩
+
+@[simp] theorem sqAutOfMark_gen (hrel : sqRelWord m = 1)
+    (hsurj : Function.Surjective (sqLiftHom h (isProP_DSq h) m hrel)) (i : Fin (sqRank h)) :
+    sqAutOfMark hrel hsurj (sqGen h i) = m i :=
+  sqLiftHom_gen h (isProP_DSq h) m hrel i
+
+/-- The Frattini-checkable form of the surjectivity hypothesis: it suffices that every standard
+generator lies in the image of the substitution. -/
+theorem sqSurjective_of_gens_mem_range (hrel : sqRelWord m = 1)
+    (hS : Set.range (sqGen h) ⊆ Set.range (sqLiftHom h (isProP_DSq h) m hrel)) :
+    Function.Surjective (sqLiftHom h (isProP_DSq h) m hrel) :=
+  surjective_of_topGen_subset_range (dsq_topGen h) _ hS
+
+/-- **The frame form of the transitivity input.**  Exhibiting, for each selected marking, one
+relator-killing frame with a surjective lift and the prescribed `λ`- and `ν`-rows discharges the
+whole residual.  No inverse substitution, and no composition identity, is required. -/
+theorem sqLamMarkTransitivity_of_frames
+    (H : ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+      nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+        ∃ (m : Fin (sqRank h) → (DSq h : Type)) (hrel : sqRelWord m = 1),
+          Function.Surjective (sqLiftHom h (isProP_DSq h) m hrel) ∧
+            (∀ i, nuLam h (m i) = nuLam h (sqGen h i)) ∧
+              ∀ i, nu' (m i) = nuSq h (sqGen h i)) :
+    SqLamMarkTransitivity h := by
+  intro nu' hsigma hx0
+  obtain ⟨m, hrel, hsurj, hlam, hval⟩ := H nu' hsigma hx0
+  refine ⟨sqAutOfMark hrel hsurj, fun x => ?_, fun x => ?_⟩
+  · have hext : (nuLam h).comp (autHom (sqAutOfMark hrel hsurj)) = nuLam h :=
+      dsq_hom_ext _ _ fun i => by
+        show nuLam h (sqAutOfMark hrel hsurj (sqGen h i)) = nuLam h (sqGen h i)
+        rw [sqAutOfMark_gen]
+        exact hlam i
+    exact DFunLike.congr_fun hext x
+  · have hext : nu'.comp (autHom (sqAutOfMark hrel hsurj)) = nuSq h :=
+      dsq_hom_ext _ _ fun i => by
+        show nu' (sqAutOfMark hrel hsurj (sqGen h i)) = nuSq h (sqGen h i)
+        rw [sqAutOfMark_gen]
+        exact hval i
+    exact DFunLike.congr_fun hext x
+
+/-- …and hence the handle stratum itself, at every unit exponent. -/
+theorem sqHandleMixFixesCore_of_frames {c : ℤ_[2]} (hc : IsUnit c) (hh : 0 < h)
+    (H : ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+      nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+        ∃ (m : Fin (sqRank h) → (DSq h : Type)) (hrel : sqRelWord m = 1),
+          Function.Surjective (sqLiftHom h (isProP_DSq h) m hrel) ∧
+            (∀ i, nuLam h (m i) = nuLam h (sqGen h i)) ∧
+              ∀ i, nu' (m i) = nuSq h (sqGen h i)) :
+    SqHandleMixFixesCore h c :=
+  sqHandleMixFixesCore_of_lamMarkTransitivity hc hh (sqLamMarkTransitivity_of_frames H)
+
+/-- The identity frame is a frame: the reduction is not vacuous. -/
+theorem sqSurjective_sqGen :
+    Function.Surjective (sqLiftHom h (isProP_DSq h) (sqGen h) (dsq_relation h)) := by
+  refine sqSurjective_of_gens_mem_range (dsq_relation h) ?_
+  rintro _ ⟨i, rfl⟩
+  exact ⟨sqGen h i, sqLiftHom_gen _ _ _ _ i⟩
+
+end Frames
+
 /-! ## §7 Stress pins -/
 
 section StressTests
@@ -524,6 +626,12 @@ section AxiomPins
 #print axioms sqHandleMixFixesCore_of_lamMarkTransitivity
 #print axioms sqNuClearHypothesis_of_lamMarkTransitivity
 #print axioms sqLamMarkTransitivity_zero
+#print axioms surjective_of_topGen_subset_range
+#print axioms sqAutOfMark
+#print axioms sqSurjective_of_gens_mem_range
+#print axioms sqLamMarkTransitivity_of_frames
+#print axioms sqHandleMixFixesCore_of_frames
+#print axioms sqSurjective_sqGen
 
 end AxiomPins
 
