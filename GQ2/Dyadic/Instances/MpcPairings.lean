@@ -40,17 +40,50 @@ A² ↦ y₀(x₀),   [A,B] ↦ y₀(x₁) + y₁(x₀),   H_h ↦ Σ_j planes,
 so the row is the compact core Gram `((1,1),(1,0))` plus the `h` hyperbolic handle planes —
 the same matrix `heisEta1_mCompactFam_normal` produces, as the shape correction predicted.
 
+## The scalar reading
+
+The scalar sub-branch keeps `x_σ` and `y_σ` free, so `IsDead` is too strong there; `Triv w a l z`
+records the full trivial-base value instead, with the same closure calculus.  The `δ`-letters are
+still dead (that needs only `x_τ = y_τ = 0`), so `E₀₁^pc`, `E₂^pc` and the plus block are still
+silent, and — because `m = 2^{α−1}` and `C(2^α,2)` are even for `α ≥ 2` — so is the **entire hat
+copy**.  What survives is
+
+```
+y₀(x₀) ⊕ (y₀(x₁) + y₁(x₀)) ⊕ p·(x₀,x_σ) ⊕ n_η·(x₂,x_σ) ⊕ Σ_j planes,
+```
+
+the compact scalar core plus two `σ`-hyperbolic planes with the conjugator exponents as
+coefficients.  Left nondegeneracy needs `n_η` **odd** and nothing else — the exact analogue of
+the procyclic-`N` row's unit hypothesis, and for the same reason: at an even `n_η` the `(a_σ,x₂)`
+plane collapses and `(0,0,0,d₂,0)` is a left kernel vector.
+
 ## What this file discharges
 
 * `MProcyclicExact.unramifiedNormalPairingIsCompact` — the generic unramified sub-branch's
-  second-order residue, unconditionally in the coefficient;
-* `MProcyclicExact.ramifiedNormalPairingSeparates` is **not** here: see the module note at the
-  end of the file for the precise obstruction (the ramified reading loses `hS₂`, so `B = x₁σ₂^p`
-  and `A = x₀⁻¹C₀^{−m}` both acquire moving bases and the commutator law of `EvenHeisPure` no
-  longer applies on either side).
+  second-order residue, unconditionally in `(α, r, p, η, h, q)` and in the coefficient;
+* `MProcyclicExact.scalarActionImageStokes_of_oddJet` — the scalar sub-branch's, for `α ≥ 2`
+  and every display with an odd second-order jet, hence `scalarActionImageStokes_one` (the
+  `η = 1` row, i.e. merge gate 9's: `ℚ₂(√−10)`, `ℚ₂(√10)`, the one-handle instance) and
+  `scalarActionImageStokes_lit` unconditionally;
+* hence `MProcyclicExact.uniformPushedHsimp_of_ramified_one`, the `η = 1` row's uniform pushed
+  residue on the **single** remaining input.
 
-The two-copy cancellation of WMP-c is *not* used: on these offsets the hat copy is dead outright,
-one factor at a time, which is stronger and needs no `Sh_M` transport.
+`MProcyclicExact.RamifiedNormalPairingSeparates` is **not** here.  The obstruction is precise:
+on the ramified reading `hS₂` is gone, so `A = x₀⁻¹C₀^{−m}` acts by `S₂^{−sm}` and
+`B = x₁σ₂^p` by `S₂^{p}` — neither base is trivial, and `EvenHeisPure`'s one-sided commutator
+law `heisCommR_of_trivial_right` (which is what carries the compact-`M` ramified row) needs the
+*right* factor's base trivial.  A fully general commutator law is needed first; its central
+value is
+
+```
+λ(a) + μ(b) + λ(k⁻¹b) + λ(k⁻¹a) + μ(a) + λ(k⁻¹gb) + μ(gb) + λ(gb)
+```
+
+for `p = (a,λ,z,g)`, `r = (b,μ,w,k)` in characteristic two, which specializes correctly to
+`heisCommR_of_trivial_right` at `k = 1`.
+
+The two-copy cancellation of WMP-c is *not* used anywhere here: on both readings the hat copy is
+silent factor by factor, which is stronger and needs no `Sh_M` transport.
 -/
 
 namespace GQ2.Dyadic.MProcyclicNormal
@@ -1175,6 +1208,99 @@ theorem unramifiedNormalPairingIsCompact {alpha r pp h q : ℕ} {d : EtaDisplay}
   exact heisEta1_mpcFamOf_evenNormal t E E₂ hM₂ hwild hτ' hS₂ hEω
     (omega2Exp_fourMulExponent_mod_four C₀) d₀ d₁ z lam₀ lam₁ mu
 
+/-- The base-level resolver of `exists_resolver_base`, together with the two `WordLift`-level
+resolvers of `exists_resolver_resolvedFamily`: the scalar branch needs both at once, and they
+have to be the *same* `E`. -/
+theorem exists_resolver_full {alpha r pp h q : ℕ} (d : EtaDisplay)
+    {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+    {B : Type*} [AddCommGroup B] [DistribMulAction C B]
+    (hA₂ : ∀ a : A, a + a = 0) (hB₂ : ∀ b : B, b + b = 0) :
+    ∃ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+      resolvedFamily alpha r pp h q d (4 * Monoid.exponent C) = mpcFamOf alpha r pp h q d E E₂
+        ∧ ResolverLifts E (WordLift A C) ∧ ResolverLifts E (WordLift B C)
+        ∧ E omega2 = ((omega2Exp (4 * Monoid.exponent C) : ℕ) : ℤ) := by
+  cases d with
+  | one =>
+      exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+        resolverLifts_uniformWordLift_ramified hA₂, resolverLifts_uniformWordLift_ramified hB₂,
+        rfl⟩
+  | lit k =>
+      exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+        resolverLifts_uniformWordLift_ramified hA₂, resolverLifts_uniformWordLift_ramified hB₂,
+        rfl⟩
+  | hat num den =>
+      exact ⟨_, _, rfl, NProcyclic.resolverLifts_npcResolver_wordLift hA₂ ⟨num, den⟩,
+        NProcyclic.resolverLifts_npcResolver_wordLift hB₂ ⟨num, den⟩, npcResolver_omega2 _ _⟩
+
+set_option maxHeartbeats 3200000 in
+/-- **The scalar sub-branch of the procyclic-`M` unramified obligation, from the display's
+jet.**  With every generator acting trivially the complex is the scalar one — `d⁰ = 0`, `d¹` the
+`tau`-pivot of rank one, five blocks of normal coordinates — and the traced pairing separates
+them as soon as the display's second-order jet is odd.
+
+⚠ Both hypotheses are real.  `α ≥ 2` is what makes `m = 2^{α−1}` and `C(2^α,2)` even, hence the
+hat copy silent; at `α = 1` the row acquires the extra atom `γ(c)` from `C₀^{2}`.  And
+`OddDisplayJet` is what makes the `(a_σ, x₂)` plane nondegenerate, exactly as
+`NpcUnramifiedScalar`'s unit hypothesis does for the procyclic-`N` row. -/
+theorem scalarActionImageStokes_of_oddJet {alpha r pp h q : ℕ} {d : EtaDisplay} {nn : ℕ}
+    (hα : 2 ≤ alpha) (hqe : Even q) (hjet : MProcyclicNormal.OddDisplayJet d nn) :
+    ScalarActionImageStokes alpha r pp h q d := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτ hσ
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M with hC₀
+  set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
+  obtain ⟨E, E₂, hfam, hliftM, hliftD, hEω⟩ :=
+    exists_resolver_full (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
+      (C := C₀) (A := M) (B := ElemDual M) d hM₂ hM₂D
+  have hlv := levelResolver (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) d
+    (by omega) hqe
+  have hres₀ : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) (HeisLift M C₀) := hlv.heis hM₂
+  have hend : IsStokesEndpoint (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) :=
+    hlv.endpoint _ (fourMulExponent_ne_zero_and_even C₀).1
+      (fourMulExponent_ne_zero_and_even C₀).2
+  letI : TopologicalSpace (WordLift M C₀) := ⊥
+  letI : DiscreteTopology (WordLift M C₀) := ⟨rfl⟩
+  have hresWord : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) (WordLift M C₀) := by
+    let incl : ContinuousMonoidHom (WordLift M C₀) (HeisLift M C₀) :=
+      ⟨heisPrim (A := M) (C := C₀), continuous_of_discreteTopology⟩
+    exact hres₀.pullback incl heisPrim_injective
+  have hr : ∀ k, FreeGroup.lift ⇑t
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀) k) = 1 := fun k ↦
+    lower_rel (A := M) (actionImageHom (2 + 2 * h) q (mpcW alpha r pp d h) M) (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h)) hresWord k
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (m : M), t.x i • m = m :=
+    actionImage_wild_smul hM₂ hsimple
+  have hτ' : ∀ m : M, t.τ • m = m := fun m ↦ hτ m
+  have htriv : ∀ (g : Generator (2 + 2 * h)) (m : M), t g • m = m :=
+    marking_smul_trivial_of_split t hwild hτ' hσ
+  have htrivD : ∀ (g : Generator (2 + 2 * h)) (lam : ElemDual M), t g • lam = lam :=
+    fun g lam ↦ elemDual_smul_eq_self (htriv g) lam
+  rw [hfam] at hend hr
+  rw [hfam]
+  exact evenScalarStokesDuality_of_separation t _ hM₂ hr hend
+    (heisD0_eq_zero_of_split t htriv) (heisD0_eq_zero_of_split t htrivD)
+    (MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split (alpha := alpha) (r := r) (pp := pp) t E E₂ hliftM hM₂
+      (by omega) hqe htriv)
+    (MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split (A := ElemDual M) (alpha := alpha) (r := r) (pp := pp) t E
+      E₂ hliftD hM₂D (by omega) hqe htrivD)
+    (fun p hp ↦ MProcyclicNormal.mpc_scalarNormal_pairing_separates_left
+      (α := alpha) (r := r) (pp := pp) (q := q) t E E₂ hM₂ htriv hEω
+      (omega2Exp_fourMulExponent_mod_four C₀) hα hqe hjet.1
+      (fun u w ↦ hjet.2 t E E₂ hM₂ htriv u w) p hp)
+
+/-- **The scalar residue on the `η = 1` row** — merge gate 9's display, so `ℚ₂(√−10)`,
+`ℚ₂(√10)` and the one-handle instance. -/
+theorem scalarActionImageStokes_one {alpha r pp h q : ℕ} (hα : 2 ≤ alpha) (hqe : Even q) :
+    ScalarActionImageStokes alpha r pp h q .one :=
+  scalarActionImageStokes_of_oddJet hα hqe MProcyclicNormal.oddDisplayJet_one
+
+/-- **The scalar residue on a literal odd display.** -/
+theorem scalarActionImageStokes_lit {alpha r pp h q : ℕ} {k : ℤ} (hα : 2 ≤ alpha)
+    (hqe : Even q) (hk : Odd k) : ScalarActionImageStokes alpha r pp h q (.lit k) :=
+  scalarActionImageStokes_of_oddJet hα hqe (MProcyclicNormal.oddDisplayJet_lit hk)
+
 /-- **The procyclic-`M` uniform pushed residue on the selected row, on two second-order inputs**
 — the generic unramified pairing is now a theorem. -/
 theorem uniformPushedHsimp_of_two {alpha r pp h q : ℕ} {d : EtaDisplay} {eta : ℤ_[2]ˣ}
@@ -1183,6 +1309,15 @@ theorem uniformPushedHsimp_of_two {alpha r pp h q : ℕ} {d : EtaDisplay} {eta :
     (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
     UniformPushedHsimp alpha r pp h q d :=
   uniformPushedHsimp_of_pairings hα hqe hd unramifiedNormalPairingIsCompact hsc hsep
+
+/-- **The `η = 1` row's uniform pushed residue, on the single ramified input.**  Two of the
+three second-order residues of `uniformPushedHsimp_of_pairings` are discharged; what is left is
+exactly the ramified normal pairing. -/
+theorem uniformPushedHsimp_of_ramified_one {alpha r pp h q : ℕ} (hα : 2 ≤ alpha) (hqe : Even q)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q .one) :
+    UniformPushedHsimp alpha r pp h q .one :=
+  uniformPushedHsimp_of_residues_one (by omega) hqe unramifiedNormalPairingIsCompact
+    (scalarActionImageStokes_one hα hqe) hsep
 
 end
 
@@ -1225,8 +1360,21 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MProcyclicNormal.heisZ_mpcW_evenNormal
 #print axioms GQ2.Dyadic.MProcyclicNormal.heisEta1_mpcFamOf_apply
 #print axioms GQ2.Dyadic.MProcyclicNormal.heisEta1_mpcFamOf_evenNormal
+#print axioms GQ2.Dyadic.MProcyclicNormal.triv_sigma2W
+#print axioms GQ2.Dyadic.MProcyclicNormal.triv_sig2PowW
+#print axioms GQ2.Dyadic.MProcyclicNormal.triv_dW
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisZ_mpcW_scalar
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEta1_mpcFamOf_scalarNormal
+#print axioms GQ2.Dyadic.MProcyclicNormal.mpc_scalarNormal_pairing_separates_left
+#print axioms GQ2.Dyadic.MProcyclicNormal.oddDisplayJet_one
+#print axioms GQ2.Dyadic.MProcyclicNormal.oddDisplayJet_lit
 #print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_base
+#print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_full
 #print axioms GQ2.Dyadic.MProcyclicExact.unramifiedNormalPairingIsCompact
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_of_oddJet
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_one
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_lit
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_two
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_one
 
 end AxiomAudit
