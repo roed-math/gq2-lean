@@ -71,6 +71,17 @@ at `[K:ℚ₂] = 1`.
 *all* future general-`K` endpoints, not just this one — otherwise (a), stated plainly in the
 paper rather than silently.
 
+*Update 2026-08-06:* the degree-one endpoint is now unconditional
+(`NuAdapted.gammaR_lSq_equiv_galK_degreeOne`) and its verified root-level print is std-3 +
+{B1, B3c, B5, B5-K, B6, B7, B8, B9, B11a}. Two of the three axioms the route previously avoided
+came back — `dyadicOrientation` (B3c) and `peripheralCyclotomicAction` (B8) — because the two
+pivot subgroups are built from `prop_3_8_lift` (B8) and the Labute-orientation transport (B3c).
+So the print is now the capstone's nine plus `markedRecipAt`, and the nesting question reduces
+to that single axiom exactly as stated above. A **cheap follow-up** exists if you want the
+footprint split: the *translation* family can be made axiom-free via `thetaEquiv`
+(`thetaHom : A ↦ A^{S^b}, S ↦ S, Y ↦ Y·S^b` preserves `d0Word` on the nose, verified by hand),
+while the `u`-scaling is genuinely where B8 sits.
+
 ## 2. `LRamifiedSourceArfSupply` is missing a hypothesis
 
 `GQ2/Dyadic/Instances/GammaLDeterminantResidue.lean:44` quantifies over every block, level
