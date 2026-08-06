@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Instances.NpcActionImageDevissage
 import GQ2.Dyadic.Instances.MpcExact
 import GQ2.Dyadic.Instances.M0RamifiedStokes
+import GQ2.Dyadic.Instances.NpcRamifiedBranch
 import GQ2.Dyadic.Word.FoxProd
 
 /-!
@@ -549,6 +550,159 @@ theorem uniformPushedHsimp_of_branches {alpha r pp h q : ℕ} {d : EtaDisplay} (
     UniformPushedHsimp alpha r pp h q d :=
   uniformPushedHsimp_of_actionImage hα hqe (simpleActionImageStokes_of_branches hunram hram)
 
+/-! ## The ramified branch of the procyclic-`M` residue
+
+Everything first-order is now in hand, so the branch reduces to one second-order statement, in
+exactly the shape `M0RamifiedBranch` reduces the compact-`M` one: left nondegeneracy of the
+traced pairing on the **untwisted** even normal coordinates.  Untwisted is the point of the
+shape correction: a one-entry row leaves the `x₂`-column free on a cocycle, so there is no
+`A⁻¹−1` twist and no opaque `ω₂`-charge, which is what `NpcRamifiedBranch` has to carry.
+-/
+
+section RamifiedBranch
+
+/-- Every display's resolved family is `mpcFamOf` at a resolver correct at the lift level, for
+two coefficient modules at once — the primal and its dual, which have to share the resolver
+because the normal-form route compares them. -/
+theorem exists_resolver_resolvedFamily {alpha r pp h q : ℕ} (d : EtaDisplay)
+    {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+    {B : Type*} [AddCommGroup B] [DistribMulAction C B]
+    (hA₂ : ∀ a : A, a + a = 0) (hB₂ : ∀ b : B, b + b = 0) :
+    ∃ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+      resolvedFamily alpha r pp h q d (4 * Monoid.exponent C) = mpcFamOf alpha r pp h q d E E₂
+        ∧ ResolverLifts E (WordLift A C) ∧ ResolverLifts E (WordLift B C) := by
+  cases d with
+  | one =>
+      exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+        resolverLifts_uniformWordLift_ramified hA₂, resolverLifts_uniformWordLift_ramified hB₂⟩
+  | lit k =>
+      exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+        resolverLifts_uniformWordLift_ramified hA₂, resolverLifts_uniformWordLift_ramified hB₂⟩
+  | hat num den =>
+      exact ⟨_, _, rfl, NProcyclic.resolverLifts_npcResolver_wordLift hA₂ ⟨num, den⟩,
+        NProcyclic.resolverLifts_npcResolver_wordLift hB₂ ⟨num, den⟩⟩
+
+set_option maxHeartbeats 1600000 in
+/-- **The complete first differential of the procyclic-`M` family on a ramified elementary
+module**: the arbitrary-`q` tame row, and a single wild pivot `S₂^{−s}σ^{−n}` on the
+`x₂`-coordinate. -/
+theorem heisD1_mpcFamOf_ramified_apply {alpha r pp h q : ℕ} {η : EtaDisplay} {nη : ℤ}
+    {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [Finite A]
+    [DistribMulAction C A] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (hlift : ResolverLifts E (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hα : 1 ≤ alpha)
+    (ht : t.TameRelAt q)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτfpf : ∀ a : A, t.τ • a = a → a = 0) (hTodd : ∀ a : A, powOmega2 t.τ • a = a)
+    (hnη : PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h)) = t.σ ^ nη)
+    (x : Generator (2 + 2 * h) → A) :
+    heisD1 ⇑t (mpcFamOf alpha r pp h q η E E₂) x
+      = ![t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+            - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau,
+          ((powOmega2 t.σ) ^ (-(s r : ℤ)) * t.σ ^ (-nη)) • x (coreLetter h 2)] := by
+  funext k
+  fin_cases k
+  · change (FreeGroup.lift (heisGen (⇑t) x 0)
+        (heisToFree E E₂ (Certificates.tameRelW (2 + 2 * h) q))).a
+      = t.σ⁻¹ • (x .tau + t.τ • x .sigma - x .sigma)
+          - ∑ i ∈ Finset.range q, (t.τ ^ i) • x .tau
+    rw [← heisEvalZ_eq_lift, heisEvalZ_a_eq_foxD hlift,
+      Certificates.foxD_tameRelW_of_tameRel t _ _ ht]
+  · change (FreeGroup.lift (heisGen (⇑t) x 0)
+        (heisToFree E E₂ (mpcW alpha r pp η h))).a
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ)) * t.σ ^ (-nη)) • x (coreLetter h 2)
+    rw [← heisEvalZ_eq_lift, heisEvalZ_a_eq_foxD hlift,
+      foxD_mpcW_smul t E E₂ x hα r pp hwild hτfpf hTodd (fun v ↦ by rw [hnη]) hA₂]
+
+/-- **The residual procyclic-`M` ramified input.**  On every simple elementary coefficient with
+`tau` fixed-point free, the traced pairing of the corrected procyclic-`M` family at the uniform
+level separates the nonzero even normal coordinates.
+
+This is the exact analogue of `MCompact.RamifiedNormalPairingSeparates`, on the same
+**untwisted** coordinates, and *not* of `NProcyclic.RamifiedTwistedPairingSeparates`. -/
+def RamifiedNormalPairingSeparates (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
+  ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M] [Finite M],
+    (∀ m : M, m + m = 0) →
+    IsSimpleModTwo ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M →
+    (∀ m : M, gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) .tau • m = m → m = 0) →
+    ∀ p : M × M × (Fin h × Fin 2 → M), p ≠ 0 →
+      ∃ rr : ElemDual M × ElemDual M × (Fin h × Fin 2 → ElemDual M),
+        heisEta1 (actionImageGenerators (2 + 2 * h) q (mpcW alpha r pp d h) M)
+            (resolvedFamily alpha r pp h q d
+              (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M)))
+            (evenNormal h p.1 p.2.1 p.2.2) (evenNormal h rr.1 rr.2.1 rr.2.2) ≠ 0
+
+set_option maxHeartbeats 3200000 in
+/-- **The procyclic-`M` ramified branch, from the residual pairing statement.**  Every
+first-order ingredient is discharged — the one-entry row, the surjective differential, the unique
+normal representative — and `hsep` is exactly the second-order residue. -/
+theorem ramifiedActionImageStokes_of_separation {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hα : 1 ≤ alpha) (hqe : Even q)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
+    RamifiedActionImageStokes (2 + 2 * h) q (mpcW alpha r pp d h)
+      (resolvedFamily alpha r pp h q d) := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτfpf
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  obtain ⟨E, E₂, hfam, hliftM, hliftD⟩ :=
+    exists_resolver_resolvedFamily (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
+      (C := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M) (A := M) (B := ElemDual M)
+      d hM₂ hM₂D
+  have hsep' := hsep M hM₂ hsimple hτfpf
+  set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M with hC₀
+  set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
+  have hlv := levelResolver (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) d hα hqe
+  have hres₀ : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) (HeisLift M C₀) := hlv.heis hM₂
+  have hend : IsStokesEndpoint (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) :=
+    hlv.endpoint _ (fourMulExponent_ne_zero_and_even C₀).1
+      (fourMulExponent_ne_zero_and_even C₀).2
+  letI : TopologicalSpace (WordLift M C₀) := ⊥
+  letI : DiscreteTopology (WordLift M C₀) := ⟨rfl⟩
+  have hresWord : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) (WordLift M C₀) := by
+    let incl : ContinuousMonoidHom (WordLift M C₀) (HeisLift M C₀) :=
+      ⟨heisPrim (A := M) (C := C₀), continuous_of_discreteTopology⟩
+    exact hres₀.pullback incl heisPrim_injective
+  have hr : ∀ k, FreeGroup.lift ⇑t
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀) k) = 1 := fun k ↦
+    lower_rel (A := M) (actionImageHom (2 + 2 * h) q (mpcW alpha r pp d h) M) (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h)) hresWord k
+  have ht : t.TameRelAt q := actionImage_tameRelAt
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (m : M), t.x i • m = m :=
+    actionImage_wild_smul hM₂ hsimple
+  have hτfpf' : ∀ m : M, t.τ • m = m → m = 0 := fun m hm ↦ hτfpf m hm
+  have hTodd : ∀ m : M, powOmega2 t.τ • m = m :=
+    actionImage_tau_powOmega2_smul_trivial hM₂ hsimple
+  have hwildD : ∀ (i : Fin (2 + 2 * h + 1)) (lam : ElemDual M), t.x i • lam = lam :=
+    fun i lam ↦ elemDual_smul_eq_self (hwild i) lam
+  have hτfpfD : ∀ lam : ElemDual M, t.τ • lam = lam → lam = 0 :=
+    fun lam hlam ↦ elemDual_fpf hτfpf' lam hlam
+  have hToddD : ∀ lam : ElemDual M, powOmega2 t.τ • lam = lam :=
+    fun lam ↦ elemDual_smul_eq_self hTodd lam
+  obtain ⟨nη, hnη⟩ := exists_zpow_evalFin_etaDisplay t E E₂ d
+  rw [hfam] at hend hr hsep'
+  rw [hfam]
+  exact evenRamifiedStokesDuality_of_smul_row t _
+    ((powOmega2 t.σ) ^ (-(s r : ℤ)) * t.σ ^ (-nη)) hM₂ hr hend
+    (heisD1_mpcFamOf_ramified_apply (alpha := alpha) (r := r) (pp := pp) t E E₂ hliftM hM₂ hα ht
+      hwild hτfpf' hTodd hnη)
+    (heisD1_mpcFamOf_ramified_apply (A := ElemDual M) (alpha := alpha) (r := r) (pp := pp) t E E₂
+      hliftD hM₂D hα ht hwildD hτfpfD hToddD hnη)
+    hwild hτfpf' hsep'
+
+/-- **The procyclic-`M` uniform pushed residue, reduced to its two branch inputs.** -/
+theorem uniformPushedHsimp_of_ramified_separation {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hα : 1 ≤ alpha) (hqe : Even q)
+    (hunram : UnramifiedActionImageStokes (2 + 2 * h) q (mpcW alpha r pp d h)
+      (resolvedFamily alpha r pp h q d))
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
+    UniformPushedHsimp alpha r pp h q d :=
+  uniformPushedHsimp_of_branches hα hqe hunram
+    (ramifiedActionImageStokes_of_separation hα hqe hsep)
+
+end RamifiedBranch
+
 /-! ## Regression: the historical entry points factor through the pushed ones -/
 
 /-- `MProcyclicExact.stokesDuality`, re-derived through `PushedHsimp`. -/
@@ -603,5 +757,9 @@ end
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_branches
 #print axioms GQ2.Dyadic.MProcyclicExact.stokesDuality_via_pushed
 #print axioms GQ2.Dyadic.MProcyclicExact.stokesDuality_T_via_pushed
+#print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_resolvedFamily
+#print axioms GQ2.Dyadic.MProcyclicExact.heisD1_mpcFamOf_ramified_apply
+#print axioms GQ2.Dyadic.MProcyclicExact.ramifiedActionImageStokes_of_separation
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_separation
 
 end GQ2.Dyadic.MProcyclicExact
