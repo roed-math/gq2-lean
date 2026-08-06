@@ -36,6 +36,32 @@ open GQ2
 
 /-! ## Exact compatibility of display data with a field unit -/
 
+/-- **Every `2`-adic unit is `1` modulo `2`.**  The residue map `ℤ_[2] → ZMod 2` sends a unit to a
+unit, and `ZMod 2` has only the unit `1`; so `η - 1` lies in the maximal ideal `(2)`.
+
+This is the arithmetic content the procyclic-`N` scalar sub-branch consumes.  A bare `EtaData` is
+an arbitrary pair of integers and supplies nothing of the kind — `NProcyclicUnram`'s left-kernel
+witness `heisEta1_npc_scalarNormal_kernel` shows the sub-branch is *false* without it — but every
+`NpcDisplayFor` carries a genuine field unit, so at the selection seam the hypothesis is free. -/
+theorem exists_padicUnit_eq_one_add_two_mul (eta : ℤ_[2]ˣ) :
+    ∃ z : ℤ_[2], (eta : ℤ_[2]) = 1 + 2 * z := by
+  have hmul : PadicInt.toZMod ((eta : ℤ_[2]) * (↑eta⁻¹ : ℤ_[2])) = 1 := by
+    rw [eta.mul_inv, map_one]
+  have hone : PadicInt.toZMod (eta : ℤ_[2]) = 1 := by
+    rw [map_mul] at hmul
+    revert hmul
+    generalize (PadicInt.toZMod (eta : ℤ_[2]) : ZMod 2) = a
+    generalize (PadicInt.toZMod (↑eta⁻¹ : ℤ_[2]) : ZMod 2) = b
+    revert a b
+    decide
+  have hker : ((eta : ℤ_[2]) - 1) ∈ RingHom.ker (PadicInt.toZMod : ℤ_[2] →+* ZMod 2) := by
+    rw [RingHom.mem_ker, map_sub, hone, map_one, sub_self]
+  rw [PadicInt.ker_toZMod, PadicInt.maximalIdeal_eq_span_p, Ideal.mem_span_singleton] at hker
+  obtain ⟨z, hz⟩ := hker
+  refine ⟨z, ?_⟩
+  push_cast at hz
+  rwa [sub_eq_iff_eq_add'] at hz
+
 namespace EtaData
 
 /-- A rational `EtaData` display represents a `2`-adic unit when its denoted `2`-adic value is
@@ -85,6 +111,19 @@ def one : NpcDisplayFor (1 : ℤ_[2]ˣ) where
   num_odd := by norm_num
   den_odd := by norm_num
   represents := EtaData.one_representsUnit
+
+/-- **The selected `Npc` display denotes a `2`-adic unit, hence is `1 + 2z`.**
+
+This is the exact `(z, hd)` pair required by `NProcyclicUnram.scalarActionImageStokes` and
+therefore by `NProcyclicUnram.uniformPushedHsimp`.  Discharging it here — at the seam where the
+campaign actually selects `η` — is what makes the procyclic-`N` uniform Stokes residue, and every
+consumer restated over it, unconditional on the selected row: `RepresentsUnit` says the display
+denotes the branch's field unit, and `exists_padicUnit_eq_one_add_two_mul` does the rest.  The
+oddness side conditions `num_odd`/`den_odd` are not used. -/
+theorem exists_toPadic_eq_one_add_two_mul {eta : ℤ_[2]ˣ} (d : NpcDisplayFor eta) :
+    ∃ z : ℤ_[2], d.data.toPadic = 1 + 2 * z := by
+  obtain ⟨z, hz⟩ := exists_padicUnit_eq_one_add_two_mul eta
+  exact ⟨z, by rw [show d.data.toPadic = (eta : ℤ_[2]) from d.represents]; exact hz⟩
 
 end NpcDisplayFor
 
