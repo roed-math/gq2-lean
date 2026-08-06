@@ -23,6 +23,13 @@ whose exponent is odd exactly when `F` is odd.
 `wordCertificateRN_lSq_pow` is stated with `Odd f`, so the L certificate is unconditional
 on its whole branch. The **even rows** are affected, since they admit even residue degree.
 
+*Narrowing (added 2026-08-06).* The even rows' **Stokes** lane is unaffected: the compact-M
+ramified branch was closed without consuming any Arf sign (the pairing separates primal from
+dual coordinates and never evaluates a quadratic form), and a sweep of the even Stokes
+branches found no place where the wrong sign could be inherited. The exposure is confined to
+the even rows' **determinant** residues, which are not yet built — so the decision below can
+be taken when that lane opens, not before.
+
 **Options.**
 
 1. **Restrict the even-row program to `f` odd.** Cheapest; leaves the even rows' general
@@ -34,6 +41,35 @@ on its whole branch. The **even rows** are affected, since they admit even resid
 
 **Recommendation:** option 3 — it unblocks the even rows immediately and isolates the sign
 work, which is a self-contained §6 revision.
+
+## 1b. DECISION: the general-K route's axiom print is not nested in the ℚ₂ capstone's
+
+*(added 2026-08-06)*
+
+The odd-degree endpoint reached through the new general-`K` machine, specialized to
+`[K:ℚ₂] = 1`, was intended as an independent check on the whole construction: its axiom print
+should ideally be a subset of the frozen ℚ₂ capstone's. It is **not** — the two are
+incomparable:
+
+* the new route **carries** `markedRecipAt` (general-`K` marked reciprocity), which the capstone
+  does not;
+* the new route **avoids** `dyadicOrientation` (B3c), `peripheralCyclotomicAction` (B8) and
+  `tameQuotient`, which the capstone uses;
+* six census members are shared.
+
+Two of the three absences are explained and benign: `tameQuotient` arrives as the hypothesis
+`T : OrientedTameQuotientK B FF` rather than from the axiom, and the frame lane reaches the
+pro-2 block without the rank-three certificate where B3c and B8 live.
+
+The live question is `markedRecipAt`. **Options:** (a) accept the incomparable print and drop
+the "independent check" framing; (b) route the ℚ₂ instantiation's marked reciprocity through
+`localReciprocity` directly, restoring nesting; (c) prove the ℚ₂ specialization of
+`markedRecipAt` from `localReciprocity` once, which would make every general-`K` endpoint nest
+at `[K:ℚ₂] = 1`.
+
+**Recommendation:** (c) if it is cheap — it is the version that makes the check meaningful for
+*all* future general-`K` endpoints, not just this one — otherwise (a), stated plainly in the
+paper rather than silently.
 
 ## 2. `LRamifiedSourceArfSupply` is missing a hypothesis
 
