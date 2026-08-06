@@ -221,6 +221,132 @@ theorem isDead_of_heisTrivial {w : PWord X}
     (hg : ∀ a : A, (heisEvalZ μ x y E E₂ w).g • a = a) : IsDead μ x y E E₂ w :=
   ⟨_, HeisLift.ext hw.1 hw.2.1 hw.2.2 rfl, hg⟩
 
+/-! ### Trivial-base values
+
+On the **scalar** branch every letter's base acts trivially, but the `σ`-offsets no longer
+vanish, so `IsDead` is too strong.  `Triv w a l z` records the full second-order value of a word
+with a trivially-acting base; it is closed under every constructor by the trivial-base laws of
+`Word/Stokes.lean`, and `IsDead w ↔ Triv w 0 0 0`. -/
+
+variable (μ x y E E₂)
+
+/-- **The trivial-base second-order value**: jets `a`, `l`, charge `z`, trivially-acting base. -/
+def Triv (w : PWord X) (a : A) (l : ElemDual A) (z : ZMod 2) : Prop :=
+  ∃ G : C, heisEvalZ μ x y E E₂ w = ⟨a, l, z, G⟩ ∧ ∀ v : A, G • v = v
+
+variable {μ x y E E₂}
+
+theorem IsDead.triv {w : PWord X} (hw : IsDead μ x y E E₂ w) :
+    Triv μ x y E E₂ w 0 0 0 := hw
+
+theorem Triv.isDead {w : PWord X} (hw : Triv μ x y E E₂ w 0 0 0) :
+    IsDead μ x y E E₂ w := hw
+
+theorem Triv.zEq {w : PWord X} {a : A} {l : ElemDual A} {z : ZMod 2}
+    (hw : Triv μ x y E E₂ w a l z) : (heisEvalZ μ x y E E₂ w).z = z := by
+  obtain ⟨G, hG, -⟩ := hw
+  rw [hG]
+
+theorem Triv.jetZero {w : PWord X} {z : ZMod 2} (hw : Triv μ x y E E₂ w 0 0 z) :
+    heisEvalZ μ x y E E₂ w ∈ heisJetZero A C := by
+  obtain ⟨G, hG, -⟩ := hw
+  rw [hG]
+  exact ⟨rfl, rfl⟩
+
+variable (μ x y E E₂)
+
+theorem triv_one : Triv μ x y E E₂ (.one : PWord X) 0 0 0 := isDead_one μ x y E E₂
+
+theorem triv_gen (i : X) (ht : ∀ v : A, μ i • v = v) :
+    Triv μ x y E E₂ (.gen i) (x i) (y i) 0 := ⟨μ i, rfl, ht⟩
+
+variable {μ x y E E₂}
+
+theorem Triv.mul {u v : PWord X} {a b : A} {l m : ElemDual A} {z w : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) (hv : Triv μ x y E E₂ v b m w) :
+    Triv μ x y E E₂ (.mul u v) (a + b) (l + m) (z + w + l b) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  obtain ⟨H, hH, hHa⟩ := hv
+  exact ⟨G * H, by rw [heisEvalZ_mul, hG, hH, heisMul_of_trivial_left _ _ hGa],
+    fun c ↦ by rw [mul_smul, hHa, hGa]⟩
+
+theorem Triv.inv {u : PWord X} {a : A} {l : ElemDual A} {z : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) : Triv μ x y E E₂ (.inv u) (-a) (-l) (z + l a) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  have hGi : ∀ c : A, G⁻¹ • c = c := fun c ↦ inv_smul_eq_iff.mpr (hGa c).symm
+  refine ⟨G⁻¹, ?_, hGi⟩
+  rw [heisEvalZ_inv, hG]
+  refine HeisLift.ext ?_ ?_ ?_ rfl
+  · show -(G⁻¹ • a) = _
+    rw [hGi]
+  · show -(G⁻¹ • l) = _
+    rw [smul_elemDual_of_trivial hGi]
+  · rfl
+
+theorem Triv.npow {u : PWord X} {a : A} {l : ElemDual A} {z : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) (k : ℕ) :
+    Triv μ x y E E₂ (.zpow u (k : ℤ)) (k • a) (k • l) (k • z + (k.choose 2) • l a) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  exact ⟨G ^ k, by rw [heisEvalZ_zpow, hG, zpow_natCast, heisPow_of_trivial _ hGa k],
+    fun c ↦ mem_trivAct.mp (pow_mem (mem_trivAct.mpr hGa) k) c⟩
+
+theorem Triv.zpowNeg {u : PWord X} {a : A} {l : ElemDual A} {z : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) (k : ℕ) :
+    Triv μ x y E E₂ (.zpow u (-(k : ℤ))) (-(k • a)) (-(k • l))
+      (k • z + (k.choose 2) • l a + (k • l) (k • a)) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  have hGk : ∀ c : A, (G ^ k) • c = c := fun c ↦
+    mem_trivAct.mp (pow_mem (mem_trivAct.mpr hGa) k) c
+  have hGki : ∀ c : A, (G ^ k)⁻¹ • c = c := fun c ↦ inv_smul_eq_iff.mpr (hGk c).symm
+  refine ⟨(G ^ k)⁻¹, ?_, hGki⟩
+  rw [heisEvalZ_zpow, zpow_neg, zpow_natCast, hG, heisPow_of_trivial _ hGa k]
+  refine HeisLift.ext ?_ ?_ ?_ rfl
+  · show -((G ^ k)⁻¹ • (k • a)) = _
+    rw [hGki]
+  · show -((G ^ k)⁻¹ • (k • l)) = _
+    rw [smul_elemDual_of_trivial hGki]
+  · rfl
+
+theorem Triv.profPow {u : PWord X} {a : A} {l : ElemDual A} {z : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) {k : ℕ} {γ : Zhat} (hE : E γ = (k : ℤ)) :
+    Triv μ x y E E₂ (.profPow u γ) (k • a) (k • l) (k • z + (k.choose 2) • l a) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  exact ⟨G ^ k, by rw [heisEvalZ_profPow, hE, hG, zpow_natCast, heisPow_of_trivial _ hGa k],
+    fun c ↦ mem_trivAct.mp (pow_mem (mem_trivAct.mpr hGa) k) c⟩
+
+theorem Triv.comm {u v : PWord X} {a b : A} {l m : ElemDual A} {z w : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) (hv : Triv μ x y E E₂ v b m w) :
+    Triv μ x y E E₂ (.comm u v) 0 0 (l b + m a) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  obtain ⟨H, hH, hHa⟩ := hv
+  exact ⟨commR G H, by rw [heisEvalZ_comm, hG, hH, heisCommR_of_trivial _ _ hGa hHa],
+    fun c ↦ commR_smul_of_trivial_left hGa c⟩
+
+theorem Triv.conj {u g : PWord X} {a b : A} {l m : ElemDual A} {z w : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) (hg : Triv μ x y E E₂ g b m w) :
+    Triv μ x y E E₂ (.conj u g) a l (z + m a + l b) := by
+  obtain ⟨G, hG, hGa⟩ := hu
+  obtain ⟨H, hH, hHa⟩ := hg
+  have hHi : ∀ c : A, H⁻¹ • c = c := fun c ↦ inv_smul_eq_iff.mpr (hHa c).symm
+  refine ⟨conjR G H, ?_, fun c ↦ mem_trivAct.mp (trivAct_conjR (mem_trivAct.mpr hGa) H) c⟩
+  rw [heisEvalZ_conj, hG, hH, heisConjR_of_trivial _ _ hGa]
+  refine HeisLift.ext ?_ ?_ ?_ rfl
+  · show H⁻¹ • a = _
+    rw [hHi]
+  · show H⁻¹ • l = _
+    rw [smul_elemDual_of_trivial hHi]
+  · rfl
+
+/-- The two-element `prodList` in `Triv` form — the shape every displayed factor takes. -/
+theorem Triv.pair {u v : PWord X} {a b : A} {l m : ElemDual A} {z w : ZMod 2}
+    (hu : Triv μ x y E E₂ u a l z) (hv : Triv μ x y E E₂ v b m w) :
+    Triv μ x y E E₂ (PWord.prodList [u, v]) (a + b) (l + m) (z + w + l b) := by
+  have hmul := hu.mul (hv.mul (triv_one μ x y E E₂))
+  have hz : z + (w + 0 + m 0) + l (b + 0) = z + w + l b := by
+    rw [add_zero, map_zero, add_zero, add_zero]
+  rw [PWord.prodList, PWord.prodList, PWord.prodList, ← hz]
+  simpa only [add_zero] using hmul
+
 end Dead
 
 /-! ## The procyclic-`M` letters on even normal offsets, unramified reading -/
