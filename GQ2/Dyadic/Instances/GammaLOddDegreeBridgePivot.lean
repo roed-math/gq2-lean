@@ -126,7 +126,11 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_subgroups (B : MarkedRecip Rec K)
 `gammaR_lSq_equiv_galK_oddDegree_of_subgroups`: the refuted `hunit` binder is **deleted**, not
 replaced — `SqCore.sqNuOrientedClearAtUnitPivot_of_families` derives the corrected residual from
 `hfix`, `htr`, `hsc` alone — and the unit-pivot side condition it no longer proves is paid on
-the `K` side by P3's marked forward supply.  Non-vacuous at **every** handle count. -/
+the `K` side by P3's marked forward supply.
+
+Precisely: `_of_subgroups` has a binder that is **proved false** at `h ≥ 1`; this one has
+**none that is refuted**, at any `h`.  Whether the binders are *satisfiable* is the open work
+(`hfix` is a theorem only at `h = 0`; `htr`/`hsc` are the two open one-parameter families). -/
 theorem gammaR_lSq_equiv_galK_oddDegree_of_subgroups_of_markedSupply (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) (T : OrientedTameQuotientK B FF)
     (D : FiniteDyadicParameters K FF) {h : ℕ}

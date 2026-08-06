@@ -173,8 +173,13 @@ omit [T2Space (GalK K)] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGal
 
 Same three steps as §1, with the arbitrary oriented `f` replaced by the supply's selected one:
 its pivot row is a unit (`isUnit_toAdd_transportedNuUr_sqPivot`), which is precisely the extra
-hypothesis `SqNuOrientedClearAtUnitPivot` carries, and joint surjectivity is unchanged.  Neither
-binder is refuted, so unlike §1 this statement is **non-vacuous at every `h`**. -/
+hypothesis `SqNuOrientedClearAtUnitPivot` carries, and joint surjectivity is unchanged.
+
+Status, stated precisely: §1's `hclear` is *proved false* at `h ≥ 1`, whereas **no binder here
+is refuted** — `SqNuOrientedClearAtUnitPivot h` survives both cup-form invariants (§4 and the
+`x₁`-invariance, the latter because the relator forces `ν(x₁) = 2ν(x₀)` in every marking), and
+`SqMarkedForwardSupply B h` has producers.  Satisfiability of the binders is the open work; the
+claim made here is only that nothing is known to make this statement empty. -/
 theorem exists_orientedEquiv_fullNu_of_orientedClearAtUnitPivot (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
     (hclear : SqCore.SqNuOrientedClearAtUnitPivot h) (hsupply : SqMarkedForwardSupply B h) :
@@ -217,7 +222,7 @@ theorem sqNuAdaptedFrameRelator_of_orientedClear (B : MarkedRecip Rec K)
     (exists_orientedEquiv_fullNu_of_orientedClear B FF hdeg hclear)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
-/-- **§2′: the odd-degree residual, non-vacuously.**  Same reading through §6's
+/-- **§2′: the odd-degree residual, over unrefuted binders.**  Same reading through §6's
 characterization, over §1′'s live bridge. -/
 theorem sqNuAdaptedFrameRelator_of_orientedClearAtUnitPivot (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
@@ -266,7 +271,7 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_orientedClear (B : MarkedRecip Rec K)
 /-- **§3′: THE LIVE ODD-DEGREE ENDPOINT.**  `Γ_{R_K} ≅ G_K` for every odd-degree ramified `K` at
 the type-`L` level `r = 0`, over the **corrected** model-side residual
 `SqCore.SqNuOrientedClearAtUnitPivot h` together with P3's marked forward supply.  Neither
-hypothesis is refuted, so this holds non-vacuously at every handle count — and at `h = 0` it
+hypothesis is refuted, unlike the `hclear` of `…_of_orientedClear` — and at `h = 0` it
 agrees with `gammaR_lSq_equiv_galK_oddDegree_of_orientedClear` via
 `SqCore.sqNuOrientedClear_zero_of_atUnitPivot`. -/
 theorem gammaR_lSq_equiv_galK_oddDegree_of_orientedClearAtUnitPivot (B : MarkedRecip Rec K)
@@ -339,8 +344,8 @@ example (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) {h : ℕ}
     SqNuAdaptedFrameRelator B :=
   sqNuAdaptedFrameRelator_of_orientedClear B FF hdeg H
 
-/-- **Route C′ (live at every `h`)**: the corrected residual plus P3's marked supply lands on the
-same object, non-vacuously. -/
+/-- **Route C′ (no refuted binder at any `h`)**: the corrected residual plus P3's marked supply
+lands on the same object. -/
 example (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) {h : ℕ}
     (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) (H : SqCore.SqNuOrientedClearAtUnitPivot h)
     (S : SqMarkedForwardSupply B h) : SqNuAdaptedFrameRelator B :=

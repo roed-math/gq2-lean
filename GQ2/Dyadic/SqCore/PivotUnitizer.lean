@@ -160,7 +160,7 @@ automorphism already unitizes the pivot row, since `ν_sq(w) = 1`.
 `not_sqNuOrientedClear` from `not_sqPivotUnitizer` through exactly this arrow, so at `h ≥ 1` the
 hypothesis `SqNuOrientedClear h` is itself unsatisfiable.  This declaration is therefore *not*
 dead weight: it is live machinery whose only `h ≥ 1` role is to propagate the refutation.  The
-non-vacuous replacement for the hypothesis is `SqNuOrientedClearAtUnitPivot h`. -/
+unrefuted replacement for the hypothesis is `SqNuOrientedClearAtUnitPivot h`. -/
 theorem sqPivotUnitizer_of_orientedClear (H : SqNuOrientedClear h) : SqPivotUnitizer h := by
   intro nu' hjs
   obtain ⟨Ψ, hchi, hnu⟩ := H nu' hjs
