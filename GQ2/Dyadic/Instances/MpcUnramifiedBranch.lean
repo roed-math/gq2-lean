@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.MpcActionImageDevissage
 import GQ2.Dyadic.Instances.N0M0CompactBranches
+import GQ2.Dyadic.Instances.NpcUnramifiedProcyclic
 
 /-!
 # The unramified Fox row of the corrected procyclic-`M` word
@@ -747,13 +748,17 @@ def DisplayFixedPointFree (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
     IsSimpleModTwo ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M →
     (∀ m : M, gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) .tau • m = m) →
     (∀ m : M, (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M).σ • m = m → m = 0) →
-    ∀ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+    ∃ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
       resolvedFamily alpha r pp h q d
           (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))
-        = mpcFamOf alpha r pp h q d E E₂ →
-      ∀ m : M,
-        PWord.evalFin (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M) E E₂
-            (d.toPWord (n := 2 + 2 * h)) • m = m → m = 0
+          = mpcFamOf alpha r pp h q d E E₂
+        ∧ ResolverLifts E
+            (WordLift M (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))
+        ∧ ResolverLifts E
+            (WordLift (ElemDual M) (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))
+        ∧ ∀ m : M,
+            PWord.evalFin (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M) E E₂
+              (d.toPWord (n := 2 + 2 * h)) • m = m → m = 0
 
 /-- **The second-order residue of the generic unramified sub-branch.**  The traced pairing of the
 procyclic-`M` family at the uniform level is the compact core Gram `((1,1),(1,0))` plus the `h`
@@ -792,12 +797,44 @@ def ScalarActionImageStokes (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
         (resolvedFamily alpha r pp h q d
           (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))) M
 
-/-- The bare-`σ` display is fixed-point free wherever `sigma` is: its value is `σ` on the nose,
-at every marking and every resolver. -/
+/-- **The bare-`σ` display is fixed-point free wherever `sigma` is**: its value is `σ` on the
+nose, at every marking and every resolver.  This is the `η = 1` row, i.e. `ℚ₂(√−10)`, `ℚ₂(√10)`
+and the one-handle instance. -/
 theorem displayFixedPointFree_one {alpha r pp h q : ℕ} :
     DisplayFixedPointFree alpha r pp h q .one := by
-  intro M _ _ _ _ _ _ _ _ _ hσfpf E E₂ _ m hm
-  exact hσfpf m hm
+  intro M _ _ _ _ _ _ hM₂ _ _ hσfpf
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+    resolverLifts_uniformWordLift_ramified hM₂, resolverLifts_uniformWordLift_ramified hM₂D,
+    fun m hm ↦ hσfpf m hm⟩
+
+set_option maxHeartbeats 800000 in
+/-- **The genuine `η̂` display is fixed-point free wherever `sigma` is** — and for the same reason
+the procyclic-`N` row's conjugator is: at its own resolver the display's value is `σ` itself,
+because `η̂` has odd components and the unramified action image has odd order
+(`RowActionImage.actionImage_unramified_sigma_etaPow`).  This is the `η = −1/3` instance.
+
+⚠ The third constructor `.lit k` has **no** such discharge, and cannot: its value is the literal
+`σ^k`, and `σ^k = 1` whenever `orderOf σ ∣ k` — which the unramified branch does not forbid,
+since the tame relation is vacuous at `tau = 1` and leaves `orderOf σ` unconstrained.  At such a
+marking the row's `x₂`-column is identically zero while `sigma` acts nontrivially, so the complex
+is neither the generic one nor the scalar one.  This is the procyclic-`M` analogue of the
+procyclic-`N` scalar sub-branch's unit condition, and it lives on the *display*, not on `η`. -/
+theorem displayFixedPointFree_hat {alpha r pp h q : ℕ} (num den : ℤ) :
+    DisplayFixedPointFree alpha r pp h q (.hat num den) := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτ hσfpf
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp (.hat num den) h) M with hC₀
+  set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp (.hat num den) h) M with htdef
+  refine ⟨_, _, rfl, NProcyclic.resolverLifts_npcResolver_wordLift hM₂ ⟨num, den⟩,
+    NProcyclic.resolverLifts_npcResolver_wordLift hM₂D ⟨num, den⟩, fun m hm ↦ hσfpf m ?_⟩
+  rwa [show (EtaDisplay.hat num den).toPWord (n := 2 + 2 * h)
+        = .profPow (.gen Generator.sigma) ((⟨num, den⟩ : EtaData).toZhat) from rfl,
+    PWord.evalFin_profPow_of_ne _ _ _ _ (Words.Npc.toZhat_ne_omega2 ⟨num, den⟩),
+    PWord.evalFin_gen, Marking.apply_sigma,
+    RowActionImage.actionImage_unramified_sigma_etaPow hM₂ hsimple hτ ⟨num, den⟩
+      (fourMulExponent_ne_zero_and_even C₀).1
+      ((Monoid.order_dvd_exponent t.σ).trans ⟨4, by ring⟩)] at hm
 
 set_option maxHeartbeats 3200000 in
 /-- **The generic unramified sub-branch of the corrected procyclic-`M` row.**  On a simple
@@ -825,10 +862,7 @@ theorem stokesDuality_actionImage_generic {alpha r pp h q : ℕ} {d : EtaDisplay
       (resolvedFamily alpha r pp h q d
         (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))) M := by
   have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
-  obtain ⟨E, E₂, hfam, hliftM, hliftD⟩ :=
-    exists_resolver_resolvedFamily (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
-      (C := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M) (A := M) (B := ElemDual M)
-      d hM₂ hM₂D
+  obtain ⟨E, E₂, hfam, hliftM, hliftD, hufpf⟩ := hfpf M hM₂ hsimple hτ hσfpf
   have hpair' := hpair M hM₂ hsimple hτ
   set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M with hC₀
   set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
@@ -859,8 +893,6 @@ theorem stokesDuality_actionImage_generic {alpha r pp h q : ℕ} {d : EtaDisplay
   have hτD : ∀ lam : ElemDual M, t.τ • lam = lam := fun lam ↦ elemDual_smul_eq_self hτ' lam
   have hS₂D : ∀ lam : ElemDual M, powOmega2 t.σ • lam = lam :=
     fun lam ↦ elemDual_smul_eq_self hS₂ lam
-  have hufpf : ∀ m : M, PWord.evalFin ⇑t E E₂ (d.toPWord (n := 2 + 2 * h)) • m = m → m = 0 :=
-    hfpf M hM₂ hsimple hτ hσfpf E E₂ hfam
   rw [hfam] at hend hr hpair'
   rw [hfam]
   exact evenUnramifiedStokesDuality_of_smul_row t _
@@ -933,6 +965,7 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_mpcFamOf_unramified_apply
 #print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split
 #print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_one
+#print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_hat
 #print axioms GQ2.Dyadic.MProcyclicExact.stokesDuality_actionImage_generic
 #print axioms GQ2.Dyadic.MProcyclicExact.unramifiedActionImageStokes_of_scalar
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues
