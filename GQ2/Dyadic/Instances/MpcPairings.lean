@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Instances.EvenHeisPure
 import GQ2.Dyadic.Instances.EvenScalarSeparation
 import GQ2.Dyadic.Instances.MpcUnramifiedBranch
+import GQ2.Dyadic.Instances.NpcUnramifiedScalar
 
 /-!
 # The second-order pairings of the corrected procyclic-`M` row
@@ -1137,6 +1138,39 @@ theorem oddDisplayJet_lit {k : ℤ} (hk : Odd k) : OddDisplayJet (.lit k) k.natA
         (neg_eq_iff_add_eq_zero.mpr (ElemDual.add_self_eq_zero _))] at hraw
     rw [hk']
     exact ⟨_, hraw⟩
+
+/-- **The display's second-order jet at one fixed resolver.**
+
+`OddDisplayJet` names `nn` *before* the resolver, which is right for `.one` (`nn = 1`) and
+`.lit k` (`nn = |k|`) and **impossible** for `.hat num den`: that display is
+`σ ^ᶻ η̂`, so its jet is the resolver's own value at the `η̂` node, and the resolver the branch
+builds is `npcResolver (4·exponent C₀) ⟨num,den⟩` — module-dependent.  This is the
+resolver-relative form the scalar sub-branch actually consumes. -/
+def OddJetAt (d : EtaDisplay) (E : Zhat → ℤ) (nn : ℕ) : Prop :=
+  Odd nn ∧ ∀ {h : ℕ} {C : Type} [Group C] {A : Type} [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking (2 + 2 * h) C) (E₂ : ℤ_[2] → ℤ),
+    (∀ a : A, a + a = 0) → (∀ (g : Generator (2 + 2 * h)) (v : A), t g • v = v) →
+    ∀ (u : Generator (2 + 2 * h) → A) (w : Generator (2 + 2 * h) → ElemDual A),
+      ∃ zη, Triv ⇑t u w E E₂ (d.toPWord (n := 2 + 2 * h)) (nn • u .sigma) (nn • w .sigma) zη
+
+/-- A resolver-uniform odd jet is in particular an odd jet at every single resolver. -/
+theorem OddDisplayJet.oddJetAt {d : EtaDisplay} {nn : ℕ} (hd : OddDisplayJet d nn)
+    (E : Zhat → ℤ) : OddJetAt d E nn :=
+  ⟨hd.1, fun t E₂ hA₂ htriv u w ↦ hd.2 t E E₂ hA₂ htriv u w⟩
+
+/-- **The `η̂` display's jet at its own resolver** is `n_η = 1 + padicOmega2Exp(η − 1, N)`, odd
+exactly because the display denotes a `2`-adic unit.  This is the *same* arithmetic input the
+procyclic-`N` scalar row consumes (`NProcyclicUnram.odd_npcResolver_toZhat_of_oneUnit`), and
+the reason is the same: both rows see `η` only through the parity of that resolver value. -/
+theorem oddJetAt_hat {num den : ℤ} (z : ℤ_[2])
+    (hz : (EtaData.mk num den).toPadic = 1 + 2 * z) (N : ℕ) :
+    OddJetAt (.hat num den) (npcResolver N ⟨num, den⟩)
+      (1 + padicOmega2Exp ((EtaData.mk num den).toPadic - 1) N) := by
+  refine ⟨NProcyclicUnram.odd_npcResolver_toZhat_of_oneUnit z hz N, ?_⟩
+  intro h C _ A _ _ t E₂ _ htriv u w
+  rw [show (EtaDisplay.hat num den).toPWord (n := 2 + 2 * h)
+    = .profPow (.gen Generator.sigma) ((⟨num, den⟩ : EtaData).toZhat) from rfl]
+  exact ⟨_, (triv_gen _ _ _ _ _ _ (htriv _)).profPow (npcResolver_toZhat N ⟨num, den⟩)⟩
 
 end DisplayJet
 
