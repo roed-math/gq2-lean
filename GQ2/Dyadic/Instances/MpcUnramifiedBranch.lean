@@ -935,6 +935,25 @@ theorem uniformPushedHsimp_of_residues {alpha r pp h q : ℕ} {d : EtaDisplay}
   uniformPushedHsimp_of_ramified_separation hα hqe
     (unramifiedActionImageStokes_of_scalar hα hqe hfpf hpair hsc) hsep
 
+/-- **The `η = 1` row's uniform pushed residue, on three named inputs** — the arithmetic one is
+discharged.  This is the display of `ℚ₂(√−10)`, `ℚ₂(√10)` and the one-handle instance, so it is
+the row merge gate 9 sits on. -/
+theorem uniformPushedHsimp_of_residues_one {alpha r pp h q : ℕ} (hα : 1 ≤ alpha) (hqe : Even q)
+    (hpair : UnramifiedNormalPairingIsCompact alpha r pp h q .one)
+    (hsc : ScalarActionImageStokes alpha r pp h q .one)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q .one) :
+    UniformPushedHsimp alpha r pp h q .one :=
+  uniformPushedHsimp_of_residues hα hqe displayFixedPointFree_one hpair hsc hsep
+
+/-- The same for the genuine `η̂`-display row. -/
+theorem uniformPushedHsimp_of_residues_hat {alpha r pp h q : ℕ} (num den : ℤ) (hα : 1 ≤ alpha)
+    (hqe : Even q)
+    (hpair : UnramifiedNormalPairingIsCompact alpha r pp h q (.hat num den))
+    (hsc : ScalarActionImageStokes alpha r pp h q (.hat num den))
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q (.hat num den)) :
+    UniformPushedHsimp alpha r pp h q (.hat num den) :=
+  uniformPushedHsimp_of_residues hα hqe (displayFixedPointFree_hat num den) hpair hsc hsep
+
 end
 
 end GQ2.Dyadic.MProcyclicExact
@@ -969,5 +988,7 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MProcyclicExact.stokesDuality_actionImage_generic
 #print axioms GQ2.Dyadic.MProcyclicExact.unramifiedActionImageStokes_of_scalar
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues_one
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues_hat
 
 end AxiomAudit
