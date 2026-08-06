@@ -1266,26 +1266,63 @@ theorem exists_resolver_full {alpha r pp h q : ℕ} (d : EtaDisplay)
       exact ⟨_, _, rfl, NProcyclic.resolverLifts_npcResolver_wordLift hA₂ ⟨num, den⟩,
         NProcyclic.resolverLifts_npcResolver_wordLift hB₂ ⟨num, den⟩, npcResolver_omega2 _ _⟩
 
+/-- **`exists_resolver_full` with the display's second-order jet appended, at the same `E`.**
+
+This is where the display case-split has to happen.  For `.one` and `.lit` the jet is a constant
+(`1`, `|k|`) and can be named in advance; for `.hat num den` it is the *resolver's own value* at
+the `η̂` node, `1 + padicOmega2Exp(η − 1, 4·exponent C)`, so it cannot be named before `C` is —
+which is why `OddDisplayJet` alone cannot reach the `.hat` display.  Everything downstream
+consumes only this package. -/
+def ResolverJetSupply (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
+  ∀ (C : Type) [Group C] [Finite C] (A : Type) [AddCommGroup A] [DistribMulAction C A]
+    (B : Type) [AddCommGroup B] [DistribMulAction C B],
+    (∀ a : A, a + a = 0) → (∀ b : B, b + b = 0) →
+    ∃ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (nn : ℕ),
+      resolvedFamily alpha r pp h q d (4 * Monoid.exponent C) = mpcFamOf alpha r pp h q d E E₂
+        ∧ ResolverLifts E (WordLift A C) ∧ ResolverLifts E (WordLift B C)
+        ∧ E omega2 = ((omega2Exp (4 * Monoid.exponent C) : ℕ) : ℤ)
+        ∧ MProcyclicNormal.OddJetAt d E nn
+
+/-- A resolver-uniform odd jet supplies the package at every resolver — the `.one` and `.lit`
+route. -/
+theorem resolverJetSupply_of_oddDisplayJet {alpha r pp h q : ℕ} {d : EtaDisplay} {nn : ℕ}
+    (hjet : MProcyclicNormal.OddDisplayJet d nn) : ResolverJetSupply alpha r pp h q d := by
+  intro C _ _ A _ _ B _ _ hA₂ hB₂
+  obtain ⟨E, E₂, hfam, hliftA, hliftB, hEω⟩ :=
+    exists_resolver_full (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
+      (C := C) (A := A) (B := B) d hA₂ hB₂
+  exact ⟨E, E₂, nn, hfam, hliftA, hliftB, hEω, hjet.oddJetAt E⟩
+
+/-- **The `η̂` display supplies the package too**, at the two-valued resolver
+`npcResolver N ⟨num, den⟩` it already resolves at, with `n_η = 1 + padicOmega2Exp(η − 1, N)`.
+The `2`-adic unit hypothesis is the only extra input, and it is the same one the procyclic-`N`
+scalar row consumes. -/
+theorem resolverJetSupply_hat {alpha r pp h q : ℕ} {num den : ℤ} (z : ℤ_[2])
+    (hz : (EtaData.mk num den).toPadic = 1 + 2 * z) :
+    ResolverJetSupply alpha r pp h q (.hat num den) := by
+  intro C _ _ A _ _ B _ _ hA₂ hB₂
+  exact ⟨_, _, _, rfl, NProcyclic.resolverLifts_npcResolver_wordLift hA₂ ⟨num, den⟩,
+    NProcyclic.resolverLifts_npcResolver_wordLift hB₂ ⟨num, den⟩, npcResolver_omega2 _ _,
+    MProcyclicNormal.oddJetAt_hat z hz (4 * Monoid.exponent C)⟩
+
 set_option maxHeartbeats 3200000 in
 /-- **The scalar sub-branch of the procyclic-`M` unramified obligation, from the display's
 jet.**  With every generator acting trivially the complex is the scalar one — `d⁰ = 0`, `d¹` the
 `tau`-pivot of rank one, five blocks of normal coordinates — and the traced pairing separates
-them as soon as the display's second-order jet is odd.
+them as soon as the display's second-order jet at the branch's own resolver is odd.
 
 ⚠ Both hypotheses are real.  `α ≥ 2` is what makes `m = 2^{α−1}` and `C(2^α,2)` even, hence the
-hat copy silent; at `α = 1` the row acquires the extra atom `γ(c)` from `C₀^{2}`.  And
-`OddDisplayJet` is what makes the `(a_σ, x₂)` plane nondegenerate, exactly as
-`NpcUnramifiedScalar`'s unit hypothesis does for the procyclic-`N` row. -/
-theorem scalarActionImageStokes_of_oddJet {alpha r pp h q : ℕ} {d : EtaDisplay} {nn : ℕ}
-    (hα : 2 ≤ alpha) (hqe : Even q) (hjet : MProcyclicNormal.OddDisplayJet d nn) :
+hat copy silent; at `α = 1` the row acquires the extra atom `γ(c)` from `C₀^{2}`.  And the odd
+jet is what makes the `(a_σ, x₂)` plane nondegenerate, exactly as `NpcUnramifiedScalar`'s unit
+hypothesis does for the procyclic-`N` row. -/
+theorem scalarActionImageStokes_of_supply {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hα : 2 ≤ alpha) (hqe : Even q) (hsupply : ResolverJetSupply alpha r pp h q d) :
     ScalarActionImageStokes alpha r pp h q d := by
   intro M _ _ _ _ _ _ hM₂ hsimple hτ hσ
   have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
   set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M with hC₀
   set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
-  obtain ⟨E, E₂, hfam, hliftM, hliftD, hEω⟩ :=
-    exists_resolver_full (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
-      (C := C₀) (A := M) (B := ElemDual M) d hM₂ hM₂D
+  obtain ⟨E, E₂, nn, hfam, hliftM, hliftD, hEω, hjet⟩ := hsupply C₀ M (ElemDual M) hM₂ hM₂D
   have hlv := levelResolver (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) d
     (by omega) hqe
   have hres₀ : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
@@ -1322,7 +1359,14 @@ theorem scalarActionImageStokes_of_oddJet {alpha r pp h q : ℕ} {d : EtaDisplay
     (fun p hp ↦ MProcyclicNormal.mpc_scalarNormal_pairing_separates_left
       (α := alpha) (r := r) (pp := pp) (q := q) t E E₂ hM₂ htriv hEω
       (omega2Exp_fourMulExponent_mod_four C₀) hα hqe hjet.1
-      (fun u w ↦ hjet.2 t E E₂ hM₂ htriv u w) p hp)
+      (fun u w ↦ hjet.2 t E₂ hM₂ htriv u w) p hp)
+
+/-- **The scalar sub-branch from a resolver-uniform odd jet** — the `.one` and `.lit` route,
+unchanged. -/
+theorem scalarActionImageStokes_of_oddJet {alpha r pp h q : ℕ} {d : EtaDisplay} {nn : ℕ}
+    (hα : 2 ≤ alpha) (hqe : Even q) (hjet : MProcyclicNormal.OddDisplayJet d nn) :
+    ScalarActionImageStokes alpha r pp h q d :=
+  scalarActionImageStokes_of_supply hα hqe (resolverJetSupply_of_oddDisplayJet hjet)
 
 /-- **The scalar residue on the `η = 1` row** — merge gate 9's display, so `ℚ₂(√−10)`,
 `ℚ₂(√10)` and the one-handle instance. -/
@@ -1334,6 +1378,14 @@ theorem scalarActionImageStokes_one {alpha r pp h q : ℕ} (hα : 2 ≤ alpha) (
 theorem scalarActionImageStokes_lit {alpha r pp h q : ℕ} {k : ℤ} (hα : 2 ≤ alpha)
     (hqe : Even q) (hk : Odd k) : ScalarActionImageStokes alpha r pp h q (.lit k) :=
   scalarActionImageStokes_of_oddJet hα hqe (MProcyclicNormal.oddDisplayJet_lit hk)
+
+/-- **The scalar residue on the genuine `η̂` display**, under the display's `2`-adic unit
+hypothesis — the same one `NpcDisplayFor.exists_toPadic_eq_one_add_two_mul` discharges
+campaign-side for the procyclic-`N` row. -/
+theorem scalarActionImageStokes_hat {alpha r pp h q : ℕ} {num den : ℤ} (z : ℤ_[2])
+    (hα : 2 ≤ alpha) (hqe : Even q) (hz : (EtaData.mk num den).toPadic = 1 + 2 * z) :
+    ScalarActionImageStokes alpha r pp h q (.hat num den) :=
+  scalarActionImageStokes_of_supply hα hqe (resolverJetSupply_hat z hz)
 
 /-- **The procyclic-`M` uniform pushed residue on the selected row, on two second-order inputs**
 — the generic unramified pairing is now a theorem. -/
@@ -1352,6 +1404,15 @@ theorem uniformPushedHsimp_of_ramified_one {alpha r pp h q : ℕ} (hα : 2 ≤ a
     UniformPushedHsimp alpha r pp h q .one :=
   uniformPushedHsimp_of_residues_one (by omega) hqe unramifiedNormalPairingIsCompact
     (scalarActionImageStokes_one hα hqe) hsep
+
+/-- **The `η̂`-display row's uniform pushed residue, on the single ramified input**, under the
+display's `2`-adic unit hypothesis.  The `.hat` twin of `uniformPushedHsimp_of_ramified_one`. -/
+theorem uniformPushedHsimp_of_ramified_hat {alpha r pp h q : ℕ} {num den : ℤ} (z : ℤ_[2])
+    (hα : 2 ≤ alpha) (hqe : Even q) (hz : (EtaData.mk num den).toPadic = 1 + 2 * z)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q (.hat num den)) :
+    UniformPushedHsimp alpha r pp h q (.hat num den) :=
+  uniformPushedHsimp_of_residues_hat num den (by omega) hqe unramifiedNormalPairingIsCompact
+    (scalarActionImageStokes_hat z hα hqe hz) hsep
 
 end
 
@@ -1402,13 +1463,20 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MProcyclicNormal.mpc_scalarNormal_pairing_separates_left
 #print axioms GQ2.Dyadic.MProcyclicNormal.oddDisplayJet_one
 #print axioms GQ2.Dyadic.MProcyclicNormal.oddDisplayJet_lit
+#print axioms GQ2.Dyadic.MProcyclicNormal.OddDisplayJet.oddJetAt
+#print axioms GQ2.Dyadic.MProcyclicNormal.oddJetAt_hat
 #print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_base
 #print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_full
+#print axioms GQ2.Dyadic.MProcyclicExact.resolverJetSupply_of_oddDisplayJet
+#print axioms GQ2.Dyadic.MProcyclicExact.resolverJetSupply_hat
 #print axioms GQ2.Dyadic.MProcyclicExact.unramifiedNormalPairingIsCompact
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_of_supply
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_of_oddJet
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_one
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_lit
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_hat
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_two
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_one
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_hat
 
 end AxiomAudit
