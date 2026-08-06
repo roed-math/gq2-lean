@@ -51,6 +51,12 @@ The two live restatements are
   assembly **already** carries, so the corrected endpoint costs the three pivot binders and
   nothing new.
 
+Read the second one with its honesty note: once `hpres` is available, the two pivot subgroups
+are redundant *for this conclusion*, since the grand assembly reaches it from `hfix` and `hpres`
+alone (`gammaR_lSq_equiv_galK_oddDegree_of_fixesCore_of_presentation`, pinned here for exactly
+that reason).  The pivot lane's independent content is the first form, which does without
+`hpres`.
+
 The `h = 0` milestone `gammaR_lSq_equiv_galK_degreeOne_of_subgroups` is untouched: there the
 unitizer is a theorem, so the two residuals coincide.
 
@@ -141,9 +147,17 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_subgroups_of_markedSupply (B : Marked
 
 /-- **…and the marked supply is not a new residual.**  At odd degree it costs only
 `MarkedFrame.SqCupAdaptedFramePresentation K` (`sqMarkedForwardSupply_oddDegree`), which the
-grand assembly already carries.  So the true `h ≥ 1` price of the odd-degree row, over the
-existing stage-lane residual, is exactly the three model-side binders `hfix`, `htr`, `hsc` —
-one fewer than the refuted list, not one more. -/
+grand assembly already carries.  So the `h ≥ 1` price of the odd-degree row *along this lane*,
+over the existing stage-lane residual, is exactly the three model-side binders `hfix`, `htr`,
+`hsc` — one fewer than the refuted list, not one more.
+
+**Honesty note.**  Once `hpres` is on the table, `htr` and `hsc` are *redundant for this
+conclusion*: the grand assembly reaches the same `Nonempty (…)` from `hfix` and `hpres` alone,
+via the χ-free clearing route (`SqCore.sqNuClearHypothesis_of_fixesCore`) — pinned as
+`gammaR_lSq_equiv_galK_oddDegree_of_fixesCore_of_presentation`, immediately below.  This theorem
+is therefore a statement *about the pivot lane*, not a new capability: it records that the
+corrected pivot list still reaches the endpoint.  The pivot lane earns its keep only on the
+`_of_markedSupply` form, which avoids `hpres`. -/
 theorem gammaR_lSq_equiv_galK_oddDegree_of_subgroups_of_presentation (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) (T : OrientedTameQuotientK B FF)
     (D : FiniteDyadicParameters K FF) {h : ℕ}
@@ -165,6 +179,28 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_subgroups_of_presentation (B : Marked
   rw [hh] at hsup
   exact gammaR_lSq_equiv_galK_oddDegree_of_subgroups_of_markedSupply B FF T D hdeg hfix htr hsc
     hsup ramifiedData
+
+/-- **The cheapest live route to the same endpoint, for comparison.**  With the stage-lane
+residual `hpres` in hand, the handle stratum alone already reaches `Γ_{R_K} ≅ G_K` through the
+χ-free clearing route and the grand assembly — the two one-parameter pivot subgroups are *not*
+needed for this conclusion.  Pinned so that the corrected `…_of_subgroups_of_presentation` is
+not mistaken for a new capability: the pivot lane's own contribution is the `_of_markedSupply`
+form, which does without `hpres`. -/
+theorem gammaR_lSq_equiv_galK_oddDegree_of_fixesCore_of_presentation (B : MarkedRecip Rec K)
+    {FF : DyadicUnitFiltration K} (T : OrientedTameQuotientK B FF)
+    (D : FiniteDyadicParameters K FF) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hfix : SqCore.SqHandleMixFixesCore h SqCore.sqPivotExp)
+    (hpres : MarkedFrame.SqCupAdaptedFramePresentation K)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq D.params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau D.params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate D.params (GalKsub K) W cc rho)) :
+    Nonempty (ContinuousMulEquiv (gamma h (qOf K FF) : Type) (GalK K)) :=
+  gammaR_lSq_equiv_galK_oddDegree B T D hdeg (SqCore.sqNuClearHypothesis_of_fixesCore hfix)
+    hpres ramifiedData
 
 /-- **THE MILESTONE SHAPE.**  At `[K : ℚ₂] = 1` the odd-degree row holds over the **two
 one-parameter pivot subgroups alone**: the handle stratum and the unitizer are theorems at
@@ -330,5 +366,7 @@ open GQ2.Dyadic.LSquare.NuAdapted in
 #print axioms sqFullNuForwardSupply_of_orientedClearAtUnitPivot
 open GQ2.Dyadic.LSquare.NuAdapted in
 #print axioms gammaLOddIndexOpenSubgroupFieldIdentificationSupply_of_orientedClearAtUnitPivot
+open GQ2.Dyadic.LSquare.NuAdapted in
+#print axioms gammaR_lSq_equiv_galK_oddDegree_of_fixesCore_of_presentation
 
 end GQ2.Dyadic.LSquare
