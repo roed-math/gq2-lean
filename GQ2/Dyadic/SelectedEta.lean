@@ -36,8 +36,8 @@ open GQ2
 
 /-! ## Exact compatibility of display data with a field unit -/
 
-/-- **Every `2`-adic unit is `1` modulo `2`.**  The residue map `ℤ_[2] → ZMod 2` sends a unit to a
-unit, and `ZMod 2` has only the unit `1`; so `η - 1` lies in the maximal ideal `(2)`.
+/-- **Every `2`-adic unit is `1` modulo `2`.**  The residue map `ℤ_[2] → ZMod 2` sends a unit to
+a unit, and `ZMod 2` has only the unit `1`; so `η - 1` lies in the maximal ideal `(2)`.
 
 This is the arithmetic content the procyclic-`N` scalar sub-branch consumes.  A bare `EtaData` is
 an arbitrary pair of integers and supplies nothing of the kind — `NProcyclicUnram`'s left-kernel
