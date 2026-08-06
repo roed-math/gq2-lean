@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.NpcActionImageDevissage
 import GQ2.Dyadic.Instances.MpcExact
+import GQ2.Dyadic.Word.FoxProd
 
 /-!
 # Action-image devissage for the corrected procyclic-`M` row
@@ -39,6 +40,104 @@ open GQ2.Dyadic.Count GQ2.Dyadic.RowActionImage
 
 attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
   GQ2.Dyadic.Count.heisDiscreteTopology
+
+/-! ## The whole word's ramified Fox row
+
+`MpcStokes` §6 computes the **linear copy's** row (`foxD_mpcLinW_x2`, one entry in the
+`x₂`-column) and `MpcFox` §5 shows the **hat copy's** row vanishes (`foxD_mpcHatW_ram`).  Neither
+reaches `mpcW` itself, because
+
+```
+mpcW α r p η h = prodList (linFactors ++ hatFactors ++ [δ₀², [δ₀,δ₁]] ++ handleTailW h)
+```
+
+is a `prodList` over a four-block **append**, and `prodList` does not split syntactically over
+`++` — the reason `Words/Mpc.lean` states its own factorization `eval_mpcW_factored` at the
+*value* level only.  `Word/FoxProd.lean`'s `foxD_prodList_append` is the Fox-level law, and here
+it costs nothing at all: the three trailing blocks each have **zero** row, so every prefix weight
+the product rule produces is applied to `0` and no `S₂`-power is ever consulted.
+
+The two new block rows are the easy ones.  The plus block `δ₀²[δ₀,δ₁]` is a square of a
+trivially-acting value (hence `2·(−a(x₀)) = 0` in characteristic two) times a commutator of two
+such (hence `0` by `foxD_comm_of_trivial`); the handle tail is empty at `h = 0` and the single
+handle block otherwise, whose row is WN0-a's `foxD_handlesW`.
+-/
+
+section FullRow
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (a : Generator (2 + 2 * h) → V)
+
+/-- **The handle tail's Fox row vanishes**, at every handle count: the `Mpc` row is on the
+no-node-at-`h = 0` handle shape, so the tail is the empty list at `h = 0` and the single block
+`H_h` otherwise. -/
+theorem foxD_prodList_handleTailW
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) :
+    foxD ⇑t a E E₂ (PWord.prodList (handleTailW h)) = 0 := by
+  cases h with
+  | zero => rfl
+  | succ n =>
+      rw [show handleTailW (n + 1) = [handlesW (n + 1)] from rfl, PWord.prodList_cons,
+        PWord.prodList_nil, foxD_mul, foxD_one, smul_zero, add_zero]
+      exact foxD_handlesW t E E₂ hwild a
+
+/-- **The plus block has zero Fox row** in characteristic two at the ramified reading.  Both
+δ-letters evaluate into `trivAct` (`trivAct_dW_ram`), so the square contributes the doubled row
+`2·D(δ₀)` and the commutator contributes nothing. -/
+theorem foxD_plusW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hTodd : ∀ w : V, powOmega2 t.τ • w = w) (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (plusW h) = 0 := by
+  have ht0 : PWord.evalFin ⇑t E E₂ (dW h 0) ∈ trivAct C V := trivAct_dW_ram t E E₂ hwild hTodd 0
+  have ht1 : PWord.evalFin ⇑t E E₂ (dW h 1) ∈ trivAct C V := trivAct_dW_ram t E E₂ hwild hTodd 1
+  have hsq : foxD ⇑t a E E₂ (PWord.zpow (dW h 0) ((2 : ℕ) : ℤ)) = 0 := by
+    rw [foxD_zpow_natCast, WordLift.sum_pow_smul_of_trivial (mem_trivAct.mp ht0), two_nsmul,
+      hV₂]
+  have hcm : foxD ⇑t a E E₂ (PWord.comm (dW h 0) (dW h 1)) = 0 :=
+    foxD_comm_of_trivial _ _ _ _ ht0 ht1
+  rw [plusW, MCompact.foxD_prodList_pair, hsq, hcm, smul_zero, add_zero]
+
+/-- **The whole word's Fox row is the linear copy's**, at σ-free offsets on a ramified
+elementary coefficient: the hat copy, the plus block and the handle tail all die, so no prefix
+weight survives. -/
+theorem foxD_mpcW_eq_mpcLinW {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hσ : a Generator.sigma = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h) = foxD ⇑t a E E₂ (mpcLinW α r pp η h) := by
+  have hhat : foxD ⇑t a E E₂ (PWord.prodList (hatFactors α r pp η h)) = 0 :=
+    foxD_mpcHatW_ram t E E₂ a hσ hwild hτfpf hTodd hα r pp η hV₂
+  have hplus : foxD ⇑t a E E₂
+      (PWord.prodList [PWord.zpow (dW h 0) ((2 : ℕ) : ℤ), PWord.comm (dW h 0) (dW h 1)]) = 0 :=
+    foxD_plusW t E E₂ a hwild hTodd hV₂
+  have htail : foxD ⇑t a E E₂ (PWord.prodList (handleTailW h)) = 0 :=
+    foxD_prodList_handleTailW t E E₂ a hwild
+  rw [mpcW, mpcLinW, foxD_prodList_append, foxD_prodList_append, foxD_prodList_append, hhat,
+    hplus, htail, smul_zero, smul_zero, smul_zero, add_zero, add_zero, add_zero]
+
+/-- **The procyclic-`M` word's ramified Fox row is a single entry**, at every `(α ≥ 1, r, p, η,
+h)`:
+
+```
+D(R_{M,pc})(a) = S₂^{−s}·σ^{−n}·a(x₂)
+```
+
+at σ-free offsets on a ramified elementary coefficient.  This is the **compact shape** — the
+row is supported on `x₂` alone, with an invertible operator in front, exactly like
+`MCompact.mCompactWildRow` read at `P ↦ 0` — and **not** the two-entry procyclic-`N` shape. -/
+theorem foxD_mpcW_x2 {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hσ : a Generator.sigma = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (hη : ActsAsPow t.σ nη (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h))) V)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h)
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ))) • ((t.σ ^ (-nη)) • a (coreLetter h 2)) := by
+  rw [foxD_mpcW_eq_mpcLinW t E E₂ a hα r pp η hσ hwild hτfpf hTodd hV₂,
+    foxD_mpcLinW_x2 t E E₂ a hσ hwild hτfpf hTodd hα r pp hη hV₂]
+
+end FullRow
 
 /-! ## The row's level-indexed resolver -/
 
@@ -252,6 +351,10 @@ end
 
 /-! ## Axiom footprint -/
 
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_prodList_handleTailW
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_plusW
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_eq_mpcLinW
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_x2
 #print axioms GQ2.Dyadic.MProcyclicExact.levelResolver
 #print axioms GQ2.Dyadic.MProcyclicExact.pushedHsimp_of_hsimp
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_hsimp
