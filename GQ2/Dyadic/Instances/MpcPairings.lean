@@ -363,8 +363,371 @@ theorem isDead_mpcHatW (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (α r pp : �
   · exact (isDead_c0HatW t x y E E₂ hxσ hyσ hS₂ _).commLeft _
   · exact isDead_e01W t x y E E₂ hxτ hyτ hA₂ hwild hτ hE he _ _
 
+/-! ### The two live factors of the linear copy -/
+
+include hxσ hyσ hx2 hy2 hwild hS₂ in
+/-- **The Labute letter `A = x₀⁻¹C₀^{−m}` on even normal offsets**: the jet of `x₀⁻¹` alone.
+`C₀ = x₂σ₂^s` is dead here — `x₂` and `σ` both carry zero offsets — so it can contribute neither
+a jet nor a charge, and (unlike the ramified reading) its base acts trivially. -/
+theorem heisEvalZ_aW_unram (s' mm : ℕ) :
+    ∃ G : C, heisEvalZ ⇑t x y E E₂ (aW h s' mm)
+        = ⟨-x (coreLetter h 0), -y (coreLetter h 0),
+            y (coreLetter h 0) (x (coreLetter h 0)), G⟩ ∧ ∀ a : A, G • a = a := by
+  obtain ⟨Gc, hGc, hGca⟩ :=
+    (isDead_c0W t x y E E₂ hxσ hyσ hx2 hy2 hwild hS₂ s').zpow (-(mm : ℤ))
+  have h0i := mem_trivAct.mp (inv_mem (Certificates.trivAct_coreLetter t hwild 0))
+  have hinv : heisEvalZ ⇑t x y E E₂ (.inv (.gen (coreLetter h 0)))
+      = ⟨-x (coreLetter h 0), -y (coreLetter h 0),
+          y (coreLetter h 0) (x (coreLetter h 0)), (t (coreLetter h 0))⁻¹⟩ := by
+    rw [heisEvalZ_inv, heisEvalZ_gen]
+    refine HeisLift.ext ?_ ?_ ?_ rfl
+    · show -((t (coreLetter h 0))⁻¹ • x (coreLetter h 0)) = _
+      rw [h0i]
+    · show -((t (coreLetter h 0))⁻¹ • y (coreLetter h 0)) = _
+      rw [smul_elemDual_of_trivial h0i]
+    · show (0 : ZMod 2) + y (coreLetter h 0) (x (coreLetter h 0)) = _
+      rw [zero_add]
+  refine ⟨(t (coreLetter h 0))⁻¹ * Gc, ?_, fun a ↦ by rw [mul_smul, hGca, h0i]⟩
+  rw [aW, PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul,
+    heisEvalZ_mul, heisEvalZ_one, mul_one, hGc, hinv]
+  refine HeisLift.ext ?_ ?_ ?_ rfl
+  · show -x (coreLetter h 0) + (t (coreLetter h 0))⁻¹ • (0 : A) = _
+    rw [smul_zero, add_zero]
+  · show -y (coreLetter h 0) + (t (coreLetter h 0))⁻¹ • (0 : ElemDual A) = _
+    rw [smul_zero, add_zero]
+  · show y (coreLetter h 0) (x (coreLetter h 0)) + 0
+        + (-y (coreLetter h 0)) ((t (coreLetter h 0))⁻¹ • (0 : A)) = _
+    rw [smul_zero, map_zero, add_zero, add_zero]
+
+include hxσ hyσ hwild hS₂ in
+/-- **The boundary letter `B = x₁σ₂^p` on even normal offsets**: the jet of `x₁` alone, in both
+of the display's two shapes. -/
+theorem heisEvalZ_bW_unram (pp : ℕ) :
+    ∃ G : C, heisEvalZ ⇑t x y E E₂ (bW h pp)
+        = ⟨x (coreLetter h 1), y (coreLetter h 1), 0, G⟩ ∧ ∀ a : A, G • a = a := by
+  have h1 := mem_trivAct.mp (Certificates.trivAct_coreLetter t hwild 1)
+  match pp with
+  | 0 => exact ⟨t (coreLetter h 1), rfl, h1⟩
+  | (j + 1) =>
+      obtain ⟨Gs, hGs, hGsa⟩ := isDead_sig2PowW t x y E E₂ hxσ hyσ hS₂ (j + 1)
+      refine ⟨t (coreLetter h 1) * Gs, ?_, fun a ↦ by rw [mul_smul, hGsa, h1]⟩
+      rw [show bW h (j + 1)
+            = PWord.prodList [.gen (coreLetter h 1), sig2PowW h (j + 1)] from rfl,
+        PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul,
+        heisEvalZ_mul, heisEvalZ_one, mul_one, heisEvalZ_gen, hGs]
+      refine HeisLift.ext ?_ ?_ ?_ rfl
+      · show x (coreLetter h 1) + t (coreLetter h 1) • (0 : A) = _
+        rw [smul_zero, add_zero]
+      · show y (coreLetter h 1) + t (coreLetter h 1) • (0 : ElemDual A) = _
+        rw [smul_zero, add_zero]
+      · show (0 : ZMod 2) + 0 + y (coreLetter h 1) (t (coreLetter h 1) • (0 : A)) = _
+        rw [smul_zero, map_zero, add_zero, add_zero]
+
+include hxσ hyσ hx2 hy2 hA₂ hwild hS₂ in
+/-- **Factor 1 — `A²`.**  Jet-zero (the exponent is the literal `2`) with the `x₀`-diagonal as
+its charge. -/
+theorem heisEvalZ_aSq_unram (s' mm : ℕ) :
+    heisEvalZ ⇑t x y E E₂ (.zpow (aW h s' mm) ((2 : ℕ) : ℤ)) ∈ heisJetZero A C ∧
+      (heisEvalZ ⇑t x y E E₂ (.zpow (aW h s' mm) ((2 : ℕ) : ℤ))).z
+        = y (coreLetter h 0) (x (coreLetter h 0)) := by
+  obtain ⟨G, hG, hGa⟩ := heisEvalZ_aW_unram t x y E E₂ hxσ hyσ hx2 hy2 hwild hS₂ s' mm
+  have hbase : ∀ a : A, (heisEvalZ ⇑t x y E E₂ (aW h s' mm)).g • a = a := by
+    rw [hG]; exact hGa
+  have hval : heisEvalZ ⇑t x y E E₂ (.zpow (aW h s' mm) ((2 : ℕ) : ℤ))
+      = ⟨0, 0, y (coreLetter h 0) (x (coreLetter h 0)), G ^ (2 : ℕ)⟩ := by
+    rw [heisEvalZ_zpow, zpow_natCast, heisPow_of_trivial _ hbase 2, hG]
+    refine HeisLift.ext ?_ ?_ ?_ rfl
+    · exact even_nsmul_eq_zero hA₂ (by decide) _
+    · exact even_nsmul_eq_zero ElemDual.add_self_eq_zero (by decide) _
+    · show (2 : ℕ) • y (coreLetter h 0) (x (coreLetter h 0))
+          + ((2 : ℕ).choose 2) • (-y (coreLetter h 0)) (-x (coreLetter h 0)) = _
+      rw [nsmul_zmod2_even (by decide), zero_add, Nat.choose_self, one_nsmul,
+        ElemDual.neg_apply, map_neg, neg_neg]
+  rw [hval]
+  exact ⟨⟨rfl, rfl⟩, rfl⟩
+
+include hxσ hyσ hx2 hy2 hwild hS₂ in
+/-- **Factor 2 — `[A,B]`.**  Both bases act trivially at the unramified reading, so the
+two-sided commutator law applies and the value is the plain hyperbolic cross. -/
+theorem heisEvalZ_commAB_unram (s' mm pp : ℕ) :
+    heisEvalZ ⇑t x y E E₂ (.comm (aW h s' mm) (bW h pp)) ∈ heisJetZero A C ∧
+      (heisEvalZ ⇑t x y E E₂ (.comm (aW h s' mm) (bW h pp))).z
+        = y (coreLetter h 0) (x (coreLetter h 1))
+          + y (coreLetter h 1) (x (coreLetter h 0)) := by
+  obtain ⟨G, hG, hGa⟩ := heisEvalZ_aW_unram t x y E E₂ hxσ hyσ hx2 hy2 hwild hS₂ s' mm
+  obtain ⟨H, hH, hHa⟩ := heisEvalZ_bW_unram t x y E E₂ hxσ hyσ hwild hS₂ pp
+  have hbA : ∀ a : A, (heisEvalZ ⇑t x y E E₂ (aW h s' mm)).g • a = a := by rw [hG]; exact hGa
+  have hbB : ∀ a : A, (heisEvalZ ⇑t x y E E₂ (bW h pp)).g • a = a := by rw [hH]; exact hHa
+  have hval : heisEvalZ ⇑t x y E E₂ (.comm (aW h s' mm) (bW h pp))
+      = ⟨0, 0, y (coreLetter h 0) (x (coreLetter h 1))
+            + y (coreLetter h 1) (x (coreLetter h 0)), commR G H⟩ := by
+    rw [heisEvalZ_comm, heisCommR_of_trivial _ _ hbA hbB, hG, hH]
+    refine HeisLift.ext rfl rfl ?_ rfl
+    show (-y (coreLetter h 0)) (x (coreLetter h 1))
+        + y (coreLetter h 1) (-x (coreLetter h 0)) = _
+    rw [ElemDual.neg_apply, map_neg, CharTwo.neg_eq, CharTwo.neg_eq]
+  rw [hval]
+  exact ⟨⟨rfl, rfl⟩, rfl⟩
+
+/-! ### The handle tail -/
+
+omit hxσ hyσ hxτ hyτ hx2 hy2 hA₂ hτ hS₂ in
+include hwild in
+theorem jetZero_of_mem_handleTailW {w : PWord (Generator (2 + 2 * h))}
+    (hw : w ∈ handleTailW h) : heisEvalZ ⇑t x y E E₂ w ∈ heisJetZero A C := by
+  obtain rfl := eq_handlesW_of_mem_handleTail hw
+  exact Certificates.MCompact.heisF_handlesW_mem t x y E E₂ hwild
+
+omit hxσ hyσ hxτ hyτ hx2 hy2 hA₂ hτ hS₂ in
+include hwild in
+/-- The handle tail's central charges sum to the `h` identity-operator hyperbolic planes — the
+list-of-sums twin of `Certificates.MCompact.heisEvalZ_handleTailW`. -/
+theorem sum_z_handleTailW :
+    (((handleTailW h).map fun w ↦ (heisEvalZ ⇑t x y E E₂ w).z)).sum
+      = ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  cases h with
+  | zero => rw [handleTailW]; simp
+  | succ n =>
+      rw [handleTailW]
+      simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
+      exact Certificates.MCompact.heisF_handlesW_z t x y E E₂ hwild
+
+/-! ## The assembled second-order row on even normal offsets -/
+
+set_option maxHeartbeats 1600000 in
+include hxσ hyσ hxτ hyτ hx2 hy2 hA₂ hwild hτ hS₂ in
+/-- **The corrected procyclic-`M` second-order row on even normal offsets, unramified
+reading**:
+
+```
+y₀(x₀) ⊕ (y₀(x₁) + y₁(x₀)) ⊕ Σ_j planes,
+```
+
+the compact core Gram `((1,1),(1,0))` plus the `h` standard hyperbolic handle planes.
+
+Eleven of the thirteen factors are **dead** — `C₀^{2^α}` and `[C₀,D]` because `C₀ = x₂σ₂^s` has
+vanishing offsets, `E₀₁^pc`, `E₂^pc` and the whole plus block because every `δ`-letter is
+second-order trivial at `e ≡ 1 (mod 4)`, and the *entire* hat copy because it is built from
+`δ`-letters and `σ₂`-powers alone.  So no shadow cancellation is needed: the two live factors
+are the Labute square and the Labute commutator, and they carry the whole core matrix. -/
+theorem heisZ_mpcW_evenNormal (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1)
+    (α r pp : ℕ) (η : EtaDisplay) :
+    (heisEvalZ ⇑t x y E E₂ (mpcW α r pp η h)).z
+      = y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 0) (x (coreLetter h 1)) + y (coreLetter h 1) (x (coreLetter h 0)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hd := isDead_dW t x y E E₂ hxτ hyτ hA₂ hwild hτ hE he
+  have hc0 := isDead_c0W t x y E E₂ hxσ hyσ hx2 hy2 hwild hS₂
+  have hc0h := isDead_c0HatW t x y E E₂ hxσ hyσ hS₂
+  have hah := isDead_aHatW t x y E E₂ hxσ hyσ hxτ hyτ hA₂ hwild hτ hS₂ hE he
+  have hbh := isDead_bHatW t x y E E₂ hxσ hyσ hxτ hyτ hA₂ hwild hτ hS₂ hE he
+  have he01 := isDead_e01W t x y E E₂ hxτ hyτ hA₂ hwild hτ hE he
+  have he2 := isDead_e2W t x y E E₂ hxτ hyτ hA₂ hwild hτ hE he
+  have hsq := heisEvalZ_aSq_unram t x y E E₂ hxσ hyσ hx2 hy2 hA₂ hwild hS₂ (s r) (m α)
+  have hcm := heisEvalZ_commAB_unram t x y E E₂ hxσ hyσ hx2 hy2 hwild hS₂ (s r) (m α) pp
+  have hmem : ∀ w ∈ (linFactors α r pp η h ++ hatFactors α r pp η h ++
+      [PWord.zpow (dW h 0) ((2 : ℕ) : ℤ), PWord.comm (dW h 0) (dW h 1)] ++ handleTailW h),
+      heisEvalZ ⇑t x y E E₂ w ∈ heisJetZero A C := by
+    intro w hw
+    rw [List.mem_append, List.mem_append, List.mem_append] at hw
+    rcases hw with ((hlin | hhat) | hplus) | htail
+    · simp only [linFactors, List.mem_cons, List.not_mem_nil, or_false] at hlin
+      rcases hlin with rfl | rfl | rfl | rfl | rfl | rfl
+      · exact hsq.1
+      · exact hcm.1
+      · exact ((hc0 _).zpow _).jetZero
+      · exact ((hc0 _).commLeft _).jetZero
+      · exact (he01 _ _).jetZero
+      · exact (he2 _ _ _).jetZero
+    · simp only [hatFactors, List.mem_cons, List.not_mem_nil, or_false] at hhat
+      rcases hhat with rfl | rfl | rfl | rfl | rfl
+      · exact ((hah _ _).zpow _).jetZero
+      · exact ((hah _ _).commLeft _).jetZero
+      · exact ((hc0h _).zpow _).jetZero
+      · exact ((hc0h _).commLeft _).jetZero
+      · exact (he01 _ _).jetZero
+    · simp only [List.mem_cons, List.not_mem_nil, or_false] at hplus
+      rcases hplus with rfl | rfl
+      · exact ((hd 0).zpow _).jetZero
+      · exact ((hd 0).commLeft _).jetZero
+    · exact jetZero_of_mem_handleTailW t x y E E₂ hwild htail
+  rw [mpcW, (heisEvalZ_prodList_jetZero ⇑t x y E E₂ hmem).2, List.map_append, List.map_append,
+    List.map_append, List.sum_append, List.sum_append, List.sum_append,
+    sum_z_handleTailW t x y E E₂ hwild]
+  simp only [linFactors, hatFactors, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil,
+    hsq.2, hcm.2, ((hc0 _).zpow _).z, ((hc0 _).commLeft _).z, (he01 _ _).z, (he2 _ _ _).z,
+    ((hah _ _).zpow _).z, ((hah _ _).commLeft _).z, ((hc0h _).zpow _).z,
+    ((hc0h _).commLeft _).z, ((hd 0).zpow _).z, ((hd 0).commLeft _).z, add_zero]
+
 end Letters
+
+/-! ## The traced pairing of the resolved family on even normal coordinates -/
+
+section Pairing
+
+variable {h : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- The traced pairing of the procyclic-`M` family at an arbitrary resolver pair is the sum of
+the tame and the wild second-order values. -/
+theorem heisEta1_mpcFamOf_apply (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+    (y : Generator (2 + 2 * h) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (α r pp q : ℕ) (η : EtaDisplay) :
+    heisEta1 ⇑t (mpcFamOf α r pp h q η E E₂) x y
+      = (heisEvalZ ⇑t x y E E₂ (Certificates.tameRelW (2 + 2 * h) q)).z
+        + (heisEvalZ ⇑t x y E E₂ (mpcW α r pp η h)).z := by
+  rw [heisEta1_apply, Fin.sum_univ_two,
+    show mpcFamOf α r pp h q η E E₂ 0
+      = heisToFree E E₂ (Certificates.tameRelW (2 + 2 * h) q) from rfl,
+    show mpcFamOf α r pp h q η E E₂ 1 = heisToFree E E₂ (mpcW α r pp η h) from rfl,
+    ← heisEvalZ_eq_lift, ← heisEvalZ_eq_lift]
+
+set_option maxHeartbeats 1600000 in
+/-- **The procyclic-`M` traced pairing on even normal coordinates, unramified reading**: the
+compact core Gram `((1,1),(1,0))` plus the `h` standard hyperbolic handle planes.  The tame
+relator contributes nothing — a normal cochain vanishes on `sigma` and `tau`. -/
+theorem heisEta1_mpcFamOf_evenNormal (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) {e α r pp q : ℕ} {η : EtaDisplay}
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hS₂ : ∀ v : A, (t.σ ^ E omega2) • v = v)
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1)
+    (d₀ d₁ : A) (z : Fin h × Fin 2 → A)
+    (lam₀ lam₁ : ElemDual A) (mu : Fin h × Fin 2 → ElemDual A) :
+    heisEta1 ⇑t (mpcFamOf α r pp h q η E E₂)
+        (evenNormal h d₀ d₁ z) (evenNormal h lam₀ lam₁ mu)
+      = lam₀ (d₀ + d₁) + lam₁ d₀ + ∑ j, (mu (j, 0) (z (j, 1)) + mu (j, 1) (z (j, 0))) := by
+  rw [heisEta1_mpcFamOf_apply t _ _ E E₂ α r pp q η,
+    heisZ_tameRelW_eq_zero_of_tame_offsets_zero t _ _ E E₂ (by simp) (by simp) (by simp)
+      (by simp),
+    zero_add,
+    heisZ_mpcW_evenNormal t _ _ E E₂ (by simp) (by simp) (by simp) (by simp) (by simp)
+      (by simp) hA₂ hwild hτ hS₂ hE he α r pp η]
+  simp only [evenNormal_coreLetter, evenNormal_handleU, evenNormal_handleV,
+    Matrix.cons_val_zero, Matrix.cons_val_one, map_add]
+  abel
+
+end Pairing
 
 end
 
 end GQ2.Dyadic.MProcyclicNormal
+
+namespace GQ2.Dyadic.MProcyclicExact
+
+noncomputable section
+
+open GQ2 GQ2.FoxH
+open GQ2.Dyadic GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
+open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
+open GQ2.Dyadic.Count GQ2.Dyadic.RowActionImage
+open GQ2.Dyadic.MProcyclicNormal
+
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+/-- **Every display's resolved family is `mpcFamOf` at a resolver correct in the acting group
+itself**, with its `ω₂`-value named.  This is the base-group companion of
+`exists_resolver_resolvedFamily`, which resolves in the `WordLift` levels; the second-order row
+needs the base level, because `σ₂`'s *action* is what has to be identified. -/
+theorem exists_resolver_base {alpha r pp h q : ℕ} (d : EtaDisplay)
+    {C : Type*} [Group C] [Finite C] :
+    ∃ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+      resolvedFamily alpha r pp h q d (4 * Monoid.exponent C) = mpcFamOf alpha r pp h q d E E₂
+        ∧ ResolverLifts E C
+        ∧ E omega2 = ((omega2Exp (4 * Monoid.exponent C) : ℕ) : ℤ) := by
+  have hconst : ResolverLifts (fun _ ↦ ((omega2Exp (4 * Monoid.exponent C) : ℕ) : ℤ)) C := by
+    intro p
+    rw [zpow_natCast]
+    exact powOmega2_pow_eq p ((Monoid.order_dvd_exponent p).trans ⟨4, by ring⟩)
+      (fourMulExponent_ne_zero_and_even C).1
+  cases d with
+  | one => exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm, hconst, rfl⟩
+  | lit k => exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm, hconst, rfl⟩
+  | hat num den =>
+      refine ⟨_, _, rfl, ?_, npcResolver_omega2 _ _⟩
+      intro p
+      rw [npcResolver_omega2, zpow_natCast]
+      exact powOmega2_pow_eq p ((Monoid.order_dvd_exponent p).trans ⟨4, by ring⟩)
+        (fourMulExponent_ne_zero_and_even C).1
+
+set_option maxHeartbeats 1600000 in
+/-- **The generic unramified sub-branch's second-order residue, discharged.**
+
+On every simple `tau`-unramified elementary coefficient the procyclic-`M` traced pairing on even
+normal coordinates is the compact core Gram plus the `h` hyperbolic handle planes.  The `η`
+display never appears: the two factors it sits in, `[C₀,D]` and `[Ĉ₀,D]`, both have a *pure*
+left entry, so `heisCommR_pure_left` kills them whatever `D` evaluates to.  Nor does `α`, `r` or
+`p`: every letter carrying them is dead on these offsets. -/
+theorem unramifiedNormalPairingIsCompact {alpha r pp h q : ℕ} {d : EtaDisplay} :
+    UnramifiedNormalPairingIsCompact alpha r pp h q d := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτ d₀ d₁ z lam₀ lam₁ mu
+  set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M with hC₀
+  set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
+  obtain ⟨E, E₂, hfam, hres, hEω⟩ :=
+    exists_resolver_base (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) (C := C₀) d
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (m : M), t.x i • m = m :=
+    actionImage_wild_smul hM₂ hsimple
+  have hτ' : ∀ m : M, t.τ • m = m := fun m ↦ hτ m
+  have hS₂ : ∀ m : M, (t.σ ^ E omega2) • m = m := by
+    intro m
+    rw [hres t.σ]
+    exact actionImage_sigma_powOmega2_smul_trivial hM₂ hsimple hτ m
+  rw [hfam]
+  exact heisEta1_mpcFamOf_evenNormal t E E₂ hM₂ hwild hτ' hS₂ hEω
+    (omega2Exp_fourMulExponent_mod_four C₀) d₀ d₁ z lam₀ lam₁ mu
+
+/-- **The procyclic-`M` uniform pushed residue on the selected row, on two second-order inputs**
+— the generic unramified pairing is now a theorem. -/
+theorem uniformPushedHsimp_of_two {alpha r pp h q : ℕ} {d : EtaDisplay} {eta : ℤ_[2]ˣ}
+    (hα : 1 ≤ alpha) (hqe : Even q) (hd : d.RepresentsUnit eta)
+    (hsc : ScalarActionImageStokes alpha r pp h q d)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
+    UniformPushedHsimp alpha r pp h q d :=
+  uniformPushedHsimp_of_pairings hα hqe hd unramifiedNormalPairingIsCompact hsc hsep
+
+end
+
+end GQ2.Dyadic.MProcyclicExact
+
+/-! ## Axiom audit -/
+
+section AxiomAudit
+
+#print axioms GQ2.Dyadic.MProcyclicNormal.commR_eq_inv_mul_conjR
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisConjR_pure_right
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisConjR_pure_left
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisCommR_pure_left
+#print axioms GQ2.Dyadic.MProcyclicNormal.commR_smul_of_trivial_left
+#print axioms GQ2.Dyadic.MProcyclicNormal.IsDead.mul
+#print axioms GQ2.Dyadic.MProcyclicNormal.IsDead.inv
+#print axioms GQ2.Dyadic.MProcyclicNormal.IsDead.zpow
+#print axioms GQ2.Dyadic.MProcyclicNormal.IsDead.profPow
+#print axioms GQ2.Dyadic.MProcyclicNormal.IsDead.conj
+#print axioms GQ2.Dyadic.MProcyclicNormal.IsDead.commLeft
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_prodList
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_of_heisTrivial
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEvalZ_sigma2W_pure
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_sigma2W
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_sig2PowW
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_c0W
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_c0HatW
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_dW
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_aHatW
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_bHatW
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_e01W
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_zW
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_e2W
+#print axioms GQ2.Dyadic.MProcyclicNormal.isDead_mpcHatW
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEvalZ_aW_unram
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEvalZ_bW_unram
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEvalZ_aSq_unram
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEvalZ_commAB_unram
+#print axioms GQ2.Dyadic.MProcyclicNormal.sum_z_handleTailW
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisZ_mpcW_evenNormal
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEta1_mpcFamOf_apply
+#print axioms GQ2.Dyadic.MProcyclicNormal.heisEta1_mpcFamOf_evenNormal
+#print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_base
+#print axioms GQ2.Dyadic.MProcyclicExact.unramifiedNormalPairingIsCompact
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_two
+
+end AxiomAudit
