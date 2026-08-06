@@ -35,6 +35,9 @@ The second half of the file adds the procyclic-`N` pushed residue layer:
 `NProcyclic.PushedHsimp` and `NProcyclic.UniformPushedHsimp`, both implied by the historical
 `NProcyclic.Hsimp`, together with pushed replacements for `NProcyclic.stokesDuality` and
 `NProcyclic.stokesDuality_T` that leave every other hypothesis and conclusion unchanged.
+`NProcyclic.UniformPushedHsimp` is a re-export: its statement is `NProcyclic.UniformHsimp` in
+`NpcExact`, the upstream file which restates the row's whole clause stack over the uniform
+residue and therefore cannot name a definition living here.
 -/
 
 namespace GQ2.Dyadic.RowActionImage
@@ -374,15 +377,17 @@ def PushedHsimp (alpha r h q : ℕ) (d : EtaData) : Prop :=
           (resolvedFamily alpha r h q d N) V hr hend
 
 /-- The coefficient-independent residue at the uniform level `4 * Monoid.exponent C`, in the
-shape produced by action-image devissage. -/
+shape produced by action-image devissage.
+
+The statement itself is written once, upstream, as `NProcyclic.UniformHsimp` in
+`GQ2/Dyadic/Instances/NpcExact.lean`: that is the file which restates the whole clause stack over
+the uniform residue, and it cannot name a definition living here because this file imports it.
+This declaration is the row-uniform *name* for that one statement, matching the other rows
+(`LSquare.UniformPushedHsimp`, `MCompact.UniformPushedHsimp`, `NCompact.UniformPushedHsimp`).  The
+two names denote the same proposition, so a term of either type is accepted where the other is
+expected and every existing consumer of this name is unaffected. -/
 def UniformPushedHsimp (alpha r h q : ℕ) (d : EtaData) : Prop :=
-  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
-    (rho : ContinuousMonoidHom ((displayedGamma alpha r h q d : Type)) C)
-    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A],
-      (∀ a : A, a + a = 0) →
-        StokesDuality
-          (fun g ↦ rho (gammaGen (2 + 2 * h) q (Words.Npc.npcW alpha r h d) g))
-          (resolvedFamily alpha r h q d (4 * Monoid.exponent C)) A
+  UniformHsimp alpha r h q d
 
 /-- The historical all-markings residue implies the pushed cohomological one.  The converse is
 intentionally absent: relator-killing markings need not be wild, hence need not be pushed. -/

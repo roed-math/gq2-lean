@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.CertificateSupplyRN
 import GQ2.Dyadic.Instances.GammaLActionImageDevissage
+import GQ2.Dyadic.Instances.NpcUnramifiedScalar
 
 /-!
 # Witness-polymorphic certificate supply for the corrected field selector
@@ -23,6 +24,14 @@ The `L` case of the Stokes residue is no longer hypothesis-shaped: the action-im
 (`LSquare.uniformPushedHsimp_of_actionImage`) proves the uniform interface from `Even q` alone,
 and the `LUniform` case plus `SemanticSelectedHsimpRN.of_L_actionImage` feed it into the same
 five-row assembler.  The legacy `L`/`LResolved` cases remain as compatibility entry points.
+
+The procyclic-`N` case is now theorem-shaped in the same way, one branch further along: both of
+its action-image obligations are discharged (`NProcyclicUnram.uniformPushedHsimp`), so from
+branch validity and `Even q` the row's uniform residue follows outright once the selected display
+is read as a `2`-adic unit.  `NpcUniform` plus `SemanticSelectedHsimpRN.of_Npc_actionImage` — and
+`SelectedHsimp.of_Npc_actionImage` for the legacy selector — feed it into the assembler.  This
+file is where the two are stated because the `Npc` branch files first become visible here; the
+`NpcUniform` constructors themselves live with their rows.
 -/
 
 namespace GQ2.Dyadic
@@ -93,7 +102,13 @@ For L, `L` preserves the legacy pushed-resolver bundle while `LResolved` stores 
 target-local resolver required by the exact-lifting count.  `LUniform` carries the
 coefficient-independent uniform-word interface, which the action-image theorem proves outright
 for even `q` (`SemanticSelectedHsimpRN.of_L_actionImage`); on the `L` row the residue is
-therefore a theorem, not a hypothesis.  The other four rows are unchanged. -/
+therefore a theorem, not a hypothesis.
+
+For procyclic `N`, `Npc` preserves the historical all-markings bundle while `NpcUniform` carries
+the row's uniform residue `NProcyclic.UniformHsimp`, which is likewise a theorem
+(`SemanticSelectedHsimpRN.of_Npc_actionImage`): branch validity and `Even q` are its only inputs,
+because the selected display is a `2`-adic unit by
+`NpcDisplayFor.exists_toPadic_eq_one_add_two_mul`.  The remaining three rows are unchanged. -/
 inductive SemanticSelectedHsimpRN {FP : FieldParameters}
     (S : SemanticSelectionView FP) (q : ℕ) : Prop
   | L (hbranch : S.branch = .L)
@@ -106,6 +121,9 @@ inductive SemanticSelectedHsimpRN {FP : FieldParameters}
       (hsimp : NCompact.Hsimp alpha (handleCount FP (.N0 alpha)) q)
   | Npc (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
       (hsimp : NProcyclic.Hsimp alpha r (handleCount FP (.Npc alpha r eta)) q
+        (hbranch ▸ S.display).data)
+  | NpcUniform (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
+      (hsimp : NProcyclic.UniformHsimp alpha r (handleCount FP (.Npc alpha r eta)) q
         (hbranch ▸ S.display).data)
   | M0 (alpha : ℕ) (hbranch : S.branch = .M0 alpha)
       (hsimp : MCompact.Hsimp alpha (handleCount FP (.M0 alpha)) q)
@@ -122,6 +140,38 @@ theorem SemanticSelectedHsimpRN.of_L_actionImage {FP : FieldParameters}
     {S : SemanticSelectionView FP} {q : ℕ} (hbranch : S.branch = .L) (hqe : Even q) :
     SemanticSelectedHsimpRN S q :=
   .LUniform hbranch (LSquare.uniformPushedHsimp_of_actionImage hqe)
+
+/-- **The procyclic-`N` Stokes residue is a theorem.**  Both action-image branches of the row are
+discharged in `NProcyclicUnram.uniformPushedHsimp`, whose remaining inputs are `2 ≤ α` — supplied
+by `BranchData.Valid (.Npc α r η)` — and a witness that the display denotes a `2`-adic unit
+`1 + 2z` — supplied by the selected display itself.  So for even `q` the `Npc` case of the
+five-row residue needs no hypothesis beyond the branch equation, exactly as the `L` case does. -/
+theorem SemanticSelectedHsimpRN.of_Npc_actionImage {FP : FieldParameters}
+    {S : SemanticSelectionView FP} {q alpha r : ℕ} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Npc alpha r eta) (hqe : Even q) :
+    SemanticSelectedHsimpRN S q := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
+  obtain ⟨z, hz⟩ := NpcDisplayFor.exists_toPadic_eq_one_add_two_mul (hbranch ▸ S.display)
+  exact .NpcUniform alpha r eta hbranch
+    (NProcyclicUnram.uniformPushedHsimp hvalid.1 hqe z hz)
+
+/-- The same theorem for the legacy selector's residue `SelectedHsimp`.  It is stated here rather
+than beside its inductive in `CertificateSupplyRN` because the procyclic-`N` branch files, which
+supply the residue, first become visible in this file. -/
+theorem SelectedHsimp.of_Npc_actionImage
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    {S : FieldBranchSelection K FP Q W} {q alpha r : ℕ} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Npc alpha r eta) (hqe : Even q) :
+    SelectedHsimp S q := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
+  obtain ⟨z, hz⟩ := NpcDisplayFor.exists_toPadic_eq_one_add_two_mul (hbranch ▸ S.display)
+  exact .NpcUniform alpha r eta hbranch
+    (NProcyclicUnram.uniformPushedHsimp hvalid.1 hqe z hz)
 
 /-- Dispatch exact lifting using only the semantic view. -/
 theorem exactLiftingRN_of_semanticSelectedHsimp
@@ -193,6 +243,21 @@ theorem exactLiftingRN_of_semanticSelectedHsimp
               2 + 2 * handleCount FP (.Npc alpha r eta) := by omega
           exact NProcyclic.exactLiftingRN_standard_congr hn
             (NProcyclic.exactLiftingRN display hsimp
+              (le_trans (by omega) valid.1) hqe nuP)
+  | NpcUniform alpha r eta hbranch hsimp =>
+      cases S with
+      | mk branch valid display =>
+          dsimp only at hbranch
+          subst branch
+          change ExactLiftingSemanticsRN
+            (GammaR (2 + 2 * handleCount FP (.Npc alpha r eta)) q
+              (Words.Npc.npcWUnit alpha r (handleCount FP (.Npc alpha r eta)) eta))
+            (2 + 2 * handleCount FP (.Npc alpha r eta)) q P nuP
+            (standardNumerics (2 + 2 * handleCount FP (.Npc alpha r eta)))
+          have hn : 2 * handleCount FP (.Npc alpha r eta) + 2 =
+              2 + 2 * handleCount FP (.Npc alpha r eta) := by omega
+          exact NProcyclic.exactLiftingRN_standard_congr hn
+            (NProcyclic.exactLiftingRN_of_uniformPushed display hsimp
               (le_trans (by omega) valid.1) hqe nuP)
   | M0 alpha hbranch hsimp =>
       cases S with
@@ -628,6 +693,24 @@ noncomputable def wordCertificateRN_of_familyFieldSelection_actionImageL
   wordCertificateRN_of_familyFieldSelection S
     (.of_L_actionImage hbranch hqe) hq0 hqe L
 
+/-- Action-image corrected-family handoff for the selected procyclic-`N` row.  Exactly as on the
+`L` row, this consumes **no** Stokes residue input: the branch equation and `Even q` are enough,
+since `BranchData.Valid (.Npc α r η)` supplies `2 ≤ α` and the selected display supplies the
+`2`-adic unit pair.  So the selected-`Npc` certificate needs only the structural and analytic
+leaves. -/
+noncomputable def wordCertificateRN_of_familyFieldSelection_actionImageNpc
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness FP Q}
+    (S : FamilyFieldBranchSelection K FP Q W) {q alpha r : ℕ} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Npc alpha r eta) (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection S) q P hP nuP hq0 hqe) :
+    WordCertificateRN S.semantic.degree q S.semantic.word P hP nuP
+      (standardNumerics S.semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection S
+    (.of_Npc_actionImage hbranch hqe) hq0 hqe L
+
 /-- End-to-end certificate handoff from the corrected arithmetic selector itself. -/
 noncomputable def wordCertificateRN_of_familyFieldBranch
     {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
@@ -668,6 +751,27 @@ noncomputable def wordCertificateRN_of_familyFieldBranch_actionImageL
       (selectFieldBranchFamily B FF D RI W).semantic.word P hP nuP
       (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
   wordCertificateRN_of_familyFieldSelection_actionImageL
+    (selectFieldBranchFamily B FF D RI W) hbranch hq0 hqe L
+
+/-- End-to-end selector handoff on the procyclic-`N` row with the Stokes residue supplied
+theorem-side: whenever the corrected selector picks `.Npc α r η`, even `q` alone feeds the row's
+uniform residue into the five-row assembler. -/
+noncomputable def wordCertificateRN_of_familyFieldBranch_actionImageNpc
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) {q alpha r : ℕ} {eta : ℤ_[2]ˣ}
+    (hbranch : (selectFieldBranchFamily B FF D RI W).branch = .Npc alpha r eta)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection
+        (selectFieldBranchFamily B FF D RI W)) q P hP nuP hq0 hqe) :
+    WordCertificateRN
+      (selectFieldBranchFamily B FF D RI W).semantic.degree q
+      (selectFieldBranchFamily B FF D RI W).semantic.word P hP nuP
+      (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection_actionImageNpc
     (selectFieldBranchFamily B FF D RI W) hbranch hq0 hqe L
 
 end

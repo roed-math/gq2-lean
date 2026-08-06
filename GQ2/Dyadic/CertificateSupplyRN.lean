@@ -54,7 +54,14 @@ rows, `1 ≤ r` to the lifting constructors.
 The L row retains its `LSquare.PushedHsimp` constructor for compatibility and also offers
 `LResolved`, whose `LSquare.ResolvedPushedHsimp` records the resolver for the exact target used
 by the count.  The latter is the weakest source-facing hypothesis of the two.  The historical
-all-markings `LSquare.Hsimp` API remains available separately as a compatibility wrapper. -/
+all-markings `LSquare.Hsimp` API remains available separately as a compatibility wrapper.
+
+The procyclic-`N` row likewise keeps its historical `Npc` constructor and adds `NpcUniform` over
+`NProcyclic.UniformHsimp`, the coefficient-independent uniform residue.  That residue is a
+*theorem* on this row (`NProcyclicUnram.uniformPushedHsimp`, given `2 ≤ α`, `Even q` and the unit
+pair supplied by the selected display), so `NpcUniform` is the constructor through which the row's
+unconditionality reaches certificate supply; see `SelectedHsimp.of_Npc_actionImage` in
+`CertificateSupplyFamilyRN`, which is where the branch files become visible. -/
 inductive SelectedHsimp
     {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
     {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
@@ -67,6 +74,9 @@ inductive SelectedHsimp
       (hsimp : NCompact.Hsimp alpha (handleCount FP (.N0 alpha)) q)
   | Npc (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
       (hsimp : NProcyclic.Hsimp alpha r (handleCount FP (.Npc alpha r eta)) q
+        (hbranch ▸ S.display).data)
+  | NpcUniform (alpha r : ℕ) (eta : ℤ_[2]ˣ) (hbranch : S.branch = .Npc alpha r eta)
+      (hsimp : NProcyclic.UniformHsimp alpha r (handleCount FP (.Npc alpha r eta)) q
         (hbranch ▸ S.display).data)
   | M0 (alpha : ℕ) (hbranch : S.branch = .M0 alpha)
       (hsimp : MCompact.Hsimp alpha (handleCount FP (.M0 alpha)) q)
@@ -114,6 +124,8 @@ theorem exactLiftingRN_of_selectedHsimp
         (le_trans (by omega) hvalid) hq0 hqe nuP
   | Npc alpha r eta hbranch hsimp =>
       exact NProcyclic.exactLiftingRN_of_fieldSelection S hbranch hsimp hqe nuP
+  | NpcUniform alpha r eta hbranch hsimp =>
+      exact NProcyclic.exactLiftingRN_of_fieldSelection_uniformPushed S hbranch hsimp hqe nuP
   | M0 alpha hbranch hsimp =>
       exact MCompact.exactLiftingRN_of_fieldSelection S hbranch hsimp hq0 hqe nuP
   | Mpc alpha r epsilon eta hbranch hsimp =>
