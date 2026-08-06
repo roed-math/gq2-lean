@@ -705,3 +705,236 @@ end Differential
 end
 
 end GQ2.Dyadic.MProcyclicUnram
+
+namespace GQ2.Dyadic.MProcyclicExact
+
+noncomputable section
+
+open GQ2 GQ2.FoxH
+open GQ2.Dyadic GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
+open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
+open GQ2.Dyadic.Count GQ2.Dyadic.RowActionImage
+open GQ2.Dyadic.MProcyclicUnram
+
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+/-! ## The two residual inputs of the procyclic-`M` unramified branch
+
+The first-order half of the branch is complete: the row is two-entry, the differential is the
+`u`-pivot one, the ends are acyclic on the `sigma`-ramified sub-branch and the normal
+coordinates are the compact rows' `A × A × (Fin h × Fin 2 → A)`.  What is left is exactly two
+statements, and they are of two different kinds.
+-/
+
+/-- **The arithmetic residue.**  On an unramified simple coefficient with `sigma` fixed-point
+free, the `η̂`-display's value is fixed-point free too.
+
+This is *not* a formality, and it is where the procyclic-`M` row differs from its procyclic-`N`
+twin.  The `N` row's conjugator is `σ^{η̂}` for a genuine `EtaData`, and
+`RowActionImage.actionImage_unramified_sigma_etaPow` proves it **equals** `σ` on an unramified
+target (odd order kills the whole `η̂`-datum).  The `M` row carries an `EtaDisplay` instead, whose
+third constructor is a *literal* power `σ^k`, and `σ^k` need not be fixed-point free even for odd
+`k`: at `orderOf σ = 3` and `k = 3` the display evaluates to `1` and the row's `x₂`-column
+vanishes identically.  So the condition is a real hypothesis on the display, discharged below for
+the bare-`σ` display (`displayFixedPointFree_one`) — which is the `η = 1` row carrying
+`ℚ₂(√−10)`, `ℚ₂(√10)` and the one-handle instance. -/
+def DisplayFixedPointFree (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
+  ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M] [Finite M],
+    (∀ m : M, m + m = 0) →
+    IsSimpleModTwo ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M →
+    (∀ m : M, gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) .tau • m = m) →
+    (∀ m : M, (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M).σ • m = m → m = 0) →
+    ∀ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+      resolvedFamily alpha r pp h q d
+          (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))
+        = mpcFamOf alpha r pp h q d E E₂ →
+      ∀ m : M,
+        PWord.evalFin (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M) E E₂
+            (d.toPWord (n := 2 + 2 * h)) • m = m → m = 0
+
+/-- **The second-order residue of the generic unramified sub-branch.**  The traced pairing of the
+procyclic-`M` family at the uniform level is the compact core Gram `((1,1),(1,0))` plus the `h`
+standard hyperbolic handle planes, on the even normal coordinates.
+
+This is the exact analogue of `heisEta1_mCompactFam_normal`, and — because the row is the compact
+row — the *same* Gram matrix, not the `Φ`-twisted one the procyclic-`N` branch needs. -/
+def UnramifiedNormalPairingIsCompact (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
+  ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M] [Finite M],
+    (∀ m : M, m + m = 0) →
+    IsSimpleModTwo ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M →
+    (∀ m : M, gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) .tau • m = m) →
+    ∀ (d₀ d₁ : M) (z : Fin h × Fin 2 → M) (lam₀ lam₁ : ElemDual M)
+      (mu : Fin h × Fin 2 → ElemDual M),
+      heisEta1 (actionImageGenerators (2 + 2 * h) q (mpcW alpha r pp d h) M)
+          (resolvedFamily alpha r pp h q d
+            (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M)))
+          (evenNormal h d₀ d₁ z) (evenNormal h lam₀ lam₁ mu)
+        = lam₀ (d₀ + d₁) + lam₁ d₀ + ∑ j, (mu (j, 0) (z (j, 1)) + mu (j, 1) (z (j, 0)))
+
+/-- **The residual scalar sub-branch.**  `sigma` acts trivially, hence — the unramified action
+image being procyclic — every generator does, the ends of the complex carry cohomology and the
+`sigma`-coordinate of a normal cochain is free.  The exact analogue of
+`NProcyclic.ScalarActionImageStokes`. -/
+def ScalarActionImageStokes (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
+  ∀ (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M] [Finite M],
+    (∀ m : M, m + m = 0) →
+    IsSimpleModTwo ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M →
+    (∀ m : M, gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) .tau • m = m) →
+    (∀ m : M, (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M).σ • m = m) →
+      StokesDuality (actionImageGenerators (2 + 2 * h) q (mpcW alpha r pp d h) M)
+        (resolvedFamily alpha r pp h q d
+          (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))) M
+
+/-- The bare-`σ` display is fixed-point free wherever `sigma` is: its value is `σ` on the nose,
+at every marking and every resolver. -/
+theorem displayFixedPointFree_one {alpha r pp h q : ℕ} :
+    DisplayFixedPointFree alpha r pp h q .one := by
+  intro M _ _ _ _ _ _ _ _ _ hσfpf E E₂ _ m hm
+  exact hσfpf m hm
+
+set_option maxHeartbeats 3200000 in
+/-- **The generic unramified sub-branch of the corrected procyclic-`M` row.**  On a simple
+`tau`-unramified coefficient with `sigma` fixed-point free, the row is the compact two-entry row
+with the boundary operator `G⁻¹`, so the ends are acyclic, the middle is freely parametrised by
+the untwisted even normal coordinates, and the pairing separates them by
+`UnramifiedNormalPairingIsCompact`.
+
+Contrast `NProcyclicUnram.stokesDuality_actionImage_generic`, which has to route through the
+solution operator `Φ = (1 − B⁻¹)⁻¹(1 − A⁻¹)` and the `Φ`-normal coordinates: the procyclic-`M`
+row has no `x₀`-entry, so there is nothing to solve for. -/
+theorem stokesDuality_actionImage_generic {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hα : 1 ≤ alpha) (hqe : Even q)
+    (hfpf : DisplayFixedPointFree alpha r pp h q d)
+    (hpair : UnramifiedNormalPairingIsCompact alpha r pp h q d)
+    (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+    [DistribMulAction ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M] [Finite M]
+    (hM₂ : ∀ m : M, m + m = 0)
+    (hsimple : IsSimpleModTwo ((GammaR (2 + 2 * h) q (mpcW alpha r pp d h) : Type)) M)
+    (hτ : ∀ m : M, gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) .tau • m = m)
+    (hσfpf : ∀ m : M,
+      (actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M).σ • m = m → m = 0) :
+    StokesDuality (actionImageGenerators (2 + 2 * h) q (mpcW alpha r pp d h) M)
+      (resolvedFamily alpha r pp h q d
+        (4 * Monoid.exponent (ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M))) M := by
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  obtain ⟨E, E₂, hfam, hliftM, hliftD⟩ :=
+    exists_resolver_resolvedFamily (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
+      (C := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M) (A := M) (B := ElemDual M)
+      d hM₂ hM₂D
+  have hpair' := hpair M hM₂ hsimple hτ
+  set C₀ := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M with hC₀
+  set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
+  have hlv := levelResolver (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) d hα hqe
+  have hres₀ : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) (HeisLift M C₀) := hlv.heis hM₂
+  have hend : IsStokesEndpoint (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) :=
+    hlv.endpoint _ (fourMulExponent_ne_zero_and_even C₀).1
+      (fourMulExponent_ne_zero_and_even C₀).2
+  letI : TopologicalSpace (WordLift M C₀) := ⊥
+  letI : DiscreteTopology (WordLift M C₀) := ⟨rfl⟩
+  have hresWord : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀)) (WordLift M C₀) := by
+    let incl : ContinuousMonoidHom (WordLift M C₀) (HeisLift M C₀) :=
+      ⟨heisPrim (A := M) (C := C₀), continuous_of_discreteTopology⟩
+    exact hres₀.pullback incl heisPrim_injective
+  have hr : ∀ k, FreeGroup.lift ⇑t
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C₀) k) = 1 := fun k ↦
+    lower_rel (A := M) (actionImageHom (2 + 2 * h) q (mpcW alpha r pp d h) M) (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h)) hresWord k
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (m : M), t.x i • m = m :=
+    actionImage_wild_smul hM₂ hsimple
+  have hτ' : ∀ m : M, t.τ • m = m := fun m ↦ hτ m
+  have hS₂ : ∀ m : M, powOmega2 t.σ • m = m :=
+    actionImage_sigma_powOmega2_smul_trivial hM₂ hsimple hτ
+  have hwildD : ∀ (i : Fin (2 + 2 * h + 1)) (lam : ElemDual M), t.x i • lam = lam :=
+    fun i lam ↦ elemDual_smul_eq_self (hwild i) lam
+  have hτD : ∀ lam : ElemDual M, t.τ • lam = lam := fun lam ↦ elemDual_smul_eq_self hτ' lam
+  have hS₂D : ∀ lam : ElemDual M, powOmega2 t.σ • lam = lam :=
+    fun lam ↦ elemDual_smul_eq_self hS₂ lam
+  have hufpf : ∀ m : M, PWord.evalFin ⇑t E E₂ (d.toPWord (n := 2 + 2 * h)) • m = m → m = 0 :=
+    hfpf M hM₂ hsimple hτ hσfpf E E₂ hfam
+  rw [hfam] at hend hr hpair'
+  rw [hfam]
+  exact evenUnramifiedStokesDuality_of_smul_row t _
+    (PWord.evalFin ⇑t E E₂ (d.toPWord (n := 2 + 2 * h))) hM₂ hr hend
+    (heisD1_mpcFamOf_unramified_apply (alpha := alpha) (r := r) (pp := pp) t E E₂ hliftM hM₂ hα
+      hqe hwild hτ' hS₂ rfl)
+    (heisD1_mpcFamOf_unramified_apply (A := ElemDual M) (alpha := alpha) (r := r) (pp := pp) t E
+      E₂ hliftD hM₂D hα hqe hwildD hτD hS₂D rfl)
+    hpair' hwild hτ' hσfpf hufpf
+
+set_option maxHeartbeats 1600000 in
+/-- **The procyclic-`M` unramified branch, reduced to its scalar sub-branch.**  The `sigma`
+dichotomy of `actionImage_sigma_split_or_fixedPointFree` splits the `tau`-unramified obligation
+in two; the generic half is `stokesDuality_actionImage_generic`.
+
+⚠ This is the procyclic-`M` twin `NProcyclic.unramifiedActionImageStokes_of_scalar` is not: that
+one is `npcW`-specific, both in the word it names and in the `Φ`-normal route it takes. -/
+theorem unramifiedActionImageStokes_of_scalar {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hα : 1 ≤ alpha) (hqe : Even q)
+    (hfpf : DisplayFixedPointFree alpha r pp h q d)
+    (hpair : UnramifiedNormalPairingIsCompact alpha r pp h q d)
+    (hsc : ScalarActionImageStokes alpha r pp h q d) :
+    UnramifiedActionImageStokes (2 + 2 * h) q (mpcW alpha r pp d h)
+      (resolvedFamily alpha r pp h q d) := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτ
+  rcases actionImage_sigma_split_or_fixedPointFree
+    (n := 2 + 2 * h) (q := q) (R := mpcW alpha r pp d h) hM₂ hsimple hτ with hσ | hσfpf
+  · exact hsc M hM₂ hsimple hτ hσ
+  · exact stokesDuality_actionImage_generic hα hqe hfpf hpair M hM₂ hsimple hτ hσfpf
+
+/-- **The procyclic-`M` uniform pushed residue, reduced to its four named inputs** — three
+unramified, one ramified. -/
+theorem uniformPushedHsimp_of_residues {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hα : 1 ≤ alpha) (hqe : Even q)
+    (hfpf : DisplayFixedPointFree alpha r pp h q d)
+    (hpair : UnramifiedNormalPairingIsCompact alpha r pp h q d)
+    (hsc : ScalarActionImageStokes alpha r pp h q d)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
+    UniformPushedHsimp alpha r pp h q d :=
+  uniformPushedHsimp_of_ramified_separation hα hqe
+    (unramifiedActionImageStokes_of_scalar hα hqe hfpf hpair hsc) hsep
+
+end
+
+end GQ2.Dyadic.MProcyclicExact
+
+/-! ## Axiom audit -/
+
+section AxiomAudit
+
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_dW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.trivAct_dW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_dW_sigma_single_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.smul_zpow_powOmega2
+#print axioms GQ2.Dyadic.MProcyclicUnram.trivAct_of_actsAsPow
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_aHatW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_bHatW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_e01W_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_e2W_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_mpcHatW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_mpcLinW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_mpcW_unram
+#print axioms GQ2.Dyadic.MProcyclicUnram.foxD_mpcW_unram_of_eq
+#print axioms GQ2.Dyadic.MProcyclicUnram.inv_fixedPointFree
+#print axioms GQ2.Dyadic.MProcyclicUnram.oneSubInv_surjective_of_fixedPointFree
+#print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_surjective_of_unram_smul_row
+#print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_evenNormal_eq_zero_of_unram_smul_row
+#print axioms GQ2.Dyadic.MProcyclicUnram.evenNormalForm_of_unram_smul_row
+#print axioms GQ2.Dyadic.MProcyclicUnram.evenUnramifiedStokesDuality_of_smul_row
+#print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_mpcFamOf_unramified_apply
+#print axioms GQ2.Dyadic.MProcyclicUnram.heisD1_mpcFamOf_tauRow_of_split
+#print axioms GQ2.Dyadic.MProcyclicExact.displayFixedPointFree_one
+#print axioms GQ2.Dyadic.MProcyclicExact.stokesDuality_actionImage_generic
+#print axioms GQ2.Dyadic.MProcyclicExact.unramifiedActionImageStokes_of_scalar
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_residues
+
+end AxiomAudit
