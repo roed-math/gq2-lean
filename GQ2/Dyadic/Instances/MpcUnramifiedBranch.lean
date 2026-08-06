@@ -303,10 +303,10 @@ theorem foxD_mpcHatW_unram (α r pp : ℕ) (η : EtaDisplay) :
 D(R_lin^pc) = a(τ) + (1 − G⁻¹)·a(x₂),        G = the value of `D = σ^{η̂}`.
 ```
 
-`A²`, `[A,B]`, `C₀^{2^α}` and `E₀₁^pc` are all silent — the first and third because `α ≥ 1`
-makes their exponents even, the second because both entries act trivially, the fourth by
-`foxD_e01W_unram` — so only the `η̂`-commutator and the orbit-norm head survive, and they supply
-the two entries.
+`A²`, `[A,B]`, `C₀^{2^α}` and `E₀₁^pc` are all silent — the first because its exponent is `2`,
+the third because `α ≥ 1` makes `2^α` even, the second because both entries act trivially, the
+fourth by `foxD_e01W_unram` — so only the `η̂`-commutator and the orbit-norm head survive, and
+they supply the two entries.  `α ≥ 1` is used **here and nowhere else** on either copy.
 
 ⚠ `E₂^pc` is again first-order **essential** (it *is* the `a(τ)`-entry) and `E₀₁^pc` again
 first-order redundant, exactly as freeze row 5 records for the ramified reading. -/
