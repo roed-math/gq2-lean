@@ -364,6 +364,65 @@ theorem foxD_mpcLinW_unram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDis
 
 end Factors
 
+/-! ### The headline row -/
+
+set_option maxHeartbeats 800000 in
+/-- **The corrected procyclic-`M` word's unramified Fox row**, at every `(α ≥ 1, r, p, η, h)` and
+at **every** offset vector:
+
+```
+D(R_{M,pc})(a) = a(τ) + (1 − G⁻¹)·a(x₂),        G = the value of the display `D = σ^{η̂}`.
+```
+
+Two entries, in the `τ`- and `x₂`-columns: the **compact** shape
+(`MCompact.foxD_mCompact_unram_simple` is the case `G = σ`), and *not* the three-entry
+procyclic-`N` shape `(A⁻¹ − 1)a(x₀) + a(τ) + (1 − B⁻¹)a(x₂)` of
+`Certificates.Npc.foxD_npc_unram`.  Every trace of `α`, `r` and `p` is gone: the balance
+`s·2^α = 2·sm` is not even consulted, because on an `S₂`-trivial coefficient each of the two
+blocks it balances is *separately* silent.
+
+Three mechanisms, kept visible:
+
+* the three trailing blocks are dead for the same reason as in the ramified row
+  (`foxD_mpcW_eq_mpcProductW`, which carries no `τ`-class hypothesis at all);
+* the hat copy's `σ`-free row is `0` (`foxD_mpcHatW_unram`), so it contributes nothing;
+* the `σ`-column dies by WMP-b's coincidence lemma, reused verbatim at the unramified
+  `δ`-supply.  As in the ramified branch, no `σ`-freeness of the offsets is *assumed*. -/
+theorem foxD_mpcW_unram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    (hS₂ : ∀ w : V, powOmega2 t.σ • w = w) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h)
+      = a .tau + (a (coreLetter h 2)
+          - (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h)))⁻¹ • a (coreLetter h 2)) := by
+  have hTodd : ∀ w : V, powOmega2 t.τ • w = w := fun w ↦
+    mem_trivAct.mp (trivAct_powOmega2 (mem_trivAct.mpr hτ)) w
+  have hcol := congrArg (fun f : V →+ V ↦ f (a Generator.sigma))
+    (foxColumn_sigma_mul_eq_zero t E E₂ α r pp η hV₂
+      (trivAct_mpcLinW t E E₂ hα r pp η hwild hTodd) hwild
+      (fun i ↦ trivAct_dW_unram t E E₂ hwild hτ i)
+      (fun v i ↦ foxD_dW_sigma_single_unram t E E₂ hV₂ hwild hτ v i))
+  simp only [foxColumn_apply, AddMonoidHom.zero_apply] at hcol
+  rw [MProcyclicExact.foxD_mpcW_eq_mpcProductW t E E₂ a α r pp η hwild hTodd hV₂]
+  conv_lhs => rw [← pi_single_add_sigmaKill a]
+  rw [foxD_add, hcol, zero_add, foxD_mul,
+    foxD_mpcHatW_unram t E E₂ (sigmaKill a) (sigmaKill_sigma a) hV₂ hwild hτ hS₂ α r pp η,
+    smul_zero, add_zero,
+    foxD_mpcLinW_unram t E E₂ (sigmaKill a) (sigmaKill_sigma a) hV₂ hwild hτ hS₂ hα r pp η,
+    sigmaKill_of_ne a (by simp : (Generator.tau : Generator (2 + 2 * h)) ≠ Generator.sigma),
+    sigmaKill_of_ne a (coreLetter_ne_sigma h 2)]
+
+/-- The headline row in the shape a `heisD1` computation consumes: the `η̂`-display's value named
+as a single group element `u`. -/
+theorem foxD_mpcW_unram_of_eq {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {u : C}
+    (hu : PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h)) = u)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    (hS₂ : ∀ w : V, powOmega2 t.σ • w = w) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h)
+      = a .tau + (a (coreLetter h 2) - u⁻¹ • a (coreLetter h 2)) := by
+  rw [foxD_mpcW_unram t E E₂ a hα r pp η hV₂ hwild hτ hS₂, hu]
+
 end Rows
 
 end
