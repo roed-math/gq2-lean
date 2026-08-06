@@ -201,6 +201,162 @@ theorem sqGram_comp_autHom (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type
 
 end CupInvariance
 
+/-! ## §3 The χ-exponent row modulo two, and the Gram identity that names the pivot -/
+
+section LamRow
+
+variable {h : ℕ}
+
+/-- **The χ-exponent row is preserved modulo two by every χ-preserving automorphism.**  Only
+`χ_sq² = X^{2λ}` and `X² ≠ 1` are used: an odd difference would make `X²` trivial. -/
+theorem two_dvd_toAdd_nuLam_sub_of_chiPreserving
+    (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type))
+    (hchi : ∀ x, chiSq h (Ψ x) = chiSq h x) (x : (DSq h : Type)) :
+    (2 : ℤ_[2]) ∣ toAdd (nuLam h (Ψ x)) - toAdd (nuLam h x) := by
+  by_contra hc
+  have hu : IsUnit (toAdd (nuLam h (Ψ x)) - toAdd (nuLam h x)) := isUnit_iff_not_two_dvd.mpr hc
+  have h1 : zpowZtwo isProP_two_unitsPadicInt (rootXUnit ^ 2) (toAdd (nuLam h (Ψ x)))
+      = zpowZtwo isProP_two_unitsPadicInt (rootXUnit ^ 2) (toAdd (nuLam h x)) := by
+    rw [← xPowLamSq_apply, ← xPowLamSq_apply, ← chiSq_sq_eq_lam, ← chiSq_sq_eq_lam, hchi]
+  refine rootXUnit_sq_ne_one
+    (eq_one_of_zpowZtwo_eq_one_of_isUnit isProP_two_unitsPadicInt _ hu ?_)
+  rw [sub_eq_add_neg, zpowZtwo_add, h1, ← zpowZtwo_add, add_neg_cancel, zpowZtwo_zero_exp]
+
+/-- The reduced χ-exponent row is literally `Aut_χ`-invariant. -/
+theorem sqRedMark_nuLam_aut (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type))
+    (hchi : ∀ x, chiSq h (Ψ x) = chiSq h x) (x : (DSq h : Type)) :
+    sqRedMark (nuLam h) (Ψ x) = sqRedMark (nuLam h) x :=
+  (sqRedMark_eq_iff (nuLam h) (Ψ x) x).mpr
+    (two_dvd_toAdd_nuLam_sub_of_chiPreserving Ψ hchi x)
+
+/-! ### The generator values of the reduced χ-exponent row: `(1, 1, 0, 0, …, 0)` -/
+
+theorem toAdd_sqRedMark_nuLam_zero (h : ℕ) :
+    toAdd (sqRedMark (nuLam h) (sqGen h 0)) = 1 := by
+  show toAdd (sqModTwo (nuLam h (dsqSigma h))) = 1
+  rw [nuLam_sigma]
+  exact toAdd_sqModTwo_of_odd (isUnit_iff_not_two_dvd.mp isUnit_sqPivotExp)
+
+theorem toAdd_sqRedMark_nuLam_one (h : ℕ) :
+    toAdd (sqRedMark (nuLam h) (sqGen h 1)) = 1 := by
+  show toAdd (sqModTwo (nuLam h (dsqX0 h))) = 1
+  rw [nuLam_x0]
+  exact toAdd_sqModTwo_of_odd (isUnit_iff_not_two_dvd.mp isUnit_one)
+
+theorem toAdd_sqRedMark_nuLam_two (h : ℕ) :
+    toAdd (sqRedMark (nuLam h) (sqGen h 2)) = 0 := by
+  show toAdd (sqModTwo (nuLam h (dsqX1 h))) = 0
+  rw [nuLam_x1]
+  exact toAdd_sqModTwo_of_even ⟨1, by ring⟩
+
+theorem toAdd_sqRedMark_nuLam_handleU (j : Fin h) :
+    toAdd (sqRedMark (nuLam h) (sqGen h (sqHandleIdxU j))) = 0 := by
+  show toAdd (sqModTwo (nuLam h (sqGen h (sqHandleIdxU j)))) = 0
+  rw [nuLam_handleU, map_one]
+  rfl
+
+theorem toAdd_sqRedMark_nuLam_handleV (j : Fin h) :
+    toAdd (sqRedMark (nuLam h) (sqGen h (sqHandleIdxV j))) = 0 := by
+  show toAdd (sqModTwo (nuLam h (sqGen h (sqHandleIdxV j)))) = 0
+  rw [nuLam_handleV, map_one]
+  rfl
+
+/-- The mod-two pivot row of a character, in the two core coordinates: `c(w) = c(σ) + c(x₀)`
+(the exponent `c₀` is odd, and `−1 = 1` in `𝔽₂`). -/
+theorem toAdd_modTwo_sqPivot
+    (c : ContinuousMonoidHom (DSq h : Type) (Multiplicative (ZMod 2))) :
+    toAdd (c (sqPivot h)) = toAdd (c (sqGen h 0)) + toAdd (c (sqGen h 1)) := by
+  have hodd : ¬ (2 : ℤ_[2]) ∣ sqPivotExp := isUnit_iff_not_two_dvd.mp isUnit_sqPivotExp
+  have hval : c (sqPivot h) = c (dsqSigma h) * (c (dsqX0 h))⁻¹ := by
+    show c (sqMixPivotElem h sqPivotExp) = _
+    rw [sqMixPivotElem, map_mul, map_inv,
+      map_zpowZtwo (isProP_DSq h) isProP_multZMod2 c (dsqX0 h) sqPivotExp,
+      zpowZtwo_multZMod2_of_odd _ hodd]
+  have hneg : ∀ z : ZMod 2, -z = z := by decide
+  rw [hval, toAdd_mul, toAdd_inv, hneg]
+  rfl
+
+/-- **The Gram identity that names the pivot.**  Paired against the reduced χ-exponent row, the
+Frattini cup form of the model *is* evaluation at the χ-trivial pivot:
+
+```text
+  λ̄ ⌣ c = c(w)   for every mod-two character c.
+```
+
+In the relator's constructor table this is the single line
+`Gram(λ̄, c) = λ̄₂c₂ + (λ̄₀c₁ + λ̄₁c₀) + Σⱼ(…) = c₁ + c₀ = c(w)`.  It is the mod-two form of
+"`w̄` is the vector cup-dual to `λ̄`", and it is what makes the pivot row a cup-form
+invariant. -/
+theorem sqGram_nuLam (h : ℕ)
+    (c : ContinuousMonoidHom (DSq h : Type) (Multiplicative (ZMod 2))) :
+    sqGram h (sqRedMark (nuLam h)) c = toAdd (c (sqPivot h)) := by
+  have hsum : ∑ j : Fin h,
+      (toAdd (sqRedMark (nuLam h) (sqGen h (sqHandleIdxU j))) *
+          toAdd (c (sqGen h (sqHandleIdxV j))) +
+        toAdd (sqRedMark (nuLam h) (sqGen h (sqHandleIdxV j))) *
+          toAdd (c (sqGen h (sqHandleIdxU j)))) = 0 :=
+    Finset.sum_eq_zero fun j _ => by
+      rw [toAdd_sqRedMark_nuLam_handleU, toAdd_sqRedMark_nuLam_handleV, zero_mul, zero_mul,
+        add_zero]
+  show GQ2.ContCoh.sqRelatorQuadraticInitialGram h
+      (fun i j => toAdd (sqRedMark (nuLam h) (sqGen h i)) * toAdd (c (sqGen h j))) = _
+  rw [GQ2.ContCoh.sqRelatorQuadraticInitialGram_eq, hsum, toAdd_sqRedMark_nuLam_zero,
+    toAdd_sqRedMark_nuLam_one, toAdd_sqRedMark_nuLam_two, toAdd_modTwo_sqPivot,
+    zero_mul, one_mul, one_mul, zero_add, add_zero]
+  ring
+
+end LamRow
+
+/-! ## §4 The parity of the pivot row is `Aut_χ`-invariant -/
+
+section PivotParity
+
+variable {h : ℕ}
+
+/-- **THE INVARIANCE.**  Every χ-preserving continuous automorphism of `D_sq h` fixes the
+χ-trivial pivot `w` in the Frattini quotient: every mod-two character takes the same value at
+`Ψ w` and at `w`.
+
+Two inputs, both proved above: the cup form is `Aut(D_sq h)`-invariant (§2, no orientation
+clause), and the reduced χ-exponent row `λ̄` is `Aut_χ`-invariant (§3).  The bridge is the Gram
+identity `λ̄ ⌣ c = c(w)`: it turns invariance of the *functional* `λ̄` into invariance of the
+*vector* `w̄`, because the cup form identifies the two. -/
+theorem modTwoChar_aut_sqPivot (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type))
+    (hchi : ∀ x, chiSq h (Ψ x) = chiSq h x)
+    (c : ContinuousMonoidHom (DSq h : Type) (Multiplicative (ZMod 2))) :
+    c (Ψ (sqPivot h)) = c (sqPivot h) := by
+  have hinv := sqGram_comp_autHom Ψ (sqRedMark (nuLam h)) c
+  have hL : sqGram h ((sqRedMark (nuLam h)).comp (autHom Ψ)) (c.comp (autHom Ψ))
+      = sqGram h (sqRedMark (nuLam h)) (c.comp (autHom Ψ)) :=
+    sqGram_congr (fun i => sqRedMark_nuLam_aut Ψ hchi (sqGen h i)) (fun _ => rfl)
+  rw [hL, sqGram_nuLam, sqGram_nuLam] at hinv
+  exact Multiplicative.toAdd.injective hinv
+
+/-- **The pivot row is fixed modulo two** by every χ-preserving automorphism, against every
+marking. -/
+theorem two_dvd_toAdd_nu_aut_sqPivot_sub (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type))
+    (hchi : ∀ x, chiSq h (Ψ x) = chiSq h x)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) :
+    (2 : ℤ_[2]) ∣ toAdd (nu' (Ψ (sqPivot h))) - toAdd (nu' (sqPivot h)) :=
+  (sqRedMark_eq_iff nu' (Ψ (sqPivot h)) (sqPivot h)).mp
+    (modTwoChar_aut_sqPivot Ψ hchi (sqRedMark nu'))
+
+/-- **The unit locus of the pivot row is `Aut_χ`-invariant.**  No χ-preserving automorphism can
+turn an even pivot row into a unit one, or the other way round. -/
+theorem isUnit_toAdd_nu_aut_sqPivot_iff
+    (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type))
+    (hchi : ∀ x, chiSq h (Ψ x) = chiSq h x)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) :
+    IsUnit (toAdd (nu' (Ψ (sqPivot h)))) ↔ IsUnit (toAdd (nu' (sqPivot h))) := by
+  obtain ⟨s, hs⟩ := two_dvd_toAdd_nu_aut_sqPivot_sub Ψ hchi nu'
+  constructor
+  · exact fun hu => isUnit_iff_not_two_dvd.mpr fun ⟨p, hp⟩ =>
+      (isUnit_iff_not_two_dvd.mp hu) ⟨s + p, by linear_combination hs + hp⟩
+  · exact fun hu => isUnit_iff_not_two_dvd.mpr fun ⟨p, hp⟩ =>
+      (isUnit_iff_not_two_dvd.mp hu) ⟨p - s, by linear_combination hp - hs⟩
+
+end PivotParity
+
 end SqCore
 
 end Dyadic
