@@ -97,45 +97,75 @@ theorem foxD_plusW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w =
     foxD_comm_of_trivial _ _ _ _ ht0 ht1
   rw [plusW, MCompact.foxD_prodList_pair, hsq, hcm, smul_zero, add_zero]
 
-/-- **The whole word's Fox row is the linear copy's**, at σ-free offsets on a ramified
-elementary coefficient: the hat copy, the plus block and the handle tail all die, so no prefix
-weight survives. -/
-theorem foxD_mpcW_eq_mpcLinW {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
-    (hσ : a Generator.sigma = 0)
+/-- **The whole word's Fox row is the two-copy pair's**, at *every* offset vector and with no
+`τ`-class hypothesis beyond what the two dead blocks need.  This is the step `prodList` cannot
+take on its own: the append law turns the four-block list into the pair `R_lin^pc·R̂^pc` followed
+by two blocks whose rows vanish, and the prefix weights therefore multiply `0`. -/
+theorem foxD_mpcW_eq_mpcProductW (α r pp : ℕ) (η : EtaDisplay)
     (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
-    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
-    (hV₂ : ∀ w : V, w + w = 0) :
-    foxD ⇑t a E E₂ (mpcW α r pp η h) = foxD ⇑t a E E₂ (mpcLinW α r pp η h) := by
-  have hhat : foxD ⇑t a E E₂ (PWord.prodList (hatFactors α r pp η h)) = 0 :=
-    foxD_mpcHatW_ram t E E₂ a hσ hwild hτfpf hTodd hα r pp η hV₂
+    (hTodd : ∀ w : V, powOmega2 t.τ • w = w) (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h)
+      = foxD ⇑t a E E₂ (PWord.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h)) := by
   have hplus : foxD ⇑t a E E₂
       (PWord.prodList [PWord.zpow (dW h 0) ((2 : ℕ) : ℤ), PWord.comm (dW h 0) (dW h 1)]) = 0 :=
     foxD_plusW t E E₂ a hwild hTodd hV₂
   have htail : foxD ⇑t a E E₂ (PWord.prodList (handleTailW h)) = 0 :=
     foxD_prodList_handleTailW t E E₂ a hwild
-  rw [mpcW, mpcLinW, foxD_prodList_append, foxD_prodList_append, foxD_prodList_append, hhat,
-    hplus, htail, smul_zero, smul_zero, smul_zero, add_zero, add_zero, add_zero]
+  rw [mpcW, foxD_prodList_append, foxD_prodList_append, foxD_prodList_append, hplus, htail,
+    smul_zero, smul_zero, add_zero, add_zero, foxD_mul, mpcLinW, mpcHatW]
+
+/-- **The whole word's Fox row is the linear copy's, read at σ-killed offsets** — at *every*
+offset vector, on a ramified elementary coefficient.
+
+Two mechanisms, kept visible: the σ-column dies by WMP-b's **coincidence** (the two copies'
+σ-entries are the same operator, and `Φ + Φ = 0`), while the hat copy's remaining columns die by
+Rem. 5.4.  Both are `Certificates.MProcyclic.foxD_mpcProductW_eq_lin`; what is new here is that
+the *word* — not merely the pair — has that row. -/
+theorem foxD_mpcW_eq_lin {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h)
+      = foxD ⇑t (sigmaKill a) E E₂ (mpcLinW α r pp η h) :=
+  (foxD_mpcW_eq_mpcProductW t E E₂ a α r pp η hwild hTodd hV₂).trans
+    (foxD_mpcProductW_eq_lin t E E₂ hα r pp η hV₂ hwild hτfpf hTodd a)
 
 /-- **The procyclic-`M` word's ramified Fox row is a single entry**, at every `(α ≥ 1, r, p, η,
-h)`:
+h)` and at **every** offset vector:
 
 ```
-D(R_{M,pc})(a) = S₂^{−s}·σ^{−n}·a(x₂)
+D(R_{M,pc})(a) = S₂^{−s}·σ^{−n}·a(x₂).
 ```
 
-at σ-free offsets on a ramified elementary coefficient.  This is the **compact shape** — the
-row is supported on `x₂` alone, with an invertible operator in front, exactly like
-`MCompact.mCompactWildRow` read at `P ↦ 0` — and **not** the two-entry procyclic-`N` shape. -/
+This is the **compact shape** — supported on the `x₂`-column alone, with an invertible operator
+in front, exactly as `MCompact.mCompactWildRow` read at the ramified interpretation `P ↦ 0` is
+`(0,0,0,0,S⁻¹)`.  It is **not** the two-entry procyclic-`N` shape of `NpcRamifiedBranch`, and
+that is the whole reason the procyclic-`M` ramified branch can follow `M0RamifiedStokes` rather
+than `NpcRamifiedRow`: no `x₀`-entry means no `x₂ = B(A⁻¹−1)x₀` on a cocycle, hence no opaque
+`ω₂`-charge to carry.
+
+There is no σ-freeness hypothesis: the σ-column is not assumed away, it is proved to vanish. -/
 theorem foxD_mpcW_x2 {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
-    (hσ : a Generator.sigma = 0)
     (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
     (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
     (hη : ActsAsPow t.σ nη (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h))) V)
     (hV₂ : ∀ w : V, w + w = 0) :
     foxD ⇑t a E E₂ (mpcW α r pp η h)
       = ((powOmega2 t.σ) ^ (-(s r : ℤ))) • ((t.σ ^ (-nη)) • a (coreLetter h 2)) := by
-  rw [foxD_mpcW_eq_mpcLinW t E E₂ a hα r pp η hσ hwild hτfpf hTodd hV₂,
-    foxD_mpcLinW_x2 t E E₂ a hσ hwild hτfpf hTodd hα r pp hη hV₂]
+  rw [foxD_mpcW_eq_lin t E E₂ a hα r pp η hwild hτfpf hTodd hV₂,
+    foxD_mpcLinW_x2 t E E₂ (sigmaKill a) (sigmaKill_sigma a) hwild hτfpf hTodd hα r pp hη hV₂,
+    sigmaKill_of_ne a (coreLetter_ne_sigma h 2)]
+
+/-- The single-entry row in the `u • x(x₂)` shape the ramified normal-form route consumes: one
+group element, applied to the `x₂`-coordinate. -/
+theorem foxD_mpcW_smul {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (hη : ActsAsPow t.σ nη (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h))) V)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcW α r pp η h)
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ)) * t.σ ^ (-nη)) • a (coreLetter h 2) := by
+  rw [foxD_mpcW_x2 t E E₂ a hα r pp hwild hτfpf hTodd hη hV₂, mul_smul]
 
 end FullRow
 
@@ -353,8 +383,10 @@ end
 
 #print axioms GQ2.Dyadic.MProcyclicExact.foxD_prodList_handleTailW
 #print axioms GQ2.Dyadic.MProcyclicExact.foxD_plusW
-#print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_eq_mpcLinW
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_eq_mpcProductW
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_eq_lin
 #print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_x2
+#print axioms GQ2.Dyadic.MProcyclicExact.foxD_mpcW_smul
 #print axioms GQ2.Dyadic.MProcyclicExact.levelResolver
 #print axioms GQ2.Dyadic.MProcyclicExact.pushedHsimp_of_hsimp
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_hsimp
