@@ -747,6 +747,485 @@ theorem exactLiftingRN_of_fieldSelection
       exact NProcyclic.exactLiftingRN_standard_congr hn
         (exactLiftingRN display hsimp (le_trans (by omega) valid.1) valid.2 hqe nuP)
 
+/-! ## The uniform pushed residue, and consumers that do not assume `Hsimp`
+
+`Hsimp` above ranges over *all* finite markings at which the two resolved relators die, including
+non-wild markings which need not extend across `GammaR`; nothing proves it, and
+`MpcActionImageDevissage`'s `PushedHsimp` commentary records that the converse weakening is
+unavailable.  What the campaign has actually proved for this row is the *uniform pushed* residue:
+markings pushed forward from the candidate group, one displayed word per finite target at the
+level `4 * Monoid.exponent C`.
+
+⚠ Layering note.  The row-uniform name used by the other rows is `UniformPushedHsimp`
+(`LSquare.UniformPushedHsimp`, `MCompact.UniformPushedHsimp`, `NProcyclic.UniformPushedHsimp`),
+and on this row that name lives in `GQ2/Dyadic/Instances/MpcActionImageDevissage.lean`, which
+**imports this file** and therefore cannot be named from here.  The statement is restated below as
+`UniformHsimp` with literally the same body, so a term of either type is accepted where the other
+is expected and every existing consumer of either name is unaffected.  Nothing here weakens or
+replaces the `Hsimp` clauses above; every one of them is kept, `stokesDuality` and
+`stokesDuality_T` included.
+
+Those two get no uniform twin on purpose.  Their whole content is the devissage from simple
+coefficients to all elementary ones at a chosen level; over the uniform residue there is nothing
+left to do, because the residue *is* Stokes duality at the pushed marking, so each clause below
+applies `hsimp` directly.  (The pushed-but-not-uniform twins `stokesDuality_of_pushed` and
+`stokesDuality_T_of_pushed` do exist, downstream in `MpcActionImageDevissage`.) -/
+
+/-- The coefficient-independent residue at the uniform level `4 * Monoid.exponent C`, in the
+shape produced by action-image devissage.  This is the same proposition as
+`MProcyclicExact.UniformPushedHsimp` in `MpcActionImageDevissage.lean`, restated here because
+that file imports this one and so cannot supply the binder for the clauses below. -/
+def UniformHsimp (alpha r pp h q : ℕ) (d : EtaDisplay) : Prop :=
+  ∀ (C : Type) [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (rho : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) C)
+    (A : Type) [AddCommGroup A] [DistribMulAction C A] [Finite A],
+      (∀ a : A, a + a = 0) →
+        StokesDuality
+          (fun g ↦ rho (gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) g))
+          (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C)) A
+
+/-- The row's matched `(resolver, endpoint)` pair at the uniform level.  Only the finite target
+`C` enters the level, so a coefficient devissage may keep the displayed word fixed. -/
+theorem resolvesAt_and_endpoint_uniformHeis {alpha r pp h q : ℕ}
+    {C A : Type} [Group C] [Finite C] [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) (hα : 1 ≤ alpha) (hqe : Even q) (d : EtaDisplay) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+        (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C)) (HeisLift A C)
+      ∧ IsStokesEndpoint (resolvedFamily alpha r pp h q d (4 * Monoid.exponent C)) :=
+  resolvesAt_and_endpoint_resolvedFamily (Q := HeisLift A C)
+    (fourMulExponent_ne_zero_and_even C).1 (fourMulExponent_ne_zero_and_even C).2
+    (orderOf_heisLift_dvd_four_mul hA₂ fun g : C ↦ Monoid.order_dvd_exponent g) hα hqe d
+
+/-- The scalar `H²` count from the uniform residue.  Same statement as `cardH2`; only the residue
+binder changes. -/
+theorem cardH2_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q) :
+    letI := scalarActionZmodTwo ((displayedGamma alpha r pp h q d : Type))
+    Nat.card (H2 ((displayedGamma alpha r pp h q d : Type)) (ZMod 2)) = 2 := by
+  letI := scalarActionZmodTwo ((displayedGamma alpha r pp h q d : Type))
+  letI := scalarActionZmodTwo (Base ⧸ datum.M)
+  set rho := datumRho alpha r pp h q d hα hr with hrho
+  letI : TopologicalSpace (ElemDual (Additive ↥datum.T)) := ⊥
+  haveI : DiscreteTopology (ElemDual (Additive ↥datum.T)) := ⟨rfl⟩
+  letI : DistribMulAction ((displayedGamma alpha r pp h q d : Type))
+      (Additive ↥datum.T) := DistribMulAction.compHom _ rho.toMonoidHom
+  letI : DistribMulAction ((displayedGamma alpha r pp h q d : Type))
+      (ElemDual (Additive ↥datum.T)) := DistribMulAction.compHom _ rho.toMonoidHom
+  haveI : ContinuousSMul ((displayedGamma alpha r pp h q d : Type))
+      (ElemDual (Additive ↥datum.T)) := by
+    constructor
+    have hfac :
+        (fun p : ((displayedGamma alpha r pp h q d : Type)) ×
+            ElemDual (Additive ↥datum.T) => p.1 • p.2)
+          = (fun z : (Base ⧸ datum.M) × ElemDual (Additive ↥datum.T) => z.1 • z.2)
+            ∘ (fun p : ((displayedGamma alpha r pp h q d : Type)) ×
+                ElemDual (Additive ↥datum.T) => (rho p.1, p.2)) := by
+      funext p
+      rfl
+    rw [hfac]
+    exact (continuous_of_discreteTopology
+      (f := fun z : (Base ⧸ datum.M) × ElemDual (Additive ↥datum.T) => z.1 • z.2)).comp
+      ((rho.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hb := resolvesAt_and_endpoint_uniformHeis (C := Base ⧸ datum.M)
+    (A := Additive ↥datum.T) (radT_add_self datum) (alpha := alpha) (r := r) (pp := pp)
+    (h := h) (q := q) hα hqe d
+  have hresH : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Base ⧸ datum.M)))
+      (HeisLift (Additive ↥datum.T) (Base ⧸ datum.M)) := hb.1
+  have hresS : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Base ⧸ datum.M)))
+      (WordLift (ZMod 2) (Base ⧸ datum.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (ZMod 2) (Base ⧸ datum.M))
+        (HeisLift (Additive ↥datum.T) (Base ⧸ datum.M)) :=
+      ⟨heisScal, continuous_of_discreteTopology⟩
+    exact hresH.pullback incl heisScal_injective
+  have hresP : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Base ⧸ datum.M)))
+      (WordLift (Additive ↥datum.T) (Base ⧸ datum.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (Additive ↥datum.T) (Base ⧸ datum.M))
+        (HeisLift (Additive ↥datum.T) (Base ⧸ datum.M)) :=
+      ⟨heisPrim, continuous_of_discreteTopology⟩
+    exact hresH.pullback incl heisPrim_injective
+  have hresD : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Base ⧸ datum.M)))
+      (WordLift (ElemDual (Additive ↥datum.T)) (Base ⧸ datum.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (ElemDual (Additive ↥datum.T)) (Base ⧸ datum.M))
+        (HeisLift (Additive ↥datum.T) (Base ⧸ datum.M)) :=
+      ⟨GQ2.Dyadic.Count.heisDual, continuous_of_discreteTopology⟩
+    exact hresH.pullback incl GQ2.Dyadic.Count.heisDual_injective
+  exact cardH2_of_variation (tComplement_nonempty datum).some rho (fun _ _ => rfl)
+    (fun _ _ => rfl) (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h))
+    (fun V => hwildLevel_gammaR V)
+    (isWildTwo_of_gammaGen rho (datumRho_surjective alpha r pp h q d hα hr)
+      (fun _ => rfl))
+    hresS hresP hresD hresH
+    (hsimp (Base ⧸ datum.M) rho (Additive ↥datum.T) (radT_add_self datum))
+    (hsimp (Base ⧸ datum.M) rho (ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0))
+    hb.2 datum_noDescent (datumRho_surjective alpha r pp h q d hα hr)
+
+/-- The lift count at every recursion frame, from the uniform residue.  Same statement as
+`liftsOver_card`. -/
+theorem liftsOver_card_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+      (RF : RecursionFrame T Blk)
+      (b : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type))
+        ↥(boundarySubgroupQ q nuP))
+      (F : BoundaryFrameK q P H E) (rho : BoundaryLiftsK b F RF.TC),
+      Nat.card (LiftsOverK RF b F rho) =
+        (standardNumerics (2 * h + 2)).mMult (Nat.card ↥RF.MB) := by
+  intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk RF b F rho
+  letI := mbCommGroup RF
+  letI := mbConjActC RF
+  letI := scalarActionZmodTwo RF.YC
+  have hb := resolvesAt_and_endpoint_uniformHeis (C := RF.YC) (A := Additive ↥RF.MB)
+    (mb_add_self RF) (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) hα hqe d
+  have hres : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent RF.YC))
+      (WordLift (Additive ↥RF.MB) RF.YC) := by
+    let incl : ContinuousMonoidHom (WordLift (Additive ↥RF.MB) RF.YC)
+        (HeisLift (Additive ↥RF.MB) RF.YC) := ⟨heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl heisPrim_injective
+  exact liftsOver_cardN RF b F rho
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h))
+    (fun _ => rfl) (isWildTwo_of_gammaGen rho.1.1 rho.1.2 (fun _ => rfl))
+    (nCompact_degree h) hres
+    (hsimp RF.YC rho.1.1 (Additive ↥RF.MB) (mb_add_self RF)) hb.2
+
+/-- The universal half-torsor identity, from the uniform residue.  Same statement as `lem86`. -/
+theorem lem86_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) (hedge : D.NoDescent)
+    (rho : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) (Bg ⧸ D.M))
+    (hrho : Function.Surjective rho) :
+    2 * Nat.card {f : MLifts D rho // f.Central} = Nat.card (MLifts D rho) := by
+  letI := scalarActionZmodTwo ((displayedGamma alpha r pp h q d : Type))
+  letI := scalarActionZmodTwo (Bg ⧸ D.M)
+  letI : TopologicalSpace (ElemDual (Additive ↥D.T)) := ⊥
+  haveI : DiscreteTopology (ElemDual (Additive ↥D.T)) := ⟨rfl⟩
+  letI : DistribMulAction ((displayedGamma alpha r pp h q d : Type)) (Additive ↥D.T) :=
+    DistribMulAction.compHom _ rho.toMonoidHom
+  letI : DistribMulAction ((displayedGamma alpha r pp h q d : Type))
+      (ElemDual (Additive ↥D.T)) := DistribMulAction.compHom _ rho.toMonoidHom
+  haveI : ContinuousSMul ((displayedGamma alpha r pp h q d : Type))
+      (ElemDual (Additive ↥D.T)) := by
+    constructor
+    have hfac :
+        (fun p : ((displayedGamma alpha r pp h q d : Type)) ×
+            ElemDual (Additive ↥D.T) => p.1 • p.2)
+          = (fun z : (Bg ⧸ D.M) × ElemDual (Additive ↥D.T) => z.1 • z.2)
+            ∘ (fun p : ((displayedGamma alpha r pp h q d : Type)) ×
+                ElemDual (Additive ↥D.T) => (rho p.1, p.2)) := by
+      funext p
+      rfl
+    rw [hfac]
+    exact (continuous_of_discreteTopology
+      (f := fun z : (Bg ⧸ D.M) × ElemDual (Additive ↥D.T) => z.1 • z.2)).comp
+      ((rho.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hb := resolvesAt_and_endpoint_uniformHeis (C := Bg ⧸ D.M) (A := Additive ↥D.T)
+    (radT_add_self D) (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) hα hqe d
+  have hresH : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Bg ⧸ D.M)))
+      (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) := hb.1
+  have hresS : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Bg ⧸ D.M)))
+      (WordLift (ZMod 2) (Bg ⧸ D.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (ZMod 2) (Bg ⧸ D.M))
+        (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) := ⟨heisScal, continuous_of_discreteTopology⟩
+    exact hresH.pullback incl heisScal_injective
+  have hresP : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Bg ⧸ D.M)))
+      (WordLift (Additive ↥D.T) (Bg ⧸ D.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+        (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) := ⟨heisPrim, continuous_of_discreteTopology⟩
+    exact hresH.pullback incl heisPrim_injective
+  have hresD : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Bg ⧸ D.M)))
+      (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))
+        (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) :=
+      ⟨GQ2.Dyadic.Count.heisDual, continuous_of_discreteTopology⟩
+    exact hresH.pullback incl GQ2.Dyadic.Count.heisDual_injective
+  exact lem86_of_variation (tComplement_nonempty D).some rho (fun _ _ => rfl)
+    (fun _ _ => rfl) (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h))
+    (fun V => hwildLevel_gammaR V)
+    (isWildTwo_of_gammaGen rho hrho (fun _ => rfl)) hresS hresP hresD hresH
+    (hsimp (Bg ⧸ D.M) rho (Additive ↥D.T) (radT_add_self D))
+    (hsimp (Bg ⧸ D.M) rho (ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0))
+    hb.2 hedge hrho
+
+/-- Obstruction-zero separation from the uniform residue.  Same statement as
+`homLift_of_obs_zeroRN`. -/
+theorem homLift_of_obs_zeroRN_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    [DistribMulAction ((displayedGamma alpha r pp h q d : Type)) (ZMod 2)]
+    [ContinuousSMul ((displayedGamma alpha r pp h q d : Type)) (ZMod 2)]
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE₂ : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ x ∈ Blk.frattiniK, ∀ k ∈ Blk.K, x * k = k * x)
+    (hR₂ : ∀ x ∈ Blk.frattiniK, x * x = 1)
+    (b : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type))
+      ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E)
+    (htriv : ∀ (γ : (displayedGamma alpha r pp h q d : Type)) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 ((displayedGamma alpha r pp h q d : Type)) (ZMod 2)) = 2)
+    (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE₂).TB)
+    (hg : obs (blockFrameImpl T Blk hE₂) (blockRObstructionData T Blk hE₂)
+      htriv hcard g.1.1 = 0) :
+    ∃ φ : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) Y,
+      ∀ γ, (blockFrameImpl T Blk hE₂).piB (φ γ) = g.1.1 γ := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  letI : DistribMulAction (Y ⧸ Blk.K) (ZMod 2) := scalarActionZmodTwo (Y ⧸ Blk.K)
+  have hb := resolvesAt_and_endpoint_uniformHeis (C := Y ⧸ Blk.K)
+    (A := Additive ↥Blk.frattiniK) (RStageLocal.frattiniK_add_self hRK hR₂)
+    (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) hα hqe d
+  have hresR : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Y ⧸ Blk.K)))
+      (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) := by
+    let incl : ContinuousMonoidHom (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))
+        (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) :=
+      ⟨heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl heisPrim_injective
+  have hresS : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Y ⧸ Blk.K)))
+      (WordLift (ZMod 2) (Y ⧸ Blk.K)) := by
+    let incl : ContinuousMonoidHom (WordLift (ZMod 2) (Y ⧸ Blk.K))
+        (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) :=
+      ⟨heisScal, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl heisScal_injective
+  have hRleK : Blk.frattiniK ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
+  set qKR : (blockFrameImpl T Blk hE₂).YB →* (Y ⧸ Blk.K) :=
+    QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
+      (by rw [Subgroup.comap_id]; exact hRleK) with hqKR
+  set θ : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) (Y ⧸ Blk.K) :=
+    ⟨qKR.comp g.1.1.toMonoidHom,
+      (continuous_of_discreteTopology (f := qKR)).comp g.1.1.continuous_toFun⟩ with hθ
+  have hd : StokesDuality
+      (fun i => θ (gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) i))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Y ⧸ Blk.K)))
+      (Additive ↥Blk.frattiniK) :=
+    hsimp (Y ⧸ Blk.K) θ (Additive ↥Blk.frattiniK)
+      (RStageLocal.frattiniK_add_self hRK hR₂)
+  refine homLift_of_obs_zero_boundaryLiftK_markingN hE₂ hRK hR₂ htriv hcard b F g
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h))
+    (isWildTwo_gammaGen_of_surjective g.1.1 g.1.2) hresS hresR ?_ hb.2 hg
+  change StokesDuality
+    (fun i => θ (gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) i))
+    (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Y ⧸ Blk.K)))
+    (Additive ↥Blk.frattiniK)
+  exact hd
+
+/-- The `R`-cocycle coefficient from the uniform residue.  Same statement as
+`rCocycle_cardRN`. -/
+theorem rCocycle_cardRN_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE₂ : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ x ∈ Blk.frattiniK, ∀ k ∈ Blk.K, x * k = k * x)
+    (hR₂ : ∀ x ∈ Blk.frattiniK, x * x = 1)
+    (f₀ : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) Y)
+    (hf₀ : Function.Surjective f₀) :
+    Nat.card (RCocycle (blockFrameImpl T Blk hE₂) f₀) =
+      zRN (blockFrameImpl T Blk hE₂) (standardNumerics (2 * h + 2)) := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) :=
+    RStageLocal.conjC Blk hRK
+  letI : DistribMulAction (Y ⧸ Blk.K) (ZMod 2) := scalarActionZmodTwo (Y ⧸ Blk.K)
+  have hb := resolvesAt_and_endpoint_uniformHeis (C := Y ⧸ Blk.K)
+    (A := Additive ↥Blk.frattiniK) (RStageLocal.frattiniK_add_self hRK hR₂)
+    (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q) hα hqe d
+  have hresR : ResolvesAt (gammaFam (2 + 2 * h) q (mpcW alpha r pp d h))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Y ⧸ Blk.K)))
+      (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) := by
+    let incl : ContinuousMonoidHom (WordLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K))
+        (HeisLift (Additive ↥Blk.frattiniK) (Y ⧸ Blk.K)) :=
+      ⟨heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl heisPrim_injective
+  set θ : ContinuousMonoidHom ((displayedGamma alpha r pp h q d : Type)) (Y ⧸ Blk.K) :=
+    ⟨(QuotientGroup.mk' Blk.K).comp f₀.toMonoidHom,
+      (continuous_of_discreteTopology (f := QuotientGroup.mk' Blk.K)).comp
+        f₀.continuous_toFun⟩ with hθ
+  have hθsurj : Function.Surjective θ :=
+    (QuotientGroup.mk'_surjective Blk.K).comp hf₀
+  have hd : StokesDuality
+      (fun i => θ (gammaGen (2 + 2 * h) q (mpcW alpha r pp d h) i))
+      (resolvedFamily alpha r pp h q d (4 * Monoid.exponent (Y ⧸ Blk.K)))
+      (Additive ↥Blk.frattiniK) :=
+    hsimp (Y ⧸ Blk.K) θ (Additive ↥Blk.frattiniK)
+      (RStageLocal.frattiniK_add_self hRK hR₂)
+  exact rCocycle_card_standard_zRN hE₂ hRK hR₂ f₀ hf₀
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mpcW alpha r pp d h))
+    hresR (isWildTwo_gammaGen_of_surjective θ hθsurj) (nCompact_degree h) hd hb.2
+
+/-- Corrected exact lifting for every displayed Mpc presentation, from the uniform residue.  Same
+statement as `exactLiftingDisplayedRN`. -/
+theorem exactLiftingDisplayedRN_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (displayedGamma alpha r pp h q d) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  refine ⟨liftsOver_card_of_uniformPushed hsimp hα hqe, ?_, ?_⟩
+  · intro Bg _ _ _ _ D hedge rho hrho
+    exact lem86_of_uniformPushed hsimp hα hqe D hedge rho hrho
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
+    letI := scalarActionZmodTwo ((displayedGamma alpha r pp h q d : Type))
+    haveI := scalarActionZmodTwo_continuousSMul
+      ((displayedGamma alpha r pp h q d : Type))
+    exact blockStageR136NK (standardNumerics (2 * h + 2)) T Blk hE₂
+      (scalarActionZmodTwo_triv _) (cardH2_of_uniformPushed hsimp hα hr hqe)
+      (tfg_of_isAdmissibleMarkedPresentation
+        (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q
+          (mpcW alpha r pp d h))) b F
+      (fun g hg => homLift_of_obs_zeroRN_of_uniformPushed hsimp hα hqe T Blk hE₂ hRK hR₂ b F
+        (scalarActionZmodTwo_triv _) (cardH2_of_uniformPushed hsimp hα hr hqe) g hg)
+      (fun f₀ => rCocycle_cardRN_of_uniformPushed hsimp hα hqe hE₂ hRK hR₂ f₀.1.1 f₀.1.2)
+
+/-- Exact lifting for a displayed corrected procyclic-`M` presentation, from the uniform residue.
+Same statement as `exactLiftingDisplayed`; the legacy `StageSep`/`StageZ` premises are kept
+exactly as they are there. -/
+theorem exactLiftingDisplayed_of_uniformPushed {alpha r pp h q : ℕ} {d : EtaDisplay}
+    (hsimp : UniformHsimp alpha r pp h q d) (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q)
+    (hsep : StageSep alpha r pp h q d) (hZ : StageZ alpha r pp h q d)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (displayedGamma alpha r pp h q d) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  refine ⟨liftsOver_card_of_uniformPushed hsimp hα hqe, ?_, ?_⟩
+  · intro Bg _ _ _ _ D hedge rho hrho
+    exact lem86_of_uniformPushed hsimp hα hqe D hedge rho hrho
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE₂ hRK hR₂ b F
+    letI := scalarActionZmodTwo ((displayedGamma alpha r pp h q d : Type))
+    haveI := scalarActionZmodTwo_continuousSMul
+      ((displayedGamma alpha r pp h q d : Type))
+    exact blockStageR136K T Blk hE₂ (scalarActionZmodTwo_triv _)
+      (cardH2_of_uniformPushed hsimp hα hr hqe)
+      (tfg_of_isAdmissibleMarkedPresentation
+        (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q
+          (mpcW alpha r pp d h))) b F
+      (fun g hg => hsep T Blk hE₂ b F (scalarActionZmodTwo_triv _)
+        (cardH2_of_uniformPushed hsimp hα hr hqe) g hg)
+      (fun f₀ => hZ T Blk hE₂ b F f₀)
+
+/-- Exact lifting for the corrected arbitrary-unit procyclic-`M` presentation, from the uniform
+residue.  Same statement as `exactLifting`. -/
+theorem exactLifting_of_uniformPushed {alpha r h q : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta)
+    (hsimp : UniformHsimp alpha r (p epsilon r) h q d.display)
+    (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q)
+    (hsep : StageSep alpha r (p epsilon r) h q d.display)
+    (hZ : StageZ alpha r (p epsilon r) h q d.display)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics (gamma alpha r (p epsilon r) h q eta) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  rw [gamma_sign_eq_display alpha r h q epsilon d]
+  exact exactLiftingDisplayed_of_uniformPushed hsimp hα hr hqe hsep hZ nuP
+
+/-- Corrected exact lifting for the arbitrary-unit Mpc presentation with the improved literal sign
+parameter `p epsilon r`, from the uniform residue.  Same statement as `exactLiftingRN`. -/
+theorem exactLiftingRN_of_uniformPushed {alpha r h q : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta)
+    (hsimp : UniformHsimp alpha r (p epsilon r) h q d.display)
+    (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (gamma alpha r (p epsilon r) h q eta) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) := by
+  rw [gamma_sign_eq_display alpha r h q epsilon d]
+  exact exactLiftingDisplayedRN_of_uniformPushed hsimp hα hr hqe nuP
+
+/-- Literal constructor regression at the uniform residue: both the arbitrary unit and
+`p epsilon r` occur visibly in the RN carrier.  Same statement as `exactLiftingRN_literal`. -/
+theorem exactLiftingRN_literal_of_uniformPushed {alpha r h q : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta)
+    (hsimp : UniformHsimp alpha r (p epsilon r) h q d.display)
+    (hα : 1 ≤ alpha) (hr : 1 ≤ r) (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR (2 + 2 * h) q (mpcWUnit alpha r (p epsilon r) eta h))
+      (2 * h + 2) q P nuP (standardNumerics (2 * h + 2)) :=
+  exactLiftingRN_of_uniformPushed d hsimp hα hr hqe nuP
+
+/-- The field selector hands a chosen `.Mpc` row to the exact-lifting constructor with the uniform
+residue in place of `Hsimp`.  Same statement as `exactLifting_of_fieldSelection`. -/
+theorem exactLifting_of_fieldSelection_uniformPushed
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {alpha r q : ℕ} {epsilon : Bool}
+    {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Mpc alpha r epsilon eta)
+    (hsimp : UniformHsimp alpha r (p epsilon r) (handleCount FP (.Mpc alpha r epsilon eta)) q
+      (hbranch ▸ S.display).display)
+    (hqe : Even q)
+    (hsep : StageSep alpha r (p epsilon r) (handleCount FP (.Mpc alpha r epsilon eta)) q
+      (hbranch ▸ S.display).display)
+    (hZ : StageZ alpha r (p epsilon r) (handleCount FP (.Mpc alpha r epsilon eta)) q
+      (hbranch ▸ S.display).display)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemantics
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      change ExactLiftingSemantics
+        (GammaR (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)) q
+          (mpcWUnit alpha r (p epsilon r) eta
+            (handleCount FP (.Mpc alpha r epsilon eta))))
+        (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)) q P nuP
+        (standardNumerics (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)))
+      have hn : 2 * handleCount FP (.Mpc alpha r epsilon eta) + 2 =
+          2 + 2 * handleCount FP (.Mpc alpha r epsilon eta) := by omega
+      exact NCompact.exactLifting_standard_congr hn
+        (exactLifting_of_uniformPushed display hsimp (le_trans (by omega) valid.1) valid.2 hqe
+          hsep hZ nuP)
+
+/-- The field selector hands a chosen `.Mpc` row to the corrected RN constructor with the uniform
+residue as its only presentation-specific input.  Same statement as
+`exactLiftingRN_of_fieldSelection`. -/
+theorem exactLiftingRN_of_fieldSelection_uniformPushed
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    (S : FieldBranchSelection K FP Q W) {alpha r q : ℕ} {epsilon : Bool}
+    {eta : ℤ_[2]ˣ} (hbranch : S.branch = .Mpc alpha r epsilon eta)
+    (hsimp : UniformHsimp alpha r (p epsilon r) (handleCount FP (.Mpc alpha r epsilon eta)) q
+      (hbranch ▸ S.display).display)
+    (hqe : Even q)
+    {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN
+      (GammaR S.semantic.degree q S.semantic.word) S.semantic.degree q P nuP
+      (standardNumerics S.semantic.degree) := by
+  cases S with
+  | mk branch valid compatible level_eq family_eq arithmetic_matches display degree_params
+      degree_field =>
+      dsimp only at hbranch
+      subst branch
+      change ExactLiftingSemanticsRN
+        (GammaR (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)) q
+          (mpcWUnit alpha r (p epsilon r) eta
+            (handleCount FP (.Mpc alpha r epsilon eta))))
+        (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)) q P nuP
+        (standardNumerics (2 + 2 * handleCount FP (.Mpc alpha r epsilon eta)))
+      have hn : 2 * handleCount FP (.Mpc alpha r epsilon eta) + 2 =
+          2 + 2 * handleCount FP (.Mpc alpha r epsilon eta) := by omega
+      exact NProcyclic.exactLiftingRN_standard_congr hn
+        (exactLiftingRN_of_uniformPushed display hsimp (le_trans (by omega) valid.1) valid.2 hqe
+          nuP)
+
 end
 
 end GQ2.Dyadic.MProcyclicExact
