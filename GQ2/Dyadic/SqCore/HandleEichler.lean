@@ -117,12 +117,14 @@ Recorded for the next pass, none of it formalised here:
   pricing corollaries from the existing Eichler supply;
 * **§4** `sqSign`, `chiSq_eq_sqSign_mul_xPowLam`, and the reduction of the χ-clause to two rows
   (`chiSq_eq_iff`, `chiSq_eq_one_iff`, `chiSq_preserving_iff`);
-* **§5** stress pins, **§6** committed axiom prints.
+* **§5** `nuSel`, the explicit one-handle selected markings, and `chiNuClear_at_sqSelMark` —
+  the residual with a concrete instance rather than only a quantifier;
+* **§6** stress pins, **§7** committed axiom prints.
 
 ## Axiom hygiene
 
 Every declaration prints **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no census
-axiom is reachable.  Census unchanged at **11**.  §6 commits the prints.
+axiom is reachable.  Census unchanged at **11**.  §7 commits the prints.
 -/
 
 open Multiplicative
@@ -491,7 +493,91 @@ theorem chiSq_preserving_iff {h : ℕ}
 
 end SignCharacter
 
-/-! ## §5 Stress pins
+/-! ## §5 The residual, made concrete
+
+The cut's quantifier runs over the **selected** markings `(1, 0, 0, …, t_j, s_j, …)`.  This
+section builds the one-handle members of that family explicitly, so that the open statement has
+a witness-shaped smallest instance rather than only a quantifier: at `h = 1`, `(t, s) = (1, 0)`,
+the cut asks for a χ-preserving automorphism of `D_sq 1` carrying `(1, 0, 0, 1, 0)` onto `ν_sq`.
+That single instance is the whole `h ≥ 1` residual's smallest case. -/
+
+section Residual
+
+/-- The **selected marking with one handle bumped**: `σ ↦ 1`, `x₀, x₁ ↦ 0`, `u_j ↦ t`,
+`v_j ↦ s`, every other letter `↦ 0`. -/
+noncomputable def sqSelMark (h : ℕ) (j : Fin h) (t s : ℤ_[2]) :
+    Fin (sqRank h) → Multiplicative ℤ_[2] :=
+  fun i =>
+    if (i : ℕ) = 0 then ofAdd (1 : ℤ_[2]) else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then ofAdd t else
+    if (i : ℕ) = (sqHandleIdxV j : ℕ) then ofAdd s else 1
+
+variable {h : ℕ} {j : Fin h} {t s : ℤ_[2]}
+
+@[simp] theorem sqSelMark_zero : sqSelMark h j t s 0 = ofAdd (1 : ℤ_[2]) := by
+  simp only [sqSelMark, sqVal_zero]
+  norm_num
+
+@[simp] theorem sqSelMark_one : sqSelMark h j t s 1 = 1 := by
+  simp only [sqSelMark, sqVal_one, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem sqSelMark_two : sqSelMark h j t s 2 = 1 := by
+  simp only [sqSelMark, sqVal_two, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem sqSelMark_handleU : sqSelMark h j t s (sqHandleIdxU j) = ofAdd t := by
+  simp only [sqSelMark]
+  rw [if_neg (by rw [sqHandleIdxU_val]; omega)]
+  simp
+
+@[simp] theorem sqSelMark_handleV : sqSelMark h j t s (sqHandleIdxV j) = ofAdd s := by
+  simp only [sqSelMark]
+  rw [if_neg (by rw [sqHandleIdxV_val]; omega),
+    if_neg (by rw [sqHandleIdxU_val, sqHandleIdxV_val]; omega)]
+  simp
+
+/-- The bumped selected marking kills the relator: its `x₀`- and `x₁`-rows both vanish. -/
+theorem sqRelWord_sqSelMark (h : ℕ) (j : Fin h) (t s : ℤ_[2]) :
+    sqRelWord (sqSelMark h j t s) = 1 := by
+  rw [sqRelWord_comm, sqSelMark_one, sqSelMark_two]
+  simp
+
+/-- The bumped selected marking, as a continuous `ℤ₂`-marking of `D_sq`. -/
+noncomputable def nuSel (h : ℕ) (j : Fin h) (t s : ℤ_[2]) :
+    ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]) :=
+  sqLiftHom h PropOneOne.isProP_two_multPadicInt (sqSelMark h j t s) (sqRelWord_sqSelMark h j t s)
+
+@[simp] theorem nuSel_sigma : nuSel h j t s (dsqSigma h) = ofAdd (1 : ℤ_[2]) :=
+  (sqLiftHom_gen _ _ _ _ 0).trans sqSelMark_zero
+
+@[simp] theorem nuSel_x0 : nuSel h j t s (dsqX0 h) = ofAdd (0 : ℤ_[2]) :=
+  ((sqLiftHom_gen _ _ _ _ 1).trans sqSelMark_one).trans ofAdd_zero.symm
+
+@[simp] theorem nuSel_handleU : nuSel h j t s (sqGen h (sqHandleIdxU j)) = ofAdd t :=
+  (sqLiftHom_gen _ _ _ _ _).trans sqSelMark_handleU
+
+@[simp] theorem nuSel_handleV : nuSel h j t s (sqGen h (sqHandleIdxV j)) = ofAdd s :=
+  (sqLiftHom_gen _ _ _ _ _).trans sqSelMark_handleV
+
+/-- **The residual, one handle at a time.**  Every bumped selected marking meets the cut's
+hypothesis, so the cut *asserts* — and does not assume — that each of them is corrected onto
+`ν_sq` by a χ-preserving automorphism. -/
+theorem chiNuClear_at_sqSelMark (H : SqChiNuClearHypothesis h) (j : Fin h) (t s : ℤ_[2]) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, chiSq h (Ψ x) = chiSq h x) ∧ ∀ x, nuSel h j t s (Ψ x) = nuSq h x :=
+  H (nuSel h j t s) nuSel_sigma nuSel_x0
+
+/-- The pivot row of a bumped selected marking is `1` at **every** exponent — so the exponent
+really has left the residual. -/
+theorem toAdd_nuSel_sqMixPivotElem (h : ℕ) (j : Fin h) (t s : ℤ_[2]) (c : ℤ_[2]) :
+    toAdd (nuSel h j t s (sqMixPivotElem h c)) = 1 := by
+  rw [toAdd_nu_sqMixPivotElem, nuSel_sigma, nuSel_x0, toAdd_ofAdd, toAdd_ofAdd, mul_zero,
+    sub_zero]
+
+end Residual
+
+/-! ## §6 Stress pins
 
 The lane idiom: the cut restated at `h = 1`, its hypothesis pinned non-vacuous, and the two
 `h ≥ 1` refutations of `HandleMixFixesCore` §2–§3 restated through it — so that a later
@@ -548,9 +634,22 @@ meets it — two linear row conditions in place of a `ℤ₂ˣ`-valued equation.
 example {h : ℕ} (g : (DSq h : Type)) (hl : nuLam h g = 1) (hs : sqSign h g = 1) :
     chiSq h g = 1 := (chiSq_eq_one_iff h g).mpr ⟨hl, hs⟩
 
+/-- **The smallest open instance**, spelled out: at one handle, the marking `(1, 0, 0, 1, 0)`
+must be carried onto `ν_sq` by a χ-preserving automorphism of `D_sq 1`.  Everything above `h = 0`
+follows from this shape (`sqChiNuClearHypothesis_of_unit_moves` plus the parameter calculus of
+`EichlerReduction` §1 and the handle induction of `HandleMixFixesCore` §5). -/
+example (H : SqChiNuClearHypothesis 1) :
+    ∃ Ψ : ContinuousMulEquiv (DSq 1 : Type) (DSq 1 : Type),
+      (∀ x, chiSq 1 (Ψ x) = chiSq 1 x) ∧ ∀ x, nuSel 1 0 1 0 (Ψ x) = nuSq 1 x :=
+  chiNuClear_at_sqSelMark H 0 1 0
+
+/-- Stress: the bumped selected marking really is bumped — its `u_j`-row is the parameter. -/
+example {h : ℕ} (j : Fin h) (t s : ℤ_[2]) :
+    nuSel h j t s (sqGen h (sqHandleIdxU j)) = ofAdd t := nuSel_handleU
+
 end StressTests
 
-/-! ## §6 Axiom pins
+/-! ## §7 Axiom pins
 
 Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
 census axiom is reachable.  Census unchanged at **11**. -/
@@ -573,5 +672,8 @@ section AxiomPins
 #print axioms chiSq_eq_iff
 #print axioms chiSq_eq_one_iff
 #print axioms chiSq_preserving_iff
+#print axioms nuSel
+#print axioms chiNuClear_at_sqSelMark
+#print axioms toAdd_nuSel_sqMixPivotElem
 
 end AxiomPins
