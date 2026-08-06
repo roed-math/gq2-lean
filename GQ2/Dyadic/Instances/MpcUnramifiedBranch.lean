@@ -814,12 +814,17 @@ the procyclic-`N` row's conjugator is: at its own resolver the display's value i
 because `η̂` has odd components and the unramified action image has odd order
 (`RowActionImage.actionImage_unramified_sigma_etaPow`).  This is the `η = −1/3` instance.
 
-⚠ The third constructor `.lit k` has **no** such discharge, and cannot: its value is the literal
-`σ^k`, and `σ^k = 1` whenever `orderOf σ ∣ k` — which the unramified branch does not forbid,
-since the tame relation is vacuous at `tau = 1` and leaves `orderOf σ` unconstrained.  At such a
-marking the row's `x₂`-column is identically zero while `sigma` acts nontrivially, so the complex
-is neither the generic one nor the scalar one.  This is the procyclic-`M` analogue of the
-procyclic-`N` scalar sub-branch's unit condition, and it lives on the *display*, not on `η`. -/
+⚠ The third constructor `.lit k` has **no** such discharge by this route: its value is the
+literal `σ^k`, and `σ^k = 1` as soon as `orderOf σ ∣ k`.  Nothing in the unramified branch rules
+that out — the tame relation is vacuous at `tau = 1`, so `orderOf σ` is unconstrained beyond
+being odd (`RowActionImage.actionImage_unramified_orderOf_sigma_odd`), and `k` is odd at both
+frozen `.lit` instances (`k = 5` at `r = 2`, `k = 3` at `α = 3`).  At such a marking the row's
+`x₂`-column would be identically zero while `sigma` acts nontrivially, so the complex would be
+neither the generic one nor the scalar one and the branch would need a third case.  Whether the
+actual `Γ_R` admits such a quotient is *not* settled here; what is settled is that the two
+displays above do not need the question answered and `.lit` does.  This is the procyclic-`M`
+analogue of the procyclic-`N` scalar sub-branch's unit condition, and it lives on the *display*,
+not on `η`. -/
 theorem displayFixedPointFree_hat {alpha r pp h q : ℕ} (num den : ℤ) :
     DisplayFixedPointFree alpha r pp h q (.hat num den) := by
   intro M _ _ _ _ _ _ hM₂ hsimple hτ hσfpf
