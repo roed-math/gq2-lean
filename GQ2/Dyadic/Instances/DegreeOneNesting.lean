@@ -45,11 +45,13 @@ of `chiCycKTwo` (and its two consequences), which the caller's own `B` supplies 
 ## What this file does
 
 §0 restates the third consumer at **one** field with a bundle in scope; §1–§3 re-derive the
-forward route over the caller's `B : MarkedRecip Rec K`.  Every re-derivation is the committed
-proof verbatim with `(markedRecipAt K)` replaced by `B`.  §4 carries the result to the
-odd-degree endpoint, §5 to `[K : ℚ₂] = 1` (where the two one-parameter pivot subgroups are
-theorems — `SqCore.sqPivotTranslation_zero`, `SqCore.sqPivotScaling_zero`), and §6 discharges
-§4–§5's level-three base from §0.
+forward route over the caller's `B : MarkedRecip Rec K`.  The three declarations that touch the
+axiom (§0, §1, §2a) are the committed proofs verbatim with `(markedRecipAt K)` replaced by `B`;
+the rest (§2b, §2c, §3, §4) are the committed compositions re-pointed at those three, with a
+level-three base threaded where the committed chain calls the ∀-`K` supply.  §4 carries the
+result to the odd-degree endpoint, §5 to `[K : ℚ₂] = 1` (where the two one-parameter pivot
+subgroups are theorems — `SqCore.sqPivotTranslation_zero`, `SqCore.sqPivotScaling_zero`), and §6
+discharges §4–§5's level-three base from §0.
 
 The headline is `gammaR_lSq_equiv_galK_degreeOne_nested_unconditional`.  It has **exactly** the
 committed milestone's type (§7 pins that, twice) and prints
