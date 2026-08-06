@@ -71,6 +71,14 @@ available because `X` has **exact level two** (`rootXUnit_sub_one_eq`, `SqCore/P
 — `zpowZtwo_injective_of_exact_level`.  Mod-2 invariance is *not* enough for the cut: the
 normalisation of §2 rescales by a 2-adic unit and shifts by an arbitrary 2-adic multiple of `λ`.
 
+## The χ-clause itself, reduced to two rows (§4)
+
+`χ_sq = sign · X^λ` (`chiSq_eq_sqSign_mul_xPowLam`), where `sign` is the `±1`-character carried
+by the torsion class `t = x̄₁ − 2x̄₀`.  Hence χ-preservation **is** the pair of row conditions
+`λ ∘ Ψ = λ` and `sign ∘ Ψ = sign` (`chiSq_preserving_iff`), and a seed's four `chi_*` fields
+become "the correction word has zero `λ`-row and even `x₁`-degree" (`chiSq_eq_one_iff`) — two
+linear conditions on an abelianized class, testable by a search harness without touching `ℤ₂ˣ`.
+
 ## The normalisation: the λ-twist (§2)
 
 `SqHandleMixFixesCore`'s five clauses are affine in the marking — three ask a row to vanish, two
@@ -107,12 +115,14 @@ Recorded for the next pass, none of it formalised here:
 * **§2** `nuTwist` and its rows, `nuTwist_sigma_eq_one`, `nuTwist_x0_eq_zero`;
 * **§3** `SqChiNuClearHypothesis`, the two halves of the cut, the combined pinning, and the
   pricing corollaries from the existing Eichler supply;
-* **§4** stress pins, **§5** committed axiom prints.
+* **§4** `sqSign`, `chiSq_eq_sqSign_mul_xPowLam`, and the reduction of the χ-clause to two rows
+  (`chiSq_eq_iff`, `chiSq_eq_one_iff`, `chiSq_preserving_iff`);
+* **§5** stress pins, **§6** committed axiom prints.
 
 ## Axiom hygiene
 
 Every declaration prints **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no census
-axiom is reachable.  Census unchanged at **11**.  §5 commits the prints.
+axiom is reachable.  Census unchanged at **11**.  §6 commits the prints.
 -/
 
 open Multiplicative
@@ -373,7 +383,115 @@ theorem sqChiNuClearHypothesis_of_seeds {c : ℤ_[2]}
 
 end Cut
 
-/-! ## §4 Stress pins
+/-! ## §4 The χ-clause, decomposed into two rows
+
+`χ_sq` is the product of a **sign character** (the `±1`-part, carried entirely by the torsion
+class `t = x̄₁ − 2x̄₀`, `χ_sq(t) = −1`) and the `X`-power of the χ-exponent row `λ`.  So the
+χ-clause of §3's cut — and the four `chi_*` fields of a residual `SqEichlerSeed` — are
+equivalent to **two linear row conditions**: the `λ`-row is preserved (a `ℤ₂`-condition) and the
+sign row is preserved (an `𝔽₂`-condition on the `x₁`-degree).  That is the form a search harness
+can test directly. -/
+
+section SignCharacter
+
+/-- The relator dies at the sign row `(1, 1, −1)`: abelianized it is `(1⁴)⁻¹·(−1)² = 1`. -/
+theorem sqRelWord_sqSignMark (h : ℕ) :
+    sqRelWord (sqMark (h := h) (1 : ℤ_[2]ˣ) (1 : ℤ_[2]ˣ) (-1 : ℤ_[2]ˣ)) = 1 := by
+  rw [sqRelWord_sqMark, sqWord_comm]
+  simp
+
+/-- **The sign character** of the `L_sq` core: `σ, x₀, u_j, v_j ↦ 1` and `x₁ ↦ −1`.  It is the
+`±1`-part of `χ_sq`, and its kernel is the index-2 subgroup detecting the torsion class. -/
+noncomputable def sqSign (h : ℕ) : ContinuousMonoidHom (DSq h : Type) ℤ_[2]ˣ :=
+  sqLiftHom h isProP_two_unitsPadicInt (sqMark (1 : ℤ_[2]ˣ) (1 : ℤ_[2]ˣ) (-1 : ℤ_[2]ˣ))
+    (sqRelWord_sqSignMark h)
+
+@[simp] theorem sqSign_sigma (h : ℕ) : sqSign h (dsqSigma h) = 1 :=
+  (sqLiftHom_gen _ _ _ _ 0).trans (sqMark_zero _ _ _)
+
+@[simp] theorem sqSign_x0 (h : ℕ) : sqSign h (dsqX0 h) = 1 :=
+  (sqLiftHom_gen _ _ _ _ 1).trans (sqMark_one _ _ _)
+
+@[simp] theorem sqSign_x1 (h : ℕ) : sqSign h (dsqX1 h) = -1 :=
+  (sqLiftHom_gen _ _ _ _ 2).trans (sqMark_two _ _ _)
+
+@[simp] theorem sqSign_handleU {h : ℕ} (j : Fin h) : sqSign h (sqGen h (sqHandleIdxU j)) = 1 :=
+  (sqLiftHom_gen _ _ _ _ _).trans (sqMark_handleU _ _ _ j)
+
+@[simp] theorem sqSign_handleV {h : ℕ} (j : Fin h) : sqSign h (sqGen h (sqHandleIdxV j)) = 1 :=
+  (sqLiftHom_gen _ _ _ _ _).trans (sqMark_handleV _ _ _ j)
+
+/-- `X^λ`, packaged as a character of `D_sq` (the unsquared companion of `xPowLamSq`). -/
+noncomputable def xPowLam (h : ℕ) : ContinuousMonoidHom (DSq h : Type) ℤ_[2]ˣ :=
+  (zpowZtwoHom isProP_two_unitsPadicInt rootXUnit).comp (nuLam h)
+
+theorem xPowLam_apply (h : ℕ) (x : (DSq h : Type)) :
+    xPowLam h x = zpowZtwo isProP_two_unitsPadicInt rootXUnit (toAdd (nuLam h x)) := rfl
+
+/-- **The orientation, factored**: `χ_sq = sign · X^λ`.  Generator by generator: `S = X^{c₀}`
+(the pivot exponent's defining relation), `X = X^1`, `Y = (−1)·X²`, and the handle letters are
+trivial on both sides. -/
+theorem chiSq_eq_sqSign_mul_xPowLam (h : ℕ) : chiSq h = sqSign h * xPowLam h := by
+  refine dsq_hom_ext _ _ fun i => ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+  · show chiSq h (dsqSigma h) = sqSign h (dsqSigma h) * xPowLam h (dsqSigma h)
+    rw [chiSq_sigma, sqSign_sigma, xPowLam_apply, nuLam_sigma, toAdd_ofAdd,
+      zpowZtwo_rootXUnit_sqPivotExp, one_mul]
+  · show chiSq h (dsqX0 h) = sqSign h (dsqX0 h) * xPowLam h (dsqX0 h)
+    rw [chiSq_x0, sqSign_x0, xPowLam_apply, nuLam_x0, toAdd_ofAdd, zpowZtwo_one_exp, one_mul]
+  · show chiSq h (dsqX1 h) = sqSign h (dsqX1 h) * xPowLam h (dsqX1 h)
+    rw [chiSq_x1, sqSign_x1, xPowLam_apply, nuLam_x1, toAdd_ofAdd, zpowZtwo_unit_two,
+      neg_one_mul, YvalUnit_eq_neg_sq]
+  · show chiSq h (sqGen h (sqHandleIdxU j))
+      = sqSign h (sqGen h (sqHandleIdxU j)) * xPowLam h (sqGen h (sqHandleIdxU j))
+    rw [chiSq_handleU, sqSign_handleU, xPowLam_apply, nuLam_handleU, toAdd_one, one_mul,
+      zpowZtwo_zero_exp]
+  · show chiSq h (sqGen h (sqHandleIdxV j))
+      = sqSign h (sqGen h (sqHandleIdxV j)) * xPowLam h (sqGen h (sqHandleIdxV j))
+    rw [chiSq_handleV, sqSign_handleV, xPowLam_apply, nuLam_handleV, toAdd_one, one_mul,
+      zpowZtwo_zero_exp]
+
+/-- **The χ-clause is exactly two row conditions.**  `λ` is the `ℤ₂`-row (§1), `sign` is the
+`±1`-row. -/
+theorem chiSq_eq_iff (h : ℕ) (x y : (DSq h : Type)) :
+    chiSq h x = chiSq h y ↔ nuLam h x = nuLam h y ∧ sqSign h x = sqSign h y := by
+  have hfac : ∀ z : (DSq h : Type), chiSq h z = sqSign h z * xPowLam h z :=
+    fun z => DFunLike.congr_fun (chiSq_eq_sqSign_mul_xPowLam h) z
+  have hxp : ∀ z w : (DSq h : Type), nuLam h z = nuLam h w → xPowLam h z = xPowLam h w := by
+    intro z w hzw
+    rw [xPowLam_apply, xPowLam_apply, hzw]
+  constructor
+  · intro hc
+    have hl := nuLam_eq_of_chiSq_eq hc
+    refine ⟨hl, ?_⟩
+    have h1 := hfac x
+    rw [hc, hfac y, hxp x y hl] at h1
+    exact (mul_right_cancel h1).symm
+  · rintro ⟨hl, hs⟩
+    rw [hfac x, hfac y, hs, hxp x y hl]
+
+/-- The seed-facing form: a correction word is χ-trivial iff its `λ`-row vanishes **and** its
+sign is `+1` (equivalently, its `x₁`-degree is even).  This replaces each `chi_*` field of a
+residual seed by two linear conditions on the word's abelianized class. -/
+theorem chiSq_eq_one_iff (h : ℕ) (g : (DSq h : Type)) :
+    chiSq h g = 1 ↔ nuLam h g = 1 ∧ sqSign h g = 1 := by
+  simpa using chiSq_eq_iff h g 1
+
+/-- The automorphism form: preserving `χ_sq` is preserving the two rows. -/
+theorem chiSq_preserving_iff {h : ℕ}
+    (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type)) :
+    (∀ x, chiSq h (Ψ x) = chiSq h x) ↔
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ ∀ x, sqSign h (Ψ x) = sqSign h x := by
+  constructor
+  · intro hc
+    exact ⟨fun x => ((chiSq_eq_iff h (Ψ x) x).mp (hc x)).1,
+      fun x => ((chiSq_eq_iff h (Ψ x) x).mp (hc x)).2⟩
+  · rintro ⟨hl, hs⟩ x
+    exact (chiSq_eq_iff h (Ψ x) x).mpr ⟨hl x, hs x⟩
+
+end SignCharacter
+
+/-! ## §5 Stress pins
 
 The lane idiom: the cut restated at `h = 1`, its hypothesis pinned non-vacuous, and the two
 `h ≥ 1` refutations of `HandleMixFixesCore` §2–§3 restated through it — so that a later
@@ -419,9 +537,20 @@ not a mod-2 residue, which is what makes §2's twist available at unit scale. -/
 example (h : ℕ) : toAdd (nuLam h (dsqSigma h)) = sqPivotExp := by
   rw [nuLam_sigma, toAdd_ofAdd]
 
+/-- Stress: the sign character of §4 is non-trivial, so the χ-clause does **not** collapse to
+the λ-row alone — the `x₁`-parity is a second, independent condition. -/
+example (h : ℕ) : sqSign h (dsqX1 h) ≠ 1 := by
+  rw [sqSign_x1]
+  exact negOne_ne_one_unitsPadicInt
+
+/-- Stress: the seed-facing χ-test, at the shape a residual `SqEichlerSeed`'s `chi_*` field
+meets it — two linear row conditions in place of a `ℤ₂ˣ`-valued equation. -/
+example {h : ℕ} (g : (DSq h : Type)) (hl : nuLam h g = 1) (hs : sqSign h g = 1) :
+    chiSq h g = 1 := (chiSq_eq_one_iff h g).mpr ⟨hl, hs⟩
+
 end StressTests
 
-/-! ## §5 Axiom pins
+/-! ## §6 Axiom pins
 
 Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
 census axiom is reachable.  Census unchanged at **11**. -/
@@ -439,5 +568,10 @@ section AxiomPins
 #print axioms sqHandleMixFixesCore_iff_chiNuClearHypothesis
 #print axioms sqChiNuClearHypothesis_zero
 #print axioms sqChiNuClearHypothesis_of_seeds
+#print axioms sqSign
+#print axioms chiSq_eq_sqSign_mul_xPowLam
+#print axioms chiSq_eq_iff
+#print axioms chiSq_eq_one_iff
+#print axioms chiSq_preserving_iff
 
 end AxiomPins
