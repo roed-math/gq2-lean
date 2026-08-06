@@ -115,7 +115,18 @@ def SqNuOrientedClear (h : ℕ) : Prop :=
       ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
         (∀ x, chiSq h (Ψ x) = chiSq h x) ∧ ∀ x, nu' (Ψ x) = nuSq h x
 
-/-- The oriented target is the stronger one. -/
+/-- The oriented target is the stronger one.
+
+⚠ **DEAD ROUTE at `h ≥ 1`: this implication is vacuous.**  Its hypothesis `SqNuOrientedClear h`
+is refuted at every positive handle count by `PivotClimb.not_sqNuOrientedClear`: the pivot row's
+parity is an invariant of the *whole* automorphism group (the Frattini cup form is, and it names
+the pivot), so the `SqPivotUnitizer` factor of `PivotClimb.sqNuOrientedClear_iff` fails.  No
+`h ≥ 1` instance of this implication can ever fire.
+
+The *conclusion* `SqNuJointClear h` is **not** refuted — only this route to it is; the live
+oriented statement is `PivotClimb.SqNuOrientedClearAtUnitPivot h`.  Kept because the implication
+is true and `h = 0` (where joint surjectivity *is* the unit pivot row) still factors through
+it. -/
 theorem sqNuJointClear_of_orientedClear {h : ℕ} (H : SqNuOrientedClear h) :
     SqNuJointClear h := fun nu' hjs => (H nu' hjs).imp fun _ hΨ => hΨ.2
 
@@ -440,7 +451,21 @@ theorem toAdd_aut_sqPivot (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicat
   toAdd_nu_sqPivot (nu'.comp (autHom Ψ))
 
 /-- **The transfer step**: an even pivot row plus a unit row at a χ-trivial letter `i` gives, via
-one handle-to-core move, a marking with a **unit** pivot row. -/
+one handle-to-core move, a marking with a **unit** pivot row.
+
+⚠ **DEAD at `h ≥ 1` at every letter its consumers use: no instance can fire.**  The hypothesis
+`SqHandleToCoreMove h i` is refuted at `i = sqHandleIdxU j` by
+`PivotClimb.not_sqHandleToCoreMove_handleU` and at `i = sqHandleIdxV j` by
+`PivotClimb.not_sqHandleToCoreMove_handleV` — and those handle letters are the only values of
+`i` any consumer instantiates (`sqNuOrientedClear_of_moves` below, and
+`PivotCoreMoves.sqNuOrientedClear_of_families`).  The refuting mechanism is the display in this
+very proof: the transfer shifts the pivot row by *exactly* the transferred letter's row, and
+that row's parity is fixed by every χ-preserving automorphism.
+
+Kept because the implication is true, because it states the transfer's exact arithmetic
+(`d ↦ d + ν'(g_i)`), and because it is what made the refutation possible: it is precisely
+because the transfers' whole contribution is this one parity bit that refuting the bit refutes
+the transfers. -/
 theorem isUnit_pivot_of_handleToCore
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
     {i : Fin (sqRank h)} (hmix : SqHandleToCoreMove h i)
@@ -464,7 +489,29 @@ theorem isUnit_pivot_of_handleToCore
 /-- **The oriented residual over the move families.**  Three inputs: the banked χ-preserving
 handle stratum at the canonical exponent, the pivot core family, and one handle-to-core transfer
 per handle letter.  Joint surjectivity supplies the unit pivot row (§4) — directly, or after one
-transfer. -/
+transfer.
+
+⚠ **DEAD at `h ≥ 1`, on both sides: this theorem is vacuous, and its conclusion is false.**
+This is the committed assembly, so the annotation matters most here.
+
+* *Hypotheses refuted*: `hmixU` by `PivotClimb.not_sqHandleToCoreMove_handleU`, `hmixV` by
+  `PivotClimb.not_sqHandleToCoreMove_handleV` (and jointly by
+  `PivotClimb.not_sqHandleToCoreMove_families`).  So no `h ≥ 1` instance can fire.
+* *Conclusion refuted*: `SqNuOrientedClear h` is itself false at every `h ≥ 1`
+  (`PivotClimb.not_sqNuOrientedClear`), with the explicit witness `nuHandleU h 0 0 j` — a
+  jointly-surjective marking whose pivot row is **even**.  So this implication cannot be
+  repaired by strengthening its hypotheses: only the target can change.
+
+The live `h ≥ 1` replacements, both of which drop the transfers entirely: the corrected target
+`PivotClimb.SqNuOrientedClearAtUnitPivot h` with
+`PivotClimb.sqNuOrientedClearAtUnitPivot_of_pivotMoves`, and — on the model side — the
+unit-pivot row supplied arithmetically by P3 rather than by a move
+(`PivotClimb` §9).  `PivotUnitizer.sqNuOrientedClear_of_moves'` is the regression pin that keeps
+this statement's shape reachable from the reduced supply list.
+
+The two remaining hypotheses are untouched by all of this: `hfix`
+(`SqHandleMixFixesCore h sqPivotExp`, cut to `HandleEichler.SqChiNuClearHypothesis h`) and `hmv`
+(the pivot core family) are open, not refuted.  `h = 0` is fully live. -/
 theorem sqNuOrientedClear_of_moves
     (hfix : SqHandleMixFixesCore h sqPivotExp)
     (hmv : ∀ m k : ℤ_[2], IsUnit (1 + m - k * sqPivotExp) → SqPivotCoreMove h m k)
@@ -559,7 +606,13 @@ example (h : ℕ) : IsUnit (toAdd (nuSq h (sqPivot h))) := isUnit_nuSq_sqPivot h
 /-- The pivot is χ-trivial — the reason the core moves preserve the orientation. -/
 example (h : ℕ) : chiSq h (sqPivot h) = 1 := chiSq_sqPivot h
 
-/-- One handle: the residual over the three families. -/
+/-- One handle: the residual over the three families.
+
+⚠ **VACUOUS as stated**: `hmixU 0` and `hmixV 0` are both refuted at `h = 1`
+(`PivotClimb.not_sqHandleToCoreMove_handleU`/`_handleV`), and the conclusion
+`SqNuOrientedClear 1` is refuted too (`PivotClimb.not_sqNuOrientedClear`).  Kept as the shape
+pin for `sqNuOrientedClear_of_moves`; the live `h = 1` reading is the unit-pivot target
+`PivotClimb.SqNuOrientedClearAtUnitPivot 1`. -/
 example (hfix : SqHandleMixFixesCore 1 sqPivotExp)
     (hmv : ∀ m k : ℤ_[2], IsUnit (1 + m - k * sqPivotExp) → SqPivotCoreMove 1 m k)
     (hmixU : ∀ j : Fin 1, SqHandleToCoreMove 1 (sqHandleIdxU j))
