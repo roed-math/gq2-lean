@@ -222,3 +222,48 @@ The head-factored replacements supersede them.
   leave the shared Gram). Whether the `α = 1` cores are Demushkin is open and deliberately
   unasserted.
 * **`mpcW` Hessian/jet layer** at general `h` (the `npcW` analogue landed this wave).
+
+### Update 2026-08-06 (W42-BUNDLE): the recommended follow-up is **done**, and the *committed milestone itself* now nests
+
+The threading above was carried out in place.  `OddDegreeSqCyclotomicFrattiniFrameSupply`
+(`GammaLSylowPreimageFieldLabuteLevelThreeSeed.lean`) now carries
+`{R : LocalReciprocity} (_B : MarkedRecip R K)` after its instance binders, and `B` is threaded
+through sixteen downstream statements.  Every change is a signature change; **no proof body
+changed except by substituting `B` for `(markedRecipAt K)`**, so W42-NEST's "plumbing, not
+mathematics" reading is confirmed.
+
+Measured at the root (a file importing `GQ2`), before → after:
+
+| declaration | before | after |
+| --- | --- | --- |
+| `NuAdapted.gammaR_lSq_equiv_galK_degreeOne` (**the committed milestone**) | B1, B3c, **B5**, **B5-K**, B6, B7, B8, B9, B11a | **B1, B3c, B6, B7, B8, B9, B11a** |
+| `Nesting.gammaR_lSq_equiv_galK_degreeOne_nested_unconditional` | B1, B3c, B6, B7, B8, B9, B11a | unchanged |
+| `NuAdapted.gammaR_lSq_equiv_galK_oddDegree_of_orientedClear` | B1, **B5**, **B5-K**, B6, B7, B9, B11a | B1, B6, B7, B9, B11a |
+| `NuAdapted.gammaR_lSq_equiv_galK_degreeOne_of_pivotMoves` | B1, **B5**, **B5-K**, B6, B7, B9, B11a | B1, B6, B7, B9, B11a |
+| `gammaR_lSq_equiv_galK_oddDegree_of_jointClearing` | B1, **B5**, **B5-K**, B6, B7, B9, B11a | B1, B6, B7, B9, B11a |
+| `orientedEquiv_of_oddDegree`, `nonempty_orientedEquiv_oddDegree` and its eight `_of_…` variants | B1, **B5**, **B5-K**, B6, B7, B11a | B1, B6, B7, B11a |
+| `oddDegreeSqCyclotomicFrattiniFrameSupply_holds`, `…_of_presentingFrame`, `oddDegree_sqCyclotomicStageTuple_levelThree` | B1, **B5**, **B5-K**, B6, B7, B11a | B1, B6, B7, B11a |
+| `oddDegreeGalKSq_allStagePrimitiveResidualVanishing` | B1, **B5**, **B5-K** | B1 |
+| `main_presentation_literal_roe_unconditional` (frozen `ℚ₂`) | B1, B3c, B5, B6, B7, B8, B9, B10, B11a | unchanged |
+| `gammaR_lSq_equiv_galK_oddDegree` (grand assembly) | B1, B6, B7, B9, B11a | unchanged |
+
+So **§1b's option (c) is realized**: B5-K and B5 are off *every* general-`K` odd-degree endpoint,
+not only at degree one, and the milestone's print is now literally equal to the nesting check's —
+a strict subset of the frozen nine (it misses `localReciprocity` and `tameQuotient`).  The
+duplicate §0 of `DegreeOneNesting.lean` is deleted and §6 calls
+`oddDegree_sqCyclotomicStageTuple_levelThree` directly; the file's headline keeps the committed
+milestone's type (§7's two `example`s still pin it) and its print is unchanged.
+
+Deliberately **not** threaded, to keep their statements exactly as committed (their prints are
+unchanged, so nothing regressed):
+
+* `exists_presentingFrame_oddDegree` and `exists_cupAdapted_presentingFrame_oddDegree` — their
+  content is that a presenting frame exists *with no hypothesis*, so they instantiate
+  `markedRecipAt K` themselves;
+* `nonempty_orientedEquiv_bot_of_kernelAdaptedSupply` and
+  `nonempty_orientedEquiv_bot_of_primitiveResidualVanishing` — the two `K = ⊥` full-circle
+  regressions, which instantiate `markedRecipAt ⊥`.
+
+Threading the bundle into those four is a one-line change each if the owner prefers the smaller
+footprint over the hypothesis-free statement.  Census unchanged at **11**; B5-K stays live on the
+even/boundary lanes.
