@@ -425,6 +425,218 @@ theorem foxD_mpcW_unram_of_eq {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : Eta
 
 end Rows
 
+/-! ## The even unramified route at a `u`-scaled boundary pivot
+
+`N0M0UnramifiedStokes` runs the whole first-order half of the unramified even route — surjectivity
+of the differential, the unique normal representative, and Stokes duality from the core pairing
+formula — but it states its lemmas at the *compact* boundary operator `σ⁻¹` literally.  The
+procyclic-`M` row's operator is `G⁻¹`, the inverse of whatever the `η̂`-display evaluates to: the
+same shape with a different unit, so the arguments go through verbatim once the pivot is written
+`1 − u⁻¹` for an arbitrary fixed-point-free group element `u`.
+
+⚠ These four are **generalizations of `GQ2.Dyadic.{heisD1_surjective_of_unramified_row,
+heisD1_evenNormal_eq_zero_of_unramified_row, evenNormalForm_of_unramified_row,
+evenUnramifiedStokesDuality_of_row}`**, not new mathematics, and they are here rather than there
+only because `N0M0UnramifiedStokes.lean` is not this ticket's file.  The compact case is `u = σ`,
+so a hoist would let that file delete its four copies and keep them as specializations — exactly
+as `MpcActionImageDevissage`'s `SmulPivot` section stands to `M0RamifiedStokes`.
+-/
+
+section UnramSmulPivot
+
+variable {h : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [Finite A]
+  [DistribMulAction C A]
+
+omit [Finite A] in
+/-- If `u` has no nonzero fixed vector then neither does `u⁻¹`. -/
+theorem inv_fixedPointFree {u : C} (hufpf : ∀ a : A, u • a = a → a = 0) :
+    ∀ a : A, u⁻¹ • a = a → a = 0 := fun a ha ↦
+  hufpf a (by conv_lhs => rw [← ha]
+              rw [smul_inv_smul])
+
+/-- The `x₂`-column `1 − u⁻¹` is a pivot as soon as `u` is fixed-point free. -/
+theorem oneSubInv_surjective_of_fixedPointFree {u : C}
+    (hufpf : ∀ a : A, u • a = a → a = 0) : Function.Surjective (fun v : A ↦ v - u⁻¹ • v) := by
+  have hs : Function.Surjective (fun v : A ↦ u⁻¹ • v - v) :=
+    surjective_smul_sub_of_fixedPointFree (inv_fixedPointFree hufpf)
+  intro b
+  obtain ⟨v, hv⟩ := hs (-b)
+  refine ⟨v, ?_⟩
+  change v - u⁻¹ • v = b
+  change u⁻¹ • v - v = -b at hv
+  rw [← neg_sub, hv, neg_neg]
+
+/-- Surjectivity of a differential with a `u`-scaled unramified boundary pivot. -/
+theorem heisD1_surjective_of_unram_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • x .tau,
+          x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2))])
+    (hufpf : ∀ a : A, u • a = a → a = 0) :
+    Function.Surjective (heisD1 (A := A) ⇑t w) := by
+  classical
+  intro r
+  obtain ⟨v, hv⟩ := oneSubInv_surjective_of_fixedPointFree hufpf (r 1 - t.σ • r 0)
+  let x : Generator (2 + 2 * h) → A := fun g ↦
+    if g = .tau then t.σ • r 0 else if g = coreLetter h 2 then v else 0
+  have hτx2 : (.tau : Generator (2 + 2 * h)) ≠ coreLetter h 2 :=
+    Certificates.tau_ne_coreLetter_two h
+  have hxτ : x .tau = t.σ • r 0 := by simp [x]
+  have hxx2 : x (coreLetter h 2) = v := by simp [x, hτx2.symm]
+  refine ⟨x, ?_⟩
+  rw [hrow x]
+  funext k
+  fin_cases k
+  · change t.σ⁻¹ • x .tau = r 0
+    rw [hxτ, inv_smul_smul]
+  · change x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2)) = r 1
+    rw [hxτ, hxx2]
+    change v - u⁻¹ • v = r 1 - t.σ • r 0 at hv
+    rw [hv]
+    abel
+
+omit [Finite A] in
+/-- Every normal cochain is a cocycle for a `u`-scaled unramified row. -/
+theorem heisD1_evenNormal_eq_zero_of_unram_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • x .tau,
+          x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2))])
+    (d₀ d₁ : A) (z : Fin h × Fin 2 → A) :
+    heisD1 ⇑t w (evenNormal h d₀ d₁ z) = 0 := by
+  rw [hrow]
+  funext k
+  fin_cases k <;> simp
+
+set_option maxHeartbeats 1600000 in
+/-- The unramified normal form at a `u`-scaled boundary pivot: the tame row kills `tau`, the
+`u`-pivot kills `x₂` because `u` is fixed-point free, and a coboundary kills `sigma`. -/
+theorem evenNormalForm_of_unram_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • x .tau,
+          x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2))])
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a)
+    (hσfpf : ∀ a : A, t.σ • a = a → a = 0)
+    (hufpf : ∀ a : A, u • a = a → a = 0) :
+    ∀ x, heisD1 (A := A) ⇑t w x = 0 → ∃! p : A × A × (Fin h × Fin 2 → A),
+      x - evenNormal h p.1 p.2.1 p.2.2 ∈ Set.range (heisD0 ⇑t) := by
+  have hSsurj : Function.Surjective (fun v : A ↦ t.σ • v - v) :=
+    surjective_smul_sub_of_fixedPointFree hσfpf
+  have hcoreTriv : ∀ (i : Fin 3) (a : A), t (coreLetter h i) • a = a := fun i a ↦ hwild _ a
+  have hhandleUTriv : ∀ (j : Fin h) (a : A), t (handleU j) • a = a := fun j a ↦ hwild _ a
+  have hhandleVTriv : ∀ (j : Fin h) (a : A), t (handleV j) • a = a := fun j a ↦ hwild _ a
+  intro x hx
+  rw [hrow x] at hx
+  have hxτ : x .tau = 0 := by
+    have hz : t.σ⁻¹ • x .tau = 0 := by simpa using congrFun hx 0
+    rw [← smul_inv_smul t.σ (x .tau), hz, smul_zero]
+  have hxcore2 : x (coreLetter h 2) = 0 := by
+    have hz : x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2)) = 0 := by
+      simpa using congrFun hx 1
+    rw [hxτ, zero_add, sub_eq_zero] at hz
+    exact inv_fixedPointFree hufpf _ hz.symm
+  obtain ⟨v, hv⟩ := hSsurj (x .sigma)
+  let x' := x - heisD0 (⇑t) v
+  have hx'σ : x' .sigma = 0 := by simp [x', heisD0_apply, hv]
+  have hx'τ : x' .tau = 0 := by simp [x', heisD0_apply, hτ, hxτ]
+  have hx'core2 : x' (coreLetter h 2) = 0 := by
+    simp [x', heisD0_apply, hcoreTriv, hxcore2]
+  let z := (EvenCore.coreHandleAddEquiv h A x).2
+  let p₀ : A × A × (Fin h × Fin 2 → A) := (x (coreLetter h 0), x (coreLetter h 1), z)
+  have hnormal : evenNormal h p₀.1 p₀.2.1 p₀.2.2 = x' := by
+    apply (EvenCore.coreHandleAddEquiv h A).injective
+    apply Prod.ext
+    · funext g
+      cases g with
+      | sigma => simpa [p₀] using hx'σ.symm
+      | tau => simpa [p₀] using hx'τ.symm
+      | wild i =>
+          fin_cases i
+          · simp [p₀, x', heisD0_apply, hcoreTriv]
+          · simp [p₀, x', heisD0_apply, hcoreTriv]
+          · simpa [p₀] using hx'core2.symm
+    · funext jk
+      rcases jk with ⟨j, k⟩
+      fin_cases k
+      · simp [p₀, z, x', heisD0_apply, hhandleUTriv]
+      · simp [p₀, z, x', heisD0_apply, hhandleVTriv]
+  refine ⟨p₀, ?_, ?_⟩
+  · refine ⟨v, ?_⟩
+    rw [hnormal]
+    simp [x']
+  · intro p hp
+    obtain ⟨_, hu⟩ := hp
+    apply Prod.ext
+    · have hc := congrFun hu (coreLetter h 0)
+      rw [heisD0_apply, hcoreTriv, sub_self] at hc
+      simp only [Pi.sub_apply, evenNormal_coreLetter, Matrix.cons_val_zero] at hc
+      exact (sub_eq_zero.mp hc.symm).symm
+    · apply Prod.ext
+      · have hc := congrFun hu (coreLetter h 1)
+        rw [heisD0_apply, hcoreTriv, sub_self] at hc
+        simp only [Pi.sub_apply, evenNormal_coreLetter, Matrix.cons_val_one,
+          Matrix.cons_val_zero] at hc
+        exact (sub_eq_zero.mp hc.symm).symm
+      · funext jk
+        rcases jk with ⟨j, k⟩
+        fin_cases k
+        · have hc := congrFun hu (handleU j)
+          rw [heisD0_apply, hhandleUTriv, sub_self] at hc
+          simp only [Pi.sub_apply, evenNormal_handleU] at hc
+          have hpj := (sub_eq_zero.mp hc.symm).symm
+          simpa [p₀, z] using hpj
+        · have hc := congrFun hu (handleV j)
+          rw [heisD0_apply, hhandleVTriv, sub_self] at hc
+          simp only [Pi.sub_apply, evenNormal_handleV] at hc
+          have hpj := (sub_eq_zero.mp hc.symm).symm
+          simpa [p₀, z] using hpj
+
+set_option maxHeartbeats 3200000 in
+/-- **Stokes duality for an even unramified complex with a `u`-scaled boundary pivot.**  The word
+enters only through its first Fox row and the core pairing formula. -/
+theorem evenUnramifiedStokesDuality_of_smul_row
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h))) (u : C)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (hr : ∀ k, FreeGroup.lift ⇑t (w k) = 1) (hend : IsStokesEndpoint w)
+    (hrowA : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • x .tau,
+          x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2))])
+    (hrowD : ∀ y : Generator (2 + 2 * h) → ElemDual A, heisD1 ⇑t w y
+      = ![t.σ⁻¹ • y .tau,
+          y .tau + (y (coreLetter h 2) - u⁻¹ • y (coreLetter h 2))])
+    (hpairA : ∀ (d₀ d₁ : A) (z : Fin h × Fin 2 → A) (lam₀ lam₁ : ElemDual A)
+      (mu : Fin h × Fin 2 → ElemDual A),
+      heisEta1 ⇑t w (evenNormal h d₀ d₁ z) (evenNormal h lam₀ lam₁ mu)
+        = lam₀ (d₀ + d₁) + lam₁ d₀ + ∑ j, (mu (j, 0) (z (j, 1)) + mu (j, 1) (z (j, 0))))
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a)
+    (hσfpf : ∀ a : A, t.σ • a = a → a = 0)
+    (hufpf : ∀ a : A, u • a = a → a = 0) :
+    StokesDuality ⇑t w A := by
+  have hA₂D : ∀ lam : ElemDual A, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  have hwildD : ∀ (i : Fin (2 + 2 * h + 1)) (lam : ElemDual A), t.x i • lam = lam :=
+    fun i lam ↦ elemDual_smul_eq_self (hwild i) lam
+  have hτD : ∀ lam : ElemDual A, t.τ • lam = lam := fun lam ↦ elemDual_smul_eq_self hτ lam
+  have hσfpfD : ∀ lam : ElemDual A, t.σ • lam = lam → lam = 0 :=
+    fun lam hlam ↦ elemDual_fpf hσfpf lam hlam
+  have hufpfD : ∀ lam : ElemDual A, u • lam = lam → lam = 0 :=
+    fun lam hlam ↦ elemDual_fpf hufpf lam hlam
+  exact evenNormalStokesDuality t w hA₂ hr hend
+    (heisD0_injective_of_sigma_fixedPointFree t hσfpf)
+    (heisD0_injective_of_sigma_fixedPointFree (A := ElemDual A) t hσfpfD)
+    (heisD1_surjective_of_unram_smul_row t w u hrowA hufpf)
+    (heisD1_surjective_of_unram_smul_row (A := ElemDual A) t w u hrowD hufpfD)
+    (fun p ↦ heisD1_evenNormal_eq_zero_of_unram_smul_row t w u hrowA p.1 p.2.1 p.2.2)
+    (fun r ↦ heisD1_evenNormal_eq_zero_of_unram_smul_row (A := ElemDual A) t w u hrowD
+      r.1 r.2.1 r.2.2)
+    (evenNormalForm_of_unram_smul_row t w u hrowA hwild hτ hσfpf hufpf)
+    (evenNormalForm_of_unram_smul_row (A := ElemDual A) t w u hrowD hwildD hτD hσfpfD hufpfD)
+    (evenNormal_pairing_separates_left_of_formula t w hA₂ hpairA)
+
+end UnramSmulPivot
+
 end
 
 end GQ2.Dyadic.MProcyclicUnram
