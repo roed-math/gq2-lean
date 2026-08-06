@@ -45,10 +45,12 @@ open GQ2
 open GQ2.Roe.Labute
 open GQ2.FoxH
 
-scoped instance (N : ℕ) : TopologicalSpace (WL N) := ⊥
-scoped instance (N : ℕ) : DiscreteTopology (WL N) := ⟨rfl⟩
-scoped instance (N : ℕ) : TopologicalSpace ((ZMod (2 ^ N))ˣ) := ⊥
-scoped instance (N : ℕ) : DiscreteTopology ((ZMod (2 ^ N))ˣ) := ⟨rfl⟩
+scoped instance instTopologicalSpaceWLStageFn (N : ℕ) : TopologicalSpace (WL N) := ⊥
+scoped instance instDiscreteTopologyWLStageFn (N : ℕ) : DiscreteTopology (WL N) := ⟨rfl⟩
+scoped instance instTopologicalSpaceZModUnitsStageFn (N : ℕ) :
+    TopologicalSpace ((ZMod (2 ^ N))ˣ) := ⊥
+scoped instance instDiscreteTopologyZModUnitsStageFn (N : ℕ) :
+    DiscreteTopology ((ZMod (2 ^ N))ˣ) := ⟨rfl⟩
 
 /-! ## Word-lift arithmetic helpers -/
 
