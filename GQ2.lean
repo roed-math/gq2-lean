@@ -708,4 +708,5 @@ import GQ2.Dyadic.Instances.SqModelCupForm
 import GQ2.Dyadic.Instances.SqModelPresentingFrameCupAdapted
 import GQ2.Dyadic.Instances.GammaLOddDegreeBridge
 import GQ2.Dyadic.Instances.GammaLOddDegreeBridgePivot
+import GQ2.Dyadic.Instances.DegreeOneNesting
 import GQ2.Dyadic.Main
