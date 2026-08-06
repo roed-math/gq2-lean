@@ -1060,6 +1060,53 @@ theorem mpc_scalarNormal_pairing_separates_left [Finite A] (t : Marking (2 + 2 *
 
 end Pairing
 
+/-! ## The display's second-order jet -/
+
+section DisplayJet
+
+/-- **An odd display jet**: at every trivially-acting marking and every resolver the display
+denotes `σ^{nn}` for one fixed odd `nn`, so its second-order jets are `nn` times the
+`σ`-offsets.  This — and not any condition on the branch — is what the scalar sub-branch needs
+from `η`: at an even jet the `(a_σ, d₂)` plane of the scalar Gram degenerates. -/
+def OddDisplayJet (d : EtaDisplay) (nn : ℕ) : Prop :=
+  Odd nn ∧ ∀ {h : ℕ} {C : Type} [Group C] {A : Type} [AddCommGroup A] [DistribMulAction C A]
+    (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+    (∀ a : A, a + a = 0) → (∀ (g : Generator (2 + 2 * h)) (v : A), t g • v = v) →
+    ∀ (u : Generator (2 + 2 * h) → A) (w : Generator (2 + 2 * h) → ElemDual A),
+      ∃ zη, Triv ⇑t u w E E₂ (d.toPWord (n := 2 + 2 * h)) (nn • u .sigma) (nn • w .sigma) zη
+
+/-- The bare-`σ` display has jet `1` — the `η = 1` row (`ℚ₂(√−10)`, `ℚ₂(√10)`, the one-handle
+instance), i.e. merge gate 9's. -/
+theorem oddDisplayJet_one : OddDisplayJet .one 1 := by
+  refine ⟨odd_one, ?_⟩
+  intro h C _ A _ _ t E E₂ _ htriv u w
+  refine ⟨0, ?_⟩
+  rw [one_nsmul, one_nsmul]
+  exact triv_gen _ _ _ _ _ _ (htriv _)
+
+/-- A literal odd display has jet `|k|`: the jets of `σ^k` are `k` times the `σ`-offsets, and in
+characteristic two only `|k|`'s parity survives. -/
+theorem oddDisplayJet_lit {k : ℤ} (hk : Odd k) : OddDisplayJet (.lit k) k.natAbs := by
+  refine ⟨Int.natAbs_odd.mpr hk, ?_⟩
+  intro h C _ A _ _ t E E₂ hA₂ htriv u w
+  have hσ : Triv ⇑t u w E E₂ (.gen (Generator.sigma : Generator (2 + 2 * h)))
+      (u .sigma) (w .sigma) 0 := triv_gen _ _ _ _ _ _ (htriv _)
+  obtain ⟨n, hn, hkn⟩ : ∃ n : ℕ, n = k.natAbs ∧ (k = (n : ℤ) ∨ k = -(n : ℤ)) :=
+    ⟨k.natAbs, rfl, Int.natAbs_eq k⟩
+  rw [show (EtaDisplay.lit k).toPWord (n := 2 + 2 * h)
+    = .zpow (.gen Generator.sigma) k from rfl, ← hn]
+  rcases hkn with hk' | hk'
+  · rw [hk']
+    exact ⟨_, hσ.npow n⟩
+  · have hraw := hσ.zpowNeg n
+    rw [show -(n • u .sigma) = n • u .sigma from (neg_eq_iff_add_eq_zero.mpr (hA₂ _)),
+      show -(n • w .sigma) = n • w .sigma from
+        (neg_eq_iff_add_eq_zero.mpr (ElemDual.add_self_eq_zero _))] at hraw
+    rw [hk']
+    exact ⟨_, hraw⟩
+
+end DisplayJet
+
 end
 
 end GQ2.Dyadic.MProcyclicNormal
