@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.EvenHeisPure
+import GQ2.Dyadic.Instances.EvenScalarSeparation
 import GQ2.Dyadic.Instances.MpcUnramifiedBranch
 
 /-!
@@ -950,6 +951,112 @@ theorem heisEta1_mpcFamOf_evenNormal (t : Marking (2 + 2 * h) C) (E : Zhat → �
   simp only [evenNormal_coreLetter, evenNormal_handleU, evenNormal_handleV,
     Matrix.cons_val_zero, Matrix.cons_val_one, map_add]
   abel
+
+set_option maxHeartbeats 1600000 in
+/-- **The procyclic-`M` traced pairing on scalar normal coordinates** (`α ≥ 2`): the compact
+scalar core on `(x₀,x₁)` plus the two `sigma`-hyperbolic planes with coefficients `p` and
+`n_η`.  The tame relator is `(σ,τ)`-supported and a scalar normal cochain is `τ`-free. -/
+theorem heisEta1_mpcFamOf_scalarNormal (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) {e α r pp q nn : ℕ} {η : EtaDisplay}
+    (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (g : Generator (2 + 2 * h)) (v : A), t g • v = v)
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (hα : 2 ≤ α) (hq : Even q)
+    (hη : ∀ (u : Generator (2 + 2 * h) → A) (w : Generator (2 + 2 * h) → ElemDual A),
+      ∃ zη, Triv ⇑t u w E E₂ (η.toPWord (n := 2 + 2 * h))
+        (nn • u .sigma) (nn • w .sigma) zη)
+    (p : ScalarParam h A) (rr : ScalarParam h (ElemDual A)) :
+    heisEta1 ⇑t (mpcFamOf α r pp h q η E E₂)
+        (evenScalarNormalP h p) (evenScalarNormalP h rr)
+      = rr.2.1 p.2.1 + (rr.2.1 p.2.2.1 + rr.2.2.1 p.2.1)
+        + pp • (rr.2.1 p.1 + rr.1 p.2.1)
+        + nn • (rr.2.2.2.1 p.1 + rr.1 p.2.2.2.1)
+        + ∑ j, (rr.2.2.2.2 (j, 0) (p.2.2.2.2 (j, 1))
+            + rr.2.2.2.2 (j, 1) (p.2.2.2.2 (j, 0))) := by
+  obtain ⟨zη, hηp⟩ := hη (evenScalarNormalP h p) (evenScalarNormalP h rr)
+  have htame : (heisEvalZ ⇑t (evenScalarNormalP h p) (evenScalarNormalP h rr) E E₂
+      (Certificates.tameRelW (2 + 2 * h) q)).z = 0 := by
+    rw [Certificates.heisZ_tameRelW_unram t _ _ E E₂ hA₂ (fun v ↦ htriv _ v) hq]
+    simp [evenScalarNormalP]
+  rw [heisEta1_mpcFamOf_apply t _ _ E E₂ α r pp q η, htame, zero_add,
+    heisZ_mpcW_scalar t _ _ E E₂ hA₂ htriv (by simp [evenScalarNormalP])
+      (by simp [evenScalarNormalP]) hE he hα hηp]
+  simp only [evenScalarNormalP, evenScalarNormal_coreLetter, evenScalarNormal_sigma,
+    evenScalarNormal_handleU, evenScalarNormal_handleV, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
+
+set_option maxHeartbeats 1600000 in
+/-- **Left nondegeneracy of the procyclic-`M` scalar pairing at an odd display exponent.**  Four
+core rows are consulted in turn — `ν₁` for `d₀`, `ν₂` for `a_σ`, `ν₀` for `d₁` and `b_σ` for
+`d₂` — and a handle coordinate closes the remaining case.
+
+⚠ `Odd nn` is **necessary**: at an even display exponent nothing in the Gram sees `a_σ` or `d₂`
+except through `p`, and the `(a_σ, d₂)` plane degenerates. -/
+theorem mpc_scalarNormal_pairing_separates_left [Finite A] (t : Marking (2 + 2 * h) C)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) {e α r pp q nn : ℕ} {η : EtaDisplay}
+    (hA₂ : ∀ a : A, a + a = 0)
+    (htriv : ∀ (g : Generator (2 + 2 * h)) (v : A), t g • v = v)
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (hα : 2 ≤ α) (hq : Even q) (hnn : Odd nn)
+    (hη : ∀ (u : Generator (2 + 2 * h) → A) (w : Generator (2 + 2 * h) → ElemDual A),
+      ∃ zη, Triv ⇑t u w E E₂ (η.toPWord (n := 2 + 2 * h))
+        (nn • u .sigma) (nn • w .sigma) zη)
+    (p : ScalarParam h A) (hp : p ≠ 0) :
+    ∃ rr : ScalarParam h (ElemDual A),
+      heisEta1 ⇑t (mpcFamOf α r pp h q η E E₂)
+        (evenScalarNormalP h p) (evenScalarNormalP h rr) ≠ 0 := by
+  classical
+  have heval := heisEta1_mpcFamOf_scalarNormal (α := α) (r := r) (pp := pp) (q := q) t E E₂
+    hA₂ htriv hE he hα hq hη p
+  by_cases hd₀ : p.2.1 = 0
+  · by_cases hσ : p.1 = 0
+    · by_cases hd₁ : p.2.2.1 = 0
+      · by_cases hd₂ : p.2.2.2.1 = 0
+        · have hz : p.2.2.2.2 ≠ 0 := fun hz ↦
+            hp (Prod.ext hσ (Prod.ext hd₀ (Prod.ext hd₁ (Prod.ext hd₂ (by simpa using hz)))))
+          obtain ⟨⟨j, k⟩, hjk⟩ := Function.ne_iff.mp hz
+          obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hjk
+          fin_cases k
+          · refine ⟨(0, 0, 0, 0, Pi.single (j, 1) lam), ?_⟩
+            rw [heval, hd₀, hσ, hd₁, hd₂]
+            have hsum : ∑ b, ((Pi.single (j, 1) lam : Fin h × Fin 2 → ElemDual A) (b, 0)
+                  (p.2.2.2.2 (b, 1))
+                + (Pi.single (j, 1) lam : Fin h × Fin 2 → ElemDual A) (b, 1)
+                  (p.2.2.2.2 (b, 0))) = lam (p.2.2.2.2 (j, 0)) := by
+              rw [Finset.sum_eq_single j]
+              · simp
+              · intro b _ hbj
+                simp [hbj]
+              · simp
+            rw [hsum]
+            simpa using hlam
+          · refine ⟨(0, 0, 0, 0, Pi.single (j, 0) lam), ?_⟩
+            rw [heval, hd₀, hσ, hd₁, hd₂]
+            have hsum : ∑ b, ((Pi.single (j, 0) lam : Fin h × Fin 2 → ElemDual A) (b, 0)
+                  (p.2.2.2.2 (b, 1))
+                + (Pi.single (j, 0) lam : Fin h × Fin 2 → ElemDual A) (b, 1)
+                  (p.2.2.2.2 (b, 0))) = lam (p.2.2.2.2 (j, 1)) := by
+              rw [Finset.sum_eq_single j]
+              · simp
+              · intro b _ hbj
+                simp [hbj]
+              · simp
+            rw [hsum]
+            simpa using hlam
+        · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hd₂
+          refine ⟨(lam, 0, 0, 0, 0), ?_⟩
+          rw [heval, hd₀, hσ, hd₁]
+          simpa [nsmul_zmod2_odd hnn] using hlam
+      · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hd₁
+        refine ⟨(0, lam, 0, 0, 0), ?_⟩
+        rw [heval, hd₀, hσ]
+        simpa using hlam
+    · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hσ
+      refine ⟨(0, 0, 0, lam, 0), ?_⟩
+      rw [heval, hd₀]
+      simpa [nsmul_zmod2_odd hnn] using hlam
+  · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hd₀
+    refine ⟨(0, 0, lam, 0, 0), ?_⟩
+    rw [heval]
+    simpa using hlam
 
 end Pairing
 
