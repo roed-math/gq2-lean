@@ -245,11 +245,8 @@ noncomputable def sqNegOnePow : ContinuousMonoidHom (Multiplicative (ZMod 2)) �
              if toAdd b = 0 then (1 : ℤ_[2]ˣ) else -1
        rcases h2 (toAdd a) with ha | ha <;> rcases h2 (toAdd b) with hb | hb <;>
          rw [hab, ha, hb]
-       · rw [if_pos (by decide), if_pos (by decide), if_pos (by decide), one_mul]
-       · rw [if_neg (by decide), if_pos (by decide), if_neg (by decide), one_mul]
-       · rw [if_neg (by decide), if_neg (by decide), if_pos (by decide), mul_one]
-       · rw [if_pos (by decide), if_neg (by decide), if_neg (by decide), neg_mul_neg,
-           one_mul] },
+       all_goals simp
+       all_goals decide },
    continuous_of_discreteTopology⟩
 
 theorem sqNegOnePow_apply (a : Multiplicative (ZMod 2)) :
