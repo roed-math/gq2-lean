@@ -637,6 +637,71 @@ theorem evenUnramifiedStokesDuality_of_smul_row
 
 end UnramSmulPivot
 
+/-! ## The complete unramified differential of the procyclic-`M` family -/
+
+section Differential
+
+set_option maxHeartbeats 800000 in
+/-- **The complete first differential of the procyclic-`M` family on an unramified simple
+module**: the `σ⁻¹`-pivot on `τ`, and the two-entry wild row `a(τ) + (1 − G⁻¹)a(x₂)`.  Exactly
+the compact rows' differential with `σ⁻¹` replaced by `G⁻¹`
+(`heisD1_mCompactFam_unramified_apply` is the case `u = σ`). -/
+theorem heisD1_mpcFamOf_unramified_apply {alpha r pp h q : ℕ} {η : EtaDisplay}
+    {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [Finite A]
+    [DistribMulAction C A] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) {u : C}
+    (hlift : ResolverLifts E (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hα : 1 ≤ alpha)
+    (hq : Even q)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a) (hS₂ : ∀ a : A, powOmega2 t.σ • a = a)
+    (hu : PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h)) = u)
+    (x : Generator (2 + 2 * h) → A) :
+    heisD1 ⇑t (mpcFamOf alpha r pp h q η E E₂) x
+      = ![t.σ⁻¹ • x .tau,
+          x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2))] := by
+  funext k
+  fin_cases k
+  · change (FreeGroup.lift (heisGen (⇑t) x 0)
+        (heisToFree E E₂ (Certificates.tameRelW (2 + 2 * h) q))).a = t.σ⁻¹ • x .tau
+    rw [← heisEvalZ_eq_lift, heisEvalZ_a_eq_foxD hlift,
+      Certificates.foxD_tameRelW_unram t _ _ hA₂ hτ hq]
+  · change (FreeGroup.lift (heisGen (⇑t) x 0) (heisToFree E E₂ (mpcW alpha r pp η h))).a
+      = x .tau + (x (coreLetter h 2) - u⁻¹ • x (coreLetter h 2))
+    rw [← heisEvalZ_eq_lift, heisEvalZ_a_eq_foxD hlift,
+      foxD_mpcW_unram_of_eq t E E₂ x hα r pp hu hA₂ hwild hτ hS₂]
+
+set_option maxHeartbeats 800000 in
+/-- **The `tau`-row of the procyclic-`M` family at a completely trivial action.**  Both rows
+degenerate to the single `tau` entry: the tame row through the `σ⁻¹`-pivot, the wild row because
+the boundary operator `G` is a `σ`-power and `1 − G⁻¹ = 0`.  This is the procyclic-`M` twin of
+`NProcyclicUnram.heisD1_npcFam_tauRow_of_split`. -/
+theorem heisD1_mpcFamOf_tauRow_of_split {alpha r pp h q : ℕ} {η : EtaDisplay}
+    {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [Finite A]
+    [DistribMulAction C A] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (hlift : ResolverLifts E (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hα : 1 ≤ alpha)
+    (hq : Even q)
+    (htriv : ∀ (g : Generator (2 + 2 * h)) (a : A), t g • a = a)
+    (x : Generator (2 + 2 * h) → A) :
+    heisD1 ⇑t (mpcFamOf alpha r pp h q η E E₂) x = ![x .tau, x .tau] := by
+  have hτ : ∀ a : A, t.τ • a = a := fun a ↦ htriv _ a
+  have hσ : ∀ a : A, t.σ • a = a := fun a ↦ htriv _ a
+  have hσinv : ∀ a : A, t.σ⁻¹ • a = a := fun a ↦
+    mem_trivAct.mp (inv_mem (mem_trivAct.mpr hσ)) a
+  have hS₂ : ∀ a : A, powOmega2 t.σ • a = a := fun a ↦
+    mem_trivAct.mp (trivAct_powOmega2 (mem_trivAct.mpr hσ)) a
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a := fun i a ↦ htriv _ a
+  obtain ⟨n, hn⟩ := exists_zpow_evalFin_etaDisplay t E E₂ η
+  have hutriv : ∀ a : A, (t.σ ^ n)⁻¹ • a = a := fun a ↦
+    mem_trivAct.mp (inv_mem (zpow_mem (mem_trivAct.mpr hσ) n)) a
+  rw [heisD1_mpcFamOf_unramified_apply (alpha := alpha) (r := r) (pp := pp) t E E₂ hlift hA₂ hα
+    hq hwild hτ hS₂ hn x]
+  funext k
+  fin_cases k
+  · exact hσinv _
+  · change x .tau + (x (coreLetter h 2) - (t.σ ^ n)⁻¹ • x (coreLetter h 2)) = x .tau
+    rw [hutriv, sub_self, add_zero]
+
+end Differential
+
 end
 
 end GQ2.Dyadic.MProcyclicUnram
