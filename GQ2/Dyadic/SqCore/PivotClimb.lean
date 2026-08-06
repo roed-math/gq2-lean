@@ -702,6 +702,78 @@ theorem not_forall_isUnit_toAdd_sqPivot (hh : 0 < h) :
 
 end Witness
 
+/-! ## §7′ The other half of the transfers (W41-PIVOTFIX)
+
+§6 refutes the handle-to-core transfer at every `u_j`.  `sqPivotUnitizer_of_handleToCore` binds
+**both** families, so the `u`-half already makes it vacuous; but "every handle-to-core transfer
+is false" deserves to be a theorem rather than a remark, and the `v`-half is the same three
+lines.  Note that no joint-surjectivity input is needed here: `SqHandleToCoreMove` quantifies
+over *all* markings, so a single marking with an odd `v_j`-row suffices. -/
+
+section WitnessV
+
+variable {h : ℕ}
+
+theorem sqZero_ne_handleV (j : Fin h) : (0 : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  Ne.symm (sqHandleIdxV_ne_of_val_lt j (i := 0) (by rw [sqVal_zero]; omega))
+
+theorem sqOne_ne_handleV (j : Fin h) : (1 : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  Ne.symm (sqHandleIdxV_ne_of_val_lt j (i := 1) (by rw [sqVal_one]; omega))
+
+theorem sqTwo_ne_handleV (j : Fin h) : (2 : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  Ne.symm (sqHandleIdxV_ne_of_val_lt j (i := 2) (by rw [sqVal_two]; omega))
+
+/-- The `v`-side companion of `nuHandleU`: core rows `(a, b, 2b)`, `v_j`-row `1`, every other
+handle row `0`. -/
+noncomputable def nuHandleV (h : ℕ) (a b : ℤ_[2]) (j : Fin h) :
+    ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]) :=
+  sqLiftHom h PropOneOne.isProP_two_multPadicInt
+    (Function.update (sqMark (ofAdd a) (ofAdd b) (ofAdd (2 * b))) (sqHandleIdxV j)
+      (ofAdd (1 : ℤ_[2]))) (by
+      rw [sqRelWord_comm, Function.update_of_ne (sqOne_ne_handleV j),
+        Function.update_of_ne (sqTwo_ne_handleV j), sqMark_one, sqMark_two,
+        ← ofAdd_nsmul, ← ofAdd_nsmul, ← ofAdd_neg, ← ofAdd_add, ← ofAdd_zero]
+      congr 1
+      simp only [nsmul_eq_mul, Nat.cast_ofNat]
+      ring)
+
+variable (a b : ℤ_[2]) (j : Fin h)
+
+@[simp] theorem nuHandleV_self : nuHandleV h a b j (sqGen h (sqHandleIdxV j)) = ofAdd (1 : ℤ_[2]) :=
+  (sqLiftHom_gen _ _ _ _ _).trans (Function.update_self _ _ _)
+
+@[simp] theorem nuHandleV_sigma : nuHandleV h a b j (dsqSigma h) = ofAdd a :=
+  (sqLiftHom_gen _ _ _ _ 0).trans
+    (by rw [Function.update_of_ne (sqZero_ne_handleV j), sqMark_zero])
+
+@[simp] theorem nuHandleV_x0 : nuHandleV h a b j (dsqX0 h) = ofAdd b :=
+  (sqLiftHom_gen _ _ _ _ 1).trans
+    (by rw [Function.update_of_ne (sqOne_ne_handleV j), sqMark_one])
+
+/-- The pivot row of the `v`-side handle marking. -/
+theorem toAdd_nuHandleV_sqPivot :
+    toAdd (nuHandleV h a b j (sqPivot h)) = a - sqPivotExp * b := by
+  rw [toAdd_nu_sqPivot, nuHandleV_sigma, nuHandleV_x0, toAdd_ofAdd, toAdd_ofAdd]
+
+/-- **THE `v`-SIDE TRANSFERS ARE FALSE TOO**, by the same invariance and the same witness shape.
+With `not_sqHandleToCoreMove_handleU` this closes the family: *no* handle-to-core transfer
+exists at any handle count, so `sqPivotUnitizer_of_handleToCore` has no satisfiable instance
+above `h = 0` on either binder. -/
+theorem not_sqHandleToCoreMove_handleV (j : Fin h) : ¬ SqHandleToCoreMove h (sqHandleIdxV j) := by
+  intro H
+  obtain ⟨s, hs⟩ := two_dvd_toAdd_of_sqHandleToCoreMove H (nuHandleV h 0 0 j)
+  rw [nuHandleV_self, toAdd_ofAdd] at hs
+  exact (isUnit_iff_not_two_dvd.mp isUnit_one) ⟨s, hs⟩
+
+/-- **The transfer hypothesis of `sqPivotUnitizer_of_handleToCore` is unsatisfiable at `h ≥ 1`**,
+on either family: whichever binder one tries to fill, it is false. -/
+theorem not_sqHandleToCoreMove_families (hh : 0 < h) :
+    ¬ ((∀ j : Fin h, SqHandleToCoreMove h (sqHandleIdxU j)) ∧
+      ∀ j : Fin h, SqHandleToCoreMove h (sqHandleIdxV j)) := fun ⟨hU, _⟩ =>
+  not_sqHandleToCoreMove_handleU ⟨0, hh⟩ (hU ⟨0, hh⟩)
+
+end WitnessV
+
 /-! ## §8 The corrected residual, and what it costs -/
 
 section Corrected
@@ -934,6 +1006,9 @@ section AxiomPins
 #print axioms nuHandleU
 #print axioms two_dvd_toAdd_of_sqHandleToCoreMove
 #print axioms not_sqHandleToCoreMove_handleU
+#print axioms nuHandleV
+#print axioms not_sqHandleToCoreMove_handleV
+#print axioms not_sqHandleToCoreMove_families
 #print axioms sqPivotUnitizer_iff
 #print axioms chiSq_surjective
 #print axioms sqJointSurjective_nuHandleU
