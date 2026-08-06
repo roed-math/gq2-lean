@@ -124,17 +124,12 @@ section ModTwo
 theorem isProP_multZMod2 : IsProP 2 (Multiplicative (ZMod 2)) :=
   SectionThree.isProP_two_multZMod2
 
-/-- Every element of `Multiplicative (ZMod 2)` squares to `1`. -/
-theorem sq_eq_one_multZMod2 (y : Multiplicative (ZMod 2)) : y ^ 2 = 1 := by
-  revert y
-  decide
-
 /-- In `Multiplicative (ZMod 2)` a `ℤ₂`-power at an **even** exponent is trivial. -/
 theorem zpowZtwo_multZMod2_of_even (y : Multiplicative (ZMod 2)) {t : ℤ_[2]}
     (ht : (2 : ℤ_[2]) ∣ t) : zpowZtwo isProP_multZMod2 y t = 1 := by
   obtain ⟨s, rfl⟩ := ht
   rw [show (2 : ℤ_[2]) * s = ((2 : ℕ) : ℤ_[2]) * s by push_cast; ring, ← zpowZtwo_zpowZtwo,
-    zpowZtwo_natCast, sq_eq_one_multZMod2, zpowZtwo_one_base]
+    zpowZtwo_natCast, MarkedCore.sq_eq_one_multZMod2', zpowZtwo_one_base]
 
 /-- …and at an **odd** exponent it is the base. -/
 theorem zpowZtwo_multZMod2_of_odd (y : Multiplicative (ZMod 2)) {t : ℤ_[2]}
@@ -837,7 +832,40 @@ theorem isUnit_toAdd_transported_sqPivot_iff {G : Type} [Group G] [TopologicalSp
 
 end Transported
 
-/-! ## §10 Stress pins -/
+/-! ## §10 Regression: the determinant condition, reproved from the invariance
+
+`PivotCoreMoves` §4 proves `isUnit_sqPivotDet_of_sqPivotCoreMove` by the `χ_sq² = X^{2λ}` parity
+engine run at the standard marking.  The cup-form invariance gives the same theorem by a
+different route — the pivot core move scales the pivot row by `D = 1 + m − k·c₀`, and §4 says
+that scaling must be odd.  Two independent proofs of one statement is the cross-check that the
+new machinery agrees with the committed one. -/
+
+section Regression
+
+variable {h : ℕ}
+
+/-- **`isUnit_sqPivotDet_of_sqPivotCoreMove`, reproved from §4.** -/
+theorem isUnit_sqPivotDet_of_sqPivotCoreMove_via_cup {m k : ℤ_[2]}
+    (H : SqPivotCoreMove h m k) : IsUnit (sqPivotDet m k) := by
+  obtain ⟨Ψ, hchi, hs, hx, _, _⟩ := H (nuSq h)
+  have hpiv : toAdd (nuSq h (sqPivot h)) = 1 := by rw [nuSq_sqPivot, toAdd_ofAdd]
+  have hval : toAdd (nuSq h (Ψ (sqPivot h))) = sqPivotDet m k := by
+    rw [toAdd_aut_sqPivot, hs, hx, hpiv, nuSq_sigma, nuSq_x0, toAdd_ofAdd, toAdd_ofAdd,
+      sqPivotDet]
+    ring
+  obtain ⟨s, hs2⟩ := two_dvd_toAdd_nu_aut_sqPivot_sub Ψ hchi (nuSq h)
+  rw [hval, hpiv] at hs2
+  exact isUnit_iff_not_two_dvd.mpr fun ⟨p, hp⟩ =>
+    (isUnit_iff_not_two_dvd.mp isUnit_one) ⟨p - s, by linear_combination hp - hs2⟩
+
+/-- The two proofs land on the same statement. -/
+example {m k : ℤ_[2]} (H : SqPivotCoreMove h m k) :
+    IsUnit (sqPivotDet m k) ∧ IsUnit (sqPivotDet m k) :=
+  ⟨isUnit_sqPivotDet_of_sqPivotCoreMove H, isUnit_sqPivotDet_of_sqPivotCoreMove_via_cup H⟩
+
+end Regression
+
+/-! ## §11 Stress pins -/
 
 section StressTests
 
@@ -890,7 +918,7 @@ example (H : SqNuOrientedClearAtUnitPivot 0) : SqNuOrientedClear 0 :=
 
 end StressTests
 
-/-! ## §11 Axiom pins -/
+/-! ## §12 Axiom pins -/
 
 section AxiomPins
 
@@ -917,6 +945,7 @@ section AxiomPins
 #print axioms sqNuOrientedClearAtUnitPivot_of_families
 #print axioms two_dvd_toAdd_transported_sqPivot_sub
 #print axioms isUnit_toAdd_transported_sqPivot_iff
+#print axioms isUnit_sqPivotDet_of_sqPivotCoreMove_via_cup
 
 end AxiomPins
 
