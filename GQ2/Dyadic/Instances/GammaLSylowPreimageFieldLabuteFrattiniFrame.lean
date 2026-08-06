@@ -913,10 +913,14 @@ degree there is a `SqCyclotomicFrattiniFrame` on `(deg - 1)/2` handles whose dua
 family carries the field cup form to the improved relator's constructor table.
 
 The generators are the exact-cyclotomic-value representatives of the dual family of the
-`κ`/`τ`-adapted Witt coordinates of `H¹(G_K(2), 𝔽₂)`. -/
+`κ`/`τ`-adapted Witt coordinates of `H¹(G_K(2), 𝔽₂)`.
+
+Marked reciprocity is taken from the supply's own bundle binder `B`, not from `markedRecipAt`:
+both uses below (`cyclotomicModEightOmegaClassKTwo_ne_zero` and
+`oddDegreeGalKSq_sharpExactLevelFibreLiftSupply`) are generic in the bundle. -/
 theorem oddDegreeSqCyclotomicFrattiniFrameSupply_holds :
     OddDegreeSqCyclotomicFrattiniFrameSupply := by
-  intro K _ _ _ _ hodd
+  intro K _ _ _ _ _ B hodd
   classical
   letI : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) := scalarActionZmodTwo _
   letI : ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
@@ -937,7 +941,7 @@ theorem oddDegreeSqCyclotomicFrattiniFrameSupply_holds :
     frattiniFrameAdaptedModelEquiv (isCupFormFp2_frattiniFrameCup (K := K))
       (nondegFp2_frattiniFrameCup (K := K)) (frattiniFrameCup_kappa (K := K))
       (frattiniFrameCup_kappa_self (K := K) hodd) (frattiniFrameCup_omega_modFour (K := K))
-      (cyclotomicModEightOmegaClassKTwo_ne_zero (markedRecipAt K) hodd) hcard
+      (cyclotomicModEightOmegaClassKTwo_ne_zero B hodd) hcard
   -- realize the adapted coordinate functionals by group elements
   choose gens' hgens' using fun i : Fin (SqCore.sqRank k) =>
     frattiniFrameEval_realizable (K := K) hfin
@@ -947,8 +951,7 @@ theorem oddDegreeSqCyclotomicFrattiniFrameSupply_holds :
         modelCoordAt k (GQ2.ContCoh.sqInitialAlphabetEquiv k i) (Φ x) := fun i x =>
     hgens' i x
   -- exact cyclotomic values in each dual Frattini coset
-  have hsupply := SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply
-    (markedRecipAt K) hodd
+  have hsupply := SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply B hodd
   have hmatch4 : ∀ i : Fin (SqCore.sqRank k),
       frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) (gens' i) =
         Multiplicative.toAdd (unitsModFourParity
@@ -1053,7 +1056,7 @@ example [CompactSpace AbsGalQ2] [T2Space AbsGalQ2] [TotallyDisconnectedSpace Abs
     ∃ F : SqCyclotomicFrattiniFrame (⊥ : IntermediateField ℚ_[2] ℚ̄₂) 0,
     F.IsCupAdapted := by
   have h := oddDegreeSqCyclotomicFrattiniFrameSupply_holds
-    (⊥ : IntermediateField ℚ_[2] ℚ̄₂)
+    (⊥ : IntermediateField ℚ_[2] ℚ̄₂) (markedRecipAt _)
     (by rw [IntermediateField.finrank_bot]; exact odd_one)
   rwa [show (Module.finrank ℚ_[2] (⊥ : IntermediateField ℚ_[2] ℚ̄₂) - 1) / 2 = 0 from by
     rw [IntermediateField.finrank_bot]] at h

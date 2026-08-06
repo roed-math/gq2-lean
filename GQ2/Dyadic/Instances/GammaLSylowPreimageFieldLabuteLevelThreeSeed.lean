@@ -164,11 +164,18 @@ end SqCyclotomicFrattiniFrame
 
 /-- The missing finite Frattini-frame realization.  The proved `[-1]` and `[2]` cyclotomic
 bridges plus the odd-degree cup normal form are designed to discharge this statement by finite
-elementary-abelian duality.  The output explicitly carries the improved relator's cup table. -/
+elementary-abelian duality.  The output explicitly carries the improved relator's cup table.
+
+The marked bundle `_B` is a **binder, not an axiom**.  The construction uses marked reciprocity
+at `K` only through cyclotomic surjectivity and sharp fibre lifting, and both of those are
+generic in the bundle; carrying the bundle here is what lets every consumer pass its own
+`MarkedRecip` rather than summon `markedRecipAt` (B5-K), which is what keeps the odd-degree
+endpoints' axiom prints inside the frozen `ℚ₂` capstone's nine. -/
 def OddDegreeSqCyclotomicFrattiniFrameSupply : Prop :=
   ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
-    [TotallyDisconnectedSpace (GalK K)],
+    [TotallyDisconnectedSpace (GalK K)]
+    {R : LocalReciprocity} (_B : MarkedRecip R K),
     Odd (Module.finrank ℚ_[2] K) →
       ∃ F : SqCyclotomicFrattiniFrame K ((Module.finrank ℚ_[2] K - 1) / 2),
         F.IsCupAdapted
@@ -192,9 +199,10 @@ theorem oddDegree_sqCyclotomicStageTuple_levelThree_of_finiteRealization
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)]
+    {R : LocalReciprocity} (B : MarkedRecip R K)
     (hodd : Odd (Module.finrank ℚ_[2] K)) :
     Nonempty (SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) 3) := by
-  obtain ⟨F, hcup⟩ := hframe K hodd
+  obtain ⟨F, hcup⟩ := hframe K B hodd
   exact ⟨F.toLevelThree (hrelation K hodd F hcup)⟩
 
 #print axioms SqCyclotomicFrattiniFrame.toLevelThree

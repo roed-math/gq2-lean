@@ -102,11 +102,15 @@ theorem stageResidual_exists_primitiveVanishing_of_kernelAdaptedSupply
 
 /-- **The all-stage residual theorem for odd-degree fields.**  Odd-degree marked reciprocity
 makes the descended cyclotomic character surjective, so the kernel-adapted supply delivers the
-complete `∀ k ≥ 3` premise of the forward presentation capstone. -/
+complete `∀ k ≥ 3` premise of the forward presentation capstone.
+
+Marked reciprocity enters only through `chiCycKTwo_surjective_of_odd_finrank`, which is generic
+in the bundle, so the caller's own `B` pays for it and the axiom `markedRecipAt` (B5-K) is never
+summoned here. -/
 theorem oddDegreeGalKSq_allStagePrimitiveResidualVanishing
-    {K : IntermediateField ℚ_[2] ℚ̄₂}
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
     [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [T2Space (GalK K)]
-    [TotallyDisconnectedSpace (GalK K)] {h : ℕ}
+    [TotallyDisconnectedSpace (GalK K)] {h : ℕ} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hsupply : SqKernelAdaptedDefectSupply K h) :
     ∀ (k : ℕ) (hk : 3 ≤ k) (T : SqCyclotomicStageTuple K h k),
@@ -114,7 +118,7 @@ theorem oddDegreeGalKSq_allStagePrimitiveResidualVanishing
         SqCyclotomicStageTuple.SharpCyclotomicInflationPrimitiveResidualVanishing T hk W
           (maxProTwoGalK_isTopologicallyFinGen K) :=
   fun k hk T ↦ stageResidual_exists_primitiveVanishing_of_kernelAdaptedSupply
-    (chiCycKTwo_surjective_of_odd_finrank K (markedRecipAt K) hodd) Hsupply k hk T
+    (chiCycKTwo_surjective_of_odd_finrank K B hodd) Hsupply k hk T
 
 /-! ## The rank-one calibration -/
 
