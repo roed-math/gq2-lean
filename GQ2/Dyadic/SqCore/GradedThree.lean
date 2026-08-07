@@ -9,25 +9,107 @@ import GQ2.Dyadic.SqCore.GradedTwo
 # W48 — the class-three layer of `D_sq h`: the unitriangular test group `U₄(R)`
 
 `GradedTwo` built the class-two test group `SqHeis R` and turned the class-two balance into a
-gate.  This file does the same one level up: `SqU4 R = U₄(R)` is the unitriangular `4 × 4` group,
-whose lower central series is `γ₂ = {a = b = c = 0}`, `γ₃ = {a = … = e = 0}`, and whose three
-abelian columns are **three independent characters** — which is what a degree-three functional
-`⁅⁅x̄, ȳ⁆, z̄⁆` needs and which no Heisenberg group supplies.
+gate.  This file does the same one level up, and answers **W48-U4's narrow question**: the
+class-two balance of the arbitrary-dressing frame is under-determined — one dressing forced,
+three free — *can the free dressings be chosen to kill the class-three defect?*
+
+## ⭐⭐ The answer: **yes**, with a witness (§6)
+
+At a live class-three test hom over `ℤ/8`, at a handle that is genuinely **not** already cleared
+(`ν'(u₀) = 0`, `ν'(v₀) = 1`), the arbitrary-dressing frame dressed by
+
+```text
+a₁ = U⁻¹  (= U^{−ν'(v₀)}·V^{ν'(u₀)}, the value the class-two balance already forces),
+a₀ = a₂ = a₃ = a₄ = 1
+```
+
+kills the relator outright — **all six** equations, class one, class two *and* class three
+(`sqRelWord_u4WitFrame`).  The undressed frame fails at the same test hom, at class two and at
+class three (`not_sqRelWord_u4WitBase`), so the gate is live and the witness is not vacuous.  The
+three free dressings are not even needed: the class-two forced dressing does the class-three job
+as well.
+
+⚠ **The class-three layer is nevertheless a real constraint.**  `u4WitBad` dresses the `x₁`-slot
+by `V`: both class-two defects stay in `2·ℤ/8`, so class two admits it, while its class-three
+defect is the unit `7`, which by `sqU4_top_range` no choice of the two exponent slots can repair.
+Sampling agrees: about half of the dressing tuples that pass class two fail class three.
+
+⚠ **What this is and is not.**  A class-three test group is a *necessary-condition* engine, as at
+class two.  "Yes" here means *the class-three gate does not obstruct* — it is positive evidence
+for `SqArbRelWord`/`SqLamMarkTransitivity`, not a proof.  The identification of `u4WitBase` with
+the frame's slot images is machine-checked slot by slot (`u4WitBase_core`, `u4WitBase_handleU`,
+`u4WitBase_handleV`, `u4WitMark_x0`), but the frame itself lives in `D_sq 1` and only its image
+is computed here.
+
+## What is built, and at what generality
+
+`SqU4 R = U₄(R)` over any commutative ring, pro-2 whenever `#R` is a finite 2-power
+(`SqU4.isProP_two`), with the relator in closed form (§2):
+
+```text
+(sqRelWord m).a/.b/.c = −4(m 1)· + 2(m 2)·                    -- the relator vector ρ_sq
+(sqRelWord m).d       = −4(m 1).d + 2(m 2).d + sqHeisDefect h (toHeisAB ∘ m)
+(sqRelWord m).e       = −4(m 1).e + 2(m 2).e + sqHeisDefect h (toHeisBC ∘ m)
+(sqRelWord m).f       = −4(m 1).f + 2(m 2).f + sqU4Defect h m
+sqU4Defect h m = sqU4Core (m 0) (m 1) (m 2)
+               + ρ_sq(a-row) · Σⱼ (ūⱼ ∧ v̄ⱼ in the (b,c)-columns)
+               + Σⱼ u4Comm3 (m uⱼ) (m vⱼ)
+```
+
+⭐ §1's pattern transposed **verbatim**, as `GradedTwo` §9 predicted: componentwise `simp`
+lemmas, `Finite` + `IsPGroup.of_card` for pro-2, `⊥` topology, and the same
+`zpowZtwo_of_…`-style `ℤ₂`-power lemma with three flatness conditions instead of one.  The two
+class-two rows are *not* re-proved: they are `GradedTwo`'s defect equation pulled back through
+the two Heisenberg quotients `toHeisAB`, `toHeisBC`, which is also the file's **validation**
+(§5): `sqHeisDefect_balance` is recovered from `sqU4Balance` statement for statement, so every
+class-two verdict — including the committed `V`-family refutation — is a class-three verdict.
+
+## ⚠ Findings that correct `GradedTwo` §9's forecast
+
+1. ⚠ **The coefficient parity does *not* repeat one level down.**  §9 predicted "`ℤ/8` or `ℤ/16`,
+   and the `2·χ` trick of §6 becomes `4·χ`".  Neither happened.  What `U₄` actually imposes is the
+   **same** class-two parity, once for each *adjacent* pair of columns — `χ_a ∧ χ_b` and
+   `χ_b ∧ χ_c` must each kill `Σⱼ ūⱼ ∧ v̄ⱼ` mod 2 — and **no** condition at all on the
+   non-adjacent pair `χ_a ∧ χ_c`.  The middle column of `U₄` is special, and that asymmetry is
+   the whole extra room class three buys.  `ℤ/4` already fires the gate; `ℤ/8` is used in §6 only
+   because the witness is prettier there, and `ℤ/8`/`ℤ/16` sweeps agree with `ℤ/4`.
+
+2. ⚠ **`2·χ` must *not* be used at class three.**  Every monomial of the class-three defect mod 2
+   carries a factor from the values of the two free characters on the handle letters.  Doubling
+   both free columns — §6's class-two trick — makes the class-three gate **vacuous**.  The gate
+   has to be run with a free character odd on a handle letter, which the adjacency parity permits
+   exactly when the handle is not already cleared.
+
+3. ⚠ **"It stays second-order" is only half right.**  The slot-exponent route really does die,
+   and `sqU4_top_adjust` is the sharp form of it: the relator's class-three coordinate sees the
+   marking's class-three coordinates **only** through slots `1` and `2`, with weights `−4` and
+   `2`, so the adjustable set is exactly `2R` and the `σ`-slot's and both handle slots'
+   class-three coordinates cancel outright.  But dressing a **handle slot** by an element of
+   `γ₂` moves the class-three defect *linearly*, through `u4Comm3`'s `p.a·q.e − p.e·q.a` and
+   `p.d·q.c − p.c·q.d` terms, with the other handle letter's abelian columns as coefficients.
+   So there is genuine first-order freedom at class three; it simply does not come from the
+   exponent vector `(0, −4, 2, 0, 0)`.  A slot-by-slot solve is not hopeless — it is just not a
+   solve in the exponent direction.
+
+4. ⚠ **The `x₁ = x₀²` gauge is what makes the class-two forcing exact, and §6's witness is
+   outside it.**  In the test group the class-two rows read `−4·d(a₁) + 2·d(a₂) + … = 0`; with
+   `d(a₂)` free this is only a mod-2 condition, which is `GradedTwo` §6's ⚠ gauge note seen from
+   the other side.  The witness of §6 happens to satisfy the forced value anyway.
 
 ## Contents
 
-* **§1** `SqU4 R`, its group and pro-2 structure, the commutator/conjugation/power formulas;
-* **§2** the closed form of `sqWord`, `handleWord` and `sqRelWord`; `sqU4Defect`;
+* **§1** `SqU4 R`, its group and pro-2 structure, commutator/conjugation/power formulas;
+* **§2** the closed form of `sqWord`, `handleWord` and `sqRelWord`; `sqU4Core`, `sqU4Defect`;
 * **§3** `sqU4Hom` and `ℤ₂`-powers in the test group;
-* **§4** the class-three gate `sqU4Balance`;
-* **§5** validation against the class-two layer and against the committed `V`-family refutation;
-* **§6** the class-three question for the arbitrary-dressing frame;
+* **§4** ⭐ the class-three gate `sqU4Balance`;
+* **§5** the validation: the class-two gate is a special case of the class-three gate;
+* **§6** ⭐⭐ the class-three parity (`sqU4_top_adjust`, `sqU4_top_range`) and **the witness**;
 * **§7** stress pins, **§8** committed axiom prints.
 
 ## Axiom hygiene
 
-No `sorry`, no new axiom, no `native_decide`.  Every declaration prints **std-3** (`propext`,
-`Classical.choice`, `Quot.sound`).
+No `sorry`, no new axiom, no `native_decide` (every `decide` is on `ZMod 8`).  All **113**
+committed prints are **std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a subset.
 -/
 
 open Multiplicative
