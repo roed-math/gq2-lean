@@ -1013,6 +1013,41 @@ section AxiomPins
 
 end AxiomPins
 
+/-! ## §9 Scoping note — what `gr₃` would need
+
+Not attempted here.  The shape of the work, for whoever takes it:
+
+1. **A class-three test object.**  `SqHeis R` is the rank-2 Heisenberg; the class-three analogue
+   is the unitriangular group `U₄(R)`, whose lower central series has `gr₃` free of rank `2` on
+   `⁅⁅x,y⁆,x⁆`, `⁅⁅x,y⁆,y⁆`.  ⚠ **Rank 2 is no longer enough**: a degree-three functional such as
+   `⁅⁅x̄,ȳ⁆,z̄⁆` with three independent characters does not factor through any rank-2 abelian
+   quotient, so the test family must include genuinely rank-3 markings — which `U₄(R)` supplies
+   and a Heisenberg group does not.  §1's pattern (componentwise `simp` lemmas, `Finite` +
+   `IsPGroup.of_card` for pro-2, `⊥` topology) transposes verbatim; the cost is that `conjP` and
+   `commP` no longer collapse to a single coordinate, so §2's closed form gets three more
+   coordinates, each cubic in the abelian columns and linear in the class-two ones.
+
+2. **The realizability parity repeats, one level down.**  §2's obstruction was that the relator's
+   central coordinate is only adjustable in `2R`, because the slot exponents are `(0, −4, 2, 0, 0)`
+   and `gcd(4, 2) = 2`.  At class three the same exponents govern the top coordinate, so the
+   adjustable subgroup is again `2R` while the defect is one degree higher; expect the test ring
+   to have to be `ℤ/8` (or `ℤ/16`), and the `2·χ` trick of §6 to become `4·χ`.
+
+3. ⚠ **Why the class-three lift is a second-order problem, and stays one.**  Dressing slot `i` by
+   `b ∈ F_k` changes the relator by `b^{ε_i}` with `(ε_i) = (0, −4, 2, 0, 0)` — **all even**.  So
+   in the elementary-abelian layer `F_k/F_{k+1}` every first-order variation dies, and the
+   class-three balance is not linear in the new dressing data.  `SqHeis.pow_c` is the class-two
+   shadow of exactly this: `(p^n).c = n·p.c + C(n,2)·(p.a·p.b)`, whose *linear* part `n·p.c`
+   vanishes mod `2` for even `n` while the *quadratic* part `C(n,2)·p.a·p.b` does not.  A
+   class-three attack therefore cannot be a slot-by-slot solve; it needs the quadratic term as
+   the leading term, i.e. a genuine second-order (Bockstein-type) analysis.
+
+4. **What would make it worth doing.**  `gr₂` is now a gate, but the class-two balance is
+   *under*-determined (§6: one dressing forced, the rest free), so it cannot by itself produce a
+   dressing.  `gr₃` is where the remaining freedom is either consumed or shown to be obstructed;
+   until then the class-3 stall is a statement about the lift, not about `SqLamMarkTransitivity`.
+-/
+
 end HeisGroup
 
 end SqCore
