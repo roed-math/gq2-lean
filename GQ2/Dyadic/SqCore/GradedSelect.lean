@@ -1185,6 +1185,168 @@ theorem sqRelWord_selHom_sqArbFrame_sigma (hu : selT h nu' j = 0) (hv : selS h n
 
 end SigmaBlind
 
+/-! ### §6c ⭐⭐ The selection in action: a legal dressing killed by the bit
+
+The selection functional is not vacuous, and this section pins one full instance of it at the
+`κ₃`-odd hom `(A,B,C,D,P,Q) = (4,1,2,1,2,1)` of the canonical `(0,1)`-type marking:
+
+* the class-two forced dressing (`selDress`) **survives** — §4's theorem, instantiated;
+* the frame additionally dressed by `t = x₁x₀⁻²` on the `U`-handle slot (`selDressT`) — a
+  perfectly **legal** dressing, `λ`- and `ν'`-trivial slotwise — passes every class-`≤ 2` row
+  but has class-three residue `1`, and by §6's obstruction **no achievable refinement ever
+  repairs it**;
+* at the committed hom `(2,1,2,1,7,1)` the same `t`-dressing has residue `6` — even — and §6's
+  completion kills it with one explicit `γ₂`-move.
+
+So the choice of the `t`-component of a handle dressing is **selected**: invisible to class
+two, it decides class-three life or death hom by hom.  This is the concrete content of "class
+three selects among class-two-admissible dressings", machine-checked end to end on
+`sqArbFrame` itself. -/
+
+section SelectionInstance
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+variable {A B C D P Q : gr3R}
+variable {hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0}
+variable {he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0}
+
+variable (h) in
+/-- The canonical lift of the order-two class `t̄ = x̄₁ − 2x̄₀`: the element `x₁·(x₀·x₀)⁻¹`. -/
+noncomputable def selTee : (DSq h : Type) := dsqX1 h * (dsqX0 h * dsqX0 h)⁻¹
+
+/-- `t` is `λ`-trivial: `λ(x₁) = 2λ(x₀)`. -/
+theorem nuLam_selTee (h : ℕ) : nuLam h (selTee h) = 1 := by
+  rw [selTee, map_mul, map_inv, map_mul, nuLam_x1, nuLam_x0]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_mul, toAdd_inv, toAdd_mul, toAdd_ofAdd, toAdd_ofAdd, toAdd_one]
+  norm_num
+
+/-- …and `ν'`-trivial at every selected marking: `ν'(x₁) = 2ν'(x₀)` by the core relation. -/
+theorem nu_selTee (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) : nu' (selTee h) = 1 := by
+  have h1 := toAdd_nu_dsqX1 nu'
+  rw [selTee, map_mul, map_inv, map_mul, hx0]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_mul, toAdd_inv, toAdd_mul, h1, hx0, toAdd_ofAdd, toAdd_one]
+  norm_num
+
+/-- ⭐ The image of `t` under a selection hom is the `x₁`-slot value: the `γ₂`-element with
+`(d, e) = (P, Q)`.  This is **not** in `Λ` in general — `t` is an abelian datum of a dressing,
+not a `γ₂`-refinement — which is exactly why it can flip the selection bit. -/
+theorem selHom_selTee :
+    selHom h nu' j A B C D P Q hd he (selTee h) = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [selTee, map_mul, map_inv, map_mul, dsqX1, dsqX0, selHom_gen, selHom_gen, selMark_two,
+    selMark_one]
+  simp
+
+variable (h nu' j) in
+/-- **The `t`-dressed dressing tuple**: the class-two forced `a₁ = U⁻¹`, plus `t` on the
+`U`-handle slot.  Every slot lies in `ker λ ∩ ker ν'`. -/
+noncomputable def selDressT : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then selTee h else 1
+
+@[simp] theorem selDressT_one : selDressT h nu' j 1 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDressT, sqVal_one]
+  norm_num
+
+@[simp] theorem selDressT_handleU : selDressT h nu' j (sqHandleIdxU j) = selTee h := by
+  simp only [selDressT, sqHandleIdxU_val]
+  rw [if_neg (by omega)]
+  simp
+
+@[simp] theorem selDressT_zero : selDressT h nu' j 0 = 1 := by
+  simp only [selDressT, sqVal_zero, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem selDressT_two : selDressT h nu' j 2 = 1 := by
+  simp only [selDressT, sqVal_two, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+theorem selDressT_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selDressT h nu' j (sqHandleIdxU j') = 1 := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [selDressT, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem selDressT_handleV (j' : Fin h) : selDressT h nu' j (sqHandleIdxV j') = 1 := by
+  simp only [selDressT, sqHandleIdxV_val, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+/-- The `t`-dressed tuple is legal on the `λ`-row. -/
+theorem nuLam_selDressT (i : Fin (sqRank h)) : nuLam h (selDressT h nu' j i) = 1 := by
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressT_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  by_cases hU : (i : ℕ) = (sqHandleIdxU j : ℕ)
+  · rw [show i = sqHandleIdxU j from Fin.val_injective hU, selDressT_handleU, nuLam_selTee]
+  · rw [show selDressT h nu' j i = 1 from by
+      simp only [selDressT]; rw [if_neg h1, if_neg hU], map_one]
+
+/-- …and on the `ν'`-row. -/
+theorem nu_selDressT (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (selDressT h nu' j i) = 1 := by
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressT_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  by_cases hU : (i : ℕ) = (sqHandleIdxU j : ℕ)
+  · rw [show i = sqHandleIdxU j from Fin.val_injective hU, selDressT_handleU, nu_selTee hx0]
+  · rw [show selDressT h nu' j i = 1 from by
+      simp only [selDressT]; rw [if_neg h1, if_neg hU], map_one]
+
+/-! #### The five slot images of the `t`-dressed frame -/
+
+theorem selHomT_zero :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressT h nu' j) 0)
+      = ⟨0, 1, 0, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_zero, selDressT_zero, mul_one, dsqSigma, selHom_gen, selMark_zero]
+
+theorem selHomT_one (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressT h nu' j) 1)
+      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_one, selDressT_one, map_mul, dsqX0, selHom_gen, selMark_one,
+    one_mul, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+theorem selHomT_two :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressT h nu' j) 2)
+      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_two, selDressT_two, mul_one, dsqX1, selHom_gen, selMark_two]
+
+/-- ⭐ The `t`-dressed `U`-handle slot: the cleared letter's image times the `(P, Q)`-element.
+The `t`-component surfaces in the class-two coordinates of the slot — invisible to the
+class-two rows, decisive at class three. -/
+theorem selHomT_handleU (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxU j))
+      = ⟨A, 0, C, P, Q, -(B * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_handleU, selDressT_handleU, map_mul,
+    selHom_sqEichU_of_cleared hu, selHom_selTee]
+  ext <;> simp
+  ring
+
+theorem selHomT_handleV (hv : selS h nu' j = 1) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleV, selDressT_handleV, mul_one, selHom_sqEichV_of_one hv]
+
+theorem selHomT_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxU j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleU_ne hne, selDressT_handleU_ne hne, mul_one, selHom_gen,
+    selMark_handleU_ne hne]
+
+theorem selHomT_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxV j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleV_ne hne, selDressT_handleV, mul_one, selHom_gen,
+    selMark_handleV_ne hne]
+
+end SelectionInstance
+
 end SqCore
 
 end Dyadic
