@@ -1,0 +1,28 @@
+W50 cokernel anatomy -- class 4, Q order 2^243
+
+marking | level | target dim | rank | corank | defect in image? | image same as (0,1)'s?
+--------+-------+------------+------+--------+------------------+-----------------------
+ 0  1   |  L3   |         49 |   43 |      6 | true             | (reference)
+ 0  1   |  L4   |        175 |  169 |      6 | true             | (reference)
+ 1  0   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 1  0   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 1  1   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 1  1   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 1  2   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 1  2   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 2  1   |  L3   |         49 |   43 |      6 | true             | yes
+ 2  1   |  L4   |        175 |  169 |      6 | true             | yes
+ 3  5   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 3  5   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 2  2   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 2  2   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 0  2   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 0  2   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 5  7   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 5  7   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+ 1  4   |  L3   |         49 |   43 |      6 | true             | NO -- differs
+ 1  4   |  L4   |        175 |  169 |      6 | true             | NO -- differs
+
+control: how often does a RANDOM element of the layer land in the image?
+   L3: 32 / 2000 random layer vectors lie in the image (expected 125/4 = N/2^6)
+DONE

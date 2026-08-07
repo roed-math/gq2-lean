@@ -1,0 +1,41 @@
+W50 h=2 spot-check -- class 4
+relator: fs^-1 * fx0^-1 * fs * fx0^-3 * fx1 * fs^-1 * fx1^-1 * fs * fx1 * fs^-1 * fx1 * fs * fu1^-1 * fv1^-1 * fu1 * fv1 * fu2^-1 * fv2^-1 * fu2 * fv2
+Q : order 2^838, layers [ 7, 27, 132, 672 ], Q^ab [ 2, 16, 16, 16, 16, 16, 16 ]  (100.420 s)
+cross-check: Rel(standard generators) = 1 in Q .. OK
+markings: (t,s) in [0..3]^2, both handles
+
+  j   t   s | lvl1 tries | verdict    | delta ranks
+------------+------------+------------+-------------------------------
+  0   0   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   0   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   0   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   1   0 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   1   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   1   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   1   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   2   0 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   2   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   2   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   2   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   3   0 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   3   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   3   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  0   3   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   0   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   0   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   0   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   1   0 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   1   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   1   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   1   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   2   0 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   2   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   2   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   2   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   3   0 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   3   1 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   3   2 |          6 | solvable   | [L3:124/132] [L4:664/672]
+  1   3   3 |          6 | solvable   | [L3:124/132] [L4:664/672]
+
+SUMMARY h=2 class 4 : solvable 30, INFEASIBLE 0
+DONE
