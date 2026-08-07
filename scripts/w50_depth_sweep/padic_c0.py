@@ -71,6 +71,10 @@ def c0_value(N=N):
 c0 = c0_value()
 
 if __name__ == "__main__":
+    import sys
+    if "--magma" in sys.argv:                # python3 padic_c0.py --magma > c0.m
+        print("C0 :=", c0 % (1 << 64), ";")
+        raise SystemExit
     print("X mod 2^8 =", X % 256, " X mod 16 =", X % 16, "(want 5)")
     print("S mod 2^8 =", S % 256, " S mod 16 =", S % 16, "(want 13)")
     print("Y mod 2^8 =", Y % 256, " Y mod 16 =", Y % 16, "(want 7)")
