@@ -223,6 +223,165 @@ theorem mHandleMark_core {G : Type*} [Group G] {h : ℕ} (k : Fin (2 * h)) (x : 
     simp only [mHandleIdx_val] at this
     omega
 
+/-! ## §3 The coordinate homs
+
+All five families come from one builder.  The point of the builder is that its relator
+obligation, after `mRelWord_comm`, mentions **only** the `Ā`- and `C̄₀`-values of the marking:
+`m 0 ^ 2 * m 2 ^ (2^α) = 1`.  The handle letters do not appear, which is why the `2h` handle
+coordinate homs of §3.5 exist at no cost, and the `B̄`/`D̄` homs at no cost either. -/
+
+section CoordHoms
+
+variable {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H]
+
+/-- **The coordinate hom builder.**  A marking of a commutative pro-2 group `H` whose `Ā`- and
+`C̄₀`-values satisfy the abelianized relation `2Ā + 2^αC̄₀ = 0` classifies a continuous hom
+`D_M^{ab} → H`: lift through the presentation (`mLiftHom`), then descend through `abMk`
+(`abLiftG`).  The `abLiftG ∘ mLiftHom` composite is the general-rank
+`abLiftG ∘ drLiftHom` of `GQ2/Roe/DRAbelianization.lean:259`. -/
+noncomputable def mCoordHom (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : m 0 ^ 2 * m 2 ^ (2 ^ α) = 1) :
+    ContinuousMonoidHom (topAbelianization (DM α h : Type)) H :=
+  abLiftG (mLiftHom α h hH m (by rw [mRelWord_comm]; exact hrel))
+
+@[simp] theorem mCoordHom_gen (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : m 0 ^ 2 * m 2 ^ (2 ^ α) = 1) (i : Fin (coreRank h)) :
+    mCoordHom α h hH m hrel (abMk (dmGen α h i)) = m i := by
+  rw [mCoordHom, abLiftG_abMk, mLiftHom_gen]
+
+end CoordHoms
+
+/-! ### §3.1 The torsion coordinate `t`
+
+`Ā ↦ 1`, everything else `↦ 0`, into `ZMod 2`.  Then the composite torsion class
+`t = Ā·C̄₀^{2^{α−1}}` also goes to `1`, since `C̄₀ ↦ 0`.  The relator check is `2·1 = 0` in
+`ZMod 2`, which holds at *every* `α`, including `α = 0`: the α-obstruction of
+`mFrame_isEmpty_zero` lives in the `C̄₀`-coordinate (§3.3), not here. -/
+noncomputable def mTHom (α h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DM α h : Type)) (Multiplicative (ZMod 2)) :=
+  mCoordHom α h isProP_two_multZMod2 (coreMark (ofAdd (1 : ZMod 2)) 1 1 1) (by
+    rw [coreMark_zero, coreMark_two, one_pow, mul_one, ← ofAdd_nsmul, ← ofAdd_zero]
+    congr 1)
+
+/-! ### §3.2 The `B̄`-coordinate -/
+
+/-- `B̄ ↦ 1`, everything else `↦ 0`, into `ℤ₂`.  Relator check: `0^2 · 0^{2^α} = 0`. -/
+noncomputable def mBHom (α h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DM α h : Type)) (Multiplicative ℤ_[2]) :=
+  mCoordHom α h PropOneOne.isProP_two_multPadicInt (coreMark 1 (ofAdd (1 : ℤ_[2])) 1 1) (by
+    rw [coreMark_zero, coreMark_two, one_pow, one_pow, mul_one])
+
+/-! ### §3.3 The `C̄₀`-coordinate: the one α-dependent hom
+
+`Ā ↦ −2^{α−1}`, `C̄₀ ↦ 1`, everything else `↦ 0`.  Its relator check is
+`2·(−2^{α−1}) + 2^α·1 = 0`, i.e. `2·2^{α−1} = 2^α`, which is exactly the arithmetic
+`mRelVector_model_eq_zero` performs inside the model, and exactly what fails at `α = 0`.  So
+`1 ≤ α` enters the construction here and nowhere else, and it enters as the constructive twin
+of `mFrame_isEmpty_zero`.  The `Ā`-value is forced by `mE_A_frame`; we are simply writing down
+the row that theorem says any frame must have. -/
+noncomputable def mCHom {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DM α h : Type)) (Multiplicative ℤ_[2]) :=
+  mCoordHom α h PropOneOne.isProP_two_multPadicInt
+    (coreMark (ofAdd (-(2 : ℤ_[2]) ^ (α - 1))) 1 (ofAdd (1 : ℤ_[2])) 1) (by
+      obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+      rw [coreMark_zero, coreMark_two, ← ofAdd_nsmul, ← ofAdd_nsmul, ← ofAdd_add, ← ofAdd_zero]
+      congr 1
+      simp only [Nat.add_sub_cancel]
+      rw [nsmul_eq_mul, nsmul_eq_mul]
+      push_cast
+      ring)
+
+/-! ### §3.4 The `D̄`-coordinate -/
+
+/-- `D̄ ↦ 1`, everything else `↦ 0`, into `ℤ₂`. -/
+noncomputable def mDHom (α h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DM α h : Type)) (Multiplicative ℤ_[2]) :=
+  mCoordHom α h PropOneOne.isProP_two_multPadicInt (coreMark 1 1 1 (ofAdd (1 : ℤ_[2]))) (by
+    rw [coreMark_zero, coreMark_two, one_pow, one_pow, mul_one])
+
+/-! ### §3.5 The `2h` handle coordinates
+
+The `k`-th handle hom sends the generator carrying handle coordinate `k` to `1` and every other
+generator, **in particular all four core letters**, to `0`.  Its relator check is therefore
+`0^2 · 0^{2^α} = 0`, vacuously, at every `α` and every `h`: `mHandleMark_core` is the whole
+content of "handles are invisible to the relation vector". -/
+noncomputable def mHHom (α : ℕ) {h : ℕ} (k : Fin (2 * h)) :
+    ContinuousMonoidHom (topAbelianization (DM α h : Type)) (Multiplicative ℤ_[2]) :=
+  mCoordHom α h PropOneOne.isProP_two_multPadicInt (mHandleMark k (ofAdd (1 : ℤ_[2]))) (by
+    rw [mHandleMark_core k _ (by rw [coreVal_zero]; omega),
+      mHandleMark_core k _ (by rw [coreVal_two]; omega), one_pow, one_pow, mul_one])
+
+/-! ## §4 Coordinate surjectivity: `D_M^{ab}` is `ℤ₂`-power words in the marked generators
+
+The general-rank `DRab_coord` (`GQ2/Roe/DRAbelianization.lean:203`).  `D_M` is topologically
+generated by its `4 + 2h` marked generators (`dm_topGen`), so `D_M^{ab}` is topologically
+generated by their images; the set of `ℤ₂`-power words is the *compact*, hence closed, range of
+a continuous hom out of `ℤ₂^{4+2h}`, so it swallows that closure. -/
+
+section Coord
+
+variable (α h : ℕ)
+
+/-- The `ℤ₂`-power word `∏ᵢ ḡᵢ^{cᵢ}` in the marked generators of `D_M^{ab}`.  A `Finset.prod` in
+an abelian group, not a matrix product: see the variance note. -/
+noncomputable def mAbWord (c : Fin (coreRank h) → ℤ_[2]) : topAbelianization (DM α h : Type) :=
+  ∏ i, zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h i)) (c i)
+
+/-- `mAbWord` as a monoid hom out of `ℤ₂^{4+2h}` (the general-rank `PhiR`). -/
+noncomputable def mAbWordHom :
+    Multiplicative (Fin (coreRank h) → ℤ_[2]) →* topAbelianization (DM α h : Type) where
+  toFun c := mAbWord α h c.toAdd
+  map_one' := by
+    refine Finset.prod_eq_one fun i _ => ?_
+    show zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h i)) 0 = 1
+    exact zpowZtwo_zero _ _
+  map_mul' c d := by
+    show ∏ i, zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h i)) (c.toAdd i + d.toAdd i)
+      = (∏ i, zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h i)) (c.toAdd i))
+        * ∏ i, zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h i)) (d.toAdd i)
+    rw [← Finset.prod_mul_distrib]
+    exact Finset.prod_congr rfl fun i _ => zpowZtwo_add _ _ _ _
+
+theorem continuous_mAbWordHom : Continuous (mAbWordHom α h) := by
+  show Continuous fun c : Multiplicative (Fin (coreRank h) → ℤ_[2]) =>
+    ∏ i, zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h i)) (c.toAdd i)
+  exact continuous_finsetProd _ fun i _ =>
+    (continuous_zpowZtwo _ _).comp ((continuous_apply i).comp continuous_toAdd)
+
+/-- The `i`-th marked generator is the `ℤ₂`-power word with a single `1`. -/
+theorem mAbWordHom_single (i : Fin (coreRank h)) :
+    mAbWordHom α h (ofAdd (Pi.single i (1 : ℤ_[2]))) = abMk (dmGen α h i) := by
+  show ∏ j, zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h j))
+    ((Pi.single i (1 : ℤ_[2]) : Fin (coreRank h) → ℤ_[2]) j) = _
+  rw [Finset.prod_eq_single i (fun j _ hj => by
+    rw [Pi.single_eq_of_ne hj, zpowZtwo_zero]) (fun hi => absurd (Finset.mem_univ i) hi)]
+  rw [Pi.single_eq_same, zpowZtwo_one_exp]
+
+/-- **Coordinate surjectivity of `D_M^{ab}`**: every element is a `ℤ₂`-power word
+`Ā^{c₀}·B̄^{c₁}·C̄₀^{c₂}·D̄^{c₃}·∏ⱼ ūⱼ^{…}v̄ⱼ^{…}` in the marked generators.  The general-rank
+`DRab_coord`. -/
+theorem mDMab_coord (z : topAbelianization (DM α h : Type)) :
+    ∃ c : Fin (coreRank h) → ℤ_[2], z = mAbWord α h c := by
+  have hgen : (Subgroup.closure (⇑abMk '' Set.range (dmGen α h))).topologicalClosure = ⊤ := by
+    have := abMk_surjective.denseRange.topologicalClosure_map_subgroup
+      (continuous_abMk (G := (DM α h : Type))) (dm_topGen α h)
+    rwa [MonoidHom.map_closure] at this
+  have hclosed : IsClosed ((mAbWordHom α h).range : Set (topAbelianization (DM α h : Type))) := by
+    rw [MonoidHom.coe_range]
+    exact (isCompact_range (continuous_mAbWordHom α h)).isClosed
+  have hsub : Subgroup.closure (⇑abMk '' Set.range (dmGen α h)) ≤ (mAbWordHom α h).range := by
+    rw [Subgroup.closure_le]
+    rintro _ ⟨_, ⟨i, rfl⟩, rfl⟩
+    exact ⟨ofAdd (Pi.single i 1), mAbWordHom_single α h i⟩
+  have htop : (mAbWordHom α h).range = ⊤ :=
+    eq_top_iff.mpr (hgen ▸ Subgroup.topologicalClosure_minimal _ hsub hclosed)
+  have hz : z ∈ (mAbWordHom α h).range := by rw [htop]; exact Subgroup.mem_top z
+  obtain ⟨p, hp⟩ := MonoidHom.mem_range.mp hz
+  exact ⟨p.toAdd, hp.symm⟩
+
+end Coord
+
 end MarkedCore
 
 end Dyadic
