@@ -527,6 +527,24 @@ section Reduction
 
 variable {h : ℕ}
 
+/-- **A clearing step**, family-agnostically: at every selected marking and every handle there is
+a `λ`-preserving automorphism which keeps the marking selected, clears that handle's two rows and
+**leaves every other handle's rows exactly where they were**.
+
+This is precisely the conclusion of `sqEichStep`, extracted so that the induction below does not
+mention any particular frame family: *any* family with these five clauses discharges the
+residual, and two families may be mixed handle by handle. -/
+def SqClearingStep (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+        (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+          nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2]) ∧ nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1 ∧
+            nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1 ∧
+              ∀ j' : Fin h, j' ≠ j →
+                nu' (Ψ (sqGen h (sqHandleIdxU j'))) = nu' (sqGen h (sqHandleIdxU j')) ∧
+                  nu' (Ψ (sqGen h (sqHandleIdxV j'))) = nu' (sqGen h (sqHandleIdxV j'))
+
 /-- **The Eichler relator identity**, as a statement about words: at every selected marking and
 every handle, some `V`-dressing weights `(e, e', d)` kill the relator.
 
@@ -541,7 +559,7 @@ def SqEichRelWord (h : ℕ) : Prop :=
 
 /-- The clearing induction: a selected marking whose handles from index `n` on are already
 cleared is corrected onto `ν_sq`.  `n = h` is the general case, `n = 0` the base. -/
-private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
+private theorem sqLamMarkTransitivity_aux (H : SqClearingStep h) (n : ℕ)
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
     (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2])) (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
     (hcl : ∀ j' : Fin h, n ≤ (j' : ℕ) →
@@ -555,8 +573,7 @@ private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
         (fun j' => (hcl j' (Nat.zero_le _)).2)⟩
   | succ n ih =>
     by_cases hn : n < h
-    · obtain ⟨e, e', d, hrel⟩ := H nu' ⟨n, hn⟩ hsigma hx0
-      obtain ⟨Ψ₁, hlam₁, hs₁, hx₁, hU₁, hV₁, hoth₁⟩ := sqEichStep hsigma hx0 hrel
+    · obtain ⟨Ψ₁, hlam₁, hs₁, hx₁, hU₁, hV₁, hoth₁⟩ := H nu' ⟨n, hn⟩ hsigma hx0
       have hcl₁ : ∀ j' : Fin h, n ≤ (j' : ℕ) →
           (nu'.comp (autHom Ψ₁)) (sqGen h (sqHandleIdxU j')) = 1 ∧
             (nu'.comp (autHom Ψ₁)) (sqGen h (sqHandleIdxV j')) = 1 := by
@@ -577,13 +594,25 @@ private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
       · exact hval₂ x
     · exact ih nu' hsigma hx0 fun j' hj' => hcl j' (by have := j'.isLt; omega)
 
+/-- **The residual, from a clearing step.**  This is the reusable half of §3: the induction
+composes `h` clearing steps in index order, and cares about nothing except the five clauses of
+`SqClearingStep`. -/
+theorem sqLamMarkTransitivity_of_clearingStep (H : SqClearingStep h) : SqLamMarkTransitivity h :=
+  fun nu' hsigma hx0 =>
+    sqLamMarkTransitivity_aux H h nu' hsigma hx0 fun j' hj' =>
+      absurd j'.isLt (by omega)
+
+/-- The Eichler relator identity supplies a clearing step (§2c). -/
+theorem sqClearingStep_of_eichRelWord (H : SqEichRelWord h) : SqClearingStep h := by
+  intro nu' j hsigma hx0
+  obtain ⟨e, e', d, hrel⟩ := H nu' j hsigma hx0
+  exact sqEichStep hsigma hx0 hrel
+
 /-- **The residual, in one word equation.**  The relator identity at every selected marking and
 every handle discharges `SqLamMarkTransitivity h` — no rows, no surjectivity, no inverse
 substitution, no composition identity, and no restriction on `h`. -/
 theorem sqLamMarkTransitivity_of_eichRelWord (H : SqEichRelWord h) : SqLamMarkTransitivity h :=
-  fun nu' hsigma hx0 =>
-    sqLamMarkTransitivity_aux H h nu' hsigma hx0 fun j' hj' =>
-      absurd j'.isLt (by omega)
+  sqLamMarkTransitivity_of_clearingStep (sqClearingStep_of_eichRelWord H)
 
 /-- …and hence `SqLamNuClearHypothesis`, and the handle stratum at every unit exponent. -/
 theorem sqHandleMixFixesCore_of_eichRelWord {c : ℤ_[2]} (hc : IsUnit c) (hh : 0 < h)
@@ -797,7 +826,10 @@ section AxiomPins
 #print axioms sqEichFrame_surjective_of_hom
 #print axioms sqEichFrame_surjective
 #print axioms sqEichStep
+#print axioms SqClearingStep
+#print axioms sqLamMarkTransitivity_of_clearingStep
 #print axioms SqEichRelWord
+#print axioms sqClearingStep_of_eichRelWord
 #print axioms sqLamMarkTransitivity_of_eichRelWord
 #print axioms sqHandleMixFixesCore_of_eichRelWord
 #print axioms sqLamMarkTransitivity_one_of_eichRelWord
