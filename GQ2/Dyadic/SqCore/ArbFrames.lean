@@ -252,6 +252,155 @@ theorem sqModTwoIndep_of_aut (Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Ty
 
 end ModTwoCriterion
 
+/-! ## §3 The two-letter family at general `(d, d')`
+
+`UVFrames` §3 proves surjectivity only at `d = d' = 0`, because there the two cleared letters sit
+bare in their slots and every dressing strips off.  §2 removes that: mod an index-2 subgroup the
+handle slots read `Ū + d·V̄` and `V̄ + d'·Ū`, a 2-by-2 system with determinant `1 − d·d'`, and it
+is invertible over `𝔽₂` exactly when `d·d'` is **even**.  That is the whole check. -/
+
+section UVGeneral
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+  {f f' e e' d d' : ℤ_[2]}
+
+/-- The pivot `w = σ·x₀^{−c₀}` lies in any index-two normal subgroup containing `σ` and `x₀`. -/
+theorem sqPivot_mem_of_index_two {M : Subgroup (DSq h : Type)} [M.Normal] (hM : M.index = 2)
+    (hs : dsqSigma h ∈ M) (hx : dsqX0 h ∈ M) : sqPivot h ∈ M := by
+  rw [sqPivot, sqMixPivotElem]
+  exact M.mul_mem hs (M.inv_mem (zpowZtwo_mem_of_mem (isProP_DSq h) hM hx _))
+
+/-- An odd `d` forces an even `d'` once `d·d'` is even. -/
+private theorem two_dvd_right_of_two_dvd_mul (hdd : (2 : ℤ_[2]) ∣ d * d')
+    (hd : ¬ (2 : ℤ_[2]) ∣ d) : (2 : ℤ_[2]) ∣ d' := by
+  obtain ⟨w, hw⟩ := isUnit_iff_not_two_dvd.mpr hd
+  obtain ⟨k, hk⟩ := hdd
+  have hwd : (↑w⁻¹ : ℤ_[2]) * d = 1 := by
+    rw [← hw, ← Units.val_mul, inv_mul_cancel, Units.val_one]
+  refine ⟨(↑w⁻¹ : ℤ_[2]) * k, ?_⟩
+  calc d' = ((↑w⁻¹ : ℤ_[2]) * d) * d' := by rw [hwd, one_mul]
+    _ = (↑w⁻¹ : ℤ_[2]) * (d * d') := by ring
+    _ = 2 * ((↑w⁻¹ : ℤ_[2]) * k) := by rw [hk]; ring
+
+/-- **The two-letter frame spans `H₁` at every weight tuple with `d·d'` even.**  Only the two
+handle slots carry any content: `d·d'` even is exactly invertibility of `!![1, d; d', 1]`. -/
+theorem sqEichFrameUV_modTwoIndep (hdd : (2 : ℤ_[2]) ∣ d * d') :
+    SqModTwoIndep (sqEichFrameUV h nu' j f f' e e' d d') := by
+  intro M hM
+  by_contra hc
+  have hslot : ∀ i, sqEichFrameUV h nu' j f f' e e' d d' i ∈ M.toSubgroup :=
+    fun i => not_not.mp fun hni => hc ⟨i, hni⟩
+  have hu := hslot (sqHandleIdxU j)
+  have hv := hslot (sqHandleIdxV j)
+  rw [sqEichFrameUV_handleU] at hu
+  rw [sqEichFrameUV_handleV] at hv
+  -- the 2-by-2 recovery, done mod `M`
+  have hUV : sqEichU h nu' j ∈ M.toSubgroup ∧ sqEichV h nu' j ∈ M.toSubgroup := by
+    by_cases hd : (2 : ℤ_[2]) ∣ d
+    · have hA : sqEichU h nu' j ∈ M.toSubgroup := by
+        have hp := M.toSubgroup.mul_mem hu
+          (M.toSubgroup.inv_mem (zpowZtwo_mem_of_even (isProP_DSq h) hM (sqEichV h nu' j) hd))
+        rwa [mul_inv_cancel_right] at hp
+      refine ⟨hA, ?_⟩
+      have hp := M.toSubgroup.mul_mem hv
+        (M.toSubgroup.inv_mem (zpowZtwo_mem_of_mem (isProP_DSq h) hM hA d'))
+      rwa [mul_inv_cancel_right] at hp
+    · have hB : sqEichV h nu' j ∈ M.toSubgroup := by
+        have hp := M.toSubgroup.mul_mem hv
+          (M.toSubgroup.inv_mem (zpowZtwo_mem_of_even (isProP_DSq h) hM (sqEichU h nu' j)
+            (two_dvd_right_of_two_dvd_mul hdd hd)))
+        rwa [mul_inv_cancel_right] at hp
+      refine ⟨?_, hB⟩
+      have hp := M.toSubgroup.mul_mem hu
+        (M.toSubgroup.inv_mem (zpowZtwo_mem_of_mem (isProP_DSq h) hM hB d))
+      rwa [mul_inv_cancel_right] at hp
+  obtain ⟨hA, hB⟩ := hUV
+  -- every dressing is now inside `M`, so the three core letters strip off
+  have hcore : ∀ (x : (DSq h : Type)) (k l : ℤ_[2]),
+      x * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) k *
+          zpowZtwo (isProP_DSq h) (sqEichV h nu' j) l ∈ M.toSubgroup → x ∈ M.toSubgroup := by
+    intro x k l hx
+    have h1 := M.toSubgroup.mul_mem hx
+      (M.toSubgroup.inv_mem (zpowZtwo_mem_of_mem (isProP_DSq h) hM hB l))
+    rw [mul_inv_cancel_right] at h1
+    have h2 := M.toSubgroup.mul_mem h1
+      (M.toSubgroup.inv_mem (zpowZtwo_mem_of_mem (isProP_DSq h) hM hA k))
+    rwa [mul_inv_cancel_right] at h2
+  have hsig : dsqSigma h ∈ M.toSubgroup :=
+    hcore _ f e (by have := hslot 0; rwa [sqEichFrameUV_zero] at this)
+  have hx0 : dsqX0 h ∈ M.toSubgroup :=
+    hcore _ f' e' (by have := hslot 1; rwa [sqEichFrameUV_one] at this)
+  have hx1 : dsqX1 h ∈ M.toSubgroup :=
+    hcore _ (2 * f') (2 * e') (by have := hslot 2; rwa [sqEichFrameUV_two] at this)
+  have hpiv : sqPivot h ∈ M.toSubgroup := sqPivot_mem_of_index_two hM hsig hx0
+  have hgenU : sqGen h (sqHandleIdxU j) ∈ M.toSubgroup := by
+    rw [← pivotPow_mul_sqEichU (h := h) (nu' := nu') (j := j)]
+    exact M.toSubgroup.mul_mem (zpowZtwo_mem_of_mem (isProP_DSq h) hM hpiv _) hA
+  have hgenV : sqGen h (sqHandleIdxV j) ∈ M.toSubgroup := by
+    rw [← sqEichV_mul_pivotPow (h := h) (nu' := nu') (j := j)]
+    exact M.toSubgroup.mul_mem hB (zpowZtwo_mem_of_mem (isProP_DSq h) hM hpiv _)
+  obtain ⟨i, hi⟩ := exists_sqGen_notMem M hM
+  refine hi ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · exact hsig
+  · exact hx0
+  · exact hx1
+  · by_cases hjj : j' = j
+    · subst hjj; exact hgenU
+    · have := hslot (sqHandleIdxU j'); rwa [sqEichFrameUV_handleU_ne hjj] at this
+  · by_cases hjj : j' = j
+    · subst hjj; exact hgenV
+    · have := hslot (sqHandleIdxV j'); rwa [sqEichFrameUV_handleV_ne hjj] at this
+
+/-- **Any endomorphism realizing the two-letter frame with `d·d'` even is surjective** — the
+`d = d' = 0` hypothesis of `sqEichFrameUV_surjective_of_hom` is gone. -/
+theorem sqEichFrameUV_surjective_of_hom_of_even
+    (Φ : ContinuousMonoidHom (DSq h : Type) (DSq h : Type))
+    (hΦ : ∀ i, Φ (sqGen h i) = sqEichFrameUV h nu' j f f' e e' d d' i)
+    (hdd : (2 : ℤ_[2]) ∣ d * d') : Function.Surjective Φ :=
+  sqSurjective_of_modTwoIndep Φ hΦ (sqEichFrameUV_modTwoIndep hdd)
+
+/-- …and hence the frame's own lift. -/
+theorem sqEichFrameUV_surjective_of_even
+    (hrel : sqRelWord (sqEichFrameUV h nu' j f f' e e' d d') = 1) (hdd : (2 : ℤ_[2]) ∣ d * d') :
+    Function.Surjective
+      (sqLiftHom h (isProP_DSq h) (sqEichFrameUV h nu' j f f' e e' d d') hrel) :=
+  sqLiftHom_surjective_of_modTwoIndep hrel (sqEichFrameUV_modTwoIndep hdd)
+
+/-- **The two-letter clearing step at general `(d, d')`.**  `UVFrames` §3's step is the
+`d = d' = 0` case. -/
+theorem sqEichStepUV_of_even (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (hdd : (2 : ℤ_[2]) ∣ d * d')
+    (hrel : sqRelWord (sqEichFrameUV h nu' j f f' e e' d d') = 1) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+        nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2]) ∧ nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1 ∧
+          nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1 ∧
+            ∀ j' : Fin h, j' ≠ j →
+              nu' (Ψ (sqGen h (sqHandleIdxU j'))) = nu' (sqGen h (sqHandleIdxU j')) ∧
+                nu' (Ψ (sqGen h (sqHandleIdxV j'))) = nu' (sqGen h (sqHandleIdxV j')) := by
+  refine ⟨sqAutOfMark hrel (sqEichFrameUV_surjective_of_even hrel hdd), fun x => ?_,
+    ?_, ?_, ?_, ?_, ?_⟩
+  · have hext : (nuLam h).comp
+        (autHom (sqAutOfMark hrel (sqEichFrameUV_surjective_of_even hrel hdd))) = nuLam h :=
+      dsq_hom_ext _ _ fun i => by
+        show nuLam h (sqAutOfMark hrel (sqEichFrameUV_surjective_of_even hrel hdd) (sqGen h i))
+          = nuLam h (sqGen h i)
+        rw [sqAutOfMark_gen, sqEichFrameUV_nuLam]
+    exact DFunLike.congr_fun hext x
+  · show nu' (sqAutOfMark hrel (sqEichFrameUV_surjective_of_even hrel hdd) (sqGen h 0))
+      = ofAdd (1 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqEichFrameUV_zero hsigma hx0]
+  · show nu' (sqAutOfMark hrel (sqEichFrameUV_surjective_of_even hrel hdd) (sqGen h 1))
+      = ofAdd (0 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqEichFrameUV_one hsigma hx0]
+  · rw [sqAutOfMark_gen, nu_sqEichFrameUV_handleU_self hsigma hx0]
+  · rw [sqAutOfMark_gen, nu_sqEichFrameUV_handleV_self hsigma hx0]
+  · exact fun j' hjj => ⟨by rw [sqAutOfMark_gen, sqEichFrameUV_handleU_ne hjj],
+      by rw [sqAutOfMark_gen, sqEichFrameUV_handleV_ne hjj]⟩
+
+end UVGeneral
+
 /-! ## §8 Axiom pins
 
 Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
@@ -270,6 +419,11 @@ section AxiomPins
 #print axioms sqSurjective_of_modTwoIndep
 #print axioms sqLiftHom_surjective_of_modTwoIndep
 #print axioms sqModTwoIndep_of_aut
+#print axioms sqPivot_mem_of_index_two
+#print axioms sqEichFrameUV_modTwoIndep
+#print axioms sqEichFrameUV_surjective_of_hom_of_even
+#print axioms sqEichFrameUV_surjective_of_even
+#print axioms sqEichStepUV_of_even
 
 end AxiomPins
 
