@@ -37,6 +37,10 @@ sqArbRelWord_iff_lamMarkTransitivity : SqArbRelWord h ↔ SqLamMarkTransitivity 
 this closes the loop: the arbitrary-dressing word equation, the clearing scheme and the residual
 are one statement.
 
+⭐ The builder is also **exhaustive**: `nu_eq_sqNuRows_of_selected` says every selected marking
+*is* a row vector, so `sqLamMarkTransitivity_iff_rows` re-poses the residual as a statement about
+`Fin (sqRank h) → ℤ₂` with no quantifier over abstract characters left.
+
 ## Headline 2 — the one-handle equation is a commutator equation
 
 The frames of `SqClearingStep` need move only the two letters of the handle being cleared.  For
@@ -90,7 +94,7 @@ class-two term contains `−ā₁ ∧ σ̄ = −ā₁ ∧ w̄ − c₀·ā₁ �
 and `ā₃`, `ā₄` land in `Λ²K`.  Balancing the `w̄`-column gives
 
 ```text
-ā₁ = −s·Ū + t·V̄        (mod ⟨w̄⟩ ∩ K = 0)
+ā₁ = −s·Ū + t·V̄        (up to the overall sign of the ⁅·,·⁆⁻¹ convention; ⟨w̄⟩ ∩ K = 0)
 ```
 
 — a **forced, non-zero** value, and the remaining columns (`x̄₀` against `K`, and `Λ²K`) are then
@@ -102,9 +106,17 @@ family `sqEichFrameUV` does, at `(f', e') = (−s, t)`); the `V`-power families 
 and §5 cannot, which re-derives their class-two rigidity from the balance rather than from a
 homomorphism.
 
+⚠ **Stale reference.**  `docs/dyadic/eichler-reduction-note.md` is the source for the class-two
+balance and its "class-two balance (do not re-derive)" section is still correct — with the
+dictionary that its `a₀` is the **`x₀`**-slot weight and its `a₁` the `σ`-slot weight, so its
+forced `a₀ = −k` is exactly the forcing above.  Its final section, "The residual search
+(recommendation)", is **stale**: it points at the two-slot `(σ, u)` scaffold, which the same
+balance and `SqCore/EichRefutation.lean` have since refuted.  Ignore that section.
+
 ## Contents
 
-* **§1** `sqRowMark`, `sqNuRows`, `sqNuClear`, and `sqClearingStep_iff` at every `h`;
+* **§1** `sqRowMark`, `sqNuRows`, `sqNuClear`, `sqClearingStep_iff` at every `h`, and the row
+  classification `nu_eq_sqNuRows_of_selected` / `sqLamMarkTransitivity_iff_rows`;
 * **§2** `SqFrattini`, the set swallowed by every index-two open normal subgroup;
 * **§3** `sqCommFrame`, `sqRelWord_sqCommFrame_iff`, `SqHandleComm` and its clearing step;
 * **§4** stress pins, **§5** committed axiom prints.
@@ -284,6 +296,43 @@ theorem sqClearingStep_iff : SqClearingStep h ↔ SqLamMarkTransitivity h :=
 `ArbFrames`' `sqArbRelWord_one_iff` is the case `h = 1`. -/
 theorem sqArbRelWord_iff_lamMarkTransitivity : SqArbRelWord h ↔ SqLamMarkTransitivity h :=
   sqArbRelWord_iff_clearingStep.trans sqClearingStep_iff
+
+/-- ⭐ **Every selected marking *is* a row vector.**  A `ℤ₂`-marking is determined by its values
+on the generators (`dsq_hom_ext`), the selected core rows are `(1, 0)`, and the `x₁`-row is forced
+to `2·ν'(x₀) = 0`.  So `sqNuRows` is not one family of markings among many — it is all of them. -/
+theorem nu_eq_sqNuRows_of_selected
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' = sqNuRows h fun i => toAdd (nu' (sqGen h i)) := by
+  refine dsq_hom_ext _ _ fun i => ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show nu' (dsqSigma h) = sqNuRows h _ (dsqSigma h)
+    rw [hsigma, sqNuRows_sigma]
+  · show nu' (dsqX0 h) = sqNuRows h _ (dsqX0 h)
+    rw [hx0, sqNuRows_x0]
+  · show nu' (dsqX1 h) = sqNuRows h _ (dsqX1 h)
+    rw [sqNuRows_x1]
+    refine Multiplicative.toAdd.injective ?_
+    rw [toAdd_nu_dsqX1 nu', hx0]
+    simp
+  · exact ((sqNuRows_handleU j').trans (ofAdd_toAdd _)).symm
+  · exact ((sqNuRows_handleV j').trans (ofAdd_toAdd _)).symm
+
+/-- ⭐ **The residual, quantified over a `ℤ₂`-vector.**  Since every selected marking is a row
+vector, `SqLamMarkTransitivity h` is a statement about `Fin (sqRank h) → ℤ₂` — no quantifier over
+abstract characters survives, and the three core coordinates of the vector are never read. -/
+theorem sqLamMarkTransitivity_iff_rows :
+    SqLamMarkTransitivity h ↔
+      ∀ rho : Fin (sqRank h) → ℤ_[2],
+        ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+          (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ ∀ x, sqNuRows h rho (Ψ x) = nuSq h x := by
+  constructor
+  · exact fun H rho => H (sqNuRows h rho) sqNuRows_sigma sqNuRows_x0
+  · intro H nu' hsigma hx0
+    have heq := nu_eq_sqNuRows_of_selected nu' hsigma hx0
+    obtain ⟨Ψ, hlam, hval⟩ := H fun i => toAdd (nu' (sqGen h i))
+    exact ⟨Ψ, hlam, fun x => (DFunLike.congr_fun heq (Ψ x)).trans (hval x)⟩
 
 end MarkingBuilder
 
@@ -577,6 +626,16 @@ example (h : ℕ) (rho : Fin (sqRank h) → ℤ_[2]) (j : Fin h) :
 /-- Stress: at `h = 0` the clearing scheme is the residual, which is a theorem there. -/
 example : SqClearingStep 0 := sqClearingStep_iff.mpr sqLamMarkTransitivity_zero
 
+/-- Stress: the standard marking is its own row vector, so the classification is not vacuous. -/
+example (h : ℕ) : nuSq h = sqNuRows h fun i => toAdd (nuSq h (sqGen h i)) :=
+  nu_eq_sqNuRows_of_selected _ (nuSq_sigma h) (nuSq_x0 h)
+
+/-- Stress: the row form of the residual is a statement about `Fin (sqRank h) → ℤ₂` alone. -/
+example (h : ℕ) (H : SqLamMarkTransitivity h) (rho : Fin (sqRank h) → ℤ_[2]) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ ∀ x, sqNuRows h rho (Ψ x) = nuSq h x :=
+  sqLamMarkTransitivity_iff_rows.mp H rho
+
 /-- Stress: the equivalence chain closes at every `h` — the three named statements agree. -/
 example (h : ℕ) : SqArbRelWord h ↔ SqClearingStep h := sqArbRelWord_iff_clearingStep
 
@@ -635,6 +694,8 @@ section AxiomPins
 #print axioms sqClearingStep_of_lamMarkTransitivity
 #print axioms sqClearingStep_iff
 #print axioms sqArbRelWord_iff_lamMarkTransitivity
+#print axioms nu_eq_sqNuRows_of_selected
+#print axioms sqLamMarkTransitivity_iff_rows
 #print axioms SqFrattini
 #print axioms one_mem_sqFrattini
 #print axioms mul_mem_sqFrattini
