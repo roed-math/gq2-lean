@@ -17,7 +17,7 @@ of the universal pro-2 quotient tower of `D_sq 1`.
 
 | question | answer |
 |---|---|
-| **(a)** does the dressing system stay solvable at every uncleared selected marking, at class 4 and class 5? | **Yes.**  Class 3: 63/63 and class 4: 255/255 — and those are **exhaustive over the whole binder of `SqLamMarkTransitivity 1`**, not samples (§2.2).  Class 5: every marking probed. |
+| **(a)** does the dressing system stay solvable at every uncleared selected marking, at class 4 and class 5? | **Yes.**  Class 3: 63/63 and class 4: 255/255 — and those are **exhaustive over the whole binder of `SqLamMarkTransitivity 1`**, not samples (§2.2).  Class 5 (order 2^922): 70 markings probed, 70 solvable. |
 | **(b)** structure of the survivor set | Level one is **not** a coset: it is a `GL₂(𝔽₂)`-torsor on the handle block, times a **forced** core dressing.  Every deeper level is a genuine affine coset — the solution set of an 𝔽₂-linear system — of dimension 17 (L₃), 66 (L₄), 192 (L₅). |
 | **(c)** any infeasible marking (= refutation lead)? | **None found.**  Zero infeasible markings at every class and every marking probed. |
 
@@ -256,13 +256,23 @@ matrix, and `base i⁻¹ · m i ∈ K` for all five slots.
 |---|---|---|---|---|
 | 3 | `(ℤ/8)²` | 63 (exhaustive, all uncleared) | **63** | **0** |
 | 4 | `(ℤ/16)²` | 255 (exhaustive, all uncleared) | **255** | **0** |
-| 5 | `(ℤ/32)²` | see below (of 1023 uncleared) | **all of them** | **0** |
+| 5 | `(ℤ/32)²` | **70** of 1023 uncleared (41 + 29, see below) | **70** | **0** |
 
-The class-5 run is split across two drivers (`mode:=sample` walking `t,s ∈ [0..7]`, and
-`mode:=tail` walking the deep-valuation list) whose outputs are
-`results/res_c5.txt` and `results/res_c5tail.txt`; the counts there are the record, and every
-row of both is `solvable`.  The intended sample is `t,s ∈ [0..7]` exhaustively (63 markings)
-plus a valuation-stratified tail of 40: `(0,8),(8,0),(8,8),(0,16),(16,0),(16,16),(1,8),(8,1),(1,16),(16,1),(3,8),(8,3),
+The class-5 run is split across two drivers whose outputs are `results/res_c5.txt`
+(`mode:=sample`, walking `t,s ∈ [0..7]` in order) and `results/res_c5tail.txt`
+(`mode:=tail`, walking the deep-valuation list).  Both were still filling in when this memo
+was written and the committed files are the record; **every row of both is `solvable`,
+with no infeasible marking at any point.**  The 29 deep-valuation markings already covered are
+
+```
+(0,8) (8,0) (8,8) (0,16) (16,0) (16,16) (1,8) (8,1) (1,16) (16,1) (3,8) (8,3) (2,16)
+(16,2) (4,8) (8,4) (12,20) (20,12) (9,15) (15,9) (5,11) (11,5) (31,31) (31,1) (1,31)
+(17,17) (24,8) (8,24) (28,4)
+```
+
+— which realises every 2-adic valuation pair `(v₂(t), v₂(s))` available mod 32, both
+parities, and the deepest uncleared rows.  The intended full sample is `t,s ∈ [0..7]`
+exhaustively (63 markings) plus a valuation-stratified tail of 40: `(0,8),(8,0),(8,8),(0,16),(16,0),(16,16),(1,8),(8,1),(1,16),(16,1),(3,8),(8,3),
 (2,16),(16,2),(4,8),(8,4),(12,20),(20,12),(9,15),(15,9),(5,11),(11,5),(31,31),(31,1),(1,31),
 (17,17),(24,8),(8,24),(28,4),(4,28),(8,16),(16,8),(0,24),(24,0),(2,8),(8,2),(6,10),(10,6),
 (13,26),(26,13)` — covering every 2-adic valuation pair `(v₂(t), v₂(s))` with
@@ -530,10 +540,12 @@ Concretely, three things the Lean side can take as measured facts about the fini
   are complete statements about their quotients rather than samples.
   Stage A (the level-one / class-two gate) at every marking and every class: all `8^5` codes.
   The dihedral calibration: all homomorphisms to `D₄`, all surjective ones to `D₈`.
-* **Sampled.**  Class 5: 103 of 1023 uncleared markings (§6.1).  The sample is
+* **Sampled.**  Class 5: 70 of 1023 uncleared markings at the time of writing (§6.1), the two
+  drivers still running.  The sample is
   valuation-stratified, not random; the uniformity of the level-one survivor set (always 6,
   depending on `(t,s)` only mod 4) and of the rank table (always 43/49, 169/175, 673/679)
-  across all 421 markings computed makes an outlier among the remaining 920 unlikely but
+  across all 448 markings computed (63 + 255 + 70 at h = 1, plus 186 at h = 2) makes an
+  outlier among the remaining class-5 markings unlikely but
   **not excluded**.
 * **`h = 2` (the optional spot-check) — done, see §6.4**, but at a reduced marking sample at
   class 4.
