@@ -178,15 +178,19 @@ what buys the whole computation:
 > If every `z i` lies in `P_j(Q)` then `R(m·z) ≡ R(m) (mod P_{j+1})`, because `z i` is central
 > mod `P_{j+1}` and `Π z i^{e_i} = z₁^{−4} z₂^{2} ∈ P_{j+1}`.
 
-Consequently, modulo `P_{j+1}`, the defect map
+Consequently the defect map
 
 ```
-δ_j : (K ∩ P_j / K ∩ P_{j+1})^5  ⟶  P_j/P_{j+1}          δ_j(z) = R(m·z)·R(m)⁻¹
+δ_j : (K ∩ P_j / K ∩ P_{j+1})^5  ⟶  P_{j+1}/P_{j+2}          δ_j(z) = R(m·z)·R(m)⁻¹
 ```
 
-is **𝔽₂-linear** (the `[z_i, z_l]` terms lie in `P_{2j} ⊆ P_{j+2}` for `j ≥ 2`, and the
-squaring map on a layer is a Frobenius), and it depends on `m` only through `m mod P₂`.
-Killing the relator becomes one Gaussian elimination per class.
+is well defined and **𝔽₂-linear** (the `[z_i, z_l]` terms lie in `P_{2j} ⊆ P_{j+2}` for
+`j ≥ 2`, and the squaring map on a layer is a Frobenius), and it depends on `m` only through
+`m mod P₂`.  Killing the relator becomes one Gaussian elimination per class.
+
+⚠ The code does **not** rely on that linearity argument being right.  After solving the
+linear system it re-evaluates `R(m)` in the group and **asserts** `R(m) ∈ P_{j+1}`; a
+non-linear `δ` would trip that assertion.  It never tripped, across roughly 600 solves.
 
 ### 5.2  Stage A — the level-one enumeration (the class-two balance gate)
 
@@ -194,6 +198,12 @@ Modulo `K ∩ P₂`, a dressing `a i` is `U^α V^β t̄^γ` with `(α,β,γ) ∈
 `8^5 = 32768` codes.  Whether `R(m) ∈ P₃` is decided in `Q_2` (order 2^19), where `P₃ = 1`;
 it depends on `(t,s)` only mod 4, so the 16 residues are cached.  `SqModTwoIndep` is imposed
 here.  This stage is **exhaustive**.
+
+That the 8 codes are a complete set of coset representatives is not an assumption: `K`'s
+image in `Q/P₂ = 𝔽₂⁵` is the span of `Ū, V̄, t̄`, which is 3-dimensional (they hit the
+independent basis directions `ū`, `v̄`, `x̄₁`), so `K/(K ∩ P₂)` has order exactly 8 and the
+eight products `U^α V^β t̄^γ` enumerate it bijectively.  Higher powers `U², V²` lie in
+`K ∩ P₂` and are absorbed by Stage B.
 
 ### 5.3  Stage B — the lift
 
@@ -299,6 +309,27 @@ joint rank 43 of 49                (domain dim per slot = 12)
 
 The three core slots inject; the two handle slots each lose one dimension.  No single slot
 gets past rank 12, so the 43 is genuinely joint — the defect reads all five slots.
+
+### 6.4  The `h = 2` spot-check
+
+`w50_h2.m`.  `D_sq 2` is rank 7 with the same single relator plus a second handle;
+`ν′ = nuSel 2 j t s` puts `(t,s)` on handle `j` and `0` on the other, and the other handle's
+rows are preserved for free (`nu_sqArbFrame_handleU_ne`), so the conditions are literally the
+same three.  `K/(K ∩ P₂)` is now 5-dimensional (basis `U, V, t̄, u′, v′`), so the level-one
+space is `32^7 ≈ 3.4·10¹⁰` and exhaustive enumeration is out; the search seeds with the
+`h = 1` structure (σ and x₀ carrying the forced `U^{−s}V^{t}`, x₁ undressed) over both handle
+blocks, plus 3000 random tuples.
+
+| class | quotient | layer ranks | markings (both handles) | solvable | INFEASIBLE |
+|---|---|---|---|---|---|
+| 2 | 2^34 | 7, 27 | 30 (all, `(t,s)` mod 4) | **30** | **0** |
+| 3 | 2^166 | 7, 27, 132 | 126 (all, `(t,s)` mod 8) | **126** | **0** |
+| 4 | 2^838 | 7, 27, 132, 672 | 30 sampled (`t,s ∈ [0..3]`) | see §6.1 note | **0** |
+
+The seeded level-one candidate always yields 6 survivors — the same `GL₂(𝔽₂)` handle torsor
+as at `h = 1` — and the defect map has corank `132 − 124 = 8` at `L₃`.  Together with the
+`h = 1` corank of 6 this gives **corank = (number of generators) + 1** at every level
+measured, i.e. `d + 1` for the rank-`d = 3 + 2h` core.
 
 ---
 
@@ -432,9 +463,8 @@ every finite class the sweep can reach.
   depending on `(t,s)` only mod 4) and of the rank table (always 43/49, 169/175, 673/679)
   across all 421 markings computed makes an outlier among the remaining 920 unlikely but
   **not excluded**.
-* **Not attempted.**  `h = 2` at class 4 (the ticket's optional spot-check) — the rank-7
-  class-4 quotient was not built; budget went to class 5 at `h = 1`, which is where the
-  residual actually lives (`sqArbRelWord_one_iff`).
+* **`h = 2` (the optional spot-check) — done, see §6.4**, but at a reduced marking sample at
+  class 4.
 * **Not attempted.**  Class 6.  `dim L₆` for this group is several thousand; the layer-basis
   and defect-matrix steps scale, but the `K ∩ P_j` intersections at order `2^{4000+}` do not
   within this budget.

@@ -1,0 +1,40 @@
+W50 h=2 spot-check -- class 2
+relator: fs^-1 * fx0^-1 * fs * fx0^-3 * fx1 * fs^-1 * fx1^-1 * fs * fx1 * fs^-1 * fx1 * fs * fu1^-1 * fv1^-1 * fu1 * fv1 * fu2^-1 * fv2^-1 * fu2 * fv2
+Q : order 2^34, layers [ 7, 27 ], Q^ab [ 2, 4, 4, 4, 4, 4, 4 ]  (0.000 s)
+cross-check: Rel(standard generators) = 1 in Q .. OK
+
+  j   t   s | lvl1 tries | verdict    | delta ranks
+------------+------------+------------+-------------------------------
+  0   0   1 |          6 | solvable   |
+  0   0   2 |          6 | solvable   |
+  0   0   3 |          6 | solvable   |
+  0   1   0 |          6 | solvable   |
+  0   1   1 |          6 | solvable   |
+  0   1   2 |          6 | solvable   |
+  0   1   3 |          6 | solvable   |
+  0   2   0 |          6 | solvable   |
+  0   2   1 |          6 | solvable   |
+  0   2   2 |          6 | solvable   |
+  0   2   3 |          6 | solvable   |
+  0   3   0 |          6 | solvable   |
+  0   3   1 |          6 | solvable   |
+  0   3   2 |          6 | solvable   |
+  0   3   3 |          6 | solvable   |
+  1   0   1 |          6 | solvable   |
+  1   0   2 |          6 | solvable   |
+  1   0   3 |          6 | solvable   |
+  1   1   0 |          6 | solvable   |
+  1   1   1 |          6 | solvable   |
+  1   1   2 |          6 | solvable   |
+  1   1   3 |          6 | solvable   |
+  1   2   0 |          6 | solvable   |
+  1   2   1 |          6 | solvable   |
+  1   2   2 |          6 | solvable   |
+  1   2   3 |          6 | solvable   |
+  1   3   0 |          6 | solvable   |
+  1   3   1 |          6 | solvable   |
+  1   3   2 |          6 | solvable   |
+  1   3   3 |          6 | solvable   |
+
+SUMMARY h=2 class 2 : solvable 30, INFEASIBLE 0
+DONE
