@@ -108,7 +108,7 @@ class-two verdict — including the committed `V`-family refutation — is a cla
 
 ## Axiom hygiene
 
-No `sorry`, no new axiom, no `native_decide` (every `decide` is on `ZMod 8`).  All **113**
+No `sorry`, no new axiom, no `native_decide` (every `decide` is on `ZMod 8`).  All **122**
 committed prints are **std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a subset.
 -/
 
@@ -910,6 +910,42 @@ theorem u4WitBad_class_three_odd : ∀ z : ZMod 8, sqU4Defect 1 u4WitBad ≠ 2 *
 /-- The exact value of the class-three defect that kills it. -/
 theorem u4WitBad_defect : sqU4Defect 1 u4WitBad = 7 := by decide
 
+/-! ### A second witness, at the other uncleared row type
+
+⚠ The answer is not an artefact of one `ν'`-row.  Here `ν'(u₀) = 1`, `ν'(v₀) = 0` — the handle
+uncleared on the *other* letter — and the dressing is `a₁ = V³·t`, with `t = x₁x₀^{−2}` the
+order-two class of `D_sq(h)^ab`.  That value is **not** the one the class-two forcing displays:
+it lives in the second branch of `GradedTwo` §6's ⚠ gauge note, which is exactly the branch the
+gauge `a₂ = a₁²` excludes.  So both branches of the class-two balance survive class three. -/
+
+/-- The second class-three test marking: `ν'(u₀) = 1`, `ν'(v₀) = 0`. -/
+def u4WitMark' : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, 1, ⟨0, 0, 0, 1, 3, 3⟩, ⟨1, 1, 1, 0, 0, 0⟩, ⟨2, 0, 2, 0, 0, 0⟩]
+
+theorem sqRelWord_u4WitMark' : sqRelWord u4WitMark' = 1 := by decide
+
+/-- Its undressed frame: now `U = w⁻¹·u₀` moves and `V = v₀` stands. -/
+def u4WitBase' : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, 1, ⟨0, 0, 0, 1, 3, 3⟩, ⟨1, 0, 1, 0, 7, 0⟩, ⟨2, 0, 2, 0, 0, 0⟩]
+
+theorem u4WitBase'_handleU : u4WitBase' 3 = (u4WitMark' 0)⁻¹ * u4WitMark' 3 := by decide
+
+theorem u4WitBase'_handleV : u4WitBase' 4 = u4WitMark' 4 := by decide
+
+/-- ⚠ Live again: the undressed frame fails. -/
+theorem not_sqRelWord_u4WitBase' : sqRelWord u4WitBase' ≠ 1 := by decide
+
+/-- ⭐ The frame dressed by `a₁ = V³·t` — and nothing else — kills the relator. -/
+def u4WitFrame' : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, ⟨6, 0, 6, 1, 3, 5⟩, ⟨0, 0, 0, 1, 3, 3⟩, ⟨1, 0, 1, 0, 7, 0⟩,
+    ⟨2, 0, 2, 0, 0, 0⟩]
+
+/-- The dressing really is `V³` times the `t`-lift `x₁x₀^{−2}`, both in `ker λ ∩ ker ν'`. -/
+theorem u4WitFrame'_one : u4WitFrame' 1 = (u4WitBase' 4) ^ 3 * u4WitMark' 2 := by decide
+
+/-- ⭐⭐ …and it kills the relator. -/
+theorem sqRelWord_u4WitFrame' : sqRelWord u4WitFrame' = 1 := by decide
+
 end Witness
 
 /-! ## §7 Stress pins -/
@@ -1066,6 +1102,15 @@ section AxiomPins
 #print axioms u4WitBad_class_two_even
 #print axioms u4WitBad_class_three_odd
 #print axioms u4WitBad_defect
+#print axioms u4WitMark'
+#print axioms sqRelWord_u4WitMark'
+#print axioms u4WitBase'
+#print axioms u4WitBase'_handleU
+#print axioms u4WitBase'_handleV
+#print axioms not_sqRelWord_u4WitBase'
+#print axioms u4WitFrame'
+#print axioms u4WitFrame'_one
+#print axioms sqRelWord_u4WitFrame'
 
 end AxiomPins
 
