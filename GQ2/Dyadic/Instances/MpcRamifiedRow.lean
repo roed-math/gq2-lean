@@ -763,6 +763,74 @@ theorem sameVal_lin_hat [Finite C] [Finite A] {α : ℕ} (r pp : ℕ) (η : EtaD
   simp only [PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul, heisEvalZ_one]
   exact h1.mul (h2.mul (h3.mul (h4.mul ((SameVal.rfl' _).mul h6))))
 
+/-- **The displayed factorization at second order** — the `heisEvalZ` twin of
+`Words.Mpc.eval_mpcW_factored`. -/
+theorem heisEvalZ_mpcW_factored (α r pp : ℕ) (η : EtaDisplay) :
+    heisEvalZ ⇑t x y E E₂ (mpcW α r pp η h)
+      = heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h) * heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)
+        * heisEvalZ ⇑t x y E E₂ (plusW h) * heisEvalZ ⇑t x y E E₂ (handlesW h) := by
+  rw [mpcW, mpcLinW, mpcHatW, plusW, heisEvalZ_prodList, heisEvalZ_prodList,
+    heisEvalZ_prodList, heisEvalZ_prodList, List.map_append, List.map_append,
+    List.map_append, List.prod_append, List.prod_append, List.prod_append,
+    Certificates.MCompact.heisEvalZ_handleTailW t x y E E₂]
+
+include hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The plus block `δ₀²[δ₀,δ₁]`** — the sole survivor.  Both `δ`-letters have trivially-acting
+bases even in the ramified class, so the trivial-base calculus computes it, and the two opaque
+`δ`-charges drop out: the square's doubles them and the commutator never reads them. -/
+theorem triv_plusW_ram [Finite C] [Finite A] :
+    Triv ⇑t x y E E₂ (plusW h) 0 0
+      (y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 0) (x (coreLetter h 1))
+          + y (coreLetter h 1) (x (coreLetter h 0)))) := by
+  obtain ⟨z0, hd0⟩ := trivJet_dW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres 0
+  obtain ⟨z1, hd1⟩ := trivJet_dW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres 1
+  have hsq : Triv ⇑t x y E E₂ (.zpow (dW h 0) ((2 : ℕ) : ℤ)) 0 0
+      (y (coreLetter h 0) (x (coreLetter h 0))) := by
+    have hh := hd0.npow 2
+    rwa [even_nsmul_eq_zero hA₂ (by decide) (x (coreLetter h 0)),
+      even_nsmul_eq_zero ElemDual.add_self_eq_zero (by decide) (y (coreLetter h 0)),
+      show (2 : ℕ) • z0 + ((2 : ℕ).choose 2) • y (coreLetter h 0) (x (coreLetter h 0))
+        = y (coreLetter h 0) (x (coreLetter h 0)) from by
+          rw [nsmul_zmod2_even (by decide), zero_add, Nat.choose_self, one_nsmul]] at hh
+  rw [plusW]
+  simpa only [add_zero, ElemDual.zero_apply] using hsq.pair (hd0.comm hd1)
+
+include hxσ hyσ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The corrected procyclic-`M` second-order row on ramified normal offsets**:
+
+```
+y₀(x₀) ⊕ (y₀(x₁) + y₁(x₀)) ⊕ Σ_j planes,
+```
+
+the compact core Gram `((1,1),(1,0))` plus the `h` standard hyperbolic handle planes — the
+*same* value as the unramified reading `heisZ_mpcW_evenNormal`.
+
+The eleven factors of `R_lin^pc·R̂^pc` are silent together, not one by one: the linear copy is
+jet-zero (`heisA_mpcLinW_ram`), the hat copy has the same value (`sameVal_lin_hat`), and a
+product `u·v` of two jet-zero lifts with equal charges has charge `z + z = 0`. -/
+theorem heisZ_mpcW_ram [Finite C] [Finite A] {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay) :
+    (heisEvalZ ⇑t x y E E₂ (mpcW α r pp η h)).z
+      = y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 0) (x (coreLetter h 1)) + y (coreLetter h 1) (x (coreLetter h 0)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hLa := heisA_mpcLinW_ram t x y E E₂ hxσ hyσ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd
+    hresA hresD hres hα r pp η
+  have hLH := sameVal_lin_hat t x y E E₂ hxσ hyσ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd
+    hresA hresD hres (α := α) r pp η
+  have hHa : (heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)).a = 0 := by rw [← hLH.aEq]; exact hLa
+  have hLHz : (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)
+      * heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)).z = 0 := by
+    rw [HeisLift.mul_z, hHa, smul_zero, map_zero, add_zero, hLH.zEq, CharTwo.add_self_eq_zero]
+  have hplus := triv_plusW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres
+  have hPa : (heisEvalZ ⇑t x y E E₂ (plusW h)).a = 0 := by
+    obtain ⟨G, hG, -⟩ := hplus
+    rw [hG]
+  rw [heisEvalZ_mpcW_factored t x y E E₂ α r pp η,
+    heisMul_z_of_a_eq_zero _ _ (Certificates.MCompact.heisF_handlesW_mem t x y E E₂ hwild).1,
+    heisMul_z_of_a_eq_zero _ _ hPa, hLHz, zero_add, hplus.zEq,
+    Certificates.MCompact.heisF_handlesW_z t x y E E₂ hwild]
+
 end Letters
 
 end
