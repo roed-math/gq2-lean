@@ -512,6 +512,113 @@ theorem SqU4.sqRelWord_eq_one_iff (m : Fin (sqRank h) → SqU4 R) :
 
 end RelWord
 
+/-! ## §3 The lift: markings of the class-three test group classify class-three quotients -/
+
+section Lift
+
+variable {R : Type} [CommRing R] [Finite R] {mm : ℕ} {h : ℕ}
+
+/-- ⭐ **The class-three test homomorphism** attached to a marking of `SqU4 R` killing the
+relator: three characters of `D_sq(h)^ab`, two solutions of the class-two defect equations, and
+one of the class-three equation, *is* a class-three quotient. -/
+noncomputable def sqU4Hom (hR : Nat.card R = 2 ^ mm) (h : ℕ) (m : Fin (sqRank h) → SqU4 R)
+    (hrel : sqRelWord m = 1) : ContinuousMonoidHom (DSq h : Type) (SqU4 R) :=
+  sqLiftHom h (SqU4.isProP_two hR) m hrel
+
+@[simp] theorem sqU4Hom_gen (hR : Nat.card R = 2 ^ mm) (m : Fin (sqRank h) → SqU4 R)
+    (hrel : sqRelWord m = 1) (i : Fin (sqRank h)) :
+    sqU4Hom hR h m hrel (sqGen h i) = m i :=
+  sqLiftHom_gen _ _ _ _ i
+
+/-- ⭐ **`ℤ₂`-powers in the class-three test group**, for a "flat" base — one whose two class-two
+power corrections and whose cubic correction all vanish.  These are exactly the three conditions
+under which `n ↦ gⁿ` is `R`-linear, by `SqU4.pow_d`, `SqU4.pow_e`, `SqU4.pow_f`. -/
+theorem SqU4.zpowZtwo_of_flat (hQ : IsProP 2 (SqU4 R)) (pi : ℤ_[2] →+* R)
+    (hpi : ∀ T : Set R, IsOpen (pi ⁻¹' T)) {g : SqU4 R} (hab : g.a * g.b = 0)
+    (hbc : g.b * g.c = 0) (hae : g.a * g.e + g.c * g.d = 0) (u : ℤ_[2]) :
+    zpowZtwo hQ g u
+      = ⟨pi u * g.a, pi u * g.b, pi u * g.c, pi u * g.d, pi u * g.e, pi u * g.f⟩ := by
+  set phi : Multiplicative ℤ_[2] →* SqU4 R :=
+    { toFun := fun z => ⟨pi (toAdd z) * g.a, pi (toAdd z) * g.b, pi (toAdd z) * g.c,
+        pi (toAdd z) * g.d, pi (toAdd z) * g.e, pi (toAdd z) * g.f⟩
+      map_one' := by ext <;> simp
+      map_mul' := fun z w => by
+        have hadd : pi (toAdd (z * w)) = pi (toAdd z) + pi (toAdd w) := by
+          rw [show toAdd (z * w) = toAdd z + toAdd w from rfl, map_add]
+        have h1 : pi (toAdd z) * pi (toAdd w) * (g.a * g.b) = 0 := by rw [hab, mul_zero]
+        have h2 : pi (toAdd z) * pi (toAdd w) * (g.b * g.c) = 0 := by rw [hbc, mul_zero]
+        have h3 : pi (toAdd z) * pi (toAdd w) * (g.a * g.e + g.c * g.d) = 0 := by
+          rw [hae, mul_zero]
+        ext
+        · simp only [SqU4.mul_a]; rw [hadd]; ring
+        · simp only [SqU4.mul_b]; rw [hadd]; ring
+        · simp only [SqU4.mul_c]; rw [hadd]; ring
+        · simp only [SqU4.mul_d]; rw [hadd]; linear_combination -h1
+        · simp only [SqU4.mul_e]; rw [hadd]; linear_combination -h2
+        · simp only [SqU4.mul_f]; rw [hadd]; linear_combination -h3 } with hphi
+  have hcont : Continuous phi := by
+    refine IsLocallyConstant.continuous fun s => ?_
+    show IsOpen ((fun z : Multiplicative ℤ_[2] =>
+      (⟨pi (toAdd z) * g.a, pi (toAdd z) * g.b, pi (toAdd z) * g.c, pi (toAdd z) * g.d,
+        pi (toAdd z) * g.e, pi (toAdd z) * g.f⟩ : SqU4 R)) ⁻¹' s)
+    have hfact : (fun z : Multiplicative ℤ_[2] =>
+        (⟨pi (toAdd z) * g.a, pi (toAdd z) * g.b, pi (toAdd z) * g.c, pi (toAdd z) * g.d,
+          pi (toAdd z) * g.e, pi (toAdd z) * g.f⟩ : SqU4 R)) ⁻¹' s
+        = toAdd ⁻¹' (pi ⁻¹' {r : R | (⟨r * g.a, r * g.b, r * g.c, r * g.d, r * g.e,
+            r * g.f⟩ : SqU4 R) ∈ s}) := rfl
+    rw [hfact]
+    exact (hpi _).preimage continuous_toAdd
+  have hone : phi (ofAdd (1 : ℤ_[2])) = g := by
+    show (⟨pi 1 * g.a, pi 1 * g.b, pi 1 * g.c, pi 1 * g.d, pi 1 * g.e, pi 1 * g.f⟩ : SqU4 R) = g
+    rw [map_one]
+    ext <;> simp
+  have := zpowZtwoHom_unique hQ hcont u
+  rw [hone] at this
+  exact this.symm
+
+end Lift
+
+/-! ## §4 ⭐ The class-three gate
+
+One lemma, exactly as at class two.  A frame killing the relator satisfies, in **every**
+class-three test group, the six scalar equations of `SqU4.sqRelWord_eq_one_iff` at its own slot
+images.  The first five reproduce the class-one and class-two gates; the sixth is new. -/
+
+section Engine
+
+variable {R : Type} [CommRing R] {h : ℕ}
+
+/-- ⭐⭐ **The class-three balance.**  Every frame that kills the relator obeys the class-three
+defect equation in every class-three test group. -/
+theorem sqU4Balance (Phi : ContinuousMonoidHom (DSq h : Type) (SqU4 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (Phi (n 1)).a + 2 * (Phi (n 2)).a = 0 ∧ -4 * (Phi (n 1)).b + 2 * (Phi (n 2)).b = 0 ∧
+      -4 * (Phi (n 1)).c + 2 * (Phi (n 2)).c = 0 ∧
+      -4 * (Phi (n 1)).d + 2 * (Phi (n 2)).d
+        + sqHeisDefect h (fun i => SqU4.toHeisAB (Phi (n i))) = 0 ∧
+      -4 * (Phi (n 1)).e + 2 * (Phi (n 2)).e
+        + sqHeisDefect h (fun i => SqU4.toHeisBC (Phi (n i))) = 0 ∧
+      -4 * (Phi (n 1)).f + 2 * (Phi (n 2)).f + sqU4Defect h (fun i => Phi (n i)) = 0 := by
+  have hkey := SqU4.sqRelWord_eq_one_iff (R := R) (h := h) fun i => Phi (n i)
+  rw [← map_sqRelWord Phi n, hn, map_one] at hkey
+  exact hkey.mp rfl
+
+/-- The class-three defect equation alone, which is the one that carries new information. -/
+theorem sqU4Defect_balance (Phi : ContinuousMonoidHom (DSq h : Type) (SqU4 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (Phi (n 1)).f + 2 * (Phi (n 2)).f + sqU4Defect h (fun i => Phi (n i)) = 0 :=
+  (sqU4Balance Phi n hn).2.2.2.2.2
+
+/-- ⭐ **The class-two gate is the class-three gate composed with `toHeisAB`** — so nothing that
+`GradedTwo` refutes is lost, and nothing it proves is re-proved. -/
+theorem sqHeisBalance_of_sqU4 (Phi : ContinuousMonoidHom (DSq h : Type) (SqU4 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (SqU4.toHeisAB (Phi (n 1))).c + 2 * (SqU4.toHeisAB (Phi (n 2))).c
+      + sqHeisDefect h (fun i => SqU4.toHeisAB (Phi (n i))) = 0 :=
+  (sqU4Balance Phi n hn).2.2.2.1
+
+end Engine
+
 end U4Group
 
 end SqCore
