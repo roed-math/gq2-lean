@@ -178,7 +178,150 @@ theorem SameJet.commR (h : SameJet u v) (h' : SameJet u' v') :
     show _root_.GQ2.Dyadic.commR u.g u'.g • w = _root_.GQ2.Dyadic.commR v.g v'.g • w
     simp only [_root_.GQ2.Dyadic.commR, mul_smul, h.gEq, h'.gEq, h.gEqInv, h'.gEqInv]
 
+/-- Bases that act alike act alike after taking any `ℤ`-power: acting alike is having the same
+image under `MulAction.toPermHom`, which is a monoid hom. -/
+theorem smul_zpow_congr {g g' : C} (hg : ∀ w : A, g • w = g' • w) (k : ℤ) (w : A) :
+    (g ^ k) • w = (g' ^ k) • w := by
+  have h : MulAction.toPermHom C A g = MulAction.toPermHom C A g' := Equiv.ext hg
+  have h2 : MulAction.toPermHom C A (g ^ k) = MulAction.toPermHom C A (g' ^ k) := by
+    rw [map_zpow, map_zpow, h]
+  exact congrArg (fun u : Equiv.Perm A ↦ u w) h2
+
 end Agreement
+
+/-! ## Trivial-base jets
+
+Every `δ`-block of the ramified procyclic-`M` row has a trivially-acting base — that is the
+load-bearing clause of `MCompactRam.heisEvalZ_deltaCert_ram` — but a central charge nobody can
+name.  `TrivJet` is `MProcyclicNormal.Triv` with the charge existentially forgotten; the row
+never needs those charges, because each one is repeated inside its block and cancels. -/
+
+section TrivJet
+
+variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  (μ : X → C) (x : X → A) (y : X → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The trivial-base jet**: the word denotes `⟨a, l, ·, G⟩` with `G` acting trivially. -/
+def TrivJet (w : PWord X) (a : A) (l : ElemDual A) : Prop :=
+  ∃ z : ZMod 2, Triv μ x y E E₂ w a l z
+
+variable {μ x y E E₂}
+
+theorem TrivJet.aEq {w : PWord X} {a : A} {l : ElemDual A} (hw : TrivJet μ x y E E₂ w a l) :
+    (heisEvalZ μ x y E E₂ w).a = a := by
+  obtain ⟨z, G, hG, -⟩ := hw
+  rw [hG]
+
+theorem TrivJet.lEq {w : PWord X} {a : A} {l : ElemDual A} (hw : TrivJet μ x y E E₂ w a l) :
+    (heisEvalZ μ x y E E₂ w).l = l := by
+  obtain ⟨z, G, hG, -⟩ := hw
+  rw [hG]
+
+theorem TrivJet.gTriv {w : PWord X} {a : A} {l : ElemDual A} (hw : TrivJet μ x y E E₂ w a l)
+    (v : A) : (heisEvalZ μ x y E E₂ w).g • v = v := by
+  obtain ⟨z, G, hG, hGa⟩ := hw
+  rw [hG]
+  exact hGa v
+
+variable (μ x y E E₂)
+
+theorem trivJet_one : TrivJet μ x y E E₂ (.one : PWord X) 0 0 := ⟨0, triv_one μ x y E E₂⟩
+
+variable {μ x y E E₂}
+
+theorem TrivJet.mul {u v : PWord X} {a b : A} {l m : ElemDual A}
+    (hu : TrivJet μ x y E E₂ u a l) (hv : TrivJet μ x y E E₂ v b m) :
+    TrivJet μ x y E E₂ (.mul u v) (a + b) (l + m) := by
+  obtain ⟨zu, hu⟩ := hu
+  obtain ⟨zv, hv⟩ := hv
+  exact ⟨_, hu.mul hv⟩
+
+theorem TrivJet.pair {u v : PWord X} {a b : A} {l m : ElemDual A}
+    (hu : TrivJet μ x y E E₂ u a l) (hv : TrivJet μ x y E E₂ v b m) :
+    TrivJet μ x y E E₂ (PWord.prodList [u, v]) (a + b) (l + m) := by
+  obtain ⟨zu, hu⟩ := hu
+  obtain ⟨zv, hv⟩ := hv
+  exact ⟨_, hu.pair hv⟩
+
+theorem TrivJet.triple {u v w : PWord X} {a b c : A} {l m n : ElemDual A}
+    (hu : TrivJet μ x y E E₂ u a l) (hv : TrivJet μ x y E E₂ v b m)
+    (hw : TrivJet μ x y E E₂ w c n) :
+    TrivJet μ x y E E₂ (PWord.prodList [u, v, w]) (a + (b + c)) (l + (m + n)) := by
+  rw [PWord.prodList_cons]
+  exact hu.mul (hv.pair hw)
+
+/-- **Conjugation by a pure-base word** twists both jets by `S⁻¹` and keeps the base trivially
+acting (`trivAct_conjR`).  This is the rule the trivial-base calculus of `MpcPairings` is
+missing, and the only one the ramified `E₀₁^pc` needs. -/
+theorem TrivJet.conjPure {u g : PWord X} {a : A} {l : ElemDual A} {S : C}
+    (hu : TrivJet μ x y E E₂ u a l) (hg : heisEvalZ μ x y E E₂ g = heisPure S) :
+    TrivJet μ x y E E₂ (.conj u g) (S⁻¹ • a) (S⁻¹ • l) := by
+  obtain ⟨z, G, hG, hGa⟩ := hu
+  refine ⟨z, conjR G S, ?_, fun v ↦ mem_trivAct.mp (trivAct_conjR (mem_trivAct.mpr hGa) S) v⟩
+  rw [heisEvalZ_conj, hG, hg, heisConjR_pure_right]
+
+end TrivJet
+
+/-! ## The letters of the procyclic-`M` row in the ramified class -/
+
+/-- **The procyclic-`M` twist** `S₂`: the base of the atom `σ₂ = σ^{ω₂}` at the resolved
+exponent.  Every conjugator of the ramified row acts by a power of it, and — unlike the
+unramified reading — none of those powers acts trivially. -/
+def sTwist {h : ℕ} {C : Type*} [Group C] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) : C :=
+  t.σ ^ E omega2
+
+section Letters
+
+variable {h : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+  (y : Generator (2 + 2 * h) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+variable (hxσ : x .sigma = 0) (hyσ : y .sigma = 0) (hxτ : x .tau = 0) (hyτ : y .tau = 0)
+  (hx2 : x (coreLetter h 2) = 0) (hy2 : y (coreLetter h 2) = 0)
+  (hA₂ : ∀ a : A, a + a = 0)
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+  (hτfpf : ∀ v : A, t.τ • v = v → v = 0) (hTodd : ∀ v : A, powOmega2 t.τ • v = v)
+  (hresA : ResolverLifts E (WordLift A C)) (hresD : ResolverLifts E (WordLift (ElemDual A) C))
+  (hres : ResolverLifts E C)
+
+include hxσ hyσ in
+/-- Every `σ₂`-power is the pure lift of the corresponding power of the twist — no hypothesis on
+how it acts, which is exactly what the ramified reading gives up. -/
+theorem heisEvalZ_sig2Zpow (k : ℤ) :
+    heisEvalZ ⇑t x y E E₂ (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) k)
+      = heisPure (sTwist t E ^ k) := by
+  rw [sTwist, heisEvalZ_zpow, heisEvalZ_sigma2W_pure t x y E E₂ hxσ hyσ, ← map_zpow]
+
+include hxσ hyσ hx2 hy2 in
+/-- `C₀ = x₂σ₂^s` is pure on ramified normal offsets: both its letters have vanishing offsets. -/
+theorem heisEvalZ_c0W_ram (s' : ℕ) :
+    heisEvalZ ⇑t x y E E₂ (c0W h s')
+      = heisPure (t (coreLetter h 2) * sTwist t E ^ (s' : ℤ)) := by
+  rw [c0W, PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul,
+    heisEvalZ_mul, heisEvalZ_one, mul_one,
+    heisEvalZ_gen_of_offsets_zero ⇑t x y E E₂ _ hx2 hy2,
+    heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ, map_mul]
+
+include hxσ hyσ in
+/-- `Ĉ₀ = σ₂^s` is pure. -/
+theorem heisEvalZ_c0HatW_ram (s' : ℕ) :
+    heisEvalZ ⇑t x y E E₂ (c0HatW h s') = heisPure (sTwist t E ^ (s' : ℤ)) :=
+  heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ _
+
+include hwild in
+/-- **`C₀` and `Ĉ₀` act alike**: the wild letter `x₂` is invisible to the coefficients. -/
+theorem c0W_smul_eq (s' : ℕ) (v : A) :
+    (t (coreLetter h 2) * sTwist t E ^ (s' : ℤ)) • v = (sTwist t E ^ (s' : ℤ)) • v := by
+  rw [mul_smul, mem_trivAct.mp (Certificates.trivAct_coreLetter t hwild 2)]
+
+include hwild in
+/-- Every power of `C₀`'s base acts by the corresponding power of the twist. -/
+theorem c0W_zpow_smul (s' : ℕ) (k : ℤ) (v : A) :
+    ((t (coreLetter h 2) * sTwist t E ^ (s' : ℤ)) ^ k) • v
+      = (sTwist t E ^ ((s' : ℤ) * k)) • v := by
+  rw [smul_zpow_congr (c0W_smul_eq t E hwild s') k, ← zpow_mul]
+
+end Letters
 
 end
 
