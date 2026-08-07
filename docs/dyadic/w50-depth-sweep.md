@@ -37,11 +37,14 @@ artefact of a harness that always says yes.
 | **Magma** | **V2.29-4** (`/Applications/Magma/magma`) | `pQuotient` (the ANU p-quotient algorithm), pc arithmetic, subgroup intersections, `EchelonForm`/`IsConsistent` over `GF(2)` |
 | **Python 3** | 3.13 (miniforge), **no third-party packages** | the 2-adic constants, the independent class-two model, the graded closed-form checks, the dihedral calibration |
 
-⚠ **GAP is not installed on this machine.**  The name `gap` in the interactive shell is an
-alias for `git apply`; there is no GAP binary under `/usr/local`, `/opt/homebrew`,
-`/Applications` or the conda prefixes.  Magma's `pQuotient` is the same ANU algorithm that
-ANUPQ wraps, so nothing was lost.  `sympy` is also absent; the 2-adic arithmetic is plain
-integer arithmetic modulo `2^N`.
+⚠ **GAP has no standalone binary on this machine, but IS available through Sage**
+(`sage -gap`, GAP 4.14.0 inside Sage at `/usr/local/bin/sage`; owner correction 2026-08-07 —
+the sweep's original "not installed" finding checked `/usr/local`, `/opt/homebrew`,
+`/Applications` and the conda prefixes, and the shell name `gap` is an alias for `git apply`).
+This sweep used Magma throughout; Magma's `pQuotient` is the same ANU algorithm that ANUPQ
+wraps, so nothing was lost.  A future GAP/ANUPQ run through Sage would give a third-engine
+cross-check, and is the natural home for the class-6 continuation of §9.1.  `sympy` is absent;
+the 2-adic arithmetic is plain integer arithmetic modulo `2^N`.
 
 All randomness is seeded (`SetSeed(1)` in Magma, `random.Random(20260807)` in Python).
 
