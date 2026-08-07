@@ -350,7 +350,97 @@ theorem sqEichFrame_nu (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
       rw [sqEichFrame_handleV, toAdd_nu_sqEichV hsigma hx0, nuSq_handleV, toAdd_one]
     · rw [sqEichFrame_handleV_ne hjj, (hoth j' hjj).2, nuSq_handleV]
 
+/-! ### §2b Surjectivity of the frame's lift
+
+The five words regenerate `D_sq h`.  `V` is a slot outright, so every `V`-dressing strips off
+and `σ, x₀, x₁, U` come back; the pivot `w = σ·x₀^{−c₀}` is then a word in `σ` and `x₀`; and the
+two handle letters return as `v_j = V·w^{s}` and `u_j = w^{t}·U`.  Every other letter is a slot.
+Nothing here uses the relator: surjectivity is a property of the five words. -/
+
+/-- `V` recovers `v_j`, by construction. -/
+theorem sqEichV_mul_pivotPow :
+    sqEichV h nu' j *
+        zpowZtwo (isProP_DSq h) (sqPivot h) (toAdd (nu' (sqGen h (sqHandleIdxV j))))
+      = sqGen h (sqHandleIdxV j) := by
+  rw [sqEichV, inv_mul_cancel_right]
+
+/-- `U` recovers `u_j`, by construction. -/
+theorem pivotPow_mul_sqEichU :
+    zpowZtwo (isProP_DSq h) (sqPivot h) (toAdd (nu' (sqGen h (sqHandleIdxU j)))) *
+        sqEichU h nu' j = sqGen h (sqHandleIdxU j) := by
+  rw [sqEichU, mul_inv_cancel_left]
+
+/-- **Any endomorphism realizing the Eichler frame is surjective.**  Stated for an arbitrary
+`Φ` rather than for `sqLiftHom`, so that it does not depend on the relator identity. -/
+theorem sqEichFrame_surjective_of_hom (Φ : ContinuousMonoidHom (DSq h : Type) (DSq h : Type))
+    (hΦ : ∀ i, Φ (sqGen h i) = sqEichFrame h nu' j e e' d i) : Function.Surjective Φ := by
+  have hpow : ∀ (x : (DSq h : Type)) (k : ℤ_[2]),
+      Φ (zpowZtwo (isProP_DSq h) x k) = zpowZtwo (isProP_DSq h) (Φ x) k :=
+    fun x k => map_zpowZtwo (isProP_DSq h) (isProP_DSq h) Φ x k
+  have hV : Φ (sqGen h (sqHandleIdxV j)) = sqEichV h nu' j := by
+    rw [hΦ, sqEichFrame_handleV]
+  have hstrip : ∀ (a : (DSq h : Type)) (i : Fin (sqRank h)) (k : ℤ_[2]),
+      sqEichFrame h nu' j e e' d i = a * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) k →
+        a ∈ Set.range Φ := by
+    refine fun a i k hi => ⟨sqGen h i *
+      (zpowZtwo (isProP_DSq h) (sqGen h (sqHandleIdxV j)) k)⁻¹, ?_⟩
+    rw [map_mul, map_inv, hΦ, hi, hpow, hV, mul_inv_cancel_right]
+  obtain ⟨a, ha⟩ := hstrip (dsqSigma h) 0 e sqEichFrame_zero
+  obtain ⟨b, hb⟩ := hstrip (dsqX0 h) 1 e' sqEichFrame_one
+  obtain ⟨c, hc⟩ := hstrip (dsqX1 h) 2 (2 * e') sqEichFrame_two
+  obtain ⟨g, hg⟩ := hstrip (sqEichU h nu' j) (sqHandleIdxU j) d sqEichFrame_handleU
+  have hw : Φ (a * (zpowZtwo (isProP_DSq h) b sqPivotExp)⁻¹) = sqPivot h := by
+    rw [map_mul, map_inv, ha, hpow, hb, sqPivot, sqMixPivotElem]
+  refine surjective_of_topGen_subset_range (dsq_topGen h) Φ ?_
+  rintro _ ⟨i, rfl⟩
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · exact ⟨a, ha⟩
+  · exact ⟨b, hb⟩
+  · exact ⟨c, hc⟩
+  · by_cases hjj : j' = j
+    · subst hjj
+      refine ⟨zpowZtwo (isProP_DSq h) (a * (zpowZtwo (isProP_DSq h) b sqPivotExp)⁻¹)
+        (toAdd (nu' (sqGen h (sqHandleIdxU j')))) * g, ?_⟩
+      rw [map_mul, hpow, hw, hg, pivotPow_mul_sqEichU]
+    · exact ⟨sqGen h (sqHandleIdxU j'), by rw [hΦ, sqEichFrame_handleU_ne hjj]⟩
+  · by_cases hjj : j' = j
+    · subst hjj
+      refine ⟨sqGen h (sqHandleIdxV j') *
+        zpowZtwo (isProP_DSq h) (a * (zpowZtwo (isProP_DSq h) b sqPivotExp)⁻¹)
+          (toAdd (nu' (sqGen h (sqHandleIdxV j')))), ?_⟩
+      rw [map_mul, hV, hpow, hw, sqEichV_mul_pivotPow]
+    · exact ⟨sqGen h (sqHandleIdxV j'), by rw [hΦ, sqEichFrame_handleV_ne hjj]⟩
+
+/-- **The Eichler frame's lift is surjective as soon as it exists.**  So the relator identity is
+the *only* input the frame form still needs. -/
+theorem sqEichFrame_surjective (hrel : sqRelWord (sqEichFrame h nu' j e e' d) = 1) :
+    Function.Surjective (sqLiftHom h (isProP_DSq h) (sqEichFrame h nu' j e e' d) hrel) :=
+  sqEichFrame_surjective_of_hom _ (sqLiftHom_gen h (isProP_DSq h) _ hrel)
+
 end EichlerFrame
+
+/-! ## §5 Axiom pins
+
+Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
+census axiom is reachable. -/
+
+section AxiomPins
+
+#print axioms sqFrames_of_lamMarkTransitivity
+#print axioms sqLamMarkTransitivity_iff_frames
+#print axioms sqLamNuClearHypothesis_iff_frames
+#print axioms toAdd_nu_sqPivot_selected
+#print axioms sqEichV
+#print axioms sqEichU
+#print axioms sqEichFrame
+#print axioms sqEichFrame_nuLam
+#print axioms sqEichFrame_nu
+#print axioms sqEichV_mul_pivotPow
+#print axioms pivotPow_mul_sqEichU
+#print axioms sqEichFrame_surjective_of_hom
+#print axioms sqEichFrame_surjective
+
+end AxiomPins
 
 end SqCore
 
