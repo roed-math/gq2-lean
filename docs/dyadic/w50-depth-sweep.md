@@ -545,6 +545,28 @@ Concretely, three things the Lean side can take as measured facts about the fini
   needs it in the inverse limit.  The value of the sweep is the *absence* of a refutation at
   a depth where one was plausibly expected, plus the structure in §6.2–§6.3 and §8.
 
+### 9.1  If another wave wants to push further
+
+In descending order of expected information per CPU-hour:
+
+1. **Watch the corank at class 6.**  `corank(δ) = d + 1` held at every level of every run
+   here (§6.3).  A class-6 level where it *grows* is the only place in this computation where
+   a refutation could first appear, and it is a single linear-algebra number — much cheaper
+   than a full sweep.  The bottleneck is `K ∩ P_j` at order `2^{4000+}`, not the linear
+   algebra; replacing the subgroup intersection by an explicit generating set
+   (`[P_{j−1}, Q]` is marking-independent and already inside `K`, topped up with the squares
+   of the previous level's basis) should make it tractable.
+2. **Finish the class-5 grid.**  The remaining `(t,s)` mod 32 at `h = 1` — about 15 CPU-hours
+   at the current cost, less with the optimisation above.
+3. **Explain the vanishing.**  The defect lands in a codimension-`(d+1)` subspace every time,
+   at odds of `2^{−(d+1)}` per event.  If that is an identity rather than an accident, it is
+   presumably a Jacobi/Fox-derivative identity for this relator, and *that* is the statement
+   the Lean side wants — a proof of it would settle the residual rather than sample it.
+4. **Do not** spend more time on small-group refutation searches.  `sqArbRelWord_iff_clearingStep`
+   says none can exist, and §7.1 confirms the arbitrary family survives every `D₄`/`D₈`
+   homomorphism; the sweep's own restricted-regime probe is the only place small groups still
+   carry information.
+
 ---
 
 ## 10.  Reproduction
