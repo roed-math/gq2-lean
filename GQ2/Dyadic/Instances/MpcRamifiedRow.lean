@@ -534,6 +534,52 @@ theorem trivJet_e01W_ram [Finite C] [Finite A] (aa bb : ℕ) :
   exact (((hd 1).conjPure (heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ (bb : ℤ))).triple (hd 1)
     (hd 0)).conjPure (heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ (aa : ℤ)) |>.pair (hd 0)
 
+/-! ### The display and the two `D`-commutators -/
+
+include hxσ hyσ in
+/-- **Every display is a `σ`-power**: all three constructors wrap `σ` alone, so the letter `D`
+denotes a pure lift with a base that commutes with the twist. -/
+theorem exists_heisEvalZ_display_pure (η : EtaDisplay) :
+    ∃ n : ℤ, heisEvalZ ⇑t x y E E₂ (η.toPWord (n := 2 + 2 * h)) = heisPure (t.σ ^ n) := by
+  have hσ : heisEvalZ ⇑t x y E E₂ (.gen (Generator.sigma : Generator (2 + 2 * h)))
+      = heisPure t.σ := heisEvalZ_gen_of_offsets_zero _ _ _ _ _ _ hxσ hyσ
+  cases η with
+  | one => exact ⟨1, by rw [show (EtaDisplay.one).toPWord = (.gen .sigma) from rfl, hσ, zpow_one]⟩
+  | lit k =>
+      refine ⟨k, ?_⟩
+      rw [show (EtaDisplay.lit k).toPWord = (.zpow (.gen .sigma) k) from rfl, heisEvalZ_zpow, hσ,
+        ← map_zpow]
+  | hat num den =>
+      refine ⟨E (Export.RawSpec.toZhat (.etahat num den)), ?_⟩
+      rw [show (EtaDisplay.hat num den).toPWord
+        = (.profPow (.gen .sigma) (Export.RawSpec.toZhat (.etahat num den))) from rfl,
+        heisEvalZ_profPow, hσ, ← map_zpow]
+
+/-- The commutator of two pure-base lifts is pure. -/
+theorem heisPure_commR (g k : C) :
+    commR (heisPure (A := A) g) (heisPure k) = heisPure (commR g k) := by
+  rw [commR, commR, ← map_inv, ← map_inv, ← map_mul, ← map_mul, ← map_mul]
+
+/-- The commutator of two powers of one group element is trivial. -/
+theorem commR_zpow_zpow (P : C) (i j : ℤ) : commR (P ^ i) (P ^ j) = 1 := by
+  rw [commR, ← zpow_neg, ← zpow_neg, ← zpow_add, ← zpow_add, ← zpow_add,
+    show -i + -j + i + j = (0 : ℤ) by ring, zpow_zero]
+
+/-- Commutators read only the two bases' actions. -/
+theorem commR_smul_congr {g g' k k' : C} (hg : ∀ v : A, g • v = g' • v)
+    (hk : ∀ v : A, k • v = k' • v) (v : A) : commR g k • v = commR g' k' • v := by
+  simp only [commR, mul_smul, hg, hk, smul_inv_congr hg, smul_inv_congr hk]
+
+/-- The twist is itself a `σ`-power, so every power of it is. -/
+theorem sTwist_zpow (k : ℤ) : sTwist t E ^ k = t.σ ^ (E omega2 * k) := by
+  rw [sTwist, ← zpow_mul]
+
+/-- **A `σ₂`-power commutes with a `σ`-power in the action.**  This is what makes the two
+`D`-commutators, and the Labute commutator, jet-twisting-free. -/
+theorem commR_sTwist_smul {g k : C} (i n : ℤ) (hg : ∀ v : A, g • v = (sTwist t E ^ i) • v)
+    (hk : ∀ v : A, k • v = (t.σ ^ n) • v) (v : A) : commR g k • v = v := by
+  rw [commR_smul_congr hg hk v, sTwist_zpow, commR_zpow_zpow, one_smul]
+
 end Letters
 
 end
