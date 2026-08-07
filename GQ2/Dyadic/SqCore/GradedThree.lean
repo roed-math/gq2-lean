@@ -334,6 +334,184 @@ theorem isProP_two [Finite R] {m : ℕ} (hR : Nat.card R = 2 ^ m) : IsProP 2 (Sq
 
 end SqU4
 
+/-! ## §2 The relator in the class-three test group
+
+The whole class-three computation, in closed form.  The three abelian coordinates see only the
+relator vector `−4x̄₀ + 2x̄₁`; the two class-two coordinates are **exactly** the class-two defect
+equations of the two Heisenberg quotients (`SqHeis.sqRelWord_c` through `toHeisAB` and
+`toHeisBC`), which is the sense in which `GradedTwo` is a quotient of this file; and the
+class-three coordinate carries the new content, `sqU4Defect`. -/
+
+section RelWord
+
+variable {R : Type} [CommRing R]
+
+/-- A product of elements with vanishing abelian coordinates is central-in-`γ₂`, with the three
+deeper coordinates the sums: `γ₂ = {a = b = c = 0}` is abelian. -/
+private theorem SqU4.prod_of_central (l : List (SqU4 R))
+    (hl : ∀ p ∈ l, p.a = 0 ∧ p.b = 0 ∧ p.c = 0) :
+    l.prod = ⟨0, 0, 0, (l.map SqU4.d).sum, (l.map SqU4.e).sum, (l.map SqU4.f).sum⟩ := by
+  induction l with
+  | nil => rfl
+  | cons p t ih =>
+    obtain ⟨hpa, hpb, hpc⟩ := hl p List.mem_cons_self
+    rw [List.prod_cons, ih fun q hq => hl q (List.mem_cons_of_mem _ hq)]
+    have hmul : p * (⟨0, 0, 0, (t.map SqU4.d).sum, (t.map SqU4.e).sum,
+          (t.map SqU4.f).sum⟩ : SqU4 R)
+        = ⟨p.a + 0, p.b + 0, p.c + 0, p.d + (t.map SqU4.d).sum + p.a * 0,
+          p.e + (t.map SqU4.e).sum + p.b * 0,
+          p.f + (t.map SqU4.f).sum + p.a * (t.map SqU4.e).sum + p.d * 0⟩ := rfl
+    rw [hmul, hpa, hpb, hpc]
+    simp
+
+variable {h : ℕ}
+
+@[simp] theorem SqU4.handleWord_a (u v : Fin h → SqU4 R) : (handleWord u v).a = 0 := by
+  rw [handleWord, SqU4.prod_of_central _ (by simp)]
+
+@[simp] theorem SqU4.handleWord_b (u v : Fin h → SqU4 R) : (handleWord u v).b = 0 := by
+  rw [handleWord, SqU4.prod_of_central _ (by simp)]
+
+@[simp] theorem SqU4.handleWord_c (u v : Fin h → SqU4 R) : (handleWord u v).c = 0 := by
+  rw [handleWord, SqU4.prod_of_central _ (by simp)]
+
+/-- The handle block contributes the sum of the first class-two handle pairings. -/
+theorem SqU4.handleWord_d (u v : Fin h → SqU4 R) :
+    (handleWord u v).d = ∑ j, ((u j).a * (v j).b - (v j).a * (u j).b) := by
+  rw [handleWord, SqU4.prod_of_central _ (by simp), Fin.sum_univ_def]
+  simp [List.map_map, Function.comp_def, sub_eq_add_neg, mul_comm]
+
+/-- …and of the second. -/
+theorem SqU4.handleWord_e (u v : Fin h → SqU4 R) :
+    (handleWord u v).e = ∑ j, ((u j).b * (v j).c - (v j).b * (u j).c) := by
+  rw [handleWord, SqU4.prod_of_central _ (by simp), Fin.sum_univ_def]
+  simp [List.map_map, Function.comp_def, sub_eq_add_neg, mul_comm]
+
+/-- ⭐ **The handle block in class three**: the sum of the cubic commutator forms. -/
+theorem SqU4.handleWord_f (u v : Fin h → SqU4 R) :
+    (handleWord u v).f = ∑ j, SqU4.u4Comm3 (u j) (v j) := by
+  rw [handleWord, SqU4.prod_of_central _ (by simp), Fin.sum_univ_def]
+  simp [List.map_map, Function.comp_def]
+
+/-- The first abelian coordinate of the core word: the relator vector `−4x̄₀ + 2x̄₁`. -/
+@[simp] theorem SqU4.sqWord_a (s x y : SqU4 R) :
+    (sqWord s x y).a = -4 * x.a + 2 * y.a := by
+  simp only [sqWord, SqU4.mul_a, SqU4.inv_a, SqU4.conjP_a, SqU4.pow_a, SqU4.commP_a]
+  push_cast
+  ring
+
+/-- The second abelian coordinate of the core word. -/
+@[simp] theorem SqU4.sqWord_b (s x y : SqU4 R) :
+    (sqWord s x y).b = -4 * x.b + 2 * y.b := by
+  simp only [sqWord, SqU4.mul_b, SqU4.inv_b, SqU4.conjP_b, SqU4.pow_b, SqU4.commP_b]
+  push_cast
+  ring
+
+/-- The third abelian coordinate of the core word. -/
+@[simp] theorem SqU4.sqWord_c (s x y : SqU4 R) :
+    (sqWord s x y).c = -4 * x.c + 2 * y.c := by
+  simp only [sqWord, SqU4.mul_c, SqU4.inv_c, SqU4.conjP_c, SqU4.pow_c, SqU4.commP_c]
+  push_cast
+  ring
+
+/-- ⭐⭐ **The class-three content of the core word.**  Beyond the linear part `−4f(x₀) + 2f(x₁)`
+the core word contributes a genuinely cubic expression in the three abelian columns, linear in
+the two class-two columns.  Setting `y = x²`, `c = 0` and reading off the `(1,3)`-coordinate
+recovers `SqHeis.sqWord_c`. -/
+def sqU4Core (s x y : SqU4 R) : R :=
+  -(s.a * s.b * x.c) + s.a * s.c * x.b
+    + s.a * x.e - s.c * x.d + s.d * x.c - s.e * x.a
+    - 4 * (s.a * x.b * x.c) + 3 * (s.b * x.a * x.c) + s.c * x.a * x.b
+    + 2 * (s.a * x.b * y.c) - 2 * (s.b * x.a * y.c)
+    + s.a * y.b * y.c - 2 * (s.b * y.a * y.c) + s.c * y.a * y.b
+    - 20 * (x.a * x.b * x.c) + 20 * (x.a * x.b * y.c) - 4 * (x.a * y.b * y.c)
+    + 10 * (x.a * x.e) - 8 * (x.a * y.e) + 10 * (x.c * x.d) - 8 * (x.d * y.c)
+    + y.a * y.e + y.c * y.d
+
+/-- ⭐⭐ **The class-three coordinate of the core word.** -/
+theorem SqU4.sqWord_f (s x y : SqU4 R) :
+    (sqWord s x y).f = -4 * x.f + 2 * y.f + sqU4Core s x y := by
+  simp only [sqWord, sqU4Core, SqU4.mul_a, SqU4.mul_d, SqU4.mul_f,
+    SqU4.inv_a, SqU4.inv_b, SqU4.inv_c, SqU4.inv_d, SqU4.inv_e, SqU4.inv_f,
+    SqU4.conjP_a, SqU4.conjP_b, SqU4.conjP_c, SqU4.conjP_d, SqU4.conjP_e, SqU4.conjP_f,
+    SqU4.pow_a, SqU4.pow_b, SqU4.pow_c, SqU4.pow_d, SqU4.pow_e, SqU4.pow_f,
+    SqU4.commP_c, SqU4.commP_e, SqU4.commP_f, SqU4.u4Comm3]
+  norm_num
+  ring
+
+/-- The abelian `a`-row of the relator. -/
+@[simp] theorem SqU4.sqRelWord_a (m : Fin (sqRank h) → SqU4 R) :
+    (sqRelWord m).a = -4 * (m 1).a + 2 * (m 2).a := by
+  rw [sqRelWord, SqU4.mul_a, SqU4.sqWord_a, SqU4.handleWord_a, add_zero]
+
+/-- The abelian `b`-row of the relator. -/
+@[simp] theorem SqU4.sqRelWord_b (m : Fin (sqRank h) → SqU4 R) :
+    (sqRelWord m).b = -4 * (m 1).b + 2 * (m 2).b := by
+  rw [sqRelWord, SqU4.mul_b, SqU4.sqWord_b, SqU4.handleWord_b, add_zero]
+
+/-- The abelian `c`-row of the relator. -/
+@[simp] theorem SqU4.sqRelWord_c (m : Fin (sqRank h) → SqU4 R) :
+    (sqRelWord m).c = -4 * (m 1).c + 2 * (m 2).c := by
+  rw [sqRelWord, SqU4.mul_c, SqU4.sqWord_c, SqU4.handleWord_c, add_zero]
+
+/-- ⭐ **The first class-two row of the relator is `GradedTwo`'s defect equation**, verbatim,
+through the Heisenberg quotient `toHeisAB`.  Nothing is re-proved here: the class-two layer is a
+quotient of the class-three one. -/
+theorem SqU4.sqRelWord_d (m : Fin (sqRank h) → SqU4 R) :
+    (sqRelWord m).d = -4 * (m 1).d + 2 * (m 2).d
+      + sqHeisDefect h (fun i => SqU4.toHeisAB (m i)) := by
+  have hnat : SqU4.toHeisAB (sqRelWord m) = sqRelWord (fun i => SqU4.toHeisAB (m i)) :=
+    map_sqRelWord _ m
+  have := congrArg SqHeis.c hnat
+  rw [SqHeis.sqRelWord_c] at this
+  exact this
+
+/-- …and the second, through `toHeisBC`. -/
+theorem SqU4.sqRelWord_e (m : Fin (sqRank h) → SqU4 R) :
+    (sqRelWord m).e = -4 * (m 1).e + 2 * (m 2).e
+      + sqHeisDefect h (fun i => SqU4.toHeisBC (m i)) := by
+  have hnat : SqU4.toHeisBC (sqRelWord m) = sqRelWord (fun i => SqU4.toHeisBC (m i)) :=
+    map_sqRelWord _ m
+  have := congrArg SqHeis.c hnat
+  rw [SqHeis.sqRelWord_c] at this
+  exact this
+
+variable (h) in
+/-- ⭐⭐ **The class-three defect of a marking**: the class-three coordinate the relator would
+have if the `(1,4)`-coordinates of the marking were all `0`.  Three pieces:
+
+* `sqU4Core`, cubic in the abelian columns of the three core slots;
+* a **cross term** `ρ_sq(a-row) · (handle `e`-pairing)` — new at class three, and the reason the
+  class-three balance is not simply the class-two balance one column over;
+* the sum of the cubic handle commutator forms `SqU4.u4Comm3`. -/
+def sqU4Defect (m : Fin (sqRank h) → SqU4 R) : R :=
+  sqU4Core (m 0) (m 1) (m 2)
+    + (-4 * (m 1).a + 2 * (m 2).a) *
+        (∑ j : Fin h, ((m (sqHandleIdxU j)).b * (m (sqHandleIdxV j)).c
+          - (m (sqHandleIdxV j)).b * (m (sqHandleIdxU j)).c))
+    + ∑ j : Fin h, SqU4.u4Comm3 (m (sqHandleIdxU j)) (m (sqHandleIdxV j))
+
+/-- ⭐⭐ **The relator in the class-three test group, in closed form.**  As at class two, the
+adjustable part is `−4f(x₀) + 2f(x₁)`, i.e. exactly `2R`, and the defect is what the marking
+cannot touch. -/
+theorem SqU4.sqRelWord_f (m : Fin (sqRank h) → SqU4 R) :
+    (sqRelWord m).f = -4 * (m 1).f + 2 * (m 2).f + sqU4Defect h m := by
+  rw [sqRelWord, SqU4.mul_f, SqU4.sqWord_f, SqU4.handleWord_f, SqU4.handleWord_e,
+    SqU4.handleWord_c, SqU4.sqWord_a, mul_zero, add_zero, sqU4Defect]
+  ring
+
+/-- ⭐ **The relator identity in the class-three test group**, as six scalar equations. -/
+theorem SqU4.sqRelWord_eq_one_iff (m : Fin (sqRank h) → SqU4 R) :
+    sqRelWord m = 1 ↔ -4 * (m 1).a + 2 * (m 2).a = 0 ∧ -4 * (m 1).b + 2 * (m 2).b = 0 ∧
+      -4 * (m 1).c + 2 * (m 2).c = 0 ∧
+      -4 * (m 1).d + 2 * (m 2).d + sqHeisDefect h (fun i => SqU4.toHeisAB (m i)) = 0 ∧
+      -4 * (m 1).e + 2 * (m 2).e + sqHeisDefect h (fun i => SqU4.toHeisBC (m i)) = 0 ∧
+      -4 * (m 1).f + 2 * (m 2).f + sqU4Defect h m = 0 := by
+  rw [SqU4.eq_one_iff, SqU4.sqRelWord_a, SqU4.sqRelWord_b, SqU4.sqRelWord_c, SqU4.sqRelWord_d,
+    SqU4.sqRelWord_e, SqU4.sqRelWord_f]
+
+end RelWord
+
 end U4Group
 
 end SqCore
