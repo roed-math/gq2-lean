@@ -6,26 +6,15 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.SqCore.LamFrames
 
 /-!
-# W44 — the **two-letter** Eichler family
+# W44 — the **two-letter** Eichler family (⚠ built, and refuted)
 
 `SqCore/LamFrames.lean` reduced the whole `h ≥ 1` λ-row residual to one word equation per frame
-family (§3's `SqClearingStep`), and `SqCore/EichRefutation.lean` killed the two one-letter
-families and their disjunction.  Both refutations run on a single mechanism, and it is worth
-stating in the form that names its own escape route.
-
-## ⭐ The unifying lemma, and why a two-letter dressing escapes it
-
-Both families dress their four moved slots by powers of **one** of the two cleared letters, and
-that letter is one the frame moved.  If a test homomorphism `φ` kills that letter then *all four*
-dressings lie in `ker φ` at once, the four dressed slots fall back to their undressed values, and
-the `j`-th handle commutator collapses; what is left is the bare core word, which the relator says
-is the inverse of that very commutator.  So the collapse needs **the dressings to lie in `ker φ`**,
-and "powers of the letter that dies" hands that to the adversary for free.
-
-A dressing by `U^a V^b` does **not**: killing `V` leaves `U^a`, killing `U` leaves `V^b`, and no
-single `D₄`-marking can kill both while keeping `[u_j, v_j] ≠ 1` (that is exactly the obstruction
-`EichRefutation` §3 records).  The mechanism of the two refutations therefore provably cannot
-reach the family built here.
+family (§3's `SqClearingStep`), and `SqCore/EichRefutation.lean` §3 killed the two one-letter
+families and their disjunction by a mechanism that names its own escape route: the collapse there
+needs **every dressing to lie in `ker φ`**, which "powers of the letter that dies" hands to the
+adversary for free.  This file builds the escape — dress by powers of **both** cleared letters —
+and it is a genuine escape from *that* mechanism.  ⚠ It is not an escape from the residual: a
+strictly stronger obstruction reaches it, and `EichRefutation` §7–§8 record it.
 
 ## The family
 
@@ -35,57 +24,90 @@ Over the same cleared letters `w = σ·x₀^{−c₀}`, `V = v_j·w^{−s}`, `U 
 m = ( σ·U^f V^e , x₀·U^{f'} V^{e'} , x₁·U^{2f'} V^{2e'} , U·V^d , V·U^{d'} )
 ```
 
-with every other letter left standing (`sqEichFrameUV`).  §1 gives the slot lemmas, §2 the rows —
-which are *free*, exactly as `LamFrames` §5 predicted: the row proofs use only that both cleared
-letters are `λ`-trivial and `ν'`-trivial, which is symmetric in the two and survives an arbitrary
-product of their powers.
+with every other letter left standing (`sqEichFrameUV`).  This is a common widening of the two
+one-letter families, **on the nose**: `sqEichFrameUV_eq_sqEichFrame` identifies the `f = f' = d'
+= 0` slice with `LamFrames` §2's frame, and `sqEichFrameUV_eq_sqEichFrameT` identifies the
+`e = e' = d = 0` slice with §5's.  So everything proved here is proved about both of them at once,
+and a refutation here re-refutes both.
+
+## §2 The rows are free
+
+Exactly as `LamFrames` §5 predicted: the row proofs use only that both cleared letters are
+`λ`-trivial and `ν'`-trivial, and both properties pass to an arbitrary product of powers of the
+two.  `sqEichFrameUV_nuLam` holds at **every** weight tuple with no marking hypothesis at all, and
+`sqEichFrameUV_nu` reads the ν-rows off the frame as before.
 
 ## §3 Surjectivity, and the 2-by-2 recovery
 
 Here the two-letter dressing does cost something.  Neither cleared letter is a bare slot any more:
 the `u`-slot is `U·V^d` and the `v`-slot is `V·U^{d'}`, so recovering `U` and `V` is a genuine
 2-by-2 problem rather than a strip-off.  Mod `[G,G]G²` the recovery matrix is `!![1, d; d', 1]`,
-whose determinant is `1 − d·d'` — a unit exactly when `d·d'` is **even**, i.e. when `d` and `d'`
-are not both odd.
+whose determinant is `1 − d·d'` — a unit exactly when `d·d'` is **even**.
 
-⚠ That condition is not an artefact of the proof: a `D₄` sweep over *every* marking of `D₄`
-(not merely the two of `EichRefutation` §3) shows the relator identity fails at every weight tuple
-with `d` and `d'` both odd — the frame is then not even injective on `H₁`.  At `d = d' = 0` the
-two handle slots degenerate back to bare `U` and `V`, the recovery is a plain strip-off in the two
-letters, and that is the sub-family `sqEichFrameUV h nu' j f f' e e' 0 0` on which §3 proves
-surjectivity outright (`sqEichFrameUV_surjective_of_hom`).
+At `d = d' = 0` the two handle slots degenerate back to bare `U` and `V`, the recovery is a plain
+two-step strip-off in the two letters, and that is the slice on which §3 proves surjectivity
+outright (`sqEichFrameUV_surjective_of_hom`).  ⚠ The restriction is not an artefact of the proof:
+an offline `D₄` sweep over *every* marking of `D₄` (not merely the two of `EichRefutation` §3)
+shows the relator identity already fails at every weight tuple with `d` and `d'` both odd — the
+same `1 − d·d'`.
 
 ## §4 The residual, again in one word equation
 
 `SqEichRelWordUV` is the resulting bare word equation, and §4 plugs it into `SqClearingStep`, so
-it discharges `SqLamMarkTransitivity h` at every `h` with no rows, no surjectivity and no
+it would discharge `SqLamMarkTransitivity h` at every `h` with no rows, no surjectivity and no
 composition identity left over — the reusable half of `LamFrames` §3 accepting its third input.
+
+## ⚠⚠ The word equation is **false**
+
+`SqEichRelWordUV h` is **refuted** at every `h ≥ 1` (`SqCore/EichRefutation.lean`,
+`not_sqEichRelWordUV`), with the witness `ν' = nuSel h j 1 1` — the same marking that killed the
+mix — and at *every* weight tuple, `d` and `d'` included
+(`not_sqRelWord_sqEichFrameUV_nuSel`).
+
+⭐ The mechanism is the one `EichRefutation` §7 isolates, and it is strictly more general than the
+one this family was designed to escape: **instead of killing a letter, identify the two.**  Send
+`U` and `V` to one and the same involution `z`; then each dressing `U^k V^l ↦ z^{k+l} ∈ {1, z}`
+— the dressings do *not* die, so `z` is free to be `≠ 1` and the handle commutator of the marking
+is free to be non-trivial — the `x₁`-slot's even dressing dies because `z² = 1`, and the handle
+block dies because both its slots land in the abelian `{1, z}`.  What is left is a core word with
+two bits of freedom, and `D₈` misses on all four.  Killing a letter is the degenerate case
+`z = 1`, so one `D₈` homomorphism at one marking now refutes all three families at once
+(`exists_hom_refuting_all_eichler_families`).
+
+⚠ **What that does and does not say.**  `sqLamMarkTransitivity_iff_frames` quantifies over *all*
+five-word frames; three explicitly parametrised families remain a set of measure zero among them,
+and `SqLamMarkTransitivity h` is **not** refuted.  What is now closed off is the whole orbit of
+"dress the moved slots by words in `U` and `V`": the collapse lemma is blind to which weights are
+used, so no reweighting inside that orbit can help.  The widening named in `LamFrames` §4 —
+dressing by **arbitrary** `λ`-trivial, `ν'`-trivial elements — is still untouched, and now for a
+sharper reason: §7's collapse needs the dressings to land in `⟨z⟩`, which words in `U` and `V`
+guarantee and an arbitrary `λ`/`ν'`-trivial dressing does not.
 
 ## ⚠ The shape rule, and the retired candidate
 
-A `D₄` sweep over all markings also pins the parities of the four core weights.  Writing
-`t = ν'(u_j)` and `s = ν'(v_j)`, the surviving tuples are exactly
+An offline `D₄` sweep over all markings pins the parities of the four core weights.  Writing
+`t = ν'(u_j)` and `s = ν'(v_j)`, the tuples surviving every `D₄` probe are exactly
 
 ```text
 f ≡ f' ≡ s   and   e ≡ e' ≡ t     (mod 2),     d·d' even
 ```
 
 — the **`U`-weights track the `v`-row and the `V`-weights track the `u`-row**, crosswise.  Two
-consequences worth recording:
+consequences worth keeping even though the family is dead:
 
-* at the standard marking `t = s = 0` all four weights are even and `(0,0,0,0,0,0)` is the
+* at the standard marking `t = s = 0` all four weights are even, and `(0,0,0,0,0,0)` is the
   identity frame, as it must be (`sqEichFrameUV_nuSq_zero`);
-* ⚠ at `nuSel h j 1 1` — the marking that killed both one-letter families — all four must be
-  **odd**, so the smallest surviving tuple is `(f,f',e,e',d,d') = (1,1,1,1,0,0)`, i.e.
-  `m = (σ·U·V, x₀·U·V, x₁·U²V², U, V)`.  The "`e` odd, `f` even" reading of the Eichler
-  transvection is the shape at `s = 0`, and it does **not** survive at `s = 1`.
+* ⚠ at `nuSel h j 1 1` all four must be **odd**, so the smallest `D₄`-surviving tuple is
+  `(f,f',e,e',d,d') = (1,1,1,1,0,0)`, *not* `(0,1,1,1,0,0)`: the "`e` odd, `f` even" reading of
+  the Eichler transvection is its shape at `s = 0` and does not survive at `s = 1`.  Both die at
+  `D₈` regardless.
 
 ## Contents
 
-* **§1** `sqEichFrameUV` and its slots;
+* **§1** `sqEichFrameUV`, its slots, and the two slice identities;
 * **§2** the rows (`sqEichFrameUV_nuLam`, `sqEichFrameUV_nu`), free from `LamFrames` §2a;
 * **§3** surjectivity at `d = d' = 0`, and the clearing step;
-* **§4** `SqEichRelWordUV` and the residual;
+* **§4** `SqEichRelWordUV` (⚠ false) and the residual it would discharge;
 * **§5** the `γ₃`-rigidity of `d, d'`; **§6** stress pins; **§7** committed axiom prints.
 
 ## Axiom hygiene
@@ -444,11 +466,12 @@ variable {h : ℕ}
 /-- **The two-letter relator identity**: at every selected marking and every handle, some
 two-letter dressing weights `(f, f', e, e')` kill the relator.
 
-Unlike `SqEichRelWord` and `SqEichRelWordT` this is **not** known to be false: the `D₄` mechanism
-of `SqCore/EichRefutation.lean` collapses a frame only when *all* its dressings lie in the test
-homomorphism's kernel, and a dressing `U^f V^e` with `f` and `e` both odd lies in no such kernel —
-killing `V` leaves `U^f`, killing `U` leaves `V^e`, and no marking of `D₄` kills both while
-keeping `[u_j, v_j] ≠ 1`. -/
+⚠⚠ **This is false for `h ≥ 1`** (`SqCore/EichRefutation.lean`, `not_sqEichRelWordUV`).  The `D₄`
+mechanism of §3 there genuinely cannot reach it — a dressing `U^f V^e` lies in `ker φ` only if `φ`
+kills both letters, which makes the test vacuous — but the `D₈` mechanism of §7 does, by
+*identifying* the two letters onto an involution rather than killing either.  It is kept because
+the implication below is the reusable half: any family with `SqClearingStep`'s five clauses plugs
+into the same composition. -/
 def SqEichRelWordUV (h : ℕ) : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →

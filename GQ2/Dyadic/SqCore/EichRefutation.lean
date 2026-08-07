@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.SqCore.UVFrames
 
 /-!
-# W44 — ⚠ both Eichler ansätze, and their mix, are **refuted**
+# W44 — ⚠ all three Eichler ansätze are **refuted**
 
 `SqCore/LamFrames.lean` cut the whole `h ≥ 1` residual down to one word equation per family: at
 every selected marking and every handle, some dressing weights kill the relator on `sqEichFrame`
@@ -58,12 +58,16 @@ is precisely why the mix needs `nuSel h j 1 1`.
 * **Not dead**: `SqLamMarkTransitivity h` itself.  `sqLamMarkTransitivity_iff_frames` quantifies
   over **all** five-word frames; this file kills two explicitly parametrised families and their
   union, which is a set of measure zero among frames.
+* ⚠ **Also dead, and by a *different* mechanism**: the two-letter widening `sqEichFrameUV` of
+  `SqCore/UVFrames.lean`, which dresses each moved slot by `U^k V^l` and contains both families
+  above as slices.  §3's collapse genuinely cannot reach it, but §7's can — see below.
 * **Not dead**: the Eichler *idea*, and in particular the widening named in `LamFrames` §4 —
   dress the four moved slots by **arbitrary** `λ`-trivial, `ν'`-trivial elements rather than by
-  powers of one letter.  That costs nothing on any row (§2a's proofs are verbatim) and needs only
-  its own surjectivity check, and the mechanism above **cannot** reach it: the collapse needs the
-  dressings to lie in the kernel of the test homomorphism, which is exactly what "powers of the
-  letter that dies" guaranteed and an arbitrary dressing does not.
+  words in the two cleared letters.  That costs nothing on any row (§2a's proofs are verbatim) and
+  needs only its own surjectivity check, and **neither** mechanism reaches it: §3's collapse needs
+  the dressings to lie in the kernel of the test homomorphism, and §7's needs them to lie in the
+  procyclic `⟨z⟩` — both of which words in `U` and `V` guarantee and an arbitrary dressing does
+  not.
 
 ## Contents
 
@@ -71,12 +75,16 @@ is precisely why the mix needs `nuSel h j 1 1`.
 * **§2** the two-parameter refuting marking `refMark h j a b`, its relator, and `refHom`;
 * **§3** the images of the pivot, `V`, `U`, both frames, and the three refutations;
 * **§4** ⭐ the non-transposing test;
-* **§5** stress pins, **§6** committed axiom prints.
+* **§5** stress pins, **§6** committed axiom prints;
+* **§7** ⭐ the **collapse lemma** — identify the two cleared letters onto an involution — stated
+  for an arbitrary pro-2 target, an arbitrary selected marking and every weight tuple;
+* **§8** its `D₈` instance: `not_sqEichRelWordUV`, and one homomorphism refuting all three
+  families at the single marking `nuSel h j 1 1`.
 
 ## Axiom hygiene
 
 No `sorry`, no new axiom, no `native_decide` (the `decide` calls are all on the order-8 group
-`D₄`).  Every declaration prints **std-3**.
+`D₄` or the order-16 group `D₈`).  Every declaration prints **std-3**.
 -/
 
 open Multiplicative

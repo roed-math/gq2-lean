@@ -133,6 +133,27 @@ rather than by powers of one letter — is untouched by this mechanism, because 
 needs the dressings to lie in the test homomorphism's **kernel**, which "powers of the letter that
 dies" guaranteed and an arbitrary dressing does not.
 
+## ⚠ Headline 4 — the two-letter widening is built, and it dies too
+
+`SqCore/UVFrames.lean` takes the first step of that repair: `sqEichFrameUV` dresses each moved
+slot by `U^k V^l`, a product of powers of **both** cleared letters.  It is a common widening of §2
+and §5 on the nose (`sqEichFrameUV_eq_sqEichFrame`, `sqEichFrameUV_eq_sqEichFrameT`), it inherits
+§2a's rows verbatim, and it is out of reach of the mechanism above exactly as predicted.
+
+⚠⚠ It is nevertheless **false** (`SqCore/EichRefutation.lean`, `not_sqEichRelWordUV`), by a
+strictly stronger obstruction: ⭐ instead of *killing* a cleared letter, **identify the two** onto
+an involution `z ≠ 1` (`sqRelWord_sqEichFrameUV_collapse`).  Then no dressing dies — each
+`U^k V^l ↦ z^{k+l} ∈ {1, z}` — but the `x₁`-slot's *even* dressing does, the handle block dies
+because both its slots land in the abelian `{1, z}`, and the core word is left with two bits of
+freedom which a `D₈`-marking misses on all four.  Killing a letter is the case `z = 1`, so one
+homomorphism at one marking now refutes all three families
+(`exists_hom_refuting_all_eichler_families`).
+
+The honest residue: the whole orbit "dress by **words in `U` and `V`**" is closed off, since the
+collapse is blind to the weights.  Arbitrary `λ`-trivial, `ν'`-trivial dressings are still open —
+that collapse needs the dressings to land in `⟨z⟩`, which words in `U` and `V` guarantee and an
+arbitrary dressing does not.
+
 ## Contents
 
 * **§1** `sqFrames_of_lamMarkTransitivity` and `sqLamMarkTransitivity_iff_frames`;
@@ -143,7 +164,8 @@ dies" guaranteed and an arbitrary dressing does not.
   `sqRelWord_sqEichFrame_one`, `sqRelWord_sqEichFrame_one_d`;
 * **§5** the transposed family `sqEichFrameT`: rows (§5a), surjectivity (§5b), the clearing step
   (§5c), and the same `γ₃`-rigidity (§5d);
-* **§6** `SqEichRelWordT`, `SqEichRelWordMix`, and the residual reduced to either;
+* **§6** `SqEichRelWordT`, `SqEichRelWordMix`, and the residual reduced to either (the
+  two-letter widening of all three lives in `SqCore/UVFrames.lean`);
 * **§7** stress pins, **§8** committed axiom prints.
 
 ## Axiom hygiene
