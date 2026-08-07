@@ -65,8 +65,8 @@ the `M` variance, unchanged.
 
 ## Axiom scope (measured)
 
-Every declaration in this file prints `[propext, Classical.choice, Quot.sound]` — no census
-axiom.
+**Every declaration in this file prints at most `[propext, Classical.choice, Quot.sound]`** — no
+census axiom (`mHandleCoordU`/`mHandleCoordV` print the smaller `[propext, Quot.sound]`).
 -/
 
 open Multiplicative
