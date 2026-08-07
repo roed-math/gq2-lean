@@ -580,6 +580,67 @@ theorem commR_sTwist_smul {g k : C} (i n : ℤ) (hg : ∀ v : A, g • v = (sTwi
     (hk : ∀ v : A, k • v = (t.σ ^ n) • v) (v : A) : commR g k • v = v := by
   rw [commR_smul_congr hg hk v, sTwist_zpow, commR_zpow_zpow, one_smul]
 
+/-! ### The three live jets of the linear copy -/
+
+variable {t x y E E₂}
+
+theorem SLetter.smulInv {w : PWord (Generator (2 + 2 * h))} {a : A} {l : ElemDual A} {k : ℤ}
+    (hw : SLetter t x y E E₂ w a l k) (v : A) :
+    (heisEvalZ ⇑t x y E E₂ w).g⁻¹ • v = (sTwist t E ^ (-k)) • v := by
+  rw [smul_inv_congr hw.smul v, ← zpow_neg]
+
+variable (t x y E E₂)
+
+include hxσ hyσ hx2 hy2 hA₂ hwild in
+/-- **The Labute square's jet.**  Not zero on the ramified reading: it is the coboundary
+`(1 + S₂^{−sm})·d₀`. -/
+theorem heisA_aSq_ram (s' mm : ℕ) :
+    (heisEvalZ ⇑t x y E E₂ (.zpow (aW h s' mm) ((2 : ℕ) : ℤ))).a
+      = x (coreLetter h 0)
+        + (sTwist t E ^ (-((s' * mm : ℕ) : ℤ))) • x (coreLetter h 0) := by
+  have hneg : ∀ a : A, -a = a := fun a ↦ by rw [neg_eq_iff_add_eq_zero]; exact hA₂ a
+  have hA := sLetter_aW_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild s' mm
+  rw [heisEvalZ_zpow, zpow_natCast, pow_two, HeisLift.mul_a, hA.aEq, hA.smul, smul_neg, hneg,
+    hneg]
+
+include hxσ hyσ hx2 hy2 hwild in
+/-- The Labute square's base acts by `S₂^{−2sm}` — the twist the balancing power `C₀^{2^α}` is
+there to undo. -/
+theorem heisG_aSq_ram (s' mm : ℕ) (v : A) :
+    (heisEvalZ ⇑t x y E E₂ (.zpow (aW h s' mm) ((2 : ℕ) : ℤ))).g • v
+      = (sTwist t E ^ (-(2 * ((s' * mm : ℕ) : ℤ)))) • v := by
+  have hA := sLetter_aW_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild s' mm
+  rw [heisEvalZ_zpow, zpow_natCast, pow_two, HeisLift.mul_g, mul_smul, hA.smul, hA.smul,
+    zpow_smul_zpow_smul, show -((s' * mm : ℕ) : ℤ) + -((s' * mm : ℕ) : ℤ)
+      = -(2 * ((s' * mm : ℕ) : ℤ)) from by ring]
+
+include hxσ hyσ hx2 hy2 hA₂ hwild in
+/-- **The Labute commutator's jet**, from the fully general law: four `S₂`-twisted atoms, and the
+`p`-shift of `B` visible in two of them. -/
+theorem heisA_commAB_ram (s' mm pp : ℕ) :
+    (heisEvalZ ⇑t x y E E₂ (.comm (aW h s' mm) (bW h pp))).a
+      = (sTwist t E ^ ((s' * mm : ℕ) : ℤ)) • x (coreLetter h 0)
+        + (sTwist t E ^ (((s' * mm : ℕ) : ℤ) - (pp : ℤ))) • x (coreLetter h 1)
+        + (sTwist t E ^ (((s' * mm : ℕ) : ℤ) - (pp : ℤ))) • x (coreLetter h 0)
+        + (sTwist t E ^ (-(pp : ℤ))) • x (coreLetter h 1) := by
+  have hneg : ∀ a : A, -a = a := fun a ↦ by rw [neg_eq_iff_add_eq_zero]; exact hA₂ a
+  have hA := sLetter_aW_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild s' mm
+  have hB := sLetter_bW_ram t x y E E₂ hxσ hyσ hwild pp
+  rw [heisEvalZ_comm, heisCommR_general]
+  simp only [hA.aEq, hB.aEq, hA.smul, hA.smulInv, hB.smulInv, hneg, neg_neg,
+    zpow_smul_zpow_smul, sub_eq_add_neg]
+  rw [show ((s' * mm : ℕ) : ℤ) + (-(pp : ℤ) + -((s' * mm : ℕ) : ℤ)) = -(pp : ℤ) from by ring]
+
+include hxσ hyσ hx2 hy2 hwild in
+/-- The Labute commutator's base acts trivially: both entries act by powers of `σ`. -/
+theorem heisG_commAB_ram (s' mm pp : ℕ) (v : A) :
+    (heisEvalZ ⇑t x y E E₂ (.comm (aW h s' mm) (bW h pp))).g • v = v := by
+  have hA := sLetter_aW_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild s' mm
+  have hB := sLetter_bW_ram t x y E E₂ hxσ hyσ hwild pp
+  rw [heisEvalZ_comm, heisCommR_general]
+  exact commR_sTwist_smul t E _ (E omega2 * (pp : ℤ)) hA.smul
+    (fun w ↦ by rw [hB.smul, sTwist_zpow]) v
+
 end Letters
 
 end
