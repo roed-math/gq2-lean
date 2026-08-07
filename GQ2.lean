@@ -693,6 +693,7 @@ import GQ2.Dyadic.SqCore.DsqDemushkin
 import GQ2.Dyadic.SqCore.LamFrames
 import GQ2.Dyadic.SqCore.UVFrames
 import GQ2.Dyadic.SqCore.ArbFrames
+import GQ2.Dyadic.SqCore.CommFrames
 import GQ2.Dyadic.SqCore.EichRefutation
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
