@@ -1347,6 +1347,114 @@ theorem selHomT_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
 
 end SelectionInstance
 
+/-! #### The verdicts, at two homs of the same marking -/
+
+section SelectionVerdictInstances
+
+/-- The `(a,b)`-parity of the `κ₃`-odd weights `(A,B,P) = (4,1,2)` at the canonical marking. -/
+theorem selW2D (h : ℕ) (j : Fin h) :
+    2 * (2 : gr3R) + ((4 : gr3R) * selS h (nuSel h j 0 1) j
+      - 1 * selT h (nuSel h j 0 1) j) = 0 := by
+  rw [selT_nuSel, selS_nuSel]; decide
+
+/-- …and the `(b,c)`-parity of `(C,D,Q) = (2,1,1)`. -/
+theorem selW2E (h : ℕ) (j : Fin h) :
+    2 * (1 : gr3R) + (selT h (nuSel h j 0 1) j * 1 - selS h (nuSel h j 0 1) j * 2) = 0 := by
+  rw [selT_nuSel, selS_nuSel]; decide
+
+/-- The image tuple of the `t`-dressed frame at the `κ₃`-odd hom `(4,1,2,1,2,1)`. -/
+def selTW2 : Fin (sqRank 1) → SqU4 gr3R :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, ⟨4, 0, 6, 0, 0, 0⟩, ⟨0, 0, 0, 2, 1, 3⟩, ⟨4, 0, 2, 2, 1, 7⟩,
+    ⟨1, 0, 1, 7, 0, 0⟩]
+
+/-- The identification: `selTW2` **is** the image of `sqArbFrame` dressed by `selDressT`. -/
+theorem selHomT_eq_selTW2 :
+    (fun i => selHom 1 (nuSel 1 0 0 1) 0 4 1 2 1 2 1 (selW2D 1 0) (selW2E 1 0)
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDressT 1 (nuSel 1 0 0 1) 0) i)) = selTW2 := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [selHomT_zero]; decide
+  · rw [selHomT_one selT_nuSel]; decide
+  · rw [selHomT_two]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleU selT_nuSel]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleV selS_nuSel]; decide
+
+/-- ⚠ **The `t`-dressed frame passes every class-`≤ 2` row and fails class three by a unit.**
+The relator's image is central with class-three coordinate `1`: the five lower rows vanish —
+class two admits this dressing — and the class-three residue is **odd**. -/
+theorem sqRelWord_selTW2 : sqRelWord selTW2 = ⟨0, 0, 0, 0, 0, 1⟩ := by decide
+
+/-- ⭐⭐ **The obstruction fires on a real frame**: no achievable refinement — handle-`γ₂`
+dressings with `(d,e)` in `Λ`, arbitrary exponent-slot `γ₃`-dressings — ever repairs the
+`t`-dressed frame at the `κ₃`-odd hom.  The selection bit killed it. -/
+theorem sqRelWord_selRefine_selTW2_ne_one {w₁ w₂ z₃ z₄ : SqU4 gr3R}
+    (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo) (hz₄ : z₄.IsGaTwo)
+    (hz₃L : selLam 4 1 2 1 2 1 z₃) (hz₄L : selLam 4 1 2 1 2 1 z₄) :
+    sqRelWord (selRefine 0 selTW2 w₁ w₂ z₃ z₄) ≠ 1 := by
+  refine sqRelWord_selRefine_ne_one (T := 0) (S := 1) (by decide) (by decide)
+    (Or.inr (by decide)) hw₁ hw₂ hz₃ hz₄ hz₃L hz₄L ⟨1, 0, by decide, by decide⟩
+    ⟨0, 1, by decide, by decide⟩ ?_
+  rw [sqRelWord_selTW2]
+  decide
+
+/-- ⭐⭐ …and the same verdict phrased on `sqArbFrame` itself, through the identification. -/
+example {w₁ w₂ z₃ z₄ : SqU4 gr3R}
+    (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo) (hz₄ : z₄.IsGaTwo)
+    (hz₃L : selLam 4 1 2 1 2 1 z₃) (hz₄L : selLam 4 1 2 1 2 1 z₄) :
+    sqRelWord (selRefine 0 (fun i => selHom 1 (nuSel 1 0 0 1) 0 4 1 2 1 2 1 (selW2D 1 0)
+      (selW2E 1 0) (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDressT 1 (nuSel 1 0 0 1) 0) i))
+      w₁ w₂ z₃ z₄) ≠ 1 := by
+  rw [selHomT_eq_selTW2]
+  exact sqRelWord_selRefine_selTW2_ne_one hw₁ hw₂ hz₃ hz₄ hz₃L hz₄L
+
+/-- ⭐ **At the very same hom the class-two forced dressing survives** — §4's theorem is
+weight-general, so the pair (`selDress` lives, `selDressT` dies) is a machine-checked instance
+of the selection *within* one class-three quotient. -/
+example : sqRelWord (fun i => selHom 1 (nuSel 1 0 0 1) 0 4 1 2 1 2 1 (selW2D 1 0) (selW2E 1 0)
+    (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDress 1 (nuSel 1 0 0 1) 0) i)) = 1 :=
+  sqRelWord_selHom_sqArbFrame selT_nuSel selS_nuSel
+
+/-- The dead dressing is legal: `λ`-trivial slotwise… -/
+example (i : Fin (sqRank 1)) : nuLam 1 (selDressT 1 (nuSel 1 0 0 1) 0 i) = 1 :=
+  nuLam_selDressT i
+
+/-- …and `ν'`-trivial slotwise, so it belongs to the class `SqArbRelWord` quantifies over. -/
+example (i : Fin (sqRank 1)) : nuSel 1 0 0 1 (selDressT 1 (nuSel 1 0 0 1) 0 i) = 1 :=
+  nu_selDressT nuSel_sigma nuSel_x0 i
+
+/-! #### The completion at the committed hom
+
+At `(A,B,C,D,P,Q) = (2,1,2,1,7,1)` — the hom of §4's witness — the same `t`-dressing has
+residue `6`: **even**, so the selection admits it, and §6's completion repairs it with one
+explicit `γ₂`-move.  The two instances together are the selection iff in action: the same
+legal dressing is repairable at the committed hom and unrepairable at the `κ₃`-odd one. -/
+
+/-- The image tuple of the `t`-dressed frame at the committed hom `(2,1,2,1,7,1)`. -/
+def selTCom : Fin (sqRank 1) → SqU4 gr3R :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, ⟨6, 0, 6, 0, 0, 0⟩, ⟨0, 0, 0, 7, 1, 5⟩, ⟨2, 0, 2, 7, 1, 7⟩,
+    ⟨1, 0, 1, 7, 0, 0⟩]
+
+theorem selHomT_eq_selTCom :
+    (fun i => selHom 1 (nuSel 1 0 0 1) 0 2 1 2 1 7 1 (selWitD 1 0) (selWitE 1 0)
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDressT 1 (nuSel 1 0 0 1) 0) i)) = selTCom := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [selHomT_zero]; decide
+  · rw [selHomT_one selT_nuSel]; decide
+  · rw [selHomT_two]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleU selT_nuSel]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleV selS_nuSel]; decide
+
+/-- The residue at the committed hom is `6` — even. -/
+theorem sqRelWord_selTCom : sqRelWord selTCom = ⟨0, 0, 0, 0, 0, 2 * 3⟩ := by decide
+
+/-- ⭐ **The completion fires**: one explicit handle-`γ₂` move kills the `t`-dressed frame's
+relator at the committed hom. -/
+example : sqRelWord (selRefine 0 selTCom 1 1 ⟨0, 0, 0, -(1 * 3 * 1), 1 * 3 * 1, 0⟩ 1) = 1 :=
+  sqRelWord_selRefine_eq_one (B := 1) (D := 1) sqRelWord_selTCom (by decide)
+
+end SelectionVerdictInstances
+
 end SqCore
 
 end Dyadic
