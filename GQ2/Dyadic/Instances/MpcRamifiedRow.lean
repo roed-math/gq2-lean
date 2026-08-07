@@ -178,6 +178,26 @@ theorem SameJet.commR (h : SameJet u v) (h' : SameJet u' v') :
     show _root_.GQ2.Dyadic.commR u.g u'.g • w = _root_.GQ2.Dyadic.commR v.g v'.g • w
     simp only [_root_.GQ2.Dyadic.commR, mul_smul, h.gEq, h'.gEq, h.gEqInv, h'.gEqInv]
 
+/-- **The six-pair cancellation.**  The linear copy's three live jets — the Labute square's
+coboundary, the Labute commutator's four atoms, and the correction block's four — cancel
+exactly, once the balancing power `S^{2b}` has lined the block up against the commutator.  `b` is
+`sm` and `pz` is the `B`-shift `p`; the asymmetry `a = p + sm` of the outer conjugator is what
+puts `-pz` on the block's atoms and lets them meet the commutator's. -/
+theorem linJet_cancel (hA₂ : ∀ a : A, a + a = 0) (S : C) (b pz : ℤ) (d₀ d₁ : A) :
+    (d₀ + S ^ (-b) • d₀)
+      + S ^ (-(2 * b)) •
+          ((S ^ b • d₀ + S ^ (b - pz) • d₁ + S ^ (b - pz) • d₀ + S ^ (-pz) • d₁)
+            + S ^ (2 * b) • ((S ^ (pz + b))⁻¹ • ((S ^ b)⁻¹ • d₁ + (d₁ + d₀)) + d₀)) = 0 := by
+  have h2 : ∀ a : A, (2 : ℤ) • a = 0 := fun a ↦ by rw [two_zsmul]; exact hA₂ a
+  simp only [← zpow_neg, smul_add, zpow_smul_zpow_smul]
+  rw [show -(2 * b) + b = -b from by ring, show -(2 * b) + (b - pz) = -b - pz from by ring,
+    show -(2 * b) + -pz = -b - pz + -b from by ring,
+    show -(2 * b) + (2 * b + (-(pz + b) + -b)) = -b - pz + -b from by ring,
+    show -(2 * b) + (2 * b + -(pz + b)) = -b - pz from by ring,
+    show -(2 * b) + 2 * b = (0 : ℤ) from by ring, zpow_zero, one_smul]
+  abel_nf
+  simp only [h2, add_zero]
+
 /-- Bases that act alike act alike after taking any `ℤ`-power: acting alike is having the same
 image under `MulAction.toPermHom`, which is a monoid hom. -/
 theorem smul_zpow_congr {g g' : C} (hg : ∀ w : A, g • w = g' • w) (k : ℤ) (w : A) :
@@ -228,6 +248,12 @@ variable (μ x y E E₂)
 theorem trivJet_one : TrivJet μ x y E E₂ (.one : PWord X) 0 0 := ⟨0, triv_one μ x y E E₂⟩
 
 variable {μ x y E E₂}
+
+theorem sameValOne_of_isDead {w : PWord X} (hw : IsDead μ x y E E₂ w) :
+    SameVal (heisEvalZ μ x y E E₂ w) 1 := by
+  obtain ⟨G, hG, hGa⟩ := hw
+  rw [hG]
+  exact ⟨rfl, rfl, rfl, fun v ↦ by rw [heisPure_g, hGa, HeisLift.one_g, one_smul]⟩
 
 theorem TrivJet.inv {u : PWord X} {a : A} {l : ElemDual A} (hu : TrivJet μ x y E E₂ u a l) :
     TrivJet μ x y E E₂ (.inv u) (-a) (-l) := by
@@ -640,6 +666,102 @@ theorem heisG_commAB_ram (s' mm pp : ℕ) (v : A) :
   rw [heisEvalZ_comm, heisCommR_general]
   exact commR_sTwist_smul t E _ (E omega2 * (pp : ℤ)) hA.smul
     (fun w ↦ by rw [hB.smul, sTwist_zpow]) v
+
+/-! ## The two copies, and the assembled row -/
+
+include hxσ hyσ hx2 hy2 hxτ hyτ hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The linear copy is jet-zero on ramified normal offsets.**
+
+`A²` contributes `(1+S₂^{−sm})d₀`, `[A,B]` four `S₂`-twisted atoms, `E₀₁^pc` four more, and the
+balancing power `C₀^{2^α}` — which acts by `S₂^{s·2^α}` — lines the last two up.  With `α ≥ 1`
+that exponent is `2sm` and all twelve atoms cancel in six pairs.  The two `[·,D]` commutators and
+the orbit-norm block contribute nothing at all: the first two act trivially and the third is
+dead. -/
+theorem heisA_mpcLinW_ram [Finite C] [Finite A] {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ)
+    (η : EtaDisplay) : (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).a = 0 := by
+  obtain ⟨n, hD⟩ := exists_heisEvalZ_display_pure t x y E E₂ hxσ hyσ η
+  have hm2 : (2 : ℕ) * m α = 2 ^ α := by
+    rw [m, ← pow_succ']
+    congr 1
+    omega
+  have hbal : ((s r : ℕ) : ℤ) * ((2 ^ α : ℕ) : ℤ) = 2 * ((s r * m α : ℕ) : ℤ) := by
+    rw [← hm2]
+    push_cast
+    ring
+  have hF3 : heisEvalZ ⇑t x y E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ))
+      = heisPure ((t (coreLetter h 2) * sTwist t E ^ ((s r : ℕ) : ℤ)) ^ ((2 ^ α : ℕ) : ℤ)) := by
+    rw [heisEvalZ_zpow, heisEvalZ_c0W_ram t x y E E₂ hxσ hyσ hx2 hy2 (s r), ← map_zpow]
+  have hF4 : heisEvalZ ⇑t x y E E₂ (.comm (c0W h (s r)) (η.toPWord (n := 2 + 2 * h)))
+      = heisPure (commR (t (coreLetter h 2) * sTwist t E ^ ((s r : ℕ) : ℤ)) (t.σ ^ n)) := by
+    rw [heisEvalZ_comm, heisEvalZ_c0W_ram t x y E E₂ hxσ hyσ hx2 hy2 (s r), hD, heisPure_commR]
+  have hF3a : (heisEvalZ ⇑t x y E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ))).a = 0 := by
+    rw [hF3, heisPure_a]
+  have hF4a : (heisEvalZ ⇑t x y E E₂
+      (.comm (c0W h (s r)) (η.toPWord (n := 2 + 2 * h)))).a = 0 := by
+    rw [hF4, heisPure_a]
+  have hF3g : ∀ v : A, (heisEvalZ ⇑t x y E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ))).g • v
+      = (sTwist t E ^ (2 * ((s r * m α : ℕ) : ℤ))) • v := fun v ↦ by
+    rw [hF3, heisPure_g, c0W_zpow_smul t E hwild (s r), hbal]
+  have hF4g : ∀ v : A, (heisEvalZ ⇑t x y E E₂
+      (.comm (c0W h (s r)) (η.toPWord (n := 2 + 2 * h)))).g • v = v := fun v ↦ by
+    rw [hF4, heisPure_g]
+    exact commR_sTwist_smul t E _ n (c0W_smul_eq t E hwild (s r)) (fun _ ↦ rfl) v
+  have hF5 := trivJet_e01W_ram t x y E E₂ hxσ hyσ hA₂ hwild hτfpf hTodd hresA hresD hres
+    (pp + s r * m α) (s r * m α)
+  have hF6 : (heisEvalZ ⇑t x y E E₂ (e2W h (s r) (m α) pp)).a = 0 :=
+    (isDead_e2W_ram t x y E E₂ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres
+      (s r) (m α) pp).jetZero.1
+  rw [mpcLinW, linFactors]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul, heisEvalZ_one,
+    HeisLift.mul_a, HeisLift.one_a, smul_zero, add_zero, zero_add, Nat.cast_add,
+    hF6, hF5.aEq, hF3a, hF4a, hF3g, hF4g,
+    heisA_aSq_ram t x y E E₂ hxσ hyσ hx2 hy2 hA₂ hwild,
+    heisG_aSq_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild,
+    heisA_commAB_ram t x y E E₂ hxσ hyσ hx2 hy2 hA₂ hwild,
+    heisG_commAB_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild]
+  exact linJet_cancel hA₂ (sTwist t E) _ _ _ _
+
+include hxσ hyσ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres hxτ hyτ in
+/-- **The linear and hat copies agree at second order.**  Factor by factor: `A ~ Â` and `B ~ B̂`
+and `C₀ ~ Ĉ₀` at first order, and `SameJet.sq`/`SameJet.commR` say that is enough for the four
+live factors; `Ê₀₁^pc` *is* `E₀₁^pc`; and the linear copy's one unmatched factor `E₂^pc` is
+dead. -/
+theorem sameVal_lin_hat [Finite C] [Finite A] {α : ℕ} (r pp : ℕ) (η : EtaDisplay) :
+    SameVal (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h))
+      (heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)) := by
+  have hAj := (sLetter_aW_ram t x y E E₂ hxσ hyσ hx2 hy2 hwild (s r) (m α)).sameJet
+    (sLetter_aHatW_ram t x y E E₂ hxσ hyσ hA₂ hwild hτfpf hTodd hresA hresD hres (s r) (m α))
+  have hBj := (sLetter_bW_ram t x y E E₂ hxσ hyσ hwild pp).sameJet
+    (sLetter_bHatW_ram t x y E E₂ hxσ hyσ hA₂ hwild hτfpf hTodd hresA hresD hres pp)
+  have hCj : SameJet (heisEvalZ ⇑t x y E E₂ (c0W h (s r)))
+      (heisEvalZ ⇑t x y E E₂ (c0HatW h (s r))) := by
+    rw [heisEvalZ_c0W_ram t x y E E₂ hxσ hyσ hx2 hy2 (s r),
+      heisEvalZ_c0HatW_ram t x y E E₂ hxσ hyσ (s r)]
+    exact ⟨rfl, rfl, c0W_smul_eq t E hwild (s r)⟩
+  have h1 : SameVal (heisEvalZ ⇑t x y E E₂ (.zpow (aW h (s r) (m α)) ((2 : ℕ) : ℤ)))
+      (heisEvalZ ⇑t x y E E₂ (.zpow (aHatW h (s r) (m α)) ((2 : ℕ) : ℤ))) := by
+    rw [heisEvalZ_zpow, heisEvalZ_zpow, zpow_natCast, zpow_natCast, pow_two, pow_two]
+    exact hAj.sq
+  have h2 : SameVal (heisEvalZ ⇑t x y E E₂ (.comm (aW h (s r) (m α)) (bW h pp)))
+      (heisEvalZ ⇑t x y E E₂ (.comm (aHatW h (s r) (m α)) (bHatW h pp))) := by
+    rw [heisEvalZ_comm, heisEvalZ_comm]
+    exact hAj.commR hBj
+  have h3 : SameVal (heisEvalZ ⇑t x y E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ)))
+      (heisEvalZ ⇑t x y E E₂ (.zpow (c0HatW h (s r)) ((2 ^ α : ℕ) : ℤ))) := by
+    rw [heisEvalZ_zpow, heisEvalZ_zpow, heisEvalZ_c0W_ram t x y E E₂ hxσ hyσ hx2 hy2 (s r),
+      heisEvalZ_c0HatW_ram t x y E E₂ hxσ hyσ (s r), ← map_zpow, ← map_zpow]
+    exact ⟨rfl, rfl, rfl, fun v ↦ smul_zpow_congr (c0W_smul_eq t E hwild (s r)) _ v⟩
+  have h4 : SameVal (heisEvalZ ⇑t x y E E₂ (.comm (c0W h (s r)) (η.toPWord (n := 2 + 2 * h))))
+      (heisEvalZ ⇑t x y E E₂ (.comm (c0HatW h (s r)) (η.toPWord (n := 2 + 2 * h)))) := by
+    rw [heisEvalZ_comm, heisEvalZ_comm]
+    exact hCj.commR (SameJet.rfl' _)
+  have h6 : SameVal (heisEvalZ ⇑t x y E E₂ (e2W h (s r) (m α) pp) * 1) 1 := by
+    rw [mul_one]
+    exact sameValOne_of_isDead (isDead_e2W_ram t x y E E₂ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf
+      hTodd hresA hresD hres (s r) (m α) pp)
+  rw [mpcLinW, mpcHatW, linFactors, hatFactors]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul, heisEvalZ_one]
+  exact h1.mul (h2.mul (h3.mul (h4.mul ((SameVal.rfl' _).mul h6))))
 
 end Letters
 
