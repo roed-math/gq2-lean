@@ -813,6 +813,118 @@ theorem sqRelWord_selRefine (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (h
 
 end SelCalculus
 
+/-! ### §5b The parity engine, and the cokernel of the linear action
+
+The linear action of §5 is **not** surjective onto the class-three defect space.  At an
+uncleared selected marking the two adjacency parities `hd`, `he` force
+
+```text
+A·D + B·C ≡ 0   (mod 2)                                   (selCross_even)
+```
+
+— mod 2, `(T,S) ≠ (0,0)` and `A·S = B·T`, `T·D = S·C` give `(A,C) ∥ (B,D)` in the only three
+possible ways, and each kills `A·D + B·C` — and with it **every** increment the refinement
+action can produce: the `(d,e)`-image `Λ` of `γ₂` under a selection hom is spanned by the three
+commutator pairings `(−A,C)`, `(−B,D)`, `(−2P,−2Q)`, the achievable outer columns of a dressed
+handle slot lie in the lattice `W = {(A·u + B·v, C·u + D·v)}`, and every `Λ`-against-`W` pairing
+is even (`selPair_even`, `selPair_even'`).  The exponent-slot contribution `−4w₁.f + 2w₂.f` is
+even outright.
+
+⭐ **So the cokernel functional of the ticket's linear-part question is reduction mod 2**: the
+image of the achievable refinement action lies in `2·ℤ/8`, at every uncleared selected marking
+of the family, and the **parity of the class-three residue is an invariant of the refinement
+orbit** — the selection bit.  This is the slice shadow of the depth sweep's finding that
+`im δ` has positive corank at every level with the relator defect landing inside it
+(`docs/dyadic/w50-depth-sweep.md` §6.3). -/
+
+section SelParity
+
+/-- The parity character of `ℤ/8`. -/
+def selPar : gr3R → ZMod 2 := fun x => (x.val : ZMod 2)
+
+@[simp] theorem selPar_zero : selPar 0 = 0 := rfl
+
+@[simp] theorem selPar_one : selPar 1 = 1 := rfl
+
+theorem selPar_add : ∀ x y : gr3R, selPar (x + y) = selPar x + selPar y := by decide
+
+theorem selPar_sub : ∀ x y : gr3R, selPar (x - y) = selPar x - selPar y := by decide
+
+theorem selPar_mul : ∀ x y : gr3R, selPar (x * y) = selPar x * selPar y := by decide
+
+theorem selPar_two_mul : ∀ x : gr3R, selPar (2 * x) = 0 := by decide
+
+/-- Parity is exactly divisibility by `2` in `ℤ/8`. -/
+theorem selPar_eq_zero_iff : ∀ x : gr3R, selPar x = 0 ↔ ∃ y : gr3R, x = 2 * y := by decide
+
+/-- The 𝔽₂ core of the parity obstruction: the two adjacency parities at an uncleared handle
+row force the cross term even.  Eight tiny cases. -/
+private theorem selPar_core : ∀ a b c d t s : ZMod 2,
+    a * s - b * t = 0 → t * d - s * c = 0 → (t = 1 ∨ s = 1) → a * d + b * c = 0 := by
+  decide
+
+/-- ⭐ **The parity obstruction.**  At an uncleared selected marking (one of the two handle rows
+odd), the two adjacency parities of the selection family force `A·D + B·C` **even**.  This is
+the single arithmetic fact behind the non-surjectivity of the γ₂-dressing action. -/
+theorem selCross_even {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1) : ∃ k : gr3R, A * D + B * C = 2 * k := by
+  rw [← selPar_eq_zero_iff, selPar_add, selPar_mul, selPar_mul]
+  have h1 : selPar A * selPar S - selPar B * selPar T = 0 := by
+    have hc := congrArg selPar hd
+    rw [selPar_add, selPar_two_mul, selPar_sub, selPar_mul, selPar_mul, selPar_zero,
+      zero_add] at hc
+    exact hc
+  have h2 : selPar T * selPar D - selPar S * selPar C = 0 := by
+    have hc := congrArg selPar he
+    rw [selPar_add, selPar_two_mul, selPar_sub, selPar_mul, selPar_mul, selPar_zero,
+      zero_add] at hc
+    exact hc
+  exact selPar_core (selPar A) (selPar B) (selPar C) (selPar D) (selPar T) (selPar S) h1 h2 hTS
+
+/-- Membership in `Λ`: the `(d, e)`-coordinates of `z` are an `R`-combination of the three
+commutator pairings `(−A, C)`, `(−B, D)`, `(−2P, −2Q)` of the selection marking's generators.
+This is exactly the `(d, e)`-image of `γ₂(im Φ)` for a hom of the selection family. -/
+def selLam (A B C D P Q : gr3R) (z : SqU4 gr3R) : Prop :=
+  ∃ r s w : gr3R, z.d = -(r * A) - s * B - 2 * (w * P) ∧ z.e = r * C + s * D - 2 * (w * Q)
+
+/-- Membership in `W`: `(x, y)` is an outer-column pair reachable by a dressed handle slot —
+the image of the abelianised dressing lattice under the two free characters. -/
+def selCol (A B C D : gr3R) (x y : gr3R) : Prop :=
+  ∃ u v : gr3R, x = A * u + B * v ∧ y = C * u + D * v
+
+/-- ⭐ **`Λ` pairs evenly against `W`** — the `U`-slot increment.  Every `γ₂`-dressing of the
+`U`-slot moves the class-three defect by an even amount, as long as the `V`-slot's outer
+columns are achievable. -/
+theorem selPair_even {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1) {z : SqU4 gr3R} {x y : gr3R}
+    (hz : selLam A B C D P Q z) (hxy : selCol A B C D x y) :
+    ∃ k : gr3R, z.d * y - z.e * x = 2 * k := by
+  obtain ⟨r, s, w, hzd, hze⟩ := hz
+  obtain ⟨u, v, hx, hy⟩ := hxy
+  obtain ⟨k, hk⟩ := selCross_even hd he hTS
+  refine ⟨-(r * A * C * u) - r * k * v - s * k * u - s * B * D * v
+    + w * (Q * A - P * C) * u + w * (Q * B - P * D) * v, ?_⟩
+  rw [hzd, hze, hx, hy]
+  linear_combination (-(r * v + s * u)) * hk
+
+/-- ⭐ …and the `V`-slot increment likewise. -/
+theorem selPair_even' {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1) {z : SqU4 gr3R} {x y : gr3R}
+    (hz : selLam A B C D P Q z) (hxy : selCol A B C D x y) :
+    ∃ k : gr3R, x * z.e - y * z.d = 2 * k := by
+  obtain ⟨r, s, w, hzd, hze⟩ := hz
+  obtain ⟨u, v, hx, hy⟩ := hxy
+  obtain ⟨k, hk⟩ := selCross_even hd he hTS
+  refine ⟨r * A * C * u + s * k * u + r * k * v + s * B * D * v
+    + w * (P * C - Q * A) * u + w * (P * D - Q * B) * v, ?_⟩
+  rw [hzd, hze, hx, hy]
+  linear_combination (r * v + s * u) * hk
+
+end SelParity
+
 end SqCore
 
 end Dyadic
