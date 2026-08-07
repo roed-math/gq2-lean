@@ -619,6 +619,106 @@ theorem sqHeisBalance_of_sqU4 (Phi : ContinuousMonoidHom (DSq h : Type) (SqU4 R)
 
 end Engine
 
+/-! ## §5 Validation — the class-two gate is a *special case* of the class-three gate
+
+`GradedTwo`'s gate was validated by re-deriving a committed refutation through it.  The
+class-three gate is validated the other way round, and more strongly: the class-two test group
+embeds in the class-three one as the `(a, b, d)`-columns, so `sqHeisBalance` is literally
+`sqU4Balance`'s fourth clause at a marking in the image.  Nothing the class-two gate can see is
+lost, and the class-two refutation of the `V`-family is reproduced statement for statement. -/
+
+section Validation
+
+variable {R : Type} [CommRing R] {h : ℕ}
+
+/-- **The class-two test group sits inside the class-three one** as the `(a, b, d)`-columns: a
+section of `SqU4.toHeisAB`. -/
+def u4OfHeis : SqHeis R →* SqU4 R where
+  toFun p := ⟨p.a, p.b, 0, p.c, 0, 0⟩
+  map_one' := rfl
+  map_mul' _ _ := by ext <;> simp
+
+@[simp] theorem u4OfHeis_apply (p : SqHeis R) : u4OfHeis p = ⟨p.a, p.b, 0, p.c, 0, 0⟩ := rfl
+
+@[simp] theorem toHeisAB_u4OfHeis (p : SqHeis R) : SqU4.toHeisAB (u4OfHeis p) = p := by
+  ext <;> rfl
+
+/-- The same embedding as a continuous monoid hom (both groups are discrete). -/
+def u4OfHeisC : ContinuousMonoidHom (SqHeis R) (SqU4 R) where
+  toFun p := u4OfHeis p
+  map_one' := rfl
+  map_mul' _ _ := u4OfHeis.map_mul _ _
+  continuous_toFun := continuous_of_discreteTopology
+
+@[simp] theorem u4OfHeisC_apply (p : SqHeis R) :
+    u4OfHeisC p = (⟨p.a, p.b, 0, p.c, 0, 0⟩ : SqU4 R) := rfl
+
+/-- ⭐ **The class-three gate reproduces the class-two gate**, statement for statement: push a
+class-two test hom into `SqU4 R` and the fourth clause of `sqU4Balance` *is*
+`sqHeisDefect_balance`.  This is the validation `GradedTwo` asked for. -/
+theorem sqHeisDefect_balance_of_u4Balance
+    (Phi : ContinuousMonoidHom (DSq h : Type) (SqHeis R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (Phi (n 1)).c + 2 * (Phi (n 2)).c + sqHeisDefect h (fun i => Phi (n i)) = 0 := by
+  have hbal := (sqU4Balance (u4OfHeisC.comp Phi) n hn).2.2.2.1
+  simpa using hbal
+
+/-- The gate's class-two verdict **matches** the committed one, statement for statement. -/
+example (Phi : ContinuousMonoidHom (DSq h : Type) (SqHeis R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (Phi (n 1)).c + 2 * (Phi (n 2)).c + sqHeisDefect h (fun i => Phi (n i)) = 0 :=
+  sqHeisDefect_balance Phi n hn
+
+/-- ⭐ …and therefore the committed `V`-family refutation is a class-three verdict too: its proof
+consumes exactly `sqHeisDefect_balance`, which `sqHeisDefect_balance_of_u4Balance` supplies from
+`sqU4Balance` alone. -/
+example {h : ℕ} (hh : 0 < h) : ¬ SqEichRelWord h := not_sqEichRelWord_of_gate hh
+
+end Validation
+
+/-! ## §6 ⭐⭐ The class-three question for the arbitrary-dressing frame
+
+The narrow question of W48-U4: *the class-two balance of the arbitrary-dressing frame is
+under-determined — one dressing forced, three free.  Can the free dressings be chosen to kill
+the class-three defect?*
+
+§6 answers it, and the answer is governed by one arithmetic fact. -/
+
+section TopParity
+
+variable {R : Type} [CommRing R] {h : ℕ}
+
+/-- ⭐ **The class-three defect does not see the class-three coordinates.**  `sqU4Defect` is
+built from the abelian and class-two columns alone. -/
+theorem sqU4Defect_congr {m m' : Fin (sqRank h) → SqU4 R}
+    (hlow : ∀ i, (m' i).a = (m i).a ∧ (m' i).b = (m i).b ∧ (m' i).c = (m i).c ∧
+      (m' i).d = (m i).d ∧ (m' i).e = (m i).e) :
+    sqU4Defect h m' = sqU4Defect h m := by
+  simp only [sqU4Defect, sqU4Core, SqU4.u4Comm3, (hlow _).1, (hlow _).2.1, (hlow _).2.2.1,
+    (hlow _).2.2.2.1, (hlow _).2.2.2.2]
+
+/-- ⭐⭐ **The class-three coordinate of the relator sees only two slots.**  Two markings with
+the same abelian and class-two columns have relators differing in the `(1,4)`-coordinate by
+exactly `−4·Δf(x₀) + 2·Δf(x₁)` — the slot-exponent vector `(0, −4, 2, 0, 0)` again, one level up.
+The `σ`-slot's and the handle slots' class-three coordinates **cancel out entirely**. -/
+theorem sqU4_top_adjust {m m' : Fin (sqRank h) → SqU4 R}
+    (hlow : ∀ i, (m' i).a = (m i).a ∧ (m' i).b = (m i).b ∧ (m' i).c = (m i).c ∧
+      (m' i).d = (m i).d ∧ (m' i).e = (m i).e) :
+    (sqRelWord m').f - (sqRelWord m).f
+      = -4 * ((m' 1).f - (m 1).f) + 2 * ((m' 2).f - (m 2).f) := by
+  rw [SqU4.sqRelWord_f, SqU4.sqRelWord_f, sqU4Defect_congr hlow]
+  ring
+
+/-- ⭐⭐ **The class-three equation is a parity condition, and nothing more.**  The set of values
+the two exponent slots can contribute is exactly `2R`: `−4z₁ + 2z₂` ranges over `2R` and no
+further.  So a frame passes the class-three gate iff its defect is **even**, and the class-three
+layer carries exactly one bit of information per test hom. -/
+theorem sqU4_top_range (z : R) :
+    (∃ z₁ z₂ : R, -4 * z₁ + 2 * z₂ = 2 * z) ∧ ∀ z₁ z₂ : R, ∃ w : R, -4 * z₁ + 2 * z₂ = 2 * w :=
+  ⟨⟨0, z, by ring⟩, fun z₁ z₂ => ⟨-2 * z₁ + z₂, by ring⟩⟩
+
+end TopParity
+
 end U4Group
 
 end SqCore
