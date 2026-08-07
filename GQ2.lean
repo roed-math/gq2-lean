@@ -689,6 +689,7 @@ import GQ2.Dyadic.SqCore.PivotSeedD0
 import GQ2.Dyadic.SqCore.HandleEichler
 import GQ2.Dyadic.SqCore.DsqDemushkin
 import GQ2.Dyadic.SqCore.LamFrames
+import GQ2.Dyadic.SqCore.EichRefutation
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
