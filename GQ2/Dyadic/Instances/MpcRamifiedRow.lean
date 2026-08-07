@@ -1005,3 +1005,47 @@ theorem ramifiedNormalPairingSeparates {alpha r pp h q : ℕ} {d : EtaDisplay} (
 end
 
 end GQ2.Dyadic.MProcyclicExact
+
+/-! ## Axiom audit -/
+
+section AxiomAudit
+
+#print axioms GQ2.Dyadic.MpcRam.smul_inv_congr
+#print axioms GQ2.Dyadic.MpcRam.smul_elemDual_congr
+#print axioms GQ2.Dyadic.MpcRam.smul_zpow_congr
+#print axioms GQ2.Dyadic.MpcRam.SameVal.mul
+#print axioms GQ2.Dyadic.MpcRam.SameJet.sq
+#print axioms GQ2.Dyadic.MpcRam.SameJet.commR
+#print axioms GQ2.Dyadic.MpcRam.linJet_cancel
+#print axioms GQ2.Dyadic.MpcRam.sameValOne_of_isDead
+#print axioms GQ2.Dyadic.MpcRam.TrivJet.conjPure
+#print axioms GQ2.Dyadic.MpcRam.heisEvalZ_sig2Zpow
+#print axioms GQ2.Dyadic.MpcRam.heisEvalZ_c0W_ram
+#print axioms GQ2.Dyadic.MpcRam.c0W_zpow_smul
+#print axioms GQ2.Dyadic.MpcRam.heisEvalZ_sig2PowW
+#print axioms GQ2.Dyadic.MpcRam.sLetter_pairPure
+#print axioms GQ2.Dyadic.MpcRam.SLetter.sameJet
+#print axioms GQ2.Dyadic.MpcRam.trivJet_dW_ram
+#print axioms GQ2.Dyadic.MpcRam.isDead_dW2_ram
+#print axioms GQ2.Dyadic.MpcRam.isDead_e2W_ram
+#print axioms GQ2.Dyadic.MpcRam.sLetter_aW_ram
+#print axioms GQ2.Dyadic.MpcRam.sLetter_aHatW_ram
+#print axioms GQ2.Dyadic.MpcRam.sLetter_bW_ram
+#print axioms GQ2.Dyadic.MpcRam.sLetter_bHatW_ram
+#print axioms GQ2.Dyadic.MpcRam.trivJet_e01W_ram
+#print axioms GQ2.Dyadic.MpcRam.exists_heisEvalZ_display_pure
+#print axioms GQ2.Dyadic.MpcRam.commR_zpow_zpow
+#print axioms GQ2.Dyadic.MpcRam.commR_sTwist_smul
+#print axioms GQ2.Dyadic.MpcRam.heisA_aSq_ram
+#print axioms GQ2.Dyadic.MpcRam.heisA_commAB_ram
+#print axioms GQ2.Dyadic.MpcRam.heisA_mpcLinW_ram
+#print axioms GQ2.Dyadic.MpcRam.sameVal_lin_hat
+#print axioms GQ2.Dyadic.MpcRam.heisEvalZ_mpcW_factored
+#print axioms GQ2.Dyadic.MpcRam.triv_plusW_ram
+#print axioms GQ2.Dyadic.MpcRam.heisZ_mpcW_ram
+#print axioms GQ2.Dyadic.MpcRam.heisEta1_mpcFamOf_ramifiedNormal
+#print axioms GQ2.Dyadic.MpcRam.mpcFam_ramifiedNormal_separates_left
+#print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_ram
+#print axioms GQ2.Dyadic.MProcyclicExact.ramifiedNormalPairingSeparates
+
+end AxiomAudit
