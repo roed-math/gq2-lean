@@ -147,6 +147,11 @@ theorem eq_one_iff {p : SqU4 R} :
 instance instDecidableEq {R : Type} [CommRing R] [DecidableEq R] : DecidableEq (SqU4 R) :=
   fun _ _ => decidable_of_iff _ SqU4.ext_iff.symm
 
+/-- The class-two test group is decidable too, so the class-two shadow of a class-three witness
+can be checked by `decide`. -/
+instance _root_.GQ2.Dyadic.SqCore.SqHeis.instDecidableEq {R : Type} [CommRing R] [DecidableEq R] :
+    DecidableEq (SqHeis R) := fun _ _ => decidable_of_iff _ SqHeis.ext_iff.symm
+
 /-- **The first abelian coordinate is a character.** -/
 def aHom : SqU4 R →* Multiplicative R where
   toFun p := ofAdd p.a
@@ -766,6 +771,20 @@ theorem sqRelWord_u4WitMark : sqRelWord u4WitMark = 1 := by decide
 def u4WitBase : Fin (sqRank 1) → SqU4 (ZMod 8) :=
   ![⟨0, 1, 0, 0, 0, 0⟩, 1, ⟨0, 0, 0, 7, 1, 5⟩, ⟨2, 0, 2, 0, 0, 0⟩, ⟨1, 0, 1, 7, 0, 0⟩]
 
+/-- The `x₀`-slot of the test marking is trivial, so the pivot `w = σ·x₀^{−c₀}` has image
+`Φ(σ)` **at every exponent** `c₀` — no fact about `sqPivotExp` is used. -/
+theorem u4WitMark_x0 : u4WitMark 1 = 1 := by decide
+
+/-- The three core slots of the undressed frame are the marking's, unchanged. -/
+theorem u4WitBase_core : ∀ i : Fin (sqRank 1), (i : ℕ) < 3 → u4WitBase i = u4WitMark i := by
+  decide
+
+/-- `U = w^{−ν'(u₀)}·u₀ = u₀`, because `ν'(u₀) = 0`. -/
+theorem u4WitBase_handleU : u4WitBase 3 = u4WitMark 3 := by decide
+
+/-- `V = v₀·w^{−ν'(v₀)} = v₀·Φ(σ)⁻¹`, because `ν'(v₀) = 1` and `Φ(w) = Φ(σ)`. -/
+theorem u4WitBase_handleV : u4WitBase 4 = u4WitMark 4 * (u4WitMark 0)⁻¹ := by decide
+
 /-- ⚠ **The gate is live**: the undressed frame fails, at class two *and* at class three. -/
 theorem not_sqRelWord_u4WitBase : sqRelWord u4WitBase ≠ 1 := by decide
 
@@ -810,6 +829,163 @@ theorem u4WitBad_class_three_odd : ∀ z : ZMod 8, sqU4Defect 1 u4WitBad ≠ 2 *
 theorem u4WitBad_defect : sqU4Defect 1 u4WitBad = 7 := by decide
 
 end Witness
+
+/-! ## §7 Stress pins -/
+
+section StressTests
+
+/-- Stress: the class-three test group is genuinely class three — the triple commutator
+`⁅⁅x, y⁆, z⁆` is non-trivial, which is exactly what no Heisenberg group supplies. -/
+example : commP (commP (⟨1, 0, 0, 0, 0, 0⟩ : SqU4 (ZMod 8)) ⟨0, 1, 0, 0, 0, 0⟩)
+    ⟨0, 0, 1, 0, 0, 0⟩ = ⟨0, 0, 0, 0, 0, 1⟩ := by decide
+
+/-- Stress: …and the two class-two pairings are independent. -/
+example : commP (⟨1, 0, 0, 0, 0, 0⟩ : SqU4 (ZMod 8)) ⟨0, 1, 0, 0, 0, 0⟩ = ⟨0, 0, 0, 1, 0, 0⟩ ∧
+    commP (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 (ZMod 8)) ⟨0, 0, 1, 0, 0, 0⟩ = ⟨0, 0, 0, 0, 1, 0⟩ := by
+  exact ⟨by decide, by decide⟩
+
+/-- Stress: the class-three defect of the *standard* marking vanishes, as it must. -/
+example (h : ℕ) : sqU4Defect h (fun _ => (1 : SqU4 (ZMod 8))) = 0 := by
+  simp [sqU4Defect, sqU4Core, SqU4.u4Comm3]
+
+/-- Stress: the gate is not vacuous — the trivial marking passes it. -/
+example (h : ℕ) : sqRelWord (fun _ : Fin (sqRank h) => (1 : SqU4 (ZMod 8))) = 1 := by
+  rw [SqU4.sqRelWord_eq_one_iff]
+  refine ⟨by simp, by simp, by simp, ?_, ?_, ?_⟩ <;>
+    simp [sqHeisDefect, sqU4Defect, sqU4Core, SqU4.u4Comm3]
+
+/-- Stress: the class-two layer really is a quotient — `toHeisAB` of the class-three witness
+marking is a class-two marking. -/
+example : sqRelWord (fun i => SqU4.toHeisAB (u4WitMark i)) = 1 := by decide
+
+/-- Stress: the answer, restated — the dressed frame differs from the undressed one in the
+`x₀`-slot only. -/
+example : ∀ i : Fin (sqRank 1), (i : ℕ) ≠ 1 → u4WitFrame i = u4WitBase i := by decide
+
+end StressTests
+
+/-! ## §8 Axiom pins
+
+Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
+census axiom is reachable.  The seven `decide` calls of §6 and §7 are on `ZMod 8`. -/
+
+section AxiomPins
+
+#print axioms SqU4
+#print axioms SqU4.one_a
+#print axioms SqU4.one_b
+#print axioms SqU4.one_c
+#print axioms SqU4.one_d
+#print axioms SqU4.one_e
+#print axioms SqU4.one_f
+#print axioms SqU4.mul_a
+#print axioms SqU4.mul_b
+#print axioms SqU4.mul_c
+#print axioms SqU4.mul_d
+#print axioms SqU4.mul_e
+#print axioms SqU4.mul_f
+#print axioms SqU4.inv_a
+#print axioms SqU4.inv_b
+#print axioms SqU4.inv_c
+#print axioms SqU4.inv_d
+#print axioms SqU4.inv_e
+#print axioms SqU4.inv_f
+#print axioms SqU4.eq_one_iff
+#print axioms SqU4.instDecidableEq
+#print axioms SqU4.aHom
+#print axioms SqU4.bHom
+#print axioms SqU4.cHom
+#print axioms SqU4.aHom_apply
+#print axioms SqU4.bHom_apply
+#print axioms SqU4.cHom_apply
+#print axioms SqU4.toHeisAB
+#print axioms SqU4.toHeisBC
+#print axioms SqU4.toHeisAB_apply
+#print axioms SqU4.toHeisBC_apply
+#print axioms SqU4.zHom
+#print axioms SqU4.zHom_a
+#print axioms SqU4.zHom_b
+#print axioms SqU4.zHom_c
+#print axioms SqU4.zHom_d
+#print axioms SqU4.zHom_e
+#print axioms SqU4.zHom_f
+#print axioms SqU4.commP_a
+#print axioms SqU4.commP_b
+#print axioms SqU4.commP_c
+#print axioms SqU4.commP_d
+#print axioms SqU4.commP_e
+#print axioms SqU4.u4Comm3
+#print axioms SqU4.commP_f
+#print axioms SqU4.conjP_a
+#print axioms SqU4.conjP_b
+#print axioms SqU4.conjP_c
+#print axioms SqU4.conjP_d
+#print axioms SqU4.conjP_e
+#print axioms SqU4.conjP_f
+#print axioms SqU4.pow_a
+#print axioms SqU4.pow_b
+#print axioms SqU4.pow_c
+#print axioms SqU4.choose_two_succ
+#print axioms SqU4.choose_three_succ
+#print axioms SqU4.pow_d
+#print axioms SqU4.pow_e
+#print axioms SqU4.pow_f
+#print axioms SqU4.equivProd
+#print axioms SqU4.nat_card
+#print axioms SqU4.isProP_two
+#print axioms SqU4.prod_of_central
+#print axioms SqU4.handleWord_a
+#print axioms SqU4.handleWord_b
+#print axioms SqU4.handleWord_c
+#print axioms SqU4.handleWord_d
+#print axioms SqU4.handleWord_e
+#print axioms SqU4.handleWord_f
+#print axioms SqU4.sqWord_a
+#print axioms SqU4.sqWord_b
+#print axioms SqU4.sqWord_c
+#print axioms sqU4Core
+#print axioms SqU4.sqWord_f
+#print axioms SqU4.sqRelWord_a
+#print axioms SqU4.sqRelWord_b
+#print axioms SqU4.sqRelWord_c
+#print axioms SqU4.sqRelWord_d
+#print axioms SqU4.sqRelWord_e
+#print axioms sqU4Defect
+#print axioms SqU4.sqRelWord_f
+#print axioms SqU4.sqRelWord_eq_one_iff
+#print axioms sqU4Hom
+#print axioms sqU4Hom_gen
+#print axioms SqU4.zpowZtwo_of_flat
+#print axioms sqU4Balance
+#print axioms sqU4Defect_balance
+#print axioms sqHeisBalance_of_sqU4
+#print axioms u4OfHeis
+#print axioms u4OfHeis_apply
+#print axioms toHeisAB_u4OfHeis
+#print axioms u4OfHeisC
+#print axioms u4OfHeisC_apply
+#print axioms sqHeisDefect_balance_of_u4Balance
+#print axioms sqU4Defect_congr
+#print axioms sqU4_top_adjust
+#print axioms sqU4_top_range
+#print axioms u4WitMark
+#print axioms sqRelWord_u4WitMark
+#print axioms u4WitBase
+#print axioms u4WitMark_x0
+#print axioms u4WitBase_core
+#print axioms u4WitBase_handleU
+#print axioms u4WitBase_handleV
+#print axioms not_sqRelWord_u4WitBase
+#print axioms sqRelWord_u4WitBase_eq
+#print axioms u4WitFrame
+#print axioms sqRelWord_u4WitFrame
+#print axioms u4WitFrame_one
+#print axioms u4WitBad
+#print axioms u4WitBad_class_two_even
+#print axioms u4WitBad_class_three_odd
+#print axioms u4WitBad_defect
+
+end AxiomPins
 
 end U4Group
 
