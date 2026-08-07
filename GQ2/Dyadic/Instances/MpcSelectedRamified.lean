@@ -9,14 +9,17 @@ import GQ2.Dyadic.Instances.MpcSelectedScalar
 /-!
 # The procyclic-`M` seam, with no residual binder
 
-`MpcSelectedScalar` reduced the two seam producers `SemanticSelectedHsimpRN.of_Mpc_ramified` and
-`SelectedHsimp.of_Mpc_ramified` to the single input `RamifiedNormalPairingSeparates`, and noted
-that "the `Npc`-shaped statement with no residual binder at all is one `hsep` away".
-
-`MpcRamifiedRow` supplies that `hsep`, for every display and every simple elementary coefficient
+`MpcSelectedScalar` reduces the row's uniform residue to the single input
+`RamifiedNormalPairingSeparates` (`MProcyclicExact.uniformPushedHsimp_of_ramified_wf`), and
+`MpcRamifiedRow` supplies that input, for every display and every simple elementary coefficient
 with `tau` fixed-point free, at `1 ≤ α`.  The seam's own validity field already carries `2 ≤ α`,
 so nothing has to be threaded: the two producers below bind `hbranch` and `Even q` alone, exactly
 as their procyclic-`N` counterparts do.
+
+The end-to-end corrected-family handoffs for the row live here too, rather than beside their `L`
+and `Npc` analogues in `CertificateSupplyFamilyRN`, because that file is upstream of
+`MpcRamifiedRow` and so cannot name the producers below.  Their statements are otherwise exactly
+the `Npc` ones: branch equation, `q ≠ 0`, `Even q`, and the leaves.
 -/
 
 namespace GQ2.Dyadic
@@ -38,8 +41,10 @@ theorem SemanticSelectedHsimpRN.of_Mpc {FP : FieldParameters}
   rw [hbranch] at hvalid
   change 2 ≤ alpha ∧ 1 ≤ r at hvalid
   obtain ⟨hα, -⟩ := hvalid
-  exact SemanticSelectedHsimpRN.of_Mpc_ramified hbranch hqe
-    (MProcyclicExact.ramifiedNormalPairingSeparates (by omega))
+  exact .MpcUniform alpha r epsilon eta hbranch
+    (MProcyclicExact.uniformPushedHsimp_of_ramified_wf hα hqe (hbranch ▸ S.display).wf
+      (hbranch ▸ S.display).represents
+      (MProcyclicExact.ramifiedNormalPairingSeparates (by omega)))
 
 /-- **The field-level procyclic-`M` seam, unconditionally** — the `Npc`-shaped statement. -/
 theorem SelectedHsimp.of_Mpc
@@ -52,8 +57,10 @@ theorem SelectedHsimp.of_Mpc
   rw [hbranch] at hvalid
   change 2 ≤ alpha ∧ 1 ≤ r at hvalid
   obtain ⟨hα, -⟩ := hvalid
-  exact SelectedHsimp.of_Mpc_ramified hbranch hqe
-    (MProcyclicExact.ramifiedNormalPairingSeparates (by omega))
+  exact .MpcUniform alpha r epsilon eta hbranch
+    (MProcyclicExact.uniformPushedHsimp_of_ramified_wf hα hqe (hbranch ▸ S.display).wf
+      (hbranch ▸ S.display).represents
+      (MProcyclicExact.ramifiedNormalPairingSeparates (by omega)))
 
 end
 
