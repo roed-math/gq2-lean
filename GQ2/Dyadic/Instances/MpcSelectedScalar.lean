@@ -117,7 +117,7 @@ scalar row's `(a_σ, x₂)` plane off `|k|`, and at an even `k` that plane degen
 theorem odd_of_lit_representsUnit {k : ℤ} {eta : ℤ_[2]ˣ}
     (hd : (EtaDisplay.lit k).RepresentsUnit eta) : Odd k := by
   have hzh : Zhat.ofInt k = etaHatZ (eta : ℤ_[2]) := hd
-  set x : Multiplicative (ZMod 2) := Multiplicative.ofAdd (1 : ZMod 2) with hxdef
+  set x : Multiplicative (ZMod 2) := Multiplicative.ofAdd (1 : ZMod 2)
   have hx2 : x ^ 2 = 1 := by decide
   have hxne : x ≠ 1 := by decide
   have hord : orderOf x = 2 := by
