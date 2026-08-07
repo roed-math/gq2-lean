@@ -317,7 +317,8 @@ deeper levels, where it is exactly right: the level-`j` solution set is
 The corank is **exactly 6 at every level and every marking**: six 𝔽₂-functionals on each
 layer that no dressing can move.  The relator's defect always lands in the 43-/169-/673-
 dimensional image — never in the 6-dimensional complement.  At `h = 2` (rank 7) the same
-measurement gives corank `132 − 124 = 8`, so across both handle counts
+measurement gives corank 8 at both `L₃` (132 − 124) and `L₄` (672 − 664), so across both
+handle counts and every level
 
 > **corank(δ_j) = d + 1**,  `d = sqRank h = 3 + 2h` the number of generators,
 
@@ -365,12 +366,16 @@ blocks, plus 3000 random tuples.
 |---|---|---|---|---|---|
 | 2 | 2^34 | 7, 27 | 30 (all, `(t,s)` mod 4) | **30** | **0** |
 | 3 | 2^166 | 7, 27, 132 | 126 (all, `(t,s)` mod 8) | **126** | **0** |
-| 4 | 2^838 | 7, 27, 132, 672 | 30 sampled (`t,s ∈ [0..3]`) | see §6.1 note | **0** |
+| 4 | 2^838 | 7, 27, 132, 672 | 30 sampled (`t,s ∈ [0..3]`, both handles) | **30** | **0** |
 
 The seeded level-one candidate always yields 6 survivors — the same `GL₂(𝔽₂)` handle torsor
-as at `h = 1` — and the defect map has corank `132 − 124 = 8` at `L₃`.  Together with the
-`h = 1` corank of 6 this gives **corank = (number of generators) + 1** at every level
-measured, i.e. `d + 1` for the rank-`d = 3 + 2h` core.
+as at `h = 1` — and the defect map has corank `132 − 124 = 8` at `L₃` and `672 − 664 = 8` at
+`L₄`.  Together with the `h = 1` corank of 6 this gives **corank = (number of generators) + 1**
+at every level measured, i.e. `d + 1` for the rank-`d = 3 + 2h` core.
+
+Note that the second handle changes nothing qualitatively: same survivor count, same forced
+core dressing, same uniform corank, no infeasible marking.  Whatever makes the residual work
+in the finite quotients is a property of the *core plus one handle*, not of the handle count.
 
 ---
 
