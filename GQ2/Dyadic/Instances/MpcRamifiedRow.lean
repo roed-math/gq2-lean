@@ -1002,6 +1002,25 @@ theorem ramifiedNormalPairingSeparates {alpha r pp h q : ℕ} {d : EtaDisplay} (
   exact MpcRam.mpcFam_ramifiedNormal_separates_left t E E₂ hα hM₂ hwild hτfpf' hTodd
     hresA hresD hres p hp
 
+set_option maxHeartbeats 3200000 in
+/-- **The procyclic-`M` ramified branch, unconditionally.**  The end-to-end regression that the
+residual has exactly the shape `MpcActionImageDevissage` consumes. -/
+theorem ramifiedActionImageStokes_mpc {alpha r pp h q : ℕ} {d : EtaDisplay} (hα : 1 ≤ alpha)
+    (hqe : Even q) :
+    RamifiedActionImageStokes (2 + 2 * h) q (mpcW alpha r pp d h)
+      (resolvedFamily alpha r pp h q d) :=
+  ramifiedActionImageStokes_of_separation hα hqe (ramifiedNormalPairingSeparates hα)
+
+set_option maxHeartbeats 3200000 in
+/-- **The procyclic-`M` uniform pushed residue, on the unramified branch alone**: the ramified
+branch is now paid for. -/
+theorem uniformPushedHsimp_of_unramified {alpha r pp h q : ℕ} {d : EtaDisplay} (hα : 1 ≤ alpha)
+    (hqe : Even q)
+    (hunram : UnramifiedActionImageStokes (2 + 2 * h) q (mpcW alpha r pp d h)
+      (resolvedFamily alpha r pp h q d)) :
+    UniformPushedHsimp alpha r pp h q d :=
+  uniformPushedHsimp_of_ramified_separation hα hqe hunram (ramifiedNormalPairingSeparates hα)
+
 end
 
 end GQ2.Dyadic.MProcyclicExact
@@ -1047,5 +1066,7 @@ section AxiomAudit
 #print axioms GQ2.Dyadic.MpcRam.mpcFam_ramifiedNormal_separates_left
 #print axioms GQ2.Dyadic.MProcyclicExact.exists_resolver_ram
 #print axioms GQ2.Dyadic.MProcyclicExact.ramifiedNormalPairingSeparates
+#print axioms GQ2.Dyadic.MProcyclicExact.ramifiedActionImageStokes_mpc
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_unramified
 
 end AxiomAudit
