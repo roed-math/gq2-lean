@@ -270,6 +270,21 @@ theorem carries the gauge hypothesis `a 2 = a 1 ^ 2`; the sweep shows the `x₁`
 to be trivial mod squares, which is that gauge, and additionally that the **σ-slot carries
 the same forced dressing** — a constraint the class-two forcing theorem does not state.
 
+**Audit of the class-4 run** (all 255 markings), showing how uniform the witness is:
+
+| level-one witness actually used | markings |
+|---|---|
+| `a₀ = a₁ = 1` (t, s both even) | 63 |
+| `a₀ = a₁ = V` (t odd, s even) | 64 |
+| `a₀ = a₁ = U` (t even, s odd) | 64 |
+| `a₀ = a₁ = UV` (t, s both odd) | 64 |
+
+with `a₂ = a₃ = a₄ = 1` throughout — the sweep takes the first `GL₂(𝔽₂)` survivor, which is
+the identity, so **the handle block never has to move**; its freedom is spare capacity.  Of
+the 255, 240 needed corrections at both `L₃` and `L₄`, 12 only at `L₄`, and 3 — `(0,8)`,
+`(8,0)`, `(8,8)` — needed none at all (the undressed base frame already kills the relator in
+`Q_4`).
+
 ⚠ **The survivor set is therefore *not* an affine coset at level one.**  Its handle block is
 a `GL₂(𝔽₂) ≅ S₃` torsor — a non-abelian 6-element subset of `𝔽₂⁴` whose differences span a
 4-dimensional space.  Any earlier "the survivors form a coset" reading must be about the
@@ -468,9 +483,12 @@ Concretely, three things the Lean side can take as measured facts about the fini
    class there is nothing left to obstruct.
 2. **The shape of the witness is essentially forced, and it is known.**  The class-two
    balance pins the σ- and x₀-slot dressings to `U^{−s}V^{t}` and the x₁-slot to the trivial
-   class; the only level-one freedom is `GL₂(𝔽₂)` on the handle pair.  A constructive Lean
-   witness should start from `a₀ = a₁ = U^{−s}V^{t}`, `a₂ = 1`, `a₃ = a₄ = 1` — that is the
-   frame the sweep uses, and the deeper corrections are all in `[G,G]·K`-depth.
+   class; the only level-one freedom is `GL₂(𝔽₂)` on the handle pair, and the sweep never
+   needs it — the identity works at all 255 class-4 markings.  A constructive Lean witness
+   should start from `a₀ = a₁ = U^{−s}V^{t}`, `a₂ = a₃ = a₄ = 1`, with the remaining
+   corrections in `K ∩ [G,G]G²`-depth.  ⭐ Note that this is `GradedTwo` §6's forced `a₁`
+   **plus the same dressing on the σ-slot** — the σ-slot condition is not in the Lean
+   corpus and is, on this evidence, part of the correct ansatz.
 3. **The hard content is a joint core+handle statement.**  Restricting the dressings to
    either block alone is infeasible at every marking at class 4.  Any decomposition of the
    residual that treats the core moves and the handle moves separately will not close.
