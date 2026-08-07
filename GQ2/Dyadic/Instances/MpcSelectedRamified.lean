@@ -62,6 +62,48 @@ theorem SelectedHsimp.of_Mpc
       (hbranch ▸ S.display).represents
       (MProcyclicExact.ramifiedNormalPairingSeparates (by omega)))
 
+/-! ## The end-to-end corrected-family handoffs for the row -/
+
+/-- Action-image corrected-family handoff for the selected procyclic-`M` row.  Exactly as on the
+`L` and `Npc` rows, this consumes **no** Stokes residue input: the branch equation and `Even q`
+are enough, since `BranchData.Valid (.Mpc α r ε η)` supplies `2 ≤ α` and every one of the row's
+second-order statements is a theorem.  So the selected-`Mpc` certificate needs only the
+structural and analytic leaves. -/
+noncomputable def wordCertificateRN_of_familyFieldSelection_actionImageMpc
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness FP Q}
+    (S : FamilyFieldBranchSelection K FP Q W) {q alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection S) q P hP nuP hq0 hqe) :
+    WordCertificateRN S.semantic.degree q S.semantic.word P hP nuP
+      (standardNumerics S.semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection S
+    (.of_Mpc hbranch hqe) hq0 hqe L
+
+/-- End-to-end selector handoff on the procyclic-`M` row with the Stokes residue supplied
+theorem-side: whenever the corrected selector picks `.Mpc α r ε η`, even `q` alone feeds the row's
+uniform residue into the five-row assembler. -/
+noncomputable def wordCertificateRN_of_familyFieldBranch_actionImageMpc
+    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
+    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) {q alpha r : ℕ}
+    {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : (selectFieldBranchFamily B FF D RI W).branch = .Mpc alpha r epsilon eta)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    (L : SemanticSelectedWordLeavesRN
+      (SemanticSelectionView.ofFamilyFieldBranchSelection
+        (selectFieldBranchFamily B FF D RI W)) q P hP nuP hq0 hqe) :
+    WordCertificateRN
+      (selectFieldBranchFamily B FF D RI W).semantic.degree q
+      (selectFieldBranchFamily B FF D RI W).semantic.word P hP nuP
+      (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
+  wordCertificateRN_of_familyFieldSelection_actionImageMpc
+    (selectFieldBranchFamily B FF D RI W) hbranch hq0 hqe L
+
 end
 
 end GQ2.Dyadic
@@ -72,5 +114,7 @@ section AxiomAudit
 
 #print axioms GQ2.Dyadic.SemanticSelectedHsimpRN.of_Mpc
 #print axioms GQ2.Dyadic.SelectedHsimp.of_Mpc
+#print axioms GQ2.Dyadic.wordCertificateRN_of_familyFieldSelection_actionImageMpc
+#print axioms GQ2.Dyadic.wordCertificateRN_of_familyFieldBranch_actionImageMpc
 
 end AxiomAudit

@@ -34,16 +34,13 @@ is read as a `2`-adic unit.  `NpcUniform` plus `SemanticSelectedHsimpRN.of_Npc_a
 file is where the two are stated because the `Npc` branch files first become visible here; the
 `NpcUniform` constructors themselves live with their rows.
 
-The procyclic-`M` case is migrated to the same shape but does **not** reach the same conclusion.
-`MpcUniform` carries `MProcyclicExact.UniformHsimp`, and
-`SemanticSelectedHsimpRN.of_Mpc_actionImage`
-routes the branch through `MProcyclicExact.uniformPushedHsimp_of_pairings`; but that theorem still
-binds three named second-order inputs — `UnramifiedNormalPairingIsCompact`,
-`ScalarActionImageStokes` and `RamifiedNormalPairingSeparates` — so the `Mpc` producers carry them
-as explicit hypotheses.  What the selected row *does* discharge for free is the arithmetic input:
-`MpcDisplayFor.represents` is exactly the `RepresentsUnit` obligation, and branch validity supplies
-`2 ≤ α` and `1 ≤ r`.  So the `Mpc` row is three second-order statements away from the
-unconditionality the `L` and `Npc` rows already have, and not one step more.
+The procyclic-`M` case reaches the same conclusion, but its producers cannot be stated here.
+`MpcUniform` carries `MProcyclicExact.UniformHsimp`, and all three of the second-order inputs the
+row used to thread — `UnramifiedNormalPairingIsCompact`, `ScalarActionImageStokes` and
+`RamifiedNormalPairingSeparates` — are now theorems, in files that import this one.  So
+`SemanticSelectedHsimpRN.of_Mpc`, `SelectedHsimp.of_Mpc` and the row's two end-to-end handoffs
+live in `GQ2/Dyadic/Instances/MpcSelectedRamified.lean`, in exactly the shape the `Npc` ones have
+here.
 -/
 
 namespace GQ2.Dyadic
@@ -123,9 +120,9 @@ because the selected display is a `2`-adic unit by
 `NpcDisplayFor.exists_toPadic_eq_one_add_two_mul`.
 
 For procyclic `M`, `Mpc` preserves the historical all-markings bundle while `MpcUniform` carries
-the row's uniform residue `MProcyclicExact.UniformHsimp`.  That one is *not* a theorem yet:
-`SemanticSelectedHsimpRN.of_Mpc_actionImage` still binds the row's three second-order inputs.  The
-two compact rows are unchanged. -/
+the row's uniform residue `MProcyclicExact.UniformHsimp`.  That one is a theorem as well, but only
+downstream of this file: `SemanticSelectedHsimpRN.of_Mpc` is stated in `MpcSelectedRamified` and
+binds the branch equation and `Even q` alone.  The two compact rows are unchanged. -/
 inductive SemanticSelectedHsimpRN {FP : FieldParameters}
     (S : SemanticSelectionView FP) (q : ℕ) : Prop
   | L (hbranch : S.branch = .L)
@@ -193,55 +190,6 @@ theorem SelectedHsimp.of_Npc_actionImage
   obtain ⟨z, hz⟩ := NpcDisplayFor.exists_toPadic_eq_one_add_two_mul (hbranch ▸ S.display)
   exact .NpcUniform alpha r eta hbranch
     (NProcyclicUnram.uniformPushedHsimp hvalid.1 hqe z hz)
-
-/-- **The procyclic-`M` Stokes residue, as far as the row currently reaches.**  Unlike the `L` and
-`Npc` cases this is not unconditional: `MProcyclicExact.uniformPushedHsimp_of_pairings` reduces the
-row's uniform residue to three named second-order inputs, and they are still open, so they appear
-here as explicit binders.
-
-What the selected row *does* remove is everything else.  Branch validity supplies `2 ≤ α` (hence
-`1 ≤ α`); `MpcDisplayFor.represents` supplies the arithmetic input `RepresentsUnit`, which is
-what discharges the display fixed-point-freeness obligation for every display the seam can
-produce; and `Even q` is the only remaining numeric side condition.  So `hpair`, `hsc` and `hsep`
-are exactly the residue: prove those three and this becomes the `Npc`-shaped theorem. -/
-theorem SemanticSelectedHsimpRN.of_Mpc_actionImage {FP : FieldParameters}
-    {S : SemanticSelectionView FP} {q alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
-    (hbranch : S.branch = .Mpc alpha r epsilon eta) (hqe : Even q)
-    (hpair : MProcyclicExact.UnramifiedNormalPairingIsCompact alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    (hsc : MProcyclicExact.ScalarActionImageStokes alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    (hsep : MProcyclicExact.RamifiedNormalPairingSeparates alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display) :
-    SemanticSelectedHsimpRN S q := by
-  have hvalid := S.valid
-  rw [hbranch] at hvalid
-  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
-  exact .MpcUniform alpha r epsilon eta hbranch
-    (MProcyclicExact.uniformPushedHsimp_of_pairings (le_trans (by omega) hvalid.1) hqe
-      (hbranch ▸ S.display).represents hpair hsc hsep)
-
-/-- The same producer for the legacy selector's residue `SelectedHsimp`, stated here for the same
-layering reason as `SelectedHsimp.of_Npc_actionImage`: the procyclic-`M` branch files first become
-visible in this file. -/
-theorem SelectedHsimp.of_Mpc_actionImage
-    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
-    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
-    {S : FieldBranchSelection K FP Q W} {q alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
-    (hbranch : S.branch = .Mpc alpha r epsilon eta) (hqe : Even q)
-    (hpair : MProcyclicExact.UnramifiedNormalPairingIsCompact alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    (hsc : MProcyclicExact.ScalarActionImageStokes alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    (hsep : MProcyclicExact.RamifiedNormalPairingSeparates alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display) :
-    SelectedHsimp S q := by
-  have hvalid := S.valid
-  rw [hbranch] at hvalid
-  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
-  exact .MpcUniform alpha r epsilon eta hbranch
-    (MProcyclicExact.uniformPushedHsimp_of_pairings (le_trans (by omega) hvalid.1) hqe
-      (hbranch ▸ S.display).represents hpair hsc hsep)
 
 /-- Dispatch exact lifting using only the semantic view. -/
 theorem exactLiftingRN_of_semanticSelectedHsimp
@@ -797,30 +745,6 @@ noncomputable def wordCertificateRN_of_familyFieldSelection_actionImageNpc
   wordCertificateRN_of_familyFieldSelection S
     (.of_Npc_actionImage hbranch hqe) hq0 hqe L
 
-/-- Action-image corrected-family handoff for the selected procyclic-`M` row.  Unlike the `L` and
-`Npc` handoffs this one is **not** free of residue input: the row's three second-order statements
-are carried through as binders, because that is exactly what still separates the `Mpc` row from
-the other two.  Everything else the row used to need is gone — no `Hsimp`, no separate arithmetic
-input, no `α`/`r` inequalities. -/
-noncomputable def wordCertificateRN_of_familyFieldSelection_actionImageMpc
-    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
-    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FamilyFieldBranchWitness FP Q}
-    (S : FamilyFieldBranchSelection K FP Q W) {q alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
-    (hbranch : S.branch = .Mpc alpha r epsilon eta) (hq0 : q ≠ 0) (hqe : Even q)
-    (hpair : MProcyclicExact.UnramifiedNormalPairingIsCompact alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    (hsc : MProcyclicExact.ScalarActionImageStokes alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    (hsep : MProcyclicExact.RamifiedNormalPairingSeparates alpha r (p epsilon r)
-      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display)
-    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
-    (L : SemanticSelectedWordLeavesRN
-      (SemanticSelectionView.ofFamilyFieldBranchSelection S) q P hP nuP hq0 hqe) :
-    WordCertificateRN S.semantic.degree q S.semantic.word P hP nuP
-      (standardNumerics S.semantic.degree) :=
-  wordCertificateRN_of_familyFieldSelection S
-    (.of_Mpc_actionImage hbranch hqe hpair hsc hsep) hq0 hqe L
-
 /-- End-to-end certificate handoff from the corrected arithmetic selector itself. -/
 noncomputable def wordCertificateRN_of_familyFieldBranch
     {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
@@ -883,38 +807,6 @@ noncomputable def wordCertificateRN_of_familyFieldBranch_actionImageNpc
       (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
   wordCertificateRN_of_familyFieldSelection_actionImageNpc
     (selectFieldBranchFamily B FF D RI W) hbranch hq0 hqe L
-
-/-- End-to-end selector handoff on the procyclic-`M` row.  Whenever the corrected selector picks
-`.Mpc α r ε η`, the row's three second-order inputs and `Even q` feed its uniform residue into
-the five-row assembler; no `Hsimp` and no further arithmetic input is consumed.  The three
-binders are the honest statement of how far short of the `L`/`Npc` rows this one still falls. -/
-noncomputable def wordCertificateRN_of_familyFieldBranch_actionImageMpc
-    {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
-    [FiniteDimensional ℚ_[2] K] (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
-    (D : FiniteDyadicParameters K FF) (RI : RamifiedIData K)
-    (W : FamilyFieldBranchWitness D.params (B.fieldMarkedPair FF)) {q alpha r : ℕ}
-    {epsilon : Bool} {eta : ℤ_[2]ˣ}
-    (hbranch : (selectFieldBranchFamily B FF D RI W).branch = .Mpc alpha r epsilon eta)
-    (hq0 : q ≠ 0) (hqe : Even q)
-    (hpair : MProcyclicExact.UnramifiedNormalPairingIsCompact alpha r (p epsilon r)
-      (handleCount D.params (.Mpc alpha r epsilon eta)) q
-      (hbranch ▸ (selectFieldBranchFamily B FF D RI W).display).display)
-    (hsc : MProcyclicExact.ScalarActionImageStokes alpha r (p epsilon r)
-      (handleCount D.params (.Mpc alpha r epsilon eta)) q
-      (hbranch ▸ (selectFieldBranchFamily B FF D RI W).display).display)
-    (hsep : MProcyclicExact.RamifiedNormalPairingSeparates alpha r (p epsilon r)
-      (handleCount D.params (.Mpc alpha r epsilon eta)) q
-      (hbranch ▸ (selectFieldBranchFamily B FF D RI W).display).display)
-    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
-    (L : SemanticSelectedWordLeavesRN
-      (SemanticSelectionView.ofFamilyFieldBranchSelection
-        (selectFieldBranchFamily B FF D RI W)) q P hP nuP hq0 hqe) :
-    WordCertificateRN
-      (selectFieldBranchFamily B FF D RI W).semantic.degree q
-      (selectFieldBranchFamily B FF D RI W).semantic.word P hP nuP
-      (standardNumerics (selectFieldBranchFamily B FF D RI W).semantic.degree) :=
-  wordCertificateRN_of_familyFieldSelection_actionImageMpc
-    (selectFieldBranchFamily B FF D RI W) hbranch hq0 hqe hpair hsc hsep L
 
 end
 
