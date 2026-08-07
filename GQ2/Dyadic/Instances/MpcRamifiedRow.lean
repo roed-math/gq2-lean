@@ -229,6 +229,11 @@ theorem trivJet_one : TrivJet μ x y E E₂ (.one : PWord X) 0 0 := ⟨0, triv_o
 
 variable {μ x y E E₂}
 
+theorem TrivJet.inv {u : PWord X} {a : A} {l : ElemDual A} (hu : TrivJet μ x y E E₂ u a l) :
+    TrivJet μ x y E E₂ (.inv u) (-a) (-l) := by
+  obtain ⟨zu, hu⟩ := hu
+  exact ⟨_, hu.inv⟩
+
 theorem TrivJet.mul {u v : PWord X} {a b : A} {l m : ElemDual A}
     (hu : TrivJet μ x y E E₂ u a l) (hv : TrivJet μ x y E E₂ v b m) :
     TrivJet μ x y E E₂ (.mul u v) (a + b) (l + m) := by
@@ -320,6 +325,73 @@ theorem c0W_zpow_smul (s' : ℕ) (k : ℤ) (v : A) :
     ((t (coreLetter h 2) * sTwist t E ^ (s' : ℤ)) ^ k) • v
       = (sTwist t E ^ ((s' : ℤ) * k)) • v := by
   rw [smul_zpow_congr (c0W_smul_eq t E hwild s') k, ← zpow_mul]
+
+include hxσ hyσ in
+/-- The displayed `σ₂`-power, in both of its two shapes. -/
+theorem heisEvalZ_sig2PowW (k : ℕ) :
+    heisEvalZ ⇑t x y E E₂ (sig2PowW h k) = heisPure (sTwist t E ^ (k : ℤ)) := by
+  match k with
+  | 0 => exact heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ _
+  | 1 => rw [sTwist, show sig2PowW h 1 = sigma2W from rfl,
+      heisEvalZ_sigma2W_pure t x y E E₂ hxσ hyσ, Nat.cast_one, zpow_one]
+  | (j + 2) => exact heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ _
+
+/-! ### The four `σ₂`-shifted letters
+
+`A`, `Â`, `B` and `B̂` are the letters whose base genuinely moves on the ramified reading.  Each
+is a trivial-base word times a pure `σ₂`-power, so each has *nameable* jets and a base acting by
+a power of the twist — with the charge left free, because `A` and `Â` carry different ones. -/
+
+/-- **A `σ₂`-shifted letter**: nameable jets, a base acting by `S₂^k`, and a free charge. -/
+def SLetter (w : PWord (Generator (2 + 2 * h))) (a : A) (l : ElemDual A) (k : ℤ) : Prop :=
+  ∃ (G : C) (z : ZMod 2), heisEvalZ ⇑t x y E E₂ w = ⟨a, l, z, G⟩
+    ∧ ∀ v : A, G • v = (sTwist t E ^ k) • v
+
+variable {t x y E E₂}
+
+theorem SLetter.aEq {w : PWord (Generator (2 + 2 * h))} {a : A} {l : ElemDual A} {k : ℤ}
+    (hw : SLetter t x y E E₂ w a l k) : (heisEvalZ ⇑t x y E E₂ w).a = a := by
+  obtain ⟨G, z, hG, -⟩ := hw
+  rw [hG]
+
+theorem SLetter.smul {w : PWord (Generator (2 + 2 * h))} {a : A} {l : ElemDual A} {k : ℤ}
+    (hw : SLetter t x y E E₂ w a l k) (v : A) :
+    (heisEvalZ ⇑t x y E E₂ w).g • v = (sTwist t E ^ k) • v := by
+  obtain ⟨G, z, hG, hGa⟩ := hw
+  rw [hG]
+  exact hGa v
+
+/-- **Two `σ₂`-shifted letters with the same data agree at first order** — the whole point of the
+predicate.  Their charges may differ, and for `A` against `Â` they do. -/
+theorem SLetter.sameJet {u v : PWord (Generator (2 + 2 * h))} {a : A} {l : ElemDual A} {k : ℤ}
+    (hu : SLetter t x y E E₂ u a l k) (hv : SLetter t x y E E₂ v a l k) :
+    SameJet (heisEvalZ ⇑t x y E E₂ u) (heisEvalZ ⇑t x y E E₂ v) where
+  aEq := by rw [hu.aEq, hv.aEq]
+  lEq := by
+    obtain ⟨G, z, hG, -⟩ := hu
+    obtain ⟨G', z', hG', -⟩ := hv
+    rw [hG, hG']
+  gEq w := by rw [hu.smul, hv.smul]
+
+variable (t x y E E₂)
+
+/-- A trivial-base word times a pure-base `σ₂`-power is a `σ₂`-shifted letter. -/
+theorem sLetter_pairPure {u g : PWord (Generator (2 + 2 * h))} {a : A} {l : ElemDual A}
+    {S : C} {k : ℤ} (hu : TrivJet ⇑t x y E E₂ u a l)
+    (hg : heisEvalZ ⇑t x y E E₂ g = heisPure S)
+    (hk : ∀ v : A, S • v = (sTwist t E ^ k) • v) :
+    SLetter t x y E E₂ (PWord.prodList [u, g]) a l k := by
+  obtain ⟨z, G, hG, hGa⟩ := hu
+  refine ⟨G * S, z, ?_, fun v ↦ by rw [mul_smul, hk, hGa]⟩
+  rw [PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul,
+    heisEvalZ_mul, heisEvalZ_one, mul_one, hG, hg, heisMul_of_trivial_left _ _ hGa]
+  refine HeisLift.ext ?_ ?_ ?_ rfl
+  · show a + (0 : A) = a
+    rw [add_zero]
+  · show l + (0 : ElemDual A) = l
+    rw [add_zero]
+  · show z + 0 + l (0 : A) = z
+    rw [map_zero, add_zero, add_zero]
 
 end Letters
 
