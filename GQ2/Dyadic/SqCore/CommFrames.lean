@@ -63,7 +63,16 @@ commutator.
 
 `SqHandleComm h` is *sufficient* (§3) but it is **not** satisfiable at a marking with an odd
 handle row.  The computation is the class-two balance of `docs/dyadic/eichler-reduction-note.md`,
-run for the frame that fixes the core.  Write `A = D_sq(h)^ab`; the plain lower central series has
+run for the frame that fixes the core.
+
+⭐ **This whole headline is now machine-checked** in `SqCore/GradedTwo.lean` (W47).  The closed
+form of the relator in a class-two test group is `SqHeis.sqRelWord_c` / `sqHeisDefect`, the gate
+that turns the balance into a computation is `sqHeisBalance`, and the forcing of the `x₀`-slot
+below is `sqArbFrame_x0_dressing_forced`.  Read the two ⚠ notes there before reusing the prose
+here: the realizability parity (which is why the gate runs over `ℤ/4` and not `ℤ/2`) and the
+`x₁ = x₀²` gauge (see the ⚠ at the end of the ⭐ paragraph below).
+
+Write `A = D_sq(h)^ab`; the plain lower central series has
 
 ```text
 gr₂ = γ₂/γ₃ ≅ Λ²A          (A = ℤ₂σ̄ ⊕ ℤ₂x̄₀ ⊕ (ℤ/2)t̄ ⊕ ⊕ⱼ(ℤ₂ūⱼ ⊕ ℤ₂v̄ⱼ), t̄ = x̄₁ − 2x̄₀)
@@ -99,7 +108,16 @@ and `ā₃`, `ā₄` land in `Λ²K`.  Balancing the `w̄`-column gives
 
 — a **forced, non-zero** value, and the remaining columns (`x̄₀` against `K`, and `Λ²K`) are then
 free in `ā₀` and in `(ā₃, ā₄)`.  That is the sense in which the class-two balance is now
-under-determined: it fixes one dressing and leaves three.  ⚠ Note what the forced value is:
+under-determined: it fixes one dressing and leaves three.
+
+⚠ **Read "one of four forced, three free" as "in the `x₁ = x₀²` gauge".**  The frame has *five*
+slots; the abelian row only gives `ā₂ = 2ā₁ + τ` with `2τ = 0`, and when `τ = t̄` the square
+`(a₂a₁⁻²)²` contributes `−Δ₀` to the very same `w̄`-column, leaving a second branch `ā₁ = 0`.
+The forcing as displayed holds exactly when `a₂ = a₁²` — which every Eichler family satisfies,
+its `x₁`-slot weight being literally `2e'`.  This is `sqArbFrame_x0_dressing_forced` and the ⚠
+gauge note in `SqCore/GradedTwo.lean` §6.
+
+⚠ Note what the forced value is:
 the `x₀`-slot must be dressed by the **handle** letters `U^{−s}V^{t}`, not the handles by the
 core.  Every refuted family dressed only *with* `U` and `V` and so could meet this (the two-letter
 family `sqEichFrameUV` does, at `(f', e') = (−s, t)`); the `V`-power families of `LamFrames` §2
