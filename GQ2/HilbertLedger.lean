@@ -313,8 +313,12 @@ theorem norm_galois (g : Kummer.GaloisGroup ℚ_[2]) (x : ℚ̄₂) : ‖g • x
     NormedAlgebra.norm_eq_spectralNorm ℚ_[2]]
   exact (spectralNorm_eq_of_equiv g x).symm
 
-/-- Over a normed `ℚ₂`-algebra whose norm extends the dyadic one, `‖2‖ < 1`. -/
-private lemma norm_two_lt_one' {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
+/-- Over a normed `ℚ₂`-algebra whose norm extends the dyadic one, `‖2‖ < 1`.
+
+Public: this is the general-`F` form, and downstream files were re-proving it verbatim while it
+was `private` (owner memo item 5c).  The `ℚ̄₂`-specific `GQ2.norm_two_lt_one`
+(`GQ2/UnitFiltrationTop.lean`) is upstream of this file and stays where it is. -/
+lemma norm_two_lt_one' {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
     ‖(2 : F)‖ < 1 := by
   rw [show (2 : F) = algebraMap ℚ_[2] F 2 from (map_ofNat _ 2).symm,
     norm_algebraMap' (𝕜' := F) (2 : ℚ_[2])]
