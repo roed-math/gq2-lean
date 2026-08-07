@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.EvenModelDemushkin
+import GQ2.Dyadic.MarkedCore.MFrame
 import GQ2.Dyadic.OrientationCorrection
 
 /-!
@@ -32,10 +33,12 @@ procyclic closure of `⟨v⟩`, `v = −(1+2^α)⁻¹ ≡ −1 + 2^α (mod 2^{α
 * §1 `chiNOnDM` — the `N` value table on the `M` core, with generator-value simp lemmas.
 * §2 `range_chiNOnDM` — its image is exactly `imChiN α` (the `range_chiN` argument, `M`-side).
 * §3 `nonempty_equiv_DM_DN_of_nLabHypothesis` — the witness package.  `demushkinQ (DM α h) = 2` is
-  threaded as an explicit hypothesis: the repo has `demushkinQ_DM` only at `h = 0` and only from
-  an `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean:1946`); there is no general-`h`
-  `M`-frame (the `N`-side `demushkinQ_DN_nFrame` has no `M` counterpart).  The `h = 0`
-  specialisation `nonempty_equiv_DM_DN_zero_of_nLabHypothesis` discharges it from a frame.
+  threaded as an explicit hypothesis there, and discharged from a frame in the two corollaries:
+  `nonempty_equiv_DM_DN_zero_of_nLabHypothesis` at `h = 0` from MC2's rank-four
+  `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean:1946`), and — since W50-MFRAME supplied
+  the general-`h` `M`-frame — `nonempty_equiv_DM_DN_of_mFrame` at **every** handle count from
+  an `MFrame α h` (`GQ2/Dyadic/MarkedCore/MFrame.lean`, `demushkinQ_DM_mFrame`).  So the
+  counterexample now costs exactly what the `N`-side sanity pin of §5 costs: one frame.
 * §4 `imChiM_ne_imChiN` — the separation, proved through the mod-`2^{α+1}` reduction.
 * §5 the `N`-side sanity pin.
 -/
@@ -136,9 +139,9 @@ theorem range_chiNOnDM (α h : ℕ) :
 /-- **The honest witness package** (ticket EV-0c): the even `M` core satisfies *every* hypothesis
 of `NLabHypothesis α h`, so that binder alone forces `D_M ≅ D_N`.
 
-`demushkinQ (DM α h) = 2` is an explicit hypothesis, as the module docstring records: the repo
-proves `demushkinQ (DM α 0) = 2` only from an `MDecomposition α`, and there is no general-`h`
-`M`-frame to run `demushkinQ_DN_nFrame`'s argument through. -/
+`demushkinQ (DM α h) = 2` is left as an explicit hypothesis here so that the package is
+available to any supplier of the `q`-invariant; the two corollaries below discharge it from a
+frame, at `h = 0` and (since W50-MFRAME) at every `h`. -/
 theorem nonempty_equiv_DM_DN_of_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
     (hq : demushkinQ (DM α h : Type) = 2) (hLab : MarkedCore.NLabHypothesis α h) :
     Nonempty (ContinuousMulEquiv (DM α h : Type) (DN α h : Type)) :=
@@ -153,6 +156,18 @@ theorem nonempty_equiv_DM_DN_zero_of_nLabHypothesis (α : ℕ) (hα2 : 2 ≤ α)
     (B : MarkedCore.MDecomposition α) (hLab : MarkedCore.NLabHypothesis α 0) :
     Nonempty (ContinuousMulEquiv (DM α 0 : Type) (DN α 0 : Type)) :=
   nonempty_equiv_DM_DN_of_nLabHypothesis α 0 hα2 (MarkedCore.demushkinQ_DM B) hLab
+
+/-- **The counterexample at every handle count** (owner memo item 6a): the `q`-invariant is
+discharged from the general-`h` `M`-frame (`MarkedCore.demushkinQ_DM_mFrame`,
+`GQ2/Dyadic/MarkedCore/MFrame.lean`), so the collapse `D_M ≅ D_N` follows from `NLabHypothesis`
+plus one frame at *any* `h`, not just at `h = 0` — the same price as the `N`-side sanity pin
+`nonempty_equiv_DN_self_of_nLabHypothesis`, which consumes an `NFrame α h`.  This is the
+statement the memo asks for: the witness no longer needs the `q`-invariant threaded in from
+outside above rank four. -/
+theorem nonempty_equiv_DM_DN_of_mFrame (α h : ℕ) (hα2 : 2 ≤ α)
+    (F : MarkedCore.MFrame α h) (hLab : MarkedCore.NLabHypothesis α h) :
+    Nonempty (ContinuousMulEquiv (DM α h : Type) (DN α h : Type)) :=
+  nonempty_equiv_DM_DN_of_nLabHypothesis α h hα2 (MarkedCore.demushkinQ_DM_mFrame F) hLab
 
 /-! ## §4 The separation `imChiM α ≠ imChiN α`
 
@@ -295,9 +310,10 @@ end Separation
 
 /-! ## §5 The `N`-side sanity pin
 
-The same package on the row the binder is *about*.  Here the `q`-invariant is available at every
-handle count (`demushkinQ_DN_nFrame`) once a frame is supplied, and the character is the
-canonical `χ_N` itself, so the conclusion is the harmless one. -/
+The same package on the row the binder is *about*.  The `q`-invariant is available at every
+handle count once a frame is supplied (`demushkinQ_DN_nFrame`, and since W50-MFRAME
+`demushkinQ_DM_mFrame` on the `M` side too), and the character is the canonical `χ_N` itself, so
+the conclusion is the harmless one. -/
 
 /-- `NLabHypothesis` applied to its own row: every hypothesis is met by `D_N` itself. -/
 theorem nonempty_equiv_DN_self_of_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
@@ -319,6 +335,7 @@ theorem nonempty_equiv_DN_self_of_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
 #print axioms range_chiNOnDM
 #print axioms nonempty_equiv_DM_DN_of_nLabHypothesis
 #print axioms nonempty_equiv_DM_DN_zero_of_nLabHypothesis
+#print axioms nonempty_equiv_DM_DN_of_mFrame
 #print axioms modPairSubgroup
 #print axioms mem_modPairSubgroup
 #print axioms isClosed_modPairSubgroup
