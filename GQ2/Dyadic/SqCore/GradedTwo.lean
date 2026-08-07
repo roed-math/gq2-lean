@@ -559,6 +559,172 @@ example (h : ℕ) (j : Fin h) (t e e' d : ℤ_[2]) :
 
 end Validation
 
+/-! ## §6 ⭐⭐ The class-two balance of the arbitrary-dressing frame, and the forced `x₀`-slot
+
+This is the machine-checked form of `CommFrames`' Headline 3 ⭐ paragraph.  The test hom is the
+alternating form `(2·χ) ∧ ν'`: the `b`-column **is** `ν'` (so every dressing, lying in
+`ker ν'`, has `b`-coordinate `0`), and the `a`-column is twice a free functional `χ` on the
+handle letters.  The factor `2` is not cosmetic — see the ⚠ at the end of §6. -/
+
+section Forcing
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+
+/-- The projection of the test group onto its `b`-column: a continuous endomorphism, used to
+compare two test homs through their `ν'`-columns alone. -/
+private def bProj : ContinuousMonoidHom (SqHeis gr2R) (SqHeis gr2R) where
+  toFun p := ⟨0, p.b, 0⟩
+  map_one' := rfl
+  map_mul' _ _ := by ext <;> simp
+  continuous_toFun := continuous_of_discreteTopology
+
+/-- The `u`-row of the marking. -/
+private noncomputable abbrev fT (h : ℕ)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) : gr2R :=
+  gr2Pi (toAdd (nu' (sqGen h (sqHandleIdxU j))))
+
+/-- The `v`-row of the marking. -/
+private noncomputable abbrev fS (h : ℕ)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) : gr2R :=
+  gr2Pi (toAdd (nu' (sqGen h (sqHandleIdxV j))))
+
+variable (h j nu') in
+/-- **The forcing marking**: the form `(2·χ) ∧ ν'` with `χ` given by the two free weights
+`A, B` on the `j`-th handle.  The `x₁`-slot's central coordinate solves the relator's central
+equation, which is possible **because** the `a`-column is even. -/
+private noncomputable def fMark (A B : gr2R) : Fin (sqRank h) → SqHeis gr2R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨0, 1, 0⟩ else
+    if (i : ℕ) = 2 then ⟨0, 0, B * fT h nu' j - A * fS h nu' j⟩ else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then ⟨2 * A, fT h nu' j, 0⟩ else
+    if (i : ℕ) = (sqHandleIdxV j : ℕ) then ⟨2 * B, fS h nu' j, 0⟩ else 1
+
+variable {A B : gr2R}
+
+@[simp] private theorem fMark_zero : fMark h nu' j A B 0 = ⟨0, 1, 0⟩ := by
+  simp only [fMark, sqVal_zero]
+  norm_num
+
+@[simp] private theorem fMark_one : fMark h nu' j A B 1 = 1 := by
+  simp only [fMark, sqVal_one, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] private theorem fMark_two :
+    fMark h nu' j A B 2 = ⟨0, 0, B * fT h nu' j - A * fS h nu' j⟩ := by
+  simp only [fMark, sqVal_two, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega)]
+  norm_num
+
+@[simp] private theorem fMark_handleU :
+    fMark h nu' j A B (sqHandleIdxU j) = ⟨2 * A, fT h nu' j, 0⟩ := by
+  simp only [fMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  simp
+
+@[simp] private theorem fMark_handleV :
+    fMark h nu' j A B (sqHandleIdxV j) = ⟨2 * B, fS h nu' j, 0⟩ := by
+  simp only [fMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+  simp
+
+private theorem fMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    fMark h nu' j A B (sqHandleIdxU j') = 1 := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [fMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+private theorem fMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    fMark h nu' j A B (sqHandleIdxV j') = 1 := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [fMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+/-- ⭐ **The forcing marking kills the relator** — and the `x₁`-slot's central coordinate is
+exactly what it takes.  This is the realizability of the form `(2·χ) ∧ ν'`. -/
+private theorem sqRelWord_fMark : sqRelWord (fMark h nu' j A B) = 1 := by
+  rw [SqHeis.sqRelWord_eq_one_iff]
+  refine ⟨by simp, by simp, ?_⟩
+  rw [sqHeisDefect, Finset.sum_eq_single j (fun j' _ hne => by
+    rw [fMark_handleU_ne hne, fMark_handleV_ne hne]; simp)
+    (fun hj => absurd (Finset.mem_univ j) hj)]
+  simp only [fMark_zero, fMark_one, fMark_two, fMark_handleU, fMark_handleV,
+    SqHeis.one_a, SqHeis.one_b, SqHeis.one_c]
+  ring
+
+variable (h nu' j) in
+/-- The forcing test homomorphism. -/
+private noncomputable def fHom (A B : gr2R) : ContinuousMonoidHom (DSq h : Type) (SqHeis gr2R) :=
+  sqHeisHom gr2R_card h (fMark h nu' j A B) sqRelWord_fMark
+
+@[simp] private theorem fHom_gen (i : Fin (sqRank h)) :
+    fHom h nu' j A B (sqGen h i) = fMark h nu' j A B i :=
+  sqHeisHom_gen _ _ _ i
+
+/-- ⭐ **The `b`-column of the forcing hom is `ν'`.**  Both sides are continuous homs into the
+test group after projecting away the other two columns, so it is enough to check on generators —
+which is the definition of the marking, plus `ν'(x₁) = 2ν'(x₀)`. -/
+private theorem fHom_b (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hcl : ∀ j' : Fin h, j' ≠ j → nu' (sqGen h (sqHandleIdxU j')) = 1 ∧
+      nu' (sqGen h (sqHandleIdxV j')) = 1) (x : (DSq h : Type)) :
+    (fHom h nu' j A B x).b = gr2Pi (toAdd (nu' x)) := by
+  have hcomp : bProj.comp (fHom h nu' j A B)
+      = bProj.comp ((zpowZtwoHom isProP_two_gr2 (⟨0, 1, 0⟩ : SqHeis gr2R)).comp nu') := by
+    refine dsq_hom_ext _ _ fun i => ?_
+    show bProj (fHom h nu' j A B (sqGen h i))
+      = bProj (zpowZtwoHom isProP_two_gr2 (⟨0, 1, 0⟩ : SqHeis gr2R) (nu' (sqGen h i)))
+    rw [fHom_gen, show zpowZtwoHom isProP_two_gr2 (⟨0, 1, 0⟩ : SqHeis gr2R) (nu' (sqGen h i))
+      = zpowZtwo isProP_two_gr2 (⟨0, 1, 0⟩ : SqHeis gr2R) (toAdd (nu' (sqGen h i))) from rfl,
+      SqHeis.zpowZtwo_of_mul_ab_eq_zero isProP_two_gr2 gr2Pi gr2Pi_open (by norm_num)]
+    show (⟨0, (fMark h nu' j A B i).b, 0⟩ : SqHeis gr2R)
+      = ⟨0, gr2Pi (toAdd (nu' (sqGen h i))) * 1, 0⟩
+    rw [mul_one]
+    rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+    · rw [show (sqGen h 0 : (DSq h : Type)) = dsqSigma h from rfl, hsigma, fMark_zero]
+      simp
+    · rw [show (sqGen h 1 : (DSq h : Type)) = dsqX0 h from rfl, hx0, fMark_one]
+      simp
+    · rw [show (sqGen h 2 : (DSq h : Type)) = dsqX1 h from rfl, toAdd_nu_dsqX1 nu', hx0,
+        fMark_two]
+      simp
+    · by_cases hjj : j' = j
+      · subst hjj; rw [fMark_handleU]
+      · rw [fMark_handleU_ne hjj, (hcl j' hjj).1]
+        simp
+    · by_cases hjj : j' = j
+      · subst hjj; rw [fMark_handleV]
+      · rw [fMark_handleV_ne hjj, (hcl j' hjj).2]
+        simp
+  have hx := DFunLike.congr_fun hcomp x
+  have hxb : (⟨0, (fHom h nu' j A B x).b, 0⟩ : SqHeis gr2R)
+      = ⟨0, (zpowZtwo isProP_two_gr2 (⟨0, 1, 0⟩ : SqHeis gr2R) (toAdd (nu' x))).b, 0⟩ := hx
+  rw [SqHeis.zpowZtwo_of_mul_ab_eq_zero isProP_two_gr2 gr2Pi gr2Pi_open (by norm_num)] at hxb
+  have := congrArg SqHeis.b hxb
+  simpa using this
+
+/-- The pivot lands on the `ν'`-column generator. -/
+private theorem fHom_sqPivot : fHom h nu' j A B (sqPivot h) = ⟨0, 1, 0⟩ := by
+  rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
+    map_zpowZtwo (isProP_DSq h) isProP_two_gr2, dsqX0, fHom_gen, fMark_one,
+    zpowZtwo_one_base, inv_one, mul_one, dsqSigma, fHom_gen, fMark_zero]
+
+/-- The cleared `U` carries the `2·χ(Ū)`-value, with the `ν'`-column subtracted off. -/
+private theorem fHom_sqEichU : fHom h nu' j A B (sqEichU h nu' j) = ⟨2 * A, 0, 0⟩ := by
+  rw [sqEichU, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr2, fHom_sqPivot,
+    SqHeis.zpowZtwo_of_mul_ab_eq_zero isProP_two_gr2 gr2Pi gr2Pi_open (by norm_num),
+    fHom_gen, fMark_handleU]
+  ext <;> simp
+
+/-- …and the cleared `V` likewise. -/
+private theorem fHom_sqEichV :
+    fHom h nu' j A B (sqEichV h nu' j) = ⟨2 * B, 0, -(2 * B * fS h nu' j)⟩ := by
+  rw [sqEichV, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr2, fHom_sqPivot,
+    SqHeis.zpowZtwo_of_mul_ab_eq_zero isProP_two_gr2 gr2Pi gr2Pi_open (by norm_num),
+    fHom_gen, fMark_handleV]
+  ext <;> simp
+
+end Forcing
+
 end HeisGroup
 
 end SqCore
