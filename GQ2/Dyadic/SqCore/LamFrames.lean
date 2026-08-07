@@ -42,16 +42,26 @@ m = ( σ·V^e , x₀·V^{e'} , x₁·V^{2e'} , U·V^d , V )        (other letter
 Then **every row condition of `sqLamMarkTransitivity_of_frames` holds by evaluation**
 (`sqEichFrame_nuLam`, `sqEichFrame_nu`) and **the lift is surjective as soon as it exists**
 (`sqEichFrame_surjective`): the five words recover `V`, then `σ, x₀, x₁`, then `w`, then
-`v_j = V·w^{s}` and `u_j = w^{t}·U`.  So the residual at one handle collapses to the *single*
-relator identity
+`v_j = V·w^{s}` and `u_j = w^{t}·U`.  So the whole residual collapses to the *single* relator
+identity
 
 ```text
-sqRelWord (sqEichFrame h ν' j e e' d) = 1
+sqRelWord (sqEichFrame h ν' j e e' d) = 1        (`SqEichRelWord h`)
 ```
 
 with no rows, no surjectivity, no inverse substitution, and no composition identity
-(`sqLamMarkTransitivity_one_of_eichRelWord`).  That is the smallest form the residual has
-taken.
+(`sqLamMarkTransitivity_of_eichRelWord`, and `sqLamMarkTransitivity_one_of_eichRelWord` at one
+handle).  That is the smallest form the residual has taken.
+
+**Scope.**  `sqEichFrame_nu` reads *all* rows off a single frame and therefore carries a
+hypothesis `hoth` — the other handles' rows already vanish — so one Eichler frame clears exactly
+one handle.  That hypothesis is **not** needed for the reduction: §2c reads the same rows without
+it and records that the frame leaves every other handle row *where it was*, so the markings
+`ν'∘Ψ_j` can be cleared one handle at a time and the frames composed (§3's induction on the
+number of uncleared handles).  `SqEichRelWord h` — the relator identity at every selected marking
+and every handle — therefore discharges the residual at **every** `h`, not only at `h = 1`.  What
+a one-handle solution has to supply for the general case is nothing extra: the marking produced
+by a clearing step is again selected, so the same equation is being asked again.
 
 ## Why *this* frame shape, and what it costs
 
@@ -73,18 +83,20 @@ impose it — the relator identity will).
 
 ## What this file does **not** settle
 
-The relator identity is **open**, and this file adds no evidence either way.  The bare frame
-above is the *leading term*; the class-two balance of `docs/dyadic/eichler-reduction-note.md`
-already prices its first correction (`e' = 1`, `e = 2 + c₀`), and the weight-4 miss recorded
-there is against the same shape.  What §3 buys is that the obligation is now a **single closed
-equation in `D_sq h`**, so a correction may be inserted in any slot without re-proving a single
-row.
+The relator identity is **open**, and this file adds no evidence either way beyond one
+satisfiability pin: at the *standard* marking the Eichler frame at `(e, e', d) = (0, 0, 0)` is
+literally the identity frame (`sqEichFrame_nuSq_zero`), so the ansatz is not empty.  The bare
+frame above is the *leading term*; the class-two balance of
+`docs/dyadic/eichler-reduction-note.md` already prices its first correction (`e' = 1`,
+`e = 2 + c₀`).  What §3 buys is that the obligation is now a **single closed equation in
+`D_sq h`**, so a correction may be inserted in any slot without re-proving a single row.
 
 ## Contents
 
 * **§1** `sqFrames_of_lamMarkTransitivity` and `sqLamMarkTransitivity_iff_frames`;
-* **§2** `sqEichPivotPow`, `sqEichV`, `sqEichU`, `sqEichFrame` and their rows;
-* **§3** surjectivity of the frame's lift, and the residual reduced to the relator identity;
+* **§2** `sqEichV`, `sqEichU`, `sqEichFrame` and their rows (§2a), surjectivity of any
+  endomorphism realizing the frame (§2b), and the one-handle clearing step (§2c);
+* **§3** `SqEichRelWord` and the residual reduced to it, at every `h`;
 * **§4** stress pins, **§5** committed axiom prints.
 
 ## Axiom hygiene
@@ -321,6 +333,35 @@ theorem sqEichFrame_nuLam (i : Fin (sqRank h)) :
       rw [sqEichFrame_handleV, toAdd_nuLam_sqEichV, nuLam_handleV, toAdd_one]
     · rw [sqEichFrame_handleV_ne hjj]
 
+/-- The `σ`-row of the Eichler frame, with **no** hypothesis on the other handles. -/
+theorem nu_sqEichFrame_zero (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrame h nu' j e e' d 0) = ofAdd (1 : ℤ_[2]) := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrame_zero, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero, hsigma]
+
+/-- The `x₀`-row of the Eichler frame. -/
+theorem nu_sqEichFrame_one (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrame h nu' j e e' d 1) = ofAdd (0 : ℤ_[2]) := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrame_one, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero, hx0]
+
+/-- **Handle `j` is cleared**: its `u`-row vanishes on the frame. -/
+theorem nu_sqEichFrame_handleU_self (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrame h nu' j e e' d (sqHandleIdxU j)) = 1 := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrame_handleU, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0,
+    toAdd_nu_sqEichU hsigma hx0, mul_zero, add_zero, toAdd_one]
+
+/-- **Handle `j` is cleared**: its `v`-row vanishes on the frame. -/
+theorem nu_sqEichFrame_handleV_self (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrame h nu' j e e' d (sqHandleIdxV j)) = 1 := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrame_handleV, toAdd_nu_sqEichV hsigma hx0, toAdd_one]
+
 /-- **The ν-row of the Eichler frame is the standard marking's**, at handle `j`.  The other
 handles are untouched, so their rows must already vanish — vacuous at `h = 1`. -/
 theorem sqEichFrame_nu (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
@@ -331,23 +372,20 @@ theorem sqEichFrame_nu (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
   refine Multiplicative.toAdd.injective ?_
   rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
   · show toAdd (nu' (sqEichFrame h nu' j e e' d 0)) = toAdd (nuSq h (dsqSigma h))
-    rw [sqEichFrame_zero, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
-      hsigma, nuSq_sigma]
+    rw [nu_sqEichFrame_zero hsigma hx0, nuSq_sigma]
   · show toAdd (nu' (sqEichFrame h nu' j e e' d 1)) = toAdd (nuSq h (dsqX0 h))
-    rw [sqEichFrame_one, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
-      hx0, nuSq_x0]
+    rw [nu_sqEichFrame_one hsigma hx0, nuSq_x0]
   · show toAdd (nu' (sqEichFrame h nu' j e e' d 2)) = toAdd (nuSq h (dsqX1 h))
     rw [sqEichFrame_two, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
       toAdd_nu_dsqX1, hx0, nuSq_x1]
     simp
   · by_cases hjj : j' = j
     · subst hjj
-      rw [sqEichFrame_handleU, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
-        toAdd_nu_sqEichU hsigma hx0, nuSq_handleU, toAdd_one]
+      rw [nu_sqEichFrame_handleU_self hsigma hx0, nuSq_handleU]
     · rw [sqEichFrame_handleU_ne hjj, (hoth j' hjj).1, nuSq_handleU]
   · by_cases hjj : j' = j
     · subst hjj
-      rw [sqEichFrame_handleV, toAdd_nu_sqEichV hsigma hx0, nuSq_handleV, toAdd_one]
+      rw [nu_sqEichFrame_handleV_self hsigma hx0, nuSq_handleV]
     · rw [sqEichFrame_handleV_ne hjj, (hoth j' hjj).2, nuSq_handleV]
 
 /-! ### §2b Surjectivity of the frame's lift
@@ -417,7 +455,191 @@ theorem sqEichFrame_surjective (hrel : sqRelWord (sqEichFrame h nu' j e e' d) = 
     Function.Surjective (sqLiftHom h (isProP_DSq h) (sqEichFrame h nu' j e e' d) hrel) :=
   sqEichFrame_surjective_of_hom _ (sqLiftHom_gen h (isProP_DSq h) _ hrel)
 
+/-! ### §2c The clearing step
+
+With the relator identity in hand at `(ν', j)` the frame is an automorphism (`sqAutOfMark`,
+using §2b for surjectivity), it fixes `λ` pointwise, and it carries `ν'` to a marking that is
+again **selected**, has handle `j` **cleared**, and leaves every *other* handle row exactly where
+it was.  That last clause is what makes the handles clearable one at a time. -/
+
+/-- **The one-handle clearing step.** -/
+theorem sqEichStep (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hrel : sqRelWord (sqEichFrame h nu' j e e' d) = 1) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+        nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2]) ∧ nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1 ∧
+          nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1 ∧
+            ∀ j' : Fin h, j' ≠ j →
+              nu' (Ψ (sqGen h (sqHandleIdxU j'))) = nu' (sqGen h (sqHandleIdxU j')) ∧
+                nu' (Ψ (sqGen h (sqHandleIdxV j'))) = nu' (sqGen h (sqHandleIdxV j')) := by
+  refine ⟨sqAutOfMark hrel (sqEichFrame_surjective hrel), fun x => ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · have hext : (nuLam h).comp (autHom (sqAutOfMark hrel (sqEichFrame_surjective hrel)))
+        = nuLam h :=
+      dsq_hom_ext _ _ fun i => by
+        show nuLam h (sqAutOfMark hrel (sqEichFrame_surjective hrel) (sqGen h i))
+          = nuLam h (sqGen h i)
+        rw [sqAutOfMark_gen, sqEichFrame_nuLam]
+    exact DFunLike.congr_fun hext x
+  · show nu' (sqAutOfMark hrel (sqEichFrame_surjective hrel) (sqGen h 0)) = ofAdd (1 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqEichFrame_zero hsigma hx0]
+  · show nu' (sqAutOfMark hrel (sqEichFrame_surjective hrel) (sqGen h 1)) = ofAdd (0 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqEichFrame_one hsigma hx0]
+  · rw [sqAutOfMark_gen, nu_sqEichFrame_handleU_self hsigma hx0]
+  · rw [sqAutOfMark_gen, nu_sqEichFrame_handleV_self hsigma hx0]
+  · exact fun j' hjj => ⟨by rw [sqAutOfMark_gen, sqEichFrame_handleU_ne hjj],
+      by rw [sqAutOfMark_gen, sqEichFrame_handleV_ne hjj]⟩
+
 end EichlerFrame
+
+/-! ## §3 The residual, reduced to the relator identity
+
+`sqEichRelWord h` below is the *bare* word equation: at every selected marking and every handle,
+some `(e, e', d)` kills the relator.  It implies the whole `h ≥ 1` residual.
+
+The passage from one handle to `h` of them is the composition of `h` clearing steps: the marking
+`ν'∘Ψ_j` produced by §2c is again selected and has one more handle cleared, so the induction runs
+on the number of **uncleared** handles, taken in index order.  No new hypothesis is needed for
+that — the `hoth` clause of `sqEichFrame_nu` is an artefact of reading all rows off a *single*
+frame, and disappears once the frames are composed. -/
+
+section Reduction
+
+variable {h : ℕ}
+
+/-- **The Eichler relator identity**, as a statement about words: at every selected marking and
+every handle, some `V`-dressing weights `(e, e', d)` kill the relator.  This is the last
+mathematical content of the `h ≥ 1` residual. -/
+def SqEichRelWord (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ e e' d : ℤ_[2], sqRelWord (sqEichFrame h nu' j e e' d) = 1
+
+/-- The clearing induction: a selected marking whose handles from index `n` on are already
+cleared is corrected onto `ν_sq`.  `n = h` is the general case, `n = 0` the base. -/
+private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2])) (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hcl : ∀ j' : Fin h, n ≤ (j' : ℕ) →
+      nu' (sqGen h (sqHandleIdxU j')) = 1 ∧ nu' (sqGen h (sqHandleIdxV j')) = 1) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ ∀ x, nu' (Ψ x) = nuSq h x := by
+  induction n generalizing nu' with
+  | zero =>
+    exact ⟨ContinuousMulEquiv.refl _, fun _ => rfl,
+      nu_eq_nuSq_of_core nu' hsigma hx0 (fun j' => (hcl j' (Nat.zero_le _)).1)
+        (fun j' => (hcl j' (Nat.zero_le _)).2)⟩
+  | succ n ih =>
+    by_cases hn : n < h
+    · obtain ⟨e, e', d, hrel⟩ := H nu' ⟨n, hn⟩ hsigma hx0
+      obtain ⟨Ψ₁, hlam₁, hs₁, hx₁, hU₁, hV₁, hoth₁⟩ := sqEichStep hsigma hx0 hrel
+      have hcl₁ : ∀ j' : Fin h, n ≤ (j' : ℕ) →
+          (nu'.comp (autHom Ψ₁)) (sqGen h (sqHandleIdxU j')) = 1 ∧
+            (nu'.comp (autHom Ψ₁)) (sqGen h (sqHandleIdxV j')) = 1 := by
+        intro j' hj'
+        by_cases hjj : j' = (⟨n, hn⟩ : Fin h)
+        · subst hjj
+          exact ⟨hU₁, hV₁⟩
+        · have hlt : n + 1 ≤ (j' : ℕ) := by
+            rcases Nat.lt_or_ge (j' : ℕ) (n + 1) with hgt | hge
+            · exact absurd (Fin.val_injective (by omega : (j' : ℕ) = n)) hjj
+            · exact hge
+          exact ⟨((hoth₁ j' hjj).1).trans (hcl j' hlt).1,
+            ((hoth₁ j' hjj).2).trans (hcl j' hlt).2⟩
+      obtain ⟨Ψ₂, hlam₂, hval₂⟩ := ih (nu'.comp (autHom Ψ₁)) hs₁ hx₁ hcl₁
+      refine ⟨Ψ₂.trans Ψ₁, fun x => ?_, fun x => ?_⟩
+      · show nuLam h (Ψ₁ (Ψ₂ x)) = nuLam h x
+        rw [hlam₁, hlam₂]
+      · exact hval₂ x
+    · exact ih nu' hsigma hx0 fun j' hj' => hcl j' (by have := j'.isLt; omega)
+
+/-- **The residual, in one word equation.**  The relator identity at every selected marking and
+every handle discharges `SqLamMarkTransitivity h` — no rows, no surjectivity, no inverse
+substitution, no composition identity, and no restriction on `h`. -/
+theorem sqLamMarkTransitivity_of_eichRelWord (H : SqEichRelWord h) : SqLamMarkTransitivity h :=
+  fun nu' hsigma hx0 =>
+    sqLamMarkTransitivity_aux H h nu' hsigma hx0 fun j' hj' =>
+      absurd j'.isLt (by omega)
+
+/-- …and hence `SqLamNuClearHypothesis`, and the handle stratum at every unit exponent. -/
+theorem sqHandleMixFixesCore_of_eichRelWord {c : ℤ_[2]} (hc : IsUnit c) (hh : 0 < h)
+    (H : SqEichRelWord h) : SqHandleMixFixesCore h c :=
+  sqHandleMixFixesCore_of_lamMarkTransitivity hc hh (sqLamMarkTransitivity_of_eichRelWord H)
+
+/-- **The one-handle form**, the smallest open instance: at `h = 1` the handle index is forced,
+so the whole residual is the single family of word equations
+`sqRelWord (sqEichFrame 1 ν' 0 e e' d) = 1`. -/
+theorem sqLamMarkTransitivity_one_of_eichRelWord
+    (H : ∀ nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2]),
+      nu' (dsqSigma 1) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 1) = ofAdd (0 : ℤ_[2]) →
+        ∃ e e' d : ℤ_[2], sqRelWord (sqEichFrame 1 nu' 0 e e' d) = 1) :
+    SqLamMarkTransitivity 1 :=
+  sqLamMarkTransitivity_of_eichRelWord fun nu' j hsigma hx0 => by
+    rw [show j = 0 from Subsingleton.elim _ _]
+    exact H nu' hsigma hx0
+
+end Reduction
+
+/-! ## §4 Stress pins -/
+
+section StressTests
+
+/-- **The Eichler ansatz is satisfiable.**  At the standard marking both handle letters are
+already cleared, so the frame at `(e, e', d) = (0, 0, 0)` *is* the identity frame — the relator
+identity is not an empty demand. -/
+theorem sqEichFrame_nuSq_zero (h : ℕ) (j : Fin h) : sqEichFrame h (nuSq h) j 0 0 0 = sqGen h := by
+  have hV : sqEichV h (nuSq h) j = sqGen h (sqHandleIdxV j) := by
+    rw [sqEichV, nuSq_handleV, toAdd_one, SectionThree.zpowZtwo_zero, inv_one, mul_one]
+  have hU : sqEichU h (nuSq h) j = sqGen h (sqHandleIdxU j) := by
+    rw [sqEichU, nuSq_handleU, toAdd_one, SectionThree.zpowZtwo_zero, inv_one, one_mul]
+  refine funext fun i => ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqEichFrame_zero, SectionThree.zpowZtwo_zero, mul_one]; rfl
+  · rw [sqEichFrame_one, SectionThree.zpowZtwo_zero, mul_one]; rfl
+  · rw [sqEichFrame_two, mul_zero, SectionThree.zpowZtwo_zero, mul_one]; rfl
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrame_handleU, SectionThree.zpowZtwo_zero, mul_one, hU]
+    · rw [sqEichFrame_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrame_handleV, hV]
+    · rw [sqEichFrame_handleV_ne hjj]
+
+/-- Stress: hence the relator identity itself is satisfiable. -/
+example (h : ℕ) (j : Fin h) : sqRelWord (sqEichFrame h (nuSq h) j 0 0 0) = 1 := by
+  rw [sqEichFrame_nuSq_zero]
+  exact dsq_relation h
+
+/-- Stress: `h = 0` runs through the new reduction too — the word equation is vacuous there,
+and the residual is a theorem, as `sqLamMarkTransitivity_zero` already says. -/
+example : SqLamMarkTransitivity 0 :=
+  sqLamMarkTransitivity_of_eichRelWord fun _ j _ _ => absurd j.isLt (by omega)
+
+/-- Stress: the reduction is not vacuous in the other direction either — the residual *implies*
+the frame form (§1), so the two sides of `sqLamMarkTransitivity_iff_frames` are both live. -/
+example (H : SqLamMarkTransitivity 1) : SqNuClearHypothesis 1 :=
+  sqNuClearHypothesis_of_lamMarkTransitivity H
+
+/-- **The smallest open instance, in word form**: at one handle, carrying the marking
+`(1, 0, 0, 1, 0)` onto `ν_sq` is now the assertion that *some* `(e, e', d)` kills the relator on
+the Eichler frame over `nuSel 1 0 1 0`. -/
+example (H : SqEichRelWord 1) :
+    ∃ e e' d : ℤ_[2], sqRelWord (sqEichFrame 1 (nuSel 1 0 1 0) 0 e e' d) = 1 :=
+  H (nuSel 1 0 1 0) 0 nuSel_sigma nuSel_x0
+
+/-- Stress: surjectivity is genuinely independent of the relator — it is a statement about the
+five words, and holds for the identity frame at the standard marking with no relator input. -/
+example (h : ℕ) (j : Fin h) (Φ : ContinuousMonoidHom (DSq h : Type) (DSq h : Type))
+    (hΦ : ∀ i, Φ (sqGen h i) = sqEichFrame h (nuSq h) j 0 0 0 i) : Function.Surjective Φ :=
+  sqEichFrame_surjective_of_hom Φ hΦ
+
+/-- Stress: the `λ`-row of the frame is unconditional — no marking hypothesis at all. -/
+example (h : ℕ) (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+    (e e' d : ℤ_[2]) (i : Fin (sqRank h)) :
+    nuLam h (sqEichFrame h nu' j e e' d i) = nuLam h (sqGen h i) := sqEichFrame_nuLam i
+
+end StressTests
 
 /-! ## §5 Axiom pins
 
@@ -434,11 +656,21 @@ section AxiomPins
 #print axioms sqEichU
 #print axioms sqEichFrame
 #print axioms sqEichFrame_nuLam
+#print axioms nu_sqEichFrame_zero
+#print axioms nu_sqEichFrame_one
+#print axioms nu_sqEichFrame_handleU_self
+#print axioms nu_sqEichFrame_handleV_self
 #print axioms sqEichFrame_nu
 #print axioms sqEichV_mul_pivotPow
 #print axioms pivotPow_mul_sqEichU
 #print axioms sqEichFrame_surjective_of_hom
 #print axioms sqEichFrame_surjective
+#print axioms sqEichStep
+#print axioms SqEichRelWord
+#print axioms sqLamMarkTransitivity_of_eichRelWord
+#print axioms sqHandleMixFixesCore_of_eichRelWord
+#print axioms sqLamMarkTransitivity_one_of_eichRelWord
+#print axioms sqEichFrame_nuSq_zero
 
 end AxiomPins
 
