@@ -723,7 +723,107 @@ private theorem fHom_sqEichV :
     fHom_gen, fMark_handleV]
   ext <;> simp
 
+/-- ⭐⭐ **The `x₀`-slot dressing is forced.**  At every selected marking whose other handles are
+already cleared, every dressing tuple killing the relator in the `x₁ = x₀²` gauge satisfies
+
+```text
+ā₁ = −ν'(v_j)·Ū + ν'(u_j)·V̄
+```
+
+tested against every alternating form `(2·χ) ∧ ν'`.  This is `CommFrames`' Headline 3 ⭐
+paragraph, machine-checked: the `w̄`-column of `K ⊗ P` is reached by **no** dressing except the
+`x₀`-slot's, and the balance there pins it to a non-zero value as soon as one of the two handle
+rows is non-zero.
+
+⚠ The gauge hypothesis `hsq : a 2 = a 1 ^ 2` is **not** decoration — see the ⚠ note below. -/
+theorem sqArbFrame_x0_dressing_forced
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hcl : ∀ j' : Fin h, j' ≠ j → nu' (sqGen h (sqHandleIdxU j')) = 1 ∧
+      nu' (sqGen h (sqHandleIdxV j')) = 1)
+    {a : Fin (sqRank h) → (DSq h : Type)} (ha : ∀ i, nu' (a i) = 1) (hsq : a 2 = a 1 ^ 2)
+    (hrel : sqRelWord (sqArbFrame h nu' j a) = 1) (A B : gr2R) :
+    (fHom h nu' j A B (a 1)).a
+      = -(fS h nu' j) * (fHom h nu' j A B (sqEichU h nu' j)).a
+        + fT h nu' j * (fHom h nu' j A B (sqEichV h nu' j)).a := by
+  have hab : ∀ i, (fHom h nu' j A B (a i)).b = 0 := by
+    intro i
+    rw [fHom_b hsigma hx0 hcl, ha i]
+    simp
+  have hbal := sqHeisDefect_balance (fHom h nu' j A B) _ hrel
+  have hs0 : fHom h nu' j A B (sqArbFrame h nu' j a 0)
+      = (⟨0, 1, 0⟩ : SqHeis gr2R) * fHom h nu' j A B (a 0) := by
+    rw [sqArbFrame, sqArbBase_zero, map_mul, dsqSigma, fHom_gen, fMark_zero]
+  have hs1 : fHom h nu' j A B (sqArbFrame h nu' j a 1) = fHom h nu' j A B (a 1) := by
+    rw [sqArbFrame, sqArbBase_one, map_mul, dsqX0, fHom_gen, fMark_one, one_mul]
+  have hs2 : fHom h nu' j A B (sqArbFrame h nu' j a 2)
+      = (⟨0, 0, B * fT h nu' j - A * fS h nu' j⟩ : SqHeis gr2R) *
+        (fHom h nu' j A B (a 1)) ^ 2 := by
+    rw [sqArbFrame, sqArbBase_two, map_mul, dsqX1, fHom_gen, fMark_two, hsq, map_pow]
+  have hsU : fHom h nu' j A B (sqArbFrame h nu' j a (sqHandleIdxU j))
+      = (⟨2 * A, 0, 0⟩ : SqHeis gr2R) * fHom h nu' j A B (a (sqHandleIdxU j)) := by
+    rw [sqArbFrame, sqArbBase_handleU, map_mul, fHom_sqEichU]
+  have hsV : fHom h nu' j A B (sqArbFrame h nu' j a (sqHandleIdxV j))
+      = (⟨2 * B, 0, -(2 * B * fS h nu' j)⟩ : SqHeis gr2R) *
+        fHom h nu' j A B (a (sqHandleIdxV j)) := by
+    rw [sqArbFrame, sqArbBase_handleV, map_mul, fHom_sqEichV]
+  rw [sqHeisDefect, Finset.sum_eq_single j (fun j' _ hne => by
+      rw [sqArbFrame, sqArbFrame, sqArbBase_handleU_ne hne, sqArbBase_handleV_ne hne,
+        map_mul, map_mul, fHom_gen, fHom_gen, fMark_handleU_ne hne, fMark_handleV_ne hne]
+      simp [hab]) (fun hj => absurd (Finset.mem_univ j) hj)] at hbal
+  rw [hs0, hs1, hs2, hsU, hsV] at hbal
+  simp only [SqHeis.mul_a, SqHeis.mul_b, SqHeis.mul_c, SqHeis.pow_a, SqHeis.pow_b, SqHeis.pow_c,
+    hab] at hbal
+  rw [fHom_sqEichU, fHom_sqEichV]
+  push_cast at hbal
+  linear_combination -hbal
+
+/-- ⭐ The forced value is **non-zero** whenever a handle row is: the `x₀`-slot must be dressed
+by the *handle* letters `U^{−s}V^{t}`, never by the core.  Here the `Ū`-dual instance `A = 1`,
+`B = 0`. -/
+theorem sqArbFrame_x0_dressing_forced_uDual
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hcl : ∀ j' : Fin h, j' ≠ j → nu' (sqGen h (sqHandleIdxU j')) = 1 ∧
+      nu' (sqGen h (sqHandleIdxV j')) = 1)
+    {a : Fin (sqRank h) → (DSq h : Type)} (ha : ∀ i, nu' (a i) = 1) (hsq : a 2 = a 1 ^ 2)
+    (hrel : sqRelWord (sqArbFrame h nu' j a) = 1) :
+    (fHom h nu' j 1 0 (a 1)).a = -(2 * fS h nu' j) := by
+  rw [sqArbFrame_x0_dressing_forced hsigma hx0 hcl ha hsq hrel 1 0, fHom_sqEichU, fHom_sqEichV]
+  ring
+
 end Forcing
+
+/-! ## §7 Stress pins -/
+
+section StressTests
+
+/-- Stress: the test group is not abelian — the pairing really is non-degenerate. -/
+example : commP (⟨1, 0, 0⟩ : SqHeis (ZMod (2 ^ 2))) ⟨0, 1, 0⟩ = ⟨0, 0, 1⟩ := by
+  ext <;> simp
+
+/-- Stress: the class-two defect of the *standard* marking vanishes, as it must. -/
+example (h : ℕ) : sqHeisDefect h (fun _ => (1 : SqHeis (ZMod (2 ^ 2)))) = 0 := by
+  simp [sqHeisDefect]
+
+/-- Stress: the gate is not vacuous — the trivial marking passes it. -/
+example (h : ℕ) :
+    sqRelWord (fun _ : Fin (sqRank h) => (1 : SqHeis (ZMod (2 ^ 2)))) = 1 := by
+  rw [SqHeis.sqRelWord_eq_one_iff]
+  refine ⟨by simp, by simp, ?_⟩
+  simp [sqHeisDefect]
+
+/-- Stress: the gate's verdict on the `V`-family agrees with the committed refutation. -/
+example {h : ℕ} (hh : 0 < h) : ¬ SqEichRelWord h := not_sqEichRelWord_of_gate hh
+
+/-- Stress: …and so does `EichRefutation`'s. -/
+example {h : ℕ} (hh : 0 < h) : ¬ SqEichRelWord h := not_sqEichRelWord hh
+
+/-- Stress: the forcing is a statement about a **non-zero** value — at `ν'(v_j) = 1` the
+`x₀`-slot's `Ū`-dual coordinate is `−2 ≠ 0` in `ℤ/4`. -/
+example : -(2 * (1 : ZMod (2 ^ 2))) ≠ 0 := by decide
+
+end StressTests
 
 end HeisGroup
 
