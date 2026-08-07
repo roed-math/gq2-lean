@@ -548,7 +548,7 @@ end AxiomPins
 
 end Target
 
-/-! ## §7 ⚠⚠ the **two-letter** family dies too — by a new mechanism
+/-! ## §7 ⭐ The collapse lemma: **identify** the two cleared letters
 
 `SqCore/UVFrames.lean` builds `sqEichFrameUV`, which dresses each moved slot by `U^k V^l` rather
 than by powers of one letter, and which literally **contains** both families of §3 as slices
@@ -557,48 +557,32 @@ it: that collapse needs every dressing to lie in `ker φ`, and `U^k V^l` lies in
 `φ` kills *both* letters, which forces `[φ(u_j), φ(v_j)] = 1` and makes the test vacuous.
 
 ⭐ **The mechanism that does reach it is different, and strictly more general: instead of killing
-a letter, identify the two.**  Send `U` and `V` to one and the same **involution** `z ≠ 1`.  Then
+a letter, identify the two.**  Suppose a test homomorphism `φ` sends `U` and `V` to one and the
+same **involution** `z`.  Then, at *every* weight tuple,
 
-* every dressing `U^k V^l ↦ z^{k+l} ∈ {1, z}` — the four core dressings collapse to two bits,
-  not to nothing;
+* each dressing `U^k V^l ↦ z^{k+l} ∈ {1, z}` — the four core dressings collapse to two bits, not
+  to nothing, so `z` is free to be `≠ 1`;
 * the `x₁`-slot's dressing `U^{2f'}V^{2e'} ↦ z^{2(f'+e')} = 1` outright, since `z² = 1`;
-* both handle slots land in the abelian `{1, z}`, so the handle commutator dies anyway.
+* both handle slots land in the abelian `{1, z}`, so the handle block dies with no hypothesis on
+  the two extra parameters `d, d'` at all.
 
-What is left is `sqWord (σ̄·z^α) (x̄₀·z^β) x̄₁` over the **four** bits `(α, β)`, and if none of the
-four is `1` the whole family is refuted at once, at *every* weight tuple.
+What is left is `sqWord (φσ·z^α) (φx₀·z^β) (φx₁)` over the **two** bits `(α, β)`
+(`sqRelWord_sqEichFrameUV_collapse`), so a target in which none of those four values is `1`
+refutes the whole family in one stroke.
 
-This subsumes §3: killing a letter is the degenerate case `z = 1` of "identify the two", and the
-condition that makes it bite (`[φ(u_j), φ(v_j)] ≠ 1`) is exactly what an involution `z ≠ 1`
-supplies without the letter having to die.
+This **subsumes** §3: killing a letter is the degenerate case `z = 1`, and the condition that
+makes the test bite (`[φ(u_j), φ(v_j)] ≠ 1`) is exactly what an involution `z ≠ 1` supplies
+without the letter having to die. -/
 
-Concretely the target is `D₈ = DihedralGroup 8` (order 16, exponent 8 — `D₄` is **too small**:
-there `U = V` forces the handle commutator into a group where the four core words do include `1`),
-marked
+section Collapse
 
-```text
-σ ↦ r 1 ,  x₀ ↦ 1 ,  x₁ ↦ r 2 ,  u_j ↦ sr 0 ,  v_j ↦ sr 2 ,  every other letter ↦ 1
-```
-
-— a marking, since `sqWord (r 1) 1 (r 2) = r 4 = [sr 0, sr 2]⁻¹`.  The pivot goes to `r 1` with no
-fact about `c₀` used, and at the selected marking `nuSel h j 1 1` **both** cleared letters go to
-`sr 1`:  `U = w^{−1}·u_j ↦ (r 1)⁻¹·sr 0 = sr 1` and `V = v_j·w^{−1} ↦ sr 2·(r 1)⁻¹ = sr 1`.  The
-four surviving core words are `r 4, r 2, r 4, r 6`, none of them `1`. -/
-
-section TargetEight
-
-local instance instTopologicalSpaceD8 : TopologicalSpace (DihedralGroup 8) := ⊥
-local instance instDiscreteTopologyD8 : DiscreteTopology (DihedralGroup 8) := ⟨rfl⟩
-
-/-- `D₈` is pro-2: every element has order dividing `8`. -/
-theorem isProP_two_dihedral8 : IsProP 2 (DihedralGroup 8) :=
-  isProP_of_isPGroup fun g => ⟨3, by revert g; decide⟩
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
 
 /-- **A `ℤ₂`-power of an involution is the involution or the identity.**  This is the arithmetic
-half of §7's mechanism: it is what turns the four-parameter dressing into two bits. -/
-private theorem zpowZtwo_of_involution {P : Type} [Group P] [TopologicalSpace P]
-    [IsTopologicalGroup P] [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
-    (hP : IsProP 2 P) {x : P} (hx : x * x = 1) (k : ℤ_[2]) :
-    zpowZtwo hP x k = 1 ∨ zpowZtwo hP x k = x := by
+half of the collapse: it is what turns a four-parameter dressing into two bits. -/
+theorem zpowZtwo_of_involution {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+    [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P] (hP : IsProP 2 P) {x : P}
+    (hx : x * x = 1) (k : ℤ_[2]) : zpowZtwo hP x k = 1 ∨ zpowZtwo hP x k = x := by
   have heven : ∀ m : ℤ_[2], zpowZtwo hP x (2 * m) = 1 := by
     intro m
     rw [← zpowZtwo_zpowZtwo hP x 2 m, zpowZtwo_two hP x, hx, zpowZtwo_one_base]
@@ -610,11 +594,115 @@ private theorem zpowZtwo_of_involution {P : Type} [Group P] [TopologicalSpace P]
     have hk2 : k = 2 * m + 1 := by linear_combination hm
     rw [hk2, zpowZtwo_add, heven m, zpowZtwo_one_exp, one_mul]
 
-/-- …and an **even** `ℤ₂`-power of an involution is the identity outright. -/
-private theorem zpowZtwo_of_involution_two {P : Type} [Group P] [TopologicalSpace P]
+/-- …and an **even** `ℤ₂`-power of an involution is the identity outright — which is what makes
+the `x₁`-slot of a two-letter frame undressed. -/
+theorem zpowZtwo_of_involution_two {P : Type} [Group P] [TopologicalSpace P]
     [IsTopologicalGroup P] [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
     (hP : IsProP 2 P) {x : P} (hx : x * x = 1) (k : ℤ_[2]) : zpowZtwo hP x (2 * k) = 1 := by
   rw [← zpowZtwo_zpowZtwo hP x 2 k, zpowZtwo_two hP x, hx, zpowZtwo_one_base]
+
+/-- Two elements of `{1, z}` commute. -/
+private theorem commP_of_pair {P : Type*} [Group P] {z a b : P} (ha : a = 1 ∨ a = z)
+    (hb : b = 1 ∨ b = z) : commP a b = 1 := by
+  rcases ha with rfl | rfl <;> rcases hb with rfl | rfl <;> simp [commP, mul_assoc]
+
+/-- ⭐ **The collapse lemma.**  If a homomorphism identifies the two cleared letters onto an
+involution `z`, then the relator of the two-letter frame collapses — at **every** weight tuple —
+to the bare core word with each of `σ` and `x₀` dressed by at most one copy of `z`, and with the
+`x₁`-slot and the whole handle block undressed.
+
+Stated for an arbitrary pro-2 target and an arbitrary selected marking, so it is the reusable
+form of the mechanism: any target in which the four resulting core words all differ from `1`
+refutes the family at that marking.  Note there is **no** hypothesis on `d, d'` — the two handle
+parameters die with the rest, which is why the refutation reaches the full six-parameter family
+and not only the `d = d' = 0` slice. -/
+theorem sqRelWord_sqEichFrameUV_collapse {P : Type} [Group P] [TopologicalSpace P]
+    [IsTopologicalGroup P] [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
+    (hP : IsProP 2 P) (φ : ContinuousMonoidHom (DSq h : Type) P) {z : P} (hz : z * z = 1)
+    (hU : φ (sqEichU h nu' j) = z) (hV : φ (sqEichV h nu' j) = z)
+    (hoth : ∀ j' : Fin h, j' ≠ j →
+      commP (φ (sqGen h (sqHandleIdxU j'))) (φ (sqGen h (sqHandleIdxV j'))) = 1)
+    (f f' e e' d d' : ℤ_[2]) :
+    ∃ a b : P, (a = φ (dsqSigma h) ∨ a = φ (dsqSigma h) * z) ∧
+      (b = φ (dsqX0 h) ∨ b = φ (dsqX0 h) * z) ∧
+        φ (sqRelWord (sqEichFrameUV h nu' j f f' e e' d d')) = sqWord a b (φ (dsqX1 h)) := by
+  have hdU : ∀ k : ℤ_[2], φ (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) k) = 1 ∨
+      φ (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) k) = z := fun k => by
+    rw [map_zpowZtwo (isProP_DSq h) hP, hU]
+    exact zpowZtwo_of_involution hP hz k
+  have hdV : ∀ k : ℤ_[2], φ (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) k) = 1 ∨
+      φ (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) k) = z := fun k => by
+    rw [map_zpowZtwo (isProP_DSq h) hP, hV]
+    exact zpowZtwo_of_involution hP hz k
+  have hdU2 : ∀ k : ℤ_[2], φ (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) (2 * k)) = 1 := fun k => by
+    rw [map_zpowZtwo (isProP_DSq h) hP, hU]
+    exact zpowZtwo_of_involution_two hP hz k
+  have hdV2 : ∀ k : ℤ_[2], φ (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 * k)) = 1 := fun k => by
+    rw [map_zpowZtwo (isProP_DSq h) hP, hV]
+    exact zpowZtwo_of_involution_two hP hz k
+  have hslot : ∀ (g : (DSq h : Type)) (k l : ℤ_[2]),
+      φ (g * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) k *
+          zpowZtwo (isProP_DSq h) (sqEichV h nu' j) l) = φ g ∨
+        φ (g * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) k *
+          zpowZtwo (isProP_DSq h) (sqEichV h nu' j) l) = φ g * z := by
+    intro g k l
+    rw [map_mul, map_mul]
+    rcases hdU k with hk | hk <;> rcases hdV l with hl | hl <;> rw [hk, hl]
+    · exact Or.inl (by rw [mul_one, mul_one])
+    · exact Or.inr (by rw [mul_one])
+    · exact Or.inr (by rw [mul_one])
+    · exact Or.inl (by rw [mul_assoc, hz, mul_one])
+  have hmemU : φ (sqEichFrameUV h nu' j f f' e e' d d' (sqHandleIdxU j)) = 1 ∨
+      φ (sqEichFrameUV h nu' j f f' e e' d d' (sqHandleIdxU j)) = z := by
+    rw [sqEichFrameUV_handleU, map_mul, hU]
+    rcases hdV d with hd | hd <;> rw [hd]
+    · exact Or.inr (mul_one z)
+    · exact Or.inl hz
+  have hmemV : φ (sqEichFrameUV h nu' j f f' e e' d d' (sqHandleIdxV j)) = 1 ∨
+      φ (sqEichFrameUV h nu' j f f' e e' d d' (sqHandleIdxV j)) = z := by
+    rw [sqEichFrameUV_handleV, map_mul, hV]
+    rcases hdU d' with hd | hd <;> rw [hd]
+    · exact Or.inr (mul_one z)
+    · exact Or.inl hz
+  have htwo : φ (sqEichFrameUV h nu' j f f' e e' d d' 2) = φ (dsqX1 h) := by
+    rw [sqEichFrameUV_two, map_mul, map_mul, hdU2, hdV2, mul_one, mul_one]
+  have hne : ∀ i : Fin h, i ≠ j →
+      commP (φ (sqEichFrameUV h nu' j f f' e e' d d' (sqHandleIdxU i)))
+        (φ (sqEichFrameUV h nu' j f f' e e' d d' (sqHandleIdxV i))) = 1 := by
+    intro i hi
+    rw [sqEichFrameUV_handleU_ne hi, sqEichFrameUV_handleV_ne hi]
+    exact hoth i hi
+  refine ⟨φ (sqEichFrameUV h nu' j f f' e e' d d' 0),
+    φ (sqEichFrameUV h nu' j f f' e e' d d' 1), ?_, ?_, ?_⟩
+  · rw [sqEichFrameUV_zero]; exact hslot _ f e
+  · rw [sqEichFrameUV_one]; exact hslot _ f' e'
+  · rw [map_sqRelWord, sqRelWord, handleWord_eq_single _ _ j hne, commP_of_pair hmemU hmemV,
+      htwo, mul_one]
+
+end Collapse
+
+/-! ## §8 ⚠⚠ the two-letter family dies, in `D₈`
+
+Concretely the target is `D₈ = DihedralGroup 8` (order 16, exponent 8 — `D₄` is **too small**:
+there the four collapsed core words do include `1`), marked
+
+```text
+σ ↦ r 1 ,  x₀ ↦ 1 ,  x₁ ↦ r 2 ,  u_j ↦ sr 0 ,  v_j ↦ sr 2 ,  every other letter ↦ 1
+```
+
+— a marking, since `sqWord (r 1) 1 (r 2) = r 4 = [sr 0, sr 2]⁻¹`.  The pivot goes to `r 1` with no
+fact about `c₀` used, and at the selected marking `nuSel h j 1 1` **both** cleared letters go to
+the involution `sr 1`:  `U = w^{−1}·u_j ↦ (r 1)⁻¹·sr 0 = sr 1` and `V = v_j·w^{−1} ↦ sr 2·(r 1)⁻¹
+= sr 1`.  The four surviving core words are `r 4, r 2, r 4, r 6`, none of them `1`. -/
+
+section TargetEight
+
+local instance instTopologicalSpaceD8 : TopologicalSpace (DihedralGroup 8) := ⊥
+local instance instDiscreteTopologyD8 : DiscreteTopology (DihedralGroup 8) := ⟨rfl⟩
+
+/-- `D₈` is pro-2: every element has order dividing `8`. -/
+theorem isProP_two_dihedral8 : IsProP 2 (DihedralGroup 8) :=
+  isProP_of_isPGroup fun g => ⟨3, by revert g; decide⟩
 
 /-- `σ`'s value, and the pivot's: the rotation of order eight. -/
 private abbrev uvS : DihedralGroup 8 := DihedralGroup.r 1
@@ -716,69 +804,30 @@ private theorem uvHom_sqEichV : uvHom h j (sqEichV h (nuSel h j 1 1) j) = uvZ :=
 
 private theorem uvZ_sq : uvZ * uvZ = 1 := by decide
 
-/-- Every `U`-dressing lands in `{1, uvZ}` — it does **not** die. -/
-private theorem uvHom_dressU (k : ℤ_[2]) :
-    uvHom h j (zpowZtwo (isProP_DSq h) (sqEichU h (nuSel h j 1 1) j) k) = 1 ∨
-      uvHom h j (zpowZtwo (isProP_DSq h) (sqEichU h (nuSel h j 1 1) j) k) = uvZ := by
-  rw [map_zpowZtwo (isProP_DSq h) isProP_two_dihedral8, uvHom_sqEichU]
-  exact zpowZtwo_of_involution isProP_two_dihedral8 uvZ_sq k
-
-/-- …and so does every `V`-dressing, onto the **same** two elements. -/
-private theorem uvHom_dressV (k : ℤ_[2]) :
-    uvHom h j (zpowZtwo (isProP_DSq h) (sqEichV h (nuSel h j 1 1) j) k) = 1 ∨
-      uvHom h j (zpowZtwo (isProP_DSq h) (sqEichV h (nuSel h j 1 1) j) k) = uvZ := by
-  rw [map_zpowZtwo (isProP_DSq h) isProP_two_dihedral8, uvHom_sqEichV]
-  exact zpowZtwo_of_involution isProP_two_dihedral8 uvZ_sq k
-
-/-- An **even** `U`-dressing dies outright: this is why the `x₁`-slot is undressed. -/
-private theorem uvHom_dressU_two (k : ℤ_[2]) :
-    uvHom h j (zpowZtwo (isProP_DSq h) (sqEichU h (nuSel h j 1 1) j) (2 * k)) = 1 := by
-  rw [map_zpowZtwo (isProP_DSq h) isProP_two_dihedral8, uvHom_sqEichU]
-  exact zpowZtwo_of_involution_two isProP_two_dihedral8 uvZ_sq k
-
-private theorem uvHom_dressV_two (k : ℤ_[2]) :
-    uvHom h j (zpowZtwo (isProP_DSq h) (sqEichV h (nuSel h j 1 1) j) (2 * k)) = 1 := by
-  rw [map_zpowZtwo (isProP_DSq h) isProP_two_dihedral8, uvHom_sqEichV]
-  exact zpowZtwo_of_involution_two isProP_two_dihedral8 uvZ_sq k
+private theorem uvHom_others : ∀ j' : Fin h, j' ≠ j →
+    commP (uvHom h j (sqGen h (sqHandleIdxU j'))) (uvHom h j (sqGen h (sqHandleIdxV j'))) = 1 := by
+  intro j' hj'
+  rw [uvHom_gen, uvHom_gen, uvMark_handleU_ne hj', uvMark_handleV_ne hj', commP_one_right]
 
 /-- **The four surviving core words**, and none of them is `1`.  This is the whole content of the
 refutation: after the collapse the family has exactly two bits left, and it misses on all four. -/
 private theorem sqWord_uvSlots_ne_one {a b : DihedralGroup 8} (ha : a = uvS ∨ a = uvS * uvZ)
-    (hb : b = 1 ∨ b = uvZ) : sqWord a b uvY ≠ 1 := by
+    (hb : b = 1 ∨ b = 1 * uvZ) : sqWord a b uvY ≠ 1 := by
   rcases ha with rfl | rfl <;> rcases hb with rfl | rfl <;> decide
 
-variable {f f' e e' d d' : ℤ_[2]}
-
-/-- The `σ`-slot lands on one of two elements. -/
-private theorem uvHom_slot_zero :
-    uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' 0) = uvS ∨
-      uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' 0) = uvS * uvZ := by
-  rw [sqEichFrameUV_zero, map_mul, map_mul, dsqSigma, uvHom_gen, uvMark_zero]
-  rcases uvHom_dressU (h := h) (j := j) f with hf | hf <;>
-    rcases uvHom_dressV (h := h) (j := j) e with he | he <;> rw [hf, he] <;> decide
-
-/-- The `x₀`-slot lands on one of two elements. -/
-private theorem uvHom_slot_one :
-    uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' 1) = 1 ∨
-      uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' 1) = uvZ := by
-  rw [sqEichFrameUV_one, map_mul, map_mul, dsqX0, uvHom_gen, uvMark_one]
-  rcases uvHom_dressU (h := h) (j := j) f' with hf | hf <;>
-    rcases uvHom_dressV (h := h) (j := j) e' with he | he <;> rw [hf, he] <;> decide
-
-/-- The `x₁`-slot is **undressed**: its weights are even and `uvZ` is an involution. -/
-private theorem uvHom_slot_two :
-    uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' 2) = uvY := by
-  rw [sqEichFrameUV_two, map_mul, map_mul, dsqX1, uvHom_gen, uvMark_two, uvHom_dressU_two,
-    uvHom_dressV_two, mul_one, mul_one]
-
-/-- The handle block dies: both slots land in the abelian `{1, uvZ}`. -/
-private theorem uvHom_handleComm :
-    commP (uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' (sqHandleIdxU j)))
-        (uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' (sqHandleIdxV j))) = 1 := by
-  rw [sqEichFrameUV_handleU, sqEichFrameUV_handleV, map_mul, map_mul, uvHom_sqEichU,
-    uvHom_sqEichV]
-  rcases uvHom_dressV (h := h) (j := j) d with hd | hd <;>
-    rcases uvHom_dressU (h := h) (j := j) d' with hd' | hd' <;> rw [hd, hd'] <;> decide
+/-- **The relator image is never `1`** — the collapse lemma applied at the `D₈` marking. -/
+private theorem uvHom_sqRelWord_ne_one (h : ℕ) (j : Fin h) (f f' e e' d d' : ℤ_[2]) :
+    uvHom h j (sqRelWord (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d')) ≠ 1 := by
+  obtain ⟨a, b, ha, hb, hval⟩ := sqRelWord_sqEichFrameUV_collapse isProP_two_dihedral8
+    (uvHom h j) uvZ_sq uvHom_sqEichU uvHom_sqEichV uvHom_others f f' e e' d d'
+  have hs : uvHom h j (dsqSigma h) = uvS := by rw [dsqSigma, uvHom_gen, uvMark_zero]
+  have hx0 : uvHom h j (dsqX0 h) = 1 := by rw [dsqX0, uvHom_gen, uvMark_one]
+  have hx1 : uvHom h j (dsqX1 h) = uvY := by rw [dsqX1, uvHom_gen, uvMark_two]
+  rw [hs] at ha
+  rw [hx0] at hb
+  rw [hx1] at hval
+  rw [hval]
+  exact sqWord_uvSlots_ne_one ha hb
 
 /-- ⚠⚠ **The refutation of the two-letter family.**  At the selected marking `nuSel h j 1 1` the
 two-letter Eichler frame kills the relator for **no** weight tuple `(f, f', e, e', d, d')` — not
@@ -786,17 +835,7 @@ for the `d = d' = 0` slice, and not for any other. -/
 theorem not_sqRelWord_sqEichFrameUV_nuSel (h : ℕ) (j : Fin h) (f f' e e' d d' : ℤ_[2]) :
     sqRelWord (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d') ≠ 1 := by
   intro hone
-  have hne : ∀ i : Fin h, i ≠ j →
-      commP (uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' (sqHandleIdxU i)))
-        (uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' (sqHandleIdxV i))) = 1 := by
-    intro i hi
-    rw [sqEichFrameUV_handleU_ne hi, sqEichFrameUV_handleV_ne hi, uvHom_gen, uvHom_gen,
-      uvMark_handleU_ne hi, uvMark_handleV_ne hi, commP_one_right]
-  have h1 : uvHom h j (sqRelWord (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d')) = 1 := by
-    rw [hone, map_one]
-  rw [map_sqRelWord, sqRelWord, handleWord_eq_single _ _ j hne, uvHom_handleComm,
-    uvHom_slot_two, mul_one] at h1
-  exact sqWord_uvSlots_ne_one uvHom_slot_zero uvHom_slot_one h1
+  exact uvHom_sqRelWord_ne_one h j f f' e e' d d' (by rw [hone, map_one])
 
 /-- ⚠⚠ **`SqEichRelWordUV h` is false at every `h ≥ 1`.**  The two-letter widening of
 `SqCore/UVFrames.lean` does not discharge the residual either. -/
@@ -808,33 +847,20 @@ theorem not_sqEichRelWordUV {h : ℕ} (hh : 0 < h) : ¬ SqEichRelWordUV h := by
 /-- ⭐ **One homomorphism now does all three refutations, at one marking.**  §3 needed two
 `D₄`-markings and could not touch the mix at `nuSel h j 1 1` with either alone; the `D₈` test
 kills the `V`-family, the transposed family and their two-letter widening simultaneously, because
-all three are slices of `sqEichFrameUV`. -/
+all three are slices of `sqEichFrameUV` and the collapse lemma is blind to which slice. -/
 theorem exists_hom_refuting_all_eichler_families (h : ℕ) (j : Fin h) :
     ∃ φ : ContinuousMonoidHom (DSq h : Type) (DihedralGroup 8),
       (∀ e e' d : ℤ_[2], φ (sqRelWord (sqEichFrame h (nuSel h j 1 1) j e e' d)) ≠ 1) ∧
         (∀ f f' d : ℤ_[2], φ (sqRelWord (sqEichFrameT h (nuSel h j 1 1) j f f' d)) ≠ 1) ∧
           ∀ f f' e e' d d' : ℤ_[2],
-            φ (sqRelWord (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d')) ≠ 1 := by
-  have key : ∀ f f' e e' d d' : ℤ_[2],
-      uvHom h j (sqRelWord (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d')) ≠ 1 := by
-    intro f f' e e' d d' hc
-    have hne : ∀ i : Fin h, i ≠ j →
-        commP (uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' (sqHandleIdxU i)))
-          (uvHom h j (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d' (sqHandleIdxV i)))
-          = 1 := by
-      intro i hi
-      rw [sqEichFrameUV_handleU_ne hi, sqEichFrameUV_handleV_ne hi, uvHom_gen, uvHom_gen,
-        uvMark_handleU_ne hi, uvMark_handleV_ne hi, commP_one_right]
-    rw [map_sqRelWord, sqRelWord, handleWord_eq_single _ _ j hne, uvHom_handleComm,
-      uvHom_slot_two, mul_one] at hc
-    exact sqWord_uvSlots_ne_one uvHom_slot_zero uvHom_slot_one hc
-  refine ⟨uvHom h j, fun e e' d => ?_, fun f f' d => ?_, key⟩
-  · rw [← sqEichFrameUV_eq_sqEichFrame]
-    exact key 0 0 e e' d 0
-  · rw [← sqEichFrameUV_eq_sqEichFrameT]
-    exact key f f' 0 0 0 d
+            φ (sqRelWord (sqEichFrameUV h (nuSel h j 1 1) j f f' e e' d d')) ≠ 1 :=
+  ⟨uvHom h j, fun e e' d => by
+      rw [← sqEichFrameUV_eq_sqEichFrame]; exact uvHom_sqRelWord_ne_one h j 0 0 e e' d 0,
+    fun f f' d => by
+      rw [← sqEichFrameUV_eq_sqEichFrameT]; exact uvHom_sqRelWord_ne_one h j f f' 0 0 0 d,
+    uvHom_sqRelWord_ne_one h j⟩
 
-/-! ### §7a Stress pins -/
+/-! ### §8a Stress pins -/
 
 section StressTestsEight
 
@@ -856,23 +882,28 @@ example (h : ℕ) (j : Fin h) :
 /-- Stress: `h = 0` is untouched — there is no handle to refute at. -/
 example : SqEichRelWordUV 0 := fun _ j _ _ => absurd j.isLt (by omega)
 
-/-- Stress: `D₄` is genuinely too small for §7's mechanism — its own involutions do **not**
-separate the four core words, which is why §3 had to kill a letter instead of identifying two. -/
-example : sqWord (DihedralGroup.sr 0 * DihedralGroup.sr 1) (DihedralGroup.sr 1)
+/-- Stress: `D₄` is genuinely too small for §7's mechanism — one of *its* four collapsed core
+words **is** `1`, which is why §3 had to kill a letter instead of identifying two. -/
+example : sqWord (DihedralGroup.sr 0 * DihedralGroup.sr 1) (1 * DihedralGroup.sr 1)
     (DihedralGroup.r 1 : DihedralGroup 4) = 1 := by decide
 
 /-- Stress: the residual is **still** not refuted.  `sqLamMarkTransitivity_iff_frames` quantifies
-over *all* five-word frames; §3 and §7 between them kill three explicitly parametrised families,
-which remains a set of measure zero among frames. -/
+over *all* five-word frames; §3 and §8 between them kill three explicitly parametrised families,
+which remains a set of measure zero among frames.  In particular the widening named in
+`LamFrames` §4 — dressing by **arbitrary** `λ`-trivial, `ν'`-trivial elements rather than by words
+in `U` and `V` — is out of reach of §7's collapse, which needs the dressings to land in `⟨z⟩`. -/
 example (h : ℕ) (H : SqLamMarkTransitivity h) : SqNuClearHypothesis h :=
   sqNuClearHypothesis_of_lamMarkTransitivity H
 
 end StressTestsEight
 
-/-! ### §7b Axiom pins -/
+/-! ### §8b Axiom pins -/
 
 section AxiomPinsEight
 
+#print axioms zpowZtwo_of_involution
+#print axioms zpowZtwo_of_involution_two
+#print axioms sqRelWord_sqEichFrameUV_collapse
 #print axioms isProP_two_dihedral8
 #print axioms not_sqRelWord_sqEichFrameUV_nuSel
 #print axioms not_sqEichRelWordUV
