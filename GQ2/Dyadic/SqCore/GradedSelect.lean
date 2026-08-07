@@ -198,6 +198,93 @@ variable {he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0}
     selHom h nu' j A B C D P Q hd he (sqGen h i) = selMark h nu' j A B C D P Q i :=
   sqU4Hom_gen _ _ _ i
 
+/-! ## §3 The closed forms
+
+The class-three transcription of `GradedTwo` §6's `fHom_b`, `fHom_sqPivot`, `fHom_sqEichU`,
+`fHom_sqEichV`.  Everything is one `SqU4.zpowZtwo_of_flat` away from the class-two proofs; the
+three flatness conditions of the `ν'`-column generator `⟨0,1,0,0,0,0⟩` all hold. -/
+
+/-- The projection of the class-three test group onto its `b`-column, used to compare two test
+homs through their `ν'`-columns alone. -/
+private def bProj3 : ContinuousMonoidHom (SqU4 gr3R) (SqU4 gr3R) where
+  toFun p := ⟨0, p.b, 0, 0, 0, 0⟩
+  map_one' := rfl
+  map_mul' _ _ := by ext <;> simp
+  continuous_toFun := continuous_of_discreteTopology
+
+/-- The `ν'`-column generator is flat, so `ℤ₂`-powers of it are linear. -/
+private theorem zpow_nuCol (u : ℤ_[2]) :
+    zpowZtwo isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) u = ⟨0, gr3Pi u, 0, 0, 0, 0⟩ := by
+  rw [SqU4.zpowZtwo_of_flat isProP_two_gr3 gr3Pi gr3Pi_open (by norm_num) (by norm_num)
+    (by norm_num)]
+  ext <;> simp
+
+/-- ⭐ **The `b`-column of the selection hom is `ν'`.**  So every dressing in `ker ν'` has
+`b`-coordinate `0` in the test group — the fact the whole selection argument turns on. -/
+private theorem selHom_b (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hcl : ∀ j' : Fin h, j' ≠ j → nu' (sqGen h (sqHandleIdxU j')) = 1 ∧
+      nu' (sqGen h (sqHandleIdxV j')) = 1) (x : (DSq h : Type)) :
+    (selHom h nu' j A B C D P Q hd he x).b = gr3Pi (toAdd (nu' x)) := by
+  have hcomp : bProj3.comp (selHom h nu' j A B C D P Q hd he)
+      = bProj3.comp ((zpowZtwoHom isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R)).comp nu') := by
+    refine dsq_hom_ext _ _ fun i => ?_
+    show bProj3 (selHom h nu' j A B C D P Q hd he (sqGen h i))
+      = bProj3 (zpowZtwoHom isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) (nu' (sqGen h i)))
+    rw [selHom_gen,
+      show zpowZtwoHom isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) (nu' (sqGen h i))
+        = zpowZtwo isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R)
+            (toAdd (nu' (sqGen h i))) from rfl, zpow_nuCol]
+    show (⟨0, (selMark h nu' j A B C D P Q i).b, 0, 0, 0, 0⟩ : SqU4 gr3R)
+      = ⟨0, gr3Pi (toAdd (nu' (sqGen h i))), 0, 0, 0, 0⟩
+    rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+    · rw [show (sqGen h 0 : (DSq h : Type)) = dsqSigma h from rfl, hsigma, selMark_zero]
+      simp
+    · rw [show (sqGen h 1 : (DSq h : Type)) = dsqX0 h from rfl, hx0, selMark_one]
+      simp
+    · rw [show (sqGen h 2 : (DSq h : Type)) = dsqX1 h from rfl, toAdd_nu_dsqX1 nu', hx0,
+        selMark_two]
+      simp
+    · by_cases hjj : j' = j
+      · subst hjj; rw [selMark_handleU]
+      · rw [selMark_handleU_ne hjj, (hcl j' hjj).1]
+        simp
+    · by_cases hjj : j' = j
+      · subst hjj; rw [selMark_handleV]
+      · rw [selMark_handleV_ne hjj, (hcl j' hjj).2]
+        simp
+  have hx := DFunLike.congr_fun hcomp x
+  have hxb : (⟨0, (selHom h nu' j A B C D P Q hd he x).b, 0, 0, 0, 0⟩ : SqU4 gr3R)
+      = ⟨0, (zpowZtwo isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) (toAdd (nu' x))).b,
+          0, 0, 0, 0⟩ := hx
+  rw [zpow_nuCol] at hxb
+  have := congrArg SqU4.b hxb
+  simpa using this
+
+/-- The pivot lands on the pure `ν'`-column generator, at **every** exponent `c₀`. -/
+private theorem selHom_sqPivot :
+    selHom h nu' j A B C D P Q hd he (sqPivot h) = ⟨0, 1, 0, 0, 0, 0⟩ := by
+  rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
+    map_zpowZtwo (isProP_DSq h) isProP_two_gr3, dsqX0, selHom_gen, selMark_one,
+    zpowZtwo_one_base, inv_one, mul_one, dsqSigma, selHom_gen, selMark_zero]
+
+/-- ⭐ **The cleared `U` in the class-three test group.**  Its `ν'`-column is gone, its two free
+columns survive, and it acquires a class-two `(2,4)`-coordinate `−ν'(u_j)·C`. -/
+private theorem selHom_sqEichU :
+    selHom h nu' j A B C D P Q hd he (sqEichU h nu' j)
+      = ⟨A, 0, C, 0, -(selT h nu' j * C), 0⟩ := by
+  rw [sqEichU, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr3, selHom_sqPivot,
+    zpow_nuCol, selHom_gen, selMark_handleU]
+  ext <;> simp
+
+/-- ⭐ …and the cleared `V`, which acquires a `(1,3)`-coordinate `−B·ν'(v_j)`. -/
+private theorem selHom_sqEichV :
+    selHom h nu' j A B C D P Q hd he (sqEichV h nu' j)
+      = ⟨B, 0, D, -(B * selS h nu' j), 0, 0⟩ := by
+  rw [sqEichV, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr3, selHom_sqPivot,
+    zpow_nuCol, selHom_gen, selMark_handleV]
+  ext <;> simp
+
 end Marking
 
 end SqCore
