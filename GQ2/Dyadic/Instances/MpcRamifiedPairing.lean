@@ -71,13 +71,20 @@ But the eight split cleanly in two, and only the first four need this file's gen
   `x₁`.  `heisSq_general` gives `z(A²) = λ₀(g_A·d₀)`, and `heisCommR_general` gives `z([A,B])` as
   its eight-term centre at `g_A = S₂^{−sm}`, `g_B = S₂^{p}`.
 
-So what remains is not a missing law but the **cancellation**: whether the `S₂`-twisted atoms of
-those four factors cancel against the `S₂`-twisted atoms `E₀₁^pc` contributes through its
+So what remained was not a missing law but the **cancellation**: whether the `S₂`-twisted atoms
+of those four factors cancel against the `S₂`-twisted atoms `E₀₁^pc` contributes through its
 conjugators `σ₂^{a}`, `σ₂^{b}` (`a = p + sm`, `b = sm`), leaving a unimodular core on
 `(d₀, d₁)`.  That is the cancellation `MCompactRam.heisZ_mCompact_ram` performs for the compact
 row — but there the conjugator pair is the *symmetric* `𝓔(σ₂^m, σ₂^m; ·)`, whereas here it is
 asymmetric and the `p`-shift on the outer conjugator is exactly the `ε`-visible part of the
 block, so the compact computation does not transfer verbatim.
+
+`MpcRamifiedRow` performs it, and the asymmetry turns out to be what *makes* it work rather than
+what obstructs it: the outer conjugator's `p`-shift is precisely what puts `−p` on the correction
+block's atoms, which is where `[A,B]`'s own `B`-shift meets them.  The route is structural rather
+than atom-by-atom — the linear copy is jet-zero and the hat copy has the same second-order value,
+so the eleven factors of `R_lin^pc·R̂^pc` are silent *together* — and the surviving core is the
+plus block's `((1,1),(1,0))`, the same matrix as the unramified reading.
 -/
 
 namespace GQ2.Dyadic
