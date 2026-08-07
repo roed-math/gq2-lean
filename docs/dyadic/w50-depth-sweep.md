@@ -303,7 +303,14 @@ deeper levels, where it is exactly right: the level-`j` solution set is
 
 The corank is **exactly 6 at every level and every marking**: six 𝔽₂-functionals on each
 layer that no dressing can move.  The relator's defect always lands in the 43-/169-/673-
-dimensional image — never in the 6-dimensional complement.
+dimensional image — never in the 6-dimensional complement.  At `h = 2` (rank 7) the same
+measurement gives corank `132 − 124 = 8`, so across both handle counts
+
+> **corank(δ_j) = d + 1**,  `d = sqRank h = 3 + 2h` the number of generators,
+
+at every level measured.  Whether that persists at class 6 is the obvious next probe, and it
+is the one number to watch: a level at which the corank *grows* is where a refutation could
+first hide.
 
 **And that is not luck.**  `w50_coker.m` measures it (class 4, ten markings, both levels):
 
