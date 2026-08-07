@@ -925,6 +925,82 @@ theorem selPair_even' {A B C D P Q T S : gr3R}
 
 end SelParity
 
+/-! ## §6 The selection, characterised
+
+Putting §5 and §5b together over a class-two-admissible tuple:
+
+* **the obstruction** (`sqRelWord_selRefine_ne_one`): an odd class-three residue survives
+  *every* achievable refinement — the selection bit is a genuine invariant, and a dressing
+  tuple with the wrong bit is class-three-dead no matter how its `γ₂`-tail is chosen;
+* **the completion** (`sqRelWord_selRefine_eq_one`): an even residue with a live `2`-pairing
+  (`rr·(B·(m V).c + D·(m V).a) = 2` — over `ℤ/8` that is exactly "the pairing of the
+  `(−B, D)`-generator against the `V`-column is `2·unit`") is killed by **one explicit**
+  handle `γ₂`-move.  So on the live part of the family the selection among
+  class-two-admissible dressings is **exactly** the parity of the class-three residue.
+
+This is the slice form of the depth sweep's "defect ∈ im δ" containment target
+(`docs/dyadic/w50-depth-sweep.md` §6.3): the achievable-increment subgroup `J` sits inside
+`2·ℤ/8` (obstruction = the corank), and the completion shows `J = 2·ℤ/8` whenever the
+`2`-pairing witness exists, so residues *in* `J` are killed constructively. -/
+
+section SelectionVerdicts
+
+variable {h : ℕ} {j : Fin h}
+
+/-- ⭐⭐ **The obstruction.**  At an uncleared selected marking, a tuple whose class-three
+residue is **odd** cannot be repaired: every refinement by achievable handle-`γ₂` dressings
+(`(d,e)`-parts in `Λ`) and arbitrary exponent-slot `γ₃`-dressings still fails to kill the
+relator.  The only hypotheses on `m` are that its two `j`-handle outer columns are achievable
+(`selCol`) — no admissibility of the lower rows is needed. -/
+theorem sqRelWord_selRefine_ne_one {A B C D P Q T S : gr3R}
+    {m : Fin (sqRank h) → SqU4 gr3R} {w₁ w₂ z₃ z₄ : SqU4 gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1)
+    (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo) (hz₄ : z₄.IsGaTwo)
+    (hz₃L : selLam A B C D P Q z₃) (hz₄L : selLam A B C D P Q z₄)
+    (hcolU : selCol A B C D (m (sqHandleIdxU j)).a (m (sqHandleIdxU j)).c)
+    (hcolV : selCol A B C D (m (sqHandleIdxV j)).a (m (sqHandleIdxV j)).c)
+    (hodd : selPar (sqRelWord m).f = 1) :
+    sqRelWord (selRefine j m w₁ w₂ z₃ z₄) ≠ 1 := by
+  obtain ⟨k₁, hk₁⟩ := selPair_even hd he hTS hz₃L hcolV
+  obtain ⟨k₂, hk₂⟩ := selPair_even' hd he hTS hz₄L hcolU
+  intro hc
+  rw [sqRelWord_selRefine hw₁ hw₂ hz₃ hz₄, SqU4.mul_center_f] at hc
+  have hf : (sqRelWord m).f
+      + (-4 * w₁.f + 2 * w₂.f
+        + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+        + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)) = 0 :=
+    congrArg SqU4.f hc
+  have hval : (sqRelWord m).f = 2 * (2 * w₁.f - w₂.f - k₁ - k₂) := by
+    linear_combination hf - hk₁ - hk₂
+  have hpar := congrArg selPar hval
+  rw [selPar_two_mul] at hpar
+  rw [hpar] at hodd
+  exact absurd hodd (by decide)
+
+/-- ⭐⭐ **The completion.**  A tuple killing the five lower rows with an **even** class-three
+residue `2·res`, at a marking where the `(−B,D)`-generator pairs to `2` against the `V`-column
+(witness `rr`), is repaired by **one explicit** handle-`γ₂` move: dress the `U`-slot by the
+`γ₂`-element with `(d, e) = rr·res·(−B, D)`.  Together with the obstruction this is the
+selection iff on the live locus: *refinable to a survivor ⟺ the residue is even*. -/
+theorem sqRelWord_selRefine_eq_one {B D res rr : gr3R} {m : Fin (sqRank h) → SqU4 gr3R}
+    (h5 : sqRelWord m = ⟨0, 0, 0, 0, 0, 2 * res⟩)
+    (hmu : rr * (B * (m (sqHandleIdxV j)).c + D * (m (sqHandleIdxV j)).a) = 2) :
+    sqRelWord (selRefine j m 1 1 ⟨0, 0, 0, -(rr * res * B), rr * res * D, 0⟩ 1) = 1 := by
+  rw [sqRelWord_selRefine SqU4.isGaThree_one SqU4.isGaThree_one ⟨rfl, rfl, rfl⟩
+    SqU4.isGaTwo_one, h5, SqU4.mul_center_f, SqU4.eq_one_iff]
+  refine ⟨rfl, rfl, rfl, rfl, rfl, ?_⟩
+  simp only [SqU4.one_d, SqU4.one_e, SqU4.one_f]
+  linear_combination (-res) * hmu
+
+/-- The completion's `γ₂`-move really is achievable: its `(d, e)`-pair lies in `Λ`, on the
+`(−B, D)`-generator alone. -/
+theorem selLam_completion_move (A B C D P Q res rr : gr3R) :
+    selLam A B C D P Q (⟨0, 0, 0, -(rr * res * B), rr * res * D, 0⟩ : SqU4 gr3R) :=
+  ⟨0, rr * res, 0, by ring, by ring⟩
+
+end SelectionVerdicts
+
 end SqCore
 
 end Dyadic
