@@ -37,9 +37,11 @@ so the torsion, and hence `q`, is untouched by `h`.
   `MDecomposition`, so everything MC3 proves from a frame (`M.lean` §3–§4: `mChi_frame`,
   `mSqEqOne_iff`, `mXi_fixes_t`, `mStabilizer_classification`, and through
   `Variance.lean` the cup-matrix dictionary) applies to a general-`h` frame at `h = 0`.
-* **§3** `mE_A_frame` — the forced `Ā`-row at every handle count — and `mFrame_isEmpty_zero`,
-  the proof that `α = 0` is genuinely out of range: `MFrame 0 h` is *empty*, because the
-  relation vector `2Ā + C̄₀` then reads `−1 = 0` in `ℤ₂`.
+* **§3** `mE_A_frame` — the forced `Ā`-row at every handle count — and the α-boundary from both
+  sides: `mFrame_isEmpty_zero` proves `α = 0` genuinely out of range (`MFrame 0 h` is *empty*,
+  the relation vector `2Ā + C̄₀` reading `−1 = 0` in `ℤ₂`), while `mRelVector_model_eq_zero`
+  proves the same computation vanishes for every `α ≥ 1`.  So `α = 1` is **in** range for this
+  layer; the `α ≥ 2` hypotheses downstream come from the shared Gram.
 * **§4** `mTorsionEquivZMod2`, `demushkinQ_DM_mFrame` — the deliverable.
 
 ## Scope note (inherited from MC2/MC4, deliberate)
@@ -199,6 +201,28 @@ theorem mFrame_isEmpty_zero (h : ℕ) : IsEmpty (MFrame 0 h) := by
   simp only [← ofAdd_nsmul, ← ofAdd_add, toAdd_ofAdd, Prod.smul_mk, Prod.mk_add_mk,
     toAdd_one] at hcoord
   norm_num at hcoord
+
+/-- **The other side of the boundary: `α ≥ 1` is unobstructed.**  The same model computation
+that refutes `α = 0` above — the forced `Ā`-row `(1, 0, −2^{α−1}, 0, 0)` fed to the relation
+vector `2Ā + 2^αC̄₀` — comes out *zero* as soon as `α ≥ 1`, because then `2·2^{α−1} = 2^α`.
+So `α = 0` is the only value this layer rules out; in particular `α = 1` is **in** range here,
+and the `α ≥ 2` hypotheses carried by MC3's stabilizer results and by the even-degree consumers
+come from the shared Gram, not from the frame. -/
+theorem mRelVector_model_eq_zero {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    (ofAdd (1, 0, -(2 : ℤ_[2]) ^ (α - 1), 0, 0) : MFrameModel h) ^ 2
+      * (ofAdd (0, 0, 1, 0, 0) : MFrameModel h) ^ (2 ^ α) = 1 := by
+  obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+  rw [← ofAdd_nsmul, ← ofAdd_nsmul, ← ofAdd_add, ← ofAdd_zero]
+  congr 1
+  simp only [Prod.smul_mk, Prod.mk_add_mk, smul_zero, add_zero, Nat.add_sub_cancel]
+  refine Prod.ext ?_ (Prod.ext rfl (Prod.ext ?_ (Prod.ext rfl rfl)))
+  · show (2 : ℕ) • (1 : ZMod 2) = 0
+    rw [two_nsmul]
+    decide
+  · show (2 : ℕ) • (-(2 : ℤ_[2]) ^ k) + (2 ^ (k + 1)) • (1 : ℤ_[2]) = 0
+    rw [nsmul_eq_mul, nsmul_eq_mul]
+    push_cast
+    ring
 
 /-! ## §4 Torsion of the model, and the `q`-invariant
 
