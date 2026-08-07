@@ -1,8 +1,14 @@
 # Eichler-reduction note (lane SQ, P2 residue) — 2026-08-05
 
 Companion to `GQ2/Dyadic/SqCore/EichlerReduction.lean` (compiles clean at HEAD 0119687b,
-all prints std-3).  Status: `SqHandleEichler h c` is **reduced**, not discharged.  What
-remains is one word-level seed per `(j, k odd)`, and it is a machine-search problem.
+all prints std-3).  Status: `SqHandleEichler h c` is **reduced**, not discharged.
+
+> ⚠ **Updated 2026-08-07.**  Sections 1–3 stand.  The *search target* has moved: the word-level
+> `SqEichlerSeed` per `(j, k odd)` this note originally recommended is refuted, along with every
+> family that dresses the moved slots by words in the two cleared letters.  The live target is
+> `SqArbRelWord h`, equivalently `SqClearingStep h`, equivalently `SqLamMarkTransitivity h`.  See
+> the rewritten final section, and read the index warning in "The class-two balance" before
+> quoting any `aᵢ` from here.
 
 ## What is proved (Lean, banked)
 
@@ -20,6 +26,23 @@ remains is one word-level seed per `(j, k odd)`, and it is a machine-search prob
    `[x₁^k, x₀]^σ` (one conjugated commutator).
 
 ## The class-two balance (do not re-derive)
+
+> ⚠ **Index convention — read this before quoting `a₀`/`a₁` anywhere else (W46).**  The
+> substitution below is written `σ ↦ σβ₁`, `x₀ ↦ x₀β₀`, so the *subscript on `a` is the letter's
+> subscript, not the slot's position*:
+>
+> | weight | dresses the slot | slot position in `sqArbFrame` |
+> | --- | --- | --- |
+> | `a₀` | `x₀` | 1 |
+> | `a₁` | `σ` | 0 |
+> | `a₂` | `x₁` | 2 |
+> | `a_u` | `u_j` | 3 |
+>
+> A naive read inverts the forcing's slot.  The balance's forced value `a₀ = −k` is the
+> **`x₀`-slot** dressing — which is exactly `SqCore/CommFrames.lean`'s and
+> `SqCore/GradedTwo.lean`'s `sqArbFrame_x0_dressing_forced`, whose forced weight is written
+> `ā₁` there because `ArbFrames` indexes dressings by *slot position*.  Same statement, opposite
+> subscript.
 
 Sites/suffix-classes of `C_sq·[u,v]` give, for `σ ↦ σβ₁`, `x₀ ↦ x₀β₀`, `x₁ ↦ x₁β₂`,
 `u ↦ ρu` with `β̄ᵢ = aᵢ·v̄`, `ρ̄ = k(σ̄ − c x̄₀) + a_u v̄`:
@@ -49,21 +72,84 @@ the `v_j`-row hypothesis re-derives (without it the `x₀`-row moves by `−k·�
   with degree −4; the `(w, x, t)`-basis (`σ = w·x₀^c`, `x₁ = t·x₀²`) fixes all degrees but
   has 9 `x₀`-syllables from trapped `x₀^{±c}`-dressings.  HM2's form needs exactly 2.
 
-## The residual search (recommendation)
+## The residual search (rewritten 2026-08-07 — the old target is refuted)
 
-Search for the seed words at `k = 1` (unit slice suffices; general odd `k` should follow
-the same shape with `zpowZtwo`-exponents).  Ansatz space, in the harness's letters
-(`~/claude/general_2adic/dyadic_search`, `fg.py`-style, extended by a commuting formal
-power `X = x₀^c`): words of bounded length in conjugates of `v_j`, `u_j`, `w = σX⁻¹`,
-`ζ_j`-dressings, with the leading classes above imposed.  Target identity (h = 1, j = 0
-first; `P = 1`):
+> ⚠ **What this section used to say is dead.**  It recommended searching an ansatz space of
+> *words in the moved letters* — bounded-length words in conjugates of `v_j`, `u_j`,
+> `w = σ·x₀^{−c}` — for a `SqEichlerSeed`, and it posed the identity on the two-slot `(σ, u)`
+> scaffold.  Every family of that shape is now closed:
+>
+> * the two-slot scaffold is unsatisfiable for every odd `k` — consequence (i) of the balance
+>   above, and the reason the first version of `EichlerReduction.lean` was rewritten;
+> * `SqCore/EichRefutation.lean` §3 refutes the `V`-dressed family `sqEichFrame`, the `U`-dressed
+>   `sqEichFrameT`, and their disjunction `SqEichRelWordMix`, **at every weight triple** — not
+>   at the class-two-forced parameters only, so none is a near miss with a correction term.  The
+>   witness is a homomorphism to `D₄ ≅ Heis(𝔽₂)` that kills one of the two moved letters; the
+>   dressings die with it and the bare core word is the inverse of a nontrivial commutator;
+> * `SqCore/UVFrames.lean`'s two-letter widening `sqEichFrameUV` — each moved slot dressed by
+>   `U^k V^l`, containing both families above as slices — dies too, by a *different* mechanism:
+>   `EichRefutation` §7's collapse lemma (identify the two cleared letters onto an involution)
+>   and its `D₈` instance `not_sqEichRelWordUV`, at the single marking `nuSel h j 1 1`.
+>
+> So no search over words in `U` and `V` can succeed, and the `SqEichlerSeed` →
+> `sqHandleEichler_of_seeds` → `sqHandleMixFixesCore_of_seeds` chain has no reachable input.
+> The *idea* survives; the letter alphabet does not.
 
+**The live target.**  Dress the moved slots by **arbitrary** `λ`-trivial, `ν'`-trivial elements
+instead of by words in the cleared letters.  That family is `sqArbFrame`
+(`SqCore/ArbFrames.lean` §4), and its word equation `SqArbRelWord h` is the whole residual:
+
+```text
+sqArbRelWord_iff_clearingStep         : SqArbRelWord h ↔ SqClearingStep h   (ArbFrames §6)
+sqClearingStep_iff                    : SqClearingStep h ↔ SqLamMarkTransitivity h  (CommFrames §1)
+sqArbRelWord_iff_lamMarkTransitivity  : SqArbRelWord h ↔ SqLamMarkTransitivity h    (CommFrames §1)
 ```
-sqWord(σβ₁, x₀β₀, x₁β₂) · [ρu, v] = sqWord(σ, x₀, x₁) · [u, v]     (free, or mod ⟨⟨R⟩⟩)
+
+all at **every** `h`.  Two consequences worth stating plainly.  First, the family cannot be
+widened further inside the one-handle scheme — it already *is* the scheme, because
+`sqArbRelWord_of_clearingStep` reads the dressings straight off a clearing automorphism.  Second,
+no homomorphism-based probe can refute it without refuting `SqLamMarkTransitivity` itself, which
+is why the two mechanisms that killed the word families provably cannot reach it.
+
+**The explicit five-word normal form.**  With `base = (σ, x₀, x₁, U, V, …)` — the `j`-th handle
+letters cleared, everything else standing — the target is: exhibit
+
+```text
+a : Fin (sqRank h) → D_sq h ,   a i ∈ ker λ ∩ ker ν' ,   m i = base i · a i
 ```
 
-plus Nielsen invertibility of the image tuple.  The Lean interface accepts a defect that
-holds only in `D_sq` (mod the relator), which is strictly easier than the free identity
-the M/N lane proved.  On success, fill one `SqEichlerSeed` per `(j, k)` and the chain
-`sqHandleEichler_of_seeds → sqHandleMixFixesCore_of_seeds → certificate` closes P2 with
-no new axiom.
+with `sqRelWord (sqArbFrame h ν' j a) = 1`.  Only five slots are moved, so it is five words.
+Everything else is discharged: the `λ`- and `ν'`-rows transpose verbatim from `LamFrames` §2a
+(they use only that the dressing is `λ`- and `ν'`-trivial), surjectivity is the mod-2 Frattini
+criterion `SqModTwoIndep` (`ArbFrames` §1–§2 — the slots span `H₁` over `𝔽₂`; no strip-off, no
+`d = d' = 0` restriction), and the composition into the handle stratum is
+`sqHandleMixFixesCore_of_arbRelWord`.
+
+**What the balance above now contributes** — guidance, not a scaffold.  Run it for the general
+dressed frame.  The undressed class-two defect is `Δ₀ = −s·(Ū ∧ w̄) + t·(V̄ ∧ w̄)` in `K ⊗ P`
+(`t = ν'(u_j)`, `s = ν'(v_j)`, `w̄ = σ̄ − c₀x̄₀`, `K = ker λ ∩ ker ν'`, `P = ⟨w̄, x̄₀⟩`), and the
+only dressing reaching the `w̄`-column is the one on the **`x₀`-slot** — this note's `a₀`, see
+the index warning above.  Balancing forces
+
+```text
+a₀ = −s·Ū + t·V̄        (in the `x₁ = x₀²` gauge; `sqArbFrame_x0_dressing_forced`)
+```
+
+which is this note's `a₀ = −k` at the corresponding row.  ⚠ Note *what* is forced: the `x₀`-slot
+must be dressed by the **handle** letters, not the handles by the core.  One dressing fixed,
+three free — so the balance under-determines the answer rather than closing it, and it is a
+filter on candidates, not a solution.
+
+Two further pins to search against.  (i) The core **must** move: for a frame fixing the core the
+relator identity collapses to an exact `iff`, `sqRelWord (sqCommFrame h j p q) = 1 ↔ ⁅p, q⁆ =
+⁅u_j, v_j⁆` (`CommFrames` §3), and the same class-two computation shows that equation forces
+`s = t = 0` — the handle was already clear.  So `SqHandleComm h` is false for `h ≥ 1`.  (ii) The
+basis-independent walls above (evenness, syllable counts) still apply and still rule out any
+HM2-shape decomposition, in any basis.
+
+**Offline status.**  A sweep over 27 groups of order 8, 16 and 32 (all five of order 8
+exhaustively; 20000 sampled markings each at order 16, 5000 at order 32; every pivot exponent
+`c₀` mod 8 and every handle row pair `(t, s)`) finds no probe refuting the arbitrary-dressing
+shape, while the same sweep restricted to `U`/`V`-word dressings does reproduce the `D₈`
+refutation — so the sweep has discriminating power, and the arbitrary family survives exactly
+where the two-letter family dies.  That is the numerical shadow of the equivalence above.
