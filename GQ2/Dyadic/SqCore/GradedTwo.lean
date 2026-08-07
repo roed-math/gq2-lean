@@ -9,7 +9,75 @@ import GQ2.Dyadic.SqCore.EichRefutation
 /-!
 # W47 — the class-two layer of `D_sq h`, and the refutation engine it powers
 
-Placeholder header; filled in once the sections land.
+`CommFrames`' Headline 3 is a hand computation in `gr₂ = γ₂/γ₃ ≅ Λ²(D_sq(h)^ab)`.  This file
+makes it machine-checked, and turns it into a **gate**: a frame family is now refuted by a
+computation rather than by a bespoke Heisenberg witness.
+
+## What is built, and at what generality
+
+The class-two layer is approached through its **functionals** rather than through `Λ²` itself.
+A `ℤ₂`-valued functional on `Λ²A` is an alternating form on `A`, the rank-≤2 forms span, and a
+rank-≤2 form is exactly what a homomorphism to a Heisenberg group records.  So §1 builds
+
+```text
+SqHeis R = {(a, b, c) : R³},   (a,b,c)·(a',b',c') = (a+a', b+b', c+c'+a·b')
+⁅p, q⁆ = (0, 0, p.a·q.b − q.a·p.b)          -- the rank-≤2 alternating form
+```
+
+over any commutative ring, pro-2 whenever `#R` is a power of `2` (`SqHeis.isProP_two`), and §2
+computes the relator there **in closed form**:
+
+```text
+(sqRelWord m).a = −4·(m 1).a + 2·(m 2).a                       -- the relator vector ρ_sq
+(sqRelWord m).c = −4·(m 1).c + 2·(m 2).c + sqHeisDefect h m
+sqHeisDefect h m = ⟨σ̄, x̄₀⟩ + 10·(x̄₀-column)² + (x̄₁-column)² − 8·⟨x̄₀, x̄₁⟩ + Σⱼ ⟨ūⱼ, v̄ⱼ⟩
+```
+
+⭐ **The hand computation survived contact with Lean unchanged** — `SqHeis.sqWord_c` is the
+formula the docstring's balance was derived from, term for term, on the first attempt.
+
+## ⚠ What is *not* built: `gr₂ ≅ Λ²(D^ab)` as an isomorphism
+
+Only the **realization half** is here: enough class-two quotients to evaluate the balance.  The
+identification `gr₂ ≅ Λ²A` itself reduces (by an elementary argument, `r̄ = 2·t̄` being a
+non-torsion vector of `F^ab = ℤ₂ⁿ`, so `R ∩ γ₂F = ⁅R, F⁆` mod `γ₃F`, and `Λ²` right exact) to
+`gr₂(F) ≅ Λ²(F^ab)` for the **free pro-2 group** `F` — Magnus/Witt, which mathlib does not have.
+That is the whole cost of the missing direction, and it is not needed by anything below: the
+balance and every refutation are *necessary* conditions, so they need class-two quotients to
+exist, not to be exhaustive.
+
+## ⚠ Finding — the realizability parity, and why the coefficients are `ℤ/4`
+
+Not every rank-2 form is realized.  Solving the relator's central equation needs
+`sqHeisDefect` to land in `2R`, which (after `−4x̄₀ + 2x̄₁ = 0` forces the `x₁`-column to be
+twice the `x₀`-column) is exactly
+
+```text
+ω(σ̄ ∧ x̄₀) + Σⱼ ω(ūⱼ ∧ v̄ⱼ) ≡ 0   (mod 2)
+```
+
+— i.e. `ω` must kill, mod `2`, the class of `t²`, where `t = x₁x₀⁻²` carries the order-two
+summand of `A`.  This is not an artefact of `SqHeis`: `t` maps into the centre, so its square
+maps to an even central element in *any* Heisenberg quotient.  The way past it is to test with
+`2·χ` instead of `χ` — always realizable, and harmless because `ℤ₂` is torsion-free.  ⭐ That is
+why §5 and §6 run over `ℤ/4` and **not** over `ℤ/2`: mod `2` the factor `2·χ` is invisible, and
+the gate would see nothing.
+
+## Contents
+
+* **§1** `SqHeis R`, its group and pro-2 structure, and the commutator pairing;
+* **§2** the closed form of `sqWord`, `handleWord` and `sqRelWord`; `sqHeisDefect`;
+* **§3** `sqHeisHom` (markings classify class-two quotients) and `ℤ₂`-powers in the test group;
+* **§4** ⭐⭐ `sqHeisBalance` — **the gate**;
+* **§5** ⭐ the validation: `not_sqRelWord_sqEichFrame_of_gate` re-derives `LamFrames`' `V`-family
+  refutation through the gate, matching `EichRefutation`'s bespoke `D₄` witness;
+* **§6** ⭐⭐ `sqArbFrame_x0_dressing_forced` — the forced `x₀`-slot, with its ⚠ gauge note;
+* **§7** stress pins, **§8** committed axiom prints.
+
+## Axiom hygiene
+
+No `sorry`, no new axiom, no `native_decide` (the two `decide` calls are on `ℤ/4`).  Every
+declaration prints **std-3** (`propext`, `Classical.choice`, `Quot.sound`).
 -/
 
 open Multiplicative
@@ -794,6 +862,24 @@ theorem sqArbFrame_x0_dressing_forced_uDual
 
 end Forcing
 
+/-! ### ⚠ The gauge hypothesis is load-bearing
+
+`CommFrames`' ⭐ paragraph counts **four** dressings (`ā₀`, `ā₁`, `ā₃`, `ā₄`) and never mentions
+the `x₁`-slot's `ā₂`.  The frame has five slots, and the abelian row only says
+`−4ā₁ + 2ā₂ = 0`, i.e. `ā₂ = 2ā₁ + τ` with `2τ = 0` — it does **not** say `a₂ = a₁²`.
+
+The difference matters.  In the balance the `x₁`-slot enters through `−4c(a₁) + 2c(a₂)`, which is
+`c` of the square `(a₂a₁⁻²)²`; the class of that square in `γ₂/γ₃` is well defined only modulo
+`2·Λ²A`, and its `K ⊗ ⟨w̄⟩`-component is `−Σⱼ(sⱼŪⱼ − tⱼV̄ⱼ)` when `τ = t̄` — precisely `−Δ₀`
+at one handle.  So **without the gauge the balance leaves two branches**, `ā₁ = −sŪ + tV̄` and
+`ā₁ = 0`, rather than forcing the first.
+
+⭐ In the gauge `a₂ = a₁²` the square is trivial and the forcing is exact; every Eichler family
+of `LamFrames`/`UVFrames` is in that gauge (its `x₁`-slot weight is literally `2e'`), so the
+`x₀`-slot forcing applies to all of them as stated.  The honest general statement is the
+two-branch one, and `CommFrames`' "one of four dressings forced, three free" should be read as
+"in the `x₁ = x₀²` gauge". -/
+
 /-! ## §7 Stress pins -/
 
 section StressTests
@@ -824,6 +910,108 @@ example {h : ℕ} (hh : 0 < h) : ¬ SqEichRelWord h := not_sqEichRelWord hh
 example : -(2 * (1 : ZMod (2 ^ 2))) ≠ 0 := by decide
 
 end StressTests
+
+/-! ## §8 Axiom pins
+
+Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
+census axiom is reachable. -/
+
+section AxiomPins
+
+#print axioms SqHeis
+#print axioms SqHeis.one_a
+#print axioms SqHeis.one_b
+#print axioms SqHeis.one_c
+#print axioms SqHeis.mul_a
+#print axioms SqHeis.mul_b
+#print axioms SqHeis.mul_c
+#print axioms SqHeis.inv_a
+#print axioms SqHeis.inv_b
+#print axioms SqHeis.inv_c
+#print axioms SqHeis.eq_one_iff
+#print axioms SqHeis.aHom
+#print axioms SqHeis.bHom
+#print axioms SqHeis.aHom_apply
+#print axioms SqHeis.bHom_apply
+#print axioms SqHeis.zHom
+#print axioms SqHeis.zHom_a
+#print axioms SqHeis.zHom_b
+#print axioms SqHeis.zHom_c
+#print axioms SqHeis.commP_a
+#print axioms SqHeis.commP_b
+#print axioms SqHeis.commP_c
+#print axioms SqHeis.conjP_a
+#print axioms SqHeis.conjP_b
+#print axioms SqHeis.conjP_c
+#print axioms SqHeis.pow_a
+#print axioms SqHeis.pow_b
+#print axioms SqHeis.pow_c
+#print axioms SqHeis.equivProd
+#print axioms SqHeis.nat_card
+#print axioms SqHeis.isProP_two
+#print axioms SqHeis.prod_of_central
+#print axioms SqHeis.handleWord_a
+#print axioms SqHeis.handleWord_b
+#print axioms SqHeis.handleWord_c
+#print axioms SqHeis.sqWord_a
+#print axioms SqHeis.sqWord_b
+#print axioms SqHeis.sqWord_c
+#print axioms SqHeis.sqRelWord_a
+#print axioms SqHeis.sqRelWord_b
+#print axioms sqHeisDefect
+#print axioms SqHeis.sqRelWord_c
+#print axioms SqHeis.sqRelWord_eq_one_iff
+#print axioms sqHeisHom
+#print axioms sqHeisHom_gen
+#print axioms map_commP
+#print axioms sqHeisHom_commP_c
+#print axioms SqHeis.zpowZtwo_of_mul_ab_eq_zero
+#print axioms sqHeisBalance
+#print axioms sqHeisDefect_balance
+#print axioms gr2R
+#print axioms gr2Pi
+#print axioms gr2R_card
+#print axioms isProP_two_gr2
+#print axioms gr2Pi_open
+#print axioms gr2Mark
+#print axioms gr2Mark_zero
+#print axioms gr2Mark_one
+#print axioms gr2Mark_two
+#print axioms gr2Mark_handleU
+#print axioms gr2Mark_handleV
+#print axioms gr2Mark_handleU_ne
+#print axioms gr2Mark_handleV_ne
+#print axioms sqRelWord_gr2Mark
+#print axioms gr2Hom
+#print axioms gr2Hom_gen
+#print axioms gr2Hom_sqPivot
+#print axioms gr2Hom_sqEichU
+#print axioms gr2Hom_sqEichV
+#print axioms gr2Hom_dressV
+#print axioms not_sqRelWord_sqEichFrame_of_gate
+#print axioms not_sqEichRelWord_of_gate
+#print axioms bProj
+#print axioms fT
+#print axioms fS
+#print axioms fMark
+#print axioms fMark_zero
+#print axioms fMark_one
+#print axioms fMark_two
+#print axioms fMark_handleU
+#print axioms fMark_handleV
+#print axioms fMark_handleU_ne
+#print axioms fMark_handleV_ne
+#print axioms sqRelWord_fMark
+#print axioms fHom
+#print axioms fHom_gen
+#print axioms fHom_b
+#print axioms fHom_sqPivot
+#print axioms fHom_sqEichU
+#print axioms fHom_sqEichV
+#print axioms sqArbFrame_x0_dressing_forced
+#print axioms sqArbFrame_x0_dressing_forced_uDual
+
+end AxiomPins
 
 end HeisGroup
 
