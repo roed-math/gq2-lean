@@ -118,16 +118,20 @@ because the family is chosen *inside* the induction, so does the **disjunction**
 `SqEichRelWordMix` (§6): at each selected marking and handle, either family may be the one that
 kills the relator.
 
-⚠ **`SqEichRelWordMix h` is also false for `h ≥ 1`** (`SqCore/EichRefutation.lean`,
-`not_sqEichRelWordMix`), and the two families die for *different* reasons at *different* markings:
-`sqEichFrame` at any marking with `ν'(v_j) ≠ 0`, `sqEichFrameT` at any marking with `ν'(u_j) ≠ 0`.
-The refutation's own Heisenberg homomorphism does **not** transpose
-(`refHom_sqRelWord_sqEichFrameT_survives`) — a second one is needed, and the two together kill the
-mix at `nuSel h j 1 1`.  What that says about the *residual* is nothing: §1 quantifies over all
-frames, and the wider repair named in §4 — dressing the four moved slots by arbitrary `λ`-trivial,
-`ν'`-trivial elements rather than by powers of one letter — is untouched by this mechanism,
-because it is precisely the "the dressings all die with the dressing letter" step that fails
-there.
+⚠ **`SqEichRelWordT h` and `SqEichRelWordMix h` are also false for `h ≥ 1`**
+(`SqCore/EichRefutation.lean`, `not_sqEichRelWordT`, `not_sqEichRelWordMix`), and the two families
+die for *different* reasons at *different* markings: `sqEichFrame` whenever `ν'(v_j) = 1`,
+`sqEichFrameT` whenever `ν'(u_j) = 1`.  ⭐ The refutation's own Heisenberg homomorphism does
+**not** transpose (`exists_hom_refuting_sqEichFrame_not_sqEichFrameT`: at `nuSel h j 0 1` it kills
+every `(e, e', d)` of §2's family and *satisfies* §5's identity at `(f, f', d) = (0, 1, d)`) — a
+second homomorphism is needed, and the two together kill the mix at `nuSel h j 1 1`, the marking
+with both handle rows non-zero.
+
+What that says about the *residual* is nothing: §1 quantifies over all frames, and the wider
+repair named in §4 — dressing the four moved slots by arbitrary `λ`-trivial, `ν'`-trivial elements
+rather than by powers of one letter — is untouched by this mechanism, because the collapse it uses
+needs the dressings to lie in the test homomorphism's **kernel**, which "powers of the letter that
+dies" guaranteed and an arbitrary dressing does not.
 
 ## Contents
 
@@ -1075,14 +1079,24 @@ section Mixed
 variable {h : ℕ}
 
 /-- **The transposed relator identity**: at every selected marking and every handle, some
-`U`-dressing weights `(f, f', d)` kill the relator. -/
+`U`-dressing weights `(f, f', d)` kill the relator.
+
+⚠ **This is false for `h ≥ 1`** (`SqCore/EichRefutation.lean`, `not_sqEichRelWordT`), by the
+mirror image of the mechanism that kills `SqEichRelWord` — but at a *different* marking, and by a
+*different* homomorphism. -/
 def SqEichRelWordT (h : ℕ) : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
       ∃ f f' d : ℤ_[2], sqRelWord (sqEichFrameT h nu' j f f' d) = 1
 
 /-- **The mixed identity**: at every selected marking and every handle, *one of the two* families
-kills the relator.  The family may be chosen per marking and per handle. -/
+kills the relator.  The family may be chosen per marking and per handle, which is what makes this
+strictly weaker than either.
+
+⚠ **This is false for `h ≥ 1` too** (`SqCore/EichRefutation.lean`, `not_sqEichRelWordMix`): at the
+selected marking `nuSel h j 1 1` both handle rows are `1`, and each family then has its own
+Heisenberg obstruction.  It is kept because the implication below is the reusable half — any pair
+of families with `SqClearingStep`'s five clauses plugs into the same composition. -/
 def SqEichRelWordMix (h : ℕ) : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
