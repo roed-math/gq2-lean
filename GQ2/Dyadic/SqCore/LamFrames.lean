@@ -102,22 +102,49 @@ Three facts here point at the same conclusion, and are worth keeping:
   single parameter acting by conjugation;
 * ⚠ it is **asymmetric** — the four moved slots are dressed by powers of `V` and by nothing else,
   so the frame can subtract pivot from `u_j` but has no `U`-dressing with which to clear a
-  `v_j`-row.  That is exactly what the refutation exploits, and it says what to build next: a
-  transposed family dressing by `U`-powers, composed with this one through §2c (a clearing step
-  only has to leave the *other* handles alone, which both families do).
+  `v_j`-row.  That is exactly what the refutation exploits.
 
 What §3 still buys is that the obligation is a **single closed equation in `D_sq h`** for any such
 family: a widened ansatz inherits §2a's rows verbatim and needs only its own surjectivity check.
+
+## Headline 3 — the transposed family, and the mix
+
+§5 builds `sqEichFrameT`, the same construction with the two cleared letters exchanged
+(`mᵀ = (σ·U^f, x₀·U^{f'}, x₁·U^{2f'}, U, V·U^d)`), and the "verbatim" claim above is exact: the
+row proofs of §2a use only that both `U` and `V` are `λ`-trivial and `ν'`-trivial, and §2b's
+recovery argument is symmetric in the two letters.  §3's induction is factored through
+`SqClearingStep` — the five clauses `sqEichStep` actually delivers — so both families feed it, and
+because the family is chosen *inside* the induction, so does the **disjunction**
+`SqEichRelWordMix` (§6): at each selected marking and handle, either family may be the one that
+kills the relator.
+
+⚠ **`SqEichRelWordT h` and `SqEichRelWordMix h` are also false for `h ≥ 1`**
+(`SqCore/EichRefutation.lean`, `not_sqEichRelWordT`, `not_sqEichRelWordMix`), and the two families
+die for *different* reasons at *different* markings: `sqEichFrame` whenever `ν'(v_j) = 1`,
+`sqEichFrameT` whenever `ν'(u_j) = 1`.  ⭐ The refutation's own Heisenberg homomorphism does
+**not** transpose (`exists_hom_refuting_sqEichFrame_not_sqEichFrameT`: at `nuSel h j 0 1` it kills
+every `(e, e', d)` of §2's family and *satisfies* §5's identity at `(f, f', d) = (0, 1, d)`) — a
+second homomorphism is needed, and the two together kill the mix at `nuSel h j 1 1`, the marking
+with both handle rows non-zero.
+
+What that says about the *residual* is nothing: §1 quantifies over all frames, and the wider
+repair named in §4 — dressing the four moved slots by arbitrary `λ`-trivial, `ν'`-trivial elements
+rather than by powers of one letter — is untouched by this mechanism, because the collapse it uses
+needs the dressings to lie in the test homomorphism's **kernel**, which "powers of the letter that
+dies" guaranteed and an arbitrary dressing does not.
 
 ## Contents
 
 * **§1** `sqFrames_of_lamMarkTransitivity` and `sqLamMarkTransitivity_iff_frames`;
 * **§2** `sqEichV`, `sqEichU`, `sqEichFrame` and their rows (§2a), surjectivity of any
   endomorphism realizing the frame (§2b), and the one-handle clearing step (§2c);
-* **§3** `SqEichRelWord` and the residual reduced to it, at every `h`;
+* **§3** `SqClearingStep`, the clearing induction, and `SqEichRelWord` reduced through it;
 * **§4** the shape of the relator identity: `sqEichFrame_handleComm`,
   `sqRelWord_sqEichFrame_one`, `sqRelWord_sqEichFrame_one_d`;
-* **§5** stress pins, **§6** committed axiom prints.
+* **§5** the transposed family `sqEichFrameT`: rows (§5a), surjectivity (§5b), the clearing step
+  (§5c), and the same `γ₃`-rigidity (§5d);
+* **§6** `SqEichRelWordT`, `SqEichRelWordMix`, and the residual reduced to either;
+* **§7** stress pins, **§8** committed axiom prints.
 
 ## Axiom hygiene
 
@@ -527,6 +554,24 @@ section Reduction
 
 variable {h : ℕ}
 
+/-- **A clearing step**, family-agnostically: at every selected marking and every handle there is
+a `λ`-preserving automorphism which keeps the marking selected, clears that handle's two rows and
+**leaves every other handle's rows exactly where they were**.
+
+This is precisely the conclusion of `sqEichStep`, extracted so that the induction below does not
+mention any particular frame family: *any* family with these five clauses discharges the
+residual, and two families may be mixed handle by handle. -/
+def SqClearingStep (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+        (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+          nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2]) ∧ nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1 ∧
+            nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1 ∧
+              ∀ j' : Fin h, j' ≠ j →
+                nu' (Ψ (sqGen h (sqHandleIdxU j'))) = nu' (sqGen h (sqHandleIdxU j')) ∧
+                  nu' (Ψ (sqGen h (sqHandleIdxV j'))) = nu' (sqGen h (sqHandleIdxV j'))
+
 /-- **The Eichler relator identity**, as a statement about words: at every selected marking and
 every handle, some `V`-dressing weights `(e, e', d)` kill the relator.
 
@@ -541,7 +586,7 @@ def SqEichRelWord (h : ℕ) : Prop :=
 
 /-- The clearing induction: a selected marking whose handles from index `n` on are already
 cleared is corrected onto `ν_sq`.  `n = h` is the general case, `n = 0` the base. -/
-private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
+private theorem sqLamMarkTransitivity_aux (H : SqClearingStep h) (n : ℕ)
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
     (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2])) (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
     (hcl : ∀ j' : Fin h, n ≤ (j' : ℕ) →
@@ -555,8 +600,7 @@ private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
         (fun j' => (hcl j' (Nat.zero_le _)).2)⟩
   | succ n ih =>
     by_cases hn : n < h
-    · obtain ⟨e, e', d, hrel⟩ := H nu' ⟨n, hn⟩ hsigma hx0
-      obtain ⟨Ψ₁, hlam₁, hs₁, hx₁, hU₁, hV₁, hoth₁⟩ := sqEichStep hsigma hx0 hrel
+    · obtain ⟨Ψ₁, hlam₁, hs₁, hx₁, hU₁, hV₁, hoth₁⟩ := H nu' ⟨n, hn⟩ hsigma hx0
       have hcl₁ : ∀ j' : Fin h, n ≤ (j' : ℕ) →
           (nu'.comp (autHom Ψ₁)) (sqGen h (sqHandleIdxU j')) = 1 ∧
             (nu'.comp (autHom Ψ₁)) (sqGen h (sqHandleIdxV j')) = 1 := by
@@ -577,13 +621,25 @@ private theorem sqLamMarkTransitivity_aux (H : SqEichRelWord h) (n : ℕ)
       · exact hval₂ x
     · exact ih nu' hsigma hx0 fun j' hj' => hcl j' (by have := j'.isLt; omega)
 
+/-- **The residual, from a clearing step.**  This is the reusable half of §3: the induction
+composes `h` clearing steps in index order, and cares about nothing except the five clauses of
+`SqClearingStep`. -/
+theorem sqLamMarkTransitivity_of_clearingStep (H : SqClearingStep h) : SqLamMarkTransitivity h :=
+  fun nu' hsigma hx0 =>
+    sqLamMarkTransitivity_aux H h nu' hsigma hx0 fun j' hj' =>
+      absurd j'.isLt (by omega)
+
+/-- The Eichler relator identity supplies a clearing step (§2c). -/
+theorem sqClearingStep_of_eichRelWord (H : SqEichRelWord h) : SqClearingStep h := by
+  intro nu' j hsigma hx0
+  obtain ⟨e, e', d, hrel⟩ := H nu' j hsigma hx0
+  exact sqEichStep hsigma hx0 hrel
+
 /-- **The residual, in one word equation.**  The relator identity at every selected marking and
 every handle discharges `SqLamMarkTransitivity h` — no rows, no surjectivity, no inverse
 substitution, no composition identity, and no restriction on `h`. -/
 theorem sqLamMarkTransitivity_of_eichRelWord (H : SqEichRelWord h) : SqLamMarkTransitivity h :=
-  fun nu' hsigma hx0 =>
-    sqLamMarkTransitivity_aux H h nu' hsigma hx0 fun j' hj' =>
-      absurd j'.isLt (by omega)
+  sqLamMarkTransitivity_of_clearingStep (sqClearingStep_of_eichRelWord H)
 
 /-- …and hence `SqLamNuClearHypothesis`, and the handle stratum at every unit exponent. -/
 theorem sqHandleMixFixesCore_of_eichRelWord {c : ℤ_[2]} (hc : IsUnit c) (hh : 0 < h)
@@ -711,7 +767,377 @@ theorem sqRelWord_sqEichFrame_one_eq_one_iff
 
 end RelWordShape
 
-/-! ## §5 Stress pins -/
+/-! ## §5 The transposed family: dressing by `U`
+
+`sqEichFrame` is **asymmetric** — its four moved slots are dressed by powers of `V`, the very
+letter it moved in order to clear the `v_j`-row, and that is exactly what
+`SqCore/EichRefutation.lean` exploits.  The transposed family exchanges the two letters
+throughout:
+
+```text
+mᵀ = ( σ·U^f , x₀·U^{f'} , x₁·U^{2f'} , U , V·U^d )        (other letters unmoved)
+```
+
+Everything in §2 transposes **verbatim**, and for a reason worth stating: the row proofs use only
+that both cleared letters are `λ`-trivial (`toAdd_nuLam_sqEichU`, `toAdd_nuLam_sqEichV`) and
+`ν'`-trivial at a selected marking (`toAdd_nu_sqEichU`, `toAdd_nu_sqEichV`), which is symmetric in
+`U` and `V`; and §2b's recovery argument is symmetric too, with `U` now the bare slot off which
+every dressing strips.  So the transposed family again reduces to a single relator identity, and
+§3's composition accepts it through `SqClearingStep`. -/
+
+section TransposedFrame
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+
+variable (h nu' j) in
+/-- **The transposed Eichler frame** at handle `j`, with `U`-dressings of weight `f, f', 2f', d`:
+
+```text
+mᵀ = ( σ·U^f , x₀·U^{f'} , x₁·U^{2f'} , U , V·U^d )
+```
+
+`sqEichFrame` with the roles of the two cleared letters exchanged: the bare slot is now the
+`u`-slot, and the `v`-slot carries the free dressing. -/
+noncomputable def sqEichFrameT (f f' d : ℤ_[2]) : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 0 then dsqSigma h * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) f else
+    if (i : ℕ) = 1 then dsqX0 h * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) f' else
+    if (i : ℕ) = 2 then dsqX1 h * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) (2 * f') else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then sqEichU h nu' j else
+    if (i : ℕ) = (sqHandleIdxV j : ℕ) then
+      sqEichV h nu' j * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) d else
+    sqGen h i
+
+variable {f f' d : ℤ_[2]}
+
+@[simp] theorem sqEichFrameT_zero :
+    sqEichFrameT h nu' j f f' d 0 = dsqSigma h * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) f := by
+  simp only [sqEichFrameT, sqVal_zero]
+  norm_num
+
+@[simp] theorem sqEichFrameT_one :
+    sqEichFrameT h nu' j f f' d 1 = dsqX0 h * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) f' := by
+  simp only [sqEichFrameT, sqVal_one]
+  norm_num
+
+@[simp] theorem sqEichFrameT_two :
+    sqEichFrameT h nu' j f f' d 2
+      = dsqX1 h * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) (2 * f') := by
+  simp only [sqEichFrameT, sqVal_two]
+  norm_num
+
+@[simp] theorem sqEichFrameT_handleU :
+    sqEichFrameT h nu' j f f' d (sqHandleIdxU j) = sqEichU h nu' j := by
+  simp only [sqEichFrameT]
+  rw [if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega)]
+  simp
+
+@[simp] theorem sqEichFrameT_handleV :
+    sqEichFrameT h nu' j f f' d (sqHandleIdxV j)
+      = sqEichV h nu' j * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) d := by
+  simp only [sqEichFrameT]
+  rw [if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val, sqHandleIdxV_val]; omega)]
+  simp
+
+theorem sqEichFrameT_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    sqEichFrameT h nu' j f f' d (sqHandleIdxU j') = sqGen h (sqHandleIdxU j') := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [sqEichFrameT]
+  rw [if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val, sqHandleIdxV_val]; omega)]
+
+theorem sqEichFrameT_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    sqEichFrameT h nu' j f f' d (sqHandleIdxV j') = sqGen h (sqHandleIdxV j') := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [sqEichFrameT]
+  rw [if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val, sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega)]
+
+/-! ### §5a The rows transpose verbatim -/
+
+/-- **The λ-row of the transposed frame is the standard one, unconditionally.** -/
+theorem sqEichFrameT_nuLam (i : Fin (sqRank h)) :
+    nuLam h (sqEichFrameT h nu' j f f' d i) = nuLam h (sqGen h i) := by
+  refine Multiplicative.toAdd.injective ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show toAdd (nuLam h (sqEichFrameT h nu' j f f' d 0)) = toAdd (nuLam h (dsqSigma h))
+    rw [sqEichFrameT_zero, toAdd_mul_zpow, toAdd_nuLam_sqEichU, mul_zero, add_zero]
+  · show toAdd (nuLam h (sqEichFrameT h nu' j f f' d 1)) = toAdd (nuLam h (dsqX0 h))
+    rw [sqEichFrameT_one, toAdd_mul_zpow, toAdd_nuLam_sqEichU, mul_zero, add_zero]
+  · show toAdd (nuLam h (sqEichFrameT h nu' j f f' d 2)) = toAdd (nuLam h (dsqX1 h))
+    rw [sqEichFrameT_two, toAdd_mul_zpow, toAdd_nuLam_sqEichU, mul_zero, add_zero]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrameT_handleU, toAdd_nuLam_sqEichU, nuLam_handleU, toAdd_one]
+    · rw [sqEichFrameT_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrameT_handleV, toAdd_mul_zpow, toAdd_nuLam_sqEichU, mul_zero, add_zero,
+        toAdd_nuLam_sqEichV, nuLam_handleV, toAdd_one]
+    · rw [sqEichFrameT_handleV_ne hjj]
+
+/-- The `σ`-row of the transposed frame, with **no** hypothesis on the other handles. -/
+theorem nu_sqEichFrameT_zero (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrameT h nu' j f f' d 0) = ofAdd (1 : ℤ_[2]) := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrameT_zero, toAdd_mul_zpow, toAdd_nu_sqEichU hsigma hx0, mul_zero, add_zero, hsigma]
+
+/-- The `x₀`-row of the transposed frame. -/
+theorem nu_sqEichFrameT_one (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrameT h nu' j f f' d 1) = ofAdd (0 : ℤ_[2]) := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrameT_one, toAdd_mul_zpow, toAdd_nu_sqEichU hsigma hx0, mul_zero, add_zero, hx0]
+
+/-- **Handle `j` is cleared**: its `u`-row vanishes on the transposed frame. -/
+theorem nu_sqEichFrameT_handleU_self (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrameT h nu' j f f' d (sqHandleIdxU j)) = 1 := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrameT_handleU, toAdd_nu_sqEichU hsigma hx0, toAdd_one]
+
+/-- **Handle `j` is cleared**: its `v`-row vanishes on the transposed frame. -/
+theorem nu_sqEichFrameT_handleV_self (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    nu' (sqEichFrameT h nu' j f f' d (sqHandleIdxV j)) = 1 := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [sqEichFrameT_handleV, toAdd_mul_zpow, toAdd_nu_sqEichU hsigma hx0,
+    toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero, toAdd_one]
+
+/-- **The ν-row of the transposed frame is the standard marking's**, at handle `j`. -/
+theorem sqEichFrameT_nu (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hoth : ∀ j' : Fin h, j' ≠ j →
+      nu' (sqGen h (sqHandleIdxU j')) = 1 ∧ nu' (sqGen h (sqHandleIdxV j')) = 1)
+    (i : Fin (sqRank h)) : nu' (sqEichFrameT h nu' j f f' d i) = nuSq h (sqGen h i) := by
+  refine Multiplicative.toAdd.injective ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show toAdd (nu' (sqEichFrameT h nu' j f f' d 0)) = toAdd (nuSq h (dsqSigma h))
+    rw [nu_sqEichFrameT_zero hsigma hx0, nuSq_sigma]
+  · show toAdd (nu' (sqEichFrameT h nu' j f f' d 1)) = toAdd (nuSq h (dsqX0 h))
+    rw [nu_sqEichFrameT_one hsigma hx0, nuSq_x0]
+  · show toAdd (nu' (sqEichFrameT h nu' j f f' d 2)) = toAdd (nuSq h (dsqX1 h))
+    rw [sqEichFrameT_two, toAdd_mul_zpow, toAdd_nu_sqEichU hsigma hx0, mul_zero, add_zero,
+      toAdd_nu_dsqX1, hx0, nuSq_x1]
+    simp
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [nu_sqEichFrameT_handleU_self hsigma hx0, nuSq_handleU]
+    · rw [sqEichFrameT_handleU_ne hjj, (hoth j' hjj).1, nuSq_handleU]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [nu_sqEichFrameT_handleV_self hsigma hx0, nuSq_handleV]
+    · rw [sqEichFrameT_handleV_ne hjj, (hoth j' hjj).2, nuSq_handleV]
+
+/-! ### §5b Surjectivity, with `U` as the bare slot
+
+The recovery argument of §2b is symmetric in the two cleared letters: `U` is now a slot outright,
+so every `U`-dressing strips off and `σ, x₀, x₁, V` come back; the pivot is a word in `σ` and
+`x₀`; and the two handle letters return as `u_j = w^{t}·U` and `v_j = V·w^{s}`. -/
+
+/-- **Any endomorphism realizing the transposed frame is surjective.** -/
+theorem sqEichFrameT_surjective_of_hom (Φ : ContinuousMonoidHom (DSq h : Type) (DSq h : Type))
+    (hΦ : ∀ i, Φ (sqGen h i) = sqEichFrameT h nu' j f f' d i) : Function.Surjective Φ := by
+  have hpow : ∀ (x : (DSq h : Type)) (k : ℤ_[2]),
+      Φ (zpowZtwo (isProP_DSq h) x k) = zpowZtwo (isProP_DSq h) (Φ x) k :=
+    fun x k => map_zpowZtwo (isProP_DSq h) (isProP_DSq h) Φ x k
+  have hU : Φ (sqGen h (sqHandleIdxU j)) = sqEichU h nu' j := by
+    rw [hΦ, sqEichFrameT_handleU]
+  have hstrip : ∀ (a : (DSq h : Type)) (i : Fin (sqRank h)) (k : ℤ_[2]),
+      sqEichFrameT h nu' j f f' d i = a * zpowZtwo (isProP_DSq h) (sqEichU h nu' j) k →
+        a ∈ Set.range Φ := by
+    refine fun a i k hi => ⟨sqGen h i *
+      (zpowZtwo (isProP_DSq h) (sqGen h (sqHandleIdxU j)) k)⁻¹, ?_⟩
+    rw [map_mul, map_inv, hΦ, hi, hpow, hU, mul_inv_cancel_right]
+  obtain ⟨a, ha⟩ := hstrip (dsqSigma h) 0 f sqEichFrameT_zero
+  obtain ⟨b, hb⟩ := hstrip (dsqX0 h) 1 f' sqEichFrameT_one
+  obtain ⟨c, hc⟩ := hstrip (dsqX1 h) 2 (2 * f') sqEichFrameT_two
+  obtain ⟨g, hg⟩ := hstrip (sqEichV h nu' j) (sqHandleIdxV j) d sqEichFrameT_handleV
+  have hw : Φ (a * (zpowZtwo (isProP_DSq h) b sqPivotExp)⁻¹) = sqPivot h := by
+    rw [map_mul, map_inv, ha, hpow, hb, sqPivot, sqMixPivotElem]
+  refine surjective_of_topGen_subset_range (dsq_topGen h) Φ ?_
+  rintro _ ⟨i, rfl⟩
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · exact ⟨a, ha⟩
+  · exact ⟨b, hb⟩
+  · exact ⟨c, hc⟩
+  · by_cases hjj : j' = j
+    · subst hjj
+      refine ⟨zpowZtwo (isProP_DSq h) (a * (zpowZtwo (isProP_DSq h) b sqPivotExp)⁻¹)
+        (toAdd (nu' (sqGen h (sqHandleIdxU j')))) * sqGen h (sqHandleIdxU j'), ?_⟩
+      rw [map_mul, hpow, hw, hU, pivotPow_mul_sqEichU]
+    · exact ⟨sqGen h (sqHandleIdxU j'), by rw [hΦ, sqEichFrameT_handleU_ne hjj]⟩
+  · by_cases hjj : j' = j
+    · subst hjj
+      refine ⟨g * zpowZtwo (isProP_DSq h) (a * (zpowZtwo (isProP_DSq h) b sqPivotExp)⁻¹)
+        (toAdd (nu' (sqGen h (sqHandleIdxV j')))), ?_⟩
+      rw [map_mul, hg, hpow, hw, sqEichV_mul_pivotPow]
+    · exact ⟨sqGen h (sqHandleIdxV j'), by rw [hΦ, sqEichFrameT_handleV_ne hjj]⟩
+
+/-- **The transposed frame's lift is surjective as soon as it exists.** -/
+theorem sqEichFrameT_surjective (hrel : sqRelWord (sqEichFrameT h nu' j f f' d) = 1) :
+    Function.Surjective (sqLiftHom h (isProP_DSq h) (sqEichFrameT h nu' j f f' d) hrel) :=
+  sqEichFrameT_surjective_of_hom _ (sqLiftHom_gen h (isProP_DSq h) _ hrel)
+
+/-! ### §5c The transposed clearing step -/
+
+/-- **The one-handle clearing step for the transposed family** — the same five clauses, so the
+two families are interchangeable inputs to §3's composition. -/
+theorem sqEichStepT (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hrel : sqRelWord (sqEichFrameT h nu' j f f' d) = 1) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+        nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2]) ∧ nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1 ∧
+          nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1 ∧
+            ∀ j' : Fin h, j' ≠ j →
+              nu' (Ψ (sqGen h (sqHandleIdxU j'))) = nu' (sqGen h (sqHandleIdxU j')) ∧
+                nu' (Ψ (sqGen h (sqHandleIdxV j'))) = nu' (sqGen h (sqHandleIdxV j')) := by
+  refine ⟨sqAutOfMark hrel (sqEichFrameT_surjective hrel), fun x => ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · have hext : (nuLam h).comp (autHom (sqAutOfMark hrel (sqEichFrameT_surjective hrel)))
+        = nuLam h :=
+      dsq_hom_ext _ _ fun i => by
+        show nuLam h (sqAutOfMark hrel (sqEichFrameT_surjective hrel) (sqGen h i))
+          = nuLam h (sqGen h i)
+        rw [sqAutOfMark_gen, sqEichFrameT_nuLam]
+    exact DFunLike.congr_fun hext x
+  · show nu' (sqAutOfMark hrel (sqEichFrameT_surjective hrel) (sqGen h 0)) = ofAdd (1 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqEichFrameT_zero hsigma hx0]
+  · show nu' (sqAutOfMark hrel (sqEichFrameT_surjective hrel) (sqGen h 1)) = ofAdd (0 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqEichFrameT_one hsigma hx0]
+  · rw [sqAutOfMark_gen, nu_sqEichFrameT_handleU_self hsigma hx0]
+  · rw [sqAutOfMark_gen, nu_sqEichFrameT_handleV_self hsigma hx0]
+  · exact fun j' hjj => ⟨by rw [sqAutOfMark_gen, sqEichFrameT_handleU_ne hjj],
+      by rw [sqAutOfMark_gen, sqEichFrameT_handleV_ne hjj]⟩
+
+/-! ### §5d The rigidity transposes too
+
+`U^d` commutes with `U`, so the `d`-slot again only conjugates and is invisible modulo `γ₃`.  The
+transposed family is a **zero-parameter** ansatz beyond class three for exactly the same reason as
+the original. -/
+
+/-- **The `d`-slot only conjugates**, transposed. -/
+theorem sqEichFrameT_handleComm :
+    commP (sqEichFrameT h nu' j f f' d (sqHandleIdxU j))
+        (sqEichFrameT h nu' j f f' d (sqHandleIdxV j))
+      = conjP (commP (sqEichU h nu' j) (sqEichV h nu' j))
+          (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) d) := by
+  rw [sqEichFrameT_handleU, sqEichFrameT_handleV,
+    commP_mul_zpowZtwo_right (isProP_DSq h) (sqEichU h nu' j) (sqEichV h nu' j) d]
+
+end TransposedFrame
+
+section TransposedShape
+
+/-- **The relator of the transposed frame at one handle, unpacked.** -/
+theorem sqRelWord_sqEichFrameT_one
+    (nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])) (f f' d : ℤ_[2]) :
+    sqRelWord (sqEichFrameT 1 nu' 0 f f' d)
+      = sqWord (dsqSigma 1 * zpowZtwo (isProP_DSq 1) (sqEichU 1 nu' 0) f)
+            (dsqX0 1 * zpowZtwo (isProP_DSq 1) (sqEichU 1 nu' 0) f')
+            (dsqX1 1 * zpowZtwo (isProP_DSq 1) (sqEichU 1 nu' 0) (2 * f'))
+          * conjP (commP (sqEichU 1 nu' 0) (sqEichV 1 nu' 0))
+              (zpowZtwo (isProP_DSq 1) (sqEichU 1 nu' 0) d) := by
+  rw [sqRelWord, handleWord_one, sqEichFrameT_zero, sqEichFrameT_one, sqEichFrameT_two,
+    sqEichFrameT_handleComm]
+
+/-- **The whole `d`-dependence of the transposed relator is one `γ₃`-commutator**, exactly as in
+§4: the transposed parameter buys no class-two freedom either. -/
+theorem sqRelWord_sqEichFrameT_one_d
+    (nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])) (f f' d : ℤ_[2]) :
+    sqRelWord (sqEichFrameT 1 nu' 0 f f' d)
+      = sqRelWord (sqEichFrameT 1 nu' 0 f f' 0) *
+          commP (commP (sqEichU 1 nu' 0) (sqEichV 1 nu' 0))
+            (zpowZtwo (isProP_DSq 1) (sqEichU 1 nu' 0) d) := by
+  rw [sqRelWord_sqEichFrameT_one, sqRelWord_sqEichFrameT_one, SectionThree.zpowZtwo_zero]
+  simp only [conjP, commP, inv_one, one_mul, mul_one]
+  group
+
+end TransposedShape
+
+/-! ## §6 The two families, mixed
+
+Both families deliver the *same* clearing step, so §3's induction accepts either at each handle —
+and, since the choice is made handle by handle inside the induction, it accepts a **disjunction**.
+`SqEichRelWordMix` is therefore strictly weaker than either `SqEichRelWord` or `SqEichRelWordT`,
+and still discharges the whole `h ≥ 1` residual. -/
+
+section Mixed
+
+variable {h : ℕ}
+
+/-- **The transposed relator identity**: at every selected marking and every handle, some
+`U`-dressing weights `(f, f', d)` kill the relator.
+
+⚠ **This is false for `h ≥ 1`** (`SqCore/EichRefutation.lean`, `not_sqEichRelWordT`), by the
+mirror image of the mechanism that kills `SqEichRelWord` — but at a *different* marking, and by a
+*different* homomorphism. -/
+def SqEichRelWordT (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ f f' d : ℤ_[2], sqRelWord (sqEichFrameT h nu' j f f' d) = 1
+
+/-- **The mixed identity**: at every selected marking and every handle, *one of the two* families
+kills the relator.  The family may be chosen per marking and per handle, which is what makes this
+strictly weaker than either.
+
+⚠ **This is false for `h ≥ 1` too** (`SqCore/EichRefutation.lean`, `not_sqEichRelWordMix`): at the
+selected marking `nuSel h j 1 1` both handle rows are `1`, and each family then has its own
+Heisenberg obstruction.  It is kept because the implication below is the reusable half — any pair
+of families with `SqClearingStep`'s five clauses plugs into the same composition. -/
+def SqEichRelWordMix (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      (∃ e e' d : ℤ_[2], sqRelWord (sqEichFrame h nu' j e e' d) = 1) ∨
+        ∃ f f' d : ℤ_[2], sqRelWord (sqEichFrameT h nu' j f f' d) = 1
+
+theorem sqEichRelWordMix_of_eichRelWord (H : SqEichRelWord h) : SqEichRelWordMix h :=
+  fun nu' j hsigma hx0 => Or.inl (H nu' j hsigma hx0)
+
+theorem sqEichRelWordMix_of_eichRelWordT (H : SqEichRelWordT h) : SqEichRelWordMix h :=
+  fun nu' j hsigma hx0 => Or.inr (H nu' j hsigma hx0)
+
+/-- The mixed identity supplies a clearing step: whichever disjunct holds, §2c or §5c applies. -/
+theorem sqClearingStep_of_eichRelWordMix (H : SqEichRelWordMix h) : SqClearingStep h := by
+  intro nu' j hsigma hx0
+  rcases H nu' j hsigma hx0 with ⟨e, e', d, hrel⟩ | ⟨f, f', d, hrel⟩
+  · exact sqEichStep hsigma hx0 hrel
+  · exact sqEichStepT hsigma hx0 hrel
+
+/-- **The residual, from the mixed identity.**  This is the weakest word-level hypothesis the two
+Eichler families jointly support. -/
+theorem sqLamMarkTransitivity_of_eichRelWordMix (H : SqEichRelWordMix h) :
+    SqLamMarkTransitivity h :=
+  sqLamMarkTransitivity_of_clearingStep (sqClearingStep_of_eichRelWordMix H)
+
+/-- The transposed identity supplies a clearing step. -/
+theorem sqClearingStep_of_eichRelWordT (H : SqEichRelWordT h) : SqClearingStep h :=
+  sqClearingStep_of_eichRelWordMix (sqEichRelWordMix_of_eichRelWordT H)
+
+/-- **The residual, from the transposed identity alone.** -/
+theorem sqLamMarkTransitivity_of_eichRelWordT (H : SqEichRelWordT h) : SqLamMarkTransitivity h :=
+  sqLamMarkTransitivity_of_clearingStep (sqClearingStep_of_eichRelWordT H)
+
+/-- …and hence the handle stratum at every unit exponent, from the mixed identity. -/
+theorem sqHandleMixFixesCore_of_eichRelWordMix {c : ℤ_[2]} (hc : IsUnit c) (hh : 0 < h)
+    (H : SqEichRelWordMix h) : SqHandleMixFixesCore h c :=
+  sqHandleMixFixesCore_of_lamMarkTransitivity hc hh (sqLamMarkTransitivity_of_eichRelWordMix H)
+
+end Mixed
+
+/-! ## §7 Stress pins -/
 
 section StressTests
 
@@ -770,9 +1196,56 @@ example (h : ℕ) (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_
     (e e' d : ℤ_[2]) (i : Fin (sqRank h)) :
     nuLam h (sqEichFrame h nu' j e e' d i) = nuLam h (sqGen h i) := sqEichFrame_nuLam i
 
+/-- **The transposed ansatz is satisfiable too.**  At the standard marking the transposed frame at
+`(f, f', d) = (0, 0, 0)` is again the identity frame, so §5's relator identity is not an empty
+demand either. -/
+theorem sqEichFrameT_nuSq_zero (h : ℕ) (j : Fin h) : sqEichFrameT h (nuSq h) j 0 0 0 = sqGen h := by
+  have hV : sqEichV h (nuSq h) j = sqGen h (sqHandleIdxV j) := by
+    rw [sqEichV, nuSq_handleV, toAdd_one, SectionThree.zpowZtwo_zero, inv_one, mul_one]
+  have hU : sqEichU h (nuSq h) j = sqGen h (sqHandleIdxU j) := by
+    rw [sqEichU, nuSq_handleU, toAdd_one, SectionThree.zpowZtwo_zero, inv_one, one_mul]
+  refine funext fun i => ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqEichFrameT_zero, SectionThree.zpowZtwo_zero, mul_one]; rfl
+  · rw [sqEichFrameT_one, SectionThree.zpowZtwo_zero, mul_one]; rfl
+  · rw [sqEichFrameT_two, mul_zero, SectionThree.zpowZtwo_zero, mul_one]; rfl
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrameT_handleU, hU]
+    · rw [sqEichFrameT_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrameT_handleV, SectionThree.zpowZtwo_zero, mul_one, hV]
+    · rw [sqEichFrameT_handleV_ne hjj]
+
+/-- Stress: hence the transposed relator identity is satisfiable. -/
+example (h : ℕ) (j : Fin h) : sqRelWord (sqEichFrameT h (nuSq h) j 0 0 0) = 1 := by
+  rw [sqEichFrameT_nuSq_zero]
+  exact dsq_relation h
+
+/-- Stress: the mixed hypothesis is genuinely weaker — *either* family implies it. -/
+example (h : ℕ) (H : SqEichRelWord h) : SqEichRelWordMix h := sqEichRelWordMix_of_eichRelWord H
+
+example (h : ℕ) (H : SqEichRelWordT h) : SqEichRelWordMix h := sqEichRelWordMix_of_eichRelWordT H
+
+/-- Stress: `h = 0` runs through the mixed reduction too. -/
+example : SqLamMarkTransitivity 0 :=
+  sqLamMarkTransitivity_of_eichRelWordMix fun _ j _ _ => absurd j.isLt (by omega)
+
+/-- Stress: the transposed `λ`-row is unconditional as well — the row proofs really do use only
+`λ`- and `ν'`-triviality of the dressing letter, which both letters have. -/
+example (h : ℕ) (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+    (f f' d : ℤ_[2]) (i : Fin (sqRank h)) :
+    nuLam h (sqEichFrameT h nu' j f f' d i) = nuLam h (sqGen h i) := sqEichFrameT_nuLam i
+
+/-- Stress: surjectivity of the transposed frame is likewise relator-free. -/
+example (h : ℕ) (j : Fin h) (Φ : ContinuousMonoidHom (DSq h : Type) (DSq h : Type))
+    (hΦ : ∀ i, Φ (sqGen h i) = sqEichFrameT h (nuSq h) j 0 0 0 i) : Function.Surjective Φ :=
+  sqEichFrameT_surjective_of_hom Φ hΦ
+
 end StressTests
 
-/-! ## §6 Axiom pins
+/-! ## §8 Axiom pins
 
 Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
 census axiom is reachable. -/
@@ -797,7 +1270,10 @@ section AxiomPins
 #print axioms sqEichFrame_surjective_of_hom
 #print axioms sqEichFrame_surjective
 #print axioms sqEichStep
+#print axioms SqClearingStep
+#print axioms sqLamMarkTransitivity_of_clearingStep
 #print axioms SqEichRelWord
+#print axioms sqClearingStep_of_eichRelWord
 #print axioms sqLamMarkTransitivity_of_eichRelWord
 #print axioms sqHandleMixFixesCore_of_eichRelWord
 #print axioms sqLamMarkTransitivity_one_of_eichRelWord
@@ -806,7 +1282,28 @@ section AxiomPins
 #print axioms sqRelWord_sqEichFrame_one
 #print axioms sqRelWord_sqEichFrame_one_d
 #print axioms sqRelWord_sqEichFrame_one_eq_one_iff
+#print axioms sqEichFrameT
+#print axioms sqEichFrameT_nuLam
+#print axioms nu_sqEichFrameT_zero
+#print axioms nu_sqEichFrameT_one
+#print axioms nu_sqEichFrameT_handleU_self
+#print axioms nu_sqEichFrameT_handleV_self
+#print axioms sqEichFrameT_nu
+#print axioms sqEichFrameT_surjective_of_hom
+#print axioms sqEichFrameT_surjective
+#print axioms sqEichStepT
+#print axioms sqEichFrameT_handleComm
+#print axioms sqRelWord_sqEichFrameT_one
+#print axioms sqRelWord_sqEichFrameT_one_d
+#print axioms SqEichRelWordT
+#print axioms SqEichRelWordMix
+#print axioms sqClearingStep_of_eichRelWordMix
+#print axioms sqLamMarkTransitivity_of_eichRelWordMix
+#print axioms sqClearingStep_of_eichRelWordT
+#print axioms sqLamMarkTransitivity_of_eichRelWordT
+#print axioms sqHandleMixFixesCore_of_eichRelWordMix
 #print axioms sqEichFrame_nuSq_zero
+#print axioms sqEichFrameT_nuSq_zero
 
 end AxiomPins
 
