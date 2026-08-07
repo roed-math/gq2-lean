@@ -655,6 +655,7 @@ import GQ2.Dyadic.ThmFourTwoN
 import GQ2.Dyadic.ThmFourTwoRN
 import GQ2.Dyadic.CertificateSupplyRN
 import GQ2.Dyadic.CertificateSupplyFamilyRN
+import GQ2.Dyadic.Instances.MpcSelectedScalar
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
@@ -688,6 +689,7 @@ import GQ2.Dyadic.SqCore.PivotSeedD0
 import GQ2.Dyadic.SqCore.HandleEichler
 import GQ2.Dyadic.SqCore.DsqDemushkin
 import GQ2.Dyadic.SqCore.LamFrames
+import GQ2.Dyadic.SqCore.EichRefutation
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
