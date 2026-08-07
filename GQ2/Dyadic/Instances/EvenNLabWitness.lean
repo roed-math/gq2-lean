@@ -7,35 +7,46 @@ import GQ2.Dyadic.Instances.EvenModelDemushkin
 import GQ2.Dyadic.OrientationCorrection
 
 /-!
-# EV-0c: an honest witness that `NLabHypothesis` is too strong
+# EV-0c: an honest witness that the *unguarded* `NLabHypothesis` is too strong
 
-`NLabHypothesis α h` (`GQ2/Dyadic/MarkedCore/N.lean:1306`) keys on four invariants only:
-Demushkin at `p = 2`, `demushkinRank = coreRank h`, `demushkinQ = 2`, and the existence of *some*
-continuous character with image `imChiN α`.  This file assembles all four for the **`M` row**.
+*Status (2026-08-07).*  This file's refutation has been acted on: `NLabHypothesis`
+(`GQ2/Dyadic/MarkedCore/N.lean`) now carries the orientation-canonicity guard `nIsCanonical`
+that its `M` twin always had (owner memo 2026-08-05, item 3), and the theorems below are stated
+against the guarded binder.  `noCanonicityGuard` recovers the pre-memo form, and
+`nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis` is the refutation that made the guard
+necessary, kept live.
+
+Without the guard, `NLabHypothesis α h` keys on four invariants only: Demushkin at `p = 2`,
+`demushkinRank = coreRank h`, `demushkinQ = 2`, and the existence of *some* continuous character
+with image `imChiN α`.  This file assembles all four for the **`M` row**.
 
 The point is the fourth clause.  `imChiN α` is the *canonical* orientation image of `D_N`, but
-`NLabHypothesis` asks only that some character attain it, and the `M` relator is perfectly happy
-to carry the `N` value table: `mRelWord` abelianizes to `m₀² · m₂^{2^α}`
+the unguarded binder asks only that some character attain it, and the `M` relator is perfectly
+happy to carry the `N` value table: `mRelWord` abelianizes to `m₀² · m₂^{2^α}`
 (`mRelWord_comm`), and the `N` marking `coreMark 1 v 1 1` puts `1` in *both* of those slots.  So
 `chiNOnDM` below is a continuous character of `D_M` with `MonoidHom.range = imChiN α`, and
-`nonempty_equiv_DM_DN_of_nLabHypothesis` concludes `D_M ≅ D_N` from `NLabHypothesis` alone.
+`nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis` concludes `D_M ≅ D_N` from the unguarded
+binder alone.
 
-That conclusion is false for the intended cores, so `NLabHypothesis` as literally stated cannot
-be Labute's theorem: what Labute separates the two rows by is the *canonical* orientation, and
-`imChiM α ≠ imChiN α` (`imChiM_ne_imChiN`, §4 below) — `−1 ∈ imChiM α` while `imChiN α` is the
-procyclic closure of `⟨v⟩`, `v = −(1+2^α)⁻¹ ≡ −1 + 2^α (mod 2^{α+1})`, whose reduction mod
-`2^{α+1}` is the order-two group `{1, −1 + 2^α}` and misses `−1`.  Dropping the canonicity clause
-(memo §6.4 deviation (ii)) is therefore not a harmless weakening: it collapses the two rows.
+That conclusion is false for the intended cores, so `NLabHypothesis` as *literally stated before
+the memo* cannot be Labute's theorem: what Labute separates the two rows by is the *canonical*
+orientation, and `imChiM α ≠ imChiN α` (`imChiM_ne_imChiN`, §4 below) — `−1 ∈ imChiM α` while
+`imChiN α` is the procyclic closure of `⟨v⟩`, `v = −(1+2^α)⁻¹ ≡ −1 + 2^α (mod 2^{α+1})`, whose
+reduction mod `2^{α+1}` is the order-two group `{1, −1 + 2^α}` and misses `−1`.  Dropping the
+canonicity clause (memo §6.4 deviation (ii)) is therefore not a harmless weakening: it collapses
+the two rows.
 
 ## Contents
 
 * §1 `chiNOnDM` — the `N` value table on the `M` core, with generator-value simp lemmas.
 * §2 `range_chiNOnDM` — its image is exactly `imChiN α` (the `range_chiN` argument, `M`-side).
-* §3 `nonempty_equiv_DM_DN_of_nLabHypothesis` — the witness package.  `demushkinQ (DM α h) = 2` is
-  threaded as an explicit hypothesis: the repo has `demushkinQ_DM` only at `h = 0` and only from
-  an `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean:1946`); there is no general-`h`
-  `M`-frame (the `N`-side `demushkinQ_DN_nFrame` has no `M` counterpart).  The `h = 0`
-  specialisation `nonempty_equiv_DM_DN_zero_of_nLabHypothesis` discharges it from a frame.
+* §3 `nonempty_equiv_DM_DN_of_nLabHypothesis` — the witness package against the guarded binder,
+  and `nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis`, the same package at
+  `noCanonicityGuard`.  `demushkinQ (DM α h) = 2` is threaded as an explicit hypothesis: the repo
+  has `demushkinQ_DM` only at `h = 0` and only from an `MDecomposition α`
+  (`GQ2/Dyadic/MarkedCore/Cores.lean:1946`); there is no general-`h` `M`-frame (the `N`-side
+  `demushkinQ_DN_nFrame` has no `M` counterpart).  The `h = 0` specialisation
+  `nonempty_equiv_DM_DN_zero_of_nLabHypothesis` discharges it from a frame.
 * §4 `imChiM_ne_imChiN` — the separation, proved through the mod-`2^{α+1}` reduction.
 * §5 the `N`-side sanity pin.
 -/
@@ -133,26 +144,55 @@ theorem range_chiNOnDM (α h : ℕ) :
 
 /-! ## §3 The witness package -/
 
-/-- **The honest witness package** (ticket EV-0c): the even `M` core satisfies *every* hypothesis
-of `NLabHypothesis α h`, so that binder alone forces `D_M ≅ D_N`.
+/-- **The honest witness package** (ticket EV-0c): the even `M` core satisfies every *invariant*
+hypothesis of `NLabHypothesis α h` — Demushkin, rank `coreRank h`, `q = 2`, and a continuous
+character of range exactly `imChiN α`.  The only clause it cannot meet on its own is the
+orientation-canonicity guard, so granting the guard for `chiNOnDM` forces `D_M ≅ D_N`.
 
 `demushkinQ (DM α h) = 2` is an explicit hypothesis, as the module docstring records: the repo
 proves `demushkinQ (DM α 0) = 2` only from an `MDecomposition α`, and there is no general-`h`
 `M`-frame to run `demushkinQ_DN_nFrame`'s argument through. -/
 theorem nonempty_equiv_DM_DN_of_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
-    (hq : demushkinQ (DM α h : Type) = 2) (hLab : MarkedCore.NLabHypothesis α h) :
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (hq : demushkinQ (DM α h : Type) = 2)
+    (hLab : MarkedCore.NLabHypothesis α h nIsCanonical)
+    (hcanon : nIsCanonical (DM α h : Type) (chiNOnDM α h).toMonoidHom) :
     Nonempty (ContinuousMulEquiv (DM α h : Type) (DN α h : Type)) :=
   hLab (DM α h : Type) (isDemushkin_DM α h hα2)
     (demushkinRank_DM α h (le_trans one_le_two hα2)) hq
-    ⟨(chiNOnDM α h).toMonoidHom, (chiNOnDM α h).continuous_toFun, range_chiNOnDM α h⟩
+    ⟨(chiNOnDM α h).toMonoidHom, (chiNOnDM α h).continuous_toFun, hcanon, range_chiNOnDM α h⟩
+
+/-- **The canonicity guard dropped**: the predicate every character satisfies.  Instantiating
+`NLabHypothesis` here recovers the binder exactly as it stood before the owner memo of
+2026-08-05 (item 3). -/
+def noCanonicityGuard :
+    ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop :=
+  fun _ _ _ _ _ => True
+
+/-- **The refutation the guard exists for.**  With canonicity dropped, `NLabHypothesis` alone
+forces `D_M ≅ D_N` — a conclusion refuted unconditionally at `α ≥ 2` by `imChiM_ne_imChiN` (§4).
+So the unguarded binder is not Labute's theorem, and this is why `NLabHypothesis` now carries
+`nIsCanonical`. -/
+theorem nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
+    (hq : demushkinQ (DM α h : Type) = 2)
+    (hLab : MarkedCore.NLabHypothesis α h noCanonicityGuard) :
+    Nonempty (ContinuousMulEquiv (DM α h : Type) (DN α h : Type)) :=
+  nonempty_equiv_DM_DN_of_nLabHypothesis α h hα2 noCanonicityGuard hq hLab trivial
 
 /-- The `h = 0` specialisation, with the `q`-invariant discharged from MC2's rank-four `M`
 frame (`GQ2/Dyadic/MarkedCore/Cores.lean:1823`).  The repo proves no `Nonempty (MDecomposition α)`
 (the `phiEquiv` route is explicitly out of scope there), so the frame stays a hypothesis. -/
 theorem nonempty_equiv_DM_DN_zero_of_nLabHypothesis (α : ℕ) (hα2 : 2 ≤ α)
-    (B : MarkedCore.MDecomposition α) (hLab : MarkedCore.NLabHypothesis α 0) :
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (B : MarkedCore.MDecomposition α)
+    (hLab : MarkedCore.NLabHypothesis α 0 nIsCanonical)
+    (hcanon : nIsCanonical (DM α 0 : Type) (chiNOnDM α 0).toMonoidHom) :
     Nonempty (ContinuousMulEquiv (DM α 0 : Type) (DN α 0 : Type)) :=
-  nonempty_equiv_DM_DN_of_nLabHypothesis α 0 hα2 (MarkedCore.demushkinQ_DM B) hLab
+  nonempty_equiv_DM_DN_of_nLabHypothesis α 0 hα2 nIsCanonical (MarkedCore.demushkinQ_DM B) hLab
+    hcanon
 
 /-! ## §4 The separation `imChiM α ≠ imChiN α`
 
@@ -299,13 +339,18 @@ The same package on the row the binder is *about*.  Here the `q`-invariant is av
 handle count (`demushkinQ_DN_nFrame`) once a frame is supplied, and the character is the
 canonical `χ_N` itself, so the conclusion is the harmless one. -/
 
-/-- `NLabHypothesis` applied to its own row: every hypothesis is met by `D_N` itself. -/
+/-- `NLabHypothesis` applied to its own row: every hypothesis is met by `D_N` itself, the
+canonicity guard included — on this row the character is the canonical `χ_N`, so `hcanon` is
+whatever the consumer's own descent characterisation says about it. -/
 theorem nonempty_equiv_DN_self_of_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
-    (F : MarkedCore.NFrame α h) (hLab : MarkedCore.NLabHypothesis α h) :
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (F : MarkedCore.NFrame α h) (hLab : MarkedCore.NLabHypothesis α h nIsCanonical)
+    (hcanon : nIsCanonical (DN α h : Type) (chiN α h).toMonoidHom) :
     Nonempty (ContinuousMulEquiv (DN α h : Type) (DN α h : Type)) :=
   hLab (DN α h : Type) (isDemushkin_DN α h hα2)
     (demushkinRank_DN α h (le_trans one_le_two hα2)) (MarkedCore.demushkinQ_DN_nFrame F)
-    ⟨(chiN α h).toMonoidHom, (chiN α h).continuous_toFun, range_chiN α h⟩
+    ⟨(chiN α h).toMonoidHom, (chiN α h).continuous_toFun, hcanon, range_chiN α h⟩
 
 /-! ## §6 Axiom hygiene -/
 
@@ -318,6 +363,8 @@ theorem nonempty_equiv_DN_self_of_nLabHypothesis (α h : ℕ) (hα2 : 2 ≤ α)
 #print axioms chiNOnDM_handleV
 #print axioms range_chiNOnDM
 #print axioms nonempty_equiv_DM_DN_of_nLabHypothesis
+#print axioms noCanonicityGuard
+#print axioms nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis
 #print axioms nonempty_equiv_DM_DN_zero_of_nLabHypothesis
 #print axioms modPairSubgroup
 #print axioms mem_modPairSubgroup
