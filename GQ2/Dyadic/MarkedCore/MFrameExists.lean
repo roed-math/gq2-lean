@@ -382,6 +382,136 @@ theorem mDMab_coord (z : topAbelianization (DM α h : Type)) :
 
 end Coord
 
+/-! ## §5 Evaluating the coordinate homs on a word
+
+Every marking used in §3 is supported on at most two generator slots, so each coordinate hom
+reads a word off in at most two of its exponents.  §5.1 is the two sparse-product lemmas, §5.2
+the index case split, §5.3 the five evaluation formulas. -/
+
+/-! ### §5.1 Sparse products -/
+
+section Sparse
+
+variable {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H] {h : ℕ}
+
+/-- A marking supported at one slot pairs with a word through that slot only. -/
+theorem mProd_single (hH : IsProP 2 H) (m : Fin (coreRank h) → H) (c : Fin (coreRank h) → ℤ_[2])
+    (i₀ : Fin (coreRank h)) (hm : ∀ i, i ≠ i₀ → m i = 1) :
+    ∏ i, zpowZtwo hH (m i) (c i) = zpowZtwo hH (m i₀) (c i₀) :=
+  Finset.prod_eq_single i₀ (fun j _ hj => by rw [hm j hj, zpowZtwo_one_base])
+    (fun hi => absurd (Finset.mem_univ i₀) hi)
+
+/-- A marking supported at two slots pairs with a word through those two slots only. -/
+theorem mProd_pair (hH : IsProP 2 H) (m : Fin (coreRank h) → H) (c : Fin (coreRank h) → ℤ_[2])
+    {i₀ i₁ : Fin (coreRank h)} (hne : i₀ ≠ i₁) (hm : ∀ i, i ≠ i₀ → i ≠ i₁ → m i = 1) :
+    ∏ i, zpowZtwo hH (m i) (c i)
+      = zpowZtwo hH (m i₀) (c i₀) * zpowZtwo hH (m i₁) (c i₁) := by
+  rw [← Finset.prod_pair (f := fun i => zpowZtwo hH (m i) (c i)) hne]
+  refine (Finset.prod_subset (Finset.subset_univ _) ?_).symm
+  intro i _ hi
+  simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hi
+  rw [hm i hi.1 hi.2, zpowZtwo_one_base]
+
+end Sparse
+
+/-! ### §5.2 The generator index split
+
+Every generator index is one of the four core letters or exactly one handle letter. -/
+
+/-- `coreMark` spelled out; the definition, for `split_ifs`. -/
+theorem coreMark_apply {G : Type*} [Group G] {h : ℕ} (a b c d : G) (i : Fin (coreRank h)) :
+    coreMark a b c d i = if (i : ℕ) = 0 then a else if (i : ℕ) = 1 then b else
+      if (i : ℕ) = 2 then c else if (i : ℕ) = 3 then d else 1 := rfl
+
+theorem mCoreVal_ne_zero {h : ℕ} {i : Fin (coreRank h)} (hi : i ≠ 0) : (i : ℕ) ≠ 0 :=
+  fun hv => hi (Fin.ext (hv.trans (coreVal_zero h).symm))
+
+theorem mCoreVal_ne_one {h : ℕ} {i : Fin (coreRank h)} (hi : i ≠ 1) : (i : ℕ) ≠ 1 :=
+  fun hv => hi (Fin.ext (hv.trans (coreVal_one h).symm))
+
+theorem mCoreVal_ne_two {h : ℕ} {i : Fin (coreRank h)} (hi : i ≠ 2) : (i : ℕ) ≠ 2 :=
+  fun hv => hi (Fin.ext (hv.trans (coreVal_two h).symm))
+
+theorem mCoreVal_ne_three {h : ℕ} {i : Fin (coreRank h)} (hi : i ≠ 3) : (i : ℕ) ≠ 3 :=
+  fun hv => hi (Fin.ext (hv.trans (coreVal_three h).symm))
+
+theorem mCoreZero_ne_two {h : ℕ} : (0 : Fin (coreRank h)) ≠ 2 :=
+  fun hc => by have := congrArg Fin.val hc; rw [coreVal_zero, coreVal_two] at this; omega
+
+/-- **The generator index split**: `Fin (coreRank h)` is the four core letters plus the `2h`
+handle letters, and nothing else. -/
+theorem mIdx_cases {h : ℕ} (i : Fin (coreRank h)) :
+    i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 ∨ ∃ k, i = mHandleIdx k := by
+  by_cases h0 : (i : ℕ) = 0
+  · exact Or.inl (Fin.ext (h0.trans (coreVal_zero h).symm))
+  by_cases h1 : (i : ℕ) = 1
+  · exact Or.inr (Or.inl (Fin.ext (h1.trans (coreVal_one h).symm)))
+  by_cases h2 : (i : ℕ) = 2
+  · exact Or.inr (Or.inr (Or.inl (Fin.ext (h2.trans (coreVal_two h).symm))))
+  by_cases h3 : (i : ℕ) = 3
+  · exact Or.inr (Or.inr (Or.inr (Or.inl (Fin.ext (h3.trans (coreVal_three h).symm)))))
+  refine Or.inr (Or.inr (Or.inr (Or.inr ⟨⟨(i : ℕ) - 4, ?_⟩, Fin.ext ?_⟩)))
+  · have := i.isLt; simp only [coreRank] at this; omega
+  · simp only [mHandleIdx_val]; omega
+
+/-! ### §5.3 The five evaluation formulas -/
+
+section Words
+
+variable (α h : ℕ) (c : Fin (coreRank h) → ℤ_[2])
+
+/-- A coordinate hom on a `ℤ₂`-power word: apply the marking slotwise. -/
+theorem mCoordHom_word {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H]
+    [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H] (hH : IsProP 2 H)
+    (m : Fin (coreRank h) → H) (hrel : m 0 ^ 2 * m 2 ^ (2 ^ α) = 1) :
+    mCoordHom α h hH m hrel (mAbWord α h c) = ∏ i, zpowZtwo hH (m i) (c i) := by
+  rw [mAbWord, map_prod]
+  exact Finset.prod_congr rfl fun i _ => by
+    rw [map_zpowZtwo (mIsProP_two_topAb_DM α h) hH, mCoordHom_gen]
+
+/-- The `B̄`-coordinate of a word is its `B̄`-exponent. -/
+theorem mBHom_word : mBHom α h (mAbWord α h c) = ofAdd (c 1) := by
+  rw [mBHom, mCoordHom_word, mProd_single _ _ _ 1 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_one hi
+    split_ifs <;> rfl), coreMark_one, zpowZtwo_ofAdd, one_mul]
+
+/-- The `D̄`-coordinate of a word is its `D̄`-exponent. -/
+theorem mDHom_word : mDHom α h (mAbWord α h c) = ofAdd (c 3) := by
+  rw [mDHom, mCoordHom_word, mProd_single _ _ _ 3 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_three hi
+    split_ifs <;> rfl), coreMark_three, zpowZtwo_ofAdd, one_mul]
+
+/-- The `k`-th handle coordinate of a word is its `k`-th handle exponent. -/
+theorem mHHom_word {h : ℕ} (α : ℕ) (c : Fin (coreRank h) → ℤ_[2]) (k : Fin (2 * h)) :
+    mHHom α k (mAbWord α h c) = ofAdd (c (mHandleIdx k)) := by
+  rw [mHHom, mCoordHom_word,
+    mProd_single _ _ _ (mHandleIdx k) (fun i hi => mHandleMark_of_ne k _ hi),
+    mHandleMark_self, zpowZtwo_ofAdd, one_mul]
+
+/-- The `C̄₀`-coordinate of a word: the `Ā`-slot contributes `−2^{α−1}`, the `C̄₀`-slot `1`.
+This is the coordinate that sees the forced `Ā`-row of `mE_A_frame`. -/
+theorem mCHom_word {α : ℕ} (hα : 1 ≤ α) (h : ℕ) (c : Fin (coreRank h) → ℤ_[2]) :
+    mCHom hα h (mAbWord α h c) = ofAdd (-(2 : ℤ_[2]) ^ (α - 1) * c 0 + c 2) := by
+  rw [mCHom, mCoordHom_word, mProd_pair _ _ _ mCoreZero_ne_two (fun i hi0 hi2 => by
+    rw [coreMark_apply]
+    have hv0 := mCoreVal_ne_zero hi0
+    have hv2 := mCoreVal_ne_two hi2
+    split_ifs <;> first | rfl | omega), coreMark_zero, coreMark_two,
+    zpowZtwo_ofAdd, zpowZtwo_ofAdd, ← ofAdd_add, one_mul]
+
+/-- The torsion coordinate of a word: only the `Ā`-exponent contributes, through `ZMod 2`. -/
+theorem mTHom_word : mTHom α h (mAbWord α h c)
+    = zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) (c 0) := by
+  rw [mTHom, mCoordHom_word, mProd_single _ _ _ 0 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_zero hi
+    split_ifs <;> first | rfl | omega), coreMark_zero]
+
+end Words
+
 end MarkedCore
 
 end Dyadic
