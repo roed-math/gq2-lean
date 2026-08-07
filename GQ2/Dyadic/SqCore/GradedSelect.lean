@@ -42,18 +42,18 @@ open MarkedCore
 section Instance
 
 /-- The coefficient ring of the class-three gate instance. -/
-private abbrev gr3R : Type := ZMod 8
+abbrev gr3R : Type := ZMod 8
 
 /-- The reduction `ℤ₂ → ℤ/8`. -/
-private noncomputable abbrev gr3Pi : ℤ_[2] →+* gr3R := PadicInt.toZModPow 3
+noncomputable abbrev gr3Pi : ℤ_[2] →+* gr3R := PadicInt.toZModPow 3
 
-private theorem gr3R_card : Nat.card gr3R = 2 ^ 3 := by
+theorem gr3R_card : Nat.card gr3R = 2 ^ 3 := by
   rw [Nat.card_eq_fintype_card, ZMod.card]
   norm_num
 
-private theorem isProP_two_gr3 : IsProP 2 (SqU4 gr3R) := SqU4.isProP_two gr3R_card
+theorem isProP_two_gr3 : IsProP 2 (SqU4 gr3R) := SqU4.isProP_two gr3R_card
 
-private theorem gr3Pi_open (T : Set gr3R) : IsOpen (gr3Pi ⁻¹' T) :=
+theorem gr3Pi_open (T : Set gr3R) : IsOpen (gr3Pi ⁻¹' T) :=
   isOpen_preimage_toZModPow 3 T
 
 end Instance
@@ -73,12 +73,12 @@ section Marking
 variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
 
 /-- The `u`-row of the selected marking, read in `ℤ/8`. -/
-private noncomputable abbrev selT (h : ℕ)
+noncomputable abbrev selT (h : ℕ)
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) : gr3R :=
   gr3Pi (toAdd (nu' (sqGen h (sqHandleIdxU j))))
 
 /-- The `v`-row of the selected marking, read in `ℤ/8`. -/
-private noncomputable abbrev selS (h : ℕ)
+noncomputable abbrev selS (h : ℕ)
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) : gr3R :=
   gr3Pi (toAdd (nu' (sqGen h (sqHandleIdxV j))))
 
@@ -90,7 +90,7 @@ handle letters carry the free `a`- and `c`-weights `(A, C)` and `(B, D)` beside 
 ⭐ The `x₁`-slot's class-three coordinate is **not** a free parameter: it is forced to
 `−(A+B)·Q` by the two class-two coordinates.  That is the content of `sqRelWord_selMark`: the
 class-three layer imposes **no new realizability condition** on markings of this shape. -/
-private noncomputable def selMark (A B C D P Q : gr3R) : Fin (sqRank h) → SqU4 gr3R :=
+noncomputable def selMark (A B C D P Q : gr3R) : Fin (sqRank h) → SqU4 gr3R :=
   fun i =>
     if (i : ℕ) = 0 then ⟨0, 1, 0, 0, 0, 0⟩ else
     if (i : ℕ) = 2 then ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ else
@@ -99,40 +99,40 @@ private noncomputable def selMark (A B C D P Q : gr3R) : Fin (sqRank h) → SqU4
 
 variable {A B C D P Q : gr3R}
 
-@[simp] private theorem selMark_zero :
+@[simp] theorem selMark_zero :
     selMark h nu' j A B C D P Q 0 = ⟨0, 1, 0, 0, 0, 0⟩ := by
   simp only [selMark, sqVal_zero]
   norm_num
 
-@[simp] private theorem selMark_one : selMark h nu' j A B C D P Q 1 = 1 := by
+@[simp] theorem selMark_one : selMark h nu' j A B C D P Q 1 = 1 := by
   simp only [selMark, sqVal_one, sqHandleIdxU_val, sqHandleIdxV_val]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
-@[simp] private theorem selMark_two :
+@[simp] theorem selMark_two :
     selMark h nu' j A B C D P Q 2 = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
   simp only [selMark, sqVal_two, sqHandleIdxU_val, sqHandleIdxV_val]
   rw [if_neg (by omega)]
   norm_num
 
-@[simp] private theorem selMark_handleU :
+@[simp] theorem selMark_handleU :
     selMark h nu' j A B C D P Q (sqHandleIdxU j) = ⟨A, selT h nu' j, C, 0, 0, 0⟩ := by
   simp only [selMark, sqHandleIdxU_val, sqHandleIdxV_val]
   rw [if_neg (by omega), if_neg (by omega)]
   simp
 
-@[simp] private theorem selMark_handleV :
+@[simp] theorem selMark_handleV :
     selMark h nu' j A B C D P Q (sqHandleIdxV j) = ⟨B, selS h nu' j, D, 0, 0, 0⟩ := by
   simp only [selMark, sqHandleIdxU_val, sqHandleIdxV_val]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
   simp
 
-private theorem selMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+theorem selMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     selMark h nu' j A B C D P Q (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
   simp only [selMark, sqHandleIdxU_val, sqHandleIdxV_val]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
-private theorem selMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+theorem selMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     selMark h nu' j A B C D P Q (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
   simp only [selMark, sqHandleIdxU_val, sqHandleIdxV_val]
@@ -150,7 +150,7 @@ A·ν'(v_j) − B·ν'(u_j) ∈ 2·ℤ/8      (the (a,b)-pair)
 `A·D − B·C`, and **no** third, class-three condition: the class-three coordinate of the `x₁`-slot
 solves its own equation automatically, because the class-three defect of this marking is
 `(A+B)·(ν'(v_j)·C − ν'(u_j)·D) = 2·(A+B)·Q`, even by the `(b,c)`-parity itself. -/
-private theorem sqRelWord_selMark
+theorem sqRelWord_selMark
     (hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0)
     (he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0) :
     sqRelWord (selMark h nu' j A B C D P Q) = 1 := by
@@ -185,7 +185,7 @@ private theorem sqRelWord_selMark
 
 variable (h nu' j) in
 /-- **The class-three selection test homomorphism**, attached to the selection marking. -/
-private noncomputable def selHom (A B C D P Q : gr3R)
+noncomputable def selHom (A B C D P Q : gr3R)
     (hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0)
     (he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0) :
     ContinuousMonoidHom (DSq h : Type) (SqU4 gr3R) :=
@@ -194,7 +194,7 @@ private noncomputable def selHom (A B C D P Q : gr3R)
 variable {hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0}
 variable {he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0}
 
-@[simp] private theorem selHom_gen (i : Fin (sqRank h)) :
+@[simp] theorem selHom_gen (i : Fin (sqRank h)) :
     selHom h nu' j A B C D P Q hd he (sqGen h i) = selMark h nu' j A B C D P Q i :=
   sqU4Hom_gen _ _ _ i
 
@@ -206,14 +206,14 @@ three flatness conditions of the `ν'`-column generator `⟨0,1,0,0,0,0⟩` all 
 
 /-- The projection of the class-three test group onto its `b`-column, used to compare two test
 homs through their `ν'`-columns alone. -/
-private def bProj3 : ContinuousMonoidHom (SqU4 gr3R) (SqU4 gr3R) where
+def bProj3 : ContinuousMonoidHom (SqU4 gr3R) (SqU4 gr3R) where
   toFun p := ⟨0, p.b, 0, 0, 0, 0⟩
   map_one' := rfl
   map_mul' _ _ := by ext <;> simp
   continuous_toFun := continuous_of_discreteTopology
 
 /-- The `ν'`-column generator is flat, so `ℤ₂`-powers of it are linear. -/
-private theorem zpow_nuCol (u : ℤ_[2]) :
+theorem zpow_nuCol (u : ℤ_[2]) :
     zpowZtwo isProP_two_gr3 (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) u = ⟨0, gr3Pi u, 0, 0, 0, 0⟩ := by
   rw [SqU4.zpowZtwo_of_flat isProP_two_gr3 gr3Pi gr3Pi_open (by norm_num) (by norm_num)
     (by norm_num)]
@@ -221,7 +221,7 @@ private theorem zpow_nuCol (u : ℤ_[2]) :
 
 /-- ⭐ **The `b`-column of the selection hom is `ν'`.**  So every dressing in `ker ν'` has
 `b`-coordinate `0` in the test group — the fact the whole selection argument turns on. -/
-private theorem selHom_b (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+theorem selHom_b (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
     (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
     (hcl : ∀ j' : Fin h, j' ≠ j → nu' (sqGen h (sqHandleIdxU j')) = 1 ∧
       nu' (sqGen h (sqHandleIdxV j')) = 1) (x : (DSq h : Type)) :
@@ -262,7 +262,7 @@ private theorem selHom_b (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
   simpa using this
 
 /-- The pivot lands on the pure `ν'`-column generator, at **every** exponent `c₀`. -/
-private theorem selHom_sqPivot :
+theorem selHom_sqPivot :
     selHom h nu' j A B C D P Q hd he (sqPivot h) = ⟨0, 1, 0, 0, 0, 0⟩ := by
   rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
     map_zpowZtwo (isProP_DSq h) isProP_two_gr3, dsqX0, selHom_gen, selMark_one,
@@ -270,7 +270,7 @@ private theorem selHom_sqPivot :
 
 /-- ⭐ **The cleared `U` in the class-three test group.**  Its `ν'`-column is gone, its two free
 columns survive, and it acquires a class-two `(2,4)`-coordinate `−ν'(u_j)·C`. -/
-private theorem selHom_sqEichU :
+theorem selHom_sqEichU :
     selHom h nu' j A B C D P Q hd he (sqEichU h nu' j)
       = ⟨A, 0, C, 0, -(selT h nu' j * C), 0⟩ := by
   rw [sqEichU, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr3, selHom_sqPivot,
@@ -278,12 +278,145 @@ private theorem selHom_sqEichU :
   ext <;> simp
 
 /-- ⭐ …and the cleared `V`, which acquires a `(1,3)`-coordinate `−B·ν'(v_j)`. -/
-private theorem selHom_sqEichV :
+theorem selHom_sqEichV :
     selHom h nu' j A B C D P Q hd he (sqEichV h nu' j)
       = ⟨B, 0, D, -(B * selS h nu' j), 0, 0⟩ := by
   rw [sqEichV, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr3, selHom_sqPivot,
     zpow_nuCol, selHom_gen, selMark_handleV]
   ext <;> simp
+
+/-! ## §4 ⭐⭐ The witness, as a theorem about `sqArbFrame`
+
+`GradedThree` §6 exhibited a six-tuple in `SqU4 (ZMod 8)` and checked slot by slot that it *is*
+the image of the arbitrary-dressing frame.  Here the frame is the subject: `selDress` is a
+dressing tuple in `ker λ ∩ ker ν'`, and `sqRelWord_selHom_sqArbFrame` says that the class-three
+test hom sends `sqArbFrame h nu' j selDress` to a marking that kills the relator — at **every**
+handle count, at **every** handle, and at **every** admissible pair of free characters. -/
+
+/-- The generic collapse of a handle sum whose off-`j` terms vanish. -/
+theorem sum_eq_at {M : Type} [AddCommMonoid M] (f : Fin h → M)
+    (hf : ∀ j' : Fin h, j' ≠ j → f j' = 0) : ∑ j' : Fin h, f j' = f j :=
+  Finset.sum_eq_single j (fun j' _ hne => hf j' hne)
+    (fun hj => absurd (Finset.mem_univ j) hj)
+
+variable (h nu' j) in
+/-- ⭐ **The witness dressing**: the `x₀`-slot dressed by `U⁻¹`, every other slot left alone.
+`Ū⁻¹ = −ν'(v_j)·Ū + ν'(u_j)·V̄` at `ν'(u_j) = 0`, `ν'(v_j) = 1` — exactly the value the class-two
+balance forces (`sqArbFrame_x0_dressing_forced`). -/
+noncomputable def selDress : Fin (sqRank h) → (DSq h : Type) :=
+  fun i => if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ else 1
+
+theorem selDress_of_ne {i : Fin (sqRank h)} (hi : (i : ℕ) ≠ 1) : selDress h nu' j i = 1 :=
+  if_neg hi
+
+@[simp] theorem selDress_one : selDress h nu' j 1 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDress, sqVal_one]
+  norm_num
+
+@[simp] theorem selDress_zero : selDress h nu' j 0 = 1 :=
+  selDress_of_ne (by rw [sqVal_zero]; omega)
+
+@[simp] theorem selDress_two : selDress h nu' j 2 = 1 :=
+  selDress_of_ne (by rw [sqVal_two]; omega)
+
+@[simp] theorem selDress_handleU (j' : Fin h) : selDress h nu' j (sqHandleIdxU j') = 1 :=
+  selDress_of_ne (by rw [sqHandleIdxU_val]; omega)
+
+@[simp] theorem selDress_handleV (j' : Fin h) : selDress h nu' j (sqHandleIdxV j') = 1 :=
+  selDress_of_ne (by rw [sqHandleIdxV_val]; omega)
+
+/-- ⭐ **The witness dressing is legal on the `λ`-row**: every slot is `λ`-trivial. -/
+theorem nuLam_selDress (i : Fin (sqRank h)) : nuLam h (selDress h nu' j i) = 1 := by
+  by_cases hi : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [hi, sqVal_one]), selDress_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  · rw [selDress_of_ne hi, map_one]
+
+/-- ⭐ …and on the `ν'`-row: every slot is `ν'`-trivial, so the dressing lies in
+`ker λ ∩ ker ν'` — the class `SqArbRelWord` quantifies over. -/
+theorem nu_selDress (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (selDress h nu' j i) = 1 := by
+  by_cases hi : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [hi, sqVal_one]), selDress_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  · rw [selDress_of_ne hi, map_one]
+
+/-- ⭐⭐ **The class-three gate does not obstruct the arbitrary-dressing frame** — now a statement
+about `sqArbFrame h nu' j a` itself, not about a tuple in a test group.
+
+At a selected marking whose `j`-th handle is uncleared in the canonical way
+(`ν'(u_j) ≡ 0`, `ν'(v_j) ≡ 1` mod `8`), the frame dressed by `selDress` — the class-two forced
+value `U⁻¹`, and nothing else — kills the relator in **every** class-three quotient of the
+selection family, at every admissible pair `(A, C)`, `(B, D)` of free characters.
+
+⚠ This is a *necessary-condition* verdict: "not obstructed", never "proved".  The gate sees only
+finite 2-group quotients, so it would return the same verdict for the discrete group, where
+marking-transitivity is false. -/
+theorem sqRelWord_selHom_sqArbFrame (hu : selT h nu' j = 0) (hv : selS h nu' j = 1) :
+    sqRelWord (fun i => selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) i)) = 1 := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have hd' : 2 * P + A = 0 := by
+    have hx := hd; rw [hu, hv] at hx; linear_combination hx
+  have he' : 2 * Q - C = 0 := by
+    have hx := he; rw [hu, hv] at hx; linear_combination hx
+  have hUv : selHom h nu' j A B C D P Q hd he (sqEichU h nu' j)
+      = ⟨A, 0, C, 0, 0, 0⟩ := by rw [selHom_sqEichU, hu]; ext <;> simp
+  have hVv : selHom h nu' j A B C D P Q hd he (sqEichV h nu' j)
+      = ⟨B, 0, D, -B, 0, 0⟩ := by rw [selHom_sqEichV, hv]; ext <;> simp
+  have hs0 : selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 0)
+      = ⟨0, 1, 0, 0, 0, 0⟩ := by
+    rw [sqArbFrame, sqArbBase_zero, selDress_zero, mul_one, dsqSigma, selHom_gen, selMark_zero]
+  have hs1 : selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 1)
+      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
+    rw [sqArbFrame, sqArbBase_one, selDress_one, map_mul, dsqX0, selHom_gen, selMark_one,
+      one_mul, map_inv, hUv]
+    ext <;> simp
+  have hs2 : selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 2)
+      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+    rw [sqArbFrame, sqArbBase_two, selDress_two, mul_one, dsqX1, selHom_gen, selMark_two]
+  have hsU : selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j)) = ⟨A, 0, C, 0, 0, 0⟩ := by
+    rw [sqArbFrame, sqArbBase_handleU, selDress_handleU, mul_one, hUv]
+  have hsV : selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
+    rw [sqArbFrame, sqArbBase_handleV, selDress_handleV, mul_one, hVv]
+  have hsUne : ∀ j' : Fin h, j' ≠ j → selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j')) = 1 := by
+    intro j' hne
+    rw [sqArbFrame, sqArbBase_handleU_ne hne, selDress_handleU, mul_one, selHom_gen,
+      selMark_handleU_ne hne]
+  have hsVne : ∀ j' : Fin h, j' ≠ j → selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j')) = 1 := by
+    intro j' hne
+    rw [sqArbFrame, sqArbBase_handleV_ne hne, selDress_handleV, mul_one, selHom_gen,
+      selMark_handleV_ne hne]
+  rw [SqU4.sqRelWord_eq_one_iff]
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [hs1, hs2]
+    linear_combination 4 * hd' - P * h8
+  · rw [hs1, hs2]
+    ring
+  · rw [hs1, hs2]
+    linear_combination (-4) * he' + Q * h8
+  · rw [sqHeisDefect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [hs0, hs1, hs2, hsU, hsV, SqU4.toHeisAB_apply]
+    linear_combination hd'
+  · rw [sqHeisDefect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [hs0, hs1, hs2, hsU, hsV, SqU4.toHeisBC_apply]
+    linear_combination he'
+  · rw [sqU4Defect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3
+        (selHom h nu' j A B C D P Q hd he
+          (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j')))
+        (selHom h nu' j A B C D P Q hd he
+          (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j'))))
+        (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp [SqU4.u4Comm3])]
+    simp only [hs0, hs1, hs2, hsU, hsV, sqU4Core, SqU4.u4Comm3]
+    linear_combination (4 * Q) * hd' - (3 * A + B) * he' + (A * Q - P * Q) * h8
 
 end Marking
 
