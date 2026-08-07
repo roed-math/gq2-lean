@@ -726,4 +726,6 @@ import GQ2.Dyadic.Instances.SqModelPresentingFrameCupAdapted
 import GQ2.Dyadic.Instances.GammaLOddDegreeBridge
 import GQ2.Dyadic.Instances.GammaLOddDegreeBridgePivot
 import GQ2.Dyadic.Instances.DegreeOneNesting
+import GQ2.Dyadic.Instances.StageAbstraction
+import GQ2.Dyadic.Instances.StageAbstractionLSq
 import GQ2.Dyadic.Main
