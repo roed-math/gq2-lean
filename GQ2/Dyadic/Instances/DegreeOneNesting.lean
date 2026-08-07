@@ -15,43 +15,44 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRigidity
 
 `docs/dyadic/owner-items-2026-08-05.md` §1b asks whether the odd-degree endpoint reached through
 the general-`K` machine, specialized to `[K : ℚ₂] = 1`, has an axiom print **nested** inside the
-frozen `ℚ₂` capstone's nine.  The committed milestone
-`NuAdapted.gammaR_lSq_equiv_galK_degreeOne` does not: it prints the nine **plus**
-`markedRecipAt` (B5-K).
+frozen `ℚ₂` capstone's nine.  It does — **since W42-BUNDLE, so does the committed milestone
+itself**.
 
-This file measures why, and removes the cause.
+## The finding, and what was done with it
 
-## The finding
+Before that wave the committed milestone `NuAdapted.gammaR_lSq_equiv_galK_degreeOne` printed the
+nine **plus** `markedRecipAt` (B5-K) and `localReciprocity` (B5).  Neither was mathematically
+load-bearing.  Exactly three declarations in the whole reachable closure applied the axiom, all
+three at the *ambient* field `K`, all three as the argument of a lemma already generic in the
+bundle:
 
-`markedRecipAt` is **not mathematically load-bearing** anywhere on that route.  Exactly three
-declarations in the whole reachable closure apply it, and all three apply it *at the ambient
-field* `K`, as the argument of a lemma that is generic in the bundle:
-
-| consumer | applies |
+| consumer | applied |
 | --- | --- |
 | `oddDegreeGalKSq_allStagePrimitiveResidualVanishing` | `chiCycKTwo_surjective_of_odd_finrank K (markedRecipAt K) hodd` |
 | `nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply` | `SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply (markedRecipAt K) hodd` |
 | `oddDegreeSqCyclotomicFrattiniFrameSupply_holds` | both of the above, plus `cyclotomicModEightOmegaClassKTwo_ne_zero (markedRecipAt K) hodd` |
 
 Each of those three lemmas takes `{R : LocalReciprocity} (B : MarkedRecip R K)` and prints the
-standard three.  The axiom is summoned only because the three consumers do not carry a bundle
-binder of their own — the first two because their statements simply never took one, the third
-because `OddDegreeSqCyclotomicFrattiniFrameSupply` quantifies over *every* `K` internally, so no
-`K`-indexed bundle can be in scope.
-
-`markedRecipAt`'s entire contribution to the odd-degree forward route is therefore surjectivity
-of `chiCycKTwo` (and its two consequences), which the caller's own `B` supplies for free.
+standard three, so `markedRecipAt`'s entire contribution to the odd-degree forward route was
+surjectivity of `chiCycKTwo` and its two consequences — which the caller's own `B` supplies for
+free.  W42-BUNDLE therefore gave `OddDegreeSqCyclotomicFrattiniFrameSupply` a bundle binder and
+threaded `B` down the whole chain, dropping B5-K and B5 from **every** general-`K` odd-degree
+endpoint.  This file is what remains of the measurement: a second, independently written route
+to the same statement, kept as a pin.
 
 ## What this file does
 
-§0 restates the third consumer at **one** field with a bundle in scope; §1–§3 re-derive the
-forward route over the caller's `B : MarkedRecip Rec K`.  The three declarations that touch the
-axiom (§0, §1, §2a) are the committed proofs verbatim with `(markedRecipAt K)` replaced by `B`;
-the rest (§2b, §2c, §3, §4) are the committed compositions re-pointed at those three, with a
-level-three base threaded where the committed chain calls the ∀-`K` supply.  §4 carries the
+§1–§3 re-derive the forward route over the caller's `B : MarkedRecip Rec K`; §4 carries the
 result to the odd-degree endpoint, §5 to `[K : ℚ₂] = 1` (where the two one-parameter pivot
 subgroups are theorems — `SqCore.sqPivotTranslation_zero`, `SqCore.sqPivotScaling_zero`), and §6
-discharges §4–§5's level-three base from §0.
+discharges §4–§5's level-three base from `oddDegree_sqCyclotomicStageTuple_levelThree`.
+
+**Update (W42-BUNDLE).**  §0 of this file used to be a verbatim duplicate of
+`oddDegreeSqCyclotomicFrattiniFrameSupply_holds`, kept only because
+`OddDegreeSqCyclotomicFrattiniFrameSupply` had no bundle binder to thread.  It now has one, so
+the duplicate is deleted and §6 calls the real declaration.  The committed milestone therefore
+takes the same route this file does, and its print is now **equal** to the headline's below;
+what survives here is the type-identity pin (§7) and the per-headline axiom record.
 
 The headline is `gammaR_lSq_equiv_galK_degreeOne_nested_unconditional`.  It has **exactly** the
 committed milestone's type (§7 pins that, twice) and prints
@@ -74,7 +75,8 @@ The difference from the one pre-existing `B5-K`-free degree-one route
 (`nonempty_orientedEquiv_bot_of_forwardStageRigidity`, print std-3 + {B1, B3c, B6, B7}) is which
 step of the machine gets exercised: that route obtains its level-three base from
 `sqCyclotomicStageTuple_bot_three_nonempty`, i.e. by transporting the `D₀` classification of
-`G_ℚ₂(2)` itself, whereas §0 builds the base by the general-`K` Frattini-frame construction.
+`G_ℚ₂(2)` itself, whereas this route builds the base by the general-`K` Frattini-frame
+construction (`oddDegree_sqCyclotomicStageTuple_levelThree`).
 Both are honest theorems; only the second tests the general-`K` machinery at degree one.
 
 ## Axioms
@@ -95,170 +97,6 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 namespace Nesting
 
 open NuAdapted
-
-/-! ## §0 The cup-adapted Frattini frame, over the caller's bundle
-
-`oddDegreeSqCyclotomicFrattiniFrameSupply_holds`, stated at **one** field with a bundle in scope
-instead of over every field with none.  The proof below is that theorem's proof verbatim, with
-its two occurrences of `markedRecipAt K` replaced by `B` and its leading `intro K _ _ _ _ hodd`
-dropped; nothing else changes, which is the file's central claim made checkable.
-
-⚠ **Temporary duplicate — delete it when the upstream binder lands.**  The durable form of this
-is the same two-token change made *in place*, once
-`OddDegreeSqCyclotomicFrattiniFrameSupply` (`GammaLSylowPreimageFieldLabuteLevelThreeSeed.lean`)
-carries a bundle binder; then §6 routes through `oddDegree_sqCyclotomicStageTuple_levelThree`
-instead and this section goes away.  The migration is spelled out in the §1b update of
-`docs/dyadic/owner-items-2026-08-05.md`. -/
-
-section FrameSupply
-
-open FrattiniFrameSupply ContCoh GQ2.Roe.Labute
-
-variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
-  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
-
-/-- **§0.**  The odd-degree cup-adapted Frattini-frame supply at a single field, over the
-caller's marked bundle rather than B5-K. -/
-theorem exists_cupAdaptedFrattiniFrame_of_markedRecip (B : MarkedRecip Rec K)
-    (hodd : Odd (Module.finrank ℚ_[2] K)) :
-    ∃ F : SqCyclotomicFrattiniFrame K ((Module.finrank ℚ_[2] K - 1) / 2), F.IsCupAdapted := by
-  classical
-  letI : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) := scalarActionZmodTwo _
-  letI : ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
-    scalarActionZmodTwo_continuousSMul _
-  obtain ⟨k, hk⟩ := id hodd
-  rw [show (Module.finrank ℚ_[2] K - 1) / 2 = k from by omega]
-  -- finiteness and cardinality of `H¹(G_K(2), 𝔽₂)`
-  have hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) := by
-    apply Nat.finite_of_card_ne_zero
-    rw [card_H1_zmodTwo_maxProTwoGalK (K := K)]
-    positivity
-  haveI := hfin
-  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (2 * k + 3) := by
-    rw [card_H1_zmodTwo_maxProTwoGalK (K := K),
-      show Module.finrank ℚ_[2] K + 2 = 2 * k + 3 from by omega]
-  -- the adapted Witt coordinates
-  obtain ⟨Φ, hGram, hΦκ, hΦτ⟩ :=
-    frattiniFrameAdaptedModelEquiv (isCupFormFp2_frattiniFrameCup (K := K))
-      (nondegFp2_frattiniFrameCup (K := K)) (frattiniFrameCup_kappa (K := K))
-      (frattiniFrameCup_kappa_self (K := K) hodd) (frattiniFrameCup_omega_modFour (K := K))
-      (cyclotomicModEightOmegaClassKTwo_ne_zero B hodd) hcard
-  -- realize the adapted coordinate functionals by group elements
-  choose gens' hgens' using fun i : Fin (SqCore.sqRank k) =>
-    frattiniFrameEval_realizable (K := K) hfin
-      ((modelCoordL k (GQ2.ContCoh.sqInitialAlphabetEquiv k i)).comp Φ.toLinearMap)
-  have hD : ∀ (i : Fin (SqCore.sqRank k)) (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
-      frattiniFrameEval x (gens' i) =
-        modelCoordAt k (GQ2.ContCoh.sqInitialAlphabetEquiv k i) (Φ x) := fun i x =>
-    hgens' i x
-  -- exact cyclotomic values in each dual Frattini coset
-  have hsupply := SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply B hodd
-  have hmatch4 : ∀ i : Fin (SqCore.sqRank k),
-      frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) (gens' i) =
-        Multiplicative.toAdd (unitsModFourParity
-          (Units.map (PadicInt.toZModPow 2).toMonoidHom (frattiniFrameTarget k i))) := by
-    intro i
-    rw [hD i, hΦκ]
-    exact frattiniFrame_match_parity k (GQ2.ContCoh.sqInitialAlphabetEquiv k i)
-  have hmatch8 : ∀ i : Fin (SqCore.sqRank k),
-      frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) (gens' i) =
-        Multiplicative.toAdd (unitsModEightOmega
-          (Units.map (PadicInt.toZModPow 3).toMonoidHom (frattiniFrameTarget k i))) := by
-    intro i
-    rw [hD i, hΦτ]
-    exact frattiniFrame_match_omega k (GQ2.ContCoh.sqInitialAlphabetEquiv k i)
-  choose gens hχ hlevel using fun i : Fin (SqCore.sqRank k) =>
-    frattiniFrameExactLift (K := K) hsupply (gens' i) (frattiniFrameTarget k i)
-      (hmatch4 i) (hmatch8 i)
-  have hD2 : ∀ (i : Fin (SqCore.sqRank k)) (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
-      frattiniFrameEval x (gens i) =
-        modelCoordAt k (GQ2.ContCoh.sqInitialAlphabetEquiv k i) (Φ x) := fun i x =>
-    (frattiniFrameEval_eq_of_levelMk_eq x (hlevel i)).trans (hD i x)
-  refine ⟨⟨gens, ?_, ?_, ?_, ?_, ?_, ?_⟩, ?_⟩
-  · rw [hχ 0, frattiniFrameTarget_zero]
-  · rw [hχ 1, frattiniFrameTarget_one]
-  · rw [hχ 2, frattiniFrameTarget_two]
-  · intro j
-    rw [MonoidHom.mem_ker]
-    show chiCycKTwo (K := K) (gens (SqCore.sqHandleIdxU j)) = 1
-    rw [hχ (SqCore.sqHandleIdxU j), frattiniFrameTarget_handleU]
-  · intro j
-    rw [MonoidHom.mem_ker]
-    show chiCycKTwo (K := K) (gens (SqCore.sqHandleIdxV j)) = 1
-    rw [hχ (SqCore.sqHandleIdxV j), frattiniFrameTarget_handleV]
-  · -- Frattini generation, by duality
-    by_contra hne
-    haveI hFfin : Finite (levelQuot (maxProPQuotient 2 (GalK K)) 2) :=
-      finite_levelQuot _ (maxProTwoGalK_isTopologicallyFinGen K) isProP_maxProPQuotient 2
-    haveI hFdisc : DiscreteTopology (levelQuot (maxProPQuotient 2 (GalK K)) 2) :=
-      discreteTopology_levelQuot _ (maxProTwoGalK_isTopologicallyFinGen K)
-        isProP_maxProPQuotient 2
-    obtain ⟨c, hcH, hcne⟩ := frattiniFrame_exists_modTwo_character
-      (frattiniFrame_levelTwo_mul_comm (maxProPQuotient 2 (GalK K)))
-      (frattiniFrame_levelTwo_sq (maxProPQuotient 2 (GalK K))) hne
-    set cQ : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2)) :=
-      ⟨c.comp (levelMk (maxProPQuotient 2 (GalK K)) 2), by
-        have h1 : Continuous c := continuous_of_discreteTopology
-        exact h1.comp (continuous_levelMk (maxProPQuotient 2 (GalK K)) 2)⟩ with hcQ
-    have hvanish : ∀ i, frattiniFrameEval
-        (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) (gens i) = 0 := by
-      intro i
-      rw [frattiniFrameEval_characterClass]
-      show Multiplicative.toAdd (c (levelMk (maxProPQuotient 2 (GalK K)) 2 (gens i))) = 0
-      rw [hcH _ (Subgroup.subset_closure ⟨i, rfl⟩)]
-      rfl
-    have hΦ0 : Φ (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) = 0 := by
-      apply modelCoordAt_eq_zero
-      intro s
-      have hs := hvanish ((GQ2.ContCoh.sqInitialAlphabetEquiv k).symm s)
-      rw [hD2] at hs
-      rwa [Equiv.apply_symm_apply] at hs
-    have hcc0 : SqCyclotomicFrattiniFrame.characterClass (K := K) cQ = 0 := by
-      have hs := congrArg Φ.symm hΦ0
-      rwa [LinearEquiv.symm_apply_apply, map_zero] at hs
-    apply hcne
-    apply MonoidHom.ext
-    intro f
-    obtain ⟨g, rfl⟩ := levelMk_surjective (maxProPQuotient 2 (GalK K)) 2 f
-    have hg : frattiniFrameEval
-        (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) g =
-          Multiplicative.toAdd (cQ g) := frattiniFrameEval_characterClass cQ g
-    rw [hcc0, frattiniFrameEval_zero] at hg
-    show c (levelMk (maxProPQuotient 2 (GalK K)) 2 g) = 1
-    have hone : cQ g = 1 := by
-      apply Multiplicative.toAdd.injective
-      rw [← hg]
-      rfl
-    exact hone
-  · -- cup adaptation
-    show ∀ c d : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2)),
-      FieldData.cupFormK K
-          (h1MaxProTwoEquivGalK (K := K)
-            (SqCyclotomicFrattiniFrame.characterClass (K := K) c))
-          (h1MaxProTwoEquivGalK (K := K)
-            (SqCyclotomicFrattiniFrame.characterClass (K := K) d)) =
-        GQ2.ContCoh.sqRelatorQuadraticInitialGram k
-          (fun i j => Multiplicative.toAdd (c (gens i)) * Multiplicative.toAdd (d (gens j)))
-    intro c d
-    have h1 := hGram (SqCyclotomicFrattiniFrame.characterClass (K := K) c)
-      (SqCyclotomicFrattiniFrame.characterClass (K := K) d)
-    refine h1.trans ?_
-    rw [← sqRelatorQuadraticInitialGram_modelCoord]
-    congr 1
-    funext i j
-    rw [← hD2 i (SqCyclotomicFrattiniFrame.characterClass (K := K) c),
-      ← hD2 j (SqCyclotomicFrattiniFrame.characterClass (K := K) d),
-      frattiniFrameEval_characterClass, frattiniFrameEval_characterClass]
-
-/-- **§0b.**  The arbitrary odd-degree level-three stage base, over the caller's bundle: §0's
-frame plus the (B5-K-free) transgression realization. -/
-theorem sqCyclotomicStageTuple_levelThree_of_markedRecip (B : MarkedRecip Rec K)
-    (hodd : Odd (Module.finrank ℚ_[2] K)) :
-    Nonempty (SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) 3) := by
-  obtain ⟨F, hcup⟩ := exists_cupAdaptedFrattiniFrame_of_markedRecip B hodd
-  exact ⟨F.toLevelThree (oddDegreeSqLevelThreeRelationRealization K hodd F hcup)⟩
-
-end FrameSupply
 
 /-! ## §1 The all-stage primitive residual, over the caller's bundle
 
@@ -456,8 +294,9 @@ end DegreeOne
 
 /-! ## §6 The endpoints with the base discharged
 
-§0b supplies the level-three base from the caller's bundle, so §4c and §5 hold with no binder
-beyond the packet the committed statements already carry. -/
+`oddDegree_sqCyclotomicStageTuple_levelThree` supplies the level-three base from the caller's
+bundle, so §4c and §5 hold with no binder beyond the packet the committed statements already
+carry. -/
 
 section Unconditional
 
@@ -481,7 +320,7 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_orientedClear_nested (B : MarkedRecip
     Nonempty (ContinuousMulEquiv (gamma h (qOf K FF) : Type) (GalK K)) := by
   have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
   have hh : (Module.finrank ℚ_[2] K - 1) / 2 = h := by omega
-  obtain ⟨base⟩ := sqCyclotomicStageTuple_levelThree_of_markedRecip B hodd
+  obtain ⟨base⟩ := oddDegree_sqCyclotomicStageTuple_levelThree K B hodd
   rw [hh] at base
   exact gammaR_lSq_equiv_galK_oddDegree_of_orientedClear_of_base B FF T D hdeg base hclear
     ramifiedData
@@ -553,8 +392,7 @@ end Nesting
 
 end
 
-#print axioms GQ2.Dyadic.LSquare.Nesting.exists_cupAdaptedFrattiniFrame_of_markedRecip
-#print axioms GQ2.Dyadic.LSquare.Nesting.sqCyclotomicStageTuple_levelThree_of_markedRecip
+#print axioms GQ2.Dyadic.LSquare.oddDegree_sqCyclotomicStageTuple_levelThree
 #print axioms GQ2.Dyadic.LSquare.Nesting.allStagePrimitiveResidualVanishing_of_markedRecip
 #print axioms
   GQ2.Dyadic.LSquare.Nesting.orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply

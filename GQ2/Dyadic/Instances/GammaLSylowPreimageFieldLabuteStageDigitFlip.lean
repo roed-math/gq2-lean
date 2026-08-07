@@ -417,6 +417,7 @@ theorem sqKernelAdaptedDefectSupply_of_family_of_flipSupply {h : ℕ}
 field, a coordinate derivation family and a handle-digit flip supply at every stage deliver
 the oriented presentation equivalence. -/
 theorem nonempty_orientedEquiv_oddDegree_of_family_of_flipSupply
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hfam : ∀ (k : ℕ), 3 ≤ k →
       ∀ T : SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) k,
@@ -427,7 +428,7 @@ theorem nonempty_orientedEquiv_oddDegree_of_family_of_flipSupply
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply hodd
+  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply B hodd
     (sqKernelAdaptedDefectSupply_of_family_of_flipSupply Hfam Hflip)
 
 #print axioms sqStageHandleDigitFlipSupply_of_rank_zero

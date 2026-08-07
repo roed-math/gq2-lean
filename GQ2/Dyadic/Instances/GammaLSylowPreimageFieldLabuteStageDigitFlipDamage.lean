@@ -312,6 +312,7 @@ theorem sqKernelAdaptedDefectSupply_of_family_of_bracketSquare {h : ℕ}
 
 /-- **The forward presentation theorem over the family and the bracket-square residual.** -/
 theorem nonempty_orientedEquiv_oddDegree_of_family_of_bracketSquare
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hfam : ∀ (k : ℕ), 3 ≤ k →
       ∀ T : SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) k,
@@ -322,7 +323,7 @@ theorem nonempty_orientedEquiv_oddDegree_of_family_of_bracketSquare
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply hodd
+  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply B hodd
     (sqKernelAdaptedDefectSupply_of_family_of_bracketSquare Hfam Hsq)
 
 #print axioms stageDamage_decomposition

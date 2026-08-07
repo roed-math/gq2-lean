@@ -185,7 +185,7 @@ theorem exists_presentingFrame_oddDegree {h : ℕ}
     ∃ F : SqCyclotomicFrattiniFrame K h, sqRelWord F.generators = 1 ∧
       (Subgroup.closure (Set.range F.generators)).topologicalClosure = ⊤ ∧
         F.LevelThreeRelation := by
-  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) hdeg
+  obtain ⟨f, horient⟩ := orientedEquiv_of_oddDegree (K := K) (markedRecipAt _) hdeg
   exact ⟨frameOfOrientedEquiv f horient, sqRelWord_frameOfOrientedEquiv f horient,
     topologicalClosure_frameOfOrientedEquiv f horient,
     levelThreeRelation_frameOfOrientedEquiv f horient⟩

@@ -25,16 +25,20 @@ noncomputable section
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
-/-- The arbitrary odd-degree level-three stage, with no remaining hypothesis. -/
+/-- The arbitrary odd-degree level-three stage, over the caller's marked bundle and nothing
+else.  `B` replaces what used to be an application of the axiom `markedRecipAt` (B5-K) inside
+the frame supply; every endpoint downstream already carries a bundle, so no endpoint statement
+changes and B5-K leaves the odd-degree forward route entirely. -/
 theorem oddDegree_sqCyclotomicStageTuple_levelThree
     (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)]
     [TotallyDisconnectedSpace (GalK K)]
+    {R : LocalReciprocity} (B : MarkedRecip R K)
     (hodd : Odd (Module.finrank ℚ_[2] K)) :
     Nonempty (SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) 3) :=
   oddDegree_sqCyclotomicStageTuple_levelThree_of_finiteRealization
     oddDegreeSqCyclotomicFrattiniFrameSupply_holds
-    oddDegreeSqLevelThreeRelationRealization K hodd
+    oddDegreeSqLevelThreeRelationRealization K B hodd
 
 #print axioms oddDegree_sqCyclotomicStageTuple_levelThree
 

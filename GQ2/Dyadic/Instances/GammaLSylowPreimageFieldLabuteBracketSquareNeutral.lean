@@ -367,6 +367,7 @@ theorem sqKernelAdaptedDefectSupply_of_family_of_cubic {h : ℕ}
 odd-degree field, a coordinate derivation family at every stage and the mod-16 neutral
 damage supply at the cubic stage alone deliver the oriented presentation equivalence. -/
 theorem nonempty_orientedEquiv_oddDegree_of_family_of_cubicNeutralDamage
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (Hfam : ∀ (k : ℕ), 3 ≤ k →
       ∀ T : SqCyclotomicStageTuple K ((Module.finrank ℚ_[2] K - 1) / 2) k,
@@ -375,7 +376,7 @@ theorem nonempty_orientedEquiv_oddDegree_of_family_of_cubicNeutralDamage
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) :=
-  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply hodd
+  nonempty_orientedEquiv_oddDegree_of_kernelAdaptedSupply B hodd
     (sqKernelAdaptedDefectSupply_of_family_of_cubic Hfam Hcubic)
 
 /-! ## The borderline digit verdict

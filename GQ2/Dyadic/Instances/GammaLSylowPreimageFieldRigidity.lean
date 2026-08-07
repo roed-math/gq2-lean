@@ -296,8 +296,12 @@ theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_corrections
     _ base (maxProTwoGalK_isTopologicallyFinGen K) Hcorr U
 
 /-- The concrete actual-defect interface is enough for the direct capstone.  Sharp exact fibre
-lifting is supplied by odd-degree marked reciprocity, so it is not an additional open premise. -/
+lifting is supplied by odd-degree marked reciprocity, so it is not an additional open premise.
+
+The bundle `B` is the caller's own: `oddDegreeGalKSq_sharpExactLevelFibreLiftSupply` is generic
+in it, so the axiom `markedRecipAt` (B5-K) is never summoned here. -/
 theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (base : SqCyclotomicStageTuple K
       ((Module.finrank ℚ_[2] K - 1) / 2) 3)
@@ -312,14 +316,14 @@ theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply
   intro k hk T
   obtain ⟨S⟩ := Hactual k hk T
   exact S.toDefectReachable
-    (SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply
-      (markedRecipAt K) hodd)
+    (SqCyclotomicStageTuple.oddDegreeGalKSq_sharpExactLevelFibreLiftSupply B hodd)
 
 /-- Chain-level form of the remaining arithmetic boundary.  It suffices, at every stage, to
 choose one sharp-admissible affine base whose residual is annihilated by normalized primitives
 of the relevant inflation-kernel cocycles.  Transgression duality converts this statement to
 literal bracket-span membership and hence to the actual-defect correction used above. -/
 theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanishing
+    {Rec : LocalReciprocity} (B : MarkedRecip Rec K)
     (hodd : Odd (Module.finrank ℚ_[2] K))
     (base : SqCyclotomicStageTuple K
       ((Module.finrank ℚ_[2] K - 1) / 2) 3)
@@ -332,7 +336,7 @@ theorem nonempty_orientedEquiv_oddDegree_of_stageBase_and_primitiveResidualVanis
     Nonempty (OrientedContinuousMulEquiv
       (SqCore.chiSq ((Module.finrank ℚ_[2] K - 1) / 2))
       (chiCycKTwo (K := K))) := by
-  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply hodd base
+  apply nonempty_orientedEquiv_oddDegree_of_stageBase_and_actualDefectSupply B hodd base
   intro k hk T
   obtain ⟨W, hprimitive⟩ := Hprimitive k hk T
   have hcompat :=
