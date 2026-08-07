@@ -65,6 +65,14 @@ clearing scheme exists, since this one already *is* the scheme.
 relocates the difficulty rather than removing it — the content of the residual is now visibly
 "exhibit the five dressings", with the rows, the surjectivity and the composition all discharged.
 
+**Offline confirmation.**  A sweep over 27 groups of order 8, 16 and 32 (all five of order 8
+exhaustively; 20000 sampled markings each at order 16, 5000 at order 32; every pivot exponent
+`c₀` mod 8 and every handle row pair `(t, s)`) finds **no** probe refuting the arbitrary-dressing
+shape.  The same sweep restricted to `U`/`V`-word dressings *does* reproduce the known refutation
+on `DihedralGroup 8` at `ν' = nuSel h j 1 1`, so the sweep has the discriminating power — the
+arbitrary family survives exactly where the two-letter family dies.  That is the numerical shadow
+of `sqArbRelWord_iff_clearingStep`, which says no such probe can ever exist.
+
 ## Contents
 
 * **§1** the index-two membership calculus (squares, commutators, `ℤ₂`-powers);
@@ -401,6 +409,404 @@ theorem sqEichStepUV_of_even (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
 
 end UVGeneral
 
+/-! ## §4 The arbitrary-dressing frame
+
+`LamFrames` §4 named the widening: dress the moved slots by **arbitrary** `λ`-trivial,
+`ν'`-trivial elements.  Written out, the frame is the undressed one — the two cleared letters
+`U, V` in the `j`-th handle slots, every other letter standing — with each slot multiplied by its
+own dressing:
+
+```text
+base = ( σ , x₀ , x₁ , U , V , … ) ,      m i = base i · a i ,   a i ∈ ker λ ∩ ker ν'
+```
+
+Note that *every* slot may be dressed, the untouched handles included: their dressings are
+`ν'`-trivial, so those rows stay exactly where they were, which is what `SqClearingStep` asks. -/
+
+section ArbFrame
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+
+variable (h nu' j) in
+/-- **The undressed frame** at handle `j`: the two cleared letters in the handle slots, every
+other letter standing. -/
+noncomputable def sqArbBase : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then sqEichU h nu' j else
+    if (i : ℕ) = (sqHandleIdxV j : ℕ) then sqEichV h nu' j else
+    sqGen h i
+
+variable (h nu' j) in
+/-- **The arbitrary-dressing frame**: `sqArbBase` with each slot multiplied by its own dressing.
+The dressings are unconstrained here; the row hypotheses `λ(a i) = ν'(a i) = 1` enter §5. -/
+noncomputable def sqArbFrame (a : Fin (sqRank h) → (DSq h : Type)) :
+    Fin (sqRank h) → (DSq h : Type) := fun i => sqArbBase h nu' j i * a i
+
+@[simp] theorem sqArbBase_zero : sqArbBase h nu' j 0 = dsqSigma h := by
+  simp only [sqArbBase, sqVal_zero, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  rfl
+
+@[simp] theorem sqArbBase_one : sqArbBase h nu' j 1 = dsqX0 h := by
+  simp only [sqArbBase, sqVal_one, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  rfl
+
+@[simp] theorem sqArbBase_two : sqArbBase h nu' j 2 = dsqX1 h := by
+  simp only [sqArbBase, sqVal_two, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  rfl
+
+@[simp] theorem sqArbBase_handleU : sqArbBase h nu' j (sqHandleIdxU j) = sqEichU h nu' j := by
+  simp only [sqArbBase]
+  simp
+
+@[simp] theorem sqArbBase_handleV : sqArbBase h nu' j (sqHandleIdxV j) = sqEichV h nu' j := by
+  simp only [sqArbBase, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega)]
+  simp
+
+theorem sqArbBase_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    sqArbBase h nu' j (sqHandleIdxU j') = sqGen h (sqHandleIdxU j') := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [sqArbBase, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+theorem sqArbBase_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    sqArbBase h nu' j (sqHandleIdxV j') = sqGen h (sqHandleIdxV j') := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [sqArbBase, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+/-- The undressed frame carries the standard `λ`-row: both cleared letters are `λ`-trivial, as
+are the handle letters they replace. -/
+theorem nuLam_sqArbBase (i : Fin (sqRank h)) :
+    nuLam h (sqArbBase h nu' j i) = nuLam h (sqGen h i) := by
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show nuLam h (sqArbBase h nu' j 0) = nuLam h (dsqSigma h)
+    rw [sqArbBase_zero]
+  · show nuLam h (sqArbBase h nu' j 1) = nuLam h (dsqX0 h)
+    rw [sqArbBase_one]
+  · show nuLam h (sqArbBase h nu' j 2) = nuLam h (dsqX1 h)
+    rw [sqArbBase_two]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqArbBase_handleU, nuLam_handleU]
+      exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+    · rw [sqArbBase_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqArbBase_handleV, nuLam_handleV]
+      exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichV, toAdd_one])
+    · rw [sqArbBase_handleV_ne hjj]
+
+/-! ## §5 The rows, and the clearing step
+
+For the third time the row proofs of `LamFrames` §2a transpose **verbatim**: they use only that
+the dressing is `λ`-trivial and `ν'`-trivial, and here that is the defining hypothesis rather
+than a computation. -/
+
+variable {a : Fin (sqRank h) → (DSq h : Type)}
+
+/-- **The λ-row of the arbitrary-dressing frame is the standard one.** -/
+theorem sqArbFrame_nuLam (ha : ∀ i, nuLam h (a i) = 1) (i : Fin (sqRank h)) :
+    nuLam h (sqArbFrame h nu' j a i) = nuLam h (sqGen h i) := by
+  rw [sqArbFrame, map_mul, ha, mul_one, nuLam_sqArbBase]
+
+/-- The `σ`-row, with **no** hypothesis on the other handles. -/
+theorem nu_sqArbFrame_zero (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (ha : ∀ i, nu' (a i) = 1) : nu' (sqArbFrame h nu' j a 0) = ofAdd (1 : ℤ_[2]) := by
+  rw [sqArbFrame, sqArbBase_zero, map_mul, ha, mul_one, hsigma]
+
+/-- The `x₀`-row. -/
+theorem nu_sqArbFrame_one (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (ha : ∀ i, nu' (a i) = 1) : nu' (sqArbFrame h nu' j a 1) = ofAdd (0 : ℤ_[2]) := by
+  rw [sqArbFrame, sqArbBase_one, map_mul, ha, mul_one, hx0]
+
+/-- The `x₁`-row: the `L_sq` core forces `ν(x₁) = 2ν(x₀)`, so a selected marking puts it at the
+standard value already. -/
+theorem nu_sqArbFrame_two (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (ha : ∀ i, nu' (a i) = 1) : nu' (sqArbFrame h nu' j a 2) = nuSq h (dsqX1 h) := by
+  rw [sqArbFrame, sqArbBase_two, map_mul, ha, mul_one]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_nu_dsqX1, hx0, nuSq_x1]
+  simp
+
+/-- **Handle `j` is cleared**: its `u`-row vanishes. -/
+theorem nu_sqArbFrame_handleU_self (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (ha : ∀ i, nu' (a i) = 1) :
+    nu' (sqArbFrame h nu' j a (sqHandleIdxU j)) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleU, map_mul, ha, mul_one]
+  exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+
+/-- **Handle `j` is cleared**: its `v`-row vanishes. -/
+theorem nu_sqArbFrame_handleV_self (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (ha : ∀ i, nu' (a i) = 1) :
+    nu' (sqArbFrame h nu' j a (sqHandleIdxV j)) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleV, map_mul, ha, mul_one]
+  exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichV hsigma hx0, toAdd_one])
+
+/-- **Every other handle row stays exactly where it was** — the dressing is `ν'`-trivial, so
+dressing the untouched slots costs nothing. -/
+theorem nu_sqArbFrame_handleU_ne (ha : ∀ i, nu' (a i) = 1) {j' : Fin h} (hne : j' ≠ j) :
+    nu' (sqArbFrame h nu' j a (sqHandleIdxU j')) = nu' (sqGen h (sqHandleIdxU j')) := by
+  rw [sqArbFrame, sqArbBase_handleU_ne hne, map_mul, ha, mul_one]
+
+/-- …and on the `v`-side. -/
+theorem nu_sqArbFrame_handleV_ne (ha : ∀ i, nu' (a i) = 1) {j' : Fin h} (hne : j' ≠ j) :
+    nu' (sqArbFrame h nu' j a (sqHandleIdxV j')) = nu' (sqGen h (sqHandleIdxV j')) := by
+  rw [sqArbFrame, sqArbBase_handleV_ne hne, map_mul, ha, mul_one]
+
+/-- **The ν-row of the arbitrary-dressing frame is the standard marking's**, at handle `j`. -/
+theorem sqArbFrame_nu (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (ha : ∀ i, nu' (a i) = 1)
+    (hoth : ∀ j' : Fin h, j' ≠ j →
+      nu' (sqGen h (sqHandleIdxU j')) = 1 ∧ nu' (sqGen h (sqHandleIdxV j')) = 1)
+    (i : Fin (sqRank h)) : nu' (sqArbFrame h nu' j a i) = nuSq h (sqGen h i) := by
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show nu' (sqArbFrame h nu' j a 0) = nuSq h (dsqSigma h)
+    rw [nu_sqArbFrame_zero hsigma ha, nuSq_sigma]
+  · show nu' (sqArbFrame h nu' j a 1) = nuSq h (dsqX0 h)
+    rw [nu_sqArbFrame_one hx0 ha, nuSq_x0]
+  · show nu' (sqArbFrame h nu' j a 2) = nuSq h (dsqX1 h)
+    exact nu_sqArbFrame_two hx0 ha
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [nu_sqArbFrame_handleU_self hsigma hx0 ha, nuSq_handleU]
+    · rw [nu_sqArbFrame_handleU_ne ha hjj, (hoth j' hjj).1, nuSq_handleU]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [nu_sqArbFrame_handleV_self hsigma hx0 ha, nuSq_handleV]
+    · rw [nu_sqArbFrame_handleV_ne ha hjj, (hoth j' hjj).2, nuSq_handleV]
+
+/-- **The one-handle clearing step for the arbitrary-dressing family** — the same five clauses as
+`sqEichStep`, `sqEichStepT` and `sqEichStepUV`, with §2's criterion in place of a strip-off. -/
+theorem sqArbStep (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (halam : ∀ i, nuLam h (a i) = 1)
+    (hanu : ∀ i, nu' (a i) = 1) (hindep : SqModTwoIndep (sqArbFrame h nu' j a))
+    (hrel : sqRelWord (sqArbFrame h nu' j a) = 1) :
+    ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, nuLam h (Ψ x) = nuLam h x) ∧ nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+        nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2]) ∧ nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1 ∧
+          nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1 ∧
+            ∀ j' : Fin h, j' ≠ j →
+              nu' (Ψ (sqGen h (sqHandleIdxU j'))) = nu' (sqGen h (sqHandleIdxU j')) ∧
+                nu' (Ψ (sqGen h (sqHandleIdxV j'))) = nu' (sqGen h (sqHandleIdxV j')) := by
+  have hsurj := sqLiftHom_surjective_of_modTwoIndep hrel hindep
+  refine ⟨sqAutOfMark hrel hsurj, fun x => ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · have hext : (nuLam h).comp (autHom (sqAutOfMark hrel hsurj)) = nuLam h :=
+      dsq_hom_ext _ _ fun i => by
+        show nuLam h (sqAutOfMark hrel hsurj (sqGen h i)) = nuLam h (sqGen h i)
+        rw [sqAutOfMark_gen, sqArbFrame_nuLam halam]
+    exact DFunLike.congr_fun hext x
+  · show nu' (sqAutOfMark hrel hsurj (sqGen h 0)) = ofAdd (1 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqArbFrame_zero hsigma hanu]
+  · show nu' (sqAutOfMark hrel hsurj (sqGen h 1)) = ofAdd (0 : ℤ_[2])
+    rw [sqAutOfMark_gen, nu_sqArbFrame_one hx0 hanu]
+  · rw [sqAutOfMark_gen, nu_sqArbFrame_handleU_self hsigma hx0 hanu]
+  · rw [sqAutOfMark_gen, nu_sqArbFrame_handleV_self hsigma hx0 hanu]
+  · exact fun j' hjj => ⟨by rw [sqAutOfMark_gen, nu_sqArbFrame_handleU_ne hanu hjj],
+      by rw [sqAutOfMark_gen, nu_sqArbFrame_handleV_ne hanu hjj]⟩
+
+end ArbFrame
+
+/-! ## §6 The residual, and the completeness of the family
+
+`SqArbRelWord h` is again a bare existential — five dressings, one word equation, plus the mod-2
+side condition §2 showed is free.  It plugs into `LamFrames` §3's induction like its three
+predecessors, and unlike them it is **complete**: `sqArbRelWord_of_clearingStep` reads the
+dressings straight off a clearing automorphism, so the family exhausts `SqClearingStep h`.  ⭐
+Consequently *no* homomorphism-based refutation can reach it without refuting `SqClearingStep h`
+itself — and at one handle, without refuting `SqLamMarkTransitivity 1`. -/
+
+section ArbReduction
+
+variable {h : ℕ}
+
+/-- **The arbitrary-dressing relator identity**: at every selected marking and every handle there
+are `λ`-trivial, `ν'`-trivial dressings whose frame spans `H₁` and kills the relator.
+
+This is the widening `LamFrames` §4 named, and by `sqArbRelWord_iff_clearingStep` it is exactly
+`SqClearingStep h` — so, unlike `SqEichRelWord`, `SqEichRelWordT`, `SqEichRelWordMix` and
+`SqEichRelWordUV`, it is **not** known to be false, and cannot be refuted without refuting the
+clearing scheme itself. -/
+def SqArbRelWord (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ a : Fin (sqRank h) → (DSq h : Type),
+        (∀ i, nuLam h (a i) = 1) ∧ (∀ i, nu' (a i) = 1) ∧
+          SqModTwoIndep (sqArbFrame h nu' j a) ∧ sqRelWord (sqArbFrame h nu' j a) = 1
+
+/-- The arbitrary-dressing identity supplies a clearing step (§5). -/
+theorem sqClearingStep_of_arbRelWord (H : SqArbRelWord h) : SqClearingStep h := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, halam, hanu, hindep, hrel⟩ := H nu' j hsigma hx0
+  exact sqArbStep hsigma hx0 halam hanu hindep hrel
+
+/-- ⭐ **…and conversely.**  A clearing automorphism *is* an arbitrary-dressing frame: put
+`a i = base(i)⁻¹ · Ψ(gen i)`.  Every clause is one of `SqClearingStep`'s five, the mod-2 condition
+is `sqModTwoIndep_of_aut`, and the relator identity is naturality. -/
+theorem sqArbRelWord_of_clearingStep (H : SqClearingStep h) : SqArbRelWord h := by
+  intro nu' j hsigma hx0
+  obtain ⟨Ψ, hlam, hs, hx, hU, hV, hoth⟩ := H nu' j hsigma hx0
+  refine ⟨fun i => (sqArbBase h nu' j i)⁻¹ * Ψ (sqGen h i), ?_, ?_, ?_, ?_⟩
+  · intro i
+    rw [map_mul, map_inv, hlam, nuLam_sqArbBase, inv_mul_cancel]
+  · -- the `ν'`-row of `Ψ(gen i)` is the `ν'`-row of the undressed slot, clause by clause
+    have hbase : ∀ i, nu' (Ψ (sqGen h i)) = nu' (sqArbBase h nu' j i) := by
+      intro i
+      rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+      · show nu' (Ψ (dsqSigma h)) = nu' (sqArbBase h nu' j 0)
+        rw [sqArbBase_zero, hs, hsigma]
+      · show nu' (Ψ (dsqX0 h)) = nu' (sqArbBase h nu' j 1)
+        rw [sqArbBase_one, hx, hx0]
+      · show nu' (Ψ (dsqX1 h)) = nu' (sqArbBase h nu' j 2)
+        rw [sqArbBase_two]
+        refine Multiplicative.toAdd.injective ?_
+        have hcomp : toAdd ((nu'.comp (autHom Ψ)) (dsqX1 h))
+            = 2 * toAdd ((nu'.comp (autHom Ψ)) (dsqX0 h)) := toAdd_nu_dsqX1 _
+        show toAdd ((nu'.comp (autHom Ψ)) (dsqX1 h)) = toAdd (nu' (dsqX1 h))
+        rw [hcomp, toAdd_nu_dsqX1]
+        show 2 * toAdd (nu' (Ψ (dsqX0 h))) = 2 * toAdd (nu' (dsqX0 h))
+        rw [hx, hx0]
+      · by_cases hjj : j' = j
+        · subst hjj
+          rw [sqArbBase_handleU, hU]
+          exact (Multiplicative.toAdd.injective
+            (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])).symm
+        · rw [sqArbBase_handleU_ne hjj]
+          exact (hoth j' hjj).1
+      · by_cases hjj : j' = j
+        · subst hjj
+          rw [sqArbBase_handleV, hV]
+          exact (Multiplicative.toAdd.injective
+            (by rw [toAdd_nu_sqEichV hsigma hx0, toAdd_one])).symm
+        · rw [sqArbBase_handleV_ne hjj]
+          exact (hoth j' hjj).2
+    intro i
+    rw [map_mul, map_inv, hbase, inv_mul_cancel]
+  · have hframe : sqArbFrame h nu' j (fun i => (sqArbBase h nu' j i)⁻¹ * Ψ (sqGen h i))
+        = fun i => Ψ (sqGen h i) := funext fun i => mul_inv_cancel_left _ _
+    rw [hframe]
+    exact sqModTwoIndep_of_aut Ψ
+  · have hframe : sqArbFrame h nu' j (fun i => (sqArbBase h nu' j i)⁻¹ * Ψ (sqGen h i))
+        = fun i => Ψ (sqGen h i) := funext fun i => mul_inv_cancel_left _ _
+    rw [hframe]
+    have hnat := map_sqRelWord (autHom Ψ) (sqGen h)
+    rw [dsq_relation h, map_one] at hnat
+    exact hnat.symm
+
+/-- ⭐⭐ **The arbitrary-dressing family is exactly the clearing scheme.**  Two consequences:
+the family cannot be widened further inside the one-handle scheme, and it cannot be refuted by
+any test that does not refute `SqClearingStep h`. -/
+theorem sqArbRelWord_iff_clearingStep : SqArbRelWord h ↔ SqClearingStep h :=
+  ⟨sqClearingStep_of_arbRelWord, sqArbRelWord_of_clearingStep⟩
+
+/-- **The residual, from the arbitrary-dressing identity.** -/
+theorem sqLamMarkTransitivity_of_arbRelWord (H : SqArbRelWord h) : SqLamMarkTransitivity h :=
+  sqLamMarkTransitivity_of_clearingStep (sqClearingStep_of_arbRelWord H)
+
+/-- …and hence the handle stratum at every unit exponent. -/
+theorem sqHandleMixFixesCore_of_arbRelWord {c : ℤ_[2]} (hc : IsUnit c) (hh : 0 < h)
+    (H : SqArbRelWord h) : SqHandleMixFixesCore h c :=
+  sqHandleMixFixesCore_of_lamMarkTransitivity hc hh (sqLamMarkTransitivity_of_arbRelWord H)
+
+/-- At one handle a clearing step *is* a full correction: there is no other handle to leave
+standing. -/
+theorem sqClearingStep_one_of_lamMarkTransitivity (H : SqLamMarkTransitivity 1) :
+    SqClearingStep 1 := by
+  intro nu' j hsigma hx0
+  obtain ⟨Ψ, hlam, hval⟩ := H nu' hsigma hx0
+  exact ⟨Ψ, hlam, (hval _).trans (nuSq_sigma 1), (hval _).trans (nuSq_x0 1),
+    (hval _).trans (nuSq_handleU 1 j), (hval _).trans (nuSq_handleV 1 j),
+    fun j' hjj => absurd (Subsingleton.elim j' j) hjj⟩
+
+/-- **At one handle the clearing scheme is the residual itself.** -/
+theorem sqClearingStep_one_iff : SqClearingStep 1 ↔ SqLamMarkTransitivity 1 :=
+  ⟨sqLamMarkTransitivity_of_clearingStep, sqClearingStep_one_of_lamMarkTransitivity⟩
+
+/-- ⭐⭐ **The smallest open instance, exactly.**  At one handle the arbitrary-dressing word
+equation is *equivalent* to `SqLamMarkTransitivity 1`.  So a `D₈`-style refutation of this family
+would refute the residual outright — which is why the collapse mechanism of
+`SqCore/EichRefutation.lean` §7, and every mechanism like it, provably cannot reach it. -/
+theorem sqArbRelWord_one_iff : SqArbRelWord 1 ↔ SqLamMarkTransitivity 1 :=
+  sqArbRelWord_iff_clearingStep.trans sqClearingStep_one_iff
+
+end ArbReduction
+
+/-! ## §7 Stress pins -/
+
+section StressTests
+
+/-- **The arbitrary ansatz is satisfiable.**  At the standard marking both handle letters are
+already cleared, so the undressed frame *is* the standard generating tuple. -/
+theorem sqArbBase_nuSq (h : ℕ) (j : Fin h) : sqArbBase h (nuSq h) j = sqGen h := by
+  have hV : sqEichV h (nuSq h) j = sqGen h (sqHandleIdxV j) := by
+    rw [sqEichV, nuSq_handleV, toAdd_one, SectionThree.zpowZtwo_zero, inv_one, mul_one]
+  have hU : sqEichU h (nuSq h) j = sqGen h (sqHandleIdxU j) := by
+    rw [sqEichU, nuSq_handleU, toAdd_one, SectionThree.zpowZtwo_zero, inv_one, one_mul]
+  refine funext fun i => ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqArbBase_zero]; rfl
+  · rw [sqArbBase_one]; rfl
+  · rw [sqArbBase_two]; rfl
+  · by_cases hjj : j' = j
+    · subst hjj; rw [sqArbBase_handleU, hU]
+    · rw [sqArbBase_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj; rw [sqArbBase_handleV, hV]
+    · rw [sqArbBase_handleV_ne hjj]
+
+/-- Stress: hence the trivial dressing already kills the relator at the standard marking. -/
+example (h : ℕ) (j : Fin h) : sqRelWord (sqArbFrame h (nuSq h) j fun _ => 1) = 1 := by
+  have hf : (sqArbFrame h (nuSq h) j fun _ => 1) = sqGen h := by
+    refine funext fun i => ?_
+    rw [sqArbFrame, mul_one]
+    exact congrFun (sqArbBase_nuSq h j) i
+  rw [hf]
+  exact dsq_relation h
+
+/-- Stress: `h = 0` runs through the arbitrary reduction too. -/
+example : SqLamMarkTransitivity 0 :=
+  sqLamMarkTransitivity_of_arbRelWord fun _ j _ _ => absurd j.isLt (by omega)
+
+example : SqArbRelWord 0 := fun _ j _ _ => absurd j.isLt (by omega)
+
+/-- Stress: **every refuted family implies this one** — through `SqClearingStep`, which is what
+completeness buys.  So the arbitrary-dressing existential is weaker than all four. -/
+example (h : ℕ) (H : SqEichRelWord h) : SqArbRelWord h :=
+  sqArbRelWord_of_clearingStep (sqClearingStep_of_eichRelWord H)
+
+example (h : ℕ) (H : SqEichRelWordT h) : SqArbRelWord h :=
+  sqArbRelWord_of_clearingStep (sqClearingStep_of_eichRelWordT H)
+
+example (h : ℕ) (H : SqEichRelWordMix h) : SqArbRelWord h :=
+  sqArbRelWord_of_clearingStep (sqClearingStep_of_eichRelWordMix H)
+
+example (h : ℕ) (H : SqEichRelWordUV h) : SqArbRelWord h :=
+  sqArbRelWord_of_clearingStep (sqClearingStep_of_eichRelWordUV H)
+
+/-- Stress: the `λ`-row is unconditional in the dressings' `λ`-triviality alone — no marking
+hypothesis, no weights, no handle count. -/
+example (h : ℕ) (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+    (a : Fin (sqRank h) → (DSq h : Type)) (ha : ∀ i, nuLam h (a i) = 1) (i : Fin (sqRank h)) :
+    nuLam h (sqArbFrame h nu' j a i) = nuLam h (sqGen h i) := sqArbFrame_nuLam ha i
+
+/-- Stress: surjectivity of the two-letter frame at a tuple `UVFrames` §3 cannot reach —
+`d = 1`, `d' = 2`, so `d·d'` is even but neither slot is bare. -/
+example (h : ℕ) (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+    (f f' e e' : ℤ_[2]) (Φ : ContinuousMonoidHom (DSq h : Type) (DSq h : Type))
+    (hΦ : ∀ i, Φ (sqGen h i) = sqEichFrameUV h nu' j f f' e e' 1 2 i) :
+    Function.Surjective Φ :=
+  sqEichFrameUV_surjective_of_hom_of_even Φ hΦ ⟨1, by ring⟩
+
+/-- Stress: the frame characterization of `LamFrames` §1 is what the whole search aims at, and
+the arbitrary family now sits directly underneath it. -/
+example (h : ℕ) (H : SqArbRelWord h) : SqNuClearHypothesis h :=
+  sqNuClearHypothesis_of_lamMarkTransitivity (sqLamMarkTransitivity_of_arbRelWord H)
+
+end StressTests
+
 /-! ## §8 Axiom pins
 
 Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
@@ -424,6 +830,36 @@ section AxiomPins
 #print axioms sqEichFrameUV_surjective_of_hom_of_even
 #print axioms sqEichFrameUV_surjective_of_even
 #print axioms sqEichStepUV_of_even
+#print axioms sqArbBase
+#print axioms sqArbFrame
+#print axioms sqArbBase_zero
+#print axioms sqArbBase_one
+#print axioms sqArbBase_two
+#print axioms sqArbBase_handleU
+#print axioms sqArbBase_handleV
+#print axioms sqArbBase_handleU_ne
+#print axioms sqArbBase_handleV_ne
+#print axioms nuLam_sqArbBase
+#print axioms sqArbFrame_nuLam
+#print axioms nu_sqArbFrame_zero
+#print axioms nu_sqArbFrame_one
+#print axioms nu_sqArbFrame_two
+#print axioms nu_sqArbFrame_handleU_self
+#print axioms nu_sqArbFrame_handleV_self
+#print axioms nu_sqArbFrame_handleU_ne
+#print axioms nu_sqArbFrame_handleV_ne
+#print axioms sqArbFrame_nu
+#print axioms sqArbStep
+#print axioms SqArbRelWord
+#print axioms sqClearingStep_of_arbRelWord
+#print axioms sqArbRelWord_of_clearingStep
+#print axioms sqArbRelWord_iff_clearingStep
+#print axioms sqLamMarkTransitivity_of_arbRelWord
+#print axioms sqHandleMixFixesCore_of_arbRelWord
+#print axioms sqClearingStep_one_of_lamMarkTransitivity
+#print axioms sqClearingStep_one_iff
+#print axioms sqArbRelWord_one_iff
+#print axioms sqArbBase_nuSq
 
 end AxiomPins
 

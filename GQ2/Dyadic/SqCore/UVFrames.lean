@@ -51,6 +51,14 @@ an offline `D₄` sweep over *every* marking of `D₄` (not merely the two of `E
 shows the relator identity already fails at every weight tuple with `d` and `d'` both odd — the
 same `1 − d·d'`.
 
+⭐ **The restriction on the surjectivity *proof* is nevertheless gone.**  `SqCore/ArbFrames.lean`
+§2 reduces surjectivity to the pro-2 Frattini criterion — "no index-2 open normal subgroup
+swallows every slot" — which needs no strip-off at all, and §3 there checks it for this family at
+**every** weight tuple with `d·d'` even (`sqEichFrameUV_modTwoIndep`,
+`sqEichFrameUV_surjective_of_even`, `sqEichStepUV_of_even`).  Mod such a subgroup the two handle
+slots read `Ū + d·V̄` and `V̄ + d'·Ū`, so the sweep's `1 − d·d'` is literally the determinant of
+the recovery.
+
 ## §4 The residual, again in one word equation
 
 `SqEichRelWordUV` is the resulting bare word equation, and §4 plugs it into `SqClearingStep`, so
@@ -82,6 +90,11 @@ used, so no reweighting inside that orbit can help.  The widening named in `LamF
 dressing by **arbitrary** `λ`-trivial, `ν'`-trivial elements — is still untouched, and now for a
 sharper reason: §7's collapse needs the dressings to land in `⟨z⟩`, which words in `U` and `V`
 guarantee and an arbitrary `λ`/`ν'`-trivial dressing does not.
+
+⭐ That widening is now **built**, in `SqCore/ArbFrames.lean` §4–§6, and the reason it escapes is
+stronger than "this mechanism misses it": `sqArbRelWord_iff_clearingStep` shows the arbitrary
+family is *equivalent* to `SqClearingStep h`, so **no** refutation can reach it without refuting
+the clearing scheme — at one handle, without refuting `SqLamMarkTransitivity 1`.
 
 ## ⚠ The shape rule, and the retired candidate
 

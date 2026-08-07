@@ -154,6 +154,26 @@ collapse is blind to the weights.  Arbitrary `λ`-trivial, `ν'`-trivial dressin
 that collapse needs the dressings to land in `⟨z⟩`, which words in `U` and `V` guarantee and an
 arbitrary dressing does not.
 
+## ⭐⭐ Headline 5 — the arbitrary-dressing family is built, and it is the *last* one
+
+`SqCore/ArbFrames.lean` builds it.  Two ingredients: §2 there replaces §2b's strip-off by the
+pro-2 Frattini criterion, so surjectivity of a frame becomes mod-2 linear algebra on `H₁` and no
+recovery of the cleared letters is needed; §4–§5 then dress *every* slot by an arbitrary element
+of `ker λ ∩ ker ν'` and read this file's §2a rows off verbatim for the third time.
+
+What comes out is not one more family to refute:
+
+```text
+sqArbRelWord_iff_clearingStep : SqArbRelWord h ↔ SqClearingStep h
+sqArbRelWord_one_iff          : SqArbRelWord 1 ↔ SqLamMarkTransitivity 1
+```
+
+The dressings of a clearing automorphism are `a i = base(i)⁻¹·Ψ(gen i)`, which are `λ`- and
+`ν'`-trivial by the five clauses themselves, so the family **exhausts** the clearing scheme.  So
+the family-hunting phase closes: `SqEichRelWord`, `SqEichRelWordT`, `SqEichRelWordMix` and
+`SqEichRelWordUV` all imply `SqArbRelWord h` through `SqClearingStep`, no further widening of the
+one-handle scheme exists, and any refutation of `SqArbRelWord h` is a refutation of the residual.
+
 ## Contents
 
 * **§1** `sqFrames_of_lamMarkTransitivity` and `sqLamMarkTransitivity_iff_frames`;
