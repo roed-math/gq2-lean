@@ -117,7 +117,10 @@ m i  = base i · a i ,  a i ∈ K = ker λ ∩ ker ν′        sqArbFrame
    homomorphism to an abelian group.  So `K ⊆ ker λ ∩ ker ν′`.  `=`: the `(σ,x₀)` minor of
    the two rows is `det [[c₀,1],[1,0]] = −1`, a 2-adic unit, so `(λ,ν′) : Q^ab → (ℤ/2^c)²`
    is surjective and `ker λ ∩ ker ν′` has index exactly `4^c` — which the assertion confirms
-   is the index of `K`.  Hence equality.  ⚠ The larger, wrong model is the preimage of the
+   is the index of `K`.  Hence equality.  (Both halves of that argument are independent of
+   `(t,s)`, which is why `w50_sweep2.m` runs the index assertion once per class rather than
+   once per marking, while `w50_sweep.m` runs it at every marking; both pass.)
+   ⚠ The larger, wrong model is the preimage of the
    abelianised `K` computed in a quotient where `λ` and `ν′` are only seen modulo a *smaller*
    power of 2 than `ker Φ` reaches; on the class-`c` p-quotient that gap is exactly zero,
    which is why the two agree here and need not agree on a small test group.
