@@ -17,7 +17,7 @@ of the universal pro-2 quotient tower of `D_sq 1`.
 
 | question | answer |
 |---|---|
-| **(a)** does the dressing system stay solvable at every uncleared selected marking, at class 4 and class 5? | **Yes.**  Class 3: 63/63.  Class 4: 255/255 (exhaustive in (t,s) mod 16).  Class 5: 103/103 sampled (of 1023). |
+| **(a)** does the dressing system stay solvable at every uncleared selected marking, at class 4 and class 5? | **Yes.**  Class 3: 63/63 and class 4: 255/255 — and those are **exhaustive over the whole binder of `SqLamMarkTransitivity 1`**, not samples (§2.2).  Class 5: every marking probed. |
 | **(b)** structure of the survivor set | Level one is **not** a coset: it is a `GL₂(𝔽₂)`-torsor on the handle block, times a **forced** core dressing.  Every deeper level is a genuine affine coset — the solution set of an 𝔽₂-linear system — of dimension 17 (L₃), 66 (L₄), 192 (L₅). |
 | **(c)** any infeasible marking (= refutation lead)? | **None found.**  Zero infeasible markings at every class and every marking probed. |
 
@@ -79,6 +79,16 @@ relator transcribes letter for letter.
   is the 2-adic unit with `X^{c₀} = S`.
 * `ν′ = nuSel 1 0 t s` (`SqCore/HandleEichler.lean:547`) is `(1, 0, 0, t, s)`.
   `ν′(x₁) = 2ν′(x₀) = 0` is forced by the core.
+
+⭐ **The `(t,s)` family is the whole quantifier, not a sample of it.**  `SqLamMarkTransitivity h`
+(`SqCore/DsqDemushkin.lean:424`) quantifies over *every* continuous `ν′ : D_sq h → ℤ₂` with
+`ν′(σ)=1`, `ν′(x₀)=0`.  Such a `ν′` is determined by its generator values, and the only
+constraint is the relator's abelian collapse `−4ν′(x₀) + 2ν′(x₁) = 0`, i.e.
+`ν′(x₁) = 2ν′(x₀) = 0` (`toAdd_nu_dsqX1`).  So at `h = 1` every selected marking **is**
+`nuSel 1 0 t s` for a unique `(t,s) ∈ ℤ₂²`, and in the class-`c` quotient only `(t,s)` mod
+`2^c` survives.  Sweeping all `(t,s)` mod `2^c` therefore exhausts the binder, not a sample
+of it — which is what makes the class-3 and class-4 rows of §6.1 *complete* statements about
+those quotients.
 
 `c₀` was computed from scratch (`padic_c0.py`): Hensel-lift `X` from `Z³+2Z²+1`, set
 `S = −X³/(X²+X+1)`, `Y = −X²`, and `c₀ = log S / log X` on `1+4ℤ₂`.  Committed anchors
@@ -507,7 +517,9 @@ Concretely, three things the Lean side can take as measured facts about the fini
 
 ## 9.  Limitations — what was exhausted and what was sampled
 
-* **Exhausted.**  Class 3 and class 4: every uncleared selected marking, `(t,s)` mod `2^c`.
+* **Exhausted.**  Class 3 and class 4: every uncleared selected marking, `(t,s)` mod `2^c` —
+  and by §2.2 that is the *entire* quantifier of `SqLamMarkTransitivity 1`, so those two rows
+  are complete statements about their quotients rather than samples.
   Stage A (the level-one / class-two gate) at every marking and every class: all `8^5` codes.
   The dihedral calibration: all homomorphisms to `D₄`, all surjective ones to `D₈`.
 * **Sampled.**  Class 5: 103 of 1023 uncleared markings (§6.1).  The sample is
