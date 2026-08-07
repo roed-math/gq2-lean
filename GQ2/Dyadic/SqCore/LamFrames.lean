@@ -51,7 +51,8 @@ sqRelWord (sqEichFrame h ν' j e e' d) = 1        (`SqEichRelWord h`)
 
 with no rows, no surjectivity, no inverse substitution, and no composition identity
 (`sqLamMarkTransitivity_of_eichRelWord`, and `sqLamMarkTransitivity_one_of_eichRelWord` at one
-handle).  That is the smallest form the residual has taken.
+handle).  ⚠ **That equation is false** — see "The relator identity is **false**" below; the
+reduction is what survives, the ansatz is not.
 
 **Scope.**  `sqEichFrame_nu` reads *all* rows off a single frame and therefore carries a
 hypothesis `hoth` — the other handles' rows already vanish — so one Eichler frame clears exactly
@@ -81,20 +82,32 @@ is exactly an **Eichler transvection** `E(v̄_j, m)` of the hyperbolic plane `�
 `e, e'` must be **odd** for that reason (`sqEichFrame` accepts them as parameters and does not
 impose it — the relator identity will).
 
-## What this file does **not** settle
+## ⚠ The relator identity is **false**
 
-The relator identity is **open**.  Two things are added here, in opposite directions:
+`SqEichRelWord h` is **refuted** at every `h ≥ 1` in `SqCore/EichRefutation.lean`
+(`not_sqEichRelWord`), with the explicit witness `ν' = nuSel h j 0 1`: at that selected marking
+*no* `(e, e', d)` kills the relator.  So §3's implication
+`sqLamMarkTransitivity_of_eichRelWord` is a true theorem with a **false hypothesis** for `h ≥ 1`,
+and this file's contribution to the residual is §1 (the characterization) plus the machinery — the
+surjectivity criterion of §2b and the clearing-step composition of §2c — not the ansatz itself.
 
-* it is **satisfiable** — at the *standard* marking the Eichler frame at `(e, e', d) = (0, 0, 0)`
-  is literally the identity frame (`sqEichFrame_nuSq_zero`), so the ansatz is not empty; and
+Three facts here point at the same conclusion, and are worth keeping:
+
+* the ansatz *is* satisfiable somewhere — at the standard marking the Eichler frame at
+  `(e, e', d) = (0, 0, 0)` is literally the identity frame (`sqEichFrame_nuSq_zero`);
 * ⚠ it is **rigid** — §4 shows the `d`-slot only *conjugates*
   (`sqEichFrame_handleComm`, `sqRelWord_sqEichFrame_one_d`), so `d` is invisible modulo `γ₃`,
   the class-two balance of `docs/dyadic/eichler-reduction-note.md` fixes `(e, e')` outright
   (`e' = 1`, `e = 2 + c₀` at `ν'(u_j) = 1`), and from class three on the five-word ansatz has a
-  single parameter acting by conjugation.  See §4's preamble for the consequences.
+  single parameter acting by conjugation;
+* ⚠ it is **asymmetric** — the four moved slots are dressed by powers of `V` and by nothing else,
+  so the frame can subtract pivot from `u_j` but has no `U`-dressing with which to clear a
+  `v_j`-row.  That is exactly what the refutation exploits, and it says what to build next: a
+  transposed family dressing by `U`-powers, composed with this one through §2c (a clearing step
+  only has to leave the *other* handles alone, which both families do).
 
-What §3 buys is that the obligation is now a **single closed equation in `D_sq h`**, so a
-correction may be inserted in any slot without re-proving a single row.
+What §3 still buys is that the obligation is a **single closed equation in `D_sq h`** for any such
+family: a widened ansatz inherits §2a's rows verbatim and needs only its own surjectivity check.
 
 ## Contents
 
@@ -515,8 +528,12 @@ section Reduction
 variable {h : ℕ}
 
 /-- **The Eichler relator identity**, as a statement about words: at every selected marking and
-every handle, some `V`-dressing weights `(e, e', d)` kill the relator.  This is the last
-mathematical content of the `h ≥ 1` residual. -/
+every handle, some `V`-dressing weights `(e, e', d)` kill the relator.
+
+⚠ **This is false for `h ≥ 1`** (`SqCore/EichRefutation.lean`, `not_sqEichRelWord`).  It is kept
+because the implication below is the reusable half — any *other* frame family with the same rows
+plugs into the same reduction — and because a named false hypothesis is easier to keep track of
+than an unnamed one. -/
 def SqEichRelWord (h : ℕ) : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -607,9 +624,11 @@ already a commutator, so `[[U, V], V^d]` lies in the *third* term of the lower c
   condition, the module docstring's `L_sq`-row gloss notwithstanding.
 
 So the five-word Eichler ansatz is a **zero-parameter** ansatz beyond class three, and every
-class from four up has to come out right by itself.  A refutation of *this* frame would therefore
-say very little about the residual (§1 quantifies over all frames); the useful conclusion in the
-other direction is that the natural widening — dressing the four moved slots by arbitrary
+class from four up has to come out right by itself.  It does not:
+`SqCore/EichRefutation.lean` refutes it outright, and by a mechanism cruder than any of this —
+the frame's `v`-slot is the letter it moved, so killing `V` kills all four dressings at once.  A
+refutation of *this* frame says little about the residual (§1 quantifies over all frames); the
+useful conclusion is that the natural widening — dressing the four moved slots by arbitrary
 `λ`-trivial, `ν'`-trivial elements rather than by `V`-powers — costs nothing on any row and is
 where the parameters have to come from. -/
 
