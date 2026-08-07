@@ -109,6 +109,17 @@ m i  = base i · a i ,  a i ∈ K = ker λ ∩ ker ν′        sqArbFrame
    The assertion passes at `c = 3, 4, 5`, so on the *p-quotients* the two models coincide —
    which they need not do on a general small test group, and that is the W48 trap.
 
+   Together with a one-line algebraic argument this **proves** the model rather than
+   assuming it.  `⊆`: `λ(U) = −t·λ(w) + λ(u) = 0` and `ν′(U) = −t·ν′(w) + ν′(u) = −t + t = 0`;
+   likewise for `V`; `λ(t̄) = 2 − 2 = 0` and `ν′(t̄) = 0`; and `[Q,Q]` dies under every
+   homomorphism to an abelian group.  So `K ⊆ ker λ ∩ ker ν′`.  `=`: the `(σ,x₀)` minor of
+   the two rows is `det [[c₀,1],[1,0]] = −1`, a 2-adic unit, so `(λ,ν′) : Q^ab → (ℤ/2^c)²`
+   is surjective and `ker λ ∩ ker ν′` has index exactly `4^c` — which the assertion confirms
+   is the index of `K`.  Hence equality.  ⚠ The larger, wrong model is the preimage of the
+   abelianised `K` computed in a quotient where `λ` and `ν′` are only seen modulo a *smaller*
+   power of 2 than `ker Φ` reaches; on the class-`c` p-quotient that gap is exactly zero,
+   which is why the two agree here and need not agree on a small test group.
+
 ### 2.5  What is actually decided
 
 `sqLamMarkTransitivity_iff_frames` / `sqArbRelWord_of_clearingStep` make the existential
@@ -261,9 +272,23 @@ deeper levels, where it is exactly right: the level-`j` solution set is
 
 The corank is **exactly 6 at every level and every marking**: six 𝔽₂-functionals on each
 layer that no dressing can move.  The relator's defect always lands in the 43-/169-/673-
-dimensional image — never in the 6-dimensional complement.  That is the sharpest structural
-statement the sweep produces, and it is the natural place to look for an obstruction at
-class 6 and beyond.
+dimensional image — never in the 6-dimensional complement.
+
+**And that is not luck.**  `w50_coker.m` measures it (class 4, ten markings, both levels):
+
+* the defect lies in `im δ` — **20 / 20**;
+* a **random** vector of the layer lies in `im δ` — **32 / 2000 ≈ 1.6 %**, matching the
+  `2⁻⁶ = 1.56 %` a codimension-6 subspace predicts;
+* ⚠ the image is **marking-dependent**: `im δ` for `(1,0)`, `(1,1)`, `(1,2)`, `(3,5)`,
+  `(2,2)`, `(0,2)`, `(5,7)`, `(1,4)` all differ from `(0,1)`'s (only `(2,1)` coincides).
+  There is therefore **no single canonical codimension-6 obstruction space**; the six
+  unreachable functionals move with the marking.
+
+Over the whole sweep this "hit" occurred at roughly 600 independent (marking, level) pairs
+with a per-event chance probability of `1/64`.  The vanishing of the obstruction is a
+structural identity of this presentation, not a numerical coincidence — which is precisely
+why no refutation is visible at class 4 or 5, and why looking for one in the cokernel of a
+*single* level is the wrong search.
 
 Per-slot anatomy at `L₃`, marking `(t,s)=(1,1)` (which slot-coordinates the defect reads):
 
@@ -346,23 +371,35 @@ and the sweep confirms `SqU4`'s closed forms exactly (§3(c)).
 ## 8.  The discrete-shadow probe
 
 `w50_regime.m` runs the same lift with the set of **dressable slots** restricted at level one
-and at every deeper level alike.  Class 3, all 63 uncleared markings, `(t,s)` mod 8:
+and at every deeper level alike.  Both runs use the same 63 markings, `t,s ∈ [0..7]`:
 
-| regime | dressable slots | solvable | INFEASIBLE | level-one gate |
+| regime | dressable slots | class 3: solvable / INFEASIBLE | class 4: solvable / INFEASIBLE | level-one gate |
 |---|---|---|---|---|
-| `handle` — the discrete/SL₂ regime | u, v | 3 | **60** | *empty* at 48 markings |
-| `core` | σ, x₀, x₁ | 3 | **60** | 1 survivor always |
-| `sigmax0` | σ, x₀ | 3 | **60** | 1 survivor always |
-| `x0` | x₀ | 3 | **60** | empty at 48, 1 at 15 |
-| **`full`** = `SqArbRelWord` | all five | **63** | **0** | 6 survivors always |
+| `handle` — the discrete/SL₂ regime | u, v | 3 / **60** | **0 / 63** | *empty* at 48 markings |
+| `core` | σ, x₀, x₁ | 3 / **60** | **0 / 63** | 1 survivor always |
+| `sigmax0` | σ, x₀ | 3 / **60** | **0 / 63** | 1 survivor always |
+| `x0` | x₀ | 3 / **60** | **0 / 63** | empty at 48, 1 at 15 |
+| **`full`** = `SqArbRelWord` | all five | **63 / 0** | **63 / 0** | 6 survivors always |
 
-The three markings solvable in every regime are `(0,4), (4,0), (4,4)` — the rows already in
-the deepest layer at class 3.
+The three markings solvable in a restricted regime at class 3 are `(0,4), (4,0), (4,4)` — the
+rows already in the deepest layer *at that class*.  At class 4 the rows are read mod 16, they
+are no longer deepest, and **every** restricted regime fails at **every** marking.
+
+Per-slot anatomy of the defect at the full regime, marking `(t,s)=(1,1)`:
+
+| level | target dim | domain dim per slot | per-slot ranks (σ, x₀, x₁, u, v) | joint |
+|---|---|---|---|---|
+| L₃ | 49 | 12 | 12, 12, 12, 11, 11 | 43 |
+| L₄ | 175 | 47 | 47, 47, 47, 46, 46 | 169 |
+
+The three core slots inject; each handle slot loses exactly one dimension; no single slot
+reaches beyond its own domain dimension, so the joint rank is genuinely joint.
 
 **Reading.**  The obstruction that kills the discrete case is *visible*: with the handle pair
-alone — the mapping-class / SL₂ regime — the system is infeasible at 60 of 63 markings, and
-at 48 of those the class-two gate is literally empty (an exhaustive, certificate-grade
-negative).  The escape is **not** an enlargement of the handle action: it is the pivot-mixing
+alone — the mapping-class / SL₂ regime — the system is infeasible at 60 of 63 markings at
+class 3 and at **all 63** at class 4, and at 48 of them the class-two gate is literally empty
+(an exhaustive, certificate-grade negative).  The escape is **not** an enlargement of the
+handle action: it is the pivot-mixing
 core dressing `U^{−s}V^{t}` on the σ- and x₀-slots, which has no discrete counterpart because
 it moves core letters by handle-derived elements.  And neither block suffices alone: the
 core-only regime passes level one (with the forced dressing) but fails the class-three linear
