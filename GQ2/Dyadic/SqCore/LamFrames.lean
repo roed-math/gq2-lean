@@ -163,6 +163,195 @@ theorem sqLamNuClearHypothesis_iff_frames :
 
 end Characterization
 
+/-! ## §2 The Eichler frame, and its rows
+
+At a selected marking the canonical pivot `w = σ·x₀^{−c₀}` has `λ(w) = 0` and `ν'(w) = 1`
+(`toAdd_nuLam_sqPivot`, `toAdd_nu_sqPivot_selected`), so it is the unique available lever for
+moving a `ν'`-row without disturbing the `λ`-row.  Subtracting the right multiple of `w` from
+each handle letter kills its `ν'`-row outright; the core letters then take `V`-dressings, which
+cost nothing on either row.  Every row of the frame is therefore a one-line evaluation. -/
+
+section EichlerFrame
+
+variable {h : ℕ}
+
+/-- Rows through a `V`-dressing: a character of a slot `g·V^k`. -/
+private theorem toAdd_mul_zpow (f : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (g x : (DSq h : Type)) (k : ℤ_[2]) :
+    toAdd (f (g * zpowZtwo (isProP_DSq h) x k)) = toAdd (f g) + k * toAdd (f x) := by
+  rw [map_mul, toAdd_mul, toAdd_map_zpowZtwo]
+
+/-- **The pivot row at a selected marking**: `ν'(w) = ν'(σ) − c₀·ν'(x₀) = 1`. -/
+theorem toAdd_nu_sqPivot_selected
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) : toAdd (nu' (sqPivot h)) = 1 := by
+  rw [sqPivot, toAdd_nu_sqMixPivotElem, hsigma, hx0, toAdd_ofAdd, toAdd_ofAdd, mul_zero, sub_zero]
+
+variable (h) in
+/-- **The cleared `v`-letter** `V_j = v_j · w^{−ν'(v_j)}`: the handle letter with its `ν'`-row
+subtracted off along the pivot. -/
+noncomputable def sqEichV (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (j : Fin h) : (DSq h : Type) :=
+  sqGen h (sqHandleIdxV j) *
+    (zpowZtwo (isProP_DSq h) (sqPivot h) (toAdd (nu' (sqGen h (sqHandleIdxV j)))))⁻¹
+
+variable (h) in
+/-- **The cleared `u`-letter** `U_j = w^{−ν'(u_j)} · u_j`.  (The pivot power is written on the
+left: the relator meets `u_j` first inside `[u_j, v_j]`.) -/
+noncomputable def sqEichU (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (j : Fin h) : (DSq h : Type) :=
+  (zpowZtwo (isProP_DSq h) (sqPivot h) (toAdd (nu' (sqGen h (sqHandleIdxU j)))))⁻¹ *
+    sqGen h (sqHandleIdxU j)
+
+variable {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+
+@[simp] theorem toAdd_nuLam_sqEichV : toAdd (nuLam h (sqEichV h nu' j)) = 0 := by
+  rw [sqEichV, map_mul, toAdd_mul, map_inv, toAdd_inv, toAdd_map_zpowZtwo, toAdd_nuLam_sqPivot,
+    nuLam_handleV, toAdd_one, mul_zero, neg_zero, add_zero]
+
+@[simp] theorem toAdd_nuLam_sqEichU : toAdd (nuLam h (sqEichU h nu' j)) = 0 := by
+  rw [sqEichU, map_mul, toAdd_mul, map_inv, toAdd_inv, toAdd_map_zpowZtwo, toAdd_nuLam_sqPivot,
+    nuLam_handleU, toAdd_one, mul_zero, neg_zero, zero_add]
+
+theorem toAdd_nu_sqEichV (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) : toAdd (nu' (sqEichV h nu' j)) = 0 := by
+  rw [sqEichV, map_mul, toAdd_mul, map_inv, toAdd_inv, toAdd_map_zpowZtwo,
+    toAdd_nu_sqPivot_selected nu' hsigma hx0, mul_one, add_neg_cancel]
+
+theorem toAdd_nu_sqEichU (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) : toAdd (nu' (sqEichU h nu' j)) = 0 := by
+  rw [sqEichU, map_mul, toAdd_mul, map_inv, toAdd_inv, toAdd_map_zpowZtwo,
+    toAdd_nu_sqPivot_selected nu' hsigma hx0, mul_one, neg_add_cancel]
+
+variable (h nu' j) in
+/-- **The Eichler frame** at handle `j`, with `V`-dressings of weight `e, e', 2e', d`:
+
+```text
+m = ( σ·V^e , x₀·V^{e'} , x₁·V^{2e'} , U·V^d , V )
+```
+
+with every other letter left standing.  The `2e'` on the `x₁`-slot is forced by the `L_sq`
+core's own row `ν(x₁) = 2ν(x₀)`, which the frame must respect slot by slot. -/
+noncomputable def sqEichFrame (e e' d : ℤ_[2]) : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 0 then dsqSigma h * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) e else
+    if (i : ℕ) = 1 then dsqX0 h * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) e' else
+    if (i : ℕ) = 2 then dsqX1 h * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 * e') else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then
+      sqEichU h nu' j * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) d else
+    if (i : ℕ) = (sqHandleIdxV j : ℕ) then sqEichV h nu' j else
+    sqGen h i
+
+variable {e e' d : ℤ_[2]}
+
+@[simp] theorem sqEichFrame_zero :
+    sqEichFrame h nu' j e e' d 0 = dsqSigma h * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) e := by
+  simp only [sqEichFrame, sqVal_zero]
+  norm_num
+
+@[simp] theorem sqEichFrame_one :
+    sqEichFrame h nu' j e e' d 1 = dsqX0 h * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) e' := by
+  simp only [sqEichFrame, sqVal_one]
+  norm_num
+
+@[simp] theorem sqEichFrame_two :
+    sqEichFrame h nu' j e e' d 2
+      = dsqX1 h * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 * e') := by
+  simp only [sqEichFrame, sqVal_two]
+  norm_num
+
+@[simp] theorem sqEichFrame_handleU :
+    sqEichFrame h nu' j e e' d (sqHandleIdxU j)
+      = sqEichU h nu' j * zpowZtwo (isProP_DSq h) (sqEichV h nu' j) d := by
+  simp only [sqEichFrame]
+  rw [if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega)]
+  simp
+
+@[simp] theorem sqEichFrame_handleV :
+    sqEichFrame h nu' j e e' d (sqHandleIdxV j) = sqEichV h nu' j := by
+  simp only [sqEichFrame]
+  rw [if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val, sqHandleIdxV_val]; omega)]
+  simp
+
+theorem sqEichFrame_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    sqEichFrame h nu' j e e' d (sqHandleIdxU j') = sqGen h (sqHandleIdxU j') := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [sqEichFrame]
+  rw [if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val, sqHandleIdxV_val]; omega)]
+
+theorem sqEichFrame_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    sqEichFrame h nu' j e e' d (sqHandleIdxV j') = sqGen h (sqHandleIdxV j') := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [sqEichFrame]
+  rw [if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxU_val, sqHandleIdxV_val]; omega),
+    if_neg (by simp only [sqHandleIdxV_val]; omega)]
+
+/-- **The λ-row of the Eichler frame is the standard one, unconditionally.**  Both `U` and `V`
+are `λ`-trivial, and so is every `V`-dressing. -/
+theorem sqEichFrame_nuLam (i : Fin (sqRank h)) :
+    nuLam h (sqEichFrame h nu' j e e' d i) = nuLam h (sqGen h i) := by
+  refine Multiplicative.toAdd.injective ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show toAdd (nuLam h (sqEichFrame h nu' j e e' d 0)) = toAdd (nuLam h (dsqSigma h))
+    rw [sqEichFrame_zero, toAdd_mul_zpow, toAdd_nuLam_sqEichV, mul_zero, add_zero]
+  · show toAdd (nuLam h (sqEichFrame h nu' j e e' d 1)) = toAdd (nuLam h (dsqX0 h))
+    rw [sqEichFrame_one, toAdd_mul_zpow, toAdd_nuLam_sqEichV, mul_zero, add_zero]
+  · show toAdd (nuLam h (sqEichFrame h nu' j e e' d 2)) = toAdd (nuLam h (dsqX1 h))
+    rw [sqEichFrame_two, toAdd_mul_zpow, toAdd_nuLam_sqEichV, mul_zero, add_zero]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrame_handleU, toAdd_mul_zpow, toAdd_nuLam_sqEichV, mul_zero, add_zero,
+        toAdd_nuLam_sqEichU, nuLam_handleU, toAdd_one]
+    · rw [sqEichFrame_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrame_handleV, toAdd_nuLam_sqEichV, nuLam_handleV, toAdd_one]
+    · rw [sqEichFrame_handleV_ne hjj]
+
+/-- **The ν-row of the Eichler frame is the standard marking's**, at handle `j`.  The other
+handles are untouched, so their rows must already vanish — vacuous at `h = 1`. -/
+theorem sqEichFrame_nu (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    (hoth : ∀ j' : Fin h, j' ≠ j →
+      nu' (sqGen h (sqHandleIdxU j')) = 1 ∧ nu' (sqGen h (sqHandleIdxV j')) = 1)
+    (i : Fin (sqRank h)) : nu' (sqEichFrame h nu' j e e' d i) = nuSq h (sqGen h i) := by
+  refine Multiplicative.toAdd.injective ?_
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · show toAdd (nu' (sqEichFrame h nu' j e e' d 0)) = toAdd (nuSq h (dsqSigma h))
+    rw [sqEichFrame_zero, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
+      hsigma, nuSq_sigma]
+  · show toAdd (nu' (sqEichFrame h nu' j e e' d 1)) = toAdd (nuSq h (dsqX0 h))
+    rw [sqEichFrame_one, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
+      hx0, nuSq_x0]
+  · show toAdd (nu' (sqEichFrame h nu' j e e' d 2)) = toAdd (nuSq h (dsqX1 h))
+    rw [sqEichFrame_two, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
+      toAdd_nu_dsqX1, hx0, nuSq_x1]
+    simp
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrame_handleU, toAdd_mul_zpow, toAdd_nu_sqEichV hsigma hx0, mul_zero, add_zero,
+        toAdd_nu_sqEichU hsigma hx0, nuSq_handleU, toAdd_one]
+    · rw [sqEichFrame_handleU_ne hjj, (hoth j' hjj).1, nuSq_handleU]
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqEichFrame_handleV, toAdd_nu_sqEichV hsigma hx0, nuSq_handleV, toAdd_one]
+    · rw [sqEichFrame_handleV_ne hjj, (hoth j' hjj).2, nuSq_handleV]
+
+end EichlerFrame
+
 end SqCore
 
 end Dyadic
