@@ -33,7 +33,13 @@ core theorem* (`npc_cross_operators_word`) by transport; the `M` row's core theo
   rather than transported.  Both proofs are the same six rewrites over `hessSlice_commR`.
 * `evalFin_fib_mpcW_handles` — the jet theorem at every `h`;
 * `hessRelZ_mpcW_handles` / `mpcW_hessRelZTarget_handles` — WW4 gap item 5 at every `h`;
-* `mpc_hess_eval_handles` — the honest profinite reading, still resolver-immune at every `h`.
+* `mpc_hess_eval_handles` — the honest profinite reading, still resolver-immune at every `h`;
+* `sqrtNeg10_hessRelZ_handles` / `oneHandle_hessRelZ` — merge gate 9's parameters at every `h`,
+  and the value at the **hash-pinned one-handle certificate** `rawMpcOneHandle`
+  (`M-procyclic-alpha2-r1-eps1-eta1-h1-q2-v001`, digest `94927545…`), which until now had a
+  frozen tree and no second-order value;
+* §7's three `rfl` pins, which fail to elaborate unless the `h = 0` restrictions are literally
+  WMP-J's own propositions.
 
 ## The headline
 
@@ -287,6 +293,122 @@ theorem hessRelZ_mpcW_handles_zero (hV2 : ∀ v : V, v + v = 0) (s' u' : C)
       hα r pp hη hres,
     Fin.sum_univ_zero, add_zero]
   rfl
+
+/-! ## §6. The frozen instances: merge gate 9 at every `h`, and the hash-pinned one-handle tree
+
+WMP-J closed merge gate 9 at `h = 0`.  Row 5 of the selection freeze also pins a **one-handle**
+tree (`Words.Mpc.rawMpcOneHandle`, certificate `M-procyclic-alpha2-r1-eps1-eta1-h1-q2-v001`,
+digest `94927545…`), whose denotation is `mpcW 2 1 1 .one 1` (`denote_rawMpc_oneHandle`) — so
+that instance had a hashed tree and no second-order value.  It has one now. -/
+
+section Frozen
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V] (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+omit dat hdat [Finite C] [Finite V] in
+/-- The `η = 1` display acts as the first power of `σ`, **at every handle count** — WMP-d's
+`actsAsPow_etaOne` is pinned at `Marking 2 C`, and the datum is definitional at every width. -/
+theorem actsAsPow_etaOne_handles {h : ℕ} (t : Marking (2 + 2 * h) C) :
+    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * h))) V := by
+  intro v
+  rw [zpow_one]
+  rfl
+
+/-- **Merge gate 9's second-order row at every handle count**: the `√−10` parameters
+`(α, r, p, η) = (2, 1, 1, .one)` on the frozen genus-`h` word.  The `η`-datum is definitional
+(`actsAsPow_etaOne_handles`), so the hypothesis surface is `hV2`, `hu`, `hVu`, the Gate-E
+normalization and `ResolverLifts` — nothing else. -/
+theorem sqrtNeg10_hessRelZ_handles (hV2 : ∀ v : V, v + v = 0) {h : ℕ} (s u : C)
+    (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0)
+    (vv : Fin (2 + 2 * h + 1) → V) (hv2 : vv (Certificates.x2Idx h) = 0)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    hessRelZ (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat) E E₂ (mpcW 2 1 1 .one h)
+      = plusFormD q q (vv (Certificates.x0Idx h), vv (Certificates.x1Idx h))
+        + ∑ j, polar q (vv (Certificates.hIdxU j)) (vv (Certificates.hIdxV j)) :=
+  hessRelZ_mpcW_handles_plusForm dat hdat s u vv E E₂ hV2 hu hVu hv2 (by norm_num) 1 1
+    (actsAsPow_etaOne_handles E E₂ (lowerMark (h := h) s u)) hres
+
+/-- The `h = 0` regression of the gate-9 row: WMP-J's `sqrtNeg10_hessRelZ`, recovered. -/
+theorem sqrtNeg10_hessRelZ_handles_zero (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    hessRelZ (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat) E E₂
+        (mpcW 2 1 1 .one 0)
+      = plusFormD q q (c₀, c₁) := by
+  rw [sqrtNeg10_hessRelZ_handles dat hdat E E₂ hV2 (h := 0) s u hu hVu ![c₀, c₁, 0] rfl hres,
+    Fin.sum_univ_zero, add_zero]
+  rfl
+
+/-- **The one-handle frozen instance, evaluated.**
+
+`(α, r, ε, η, h) = (2, 1, 1, 1, 1)` — the fourth pinned procyclic tree, whose denotation is
+`mpcW 2 1 1 .one 1` (`Words.Mpc.denote_rawMpc_oneHandle`, against digest `94927545…`).  Its
+evaluated Hessian is the `√−10` plus form shifted by the single hyperbolic plane `b_q(d, e)`. -/
+theorem oneHandle_hessRelZ (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ d e : V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    hessRelZ (Certificates.hessMark (h := 1) s u ![c₀, c₁, 0, d, e]) (kappa0Cocycle dat hdat)
+        E E₂ (mpcW 2 1 1 .one 1)
+      = plusFormD q q (c₀, c₁) + polar q d e := by
+  rw [sqrtNeg10_hessRelZ_handles dat hdat E E₂ hV2 (h := 1) s u hu hVu ![c₀, c₁, 0, d, e] rfl
+      hres,
+    Fin.sum_univ_one]
+  rfl
+
+/-- **The one-handle word's evaluated Hessian, as a function of the core offsets, IS the
+endpoint polynomial** of `mpcHessianCertificate` at `d₀ = q`, translated by the handle plane —
+the `h = 1` twin of `sqrtNeg10_word_eq_certQ`. -/
+theorem oneHandle_word_eq_certQ (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (d e : V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    (fun p : V × V => hessRelZ (Certificates.hessMark (h := 1) s u ![p.1, p.2, 0, d, e])
+        (kappa0Cocycle dat hdat) E E₂ (mpcW 2 1 1 .one 1))
+      = fun p : V × V => plusFormD q q p + polar q d e :=
+  funext fun p => oneHandle_hessRelZ dat hdat E E₂ hV2 s u hu hVu p.1 p.2 d e hres
+
+end Frozen
+
+/-! ## §7. Type-level regression pins
+
+Proof irrelevance makes these `rfl`s trivial *given* the types agree — which is the point: they
+fail to elaborate unless the `h = 0` restrictions of §5 are the **same propositions** as WMP-J's
+own headlines.  This is what keeps the general layer honest against the pinned one. -/
+
+section Pins
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V] (s u : C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- `evalFin_fib_mpcW_handles_zero` is WMP-J's `evalFin_fib_mpcW`, not merely an analogue. -/
+example (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V) {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ)
+    {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (lowerMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V) :
+    evalFin_fib_mpcW_handles_zero dat hdat E E₂ hV2 s u hu hVu c₀ c₁ hα r pp hη
+      = evalFin_fib_mpcW dat hdat s u E E₂ hV2 hu hVu c₀ c₁ hα r pp hη := rfl
+
+/-- `hessRelZ_mpcW_handles_zero` is WMP-J's `hessRelZ_mpcW`, not merely an analogue. -/
+example (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V) {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ)
+    {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (lowerMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    hessRelZ_mpcW_handles_zero dat hdat E E₂ hV2 s u hu hVu c₀ c₁ hα r pp hη hres
+      = hessRelZ_mpcW dat hdat s u E E₂ hV2 hu hVu c₀ c₁ hα r pp hη hres := rfl
+
+/-- The `√−10` instance at `h = 0` is WMP-J's gate-9 row verbatim. -/
+example (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    sqrtNeg10_hessRelZ_handles_zero dat hdat E E₂ hV2 s u hu hVu c₀ c₁ hres
+      = sqrtNeg10_hessRelZ dat hdat s u E E₂ hV2 hu hVu c₀ c₁ hres := rfl
+
+end Pins
 
 end
 
