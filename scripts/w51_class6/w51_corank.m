@@ -131,9 +131,18 @@ qw := [ gQ[2]^(2^(w-1)) : w in [1..CLS] ];
 /* full-layer generators: the weight-w pc generators */
 LGEN := [ [ Q.k : k in [ofs[w]+1 .. ofs[w+1]] ] : w in [1..CLS] ];
 
+/* delta_j depends on m only through m mod P_2 (W50 memo section 5.1), and m mod P_2 depends
+   on (t,s) only mod 2 (U = w^-t u and V = v w^-s with w = sigma x0^-c0, c0 odd).  The graded
+   K_w is likewise determined by K_1, which is span(x1bar, ubar + t*wbar, vbar + s*wbar).  So
+   the whole map delta_j -- image included, not just its rank -- should depend on the marking
+   ONLY through (t mod 2, s mod 2).  IMG records im delta per (level, parity) so the run can
+   check that directly: markings of equal parity must give the SAME subspace, and markings of
+   different parity are expected to differ.  If that holds, four parity classes exhaust the
+   corank question over all markings at this class. */
+IMG := AssociativeArray();
 Say("");
-Say("marking | level | target | domain | rank | corank | defect in im | cert | secs");
-Say("--------+-------+--------+--------+------+--------+--------------+------+------");
+Say("marking | level | target | domain | rank | corank | defect in im | cert | im delta vs same parity | secs");
+Say("--------+-------+--------+--------+------+--------+--------------+------+-------------------------+-----");
 
 for e0 in MARKS do
   t := e0[1]; s := e0[2];
@@ -205,8 +214,23 @@ for e0 in MARKS do
     RS  := RowSpace(A);
     tar := CoordChecked(r^-1, j);
     rk  := Dimension(RS);
-    Say(Sprintf("%2o %2o   |  L%o   | %6o | %6o | %4o | %6o | %-12o | %-4o | %o",
-        t, s, j, dm[j], #rows, rk, dm[j]-rk, tar in RS, certs[j-1], Cputime(tj)));
+    key := [j, t mod 2, s mod 2];
+    if IsDefined(IMG, key) then
+      same := (IMG[key] eq RS) select "same as first (t,s) parity" else "*** DIFFERS ***";
+    else
+      IMG[key] := RS; same := Sprintf("(reference for parity %o%o)", t mod 2, s mod 2);
+    end if;
+    Say(Sprintf("%2o %2o   |  L%o   | %6o | %6o | %4o | %6o | %-12o | %-4o | %-23o | %o",
+        t, s, j, dm[j], #rows, rk, dm[j]-rk, tar in RS, certs[j-1], same, Cputime(tj)));
+    if j eq CLS and assigned ctrl then
+      /* W50's control: a random layer vector should land in im delta with probability 2^-corank */
+      NC := StringToInteger(ctrl); hit := 0;
+      for k in [1..NC] do
+        if Random(Generic(RS)) in RS then hit +:= 1; end if;
+      end for;
+      Say(Sprintf("   control L%o (t,s)=(%o,%o): %o of %o random layer vectors lie in im delta (codim %o predicts %o)",
+          j, t, s, hit, NC, dm[j]-rk, RealField(4)!(NC/2^(dm[j]-rk))));
+    end if;
     ok, x := IsConsistent(A, tar);
     if not ok then
       Say(Sprintf("   *** INFEASIBLE at L%o for (t,s) = (%o,%o) ***", j, t, s));
