@@ -149,7 +149,11 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_subgroups_of_markedSupply (B : Marked
   gammaR_lSq_equiv_galK_oddDegree_of_orientedClearAtUnitPivot B FF T D hdeg
     (SqCore.sqNuOrientedClearAtUnitPivot_of_families hfix htr hsc) hsupply ramifiedData
 
-/-- **…and the marked supply is not a new residual.**  At odd degree it costs only
+/-- ⚠ **Strictly redundant given the grand assembly** (W41): with `hpres` present, `hfix` alone
+already reaches this conclusion, so `htr` and `hsc` buy nothing here — see the honesty note
+below.
+
+**…and the marked supply is not a new residual.**  At odd degree it costs only
 `MarkedFrame.SqCupAdaptedFramePresentation K` (`sqMarkedForwardSupply_oddDegree`), which the
 grand assembly already carries.  So the `h ≥ 1` price of the odd-degree row *along this lane*,
 over the existing stage-lane residual, is exactly the three model-side binders `hfix`, `htr`,

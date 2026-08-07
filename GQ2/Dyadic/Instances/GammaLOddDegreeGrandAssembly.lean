@@ -212,7 +212,19 @@ def tateDualityG_gamma_oddDegree (B : MarkedRecip Rec K) {FF : DyadicUnitFiltrat
 
 /-- **The `h = 0` full circle.**  At `[K : ℚ₂] = 1` the χ-free clearing binder is the theorem
 `sqNuClearHypothesis_zero`, so the entire new machine reproduces `Γ_{R,q_K} ≅ G_K` over the
-frame residual alone. -/
+frame residual alone.
+
+⚠ **Two declarations carry this name; this is the conditional one.**  It binds
+`MarkedFrame.SqCupAdaptedFramePresentation K`, the stage lane's frame-tracking residual, which is
+what makes it a full-circle *regression* for this assembly rather than the endpoint to cite.
+(Its `_oddDegree` sibling `gammaR_lSq_equiv_galK_oddDegree` binds `SqNuClearHypothesis h` on top
+of that; at `h = 0` that one is discharged here by `sqNuClearHypothesis_zero`.)
+
+The **unconditional** degree-one endpoint is
+`GQ2.Dyadic.LSquare.NuAdapted.gammaR_lSq_equiv_galK_degreeOne`
+(`GQ2/Dyadic/SqCore/PivotSeedD0.lean` §6): no frame residual, no clearing binder, and a verified
+root-level print of std-3 + `{B1, B3c, B6, B7, B8, B9, B11a}` — a strict subset of the frozen
+`ℚ₂` capstone's nine.  **That** is the one the paper should quote at degree one. -/
 theorem gammaR_lSq_equiv_galK_degreeOne (B : MarkedRecip Rec K)
     {FF : DyadicUnitFiltration K} (T : OrientedTameQuotientK B FF)
     (D : FiniteDyadicParameters K FF) (hdeg : Module.finrank ℚ_[2] K = 1)
