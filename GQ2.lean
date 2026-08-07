@@ -697,6 +697,7 @@ import GQ2.Dyadic.SqCore.CommFrames
 import GQ2.Dyadic.SqCore.EichRefutation
 import GQ2.Dyadic.SqCore.GradedTwo
 import GQ2.Dyadic.SqCore.GradedThree
+import GQ2.Dyadic.SqCore.GradedSelect
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
