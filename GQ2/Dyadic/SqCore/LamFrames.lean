@@ -83,13 +83,18 @@ impose it — the relator identity will).
 
 ## What this file does **not** settle
 
-The relator identity is **open**, and this file adds no evidence either way beyond one
-satisfiability pin: at the *standard* marking the Eichler frame at `(e, e', d) = (0, 0, 0)` is
-literally the identity frame (`sqEichFrame_nuSq_zero`), so the ansatz is not empty.  The bare
-frame above is the *leading term*; the class-two balance of
-`docs/dyadic/eichler-reduction-note.md` already prices its first correction (`e' = 1`,
-`e = 2 + c₀`).  What §3 buys is that the obligation is now a **single closed equation in
-`D_sq h`**, so a correction may be inserted in any slot without re-proving a single row.
+The relator identity is **open**.  Two things are added here, in opposite directions:
+
+* it is **satisfiable** — at the *standard* marking the Eichler frame at `(e, e', d) = (0, 0, 0)`
+  is literally the identity frame (`sqEichFrame_nuSq_zero`), so the ansatz is not empty; and
+* ⚠ it is **rigid** — §4 shows the `d`-slot only *conjugates*
+  (`sqEichFrame_handleComm`, `sqRelWord_sqEichFrame_one_d`), so `d` is invisible modulo `γ₃`,
+  the class-two balance of `docs/dyadic/eichler-reduction-note.md` fixes `(e, e')` outright
+  (`e' = 1`, `e = 2 + c₀` at `ν'(u_j) = 1`), and from class three on the five-word ansatz has a
+  single parameter acting by conjugation.  See §4's preamble for the consequences.
+
+What §3 buys is that the obligation is now a **single closed equation in `D_sq h`**, so a
+correction may be inserted in any slot without re-proving a single row.
 
 ## Contents
 
@@ -97,7 +102,9 @@ frame above is the *leading term*; the class-two balance of
 * **§2** `sqEichV`, `sqEichU`, `sqEichFrame` and their rows (§2a), surjectivity of any
   endomorphism realizing the frame (§2b), and the one-handle clearing step (§2c);
 * **§3** `SqEichRelWord` and the residual reduced to it, at every `h`;
-* **§4** stress pins, **§5** committed axiom prints.
+* **§4** the shape of the relator identity: `sqEichFrame_handleComm`,
+  `sqRelWord_sqEichFrame_one`, `sqRelWord_sqEichFrame_one_d`;
+* **§5** stress pins, **§6** committed axiom prints.
 
 ## Axiom hygiene
 
@@ -580,7 +587,112 @@ theorem sqLamMarkTransitivity_one_of_eichRelWord
 
 end Reduction
 
-/-! ## §4 Stress pins -/
+/-! ## §4 The shape of the relator identity: the `d`-slot only conjugates
+
+`V^d` commutes with `V`, so the moved handle commutator is the `d = 0` one **conjugated** by
+`V^d` (`sqEichFrame_handleComm`), and at one handle the entire `d`-dependence of the relator is
+the single commutator `[[U, V], V^d]` (`sqRelWord_sqEichFrame_one_d`).
+
+⚠ **This is a rigidity statement, and it is bad news for the ansatz as written.**  `[U, V]` is
+already a commutator, so `[[U, V], V^d]` lies in the *third* term of the lower central series:
+`d` is invisible modulo `γ₃`.  That is exactly why the class-two balance of
+`docs/dyadic/eichler-reduction-note.md` forces `e` and `e'` (its `a₀ = −k`, `a₂ = 2a₀`,
+`a₁ = −k(2+c)`) and leaves its `a_u` — our `d` — undetermined: `a_u` enters `Δ₂` only through
+`[ρ̄, v̄]`, and its `v̄`-component pairs `v̄` with itself.  Counting what is left:
+
+* class two fixes `(e, e')` outright — the balance is rigid, not a family;
+* from class three on the ansatz has **one** parameter, `d`, and it acts only by conjugation;
+* the `x₁`-slot's weight `2e'` is not free either: the rows permit any `V`-power there
+  (`λ(V) = ν'(V) = 0`), so `2e'` is again the class-two balance's `a₂ = 2a₀` and not a row
+  condition, the module docstring's `L_sq`-row gloss notwithstanding.
+
+So the five-word Eichler ansatz is a **zero-parameter** ansatz beyond class three, and every
+class from four up has to come out right by itself.  A refutation of *this* frame would therefore
+say very little about the residual (§1 quantifies over all frames); the useful conclusion in the
+other direction is that the natural widening — dressing the four moved slots by arbitrary
+`λ`-trivial, `ν'`-trivial elements rather than by `V`-powers — costs nothing on any row and is
+where the parameters have to come from. -/
+
+section RelWordShape
+
+variable {h : ℕ}
+
+/-- A `ℤ₂`-power of `x` commutes with `x`.  (Local restatement: `ZtwoPowering` is upstream.) -/
+theorem commute_zpowZtwo_self (x : (DSq h : Type)) (k : ℤ_[2]) :
+    Commute (zpowZtwo (isProP_DSq h) x k) x := by
+  have hx : zpowZtwo (isProP_DSq h) x 1 = x := zpowZtwo_one_exp _ x
+  show zpowZtwo (isProP_DSq h) x k * x = x * zpowZtwo (isProP_DSq h) x k
+  calc zpowZtwo (isProP_DSq h) x k * x
+      = zpowZtwo (isProP_DSq h) x k * zpowZtwo (isProP_DSq h) x 1 := by rw [hx]
+    _ = zpowZtwo (isProP_DSq h) x (k + 1) := (zpowZtwo_add _ x k 1).symm
+    _ = zpowZtwo (isProP_DSq h) x (1 + k) := by rw [add_comm]
+    _ = zpowZtwo (isProP_DSq h) x 1 * zpowZtwo (isProP_DSq h) x k := zpowZtwo_add _ x 1 k
+    _ = x * zpowZtwo (isProP_DSq h) x k := by rw [hx]
+
+variable {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+  {e e' d : ℤ_[2]}
+
+/-- **The `d`-slot only conjugates**: the frame's handle commutator at `j` is `[U, V]`
+conjugated by `V^d`. -/
+theorem sqEichFrame_handleComm :
+    commP (sqEichFrame h nu' j e e' d (sqHandleIdxU j))
+        (sqEichFrame h nu' j e e' d (sqHandleIdxV j))
+      = conjP (commP (sqEichU h nu' j) (sqEichV h nu' j))
+          (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) d) := by
+  rw [sqEichFrame_handleU, sqEichFrame_handleV, commP_mul_left,
+    commP_eq_one_of_commute (commute_zpowZtwo_self _ _), mul_one]
+
+/-- At one handle the handle block is a single commutator. -/
+private theorem handleWord_one {G : Type*} [Group G] (u v : Fin 1 → G) :
+    handleWord u v = commP (u 0) (v 0) := by
+  rw [handleWord, ← List.ofFn_eq_map]
+  simp
+
+/-- **The relator of the Eichler frame at one handle, unpacked.** -/
+theorem sqRelWord_sqEichFrame_one
+    (nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])) (e e' d : ℤ_[2]) :
+    sqRelWord (sqEichFrame 1 nu' 0 e e' d)
+      = sqWord (dsqSigma 1 * zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) e)
+            (dsqX0 1 * zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) e')
+            (dsqX1 1 * zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) (2 * e'))
+          * conjP (commP (sqEichU 1 nu' 0) (sqEichV 1 nu' 0))
+              (zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) d) := by
+  rw [sqRelWord, handleWord_one, sqEichFrame_zero, sqEichFrame_one, sqEichFrame_two,
+    sqEichFrame_handleComm]
+
+/-- **The whole `d`-dependence of the relator is one commutator** — and it is a commutator *of a
+commutator*, hence a `γ₃`-element: `d` is invisible modulo `γ₃`. -/
+theorem sqRelWord_sqEichFrame_one_d
+    (nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])) (e e' d : ℤ_[2]) :
+    sqRelWord (sqEichFrame 1 nu' 0 e e' d)
+      = sqRelWord (sqEichFrame 1 nu' 0 e e' 0) *
+          commP (commP (sqEichU 1 nu' 0) (sqEichV 1 nu' 0))
+            (zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) d) := by
+  rw [sqRelWord_sqEichFrame_one, sqRelWord_sqEichFrame_one, SectionThree.zpowZtwo_zero]
+  simp only [conjP, commP, inv_one, one_mul, mul_one]
+  group
+
+/-- **The relator identity at one handle, as an equation about the core word alone**: the dressed
+core must be the `V^d`-conjugate of `[V, U]`.  Nothing else is left. -/
+theorem sqRelWord_sqEichFrame_one_eq_one_iff
+    (nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])) (e e' d : ℤ_[2]) :
+    sqRelWord (sqEichFrame 1 nu' 0 e e' d) = 1 ↔
+      sqWord (dsqSigma 1 * zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) e)
+          (dsqX0 1 * zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) e')
+          (dsqX1 1 * zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) (2 * e'))
+        = conjP (commP (sqEichV 1 nu' 0) (sqEichU 1 nu' 0))
+            (zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) d) := by
+  have hconj : conjP (commP (sqEichV 1 nu' 0) (sqEichU 1 nu' 0))
+      (zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) d)
+      = (conjP (commP (sqEichU 1 nu' 0) (sqEichV 1 nu' 0))
+          (zpowZtwo (isProP_DSq 1) (sqEichV 1 nu' 0) d))⁻¹ := by
+    simp only [conjP, commP]
+    group
+  rw [sqRelWord_sqEichFrame_one, hconj, mul_eq_one_iff_eq_inv]
+
+end RelWordShape
+
+/-! ## §5 Stress pins -/
 
 section StressTests
 
@@ -641,7 +753,7 @@ example (h : ℕ) (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_
 
 end StressTests
 
-/-! ## §5 Axiom pins
+/-! ## §6 Axiom pins
 
 Committed prints: the whole file is **std-3** (`propext`, `Classical.choice`, `Quot.sound`); no
 census axiom is reachable. -/
@@ -670,6 +782,11 @@ section AxiomPins
 #print axioms sqLamMarkTransitivity_of_eichRelWord
 #print axioms sqHandleMixFixesCore_of_eichRelWord
 #print axioms sqLamMarkTransitivity_one_of_eichRelWord
+#print axioms commute_zpowZtwo_self
+#print axioms sqEichFrame_handleComm
+#print axioms sqRelWord_sqEichFrame_one
+#print axioms sqRelWord_sqEichFrame_one_d
+#print axioms sqRelWord_sqEichFrame_one_eq_one_iff
 #print axioms sqEichFrame_nuSq_zero
 
 end AxiomPins
