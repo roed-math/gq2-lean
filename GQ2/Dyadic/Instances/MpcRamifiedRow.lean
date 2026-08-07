@@ -928,3 +928,80 @@ end Pairing
 end
 
 end GQ2.Dyadic.MpcRam
+
+namespace GQ2.Dyadic.MProcyclicExact
+
+noncomputable section
+
+open GQ2 GQ2.FoxH
+open GQ2.Dyadic GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
+open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
+open GQ2.Dyadic.Count GQ2.Dyadic.RowActionImage
+
+/-- **The resolver package the ramified row needs**: the two `WordLift` levels of
+`exists_resolver_resolvedFamily` *and* the base group itself, all at one and the same `E`.  The
+ramified `δ`-letter value `MCompactRam.heisEvalZ_deltaCert_ram` needs all three at once — the
+two jets live in the `WordLift` levels and the base's triviality in `C`. -/
+theorem exists_resolver_ram {alpha r pp h q : ℕ} (d : EtaDisplay)
+    {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+    {B : Type*} [AddCommGroup B] [DistribMulAction C B]
+    (hA₂ : ∀ a : A, a + a = 0) (hB₂ : ∀ b : B, b + b = 0) :
+    ∃ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ),
+      resolvedFamily alpha r pp h q d (4 * Monoid.exponent C) = mpcFamOf alpha r pp h q d E E₂
+        ∧ ResolverLifts E (WordLift A C) ∧ ResolverLifts E (WordLift B C)
+        ∧ ResolverLifts E C := by
+  have hconst : ResolverLifts (fun _ ↦ ((omega2Exp (4 * Monoid.exponent C) : ℕ) : ℤ)) C := by
+    intro g
+    rw [zpow_natCast]
+    exact powOmega2_pow_eq g ((Monoid.order_dvd_exponent g).trans ⟨4, by ring⟩)
+      (fourMulExponent_ne_zero_and_even C).1
+  cases d with
+  | one =>
+      exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+        resolverLifts_uniformWordLift_ramified hA₂, resolverLifts_uniformWordLift_ramified hB₂,
+        hconst⟩
+  | lit k =>
+      exact ⟨_, _, (mpcFamOf_const _ _ _ _ _ _ _).symm,
+        resolverLifts_uniformWordLift_ramified hA₂, resolverLifts_uniformWordLift_ramified hB₂,
+        hconst⟩
+  | hat num den =>
+      refine ⟨_, _, rfl, NProcyclic.resolverLifts_npcResolver_wordLift hA₂ ⟨num, den⟩,
+        NProcyclic.resolverLifts_npcResolver_wordLift hB₂ ⟨num, den⟩, ?_⟩
+      intro g
+      rw [npcResolver_omega2, zpow_natCast]
+      exact powOmega2_pow_eq g ((Monoid.order_dvd_exponent g).trans ⟨4, by ring⟩)
+        (fourMulExponent_ne_zero_and_even C).1
+
+set_option maxHeartbeats 1600000 in
+/-- **The residual procyclic-`M` ramified input, proved.**
+
+On every simple elementary coefficient with `tau` fixed-point free, the traced pairing of the
+corrected procyclic-`M` family at the uniform level separates the nonzero even normal
+coordinates.  This is the last of the three second-order inputs `uniformPushedHsimp_of_pairings`
+needs, and the only one that had to survive the loss of `hS₂`.
+
+⚠ `1 ≤ alpha` is genuinely used: it is what makes the balancing power `C₀^{2^α}` act by
+`S₂^{2sm}` and so what makes the linear copy jet-zero.  Every consumer
+(`ramifiedActionImageStokes_of_separation`, `uniformPushedHsimp_of_ramified_separation`) already
+carries it. -/
+theorem ramifiedNormalPairingSeparates {alpha r pp h q : ℕ} {d : EtaDisplay} (hα : 1 ≤ alpha) :
+    RamifiedNormalPairingSeparates alpha r pp h q d := by
+  intro M _ _ _ _ _ _ hM₂ hsimple hτfpf p hp
+  have hM₂D : ∀ lam : ElemDual M, lam + lam = 0 := fun lam ↦ lam.add_self_eq_zero
+  obtain ⟨E, E₂, hfam, hresA, hresD, hres⟩ :=
+    exists_resolver_ram (alpha := alpha) (r := r) (pp := pp) (h := h) (q := q)
+      (C := ActionImage (2 + 2 * h) q (mpcW alpha r pp d h) M) (A := M) (B := ElemDual M)
+      d hM₂ hM₂D
+  set t := actionImageMarking (2 + 2 * h) q (mpcW alpha r pp d h) M with htdef
+  have hwild : ∀ (i : Fin (2 + 2 * h + 1)) (m : M), t.x i • m = m :=
+    actionImage_wild_smul hM₂ hsimple
+  have hτfpf' : ∀ m : M, t.τ • m = m → m = 0 := fun m hm ↦ hτfpf m hm
+  have hTodd : ∀ m : M, powOmega2 t.τ • m = m :=
+    actionImage_tau_powOmega2_smul_trivial hM₂ hsimple
+  rw [hfam]
+  exact MpcRam.mpcFam_ramifiedNormal_separates_left t E E₂ hα hM₂ hwild hτfpf' hTodd
+    hresA hresD hres p hp
+
+end
+
+end GQ2.Dyadic.MProcyclicExact
