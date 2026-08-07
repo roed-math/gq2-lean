@@ -344,6 +344,61 @@ theorem nu_selDress (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
     exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
   · rw [selDress_of_ne hi, map_one]
 
+/-! ### The five slot images of the dressed frame -/
+
+/-- The `σ`-slot. -/
+theorem selHom_sqArbFrame_zero :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 0)
+      = ⟨0, 1, 0, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_zero, selDress_zero, mul_one, dsqSigma, selHom_gen, selMark_zero]
+
+/-- The `x₁`-slot. -/
+theorem selHom_sqArbFrame_two :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 2)
+      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_two, selDress_two, mul_one, dsqX1, selHom_gen, selMark_two]
+
+/-- The untouched handles die. -/
+theorem selHom_sqArbFrame_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleU_ne hne, selDress_handleU, mul_one, selHom_gen,
+    selMark_handleU_ne hne]
+
+theorem selHom_sqArbFrame_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleV_ne hne, selDress_handleV, mul_one, selHom_gen,
+    selMark_handleV_ne hne]
+
+/-- ⭐ The **moved** handle letter `U`, at the canonical uncleared row. -/
+theorem selHom_sqEichU_of_cleared (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqEichU h nu' j) = ⟨A, 0, C, 0, 0, 0⟩ := by
+  rw [selHom_sqEichU, hu]; ext <;> simp
+
+/-- ⭐ …and `V`. -/
+theorem selHom_sqEichV_of_one (hv : selS h nu' j = 1) :
+    selHom h nu' j A B C D P Q hd he (sqEichV h nu' j) = ⟨B, 0, D, -B, 0, 0⟩ := by
+  rw [selHom_sqEichV, hv]; ext <;> simp
+
+/-- ⭐ **The dressed `x₀`-slot** is the inverse of the `U`-slot: this is the whole dressing. -/
+theorem selHom_sqArbFrame_one (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 1)
+      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_one, selDress_one, map_mul, dsqX0, selHom_gen, selMark_one,
+    one_mul, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+theorem selHom_sqArbFrame_handleU (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j)) = ⟨A, 0, C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleU, selDress_handleU, mul_one, selHom_sqEichU_of_cleared hu]
+
+theorem selHom_sqArbFrame_handleV (hv : selS h nu' j = 1) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleV, selDress_handleV, mul_one, selHom_sqEichV_of_one hv]
+
 /-- ⭐⭐ **The class-three gate does not obstruct the arbitrary-dressing frame** — now a statement
 about `sqArbFrame h nu' j a` itself, not about a tuple in a test group.
 
@@ -363,37 +418,21 @@ theorem sqRelWord_selHom_sqArbFrame (hu : selT h nu' j = 0) (hv : selS h nu' j =
     have hx := hd; rw [hu, hv] at hx; linear_combination hx
   have he' : 2 * Q - C = 0 := by
     have hx := he; rw [hu, hv] at hx; linear_combination hx
-  have hUv : selHom h nu' j A B C D P Q hd he (sqEichU h nu' j)
-      = ⟨A, 0, C, 0, 0, 0⟩ := by rw [selHom_sqEichU, hu]; ext <;> simp
-  have hVv : selHom h nu' j A B C D P Q hd he (sqEichV h nu' j)
-      = ⟨B, 0, D, -B, 0, 0⟩ := by rw [selHom_sqEichV, hv]; ext <;> simp
-  have hs0 : selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 0)
-      = ⟨0, 1, 0, 0, 0, 0⟩ := by
-    rw [sqArbFrame, sqArbBase_zero, selDress_zero, mul_one, dsqSigma, selHom_gen, selMark_zero]
-  have hs1 : selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 1)
-      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
-    rw [sqArbFrame, sqArbBase_one, selDress_one, map_mul, dsqX0, selHom_gen, selMark_one,
-      one_mul, map_inv, hUv]
-    ext <;> simp
-  have hs2 : selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDress h nu' j) 2)
-      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
-    rw [sqArbFrame, sqArbBase_two, selDress_two, mul_one, dsqX1, selHom_gen, selMark_two]
-  have hsU : selHom h nu' j A B C D P Q hd he
-      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j)) = ⟨A, 0, C, 0, 0, 0⟩ := by
-    rw [sqArbFrame, sqArbBase_handleU, selDress_handleU, mul_one, hUv]
-  have hsV : selHom h nu' j A B C D P Q hd he
-      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
-    rw [sqArbFrame, sqArbBase_handleV, selDress_handleV, mul_one, hVv]
-  have hsUne : ∀ j' : Fin h, j' ≠ j → selHom h nu' j A B C D P Q hd he
-      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxU j')) = 1 := by
-    intro j' hne
-    rw [sqArbFrame, sqArbBase_handleU_ne hne, selDress_handleU, mul_one, selHom_gen,
-      selMark_handleU_ne hne]
-  have hsVne : ∀ j' : Fin h, j' ≠ j → selHom h nu' j A B C D P Q hd he
-      (sqArbFrame h nu' j (selDress h nu' j) (sqHandleIdxV j')) = 1 := by
-    intro j' hne
-    rw [sqArbFrame, sqArbBase_handleV_ne hne, selDress_handleV, mul_one, selHom_gen,
-      selMark_handleV_ne hne]
+  have hs0 := selHom_sqArbFrame_zero (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+    (hd := hd) (he := he)
+  have hs1 := selHom_sqArbFrame_one (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hs2 := selHom_sqArbFrame_two (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+    (hd := hd) (he := he)
+  have hsU := selHom_sqArbFrame_handleU (B := B) (D := D) (P := P) (Q := Q)
+    (hd := hd) (he := he) hu
+  have hsV := selHom_sqArbFrame_handleV (A := A) (C := C) (P := P) (Q := Q)
+    (hd := hd) (he := he) hv
+  have hsUne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selHom_sqArbFrame_handleU_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (hd := hd) (he := he) hne
+  have hsVne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selHom_sqArbFrame_handleV_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (hd := hd) (he := he) hne
   rw [SqU4.sqRelWord_eq_one_iff]
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
   · rw [hs1, hs2]
@@ -419,6 +458,62 @@ theorem sqRelWord_selHom_sqArbFrame (hu : selT h nu' j = 0) (hv : selS h nu' j =
     linear_combination (4 * Q) * hd' - (3 * A + B) * he' + (A * Q - P * Q) * h8
 
 end Marking
+
+/-! ### ⭐ Non-vacuity, and the identification with `GradedThree` §6's committed witness
+
+The hypotheses of `sqRelWord_selHom_sqArbFrame` are met by an explicit selected marking — the
+bumped marking `nuSel h j 0 1`, i.e. `ν'(u_j) = 0`, `ν'(v_j) = 1`, every other row standard.  At
+one handle, at the free weights `(A, C) = (2, 2)` on `u₀` and `(B, D) = (1, 1)` on `v₀`, the five
+slot images are **exactly** `GradedThree.u4WitFrame`, so the committed six-tuple evidence and the
+statement about `sqArbFrame` are the same fact. -/
+
+section NonVacuous
+
+variable {h : ℕ} {j : Fin h}
+
+@[simp] theorem selT_nuSel : selT h (nuSel h j 0 1) j = 0 := by
+  simp only [selT, nuSel_handleU, toAdd_ofAdd, map_zero]
+
+@[simp] theorem selS_nuSel : selS h (nuSel h j 0 1) j = 1 := by
+  simp only [selS, nuSel_handleV, toAdd_ofAdd, map_one]
+
+/-- The `(a,b)`-parity of the witness weights: `A·ν'(v₀) − B·ν'(u₀) = 2 = 2·7` in `ℤ/8`. -/
+theorem selWitD (h : ℕ) (j : Fin h) :
+    2 * (7 : gr3R) + (2 * selS h (nuSel h j 0 1) j - 1 * selT h (nuSel h j 0 1) j) = 0 := by
+  rw [selT_nuSel, selS_nuSel]; decide
+
+/-- The `(b,c)`-parity of the witness weights: `ν'(u₀)·D − ν'(v₀)·C = −2 = −2·1`. -/
+theorem selWitE (h : ℕ) (j : Fin h) :
+    2 * (1 : gr3R) + (selT h (nuSel h j 0 1) j * 1 - selS h (nuSel h j 0 1) j * 2) = 0 := by
+  rw [selT_nuSel, selS_nuSel]; decide
+
+/-- ⭐ **The gate verdict at a concrete selected marking**, at every handle count and handle. -/
+theorem sqRelWord_selHom_sqArbFrame_nuSel (h : ℕ) (j : Fin h) :
+    sqRelWord (fun i => selHom h (nuSel h j 0 1) j 2 1 2 1 7 1 (selWitD h j) (selWitE h j)
+      (sqArbFrame h (nuSel h j 0 1) j (selDress h (nuSel h j 0 1) j) i)) = 1 :=
+  sqRelWord_selHom_sqArbFrame selT_nuSel selS_nuSel
+
+/-- ⭐⭐ **The port is exact**: at one handle the five slot images of the dressed frame are
+`GradedThree` §6's committed tuple `u4WitFrame`, entry for entry.  So `sqRelWord_u4WitFrame` is
+now a theorem about `sqArbFrame 1 ν' 0 a` on `D_sq 1`, with `a₁ = (sqEichU 1 ν' 0)⁻¹`. -/
+theorem selHom_sqArbFrame_eq_u4WitFrame :
+    (fun i => selHom 1 (nuSel 1 0 0 1) 0 2 1 2 1 7 1 (selWitD 1 0) (selWitE 1 0)
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDress 1 (nuSel 1 0 0 1) 0) i)) = u4WitFrame := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [selHom_sqArbFrame_zero]; decide
+  · rw [selHom_sqArbFrame_one selT_nuSel]; decide
+  · rw [selHom_sqArbFrame_two]; decide
+  · rw [Subsingleton.elim j' 0, selHom_sqArbFrame_handleU selT_nuSel]; decide
+  · rw [Subsingleton.elim j' 0, selHom_sqArbFrame_handleV selS_nuSel]; decide
+
+/-- …and the relator identity of `GradedThree` §6 is recovered through the port. -/
+example : sqRelWord (fun i => selHom 1 (nuSel 1 0 0 1) 0 2 1 2 1 7 1 (selWitD 1 0) (selWitE 1 0)
+    (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDress 1 (nuSel 1 0 0 1) 0) i)) = 1 := by
+  rw [selHom_sqArbFrame_eq_u4WitFrame]
+  exact sqRelWord_u4WitFrame
+
+end NonVacuous
 
 end SqCore
 
