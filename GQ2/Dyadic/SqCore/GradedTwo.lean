@@ -223,9 +223,8 @@ variable {h : ℕ}
 
 /-- ⭐ **The handle block contributes exactly the sum of the handle pairings.** -/
 theorem SqHeis.handleWord_c (u v : Fin h → SqHeis R) :
-    (handleWord u v).c
-      = (((List.finRange h).map fun j => (u j).a * (v j).b - (v j).a * (u j).b)).sum := by
-  rw [handleWord, SqHeis.prod_of_central _ (by simp)]
+    (handleWord u v).c = ∑ j, ((u j).a * (v j).b - (v j).a * (u j).b) := by
+  rw [handleWord, SqHeis.prod_of_central _ (by simp), Fin.sum_univ_def]
   simp [List.map_map, Function.comp_def]
 
 /-- The abelian `a`-coordinate of the core word: the relator vector `−4x̄₀ + 2x̄₁`. -/
@@ -272,9 +271,8 @@ and `x₁`-columns alone. -/
 def sqHeisDefect (m : Fin (sqRank h) → SqHeis R) : R :=
   ((m 0).a * (m 1).b - (m 1).a * (m 0).b)
     + 10 * ((m 1).a * (m 1).b) + (m 2).a * (m 2).b - 8 * ((m 1).a * (m 2).b)
-    + (((List.finRange h).map fun j =>
-        (m (sqHandleIdxU j)).a * (m (sqHandleIdxV j)).b
-          - (m (sqHandleIdxV j)).a * (m (sqHandleIdxU j)).b)).sum
+    + ∑ j : Fin h, ((m (sqHandleIdxU j)).a * (m (sqHandleIdxV j)).b
+        - (m (sqHandleIdxV j)).a * (m (sqHandleIdxU j)).b)
 
 /-- ⭐⭐ **The relator in the test group, in closed form.**  The central coordinate splits into
 the linear part `−4c(x₀) + 2c(x₁)`, which the central coordinates of the marking can adjust
@@ -361,6 +359,205 @@ theorem SqHeis.zpowZtwo_of_mul_ab_eq_zero (hQ : IsProP 2 (SqHeis R)) (pi : ℤ_[
   exact this.symm
 
 end Lift
+
+/-! ## §4 ⭐ The refutation engine
+
+One lemma.  A frame killing the relator satisfies, in **every** class-two test group, the three
+scalar equations of `SqHeis.sqRelWord_eq_one_iff` at its own slot images.  Testing a frame family
+is therefore a computation: evaluate the test hom on the family's slots, plug into
+`sqHeisDefect`, and check the defect equation. -/
+
+section Engine
+
+variable {R : Type} [CommRing R] {h : ℕ}
+
+/-- ⭐⭐ **The class-two balance.**  Every frame that kills the relator obeys the defect equation
+in every class-two test group.  This is the gate: a frame family is refuted by exhibiting one
+test hom at which the equation fails. -/
+theorem sqHeisBalance (Phi : ContinuousMonoidHom (DSq h : Type) (SqHeis R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (Phi (n 1)).a + 2 * (Phi (n 2)).a = 0 ∧
+      -4 * (Phi (n 1)).b + 2 * (Phi (n 2)).b = 0 ∧
+        -4 * (Phi (n 1)).c + 2 * (Phi (n 2)).c + sqHeisDefect h (fun i => Phi (n i)) = 0 := by
+  have hkey := SqHeis.sqRelWord_eq_one_iff (R := R) (h := h) fun i => Phi (n i)
+  rw [← map_sqRelWord Phi n, hn, map_one] at hkey
+  exact hkey.mp rfl
+
+/-- The defect equation alone, which is the one that carries class-two information. -/
+theorem sqHeisDefect_balance (Phi : ContinuousMonoidHom (DSq h : Type) (SqHeis R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    -4 * (Phi (n 1)).c + 2 * (Phi (n 2)).c + sqHeisDefect h (fun i => Phi (n i)) = 0 :=
+  (sqHeisBalance Phi n hn).2.2
+
+end Engine
+
+/-! ## §5 Validation — the `V`-family refutation, re-derived through the gate
+
+`EichRefutation` refutes `SqEichRelWord` by a bespoke `D₄` witness in which the cleared letter
+`V` dies.  Here the same refutation comes out of §4's gate, at `ℤ/4` coefficients, with **no**
+group-specific reasoning: the test hom is the alternating form dual to the cleared letter `Ū`,
+the frame's slot images are computed, and the defect equation reads `−2 = 0` in `ℤ/4`.
+
+The coefficient ring must be `ℤ/4` and not `ℤ/2`: the form realising the `Ū`-column is
+`(2·χ) ∧ ν'`, whose factor `2` is forced (§6) and which is invisible mod 2. -/
+
+section Validation
+
+/-- The coefficient ring of the gate instance. -/
+private abbrev gr2R : Type := ZMod (2 ^ 2)
+
+/-- The reduction `ℤ₂ → ℤ/4`. -/
+private noncomputable abbrev gr2Pi : ℤ_[2] →+* gr2R := PadicInt.toZModPow 2
+
+private theorem gr2R_card : Nat.card gr2R = 2 ^ 2 := by
+  rw [Nat.card_eq_fintype_card, ZMod.card]
+
+private theorem isProP_two_gr2 : IsProP 2 (SqHeis gr2R) := SqHeis.isProP_two gr2R_card
+
+private theorem gr2Pi_open (T : Set gr2R) : IsOpen (gr2Pi ⁻¹' T) :=
+  isOpen_preimage_toZModPow 2 T
+
+variable {h : ℕ} {j : Fin h}
+
+variable (h j) in
+/-- **The gate marking**: the alternating form `(2·χ_Ū) ∧ ν'` at the selected marking
+`nuSel h j t 1`, with the central coordinate of the `x₁`-slot solving the relator's central
+equation.  `σ ↦ (0,1,0)` puts `ν'` in the `b`-column, `x₀ ↦ 1` makes the pivot's `x₀`-leg
+vanish for every exponent, and `u_j ↦ (2, t, 0)` is the `2·Ū`-dual. -/
+private noncomputable def gr2Mark (t : ℤ_[2]) : Fin (sqRank h) → SqHeis gr2R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨0, 1, 0⟩ else
+    if (i : ℕ) = 2 then ⟨0, 0, -1⟩ else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then ⟨2, gr2Pi t, 0⟩ else
+    if (i : ℕ) = (sqHandleIdxV j : ℕ) then ⟨0, 1, 0⟩ else 1
+
+variable {t : ℤ_[2]}
+
+@[simp] private theorem gr2Mark_zero : gr2Mark h j t 0 = ⟨0, 1, 0⟩ := by
+  simp only [gr2Mark, sqVal_zero]
+  norm_num
+
+@[simp] private theorem gr2Mark_one : gr2Mark h j t 1 = 1 := by
+  simp only [gr2Mark, sqVal_one, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] private theorem gr2Mark_two : gr2Mark h j t 2 = ⟨0, 0, -1⟩ := by
+  simp only [gr2Mark, sqVal_two, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega)]
+  norm_num
+
+@[simp] private theorem gr2Mark_handleU :
+    gr2Mark h j t (sqHandleIdxU j) = ⟨2, gr2Pi t, 0⟩ := by
+  simp only [gr2Mark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  simp
+
+@[simp] private theorem gr2Mark_handleV : gr2Mark h j t (sqHandleIdxV j) = ⟨0, 1, 0⟩ := by
+  simp only [gr2Mark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+  simp
+
+private theorem gr2Mark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    gr2Mark h j t (sqHandleIdxU j') = 1 := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [gr2Mark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+private theorem gr2Mark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    gr2Mark h j t (sqHandleIdxV j') = 1 := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [gr2Mark, sqHandleIdxU_val, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+/-- The gate marking kills the relator: the handle pairing `2` is balanced by the `x₁`-slot's
+central coordinate `−1`. -/
+private theorem sqRelWord_gr2Mark : sqRelWord (gr2Mark h j t) = 1 := by
+  rw [SqHeis.sqRelWord_eq_one_iff]
+  refine ⟨by simp, by simp, ?_⟩
+  rw [sqHeisDefect]
+  rw [Finset.sum_eq_single j (fun j' _ hne => by
+    rw [gr2Mark_handleU_ne hne, gr2Mark_handleV_ne hne]; simp) (fun hj => absurd
+      (Finset.mem_univ j) hj)]
+  simp only [gr2Mark_zero, gr2Mark_one, gr2Mark_two, gr2Mark_handleU, gr2Mark_handleV]
+  norm_num
+
+variable (h j t) in
+/-- The gate's test homomorphism. -/
+private noncomputable def gr2Hom : ContinuousMonoidHom (DSq h : Type) (SqHeis gr2R) :=
+  sqHeisHom gr2R_card h (gr2Mark h j t) sqRelWord_gr2Mark
+
+@[simp] private theorem gr2Hom_gen (i : Fin (sqRank h)) :
+    gr2Hom h j t (sqGen h i) = gr2Mark h j t i :=
+  sqHeisHom_gen _ _ _ i
+
+/-- The pivot lands on the `ν'`-column generator, with no fact about `c₀` used. -/
+private theorem gr2Hom_sqPivot : gr2Hom h j t (sqPivot h) = ⟨0, 1, 0⟩ := by
+  rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
+    map_zpowZtwo (isProP_DSq h) isProP_two_gr2, dsqX0, gr2Hom_gen, gr2Mark_one,
+    zpowZtwo_one_base, inv_one, mul_one, dsqSigma, gr2Hom_gen, gr2Mark_zero]
+
+/-- **The cleared `U` survives**, carrying the `2·Ū`-dual: the pivot power subtracted off is
+exactly the `b`-coordinate the `u`-letter had. -/
+private theorem gr2Hom_sqEichU : gr2Hom h j t (sqEichU h (nuSel h j t 1) j) = ⟨2, 0, 0⟩ := by
+  rw [sqEichU, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr2, gr2Hom_sqPivot,
+    nuSel_handleU, toAdd_ofAdd,
+    SqHeis.zpowZtwo_of_mul_ab_eq_zero isProP_two_gr2 gr2Pi gr2Pi_open (by norm_num),
+    gr2Hom_gen, gr2Mark_handleU]
+  ext <;> simp
+
+/-- **The cleared `V` dies**: the `v`-letter *is* the pivot's image at `ν'(v_j) = 1`. -/
+private theorem gr2Hom_sqEichV : gr2Hom h j t (sqEichV h (nuSel h j t 1) j) = 1 := by
+  rw [sqEichV, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr2, gr2Hom_sqPivot,
+    nuSel_handleV, toAdd_ofAdd, zpowZtwo_one_exp, gr2Hom_gen, gr2Mark_handleV, mul_inv_cancel]
+
+/-- Every `V`-dressing dies with `V`. -/
+private theorem gr2Hom_dressV (x : (DSq h : Type)) (k : ℤ_[2]) :
+    gr2Hom h j t (x * zpowZtwo (isProP_DSq h) (sqEichV h (nuSel h j t 1) j) k)
+      = gr2Hom h j t x := by
+  rw [map_mul, map_zpowZtwo (isProP_DSq h) isProP_two_gr2, gr2Hom_sqEichV, zpowZtwo_one_base,
+    mul_one]
+
+variable {e e' d : ℤ_[2]}
+
+/-- ⭐ **The gate reproduces the known refutation.**  At a selected marking with `ν'(v_j) = 1`
+the `V`-family's defect equation reads `−2 = 0` in `ℤ/4`, at every weight triple.  Compare
+`EichRefutation.not_sqRelWord_sqEichFrame_nuSel_one`, proved there by a bespoke `D₄` witness. -/
+theorem not_sqRelWord_sqEichFrame_of_gate (h : ℕ) (j : Fin h) (t e e' d : ℤ_[2]) :
+    sqRelWord (sqEichFrame h (nuSel h j t 1) j e e' d) ≠ 1 := by
+  intro hone
+  have hbal := sqHeisDefect_balance (gr2Hom h j t) _ hone
+  have hs0 : gr2Hom h j t (sqEichFrame h (nuSel h j t 1) j e e' d 0) = ⟨0, 1, 0⟩ := by
+    rw [sqEichFrame_zero, gr2Hom_dressV, dsqSigma, gr2Hom_gen, gr2Mark_zero]
+  have hs1 : gr2Hom h j t (sqEichFrame h (nuSel h j t 1) j e e' d 1) = 1 := by
+    rw [sqEichFrame_one, gr2Hom_dressV, dsqX0, gr2Hom_gen, gr2Mark_one]
+  have hs2 : gr2Hom h j t (sqEichFrame h (nuSel h j t 1) j e e' d 2) = ⟨0, 0, -1⟩ := by
+    rw [sqEichFrame_two, gr2Hom_dressV, dsqX1, gr2Hom_gen, gr2Mark_two]
+  have hsU : gr2Hom h j t (sqEichFrame h (nuSel h j t 1) j e e' d (sqHandleIdxU j))
+      = ⟨2, 0, 0⟩ := by
+    rw [sqEichFrame_handleU, gr2Hom_dressV, gr2Hom_sqEichU]
+  have hsV : gr2Hom h j t (sqEichFrame h (nuSel h j t 1) j e e' d (sqHandleIdxV j)) = 1 := by
+    rw [sqEichFrame_handleV, gr2Hom_sqEichV]
+  rw [sqHeisDefect, Finset.sum_eq_single j (fun j' _ hne => by
+      rw [sqEichFrame_handleU_ne hne, sqEichFrame_handleV_ne hne, gr2Hom_gen, gr2Hom_gen,
+        gr2Mark_handleU_ne hne, gr2Mark_handleV_ne hne]
+      simp) (fun hj => absurd (Finset.mem_univ j) hj)] at hbal
+  rw [hs0, hs1, hs2, hsU, hsV] at hbal
+  norm_num at hbal
+  exact absurd hbal (by decide)
+
+/-- ⚠ **`SqEichRelWord h` is false at every `h ≥ 1`**, through the gate.  This is
+`EichRefutation.not_sqEichRelWord`, re-derived as a class-two computation. -/
+theorem not_sqEichRelWord_of_gate {h : ℕ} (hh : 0 < h) : ¬ SqEichRelWord h := by
+  intro H
+  obtain ⟨e, e', d, hrel⟩ := H (nuSel h ⟨0, hh⟩ 0 1) ⟨0, hh⟩ nuSel_sigma nuSel_x0
+  exact not_sqRelWord_sqEichFrame_of_gate h ⟨0, hh⟩ 0 e e' d hrel
+
+/-- The gate's verdict **matches** the committed one, statement for statement. -/
+example (h : ℕ) (j : Fin h) (t e e' d : ℤ_[2]) :
+    sqRelWord (sqEichFrame h (nuSel h j t 1) j e e' d) ≠ 1 :=
+  not_sqRelWord_sqEichFrame_nuSel_one h j t e e' d
+
+end Validation
 
 end HeisGroup
 
