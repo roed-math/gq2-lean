@@ -393,6 +393,147 @@ theorem sLetter_pairPure {u g : PWord (Generator (2 + 2 * h))} {a : A} {l : Elem
   · show z + 0 + l (0 : A) = z
     rw [map_zero, add_zero, add_zero]
 
+/-! ### The `δ`-letters -/
+
+include hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The `δ`-letters in the ramified class**: jets `(d_i, λ_i)` and — the load-bearing clause —
+a trivially-acting base.  This is `MCompactRam.heisEvalZ_deltaCert_ram` read through
+`dW = deltaCert`. -/
+theorem trivJet_dW_ram [Finite C] [Finite A] (i : Fin 3) :
+    TrivJet ⇑t x y E E₂ (dW h i) (x (coreLetter h i)) (y (coreLetter h i)) := by
+  rw [dW_eq_deltaCert]
+  obtain ⟨ha, hl, hg⟩ :=
+    MCompactRam.heisEvalZ_deltaCert_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres i
+  exact ⟨_, _, HeisLift.ext ha hl rfl rfl, hg⟩
+
+include hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **`δ₂` is dead in the ramified class**: pure by `isPure_dW2` — all three of its letters have
+vanishing offsets — with a trivially-acting base by `trivJet_dW_ram`. -/
+theorem isDead_dW2_ram [Finite C] [Finite A] : IsDead ⇑t x y E E₂ (dW h 2) :=
+  isDead_of_heisTrivial (isPure_dW2 t x y E E₂ hxτ hyτ hx2 hy2)
+    (trivJet_dW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres 2).gTriv
+
+include hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres in
+theorem isDead_zW_ram [Finite C] [Finite A] (pp : ℕ) : IsDead ⇑t x y E E₂ (zW h pp) := by
+  have hd2 := isDead_dW2_ram t x y E E₂ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres
+  match pp with
+  | 0 => exact hd2.zpow _
+  | (j + 1) =>
+      refine isDead_prodList fun w hw ↦ ?_
+      simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+      rcases hw with rfl | rfl
+      · exact hd2
+      · exact hd2.conj _
+
+include hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The orbit-norm block `E₂^pc` is dead in the ramified class too.**  Every letter in it is a
+`δ₂` or a `σ₂`-power, and `IsDead` is closed under conjugation by an *arbitrary* word — which is
+what lets the `σ₂`-conjugators through even though they act nontrivially. -/
+theorem isDead_e2W_ram [Finite C] [Finite A] (s' mm pp : ℕ) :
+    IsDead ⇑t x y E E₂ (e2W h s' mm pp) := by
+  have hd2 := isDead_dW2_ram t x y E E₂ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres
+  have hz := isDead_zW_ram t x y E E₂ hxτ hyτ hx2 hy2 hA₂ hwild hτfpf hTodd hresA hresD hres pp
+  refine isDead_prodList fun w hw ↦ ?_
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl
+  · exact hd2.conj _
+  · refine IsDead.conj (isDead_prodList fun u hu ↦ ?_) _
+    rw [orbitNormFactors_map, List.mem_map] at hu
+    obtain ⟨j, -, rfl⟩ := hu
+    exact hz.conj _
+
+/-! ### The Labute letters and the boundary letters -/
+
+include hxσ hyσ hx2 hy2 hwild in
+/-- **The Labute letter `A = x₀⁻¹C₀^{−m}` in the ramified class**: the jet of `x₀⁻¹` alone, with
+a base acting by `S₂^{−sm}`.  The `x₂` inside `C₀` is invisible; the `σ₂`-power is not, and that
+is exactly what the unramified reading did not have to carry. -/
+theorem sLetter_aW_ram (s' mm : ℕ) :
+    SLetter t x y E E₂ (aW h s' mm) (-x (coreLetter h 0)) (-y (coreLetter h 0))
+      (-((s' * mm : ℕ) : ℤ)) := by
+  have hexp : (s' : ℤ) * (-(mm : ℤ)) = -((s' * mm : ℕ) : ℤ) := by push_cast; ring
+  have hx0 : TrivJet ⇑t x y E E₂ (.gen (coreLetter h 0)) (x (coreLetter h 0))
+      (y (coreLetter h 0)) :=
+    ⟨0, triv_gen ⇑t x y E E₂ (coreLetter h 0)
+      (mem_trivAct.mp (Certificates.trivAct_coreLetter t hwild 0))⟩
+  have hg : heisEvalZ ⇑t x y E E₂ (.zpow (c0W h s') (-(mm : ℤ)))
+      = heisPure ((t (coreLetter h 2) * sTwist t E ^ (s' : ℤ)) ^ (-(mm : ℤ))) := by
+    rw [heisEvalZ_zpow, heisEvalZ_c0W_ram t x y E E₂ hxσ hyσ hx2 hy2 s', ← map_zpow]
+  have hk : ∀ v : A, ((t (coreLetter h 2) * sTwist t E ^ (s' : ℤ)) ^ (-(mm : ℤ))) • v
+      = (sTwist t E ^ (-((s' * mm : ℕ) : ℤ))) • v := fun v ↦ by
+    rw [c0W_zpow_smul t E hwild s' (-(mm : ℤ)), hexp]
+  rw [aW]
+  exact sLetter_pairPure t x y E E₂ hx0.inv hg hk
+
+include hxσ hyσ hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The hat Labute letter `Â = δ₀⁻¹Ĉ₀^{−m}`**: the *same* jets and the *same* base action as
+`A`, and a different charge — which is exactly what `SLetter` is designed not to record. -/
+theorem sLetter_aHatW_ram [Finite C] [Finite A] (s' mm : ℕ) :
+    SLetter t x y E E₂ (aHatW h s' mm) (-x (coreLetter h 0)) (-y (coreLetter h 0))
+      (-((s' * mm : ℕ) : ℤ)) := by
+  have hexp : (s' : ℤ) * (-(mm : ℤ)) = -((s' * mm : ℕ) : ℤ) := by push_cast; ring
+  have hd0 := trivJet_dW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres 0
+  have hg : heisEvalZ ⇑t x y E E₂ (.zpow (c0HatW h s') (-(mm : ℤ)))
+      = heisPure ((sTwist t E ^ (s' : ℤ)) ^ (-(mm : ℤ))) := by
+    rw [heisEvalZ_zpow, heisEvalZ_c0HatW_ram t x y E E₂ hxσ hyσ s', ← map_zpow]
+  have hk : ∀ v : A, ((sTwist t E ^ (s' : ℤ)) ^ (-(mm : ℤ))) • v
+      = (sTwist t E ^ (-((s' * mm : ℕ) : ℤ))) • v := fun v ↦ by
+    rw [← zpow_mul, hexp]
+  rw [aHatW]
+  exact sLetter_pairPure t x y E E₂ hd0.inv hg hk
+
+include hxσ hyσ hwild in
+/-- **The boundary letter `B = x₁σ₂^p`**, in both of the display's two shapes. -/
+theorem sLetter_bW_ram (pp : ℕ) :
+    SLetter t x y E E₂ (bW h pp) (x (coreLetter h 1)) (y (coreLetter h 1)) (pp : ℤ) := by
+  have hx1 : TrivJet ⇑t x y E E₂ (.gen (coreLetter h 1)) (x (coreLetter h 1))
+      (y (coreLetter h 1)) :=
+    ⟨0, triv_gen ⇑t x y E E₂ (coreLetter h 1)
+      (mem_trivAct.mp (Certificates.trivAct_coreLetter t hwild 1))⟩
+  match pp with
+  | 0 =>
+      obtain ⟨z, G, hG, hGa⟩ := hx1
+      exact ⟨G, z, hG, fun v ↦ by rw [hGa, Nat.cast_zero, zpow_zero, one_smul]⟩
+  | (j + 1) =>
+      rw [show bW h (j + 1)
+        = PWord.prodList [.gen (coreLetter h 1), sig2PowW h (j + 1)] from rfl]
+      exact sLetter_pairPure t x y E E₂ hx1
+        (heisEvalZ_sig2PowW t x y E E₂ hxσ hyσ (j + 1)) fun _ ↦ rfl
+
+include hxσ hyσ hA₂ hwild hτfpf hTodd hresA hresD hres in
+/-- **The hat boundary letter `B̂ = δ₁σ₂^p`**: the same jets and base action as `B`. -/
+theorem sLetter_bHatW_ram [Finite C] [Finite A] (pp : ℕ) :
+    SLetter t x y E E₂ (bHatW h pp) (x (coreLetter h 1)) (y (coreLetter h 1)) (pp : ℤ) := by
+  have hd1 := trivJet_dW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres 1
+  match pp with
+  | 0 =>
+      obtain ⟨z, G, hG, hGa⟩ := hd1
+      exact ⟨G, z, hG, fun v ↦ by rw [hGa, Nat.cast_zero, zpow_zero, one_smul]⟩
+  | (j + 1) =>
+      rw [show bHatW h (j + 1) = PWord.prodList [dW h 1, sig2PowW h (j + 1)] from rfl]
+      exact sLetter_pairPure t x y E E₂ hd1
+        (heisEvalZ_sig2PowW t x y E E₂ hxσ hyσ (j + 1)) fun _ ↦ rfl
+
+/-! ### The correction block `E₀₁^pc`
+
+The asymmetric conjugator pair `(σ₂^a, σ₂^b)` enters here and nowhere else.  Every letter of the
+block is a `δ`, every conjugator is a pure `σ₂`-power, so `TrivJet.conjPure` carries the whole
+computation and the block's jets come out as a `S₂`-twisted combination of `d₀` and `d₁`. -/
+
+include hA₂ hwild hτfpf hTodd hresA hresD hres hxσ hyσ in
+/-- **`E₀₁^pc = 𝓔(σ₂^a, σ₂^b; δ₀, δ₁)` in the ramified class**: jets twisted by the two
+conjugators, base still trivially acting. -/
+theorem trivJet_e01W_ram [Finite C] [Finite A] (aa bb : ℕ) :
+    TrivJet ⇑t x y E E₂ (e01W h aa bb)
+      ((sTwist t E ^ (aa : ℤ))⁻¹ • ((sTwist t E ^ (bb : ℤ))⁻¹ • x (coreLetter h 1)
+          + (x (coreLetter h 1) + x (coreLetter h 0))) + x (coreLetter h 0))
+      ((sTwist t E ^ (aa : ℤ))⁻¹ • ((sTwist t E ^ (bb : ℤ))⁻¹ • y (coreLetter h 1)
+          + (y (coreLetter h 1) + y (coreLetter h 0))) + y (coreLetter h 0)) := by
+  have hd := trivJet_dW_ram t x y E E₂ hA₂ hwild hτfpf hTodd hresA hresD hres
+  rw [e01W]
+  exact (((hd 1).conjPure (heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ (bb : ℤ))).triple (hd 1)
+    (hd 0)).conjPure (heisEvalZ_sig2Zpow t x y E E₂ hxσ hyσ (aa : ℤ)) |>.pair (hd 0)
+
 end Letters
 
 end
