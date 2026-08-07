@@ -579,19 +579,27 @@ theorem orientedAbstractEquiv_KTwoM (alpha h : ℕ) (halpha : 1 ≤ alpha)
 omit [FiniteDimensional ℚ_[2] K] in
 /-- `NLabHypothesis` yields an oriented equivalence after supplying an intrinsic target
 predicate, its truth for the cyclotomic character, and pullback naturality to the complete `N`
-presentation predicate.  The separate predicate is essential because `NLabHypothesis` itself
-records only the image invariant. -/
+presentation predicate.  The separate predicate is essential because `NLabHypothesis` records
+only the image invariant beyond its own canonicity guard — and that guard, being a parameter,
+carries no descent content by itself.
+
+The predicate now has `MLabHypothesis`'s abstract-`G` shape, so that a single argument serves
+both as `NLabHypothesis`'s canonicity guard and as the target side of the pullback; this mirrors
+`orientedAbstractEquiv_KTwoM` exactly. -/
 theorem orientedAbstractEquiv_KTwoN (alpha h : ℕ) (halpha : 1 ≤ alpha)
-    (nIsCanonical : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) ℤ_[2]ˣ → Prop)
-    (hLab : NLabHypothesis alpha h)
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (hLab : NLabHypothesis alpha h nIsCanonical)
     (hD : IsDemushkin 2 (maxProPQuotient 2 (GalK K)))
     (hrank : demushkinRank 2 (maxProPQuotient 2 (GalK K)) = coreRank h)
     (hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2)
     (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
-    (hcanonical : nIsCanonical (chiCycKTwo (K := K)))
-    (hnatural : PullbackNatural (IsPresentedOrientationN alpha h) nIsCanonical) :
+    (hcanonical : nIsCanonical (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)).toMonoidHom)
+    (hnatural : PullbackNatural (IsPresentedOrientationN alpha h)
+      (fun chi => nIsCanonical (maxProPQuotient 2 (GalK K)) chi.toMonoidHom)) :
     Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
-  obtain ⟨f⟩ := abstractEquiv_KTwoN alpha h hLab hD hrank hq hrange
+  obtain ⟨f⟩ := abstractEquiv_KTwoN alpha h nIsCanonical hLab hD hrank hq hcanonical hrange
   exact ⟨orientedEquivN_of_pullback_natural halpha _ hnatural _ hcanonical f⟩
 
 end AbstractClassificationOrientation

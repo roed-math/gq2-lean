@@ -186,15 +186,25 @@ variable {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimen
 omit [FiniteDimensional ℚ_[2] K] in
 /-- Apply the existing `NLabHypothesis` to `G_K(2)` and reverse its equivalence into the
 source-to-arithmetic direction used by marked-core certificate production.  Every genuinely
-unproved input remains visible in the statement. -/
-theorem abstractEquiv_KTwoN (alpha h : ℕ) (hLab : NLabHypothesis alpha h)
+unproved input remains visible in the statement.  As on the `M` side, the abstract predicate
+identifying the canonical orientation, its proof for the descended cyclotomic character, and the
+exact image equality are kept separate; image equality alone is intentionally not treated as
+orientation canonicity — `GQ2/Dyadic/Instances/EvenNLabWitness.lean` shows that treating it so
+collapses the two even rows. -/
+theorem abstractEquiv_KTwoN (alpha h : ℕ)
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (hLab : NLabHypothesis alpha h nIsCanonical)
     (hD : IsDemushkin 2 (maxProPQuotient 2 (GalK K)))
     (hrank : demushkinRank 2 (maxProPQuotient 2 (GalK K)) = coreRank h)
     (hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2)
+    (hcanonical : nIsCanonical (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)).toMonoidHom)
     (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha) :
     Nonempty (ContinuousMulEquiv (DN alpha h : Type) (maxProPQuotient 2 (GalK K))) := by
   obtain ⟨e⟩ := hLab (maxProPQuotient 2 (GalK K)) hD hrank hq
-    ⟨(chiCycKTwo (K := K)).toMonoidHom, (chiCycKTwo (K := K)).continuous_toFun, hrange⟩
+    ⟨(chiCycKTwo (K := K)).toMonoidHom, (chiCycKTwo (K := K)).continuous_toFun,
+      hcanonical, hrange⟩
   exact ⟨e.symm⟩
 
 omit [FiniteDimensional ℚ_[2] K] in

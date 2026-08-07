@@ -431,9 +431,10 @@ lemma unitCoe_ne_zero (k : IntermediateField ℚ_[2] ℚ̄₂) (a : (↥k)ˣ) :
     ((a : ↥k) : ℚ̄₂) ≠ 0 := fun h ↦ a.ne_zero (by exact_mod_cast h)
 
 /-- **The base-general Kummer class** `[a] ∈ H¹(G_k, 𝔽₂)` of a unit `a ∈ kˣ`, over the subtype
-group of `k.fixingSubgroup` and via the canonical root `sqrtCl` (class independent of the root,
-the Kummer-class API's `kummerCocycleFun_root_indep`).  Specializes the Kummer-class API's base-`ℚ₂` `kummerClass` to arbitrary
-finite dyadic bases; the input shape of the amended B9/B11 axioms. -/
+group of `k.fixingSubgroup` and via the canonical root `sqrtCl` (class independent of the root:
+`GQ2.kcf_root_indep'`, downstream in `GQ2/HilbertLedger.lean`).  Specializes the Kummer-class
+API's base-`ℚ₂` `kummerClass` to arbitrary finite dyadic bases; the input shape of the amended
+B9/B11 axioms. -/
 noncomputable def kummerClassK (k : IntermediateField ℚ_[2] ℚ̄₂) (a : (↥k)ˣ) :
     H1 k.fixingSubgroup (ZMod 2) :=
   H1mk _ _ ⟨fun g ↦ Kummer.kummerCocycleFun (sqrtCl ((a : ↥k) : ℚ̄₂))

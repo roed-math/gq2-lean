@@ -575,7 +575,21 @@ variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [Fini
 
 /-- **THE MILESTONE.**  `gammaR_lSq_equiv_galK_degreeOne_of_subgroups` with its two model-side
 hypotheses discharged: at `[K : ℚ₂] = 1` the odd-degree row of the general-`K` machine holds
-outright, i.e. `Γ_{R_K} ≅ G_K`. -/
+outright, i.e. `Γ_{R_K} ≅ G_K`.
+
+⚠ **Two declarations carry this name; this is the unconditional one.**  Apart from the two
+structural binders every row of the packet carries — an `OrientedTameQuotientK` and the
+`ramifiedData` certificate supply — this statement has *no* hypothesis: no
+`MarkedFrame.SqCupAdaptedFramePresentation`, no `SqCore.SqNuClearHypothesis`.  Its verified
+root-level axiom print is std-3 + `{B1, B3c, B6, B7, B8, B9, B11a}`, a **strict subset** of the
+frozen `ℚ₂` capstone's nine (it misses `localReciprocity` and `tameQuotient`).  **This is the
+degree-one endpoint the paper should quote.**
+
+The other is `GQ2.Dyadic.LSquare.gammaR_lSq_equiv_galK_degreeOne`
+(`GQ2/Dyadic/Instances/GammaLOddDegreeGrandAssembly.lean` §7), the `h = 0` face of the grand
+assembly.  Same conclusion, but **conditional**: it binds
+`MarkedFrame.SqCupAdaptedFramePresentation K`, the stage lane's frame-tracking residual.  It is
+a full-circle regression for the assembly, not the endpoint to cite. -/
 theorem gammaR_lSq_equiv_galK_degreeOne (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) (T : OrientedTameQuotientK B FF)
     (D : FiniteDyadicParameters K FF) (hdeg : Module.finrank ℚ_[2] K = 1)

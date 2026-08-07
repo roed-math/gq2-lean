@@ -45,8 +45,9 @@ Everything is uniform in `α ≥ 2`; the `N`-frame is completely α-free (memo V
   relation-vector clause is automatic, and `nGL_factor` splits `GL₂(ℤ₂) = E₂(ℤ₂)·{diag(κ,1)}`.
 * **§5 The lifting strata and the hypothesis `def`s** — `NScalingHypothesis` (memo §3.4's N4,
   the S2 stratum), `NMixHypothesis` (memo §8 Decision 2(B), the S3 stratum), and the Labute
-  classification hypothesis `NLabHypothesis` with its image invariant `imChiN` (memo §6.4) —
-  all `def`s, **never axioms**.  Plus the **vocabulary finding**
+  classification hypothesis `NLabHypothesis` with its image invariant `imChiN` and its
+  orientation-canonicity guard `nIsCanonical` (memo §6.4; the guard is forced by
+  `EvenNLabWitness.lean`, see §5) — all `def`s, **never axioms**.  Plus the **vocabulary finding**
   `nCoreMixHypothesis_not_of_mix`: HM4's schematic `NCoreMixHypothesis` is *false* for any
   genuinely mixing stratum set, because membership in `A(P,h)` forces `x₀`, `x₁` and `σ` to be
   rigid (`dnClearAuts_fixes_core`).  The sound binders are therefore stated at the marked
@@ -1291,24 +1292,38 @@ noncomputable def imChiN (α : ℕ) : Subgroup ℤ_[2]ˣ :=
 
 /-- **N-Lab (hypothesis form — never an axiom)** (memo §6.4, §8 Decision 1(c)): Labute's
 classification of Demushkin groups of even rank with `q = 2` (Labute 1967, Thm 8), specialised to
-the `N_α` core — a pro-2 group with the `N_α` invariants (Demushkin, rank `4 + 2h`, `q = 2`, image
-invariant `imChiN α`) is continuously isomorphic to `D_N`.
+the `N_α` core — a pro-2 group with the `N_α` invariants (Demushkin, rank `4 + 2h`, `q = 2`, and a
+*canonical* orientation with image invariant `imChiN α`) is continuously isomorphic to `D_N`.
 
-**Two recorded deviations from `BLabHypothesis`** (`GQ2/Roe/MarkedPro2.lean:141`).  (i) The
-abstract-`G` form is forced, not chosen: MC5's other side is `G_K(2)`, not a presented group
-(memo §6.4, risk R6) — this widens what the owner is asked to accept.  (ii) The orientation clause
-is carried by the **image invariant** alone.  The repo's descent-characterized orientation
-predicate (`IsLabuteOrientation`) is stated for the presented `D_R` and has no abstract-`G`
-counterpart (the dualizing-module route is deferred, `GQ2/Orientation.lean`); the image invariant
-is what Labute's even-rank `q = 2` classification keys on, and it is the M/N separator.  Dropping
-the descent clause makes this binder *stronger* than the memo's sketch — flagged for G-Lab, not
-silently resolved. -/
-def NLabHypothesis (α h : ℕ) : Prop :=
+**One recorded deviation from `BLabHypothesis`** (`GQ2/Roe/MarkedPro2.lean:141`): the abstract-`G`
+form is forced, not chosen — MC5's other side is `G_K(2)`, not a presented group (memo §6.4, risk
+R6), which widens what the owner is asked to accept.
+
+**Why the canonicity guard `nIsCanonical` is here** (owner memo 2026-08-05, item 3).  The binder
+originally carried the orientation clause by the **image invariant alone**, matching the memo's
+§6.4 deviation (ii).  That form is *false-shaped*, and the refutation is committed:
+`GQ2/Dyadic/Instances/EvenNLabWitness.lean` builds `chiNOnDM`, a continuous character of the
+**`M` core** whose range is exactly `imChiN α` (`range_chiNOnDM`) — the `M` relator abelianizes
+to `m₀² · m₂^(2^α)` and the `N` marking puts `1` in both slots — so `D_M α h` meets Demushkin,
+rank `coreRank h`, `q = 2` and the image clause, and the unguarded binder alone forces
+`D_M ≅ D_N` (`nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis`).  That conclusion is refuted
+unconditionally at `α ≥ 2` by `imChiM_ne_imChiN`: `−1 ∈ imChiM α`, while `imChiN α` is the
+procyclic closure of `⟨v⟩` and misses `−1` already mod `2^(α+1)`.  What Labute separates the two
+even rows by is the *canonical* orientation, so the guard is not optional.
+
+As on the `M` side, the guard is a **parameter** rather than a fixed predicate: the repo's
+descent-characterized orientation predicate (`IsLabuteOrientation`) is stated for the presented
+`D_R` and has no abstract-`G` counterpart (the dualizing-module route is deferred,
+`GQ2/Orientation.lean`), so consumers (MC5) instantiate it with whatever descent characterisation
+their `G` supports.  Its binder shape is `MLabHypothesis`'s `mIsCanonical` verbatim. -/
+def NLabHypothesis (α h : ℕ)
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop) : Prop :=
   ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
     [T2Space G] [TotallyDisconnectedSpace G] [DistribMulAction G (ZMod 2)]
     [ContinuousSMul G (ZMod 2)],
     IsDemushkin 2 G → demushkinRank 2 G = coreRank h → demushkinQ G = 2 →
-      (∃ χ : G →* ℤ_[2]ˣ, Continuous χ ∧ MonoidHom.range χ = imChiN α) →
+      (∃ χ : G →* ℤ_[2]ˣ, Continuous χ ∧ nIsCanonical G χ ∧ MonoidHom.range χ = imChiN α) →
         Nonempty (ContinuousMulEquiv G (DN α h : Type))
 
 end Strata

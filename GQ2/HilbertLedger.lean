@@ -113,8 +113,9 @@ section KummerCocycleGeneral
 open Kummer
 
 /-- Two square roots of the same `ℚ̄₂`-element give the same Kummer cocycle: `α² = β²` forces
-`α = ±β`, and `κ` is sign-insensitive (`kummerCocycleFun_neg`).  Base-general analogue of
-`Kummer.kummerCocycleFun_root_indep` (no `algebraMap`-image hypothesis on the radicand). -/
+`α = ±β`, and `κ` is sign-insensitive (`Kummer.kummerCocycleFun_neg`).  Base-general: unlike the
+`Kummer` API's own root lemmas (`Kummer.alpha_ne_neg`), the radicand carries no
+`algebraMap`-image hypothesis. -/
 lemma kcf_root_indep' {α β : ℚ̄₂} (h : α ^ 2 = β ^ 2) :
     kummerCocycleFun α = kummerCocycleFun β := by
   have h2 : (α - β) * (α + β) = 0 := by linear_combination h
@@ -158,8 +159,8 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂)
 
 /-- Multiplicativity of the base-general Kummer class.  [O: `sqrtCl (ab)` and
 `sqrtCl a · sqrtCl b` are square roots of the same nonzero element, so the cocycles agree by
-`Kummer.kummerCocycleFun_root_indep`; then `Kummer.kummerCocycleFun_mul`
-(`GQ2/Kummer.lean:179`) gives pointwise additivity, and `H1mk` is additive on `Z1`.] -/
+`kcf_root_indep'` above; then `kcf_mul_of_fixed` gives pointwise additivity, and `H1mk` is
+additive on `Z1`.] -/
 theorem kummerClassK_mul (a b : (↥k)ˣ) :
     kummerClassK k (a * b) = kummerClassK k a + kummerClassK k b := by
   have hAB : ((↑(a * b) : ↥k) : ℚ̄₂)
@@ -312,8 +313,12 @@ theorem norm_galois (g : Kummer.GaloisGroup ℚ_[2]) (x : ℚ̄₂) : ‖g • x
     NormedAlgebra.norm_eq_spectralNorm ℚ_[2]]
   exact (spectralNorm_eq_of_equiv g x).symm
 
-/-- Over a normed `ℚ₂`-algebra whose norm extends the dyadic one, `‖2‖ < 1`. -/
-private lemma norm_two_lt_one' {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
+/-- Over a normed `ℚ₂`-algebra whose norm extends the dyadic one, `‖2‖ < 1`.
+
+Public: this is the general-`F` form, and downstream files were re-proving it verbatim while it
+was `private` (owner memo item 5c).  The `ℚ̄₂`-specific `GQ2.norm_two_lt_one`
+(`GQ2/UnitFiltrationTop.lean`) is upstream of this file and stays where it is. -/
+lemma norm_two_lt_one' {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
     ‖(2 : F)‖ < 1 := by
   rw [show (2 : F) = algebraMap ℚ_[2] F 2 from (map_ofNat _ 2).symm,
     norm_algebraMap' (𝕜' := F) (2 : ℚ_[2])]

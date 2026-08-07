@@ -33,7 +33,19 @@ local instance finiteSemiProdDet {C V : Type} [Group C] [AddCommGroup V]
 
 /-- The genuinely representation-theoretic input to the unramified source/word comparison.
 The value of `sigma` is retained because it is the Wall-head operator; `tau` and every wild
-letter are required literally trivial in the descended action target. -/
+letter are required literally trivial in the descended action target.
+
+**Superseded** (owner memo 2026-08-05, item 4) by `LUnramifiedHeadData`
+(`GQ2/Dyadic/Instances/GammaLDeterminantUnramifiedData.lean`).  This datum is stated one level
+too high: `tau_eq` and `wild_eq` are equations in `DD.C0`, and at the block enrichment `DD.C0`
+is the recursion frame's `Y ⧸ K` with `rho0` a *surjective* boundary lift, so they force the
+whole `C`-stage to be procyclic on the image of `sigma` (`yc_procyclic_of_c0_graphData`) — a
+condition the determinant certificate never supplies.  The correct level is the faithful head
+quotient. -/
+@[deprecated "superseded by `LUnramifiedHeadData` \
+(GQ2/Dyadic/Instances/GammaLDeterminantUnramifiedData.lean): the `DD.C0`-level marking \
+equations force the whole C-stage procyclic (`yc_procyclic_of_c0_graphData`), so this datum \
+has no producer at a boundary lift" (since := "2026-08-07")]
 structure LUnramifiedGraphData
     {h q : ℕ}
     {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
@@ -54,7 +66,14 @@ set_option maxHeartbeats 2400000 in
 /-- The complete unramified phase model at one finite descended representation.  The source
 comparison is the graph-normal-form theorem; the sign is Proposition 6.9 applied to the actual
 finite action image.  In particular, neither a phase comparison nor an Arf/Gauss value is an
-input. -/
+input.
+
+**Superseded** by `lSqUnramifiedPhaseModel_of_headData`
+(`GQ2/Dyadic/Instances/GammaLDeterminantUnramifiedData.lean`), its verbatim analogue at the
+faithful head quotient — see `LUnramifiedGraphData`'s note for why this level has no producer. -/
+@[deprecated "superseded by `lSqUnramifiedPhaseModel_of_headData` \
+(GQ2/Dyadic/Instances/GammaLDeterminantUnramifiedData.lean), its verbatim analogue one level \
+down, at the faithful head quotient" (since := "2026-08-07")]
 theorem lSqUnramifiedPhaseModel_of_graphData
     {h q : ℕ}
     {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
@@ -197,7 +216,16 @@ set_option maxHeartbeats 2400000 in
 /-- The one-representation theorem in the exact boundary-lift signature consumed by the
 determinant residue.  All topology and pulled-back action instances are constructed here.  The
 only phase-relevant input is the concrete graph marking `hgraph`; no source phase comparison or
-Gauss value is assumed. -/
+Gauss value is assumed.
+
+**Superseded** by `wordPhaseResidueK_unramified_lSq`
+(`GQ2/Dyadic/Instances/GammaLDeterminantUnramifiedData.lean`), which needs no per-lift binder at
+all: at the head-inflated block enrichment every clause is a theorem.  This statement's `hgraph`
+binder is `LUnramifiedGraphData`, which has no producer at a boundary lift — see its note. -/
+@[deprecated "superseded by `wordPhaseResidueK_unramified_lSq` \
+(GQ2/Dyadic/Instances/GammaLDeterminantUnramifiedData.lean), which carries no per-lift binder \
+at all; this statement's `hgraph` binder is the producerless `LUnramifiedGraphData`"
+  (since := "2026-08-07")]
 theorem wordPhaseResidueK_unramified_of_graphData
     {h q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

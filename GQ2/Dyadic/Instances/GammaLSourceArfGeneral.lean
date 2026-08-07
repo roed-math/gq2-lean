@@ -64,13 +64,15 @@ The general count is `#V^U = 2^{gcd(deg P, F·ω)·s_V}`, whose exponent is odd 
 odd; that is the whole of the parity condition.  So the ramified branch of the L determinant is
 **sign-flipped** at `q = 4`, and `LRamifiedSourceArfSupply` cannot hold for all even `q`.
 
-**(3) A statement-shape caveat.**  `LRamifiedSourceArfSupply` as spelled in
-`GammaLDeterminantResidue.lean` quantifies over *every* block, level and boundary lift, with no
-ramification hypothesis, while its only consumer `wordPhaseResidueK_ramified_lSq` supplies one
-(`hram`).  In an unramified block the descended source form has `Arf = 1` (the negative Gauss
-sign of `prop_6_9_unramified`), so the literal supply is not provable — from any route.  The
-`hram`-conditioned form `LRamifiedSourceArfSupplyRam` below is what the determinant residue
-actually needs, and `determinantWordPhaseSupply_lSq_ram` shows it suffices.
+**(3) A statement-shape caveat, now repaired.**  `LRamifiedSourceArfSupply` as *originally*
+spelled in `GammaLDeterminantResidue.lean` quantified over *every* block, level and boundary
+lift, with no ramification hypothesis, while its only consumer
+`wordPhaseResidueK_ramified_lSq` supplies one (`hram`).  In an unramified block the descended
+source form has `Arf = 1` (the negative Gauss sign of `prop_6_9_unramified`), so that literal
+supply was not provable — from any route.  Its binder list now carries `hram`, together with
+the `m`/`hcard` pair that every producer needs and that the consumer already has in scope; it
+is therefore `wordPhaseResidueK_ramified_lSq`'s own tail verbatim, and
+`lRamifiedSourceArfSupply_pow` below discharges it at `q = 2 ^ f` with `f` odd.
 -/
 
 namespace GQ2.Dyadic.LSquare
@@ -445,10 +447,27 @@ def lRamifiedSourceArf_blockK
 
 /-! ## The L row, unconditional at `q = 2 ^ f` with `f` odd
 
-`LRamifiedSourceArfSupply` is not available (see (3) in the module docstring: it is stated
-without a ramification hypothesis).  What the determinant residue actually needs is the
-`hram`-conditioned datum, and `lRamifiedSourceArf_blockK` supplies it, so the whole word-phase
-supply is a theorem. -/
+`lRamifiedSourceArf_blockK` is exactly the `hram`-conditioned datum that the determinant residue
+consumes (see (3) in the module docstring), so at `q = 2 ^ f` with `f` odd the whole word-phase
+supply is a theorem and `LRamifiedSourceArfSupply` itself is inhabited. -/
+
+/-- **`LRamifiedSourceArfSupply` is inhabited at `q = 2 ^ f` with `f` odd.**  The supply's binder
+list is `lRamifiedSourceArf_blockK`'s tail verbatim, so this is the identity hook-up; feeding it
+to `determinantWordPhaseSupply_lSq` reproduces `determinantWordPhaseSupply_lSq_pow` below. -/
+def lRamifiedSourceArfSupply_pow {h q : ℕ} {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (gamma h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (gamma h q) P)
+    (compat : ∀ g : (gamma h q : Type), nuTq q (tame g) = nuP (pro2 g))
+    (htameSigma : tame (gammaGen (2 * h + 1) q (lSqW h) .sigma) = tqSigma q)
+    (htameTau : tame (gammaGen (2 * h + 1) q (lSqW h) .tau) = tqTau q)
+    (htameWild : ∀ i : Fin (2 * h + 1 + 1),
+      tame (gammaGen (2 * h + 1) q (lSqW h) (.wild i)) = 1)
+    {f : ℕ} (hfodd : Odd f) (hqf : q = 2 ^ f) :
+    LRamifiedSourceArfSupply nuP tame pro2 compat :=
+  fun T Blk _ _ _ hE2 hq0 hqe F m hcard l hl hram =>
+    lRamifiedSourceArf_blockK T Blk hE2 hq0 hqe F tame pro2 compat
+      htameSigma htameTau htameWild hfodd hqf m hcard l hl hram
 
 set_option maxHeartbeats 1200000 in
 /-- **The complete word-phase supply for the improved L presentation, with no arithmetic
@@ -558,6 +577,7 @@ end GQ2.Dyadic.LSquare
 #print axioms GQ2.Dyadic.LSquare.arf_qDouble_ramified_of_action_pow
 #print axioms GQ2.Dyadic.LSquare.lRamifiedSourceArfData_of_headAction
 #print axioms GQ2.Dyadic.LSquare.lRamifiedSourceArf_blockK
+#print axioms GQ2.Dyadic.LSquare.lRamifiedSourceArfSupply_pow
 #print axioms GQ2.Dyadic.LSquare.determinantWordPhaseSupply_lSq_pow
 #print axioms GQ2.Dyadic.LSquare.determinantResidue_lSq_pow
 #print axioms GQ2.Dyadic.LSquare.lSquareAnalyticLeavesRN_pow

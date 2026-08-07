@@ -124,12 +124,15 @@ family `sqEichFrameUV` does, at `(f', e') = (−s, t)`); the `V`-power families 
 and §5 cannot, which re-derives their class-two rigidity from the balance rather than from a
 homomorphism.
 
-⚠ **Stale reference.**  `docs/dyadic/eichler-reduction-note.md` is the source for the class-two
-balance and its "class-two balance (do not re-derive)" section is still correct — with the
-dictionary that its `a₀` is the **`x₀`**-slot weight and its `a₁` the `σ`-slot weight, so its
-forced `a₀ = −k` is exactly the forcing above.  Its final section, "The residual search
-(recommendation)", is **stale**: it points at the two-slot `(σ, u)` scaffold, which the same
-balance and `SqCore/EichRefutation.lean` have since refuted.  Ignore that section.
+⚠ **Index convention when reading the source note.**  `docs/dyadic/eichler-reduction-note.md` is
+the source for the class-two balance, and its "class-two balance (do not re-derive)" section is
+correct — with the dictionary that its `a₀` is the **`x₀`**-slot weight and its `a₁` the
+`σ`-slot weight (it indexes a dressing by the *letter's* subscript, `ArbFrames` by the *slot's*
+position), so its forced `a₀ = −k` is exactly the `ā₁` forcing above.  Its final section, "The
+residual search", used to recommend the two-slot `(σ, u)` scaffold and a word-level
+`SqEichlerSeed`; both are refuted, by this balance and by `SqCore/EichRefutation.lean`.  That
+section has since been rewritten (2026-08-07) to point at `SqArbRelWord h`, and the note now
+carries both warnings itself.
 
 ## Contents
 

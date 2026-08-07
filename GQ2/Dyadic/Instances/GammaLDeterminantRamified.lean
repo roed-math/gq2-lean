@@ -36,7 +36,20 @@ local instance finiteSemiProdRamDet {C V : Type} [Group C] [AddCommGroup V]
 
 /-- The concrete lower-action facts needed by the ramified graph normal form.  Wild letters
 die in the descended action target; `tau` is fixed-point-free, while its two-primary part acts
-trivially.  These are representation-theoretic facts, not phase-comparison hypotheses. -/
+trivially.  These are representation-theoretic facts, not phase-comparison hypotheses.
+
+**Superseded** (owner memo 2026-08-05, item 4) by `LRamifiedHeadData`
+(`GQ2/Dyadic/Instances/GammaLDeterminantRamifiedData.lean`).  This datum is stated one level too
+high: `wild_eq` is an equation in `DD.C0`, and at the block enrichment `DD.C0` is the recursion
+frame's `Y ⧸ K` with `rho0` a *surjective* boundary lift, so it forces the whole `C`-stage to be
+procyclic (`yc_procyclic_of_c0_graphData` in `GammaLDeterminantUnramifiedData.lean`) — a
+condition the determinant certificate never supplies.  The correct level is the faithful head
+quotient, where the wild condition is taken after `π`. -/
+@[deprecated "superseded by `LRamifiedHeadData` \
+(GQ2/Dyadic/Instances/GammaLDeterminantRamifiedData.lean): the `DD.C0`-level `wild_eq` forces \
+the whole C-stage procyclic (`yc_procyclic_of_c0_graphData`), so this datum has no producer at \
+a boundary lift"
+  (since := "2026-08-07")]
 structure LRamifiedGraphData
     {h q : ℕ}
     {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
@@ -72,7 +85,15 @@ set_option maxHeartbeats 2400000 in
 /-- The complete ramified phase model at one finite descended representation.  The graph normal
 form proves the source/word comparison.  Transport of the source Arf-zero theorem fixes the
 Wall-head sign, and the finite lower action proves internally that the Wall operator preserves
-the quadratic form and has two-power order. -/
+the quadratic form and has two-power order.
+
+**Superseded** by `lSqRamifiedPhaseModel_of_headData`
+(`GQ2/Dyadic/Instances/GammaLDeterminantRamifiedData.lean`), its verbatim analogue at the
+faithful head quotient — see `LRamifiedGraphData`'s note for why this level has no producer. -/
+@[deprecated "superseded by `lSqRamifiedPhaseModel_of_headData` \
+(GQ2/Dyadic/Instances/GammaLDeterminantRamifiedData.lean), its verbatim analogue one level \
+down, at the faithful head quotient"
+  (since := "2026-08-07")]
 theorem lSqRamifiedPhaseModel_of_graphData
     {h q : ℕ}
     {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
@@ -155,7 +176,17 @@ set_option maxHeartbeats 2400000 in
 bridge.  Topology, the pulled-back coefficient action, its continuity, the quadratic module
 structure, the graph comparison, and the Wall-operator order calculation are all constructed
 internally.  The two callback inputs contain only concrete lower-action facts and the
-presentation-independent source-Arf-zero datum, respectively. -/
+presentation-independent source-Arf-zero datum, respectively.
+
+**Superseded** by `wordPhaseResidueK_ramified_lSq`
+(`GQ2/Dyadic/Instances/GammaLDeterminantRamifiedData.lean`), which keeps only the source-Arf
+datum: at the head-inflated block enrichment the lower-action clauses are theorems, given the
+ramification hypothesis `hram` that theorem carries.  This statement's `hgraph` binder is
+`LRamifiedGraphData`, which has no producer at a boundary lift — see its note. -/
+@[deprecated "superseded by `wordPhaseResidueK_ramified_lSq` \
+(GQ2/Dyadic/Instances/GammaLDeterminantRamifiedData.lean), which keeps only the source-Arf \
+datum; this statement's `hgraph` binder is the producerless `LRamifiedGraphData`"
+  (since := "2026-08-07")]
 theorem wordPhaseResidueK_ramified_of_graphData
     {h q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

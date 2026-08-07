@@ -721,14 +721,25 @@ theorem sqClearingStep_one_of_lamMarkTransitivity (H : SqLamMarkTransitivity 1) 
     (hval _).trans (nuSq_handleU 1 j), (hval _).trans (nuSq_handleV 1 j),
     fun j' hjj => absurd (Subsingleton.elim j' j) hjj⟩
 
-/-- **At one handle the clearing scheme is the residual itself.** -/
+/-- **At one handle the clearing scheme is the residual itself.**
+
+**Subsumed** by `sqClearingStep_iff : SqClearingStep h ↔ SqLamMarkTransitivity h`
+(`SqCore/CommFrames.lean` §1), which holds at *every* `h`.  The `h = 1` restriction here was only
+the absence of a builder for a marking with one handle zeroed and the rest left alone;
+`CommFrames`' `sqNuClear` supplies it.  Kept as the `h = 1` instance and as the record of what
+was available before W46. -/
 theorem sqClearingStep_one_iff : SqClearingStep 1 ↔ SqLamMarkTransitivity 1 :=
   ⟨sqLamMarkTransitivity_of_clearingStep, sqClearingStep_one_of_lamMarkTransitivity⟩
 
 /-- ⭐⭐ **The smallest open instance, exactly.**  At one handle the arbitrary-dressing word
 equation is *equivalent* to `SqLamMarkTransitivity 1`.  So a `D₈`-style refutation of this family
 would refute the residual outright — which is why the collapse mechanism of
-`SqCore/EichRefutation.lean` §7, and every mechanism like it, provably cannot reach it. -/
+`SqCore/EichRefutation.lean` §7, and every mechanism like it, provably cannot reach it.
+
+**Subsumed** by `sqArbRelWord_iff_lamMarkTransitivity : SqArbRelWord h ↔ SqLamMarkTransitivity h`
+(`SqCore/CommFrames.lean` §1), the same statement at every `h`.  Kept as the `h = 1` instance —
+the ⭐⭐ reading above is about the smallest open case specifically, and that is what this
+spelling says. -/
 theorem sqArbRelWord_one_iff : SqArbRelWord 1 ↔ SqLamMarkTransitivity 1 :=
   sqArbRelWord_iff_clearingStep.trans sqClearingStep_one_iff
 

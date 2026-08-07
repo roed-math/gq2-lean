@@ -14,7 +14,8 @@ Assembly of the two head-factored branch models into `DeterminantWordPhaseSupply
 `DeterminantResidue`, hence into `LSquareAnalyticLeavesRN` — its first producer.
 
 The unramified branch is unconditional.  The ramified branch consumes exactly one input, the
-presentation-independent `LRamifiedSourceArfData` per block and recursion level, packaged here as
+presentation-independent `LRamifiedSourceArfData` per block and recursion level *under the
+ramification hypothesis its consumer already carries*, packaged here as
 `LRamifiedSourceArfSupply`.  That is the candidate-side mirror of the field side's
 `ramifiedData` binder in `GQ2.Dyadic.affineDeterminant_galK`: on the field side it is supplied by
 `DyadicLocalInput.ramifiedData` (local duality), and it is the only arithmetic that the L word
@@ -40,7 +41,18 @@ open GQ2.Dyadic.TameSpec
 set_option linter.unusedVariables false in
 /-- The per-block, per-level form of `LRamifiedSourceArfData`: the descended continuous source
 form is a form of Arf invariant zero.  Nothing about the L presentation appears in the
-conclusion; this is the candidate-side twin of the field side's `ramifiedData` binder. -/
+conclusion; this is the candidate-side twin of the field side's `ramifiedData` binder.
+
+**The binder list matches `wordPhaseResidueK_ramified_lSq`'s tail exactly** — `m`, `hcard`,
+`l`, `hl`, `hram` — and that is deliberate.  Without the ramification hypothesis `hram` the
+statement is *false*: in an unramified block the descended source form carries the negative
+Gauss sign of `prop_6_9_unramified`, i.e. `Arf = 1`, so no route can supply the unconditioned
+form (see refutation (3) in `GQ2/Dyadic/Instances/GammaLSourceArfGeneral.lean`'s module
+docstring).  The `m`/`hcard` pair is unused by the conclusion but is what every producer needs
+(the Arf count runs on a space of order `2 ^ (2 * m)`); the sole consumer,
+`determinantWordPhaseSupply_lSq`, has both in scope, so binding them costs nothing there and
+lets `lRamifiedSourceArf_blockK` discharge the supply verbatim
+(`lRamifiedSourceArfSupply_pow`). -/
 def LRamifiedSourceArfSupply {h q : ℕ} {P : ProfiniteGrp}
     (nuP : ContinuousMonoidHom P Ztwo)
     (tame : ContinuousMonoidHom (gamma h q) (Tq q))
@@ -53,8 +65,14 @@ def LRamifiedSourceArfSupply {h q : ℕ} {P : ProfiniteGrp}
     [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
     (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
     (F : BoundaryFrameK q P H E)
+    (m : ℕ)
+    (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
     (l : (SectionNine.blockFrame T Blk hE2).DR)
-    (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR),
+    (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+    (hram :
+      letI := blockPS_commGroup Blk
+      letI := SectionNine.headAct T Blk
+      ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau q) • v ≠ v),
       let En := blockEnrichmentDK T Blk hE2 hq0 hqe F
       let DD := En.descData l hl
       letI : TopologicalSpace DD.Vmod := ⊥
@@ -92,7 +110,8 @@ def determinantWordPhaseSupply_lSq {h q : ℕ} {P : ProfiniteGrp}
       htameSigma htameTau htameWild hsimple hVne hnt m hm hcard l hl hunram
   ramified := fun T Blk _ _ _ hE2 hq0 hqe F _ _ _ m _ hcard l hl hram =>
     wordPhaseResidueK_ramified_lSq T Blk hE2 hq0 hqe F tame pro2 compat
-      htameSigma htameTau htameWild m hcard l hl hram (S T Blk hE2 hq0 hqe F l hl)
+      htameSigma htameTau htameWild m hcard l hl hram
+      (S T Blk hE2 hq0 hqe F m hcard l hl hram)
 
 set_option maxHeartbeats 1200000 in
 /-- **The determinant residue for the improved L presentation.**  Every analytic leaf of the L

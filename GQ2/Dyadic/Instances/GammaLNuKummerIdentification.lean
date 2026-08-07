@@ -191,13 +191,6 @@ local square theorem upgrades to an honest one — impossible in odd degree by �
 
 section Unramified
 
-/-- `‖2‖ < 1` in any normed `ℚ₂`-algebra (re-proof of the private `HilbertLedger` helper). -/
-theorem norm_two_lt_one_algebra {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
-    ‖(2 : F)‖ < 1 := by
-  rw [show (2 : F) = algebraMap ℚ_[2] F 2 from (map_ofNat _ 2).symm,
-    norm_algebraMap' (𝕜' := F) (2 : ℚ_[2])]
-  exact Padic.norm_p_lt_one
-
 /-- `‖3‖ = 1` in any normed `ℚ₂`-algebra. -/
 theorem norm_three_algebra {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
     ‖(3 : F)‖ = 1 := by
@@ -220,7 +213,7 @@ If instead `‖c² + c + 1‖ < 1`, then `d = 2c + 1` satisfies `d² + 3 = 4(c²
 square `w²`, and `d/w` is an honest square root of `−3` in `K`. -/
 theorem norm_cubeCyclotomic_eq_one (hodd : Odd (Module.finrank ℚ_[2] K)) {c : ↥K}
     (hc : ‖c‖ = 1) : ‖c ^ 2 + c + 1‖ = 1 := by
-  have h2lt : ‖(2 : ↥K)‖ < 1 := norm_two_lt_one_algebra
+  have h2lt : ‖(2 : ↥K)‖ < 1 := GQ2.norm_two_lt_one'
   have h3 : ‖(3 : ↥K)‖ = 1 := norm_three_algebra
   have h4 : ‖(4 : ↥K)‖ = ‖(2 : ↥K)‖ * ‖(2 : ↥K)‖ := by
     rw [show (4 : ↥K) = 2 * 2 by norm_num, norm_mul]
@@ -269,7 +262,7 @@ theorem norm_cubeCyclotomic_eq_one (hodd : Odd (Module.finrank ℚ_[2] K)) {c : 
 `‖w‖²` for an explicit `w ∈ {1, 2, t − 1}`. -/
 theorem exists_norm_sq_eq_sq_add_three (hodd : Odd (Module.finrank ℚ_[2] K)) {t : ↥K}
     (ht : ‖t‖ = 1) : ∃ w : ↥K, w ≠ 0 ∧ ‖t ^ 2 + 3‖ = ‖w‖ ^ 2 := by
-  have h2lt : ‖(2 : ↥K)‖ < 1 := norm_two_lt_one_algebra
+  have h2lt : ‖(2 : ↥K)‖ < 1 := GQ2.norm_two_lt_one'
   have h2pos : (0 : ℝ) < ‖(2 : ↥K)‖ := norm_pos_iff.mpr two_ne_zero
   have h4 : ‖(4 : ↥K)‖ = ‖(2 : ↥K)‖ ^ 2 := by
     rw [show (4 : ↥K) = 2 * 2 by norm_num, norm_mul, sq]
