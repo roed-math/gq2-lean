@@ -1,5 +1,42 @@
 # General Labute interface: landed seam and exact remaining DAG
 
+> ## ⚠ SUPERSEDED (2026-08-07) — historical record only
+>
+> **This note's central finding is no longer the state of the repository, and its "remaining
+> invariant" list is off the forward path.**  Read the two corrections below before using
+> anything under the line.
+>
+> **1. The "important interface finding" is answered.**  The note says the Labute hypotheses
+> conclude only *unoriented* equivalences and are therefore insufficient for marked matching.
+> The oriented forms are now committed, in `GQ2/Dyadic/OrientationCorrection.lean`:
+>
+> | declaration | line | what it gives |
+> | --- | --- | --- |
+> | `orientedEquivM_of_datum` | 456 | oriented equivalence for the `M` core from generator-value data |
+> | `orientedEquivN_of_datum` | 468 | the `N` twin |
+> | `orientedAbstractEquiv_KTwoM` | 563 | `MLabHypothesis` → oriented equivalence, given pullback naturality of its canonical predicate |
+> | `orientedAbstractEquiv_KTwoN` | 589 | the `N` twin |
+>
+> So the gap is a *hypothesis* (pullback naturality of an abstract canonical predicate), not a
+> missing conclusion shape.  The note's warning that image equality must never substitute for
+> orientation canonicity has been acted on twice over: `NLabHypothesis` now carries the
+> canonicity guard `nIsCanonical` that its `M` twin always had (owner memo 2026-08-05, item 3),
+> and `GQ2/Dyadic/Instances/EvenNLabWitness.lean` records the refutation that forced it —
+> without the guard, `D_M` satisfies every clause of the `N` hypothesis and the two even rows
+> collapse, contradicting `imChiM_ne_imChiN`.
+>
+> **2. The "remaining invariant" list is off the forward path since wave 37.**  The even rows
+> are being built by cloning the odd-degree forward-generator + equal-rank Demushkin-rigidity
+> architecture (`GQ2/Dyadic/Instances/EvenForwardRouteSkeleton.lean`), which consumes *none* of
+> the items this note tracks: no `demushkinQ = 2` on `G_K(2)`, no exact `im χ` equality, no
+> abstract canonical-orientation predicate on a general profinite group, and not Labute's
+> even-rank classification theorem itself.  Orientation is free on that route, because the
+> forward map is built from a generator tuple with prescribed cyclotomic values, so
+> `orientedEquiv{M,N}_of_datum` apply directly.  The per-row consumer table below is therefore a
+> record of the *classification* route, which is no longer the one being pursued.
+>
+> Everything below this line is preserved unchanged as the 2026-08-02 record.
+
 Date: 2026-08-02
 
 ## What is now a checked Lean interface
