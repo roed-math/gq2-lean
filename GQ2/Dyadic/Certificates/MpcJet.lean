@@ -94,10 +94,11 @@ from `evalFin`.  ⚠ **No `ResolvedAt`** — WW6's resolver-immunity finding for
 
 ## Scope, honestly
 
-The handle tail is not evaluated: §7's `evalFin_mpcW_factored` splits it off at general `h` and
-the frozen-word statements take `h = 0`, where `handlesW 0 = 1`.  Extending to `h > 0` needs the
-`evalFin` twin of WN0-c's `hess_handlesW_eval` and adds `∑_j b_q(e_{3+2j}, e_{4+2j})`; nothing
-else changes.  `E₀₁^pc`'s second-order justification is untouched — freeze row 5's status (gate-F
+This file's frozen-word statements take `h = 0`, where `handlesW 0 = 1`; §7's
+`evalFin_mpcW_factored` splits the handle tail off at general `h`.  **The general-`h` tail is now
+evaluated downstream** (W50: `Instances/MpcJetGeneral.lean` supplies the `evalFin` twin of
+WN0-c's `hess_handlesW_eval` and the predicted `∑_j b_q(e_{3+2j}, e_{4+2j})` — this paragraph's
+forecast held exactly); nothing else changes.  `E₀₁^pc`'s second-order justification is untouched — freeze row 5's status (gate-F
 measurement, cited not proved) stands, and nothing below weakens or strengthens it.  The S4.5
 block-order rider stays a gate-D statement (`swapDifference_zero_of_no_primal_x2`); §6's
 `evalFin_e2W_one` is its value-level face on this marking and claims nothing more.
@@ -119,8 +120,9 @@ No sorries, no new axioms, **no `decide` at all**, and none of the nine obligati
 ## Module rule
 
 Plain-import, and forced: `Word/NpcBridge.lean` (WW6) is plain and
-`Certificates/MpcStokes.lean` (WMP-d) is plain, so this leaf is plain.  It is **not** registered
-in `GQ2.lean`; build it with `lake build GQ2.Dyadic.Certificates.MpcJet`.
+`Certificates/MpcStokes.lean` (WMP-d) is plain, so this leaf is plain.  It **is** registered in
+`GQ2.lean` (the "not registered" note here was stale — W50 doc fix); per-module build:
+`lake build GQ2.Dyadic.Certificates.MpcJet`.
 -/
 
 namespace GQ2.Dyadic.Certificates.MpcJet

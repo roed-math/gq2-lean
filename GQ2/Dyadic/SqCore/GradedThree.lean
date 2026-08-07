@@ -30,9 +30,12 @@ three free dressings are not even needed: the class-two forced dressing does the
 as well.
 
 ⚠ **The class-three layer is nevertheless a real constraint.**  `u4WitBad` dresses the `x₁`-slot
-by `V`: both class-two defects stay in `2·ℤ/8`, so class two admits it, while its class-three
-defect is the unit `7`, which by `sqU4_top_range` no choice of the two exponent slots can repair.
-Sampling agrees: about half of the dressing tuples that pass class two fail class three.
+by `V`: both class-two *defects* stay in `2·ℤ/8` — it is defect-admissible, though not
+class-≤2-admissible (the tuple fails the two abelian rows, `2 ≠ 0`; the clean
+admissible-but-class-three-dead witness is `GradedSelect`'s `selTW2`, W50 erratum) — while its
+class-three defect is the unit `7`, which by `sqU4_top_range` no choice of the two exponent
+slots can repair.  Sampling agrees: about half of the dressing tuples that pass class two fail
+class three.
 
 ⚠ **What this is and is not.**  A class-three test group is a *necessary-condition* engine, as at
 class two.  "Yes" here means *the class-three gate does not obstruct* — it is positive evidence
@@ -832,10 +835,12 @@ chosen to kill the class-three defect — here they can be left trivial, and the
 class two already forces does the class-three job as well.
 
 ⚠ **But the class-three layer is not vacuous.**  `u4WitBad` dresses the `x₁`-slot by `V` instead:
-its two class-two defects stay in `2·ℤ/8`, so **class two accepts it**, while its class-three
-defect is `7`, a unit — and by `sqU4_top_range` no choice of the two exponent slots' class-three
-coordinates can repair that.  Class three kills dressings that class two admits; it just does not
-kill *all* of them. -/
+its two class-two *defects* stay in `2·ℤ/8`, so **its defects are class-two-repairable** — though
+the tuple itself fails the two abelian rows (`2 ≠ 0`), so it is defect-admissible rather than
+class-≤2-admissible; the clean admissible-but-class-three-dead witness is `GradedSelect`'s
+`selTW2` (W50 erratum) — while its class-three defect is `7`, a unit, and by `sqU4_top_range` no
+choice of the two exponent slots' class-three coordinates can repair that.  Class three kills
+dressings whose defects class two admits; it just does not kill *all* of them. -/
 
 section Witness
 
