@@ -1001,6 +1001,190 @@ theorem selLam_completion_move (A B C D P Q res rr : gr3R) :
 
 end SelectionVerdicts
 
+/-! ### §6b ⭐ The σ-slot, and what the slice cannot see
+
+The W50 depth sweep (`docs/dyadic/w50-depth-sweep.md` §6.2) found that in the **universal**
+class-three quotient the level-one survivor set forces the σ-slot to carry the *same* dressing
+as the `x₀`-slot: `a₀ = a₁ = U^{−s}V^{t}` mod squares — a constraint strictly beyond
+`GradedTwo`'s `x₀`-forcing, and beyond anything committed.
+
+The selection family **cannot** prove that constraint, and this section shows why in the
+strongest machine-checked form: at the canonical uncleared row type the frame with
+`a₀ = a₁ = U⁻¹` (the sweep's witness shape) *and* the committed frame with `a₀ = 1`
+(`sqRelWord_selHom_sqArbFrame`, §4) **both** kill the relator at every hom of the family — the
+slice is blind to the σ-slot.  The mod-2 reason is visible in §5b's bit analysis: the σ-slot's
+dressing data enters the residue parity only through the products `κ₂·k₁m₀`, `κ₃·k₁n₀` with the
+`x₁x₀⁻²`-component `k₁` of the `x₀`-dressing, and the forced branch has `k₁ = 0`.  A wider
+slice — nonzero `a`/`c`-weights on the core slots, at the cost of `sqPivotExp`-dependence —
+is what a σ-sensitive gate needs; that design is banked in `docs/dyadic/w50-selection-note.md`. -/
+
+section SigmaBlind
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+variable {A B C D P Q : gr3R}
+variable {hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0}
+variable {he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0}
+
+variable (h nu' j) in
+/-- ⭐ **The sweep-shaped dressing**: `a₀ = a₁ = U⁻¹`, every other slot trivial.  This is the
+witness shape the depth sweep's level-one survivor analysis forces universally at the
+`(t, s) ≡ (0, 1)` row type (`U^{−s}V^{t} = U⁻¹`), with the σ-slot dressed **the same way** as
+the `x₀`-slot. -/
+noncomputable def selDressSig : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 0 then (sqEichU h nu' j)⁻¹ else
+    if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ else 1
+
+@[simp] theorem selDressSig_zero : selDressSig h nu' j 0 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDressSig, sqVal_zero]
+  norm_num
+
+@[simp] theorem selDressSig_one : selDressSig h nu' j 1 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDressSig, sqVal_one]
+  norm_num
+
+theorem selDressSig_of_ge {i : Fin (sqRank h)} (hi : 2 ≤ (i : ℕ)) :
+    selDressSig h nu' j i = 1 := by
+  simp only [selDressSig]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem selDressSig_two : selDressSig h nu' j 2 = 1 :=
+  selDressSig_of_ge (by rw [sqVal_two])
+
+@[simp] theorem selDressSig_handleU (j' : Fin h) :
+    selDressSig h nu' j (sqHandleIdxU j') = 1 :=
+  selDressSig_of_ge (by rw [sqHandleIdxU_val]; omega)
+
+@[simp] theorem selDressSig_handleV (j' : Fin h) :
+    selDressSig h nu' j (sqHandleIdxV j') = 1 :=
+  selDressSig_of_ge (by rw [sqHandleIdxV_val]; omega)
+
+/-- The sweep-shaped dressing is legal on the `λ`-row. -/
+theorem nuLam_selDressSig (i : Fin (sqRank h)) : nuLam h (selDressSig h nu' j i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), selDressSig_zero, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressSig_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  · rw [selDressSig_of_ge (by omega), map_one]
+
+/-- …and on the `ν'`-row, so it lies in `ker λ ∩ ker ν'` slotwise. -/
+theorem nu_selDressSig (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (selDressSig h nu' j i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), selDressSig_zero, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressSig_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  · rw [selDressSig_of_ge (by omega), map_one]
+
+/-! #### The five slot images -/
+
+/-- The dressed `σ`-slot: the `ν'`-column generator times `Φ(U)⁻¹`. -/
+theorem selHomSig_zero (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressSig h nu' j) 0)
+      = ⟨-A, 1, -C, 0, -C, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_zero, selDressSig_zero, map_mul, dsqSigma, selHom_gen,
+    selMark_zero, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+/-- The dressed `x₀`-slot, as in the committed witness. -/
+theorem selHomSig_one (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressSig h nu' j) 1)
+      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_one, selDressSig_one, map_mul, dsqX0, selHom_gen, selMark_one,
+    one_mul, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+/-- The `x₁`-slot stands. -/
+theorem selHomSig_two :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressSig h nu' j) 2)
+      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_two, selDressSig_two, mul_one, dsqX1, selHom_gen, selMark_two]
+
+/-- The handle slots stand. -/
+theorem selHomSig_handleU (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxU j)) = ⟨A, 0, C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleU, selDressSig_handleU, mul_one,
+    selHom_sqEichU_of_cleared hu]
+
+theorem selHomSig_handleV (hv : selS h nu' j = 1) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleV, selDressSig_handleV, mul_one, selHom_sqEichV_of_one hv]
+
+theorem selHomSig_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxU j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleU_ne hne, selDressSig_handleU, mul_one, selHom_gen,
+    selMark_handleU_ne hne]
+
+theorem selHomSig_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxV j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleV_ne hne, selDressSig_handleV, mul_one, selHom_gen,
+    selMark_handleV_ne hne]
+
+/-- ⭐⭐ **The slice is blind to the σ-slot forcing.**  The frame dressed by the sweep's witness
+shape `a₀ = a₁ = U⁻¹` kills the relator in **every** class-three quotient of the selection
+family, at every admissible pair of free characters — just as the committed `a₀ = 1` frame
+does (`sqRelWord_selHom_sqArbFrame`).  So no hom of this family separates the two σ-dressings,
+and the sweep's σ-slot forcing is invisible from inside the slice: a σ-sensitive gate must
+leave it. -/
+theorem sqRelWord_selHom_sqArbFrame_sigma (hu : selT h nu' j = 0) (hv : selS h nu' j = 1) :
+    sqRelWord (fun i => selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) i)) = 1 := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have hd' : 2 * P + A = 0 := by
+    have hx := hd; rw [hu, hv] at hx; linear_combination hx
+  have he' : 2 * Q - C = 0 := by
+    have hx := he; rw [hu, hv] at hx; linear_combination hx
+  have hs0 := selHomSig_zero (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hs1 := selHomSig_one (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hs2 := selHomSig_two (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+    (hd := hd) (he := he)
+  have hsU := selHomSig_handleU (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hsV := selHomSig_handleV (A := A) (C := C) (P := P) (Q := Q) (hd := hd) (he := he) hv
+  have hsUne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selHomSig_handleU_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (hd := hd) (he := he) hne
+  have hsVne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selHomSig_handleV_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (hd := hd) (he := he) hne
+  rw [SqU4.sqRelWord_eq_one_iff]
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [hs1, hs2]
+    linear_combination 4 * hd' - P * h8
+  · rw [hs1, hs2]
+    ring
+  · rw [hs1, hs2]
+    linear_combination (-4) * he' + Q * h8
+  · rw [sqHeisDefect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [hs0, hs1, hs2, hsU, hsV, SqU4.toHeisAB_apply]
+    linear_combination hd'
+  · rw [sqHeisDefect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [hs0, hs1, hs2, hsU, hsV, SqU4.toHeisBC_apply]
+    linear_combination he'
+  · rw [sqU4Defect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3
+        (selHom h nu' j A B C D P Q hd he
+          (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxU j')))
+        (selHom h nu' j A B C D P Q hd he
+          (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxV j'))))
+        (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp [SqU4.u4Comm3])]
+    simp only [hs0, hs1, hs2, hsU, hsV, sqU4Core, SqU4.u4Comm3]
+    linear_combination (-A - B) * he' + A * Q * h8
+
+end SigmaBlind
+
 end SqCore
 
 end Dyadic
