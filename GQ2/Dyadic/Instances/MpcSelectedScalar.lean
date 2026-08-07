@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
+import GQ2.Dyadic.CertificateSupplyFamilyRN
 import GQ2.Dyadic.Instances.MpcPairings
 
 /-!
@@ -36,10 +37,14 @@ of order `2` and `k` is odd.
 * `Words.Mpc.EtaDisplay.exists_toPadic_eq_one_add_two_mul_of_wf` — the `.hat` unit hypothesis
   from well-formedness;
 * `Words.Mpc.EtaDisplay.odd_of_lit_representsUnit` — the `.lit` oddness from representation;
-* `MProcyclicExact.scalarActionImageStokes_of_display` — the scalar residue for **every**
-  `MpcDisplayFor`, the analogue of `displayFixedPointFree_of_representsUnit` one residue over;
-* `MProcyclicExact.uniformPushedHsimp_of_ramified_display` — the procyclic-`M` uniform pushed
-  residue on the single remaining ramified input, at an arbitrary selected display.
+* `MProcyclicExact.scalarActionImageStokes_of_wf` and `.scalarActionImageStokes_of_display` —
+  the scalar residue for **every** display the seam can present, the analogue of
+  `displayFixedPointFree_of_representsUnit` one residue over;
+* `MProcyclicExact.uniformPushedHsimp_of_ramified_wf` and `.uniformPushedHsimp_of_ramified_display`
+  — the procyclic-`M` uniform pushed residue on the single remaining ramified input;
+* `SemanticSelectedHsimpRN.of_Mpc_ramified` and `SelectedHsimp.of_Mpc_ramified` — the two seam
+  producers on that one input, superseding the three-input `of_Mpc_actionImage` pair in
+  `CertificateSupplyFamilyRN`.
 -/
 
 namespace GQ2.Dyadic
@@ -153,11 +158,10 @@ needs at the seam is the ramified one.
 
 `2 ≤ α` is not a restriction at the seam either: `FieldBranchSelection.valid` supplies exactly
 `2 ≤ α ∧ 1 ≤ r` on the `Mpc` branch. -/
-theorem scalarActionImageStokes_of_display {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ}
-    (hα : 2 ≤ alpha) (hqe : Even q) (d : MpcDisplayFor eta) :
-    ScalarActionImageStokes alpha r pp h q d.display := by
-  obtain ⟨disp, hwf, hrep⟩ := d
-  cases disp with
+theorem scalarActionImageStokes_of_wf {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ} {d : EtaDisplay}
+    (hα : 2 ≤ alpha) (hqe : Even q) (hwf : d.wfB = true) (hrep : d.RepresentsUnit eta) :
+    ScalarActionImageStokes alpha r pp h q d := by
+  cases d with
   | one => exact scalarActionImageStokes_one hα hqe
   | lit k =>
       exact scalarActionImageStokes_lit hα hqe
@@ -165,6 +169,12 @@ theorem scalarActionImageStokes_of_display {alpha r pp h q : ℕ} {eta : ℤ_[2]
   | hat num den =>
       obtain ⟨z, hz⟩ := Words.Mpc.EtaDisplay.exists_toPadic_eq_one_add_two_mul_of_wf hwf
       exact scalarActionImageStokes_hat z hα hqe hz
+
+/-- The display-package form of `scalarActionImageStokes_of_wf`. -/
+theorem scalarActionImageStokes_of_display {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ}
+    (hα : 2 ≤ alpha) (hqe : Even q) (d : MpcDisplayFor eta) :
+    ScalarActionImageStokes alpha r pp h q d.display :=
+  scalarActionImageStokes_of_wf hα hqe d.wf d.represents
 
 /-- **The procyclic-`M` uniform pushed residue at an arbitrary selected display, on the single
 ramified input.**
@@ -177,15 +187,71 @@ for every display the seam can present: the generic unramified pairing unconditi
 
 This is the shape `CertificateSupplyFamilyRN.SemanticSelectedHsimpRN.of_Mpc_actionImage` and
 `SelectedHsimp.of_Mpc_actionImage` consume: both currently bind `hpair`, `hsc` and `hsep`, and
-both can drop the first two by routing through this theorem. -/
+both can drop the first two by routing through this theorem.
+
+⚠ Stated over the display's two certificate fields rather than over the package.  The seam
+presents the package only as `hbranch ▸ S.display`, and feeding *that* to a lemma whose explicit
+argument is the package makes the `▸`-elaborator work against a metavariable-laden expected type:
+the two seam producers then do not elaborate inside `1600000` heartbeats.  Passing the fields as
+projections of the same `▸`-term, exactly as the existing three-input producers pass
+`(hbranch ▸ S.display).represents`, keeps every `▸` under a known expected type. -/
+theorem uniformPushedHsimp_of_ramified_wf {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ} {d : EtaDisplay}
+    (hα : 2 ≤ alpha) (hqe : Even q) (hwf : d.wfB = true) (hrep : d.RepresentsUnit eta)
+    (hsep : RamifiedNormalPairingSeparates alpha r pp h q d) :
+    UniformPushedHsimp alpha r pp h q d :=
+  uniformPushedHsimp_of_pairings (by omega) hqe hrep unramifiedNormalPairingIsCompact
+    (scalarActionImageStokes_of_wf hα hqe hwf hrep) hsep
+
+/-- The display-package form of `uniformPushedHsimp_of_ramified_wf`. -/
 theorem uniformPushedHsimp_of_ramified_display {alpha r pp h q : ℕ} {eta : ℤ_[2]ˣ}
     (hα : 2 ≤ alpha) (hqe : Even q) (d : MpcDisplayFor eta)
     (hsep : RamifiedNormalPairingSeparates alpha r pp h q d.display) :
     UniformPushedHsimp alpha r pp h q d.display :=
-  uniformPushedHsimp_of_pairings (by omega) hqe d.represents unramifiedNormalPairingIsCompact
-    (scalarActionImageStokes_of_display hα hqe d) hsep
+  uniformPushedHsimp_of_ramified_wf hα hqe d.wf d.represents hsep
 
 end MProcyclicExact
+
+/-! ## The seam supply theorems, on one input -/
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- **The procyclic-`M` Stokes residue, on the ramified pairing alone.**
+
+`SemanticSelectedHsimpRN.of_Mpc_actionImage` binds all three of the row's second-order inputs.
+Two of them are now theorems at the seam: `hpair` unconditionally
+(`MProcyclicExact.unramifiedNormalPairingIsCompact`) and `hsc` from the display package
+(`MProcyclicExact.scalarActionImageStokes_of_display`).  This is the resulting one-input form,
+and it supersedes the three-input one; the `Npc`-shaped statement with no residual binder at all
+is one `hsep` away. -/
+theorem SemanticSelectedHsimpRN.of_Mpc_ramified {FP : FieldParameters}
+    {S : SemanticSelectionView FP} {q alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) (hqe : Even q)
+    (hsep : MProcyclicExact.RamifiedNormalPairingSeparates alpha r (p epsilon r)
+      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display) :
+    SemanticSelectedHsimpRN S q := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
+  exact .MpcUniform alpha r epsilon eta hbranch
+    (MProcyclicExact.uniformPushedHsimp_of_ramified_wf hvalid.1 hqe (hbranch ▸ S.display).wf
+      (hbranch ▸ S.display).represents hsep)
+
+/-- The same producer for the legacy selector's residue `SelectedHsimp`, superseding
+`SelectedHsimp.of_Mpc_actionImage`'s three-input form for the same two reasons. -/
+theorem SelectedHsimp.of_Mpc_ramified
+    {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {FP : FieldParameters} {Q : MarkedPair (GalKab K)} {W : FieldBranchWitness FP Q}
+    {S : FieldBranchSelection K FP Q W} {q alpha r : ℕ} {epsilon : Bool} {eta : ℤ_[2]ˣ}
+    (hbranch : S.branch = .Mpc alpha r epsilon eta) (hqe : Even q)
+    (hsep : MProcyclicExact.RamifiedNormalPairingSeparates alpha r (p epsilon r)
+      (handleCount FP (.Mpc alpha r epsilon eta)) q (hbranch ▸ S.display).display) :
+    SelectedHsimp S q := by
+  have hvalid := S.valid
+  rw [hbranch] at hvalid
+  change 2 ≤ alpha ∧ 1 ≤ r at hvalid
+  exact .MpcUniform alpha r epsilon eta hbranch
+    (MProcyclicExact.uniformPushedHsimp_of_ramified_wf hvalid.1 hqe (hbranch ▸ S.display).wf
+      (hbranch ▸ S.display).represents hsep)
 
 end
 
@@ -198,7 +264,11 @@ section AxiomAudit
 #print axioms
   GQ2.Dyadic.Words.Mpc.EtaDisplay.exists_toPadic_eq_one_add_two_mul_of_wf
 #print axioms GQ2.Dyadic.Words.Mpc.EtaDisplay.odd_of_lit_representsUnit
+#print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_of_wf
 #print axioms GQ2.Dyadic.MProcyclicExact.scalarActionImageStokes_of_display
+#print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_wf
 #print axioms GQ2.Dyadic.MProcyclicExact.uniformPushedHsimp_of_ramified_display
+#print axioms GQ2.Dyadic.SemanticSelectedHsimpRN.of_Mpc_ramified
+#print axioms GQ2.Dyadic.SelectedHsimp.of_Mpc_ramified
 
 end AxiomAudit
