@@ -15,14 +15,30 @@ This file does two things.
   `selHom` on `D_sq h` whose `b`-column *is* `ν'`, with the images of the pivot and of the two
   cleared letters `U`, `V` computed in closed form, so that
   `sqRelWord_selHom_sqArbFrame` is a statement about `sqArbFrame h nu' j a` itself.
-* **§5–§6** characterise the **selection**: the set of dressings passing both gates.
+* **§5–§6** (W50) characterise the **selection**: the `γ₂`-dressing action on the relator is a
+  central translation, affine-linear in the dressings (`sqRelWord_selRefine`); its image is
+  **not** the whole defect space — at every uncleared selected marking it lies in `2·ℤ/8`, the
+  cokernel functional is reduction mod 2, and the **parity of the class-three residue is an
+  invariant of the refinement orbit**: the selection bit.  Odd bit: unrepairable
+  (`sqRelWord_selRefine_ne_one`); even bit at a live pairing: repaired by one explicit move
+  (`sqRelWord_selRefine_eq_one`).  §6b proves the slice **blind** to the depth sweep's σ-slot
+  forcing (both `a₀ = 1` and `a₀ = U⁻¹` pass every hom); §6c pins the selection in action on
+  `sqArbFrame`: the legal `t`-dressing `selDressT` is class-two-admissible, dies at a
+  `κ₃`-odd hom under every refinement, and is repaired at the committed hom.
 
 ## Contents
 
 * **§1** the gate instance over `ℤ/8`;
 * **§2** the selection marking, its realizability, and the test hom;
 * **§3** the closed forms `selHom_b`, `selHom_sqPivot`, `selHom_sqEichU`, `selHom_sqEichV`;
-* **§4** ⭐ the witness, as a theorem about `sqArbFrame`.
+* **§4** ⭐ the witness, as a theorem about `sqArbFrame`;
+* **§5** the `γ₂`-dressing calculus (`selRefine`, `sqRelWord_selRefine`) and **§5b** the parity
+  engine (`selCross_even`, `selPair_even`) — the linear action and its mod-2 cokernel;
+* **§6** ⭐⭐ the selection characterised: obstruction, completion, σ-blindness (§6b), and the
+  machine-checked selection instance on `sqArbFrame` (§6c);
+* **§7** committed axiom prints (all std-3).
+
+Companion memo: `docs/dyadic/w50-selection-note.md`.
 -/
 
 open Multiplicative
@@ -1454,6 +1470,99 @@ example : sqRelWord (selRefine 0 selTCom 1 1 ⟨0, 0, 0, -(1 * 3 * 1), 1 * 3 * 1
   sqRelWord_selRefine_eq_one (B := 1) (D := 1) sqRelWord_selTCom (by decide)
 
 end SelectionVerdictInstances
+
+/-! ## §7 Axiom pins
+
+Committed prints for every §5–§6 declaration: all **std-3** (`propext`, `Classical.choice`,
+`Quot.sound`) or a subset; no census axiom is reachable.  Every `decide` is on `ZMod 8`,
+`ZMod 2` or `Fin`-indexed tuples over them. -/
+
+section AxiomPins
+
+#print axioms SqU4.IsGaTwo
+#print axioms SqU4.IsGaThree
+#print axioms SqU4.IsGaThree.isGaTwo
+#print axioms SqU4.isGaThree_one
+#print axioms SqU4.isGaTwo_one
+#print axioms SqU4.mul_center_f
+#print axioms SqU4.u4Comm3_mul_gaTwo_left
+#print axioms SqU4.u4Comm3_mul_gaTwo_right
+#print axioms sqHeisDefect_congr_ab
+#print axioms selRefine
+#print axioms selRefine_one
+#print axioms selRefine_two
+#print axioms selRefine_handleU
+#print axioms selRefine_handleV
+#print axioms selRefine_zero
+#print axioms selRefine_handleU_ne
+#print axioms selRefine_handleV_ne
+#print axioms selRefine_abc
+#print axioms sqU4Defect_selRefine
+#print axioms sqRelWord_selRefine
+#print axioms selPar
+#print axioms selPar_zero
+#print axioms selPar_one
+#print axioms selPar_add
+#print axioms selPar_sub
+#print axioms selPar_mul
+#print axioms selPar_two_mul
+#print axioms selPar_eq_zero_iff
+#print axioms selCross_even
+#print axioms selLam
+#print axioms selCol
+#print axioms selPair_even
+#print axioms selPair_even'
+#print axioms sqRelWord_selRefine_ne_one
+#print axioms sqRelWord_selRefine_eq_one
+#print axioms selLam_completion_move
+#print axioms selDressSig
+#print axioms selDressSig_zero
+#print axioms selDressSig_one
+#print axioms selDressSig_of_ge
+#print axioms selDressSig_two
+#print axioms selDressSig_handleU
+#print axioms selDressSig_handleV
+#print axioms nuLam_selDressSig
+#print axioms nu_selDressSig
+#print axioms selHomSig_zero
+#print axioms selHomSig_one
+#print axioms selHomSig_two
+#print axioms selHomSig_handleU
+#print axioms selHomSig_handleV
+#print axioms selHomSig_handleU_ne
+#print axioms selHomSig_handleV_ne
+#print axioms sqRelWord_selHom_sqArbFrame_sigma
+#print axioms selTee
+#print axioms nuLam_selTee
+#print axioms nu_selTee
+#print axioms selHom_selTee
+#print axioms selDressT
+#print axioms selDressT_one
+#print axioms selDressT_handleU
+#print axioms selDressT_zero
+#print axioms selDressT_two
+#print axioms selDressT_handleU_ne
+#print axioms selDressT_handleV
+#print axioms nuLam_selDressT
+#print axioms nu_selDressT
+#print axioms selHomT_zero
+#print axioms selHomT_one
+#print axioms selHomT_two
+#print axioms selHomT_handleU
+#print axioms selHomT_handleV
+#print axioms selHomT_handleU_ne
+#print axioms selHomT_handleV_ne
+#print axioms selW2D
+#print axioms selW2E
+#print axioms selTW2
+#print axioms selHomT_eq_selTW2
+#print axioms sqRelWord_selTW2
+#print axioms sqRelWord_selRefine_selTW2_ne_one
+#print axioms selTCom
+#print axioms selHomT_eq_selTCom
+#print axioms sqRelWord_selTCom
+
+end AxiomPins
 
 end SqCore
 
