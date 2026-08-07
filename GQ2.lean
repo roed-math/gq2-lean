@@ -535,6 +535,7 @@ import GQ2.Dyadic.Instances.GammaLSourceArfGeneral
 import GQ2.Dyadic.Instances.CandidateEquivGalKRN
 import GQ2.Dyadic.Instances.OddDegreeFieldWitness
 import GQ2.Dyadic.Instances.NpcJetGeneral
+import GQ2.Dyadic.Instances.MpcJetGeneral
 import GQ2.Dyadic.Instances.GammaRActionImage
 import GQ2.Dyadic.Instances.EvenHandleCoordinates
 import GQ2.Dyadic.Instances.N0M0UniformHeisenbergResolver
