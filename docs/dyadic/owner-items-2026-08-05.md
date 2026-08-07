@@ -5,6 +5,36 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 50 (2026-08-07)
+
+**Open, still yours:** §1 (the `q = 4` ramified Arf sign — the recommendation stands: option 3,
+restrict the even determinant lane to odd `f` now and ticket the sign-corrected general form)
+and item 6's `α = 1` even cores (deliberately unasserted; both cores leave the shared Gram).
+
+**Resolved this wave:** §1b (nesting — resolved earlier by W42-NEST/W42-BUNDLE, see the updates
+below); item 2 (`LRamifiedSourceArfSupply` now binds the consumer's full tail — `m`, `hcard`,
+`l`, `hl`, `hram` — since no in-repo lemma derives even-dimensionality from `Nonsingular`; the
+producer hookup is `lRamifiedSourceArfSupply_pow`); item 3 (`NLabHypothesis` carries the
+canonicity guard as a *parameter* mirroring `MLabHypothesis`'s, with `noCanonicityGuard` and
+`nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis` committing the refutation that forced it);
+item 4 (the graph-data records and their `_of_graphData` theorems plus the two `PhaseModel`
+consumers are deprecation-marked at the head-factored replacements); item 5 (supersession
+banner on `labute-interface-status.md`; four fictitious citations fixed, two beyond the memo's
+count; `norm_two_lt_one'` de-privatized and its downstream duplicate deleted); item 6a (the
+general-`h` `M`-frame exists — `MarkedCore/MFrame.lean`, `demushkinQ_DM_mFrame`, α-free with
+`α = 0` proved empty, and the item-3 counterexample now costs one frame at every handle count);
+item 6c (the `mpcW` jet layer at general `h` — `Instances/MpcJetGeneral.lean`, including a
+second-order value for the hash-pinned one-handle certificate).
+
+New this wave, for orientation rather than decision: the class-three *selection* is a computable
+parity with an iff-characterization and an explicit completion move (`GradedSelect.lean` §5–§7,
+`docs/dyadic/w50-selection-note.md`), and the Magma depth sweep found zero infeasibility with
+class 3–4 exhaustive at `h = 1` (`docs/dyadic/w50-depth-sweep.md`); the sweep's
+codimension-`(d+1)` containment identity is proposed as the next Lean target on the `h ≥ 1`
+route. The even forward route now has its generic stage layer and the EV-3 ticket board
+(`docs/dyadic/ev4b-stage-abstraction.md`); one committed Prop (`SharpExactLevelFibreLiftSupply`)
+was found false at even degree and replaced by a row-target-relative form.
+
 ## 1. DECISION: the ramified Arf conclusion is false at even residue degree
 
 **Finding.** The determinant analysis' ramified branch concludes `Arf(q̄_U) = 0`. That
