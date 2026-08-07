@@ -216,6 +216,142 @@ theorem chiM_dmGen (α h : ℕ) (i : Fin (MarkedCore.coreRank h)) :
   · exact fun j ↦ (MarkedCore.chiM_handleU α h j).trans (vM_handleU α j).symm
   · exact fun j ↦ (MarkedCore.chiM_handleV α h j).trans (vM_handleV α j).symm
 
+/-! ## §4 The model-transported stages and the reachable-defect regression
+
+The board's endpoint for EV-3b.  Given an oriented equivalence between a marked core and an
+ambient group `G` — that is, a `ContinuousMulEquiv` carrying the core's canonical character to
+`G`'s character — the generic transport `Tuple.ofModel` produces a stage at *every* level, and
+`Tuple.ofModel_defectReachable` says each one has a reachable actual defect.
+
+This is the even analogue of the `h = 0` regression seam of the odd route, and it is
+noncircular: no arithmetic supply is consumed anywhere, so it exercises the even
+instantiation of the word datum, the row table, and the whole correction interface using only
+the committed presentation of the core. -/
+
+section Model
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+  {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {α h : ℕ}
+
+/-- **The `N_α` model-transported stage at level `k`**: an oriented equivalence
+`e : D_N α h ≃ G` with `chi ∘ e = chiN α h` marks the `k`-th lower two-central quotient of `G`
+by the images of the presented generators, with the `N_α` relator dying and every row landing
+in the exact `chi`-fibre of `vN α`. -/
+def nTupleOfModel (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DN α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiN α h x) (k : ℕ) :
+    Tuple (nStageWord α h hα) (vN α) G chi k :=
+  Tuple.ofModel (MarkedCore.dnGen α h) (MarkedCore.dn_relation α h)
+    (MarkedCore.dn_topGen α h) (dnFinsetTopGen α h) (MarkedCore.chiN α h)
+    (chiN_dnGen α h) hpro e he k
+
+/-- **The `M_α` model-transported stage at level `k`**. -/
+def mTupleOfModel (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DM α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiM α h x) (k : ℕ) :
+    Tuple (mStageWord α h hα) (vM α) G chi k :=
+  Tuple.ofModel (MarkedCore.dmGen α h) (MarkedCore.dm_relation α h)
+    (MarkedCore.dm_topGen α h) (dmFinsetTopGen α h) (MarkedCore.chiM α h)
+    (chiM_dmGen α h) hpro e he k
+
+/-- The transported `N_α` marking is the image of the presented generators. -/
+@[simp] theorem nTupleOfModel_generators (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DN α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiN α h x) (k : ℕ) :
+    (nTupleOfModel hα hpro e he k).generators =
+      fun i ↦ levelMk G k (e (MarkedCore.dnGen α h i)) := rfl
+
+/-- The transported `M_α` marking is the image of the presented generators. -/
+@[simp] theorem mTupleOfModel_generators (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DM α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiM α h x) (k : ℕ) :
+    (mTupleOfModel hα hpro e he k).generators =
+      fun i ↦ levelMk G k (e (MarkedCore.dmGen α h i)) := rfl
+
+/-- **The `N_α` regression**: the model-transported stage has a reachable actual defect at
+every level. -/
+theorem nTupleOfModel_defectReachable (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DN α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiN α h x) (k : ℕ) :
+    Tuple.DefectReachable (nTupleOfModel hα hpro e he k) :=
+  Tuple.ofModel_defectReachable (W := nStageWord α h hα) (v := vN α)
+    (MarkedCore.dnGen α h) (MarkedCore.dn_relation α h) (MarkedCore.dn_topGen α h)
+    (dnFinsetTopGen α h) (MarkedCore.chiN α h) (chiN_dnGen α h) hpro e he k
+
+/-- **The `M_α` regression**: the model-transported stage has a reachable actual defect at
+every level. -/
+theorem mTupleOfModel_defectReachable (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DM α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiM α h x) (k : ℕ) :
+    Tuple.DefectReachable (mTupleOfModel hα hpro e he k) :=
+  Tuple.ofModel_defectReachable (W := mStageWord α h hα) (v := vM α)
+    (MarkedCore.dmGen α h) (MarkedCore.dm_relation α h) (MarkedCore.dm_topGen α h)
+    (dmFinsetTopGen α h) (MarkedCore.chiM α h) (chiM_dmGen α h) hpro e he k
+
+/-- **The EV-3b endpoint, `N_α` side**: for any oriented equivalence `e : D_N α h ≃ G` with
+`chi ∘ e = chiN α h`, there is a generic stage at *every* level whose defect is reachable. -/
+theorem exists_nTuple_defectReachable (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DN α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiN α h x) (k : ℕ) :
+    ∃ T : Tuple (nStageWord α h hα) (vN α) G chi k, Tuple.DefectReachable T :=
+  ⟨nTupleOfModel hα hpro e he k, nTupleOfModel_defectReachable hα hpro e he k⟩
+
+/-- **The EV-3b endpoint, `M_α` side**. -/
+theorem exists_mTuple_defectReachable (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DM α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiM α h x) (k : ℕ) :
+    ∃ T : Tuple (mStageWord α h hα) (vM α) G chi k, Tuple.DefectReachable T :=
+  ⟨mTupleOfModel hα hpro e he k, mTupleOfModel_defectReachable hα hpro e he k⟩
+
+/-- Regression: through `DefectReachable.toRaw`, the endpoint lands on the *committed* even
+relator shape, confirming that the whole chain runs on `MarkedCore.nRelWord α` and not on a
+re-derived copy of it. -/
+example (hα : 1 ≤ α) (hpro : IsProP 2 G)
+    (e : ContinuousMulEquiv (MarkedCore.DN α h : Type) G)
+    (he : ∀ x, chi (e x) = MarkedCore.chiN α h x) (k : ℕ) :
+    ∃ correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1),
+      (∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) ∧
+        (MarkedCore.nRelWord α fun i ↦
+              canonLift G k (levelMk G k (e (MarkedCore.dnGen α h i))))⁻¹ *
+            MarkedCore.nRelWord α (fun i ↦
+              canonLift G k (levelMk G k (e (MarkedCore.dnGen α h i))) * correction i) =
+          (MarkedCore.nRelWord α fun i ↦
+            canonLift G k (levelMk G k (e (MarkedCore.dnGen α h i))))⁻¹ :=
+  (nTupleOfModel_defectReachable hα hpro e he k).toRaw
+
+end Model
+
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §5 Axiom pins -/
+
+#print axioms GQ2.Dyadic.StageGeneric.vN
+#print axioms GQ2.Dyadic.StageGeneric.vM
+#print axioms GQ2.Dyadic.StageGeneric.vN_zero
+#print axioms GQ2.Dyadic.StageGeneric.vN_one
+#print axioms GQ2.Dyadic.StageGeneric.vN_two
+#print axioms GQ2.Dyadic.StageGeneric.vN_three
+#print axioms GQ2.Dyadic.StageGeneric.vN_handleU
+#print axioms GQ2.Dyadic.StageGeneric.vN_handleV
+#print axioms GQ2.Dyadic.StageGeneric.vM_zero
+#print axioms GQ2.Dyadic.StageGeneric.vM_one
+#print axioms GQ2.Dyadic.StageGeneric.vM_two
+#print axioms GQ2.Dyadic.StageGeneric.vM_three
+#print axioms GQ2.Dyadic.StageGeneric.vM_handleU
+#print axioms GQ2.Dyadic.StageGeneric.vM_handleV
+#print axioms GQ2.Dyadic.StageGeneric.evenIndex_cases
+#print axioms GQ2.Dyadic.StageGeneric.dnFinsetTopGen
+#print axioms GQ2.Dyadic.StageGeneric.dmFinsetTopGen
+#print axioms GQ2.Dyadic.StageGeneric.chiN_dnGen
+#print axioms GQ2.Dyadic.StageGeneric.chiM_dmGen
+#print axioms GQ2.Dyadic.StageGeneric.nTupleOfModel
+#print axioms GQ2.Dyadic.StageGeneric.mTupleOfModel
+#print axioms GQ2.Dyadic.StageGeneric.nTupleOfModel_generators
+#print axioms GQ2.Dyadic.StageGeneric.mTupleOfModel_generators
+#print axioms GQ2.Dyadic.StageGeneric.nTupleOfModel_defectReachable
+#print axioms GQ2.Dyadic.StageGeneric.mTupleOfModel_defectReachable
+#print axioms GQ2.Dyadic.StageGeneric.exists_nTuple_defectReachable
+#print axioms GQ2.Dyadic.StageGeneric.exists_mTuple_defectReachable
