@@ -144,6 +144,9 @@ theorem eq_one_iff {p : SqU4 R} :
   · rintro rfl; exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
   · rintro ⟨ha, hb, hc, hd, he, hf⟩; ext <;> simpa
 
+instance instDecidableEq {R : Type} [CommRing R] [DecidableEq R] : DecidableEq (SqU4 R) :=
+  fun _ _ => decidable_of_iff _ SqU4.ext_iff.symm
+
 /-- **The first abelian coordinate is a character.** -/
 def aHom : SqU4 R →* Multiplicative R where
   toFun p := ofAdd p.a
@@ -718,6 +721,95 @@ theorem sqU4_top_range (z : R) :
   ⟨⟨0, z, by ring⟩, fun z₁ z₂ => ⟨-2 * z₁ + z₂, by ring⟩⟩
 
 end TopParity
+
+/-! ### ⭐⭐ The answer, with a witness
+
+Fix `h = 1` and the selected marking `ν'` with `ν'(u₀) = 0`, `ν'(v₀) = 1` — the handle is
+genuinely **not** already cleared, so this is the case the whole clearing scheme is about.  The
+class-three test hom is `sqU4Hom` at the marking `u4WitMark` over `ℤ/8`: the `b`-column is `ν'`
+(so every `ν'`-trivial dressing has `b`-coordinate `0`), the `a`- and `c`-columns are two further
+free characters, and `x₀ ↦ 1`, `σ ↦ ⟨0,1,0,0,0,0⟩` put the pivot `w = σ·x₀^{−c₀}` on the pure
+`ν'`-column at every exponent `c₀`.
+
+Three facts, all by `decide`:
+
+* `sqRelWord_u4WitMark` — it is a marking, so it really is a class-three quotient of `D_sq 1`;
+* `not_sqRelWord_u4WitBase` — the **undressed** frame `(σ, x₀, x₁, U, V)` fails there.  The gate
+  is live: it refutes at class two (`d`-row `6`) *and* at class three (`f`-row `4`);
+* `sqRelWord_u4WitFrame` — ⭐ the frame dressed by `a₁ = U⁻¹`, and by **nothing else**, kills the
+  relator.  `ā₁ = −Ū = −ν'(v₀)·Ū + ν'(u₀)·V̄` is exactly the value the class-two balance forces
+  (`GradedTwo.sqArbFrame_x0_dressing_forced`).
+
+⭐ **So the answer to W48-U4's question is yes.**  The three free class-two dressings *can* be
+chosen to kill the class-three defect — here they can be left trivial, and the dressing that
+class two already forces does the class-three job as well.
+
+⚠ **But the class-three layer is not vacuous.**  `u4WitBad` dresses the `x₁`-slot by `V` instead:
+its two class-two defects stay in `2·ℤ/8`, so **class two accepts it**, while its class-three
+defect is `7`, a unit — and by `sqU4_top_range` no choice of the two exponent slots' class-three
+coordinates can repair that.  Class three kills dressings that class two admits; it just does not
+kill *all* of them. -/
+
+section Witness
+
+/-- The class-three test marking over `ℤ/8` at a selected `ν'` with `ν'(u₀) = 0`, `ν'(v₀) = 1`.
+The `b`-column is `ν'`; the `a`- and `c`-columns are the two free characters, `2` and `2` on `u₀`
+and `1`, `1` on `v₀`; the `x₁`-slot's three deeper coordinates solve the relator. -/
+def u4WitMark : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, 1, ⟨0, 0, 0, 7, 1, 5⟩, ⟨2, 0, 2, 0, 0, 0⟩, ⟨1, 1, 1, 0, 0, 0⟩]
+
+/-- It really is a marking, so `sqU4Hom` turns it into a class-three quotient of `D_sq 1`. -/
+theorem sqRelWord_u4WitMark : sqRelWord u4WitMark = 1 := by decide
+
+/-- The **undressed** frame's slot images: `σ`, `x₀`, `x₁`, and the two cleared letters
+`U = w^{−ν'(u₀)}u₀ = u₀`, `V = v₀·w^{−ν'(v₀)}`. -/
+def u4WitBase : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, 1, ⟨0, 0, 0, 7, 1, 5⟩, ⟨2, 0, 2, 0, 0, 0⟩, ⟨1, 0, 1, 7, 0, 0⟩]
+
+/-- ⚠ **The gate is live**: the undressed frame fails, at class two *and* at class three. -/
+theorem not_sqRelWord_u4WitBase : sqRelWord u4WitBase ≠ 1 := by decide
+
+/-- The exact failure: the relator is `⟨0,0,0,6,2,4⟩`. -/
+theorem sqRelWord_u4WitBase_eq : sqRelWord u4WitBase = ⟨0, 0, 0, 6, 2, 4⟩ := by decide
+
+/-- ⭐⭐ **The witness.**  The arbitrary-dressing frame with `a₁ = U⁻¹` — the class-two forced
+dressing — and every other dressing trivial.  `U⁻¹ = ⟨6,0,6,0,0,0⟩` is the image of
+`(sqEichU 1 ν' 0)⁻¹`, which lies in `ker λ ∩ ker ν'` by `toAdd_nuLam_sqEichU` and
+`toAdd_nu_sqEichU`; the other four slots are undressed, so the frame is mod-2 independent for
+free. -/
+def u4WitFrame : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, ⟨6, 0, 6, 0, 0, 0⟩, ⟨0, 0, 0, 7, 1, 5⟩, ⟨2, 0, 2, 0, 0, 0⟩,
+    ⟨1, 0, 1, 7, 0, 0⟩]
+
+/-- ⭐⭐ **The class-three gate does not obstruct the arbitrary-dressing frame.**  At a live
+class-three test hom, at a genuinely uncleared handle, the frame dressed by the class-two forced
+value kills the relator outright — all six equations, class one, class two *and* class three. -/
+theorem sqRelWord_u4WitFrame : sqRelWord u4WitFrame = 1 := by decide
+
+/-- The dressed slot really is the undressed one times `U⁻¹`. -/
+theorem u4WitFrame_one : u4WitFrame 1 = u4WitBase 1 * (u4WitBase 3)⁻¹ := by decide
+
+/-- ⚠ **A dressing that class two accepts and class three rejects**: the `x₁`-slot dressed by
+`V`, everything else undressed. -/
+def u4WitBad : Fin (sqRank 1) → SqU4 (ZMod 8) :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, 1, ⟨1, 0, 1, 6, 1, 4⟩, ⟨2, 0, 2, 0, 0, 0⟩, ⟨1, 0, 1, 7, 0, 0⟩]
+
+/-- Its two class-two defects are **even**, so both class-two equations are solvable in the
+exponent slots: class two admits this dressing. -/
+theorem u4WitBad_class_two_even :
+    (∃ z : ZMod 8, sqHeisDefect 1 (fun i => SqU4.toHeisAB (u4WitBad i)) = 2 * z) ∧
+      ∃ z : ZMod 8, sqHeisDefect 1 (fun i => SqU4.toHeisBC (u4WitBad i)) = 2 * z := by
+  exact ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩
+
+/-- ⚠⚠ …but its class-three defect is a **unit**, so by `sqU4_top_range` no choice of the
+`x₀`- and `x₁`-slots' class-three coordinates repairs it.  The class-three layer is a genuine,
+non-vacuous constraint on the dressings. -/
+theorem u4WitBad_class_three_odd : ∀ z : ZMod 8, sqU4Defect 1 u4WitBad ≠ 2 * z := by decide
+
+/-- The exact value of the class-three defect that kills it. -/
+theorem u4WitBad_defect : sqU4Defect 1 u4WitBad = 7 := by decide
+
+end Witness
 
 end U4Group
 
