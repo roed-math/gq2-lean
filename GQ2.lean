@@ -567,6 +567,7 @@ import GQ2.Dyadic.Instances.NpcUnramifiedScalar
 import GQ2.Dyadic.Instances.MpcUnramifiedBranch
 import GQ2.Dyadic.Instances.MpcPairings
 import GQ2.Dyadic.Instances.MpcRamifiedPairing
+import GQ2.Dyadic.Instances.MpcRamifiedRow
 import GQ2.Dyadic.Instances.EvenForwardRouteSkeleton
 import GQ2.Dyadic.Instances.EvenDemushkinQ
 import GQ2.Dyadic.Instances.EvenModelH2
@@ -656,6 +657,7 @@ import GQ2.Dyadic.ThmFourTwoRN
 import GQ2.Dyadic.CertificateSupplyRN
 import GQ2.Dyadic.CertificateSupplyFamilyRN
 import GQ2.Dyadic.Instances.MpcSelectedScalar
+import GQ2.Dyadic.Instances.MpcSelectedRamified
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
