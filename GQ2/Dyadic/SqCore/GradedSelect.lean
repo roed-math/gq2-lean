@@ -515,6 +515,304 @@ example : sqRelWord (fun i => selHom 1 (nuSel 1 0 0 1) 0 2 1 2 1 7 1 (selWitD 1 
 
 end NonVacuous
 
+/-! ## §5 The γ₂-dressing calculus: the class-three defect moves **linearly**
+
+W48's finding 3 said it in prose; here it is as algebra.  Dressing a handle slot of a marking
+tuple on the right by a `γ₂`-element `z` (one with `z.a = z.b = z.c = 0`) leaves **every**
+class-`≤ 2` row of the relator unchanged — the abelian rows read only abelian columns, the two
+Heisenberg defects read only abelian columns, and the two exponent slots are untouched — while
+the class-three row moves by an **affine-linear** function of `(z.d, z.e)`:
+
+```text
+U_j-slot ↦ · z₃ :   Δf = z₃.d·(m V_j).c − z₃.e·(m V_j).a
+V_j-slot ↦ · z₄ :   Δf = (m U_j).a·z₄.e − (m U_j).c·z₄.d
+x₀-, x₁-slot ↦ · w (γ₃) :   Δf = −4·w.f  resp.  2·w.f
+```
+
+`sqRelWord_selRefine` packages the four moves at once: the relator is **translated by a central
+element**, so the refinement action of `γ₂`-dressings on the class-three residue is a group
+action by translations — the linear part the ticket asked for, in closed form.  Everything in
+this section is over an arbitrary commutative ring. -/
+
+section SelCalculus
+
+variable {R : Type} [CommRing R] {h : ℕ} {j : Fin h}
+
+/-- A `γ₂`-shaped element of the class-three test group: all three abelian columns vanish. -/
+def SqU4.IsGaTwo (z : SqU4 R) : Prop := z.a = 0 ∧ z.b = 0 ∧ z.c = 0
+
+/-- A `γ₃`-shaped element: only the class-three coordinate may be non-zero. -/
+def SqU4.IsGaThree (z : SqU4 R) : Prop :=
+  z.a = 0 ∧ z.b = 0 ∧ z.c = 0 ∧ z.d = 0 ∧ z.e = 0
+
+theorem SqU4.IsGaThree.isGaTwo {z : SqU4 R} (hz : z.IsGaThree) : z.IsGaTwo :=
+  ⟨hz.1, hz.2.1, hz.2.2.1⟩
+
+@[simp] theorem SqU4.isGaThree_one : (1 : SqU4 R).IsGaThree := ⟨rfl, rfl, rfl, rfl, rfl⟩
+
+@[simp] theorem SqU4.isGaTwo_one : (1 : SqU4 R).IsGaTwo := ⟨rfl, rfl, rfl⟩
+
+/-- Central `(1,4)`-translations: multiplying by `⟨0,0,0,0,0,w⟩` adds `w` to the class-three
+coordinate and moves nothing else. -/
+theorem SqU4.mul_center_f (p : SqU4 R) (w : R) :
+    p * (⟨0, 0, 0, 0, 0, w⟩ : SqU4 R) = ⟨p.a, p.b, p.c, p.d, p.e, p.f + w⟩ := by
+  ext <;> simp
+
+/-- ⭐ Dressing the **left** argument of the cubic commutator form by a `γ₂`-element moves it
+linearly, with the right argument's outer abelian columns as coefficients. -/
+theorem SqU4.u4Comm3_mul_gaTwo_left {p q z : SqU4 R} (hz : z.IsGaTwo) :
+    SqU4.u4Comm3 (p * z) q = SqU4.u4Comm3 p q + (z.d * q.c - z.e * q.a) := by
+  obtain ⟨hza, hzb, hzc⟩ := hz
+  simp only [SqU4.u4Comm3, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+    hza, hzb, hzc]
+  ring
+
+/-- ⭐ …and the **right** argument, with the left argument's columns as coefficients. -/
+theorem SqU4.u4Comm3_mul_gaTwo_right {p q z : SqU4 R} (hz : z.IsGaTwo) :
+    SqU4.u4Comm3 p (q * z) = SqU4.u4Comm3 p q + (p.a * z.e - p.c * z.d) := by
+  obtain ⟨hza, hzb, hzc⟩ := hz
+  simp only [SqU4.u4Comm3, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+    hza, hzb, hzc]
+  ring
+
+/-- The class-two defect reads only the two abelian columns of its tuple. -/
+theorem sqHeisDefect_congr_ab {m m' : Fin (sqRank h) → SqHeis R}
+    (hab : ∀ i, (m' i).a = (m i).a ∧ (m' i).b = (m i).b) :
+    sqHeisDefect h m' = sqHeisDefect h m := by
+  simp only [sqHeisDefect, (hab _).1, (hab _).2]
+
+/-! ### Index disequalities -/
+
+private theorem sel_ne_handleU_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    i ≠ sqHandleIdxU j := by
+  intro hc
+  rw [hc, sqHandleIdxU_val] at hi
+  omega
+
+private theorem sel_ne_handleV_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    i ≠ sqHandleIdxV j := by
+  intro hc
+  rw [hc, sqHandleIdxV_val] at hi
+  omega
+
+private theorem sel_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxU_val] at hv
+  omega
+
+private theorem sel_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
+  omega
+
+private theorem sel_handleU_ne_handleU {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxU j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+private theorem sel_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxV j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+/-! ### The refinement action -/
+
+variable (j) in
+/-- **The four-slot refinement**: dress the two exponent slots by `w₁`, `w₂` and the two
+`j`-handle slots by `z₃`, `z₄`, all on the right; leave every other slot alone.  With `w`'s in
+`γ₃` and `z`'s in `γ₂` this is exactly the action on markings of the dressings that the
+class-`≤ 2` rows cannot see. -/
+def selRefine (m : Fin (sqRank h) → SqU4 R) (w₁ w₂ z₃ z₄ : SqU4 R) :
+    Fin (sqRank h) → SqU4 R :=
+  fun i =>
+    if (i : ℕ) = 1 then m i * w₁ else
+    if (i : ℕ) = 2 then m i * w₂ else
+    if i = sqHandleIdxU j then m i * z₃ else
+    if i = sqHandleIdxV j then m i * z₄ else m i
+
+variable {m : Fin (sqRank h) → SqU4 R} {w₁ w₂ z₃ z₄ : SqU4 R}
+
+@[simp] theorem selRefine_one : selRefine j m w₁ w₂ z₃ z₄ 1 = m 1 * w₁ := by
+  simp only [selRefine, sqVal_one]
+  norm_num
+
+@[simp] theorem selRefine_two : selRefine j m w₁ w₂ z₃ z₄ 2 = m 2 * w₂ := by
+  simp only [selRefine, sqVal_two]
+  norm_num
+
+@[simp] theorem selRefine_handleU :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j) = m (sqHandleIdxU j) * z₃ := by
+  simp only [selRefine, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  simp
+
+@[simp] theorem selRefine_handleV :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j) = m (sqHandleIdxV j) * z₄ := by
+  simp only [selRefine, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleV_ne_handleU j)]
+  simp
+
+@[simp] theorem selRefine_zero : selRefine j m w₁ w₂ z₃ z₄ 0 = m 0 := by
+  simp only [selRefine, sqVal_zero]
+  rw [if_neg (by omega), if_neg (by omega),
+    if_neg (sel_ne_handleU_of_lt (by rw [sqVal_zero]; omega)),
+    if_neg (sel_ne_handleV_of_lt (by rw [sqVal_zero]; omega))]
+
+theorem selRefine_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j') = m (sqHandleIdxU j') := by
+  simp only [selRefine, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleU_ne_handleU hne),
+    if_neg (sel_handleU_ne_handleV j')]
+
+theorem selRefine_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j') = m (sqHandleIdxV j') := by
+  simp only [selRefine, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleV_ne_handleU j'),
+    if_neg (sel_handleV_ne_handleV hne)]
+
+/-- The refinement never touches an abelian column. -/
+theorem selRefine_abc (hw₁ : w₁.IsGaTwo) (hw₂ : w₂.IsGaTwo) (hz₃ : z₃.IsGaTwo)
+    (hz₄ : z₄.IsGaTwo) (i : Fin (sqRank h)) :
+    (selRefine j m w₁ w₂ z₃ z₄ i).a = (m i).a ∧ (selRefine j m w₁ w₂ z₃ z₄ i).b = (m i).b ∧
+      (selRefine j m w₁ w₂ z₃ z₄ i).c = (m i).c := by
+  have habc : ∀ (p z : SqU4 R), z.IsGaTwo →
+      (p * z).a = p.a ∧ (p * z).b = p.b ∧ (p * z).c = p.c := by
+    intro p z hz
+    exact ⟨by rw [SqU4.mul_a, hz.1, add_zero], by rw [SqU4.mul_b, hz.2.1, add_zero],
+      by rw [SqU4.mul_c, hz.2.2, add_zero]⟩
+  simp only [selRefine]
+  split
+  · exact habc _ _ hw₁
+  split
+  · exact habc _ _ hw₂
+  split
+  · exact habc _ _ hz₃
+  split
+  · exact habc _ _ hz₄
+  exact ⟨rfl, rfl, rfl⟩
+
+/-- ⭐⭐ **The class-three defect moves affine-linearly under the refinement action.**  The two
+exponent-slot `γ₃`-dressings are invisible; the two handle-slot `γ₂`-dressings enter through
+their `(d, e)`-coordinates, paired against the *other* handle letter's outer abelian columns.
+This is W48's "genuine first-order freedom at class three", as an identity. -/
+theorem sqU4Defect_selRefine (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo)
+    (hz₄ : z₄.IsGaTwo) :
+    sqU4Defect h (selRefine j m w₁ w₂ z₃ z₄)
+      = sqU4Defect h m
+        + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+        + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d) := by
+  obtain ⟨hw₁a, hw₁b, hw₁c, hw₁d, hw₁e⟩ := id hw₁
+  obtain ⟨hw₂a, hw₂b, hw₂c, hw₂d, hw₂e⟩ := id hw₂
+  have habc := selRefine_abc (m := m) (j := j) hw₁.isGaTwo hw₂.isGaTwo hz₃ hz₄
+  simp only [sqU4Defect]
+  have hcore : sqU4Core (selRefine j m w₁ w₂ z₃ z₄ 0) (selRefine j m w₁ w₂ z₃ z₄ 1)
+      (selRefine j m w₁ w₂ z₃ z₄ 2) = sqU4Core (m 0) (m 1) (m 2) := by
+    rw [selRefine_zero, selRefine_one, selRefine_two]
+    simp only [sqU4Core, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+      hw₁a, hw₁b, hw₁c, hw₁d, hw₁e, hw₂a, hw₂b, hw₂c, hw₂d, hw₂e]
+    ring
+  have hcrossSum : ∀ j' : Fin h,
+      (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j')).b
+          * (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j')).c
+        - (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j')).b
+          * (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j')).c
+      = (m (sqHandleIdxU j')).b * (m (sqHandleIdxV j')).c
+        - (m (sqHandleIdxV j')).b * (m (sqHandleIdxU j')).c := by
+    intro j'
+    rw [(habc _).2.1, (habc _).2.2, (habc _).2.1, (habc _).2.2]
+  have hcommSum : ∑ j' : Fin h, SqU4.u4Comm3 (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j'))
+        (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j'))
+      = (∑ j' : Fin h, SqU4.u4Comm3 (m (sqHandleIdxU j')) (m (sqHandleIdxV j')))
+        + ((z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+          + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)) := by
+    have hoffsum : ∀ j' ∈ Finset.univ.erase j,
+        SqU4.u4Comm3 (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j'))
+            (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j'))
+          = SqU4.u4Comm3 (m (sqHandleIdxU j')) (m (sqHandleIdxV j')) := by
+      intro j' hj'
+      have hne : j' ≠ j := Finset.ne_of_mem_erase hj'
+      rw [selRefine_handleU_ne hne, selRefine_handleV_ne hne]
+    obtain ⟨hz₄a, hz₄b, hz₄c⟩ := id hz₄
+    rw [← Finset.add_sum_erase _ (fun j' => SqU4.u4Comm3
+        (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j'))
+        (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j'))) (Finset.mem_univ j),
+      ← Finset.add_sum_erase _ (fun j' => SqU4.u4Comm3 (m (sqHandleIdxU j'))
+        (m (sqHandleIdxV j'))) (Finset.mem_univ j),
+      Finset.sum_congr rfl hoffsum, selRefine_handleU, selRefine_handleV,
+      SqU4.u4Comm3_mul_gaTwo_left hz₃, SqU4.u4Comm3_mul_gaTwo_right hz₄, SqU4.mul_c,
+      SqU4.mul_a, hz₄a, hz₄c]
+    ring
+  rw [hcore, Finset.sum_congr rfl fun j' _ => hcrossSum j', hcommSum, selRefine_one,
+    selRefine_two]
+  simp only [SqU4.mul_a, hw₁a, hw₂a]
+  ring
+
+/-- ⭐⭐ **The linear action on the relator.**  The refinement translates the relator by a
+**central** element whose value is the affine-linear expression of the four dressings — the
+class-`≤ 2` rows are untouched, and the class-three row moves by exactly
+
+```text
+−4·w₁.f + 2·w₂.f + (z₃.d·(m V).c − z₃.e·(m V).a) + ((m U).a·z₄.e − (m U).c·z₄.d).
+```
+
+So on any class-two-admissible tuple the entire achievable refinement orbit of the relator is a
+coset of the translation subgroup this expression generates. -/
+theorem sqRelWord_selRefine (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo)
+    (hz₄ : z₄.IsGaTwo) :
+    sqRelWord (selRefine j m w₁ w₂ z₃ z₄)
+      = sqRelWord m * ⟨0, 0, 0, 0, 0, -4 * w₁.f + 2 * w₂.f
+          + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+          + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)⟩ := by
+  obtain ⟨hw₁a, hw₁b, hw₁c, hw₁d, hw₁e⟩ := id hw₁
+  obtain ⟨hw₂a, hw₂b, hw₂c, hw₂d, hw₂e⟩ := id hw₂
+  have habc := selRefine_abc (m := m) (j := j) hw₁.isGaTwo hw₂.isGaTwo hz₃ hz₄
+  have habAB : ∀ i, (SqU4.toHeisAB (selRefine j m w₁ w₂ z₃ z₄ i)).a
+        = (SqU4.toHeisAB (m i)).a
+      ∧ (SqU4.toHeisAB (selRefine j m w₁ w₂ z₃ z₄ i)).b = (SqU4.toHeisAB (m i)).b :=
+    fun i => ⟨(habc i).1, (habc i).2.1⟩
+  have habBC : ∀ i, (SqU4.toHeisBC (selRefine j m w₁ w₂ z₃ z₄ i)).a
+        = (SqU4.toHeisBC (m i)).a
+      ∧ (SqU4.toHeisBC (selRefine j m w₁ w₂ z₃ z₄ i)).b = (SqU4.toHeisBC (m i)).b :=
+    fun i => ⟨(habc i).2.1, (habc i).2.2⟩
+  have hdef := sqU4Defect_selRefine (m := m) (j := j) hw₁ hw₂ hz₃ hz₄
+  have h_a : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).a = (sqRelWord m).a := by
+    rw [SqU4.sqRelWord_a, SqU4.sqRelWord_a, selRefine_one, selRefine_two, SqU4.mul_a,
+      SqU4.mul_a, hw₁a, hw₂a]
+    ring
+  have h_b : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).b = (sqRelWord m).b := by
+    rw [SqU4.sqRelWord_b, SqU4.sqRelWord_b, selRefine_one, selRefine_two, SqU4.mul_b,
+      SqU4.mul_b, hw₁b, hw₂b]
+    ring
+  have h_c : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).c = (sqRelWord m).c := by
+    rw [SqU4.sqRelWord_c, SqU4.sqRelWord_c, selRefine_one, selRefine_two, SqU4.mul_c,
+      SqU4.mul_c, hw₁c, hw₂c]
+    ring
+  have h_d : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).d = (sqRelWord m).d := by
+    rw [SqU4.sqRelWord_d, SqU4.sqRelWord_d, selRefine_one, selRefine_two,
+      sqHeisDefect_congr_ab habAB, SqU4.mul_d, SqU4.mul_d, hw₁d, hw₂d, hw₁b, hw₂b]
+    ring
+  have h_e : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).e = (sqRelWord m).e := by
+    rw [SqU4.sqRelWord_e, SqU4.sqRelWord_e, selRefine_one, selRefine_two,
+      sqHeisDefect_congr_ab habBC, SqU4.mul_e, SqU4.mul_e, hw₁e, hw₂e, hw₁c, hw₂c]
+    ring
+  have h_f : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).f = (sqRelWord m).f
+      + (-4 * w₁.f + 2 * w₂.f
+        + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+        + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)) := by
+    rw [SqU4.sqRelWord_f, SqU4.sqRelWord_f, selRefine_one, selRefine_two, hdef, SqU4.mul_f,
+      SqU4.mul_f, hw₁c, hw₂c, hw₁e, hw₂e]
+    ring
+  rw [SqU4.mul_center_f]
+  exact SqU4.ext h_a h_b h_c h_d h_e h_f
+
+end SelCalculus
+
 end SqCore
 
 end Dyadic
