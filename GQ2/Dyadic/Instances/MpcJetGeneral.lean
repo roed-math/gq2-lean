@@ -22,7 +22,8 @@ row collapse (`foxD_mpcLinW_x2`) are both stated at `Marking (2 + 2h)`, and the 
 value is index-generic.  What `h = 0` bought was only that `handlesW 0 = 1`, so that
 `evalFin_mpcW_factored`'s fourth factor could be dropped without evaluating it.
 
-So no substitution/transport layer is needed here — no `mpcCoreLift`, no `eval_mpcW_eq_core_mul_handles`.
+So no substitution/transport layer is needed here — no `mpcCoreLift`, no
+`eval_mpcW_eq_core_mul_handles`.
 The `npc` side needed one because its `h`-general statement was assembled from the *`h = 0`
 core theorem* (`npc_cross_operators_word`) by transport; the `M` row's core theorem was already
 `h`-general, so the whole content of this file is **the fourth factor**:
