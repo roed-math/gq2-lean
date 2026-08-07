@@ -537,9 +537,12 @@ Concretely, three things the Lean side can take as measured facts about the fini
   **not excluded**.
 * **`h = 2` (the optional spot-check) — done, see §6.4**, but at a reduced marking sample at
   class 4.
-* **Not attempted.**  Class 6.  `dim L₆` for this group is several thousand; the layer-basis
-  and defect-matrix steps scale, but the `K ∩ P_j` intersections at order `2^{4000+}` do not
-  within this budget.
+* **Not attempted.**  Class 6.  `pQuotient(D_sq 1, 2, 6)` was started (`c6size.m`) and had
+  **not finished** after ~50 minutes and ~700 MB — which is a statement about this budget, not
+  about feasibility; the layer ranks 5, 14, 49, 175, 679 grow by a factor approaching 4, so
+  `dim L₆` is a few thousand and the group is of order roughly `2^{3500}`.  The 𝔽₂ linear
+  algebra at that size is unremarkable; the `K ∩ P_j` subgroup intersections are the wall.
+  See §9.1 for the way round it.
 * **Greedy completeness.**  §5.4: negative verdicts from the *restricted-regime* probe are
   greedy, except the 48 empty-gate cases which are exact.  This does not touch the headline,
   which is entirely positive.
