@@ -61,7 +61,7 @@ noncomputable section
 open GQ2 GQ2.FoxH
 open GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
 open GQ2.Dyadic.Certificates GQ2.Dyadic.Certificates.MProcyclic
-open GQ2.Dyadic.MProcyclicNormal
+open GQ2.Dyadic.Count GQ2.Dyadic.MProcyclicNormal
 
 /-! ## Agreement of two Heisenberg values
 
@@ -832,6 +832,98 @@ theorem heisZ_mpcW_ram [Finite C] [Finite A] {α : ℕ} (hα : 1 ≤ α) (r pp :
     Certificates.MCompact.heisF_handlesW_z t x y E E₂ hwild]
 
 end Letters
+
+/-! ## The traced pairing on ramified normal coordinates -/
+
+section Pairing
+
+variable {h : ℕ} {C : Type} [Group C] [Finite C] {A : Type} [AddCommGroup A] [Finite A]
+  [DistribMulAction C A]
+
+set_option maxHeartbeats 1600000 in
+/-- **The procyclic-`M` traced pairing on ramified even normal coordinates**: the compact core
+Gram `((1,1),(1,0))` plus the `h` standard hyperbolic handle planes.  The tame relator
+contributes nothing, because a normal cochain vanishes on `sigma` and `tau`. -/
+theorem heisEta1_mpcFamOf_ramifiedNormal (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) {α r pp q : ℕ} {η : EtaDisplay} (hα : 1 ≤ α) (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτfpf : ∀ v : A, t.τ • v = v → v = 0) (hTodd : ∀ v : A, powOmega2 t.τ • v = v)
+    (hresA : ResolverLifts E (WordLift A C)) (hresD : ResolverLifts E (WordLift (ElemDual A) C))
+    (hres : ResolverLifts E C) (d₀ d₁ : A) (z : Fin h × Fin 2 → A)
+    (lam₀ lam₁ : ElemDual A) (mu : Fin h × Fin 2 → ElemDual A) :
+    heisEta1 ⇑t (mpcFamOf α r pp h q η E E₂)
+        (evenNormal h d₀ d₁ z) (evenNormal h lam₀ lam₁ mu)
+      = lam₀ d₀ + (lam₀ d₁ + lam₁ d₀)
+        + ∑ j, (mu (j, 0) (z (j, 1)) + mu (j, 1) (z (j, 0))) := by
+  rw [heisEta1_mpcFamOf_apply t _ _ E E₂ α r pp q η,
+    heisZ_tameRelW_eq_zero_of_tame_offsets_zero t _ _ E E₂ (by simp) (by simp) (by simp)
+      (by simp), zero_add,
+    heisZ_mpcW_ram t _ _ E E₂ (by simp) (by simp) (by simp) (by simp) (by simp) (by simp)
+      hA₂ hwild hτfpf hTodd hresA hresD hres hα r pp η]
+  simp only [evenNormal_coreLetter, evenNormal_handleU, evenNormal_handleV,
+    Matrix.cons_val_zero, Matrix.cons_val_one]
+
+set_option maxHeartbeats 1600000 in
+/-- **Left nondegeneracy of the procyclic-`M` ramified normal pairing.**  If `d₀` survives,
+`lam₁` detects it through the hyperbolic cross; if only `d₁` does, `lam₀` detects it through the
+diagonal-plus-cross row; otherwise a handle coordinate does.  This is the whole content of the
+unimodularity of `((1,1),(1,0))`. -/
+theorem mpcFam_ramifiedNormal_separates_left (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) {α r pp q : ℕ} {η : EtaDisplay} (hα : 1 ≤ α) (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτfpf : ∀ v : A, t.τ • v = v → v = 0) (hTodd : ∀ v : A, powOmega2 t.τ • v = v)
+    (hresA : ResolverLifts E (WordLift A C)) (hresD : ResolverLifts E (WordLift (ElemDual A) C))
+    (hres : ResolverLifts E C) (p : A × A × (Fin h × Fin 2 → A)) (hp : p ≠ 0) :
+    ∃ rr : ElemDual A × ElemDual A × (Fin h × Fin 2 → ElemDual A),
+      heisEta1 ⇑t (mpcFamOf α r pp h q η E E₂)
+        (evenNormal h p.1 p.2.1 p.2.2) (evenNormal h rr.1 rr.2.1 rr.2.2) ≠ 0 := by
+  classical
+  have heval := heisEta1_mpcFamOf_ramifiedNormal (α := α) (r := r) (pp := pp) (q := q) (η := η)
+    t E E₂ hα hA₂ hwild hτfpf hTodd hresA hresD hres
+  by_cases hd₀ : p.1 = 0
+  · by_cases hd₁ : p.2.1 = 0
+    · have hz : p.2.2 ≠ 0 := by
+        intro hz
+        exact hp (Prod.ext hd₀ (Prod.ext hd₁ (by simpa using hz)))
+      obtain ⟨⟨j, k⟩, hjk⟩ := Function.ne_iff.mp hz
+      obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hjk
+      fin_cases k
+      · refine ⟨(0, 0, Pi.single (j, 1) lam), ?_⟩
+        rw [heval, hd₀, hd₁]
+        have hsum : ∑ b, ((Pi.single (j, 1) lam : Fin h × Fin 2 → ElemDual A) (b, 0)
+              (p.2.2 (b, 1))
+            + (Pi.single (j, 1) lam : Fin h × Fin 2 → ElemDual A) (b, 1) (p.2.2 (b, 0)))
+            = lam (p.2.2 (j, 0)) := by
+          rw [Finset.sum_eq_single j]
+          · simp
+          · intro b _ hbj
+            simp [hbj]
+          · simp
+        rw [hsum]
+        simpa using hlam
+      · refine ⟨(0, 0, Pi.single (j, 0) lam), ?_⟩
+        rw [heval, hd₀, hd₁]
+        have hsum : ∑ b, ((Pi.single (j, 0) lam : Fin h × Fin 2 → ElemDual A) (b, 0)
+              (p.2.2 (b, 1))
+            + (Pi.single (j, 0) lam : Fin h × Fin 2 → ElemDual A) (b, 1) (p.2.2 (b, 0)))
+            = lam (p.2.2 (j, 1)) := by
+          rw [Finset.sum_eq_single j]
+          · simp
+          · intro b _ hbj
+            simp [hbj]
+          · simp
+        rw [hsum]
+        simpa using hlam
+    · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hd₁
+      refine ⟨(lam, 0, 0), ?_⟩
+      rw [heval, hd₀]
+      simpa using hlam
+  · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ hd₀
+    refine ⟨(0, lam, 0), ?_⟩
+    rw [heval]
+    simpa using hlam
+
+end Pairing
 
 end
 
