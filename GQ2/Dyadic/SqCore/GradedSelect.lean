@@ -15,14 +15,30 @@ This file does two things.
   `selHom` on `D_sq h` whose `b`-column *is* `ν'`, with the images of the pivot and of the two
   cleared letters `U`, `V` computed in closed form, so that
   `sqRelWord_selHom_sqArbFrame` is a statement about `sqArbFrame h nu' j a` itself.
-* **§5–§6** characterise the **selection**: the set of dressings passing both gates.
+* **§5–§6** (W50) characterise the **selection**: the `γ₂`-dressing action on the relator is a
+  central translation, affine-linear in the dressings (`sqRelWord_selRefine`); its image is
+  **not** the whole defect space — at every uncleared selected marking it lies in `2·ℤ/8`, the
+  cokernel functional is reduction mod 2, and the **parity of the class-three residue is an
+  invariant of the refinement orbit**: the selection bit.  Odd bit: unrepairable
+  (`sqRelWord_selRefine_ne_one`); even bit at a live pairing: repaired by one explicit move
+  (`sqRelWord_selRefine_eq_one`).  §6b proves the slice **blind** to the depth sweep's σ-slot
+  forcing (both `a₀ = 1` and `a₀ = U⁻¹` pass every hom); §6c pins the selection in action on
+  `sqArbFrame`: the legal `t`-dressing `selDressT` is class-two-admissible, dies at a
+  `κ₃`-odd hom under every refinement, and is repaired at the committed hom.
 
 ## Contents
 
 * **§1** the gate instance over `ℤ/8`;
 * **§2** the selection marking, its realizability, and the test hom;
 * **§3** the closed forms `selHom_b`, `selHom_sqPivot`, `selHom_sqEichU`, `selHom_sqEichV`;
-* **§4** ⭐ the witness, as a theorem about `sqArbFrame`.
+* **§4** ⭐ the witness, as a theorem about `sqArbFrame`;
+* **§5** the `γ₂`-dressing calculus (`selRefine`, `sqRelWord_selRefine`) and **§5b** the parity
+  engine (`selCross_even`, `selPair_even`) — the linear action and its mod-2 cokernel;
+* **§6** ⭐⭐ the selection characterised: obstruction, completion, σ-blindness (§6b), and the
+  machine-checked selection instance on `sqArbFrame` (§6c);
+* **§7** committed axiom prints (all std-3).
+
+Companion memo: `docs/dyadic/w50-selection-note.md`.
 -/
 
 open Multiplicative
@@ -514,6 +530,1039 @@ example : sqRelWord (fun i => selHom 1 (nuSel 1 0 0 1) 0 2 1 2 1 7 1 (selWitD 1 
   exact sqRelWord_u4WitFrame
 
 end NonVacuous
+
+/-! ## §5 The γ₂-dressing calculus: the class-three defect moves **linearly**
+
+W48's finding 3 said it in prose; here it is as algebra.  Dressing a handle slot of a marking
+tuple on the right by a `γ₂`-element `z` (one with `z.a = z.b = z.c = 0`) leaves **every**
+class-`≤ 2` row of the relator unchanged — the abelian rows read only abelian columns, the two
+Heisenberg defects read only abelian columns, and the two exponent slots are untouched — while
+the class-three row moves by an **affine-linear** function of `(z.d, z.e)`:
+
+```text
+U_j-slot ↦ · z₃ :   Δf = z₃.d·(m V_j).c − z₃.e·(m V_j).a
+V_j-slot ↦ · z₄ :   Δf = (m U_j).a·z₄.e − (m U_j).c·z₄.d
+x₀-, x₁-slot ↦ · w (γ₃) :   Δf = −4·w.f  resp.  2·w.f
+```
+
+`sqRelWord_selRefine` packages the four moves at once: the relator is **translated by a central
+element**, so the refinement action of `γ₂`-dressings on the class-three residue is a group
+action by translations — the linear part the ticket asked for, in closed form.  Everything in
+this section is over an arbitrary commutative ring. -/
+
+section SelCalculus
+
+variable {R : Type} [CommRing R] {h : ℕ} {j : Fin h}
+
+/-- A `γ₂`-shaped element of the class-three test group: all three abelian columns vanish. -/
+def SqU4.IsGaTwo (z : SqU4 R) : Prop := z.a = 0 ∧ z.b = 0 ∧ z.c = 0
+
+/-- A `γ₃`-shaped element: only the class-three coordinate may be non-zero. -/
+def SqU4.IsGaThree (z : SqU4 R) : Prop :=
+  z.a = 0 ∧ z.b = 0 ∧ z.c = 0 ∧ z.d = 0 ∧ z.e = 0
+
+theorem SqU4.IsGaThree.isGaTwo {z : SqU4 R} (hz : z.IsGaThree) : z.IsGaTwo :=
+  ⟨hz.1, hz.2.1, hz.2.2.1⟩
+
+@[simp] theorem SqU4.isGaThree_one : (1 : SqU4 R).IsGaThree := ⟨rfl, rfl, rfl, rfl, rfl⟩
+
+@[simp] theorem SqU4.isGaTwo_one : (1 : SqU4 R).IsGaTwo := ⟨rfl, rfl, rfl⟩
+
+/-- Central `(1,4)`-translations: multiplying by `⟨0,0,0,0,0,w⟩` adds `w` to the class-three
+coordinate and moves nothing else. -/
+theorem SqU4.mul_center_f (p : SqU4 R) (w : R) :
+    p * (⟨0, 0, 0, 0, 0, w⟩ : SqU4 R) = ⟨p.a, p.b, p.c, p.d, p.e, p.f + w⟩ := by
+  ext <;> simp
+
+/-- ⭐ Dressing the **left** argument of the cubic commutator form by a `γ₂`-element moves it
+linearly, with the right argument's outer abelian columns as coefficients. -/
+theorem SqU4.u4Comm3_mul_gaTwo_left {p q z : SqU4 R} (hz : z.IsGaTwo) :
+    SqU4.u4Comm3 (p * z) q = SqU4.u4Comm3 p q + (z.d * q.c - z.e * q.a) := by
+  obtain ⟨hza, hzb, hzc⟩ := hz
+  simp only [SqU4.u4Comm3, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+    hza, hzb, hzc]
+  ring
+
+/-- ⭐ …and the **right** argument, with the left argument's columns as coefficients. -/
+theorem SqU4.u4Comm3_mul_gaTwo_right {p q z : SqU4 R} (hz : z.IsGaTwo) :
+    SqU4.u4Comm3 p (q * z) = SqU4.u4Comm3 p q + (p.a * z.e - p.c * z.d) := by
+  obtain ⟨hza, hzb, hzc⟩ := hz
+  simp only [SqU4.u4Comm3, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+    hza, hzb, hzc]
+  ring
+
+/-- The class-two defect reads only the two abelian columns of its tuple. -/
+theorem sqHeisDefect_congr_ab {m m' : Fin (sqRank h) → SqHeis R}
+    (hab : ∀ i, (m' i).a = (m i).a ∧ (m' i).b = (m i).b) :
+    sqHeisDefect h m' = sqHeisDefect h m := by
+  simp only [sqHeisDefect, (hab _).1, (hab _).2]
+
+/-! ### Index disequalities -/
+
+private theorem sel_ne_handleU_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    i ≠ sqHandleIdxU j := by
+  intro hc
+  rw [hc, sqHandleIdxU_val] at hi
+  omega
+
+private theorem sel_ne_handleV_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    i ≠ sqHandleIdxV j := by
+  intro hc
+  rw [hc, sqHandleIdxV_val] at hi
+  omega
+
+private theorem sel_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxU_val] at hv
+  omega
+
+private theorem sel_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
+  omega
+
+private theorem sel_handleU_ne_handleU {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxU j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+private theorem sel_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxV j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+/-! ### The refinement action -/
+
+variable (j) in
+/-- **The four-slot refinement**: dress the two exponent slots by `w₁`, `w₂` and the two
+`j`-handle slots by `z₃`, `z₄`, all on the right; leave every other slot alone.  With `w`'s in
+`γ₃` and `z`'s in `γ₂` this is exactly the action on markings of the dressings that the
+class-`≤ 2` rows cannot see. -/
+def selRefine (m : Fin (sqRank h) → SqU4 R) (w₁ w₂ z₃ z₄ : SqU4 R) :
+    Fin (sqRank h) → SqU4 R :=
+  fun i =>
+    if (i : ℕ) = 1 then m i * w₁ else
+    if (i : ℕ) = 2 then m i * w₂ else
+    if i = sqHandleIdxU j then m i * z₃ else
+    if i = sqHandleIdxV j then m i * z₄ else m i
+
+variable {m : Fin (sqRank h) → SqU4 R} {w₁ w₂ z₃ z₄ : SqU4 R}
+
+@[simp] theorem selRefine_one : selRefine j m w₁ w₂ z₃ z₄ 1 = m 1 * w₁ := by
+  simp only [selRefine, sqVal_one]
+  norm_num
+
+@[simp] theorem selRefine_two : selRefine j m w₁ w₂ z₃ z₄ 2 = m 2 * w₂ := by
+  simp only [selRefine, sqVal_two]
+  norm_num
+
+@[simp] theorem selRefine_handleU :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j) = m (sqHandleIdxU j) * z₃ := by
+  simp only [selRefine, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+  simp
+
+@[simp] theorem selRefine_handleV :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j) = m (sqHandleIdxV j) * z₄ := by
+  simp only [selRefine, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleV_ne_handleU j)]
+  simp
+
+@[simp] theorem selRefine_zero : selRefine j m w₁ w₂ z₃ z₄ 0 = m 0 := by
+  simp only [selRefine, sqVal_zero]
+  rw [if_neg (by omega), if_neg (by omega),
+    if_neg (sel_ne_handleU_of_lt (by rw [sqVal_zero]; omega)),
+    if_neg (sel_ne_handleV_of_lt (by rw [sqVal_zero]; omega))]
+
+theorem selRefine_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j') = m (sqHandleIdxU j') := by
+  simp only [selRefine, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleU_ne_handleU hne),
+    if_neg (sel_handleU_ne_handleV j')]
+
+theorem selRefine_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j') = m (sqHandleIdxV j') := by
+  simp only [selRefine, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleV_ne_handleU j'),
+    if_neg (sel_handleV_ne_handleV hne)]
+
+/-- The refinement never touches an abelian column. -/
+theorem selRefine_abc (hw₁ : w₁.IsGaTwo) (hw₂ : w₂.IsGaTwo) (hz₃ : z₃.IsGaTwo)
+    (hz₄ : z₄.IsGaTwo) (i : Fin (sqRank h)) :
+    (selRefine j m w₁ w₂ z₃ z₄ i).a = (m i).a ∧ (selRefine j m w₁ w₂ z₃ z₄ i).b = (m i).b ∧
+      (selRefine j m w₁ w₂ z₃ z₄ i).c = (m i).c := by
+  have habc : ∀ (p z : SqU4 R), z.IsGaTwo →
+      (p * z).a = p.a ∧ (p * z).b = p.b ∧ (p * z).c = p.c := by
+    intro p z hz
+    exact ⟨by rw [SqU4.mul_a, hz.1, add_zero], by rw [SqU4.mul_b, hz.2.1, add_zero],
+      by rw [SqU4.mul_c, hz.2.2, add_zero]⟩
+  simp only [selRefine]
+  split
+  · exact habc _ _ hw₁
+  split
+  · exact habc _ _ hw₂
+  split
+  · exact habc _ _ hz₃
+  split
+  · exact habc _ _ hz₄
+  exact ⟨rfl, rfl, rfl⟩
+
+/-- ⭐⭐ **The class-three defect moves affine-linearly under the refinement action.**  The two
+exponent-slot `γ₃`-dressings are invisible; the two handle-slot `γ₂`-dressings enter through
+their `(d, e)`-coordinates, paired against the *other* handle letter's outer abelian columns.
+This is W48's "genuine first-order freedom at class three", as an identity. -/
+theorem sqU4Defect_selRefine (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo)
+    (hz₄ : z₄.IsGaTwo) :
+    sqU4Defect h (selRefine j m w₁ w₂ z₃ z₄)
+      = sqU4Defect h m
+        + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+        + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d) := by
+  obtain ⟨hw₁a, hw₁b, hw₁c, hw₁d, hw₁e⟩ := id hw₁
+  obtain ⟨hw₂a, hw₂b, hw₂c, hw₂d, hw₂e⟩ := id hw₂
+  have habc := selRefine_abc (m := m) (j := j) hw₁.isGaTwo hw₂.isGaTwo hz₃ hz₄
+  simp only [sqU4Defect]
+  have hcore : sqU4Core (selRefine j m w₁ w₂ z₃ z₄ 0) (selRefine j m w₁ w₂ z₃ z₄ 1)
+      (selRefine j m w₁ w₂ z₃ z₄ 2) = sqU4Core (m 0) (m 1) (m 2) := by
+    rw [selRefine_zero, selRefine_one, selRefine_two]
+    simp only [sqU4Core, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+      hw₁a, hw₁b, hw₁c, hw₁d, hw₁e, hw₂a, hw₂b, hw₂c, hw₂d, hw₂e]
+    ring
+  have hcrossSum : ∀ j' : Fin h,
+      (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j')).b
+          * (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j')).c
+        - (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j')).b
+          * (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j')).c
+      = (m (sqHandleIdxU j')).b * (m (sqHandleIdxV j')).c
+        - (m (sqHandleIdxV j')).b * (m (sqHandleIdxU j')).c := by
+    intro j'
+    rw [(habc _).2.1, (habc _).2.2, (habc _).2.1, (habc _).2.2]
+  have hcommSum : ∑ j' : Fin h, SqU4.u4Comm3 (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j'))
+        (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j'))
+      = (∑ j' : Fin h, SqU4.u4Comm3 (m (sqHandleIdxU j')) (m (sqHandleIdxV j')))
+        + ((z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+          + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)) := by
+    have hoffsum : ∀ j' ∈ Finset.univ.erase j,
+        SqU4.u4Comm3 (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j'))
+            (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j'))
+          = SqU4.u4Comm3 (m (sqHandleIdxU j')) (m (sqHandleIdxV j')) := by
+      intro j' hj'
+      have hne : j' ≠ j := Finset.ne_of_mem_erase hj'
+      rw [selRefine_handleU_ne hne, selRefine_handleV_ne hne]
+    obtain ⟨hz₄a, hz₄b, hz₄c⟩ := id hz₄
+    rw [← Finset.add_sum_erase _ (fun j' => SqU4.u4Comm3
+        (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j'))
+        (selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j'))) (Finset.mem_univ j),
+      ← Finset.add_sum_erase _ (fun j' => SqU4.u4Comm3 (m (sqHandleIdxU j'))
+        (m (sqHandleIdxV j'))) (Finset.mem_univ j),
+      Finset.sum_congr rfl hoffsum, selRefine_handleU, selRefine_handleV,
+      SqU4.u4Comm3_mul_gaTwo_left hz₃, SqU4.u4Comm3_mul_gaTwo_right hz₄, SqU4.mul_c,
+      SqU4.mul_a, hz₄a, hz₄c]
+    ring
+  rw [hcore, Finset.sum_congr rfl fun j' _ => hcrossSum j', hcommSum, selRefine_one,
+    selRefine_two]
+  simp only [SqU4.mul_a, hw₁a, hw₂a]
+  ring
+
+/-- ⭐⭐ **The linear action on the relator.**  The refinement translates the relator by a
+**central** element whose value is the affine-linear expression of the four dressings — the
+class-`≤ 2` rows are untouched, and the class-three row moves by exactly
+
+```text
+−4·w₁.f + 2·w₂.f + (z₃.d·(m V).c − z₃.e·(m V).a) + ((m U).a·z₄.e − (m U).c·z₄.d).
+```
+
+So on any class-two-admissible tuple the entire achievable refinement orbit of the relator is a
+coset of the translation subgroup this expression generates. -/
+theorem sqRelWord_selRefine (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo)
+    (hz₄ : z₄.IsGaTwo) :
+    sqRelWord (selRefine j m w₁ w₂ z₃ z₄)
+      = sqRelWord m * ⟨0, 0, 0, 0, 0, -4 * w₁.f + 2 * w₂.f
+          + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+          + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)⟩ := by
+  obtain ⟨hw₁a, hw₁b, hw₁c, hw₁d, hw₁e⟩ := id hw₁
+  obtain ⟨hw₂a, hw₂b, hw₂c, hw₂d, hw₂e⟩ := id hw₂
+  have habc := selRefine_abc (m := m) (j := j) hw₁.isGaTwo hw₂.isGaTwo hz₃ hz₄
+  have habAB : ∀ i, (SqU4.toHeisAB (selRefine j m w₁ w₂ z₃ z₄ i)).a
+        = (SqU4.toHeisAB (m i)).a
+      ∧ (SqU4.toHeisAB (selRefine j m w₁ w₂ z₃ z₄ i)).b = (SqU4.toHeisAB (m i)).b :=
+    fun i => ⟨(habc i).1, (habc i).2.1⟩
+  have habBC : ∀ i, (SqU4.toHeisBC (selRefine j m w₁ w₂ z₃ z₄ i)).a
+        = (SqU4.toHeisBC (m i)).a
+      ∧ (SqU4.toHeisBC (selRefine j m w₁ w₂ z₃ z₄ i)).b = (SqU4.toHeisBC (m i)).b :=
+    fun i => ⟨(habc i).2.1, (habc i).2.2⟩
+  have hdef := sqU4Defect_selRefine (m := m) (j := j) hw₁ hw₂ hz₃ hz₄
+  have h_a : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).a = (sqRelWord m).a := by
+    rw [SqU4.sqRelWord_a, SqU4.sqRelWord_a, selRefine_one, selRefine_two, SqU4.mul_a,
+      SqU4.mul_a, hw₁a, hw₂a]
+    ring
+  have h_b : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).b = (sqRelWord m).b := by
+    rw [SqU4.sqRelWord_b, SqU4.sqRelWord_b, selRefine_one, selRefine_two, SqU4.mul_b,
+      SqU4.mul_b, hw₁b, hw₂b]
+    ring
+  have h_c : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).c = (sqRelWord m).c := by
+    rw [SqU4.sqRelWord_c, SqU4.sqRelWord_c, selRefine_one, selRefine_two, SqU4.mul_c,
+      SqU4.mul_c, hw₁c, hw₂c]
+    ring
+  have h_d : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).d = (sqRelWord m).d := by
+    rw [SqU4.sqRelWord_d, SqU4.sqRelWord_d, selRefine_one, selRefine_two,
+      sqHeisDefect_congr_ab habAB, SqU4.mul_d, SqU4.mul_d, hw₁d, hw₂d, hw₁b, hw₂b]
+    ring
+  have h_e : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).e = (sqRelWord m).e := by
+    rw [SqU4.sqRelWord_e, SqU4.sqRelWord_e, selRefine_one, selRefine_two,
+      sqHeisDefect_congr_ab habBC, SqU4.mul_e, SqU4.mul_e, hw₁e, hw₂e, hw₁c, hw₂c]
+    ring
+  have h_f : (sqRelWord (selRefine j m w₁ w₂ z₃ z₄)).f = (sqRelWord m).f
+      + (-4 * w₁.f + 2 * w₂.f
+        + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+        + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)) := by
+    rw [SqU4.sqRelWord_f, SqU4.sqRelWord_f, selRefine_one, selRefine_two, hdef, SqU4.mul_f,
+      SqU4.mul_f, hw₁c, hw₂c, hw₁e, hw₂e]
+    ring
+  rw [SqU4.mul_center_f]
+  exact SqU4.ext h_a h_b h_c h_d h_e h_f
+
+end SelCalculus
+
+/-! ### §5b The parity engine, and the cokernel of the linear action
+
+The linear action of §5 is **not** surjective onto the class-three defect space.  At an
+uncleared selected marking the two adjacency parities `hd`, `he` force
+
+```text
+A·D + B·C ≡ 0   (mod 2)                                   (selCross_even)
+```
+
+— mod 2, `(T,S) ≠ (0,0)` and `A·S = B·T`, `T·D = S·C` give `(A,C) ∥ (B,D)` in the only three
+possible ways, and each kills `A·D + B·C` — and with it **every** increment the refinement
+action can produce: the `(d,e)`-image `Λ` of `γ₂` under a selection hom is spanned by the three
+commutator pairings `(−A,C)`, `(−B,D)`, `(−2P,−2Q)`, the achievable outer columns of a dressed
+handle slot lie in the lattice `W = {(A·u + B·v, C·u + D·v)}`, and every `Λ`-against-`W` pairing
+is even (`selPair_even`, `selPair_even'`).  The exponent-slot contribution `−4w₁.f + 2w₂.f` is
+even outright.
+
+⭐ **So the cokernel functional of the ticket's linear-part question is reduction mod 2**: the
+image of the achievable refinement action lies in `2·ℤ/8`, at every uncleared selected marking
+of the family, and the **parity of the class-three residue is an invariant of the refinement
+orbit** — the selection bit.  This is the slice shadow of the depth sweep's finding that
+`im δ` has positive corank at every level with the relator defect landing inside it
+(`docs/dyadic/w50-depth-sweep.md` §6.3). -/
+
+section SelParity
+
+/-- The parity character of `ℤ/8`. -/
+def selPar : gr3R → ZMod 2 := fun x => (x.val : ZMod 2)
+
+@[simp] theorem selPar_zero : selPar 0 = 0 := rfl
+
+@[simp] theorem selPar_one : selPar 1 = 1 := rfl
+
+theorem selPar_add : ∀ x y : gr3R, selPar (x + y) = selPar x + selPar y := by decide
+
+theorem selPar_sub : ∀ x y : gr3R, selPar (x - y) = selPar x - selPar y := by decide
+
+theorem selPar_mul : ∀ x y : gr3R, selPar (x * y) = selPar x * selPar y := by decide
+
+theorem selPar_two_mul : ∀ x : gr3R, selPar (2 * x) = 0 := by decide
+
+/-- Parity is exactly divisibility by `2` in `ℤ/8`. -/
+theorem selPar_eq_zero_iff : ∀ x : gr3R, selPar x = 0 ↔ ∃ y : gr3R, x = 2 * y := by decide
+
+/-- The 𝔽₂ core of the parity obstruction: the two adjacency parities at an uncleared handle
+row force the cross term even.  Eight tiny cases. -/
+private theorem selPar_core : ∀ a b c d t s : ZMod 2,
+    a * s - b * t = 0 → t * d - s * c = 0 → (t = 1 ∨ s = 1) → a * d + b * c = 0 := by
+  decide
+
+/-- ⭐ **The parity obstruction.**  At an uncleared selected marking (one of the two handle rows
+odd), the two adjacency parities of the selection family force `A·D + B·C` **even**.  This is
+the single arithmetic fact behind the non-surjectivity of the γ₂-dressing action. -/
+theorem selCross_even {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1) : ∃ k : gr3R, A * D + B * C = 2 * k := by
+  rw [← selPar_eq_zero_iff, selPar_add, selPar_mul, selPar_mul]
+  have h1 : selPar A * selPar S - selPar B * selPar T = 0 := by
+    have hc := congrArg selPar hd
+    rw [selPar_add, selPar_two_mul, selPar_sub, selPar_mul, selPar_mul, selPar_zero,
+      zero_add] at hc
+    exact hc
+  have h2 : selPar T * selPar D - selPar S * selPar C = 0 := by
+    have hc := congrArg selPar he
+    rw [selPar_add, selPar_two_mul, selPar_sub, selPar_mul, selPar_mul, selPar_zero,
+      zero_add] at hc
+    exact hc
+  exact selPar_core (selPar A) (selPar B) (selPar C) (selPar D) (selPar T) (selPar S) h1 h2 hTS
+
+/-- Membership in `Λ`: the `(d, e)`-coordinates of `z` are an `R`-combination of the three
+commutator pairings `(−A, C)`, `(−B, D)`, `(−2P, −2Q)` of the selection marking's generators.
+This is exactly the `(d, e)`-image of `γ₂(im Φ)` for a hom of the selection family. -/
+def selLam (A B C D P Q : gr3R) (z : SqU4 gr3R) : Prop :=
+  ∃ r s w : gr3R, z.d = -(r * A) - s * B - 2 * (w * P) ∧ z.e = r * C + s * D - 2 * (w * Q)
+
+/-- Membership in `W`: `(x, y)` is an outer-column pair reachable by a dressed handle slot —
+the image of the abelianised dressing lattice under the two free characters. -/
+def selCol (A B C D : gr3R) (x y : gr3R) : Prop :=
+  ∃ u v : gr3R, x = A * u + B * v ∧ y = C * u + D * v
+
+/-- ⭐ **`Λ` pairs evenly against `W`** — the `U`-slot increment.  Every `γ₂`-dressing of the
+`U`-slot moves the class-three defect by an even amount, as long as the `V`-slot's outer
+columns are achievable. -/
+theorem selPair_even {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1) {z : SqU4 gr3R} {x y : gr3R}
+    (hz : selLam A B C D P Q z) (hxy : selCol A B C D x y) :
+    ∃ k : gr3R, z.d * y - z.e * x = 2 * k := by
+  obtain ⟨r, s, w, hzd, hze⟩ := hz
+  obtain ⟨u, v, hx, hy⟩ := hxy
+  obtain ⟨k, hk⟩ := selCross_even hd he hTS
+  refine ⟨-(r * A * C * u) - r * k * v - s * k * u - s * B * D * v
+    + w * (Q * A - P * C) * u + w * (Q * B - P * D) * v, ?_⟩
+  rw [hzd, hze, hx, hy]
+  linear_combination (-(r * v + s * u)) * hk
+
+/-- ⭐ …and the `V`-slot increment likewise. -/
+theorem selPair_even' {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1) {z : SqU4 gr3R} {x y : gr3R}
+    (hz : selLam A B C D P Q z) (hxy : selCol A B C D x y) :
+    ∃ k : gr3R, x * z.e - y * z.d = 2 * k := by
+  obtain ⟨r, s, w, hzd, hze⟩ := hz
+  obtain ⟨u, v, hx, hy⟩ := hxy
+  obtain ⟨k, hk⟩ := selCross_even hd he hTS
+  refine ⟨r * A * C * u + s * k * u + r * k * v + s * B * D * v
+    + w * (P * C - Q * A) * u + w * (P * D - Q * B) * v, ?_⟩
+  rw [hzd, hze, hx, hy]
+  linear_combination (r * v + s * u) * hk
+
+end SelParity
+
+/-! ## §6 The selection, characterised
+
+Putting §5 and §5b together over a class-two-admissible tuple:
+
+* **the obstruction** (`sqRelWord_selRefine_ne_one`): an odd class-three residue survives
+  *every* achievable refinement — the selection bit is a genuine invariant, and a dressing
+  tuple with the wrong bit is class-three-dead no matter how its `γ₂`-tail is chosen;
+* **the completion** (`sqRelWord_selRefine_eq_one`): an even residue with a live `2`-pairing
+  (`rr·(B·(m V).c + D·(m V).a) = 2` — over `ℤ/8` that is exactly "the pairing of the
+  `(−B, D)`-generator against the `V`-column is `2·unit`") is killed by **one explicit**
+  handle `γ₂`-move.  So on the live part of the family the selection among
+  class-two-admissible dressings is **exactly** the parity of the class-three residue.
+
+This is the slice form of the depth sweep's "defect ∈ im δ" containment target
+(`docs/dyadic/w50-depth-sweep.md` §6.3): the achievable-increment subgroup `J` sits inside
+`2·ℤ/8` (obstruction = the corank), and the completion shows `J = 2·ℤ/8` whenever the
+`2`-pairing witness exists, so residues *in* `J` are killed constructively. -/
+
+section SelectionVerdicts
+
+variable {h : ℕ} {j : Fin h}
+
+/-- ⭐⭐ **The obstruction.**  At an uncleared selected marking, a tuple whose class-three
+residue is **odd** cannot be repaired: every refinement by achievable handle-`γ₂` dressings
+(`(d,e)`-parts in `Λ`) and arbitrary exponent-slot `γ₃`-dressings still fails to kill the
+relator.  The only hypotheses on `m` are that its two `j`-handle outer columns are achievable
+(`selCol`) — no admissibility of the lower rows is needed. -/
+theorem sqRelWord_selRefine_ne_one {A B C D P Q T S : gr3R}
+    {m : Fin (sqRank h) → SqU4 gr3R} {w₁ w₂ z₃ z₄ : SqU4 gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hTS : selPar T = 1 ∨ selPar S = 1)
+    (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo) (hz₄ : z₄.IsGaTwo)
+    (hz₃L : selLam A B C D P Q z₃) (hz₄L : selLam A B C D P Q z₄)
+    (hcolU : selCol A B C D (m (sqHandleIdxU j)).a (m (sqHandleIdxU j)).c)
+    (hcolV : selCol A B C D (m (sqHandleIdxV j)).a (m (sqHandleIdxV j)).c)
+    (hodd : selPar (sqRelWord m).f = 1) :
+    sqRelWord (selRefine j m w₁ w₂ z₃ z₄) ≠ 1 := by
+  obtain ⟨k₁, hk₁⟩ := selPair_even hd he hTS hz₃L hcolV
+  obtain ⟨k₂, hk₂⟩ := selPair_even' hd he hTS hz₄L hcolU
+  intro hc
+  rw [sqRelWord_selRefine hw₁ hw₂ hz₃ hz₄, SqU4.mul_center_f] at hc
+  have hf : (sqRelWord m).f
+      + (-4 * w₁.f + 2 * w₂.f
+        + (z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a)
+        + ((m (sqHandleIdxU j)).a * z₄.e - (m (sqHandleIdxU j)).c * z₄.d)) = 0 :=
+    congrArg SqU4.f hc
+  have hval : (sqRelWord m).f = 2 * (2 * w₁.f - w₂.f - k₁ - k₂) := by
+    linear_combination hf - hk₁ - hk₂
+  have hpar := congrArg selPar hval
+  rw [selPar_two_mul] at hpar
+  rw [hpar] at hodd
+  exact absurd hodd (by decide)
+
+/-- ⭐⭐ **The completion.**  A tuple killing the five lower rows with an **even** class-three
+residue `2·res`, at a marking where the `(−B,D)`-generator pairs to `2` against the `V`-column
+(witness `rr`), is repaired by **one explicit** handle-`γ₂` move: dress the `U`-slot by the
+`γ₂`-element with `(d, e) = rr·res·(−B, D)`.  Together with the obstruction this is the
+selection iff on the live locus: *refinable to a survivor ⟺ the residue is even*. -/
+theorem sqRelWord_selRefine_eq_one {B D res rr : gr3R} {m : Fin (sqRank h) → SqU4 gr3R}
+    (h5 : sqRelWord m = ⟨0, 0, 0, 0, 0, 2 * res⟩)
+    (hmu : rr * (B * (m (sqHandleIdxV j)).c + D * (m (sqHandleIdxV j)).a) = 2) :
+    sqRelWord (selRefine j m 1 1 ⟨0, 0, 0, -(rr * res * B), rr * res * D, 0⟩ 1) = 1 := by
+  rw [sqRelWord_selRefine SqU4.isGaThree_one SqU4.isGaThree_one ⟨rfl, rfl, rfl⟩
+    SqU4.isGaTwo_one, h5, SqU4.mul_center_f, SqU4.eq_one_iff]
+  refine ⟨rfl, rfl, rfl, rfl, rfl, ?_⟩
+  simp only [SqU4.one_d, SqU4.one_e, SqU4.one_f]
+  linear_combination (-res) * hmu
+
+/-- The completion's `γ₂`-move really is achievable: its `(d, e)`-pair lies in `Λ`, on the
+`(−B, D)`-generator alone. -/
+theorem selLam_completion_move (A B C D P Q res rr : gr3R) :
+    selLam A B C D P Q (⟨0, 0, 0, -(rr * res * B), rr * res * D, 0⟩ : SqU4 gr3R) :=
+  ⟨0, rr * res, 0, by ring, by ring⟩
+
+end SelectionVerdicts
+
+/-! ### §6b ⭐ The σ-slot, and what the slice cannot see
+
+The W50 depth sweep (`docs/dyadic/w50-depth-sweep.md` §6.2) found that in the **universal**
+class-three quotient the level-one survivor set forces the σ-slot to carry the *same* dressing
+as the `x₀`-slot: `a₀ = a₁ = U^{−s}V^{t}` mod squares — a constraint strictly beyond
+`GradedTwo`'s `x₀`-forcing, and beyond anything committed.
+
+The selection family **cannot** prove that constraint, and this section shows why in the
+strongest machine-checked form: at the canonical uncleared row type the frame with
+`a₀ = a₁ = U⁻¹` (the sweep's witness shape) *and* the committed frame with `a₀ = 1`
+(`sqRelWord_selHom_sqArbFrame`, §4) **both** kill the relator at every hom of the family — the
+slice is blind to the σ-slot.  The mod-2 reason is visible in §5b's bit analysis: the σ-slot's
+dressing data enters the residue parity only through the products `κ₂·k₁m₀`, `κ₃·k₁n₀` with the
+`x₁x₀⁻²`-component `k₁` of the `x₀`-dressing, and the forced branch has `k₁ = 0`.  A wider
+slice — nonzero `a`/`c`-weights on the core slots, at the cost of `sqPivotExp`-dependence —
+is what a σ-sensitive gate needs; that design is banked in `docs/dyadic/w50-selection-note.md`. -/
+
+section SigmaBlind
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+variable {A B C D P Q : gr3R}
+variable {hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0}
+variable {he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0}
+
+variable (h nu' j) in
+/-- ⭐ **The sweep-shaped dressing**: `a₀ = a₁ = U⁻¹`, every other slot trivial.  This is the
+witness shape the depth sweep's level-one survivor analysis forces universally at the
+`(t, s) ≡ (0, 1)` row type (`U^{−s}V^{t} = U⁻¹`), with the σ-slot dressed **the same way** as
+the `x₀`-slot. -/
+noncomputable def selDressSig : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 0 then (sqEichU h nu' j)⁻¹ else
+    if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ else 1
+
+@[simp] theorem selDressSig_zero : selDressSig h nu' j 0 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDressSig, sqVal_zero]
+  norm_num
+
+@[simp] theorem selDressSig_one : selDressSig h nu' j 1 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDressSig, sqVal_one]
+  norm_num
+
+theorem selDressSig_of_ge {i : Fin (sqRank h)} (hi : 2 ≤ (i : ℕ)) :
+    selDressSig h nu' j i = 1 := by
+  simp only [selDressSig]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem selDressSig_two : selDressSig h nu' j 2 = 1 :=
+  selDressSig_of_ge (by rw [sqVal_two])
+
+@[simp] theorem selDressSig_handleU (j' : Fin h) :
+    selDressSig h nu' j (sqHandleIdxU j') = 1 :=
+  selDressSig_of_ge (by rw [sqHandleIdxU_val]; omega)
+
+@[simp] theorem selDressSig_handleV (j' : Fin h) :
+    selDressSig h nu' j (sqHandleIdxV j') = 1 :=
+  selDressSig_of_ge (by rw [sqHandleIdxV_val]; omega)
+
+/-- The sweep-shaped dressing is legal on the `λ`-row. -/
+theorem nuLam_selDressSig (i : Fin (sqRank h)) : nuLam h (selDressSig h nu' j i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), selDressSig_zero, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressSig_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  · rw [selDressSig_of_ge (by omega), map_one]
+
+/-- …and on the `ν'`-row, so it lies in `ker λ ∩ ker ν'` slotwise. -/
+theorem nu_selDressSig (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (selDressSig h nu' j i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), selDressSig_zero, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressSig_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  · rw [selDressSig_of_ge (by omega), map_one]
+
+/-! #### The five slot images -/
+
+/-- The dressed `σ`-slot: the `ν'`-column generator times `Φ(U)⁻¹`. -/
+theorem selHomSig_zero (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressSig h nu' j) 0)
+      = ⟨-A, 1, -C, 0, -C, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_zero, selDressSig_zero, map_mul, dsqSigma, selHom_gen,
+    selMark_zero, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+/-- The dressed `x₀`-slot, as in the committed witness. -/
+theorem selHomSig_one (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressSig h nu' j) 1)
+      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_one, selDressSig_one, map_mul, dsqX0, selHom_gen, selMark_one,
+    one_mul, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+/-- The `x₁`-slot stands. -/
+theorem selHomSig_two :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressSig h nu' j) 2)
+      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_two, selDressSig_two, mul_one, dsqX1, selHom_gen, selMark_two]
+
+/-- The handle slots stand. -/
+theorem selHomSig_handleU (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxU j)) = ⟨A, 0, C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleU, selDressSig_handleU, mul_one,
+    selHom_sqEichU_of_cleared hu]
+
+theorem selHomSig_handleV (hv : selS h nu' j = 1) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleV, selDressSig_handleV, mul_one, selHom_sqEichV_of_one hv]
+
+theorem selHomSig_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxU j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleU_ne hne, selDressSig_handleU, mul_one, selHom_gen,
+    selMark_handleU_ne hne]
+
+theorem selHomSig_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxV j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleV_ne hne, selDressSig_handleV, mul_one, selHom_gen,
+    selMark_handleV_ne hne]
+
+/-- ⭐⭐ **The slice is blind to the σ-slot forcing.**  The frame dressed by the sweep's witness
+shape `a₀ = a₁ = U⁻¹` kills the relator in **every** class-three quotient of the selection
+family, at every admissible pair of free characters — just as the committed `a₀ = 1` frame
+does (`sqRelWord_selHom_sqArbFrame`).  So no hom of this family separates the two σ-dressings,
+and the sweep's σ-slot forcing is invisible from inside the slice: a σ-sensitive gate must
+leave it. -/
+theorem sqRelWord_selHom_sqArbFrame_sigma (hu : selT h nu' j = 0) (hv : selS h nu' j = 1) :
+    sqRelWord (fun i => selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressSig h nu' j) i)) = 1 := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have hd' : 2 * P + A = 0 := by
+    have hx := hd; rw [hu, hv] at hx; linear_combination hx
+  have he' : 2 * Q - C = 0 := by
+    have hx := he; rw [hu, hv] at hx; linear_combination hx
+  have hs0 := selHomSig_zero (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hs1 := selHomSig_one (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hs2 := selHomSig_two (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+    (hd := hd) (he := he)
+  have hsU := selHomSig_handleU (B := B) (D := D) (P := P) (Q := Q) (hd := hd) (he := he) hu
+  have hsV := selHomSig_handleV (A := A) (C := C) (P := P) (Q := Q) (hd := hd) (he := he) hv
+  have hsUne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selHomSig_handleU_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (hd := hd) (he := he) hne
+  have hsVne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selHomSig_handleV_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (hd := hd) (he := he) hne
+  rw [SqU4.sqRelWord_eq_one_iff]
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [hs1, hs2]
+    linear_combination 4 * hd' - P * h8
+  · rw [hs1, hs2]
+    ring
+  · rw [hs1, hs2]
+    linear_combination (-4) * he' + Q * h8
+  · rw [sqHeisDefect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [hs0, hs1, hs2, hsU, hsV, SqU4.toHeisAB_apply]
+    linear_combination hd'
+  · rw [sqHeisDefect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [hs0, hs1, hs2, hsU, hsV, SqU4.toHeisBC_apply]
+    linear_combination he'
+  · rw [sqU4Defect, sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3
+        (selHom h nu' j A B C D P Q hd he
+          (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxU j')))
+        (selHom h nu' j A B C D P Q hd he
+          (sqArbFrame h nu' j (selDressSig h nu' j) (sqHandleIdxV j'))))
+        (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp [SqU4.u4Comm3])]
+    simp only [hs0, hs1, hs2, hsU, hsV, sqU4Core, SqU4.u4Comm3]
+    linear_combination (-A - B) * he' + A * Q * h8
+
+end SigmaBlind
+
+/-! ### §6c ⭐⭐ The selection in action: a legal dressing killed by the bit
+
+The selection functional is not vacuous, and this section pins one full instance of it at the
+`κ₃`-odd hom `(A,B,C,D,P,Q) = (4,1,2,1,2,1)` of the canonical `(0,1)`-type marking:
+
+* the class-two forced dressing (`selDress`) **survives** — §4's theorem, instantiated;
+* the frame additionally dressed by `t = x₁x₀⁻²` on the `U`-handle slot (`selDressT`) — a
+  perfectly **legal** dressing, `λ`- and `ν'`-trivial slotwise — passes every class-`≤ 2` row
+  but has class-three residue `1`, and by §6's obstruction **no achievable refinement ever
+  repairs it**;
+* at the committed hom `(2,1,2,1,7,1)` the same `t`-dressing has residue `6` — even — and §6's
+  completion kills it with one explicit `γ₂`-move.
+
+So the choice of the `t`-component of a handle dressing is **selected**: invisible to class
+two, it decides class-three life or death hom by hom.  This is the concrete content of "class
+three selects among class-two-admissible dressings", machine-checked end to end on
+`sqArbFrame` itself. -/
+
+section SelectionInstance
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+variable {A B C D P Q : gr3R}
+variable {hd : 2 * P + (A * selS h nu' j - B * selT h nu' j) = 0}
+variable {he : 2 * Q + (selT h nu' j * D - selS h nu' j * C) = 0}
+
+variable (h) in
+/-- The canonical lift of the order-two class `t̄ = x̄₁ − 2x̄₀`: the element `x₁·(x₀·x₀)⁻¹`. -/
+noncomputable def selTee : (DSq h : Type) := dsqX1 h * (dsqX0 h * dsqX0 h)⁻¹
+
+/-- `t` is `λ`-trivial: `λ(x₁) = 2λ(x₀)`. -/
+theorem nuLam_selTee (h : ℕ) : nuLam h (selTee h) = 1 := by
+  rw [selTee, map_mul, map_inv, map_mul, nuLam_x1, nuLam_x0]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_mul, toAdd_inv, toAdd_mul, toAdd_ofAdd, toAdd_ofAdd, toAdd_one]
+  norm_num
+
+/-- …and `ν'`-trivial at every selected marking: `ν'(x₁) = 2ν'(x₀)` by the core relation. -/
+theorem nu_selTee (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) : nu' (selTee h) = 1 := by
+  have h1 := toAdd_nu_dsqX1 nu'
+  rw [selTee, map_mul, map_inv, map_mul, hx0]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_mul, toAdd_inv, toAdd_mul, h1, hx0, toAdd_ofAdd, toAdd_one]
+  norm_num
+
+/-- ⭐ The image of `t` under a selection hom is the `x₁`-slot value: the `γ₂`-element with
+`(d, e) = (P, Q)`.  This is **not** in `Λ` in general — `t` is an abelian datum of a dressing,
+not a `γ₂`-refinement — which is exactly why it can flip the selection bit. -/
+theorem selHom_selTee :
+    selHom h nu' j A B C D P Q hd he (selTee h) = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [selTee, map_mul, map_inv, map_mul, dsqX1, dsqX0, selHom_gen, selHom_gen, selMark_two,
+    selMark_one]
+  simp
+
+variable (h nu' j) in
+/-- **The `t`-dressed dressing tuple**: the class-two forced `a₁ = U⁻¹`, plus `t` on the
+`U`-handle slot.  Every slot lies in `ker λ ∩ ker ν'`. -/
+noncomputable def selDressT : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ else
+    if (i : ℕ) = (sqHandleIdxU j : ℕ) then selTee h else 1
+
+@[simp] theorem selDressT_one : selDressT h nu' j 1 = (sqEichU h nu' j)⁻¹ := by
+  simp only [selDressT, sqVal_one]
+  norm_num
+
+@[simp] theorem selDressT_handleU : selDressT h nu' j (sqHandleIdxU j) = selTee h := by
+  simp only [selDressT, sqHandleIdxU_val]
+  rw [if_neg (by omega)]
+  simp
+
+@[simp] theorem selDressT_zero : selDressT h nu' j 0 = 1 := by
+  simp only [selDressT, sqVal_zero, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem selDressT_two : selDressT h nu' j 2 = 1 := by
+  simp only [selDressT, sqVal_two, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+theorem selDressT_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selDressT h nu' j (sqHandleIdxU j') = 1 := by
+  have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
+  simp only [selDressT, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem selDressT_handleV (j' : Fin h) : selDressT h nu' j (sqHandleIdxV j') = 1 := by
+  simp only [selDressT, sqHandleIdxV_val, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega)]
+
+/-- The `t`-dressed tuple is legal on the `λ`-row. -/
+theorem nuLam_selDressT (i : Fin (sqRank h)) : nuLam h (selDressT h nu' j i) = 1 := by
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressT_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  by_cases hU : (i : ℕ) = (sqHandleIdxU j : ℕ)
+  · rw [show i = sqHandleIdxU j from Fin.val_injective hU, selDressT_handleU, nuLam_selTee]
+  · rw [show selDressT h nu' j i = 1 from by
+      simp only [selDressT]; rw [if_neg h1, if_neg hU], map_one]
+
+/-- …and on the `ν'`-row. -/
+theorem nu_selDressT (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (selDressT h nu' j i) = 1 := by
+  by_cases h1 : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [h1, sqVal_one]), selDressT_one, map_inv,
+      inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  by_cases hU : (i : ℕ) = (sqHandleIdxU j : ℕ)
+  · rw [show i = sqHandleIdxU j from Fin.val_injective hU, selDressT_handleU, nu_selTee hx0]
+  · rw [show selDressT h nu' j i = 1 from by
+      simp only [selDressT]; rw [if_neg h1, if_neg hU], map_one]
+
+/-! #### The five slot images of the `t`-dressed frame -/
+
+theorem selHomT_zero :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressT h nu' j) 0)
+      = ⟨0, 1, 0, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_zero, selDressT_zero, mul_one, dsqSigma, selHom_gen, selMark_zero]
+
+theorem selHomT_one (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressT h nu' j) 1)
+      = ⟨-A, 0, -C, 0, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_one, selDressT_one, map_mul, dsqX0, selHom_gen, selMark_one,
+    one_mul, map_inv, selHom_sqEichU_of_cleared hu]
+  ext <;> simp
+
+theorem selHomT_two :
+    selHom h nu' j A B C D P Q hd he (sqArbFrame h nu' j (selDressT h nu' j) 2)
+      = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_two, selDressT_two, mul_one, dsqX1, selHom_gen, selMark_two]
+
+/-- ⭐ The `t`-dressed `U`-handle slot: the cleared letter's image times the `(P, Q)`-element.
+The `t`-component surfaces in the class-two coordinates of the slot — invisible to the
+class-two rows, decisive at class three. -/
+theorem selHomT_handleU (hu : selT h nu' j = 0) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxU j))
+      = ⟨A, 0, C, P, Q, -(B * Q)⟩ := by
+  rw [sqArbFrame, sqArbBase_handleU, selDressT_handleU, map_mul,
+    selHom_sqEichU_of_cleared hu, selHom_selTee]
+  ext <;> simp
+  ring
+
+theorem selHomT_handleV (hv : selS h nu' j = 1) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxV j)) = ⟨B, 0, D, -B, 0, 0⟩ := by
+  rw [sqArbFrame, sqArbBase_handleV, selDressT_handleV, mul_one, selHom_sqEichV_of_one hv]
+
+theorem selHomT_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxU j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleU_ne hne, selDressT_handleU_ne hne, mul_one, selHom_gen,
+    selMark_handleU_ne hne]
+
+theorem selHomT_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selHom h nu' j A B C D P Q hd he
+      (sqArbFrame h nu' j (selDressT h nu' j) (sqHandleIdxV j')) = 1 := by
+  rw [sqArbFrame, sqArbBase_handleV_ne hne, selDressT_handleV, mul_one, selHom_gen,
+    selMark_handleV_ne hne]
+
+end SelectionInstance
+
+/-! #### The verdicts, at two homs of the same marking -/
+
+section SelectionVerdictInstances
+
+/-- The `(a,b)`-parity of the `κ₃`-odd weights `(A,B,P) = (4,1,2)` at the canonical marking. -/
+theorem selW2D (h : ℕ) (j : Fin h) :
+    2 * (2 : gr3R) + ((4 : gr3R) * selS h (nuSel h j 0 1) j
+      - 1 * selT h (nuSel h j 0 1) j) = 0 := by
+  rw [selT_nuSel, selS_nuSel]; decide
+
+/-- …and the `(b,c)`-parity of `(C,D,Q) = (2,1,1)`. -/
+theorem selW2E (h : ℕ) (j : Fin h) :
+    2 * (1 : gr3R) + (selT h (nuSel h j 0 1) j * 1 - selS h (nuSel h j 0 1) j * 2) = 0 := by
+  rw [selT_nuSel, selS_nuSel]; decide
+
+/-- The image tuple of the `t`-dressed frame at the `κ₃`-odd hom `(4,1,2,1,2,1)`. -/
+def selTW2 : Fin (sqRank 1) → SqU4 gr3R :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, ⟨4, 0, 6, 0, 0, 0⟩, ⟨0, 0, 0, 2, 1, 3⟩, ⟨4, 0, 2, 2, 1, 7⟩,
+    ⟨1, 0, 1, 7, 0, 0⟩]
+
+/-- The identification: `selTW2` **is** the image of `sqArbFrame` dressed by `selDressT`. -/
+theorem selHomT_eq_selTW2 :
+    (fun i => selHom 1 (nuSel 1 0 0 1) 0 4 1 2 1 2 1 (selW2D 1 0) (selW2E 1 0)
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDressT 1 (nuSel 1 0 0 1) 0) i)) = selTW2 := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [selHomT_zero]; decide
+  · rw [selHomT_one selT_nuSel]; decide
+  · rw [selHomT_two]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleU selT_nuSel]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleV selS_nuSel]; decide
+
+/-- ⚠ **The `t`-dressed frame passes every class-`≤ 2` row and fails class three by a unit.**
+The relator's image is central with class-three coordinate `1`: the five lower rows vanish —
+class two admits this dressing — and the class-three residue is **odd**. -/
+theorem sqRelWord_selTW2 : sqRelWord selTW2 = ⟨0, 0, 0, 0, 0, 1⟩ := by decide
+
+/-- ⭐⭐ **The obstruction fires on a real frame**: no achievable refinement — handle-`γ₂`
+dressings with `(d,e)` in `Λ`, arbitrary exponent-slot `γ₃`-dressings — ever repairs the
+`t`-dressed frame at the `κ₃`-odd hom.  The selection bit killed it. -/
+theorem sqRelWord_selRefine_selTW2_ne_one {w₁ w₂ z₃ z₄ : SqU4 gr3R}
+    (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo) (hz₄ : z₄.IsGaTwo)
+    (hz₃L : selLam 4 1 2 1 2 1 z₃) (hz₄L : selLam 4 1 2 1 2 1 z₄) :
+    sqRelWord (selRefine 0 selTW2 w₁ w₂ z₃ z₄) ≠ 1 := by
+  refine sqRelWord_selRefine_ne_one (T := 0) (S := 1) (by decide) (by decide)
+    (Or.inr (by decide)) hw₁ hw₂ hz₃ hz₄ hz₃L hz₄L ⟨1, 0, by decide, by decide⟩
+    ⟨0, 1, by decide, by decide⟩ ?_
+  rw [sqRelWord_selTW2]
+  decide
+
+/-- ⭐⭐ …and the same verdict phrased on `sqArbFrame` itself, through the identification. -/
+example {w₁ w₂ z₃ z₄ : SqU4 gr3R}
+    (hw₁ : w₁.IsGaThree) (hw₂ : w₂.IsGaThree) (hz₃ : z₃.IsGaTwo) (hz₄ : z₄.IsGaTwo)
+    (hz₃L : selLam 4 1 2 1 2 1 z₃) (hz₄L : selLam 4 1 2 1 2 1 z₄) :
+    sqRelWord (selRefine 0 (fun i => selHom 1 (nuSel 1 0 0 1) 0 4 1 2 1 2 1 (selW2D 1 0)
+      (selW2E 1 0) (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDressT 1 (nuSel 1 0 0 1) 0) i))
+      w₁ w₂ z₃ z₄) ≠ 1 := by
+  rw [selHomT_eq_selTW2]
+  exact sqRelWord_selRefine_selTW2_ne_one hw₁ hw₂ hz₃ hz₄ hz₃L hz₄L
+
+/-- ⭐ **At the very same hom the class-two forced dressing survives** — §4's theorem is
+weight-general, so the pair (`selDress` lives, `selDressT` dies) is a machine-checked instance
+of the selection *within* one class-three quotient. -/
+example : sqRelWord (fun i => selHom 1 (nuSel 1 0 0 1) 0 4 1 2 1 2 1 (selW2D 1 0) (selW2E 1 0)
+    (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDress 1 (nuSel 1 0 0 1) 0) i)) = 1 :=
+  sqRelWord_selHom_sqArbFrame selT_nuSel selS_nuSel
+
+/-- The dead dressing is legal: `λ`-trivial slotwise… -/
+example (i : Fin (sqRank 1)) : nuLam 1 (selDressT 1 (nuSel 1 0 0 1) 0 i) = 1 :=
+  nuLam_selDressT i
+
+/-- …and `ν'`-trivial slotwise, so it belongs to the class `SqArbRelWord` quantifies over. -/
+example (i : Fin (sqRank 1)) : nuSel 1 0 0 1 (selDressT 1 (nuSel 1 0 0 1) 0 i) = 1 :=
+  nu_selDressT nuSel_sigma nuSel_x0 i
+
+/-! #### The completion at the committed hom
+
+At `(A,B,C,D,P,Q) = (2,1,2,1,7,1)` — the hom of §4's witness — the same `t`-dressing has
+residue `6`: **even**, so the selection admits it, and §6's completion repairs it with one
+explicit `γ₂`-move.  The two instances together are the selection iff in action: the same
+legal dressing is repairable at the committed hom and unrepairable at the `κ₃`-odd one. -/
+
+/-- The image tuple of the `t`-dressed frame at the committed hom `(2,1,2,1,7,1)`. -/
+def selTCom : Fin (sqRank 1) → SqU4 gr3R :=
+  ![⟨0, 1, 0, 0, 0, 0⟩, ⟨6, 0, 6, 0, 0, 0⟩, ⟨0, 0, 0, 7, 1, 5⟩, ⟨2, 0, 2, 7, 1, 7⟩,
+    ⟨1, 0, 1, 7, 0, 0⟩]
+
+theorem selHomT_eq_selTCom :
+    (fun i => selHom 1 (nuSel 1 0 0 1) 0 2 1 2 1 7 1 (selWitD 1 0) (selWitE 1 0)
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (selDressT 1 (nuSel 1 0 0 1) 0) i)) = selTCom := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [selHomT_zero]; decide
+  · rw [selHomT_one selT_nuSel]; decide
+  · rw [selHomT_two]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleU selT_nuSel]; decide
+  · rw [Subsingleton.elim j' 0, selHomT_handleV selS_nuSel]; decide
+
+/-- The residue at the committed hom is `6` — even. -/
+theorem sqRelWord_selTCom : sqRelWord selTCom = ⟨0, 0, 0, 0, 0, 2 * 3⟩ := by decide
+
+/-- ⭐ **The completion fires**: one explicit handle-`γ₂` move kills the `t`-dressed frame's
+relator at the committed hom. -/
+example : sqRelWord (selRefine 0 selTCom 1 1 ⟨0, 0, 0, -(1 * 3 * 1), 1 * 3 * 1, 0⟩ 1) = 1 :=
+  sqRelWord_selRefine_eq_one (B := 1) (D := 1) sqRelWord_selTCom (by decide)
+
+end SelectionVerdictInstances
+
+/-! ## §7 Axiom pins
+
+Committed prints for every §5–§6 declaration: all **std-3** (`propext`, `Classical.choice`,
+`Quot.sound`) or a subset; no census axiom is reachable.  Every `decide` is on `ZMod 8`,
+`ZMod 2` or `Fin`-indexed tuples over them. -/
+
+section AxiomPins
+
+#print axioms SqU4.IsGaTwo
+#print axioms SqU4.IsGaThree
+#print axioms SqU4.IsGaThree.isGaTwo
+#print axioms SqU4.isGaThree_one
+#print axioms SqU4.isGaTwo_one
+#print axioms SqU4.mul_center_f
+#print axioms SqU4.u4Comm3_mul_gaTwo_left
+#print axioms SqU4.u4Comm3_mul_gaTwo_right
+#print axioms sqHeisDefect_congr_ab
+#print axioms selRefine
+#print axioms selRefine_one
+#print axioms selRefine_two
+#print axioms selRefine_handleU
+#print axioms selRefine_handleV
+#print axioms selRefine_zero
+#print axioms selRefine_handleU_ne
+#print axioms selRefine_handleV_ne
+#print axioms selRefine_abc
+#print axioms sqU4Defect_selRefine
+#print axioms sqRelWord_selRefine
+#print axioms selPar
+#print axioms selPar_zero
+#print axioms selPar_one
+#print axioms selPar_add
+#print axioms selPar_sub
+#print axioms selPar_mul
+#print axioms selPar_two_mul
+#print axioms selPar_eq_zero_iff
+#print axioms selCross_even
+#print axioms selLam
+#print axioms selCol
+#print axioms selPair_even
+#print axioms selPair_even'
+#print axioms sqRelWord_selRefine_ne_one
+#print axioms sqRelWord_selRefine_eq_one
+#print axioms selLam_completion_move
+#print axioms selDressSig
+#print axioms selDressSig_zero
+#print axioms selDressSig_one
+#print axioms selDressSig_of_ge
+#print axioms selDressSig_two
+#print axioms selDressSig_handleU
+#print axioms selDressSig_handleV
+#print axioms nuLam_selDressSig
+#print axioms nu_selDressSig
+#print axioms selHomSig_zero
+#print axioms selHomSig_one
+#print axioms selHomSig_two
+#print axioms selHomSig_handleU
+#print axioms selHomSig_handleV
+#print axioms selHomSig_handleU_ne
+#print axioms selHomSig_handleV_ne
+#print axioms sqRelWord_selHom_sqArbFrame_sigma
+#print axioms selTee
+#print axioms nuLam_selTee
+#print axioms nu_selTee
+#print axioms selHom_selTee
+#print axioms selDressT
+#print axioms selDressT_one
+#print axioms selDressT_handleU
+#print axioms selDressT_zero
+#print axioms selDressT_two
+#print axioms selDressT_handleU_ne
+#print axioms selDressT_handleV
+#print axioms nuLam_selDressT
+#print axioms nu_selDressT
+#print axioms selHomT_zero
+#print axioms selHomT_one
+#print axioms selHomT_two
+#print axioms selHomT_handleU
+#print axioms selHomT_handleV
+#print axioms selHomT_handleU_ne
+#print axioms selHomT_handleV_ne
+#print axioms selW2D
+#print axioms selW2E
+#print axioms selTW2
+#print axioms selHomT_eq_selTW2
+#print axioms sqRelWord_selTW2
+#print axioms sqRelWord_selRefine_selTW2_ne_one
+#print axioms selTCom
+#print axioms selHomT_eq_selTCom
+#print axioms sqRelWord_selTCom
+
+end AxiomPins
 
 end SqCore
 
