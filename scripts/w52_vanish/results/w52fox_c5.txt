@@ -1,0 +1,28 @@
+W52 fox-form validation -- class 5, markings [
+[ 0, 1 ],
+[ 1, 1 ],
+[ 0, 2 ],
+[ 3, 5 ]
+]
+Q_5 : order 2^922, layers [ 5, 14, 49, 175, 679 ]
+(t,s)=(0,1): K-layer dims [ 3, 12, 47, 173, 677 ], certs [ true, true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.010 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.100 s
+  L5: T1 fox-form mismatches 0 of 865 rows | rank 673 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 49 | 1.030 s
+(t,s)=(0,1): R(m) = 1 in Q_5 : true
+(t,s)=(1,1): K-layer dims [ 3, 12, 47, 173, 677 ], certs [ true, true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.030 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.180 s
+  L5: T1 fox-form mismatches 0 of 865 rows | rank 673 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 49 | 1.320 s
+(t,s)=(1,1): R(m) = 1 in Q_5 : true
+(t,s)=(0,2): K-layer dims [ 3, 12, 47, 173, 677 ], certs [ true, true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.010 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.090 s
+  L5: T1 fox-form mismatches 0 of 865 rows | rank 673 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 49 | 0.970 s
+(t,s)=(0,2): R(m) = 1 in Q_5 : true
+(t,s)=(3,5): K-layer dims [ 3, 12, 47, 173, 677 ], certs [ true, true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.020 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.170 s
+  L5: T1 fox-form mismatches 0 of 865 rows | rank 673 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 49 | 1.310 s
+(t,s)=(3,5): R(m) = 1 in Q_5 : true
+DONE

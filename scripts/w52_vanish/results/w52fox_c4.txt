@@ -1,0 +1,19 @@
+W52 fox-form validation -- class 4, markings [
+[ 0, 1 ],
+[ 1, 0 ],
+[ 1, 1 ]
+]
+Q_4 : order 2^243, layers [ 5, 14, 49, 175 ]
+(t,s)=(0,1): K-layer dims [ 3, 12, 47, 173 ], certs [ true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.010 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.070 s
+(t,s)=(0,1): R(m) = 1 in Q_4 : true
+(t,s)=(1,0): K-layer dims [ 3, 12, 47, 173 ], certs [ true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.010 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.060 s
+(t,s)=(1,0): R(m) = 1 in Q_4 : true
+(t,s)=(1,1): K-layer dims [ 3, 12, 47, 173 ], certs [ true, true, true, true ]
+  L3: T1 fox-form mismatches 0 of 60 rows | rank 43 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 5 | 0.000 s
+  L4: T1 fox-form mismatches 0 of 235 rows | rank 169 corank 6 | T2 im<=K true, defect in K true, defect in im true | T3 conj-kernel fails 0 of 14 | 0.070 s
+(t,s)=(1,1): R(m) = 1 in Q_4 : true
+DONE
