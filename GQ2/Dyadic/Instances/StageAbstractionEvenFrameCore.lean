@@ -430,6 +430,123 @@ theorem evenFrameCoord_kappaVec {h : ℕ} (i : Fin (MarkedCore.coreRank h)) :
     rw [evenFrameCoord_handleV, if_neg (by rw [MarkedCore.handleIdxV_val]; omega)]
     rfl
 
+/-! ## §2 The even Witt adaptation
+
+The odd route's `frattiniFrameAdaptedModelEquiv` refines the `⟨1⟩ ⊥ H^{⊥m}` normal form twice:
+it puts the Labute vector in the `⟨1⟩` slot and the `ω` vector on the diagonal of the first
+hyperbolic plane.  The even analogue needs only the *first* refinement, and gets it for free:
+`FieldDataEven.headSplitEquiv` already sends the Labute vector to the head coordinates `(0,1)`,
+which by §1.5 is the model's own Labute vector.  The `ω` vector is placed not by a second Witt
+step but by the class identity of §4.2 — see the discussion there.
+
+Nothing here is even-core-specific; it is the missing even twin of
+`frattiniFrameAdaptedModelEquiv`, stated for an arbitrary finite `𝔽₂` cup–Bockstein form. -/
+
+/-- **The even adapted normal form.**  A nondegenerate `𝔽₂` cup–Bockstein form of order
+`2 ^ (2h + 4)` whose Labute vector `e` is isotropic and nonzero is isometric to the even
+coordinate model, *by an isometry carrying `e` to the model's Labute vector* — that is, to the
+frame coordinate vector supported at the letter `x₁`.
+
+The plane count `h + 1` is pinned by counting, exactly as in
+`FieldDataEven.exists_cupFormK_normalForm_even`; the extra content over that theorem is the
+placement of `e`, which is what the frame construction consumes. -/
+theorem evenFrameAdaptedModelEquiv {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    {b : W → W → ZMod 2} (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e : W}
+    (he : ∀ w, b e w = b w w) (he0 : b e e = 0) (hne : e ≠ 0)
+    {h : ℕ} (hcard : Nat.card W = 2 ^ (2 * h + 4)) :
+    ∃ Φ : W ≃ₗ[ZMod 2] evenFrameModel h,
+      (∀ x y, b x y = evenFrameGramModel h (Φ x) (Φ y)) ∧ Φ e = evenFrameKappaVec h := by
+  obtain ⟨f, hf⟩ := exists_diag_eq_one hnd he hne
+  obtain ⟨m, ψ, hψ⟩ :=
+    exists_symplectic_equiv (fun x y : headPerp b hb f e ↦ b (x : W) (y : W))
+      (isSymplectic_headPerp hb hnd he he0 hf)
+  set φ₀ := headSplitEquiv hb he he0 hf with hφ₀
+  set Φ := φ₀.trans ((LinearEquiv.refl (ZMod 2) (ZMod 2 × ZMod 2)).prodCongr ψ) with hΦ
+  -- the plane count, by counting
+  have hm : m = h + 1 := by
+    have h1 : Nat.card W = 4 * 4 ^ m := by
+      rw [Nat.card_congr Φ.toEquiv, Nat.card_prod]
+      simp
+    have h2 : (2 : ℕ) ^ (2 + 2 * m) = 2 ^ (2 * h + 4) := by
+      rw [← hcard, h1, show (4 : ℕ) = 2 ^ 2 from rfl, ← pow_mul, ← pow_add]
+    have h3 := Nat.pow_right_injective (le_refl 2) h2
+    omega
+  subst hm
+  -- the Labute vector lands in the head, at the second head coordinate
+  have hef : b e f = 1 := head_offDiag he hf
+  have hfe : b f e = 1 := by rw [hb.symm]; exact hef
+  have hφe : φ₀ e = (((0 : ZMod 2), (1 : ZMod 2)), 0) := by
+    refine Prod.ext (Prod.ext ?_ ?_) (Subtype.ext ?_)
+    · show b e e = 0
+      exact he0
+    · show b f e + b e e = 1
+      rw [hfe, he0, add_zero]
+    · show e + (b e e) • f + (b f e + b e e) • e = (0 : W)
+      simp only [he0, hfe, zero_smul, add_zero, one_smul]
+      exact GQ2.Dyadic.Certificates.module_zmod2_two_torsion e
+  refine ⟨Φ, fun x y ↦ ?_, ?_⟩
+  · have hx : (φ₀ x).1.1 • f + (φ₀ x).1.2 • e + ((φ₀ x).2 : W) = x := φ₀.left_inv x
+    have hy : (φ₀ y).1.1 • f + (φ₀ y).1.2 • e + ((φ₀ y).2 : W) = y := φ₀.left_inv y
+    show b x y = headGram (φ₀ x).1 (φ₀ y).1 + hypGram (ψ (φ₀ x).2) (ψ (φ₀ y).2)
+    rw [← hψ]
+    calc b x y = b ((φ₀ x).1.1 • f + (φ₀ x).1.2 • e + ((φ₀ x).2 : W))
+          ((φ₀ y).1.1 • f + (φ₀ y).1.2 • e + ((φ₀ y).2 : W)) := by rw [hx, hy]
+      _ = headGram (φ₀ x).1 (φ₀ y).1 + b ((φ₀ x).2 : W) ((φ₀ y).2 : W) :=
+          headSplit_gram hb he he0 hf _ _ _ _
+  · show ((φ₀ e).1, ψ (φ₀ e).2) = evenFrameKappaVec h
+    rw [hφe, evenFrameKappaVec_eq, map_zero]
+
+/-! ## §3 The row-relative exact cyclotomic lift
+
+The odd route's `frattiniFrameExactLift` consumes `SharpExactLevelFibreLiftSupply`, which asks
+for an exact lift at *every* target of `ℤ₂ˣ` and is available only when `chiCycKTwo` is
+surjective — false at even degree.  This is the same statement against the row-relative supply
+`StageGeneric.RowExactLevelFibreLiftSupply` of `StageAbstraction.lean` §2.1(b), which is all the
+even lane can have and all it needs: lifting is only ever performed at a row value. -/
+
+section RowLift
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+local instance evenFrameScalar : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+local instance evenFrameContinuousScalar :
+    ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **Exact cyclotomic-value lifting within a Frattini coset, at a row value.**  If the mod-four
+and `ω` classes evaluate on `g'` to the corresponding data of the row target `v i`, the
+row-relative sharp supply replaces `g'` by an element with cyclotomic value exactly `v i` in the
+same Frattini coset. -/
+theorem evenFrameExactLift {n : ℕ} {v : Fin n → ℤ_[2]ˣ}
+    (supply : RowExactLevelFibreLiftSupply v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)))
+    (i : Fin n) (g' : maxProPQuotient 2 (GalK K))
+    (h4 : frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) g' =
+      Multiplicative.toAdd (unitsModFourParity
+        (Units.map (PadicInt.toZModPow 2).toMonoidHom (v i))))
+    (h8 : frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) g' =
+      Multiplicative.toAdd (unitsModEightOmega
+        (Units.map (PadicInt.toZModPow 3).toMonoidHom (v i)))) :
+    ∃ x : maxProPQuotient 2 (GalK K),
+      chiCycKTwo (K := K) x = v i ∧
+        levelMk (maxProPQuotient 2 (GalK K)) 2 x =
+          levelMk (maxProPQuotient 2 (GalK K)) 2 g' := by
+  have hshadow : SqCyclotomicStageTuple.sharpChiLevel (chiCycKTwo (K := K)) 2 (le_refl 2)
+      (levelMk (maxProPQuotient 2 (GalK K)) 2 g') =
+        Units.map (PadicInt.toZModPow 3).toMonoidHom (v i) := by
+    apply unitsModEightData_injective
+    rw [frattiniFrame_sharpShadow_data, h4, h8]
+    unfold unitsModEightData
+    rw [frattiniFrame_unitsMap_cast]
+  obtain ⟨x, hx1, hx2⟩ := supply.lift 2 (le_refl 2) i
+    (levelMk (maxProPQuotient 2 (GalK K)) 2 g') hshadow
+  exact ⟨x, hx1, hx2.symm⟩
+
+end RowLift
+
 end
 
 end GQ2.Dyadic.StageGeneric
