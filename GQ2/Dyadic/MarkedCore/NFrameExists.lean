@@ -431,6 +431,313 @@ theorem nTHom_word {α : ℕ} (hα : 1 ≤ α) (h : ℕ) (c : Fin (coreRank h) �
 
 end Words
 
+/-! ## §6 The combined coordinate hom `φ_N`, and its bijectivity -/
+
+section Phi
+
+variable {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+
+/-- **The combined coordinate hom** `φ_N : D_N^{ab} → ℤ/2 ⊕ ℤ₂³ ⊕ ℤ₂^{2h}`, the `N` twin of
+`mPhiHom`.  It is stated with the file's `2 ≤ α` even though its torsion component needs only
+`1 ≤ α`: the extra strength is what makes it *injective*, not what makes it exist. -/
+noncomputable def nPhiHom : topAbelianization (DN α h : Type) →* NFrameModel h where
+  toFun z := ofAdd ((nTHom (by omega : 1 ≤ α) h z).toAdd, (nBHom α h z).toAdd,
+    (nCHom α h z).toAdd, (nDHom α h z).toAdd, fun k => (nHHom α k z).toAdd)
+  map_one' := by
+    simp only [map_one, toAdd_one]
+    rfl
+  map_mul' x y := by
+    simp only [map_mul, toAdd_mul]
+    rw [← ofAdd_add]
+    rfl
+
+theorem continuous_nPhiHom : Continuous (nPhiHom hα h) := by
+  show Continuous fun z => ofAdd ((nTHom (by omega : 1 ≤ α) h z).toAdd, (nBHom α h z).toAdd,
+    (nCHom α h z).toAdd, (nDHom α h z).toAdd, fun k => (nHHom α k z).toAdd)
+  exact continuous_ofAdd.comp
+    ((continuous_toAdd.comp (nTHom (by omega : 1 ≤ α) h).continuous_toFun).prodMk
+      ((continuous_toAdd.comp (nBHom α h).continuous_toFun).prodMk
+        ((continuous_toAdd.comp (nCHom α h).continuous_toFun).prodMk
+          ((continuous_toAdd.comp (nDHom α h).continuous_toFun).prodMk
+            (continuous_pi fun k => continuous_toAdd.comp (nHHom α k).continuous_toFun)))))
+
+/-- `φ_N` on a `ℤ₂`-power word, all five coordinates at once.  Compare `mPhiHom_word`: the
+`M`-side third slot reads `−2^{α−1}c₀ + c₂`, here it is simply `c₂`. -/
+theorem nPhiHom_word (c : Fin (coreRank h) → ℤ_[2]) :
+    nPhiHom hα h (nAbWord α h c)
+      = ofAdd ((zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) (c 0)).toAdd, c 1, c 2, c 3,
+          fun k => c (mHandleIdx k)) := by
+  show ofAdd (_, _, _, _, _) = _
+  rw [nTHom_word, nBHom_word, nCHom_word, nDHom_word]
+  simp only [toAdd_ofAdd]
+  congr 1
+  exact congrArg _ (congrArg _ (congrArg _ (congrArg _
+    (funext fun k => by rw [nHHom_word, toAdd_ofAdd]))))
+
+/-! ### §6.1 Injectivity
+
+Simpler than the `M` case: with no forced row, killing the four non-torsion coordinates leaves
+a word supported at the single slot `x̄₀`, and `dnTorsionGen_sq` finishes it. -/
+
+/-- A word whose exponents vanish off the `x̄₀`-slot is that single factor. -/
+theorem nAbWord_single (α h : ℕ) (c : Fin (coreRank h) → ℤ_[2])
+    (hc : ∀ i, i ≠ 0 → c i = 0) :
+    nAbWord α h c = zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h 0)) (c 0) :=
+  Finset.prod_eq_single 0 (fun j _ hj => by rw [hc j hj, zpowZtwo_zero])
+    (fun hi => absurd (Finset.mem_univ (0 : Fin (coreRank h))) hi)
+
+theorem nPhiHom_injective : Function.Injective (nPhiHom hα h) := by
+  rw [injective_iff_map_eq_one]
+  intro z hz
+  obtain ⟨c, rfl⟩ := nDNab_coord α h z
+  rw [nPhiHom_word] at hz
+  have hv := Multiplicative.ofAdd.injective (hz.trans
+    (show (1 : NFrameModel h) = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+      (0 : Fin (2 * h) → ℤ_[2])) from rfl))
+  rw [Prod.mk.injEq, Prod.mk.injEq, Prod.mk.injEq, Prod.mk.injEq] at hv
+  obtain ⟨hvt, hv1, hv2, hv3, hvh⟩ := hv
+  -- every exponent off the torsion slot vanishes
+  have hc0 : ∀ i, i ≠ 0 → c i = 0 := by
+    intro i hi0
+    rcases mIdx_cases i with rfl | rfl | rfl | rfl | ⟨k, rfl⟩
+    · exact absurd rfl hi0
+    · exact hv1
+    · exact hv2
+    · exact hv3
+    · exact congrFun hvh k
+  -- the torsion coordinate says the surviving exponent is even, and `x̄₀² = 1`
+  have hval0 : (PadicInt.toZModPow 1 (c 0)).val = 0 := by
+    rw [zpowZtwo_of_sq_eq_one isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) (by decide) (c 0)] at hvt
+    have hlt : (PadicInt.toZModPow (p := 2) 1 (c 0)).val < 2 := by
+      have := ZMod.val_lt (PadicInt.toZModPow (p := 2) 1 (c 0)); simpa using this
+    rcases (by omega : (PadicInt.toZModPow 1 (c 0)).val = 0
+        ∨ (PadicInt.toZModPow 1 (c 0)).val = 1) with h0 | h1
+    · exact h0
+    · rw [h1, pow_one, toAdd_ofAdd] at hvt
+      exact absurd hvt (by decide)
+  rw [nAbWord_single α h c hc0, ← dnX0,
+    zpowZtwo_of_sq_eq_one (nIsProP_two_topAb_DN α h) _ (dnTorsionGen_sq hα h) (c 0),
+    hval0, pow_zero]
+
+/-! ### §6.2 Surjectivity
+
+Also simpler: with no forced row to compensate for, the four core exponents *are* the four
+target coordinates. -/
+
+/-- The exponent vector realizing a prescribed coordinate tuple.  Note the absence of any
+α-dependence, in contrast with `mSurjVec`. -/
+noncomputable def nSurjVec {h : ℕ} (a : ZMod 2) (b cc d : ℤ_[2])
+    (f : Fin (2 * h) → ℤ_[2]) : Fin (coreRank h) → ℤ_[2] := fun i =>
+  if (i : ℕ) = 0 then ((a.val : ℤ_[2])) else
+  if (i : ℕ) = 1 then b else
+  if (i : ℕ) = 2 then cc else
+  if (i : ℕ) = 3 then d else
+  if hk : (i : ℕ) - 4 < 2 * h then f ⟨(i : ℕ) - 4, hk⟩ else 0
+
+section SurjVec
+
+variable {h : ℕ} (a : ZMod 2) (b cc d : ℤ_[2]) (f : Fin (2 * h) → ℤ_[2])
+
+@[simp] theorem nSurjVec_zero : nSurjVec a b cc d f 0 = ((a.val : ℤ_[2])) := by
+  rw [nSurjVec, if_pos (coreVal_zero h)]
+
+@[simp] theorem nSurjVec_one : nSurjVec a b cc d f 1 = b := by
+  rw [nSurjVec, if_neg (by rw [coreVal_one]; omega), if_pos (coreVal_one h)]
+
+@[simp] theorem nSurjVec_two : nSurjVec a b cc d f 2 = cc := by
+  rw [nSurjVec, if_neg (by rw [coreVal_two]; omega), if_neg (by rw [coreVal_two]; omega),
+    if_pos (coreVal_two h)]
+
+@[simp] theorem nSurjVec_three : nSurjVec a b cc d f 3 = d := by
+  rw [nSurjVec, if_neg (by rw [coreVal_three]; omega), if_neg (by rw [coreVal_three]; omega),
+    if_neg (by rw [coreVal_three]; omega), if_pos (coreVal_three h)]
+
+@[simp] theorem nSurjVec_handle (k : Fin (2 * h)) :
+    nSurjVec a b cc d f (mHandleIdx k) = f k := by
+  rw [nSurjVec, if_neg (by rw [mHandleIdx_val]; omega), if_neg (by rw [mHandleIdx_val]; omega),
+    if_neg (by rw [mHandleIdx_val]; omega), if_neg (by rw [mHandleIdx_val]; omega),
+    dif_pos (by rw [mHandleIdx_val]; have := k.isLt; omega)]
+  exact congrArg f (Fin.ext (by simp only [mHandleIdx_val]; omega))
+
+end SurjVec
+
+theorem nPhiHom_surjective : Function.Surjective (nPhiHom hα h) := by
+  intro w
+  rw [← ofAdd_toAdd w]
+  obtain ⟨a, b, cc, d, f⟩ := w.toAdd
+  refine ⟨nAbWord α h (nSurjVec a b cc d f), ?_⟩
+  rw [nPhiHom_word, nSurjVec_zero, nSurjVec_one, nSurjVec_two, nSurjVec_three]
+  congr 1
+  refine Prod.ext ?_ (Prod.ext rfl (Prod.ext rfl (Prod.ext rfl (funext fun k => ?_))))
+  · show (zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) ((a.val : ℤ_[2]))).toAdd = a
+    rw [zpowZtwo_ofAdd_one_zmod2, toAdd_ofAdd]
+  · exact nSurjVec_handle a b cc d f k
+
+/-! ### §6.3 `φ_N` on the marked generators
+
+These six values are the six fields of `NFrame`.  All four core rows are standard basis
+vectors: there is no forced row to reconcile, which is the `N`-side structural fact
+(memo V1/§7.1(2)) showing up as the absence of an `mE_A_frame` analogue. -/
+
+/-- `Cores.lean`'s `u_j`-index is `N.lean`'s `nHandleCoordU j`-th handle coordinate. -/
+theorem nHandleIdx_coordU {h : ℕ} (j : Fin h) :
+    mHandleIdx (nHandleCoordU j) = handleIdxU j :=
+  Fin.ext (by rw [mHandleIdx_val, handleIdxU_val]; rfl)
+
+/-- `Cores.lean`'s `v_j`-index is `N.lean`'s `nHandleCoordV j`-th handle coordinate. -/
+theorem nHandleIdx_coordV {h : ℕ} (j : Fin h) :
+    mHandleIdx (nHandleCoordV j) = handleIdxV j :=
+  Fin.ext (by
+    rw [mHandleIdx_val, handleIdxV_val]
+    show 4 + (2 * (j : ℕ) + 1) = 5 + 2 * (j : ℕ)
+    omega)
+
+/-- `φ_N` at a marked generator: each slot reads its own marking. -/
+theorem nPhiHom_gen (i : Fin (coreRank h)) :
+    nPhiHom hα h (abMk (dnGen α h i))
+      = ofAdd ((coreMark (ofAdd (1 : ZMod 2)) 1 1 1 i).toAdd,
+          (coreMark 1 (ofAdd (1 : ℤ_[2])) 1 1 i).toAdd,
+          (coreMark 1 1 (ofAdd (1 : ℤ_[2])) 1 i).toAdd,
+          (coreMark 1 1 1 (ofAdd (1 : ℤ_[2])) i).toAdd,
+          fun k => (mHandleMark k (ofAdd (1 : ℤ_[2])) i).toAdd) := by
+  show ofAdd (_, _, _, _, _) = _
+  rw [nTHom, nBHom, nCHom, nDHom, nCoordHom_gen, nCoordHom_gen, nCoordHom_gen, nCoordHom_gen]
+  exact congrArg _ (congrArg _ (congrArg _ (congrArg _ (congrArg _
+    (funext fun k => by rw [nHHom, nCoordHom_gen])))))
+
+/-- The torsion coordinate is the **marked** generator: `x̄₀ ↦ (1, 0, 0, 0, 0)`.  No forced row
+has to be reconciled, unlike `mPhiHom_t`. -/
+theorem nPhiHom_X0 : nPhiHom hα h (abMk (dnX0 α h)) = ofAdd (1, 0, 0, 0, 0) := by
+  rw [dnX0, nPhiHom_gen]
+  simp only [coreMark_zero, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (0 : Fin (coreRank h)) (by rw [coreVal_zero]; omega)]
+  rfl
+
+theorem nPhiHom_X1 : nPhiHom hα h (abMk (dnX1 α h)) = ofAdd (0, 1, 0, 0, 0) := by
+  rw [dnX1, nPhiHom_gen]
+  simp only [coreMark_one, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (1 : Fin (coreRank h)) (by rw [coreVal_one]; omega)]
+  rfl
+
+theorem nPhiHom_Sigma : nPhiHom hα h (abMk (dnSigma α h)) = ofAdd (0, 0, 1, 0, 0) := by
+  rw [dnSigma, nPhiHom_gen]
+  simp only [coreMark_two, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (2 : Fin (coreRank h)) (by rw [coreVal_two]; omega)]
+  rfl
+
+theorem nPhiHom_X2 : nPhiHom hα h (abMk (dnX2 α h)) = ofAdd (0, 0, 0, 1, 0) := by
+  rw [dnX2, nPhiHom_gen]
+  simp only [coreMark_three, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (3 : Fin (coreRank h)) (by rw [coreVal_three]; omega)]
+  rfl
+
+/-- `ū_j ↦` the `2j`-th handle coordinate. -/
+theorem nPhiHom_U {h : ℕ} (j : Fin h) :
+    nPhiHom hα h (abMk (dnGen α h (handleIdxU j)))
+      = ofAdd (0, 0, 0, 0, Pi.single (nHandleCoordU j) 1) := by
+  rw [← nHandleIdx_coordU j, nPhiHom_gen]
+  simp only [coreMark_mHandleIdx, toAdd_one, mHandleMark_toAdd_single]
+
+/-- `v̄_j ↦` the `(2j+1)`-st handle coordinate. -/
+theorem nPhiHom_V {h : ℕ} (j : Fin h) :
+    nPhiHom hα h (abMk (dnGen α h (handleIdxV j)))
+      = ofAdd (0, 0, 0, 0, Pi.single (nHandleCoordV j) 1) := by
+  rw [← nHandleIdx_coordV j, nPhiHom_gen]
+  simp only [coreMark_mHandleIdx, toAdd_one, mHandleMark_toAdd_single]
+
+end Phi
+
+/-! ## §7 The deliverable, the sharp `α`-boundary, and the unlocks -/
+
+/-- **The coordinate isomorphism** `φ_N : D_N^{ab} ≃ₜ* ℤ/2 × ℤ₂³ × ℤ₂^{2h}`, the `N` twin of
+`mFrameExists_phiEquiv`. -/
+noncomputable def nFrameExists_phiEquiv {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    ContinuousMulEquiv (topAbelianization (DN α h : Type)) (NFrameModel h) :=
+  continuousMulEquivOfBijective ⟨nPhiHom hα h, continuous_nPhiHom hα h⟩
+    ⟨nPhiHom_injective hα h, nPhiHom_surjective hα h⟩
+
+@[simp] theorem nFrameExists_phiEquiv_apply {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (z : topAbelianization (DN α h : Type)) :
+    nFrameExists_phiEquiv hα h z = nPhiHom hα h z := rfl
+
+/-- **Existence of the general-`h` `N`-frame** (ticket W51-MFRAME2 follow-up F1; the gap
+`N.lean` §1's preamble leaves open).  For every `α ≥ 2` and every handle count `h`,
+`NFrame α h` is inhabited.
+
+The hypothesis is `2 ≤ α`, **not** the `1 ≤ α` of the `M` side, and it is sharp:
+`nFrameExists_isEmpty_zero` and `nFrameExists_isEmpty_one` rule out the two smaller values, by
+two different mechanisms.  See `nFrameExists_nonempty_iff`. -/
+theorem nonempty_nFrame {α : ℕ} (hα : 2 ≤ α) (h : ℕ) : Nonempty (NFrame α h) :=
+  ⟨{ e := nFrameExists_phiEquiv hα h
+     map_t := nPhiHom_X0 hα h
+     map_B := nPhiHom_X1 hα h
+     map_C := nPhiHom_Sigma hα h
+     map_D := nPhiHom_X2 hα h
+     map_U := fun j => nPhiHom_U hα j
+     map_V := fun j => nPhiHom_V hα j }⟩
+
+/-- **`α = 0` is out of range**: the relation vector is `3·x̄₀` with `3 ∈ ℤ₂ˣ`, so `x̄₀ = 1` in
+`D_N^{ab}` (`dnX0_eq_one_zero`), while a frame demands `x̄₀ ↦ (1,0,0,0,0) ≠ 1`.  The `N` analogue
+of `mFrame_isEmpty_zero`, though the mechanism differs: on the `M` side the model equation
+`−1 = 0` fails, here the torsion generator itself collapses. -/
+theorem nFrameExists_isEmpty_zero (h : ℕ) : IsEmpty (NFrame 0 h) := by
+  refine ⟨fun F => ?_⟩
+  have h1 : (ofAdd (1, 0, 0, 0, 0) : NFrameModel h) = 1 := by
+    rw [← F.map_t, dnX0_eq_one_zero, map_one]
+  have h2 := congrArg (fun z : NFrameModel h => (toAdd z).1) h1
+  simp only [toAdd_ofAdd, toAdd_one, Prod.fst_zero] at h2
+  exact absurd h2 (by decide)
+
+/-- **`α = 1` is out of range too**, and this has no `M`-side counterpart: the relation vector
+is `4·x̄₀`, of 2-adic valuation `2`, so `x̄₀` has order `4`.  A frame would force `x̄₀² = 1`
+(its image squares to `0` in `ℤ/2 ⊕ ℤ₂^{3+2h}` and `e` is injective), which
+`dnX0_sq_ne_one_one` refutes.
+
+Note what this does *not* claim: the `q`-invariant of `D_N` at `α = 1` is not computed here.
+What is proved is that the rank-`(4+2h)` frame with a `ℤ/2` torsion slot cannot exist there, so
+`demushkinQ_DN_nFrame` is simply unavailable at `α = 1`. -/
+theorem nFrameExists_isEmpty_one (h : ℕ) : IsEmpty (NFrame 1 h) := by
+  refine ⟨fun F => ?_⟩
+  refine dnX0_sq_ne_one_one h (F.e.toMulEquiv.injective ?_)
+  show F.e ((abMk (dnX0 1 h)) ^ 2) = F.e 1
+  rw [map_pow, F.map_t, map_one, ← ofAdd_nsmul, ← ofAdd_zero]
+  congr 1
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ ?_)))
+  · show (2 : ℕ) • (1 : ZMod 2) = 0
+    decide
+  all_goals simp
+
+/-- **The sharp boundary**: `NFrame α h` is inhabited **iff** `α ≥ 2`, at every handle count.
+The `N`-side twin of the pair `nonempty_mFrame`/`mFrame_isEmpty_zero`, with one more excluded
+value.
+
+This is the machine-checked source of `N.lean`'s standing "everything is uniform in `α ≥ 2`":
+on the `N` side that hypothesis is forced by the **frame layer itself**, whereas on the `M` side
+the frame layer allows `α = 1` (`MFrame.lean` §3 says so explicitly) and the `α ≥ 2` conditions
+come from the shared Gram downstream.  So the two cores reach the same working range for
+genuinely different reasons. -/
+theorem nFrameExists_nonempty_iff (α h : ℕ) : Nonempty (NFrame α h) ↔ 2 ≤ α := by
+  refine ⟨fun hne => ?_, fun hα => nonempty_nFrame hα h⟩
+  by_contra hlt
+  rcases (by omega : α = 0 ∨ α = 1) with rfl | rfl
+  · exact (nFrameExists_isEmpty_zero h).false hne.some
+  · exact (nFrameExists_isEmpty_one h).false hne.some
+
+/-- **The rank-four corollary**: MC2's `NDecomposition α` (`Cores.lean:1786`) is inhabited for
+every `α ≥ 2`, through `NFrame.toNDecomposition`.  With `mFrameExists_mDecomposition` this
+closes both halves of the `Cores.lean` §5 scope note ("the two `Nonempty` existence theorems are
+not in this file"). -/
+theorem nFrameExists_nDecomposition {α : ℕ} (hα : 2 ≤ α) : Nonempty (NDecomposition α) :=
+  (nonempty_nFrame hα 0).map NFrame.toNDecomposition
+
+/-- **The unlock**: `demushkinQ D_N = 2` with **no frame hypothesis**, at every handle count.
+`demushkinQ_DN_nFrame` carries exactly one hypothesis, the frame itself, so composing is honest
+and leaves only `2 ≤ α`, which is sharp by `nFrameExists_nonempty_iff`.  The `N` twin of
+`mFrameExists_demushkinQ_DM`, and the general-`h`, hypothesis-free form of `demushkinQ_DN`. -/
+theorem nFrameExists_demushkinQ_DN {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    demushkinQ (DN α h : Type) = 2 :=
+  (nonempty_nFrame hα h).elim demushkinQ_DN_nFrame
+
 end MarkedCore
 
 end Dyadic
