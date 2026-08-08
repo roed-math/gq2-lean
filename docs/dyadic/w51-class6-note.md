@@ -388,6 +388,7 @@ scripts/w51_class6/
   w51_corank.m    the corank probe (cls, marks, out, verify, ctrl)
                   magma -b cls:=5 marks:="0,1;1,1;3,5" out:=../../data/ck_c5.txt verify:=1 w51_corank.m
                   magma -b cls:=6 marks:="0,1;1,0;1,1;0,2;2,1;1,2;3,5;2,2" ctrl:=2000 out:=../../data/ck_c6.txt verify:=0 w51_corank.m
+                  magma -b cls:=6 marks:="0,4;4,0;4,4;8,8;1,4;5,7;3,3;7,7;0,8;16,16;2,4;9,15;12,20;31,31;6,6;15,9" out:=../../data/ck_c6b.txt verify:=0 w51_corank.m
   w51_grid.m      the class-5 grid continuation (lo, hi, out)
                   magma -b lo:=0 hi:=1000 out:=../../data/grid_c5.txt w51_grid.m
   w51_h2.m        the h = 2 corank at class 5 (cls, marks, out)
@@ -409,6 +410,12 @@ Measured budgets on this machine (16 cores, six Lean agents sharing it, every jo
 | tower to class 6 (bare `pQuotient`, W50's `c6size.m`) | **did not finish in ~50 min / ~700 MB** | n/a |
 | one class-5 marking, all levels | 0.5–0.9 s | n/a |
 | the 951-marking class-5 grid | 677 s | ~150 MB |
+| one class-6 marking, all four levels | 12–31 s | (shares the 1.0 GB quotient) |
+| tower to class 5 for `D_sq 2`, order 2^4534 | 1760 s | ~1.4 GB |
+
+Nothing was killed for memory; the largest process peaked near 1.4 GB on a 128 GB machine, so
+the class-6 barrier was always CPU and never RAM.  Three heavy Magma jobs ran concurrently at
+`nice -n 10` alongside the wave's Lean agents.
 
 ---
 
