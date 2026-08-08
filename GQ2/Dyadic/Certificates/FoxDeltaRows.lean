@@ -96,7 +96,7 @@ deliberately **not** in this wave's scope).
 
 ## Sections
 
-0. Notation and the two micro-lemmas the layer needs.
+0. The one micro-lemma the layer needs: `ω₂`-transparency, read backwards.
 1. `FoxDeltaRow`: the structure, and everything derived from it (`todd`, the δ-letter row).
 2. The two instances: `deltaRowRam` and `deltaRowUnram`.
 3. The parameterised noncompact-`N` factor rows.
@@ -908,6 +908,7 @@ this file).  The census stays at eleven. -/
 
 #print axioms GQ2.Dyadic.Certificates.FoxDelta.powOmega2_trivAct_of_trivial_mul
 #print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.mk
 #print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.wild
 #print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.block
 #print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.foxD_block
