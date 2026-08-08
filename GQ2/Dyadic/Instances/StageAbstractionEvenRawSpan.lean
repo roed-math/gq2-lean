@@ -385,7 +385,145 @@ theorem evenRawHandleWord_mul_lambdaImage (h k : ℕ) (hk : 3 ≤ k)
       (commP_mem_zLayer k hk (hdepth (MarkedCore.handleIdxU j)) _)
   exact (zLayer_commute hz t).eq
 
+/-! ### Central regrouping
+
+Two arithmetic-free helpers: a product of pairs whose right members are central splits into
+the product of the left members times the product of the right ones.  Everything the shift
+word is built from is central, so these two carry all the bookkeeping of §3. -/
+
+private theorem evenRawRegroup₂ {H : Type*} [Group H] (x₁ y₁ x₂ y₂ : H)
+    (hy₁ : ∀ t : H, Commute y₁ t) : x₁ * y₁ * (x₂ * y₂) = x₁ * x₂ * (y₁ * y₂) := by
+  calc
+    x₁ * y₁ * (x₂ * y₂) = x₁ * (y₁ * x₂) * y₂ := by group
+    _ = x₁ * (x₂ * y₁) * y₂ := by rw [(hy₁ x₂).eq]
+    _ = x₁ * x₂ * (y₁ * y₂) := by group
+
+private theorem evenRawRegroup₃ {H : Type*} [Group H] (x₁ y₁ x₂ y₂ x₃ y₃ : H)
+    (hy₁ : ∀ t : H, Commute y₁ t) (hy₂ : ∀ t : H, Commute y₂ t) :
+    x₁ * y₁ * (x₂ * y₂) * (x₃ * y₃) = x₁ * x₂ * x₃ * (y₁ * y₂ * y₃) := by
+  calc
+    x₁ * y₁ * (x₂ * y₂) * (x₃ * y₃) = x₁ * (y₁ * x₂) * y₂ * x₃ * y₃ := by group
+    _ = x₁ * (x₂ * y₁) * y₂ * x₃ * y₃ := by rw [(hy₁ x₂).eq]
+    _ = x₁ * x₂ * (y₁ * y₂ * x₃) * y₃ := by group
+    _ = x₁ * x₂ * (x₃ * (y₁ * y₂)) * y₃ := by rw [((hy₁ x₃).mul_left (hy₂ x₃)).eq]
+    _ = x₁ * x₂ * x₃ * (y₁ * y₂ * y₃) := by group
+
 end Handles
+
+/-! ## §3 The even crossed-derivation word
+
+The heart of the file.  `evenRawCoreDbarWord` is written in exactly the order the word
+computation produces it, so the factorizations below are assembly plus two central swaps. -/
+
+section Dbar
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] {h k : ℕ}
+
+/-- **The core block of the even shift word.**  Three central atoms:
+
+* the *diagonal* atom `w₀² · [w₀, base 0]` from the first letter's even power;
+* the pair `[w₁, base 0] · [w₀, base 1]` from the commutator `[base 0, base 1]`;
+* the pair `[w₃, base 2] · [w₂, base 3]` from the commutator `[base 2, base 3]`.
+
+Collecting the two occurrences of `w₀` gives the presentation of the seam note: `w₀²` times
+the *product* partner `[w₀, base 0 · base 1]` (see `evenRawCoreDbarWord_zero_row`). -/
+def evenRawCoreDbarWord
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  correction 0 ^ 2 * commP (correction 0) (base 0) *
+    (commP (correction 1) (base 0) * commP (correction 0) (base 1)) *
+    (commP (correction 3) (base 2) * commP (correction 2) (base 3))
+
+/-- **The full even shift word**: the core block times the handle block.  The even analogue
+of the committed `sqCoreHandleDbarWord`. -/
+def evenRawDbarWord
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  evenRawCoreDbarWord base correction * evenRawHandleDbarWord base correction
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The core block lands in the central involutive layer. -/
+theorem evenRawCoreDbarWord_mem_zLayer (k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawCoreDbarWord base correction ∈ zLayer G k := by
+  refine Subgroup.mul_mem _ (Subgroup.mul_mem _
+    (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _) (Subgroup.mul_mem _ ?_ ?_))
+    (Subgroup.mul_mem _ ?_ ?_) <;>
+  exact commP_mem_zLayer k hk (hdepth _) _
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The full shift word lands in the central involutive layer. -/
+theorem evenRawDbarWord_mem_zLayer (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawDbarWord base correction ∈ zLayer G k :=
+  Subgroup.mul_mem _ (evenRawCoreDbarWord_mem_zLayer k hk base correction hdepth)
+    (evenRawHandleDbarWord_mem_zLayer h k hk base correction hdepth)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The trivial correction has trivial core shift. -/
+theorem evenRawCoreDbarWord_one
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    evenRawCoreDbarWord base (fun _ ↦ 1) = 1 := by
+  simp [evenRawCoreDbarWord, commP]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The trivial correction has trivial shift. -/
+theorem evenRawDbarWord_one
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    evenRawDbarWord base (fun _ ↦ 1) = 1 := by
+  rw [evenRawDbarWord, evenRawCoreDbarWord_one, evenRawHandleDbarWord_one, mul_one]
+
+/-- **The core block is multiplicative in the depth correction.**  Each of its three atoms is
+separately multiplicative (the diagonal one by `evenRawSq_mul` together with the vanishing of
+`[w₀', w₀]` between two depth-`k-1` elements, the other two by one-coordinate linearity), and
+all values are central, so the three products regroup. -/
+theorem evenRawCoreDbarWord_mul (k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    {c c' : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, c i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, c' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawCoreDbarWord base (fun i ↦ c i * c' i) =
+      evenRawCoreDbarWord base c * evenRawCoreDbarWord base c' := by
+  have hzero : commP (c' 0) (c 0) = 1 :=
+    commP_eq_one_of_mul_comm (mul_comm_lambdaImage k hk (hdepth' 0) (hdepth 0))
+  have hdiag : (c 0 * c' 0) ^ 2 * (commP (c 0) (base 0) * commP (c' 0) (base 0)) =
+      c 0 ^ 2 * commP (c 0) (base 0) * (c' 0 ^ 2 * commP (c' 0) (base 0)) := by
+    rw [evenRawSq_mul k hk (hdepth' 0) (c 0), hzero, mul_one]
+    exact evenRawRegroup₂ _ _ _ _ (zLayer_commute (sq_mem_zLayer k hk (hdepth' 0)))
+  have hpair : ∀ i j : Fin (MarkedCore.coreRank h),
+      commP (c i * c' i) (base j) = commP (c i) (base j) * commP (c' i) (base j) :=
+    fun i j ↦ evenRawCommP_mul_left_of_depth k hk (hdepth i)
+  simp only [evenRawCoreDbarWord, hpair]
+  rw [hdiag, evenRawRegroup₂ (commP (c 1) (base 0)) (commP (c' 1) (base 0))
+      (commP (c 0) (base 1)) (commP (c' 0) (base 1))
+      (zLayer_commute (commP_mem_zLayer k hk (hdepth' 1) _)),
+    evenRawRegroup₂ (commP (c 3) (base 2)) (commP (c' 3) (base 2))
+      (commP (c 2) (base 3)) (commP (c' 2) (base 3))
+      (zLayer_commute (commP_mem_zLayer k hk (hdepth' 3) _))]
+  exact evenRawRegroup₃ _ _ _ _ _ _
+    (zLayer_commute (evenRawDiagonalAtom_mem_zLayer k hk (hdepth' 0) _))
+    (zLayer_commute (Subgroup.mul_mem _ (commP_mem_zLayer k hk (hdepth' 1) _)
+      (commP_mem_zLayer k hk (hdepth' 0) _)))
+
+/-- **The full shift word is a homomorphism on depth corrections.**  This is what reduces the
+span problem to the images of individual coordinates in §4. -/
+theorem evenRawDbarWord_mul (h k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    {c c' : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, c i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, c' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawDbarWord base (fun i ↦ c i * c' i) =
+      evenRawDbarWord base c * evenRawDbarWord base c' := by
+  rw [evenRawDbarWord, evenRawDbarWord, evenRawDbarWord,
+    evenRawCoreDbarWord_mul k hk base hdepth hdepth',
+    evenRawHandleDbarWord_mul h k hk base hdepth hdepth']
+  exact evenRawRegroup₂ _ _ _ _
+    (zLayer_commute (evenRawCoreDbarWord_mem_zLayer k hk base c' hdepth'))
+
+end Dbar
 
 end
 
