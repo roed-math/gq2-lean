@@ -317,11 +317,186 @@ theorem evenRawAugmentedSpanBaseSupply_dm (α h : ℕ) :
 
 end Augmented
 
+/-! ## §3 The successor engine
+
+The clone of `GammaLSylowPreimageFieldLabuteRawSpanStep.lean`'s lift-with-square engine,
+closing the induction that §2's base case starts.
+
+**What this achieves, and what it provably cannot.**  The endpoint is
+`zLayer G k ≤ evenRawAugmentedSpan generators k hk` for every `k ≥ 3`: the literal even shifts
+*together with* the relator-adapted tails span every central layer.  It is **not**
+`EvenRawPureSquareSpanSupply`, and that is not a gap in the port.  The committed L file
+`GammaLSylowPreimageFieldLabuteRawSpanObstruction.lean` proves
+`¬ RawPureSquareSpanSupply (rawMarkedBase (SqCore.sqGen h) 3) _` outright, and its module
+docstring records that "the augmented span theorem cannot be sharpened by simply deleting its
+tails".  The pure-square supply is therefore *false* at the free core of the L word, and the
+augmented span is the strongest true statement of this shape.  §3.1 records the exact residual
+obligation in the even case. -/
+
+section Engine
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h k : ℕ}
+
+private theorem evenRawSq_mem_lambdaImage_succ {j m : ℕ} {q : levelQuot G m}
+    (hq : q ∈ lambdaImage G j m) : q ^ 2 ∈ lambdaImage G (j + 1) m := by
+  obtain ⟨x, hx, rfl⟩ := hq
+  exact ⟨x ^ 2, sq_mem_twoCentralSeries_succ G hx, by rw [map_pow]⟩
+
+private theorem evenRawCommP_mem_lambdaImage_succ {j m : ℕ}
+    {v : levelQuot G m} (hv : v ∈ lambdaImage G j m) (g : levelQuot G m) :
+    commP v g ∈ lambdaImage G (j + 1) m :=
+  commP_mem_lambdaImage_add hv (by rw [lambdaImage_one_eq_top]; trivial)
+
+/-- The core block gains one unit of depth over its correction. -/
+private theorem evenRawCoreDbar_mem_lambdaImage_succ (k : ℕ) {j : ℕ}
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G j (k + 1)) :
+    evenRawCoreDbarWord base correction ∈ lambdaImage G (j + 1) (k + 1) :=
+  Subgroup.mul_mem _ (Subgroup.mul_mem _
+    (Subgroup.mul_mem _ (evenRawSq_mem_lambdaImage_succ (hdepth 0))
+      (evenRawCommP_mem_lambdaImage_succ (hdepth 0) _))
+    (Subgroup.mul_mem _ (evenRawCommP_mem_lambdaImage_succ (hdepth 1) _)
+      (evenRawCommP_mem_lambdaImage_succ (hdepth 0) _)))
+    (Subgroup.mul_mem _ (evenRawCommP_mem_lambdaImage_succ (hdepth 3) _)
+      (evenRawCommP_mem_lambdaImage_succ (hdepth 2) _))
+
+/-- The handle block gains one unit of depth over its correction. -/
+private theorem evenRawHandleDbar_mem_lambdaImage_succ (k : ℕ) {j : ℕ}
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G j (k + 1)) :
+    evenRawHandleDbarWord base correction ∈ lambdaImage G (j + 1) (k + 1) := by
+  rw [evenRawHandleDbarWord]
+  apply Subgroup.list_prod_mem
+  intro z hz
+  simp only [List.mem_map] at hz
+  obtain ⟨l, _, rfl⟩ := hz
+  exact Subgroup.mul_mem _
+    (evenRawCommP_mem_lambdaImage_succ (hdepth (MarkedCore.handleIdxV l)) _)
+    (evenRawCommP_mem_lambdaImage_succ (hdepth (MarkedCore.handleIdxU l)) _)
+
+/-- **The even shift word gains one unit of depth over its correction.**  Used at `j = k - 2`
+for square transport and at `j = k - 1` for the lift engine. -/
+theorem evenRawDbar_mem_lambdaImage_succ (k : ℕ) {j : ℕ}
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G j (k + 1)) :
+    evenRawDbarWord base correction ∈ lambdaImage G (j + 1) (k + 1) :=
+  Subgroup.mul_mem _ (evenRawCoreDbar_mem_lambdaImage_succ k base correction hdepth)
+    (evenRawHandleDbar_mem_lambdaImage_succ k base correction hdepth)
+
+/-! ### Square transport -/
+
+private theorem evenRaw_list_prod_sq_of_mem_lambdaImage_pred
+    {k : ℕ} (hk : 3 ≤ k) {Ι : Type*} (l : List Ι) (f : Ι → levelQuot G (k + 1))
+    (hf : ∀ i ∈ l, f i ∈ lambdaImage G (k - 1) (k + 1)) :
+    (l.map f).prod ^ 2 = (l.map fun i ↦ f i ^ 2).prod := by
+  induction l with
+  | nil => simp
+  | cons i l ih =>
+      have hi := hf i (by simp)
+      have htail : (l.map f).prod ∈ lambdaImage G (k - 1) (k + 1) := by
+        apply Subgroup.list_prod_mem
+        intro z hz
+        obtain ⟨j, hj, rfl⟩ := List.mem_map.mp hz
+        exact hf j (List.mem_cons_of_mem _ hj)
+      rw [List.map_cons, List.prod_cons,
+        sq_mul_of_mem_lambdaImage_pred k hk hi htail,
+        ih (fun j hj ↦ hf j (List.mem_cons_of_mem _ hj)),
+        List.map_cons, List.prod_cons]
+
+/-- Square transport for the even handle block. -/
+theorem evenRawHandleDbarWord_sq [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 4 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 2) (k + 1)) :
+    evenRawHandleDbarWord base correction ^ 2 =
+      evenRawHandleDbarWord base (fun i ↦ correction i ^ 2) := by
+  have hc : ∀ i j, commP (correction i) (base j) ∈ lambdaImage G (k - 1) (k + 1) := by
+    intro i j
+    have hmem := evenRawCommP_mem_lambdaImage_succ (hdepth i) (base j)
+    rwa [show k - 2 + 1 = k - 1 by omega] at hmem
+  rw [evenRawHandleDbarWord,
+    evenRaw_list_prod_sq_of_mem_lambdaImage_pred (by omega) (List.finRange h) _
+      (fun l _ ↦ Subgroup.mul_mem _ (hc (MarkedCore.handleIdxV l) _)
+        (hc (MarkedCore.handleIdxU l) _)),
+    evenRawHandleDbarWord]
+  congr 1
+  apply List.map_congr_left
+  intro l _
+  rw [sq_mul_of_mem_lambdaImage_pred k (by omega)
+      (hc (MarkedCore.handleIdxV l) _) (hc (MarkedCore.handleIdxU l) _),
+    commP_sq_of_mem_lambdaImage k hk _ (hdepth (MarkedCore.handleIdxV l)),
+    commP_sq_of_mem_lambdaImage k hk _ (hdepth (MarkedCore.handleIdxU l))]
+
+/-- Square transport for the even core block. -/
+theorem evenRawCoreDbarWord_sq [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 4 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 2) (k + 1)) :
+    evenRawCoreDbarWord base correction ^ 2 =
+      evenRawCoreDbarWord base (fun i ↦ correction i ^ 2) := by
+  have hd : ∀ i, correction i ^ 2 ∈ lambdaImage G (k - 1) (k + 1) := by
+    intro i
+    have hmem := evenRawSq_mem_lambdaImage_succ (hdepth i)
+    rwa [show k - 2 + 1 = k - 1 by omega] at hmem
+  have hc : ∀ i j, commP (correction i) (base j) ∈ lambdaImage G (k - 1) (k + 1) := by
+    intro i j
+    have hmem := evenRawCommP_mem_lambdaImage_succ (hdepth i) (base j)
+    rwa [show k - 2 + 1 = k - 1 by omega] at hmem
+  rw [evenRawCoreDbarWord, evenRawCoreDbarWord,
+    sq_mul_of_mem_lambdaImage_pred k (by omega)
+      (Subgroup.mul_mem _ (Subgroup.mul_mem _ (hd 0) (hc 0 0))
+        (Subgroup.mul_mem _ (hc 1 0) (hc 0 1)))
+      (Subgroup.mul_mem _ (hc 3 2) (hc 2 3)),
+    sq_mul_of_mem_lambdaImage_pred k (by omega)
+      (Subgroup.mul_mem _ (hd 0) (hc 0 0)) (Subgroup.mul_mem _ (hc 1 0) (hc 0 1)),
+    sq_mul_of_mem_lambdaImage_pred k (by omega) (hd 0) (hc 0 0),
+    sq_mul_of_mem_lambdaImage_pred k (by omega) (hc 1 0) (hc 0 1),
+    sq_mul_of_mem_lambdaImage_pred k (by omega) (hc 3 2) (hc 2 3)]
+  simp only [commP_sq_of_mem_lambdaImage k hk _ (hdepth 0),
+    commP_sq_of_mem_lambdaImage k hk _ (hdepth 1),
+    commP_sq_of_mem_lambdaImage k hk _ (hdepth 2),
+    commP_sq_of_mem_lambdaImage k hk _ (hdepth 3)]
+
+/-- **Square transport for the complete even shift word**, the variable-rank replacement for
+the fixed-rank `dbarWordR2_sq`. -/
+theorem evenRawDbarWord_sq [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (h k : ℕ) (hk : 4 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 2) (k + 1)) :
+    evenRawDbarWord base correction ^ 2 =
+      evenRawDbarWord base (fun i ↦ correction i ^ 2) := by
+  have hcore : evenRawCoreDbarWord base correction ∈ lambdaImage G (k - 1) (k + 1) := by
+    have hmem := evenRawCoreDbar_mem_lambdaImage_succ k base correction hdepth
+    rwa [show k - 2 + 1 = k - 1 by omega] at hmem
+  have hhandle : evenRawHandleDbarWord base correction ∈ lambdaImage G (k - 1) (k + 1) := by
+    have hmem := evenRawHandleDbar_mem_lambdaImage_succ k base correction hdepth
+    rwa [show k - 2 + 1 = k - 1 by omega] at hmem
+  rw [evenRawDbarWord, sq_mul_of_mem_lambdaImage_pred k (by omega) hcore hhandle,
+    evenRawCoreDbarWord_sq h k hk base correction hdepth,
+    evenRawHandleDbarWord_sq h k hk base correction hdepth, evenRawDbarWord]
+
+/-- Projection through the tower commutes with the even shift word. -/
+theorem levelProj_evenRawDbarWord
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 2)) :
+    GQ2.Roe.Labute.levelProj G (k + 1) (evenRawDbarWord base correction) =
+      evenRawDbarWord (fun i ↦ GQ2.Roe.Labute.levelProj G (k + 1) (base i))
+        (fun i ↦ GQ2.Roe.Labute.levelProj G (k + 1) (correction i)) := by
+  rw [evenRawDbarWord, evenRawDbarWord, map_mul]
+  congr 1
+  · simp only [evenRawCoreDbarWord, commP, map_mul, map_inv, map_pow]
+  · rw [evenRawHandleDbarWord, evenRawHandleDbarWord, map_list_prod, List.map_map]
+    congr 1
+    apply List.map_congr_left
+    intro l _
+    simp only [Function.comp_apply, commP, map_mul, map_inv]
+
+end Engine
+
 end
 
 end GQ2.Dyadic.StageGeneric
 
-/-! ## §3 Axiom pins
+/-! ## §4 Axiom pins
 
 Every public declaration of the file, all at std-3
 `[propext, Classical.choice, Quot.sound]`, matching the corresponding L template
