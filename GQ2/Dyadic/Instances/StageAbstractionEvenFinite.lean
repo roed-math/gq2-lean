@@ -827,6 +827,81 @@ theorem evenFiniteLevelMEpiData_nonempty_of_base_and_corrections {α h : ℕ} (h
 
 end Endpoints
 
+/-! ## §6 The uniform supplies, and the EV-3h seam
+
+The `Prop`s below are the *exact* input interface of this station, each stated purely in the
+vocabulary of the W50 generic layer and the EV-3a/b even instances — no bespoke datum.  EV-3e
+produces the base supply, EV-3f the correction supply, and the fin-gen supply is the committed
+`LSquare.maxProTwoGalK_isTopologicallyFinGen`, carried as a hypothesis here so that the axiom
+prints of this file stay at std-3; it is discharged once, at assembly time.
+
+Composing them gives the board's endpoint: the even analogues of
+`OddDegreeGalKSqForwardGeneratorSupply`. -/
+
+/-- Topological finite generation of `G_K(2)`, uniformly over dyadic fields.  The committed
+`LSquare.maxProTwoGalK_isTopologicallyFinGen` discharges this. -/
+def EvenFiniteLevelGalKFinGenSupply : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+    IsTopologicallyFinGen (maxProPQuotient 2 (GalK K))
+
+/-- **The EV-3e interface at the `N` core**: a level-three stage for the even `N` word datum at
+every even-degree dyadic field. -/
+def EvenFiniteLevelNStageBaseSupply (α : ℕ) (hα : 1 ≤ α) : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ),
+    Module.finrank ℚ_[2] K = 2 + 2 * h →
+      Nonempty (Tuple (nStageWord α h hα) (vN α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+
+/-- **The EV-3f interface at the `N` core**: every stage at level `k ≥ 3` has a reachable actual
+defect. -/
+def EvenFiniteLevelNCorrectionSupply (α : ℕ) (hα : 1 ≤ α) : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ),
+    Module.finrank ℚ_[2] K = 2 + 2 * h →
+      ∀ k : ℕ, 3 ≤ k → ∀ T : Tuple (nStageWord α h hα) (vN α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k, Tuple.DefectReachable T
+
+/-- **The EV-3e interface at the `M` core.** -/
+def EvenFiniteLevelMStageBaseSupply (α : ℕ) (hα : 1 ≤ α) : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ),
+    Module.finrank ℚ_[2] K = 2 + 2 * h →
+      Nonempty (Tuple (mStageWord α h hα) (vM α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+
+/-- **The EV-3f interface at the `M` core.** -/
+def EvenFiniteLevelMCorrectionSupply (α : ℕ) (hα : 1 ≤ α) : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ),
+    Module.finrank ℚ_[2] K = 2 + 2 * h →
+      ∀ k : ℕ, 3 ≤ k → ∀ T : Tuple (mStageWord α h hα) (vM α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k, Tuple.DefectReachable T
+
+/-- **The EV-3g endpoint at the `N` core.**  The even level-three base and the even stage climb
+produce the uniform even-degree `N` forward-generator supply of
+`EvenForwardRouteSkeleton.lean:415`, which `orientedEquivN_of_supplies` closes into the `N`-row
+classification. -/
+theorem evenForwardGeneratorDataN_supply_of_base_and_corrections (α : ℕ) (hα : 1 ≤ α)
+    (hfg : EvenFiniteLevelGalKFinGenSupply)
+    (hbase : EvenFiniteLevelNStageBaseSupply α hα)
+    (hcorr : EvenFiniteLevelNCorrectionSupply α hα) :
+    EvenForward.EvenDegreeGalKNForwardGeneratorSupply α := by
+  intro K _ _ _ _ h hev
+  obtain ⟨base⟩ := hbase K h hev
+  exact evenForwardGeneratorDataN_of_base_and_corrections hα (hfg K) base (hcorr K h hev)
+
+/-- **The EV-3g endpoint at the `M` core.** -/
+theorem evenForwardGeneratorDataM_supply_of_base_and_corrections (α : ℕ) (hα : 1 ≤ α)
+    (hfg : EvenFiniteLevelGalKFinGenSupply)
+    (hbase : EvenFiniteLevelMStageBaseSupply α hα)
+    (hcorr : EvenFiniteLevelMCorrectionSupply α hα) :
+    EvenForward.EvenDegreeGalKMForwardGeneratorSupply α := by
+  intro K _ _ _ _ h hev
+  obtain ⟨base⟩ := hbase K h hev
+  exact evenForwardGeneratorDataM_of_base_and_corrections hα (hfg K) base (hcorr K h hev)
+
 end
 
 end GQ2.Dyadic.StageGeneric
