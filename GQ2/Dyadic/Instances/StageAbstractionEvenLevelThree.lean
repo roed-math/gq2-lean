@@ -57,14 +57,14 @@ exactly the per-field binders with `∀ K` in front.
 
 The quantified inputs, and who owns them:
 
-* `EvenLevelThreeRecipSupply` — a `MarkedRecip` bundle per field.  The even lane never *uses* the
+* `EvenLevelThreeRecipSupply`: a `MarkedRecip` bundle per field.  The even lane never *uses* the
   bundle (both EV-3c supplies discharge with it unused, exactly as the odd supply's docstring
   predicts), but the supply statements carry it for shape parity with the odd twin, so the
   adapter must produce one.  A caller holding its own bundles supplies this without touching
   `markedRecipAt`, which is the whole point of carrying the binder rather than summoning it.
-* `EvenLevelThreeRamifiedSupply` — the campaign's standing ramified-`i` binder in the form
+* `EvenLevelThreeRamifiedSupply`: the campaign's standing ramified-`i` binder in the form
   `κ ≠ 0`; `FieldDataEven.kappaK_eq_zero_iff` is the stated interface.
-* `EvenLevelThree{N,M}FrameInputSupply α` — EV-4a's row-relative lift supply together with the
+* `EvenLevelThree{N,M}FrameInputSupply α`: EV-4a's row-relative lift supply together with the
   EV-3c mod-eight orientation seams of the corresponding row.
 
 ## What is proved and what is owed

@@ -420,7 +420,7 @@ avoided it because its `ω` table is a multiple of its parity table.
 The mechanism is a Witt-type transitivity that the repository did not have: *the isometry group of
 an `𝔽₂` cup form acts transitively on the isotropic vectors outside `{0, κ}`*.  It is proved here
 by transvections `z ↦ z + b(z,v)·v` at isotropic `v`, which are isometries, are involutions, and
-**automatically fix `κ`** — because `b(κ,v) = b(v,v) = 0` is exactly the Labute identity.  Two of
+**automatically fix `κ`**, because `b(κ,v) = b(v,v) = 0` is exactly the Labute identity.  Two of
 them suffice, through a common vector obtained by an elementary separation argument; no Witt
 extension theorem and no symplectic-basis surgery is needed.
 
