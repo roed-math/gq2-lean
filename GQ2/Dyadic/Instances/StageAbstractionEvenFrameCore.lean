@@ -290,23 +290,40 @@ def evenFrameCoreIdx {h : ℕ} : Fin 4 → Fin (MarkedCore.coreRank h) := ![0, 1
 
 /-- **The even quadratic-initial Gram at rank `coreRank h`**: the committed rank-four Gram
 `MarkedCore.nGram` (`= MarkedCore.mGram`, `Variance.lean:107`) on the core block, one hyperbolic
-plane per handle, zero across.  This is the `gram` parameter of `Frame.IsCupAdapted`. -/
+plane per handle, zero across.  This is the `gram` parameter of `Frame.IsCupAdapted`.
+
+**Composition seam.**  The right-hand side is written in exactly the shape of ticket EV-3d's
+word-independent predicate `IsEvenGram` — itself verbatim the right-hand side of the committed
+`IsCupCocycle.nRelWord_centLift_fib` / `mRelWord_centLift_fib` — so that EV-3d's realization
+endpoints accept this adapter with `hg` discharged by `fun _ ↦ rfl`.  That the core block really
+is the committed Gram, rather than a hand-copied matrix, is `evenFrameGram_nGram` below. -/
 def evenFrameGram (h : ℕ)
     (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) : ZMod 2 :=
-  (∑ a : Fin 4, ∑ b : Fin 4, MarkedCore.nGram a b * M (evenFrameCoreIdx a) (evenFrameCoreIdx b))
+  M 0 0 + (M 0 1 + M 1 0) + (M 2 3 + M 3 2)
     + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
         + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j))
 
-/-- The adapter written out: `MarkedCore.nGram`'s five nonzero entries are `(0,0)`, `(0,1)`,
-`(1,0)`, `(2,3)`, `(3,2)`. -/
+/-- The adapter, in the EV-3d seam shape, definitionally. -/
 theorem evenFrameGram_expand (h : ℕ)
     (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
-    evenFrameGram h M = (M 0 0 + (M 0 1 + M 1 0)) + (M 2 3 + M 3 2)
+    evenFrameGram h M = M 0 0 + (M 0 1 + M 1 0) + (M 2 3 + M 3 2)
       + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
-          + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j)) := by
-  simp only [evenFrameGram, evenFrameCoreIdx, Fin.sum_univ_four, MarkedCore.nGram,
-    Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
-    Matrix.cons_val_three, Matrix.tail_cons]
+          + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j)) := rfl
+
+/-- **The core block is the committed even Gram.**  The rank-four block of the adapter is the
+contraction against `MarkedCore.nGram` — which by `MarkedCore.mGram_eq_nGram` (a `rfl`) is also
+`mGram`, so the `M` row's adapter is this one.  No Gram is redefined anywhere in this lane. -/
+theorem evenFrameGram_nGram (h : ℕ)
+    (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
+    evenFrameGram h M =
+      (∑ a : Fin 4, ∑ b : Fin 4,
+          MarkedCore.nGram a b * M (evenFrameCoreIdx a) (evenFrameCoreIdx b))
+        + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
+            + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j)) := by
+  rw [evenFrameGram]
+  simp only [evenFrameCoreIdx, Fin.sum_univ_four, MarkedCore.nGram, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three,
+    Matrix.tail_cons]
   ring
 
 /-- **The adapter is the model Gram.**  Contracting the extended Gram against the matrix of
@@ -573,6 +590,17 @@ def evenFramePairing
     (SqCyclotomicFrattiniFrame.characterClass (K := K) d)
 
 omit [T2Space (GalK K)] in
+/-- **Composition seam with EV-3d**: the pairing is the field cup form spelling that ticket's
+realization endpoints are stated against, definitionally. -/
+theorem evenFramePairing_fieldCup
+    (c d : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2))) :
+    evenFramePairing (K := K) c d =
+      FieldData.cupFormK K
+        (h1MaxProTwoEquivGalK (K := K) (SqCyclotomicFrattiniFrame.characterClass (K := K) c))
+        (h1MaxProTwoEquivGalK (K := K) (SqCyclotomicFrattiniFrame.characterClass (K := K) d)) :=
+  rfl
+
+omit [T2Space (GalK K)] in
 /-- **The even-degree twin of `frattiniFrameCup_kappa_self`.**  At even degree the Labute vector
 of the transported cup form is isotropic — this is the `𝔽₂` equation whose odd-degree value is
 `1`, and it is a parity corollary, not a fresh arithmetic input
@@ -689,8 +717,137 @@ theorem evenFrame_of_adapted {h : ℕ} (v : Fin (MarkedCore.coreRank h) → ℤ_
       ← hD2 j (SqCyclotomicFrattiniFrame.characterClass (K := K) d),
       frattiniFrameEval_characterClass, frattiniFrameEval_characterClass]
 
+/-! ### §4.2 The `ω`-class pin
+
+The odd route places the `ω` vector `τ` by a second Witt refinement, putting it on the diagonal
+of the first hyperbolic plane.  The even route cannot do that and does not need to: by §1.5 the
+mod-four class `κ` is forced to the frame coordinate vector supported at `x₁`, and both even row
+tables have their `ω` values supported at a single letter as well.  So the whole `ω` table is
+determined by one scalar `c` together with the *class* identity `τ = c • κ`, and the frame
+construction reduces to two purely arithmetic tables on the row values.
+
+Whether that class identity holds is a fact about `K`, not a free choice: `c` must be the `ω`
+value of the row table's nontrivial entry.  The row file states it and discusses what it costs. -/
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- If the `ω` class is a scalar multiple of the mod-four class, every `ω` coordinate is that
+scalar times the corresponding mod-four coordinate. -/
+theorem evenFrameCoord_omega_of_pin {h : ℕ}
+    (Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h) (c : ZMod 2)
+    (hpin : cyclotomicModEightOmegaClassKTwo (K := K) =
+      c • cyclotomicModFourClassKTwo (K := K))
+    (i : Fin (MarkedCore.coreRank h)) :
+    evenFrameCoord i (Φ (cyclotomicModEightOmegaClassKTwo (K := K))) =
+      c * evenFrameCoord i (Φ (cyclotomicModFourClassKTwo (K := K))) := by
+  rw [hpin, map_smul, evenFrameCoord_smul]
+
+/-- **The even frame supply, from a row table and an `ω` pin.**  This is the theorem both even
+rows instantiate: it consumes only
+
+* the even-degree binder `[K:ℚ₂] = 2h + 2`;
+* the ramified-`i` binder in the form `κ ≠ 0`;
+* the EV-4a row-relative exact lift supply at the row table;
+* the `ω`-class pin `τ = c • κ`; and
+* two arithmetic tables on the row values — the mod-four parities must be the indicator of the
+  letter `x₁`, and the mod-eight `ω` values must be `c` times that indicator.
+
+Everything else, including the placement of `κ` at `x₁`, is forced by the model. -/
+theorem evenFrame_of_kappaPin {h : ℕ} (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 2)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (supply : RowExactLevelFibreLiftSupply v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)))
+    (c : ZMod 2)
+    (hpin : cyclotomicModEightOmegaClassKTwo (K := K) =
+      c • cyclotomicModFourClassKTwo (K := K))
+    (hpar : ∀ i : Fin (MarkedCore.coreRank h),
+      Multiplicative.toAdd (unitsModFourParity
+        (Units.map (PadicInt.toZModPow 2).toMonoidHom (v i))) = if (i : ℕ) = 1 then 1 else 0)
+    (homega : ∀ i : Fin (MarkedCore.coreRank h),
+      Multiplicative.toAdd (unitsModEightOmega
+        (Units.map (PadicInt.toZModPow 3).toMonoidHom (v i))) =
+          c * (if (i : ℕ) = 1 then 1 else 0)) :
+    ∃ F : Frame v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+      F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K)) := by
+  classical
+  have hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) := by
+    apply Nat.finite_of_card_ne_zero
+    rw [card_H1_zmodTwo_maxProTwoGalK (K := K)]
+    positivity
+  haveI := hfin
+  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (2 * h + 4) := by
+    rw [card_H1_zmodTwo_maxProTwoGalK (K := K), hdeg,
+      show 2 * h + 2 + 2 = 2 * h + 4 from by omega]
+  obtain ⟨Φ, hGram, hΦkappa⟩ :=
+    evenFrameAdaptedModelEquiv (isCupFormFp2_frattiniFrameCup (K := K))
+      (nondegFp2_frattiniFrameCup (K := K)) (frattiniFrameCup_kappa (K := K))
+      (evenFrameCup_kappa_self (K := K) ⟨h + 1, by omega⟩) hkappa hcard
+  have hkap : ∀ i : Fin (MarkedCore.coreRank h),
+      evenFrameCoord i (Φ (cyclotomicModFourClassKTwo (K := K))) =
+        if (i : ℕ) = 1 then 1 else 0 := by
+    intro i
+    rw [hΦkappa, evenFrameCoord_kappaVec]
+  refine evenFrame_of_adapted v hfin Φ hGram supply (fun i ↦ ?_) (fun i ↦ ?_)
+  · rw [hkap i, hpar i]
+  · rw [evenFrameCoord_omega_of_pin Φ c hpin i, hkap i, homega i]
+
 end EvenField
 
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §5 Axiom pins
+
+Every public declaration of this file.  The linear-algebra layer (§1–§2) is std-3; the field-level
+layer (§3–§4) additionally carries whatever its committed inputs carry, which is a subset of what
+the odd-degree template supply `oddDegreeSqCyclotomicFrattiniFrameSupply_holds` prints. -/
+
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameGramModel
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameHypGram_self
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameHypGram_zero_left
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameHypGram_single
+#print axioms GQ2.Dyadic.StageGeneric.evenFramePlane
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_val_zero
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_val_one
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_val_two
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_val_three
+#print axioms GQ2.Dyadic.StageGeneric.evenFramePlane_val
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_val_handleU
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_val_handleV
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_zero
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_one
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_two
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_three
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_handleU
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_handleV
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_add
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_zero_vec
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_smul
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoordL
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoordL_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_eq_zero
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoreIdx
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameGram
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameGram_expand
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameGram_nGram
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameGram_modelCoord
+#print axioms GQ2.Dyadic.StageGeneric.evenDualVec
+#print axioms GQ2.Dyadic.StageGeneric.evenDualVec_pairing
+#print axioms GQ2.Dyadic.StageGeneric.evenDualVec_zero
+#print axioms GQ2.Dyadic.StageGeneric.evenDualVec_one
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameKappaVec
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameKappaVec_eq
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameGramModel_self
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameKappaVec_labute
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameKappaVec_self
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameKappaVec_ne_zero
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_kappaVec
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameAdaptedModelEquiv
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameExactLift
+#print axioms GQ2.Dyadic.StageGeneric.evenFramePairing
+#print axioms GQ2.Dyadic.StageGeneric.evenFramePairing_fieldCup
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCup_kappa_self
+#print axioms GQ2.Dyadic.StageGeneric.evenFrame_of_adapted
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_omega_of_pin
+#print axioms GQ2.Dyadic.StageGeneric.evenFrame_of_kappaPin
