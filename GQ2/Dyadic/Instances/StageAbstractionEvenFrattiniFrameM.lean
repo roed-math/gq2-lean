@@ -82,6 +82,7 @@ noncomputable section
 open GQ2 ContCoh
 open GQ2.Roe.Labute
 open GQ2.HilbertSymbol
+open GQ2.Dyadic.Certificates.LSqStokes
 open GQ2.Dyadic.LSquare
 open GQ2.Dyadic.LSquare.FrattiniFrameSupply
 
@@ -405,6 +406,263 @@ the identity element witnesses it.  So the `α = 2` branch is the only place a c
 theorem evenDegreeM_rowAttained_of_ge {α : ℕ} (hα : 3 ≤ α) :
     EvenDegreeMModEightRowAttained (K := K) α :=
   ⟨1, by rw [map_one, Units.val_one, map_one, evenBridgeM_mUnit_modEight_ge hα]⟩
+
+/-! ## §4 The second Witt refinement, for `α = 2`
+
+§2.1 rules out the `N` row's route at `α = 2`, so this section supplies what
+`evenFrame_of_adapted` needs directly: an adapted coordinate system placing **two** classes, `κ`
+at the letter `B` (index `1`, forced by the model, §1.5 of the scaffolding) and `τ` at the letter
+`D` (index `3`, the `(2,3)` plane).  This is the even route's analogue of the odd route's second
+Witt step, which puts the `ω` vector on the diagonal of the first hyperbolic plane; the `N` row
+avoided it because its `ω` table is a multiple of its parity table.
+
+The mechanism is a Witt-type transitivity that the repository did not have: *the isometry group of
+an `𝔽₂` cup form acts transitively on the isotropic vectors outside `{0, κ}`*.  It is proved here
+by transvections `z ↦ z + b(z,v)·v` at isotropic `v`, which are isometries, are involutions, and
+**automatically fix `κ`** — because `b(κ,v) = b(v,v) = 0` is exactly the Labute identity.  Two of
+them suffice, through a common vector obtained by an elementary separation argument; no Witt
+extension theorem and no symplectic-basis surgery is needed.
+
+Everything in §4.1–§4.4 is core-agnostic and `K`-free linear algebra. -/
+
+/-! ### §4.1 The target vector -/
+
+/-- The model vector `τ` must be carried to: the second coordinate of the first hyperbolic plane,
+i.e. the frame coordinate vector supported at the letter `D` (index `3`).  Compare
+`evenFrameKappaVec`, supported at index `1`; the two are what the `M` shadow tables of §2
+demand. -/
+def mEvenFrameTauVec (h : ℕ) : evenFrameModel h := (0, Pi.single 0 (0, 1))
+
+/-- **The `τ` row of the `M` bridge table, model side**: the target vector has frame coordinate
+`1` at the letter `D` and `0` at every other letter. -/
+theorem mEvenFrameCoord_tauVec {h : ℕ} (i : Fin (MarkedCore.coreRank h)) :
+    evenFrameCoord i (mEvenFrameTauVec h) = if (i : ℕ) = 3 then 1 else 0 := by
+  refine evenIndex_cases
+    (P := fun i ↦ evenFrameCoord i (mEvenFrameTauVec h) = if (i : ℕ) = 3 then 1 else 0)
+    ?_ ?_ ?_ ?_ ?_ ?_ i
+  · rw [evenFrameCoord_zero, if_neg (by rw [MarkedCore.coreVal_zero]; omega)]
+    rfl
+  · rw [evenFrameCoord_one, if_neg (by rw [MarkedCore.coreVal_one]; omega)]
+    rfl
+  · rw [evenFrameCoord_two, if_neg (by rw [MarkedCore.coreVal_two]; omega)]
+    simp [mEvenFrameTauVec]
+  · rw [evenFrameCoord_three, if_pos (MarkedCore.coreVal_three h)]
+    simp [mEvenFrameTauVec]
+  · intro j
+    rw [evenFrameCoord_handleU, if_neg (by rw [MarkedCore.handleIdxU_val]; omega)]
+    simp [mEvenFrameTauVec]
+  · intro j
+    rw [evenFrameCoord_handleV, if_neg (by rw [MarkedCore.handleIdxV_val]; omega)]
+    simp [mEvenFrameTauVec]
+
+/-- The target vector is isotropic, as any vector orthogonal to the Labute vector must be. -/
+theorem mEvenFrameTauVec_self (h : ℕ) :
+    evenFrameGramModel h (mEvenFrameTauVec h) (mEvenFrameTauVec h) = 0 := by
+  rw [evenFrameGramModel_self, mEvenFrameCoord_tauVec,
+    if_neg (by rw [MarkedCore.coreVal_zero]; omega)]
+
+/-- The target vector is nonzero. -/
+theorem mEvenFrameTauVec_ne_zero (h : ℕ) : mEvenFrameTauVec h ≠ 0 := by
+  intro hzero
+  have hc := congrArg (evenFrameCoord (3 : Fin (MarkedCore.coreRank h))) hzero
+  rw [mEvenFrameCoord_tauVec, if_pos (MarkedCore.coreVal_three h),
+    evenFrameCoord_zero_vec] at hc
+  exact one_ne_zero hc
+
+/-- The target vector is not the Labute vector: they are supported at different letters, which is
+the whole point of §2.1. -/
+theorem mEvenFrameTauVec_ne_kappaVec (h : ℕ) : mEvenFrameTauVec h ≠ evenFrameKappaVec h := by
+  intro hzero
+  have hc := congrArg (evenFrameCoord (3 : Fin (MarkedCore.coreRank h))) hzero
+  rw [mEvenFrameCoord_tauVec, if_pos (MarkedCore.coreVal_three h), evenFrameCoord_kappaVec,
+    if_neg (by rw [MarkedCore.coreVal_three]; omega)] at hc
+  exact one_ne_zero hc
+
+/-! ### §4.2 Transvections at isotropic vectors -/
+
+section Transvection
+
+variable {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] {b : W → W → ZMod 2}
+
+/-- **The transvection at an isotropic vector**, `z ↦ z + b(z,v)·v`.  Over `𝔽₂` it is its own
+inverse, so it is packaged directly as a linear equivalence. -/
+def mEvenFrameTransvection (hb : IsCupFormFp2 b) {v : W} (hv : b v v = 0) : W ≃ₗ[ZMod 2] W where
+  toFun z := z + b z v • v
+  map_add' z z' := by
+    show (z + z') + b (z + z') v • v = (z + b z v • v) + (z' + b z' v • v)
+    rw [hb.add_left, add_smul]
+    abel
+  map_smul' c z := by
+    show c • z + b (c • z) v • v = c • (z + b z v • v)
+    rw [hb.smul_left, smul_add, smul_smul]
+  invFun z := z + b z v • v
+  left_inv z := by
+    show z + b z v • v + b (z + b z v • v) v • v = z
+    rw [hb.add_left, hb.smul_left, hv, mul_zero, add_zero, add_assoc, ← add_smul,
+      CharTwo.add_self_eq_zero, zero_smul, add_zero]
+  right_inv z := by
+    show z + b z v • v + b (z + b z v • v) v • v = z
+    rw [hb.add_left, hb.smul_left, hv, mul_zero, add_zero, add_assoc, ← add_smul,
+      CharTwo.add_self_eq_zero, zero_smul, add_zero]
+
+@[simp] theorem mEvenFrameTransvection_apply (hb : IsCupFormFp2 b) {v : W} (hv : b v v = 0)
+    (z : W) : mEvenFrameTransvection hb hv z = z + b z v • v := rfl
+
+/-- **A transvection at an isotropic vector is an isometry.**  The two cross terms cancel in
+characteristic two; isotropy of `v` kills the remaining one. -/
+theorem mEvenFrameTransvection_isometry (hb : IsCupFormFp2 b) {v : W} (hv : b v v = 0)
+    (z z' : W) :
+    b (mEvenFrameTransvection hb hv z) (mEvenFrameTransvection hb hv z') = b z z' := by
+  have hchar : ∀ x y : ZMod 2, x * y + y * x = 0 := by decide
+  show b (z + b z v • v) (z' + b z' v • v) = b z z'
+  rw [hb.add_left, hb.add_right, hb.add_right, hb.smul_left, hb.smul_left, hb.smul_right,
+    hb.smul_right, hv, mul_zero, mul_zero, add_zero, hb.symm v z', add_assoc, hchar, add_zero]
+
+/-- **A transvection at an isotropic vector fixes the Labute vector**, for free: the Labute
+identity turns `b(e, v)` into `b(v, v)`, which is `0`.  This is why no bookkeeping is needed to
+keep `κ` in place while `τ` is moved. -/
+theorem mEvenFrameTransvection_fix (hb : IsCupFormFp2 b) {v : W} (hv : b v v = 0) {e : W}
+    (he : ∀ w, b e w = b w w) : mEvenFrameTransvection hb hv e = e := by
+  show e + b e v • v = e
+  rw [he v, hv, zero_smul, add_zero]
+
+/-- **The transvection at `x + y` carries `x` to `y`**, when `x` is isotropic and pairs to `1`
+with `y`. -/
+theorem mEvenFrameTransvection_swap (hb : IsCupFormFp2 b) {x y : W} (hx : b x x = 0)
+    (hxy : b x y = 1) (hv : b (x + y) (x + y) = 0) :
+    mEvenFrameTransvection hb hv x = y := by
+  have h2 : ∀ w : W, w + w = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+  show x + b x (x + y) • (x + y) = y
+  rw [hb.add_right, hx, hxy, zero_add, one_smul, ← add_assoc, h2, zero_add]
+
+/-! ### §4.3 Separation
+
+Two elementary consequences of nondegeneracy.  No dimension count and no dual basis: over `𝔽₂` a
+vector paired `1` with `x` and `0` with `e` is produced from any two nontrivial pairings by
+adding them, and the same trick then serves two vectors at once. -/
+
+omit [Module (ZMod 2) W] in
+/-- Nondegeneracy, in the form used below. -/
+theorem mEvenFrameExists_pairOne (hnd : NondegFp2 b) {x : W} (hx : x ≠ 0) : ∃ z, b x z = 1 := by
+  by_contra hcon
+  refine hx (hnd x fun w ↦ ?_)
+  rcases ZMod.eq_zero_or_eq_one (b x w) with h | h
+  · exact h
+  · exact absurd ⟨w, h⟩ hcon
+
+/-- **Separation from the Labute vector**: for `x` outside `{0, e}` there is an `z` pairing `1`
+with `x` and `0` with `e`; by the Labute identity such an `z` is automatically isotropic. -/
+theorem mEvenFrameExists_sep (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e : W} {x : W}
+    (hx0 : x ≠ 0) (hxe : x ≠ e) : ∃ z, b e z = 0 ∧ b x z = 1 := by
+  have h2 : ∀ w : W, w + w = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+  obtain ⟨z₀, hz₀⟩ := mEvenFrameExists_pairOne hnd hx0
+  have hxe0 : x + e ≠ 0 := by
+    intro hcon
+    refine hxe ?_
+    have hc := congrArg (fun w ↦ w + e) hcon
+    simpa [add_assoc, h2] using hc
+  obtain ⟨z₁, hz₁⟩ := mEvenFrameExists_pairOne hnd hxe0
+  rcases ZMod.eq_zero_or_eq_one (b e z₀) with h0 | h0
+  · exact ⟨z₀, h0, hz₀⟩
+  rw [hb.add_left] at hz₁
+  rcases ZMod.eq_zero_or_eq_one (b e z₁) with h1 | h1
+  · refine ⟨z₁, h1, ?_⟩
+    rw [h1, add_zero] at hz₁
+    exact hz₁
+  · rcases ZMod.eq_zero_or_eq_one (b x z₁) with hx1 | hx1
+    · exact ⟨z₀ + z₁, by rw [hb.add_right, h0, h1]; decide,
+        by rw [hb.add_right, hz₀, hx1, add_zero]⟩
+    · rw [hx1, h1] at hz₁
+      exact absurd hz₁ (by decide)
+
+/-- **Simultaneous separation**: one vector isotropic and pairing `1` with each of two given
+vectors outside `{0, e}`.  If the two separators of the previous lemma do not already work, their
+sum does. -/
+theorem mEvenFrameExists_common (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e x y : W}
+    (hx0 : x ≠ 0) (hxe : x ≠ e) (hy0 : y ≠ 0) (hye : y ≠ e) :
+    ∃ z, b e z = 0 ∧ b x z = 1 ∧ b y z = 1 := by
+  obtain ⟨z₁, hz₁e, hz₁x⟩ := mEvenFrameExists_sep hb hnd hx0 hxe
+  obtain ⟨z₂, hz₂e, hz₂y⟩ := mEvenFrameExists_sep hb hnd hy0 hye
+  rcases ZMod.eq_zero_or_eq_one (b y z₁) with hy1 | hy1
+  · rcases ZMod.eq_zero_or_eq_one (b x z₂) with hx2 | hx2
+    · exact ⟨z₁ + z₂, by rw [hb.add_right, hz₁e, hz₂e, add_zero],
+        by rw [hb.add_right, hz₁x, hx2, add_zero],
+        by rw [hb.add_right, hy1, hz₂y, zero_add]⟩
+    · exact ⟨z₂, hz₂e, hx2, hz₂y⟩
+  · exact ⟨z₁, hz₁e, hz₁x, hy1⟩
+
+/-! ### §4.4 Witt transitivity on isotropic vectors -/
+
+/-- **The isometry group of an `𝔽₂` cup form acts transitively on the isotropic vectors outside
+`{0, κ}`**, by isometries fixing `κ`.
+
+This is the Witt-type statement the repository lacked, and it is what the odd route's second
+refinement amounts to.  The proof is two transvections through a common separator: `x ↦ z ↦ y`.
+Every vector involved is isotropic, hence orthogonal to `κ` by the Labute identity, hence every
+transvection used fixes `κ`. -/
+theorem mEvenFrameIsometry_of_isotropic (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e : W}
+    (he : ∀ w, b e w = b w w) {x y : W} (hx : b x x = 0) (hy : b y y = 0)
+    (hx0 : x ≠ 0) (hxe : x ≠ e) (hy0 : y ≠ 0) (hye : y ≠ e) :
+    ∃ S : W ≃ₗ[ZMod 2] W, (∀ u w, b (S u) (S w) = b u w) ∧ S e = e ∧ S x = y := by
+  obtain ⟨z, hze, hzx, hzy⟩ := mEvenFrameExists_common hb hnd hx0 hxe hy0 hye
+  have hzz : b z z = 0 := by rw [← he z]; exact hze
+  have hzy' : b z y = 1 := by rw [hb.symm]; exact hzy
+  have hv₁ : b (x + z) (x + z) = 0 := by
+    rw [← he (x + z), hb.add_right, he x, he z, hx, hzz, add_zero]
+  have hv₂ : b (z + y) (z + y) = 0 := by
+    rw [← he (z + y), hb.add_right, he z, he y, hzz, hy, add_zero]
+  refine ⟨(mEvenFrameTransvection hb hv₁).trans (mEvenFrameTransvection hb hv₂),
+    fun u w ↦ ?_, ?_, ?_⟩
+  · show b (mEvenFrameTransvection hb hv₂ (mEvenFrameTransvection hb hv₁ u))
+      (mEvenFrameTransvection hb hv₂ (mEvenFrameTransvection hb hv₁ w)) = b u w
+    rw [mEvenFrameTransvection_isometry hb hv₂, mEvenFrameTransvection_isometry hb hv₁]
+  · show mEvenFrameTransvection hb hv₂ (mEvenFrameTransvection hb hv₁ e) = e
+    rw [mEvenFrameTransvection_fix hb hv₁ he, mEvenFrameTransvection_fix hb hv₂ he]
+  · show mEvenFrameTransvection hb hv₂ (mEvenFrameTransvection hb hv₁ x) = y
+    rw [mEvenFrameTransvection_swap hb hx hzx hv₁,
+      mEvenFrameTransvection_swap hb hzz hzy' hv₂]
+
+end Transvection
+
+/-! ### §4.5 The doubly adapted normal form -/
+
+/-- **The even adapted normal form, with the `ω` vector placed as well.**  The refinement of
+`evenFrameAdaptedModelEquiv` that the `M` row needs at `α = 2`: an isometry to the even coordinate
+model carrying the Labute vector `e` to the letter `B` **and** a second isotropic vector `t`,
+independent of `e`, to the letter `D`.
+
+The hypotheses on `t` are exactly the necessary ones: the model forces `b(κ, Φ⁻¹τ) = 0` and
+`τ ∉ {0, κ}` for any such placement, and by the Labute identity `b(κ, t) = b(t, t)`, so
+isotropy of `t` is the whole of the first condition. -/
+theorem mEvenFrameAdaptedModelEquiv {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    {b : W → W → ZMod 2} (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e t : W}
+    (he : ∀ w, b e w = b w w) (he0 : b e e = 0) (hne : e ≠ 0)
+    (ht : b t t = 0) (ht0 : t ≠ 0) (hte : t ≠ e)
+    {h : ℕ} (hcard : Nat.card W = 2 ^ (2 * h + 4)) :
+    ∃ Φ : W ≃ₗ[ZMod 2] evenFrameModel h,
+      (∀ x y, b x y = evenFrameGramModel h (Φ x) (Φ y)) ∧ Φ e = evenFrameKappaVec h ∧
+        Φ t = mEvenFrameTauVec h := by
+  obtain ⟨Φ₀, hgram, hkap⟩ := evenFrameAdaptedModelEquiv hb hnd he he0 hne hcard
+  set t' : W := Φ₀.symm (mEvenFrameTauVec h) with ht'
+  have hΦt' : Φ₀ t' = mEvenFrameTauVec h := Φ₀.apply_symm_apply _
+  have ht'self : b t' t' = 0 := by rw [hgram, hΦt', mEvenFrameTauVec_self]
+  have ht'0 : t' ≠ 0 := by
+    intro hcon
+    refine mEvenFrameTauVec_ne_zero h ?_
+    rw [← hΦt', hcon, map_zero]
+  have ht'e : t' ≠ e := by
+    intro hcon
+    refine mEvenFrameTauVec_ne_kappaVec h ?_
+    rw [← hΦt', hcon, hkap]
+  obtain ⟨S, hS, hSe, hSt⟩ :=
+    mEvenFrameIsometry_of_isotropic hb hnd he ht ht'self ht0 hte ht'0 ht'e
+  refine ⟨S.trans Φ₀, fun x y ↦ ?_, ?_, ?_⟩
+  · show b x y = evenFrameGramModel h (Φ₀ (S x)) (Φ₀ (S y))
+    rw [← hgram, hS]
+  · show Φ₀ (S e) = evenFrameKappaVec h
+    rw [hSe, hkap]
+  · show Φ₀ (S t) = mEvenFrameTauVec h
+    rw [hSt, hΦt']
 
 end EvenFieldM
 
