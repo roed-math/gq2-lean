@@ -201,4 +201,87 @@ theorem evenRange_exists_exact_level {u : ℤ_[2]ˣ} (hu : u ≠ 1)
 
 end Generation
 
+/-! ## §3 The two committed images in normal form
+
+`imChiM α` is exactly the units `≡ ±1 (mod 2^α)`; the `≤` half is the committed
+`evenSharp_pmOne_of_mem_imChiM` and the `≥` half is the committed
+`principalUnits_le_imChiM` together with `-1 ∈ imChiM α`.
+
+`imChiN α` is not a principal-unit coset union in the same clean sense, because its generator
+is `≡ -1 (mod 2^α)`; what is true, and all that is needed, is the pair of inclusions
+`1 + 2^(α+1) ℤ₂ ≤ imChiN α` (from the exact level `α+1` of `nUnit α ^ 2`) and
+`imChiN α ≤ {u : u ≡ 1 or nUnit α (mod 2^(α+1))}` (from the committed involution
+`nUnit_res_sq` and the closed pair subgroup `modPairSubgroup`). -/
+
+section Images
+
+open GQ2.Dyadic.EvenRowSupply (principalUnits_le_imChiM evenSharp_pmOne_of_mem_imChiM
+  evenRow_nUnit_mem_imChiN)
+
+/-- Reduction mod `2^j` detects differences up to `2^j`. -/
+theorem evenRange_toZModPow_eq_iff {j : ℕ} {x y : ℤ_[2]} :
+    PadicInt.toZModPow j x = PadicInt.toZModPow j y ↔ (2 : ℤ_[2]) ^ j ∣ x - y := by
+  rw [← sub_eq_zero, ← map_sub, ← RingHom.mem_ker, PadicInt.ker_toZModPow,
+    Ideal.mem_span_singleton]
+  norm_num
+
+/-- The `≡ 1` case of `evenRange_toZModPow_eq_iff`. -/
+theorem evenRange_toZModPow_eq_one_iff {j : ℕ} {x : ℤ_[2]} :
+    PadicInt.toZModPow j x = 1 ↔ (2 : ℤ_[2]) ^ j ∣ x - 1 := by
+  rw [← map_one (PadicInt.toZModPow (p := 2) j), evenRange_toZModPow_eq_iff]
+
+/-- `imChiM α` is closed. -/
+theorem evenRange_isClosed_imChiM (α : ℕ) :
+    IsClosed ((imChiM α : Subgroup ℤ_[2]ˣ) : Set ℤ_[2]ˣ) :=
+  Subgroup.isClosed_topologicalClosure _
+
+/-- `imChiN α` is closed. -/
+theorem evenRange_isClosed_imChiN (α : ℕ) :
+    IsClosed ((imChiN α : Subgroup ℤ_[2]ˣ) : Set ℤ_[2]ˣ) :=
+  Subgroup.isClosed_topologicalClosure _
+
+/-- The level-`α` principal units sit inside the `M` image. -/
+theorem evenRange_prin_le_imChiM {α : ℕ} (hα : 2 ≤ α) : evenRangePrin α ≤ imChiM α :=
+  fun _ hξ => principalUnits_le_imChiM hα (evenRange_mem_prin_iff.mp hξ)
+
+/-- **`imChiM α` in normal form**: the units `≡ ±1 (mod 2^α)`. -/
+theorem evenRange_mem_imChiM_iff {α : ℕ} (hα : 2 ≤ α) {u : ℤ_[2]ˣ} :
+    u ∈ imChiM α ↔
+      (2 : ℤ_[2]) ^ α ∣ (u : ℤ_[2]) - 1 ∨ (2 : ℤ_[2]) ^ α ∣ (u : ℤ_[2]) + 1 := by
+  refine ⟨fun hu => evenSharp_pmOne_of_mem_imChiM (by omega) hu, ?_⟩
+  rintro (h | h)
+  · exact evenRange_prin_le_imChiM hα (evenRange_mem_prin_iff.mpr h)
+  · have hneg : ((-u : ℤ_[2]ˣ) : ℤ_[2]) - 1 = -((u : ℤ_[2]) + 1) := by push_cast; ring
+    have hm : (-u : ℤ_[2]ˣ) ∈ imChiM α :=
+      evenRange_prin_le_imChiM hα
+        (evenRange_mem_prin_iff.mpr (by rw [hneg]; exact Dvd.dvd.neg_right h))
+    simpa using mul_mem (neg_one_mem_imChiM α) hm
+
+/-- The level-`α+1` principal units sit inside the `N` image: `nUnit α ^ 2` has exact
+level `α + 1`, and it lies in `imChiN α`. -/
+theorem evenRange_prin_le_imChiN {α : ℕ} (hα : 2 ≤ α) : evenRangePrin (α + 1) ≤ imChiN α := by
+  obtain ⟨b, hb⟩ := nUnit_sq_sub_one hα
+  rw [← evenRange_closure_eq_prin (η := nUnit α ^ 2) (a := b) (by omega) hb]
+  refine Subgroup.topologicalClosure_minimal _ ?_ (evenRange_isClosed_imChiN α)
+  rw [Subgroup.closure_le, Set.singleton_subset_iff]
+  exact pow_mem (evenRow_nUnit_mem_imChiN α) 2
+
+/-- **`imChiN α` in normal form (upper bound)**: every element is `≡ 1` or `≡ nUnit α`
+modulo `2^(α+1)`. -/
+theorem evenRange_mem_imChiN_dvd {α : ℕ} (hα : 2 ≤ α) {u : ℤ_[2]ˣ} (hu : u ∈ imChiN α) :
+    (2 : ℤ_[2]) ^ (α + 1) ∣ (u : ℤ_[2]) - 1 ∨
+      (2 : ℤ_[2]) ^ (α + 1) ∣ (u : ℤ_[2]) - (nUnit α : ℤ_[2]) := by
+  have hmem : u ∈ GQ2.Dyadic.EvenNLab.modPairSubgroup (α + 1)
+      (PadicInt.toZModPow (α + 1) ((nUnit α : ℤ_[2]ˣ) : ℤ_[2]))
+      (GQ2.Dyadic.EvenNLab.nUnit_res_sq α hα) := by
+    refine Subgroup.topologicalClosure_minimal _ ?_
+      (GQ2.Dyadic.EvenNLab.isClosed_modPairSubgroup _ _ _) hu
+    rw [Subgroup.closure_le, Set.singleton_subset_iff]
+    exact (GQ2.Dyadic.EvenNLab.mem_modPairSubgroup _ (nUnit α)).mpr (Or.inr rfl)
+  rcases (GQ2.Dyadic.EvenNLab.mem_modPairSubgroup _ u).mp hmem with h | h
+  · exact Or.inl (evenRange_toZModPow_eq_one_iff.mp h)
+  · exact Or.inr (evenRange_toZModPow_eq_iff.mp h)
+
+end Images
+
 end GQ2.Dyadic.EvenCyclotomicRange
