@@ -905,3 +905,64 @@ theorem evenForwardGeneratorDataM_supply_of_base_and_corrections (α : ℕ) (hα
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §7 Axiom pins
+
+Every public declaration of this file, printed.  All are expected at std-3,
+`[propext, Classical.choice, Quot.sound]`: the committed finite-level template prints std-3 on
+its whole model half, and this file adds no arithmetic input — topological finite generation of
+`G_K(2)`, the one place where the odd route's endpoints acquire
+`absGalQ2_isTopologicallyFinitelyGenerated`, is a hypothesis here (§6). -/
+
+section AxiomPins
+
+open GQ2.Dyadic.StageGeneric
+
+-- §2 the generic open-quotient limit
+#print axioms OpenTuple.eq_of_generators_eq
+#print axioms OpenTuple.map
+#print axioms OpenTuple.map_generators
+#print axioms OpenTuple.functor
+#print axioms OpenTuple.finite
+#print axioms OpenTuple.exists_globalMarking
+
+-- §3 the `N` finite-level layer
+#print axioms EvenFiniteLevelNEpiData
+#print axioms EvenFiniteLevelNEpiData.eq_of_epi_eq
+#print axioms EvenFiniteLevelNEpiData.map
+#print axioms EvenFiniteLevelNEpiData.functor
+#print axioms EvenFiniteLevelNEpiData.finite
+#print axioms EvenFiniteLevelNEpiData.toOpenTuple
+#print axioms evenFiniteLevelNEpiDataOfTuple
+#print axioms evenFiniteLevelNEpiDataOfOpenTuple
+
+-- §4 the `M` finite-level layer
+#print axioms EvenFiniteLevelMEpiData
+#print axioms EvenFiniteLevelMEpiData.eq_of_epi_eq
+#print axioms EvenFiniteLevelMEpiData.map
+#print axioms EvenFiniteLevelMEpiData.functor
+#print axioms EvenFiniteLevelMEpiData.finite
+#print axioms EvenFiniteLevelMEpiData.toOpenTuple
+#print axioms evenFiniteLevelMEpiDataOfTuple
+#print axioms evenFiniteLevelMEpiDataOfOpenTuple
+
+-- §5 the forward-generator endpoints
+#print axioms evenForwardGeneratorDataN_of_openTuple
+#print axioms evenForwardGeneratorDataM_of_openTuple
+#print axioms evenForwardGeneratorDataN_of_finiteLevel
+#print axioms evenForwardGeneratorDataM_of_finiteLevel
+#print axioms evenForwardGeneratorDataN_of_base_and_corrections
+#print axioms evenForwardGeneratorDataM_of_base_and_corrections
+#print axioms evenFiniteLevelNEpiData_nonempty_of_base_and_corrections
+#print axioms evenFiniteLevelMEpiData_nonempty_of_base_and_corrections
+
+-- §6 the uniform supplies
+#print axioms EvenFiniteLevelGalKFinGenSupply
+#print axioms EvenFiniteLevelNStageBaseSupply
+#print axioms EvenFiniteLevelNCorrectionSupply
+#print axioms EvenFiniteLevelMStageBaseSupply
+#print axioms EvenFiniteLevelMCorrectionSupply
+#print axioms evenForwardGeneratorDataN_supply_of_base_and_corrections
+#print axioms evenForwardGeneratorDataM_supply_of_base_and_corrections
+
+end AxiomPins
