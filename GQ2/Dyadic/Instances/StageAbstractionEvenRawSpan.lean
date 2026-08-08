@@ -523,6 +523,130 @@ theorem evenRawDbarWord_mul (h k : ℕ) (hk : 3 ≤ k)
   exact evenRawRegroup₂ _ _ _ _
     (zLayer_commute (evenRawCoreDbarWord_mem_zLayer k hk base c' hdepth'))
 
+/-! ### The two core assemblies
+
+Pure group identities: given that `A` and `A * B` are central, the order in which the blocks
+of the shift word come out of the computation can be normalised.  `evenRawAssembleN` is for
+`nWord` (three blocks), `evenRawAssembleM` for `mWord`, whose third letter contributes an
+inert power `Y`. -/
+
+private theorem evenRawAssembleN {H' : Type*} [Group H'] (X P Q A B C : H')
+    (hA : ∀ t : H', Commute A t) (hAB : ∀ t : H', Commute (A * B) t) :
+    X * A * (P * B) * (Q * C) = X * P * Q * (A * B * C) := by
+  calc
+    X * A * (P * B) * (Q * C) = X * (A * P) * (B * (Q * C)) := by group
+    _ = X * (P * A) * (B * (Q * C)) := by rw [(hA P).eq]
+    _ = X * P * (A * B * Q) * C := by group
+    _ = X * P * (Q * (A * B)) * C := by rw [(hAB Q).eq]
+    _ = X * P * Q * (A * B * C) := by group
+
+private theorem evenRawAssembleM {H' : Type*} [Group H'] (X P Y Q A B C : H')
+    (hA : ∀ t : H', Commute A t) (hAB : ∀ t : H', Commute (A * B) t) :
+    X * A * (P * B) * Y * (Q * C) = X * P * Y * Q * (A * B * C) := by
+  calc
+    X * A * (P * B) * Y * (Q * C) = X * (A * P) * (B * (Y * (Q * C))) := by group
+    _ = X * (P * A) * (B * (Y * (Q * C))) := by rw [(hA P).eq]
+    _ = X * P * (A * B * (Y * Q)) * C := by group
+    _ = X * P * (Y * Q * (A * B)) * C := by rw [(hAB (Y * Q)).eq]
+    _ = X * P * Y * Q * (A * B * C) := by group
+
+private theorem evenRawShiftAssemble {H' : Type*} [Group H'] (C Hh d D : H')
+    (hd : ∀ t : H', Commute d t) : (C * Hh)⁻¹ * (C * d * (Hh * D)) = d * D := by
+  calc
+    (C * Hh)⁻¹ * (C * d * (Hh * D)) = (C * Hh)⁻¹ * (C * (d * Hh) * D) := by group
+    _ = (C * Hh)⁻¹ * (C * (Hh * d) * D) := by rw [(hd Hh).eq]
+    _ = d * D := by group
+
+/-! ## §4 The literal factorizations at the two even words
+
+The crux of the ticket.  Both even relators shift by the *same* word `evenRawDbarWord`, and
+both statements need `2 ≤ α`: for `N_α` because the exponent `2 + 2 ^ α` must have an odd
+half for the diagonal atom to survive, for `M_α` because the exponent `2 ^ α` must have an
+even half for its letter to contribute nothing.  At `α = 1` both parities flip. -/
+
+section Factorization
+
+variable {α : ℕ}
+
+/-- **The `N_α` core factorization.**  Requires `2 ≤ α`: at `α = 1` the exponent is `4`, whose
+half `2` is even, so the diagonal atom `w₀² · [w₀, base 0]` drops out of the right-hand side
+and the statement is false as written. -/
+theorem evenRawNWord_mul_lambdaImage (hα : 2 ≤ α) (k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    MarkedCore.nWord α (base 0 * correction 0) (base 1 * correction 1)
+        (base 2 * correction 2) (base 3 * correction 3) =
+      MarkedCore.nWord α (base 0) (base 1) (base 2) (base 3) *
+        evenRawCoreDbarWord base correction := by
+  obtain ⟨t, ht, hexp⟩ := evenRawNExp_odd_half hα
+  simp only [MarkedCore.nWord, evenRawCoreDbarWord, hexp]
+  rw [evenRawPow_of_odd_half k hk (hdepth 0) (base 0) ht,
+    evenRawHandlePair_mul k hk (base 0) (base 1) (hdepth 0) (hdepth 1),
+    evenRawHandlePair_mul k hk (base 2) (base 3) (hdepth 2) (hdepth 3)]
+  exact evenRawAssembleN _ _ _ _ _ _
+    (zLayer_commute (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _))
+    (zLayer_commute (Subgroup.mul_mem _
+      (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _)
+      (Subgroup.mul_mem _ (commP_mem_zLayer k hk (hdepth 1) _)
+        (commP_mem_zLayer k hk (hdepth 0) _))))
+
+/-- **The `M_α` core factorization.**  Requires `2 ≤ α`: the third letter's exponent `2 ^ α`
+has an even half exactly then, so `(base 2 · w₂) ^ (2 ^ α) = base 2 ^ (2 ^ α)` and that letter
+contributes no row.  At `α = 1` the exponent is `2` and it would contribute
+`w₂² · [w₂, base 2]`. -/
+theorem evenRawMWord_mul_lambdaImage (hα : 2 ≤ α) (k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    MarkedCore.mWord α (base 0 * correction 0) (base 1 * correction 1)
+        (base 2 * correction 2) (base 3 * correction 3) =
+      MarkedCore.mWord α (base 0) (base 1) (base 2) (base 3) *
+        evenRawCoreDbarWord base correction := by
+  obtain ⟨t, ht, hexp⟩ := evenRawMExp_even_half hα
+  simp only [MarkedCore.mWord, evenRawCoreDbarWord, hexp]
+  rw [evenRawSq_mul k hk (hdepth 0) (base 0),
+    evenRawPow_of_even_half k hk (hdepth 2) (base 2) ht,
+    evenRawHandlePair_mul k hk (base 0) (base 1) (hdepth 0) (hdepth 1),
+    evenRawHandlePair_mul k hk (base 2) (base 3) (hdepth 2) (hdepth 3)]
+  exact evenRawAssembleM _ _ _ _ _ _ _
+    (zLayer_commute (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _))
+    (zLayer_commute (Subgroup.mul_mem _
+      (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _)
+      (Subgroup.mul_mem _ (commP_mem_zLayer k hk (hdepth 1) _)
+        (commP_mem_zLayer k hk (hdepth 0) _))))
+
+/-- **The `N_α` relator shift is the even crossed-derivation word.**  An equality in
+`Q_(k+1)`, not merely in an associated graded quotient: the even analogue of the committed
+`stageShift_eq_dbarWordR2_mul_sqHandleDbarWord`.  The word datum's own hypothesis `1 ≤ α` is
+a separate argument so that the statement mentions the caller's `nStageWord α h hα₁`
+verbatim; the content needs the stronger `2 ≤ α`. -/
+theorem evenRawStageShift_n (hα : 2 ≤ α) (hα₁ : 1 ≤ α) (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    stageShift (nStageWord α h hα₁) base correction = evenRawDbarWord base correction := by
+  show (MarkedCore.nRelWord α base)⁻¹ *
+    MarkedCore.nRelWord α (fun i ↦ base i * correction i) = _
+  simp only [MarkedCore.nRelWord]
+  rw [evenRawNWord_mul_lambdaImage hα k hk base correction hdepth,
+    evenRawHandleWord_mul_lambdaImage h k hk base correction hdepth, evenRawDbarWord]
+  exact evenRawShiftAssemble _ _ _ _
+    (zLayer_commute (evenRawCoreDbarWord_mem_zLayer k hk base correction hdepth))
+
+/-- **The `M_α` relator shift is the same even crossed-derivation word.**  From here on the N
+and M branches of the even lane share their entire span calculus. -/
+theorem evenRawStageShift_m (hα : 2 ≤ α) (hα₁ : 1 ≤ α) (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    stageShift (mStageWord α h hα₁) base correction = evenRawDbarWord base correction := by
+  show (MarkedCore.mRelWord α base)⁻¹ *
+    MarkedCore.mRelWord α (fun i ↦ base i * correction i) = _
+  simp only [MarkedCore.mRelWord]
+  rw [evenRawMWord_mul_lambdaImage hα k hk base correction hdepth,
+    evenRawHandleWord_mul_lambdaImage h k hk base correction hdepth, evenRawDbarWord]
+  exact evenRawShiftAssemble _ _ _ _
+    (zLayer_commute (evenRawCoreDbarWord_mem_zLayer k hk base correction hdepth))
+
+end Factorization
+
 end Dbar
 
 end
