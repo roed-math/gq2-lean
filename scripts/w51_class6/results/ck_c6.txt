@@ -1,0 +1,72 @@
+W51 corank probe -- class 6, markings [
+[ 0, 1 ],
+[ 1, 0 ],
+[ 1, 1 ],
+[ 0, 2 ],
+[ 2, 1 ],
+[ 1, 2 ],
+[ 3, 5 ],
+[ 2, 2 ]
+], verify 0
+Q_6 : order 2^3596, layers [ 5, 14, 49, 175, 679, 2674 ]  (build 0.180 s, extract+series 1804.000 s, mem 1000 MB)
+pc generators are weight graded, P_w = tail subgroup .. OK
+
+marking | level | target | domain | rank | corank | defect in im | cert | im delta vs same parity | secs
+--------+-------+--------+--------+------+--------+--------------+------+-------------------------+-----
+  (t,s) = (0,1): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.390 s
+ 0  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 01) | 0.050
+ 0  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 01) | 0.340
+ 0  1   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 01) | 1.860
+ 0  1   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 01) | 10.670
+   control L6 (t,s)=(0,1): 33 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (0,1): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (1,0): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.390 s
+ 1  0   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 10) | 0.030
+ 1  0   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 10) | 0.410
+ 1  0   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 10) | 2.100
+ 1  0   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 10) | 12.320
+   control L6 (t,s)=(1,0): 32 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (1,0): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (1,1): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.380 s
+ 1  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 11) | 0.140
+ 1  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 11) | 0.900
+ 1  1   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 11) | 4.070
+ 1  1   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 11) | 20.240
+   control L6 (t,s)=(1,1): 31 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (1,1): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (0,2): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.390 s
+ 0  2   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 00) | 0.020
+ 0  2   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 00) | 0.250
+ 0  2   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 00) | 1.410
+ 0  2   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 00) | 9.160
+   control L6 (t,s)=(0,2): 20 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (0,2): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (2,1): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.390 s
+ 2  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.060
+ 2  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 1.270
+ 2  1   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 5.170
+ 2  1   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 23.740
+   control L6 (t,s)=(2,1): 28 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (2,1): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (1,2): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.380 s
+ 1  2   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.070
+ 1  2   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.960
+ 1  2   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.360
+ 1  2   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 20.600
+   control L6 (t,s)=(1,2): 39 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (1,2): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (3,5): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.400 s
+ 3  5   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.130
+ 3  5   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.970
+ 3  5   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.300
+ 3  5   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 20.470
+   control L6 (t,s)=(3,5): 30 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (3,5): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (2,2): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.370 s
+ 2  2   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.010
+ 2  2   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.550
+ 2  2   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 2.750
+ 2  2   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 14.840
+   control L6 (t,s)=(2,2): 22 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (2,2): R(m) = 1 in Q_6  -- solvable
+DONE

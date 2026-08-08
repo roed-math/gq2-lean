@@ -1,4 +1,4 @@
-# W51 — the corank at class 6, and the exhaustion of the class-5 grid
+# W51: the corank at class 6, and the exhaustion of the class-5 grid
 
 **Wave W51, worker W51-SWEEP6.  OFF-LEAN.  No Lean was written, edited or built.**
 
@@ -13,7 +13,24 @@ a refutation could first appear.  Item 2 was to finish the class-5 marking grid.
 
 ## 0.  Headline
 
-*(filled in below once the class-6 quotient resolves; see §5)*
+| question | answer |
+|---|---|
+| **(a)** the one number: does `corank(δ)` grow at class 6? | **No.  It stays `d + 1 = 6`.**  At `L₆` the defect map has rank **2668 of 2674**, corank **6**, at every marking measured, exactly as at `L₃`, `L₄`, `L₅`.  No refutation appears where one could first have appeared. |
+| **(b)** is that a sample? | **Not for the corank.**  `δ_j` and its image depend on `(t,s)` only mod 2 (§2.4, verified directly at class 6), and all four parity classes were measured.  The corank verdict covers every uncleared marking. |
+| **(c)** does the relator's defect still land in `im δ`? | **Yes, 32 / 32** at class 6 (8 markings × 4 levels), against a random-vector control of **235 / 16000 = 1.47 %**, matching the `2⁻⁶ = 1.56 %` a codimension-6 image predicts. |
+| **(d)** class-5 grid | **Finished, and now exhaustive: 1023 of 1023 uncleared markings, all solvable, 0 infeasible** (§4).  W50 had 72. |
+| **(e)** anything new at `h = 2`? | `corank = d + 1 = 8` now also at `L₅` (3688 / 3696), one class deeper than W50 reached (§5.5). |
+| **(f)** was class 6 reachable at all? | **Yes, in 1835 s and 1.0 GB.**  `Q_6` has order `2^3596` and layers `5, 14, 49, 175, 679, 2674`.  W50's bare `pQuotient(G,2,6)` had not finished in ~50 min; the incremental `pQuotientProcess`/`NextClass` route gets there in half an hour (§5.1). |
+
+So the single number W50 flagged as the place a refutation could first hide has been read, and
+it did not move:
+
+> **`corank(δ_j) = d + 1` at every level `L₃ … L₆` at `h = 1` (d = 5), and at every level
+> `L₃ … L₅` at `h = 2` (d = 7).**
+
+As a by-product, all 8 class-6 markings are **solvable**: an explicit `m` with `R(m) = 1` in a
+group of order `2^3596`.  This is positive evidence for the residual and, as always, not a
+proof of it (§6).
 
 ---
 
@@ -24,7 +41,7 @@ a refutation could first appear.  Item 2 was to finish the class-5 marking grid.
 | **Magma** | **V2.29-4** (`/Applications/Magma/magma`) | `pQuotientProcess`/`NextClass`, pc arithmetic, `EchelonForm`/`Rank`/`IsConsistent` over `GF(2)` |
 
 No GAP was needed.  (For the record, the W50 note is right: there is no standalone `gap`
-binary here — the shell name `gap` is an alias for `git apply` — and GAP 4.14.0 is reachable
+binary here, the shell name `gap` being an alias for `git apply`, and GAP 4.14.0 is reachable
 only as `sage -gap`.  Magma's `pQuotient` is the same ANU algorithm ANUPQ wraps, and the
 bottleneck this wave removed was never in the p-quotient engine, so nothing was gained by
 switching engines.)
@@ -36,10 +53,10 @@ All randomness is seeded (`SetSeed(1)`).  Everything ran locally; no remote mach
 ## 2.  Method: replacing `K ∩ P_j` by a graded generating set
 
 W50's cost model (its §10) was ~70 s per class-5 marking, of which the three
-`K meet P_j` subgroup intersections were ~6 s each, and it identified those intersections —
-at order `2^{3500+}` — as the wall standing in front of class 6.  §9.1 prescribed the way
+`K meet P_j` subgroup intersections were ~6 s each, and it identified those intersections,
+at order `2^{3500+}`, as the wall standing in front of class 6.  §9.1 prescribed the way
 round: use an explicit generating set instead.  That is what `scripts/w51_class6/w51_corank.m`
-does, and it turned out to be worth far more than expected (§4.3).
+does, and it turned out to be worth far more than expected (§3.3).
 
 ### 2.1  The recursion
 
@@ -53,8 +70,8 @@ S_w  :=  [L_{w-1}, L_1]  +  span{ b² : b a basis of K_{w-1} }
 with `S_1 = span(Ū, V̄, t̄)` (and, at `h = 2`, also the second handle's two letters).
 
 `S_w ⊆ K_w`: `[P_{w-1}, Q] ⊆ [Q,Q] ⊆ K` and `[P_{w-1},Q] ⊆ P_w`, while squares of elements of
-`K ∩ P_{w-1}` lie in `K ∩ P_w`.  Squaring is additive modulo `[L_{w-1}, L_1]` — the correction
-`[y,x]` in `(xy)² = x²y²[y,x]` lies in `[L_{w-1},L_1]` — so the span of the squares of a basis
+`K ∩ P_{w-1}` lie in `K ∩ P_w`.  Squaring is additive modulo `[L_{w-1}, L_1]` (the correction
+`[y,x]` in `(xy)² = x²y²[y,x]` lies in `[L_{w-1},L_1]`), so the span of the squares of a basis
 really is the image of the whole square map, not just of the basis.
 
 The commutator half `[L_{w-1}, L_1]` is **marking-independent**, exactly as §9.1 predicted, so
@@ -82,7 +99,7 @@ They held everywhere in this wave: every `cert` printed `true`.
 ### 2.3  Two further changes that made class 6 reachable
 
 * **Layer coordinates off the exponent vector.**  The pc generators of a `pQuotient` are
-  weight-graded and `P_w` is the corresponding tail subgroup — the scripts assert this
+  weight-graded and `P_w` is the corresponding tail subgroup; the scripts assert this
   (`NPCgens(P[w]) = n − ofs[w]`, plus a membership check at each boundary) rather than assume
   it.  So the image of `x ∈ P_w` in `L_w` is just the slice `Eltseq(x)[ofs_w+1 .. ofs_{w+1}]`
   reduced mod 2, and no quotient group has to be constructed at all.  Cross-checked against
@@ -91,9 +108,9 @@ They held everywhere in this wave: every `cert` printed `true`.
 * **Basis representatives are single pc elements.**  W50's `LayerBasis` recovered group
   representatives from an `EchelonForm` transformation matrix, so a representative was a
   product of up to `#gens` pc elements; every later `Rel(m·b)` then had to collect that long
-  word.  Here a basis is extracted as a *subset* of the candidate list — the pivot columns of
-  the transposed matrix — so every representative is a single commutator, square or generator.
-  This is what actually bought the speedup in §4.3.
+  word.  Here a basis is extracted as a *subset* of the candidate list (the pivot columns of
+  the transposed matrix), so every representative is a single commutator, square or generator.
+  This is what actually bought the speedup in §3.3.
 
 ### 2.4  The corank depends on the marking only mod 2
 
@@ -108,16 +125,16 @@ sharpens the result:
 * `K_w` is determined by `K_1 = span(x̄₁, ū + t·w̄, v̄ + s·w̄)` through the §2.1 recursion, so it
   too is a function of `(t mod 2, s mod 2)` alone.
 
-So **`δ_j` — its image, not merely its rank — is a function of the parity class of `(t,s)`.**
+So **`δ_j`, its image and not merely its rank, is a function of the parity class of `(t,s)`.**
 The scripts test this directly rather than taking it on trust: `im δ` is stored per
 `(level, t mod 2, s mod 2)` and every later marking of the same parity is compared against it.
 At class 4 the four parity classes give four distinct images and `(2,1)` reproduces `(0,1)`'s
-exactly — which is precisely W50's one coincidence, now explained.
+exactly, which is precisely W50's one coincidence, now explained.
 
 The consequence matters for what a class-6 verdict is worth: **four parity classes exhaust the
 corank question at a given class**, so a short marking list is not a sample with respect to
-*that* number.  (The relator's own defect is *not* a mod-2 object — it depends on `(t,s)`
-fully — so the containment question of §5.2 genuinely does have to be sampled.)
+*that* number.  (The relator's own defect is *not* a mod-2 object: it depends on `(t,s)`
+fully, so the containment question of §5.2 genuinely does have to be sampled.)
 
 ---
 
@@ -206,6 +223,102 @@ defect landed in `im δ` at every level of every one of the 951.**  That is 1811
 
 ---
 
+## 5.  Class 6
+
+### 5.1  The quotient
+
+`c6build.m`, output `results/c6build.txt`, confirmed independently by the corank run's own
+build:
+
+| class | order | layer ranks | cumulative build |
+|---|---|---|---|
+| 5 | 2^922 | 5, 14, 49, 175, 679 | 16 s |
+| **6** | **2^3596** | **5, 14, 49, 175, 679, 2674** | **1835 s**, ~1.0 GB |
+
+W50 predicted "`dim L₆` is a few thousand and the group is of order roughly `2^{3500}`"; the
+measured 2674 and `2^3596` sit inside that.  The layer ratios continue to climb slowly:
+2.8, 3.5, 3.57, 3.88, **3.94**.
+
+The reason W50 hit a wall here and this wave did not is *not* the `K ∩ P_j` fix; that fix
+matters for the marking loop, not for the quotient.  It is that `pQuotient(G, 2, 6)` called
+cold is much slower than walking the tower with `pQuotientProcess` and `NextClass`; the same
+gap is visible one class down, where the cold call takes 150 s and the incremental route 16 s.
+
+### 5.2  The corank, and the containment
+
+`w51_corank.m`, output `results/ck_c6.txt`.  Eight markings, chosen to put at least two in each
+of the four parity classes of §2.4: `(0,1)`, `(1,0)`, `(1,1)`, `(0,2)`, `(2,1)`, `(1,2)`,
+`(3,5)`, `(2,2)`.  Every row below was identical at all eight.
+
+| level | target `dim L_j` | domain `5·dim K_{j-1}` | `rank δ` | **corank** | defect in `im δ` | cert |
+|---|---|---|---|---|---|---|
+| L₃ | 49 | 5 × 12 = 60 | 43 | **6** | yes | true |
+| L₄ | 175 | 5 × 47 = 235 | 169 | **6** | yes | true |
+| L₅ | 679 | 5 × 173 = 865 | 673 | **6** | yes | true |
+| **L₆** | **2674** | **5 × 677 = 3385** | **2668** | **6** | **yes** | **true** |
+
+The graded `K` came out as `3, 12, 47, 173, 677` against layers `5, 14, 49, 175, 679`:
+codimension 2 at every level, and the §2.2 certificate held at all five, so those are the
+genuine `K_w` and not an under-approximation.  That is the load-bearing check: an
+under-approximated domain is exactly what would have produced a false report of corank growth.
+
+**The control.**  At `L₆`, per marking, 2000 random vectors of the 2674-dimensional layer were
+tested for membership in `im δ`: **33, 32, 31, 20, 28, 39, 30, 22, total 235 of 16000, or
+1.47 %**, against the `2⁻⁶ = 1.5625 %` (250 of 16000) that a codimension-6 image predicts.  So
+the layer really is 6-corank and the relator's defect landing in it 32 times out of 32 is not
+something a random vector does.
+
+### 5.3  The parity reduction, confirmed at class 6
+
+The §2.4 prediction is that `im δ` is a function of `(t mod 2, s mod 2)` alone.  At class 6, at
+**every** level including `L₆`:
+
+| marking | parity | `im δ` vs. the first marking of that parity |
+|---|---|---|
+| `(2,1)` | (0,1) | **same** as `(0,1)` |
+| `(1,2)` | (1,0) | **same** as `(1,0)` |
+| `(3,5)` | (1,1) | **same** as `(1,1)` |
+| `(2,2)` | (0,0) | **same** as `(0,2)` |
+
+and the four parity references are four distinct subspaces.  This is what licenses reading the
+class-6 corank off eight markings as a statement about all 1023: the corank is constant on
+parity classes, and all four were measured.
+
+### 5.4  What was *not* done at class 6
+
+`verify:=1`, the direct comparison against `K meet P_j`, was **not** run at class 6.  At
+class 5 those intersections cost 5–8 s per level at order `2^922`; at order `2^3596` they are
+the wall the whole method was built to avoid, and the point of §2.2 is that the generating-set
+route does not need them to be certain.  The certificate is a proof, not a spot-check, and it
+was validated against the intersection route at two lower classes first (§3).
+
+### 5.5  `h = 2` at class 5
+
+`w51_h2.m`, output `results/h2_c5.txt`.  `D_sq 2` (rank `d = 7`, two handle pairs); W50 got
+`corank = 8` at `L₃` and `L₄` and stopped at class 4.
+
+| | order | layer ranks | build |
+|---|---|---|---|
+| `Q_5` for `D_sq 2` | **2^4534** | 7, 27, 132, 672, **3696** | 1760 s, ~1.4 GB |
+
+| level | target | domain `7·dim K_{j-1}` | `rank δ` | **corank** | defect in `im δ` |
+|---|---|---|---|---|---|
+| L₃ | 132 | 7 × 25 = 175 | 124 | **8** | yes |
+| L₄ | 672 | 7 × 130 = 910 | 664 | **8** | yes |
+| **L₅** | **3696** | **7 × 670 = 4690** | **3688** | **8** | **yes** |
+
+Six markings, all six solvable, all certificates true, defect in image 18 / 18.  So `d + 1`
+holds at both handle counts and at every level either has been measured at:
+
+| | `d` | L₃ | L₄ | L₅ | L₆ |
+|---|---|---|---|---|---|
+| `h = 1` | 5 | 6 | 6 | 6 | **6** |
+| `h = 2` | 7 | 8 | 8 | **8** | n/a |
+
+W50's reading that "the second handle changes nothing qualitatively" survives one class deeper.
+
+---
+
 ## 6.  Limitations: what was exhausted and what was sampled
 
 * **Exhausted.**
@@ -231,7 +344,7 @@ defect landed in `im δ` at every level of every one of the 951.**  That is 1811
     it, and the linear algebra at that size would still be unremarkable.
   * A **second engine.**  GAP/ANUPQ through `sage -gap` would give an independent p-quotient
     implementation.  The W51 numbers at classes 4 and 5 agree with W50's, but both are Magma.
-* **What a positive verdict is worth — unchanged from W50 §9.**  A class-`c` certificate says
+* **What a positive verdict is worth, unchanged from W50 §9.**  A class-`c` certificate says
   the class-`c` quotient admits the clearing automorphism.  The residual needs it in the
   inverse limit, and no finite class can supply that.  The value of this wave is the *absence*
   of a refutation one class deeper than anyone had looked, plus the sharpened structure
@@ -271,6 +384,6 @@ Measured budgets on this machine (16 cores, six Lean agents sharing it, every jo
 |---|---|---|
 | tower to class 5 (incremental) | 16 s | ~100 MB |
 | tower to class 6 (incremental) | **1835 s** | ~1.0 GB |
-| tower to class 6 (bare `pQuotient`, W50's `c6size.m`) | **did not finish in ~50 min / ~700 MB** | — |
-| one class-5 marking, all levels | 0.5–0.9 s | — |
+| tower to class 6 (bare `pQuotient`, W50's `c6size.m`) | **did not finish in ~50 min / ~700 MB** | n/a |
+| one class-5 marking, all levels | 0.5–0.9 s | n/a |
 | the 951-marking class-5 grid | 677 s | ~150 MB |
