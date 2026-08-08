@@ -1222,6 +1222,128 @@ theorem sigEscHom_frame_O {h2 : gr3R} (hcp : gr3Pi sqPivotExp = 1 + 2 * h2) :
       sigDressO_of_ge (by rw [sqHandleIdxV_val]; omega), mul_one, sigEscHom_sqEichV hcp,
       sigTO_handleV]
 
+/-! ### The verdicts -/
+
+/-- ⭐ **The forced-sigma frame passes class two exactly and has even residue** `2 + 4*h2`. -/
+theorem sqRelWord_sigTF : ∀ h2 : gr3R, sqRelWord (sigTF h2) = ⟨0, 0, 0, 0, 0, 2 + 4 * h2⟩ := by
+  decide
+
+/-- ⭐ **The trivial-sigma frame also passes every class-two row on the nose - and its
+class-three residue is odd.**  Same marking, same hom, same `a1`, `a2`; only the sigma slot
+differs. -/
+theorem sqRelWord_sigTO : ∀ h2 : gr3R, sqRelWord (sigTO h2) = ⟨0, 0, 0, 0, 0, 7 + 4 * h2⟩ := by
+  decide
+
+/-- The trivial-sigma residue is odd at every pivot half. -/
+theorem sigTO_res_odd : ∀ h2 : gr3R, selPar (7 + 4 * h2) = 1 := by decide
+
+/-- The completion move is achievable: its `(d, e)`-pair lies in the wider junk lattice, on
+the `[sigma, V]`-generator alone. -/
+theorem sigLam_sigComp (h2 : gr3R) :
+    sigLam 0 1 0 1 6 0 1 0 (⟨0, 0, 0, 0, 5 + 6 * h2, 0⟩ : SqU4 gr3R) :=
+  ⟨5 + 6 * h2, 0, 0, by ring, by ring⟩
+
+/-- ⭐⭐ **The forced-sigma frame is killed outright** by one explicit achievable
+`gamma_2`-move on the `V`-handle slot. -/
+theorem sqRelWord_sigTF_comp : ∀ h2 : gr3R,
+    sqRelWord (sigRefine 0 (sigTF h2) 1 1 1 1 ⟨0, 0, 0, 0, 5 + 6 * h2, 0⟩) = 1 := by
+  decide
+
+/-- ⭐⭐ **The escape separates the sigma-dressings on `sqArbFrame` itself** (deliverable 4):
+at the escape hom, the frame dressed by `a0 = U^{-1}` (over `a1 = U^{-1} t`, `a2 = a1^2`) has
+even class-three residue, and the frame dressed by `a0 = 1` has odd residue - both with all
+five lower rows exactly zero.  The committed family provably cannot separate this pair
+(`selCon_bit_m0_blind` below): its bit never reads the `U`-component of the sigma-dressing at
+this row type. -/
+theorem sigma_escape_separates {h2 : gr3R} (hcp : gr3Pi sqPivotExp = 1 + 2 * h2) :
+    sqRelWord (fun i => sigEscHom 1 0
+        (sqArbFrame 1 (nuSel 1 0 0 1) 0 (sigDressF 1 (nuSel 1 0 0 1) 0) i))
+      = ⟨0, 0, 0, 0, 0, 2 + 4 * h2⟩ ∧
+    sqRelWord (fun i => sigEscHom 1 0
+        (sqArbFrame 1 (nuSel 1 0 0 1) 0 (sigDressO 1 (nuSel 1 0 0 1) 0) i))
+      = ⟨0, 0, 0, 0, 0, 7 + 4 * h2⟩ := by
+  rw [sigEscHom_frame_F hcp, sigEscHom_frame_O hcp]
+  exact ⟨sqRelWord_sigTF h2, sqRelWord_sigTO h2⟩
+
+/-- The separation, unconditionally: the pivot half exists. -/
+theorem sigma_escape_separates' : ∃ h2 : gr3R,
+    sqRelWord (fun i => sigEscHom 1 0
+        (sqArbFrame 1 (nuSel 1 0 0 1) 0 (sigDressF 1 (nuSel 1 0 0 1) 0) i))
+      = ⟨0, 0, 0, 0, 0, 2 + 4 * h2⟩ ∧
+    sqRelWord (fun i => sigEscHom 1 0
+        (sqArbFrame 1 (nuSel 1 0 0 1) 0 (sigDressO 1 (nuSel 1 0 0 1) 0) i))
+      = ⟨0, 0, 0, 0, 0, 7 + 4 * h2⟩ := by
+  obtain ⟨h2, hcp⟩ := gr3Pi_sqPivotExp_half
+  exact ⟨h2, sigma_escape_separates hcp⟩
+
+/-! ### The kill is robust
+
+The trivial-sigma tuple is `sigTuple` at the trivial sigma-datum, and by the
+sigma-characterization its residue moves only by `sigRead` under any change of that datum.
+At the escape hom the instance `sigRead` is
+`6*h2*v + 6*r + 6*s + 2*t + 5*u + 6*v` mod 8 - every coefficient even except the
+`U`-component's.  So **every** sigma-slot datum with even `U`-component leaves the residue
+odd: no junk, no `t`-component, no `V`-component, no class-three part ever rescues `a0 = 1`
+at this hom.  The odd `u`-coefficient is the escape reading. -/
+
+/-- The trivial-sigma tuple is the binder tuple at the trivial sigma-datum. -/
+theorem sigTO_eq_sigTuple : ∀ h2 : gr3R,
+    sigTO h2 = sigTuple 1 0 (1 + 2 * h2) 0 1 0 1 6 0 1 0 1 0 0 selConTriv
+      ⟨7, 0, 1, 0, 0, 0, 6⟩ ⟨6, 0, 2, 0, 0, 0, 3⟩ selConTriv selConTriv := by
+  decide
+
+/-- ⭐⭐ **The robust kill** (the obstruction side of the escape): every sigma-slot datum with
+even `U`-component - arbitrary `V`- and `t`-components, arbitrary junk, arbitrary
+class-three part - leaves the relator alive at the escape hom.  With
+`sigma_escape_separates`, the pair (`a0 = U^{-1}` dies by one move, `a0 = 1` survives
+nothing) is the selection acting on the sigma-slot. -/
+theorem sigTuple_sigma_kill_robust (h2 : gr3R) (x0' : SelConDress) {a : gr3R}
+    (hu : x0'.u = 2 * a) :
+    sqRelWord (sigTuple 1 0 (1 + 2 * h2) 0 1 0 1 6 0 1 0 1 0 0 x0'
+      ⟨7, 0, 1, 0, 0, 0, 6⟩ ⟨6, 0, 2, 0, 0, 0, 3⟩ selConTriv selConTriv) ≠ 1 := by
+  intro hc
+  rw [sqRelWord_sigTuple_sigma (x0' := selConTriv), ← sigTO_eq_sigTuple h2,
+    sqRelWord_sigTO h2, sigRead_triv, sub_zero, SqU4.mul_center_f] at hc
+  have hf := congrArg SqU4.f hc
+  have heven : sigRead (1 + 2 * h2) 0 1 0 1 6 0 1 0 1 0 x0' ⟨7, 0, 1, 0, 0, 0, 6⟩
+      = 2 * (-(91 * a) - 85 * h2 * x0'.v - 21 * x0'.r + 21 * x0'.s + 45 * x0'.t - 21 * x0'.v
+        + 4 * x0'.w) := by
+    simp only [sigRead]
+    linear_combination (-91 : gr3R) * hu
+  rw [heven] at hf
+  have hpar := congrArg selPar hf
+  rw [selPar_add, selPar_two_mul, add_zero] at hpar
+  rw [sigTO_res_odd h2] at hpar
+  exact absurd hpar (by decide)
+
+/-! ### What the committed family can never do here -/
+
+/-- ⭐⭐ **The committed family is blind to the `U`-component of the sigma-dressing at the
+canonical row type** (the other half of deliverable 4): at every hom of the committed
+selection family with `T` even and `S` odd, the selection bit of a binder tuple does not
+depend on the sigma-slot datum's `U`-component - `kappa1` is even outright
+(`selConKappa1_even`) and `kappa2` is even at this row type (`selConKappa2_even01`), and
+those are the only two coefficients through which `selConForm` reads `m0`.  The escape
+instance separates exactly such a pair, so the wider slice strictly extends the committed
+family's sight. -/
+theorem selCon_bit_m0_blind {A B C D P Q T S : gr3R}
+    (hd : 2 * P + (A * S - B * T) = 0) (he : 2 * Q + (T * D - S * C) = 0)
+    (hT : selPar T = 0) (hS : selPar S = 1) {h : ℕ} {j : Fin h}
+    {x0 x0' x1 x2 x3 x4 : SelConDress} {xα1 xγ1 xα2 xγ2 : gr3R}
+    (hα1 : A * x1.u + B * x1.v = 2 * xα1) (hγ1 : C * x1.u + D * x1.v = 2 * xγ1)
+    (hα2 : A * x2.u + B * x2.v = 2 * xα2) (hγ2 : C * x2.u + D * x2.v = 2 * xγ2)
+    (huv : selPar x0.v = selPar x0'.v) :
+    selPar ((sqRelWord (selConTuple h j A B C D P Q T S x0 x1 x2 x3 x4)).f)
+      = selPar ((sqRelWord (selConTuple h j A B C D P Q T S x0' x1 x2 x3 x4)).f) := by
+  have hTS : selPar T = 1 ∨ selPar S = 1 := Or.inr hS
+  have hk1 : selPar ((A + B) * (T * D)) = 0 :=
+    (selPar_eq_zero_iff _).mpr (selConKappa1_even hd he)
+  have hk2 : selPar (A * Q + C * P) = 0 :=
+    (selPar_eq_zero_iff _).mpr (selConKappa2_even01 hd he hT hS)
+  rw [selCon_bit hd he hTS hα1 hγ1 hα2 hγ2, selCon_bit hd he hTS hα1 hγ1 hα2 hγ2, hk1, hk2,
+    huv]
+  exact selConForm_m0_blind _ _ _ _ _ _ _ _ _ _ _ _ _
+
 end Verdicts
 
 end SqCore
