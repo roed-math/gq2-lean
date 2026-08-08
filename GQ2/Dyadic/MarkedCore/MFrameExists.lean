@@ -66,11 +66,12 @@ the constructive side.
   (the α-dependent one), `mDHom` and the family `mHHom k`.
 * **§4** Coordinate surjectivity `mDMab_coord`: every element of `D_M^{ab}` is a `ℤ₂`-power
   word `∏ᵢ ḡᵢ^{cᵢ}` in the marked generators, the general-rank `DRab_coord`.
-* **§5** The combined coordinate hom `mPhiHom`, its generator values, and bijectivity.
-* **§6** `mFrameExists_phiEquiv` and the deliverable `nonempty_mFrame`, plus the rank-four
-  corollary `mFrameExists_mDecomposition`.
-* **§7** The unlock: `mFrameExists_demushkinQ_DM`, `demushkinQ (D_M) = 2` with no frame
-  hypothesis.
+* **§5** The five formulas reading a coordinate hom off such a word.
+* **§6** The combined coordinate hom `mPhiHom`, its injectivity (§6.1), surjectivity (§6.2) and
+  generator values (§6.3).
+* **§7** `mFrameExists_phiEquiv`, the deliverable `nonempty_mFrame`, the rank-four corollary
+  `mFrameExists_mDecomposition`, and the unlock `mFrameExists_demushkinQ_DM`
+  (`demushkinQ (D_M) = 2` with no frame hypothesis).  §7.1 prices the `N`-side twin.
 * **§8** Axiom pins.
 
 ## Variance (MC-VAR discipline)
@@ -86,9 +87,9 @@ dictionary re-enters only downstream, where a consumer feeds `MFrame.toMDecompos
 
 ## Scope note (what is *not* here)
 
-The `N`-side twin `Nonempty (NFrame α h)` is **not** in this file; see §6's
-`nFrameExists_route` docstring for the priced follow-up and for the one place the two proofs
-genuinely differ.
+The `N`-side twin `Nonempty (NFrame α h)` is **not** in this file.  §7.1 states the priced
+follow-up and isolates the one step that does not transfer: the `M` proof finishes by quoting
+`dm_torsionGen_sq`, and the `N` analogue `x̄₀² = 1` is not in the repo.
 
 ## Axiom scope (measured)
 
@@ -845,6 +846,86 @@ the §§3–7 template with five renamed coordinate homs, priced at roughly 250 
 differs in shape from the `M` side: at `α = 0` the `N` relation vector is `3x̄₀`, an odd
 multiple, so `x̄₀` would be *trivial* rather than 2-torsion and `NFrame 0 h` should be empty for
 a different reason than `MFrame 0 h` is. -/
+
+/-! ## §8 Axiom pins
+
+Every public declaration of this file, printed.  The measured scope is the **std-3** set
+`[propext, Classical.choice, Quot.sound]`, with several declarations printing the smaller
+`[propext, Quot.sound]` or `[propext]`: no census axiom appears, and none of the cited inputs
+(`MFrame.lean`, `Cores.lean`, `SectionThree.lean`, `ZtwoPowering.lean`, `Reconstruction.lean`)
+contributes one.  In particular the three headline results `nonempty_mFrame`,
+`mFrameExists_mDecomposition` and `mFrameExists_demushkinQ_DM` are std-3, so the unlock buys
+`demushkinQ D_M = 2` at no axiomatic cost beyond what `MFrame.lean` already paid. -/
+
+section AxiomPins
+
+#print axioms mIsProP_two_topAb_DM
+#print axioms mHandleIdx
+#print axioms mHandleIdx_val
+#print axioms mHandleIdx_injective
+#print axioms mHandleIdx_coordU
+#print axioms mHandleIdx_coordV
+#print axioms mHandleMark
+#print axioms mHandleMark_self
+#print axioms mHandleMark_of_ne
+#print axioms mHandleMark_core
+#print axioms mCoordHom
+#print axioms mCoordHom_gen
+#print axioms mTHom
+#print axioms mBHom
+#print axioms mCHom
+#print axioms mDHom
+#print axioms mHHom
+#print axioms mAbWord
+#print axioms mAbWordHom
+#print axioms continuous_mAbWordHom
+#print axioms mAbWordHom_single
+#print axioms mDMab_coord
+#print axioms mProd_single
+#print axioms mProd_pair
+#print axioms coreMark_apply
+#print axioms mCoreVal_ne_zero
+#print axioms mCoreVal_ne_one
+#print axioms mCoreVal_ne_two
+#print axioms mCoreVal_ne_three
+#print axioms mCoreZero_ne_two
+#print axioms mIdx_cases
+#print axioms mCoordHom_word
+#print axioms mBHom_word
+#print axioms mDHom_word
+#print axioms mHHom_word
+#print axioms mCHom_word
+#print axioms mTHom_word
+#print axioms mPhiHom
+#print axioms continuous_mPhiHom
+#print axioms mPhiHom_word
+#print axioms mAbWord_pair
+#print axioms mPhiHom_injective
+#print axioms mSurjVec
+#print axioms mSurjVec_zero
+#print axioms mSurjVec_one
+#print axioms mSurjVec_two
+#print axioms mSurjVec_three
+#print axioms mSurjVec_handle
+#print axioms mPhiHom_surjective
+#print axioms coreMark_mHandleIdx
+#print axioms mHandleMark_toAdd_core
+#print axioms mHandleMark_toAdd_single
+#print axioms mPhiHom_gen
+#print axioms mPhiHom_A
+#print axioms mPhiHom_B
+#print axioms mPhiHom_C
+#print axioms mPhiHom_D
+#print axioms mPhiHom_U
+#print axioms mPhiHom_V
+#print axioms mPhiHom_t
+#print axioms mFrameExists_phiEquiv
+#print axioms mFrameExists_phiEquiv_apply
+#print axioms nonempty_mFrame
+#print axioms mFrameExists_mDecomposition
+#print axioms mFrameExists_demushkinQ_DM
+
+end AxiomPins
 
 end MarkedCore
 
