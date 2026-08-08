@@ -128,11 +128,6 @@ def EvenRawToNeutralSupply (s : ℕ) (G : Type) [Group G] [TopologicalSpace G]
   ∀ (k : ℕ), 3 ≤ k → ∀ p ∈ lambdaImage G (k - 1) (k + 1),
     ∃ z ∈ zLayer G k, p * z ∈ evenBracketNeutralSubgroup s G chi k
 
-/-- A bracket against a graded-layer class is trivial. -/
-private theorem evenRawTo_commP_zLayer_right {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k)
-    (b : levelQuot G (k + 1)) : commP b z = 1 :=
-  commP_eq_one_of_mul_comm (zLayer_commute hz b).symm.eq
-
 /-- **The atoms are blind to central factors.**  Both quantities a coordinate contributes to
 an even row, its square and its brackets, are unchanged by a graded-layer factor. -/
 theorem evenRawTo_atom_mul_zLayer (hk : 3 ≤ k) {p : levelQuot G (k + 1)}
@@ -238,3 +233,130 @@ theorem evenRawTo_supply_iff_span_eq :
     exact hz
 
 end SpanEq
+
+/-! ## §4 The arithmetic price of the neutralisation supply
+
+This is the finding of the lane.  §2 shrank boundary three to `EvenRawToNeutralSupply`, which
+is a statement about single coordinates; unfolding it turns it into a statement about the
+character alone, with no group theory left.  The two bounds below bracket it:
+
+* **sufficient** (`evenRawTo_neutral_of_chi_deep`): `χ` trivial to `k+1+s` digits on
+  `λ_{k-1}`, at every `k ≥ 3`;
+* **necessary** (`evenRawTo_chi_dvd_of_neutral`): `2^(k+1) ∣ χ(g) − 1` for every
+  `g ∈ λ_{k-1}`, at every `k ≥ 3`.
+
+The committed generic bound is `dvd_chi_of_mem_twoCentralSeries`, which at `j = k-1` gives
+only `2^k ∣ χ(g) − 1`.  So the necessary condition is **one digit deeper than the two-central
+tower supplies**, uniformly in `k`, and it is not available from anything this lane has: it is
+neither implied by the image identification `Hrange` (which constrains `χ(G)`, not the
+filtration `χ(λ_m)`) nor by `EvenRowDeepFibreLiftSupply` (which lifts representatives to exact
+fibres and says nothing about how deep `χ` is on a layer).
+
+`evenRawTo_neutralSupply_false_of_chi_exact` is the refutation in usable form: exhibit one
+`g ∈ λ_{k-1}` whose character has exact level `k`, and the route is dead.  This is why the
+L template does not attempt a span inclusion here, and instead proves a kill-conditional
+upgrade whose digit repairs are paid for by `Function.Surjective chiCycKTwo`. -/
+
+section Obstruction
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {s k : ℕ}
+
+/-- **Sufficiency.**  If the character is already trivial to `k+1+s` digits on every
+depth-`k-1` element, the neutralisation supply holds with the trivial central factor. -/
+theorem evenRawTo_neutral_of_chi_deep
+    (H : ∀ (m : ℕ), 3 ≤ m → ∀ g ∈ twoCentralSeries G (m - 1),
+      Units.map (PadicInt.toZModPow (m + 1 + s)).toMonoidHom (chi g) = 1) :
+    EvenRawToNeutralSupply s G chi := by
+  intro m hm p hp
+  refine ⟨1, Subgroup.one_mem _, ?_⟩
+  obtain ⟨g, hg, rfl⟩ := hp
+  rw [mul_one]
+  exact ⟨⟨g, hg, rfl⟩, g, rfl, H m hm g hg⟩
+
+/-- **Unfolding the neutralisation supply at a single element.**  A depth-`k-1` element can be
+multiplied by a depth-`k` element so that the character of the product is trivial to `k+1+s`
+digits.  All the group theory of §2 is spent here; what remains is arithmetic. -/
+theorem evenRawTo_exists_lambda_mul_of_neutral (Hneut : EvenRawToNeutralSupply s G chi)
+    (hk : 3 ≤ k) {g : G} (hg : g ∈ twoCentralSeries G (k - 1)) :
+    ∃ w ∈ twoCentralSeries G k,
+      Units.map (PadicInt.toZModPow (k + 1 + s)).toMonoidHom (chi (g * w)) = 1 := by
+  obtain ⟨z, hz, _, g'', hg'', hchi''⟩ :=
+    Hneut k hk (levelMk G (k + 1) g) ⟨g, hg, rfl⟩
+  obtain ⟨y, hy, rfl⟩ := hz
+  have hprod : levelMk G (k + 1) (g * y) = levelMk G (k + 1) g'' := by
+    rw [map_mul]; exact hg''
+  have hr : (g * y)⁻¹ * g'' ∈ twoCentralSeries G (k + 1) := QuotientGroup.eq.mp hprod
+  refine ⟨y * ((g * y)⁻¹ * g''), Subgroup.mul_mem _ hy
+    (twoCentralSeries_antitone G (by omega : k ≤ k + 1) hr), ?_⟩
+  rw [show g * (y * ((g * y)⁻¹ * g'')) = g'' by group]
+  exact hchi''
+
+/-- **Necessity, and the obstruction.**  The neutralisation supply forces the character to
+vanish to `k+1` digits on every depth-`k-1` element, at every level `k ≥ 3`.  The committed
+`dvd_chi_of_mem_twoCentralSeries` gives only `k` digits there. -/
+theorem evenRawTo_chi_dvd_of_neutral (Hneut : EvenRawToNeutralSupply s G chi)
+    (hk : 3 ≤ k) {g : G} (hg : g ∈ twoCentralSeries G (k - 1)) :
+    ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  obtain ⟨w, hw, hchiw⟩ := evenRawTo_exists_lambda_mul_of_neutral Hneut hk hg
+  have hgw : ((2 : ℕ) : ℤ_[2]) ^ (k + 1 + s) ∣ ((chi (g * w) : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+    mem_ker_units_toZModPow_iff.mp hchiw
+  have hgw' : ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣
+      ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    refine dvd_trans (pow_dvd_pow _ (by omega : k + 1 ≤ k + 1 + s)) ?_
+    rw [show ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi w : ℤ_[2]ˣ) : ℤ_[2]) =
+      ((chi (g * w) : ℤ_[2]ˣ) : ℤ_[2]) by rw [map_mul]; push_cast; ring]
+    exact hgw
+  have hwdvd : ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    have hd := dvd_chi_of_mem_twoCentralSeries chi (by omega : 2 ≤ k) hw
+    simpa using hd
+  rw [show ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 =
+      (((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1) -
+        ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * (((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1) by ring]
+  exact dvd_sub hgw' (hwdvd.mul_left _)
+
+/-- **The refutation in usable form.**  One depth-`k-1` element whose character has exact
+level `k` kills the neutralisation route, hence the natural route to boundary three. -/
+theorem evenRawTo_neutralSupply_false_of_chi_exact (hk : 3 ≤ k) {g : G}
+    (hg : g ∈ twoCentralSeries G (k - 1))
+    (hex : ¬ ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1) :
+    ¬ EvenRawToNeutralSupply s G chi :=
+  fun Hneut ↦ hex (evenRawTo_chi_dvd_of_neutral Hneut hk hg)
+
+end Obstruction
+
+end
+
+end GQ2.Dyadic.StageGeneric
+
+/-! ## §5 Axiom pins
+
+Every public declaration of this file, printed.  All are expected at std-3,
+`[propext, Classical.choice, Quot.sound]`, matching the nine pins of the L template's
+`BracketSpan.lean` and the four of `ForwardSpanAudit.lean`, the two files this station sits
+against.  Nothing here is arithmetic about `ℚ_[2]`, so nothing may exceed std-3. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.StageGeneric
+
+-- §1 the easy inclusion
+#print axioms evenRawTo_bracketSpan_le_rawShiftSpan
+
+-- §2 the neutralisation supply and the reduction
+#print axioms EvenRawToNeutralSupply
+#print axioms evenRawTo_atom_mul_zLayer
+#print axioms evenRawTo_coordinateShift_mem_bracketSpan
+#print axioms evenRawTo_rawShiftSpan_le_bracketSpan
+#print axioms evenRawTo_supply_of_neutral
+
+-- §3 the boundary as an equality of spans
+#print axioms evenRawTo_supply_iff_span_eq
+
+-- §4 the arithmetic price
+#print axioms evenRawTo_neutral_of_chi_deep
+#print axioms evenRawTo_exists_lambda_mul_of_neutral
+#print axioms evenRawTo_chi_dvd_of_neutral
+#print axioms evenRawTo_neutralSupply_false_of_chi_exact
+
+end AxiomPins
