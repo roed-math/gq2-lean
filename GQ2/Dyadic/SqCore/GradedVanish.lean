@@ -19,8 +19,8 @@ layer, the defect map is the free-differential-calculus form
 δ(z) = ∑ᵢ [zᵢ, βᵢ] + F(z_{x₁}),
 ```
 
-where `βᵢ` is the mod-2 abelianized Fox derivative `∂R/∂xᵢ` evaluated at the marking — which
-for this relator is the marking letter permuted by `(σ x₀)(u v)` with `x₁` fixed — and the
+where `βᵢ` is the mod-2 abelianized Fox derivative `∂R/∂xᵢ` evaluated at the marking, which
+for this relator is the marking letter permuted by `(σ x₀)(u v)` with `x₁` fixed, and the
 Frobenius `F` appears in the `x₁` slot only (the halved exponent vector `(0, −4, 2, 0, 0)/2`
 is `(0, 0, 1, 0, 0)` mod 2).  The form was machine-validated row by row against honest group
 collection: 0 mismatches in 5525 rows at classes 4 and 5, all four parity classes, and on
@@ -33,19 +33,19 @@ commutative ring and an arbitrary handle count, with no cleared hypotheses.
 * **The five-slot dressing action** (`sqRelWord_vanDress_f`): dressing *every* slot of a
   marking by a `γ₂`-element translates the relator's class-three coordinate by the explicit
   affine form `vanShift`, whose pairing coefficients are the marking's outer abelian columns
-  in the permuted-letter pattern — the `σ`-slot dressing pairs against the `x₀`-letter, the
+  in the permuted-letter pattern: the `σ`-slot dressing pairs against the `x₀`-letter, the
   `x₀`-slot against the `σ`-letter, the `x₁`-slot against the `x₁`-letter itself, and each
   handle dressing against the opposite handle letter.  This extends the committed
   `sqRelWord_selRefine` (which dresses four of the five slots, the exponent slots only by
   `γ₃`) to the full frame, and the lower five rows move by the abelian exponent action alone.
 * **The vanishing identity** (`vanShift_commP`, `vanShift_commP_eq_zero`): on the
   conjugation family `zᵢ = [mᵢ, g]` the shift equals an explicit combination of the
-  relator's *own* lower rows — so it vanishes as soon as the class-`≤ 2` rows of
+  relator's *own* lower rows, so it vanishes as soon as the class-`≤ 2` rows of
   `sqRelWord m` do.  This is the class-three instance of the Jacobi/Fox identity behind the
   measured kernel of `δ` (the graded shadow of `R(m^g) = R(m)^g`, packet Prop. 4.1(3)), with
   the error term exhibited rather than hypothesized away.
 * **The exact even-decomposition** (`vanShift_decomp`): `vanShift = vanShiftPar + 2·(junk)`
-  with `vanShiftPar` the plus-signs pairing form reading only the marking's columns — so mod
+  with `vanShiftPar` the plus-signs pairing form reading only the marking's columns, so mod
   2 the dressing action reads only the mod-2 columns of the marking, in the permuted-letter
   pattern.  This is the class-three slice form of W51 §2.4 ("`δ` is a mod-2 object"), as
   mathematics: under any ring map killing `2` the shift becomes the pairing form
@@ -100,7 +100,7 @@ theorem vanMul_f {p z : SqU4 R} (hz : z.IsGaTwo) : (p * z).f = p.f + z.f + p.a *
   rw [SqU4.mul_f, hz.2.2, mul_zero, add_zero]
 
 /-- **The five-slot change of the cubic commutator form**: dressing both arguments by
-`γ₂`-elements moves `u4Comm3` by the two cross pairings — each dressing's `(d, e)`-data
+`γ₂`-elements moves `u4Comm3` by the two cross pairings: each dressing's `(d, e)`-data
 paired against the *other* letter's outer abelian columns `(c, a)`.  This is the handle
 block of the graded Fox form: the `u`-slot Fox row is the `v`-letter and conversely. -/
 theorem vanComm3 {p q z w : SqU4 R} (hz : z.IsGaTwo) (hw : w.IsGaTwo) :
@@ -113,7 +113,7 @@ theorem vanComm3 {p q z w : SqU4 R} (hz : z.IsGaTwo) (hw : w.IsGaTwo) :
   ring
 
 /-- **The five-slot change of the core form**: dressing the three core slots by
-`γ₂`-elements moves `sqU4Core` by three pairing blocks — the `σ`-dressing against the
+`γ₂`-elements moves `sqU4Core` by three pairing blocks: the `σ`-dressing against the
 `x₀`-letter's columns, the `x₀`-dressing against the `σ`-letter's columns (with even
 corrections from the exponent letters), and the `x₁`-dressing against the `x₁`-letter's own
 columns (with even corrections).  This is the core block of the graded Fox form: the Fox-row
@@ -156,7 +156,7 @@ variable (h) in
 /-- **The shift form**: the amount by which the relator's class-three coordinate moves under
 the five-slot dressing `vanDress m z`.  The `f`-terms `−4·(z 1).f + 2·(z 2).f` are the
 abelian exponent action; every other term pairs one dressing's `(d, e)`-data against one
-letter's outer abelian columns `(a, c)` — the `σ`-slot against the `x₀`-letter, the
+letter's outer abelian columns `(a, c)`: the `σ`-slot against the `x₀`-letter, the
 `x₀`-slot against the `σ`-letter plus even corrections, the `x₁`-slot against the
 `x₁`-letter plus even corrections, and each handle slot against the opposite handle letter.
 Mod 2 this is exactly the permuted-letter Fox-row pairing (`vanShift_decomp`). -/
@@ -278,7 +278,7 @@ family `zᵢ = [mᵢ, g]`: simultaneous conjugation of the whole frame, the cobo
 the committed three-term complex (`Word/Fox.lean`, packet Prop. 4.1(3)).  At the slice this
 is an identity with an *explicit error term*: the shift on the conjugation family is a
 combination of the relator's own five lower rows, so it vanishes exactly on the class-two
-solution locus — the hand-derived mechanism (char-2 Jacobi plus the mixed Frobenius identity
+solution locus: the hand-derived mechanism (char-2 Jacobi plus the mixed Frobenius identity
 plus the class-two relation) packaged as one committed equation. -/
 
 section ConjFamily
@@ -313,7 +313,7 @@ theorem sqRelWord_conjP (m : Fin (sqRank h) → SqU4 R) (g : SqU4 R) :
 /-- ⭐⭐ **The vanishing identity, with its exact error term**: on the conjugation family the
 shift form evaluates to a combination of the relator's own lower rows.  This is the
 class-three instance of the Jacobi/Fox identity behind the measured kernel of the
-dressing-defect map — simultaneous conjugation is Fox-exact up to the previous levels'
+dressing-defect map: simultaneous conjugation is Fox-exact up to the previous levels'
 defect, and the error term is exhibited, not estimated. -/
 theorem vanShift_commP (m : Fin (sqRank h) → SqU4 R) (g : SqU4 R) :
     vanShift h m (fun i => commP (m i) g)
@@ -351,7 +351,7 @@ section ParityCollapse
 variable {h : ℕ}
 
 variable (h) in
-/-- **The principal pairing form**: the mod-2 shadow of `vanShift` — each dressing's
+/-- **The principal pairing form**: the mod-2 shadow of `vanShift`: each dressing's
 `(d, e)`-data against the permuted letter's `(c, a)`-columns, all signs `+`, no exponent
 `f`-terms (the slice image of the Frobenius part is even). -/
 def vanShiftPar (m z : Fin (sqRank h) → SqU4 R) : R :=
@@ -394,7 +394,7 @@ theorem vanShift_decomp (m z : Fin (sqRank h) → SqU4 R) :
   ring
 
 /-- ⭐ **The parity collapse of the dressing action**: under any ring map killing `2`, the
-shift form becomes the principal pairing form — the class-three slice statement that the
+shift form becomes the principal pairing form: the class-three slice statement that the
 dressing-defect map is a mod-2 object. -/
 theorem vanShift_map {S : Type} [CommRing S] (φ : R →+* S) (h2 : φ 2 = 0)
     (m z : Fin (sqRank h) → SqU4 R) :
