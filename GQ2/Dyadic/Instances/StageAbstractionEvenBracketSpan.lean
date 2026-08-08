@@ -28,7 +28,7 @@ The even atom table differs from the L one exactly as the seam note §3 predicts
 | 0 | `[p, base 1]` | `p² · [p, base 0] · [p, base 1]` |
 | 1 | `[p, base 0]` | `[p, base 0]` |
 | 2 | `p² · [p, base 2]` | `[p, base 3]` |
-| 3 | — (rank 3) | `[p, base 2]` |
+| 3 | (absent, rank 3) | `[p, base 2]` |
 | `U_j` | `[p, base (V_j)]` | `[p, base (V_j)]` |
 | `V_j` | `[p, base (U_j)]` | `[p, base (U_j)]` |
 
