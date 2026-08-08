@@ -419,6 +419,134 @@ theorem selCon_ts_even (he : 2 * Q + (T * D - S * C) = 0) :
 
 end ParityEngine
 
+/-! ## §4 The two exact even-decompositions
+
+The class-three residue of a binder tuple splits into the core contribution
+`sqU4Core (m 0) (m 1) (m 2)` and the handle contribution `u4Comm3 (m U) (m V)` (the cross term
+carries the vanishing `b`-columns, and the exponent-slot class-three coordinates are even
+multiples).  Each contribution is here decomposed **exactly** as its κ-leading part plus an
+explicit even remainder: every `Λ`-junk pairing is even through `selCross_even`'s witness
+`A·D + B·C = 2·k₀`, the note's replacement `B·C·(T+S) = (A+B)·T·D + 2·(A·Q + P·C + B·Q)` is an
+exact consequence of the two adjacency parities, and the one genuinely mod-2 step (the core
+block pairing the σ-slot columns against the `x₀`-slot letter data) is the 𝔽₂ lemma
+`selCon_block_even`, which consumes the class-two admissibility parities of the `x₀`-slot
+data. -/
+
+section Decompositions
+
+variable {h : ℕ} {j : Fin h} {A B C D P Q T S : gr3R}
+
+/-- The 𝔽₂ core of the block evenness: ten variables, four parity hypotheses. -/
+private theorem selConPar_block : ∀ a b c d t s u₀ v₀ u₁ v₁ : ZMod 2,
+    a * s - b * t = 0 → t * d - s * c = 0 → a * u₁ + b * v₁ = 0 → c * u₁ + d * v₁ = 0 →
+    (c * u₀ + d * v₀) * (v₁ * (b * s)) - (a * u₀ + b * v₀) * (u₁ * (t * c)) = 0 := by
+  decide
+
+/-- **The core block is even on the admissible locus**: the pairing of the σ-slot column data
+against the `x₀`-slot letter data is even whenever the `x₀`-slot data satisfy the two
+class-two parities.  This is the single step of the bit-form derivation that is genuinely
+mod 2; every uncleared type kills it through a different factor. -/
+theorem selCon_block_even (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) {u₀ v₀ u₁ v₁ : gr3R}
+    (hα : ∃ x, A * u₁ + B * v₁ = 2 * x) (hγ : ∃ x, C * u₁ + D * v₁ = 2 * x) :
+    ∃ k : gr3R, (C * u₀ + D * v₀) * (v₁ * (B * S)) - (A * u₀ + B * v₀) * (u₁ * (T * C))
+      = 2 * k := by
+  obtain ⟨xα, hxα⟩ := hα
+  obtain ⟨xγ, hxγ⟩ := hγ
+  have h3 : selPar A * selPar u₁ + selPar B * selPar v₁ = 0 := by
+    have hc := congrArg selPar hxα
+    rw [selPar_add, selPar_mul, selPar_mul, selPar_two_mul] at hc
+    exact hc
+  have h4 : selPar C * selPar u₁ + selPar D * selPar v₁ = 0 := by
+    have hc := congrArg selPar hxγ
+    rw [selPar_add, selPar_mul, selPar_mul, selPar_two_mul] at hc
+    exact hc
+  rw [← selPar_eq_zero_iff, selPar_sub, selPar_mul, selPar_mul, selPar_mul, selPar_mul,
+    selPar_add, selPar_add, selPar_mul, selPar_mul, selPar_mul, selPar_mul, selPar_mul,
+    selPar_mul]
+  exact selConPar_block (selPar A) (selPar B) (selPar C) (selPar D) (selPar T) (selPar S)
+    (selPar u₀) (selPar v₀) (selPar u₁) (selPar v₁)
+    (selCon_par_hd hd) (selCon_par_he he) h3 h4
+
+/-- ⭐ **The handle contribution, decomposed exactly.**  The cubic commutator form of the two
+dressed handle slots is the κ-leading part of the bit form plus an explicit even remainder;
+the only inputs are the two adjacency parities and the uncleared hypothesis (through
+`selCross_even`).  All six junk scalars of each handle datum land in the remainder. -/
+theorem selCon_handle_decomp (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hTS : selPar T = 1 ∨ selPar S = 1)
+    (x₃ x₄ : SelConDress) :
+    ∃ k : gr3R, SqU4.u4Comm3 (selConU A C T * selConVal A B C D P Q T S x₃)
+        (selConV B D S * selConVal A B C D P Q T S x₄)
+      = (A + B) * (T * D) * ((1 + x₃.u) * (1 + x₄.v) + x₃.v * x₄.u)
+        + (A * Q + C * P) * ((1 + x₃.u) * x₄.w + x₄.u * x₃.w)
+        + (B * Q + D * P) * (x₃.v * x₄.w + (1 + x₄.v) * x₃.w) + 2 * k := by
+  obtain ⟨k₀, hk₀⟩ := selCross_even hd he hTS
+  refine ⟨-((A + B) * (T * D) * (x₃.v * x₄.u))
+    + (A * Q + P * C + B * Q) * ((1 + x₃.u) * (1 + x₄.v) - x₃.v * x₄.u)
+    - A * Q * (x₄.u * x₃.w) - C * P * ((1 + x₃.u) * x₄.w)
+    - B * Q * ((1 + x₄.v) * x₃.w) - D * P * (x₃.v * x₄.w)
+    + (x₄.r * (A * C * (1 + x₃.u) + k₀ * x₃.v) + x₄.s * (k₀ * (1 + x₃.u) + B * D * x₃.v)
+        - x₄.t * ((A + (A * x₃.u + B * x₃.v)) * Q - (C + (C * x₃.u + D * x₃.v)) * P))
+    - (x₃.r * (k₀ * (1 + x₄.v) + A * C * x₄.u) + x₃.s * (B * D * (1 + x₄.v) + k₀ * x₄.u)
+        + x₃.t * (P * (D + (C * x₄.u + D * x₄.v)) - Q * (B + (A * x₄.u + B * x₄.v)))), ?_⟩
+  simp only [selConU, selConV, selConVal, SqU4.u4Comm3, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c,
+    SqU4.mul_d, SqU4.mul_e]
+  linear_combination (-(C * ((1 + x₃.u) * (1 + x₄.v) - x₃.v * x₄.u))) * hd
+    + (-((A + B) * ((1 + x₃.u) * (1 + x₄.v) - x₃.v * x₄.u))) * he
+    + (x₄.r * x₃.v + x₄.s * (1 + x₃.u) - x₃.r * (1 + x₄.v) - x₃.s * x₄.u) * hk₀
+
+/-- ⭐ **The core contribution, decomposed exactly.**  The `sqU4Core` of the three dressed core
+slots is the κ-leading part of the bit form plus an even remainder, given the class-two
+admissibility parities of the `x₀`- and `x₁`-slot abelian data (the witnesses `xα₁, …` are the
+exhibited halves).  The `κ₁`-part `(A+B)·T·D·(m₀n₁ + n₀m₁)` is kept for fidelity to the note's
+display; it is itself even by `selConKappa1_even`, and the remainder absorbs it. -/
+theorem selCon_core_decomp (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hTS : selPar T = 1 ∨ selPar S = 1)
+    (x₀ x₁ x₂ : SelConDress) {xα₁ xγ₁ xα₂ xγ₂ : gr3R}
+    (hα₁ : A * x₁.u + B * x₁.v = 2 * xα₁) (hγ₁ : C * x₁.u + D * x₁.v = 2 * xγ₁)
+    (hα₂ : A * x₂.u + B * x₂.v = 2 * xα₂) (hγ₂ : C * x₂.u + D * x₂.v = 2 * xγ₂) :
+    ∃ k : gr3R, sqU4Core ((⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) * selConVal A B C D P Q T S x₀)
+        (selConVal A B C D P Q T S x₁) (selConX1 A B P Q * selConVal A B C D P Q T S x₂)
+      = (A + B) * (T * D) * (x₀.u * x₁.v + x₀.v * x₁.u)
+        + (A * Q + C * P) * (x₁.w * x₀.u) + (B * Q + D * P) * (x₁.w * x₀.v) + 2 * k := by
+  obtain ⟨k₀, hk₀⟩ := selCross_even hd he hTS
+  obtain ⟨kb, hkb⟩ := selCon_block_even hd he (u₀ := x₀.u) (v₀ := x₀.v)
+    ⟨xα₁, hα₁⟩ ⟨xγ₁, hγ₁⟩
+  obtain ⟨kk₁, hkk₁⟩ := selConKappa1_even hd he
+  refine ⟨-((A * x₀.u + B * x₀.v) * xγ₁) + kb
+    - x₁.w * (x₀.u * (C * P) + x₀.v * (D * P))
+    + (x₁.r * (A * C * x₀.u + k₀ * x₀.v) + x₁.s * (k₀ * x₀.u + B * D * x₀.v)
+        - x₁.t * ((A * x₀.u + B * x₀.v) * Q - (C * x₀.u + D * x₀.v) * P))
+    + (-(x₀.v * (B * S)) + x₀.w * P + (-(x₀.r * A) - x₀.s * B - 2 * (x₀.t * P))) * xγ₁
+    - (-(x₀.u * (T * C)) + x₀.w * Q + (x₀.r * C + x₀.s * D - 2 * (x₀.t * Q))
+        + (C * x₀.u + D * x₀.v)) * xα₁
+    + 3 * (xα₁ * (C * x₁.u + D * x₁.v))
+    - (A * x₁.u + B * x₁.v) * (C * x₂.u + D * x₂.v)
+    - (A * x₂.u + B * x₂.v) * (C * x₂.u + D * x₂.v)
+    + 5 * ((A * x₁.u + B * x₁.v)
+        * (-(x₁.u * (T * C)) + x₁.w * Q + (x₁.r * C + x₁.s * D - 2 * (x₁.t * Q))))
+    - 4 * ((A * x₁.u + B * x₁.v)
+        * (Q + (-(x₂.u * (T * C)) + x₂.w * Q + (x₂.r * C + x₂.s * D - 2 * (x₂.t * Q)))))
+    + 5 * ((C * x₁.u + D * x₁.v)
+        * (-(x₁.v * (B * S)) + x₁.w * P + (-(x₁.r * A) - x₁.s * B - 2 * (x₁.t * P))))
+    - 4 * ((-(x₁.v * (B * S)) + x₁.w * P + (-(x₁.r * A) - x₁.s * B - 2 * (x₁.t * P)))
+        * (C * x₂.u + D * x₂.v))
+    + xα₂ * (Q + (-(x₂.u * (T * C)) + x₂.w * Q + (x₂.r * C + x₂.s * D - 2 * (x₂.t * Q))))
+    + xγ₂ * (P + (-(x₂.v * (B * S)) + x₂.w * P + (-(x₂.r * A) - x₂.s * B - 2 * (x₂.t * P))))
+    - kk₁ * (x₀.u * x₁.v + x₀.v * x₁.u), ?_⟩
+  simp only [selConX1, selConVal, sqU4Core, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d,
+    SqU4.mul_e]
+  linear_combination (-(A * x₀.u + B * x₀.v)
+      + (-(x₀.v * (B * S)) + x₀.w * P + (-(x₀.r * A) - x₀.s * B - 2 * (x₀.t * P)))) * hγ₁
+    + (-(-(x₀.u * (T * C)) + x₀.w * Q + (x₀.r * C + x₀.s * D - 2 * (x₀.t * Q))
+        + (C * x₀.u + D * x₀.v)) + 3 * (C * x₁.u + D * x₁.v)) * hα₁
+    + (Q + (-(x₂.u * (T * C)) + x₂.w * Q + (x₂.r * C + x₂.s * D - 2 * (x₂.t * Q)))) * hα₂
+    + (P + (-(x₂.v * (B * S)) + x₂.w * P + (-(x₂.r * A) - x₂.s * B - 2 * (x₂.t * P)))) * hγ₂
+    + hkb + (x₁.r * x₀.v + x₁.s * x₀.u) * hk₀
+    + (-(x₀.u * x₁.v + x₀.v * x₁.u)) * hkk₁
+
+end Decompositions
+
 end SqCore
 
 end Dyadic
