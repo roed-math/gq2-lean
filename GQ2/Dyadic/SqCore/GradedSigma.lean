@@ -29,7 +29,7 @@ and settles what it sees.
   committed `SqU4.zpowZtwo_of_flat` computes the pivot image exactly, with the one unknown
   `c = gr3Pi sqPivotExp` (an odd unit) carried as a parameter; at the exact canonical row
   `(nu'(u_j), nu'(v_j)) = (0, 1)` the cleared letters need **no** non-flat power at all, and
-  their images are pinned in closed form (`sigHom_sqEichU`, `sigHom_sqEichV`).
+  their images are pinned in closed form (`sigHom_sqEichU_nuSel`, `sigHom_sqEichV_nuSel`).
 * **The residue is affine-linear in the sigma-slot datum** (paragraph 4): the whole sigma-slot
   dependence of the class-three residue is one explicit linear form `sigRead`
   (`sqRelWord_sigTuple_sigma`), the exact functional of sigma-data this slice reads.
@@ -1345,6 +1345,122 @@ theorem selCon_bit_m0_blind {A B C D P Q T S : gr3R}
   exact selConForm_m0_blind _ _ _ _ _ _ _ _ _ _ _ _ _
 
 end Verdicts
+
+/-! ## 7 Axiom pins
+
+Committed prints for every public declaration of this file: all **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable.  Every `decide`
+is on `ZMod 8`, `ZMod 2` or `Fin`-indexed tuples over them. -/
+
+section AxiomPins
+
+#print axioms sigMark
+#print axioms sigMark_zero
+#print axioms sigMark_one
+#print axioms sigMark_two
+#print axioms sigMark_handleU
+#print axioms sigMark_handleV
+#print axioms sigMark_handleU_ne
+#print axioms sigMark_handleV_ne
+#print axioms sqRelWord_sigMark
+#print axioms sqRelWord_sigMark_eq_one_iff
+#print axioms sigMark_gateF_iff
+#print axioms sigHom
+#print axioms sigHom_gen
+#print axioms sigWitMark
+#print axioms sigWitMark_eq
+#print axioms sqRelWord_sigWitMark
+#print axioms sigWitHom
+#print axioms sigWitHom_gen
+#print axioms sig_zpow_x0
+#print axioms sigPivotVal
+#print axioms sigHom_sqPivot
+#print axioms gr3Pi_sqPivotExp_half
+#print axioms sigHom_sqEichU_nuSel
+#print axioms sigHom_sqEichV_nuSel
+#print axioms sigHom_selTee
+#print axioms sigU
+#print axioms sigV
+#print axioms sigTee
+#print axioms sigV_eq_mul
+#print axioms sigLam
+#print axioms sigVal
+#print axioms sigVal_triv
+#print axioms sigVal_lam
+#print axioms sigTuple
+#print axioms sigTuple_zero
+#print axioms sigTuple_one
+#print axioms sigTuple_two
+#print axioms sigTuple_handleU
+#print axioms sigTuple_handleV
+#print axioms sigTuple_handleU_ne
+#print axioms sigTuple_handleV_ne
+#print axioms sigRefine
+#print axioms sigRefine_zero
+#print axioms sigRefine_one
+#print axioms sigRefine_two
+#print axioms sigRefine_handleU
+#print axioms sigRefine_handleV
+#print axioms sigRefine_handleU_ne
+#print axioms sigRefine_handleV_ne
+#print axioms sqRelWord_sigRefine
+#print axioms sigRead
+#print axioms sigRead_triv
+#print axioms sqRelWord_sigTuple_sigma
+#print axioms sigRead_decomp
+#print axioms sigRead_gauge_even
+#print axioms sigPar_sound_blind
+#print axioms selConForm_m0_blind
+#print axioms sigDressF
+#print axioms sigDressO
+#print axioms sigDressF_zero
+#print axioms sigDressF_one
+#print axioms sigDressF_two
+#print axioms sigDressF_of_ge
+#print axioms sigDressO_zero
+#print axioms sigDressO_one
+#print axioms sigDressO_two
+#print axioms sigDressO_of_ge
+#print axioms sigDressF_gauge
+#print axioms sigDressO_gauge
+#print axioms nuLam_sigDressF
+#print axioms nu_sigDressF
+#print axioms nuLam_sigDressO
+#print axioms nu_sigDressO
+#print axioms sigEscD
+#print axioms sigEscE
+#print axioms sigEscF
+#print axioms sigEscHom
+#print axioms sigEscHom_gen
+#print axioms sigEscHom_sqEichU
+#print axioms sigEscHom_sqEichV
+#print axioms sigEscHom_selTee
+#print axioms sigTF
+#print axioms sigTO
+#print axioms sigTF_zero
+#print axioms sigTF_one
+#print axioms sigTF_two
+#print axioms sigTF_handleU
+#print axioms sigTF_handleV
+#print axioms sigTO_zero
+#print axioms sigTO_one
+#print axioms sigTO_two
+#print axioms sigTO_handleU
+#print axioms sigTO_handleV
+#print axioms sigEscHom_frame_F
+#print axioms sigEscHom_frame_O
+#print axioms sqRelWord_sigTF
+#print axioms sqRelWord_sigTO
+#print axioms sigTO_res_odd
+#print axioms sigLam_sigComp
+#print axioms sqRelWord_sigTF_comp
+#print axioms sigma_escape_separates
+#print axioms sigma_escape_separates'
+#print axioms sigTO_eq_sigTuple
+#print axioms sigTuple_sigma_kill_robust
+#print axioms selCon_bit_m0_blind
+
+end AxiomPins
 
 end SqCore
 
