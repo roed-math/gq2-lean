@@ -950,6 +950,136 @@ theorem selConForm_m0_blind (k3 m0 m0' n0 m1 n1 k1 m3 n3 kk3 m4 n4 k4 : ZMod 2) 
 
 end ReadOut
 
+/-! ## 6 The verdicts on `sqArbFrame`
+
+The escape, executed on the frame itself.  The two dressings differ only in the sigma-slot -
+`a0 = U^{-1}` (the sweep's forced value) against `a0 = 1` - over the same legal
+`a1 = U^{-1} * t` in the precedent's own gauge `a2 = a1^2` (the `hsq` hypothesis of
+`sqArbFrame_x0_dressing_forced`, honoured on the nose).  The `t`-component of `a1` is the
+`w1`-odd channel that `sigPar_sound_blind` leaves open, and at the escape hom it decides:
+the forced-sigma frame has even residue, killed by one explicit achievable move; the
+trivial-sigma frame passes all five lower rows exactly and dies on an odd residue, robustly
+against every sigma-slot datum of trivial level-one parity.  The committed family provably
+cannot separate this pair. -/
+
+section Verdicts
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+
+variable (h nu' j) in
+/-- **The forced-sigma regression dressing**: `a0 = U^{-1}`, `a1 = U^{-1} * t`,
+`a2 = a1^2` (the precedent's gauge), all other slots trivial. -/
+noncomputable def sigDressF : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 0 then (sqEichU h nu' j)⁻¹ else
+    if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ * selTee h else
+    if (i : ℕ) = 2 then ((sqEichU h nu' j)⁻¹ * selTee h) ^ 2 else 1
+
+variable (h nu' j) in
+/-- **The trivial-sigma regression dressing**: the same tuple with `a0 = 1`. -/
+noncomputable def sigDressO : Fin (sqRank h) → (DSq h : Type) :=
+  fun i =>
+    if (i : ℕ) = 0 then 1 else
+    if (i : ℕ) = 1 then (sqEichU h nu' j)⁻¹ * selTee h else
+    if (i : ℕ) = 2 then ((sqEichU h nu' j)⁻¹ * selTee h) ^ 2 else 1
+
+@[simp] theorem sigDressF_zero : sigDressF h nu' j 0 = (sqEichU h nu' j)⁻¹ := by
+  simp only [sigDressF, sqVal_zero]
+  norm_num
+
+@[simp] theorem sigDressF_one : sigDressF h nu' j 1 = (sqEichU h nu' j)⁻¹ * selTee h := by
+  simp only [sigDressF, sqVal_one]
+  norm_num
+
+@[simp] theorem sigDressF_two :
+    sigDressF h nu' j 2 = ((sqEichU h nu' j)⁻¹ * selTee h) ^ 2 := by
+  simp only [sigDressF, sqVal_two]
+  norm_num
+
+theorem sigDressF_of_ge {i : Fin (sqRank h)} (hi : 3 ≤ (i : ℕ)) : sigDressF h nu' j i = 1 := by
+  simp only [sigDressF]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem sigDressO_zero : sigDressO h nu' j 0 = 1 := by
+  simp only [sigDressO, sqVal_zero]
+  norm_num
+
+@[simp] theorem sigDressO_one : sigDressO h nu' j 1 = (sqEichU h nu' j)⁻¹ * selTee h := by
+  simp only [sigDressO, sqVal_one]
+  norm_num
+
+@[simp] theorem sigDressO_two :
+    sigDressO h nu' j 2 = ((sqEichU h nu' j)⁻¹ * selTee h) ^ 2 := by
+  simp only [sigDressO, sqVal_two]
+  norm_num
+
+theorem sigDressO_of_ge {i : Fin (sqRank h)} (hi : 3 ≤ (i : ℕ)) : sigDressO h nu' j i = 1 := by
+  simp only [sigDressO]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+/-- Both dressings honour the precedent's gauge `a2 = a1^2` on the nose. -/
+theorem sigDressF_gauge : sigDressF h nu' j 2 = (sigDressF h nu' j 1) ^ 2 := by
+  rw [sigDressF_one, sigDressF_two]
+
+theorem sigDressO_gauge : sigDressO h nu' j 2 = (sigDressO h nu' j 1) ^ 2 := by
+  rw [sigDressO_one, sigDressO_two]
+
+/-- The forced-sigma dressing is legal on the `lambda`-row, slotwise. -/
+theorem nuLam_sigDressF (i : Fin (sqRank h)) : nuLam h (sigDressF h nu' j i) = 1 := by
+  have hU : nuLam h ((sqEichU h nu' j)⁻¹) = 1 := by
+    rw [map_inv, inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nuLam_sqEichU, toAdd_one])
+  have h1 : nuLam h ((sqEichU h nu' j)⁻¹ * selTee h) = 1 := by
+    rw [map_mul, hU, nuLam_selTee, mul_one]
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), sigDressF_zero, hU]
+  by_cases hone : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [hone, sqVal_one]), sigDressF_one, h1]
+  by_cases htwo : (i : ℕ) = 2
+  · rw [show i = 2 from Fin.val_injective (by rw [htwo, sqVal_two]), sigDressF_two, map_pow,
+      h1, one_pow]
+  · rw [sigDressF_of_ge (by omega), map_one]
+
+/-- ...and on the `nu'`-row, so it lies in `ker lambda` and `ker nu'` slotwise: it belongs to
+the class the residual quantifies over. -/
+theorem nu_sigDressF (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (sigDressF h nu' j i) = 1 := by
+  have hU : nu' ((sqEichU h nu' j)⁻¹) = 1 := by
+    rw [map_inv, inv_eq_one]
+    exact Multiplicative.toAdd.injective (by rw [toAdd_nu_sqEichU hsigma hx0, toAdd_one])
+  have h1 : nu' ((sqEichU h nu' j)⁻¹ * selTee h) = 1 := by
+    rw [map_mul, hU, nu_selTee hx0, mul_one]
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), sigDressF_zero, hU]
+  by_cases hone : (i : ℕ) = 1
+  · rw [show i = 1 from Fin.val_injective (by rw [hone, sqVal_one]), sigDressF_one, h1]
+  by_cases htwo : (i : ℕ) = 2
+  · rw [show i = 2 from Fin.val_injective (by rw [htwo, sqVal_two]), sigDressF_two, map_pow,
+      h1, one_pow]
+  · rw [sigDressF_of_ge (by omega), map_one]
+
+/-- The trivial-sigma dressing is legal on both rows as well. -/
+theorem nuLam_sigDressO (i : Fin (sqRank h)) : nuLam h (sigDressO h nu' j i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), sigDressO_zero, map_one]
+  · have heq : sigDressO h nu' j i = sigDressF h nu' j i := by
+      simp only [sigDressO, sigDressF, if_neg h0]
+    rw [heq]
+    exact nuLam_sigDressF i
+
+theorem nu_sigDressO (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (i : Fin (sqRank h)) :
+    nu' (sigDressO h nu' j i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), sigDressO_zero, map_one]
+  · have heq : sigDressO h nu' j i = sigDressF h nu' j i := by
+      simp only [sigDressO, sigDressF, if_neg h0]
+    rw [heq]
+    exact nu_sigDressF hsigma hx0 i
+
+end Verdicts
+
 end SqCore
 
 end Dyadic
