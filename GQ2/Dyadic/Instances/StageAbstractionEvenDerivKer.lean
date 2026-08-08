@@ -596,3 +596,245 @@ theorem evenDeriv_coordinateShift_mem_derivKer (hk : 3 ≤ k) (hbase : IsChiShad
     exact hbracket _ (evenDeriv_handleU_ne_one j)
 
 end CoordinateRows
+
+/-! ### §5.5 The whole raw shift span is killed
+
+A raw depth correction is the ordered product of its six families of one-coordinate
+corrections, and the shift is a homomorphism, so §5.4 suffices. -/
+
+section SpanLe
+
+open GQ2.Dyadic.LSquare (stageDeriv_commP_row_mem_derivKer stageDeriv_diagonal_row_mem_derivKer)
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h k : ℕ}
+
+/-- A list product collapses to its single non-trivial factor. -/
+private theorem evenDeriv_list_single {H I : Type*} [Monoid H] (l : List I) (j : I) (f : I → H)
+    (hj : j ∈ l) (hnodup : l.Nodup) (hf : ∀ i ∈ l, i ≠ j → f i = 1) :
+    (l.map f).prod = f j := by
+  induction l with
+  | nil => simp at hj
+  | cons i l ih =>
+      have hnd := List.nodup_cons.mp hnodup
+      rcases List.mem_cons.mp hj with hij | hj
+      · subst i
+        have htail : (l.map f).prod = 1 := by
+          apply List.prod_eq_one
+          intro y hy
+          obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hy
+          exact hf b (List.mem_cons_of_mem _ hb) (fun hbj ↦ hnd.1 (hbj ▸ hb))
+        simp [htail]
+      · have hij : i ≠ j := fun hcon ↦ hnd.1 (hcon ▸ hj)
+        rw [List.map_cons, List.prod_cons, hf i (by simp) hij, one_mul,
+          ih hj hnd.2 (fun b hb hbj ↦ hf b (List.mem_cons_of_mem _ hb) hbj)]
+
+/-- A raw depth correction is the ordered product of its one-coordinate corrections. -/
+private theorem evenDeriv_rawDepthCorrection_eq_prod (V : EvenRawDepthCorrection G h k) :
+    V = ((List.finRange (MarkedCore.coreRank h)).map fun i ↦
+      evenRawDepthCoordinateCorrection i
+        (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))).prod := by
+  classical
+  ext j
+  let ev : EvenRawDepthCorrection G h k →* levelQuot G (k + 1) :=
+    { toFun := fun U ↦ U.correction j
+      map_one' := rfl
+      map_mul' := fun _ _ ↦ rfl }
+  change ev V = ev (((List.finRange (MarkedCore.coreRank h)).map fun i ↦
+    evenRawDepthCoordinateCorrection i
+      (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))).prod)
+  rw [map_list_prod]
+  have hsingle := evenDeriv_list_single
+    (List.finRange (MarkedCore.coreRank h)) j
+    (fun i ↦ ev (evenRawDepthCoordinateCorrection i
+      (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))))
+    (by simp) (List.nodup_finRange _) (by
+      intro i _ hij
+      simp [ev, evenRawDepthCoordinateCorrection_apply, Ne.symm hij])
+  simpa [List.map_map, Function.comp_def, ev, evenRawDepthCoordinateCorrection_apply] using
+    hsingle.symm
+
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {Φ : ContinuousMonoidHom G (WL (k + 1))}
+
+/-- **The even raw shift span is killed by every `χ`-shadowed derivation.** -/
+theorem evenDeriv_rawShiftSpan_le_derivKer (hk : 3 ≤ k) (hbase : IsChiShadowDeriv chi Φ)
+    (xb : Fin (MarkedCore.coreRank h) → G) (vv : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+    (hchi : ∀ i, chi (xb i) = vv i)
+    (hv1 : ∀ i : Fin (MarkedCore.coreRank h), i ≠ 1 →
+      (2 : ℤ_[2]) ^ 2 ∣ ((vv i : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+    (hvd : (2 : ℤ_[2]) ^ 2 ∣ ((vv 0 * vv 1 : ℤ_[2]ˣ) : ℤ_[2]) + 1) :
+    evenRawShiftSpan (h := h) (fun i ↦ levelMk G (k + 1) (xb i)) hk ≤ derivKer Φ k := by
+  rintro z ⟨q, hq, rfl⟩
+  obtain ⟨V, rfl⟩ := hq
+  rw [evenDeriv_rawDepthCorrection_eq_prod V, map_list_prod, map_list_prod]
+  simp only [List.map_map]
+  refine Subgroup.list_prod_mem _ ?_
+  intro y hy
+  obtain ⟨i, _, rfl⟩ := List.mem_map.mp hy
+  exact evenDeriv_coordinateShift_mem_derivKer hk hbase xb vv hchi hv1 hvd i
+    ⟨V.correction i, V.depth i⟩
+
+end SpanLe
+
+/-! ## §6 The criterion
+
+The clone of `stageResidual_mem_rawShiftSpan_of_forall_derivKer` (L template, line 340), and
+with it boundary one of `StageAbstractionEvenKernelAdapted.lean` §3.  Decompose the class as
+shift times tail by §3, put the tail in squarefree normal form by §4, and separate with the
+diagonal offset pattern: every tail *other* than the chosen one is killed by the chosen
+functional, so if the finset were non-empty its distinguished tail would be killed too, which
+the odd-offset lemma forbids. -/
+
+section Criterion
+
+open GQ2.Dyadic.LSquare (stageDeriv_tail_mem_derivKer_of_even
+  stageDeriv_tail_not_mem_derivKer_of_odd)
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+variable {T : Tuple W v G chi k}
+
+/-- **Span membership from simultaneous kernel membership**, the even clone of the L crux.
+The two arithmetic hypotheses are exactly what `StageAbstractionEvenKernelAdapted.lean` §1
+proves for `vN α` and `vM α`. -/
+theorem evenDeriv_mem_rawShiftSpan_of_forall_derivKer
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) (hk : 3 ≤ k) (F : EvenKernelDerivationFamily T)
+    (hv1 : ∀ i : Fin (MarkedCore.coreRank h), i ≠ 1 →
+      (2 : ℤ_[2]) ^ 2 ∣ ((v i : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+    (hvd : (2 : ℤ_[2]) ^ 2 ∣ ((v 0 * v 1 : ℤ_[2]ˣ) : ℤ_[2]) + 1)
+    {zc : levelQuot G (k + 1)} (hzc : zc ∈ zLayer G k)
+    (hker : ∀ (i₀ : Fin (MarkedCore.coreRank h)) (hi₀ : i₀ ≠ 1),
+      zc ∈ derivKer (F.deriv i₀ hi₀) k) :
+    zc ∈ evenRawShiftSpan (fun i ↦ canonLift G k (T.generators i)) hk := by
+  classical
+  obtain ⟨V, t, ht, hdec⟩ := evenDeriv_exists_shift_mul_tail hfg hpro T.topGen hk hzc
+  have hshift_ker : ∀ (i₀ : Fin (MarkedCore.coreRank h)) (hi₀ : i₀ ≠ 1),
+      evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) V.correction ∈
+        derivKer (F.deriv i₀ hi₀) k := by
+    intro i₀ hi₀
+    rw [F.evenDeriv_dbarWord_eq hk V.depth]
+    exact evenDeriv_rawShiftSpan_le_derivKer hk (F.deriv_base i₀ hi₀) F.lifts v F.lifts_chi
+      hv1 hvd (evenRawDepthShift_mem_shiftSpan (fun i ↦ levelMk G (k + 1) (F.lifts i)) hk V)
+  have ht_ker : ∀ (i₀ : Fin (MarkedCore.coreRank h)) (hi₀ : i₀ ≠ 1),
+      t ∈ derivKer (F.deriv i₀ hi₀) k := by
+    intro i₀ hi₀
+    have h1 : t = (evenRawDbarWord (fun i ↦ canonLift G k (T.generators i))
+        V.correction)⁻¹ * zc := by rw [hdec]; group
+    rw [h1]
+    exact Subgroup.mul_mem _ (Subgroup.inv_mem _ (hshift_ker i₀ hi₀)) (hker i₀ hi₀)
+  obtain ⟨hmem, s, hs⟩ := evenDerivTailSpan_exists_finset_prod T.generators hk ht
+  have hsempty : s = ∅ := by
+    by_contra hne
+    obtain ⟨i₀, hi₀s⟩ := Finset.nonempty_iff_ne_empty.mpr hne
+    have hKb : ∀ j : {i : Fin (MarkedCore.coreRank h) // i ≠ 1}, j ≠ i₀ →
+        evenDerivTailLayer T.generators hk j ∈
+          (derivKer (F.deriv i₀.1 i₀.2) k).comap (zLayer G k).subtype := by
+      intro j hj
+      rw [Subgroup.mem_comap]
+      show canonLift G k (T.generators j.1) ^ 2 ^ (k - 1) ∈ derivKer (F.deriv i₀.1 i₀.2) k
+      rw [F.evenDeriv_tail_eq hk j.1]
+      refine stageDeriv_tail_mem_derivKer_of_even hk (F.deriv_base i₀.1 i₀.2) ?_ ?_
+      · rw [F.lifts_chi j.1]
+        exact hv1 j.1 j.2
+      · exact F.deriv_off i₀.1 i₀.2 j.1 j.2 (fun hval ↦ hj (Subtype.ext hval))
+    have htb : (⟨t, hmem⟩ : ↥(zLayer G k)) ∈
+        (derivKer (F.deriv i₀.1 i₀.2) k).comap (zLayer G k).subtype := by
+      rw [Subgroup.mem_comap]
+      exact ht_ker i₀.1 i₀.2
+    have hprodb : (∏ j ∈ s.erase i₀, evenDerivTailLayer T.generators hk j) ∈
+        (derivKer (F.deriv i₀.1 i₀.2) k).comap (zLayer G k).subtype :=
+      Subgroup.prod_mem _ fun j hj ↦ hKb j (Finset.mem_erase.mp hj).1
+    have hdiag : evenDerivTailLayer T.generators hk i₀ ∈
+        (derivKer (F.deriv i₀.1 i₀.2) k).comap (zLayer G k).subtype := by
+      have hsplit : evenDerivTailLayer T.generators hk i₀ =
+          (⟨t, hmem⟩ : ↥(zLayer G k)) *
+            (∏ j ∈ s.erase i₀, evenDerivTailLayer T.generators hk j)⁻¹ := by
+        rw [hs, ← Finset.mul_prod_erase s _ hi₀s]
+        group
+      rw [hsplit]
+      exact Subgroup.mul_mem _ htb (Subgroup.inv_mem _ hprodb)
+    rw [Subgroup.mem_comap] at hdiag
+    have hdiag' : canonLift G k (T.generators i₀.1) ^ 2 ^ (k - 1) ∈
+      derivKer (F.deriv i₀.1 i₀.2) k := hdiag
+    rw [F.evenDeriv_tail_eq hk i₀.1] at hdiag'
+    refine stageDeriv_tail_not_mem_derivKer_of_odd hk (F.deriv_base i₀.1 i₀.2) ?_
+      (F.deriv_diag i₀.1 i₀.2) hdiag'
+    rw [F.lifts_chi i₀.1]
+    exact hv1 i₀.1 i₀.2
+  have ht1 : t = 1 := by
+    have hval := hs
+    rw [hsempty, Finset.prod_empty] at hval
+    exact congrArg Subtype.val hval
+  rw [hdec, ht1, mul_one]
+  exact evenRawDepthShift_mem_shiftSpan (fun i ↦ canonLift G k (T.generators i)) hk V
+
+/-- **Boundary one, discharged.**  The derivation criterion of
+`StageAbstractionEvenKernelAdapted.lean` §3 holds at every topologically finitely generated
+pro-`2` carrier whose value table satisfies the two mod-`4` conditions. -/
+theorem evenDeriv_derivKerCriterion
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) (hk : 3 ≤ k) (F : EvenKernelDerivationFamily T)
+    (hv1 : ∀ i : Fin (MarkedCore.coreRank h), i ≠ 1 →
+      (2 : ℤ_[2]) ^ 2 ∣ ((v i : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+    (hvd : (2 : ℤ_[2]) ^ 2 ∣ ((v 0 * v 1 : ℤ_[2]ˣ) : ℤ_[2]) + 1) :
+    EvenKernelDerivKerCriterion F hk :=
+  fun _ hz hkerz ↦
+    evenDeriv_mem_rawShiftSpan_of_forall_derivKer hfg hpro hk F hv1 hvd hz hkerz
+
+end Criterion
+
+end
+
+end GQ2.Dyadic.StageGeneric
+
+/-! ## §7 Axiom pins
+
+Every public declaration of this file, printed.  All are expected at std-3,
+`[propext, Classical.choice, Quot.sound]`.
+
+This is *lower* than the corresponding L file.  `KernelAdaptedSupply.lean` prints
+`absGalQ2_isTopologicallyFinitelyGenerated` on five of its eleven pins, because it works at
+`maxProPQuotient 2 (GalK K)` and calls `maxProTwoGalK_isTopologicallyFinGen` for the span
+input.  Here topological finite generation and pro-`2`-ness are named hypotheses `hfg`, `hpro`
+of §2 onwards, so the arithmetic is deferred to the caller and this station stays at std-3,
+in keeping with the even lane's policy of acquiring the census axioms only in
+`StageAbstractionEvenAssembly.lean` §1. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.StageGeneric
+
+-- §1 ambient lifts and level generation
+#print axioms evenDeriv_levelMk_generates
+#print axioms evenDeriv_exists_ambientLift
+
+-- §2 the field-side augmented span
+#print axioms evenDeriv_zLayer_le_augmentedSpan
+
+-- §3 the canonical tail span and the decomposition
+#print axioms evenDerivTailSpan
+#print axioms evenDeriv_rawTailSpan_eq
+#print axioms evenDerivTailSpan_le_zLayer
+#print axioms evenDeriv_exists_shift_mul_tail
+
+-- §4 squarefree normal form
+#print axioms evenDerivZLayerCommGroup
+#print axioms evenDerivTailLayer
+#print axioms evenDerivTailSpan_exists_finset_prod
+
+-- §5 the span kill
+#print axioms evenDeriv_dbarWord_central_base_shift
+#print axioms EvenKernelDerivationFamily.evenDeriv_exists_central_shift
+#print axioms EvenKernelDerivationFamily.evenDeriv_dbarWord_eq
+#print axioms EvenKernelDerivationFamily.evenDeriv_tail_eq
+#print axioms evenDeriv_coordinateShift_mem_derivKer
+#print axioms evenDeriv_rawShiftSpan_le_derivKer
+
+-- §6 the criterion
+#print axioms evenDeriv_mem_rawShiftSpan_of_forall_derivKer
+#print axioms evenDeriv_derivKerCriterion
+
+end AxiomPins
