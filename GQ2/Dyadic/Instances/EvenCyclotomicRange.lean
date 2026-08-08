@@ -44,19 +44,21 @@ Writing `H = range χ` as a subgroup of `ℤ₂ˣ`, the identity needs exactly:
 
 Sections 1 to 4 are unconditional group theory in `ℤ₂ˣ`, and are where the work is.  The
 engine is `evenRange_closure_eq_prin`: a unit of exact level `s ≥ 2` topologically generates
-the principal units `1 + 2^s ℤ₂`.  Its hard half is a successive-approximation induction
-(`evenRange_approx`) followed by a compactness limit in the `ℤ₂`-exponent
-(`evenRange_exists_zpow`), so no logarithm and no `Units`-metric is needed.  Section 4 then
-classifies: a closed, deep subgroup of `ℤ₂ˣ` meeting the class `3 mod 4` is `imChiM β` for
-the least `β` with `1 + 2^β ℤ₂ ≤ H` when `-1 ∈ H`, and `imChiN (β-1)` when `-1 ∉ H`.
+the principal units `1 + 2^s ℤ₂`.  Its hard half is already committed in
+`GQ2/Dyadic/Instances/StageAbstractionDeepCorrections.lean`, as the successive-approximation
+limit `pivot_exists_zpowZtwo_eq` and the density bridge `mem_topologicalClosure_of_zpowZtwo`,
+so no logarithm and no `Units`-metric is needed here.  Section 4 then classifies: a closed,
+deep subgroup `H` of `ℤ₂ˣ` meeting the class `3 mod 4` is `imChiM β` for the least `β` with
+`1 + 2^β ℤ₂ ≤ H` when `-1 ∈ H`, and `imChiN (β-1)` when `-1 ∉ H`.
 
 ## A uniformity warning about the assembly endpoints
 
 `evenAssembly_orientedEquivN/M` take `Hrange` quantified over *all* `K` with one fixed `α`.
 That hypothesis is inconsistent, not merely unproved: it applies to odd-degree `K` too,
-where the range is `⊤`, and `⊤ = imChiN α` contradicts `neg_one_notMem_imChiN`.  Section 7
-records this as `rangeFinal_uniform_Hrange_imChiN_absurd`.  The per-`K` consumers in
-`GQ2/Dyadic/OrientationCorrection.lean` have no such defect, and section 7 discharges the
+where the range is `⊤`, and `⊤ = imChiN α` contradicts `neg_one_notMem_imChiN`.  Section 8
+records this as `rangeFinal_uniform_Hrange_imChiN_absurd`, with the weaker `M` twin
+`rangeFinal_uniform_Hrange_imChiM_forces_two`.  The per-`K` consumers in
+`GQ2/Dyadic/OrientationCorrection.lean` have no such defect, and section 8 discharges the
 `N` one outright (`rangeFinal_orientedAbstractEquiv_KTwoN`).
 -/
 
