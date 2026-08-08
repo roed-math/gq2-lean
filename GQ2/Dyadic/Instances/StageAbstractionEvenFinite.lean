@@ -238,6 +238,107 @@ instance finite (W : StageWord n) (v : Fin n → ℤ_[2]ˣ) (G : Type) [Group G]
     Subgroup.quotient_finite_of_isOpen U.toSubgroup U.isOpen'
   exact Finite.of_injective (fun O ↦ O.generators) fun O O' he ↦ eq_of_generators_eq he
 
+/-- **The generic inverse limit.**  Pointwise nonemptiness of the open-quotient marking sets is
+enough to produce one global marking of `G`: König's lemma supplies a coherent family,
+compactness of `G` realizes the tuple coordinates, and finite-quotient separation supplies the
+literal relation, the exact `chi`-values of every row, and topological generation.
+
+This is `forwardGeneratorData_of_finiteLevel` (the committed template, lines 276–430) with the
+presented model deleted from both ends.  Every even endpoint of §5 below is a reading of this
+statement against the EV-3b row tables. -/
+theorem exists_globalMarking
+    (hne : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G), Nonempty (OpenTuple W v G chi U)) :
+    ∃ gen : Fin n → G, (∀ i, chi (gen i) = v i) ∧ W.word gen = 1 ∧
+      (Subgroup.closure (Set.range gen)).topologicalClosure = ⊤ := by
+  classical
+  let F := functor W v G chi
+  haveI hne' : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G), Nonempty (F.obj U) := hne
+  haveI hfin' : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G), Finite (F.obj U) := fun U ↦ by
+    change Finite (OpenTuple W v G chi U)
+    infer_instance
+  obtain ⟨sec, hsec⟩ := nonempty_sections_of_finite_cofiltered_system F
+  let D : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G), OpenTuple W v G chi U := fun U ↦ sec U
+  have hcompat : ∀ {U U' : OpenNormalSubgroup (ProfiniteGrp.of G)} (hle : U ≤ U') (i : Fin n),
+      projMap hle ((D U).generators i) = (D U').generators i := by
+    intro U U' hle i
+    have hs := hsec hle.hom
+    exact congrArg (fun E : OpenTuple W v G chi U' ↦ E.generators i) hs
+  haveI : Nonempty (OpenNormalSubgroup (ProfiniteGrp.of G)) :=
+    ⟨⟨⊤, Subgroup.normal_top⟩⟩
+  haveI hdisc : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of G),
+      DiscreteTopology (G ⧸ U.toSubgroup) := fun U ↦ inferInstance
+  -- Compactness realizes each coordinate of the coherent family by a global element.
+  have hrealise : ∀ i : Fin n, ∃ g : G, ∀ U, QuotientGroup.mk g = (D U).generators i := by
+    intro i
+    have hmeet :
+        (⋂ U : OpenNormalSubgroup (ProfiniteGrp.of G),
+          {g : G | QuotientGroup.mk g = (D U).generators i}).Nonempty := by
+      apply IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed
+      · intro U U'
+        refine ⟨U ⊓ U', fun g hg ↦ ?_, fun g hg ↦ ?_⟩ <;>
+          simp only [Set.mem_setOf_eq] at hg ⊢
+        · have hle : U ⊓ U' ≤ U := inf_le_left
+          rw [← hcompat hle i, ← hg, projMap_quotientMk]
+        · have hle : U ⊓ U' ≤ U' := inf_le_right
+          rw [← hcompat hle i, ← hg, projMap_quotientMk]
+      · intro U
+        exact QuotientGroup.mk_surjective ((D U).generators i)
+      · intro U
+        exact (isClosed_singleton.preimage continuous_quotient_mk').isCompact
+      · intro U
+        exact isClosed_singleton.preimage continuous_quotient_mk'
+    obtain ⟨g, hg⟩ := hmeet
+    exact ⟨g, fun U ↦ Set.mem_iInter.mp hg U⟩
+  let gen : Fin n → G := fun i ↦ (hrealise i).choose
+  have hgen (U : OpenNormalSubgroup (ProfiniteGrp.of G)) (i : Fin n) :
+      QuotientGroup.mk (gen i) = (D U).generators i := (hrealise i).choose_spec U
+  refine ⟨gen, ?_, ?_, ?_⟩
+  · -- Every row value is exact: it is approximated by the exact fibre in every finite quotient.
+    intro i
+    have hmem : gen i ∈ {x : G | chi x = v i} := by
+      apply mem_closedSet_of_finiteQuotient_approximations
+        {x : G | chi x = v i} (isClosed_singleton.preimage chi.continuous_toFun)
+      intro U
+      obtain ⟨x, hxchi, hx⟩ := (D U).rows i
+      exact ⟨x, hxchi, hx.symm.trans (hgen U i).symm⟩
+    exact hmem
+  · -- The literal relator dies, by separation through the finite quotients.
+    apply eq_one_of_forall_mem_openNormalSubgroup
+    intro U
+    apply (QuotientGroup.eq_one_iff _).mp
+    calc
+      QuotientGroup.mk (W.word gen) =
+          W.word (fun i ↦ (QuotientGroup.mk (gen i) : G ⧸ U.toSubgroup)) :=
+        W.map_word (QuotientGroup.mk' U.toSubgroup) gen
+      _ = W.word (D U).generators := by
+        congr 1
+        funext i
+        exact hgen U i
+      _ = 1 := (D U).relation
+  · -- Topological generation, again by approximation inside the closed generated subgroup.
+    set A : Subgroup G := Subgroup.closure (Set.range gen) with hA
+    have hAclosed : IsClosed ((A.topologicalClosure : Subgroup G) : Set G) :=
+      Subgroup.isClosed_topologicalClosure A
+    rw [eq_top_iff]
+    intro y _
+    apply mem_closedSubgroup_of_finiteQuotient_approximations A.topologicalClosure hAclosed y
+    intro U
+    have hy : (QuotientGroup.mk y : G ⧸ U.toSubgroup) ∈
+        Subgroup.closure (Set.range (D U).generators) := by
+      rw [(D U).topGen]
+      trivial
+    have himage : Set.range (D U).generators =
+        QuotientGroup.mk' U.toSubgroup '' Set.range gen := by
+      ext z
+      constructor
+      · rintro ⟨i, rfl⟩
+        exact ⟨gen i, ⟨i, rfl⟩, hgen U i⟩
+      · rintro ⟨_, ⟨i, rfl⟩, rfl⟩
+        exact ⟨i, (hgen U i).symm⟩
+    rw [himage, ← MonoidHom.map_closure] at hy
+    obtain ⟨z, hzA, hz⟩ := hy
+    exact ⟨z, Subgroup.le_topologicalClosure A hzA, hz⟩
+
 end OpenTuple
 
 end
