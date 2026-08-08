@@ -225,6 +225,80 @@ theorem mpcW_hessRelZTarget_handles (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orde
       (vv (Certificates.x0Idx h)) (vv (Certificates.x1Idx h)) :=
   hessRelZ_mpcW_handles_plusForm dat hdat s u vv E E₂ hV2 hu hVu hv2 hα r pp hη hres
 
+/-! ### The named target, at every handle count
+
+W51-HOIST, campaign backlog item "`NpcBridge.mpcHessRelZTarget` general-`h` def".
+
+The item is **half stale and half real**.  Stale half: the *statement* is discharged at every
+handle count by `mpcW_hessRelZTarget_handles` above, which W50 landed.  Real half: the *name*
+WW4 gap item 5 is quoted by is `NpcBridge.mpcHessRelZTarget`, and that `def` is hard-pinned to
+`h = 0` twice over (`hessMark (h := 0) s u ![c₀, c₁, 0]` and `mpcW α r p η 0`), taking no
+handle-count binder at all.  So there was no general-`h` def, only a general-`h` theorem whose
+target was written out inline.
+
+The def below is that name at every `h`.  It is homed here rather than in `Word/NpcBridge.lean`
+for the reason `mpc_eval_eq_hessRelZ_handles` records about its own statement: that file is
+another lane's committed work, and the handle sum this def needs is not in scope there.  The
+committed `h = 0` def is untouched and is pinned as this one's `h = 0` case
+(`mpcHessRelZTargetHandles_zero`), so the two names cannot drift apart. -/
+
+/-- **WW4 gap item 5 for the procyclic-`M` row, named at every handle count.**
+
+`NpcBridge.mpcHessRelZTarget` with the handle-count binder restored: the graph-type κ⁰-marking
+at an arbitrary offset vector `vv`, the frozen genus-`h` word `mpcW α r p η h`, and the endpoint
+polynomial `plusFormD d₀ q` shifted by the hyperbolic handle sum.  The shift is what is true at
+`h > 0` and what vanishes at `h = 0`, which is why the committed def could omit it. -/
+def mpcHessRelZTargetHandles (d₀ : V → ZMod 2) (α r p : ℕ) (η : EtaDisplay) : Prop :=
+  Certificates.MProcyclic.HessRelZTarget dat hdat
+    (Certificates.hessMark s u vv) E E₂ (mpcW α r p η h)
+    (fun pr => plusFormD d₀ q pr
+      + ∑ j, polar q (vv (Certificates.hIdxU j)) (vv (Certificates.hIdxV j)))
+    (vv (Certificates.x0Idx h)) (vv (Certificates.x1Idx h))
+
+/-- The named general-`h` target, **discharged**: `mpcW_hessRelZTarget_handles` inhabits it at
+the κ⁰-normalized diagonal `d₀ = q`.  Definitional, so the def is a name for the theorem's
+statement rather than a second statement. -/
+theorem mpcHessRelZTargetHandles_of_jet (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (Certificates.x2Idx h) = 0)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (lowerMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    mpcHessRelZTargetHandles dat hdat s u vv E E₂ q α r pp η :=
+  mpcW_hessRelZTarget_handles dat hdat s u vv E E₂ hV2 hu hVu hv2 hα r pp hη hres
+
+end
+
+/-! The `h = 0` regression of the name.  Stated in its own scope because it fixes `h := 0` and
+the offset vector, which the surrounding `variable` line leaves general. -/
+
+section TargetZero
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The `h = 0` regression of the named target**: WW6's committed `mpcHessRelZTarget`,
+recovered on the nose.  The handle sum is empty and `![c₀, c₁, 0]` is the Gate-E offset vector,
+exactly as in §5's regressions of the theorems. -/
+theorem mpcHessRelZTargetHandles_zero (d₀ : V → ZMod 2) (s u : C) (c₀ c₁ : V) (α r p : ℕ)
+    (η : EtaDisplay) :
+    mpcHessRelZTargetHandles dat hdat (h := 0) s u ![c₀, c₁, 0] E E₂ d₀ α r p η
+      ↔ NpcBridge.mpcHessRelZTarget dat hdat d₀ s u c₀ c₁ α r p η E E₂ := by
+  simp only [mpcHessRelZTargetHandles, NpcBridge.mpcHessRelZTarget,
+    Certificates.MProcyclic.HessRelZTarget, Fin.sum_univ_zero, add_zero]
+  rfl
+
+end TargetZero
+
+noncomputable section
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V]
+
+variable {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
 /-! ## §4. The honest profinite reading, still at every handle count -/
 
 /-- **The `M` row is resolver-immune at every handle count.**
@@ -310,12 +384,15 @@ variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
 
 omit dat hdat [Finite C] [Finite V] in
 /-- The `η = 1` display acts as the first power of `σ`, **at every handle count** — WMP-d's
-`actsAsPow_etaOne` is pinned at `Marking 2 C`, and the datum is definitional at every width. -/
+`actsAsPow_etaOne` is pinned at `Marking 2 C`, and the datum is definitional at every width.
+
+Statement unchanged.  W51-HOIST hoisted the general-width form up beside the fixed-width one it
+generalises (`MProcyclic.actsAsPow_etaOne_general`, `Certificates/MpcStokes.lean`), so the
+three-line proof exists once rather than twice; this is that lemma, and
+`MProcyclic.actsAsPow_etaOne` is its `h = 0` case. -/
 theorem actsAsPow_etaOne_handles {h : ℕ} (t : Marking (2 + 2 * h) C) :
-    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * h))) V := by
-  intro v
-  rw [zpow_one]
-  rfl
+    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * h))) V :=
+  MProcyclic.actsAsPow_etaOne_general E E₂ t
 
 /-- **Merge gate 9's second-order row at every handle count**: the `√−10` parameters
 `(α, r, p, η) = (2, 1, 1, .one)` on the frozen genus-`h` word.  The `η`-datum is definitional
