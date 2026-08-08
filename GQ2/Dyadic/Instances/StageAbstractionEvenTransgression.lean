@@ -562,8 +562,280 @@ theorem gram_vanishes_aux {n : ℕ}
 
 end GramVanishes
 
+/-! ## §5 The realization engine
+
+The body of the committed `oddDegreeSqLevelThreeRelationRealization` (the layer-character
+separation, the cup detector, the central-offset comparison of `φ` with the canonical lift,
+and the final Gram contraction) uses the word only through the four facts isolated here.  The
+engine is therefore stated once, word-generically, and the two even endpoints of §6 are
+instantiations. -/
+
+/-- **The transgression realization, word-generically.**  A marking of a finitely generated
+pro-2 group kills the relator shape `W` modulo `λ₃` as soon as
+
+* `hmem`: the word lies in `λ₂` at that marking;
+* `hcentral`: the word is insensitive to central square-one offsets of its letters;
+* `hfib`: the fibre of the word at the canonical central lifts is the contraction `gram` of
+  the cocycle; and
+* `hvanish`: that contraction vanishes for every cup cocycle with a continuous primitive.
+
+The proof is the committed odd proof with the word abstracted: separate the class of the word
+in `λ₂/λ₃` by a mod-two character, produce the cup detector
+(`levelThreeTransgression.exists_cupDetector_of_zLayerCharacter`, word-free), replace `φ` on
+each letter by the canonical central lift at the cost of a central square-one offset, and read
+the character value off as the Gram contraction, which vanishes. -/
+theorem levelThreeRelation_of_supplies {n : ℕ} (W : StageWord n)
+    {gram : (Fin n → Fin n → ZMod 2) → ZMod 2}
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    (gens : Fin n → G)
+    (hmem : W.word gens ∈ twoCentralSeries G 2)
+    (hcentral : ∀ {H : Type} [Group H] (m ζ : Fin n → H),
+      (∀ (i : Fin n) (g : H), Commute (ζ i) g) → (∀ i : Fin n, ζ i ^ 2 = 1) →
+      W.word (fun i ↦ m i * ζ i) = W.word m)
+    (hfib : ∀ c : GQ2.DRCoh.TwoCocycle (levelQuot G 2), MarkedCore.IsCupCocycle c →
+      ∀ m : Fin n → levelQuot G 2,
+        (W.word fun i ↦ MarkedCore.centLift c (m i)).fib = gram fun i j ↦ c.κ (m i) (m j))
+    (hvanish : ∀ c : GQ2.DRCoh.TwoCocycle (levelQuot G 2), MarkedCore.IsCupCocycle c →
+      ∀ φ : ContinuousMonoidHom G (GQ2.DRCoh.CentExt c),
+        (∀ g : G, (φ g).base = levelMk G 2 g) →
+        gram (fun i j ↦ c.κ (levelMk G 2 (gens i)) (levelMk G 2 (gens j))) = 0) :
+    W.word (fun i ↦ levelMk G 3 (gens i)) = 1 := by
+  rw [← W.map_word (levelMk G 3) gens]
+  -- The class of the word in the second layer.
+  let zW : ↥(zLayer G 2) := ⟨levelMk G 3 (W.word gens), ⟨W.word gens, hmem, rfl⟩⟩
+  suffices hz1 : zW = 1 from congrArg Subtype.val hz1
+  by_contra hzne
+  -- Separation by mod-two characters of the layer.
+  letI : CommGroup ↥(zLayer G 2) :=
+    { (inferInstance : Group ↥(zLayer G 2)) with
+      mul_comm := fun a b ↦
+        Subtype.ext (Subgroup.mem_center_iff.mp (zLayer_le_center G 2 a.2) b.1).symm }
+  have htwo : ∀ a : Additive ↥(zLayer G 2), a + a = 0 := by
+    intro a
+    apply Additive.toMul.injective
+    change a.toMul * a.toMul = 1
+    apply Subtype.ext
+    simpa [pow_two] using zLayer_sq G a.toMul.2
+  have hzneAdd : Additive.ofMul zW ≠ 0 := by
+    intro hz0
+    exact hzne (congrArg Additive.toMul hz0)
+  obtain ⟨chi, hchi⟩ := GQ2.FoxH.elemDual_separates htwo hzneAdd
+  obtain ⟨c, φ, hc, hbase, hfibφ⟩ :=
+    LSquare.levelThreeTransgression.exists_cupDetector_of_zLayerCharacter G hfg hpro chi
+  -- The character's value on the class of the word …
+  have hval : (φ (W.word gens)).fib = chi (Additive.ofMul zW) := hfibφ _ hmem
+  -- … is a Gram contraction, because the detector's offsets are central and square one …
+  have hkerφ : ∀ i, (MarkedCore.centLift c (levelMk G 2 (gens i)))⁻¹ * φ (gens i) ∈
+      (GQ2.DRCoh.CentExt.proj c).ker := by
+    intro i
+    rw [MonoidHom.mem_ker, map_mul, map_inv]
+    change ((MarkedCore.centLift c (levelMk G 2 (gens i))).base)⁻¹ * (φ (gens i)).base = 1
+    rw [MarkedCore.centLift_base, hbase]
+    exact inv_mul_cancel _
+  have hcent : ∀ i, ∀ g' : GQ2.DRCoh.CentExt c,
+      Commute ((MarkedCore.centLift c (levelMk G 2 (gens i)))⁻¹ * φ (gens i)) g' :=
+    fun i g' ↦ ((Subgroup.mem_center_iff.mp (centExtProj_ker_le_center (hkerφ i))) g').symm
+  have hsq1 : ∀ i, ((MarkedCore.centLift c (levelMk G 2 (gens i)))⁻¹ * φ (gens i)) ^ 2 = 1 :=
+    fun i ↦ centExtProj_ker_sq_eq_one (hkerφ i)
+  have hword : φ (W.word gens) =
+      W.word (fun i ↦ MarkedCore.centLift c (levelMk G 2 (gens i))) := by
+    rw [W.map_word φ gens]
+    calc W.word (fun i ↦ φ (gens i))
+        = W.word (fun i ↦ MarkedCore.centLift c (levelMk G 2 (gens i)) *
+            ((MarkedCore.centLift c (levelMk G 2 (gens i)))⁻¹ * φ (gens i))) := by
+          congr 1
+          funext i
+          rw [mul_inv_cancel_left]
+      _ = W.word (fun i ↦ MarkedCore.centLift c (levelMk G 2 (gens i))) :=
+          hcentral _ _ hcent hsq1
+  -- … and the Gram contraction vanishes.
+  have hzero : chi (Additive.ofMul zW) = 0 := by
+    rw [← hval, hword, hfib c hc fun i ↦ levelMk G 2 (gens i)]
+    exact hvanish c hc φ hbase
+  exact hchi hzero
+
+/-! ## §6 The field-level wrapper and the four even endpoints
+
+The local instances are the ones the committed seed layer uses for the mod-two cohomology of
+`G_K(2)`; they are `local` in the committed files, so they are restated here (identically) to
+elaborate the statements. -/
+
+section FieldFrames
+
+local notation "GK2" K => maxProPQuotient 2 (GalK K)
+
+variable (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+local instance : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+local instance : ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+/-- **Vanishing of the Gram contraction on a cup-adapted generic frame.**  The field-level
+wrapper of `gram_vanishes_aux`, cloned from `levelThreeTransgression.gram_vanishes`: the
+functional is `inv_K` composed with inflation to `G_K`, and the pairing hypothesis is exactly
+`Frame.IsCupAdapted` read through the compatibility of the mod-two cup product with inflation
+along `G_K → G_K(2)`.
+
+Both the contraction `gram` and the character pairing `P` are abstract.  `P` is pinned by `hP`
+to the field cup form through `characterClass`, which is the pairing the L instance uses
+(`StageAbstractionLSq.lean` §3) and hence the one the even frame supply is expected to
+produce; `hP := fun _ _ ↦ rfl` at that spelling is the intended use, and is what the
+`_fieldCup` endpoints below pass. -/
+theorem gram_vanishes {n : ℕ}
+    {gram : (Fin n → Fin n → ZMod 2) → ZMod 2}
+    (hzero : gram (fun _ _ ↦ 0) = 0)
+    (hadd : ∀ κ κ' : Fin n → Fin n → ZMod 2,
+      gram (fun i j ↦ κ i j + κ' i j) = gram κ + gram κ')
+    {v : Fin n → ℤ_[2]ˣ}
+    {P : ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)) →
+      ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)) → ZMod 2}
+    (hP : ∀ c d : ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)),
+      P c d = FieldData.cupFormK K
+        (h1MaxProTwoEquivGalK (K := K)
+          (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) c))
+        (h1MaxProTwoEquivGalK (K := K)
+          (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) d)))
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K))) (hcup : F.IsCupAdapted gram P)
+    (c : GQ2.DRCoh.TwoCocycle (levelQuot (GK2 K) 2))
+    (hc : MarkedCore.IsCupCocycle c)
+    (φ : ContinuousMonoidHom (GK2 K) (GQ2.DRCoh.CentExt c))
+    (hbase : ∀ g : GK2 K, (φ g).base = levelMk (GK2 K) 2 g) :
+    gram (fun i j ↦ c.κ (levelMk (GK2 K) 2 (F.generators i))
+      (levelMk (GK2 K) 2 (F.generators j))) = 0 := by
+  refine gram_vanishes_aux (GK2 K) (LSquare.maxProTwoGalK_isTopologicallyFinGen K)
+    isProP_maxProPQuotient hzero hadd F.generators c hc φ hbase
+    ((FieldData.invGalK K).toAddMonoidHom.comp (h2InflationGalK (K := K))) ?_
+  intro cG dG
+  rw [← hcup cG dG, hP cG dG]
+  exact congrArg (FieldData.invGalK K)
+    (inf2_trivialCupPairing_maxProPMk_galK
+      (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) cG)
+      (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) dG))
+
+/-- **The even transgression realization, `N` row** (`2 ≤ α`): every cup-adapted even frame
+over `K` kills the literal `N_α` relator word `x₀^{2+2^α}[x₀,x₁][σ,x₂]·∏ⱼ[Uⱼ,Vⱼ]` modulo `λ₃`,
+i.e. satisfies `Frame.LevelThreeRelation (nStageWord α h hα)`.  This is the even analogue of
+the committed `oddDegreeSqLevelThreeRelationRealization`, adapted to the generic seed layer:
+the frame is a `StageGeneric.Frame` at an arbitrary row table `v`, and both the Gram
+contraction and the character pairing are abstract (see the module docstring for the seam).
+
+The row table plays no part in the argument, exactly as the parity hypothesis plays none in
+the odd realization; the hypotheses that are consumed are cup-adaptedness and `2 ≤ α`. -/
+theorem nLevelThreeRelationRealization {α h : ℕ} (hα : 2 ≤ α)
+    {gram : (Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) → ZMod 2}
+    (hg : IsEvenGram gram) {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    {P : ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)) →
+      ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)) → ZMod 2}
+    (hP : ∀ c d : ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)),
+      P c d = FieldData.cupFormK K
+        (h1MaxProTwoEquivGalK (K := K)
+          (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) c))
+        (h1MaxProTwoEquivGalK (K := K)
+          (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) d)))
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K))) (hcup : F.IsCupAdapted gram P) :
+    F.LevelThreeRelation (nStageWord α h (Nat.le_of_succ_le hα)) :=
+  levelThreeRelation_of_supplies (nStageWord α h (Nat.le_of_succ_le hα)) (GK2 K)
+    (LSquare.maxProTwoGalK_isTopologicallyFinGen K) isProP_maxProPQuotient F.generators
+    (nRelWord_mem_twoCentralSeries_two (GK2 K) (Nat.le_of_succ_le hα) F.generators)
+    (fun m ζ hζ hsq ↦ nRelWord_mul_central (Nat.le_of_succ_le hα) m ζ hζ hsq)
+    (fun _ hc m ↦ hg.nRelWord_fib hc hα m)
+    (fun c hc φ hbase ↦ gram_vanishes K hg.zero hg.add hP F hcup c hc φ hbase)
+
+/-- **The even transgression realization, `M` row** (`2 ≤ α`): the twin of
+`nLevelThreeRelationRealization` at the literal `M_α` relator word
+`A²[A,B]·C₀^{2^α}[C₀,D]·∏ⱼ[Uⱼ,Vⱼ]`.  The two proofs differ only in the exponent pattern of the
+core word; the Gram, and hence the cup-adaptedness hypothesis, is literally the same
+(`MarkedCore.mGram_eq_nGram`). -/
+theorem mLevelThreeRelationRealization {α h : ℕ} (hα : 2 ≤ α)
+    {gram : (Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) → ZMod 2}
+    (hg : IsEvenGram gram) {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    {P : ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)) →
+      ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)) → ZMod 2}
+    (hP : ∀ c d : ContinuousMonoidHom (GK2 K) (Multiplicative (ZMod 2)),
+      P c d = FieldData.cupFormK K
+        (h1MaxProTwoEquivGalK (K := K)
+          (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) c))
+        (h1MaxProTwoEquivGalK (K := K)
+          (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) d)))
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K))) (hcup : F.IsCupAdapted gram P) :
+    F.LevelThreeRelation (mStageWord α h (Nat.le_of_succ_le hα)) :=
+  levelThreeRelation_of_supplies (mStageWord α h (Nat.le_of_succ_le hα)) (GK2 K)
+    (LSquare.maxProTwoGalK_isTopologicallyFinGen K) isProP_maxProPQuotient F.generators
+    (mRelWord_mem_twoCentralSeries_two (GK2 K) (Nat.le_of_succ_le hα) F.generators)
+    (fun m ζ hζ hsq ↦ mRelWord_mul_central (Nat.le_of_succ_le hα) m ζ hζ hsq)
+    (fun _ hc m ↦ hg.mRelWord_fib hc hα m)
+    (fun c hc φ hbase ↦ gram_vanishes K hg.zero hg.add hP F hcup c hc φ hbase)
+
+/-- `nLevelThreeRelationRealization` at the field cup pairing itself, the spelling of
+`Frame.IsCupAdapted` that `StageAbstractionLSq.lean` §3 pins `Iff.rfl` against the committed
+odd `IsCupAdapted`.  This is the form EV-3e is expected to consume: supply the EV-3c1 adapter
+for `gram` and its defining equation for `hg`, and nothing else. -/
+theorem nLevelThreeRelationRealization_fieldCup {α h : ℕ} (hα : 2 ≤ α)
+    {gram : (Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) → ZMod 2}
+    (hg : IsEvenGram gram) {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K)))
+    (hcup : F.IsCupAdapted gram fun c d ↦ FieldData.cupFormK K
+      (h1MaxProTwoEquivGalK (K := K)
+        (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) c))
+      (h1MaxProTwoEquivGalK (K := K)
+        (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) d))) :
+    F.LevelThreeRelation (nStageWord α h (Nat.le_of_succ_le hα)) :=
+  nLevelThreeRelationRealization K hα hg (fun _ _ ↦ rfl) F hcup
+
+/-- `mLevelThreeRelationRealization` at the field cup pairing itself, the `M` twin of
+`nLevelThreeRelationRealization_fieldCup`. -/
+theorem mLevelThreeRelationRealization_fieldCup {α h : ℕ} (hα : 2 ≤ α)
+    {gram : (Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) → ZMod 2}
+    (hg : IsEvenGram gram) {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K)))
+    (hcup : F.IsCupAdapted gram fun c d ↦ FieldData.cupFormK K
+      (h1MaxProTwoEquivGalK (K := K)
+        (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) c))
+      (h1MaxProTwoEquivGalK (K := K)
+        (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) d))) :
+    F.LevelThreeRelation (mStageWord α h (Nat.le_of_succ_le hα)) :=
+  mLevelThreeRelationRealization K hα hg (fun _ _ ↦ rfl) F hcup
+
+end FieldFrames
+
 end evenTransgression
 
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §7 Axiom pins
+
+Every public declaration of the file.  The field-free ones are expected at std-3; the
+field-level ones at the odd transgression template's print, which is std-3 together with
+`tateDualityAt` and `absGalQ2_isTopologicallyFinitelyGenerated` (the print of the committed
+`levelThreeTransgression.gram_vanishes` and `oddDegreeSqLevelThreeRelationRealization`).
+Nothing here may exceed that set. -/
+
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.pow_mul_central_of_two_dvd
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.nWord_mul_central
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.mWord_mul_central
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.nRelWord_mul_central
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.mRelWord_mul_central
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.nRelWord_mem_twoCentralSeries_two
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.mRelWord_mem_twoCentralSeries_two
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram.zero
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram.add
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram.core_eq_mGram
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram.core_eq_nGram
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram.nRelWord_fib
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.IsEvenGram.mRelWord_fib
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.gram_sum_of_add
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.gram_vanishes_aux
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.levelThreeRelation_of_supplies
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.gram_vanishes
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.nLevelThreeRelationRealization
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.mLevelThreeRelationRealization
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.nLevelThreeRelationRealization_fieldCup
+#print axioms GQ2.Dyadic.StageGeneric.evenTransgression.mLevelThreeRelationRealization_fieldCup
