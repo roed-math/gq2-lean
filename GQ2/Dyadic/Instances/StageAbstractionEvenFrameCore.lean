@@ -309,6 +309,18 @@ theorem evenFrameGram_expand (h : ℕ)
     Matrix.cons_val_three, Matrix.tail_cons]
   ring
 
+/-- **The adapter is the model Gram.**  Contracting the extended Gram against the matrix of
+coordinate products of two model vectors returns the model Gram, exactly as the odd route's
+`sqRelatorQuadraticInitialGram_modelCoord` does.  This is the identity the cup-adaptation step
+of §4 runs on. -/
+theorem evenFrameGram_modelCoord (h : ℕ) (z z' : evenFrameModel h) :
+    evenFrameGram h (fun i j ↦ evenFrameCoord i z * evenFrameCoord j z') =
+      evenFrameGramModel h z z' := by
+  rw [evenFrameGram_expand, evenFrameGramModel]
+  simp only [evenFrameCoord_zero, evenFrameCoord_one, evenFrameCoord_two, evenFrameCoord_three,
+    evenFrameCoord_handleU, evenFrameCoord_handleV, headGram, hypGram, Fin.sum_univ_succ]
+  ring
+
 /-- **The dual-vector map.**  `evenDualVec i` is the model vector representing the `i`-th
 coordinate functional against the model Gram (`evenDualVec_pairing`).  At the two core letters
 of the head it is *not* a coordinate basis vector: `evenDualVec 0 = e₁` is one, but
@@ -504,7 +516,7 @@ surjective — false at even degree.  This is the same statement against the row
 `StageGeneric.RowExactLevelFibreLiftSupply` of `StageAbstraction.lean` §2.1(b), which is all the
 even lane can have and all it needs: lifting is only ever performed at a row value. -/
 
-section RowLift
+section EvenField
 
 variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
@@ -545,7 +557,139 @@ theorem evenFrameExactLift {n : ℕ} {v : Fin n → ℤ_[2]ˣ}
     (levelMk (maxProPQuotient 2 (GalK K)) 2 g') hshadow
   exact ⟨x, hx1, hx2.symm⟩
 
-end RowLift
+/-! ## §4 The frame assembly
+
+The core-agnostic half of the odd supply's proof body, with the row table left as a parameter.
+§4.1 takes an adapted coordinate system plus the two match tables and produces the frame; §4.2
+supplies the match tables from a single class identity, which is the shape both even rows use. -/
+
+/-- The pairing appearing in the even `IsCupAdapted`: the field cup form on the degree-one
+classes of two mod-two characters of `G_K(2)`.  Identical to the odd route's, which is why the
+`P` parameter of `Frame.IsCupAdapted` was introduced. -/
+def evenFramePairing
+    (c d : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2))) :
+    ZMod 2 :=
+  frattiniFrameCup (SqCyclotomicFrattiniFrame.characterClass (K := K) c)
+    (SqCyclotomicFrattiniFrame.characterClass (K := K) d)
+
+omit [T2Space (GalK K)] in
+/-- **The even-degree twin of `frattiniFrameCup_kappa_self`.**  At even degree the Labute vector
+of the transported cup form is isotropic — this is the `𝔽₂` equation whose odd-degree value is
+`1`, and it is a parity corollary, not a fresh arithmetic input
+(`FieldDataEven.cupFormK_kappa_self_zero`). -/
+theorem evenFrameCup_kappa_self (hev : Even (Module.finrank ℚ_[2] K)) :
+    frattiniFrameCup (cyclotomicModFourClassKTwo (K := K))
+      (cyclotomicModFourClassKTwo (K := K)) = 0 := by
+  unfold frattiniFrameCup
+  rw [h1MaxProTwoEquivGalK_cyclotomicModFourClassKTwo, cyclotomicModFourClassK_eq_kappaK]
+  exact FieldDataEven.cupFormK_kappa_self_zero K hev
+
+/-- **The frame assembly.**  Given an adapted coordinate system on `H¹(G_K(2), 𝔽₂)` whose
+mod-four and `ω` classes have the row table's mod-four parities and `ω` values as coordinates,
+the dual family of the coordinates — corrected to exact cyclotomic values inside its Frattini
+cosets — is a `StageGeneric.Frame` at the row table, cup-adapted at the even Gram.
+
+Core-agnostic: the row table `v` and the two match tables are parameters, so the `M` clone
+consumes this theorem unchanged. -/
+theorem evenFrame_of_adapted {h : ℕ} (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+    (hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)))
+    (Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h)
+    (hGram : ∀ x y, frattiniFrameCup x y = evenFrameGramModel h (Φ x) (Φ y))
+    (supply : RowExactLevelFibreLiftSupply v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)))
+    (hpar : ∀ i, evenFrameCoord i (Φ (cyclotomicModFourClassKTwo (K := K))) =
+      Multiplicative.toAdd (unitsModFourParity
+        (Units.map (PadicInt.toZModPow 2).toMonoidHom (v i))))
+    (homega : ∀ i, evenFrameCoord i (Φ (cyclotomicModEightOmegaClassKTwo (K := K))) =
+      Multiplicative.toAdd (unitsModEightOmega
+        (Units.map (PadicInt.toZModPow 3).toMonoidHom (v i)))) :
+    ∃ F : Frame v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+      F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K)) := by
+  classical
+  haveI := hfin
+  -- realize the adapted coordinate functionals by group elements
+  choose gens' hgens' using fun i : Fin (MarkedCore.coreRank h) ↦
+    frattiniFrameEval_realizable (K := K) hfin ((evenFrameCoordL i).comp Φ.toLinearMap)
+  have hD : ∀ (i : Fin (MarkedCore.coreRank h))
+      (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
+      frattiniFrameEval x (gens' i) = evenFrameCoord i (Φ x) := fun i x ↦ hgens' i x
+  -- exact cyclotomic values in each dual Frattini coset
+  have hmatch4 : ∀ i : Fin (MarkedCore.coreRank h),
+      frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) (gens' i) =
+        Multiplicative.toAdd (unitsModFourParity
+          (Units.map (PadicInt.toZModPow 2).toMonoidHom (v i))) := by
+    intro i
+    rw [hD i]
+    exact hpar i
+  have hmatch8 : ∀ i : Fin (MarkedCore.coreRank h),
+      frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) (gens' i) =
+        Multiplicative.toAdd (unitsModEightOmega
+          (Units.map (PadicInt.toZModPow 3).toMonoidHom (v i))) := by
+    intro i
+    rw [hD i]
+    exact homega i
+  choose gens hχ hlevel using fun i : Fin (MarkedCore.coreRank h) ↦
+    evenFrameExactLift supply i (gens' i) (hmatch4 i) (hmatch8 i)
+  have hD2 : ∀ (i : Fin (MarkedCore.coreRank h))
+      (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
+      frattiniFrameEval x (gens i) = evenFrameCoord i (Φ x) := fun i x ↦
+    (frattiniFrameEval_eq_of_levelMk_eq x (hlevel i)).trans (hD i x)
+  refine ⟨⟨gens, hχ, ?_⟩, ?_⟩
+  · -- Frattini generation, by duality
+    by_contra hne
+    haveI hFfin : Finite (levelQuot (maxProPQuotient 2 (GalK K)) 2) :=
+      finite_levelQuot _ (maxProTwoGalK_isTopologicallyFinGen K) isProP_maxProPQuotient 2
+    haveI hFdisc : DiscreteTopology (levelQuot (maxProPQuotient 2 (GalK K)) 2) :=
+      discreteTopology_levelQuot _ (maxProTwoGalK_isTopologicallyFinGen K)
+        isProP_maxProPQuotient 2
+    obtain ⟨c, hcH, hcne⟩ := frattiniFrame_exists_modTwo_character
+      (frattiniFrame_levelTwo_mul_comm (maxProPQuotient 2 (GalK K)))
+      (frattiniFrame_levelTwo_sq (maxProPQuotient 2 (GalK K))) hne
+    set cQ : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2)) :=
+      ⟨c.comp (levelMk (maxProPQuotient 2 (GalK K)) 2), by
+        have h1 : Continuous c := continuous_of_discreteTopology
+        exact h1.comp (continuous_levelMk (maxProPQuotient 2 (GalK K)) 2)⟩ with hcQ
+    have hvanish : ∀ i, frattiniFrameEval
+        (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) (gens i) = 0 := by
+      intro i
+      rw [frattiniFrameEval_characterClass]
+      show Multiplicative.toAdd (c (levelMk (maxProPQuotient 2 (GalK K)) 2 (gens i))) = 0
+      rw [hcH _ (Subgroup.subset_closure ⟨i, rfl⟩)]
+      rfl
+    have hΦ0 : Φ (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) = 0 := by
+      refine evenFrameCoord_eq_zero _ fun i ↦ ?_
+      rw [← hD2 i]
+      exact hvanish i
+    have hcc0 : SqCyclotomicFrattiniFrame.characterClass (K := K) cQ = 0 := by
+      have hs := congrArg Φ.symm hΦ0
+      rwa [LinearEquiv.symm_apply_apply, map_zero] at hs
+    apply hcne
+    apply MonoidHom.ext
+    intro fq
+    obtain ⟨g, rfl⟩ := levelMk_surjective (maxProPQuotient 2 (GalK K)) 2 fq
+    have hg : frattiniFrameEval
+        (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) g =
+          Multiplicative.toAdd (cQ g) := frattiniFrameEval_characterClass cQ g
+    rw [hcc0, frattiniFrameEval_zero] at hg
+    show c (levelMk (maxProPQuotient 2 (GalK K)) 2 g) = 1
+    have hone : cQ g = 1 := by
+      apply Multiplicative.toAdd.injective
+      rw [← hg]
+      rfl
+    exact hone
+  · -- cup adaptation, against the extended even Gram
+    intro c d
+    show frattiniFrameCup (SqCyclotomicFrattiniFrame.characterClass (K := K) c)
+        (SqCyclotomicFrattiniFrame.characterClass (K := K) d) =
+      evenFrameGram h (fun i j ↦ Multiplicative.toAdd (c (gens i)) *
+        Multiplicative.toAdd (d (gens j)))
+    rw [hGram, ← evenFrameGram_modelCoord]
+    congr 1
+    funext i j
+    rw [← hD2 i (SqCyclotomicFrattiniFrame.characterClass (K := K) c),
+      ← hD2 j (SqCyclotomicFrattiniFrame.characterClass (K := K) d),
+      frattiniFrameEval_characterClass, frattiniFrameEval_characterClass]
+
+end EvenField
 
 end
 
