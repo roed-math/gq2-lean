@@ -185,19 +185,50 @@ must rewrite an actual `stageShift` into the explicit shift word.
 plus `evenRawHandlePair_mul`, `evenRawCommP_mul_left_of_depth`, `evenRawHandlePairDbar_mul`
 and `evenRawHandleWord_mul_lambdaImage`, all in part 1 §2–§3.
 
-### 4.1 What of the span half is not delivered
+### 4.1 The successor engine (delivered) and the pure-square supply (impossible)
 
-`RawSpanStep.lean`'s successor engine is not cloned: the private `rawLiftSq`
-lift-with-square machinery, the square-transport lemmas (`sqHandleDbarWord_sq`,
-`sqCoreHandleDbarWord_sq`, `levelProj_sqCoreHandleDbarWord`), and the four theorems above
-them (`rawSquare_mem_augmentedSpan_succ`, `rawAugmentedSpan_step`,
-`rawAugmentedSpan_of_base_of_step`, `sqCore_rawAugmentedSpan_all`).  Everything the engine
-consumes at the even words *is* delivered: the augmented span, the tail span, and the cubic
-base case `evenRawAugmentedSpanBaseSupply_of_generates` with its two instantiations
-`evenRawAugmentedSpanBaseSupply_dn` / `_dm`.  The remaining work is the induction turning
-that base into `EvenRawPureSquareSpanSupply` at every `k ≥ 3`.  It is mechanical relative to
-the L template, and its only even-specific input, the twisted index `1`, is already proved
-(§3(d)).
+`RawSpanStep.lean`'s successor engine **is** now cloned: the square-transport lemmas
+(`evenRawHandleDbarWord_sq`, `evenRawCoreDbarWord_sq`, `evenRawDbarWord_sq`,
+`levelProj_evenRawDbarWord`), the depth lemma `evenRawDbar_mem_lambdaImage_succ`, the private
+`evenRawLiftSq` lift-with-square machinery, and the four theorems above it
+(`evenRawSquare_mem_augmentedSpan_succ`, `evenRawAugmentedSpan_step`,
+`evenRawAugmentedSpan_of_base_of_step`, and the endpoints `evenRawAugmentedSpan_all_dn` /
+`evenRawAugmentedSpan_all_dm`).  The endpoint reads
+
+```
+theorem evenRawAugmentedSpan_all_dn (α h : ℕ) :
+    ∀ (k : ℕ) (hk : 3 ≤ k),
+      zLayer (MarkedCore.DN α h : Type) k ≤
+        evenRawAugmentedSpan (MarkedCore.dnGen α h) k hk
+```
+
+with no hypothesis beyond `3 ≤ k`, uniform in `α` and `h`, and likewise for `D_M`.
+
+**`EvenRawPureSquareSpanSupply` is not delivered because it is false.**  This is not a gap in
+the port.  The committed L file `GammaLSylowPreimageFieldLabuteRawSpanObstruction.lean:930`
+proves `¬ RawPureSquareSpanSupply (rawMarkedBase (SqCore.sqGen h) 3) _` outright, and that
+file's module docstring states that "the augmented span theorem cannot be sharpened by simply
+deleting its tails".  So no `evenRawPureSquareSpanSupply_holds` can exist in the shape the L
+template suggests, and the augmented span theorem is the strongest true statement of this
+form.
+
+The residual is pinned exactly, and that is the honest replacement for the requested
+discharge:
+
+```
+theorem evenRawPureSquareSpanSupply_iff_augmentedSpan_le_shiftSpan
+    (generators) (k) (hk : 3 ≤ k)
+    (hall : zLayer G k ≤ evenRawAugmentedSpan generators k hk) :
+    EvenRawPureSquareSpanSupply (evenRawMarkedBase generators k) hk ↔
+      evenRawAugmentedSpan generators k hk ≤
+        evenRawShiftSpan (evenRawMarkedBase generators k) hk
+```
+
+i.e. **the entire gap is the tail span and nothing else**.  Consequently a lane that composes
+against `EvenRawPureSquareSpanSupply` as a hypothesis cannot be made unconditional by this
+route; the unconditional path to `DefectReachable` is the character-refined one through block
+H-sharp, which is F2's.  `evenRawDefectReachable_{n,m}_of_pureSquareSpan` should be read as a
+characterisation of the raw route, not as a step of the live proof.
 
 `BracketSpan.lean` is not cloned either, and by §1.1 it should not be attempted from the span
 side: every one of its declarations is stated against `sharpChiLevel` and it consumes Block
