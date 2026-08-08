@@ -741,6 +741,28 @@ theorem evenFrameCoord_omega_of_pin {h : ℕ}
       c * evenFrameCoord i (Φ (cyclotomicModFourClassKTwo (K := K))) := by
   rw [hpin, map_smul, evenFrameCoord_smul]
 
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The `ω`-class pin, from a pointwise condition on cyclotomic values.**  The class identity
+`τ = c • κ` is exactly the assertion that `ω` and `c · parity` agree on every cyclotomic value,
+which is a checkable statement about the mod-eight image of `chiCycKTwo` — and hence about which
+`α` belongs to `K`.  This is the form the row files discharge. -/
+theorem evenFrameOmegaPin_of_pointwise (c : ZMod 2)
+    (hpt : ∀ g : maxProPQuotient 2 (GalK K),
+      Multiplicative.toAdd (unitsModEightOmega
+          (Units.map (PadicInt.toZModPow 3).toMonoidHom (chiCycKTwo (K := K) g))) =
+        c * Multiplicative.toAdd (unitsModFourParity
+          (Units.map (PadicInt.toZModPow 2).toMonoidHom (chiCycKTwo (K := K) g)))) :
+    cyclotomicModEightOmegaClassKTwo (K := K) =
+      c • cyclotomicModFourClassKTwo (K := K) := by
+  refine eq_of_sub_eq_zero (frattiniFrameEval_eq_zero _ fun g ↦ ?_)
+  have hsub : frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K) -
+        c • cyclotomicModFourClassKTwo (K := K)) g =
+      frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) g -
+        c * frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) g := by
+    simpa using map_sub (frattiniFrameEvalL (K := K) g)
+      (cyclotomicModEightOmegaClassKTwo (K := K)) (c • cyclotomicModFourClassKTwo (K := K))
+  rw [hsub, frattiniFrameEval_modEight, frattiniFrameEval_modFour, hpt g, sub_self]
+
 /-- **The even frame supply, from a row table and an `ω` pin.**  This is the theorem both even
 rows instantiate: it consumes only
 
@@ -850,4 +872,5 @@ the odd-degree template supply `oddDegreeSqCyclotomicFrattiniFrameSupply_holds` 
 #print axioms GQ2.Dyadic.StageGeneric.evenFrameCup_kappa_self
 #print axioms GQ2.Dyadic.StageGeneric.evenFrame_of_adapted
 #print axioms GQ2.Dyadic.StageGeneric.evenFrameCoord_omega_of_pin
+#print axioms GQ2.Dyadic.StageGeneric.evenFrameOmegaPin_of_pointwise
 #print axioms GQ2.Dyadic.StageGeneric.evenFrame_of_kappaPin
