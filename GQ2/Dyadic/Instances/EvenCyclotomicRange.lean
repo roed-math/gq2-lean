@@ -690,4 +690,148 @@ theorem evenRange_evenDegreeMModEightRowAttained {alpha : ℕ}
 
 end Seams
 
+/-! ## §8 Composition, and a warning about the assembly endpoints
+
+`rangeFinal_orientedAbstractEquiv_KTwoN` is the composition corollary: the per-`K` `N`
+endpoint of `GQ2/Dyadic/OrientationCorrection.lean` with `hrange` gone.  Because `α` is
+produced by the identity rather than chosen, the Labute hypothesis and the naturality
+hypothesis are quantified over `α`; that is the honest shape.
+
+The assembly endpoints of `GQ2/Dyadic/Instances/StageAbstractionEvenAssembly.lean` cannot be
+composed with in the same way, and the obstruction is not a missing lemma.  Their `Hrange` is
+quantified over *all* `K` at one fixed `α`, and no such `α` exists: odd-degree `K` has range
+`⊤`.  On the `N` side that is outright inconsistent; on the `M` side it forces `α = 2`, where
+`imChiM 2 = ⊤` and the identity says nothing.  Both are recorded below. -/
+
+section Final
+
+/-- **The composition corollary.**  The per-`K` `N` orientation endpoint with its image
+hypothesis discharged, leaving only the Labute classification input, the Demushkin
+invariants, canonicity and naturality. -/
+theorem rangeFinal_orientedAbstractEquiv_KTwoN
+    {R : LocalReciprocity} {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+    [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    [DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2)]
+    [ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2)]
+    (B : MarkedRecip R K) (deltaI : AlgebraicClosure ℚ_[2]) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ)
+    (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop)
+    (hLab : ∀ alpha : ℕ, NLabHypothesis alpha h nIsCanonical)
+    (hD : IsDemushkin 2 (maxProPQuotient 2 (GalK K)))
+    (hrank : demushkinRank 2 (maxProPQuotient 2 (GalK K)) = coreRank h)
+    (hq : demushkinQ (maxProPQuotient 2 (GalK K)) = 2)
+    (hcanonical : nIsCanonical (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)).toMonoidHom)
+    (hnatural : ∀ alpha : ℕ, PullbackNatural (IsPresentedOrientationN alpha h)
+      (fun chi => nIsCanonical (maxProPQuotient 2 (GalK K)) chi.toMonoidHom)) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨alpha, halpha, hrange⟩ := evenRange_range_eq_imChiN B deltaI hdeltaI hram hneg
+  exact ⟨alpha, halpha, orientedAbstractEquiv_KTwoN alpha h (by omega) nIsCanonical
+    (hLab alpha) hD hrank hq hrange hcanonical (hnatural alpha)⟩
+
+/-- **The `N` assembly warning.**  A uniform-in-`K` image hypothesis at `imChiN α` with
+`α ≥ 2` is inconsistent as soon as one odd-degree `K` carries a marked reciprocity bundle,
+since there the range is `⊤` and `-1 ∉ imChiN α`. -/
+theorem rangeFinal_uniform_Hrange_imChiN_absurd {alpha : ℕ} (halpha : 2 ≤ alpha)
+    {R : LocalReciprocity} (K₀ : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] K₀] [CompactSpace (GalK K₀)] [T2Space (GalK K₀)]
+    [TotallyDisconnectedSpace (GalK K₀)]
+    (B : MarkedRecip R K₀) (hodd : Odd (Module.finrank ℚ_[2] K₀))
+    (Hrange : ∀ (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+      [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [T2Space (GalK K)]
+      [TotallyDisconnectedSpace (GalK K)],
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha) :
+    False := by
+  have heq : imChiN alpha = ⊤ :=
+    (Hrange K₀).symm.trans (GQ2.Dyadic.LSquare.range_chiCycKTwo_eq_top_of_odd_finrank K₀ B hodd)
+  exact GQ2.Dyadic.EvenNLab.neg_one_notMem_imChiN halpha
+    (by rw [heq]; exact Subgroup.mem_top _)
+
+/-- **The `M` assembly warning.**  A uniform-in-`K` image hypothesis at `imChiM α` forces
+`α = 2`, where `imChiM 2 = ⊤`: the unit `3` is not `≡ ±1 (mod 8)`. -/
+theorem rangeFinal_uniform_Hrange_imChiM_forces_two {alpha : ℕ} (halpha : 2 ≤ alpha)
+    {R : LocalReciprocity} (K₀ : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] K₀] [CompactSpace (GalK K₀)] [T2Space (GalK K₀)]
+    [TotallyDisconnectedSpace (GalK K₀)]
+    (B : MarkedRecip R K₀) (hodd : Odd (Module.finrank ℚ_[2] K₀))
+    (Hrange : ∀ (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+      [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [T2Space (GalK K)]
+      [TotallyDisconnectedSpace (GalK K)],
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha) :
+    alpha = 2 := by
+  have heq : imChiM alpha = ⊤ :=
+    (Hrange K₀).symm.trans (GQ2.Dyadic.LSquare.range_chiCycKTwo_eq_top_of_odd_finrank K₀ B hodd)
+  by_contra hne
+  have h3 : 3 ≤ alpha := by omega
+  have hval : (((isUnit_one_add_two_mul (1 : ℤ_[2])).unit : ℤ_[2]ˣ) : ℤ_[2]) = 3 := by
+    rw [IsUnit.unit_spec]
+    norm_num
+  have hmem : (isUnit_one_add_two_mul (1 : ℤ_[2])).unit ∈ imChiM alpha := by
+    rw [heq]
+    exact Subgroup.mem_top _
+  have h3val : PadicInt.toZModPow (p := 2) 3 (3 : ℤ_[2]) = (3 : ZMod (2 ^ 3)) := by
+    simp only [map_ofNat]
+  rcases (evenRange_mem_imChiM_iff halpha).mp hmem with hd | hd <;> rw [hval] at hd
+  · have hone := evenRange_toZModPow_eq_one_iff.mpr ((pow_dvd_pow (2 : ℤ_[2]) h3).trans hd)
+    rw [h3val] at hone
+    exact absurd hone (by decide)
+  · have hneg1 : (2 : ℤ_[2]) ^ 3 ∣ (3 : ℤ_[2]) - (-1) := by
+      rw [sub_neg_eq_add]
+      exact (pow_dvd_pow (2 : ℤ_[2]) h3).trans hd
+    have hx := evenRange_toZModPow_eq_iff.mpr hneg1
+    rw [h3val, map_neg, map_one] at hx
+    exact absurd hx (by decide)
+
+end Final
+
 end GQ2.Dyadic.EvenCyclotomicRange
+
+/-! ## Axiom pins -/
+
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRangePrin
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_mem_prin_iff
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_prin_antitone
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_isClosed_prin
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_eq_one_of_forall_mem_prin
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_isUnit_of_not_two_dvd
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_two_dvd_add_of_isUnit
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_four_dvd_sub_or_add
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_closure_eq_prin
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_prin_le_of_mem
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_exists_exact_level
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_toZModPow_eq_iff
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_toZModPow_eq_one_iff
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_isClosed_imChiM
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_isClosed_imChiN
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_prin_le_imChiM
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_mem_imChiM_iff
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_prin_le_imChiN
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_mem_imChiN_dvd
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_exists_depth
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_mem_prin_depth
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_neg_dvd_iff
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_eq_imChiM_of_neg_one_mem
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_eq_imChiN_of_neg_one_notMem
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_classify
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_isClosed_range
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_pow_finrank_mem_range
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_prin_le_range
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_exists_not_four_dvd
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq_imChiM
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq_imChiN
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_not_both
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_modEight_of_dvd
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_modEight_of_four_dvd_sub
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_modEight_of_four_dvd_add
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_mUnit_two_modEight
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_evenDegreeNModEightImage
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_evenDegreeMModEightImage
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_evenDegreeMModEightRowAttained
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.rangeFinal_orientedAbstractEquiv_KTwoN
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.rangeFinal_uniform_Hrange_imChiN_absurd
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.rangeFinal_uniform_Hrange_imChiM_forces_two
