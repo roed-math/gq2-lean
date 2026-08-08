@@ -863,6 +863,66 @@ example : ∃ res : gr3R, sqRelWord (selConWit 1 0 2 1 2 1 7 1 0 1) = ⟨0, 0, 0
 
 end Containment
 
+/-! ## §8 Axiom pins
+
+Committed prints for every public declaration of this file: all **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable.  Every `decide`
+is on `ZMod 8`, `ZMod 2` or tuples over them. -/
+
+section AxiomPins
+
+#print axioms SelConDress
+#print axioms selConTriv
+#print axioms selConU
+#print axioms selConV
+#print axioms selConX1
+#print axioms selConVal
+#print axioms selConVal_triv
+#print axioms selConVal_lam
+#print axioms selConTuple
+#print axioms selConTuple_zero
+#print axioms selConTuple_one
+#print axioms selConTuple_two
+#print axioms selConTuple_handleU
+#print axioms selConTuple_handleV
+#print axioms selConTuple_handleU_ne
+#print axioms selConTuple_handleV_ne
+#print axioms selPar_neg
+#print axioms selPar_eq_of_two_mul_eq
+#print axioms selConKappa1_even
+#print axioms selConA_even01
+#print axioms selConC_even01
+#print axioms selConKappa2_even01
+#print axioms selConKappa3_par01
+#print axioms selConB_even10
+#print axioms selConD_even10
+#print axioms selConKappa3_even10
+#print axioms selConKappa2_par10
+#print axioms selCon_ts_even
+#print axioms selCon_block_even
+#print axioms selCon_handle_decomp
+#print axioms selCon_core_decomp
+#print axioms selConForm
+#print axioms selCon_relWord_f
+#print axioms selCon_bit
+#print axioms selConWitD
+#print axioms selConWit
+#print axioms selConWit_zero
+#print axioms selConWit_one
+#print axioms selConWit_two
+#print axioms selConWit_handleU
+#print axioms selConWit_handleV
+#print axioms selConWit_handleU_ne
+#print axioms selConWit_handleV_ne
+#print axioms sqRelWord_selConWit
+#print axioms selConWit_even
+#print axioms selConWit_bit
+#print axioms sqRelWord_selConWit_refine
+#print axioms selCon_contain
+#print axioms selCon_increment_exact
+
+end AxiomPins
+
 end SqCore
 
 end Dyadic
