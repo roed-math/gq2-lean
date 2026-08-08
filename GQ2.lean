@@ -706,6 +706,7 @@ import GQ2.Dyadic.SqCore.GradedThree
 import GQ2.Dyadic.SqCore.GradedSelect
 import GQ2.Dyadic.SqCore.GradedContain
 import GQ2.Dyadic.SqCore.GradedSigma
+import GQ2.Dyadic.SqCore.GradedVanish
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
