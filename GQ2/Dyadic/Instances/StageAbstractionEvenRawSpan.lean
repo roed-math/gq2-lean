@@ -942,6 +942,212 @@ theorem evenRawDepthShiftHom_three_apply
   simp only [commP]
   group
 
+/-- The `U_j`-handle row: the bracket `[p, base (V_j)]`, exactly as in the L template. -/
+theorem evenRawDepthShiftHom_handleU_apply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (j : Fin h) (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom base hk)
+        (evenRawDepthCoordinateCorrection (MarkedCore.handleIdxU j) p)).1 =
+      commP p.1 (base (MarkedCore.handleIdxV j)) := by
+  set c := (evenRawDepthCoordinateCorrection (MarkedCore.handleIdxU j) p :
+    EvenRawDepthCorrection G h k).correction with hc
+  have hcore : evenRawCoreDbarWord base c = 1 := by
+    have e0 : c 0 = 1 := if_neg (evenRawCore_ne_handleU evenRawCoreVal_lt_four.1 j)
+    have e1 : c 1 = 1 := if_neg (evenRawCore_ne_handleU evenRawCoreVal_lt_four.2.1 j)
+    have e2 : c 2 = 1 := if_neg (evenRawCore_ne_handleU evenRawCoreVal_lt_four.2.2.1 j)
+    have e3 : c 3 = 1 := if_neg (evenRawCore_ne_handleU evenRawCoreVal_lt_four.2.2.2 j)
+    rw [evenRawCoreDbarWord, e0, e1, e2, e3]
+    simp only [commP]
+    group
+  have hf : ∀ l ∈ List.finRange h, l ≠ j →
+      commP (c (MarkedCore.handleIdxV l)) (base (MarkedCore.handleIdxU l)) *
+        commP (c (MarkedCore.handleIdxU l)) (base (MarkedCore.handleIdxV l)) = 1 := by
+    intro l _ hlj
+    rw [show c (MarkedCore.handleIdxV l) = 1 from if_neg (evenRawHandleV_ne_handleU l j),
+      show c (MarkedCore.handleIdxU l) = 1 from if_neg (evenRawHandleU_ne_handleU hlj)]
+    simp only [commP]
+    group
+  have hprod := evenRaw_list_map_prod_eq_single_of_nodup (List.finRange h) j
+    (fun l ↦ commP (c (MarkedCore.handleIdxV l)) (base (MarkedCore.handleIdxU l)) *
+      commP (c (MarkedCore.handleIdxU l)) (base (MarkedCore.handleIdxV l)))
+    (by simp) (List.nodup_finRange h) hf
+  have hhandle : evenRawHandleDbarWord base c =
+      commP p.1 (base (MarkedCore.handleIdxV j)) := by
+    rw [evenRawHandleDbarWord, hprod,
+      show c (MarkedCore.handleIdxV j) = 1 from if_neg (evenRawHandleV_ne_handleU j j),
+      show c (MarkedCore.handleIdxU j) = p.1 from if_pos rfl]
+    simp only [commP]
+    group
+  change evenRawDbarWord base c = _
+  rw [evenRawDbarWord, hcore, one_mul, hhandle]
+
+/-- The `V_j`-handle row: the bracket `[p, base (U_j)]`. -/
+theorem evenRawDepthShiftHom_handleV_apply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (j : Fin h) (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom base hk)
+        (evenRawDepthCoordinateCorrection (MarkedCore.handleIdxV j) p)).1 =
+      commP p.1 (base (MarkedCore.handleIdxU j)) := by
+  set c := (evenRawDepthCoordinateCorrection (MarkedCore.handleIdxV j) p :
+    EvenRawDepthCorrection G h k).correction with hc
+  have hcore : evenRawCoreDbarWord base c = 1 := by
+    have e0 : c 0 = 1 := if_neg (evenRawCore_ne_handleV evenRawCoreVal_lt_four.1 j)
+    have e1 : c 1 = 1 := if_neg (evenRawCore_ne_handleV evenRawCoreVal_lt_four.2.1 j)
+    have e2 : c 2 = 1 := if_neg (evenRawCore_ne_handleV evenRawCoreVal_lt_four.2.2.1 j)
+    have e3 : c 3 = 1 := if_neg (evenRawCore_ne_handleV evenRawCoreVal_lt_four.2.2.2 j)
+    rw [evenRawCoreDbarWord, e0, e1, e2, e3]
+    simp only [commP]
+    group
+  have hf : ∀ l ∈ List.finRange h, l ≠ j →
+      commP (c (MarkedCore.handleIdxV l)) (base (MarkedCore.handleIdxU l)) *
+        commP (c (MarkedCore.handleIdxU l)) (base (MarkedCore.handleIdxV l)) = 1 := by
+    intro l _ hlj
+    rw [show c (MarkedCore.handleIdxV l) = 1 from if_neg (evenRawHandleV_ne_handleV hlj),
+      show c (MarkedCore.handleIdxU l) = 1 from if_neg (evenRawHandleU_ne_handleV l j)]
+    simp only [commP]
+    group
+  have hprod := evenRaw_list_map_prod_eq_single_of_nodup (List.finRange h) j
+    (fun l ↦ commP (c (MarkedCore.handleIdxV l)) (base (MarkedCore.handleIdxU l)) *
+      commP (c (MarkedCore.handleIdxU l)) (base (MarkedCore.handleIdxV l)))
+    (by simp) (List.nodup_finRange h) hf
+  have hhandle : evenRawHandleDbarWord base c =
+      commP p.1 (base (MarkedCore.handleIdxU j)) := by
+    rw [evenRawHandleDbarWord, hprod,
+      show c (MarkedCore.handleIdxV j) = p.1 from if_pos rfl,
+      show c (MarkedCore.handleIdxU j) = 1 from if_neg (evenRawHandleU_ne_handleV j j)]
+    simp only [commP]
+    group
+  change evenRawDbarWord base c = _
+  rw [evenRawDbarWord, hcore, one_mul, hhandle]
+
+/-! ### The raw span and the exact central-tower mismatch -/
+
+/-- The literal even-shift image, viewed inside the ambient level quotient. -/
+noncomputable def evenRawShiftSpan
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k) :
+    Subgroup (levelQuot G (k + 1)) :=
+  Subgroup.map (zLayer G k).subtype (evenRawDepthShiftHom base hk).range
+
+/-- Every literal even shift lies in the raw shift span. -/
+theorem evenRawDepthShift_mem_shiftSpan
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (V : EvenRawDepthCorrection G h k) :
+    ((evenRawDepthShiftHom base hk) V).1 ∈ evenRawShiftSpan base hk :=
+  ⟨(evenRawDepthShiftHom base hk) V, ⟨V, rfl⟩, rfl⟩
+
+/-- The raw shift span sits inside the central defect layer. -/
+theorem evenRawShiftSpan_le_zLayer
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k) :
+    evenRawShiftSpan base hk ≤ zLayer G k := by
+  rintro z ⟨q, _, rfl⟩
+  exact q.2
+
+/-- **The sole atom family the literal even rows do not separate**: every pure square of a
+depth-`k-1` element belongs to the raw shift span.  Exactly the L template's
+`RawPureSquareSpanSupply`, and by `evenRawPureSquareSpanSupply_iff_shiftSpan_eq_zLayer` it is
+precisely the gap between the literal shift and generic tower generation. -/
+def EvenRawPureSquareSpanSupply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k) : Prop :=
+  ∀ p : lambdaImage G (k - 1) (k + 1), p.1 ^ 2 ∈ evenRawShiftSpan base hk
+
+/-- **Under the pure-square supply every bracket against a displayed generator lies in the raw
+shift span.**  The L template reads four of its five index families straight off the rows and
+divides the fifth by the supplied square.  The even case needs one step more: coordinate `1`
+delivers `[p, base 0]` directly, and only then can `[p, base 1]` be extracted from the
+coordinate-`0` row by dividing off *both* `p²` and `[p, base 0]`.  That extra division is the
+whole visible cost of the diagonal atom's product partner. -/
+theorem evenRawBracket_base_mem_shiftSpan
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (Hsq : EvenRawPureSquareSpanSupply base hk)
+    (p : lambdaImage G (k - 1) (k + 1)) (i : Fin (MarkedCore.coreRank h)) :
+    commP p.1 (base i) ∈ evenRawShiftSpan base hk := by
+  have hb0 : commP p.1 (base 0) ∈ evenRawShiftSpan base hk := by
+    have hmem := evenRawDepthShift_mem_shiftSpan base hk
+      (evenRawDepthCoordinateCorrection 1 p : EvenRawDepthCorrection G h k)
+    rwa [evenRawDepthShiftHom_one_apply base hk p] at hmem
+  refine evenIndex_cases (P := fun i ↦ commP p.1 (base i) ∈ evenRawShiftSpan base hk)
+    hb0 ?_ ?_ ?_ ?_ ?_ i
+  · have h0 := evenRawDepthShift_mem_shiftSpan base hk
+      (evenRawDepthCoordinateCorrection 0 p : EvenRawDepthCorrection G h k)
+    rw [evenRawDepthShiftHom_zero_apply base hk p] at h0
+    have h := Subgroup.mul_mem _
+      (Subgroup.inv_mem _ (Subgroup.mul_mem _ (Hsq p) hb0)) h0
+    simpa only [inv_mul_cancel_left] using h
+  · have hmem := evenRawDepthShift_mem_shiftSpan base hk
+      (evenRawDepthCoordinateCorrection 3 p : EvenRawDepthCorrection G h k)
+    rwa [evenRawDepthShiftHom_three_apply base hk p] at hmem
+  · have hmem := evenRawDepthShift_mem_shiftSpan base hk
+      (evenRawDepthCoordinateCorrection 2 p : EvenRawDepthCorrection G h k)
+    rwa [evenRawDepthShiftHom_two_apply base hk p] at hmem
+  · intro j
+    have hmem := evenRawDepthShift_mem_shiftSpan base hk
+      (evenRawDepthCoordinateCorrection (MarkedCore.handleIdxV j) p :
+        EvenRawDepthCorrection G h k)
+    rwa [evenRawDepthShiftHom_handleV_apply base hk j p] at hmem
+  · intro j
+    have hmem := evenRawDepthShift_mem_shiftSpan base hk
+      (evenRawDepthCoordinateCorrection (MarkedCore.handleIdxU j) p :
+        EvenRawDepthCorrection G h k)
+    rwa [evenRawDepthShiftHom_handleU_apply base hk j p] at hmem
+
+open scoped commutatorElement in
+private theorem evenRawCommutator_eq_commP_inv {H' : Type*} [Group H'] (v g : H') :
+    ⁅v, g⁆ = commP v⁻¹ g⁻¹ := by
+  simp only [commutatorElement_def, commP, inv_inv]
+
+/-- **Generic square/bracket generation closes the whole central layer.**  No character
+statement is used: the only extra input beyond the literal rows is the pure-square family.
+The even analogue of `rawShiftSpan_eq_zLayer_of_pureSquares`. -/
+theorem evenRawShiftSpan_eq_zLayer_of_pureSquares
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G)
+    (hbase : Subgroup.closure (Set.range base) = ⊤)
+    (Hsq : EvenRawPureSquareSpanSupply base hk) :
+    evenRawShiftSpan base hk = zLayer G k := by
+  apply le_antisymm (evenRawShiftSpan_le_zLayer base hk)
+  intro q hq
+  have hq' : q ∈ lambdaImage G (k - 1 + 1) (k + 1) := by rwa [show k - 1 + 1 = k by omega]
+  refine lambdaImage_induction G hfg hpro (j := k - 1) (by omega)
+    (p := fun z ↦ z ∈ evenRawShiftSpan base hk) ?_ ?_
+    (Subgroup.one_mem _) (fun _ _ ↦ Subgroup.mul_mem _) (fun _ ↦ Subgroup.inv_mem _) hq'
+  · intro v hv
+    let p : lambdaImage G (k - 1) (k + 1) := ⟨levelMk G (k + 1) v, ⟨v, hv, rfl⟩⟩
+    simpa only [map_pow] using Hsq p
+  · intro v hv g
+    let p : lambdaImage G (k - 1) (k + 1) :=
+      ⟨(levelMk G (k + 1) v)⁻¹, ⟨v⁻¹, Subgroup.inv_mem _ hv, by rw [map_inv]⟩⟩
+    have hp : ∀ z : levelQuot G (k + 1), commP p.1 z ∈ evenRawShiftSpan base hk := by
+      intro z
+      have hz : z ∈ Subgroup.closure (Set.range base) := by rw [hbase]; trivial
+      refine Subgroup.closure_induction
+        (p := fun x _ ↦ commP p.1 x ∈ evenRawShiftSpan base hk) ?_ ?_ ?_ ?_ hz
+      · rintro _ ⟨i, rfl⟩
+        exact evenRawBracket_base_mem_shiftSpan base hk Hsq p i
+      · simp [commP]
+      · intro x y _ _ hx hy
+        rw [commP_mul_right_of_mem k hk p.2 x y]
+        exact Subgroup.mul_mem _ hx hy
+      · intro x _ hx
+        rw [commP_inv_right_of_mem k hk p.2 x]
+        exact Subgroup.inv_mem _ hx
+    rw [map_commutatorElement, evenRawCommutator_eq_commP_inv]
+    exact hp (levelMk G (k + 1) g)⁻¹
+
+/-- **The pure-square family is not merely sufficient but equivalent** to raw shift
+surjectivity onto the central layer, given a generating displayed tuple.  This pins the exact
+gap between generic square/bracket tower generation and the literal even relator shift. -/
+theorem evenRawPureSquareSpanSupply_iff_shiftSpan_eq_zLayer
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G)
+    (hbase : Subgroup.closure (Set.range base) = ⊤) :
+    EvenRawPureSquareSpanSupply base hk ↔ evenRawShiftSpan base hk = zLayer G k := by
+  refine ⟨evenRawShiftSpan_eq_zLayer_of_pureSquares base hk hfg hpro hbase, ?_⟩
+  intro hspan p
+  rw [hspan]
+  exact sq_mem_zLayer k hk p.2
+
 end RawSpan
 
 end
