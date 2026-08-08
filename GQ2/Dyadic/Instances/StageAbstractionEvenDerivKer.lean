@@ -628,8 +628,9 @@ private theorem evenDeriv_list_single {H I : Type*} [Monoid H] (l : List I) (j :
         rw [List.map_cons, List.prod_cons, hf i (by simp) hij, one_mul,
           ih hj hnd.2 (fun b hb hbj ↦ hf b (List.mem_cons_of_mem _ hb) hbj)]
 
-/-- A raw depth correction is the ordered product of its one-coordinate corrections. -/
-private theorem evenDeriv_rawDepthCorrection_eq_prod (V : EvenRawDepthCorrection G h k) :
+/-- A raw depth correction is the ordered product of its one-coordinate corrections.  Public
+because `StageAbstractionEvenRawToBracket.lean` reduces its own span inclusion the same way. -/
+theorem evenDeriv_rawDepthCorrection_eq_prod (V : EvenRawDepthCorrection G h k) :
     V = ((List.finRange (MarkedCore.coreRank h)).map fun i ↦
       evenRawDepthCoordinateCorrection i
         (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))).prod := by
@@ -826,6 +827,7 @@ open GQ2.Dyadic.StageGeneric
 #print axioms evenDerivTailSpan_exists_finset_prod
 
 -- §5 the span kill
+#print axioms evenDeriv_rawDepthCorrection_eq_prod
 #print axioms evenDeriv_dbarWord_central_base_shift
 #print axioms EvenKernelDerivationFamily.evenDeriv_exists_central_shift
 #print axioms EvenKernelDerivationFamily.evenDeriv_dbarWord_eq
