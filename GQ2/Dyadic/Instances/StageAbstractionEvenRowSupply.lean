@@ -48,10 +48,13 @@ gains exactly one digit, so the seam is short by `α - 1`.  At `α = 2` the boun
 the sharp modulus and nothing is lost; from `α = 3` the supply fails at the first level that
 uses it, and the failing element is a row unit of the branch itself —
 
-* `M`, level `2`: `mUnit α` (`evenRow_not_rowSupply_imChiM`), of exact depth `α`;
-* `N`, level `3`: `(nUnit α)^2` (`evenRow_not_rowSupply_imChiN`), of exact depth `α + 1`.
+* `M`, every level `m ≥ 2`: `mUnit α ^ 2^(m-2)` (`evenSharp_not_imageRelLe_imChiM`);
+* `N`, every level `m ≥ 3`: `((nUnit α)^2) ^ 2^(m-3)` (`evenSharp_not_imageRelLe_imChiN`);
 
-`evenSharp_not_imageRel_imChiM/N` refute the filtration identity itself.  The refutations
+both of exact depth `m + α - 2`, one digit short of the `m + α - 1` the bound imposes.  The
+failure is therefore *level-uniform*: EV-3f cannot escape by asking for the supply only at
+the levels its climb visits.  `evenRow_not_rowSupply_imChiM/N` are the resulting refutations
+of the supply, and `evenSharp_not_imageRel_imChiM/N` refute the filtration identity itself.  The refutations
 need no compactness, no surjectivity and no campaign axiom: given the pinned image they are a
 2-adic valuation count against the depth bound.  `evenRow_not_rowSupply_of_witness` is the
 general criterion, so a different even branch is refuted by exhibiting one witness.
@@ -583,57 +586,87 @@ private theorem evenSharp_not_dvd_pow_succ_mul_unit {j : ℕ} (b : ℤ_[2]ˣ) :
 
 /-! ### §5.3 The two branch refutations
 
-On each branch the failing element is a row unit of that branch: for `M` it is `mUnit α`
-(exact depth `α`, tested at level `2`), for `N` it is `(nUnit α)^2` (exact depth `α + 1`,
-tested at level `3`).  Both need only `α ≥ 3`; the tables are arbitrary, subject to the
-single standing requirement that one of their values is a character value at all. -/
+On each branch the failing element is a power of a row unit of that branch, and it exists at
+*every* level the seam is used at: for `M` it is `mUnit α ^ 2^(m-2)` (exact depth `m+α-2`),
+for `N` it is `(nUnit α)^2 ^ 2^(m-3)` (exact depth `m+α-2` again).  Both need only `α ≥ 3`.
+The level-uniformity matters downstream: EV-3f cannot escape by asking for the supply only at
+the levels its climb visits, because the §2 characterisation fails at each of them
+separately.  The tables are arbitrary, subject only to one of their values being a character
+value at all — which the constant row `1` always is. -/
 
-/-- **The `M`-branch refutation.**  For `α ≥ 3` and a character with the `M` image, the row
-supply is false at every table — in particular at the `M` row table, whose first value is
-`1`.  The witness is `mUnit α`, the table's own `D` row: it is `≡ 1 mod 8` (its depth is
-`α ≥ 3`) but the depth bound confines `chi(λ_2(G))` to `1 + 2^(α+1)ℤ₂`, one digit past it. -/
-theorem evenRow_not_rowSupply_imChiM {α : ℕ} (hα3 : 3 ≤ α)
-    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α)
-    (i : Fin n) (hvi : v i ∈ Set.range chi) :
-    ¬ RowExactLevelFibreLiftSupply v G chi := by
+/-- **The `M`-branch failure, level by level.**  For `α ≥ 3` and a character with the `M`
+image, the §2 criterion fails at *every* level `m ≥ 2`: the witness `mUnit α ^ 2^(m-2)` is a
+character value, is `≡ 1 mod 2^(m+1)`, and yet has depth exactly `m+α-2`, one digit short of
+the `m+α-1` the depth bound imposes on `chi(λ_m(G))`. -/
+theorem evenSharp_not_imageRelLe_imChiM {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α) (m : ℕ) (hm : 2 ≤ m) :
+    ¬ (MonoidHom.range chi.toMonoidHom ⊓
+        (Units.map (PadicInt.toZModPow (m + 1)).toMonoidHom).ker ≤
+      (twoCentralSeries G m).map chi.toMonoidHom) := by
+  obtain ⟨k, rfl⟩ : ∃ k, m = k + 2 := ⟨m - 2, by omega⟩
   have hbound : ∀ g : G, EvenSharpPmOne α (chi g) := by
     intro g
     have hg : chi g ∈ MonoidHom.range chi.toMonoidHom := ⟨g, rfl⟩
     rw [hrange] at hg
     exact evenSharp_pmOne_of_mem_imChiM (by omega) hg
-  refine evenRow_not_rowSupply_of_witness i hvi (le_refl 2)
-    (evenRow_mUnit_mem_range_of_imChiM hrange) ?_ ?_
-  · rw [evenSharp_mem_ker_iff, mUnit_sub_one (by omega)]
-    exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
-  · intro hmem
-    have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound 0 hmem
-    rw [evenSharp_mem_ker_iff, mUnit_sub_one (by omega)] at hker
-    exact evenSharp_not_dvd_pow_succ_mul_unit (mUnit α) hker
+  obtain ⟨b, hb⟩ := GQ2.Dyadic.MarkedCore.mExists_unit_pow_two_pow_sub_one
+    (mUnit α) (mUnit α) α (by omega) (mUnit_sub_one (by omega)) k
+  intro hle
+  have hmem : mUnit α ^ 2 ^ k ∈ (twoCentralSeries G (k + 2)).map chi.toMonoidHom := by
+    refine hle (Subgroup.mem_inf.mpr ⟨?_, ?_⟩)
+    · obtain ⟨y, hy⟩ := evenRow_mUnit_mem_range_of_imChiM hrange
+      exact ⟨y ^ 2 ^ k, by show chi (y ^ 2 ^ k) = _; rw [map_pow, hy]⟩
+    · rw [evenSharp_mem_ker_iff, hb]
+      exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
+  have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound k hmem
+  rw [evenSharp_mem_ker_iff, hb, show α + k + 1 = k + α + 1 by omega] at hker
+  exact evenSharp_not_dvd_pow_succ_mul_unit (j := k + α) b hker
 
-/-- **The `N`-branch refutation.**  Same statement one level up: at level `3` the depth bound
-gives `1 + 2^(α+2)ℤ₂`, while `(nUnit α)^2` has exact depth `α + 1` and is `≡ 1 mod 16`.
-(At level `2` the `N` image happens to be saturated, which is why the `N` witness is the
-square and the level is `3`.) -/
-theorem evenRow_not_rowSupply_imChiN {α : ℕ} (hα3 : 3 ≤ α)
-    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α)
-    (i : Fin n) (hvi : v i ∈ Set.range chi) :
-    ¬ RowExactLevelFibreLiftSupply v G chi := by
+/-- **The `N`-branch failure, level by level**, for `m ≥ 3`.  (At `m = 2` the procyclic `N`
+image happens to be saturated, so `3` is sharp here; the supply is a statement about all
+levels, so this still refutes it.) -/
+theorem evenSharp_not_imageRelLe_imChiN {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α) (m : ℕ) (hm : 3 ≤ m) :
+    ¬ (MonoidHom.range chi.toMonoidHom ⊓
+        (Units.map (PadicInt.toZModPow (m + 1)).toMonoidHom).ker ≤
+      (twoCentralSeries G m).map chi.toMonoidHom) := by
+  obtain ⟨k, rfl⟩ : ∃ k, m = k + 3 := ⟨m - 3, by omega⟩
   have hbound : ∀ g : G, EvenSharpPmOne α (chi g) := by
     intro g
     have hg : chi g ∈ MonoidHom.range chi.toMonoidHom := ⟨g, rfl⟩
     rw [hrange] at hg
     exact evenSharp_pmOne_of_mem_imChiN (by omega) hg
-  obtain ⟨b, hb⟩ := nUnit_sq_sub_one (α := α) (by omega)
-  have hu : (nUnit α) ^ 2 ∈ Set.range chi := by
-    obtain ⟨y, hy⟩ := evenRow_nUnit_mem_range_of_imChiN hrange
-    exact ⟨y ^ 2, by rw [map_pow, hy]⟩
-  refine evenRow_not_rowSupply_of_witness i hvi (show (2 : ℕ) ≤ 3 by omega) hu ?_ ?_
-  · rw [evenSharp_mem_ker_iff, hb]
-    exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
-  · intro hmem
-    have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound 1 hmem
-    rw [evenSharp_mem_ker_iff, hb] at hker
-    exact evenSharp_not_dvd_pow_succ_mul_unit (j := α + 1) b hker
+  obtain ⟨b0, hb0⟩ := nUnit_sq_sub_one (α := α) (by omega)
+  obtain ⟨b, hb⟩ := GQ2.Dyadic.MarkedCore.mExists_unit_pow_two_pow_sub_one
+    (nUnit α ^ 2) b0 (α + 1) (by omega) hb0 k
+  intro hle
+  have hmem : (nUnit α ^ 2) ^ 2 ^ k ∈ (twoCentralSeries G (k + 3)).map chi.toMonoidHom := by
+    refine hle (Subgroup.mem_inf.mpr ⟨?_, ?_⟩)
+    · obtain ⟨y, hy⟩ := evenRow_nUnit_mem_range_of_imChiN hrange
+      exact ⟨(y ^ 2) ^ 2 ^ k, by show chi ((y ^ 2) ^ 2 ^ k) = _; rw [map_pow, map_pow, hy]⟩
+    · rw [evenSharp_mem_ker_iff, hb]
+      exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
+  have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound (k + 1) hmem
+  rw [evenSharp_mem_ker_iff, hb, show α + (k + 1) + 1 = k + (α + 1) + 1 by omega] at hker
+  exact evenSharp_not_dvd_pow_succ_mul_unit (j := k + (α + 1)) b hker
+
+/-- **The `M`-branch refutation.**  For `α ≥ 3` and a character with the `M` image, the row
+supply is false at every table — in particular at the even `M` row table, whose first value
+is `1`. -/
+theorem evenRow_not_rowSupply_imChiM {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) :
+    ¬ RowExactLevelFibreLiftSupply v G chi := fun H ↦
+  evenSharp_not_imageRelLe_imChiM hα3 hrange 2 (le_refl 2)
+    (evenRow_imageRel_le_of_rowSupply H i hvi 2 (le_refl 2))
+
+/-- **The `N`-branch refutation.**  The same, one level up. -/
+theorem evenRow_not_rowSupply_imChiN {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) :
+    ¬ RowExactLevelFibreLiftSupply v G chi := fun H ↦
+  evenSharp_not_imageRelLe_imChiN hα3 hrange 3 (le_refl 3)
+    (evenRow_imageRel_le_of_rowSupply H i hvi 3 (by omega))
 
 /-- The filtration identity itself fails on the `M` branch: by §2 it would supply the row
 table `fun _ ↦ 1`, which §5.3 refutes.  This is the machine-checked obstruction to the
@@ -856,6 +889,8 @@ end GQ2.Dyadic.EvenRowSupply
 #print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_pmOne_of_mem_imChiN
 #print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_map_twoCentralSeries_le
 #print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_rowSupply_of_witness
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_not_imageRelLe_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_not_imageRelLe_imChiN
 #print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_rowSupply_imChiM
 #print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_rowSupply_imChiN
 #print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_not_imageRel_imChiM
