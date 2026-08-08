@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Instances.MpcActionImageDevissage
 import GQ2.Dyadic.Instances.N0M0CompactBranches
 import GQ2.Dyadic.Instances.NpcUnramifiedProcyclic
+import GQ2.Dyadic.Certificates.FoxDeltaRows
 
 /-!
 # The unramified Fox row of the corrected procyclic-`M` word
@@ -85,11 +86,15 @@ variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V]
 
 /-- **The unramified `δ`-row**: `D(δ_i) = a(τ)`, the *same* entry for every `i` — the
 `τ`-contribution of the `ω₂`-block, with the two `x_i`-contributions cancelling over `𝔽₂`.
-Cited from WM0-b through `dW_eq_deltaCert`, exactly as its ramified twin `foxD_dW_ram` is. -/
+
+Statement unchanged.  W51-HOIST: this is now an **instance of the δ-row layer**
+(`Certificates/FoxDeltaRows.lean`), namely `FoxDelta.foxDelta_dW` read at `FoxDelta.deltaRowUnram`.
+The ramified twin `foxD_dW_ram` is the same theorem read at `FoxDelta.deltaRowRam`, so the two
+readings no longer have separate proofs. -/
 theorem foxD_dW_unram (hV₂ : ∀ w : V, w + w = 0)
     (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
     (i : Fin 3) : foxD ⇑t a E E₂ (dW h i) = a .tau :=
-  MCompact.foxD_deltaC_unram t E E₂ hV₂ hwild hτ i a
+  FoxDelta.foxDelta_dW_unram t E E₂ a hV₂ hwild hτ i
 
 omit [Finite C] [Finite V] in
 /-- The `δ`-letters act trivially at the unramified reading too. -/
@@ -153,69 +158,35 @@ include hσ hV₂ hwild hτ hS₂
 
 omit hS₂ in
 /-- `D(Â) = a(τ)`: the `Ĉ₀⁻ᵐ` tail is `σ`-only and the `δ₀`-head contributes the uniform
-unramified `δ`-row. -/
-theorem foxD_aHatW_unram (s' mm : ℕ) : foxD ⇑t a E E₂ (aHatW h s' mm) = a .tau := by
-  have hz : foxD ⇑t a E E₂ (.zpow (c0HatW h s') (-(mm : ℤ))) = 0 := by
-    rw [foxD_zpow_neg', foxD_zpow_natCast,
-      Finset.sum_eq_zero fun i _ ↦ by
-        rw [foxD_c0HatW_of_sigma_free t E E₂ a hσ s', smul_zero], smul_zero, neg_zero]
-  rw [aHatW, MCompact.foxD_prodList_pair, hz, smul_zero, add_zero, foxD_inv,
-    mem_trivAct.mp (inv_mem (trivAct_dW_unram t E E₂ hwild hτ 0)),
-    foxD_dW_unram t E E₂ a hV₂ hwild hτ 0, Certificates.neg_eq_self hV₂]
+unramified `δ`-row.
+
+Statement unchanged.  W51-HOIST: an instance of `FoxDelta.foxDelta_aHatW` at
+`FoxDelta.deltaRowUnram`; the layer proves `−D(δ₀)` with no characteristic hypothesis and `hV₂`
+is spent only on the sign. -/
+theorem foxD_aHatW_unram (s' mm : ℕ) : foxD ⇑t a E E₂ (aHatW h s' mm) = a .tau :=
+  FoxDelta.foxDelta_aHatW_unram t E E₂ a hσ hV₂ hwild hτ s' mm
 
 omit hS₂ in
-/-- `D(B̂) = a(τ)`: the `σ₂^p` tail is `σ`-only, in both emitted displays. -/
-theorem foxD_bHatW_unram : ∀ pp : ℕ, foxD ⇑t a E E₂ (bHatW h pp) = a .tau
-  | 0 => foxD_dW_unram t E E₂ a hV₂ hwild hτ 1
-  | q + 1 => by
-      have hs : foxD ⇑t a E E₂ (sig2PowW h (q + 1)) = 0 := by
-        match q with
-        | 0 => exact foxD_sigma2W_of_sigma_free t E E₂ a hσ
-        | j + 1 =>
-            rw [show sig2PowW h (j + 2) = .zpow sigma2W ((j + 2 : ℕ) : ℤ) from rfl]
-            exact foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
-      rw [show bHatW h (q + 1) = PWord.prodList [dW h 1, sig2PowW h (q + 1)] from rfl,
-        MCompact.foxD_prodList_pair, hs, smul_zero, add_zero,
-        foxD_dW_unram t E E₂ a hV₂ hwild hτ 1]
+/-- `D(B̂) = a(τ)`: the `σ₂^p` tail is `σ`-only, in both emitted displays.
+
+Statement unchanged.  W51-HOIST: an instance of `FoxDelta.foxDelta_bHatW` at
+`FoxDelta.deltaRowUnram`, where the value is the δ-row itself and no sign correction arises. -/
+theorem foxD_bHatW_unram : ∀ pp : ℕ, foxD ⇑t a E E₂ (bHatW h pp) = a .tau :=
+  fun pp => FoxDelta.foxDelta_bHatW_unram t E E₂ a hσ hV₂ hwild hτ pp
 
 /-- **`D(E₀₁^pc) = 0` at the unramified reading.**  All four `δ`-occurrences contribute the same
 `a(τ)`, their `σ₂`-conjugators are invisible once `S₂` acts trivially, and four copies of one
 vector cancel over `𝔽₂`.
 
 ⚠ Contrast the ramified `foxD_e01W_ram`, which is genuinely nonzero: there the four occurrences
-carry the two *different* entries `a(x₀)` and `a(x₁)`. -/
-theorem foxD_e01W_unram (aa bb : ℕ) : foxD ⇑t a E E₂ (e01W h aa bb) = 0 := by
-  have hd0 := foxD_dW_unram t E E₂ a hV₂ hwild hτ 0
-  have hd1 := foxD_dW_unram t E E₂ a hV₂ hwild hτ 1
-  have ht0 := trivAct_dW_unram t E E₂ hwild hτ 0
-  have ht1 := trivAct_dW_unram t E E₂ hwild hτ 1
-  have hpow : ∀ k : ℕ, foxD ⇑t a E E₂
-      (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) (k : ℤ)) = 0 := fun k ↦
-    foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
-  have hconj : foxD ⇑t a E E₂ (.conj (dW h 1) (.zpow sigma2W (bb : ℤ))) = a .tau := by
-    rw [foxD_conj, hd1, hpow, smul_zero, add_zero, sub_zero, PWord.evalFin_zpow,
-      MCompact.evalFin_sigma2W, ← zpow_neg, smul_zpow_powOmega2 hS₂]
-  have htconj : PWord.evalFin ⇑t E E₂ (.conj (dW h 1) (.zpow sigma2W (bb : ℤ)))
-      ∈ trivAct C V := by
-    rw [PWord.evalFin_conj]
-    exact trivAct_conjR ht1 _
-  have hinner : foxD ⇑t a E E₂
-      (PWord.prodList [.conj (dW h 1) (.zpow sigma2W (bb : ℤ)), dW h 1, dW h 0]) = a .tau := by
-    rw [PWord.prodList_cons, foxD_mul, MCompact.foxD_prodList_pair, hconj, hd0, hd1,
-      mem_trivAct.mp ht1, mem_trivAct.mp htconj,
-      show a .tau + (a .tau + a .tau) = a .tau from by rw [hV₂, add_zero]]
-  have htinner : PWord.evalFin ⇑t E E₂
-      (PWord.prodList [.conj (dW h 1) (.zpow sigma2W (bb : ℤ)), dW h 1, dW h 0])
-      ∈ trivAct C V := by
-    refine trivAct_evalFin_prodList fun w hw ↦ ?_
-    simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
-    rcases hw with rfl | rfl | rfl
-    · exact htconj
-    · exact ht1
-    · exact ht0
-  rw [e01W, MCompact.foxD_prodList_pair, foxD_conj, hinner, hpow, smul_zero, add_zero, sub_zero,
-    PWord.evalFin_zpow, MCompact.evalFin_sigma2W, ← zpow_neg, smul_zpow_powOmega2 hS₂, hd0,
-    PWord.evalFin_conj, mem_trivAct.mp (trivAct_conjR htinner _), hV₂]
+carry the two *different* entries `a(x₀)` and `a(x₁)`.
+
+Statement unchanged.  W51-HOIST: an instance of `FoxDelta.foxDelta_e01W` at
+`FoxDelta.deltaRowUnram`.  The layer states the block's row as the four weighted `δ`-occurrences
+without committing to a reading; `hS₂` collapses the four weights and `hV₂` kills the four
+copies, which is exactly the argument this proof used to spell out. -/
+theorem foxD_e01W_unram (aa bb : ℕ) : foxD ⇑t a E E₂ (e01W h aa bb) = 0 :=
+  FoxDelta.foxDelta_e01W_unram t E E₂ a hσ hV₂ hwild hτ hS₂ aa bb
 
 /-- **`D(E₂^pc) = a(τ)` at the unramified reading.**  The orbit-norm base `z = δ₂δ₂^{σ₂^p}` is
 first-order silent (two copies of `a(τ)`), so the whole norm block is; what survives is the head
