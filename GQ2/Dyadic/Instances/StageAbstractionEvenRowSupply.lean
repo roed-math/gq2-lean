@@ -240,6 +240,80 @@ theorem evenRow_rowSupply_iff (hv : ∀ i, v i ∈ Set.range chi) (i₀ : Fin n)
 
 end RowSupply
 
+/-! ## §3 Odd-degree recovery
+
+The ticket's regression: the image-relative machinery, specialised to a surjective
+character, re-derives the committed odd-degree endpoints, with statements identical to the
+committed ones and (see the axiom pins) equal prints. -/
+
+section OddRecovery
+
+variable {n : ℕ}
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+/-- For a continuous epimorphism from a compact group the image-relative identity reduces,
+exactly as the committed `SharpCharacterFiltrationExact.of_surjective` does, to the
+target-side unit-filtration equality. -/
+theorem imageRel_of_surjective (hchi : Function.Surjective chi)
+    (Hunits : SharpUnitsFiltrationExact) :
+    ImageRelSharpFiltrationExact G chi :=
+  (imageRel_iff_sharpCharacterFiltrationExact_of_surjective hchi).mpr
+    (SharpCharacterFiltrationExact.of_surjective hchi Hunits)
+
+/-- At a surjective character every row value is in the image, so the row supply holds for
+*every* table.  This is `rowSupply_of_sharpSupply` re-proved through §1–§2. -/
+theorem evenRow_rowSupply_of_surjective (v : Fin n → ℤ_[2]ˣ)
+    (hchi : Function.Surjective chi) :
+    RowExactLevelFibreLiftSupply v G chi :=
+  evenRow_rowSupply_of_imageRel
+    (imageRel_of_surjective hchi sharpUnitsFiltrationExact) fun i ↦ hchi (v i)
+
+end OddRecovery
+
+section OddField
+
+open GQ2.Dyadic.LSquare (chiCycKTwo_surjective_of_odd_finrank)
+open GQ2.Dyadic.LSquare.SqCyclotomicStageTuple (oddDegreeGalKSq_sharpCharacterFiltrationExact
+  oddDegreeGalKSq_sharpExactLevelFibreLiftSupply)
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- The odd-degree field endpoint in image-relative form.  Its content is the committed
+`oddDegreeGalKSq_sharpCharacterFiltrationExact`; the point of the pin is that the even lane's
+weaker interface is genuinely weaker, and that nothing is lost by moving to it. -/
+theorem imageRel_oddDegreeGalKSq {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    ImageRelSharpFiltrationExact (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) :=
+  (imageRel_iff_sharpCharacterFiltrationExact_of_surjective
+      (chiCycKTwo_surjective_of_odd_finrank K B hodd)).mpr
+    (oddDegreeGalKSq_sharpCharacterFiltrationExact B hodd)
+
+/-- **The odd-degree recovery.**  Every row table, at odd degree, through the image-relative
+route. -/
+theorem evenRow_oddDegreeGalKSq_rowSupply {n : ℕ} (v : Fin n → ℤ_[2]ˣ)
+    {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    RowExactLevelFibreLiftSupply v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) :=
+  evenRow_rowSupply_of_imageRel (imageRel_oddDegreeGalKSq B hodd)
+    fun i ↦ chiCycKTwo_surjective_of_odd_finrank K B hodd (v i)
+
+/-- Statement pin (LSq house pattern): the image-relative odd-degree row supply and the
+committed route through
+`rowSupply_of_sharpSupply ∘ oddDegreeGalKSq_sharpExactLevelFibreLiftSupply` inhabit the
+*same* proposition — the `rfl` typechecks only if the two statements agree on the nose,
+instances included. -/
+theorem evenRow_pin_oddDegreeGalKSq_rowSupply {n : ℕ} (v : Fin n → ℤ_[2]ˣ)
+    {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    evenRow_oddDegreeGalKSq_rowSupply v B hodd =
+      rowSupply_of_sharpSupply v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+        (oddDegreeGalKSq_sharpExactLevelFibreLiftSupply B hodd) :=
+  rfl
+
+end OddField
+
 end
 
 end GQ2.Dyadic.EvenRowSupply
