@@ -728,4 +728,6 @@ import GQ2.Dyadic.Instances.GammaLOddDegreeBridgePivot
 import GQ2.Dyadic.Instances.DegreeOneNesting
 import GQ2.Dyadic.Instances.StageAbstraction
 import GQ2.Dyadic.Instances.StageAbstractionLSq
+import GQ2.Dyadic.Instances.StageAbstractionEvenWords
+import GQ2.Dyadic.Instances.StageAbstractionEvenModel
 import GQ2.Dyadic.Main
