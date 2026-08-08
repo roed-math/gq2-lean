@@ -1,0 +1,259 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Fable 5
+-/
+import GQ2.Dyadic.SqCore.GradedSelect
+
+/-!
+# W51-CONTAIN: the containment identity over the whole marking binder
+
+`GradedSelect` §5 and §6 characterised the class-three selection at a fixed selected marking:
+the refinement action translates the relator by even amounts, the selection bit (the parity of
+the class-three residue) is the cokernel functional, an odd residue is unrepairable
+(`sqRelWord_selRefine_ne_one`), and an even residue at a live pairing is repaired by one
+explicit move (`sqRelWord_selRefine_eq_one`).  The W50 depth sweep measured the structural fact
+behind this: the dressing-defect map is never onto, its image has corank `sqRank h + 1` at
+every level and marking, and yet the relator's actual defect lands inside the image every time
+(`docs/dyadic/w50-depth-sweep.md` §6.3, 20/20 against a 1.6 % random baseline).
+
+This file formalizes the slice form of that containment over the **whole marking binder**: all
+`ν'`-row pairs `(T, S)`, all weight tuples `(A, B, C, D, P, Q)` subject to the two adjacency
+parities of the selection family, at every handle count and every handle.  Two results carry
+the weight.
+
+* **The selection-bit form** (`selCon_bit`, the note's §3 display as a theorem): on any binder
+  tuple whose `x₀`- and `x₁`-slot abelian data satisfy the class-two parities, the parity of
+  the class-three residue equals the explicit 𝔽₂-form `selConForm` with coefficients
+  `κ₁ = (A+B)·T·D`, `κ₂ = A·Q + C·P`, `κ₃ = B·Q + D·P`.  The form reads **only** the eleven
+  level-one coordinates `(m₀, n₀, m₁, n₁, k₁, m₃, n₃, k₃, m₄, n₄, k₄)`: the `x₁`-slot data,
+  every `Λ`-junk coefficient, every class-three coordinate and the σ-slot `t̄`-component are
+  invisible, because they do not occur in the statement.
+* **The whole-binder existence** (`selConWit_even`, `selCon_contain`): at *every* binder point
+  there are class-two-admissible level-one data with selection bit zero, namely the class-two
+  forced dressing `a₁ = U^{−S}·V^{T}` with one `Λ`-generator correction; the five lower rows
+  of the relator vanish exactly and the class-three residue is
+  `4·P·Q − 2·(A+B)·Q + B·C·(T+S)`, even at every binder point with no uncleared hypothesis.
+  On the live locus (`2`-pairing witness present) the committed completion move then kills the
+  relator outright: the containment, constructively.
+
+The existence is **unconditional on the binder**; the uncleared hypothesis `hTS` enters only
+the bit-form identity (through `selCross_even`, exactly as in the committed §5b), and the live
+hypothesis enters only the final refinement step, as the sweep's sharpness caveat requires (at
+degenerate weights the achievable-increment group can shrink below `2·ℤ/8`, and evenness of the
+residue alone does not produce a survivor; nothing here claims it does).
+
+## Contents
+
+* **§1** the binder dressing data: `SelConDress`, `selConVal` and the three letter images;
+* **§2** the binder tuple `selConTuple` and its slot lemmas;
+* **§3** the parity engine extension: `selPar_neg`, `selPar_eq_of_two_mul_eq`, and the
+  κ-arithmetic of the note's §3 (`selConKappa1_even`, `selConKappa2_even01`,
+  `selConKappa3_par01`, and the `(1,0)` mirrors);
+* **§4** the two exact even-decompositions: `selCon_core_decomp`, `selCon_handle_decomp`;
+* **§5** ⭐⭐ the selection-bit form over the whole binder: `selConForm`, `selCon_relWord_f`,
+  `selCon_bit`;
+* **§6** ⭐⭐ the whole-binder witness: `selConWit`, `sqRelWord_selConWit`, `selConWit_even`;
+* **§7** ⭐⭐ the containment on the live locus: `sqRelWord_selConWit_refine`,
+  `selCon_contain`, `selCon_increment_exact`, and concrete instances;
+* **§8** committed axiom prints (all std-3).
+
+Companion memo: `docs/dyadic/w50-selection-note.md` §3 and §5 (recommended ticket 1).
+-/
+
+namespace GQ2
+
+namespace Dyadic
+
+namespace SqCore
+
+open MarkedCore
+
+/-! ## §1 The binder dressing data
+
+A level-one dressing of one slot, as seen by a hom of the selection family, is a word in the
+three cleared letters `Ū`, `V̄`, `t̄` times an achievable `γ₂`-correction and a central part.
+Because all three letter images have `b`-column zero, the `(d, e)`-columns of any such word add
+slot by slot, so the whole achievable set is captured by seven scalars: the three letter
+components `u`, `v`, `w`, the three `Λ`-generator coefficients `r`, `s`, `t`, and a free
+class-three coordinate `f`.  The letter images themselves are the committed closed forms:
+`selConU` is `selHom_sqEichU`'s value, `selConV` is `selHom_sqEichV`'s, and `selConX1` is the
+`x₁`-slot value `selMark_two`, which is also `selHom_selTee`'s image of `t`. -/
+
+section BinderData
+
+/-- A level-one dressing datum with its achievable junk: `u`, `v`, `w` are the `Ū`-, `V̄`- and
+`t̄`-components of a slot dressing read in `ℤ/8`; `r`, `s`, `t` are the coefficients on the
+three `Λ`-generators `(−A, C)`, `(−B, D)`, `(−2P, −2Q)` (the achievable `γ₂`-corrections, in
+the parametrisation of `selLam`); `f` is a free class-three coordinate. -/
+structure SelConDress where
+  /-- The `Ū`-component of the dressing. -/
+  u : gr3R
+  /-- The `V̄`-component of the dressing. -/
+  v : gr3R
+  /-- The `t̄`-component of the dressing. -/
+  w : gr3R
+  /-- The coefficient on the `Λ`-generator `(−A, C)`. -/
+  r : gr3R
+  /-- The coefficient on the `Λ`-generator `(−B, D)`. -/
+  s : gr3R
+  /-- The coefficient on the `Λ`-generator `(−2P, −2Q)`. -/
+  t : gr3R
+  /-- A free class-three coordinate. -/
+  f : gr3R
+
+/-- The trivial dressing datum. -/
+def selConTriv : SelConDress := ⟨0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The image of the cleared letter `Ū` at the row pair `(T, S)`: the committed
+`selHom_sqEichU`, with `selT` replaced by the free row parameter `T`. -/
+def selConU (A C T : gr3R) : SqU4 gr3R := ⟨A, 0, C, 0, -(T * C), 0⟩
+
+/-- The image of the cleared letter `V̄`: the committed `selHom_sqEichV` at row `S`. -/
+def selConV (B D S : gr3R) : SqU4 gr3R := ⟨B, 0, D, -(B * S), 0, 0⟩
+
+/-- The `x₁`-slot value of the selection marking, which is also the image of the `λ`- and
+`ν'`-trivial element `t = x₁x₀⁻²` (`selMark_two`, `selHom_selTee`). -/
+def selConX1 (A B P Q : gr3R) : SqU4 gr3R := ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩
+
+/-- **The image of a level-one dressing datum.**  The abelian columns are the two free
+characters on the `Ū`- and `V̄`-components; the `(d, e)`-columns collect the letter images'
+class-two parts (`−u·TC` from `Ū`, `−v·BS` from `V̄`, `w·(P, Q)` from `t̄`) plus the
+`Λ`-correction in the generator parametrisation of `selLam`; the class-three coordinate is
+free.  Because all letter images have `b = 0`, the `(d, e)`-columns of an arbitrary word in
+them add exactly, so this closed form covers every product of letter powers in any order. -/
+def selConVal (A B C D P Q T S : gr3R) (x : SelConDress) : SqU4 gr3R :=
+  ⟨A * x.u + B * x.v, 0, C * x.u + D * x.v,
+    -(x.v * (B * S)) + x.w * P + (-(x.r * A) - x.s * B - 2 * (x.t * P)),
+    -(x.u * (T * C)) + x.w * Q + (x.r * C + x.s * D - 2 * (x.t * Q)),
+    x.f⟩
+
+@[simp] theorem selConVal_triv (A B C D P Q T S : gr3R) :
+    selConVal A B C D P Q T S selConTriv = 1 := by
+  ext <;> simp [selConVal, selConTriv]
+
+/-- The `(d, e)`-junk of a dressing datum with trivial letter components is an achievable
+`γ₂`-element: its `(d, e)`-pair lies in `Λ`, by construction. -/
+theorem selConVal_lam (A B C D P Q T S : gr3R) (x : SelConDress) (hu : x.u = 0) (hv : x.v = 0)
+    (hw : x.w = 0) : selLam A B C D P Q (selConVal A B C D P Q T S x) :=
+  ⟨x.r, x.s, x.t, by simp [selConVal, hu, hv, hw], by simp [selConVal, hu, hv, hw]⟩
+
+end BinderData
+
+/-! ## §2 The binder tuple
+
+The five-slot tuple of a level-one dressed frame, in the image of a selection-family hom: the
+σ-slot is the `ν'`-column generator times its dressing, the `x₀`-slot is a bare dressing, the
+`x₁`-slot is the marking value times its dressing, the two `j`-handle slots are the cleared
+letters times their dressings, and every other handle slot is trivial.  At the canonical row
+`(T, S) = (0, 1)` and trivial data this is exactly the committed slot-image tuple of
+`sqRelWord_selHom_sqArbFrame`; the `t`-dressed instances of §6c are the data
+`x₃ = ⟨0, 0, 1, 0, 0, 0, 0⟩`. -/
+
+section BinderTuple
+
+variable {h : ℕ} {j : Fin h}
+
+/-- **The binder tuple**: the five slot images of a level-one dressed frame at the binder
+point `(A, B, C, D, P, Q, T, S)`, with dressing data `x₀, …, x₄` on the σ-, `x₀`-, `x₁`- and
+two `j`-handle slots, and every other slot trivial. -/
+def selConTuple (h : ℕ) (j : Fin h) (A B C D P Q T S : gr3R)
+    (x₀ x₁ x₂ x₃ x₄ : SelConDress) : Fin (sqRank h) → SqU4 gr3R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨0, 1, 0, 0, 0, 0⟩ * selConVal A B C D P Q T S x₀ else
+    if (i : ℕ) = 1 then selConVal A B C D P Q T S x₁ else
+    if (i : ℕ) = 2 then selConX1 A B P Q * selConVal A B C D P Q T S x₂ else
+    if i = sqHandleIdxU j then selConU A C T * selConVal A B C D P Q T S x₃ else
+    if i = sqHandleIdxV j then selConV B D S * selConVal A B C D P Q T S x₄ else 1
+
+private theorem selCon_ne_handleU_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    i ≠ sqHandleIdxU j := by
+  intro hc
+  rw [hc, sqHandleIdxU_val] at hi
+  omega
+
+private theorem selCon_ne_handleV_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    i ≠ sqHandleIdxV j := by
+  intro hc
+  rw [hc, sqHandleIdxV_val] at hi
+  omega
+
+private theorem selCon_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxU_val] at hv
+  omega
+
+private theorem selCon_handleU_ne_handleU {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxU j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+private theorem selCon_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
+  omega
+
+private theorem selCon_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxV j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+variable {A B C D P Q T S : gr3R} {x₀ x₁ x₂ x₃ x₄ : SelConDress}
+
+@[simp] theorem selConTuple_zero :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ 0
+      = (⟨0, 1, 0, 0, 0, 0⟩ : SqU4 gr3R) * selConVal A B C D P Q T S x₀ := by
+  simp only [selConTuple, sqVal_zero]
+  norm_num
+
+@[simp] theorem selConTuple_one :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ 1 = selConVal A B C D P Q T S x₁ := by
+  simp only [selConTuple, sqVal_one]
+  norm_num
+
+@[simp] theorem selConTuple_two :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ 2
+      = selConX1 A B P Q * selConVal A B C D P Q T S x₂ := by
+  simp only [selConTuple, sqVal_two]
+  norm_num
+
+@[simp] theorem selConTuple_handleU :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j)
+      = selConU A C T * selConVal A B C D P Q T S x₃ := by
+  simp only [selConTuple, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+  simp
+
+@[simp] theorem selConTuple_handleV :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j)
+      = selConV B D S * selConVal A B C D P Q T S x₄ := by
+  simp only [selConTuple, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (selCon_handleV_ne_handleU j)]
+  simp
+
+theorem selConTuple_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j') = 1 := by
+  simp only [selConTuple, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (selCon_handleU_ne_handleU hne), if_neg (selCon_handleU_ne_handleV j')]
+
+theorem selConTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j') = 1 := by
+  simp only [selConTuple, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (selCon_handleV_ne_handleU j'), if_neg (selCon_handleV_ne_handleV hne)]
+
+end BinderTuple
+
+end SqCore
+
+end Dyadic
+
+end GQ2
