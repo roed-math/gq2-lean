@@ -741,6 +741,8 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenFinite
 import GQ2.Dyadic.Instances.StageAbstractionEvenTransgression
 import GQ2.Dyadic.Instances.StageAbstractionEvenFrameCore
 import GQ2.Dyadic.Instances.StageAbstractionEvenFrattiniFrameN
+import GQ2.Dyadic.Instances.StageAbstractionEvenFrattiniFrameM
+import GQ2.Dyadic.Instances.StageAbstractionEvenLevelThree
 import GQ2.Dyadic.Instances.StageAbstractionEvenRawSpan
 import GQ2.Dyadic.Instances.StageAbstractionEvenRawSpanStep
 import GQ2.Dyadic.Main
