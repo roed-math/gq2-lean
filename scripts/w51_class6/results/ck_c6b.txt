@@ -1,0 +1,120 @@
+W51 corank probe -- class 6, markings [
+[ 0, 4 ],
+[ 4, 0 ],
+[ 4, 4 ],
+[ 8, 8 ],
+[ 1, 4 ],
+[ 5, 7 ],
+[ 3, 3 ],
+[ 7, 7 ],
+[ 0, 8 ],
+[ 16, 16 ],
+[ 2, 4 ],
+[ 9, 15 ],
+[ 12, 20 ],
+[ 31, 31 ],
+[ 6, 6 ],
+[ 15, 9 ]
+], verify 0
+Q_6 : order 2^3596, layers [ 5, 14, 49, 175, 679, 2674 ]  (build 0.170 s, extract+series 1812.410 s, mem 1000 MB)
+pc generators are weight graded, P_w = tail subgroup .. OK
+
+marking | level | target | domain | rank | corank | defect in im | cert | im delta vs same parity | secs
+--------+-------+--------+--------+------+--------+--------------+------+-------------------------+-----
+  (t,s) = (0,4): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.400 s
+ 0  4   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.010
+ 0  4   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 00) | 0.060
+ 0  4   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 00) | 0.560
+ 0  4   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 00) | 5.670
+   (t,s) = (0,4): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (4,0): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.400 s
+ 4  0   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.010
+ 4  0   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.060
+ 4  0   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 0.570
+ 4  0   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 5.770
+   (t,s) = (4,0): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (4,4): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.410 s
+ 4  4   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.020
+ 4  4   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.060
+ 4  4   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 0.750
+ 4  4   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 6.820
+   (t,s) = (4,4): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (8,8): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.410 s
+ 8  8   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.000
+ 8  8   |  L4   |    175 |    235 |    - |      - | (already 1)  |   -  | 0.010
+ 8  8   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 0.440
+ 8  8   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 5.160
+   (t,s) = (8,8): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (1,4): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.370 s
+ 1  4   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 10) | 0.040
+ 1  4   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 10) | 0.430
+ 1  4   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 10) | 2.190
+ 1  4   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 10) | 13.870
+   (t,s) = (1,4): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (5,7): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.420 s
+ 5  7   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 11) | 0.130
+ 5  7   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 11) | 1.150
+ 5  7   |  L5   |    679 |    865 |  673 |      6 | true         | true | (reference for parity 11) | 4.630
+ 5  7   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | (reference for parity 11) | 21.610
+   (t,s) = (5,7): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (3,3): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.370 s
+ 3  3   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.140
+ 3  3   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.970
+ 3  3   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.510
+ 3  3   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 20.580
+   (t,s) = (3,3): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (7,7): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.370 s
+ 7  7   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.140
+ 7  7   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.950
+ 7  7   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.060
+ 7  7   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 19.450
+   (t,s) = (7,7): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (0,8): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.400 s
+ 0  8   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.000
+ 0  8   |  L4   |    175 |    235 |    - |      - | (already 1)  |   -  | 0.010
+ 0  8   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 0.390
+ 0  8   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 5.060
+   (t,s) = (0,8): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (16,16): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.380 s
+16 16   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.000
+16 16   |  L4   |    175 |    235 |    - |      - | (already 1)  |   -  | 0.000
+16 16   |  L5   |    679 |    865 |    - |      - | (already 1)  |   -  | 0.000
+16 16   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 4.800
+   (t,s) = (16,16): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (2,4): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.380 s
+ 2  4   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 00) | 0.020
+ 2  4   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.210
+ 2  4   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 1.590
+ 2  4   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 10.150
+   (t,s) = (2,4): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (9,15): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.390 s
+ 9 15   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.130
+ 9 15   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 1.120
+ 9 15   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.590
+ 9 15   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 21.470
+   (t,s) = (9,15): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (12,20): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.390 s
+12 20   |  L3   |     49 |     60 |    - |      - | (already 1)  |   -  | 0.020
+12 20   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.060
+12 20   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 0.700
+12 20   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 7.170
+   (t,s) = (12,20): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (31,31): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.380 s
+31 31   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.160
+31 31   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 1.020
+31 31   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.260
+31 31   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 20.680
+   (t,s) = (31,31): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (6,6): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.380 s
+ 6  6   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.020
+ 6  6   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.550
+ 6  6   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 2.790
+ 6  6   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 14.330
+   (t,s) = (6,6): R(m) = 1 in Q_6  -- solvable
+  (t,s) = (15,9): K-layer dims [ 3, 12, 47, 173, 677 ] of [ 5, 14, 49, 175, 679 ], cert [ true, true, true, true, true ], built in 0.360 s
+15  9   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.120
+15  9   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.930
+15  9   |  L5   |    679 |    865 |  673 |      6 | true         | true | same as first (t,s) parity | 4.150
+15  9   |  L6   |   2674 |   3385 | 2668 |      6 | true         | true | same as first (t,s) parity | 20.130
+   (t,s) = (15,9): R(m) = 1 in Q_6  -- solvable
+DONE

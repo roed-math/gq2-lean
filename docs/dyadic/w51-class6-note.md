@@ -17,7 +17,7 @@ a refutation could first appear.  Item 2 was to finish the class-5 marking grid.
 |---|---|
 | **(a)** the one number: does `corank(δ)` grow at class 6? | **No.  It stays `d + 1 = 6`.**  At `L₆` the defect map has rank **2668 of 2674**, corank **6**, at every marking measured, exactly as at `L₃`, `L₄`, `L₅`.  No refutation appears where one could first have appeared. |
 | **(b)** is that a sample? | **Not for the corank.**  `δ_j` and its image depend on `(t,s)` only mod 2 (§2.4, verified directly at class 6), and all four parity classes were measured.  The corank verdict covers every uncleared marking. |
-| **(c)** does the relator's defect still land in `im δ`? | **Yes, 32 / 32** at class 6 (8 markings × 4 levels), against a random-vector control of **235 / 16000 = 1.47 %**, matching the `2⁻⁶ = 1.56 %` a codimension-6 image predicts. |
+| **(c)** does the relator's defect still land in `im δ`? | **Yes, 85 / 85** at class 6 (24 markings, every level exercised), against a random-vector control of **235 / 16000 = 1.47 %**, matching the `2⁻⁶ = 1.56 %` a codimension-6 image predicts. |
 | **(d)** class-5 grid | **Finished, and now exhaustive: 1023 of 1023 uncleared markings, all solvable, 0 infeasible** (§4).  W50 had 72. |
 | **(e)** anything new at `h = 2`? | `corank = d + 1 = 8` now also at `L₅` (3688 / 3696), one class deeper than W50 reached (§5.5). |
 | **(f)** was class 6 reachable at all? | **Yes, in 1835 s and 1.0 GB.**  `Q_6` has order `2^3596` and layers `5, 14, 49, 175, 679, 2674`.  W50's bare `pQuotient(G,2,6)` had not finished in ~50 min; the incremental `pQuotientProcess`/`NextClass` route gets there in half an hour (§5.1). |
@@ -28,7 +28,7 @@ it did not move:
 > **`corank(δ_j) = d + 1` at every level `L₃ … L₆` at `h = 1` (d = 5), and at every level
 > `L₃ … L₅` at `h = 2` (d = 7).**
 
-As a by-product, all 8 class-6 markings are **solvable**: an explicit `m` with `R(m) = 1` in a
+As a by-product, all 24 class-6 markings are **solvable**: an explicit `m` with `R(m) = 1` in a
 group of order `2^3596`.  This is positive evidence for the residual and, as always, not a
 proof of it (§6).
 
@@ -247,9 +247,17 @@ gap is visible one class down, where the cold call takes 150 s and the increment
 
 ### 5.2  The corank, and the containment
 
-`w51_corank.m`, output `results/ck_c6.txt`.  Eight markings, chosen to put at least two in each
-of the four parity classes of §2.4: `(0,1)`, `(1,0)`, `(1,1)`, `(0,2)`, `(2,1)`, `(1,2)`,
-`(3,5)`, `(2,2)`.  Every row below was identical at all eight.
+`w51_corank.m`, outputs `results/ck_c6.txt` and `results/ck_c6b.txt`.  **24 markings across two
+independent runs**, each of which built its own `Q_6` from scratch (three builds in total,
+counting `c6build.m`, all agreeing on order `2^3596` and layers `5, 14, 49, 175, 679, 2674`).
+
+* run A, 8 markings placing at least two in each of the four parity classes of §2.4:
+  `(0,1)`, `(1,0)`, `(1,1)`, `(0,2)`, `(2,1)`, `(1,2)`, `(3,5)`, `(2,2)`;
+* run B, 16 more chosen for valuation spread and depth: `(0,4)`, `(4,0)`, `(4,4)`, `(8,8)`,
+  `(1,4)`, `(5,7)`, `(3,3)`, `(7,7)`, `(0,8)`, `(16,16)`, `(2,4)`, `(9,15)`, `(12,20)`,
+  `(31,31)`, `(6,6)`, `(15,9)`.
+
+Every row below was identical at all 24, and **all 24 markings are solvable**.
 
 | level | target `dim L_j` | domain `5·dim K_{j-1}` | `rank δ` | **corank** | defect in `im δ` | cert |
 |---|---|---|---|---|---|---|
@@ -266,24 +274,32 @@ under-approximated domain is exactly what would have produced a false report of 
 **The control.**  At `L₆`, per marking, 2000 random vectors of the 2674-dimensional layer were
 tested for membership in `im δ`: **33, 32, 31, 20, 28, 39, 30, 22, total 235 of 16000, or
 1.47 %**, against the `2⁻⁶ = 1.5625 %` (250 of 16000) that a codimension-6 image predicts.  So
-the layer really is 6-corank and the relator's defect landing in it 32 times out of 32 is not
-something a random vector does.
+the layer really is 6-corank.
+
+**The containment.**  Across both runs the relator's own defect landed in `im δ` at
+**85 out of 85** (marking, level) pairs.  (85 rather than 24 × 4, because at 7 of the deeper
+markings the relator was already trivial at `L₃` and/or `L₄` and no map was needed there: the
+level counts are 17, 21, 23, 24 at `L₃ … L₆`.)  That is what a random vector does 1.5 % of the
+time.
 
 ### 5.3  The parity reduction, confirmed at class 6
 
 The §2.4 prediction is that `im δ` is a function of `(t mod 2, s mod 2)` alone.  At class 6, at
 **every** level including `L₆`:
 
-| marking | parity | `im δ` vs. the first marking of that parity |
+| parity of `(t,s)` | reference marking | the others, all reporting **same** |
 |---|---|---|
-| `(2,1)` | (0,1) | **same** as `(0,1)` |
-| `(1,2)` | (1,0) | **same** as `(1,0)` |
-| `(3,5)` | (1,1) | **same** as `(1,1)` |
-| `(2,2)` | (0,0) | **same** as `(0,2)` |
+| (0,0) | `(0,2)` | `(2,2)`, `(0,4)`, `(4,0)`, `(4,4)`, `(8,8)`, `(0,8)`, `(16,16)`, `(2,4)`, `(12,20)`, `(6,6)` |
+| (0,1) | `(0,1)` | `(2,1)` |
+| (1,0) | `(1,0)` | `(1,2)`, `(1,4)` |
+| (1,1) | `(1,1)` | `(3,5)`, `(5,7)`, `(3,3)`, `(7,7)`, `(9,15)`, `(31,31)`, `(15,9)` |
 
-and the four parity references are four distinct subspaces.  This is what licenses reading the
-class-6 corank off eight markings as a statement about all 1023: the corank is constant on
-parity classes, and all four were measured.
+**57 same-parity comparisons, 0 differing**, and the four parity references are four distinct
+subspaces.  Note that the confirmations include deep-valuation markings such as `(16,16)`,
+`(31,31)`, `(12,20)` and `(9,15)`, so the reduction is not an artefact of small `(t,s)`.
+
+This is what licenses reading the class-6 corank off 24 markings as a statement about all
+1023: the corank is constant on parity classes, and all four classes were measured.
 
 ### 5.4  What was *not* done at class 6
 
@@ -335,7 +351,7 @@ W50's reading that "the second handle changes nothing qualitatively" survives on
 * **Sampled.**
   * The **containment** of the relator's own defect in `im δ`.  This one is genuinely
     marking-dependent (the defect is not a mod-2 object), so it is a sample at class 6:
-    §5.2's markings, against 1023 exhaustively at class 5.
+    24 markings and 85 (marking, level) pairs at class 6, against 1023 markings exhaustively at class 5.
   * The **random-vector control** at class 6, 2000 draws per marking.
 * **Not attempted.**
   * **Class 7.**  The class-5-to-6 step cost a factor of about 115 in time over the
