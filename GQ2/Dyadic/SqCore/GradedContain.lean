@@ -252,6 +252,173 @@ theorem selConTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
 
 end BinderTuple
 
+/-! ## §3 The parity engine extension, and the κ-arithmetic
+
+Two small additions to `GradedSelect` §5b's `selPar` toolkit, then the κ-arithmetic of the
+note's §3: under the two adjacency parities `κ₁ = (A+B)·T·D` is even at **every** binder point
+(the quadratic block of the bit form never fires in this slice); at an uncleared type `(0, 1)`
+the weights `A`, `C` are forced even, `κ₂ = A·Q + C·P` is even, and the parity of
+`κ₃ = B·Q + D·P` is the mod-2 second-order datum `B·(C/2) + D·(A/2)`; the type `(1, 0)`
+mirrors with the two κ's exchanged.  At type `(1, 1)` both `κ₂` and `κ₃` can fire; the
+committed §6c instances live at type `(0, 1)`. -/
+
+section ParityEngine
+
+/-- Parity is invariant under negation. -/
+theorem selPar_neg : ∀ x : gr3R, selPar (-x) = selPar x := by decide
+
+/-- Parities can be compared after multiplication by `2`: over `ℤ/8` the equation `2x = 2y`
+pins `x − y` to `{0, 4}`, which parity cannot see. -/
+theorem selPar_eq_of_two_mul_eq : ∀ x y : gr3R, 2 * x = 2 * y → selPar x = selPar y := by
+  decide
+
+variable {A B C D P Q T S : gr3R}
+
+/-- The mod-2 shadow of the `(a, b)`-adjacency parity, as in `selCross_even`. -/
+private theorem selCon_par_hd (hd : 2 * P + (A * S - B * T) = 0) :
+    selPar A * selPar S - selPar B * selPar T = 0 := by
+  have hc := congrArg selPar hd
+  rw [selPar_add, selPar_two_mul, selPar_sub, selPar_mul, selPar_mul, selPar_zero,
+    zero_add] at hc
+  exact hc
+
+/-- …and of the `(b, c)`-adjacency parity. -/
+private theorem selCon_par_he (he : 2 * Q + (T * D - S * C) = 0) :
+    selPar T * selPar D - selPar S * selPar C = 0 := by
+  have hc := congrArg selPar he
+  rw [selPar_add, selPar_two_mul, selPar_sub, selPar_mul, selPar_mul, selPar_zero,
+    zero_add] at hc
+  exact hc
+
+/-- The 𝔽₂ core of the κ₁-vanishing: the two adjacency parities alone kill `(a+b)·t·d`. -/
+private theorem selConPar_kappa1 : ∀ a b c d t s : ZMod 2,
+    a * s - b * t = 0 → t * d - s * c = 0 → (a + b) * (t * d) = 0 := by
+  decide
+
+/-- ⭐ **The quadratic coefficient of the bit form is even at every binder point**: the two
+adjacency parities force `κ₁ = (A+B)·T·D ∈ 2·ℤ/8`, with no uncleared hypothesis.  This is the
+note's "the quadratic block never fires in this slice". -/
+theorem selConKappa1_even (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) : ∃ k : gr3R, (A + B) * (T * D) = 2 * k := by
+  rw [← selPar_eq_zero_iff, selPar_mul, selPar_mul, selPar_add]
+  exact selConPar_kappa1 (selPar A) (selPar B) (selPar C) (selPar D) (selPar T) (selPar S)
+    (selCon_par_hd hd) (selCon_par_he he)
+
+/-- At an uncleared type `(0, 1)` the `(a, b)`-parity forces the `u`-weight `A` even. -/
+theorem selConA_even01 (hd : 2 * P + (A * S - B * T) = 0) (hT : selPar T = 0)
+    (hS : selPar S = 1) : ∃ a₂ : gr3R, A = 2 * a₂ := by
+  rw [← selPar_eq_zero_iff]
+  have h1 := selCon_par_hd hd
+  rw [hT, hS, mul_one, mul_zero, sub_zero] at h1
+  exact h1
+
+/-- …and the `(b, c)`-parity forces `C` even. -/
+theorem selConC_even01 (he : 2 * Q + (T * D - S * C) = 0) (hT : selPar T = 0)
+    (hS : selPar S = 1) : ∃ c₂ : gr3R, C = 2 * c₂ := by
+  rw [← selPar_eq_zero_iff]
+  have h2 := selCon_par_he he
+  rw [hT, hS, zero_mul, one_mul, zero_sub, neg_eq_zero] at h2
+  exact h2
+
+/-- ⭐ At an uncleared type `(0, 1)` the coefficient `κ₂ = A·Q + C·P` is even: the `U`-side
+`t̄`-couplings of the bit form are invisible there. -/
+theorem selConKappa2_even01 (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hT : selPar T = 0) (hS : selPar S = 1) :
+    ∃ k : gr3R, A * Q + C * P = 2 * k := by
+  obtain ⟨a₂, ha⟩ := selConA_even01 hd hT hS
+  obtain ⟨c₂, hc⟩ := selConC_even01 he hT hS
+  exact ⟨a₂ * Q + c₂ * P, by rw [ha, hc]; ring⟩
+
+/-- The 𝔽₂ finish of the κ₃-criterion at type `(0, 1)`. -/
+private theorem selConPar_kappa3 : ∀ b d s c₂ t₂ a₂ q p : ZMod 2,
+    q = s * c₂ - t₂ * d → p = b * t₂ - a₂ * s → s = 1 → b * q + d * p = b * c₂ + d * a₂ := by
+  decide
+
+/-- ⭐ **The κ₃-criterion at type `(0, 1)`** (the note's `κ₃ ≡ B·(C/2) + D·(A/2)`): with the
+even halves `A = 2·A₂`, `C = 2·C₂`, `T = 2·T₂` exhibited, the parity of `κ₃ = B·Q + D·P` is
+the parity of `B·C₂ + D·A₂`.  The adjacency parities determine `P`, `Q` only through the
+halves of `B·T − A·S` and `S·C − T·D`: the bit reads second-order data of the weights, one
+level below the class-two realizability parity. -/
+theorem selConKappa3_par01 (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hT : selPar T = 0) (hS : selPar S = 1) :
+    ∃ A₂ C₂ T₂ : gr3R, A = 2 * A₂ ∧ C = 2 * C₂ ∧ T = 2 * T₂ ∧
+      selPar (B * Q + D * P) = selPar (B * C₂ + D * A₂) := by
+  obtain ⟨A₂, hA⟩ := selConA_even01 hd hT hS
+  obtain ⟨C₂, hC⟩ := selConC_even01 he hT hS
+  obtain ⟨T₂, hT₂⟩ := (selPar_eq_zero_iff T).mp hT
+  refine ⟨A₂, C₂, T₂, hA, hC, hT₂, ?_⟩
+  have hQ : selPar Q = selPar (S * C₂ - T₂ * D) :=
+    selPar_eq_of_two_mul_eq _ _ (by linear_combination he + S * hC - D * hT₂)
+  have hP : selPar P = selPar (B * T₂ - A₂ * S) :=
+    selPar_eq_of_two_mul_eq _ _ (by linear_combination hd - S * hA + B * hT₂)
+  rw [selPar_add, selPar_mul, selPar_mul, hQ, hP, selPar_add, selPar_mul, selPar_mul]
+  exact selConPar_kappa3 (selPar B) (selPar D) (selPar S) (selPar C₂) (selPar T₂) (selPar A₂)
+    _ _ (by rw [selPar_sub, selPar_mul, selPar_mul])
+    (by rw [selPar_sub, selPar_mul, selPar_mul]) hS
+
+/-- At an uncleared type `(1, 0)` the `(a, b)`-parity forces the `v`-weight `B` even. -/
+theorem selConB_even10 (hd : 2 * P + (A * S - B * T) = 0) (hT : selPar T = 1)
+    (hS : selPar S = 0) : ∃ b₂ : gr3R, B = 2 * b₂ := by
+  rw [← selPar_eq_zero_iff]
+  have h1 := selCon_par_hd hd
+  rw [hT, hS, mul_zero, mul_one, zero_sub, neg_eq_zero] at h1
+  exact h1
+
+/-- …and the `(b, c)`-parity forces `D` even. -/
+theorem selConD_even10 (he : 2 * Q + (T * D - S * C) = 0) (hT : selPar T = 1)
+    (hS : selPar S = 0) : ∃ d₂ : gr3R, D = 2 * d₂ := by
+  rw [← selPar_eq_zero_iff]
+  have h2 := selCon_par_he he
+  rw [hT, hS, one_mul, zero_mul, sub_zero] at h2
+  exact h2
+
+/-- ⭐ The mirror of `selConKappa2_even01`: at type `(1, 0)` the coefficient `κ₃ = B·Q + D·P`
+is even, so the `V`-side `t̄`-couplings are invisible there. -/
+theorem selConKappa3_even10 (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hT : selPar T = 1) (hS : selPar S = 0) :
+    ∃ k : gr3R, B * Q + D * P = 2 * k := by
+  obtain ⟨b₂, hb⟩ := selConB_even10 hd hT hS
+  obtain ⟨d₂, hdd⟩ := selConD_even10 he hT hS
+  exact ⟨b₂ * Q + d₂ * P, by rw [hb, hdd]; ring⟩
+
+/-- The 𝔽₂ finish of the κ₂-criterion at type `(1, 0)`. -/
+private theorem selConPar_kappa2 : ∀ a c t d₂ s₂ b₂ q p : ZMod 2,
+    q = s₂ * c - t * d₂ → p = b₂ * t - a * s₂ → t = 1 → a * q + c * p = a * d₂ + c * b₂ := by
+  decide
+
+/-- ⭐ The mirror of `selConKappa3_par01`: at type `(1, 0)`, with `B = 2·B₂`, `D = 2·D₂`,
+`S = 2·S₂` exhibited, the parity of `κ₂ = A·Q + C·P` is the parity of `A·D₂ + C·B₂`. -/
+theorem selConKappa2_par10 (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hT : selPar T = 1) (hS : selPar S = 0) :
+    ∃ B₂ D₂ S₂ : gr3R, B = 2 * B₂ ∧ D = 2 * D₂ ∧ S = 2 * S₂ ∧
+      selPar (A * Q + C * P) = selPar (A * D₂ + C * B₂) := by
+  obtain ⟨B₂, hB⟩ := selConB_even10 hd hT hS
+  obtain ⟨D₂, hD⟩ := selConD_even10 he hT hS
+  obtain ⟨S₂, hS₂⟩ := (selPar_eq_zero_iff S).mp hS
+  refine ⟨B₂, D₂, S₂, hB, hD, hS₂, ?_⟩
+  have hQ : selPar Q = selPar (S₂ * C - T * D₂) :=
+    selPar_eq_of_two_mul_eq _ _ (by linear_combination he + C * hS₂ - T * hD)
+  have hP : selPar P = selPar (B₂ * T - A * S₂) :=
+    selPar_eq_of_two_mul_eq _ _ (by linear_combination hd - A * hS₂ + T * hB)
+  rw [selPar_add, selPar_mul, selPar_mul, hQ, hP, selPar_add, selPar_mul, selPar_mul]
+  exact selConPar_kappa2 (selPar A) (selPar C) (selPar T) (selPar D₂) (selPar S₂) (selPar B₂)
+    _ _ (by rw [selPar_sub, selPar_mul, selPar_mul])
+    (by rw [selPar_sub, selPar_mul, selPar_mul]) hT
+
+/-- The 𝔽₂ core of the `T·S·(C+D)`-evenness used by the witness rows. -/
+private theorem selConPar_ts : ∀ c d t s : ZMod 2,
+    t * d - s * c = 0 → t * s * (c + d) = 0 := by
+  decide
+
+/-- The `(b, c)`-adjacency parity forces `T·S·(C+D)` even, at every binder point: the row
+product `T·S` is even off type `(1, 1)`, and at type `(1, 1)` the parity forces `C ≡ D`. -/
+theorem selCon_ts_even (he : 2 * Q + (T * D - S * C) = 0) :
+    ∃ k : gr3R, T * S * (C + D) = 2 * k := by
+  rw [← selPar_eq_zero_iff, selPar_mul, selPar_mul, selPar_add]
+  exact selConPar_ts (selPar C) (selPar D) (selPar T) (selPar S) (selCon_par_he he)
+
+end ParityEngine
+
 end SqCore
 
 end Dyadic
