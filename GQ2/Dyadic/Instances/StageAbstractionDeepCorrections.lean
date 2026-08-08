@@ -56,11 +56,12 @@ round trips are literal.
 ## The seam questions, answered on both branches
 
 * **Is `s = α - 1` enough?**  Yes, unconditionally, on **both** branches and for every
-  `α ≥ 2`: `evenRow_deepSupply_imChiM_of_two_le` and `evenRow_deepSupply_imChiN` (§7).
-  With `evenSharp_not_imageRelLe_imChiM`/`…imChiN` of
-  `StageAbstractionEvenRowSupply.lean` ruling out every smaller depth, the even seam sits
-  **exactly** at `s = α - 1` on both branches.  So EV-3f needs one depth, not two, and it is
-  the same `α - 1` its `α` already names.
+  `α ≥ 2`: `evenRow_deepSupply_imChiM_of_two_le` and `evenRow_deepSupply_imChiN` (§7).  So
+  EV-3f needs one depth, not two, and it is the same `α - 1` its `α` already names.  In the
+  other direction `evenSharp_not_imageRelLe_imChiM`/`…imChiN` of
+  `StageAbstractionEvenRowSupply.lean` refute the committed depth `s = 1` outright; the same
+  witnesses have exact depth `m + α - 2` and so defeat every `s ≤ α - 2` by the same count,
+  which is *not* formalised here — only the `s = 1` case is.
 * **What happens at `α = 2`?**  The depth is then `s = 1`, which is the committed seam, so
   the committed `RowExactLevelFibreLiftSupply` is *true* at `α = 2` on both branches:
   `evenRow_rowSupply_imChiM_two` (because `imChiM 2 = ⊤`, so the character is surjective) and
@@ -617,7 +618,8 @@ Two consequences.  The `N` branch lands at the *same* depth `s = α - 1` as `M`,
 `α ≥ 3` restriction of §6 was an artifact of the earlier route: `s = α - 1` suffices on both
 branches for every `α ≥ 2`.  At `α = 2` that depth *is* the committed seam, so the committed
 `RowExactLevelFibreLiftSupply` is true at `α = 2` on both branches — on `N` without the
-character being surjective.
+character being surjective.  Sufficiency is what §7 proves; for the matching necessity see
+the note in the header.
 -/
 
 section NBranch
