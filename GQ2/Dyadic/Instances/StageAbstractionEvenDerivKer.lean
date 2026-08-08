@@ -276,3 +276,121 @@ theorem evenDeriv_exists_shift_mul_tail
   exact ⟨V, t, ht, by rw [← hqa, ← hV]; rfl⟩
 
 end TailSpan
+
+/-! ## §4 Squarefree normal form for the canonical tail span
+
+The clone of `stageResidualTailSpan_exists_finset_prod` (L template, line 275).  The tails are
+central of exponent two, so the subgroup they generate is an elementary abelian group in which
+every element is a *squarefree* finset product; the symmetric difference is what makes the
+carrier of §4 a subgroup.  §6 then argues by emptiness of that finset. -/
+
+section Squarefree
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h k : ℕ}
+
+/-- A relator-adapted non-twisted tail, bundled in the graded layer. -/
+def evenDerivTailLayer (T : Fin (MarkedCore.coreRank h) → levelQuot G k) (hk : 3 ≤ k)
+    (i : {i : Fin (MarkedCore.coreRank h) // i ≠ 1}) : ↥(zLayer G k) :=
+  ⟨canonLift G k (T i.1) ^ 2 ^ (k - 1), by
+    have hmem := pow_two_pow_mem_lambdaImage (canonLift G k (T i.1)) (k - 1)
+    rwa [show 1 + (k - 1) = k by omega] at hmem⟩
+
+local instance evenDerivZLayerCommGroup (k : ℕ) : CommGroup ↥(zLayer G k) :=
+  { (inferInstance : Group ↥(zLayer G k)) with
+    mul_comm := fun a b ↦ Subtype.ext (zLayer_commute a.2 b.1).eq }
+
+/-- In an involutive abelian group, a product of two finset products is the finset product
+over the symmetric difference. -/
+private theorem evenDeriv_prod_mul_prod_eq_prod_symmDiff
+    {I H : Type*} [DecidableEq I] [CommGroup H]
+    (f : I → H) (hsq : ∀ i, f i * f i = 1) (s t : Finset I) :
+    (∏ i ∈ s, f i) * (∏ i ∈ t, f i) = ∏ i ∈ symmDiff s t, f i := by
+  induction s using Finset.induction generalizing t with
+  | empty => simp [Finset.symmDiff_def]
+  | @insert a s ha ih =>
+      by_cases hat : a ∈ t
+      · let t' := t.erase a
+        have hat' : a ∉ t' := by simp [t']
+        have ht : insert a t' = t := Finset.insert_erase hat
+        have hsd : symmDiff (insert a s) t = symmDiff s t' := by
+          ext y
+          simp only [Finset.mem_symmDiff, Finset.mem_insert]
+          by_cases hya : y = a
+          · subst y; simp [ha, hat, t']
+          · simp [hya, t']
+        calc
+          (∏ i ∈ insert a s, f i) * (∏ i ∈ t, f i) =
+              (f a * ∏ i ∈ s, f i) * (f a * ∏ i ∈ t', f i) := by
+                rw [Finset.prod_insert ha, ← ht, Finset.prod_insert hat']
+          _ = (f a * f a) * ((∏ i ∈ s, f i) * (∏ i ∈ t', f i)) := by ac_rfl
+          _ = (∏ i ∈ s, f i) * (∏ i ∈ t', f i) := by rw [hsq, one_mul]
+          _ = ∏ i ∈ symmDiff s t', f i := ih t'
+          _ = ∏ i ∈ symmDiff (insert a s) t, f i := by rw [hsd]
+      · have hnot : a ∉ symmDiff s t := by simp [Finset.mem_symmDiff, ha, hat]
+        have hsd : symmDiff (insert a s) t = insert a (symmDiff s t) := by
+          ext y
+          simp only [Finset.mem_symmDiff, Finset.mem_insert]
+          by_cases hya : y = a
+          · subst y; simp [ha, hat]
+          · simp [hya]
+        calc
+          (∏ i ∈ insert a s, f i) * (∏ i ∈ t, f i) =
+              (f a * ∏ i ∈ s, f i) * (∏ i ∈ t, f i) := by rw [Finset.prod_insert ha]
+          _ = f a * ((∏ i ∈ s, f i) * (∏ i ∈ t, f i)) := by rw [mul_assoc]
+          _ = f a * ∏ i ∈ symmDiff s t, f i := by rw [ih t]
+          _ = ∏ i ∈ insert a (symmDiff s t), f i := (Finset.prod_insert hnot).symm
+          _ = ∏ i ∈ symmDiff (insert a s) t, f i := by rw [hsd]
+
+private theorem evenDerivTailLayer_mul_self
+    (T : Fin (MarkedCore.coreRank h) → levelQuot G k) (hk : 3 ≤ k)
+    (i : {i : Fin (MarkedCore.coreRank h) // i ≠ 1}) :
+    evenDerivTailLayer T hk i * evenDerivTailLayer T hk i = 1 := by
+  apply Subtype.ext
+  simpa [pow_two] using zLayer_sq G (evenDerivTailLayer T hk i).2
+
+/-- **Every element of the canonical tail span is a squarefree finset product of tails.** -/
+theorem evenDerivTailSpan_exists_finset_prod
+    (T : Fin (MarkedCore.coreRank h) → levelQuot G k) (hk : 3 ≤ k)
+    {t : levelQuot G (k + 1)} (ht : t ∈ evenDerivTailSpan T) :
+    ∃ (hmem : t ∈ zLayer G k) (s : Finset {i : Fin (MarkedCore.coreRank h) // i ≠ 1}),
+      (⟨t, hmem⟩ : ↥(zLayer G k)) = ∏ i ∈ s, evenDerivTailLayer T hk i := by
+  classical
+  have hmem : t ∈ zLayer G k := evenDerivTailSpan_le_zLayer T (by omega) ht
+  refine ⟨hmem, ?_⟩
+  let P : Subgroup ↥(zLayer G k) :=
+    { carrier := {y | ∃ s : Finset {i : Fin (MarkedCore.coreRank h) // i ≠ 1},
+          y = ∏ i ∈ s, evenDerivTailLayer T hk i}
+      one_mem' := ⟨∅, by simp⟩
+      mul_mem' := by
+        rintro y y' ⟨s, rfl⟩ ⟨u, rfl⟩
+        exact ⟨symmDiff s u, (evenDeriv_prod_mul_prod_eq_prod_symmDiff
+          (evenDerivTailLayer T hk) (evenDerivTailLayer_mul_self T hk) s u).symm ▸ rfl⟩
+      inv_mem' := by
+        rintro y ⟨s, rfl⟩
+        refine ⟨s, ?_⟩
+        apply inv_eq_of_mul_eq_one_right
+        rw [evenDeriv_prod_mul_prod_eq_prod_symmDiff
+          (evenDerivTailLayer T hk) (evenDerivTailLayer_mul_self T hk) s s, symmDiff_self]
+        simp }
+  suffices hsuff : ∀ y, y ∈ evenDerivTailSpan T →
+      y ∈ zLayer G k ∧ ∀ hy : y ∈ zLayer G k, (⟨y, hy⟩ : ↥(zLayer G k)) ∈ P by
+    exact (hsuff t ht).2 hmem
+  intro y hy
+  refine Subgroup.closure_induction (p := fun w _ ↦
+      w ∈ zLayer G k ∧ ∀ hw : w ∈ zLayer G k, (⟨w, hw⟩ : ↥(zLayer G k)) ∈ P)
+    ?_ ?_ ?_ ?_ hy
+  · rintro w ⟨i, hi, rfl⟩
+    exact ⟨(evenDerivTailLayer T hk ⟨i, hi⟩).2, fun hw ↦ ⟨{⟨i, hi⟩}, by
+      rw [Finset.prod_singleton]; exact Subtype.ext rfl⟩⟩
+  · exact ⟨Subgroup.one_mem _, fun _ ↦ ⟨∅, Subtype.ext (by simp)⟩⟩
+  · rintro a b _ _ ⟨haz, hap⟩ ⟨hbz, hbp⟩
+    refine ⟨Subgroup.mul_mem _ haz hbz, fun hw ↦ ?_⟩
+    rw [show (⟨a * b, hw⟩ : ↥(zLayer G k)) = (⟨a, haz⟩ : ↥(zLayer G k)) * ⟨b, hbz⟩ from
+      Subtype.ext rfl]
+    exact P.mul_mem (hap haz) (hbp hbz)
+  · rintro a _ ⟨haz, hap⟩
+    refine ⟨Subgroup.inv_mem _ haz, fun hw ↦ ?_⟩
+    rw [show (⟨a⁻¹, hw⟩ : ↥(zLayer G k)) = (⟨a, haz⟩ : ↥(zLayer G k))⁻¹ from Subtype.ext rfl]
+    exact P.inv_mem (hap haz)
+
+end Squarefree
