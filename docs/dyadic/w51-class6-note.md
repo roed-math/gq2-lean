@@ -205,3 +205,72 @@ defect landed in `im δ` at every level of every one of the 951.**  That is 1811
 (marking, level) containment events, each at odds `2^{-6}` if it were chance.
 
 ---
+
+## 6.  Limitations: what was exhausted and what was sampled
+
+* **Exhausted.**
+  * The **class-5 marking grid**, all 1023 uncleared `(t,s)` mod 32 at `h = 1` (§4).  By
+    W50 §2.2 that is the entire quantifier of `SqLamMarkTransitivity 1` at class 5, not a
+    sample of it.
+  * The **corank at class 6**, in the following precise sense: by §2.4 the map `δ_j` and its
+    image depend on the marking only through `(t mod 2, s mod 2)`, this wave verified that
+    dependence directly at classes 4, 5 and 6, and all four parity classes were measured.  So
+    the corank verdict covers every marking, not only the ones listed.
+  * The **generating-set certificate** at every level of every marking computed, at every
+    class: the two conditions of §2.2 were checked each time, never assumed.
+* **Sampled.**
+  * The **containment** of the relator's own defect in `im δ`.  This one is genuinely
+    marking-dependent (the defect is not a mod-2 object), so it is a sample at class 6:
+    §5.2's markings, against 1023 exhaustively at class 5.
+  * The **random-vector control** at class 6, 2000 draws per marking.
+* **Not attempted.**
+  * **Class 7.**  The class-5-to-6 step cost a factor of about 115 in time over the
+    class-4-to-5 step; a seventh layer would be of dimension roughly 10⁴ and the group of
+    order about `2^{14000}`.  On the same scaling that is tens of CPU-hours for the quotient
+    alone, outside this wave's budget.  It is not obviously out of reach for a wave that wants
+    it, and the linear algebra at that size would still be unremarkable.
+  * A **second engine.**  GAP/ANUPQ through `sage -gap` would give an independent p-quotient
+    implementation.  The W51 numbers at classes 4 and 5 agree with W50's, but both are Magma.
+* **What a positive verdict is worth — unchanged from W50 §9.**  A class-`c` certificate says
+  the class-`c` quotient admits the clearing automorphism.  The residual needs it in the
+  inverse limit, and no finite class can supply that.  The value of this wave is the *absence*
+  of a refutation one class deeper than anyone had looked, plus the sharpened structure
+  (§2.4, §5.3).
+
+---
+
+## 7.  Reproduction
+
+Run everything with `scripts/w51_class6` as the working directory; the scripts
+`load "../w50_depth_sweep/c0.m"` by relative path for the 2-adic constant `c₀`, and write
+their output with `PrintFile` to the name given by `out:=`, flushed line by line so that an
+interrupted run still leaves its measurements behind.
+
+```
+scripts/w51_class6/
+  c6build.m       the tower to class 6, incremental and timed
+                  magma -b out:=../../data/c6build.txt c6build.m
+  w51_corank.m    the corank probe (cls, marks, out, verify, ctrl)
+                  magma -b cls:=5 marks:="0,1;1,1;3,5" out:=../../data/ck_c5.txt verify:=1 w51_corank.m
+                  magma -b cls:=6 marks:="0,1;1,0;1,1;0,2;2,1;1,2;3,5;2,2" ctrl:=2000 out:=../../data/ck_c6.txt verify:=0 w51_corank.m
+  w51_grid.m      the class-5 grid continuation (lo, hi, out)
+                  magma -b lo:=0 hi:=1000 out:=../../data/grid_c5.txt w51_grid.m
+  w51_h2.m        the h = 2 corank at class 5 (cls, marks, out)
+                  magma -b cls:=5 marks:="0,1;1,0;1,1;0,2;2,1;3,5" out:=../../data/h2_c5.txt w51_h2.m
+  results/        the output files quoted in this memo
+```
+
+`verify:=1` turns on the comparison against W50's `K meet P_j` route and the layer-coordinate
+cross-check; it is affordable at class 4 and class 5 and was not run at class 6 (§5.4).
+`ctrl:=N` adds the random-vector control at the deepest level.
+
+Measured budgets on this machine (16 cores, six Lean agents sharing it, every job
+`nice -n 10`), for the record and for the next wave's planning:
+
+| job | wall | peak RSS |
+|---|---|---|
+| tower to class 5 (incremental) | 16 s | ~100 MB |
+| tower to class 6 (incremental) | **1835 s** | ~1.0 GB |
+| tower to class 6 (bare `pQuotient`, W50's `c6size.m`) | **did not finish in ~50 min / ~700 MB** | — |
+| one class-5 marking, all levels | 0.5–0.9 s | — |
+| the 951-marking class-5 grid | 677 s | ~150 MB |
