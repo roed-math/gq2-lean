@@ -705,6 +705,7 @@ import GQ2.Dyadic.SqCore.GradedTwo
 import GQ2.Dyadic.SqCore.GradedThree
 import GQ2.Dyadic.SqCore.GradedSelect
 import GQ2.Dyadic.SqCore.GradedContain
+import GQ2.Dyadic.SqCore.GradedSigma
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
@@ -745,4 +746,7 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenFrattiniFrameM
 import GQ2.Dyadic.Instances.StageAbstractionEvenLevelThree
 import GQ2.Dyadic.Instances.StageAbstractionEvenRawSpan
 import GQ2.Dyadic.Instances.StageAbstractionEvenRawSpanStep
+import GQ2.Dyadic.Instances.StageAbstractionEvenSharpHandles
+import GQ2.Dyadic.Instances.StageAbstractionEvenBracketSpan
+import GQ2.Dyadic.Instances.StageAbstractionEvenStageClimb
 import GQ2.Dyadic.Main
