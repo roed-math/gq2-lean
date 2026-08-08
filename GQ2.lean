@@ -752,4 +752,5 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenStageClimb
 import GQ2.Dyadic.Instances.StageAbstractionEvenKernelAdapted
 import GQ2.Dyadic.Instances.StageAbstractionEvenAssembly
 import GQ2.Dyadic.Instances.EvenDemushkin
+import GQ2.Dyadic.Instances.EvenCyclotomicRange
 import GQ2.Dyadic.Main
