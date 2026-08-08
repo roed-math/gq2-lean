@@ -276,7 +276,69 @@ theorem sigMark_gateF_iff (hd : 2 * P + A = A1) (he : 2 * Q + C1 = C) :
   · rintro ⟨y, hy⟩
     exact ⟨y - (B * C1 + (A + A1 + B) * Q), by linear_combination -hy⟩
 
+variable (h j A0 C0 A1 C1 A B C D P Q F T S) in
+/-- ⭐ **The wider-slice test homomorphism**: any weight tuple passing the three gates is a
+class-three quotient of `D_sq h`, by the committed lift. -/
+noncomputable def sigHom (hd : 2 * P + (A * S - B * T) = A1)
+    (he : 2 * Q + (T * D - S * C) = -C1)
+    (hf : 2 * F = A0 * C1 + A1 * C1 - (A + B) * (C * S - D * T) - 2 * A1 * Q - 2 * C1 * P) :
+    ContinuousMonoidHom (DSq h : Type) (SqU4 gr3R) :=
+  sqU4Hom gr3R_card h (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)
+    (sqRelWord_sigMark_eq_one_iff.mpr ⟨hd, he, hf⟩)
+
+variable {hd : 2 * P + (A * S - B * T) = A1} {he : 2 * Q + (T * D - S * C) = -C1}
+variable {hf : 2 * F = A0 * C1 + A1 * C1 - (A + B) * (C * S - D * T) - 2 * A1 * Q - 2 * C1 * P}
+
+@[simp] theorem sigHom_gen (i : Fin (sqRank h)) :
+    sigHom h j A0 C0 A1 C1 A B C D P Q F T S hd he hf (sqGen h i)
+      = sigMark h j A0 C0 A1 C1 A B C D P Q F T S i :=
+  sqU4Hom_gen _ _ _ i
+
 end Marking
+
+/-! ### The instance weights
+
+The escape hom of paragraph 6: `(A0, C0, A1, C1) = (0, 1, 0, 1)`, handle weights
+`(A, B, C, D) = (6, 0, 1, 0)`, solving coordinates `(P, Q, F) = (1, 0, 0)`, at the canonical
+row `(T, S) = (0, 1)`.  All three gates hold on the nose, the junk-lattice functionals `K1`,
+`K5`, `K6` are all even (the hom is *sound*: no junk move can flip the bit), and the reading
+coefficient `kappa2s = A1*Q + C1*P = 1` is odd: the sigma-slot data are read against the
+`x0`-slot's `t`-component. -/
+
+section InstanceMark
+
+/-- The instance marking at one handle. -/
+def sigWitMark : Fin (sqRank 1) → SqU4 gr3R :=
+  ![⟨0, 1, 1, 0, 0, 0⟩, ⟨0, 0, 1, 0, 0, 0⟩, ⟨0, 0, 2, 1, 0, 0⟩, ⟨6, 0, 1, 0, 0, 0⟩,
+    ⟨0, 1, 0, 0, 0, 0⟩]
+
+/-- The instance marking is the wider marking at the instance weights. -/
+theorem sigWitMark_eq : sigWitMark = sigMark 1 0 0 1 0 1 6 0 1 0 1 0 0 0 1 := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sigMark_zero]; rfl
+  · rw [sigMark_one]; rfl
+  · rw [sigMark_two]; decide
+  · rw [Subsingleton.elim j' 0, sigMark_handleU]; rfl
+  · rw [Subsingleton.elim j' 0, sigMark_handleV]; rfl
+
+/-- The instance marking kills the relator: the wider slice is non-vacuously realizable. -/
+theorem sqRelWord_sigWitMark : sqRelWord sigWitMark = 1 := by decide
+
+/-- The three gates at the instance weights, by evaluation. -/
+example : 2 * (1 : gr3R) + (6 * 1 - 0 * 0) = 0 ∧ 2 * (0 : gr3R) + (0 * 0 - 1 * 1) = -1 ∧
+    2 * (0 : gr3R) = 0 * 1 + 0 * 1 - (6 + 0) * (1 * 1 - 0 * 0) - 2 * 0 * 0 - 2 * 1 * 1 := by
+  refine ⟨by decide, by decide, by decide⟩
+
+/-- ⭐ **The instance test hom**: the wider slice's escape hom, as an honest continuous
+homomorphism `D_sq 1 → U_4(Z/8)` through the committed lift. -/
+noncomputable def sigWitHom : ContinuousMonoidHom (DSq 1 : Type) (SqU4 gr3R) :=
+  sqU4Hom gr3R_card 1 sigWitMark sqRelWord_sigWitMark
+
+@[simp] theorem sigWitHom_gen (i : Fin (sqRank 1)) : sigWitHom (sqGen 1 i) = sigWitMark i :=
+  sqU4Hom_gen _ _ _ i
+
+end InstanceMark
 
 end SqCore
 
