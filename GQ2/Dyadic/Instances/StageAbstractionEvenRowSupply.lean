@@ -567,6 +567,78 @@ private theorem evenSharp_not_dvd_pow_succ_mul_unit {j : ℕ} (b : ℤ_[2]ˣ) :
     ring
   exact not_isUnit_two (isUnit_of_mul_isUnit_left (hb ▸ b.isUnit))
 
+/-! ### §5.3 The two branch refutations
+
+On each branch the failing element is a row unit of that branch: for `M` it is `mUnit α`
+(exact depth `α`, tested at level `2`), for `N` it is `(nUnit α)^2` (exact depth `α + 1`,
+tested at level `3`).  Both need only `α ≥ 3`; the tables are arbitrary, subject to the
+single standing requirement that one of their values is a character value at all. -/
+
+/-- **The `M`-branch refutation.**  For `α ≥ 3` and a character with the `M` image, the row
+supply is false at every table — in particular at the `M` row table, whose first value is
+`1`.  The witness is `mUnit α`, the table's own `D` row: it is `≡ 1 mod 8` (its depth is
+`α ≥ 3`) but the depth bound confines `chi(λ_2(G))` to `1 + 2^(α+1)ℤ₂`, one digit past it. -/
+theorem evenRow_not_rowSupply_imChiM {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) :
+    ¬ RowExactLevelFibreLiftSupply v G chi := by
+  have hbound : ∀ g : G, EvenSharpPmOne α (chi g) := by
+    intro g
+    have hg : chi g ∈ MonoidHom.range chi.toMonoidHom := ⟨g, rfl⟩
+    rw [hrange] at hg
+    exact evenSharp_pmOne_of_mem_imChiM (by omega) hg
+  refine evenRow_not_rowSupply_of_witness i hvi (le_refl 2)
+    (evenRow_mUnit_mem_range_of_imChiM hrange) ?_ ?_
+  · rw [evenSharp_mem_ker_iff, mUnit_sub_one (by omega)]
+    exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
+  · intro hmem
+    have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound 0 hmem
+    rw [evenSharp_mem_ker_iff, mUnit_sub_one (by omega)] at hker
+    exact evenSharp_not_dvd_pow_succ_mul_unit (mUnit α) hker
+
+/-- **The `N`-branch refutation.**  Same statement one level up: at level `3` the depth bound
+gives `1 + 2^(α+2)ℤ₂`, while `(nUnit α)^2` has exact depth `α + 1` and is `≡ 1 mod 16`.
+(At level `2` the `N` image happens to be saturated, which is why the `N` witness is the
+square and the level is `3`.) -/
+theorem evenRow_not_rowSupply_imChiN {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) :
+    ¬ RowExactLevelFibreLiftSupply v G chi := by
+  have hbound : ∀ g : G, EvenSharpPmOne α (chi g) := by
+    intro g
+    have hg : chi g ∈ MonoidHom.range chi.toMonoidHom := ⟨g, rfl⟩
+    rw [hrange] at hg
+    exact evenSharp_pmOne_of_mem_imChiN (by omega) hg
+  obtain ⟨b, hb⟩ := nUnit_sq_sub_one (α := α) (by omega)
+  have hu : (nUnit α) ^ 2 ∈ Set.range chi := by
+    obtain ⟨y, hy⟩ := evenRow_nUnit_mem_range_of_imChiN hrange
+    exact ⟨y ^ 2, by rw [map_pow, hy]⟩
+  refine evenRow_not_rowSupply_of_witness i hvi (show (2 : ℕ) ≤ 3 by omega) hu ?_ ?_
+  · rw [evenSharp_mem_ker_iff, hb]
+    exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
+  · intro hmem
+    have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound 1 hmem
+    rw [evenSharp_mem_ker_iff, hb] at hker
+    exact evenSharp_not_dvd_pow_succ_mul_unit (j := α + 1) b hker
+
+/-- The filtration identity itself fails on the `M` branch: by §2 it would supply the row
+table `fun _ ↦ 1`, which §5.3 refutes.  This is the machine-checked obstruction to the
+board's deliverable 1 as literally stated. -/
+theorem evenSharp_not_imageRel_imChiM {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α) :
+    ¬ ImageRelSharpFiltrationExact G chi := fun H ↦
+  evenRow_not_rowSupply_imChiM (v := fun _ : Fin 1 ↦ (1 : ℤ_[2]ˣ)) hα3 hrange 0
+    evenRow_one_mem_range
+    (evenRow_rowSupply_of_imageRel H fun _ ↦ evenRow_one_mem_range)
+
+/-- The same on the `N` branch. -/
+theorem evenSharp_not_imageRel_imChiN {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α) :
+    ¬ ImageRelSharpFiltrationExact G chi := fun H ↦
+  evenRow_not_rowSupply_imChiN (v := fun _ : Fin 1 ↦ (1 : ℤ_[2]ˣ)) hα3 hrange 0
+    evenRow_one_mem_range
+    (evenRow_rowSupply_of_imageRel H fun _ ↦ evenRow_one_mem_range)
+
 end Criterion
 
 end Obstruction
