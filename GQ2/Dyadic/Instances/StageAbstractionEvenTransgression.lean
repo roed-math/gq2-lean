@@ -222,6 +222,346 @@ theorem mRelWord_mem_twoCentralSeries_two (hα : 1 ≤ α)
 
 end LambdaTwo
 
+/-! ## §3 The abstract-gram seam
+
+`Frame.IsCupAdapted` takes the word's quadratic-initial Gram contraction as a parameter
+(board §2.1(a)).  For the even words that contraction is the committed 4x4 Variance matrix on
+the core letters plus the `h` handle hyperbolics; its full-rank packaging belongs to the
+concurrent EV-3c1 lane, so this file constrains an abstract contraction by the predicate
+`IsEvenGram` and never names the adapter.  Every consumer below takes `gram` and an
+`IsEvenGram gram` argument. -/
+
+section EvenGram
+
+variable {h : ℕ}
+
+/-- **The abstract-gram seam.**  A contraction `gram` on rank-`coreRank h` matrices is an
+*even gram* when it is the even relators' quadratic-initial contraction: the core block
+`κ₀₀ + (κ₀₁ + κ₁₀) + (κ₂₃ + κ₃₂)`, which is the committed Variance matrix
+`nGram = mGram = [[1,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]]` read on the four core letters
+(`core_eq_nGram`, `core_eq_mGram`), plus one hyperbolic pair per handle.
+
+This is the right-hand side of the committed `IsCupCocycle.nRelWord_centLift_fib` and
+`IsCupCocycle.mRelWord_centLift_fib` verbatim, so it is exactly the interface the transgression
+argument consumes, and it is the *same* predicate for both words: the `N` and `M` cores share
+their Gram (`MarkedCore.mGram_eq_nGram`). -/
+def IsEvenGram
+    (gram : (Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) → ZMod 2) :
+    Prop :=
+  ∀ κ : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2,
+    gram κ = κ 0 0 + (κ 0 1 + κ 1 0) + (κ 2 3 + κ 3 2) +
+      ∑ j, (κ (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j) +
+        κ (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j))
+
+namespace IsEvenGram
+
+variable {gram : (Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) → ZMod 2}
+
+/-- An even gram kills the zero matrix. -/
+theorem zero (hg : IsEvenGram gram) : gram (fun _ _ ↦ 0) = 0 := by
+  simpa using hg fun _ _ ↦ (0 : ZMod 2)
+
+/-- An even gram is additive in the matrix. -/
+theorem add (hg : IsEvenGram gram)
+    (κ κ' : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
+    gram (fun i j ↦ κ i j + κ' i j) = gram κ + gram κ' := by
+  rw [hg fun i j ↦ κ i j + κ' i j, hg κ, hg κ']
+  simp only [Finset.sum_add_distrib]
+  abel
+
+/-- **The core block of an even gram is the committed Variance matrix** `mGram`, contracted on
+the four core letters.  This is the machine-checked reading of the seam: `IsEvenGram` does not
+merely have the right shape, it contracts against the committed matrix. -/
+theorem core_eq_mGram (κ : Fin 4 → Fin 4 → ZMod 2) :
+    ∑ i, ∑ j, MarkedCore.mGram i j * κ i j =
+      κ 0 0 + (κ 0 1 + κ 1 0) + (κ 2 3 + κ 3 2) := by
+  simp only [Fin.sum_univ_four, MarkedCore.mGram_00, MarkedCore.mGram_01, MarkedCore.mGram_02,
+    MarkedCore.mGram_03, MarkedCore.mGram_10, MarkedCore.mGram_11, MarkedCore.mGram_12,
+    MarkedCore.mGram_13, MarkedCore.mGram_20, MarkedCore.mGram_21, MarkedCore.mGram_22,
+    MarkedCore.mGram_23, MarkedCore.mGram_30, MarkedCore.mGram_31, MarkedCore.mGram_32,
+    MarkedCore.mGram_33]
+  ring
+
+/-- The same against the `N`-side spelling of the committed matrix, through
+`MarkedCore.mGram_eq_nGram`. -/
+theorem core_eq_nGram (κ : Fin 4 → Fin 4 → ZMod 2) :
+    ∑ i, ∑ j, MarkedCore.nGram i j * κ i j =
+      κ 0 0 + (κ 0 1 + κ 1 0) + (κ 2 3 + κ 3 2) := by
+  have hnm : ∀ i j : Fin 4, MarkedCore.nGram i j = MarkedCore.mGram i j := by
+    intro i j
+    rw [MarkedCore.mGram_eq_nGram]
+    rfl
+  simp only [hnm]
+  exact core_eq_mGram κ
+
+/-- **The `N_α` relator's central-extension fibre is the even gram contraction** (`2 ≤ α`):
+the committed `nRelWord_centLift_fib` read through the seam. -/
+theorem nRelWord_fib {L : Type*} [Group L] {c : GQ2.DRCoh.TwoCocycle L}
+    (hg : IsEvenGram gram) (hc : MarkedCore.IsCupCocycle c) {α : ℕ} (hα : 2 ≤ α)
+    (m : Fin (MarkedCore.coreRank h) → L) :
+    (MarkedCore.nRelWord α fun i ↦ MarkedCore.centLift c (m i)).fib =
+      gram fun i j ↦ c.κ (m i) (m j) := by
+  rw [hc.nRelWord_centLift_fib hα m, hg fun i j ↦ c.κ (m i) (m j)]
+
+/-- **The `M_α` relator's central-extension fibre is the same even gram contraction**
+(`2 ≤ α`), the twin of `nRelWord_fib`: the two cores share their Gram. -/
+theorem mRelWord_fib {L : Type*} [Group L] {c : GQ2.DRCoh.TwoCocycle L}
+    (hg : IsEvenGram gram) (hc : MarkedCore.IsCupCocycle c) {α : ℕ} (hα : 2 ≤ α)
+    (m : Fin (MarkedCore.coreRank h) → L) :
+    (MarkedCore.mRelWord α fun i ↦ MarkedCore.centLift c (m i)).fib =
+      gram fun i j ↦ c.κ (m i) (m j) := by
+  rw [hc.mRelWord_centLift_fib hα m, hg fun i j ↦ c.κ (m i) (m j)]
+
+end IsEvenGram
+
+end EvenGram
+
+/-! ## §4 Vanishing of the Gram contraction
+
+The clone of `levelThreeTransgression.gram_vanishes_aux` and its field-level wrapper, with the
+odd Gram replaced by an abstract contraction.  The proofs are the committed proofs: the only
+property of the contraction the duality argument consumes is **additivity**, which is why the
+abstract statement asks for exactly `gram 0 = 0` and `gram (κ + κ') = gram κ + gram κ'` and
+nothing about the word.  Both statements are `α`-free and rank-abstract; the even instances
+supply `hzero`/`hadd` from `IsEvenGram`. -/
+
+section GramVanishes
+
+/-- An additive contraction commutes with finite sums of matrices (the `gram_sum` clone). -/
+theorem gram_sum_of_add {n : ℕ} {gram : (Fin n → Fin n → ZMod 2) → ZMod 2}
+    (hzero : gram (fun _ _ ↦ 0) = 0)
+    (hadd : ∀ κ κ' : Fin n → Fin n → ZMod 2,
+      gram (fun i j ↦ κ i j + κ' i j) = gram κ + gram κ')
+    {ι : Type*} [DecidableEq ι] (S : Finset ι) (f : ι → Fin n → Fin n → ZMod 2) :
+    gram (fun i j ↦ ∑ x ∈ S, f x i j) = ∑ x ∈ S, gram (f x) := by
+  induction S using Finset.induction_on with
+  | empty => simpa using hzero
+  | insert a S ha ih =>
+      rw [Finset.sum_insert ha,
+        show (fun i j ↦ ∑ x ∈ insert a S, f x i j) =
+          fun i j ↦ f a i j + ∑ x ∈ S, f x i j from
+            funext fun i ↦ funext fun j ↦ Finset.sum_insert ha,
+        hadd, ih]
+
+/-- **The generic heart of the transgression realization, gram- and rank-abstract.**  Let `G`
+be a finitely generated pro-2 group, `c` a bi-additive normalized two-cocycle on its elementary
+quotient that becomes a coboundary over `G` through a continuous homomorphism `φ` lying over
+the projection, and `ℓ` an additive functional on `H²(G, 𝔽₂)` whose values on cup products of
+character classes realize an **additive** contraction `gram` at a marking `gens`.  Then the
+contraction of `c` at the images of the marking vanishes.
+
+This is `levelThreeTransgression.gram_vanishes_aux` with `sqRelatorQuadraticInitialGram h`
+replaced by `gram` and `Fin (sqRank h)` by `Fin n`; the proof is unchanged, which is the
+machine-checked statement that the duality argument is word-independent.  Expanding `c` in a
+mod-two basis of the elementary quotient writes the contraction matrix as a finite sum of
+rank-one products of inflated coordinate characters; the pairing hypothesis turns each term
+into an `ℓ`-value; naturality of the cup product under inflation recombines the sum into `ℓ` of
+the inflation of the class of `c`, which dies because the fibre of `φ` is a continuous
+primitive of the inflated cocycle. -/
+theorem gram_vanishes_aux {n : ℕ}
+    (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : IsTopologicallyFinGen G) (hpro : IsProP 2 G)
+    {gram : (Fin n → Fin n → ZMod 2) → ZMod 2}
+    (hzero : gram (fun _ _ ↦ 0) = 0)
+    (hadd : ∀ κ κ' : Fin n → Fin n → ZMod 2,
+      gram (fun i j ↦ κ i j + κ' i j) = gram κ + gram κ')
+    (gens : Fin n → G)
+    (c : GQ2.DRCoh.TwoCocycle (levelQuot G 2)) (hc : MarkedCore.IsCupCocycle c)
+    (φ : ContinuousMonoidHom G (GQ2.DRCoh.CentExt c))
+    (hbase : ∀ g : G, (φ g).base = levelMk G 2 g)
+    (ℓ :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      H2 G (ZMod 2) →+ ZMod 2)
+    (hpair :
+      letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+      letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+      ∀ cG dG : ContinuousMonoidHom G (Multiplicative (ZMod 2)),
+        ℓ (trivialCupPairing 2 G (fun _ _ ↦ rfl)
+            (H1mk G (ZMod 2) (Count.homEquivZ1 cG))
+            (H1mk G (ZMod 2) (Count.homEquivZ1 dG))) =
+          gram fun i j ↦ Multiplicative.toAdd (cG (gens i)) *
+            Multiplicative.toAdd (dG (gens j))) :
+    gram (fun i j ↦ c.κ (levelMk G 2 (gens i)) (levelMk G 2 (gens j))) = 0 := by
+  let Q := levelQuot G 2
+  letI : DiscreteTopology Q := discreteTopology_levelQuot G hfg hpro 2
+  letI : Finite Q := finite_levelQuot G hfg hpro 2
+  letI : CommGroup Q :=
+    { (inferInstance : Group Q) with mul_comm := levelQuot_two_mul_comm }
+  letI : Fact (∀ q : Q, q ^ 2 = 1) := ⟨levelQuot_two_pow_two⟩
+  letI : Module (ZMod 2) (Additive Q) := LSquare.instModuleZModOfNatNatAdditive_gQ2 Q
+  letI : Module.Finite (ZMod 2) (Additive Q) := Module.Finite.of_finite
+  letI : DistribMulAction Q (ZMod 2) := LSquare.instDistribMulActionZModOfNatNat_gQ2_1 Q
+  letI : ContinuousSMul Q (ZMod 2) := LSquare.instContinuousSMulZModOfNatNat_gQ2_1 Q
+  letI : DistribMulAction G (ZMod 2) := scalarActionZmodTwo G
+  letI : ContinuousSMul G (ZMod 2) := scalarActionZmodTwo_continuousSMul G
+  -- The bi-additive cocycle as a bilinear form on the additive elementary quotient.
+  let Bform : LinearMap.BilinForm (ZMod 2) (Additive Q) :=
+    AddMonoidHom.toZModLinearMap 2
+      (AddMonoidHom.mk'
+        (fun v ↦ AddMonoidHom.toZModLinearMap 2
+          (AddMonoidHom.mk' (fun w ↦ c.κ v.toMul w.toMul)
+            (fun w w' ↦ hc.addRight v.toMul w.toMul w'.toMul)))
+        (fun v v' ↦ by
+          apply LinearMap.ext
+          intro w
+          exact hc.addLeft v.toMul v'.toMul w.toMul))
+  have hB : ∀ v w : Q, c.κ v w = Bform (Additive.ofMul v) (Additive.ofMul w) :=
+    fun v w ↦ rfl
+  let bas := Module.finBasis (ZMod 2) (Additive Q)
+  let d := Module.finrank (ZMod 2) (Additive Q)
+  -- Basis expansion of the bilinear form.
+  have hrow : ∀ x w : Additive Q,
+      Bform x w = ∑ t : Fin d, bas.repr w t * Bform x (bas t) := by
+    intro x w
+    conv_lhs => rw [← bas.sum_repr w]
+    rw [map_sum]
+    refine Finset.sum_congr rfl fun t _ ↦ ?_
+    rw [map_smul, smul_eq_mul]
+  have hcol : ∀ u y : Additive Q,
+      Bform u y = ∑ s : Fin d, bas.repr u s * Bform (bas s) y := by
+    intro u y
+    conv_lhs => rw [← bas.sum_repr u]
+    rw [map_sum, LinearMap.sum_apply]
+    refine Finset.sum_congr rfl fun s _ ↦ ?_
+    rw [map_smul, LinearMap.smul_apply, smul_eq_mul]
+  have hexp : ∀ u w : Additive Q, Bform u w =
+      ∑ p : Fin d × Fin d,
+        bas.repr u p.1 * bas.repr w p.2 * Bform (bas p.1) (bas p.2) := by
+    intro u w
+    rw [Fintype.sum_prod_type, hcol u w]
+    refine Finset.sum_congr rfl fun s _ ↦ ?_
+    rw [hrow (bas s) w, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun t _ ↦ ?_
+    show bas.repr u s * (bas.repr w t * Bform (bas s) (bas t)) =
+      bas.repr u s * bas.repr w t * Bform (bas s) (bas t)
+    ring
+  -- Coordinate characters of the elementary quotient and their inflations.
+  let qChar : (Additive Q →+ ZMod 2) → ContinuousMonoidHom Q (Multiplicative (ZMod 2)) :=
+    fun f ↦
+      { toFun := fun v ↦ Multiplicative.ofAdd (f (Additive.ofMul v))
+        map_one' := by simp
+        map_mul' := fun v w ↦ by simp
+        continuous_toFun := continuous_of_discreteTopology }
+  let lmHom : ContinuousMonoidHom G Q := ⟨levelMk G 2, continuous_levelMk G 2⟩
+  let gChar : (Additive Q →+ ZMod 2) →
+      ContinuousMonoidHom G (Multiplicative (ZMod 2)) :=
+    fun f ↦ (qChar f).comp lmHom
+  let cFn : Fin d → Additive Q →+ ZMod 2 := fun s ↦
+    AddMonoidHom.mk' (fun u ↦ bas.repr u s)
+      (fun u u' ↦ by rw [map_add, Finsupp.add_apply])
+  let wFn : Fin d × Fin d → Additive Q →+ ZMod 2 := fun p ↦
+    AddMonoidHom.mk' (fun u ↦ Bform (bas p.1) (bas p.2) * bas.repr u p.1)
+      (fun u u' ↦ by rw [map_add, Finsupp.add_apply, mul_add])
+  -- The contraction matrix as a finite sum of rank-one character products.
+  have hmatrix : (fun i j ↦ c.κ (levelMk G 2 (gens i)) (levelMk G 2 (gens j))) =
+      fun i j ↦ ∑ p : Fin d × Fin d,
+        Multiplicative.toAdd (gChar (wFn p) (gens i)) *
+          Multiplicative.toAdd (gChar (cFn p.2) (gens j)) := by
+    funext i j
+    rw [hB, hexp]
+    refine Finset.sum_congr rfl fun p _ ↦ ?_
+    show bas.repr (Additive.ofMul (levelMk G 2 (gens i))) p.1 *
+        bas.repr (Additive.ofMul (levelMk G 2 (gens j))) p.2 *
+        Bform (bas p.1) (bas p.2) =
+      Bform (bas p.1) (bas p.2) *
+          bas.repr (Additive.ofMul (levelMk G 2 (gens i))) p.1 *
+        bas.repr (Additive.ofMul (levelMk G 2 (gens j))) p.2
+    ring
+  -- Inflated character classes are inflations of the quotient-level classes.
+  have hinfl : ∀ f : Additive Q →+ ZMod 2,
+      H1mk G (ZMod 2) (Count.homEquivZ1 (gChar f)) =
+        LSquare.lowerTwoCentralH1InflationAt G 2
+          (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar f))) := by
+    intro f
+    rfl
+  -- The bi-additive cocycle as a continuous two-cocycle on the elementary quotient.
+  let zc : ↥(Z2 Q (ZMod 2)) :=
+    ⟨fun pr ↦ c.κ pr.1 pr.2, by
+      apply mem_Z2_iff.mpr
+      refine ⟨continuous_of_discreteTopology, ?_⟩
+      intro g h' k
+      change c.κ h' k + c.κ g (h' * k) = c.κ (g * h') k + c.κ g h'
+      linear_combination -c.cocyc g h' k⟩
+  -- The sum of quotient-level cup classes is the class of the cocycle itself.
+  have hsumQ : ∑ p : Fin d × Fin d,
+      trivialCupPairing 2 Q (fun _ _ ↦ rfl)
+        (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar (wFn p))))
+        (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar (cFn p.2)))) =
+      H2mk Q (ZMod 2) zc := by
+    have hterm : ∀ p : Fin d × Fin d,
+        trivialCupPairing 2 Q (fun _ _ ↦ rfl)
+          (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar (wFn p))))
+          (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar (cFn p.2)))) =
+        H2mk Q (ZMod 2)
+          ⟨cup11Fun AddMonoidHom.mul (Count.homEquivZ1 (qChar (wFn p))).1
+              (Count.homEquivZ1 (qChar (cFn p.2))).1,
+            cup11_mem_Z2 AddMonoidHom.mul (fun _ _ _ ↦ rfl)
+              (Count.homEquivZ1 (qChar (wFn p)))
+              (Count.homEquivZ1 (qChar (cFn p.2)))⟩ :=
+      fun p ↦ rfl
+    rw [Finset.sum_congr rfl fun p _ ↦ hterm p, ← map_sum]
+    congr 1
+    apply Subtype.ext
+    rw [AddSubmonoidClass.coe_finsetSum]
+    funext pr
+    rw [Finset.sum_apply]
+    show ∑ p : Fin d × Fin d,
+        Bform (bas p.1) (bas p.2) * bas.repr (Additive.ofMul pr.1) p.1 *
+          bas.repr (Additive.ofMul pr.2) p.2 = c.κ pr.1 pr.2
+    rw [hB pr.1 pr.2, hexp]
+    refine Finset.sum_congr rfl fun p _ ↦ ?_
+    ring
+  -- The class of the cocycle dies under inflation: the fibre of `φ` is a primitive.
+  have hker : LSquare.lowerTwoCentralH2InflationAt G 2 (H2mk Q (ZMod 2) zc) = 0 := by
+    rw [show LSquare.lowerTwoCentralH2InflationAt G 2 =
+        inf2 lmHom (fun _ _ ↦ rfl) from rfl, inf2_H2mk]
+    apply (QuotientAddGroup.eq_zero_iff _).mpr
+    rw [AddSubgroup.mem_addSubgroupOf]
+    refine ⟨fun g ↦ (φ g).fib,
+      (continuous_of_discreteTopology :
+        Continuous fun p : GQ2.DRCoh.CentExt c ↦ p.fib).comp φ.continuous_toFun, ?_⟩
+    funext pr
+    obtain ⟨g, l⟩ := pr
+    show g • (φ l).fib - (φ (g * l)).fib + (φ g).fib =
+      c.κ (levelMk G 2 g) (levelMk G 2 l)
+    rw [scalarActionZmodTwo_triv G, map_mul φ g l, GQ2.DRCoh.CentExt.mul_fib,
+      hbase g, hbase l]
+    calc (φ l).fib - ((φ g).fib + (φ l).fib +
+          c.κ (levelMk G 2 g) (levelMk G 2 l)) + (φ g).fib
+        = -c.κ (levelMk G 2 g) (levelMk G 2 l) := by ring
+      _ = c.κ (levelMk G 2 g) (levelMk G 2 l) := CharTwo.neg_eq _
+  -- The `G`-level cup sum vanishes.
+  have hGsum : ∑ p : Fin d × Fin d,
+      trivialCupPairing 2 G (fun _ _ ↦ rfl)
+        (H1mk G (ZMod 2) (Count.homEquivZ1 (gChar (wFn p))))
+        (H1mk G (ZMod 2) (Count.homEquivZ1 (gChar (cFn p.2)))) = 0 := by
+    have hstep : ∀ p : Fin d × Fin d,
+        trivialCupPairing 2 G (fun _ _ ↦ rfl)
+          (H1mk G (ZMod 2) (Count.homEquivZ1 (gChar (wFn p))))
+          (H1mk G (ZMod 2) (Count.homEquivZ1 (gChar (cFn p.2)))) =
+        LSquare.lowerTwoCentralH2InflationAt G 2
+          (trivialCupPairing 2 Q (fun _ _ ↦ rfl)
+            (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar (wFn p))))
+            (H1mk Q (ZMod 2) (Count.homEquivZ1 (qChar (cFn p.2))))) := by
+      intro p
+      rw [hinfl (wFn p), hinfl (cFn p.2),
+        ← LSquare.lowerTwoCentralH2InflationAt_trivialCupPairing]
+    rw [Finset.sum_congr rfl fun p _ ↦ hstep p, ← map_sum, hsumQ, hker]
+  -- Assemble.
+  rw [hmatrix, gram_sum_of_add hzero hadd Finset.univ]
+  have hcup : ∀ p : Fin d × Fin d,
+      gram (fun i j ↦ Multiplicative.toAdd (gChar (wFn p) (gens i)) *
+          Multiplicative.toAdd (gChar (cFn p.2) (gens j))) =
+      ℓ (trivialCupPairing 2 G (fun _ _ ↦ rfl)
+          (H1mk G (ZMod 2) (Count.homEquivZ1 (gChar (wFn p))))
+          (H1mk G (ZMod 2) (Count.homEquivZ1 (gChar (cFn p.2))))) :=
+    fun p ↦ (hpair (gChar (wFn p)) (gChar (cFn p.2))).symm
+  rw [Finset.sum_congr rfl fun p _ ↦ hcup p, ← map_sum, hGsum, map_zero]
+
+end GramVanishes
+
 end evenTransgression
 
 end
