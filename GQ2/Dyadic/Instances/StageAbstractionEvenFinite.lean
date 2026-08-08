@@ -693,6 +693,140 @@ noncomputable def evenFiniteLevelMEpiDataOfOpenTuple
     EvenFiniteLevelMEpiData (K := K) α h U :=
   evenFiniteLevelMEpiDataOfTuple α h U O.generators O.rows O.relation O.topGen
 
+/-! ## §5 The forward-generator endpoints
+
+The two readings of `OpenTuple.exists_globalMarking` against the EV-3b row tables.  Each row
+field of `EvenForward.NForwardGeneratorData` is one entry of `vN α`, in the order fixed by the
+frozen constructor table of `MarkedCore.chiN`: index `0` is `x₀` at value `1`, index `1` is
+`x₁` at the orientation unit `MarkedCore.nUnit α`, index `2` is `σ` at `1`, index `3` is `x₂`
+at `1`, and every handle row is `1`.  So the skeleton's structure and the row table agree
+entry for entry, and no re-indexing is needed.
+
+`1 ≤ α` enters only because the *type* of the hypothesis mentions `nStageWord α h hα`, which
+carries EV-3a's hypothesis; the conclusions themselves constrain `α` no further. -/
+
+section Endpoints
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)]
+  [TotallyDisconnectedSpace (GalK K)]
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The even `N` inverse limit.**  Levelwise nonemptiness of the generic open-quotient
+markings for the `N_α` word datum and the `vN α` row table produces the even forward-generator
+package at `G_K(2)`.  This is the `forwardGeneratorData_of_finiteLevel` endpoint of the
+committed template, at the `N` core. -/
+theorem evenForwardGeneratorDataN_of_openTuple {α h : ℕ} (hα : 1 ≤ α)
+    (hne : ∀ U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+      Nonempty (OpenTuple (nStageWord α h hα) (vN α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) U)) :
+    Nonempty (EvenForward.NForwardGeneratorData α h (chiCycKTwo (K := K))) := by
+  obtain ⟨gen, hrows, hrelation, htopGen⟩ := OpenTuple.exists_globalMarking hne
+  exact ⟨{ generators := gen
+           relation := hrelation
+           topGen := htopGen
+           x0 := (hrows 0).trans (vN_zero α)
+           x1 := (hrows 1).trans (vN_one α)
+           sigma := (hrows 2).trans (vN_two α)
+           x2 := (hrows 3).trans (vN_three α)
+           handleU := fun j ↦ (hrows _).trans (vN_handleU α j)
+           handleV := fun j ↦ (hrows _).trans (vN_handleV α j) }⟩
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The even `M` inverse limit.** -/
+theorem evenForwardGeneratorDataM_of_openTuple {α h : ℕ} (hα : 1 ≤ α)
+    (hne : ∀ U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+      Nonempty (OpenTuple (mStageWord α h hα) (vM α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) U)) :
+    Nonempty (EvenForward.MForwardGeneratorData α h (chiCycKTwo (K := K))) := by
+  obtain ⟨gen, hrows, hrelation, htopGen⟩ := OpenTuple.exists_globalMarking hne
+  exact ⟨{ generators := gen
+           relation := hrelation
+           topGen := htopGen
+           a := (hrows 0).trans (vM_zero α)
+           b := (hrows 1).trans (vM_one α)
+           c := (hrows 2).trans (vM_two α)
+           d := (hrows 3).trans (vM_three α)
+           handleU := fun j ↦ (hrows _).trans (vM_handleU α j)
+           handleV := fun j ↦ (hrows _).trans (vM_handleV α j) }⟩
+
+/-- The same endpoint stated at the model-marked finite data, which is the shape the committed
+template uses: nonempty even `N` finite-level epimorphism sets at every open normal subgroup
+produce the forward-generator package. -/
+theorem evenForwardGeneratorDataN_of_finiteLevel {α h : ℕ} (hα : 1 ≤ α)
+    (hne : ∀ U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+      Nonempty (EvenFiniteLevelNEpiData (K := K) α h U)) :
+    Nonempty (EvenForward.NForwardGeneratorData α h (chiCycKTwo (K := K))) :=
+  evenForwardGeneratorDataN_of_openTuple hα fun U ↦ (hne U).map fun D ↦ D.toOpenTuple hα
+
+/-- The `M` twin at the model-marked finite data. -/
+theorem evenForwardGeneratorDataM_of_finiteLevel {α h : ℕ} (hα : 1 ≤ α)
+    (hne : ∀ U : OpenNormalSubgroup
+      (ProfiniteGrp.of (maxProPQuotient 2 (GalK K))),
+      Nonempty (EvenFiniteLevelMEpiData (K := K) α h U)) :
+    Nonempty (EvenForward.MForwardGeneratorData α h (chiCycKTwo (K := K))) :=
+  evenForwardGeneratorDataM_of_openTuple hα fun U ↦ (hne U).map fun D ↦ D.toOpenTuple hα
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **The `N` station, end to end at one field.**  EV-3e's level-three base and EV-3f's
+per-stage defect reachability produce the even forward-generator package: the generic stage
+induction climbs the two-central tower, open-quotient descent lands at every open normal
+subgroup, and the inverse limit of §2 assembles the global tuple. -/
+theorem evenForwardGeneratorDataN_of_base_and_corrections {α h : ℕ} (hα : 1 ≤ α)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (base : Tuple (nStageWord α h hα) (vN α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+    (Hcorr : ∀ k : ℕ, 3 ≤ k → ∀ T : Tuple (nStageWord α h hα) (vN α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k, Tuple.DefectReachable T) :
+    Nonempty (EvenForward.NForwardGeneratorData α h (chiCycKTwo (K := K))) :=
+  evenForwardGeneratorDataN_of_openTuple hα fun U ↦
+    Tuple.openTuple_nonempty_of_base_and_corrections base
+      hfg isProP_maxProPQuotient Hcorr U
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **The `M` station, end to end at one field.** -/
+theorem evenForwardGeneratorDataM_of_base_and_corrections {α h : ℕ} (hα : 1 ≤ α)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (base : Tuple (mStageWord α h hα) (vM α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+    (Hcorr : ∀ k : ℕ, 3 ≤ k → ∀ T : Tuple (mStageWord α h hα) (vM α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k, Tuple.DefectReachable T) :
+    Nonempty (EvenForward.MForwardGeneratorData α h (chiCycKTwo (K := K))) :=
+  evenForwardGeneratorDataM_of_openTuple hα fun U ↦
+    Tuple.openTuple_nonempty_of_base_and_corrections base
+      hfg isProP_maxProPQuotient Hcorr U
+
+/-- Model-marked form of the same station: the even `N` finite-level data are nonempty at every
+open normal subgroup.  This is the `finiteLevelEpiData_nonempty_of_base_and_corrections`
+analogue, and it is what an even finite-level *presentation* statement would carry. -/
+theorem evenFiniteLevelNEpiData_nonempty_of_base_and_corrections {α h : ℕ} (hα : 1 ≤ α)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (base : Tuple (nStageWord α h hα) (vN α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+    (Hcorr : ∀ k : ℕ, 3 ≤ k → ∀ T : Tuple (nStageWord α h hα) (vN α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k, Tuple.DefectReachable T)
+    (U : OpenNormalSubgroup (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) :
+    Nonempty (EvenFiniteLevelNEpiData (K := K) α h U) :=
+  (Tuple.openTuple_nonempty_of_base_and_corrections base
+    hfg isProP_maxProPQuotient Hcorr U).map (evenFiniteLevelNEpiDataOfOpenTuple hα)
+
+/-- Model-marked form of the `M` station. -/
+theorem evenFiniteLevelMEpiData_nonempty_of_base_and_corrections {α h : ℕ} (hα : 1 ≤ α)
+    (hfg : IsTopologicallyFinGen (maxProPQuotient 2 (GalK K)))
+    (base : Tuple (mStageWord α h hα) (vM α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+    (Hcorr : ∀ k : ℕ, 3 ≤ k → ∀ T : Tuple (mStageWord α h hα) (vM α)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k, Tuple.DefectReachable T)
+    (U : OpenNormalSubgroup (ProfiniteGrp.of (maxProPQuotient 2 (GalK K)))) :
+    Nonempty (EvenFiniteLevelMEpiData (K := K) α h U) :=
+  (Tuple.openTuple_nonempty_of_base_and_corrections base
+    hfg isProP_maxProPQuotient Hcorr U).map (evenFiniteLevelMEpiDataOfOpenTuple hα)
+
+end Endpoints
+
 end
 
 end GQ2.Dyadic.StageGeneric
