@@ -20,25 +20,27 @@ Three structural facts appear at this level that class three did not have:
 * **two interior columns.**  `U₅` has three adjacent column pairs `(a,b)`, `(b,c)`, `(c,d)`,
   hence *three* class-two rows, *two* class-three rows (the `(1,4)`- and `(2,5)`-coordinates,
   reached by the two `U₄`-quotients `toU4L`, `toU4R`), and one new class-four row `j`;
-* **cross-handle coupling.**  Products of `γ₂`-elements are no longer coordinatewise in the
-  top coordinate: `(x·y).j` picks up `x.e·y.g`, so the handle block of the relator couples
-  *distinct* handles at class four (`SqU5.handleWord_j`); at `h = 1` the coupling vanishes;
-* **the core `e`-row enters the top cross term.**  The relator's `j`-row reads the handle
-  `g`-pairings against the *full* `e`-row of the core word, not only against the abelian
-  relator vector (`sqU5Defect`).
+* **cross-handle coupling.**  Products of `γ₂`-shaped elements are no longer coordinatewise
+  in the top coordinate: `(x·y).j` picks up `x.e·y.g`, so the handle block of the relator
+  couples *distinct* handles at class four (at `h = 1` the coupling vanishes);
+* **the class-four commutator form `u5Comm4`** is linear in the class-three coordinates
+  paired against the *outermost* abelian columns `a`, `d`, which is what hands the stage
+  engine its `γ₃`-moves (`GradedLift.lean` §2).
 
 ## Contents
 
 * **§1** `SqU5 R`, its group structure, componentwise `simp` lemmas, `DecidableEq`;
 * **§2** commutator, conjugation and power formulas; the class-four commutator form
   `u5Comm4`; the two `U₄`-quotients `toU4L`, `toU4R` and the centre `zHom5`;
-* **§3** the closed form of the relator: `sqU5CoreE/F/G/H/I/J`, `sqU5Defect`, and
-  `SqU5.sqRelWord_a` … `SqU5.sqRelWord_j`;
-* **§4** committed axiom prints (all std-3).
+* **§3** committed axiom prints (all std-3).
 
-No pro-2/topology layer is built here: the stage engine consumes only the ring-level closed
-forms, and the `IsProP`/`zpowZtwo` transposition from `GradedThree` §1/§3 is mechanical if a
-later wave needs it.
+Deliberately *not* built here: the pro-2/topology layer (`IsProP`, `zpowZtwo`; the
+`GradedThree` §1/§3 transposition is mechanical if a later wave needs it), and the general
+closed form of the ten relator rows.  The stage engine (`GradedLift.lean`) reaches every row
+it needs through the two `U₄`-quotients and the committed `GradedThree`/`GradedSelect`
+machinery, plus word-level central algebra for the one genuinely new row; a self-standing
+`sqU5Defect` closed form earns its keep only when a wave needs the class-four gate at
+arbitrary markings, and would follow the `GradedThree` §2 pattern verbatim.
 -/
 
 open Multiplicative
@@ -348,6 +350,44 @@ theorem mul_center_j (p : SqU5 R) (w : R) :
 end SqU5
 
 end U5Calculus
+
+/-! ## §3 Axiom pins
+
+Committed prints for every public declaration: all **std-3** (`propext`, `Classical.choice`,
+`Quot.sound`) or a subset; no census axiom is reachable. -/
+
+section AxiomPins
+
+#print axioms SqU5
+#print axioms SqU5.eq_one_iff
+#print axioms SqU5.instDecidableEq
+#print axioms SqU5.mul_j
+#print axioms SqU5.inv_j
+#print axioms SqU5.commP_e
+#print axioms SqU5.commP_f
+#print axioms SqU5.commP_g
+#print axioms SqU5.u5Comm3L
+#print axioms SqU5.u5Comm3R
+#print axioms SqU5.commP_h
+#print axioms SqU5.commP_i
+#print axioms SqU5.u5Comm4
+#print axioms SqU5.commP_j
+#print axioms SqU5.conjP_e
+#print axioms SqU5.conjP_f
+#print axioms SqU5.conjP_g
+#print axioms SqU5.conjP_h
+#print axioms SqU5.conjP_i
+#print axioms SqU5.conjP_j
+#print axioms SqU5.sq_a
+#print axioms SqU5.sq_b
+#print axioms SqU5.sq_c
+#print axioms SqU5.sq_d
+#print axioms SqU5.toU4L
+#print axioms SqU5.toU4R
+#print axioms SqU5.zHom5
+#print axioms SqU5.mul_center_j
+
+end AxiomPins
 
 end SqCore
 
