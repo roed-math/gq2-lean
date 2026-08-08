@@ -313,6 +313,123 @@ theorem mFrameApi_xi_fixes_t_frameFree {α : ℕ} (hα : 1 ≤ α) (h : ℕ)
       = abMk (dmA α h * dmC α h ^ (2 ^ (α - 1))) :=
   (nonempty_mFrame hα h).elim fun F => mFrameApi_xi_fixes_t hα F ξ
 
+/-! ## §6 Items 3 and 4, priced and not attempted
+
+This section is prose only, deliberately.  It records why the file stops here, what the two
+remaining ticket items would cost, and the transpose dictionary whoever picks them up must work
+in.  Nothing below is a claim about the repo's current contents beyond the citations.
+
+### §6.1 They are one item, not two
+
+`mStabilizer_classification` (`M.lean:916`) takes `hξ : IsMStabilizer B χ ξ`, and
+`IsMStabilizer` (`M.lean:859`) is **defined** as
+
+  `(∀ x, χ (ξ x) = χ x) ∧ (mFrameMatrix B ξ)ᵀ * mGram * mFrameMatrix B ξ = mGram`.
+
+So item 3 cannot be *stated* at general `h` until item 4 has produced a general-`h` `mGram` and
+a general-`h` `mFrameMatrix`.  Sequencing item 3 before item 4 is not possible, and attempting
+item 3 "matrix-free" would change the theorem rather than generalise it.  Everything item 3
+needs that is *not* Gram-dependent is already in this file: `mFrameApi_xi_fixes_t` is the
+`t`-row, and `mFrameApi_chi_frame` is the χ-row engine.
+
+### §6.2 The transpose dictionary (mandatory for any general-`h` matrix statement)
+
+From `GQ2/Dyadic/MarkedCore/Variance.lean`, whose verdict is that the `M`- and `N`-side clauses
+are the **same condition** stated in transposed layouts:
+
+| object | layout | clause as written |
+|---|---|---|
+| `mFrameMatrix B ξ` (`M.lean:829`) | **rows** are the images of the frame basis | `M̄ᵀ · G_M · M̄ = G_M` |
+| `NRows.mat R`, `nMatOf` (`N.lean:840`, `:960`) | **columns** are the images | `A · G_N · Aᵀ = G_N` |
+
+Writing `A` for the column-layout matrix and `M̄ = Aᵀ` for the row-layout one, both clauses read
+`A · G · Aᵀ = G`; `mCupIsometry_iff_nCupForm` and `nCupForm_iff_mul_transpose` are that
+dictionary, and `mFrameMatrix_transpose_eq_nMatOf` (`Variance.lean:202`) is its sharpest
+instance.  `mGram = Matrix.of nGram` holds by `rfl` (`mGram_eq_nGram`).  The `M`-side frame
+basis order is `(t, B̄, C̄₀, D̄)` (`mFrameBasis`, `M.lean:786`).
+
+**The rule a general-`h` author must not break**: keep "rows are images" and `M̄ᵀ · G · M̄ = G`
+*together*.  Flipping either one alone forces the `τ`-parameter to `0`
+(`mFrameMatrix_flip_forces_tau`, `Variance.lean:225`), which would silently delete family M1
+(`B ↦ A^k·B`, `mLambdaEquiv`), an honest axiom-free automorphism.  `nMatOf_famN1_variance_differs`
+(`Variance.lean:272`) exhibits one explicit matrix satisfying one variance and refuting the
+other, so this is a real distinction and not a presentational artifact.
+
+No statement in **this** file carries a matrix, so no statement in this file carries a
+convention annotation; the dictionary is recorded here for the successor file.
+
+### §6.3 The design decision that actually blocks item 4
+
+`mGram` is `!![1,1,0,0; 1,0,0,0; 0,0,0,1; 0,0,1,0]` in the basis `(t, B̄, C̄₀, D̄)`: a
+`[[1,1],[1,0]]` block on `(t, B̄)` and a hyperbolic `[[0,1],[1,0]]` block on `(C̄₀, D̄)`.  The
+natural guess at general `h` is that each handle pair `(ūⱼ, v̄ⱼ)` contributes one further
+hyperbolic block, since each contributes one commutator `[uⱼ, vⱼ]` to the relator.  **That guess
+is not verified here and must not be assumed.**  Establishing it means going back to
+`Cores.lean`'s `IsCupCocycle` layer and recomputing the relator's fibre value
+(`mRelWord_centLift_fib`) with the handle block switched on; `Variance.lean`'s module docstring
+records that this fibre computation is exactly what fixes the Gram, so it is the load-bearing
+step, not bookkeeping.
+
+Three further pieces of scaffolding are needed and none exists: a general-`h` `mRedTwo`
+(`M.lean:796`, currently `ZMod 2 × ℤ₂³ → Fin 4 → ZMod 2`), a general-`h` `mFrameBasis`
+(`M.lean:786`), and an **ordering convention** reconciling the model's slot order
+`(t, B̄, C̄₀, D̄, handles)` with the generator index order `(Ā, B̄, C̄₀, D̄, ū₀, v̄₀, …)`.  That
+convention is a choice, and it must be made once and documented, because the Gram's shape
+depends on it.
+
+### §6.4 Why item 3 is not a restatement exercise
+
+Beyond the Gram, the rank-four classification's Witt half is discharged by a **finite decision
+procedure** over the mod-2 assignments (the `decide` that `M.lean` §4 and `N.lean` §4 both run).
+At rank `4 + 2h` the search space is `2^((4+2h)²)` with `h` a *variable*, so no `decide` can
+close it: the general-`h` Witt half needs a structural proof where the rank-four one needed a
+kernel computation.  That is a change of method, and it is the strongest reason item 3 is a
+project rather than a port.
+
+Separately, `MStabParam` (`M.lean:869`) is a fixed seven-field structure.  At general `h` the
+stabilizer visibly grows: the handle block carries its own symplectic-type freedom plus
+couplings to the core.  So the general-`h` classification's *statement* needs a new parameter
+type, and deciding its shape is itself a design question. The coordinator anticipated this
+("the h = 0 statement may gain a handle factor; that is a finding, not a defect"); this file
+confirms the expectation without settling the shape.
+
+### §6.5 Price
+
+* **Item 4** (general-`h` cup layer: Gram, `mRedTwo`, `mFrameBasis`, ordering convention, and
+  the `mRelWord_centLift_fib` recomputation that justifies the Gram): roughly 300 to 400 lines,
+  and it is **variance-sensitive throughout**, so it wants a rested worker and the §6.2
+  dictionary in front of them.  It is the true prerequisite.
+* **Item 3** (general-`h` stabilizer classification on top of item 4): larger, and gated on the
+  methodological change of §6.4 plus a new parameter type.  Not estimable in lines until the
+  parameter shape is decided; the honest next step is a design note, not a ticket.
+
+Recommended sequencing: item 4 first, as its own ticket, with the design decisions of §6.3 named
+in the ticket rather than left to the worker. -/
+
+/-! ## §7 Axiom pins
+
+All 13 public declarations.  Every one prints exactly the **std-3** set
+`[propext, Classical.choice, Quot.sound]`.  No census axiom, matching `MFrame.lean`,
+`MFrameExists.lean` and `NFrameExists.lean`. -/
+
+section AxiomPins
+
+#print axioms mFrameApiChiModel
+#print axioms mFrameApiChiModel_ofAdd
+#print axioms mFrameApiChiModel_continuous
+#print axioms mFrameApiChiModelHom
+#print axioms mFrameApiHom
+#print axioms mFrameApiHom_apply
+#print axioms mFrameApi_coord_ext
+#print axioms mHandleCoord_cases
+#print axioms mFrameApi_chi_frame
+#print axioms mFrameApi_sqEqOne_iff
+#print axioms mFrameApi_xi_fixes_t
+#print axioms mFrameApi_sqEqOne_iff_frameFree
+#print axioms mFrameApi_xi_fixes_t_frameFree
+
+end AxiomPins
+
 end MarkedCore
 
 end Dyadic
