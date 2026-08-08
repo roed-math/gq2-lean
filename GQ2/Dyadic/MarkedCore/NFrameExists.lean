@@ -236,6 +236,201 @@ private theorem dnX0_sq_ne_one_one (h : ℕ) : (abMk (dnX0 1 h)) ^ 2 ≠ 1 := by
   rw [hc, map_one] at himg
   exact absurd himg.symm (by decide)
 
+/-! ## §3 The coordinate homs
+
+One builder, as on the `M` side, but the relator obligation is now `m 0 ^ (2 + 2^α) = 1`
+(`nRelWord_comm`): it constrains **only** the `x̄₀`-value.  Since `x̄₀` is the torsion slot and
+the other four coordinates put `0` there, four of the five families discharge it by `1^n = 1`,
+and only `nTHom` has anything to check. -/
+
+section CoordHoms
+
+variable {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H]
+
+/-- **The `N`-side coordinate hom builder**: a marking of a commutative pro-2 group whose
+`x̄₀`-value kills the relation vector `(2 + 2^α)·x̄₀` classifies a continuous hom
+`D_N^{ab} → H`, by `nLiftHom` then `abLiftG`.  The `N` twin of `mCoordHom`. -/
+noncomputable def nCoordHom (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : m 0 ^ (2 + 2 ^ α) = 1) :
+    ContinuousMonoidHom (topAbelianization (DN α h : Type)) H :=
+  abLiftG (nLiftHom α h hH m (by rw [nRelWord_comm]; exact hrel))
+
+@[simp] theorem nCoordHom_gen (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : m 0 ^ (2 + 2 ^ α) = 1) (i : Fin (coreRank h)) :
+    nCoordHom α h hH m hrel (abMk (dnGen α h i)) = m i := by
+  rw [nCoordHom, abLiftG_abMk, nLiftHom_gen]
+
+end CoordHoms
+
+/-- **The torsion coordinate** `x̄₀ ↦ 1` into `ZMod 2`, everything else `↦ 0`.  Its relator
+check is `(2 + 2^α)·1 = 0` in `ℤ/2`, i.e. `2 + 2^α` **even**, i.e. `α ≥ 1`.
+
+So the hypothesis here is `1 ≤ α`, weaker than the file's `2 ≤ α`, and the gap is exactly the
+`α = 1` regime: at `α = 1` this hom exists perfectly well, which is why `α = 1` cannot be
+refuted the way `α = 0` is.  What fails at `α = 1` is not the existence of a `ℤ/2`-valued
+torsion coordinate but its **injectivity** on the torsion, and that is what `nZ4Hom` detects.
+At `α = 0` the check fails outright: `2 + 1 = 3` is odd. -/
+noncomputable def nTHom {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DN α h : Type)) (Multiplicative (ZMod 2)) :=
+  nCoordHom α h isProP_two_multZMod2 (coreMark (ofAdd (1 : ZMod 2)) 1 1 1) (by
+    obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+    rw [coreMark_zero, ← ofAdd_nsmul, ← ofAdd_zero]
+    congr 1
+    show ((2 + 2 ^ (k + 1)) : ℕ) • (1 : ZMod 2) = 0
+    rw [show (2 + 2 ^ (k + 1)) = (1 + 2 ^ k) * 2 by ring, mul_smul,
+      show (2 : ℕ) • (1 : ZMod 2) = 0 from by decide, smul_zero])
+
+/-- `x̄₁ ↦ 1`, everything else `↦ 0`.  Relator check: `0^{2+2^α} = 0`, at every `α`. -/
+noncomputable def nBHom (α h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DN α h : Type)) (Multiplicative ℤ_[2]) :=
+  nCoordHom α h PropOneOne.isProP_two_multPadicInt (coreMark 1 (ofAdd (1 : ℤ_[2])) 1 1) (by
+    rw [coreMark_zero, one_pow])
+
+/-- `σ̄ ↦ 1`, everything else `↦ 0`. -/
+noncomputable def nCHom (α h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DN α h : Type)) (Multiplicative ℤ_[2]) :=
+  nCoordHom α h PropOneOne.isProP_two_multPadicInt (coreMark 1 1 (ofAdd (1 : ℤ_[2])) 1) (by
+    rw [coreMark_zero, one_pow])
+
+/-- `x̄₂ ↦ 1`, everything else `↦ 0`. -/
+noncomputable def nDHom (α h : ℕ) :
+    ContinuousMonoidHom (topAbelianization (DN α h : Type)) (Multiplicative ℤ_[2]) :=
+  nCoordHom α h PropOneOne.isProP_two_multPadicInt (coreMark 1 1 1 (ofAdd (1 : ℤ_[2]))) (by
+    rw [coreMark_zero, one_pow])
+
+/-- The `2h` handle coordinates.  As on the `M` side the relator check is vacuous
+(`mHandleMark_core`), so these exist at every `α` and every `h`: handles never interact with the
+relation vector. -/
+noncomputable def nHHom (α : ℕ) {h : ℕ} (k : Fin (2 * h)) :
+    ContinuousMonoidHom (topAbelianization (DN α h : Type)) (Multiplicative ℤ_[2]) :=
+  nCoordHom α h PropOneOne.isProP_two_multPadicInt (mHandleMark k (ofAdd (1 : ℤ_[2]))) (by
+    rw [mHandleMark_core k _ (by rw [coreVal_zero]; omega), one_pow])
+
+/-! ## §4 Coordinate surjectivity of `D_N^{ab}`
+
+Verbatim the `M` argument with `dn_topGen` in place of `dm_topGen`. -/
+
+section Coord
+
+variable (α h : ℕ)
+
+/-- The `ℤ₂`-power word `∏ᵢ ḡᵢ^{cᵢ}` in the marked generators of `D_N^{ab}`. -/
+noncomputable def nAbWord (c : Fin (coreRank h) → ℤ_[2]) : topAbelianization (DN α h : Type) :=
+  ∏ i, zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h i)) (c i)
+
+/-- `nAbWord` as a monoid hom out of `ℤ₂^{4+2h}`. -/
+noncomputable def nAbWordHom :
+    Multiplicative (Fin (coreRank h) → ℤ_[2]) →* topAbelianization (DN α h : Type) where
+  toFun c := nAbWord α h c.toAdd
+  map_one' := by
+    refine Finset.prod_eq_one fun i _ => ?_
+    show zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h i)) 0 = 1
+    exact zpowZtwo_zero _ _
+  map_mul' c d := by
+    show ∏ i, zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h i)) (c.toAdd i + d.toAdd i)
+      = (∏ i, zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h i)) (c.toAdd i))
+        * ∏ i, zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h i)) (d.toAdd i)
+    rw [← Finset.prod_mul_distrib]
+    exact Finset.prod_congr rfl fun i _ => zpowZtwo_add _ _ _ _
+
+theorem continuous_nAbWordHom : Continuous (nAbWordHom α h) := by
+  show Continuous fun c : Multiplicative (Fin (coreRank h) → ℤ_[2]) =>
+    ∏ i, zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h i)) (c.toAdd i)
+  exact continuous_finsetProd _ fun i _ =>
+    (continuous_zpowZtwo _ _).comp ((continuous_apply i).comp continuous_toAdd)
+
+theorem nAbWordHom_single (i : Fin (coreRank h)) :
+    nAbWordHom α h (ofAdd (Pi.single i (1 : ℤ_[2]))) = abMk (dnGen α h i) := by
+  show ∏ j, zpowZtwo (nIsProP_two_topAb_DN α h) (abMk (dnGen α h j))
+    ((Pi.single i (1 : ℤ_[2]) : Fin (coreRank h) → ℤ_[2]) j) = _
+  rw [Finset.prod_eq_single i (fun j _ hj => by
+    rw [Pi.single_eq_of_ne hj, zpowZtwo_zero]) (fun hi => absurd (Finset.mem_univ i) hi)]
+  rw [Pi.single_eq_same, zpowZtwo_one_exp]
+
+/-- **Coordinate surjectivity of `D_N^{ab}`**: every element is a `ℤ₂`-power word
+`x̄₀^{c₀}·x̄₁^{c₁}·σ̄^{c₂}·x̄₂^{c₃}·∏ⱼ …` in the marked generators.  The `N` twin of
+`mDMab_coord`. -/
+theorem nDNab_coord (z : topAbelianization (DN α h : Type)) :
+    ∃ c : Fin (coreRank h) → ℤ_[2], z = nAbWord α h c := by
+  have hgen : (Subgroup.closure (⇑abMk '' Set.range (dnGen α h))).topologicalClosure = ⊤ := by
+    have := abMk_surjective.denseRange.topologicalClosure_map_subgroup
+      (continuous_abMk (G := (DN α h : Type))) (dn_topGen α h)
+    rwa [MonoidHom.map_closure] at this
+  have hclosed : IsClosed ((nAbWordHom α h).range : Set (topAbelianization (DN α h : Type))) := by
+    rw [MonoidHom.coe_range]
+    exact (isCompact_range (continuous_nAbWordHom α h)).isClosed
+  have hsub : Subgroup.closure (⇑abMk '' Set.range (dnGen α h)) ≤ (nAbWordHom α h).range := by
+    rw [Subgroup.closure_le]
+    rintro _ ⟨_, ⟨i, rfl⟩, rfl⟩
+    exact ⟨ofAdd (Pi.single i 1), nAbWordHom_single α h i⟩
+  have htop : (nAbWordHom α h).range = ⊤ :=
+    eq_top_iff.mpr (hgen ▸ Subgroup.topologicalClosure_minimal _ hsub hclosed)
+  have hz : z ∈ (nAbWordHom α h).range := by rw [htop]; exact Subgroup.mem_top z
+  obtain ⟨p, hp⟩ := MonoidHom.mem_range.mp hz
+  exact ⟨p.toAdd, hp.symm⟩
+
+end Coord
+
+/-! ## §5 Reading a coordinate hom off a word
+
+Every `N`-side marking is supported at a **single** slot (no forced row), so all five formulas
+go through `mProd_single` and `mProd_pair` is never needed.  This is the first of the two places
+the `N` proof is shorter than the `M` proof. -/
+
+section Words
+
+variable (α h : ℕ) (c : Fin (coreRank h) → ℤ_[2])
+
+/-- A coordinate hom on a `ℤ₂`-power word: apply the marking slotwise. -/
+theorem nCoordHom_word {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H]
+    [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H] (hH : IsProP 2 H)
+    (m : Fin (coreRank h) → H) (hrel : m 0 ^ (2 + 2 ^ α) = 1) :
+    nCoordHom α h hH m hrel (nAbWord α h c) = ∏ i, zpowZtwo hH (m i) (c i) := by
+  rw [nAbWord, map_prod]
+  exact Finset.prod_congr rfl fun i _ => by
+    rw [map_zpowZtwo (nIsProP_two_topAb_DN α h) hH, nCoordHom_gen]
+
+/-- The `x̄₁`-coordinate of a word is its `x̄₁`-exponent. -/
+theorem nBHom_word : nBHom α h (nAbWord α h c) = ofAdd (c 1) := by
+  rw [nBHom, nCoordHom_word, mProd_single _ _ _ 1 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_one hi
+    split_ifs <;> rfl), coreMark_one, zpowZtwo_ofAdd, one_mul]
+
+/-- The `σ̄`-coordinate of a word is its `σ̄`-exponent. -/
+theorem nCHom_word : nCHom α h (nAbWord α h c) = ofAdd (c 2) := by
+  rw [nCHom, nCoordHom_word, mProd_single _ _ _ 2 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_two hi
+    split_ifs <;> rfl), coreMark_two, zpowZtwo_ofAdd, one_mul]
+
+/-- The `x̄₂`-coordinate of a word is its `x̄₂`-exponent. -/
+theorem nDHom_word : nDHom α h (nAbWord α h c) = ofAdd (c 3) := by
+  rw [nDHom, nCoordHom_word, mProd_single _ _ _ 3 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_three hi
+    split_ifs <;> rfl), coreMark_three, zpowZtwo_ofAdd, one_mul]
+
+/-- The `k`-th handle coordinate of a word is its `k`-th handle exponent. -/
+theorem nHHom_word {h : ℕ} (α : ℕ) (c : Fin (coreRank h) → ℤ_[2]) (k : Fin (2 * h)) :
+    nHHom α k (nAbWord α h c) = ofAdd (c (mHandleIdx k)) := by
+  rw [nHHom, nCoordHom_word,
+    mProd_single _ _ _ (mHandleIdx k) (fun i hi => mHandleMark_of_ne k _ hi),
+    mHandleMark_self, zpowZtwo_ofAdd, one_mul]
+
+/-- The torsion coordinate of a word: only the `x̄₀`-exponent contributes, through `ZMod 2`.
+Unlike the `M` side there is no second slot: the torsion generator is a marked generator. -/
+theorem nTHom_word {α : ℕ} (hα : 1 ≤ α) (h : ℕ) (c : Fin (coreRank h) → ℤ_[2]) :
+    nTHom hα h (nAbWord α h c)
+      = zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) (c 0) := by
+  rw [nTHom, nCoordHom_word, mProd_single _ _ _ 0 (fun i hi => by
+    rw [coreMark_apply]
+    have hv := mCoreVal_ne_zero hi
+    split_ifs <;> first | rfl | omega), coreMark_zero]
+
+end Words
+
 end MarkedCore
 
 end Dyadic
