@@ -540,6 +540,7 @@ theorem evenRow_deepUnits_mem_range_of_imChiM {α : ℕ} (hα : 2 ≤ α)
   rw [← map_one (PadicInt.toZModPow (p := 2) α), deep_toZModPow_eq_iff_dvd] at hz
   exact evenRow_mem_range_of_mem_of_range_eq hrange (principalUnits_le_imChiM hα hz)
 
+omit [CompactSpace G] in
 /-- **Sufficiency, discharged on the `M` branch.**  For `α ≥ 3` and a character with the `M`
 image, the depth-`(α - 1)` supply *holds* — no hypothesis remains.  Together with
 `evenSharp_not_imageRelLe_imChiM`, which rules out every smaller depth, this pins the even
