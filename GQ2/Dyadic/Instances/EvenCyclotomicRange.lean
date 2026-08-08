@@ -284,4 +284,175 @@ theorem evenRange_mem_imChiN_dvd {α : ℕ} (hα : 2 ≤ α) {u : ℤ_[2]ˣ} (hu
 
 end Images
 
+/-! ## §4 The classification of closed deep subgroups of `ℤ₂ˣ`
+
+Let `H ≤ ℤ₂ˣ` be closed and deep (containing some `1 + 2^N ℤ₂`), and let `β ≥ 2` be least
+with `1 + 2^β ℤ₂ ≤ H`.  Then:
+
+* every `u ∈ H` with `u ≡ 1 (mod 4)` already lies in `1 + 2^β ℤ₂`, because otherwise its own
+  exact level `s` would satisfy `2 ≤ s < β` and `1 + 2^s ℤ₂ ≤ H` (`evenRange_mem_prin_depth`);
+* if `-1 ∈ H` then `H = imChiM β`;
+* if `-1 ∉ H` and `H` meets the class `3 mod 4` at some `w`, then `-w` has exact level
+  `β - 1 ≥ 2` and `H = imChiN (β-1)`, with `nUnit (β-1)` differing from `w` by an element of
+  `1 + 2^β ℤ₂`.
+
+The two conclusions are mutually exclusive, so the branch is decided by `-1 ∈ H` alone. -/
+
+section Classify
+
+open GQ2.Dyadic.EvenRowSupply (evenRow_nUnit_mem_imChiN)
+
+/-- The least depth `β ≥ 2` with `1 + 2^β ℤ₂ ≤ H`. -/
+theorem evenRange_exists_depth (H : Subgroup ℤ_[2]ˣ) (hdeep : ∃ N : ℕ, evenRangePrin N ≤ H) :
+    ∃ β : ℕ, 2 ≤ β ∧ evenRangePrin β ≤ H ∧
+      ∀ s : ℕ, 2 ≤ s → evenRangePrin s ≤ H → β ≤ s := by
+  classical
+  have hex : ∃ j : ℕ, evenRangePrin (j + 2) ≤ H := by
+    obtain ⟨N, hN⟩ := hdeep
+    exact ⟨N, le_trans (evenRange_prin_antitone (by omega)) hN⟩
+  refine ⟨Nat.find hex + 2, by omega, Nat.find_spec hex, fun s hs hsle => ?_⟩
+  by_contra hlt
+  refine Nat.find_min hex (m := s - 2) (by omega) ?_
+  have heq : s - 2 + 2 = s := by omega
+  rw [heq]
+  exact hsle
+
+/-- At the least depth `β`, every element of `H` that is `≡ 1 (mod 4)` lies in
+`1 + 2^β ℤ₂`. -/
+theorem evenRange_mem_prin_depth {H : Subgroup ℤ_[2]ˣ} (hclosed : IsClosed (H : Set ℤ_[2]ˣ))
+    {β : ℕ} (hmin : ∀ s : ℕ, 2 ≤ s → evenRangePrin s ≤ H → β ≤ s)
+    {u : ℤ_[2]ˣ} (huH : u ∈ H) (hu4 : (2 : ℤ_[2]) ^ 2 ∣ (u : ℤ_[2]) - 1) :
+    u ∈ evenRangePrin β := by
+  by_cases hu1 : u = 1
+  · rw [hu1]
+    exact one_mem _
+  obtain ⟨s, a, hs, ha⟩ := evenRange_exists_exact_level hu1 hu4
+  exact evenRange_prin_antitone (hmin s hs (evenRange_prin_le_of_mem hclosed hs ha huH))
+    (evenRange_mem_prin_iff.mpr ⟨(a : ℤ_[2]), ha⟩)
+
+/-- Negation moves the mod-`2^j` class of a unit from `-1` to `1`. -/
+theorem evenRange_neg_dvd_iff {j : ℕ} {u : ℤ_[2]ˣ} :
+    (2 : ℤ_[2]) ^ j ∣ ((-u : ℤ_[2]ˣ) : ℤ_[2]) - 1 ↔ (2 : ℤ_[2]) ^ j ∣ (u : ℤ_[2]) + 1 := by
+  have hval : ((-u : ℤ_[2]ˣ) : ℤ_[2]) - 1 = -((u : ℤ_[2]) + 1) := by push_cast; ring
+  rw [hval, dvd_neg]
+
+/-- **The `M` branch.**  A closed deep subgroup containing `-1` is `imChiM β` at its own
+least depth `β ≥ 2`. -/
+theorem evenRange_eq_imChiM_of_neg_one_mem (H : Subgroup ℤ_[2]ˣ)
+    (hclosed : IsClosed (H : Set ℤ_[2]ˣ)) (hdeep : ∃ N : ℕ, evenRangePrin N ≤ H)
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ H) :
+    ∃ α : ℕ, 2 ≤ α ∧ H = imChiM α := by
+  obtain ⟨β, hβ2, hβle, hβmin⟩ := evenRange_exists_depth H hdeep
+  have hnegmem : ∀ u : ℤ_[2]ˣ, u ∈ H → (-u : ℤ_[2]ˣ) ∈ H := by
+    intro u hu
+    have h1 : (-1 : ℤ_[2]ˣ) * u ∈ H := mul_mem hneg hu
+    simpa using h1
+  refine ⟨β, hβ2, le_antisymm (fun u huH => ?_) (fun u hu => ?_)⟩
+  · rcases evenRange_four_dvd_sub_or_add u with h | h
+    · exact (evenRange_mem_imChiM_iff hβ2).mpr
+        (Or.inl (evenRange_mem_prin_iff.mp
+          (evenRange_mem_prin_depth hclosed hβmin huH h)))
+    · refine (evenRange_mem_imChiM_iff hβ2).mpr (Or.inr ?_)
+      refine evenRange_neg_dvd_iff.mp (evenRange_mem_prin_iff.mp ?_)
+      exact evenRange_mem_prin_depth hclosed hβmin (hnegmem u huH)
+        (evenRange_neg_dvd_iff.mpr h)
+  · rcases (evenRange_mem_imChiM_iff hβ2).mp hu with h | h
+    · exact hβle (evenRange_mem_prin_iff.mpr h)
+    · have hm : (-u : ℤ_[2]ˣ) ∈ H :=
+        hβle (evenRange_mem_prin_iff.mpr (evenRange_neg_dvd_iff.mpr h))
+      simpa using hnegmem _ hm
+
+/-- **The `N` branch.**  A closed deep subgroup that omits `-1` but meets the class
+`3 mod 4` is `imChiN (β-1)`, where `β ≥ 3` is its least depth. -/
+theorem evenRange_eq_imChiN_of_neg_one_notMem (H : Subgroup ℤ_[2]ˣ)
+    (hclosed : IsClosed (H : Set ℤ_[2]ˣ)) (hdeep : ∃ N : ℕ, evenRangePrin N ≤ H)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ H)
+    (h4 : ∃ w ∈ H, ¬ ((2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) - 1)) :
+    ∃ α : ℕ, 2 ≤ α ∧ H = imChiN α := by
+  obtain ⟨β, hβ2, hβle, hβmin⟩ := evenRange_exists_depth H hdeep
+  obtain ⟨w, hwH, hw4⟩ := h4
+  have hw4' : (2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) + 1 :=
+    (evenRange_four_dvd_sub_or_add w).resolve_left hw4
+  have hvH : (-w : ℤ_[2]ˣ) ∉ H := by
+    intro hvmem
+    have h1 : (-w : ℤ_[2]ˣ) * w⁻¹ ∈ H := mul_mem hvmem (inv_mem hwH)
+    simpa using hneg (by simpa using h1)
+  have hv1 : (-w : ℤ_[2]ˣ) ≠ 1 := fun h => hvH (h ▸ one_mem H)
+  obtain ⟨t, a, ht, hta⟩ :=
+    evenRange_exists_exact_level hv1 (evenRange_neg_dvd_iff.mpr hw4')
+  -- the exact level of `-w` is below `β`, since `-w ∉ H` while `1 + 2^β ℤ₂ ≤ H`
+  have htlt : t < β := by
+    by_contra hle
+    exact hvH (hβle (evenRange_prin_antitone (by omega)
+      (evenRange_mem_prin_iff.mpr ⟨(a : ℤ_[2]), hta⟩)))
+  -- but `w ^ 2 = (-w) ^ 2 ∈ H` has exact level `t + 1`, so `β ≤ t + 1`
+  obtain ⟨b, hb⟩ := mExists_unit_pow_two_pow_sub_one (-w) a t ht hta 1
+  rw [pow_one] at hb
+  have hsqH : ((-w : ℤ_[2]ˣ) ^ 2) ∈ H := by
+    have hsq : ((-w : ℤ_[2]ˣ) ^ 2) = w ^ 2 := by
+      refine Units.ext ?_
+      push_cast
+      ring
+    rw [hsq]
+    exact pow_mem hwH 2
+  have hβt : β ≤ 1 + t :=
+    hβmin (1 + t) (by omega) (evenRange_prin_le_of_mem hclosed (by omega) hb hsqH)
+  have hβeq : β = t + 1 := by omega
+  subst hβeq
+  refine ⟨t, ht, ?_⟩
+  -- `w` and `nUnit t` differ by an element of `1 + 2^(t+1) ℤ₂`
+  have hkey : w * (nUnit t)⁻¹ ∈ evenRangePrin (t + 1) := by
+    obtain ⟨r, rfl⟩ : ∃ r, t = r + 2 := ⟨t - 2, by omega⟩
+    have hii : (((nUnit (r + 2))⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((nUnit (r + 2) : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+      rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+    have hnu := nUnit_mul (α := r + 2) (by omega)
+    have hinv : (((nUnit (r + 2))⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = -(1 + 2 ^ (r + 2)) := by
+      linear_combination (((nUnit (r + 2))⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hnu -
+        (1 + (2 : ℤ_[2]) ^ (r + 2)) * hii
+    have hwv : ((w : ℤ_[2]ˣ) : ℤ_[2]) = -(((-w : ℤ_[2]ˣ) : ℤ_[2])) := by push_cast; ring
+    obtain ⟨e, he⟩ := evenRange_two_dvd_add_of_isUnit (Units.isUnit a) isUnit_one
+    refine evenRange_mem_prin_iff.mpr ⟨e + 2 ^ (r + 1) * (a : ℤ_[2]), ?_⟩
+    rw [Units.val_mul, hinv, hwv]
+    linear_combination (1 + (2 : ℤ_[2]) ^ (r + 2)) * hta + (2 : ℤ_[2]) ^ (r + 2) * he
+  have hnuH : nUnit t ∈ H := by
+    have h1 : (w * (nUnit t)⁻¹)⁻¹ * w ∈ H := mul_mem (inv_mem (hβle hkey)) hwH
+    have h2 : (w * (nUnit t)⁻¹)⁻¹ * w = nUnit t := by group
+    rwa [h2] at h1
+  refine le_antisymm (fun u huH => ?_) ?_
+  · rcases evenRange_four_dvd_sub_or_add u with h | h
+    · exact evenRange_prin_le_imChiN ht (evenRange_mem_prin_depth hclosed hβmin huH h)
+    · -- `u` and `w` are both `≡ -1 (mod 4)`, so `u * w⁻¹` is `≡ 1 (mod 4)`
+      have hq4 : (2 : ℤ_[2]) ^ 2 ∣ ((u * w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+        obtain ⟨p, hp⟩ := h
+        obtain ⟨q, hq⟩ := hw4'
+        have hwi : (((w⁻¹ : ℤ_[2]ˣ)) : ℤ_[2]) * ((w : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+          rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+        refine ⟨(p - q) * (((w⁻¹ : ℤ_[2]ˣ)) : ℤ_[2]), ?_⟩
+        rw [Units.val_mul]
+        linear_combination (((w⁻¹ : ℤ_[2]ˣ)) : ℤ_[2]) * hp -
+          (((w⁻¹ : ℤ_[2]ˣ)) : ℤ_[2]) * hq + hwi
+      have hqmem : (u * w⁻¹) ∈ evenRangePrin (t + 1) :=
+        evenRange_mem_prin_depth hclosed hβmin (mul_mem huH (inv_mem hwH)) hq4
+      have hu : u = (u * w⁻¹) * (w * (nUnit t)⁻¹) * nUnit t := by group
+      rw [hu]
+      exact mul_mem (mul_mem (evenRange_prin_le_imChiN ht hqmem)
+        (evenRange_prin_le_imChiN ht hkey)) (evenRow_nUnit_mem_imChiN t)
+  · refine Subgroup.topologicalClosure_minimal _ ?_ hclosed
+    rw [Subgroup.closure_le, Set.singleton_subset_iff]
+    exact hnuH
+
+/-- **The classification, with the branch selector.**  A closed deep subgroup meeting the
+class `3 mod 4` is exactly one of the two committed even images. -/
+theorem evenRange_classify (H : Subgroup ℤ_[2]ˣ) (hclosed : IsClosed (H : Set ℤ_[2]ˣ))
+    (hdeep : ∃ N : ℕ, evenRangePrin N ≤ H)
+    (h4 : ∃ w ∈ H, ¬ ((2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) - 1)) :
+    ∃ α : ℕ, 2 ≤ α ∧ (H = imChiM α ∨ H = imChiN α) := by
+  by_cases hneg : (-1 : ℤ_[2]ˣ) ∈ H
+  · obtain ⟨α, hα, h⟩ := evenRange_eq_imChiM_of_neg_one_mem H hclosed hdeep hneg
+    exact ⟨α, hα, Or.inl h⟩
+  · obtain ⟨α, hα, h⟩ := evenRange_eq_imChiN_of_neg_one_notMem H hclosed hdeep hneg h4
+    exact ⟨α, hα, Or.inr h⟩
+
+end Classify
+
 end GQ2.Dyadic.EvenCyclotomicRange
