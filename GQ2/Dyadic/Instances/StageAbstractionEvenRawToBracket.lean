@@ -24,12 +24,15 @@ third are the honest replacement for a discharge.
    has exponent two, so the raw row at `p` and the bracket row at `p · z` are *equal*, not
    merely congruent.  The boundary therefore shrinks from a statement about subgroups of
    `Q_{k+1}` at every level and every stage to a statement about single coordinates.
-3. **The arithmetic price, machine-checked** (§4).  `EvenRawToNeutralSupply` forces
-   `2^(k+1) ∣ χ(g) − 1` for every `g ∈ λ_{k-1}`, at every `k ≥ 3`.  The committed generic
-   bound `dvd_chi_of_mem_twoCentralSeries` gives only `2^k`, so this is one digit deeper than
-   anything the two-central tower supplies on its own, uniformly in `k`, and it is an
-   *arithmetic* condition on the character with no span in it.  Any carrier possessing a
-   depth-`k-1` element whose character has exact level `k` refutes the route.
+3. **The arithmetic price, machine-checked** (§4).  `EvenRawToNeutralSupply` forces the
+   character filtration not to drop between consecutive layers: whatever depth `χ` has on
+   `λ_k`, it must already have on `λ_{k-1}`, to precision `k+1+s`
+   (`evenRawTo_chi_dvd_of_neutral_of_layer`).  Against the committed tower bound that reads
+   `2^(k+1) ∣ χ(g) − 1` on `λ_{k-1}` where the tower gives only `2^k`; against the committed
+   *even* bound `evenSharp_map_le_deep` at the lane's own depth `s = α − 1` it reads
+   `2^(k+α-1)` where that bound gives only `2^(k+α-2)`.  Either way it is exactly **one digit
+   deeper than what is proved**, at every `k ≥ 3`, and `evenSharpDeepDefined` records that the
+   even bound has no slack to give.
 
 ## Why this is not a port failure
 
@@ -259,6 +262,8 @@ upgrade whose digit repairs are paid for by `Function.Surjective chiCycKTwo`. -/
 
 section Obstruction
 
+open GQ2.Dyadic.EvenRowSupply (EvenSharpPmOne evenSharp_map_le_deep)
+
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {s k : ℕ}
 
@@ -292,28 +297,53 @@ theorem evenRawTo_exists_lambda_mul_of_neutral (Hneut : EvenRawToNeutralSupply s
   rw [show g * (y * ((g * y)⁻¹ * g'')) = g'' by group]
   exact hchi''
 
-/-- **Necessity, and the obstruction.**  The neutralisation supply forces the character to
-vanish to `k+1` digits on every depth-`k-1` element, at every level `k ≥ 3`.  The committed
-`dvd_chi_of_mem_twoCentralSeries` gives only `k` digits there. -/
-theorem evenRawTo_chi_dvd_of_neutral (Hneut : EvenRawToNeutralSupply s G chi)
-    (hk : 3 ≤ k) {g : G} (hg : g ∈ twoCentralSeries G (k - 1)) :
-    ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+/-- **Necessity, in the sharp parametric form.**  Whatever depth the character has on the
+layer `λ_k`, the neutralisation supply forces *the same* depth on `λ_{k-1}`, one layer up.
+That is the whole obstruction: the character filtration may not drop between consecutive
+layers, to precision `k+1+s`. -/
+theorem evenRawTo_chi_dvd_of_neutral_of_layer (Hneut : EvenRawToNeutralSupply s G chi)
+    (hk : 3 ≤ k) {d : ℕ} (hd : d ≤ k + 1 + s)
+    (hlayer : ∀ w ∈ twoCentralSeries G k,
+      ((2 : ℕ) : ℤ_[2]) ^ d ∣ ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+    {g : G} (hg : g ∈ twoCentralSeries G (k - 1)) :
+    ((2 : ℕ) : ℤ_[2]) ^ d ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
   obtain ⟨w, hw, hchiw⟩ := evenRawTo_exists_lambda_mul_of_neutral Hneut hk hg
   have hgw : ((2 : ℕ) : ℤ_[2]) ^ (k + 1 + s) ∣ ((chi (g * w) : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
     mem_ker_units_toZModPow_iff.mp hchiw
-  have hgw' : ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣
+  have hgw' : ((2 : ℕ) : ℤ_[2]) ^ d ∣
       ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
-    refine dvd_trans (pow_dvd_pow _ (by omega : k + 1 ≤ k + 1 + s)) ?_
+    refine dvd_trans (pow_dvd_pow _ hd) ?_
     rw [show ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi w : ℤ_[2]ˣ) : ℤ_[2]) =
       ((chi (g * w) : ℤ_[2]ˣ) : ℤ_[2]) by rw [map_mul]; push_cast; ring]
     exact hgw
-  have hwdvd : ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
-    have hd := dvd_chi_of_mem_twoCentralSeries chi (by omega : 2 ≤ k) hw
-    simpa using hd
   rw [show ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 =
       (((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1) -
         ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * (((chi w : ℤ_[2]ˣ) : ℤ_[2]) - 1) by ring]
-  exact dvd_sub hgw' (hwdvd.mul_left _)
+  exact dvd_sub hgw' ((hlayer w hw).mul_left _)
+
+/-- **The generic instance.**  Against the committed tower bound
+`dvd_chi_of_mem_twoCentralSeries`, which gives `k+1` digits on `λ_k` and only `k` digits on
+`λ_{k-1}`, the supply demands `k+1` digits on `λ_{k-1}`: one more than the tower provides. -/
+theorem evenRawTo_chi_dvd_of_neutral (Hneut : EvenRawToNeutralSupply s G chi)
+    (hk : 3 ≤ k) {g : G} (hg : g ∈ twoCentralSeries G (k - 1)) :
+    ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+  evenRawTo_chi_dvd_of_neutral_of_layer Hneut hk (by omega)
+    (fun w hw ↦ by simpa using dvd_chi_of_mem_twoCentralSeries chi (by omega : 2 ≤ k) hw) hg
+
+/-- **The even-branch instance, at the lane's own depth `s = α - 1`.**  The committed even
+bound `evenSharp_map_le_deep` gives `m + α - 1` digits on `λ_m`, hence `k + α - 2` on
+`λ_{k-1}`; the neutralisation supply demands `k + α - 1` there.  So on the even branches the
+supply is exactly **one digit deeper than the committed character filtration bound**, at every
+level `k ≥ 3` and every `α ≥ 1`.  `evenSharpDeepDefined` records that that bound has no slack,
+which is why the missing digit is not recoverable from the even side. -/
+theorem evenRawTo_chi_dvd_of_neutral_deep {α : ℕ} (hα : 1 ≤ α)
+    (hbound : ∀ g : G, EvenSharpPmOne α (chi g))
+    (Hneut : EvenRawToNeutralSupply (α - 1) G chi) (hk : 3 ≤ k)
+    {g : G} (hg : g ∈ twoCentralSeries G (k - 1)) :
+    ((2 : ℕ) : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+  evenRawTo_chi_dvd_of_neutral_of_layer Hneut hk (by omega)
+    (fun w hw ↦ mem_ker_units_toZModPow_iff.mp
+      (evenSharp_map_le_deep hα hbound k (by omega) ⟨w, hw, rfl⟩)) hg
 
 /-- **The refutation in usable form.**  One depth-`k-1` element whose character has exact
 level `k` kills the neutralisation route, hence the natural route to boundary three. -/
@@ -356,7 +386,9 @@ open GQ2.Dyadic.StageGeneric
 -- §4 the arithmetic price
 #print axioms evenRawTo_neutral_of_chi_deep
 #print axioms evenRawTo_exists_lambda_mul_of_neutral
+#print axioms evenRawTo_chi_dvd_of_neutral_of_layer
 #print axioms evenRawTo_chi_dvd_of_neutral
+#print axioms evenRawTo_chi_dvd_of_neutral_deep
 #print axioms evenRawTo_neutralSupply_false_of_chi_exact
 
 end AxiomPins
