@@ -39,7 +39,7 @@ D(δ_i)  =  P·(a(x_i) + a(τ)) − a(x_i)      =  a(τ)   at P = 1,   −a(x_i)
 ```
 
 Those two values are the *"genuinely different statements"* of the origin note.  `FoxDeltaRow`
-below carries the row **as data**, a free vector `block : Fin 3 → V` together with the two
+below carries the row **as data**, a free vector `block a : Fin 3 → V` together with the two
 facts the downstream layer actually consumes (the Fox value and the trivial action of the
 block), so the factor rows are stated once, for an arbitrary δ-row, and the two readings are
 two terms of the structure rather than two copies of the chain.
@@ -49,8 +49,8 @@ two terms of the structure rather than two copies of the chain.
 The parameter is deliberately the **row value**, not an `AddMonoid.End V`.  Every consumer below
 is linear in the row and never inspects it; taking the value keeps the layer free of any
 commitment to the projector's shape, and lets a future third reading (a genuinely partial `P`)
-instantiate the same theorems.  The two instances supplied here do have `block i = P (a(x_i) +
-a(τ))`, which is recorded as `FoxDeltaRow.unram_block` / `FoxDeltaRow.ram_block`.
+instantiate the same theorems.  The two instances supplied here do have `block a i = P (a(x_i) +
+a(τ))`, which is recorded as `deltaRowUnram_block` / `deltaRowRam_block`.
 
 ## `hTodd` is a theorem here, not a hypothesis
 
@@ -98,7 +98,7 @@ deliberately **not** in this wave's scope).
 
 0. Notation and the two micro-lemmas the layer needs.
 1. `FoxDeltaRow`: the structure, and everything derived from it (`todd`, the δ-letter row).
-2. The two instances: `FoxDeltaRow.ram` and `FoxDeltaRow.unram`.
+2. The two instances: `deltaRowRam` and `deltaRowUnram`.
 3. The parameterised noncompact-`N` factor rows.
 4. The parameterised procyclic-`M` factor rows, up to the hat copy.
 5. The ramified pins: committed statements re-derived through the layer.
@@ -173,23 +173,30 @@ spent **once**, in the two constructors of §2, and never again: this is the who
 parameterisation, since `hτfpf` is false at unramified parameters and so is `hτ` at ramified
 ones, while every consumer below holds at both.
 
-`hTodd` is not a field either.  It is `FoxDeltaRow.todd`, a theorem. -/
-structure FoxDeltaRow (a : Generator (2 + 2 * h) → V) where
+`hTodd` is not a field either.  It is `FoxDeltaRow.todd`, a theorem.
+
+The row is a function **of the offset vector**, not a value at one offset.  It has to be: a
+*column* of an evaluated row is the row at the single-slot offset `Pi.single g v`
+(`Npc.foxDHom_npc_ram_column_eq_zero` and its handle corollaries are exactly that), so a δ-row
+pinned to one offset could not state them.  Both instances of §2 are uniform in the offset
+anyway. -/
+structure FoxDeltaRow where
   /-- The uniform wild hypothesis: the wild letters `x_i` act trivially on `V`. -/
   wild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v
-  /-- The row: the first-order value of the `ω₂`-block `(x_iτ)^{ω₂}` at the offset `a`. -/
-  block : Fin 3 → V
+  /-- The row: the first-order value of the `ω₂`-block `(x_iτ)^{ω₂}`, per offset and core
+  letter. -/
+  block : (Generator (2 + 2 * h) → V) → Fin 3 → V
   /-- The `ω₂`-block's Fox derivative is the row. -/
-  foxD_block : ∀ i : Fin 3, foxD ⇑t a E E₂
-    (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) = block i
-  /-- The `ω₂`-block acts trivially.  Uniform in the reading, and the field that replaces
-  `hTodd` everywhere downstream. -/
+  foxD_block : ∀ (a : Generator (2 + 2 * h) → V) (i : Fin 3), foxD ⇑t a E E₂
+    (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) = block a i
+  /-- The `ω₂`-block acts trivially.  Uniform in the reading and in the offset, and the field
+  that replaces `hTodd` everywhere downstream. -/
   trivAct_block : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂
     (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V
 
 namespace FoxDeltaRow
 
-variable {t E E₂} {a : Generator (2 + 2 * h) → V} (dr : FoxDeltaRow t E E₂ a)
+variable {t E E₂} (dr : FoxDeltaRow (V := V) t E E₂) (a : Generator (2 + 2 * h) → V)
 
 include dr
 
@@ -229,8 +236,8 @@ The statement the origin note calls "the δ-row".  At `block i = a(x_i) + a(τ)`
 is `MCompact.foxD_deltaC_unram`'s `a(τ)`; at `block i = 0` (ramified) it is
 `MCompact.foxD_deltaC_ram`'s `−a(x_i)`; here it is one theorem. -/
 theorem foxD_delta (i : Fin 3) :
-    foxD ⇑t a E E₂ (Words.MCompact.deltaC h i) = dr.block i - a (coreLetter h i) := by
-  rw [Words.MCompact.deltaC, MCompact.foxD_prodList_pair, dr.foxD_block i,
+    foxD ⇑t a E E₂ (Words.MCompact.deltaC h i) = dr.block a i - a (coreLetter h i) := by
+  rw [Words.MCompact.deltaC, MCompact.foxD_prodList_pair, dr.foxD_block a i,
     mem_trivAct.mp (dr.trivAct_block i), foxD_inv, PWord.evalFin_gen, foxD_gen,
     mem_trivAct.mp (inv_mem (dr.trivAct_coreLetter i))]
   abel
@@ -238,3 +245,160 @@ theorem foxD_delta (i : Fin 3) :
 end FoxDeltaRow
 
 end Row
+
+/-! ## §2. The two readings
+
+Both branch hypotheses are spent here and nowhere else.  `deltaRowRam` is the only place `hτfpf`
+appears in this file; `deltaRowUnram` is the only place `hτ` does. -/
+
+section Instances
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The ramified δ-row** (`P = 0`): the `ω₂`-block dies, `block a i = 0`.
+
+This is the single point of the file at which `hτfpf` is consumed.  Everything the committed
+ramified chain proves from `hτfpf` is proved below from *this term*, so the branch hypothesis
+never reaches a factor-row statement again. -/
+def deltaRowRam (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
+    FoxDeltaRow (V := V) t E E₂ where
+  wild := hwild
+  block _ _ := 0
+  foxD_block a i := Npc.foxD_omega2Block_ram t E E₂ i hwild hτfpf hTodd a
+  trivAct_block i := MCompact.trivAct_deltaBlock_ram t E E₂ hwild hTodd i
+
+/-- **The unramified δ-row** (`P = 1`): the `ω₂`-block is transparent,
+`block a i = a(x_i) + a(τ)`.
+
+The row the origin note asks for.  It is *not* the ramified row with a hypothesis swapped: the
+two are different vectors, and that is exactly why the chain had to be parameterised rather than
+re-hypothesised.  Reading it off the unramified branch is immediate once the block is isolated,
+since `τ` acts trivially there and `WordLift.powOmega2_u_of_trivial` differentiates the
+`ω₂`-power of a trivially-acting base as the base's own row `a(x_i) + a(τ)`
+(`Npc.foxD_omega2Block_unram`).
+
+`hTodd` is not an argument: on this branch it follows from `hτ`, and the layer derives it from
+the row itself (`FoxDeltaRow.todd`) in any case. -/
+def deltaRowUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v) :
+    FoxDeltaRow (V := V) t E E₂ where
+  wild := hwild
+  block a i := a (coreLetter h i) + a .tau
+  foxD_block a i := Npc.foxD_omega2Block_unram t E E₂ i hV₂ hwild hτ a
+  trivAct_block i := MCompact.trivAct_deltaBlock_unram t E E₂ hwild hτ i
+
+@[simp] theorem deltaRowRam_block (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (a : Generator (2 + 2 * h) → V) (i : Fin 3) :
+    (deltaRowRam t E E₂ hwild hτfpf hTodd).block a i = 0 := rfl
+
+@[simp] theorem deltaRowUnram_block (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator (2 + 2 * h) → V) (i : Fin 3) :
+    (deltaRowUnram t E E₂ hV₂ hwild hτ).block a i = a (coreLetter h i) + a .tau := rfl
+
+end Instances
+
+/-! ## §3. The noncompact-`N` factor rows, parameterised
+
+The `hτfpf`-carrying half of `NpcFox.lean`'s `section Rows`, restated once.  Four of the word's
+six factors (`x₀^{p_α}`, `[x₀,A]`, `x₂^{-g}`, `H_h`) never see the δ-row and are cited
+unchanged; the `ω₂`-block is the row itself; the correction block `E_{r,η}` sees it only through
+`hTodd`, which is `FoxDeltaRow.todd`.
+
+The committed `Npc.foxD_npc_ram` and `Npc.foxD_npc_unram` are the two specialisations, pinned in
+§5 and §6. -/
+
+section NpcRows
+
+open GQ2.Dyadic.Words.Npc
+
+variable {h α r : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] {t : Marking (2 + 2 * h) C} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+  (dr : FoxDeltaRow (V := V) t E E₂)
+
+include dr
+
+/-- **The noncompact-`N` wild row at an arbitrary δ-row.**
+
+```
+D(R_{N,α,r,η}) = (A⁻¹ − 1)·a(x₀) + (block(a)₂ − B⁻¹·a(x₂)),   A = S^{E(η̂)}, B = S^{2^r}
+```
+
+One statement for both module classes.  The δ-row enters in exactly one slot, the `ω₂`-block's,
+which is the honest content of "the `τ`- and `x₂`-halves of the `ω₂`-block die" (ramified,
+`block = 0`) versus "the row carries the `τ`-pivot" (unramified, `block a 2 = a(x₂) + a(τ)`):
+the *rest* of the row is class-independent and always was.
+
+`hα : 1 ≤ α` is spent on the leading power's parity and `hV₂` with it; neither touches the
+δ-row. -/
+theorem foxDelta_npc (hV₂ : ∀ v : V, v + v = 0) (hα : 1 ≤ α) (e : EtaData)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e)
+      = ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0))
+        + (dr.block a 2 - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2)) := by
+  rw [npcW, foxD_prodList_of_trivial _ _ _ _ _
+    (Npc.trivAct_npc_factors t E E₂ dr.wild dr.todd e)]
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil]
+  rw [Npc.foxD_leadingPow t E E₂ hV₂ dr.wild hα, Npc.foxD_commX0A t E E₂ dr.wild e,
+    Npc.foxD_invConjX2G t E E₂ dr.wild, dr.foxD_block a 2,
+    Npc.foxD_eBlockW t E E₂ dr.wild dr.todd e, Npc.foxD_handlesW t E E₂ dr.wild]
+  abel
+
+/-- **Every column off `x₀`, `x₂` is the δ-row's own entry.**
+
+A column of the evaluated row is the row at a single-slot offset `Pi.single g v`, so this is
+`foxDelta_npc` read at that offset with the two surviving letters missed.  At the ramified row
+the right-hand side is `0` and this is `Npc.foxDHom_npc_ram_column_eq_zero`; at the unramified
+row it is `Pi.single g v (x₂) + Pi.single g v (τ)`, which is `0` unless `g = τ` and reproduces
+`Npc.foxDHom_npc_unram_column_eq_zero`'s extra `g ≠ τ` hypothesis as an output rather than an
+input.
+
+This is the statement that forces the δ-row to be a function of the offset. -/
+theorem foxDelta_npcHom_column (hV₂ : ∀ v : V, v + v = 0) (hα : 1 ≤ α) (e : EtaData)
+    {g : Generator (2 + 2 * h)} (hg0 : g ≠ coreLetter h 0) (hg2 : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single g v) = dr.block (Pi.single g v) 2 := by
+  rw [foxDHom_apply, foxDelta_npc dr hV₂ hα e, Pi.single_eq_of_ne (Ne.symm hg0),
+    Pi.single_eq_of_ne (Ne.symm hg2)]
+  simp
+
+/-- The `2h` handle columns, at an arbitrary δ-row: the `u`-half. -/
+theorem foxDelta_npcHom_handleU_column (hV₂ : ∀ v : V, v + v = 0) (hα : 1 ≤ α) (e : EtaData)
+    (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single (handleU j) v)
+      = dr.block (Pi.single (handleU j) v) 2 :=
+  foxDelta_npcHom_column dr hV₂ hα e (Npc.handleU_ne_coreLetter j 0)
+    (Npc.handleU_ne_coreLetter j 2) v
+
+/-- The `2h` handle columns, at an arbitrary δ-row: the `v`-half. -/
+theorem foxDelta_npcHom_handleV_column (hV₂ : ∀ v : V, v + v = 0) (hα : 1 ≤ α) (e : EtaData)
+    (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single (handleV j) v)
+      = dr.block (Pi.single (handleV j) v) 2 :=
+  foxDelta_npcHom_column dr hV₂ hα e (Npc.handleV_ne_coreLetter j 0)
+    (Npc.handleV_ne_coreLetter j 2) v
+
+/-- **Gate-D blindness at an arbitrary δ-row**: the corrected and the uncorrected words have the
+same Fox row.  The committed statement is already class-uniform (`hTodd` only); it is restated
+here only so the layer is closed under the section's own consumers, with `hTodd` supplied by the
+row rather than bound. -/
+theorem foxDelta_npcW_eq_uncorrected (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e) = foxD ⇑t a E E₂ (Npc.npcUncorrectedW α r h e) :=
+  Npc.foxD_npcW_eq_uncorrected t E E₂ dr.wild dr.todd e a
+
+/-- **The `D`-block's row at an arbitrary δ-row**: the corrected cross operator applied to
+`D(δ₀)`, which the layer now writes in terms of the δ-row itself.  `Npc.foxD_dBlockW` states it
+with `D(δ₀)` opaque and `hTodd` bound; here `D(δ₀)` is `block a 0 − a(x₀)`
+(`FoxDeltaRow.foxD_delta`) and `hTodd` is derived. -/
+theorem foxDelta_dBlockW (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (dBlockW h r e)
+      = (t.σ ^ E e.toZhat)⁻¹ • (dr.block a 0 - a (coreLetter h 0))
+        + (t.σ ^ ((2 : ℤ) ^ r) • (dr.block a 0 - a (coreLetter h 0))
+          + t.σ ^ ((2 : ℤ) ^ r) • (t.σ ^ E e.toZhat)⁻¹ • (dr.block a 0 - a (coreLetter h 0))) := by
+  have hδ : foxD ⇑t a E E₂ (deltaZeroW h) = dr.block a 0 - a (coreLetter h 0) :=
+    dr.foxD_delta a 0
+  rw [Npc.foxD_dBlockW t E E₂ dr.wild dr.todd e a, hδ]
+
+end NpcRows
