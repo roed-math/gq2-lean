@@ -170,6 +170,104 @@ def vanShift (m z : Fin (sqRank h) → SqU4 R) : R :=
           + ((m (sqHandleIdxU j)).a * (z (sqHandleIdxV j)).e
             - (m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d))
 
+variable {m z : Fin (sqRank h) → SqU4 R}
+
+/-- A `γ₂`-dressing leaves all three abelian columns of every slot unchanged. -/
+theorem vanDress_abc (hz : ∀ i, (z i).IsGaTwo) (i : Fin (sqRank h)) :
+    (vanDress m z i).a = (m i).a ∧ (vanDress m z i).b = (m i).b
+      ∧ (vanDress m z i).c = (m i).c :=
+  ⟨by simp [(hz i).1], by simp [(hz i).2.1], by simp [(hz i).2.2]⟩
+
+/-- **The five-slot change of the class-three defect**: `vanCore`'s three core blocks plus
+`vanComm3`'s handle blocks, summed over the handles; the cross term of `sqU4Defect` reads
+only abelian columns and does not move. -/
+theorem sqU4Defect_vanDress (hz : ∀ i, (z i).IsGaTwo) :
+    sqU4Defect h (vanDress m z)
+      = sqU4Defect h m + ((m 1).c * (z 0).d - (m 1).a * (z 0).e)
+        + (((m 0).a + 10 * (m 1).a) * (z 1).e
+          - ((m 0).c - 10 * (m 1).c + 8 * (m 2).c) * (z 1).d)
+        + (((m 2).a - 8 * (m 1).a) * (z 2).e + (m 2).c * (z 2).d)
+        + ∑ j : Fin h,
+            (((m (sqHandleIdxV j)).c * (z (sqHandleIdxU j)).d
+                - (m (sqHandleIdxV j)).a * (z (sqHandleIdxU j)).e)
+              + ((m (sqHandleIdxU j)).a * (z (sqHandleIdxV j)).e
+                - (m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d)) := by
+  have habc := vanDress_abc (m := m) hz
+  have hcross : ∀ j' : Fin h,
+      (vanDress m z (sqHandleIdxU j')).b * (vanDress m z (sqHandleIdxV j')).c
+          - (vanDress m z (sqHandleIdxV j')).b * (vanDress m z (sqHandleIdxU j')).c
+        = (m (sqHandleIdxU j')).b * (m (sqHandleIdxV j')).c
+          - (m (sqHandleIdxV j')).b * (m (sqHandleIdxU j')).c := by
+    intro j'
+    rw [(habc _).2.1, (habc _).2.2, (habc _).2.1, (habc _).2.2]
+  have hcomm : ∀ j' : Fin h,
+      SqU4.u4Comm3 (vanDress m z (sqHandleIdxU j')) (vanDress m z (sqHandleIdxV j'))
+        = SqU4.u4Comm3 (m (sqHandleIdxU j')) (m (sqHandleIdxV j'))
+          + (((m (sqHandleIdxV j')).c * (z (sqHandleIdxU j')).d
+              - (m (sqHandleIdxV j')).a * (z (sqHandleIdxU j')).e)
+            + ((m (sqHandleIdxU j')).a * (z (sqHandleIdxV j')).e
+              - (m (sqHandleIdxU j')).c * (z (sqHandleIdxV j')).d)) := by
+    intro j'
+    rw [vanDress_apply, vanDress_apply, vanComm3 (hz _) (hz _)]
+    ring
+  simp only [sqU4Defect]
+  rw [Finset.sum_congr rfl fun j' _ => hcross j',
+    Finset.sum_congr rfl fun j' _ => hcomm j', Finset.sum_add_distrib,
+    vanDress_apply, vanDress_apply, vanDress_apply, vanCore (hz 0) (hz 1) (hz 2)]
+  simp only [SqU4.mul_a, (hz 1).1, (hz 2).1, add_zero]
+  ring
+
+/-- The `a`-row of the relator does not move under a five-slot `γ₂`-dressing. -/
+theorem sqRelWord_vanDress_a (hz : ∀ i, (z i).IsGaTwo) :
+    (sqRelWord (vanDress m z)).a = (sqRelWord m).a := by
+  rw [SqU4.sqRelWord_a, SqU4.sqRelWord_a, (vanDress_abc (m := m) hz 1).1, (vanDress_abc (m := m) hz 2).1]
+
+/-- The `b`-row of the relator does not move under a five-slot `γ₂`-dressing. -/
+theorem sqRelWord_vanDress_b (hz : ∀ i, (z i).IsGaTwo) :
+    (sqRelWord (vanDress m z)).b = (sqRelWord m).b := by
+  rw [SqU4.sqRelWord_b, SqU4.sqRelWord_b, (vanDress_abc (m := m) hz 1).2.1, (vanDress_abc (m := m) hz 2).2.1]
+
+/-- The `c`-row of the relator does not move under a five-slot `γ₂`-dressing. -/
+theorem sqRelWord_vanDress_c (hz : ∀ i, (z i).IsGaTwo) :
+    (sqRelWord (vanDress m z)).c = (sqRelWord m).c := by
+  rw [SqU4.sqRelWord_c, SqU4.sqRelWord_c, (vanDress_abc (m := m) hz 1).2.2, (vanDress_abc (m := m) hz 2).2.2]
+
+/-- **The first class-two row moves by the abelian exponent action alone**: the dressing's
+`d`-data enters only through the exponent letters `x₀`, `x₁` with the relator's weights
+`(−4, 2)`.  In the true graded object this contribution is the Frobenius part of the layer
+map; the slice sees it as multiplication by the even weights. -/
+theorem sqRelWord_vanDress_d (hz : ∀ i, (z i).IsGaTwo) :
+    (sqRelWord (vanDress m z)).d
+      = (sqRelWord m).d + (-4 * (z 1).d + 2 * (z 2).d) := by
+  have hab : ∀ i, (SqU4.toHeisAB (vanDress m z i)).a = (SqU4.toHeisAB (m i)).a
+      ∧ (SqU4.toHeisAB (vanDress m z i)).b = (SqU4.toHeisAB (m i)).b :=
+    fun i => ⟨(vanDress_abc (m := m) hz i).1, (vanDress_abc (m := m) hz i).2.1⟩
+  rw [SqU4.sqRelWord_d, SqU4.sqRelWord_d, sqHeisDefect_congr_ab hab, vanDress_apply,
+    vanDress_apply, vanMul_d (hz 1), vanMul_d (hz 2)]
+  ring
+
+/-- …and the second class-two row likewise. -/
+theorem sqRelWord_vanDress_e (hz : ∀ i, (z i).IsGaTwo) :
+    (sqRelWord (vanDress m z)).e
+      = (sqRelWord m).e + (-4 * (z 1).e + 2 * (z 2).e) := by
+  have hab : ∀ i, (SqU4.toHeisBC (vanDress m z i)).a = (SqU4.toHeisBC (m i)).a
+      ∧ (SqU4.toHeisBC (vanDress m z i)).b = (SqU4.toHeisBC (m i)).b :=
+    fun i => ⟨(vanDress_abc (m := m) hz i).2.1, (vanDress_abc (m := m) hz i).2.2⟩
+  rw [SqU4.sqRelWord_e, SqU4.sqRelWord_e, sqHeisDefect_congr_ab hab, vanDress_apply,
+    vanDress_apply, vanMul_e (hz 1), vanMul_e (hz 2)]
+  ring
+
+/-- ⭐⭐ **The five-slot dressing action on the relator's class-three coordinate**: the
+relator moves by exactly `vanShift m z`.  Together with the five lower rows this is the
+class-three slice instance of the graded Fox form of the dressing-defect map: affine-linear
+in the dressing, coefficients the marking's outer abelian columns in the permuted-letter
+pattern, Frobenius (the even exponent weights) in the exponent slots. -/
+theorem sqRelWord_vanDress_f (hz : ∀ i, (z i).IsGaTwo) :
+    (sqRelWord (vanDress m z)).f = (sqRelWord m).f + vanShift h m z := by
+  rw [SqU4.sqRelWord_f, SqU4.sqRelWord_f, sqU4Defect_vanDress hz, vanDress_apply,
+    vanDress_apply, vanMul_f (hz 1), vanMul_f (hz 2), vanShift]
+  ring
+
 end DressAction
 
 end SqCore
