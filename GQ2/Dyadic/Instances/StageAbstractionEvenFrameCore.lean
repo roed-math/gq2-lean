@@ -33,20 +33,20 @@ which is possible because the two even cores share one Gram
 ## Board crux (i): no dual-basis permutation, a dual-vector map instead
 
 `EvenForwardRouteSkeleton.lean:48–51` records that the even head `[[1,1],[1,0]]` has inverse
-Gram `[[0,1],[1,1]]`, so the odd route's `sqInitialPartner : Equiv.Perm` — legitimate there
-because `⟨1⟩ ⊥ H ⊥ H^{⊥h}` pairs each coordinate basis vector with exactly one other — has no
+Gram `[[0,1],[1,1]]`, so the odd route's `sqInitialPartner : Equiv.Perm` (legitimate there,
+because `⟨1⟩ ⊥ H ⊥ H^{⊥h}` pairs each coordinate basis vector with exactly one other) has no
 even analogue.  §1.4 replaces it by `evenDualVec`, sending a frame index `i` to the *vector*
 representing the `i`-th coordinate functional:
 
 | frame index | letter | `evenDualVec` | a basis vector? |
 |---|---|---|---|
 | `0` | `x₀` | `e₁` | yes (the partner index `1`) |
-| `1` | `x₁` | `e₀ + e₁` | **no** — this is the crux |
+| `1` | `x₁` | `e₀ + e₁` | **no**, and this is the crux |
 | `2`, `3` | `σ`, `x₂` | `e₃`, `e₂` | yes (the `(2,3)` plane swaps) |
 | `U j`, `V j` | handles | `e_{V j}`, `e_{U j}` | yes (the handle planes swap) |
 
 Only the head is non-permutational, and only at index `1`.  The pay-off is §1.5: the model's
-Labute vector — the vector representing the diagonal `z ↦ b z z` — is `evenDualVec 0`, and it is
+Labute vector, the vector representing the diagonal `z ↦ b z z`, is `evenDualVec 0`, and it is
 `e₁`, so it sits at **frame index 1**.  That is exactly the index at which both even row tables
 carry their nontrivial cyclotomic value, which is why the parity half of the bridge table
 matches for free.
@@ -59,10 +59,10 @@ Proved here: all of the above, sorry-free, and the assembly of a
 Carried as hypotheses (never as admitted goals), because they are the honest even-degree
 inputs and are owned by other tickets:
 
-* `RowExactLevelFibreLiftSupply v _ chiCycKTwo` — ticket EV-4a.  At even degree `chiCycKTwo`
+* `RowExactLevelFibreLiftSupply v _ chiCycKTwo`, ticket EV-4a.  At even degree `chiCycKTwo`
   is *not* surjective, so the odd route's `SharpExactLevelFibreLiftSupply` is unavailable and
   the row-relative weakening of `StageAbstraction.lean` §2.1(b) is what the lane must use.
-* `cyclotomicModFourClassKTwo ≠ 0` — the campaign's standing ramified-`i` binder.
+* `cyclotomicModFourClassKTwo ≠ 0`, the campaign's standing ramified-`i` binder.
   `FieldDataEven.kappaK_eq_zero_iff` is the stated interface for deriving it, and that file's
   own docstring records that nothing in `GQ2/Dyadic/` currently derives it from the binder.
 -/
@@ -198,7 +198,7 @@ theorem evenFrameCoord_val_handleV (j : Fin h) (hi : (i : ℕ) = 5 + 2 * (j : �
     evenFrameCoord (0 : Fin (MarkedCore.coreRank h)) z = z.1.1 :=
   evenFrameCoord_val_zero z (MarkedCore.coreVal_zero h)
 
-/-- The `x₁` coordinate is the second head coordinate — the index at which the model's Labute
+/-- The `x₁` coordinate is the second head coordinate, the index at which the model's Labute
 vector lives (§1.5). -/
 @[simp] theorem evenFrameCoord_one :
     evenFrameCoord (1 : Fin (MarkedCore.coreRank h)) z = z.1.2 :=
@@ -293,8 +293,8 @@ def evenFrameCoreIdx {h : ℕ} : Fin 4 → Fin (MarkedCore.coreRank h) := ![0, 1
 plane per handle, zero across.  This is the `gram` parameter of `Frame.IsCupAdapted`.
 
 **Composition seam.**  The right-hand side is written in exactly the shape of ticket EV-3d's
-word-independent predicate `IsEvenGram` — itself verbatim the right-hand side of the committed
-`IsCupCocycle.nRelWord_centLift_fib` / `mRelWord_centLift_fib` — so that EV-3d's realization
+word-independent predicate `IsEvenGram`, itself verbatim the right-hand side of the committed
+`IsCupCocycle.nRelWord_centLift_fib` / `mRelWord_centLift_fib`, so that EV-3d's realization
 endpoints accept this adapter with `hg` discharged by `fun _ ↦ rfl`.  That the core block really
 is the committed Gram, rather than a hand-copied matrix, is `evenFrameGram_nGram` below. -/
 def evenFrameGram (h : ℕ)
@@ -311,7 +311,7 @@ theorem evenFrameGram_expand (h : ℕ)
           + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j)) := rfl
 
 /-- **The core block is the committed even Gram.**  The rank-four block of the adapter is the
-contraction against `MarkedCore.nGram` — which by `MarkedCore.mGram_eq_nGram` (a `rfl`) is also
+contraction against `MarkedCore.nGram`, which by `MarkedCore.mGram_eq_nGram` (a `rfl`) is also
 `mGram`, so the `M` row's adapter is this one.  No Gram is redefined anywhere in this lane. -/
 theorem evenFrameGram_nGram (h : ℕ)
     (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
@@ -341,7 +341,7 @@ theorem evenFrameGram_modelCoord (h : ℕ) (z z' : evenFrameModel h) :
 /-- **The dual-vector map.**  `evenDualVec i` is the model vector representing the `i`-th
 coordinate functional against the model Gram (`evenDualVec_pairing`).  At the two core letters
 of the head it is *not* a coordinate basis vector: `evenDualVec 0 = e₁` is one, but
-`evenDualVec 1 = e₀ + e₁` is not, and no relabelling makes it one — the even head's inverse Gram
+`evenDualVec 1 = e₀ + e₁` is not, and no relabelling makes it one: the even head's inverse Gram
 is `[[0,1],[1,1]]`, not a permutation matrix.  This is the object the board's crux (i) asks for
 in place of the odd route's `sqInitialPartner : Equiv.Perm`. -/
 def evenDualVec {h : ℕ} (i : Fin (MarkedCore.coreRank h)) : evenFrameModel h :=
@@ -388,7 +388,7 @@ theorem evenDualVec_pairing (i : Fin (MarkedCore.coreRank h)) :
     rw [evenFrameHypGram_single, hzL]
     simp
 
-/-- The dual vector at `x₀` is the second head basis vector — the partner index is `1`. -/
+/-- The dual vector at `x₀` is the second head basis vector; the partner index is `1`. -/
 theorem evenDualVec_zero :
     evenDualVec (0 : Fin (MarkedCore.coreRank h)) = (((0 : ZMod 2), (1 : ZMod 2)), 0) := by
   unfold evenDualVec
@@ -405,7 +405,7 @@ end Dual
 /-! ### §1.5 The model's Labute vector
 
 The diagonal `z ↦ b z z` of the model Gram is the frame coordinate at `x₀` (the head is not
-alternating and the planes are), so the vector representing it — the Labute vector — is
+alternating and the planes are), so the vector representing it, the Labute vector, is
 `evenDualVec 0 = e₁`, which lives at **frame index 1**.  That single fact is what makes the
 parity half of both even bridge tables automatic. -/
 
@@ -466,14 +466,14 @@ it puts the Labute vector in the `⟨1⟩` slot and the `ω` vector on the diago
 hyperbolic plane.  The even analogue needs only the *first* refinement, and gets it for free:
 `FieldDataEven.headSplitEquiv` already sends the Labute vector to the head coordinates `(0,1)`,
 which by §1.5 is the model's own Labute vector.  The `ω` vector is placed not by a second Witt
-step but by the class identity of §4.2 — see the discussion there.
+step but by the class identity of §4.2; see the discussion there.
 
 Nothing here is even-core-specific; it is the missing even twin of
 `frattiniFrameAdaptedModelEquiv`, stated for an arbitrary finite `𝔽₂` cup–Bockstein form. -/
 
 /-- **The even adapted normal form.**  A nondegenerate `𝔽₂` cup–Bockstein form of order
 `2 ^ (2h + 4)` whose Labute vector `e` is isotropic and nonzero is isometric to the even
-coordinate model, *by an isometry carrying `e` to the model's Labute vector* — that is, to the
+coordinate model, *by an isometry carrying `e` to the model's Labute vector*, that is, to the
 frame coordinate vector supported at the letter `x₁`.
 
 The plane count `h + 1` is pinned by counting, exactly as in
@@ -529,7 +529,7 @@ theorem evenFrameAdaptedModelEquiv {W : Type*} [AddCommGroup W] [Module (ZMod 2)
 
 The odd route's `frattiniFrameExactLift` consumes `SharpExactLevelFibreLiftSupply`, which asks
 for an exact lift at *every* target of `ℤ₂ˣ` and is available only when `chiCycKTwo` is
-surjective — false at even degree.  This is the same statement against the row-relative supply
+surjective, which is false at even degree.  This is the same statement against the row-relative supply
 `StageGeneric.RowExactLevelFibreLiftSupply` of `StageAbstraction.lean` §2.1(b), which is all the
 even lane can have and all it needs: lifting is only ever performed at a row value. -/
 
@@ -602,7 +602,7 @@ theorem evenFramePairing_fieldCup
 
 omit [T2Space (GalK K)] in
 /-- **The even-degree twin of `frattiniFrameCup_kappa_self`.**  At even degree the Labute vector
-of the transported cup form is isotropic — this is the `𝔽₂` equation whose odd-degree value is
+of the transported cup form is isotropic.  This is the `𝔽₂` equation whose odd-degree value is
 `1`, and it is a parity corollary, not a fresh arithmetic input
 (`FieldDataEven.cupFormK_kappa_self_zero`). -/
 theorem evenFrameCup_kappa_self (hev : Even (Module.finrank ℚ_[2] K)) :
@@ -614,8 +614,8 @@ theorem evenFrameCup_kappa_self (hev : Even (Module.finrank ℚ_[2] K)) :
 
 /-- **The frame assembly.**  Given an adapted coordinate system on `H¹(G_K(2), 𝔽₂)` whose
 mod-four and `ω` classes have the row table's mod-four parities and `ω` values as coordinates,
-the dual family of the coordinates — corrected to exact cyclotomic values inside its Frattini
-cosets — is a `StageGeneric.Frame` at the row table, cup-adapted at the even Gram.
+the dual family of the coordinates, corrected to exact cyclotomic values inside its Frattini
+cosets, is a `StageGeneric.Frame` at the row table, cup-adapted at the even Gram.
 
 Core-agnostic: the row table `v` and the two match tables are parameters, so the `M` clone
 consumes this theorem unchanged. -/
@@ -744,7 +744,7 @@ theorem evenFrameCoord_omega_of_pin {h : ℕ}
 omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
 /-- **The `ω`-class pin, from a pointwise condition on cyclotomic values.**  The class identity
 `τ = c • κ` is exactly the assertion that `ω` and `c · parity` agree on every cyclotomic value,
-which is a checkable statement about the mod-eight image of `chiCycKTwo` — and hence about which
+which is a checkable statement about the mod-eight image of `chiCycKTwo`, and hence about which
 `α` belongs to `K`.  This is the form the row files discharge. -/
 theorem evenFrameOmegaPin_of_pointwise (c : ZMod 2)
     (hpt : ∀ g : maxProPQuotient 2 (GalK K),
@@ -770,7 +770,7 @@ rows instantiate: it consumes only
 * the ramified-`i` binder in the form `κ ≠ 0`;
 * the EV-4a row-relative exact lift supply at the row table;
 * the `ω`-class pin `τ = c • κ`; and
-* two arithmetic tables on the row values — the mod-four parities must be the indicator of the
+* two arithmetic tables on the row values: the mod-four parities must be the indicator of the
   letter `x₁`, and the mod-eight `ω` values must be `c` times that indicator.
 
 Everything else, including the placement of `κ` at `x₁`, is forced by the model. -/

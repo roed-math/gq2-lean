@@ -40,7 +40,7 @@ is `x₁`, not `x₀`.
 single even `ω` table; the correct statement carries the scalar
 `evenDegreeNOmegaScalar α = if α = 2 then 1 else 0`, and the frame exists exactly when the `ω`
 class of `K` is that scalar times the mod-four class (§3).  **This is a genuine constraint on
-`K`, not plumbing** — it says `α` really is `K`'s orientation invariant, at least mod eight.
+`K`, not plumbing**: it says `α` really is `K`'s orientation invariant, at least mod eight.
 Concretely: at `α ≥ 3` the pin says `ω` vanishes on the whole cyclotomic image, and at `α = 2`
 it says `ω` equals mod-four parity there.  Both are exactly what
 `im χ_cyc = closure ⟨nUnit α⟩` (`MarkedCore.imChiN α`) gives, since `nUnit α` mod 8 is `3` resp.
@@ -59,7 +59,7 @@ which is ticket EV-4a's deliverable and is unsatisfiable without it.  That is th
 `StageAbstraction.lean` §2.1(b) prescribes, and it keeps this file free of any range hypothesis
 that EV-4a would then have to re-derive.  For the record, `MarkedCore.imChiN α` is by definition
 `(Subgroup.closure {nUnit α}).topologicalClosure`, so the `N` row is the *generator* of the
-intended image — unlike the `M` row, whose `−1` entry is a separate branch condition
+intended image, unlike the `M` row, whose `−1` entry is a separate branch condition
 (`MarkedCore.neg_one_notMem_imChiN` shows the two images genuinely differ).
 
 ## What is proved and what is owed
@@ -111,7 +111,7 @@ theorem evenBridgeN_solve_modSixteen_three {x : ZMod (2 ^ 4)} (h : x * (1 + 2 ^ 
   revert x
   decide
 
-/-- **`nUnit α ≡ 3 (mod 4)` for `α ≥ 2`** — the parity entry of the bridge table, constant in
+/-- **`nUnit α ≡ 3 (mod 4)` for `α ≥ 2`**, the parity entry of the bridge table, constant in
 `α`.  (Agrees with the committed `MarkedGeneratorData.nUnit_toZModPow_two`, which records the
 same value as `−1`.) -/
 theorem evenBridgeN_nUnit_modFour {α : ℕ} (hα : 2 ≤ α) :
@@ -124,12 +124,12 @@ theorem evenBridgeN_nUnit_modFour {α : ℕ} (hα : 2 ≤ α) :
   rw [h]
   decide
 
-/-- **`nUnit 2 ≡ 3 (mod 8)`** — the only `α` at which the `ω` entry is nonzero. -/
+/-- **`nUnit 2 ≡ 3 (mod 8)`**, the only `α` at which the `ω` entry is nonzero. -/
 theorem evenBridgeN_nUnit_modEight_two :
     PadicInt.toZModPow 3 ((MarkedCore.nUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) = 3 :=
   evenBridgeN_solve_modEight (evenBridgeN_nUnit_mul 3 (α := 2) (by omega))
 
-/-- **`nUnit α ≡ 7 (mod 8)` for `α ≥ 3`** — the `ω` entry vanishes from `α = 3` on. -/
+/-- **`nUnit α ≡ 7 (mod 8)` for `α ≥ 3`**: the `ω` entry vanishes from `α = 3` on. -/
 theorem evenBridgeN_nUnit_modEight_ge {α : ℕ} (hα : 3 ≤ α) :
     PadicInt.toZModPow 3 ((MarkedCore.nUnit α : ℤ_[2]ˣ) : ℤ_[2]) = 7 := by
   have h := evenBridgeN_nUnit_mul 3 (α := α) (by omega)
@@ -155,7 +155,7 @@ theorem evenBridgeN_nUnit_modSixteen_three :
     PadicInt.toZModPow 4 ((MarkedCore.nUnit 3 : ℤ_[2]ˣ) : ℤ_[2]) = 7 :=
   evenBridgeN_solve_modSixteen_three (evenBridgeN_nUnit_mul 4 (α := 3) (by omega))
 
-/-- **`nUnit α ≡ 15 (mod 16)` for `α ≥ 4`** — the table is constant from `α = 4` on, since
+/-- **`nUnit α ≡ 15 (mod 16)` for `α ≥ 4`**: the table is constant from `α = 4` on, since
 `2 ^ α` then dies mod sixteen. -/
 theorem evenBridgeN_nUnit_modSixteen_ge {α : ℕ} (hα : 4 ≤ α) :
     PadicInt.toZModPow 4 ((MarkedCore.nUnit α : ℤ_[2]ˣ) : ℤ_[2]) = 15 := by
