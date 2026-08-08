@@ -582,4 +582,112 @@ theorem evenRange_not_both {alpha alpha' : ℕ} (halpha' : 2 ≤ alpha')
 
 end Identity
 
+/-! ## §7 The three wave-51 mod-8 seams, discharged
+
+`EvenDegreeNModEightImage`, `EvenDegreeMModEightImage` and `EvenDegreeMModEightRowAttained`
+are the mod-8 shadows of the range identity, and three docstrings in the wave-51 files assert
+that they follow from it without a lemma doing so.  Here they are, from `hrange` alone.  Only
+the `M` image statement needs a case split: at `α ≥ 3` the values are `≡ ±1 (mod 8)`, while at
+`α = 2` the image is everything and the four listed residues `1, -1, mUnit 2, -mUnit 2` are
+`1, 7, 5, 3`, which is every unit class mod 8. -/
+
+section Seams
+
+open GQ2.Dyadic.StageGeneric
+
+variable {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- Divisibility at depth `≥ 3` descends to the mod-8 shadow. -/
+theorem evenRange_modEight_of_dvd {j : ℕ} (hj : 3 ≤ j) {x y : ℤ_[2]}
+    (h : (2 : ℤ_[2]) ^ j ∣ x - y) :
+    PadicInt.toZModPow 3 x = PadicInt.toZModPow 3 y :=
+  evenRange_toZModPow_eq_iff.mpr ((pow_dvd_pow _ hj).trans h)
+
+/-- A 2-adic integer `≡ 1 (mod 4)` is `≡ 1` or `≡ 5` mod 8. -/
+theorem evenRange_modEight_of_four_dvd_sub {x : ℤ_[2]} (h : (2 : ℤ_[2]) ^ 2 ∣ x - 1) :
+    PadicInt.toZModPow 3 x = 1 ∨ PadicInt.toZModPow 3 x = 5 := by
+  obtain ⟨k, hk⟩ := h
+  have hx : x = 1 + 4 * k := by linear_combination hk
+  have hval : PadicInt.toZModPow (p := 2) 3 x = 1 + 4 * PadicInt.toZModPow (p := 2) 3 k := by
+    rw [hx]
+    simp only [map_add, map_one, map_mul, map_ofNat]
+  rw [hval]
+  exact (by decide : ∀ c : ZMod (2 ^ 3), (1 : ZMod (2 ^ 3)) + 4 * c = 1 ∨
+    (1 : ZMod (2 ^ 3)) + 4 * c = 5) _
+
+/-- A 2-adic integer `≡ -1 (mod 4)` is `≡ -1` or `≡ -5` mod 8. -/
+theorem evenRange_modEight_of_four_dvd_add {x : ℤ_[2]} (h : (2 : ℤ_[2]) ^ 2 ∣ x + 1) :
+    PadicInt.toZModPow 3 x = -1 ∨ PadicInt.toZModPow 3 x = -5 := by
+  obtain ⟨k, hk⟩ := h
+  have hx : x = -1 + 4 * k := by linear_combination hk
+  have hval : PadicInt.toZModPow (p := 2) 3 x = -1 + 4 * PadicInt.toZModPow (p := 2) 3 k := by
+    rw [hx]
+    simp only [map_add, map_neg, map_one, map_mul, map_ofNat]
+  rw [hval]
+  exact (by decide : ∀ c : ZMod (2 ^ 3), (-1 : ZMod (2 ^ 3)) + 4 * c = -1 ∨
+    (-1 : ZMod (2 ^ 3)) + 4 * c = -5) _
+
+/-- `mUnit 2 ≡ 5 (mod 8)`, from its defining relation `mUnit 2 · (-3) = 1`. -/
+theorem evenRange_mUnit_two_modEight :
+    PadicInt.toZModPow 3 ((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  have h8 := congrArg (PadicInt.toZModPow (p := 2) 3) (mUnit_mul (α := 2) (by omega))
+  rw [map_mul, map_one] at h8
+  have hc : PadicInt.toZModPow (p := 2) 3 (1 - 2 ^ 2) = -3 := by
+    simp only [map_sub, map_one, map_pow, map_ofNat]
+    decide
+  rw [hc] at h8
+  revert h8
+  exact (by decide : ∀ m : ZMod (2 ^ 3), m * (-3) = 1 → m = 5) _
+
+/-- **Seam 1 discharged**: `EvenDegreeNModEightImage` is the mod-8 shadow of the `N` range
+identity. -/
+theorem evenRange_evenDegreeNModEightImage {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha) :
+    EvenDegreeNModEightImage (K := K) alpha := by
+  intro g
+  have hmem : chiCycKTwo (K := K) g ∈ imChiN alpha := hrange ▸ ⟨g, rfl⟩
+  rcases evenRange_mem_imChiN_dvd halpha hmem with h | h
+  · exact Or.inl (evenRange_toZModPow_eq_one_iff.mpr ((pow_dvd_pow _ (by omega)).trans h))
+  · exact Or.inr (evenRange_modEight_of_dvd (by omega) h)
+
+/-- **Seam 2 discharged**: `EvenDegreeMModEightImage` is the mod-8 shadow of the `M` range
+identity. -/
+theorem evenRange_evenDegreeMModEightImage {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha) :
+    EvenDegreeMModEightImage (K := K) alpha := by
+  intro g
+  have hmem : chiCycKTwo (K := K) g ∈ imChiM alpha := hrange ▸ ⟨g, rfl⟩
+  rcases (evenRange_mem_imChiM_iff halpha).mp hmem with h | h
+  · rcases Nat.lt_or_ge alpha 3 with h3 | h3
+    · obtain rfl : alpha = 2 := by omega
+      rcases evenRange_modEight_of_four_dvd_sub h with h1 | h1
+      · exact Or.inl h1
+      · exact Or.inr (Or.inr (Or.inl (by rw [h1, evenRange_mUnit_two_modEight])))
+    · exact Or.inl (evenRange_toZModPow_eq_one_iff.mpr ((pow_dvd_pow _ h3).trans h))
+  · rcases Nat.lt_or_ge alpha 3 with h3 | h3
+    · obtain rfl : alpha = 2 := by omega
+      rcases evenRange_modEight_of_four_dvd_add h with h1 | h1
+      · exact Or.inr (Or.inl h1)
+      · exact Or.inr (Or.inr (Or.inr (by rw [h1, evenRange_mUnit_two_modEight])))
+    · refine Or.inr (Or.inl ?_)
+      have hd : (2 : ℤ_[2]) ^ 3 ∣ ((chiCycKTwo (K := K) g : ℤ_[2]ˣ) : ℤ_[2]) - (-1) := by
+        rw [sub_neg_eq_add]
+        exact (pow_dvd_pow _ h3).trans h
+      have := evenRange_toZModPow_eq_iff.mpr hd
+      rwa [map_neg, map_one] at this
+
+/-- **Seam 3 discharged**: the `M` row value is attained, because `mUnit α` lies in
+`imChiM α`. -/
+theorem evenRange_evenDegreeMModEightRowAttained {alpha : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha) :
+    EvenDegreeMModEightRowAttained (K := K) alpha := by
+  obtain ⟨g, hg⟩ : mUnit alpha ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom := by
+    rw [hrange]
+    exact mUnit_mem_imChiM alpha
+  have hg' : chiCycKTwo (K := K) g = mUnit alpha := hg
+  exact ⟨g, by rw [hg']⟩
+
+end Seams
+
 end GQ2.Dyadic.EvenCyclotomicRange
