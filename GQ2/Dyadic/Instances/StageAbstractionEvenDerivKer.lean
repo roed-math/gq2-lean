@@ -185,3 +185,94 @@ theorem evenDeriv_zLayer_le_augmentedSpan
   exact evenRawAugmentedSpanBaseSupply_of_generates x hfg hpro (hgen 3)
 
 end AugmentedSpan
+
+/-! ## §3 The canonical tail span, and the shift-times-tail decomposition
+
+The clone of `stageResidualTailSpan` and `stageResidual_exists_shift_mul_tail`
+(`GammaLSylowPreimageFieldLabuteVariableStage.lean` lines 162 and 232).  The tail atoms are
+the `2^(k-1)`-th powers of the canonical base at every index *except* `1`: F1's
+`evenRawTailAtomSet` omits `1`, not the L template's `2`, and §5 shows that is also the set on
+which the mod-`4` hypothesis of the tail dichotomy is available. -/
+
+section TailSpan
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h k : ℕ}
+
+/-- **The canonical tail span of a marking.**  The `2h + 3` non-twisted tails, phrased through
+the canonical lift; these are the exact difference between the augmented span and the literal
+even shift span. -/
+def evenDerivTailSpan (T : Fin (MarkedCore.coreRank h) → levelQuot G k) :
+    Subgroup (levelQuot G (k + 1)) :=
+  Subgroup.closure
+    {z | ∃ i : Fin (MarkedCore.coreRank h), i ≠ 1 ∧ z = canonLift G k (T i) ^ 2 ^ (k - 1)}
+
+/-- For ambient lifts matching the canonical base, F1's abstract tail span is the canonical
+tail span. -/
+theorem evenDeriv_rawTailSpan_eq {x : Fin (MarkedCore.coreRank h) → G}
+    {T : Fin (MarkedCore.coreRank h) → levelQuot G k}
+    (hx1 : ∀ i, levelMk G (k + 1) (x i) = canonLift G k (T i)) :
+    evenRawTailSpan x k = evenDerivTailSpan T := by
+  refine congrArg Subgroup.closure ?_
+  ext z
+  constructor
+  · rintro ⟨i, hi, rfl⟩
+    exact ⟨i, hi, congrArg (fun t ↦ t ^ 2 ^ (k - 1)) (hx1 i)⟩
+  · rintro ⟨i, hi, rfl⟩
+    exact ⟨i, hi, (congrArg (fun t ↦ t ^ 2 ^ (k - 1)) (hx1 i)).symm⟩
+
+/-- The tails are central: each lies in the involutive graded layer. -/
+theorem evenDerivTailSpan_le_zLayer (T : Fin (MarkedCore.coreRank h) → levelQuot G k)
+    (hk : 1 ≤ k) : evenDerivTailSpan T ≤ zLayer G k := by
+  rw [evenDerivTailSpan, Subgroup.closure_le]
+  rintro z ⟨i, _, rfl⟩
+  have hmem := pow_two_pow_mem_lambdaImage (canonLift G k (T i)) (k - 1)
+  rwa [show 1 + (k - 1) = k by omega] at hmem
+
+/-- Elements of a join with a central second factor decompose as literal products.  The clone
+of the L template's private `stageResidual_mem_mul_of_mem_sup_of_le_center`. -/
+private theorem evenDeriv_mem_mul_of_mem_sup_of_le_center
+    {H : Type*} [Group H] {A B : Subgroup H}
+    (hB : B ≤ Subgroup.center H) {z : H} (hz : z ∈ A ⊔ B) :
+    ∃ a ∈ A, ∃ b ∈ B, z = a * b := by
+  let S : Subgroup H :=
+    { carrier := {w | ∃ a ∈ A, ∃ b ∈ B, w = a * b}
+      one_mem' := ⟨1, A.one_mem, 1, B.one_mem, by group⟩
+      mul_mem' := by
+        rintro w w' ⟨a, ha, b, hb, rfl⟩ ⟨a', ha', b', hb', rfl⟩
+        refine ⟨a * a', A.mul_mem ha ha', b * b', B.mul_mem hb hb', ?_⟩
+        have hcomm := Subgroup.mem_center_iff.mp (hB hb) a'
+        calc a * b * (a' * b') = a * (b * a') * b' := by group
+          _ = a * (a' * b) * b' := by rw [← hcomm]
+          _ = a * a' * (b * b') := by group
+      inv_mem' := by
+        rintro w ⟨a, ha, b, hb, rfl⟩
+        refine ⟨a⁻¹, A.inv_mem ha, b⁻¹, B.inv_mem hb, ?_⟩
+        have hcomm := Subgroup.mem_center_iff.mp (Subgroup.inv_mem _ (hB hb)) a⁻¹
+        rw [mul_inv_rev]
+        exact hcomm.symm }
+  have hA : A ≤ S := fun a ha ↦ ⟨a, ha, 1, B.one_mem, by group⟩
+  have hBle : B ≤ S := fun b hb ↦ ⟨1, A.one_mem, b, hb, by group⟩
+  exact sup_le hA hBle hz
+
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- **Every central class is a literal even shift times a tail word.**  The tail factor is the
+only obstruction between the augmented span, a theorem by §2, and the literal raw shift span
+that the derivation family cuts out. -/
+theorem evenDeriv_exists_shift_mul_tail
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) {T : Fin (MarkedCore.coreRank h) → levelQuot G k}
+    (htop : Subgroup.closure (Set.range T) = ⊤) (hk : 3 ≤ k)
+    {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k) :
+    ∃ V : EvenRawDepthCorrection G h k, ∃ t ∈ evenDerivTailSpan T,
+      z = evenRawDbarWord (fun i ↦ canonLift G k (T i)) V.correction * t := by
+  obtain ⟨x, hx1, hx0⟩ := evenDeriv_exists_ambientLift T
+  have hbase : evenRawMarkedBase x k = fun i ↦ canonLift G k (T i) := funext hx1
+  have hsup := evenDeriv_zLayer_le_augmentedSpan hfg hpro hx0 (by omega) htop k hk hz
+  rw [evenRawAugmentedSpan, hbase, evenDeriv_rawTailSpan_eq hx1] at hsup
+  obtain ⟨a, ha, t, ht, rfl⟩ := evenDeriv_mem_mul_of_mem_sup_of_le_center
+    (le_trans (evenDerivTailSpan_le_zLayer T (by omega)) (zLayer_le_center G k)) hsup
+  obtain ⟨q, ⟨V, hV⟩, hqa⟩ := ha
+  exact ⟨V, t, ht, by rw [← hqa, ← hV]; rfl⟩
+
+end TailSpan
