@@ -546,6 +546,156 @@ theorem sigTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
 
 end Model
 
+/-! ## 4 The five-slot refinement
+
+The committed `selRefine` moves four slots; the sigma-slot move it lacks is exactly the one
+the wider slice makes audible, so here is the five-slot extension (the note's recommended
+ticket 3, needed rather than optional on this slice).  A `gamma_2`-move on the sigma-slot
+translates the relator by `z0.d * (m 1).c - z0.e * (m 1).a` - the pairing against the
+`x0`-slot columns, which the committed slice could never see because its `x0`-slot column
+values were `0` mod `2`. -/
+
+section Refine
+
+variable {R : Type} [CommRing R] {h : ℕ} {j : Fin h}
+
+variable (j) in
+/-- **The five-slot refinement**: dress the sigma-slot by `z0`, the two exponent slots by
+`w1`, `w2`, and the two `j`-handle slots by `z3`, `z4`, all on the right. -/
+def sigRefine (m : Fin (sqRank h) → SqU4 R) (z0 w1 w2 z3 z4 : SqU4 R) :
+    Fin (sqRank h) → SqU4 R :=
+  fun i => if (i : ℕ) = 0 then m i * z0 else selRefine j m w1 w2 z3 z4 i
+
+variable {m : Fin (sqRank h) → SqU4 R} {z0 w1 w2 z3 z4 : SqU4 R}
+
+@[simp] theorem sigRefine_zero : sigRefine j m z0 w1 w2 z3 z4 0 = m 0 * z0 := by
+  simp only [sigRefine, sqVal_zero]
+  norm_num
+
+@[simp] theorem sigRefine_one : sigRefine j m z0 w1 w2 z3 z4 1 = m 1 * w1 := by
+  simp only [sigRefine, sqVal_one]
+  norm_num
+
+@[simp] theorem sigRefine_two : sigRefine j m z0 w1 w2 z3 z4 2 = m 2 * w2 := by
+  simp only [sigRefine, sqVal_two]
+  norm_num
+
+@[simp] theorem sigRefine_handleU :
+    sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxU j) = m (sqHandleIdxU j) * z3 := by
+  simp only [sigRefine, sqHandleIdxU_val]
+  rw [if_neg (by omega), selRefine_handleU]
+
+@[simp] theorem sigRefine_handleV :
+    sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxV j) = m (sqHandleIdxV j) * z4 := by
+  simp only [sigRefine, sqHandleIdxV_val]
+  rw [if_neg (by omega), selRefine_handleV]
+
+theorem sigRefine_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxU j') = m (sqHandleIdxU j') := by
+  simp only [sigRefine, sqHandleIdxU_val]
+  rw [if_neg (by omega), selRefine_handleU_ne hne]
+
+theorem sigRefine_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxV j') = m (sqHandleIdxV j') := by
+  simp only [sigRefine, sqHandleIdxV_val]
+  rw [if_neg (by omega), selRefine_handleV_ne hne]
+
+/-- ⭐⭐ **The five-slot translation identity**: the refinement translates the relator by a
+central element whose value adds the sigma-slot increment
+`z0.d * (m 1).c - z0.e * (m 1).a` to the committed four-slot expression.  The proof factors
+through the committed `sqRelWord_selRefine`: the five-slot move is the four-slot move of the
+sigma-dressed tuple, and the sigma-slot `gamma_2`-move alone translates by its pairing against
+the `x0`-slot columns. -/
+theorem sqRelWord_sigRefine (hz0 : z0.IsGaTwo) (hw1 : w1.IsGaThree) (hw2 : w2.IsGaThree)
+    (hz3 : z3.IsGaTwo) (hz4 : z4.IsGaTwo) :
+    sqRelWord (sigRefine j m z0 w1 w2 z3 z4)
+      = sqRelWord m * ⟨0, 0, 0, 0, 0,
+          (z0.d * (m 1).c - z0.e * (m 1).a) + (-4 * w1.f + 2 * w2.f)
+          + (z3.d * (m (sqHandleIdxV j)).c - z3.e * (m (sqHandleIdxV j)).a)
+          + ((m (sqHandleIdxU j)).a * z4.e - (m (sqHandleIdxU j)).c * z4.d)⟩ := by
+  obtain ⟨hz0a, hz0b, hz0c⟩ := id hz0
+  set m' : Fin (sqRank h) → SqU4 R := fun i => if (i : ℕ) = 0 then m i * z0 else m i with hm'
+  have hm'0 : m' 0 = m 0 * z0 := by simp only [hm', sqVal_zero]; norm_num
+  have hm'ne : ∀ i : Fin (sqRank h), (i : ℕ) ≠ 0 → m' i = m i := fun i hi => if_neg hi
+  have hm'1 : m' 1 = m 1 := hm'ne 1 (by rw [sqVal_one]; omega)
+  have hm'2 : m' 2 = m 2 := hm'ne 2 (by rw [sqVal_two]; omega)
+  have hm'U : ∀ j' : Fin h, m' (sqHandleIdxU j') = m (sqHandleIdxU j') := fun j' =>
+    hm'ne _ (by rw [sqHandleIdxU_val]; omega)
+  have hm'V : ∀ j' : Fin h, m' (sqHandleIdxV j') = m (sqHandleIdxV j') := fun j' =>
+    hm'ne _ (by rw [sqHandleIdxV_val]; omega)
+  have hstep : sigRefine j m z0 w1 w2 z3 z4 = selRefine j m' w1 w2 z3 z4 := by
+    funext i
+    by_cases hi : (i : ℕ) = 0
+    · have hi0 : i = 0 := Fin.val_injective (by rw [hi, sqVal_zero])
+      subst hi0
+      rw [sigRefine_zero, selRefine_zero, hm'0]
+    · simp only [sigRefine, if_neg hi]
+      simp only [selRefine]
+      rw [hm'ne i hi]
+  have habm' : ∀ i, (m' i).a = (m i).a ∧ (m' i).b = (m i).b ∧ (m' i).c = (m i).c := by
+    intro i
+    by_cases hi : (i : ℕ) = 0
+    · have hi0 : i = 0 := Fin.val_injective (by rw [hi, sqVal_zero])
+      subst hi0
+      rw [hm'0]
+      exact ⟨by rw [SqU4.mul_a, hz0a, add_zero], by rw [SqU4.mul_b, hz0b, add_zero],
+        by rw [SqU4.mul_c, hz0c, add_zero]⟩
+    · rw [hm'ne i hi]
+      exact ⟨rfl, rfl, rfl⟩
+  have hzero : sqRelWord m' = sqRelWord m
+      * ⟨0, 0, 0, 0, 0, z0.d * (m 1).c - z0.e * (m 1).a⟩ := by
+    rw [SqU4.mul_center_f]
+    have h_a : (sqRelWord m').a = (sqRelWord m).a := by
+      rw [SqU4.sqRelWord_a, SqU4.sqRelWord_a, hm'1, hm'2]
+    have h_b : (sqRelWord m').b = (sqRelWord m).b := by
+      rw [SqU4.sqRelWord_b, SqU4.sqRelWord_b, hm'1, hm'2]
+    have h_c : (sqRelWord m').c = (sqRelWord m).c := by
+      rw [SqU4.sqRelWord_c, SqU4.sqRelWord_c, hm'1, hm'2]
+    have h_d : (sqRelWord m').d = (sqRelWord m).d := by
+      rw [SqU4.sqRelWord_d, SqU4.sqRelWord_d, hm'1, hm'2,
+        sqHeisDefect_congr_ab (m := fun i => SqU4.toHeisAB (m i))
+          (m' := fun i => SqU4.toHeisAB (m' i)) fun i => ⟨by simpa using (habm' i).1,
+          by simpa using (habm' i).2.1⟩]
+    have h_e : (sqRelWord m').e = (sqRelWord m).e := by
+      rw [SqU4.sqRelWord_e, SqU4.sqRelWord_e, hm'1, hm'2,
+        sqHeisDefect_congr_ab (m := fun i => SqU4.toHeisBC (m i))
+          (m' := fun i => SqU4.toHeisBC (m' i)) fun i => ⟨by simpa using (habm' i).2.1,
+          by simpa using (habm' i).2.2⟩]
+    have h_f : (sqRelWord m').f = (sqRelWord m).f + (z0.d * (m 1).c - z0.e * (m 1).a) := by
+      rw [SqU4.sqRelWord_f, SqU4.sqRelWord_f, hm'1, hm'2]
+      have hdef : sqU4Defect h m' = sqU4Defect h m + (z0.d * (m 1).c - z0.e * (m 1).a) := by
+        simp only [sqU4Defect]
+        have hcore : sqU4Core (m' 0) (m' 1) (m' 2)
+            = sqU4Core (m 0) (m 1) (m 2) + (z0.d * (m 1).c - z0.e * (m 1).a) := by
+          rw [hm'0, hm'1, hm'2]
+          simp only [sqU4Core, SqU4.mul_a, SqU4.mul_b, SqU4.mul_c, SqU4.mul_d, SqU4.mul_e,
+            hz0a, hz0b, hz0c]
+          ring
+        rw [hcore, hm'1, hm'2]
+        have hUV : ∀ j' : Fin h,
+            (m' (sqHandleIdxU j')).b * (m' (sqHandleIdxV j')).c
+                - (m' (sqHandleIdxV j')).b * (m' (sqHandleIdxU j')).c
+              = (m (sqHandleIdxU j')).b * (m (sqHandleIdxV j')).c
+                - (m (sqHandleIdxV j')).b * (m (sqHandleIdxU j')).c := by
+          intro j'
+          rw [hm'U, hm'V]
+        have hcm : ∀ j' : Fin h,
+            SqU4.u4Comm3 (m' (sqHandleIdxU j')) (m' (sqHandleIdxV j'))
+              = SqU4.u4Comm3 (m (sqHandleIdxU j')) (m (sqHandleIdxV j')) := by
+          intro j'
+          rw [hm'U, hm'V]
+        rw [Finset.sum_congr rfl fun j' _ => hUV j', Finset.sum_congr rfl fun j' _ => hcm j']
+        ring
+      rw [hdef]
+      ring
+    exact SqU4.ext h_a h_b h_c h_d h_e h_f
+  rw [hstep, sqRelWord_selRefine hw1 hw2 hz3 hz4, hm'U, hm'V, hzero, mul_assoc]
+  congr 1
+  ext <;> simp
+  ring
+
+end Refine
+
 end SqCore
 
 end Dyadic
