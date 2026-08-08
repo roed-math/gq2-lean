@@ -27,10 +27,10 @@ supplies, is
 * §3 the abstract-gram seam `IsEvenGram` (see below) together with the identification of the
   committed central-extension fibre computations of `MarkedCore/Cores.lean` as gram
   contractions;
-* §4 the gram- and rank-abstract vanishing theorem `gram_vanishes_aux` and its field-level
-  wrapper `gram_vanishes`;
-* §5 the word-generic realization engine `levelThreeRelation_of_supplies` and the four even
-  endpoints.
+* §4 the gram- and rank-abstract vanishing theorem `gram_vanishes_aux`;
+* §5 the word-generic realization engine `levelThreeRelation_of_supplies`;
+* §6 the field-level wrapper `gram_vanishes` and the four even endpoints;
+* §7 the axiom pins.
 
 ## The abstract-gram seam (the only cross-lane joint of the wave)
 
@@ -79,8 +79,8 @@ spelling EV-3c1 is expected to produce.
 * §4 is `α`-free: it never mentions a word.
 
 The `nStageWord α h hα` of `StageAbstractionEvenWords.lean` carries a trailing `1 ≤ α` proof
-argument; the endpoints below take `2 ≤ α` and pass `by omega`.  By proof irrelevance a caller
-may instantiate the endpoint at its own `1 ≤ α` proof term.
+argument; the endpoints below take `2 ≤ α` and pass `Nat.le_of_succ_le hα`.  By proof
+irrelevance a caller may instantiate an endpoint at its own `1 ≤ α` proof term.
 -/
 
 namespace GQ2.Dyadic.StageGeneric
@@ -293,6 +293,16 @@ theorem core_eq_nGram (κ : Fin 4 → Fin 4 → ZMod 2) :
     rfl
   simp only [hnm]
   exact core_eq_mGram κ
+
+/-- Regression for the seam: a contraction *defined* in the displayed shape satisfies
+`IsEvenGram` by `fun _ ↦ rfl`, which is the promised one-line discharge at EV-3e time.  The
+adapter itself is EV-3c1's and is deliberately not defined here; this example only records
+that nothing beyond the defining equation is asked of it. -/
+example {h : ℕ} :
+    IsEvenGram (h := h) (fun κ ↦ κ 0 0 + (κ 0 1 + κ 1 0) + (κ 2 3 + κ 3 2) +
+      ∑ j, (κ (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j) +
+        κ (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j))) :=
+  fun _ ↦ rfl
 
 /-- **The `N_α` relator's central-extension fibre is the even gram contraction** (`2 ≤ α`):
 the committed `nRelWord_centLift_fib` read through the seam. -/
@@ -800,6 +810,21 @@ theorem mLevelThreeRelationRealization_fieldCup {α h : ℕ} (hα : 2 ≤ α)
         (LSquare.SqCyclotomicFrattiniFrame.characterClass (K := K) d))) :
     F.LevelThreeRelation (mStageWord α h (Nat.le_of_succ_le hα)) :=
   mLevelThreeRelationRealization K hα hg (fun _ _ ↦ rfl) F hcup
+
+/-- Regression: the `N` endpoint's conclusion is the literal committed relator equation modulo
+`λ₃`, definitionally (the even analogue of the `Iff.rfl` pins of `StageAbstractionLSq.lean`). -/
+example {α h : ℕ} (hα : 1 ≤ α) {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K))) :
+    F.LevelThreeRelation (nStageWord α h hα) ↔
+      MarkedCore.nRelWord α (fun i ↦ levelMk (GK2 K) 3 (F.generators i)) = 1 :=
+  Iff.rfl
+
+/-- Regression: the same for the `M` endpoint. -/
+example {α h : ℕ} (hα : 1 ≤ α) {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (F : Frame v (GK2 K) (chiCycKTwo (K := K))) :
+    F.LevelThreeRelation (mStageWord α h hα) ↔
+      MarkedCore.mRelWord α (fun i ↦ levelMk (GK2 K) 3 (F.generators i)) = 1 :=
+  Iff.rfl
 
 end FieldFrames
 
