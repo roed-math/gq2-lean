@@ -275,6 +275,7 @@ import GQ2.Dyadic.Certificates.LFox
 import GQ2.Dyadic.Certificates.M0Fox
 import GQ2.Dyadic.Certificates.NpcFox
 import GQ2.Dyadic.Certificates.MpcFox
+import GQ2.Dyadic.Certificates.FoxDeltaRows
 import GQ2.Dyadic.Certificates.M0
 import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.Certificates.Npc
