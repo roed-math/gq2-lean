@@ -349,6 +349,158 @@ theorem evenSharpDbarShiftSupply_m {α h k : ℕ} (hα : 2 ≤ α) (hα₁ : 1 �
 
 end ShiftSupply
 
+/-! ## §6 The actual-defect supply
+
+The clone of `CoreHandleSharpActualDefectSupply` (L template, line 1070) and of its
+`toDefectReachable` (line 1253).  As in the template the hit condition is stated against the
+*literal* word, so the structure is independent of which even relator is in play; §5 converts
+it to a statement about `stageShift` exactly once.
+
+The passage to the committed `Tuple.DefectReachable` is the corrected seam: where the L
+template invokes `SharpExactLevelFibreLiftSupply` (false in even degree), we invoke
+`deep_defectReachable_of_kills` against `EvenRowDeepFibreLiftSupply s`, which the even row
+lane supplies at `s = α - 1` on both branches. -/
+
+section ActualDefect
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k s : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+
+/-- **A depth-`s` correction that literally hits the inverse defect.**  The even analogue of
+the L template's core-plus-handle actual-defect supply. -/
+structure EvenSharpActualDefectSupply (s : ℕ) (T : Tuple W v G chi k) where
+  /-- The underlying depth-`s` admissible correction. -/
+  correction : DeepSharpAdmissibleCorrection s T
+  /-- Its literal even shift word inverts the current defect. -/
+  hitsDefect : evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) correction.correction =
+    (stageDefect W G k T.generators)⁻¹
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The endpoint of the character-refined half.**  An actual-defect supply at depth `s`,
+together with the crossed-derivation comparison and the depth-`s` row supply, gives the
+committed `Tuple.DefectReachable`. -/
+theorem EvenSharpActualDefectSupply.toDefectReachable {T : Tuple W v G chi k}
+    (S : EvenSharpActualDefectSupply s T) (hk : 1 ≤ k)
+    (Hshift : EvenSharpDbarShiftSupply W G k)
+    (Hlift : EvenRowDeepFibreLiftSupply s v G chi) :
+    Tuple.DefectReachable T :=
+  deep_defectReachable_of_kills Hlift hk S.correction
+    (by rw [Hshift _ _ S.correction.depth]; exact S.hitsDefect)
+
+end ActualDefect
+
+/-! ## §7 The residual element and the reachability criterion
+
+The clone of `sharpNeutralResidualElement`, `SharpNeutralResidualReachable` and
+`nonempty_coreHandleSharpActualDefectSupply_iff_neutralResidual` (L template, lines 1082-1229).
+
+Fix any depth-`s` correction (§4 says one exists).  Its literal shift misses the inverse
+defect by a definite element of the central layer, the *residual*; and because the corrections
+form a torsor under the neutral ones (§3) while the literal shift word is a homomorphism on
+depth corrections (F1's `evenRawDbarWord_mul`), an actual-defect supply exists precisely when
+that residual is a literal shift of a *neutral* correction.  This is the statement the bracket
+span of §B identifies with a membership. -/
+
+section Residual
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k s : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+variable {T : Tuple W v G chi k}
+
+/-- **The residual of a depth-`s` correction**: the element a neutral correction must produce
+in order to repair it into an actual-defect supply. -/
+def evenSharpNeutralResidualElement (Wc : DeepSharpAdmissibleCorrection s T) :
+    levelQuot G (k + 1) :=
+  (evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) Wc.correction)⁻¹ *
+    (stageDefect W G k T.generators)⁻¹
+
+/-- The residual is reachable when some neutral correction has it as its literal shift. -/
+def EvenSharpNeutralResidualReachable (Wc : DeepSharpAdmissibleCorrection s T) : Prop :=
+  ∃ N : EvenSharpNeutralCorrection s G chi h k,
+    evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) N.correction =
+      evenSharpNeutralResidualElement Wc
+
+/-- **The criterion.**  Repairing a fixed depth-`s` correction into an actual-defect supply is
+possible exactly when its residual is a neutral literal shift.  The choice of `Wc` is
+immaterial: both directions are proved by the torsor identity of §3. -/
+theorem nonempty_evenSharpActualDefectSupply_iff_residual (hk : 3 ≤ k)
+    (Wc : DeepSharpAdmissibleCorrection s T) :
+    Nonempty (EvenSharpActualDefectSupply s T) ↔ EvenSharpNeutralResidualReachable Wc := by
+  constructor
+  · rintro ⟨S⟩
+    refine ⟨evenSharpDifferenceNeutral Wc S.correction, ?_⟩
+    have hmul := evenRawDbarWord_mul h k hk (fun i ↦ canonLift G k (T.generators i))
+      Wc.depth (evenSharpDifferenceNeutral Wc S.correction).depth
+    have hfun : (fun i ↦ Wc.correction i *
+        (evenSharpDifferenceNeutral Wc S.correction).correction i) =
+        S.correction.correction :=
+      funext fun i ↦ evenSharpMulNeutral_difference_correction Wc S.correction i
+    rw [hfun] at hmul
+    rw [evenSharpNeutralResidualElement, ← S.hitsDefect, hmul]
+    group
+  · rintro ⟨N, hN⟩
+    refine ⟨⟨evenSharpMulNeutral Wc N, ?_⟩⟩
+    have hmul := evenRawDbarWord_mul h k hk (fun i ↦ canonLift G k (T.generators i))
+      Wc.depth N.depth
+    show evenRawDbarWord _ (fun i ↦ Wc.correction i * N.correction i) = _
+    rw [hmul, hN, evenSharpNeutralResidualElement]
+    group
+
+end Residual
+
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §8 Axiom pins
+
+Every public declaration of this file, printed.  All are expected at std-3,
+`[propext, Classical.choice, Quot.sound]`, which is what the corresponding L template file
+`GammaLSylowPreimageFieldLabuteStageHandles.lean` prints on all twenty-six of its pins: this
+file adds no arithmetic input, and the two seam-relative supplies
+(`EvenRowDeepFibreLiftSupply`, `EvenSharpDbarShiftSupply`) are hypotheses, never discharged
+here. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.StageGeneric
+
+-- §1 the depth witness
+#print axioms evenSharpDeepDefined
+
+-- §2 the neutral corrections
+#print axioms EvenSharpNeutralCorrection
+#print axioms EvenSharpNeutralCorrection.ext
+#print axioms EvenSharpNeutralCorrection.instGroup
+#print axioms EvenSharpNeutralCorrection.toRaw
+#print axioms EvenSharpNeutralCorrection.toRawHom
+#print axioms EvenSharpNeutralCorrection.toDepthLe
+
+-- §3 the neutral action
+#print axioms evenSharpMulNeutral
+#print axioms evenSharpDifferenceNeutral
+#print axioms evenSharpMulNeutral_difference_correction
+
+-- §4 existence
+#print axioms evenSharpZLayer_le_lambdaImage
+#print axioms evenSharpDeepAdmissible_nonempty
+
+-- §5 the crossed-derivation comparison, crux (i)
+#print axioms EvenSharpDbarShiftSupply
+#print axioms evenSharpDbarShiftSupply_n
+#print axioms evenSharpDbarShiftSupply_m
+
+-- §6 the actual-defect supply
+#print axioms EvenSharpActualDefectSupply
+#print axioms EvenSharpActualDefectSupply.toDefectReachable
+
+-- §7 the residual criterion
+#print axioms evenSharpNeutralResidualElement
+#print axioms EvenSharpNeutralResidualReachable
+#print axioms nonempty_evenSharpActualDefectSupply_iff_residual
+
+end AxiomPins
