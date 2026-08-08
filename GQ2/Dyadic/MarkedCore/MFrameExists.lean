@@ -512,6 +512,169 @@ theorem mTHom_word : mTHom α h (mAbWord α h c)
 
 end Words
 
+/-! ## §6 The combined coordinate hom `φ_M`, and its bijectivity -/
+
+section Phi
+
+variable {α : ℕ} (hα : 1 ≤ α) (h : ℕ)
+
+/-- **The combined coordinate hom** `φ_M : D_M^{ab} → ℤ/2 ⊕ ℤ₂³ ⊕ ℤ₂^{2h}`, the general-rank
+`phiHomR`.  Its five components are the coordinate homs of §3, in the slot order that
+`MFrameModel h` fixes: torsion, `B̄`, `C̄₀`, `D̄`, handles. -/
+noncomputable def mPhiHom : topAbelianization (DM α h : Type) →* MFrameModel h where
+  toFun z := ofAdd ((mTHom α h z).toAdd, (mBHom α h z).toAdd, (mCHom hα h z).toAdd,
+    (mDHom α h z).toAdd, fun k => (mHHom α k z).toAdd)
+  map_one' := by
+    simp only [map_one, toAdd_one]
+    rfl
+  map_mul' x y := by
+    simp only [map_mul, toAdd_mul]
+    rw [← ofAdd_add]
+    rfl
+
+theorem continuous_mPhiHom : Continuous (mPhiHom hα h) := by
+  show Continuous fun z => ofAdd ((mTHom α h z).toAdd, (mBHom α h z).toAdd,
+    (mCHom hα h z).toAdd, (mDHom α h z).toAdd, fun k => (mHHom α k z).toAdd)
+  exact continuous_ofAdd.comp
+    ((continuous_toAdd.comp (mTHom α h).continuous_toFun).prodMk
+      ((continuous_toAdd.comp (mBHom α h).continuous_toFun).prodMk
+        ((continuous_toAdd.comp (mCHom hα h).continuous_toFun).prodMk
+          ((continuous_toAdd.comp (mDHom α h).continuous_toFun).prodMk
+            (continuous_pi fun k => continuous_toAdd.comp (mHHom α k).continuous_toFun)))))
+
+/-- `φ_M` on a `ℤ₂`-power word, all five coordinates at once. -/
+theorem mPhiHom_word (c : Fin (coreRank h) → ℤ_[2]) :
+    mPhiHom hα h (mAbWord α h c)
+      = ofAdd ((zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) (c 0)).toAdd, c 1,
+          -(2 : ℤ_[2]) ^ (α - 1) * c 0 + c 2, c 3, fun k => c (mHandleIdx k)) := by
+  show ofAdd (_, _, _, _, _) = _
+  rw [mTHom_word, mBHom_word, mCHom_word, mDHom_word]
+  simp only [toAdd_ofAdd]
+  congr 1
+  exact congrArg _ (congrArg _ (congrArg _ (congrArg _
+    (funext fun k => by rw [mHHom_word, toAdd_ofAdd]))))
+
+/-! ### §6.1 Injectivity
+
+The relation vector does all the work.  Once the `B̄`-, `D̄`- and handle exponents are killed and
+`c₂ = 2^{α−1}c₀` is forced, the word is `(Ā·C̄₀^{2^{α−1}})^{c₀} = t^{c₀}`, and `t` is 2-torsion
+(`dm_torsionGen_sq`, the `α ≥ 1` input), so the surviving torsion coordinate finishes it. -/
+
+/-- A word whose exponents vanish off the `Ā`- and `C̄₀`-slots is the product of those two
+factors. -/
+theorem mAbWord_pair (α h : ℕ) (c : Fin (coreRank h) → ℤ_[2])
+    (hc : ∀ i, i ≠ 0 → i ≠ 2 → c i = 0) :
+    mAbWord α h c = zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h 0)) (c 0)
+      * zpowZtwo (mIsProP_two_topAb_DM α h) (abMk (dmGen α h 2)) (c 2) := by
+  rw [mAbWord, ← Finset.prod_pair (f := fun i => zpowZtwo (mIsProP_two_topAb_DM α h)
+    (abMk (dmGen α h i)) (c i)) mCoreZero_ne_two]
+  refine (Finset.prod_subset (Finset.subset_univ _) ?_).symm
+  intro i _ hi
+  simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hi
+  rw [hc i hi.1 hi.2, zpowZtwo_zero]
+
+theorem mPhiHom_injective : Function.Injective (mPhiHom hα h) := by
+  rw [injective_iff_map_eq_one]
+  intro z hz
+  obtain ⟨c, rfl⟩ := mDMab_coord α h z
+  rw [mPhiHom_word] at hz
+  have hv := Multiplicative.ofAdd.injective (hz.trans
+    (show (1 : MFrameModel h) = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+      (0 : Fin (2 * h) → ℤ_[2])) from rfl))
+  rw [Prod.mk.injEq, Prod.mk.injEq, Prod.mk.injEq, Prod.mk.injEq] at hv
+  obtain ⟨hvt, hv1, hvc, hv3, hvh⟩ := hv
+  -- the `B̄`-, `D̄`- and handle exponents vanish
+  have hc0 : ∀ i, i ≠ 0 → i ≠ 2 → c i = 0 := by
+    intro i hi0 hi2
+    rcases mIdx_cases i with rfl | rfl | rfl | rfl | ⟨k, rfl⟩
+    · exact absurd rfl hi0
+    · exact hv1
+    · exact absurd rfl hi2
+    · exact hv3
+    · exact congrFun hvh k
+  -- the `C̄₀`-exponent is forced: `c₂ = 2^{α−1}·c₀`
+  have hc2 : c 2 = (2 : ℤ_[2]) ^ (α - 1) * c 0 := by linear_combination hvc
+  -- the word collapses to a power of the torsion class `t`
+  have hword : mAbWord α h c
+      = zpowZtwo (mIsProP_two_topAb_DM α h)
+          (abMk (dmA α h * dmC α h ^ (2 ^ (α - 1)))) (c 0) := by
+    rw [mAbWord_pair α h c hc0, hc2,
+      show ((2 : ℤ_[2]) ^ (α - 1) * c 0) = ((2 ^ (α - 1) : ℕ) : ℤ_[2]) * c 0 by push_cast; ring,
+      ← zpowZtwo_zpowZtwo, zpowZtwo_natCast, ← zpowZtwo_mul_base, map_mul, map_pow]
+    rfl
+  -- the torsion coordinate says the exponent is even, and `t² = 1`
+  have hval0 : (PadicInt.toZModPow 1 (c 0)).val = 0 := by
+    rw [zpowZtwo_of_sq_eq_one isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) (by decide) (c 0)] at hvt
+    have hlt : (PadicInt.toZModPow (p := 2) 1 (c 0)).val < 2 := by
+      have := ZMod.val_lt (PadicInt.toZModPow (p := 2) 1 (c 0)); simpa using this
+    rcases (by omega : (PadicInt.toZModPow 1 (c 0)).val = 0
+        ∨ (PadicInt.toZModPow 1 (c 0)).val = 1) with h0 | h1
+    · exact h0
+    · rw [h1, pow_one, toAdd_ofAdd] at hvt
+      exact absurd hvt (by decide)
+  rw [hword, zpowZtwo_of_sq_eq_one (mIsProP_two_topAb_DM α h) _
+    (dm_torsionGen_sq hα h) (c 0), hval0, pow_zero]
+
+/-! ### §6.2 Surjectivity
+
+Read the exponents off the target vector.  The only non-obvious slot is `C̄₀`: because the
+`Ā`-row is forced to `−2^{α−1}` in that coordinate, the `C̄₀`-exponent has to absorb
+`+2^{α−1}·a` to compensate.  This is the constructive shadow of `mE_A_frame`. -/
+
+/-- The exponent vector realizing a prescribed coordinate tuple. -/
+noncomputable def mSurjVec (α : ℕ) {h : ℕ} (a : ZMod 2) (b cc d : ℤ_[2])
+    (f : Fin (2 * h) → ℤ_[2]) : Fin (coreRank h) → ℤ_[2] := fun i =>
+  if (i : ℕ) = 0 then ((a.val : ℤ_[2])) else
+  if (i : ℕ) = 1 then b else
+  if (i : ℕ) = 2 then cc + (2 : ℤ_[2]) ^ (α - 1) * (a.val : ℤ_[2]) else
+  if (i : ℕ) = 3 then d else
+  if hk : (i : ℕ) - 4 < 2 * h then f ⟨(i : ℕ) - 4, hk⟩ else 0
+
+section SurjVec
+
+variable (α : ℕ) {h : ℕ} (a : ZMod 2) (b cc d : ℤ_[2]) (f : Fin (2 * h) → ℤ_[2])
+
+@[simp] theorem mSurjVec_zero : mSurjVec α a b cc d f 0 = ((a.val : ℤ_[2])) := by
+  rw [mSurjVec, if_pos (coreVal_zero h)]
+
+@[simp] theorem mSurjVec_one : mSurjVec α a b cc d f 1 = b := by
+  rw [mSurjVec, if_neg (by rw [coreVal_one]; omega), if_pos (coreVal_one h)]
+
+@[simp] theorem mSurjVec_two :
+    mSurjVec α a b cc d f 2 = cc + (2 : ℤ_[2]) ^ (α - 1) * (a.val : ℤ_[2]) := by
+  rw [mSurjVec, if_neg (by rw [coreVal_two]; omega), if_neg (by rw [coreVal_two]; omega),
+    if_pos (coreVal_two h)]
+
+@[simp] theorem mSurjVec_three : mSurjVec α a b cc d f 3 = d := by
+  rw [mSurjVec, if_neg (by rw [coreVal_three]; omega), if_neg (by rw [coreVal_three]; omega),
+    if_neg (by rw [coreVal_three]; omega), if_pos (coreVal_three h)]
+
+@[simp] theorem mSurjVec_handle (k : Fin (2 * h)) :
+    mSurjVec α a b cc d f (mHandleIdx k) = f k := by
+  rw [mSurjVec, if_neg (by rw [mHandleIdx_val]; omega), if_neg (by rw [mHandleIdx_val]; omega),
+    if_neg (by rw [mHandleIdx_val]; omega), if_neg (by rw [mHandleIdx_val]; omega),
+    dif_pos (by rw [mHandleIdx_val]; have := k.isLt; omega)]
+  exact congrArg f (Fin.ext (by simp only [mHandleIdx_val]; omega))
+
+end SurjVec
+
+theorem mPhiHom_surjective : Function.Surjective (mPhiHom hα h) := by
+  intro w
+  rw [← ofAdd_toAdd w]
+  obtain ⟨a, b, cc, d, f⟩ := w.toAdd
+  refine ⟨mAbWord α h (mSurjVec α a b cc d f), ?_⟩
+  rw [mPhiHom_word, mSurjVec_zero, mSurjVec_one, mSurjVec_two, mSurjVec_three]
+  congr 1
+  refine Prod.ext ?_ (Prod.ext rfl (Prod.ext ?_ (Prod.ext rfl (funext fun k => ?_))))
+  · show (zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) ((a.val : ℤ_[2]))).toAdd = a
+    rw [zpowZtwo_ofAdd_one_zmod2, toAdd_ofAdd]
+  · show -(2 : ℤ_[2]) ^ (α - 1) * (a.val : ℤ_[2])
+      + (cc + (2 : ℤ_[2]) ^ (α - 1) * (a.val : ℤ_[2])) = cc
+    ring
+  · exact mSurjVec_handle α a b cc d f k
+
+end Phi
+
 end MarkedCore
 
 end Dyadic
