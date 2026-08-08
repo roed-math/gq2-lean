@@ -673,3 +673,114 @@ theorem foxDelta_mpcHatW (hσ : a Generator.sigma = 0) {α : ℕ} (hα : 1 ≤ �
   exact h2z _
 
 end MpcRows
+
+/-! ## §5. The ramified pins: no loss
+
+Five committed statements, re-derived through the parameterised layer and pinned.
+
+The pins are **statement-identical** in a machine-checked sense, not by eyeball: each is followed
+by an equation `@..._pin = @<committed name> := rfl`, which typechecks exactly when the two
+declarations have the same type (proof irrelevance is definitional in Lean 4, so the *proofs*
+never enter, only the statements).  A drift in any binder, implicitness or hypothesis order
+would break it.
+
+Together with the axiom prints of §7 this is the ticket's "no loss": every statement the
+committed ramified chain makes is reachable from the δ-row layer with the same hypotheses and
+the same axioms. -/
+
+section RamPinsNpc
+
+open GQ2.Dyadic.Words.Npc
+
+variable {h α r : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **Pin 1**: the ramified noncompact-`N` wild row, through the layer.  Statement-identical to
+`Npc.foxD_npc_ram`. -/
+theorem foxDelta_npc_ram_pin (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e)
+      = ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0))
+        - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2) := by
+  rw [foxDelta_npc (deltaRowRam t E E₂ hwild hτfpf hTodd) hV₂ hα e a,
+    deltaRowRam_block t E E₂ hwild hτfpf hTodd a 2, zero_sub]
+  abel
+
+@[inherit_doc foxDelta_npc_ram_pin]
+theorem foxDelta_npc_ram_pin_eq : @foxDelta_npc_ram_pin = @Npc.foxD_npc_ram := rfl
+
+/-- **Pin 2**: every ramified column off `x₀`, `x₂` vanishes, through the layer.
+Statement-identical to `Npc.foxDHom_npc_ram_column_eq_zero`.  Note what the layer does here: the
+committed statement's `= 0` is the δ-row's own entry at the ramified reading, so the pin is
+`foxDelta_npcHom_column` plus `deltaRowRam_block`, with no separate argument. -/
+theorem foxDelta_npcHom_ram_column_pin (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) {g : Generator (2 + 2 * h)} (hg0 : g ≠ coreLetter h 0)
+    (hg2 : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single g v) = 0 := by
+  rw [foxDelta_npcHom_column (deltaRowRam t E E₂ hwild hτfpf hTodd) hV₂ hα e hg0 hg2 v,
+    deltaRowRam_block t E E₂ hwild hτfpf hTodd _ 2]
+
+@[inherit_doc foxDelta_npcHom_ram_column_pin]
+theorem foxDelta_npcHom_ram_column_pin_eq :
+    @foxDelta_npcHom_ram_column_pin = @Npc.foxDHom_npc_ram_column_eq_zero := rfl
+
+end RamPinsNpc
+
+section RamPinsMpc
+
+open GQ2.Dyadic.Words.Mpc
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (a : Generator (2 + 2 * h) → V)
+
+/-- **Pin 3**: the ramified δ-letter row, through the layer.  Statement-identical to
+`MProcyclic.foxD_dW_ram`, which is the single cross-lane citation of the `hτfpf`-carrying
+δ-row and therefore the hinge the whole `section Factors` turned on. -/
+theorem foxDelta_dW_ram_pin (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) (i : Fin 3) :
+    foxD ⇑t a E E₂ (dW h i) = -a (coreLetter h i) := by
+  rw [foxDelta_dW (deltaRowRam t E E₂ hwild hτfpf hTodd) a i, FoxDeltaRow.deltaVal,
+    deltaRowRam_block t E E₂ hwild hτfpf hTodd a i, zero_sub]
+
+@[inherit_doc foxDelta_dW_ram_pin]
+theorem foxDelta_dW_ram_pin_eq : @foxDelta_dW_ram_pin = @MProcyclic.foxD_dW_ram := rfl
+
+/-- **Pin 4**: `E₀₁^pc`'s ramified row, through the layer.  Statement-identical to
+`MProcyclic.foxD_e01W_ram`, the row freeze row 5 is about. -/
+theorem foxDelta_e01W_ram_pin (hσ : a Generator.sigma = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) (aa bb : ℕ) :
+    foxD ⇑t a E E₂ (e01W h aa bb)
+      = -((((powOmega2 t.σ) ^ aa)⁻¹ * ((powOmega2 t.σ) ^ bb)⁻¹) • a (coreLetter h 1))
+        - (((powOmega2 t.σ) ^ aa)⁻¹) • a (coreLetter h 1)
+        - (((powOmega2 t.σ) ^ aa)⁻¹) • a (coreLetter h 0)
+        - a (coreLetter h 0) := by
+  rw [foxDelta_e01W (deltaRowRam t E E₂ hwild hτfpf hTodd) a hσ aa bb, FoxDeltaRow.deltaVal,
+    FoxDeltaRow.deltaVal, deltaRowRam_block t E E₂ hwild hτfpf hTodd a 0,
+    deltaRowRam_block t E E₂ hwild hτfpf hTodd a 1, zero_sub, zero_sub]
+  simp only [smul_neg]
+  abel
+
+@[inherit_doc foxDelta_e01W_ram_pin]
+theorem foxDelta_e01W_ram_pin_eq : @foxDelta_e01W_ram_pin = @MProcyclic.foxD_e01W_ram := rfl
+
+/-- **Pin 5, the deep endpoint**: the hat copy's ramified row, through the layer.
+Statement-identical to `MProcyclic.foxD_mpcHatW_ram`, the deepest declaration of the
+ramified-only region and the one the ticket names. -/
+theorem foxDelta_mpcHatW_ram_pin (hσ : a Generator.sigma = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay) (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcHatW α r pp η h) = 0 :=
+  foxDelta_mpcHatW (deltaRowRam t E E₂ hwild hτfpf hTodd) a hσ hα r pp η hV₂
+
+@[inherit_doc foxDelta_mpcHatW_ram_pin]
+theorem foxDelta_mpcHatW_ram_pin_eq :
+    @foxDelta_mpcHatW_ram_pin = @MProcyclic.foxD_mpcHatW_ram := rfl
+
+end RamPinsMpc
