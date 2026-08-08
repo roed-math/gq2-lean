@@ -218,8 +218,9 @@ Uniformity across all 951 new markings:
 | already trivial at L₃ and L₄ | 7 | 673/679 | 6 | yes | true |
 
 **No infeasible marking, no marking with corank ≠ 6, no failed certificate, and the relator's
-defect landed in `im δ` at every level of every one of the 951.**  That is 1811 independent
-(marking, level) containment events, each at odds `2^{-6}` if it were chance.
+defect landed in `im δ` at every level of every one of the 951.**  That is
+`905·3 + 39·2 + 7·1 = 2800` independent (marking, level) containment events, each at odds
+`2^{-6}` if it were chance.
 
 ---
 
