@@ -48,18 +48,19 @@ commutative ring and an arbitrary handle count, with no cleared hypotheses.
   with `vanShiftPar` the plus-signs pairing form reading only the marking's columns — so mod
   2 the dressing action reads only the mod-2 columns of the marking, in the permuted-letter
   pattern.  This is the class-three slice form of W51 §2.4 ("`δ` is a mod-2 object"), as
-  mathematics: the parity of the shift is invariant under any change of marking that fixes
-  the columns mod 2 (`vanShift_congr_parity`).
+  mathematics: under any ring map killing `2` the shift becomes the pairing form
+  (`vanShift_map`) and is invariant under every change of marking that fixes the columns
+  mod 2 (`vanShift_congr_two`).
 
 ## Contents
 
 * **§1** `γ₂`-dressing calculus on `SqU4`: `vanMul_d/e/f`, `vanComm3`, `vanCore`;
 * **§2** the five-slot dressing action: `vanDress`, `vanShift`, `sqRelWord_vanDress_f` and
   the five lower rows;
-* **§3** ⭐⭐ the conjugation family and the vanishing identity: `vanDress_commP`,
-  `vanShift_commP`, `vanShift_commP_eq_zero`;
+* **§3** ⭐⭐ the conjugation family and the vanishing identity: `commP_isGaTwo`,
+  `vanDress_commP`, `sqRelWord_conjP`, `vanShift_commP`, `vanShift_commP_eq_zero`;
 * **§4** ⭐ the exact even-decomposition and the parity collapse: `vanShiftPar`,
-  `vanShift_decomp`, `vanShift_congr_parity`;
+  `vanShiftEven`, `vanShift_decomp`, `vanShift_map`, `vanShift_congr_two`;
 * **§5** committed axiom prints (all std-3).
 
 Companion memo: `docs/dyadic/w52-vanish-note.md`.
@@ -269,6 +270,208 @@ theorem sqRelWord_vanDress_f (hz : ∀ i, (z i).IsGaTwo) :
   ring
 
 end DressAction
+
+/-! ## §3 The conjugation family and the vanishing identity
+
+The measured kernel of the dressing-defect map contains, at every level, the conjugation
+family `zᵢ = [mᵢ, g]`: simultaneous conjugation of the whole frame, the coboundary `d⁰` of
+the committed three-term complex (`Word/Fox.lean`, packet Prop. 4.1(3)).  At the slice this
+is an identity with an *explicit error term*: the shift on the conjugation family is a
+combination of the relator's own five lower rows, so it vanishes exactly on the class-two
+solution locus — the hand-derived mechanism (char-2 Jacobi plus the mixed Frobenius identity
+plus the class-two relation) packaged as one committed equation. -/
+
+section ConjFamily
+
+variable {h : ℕ}
+
+/-- A `commP`-commutator is `γ₂`-shaped. -/
+theorem commP_isGaTwo (p g : SqU4 R) : (commP p g).IsGaTwo :=
+  ⟨SqU4.commP_a p g, SqU4.commP_b p g, SqU4.commP_c p g⟩
+
+/-- Dressing every slot by its own commutator against `g` conjugates the whole frame. -/
+theorem vanDress_commP (m : Fin (sqRank h) → SqU4 R) (g : SqU4 R) :
+    vanDress m (fun i => commP (m i) g) = fun i => conjP (m i) g := by
+  funext i
+  rw [vanDress_apply, commP, conjP]
+  group
+
+/-- Conjugation by a fixed element, as a monoid hom. -/
+private def vanConjHom (g : SqU4 R) : SqU4 R →* SqU4 R where
+  toFun x := conjP x g
+  map_one' := by simp [conjP]
+  map_mul' a b := by
+    simp only [conjP]
+    group
+
+/-- **Word functoriality of conjugation**: the relator of a conjugated frame is the
+conjugated relator. -/
+theorem sqRelWord_conjP (m : Fin (sqRank h) → SqU4 R) (g : SqU4 R) :
+    sqRelWord (fun i => conjP (m i) g) = conjP (sqRelWord m) g :=
+  (map_sqRelWord (vanConjHom g) m).symm
+
+/-- ⭐⭐ **The vanishing identity, with its exact error term**: on the conjugation family the
+shift form evaluates to a combination of the relator's own lower rows.  This is the
+class-three instance of the Jacobi/Fox identity behind the measured kernel of the
+dressing-defect map — simultaneous conjugation is Fox-exact up to the previous levels'
+defect, and the error term is exhibited, not estimated. -/
+theorem vanShift_commP (m : Fin (sqRank h) → SqU4 R) (g : SqU4 R) :
+    vanShift h m (fun i => commP (m i) g)
+      = (g.e * (sqRelWord m).a - g.a * (sqRelWord m).e)
+        + (g.c * (sqRelWord m).d - g.d * (sqRelWord m).c)
+        + (g.a * g.b * (sqRelWord m).c - g.a * g.c * (sqRelWord m).b) := by
+  have h1 := sqRelWord_vanDress_f (m := m) (z := fun i => commP (m i) g)
+    (fun i => commP_isGaTwo (m i) g)
+  rw [vanDress_commP, sqRelWord_conjP, SqU4.conjP_f] at h1
+  linear_combination - h1
+
+/-- ⭐⭐ **The vanishing on the class-two solution locus**: once the five lower rows of the
+relator vanish, no conjugation dressing can move the class-three residue.  This is the
+committed form of the sweeps' kernel finding, and the slice shadow of
+`foxD_coboundary` (`d¹ ∘ d⁰ = 0` at a marking killing the relator below). -/
+theorem vanShift_commP_eq_zero (m : Fin (sqRank h) → SqU4 R) (g : SqU4 R)
+    (ha : (sqRelWord m).a = 0) (hb : (sqRelWord m).b = 0) (hc : (sqRelWord m).c = 0)
+    (hd : (sqRelWord m).d = 0) (he : (sqRelWord m).e = 0) :
+    vanShift h m (fun i => commP (m i) g) = 0 := by
+  rw [vanShift_commP, ha, hb, hc, hd, he]
+  ring
+
+end ConjFamily
+
+/-! ## §4 The exact even-decomposition, and the parity collapse
+
+W51 §2.4 measured that the dressing-defect map and its image depend on the marking only
+mod 2, at every level up to `L₆`.  The slice mechanism: the shift form splits exactly as a
+plus-signs pairing form in the marking's columns plus twice an explicit correction, so under
+any ring map killing `2` the action reads only the mod-2 columns, in the permuted-letter
+Fox-row pattern. -/
+
+section ParityCollapse
+
+variable {h : ℕ}
+
+variable (h) in
+/-- **The principal pairing form**: the mod-2 shadow of `vanShift` — each dressing's
+`(d, e)`-data against the permuted letter's `(c, a)`-columns, all signs `+`, no exponent
+`f`-terms (the slice image of the Frobenius part is even). -/
+def vanShiftPar (m z : Fin (sqRank h) → SqU4 R) : R :=
+  ((m 1).c * (z 0).d + (m 1).a * (z 0).e)
+    + ((m 0).c * (z 1).d + (m 0).a * (z 1).e)
+    + ((m 2).c * (z 2).d + (m 2).a * (z 2).e)
+    + ∑ j : Fin h,
+        (((m (sqHandleIdxV j)).c * (z (sqHandleIdxU j)).d
+            + (m (sqHandleIdxV j)).a * (z (sqHandleIdxU j)).e)
+          + ((m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d
+            + (m (sqHandleIdxU j)).a * (z (sqHandleIdxV j)).e))
+
+variable (h) in
+/-- The even correction of the decomposition `vanShift = vanShiftPar + 2 * vanShiftEven`. -/
+def vanShiftEven (m z : Fin (sqRank h) → SqU4 R) : R :=
+  -2 * (z 1).f + (z 2).f - (m 1).a * (z 0).e
+    + (3 * (m 1).a * (z 1).e
+      - ((m 0).c - 5 * (m 1).c + 4 * (m 2).c) * (z 1).d)
+    + ((m 2).a - 4 * (m 1).a) * (z 2).e
+    + ∑ j : Fin h,
+        (-((m (sqHandleIdxV j)).a * (z (sqHandleIdxU j)).e)
+          - (m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d)
+
+/-- ⭐ **The exact even-decomposition of the shift form.** -/
+theorem vanShift_decomp (m z : Fin (sqRank h) → SqU4 R) :
+    vanShift h m z = vanShiftPar h m z + 2 * vanShiftEven h m z := by
+  have hj : ∀ j : Fin h,
+      (((m (sqHandleIdxV j)).c * (z (sqHandleIdxU j)).d
+          - (m (sqHandleIdxV j)).a * (z (sqHandleIdxU j)).e)
+        + ((m (sqHandleIdxU j)).a * (z (sqHandleIdxV j)).e
+          - (m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d))
+      = ((((m (sqHandleIdxV j)).c * (z (sqHandleIdxU j)).d
+            + (m (sqHandleIdxV j)).a * (z (sqHandleIdxU j)).e)
+          + ((m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d
+            + (m (sqHandleIdxU j)).a * (z (sqHandleIdxV j)).e)))
+        + 2 * (-((m (sqHandleIdxV j)).a * (z (sqHandleIdxU j)).e)
+          - (m (sqHandleIdxU j)).c * (z (sqHandleIdxV j)).d) := fun j => by ring
+  rw [vanShift, vanShiftPar, vanShiftEven, Finset.sum_congr rfl fun j _ => hj j,
+    Finset.sum_add_distrib, mul_add, Finset.mul_sum]
+  ring
+
+/-- ⭐ **The parity collapse of the dressing action**: under any ring map killing `2`, the
+shift form becomes the principal pairing form — the class-three slice statement that the
+dressing-defect map is a mod-2 object. -/
+theorem vanShift_map {S : Type} [CommRing S] (φ : R →+* S) (h2 : φ 2 = 0)
+    (m z : Fin (sqRank h) → SqU4 R) :
+    φ (vanShift h m z) = φ (vanShiftPar h m z) := by
+  rw [vanShift_decomp, map_add, map_mul, h2, zero_mul, add_zero]
+
+/-- ⭐ **The marking enters only mod 2**: two markings whose outer abelian columns agree
+under a ring map killing `2` give the same image of the shift form, for every dressing.
+This is W51 §2.4 ("`δ` depends on the marking only through its parity class") at the
+class-three slice. -/
+theorem vanShift_congr_two {S : Type} [CommRing S] (φ : R →+* S) (h2 : φ 2 = 0)
+    {m m' : Fin (sqRank h) → SqU4 R}
+    (hma : ∀ i, φ (m' i).a = φ (m i).a) (hmc : ∀ i, φ (m' i).c = φ (m i).c)
+    (z : Fin (sqRank h) → SqU4 R) :
+    φ (vanShift h m' z) = φ (vanShift h m z) := by
+  rw [vanShift_map φ h2, vanShift_map φ h2, vanShiftPar, vanShiftPar]
+  simp only [map_add, map_mul, map_sum, hma, hmc]
+
+/-- The concrete slice instance: over `ℤ/8` with the reduction to `ℤ/2`, the shift form of
+any two column-congruent markings agree mod 2. -/
+example {m m' z : Fin (sqRank h) → SqU4 gr3R}
+    (hma : ∀ i, ((m' i).a : gr3R) - (m i).a ∈ ({0, 2, 4, 6} : Set gr3R))
+    (hmc : ∀ i, ((m' i).c : gr3R) - (m i).c ∈ ({0, 2, 4, 6} : Set gr3R)) :
+    (ZMod.castHom (by norm_num : (2 : ℕ) ∣ 8) (ZMod 2)) (vanShift h m' z)
+      = (ZMod.castHom (by norm_num : (2 : ℕ) ∣ 8) (ZMod 2)) (vanShift h m z) := by
+  refine vanShift_congr_two _ (by decide) (fun i => ?_) (fun i => ?_) z
+  · have := hma i
+    have hcast : ∀ x : gr3R, x ∈ ({0, 2, 4, 6} : Set gr3R) →
+        (ZMod.castHom (by norm_num : (2 : ℕ) ∣ 8) (ZMod 2)) x = 0 := by decide
+    have h0 := hcast _ this
+    rw [map_sub] at h0
+    linear_combination h0
+  · have := hmc i
+    have hcast : ∀ x : gr3R, x ∈ ({0, 2, 4, 6} : Set gr3R) →
+        (ZMod.castHom (by norm_num : (2 : ℕ) ∣ 8) (ZMod 2)) x = 0 := by decide
+    have h0 := hcast _ this
+    rw [map_sub] at h0
+    linear_combination h0
+
+end ParityCollapse
+
+/-! ## §5 Axiom pins
+
+Committed prints for every public declaration of this file: all **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable.  The only
+`decide`s are in the final `example`, on `ZMod 8` and `ZMod 2`. -/
+
+section AxiomPins
+
+#print axioms vanMul_d
+#print axioms vanMul_e
+#print axioms vanMul_f
+#print axioms vanComm3
+#print axioms vanCore
+#print axioms vanDress
+#print axioms vanDress_apply
+#print axioms vanShift
+#print axioms vanDress_abc
+#print axioms sqU4Defect_vanDress
+#print axioms sqRelWord_vanDress_a
+#print axioms sqRelWord_vanDress_b
+#print axioms sqRelWord_vanDress_c
+#print axioms sqRelWord_vanDress_d
+#print axioms sqRelWord_vanDress_e
+#print axioms sqRelWord_vanDress_f
+#print axioms commP_isGaTwo
+#print axioms vanDress_commP
+#print axioms sqRelWord_conjP
+#print axioms vanShift_commP
+#print axioms vanShift_commP_eq_zero
+#print axioms vanShiftPar
+#print axioms vanShiftEven
+#print axioms vanShift_decomp
+#print axioms vanShift_map
+#print axioms vanShift_congr_two
+
+end AxiomPins
 
 end SqCore
 
