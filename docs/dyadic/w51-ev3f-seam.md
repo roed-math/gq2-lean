@@ -146,9 +146,64 @@ using `commP_mul_right_of_mem` to split the product partner.  So
 `EvenRawPureSquareSpanSupply` is the verbatim analogue of `RawPureSquareSpanSupply` and the
 `iff` with `evenRawShiftSpan = zLayer` survives.
 
+**(d) The twisted index moves to `1`, and not to `0`.**  The committed engine
+`span_base_core_of_generators` (`GQ2/Roe/Labute/GradedLie/SpanBase.lean`) wants, at a
+distinguished index `t`, the shape `v² · [v, marked t]`.  The even coordinate-`0` row is
+`v² · [v, base 0] · [v, base 1]`, which is that shape for no letter at all.  Dividing it by
+the coordinate-`1` row `[v, base 0]` gives `v² · [v, base 1]`, so the letter that cannot be
+separated from the square is `base 1`, and the augmented span's tail set must omit index `1`.
+The L template omits its index `2`.  This is the same asymmetry as (c), one level up.
+
 ## 4. Endpoints F2 consumes from F1
 
-Filled in against the delivered files; see the F1 final report for the exact signatures.
+A cross-reference of the committed chain settles what actually crosses the seam.  In the L
+chain **only `KernelAdaptedSupply.lean` textually consumes span-half names, and only four**,
+all from `RawSpan.lean`: `rawShiftSpan`, `rawDepthShiftHom`,
+`rawDepthShift_mem_rawShiftSpan`, `sqRawDefectReachable_iff_defect_mem_rawShiftSpan`.
+`RawSpanStep.lean`'s endpoints reach no assembly-half file at all (they are consumed by
+`VariableStage.lean` and the dead-end `RawSpanObstruction.lean`), and `BracketSpan.lean`'s
+crossing endpoint is `nonempty_coreHandleSharpActualDefectSupply_iff_mem_bracketSpan`, which
+reaches `StageRankOne.lean` through `FieldRigidity`.
+
+So the F1 surface F2 must program against is small.  Delivered, all in namespace
+`GQ2.Dyadic.StageGeneric`:
+
+| L name F2 would have used | F1 replacement | file |
+|---|---|---|
+| `rawShiftSpan` | `evenRawShiftSpan base hk : Subgroup (levelQuot G (k+1))` | part 1 |
+| `rawDepthShiftHom` | `evenRawDepthShiftHom base hk : EvenRawDepthCorrection G h k →* zLayer G k` | part 1 |
+| `rawDepthShift_mem_rawShiftSpan` | `evenRawDepthShift_mem_shiftSpan` | part 1 |
+| `sqRawDefectReachable_iff_defect_mem_rawShiftSpan` | `evenRawDefectReachable_n_iff` / `_m_iff` | part 2 |
+
+with the extra convenience endpoints `evenRawDefectReachable_n_of_pureSquareSpan` /
+`_m_of_pureSquareSpan` (part 2), and, below them, the literal factorizations
+`evenRawStageShift_n` / `evenRawStageShift_m` (part 1 §4), which are what F2 needs whenever it
+must rewrite an actual `stageShift` into the explicit shift word.
+
+**F2 must not re-derive Block H-lit** (§1.1).  Its even form is `evenRawHandleDbarWord`,
+`evenRawCoreDbarWord`, `evenRawDbarWord` with their `_mem_zLayer`, `_one`, `_mul` lemmas,
+plus `evenRawHandlePair_mul`, `evenRawCommP_mul_left_of_depth`, `evenRawHandlePairDbar_mul`
+and `evenRawHandleWord_mul_lambdaImage`, all in part 1 §2–§3.
+
+### 4.1 What of the span half is not delivered
+
+`RawSpanStep.lean`'s successor engine is not cloned: the private `rawLiftSq`
+lift-with-square machinery, the square-transport lemmas (`sqHandleDbarWord_sq`,
+`sqCoreHandleDbarWord_sq`, `levelProj_sqCoreHandleDbarWord`), and the four theorems above
+them (`rawSquare_mem_augmentedSpan_succ`, `rawAugmentedSpan_step`,
+`rawAugmentedSpan_of_base_of_step`, `sqCore_rawAugmentedSpan_all`).  Everything the engine
+consumes at the even words *is* delivered: the augmented span, the tail span, and the cubic
+base case `evenRawAugmentedSpanBaseSupply_of_generates` with its two instantiations
+`evenRawAugmentedSpanBaseSupply_dn` / `_dm`.  The remaining work is the induction turning
+that base into `EvenRawPureSquareSpanSupply` at every `k ≥ 3`.  It is mechanical relative to
+the L template, and its only even-specific input, the twisted index `1`, is already proved
+(§3(d)).
+
+`BracketSpan.lean` is not cloned either, and by §1.1 it should not be attempted from the span
+side: every one of its declarations is stated against `sharpChiLevel` and it consumes Block
+H-sharp, which is F2's.  Its span content (identifying a coordinate image set with a set of
+bracket atoms) is the sharp-level shadow of part 1's six coordinate rows, so F2 can build it
+directly on `evenRawDepthShiftHom_*_apply` once the even sharp-neutral layer exists.
 
 ## 5. Notes carried from the orchestrator
 
