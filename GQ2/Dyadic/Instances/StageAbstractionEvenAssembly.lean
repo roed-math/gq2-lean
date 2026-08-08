@@ -37,17 +37,17 @@ is visible in one place and in one place only.
 None of the following is discharged here; each is a live ticket in another lane, and every
 endpoint statement below carries them explicitly.
 
-1. `hmodel : ∀ h, NModelDemushkin α h` (resp. `MModelDemushkin`) — **EV-1e**, the model-side
+1. `hmodel : ∀ h, NModelDemushkin α h` (resp. `MModelDemushkin`) : **EV-1e**, the model-side
    Demushkin property of the presented even cores.  A different lane entirely.
-2. `hrec : EvenLevelThreeRecipSupply` — the **Recip bundle** supply, a marked local
+2. `hrec : EvenLevelThreeRecipSupply` : the **Recip bundle** supply, a marked local
    reciprocity datum at every even-degree dyadic field.
-3. `hram : EvenLevelThreeRamifiedSupply` — the ramification input of the level-three frame.
-4. `hin : EvenLevelThreeNFrameInputSupply α` (resp. `M`) — the level-three frame inputs,
+3. `hram : EvenLevelThreeRamifiedSupply` : the ramification input of the level-three frame.
+4. `hin : EvenLevelThreeNFrameInputSupply α` (resp. `M`) : the level-three frame inputs,
    which is where the **mod-8 image seam** lives; the `M` variant additionally carries the
    **attained** seam.
-5. `Hrange` — the **EV-4a** identification of the image of `chiCycKTwo` in even degree, with
+5. `Hrange` : the **EV-4a** identification of the image of `chiCycKTwo` in even degree, with
    `imChiN α` on the `N` branch and `imChiM α` on the `M` branch.
-6. `Hres` — the **EV-3f residual supply**, the gap `StageAbstractionEvenStageClimb.lean` §1
+6. `Hres` : the **EV-3f residual supply**, the gap `StageAbstractionEvenStageClimb.lean` §1
    isolates and `StageAbstractionEvenKernelAdapted.lean` §3 reduces to two boundaries.
 
 Items 1-4 are inputs the board always intended to remain named at this station; items 5 and 6

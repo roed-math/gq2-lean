@@ -194,13 +194,13 @@ What is left between §2 and `EvenClimbResidualSupply` splits cleanly into exact
 boundaries, and §3 proves that those two compose to the goal.  Each is stated as a `Prop` so
 the composition is machine-checked now and each can be discharged independently later.
 
-* `EvenKernelDerivKerCriterion` — the even clone of the L crux
+* `EvenKernelDerivKerCriterion` : the even clone of the L crux
   `stageResidual_mem_rawShiftSpan_of_forall_derivKer`: a central element killed by every
   functional of the family lies in the raw shift span.  Its L proof is the augmented-span
   decomposition `residual = shift · tail`, the squarefree normal form on the tail atoms, and
   the diagonal/off-diagonal contradiction.  §1 supplies the mod-`4` hypotheses that
   contradiction consumes, at exactly the indices the even tail atom set uses.
-* `EvenKernelRawToBracketSupply` — the raw-to-neutral upgrade, the even clone of the L
+* `EvenKernelRawToBracketSupply` : the raw-to-neutral upgrade, the even clone of the L
   `VariableStageOne` crux `stageResidual_nonempty_actualDefectSupply_of_kernelAdaptedKill`.
   The raw span imposes no character condition on its corrections; the bracket span of §B
   restricts them to the neutral subgroup, and closing that difference is a separate station.
