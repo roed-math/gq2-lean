@@ -159,6 +159,157 @@ theorem evenDem_nModelDemushkin_forall (α : ℕ) (hα : 2 ≤ α) : ∀ h : ℕ
 theorem evenDem_mModelDemushkin_forall (α : ℕ) (hα : 2 ≤ α) : ∀ h : ℕ, MModelDemushkin α h :=
   fun h => evenDem_mModelDemushkin α h hα
 
+/-! ## §3 The `α` thresholds, and what is open below them
+
+Two independent thresholds are in play, and conflating them is what produced the wrong recorded
+EV-1b statement.
+
+* `1 ≤ α` is the **Frattini** threshold: the relator head exponent must be even, or the relator
+  is not a product of squares and commutators, and the abelianization loses a generator.  This is
+  the hypothesis of `markedRelator_DN` / `markedRelator_DM`, hence of `H¹` and hence of the rank.
+* `2 ≤ α` is the **Gram** threshold: it is what pins the common relator Gram
+  `mGram = nGram` and so what makes one nondegeneracy argument serve both rows.  This is the
+  hypothesis of `IsDemushkin`.
+
+The first two theorems below identify the Frattini threshold exactly, so that the recorded
+hypothesis-free EV-1b statement is seen to be unattainable rather than merely unproved. -/
+
+/-- **The `N` Frattini threshold, exactly.**  The `N_α` relator head exponent `2 + 2 ^ α` is even
+if and only if `1 ≤ α`.  This is the arithmetic step inside `markedRelator_DN`
+(`GQ2/Dyadic/MarkedCore/Certificate.lean:294`), isolated: at `α = 0` the exponent is `3`, the
+relator is not in the Frattini subgroup, and the marked-relator bundle that the whole `H¹`
+computation runs on does not exist.  Hence the recorded EV-1b statement, which carries no `α`
+hypothesis, is not a repairable target. -/
+theorem evenDem_nHeadExponent_even_iff (α : ℕ) : (∃ k, 2 + 2 ^ α = 2 * k) ↔ 1 ≤ α := by
+  constructor
+  · rintro ⟨k, hk⟩
+    by_contra hcon
+    have hα : α = 0 := by omega
+    rw [hα, pow_zero] at hk
+    omega
+  · intro hα
+    obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
+    exact ⟨1 + 2 ^ j, by rw [pow_succ]; ring⟩
+
+/-- **The `M` Frattini threshold, exactly.**  The `M_α` relator head exponent `2 ^ α` is even if
+and only if `1 ≤ α`, the same threshold on the same grounds. -/
+theorem evenDem_mHeadExponent_even_iff (α : ℕ) : (∃ k, 2 ^ α = 2 * k) ↔ 1 ≤ α := by
+  constructor
+  · rintro ⟨k, hk⟩
+    by_contra hcon
+    have hα : α = 0 := by omega
+    rw [hα, pow_zero] at hk
+    omega
+  · intro hα
+    obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
+    exact ⟨2 ^ j, by rw [pow_succ]; ring⟩
+
+/-- **Residual R1 (`N` at `α = 1`).**  The route skeleton asserts that the `α = 1` `N` core is
+*not* Demushkin: the head exponent is `2 + 2 ^ 1 = 4 ≡ 0 (mod 4)`, so its Gram diagonal entry
+dies and the mod-`2` quadratic initial form degenerates.  Nothing in the committed development
+decides this, in either direction.
+
+Cost to close: the `α = 1` `N` Gram has to be computed afresh (the committed
+`diagCoeff_two_pow` route needs `2 ≤ α`), and then exhibited as *degenerate*, which additionally
+needs a nonzero `H¹` class whose cup with everything vanishes.  Estimate: one lane, comparable to
+the committed EV-1a/EV-1d pair, since it is the same machinery at a different matrix. -/
+def EvenDemResidualAlphaOneN : Prop := ∀ h : ℕ, ¬ IsDemushkin 2 (DN 1 h : Type)
+
+/-- **Residual R2 (`M` at `α = 1`).**  The asymmetry candidate.  At `α = 1` the `M` row does not
+lose its head diagonal entry; it *gains* a second one at slot `2`, from `c ^ (2 ^ α) = c ²`.  A
+Gram with more diagonal entries is not obviously degenerate, so the `M` core may well be
+Demushkin at `α = 1` even if R1 holds and the `N` core is not.  Undecided here.
+
+Cost to close: the `α = 1` `M` Gram, then either its inverse (giving `IsDemushkin` by the §2
+dual-vector pattern, unchanged) or a kernel vector.  Estimate: half a lane, and strictly easier
+than R1, because the positive direction reuses `evenDualMap` wholesale. -/
+def EvenDemResidualAlphaOneM : Prop := ∀ h : ℕ, IsDemushkin 2 (DM 1 h : Type)
+
+/-- **Residual R3 (the rank at `α = 0`).**  The expected *failure* of the recorded
+hypothesis-free EV-1b statement on the `N` row.  By `evenDem_nHeadExponent_even_iff` the `α = 0`
+relator has odd head exponent, so it survives in the mod-`2` abelianization and should consume
+one generator, dropping the rank to `coreRank h - 1`.  This file does not prove that, because the
+committed `H¹` computation is unavailable at `α = 0` for exactly that reason.
+
+Cost to close: an `H¹` computation at a relator *outside* the Frattini subgroup, which the
+campaign has never needed.  Estimate: one lane, and of no downstream use, since every consumer of
+these cores has `2 ≤ α`.  Recorded so that the recorded statement is not retried. -/
+def EvenDemResidualAlphaZeroNRank : Prop := ∀ h : ℕ, demushkinRank 2 (DN 0 h : Type) ≠ coreRank h
+
+/-! ## §4 EV-1e final: the assembly endpoints with hypothesis 1 discharged
+
+`evenAssembly_orientedEquivN` / `…M` (`StageAbstractionEvenAssembly.lean:140`, `:160`) carry six
+named hypotheses; its module docstring lists hypothesis 1 as
+`hmodel : ∀ h, NModelDemushkin α h` (resp. `M`), owned by "a different lane entirely".  That lane
+is this one, and its output has been committed since `EvenModelDemushkin.lean` landed, but the
+two were never composed: the model files predate the assembly file.  Composing them is the
+demonstration that the seam closes.
+
+What remains after this section is five hypotheses, none of them model-side:
+`hrec`, `hram`, `hin` (the level-three inputs, including the mod-`8` image seam), `Hrange`
+(EV-4a, the cyclotomic image), and `Hres` (the EV-3f residual supply). -/
+
+/-- **EV-1e final, `N` branch.**  Every even-degree dyadic field of degree `2 + 2h` is
+`N`-classified, given the five non-model inputs.  This is `evenAssembly_orientedEquivN` with
+hypothesis 1 discharged by `evenDem_nModelDemushkin_forall`; `2 ≤ α` is now carried once, by the
+endpoint itself, and covers both the Frattini and the Gram thresholds of §3. -/
+theorem ev1eFinal_orientedEquivN {α : ℕ} (hα : 2 ≤ α)
+    (hrec : EvenLevelThreeRecipSupply) (hram : EvenLevelThreeRamifiedSupply)
+    (hin : EvenLevelThreeNFrameInputSupply α)
+    (Hrange : ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+      [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN α)
+    (Hres : ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+      [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ),
+      EvenClimbResidualSupply (α - 1) (nStageWord α h (Nat.le_of_succ_le hα)) (vN α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)))
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    Nonempty (OrientedContinuousMulEquiv (chiN α h) (chiCycKTwo (K := K))) :=
+  evenAssembly_orientedEquivN hα (evenDem_nModelDemushkin_forall α hα) hrec hram hin Hrange Hres
+    K h hev
+
+/-- **EV-1e final, `M` branch.**  The same composition; the `M` frame input additionally carries
+the attained seam. -/
+theorem ev1eFinal_orientedEquivM {α : ℕ} (hα : 2 ≤ α)
+    (hrec : EvenLevelThreeRecipSupply) (hram : EvenLevelThreeRamifiedSupply)
+    (hin : EvenLevelThreeMFrameInputSupply α)
+    (Hrange : ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+      [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)],
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM α)
+    (Hres : ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+      [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ),
+      EvenClimbResidualSupply (α - 1) (mStageWord α h (Nat.le_of_succ_le hα)) (vM α)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)))
+    (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    Nonempty (OrientedContinuousMulEquiv (chiM α h) (chiCycKTwo (K := K))) :=
+  evenAssembly_orientedEquivM hα (evenDem_mModelDemushkin_forall α hα) hrec hram hin Hrange Hres
+    K h hev
+
+/-! ## §5 Axiom pins
+
+The §1-§3 declarations are model-side and expected to be std-3 (`propext`, `Classical.choice`,
+`Quot.sound`), matching the odd precedent `isDemushkin_DSq`.  The §4 endpoints inherit whatever
+the even assembly inherits at its finite-generation station, and are expected to match
+`evenAssembly_orientedEquivN` / `…M` exactly, adding nothing: discharging a hypothesis cannot
+add axioms beyond those of the proof supplied for it, and that proof is std-3. -/
+
+#print axioms evenDem_isDemushkin_DN
+#print axioms evenDem_isDemushkin_DM
+#print axioms evenDem_demushkinRank_DN
+#print axioms evenDem_demushkinRank_DM
+#print axioms evenDem_nModelDemushkin
+#print axioms evenDem_mModelDemushkin
+#print axioms evenDem_nModelDemushkin_forall
+#print axioms evenDem_mModelDemushkin_forall
+#print axioms evenDem_nHeadExponent_even_iff
+#print axioms evenDem_mHeadExponent_even_iff
+#print axioms ev1eFinal_orientedEquivN
+#print axioms ev1eFinal_orientedEquivM
+
 end
 
 end GQ2.Dyadic.EvenDemushkin
