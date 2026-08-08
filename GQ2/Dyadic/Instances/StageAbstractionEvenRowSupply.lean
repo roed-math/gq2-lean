@@ -314,6 +314,74 @@ theorem evenRow_pin_oddDegreeGalKSq_rowSupply {n : ℕ} (v : Fin n → ℤ_[2]ˣ
 
 end OddField
 
+/-! ## §4 The row values and the image
+
+The ticket asks for the four memberships `1, -1, nUnit α, mUnit α ∈ Set.range chi` at even
+degree.  Only the first is unconditional.  The other three are **branch conditions**: the
+committed tree proves no even-degree membership at all (the odd-degree mechanism
+`chiCycKAb_recip_neg_one_of_odd_finrank` uses `N_{K/ℚ₂}(-1) = (-1)^[K:ℚ₂]`, false in even
+degree), and the campaign's own spelling of the branch is the hypothesis
+`MonoidHom.range chiCycKTwo = imChiN α` / `= imChiM α` carried by `abstractEquiv_KTwoN` /
+`abstractEquiv_KTwoM` (`GQ2/Dyadic/LabuteInterface.lean:203`, `:223`).  Under that
+hypothesis all four are immediate, and they are *incompatible across the branches*:
+`evenRow_neg_one_notMem_range_of_imChiN` shows the `M` row `-1` is not a character value on
+the `N` branch, which is the precise sense in which "the `-1` row is the `-1 ∈ im χ` branch
+condition". -/
+
+section Membership
+
+open GQ2.Dyadic.MarkedCore (mUnit nUnit imChiM imChiN neg_one_mem_imChiM mUnit_mem_imChiM)
+
+variable {G : Type} [Group G] [TopologicalSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+/-- Transfer along a pinned image. -/
+theorem evenRow_mem_range_of_mem_of_range_eq {U : Subgroup ℤ_[2]ˣ}
+    (hrange : MonoidHom.range chi.toMonoidHom = U) {u : ℤ_[2]ˣ} (hu : u ∈ U) :
+    u ∈ Set.range chi := by
+  obtain ⟨y, hy⟩ := hrange ▸ hu
+  exact ⟨y, hy⟩
+
+/-- Row value `1`, the value of every kernel (handle) row and of three of the four core rows:
+unconditional, on both branches, at every degree. -/
+theorem evenRow_one_mem_range : (1 : ℤ_[2]ˣ) ∈ Set.range chi :=
+  ⟨1, map_one chi⟩
+
+/-- Row value `-1` (the `M` core's `B` row) on the `M` branch. -/
+theorem evenRow_neg_one_mem_range_of_imChiM {α : ℕ}
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α) :
+    (-1 : ℤ_[2]ˣ) ∈ Set.range chi :=
+  evenRow_mem_range_of_mem_of_range_eq hrange (neg_one_mem_imChiM α)
+
+/-- Row value `mUnit α` (the `M` core's `D` row) on the `M` branch. -/
+theorem evenRow_mUnit_mem_range_of_imChiM {α : ℕ}
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α) :
+    mUnit α ∈ Set.range chi :=
+  evenRow_mem_range_of_mem_of_range_eq hrange (mUnit_mem_imChiM α)
+
+/-- `nUnit α` generates `imChiN α`, so it is in it. -/
+theorem evenRow_nUnit_mem_imChiN (α : ℕ) : nUnit α ∈ imChiN α :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure rfl)
+
+/-- Row value `nUnit α` (the `N` core's `x₁` row) on the `N` branch. -/
+theorem evenRow_nUnit_mem_range_of_imChiN {α : ℕ}
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α) :
+    nUnit α ∈ Set.range chi :=
+  evenRow_mem_range_of_mem_of_range_eq hrange (evenRow_nUnit_mem_imChiN α)
+
+/-- **The branch condition, where it bites.**  On the `N` branch the value `-1` is *not*
+attained (`neg_one_notMem_imChiN`, `α ≥ 2`), so an `M`-shaped row table can never be
+supplied on the `N` branch: the `-1` row is exactly the branch discriminator, and no
+statement in this file may quantify over both branches at once. -/
+theorem evenRow_neg_one_notMem_range_of_imChiN {α : ℕ} (hα2 : 2 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α) :
+    (-1 : ℤ_[2]ˣ) ∉ Set.range chi := by
+  intro hmem
+  obtain ⟨y, hy⟩ := hmem
+  exact GQ2.Dyadic.EvenNLab.neg_one_notMem_imChiN hα2 (hrange ▸ ⟨y, hy⟩)
+
+end Membership
+
 end
 
 end GQ2.Dyadic.EvenRowSupply
