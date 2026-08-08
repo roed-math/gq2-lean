@@ -594,14 +594,16 @@ section Factored
 variable {G : Type*} [Group G] {h : ℕ} (μ : Generator (2 + 2 * h) → G) (E : Zhat → ℤ)
   (E₂ : ℤ_[2] → ℤ)
 
-/-- `evalFin` of a `prodList` (the `evalFin` twin of `Words.Mpc.eval_prodListM`). -/
+/-- `evalFin` of a `prodList` (the `evalFin` twin of `Words.Mpc.eval_prodListM`).
+
+W51-HOIST dedup: this was a second copy of `GQ2.Dyadic.evalFin_prodList` (`Word/Fox.lean`),
+specialised to `Generator (2 + 2 * h)` and repeating the same list induction.  The statement is
+kept, because the three call sites below rewrite with it and depend on its eta-expanded
+right-hand side; only the proof changes, and it is now the generic lemma. -/
 theorem evalFin_prodListM :
     ∀ ws : List (PWord (Generator (2 + 2 * h))),
-      PWord.evalFin μ E E₂ (PWord.prodList ws) = (ws.map (PWord.evalFin μ E E₂ ·)).prod
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, PWord.evalFin_mul, evalFin_prodListM ws, List.map_cons,
-        List.prod_cons]
+      PWord.evalFin μ E E₂ (PWord.prodList ws) = (ws.map (PWord.evalFin μ E E₂ ·)).prod :=
+  evalFin_prodList μ E E₂
 
 /-- The displayed factorization at the `evalFin` denotation — the twin of
 `Words.Mpc.eval_mpcW_factored`, which is stated for `Marking.eval` only. -/

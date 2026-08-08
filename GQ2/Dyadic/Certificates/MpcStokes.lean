@@ -1108,6 +1108,32 @@ theorem mpcLinRow_toHom {C : Type*} [Group C] {V : Type*} [AddCommGroup V]
 
 end FormalRow
 
+/-! ### The `η = 1` datum, at every width
+
+W51-HOIST: the `η = 1` `ActsAsPow` datum is definitional, and definitional at **every** width.
+It was stated twice at fixed widths (here at `Marking 2 C`, and again in
+`Instances/MpcJetGeneral.lean` as `actsAsPow_etaOne_handles`), with the same three-line proof
+both times.  The general-width form below is that proof, once; both fixed-width statements are
+now corollaries of it and keep their names and statements. -/
+
+section EtaDatum
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The `η = 1` display acts as the first power of `σ`, at every handle count.**
+
+`EtaDisplay.one.toPWord` is the empty display, whose `evalFin` is `1 = t.σ ^ 1` on the nose, so
+the datum is definitional and no hypothesis on `t`, `E` or `E₂` enters.  The width plays no part
+in the argument, which is why pinning it at one is the thing worth removing. -/
+theorem actsAsPow_etaOne_general {h : ℕ} (t : Marking (2 + 2 * h) C) :
+    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * h))) V := by
+  intro v
+  rw [zpow_one]
+  rfl
+
+end EtaDatum
+
 /-! ### Merge gate 9 — the `ℚ₂(√−10)` procyclic row -/
 
 section Gate9
@@ -1117,12 +1143,12 @@ variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V
 
 omit [Finite C] [Finite V] in
 /-- The `η = 1` display acts as the first power of `σ` — the `hη` datum at the packet's
-`√−10` instance, where it is definitional rather than a hypothesis. -/
+`√−10` instance, where it is definitional rather than a hypothesis.
+
+Statement unchanged; the proof is now the `h = 0` case of `actsAsPow_etaOne_general`. -/
 theorem actsAsPow_etaOne :
-    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * 0))) V := by
-  intro v
-  rw [zpow_one]
-  rfl
+    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * 0))) V :=
+  actsAsPow_etaOne_general (h := 0) E E₂ t
 
 /-- **`hlinrow` at the `√−10` instance** — the input `sqrtNeg10ProductRowCert` was waiting on. -/
 theorem sqrtNeg10_hlinrow (π : AddMonoid.End V) (hV₂ : ∀ w : V, w + w = 0)
