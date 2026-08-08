@@ -184,6 +184,171 @@ end SqU5
 
 end U5Group
 
+/-! ## §2 Commutators, conjugation, powers, and the two `U₄`-quotients
+
+The two class-*three* pairings of `U₄` reappear as the `h`- and `i`-coordinates of the
+commutator, and the genuinely new object is the class-four form `u5Comm4`, the
+`(1,5)`-coordinate of `⁅p, q⁆`: linear in the class-three coordinates paired against the outer
+abelian columns, linear in the class-two coordinates paired against each other, and quartic in
+the abelian ones.  Dropping the last column or the first row gives the two `U₄`-quotients
+`toU4L`, `toU4R`; every class-`≤ 3` statement about `U₅` is a statement about them, which is
+what §3 exploits. -/
+
+section U5Calculus
+
+namespace SqU5
+
+variable {R : Type} [CommRing R]
+
+@[simp] theorem commP_a (p q : SqU5 R) : (commP p q).a = 0 := by
+  simp only [commP, mul_a, inv_a]; ring
+
+@[simp] theorem commP_b (p q : SqU5 R) : (commP p q).b = 0 := by
+  simp only [commP, mul_b, inv_b]; ring
+
+@[simp] theorem commP_c (p q : SqU5 R) : (commP p q).c = 0 := by
+  simp only [commP, mul_c, inv_c]; ring
+
+@[simp] theorem commP_d (p q : SqU5 R) : (commP p q).d = 0 := by
+  simp only [commP, mul_d, inv_d]; ring
+
+/-- The first class-two pairing: the alternating form on the `(a, b)`-columns. -/
+@[simp] theorem commP_e (p q : SqU5 R) : (commP p q).e = p.a * q.b - p.b * q.a := by
+  simp only [commP, mul_a, mul_e, inv_a, inv_b, inv_e]; ring
+
+/-- The second class-two pairing, on the `(b, c)`-columns. -/
+@[simp] theorem commP_f (p q : SqU5 R) : (commP p q).f = p.b * q.c - p.c * q.b := by
+  simp only [commP, mul_b, mul_f, inv_b, inv_c, inv_f]; ring
+
+/-- The third class-two pairing, on the `(c, d)`-columns: new at class four. -/
+@[simp] theorem commP_g (p q : SqU5 R) : (commP p q).g = p.c * q.d - p.d * q.c := by
+  simp only [commP, mul_c, mul_g, inv_c, inv_d, inv_g]; ring
+
+/-- **The left class-three commutator form**: `GradedThree`'s `u4Comm3` in the coordinates
+`(a, b, c, e, f, h)` of the first four columns. -/
+def u5Comm3L (p q : SqU5 R) : R :=
+  p.a * q.f - p.f * q.a + p.e * q.c - p.c * q.e
+    + p.a * p.c * q.b - p.a * p.b * q.c + p.c * q.a * q.b - p.b * q.a * q.c
+
+/-- **The right class-three commutator form**: `u4Comm3` in the coordinates
+`(b, c, d, f, g, i)` of the last four columns. -/
+def u5Comm3R (p q : SqU5 R) : R :=
+  p.b * q.g - p.g * q.b + p.f * q.d - p.d * q.f
+    + p.b * p.d * q.c - p.b * p.c * q.d + p.d * q.b * q.c - p.c * q.b * q.d
+
+@[simp] theorem commP_h (p q : SqU5 R) : (commP p q).h = u5Comm3L p q := by
+  simp only [commP, u5Comm3L, mul_a, mul_e, mul_h,
+    inv_a, inv_b, inv_c, inv_e, inv_f, inv_h]
+  ring
+
+@[simp] theorem commP_i (p q : SqU5 R) : (commP p q).i = u5Comm3R p q := by
+  simp only [commP, u5Comm3R, mul_b, mul_f, mul_i,
+    inv_b, inv_c, inv_d, inv_f, inv_g, inv_i]
+  ring
+
+/-- **The class-four commutator form**, the `(1,5)`-coordinate of `⁅p, q⁆`: the class-three
+coordinates paired against the outer abelian columns (`p.h·q.d − p.d·q.h`, `p.a·q.i − p.i·q.a`
+after collecting), the two extreme class-two coordinates paired against each other
+(`p.e·q.g − p.g·q.e`), plus quartic corrections in the abelian columns.  This is the whole new
+content of the class-four layer, and the source of the stage engine's linear moves. -/
+def u5Comm4 (p q : SqU5 R) : R :=
+  p.a * q.i - p.i * q.a + p.h * q.d - p.d * q.h + p.e * q.g - p.g * q.e
+    + p.a * p.g * q.b - p.a * p.b * q.g + p.g * q.a * q.b - p.b * q.a * q.g
+    + p.d * p.e * q.c - p.c * p.e * q.d + p.d * q.c * q.e - p.c * q.d * q.e
+    + p.a * p.d * q.f + p.d * q.a * q.f - p.a * p.f * q.d - p.f * q.a * q.d
+    + p.a * p.b * p.c * q.d - p.a * p.b * p.d * q.c + p.a * p.c * q.b * q.d
+    - p.a * p.d * q.b * q.c + p.c * q.a * q.b * q.d - p.d * q.a * q.b * q.c
+
+@[simp] theorem commP_j (p q : SqU5 R) : (commP p q).j = u5Comm4 p q := by
+  simp only [commP, u5Comm4, mul_a, mul_e, mul_h,
+    mul_j, inv_a, inv_b, inv_c, inv_d, inv_e, inv_f, inv_g, inv_h, inv_i, inv_j]
+  ring
+
+@[simp] theorem conjP_a (p g : SqU5 R) : (conjP p g).a = p.a := by
+  simp only [conjP, mul_a, inv_a]; ring
+
+@[simp] theorem conjP_b (p g : SqU5 R) : (conjP p g).b = p.b := by
+  simp only [conjP, mul_b, inv_b]; ring
+
+@[simp] theorem conjP_c (p g : SqU5 R) : (conjP p g).c = p.c := by
+  simp only [conjP, mul_c, inv_c]; ring
+
+@[simp] theorem conjP_d (p g : SqU5 R) : (conjP p g).d = p.d := by
+  simp only [conjP, mul_d, inv_d]; ring
+
+@[simp] theorem conjP_e (p g : SqU5 R) : (conjP p g).e = p.e + (g.b * p.a - g.a * p.b) := by
+  simp only [conjP, mul_a, mul_e, inv_a, inv_e]; ring
+
+@[simp] theorem conjP_f (p g : SqU5 R) : (conjP p g).f = p.f + (g.c * p.b - g.b * p.c) := by
+  simp only [conjP, mul_b, mul_f, inv_b, inv_f]; ring
+
+@[simp] theorem conjP_g (p g : SqU5 R) : (conjP p g).g = p.g + (g.d * p.c - g.c * p.d) := by
+  simp only [conjP, mul_c, mul_g, inv_c, inv_g]; ring
+
+@[simp] theorem conjP_h (p g : SqU5 R) :
+    (conjP p g).h = p.h + (g.a * g.b * p.c - g.a * g.c * p.b)
+      + (g.c * p.e - g.a * p.f) + (g.f * p.a - g.e * p.c) := by
+  simp only [conjP, mul_a, mul_e, mul_h, inv_a, inv_e, inv_h]
+  ring
+
+@[simp] theorem conjP_i (p g : SqU5 R) :
+    (conjP p g).i = p.i + (g.b * g.c * p.d - g.b * g.d * p.c)
+      + (g.d * p.f - g.b * p.g) + (g.g * p.b - g.f * p.d) := by
+  simp only [conjP, mul_b, mul_f, mul_i, inv_b, inv_f, inv_i]
+  ring
+
+/-- Conjugation in class four: the `(1,5)`-coordinate moves by the mixed quartic shown. -/
+theorem conjP_j (p g : SqU5 R) :
+    (conjP p g).j = p.j + (-(g.a * g.b * g.c * p.d) + g.a * g.b * g.d * p.c)
+      + (g.a * g.b * p.g - g.a * g.d * p.f + g.c * g.e * p.d - g.d * g.e * p.c)
+      + (g.a * g.f * p.d - g.a * g.g * p.b + g.d * p.h - g.e * p.g
+        + g.g * p.e - g.h * p.d + g.i * p.a - g.a * p.i) := by
+  simp only [conjP, mul_a, mul_e, mul_h, mul_j,
+    inv_a, inv_e, inv_h, inv_j]
+  ring
+
+@[simp] theorem sq_a (p : SqU5 R) : (p * p).a = 2 * p.a := by rw [mul_a]; ring
+@[simp] theorem sq_b (p : SqU5 R) : (p * p).b = 2 * p.b := by rw [mul_b]; ring
+@[simp] theorem sq_c (p : SqU5 R) : (p * p).c = 2 * p.c := by rw [mul_c]; ring
+@[simp] theorem sq_d (p : SqU5 R) : (p * p).d = 2 * p.d := by rw [mul_d]; ring
+
+/-- **The left `U₄`-quotient**: forgetting the fifth column is a group hom onto `U₄` in the
+coordinates `(a, b, c, e, f, h)`.  Every class-`≤ 3` fact about the first four columns of `U₅`
+is the corresponding `GradedThree` fact through this map. -/
+def toU4L : SqU5 R →* SqU4 R where
+  toFun p := ⟨p.a, p.b, p.c, p.e, p.f, p.h⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- **The right `U₄`-quotient**: forgetting the first row, coordinates `(b, c, d, f, g, i)`. -/
+def toU4R : SqU5 R →* SqU4 R where
+  toFun p := ⟨p.b, p.c, p.d, p.f, p.g, p.i⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+@[simp] theorem toU4L_apply (p : SqU5 R) : toU4L p = ⟨p.a, p.b, p.c, p.e, p.f, p.h⟩ := rfl
+
+@[simp] theorem toU4R_apply (p : SqU5 R) : toU4R p = ⟨p.b, p.c, p.d, p.f, p.g, p.i⟩ := rfl
+
+/-- The class-four centre, as a monoid hom from the additive group of `R`. -/
+def zHom5 : Multiplicative R →* SqU5 R where
+  toFun z := ⟨0, 0, 0, 0, 0, 0, 0, 0, 0, toAdd z⟩
+  map_one' := rfl
+  map_mul' _ _ := by ext <;> simp
+
+@[simp] theorem zHom5_j (z : Multiplicative R) : (zHom5 z).j = toAdd z := rfl
+
+/-- Central `(1,5)`-translations: multiplying by a `γ₄`-element adds to the class-four
+coordinate and moves nothing else. -/
+theorem mul_center_j (p : SqU5 R) (w : R) :
+    p * (⟨0, 0, 0, 0, 0, 0, 0, 0, 0, w⟩ : SqU5 R)
+      = ⟨p.a, p.b, p.c, p.d, p.e, p.f, p.g, p.h, p.i, p.j + w⟩ := by
+  ext <;> simp
+
+end SqU5
+
+end U5Calculus
+
 end SqCore
 
 end Dyadic
