@@ -34,37 +34,51 @@ single row value in `im chi` *forces* the `≥` half at every level
 
 ## The even-degree finding (headline)
 
-**The `≥` half is false at the even-degree images, and therefore so is
-`RowExactLevelFibreLiftSupply` itself, for every table, as soon as `α ≥ 3.**  The reason is
-structural: the lower two-central series does not restrict to subgroups.  Writing
-`U = im chi`, the supply needs `U ⊓ (1 + 2^(m+1)ℤ₂) ≤ λ_m(U)`, while for the committed even
-images
+**The `≥` half is false at the committed even-degree images, and with it
+`RowExactLevelFibreLiftSupply` itself, for every row table, as soon as `α ≥ 3`.**  The reason
+is structural: the lower two-central series does not restrict to subgroups.  Writing
+`U = im chi`, the supply needs `U ⊓ (1 + 2^(m+1)ℤ₂) ≤ chi(λ_m(G))`, whereas `chi(λ_m(G))`
+is confined to `λ_m(U)`, and for both committed even images
 
-* `imChiN α = ⟨-(1+2^α)⁻¹⟩` and `imChiM α = ⟨-1, (1-2^α)⁻¹⟩ = {±1}·(1+2^αℤ₂)`
+* `imChiN α = ⟨-(1+2^α)⁻¹⟩`  and  `imChiM α = ⟨-1, (1-2^α)⁻¹⟩`
 
-one has `λ_m(U) ⊆ 1 + 2^(m+α-1)ℤ₂`: the sharp seam is short by exactly `α - 1` digits.  At
-`α = 2` nothing is lost (and indeed `imChiM 2 = ⊤`, `imChiN 2 = ⟨-5⟩`); from `α = 3` on the
-supply fails at the very first level that uses it.  §5 proves this: from
-`mUnit α ∈ Set.range chi` and `im chi ≤ {u ≡ ±1 mod 2^α}` the supply is refuted at `m = 2`
-(the witness is the row unit `mUnit α` itself), and from `nUnit α ∈ Set.range chi` at
-`m = 3` (witness `(nUnit α)^2`).  No compactness, no campaign axioms, no surjectivity: the
-refutation is a two-line 2-adic valuation count once the depth bound is in place.
+every character value is `≡ ±1 mod 2^α` (`evenSharp_pmOne_of_mem_imChiN/M`), whence
+`chi(λ_(m+2)(G)) ≤ 1 + 2^(α+m+1)ℤ₂` (`evenSharp_map_twoCentralSeries_le`): each tower step
+gains exactly one digit, so the seam is short by `α - 1`.  At `α = 2` the bound is exactly
+the sharp modulus and nothing is lost; from `α = 3` the supply fails at the first level that
+uses it, and the failing element is a row unit of the branch itself —
+
+* `M`, level `2`: `mUnit α` (`evenRow_not_rowSupply_imChiM`), of exact depth `α`;
+* `N`, level `3`: `(nUnit α)^2` (`evenRow_not_rowSupply_imChiN`), of exact depth `α + 1`.
+
+`evenSharp_not_imageRel_imChiM/N` refute the filtration identity itself.  The refutations
+need no compactness, no surjectivity and no campaign axiom: given the pinned image they are a
+2-adic valuation count against the depth bound.  `evenRow_not_rowSupply_of_witness` is the
+general criterion, so a different even branch is refuted by exhibiting one witness.
 
 ## The corrected seam (what EV-3f should consume)
 
-§6 supplies the repaired interface, parametrised by the missing digits:
+§6 supplies the repaired interface, parametrised by the missing digits `s` (`s = α - 1`):
 
-* `evenSharp_deepChiLevel chi m s H` — the depth-`s` character shadow
-  `Q_m →* (ZMod 2^(m+s))ˣ`, defined exactly when `chi(λ_m(G)) ≤ 1 + 2^(m+s)ℤ₂`, which
-  `evenSharp_map_le_deep_of_modPair` supplies at `s = α - 1` for both even images;
+* `evenSharpDeepChiLevel chi m s H` — the depth-`s` character shadow
+  `Q_m →* (ZMod 2^(m+s))ˣ`, well defined exactly when `chi(λ_m(G)) ≤ 1 + 2^(m+s)ℤ₂`, which
+  `evenSharp_map_le_deep` supplies at `s = α - 1` for both even images;
 * `ImageRelDeepFiltrationExact s` and `EvenRowDeepFibreLiftSupply s`, with
-  `evenRow_deepRowSupply_of_imageRelDeep` the depth-`s` analogue of §2 and
-  `evenRow_rowSupply_of_deepRowSupply_one` the bridge back to the committed
+  `evenRow_deepSupply_of_imageRelDeep` the depth-`s` analogue of §2,
+  `evenRow_deepSupply_lift_quot` its coset form (the shape
+  `SharpAdmissibleCorrection.toAdmissible` consumes), and
+  `evenRow_rowSupply_of_deepSupply_one` the bridge back to the committed
   `RowExactLevelFibreLiftSupply` at `s = 1`.
 
-So the even stage climb keeps the whole architecture; what it must strengthen is the
-fresh-digit station, which has to deliver `α - 1` digits rather than one.  That is the
-single interface change EV-3f inherits from this ticket.
+So the even stage climb keeps the whole architecture; the one interface change it inherits is
+that its fresh-digit station must deliver `α - 1` digits rather than one, its sharp
+corrections must be correct modulo `2^(k+1+s)`, and its lifting seam must be
+`EvenRowDeepFibreLiftSupply (α - 1)`.  What is **owed**, and is not proved here, is that
+`s = α - 1` is also *sufficient*: `ImageRelDeepFiltrationExact (α - 1)` for the even images.
+`evenRow_deepSupply_of_powRoots` reduces it to one 2-adic statement — every unit that is `1`
+modulo `2^(m+s)` is a `2^(m-1)`-th power of a character value — which is
+`DyadicSquares.exists_deep_unit_sq` iterated together with `1 + 2^αℤ₂ ≤ im chi`.  The latter
+is an image identification, which the board deliberately keeps off the forward route.
 
 ## Numbering
 
@@ -643,6 +657,216 @@ end Criterion
 
 end Obstruction
 
+/-! ## §6 The corrected seam: depth-shifted exact lifting
+
+§5 says the even lane cannot have `RowExactLevelFibreLiftSupply`.  What it can have is the
+same statement with the fresh digit replaced by `s` fresh digits, `s = α - 1`.  Everything
+downstream of the seam is unchanged: `SharpAdmissibleCorrection.toAdmissible` and
+`TruncatedDefectReachable.toDefectReachable` consume the supply and nothing else, so EV-3f
+inherits exactly one change — its fresh-digit station must deliver `α - 1` digits instead of
+one, and its `SharpAdmissibleCorrection` rows must be correct modulo `2^(k+1+s)`.
+
+The depth is not an arbitrary safety margin: `evenSharp_map_le_deep` proves `s = α - 1` is
+*attainable* (the shadow below is well defined there), and §5 proves no smaller `s` works.
+The remaining half — that `s = α - 1` is enough, i.e. `ImageRelDeepFiltrationExact (α - 1)`
+for the even images — is reduced here to one purely 2-adic statement
+(`evenRow_deepSupply_of_powRoots`): every unit that is `1` modulo `2^(m+s)` must be a
+`2^(m-1)`-th power *of a character value*.  That is `exists_deep_unit_sq` iterated `m - 1`
+times, together with `1 + 2^αℤ₂ ≤ im chi`; both are owed, and neither is on the board's
+critical path for the forward route (the image identification is explicitly excluded there).
+-/
+
+section Deep
+
+variable {n : ℕ} {v : Fin n → ℤ_[2]ˣ}
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+/-- **The depth-`s` character shadow** `Q_m →* (ZMod 2^(m+s))ˣ`, the `sharpChiLevel` clone
+carrying `s` fresh digits instead of one.  Its side condition is exactly the easy half of the
+depth-`s` filtration identity, which `evenSharp_map_le_deep` supplies at `s = α - 1`. -/
+def evenSharpDeepChiLevel (chi : ContinuousMonoidHom G ℤ_[2]ˣ) (m s : ℕ)
+    (H : (twoCentralSeries G m).map chi.toMonoidHom ≤
+      (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker) :
+    levelQuot G m →* (ZMod (2 ^ (m + s)))ˣ :=
+  QuotientGroup.lift (twoCentralSeries G m)
+    ((Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).comp chi.toMonoidHom)
+    fun g hg ↦ MonoidHom.mem_ker.mp (H ⟨g, hg, rfl⟩)
+
+@[simp] theorem evenSharpDeepChiLevel_levelMk (chi : ContinuousMonoidHom G ℤ_[2]ˣ) (m s : ℕ)
+    (H : (twoCentralSeries G m).map chi.toMonoidHom ≤
+      (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker) (g : G) :
+    evenSharpDeepChiLevel chi m s H (levelMk G m g) =
+      Units.map (PadicInt.toZModPow (m + s)).toMonoidHom (chi g) :=
+  rfl
+
+/-- **The depth-`s` filtration identity**, the `ImageRelSharpFiltrationExact` clone.  At
+`s = 1` it is §1. -/
+structure ImageRelDeepFiltrationExact (s : ℕ)
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop where
+  /-- `chi(λ_m) = im chi ⊓ (1 + 2^(m+s)ℤ₂)` for every `m ≥ 2`. -/
+  map_twoCentralSeries_eq_range_inf_deepKernel : ∀ m, 2 ≤ m →
+    (twoCentralSeries G m).map chi.toMonoidHom =
+      MonoidHom.range chi.toMonoidHom ⊓
+        (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker
+
+/-- **The depth-`s` row supply**, stated on coset representatives so that it carries no side
+condition; `evenRow_deepSupply_lift_quot` restates it on cosets through
+`evenSharpDeepChiLevel`, which is the form the stage machinery consumes. -/
+structure EvenRowDeepFibreLiftSupply (s : ℕ) (v : Fin n → ℤ_[2]ˣ) (G : Type) [Group G]
+    [TopologicalSpace G] [IsTopologicalGroup G] (chi : ContinuousMonoidHom G ℤ_[2]ˣ) :
+    Prop where
+  /-- Exact lifting at each row target, from a representative correct to `s` extra digits. -/
+  lift : ∀ (m : ℕ), 2 ≤ m → ∀ (i : Fin n) (g : G),
+    Units.map (PadicInt.toZModPow (m + s)).toMonoidHom (chi g) =
+        Units.map (PadicInt.toZModPow (m + s)).toMonoidHom (v i) →
+      ∃ x : G, chi x = v i ∧ levelMk G m g = levelMk G m x
+
+/-- The depth-`s` analogue of `evenRow_rowSupply_of_imageRel`, with the same proof. -/
+theorem evenRow_deepSupply_of_imageRelDeep {s : ℕ}
+    (H : ImageRelDeepFiltrationExact s chi) (hv : ∀ i, v i ∈ Set.range chi) :
+    EvenRowDeepFibreLiftSupply s v G chi := by
+  constructor
+  intro m hm i g hg
+  obtain ⟨y, hy⟩ := hv i
+  have hdker : (chi g)⁻¹ * v i ∈
+      (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker := by
+    rw [MonoidHom.mem_ker, map_mul, map_inv, hg, inv_mul_cancel]
+  have hdrange : (chi g)⁻¹ * v i ∈ MonoidHom.range chi.toMonoidHom := by
+    refine ⟨g⁻¹ * y, ?_⟩
+    show chi (g⁻¹ * y) = (chi g)⁻¹ * v i
+    rw [map_mul, map_inv, hy]
+  have hmem : (chi g)⁻¹ * v i ∈ (twoCentralSeries G m).map chi.toMonoidHom := by
+    rw [H.map_twoCentralSeries_eq_range_inf_deepKernel m hm]
+    exact Subgroup.mem_inf.mpr ⟨hdrange, hdker⟩
+  obtain ⟨r, hr, hrd⟩ := hmem
+  have hrone : levelMk G m r = 1 := (QuotientGroup.eq_one_iff r).mpr hr
+  refine ⟨g * r, ?_, ?_⟩
+  · change chi r = (chi g)⁻¹ * v i at hrd
+    rw [map_mul, hrd]
+    group
+  · rw [map_mul, hrone, mul_one]
+
+/-- The coset form: this is what `SharpAdmissibleCorrection.toAdmissible` needs, with
+`evenSharpDeepChiLevel` in place of `sharpChiLevel`. -/
+theorem evenRow_deepSupply_lift_quot {s : ℕ} (H : EvenRowDeepFibreLiftSupply s v G chi)
+    (m : ℕ) (hm : 2 ≤ m)
+    (Hdef : (twoCentralSeries G m).map chi.toMonoidHom ≤
+      (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker)
+    (i : Fin n) (q : levelQuot G m)
+    (hq : evenSharpDeepChiLevel chi m s Hdef q =
+      Units.map (PadicInt.toZModPow (m + s)).toMonoidHom (v i)) :
+    ∃ x : G, chi x = v i ∧ q = levelMk G m x := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G m q
+  rw [evenSharpDeepChiLevel_levelMk] at hq
+  exact H.lift m hm i g hq
+
+/-- At `s = 1` the depth-`s` supply is the committed `RowExactLevelFibreLiftSupply`: the
+bridge back, so a future `s = 1` even instance (if some branch has `α = 2`) plugs straight
+into the committed machinery. -/
+theorem evenRow_rowSupply_of_deepSupply_one (H : EvenRowDeepFibreLiftSupply 1 v G chi) :
+    RowExactLevelFibreLiftSupply v G chi := by
+  constructor
+  intro m hm i q hq
+  obtain ⟨g, rfl⟩ := levelMk_surjective G m q
+  rw [sharpChiLevel_levelMk] at hq
+  exact H.lift m hm i g hq
+
+/-- Powers of the tower: `g^(2^(m-1)) ∈ λ_m(G)`, the mechanism by which a `2^(m-1)`-th root
+of a target produces a layer element realizing it. -/
+theorem evenSharp_pow_mem_twoCentralSeries (g : G) (m : ℕ) :
+    g ^ (2 ^ m) ∈ twoCentralSeries G (m + 1) := by
+  induction m with
+  | zero => exact Subgroup.mem_top _
+  | succ m ih =>
+    have hsq : (g ^ (2 ^ m)) ^ 2 ∈ twoCentralSeries G (m + 2) :=
+      sq_mem_twoCentralSeries_succ G ih
+    rwa [← pow_mul, ← pow_succ] at hsq
+
+/-- **The reduction of the owed half.**  The nontrivial direction of the depth-`s` identity
+follows from one purely 2-adic statement: every unit that is `1` modulo `2^(m+s)` is a
+`2^(m-1)`-th power of a character value.  For the even images this is `exists_deep_unit_sq`
+iterated `m - 1` times together with `1 + 2^αℤ₂ ≤ im chi`; both are owed, and this lemma is
+the interface at which they attach. -/
+theorem evenRow_deepSupply_of_powRoots {s : ℕ}
+    (hroot : ∀ m, 2 ≤ m → ∀ y : ℤ_[2]ˣ,
+      y ∈ (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker →
+        ∃ w : G, chi w ^ (2 ^ (m - 1)) = y)
+    (hv : ∀ i, v i ∈ Set.range chi) :
+    EvenRowDeepFibreLiftSupply s v G chi := by
+  constructor
+  intro m hm i g hg
+  obtain ⟨y, hy⟩ := hv i
+  have hdker : (chi g)⁻¹ * v i ∈
+      (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker := by
+    rw [MonoidHom.mem_ker, map_mul, map_inv, hg, inv_mul_cancel]
+  obtain ⟨w, hw⟩ := hroot m hm _ hdker
+  obtain ⟨k, rfl⟩ : ∃ k, m = k + 1 := ⟨m - 1, by omega⟩
+  refine ⟨g * w ^ (2 ^ k), ?_, ?_⟩
+  · rw [map_mul, map_pow, (by simpa using hw : chi w ^ 2 ^ k = (chi g)⁻¹ * v i)]
+    group
+  · have hone : levelMk G (k + 1) (w ^ 2 ^ k) = 1 :=
+      (QuotientGroup.eq_one_iff _).mpr (evenSharp_pow_mem_twoCentralSeries w k)
+    rw [map_mul, hone, mul_one]
+
+/-- The depth bound of §5.1, restated at the seam's indexing: for a character with values
+`≡ ±1 mod 2^α`, the depth-`(α-1)` shadow `evenSharpDeepChiLevel chi m (α-1)` is well
+defined at every level `m ≥ 2`. -/
+theorem evenSharp_map_le_deep {α : ℕ} (hα : 1 ≤ α)
+    (hbound : ∀ g : G, EvenSharpPmOne α (chi g)) (m : ℕ) (hm : 2 ≤ m) :
+    (twoCentralSeries G m).map chi.toMonoidHom ≤
+      (Units.map (PadicInt.toZModPow (m + (α - 1))).toMonoidHom).ker := by
+  obtain ⟨k, rfl⟩ : ∃ k, m = k + 2 := ⟨m - 2, by omega⟩
+  rw [show k + 2 + (α - 1) = α + k + 1 by omega]
+  exact evenSharp_map_twoCentralSeries_le hα hbound k
+
+end Deep
+
 end
 
 end GQ2.Dyadic.EvenRowSupply
+
+/-! ## Axiom pins -/
+
+#print axioms GQ2.Dyadic.EvenRowSupply.ImageRelSharpFiltrationExact
+#print axioms GQ2.Dyadic.EvenRowSupply.imageRel_map_le
+#print axioms GQ2.Dyadic.EvenRowSupply.imageRel_of_le
+#print axioms GQ2.Dyadic.EvenRowSupply.imageRel_iff_sharpCharacterFiltrationExact_of_surjective
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_rowSupply_of_imageRel
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_imageRel_le_of_rowSupply
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_rowSupply_iff
+#print axioms GQ2.Dyadic.EvenRowSupply.imageRel_of_surjective
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_rowSupply_of_surjective
+#print axioms GQ2.Dyadic.EvenRowSupply.imageRel_oddDegreeGalKSq
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_oddDegreeGalKSq_rowSupply
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_pin_oddDegreeGalKSq_rowSupply
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_mem_range_of_mem_of_range_eq
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_one_mem_range
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_neg_one_mem_range_of_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_mUnit_mem_range_of_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_nUnit_mem_imChiN
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_nUnit_mem_range_of_imChiN
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_neg_one_notMem_range_of_imChiN
+#print axioms GQ2.Dyadic.EvenRowSupply.EvenSharpPmOne
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_mem_ker_iff
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharpPmOneSubgroup
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_mem_pmOneSubgroup_iff
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_isClosed_pmOneSubgroup
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_pmOne_of_mem_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_pmOne_of_mem_imChiN
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_map_twoCentralSeries_le
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_rowSupply_of_witness
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_rowSupply_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_rowSupply_imChiN
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_not_imageRel_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_not_imageRel_imChiN
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharpDeepChiLevel
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharpDeepChiLevel_levelMk
+#print axioms GQ2.Dyadic.EvenRowSupply.ImageRelDeepFiltrationExact
+#print axioms GQ2.Dyadic.EvenRowSupply.EvenRowDeepFibreLiftSupply
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_deepSupply_of_imageRelDeep
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_deepSupply_lift_quot
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_rowSupply_of_deepSupply_one
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_pow_mem_twoCentralSeries
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_deepSupply_of_powRoots
+#print axioms GQ2.Dyadic.EvenRowSupply.evenSharp_map_le_deep
