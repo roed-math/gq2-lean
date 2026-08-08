@@ -815,6 +815,139 @@ theorem sqRelWord_sigTuple_sigma :
       SqU4.mul_c, SqU4.mul_d, SqU4.mul_e, SqU4.mul_f]
     ring
 
+set_option maxRecDepth 8000 in
+/-- ⭐⭐ **The mod-2 decomposition of the sigma-reading** (the diagnosis): under the gates and
+the odd pivot residue, `sigRead` is the four-block form plus an even remainder.  The blocks:
+`kappaV = A1*(C0+D)` reads `x.v` and `x.u` against the deviation pair `(1 + y.u, y.v)`;
+`kappa2s = A1*Q + C1*P` reads `x.w` and `x.u` against `(1 + y.u, y.w)`; the cross-coefficient
+reads `(x.v, x.w)` against `(y.w, y.v)`; and `K1 = A0*C1 + A1*C0 + A1*D + B*C1` carries every
+junk coupling.  **Every sigma-monomial has a factor from `(1 + y.u, y.v, y.w)` or `K1`**: the
+class-two-forced `x0`-gauge is `y.u` odd, `y.v`, `y.w` even, so on it only the `K1`-block can
+fire - and `K1` is the sound homs' vanishing functional. -/
+theorem sigRead_decomp (c A0 C0 A1 C1 A B C D P Q h2 : gr3R) (x y : SelConDress)
+    (hd : 2 * P + A = A1) (he : 2 * Q + C1 = C) (hc : c = 1 + 2 * h2) :
+    ∃ k : gr3R, sigRead c A0 C0 A1 C1 A B C D P Q x y
+      = A1 * (C0 + D) * (x.v * (1 + y.u) + x.u * y.v)
+        + (A1 * Q + C1 * P) * (x.w * (1 + y.u) + x.u * y.w)
+        + ((A0 + A1 + B) * Q + (C0 + C1 + D) * P) * (x.v * y.w + x.w * y.v)
+        + (A0 * C1 + A1 * C0 + A1 * D + B * C1)
+            * (x.s * (1 + y.u + y.v) + (x.r + x.t) * y.v + x.v * (y.r + y.s + y.t)
+              + x.u * y.s)
+        + 2 * k := by
+  have hA : A = A1 - 2 * P := by linear_combination hd
+  have hC : C = 2 * Q + C1 := by linear_combination -he
+  subst hA hC hc
+  simp only [sigRead]
+  refine ⟨-A0 * C0 * x.s * y.v + A0 * C0 * y.s * x.v - A0 * C0 * x.v * y.v + A0 * C1 * h2 * x.s * y.v
+    - A0 * C1 * h2 * y.s * x.v + 2 * A0 * C1 * h2 * x.v * y.v - A0 * C1 * y.r * x.v - A0 * C1 *
+    y.s * x.u - A0 * C1 * y.s * x.v - A0 * C1 * x.t * y.v + A0 * C1 * y.u * x.v + A0 * C1 * x.v
+    * y.v + A0 * C1 * x.v + A0 * D * x.s * y.v - A0 * D * y.s * x.v + A0 * D * x.v * y.v + A0 *
+    Q * x.s * y.u - A0 * Q * y.s * x.u - A0 * Q * x.t * y.v + A0 * Q * y.t * x.v + 2 * A0 * Q *
+    y.u * x.v - A0 * Q * x.v * y.w + A1 * C0 * h2 * x.s * y.v - A1 * C0 * h2 * y.s * x.v + 2 *
+    A1 * C0 * h2 * x.v * y.v - A1 * C0 * y.r * x.v - A1 * C0 * y.s * x.u - A1 * C0 * y.s * x.v -
+    A1 * C0 * x.t * y.v + A1 * C0 * x.v * y.v - 4 * A1 * C1 * h2^2 * x.v * y.v - 2 * A1 * C1 *
+    h2 * x.r * y.v + 2 * A1 * C1 * h2 * y.r * x.v + 2 * A1 * C1 * h2 * x.t * y.v - 2 * A1 * C1 *
+    h2 * y.t * x.v - 4 * A1 * C1 * h2 * y.u * x.v - 4 * A1 * C1 * h2 * x.v * y.v - 4 * A1 * C1 *
+    h2 * x.v - A1 * C1 * x.r * y.u - A1 * C1 * x.r * y.v - A1 * C1 * x.r + A1 * C1 * y.r * x.u +
+    A1 * C1 * y.r * x.v + A1 * C1 * x.t * y.u + A1 * C1 * x.t * y.v + A1 * C1 * x.t - A1 * C1 *
+    y.t * x.u - A1 * C1 * y.t * x.v - A1 * C1 * x.u * y.u - A1 * C1 * x.u - 2 * A1 * C1 * y.u *
+    x.v - A1 * C1 * x.v * y.v - 2 * A1 * C1 * x.v - A1 * D * h2 * x.s * y.v + A1 * D * h2 * y.s
+    * x.v - 2 * A1 * D * h2 * x.v * y.v - A1 * D * x.r * y.v - A1 * D * x.s * y.u - A1 * D * x.s
+    * y.v - A1 * D * x.s - A1 * D * y.t * x.v - A1 * D * x.u * y.v - A1 * D * y.u * x.v - A1 * D
+    * x.v * y.v - A1 * D * x.v + 2 * A1 * Q * h2 * x.t * y.v - 2 * A1 * Q * h2 * y.t * x.v - 4 *
+    A1 * Q * h2 * y.u * x.v + A1 * Q * h2 * x.v * y.w - A1 * Q * h2 * y.v * x.w - A1 * Q * x.r *
+    y.u + A1 * Q * y.r * x.u + 2 * A1 * Q * x.t * y.u + A1 * Q * x.t * y.v + A1 * Q * x.t - 2 *
+    A1 * Q * y.t * x.u - A1 * Q * y.t * x.v - 2 * A1 * Q * x.u * y.u - A1 * Q * x.u - 2 * A1 * Q
+    * y.u * x.v - A1 * Q * y.u * x.w - A1 * Q * y.v * x.w - A1 * Q * x.w + B * C0 * x.s * y.v -
+    B * C0 * y.s * x.v + B * C0 * x.v * y.v - B * C1 * h2 * x.s * y.v + B * C1 * h2 * y.s * x.v
+    - 2 * B * C1 * h2 * x.v * y.v - B * C1 * x.r * y.v - B * C1 * x.s * y.u - B * C1 * x.s * y.v
+    - B * C1 * x.s - B * C1 * y.t * x.v - B * C1 * y.u * x.v - B * C1 * x.v * y.v - B * C1 * x.v
+    - B * D * x.s * y.v + B * D * y.s * x.v - B * D * x.v * y.v - B * Q * x.s * y.u + B * Q *
+    y.s * x.u + B * Q * x.t * y.v - B * Q * y.t * x.v - 2 * B * Q * y.u * x.v - B * Q * y.v *
+    x.w - C0 * P * x.s * y.u + C0 * P * y.s * x.u + C0 * P * x.t * y.v - C0 * P * y.t * x.v - C0
+    * P * x.u * y.v - C0 * P * y.u * x.v - C0 * P * y.v * x.w - 2 * C1 * P * h2 * x.t * y.v + 2
+    * C1 * P * h2 * y.t * x.v + 4 * C1 * P * h2 * y.u * x.v - C1 * P * h2 * x.v * y.w + C1 * P *
+    h2 * y.v * x.w + C1 * P * x.r * y.u - C1 * P * y.r * x.u - 2 * C1 * P * x.t * y.u - C1 * P *
+    x.t * y.v - C1 * P * x.t + 2 * C1 * P * y.t * x.u + C1 * P * y.t * x.v + 2 * C1 * P * x.u *
+    y.u - C1 * P * x.u * y.w + C1 * P * x.u + 2 * C1 * P * y.u * x.v - C1 * P * x.v * y.w + D *
+    P * x.s * y.u - D * P * y.s * x.u - D * P * x.t * y.v + D * P * y.t * x.v + D * P * x.u *
+    y.v + D * P * y.u * x.v - D * P * x.v * y.w - 4 * P * Q * x.t * y.u + 4 * P * Q * y.t * x.u
+    + 4 * P * Q * x.u * y.u - 2 * P * Q * x.u * y.w + 2 * P * Q * y.u * x.w, ?_⟩
+  ring
+
+set_option maxRecDepth 8000 in
+/-- ⭐⭐ **Blindness on the class-two-forced gauge** (the negative headline): whenever the
+`x0`-slot datum is in the forced gauge - `y.u` odd, `y.v` and `y.w` even, the parities of the
+committed forced value `U^{-1}` - and the hom is sound (`K1` even), the wider slice reads
+**every** sigma-slot datum evenly: no relator verdict at any such hom can separate two
+sigma-dressings.  The `k1`-cancellation of the committed family, one level deeper. -/
+theorem sigRead_gauge_even (c A0 C0 A1 C1 A B C D P Q h2 : gr3R) (x y : SelConDress)
+    (hd : 2 * P + A = A1) (he : 2 * Q + C1 = C) (hc : c = 1 + 2 * h2)
+    {ya yb yc k1 : gr3R} (hyu : y.u = 1 + 2 * ya) (hyv : y.v = 2 * yb) (hyw : y.w = 2 * yc)
+    (hK1 : A0 * C1 + A1 * C0 + A1 * D + B * C1 = 2 * k1) :
+    ∃ k : gr3R, sigRead c A0 C0 A1 C1 A B C D P Q x y = 2 * k := by
+  obtain ⟨k, hk⟩ := sigRead_decomp c A0 C0 A1 C1 A B C D P Q h2 x y hd he hc
+  refine ⟨A1 * (C0 + D) * (x.v * (1 + ya) + x.u * yb)
+    + (A1 * Q + C1 * P) * (x.w * (1 + ya) + x.u * yc)
+    + ((A0 + A1 + B) * Q + (C0 + C1 + D) * P) * (x.v * yc + x.w * yb)
+    + k1 * (x.s * (1 + y.u + y.v) + (x.r + x.t) * y.v + x.v * (y.r + y.s + y.t) + x.u * y.s)
+    + k, ?_⟩
+  linear_combination hk
+    + (A1 * (C0 + D) * x.v + (A1 * Q + C1 * P) * x.w) * hyu
+    + (A1 * (C0 + D) * x.u + ((A0 + A1 + B) * Q + (C0 + C1 + D) * P) * x.w) * hyv
+    + ((A1 * Q + C1 * P) * x.u + ((A0 + A1 + B) * Q + (C0 + C1 + D) * P) * x.v) * hyw
+    + (x.s * (1 + y.u + y.v) + (x.r + x.t) * y.v + x.v * (y.r + y.s + y.t) + x.u * y.s) * hK1
+
+/-- The F2 core of the family-wide blindness, `u`- and `v`-channels: the `F`-gate and `K1`
+evenness alone kill the readings `kappaV * v1 + K1 * s1` and `kappaV * (1 + u1)`. -/
+private theorem sigPar_core_uv : ∀ a0 c0 a1 c1 b d u1 v1 s1 : ZMod 2,
+    c1 * (a0 + b) = 0 → a0 * c1 + a1 * c0 + a1 * d + b * c1 = 0 →
+    a1 * (c0 + d) * v1 + (a0 * c1 + a1 * c0 + a1 * d + b * c1) * s1 = 0 ∧
+    a1 * (c0 + d) * (1 + u1) = 0 := by
+  decide
+
+/-- ...and the `w`-channel: with the two admissibility parities, the `F`-gate and `K1`
+evenness, the reading `kappa2s * (1 + u1) + kappaW * v1` dies as well - the junk functionals
+`K5`, `K6` are not even needed. -/
+private theorem sigPar_core_w : ∀ a0 c0 a1 c1 b d p q u1 v1 : ZMod 2,
+    c1 * (a0 + b) = 0 → a1 * (1 + u1) + (b + a0 + a1) * v1 = 0 →
+    c1 * (1 + u1) + (d + c0 + c1) * v1 = 0 → a0 * c1 + a1 * c0 + a1 * d + b * c1 = 0 →
+    (a1 * q + c1 * p) * (1 + u1) + ((a0 + a1 + b) * q + (c0 + c1 + d) * p) * v1 = 0 := by
+  decide
+
+/-- ⭐⭐ **The family-wide blindness with the exact hypotheses** (the refutation deliverable's
+diagnosis, decided): at every binder point of the wider family that is realizable (the
+`F`-gate parity) and sound for the sigma-slot junk (`K1` even - otherwise the junk move on
+the `[sigma, V]`-generator flips the bit and the hom pins nothing), on every
+class-two-admissible `x0`-slot datum (the two parities `P1`, `P2`) with even `t`-component,
+all three sigma-reading channels of `sigRead_decomp` are even: the `u`-channel
+`kappaV*v1 + K1*s1`, the `v`-channel `kappaV*(1 + u1)`, and the `w`-channel
+`kappa2s*(1 + u1) + kappaW*v1`.  **No sound realizable hom of the wider family decides any
+sigma-coordinate on the admissible locus with `w1` even.**  The one open channel is `w1`
+odd - the escape of paragraph 6. -/
+theorem sigPar_sound_blind {a0 c0 a1 c1 b d p q u1 v1 s1 : ZMod 2}
+    (hF : c1 * (a0 + b) = 0) (hP1 : a1 * (1 + u1) + (b + a0 + a1) * v1 = 0)
+    (hP2 : c1 * (1 + u1) + (d + c0 + c1) * v1 = 0)
+    (hK1 : a0 * c1 + a1 * c0 + a1 * d + b * c1 = 0) :
+    a1 * (c0 + d) * v1 + (a0 * c1 + a1 * c0 + a1 * d + b * c1) * s1 = 0 ∧
+    a1 * (c0 + d) * (1 + u1) = 0 ∧
+    (a1 * q + c1 * p) * (1 + u1) + ((a0 + a1 + b) * q + (c0 + c1 + d) * p) * v1 = 0 :=
+  ⟨(sigPar_core_uv a0 c0 a1 c1 b d u1 v1 s1 hF hK1).1,
+    (sigPar_core_uv a0 c0 a1 c1 b d u1 v1 s1 hF hK1).2,
+    sigPar_core_w a0 c0 a1 c1 b d p q u1 v1 hF hP1 hP2 hK1⟩
+
+/-- ⭐ **The committed family can never read the `m0`-coordinate when its two even
+coefficients vanish**: `selConForm` with `kappa1 = kappa2 = 0` does not depend on `m0`.  At
+every hom of the committed family `kappa1` is even outright (`selConKappa1_even`) and at the
+canonical row type `kappa2` is even too (`selConKappa2_even01`), so the committed family is
+`m0`-blind at type `(0, 1)` - which is exactly the coordinate the escape instance of
+paragraph 6 separates. -/
+theorem selConForm_m0_blind (k3 m0 m0' n0 m1 n1 k1 m3 n3 kk3 m4 n4 k4 : ZMod 2) :
+    selConForm 0 0 k3 m0 n0 m1 n1 k1 m3 n3 kk3 m4 n4 k4
+      = selConForm 0 0 k3 m0' n0 m1 n1 k1 m3 n3 kk3 m4 n4 k4 := by
+  simp only [selConForm]
+  ring
+
 end ReadOut
 
 end SqCore
