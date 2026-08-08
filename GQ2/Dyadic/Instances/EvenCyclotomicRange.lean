@@ -455,4 +455,131 @@ theorem evenRange_classify (H : Subgroup ℤ_[2]ˣ) (hclosed : IsClosed (H : Set
 
 end Classify
 
+/-! ## §5 The three arithmetic inputs for `range chiCycKTwo`
+
+Nothing here is new mathematics; each input is a committed statement read in the shape
+section 4 wants.  The one worth naming is the deep supply: the odd-degree surjectivity proof
+of `GQ2/Dyadic/Instances/GammaLSylowPreimageFieldCore.lean` computes
+`χ_K(rec_K(u_K)) = (u^{[K:ℚ₂]})⁻¹` with no parity input at all, and spends oddness only on
+inverting `u ↦ u^{[K:ℚ₂]}`.  Keeping the identity and dropping the inversion gives
+`(ℤ₂ˣ)^{[K:ℚ₂]} ≤ range χ`, and `(ℤ₂ˣ)^{2^e·m} ⊇ 1 + 2^{e+2} ℤ₂` because odd powers are
+surjective on `ℤ₂ˣ` and `2^e`-th roots exist at depth `2 + e`. -/
+
+section Arithmetic
+
+variable {R : LocalReciprocity}
+  {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **Input 1.**  The cyclotomic range is closed: it is the continuous image of the compact
+group `G_K(2)` in the Hausdorff group `ℤ₂ˣ`. -/
+theorem evenRange_isClosed_range :
+    IsClosed ((MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom : Subgroup ℤ_[2]ˣ) :
+      Set ℤ_[2]ˣ) := by
+  rw [MonoidHom.coe_range]
+  exact (isCompact_range (chiCycKTwo (K := K)).continuous_toFun).isClosed
+
+/-- **Every `[K:ℚ₂]`-th power of a 2-adic unit is a cyclotomic value.**  This is the
+degree-free content of the odd-degree surjectivity proof: norm compatibility of the marked
+reciprocity bundle plus the reciprocity clause on units give
+`χ_K(rec_K(u_K)) = (u^{[K:ℚ₂]})⁻¹`, and no parity enters. -/
+theorem evenRange_pow_finrank_mem_range (B : MarkedRecip R K) (u : ℤ_[2]ˣ) :
+    u ^ Module.finrank ℚ_[2] K ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom := by
+  rw [GQ2.Dyadic.LSquare.range_chiCycKTwo_eq_chiCycKAb]
+  refine ⟨B.recip (GQ2.Dyadic.LSquare.baseChangedPadicUnit K u⁻¹), ?_⟩
+  rw [← chiCycAb_inclAbK, B.norm_compat, GQ2.Dyadic.LSquare.normUnitsK_baseChangedPadicUnit,
+    R.chiCyc_recip_unit, inv_pow, inv_inv]
+
+/-- **Input 2, the deep supply.**  Writing `[K:ℚ₂] = 2^e · m` with `m` odd, the cyclotomic
+range contains all principal units of level `2 + e`.  In particular it is open. -/
+theorem evenRange_prin_le_range (B : MarkedRecip R K) :
+    ∃ N : ℕ, evenRangePrin N ≤ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom := by
+  obtain ⟨e, m, hm, hd⟩ :=
+    Nat.exists_eq_two_pow_mul_odd (n := Module.finrank ℚ_[2] K) (Module.finrank_pos).ne'
+  refine ⟨2 + e, fun y hy => ?_⟩
+  have hηlv : (((isUnit_one_add_two_mul (2 : ℤ_[2])).unit : ℤ_[2]ˣ) : ℤ_[2]) - 1
+      = 2 ^ 2 * ((1 : ℤ_[2]ˣ) : ℤ_[2]) := by
+    rw [IsUnit.unit_spec]
+    norm_num
+  obtain ⟨c, hc⟩ := GQ2.Dyadic.EvenRowSupply.pivot_pow_surjective
+    (isUnit_one_add_two_mul (2 : ℤ_[2])).unit 1 2 (le_refl 2) hηlv e
+    (evenRange_mem_prin_iff.mp hy)
+  obtain ⟨x, hx⟩ := GQ2.Dyadic.LSquare.unitsPadicInt_pow_surjective_of_odd hm
+    (zpowZtwo isProP_two_unitsPadicInt (isUnit_one_add_two_mul (2 : ℤ_[2])).unit c)
+  have hx' : x ^ m
+      = zpowZtwo isProP_two_unitsPadicInt (isUnit_one_add_two_mul (2 : ℤ_[2])).unit c := hx
+  have hxy : x ^ Module.finrank ℚ_[2] K = y := by
+    rw [hd, mul_comm, pow_mul, hx', hc]
+  exact hxy ▸ evenRange_pow_finrank_mem_range B x
+
+/-- **Input 3, the mod-4 input.**  Ramification of `K(i)/K` supplies a cyclotomic value
+`≢ 1 (mod 4)`, that is, the range is not contained in `1 + 4ℤ₂`. -/
+theorem evenRange_exists_not_four_dvd (B : MarkedRecip R K)
+    (deltaI : AlgebraicClosure ℚ_[2]) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI) :
+    ∃ w ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom,
+      ¬ ((2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) - 1) := by
+  obtain ⟨q, -, hq⟩ :=
+    exists_maxProTwo_inertia_chi_modFour_ne_one_of_ramifiedI B deltaI hdeltaI hram
+  exact ⟨chiCycKTwo (K := K) q, ⟨q, rfl⟩, fun h => hq (evenRange_toZModPow_eq_one_iff.mpr h)⟩
+
+end Arithmetic
+
+/-! ## §6 The range identity
+
+The headline.  Note that the degree of `K` plays no role: the identity holds for every finite
+`K/ℚ₂` whose `K(i)` is ramified, and at odd degree it lands on the `M` branch at `α = 2`,
+where `imChiM 2 = ⊤` recovers the committed surjectivity.  The even-degree binder
+`[K:ℚ₂] = 2 + 2h` is therefore not needed and is not imposed. -/
+
+section Identity
+
+variable {R : LocalReciprocity}
+  {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The range identity, `M` branch.**  If `-1` is a cyclotomic value then the range is
+`imChiM α` for a unique `α ≥ 2`.  The ramified-`K(i)` binder is not needed here: `-1` is
+itself a witness that the range escapes `1 + 4ℤ₂`. -/
+theorem evenRange_range_eq_imChiM (B : MarkedRecip R K)
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha :=
+  evenRange_eq_imChiM_of_neg_one_mem _ evenRange_isClosed_range
+    (evenRange_prin_le_range B) hneg
+
+/-- **The range identity, `N` branch.**  If `-1` is not a cyclotomic value, then under the
+ramified-`K(i)` binder the range is `imChiN α` for a unique `α ≥ 2`. -/
+theorem evenRange_range_eq_imChiN (B : MarkedRecip R K)
+    (deltaI : AlgebraicClosure ℚ_[2]) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha :=
+  evenRange_eq_imChiN_of_neg_one_notMem _ evenRange_isClosed_range
+    (evenRange_prin_le_range B) hneg (evenRange_exists_not_four_dvd B deltaI hdeltaI hram)
+
+/-- **The range identity.**  For every finite `K/ℚ₂` with `K(i)/K` ramified, the image of the
+cyclotomic character on `G_K(2)` is exactly one of the two committed even images, at an index
+`α ≥ 2` determined by `K`, with the branch decided by `-1 ∈ range χ`. -/
+theorem evenRange_range_eq (B : MarkedRecip R K)
+    (deltaI : AlgebraicClosure ℚ_[2]) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      (MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha ∨
+        MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha) :=
+  evenRange_classify _ evenRange_isClosed_range (evenRange_prin_le_range B)
+    (evenRange_exists_not_four_dvd B deltaI hdeltaI hram)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The two branches are mutually exclusive at `α, α' ≥ 2`, so the dichotomy of
+`evenRange_range_eq` is sharp. -/
+theorem evenRange_not_both {alpha alpha' : ℕ} (halpha' : 2 ≤ alpha')
+    (hM : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (hN : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha') : False :=
+  GQ2.Dyadic.EvenNLab.neg_one_notMem_imChiN halpha' (hN ▸ hM ▸ neg_one_mem_imChiM alpha)
+
+end Identity
+
 end GQ2.Dyadic.EvenCyclotomicRange
