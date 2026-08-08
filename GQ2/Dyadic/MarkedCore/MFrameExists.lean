@@ -673,7 +673,178 @@ theorem mPhiHom_surjective : Function.Surjective (mPhiHom hα h) := by
     ring
   · exact mSurjVec_handle α a b cc d f k
 
+/-! ### §6.3 `φ_M` on the marked generators
+
+These six values *are* the six fields of `MFrame`.  Note that the `Ā`-row `mPhiHom_A` comes out
+of the construction as `(1, 0, −2^{α−1}, 0, 0)`, which is exactly what `mE_A_frame` proves any
+frame must have: the theorem and the construction agree, as they must. -/
+
+theorem coreMark_mHandleIdx {G : Type*} [Group G] {h : ℕ} (a b c d : G) (l : Fin (2 * h)) :
+    coreMark a b c d (mHandleIdx l) = 1 := by
+  rw [coreMark_apply, mHandleIdx_val, if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (by omega)]
+
+theorem mHandleMark_toAdd_core {h : ℕ} (i : Fin (coreRank h)) (hi : (i : ℕ) < 4)
+    (k : Fin (2 * h)) : (mHandleMark k (ofAdd (1 : ℤ_[2])) i).toAdd = 0 := by
+  rw [mHandleMark_core k _ hi, toAdd_one]
+
+theorem mHandleMark_toAdd_single {h : ℕ} (l k : Fin (2 * h)) :
+    (mHandleMark k (ofAdd (1 : ℤ_[2])) (mHandleIdx l)).toAdd
+      = (Pi.single l (1 : ℤ_[2]) : Fin (2 * h) → ℤ_[2]) k := by
+  rw [mHandleMark, Pi.single_apply]
+  by_cases hlk : l = k
+  · rw [if_pos (congrArg mHandleIdx hlk), if_pos hlk.symm, toAdd_ofAdd]
+  · rw [if_neg (fun hc => hlk (mHandleIdx_injective hc)), if_neg (fun hc => hlk hc.symm),
+      toAdd_one]
+
+/-- `φ_M` at a marked generator: each slot reads its own marking. -/
+theorem mPhiHom_gen (i : Fin (coreRank h)) :
+    mPhiHom hα h (abMk (dmGen α h i))
+      = ofAdd ((coreMark (ofAdd (1 : ZMod 2)) 1 1 1 i).toAdd,
+          (coreMark 1 (ofAdd (1 : ℤ_[2])) 1 1 i).toAdd,
+          (coreMark (ofAdd (-(2 : ℤ_[2]) ^ (α - 1))) 1 (ofAdd (1 : ℤ_[2])) 1 i).toAdd,
+          (coreMark 1 1 1 (ofAdd (1 : ℤ_[2])) i).toAdd,
+          fun k => (mHandleMark k (ofAdd (1 : ℤ_[2])) i).toAdd) := by
+  show ofAdd (_, _, _, _, _) = _
+  rw [mTHom, mBHom, mCHom, mDHom, mCoordHom_gen, mCoordHom_gen, mCoordHom_gen, mCoordHom_gen]
+  exact congrArg _ (congrArg _ (congrArg _ (congrArg _ (congrArg _
+    (funext fun k => by rw [mHHom, mCoordHom_gen])))))
+
+/-- **The forced `Ā`-row, from the construction**: `Ā ↦ (1, 0, −2^{α−1}, 0, 0)`, agreeing with
+`mE_A_frame`. -/
+theorem mPhiHom_A : mPhiHom hα h (abMk (dmA α h)) = ofAdd (1, 0, -(2 : ℤ_[2]) ^ (α - 1), 0, 0) := by
+  rw [dmA, mPhiHom_gen]
+  simp only [coreMark_zero, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (0 : Fin (coreRank h)) (by rw [coreVal_zero]; omega)]
+  rfl
+
+theorem mPhiHom_B : mPhiHom hα h (abMk (dmB α h)) = ofAdd (0, 1, 0, 0, 0) := by
+  rw [dmB, mPhiHom_gen]
+  simp only [coreMark_one, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (1 : Fin (coreRank h)) (by rw [coreVal_one]; omega)]
+  rfl
+
+theorem mPhiHom_C : mPhiHom hα h (abMk (dmC α h)) = ofAdd (0, 0, 1, 0, 0) := by
+  rw [dmC, mPhiHom_gen]
+  simp only [coreMark_two, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (2 : Fin (coreRank h)) (by rw [coreVal_two]; omega)]
+  rfl
+
+theorem mPhiHom_D : mPhiHom hα h (abMk (dmD α h)) = ofAdd (0, 0, 0, 1, 0) := by
+  rw [dmD, mPhiHom_gen]
+  simp only [coreMark_three, toAdd_ofAdd, toAdd_one,
+    mHandleMark_toAdd_core (3 : Fin (coreRank h)) (by rw [coreVal_three]; omega)]
+  rfl
+
+/-- `ū_j ↦` the `2j`-th handle coordinate. -/
+theorem mPhiHom_U {h : ℕ} (j : Fin h) :
+    mPhiHom hα h (abMk (dmGen α h (handleIdxU j)))
+      = ofAdd (0, 0, 0, 0, Pi.single (mHandleCoordU j) 1) := by
+  rw [← mHandleIdx_coordU j, mPhiHom_gen]
+  simp only [coreMark_mHandleIdx, toAdd_one, mHandleMark_toAdd_single]
+
+/-- `v̄_j ↦` the `(2j+1)`-st handle coordinate. -/
+theorem mPhiHom_V {h : ℕ} (j : Fin h) :
+    mPhiHom hα h (abMk (dmGen α h (handleIdxV j)))
+      = ofAdd (0, 0, 0, 0, Pi.single (mHandleCoordV j) 1) := by
+  rw [← mHandleIdx_coordV j, mPhiHom_gen]
+  simp only [coreMark_mHandleIdx, toAdd_one, mHandleMark_toAdd_single]
+
+/-- The torsion class `t = Ā·C̄₀^{2^{α−1}} ↦ (1, 0, 0, 0, 0)`: the `C̄₀`-coordinate of the
+forced `Ā`-row, `−2^{α−1}`, is cancelled by the `2^{α−1}` copies of `C̄₀`.  The `α ≥ 1`
+arithmetic `2·2^{α−1} = 2^α` is not needed here; it was spent in `mCHom`. -/
+theorem mPhiHom_t : mPhiHom hα h (abMk (dmA α h * dmC α h ^ (2 ^ (α - 1))))
+    = ofAdd (1, 0, 0, 0, 0) := by
+  rw [map_mul, map_pow, map_mul, map_pow, mPhiHom_A, mPhiHom_C, ← ofAdd_nsmul, ← ofAdd_add]
+  refine congrArg ofAdd (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (funext fun k => ?_)))))
+  · show (1 : ZMod 2) + (2 ^ (α - 1)) • (0 : ZMod 2) = 1
+    rw [smul_zero, add_zero]
+  · show (0 : ℤ_[2]) + (2 ^ (α - 1)) • (0 : ℤ_[2]) = 0
+    rw [smul_zero, add_zero]
+  · show -(2 : ℤ_[2]) ^ (α - 1) + (2 ^ (α - 1)) • (1 : ℤ_[2]) = 0
+    rw [nsmul_eq_mul]
+    push_cast
+    ring
+  · show (0 : ℤ_[2]) + (2 ^ (α - 1)) • (0 : ℤ_[2]) = 0
+    rw [smul_zero, add_zero]
+  · show (0 : ℤ_[2]) + (2 ^ (α - 1)) • (0 : ℤ_[2]) = 0
+    rw [smul_zero, add_zero]
+
 end Phi
+
+/-! ## §7 The deliverable: `Nonempty (MFrame α h)` -/
+
+/-- **The coordinate isomorphism** `φ_M : D_M^{ab} ≃ₜ* ℤ/2 × ℤ₂³ × ℤ₂^{2h}`, the general-rank
+`phiEquivR`.  A continuous bijective hom from a compact group to a Hausdorff group is a
+topological isomorphism (`continuousMulEquivOfBijective`). -/
+noncomputable def mFrameExists_phiEquiv {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    ContinuousMulEquiv (topAbelianization (DM α h : Type)) (MFrameModel h) :=
+  continuousMulEquivOfBijective ⟨mPhiHom hα h, continuous_mPhiHom hα h⟩
+    ⟨mPhiHom_injective hα h, mPhiHom_surjective hα h⟩
+
+@[simp] theorem mFrameExists_phiEquiv_apply {α : ℕ} (hα : 1 ≤ α) (h : ℕ)
+    (z : topAbelianization (DM α h : Type)) :
+    mFrameExists_phiEquiv hα h z = mPhiHom hα h z := rfl
+
+/-- **Existence of the general-`h` `M`-frame** (ticket W51-MFRAME2; the gap
+`GQ2/Dyadic/MarkedCore/MFrame.lean`'s scope note leaves open).  For **every** `α ≥ 1` and
+**every** handle count `h`, `MFrame α h` is inhabited.
+
+Together with `mFrame_isEmpty_zero` (`MFrame 0 h` is *empty*) this decides inhabitation of
+`MFrame α h` at every `(α, h)`: the frame exists iff `α ≥ 1`.  The hypothesis `1 ≤ α` is
+therefore not a defect of the construction; it is sharp.
+
+Note what is *not* assumed: no hypothesis on `D_M` beyond its definition, no `α ≥ 2`, and
+nothing about handles.  The `α ≥ 2` conditions carried by MC3's stabilizer results come from
+the shared Gram, not from the frame, exactly as `MFrame.lean` §3 says. -/
+theorem nonempty_mFrame {α : ℕ} (hα : 1 ≤ α) (h : ℕ) : Nonempty (MFrame α h) :=
+  ⟨{ e := mFrameExists_phiEquiv hα h
+     map_t := mPhiHom_t hα h
+     map_B := mPhiHom_B hα h
+     map_C := mPhiHom_C hα h
+     map_D := mPhiHom_D hα h
+     map_U := fun j => mPhiHom_U hα j
+     map_V := fun j => mPhiHom_V hα j }⟩
+
+/-- **The rank-four corollary**: MC2's `MDecomposition α` (`Cores.lean:1823`) is inhabited for
+every `α ≥ 1`, through `MFrame.toMDecomposition`.  This closes the *other* half of the scope
+note recorded at `Cores.lean` §5 ("the two `Nonempty` existence theorems are not in this
+file"), on the `M` side. -/
+theorem mFrameExists_mDecomposition {α : ℕ} (hα : 1 ≤ α) : Nonempty (MDecomposition α) :=
+  (nonempty_mFrame hα 0).map MFrame.toMDecomposition
+
+/-- **The unlock**: `demushkinQ D_M = 2` with **no frame hypothesis**, at every handle count.
+`MFrame.lean`'s `demushkinQ_DM_mFrame` carries exactly one hypothesis, the frame itself, so
+composing it with `nonempty_mFrame` is honest and leaves only `1 ≤ α`, which is sharp by
+`mFrame_isEmpty_zero`.  This is the general-`h`, hypothesis-free form of `Cores.lean`'s
+`demushkinQ_DM`. -/
+theorem mFrameExists_demushkinQ_DM {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    demushkinQ (DM α h : Type) = 2 :=
+  (nonempty_mFrame hα h).elim demushkinQ_DM_mFrame
+
+/-! ### §7.1 The `N`-side twin: a priced follow-up, not a fall-out
+
+`Nonempty (NFrame α h)` is **not** landed here, and the reason is precise rather than
+budgetary.  Everything in §§1–5 transfers to `D_N` by renaming (`nLiftHom`/`nLiftHom_gen`,
+`dn_topGen`, `nRelWord_comm`) and the `N`-frame is *easier* in one respect: it has no forced
+row, so its four core markings are the four standard basis vectors and no analogue of `mCHom`'s
+α-dependent `Ā`-entry is needed.  One step does **not** transfer.
+
+The `M` injectivity argument ends by collapsing the surviving word to `t^{c₀}` and quoting
+`dm_torsionGen_sq : t² = 1` (`Cores.lean:1813`).  On the `N` side the torsion generator is the
+marked `x̄₀`, and the corresponding fact `x̄₀² = 1` is **not in the repo**: what `dn_abRel`
+(`Cores.lean:1806`) gives is `x̄₀^{2+2^α} = 1`.  Since `2 + 2^α = 2(1 + 2^{α−1})` and
+`1 + 2^{α−1} ∈ ℤ₂ˣ` for `α ≥ 1`, `x̄₀² = 1` does follow, but only through a unit-power
+cancellation (`zpowZtwo_bijective`, `GQ2/ZtwoPowering.lean:423`) applied to `(x̄₀²)^{1+2^{α−1}}`
+in the pro-2 group `D_N^{ab}`; that is a new lemma, call it `dn_torsionGen_sq`, and it belongs
+upstream next to `dn_abRel` rather than restated here.  With that lemma in hand the `N` twin is
+the §§3–7 template with five renamed coordinate homs, priced at roughly 250 lines.
+
+**Follow-up F1** (owed): `dn_torsionGen_sq : (abMk (dnX0 α h))^2 = 1` for `α ≥ 1`, upstream in
+`Cores.lean` §5, then `nonempty_nFrame` in a file `NFrameExists.lean`.  Note the α-boundary
+differs in shape from the `M` side: at `α = 0` the `N` relation vector is `3x̄₀`, an odd
+multiple, so `x̄₀` would be *trivial* rather than 2-torsion and `NFrame 0 h` should be empty for
+a different reason than `MFrame 0 h` is. -/
 
 end MarkedCore
 
