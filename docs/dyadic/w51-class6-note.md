@@ -202,7 +202,12 @@ about 52 s.
 |---|---|---|---|---|
 | 5 | `(ℤ/32)²` | **1023 of 1023 uncleared, exhaustive** | **1023** | **0** |
 
-W50 had banked 72; this wave did the remaining 951 in 677 s.  By W50 §2.2 every selected
+**W50's two class-5 drivers did not die with the session: their output was committed.**
+`scripts/w50_depth_sweep/results/res_c5.txt` holds 42 markings and `res_c5tail.txt` holds 30,
+so **72** were already banked, two more than the 70 the W50 memo quotes (that memo was written
+while both drivers were still filling in, and it says so).  Every one of the 72 is `solvable`
+with no infeasible marking, so they were taken as done and not recomputed; this wave did the
+remaining 951 in 677 s.  By W50 §2.2 every selected
 marking at `h = 1` is `nuSel 1 0 t s` for a unique `(t,s) ∈ ℤ₂²`, and only `(t,s)` mod `2^c`
 survives in the class-`c` quotient, so sweeping all of `(ℤ/32)²` **exhausts the binder of
 `SqLamMarkTransitivity 1`** at class 5.  The class-5 row of W50's headline therefore upgrades
@@ -404,3 +409,30 @@ Measured budgets on this machine (16 cores, six Lean agents sharing it, every jo
 | tower to class 6 (bare `pQuotient`, W50's `c6size.m`) | **did not finish in ~50 min / ~700 MB** | n/a |
 | one class-5 marking, all levels | 0.5–0.9 s | n/a |
 | the 951-marking class-5 grid | 677 s | ~150 MB |
+
+---
+
+## 8.  If another wave wants to push further
+
+In descending order of expected information per CPU-hour, updating W50 §9.1 now that its items
+1 and 2 are discharged:
+
+1. **Explain the vanishing.**  This is now clearly the item that matters, and it is W50 §9.1
+   item 3, unchanged.  The corank is `d + 1` at every level of every class either handle count
+   has been measured at, and the relator's defect lands in the codimension-`(d+1)` image every
+   single time: this wave alone contributes 2800 such events at class 5, 85 at class 6, and 18
+   at `h = 2` class 5, each at odds `2^{-(d+1)}` if it were chance.  Sampling deeper is now
+   very cheap but is buying less and less; what is wanted is a proof that
+   `corank(δ_j) = d + 1` and that the defect lies in the image, presumably a Fox-derivative or
+   Jacobi identity for this relator.  §2.4's parity reduction is a small piece of exactly that
+   kind of structure and may be a way in: it says `δ` is a mod-2 object even though the marking
+   is not.
+2. **Class 7, if a number is still wanted.**  See §6; the quotient is the whole cost, and on
+   the observed scaling it is tens of CPU-hours rather than the half hour class 6 took.  The
+   marking loop itself would remain cheap.  Note that the value of another corank reading is
+   low unless item 1 has failed to produce a proof.
+3. **A second engine.**  Everything here and in W50 is Magma.  GAP/ANUPQ through `sage -gap`
+   would give an independent p-quotient, and the layer ranks `5, 14, 49, 175, 679, 2674` are a
+   cheap thing to cross-check first.
+4. **Do not** re-sample the class-5 grid or look for small-group refutations; the first is
+   exhausted (§4) and the second was closed by W50 §9.1 item 4.
