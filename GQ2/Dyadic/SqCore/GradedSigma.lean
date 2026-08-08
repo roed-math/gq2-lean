@@ -1078,6 +1078,150 @@ theorem nu_sigDressO (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
     rw [heq]
     exact nu_sigDressF hsigma hx0 i
 
+/-! ### The escape hom and the image tuples -/
+
+/-- The first gate at the escape weights. -/
+theorem sigEscD : 2 * (1 : gr3R) + (6 * 1 - 0 * 0) = 0 := by decide
+
+/-- The second gate at the escape weights. -/
+theorem sigEscE : 2 * (0 : gr3R) + (0 * 0 - 1 * 1) = -1 := by decide
+
+/-- The third gate at the escape weights. -/
+theorem sigEscF :
+    2 * (0 : gr3R) = 0 * 1 + 0 * 1 - (6 + 0) * (1 * 1 - 0 * 0) - 2 * 0 * 0 - 2 * 1 * 1 := by
+  decide
+
+variable (h j) in
+/-- **The escape hom**, at every handle count and handle: the wider-slice test hom at the
+escape weights `(A0, C0, A1, C1, A, B, C, D, P, Q, F) = (0, 1, 0, 1, 6, 0, 1, 0, 1, 0, 0)`
+and the canonical row. -/
+noncomputable def sigEscHom : ContinuousMonoidHom (DSq h : Type) (SqU4 gr3R) :=
+  sigHom h j 0 1 0 1 6 0 1 0 1 0 0 0 1 sigEscD sigEscE sigEscF
+
+@[simp] theorem sigEscHom_gen (i : Fin (sqRank h)) :
+    sigEscHom h j (sqGen h i) = sigMark h j 0 1 0 1 6 0 1 0 1 0 0 0 1 i :=
+  sigHom_gen i
+
+/-- The cleared `U` at the escape hom. -/
+theorem sigEscHom_sqEichU :
+    sigEscHom h j (sqEichU h (nuSel h j 0 1) j) = ⟨6, 0, 1, 0, 0, 0⟩ :=
+  sigHom_sqEichU_nuSel
+
+/-- The cleared `V` at the escape hom, with the pivot residue's half exhibited. -/
+theorem sigEscHom_sqEichV {h2 : gr3R} (hcp : gr3Pi sqPivotExp = 1 + 2 * h2) :
+    sigEscHom h j (sqEichV h (nuSel h j 0 1) j) = ⟨0, 0, 2 * h2, 0, 1 + 2 * h2, 0⟩ := by
+  rw [sigEscHom, sigHom_sqEichV_nuSel, hcp]
+  ext <;> simp [sigPivotVal]
+
+/-- The `t`-letter at the escape hom. -/
+theorem sigEscHom_selTee : sigEscHom h j (selTee h) = ⟨0, 0, 0, 1, 0, 6⟩ := by
+  rw [sigEscHom, sigHom_selTee]
+  decide
+
+/-- **The forced-sigma image tuple** at one handle, over the pivot half `h2`. -/
+def sigTF (h2 : gr3R) : Fin (sqRank 1) → SqU4 gr3R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨2, 1, 0, 0, 7, 0⟩ else
+    if (i : ℕ) = 1 then ⟨2, 0, 0, 1, 0, 6⟩ else
+    if (i : ℕ) = 2 then ⟨4, 0, 0, 3, 0, 1⟩ else
+    if (i : ℕ) = 3 then ⟨6, 0, 1, 0, 0, 0⟩ else ⟨0, 0, 2 * h2, 0, 1 + 2 * h2, 0⟩
+
+/-- **The trivial-sigma image tuple**: the same values with the undressed sigma-slot. -/
+def sigTO (h2 : gr3R) : Fin (sqRank 1) → SqU4 gr3R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨0, 1, 1, 0, 0, 0⟩ else
+    if (i : ℕ) = 1 then ⟨2, 0, 0, 1, 0, 6⟩ else
+    if (i : ℕ) = 2 then ⟨4, 0, 0, 3, 0, 1⟩ else
+    if (i : ℕ) = 3 then ⟨6, 0, 1, 0, 0, 0⟩ else ⟨0, 0, 2 * h2, 0, 1 + 2 * h2, 0⟩
+
+
+@[simp] theorem sigTF_zero (h2 : gr3R) : sigTF h2 0 = ⟨2, 1, 0, 0, 7, 0⟩ := by
+  simp only [sigTF, sqVal_zero]
+  norm_num
+
+@[simp] theorem sigTF_one (h2 : gr3R) : sigTF h2 1 = ⟨2, 0, 0, 1, 0, 6⟩ := by
+  simp only [sigTF, sqVal_one]
+  norm_num
+
+@[simp] theorem sigTF_two (h2 : gr3R) : sigTF h2 2 = ⟨4, 0, 0, 3, 0, 1⟩ := by
+  simp only [sigTF, sqVal_two]
+  norm_num
+
+@[simp] theorem sigTF_handleU (h2 : gr3R) : sigTF h2 (sqHandleIdxU 0) = ⟨6, 0, 1, 0, 0, 0⟩ := by
+  simp only [sigTF, sqHandleIdxU_val]
+  norm_num
+
+@[simp] theorem sigTF_handleV (h2 : gr3R) :
+    sigTF h2 (sqHandleIdxV 0) = ⟨0, 0, 2 * h2, 0, 1 + 2 * h2, 0⟩ := by
+  simp only [sigTF, sqHandleIdxV_val]
+  norm_num
+
+@[simp] theorem sigTO_zero (h2 : gr3R) : sigTO h2 0 = ⟨0, 1, 1, 0, 0, 0⟩ := by
+  simp only [sigTO, sqVal_zero]
+  norm_num
+
+@[simp] theorem sigTO_one (h2 : gr3R) : sigTO h2 1 = ⟨2, 0, 0, 1, 0, 6⟩ := by
+  simp only [sigTO, sqVal_one]
+  norm_num
+
+@[simp] theorem sigTO_two (h2 : gr3R) : sigTO h2 2 = ⟨4, 0, 0, 3, 0, 1⟩ := by
+  simp only [sigTO, sqVal_two]
+  norm_num
+
+@[simp] theorem sigTO_handleU (h2 : gr3R) : sigTO h2 (sqHandleIdxU 0) = ⟨6, 0, 1, 0, 0, 0⟩ := by
+  simp only [sigTO, sqHandleIdxU_val]
+  norm_num
+
+@[simp] theorem sigTO_handleV (h2 : gr3R) :
+    sigTO h2 (sqHandleIdxV 0) = ⟨0, 0, 2 * h2, 0, 1 + 2 * h2, 0⟩ := by
+  simp only [sigTO, sqHandleIdxV_val]
+  norm_num
+
+/-- ⭐ **The identification, forced side**: the escape hom sends the frame dressed by
+`sigDressF` to exactly `sigTF h2`.  Everything is the committed letter anchors plus the slot
+lemmas; the only input about `sqPivotExp` is its residue's half. -/
+theorem sigEscHom_frame_F {h2 : gr3R} (hcp : gr3Pi sqPivotExp = 1 + 2 * h2) :
+    (fun i => sigEscHom 1 0
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (sigDressF 1 (nuSel 1 0 0 1) 0) i)) = sigTF h2 := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqArbFrame, sqArbBase_zero, sigDressF_zero, map_mul, map_inv, sigEscHom_sqEichU,
+      dsqSigma, sigEscHom_gen, sigMark_zero, sigTF_zero]
+    decide
+  · rw [sqArbFrame, sqArbBase_one, sigDressF_one, map_mul, map_mul, map_inv,
+      sigEscHom_sqEichU, sigEscHom_selTee, dsqX0, sigEscHom_gen, sigMark_one, sigTF_one]
+    decide
+  · rw [sqArbFrame, sqArbBase_two, sigDressF_two, map_mul, map_pow, map_mul, map_inv,
+      sigEscHom_sqEichU, sigEscHom_selTee, dsqX1, sigEscHom_gen, sigMark_two, sigTF_two]
+    decide
+  · rw [Subsingleton.elim j' 0, sqArbFrame, sqArbBase_handleU,
+      sigDressF_of_ge (by rw [sqHandleIdxU_val]; omega), mul_one, sigEscHom_sqEichU,
+      sigTF_handleU]
+  · rw [Subsingleton.elim j' 0, sqArbFrame, sqArbBase_handleV,
+      sigDressF_of_ge (by rw [sqHandleIdxV_val]; omega), mul_one, sigEscHom_sqEichV hcp,
+      sigTF_handleV]
+
+/-- ⭐ **The identification, trivial side.** -/
+theorem sigEscHom_frame_O {h2 : gr3R} (hcp : gr3Pi sqPivotExp = 1 + 2 * h2) :
+    (fun i => sigEscHom 1 0
+      (sqArbFrame 1 (nuSel 1 0 0 1) 0 (sigDressO 1 (nuSel 1 0 0 1) 0) i)) = sigTO h2 := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqArbFrame, sqArbBase_zero, sigDressO_zero, mul_one, dsqSigma, sigEscHom_gen,
+      sigMark_zero, sigTO_zero]
+  · rw [sqArbFrame, sqArbBase_one, sigDressO_one, map_mul, map_mul, map_inv,
+      sigEscHom_sqEichU, sigEscHom_selTee, dsqX0, sigEscHom_gen, sigMark_one, sigTO_one]
+    decide
+  · rw [sqArbFrame, sqArbBase_two, sigDressO_two, map_mul, map_pow, map_mul, map_inv,
+      sigEscHom_sqEichU, sigEscHom_selTee, dsqX1, sigEscHom_gen, sigMark_two, sigTO_two]
+    decide
+  · rw [Subsingleton.elim j' 0, sqArbFrame, sqArbBase_handleU,
+      sigDressO_of_ge (by rw [sqHandleIdxU_val]; omega), mul_one, sigEscHom_sqEichU,
+      sigTO_handleU]
+  · rw [Subsingleton.elim j' 0, sqArbFrame, sqArbBase_handleV,
+      sigDressO_of_ge (by rw [sqHandleIdxV_val]; omega), mul_one, sigEscHom_sqEichV hcp,
+      sigTO_handleV]
+
 end Verdicts
 
 end SqCore
