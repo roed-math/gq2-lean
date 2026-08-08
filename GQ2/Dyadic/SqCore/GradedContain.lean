@@ -638,6 +638,137 @@ theorem selCon_bit (hd : 2 * P + (A * S - B * T) = 0)
 
 end BitForm
 
+/-! ## §6 ⭐⭐ The whole-binder witness
+
+The existence half of the containment: at **every** binder point the class-two forced dressing
+`a₁ = U^{−S}·V^{T}`, corrected by `T·S` times the `(−B, D)`-generator of `Λ` and nothing else,
+is class-two-admissible on the nose (all five lower rows of the relator vanish exactly) and
+has class-three residue `4·P·Q − 2·(A+B)·Q + B·C·(T+S)`, which is **even at every binder
+point**: the explicit multiples of `2` aside, its odd-candidate part is `B·C·(T+S)`, which the
+adjacency parities convert to `κ₁` plus an even term, and `κ₁` is even by
+`selConKappa1_even`.  No uncleared hypothesis is consumed anywhere in this section.  The `Λ`-
+correction is forced: at type `(1, 1)` the canonical part of the forced dressing has odd
+`(d, e)`-columns, and the `(−B, D)`-generator is exactly the achievable move that repairs
+rows four and five; at the other types the correction is even and harmless. -/
+
+section Witness
+
+variable {h : ℕ} {j : Fin h} {A B C D P Q T S : gr3R}
+
+/-- The witness datum on the `x₀`-slot: the class-two forced dressing `U^{−S}·V^{T}` with the
+`Λ`-correction `T·S · (−B, D)`. -/
+def selConWitD (T S : gr3R) : SelConDress := ⟨-S, T, 0, 0, T * S, 0, 0⟩
+
+/-- **The whole-binder witness tuple**: the forced `x₀`-slot datum, every other slot
+undressed. -/
+def selConWit (h : ℕ) (j : Fin h) (A B C D P Q T S : gr3R) : Fin (sqRank h) → SqU4 gr3R :=
+  selConTuple h j A B C D P Q T S selConTriv (selConWitD T S) selConTriv selConTriv selConTriv
+
+@[simp] theorem selConWit_zero : selConWit h j A B C D P Q T S 0 = ⟨0, 1, 0, 0, 0, 0⟩ := by
+  rw [selConWit, selConTuple_zero, selConVal_triv, mul_one]
+
+@[simp] theorem selConWit_one :
+    selConWit h j A B C D P Q T S 1
+      = ⟨B * T - A * S, 0, D * T - C * S, -(2 * (T * S * B)), S * (T * C) + T * S * D, 0⟩ := by
+  rw [selConWit, selConTuple_one]
+  ext <;> simp only [selConVal, selConWitD] <;> ring
+
+@[simp] theorem selConWit_two :
+    selConWit h j A B C D P Q T S 2 = ⟨0, 0, 0, P, Q, -((A + B) * Q)⟩ := by
+  rw [selConWit, selConTuple_two, selConVal_triv, mul_one, selConX1]
+
+@[simp] theorem selConWit_handleU :
+    selConWit h j A B C D P Q T S (sqHandleIdxU j) = ⟨A, 0, C, 0, -(T * C), 0⟩ := by
+  rw [selConWit, selConTuple_handleU, selConVal_triv, mul_one, selConU]
+
+@[simp] theorem selConWit_handleV :
+    selConWit h j A B C D P Q T S (sqHandleIdxV j) = ⟨B, 0, D, -(B * S), 0, 0⟩ := by
+  rw [selConWit, selConTuple_handleV, selConVal_triv, mul_one, selConV]
+
+theorem selConWit_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selConWit h j A B C D P Q T S (sqHandleIdxU j') = 1 := by
+  rw [selConWit, selConTuple_handleU_ne hne]
+
+theorem selConWit_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selConWit h j A B C D P Q T S (sqHandleIdxV j') = 1 := by
+  rw [selConWit, selConTuple_handleV_ne hne]
+
+/-- ⭐⭐ **The witness kills the five lower rows exactly and its residue is in closed form**:
+the relator's image at the witness tuple is central with class-three coordinate
+`4·P·Q − 2·(A+B)·Q + B·C·(T+S)`, at every binder point.  Class-two admissibility of the
+witness data is this statement's five zero rows. -/
+theorem sqRelWord_selConWit (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) :
+    sqRelWord (selConWit h j A B C D P Q T S)
+      = ⟨0, 0, 0, 0, 0, 4 * (P * Q) - 2 * ((A + B) * Q) + B * C * (T + S)⟩ := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  obtain ⟨kts, hkts⟩ := selCon_ts_even he
+  have hsUne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selConWit_handleU_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (T := T) (S := S) hne
+  have hsVne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    selConWit_handleV_ne (A := A) (B := B) (C := C) (D := D) (P := P) (Q := Q)
+      (T := T) (S := S) hne
+  have h_a : (sqRelWord (selConWit h j A B C D P Q T S)).a = 0 := by
+    rw [SqU4.sqRelWord_a, selConWit_one, selConWit_two]
+    linear_combination 4 * hd - P * h8
+  have h_b : (sqRelWord (selConWit h j A B C D P Q T S)).b = 0 := by
+    rw [SqU4.sqRelWord_b, selConWit_one, selConWit_two]
+    ring
+  have h_c : (sqRelWord (selConWit h j A B C D P Q T S)).c = 0 := by
+    rw [SqU4.sqRelWord_c, selConWit_one, selConWit_two]
+    linear_combination (-4) * he + Q * h8
+  have h_d : (sqRelWord (selConWit h j A B C D P Q T S)).d = 0 := by
+    rw [SqU4.sqRelWord_d, sqHeisDefect,
+      sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [selConWit_zero, selConWit_one, selConWit_two, selConWit_handleU,
+      selConWit_handleV, SqU4.toHeisAB_apply]
+    linear_combination hd + T * S * B * h8
+  have h_e : (sqRelWord (selConWit h j A B C D P Q T S)).e = 0 := by
+    rw [SqU4.sqRelWord_e, sqHeisDefect,
+      sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp)]
+    simp only [selConWit_zero, selConWit_one, selConWit_two, selConWit_handleU,
+      selConWit_handleV, SqU4.toHeisBC_apply]
+    linear_combination he - 4 * hkts - kts * h8
+  have h_f : (sqRelWord (selConWit h j A B C D P Q T S)).f
+      = 4 * (P * Q) - 2 * ((A + B) * Q) + B * C * (T + S) := by
+    rw [SqU4.sqRelWord_f, sqU4Defect,
+      sum_eq_at _ (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3 (selConWit h j A B C D P Q T S (sqHandleIdxU j'))
+        (selConWit h j A B C D P Q T S (sqHandleIdxV j')))
+        (fun j' hne => by rw [hsUne j' hne, hsVne j' hne]; simp [SqU4.u4Comm3])]
+    simp only [selConWit_zero, selConWit_one, selConWit_two, selConWit_handleU,
+      selConWit_handleV, sqU4Core, SqU4.u4Comm3]
+    linear_combination (14 * Q - 20 * kts) * hd
+      + (6 * P - 20 * (T * S * B) - 3 * (2 * P + (A * S - B * T))) * he
+      + (20 * P - 10 * (2 * P + (A * S - B * T))) * hkts
+      + (-4 * (P * Q) + 5 * (P * kts) + 5 * (Q * (T * S * B))) * h8
+  exact SqU4.ext h_a h_b h_c h_d h_e h_f
+
+/-- ⭐⭐ **The whole-binder existence** (deliverable 2): at every binder point the witness data
+are class-two-admissible with an **even** class-three residue, exhibited as `2 · res` with
+`res = 2·P·Q + P·C + κ₁/2`.  No uncleared hypothesis: the evenness of the residue holds on
+the entire binder, including the cleared rows. -/
+theorem selConWit_even (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) :
+    ∃ res : gr3R, sqRelWord (selConWit h j A B C D P Q T S) = ⟨0, 0, 0, 0, 0, 2 * res⟩ := by
+  obtain ⟨kk₁, hkk₁⟩ := selConKappa1_even hd he
+  refine ⟨2 * (P * Q) + P * C + kk₁, ?_⟩
+  rw [sqRelWord_selConWit hd he]
+  refine SqU4.ext rfl rfl rfl rfl rfl ?_
+  show 4 * (P * Q) - 2 * ((A + B) * Q) + B * C * (T + S) = 2 * (2 * (P * Q) + P * C + kk₁)
+  linear_combination (-C) * hd + (-(A + B)) * he + hkk₁
+
+/-- The witness data zero the selection bit, at every binder point. -/
+theorem selConWit_bit (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) :
+    selPar ((sqRelWord (selConWit h j A B C D P Q T S)).f) = 0 := by
+  obtain ⟨res, hres⟩ := selConWit_even hd he
+  rw [hres]
+  exact selPar_two_mul res
+
+end Witness
+
 end SqCore
 
 end Dyadic
