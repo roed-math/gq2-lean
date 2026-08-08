@@ -83,6 +83,7 @@ noncomputable section
 open GQ2
 open GQ2.Roe.Labute
 open GQ2.Dyadic.StageGeneric
+open scoped commutatorElement
 open GQ2.Dyadic.LSquare.SqCyclotomicStageTuple (sharpChiLevel sharpChiLevel_levelMk
   SharpUnitsFiltrationExact sharpUnitsFiltrationExact SharpCharacterFiltrationExact
   SharpExactLevelFibreLiftSupply)
@@ -381,6 +382,194 @@ theorem evenRow_neg_one_notMem_range_of_imChiN {α : ℕ} (hα2 : 2 ≤ α)
   exact GQ2.Dyadic.EvenNLab.neg_one_notMem_imChiN hα2 (hrange ▸ ⟨y, hy⟩)
 
 end Membership
+
+/-! ## §5 The even-degree obstruction
+
+This is the refutation the ticket asked to look for.  The mechanism is the failure of the
+lower two-central series to restrict to subgroups: `λ_m` of a subgroup `U ≤ ℤ₂ˣ` is in
+general strictly smaller than `U ⊓ λ_m(ℤ₂ˣ)`, and for the committed even images the defect
+is exactly `α - 1` digits.  All that is needed to see it is the easy inclusion
+`chi(λ_m(G)) ≤ λ_m(im chi)`, which §5.1 proves in the sharp form
+`chi(λ_(m+2)(G)) ≤ 1 + 2^(α+m+1)ℤ₂` under the hypothesis that every character value is
+`≡ ±1 mod 2^α` — the finite-level shadow of both `imChiM α` and `imChiN α`.  §5.3 then
+exhibits the failing element, which on each branch is a row unit of that branch. -/
+
+section Obstruction
+
+open GQ2.Dyadic.MarkedCore (mUnit nUnit imChiM imChiN mUnit_sub_one nUnit_mul nUnit_sq_sub_one)
+
+/-! ### §5.1 The `±1 mod 2^α` shadow and the depth bound -/
+
+/-- Reduction mod `2^j` detects differences up to `2^j`. -/
+private theorem toZModPow_eq_iff_dvd {j : ℕ} {x y : ℤ_[2]} :
+    PadicInt.toZModPow j x = PadicInt.toZModPow j y ↔ (2 : ℤ_[2]) ^ j ∣ x - y := by
+  rw [← sub_eq_zero, ← map_sub, ← RingHom.mem_ker, PadicInt.ker_toZModPow,
+    Ideal.mem_span_singleton]
+  norm_num
+
+private theorem toZModPow_eq_one_iff_dvd {j : ℕ} {x : ℤ_[2]} :
+    PadicInt.toZModPow j x = 1 ↔ (2 : ℤ_[2]) ^ j ∣ x - 1 := by
+  rw [← map_one (PadicInt.toZModPow (p := 2) j), toZModPow_eq_iff_dvd]
+
+private theorem toZModPow_eq_neg_one_iff_dvd {j : ℕ} {x : ℤ_[2]} :
+    PadicInt.toZModPow j x = -1 ↔ (2 : ℤ_[2]) ^ j ∣ x + 1 := by
+  rw [show (-1 : ZMod (2 ^ j)) = PadicInt.toZModPow j (-1) by rw [map_neg, map_one],
+    toZModPow_eq_iff_dvd, sub_neg_eq_add]
+
+/-- **The finite-level shadow of the even images.**  `u ≡ ±1 (mod 2^α)`; both committed even
+images satisfy it (`evenSharp_pmOne_of_mem_imChiM`, `evenSharp_pmOne_of_mem_imChiN`), and it
+is all the depth bound consumes. -/
+def EvenSharpPmOne (α : ℕ) (u : ℤ_[2]ˣ) : Prop :=
+  (2 : ℤ_[2]) ^ α ∣ (u : ℤ_[2]) - 1 ∨ (2 : ℤ_[2]) ^ α ∣ (u : ℤ_[2]) + 1
+
+/-- Membership in the sharp kernel, as a divisibility. -/
+theorem evenSharp_mem_ker_iff {j : ℕ} {u : ℤ_[2]ˣ} :
+    u ∈ (Units.map (PadicInt.toZModPow j).toMonoidHom).ker ↔
+      (2 : ℤ_[2]) ^ j ∣ (u : ℤ_[2]) - 1 := by
+  rw [mem_ker_units_toZModPow_iff]
+  norm_num
+
+/-- The units `≡ ±1 mod 2^α` are the committed `modPairSubgroup` at the involution `-1`,
+hence a closed subgroup — which is what lets the topological closures in the tower pass. -/
+def evenSharpPmOneSubgroup (α : ℕ) : Subgroup ℤ_[2]ˣ :=
+  GQ2.Dyadic.EvenNLab.modPairSubgroup α (-1) (by ring)
+
+theorem evenSharp_mem_pmOneSubgroup_iff {α : ℕ} {u : ℤ_[2]ˣ} :
+    u ∈ evenSharpPmOneSubgroup α ↔ EvenSharpPmOne α u := by
+  rw [evenSharpPmOneSubgroup, GQ2.Dyadic.EvenNLab.mem_modPairSubgroup, EvenSharpPmOne,
+    toZModPow_eq_one_iff_dvd, toZModPow_eq_neg_one_iff_dvd]
+
+theorem evenSharp_isClosed_pmOneSubgroup (α : ℕ) :
+    IsClosed ((evenSharpPmOneSubgroup α : Subgroup ℤ_[2]ˣ) : Set ℤ_[2]ˣ) :=
+  GQ2.Dyadic.EvenNLab.isClosed_modPairSubgroup _ _ _
+
+/-- The `M` image is `≡ ±1 mod 2^α`: its two generators are `-1` and `mUnit α`, and
+`mUnit α - 1 = 2^α · mUnit α`. -/
+theorem evenSharp_pmOne_of_mem_imChiM {α : ℕ} (hα : 1 ≤ α) {u : ℤ_[2]ˣ}
+    (hu : u ∈ imChiM α) : EvenSharpPmOne α u := by
+  refine evenSharp_mem_pmOneSubgroup_iff.mp ?_
+  refine Subgroup.topologicalClosure_minimal _ ?_ (evenSharp_isClosed_pmOneSubgroup α) hu
+  rw [Subgroup.closure_le]
+  rintro w (rfl | rfl)
+  · exact evenSharp_mem_pmOneSubgroup_iff.mpr (Or.inr (by simp))
+  · exact evenSharp_mem_pmOneSubgroup_iff.mpr (Or.inl ⟨(mUnit α : ℤ_[2]), mUnit_sub_one hα⟩)
+
+/-- The `N` image is `≡ ±1 mod 2^α`: its generator satisfies `nUnit α · (1 + 2^α) = -1`,
+so `nUnit α + 1 = -2^α · nUnit α`. -/
+theorem evenSharp_pmOne_of_mem_imChiN {α : ℕ} (hα : 1 ≤ α) {u : ℤ_[2]ˣ}
+    (hu : u ∈ imChiN α) : EvenSharpPmOne α u := by
+  refine evenSharp_mem_pmOneSubgroup_iff.mp ?_
+  refine Subgroup.topologicalClosure_minimal _ ?_ (evenSharp_isClosed_pmOneSubgroup α) hu
+  rw [Subgroup.closure_le]
+  rintro w rfl
+  refine evenSharp_mem_pmOneSubgroup_iff.mpr (Or.inr ⟨-((nUnit α : ℤ_[2]ˣ) : ℤ_[2]), ?_⟩)
+  have h := nUnit_mul (α := α) hα
+  linear_combination h
+
+/-- Squaring gains exactly one digit off a `±1` congruence: `(±1 + 2^j a)^2 = 1 + 2^(j+1)(…)`.
+This single step is what makes the tower lose ground against the sharp filtration. -/
+private theorem evenSharp_dvd_sq_sub_one {j : ℕ} (hj : 1 ≤ j) {u : ℤ_[2]ˣ}
+    (hu : EvenSharpPmOne j u) :
+    (2 : ℤ_[2]) ^ (j + 1) ∣ ((u ^ 2 : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  have hfac : ((u ^ 2 : ℤ_[2]ˣ) : ℤ_[2]) - 1 = ((u : ℤ_[2]) - 1) * ((u : ℤ_[2]) + 1) := by
+    push_cast
+    ring
+  have hstep : ∀ w : ℤ_[2], (2 : ℤ_[2]) ^ j ∣ w → (2 : ℤ_[2]) ∣ w := fun w hw ↦
+    (dvd_pow_self (2 : ℤ_[2]) (by omega : j ≠ 0)).trans hw
+  rcases hu with h | h
+  · obtain ⟨c, hc⟩ := hstep _ h
+    rw [hfac, pow_succ]
+    exact mul_dvd_mul h ⟨c + 1, by linear_combination hc⟩
+  · obtain ⟨c, hc⟩ := hstep _ h
+    rw [hfac, show (2 : ℤ_[2]) ^ (j + 1) = 2 * 2 ^ j by ring]
+    exact mul_dvd_mul ⟨c - 1, by linear_combination hc⟩ h
+
+section DepthBound
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+/-- Images of topological closures stay inside closed targets. -/
+private theorem evenSharp_map_topologicalClosure_le {S : Subgroup G} {T : Subgroup ℤ_[2]ˣ}
+    (hT : IsClosed (T : Set ℤ_[2]ˣ)) (hS : S.map chi.toMonoidHom ≤ T) :
+    S.topologicalClosure.map chi.toMonoidHom ≤ T := by
+  rintro _ ⟨x, hx, rfl⟩
+  refine closure_minimal ?_ hT
+    (image_closure_subset_closure_image chi.continuous_toFun ⟨x, hx, rfl⟩)
+  rintro _ ⟨w, hw, rfl⟩
+  exact hS ⟨w, hw, rfl⟩
+
+/-- One step of the tower gains one digit. -/
+private theorem evenSharp_map_twoCentralSucc_le {A : Subgroup G} {j : ℕ} (hj : 1 ≤ j)
+    (hA : ∀ g ∈ A, EvenSharpPmOne j (chi g)) :
+    (twoCentralSucc A).map chi.toMonoidHom ≤
+      (Units.map (PadicInt.toZModPow (j + 1)).toMonoidHom).ker := by
+  refine evenSharp_map_topologicalClosure_le (isClosed_ker_units_toZModPow (j + 1)) ?_
+  rw [Subgroup.map_le_iff_le_comap]
+  refine sup_le ?_ ?_
+  · rw [Subgroup.closure_le]
+    rintro _ ⟨w, hw, rfl⟩
+    show chi (w ^ 2) ∈ (Units.map (PadicInt.toZModPow (j + 1)).toMonoidHom).ker
+    rw [map_pow, evenSharp_mem_ker_iff]
+    exact evenSharp_dvd_sq_sub_one hj (hA w hw)
+  · rw [Subgroup.commutator_le]
+    intro a _ b _
+    show chi ⁅a, b⁆ ∈ (Units.map (PadicInt.toZModPow (j + 1)).toMonoidHom).ker
+    rw [map_commutatorElement, commutatorElement_eq_one_iff_mul_comm.mpr (mul_comm _ _)]
+    exact one_mem _
+
+/-- **The depth bound.**  If every character value is `≡ ±1 (mod 2^α)` then the character
+image of the level-`(m+2)` layer is `≡ 1 (mod 2^(α+m+1))`.  Against the sharp filtration,
+which asks for the modulus `2^(m+3)` at that level, this is *deeper* by `α - 1` digits — and
+the gap is what the row supply cannot bridge. -/
+theorem evenSharp_map_twoCentralSeries_le {α : ℕ} (hα : 1 ≤ α)
+    (hbound : ∀ g : G, EvenSharpPmOne α (chi g)) (m : ℕ) :
+    (twoCentralSeries G (m + 2)).map chi.toMonoidHom ≤
+      (Units.map (PadicInt.toZModPow (α + m + 1)).toMonoidHom).ker := by
+  induction m with
+  | zero =>
+    rw [twoCentralSeries_succ G (le_refl 1)]
+    exact evenSharp_map_twoCentralSucc_le hα fun g _ ↦ hbound g
+  | succ m ih =>
+    rw [twoCentralSeries_succ G (by omega : 1 ≤ m + 2)]
+    exact evenSharp_map_twoCentralSucc_le (by omega)
+      fun g hg ↦ Or.inl (evenSharp_mem_ker_iff.mp (ih ⟨g, hg, rfl⟩))
+
+end DepthBound
+
+/-! ### §5.2 The refutation criterion -/
+
+section Criterion
+
+variable {n : ℕ} {v : Fin n → ℤ_[2]ˣ}
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+/-- **The criterion.**  A character value `u` which is `1` modulo `2^(m+1)` but is not in
+`chi(λ_m(G))` refutes the row supply outright, at any table having one row value in the
+image.  This is the §2 converse read contrapositively; nothing about `G` is used beyond the
+character. -/
+theorem evenRow_not_rowSupply_of_witness (i : Fin n) (hvi : v i ∈ Set.range chi)
+    {m : ℕ} (hm : 2 ≤ m) {u : ℤ_[2]ˣ} (hu : u ∈ Set.range chi)
+    (huker : u ∈ (Units.map (PadicInt.toZModPow (m + 1)).toMonoidHom).ker)
+    (hnot : u ∉ (twoCentralSeries G m).map chi.toMonoidHom) :
+    ¬ RowExactLevelFibreLiftSupply v G chi := fun H ↦
+  hnot (evenRow_imageRel_le_of_rowSupply H i hvi m hm
+    (Subgroup.mem_inf.mpr ⟨(by obtain ⟨y, hy⟩ := hu; exact ⟨y, hy⟩), huker⟩))
+
+/-- The exact-depth witness: `2^(j+1)` never divides `2^j` times a unit. -/
+private theorem evenSharp_not_dvd_pow_succ_mul_unit {j : ℕ} (b : ℤ_[2]ˣ) :
+    ¬ (2 : ℤ_[2]) ^ (j + 1) ∣ (2 : ℤ_[2]) ^ j * (b : ℤ_[2]) := by
+  rintro ⟨c, hc⟩
+  have hb : (b : ℤ_[2]) = 2 * c := by
+    refine mul_left_cancel₀ (pow_ne_zero j (two_ne_zero (α := ℤ_[2]))) ?_
+    rw [hc]
+    ring
+  exact not_isUnit_two (isUnit_of_mul_isUnit_left (hb ▸ b.isUnit))
+
+end Criterion
+
+end Obstruction
 
 end
 
