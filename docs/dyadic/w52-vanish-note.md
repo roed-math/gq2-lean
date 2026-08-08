@@ -61,7 +61,7 @@ Frobenius in the `x₁` slot only.  (The committed `sqRelWord_selRefine` already
 * **The codimension bookkeeping** now reads: corank `d + 1` in `L_{j+1}` = codimension 2 of
   `K_{j+1}` plus codimension `d − 1` of `im δ` **inside** `K_{j+1}`.  The measured numbers
   agree at every level either handle count was measured at: `47−43 = 173−169 = 677−673 =
-  2672−2668 = 4 = d−1` at `h = 1`, and `130−124 = 6 = d−1` at `h = 2`. |
+  2672−2668 = 4 = d−1` at `h = 1`, and `130−124 = 6 = d−1` at `h = 2`.
 
 ### 1.3  The kernel identity (Jacobi/Fox)
 
@@ -103,7 +103,7 @@ with the formula row `[b, β_i]·(b² if x₁-slot)`:
 
 Also at every (marking, level): `im δ ⊆ K_{j+1}` **true**, defect `∈ K_{j+1}` **true**, and
 the conjugation family evaluated through the formula vanished for every basis `c` (0
-failures in 204 instances).  The K-generating-set certificates of W51 §2.2 were asserted
+failures in 329 instances).  The K-generating-set certificates of W51 §2.2 were asserted
 throughout.  Random words: the general-`W` form (Fox rows by the walker) matched the honest
 rows on every random word that reached stage B (`form-mism 0` in `w52rand_c4.txt`).
 
