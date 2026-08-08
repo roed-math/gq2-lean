@@ -340,6 +340,85 @@ noncomputable def sigWitHom : ContinuousMonoidHom (DSq 1 : Type) (SqU4 gr3R) :=
 
 end InstanceMark
 
+/-! ## 2 The hom-level anchors
+
+The note's cost 1, discharged: the `x0`-slot image `(A1, 0, C1, 0, 0, 0)` satisfies all three
+flatness conditions of the committed `SqU4.zpowZtwo_of_flat` (its `b`-column vanishes), so the
+pivot image is exact, `sqPivotExp`-dependent only through the single scalar
+`c = gr3Pi sqPivotExp` - an odd unit, carried below as a parameter with its half exhibited.
+At the exact canonical row `nu' = nuSel h j 0 1` the two cleared letters need no non-flat
+power at all: `nu'(u_j) = 0` and `nu'(v_j) = 1` on the nose, so `U` maps to the raw handle
+value and `V` to the handle value times the inverse pivot image.  The non-flat binomial layer
+(needed for rows that are only *residually* `(0, 1)`) is deliberately out of scope; see the
+scope note in paragraph 6. -/
+
+section Anchors
+
+variable {h : ℕ} {j : Fin h} {A0 C0 A1 C1 A B C D P Q F T S : gr3R}
+variable {hd : 2 * P + (A * S - B * T) = A1} {he : 2 * Q + (T * D - S * C) = -C1}
+variable {hf : 2 * F = A0 * C1 + A1 * C1 - (A + B) * (C * S - D * T) - 2 * A1 * Q - 2 * C1 * P}
+
+/-- **The `x0`-slot image is flat**, so its `Z_2`-powers are linear (the committed
+`SqU4.zpowZtwo_of_flat` applies: `b = 0` kills all three obstructions). -/
+theorem sig_zpow_x0 (u : ℤ_[2]) :
+    zpowZtwo isProP_two_gr3 (⟨A1, 0, C1, 0, 0, 0⟩ : SqU4 gr3R) u
+      = ⟨gr3Pi u * A1, 0, gr3Pi u * C1, 0, 0, 0⟩ := by
+  rw [SqU4.zpowZtwo_of_flat isProP_two_gr3 gr3Pi gr3Pi_open (by ring) (by ring) (by ring)]
+  ext <;> simp
+
+/-- **The pivot value** of the wider slice at pivot-exponent residue `c`: the image of
+`w = sigma * x0^{-c}`. -/
+def sigPivotVal (c A0 C0 A1 C1 : gr3R) : SqU4 gr3R :=
+  ⟨A0 - c * A1, 1, C0 - c * C1, 0, -(c * C1), 0⟩
+
+/-- ⭐ **The pivot image, exactly** (the note's cost 1): the `sqPivotExp`-dependence returns,
+but only through the residue `c = gr3Pi sqPivotExp`. -/
+theorem sigHom_sqPivot :
+    sigHom h j A0 C0 A1 C1 A B C D P Q F T S hd he hf (sqPivot h)
+      = sigPivotVal (gr3Pi sqPivotExp) A0 C0 A1 C1 := by
+  rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
+    map_zpowZtwo (isProP_DSq h) isProP_two_gr3, dsqX0, sigHom_gen, sigMark_one, sig_zpow_x0,
+    dsqSigma, sigHom_gen, sigMark_zero]
+  ext <;> simp [sigPivotVal] <;> ring
+
+/-- The pivot-exponent residue is an **odd unit**: its half `h2` exists.  Every instance
+statement below is quantified over `h2`, so the two-residue mitigation of the note is
+automatic: the gate is run at all odd values at once. -/
+theorem gr3Pi_sqPivotExp_half : ∃ h2 : gr3R, gr3Pi sqPivotExp = 1 + 2 * h2 := by
+  obtain ⟨u, hu⟩ := isUnit_sqPivotExp.map (gr3Pi : ℤ_[2] →+* gr3R)
+  have hall : ∀ u : gr3Rˣ, ∃ h2 : gr3R, (u : gr3R) = 1 + 2 * h2 := by decide
+  rw [← hu]
+  exact hall u
+
+/-- ⭐ **The cleared `U` at the exact canonical row**: `nu'(u_j) = 0` on the nose, so no pivot
+power is subtracted and `U` maps to the raw handle value - at every weight tuple of the
+family. -/
+theorem sigHom_sqEichU_nuSel :
+    sigHom h j A0 C0 A1 C1 A B C D P Q F T S hd he hf (sqEichU h (nuSel h j 0 1) j)
+      = ⟨A, T, C, 0, 0, 0⟩ := by
+  rw [sqEichU, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr3, nuSel_handleU,
+    toAdd_ofAdd, zpowZtwo_zero_exp, inv_one, one_mul, sigHom_gen, sigMark_handleU]
+
+/-- ⭐ **The cleared `V` at the exact canonical row**: `nu'(v_j) = 1` on the nose, so exactly
+one inverse pivot is subtracted - a single group inverse, no `Z_2`-power machinery. -/
+theorem sigHom_sqEichV_nuSel :
+    sigHom h j A0 C0 A1 C1 A B C D P Q F T S hd he hf (sqEichV h (nuSel h j 0 1) j)
+      = ⟨B, S, D, 0, 0, 0⟩ * (sigPivotVal (gr3Pi sqPivotExp) A0 C0 A1 C1)⁻¹ := by
+  rw [sqEichV, map_mul, map_inv, map_zpowZtwo (isProP_DSq h) isProP_two_gr3, nuSel_handleV,
+    toAdd_ofAdd, zpowZtwo_one_exp, sigHom_sqPivot, sigHom_gen, sigMark_handleV]
+
+/-- ⭐ The image of the order-two class `t = x1 * x0^{-2}` on the wider slice: still
+`gamma_2`-shaped with `(d, e) = (P, Q)`, but its class-three coordinate now reads the
+`x0`-weight: `F - 2*C1*P`. -/
+theorem sigHom_selTee :
+    sigHom h j A0 C0 A1 C1 A B C D P Q F T S hd he hf (selTee h)
+      = ⟨0, 0, 0, P, Q, F - 2 * (C1 * P)⟩ := by
+  rw [selTee, map_mul, map_inv, map_mul, dsqX1, dsqX0, sigHom_gen, sigHom_gen, sigMark_two,
+    sigMark_one]
+  ext <;> simp <;> ring
+
+end Anchors
+
 end SqCore
 
 end Dyadic
