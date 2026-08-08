@@ -5,6 +5,8 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.EvenModelDemushkin
 import GQ2.Dyadic.Instances.StageAbstractionEvenAssembly
+import GQ2.Dyadic.MarkedCore.MFrameExists
+import GQ2.Dyadic.MarkedCore.NFrameExists
 
 /-!
 # W52-EV1E: the model Demushkin package, audited, and hypothesis 1 of the assembly discharged
@@ -204,10 +206,39 @@ theorem evenDem_mHeadExponent_even_iff (α : ℕ) : (∃ k, 2 ^ α = 2 * k) ↔ 
     obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
     exact ⟨2 ^ j, by rw [pow_succ]; ring⟩
 
+/-! ### The `α = 1` asymmetry, machine-checked
+
+The two rows are *not* symmetric at `α = 1`, and the committed frame layer already says so
+without any Gram computation.  The three statements below are the evidence, restated here from
+`MFrameExists.lean` and `NFrameExists.lean` so that the residual `Prop`s that follow are read
+against a fact rather than against an expectation: at `α = 1` the `M` core still has a frame, and
+with it a computed `q`-invariant, while the `N` core provably has none.  This is exactly the
+asymmetry pattern to expect of R1 and R2, and it is why R2 is stated in the positive direction
+and R1 in the negative. -/
+
+/-- **The `M` core keeps its `q`-invariant at `α = 1`.**  `MFrame` exists from `1 ≤ α` on, so the
+torsion count goes through at `α = 1` unchanged.  The `M` row is therefore not obviously damaged
+at the Gram threshold, only unproved there. -/
+theorem evenDem_demushkinQ_DM_alphaOne (h : ℕ) : demushkinQ (DM 1 h : Type) = 2 :=
+  mFrameExists_demushkinQ_DM le_rfl h
+
+/-- **The `N` core has no frame at `α = 1`.**  `NFrame 1 h` is *empty*: the `N` abelianization at
+`α = 1` is not `ℤ/2 ⊕ ℤ₂ ^ (3 + 2h)`, because the head exponent `2 + 2 ^ 1 = 4` puts the torsion
+generator in the wrong place.  This is a committed theorem, not a conjecture, and it is the
+structural reason to expect R1. -/
+theorem evenDem_nFrame_isEmpty_alphaOne (h : ℕ) : IsEmpty (NFrame 1 h) :=
+  nFrameExists_isEmpty_one h
+
+/-- **The `N` frame threshold, exactly.**  `2 ≤ α` is not conservative on the `N` row: it is
+equivalent to the frame existing at all.  Contrast `nonempty_mFrame`, which needs only `1 ≤ α`. -/
+theorem evenDem_nFrame_nonempty_iff (α h : ℕ) : Nonempty (NFrame α h) ↔ 2 ≤ α :=
+  nFrameExists_nonempty_iff α h
+
 /-- **Residual R1 (`N` at `α = 1`).**  The route skeleton asserts that the `α = 1` `N` core is
 *not* Demushkin: the head exponent is `2 + 2 ^ 1 = 4 ≡ 0 (mod 4)`, so its Gram diagonal entry
-dies and the mod-`2` quadratic initial form degenerates.  Nothing in the committed development
-decides this, in either direction.
+dies and the mod-`2` quadratic initial form degenerates.  `evenDem_nFrame_isEmpty_alphaOne` is
+independent corroboration from the abelianization side.  Nothing in the committed development
+decides the Demushkin question itself, in either direction.
 
 Cost to close: the `α = 1` `N` Gram has to be computed afresh (the committed
 `diagCoeff_two_pow` route needs `2 ≤ α`), and then exhibited as *degenerate*, which additionally
@@ -218,7 +249,8 @@ def EvenDemResidualAlphaOneN : Prop := ∀ h : ℕ, ¬ IsDemushkin 2 (DN 1 h : T
 /-- **Residual R2 (`M` at `α = 1`).**  The asymmetry candidate.  At `α = 1` the `M` row does not
 lose its head diagonal entry; it *gains* a second one at slot `2`, from `c ^ (2 ^ α) = c ²`.  A
 Gram with more diagonal entries is not obviously degenerate, so the `M` core may well be
-Demushkin at `α = 1` even if R1 holds and the `N` core is not.  Undecided here.
+Demushkin at `α = 1` even if R1 holds and the `N` core is not.  `evenDem_demushkinQ_DM_alphaOne`
+shows the `M` row still has its `q`-invariant there, which is consistent.  Undecided here.
 
 Cost to close: the `α = 1` `M` Gram, then either its inverse (giving `IsDemushkin` by the §2
 dual-vector pattern, unchanged) or a kernel vector.  Estimate: half a lane, and strictly easier
@@ -307,6 +339,9 @@ add axioms beyond those of the proof supplied for it, and that proof is std-3. -
 #print axioms evenDem_mModelDemushkin_forall
 #print axioms evenDem_nHeadExponent_even_iff
 #print axioms evenDem_mHeadExponent_even_iff
+#print axioms evenDem_demushkinQ_DM_alphaOne
+#print axioms evenDem_nFrame_isEmpty_alphaOne
+#print axioms evenDem_nFrame_nonempty_iff
 #print axioms ev1eFinal_orientedEquivN
 #print axioms ev1eFinal_orientedEquivM
 
