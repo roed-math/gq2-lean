@@ -1,0 +1,46 @@
+W51 corank probe -- class 5, markings [
+[ 0, 1 ],
+[ 1, 1 ],
+[ 3, 5 ]
+], verify 1
+Q_5 : order 2^922, layers [ 5, 14, 49, 175, 679 ]  (build 0.010 s, extract+series 15.770 s, mem 96 MB)
+pc generators are weight graded, P_w = tail subgroup .. OK
+   coord cross-check L1 (Eltseq vs quo map): 0 mismatches in 25
+   coord cross-check L2 (Eltseq vs quo map): 0 mismatches in 25
+   coord cross-check L3 (Eltseq vs quo map): 0 mismatches in 25
+   coord cross-check L4 (Eltseq vs quo map): 0 mismatches in 25
+   coord cross-check L5 (Eltseq vs quo map): 0 mismatches in 25
+
+marking | level | target | domain | rank | corank | defect in im | cert | secs
+--------+-------+--------+--------+------+--------+--------------+------+------
+  (t,s) = (0,1): K-layer dims [ 3, 12, 47, 173 ] of [ 5, 14, 49, 175 ], cert [ true, true, true, true ], built in 0.030 s
+   verify: Index(Q,K) = 4^5 ? true
+   verify L1: dim(K meet P_1 layer) = 3, gen-set dim = 3, spans equal: true  (0.000 s)
+   verify L2: dim(K meet P_2 layer) = 12, gen-set dim = 12, spans equal: true  (6.440 s)
+   verify L3: dim(K meet P_3 layer) = 47, gen-set dim = 47, spans equal: true  (6.150 s)
+   verify L4: dim(K meet P_4 layer) = 173, gen-set dim = 173, spans equal: true  (5.300 s)
+ 0  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | 0.000
+ 0  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | 0.050
+ 0  1   |  L5   |    679 |    865 |  673 |      6 | true         | true | 0.420
+   (t,s) = (0,1): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (1,1): K-layer dims [ 3, 12, 47, 173 ] of [ 5, 14, 49, 175 ], cert [ true, true, true, true ], built in 0.020 s
+   verify: Index(Q,K) = 4^5 ? true
+   verify L1: dim(K meet P_1 layer) = 3, gen-set dim = 3, spans equal: true  (0.000 s)
+   verify L2: dim(K meet P_2 layer) = 12, gen-set dim = 12, spans equal: true  (7.640 s)
+   verify L3: dim(K meet P_3 layer) = 47, gen-set dim = 47, spans equal: true  (6.870 s)
+   verify L4: dim(K meet P_4 layer) = 173, gen-set dim = 173, spans equal: true  (5.900 s)
+ 1  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | 0.020
+ 1  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | 0.110
+ 1  1   |  L5   |    679 |    865 |  673 |      6 | true         | true | 0.640
+   (t,s) = (1,1): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (3,5): K-layer dims [ 3, 12, 47, 173 ] of [ 5, 14, 49, 175 ], cert [ true, true, true, true ], built in 0.030 s
+   verify: Index(Q,K) = 4^5 ? true
+   verify L1: dim(K meet P_1 layer) = 3, gen-set dim = 3, spans equal: true  (0.010 s)
+   verify L2: dim(K meet P_2 layer) = 12, gen-set dim = 12, spans equal: true  (7.600 s)
+   verify L3: dim(K meet P_3 layer) = 47, gen-set dim = 47, spans equal: true  (6.750 s)
+   verify L4: dim(K meet P_4 layer) = 173, gen-set dim = 173, spans equal: true  (6.050 s)
+ 3  5   |  L3   |     49 |     60 |   43 |      6 | true         | true | 0.020
+ 3  5   |  L4   |    175 |    235 |  169 |      6 | true         | true | 0.110
+ 3  5   |  L5   |    679 |    865 |  673 |      6 | true         | true | 0.660
+   (t,s) = (3,5): R(m) = 1 in Q_5  -- solvable
+DONE

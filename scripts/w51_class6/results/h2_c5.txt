@@ -1,0 +1,44 @@
+W51 h=2 corank probe -- class 5, markings [
+[ 0, 1 ],
+[ 1, 0 ],
+[ 1, 1 ],
+[ 0, 2 ],
+[ 2, 1 ],
+[ 3, 5 ]
+]
+Q_5 : order 2^4534, layers [ 7, 27, 132, 672, 3696 ]  (build 0.230 s, total 1759.560 s, mem 1422 MB)
+cross-check: Rel(standard generators) = 1 in Q .. OK
+
+marking | level | target | domain | rank | corank | defect in im | cert | secs
+--------+-------+--------+--------+------+--------+--------------+------+------
+  (t,s) = (0,1): K-layer dims [ 5, 25, 130, 670 ] of [ 7, 27, 132, 672 ], cert [ true, true, true, true ]
+ 0  1   |  L3   |    132 |    175 |  124 |      8 | true         | true | 0.060
+ 0  1   |  L4   |    672 |    910 |  664 |      8 | true         | true | 0.640
+ 0  1   |  L5   |   3696 |   4690 | 3688 |      8 | true         | true | 10.390
+   (t,s) = (0,1): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (1,0): K-layer dims [ 5, 25, 130, 670 ] of [ 7, 27, 132, 672 ], cert [ true, true, true, true ]
+ 1  0   |  L3   |    132 |    175 |  124 |      8 | true         | true | 0.050
+ 1  0   |  L4   |    672 |    910 |  664 |      8 | true         | true | 0.620
+ 1  0   |  L5   |   3696 |   4690 | 3688 |      8 | true         | true | 10.500
+   (t,s) = (1,0): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (1,1): K-layer dims [ 5, 25, 130, 670 ] of [ 7, 27, 132, 672 ], cert [ true, true, true, true ]
+ 1  1   |  L3   |    132 |    175 |  124 |      8 | true         | true | 0.100
+ 1  1   |  L4   |    672 |    910 |  664 |      8 | true         | true | 1.210
+ 1  1   |  L5   |   3696 |   4690 | 3688 |      8 | true         | true | 13.030
+   (t,s) = (1,1): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (0,2): K-layer dims [ 5, 25, 130, 670 ] of [ 7, 27, 132, 672 ], cert [ true, true, true, true ]
+ 0  2   |  L3   |    132 |    175 |  124 |      8 | true         | true | 0.040
+ 0  2   |  L4   |    672 |    910 |  664 |      8 | true         | true | 0.540
+ 0  2   |  L5   |   3696 |   4690 | 3688 |      8 | true         | true | 9.550
+   (t,s) = (0,2): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (2,1): K-layer dims [ 5, 25, 130, 670 ] of [ 7, 27, 132, 672 ], cert [ true, true, true, true ]
+ 2  1   |  L3   |    132 |    175 |  124 |      8 | true         | true | 0.070
+ 2  1   |  L4   |    672 |    910 |  664 |      8 | true         | true | 1.090
+ 2  1   |  L5   |   3696 |   4690 | 3688 |      8 | true         | true | 13.480
+   (t,s) = (2,1): R(m) = 1 in Q_5  -- solvable
+  (t,s) = (3,5): K-layer dims [ 5, 25, 130, 670 ] of [ 7, 27, 132, 672 ], cert [ true, true, true, true ]
+ 3  5   |  L3   |    132 |    175 |  124 |      8 | true         | true | 0.090
+ 3  5   |  L4   |    672 |    910 |  664 |      8 | true         | true | 0.890
+ 3  5   |  L5   |   3696 |   4690 | 3688 |      8 | true         | true | 12.120
+   (t,s) = (3,5): R(m) = 1 in Q_5  -- solvable
+DONE

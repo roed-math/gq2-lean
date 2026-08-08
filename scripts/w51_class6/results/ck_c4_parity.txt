@@ -1,0 +1,32 @@
+W51 corank probe -- class 4, markings [
+[ 0, 1 ],
+[ 2, 1 ],
+[ 1, 1 ],
+[ 0, 2 ]
+], verify 0
+Q_4 : order 2^243, layers [ 5, 14, 49, 175 ]  (build 0.000 s, extract+series 0.210 s, mem 32 MB)
+pc generators are weight graded, P_w = tail subgroup .. OK
+
+marking | level | target | domain | rank | corank | defect in im | cert | im delta vs same parity | secs
+--------+-------+--------+--------+------+--------+--------------+------+-------------------------+-----
+  (t,s) = (0,1): K-layer dims [ 3, 12, 47 ] of [ 5, 14, 49 ], cert [ true, true, true ], built in 0.000 s
+ 0  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 01) | 0.000
+ 0  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 01) | 0.030
+   control L4 (t,s)=(0,1): 36 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (0,1): R(m) = 1 in Q_4  -- solvable
+  (t,s) = (2,1): K-layer dims [ 3, 12, 47 ] of [ 5, 14, 49 ], cert [ true, true, true ], built in 0.000 s
+ 2  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | same as first (t,s) parity | 0.000
+ 2  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | same as first (t,s) parity | 0.040
+   control L4 (t,s)=(2,1): 31 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (2,1): R(m) = 1 in Q_4  -- solvable
+  (t,s) = (1,1): K-layer dims [ 3, 12, 47 ] of [ 5, 14, 49 ], cert [ true, true, true ], built in 0.000 s
+ 1  1   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 11) | 0.010
+ 1  1   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 11) | 0.030
+   control L4 (t,s)=(1,1): 37 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (1,1): R(m) = 1 in Q_4  -- solvable
+  (t,s) = (0,2): K-layer dims [ 3, 12, 47 ] of [ 5, 14, 49 ], cert [ true, true, true ], built in 0.000 s
+ 0  2   |  L3   |     49 |     60 |   43 |      6 | true         | true | (reference for parity 00) | 0.000
+ 0  2   |  L4   |    175 |    235 |  169 |      6 | true         | true | (reference for parity 00) | 0.030
+   control L4 (t,s)=(0,2): 37 of 2000 random layer vectors lie in im delta (codim 6 predicts 31.25)
+   (t,s) = (0,2): R(m) = 1 in Q_4  -- solvable
+DONE
