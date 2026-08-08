@@ -47,7 +47,7 @@ follows from the class identity `τ = c • κ` alone (`evenFrame_of_kappaPin`).
 is true only when the `ω` table vanishes, i.e. when `α ≥ 3`, where the scalar is `0`.  At `α = 2`
 **no scalar `c` works**: at index `1` the table forces `c · 1 = ω(−1) = 0`, hence `c = 0`, while at
 index `3` it forces `c · 0 = ω(mUnit 2) = 1`.  Machine-checked as
-`evenDegreeM_no_omegaScalar_two` (§3.3), so this is an obstruction, not a proof-search failure.
+`evenDegreeM_no_omegaScalar_two` (§2.1), so this is an obstruction, not a proof-search failure.
 
 Consequently `α = 2` is served by the more primitive `evenFrame_of_adapted`, with a second Witt
 refinement placing `Φ τ` on the `(2,3)` plane (§4): the even route's own version of the odd
@@ -72,7 +72,8 @@ Proved: the bridge table at both entries, both shadow tables of `vM α`, the imp
 `α = 2` scalar, the class pin at `α ≥ 3`, the second Witt refinement at `α = 2`, and the supply
 theorem for **every** `α ≥ 2` (both branches; nothing is gated out).  Owed, as explicit binders of
 the supply: the EV-4a row lift supply, the ramified-`i` binder `κ ≠ 0`, `EvenDegreeMModEightImage`
-(consumed only at `α ≥ 3`), and at `α = 2` the two seams of §4.3.  No `sorry`, no new axiom.
+(consumed only at `α ≥ 3`), and `EvenDegreeMModEightRowAttained` (consumed only at
+`α = 2`, free above it).  No `sorry`, no new axiom.
 -/
 
 namespace GQ2.Dyadic.StageGeneric
@@ -664,8 +665,182 @@ theorem mEvenFrameAdaptedModelEquiv {W : Type*} [AddCommGroup W] [Module (ZMod 2
   · show Φ₀ (S t) = mEvenFrameTauVec h
     rw [hSt, hΦt']
 
+/-! ## §5 The two field-level branches, and the supply
+
+§5.1 assembles the `α = 2` frame from §4; §5.2 states the supply and proves it by splitting on
+`α = 2` versus `α ≥ 3`.  Both branches end in a `StageGeneric.Frame` cup-adapted at the same even
+Gram, so the supply statement has no `α`-dependent shape and EV-3e consumes one endpoint. -/
+
+omit [T2Space (GalK K)] in
+/-- **The `ω` class is isotropic, at every degree.**  `b(τ,τ) = b(κ,τ) = b(τ,κ) = 0`: the first
+equality is the Labute identity and the last is the committed `frattiniFrameCup_omega_modFour`.
+
+So the isotropy hypothesis of `mEvenFrameAdaptedModelEquiv` costs nothing, and the only condition
+on `K` in the `α = 2` branch is that `τ` be nonzero and different from `κ`. -/
+theorem mEvenFrameCup_omega_self :
+    frattiniFrameCup (cyclotomicModEightOmegaClassKTwo (K := K))
+      (cyclotomicModEightOmegaClassKTwo (K := K)) = 0 := by
+  rw [← frattiniFrameCup_kappa (K := K) (cyclotomicModEightOmegaClassKTwo (K := K)),
+    (isCupFormFp2_frattiniFrameCup (K := K)).symm (cyclotomicModFourClassKTwo (K := K))
+      (cyclotomicModEightOmegaClassKTwo (K := K))]
+  exact frattiniFrameCup_omega_modFour
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **At `α = 2` the attainment hypothesis makes the `ω` class independent of `κ`.**  A cyclotomic
+value `≡ 5 (mod 8)` has `ω = 1` and mod-four parity `0`, so it separates `τ` from both `0` and `κ`.
+
+This is the even-degree replacement for the odd route's
+`cyclotomicModEightOmegaClassKTwo_ne_zero`, which gets the same conclusion from cyclotomic
+surjectivity by realising `GQ2.Roe.rootXUnit ≡ 5 (mod 8)`.  Surjectivity is false at even degree,
+but the `M` row's own depth unit occupies exactly that mod-eight slot at `α = 2` (§1), so the row
+datum does the work the odd route got from surjectivity. -/
+theorem mEvenFrame_omega_indep (hatt : EvenDegreeMModEightRowAttained (K := K) 2) :
+    cyclotomicModEightOmegaClassKTwo (K := K) ≠ 0 ∧
+      cyclotomicModEightOmegaClassKTwo (K := K) ≠ cyclotomicModFourClassKTwo (K := K) := by
+  obtain ⟨g, hg⟩ := hatt
+  have h8 : PadicInt.toZModPow 3 ((chiCycKTwo (K := K) g : ℤ_[2]ˣ) : ℤ_[2]) = 5 :=
+    hg.trans evenBridgeM_mUnit_modEight_two
+  have h4 : PadicInt.toZModPow 2 ((chiCycKTwo (K := K) g : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← PadicInt.cast_toZModPow 2 3 (by norm_num), h8]
+    decide
+  have homega : frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) g = 1 := by
+    rw [frattiniFrameEval_modEight, frattiniFrame_omega_of_val h8, omegaResidue_table.2.2.1]
+  have hpar : frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) g = 0 := by
+    rw [frattiniFrameEval_modFour, frattiniFrame_parity_of_val_one h4]
+  refine ⟨fun h0 ↦ ?_, fun heq ↦ ?_⟩
+  · rw [h0, frattiniFrameEval_zero] at homega
+    exact one_ne_zero homega.symm
+  · rw [heq, hpar] at homega
+    exact one_ne_zero homega.symm
+
+/-- **The `M`-row frame at `α = 2`.**  The branch `evenFrame_of_kappaPin` cannot serve (§2.1): the
+`ω` table is supported at the letter `D`, so the coordinate system must place `τ` there, which is
+§4's doubly adapted normal form.  Everything else is as in the `N` row. -/
+theorem mEvenFrame_of_rowAttained {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 2)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (supply : RowExactLevelFibreLiftSupply (vM (h := h) 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)))
+    (hatt : EvenDegreeMModEightRowAttained (K := K) 2) :
+    ∃ F : Frame (vM (h := h) 2) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+      F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K)) := by
+  classical
+  have hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) := by
+    apply Nat.finite_of_card_ne_zero
+    rw [card_H1_zmodTwo_maxProTwoGalK (K := K)]
+    positivity
+  haveI := hfin
+  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (2 * h + 4) := by
+    rw [card_H1_zmodTwo_maxProTwoGalK (K := K), hdeg,
+      show 2 * h + 2 + 2 = 2 * h + 4 from by omega]
+  obtain ⟨hne0, hnekap⟩ := mEvenFrame_omega_indep hatt
+  obtain ⟨Φ, hGram, hΦkappa, hΦtau⟩ :=
+    mEvenFrameAdaptedModelEquiv (isCupFormFp2_frattiniFrameCup (K := K))
+      (nondegFp2_frattiniFrameCup (K := K)) (frattiniFrameCup_kappa (K := K))
+      (evenFrameCup_kappa_self (K := K) ⟨h + 1, by omega⟩) hkappa
+      mEvenFrameCup_omega_self hne0 hnekap hcard
+  refine evenFrame_of_adapted (vM (h := h) 2) hfin Φ hGram supply (fun i ↦ ?_) (fun i ↦ ?_)
+  · rw [hΦkappa, evenFrameCoord_kappaVec, evenDegreeM_parity_table (by omega) i]
+  · rw [hΦtau, mEvenFrameCoord_tauVec, evenDegreeM_omega_table (by omega) i,
+      evenDegreeMOmegaScalar, if_pos rfl, one_mul]
+
+/-! ### §5.1 The supply
+
+The statement shape mirrors the `N` row's `EvenDegreeNCyclotomicFrattiniFrameSupply`, itself the
+even spelling of `LSquare.OddDegreeSqCyclotomicFrattiniFrameSupply`: the same ambient binders, the
+same `MarkedRecip` bundle binder carried but unused in the conclusion, the degree hypothesis in the
+even lane's `2 + 2h` spelling, and an existential over the frame with its cup-adaptation.  The one
+difference from the `N` row is the extra `EvenDegreeMModEightRowAttained` binder, which the `N`
+row does not need and which is free for `α ≥ 3` (`evenDegreeM_rowAttained_of_ge`). -/
+
+/-- **The even-degree `M`-row cup-adapted Frattini-frame supply.**  For every even-degree `K` with
+the ramified-`i` binder, the two mod-eight orientation hypotheses at `α`, and the EV-4a
+row-relative exact lift supply, there is a `StageGeneric.Frame` at the committed `M` row table
+whose dual Frattini family carries the field cup form to the even relator's Gram.
+
+Valid for **every** `α ≥ 2`: the `α = 2` case is not gated out, it is proved by the other of the
+two branches.  None of the carried binders is an admitted goal, and the bundle `_B` is a binder,
+not an axiom, exactly as in the `N` and odd twins. -/
+def EvenDegreeMCyclotomicFrattiniFrameSupply (α : ℕ) : Prop :=
+  ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)]
+    {R : LocalReciprocity} (_B : MarkedRecip R K) (h : ℕ),
+    2 ≤ α →
+    Module.finrank ℚ_[2] K = 2 + 2 * h →
+    cyclotomicModFourClassKTwo (K := K) ≠ 0 →
+    EvenDegreeMModEightImage (K := K) α →
+    EvenDegreeMModEightRowAttained (K := K) α →
+    RowExactLevelFibreLiftSupply (vM (h := h) α) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) →
+      ∃ F : Frame (vM (h := h) α) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+        F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K))
+
 end EvenFieldM
+
+/-- **The supply holds, for every `α ≥ 2`.**  Composition of §1's bridge table, §2's shadow
+tables, and one of two branches: at `α ≥ 3` the class pin of §3 through the scaffolding's
+`evenFrame_of_kappaPin`, exactly as at the `N` row; at `α = 2` the second Witt refinement of §4
+through the more primitive `evenFrame_of_adapted`, which is forced by the refutation of §2.1. -/
+theorem evenDegreeMCyclotomicFrattiniFrameSupply_holds (α : ℕ) :
+    EvenDegreeMCyclotomicFrattiniFrameSupply α := by
+  intro K _ _ _ _ _ B h hα hdeg hkappa himg hatt supply
+  rcases eq_or_lt_of_le hα with hα2 | hα3
+  · subst hα2
+    exact mEvenFrame_of_rowAttained (by omega) hkappa supply hatt
+  · refine evenFrame_of_kappaPin (vM (h := h) α) (by omega) hkappa supply
+      (evenDegreeMOmegaScalar α) (evenDegreeM_omegaPin_of_modEightImage (by omega) himg)
+      (evenDegreeM_parity_table hα) (fun i ↦ ?_)
+    rw [evenDegreeM_omega_table hα i, evenDegreeMOmegaScalar, if_neg (by omega), zero_mul,
+      zero_mul]
 
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §6 Axiom pins -/
+
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_solve_modEight
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_solve_modSixteen_two
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_solve_modSixteen_three
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_modFour
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_modEight_two
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_modEight_ge
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_modSixteen_two
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_modSixteen_three
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_mUnit_modSixteen_ge
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_negOne_modFour
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_negOne_modEight
+#print axioms GQ2.Dyadic.StageGeneric.evenBridgeM_negOne_modSixteen
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeMOmegaScalar
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_parity_mUnit
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_omega_mUnit
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_parity_negOne
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_omega_negOne
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_parity_table
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_omega_table
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_no_omegaScalar_two
+#print axioms GQ2.Dyadic.StageGeneric.EvenDegreeMModEightImage
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_omegaPin_of_modEightImage
+#print axioms GQ2.Dyadic.StageGeneric.EvenDegreeMModEightRowAttained
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeM_rowAttained_of_ge
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTauVec
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameCoord_tauVec
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTauVec_self
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTauVec_ne_zero
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTauVec_ne_kappaVec
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTransvection
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTransvection_apply
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTransvection_isometry
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTransvection_fix
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameTransvection_swap
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameExists_pairOne
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameExists_sep
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameExists_common
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameIsometry_of_isotropic
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameAdaptedModelEquiv
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrameCup_omega_self
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrame_omega_indep
+#print axioms GQ2.Dyadic.StageGeneric.mEvenFrame_of_rowAttained
+#print axioms GQ2.Dyadic.StageGeneric.EvenDegreeMCyclotomicFrattiniFrameSupply
+#print axioms GQ2.Dyadic.StageGeneric.evenDegreeMCyclotomicFrattiniFrameSupply_holds
