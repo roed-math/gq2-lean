@@ -749,4 +749,6 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenRawSpanStep
 import GQ2.Dyadic.Instances.StageAbstractionEvenSharpHandles
 import GQ2.Dyadic.Instances.StageAbstractionEvenBracketSpan
 import GQ2.Dyadic.Instances.StageAbstractionEvenStageClimb
+import GQ2.Dyadic.Instances.StageAbstractionEvenKernelAdapted
+import GQ2.Dyadic.Instances.StageAbstractionEvenAssembly
 import GQ2.Dyadic.Main
