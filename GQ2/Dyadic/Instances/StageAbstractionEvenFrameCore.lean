@@ -107,6 +107,11 @@ theorem evenFrameHypGram_self {m : ℕ} (r : Fin m → ZMod 2 × ZMod 2) : hypGr
   rw [mul_comm (r j).2 (r j).1]
   exact CharTwo.add_self_eq_zero _
 
+/-- The hyperbolic block vanishes on the zero vector. -/
+theorem evenFrameHypGram_zero_left {m : ℕ} (r : Fin m → ZMod 2 × ZMod 2) :
+    hypGram (0 : Fin m → ZMod 2 × ZMod 2) r = 0 := by
+  simp [hypGram]
+
 /-- The hyperbolic block against a single plane reads that plane's two coordinates. -/
 theorem evenFrameHypGram_single {m : ℕ} (k : Fin m) (p : ZMod 2 × ZMod 2)
     (r : Fin m → ZMod 2 × ZMod 2) :
@@ -267,6 +272,163 @@ theorem evenFrameCoord_eq_zero (z : evenFrameModel h)
         ((evenFrameCoord_handleV z j).symm.trans (hall _))
 
 end CoordLinear
+
+/-! ### §1.4 The Gram-extension adapter, and the dual-vector map (board crux (i))
+
+`Frame.IsCupAdapted` takes the word's quadratic-initial Gram as a function of the full
+`Fin (coreRank h)`-indexed matrix of character products (`StageAbstraction.lean` §2.1(a)), so the
+committed rank-four `MarkedCore.nGram` has to be extended to rank `coreRank h`.  The extension is
+by the `h` handle planes and by zero on every core/handle cross term: the even relator is
+`(core word) * ∏ⱼ [uⱼ, vⱼ]`, so its degree-two initial form is the core Gram plus one hyperbolic
+plane per handle and nothing else.
+
+`MarkedCore.nGram` is cited, never redefined; by `MarkedCore.mGram_eq_nGram` (a `rfl`) the same
+adapter serves the `M` row, which is the main reason this section is core-agnostic. -/
+
+/-- The four core letters as frame indices. -/
+def evenFrameCoreIdx {h : ℕ} : Fin 4 → Fin (MarkedCore.coreRank h) := ![0, 1, 2, 3]
+
+/-- **The even quadratic-initial Gram at rank `coreRank h`**: the committed rank-four Gram
+`MarkedCore.nGram` (`= MarkedCore.mGram`, `Variance.lean:107`) on the core block, one hyperbolic
+plane per handle, zero across.  This is the `gram` parameter of `Frame.IsCupAdapted`. -/
+def evenFrameGram (h : ℕ)
+    (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) : ZMod 2 :=
+  (∑ a : Fin 4, ∑ b : Fin 4, MarkedCore.nGram a b * M (evenFrameCoreIdx a) (evenFrameCoreIdx b))
+    + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
+        + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j))
+
+/-- The adapter written out: `MarkedCore.nGram`'s five nonzero entries are `(0,0)`, `(0,1)`,
+`(1,0)`, `(2,3)`, `(3,2)`. -/
+theorem evenFrameGram_expand (h : ℕ)
+    (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
+    evenFrameGram h M = (M 0 0 + (M 0 1 + M 1 0)) + (M 2 3 + M 3 2)
+      + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
+          + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j)) := by
+  simp only [evenFrameGram, evenFrameCoreIdx, Fin.sum_univ_four, MarkedCore.nGram,
+    Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
+    Matrix.cons_val_three, Matrix.tail_cons]
+  ring
+
+/-- **The dual-vector map.**  `evenDualVec i` is the model vector representing the `i`-th
+coordinate functional against the model Gram (`evenDualVec_pairing`).  At the two core letters
+of the head it is *not* a coordinate basis vector: `evenDualVec 0 = e₁` is one, but
+`evenDualVec 1 = e₀ + e₁` is not, and no relabelling makes it one — the even head's inverse Gram
+is `[[0,1],[1,1]]`, not a permutation matrix.  This is the object the board's crux (i) asks for
+in place of the odd route's `sqInitialPartner : Equiv.Perm`. -/
+def evenDualVec {h : ℕ} (i : Fin (MarkedCore.coreRank h)) : evenFrameModel h :=
+  if (i : ℕ) = 0 then ((0, 1), 0) else
+  if (i : ℕ) = 1 then ((1, 1), 0) else
+  if (i : ℕ) = 2 then (0, Pi.single 0 (0, 1)) else
+  if (i : ℕ) = 3 then (0, Pi.single 0 (1, 0)) else
+  if ((i : ℕ) - 4) % 2 = 0 then (0, Pi.single (evenFramePlane i) (0, 1))
+  else (0, Pi.single (evenFramePlane i) (1, 0))
+
+section Dual
+
+variable {h : ℕ} (z : evenFrameModel h)
+
+/-- **The defining property of the dual-vector map**: pairing against `evenDualVec i` is the
+`i`-th frame coordinate.  This is the even replacement for "pair with the partner index". -/
+theorem evenDualVec_pairing (i : Fin (MarkedCore.coreRank h)) :
+    evenFrameGramModel h (evenDualVec i) z = evenFrameCoord i z := by
+  have hd0 : ∀ q : ZMod 2 × ZMod 2, headGram ((0 : ZMod 2), (1 : ZMod 2)) q = q.1 := by decide
+  have hd1 : ∀ q : ZMod 2 × ZMod 2, headGram ((1 : ZMod 2), (1 : ZMod 2)) q = q.2 := by decide
+  have hzL : ∀ q : ZMod 2 × ZMod 2, headGram (0 : ZMod 2 × ZMod 2) q = 0 := by decide
+  unfold evenDualVec evenFrameCoord
+  split_ifs with h0 h1 h2 h3 hpar
+  · show headGram ((0 : ZMod 2), (1 : ZMod 2)) z.1
+      + hypGram (0 : Fin (h + 1) → ZMod 2 × ZMod 2) z.2 = z.1.1
+    rw [evenFrameHypGram_zero_left, hd0, add_zero]
+  · show headGram ((1 : ZMod 2), (1 : ZMod 2)) z.1
+      + hypGram (0 : Fin (h + 1) → ZMod 2 × ZMod 2) z.2 = z.1.2
+    rw [evenFrameHypGram_zero_left, hd1, add_zero]
+  · show headGram (0 : ZMod 2 × ZMod 2) z.1
+      + hypGram (Pi.single 0 ((0 : ZMod 2), (1 : ZMod 2))) z.2 = (z.2 0).1
+    rw [evenFrameHypGram_single, hzL]
+    simp
+  · show headGram (0 : ZMod 2 × ZMod 2) z.1
+      + hypGram (Pi.single 0 ((1 : ZMod 2), (0 : ZMod 2))) z.2 = (z.2 0).2
+    rw [evenFrameHypGram_single, hzL]
+    simp
+  · show headGram (0 : ZMod 2 × ZMod 2) z.1
+      + hypGram (Pi.single (evenFramePlane i) ((0 : ZMod 2), (1 : ZMod 2))) z.2 = _
+    rw [evenFrameHypGram_single, hzL]
+    simp
+  · show headGram (0 : ZMod 2 × ZMod 2) z.1
+      + hypGram (Pi.single (evenFramePlane i) ((1 : ZMod 2), (0 : ZMod 2))) z.2 = _
+    rw [evenFrameHypGram_single, hzL]
+    simp
+
+/-- The dual vector at `x₀` is the second head basis vector — the partner index is `1`. -/
+theorem evenDualVec_zero :
+    evenDualVec (0 : Fin (MarkedCore.coreRank h)) = (((0 : ZMod 2), (1 : ZMod 2)), 0) := by
+  unfold evenDualVec
+  rw [if_pos (MarkedCore.coreVal_zero h)]
+
+/-- **The crux entry**: the dual vector at `x₁` is `e₀ + e₁`, not a coordinate basis vector. -/
+theorem evenDualVec_one :
+    evenDualVec (1 : Fin (MarkedCore.coreRank h)) = (((1 : ZMod 2), (1 : ZMod 2)), 0) := by
+  unfold evenDualVec
+  rw [if_neg (by rw [MarkedCore.coreVal_one]; omega), if_pos (MarkedCore.coreVal_one h)]
+
+end Dual
+
+/-! ### §1.5 The model's Labute vector
+
+The diagonal `z ↦ b z z` of the model Gram is the frame coordinate at `x₀` (the head is not
+alternating and the planes are), so the vector representing it — the Labute vector — is
+`evenDualVec 0 = e₁`, which lives at **frame index 1**.  That single fact is what makes the
+parity half of both even bridge tables automatic. -/
+
+/-- The model's Labute vector, `e₁`. -/
+def evenFrameKappaVec (h : ℕ) : evenFrameModel h :=
+  evenDualVec (0 : Fin (MarkedCore.coreRank h))
+
+@[simp] theorem evenFrameKappaVec_eq (h : ℕ) :
+    evenFrameKappaVec h = (((0 : ZMod 2), (1 : ZMod 2)), 0) := evenDualVec_zero
+
+/-- The model Gram is not alternating: its diagonal is the `x₀` coordinate. -/
+theorem evenFrameGramModel_self {h : ℕ} (z : evenFrameModel h) :
+    evenFrameGramModel h z z = evenFrameCoord 0 z := by
+  rw [evenFrameGramModel, evenFrameHypGram_self, headGram_self, evenFrameCoord_zero, add_zero]
+
+/-- **The Labute identity in the model**: `evenFrameKappaVec` represents the diagonal. -/
+theorem evenFrameKappaVec_labute {h : ℕ} (z : evenFrameModel h) :
+    evenFrameGramModel h (evenFrameKappaVec h) z = evenFrameGramModel h z z := by
+  rw [evenFrameKappaVec, evenDualVec_pairing, evenFrameGramModel_self]
+
+/-- The Labute vector is isotropic, as the even degree demands. -/
+theorem evenFrameKappaVec_self (h : ℕ) :
+    evenFrameGramModel h (evenFrameKappaVec h) (evenFrameKappaVec h) = 0 := by
+  rw [evenFrameGramModel_self, evenFrameKappaVec_eq, evenFrameCoord_zero]
+
+/-- The Labute vector is nonzero. -/
+theorem evenFrameKappaVec_ne_zero (h : ℕ) : evenFrameKappaVec h ≠ 0 := by
+  intro hzero
+  have := congrArg (evenFrameCoord (1 : Fin (MarkedCore.coreRank h))) hzero
+  rw [evenFrameKappaVec_eq, evenFrameCoord_one, evenFrameCoord_zero_vec] at this
+  exact one_ne_zero this
+
+/-- **The κ row of both even bridge tables**: the model's Labute vector has frame coordinate `1`
+at the letter `x₁` and `0` at every other letter. -/
+theorem evenFrameCoord_kappaVec {h : ℕ} (i : Fin (MarkedCore.coreRank h)) :
+    evenFrameCoord i (evenFrameKappaVec h) = if (i : ℕ) = 1 then 1 else 0 := by
+  rw [evenFrameKappaVec_eq]
+  refine evenIndex_cases
+    (P := fun i ↦ evenFrameCoord i (((0 : ZMod 2), (1 : ZMod 2)), 0) = if (i : ℕ) = 1 then 1 else 0)
+    ?_ ?_ ?_ ?_ ?_ ?_ i
+  · rw [evenFrameCoord_zero, if_neg (by rw [MarkedCore.coreVal_zero]; omega)]
+  · rw [evenFrameCoord_one, if_pos (MarkedCore.coreVal_one h)]
+  · rw [evenFrameCoord_two, if_neg (by rw [MarkedCore.coreVal_two]; omega)]
+    rfl
+  · rw [evenFrameCoord_three, if_neg (by rw [MarkedCore.coreVal_three]; omega)]
+    rfl
+  · intro j
+    rw [evenFrameCoord_handleU, if_neg (by rw [MarkedCore.handleIdxU_val]; omega)]
+    rfl
+  · intro j
+    rw [evenFrameCoord_handleV, if_neg (by rw [MarkedCore.handleIdxV_val]; omega)]
+    rfl
 
 end
 
