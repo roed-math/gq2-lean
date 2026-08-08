@@ -649,6 +649,301 @@ end Factorization
 
 end Dbar
 
+/-! ## §5 Raw depth corrections and the raw shift span
+
+The clone of `GammaLSylowPreimageFieldLabuteRawSpan.lean`.  Nothing below mentions a
+cyclotomic character: this is the presentation-theoretic half of the climb, and the exact
+mismatch with generic two-central tower generation is isolated as
+`EvenRawPureSquareSpanSupply`. -/
+
+section RawSpan
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h k : ℕ}
+
+/-- A depth-`k-1` correction of the even marking, with no character constraint. -/
+structure EvenRawDepthCorrection (G : Type) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (h k : ℕ) where
+  /-- The correction, one coordinate per even generator. -/
+  correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)
+  /-- Every coordinate has depth `k-1`. -/
+  depth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)
+
+@[ext]
+theorem EvenRawDepthCorrection.ext {V V' : EvenRawDepthCorrection G h k}
+    (H : V.correction = V'.correction) : V = V' := by
+  cases V; cases V'; cases H; rfl
+
+/-- The trivial correction. -/
+protected noncomputable def EvenRawDepthCorrection.one :
+    EvenRawDepthCorrection G h k where
+  correction _ := 1
+  depth _ := Subgroup.one_mem _
+
+/-- Coordinatewise product of corrections. -/
+protected noncomputable def EvenRawDepthCorrection.mul
+    (V V' : EvenRawDepthCorrection G h k) : EvenRawDepthCorrection G h k where
+  correction i := V.correction i * V'.correction i
+  depth i := Subgroup.mul_mem _ (V.depth i) (V'.depth i)
+
+/-- Coordinatewise inverse of a correction. -/
+protected noncomputable def EvenRawDepthCorrection.inv
+    (V : EvenRawDepthCorrection G h k) : EvenRawDepthCorrection G h k where
+  correction i := (V.correction i)⁻¹
+  depth i := Subgroup.inv_mem _ (V.depth i)
+
+noncomputable instance : Group (EvenRawDepthCorrection G h k) where
+  one := EvenRawDepthCorrection.one
+  mul := EvenRawDepthCorrection.mul
+  inv := EvenRawDepthCorrection.inv
+  mul_assoc V₁ V₂ V₃ := by ext i; exact mul_assoc _ _ _
+  one_mul V := by ext i; exact one_mul _
+  mul_one V := by ext i; exact mul_one _
+  inv_mul_cancel V := by ext i; exact inv_mul_cancel _
+
+@[simp] theorem EvenRawDepthCorrection.one_correction (i : Fin (MarkedCore.coreRank h)) :
+    (1 : EvenRawDepthCorrection G h k).correction i = 1 := rfl
+
+@[simp] theorem EvenRawDepthCorrection.mul_correction
+    (V V' : EvenRawDepthCorrection G h k) (i : Fin (MarkedCore.coreRank h)) :
+    (V * V').correction i = V.correction i * V'.correction i := rfl
+
+/-- A raw correction supported at one generator coordinate. -/
+noncomputable def evenRawDepthCoordinateCorrection (i : Fin (MarkedCore.coreRank h))
+    (p : lambdaImage G (k - 1) (k + 1)) : EvenRawDepthCorrection G h k where
+  correction j := if j = i then p.1 else 1
+  depth j := by
+    by_cases hji : j = i <;> simp [hji]
+
+@[simp] theorem evenRawDepthCoordinateCorrection_apply
+    (i j : Fin (MarkedCore.coreRank h)) (p : lambdaImage G (k - 1) (k + 1)) :
+    (evenRawDepthCoordinateCorrection i p : EvenRawDepthCorrection G h k).correction j =
+      if j = i then p.1 else 1 := rfl
+
+/-! ### Index disequalities
+
+The even alphabet is `0,1,2,3` for the core and `4+2j, 5+2j` for the `j`-th handle
+(`MarkedCore.coreRank h = 4 + 2 * h`), so every disequality below is `omega` on `Fin.val`. -/
+
+private theorem evenRawHandleU_ne_core (j : Fin h) {i : Fin (MarkedCore.coreRank h)}
+    (hi : (i : ℕ) < 4) : MarkedCore.handleIdxU j ≠ i := by
+  intro hj
+  have hv := congrArg Fin.val hj
+  rw [MarkedCore.handleIdxU_val] at hv
+  omega
+
+private theorem evenRawHandleV_ne_core (j : Fin h) {i : Fin (MarkedCore.coreRank h)}
+    (hi : (i : ℕ) < 4) : MarkedCore.handleIdxV j ≠ i := by
+  intro hj
+  have hv := congrArg Fin.val hj
+  rw [MarkedCore.handleIdxV_val] at hv
+  omega
+
+private theorem evenRawCore_ne_handleU {i : Fin (MarkedCore.coreRank h)} (hi : (i : ℕ) < 4)
+    (j : Fin h) : i ≠ MarkedCore.handleIdxU j :=
+  fun hj ↦ evenRawHandleU_ne_core j hi hj.symm
+
+private theorem evenRawCore_ne_handleV {i : Fin (MarkedCore.coreRank h)} (hi : (i : ℕ) < 4)
+    (j : Fin h) : i ≠ MarkedCore.handleIdxV j :=
+  fun hj ↦ evenRawHandleV_ne_core j hi hj.symm
+
+private theorem evenRawHandleV_ne_handleU (l j : Fin h) :
+    MarkedCore.handleIdxV l ≠ (MarkedCore.handleIdxU j : Fin (MarkedCore.coreRank h)) := by
+  intro hEq
+  have hv := congrArg Fin.val hEq
+  rw [MarkedCore.handleIdxV_val, MarkedCore.handleIdxU_val] at hv
+  omega
+
+private theorem evenRawHandleU_ne_handleV (l j : Fin h) :
+    MarkedCore.handleIdxU l ≠ (MarkedCore.handleIdxV j : Fin (MarkedCore.coreRank h)) :=
+  fun hEq ↦ evenRawHandleV_ne_handleU j l hEq.symm
+
+private theorem evenRawHandleU_ne_handleU {l j : Fin h} (hlj : l ≠ j) :
+    MarkedCore.handleIdxU l ≠ (MarkedCore.handleIdxU j : Fin (MarkedCore.coreRank h)) := by
+  intro hEq
+  refine hlj (Fin.ext ?_)
+  have hv := congrArg Fin.val hEq
+  rw [MarkedCore.handleIdxU_val, MarkedCore.handleIdxU_val] at hv
+  omega
+
+private theorem evenRawHandleV_ne_handleV {l j : Fin h} (hlj : l ≠ j) :
+    MarkedCore.handleIdxV l ≠ (MarkedCore.handleIdxV j : Fin (MarkedCore.coreRank h)) := by
+  intro hEq
+  refine hlj (Fin.ext ?_)
+  have hv := congrArg Fin.val hEq
+  rw [MarkedCore.handleIdxV_val, MarkedCore.handleIdxV_val] at hv
+  omega
+
+/-- The four core letters have `Fin.val` equal to `0,1,2,3`; packaged for the `omega` calls
+in the disequalities above. -/
+private theorem evenRawCoreVal_lt_four :
+    (((0 : Fin (MarkedCore.coreRank h)) : ℕ) < 4) ∧ (((1 : Fin (MarkedCore.coreRank h)) : ℕ) < 4)
+      ∧ (((2 : Fin (MarkedCore.coreRank h)) : ℕ) < 4)
+      ∧ (((3 : Fin (MarkedCore.coreRank h)) : ℕ) < 4) := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · rw [MarkedCore.coreVal_zero]; omega
+  · rw [MarkedCore.coreVal_one]; omega
+  · rw [MarkedCore.coreVal_two]; omega
+  · rw [MarkedCore.coreVal_three]; omega
+
+private theorem evenRawCoreIdx_ne {i j : Fin (MarkedCore.coreRank h)}
+    (hij : (i : ℕ) ≠ (j : ℕ)) : i ≠ j := fun hh ↦ hij (congrArg Fin.val hh)
+
+private theorem evenRawIdx01 : (0 : Fin (MarkedCore.coreRank h)) ≠ 1 :=
+  evenRawCoreIdx_ne (by rw [MarkedCore.coreVal_zero, MarkedCore.coreVal_one]; omega)
+
+private theorem evenRawIdx02 : (0 : Fin (MarkedCore.coreRank h)) ≠ 2 :=
+  evenRawCoreIdx_ne (by rw [MarkedCore.coreVal_zero, MarkedCore.coreVal_two]; omega)
+
+private theorem evenRawIdx03 : (0 : Fin (MarkedCore.coreRank h)) ≠ 3 :=
+  evenRawCoreIdx_ne (by rw [MarkedCore.coreVal_zero, MarkedCore.coreVal_three]; omega)
+
+private theorem evenRawIdx12 : (1 : Fin (MarkedCore.coreRank h)) ≠ 2 :=
+  evenRawCoreIdx_ne (by rw [MarkedCore.coreVal_one, MarkedCore.coreVal_two]; omega)
+
+private theorem evenRawIdx13 : (1 : Fin (MarkedCore.coreRank h)) ≠ 3 :=
+  evenRawCoreIdx_ne (by rw [MarkedCore.coreVal_one, MarkedCore.coreVal_three]; omega)
+
+private theorem evenRawIdx23 : (2 : Fin (MarkedCore.coreRank h)) ≠ 3 :=
+  evenRawCoreIdx_ne (by rw [MarkedCore.coreVal_two, MarkedCore.coreVal_three]; omega)
+
+/-! ### The literal shift homomorphism -/
+
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- **The literal even-relator shift on all raw depth corrections.**  A homomorphism into the
+central layer by §3; §4 identifies its value with the actual `stageShift` of either even word
+datum. -/
+noncomputable def evenRawDepthShiftHom
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k) :
+    EvenRawDepthCorrection G h k →* zLayer G k where
+  toFun V := ⟨evenRawDbarWord base V.correction,
+    evenRawDbarWord_mem_zLayer h k hk base V.correction V.depth⟩
+  map_one' := Subtype.ext (evenRawDbarWord_one base)
+  map_mul' V V' := Subtype.ext (evenRawDbarWord_mul h k hk base V.depth V'.depth)
+
+/-! ### The six exact coordinate rows
+
+Read off from `evenRawCoreDbarWord`.  Note the asymmetry the L template does not have:
+coordinate `0` carries the diagonal square *and two* brackets, while coordinate `1` carries a
+single bracket against `base 0`.  Coordinates `2,3` are cross-paired, as are the handles. -/
+
+/-- The `x₀`-row (coordinate `0`): the inseparable diagonal `p² · [p, base 0] · [p, base 1]`.
+This is the even lane's replacement for the L template's `p² · [p, x₁]`, and the extra
+bracket is what forces the additional step in `evenRawBracket_base_mem_shiftSpan`. -/
+theorem evenRawDepthShiftHom_zero_apply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom base hk)
+        (evenRawDepthCoordinateCorrection 0 p)).1 =
+      p.1 ^ 2 * commP p.1 (base 0) * commP p.1 (base 1) := by
+  have hh : evenRawHandleDbarWord base
+      (evenRawDepthCoordinateCorrection (0 : Fin (MarkedCore.coreRank h)) p :
+        EvenRawDepthCorrection G h k).correction = 1 := by
+    simp [evenRawHandleDbarWord, evenRawHandleU_ne_core _ evenRawCoreVal_lt_four.1,
+      evenRawHandleV_ne_core _ evenRawCoreVal_lt_four.1, commP]
+  have c0 : (evenRawDepthCoordinateCorrection (0 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 0 = p.1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_pos rfl]
+  have c1 : (evenRawDepthCoordinateCorrection (0 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 1 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx01.symm]
+  have c2 : (evenRawDepthCoordinateCorrection (0 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 2 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx02.symm]
+  have c3 : (evenRawDepthCoordinateCorrection (0 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 3 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx03.symm]
+  change evenRawDbarWord base _ = _
+  rw [evenRawDbarWord, hh, mul_one, evenRawCoreDbarWord, c0, c1, c2, c3]
+  simp only [commP]
+  group
+
+/-- The `x₁`-row (coordinate `1`): the single bracket `[p, base 0]`. -/
+theorem evenRawDepthShiftHom_one_apply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom base hk)
+        (evenRawDepthCoordinateCorrection 1 p)).1 = commP p.1 (base 0) := by
+  have hh : evenRawHandleDbarWord base
+      (evenRawDepthCoordinateCorrection (1 : Fin (MarkedCore.coreRank h)) p :
+        EvenRawDepthCorrection G h k).correction = 1 := by
+    simp [evenRawHandleDbarWord, evenRawHandleU_ne_core _ evenRawCoreVal_lt_four.2.1,
+      evenRawHandleV_ne_core _ evenRawCoreVal_lt_four.2.1, commP]
+  have c0 : (evenRawDepthCoordinateCorrection (1 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 0 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx01]
+  have c1 : (evenRawDepthCoordinateCorrection (1 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 1 = p.1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_pos rfl]
+  have c2 : (evenRawDepthCoordinateCorrection (1 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 2 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx12.symm]
+  have c3 : (evenRawDepthCoordinateCorrection (1 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 3 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx13.symm]
+  change evenRawDbarWord base _ = _
+  rw [evenRawDbarWord, hh, mul_one, evenRawCoreDbarWord, c0, c1, c2, c3]
+  simp only [commP]
+  group
+
+/-- The `σ`-row (coordinate `2`): the cross bracket `[p, base 3]`. -/
+theorem evenRawDepthShiftHom_two_apply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom base hk)
+        (evenRawDepthCoordinateCorrection 2 p)).1 = commP p.1 (base 3) := by
+  have hh : evenRawHandleDbarWord base
+      (evenRawDepthCoordinateCorrection (2 : Fin (MarkedCore.coreRank h)) p :
+        EvenRawDepthCorrection G h k).correction = 1 := by
+    simp [evenRawHandleDbarWord, evenRawHandleU_ne_core _ evenRawCoreVal_lt_four.2.2.1,
+      evenRawHandleV_ne_core _ evenRawCoreVal_lt_four.2.2.1, commP]
+  have c0 : (evenRawDepthCoordinateCorrection (2 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 0 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx02]
+  have c1 : (evenRawDepthCoordinateCorrection (2 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 1 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx12]
+  have c2 : (evenRawDepthCoordinateCorrection (2 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 2 = p.1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_pos rfl]
+  have c3 : (evenRawDepthCoordinateCorrection (2 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 3 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx23.symm]
+  change evenRawDbarWord base _ = _
+  rw [evenRawDbarWord, hh, mul_one, evenRawCoreDbarWord, c0, c1, c2, c3]
+  simp only [commP]
+  group
+
+/-- The `x₂`-row (coordinate `3`): the cross bracket `[p, base 2]`. -/
+theorem evenRawDepthShiftHom_three_apply
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) (hk : 3 ≤ k)
+    (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom base hk)
+        (evenRawDepthCoordinateCorrection 3 p)).1 = commP p.1 (base 2) := by
+  have hh : evenRawHandleDbarWord base
+      (evenRawDepthCoordinateCorrection (3 : Fin (MarkedCore.coreRank h)) p :
+        EvenRawDepthCorrection G h k).correction = 1 := by
+    simp [evenRawHandleDbarWord, evenRawHandleU_ne_core _ evenRawCoreVal_lt_four.2.2.2,
+      evenRawHandleV_ne_core _ evenRawCoreVal_lt_four.2.2.2, commP]
+  have c0 : (evenRawDepthCoordinateCorrection (3 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 0 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx03]
+  have c1 : (evenRawDepthCoordinateCorrection (3 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 1 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx13]
+  have c2 : (evenRawDepthCoordinateCorrection (3 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 2 = 1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_neg evenRawIdx23]
+  have c3 : (evenRawDepthCoordinateCorrection (3 : Fin (MarkedCore.coreRank h)) p :
+      EvenRawDepthCorrection G h k).correction 3 = p.1 := by
+    rw [evenRawDepthCoordinateCorrection_apply, if_pos rfl]
+  change evenRawDbarWord base _ = _
+  rw [evenRawDbarWord, hh, mul_one, evenRawCoreDbarWord, c0, c1, c2, c3]
+  simp only [commP]
+  group
+
+end RawSpan
+
 end
 
 end GQ2.Dyadic.StageGeneric
