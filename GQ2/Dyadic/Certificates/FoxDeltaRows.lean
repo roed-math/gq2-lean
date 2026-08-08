@@ -532,4 +532,144 @@ theorem foxDelta_e01W (hσ : a Generator.sigma = 0) (aa bb : ℕ) :
     hev, hd0, PWord.evalFin_conj, mem_trivAct.mp (trivAct_conjR htinner _)]
   simp only [smul_add, mul_smul]
 
+/-! ### The assembled hat row: the headline
+
+`MpcFox.foxD_mpcHatW_ram` is draft Rem. 5.4's first-order half, and the deepest declaration of
+the ramified-only region.  Its whole proof is arithmetic in the one procyclic letter
+`U = S₂ = σ^{ω₂}` applied to the **two** vectors `D(Â)` and `D(B̂)`, and those are `∓D(δ_i)`.
+So the theorem is not ramified at all: it holds at every δ-row, and the two `δ`-columns cancel
+for the reason the memo gives (the `x_i`- and `δ_i`-occurrences carry the same prefix sum, and
+`hV₂` finishes the doubled `x₁`-column) whatever the row's value.
+
+The `obtain` pair below is the honest way to say that: `X₀` and `X₁` are introduced as *opaque*
+vectors with `D(δ_i) = −X_i`, so nothing after them can depend on which reading is in force. -/
+
+/-- **The hat copy has zero first Fox derivative, at every δ-row.**
+
+At `σ`-free offsets, `D(R̂^pc) = 0` for every `(α, r, p)` with `α ≥ 1`, every `η̂` display, and
+**every** reading of the `ω₂`-block.  The committed `MProcyclic.foxD_mpcHatW_ram` is the
+`deltaVal a i = −a(x_i)` case (pinned in §5); `foxDelta_mpcHatW_unram` (§6) is the
+`deltaVal a i = a(τ)` case, which no file could state before.
+
+`α ≥ 1` enters in exactly one place and it is the packet's own balance:
+`−2m·2^r + 2^α·2^r = 0` (`s_mul_two_pow`).  Nothing else on the row uses it, and nothing at all
+uses the reading. -/
+theorem foxDelta_mpcHatW (hσ : a Generator.sigma = 0) {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ)
+    (η : EtaDisplay) (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcHatW α r pp η h) = 0 := by
+  set U := powOmega2 t.σ with hUdef
+  set k : ℕ := s r * m α with hkdef
+  obtain ⟨X₀, hX0⟩ : ∃ X : V, dr.deltaVal a 0 = -X := ⟨-dr.deltaVal a 0, (neg_neg _).symm⟩
+  obtain ⟨X₁, hX1⟩ : ∃ X : V, dr.deltaVal a 1 = -X := ⟨-dr.deltaVal a 1, (neg_neg _).symm⟩
+  have hmerge : ∀ (i j : ℤ) (w : V), (U ^ i) • ((U ^ j) • w) = (U ^ (i + j)) • w := by
+    intro i j w; rw [← mul_smul, ← zpow_add]
+  have hA : foxD ⇑t a E E₂ (aHatW h (s r) (m α)) = X₀ := by
+    rw [foxDelta_aHatW dr a hσ, hX0, neg_neg]
+  have hB : foxD ⇑t a E E₂ (bHatW h pp) = -X₁ := by
+    rw [foxDelta_bHatW dr a hσ pp, hX1]
+  have hAact : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (aHatW h (s r) (m α)) • w = (U ^ (-(k : ℕ) : ℤ)) • w :=
+    MProcyclic.evalFin_aHatW_act t E E₂ dr.wild dr.todd _ _
+  have hBact : ∀ w : V, PWord.evalFin ⇑t E E₂ (bHatW h pp) • w = (U ^ ((pp : ℕ) : ℤ)) • w :=
+    MProcyclic.evalFin_bHatW_act t E E₂ dr.wild dr.todd pp
+  have hAinv : ∀ w : V,
+      (PWord.evalFin ⇑t E E₂ (aHatW h (s r) (m α)))⁻¹ • w = (U ^ ((k : ℕ) : ℤ)) • w := by
+    intro w; rw [inv_smul_eq_iff, hAact, hmerge]; simp
+  have hBinv : ∀ w : V,
+      (PWord.evalFin ⇑t E E₂ (bHatW h pp))⁻¹ • w = (U ^ (-(pp : ℕ) : ℤ)) • w := by
+    intro w; rw [inv_smul_eq_iff, hBact, hmerge]; simp
+  -- factor 1: `Â²`
+  have hf1 : foxD ⇑t a E E₂ (.zpow (aHatW h (s r) (m α)) ((2 : ℕ) : ℤ))
+      = X₀ + (U ^ (-(k : ℕ) : ℤ)) • X₀ := by
+    rw [foxD_zpow_natCast, Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_zero,
+      pow_zero, pow_one, one_smul, zero_add, hA, hAact]
+  -- factor 2: `[Â,B̂]`, where neither entry acts trivially
+  have hf2 : foxD ⇑t a E E₂ (.comm (aHatW h (s r) (m α)) (bHatW h pp))
+      = -((U ^ ((k : ℕ) : ℤ)) • X₀) - (U ^ (((k : ℕ) : ℤ) + (-(pp : ℕ) : ℤ))) • (-X₁)
+        + (U ^ (((k : ℕ) : ℤ) + (-(pp : ℕ) : ℤ))) • X₀
+        + (U ^ (-(pp : ℕ) : ℤ)) • (-X₁) := by
+    rw [MProcyclic.foxD_comm_general, hA, hB]
+    simp only [mul_smul, hAinv, hBinv, hAact, hmerge]
+    rw [show ((k : ℕ) : ℤ) + ((-(pp : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) = (-(pp : ℕ) : ℤ) by ring]
+  -- factors 3 and 4 are silent off the σ-column
+  have hf3 : foxD ⇑t a E E₂ (.zpow (c0HatW h (s r)) ((2 ^ α : ℕ) : ℤ)) = 0 := by
+    rw [foxD_zpow_natCast]
+    exact Finset.sum_eq_zero fun i _ => by
+      rw [MProcyclic.foxD_c0HatW_of_sigma_free t E E₂ a hσ, smul_zero]
+  have hf4 : foxD ⇑t a E E₂ (.comm (c0HatW h (s r)) (η.toPWord (n := 2 + 2 * h))) = 0 := by
+    rw [MProcyclic.foxD_comm_general, MProcyclic.foxD_c0HatW_of_sigma_free t E E₂ a hσ,
+      MProcyclic.foxD_etaDisplay_of_sigma_free t E E₂ a hσ]
+    simp
+  -- factor 5: `E₀₁^pc`
+  have hpowinv : ∀ (j : ℕ) (w : V), ((U ^ j)⁻¹ : C) • w = (U ^ (-(j : ℕ) : ℤ)) • w := by
+    intro j w; rw [zpow_neg, zpow_natCast]
+  have hf5 : foxD ⇑t a E E₂ (e01W h (pp + k) k)
+      = -((U ^ ((-(pp + k : ℕ) : ℤ) + (-(k : ℕ) : ℤ))) • X₁)
+        - (U ^ (-(pp + k : ℕ) : ℤ)) • X₁ - (U ^ (-(pp + k : ℕ) : ℤ)) • X₀ - X₀ := by
+    rw [foxDelta_e01W dr a hσ, hX0, hX1]
+    simp only [← hUdef, mul_smul, hpowinv, hmerge, smul_neg]
+    abel
+  -- prefix weights
+  have hw1 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.zpow (aHatW h (s r) (m α)) ((2 : ℕ) : ℤ)) • w
+        = (U ^ ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ))) • w := by
+    intro w
+    rw [PWord.evalFin_zpow, zpow_natCast, pow_two, mul_smul, hAact, hAact, hmerge]
+  have hcommTriv : ∀ (u v : PWord (Generator (2 + 2 * h))) (i j : ℤ),
+      (∀ w : V, PWord.evalFin ⇑t E E₂ u • w = (U ^ i) • w) →
+      (∀ w : V, PWord.evalFin ⇑t E E₂ v • w = (U ^ j) • w) →
+      ∀ w : V, PWord.evalFin ⇑t E E₂ (.comm u v) • w = w := by
+    intro u v i j hu hv w
+    have hiu : ∀ w : V, (PWord.evalFin ⇑t E E₂ u)⁻¹ • w = (U ^ (-i)) • w := by
+      intro w; rw [inv_smul_eq_iff, hu, hmerge]; simp
+    have hiv : ∀ w : V, (PWord.evalFin ⇑t E E₂ v)⁻¹ • w = (U ^ (-j)) • w := by
+      intro w; rw [inv_smul_eq_iff, hv, hmerge]; simp
+    rw [PWord.evalFin_comm, commR]
+    simp only [mul_smul, hv, hu, hiv, hiu, hmerge]
+    rw [show -i + (-j + (i + j)) = (0 : ℤ) by ring, zpow_zero, one_smul]
+  have hw2 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.comm (aHatW h (s r) (m α)) (bHatW h pp)) • w = w :=
+    hcommTriv _ _ _ _ hAact hBact
+  have hknat : s r * 2 ^ α = k + k := by
+    have := s_mul_two_pow (α := α) hα r
+    rw [hkdef]; omega
+  have hw3 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.zpow (c0HatW h (s r)) ((2 ^ α : ℕ) : ℤ)) • w
+        = (U ^ (((k : ℕ) : ℤ) + ((k : ℕ) : ℤ))) • w := by
+    intro w
+    rw [PWord.evalFin_zpow, MProcyclic.evalFin_c0HatW_eq, ← zpow_mul]
+    congr 2
+    rw [← Nat.cast_mul, hknat]
+    push_cast
+    ring
+  -- `[Ĉ₀,D]` is trivial because both entries are `ℤ`-powers of `σ`
+  have hw4 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.comm (c0HatW h (s r)) (η.toPWord (n := 2 + 2 * h))) • w = w := by
+    obtain ⟨n, hn⟩ := MProcyclic.exists_zpow_evalFin_etaDisplay t E E₂ η
+    have hc0 : PWord.evalFin ⇑t E E₂ (c0HatW h (s r))
+        = t.σ ^ ((omega2Exp (orderOf t.σ) * s r : ℕ) : ℤ) := by
+      rw [MProcyclic.evalFin_c0HatW_eq, powOmega2, ← zpow_natCast t.σ, ← zpow_mul]
+      push_cast
+      ring_nf
+    intro w
+    rw [PWord.evalFin_comm, hn, hc0,
+      commR_eq_one_iff.mpr ((Commute.refl t.σ).zpow_zpow _ _), one_smul]
+  -- assemble
+  rw [mpcHatW, hatFactors]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, foxD_mul, foxD_one, smul_zero, add_zero]
+  rw [hf1, hf2, hf3, hf4, hf5, hw1, hw2, hw3, hw4]
+  simp only [smul_add, smul_sub, smul_neg, hmerge, zero_add]
+  rw [show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + ((k : ℕ) : ℤ) = (-(k : ℕ) : ℤ) by ring,
+    show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + (((k : ℕ) : ℤ) + (-(pp : ℕ) : ℤ))
+      = (-(pp + k : ℕ) : ℤ) by push_cast; ring,
+    show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + (-(pp : ℕ) : ℤ)
+      = (-(pp + k : ℕ) : ℤ) + (-(k : ℕ) : ℤ) by push_cast; ring,
+    show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + (((k : ℕ) : ℤ) + ((k : ℕ) : ℤ)) = (0 : ℤ) by ring,
+    zpow_zero, one_smul]
+  -- the `x₀` column cancels over `ℤ`; the `x₁` column is a doubled term, killed by `hV₂`
+  have h2z : ∀ w : V, (-2 : ℤ) • w = 0 := fun w => by
+    rw [show (-2 : ℤ) = -(2 : ℤ) by norm_num, neg_zsmul, two_zsmul, hV₂, neg_zero]
+  abel_nf
+  exact h2z _
+
 end MpcRows
