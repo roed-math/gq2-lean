@@ -600,6 +600,7 @@ import GQ2.Dyadic.MarkedCore.MScalingHandles
 import GQ2.Dyadic.MarkedCore.M
 import GQ2.Dyadic.MarkedCore.N
 import GQ2.Dyadic.MarkedCore.MFrame
+import GQ2.Dyadic.MarkedCore.MFrameExists
 import GQ2.Dyadic.MarkedCore.CoVDischarge
 import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedCore.CompactCoV
