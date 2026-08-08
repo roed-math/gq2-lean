@@ -375,11 +375,12 @@ theorem evenDeep_exists_pow_root {s : ℕ} (hs : 2 ≤ s) (t : ℕ) {y : ℤ_[2]
 
 /-- **The sufficiency chain.**  If every unit that is `1` modulo `2^α` is a character value,
 then the depth-`(α - 1)` supply holds for every table with values in the image.  §6 discharges
-the hypothesis on the `M` branch.  On the `N` branch it is *false* as stated — `imChiN α`
-contains no unit of exact level `α` congruent to `1` mod `4`, its elements of that shape
-starting only at level `α + 1` — so the `N` branch needs the roots taken up to sign, i.e. the
-exponent-valuation form of procyclic surjectivity rather than the congruence form; that is
-the one piece this file leaves open.  This is the
+the hypothesis on the `M` branch.  It is *not* available on the `N` branch: `imChiN α` is
+procyclic on `nUnit α ≡ -1 mod 2^α`, so (this is an observation, not proved here) its
+elements congruent to `1` mod `4` are the even powers and start at level `α + 1`, one deeper
+than the hypothesis asks.  The `N` branch therefore needs the roots taken up to sign, i.e.
+the exponent-valuation form of procyclic surjectivity rather than the congruence form used
+here; that is the one piece this file leaves open.  This is the
 positive counterpart of the §5 refutation of `StageAbstractionEvenRowSupply.lean`: at the
 corrected depth the seam works, and it works for the same reason the odd-degree seam does. -/
 theorem evenRow_deepSupply_of_deepUnits {α : ℕ} (hα : 3 ≤ α)
