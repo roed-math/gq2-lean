@@ -5,6 +5,29 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 51 (2026-08-08)
+
+**Open, still yours (unchanged):** §1 (the `q = 4` ramified Arf sign; recommendation stands:
+option 3) and item 6's `α = 1` even cores.  New for orientation, not decision: the wave found
+genuine even-degree structure at `α = 2` (both bridge tables' ω entries are α-dependent and
+nonzero exactly at `α = 2`; on the M row no ω scalar exists there at all, machine-checked,
+resolved by a new Witt-transitivity layer; on the N row `α = 2` gives the first genuinely
+non-surjective character satisfying the committed sharp seam).  Worth a summary before the
+paper's even sections are drafted.
+
+**Landed this wave:** the containment identity on the whole binder with unconditional
+bit-zero existence (`SqCore/GradedContain.lean`); the σ-slot slice-blindness diagnosis with
+the off-gauge separation escape (`SqCore/GradedSigma.lean`); the class-6 corank verdict
+(still `d + 1`) with the class-5 grid exhaustive and a new mod-2 parity structure
+(`docs/dyadic/w51-class6-note.md`); both frame existences sharp
+(`Nonempty (MFrame α h)` iff `α ≥ 1`, `Nonempty (NFrame α h)` iff `α ≥ 2`, three regimes)
+with frame-free `demushkinQ` values; the δ-row Fox layer with the first unramified hat row;
+and the entire EV-3 board: the even oriented-equivalence endpoints exist with axiom prints
+identical to the odd route, behind six named hypotheses (two scoped ~650-line boundaries
+remain inside EV-3f; the load-bearing arithmetic seam is now the range identity
+`range chiCycKTwo = imChi{N,M} α`).  Final state `48589bd5`: 4242 jobs green, census 11,
+zero sorries, capstones frozen.
+
 ## Status at wave 50 (2026-08-07)
 
 **Open, still yours:** §1 (the `q = 4` ramified Arf sign — the recommendation stands: option 3,
