@@ -769,6 +769,100 @@ theorem selConWit_bit (hd : 2 * P + (A * S - B * T) = 0)
 
 end Witness
 
+/-! ## §7 ⭐⭐ The containment on the live locus
+
+Putting §6's witness through the committed completion: wherever the live pairing witness
+exists (`rr · 2·B·D = 2`, the hypothesis of `sqRelWord_selRefine_eq_one` evaluated at the
+witness's `V`-column `(B, D)`), the even residue is killed by one explicit handle-`γ₂` move,
+so the binder point carries an actual relator-killing refinement of admissible level-one data:
+the containment, constructively, with every object exhibited.  `selCon_increment_exact`
+complements it with the exact-image statement: under the same live hypothesis every even value
+of `ℤ/8` is an achievable `U`-slot increment, which together with the committed
+`selPair_even` pins the achievable-increment group to exactly `2·ℤ/8` on the live locus
+(deliverable 4, the slice form of the sweep's corank statement).
+
+⚠ Honesty note: off the live locus nothing here produces a survivor, and the sweep warns the
+increment group can degenerate to `4·ℤ/8` or `0` at degenerate weight tuples, where the
+selection reads finer residues than the bit.  The statements below therefore carry the live
+hypothesis exactly where the completion consumes it, and nowhere else. -/
+
+section Containment
+
+variable {h : ℕ} {j : Fin h} {A B C D P Q T S : gr3R}
+
+/-- ⭐⭐ **The witness is refinable to a survivor on the live locus**: its even residue
+`2 · res` is exhibited, and the committed completion move (dress the `U`-handle slot by the
+`γ₂`-element with `(d, e) = rr·res·(−B, D)`) kills the relator. -/
+theorem sqRelWord_selConWit_refine (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) {rr : gr3R} (hlive : rr * (B * D + D * B) = 2) :
+    ∃ res : gr3R, sqRelWord (selConWit h j A B C D P Q T S) = ⟨0, 0, 0, 0, 0, 2 * res⟩ ∧
+      sqRelWord (selRefine j (selConWit h j A B C D P Q T S) 1 1
+        ⟨0, 0, 0, -(rr * res * B), rr * res * D, 0⟩ 1) = 1 := by
+  obtain ⟨res, hres⟩ := selConWit_even hd he
+  refine ⟨res, hres, sqRelWord_selRefine_eq_one hres ?_⟩
+  rw [selConWit_handleV]
+  exact hlive
+
+/-- ⭐⭐ **The containment identity over the whole marking binder** (the ticket's statement
+shape): at every binder point with a live pairing there exist class-two-admissible level-one
+data with selection bit zero, together with an achievable `γ₂`-move refining them to a
+class-three survivor.  All four objects are exhibited: the data (`selConWitD`), the even
+residue, the move's `Λ`-membership, and the relator-killing identity.  No uncleared
+hypothesis: the existence part holds on the whole binder, and the live hypothesis is consumed
+only by the final refinement, as the sweep's sharpness caveat requires. -/
+theorem selCon_contain (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) {rr : gr3R} (hlive : rr * (B * D + D * B) = 2) :
+    ∃ (x₁ : SelConDress) (res : gr3R) (z₃ : SqU4 gr3R), z₃.IsGaTwo ∧
+      selLam A B C D P Q z₃ ∧
+      sqRelWord (selConTuple h j A B C D P Q T S selConTriv x₁ selConTriv selConTriv
+        selConTriv) = ⟨0, 0, 0, 0, 0, 2 * res⟩ ∧
+      sqRelWord (selRefine j (selConTuple h j A B C D P Q T S selConTriv x₁ selConTriv
+        selConTriv selConTriv) 1 1 z₃ 1) = 1 := by
+  obtain ⟨res, hres, hkill⟩ := sqRelWord_selConWit_refine hd he hlive
+  exact ⟨selConWitD T S, res, ⟨0, 0, 0, -(rr * res * B), rr * res * D, 0⟩, ⟨rfl, rfl, rfl⟩,
+    selLam_completion_move A B C D P Q res rr, hres, hkill⟩
+
+/-- ⭐ **The achievable increments fill `2·ℤ/8` exactly on the live locus** (deliverable 4):
+under the live pairing hypothesis, every even element of `ℤ/8` is realised as the increment of
+an achievable `U`-slot `γ₂`-move.  Together with the committed `selPair_even` (every
+achievable increment is even) this is the slice form of the sweep's exact-corank statement:
+the image of the linear part of the refinement action is exactly `2·ℤ/8` there, corank one
+𝔽₂-functional. -/
+theorem selCon_increment_exact {m : Fin (sqRank h) → SqU4 gr3R} {rr : gr3R}
+    (hmu : rr * (B * (m (sqHandleIdxV j)).c + D * (m (sqHandleIdxV j)).a) = 2) (x : gr3R) :
+    ∃ z₃ : SqU4 gr3R, z₃.IsGaTwo ∧ selLam A B C D P Q z₃ ∧
+      z₃.d * (m (sqHandleIdxV j)).c - z₃.e * (m (sqHandleIdxV j)).a = 2 * x := by
+  refine ⟨⟨0, 0, 0, rr * x * B, -(rr * x * D), 0⟩, ⟨rfl, rfl, rfl⟩,
+    ⟨0, -(rr * x), 0, by ring, by ring⟩, ?_⟩
+  linear_combination x * hmu
+
+/-! ### Concrete instances
+
+The two §6c homs of `GradedSelect`, at the canonical row `(T, S) = (0, 1)` and one handle.
+At both, the whole-binder witness does better than even: its residue is `0` and the relator
+dies outright, with no refinement needed.  The contrast with the committed `selTW2` (the
+`t`-dressed tuple at the κ₃-odd hom, residue `1`, dead under every refinement) is the
+selection and the containment side by side: the bit kills one legal dressing and passes the
+forced one, at the same marking and hom. -/
+
+/-- The witness at the committed hom `(2,1,2,1,7,1)`, row `(0,1)`: the relator dies
+outright. -/
+example : sqRelWord (selConWit 1 0 2 1 2 1 7 1 0 1) = 1 := by decide
+
+/-- …and at the κ₃-odd hom `(4,1,2,1,2,1)`, where `selTW2` is unrepairable, the witness also
+kills the relator: the containment does not fail at κ₃-odd homs, it selects different
+level-one data. -/
+example : sqRelWord (selConWit 1 0 4 1 2 1 2 1 0 1) = 1 := by decide
+
+/-- The live-locus refinement, end to end at the committed hom: hypotheses by `decide`,
+conclusion through the general theorem. -/
+example : ∃ res : gr3R, sqRelWord (selConWit 1 0 2 1 2 1 7 1 0 1) = ⟨0, 0, 0, 0, 0, 2 * res⟩ ∧
+    sqRelWord (selRefine 0 (selConWit 1 0 2 1 2 1 7 1 0 1) 1 1
+      ⟨0, 0, 0, -(1 * res * 1), 1 * res * 1, 0⟩ 1) = 1 :=
+  sqRelWord_selConWit_refine (by decide) (by decide) (by decide)
+
+end Containment
+
 end SqCore
 
 end Dyadic
