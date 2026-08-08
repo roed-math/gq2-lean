@@ -206,6 +206,149 @@ end EvenSharpNeutralCorrection
 
 end Neutral
 
+/-! ## §3 The neutral action, and the torsor property
+
+The clone of `SharpAdmissibleCorrection.mulNeutral` / `.differenceNeutral` /
+`.mulNeutral_difference_correction` (L template, lines 978-1068).  The content is that the
+depth-`s` admissible corrections of a fixed tuple form a torsor under the depth-`s` neutral
+corrections: rows are a character condition, and the character is a homomorphism. -/
+
+section Action
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k s : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+variable {T : Tuple W v G chi k}
+
+/-- **Translating a deep admissible correction by a neutral one.**  Rows survive because the
+neutral coordinate contributes the character value `1` to `s` fresh digits. -/
+def evenSharpMulNeutral (Wc : DeepSharpAdmissibleCorrection s T)
+    (N : EvenSharpNeutralCorrection s G chi h k) : DeepSharpAdmissibleCorrection s T where
+  correction i := Wc.correction i * N.correction i
+  depth i := Subgroup.mul_mem _ (Wc.depth i) (N.depth i)
+  rows i := by
+    obtain ⟨g, hmod, hcong⟩ := Wc.rows i
+    obtain ⟨g', hn, hnchi⟩ := N.neutral i
+    simp only [stageModified] at hmod ⊢
+    refine ⟨g * g', ?_, ?_⟩
+    · rw [← mul_assoc, hmod, hn, map_mul]
+    · simp only [map_mul, hnchi, mul_one]
+      exact hcong
+
+@[simp] theorem evenSharpMulNeutral_correction (Wc : DeepSharpAdmissibleCorrection s T)
+    (N : EvenSharpNeutralCorrection s G chi h k) (i : Fin (MarkedCore.coreRank h)) :
+    (evenSharpMulNeutral Wc N).correction i = Wc.correction i * N.correction i := rfl
+
+/-- **Two deep admissible corrections differ by a neutral one.**  The character values of the
+two modified rows agree to `s` fresh digits with the same table value, so their ratio is
+trivial there. -/
+def evenSharpDifferenceNeutral (Wc Wc' : DeepSharpAdmissibleCorrection s T) :
+    EvenSharpNeutralCorrection s G chi h k where
+  correction i := (Wc.correction i)⁻¹ * Wc'.correction i
+  depth i := Subgroup.mul_mem _ (Subgroup.inv_mem _ (Wc.depth i)) (Wc'.depth i)
+  neutral i := by
+    obtain ⟨g, hmod, hcong⟩ := Wc.rows i
+    obtain ⟨g', hmod', hcong'⟩ := Wc'.rows i
+    simp only [stageModified] at hmod hmod'
+    refine ⟨g⁻¹ * g', ?_, ?_⟩
+    · rw [map_mul, map_inv, ← hmod, ← hmod']
+      group
+    · simp only [map_mul, map_inv, hcong, hcong']
+      exact inv_mul_cancel _
+
+@[simp] theorem evenSharpDifferenceNeutral_correction
+    (Wc Wc' : DeepSharpAdmissibleCorrection s T) (i : Fin (MarkedCore.coreRank h)) :
+    (evenSharpDifferenceNeutral Wc Wc').correction i =
+      (Wc.correction i)⁻¹ * Wc'.correction i := rfl
+
+/-- **The torsor identity.**  Translating by the difference lands on the target. -/
+theorem evenSharpMulNeutral_difference_correction (Wc Wc' : DeepSharpAdmissibleCorrection s T)
+    (i : Fin (MarkedCore.coreRank h)) :
+    (evenSharpMulNeutral Wc (evenSharpDifferenceNeutral Wc Wc')).correction i =
+      Wc'.correction i :=
+  mul_inv_cancel_left _ _
+
+end Action
+
+/-! ## §4 Existence of deep admissible corrections
+
+The clone of `admissibleCorrection_nonempty` / `sharpAdmissibleCorrection_nonempty` (L
+template, lines 454 and 507).  The even proof is shorter than the L one and needs no character
+input at all: a stage tuple's rows are *exact* fibres already at level `k`, so the correction
+carrying the canonical lift onto an exact representative works at every depth `s`
+simultaneously.  Only the depth bookkeeping is new, and it is `zLayer G k ≤ λ_{k-1}`. -/
+
+section Existence
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+
+/-- The central layer sits inside the modification space, because the two-central tower is
+antitone.  This is the only depth bookkeeping §4 needs. -/
+theorem evenSharpZLayer_le_lambdaImage (G : Type) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (k : ℕ) : zLayer G k ≤ lambdaImage G (k - 1) (k + 1) := by
+  rintro _ ⟨g, hg, rfl⟩
+  exact ⟨g, twoCentralSeries_antitone G (by omega : k - 1 ≤ k) hg, rfl⟩
+
+/-- **Deep admissible corrections always exist**, at every depth `s` at once.  Take the
+correction moving the canonical lift of each row onto an exact representative of that row's
+table value; it has depth `k-1` because the two lifts agree one level down. -/
+theorem evenSharpDeepAdmissible_nonempty (s : ℕ) (T : Tuple W v G chi k) :
+    Nonempty (DeepSharpAdmissibleCorrection s T) := by
+  classical
+  choose x hxchi hx using T.rows
+  refine ⟨⟨fun i ↦ (canonLift G k (T.generators i))⁻¹ * levelMk G (k + 1) (x i), ?_, ?_⟩⟩
+  · intro i
+    refine evenSharpZLayer_le_lambdaImage G k ?_
+    rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, map_mul, map_inv, levelProj_canonLift,
+      levelProj_levelMk, ← hx i, inv_mul_cancel]
+  · intro i
+    refine ⟨x i, ?_, by rw [hxchi i]⟩
+    simp only [stageModified]
+    exact mul_inv_cancel_left _ _
+
+end Existence
+
+/-! ## §5 The shift supply: the board's crux (i), once for both even relators
+
+The L template's `stageShift_zero_eq_dbarWordR2` identifies the exact relator shift of a
+depth-`k-1` correction with the literal crossed-derivation word.  Its even analogue is F1's
+`evenRawStageShift_n` / `evenRawStageShift_m`, and by the seam note §3(a) **the two even
+relators produce the same word** `evenRawDbarWord` once `2 ≤ α`: the `N` first letter has
+exponent `2 + 2^α` and the `M` first letter exponent `2`, and both contribute `p² · [p, -]`
+because `binom (2 + 2^α) 2` is odd and `p^(2 + 2^α) = p²`, while the `M` third letter has
+exponent `2^α` and contributes nothing.
+
+So the crux is packaged here as a single `Prop` about a word datum, and each even branch
+discharges it in one line.  This is the "one comparison serving `N` and `M`" the seam note
+promised; nothing downstream ever needs to know which branch it is on. -/
+
+section ShiftSupply
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- **The crossed-derivation comparison, as an interface.**  A word datum satisfies this when
+its exact relator shift along a depth-`k-1` correction is the even literal shift word. -/
+def EvenSharpDbarShiftSupply {h : ℕ} (W : StageWord (MarkedCore.coreRank h)) (G : Type)
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (k : ℕ) : Prop :=
+  ∀ base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1),
+    (∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) →
+      stageShift W base correction = evenRawDbarWord base correction
+
+/-- **Crux (i) on the `N` branch.** -/
+theorem evenSharpDbarShiftSupply_n {α h k : ℕ} (hα : 2 ≤ α) (hα₁ : 1 ≤ α) (hk : 3 ≤ k) :
+    EvenSharpDbarShiftSupply (nStageWord α h hα₁) G k :=
+  fun base correction hdepth ↦ evenRawStageShift_n hα hα₁ h k hk base correction hdepth
+
+/-- **Crux (i) on the `M` branch**, the same comparison against the same word. -/
+theorem evenSharpDbarShiftSupply_m {α h k : ℕ} (hα : 2 ≤ α) (hα₁ : 1 ≤ α) (hk : 3 ≤ k) :
+    EvenSharpDbarShiftSupply (mStageWord α h hα₁) G k :=
+  fun base correction hdepth ↦ evenRawStageShift_m hα hα₁ h k hk base correction hdepth
+
+end ShiftSupply
+
 end
 
 end GQ2.Dyadic.StageGeneric
