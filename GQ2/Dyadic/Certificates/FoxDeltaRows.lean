@@ -230,16 +230,24 @@ theorem trivAct_delta (i : Fin 3) :
     PWord.evalFin ⇑t E E₂ (Words.MCompact.deltaC h i) ∈ trivAct C V :=
   MCompact.trivAct_deltaC t E E₂ dr.wild i (dr.trivAct_block i)
 
-/-- **The δ-letter row: `D(δ_i) = block i − a(x_i)`.**
+/-- **The δ-row proper**: the value `D(δ_i)` of the certificate `δ`-letter's Fox derivative,
+`block a i − a(x_i)`.
 
-The statement the origin note calls "the δ-row".  At `block i = a(x_i) + a(τ)` (unramified) it
-is `MCompact.foxD_deltaC_unram`'s `a(τ)`; at `block i = 0` (ramified) it is
-`MCompact.foxD_deltaC_ram`'s `−a(x_i)`; here it is one theorem. -/
+This is the vector the origin note names, and the one every procyclic-`M` factor row of §4 is
+stated in.  It is `a(τ)` unramified and `−a(x_i)` ramified: two genuinely different rows, one
+definition. -/
+def deltaVal (i : Fin 3) : V := dr.block a i - a (coreLetter h i)
+
+/-- **The δ-letter row: `D(δ_i) = deltaVal a i`.**
+
+At `block a i = a(x_i) + a(τ)` (unramified) this is `MCompact.foxD_deltaC_unram`'s `a(τ)`; at
+`block a i = 0` (ramified) it is `MCompact.foxD_deltaC_ram`'s `−a(x_i)`; here it is one
+theorem. -/
 theorem foxD_delta (i : Fin 3) :
-    foxD ⇑t a E E₂ (Words.MCompact.deltaC h i) = dr.block a i - a (coreLetter h i) := by
+    foxD ⇑t a E E₂ (Words.MCompact.deltaC h i) = dr.deltaVal a i := by
   rw [Words.MCompact.deltaC, MCompact.foxD_prodList_pair, dr.foxD_block a i,
     mem_trivAct.mp (dr.trivAct_block i), foxD_inv, PWord.evalFin_gen, foxD_gen,
-    mem_trivAct.mp (inv_mem (dr.trivAct_coreLetter i))]
+    mem_trivAct.mp (inv_mem (dr.trivAct_coreLetter i)), deltaVal]
   abel
 
 end FoxDeltaRow
@@ -389,16 +397,139 @@ theorem foxDelta_npcW_eq_uncorrected (e : EtaData) (a : Generator (2 + 2 * h) �
   Npc.foxD_npcW_eq_uncorrected t E E₂ dr.wild dr.todd e a
 
 /-- **The `D`-block's row at an arbitrary δ-row**: the corrected cross operator applied to
-`D(δ₀)`, which the layer now writes in terms of the δ-row itself.  `Npc.foxD_dBlockW` states it
-with `D(δ₀)` opaque and `hTodd` bound; here `D(δ₀)` is `block a 0 − a(x₀)`
+`D(δ₀)`, which the layer now writes as the δ-row itself.  `Npc.foxD_dBlockW` states it with
+`D(δ₀)` opaque and `hTodd` bound; here `D(δ₀)` is `dr.deltaVal a 0`
 (`FoxDeltaRow.foxD_delta`) and `hTodd` is derived. -/
 theorem foxDelta_dBlockW (e : EtaData) (a : Generator (2 + 2 * h) → V) :
     foxD ⇑t a E E₂ (dBlockW h r e)
-      = (t.σ ^ E e.toZhat)⁻¹ • (dr.block a 0 - a (coreLetter h 0))
-        + (t.σ ^ ((2 : ℤ) ^ r) • (dr.block a 0 - a (coreLetter h 0))
-          + t.σ ^ ((2 : ℤ) ^ r) • (t.σ ^ E e.toZhat)⁻¹ • (dr.block a 0 - a (coreLetter h 0))) := by
-  have hδ : foxD ⇑t a E E₂ (deltaZeroW h) = dr.block a 0 - a (coreLetter h 0) :=
-    dr.foxD_delta a 0
+      = (t.σ ^ E e.toZhat)⁻¹ • dr.deltaVal a 0
+        + (t.σ ^ ((2 : ℤ) ^ r) • dr.deltaVal a 0
+          + t.σ ^ ((2 : ℤ) ^ r) • (t.σ ^ E e.toZhat)⁻¹ • dr.deltaVal a 0) := by
+  have hδ : foxD ⇑t a E E₂ (deltaZeroW h) = dr.deltaVal a 0 := dr.foxD_delta a 0
   rw [Npc.foxD_dBlockW t E E₂ dr.wild dr.todd e a, hδ]
 
 end NpcRows
+
+/-! ## §4. The procyclic-`M` factor rows, parameterised
+
+`MpcFox.lean`'s `section Factors` is the file's ramified-only region: `include hσ hwild hτfpf
+hTodd`, eight declarations, and no unramified twin anywhere in the tree for its headline.  This
+section is that block restated with the δ-row as the parameter.
+
+Every row here is **linear in the δ-row** and never inspects it, which is what makes the
+parameterisation exact rather than a weakening: the ramified reading substitutes
+`deltaVal a i = −a(x_i)` and reproduces the committed statements on the nose (§5), the
+unramified reading substitutes `deltaVal a i = a(τ)` (§6).
+
+`hσ : a σ = 0` stays a hypothesis.  It is not a class condition at all (it says the offset
+vector is `σ`-free) and it is uniform across readings; the freeze's own splitting of the hat-row
+statement into "σ-free offsets here, the σ-column at §4's coincidence lemma" is untouched. -/
+
+section MpcRows
+
+open GQ2.Dyadic.Words.Mpc
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] {t : Marking (2 + 2 * h) C} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+  (dr : FoxDeltaRow (V := V) t E E₂) (a : Generator (2 + 2 * h) → V)
+
+include dr
+
+/-- **The δ-letter row in this lane's spelling.**  `dW h i` and `Words.MCompact.deltaC h i` are
+the same `PWord` (`MProcyclic.dW_eq_deltaCert`), so this is `FoxDeltaRow.foxD_delta` transported,
+and it is the δ-row-parameterised replacement for `MProcyclic.foxD_dW_ram`. -/
+theorem foxDelta_dW (i : Fin 3) : foxD ⇑t a E E₂ (dW h i) = dr.deltaVal a i :=
+  dr.foxD_delta a i
+
+omit [Finite C] [Finite V] in
+/-- The δ-letters act trivially, at every reading. -/
+theorem foxDelta_trivAct_dW (i : Fin 3) : PWord.evalFin ⇑t E E₂ (dW h i) ∈ trivAct C V :=
+  dr.trivAct_delta i
+
+/-- **`D(Â) = −D(δ₀)`**: the `Ĉ₀⁻ᵐ` tail is `σ`-only, so the whole first-order content of `Â` is
+its `δ₀`-head, inverted.  At the ramified row this is `a(x₀)`
+(`MProcyclic.foxD_aHatW`); at the unramified row it is `−a(τ)`, which is
+`MpcUnramifiedBranch.foxD_aHatW_unram`'s `a(τ)` up to the char-2 sign that lemma spends `hV₂`
+on.  The parameterised statement needs no `hV₂`. -/
+theorem foxDelta_aHatW (hσ : a Generator.sigma = 0) (s' mm : ℕ) :
+    foxD ⇑t a E E₂ (aHatW h s' mm) = -dr.deltaVal a 0 := by
+  rw [aHatW, MCompact.foxD_prodList_pair, foxD_inv,
+    mem_trivAct.mp (inv_mem (foxDelta_trivAct_dW dr 0)), foxDelta_dW dr a 0]
+  have hz : foxD ⇑t a E E₂ (.zpow (c0HatW h s') (-(mm : ℤ))) = 0 := by
+    rw [foxD_zpow_neg', foxD_zpow_natCast,
+      Finset.sum_eq_zero fun i _ => by
+        rw [MProcyclic.foxD_c0HatW_of_sigma_free t E E₂ a hσ s', smul_zero], smul_zero, neg_zero]
+  rw [hz, smul_zero, add_zero]
+
+/-- **`D(B̂) = D(δ₁)`**: the `σ₂^p` tail is `σ`-only.  `−a(x₁)` ramified
+(`MProcyclic.foxD_bHatW`), `a(τ)` unramified (`MpcUnramifiedBranch.foxD_bHatW_unram`), and here
+neither reading is built in. -/
+theorem foxDelta_bHatW (hσ : a Generator.sigma = 0) :
+    ∀ pp : ℕ, foxD ⇑t a E E₂ (bHatW h pp) = dr.deltaVal a 1
+  | 0 => foxDelta_dW dr a 1
+  | q + 1 => by
+      rw [show bHatW h (q + 1) = PWord.prodList [dW h 1, sig2PowW h (q + 1)] from rfl,
+        MCompact.foxD_prodList_pair, foxDelta_dW dr a 1]
+      have hs : foxD ⇑t a E E₂ (sig2PowW h (q + 1)) = 0 := by
+        match q with
+        | 0 => exact MProcyclic.foxD_sigma2W_of_sigma_free t E E₂ a hσ
+        | j + 1 =>
+            rw [show sig2PowW h (j + 2) = .zpow sigma2W ((j + 2 : ℕ) : ℤ) from rfl]
+            exact MProcyclic.foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+      rw [hs, smul_zero, add_zero]
+
+/-- **`E₀₁^pc`'s first-order contribution at an arbitrary δ-row**:
+
+```
+D(E₀₁^pc) = (S₂^{−a−b} + S₂^{−a})·D(δ₁) + (S₂^{−a} + 1)·D(δ₀).
+```
+
+The block's four `δ`-occurrences, each weighted by its `σ₂`-conjugator, and nothing else: the
+statement is *manifestly* linear in the δ-row, which is the structural reason freeze row 5's
+finding (`E₀₁^pc` is first-order redundant, gate D cannot justify it) is class-independent.
+Ramified this is `MProcyclic.foxD_e01W_ram`; unramified all four weights hit the same `a(τ)` and
+the sum dies over `F₂` once `S₂` acts trivially, which is
+`MpcUnramifiedBranch.foxD_e01W_unram`. -/
+theorem foxDelta_e01W (hσ : a Generator.sigma = 0) (aa bb : ℕ) :
+    foxD ⇑t a E E₂ (e01W h aa bb)
+      = (((powOmega2 t.σ) ^ aa)⁻¹ * ((powOmega2 t.σ) ^ bb)⁻¹) • dr.deltaVal a 1
+        + (((powOmega2 t.σ) ^ aa)⁻¹) • dr.deltaVal a 1
+        + (((powOmega2 t.σ) ^ aa)⁻¹) • dr.deltaVal a 0
+        + dr.deltaVal a 0 := by
+  have hd0 := foxDelta_dW dr a 0
+  have hd1 := foxDelta_dW dr a 1
+  have ht0 := foxDelta_trivAct_dW dr 0
+  have ht1 := foxDelta_trivAct_dW dr 1
+  have hpow : ∀ k : ℕ, foxD ⇑t a E E₂
+      (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) (k : ℤ)) = 0 := fun k =>
+    MProcyclic.foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+  have hev : ∀ k : ℕ, PWord.evalFin ⇑t E E₂
+      (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) (k : ℤ)) = (powOmega2 t.σ) ^ k := by
+    intro k
+    rw [PWord.evalFin_zpow, MCompact.evalFin_sigma2W, zpow_natCast]
+  have hconj : foxD ⇑t a E E₂ (.conj (dW h 1) (.zpow sigma2W (bb : ℤ)))
+      = (((powOmega2 t.σ) ^ bb)⁻¹) • dr.deltaVal a 1 := by
+    rw [foxD_conj, hd1, hpow, smul_zero, add_zero, sub_zero, hev]
+  have htconj : PWord.evalFin ⇑t E E₂ (.conj (dW h 1) (.zpow sigma2W (bb : ℤ))) ∈ trivAct C V := by
+    rw [PWord.evalFin_conj]
+    exact trivAct_conjR ht1 _
+  have hinner : foxD ⇑t a E E₂
+      (PWord.prodList [.conj (dW h 1) (.zpow sigma2W (bb : ℤ)), dW h 1, dW h 0])
+      = (((powOmega2 t.σ) ^ bb)⁻¹) • dr.deltaVal a 1 + dr.deltaVal a 1
+          + dr.deltaVal a 0 := by
+    rw [PWord.prodList_cons, foxD_mul, MCompact.foxD_prodList_pair, hconj, hd0, hd1,
+      mem_trivAct.mp ht1, mem_trivAct.mp htconj, add_assoc]
+  have htinner : PWord.evalFin ⇑t E E₂
+      (PWord.prodList [.conj (dW h 1) (.zpow sigma2W (bb : ℤ)), dW h 1, dW h 0])
+      ∈ trivAct C V := by
+    refine trivAct_evalFin_prodList fun w hw => ?_
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+    rcases hw with rfl | rfl | rfl
+    · exact htconj
+    · exact ht1
+    · exact ht0
+  rw [e01W, MCompact.foxD_prodList_pair, foxD_conj, hinner, hpow, smul_zero, add_zero, sub_zero,
+    hev, hd0, PWord.evalFin_conj, mem_trivAct.mp (trivAct_conjR htinner _)]
+  simp only [smul_add, mul_smul]
+
+end MpcRows
