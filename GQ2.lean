@@ -735,4 +735,5 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenWords
 import GQ2.Dyadic.Instances.StageAbstractionEvenModel
 import GQ2.Dyadic.Instances.StageAbstractionEvenRowSupply
 import GQ2.Dyadic.Instances.StageAbstractionEvenFinite
+import GQ2.Dyadic.Instances.StageAbstractionEvenTransgression
 import GQ2.Dyadic.Main
