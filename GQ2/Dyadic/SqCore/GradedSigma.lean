@@ -696,6 +696,127 @@ theorem sqRelWord_sigRefine (hz0 : z0.IsGaTwo) (hw1 : w1.IsGaThree) (hw2 : w2.Is
 
 end Refine
 
+/-! ## 5 The sigma-reading
+
+The relator's class-three coordinate is **affine-linear in the sigma-slot datum**: the sigma
+value enters `sqU4Core` only through products with its own constant `b = 1` and the `x0`-slot
+columns, never quadratically in its own dressing.  So the whole sigma-dependence is one linear
+form `sigRead`, and `sqRelWord_sigTuple_sigma` - swapping the sigma-datum translates the
+relator by the central difference of `sigRead`-values - is the exact answer to "which
+functional of sigma-data does this slice read".  `sigRead` reads the sigma-datum, the
+`x0`-slot datum, and the weights; the `x1`-slot and handle data are invisible to it. -/
+
+section ReadOut
+
+variable {h : ℕ} {j : Fin h}
+
+/-- ⭐⭐ **The sigma-reading functional**: the exact linear form in the sigma-slot datum `x` by
+which the class-three residue moves, with the `x0`-slot datum `y` and the weights as
+coefficients.  Every monomial carries one `x`-field; the six coefficient blocks are the six
+`x`-fields' pairings against the `x0`-slot value and its junk. -/
+def sigRead (c A0 C0 A1 C1 A B C D P Q : gr3R) (x y : SelConDress) : gr3R :=
+  x.u * (-2 * A * C * y.t - 2 * A * C * y.u - A * C0 * y.s + A * C0 * y.v + A * C1 * y.r
+      - A * C1 + A * D * y.s - A * D * y.v + A * Q * y.w - A0 * C * y.s + A1 * C * y.r
+      - A1 * C + B * C * y.s - C * P * y.w)
+    + x.v * (A * C0 * y.t + A * C0 * y.u - A * C1 * c * y.t - 2 * A * C1 * c * y.u
+      - A * D * y.t - A * D * y.u + A0 * C * y.t + 2 * A0 * C * y.u + 2 * A0 * C0 * y.s
+      - 2 * A0 * C0 * y.v - A0 * C1 * c * y.s + 2 * A0 * C1 * c * y.v - A0 * C1 * y.r
+      + 2 * A0 * C1 - 2 * A0 * D * y.s + 2 * A0 * D * y.v - A0 * Q * y.w - A1 * C * c * y.t
+      - 2 * A1 * C * c * y.u - A1 * C0 * c * y.s + 2 * A1 * C0 * c * y.v - A1 * C0 * y.r
+      + A1 * C0 - 2 * A1 * C1 * c ^ 2 * y.v + 2 * A1 * C1 * c * y.r - 4 * A1 * C1 * c
+      + A1 * D * c * y.s - 2 * A1 * D * c * y.v + A1 * D * y.r - A1 * D + A1 * Q * c * y.w
+      - B * C * y.t - 2 * B * C * y.u - 2 * B * C0 * y.s + 2 * B * C0 * y.v
+      + B * C1 * c * y.s - 2 * B * C1 * c * y.v + B * C1 * y.r - 2 * B * C1
+      + 2 * B * D * y.s - 2 * B * D * y.v + B * Q * y.w + C0 * P * y.w - C1 * P * c * y.w
+      - D * P * y.w)
+    + x.w * (-A * Q * y.u + A0 * Q * y.v - A1 * Q * c * y.v - A1 * Q - B * Q * y.v
+      + C * P * y.u - C0 * P * y.v + C1 * P * c * y.v + C1 * P + D * P * y.v)
+    + x.r * (-A * C1 * y.u + A0 * C1 * y.v - A1 * C * y.u + A1 * C0 * y.v
+      - 2 * A1 * C1 * c * y.v - 2 * A1 * C1 - A1 * D * y.v - B * C1 * y.v)
+    + x.s * (A * C0 * y.u - A * D * y.u + A0 * C * y.u - 2 * A0 * C0 * y.v
+      + A0 * C1 * c * y.v + A0 * C1 + 2 * A0 * D * y.v + A1 * C0 * c * y.v + A1 * C0
+      - A1 * D * c * y.v - A1 * D - B * C * y.u + 2 * B * C0 * y.v - B * C1 * c * y.v
+      - B * C1 - 2 * B * D * y.v)
+    + x.t * (2 * A * C * y.u - A * C0 * y.v + A * C1 * c * y.v + A * C1 + A * D * y.v
+      - A0 * C * y.v + A1 * C * c * y.v + A1 * C + B * C * y.v)
+
+variable {c A0 C0 A1 C1 A B C D P Q F : gr3R} {x0 x0' x1 x2 x3 x4 : SelConDress}
+
+/-- The trivial sigma-datum reads zero. -/
+@[simp] theorem sigRead_triv (y : SelConDress) :
+    sigRead c A0 C0 A1 C1 A B C D P Q selConTriv y = 0 := by
+  simp [sigRead, selConTriv]
+
+/-- ⭐⭐ **The residue is affine-linear in the sigma-slot datum** (the characterization
+deliverable): swapping the sigma-datum from `x0'` to `x0` translates the relator by the
+central difference of `sigRead`-values.  All five class-`<= 2` rows are untouched - the
+sigma-slot's `b`-column is the constant `1` and its `a`-column enters no lower row - so the
+entire sigma-dependence of the wider slice is the one linear functional `sigRead`. -/
+theorem sqRelWord_sigTuple_sigma :
+    sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)
+      = sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0' x1 x2 x3 x4)
+        * ⟨0, 0, 0, 0, 0, sigRead c A0 C0 A1 C1 A B C D P Q x0 x1
+            - sigRead c A0 C0 A1 C1 A B C D P Q x0' x1⟩ := by
+  rw [SqU4.mul_center_f]
+  have hUne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    sigTuple_handleU_ne (c := c) (A0 := A0) (C0 := C0) (A1 := A1) (C1 := C1) (A := A)
+      (B := B) (C := C) (D := D) (P := P) (Q := Q) (F := F) (x0 := x0) (x1 := x1) (x2 := x2)
+      (x3 := x3) (x4 := x4) hne
+  have hVne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    sigTuple_handleV_ne (c := c) (A0 := A0) (C0 := C0) (A1 := A1) (C1 := C1) (A := A)
+      (B := B) (C := C) (D := D) (P := P) (Q := Q) (F := F) (x0 := x0) (x1 := x1) (x2 := x2)
+      (x3 := x3) (x4 := x4) hne
+  have hUne' := fun (j' : Fin h) (hne : j' ≠ j) =>
+    sigTuple_handleU_ne (c := c) (A0 := A0) (C0 := C0) (A1 := A1) (C1 := C1) (A := A)
+      (B := B) (C := C) (D := D) (P := P) (Q := Q) (F := F) (x0 := x0') (x1 := x1) (x2 := x2)
+      (x3 := x3) (x4 := x4) hne
+  have hVne' := fun (j' : Fin h) (hne : j' ≠ j) =>
+    sigTuple_handleV_ne (c := c) (A0 := A0) (C0 := C0) (A1 := A1) (C1 := C1) (A := A)
+      (B := B) (C := C) (D := D) (P := P) (Q := Q) (F := F) (x0 := x0') (x1 := x1) (x2 := x2)
+      (x3 := x3) (x4 := x4) hne
+  refine SqU4.ext ?_ ?_ ?_ ?_ ?_ ?_
+  · show (sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)).a = _
+    simp only [SqU4.sqRelWord_a, sigTuple_one, sigTuple_two]
+  · show (sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)).b = _
+    simp only [SqU4.sqRelWord_b, sigTuple_one, sigTuple_two]
+  · show (sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)).c = _
+    simp only [SqU4.sqRelWord_c, sigTuple_one, sigTuple_two]
+  · show (sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)).d = _
+    rw [SqU4.sqRelWord_d, SqU4.sqRelWord_d]
+    simp only [sqHeisDefect]
+    rw [sum_eq_at _ (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp),
+      sum_eq_at _ (fun j' hne => by rw [hUne' j' hne, hVne' j' hne]; simp)]
+    simp only [sigTuple_zero, sigTuple_one, sigTuple_two, sigTuple_handleU, sigTuple_handleV,
+      SqU4.toHeisAB_apply, sigVal, sigU, sigV, SqU4.mul_a, SqU4.mul_b]
+    ring
+  · show (sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)).e = _
+    rw [SqU4.sqRelWord_e, SqU4.sqRelWord_e]
+    simp only [sqHeisDefect]
+    rw [sum_eq_at _ (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp),
+      sum_eq_at _ (fun j' hne => by rw [hUne' j' hne, hVne' j' hne]; simp)]
+    simp only [sigTuple_zero, sigTuple_one, sigTuple_two, sigTuple_handleU, sigTuple_handleV,
+      SqU4.toHeisBC_apply, sigVal, sigU, sigV, SqU4.mul_b, SqU4.mul_c]
+    ring
+  · show (sqRelWord (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4)).f = _
+    rw [SqU4.sqRelWord_f, SqU4.sqRelWord_f]
+    simp only [sqU4Defect]
+    rw [sum_eq_at _ (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3
+        (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxU j'))
+        (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxV j')))
+        (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp [SqU4.u4Comm3]),
+      sum_eq_at _ (fun j' hne => by rw [hUne' j' hne, hVne' j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3
+        (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0' x1 x2 x3 x4 (sqHandleIdxU j'))
+        (sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0' x1 x2 x3 x4 (sqHandleIdxV j')))
+        (fun j' hne => by rw [hUne' j' hne, hVne' j' hne]; simp [SqU4.u4Comm3])]
+    simp only [sigTuple_zero, sigTuple_one, sigTuple_two, sigTuple_handleU, sigTuple_handleV,
+      sqU4Core, SqU4.u4Comm3, sigVal, sigU, sigV, sigRead, SqU4.mul_a, SqU4.mul_b,
+      SqU4.mul_c, SqU4.mul_d, SqU4.mul_e, SqU4.mul_f]
+    ring
+
+end ReadOut
+
 end SqCore
 
 end Dyadic
