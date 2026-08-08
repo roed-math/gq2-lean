@@ -4,6 +4,7 @@ Released under the Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.StageAbstractionEvenBracketSpan
+import GQ2.Dyadic.Instances.StageAbstractionEvenStageClimb
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageFunctionals
 
 /-!
@@ -187,6 +188,144 @@ structure EvenKernelDerivationFamily (T : Tuple W v G chi k) where
 
 end Family
 
+/-! ## §3 The two remaining station boundaries, and the reduction
+
+What is left between §2 and `EvenClimbResidualSupply` splits cleanly into exactly two
+boundaries, and §3 proves that those two compose to the goal.  Each is stated as a `Prop` so
+the composition is machine-checked now and each can be discharged independently later.
+
+* `EvenKernelDerivKerCriterion` — the even clone of the L crux
+  `stageResidual_mem_rawShiftSpan_of_forall_derivKer`: a central element killed by every
+  functional of the family lies in the raw shift span.  Its L proof is the augmented-span
+  decomposition `residual = shift · tail`, the squarefree normal form on the tail atoms, and
+  the diagonal/off-diagonal contradiction.  §1 supplies the mod-`4` hypotheses that
+  contradiction consumes, at exactly the indices the even tail atom set uses.
+* `EvenKernelRawToBracketSupply` — the raw-to-neutral upgrade, the even clone of the L
+  `VariableStageOne` crux `stageResidual_nonempty_actualDefectSupply_of_kernelAdaptedKill`.
+  The raw span imposes no character condition on its corrections; the bracket span of §B
+  restricts them to the neutral subgroup, and closing that difference is a separate station.
+
+The relator kill is *not* a third boundary: it is folded into
+`EvenKernelRelatorKill` below, whose discharge is immediate from the committed
+`isLabuteOrientationDatum{M,N}_iff`, since those theorems say precisely that `vN α` and
+`vM α` are Labute orientation data, which is the hypothesis the word-lift kill consumes. -/
+
+section Boundaries
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k s : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+
+/-- **Boundary one.**  The functionals of the family cut out the raw shift span inside the
+central layer.  This is the `⟸` half; the `⟹` half is the span kill, which §1 unlocks. -/
+def EvenKernelDerivKerCriterion {T : Tuple W v G chi k}
+    (F : EvenKernelDerivationFamily T) (hk : 3 ≤ k) : Prop :=
+  ∀ z ∈ zLayer G k,
+    (∀ (i₀ : Fin (MarkedCore.coreRank h)) (hi₀ : i₀ ≠ 1),
+      z ∈ derivKer (F.deriv i₀ hi₀) k) →
+    z ∈ evenRawShiftSpan (fun i ↦ canonLift G k (T.generators i)) hk
+
+/-- The relator kill: every functional of the family annihilates the current defect.  In the L
+template this is unconditional, by the word-lift identity for the orientation datum. -/
+def EvenKernelRelatorKill {T : Tuple W v G chi k}
+    (F : EvenKernelDerivationFamily T) : Prop :=
+  ∀ (i₀ : Fin (MarkedCore.coreRank h)) (hi₀ : i₀ ≠ 1),
+    stageDefect W G k T.generators ∈ derivKer (F.deriv i₀ hi₀) k
+
+/-- **The raw defect supply**: the inverse defect lies in the raw shift span at every level. -/
+def EvenKernelRawDefectSupply (W : StageWord (MarkedCore.coreRank h))
+    (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ) (G : Type) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop :=
+  ∀ (k : ℕ) (hk : 3 ≤ k) (T : Tuple W v G chi k),
+    (stageDefect W G k T.generators)⁻¹ ∈
+      evenRawShiftSpan (fun i ↦ canonLift G k (T.generators i)) hk
+
+/-- **Boundary two.**  Raw shift span membership upgrades to bracket span membership. -/
+def EvenKernelRawToBracketSupply (s : ℕ) (W : StageWord (MarkedCore.coreRank h))
+    (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ) (G : Type) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop :=
+  ∀ (k : ℕ) (hk : 3 ≤ k) (T : Tuple W v G chi k) (z : levelQuot G (k + 1)),
+    z ∈ evenRawShiftSpan (fun i ↦ canonLift G k (T.generators i)) hk →
+      z ∈ evenBracketSpan s chi (fun i ↦ canonLift G k (T.generators i))
+
+/-- **The derivation criterion delivers the raw defect**, the even clone of
+`sqRawDefectReachable_of_coordinateDerivationFamily`.  The defect is central because the
+marking kills the relator, and the relator kill puts it in every functional's kernel, so the
+criterion drops its inverse straight into the span. -/
+theorem evenKernel_rawDefect_of_family {T : Tuple W v G chi k} (hk : 3 ≤ k)
+    (F : EvenKernelDerivationFamily T)
+    (Hcrit : EvenKernelDerivKerCriterion F hk) (Hrel : EvenKernelRelatorKill F) :
+    (stageDefect W G k T.generators)⁻¹ ∈
+      evenRawShiftSpan (fun i ↦ canonLift G k (T.generators i)) hk :=
+  Hcrit _ (Subgroup.inv_mem _ (stageDefect_mem_zLayer W k T.relation))
+    (fun i₀ hi₀ ↦ Subgroup.inv_mem _ (Hrel i₀ hi₀))
+
+/-- **The reduction.**  The two boundaries compose to the gap
+`StageAbstractionEvenStageClimb.lean` §1 left open.  The residual differs from the inverse
+defect by the literal shift of the reference correction, which is itself in the raw span, so
+raw membership of the inverse defect propagates to the residual, and boundary two carries it
+into the bracket span, where §B §6 reads it as neutral reachability. -/
+theorem evenKernel_residualSupply_of_supplies
+    (Hraw : EvenKernelRawDefectSupply W v G chi)
+    (Hup : EvenKernelRawToBracketSupply s W v G chi) :
+    EvenClimbResidualSupply s W v G chi := by
+  intro k hk T Wc
+  rw [evenSharpNeutralResidualReachable_iff_mem_bracketSpan hk Wc]
+  refine Hup k hk T _ ?_
+  rw [evenSharpNeutralResidualElement]
+  refine Subgroup.mul_mem _ (Subgroup.inv_mem _ ?_) (Hraw k hk T)
+  exact evenRawDepthShift_mem_shiftSpan _ hk ⟨Wc.correction, Wc.depth⟩
+
+/-- The family route packaged as the raw defect supply, uniformly in the level. -/
+theorem evenKernel_rawDefectSupply_of_family
+    (Hfam : ∀ (k : ℕ) (hk : 3 ≤ k) (T : Tuple W v G chi k),
+      ∃ F : EvenKernelDerivationFamily T,
+        EvenKernelDerivKerCriterion F hk ∧ EvenKernelRelatorKill F) :
+    EvenKernelRawDefectSupply W v G chi := by
+  intro k hk T
+  obtain ⟨F, Hcrit, Hrel⟩ := Hfam k hk T
+  exact evenKernel_rawDefect_of_family hk F Hcrit Hrel
+
+end Boundaries
+
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §4 Axiom pins
+
+Every public declaration of this file, printed.  All are expected at std-3,
+`[propext, Classical.choice, Quot.sound]`.  The L template's `KernelAdaptedSupply.lean` prints
+`absGalQ2_isTopologicallyFinitelyGenerated` on five of its eleven pins and three further
+census axioms on `nonempty_orientedEquiv_oddDegree_of_family_of_digitRepair`, because that
+file also closes the classification; this station stops at the span criterion, so it stays at
+std-3. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.StageGeneric
+
+-- §1 the mod-4 alignment
+#print axioms evenKernel_nUnit_add_one_dvd_four
+#print axioms evenKernel_mUnit_sub_one_dvd_four
+#print axioms evenKernel_vN_sub_one_dvd_four
+#print axioms evenKernel_vM_sub_one_dvd_four
+#print axioms evenKernel_vN_diagonal_add_one_dvd_four
+#print axioms evenKernel_vM_diagonal_add_one_dvd_four
+
+-- §2 the derivation family
+#print axioms EvenKernelDerivationFamily
+
+-- §3 the boundaries and the reduction
+#print axioms EvenKernelDerivKerCriterion
+#print axioms EvenKernelRelatorKill
+#print axioms EvenKernelRawDefectSupply
+#print axioms EvenKernelRawToBracketSupply
+#print axioms evenKernel_rawDefect_of_family
+#print axioms evenKernel_residualSupply_of_supplies
+#print axioms evenKernel_rawDefectSupply_of_family
+
+end AxiomPins
