@@ -784,3 +784,172 @@ theorem foxDelta_mpcHatW_ram_pin_eq :
     @foxDelta_mpcHatW_ram_pin = @MProcyclic.foxD_mpcHatW_ram := rfl
 
 end RamPinsMpc
+
+/-! ## §6. The unramified instantiation
+
+The other reading of the same theorems.  The first of these is a sixth pin (the committed
+unramified noncompact-`N` row, showing the parameterisation is genuinely two-sided and not a
+ramified layer with a hole); the rest are the procyclic-`M` factor rows at the unramified δ-row,
+ending with the one the tree could not state.
+
+`GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean` currently proves the shallow three by hand.
+Those are now corollaries of §4 and this section subsumes them, but that file is downstream of
+`Certificates/` and rewiring it is a separate ticket, deliberately out of this wave's scope. -/
+
+section UnramPinNpc
+
+open GQ2.Dyadic.Words.Npc
+
+variable {h α r : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **Pin 6**: the *unramified* noncompact-`N` wild row, through the same layer.
+Statement-identical to `Npc.foxD_npc_unram`.
+
+This pin is the evidence that `foxDelta_npc` is a parameterisation and not a ramified statement
+in disguise: one theorem, two readings, both committed statements recovered on the nose. -/
+theorem foxDelta_npc_unram_pin (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e)
+      = ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0))
+        + (a .tau + (a (coreLetter h 2) - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2))) := by
+  rw [foxDelta_npc (deltaRowUnram t E E₂ hV₂ hwild hτ) hV₂ hα e a,
+    deltaRowUnram_block t E E₂ hV₂ hwild hτ a 2]
+  abel
+
+@[inherit_doc foxDelta_npc_unram_pin]
+theorem foxDelta_npc_unram_pin_eq : @foxDelta_npc_unram_pin = @Npc.foxD_npc_unram := rfl
+
+end UnramPinNpc
+
+section UnramMpc
+
+open GQ2.Dyadic.Words.Mpc
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (a : Generator (2 + 2 * h) → V)
+
+/-- **The unramified δ-letter row**: `D(δ_i) = a(τ)`, the same entry for every `i`.
+
+The row the origin note asks for, read off the layer rather than re-derived.  It is *not* the
+ramified row `−a(x_i)` with a hypothesis swapped: the entry no longer depends on `i` at all, and
+it lands on a column (`τ`) that the ramified row does not touch.  That is what "the δ-rows are
+genuinely different statements" means. -/
+theorem foxDelta_dW_unram (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    (i : Fin 3) : foxD ⇑t a E E₂ (dW h i) = a .tau := by
+  rw [foxDelta_dW (deltaRowUnram t E E₂ hV₂ hwild hτ) a i, FoxDeltaRow.deltaVal,
+    deltaRowUnram_block t E E₂ hV₂ hwild hτ a i]
+  abel
+
+/-- `D(Â) = a(τ)` at the unramified reading.  The layer gives `−a(τ)` with no characteristic
+hypothesis; `hV₂` is spent only on the sign. -/
+theorem foxDelta_aHatW_unram (hσ : a Generator.sigma = 0) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    (s' mm : ℕ) : foxD ⇑t a E E₂ (aHatW h s' mm) = a .tau := by
+  rw [foxDelta_aHatW (deltaRowUnram t E E₂ hV₂ hwild hτ) a hσ s' mm, FoxDeltaRow.deltaVal,
+    deltaRowUnram_block t E E₂ hV₂ hwild hτ a 0, add_sub_cancel_left, neg_eq_self hV₂]
+
+/-- `D(B̂) = a(τ)` at the unramified reading, exactly and with no characteristic hypothesis. -/
+theorem foxDelta_bHatW_unram (hσ : a Generator.sigma = 0) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    (pp : ℕ) : foxD ⇑t a E E₂ (bHatW h pp) = a .tau := by
+  rw [foxDelta_bHatW (deltaRowUnram t E E₂ hV₂ hwild hτ) a hσ pp, FoxDeltaRow.deltaVal,
+    deltaRowUnram_block t E E₂ hV₂ hwild hτ a 1, add_sub_cancel_left]
+
+/-- **`D(E₀₁^pc) = 0` at the unramified reading.**  All four `δ`-occurrences contribute the same
+`a(τ)`, every weight is a power of `S₂` and acts trivially on a simple unramified coefficient,
+and four copies die over `F₂`.  The ramified twin `MProcyclic.foxD_e01W_ram` is *nonzero*; both
+are the one row of §4 read at the two δ-rows. -/
+theorem foxDelta_e01W_unram (hσ : a Generator.sigma = 0) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    (hS₂ : ∀ w : V, powOmega2 t.σ • w = w) (aa bb : ℕ) :
+    foxD ⇑t a E E₂ (e01W h aa bb) = 0 := by
+  have hU : ∀ (j : ℕ) (w : V), (((powOmega2 t.σ) ^ j)⁻¹ : C) • w = w := fun j w =>
+    mem_trivAct.mp (inv_mem (pow_mem (mem_trivAct.mpr hS₂) j)) w
+  have h4 : ∀ w : V, w + w + w + w = 0 := fun w => by rw [hV₂, zero_add, hV₂]
+  rw [foxDelta_e01W (deltaRowUnram t E E₂ hV₂ hwild hτ) a hσ aa bb, FoxDeltaRow.deltaVal,
+    FoxDeltaRow.deltaVal, deltaRowUnram_block t E E₂ hV₂ hwild hτ a 0,
+    deltaRowUnram_block t E E₂ hV₂ hwild hτ a 1, add_sub_cancel_left, add_sub_cancel_left,
+    mul_smul, hU, hU, hU]
+  exact h4 _
+
+/-- **The previously unreachable theorem: `D(R̂^pc) = 0` at the unramified reading.**
+
+The hat copy has zero first Fox derivative at `σ`-free offsets on an *unramified* simple module
+too, at every `(α, r, p)` with `α ≥ 1` and every `η̂` display.  No file in the tree could state
+this before: `MProcyclic.foxD_mpcHatW_ram` is the only version and it sits inside
+`include hσ hwild hτfpf hTodd`, whose `hτfpf` is false at unramified parameters, while
+`Instances/MpcUnramifiedBranch.lean` redid only the shallow rows by hand and stopped short of the
+hat copy.
+
+It costs one line here, and that is the point of the wave: the hat row never needed the
+ramification hypothesis, it needed the δ-row.  Note also that no `hS₂` appears, unlike the
+unramified `E₀₁^pc` row above: the assembled statement is exact at every `σ`-action. -/
+theorem foxDelta_mpcHatW_unram (hσ : a Generator.sigma = 0) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay) :
+    foxD ⇑t a E E₂ (mpcHatW α r pp η h) = 0 :=
+  foxDelta_mpcHatW (deltaRowUnram t E E₂ hV₂ hwild hτ) a hσ hα r pp η hV₂
+
+end UnramMpc
+
+/-! ## §7. Axiom pins
+
+`#print axioms` on every public declaration of this file, in source order.  The layer is a
+restatement of committed material, so the standard requirement applies: every print must be a
+subset of the standard three, `[propext, Classical.choice, Quot.sound]`, and no axiom of the
+dyadic census may appear.  It is not merely a subset of what the committed originals print, it
+is exactly the standard set or less, matching `NpcFox.lean`'s and `MpcFox.lean`'s own audited
+states.  Zero `sorryAx`, zero `Lean.ofReduceBool` (no `native_decide`, and no `decide` at all in
+this file).  The census stays at eleven. -/
+
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.powOmega2_trivAct_of_trivial_mul
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.wild
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.block
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.foxD_block
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.trivAct_block
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.trivAct_coreLetter
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.toddMem
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.todd
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.trivAct_delta
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.deltaVal
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.FoxDeltaRow.foxD_delta
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.deltaRowRam
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.deltaRowUnram
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.deltaRowRam_block
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.deltaRowUnram_block
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npc
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npcHom_column
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npcHom_handleU_column
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npcHom_handleV_column
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npcW_eq_uncorrected
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_dBlockW
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_dW
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_trivAct_dW
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_aHatW
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_bHatW
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_e01W
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_mpcHatW
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npc_ram_pin
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npc_ram_pin_eq
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npcHom_ram_column_pin
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npcHom_ram_column_pin_eq
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_dW_ram_pin
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_dW_ram_pin_eq
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_e01W_ram_pin
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_e01W_ram_pin_eq
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_mpcHatW_ram_pin
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_mpcHatW_ram_pin_eq
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npc_unram_pin
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_npc_unram_pin_eq
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_dW_unram
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_aHatW_unram
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_bHatW_unram
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_e01W_unram
+#print axioms GQ2.Dyadic.Certificates.FoxDelta.foxDelta_mpcHatW_unram
+
+end GQ2.Dyadic.Certificates.FoxDelta
