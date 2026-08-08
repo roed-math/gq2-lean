@@ -691,7 +691,8 @@ protected noncomputable def EvenRawDepthCorrection.inv
   correction i := (V.correction i)⁻¹
   depth i := Subgroup.inv_mem _ (V.depth i)
 
-noncomputable instance : Group (EvenRawDepthCorrection G h k) where
+noncomputable instance evenRawDepthCorrectionGroup :
+    Group (EvenRawDepthCorrection G h k) where
   one := EvenRawDepthCorrection.one
   mul := EvenRawDepthCorrection.mul
   inv := EvenRawDepthCorrection.inv
@@ -1153,3 +1154,68 @@ end RawSpan
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §6 Axiom pins
+
+Every public declaration of the file.  All prints are std-3
+`[propext, Classical.choice, Quot.sound]`, which is exactly what the corresponding L template
+`GammaLSylowPreimageFieldLabuteRawSpan.lean` prints for its six pinned endpoints, and what the
+literal-factorization block of `GammaLSylowPreimageFieldLabuteStageHandles.lean` prints. -/
+
+#print axioms GQ2.Dyadic.StageGeneric.evenRawSwap
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDiagonalAtom_mem_zLayer
+#print axioms GQ2.Dyadic.StageGeneric.evenRawSq_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawPow_two_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawZLayer_pow_odd
+#print axioms GQ2.Dyadic.StageGeneric.evenRawZLayer_pow_even
+#print axioms GQ2.Dyadic.StageGeneric.evenRawPow_of_odd_half
+#print axioms GQ2.Dyadic.StageGeneric.evenRawPow_of_even_half
+#print axioms GQ2.Dyadic.StageGeneric.evenRawNExp_odd_half
+#print axioms GQ2.Dyadic.StageGeneric.evenRawMExp_even_half
+#print axioms GQ2.Dyadic.StageGeneric.evenRawTwoExp_odd_half
+#print axioms GQ2.Dyadic.StageGeneric.evenRawCommP_mem_lambdaImage_two
+#print axioms GQ2.Dyadic.StageGeneric.evenRawConj_lambdaImage_two
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandlePair_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawCommP_mul_left_of_depth
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandlePairDbar_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandleDbarWord
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandleDbarWord_mem_zLayer
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandleDbarWord_one
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandleDbarWord_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawHandleWord_mul_lambdaImage
+#print axioms GQ2.Dyadic.StageGeneric.evenRawCoreDbarWord
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDbarWord
+#print axioms GQ2.Dyadic.StageGeneric.evenRawCoreDbarWord_mem_zLayer
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDbarWord_mem_zLayer
+#print axioms GQ2.Dyadic.StageGeneric.evenRawCoreDbarWord_one
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDbarWord_one
+#print axioms GQ2.Dyadic.StageGeneric.evenRawCoreDbarWord_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDbarWord_mul
+#print axioms GQ2.Dyadic.StageGeneric.evenRawNWord_mul_lambdaImage
+#print axioms GQ2.Dyadic.StageGeneric.evenRawMWord_mul_lambdaImage
+#print axioms GQ2.Dyadic.StageGeneric.evenRawStageShift_n
+#print axioms GQ2.Dyadic.StageGeneric.evenRawStageShift_m
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection.ext
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection.one
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection.mul
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection.inv
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthCorrectionGroup
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection.one_correction
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawDepthCorrection.mul_correction
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthCoordinateCorrection
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthCoordinateCorrection_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom_zero_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom_one_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom_two_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom_three_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom_handleU_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShiftHom_handleV_apply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawShiftSpan
+#print axioms GQ2.Dyadic.StageGeneric.evenRawDepthShift_mem_shiftSpan
+#print axioms GQ2.Dyadic.StageGeneric.evenRawShiftSpan_le_zLayer
+#print axioms GQ2.Dyadic.StageGeneric.EvenRawPureSquareSpanSupply
+#print axioms GQ2.Dyadic.StageGeneric.evenRawBracket_base_mem_shiftSpan
+#print axioms GQ2.Dyadic.StageGeneric.evenRawShiftSpan_eq_zLayer_of_pureSquares
+#print axioms GQ2.Dyadic.StageGeneric.evenRawPureSquareSpanSupply_iff_shiftSpan_eq_zLayer
