@@ -547,6 +547,97 @@ theorem selCon_core_decomp (hd : 2 * P + (A * S - B * T) = 0)
 
 end Decompositions
 
+/-! ## §5 ⭐⭐ The selection-bit form over the whole binder
+
+The centerpiece: on any binder tuple whose `x₀`- and `x₁`-slot abelian data satisfy the
+class-two parities, the class-three residue of the relator is the κ-weighted lift of the
+𝔽₂-form `selConForm` plus an even remainder (`selCon_relWord_f`), so its parity **is** the
+form evaluated at the data parities (`selCon_bit`).  The hypotheses do not constrain the σ- or
+handle-slot data at all, and the conclusion mentions only the eleven coordinates
+`(m₀, n₀, m₁, n₁, k₁, m₃, n₃, k₃, m₄, n₄, k₄)`: the `x₁`-slot data `x₂`, all `Λ`-junk and all
+class-three coordinates are invisible to the bit, and so is the σ-slot `t̄`-component `x₀.w`,
+which is the slice-blindness of `GradedSelect` §6b seen from the formula side. -/
+
+section BitForm
+
+variable {h : ℕ} {j : Fin h} {A B C D P Q T S : gr3R}
+
+/-- ⭐⭐ **The selection bit as an explicit 𝔽₂-form**: the display of the note's §3.  The
+arguments are the three κ-parities and the eleven level-one data parities of the σ-, `x₀`- and
+two handle slots, in the note's naming. -/
+def selConForm (κ₁ κ₂ κ₃ m₀ n₀ m₁ n₁ k₁ m₃ n₃ k₃ m₄ n₄ k₄ : ZMod 2) : ZMod 2 :=
+  κ₁ * (m₀ * n₁ + n₀ * m₁ + (1 + m₃) * (1 + n₄) + n₃ * m₄)
+    + κ₂ * ((1 + m₃) * k₄ + m₄ * k₃ + k₁ * m₀)
+    + κ₃ * (n₃ * k₄ + (1 + n₄) * k₃ + k₁ * n₀)
+
+/-- ⭐⭐ **The class-three residue of a binder tuple, decomposed over the whole binder.**  At
+every binder point (both adjacency parities, uncleared row) and any dressing data whose `x₀`-
+and `x₁`-slot abelian columns satisfy the class-two parities (witnesses `xα₁, xγ₁, xα₂, xγ₂`),
+the relator's class-three coordinate is the κ-weighted lift of the bit form plus an even
+remainder.  The five lower rows are not assumed to vanish: only their mod-2 shadows on the two
+exponent slots are consumed, which every class-two-admissible tuple satisfies. -/
+theorem selCon_relWord_f (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hTS : selPar T = 1 ∨ selPar S = 1)
+    {x₀ x₁ x₂ x₃ x₄ : SelConDress} {xα₁ xγ₁ xα₂ xγ₂ : gr3R}
+    (hα₁ : A * x₁.u + B * x₁.v = 2 * xα₁) (hγ₁ : C * x₁.u + D * x₁.v = 2 * xγ₁)
+    (hα₂ : A * x₂.u + B * x₂.v = 2 * xα₂) (hγ₂ : C * x₂.u + D * x₂.v = 2 * xγ₂) :
+    ∃ k : gr3R, (sqRelWord (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄)).f
+      = (A + B) * (T * D)
+          * (x₀.u * x₁.v + x₀.v * x₁.u + (1 + x₃.u) * (1 + x₄.v) + x₃.v * x₄.u)
+        + (A * Q + C * P) * ((1 + x₃.u) * x₄.w + x₄.u * x₃.w + x₁.w * x₀.u)
+        + (B * Q + D * P) * (x₃.v * x₄.w + (1 + x₄.v) * x₃.w + x₁.w * x₀.v) + 2 * k := by
+  obtain ⟨kc, hkc⟩ := selCon_core_decomp hd he hTS x₀ x₁ x₂ hα₁ hγ₁ hα₂ hγ₂
+  obtain ⟨kh, hkh⟩ := selCon_handle_decomp hd he hTS x₃ x₄
+  have hbc : (∑ j' : Fin h,
+      ((selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j')).b
+          * (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j')).c
+        - (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j')).b
+          * (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j')).c)) = 0 := by
+    refine Finset.sum_eq_zero fun j' _ => ?_
+    by_cases hjj : j' = j
+    · subst hjj
+      rw [selConTuple_handleU, selConTuple_handleV]
+      simp [selConU, selConV, selConVal]
+    · rw [selConTuple_handleU_ne hjj, selConTuple_handleV_ne hjj]
+      simp
+  have hcm : (∑ j' : Fin h,
+      SqU4.u4Comm3 (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j'))
+        (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j')))
+      = SqU4.u4Comm3 (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j))
+        (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j)) := by
+    refine sum_eq_at _ fun j' hne => ?_
+    rw [selConTuple_handleU_ne hne, selConTuple_handleV_ne hne]
+    simp [SqU4.u4Comm3]
+  refine ⟨kc + kh + (-2 * (selConVal A B C D P Q T S x₁).f
+    + (selConX1 A B P Q * selConVal A B C D P Q T S x₂).f), ?_⟩
+  rw [SqU4.sqRelWord_f]
+  simp only [sqU4Defect]
+  rw [hbc, hcm, selConTuple_zero, selConTuple_one, selConTuple_two, selConTuple_handleU,
+    selConTuple_handleV]
+  linear_combination hkc + hkh
+
+/-- ⭐⭐ **The selection bit over the whole binder** (deliverable 1, the note's §3 as a
+theorem): the parity of the class-three residue equals `selConForm` at the κ-parities and the
+eleven data parities.  Everything else, including the `x₁`-slot data, the σ-slot
+`t̄`-component and every junk scalar, is invisible: it does not occur in the right-hand
+side. -/
+theorem selCon_bit (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hTS : selPar T = 1 ∨ selPar S = 1)
+    {x₀ x₁ x₂ x₃ x₄ : SelConDress} {xα₁ xγ₁ xα₂ xγ₂ : gr3R}
+    (hα₁ : A * x₁.u + B * x₁.v = 2 * xα₁) (hγ₁ : C * x₁.u + D * x₁.v = 2 * xγ₁)
+    (hα₂ : A * x₂.u + B * x₂.v = 2 * xα₂) (hγ₂ : C * x₂.u + D * x₂.v = 2 * xγ₂) :
+    selPar ((sqRelWord (selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄)).f)
+      = selConForm (selPar ((A + B) * (T * D))) (selPar (A * Q + C * P))
+          (selPar (B * Q + D * P)) (selPar x₀.u) (selPar x₀.v) (selPar x₁.u) (selPar x₁.v)
+          (selPar x₁.w) (selPar x₃.u) (selPar x₃.v) (selPar x₃.w) (selPar x₄.u)
+          (selPar x₄.v) (selPar x₄.w) := by
+  obtain ⟨k, hk⟩ := selCon_relWord_f hd he hTS hα₁ hγ₁ hα₂ hγ₂
+  rw [hk]
+  simp only [selPar_add, selPar_two_mul, add_zero]
+  simp only [selConForm, selPar_add, selPar_mul, selPar_one]
+
+end BitForm
+
 end SqCore
 
 end Dyadic
