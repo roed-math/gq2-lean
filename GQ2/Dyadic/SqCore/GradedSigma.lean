@@ -192,6 +192,90 @@ theorem sigMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (sig_handleV_ne_handleU j'), if_neg (sig_handleV_ne_handleV hne)]
 
+/-- ⭐⭐ **The wider marking's relator, in closed form** (deliverable 2, marking level).  The
+three abelian rows vanish identically - the `(2*A1, 2*C1)`-shape of the `x1`-slot is exactly
+the abelian constraint - and the three deep rows are the three gates.  The `d`- and `e`-rows
+are the committed adjacency parities **with the core weights coupled in** (`- A1`, `+ C1`),
+and the `f`-row couples all four core weights to the handle weights. -/
+theorem sqRelWord_sigMark :
+    sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)
+      = ⟨0, 0, 0, 2 * P + (A * S - B * T) - A1, 2 * Q + (T * D - S * C) + C1,
+          2 * F + (A + B) * (C * S - D * T) - A0 * C1 - A1 * C1 + 2 * A1 * Q + 2 * C1 * P⟩ := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have hUne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    sigMark_handleU_ne (A0 := A0) (C0 := C0) (A1 := A1) (C1 := C1) (A := A) (B := B) (C := C)
+      (D := D) (P := P) (Q := Q) (F := F) (T := T) (S := S) hne
+  have hVne := fun (j' : Fin h) (hne : j' ≠ j) =>
+    sigMark_handleV_ne (A0 := A0) (C0 := C0) (A1 := A1) (C1 := C1) (A := A) (B := B) (C := C)
+      (D := D) (P := P) (Q := Q) (F := F) (T := T) (S := S) hne
+  have h_a : (sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)).a = 0 := by
+    rw [SqU4.sqRelWord_a, sigMark_one, sigMark_two]
+    ring
+  have h_b : (sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)).b = 0 := by
+    rw [SqU4.sqRelWord_b, sigMark_one, sigMark_two]
+    ring
+  have h_c : (sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)).c = 0 := by
+    rw [SqU4.sqRelWord_c, sigMark_one, sigMark_two]
+    ring
+  have h_d : (sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)).d
+      = 2 * P + (A * S - B * T) - A1 := by
+    rw [SqU4.sqRelWord_d, sqHeisDefect,
+      sum_eq_at _ (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp)]
+    simp only [sigMark_zero, sigMark_one, sigMark_two, sigMark_handleU, sigMark_handleV,
+      SqU4.toHeisAB_apply]
+    ring
+  have h_e : (sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)).e
+      = 2 * Q + (T * D - S * C) + C1 := by
+    rw [SqU4.sqRelWord_e, sqHeisDefect,
+      sum_eq_at _ (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp)]
+    simp only [sigMark_zero, sigMark_one, sigMark_two, sigMark_handleU, sigMark_handleV,
+      SqU4.toHeisBC_apply]
+    ring
+  have h_f : (sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S)).f
+      = 2 * F + (A + B) * (C * S - D * T) - A0 * C1 - A1 * C1 + 2 * A1 * Q + 2 * C1 * P := by
+    rw [SqU4.sqRelWord_f, sqU4Defect,
+      sum_eq_at _ (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp),
+      sum_eq_at (fun j' => SqU4.u4Comm3
+        (sigMark h j A0 C0 A1 C1 A B C D P Q F T S (sqHandleIdxU j'))
+        (sigMark h j A0 C0 A1 C1 A B C D P Q F T S (sqHandleIdxV j')))
+        (fun j' hne => by rw [hUne j' hne, hVne j' hne]; simp [SqU4.u4Comm3])]
+    simp only [sigMark_zero, sigMark_one, sigMark_two, sigMark_handleU, sigMark_handleV,
+      sqU4Core, SqU4.u4Comm3]
+    linear_combination (-(A1 * C1) - A1 * Q) * h8
+  exact SqU4.ext h_a h_b h_c h_d h_e h_f
+
+/-- ⭐⭐ **Realizability of the wider slice, characterised** (deliverable 1): the marking kills
+the relator iff the three coupled gates hold.  At `A0 = C0 = A1 = C1 = 0` the first two are
+the committed adjacency parities and the third solves the class-three row, so the committed
+family is literally the degenerate fibre of this one. -/
+theorem sqRelWord_sigMark_eq_one_iff :
+    sqRelWord (sigMark h j A0 C0 A1 C1 A B C D P Q F T S) = 1
+      ↔ 2 * P + (A * S - B * T) = A1 ∧ 2 * Q + (T * D - S * C) = -C1 ∧
+        2 * F = A0 * C1 + A1 * C1 - (A + B) * (C * S - D * T) - 2 * A1 * Q - 2 * C1 * P := by
+  rw [sqRelWord_sigMark, SqU4.eq_one_iff]
+  simp only [true_and]
+  refine and_congr ⟨fun hx => by linear_combination hx, fun hx => by linear_combination hx⟩
+    (and_congr ⟨fun hx => by linear_combination hx, fun hx => by linear_combination hx⟩
+      ⟨fun hx => by linear_combination hx, fun hx => by linear_combination hx⟩)
+
+/-- ⭐ **The `F`-gate's solvability parity at the canonical row** (the note's cost 3, exact):
+under the first two gates at `(T, S) = (0, 1)` - where they read `2*P + A = A1` and
+`2*Q + C1 = C` - the third gate has a solution `F` iff `C1 * (A0 + B)` is even.  This parity
+is what closes the `v0`-escape channel in paragraph 5: it identifies `K1` with `kappaV` on the
+realizable locus. -/
+theorem sigMark_gateF_iff (hd : 2 * P + A = A1) (he : 2 * Q + C1 = C) :
+    (∃ F : gr3R, 2 * F = A0 * C1 + A1 * C1 - (A + B) * C - 2 * A1 * Q - 2 * C1 * P)
+      ↔ selPar (C1 * (A0 + B)) = 0 := by
+  have hX : A0 * C1 + A1 * C1 - (A + B) * C - 2 * A1 * Q - 2 * C1 * P
+      = C1 * (A0 + B) - 2 * (B * C1 + (A + A1 + B) * Q) := by
+    linear_combination (-C1) * hd + (A + B) * he
+  rw [hX, selPar_eq_zero_iff (C1 * (A0 + B))]
+  constructor
+  · rintro ⟨F, hF⟩
+    exact ⟨F + (B * C1 + (A + A1 + B) * Q), by linear_combination -hF⟩
+  · rintro ⟨y, hy⟩
+    exact ⟨y - (B * C1 + (A + A1 + B) * Q), by linear_combination -hy⟩
+
 end Marking
 
 end SqCore
