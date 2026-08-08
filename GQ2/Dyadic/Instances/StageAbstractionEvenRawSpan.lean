@@ -180,6 +180,213 @@ theorem evenRawMExp_even_half {α : ℕ} (hα : 2 ≤ α) :
 theorem evenRawTwoExp_odd_half : ∃ t : ℕ, Odd t ∧ (2 : ℕ) = 2 * t :=
   ⟨1, odd_one, by ring⟩
 
+/-! ## §2 The handle block
+
+A port of the committed `sqHandleDbarWord` material
+(`GammaLSylowPreimageFieldLabuteStageHandles.lean` lines 31-364) from `SqCore.sqHandleIdxU/V`
+at rank `SqCore.sqRank h` to `MarkedCore.handleIdxU/V` at rank `MarkedCore.coreRank h`.  The
+statements are word-generic (they mention only `commP`, `lambdaImage` and
+`MarkedCore.handleWord`), but the committed file is not an ancestor of the even lane and two
+of the list helpers are `private` there, so the block is re-derived rather than imported.
+Per `docs/dyadic/w51-ev3f-seam.md` §2 this block belongs to the span half; the assembly half
+consumes it and must not re-derive it. -/
+
+section Handles
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] {h k : ℕ}
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- Every commutator in a lower two-central quotient lies in the image of `λ₂`. -/
+theorem evenRawCommP_mem_lambdaImage_two (m : ℕ) (x y : levelQuot G m) :
+    commP x y ∈ lambdaImage G 2 m := by
+  have hx : x ∈ lambdaImage G 1 m := by rw [lambdaImage_one_eq_top]; trivial
+  have hy : y ∈ lambdaImage G 1 m := by rw [lambdaImage_one_eq_top]; trivial
+  exact commP_mem_lambdaImage_add hx hy
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- Conjugation by a depth-`k-1` element fixes everything coming from `λ₂`. -/
+theorem evenRawConj_lambdaImage_two (k : ℕ) (hk : 3 ≤ k) {c v : levelQuot G (k + 1)}
+    (hc : c ∈ lambdaImage G 2 (k + 1)) (hv : v ∈ lambdaImage G (k - 1) (k + 1)) :
+    v⁻¹ * c * v = c := by
+  apply conj_eq_self_of_commP_eq_one
+  have hmem := commP_mem_lambdaImage_add hc hv
+  rw [show 2 + (k - 1) = k + 1 by omega, lambdaImage_self] at hmem
+  simpa using hmem
+
+/-- **The handle-pair expansion**: a simultaneous depth correction of a hyperbolic handle
+linearizes into its two bracket atoms.  Both atoms are central involutions, which is what
+removes the apparent inverse in the first one. -/
+theorem evenRawHandlePair_mul (k : ℕ) (hk : 3 ≤ k) (u v : levelQuot G (k + 1))
+    {p q : levelQuot G (k + 1)} (hp : p ∈ lambdaImage G (k - 1) (k + 1))
+    (hq : q ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP (u * p) (v * q) = commP u v * (commP q u * commP p v) := by
+  have hqu : commP q u ∈ zLayer G k := commP_mem_zLayer k hk hq u
+  have hpu : commP p v ∈ zLayer G k := commP_mem_zLayer k hk hp v
+  have huq : commP u q = commP q u := by
+    calc
+      commP u q = (commP q u)⁻¹ := by simp only [commP]; group
+      _ = commP q u := zLayer_inv_self hqu
+  have huv : commP u v ∈ lambdaImage G 2 (k + 1) :=
+    evenRawCommP_mem_lambdaImage_two (k + 1) u v
+  have huq2 : commP u q ∈ lambdaImage G 2 (k + 1) :=
+    lambdaImage_le_of_le (by omega) (huq ▸ hqu)
+  have hconjQUV : q⁻¹ * commP u v * q = commP u v :=
+    evenRawConj_lambdaImage_two k hk huv hq
+  have hconjQPV : q⁻¹ * commP p v * q = commP p v := by
+    calc
+      q⁻¹ * commP p v * q = q⁻¹ * (commP p v * q) := by group
+      _ = q⁻¹ * (q * commP p v) := by rw [(zLayer_commute hpu q).eq]
+      _ = commP p v := by group
+  have hpq : commP p q = 1 :=
+    commP_eq_one_of_mul_comm (mul_comm_lambdaImage k hk hp hq)
+  have hprod : commP u q * commP u v ∈ lambdaImage G 2 (k + 1) :=
+    Subgroup.mul_mem _ huq2 huv
+  have hconjP : p⁻¹ * (commP u q * commP u v) * p = commP u q * commP u v :=
+    evenRawConj_lambdaImage_two k hk hprod hp
+  rw [commP_mul_left, commP_mul_right, commP_mul_right, hconjQUV, hpq, one_mul,
+    hconjQPV, hconjP, huq, (zLayer_commute hqu (commP u v)).eq]
+  group
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- One-coordinate linearity of the bracket in a depth-`k-1` slot. -/
+theorem evenRawCommP_mul_left_of_depth (k : ℕ) (hk : 3 ≤ k)
+    {p p' u : levelQuot G (k + 1)} (hp : p ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP (p * p') u = commP p u * commP p' u := by
+  rw [commP_mul_left, conj_eq_self_of_commP_eq_one
+    (commP_eq_one_of_mul_comm (zLayer_commute (commP_mem_zLayer k hk hp u) p').eq)]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The linearized contribution of one handle pair is multiplicative in the correction. -/
+theorem evenRawHandlePairDbar_mul (k : ℕ) (hk : 3 ≤ k) (u v : levelQuot G (k + 1))
+    {p q p' q' : levelQuot G (k + 1)} (hp : p ∈ lambdaImage G (k - 1) (k + 1))
+    (hq : q ∈ lambdaImage G (k - 1) (k + 1))
+    (_hp' : p' ∈ lambdaImage G (k - 1) (k + 1))
+    (hq' : q' ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP (q * q') u * commP (p * p') v =
+      commP q u * commP p v * (commP q' u * commP p' v) := by
+  rw [evenRawCommP_mul_left_of_depth k hk hq, evenRawCommP_mul_left_of_depth k hk hp]
+  have hq'u : commP q' u ∈ zLayer G k := commP_mem_zLayer k hk hq' u
+  calc
+    commP q u * commP q' u * (commP p v * commP p' v) =
+        commP q u * (commP q' u * commP p v) * commP p' v := by group
+    _ = commP q u * (commP p v * commP q' u) * commP p' v := by
+      rw [(zLayer_commute hq'u (commP p v)).eq]
+    _ = commP q u * commP p v * (commP q' u * commP p' v) := by group
+
+private theorem evenRaw_list_prod_mul_of_right_central
+    {H Ι : Type*} [Group H] (l : List Ι) (a d : Ι → H) (hd : ∀ i t, d i * t = t * d i) :
+    (l.map fun i ↦ a i * d i).prod = (l.map a).prod * (l.map d).prod := by
+  induction l with
+  | nil => simp
+  | cons i l ih =>
+      simp only [List.map_cons, List.prod_cons, ih]
+      calc
+        a i * d i * ((List.map a l).prod * (List.map d l).prod) =
+            a i * (d i * (List.map a l).prod) * (List.map d l).prod := by group
+        _ = a i * ((List.map a l).prod * d i) * (List.map d l).prod := by rw [hd i]
+        _ = a i * (List.map a l).prod * (d i * (List.map d l).prod) := by group
+
+private theorem evenRaw_list_map_prod_eq_single_of_nodup
+    {H Ι : Type*} [Monoid H] (l : List Ι) (j : Ι) (f : Ι → H)
+    (hj : j ∈ l) (hnodup : l.Nodup) (hf : ∀ i ∈ l, i ≠ j → f i = 1) :
+    (l.map f).prod = f j := by
+  induction l with
+  | nil => simp at hj
+  | cons a l ih =>
+      have hnd := List.nodup_cons.mp hnodup
+      rcases List.mem_cons.mp hj with haj | hj
+      · subst a
+        have htail : (l.map f).prod = 1 := by
+          apply List.prod_eq_one
+          intro x hx
+          obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hx
+          exact hf b (List.mem_cons_of_mem _ hb) (fun hbj ↦ hnd.1 (hbj ▸ hb))
+        simp only [List.map_cons, List.prod_cons, htail, mul_one]
+      · have haj : a ≠ j := fun haj ↦ hnd.1 (haj ▸ hj)
+        have hfa : f a = 1 := hf a (by simp) haj
+        have htail := ih hj hnd.2 (fun i hi hij ↦ hf i (List.mem_cons_of_mem _ hi) hij)
+        simp only [List.map_cons, List.prod_cons, hfa, one_mul, htail]
+
+/-- **The linearized contribution of every hyperbolic handle** at the even index families.
+For the `j`-th pair the `V`-correction brackets with the old `U`-slot and conversely. -/
+def evenRawHandleDbarWord (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  ((List.finRange h).map fun j ↦
+    commP (correction (MarkedCore.handleIdxV j)) (base (MarkedCore.handleIdxU j)) *
+      commP (correction (MarkedCore.handleIdxU j)) (base (MarkedCore.handleIdxV j))).prod
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The complete handle contribution lands in the central involutive layer. -/
+theorem evenRawHandleDbarWord_mem_zLayer (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawHandleDbarWord base correction ∈ zLayer G k := by
+  rw [evenRawHandleDbarWord]
+  apply Subgroup.list_prod_mem
+  intro z hz
+  simp only [List.mem_map] at hz
+  obtain ⟨j, _hj, rfl⟩ := hz
+  exact Subgroup.mul_mem _
+    (commP_mem_zLayer k hk (hdepth (MarkedCore.handleIdxV j)) _)
+    (commP_mem_zLayer k hk (hdepth (MarkedCore.handleIdxU j)) _)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The trivial correction has trivial handle shift. -/
+theorem evenRawHandleDbarWord_one
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    evenRawHandleDbarWord base (fun _ ↦ 1) = 1 := by
+  simp [evenRawHandleDbarWord, commP]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The handle block is multiplicative in the depth correction, so every handle pair
+contributes a genuine linear coordinate of the central graded layer. -/
+theorem evenRawHandleDbarWord_mul (h k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    {correction correction' : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, correction' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawHandleDbarWord base (fun i ↦ correction i * correction' i) =
+      evenRawHandleDbarWord base correction * evenRawHandleDbarWord base correction' := by
+  rw [evenRawHandleDbarWord, evenRawHandleDbarWord, evenRawHandleDbarWord]
+  simp_rw [evenRawHandlePairDbar_mul k hk _ _
+    (hdepth (MarkedCore.handleIdxU _)) (hdepth (MarkedCore.handleIdxV _))
+    (hdepth' (MarkedCore.handleIdxU _)) (hdepth' (MarkedCore.handleIdxV _))]
+  apply evenRaw_list_prod_mul_of_right_central
+  intro j t
+  have hz : commP (correction' (MarkedCore.handleIdxV j)) (base (MarkedCore.handleIdxU j)) *
+      commP (correction' (MarkedCore.handleIdxU j)) (base (MarkedCore.handleIdxV j)) ∈
+        zLayer G k :=
+    Subgroup.mul_mem _
+      (commP_mem_zLayer k hk (hdepth' (MarkedCore.handleIdxV j)) _)
+      (commP_mem_zLayer k hk (hdepth' (MarkedCore.handleIdxU j)) _)
+  exact (zLayer_commute hz t).eq
+
+/-- The full handle product factors into its old value and the linearized handle word. -/
+theorem evenRawHandleWord_mul_lambdaImage (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    MarkedCore.handleWord
+        (fun j ↦ base (MarkedCore.handleIdxU j) * correction (MarkedCore.handleIdxU j))
+        (fun j ↦ base (MarkedCore.handleIdxV j) * correction (MarkedCore.handleIdxV j)) =
+      MarkedCore.handleWord (fun j ↦ base (MarkedCore.handleIdxU j))
+          (fun j ↦ base (MarkedCore.handleIdxV j)) *
+        evenRawHandleDbarWord base correction := by
+  rw [MarkedCore.handleWord, MarkedCore.handleWord, evenRawHandleDbarWord]
+  simp_rw [evenRawHandlePair_mul k hk _ _
+    (hdepth (MarkedCore.handleIdxU _)) (hdepth (MarkedCore.handleIdxV _))]
+  apply evenRaw_list_prod_mul_of_right_central
+  intro j t
+  have hz : commP (correction (MarkedCore.handleIdxV j)) (base (MarkedCore.handleIdxU j)) *
+      commP (correction (MarkedCore.handleIdxU j)) (base (MarkedCore.handleIdxV j)) ∈
+        zLayer G k :=
+    Subgroup.mul_mem _
+      (commP_mem_zLayer k hk (hdepth (MarkedCore.handleIdxV j)) _)
+      (commP_mem_zLayer k hk (hdepth (MarkedCore.handleIdxU j)) _)
+  exact (zLayer_commute hz t).eq
+
+end Handles
+
 end
 
 end GQ2.Dyadic.StageGeneric
