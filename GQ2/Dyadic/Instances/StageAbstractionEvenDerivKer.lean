@@ -75,6 +75,13 @@ open GQ2.Roe.Labute
 open GQ2.Dyadic.MarkedCore
 open GQ2.Dyadic.LSquare (IsChiShadowDeriv)
 
+/-- The graded layer is abelian, which is what puts the tail span in squarefree normal form.
+Kept local, exactly as the L template keeps `stageSupplyZLayerCommGroup` local. -/
+local instance evenDerivZLayerCommGroup {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (k : ℕ) : CommGroup ↥(zLayer G k) :=
+  { (inferInstance : Group ↥(zLayer G k)) with
+    mul_comm := fun a b ↦ Subtype.ext (zLayer_commute a.2 b.1).eq }
+
 /-! ## §1 Ambient lifts of the canonical base
 
 The clone of the L template's `exists_stageResidualAmbientLift` and its generation lemma
@@ -295,10 +302,6 @@ def evenDerivTailLayer (T : Fin (MarkedCore.coreRank h) → levelQuot G k) (hk :
     have hmem := pow_two_pow_mem_lambdaImage (canonLift G k (T i.1)) (k - 1)
     rwa [show 1 + (k - 1) = k by omega] at hmem⟩
 
-local instance evenDerivZLayerCommGroup (k : ℕ) : CommGroup ↥(zLayer G k) :=
-  { (inferInstance : Group ↥(zLayer G k)) with
-    mul_comm := fun a b ↦ Subtype.ext (zLayer_commute a.2 b.1).eq }
-
 /-- In an involutive abelian group, a product of two finset products is the finset product
 over the symmetric difference. -/
 private theorem evenDeriv_prod_mul_prod_eq_prod_symmDiff
@@ -394,3 +397,202 @@ theorem evenDerivTailSpan_exists_finset_prod
     exact P.inv_mem (hap haz)
 
 end Squarefree
+
+/-! ## §5 Every family functional kills the raw shift span
+
+The clone of `stageDeriv_coordinateShift_mem_derivKer` and
+`stageDeriv_rawShiftSpan_le_derivKer` (L template, `StageFunctionals.lean` lines 635 and 675),
+together with the two base changes the even lane needs.  This is the only section that
+consumes arithmetic about the value table, and it consumes exactly the two facts
+`StageAbstractionEvenKernelAdapted.lean` §1 proves. -/
+
+section SpanKill
+
+open GQ2.Dyadic.LSquare (stageDeriv_commP_row_mem_derivKer stageDeriv_diagonal_row_mem_derivKer
+  stageDeriv_tail_mem_derivKer_of_even stageDeriv_tail_not_mem_derivKer_of_odd)
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h k : ℕ}
+
+/-! ### §5.1 The four index disequalities the tail set needs
+
+`evenIndex_cases` never needs them, because it can discharge the twisted branch by `rfl`.
+The functional rows do need them, since the mod-`4` hypothesis is indexed by `i ≠ 1`. -/
+
+private theorem evenDeriv_zero_ne_one : (0 : Fin (MarkedCore.coreRank h)) ≠ 1 := fun hcon ↦ by
+  have hval := congrArg Fin.val hcon
+  rw [MarkedCore.coreVal_zero, MarkedCore.coreVal_one] at hval
+  omega
+
+private theorem evenDeriv_two_ne_one : (2 : Fin (MarkedCore.coreRank h)) ≠ 1 := fun hcon ↦ by
+  have hval := congrArg Fin.val hcon
+  rw [MarkedCore.coreVal_two, MarkedCore.coreVal_one] at hval
+  omega
+
+private theorem evenDeriv_three_ne_one : (3 : Fin (MarkedCore.coreRank h)) ≠ 1 := fun hcon ↦ by
+  have hval := congrArg Fin.val hcon
+  rw [MarkedCore.coreVal_three, MarkedCore.coreVal_one] at hval
+  omega
+
+private theorem evenDeriv_handleU_ne_one (j : Fin h) :
+    (MarkedCore.handleIdxU j : Fin (MarkedCore.coreRank h)) ≠ 1 := fun hcon ↦ by
+  have hval := congrArg Fin.val hcon
+  rw [MarkedCore.handleIdxU_val, MarkedCore.coreVal_one] at hval
+  omega
+
+private theorem evenDeriv_handleV_ne_one (j : Fin h) :
+    (MarkedCore.handleIdxV j : Fin (MarkedCore.coreRank h)) ≠ 1 := fun hcon ↦ by
+  have hval := congrArg Fin.val hcon
+  rw [MarkedCore.handleIdxV_val, MarkedCore.coreVal_one] at hval
+  omega
+
+/-! ### §5.2 Central base shifts do not move the even shift word -/
+
+/-- A central left factor in the bracket's ambient slot is invisible. -/
+private theorem evenDeriv_commP_central_right (hk : 3 ≤ k)
+    {p : levelQuot G (k + 1)} (hp : p ∈ lambdaImage G (k - 1) (k + 1))
+    {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k) (b : levelQuot G (k + 1)) :
+    commP p (z * b) = commP p b := by
+  rw [commP_mul_right_of_mem k hk hp z b,
+    commP_eq_one_of_mul_comm (zLayer_commute hz p).symm.eq, one_mul]
+
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The even clone of `sqCoreHandleDbarWord_central_base_shift`.**  Shifting the base by
+coordinatewise central classes leaves the literal even shift word unchanged: every bracket
+loses its central factor, and the diagonal square does not involve the base at all. -/
+theorem evenDeriv_dbarWord_central_base_shift (hk : 3 ≤ k)
+    {z : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)} (hz : ∀ i, z i ∈ zLayer G k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    {c : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hc : ∀ i, c i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawDbarWord (fun i ↦ z i * base i) c = evenRawDbarWord base c := by
+  have key : ∀ j i : Fin (MarkedCore.coreRank h),
+      commP (c j) (z i * base i) = commP (c j) (base i) :=
+    fun j i ↦ evenDeriv_commP_central_right hk (hc j) (hz i) (base i)
+  simp only [evenRawDbarWord, evenRawCoreDbarWord, evenRawHandleDbarWord, key]
+
+end SpanKill
+
+/-! ### §5.3 The three bases of a family, reconciled -/
+
+section Family
+
+open GQ2.Dyadic.LSquare (stageDeriv_commP_row_mem_derivKer stageDeriv_diagonal_row_mem_derivKer)
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+variable {T : Tuple W v G chi k}
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The canonical-lift base differs from the family base by coordinatewise central classes. -/
+theorem EvenKernelDerivationFamily.evenDeriv_exists_central_shift
+    (F : EvenKernelDerivationFamily T) :
+    ∃ z : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1),
+      (∀ i, z i ∈ zLayer G k) ∧
+      ∀ i, canonLift G k (T.generators i) = z i * levelMk G (k + 1) (F.lifts i) := by
+  have hproj : ∀ i, GQ2.Roe.Labute.levelProj G k (canonLift G k (T.generators i)) =
+      GQ2.Roe.Labute.levelProj G k (levelMk G (k + 1) (F.lifts i)) := by
+    intro i
+    rw [levelProj_canonLift, levelProj_levelMk, F.lifts_level i]
+  choose z hz heq using fun i ↦ exists_zLayer_mul (G := G) (hproj i)
+  exact ⟨z, hz, heq⟩
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The literal even shift word over the canonical-lift base equals the one over the family
+base. -/
+theorem EvenKernelDerivationFamily.evenDeriv_dbarWord_eq
+    (F : EvenKernelDerivationFamily T) (hk : 3 ≤ k)
+    {c : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hc : ∀ i, c i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) c =
+      evenRawDbarWord (fun i ↦ levelMk G (k + 1) (F.lifts i)) c := by
+  obtain ⟨z, hz, heq⟩ := F.evenDeriv_exists_central_shift
+  rw [show (fun i ↦ canonLift G k (T.generators i)) =
+      fun i ↦ z i * levelMk G (k + 1) (F.lifts i) from funext heq]
+  exact evenDeriv_dbarWord_central_base_shift hk hz _ hc
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- Non-twisted tails over the canonical-lift base are level classes of ambient tail powers of
+the family lifts: the central discrepancy dies because `Z_k` has exponent two and the tail
+exponent is even. -/
+theorem EvenKernelDerivationFamily.evenDeriv_tail_eq
+    (F : EvenKernelDerivationFamily T) (hk : 3 ≤ k) (i : Fin (MarkedCore.coreRank h)) :
+    canonLift G k (T.generators i) ^ 2 ^ (k - 1) =
+      levelMk G (k + 1) (F.lifts i ^ 2 ^ (k - 1)) := by
+  obtain ⟨z, hz, heq⟩ := F.evenDeriv_exists_central_shift
+  rw [map_pow, heq i]
+  have hcomm : Commute (z i) (levelMk G (k + 1) (F.lifts i)) := zLayer_commute (hz i) _
+  rw [hcomm.mul_pow]
+  have hzpow : z i ^ 2 ^ (k - 1) = 1 := by
+    rw [show (2 : ℕ) ^ (k - 1) = 2 * 2 ^ (k - 2) by rw [← pow_succ']; congr 1; omega,
+      pow_mul, zLayer_sq G (hz i), one_pow]
+  rw [hzpow, one_mul]
+
+end Family
+
+/-! ### §5.4 The coordinate rows are killed
+
+Five plain brackets and one diagonal.  The diagonal is the even lane's own step: coordinate
+`0` reads `p² · [p, base 0] · [p, base 1]`, and `commP_mul_right_of_mem` regroups it as
+`p² · [p, base 0 · base 1]`, which is the shape the committed diagonal-row lemma consumes,
+with partner character `v 0 · v 1`.  Only then do roles 1 and 3 of the twisted index coincide
+again, at index `1`, exactly as `StageAbstractionEvenKernelAdapted.lean` §1 predicts. -/
+
+section CoordinateRows
+
+open GQ2.Dyadic.LSquare (stageDeriv_commP_row_mem_derivKer stageDeriv_diagonal_row_mem_derivKer)
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k : ℕ}
+variable {Φ : ContinuousMonoidHom G (WL (k + 1))}
+
+/-- **Every one-coordinate even shift over exactly `χ`-marked ambient lifts is killed.** -/
+theorem evenDeriv_coordinateShift_mem_derivKer (hk : 3 ≤ k) (hbase : IsChiShadowDeriv chi Φ)
+    (xb : Fin (MarkedCore.coreRank h) → G) (vv : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+    (hchi : ∀ i, chi (xb i) = vv i)
+    (hv1 : ∀ i : Fin (MarkedCore.coreRank h), i ≠ 1 →
+      (2 : ℤ_[2]) ^ 2 ∣ ((vv i : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+    (hvd : (2 : ℤ_[2]) ^ 2 ∣ ((vv 0 * vv 1 : ℤ_[2]ˣ) : ℤ_[2]) + 1)
+    (i : Fin (MarkedCore.coreRank h)) (p : lambdaImage G (k - 1) (k + 1)) :
+    ((evenRawDepthShiftHom (fun j ↦ levelMk G (k + 1) (xb j)) hk)
+      (evenRawDepthCoordinateCorrection i p)).1 ∈ derivKer Φ k := by
+  obtain ⟨a, ha, hpa⟩ := p.2
+  have hbracket : ∀ b : Fin (MarkedCore.coreRank h), b ≠ 1 →
+      commP p.1 (levelMk G (k + 1) (xb b)) ∈ derivKer Φ k := by
+    intro b hb
+    rw [← hpa, show commP (levelMk G (k + 1) a) (levelMk G (k + 1) (xb b)) =
+      levelMk G (k + 1) (commP a (xb b)) from (Marking.map_commP _ _ _).symm]
+    refine stageDeriv_commP_row_mem_derivKer hk hbase ha (xb b) ?_
+    rw [hchi b]
+    exact hv1 b hb
+  refine evenIndex_cases
+    (P := fun i ↦ ((evenRawDepthShiftHom (fun j ↦ levelMk G (k + 1) (xb j)) hk)
+      (evenRawDepthCoordinateCorrection i p)).1 ∈ derivKer Φ k) ?_ ?_ ?_ ?_ ?_ ?_ i
+  · rw [evenRawDepthShiftHom_zero_apply]
+    have hrw : levelMk G (k + 1) (a ^ 2 * commP a (xb 0 * xb 1)) =
+        p.1 ^ 2 * commP p.1 (levelMk G (k + 1) (xb 0)) *
+          commP p.1 (levelMk G (k + 1) (xb 1)) := by
+      rw [map_mul, map_pow, Marking.map_commP, map_mul, hpa,
+        commP_mul_right_of_mem k hk p.2, ← mul_assoc]
+    rw [← hrw]
+    refine stageDeriv_diagonal_row_mem_derivKer hk hbase ha (xb 0 * xb 1) ?_
+    rw [map_mul, hchi 0, hchi 1]
+    exact hvd
+  · rw [evenRawDepthShiftHom_one_apply]
+    exact hbracket 0 evenDeriv_zero_ne_one
+  · rw [evenRawDepthShiftHom_two_apply]
+    exact hbracket 3 evenDeriv_three_ne_one
+  · rw [evenRawDepthShiftHom_three_apply]
+    exact hbracket 2 evenDeriv_two_ne_one
+  · intro j
+    rw [evenRawDepthShiftHom_handleU_apply]
+    exact hbracket _ (evenDeriv_handleV_ne_one j)
+  · intro j
+    rw [evenRawDepthShiftHom_handleV_apply]
+    exact hbracket _ (evenDeriv_handleU_ne_one j)
+
+end CoordinateRows
