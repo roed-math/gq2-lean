@@ -1,0 +1,54 @@
+W52 discrimination -- class 4, layers [ 5, 14, 49, 175 ], 8 random words per (marking, kind), seed 1
+---- (t,s)=(0,1): K dims [ 3, 12, 47 ], certs ok ----
+R      len  18 foxrank 5 frob [ 0, 0, 1, 0, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im true] L4[rk 169 ck 6 form-mism 0 in-im true] | SOLVED
+k1.1   len  94 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.2   len 128 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.3   len  48 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.4   len  86 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.5   len 100 foxrank 5 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.6   len  60 foxrank 3 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.7   len  82 foxrank 1 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.8   len 106 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.1   len  66 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.2   len 106 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.3   len  46 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.4   len  72 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.5   len 104 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.6   len  56 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.7   len  94 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.8   len 102 foxrank 2 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.1   len  82 foxrank 5 frob [ 0, 0, 0, 1, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im true] L4[rk 169 ck 6 form-mism 0 in-im false] STUCK 
+k3.2   len 112 foxrank 5 frob [ 0, 0, 0, 1, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k3.3   len  54 foxrank 5 frob [ 0, 0, 0, 1, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k3.4   len  74 foxrank 4 frob [ 0, 0, 0, 1, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.5   len 120 foxrank 5 frob [ 0, 0, 0, 1, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k3.6   len  48 foxrank 4 frob [ 0, 0, 0, 1, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.7   len  72 foxrank 5 frob [ 0, 0, 0, 1, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.8   len 106 foxrank 5 frob [ 0, 0, 0, 1, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+---- (t,s)=(1,1): K dims [ 3, 12, 47 ], certs ok ----
+R      len  18 foxrank 5 frob [ 0, 0, 1, 0, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im true] L4[rk 169 ck 6 form-mism 0 in-im true] | SOLVED
+k1.1   len  84 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.2   len  92 foxrank 5 frob [ 0, 0, 1, 0, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k1.3   len  52 foxrank 5 frob [ 0, 0, 1, 0, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k1.4   len  82 foxrank 5 frob [ 0, 0, 1, 0, 0 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k1.5   len 106 foxrank 3 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.6   len  64 foxrank 3 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.7   len  72 foxrank 2 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k1.8   len 100 foxrank 4 frob [ 0, 0, 1, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.1   len  74 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.2   len  92 foxrank 2 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.3   len  60 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.4   len  72 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.5   len  98 foxrank 2 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.6   len  42 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.7   len  84 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k2.8   len 100 foxrank 4 frob [ 0, 0, 0, 0, 0 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.1   len  76 foxrank 4 frob [ 0, 0, 0, 1, 1 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.2   len 110 foxrank 2 frob [ 0, 0, 0, 1, 1 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.3   len  60 foxrank 5 frob [ 0, 0, 0, 1, 1 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.4   len  92 foxrank 5 frob [ 0, 0, 0, 1, 1 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k3.5   len 116 foxrank 5 frob [ 0, 0, 0, 1, 1 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k3.6   len  58 foxrank 4 frob [ 0, 0, 0, 1, 1 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+k3.7   len  82 foxrank 5 frob [ 0, 0, 0, 1, 1 ] | survivors 6 | L3[rk 43 ck 6 form-mism 0 in-im false] STUCK 
+k3.8   len 116 foxrank 4 frob [ 0, 0, 0, 1, 1 ] | stage A: GATE EMPTY (0 of 32768) -- word cannot pass class 2
+DONE
