@@ -419,6 +419,133 @@ theorem sigHom_selTee :
 
 end Anchors
 
+/-! ## 3 The letters and the dressing model
+
+The wider-slice analogue of `GradedContain` paragraphs 1-2, at the canonical row
+`(T, S) = (0, 1)`.  A level-one dressing is a word in the three cleared letters `U`, `V`, `t`
+times an achievable `gamma_2`-junk and a free class-three part.  All three letter images have
+`b`-column zero, so the `(d, e)`-columns of any word in them add exactly (as in the committed
+model), and the achievable junk `(d, e)`-pairs form the lattice `sigLam` spanned by the three
+commutator pairings `[sigma, x0]`, `[sigma, V]`, `[U, V]` of the marking's generators - now
+`(-A1, C1)`, `(A0 - B, D - C0)` and `(A, -C)`, all read off `commP_d` / `commP_e`.  The letter
+values themselves are the hom-level anchors of paragraph 2, specialised to `(T, S) = (0, 1)`:
+this model is not a postulate, it is the committed letter images with the junk parametrised. -/
+
+section Model
+
+variable {h : ℕ} {j : Fin h}
+
+/-- The cleared `U`-letter value at the canonical row (the anchor at `T = 0`). -/
+def sigU (A C : gr3R) : SqU4 gr3R := ⟨A, 0, C, 0, 0, 0⟩
+
+/-- The cleared `V`-letter value at the canonical row: the handle value times the inverse
+pivot image, multiplied out. -/
+def sigV (c A0 C0 A1 C1 B D : gr3R) : SqU4 gr3R :=
+  ⟨B - (A0 - c * A1), 0, D - (C0 - c * C1), (A0 - c * A1) - B, c * C1,
+    (B - (A0 - c * A1)) * C0⟩
+
+/-- The `t`-letter value (the anchor `sigHom_selTee`). -/
+def sigTee (C1 P Q F : gr3R) : SqU4 gr3R := ⟨0, 0, 0, P, Q, F - 2 * (C1 * P)⟩
+
+/-- The `V`-letter value is the anchor's product, multiplied out: `sigV` is honest. -/
+theorem sigV_eq_mul (c A0 C0 A1 C1 B D : gr3R) :
+    (⟨B, 1, D, 0, 0, 0⟩ : SqU4 gr3R) * (sigPivotVal c A0 C0 A1 C1)⁻¹
+      = sigV c A0 C0 A1 C1 B D := by
+  ext <;> simp [sigPivotVal, sigV] <;> ring
+
+/-- Membership in the wider junk lattice: the `(d, e)`-pair of `z` is a combination of the
+three commutator pairings `(-A1, C1)`, `(A0 - B, D - C0)`, `(A, -C)` of the wider marking's
+generators (`[sigma, x0]`, `[sigma, V]`, `[U, V]` at the canonical row, by `SqU4.commP_d` and
+`SqU4.commP_e`). -/
+def sigLam (A0 C0 A1 C1 A B C D : gr3R) (z : SqU4 gr3R) : Prop :=
+  ∃ r s t : gr3R, z.d = -(r * A1) + s * (A0 - B) + t * A ∧
+    z.e = r * C1 + s * (D - C0) - t * C
+
+/-- **The image of a level-one dressing datum** on the wider slice: `u`, `v`, `w` are the
+`U`-, `V`- and `t`-components, `r`, `s`, `t` the coefficients on the three `sigLam`
+generators, `f` the free class-three part.  Because all three letter images have `b = 0`, the
+`(d, e)`-columns of an arbitrary word in them add exactly, so this closed form covers every
+product of letter powers in any order, exactly as in the committed `selConVal`. -/
+def sigVal (c A0 C0 A1 C1 A B C D P Q : gr3R) (x : SelConDress) : SqU4 gr3R :=
+  ⟨A * x.u + (B - (A0 - c * A1)) * x.v, 0, C * x.u + (D - (C0 - c * C1)) * x.v,
+    ((A0 - c * A1) - B) * x.v + P * x.w + (-(x.r * A1) + x.s * (A0 - B) + x.t * A),
+    (c * C1) * x.v + Q * x.w + (x.r * C1 + x.s * (D - C0) - x.t * C),
+    x.f⟩
+
+variable {c A0 C0 A1 C1 A B C D P Q F : gr3R}
+
+@[simp] theorem sigVal_triv : sigVal c A0 C0 A1 C1 A B C D P Q selConTriv = 1 := by
+  ext <;> simp [sigVal, selConTriv]
+
+/-- A junk-only datum lands in the wider junk lattice, by construction. -/
+theorem sigVal_lam (x : SelConDress) (hu : x.u = 0) (hv : x.v = 0) (hw : x.w = 0) :
+    sigLam A0 C0 A1 C1 A B C D (sigVal c A0 C0 A1 C1 A B C D P Q x) :=
+  ⟨x.r, x.s, x.t, by simp [sigVal, hu, hv, hw], by simp [sigVal, hu, hv, hw]⟩
+
+variable (h j) in
+/-- **The wider-slice binder tuple**: the five slot images of a level-one dressed frame at the
+canonical row, dressing data `x0, ..., x4` on the sigma-, `x0`-, `x1`- and two `j`-handle
+slots, every other slot trivial. -/
+def sigTuple (c A0 C0 A1 C1 A B C D P Q F : gr3R) (x0 x1 x2 x3 x4 : SelConDress) :
+    Fin (sqRank h) → SqU4 gr3R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨A0, 1, C0, 0, 0, 0⟩ * sigVal c A0 C0 A1 C1 A B C D P Q x0 else
+    if (i : ℕ) = 1 then ⟨A1, 0, C1, 0, 0, 0⟩ * sigVal c A0 C0 A1 C1 A B C D P Q x1 else
+    if (i : ℕ) = 2 then ⟨2 * A1, 0, 2 * C1, P, Q, F⟩ * sigVal c A0 C0 A1 C1 A B C D P Q x2
+    else
+    if i = sqHandleIdxU j then sigU A C * sigVal c A0 C0 A1 C1 A B C D P Q x3 else
+    if i = sqHandleIdxV j then sigV c A0 C0 A1 C1 B D * sigVal c A0 C0 A1 C1 A B C D P Q x4
+    else 1
+
+variable {x0 x1 x2 x3 x4 : SelConDress}
+
+@[simp] theorem sigTuple_zero :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 0
+      = ⟨A0, 1, C0, 0, 0, 0⟩ * sigVal c A0 C0 A1 C1 A B C D P Q x0 := by
+  simp only [sigTuple, sqVal_zero]
+  norm_num
+
+@[simp] theorem sigTuple_one :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 1
+      = ⟨A1, 0, C1, 0, 0, 0⟩ * sigVal c A0 C0 A1 C1 A B C D P Q x1 := by
+  simp only [sigTuple, sqVal_one]
+  norm_num
+
+@[simp] theorem sigTuple_two :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 2
+      = ⟨2 * A1, 0, 2 * C1, P, Q, F⟩ * sigVal c A0 C0 A1 C1 A B C D P Q x2 := by
+  simp only [sigTuple, sqVal_two]
+  norm_num
+
+@[simp] theorem sigTuple_handleU :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxU j)
+      = sigU A C * sigVal c A0 C0 A1 C1 A B C D P Q x3 := by
+  simp only [sigTuple, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+  simp
+
+@[simp] theorem sigTuple_handleV :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxV j)
+      = sigV c A0 C0 A1 C1 B D * sigVal c A0 C0 A1 C1 A B C D P Q x4 := by
+  simp only [sigTuple, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (sig_handleV_ne_handleU j)]
+  simp
+
+theorem sigTuple_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxU j') = 1 := by
+  simp only [sigTuple, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (sig_handleU_ne_handleU hne), if_neg (sig_handleU_ne_handleV j')]
+
+theorem sigTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxV j') = 1 := by
+  simp only [sigTuple, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
+    if_neg (sig_handleV_ne_handleU j'), if_neg (sig_handleV_ne_handleV hne)]
+
+end Model
+
 end SqCore
 
 end Dyadic
