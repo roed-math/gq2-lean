@@ -738,6 +738,75 @@ theorem nFrameExists_demushkinQ_DN {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     demushkinQ (DN α h : Type) = 2 :=
   (nonempty_nFrame hα h).elim demushkinQ_DN_nFrame
 
+/-! ## §8 Axiom pins
+
+All 48 public declarations, plus the five `private` ones of §2 (the restated F1 lemma and the
+two obstructions matter to the sharp boundary, so they are printed too).  The measured scope is
+the **std-3** set `[propext, Classical.choice, Quot.sound]`, with the purely index-arithmetic
+lemmas printing less.  No census axiom appears, so both unlocks
+(`nFrameExists_demushkinQ_DN`, `nFrameExists_nDecomposition`) are std-3, matching the `M`
+side. -/
+
+section AxiomPins
+
+#print axioms nIsProP_two_topAb_DN
+#print axioms nCoordHom
+#print axioms nCoordHom_gen
+#print axioms nTHom
+#print axioms nBHom
+#print axioms nCHom
+#print axioms nDHom
+#print axioms nHHom
+#print axioms nAbWord
+#print axioms nAbWordHom
+#print axioms continuous_nAbWordHom
+#print axioms nAbWordHom_single
+#print axioms nDNab_coord
+#print axioms nCoordHom_word
+#print axioms nBHom_word
+#print axioms nCHom_word
+#print axioms nDHom_word
+#print axioms nHHom_word
+#print axioms nTHom_word
+#print axioms nPhiHom
+#print axioms continuous_nPhiHom
+#print axioms nPhiHom_word
+#print axioms nAbWord_single
+#print axioms nPhiHom_injective
+#print axioms nSurjVec
+#print axioms nSurjVec_zero
+#print axioms nSurjVec_one
+#print axioms nSurjVec_two
+#print axioms nSurjVec_three
+#print axioms nSurjVec_handle
+#print axioms nPhiHom_surjective
+#print axioms nHandleIdx_coordU
+#print axioms nHandleIdx_coordV
+#print axioms nPhiHom_gen
+#print axioms nPhiHom_X0
+#print axioms nPhiHom_X1
+#print axioms nPhiHom_Sigma
+#print axioms nPhiHom_X2
+#print axioms nPhiHom_U
+#print axioms nPhiHom_V
+#print axioms nFrameExists_phiEquiv
+#print axioms nFrameExists_phiEquiv_apply
+#print axioms nonempty_nFrame
+#print axioms nFrameExists_isEmpty_zero
+#print axioms nFrameExists_isEmpty_one
+#print axioms nFrameExists_nonempty_iff
+#print axioms nFrameExists_nDecomposition
+#print axioms nFrameExists_demushkinQ_DN
+
+-- the private lemmas of §2, printed because the sharp boundary rests on them
+#print axioms dnTorsionGen_sq
+#print axioms dnX0_eq_one_zero
+#print axioms nIsProP_two_multZMod4
+#print axioms nZ4Hom
+#print axioms dnX0_sq_ne_one_one
+
+end AxiomPins
+
 end MarkedCore
 
 end Dyadic
