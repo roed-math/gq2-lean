@@ -154,14 +154,14 @@ private theorem prod_d_eq_zero : ∀ l : List (SqU5 R), (∀ p ∈ l, p.d = 0) �
     rw [List.prod_cons, SqU5.mul_d, hl p (by simp),
       prod_d_eq_zero l fun q hq => hl q (by simp [hq]), add_zero]
 
-/-- The handle word has no `a`-column: commutators do not. -/
-theorem handleWord_a {h : ℕ} (u v : Fin h → SqU5 R) : (handleWord u v).a = 0 :=
+/-- The handle word has no `a`-column: commutators do not (`SqU4.handleWord_a`'s twin). -/
+@[simp] theorem SqU5.handleWord_a {h : ℕ} (u v : Fin h → SqU5 R) : (handleWord u v).a = 0 :=
   prod_a_eq_zero _ fun p hp => by
     obtain ⟨j, -, rfl⟩ := List.mem_map.mp hp
     exact SqU5.commP_a _ _
 
-/-- …and no `d`-column. -/
-theorem handleWord_d {h : ℕ} (u v : Fin h → SqU5 R) : (handleWord u v).d = 0 :=
+/-- …and no `d`-column, new at class four. -/
+@[simp] theorem SqU5.handleWord_d {h : ℕ} (u v : Fin h → SqU5 R) : (handleWord u v).d = 0 :=
   prod_d_eq_zero _ fun p hp => by
     obtain ⟨j, -, rfl⟩ := List.mem_map.mp hp
     exact SqU5.commP_d _ _
@@ -304,7 +304,7 @@ theorem sqRelWord_conFourDress (hz : ∀ i, (z i).IsGaThree) :
   rw [sqWord_mul_gaThree (m 0) (m 1) (m 2) (hz 0) (hz 1) (hz 2), hhand, mul_liftC_apply]
   ext <;> simp only [conFourShift, SqU5.mul_a, SqU5.mul_b, SqU5.mul_c, SqU5.mul_d,
     SqU5.mul_e, SqU5.mul_f, SqU5.mul_g, SqU5.mul_h, SqU5.mul_i, SqU5.mul_j,
-    handleWord_a, handleWord_d] <;> ring
+    SqU5.handleWord_a, SqU5.handleWord_d] <;> ring
 
 /-- The two class-three rows of the dressed relator move by the Frobenius action alone. -/
 theorem sqRelWord_conFourDress_h (hz : ∀ i, (z i).IsGaThree) :
@@ -782,8 +782,8 @@ section AxiomPins
 
 #print axioms gaThree_mul_comm
 #print axioms conjP_gaThree
-#print axioms handleWord_a
-#print axioms handleWord_d
+#print axioms SqU5.handleWord_a
+#print axioms SqU5.handleWord_d
 #print axioms handleWord_mul_gaThree_all
 #print axioms conFourDress
 #print axioms conFourDress_apply
