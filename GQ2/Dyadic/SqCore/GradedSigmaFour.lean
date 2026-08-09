@@ -627,6 +627,18 @@ theorem sqRelWord_sigFourWit_U : sqRelWord (sigFourWit sigFourU) = liftC 1 := by
 theorem sqRelWord_sigFourWit_V_complete :
     sqRelWord (sigLift 0 (sigFourWit sigFourV) 1 1 (liftC 7) 1 1) = 1 := by decide
 
+/-- ⭐⭐ **Every class-`<= 3` verdict at the witness point is the same for all three sigma
+dressings**: both `U_4`-quotients of the relator are trivial in each case, so the whole
+committed class-three machinery (`GradedSelect`, `GradedContain`, `GradedSigma`) cannot tell the
+three apart.  The separation above is purely class-four. -/
+theorem sigFourWit_class_three_blind :
+    (SqU5.toU4L (sqRelWord (sigFourWit 1)) = 1 ∧
+      SqU5.toU4R (sqRelWord (sigFourWit 1)) = 1) ∧
+    (SqU5.toU4L (sqRelWord (sigFourWit sigFourV)) = 1 ∧
+      SqU5.toU4R (sqRelWord (sigFourWit sigFourV)) = 1) ∧
+    (SqU5.toU4L (sqRelWord (sigFourWit sigFourU)) = 1 ∧
+      SqU5.toU4R (sqRelWord (sigFourWit sigFourU)) = 1) := by decide
+
 /-! ### Soundness: every achievable increment is even
 
 The witness point has `A = 1, B = 2, C = D = E = F = 0` in the naming of
@@ -827,6 +839,7 @@ section AxiomPins
 #print axioms sqRelWord_sigFourWit_V
 #print axioms sqRelWord_sigFourWit_U
 #print axioms sqRelWord_sigFourWit_V_complete
+#print axioms sigFourWit_class_three_blind
 #print axioms sigFourWit_lamThree_even
 #print axioms sigFourWit_increment_even
 #print axioms sigFourWit_bit
