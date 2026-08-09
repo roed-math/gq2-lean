@@ -74,8 +74,9 @@ is a third class, independent of both `κ` and `τ`.
 §6 discharges the input outright on the `α = 2` stratum (`evenFrameDeep_isotropic_two`): there the
 corrected depth is `1`, the committed `mEvenFrame_of_rowAttained` builds the frame, and §5 reads
 the isotropy off it.  So the hypothesis is a theorem exactly where the committed route reaches,
-which is the layer's non-vacuity witness; at `α = 2` the depth class is the `ω` class (both digits
-vanish exactly when `u^2 ≡ 1 mod 16`), so the input is literally the deep generalisation of
+which is the layer's non-vacuity witness.  At `α = 2` the depth class is in fact the `ω` class
+itself, since both digits vanish exactly when `u^2 ≡ 1 (mod 16)`; that identification is not
+proved here (nothing below needs it) but it is what makes the input the deep generalisation of
 `mEvenFrameCup_omega_self`.  Its expected discharge in general is the Bockstein identity: `μ`
 lifts to a `ℤ/4`-valued character of `G_K(2)` (take the `α`-digit mod `4`, a character because
 `imChiM α / {±1}` is procyclic), and `x ∪ x` vanishes on classes that lift to `ℤ/4`.  That
@@ -103,7 +104,8 @@ endpoint with `Hfam`, `Hup` and those two data.  Nothing committed is restated o
    contrast;
 3. the frame assembly from realizers;
 4. the `M`-row frame from the deep seam;
-5. necessity of the isotropy input;
+5. necessity of the isotropy input, the resulting equivalence, and the bypass of the refuted
+   seam;
 6. the `α = 2` stratum, where the input is committed;
 7. the stage base and the endpoint;
 8. axiom pins.
@@ -752,7 +754,7 @@ theorem evenFrameDeep_mFrame_of_range {α h : ℕ} (hα : 2 ≤ α)
       (evenDeep_mTable_pmOne (Nat.le_of_succ_le hα) i) hpar hdig)
   exact ⟨x, hx1, fun z ↦ (frattiniFrameEval_eq_of_levelMk_eq z hx2).symm.trans (hD z)⟩
 
-/-! ## §5 The isotropy input is not removable
+/-! ## §5 The isotropy input is not removable, and the refuted seam is bypassed
 
 The pin the frame imposes on the depth class is forced by the row table: the frame's generators
 have the row values on the nose, so the depth class evaluates on them as the row's digit table,
@@ -791,6 +793,40 @@ theorem evenFrameDeep_isotropic_of_frame {α h : ℕ} (hα : 2 ≤ α)
         evenFrameGram_modelCoord h _ _
     _ = 0 := mEvenFrameTauVec_self h
 
+/-- **The `M`-row frame exists exactly when the depth class is isotropic.**  §4 and §5 combined:
+under the branch identification, the ramified-`i` binder and the even-degree binder, the isotropy
+of the depth class is not merely sufficient for the `M` frame, it is equivalent to it.  This is
+the precise statement of what the `M` branch owes. -/
+theorem evenFrameDeep_mFrame_iff_isotropic {α h : ℕ} (hα : 2 ≤ α)
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 2)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM α) :
+    (∃ F : Frame (vM (h := h) α) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+        F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K))) ↔
+      frattiniFrameCup (evenDeepClass α (Nat.le_of_succ_le hα) hrange)
+        (evenDeepClass α (Nat.le_of_succ_le hα) hrange) = 0 :=
+  ⟨fun ⟨F, hcup⟩ ↦ evenFrameDeep_isotropic_of_frame hα hrange F hcup,
+    fun hiso ↦ evenFrameDeep_mFrame_of_range hα hdeg hkappa hrange hiso⟩
+
+/-- **The bypass, as one statement.**  At `α ≥ 3` the level-two instance that the committed frame
+layer consumes is FALSE (`evenPerK_not_mLevelTwoLift_of_range`), and the `M`-row cup-adapted frame
+exists nevertheless.  So the re-cut is a genuine change of route, not a rearrangement of the same
+one: the refuted seam is not merely unused below, it is unavailable, and the frame is built
+anyway. -/
+theorem evenFrameDeep_mFrame_off_refutedSeam {α h : ℕ} (hα3 : 3 ≤ α)
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 2)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM α)
+    (hiso : frattiniFrameCup
+        (evenDeepClass α (Nat.le_of_succ_le (Nat.le_of_succ_le hα3)) hrange)
+        (evenDeepClass α (Nat.le_of_succ_le (Nat.le_of_succ_le hα3)) hrange) = 0) :
+    ¬ EvenPerK.EvenPerKLevelTwoLift (vM (h := h) α) (maxProPQuotient 2 (GalK K))
+        (chiCycKTwo (K := K)) ∧
+      ∃ F : Frame (vM (h := h) α) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+        F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K)) :=
+  ⟨EvenPerK.evenPerK_not_mLevelTwoLift_of_range (h := h) hα3 hrange,
+    evenFrameDeep_mFrame_of_range (Nat.le_of_succ_le hα3) hdeg hkappa hrange hiso⟩
+
 /-! ## §6 The `α = 2` stratum, where the input is committed
 
 At `α = 2` the corrected depth is `α - 1 = 1`, the deep seam is the committed depth-`1` seam, and
@@ -798,7 +834,7 @@ At `α = 2` the corrected depth is `α - 1 = 1`, the deep seam is the committed 
 outright.  Feeding that frame to §5 discharges the isotropy input on the whole stratum, which is
 the layer's non-vacuity witness: the new hypothesis is a theorem where the committed route
 reaches, and it is the exact depth-`α` generalisation of `mEvenFrameCup_omega_self`, since the
-depth class at `α = 2` is the `ω` class (both vanish exactly when `u^2 ≡ 1 (mod 16)`). -/
+depth class at `α = 2` is the `ω` class, both vanishing exactly when `u^2 ≡ 1 (mod 16)`. -/
 
 /-- **The isotropy input holds at `α = 2`**, from the committed `α = 2` frame through §5.  So the
 hypothesis of §4 is not vacuous, and the whole `α = 2` stratum needs nothing new. -/
@@ -939,8 +975,10 @@ open GQ2.Dyadic.EvenFrameDeep
 #print axioms evenDeep_class_indep
 #print axioms evenFrameDeep_mFrame_of_range
 
--- §5 necessity
+-- §5 necessity, the equivalence, and the bypass
 #print axioms evenFrameDeep_isotropic_of_frame
+#print axioms evenFrameDeep_mFrame_iff_isotropic
+#print axioms evenFrameDeep_mFrame_off_refutedSeam
 
 -- §6 the `α = 2` stratum
 #print axioms evenFrameDeep_isotropic_two
