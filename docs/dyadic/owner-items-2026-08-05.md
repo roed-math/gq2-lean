@@ -5,6 +5,44 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 53 (2026-08-09)
+
+**Open, still yours (unchanged):** section 1 (the `q = 4` ramified Arf sign; recommendation
+stands: option 3) and item 6's `alpha = 1` even cores.
+
+**Orientation for the paper, new this wave:** the even route's input list shrank twice.
+`Hup` is no longer an opaque hypothesis: its natural route is refuted outright
+(machine-checked on both branches; the truth stratum and the need stratum are disjoint),
+and `Hup` itself is machine-checked EQUIVALENT to a concrete one-digit flip supply
+(`EvenDigitFlipSupply`), with one M-branch slot already a theorem.  On the M side the
+stage base is discharged, traded for the ramified-`i` binder plus one isotropy equation
+per field, proved necessary and proved at `alpha = 2`; the whole `alpha >= 3` case is one
+missing Bockstein lemma (`x cup x = 0` on classes lifting to `Z/4`, equivalently
+`(-1, u_mu)_K = 1`).  If you want to sanity-check one thing mathematically this wave, that
+identity is the one; it is classical and we expect it to be routine.
+
+**Landed this wave (headlines):** the relator containment theorem at class four
+(`SqCore/GradedContainFour.lean`: the K-dressed frame's defect at a relator-solution is a
+pure dressing artefact and the committed engine kills it; zero census axioms); the sigma
+slot opened at class four (`SqCore/GradedSigmaFour.lean`: three live channels, an exact
+selection bit with soundness a theorem, the residual forcing precisely located at class
+five); the M frame re-cut onto the deep seam (`Instances/StageAbstractionEvenFrameDeep
+.lean`: the gap is one binary digit carried by a depth-`alpha` generalisation of Serre's
+omega); the Hup settlement (`Instances/StageAbstractionEvenDigit.lean`); and the `d - 1`
+cokernel block explained by measurement (`docs/dyadic/w53-dcut-note.md`: it is the
+full-domain cokernel, generic in the relator, dual to the Frobenius-image components,
+1279 scored assertions with zero failures).
+
+**A correction you should know about:** the wave-52 vanish note's section 1.4 claimed the
+graded Fox form is onto the full layer; wave 53's sweeps found that claim false and its
+kernel numbers unreproducible.  The note is corrected in place with the original preserved
+for the record; nothing else in the note depended on it, and the corrected bookkeeping is
+strictly better (it settles the corank at every level in one stroke once the elementary
+statement in the w53 note is proved).
+
+Final state `51735536`: 4256 jobs green, census 11, zero sorries, capstones frozen; five
+lanes, five first-pass successes, no storms, no salvage.
+
 ## Status at wave 52 (2026-08-09)
 
 **Open, still yours (unchanged):** §1 (the `q = 4` ramified Arf sign; recommendation stands:
