@@ -1,0 +1,77 @@
+-- W53-SIGMA exact row shifts, sigma marking <0,1,0,0,0,0,0,0,0,0>, x.b = y.b = 0
+
+-- row a:
+   0
+
+-- row b:
+   0
+
+-- row c:
+   0
+
+-- row d:
+   0
+
+-- row e:
+   0
+
+-- row f:
+   0
+
+-- row g:
+   v.c*x.d - v.d*x.c
+
+-- row h:
+   -v.a*x.c + v.a*x.f - v.c*x.a - v.c*x.e + v.e*x.c - v.f*x.a
+
+-- row i:
+   v.d*x.c - v.d*x.f + v.f*x.d
+
+-- row j:
+   -v.a*v.d*x.c + v.a*v.d*x.f - v.a*v.f*x.d + 4*v.a*x.c*x.d - 2*v.a*x.c*y.d - 4*v.a*x.d*x.f + 2*v.a*x.f*y.d - v.a*x.g + v.a*x.i - v.a*y.c*y.d + v.a*y.d*y.f - v.c*v.e*x.d + 3*v.c*x.a*x.d - 2*v.c*x.a*y.d + 3*v.c*x.d*x.e - 2*v.c*x.e*y.d - v.c*y.a*y.d - 2*v.c*y.d*y.e + v.d*v.e*x.c + v.d*x.a*x.f + v.d*x.c*x.e - v.d*x.h - v.d*y.a*y.c + v.d*y.a*y.f + v.d*y.c*y.e - 4*v.e*x.c*x.d + 2*v.e*x.c*y.d + v.e*x.g + v.e*y.c*y.d + 3*v.f*x.a*x.d - 2*v.f*x.a*y.d - 2*v.f*y.a*y.d - v.g*x.a - v.g*x.e + v.h*x.d - v.i*x.a
+
+==============================================================================
+-- row j collected by the dressing coordinate (exact integer coefficients)
+
+-- K_a (coefficient of v.a at v = 0):
+   4*x.c*x.d - 2*x.c*y.d - 4*x.d*x.f + 2*x.f*y.d - x.g + x.i - y.c*y.d + y.d*y.f
+
+-- K_c (coefficient of v.c at v = 0):
+   3*x.a*x.d - 2*x.a*y.d + 3*x.d*x.e - 2*x.e*y.d - y.a*y.d - 2*y.d*y.e
+
+-- K_d (coefficient of v.d at v = 0):
+   x.a*x.f + x.c*x.e - x.h - y.a*y.c + y.a*y.f + y.c*y.e
+
+-- K_e (coefficient of v.e at v = 0):
+   -4*x.c*x.d + 2*x.c*y.d + x.g + y.c*y.d
+
+-- K_f (coefficient of v.f at v = 0):
+   3*x.a*x.d - 2*x.a*y.d - 2*y.a*y.d
+
+-- K_g (coefficient of v.g at v = 0):
+   -x.a - x.e
+
+-- K_h (coefficient of v.h at v = 0):
+   x.d
+
+-- K_i (coefficient of v.i at v = 0):
+   -x.a
+
+-- K_j (coefficient of v.j at v = 0):
+   0
+
+-- quadratic remainder:
+   -v.a*v.d*x.c + v.a*v.d*x.f - v.a*v.f*x.d - v.c*v.e*x.d + v.d*v.e*x.c
+
+==============================================================================
+-- sanity: the reassembled form equals the shift
+    True
+
+==============================================================================
+-- the gamma-3 special case (v.a = v.c = v.d = v.e = v.f = v.g = 0):
+   row j shift = v.h*x.d - v.i*x.a
+   row e shift = 0
+   row f shift = 0
+   row g shift = 0
+   row h shift = 0
+   row i shift = 0

@@ -1,0 +1,34 @@
+==============================================================================
+W53-SIGMA / instance_sigma4.py : the class-four sigma-forcing witness
+==============================================================================
+  Ubar = <1, 0, 0, 0, 0, 0, 0, 0, 0, 0>
+  Vbar = <2, 0, 0, 0, 0, 0, 0, 0, 0, 0>
+  X    = <2, 0, 0, 0, 0, 0, 0, 0, 1, 0>
+  Y    = <0, 0, 0, 0, 1, 0, 4, 0, 2, 0>
+
+## R1  the three verdicts
+  a0 = 1     (undressed)          : rows a..i = [0, 0, 0, 0, 0, 0, 0, 0, 0]   residue j = 0   parity 0
+  a0 = Vbar  (class-two forced)   : rows a..i = [0, 0, 0, 0, 0, 0, 0, 0, 0]   residue j = 2   parity 0
+  a0 = Ubar  (not forced)         : rows a..i = [0, 0, 0, 0, 0, 0, 0, 0, 0]   residue j = 1   parity 1
+
+## R2  the x0 slot is the forced value times a gamma-3 correction
+  Vbar^-1 * X = <0, 0, 0, 0, 0, 0, 0, 0, 1, 6>   gamma-3? True
+  gauge: x.a, x.c, x.d, x.e, x.f = [2, 0, 0, 0, 0] (all even)
+  free deep coordinates: x.g = 0, x.h = 0, x.i = 1
+
+## R3  the bit rule  selPar(residue) = selPar(v.a)
+  1048576 nu'-trivial dressings swept, mismatches = 0
+
+## R4  every killing dressing has even chi_a
+  kills = 32768, of which with odd v.a = 0
+
+## R5  the achievable lattice is even at this point
+  max parity over every selLamThree generator at every legal (P, Q, R): z.h -> 0, z.i -> 0
+  (0, 0 means: no achievable gamma-3 move on any slot can flip the residue parity)
+
+## R6  the residual: what class four still cannot separate
+  a0 = 1   : residue 0, parity 0  (v.a = 0, even)
+  a0 = Vbar: residue 2, parity 0  (v.a = 2, even)
+  a0 = X   : residue 0, parity 0  (v.a = 2, even)
+  all three have even chi_a, so the bit does not distinguish them: the depth
+  sweep's a0 = a1 forcing remains invisible at class four.
