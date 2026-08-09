@@ -52,21 +52,32 @@ Not proved, and deliberately carried as named hypotheses or `Prop`s, never as an
 * The forward-generator supply itself (`Even…ForwardGeneratorSupply` below), which is the even
   analogue of the odd level-three seed plus stage climb.
 
-## Statements deliberately left in comments
+## Status of the statements this header once left in comments
 
-```text
--- EV-1e  theorem isDemushkin_DN (α h : ℕ) (hα : 2 ≤ α) : IsDemushkin 2 (DN α h : Type)
--- EV-1e  theorem isDemushkin_DM (α h : ℕ) (hα : 2 ≤ α) : IsDemushkin 2 (DM α h : Type)
--- EV-1b  theorem demushkinRank_DN (α h : ℕ) : demushkinRank 2 (DN α h : Type) = coreRank h
--- EV-1b  theorem demushkinRank_DM (α h : ℕ) : demushkinRank 2 (DM α h : Type) = coreRank h
--- EV-3c  theorem evenDegreeNCyclotomicFrattiniFrameSupply_holds : … (FD2 head + κ-slot pin)
--- EV-4a  theorem evenDegree_sharpCharacterFiltrationExact :
---            SharpCharacterFiltrationExact (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
---          -- NOT via `of_surjective`: `chiCycKTwo` is *not* surjective in even degree.
-```
+(Corrected at wave 52; the block below previously advertised these as open, which caused a
+stale ticket dispatch.  Do not re-derive any of them.)
 
-The `α ≥ 2` hypotheses above are not decoration: at `α = 1` the `N` relator exponent is
-`2 + 2 = 4`, whose mod-2 quadratic initial form vanishes, and the core is not Demushkin.
+* EV-1e `isDemushkin_DN`/`isDemushkin_DM` (`hα : 2 ≤ α`): **landed 2026-08-05** in
+  `Instances/EvenModelDemushkin.lean`, together with `nModelDemushkin`/`mModelDemushkin`.
+* EV-1b `demushkinRank_DN`/`demushkinRank_DM`: **landed 2026-08-05** in
+  `Instances/EvenModelH2.lean`, with hypothesis `1 ≤ α`, which is required: at `α = 0` the
+  `N` head exponent `3` is odd, the relator leaves the Frattini subgroup, and the rank drops
+  (`Instances/EvenDemushkin.lean`, `evenDem_nHeadExponent_even_iff` and the recorded
+  residual `EvenDemResidualAlphaZeroNRank`).  The hypothesis-free form once recorded here
+  is false.
+* EV-3c `evenDegreeNCyclotomicFrattiniFrameSupply_holds`: **landed at wave 51** in
+  `Instances/StageAbstractionEvenFrattiniFrameN.lean` (M twin in `…FrameM.lean`).
+* EV-4a: the sharp filtration statement once recorded here is **false at even degree for
+  `α ≥ 3` on both branches** (machine-checked refutation, wave 51,
+  `Instances/StageAbstractionEvenRowSupply.lean`); the corrected seam is
+  `EvenRowDeepFibreLiftSupply` at depth `s = α − 1`, uniform for `α ≥ 2`
+  (`…StageAbstractionDeepCorrections.lean`), with the `α = 2` boundary satisfying the
+  committed seam on both branches.
+
+Two thresholds, not one: `1 ≤ α` is the Frattini/rank threshold, `2 ≤ α` the Gram/
+nondegeneracy threshold (at `α = 1` the `N` relator exponent is `2 + 2 = 4`, whose mod-2
+quadratic initial form vanishes, and the `N` core is not Demushkin; `M` keeps its
+q-invariant there but the shared Gram costs `α ≥ 2` downstream).
 -/
 
 namespace GQ2.Dyadic.EvenForward

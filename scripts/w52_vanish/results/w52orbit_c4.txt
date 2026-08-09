@@ -1,0 +1,65 @@
+W52 orbit probe -- class 4, layers [ 5, 14, 49, 175 ], 20 random orbits per marking
+  (t,s)=(0,1) orbit 1 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 2 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 3 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 4 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 5 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 6 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 7 hc=[ 3, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 8 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 9 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 10 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 11 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 12 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 13 hc=[ 3, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 14 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 15 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 16 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 17 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 18 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 19 hc=[ 3, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1) orbit 20 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(0,1): containment 40 of 40 level events along 20 random orbits (skips 0)
+  (t,s)=(1,1) orbit 1 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 2 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 3 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 4 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 5 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 6 hc=[ 3, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 7 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 8 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 9 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 10 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 11 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 12 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 13 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 14 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 15 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 16 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 17 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 18 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 19 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1) orbit 20 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(1,1): containment 40 of 40 level events along 20 random orbits (skips 0)
+  (t,s)=(3,5) orbit 1 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 2 hc=[ 3, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 3 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 4 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 5 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 6 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 7 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 8 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 9 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 10 hc=[ 1, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 11 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 12 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 13 hc=[ 7, 5 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 14 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 15 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 16 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 17 hc=[ 3, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 18 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 19 hc=[ 7, 7 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5) orbit 20 hc=[ 1, 1 ]: L3[in-im, random torsor point] L4[in-im, random torsor point] SOLVED
+  (t,s)=(3,5): containment 40 of 40 level events along 20 random orbits (skips 0)
+DONE
