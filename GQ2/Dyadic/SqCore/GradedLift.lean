@@ -96,6 +96,9 @@ theorem SqU5.IsGaFour.isGaThree {z : SqU5 R} (hz : z.IsGaFour) : z.IsGaThree :=
 
 @[simp] theorem SqU5.isGaTwo_one : (1 : SqU5 R).IsGaTwo := ⟨rfl, rfl, rfl, rfl⟩
 
+@[simp] theorem SqU5.isGaFour_one : (1 : SqU5 R).IsGaFour :=
+  ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+
 /-- The central `(1,5)`-translation by `w`. -/
 def liftC (w : R) : SqU5 R := ⟨0, 0, 0, 0, 0, 0, 0, 0, 0, w⟩
 
@@ -353,6 +356,144 @@ theorem sqRelWord_selLift (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour) (hz₃
   simp only [liftC_j]
 
 end LiftCalculus
+
+/-! ## §3 The achievable `γ₃`-lattice and ⭐⭐ the two-regime completion
+
+The translation identity moves the class-four residue of a stage-three survivor by
+`−4·w₁.j + 2·w₂.j` (exponent slots, even outright) plus the two handle pairings
+`z₃.h·(m V).d − z₃.i·(m V).a` and `(m U).a·z₄.i − (m U).d·z₄.h`.  Which `(h, i)`-pairs a
+level-one dressing can actually place on a handle slot is the `γ₃`-image lattice `Λ₃`
+(`selLamThree`): the commutator pairings of the `γ₂`-image lattice `Λ₅` (generated on the
+`(e, f, g)`-columns by `(−A, C, 0)`, `(−B, D, 0)`, `(−2P, −2Q, −2R)`, `(0, 0, −2R)`) against
+the three letter columns `σ = (0, 1, 0, 0)`, `U = (A, T, C, E)`, `V = (B, S, D, F)`, exactly
+one level up from `GradedSelect.selLam` (validated in `scripts/w52_lift/sweep_u5.py`,
+`lam3_gens`).
+
+The completion has **two regimes**, separated by the mod-2 class of the pairing value — the
+W51 sweep's parity collapse (`δ` and its image depend on the marking only mod 2) entering the
+statements:
+
+* **odd regime** (`sqRelWord_selLift_eq_one_odd`): a *unit* pairing witness `rr` makes the
+  `γ₃`-action on the residue line surjective (`selLift_increment_exact` at `μ = 1`) and
+  **any** central residue dies — something that never happens at class three, where every
+  achievable increment is even (`GradedSelect.selPair_even`).  At the §4 witness the
+  `(−B, D)⋆V` generator pairs to `−3·κ₄` with `κ₄ = B·D·F`, so this regime is exactly "`κ₄`
+  odd";
+* **even regime** (`sqRelWord_selLift_eq_one`): a `2`-pairing witness kills exactly the even
+  residues (`selLift_increment_exact` at `μ = 2`), the verbatim transposition of the committed
+  class-three completion (`GradedSelect.sqRelWord_selRefine_eq_one`).  The converse selection
+  claim — at `κ₄`-even live points an odd residue survives every achievable refinement — is
+  **measured, not proved** (`sweep4_u5.py`, `sweep5_u5.py`: zero kills across all sampled
+  achievable moves); transcribing it needs the class-four analogue of `GradedSelect` §5b's
+  parity engine, which no wave has consumed yet;
+* **mirror regime** (`sqRelWord_selLift_eq_one_odd'`): the same completion through the
+  `V`-handle slot, reading the `U`-slot's outer columns; at the witness the `(−A, C)⋆U`
+  generator pairs to `3·κ₄'` with `κ₄' = A·C·E`.
+
+`GradedVanish` (W52-VANISH) develops the same translation-calculus structure one level down:
+its `vanShift` is the class-three shift of an all-slot `γ₂`-dressing, with the identical
+affine-linear shape; the two files share the pattern but no lemmas. -/
+
+section LiftCompletion
+
+variable {R : Type} [CommRing R] {h : ℕ} {j : Fin h} {m : Fin (sqRank h) → SqU5 R}
+
+/-- ⭐⭐ **The even-regime completion.**  A stage-three survivor with an **even** class-four
+residue `2·res`, at a marking where some achievable `(zh, zi)`-pair pairs to `2·unit⁻¹`
+against the `V`-slot's outermost columns (witness `rr`), is repaired by **one explicit**
+handle-`γ₃` move on the `U`-slot.  The transposition of the committed
+`GradedSelect.sqRelWord_selRefine_eq_one`, one level up. -/
+theorem sqRelWord_selLift_eq_one {zh zi res rr : R}
+    (h5 : sqRelWord m = liftC (2 * res))
+    (hmu : rr * (zh * (m (sqHandleIdxV j)).d - zi * (m (sqHandleIdxV j)).a) = 2) :
+    sqRelWord (selLift j m 1 1
+      ⟨0, 0, 0, 0, 0, 0, 0, -(rr * res * zh), -(rr * res * zi), 0⟩ 1) = 1 := by
+  rw [sqRelWord_selLift SqU5.isGaFour_one SqU5.isGaFour_one
+    ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ SqU5.isGaThree_one, h5, liftC_mul_liftC]
+  refine Eq.trans (congrArg liftC ?_) liftC_zero
+  simp only [SqU5.one_h, SqU5.one_i, SqU5.one_j]
+  linear_combination (-res) * hmu
+
+/-- ⭐⭐ **The odd-regime completion**: with a **unit** pairing witness the `γ₃`-action is
+surjective on the residue line and **any** central residue dies — even an odd one.  No
+class-three analogue exists: there the achievable-increment group is always inside `2·ℤ/8`. -/
+theorem sqRelWord_selLift_eq_one_odd {zh zi res rr : R}
+    (h5 : sqRelWord m = liftC res)
+    (hmu : rr * (zh * (m (sqHandleIdxV j)).d - zi * (m (sqHandleIdxV j)).a) = 1) :
+    sqRelWord (selLift j m 1 1
+      ⟨0, 0, 0, 0, 0, 0, 0, -(rr * res * zh), -(rr * res * zi), 0⟩ 1) = 1 := by
+  rw [sqRelWord_selLift SqU5.isGaFour_one SqU5.isGaFour_one
+    ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ SqU5.isGaThree_one, h5, liftC_mul_liftC]
+  refine Eq.trans (congrArg liftC ?_) liftC_zero
+  simp only [SqU5.one_h, SqU5.one_i, SqU5.one_j]
+  linear_combination (-res) * hmu
+
+/-- ⭐⭐ **The mirror odd-regime completion**: the same engine through the `V`-handle slot,
+reading the `U`-slot's outermost abelian columns with the opposite orientation. -/
+theorem sqRelWord_selLift_eq_one_odd' {zh zi res rr : R}
+    (h5 : sqRelWord m = liftC res)
+    (hmu : rr * ((m (sqHandleIdxU j)).a * zi - (m (sqHandleIdxU j)).d * zh) = 1) :
+    sqRelWord (selLift j m 1 1 1
+      ⟨0, 0, 0, 0, 0, 0, 0, -(rr * res * zh), -(rr * res * zi), 0⟩) = 1 := by
+  rw [sqRelWord_selLift SqU5.isGaFour_one SqU5.isGaFour_one SqU5.isGaThree_one
+    ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩, h5, liftC_mul_liftC]
+  refine Eq.trans (congrArg liftC ?_) liftC_zero
+  simp only [SqU5.one_h, SqU5.one_i, SqU5.one_j]
+  linear_combination (-res) * hmu
+
+/-- ⭐ **The achievable increments fill `μ·R` exactly** (deliverable form of the two regimes):
+a pairing witness of value `μ` realises every multiple of `μ` as the increment of a `γ₃`-move
+on the `U`-handle slot.  At `μ = 1` this is the odd regime's surjectivity, at `μ = 2` the even
+regime's exact image `2·ℤ/8`, the class-four form of `GradedContain.selCon_increment_exact`. -/
+theorem selLift_increment_exact {zh zi rr μ : R}
+    (hmu : rr * (zh * (m (sqHandleIdxV j)).d - zi * (m (sqHandleIdxV j)).a) = μ) (x : R) :
+    ∃ z₃ : SqU5 R, z₃.IsGaThree ∧
+      z₃.h * (m (sqHandleIdxV j)).d - z₃.i * (m (sqHandleIdxV j)).a = μ * x := by
+  refine ⟨⟨0, 0, 0, 0, 0, 0, 0, rr * x * zh, rr * x * zi, 0⟩,
+    ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩, ?_⟩
+  linear_combination x * hmu
+
+end LiftCompletion
+
+section LiftLattice
+
+/-- **Membership in `Λ₃`**, the achievable `γ₃`-lattice of a class-four selection marking:
+the `(h, i)`-coordinates of `z` are an `R`-combination of the seven commutator pairings of
+the `γ₂`-image lattice `Λ₅` against the three letter columns — `(−A, C)⋆U = (−2AC, CE)`,
+`(−B, D)⋆U = (−(AD + BC), DE)`, `(−A, C)⋆V = (−(AD + BC), CF)`, `(−B, D)⋆V = (−2BD, DF)`,
+and the three even `x₁`-pairings `(0, 2R)`, `2·(QA − PC, RT − QE)`, `2·(QB − PD, RS − QF)`.
+This is the `(h, i)`-image of `γ₃(im Φ)` for a hom of the class-four selection family, the
+level-up transposition of `GradedSelect.selLam` (`scripts/w52_lift/sweep_u5.py`,
+`lam3_gens`). -/
+def selLamThree (A B C D E F T S P Q R : gr3R) (z : SqU5 gr3R) : Prop :=
+  ∃ r₁ r₂ r₃ r₄ r₅ r₆ r₇ : gr3R,
+    z.h = -(r₁ * (2 * (A * C))) - r₂ * (A * D + B * C) - r₃ * (A * D + B * C)
+        - r₄ * (2 * (B * D)) + 2 * (r₆ * (Q * A - P * C)) + 2 * (r₇ * (Q * B - P * D)) ∧
+    z.i = r₁ * (C * E) + r₂ * (D * E) + r₃ * (C * F) + r₄ * (D * F) + 2 * (r₅ * R)
+        + 2 * (r₆ * (R * T - Q * E)) + 2 * (r₇ * (R * S - Q * F))
+
+/-- The completion move of the two `U`-slot regimes really is achievable: its `(h, i)`-pair
+lies in `Λ₃`, on the `(−B, D)⋆V` generator alone. -/
+theorem selLamThree_completion_move (A B C D E F T S P Q R rr res : gr3R) :
+    selLamThree A B C D E F T S P Q R
+      ⟨0, 0, 0, 0, 0, 0, 0, -(rr * res * -(2 * (B * D))), -(rr * res * (D * F)), 0⟩ :=
+  ⟨0, 0, 0, -(rr * res), 0, 0, 0, by ring, by ring⟩
+
+/-- …and the mirror move likewise, on the `(−A, C)⋆U` generator alone. -/
+theorem selLamThree_completion_move' (A B C D E F T S P Q R rr res : gr3R) :
+    selLamThree A B C D E F T S P Q R
+      ⟨0, 0, 0, 0, 0, 0, 0, -(rr * res * -(2 * (A * C))), -(rr * res * (C * E)), 0⟩ :=
+  ⟨-(rr * res), 0, 0, 0, 0, 0, 0, by ring, by ring⟩
+
+/-- Odd elements of `ℤ/8` are units: the arithmetic core of the odd regime. -/
+theorem gr3R_exists_inv_of_odd : ∀ x : gr3R, selPar x = 1 → ∃ y : gr3R, y * x = 1 := by
+  decide
+
+/-- `2·odd` elements of `ℤ/8` divide `2`: the arithmetic core of the even regime. -/
+theorem gr3R_exists_half_of_odd : ∀ x : gr3R, selPar x = 1 → ∃ y : gr3R, y * (2 * x) = 2 := by
+  decide
+
+end LiftLattice
 
 end SqCore
 
