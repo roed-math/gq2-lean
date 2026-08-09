@@ -113,7 +113,9 @@ theorem obsH2_evenModel_nNatWord_characterCup (htriv : ∀ (g : G) (m : ZMod 2),
   rw [WordCoh.obsH2_eq_of_factor htriv (nNatWord α h) μ hW
     (evenModelCharacterCupZTwo htriv c d) rho (WordCoh.ofDRCoh evenPairCupCocycle) hfactor,
     relZ_nNatWord_cupGram evenPairCupCocycle_isCup hα2 fun i => rho (μ i)]
-  simp only [evenCupForm, rho, evenPairCupCocycle, MonoidHom.prod_apply]
+  simp only [evenCupForm, rho, evenPairCupCocycle, MonoidHom.prod_apply,
+    ContinuousMonoidHom.coe_toMonoidHom]
+  rfl
 
 /-- **The `M`-relator cup obstruction, for an arbitrary marking** — the same Gram, in the `M`
 basis, by `relZ_mNatWord_cupGram`. -/
@@ -137,7 +139,9 @@ theorem obsH2_evenModel_mNatWord_characterCup (htriv : ∀ (g : G) (m : ZMod 2),
   rw [WordCoh.obsH2_eq_of_factor htriv (mNatWord α h) μ hW
     (evenModelCharacterCupZTwo htriv c d) rho (WordCoh.ofDRCoh evenPairCupCocycle) hfactor,
     relZ_mNatWord_cupGram evenPairCupCocycle_isCup hα2 fun i => rho (μ i)]
-  simp only [evenCupForm, rho, evenPairCupCocycle, MonoidHom.prod_apply]
+  simp only [evenCupForm, rho, evenPairCupCocycle, MonoidHom.prod_apply,
+    ContinuousMonoidHom.coe_toMonoidHom]
+  rfl
 
 end Generic
 
