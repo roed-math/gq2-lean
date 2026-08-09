@@ -828,6 +828,66 @@ def liftStepFour (R : Type) [CommRing R] : LiftStep R (SqU5 R) (LiftDress R) whe
 
 end LiftSchema
 
+/-! ## §6 Axiom pins
+
+Committed prints for every public declaration of this file: all **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable.  The `decide`
+instances of §4 are anonymous `example`s and elaborate under the same flags. -/
+
+section AxiomPins
+
+#print axioms SqU5.IsGaTwo
+#print axioms SqU5.IsGaThree
+#print axioms SqU5.IsGaFour
+#print axioms SqU5.IsGaThree.isGaTwo
+#print axioms SqU5.IsGaFour.isGaThree
+#print axioms SqU5.isGaThree_one
+#print axioms SqU5.isGaTwo_one
+#print axioms SqU5.isGaFour_one
+#print axioms liftC
+#print axioms liftC_mul_liftC
+#print axioms liftC_inv
+#print axioms liftC_comm
+#print axioms mul_liftC_apply
+#print axioms conjP_liftC
+#print axioms commP_mul_liftC_left
+#print axioms commP_mul_liftC_right
+#print axioms sqWord_mul_liftC
+#print axioms SqU5.IsGaFour.eq_liftC
+#print axioms commP_mul_gaThree
+#print axioms handleWord_mul_gaThree
+#print axioms selLift
+#print axioms selLift_zero
+#print axioms selLift_one
+#print axioms selLift_two
+#print axioms selLift_handleU
+#print axioms selLift_handleV
+#print axioms sqRelWord_selLift
+#print axioms sqRelWord_selLift_eq_one
+#print axioms sqRelWord_selLift_eq_one_odd
+#print axioms sqRelWord_selLift_eq_one_odd'
+#print axioms selLift_increment_exact
+#print axioms selLamThree
+#print axioms selLamThree_completion_move
+#print axioms selLamThree_completion_move'
+#print axioms gr3R_exists_inv_of_odd
+#print axioms gr3R_exists_half_of_odd
+#print axioms selLiftWit
+#print axioms toU4L_selLiftWit
+#print axioms sqRelWord_selLiftWit_toU4L
+#print axioms sqRelWord_selLiftWit_h
+#print axioms sqRelWord_selLiftWit_d
+#print axioms sqRelWord_selLiftWit_g
+#print axioms sqRelWord_selLiftWit_i
+#print axioms sqRelWord_selLiftWit_isGaThree
+#print axioms selLiftWit_complete_odd
+#print axioms LiftDress
+#print axioms LiftStep
+#print axioms LiftStep.complete
+#print axioms liftStepFour
+
+end AxiomPins
+
 end SqCore
 
 end Dyadic
