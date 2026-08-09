@@ -167,42 +167,26 @@ def selConTuple (h : ℕ) (j : Fin h) (A B C D P Q T S : gr3R)
     if i = sqHandleIdxV j then selConV B D S * selConVal A B C D P Q T S x₄ else 1
 
 private theorem selCon_ne_handleU_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
-    i ≠ sqHandleIdxU j := by
-  intro hc
-  rw [hc, sqHandleIdxU_val] at hi
-  omega
+    i ≠ sqHandleIdxU j :=
+  (SqHandleIdx.u_ne_of_val_lt j hi).symm
 
 private theorem selCon_ne_handleV_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
-    i ≠ sqHandleIdxV j := by
-  intro hc
-  rw [hc, sqHandleIdxV_val] at hi
-  omega
+    i ≠ sqHandleIdxV j :=
+  (SqHandleIdx.v_ne_of_val_lt j hi).symm
 
-private theorem selCon_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxV_val, sqHandleIdxU_val] at hv
-  omega
+private theorem selCon_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j :=
+  SqHandleIdx.v_ne_u j' j
 
 private theorem selCon_handleU_ne_handleU {j' : Fin h} (hne : j' ≠ j) :
-    sqHandleIdxU j' ≠ sqHandleIdxU j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
-  exact hne (Fin.val_injective (by omega))
+    sqHandleIdxU j' ≠ sqHandleIdxU j :=
+  SqHandleIdx.u_ne_u hne
 
-private theorem selCon_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
-  omega
+private theorem selCon_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j :=
+  SqHandleIdx.u_ne_v j' j
 
 private theorem selCon_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
-    sqHandleIdxV j' ≠ sqHandleIdxV j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
-  exact hne (Fin.val_injective (by omega))
+    sqHandleIdxV j' ≠ sqHandleIdxV j :=
+  SqHandleIdx.v_ne_v hne
 
 variable {A B C D P Q T S : gr3R} {x₀ x₁ x₂ x₃ x₄ : SelConDress}
 

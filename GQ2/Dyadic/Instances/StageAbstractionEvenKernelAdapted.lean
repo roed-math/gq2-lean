@@ -33,7 +33,9 @@ In even degree roles 1 and 2 visibly separate: the seam note §3 puts the square
 
 **It does not bite, and §1 proves why.**  The even diagonal row is not
 `p² · [p, base t]` for a single letter `t` but `p² · [p, base 0 · base 1]`, with a *product*
-partner (seam note §3, `evenRawCoreDbarWord_zero_row`).  What
+partner (seam note §3; the committed zero row is `evenRawDepthShiftHom_zero_apply` of
+`StageAbstractionEvenRawSpan.lean`, whose two brackets `commP_mul_right_of_mem` regroups into
+the single product bracket inside `evenDeriv_coordinateShift_mem_derivKer`).  What
 `stageDeriv_diagonal_row_mem_derivKer` actually requires of that partner is
 `χ(partner) ≡ −1 (mod 4)`, and here `χ(base 0 · base 1) = v 0 · v 1 = v 1`, because `v 0 = 1`
 on both even branches.  So the product partner *transports role 1 from coordinate `0` back to
