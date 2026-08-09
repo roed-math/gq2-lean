@@ -369,20 +369,20 @@ the three letter columns `σ = (0, 1, 0, 0)`, `U = (A, T, C, E)`, `V = (B, S, D,
 one level up from `GradedSelect.selLam` (validated in `scripts/w52_lift/sweep_u5.py`,
 `lam3_gens`).
 
-The completion has **two regimes**, separated by the mod-2 class of the pairing value — the
+The completion has **two regimes**, separated by the mod-2 class of the pairing value: the
 W51 sweep's parity collapse (`δ` and its image depend on the marking only mod 2) entering the
 statements:
 
 * **odd regime** (`sqRelWord_selLift_eq_one_odd`): a *unit* pairing witness `rr` makes the
   `γ₃`-action on the residue line surjective (`selLift_increment_exact` at `μ = 1`) and
-  **any** central residue dies — something that never happens at class three, where every
+  **any** central residue dies, something that never happens at class three, where every
   achievable increment is even (`GradedSelect.selPair_even`).  At the §4 witness the
   `(−B, D)⋆V` generator pairs to `−3·κ₄` with `κ₄ = B·D·F`, so this regime is exactly "`κ₄`
   odd";
 * **even regime** (`sqRelWord_selLift_eq_one`): a `2`-pairing witness kills exactly the even
   residues (`selLift_increment_exact` at `μ = 2`), the verbatim transposition of the committed
   class-three completion (`GradedSelect.sqRelWord_selRefine_eq_one`).  The converse selection
-  claim — at `κ₄`-even live points an odd residue survives every achievable refinement — is
+  claim (at `κ₄`-even live points an odd residue survives every achievable refinement) is
   **measured, not proved** (`sweep4_u5.py`, `sweep5_u5.py`: zero kills across all sampled
   achievable moves); transcribing it needs the class-four analogue of `GradedSelect` §5b's
   parity engine, which no wave has consumed yet;
@@ -415,7 +415,7 @@ theorem sqRelWord_selLift_eq_one {zh zi res rr : R}
   linear_combination (-res) * hmu
 
 /-- ⭐⭐ **The odd-regime completion**: with a **unit** pairing witness the `γ₃`-action is
-surjective on the residue line and **any** central residue dies — even an odd one.  No
+surjective on the residue line and **any** central residue dies, even an odd one.  No
 class-three analogue exists: there the achievable-increment group is always inside `2·ℤ/8`. -/
 theorem sqRelWord_selLift_eq_one_odd {zh zi res rr : R}
     (h5 : sqRelWord m = liftC res)
@@ -459,7 +459,7 @@ section LiftLattice
 
 /-- **Membership in `Λ₃`**, the achievable `γ₃`-lattice of a class-four selection marking:
 the `(h, i)`-coordinates of `z` are an `R`-combination of the seven commutator pairings of
-the `γ₂`-image lattice `Λ₅` against the three letter columns — `(−A, C)⋆U = (−2AC, CE)`,
+the `γ₂`-image lattice `Λ₅` against the three letter columns: `(−A, C)⋆U = (−2AC, CE)`,
 `(−B, D)⋆U = (−(AD + BC), DE)`, `(−A, C)⋆V = (−(AD + BC), CF)`, `(−B, D)⋆V = (−2BD, DF)`,
 and the three even `x₁`-pairings `(0, 2R)`, `2·(QA − PC, RT − QE)`, `2·(QB − PD, RS − QF)`.
 This is the `(h, i)`-image of `γ₃(im Φ)` for a hom of the class-four selection family, the
@@ -509,12 +509,12 @@ ten relator rows, through the two `U₄`-quotients:
 * rows `d, g` **vanish** (`sqRelWord_selLiftWit_d`, `_g`), through the right quotient and the
   committed `SqU4` closed forms; these are the class-`≤ 2` stories of the `(c, d)`-columns;
 * row `i` is **genuinely new** (`sqRelWord_selLiftWit_i`): its closed form at the witness is
-  `2·N − C·F·T` with `N = 2·S·T·(C+D)·W2`, so its parity is `C·F·T` — the class-three
+  `2·N − C·F·T` with `N = 2·S·T·(C+D)·W2`, so its parity is `C·F·T`, the class-three
   selection bit of the columns class three could not see, the `(c, d)`-analogue of the
   committed `B·C·(T+S)`-bit one level down;
 * row `j` is the engine's target: it is not computed in closed form here, and the stage
   hypothesis `sqRelWord = liftC res` of §3's completions is exactly "rows `h` and `i` have
-  been killed too" — stage 3 is **two functionals wide** from up here, and a class-three
+  been killed too": stage 3 is **two functionals wide** from up here, and a class-three
   survivor means both die.
 
 `selLiftWit_complete_odd` is the stage-3 → stage-4 engine instance at the witness: at a
@@ -527,7 +527,7 @@ section LiftWitness
 variable {h : ℕ} {j : Fin h} {A B C D E F T S P Q R W2 : gr3R}
 
 /-- **The whole-binder witness tuple at class four**: the `U₅`-lift of
-`GradedContain.selConWit` — slot `0` the marked `σ`, slot `1` the forced dressing value with
+`GradedContain.selConWit`: slot `0` the marked `σ`, slot `1` the forced dressing value with
 the `Λ`-correction, slot `2` the `x₁`-letter, the `j`-handle pair the `U`-, `V`-letters, all
 other slots trivial, every deep (class-`≥ 3`) coordinate zero. -/
 def selLiftWit (h : ℕ) (j : Fin h) (A B C D E F T S P Q R : gr3R) :
@@ -665,7 +665,7 @@ theorem sqRelWord_selLiftWit_g (he : 2 * Q + (T * D - S * C) = 0)
 /-- ⭐⭐ **The new `i`-row, in closed form**: `2·N − C·F·T` with `N = 2·S·T·(C+D)·W2`.  This is
 the class-three residue of the columns class three could not see: its parity is `C·F·T`, the
 `(c, d)`-column selection bit, the mirror of the committed `B·C·(T+S)`-bit of the `h`-row.  A
-stage-three survivor at the witness needs *both* bits dead — stage 3 is two functionals wide
+stage-three survivor at the witness needs *both* bits dead: stage 3 is two functionals wide
 from class four. -/
 theorem sqRelWord_selLiftWit_i (hb : 2 * W2 + (E * S - F * T) = 0) :
     (sqRelWord (selLiftWit h j A B C D E F T S P Q R)).i
@@ -727,7 +727,7 @@ theorem selLiftWit_complete_odd (hκ : selPar (B * D * F) = 1) {res : gr3R}
 The pipe end to end at one handle, at the binder point
 `(A, B, C, D, E, F, T, S) = (2, 1, 0, 1, 2, 1, 0, 1)` with halves
 `(P, Q, R, W2) = (3, 0, 1, 3)` (all four parity rows check by `decide`): the lifted witness
-kills all nine lower rows outright — stage 3 needs no completion move here — and survives
+kills all nine lower rows outright (stage 3 needs no completion move here) and survives
 with the **odd** central residue `5`.  With `κ₄ = B·D·F = 1` odd, the `(−B, D)⋆V` pairing is
 `−3 = 5`, its inverse is `rr = 5`, and the odd-regime move `(h, i) = (2, 7)` on the `U`-handle
 slot kills the relator: a completion at odd residue, which class three can never do. -/
