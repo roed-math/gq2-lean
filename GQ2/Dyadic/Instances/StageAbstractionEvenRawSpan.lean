@@ -427,7 +427,10 @@ variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 * the pair `[w₃, base 2] · [w₂, base 3]` from the commutator `[base 2, base 3]`.
 
 Collecting the two occurrences of `w₀` gives the presentation of the seam note: `w₀²` times
-the *product* partner `[w₀, base 0 · base 1]` (see `evenRawCoreDbarWord_zero_row`). -/
+the *product* partner `[w₀, base 0 · base 1]`.  The committed form of that zero row is
+`evenRawDepthShiftHom_zero_apply` below, which delivers it as `p² · [p, base 0] · [p, base 1]`;
+`GQ2.Roe.Labute.commP_mul_right_of_mem` performs the regrouping into the single product
+bracket, as `StageAbstractionEvenDerivKer.lean` §5.4 does. -/
 def evenRawCoreDbarWord
     (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
     levelQuot G (k + 1) :=

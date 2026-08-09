@@ -60,8 +60,11 @@ round trips are literal.
   EV-3f needs one depth, not two, and it is the same `α - 1` its `α` already names.  In the
   other direction `evenSharp_not_imageRelLe_imChiM`/`…imChiN` of
   `StageAbstractionEvenRowSupply.lean` refute the committed depth `s = 1` outright; the same
-  witnesses have exact depth `m + α - 2` and so defeat every `s ≤ α - 2` by the same count,
-  which is *not* formalised here — only the `s = 1` case is.
+  witnesses have exact depth `m + α - 2` and so defeat every `s ≤ α - 2` by the same count.
+  W52-BATCH formalises that count on the `M` branch as §8, which pins the depth **exactly** at
+  `s = α - 1`: `evenRow_not_deepSupply_sub_two_imChiM` already fails at `α - 2`.  The `N`
+  analogue is the same argument with `nUnit α ^ 2` in place of `mUnit α`, and is not
+  formalised.
 * **What happens at `α = 2`?**  The depth is then `s = 1`, which is the committed seam, so
   the committed `RowExactLevelFibreLiftSupply` is *true* at `α = 2` on both branches:
   `evenRow_rowSupply_imChiM_two` (because `imChiM 2 = ⊤`, so the character is surjective) and
@@ -78,7 +81,9 @@ round trips are literal.
 6. the image identification discharging that reduction on the `M` branch, and the `α = 2`
    `M` verdict;
 7. the `N` branch through powers of the generator, giving the uniform depth verdict and the
-   `α = 2` `N` verdict.
+   `α = 2` `N` verdict;
+8. necessity of that depth on the `M` branch: the depth-`s` supply forces the depth-`s`
+   filtration containment, and `mUnit α` refutes it for every `s ≤ α - 2`.
 -/
 
 namespace GQ2.Dyadic.EvenRowSupply
@@ -563,8 +568,7 @@ Two consequences.  The `N` branch lands at the *same* depth `s = α - 1` as `M`,
 `α ≥ 3` restriction of §6 was an artifact of the earlier route: `s = α - 1` suffices on both
 branches for every `α ≥ 2`.  At `α = 2` that depth *is* the committed seam, so the committed
 `RowExactLevelFibreLiftSupply` is true at `α = 2` on both branches — on `N` without the
-character being surjective.  Sufficiency is what §7 proves; for the matching necessity see
-the note in the header.
+character being surjective.  Sufficiency is what §7 proves; the matching necessity is §8.
 -/
 
 section NBranch
@@ -660,6 +664,109 @@ theorem evenRow_rowSupply_imChiN_two
 
 end NBranch
 
+/-! ## §8 Necessity: the depth `s = α - 1` has no slack
+
+§7 proves `s = α - 1` **suffices**, on both branches and for every `α ≥ 2`.  The header note
+recorded the matching necessity as unformalised: the witnesses of
+`evenSharp_not_imageRelLe_imChiM` have exact depth `m + α - 2`, so by the same count they
+defeat every `s ≤ α - 2`, and not merely the committed `s = 1` that §5 of
+`StageAbstractionEvenRowSupply.lean` refutes.  This section formalises that count on the `M`
+branch, at the first level the seam is used at, `m = 2`.
+
+Two pieces.
+
+* §8.1 is the depth-`s` **converse** of `evenRow_deepSupply_of_imageRelDeep`: the clone of
+  `evenRow_imageRel_le_of_rowSupply` at modulus `2^(m+s)` instead of `2^(m+1)`, with the same
+  proof.  So the depth-`s` supply *forces* the depth-`s` filtration containment, and a single
+  failing element kills it.
+* §8.2 exhibits that element.  `mUnit α` is a character value on the `M` branch, it is
+  `≡ 1 mod 2^(2+s)` as soon as `s + 2 ≤ α`, and yet `chi(λ₂(G))` is confined to
+  `1 + 2^(α+1)ℤ₂` by `evenSharp_map_twoCentralSeries_le`, while `mUnit α - 1 = 2^α·(unit)` has
+  depth exactly `α`.  One digit short, which is the whole content of the count.
+
+Together with `evenRow_deepSupply_imChiM_of_two_le` this pins the even `M` seam **exactly** at
+`s = α - 1`: it holds there, and `evenRow_not_deepSupply_sub_two_imChiM` says it already fails
+at `α - 2`.  The slack is zero, so the `α - 1` the even lane carries is not a safety margin
+that a later optimisation could shave. -/
+
+section Necessity
+
+variable {n : ℕ} {v : Fin n → ℤ_[2]ˣ}
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
+
+open GQ2.Dyadic.MarkedCore (mUnit imChiM mUnit_sub_one)
+
+/-- **§8.1 The depth-`s` supply forces the depth-`s` containment.**  Verbatim
+`evenRow_imageRel_le_of_rowSupply` with `2^(m+1)` replaced by `2^(m+s)`: test the supply on a
+preimage of `v i · d⁻¹`, whose depth-`s` shadow is that of `v i` exactly when `d` is trivial
+modulo `2^(m+s)`, and the returned exact representative differs from it by `d`. -/
+theorem evenRow_imageRelDeep_le_of_deepSupply {s : ℕ}
+    (H : EvenRowDeepFibreLiftSupply s v G chi)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) (m : ℕ) (hm : 2 ≤ m) :
+    MonoidHom.range chi.toMonoidHom ⊓
+        (Units.map (PadicInt.toZModPow (m + s)).toMonoidHom).ker ≤
+      (twoCentralSeries G m).map chi.toMonoidHom := by
+  intro d hd
+  obtain ⟨hdrange, hdker⟩ := Subgroup.mem_inf.mp hd
+  obtain ⟨y, hy⟩ := hvi
+  obtain ⟨c, hc⟩ := hdrange
+  have hcd : chi c = d := hc
+  have hchig : chi (y * c⁻¹) = v i * d⁻¹ := by
+    rw [map_mul, map_inv, hy, hcd]
+  obtain ⟨x, hxchi, hx⟩ := H.lift m hm i (y * c⁻¹) (by
+    rw [hchig, map_mul, map_inv, MonoidHom.mem_ker.mp hdker, inv_one, mul_one])
+  have hone : levelMk G m ((y * c⁻¹)⁻¹ * x) = 1 := by
+    rw [map_mul, map_inv, ← hx, inv_mul_cancel]
+  refine ⟨(y * c⁻¹)⁻¹ * x, (QuotientGroup.eq_one_iff _).mp hone, ?_⟩
+  show chi ((y * c⁻¹)⁻¹ * x) = d
+  rw [map_mul, map_inv, hchig, hxchi]
+  group
+
+/-- **§8.2 Every depth `s ≤ α - 2` fails on the `M` branch.**  The witness is the orientation
+unit `mUnit α` itself, tested at level `m = 2`: it is a character value, it is `1` modulo
+`2^(2+s)` because `2 + s ≤ α`, and `chi(λ₂(G)) ⊆ 1 + 2^(α+1)ℤ₂` while `mUnit α` sits at depth
+exactly `α`.  The table is arbitrary subject only to one of its values being a character value
+at all, which the constant row `1` always is. -/
+theorem evenRow_not_deepSupply_of_le_sub_two_imChiM {α s : ℕ} (hα3 : 3 ≤ α) (hs : s + 2 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) :
+    ¬ EvenRowDeepFibreLiftSupply s v G chi := by
+  intro H
+  have hbound : ∀ g : G, EvenSharpPmOne α (chi g) := by
+    intro g
+    have hg : chi g ∈ MonoidHom.range chi.toMonoidHom := ⟨g, rfl⟩
+    rw [hrange] at hg
+    exact evenSharp_pmOne_of_mem_imChiM (by omega) hg
+  have hb : ((mUnit α : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ α * ((mUnit α : ℤ_[2]ˣ) : ℤ_[2]) :=
+    mUnit_sub_one (by omega)
+  have hmem : mUnit α ∈ (twoCentralSeries G 2).map chi.toMonoidHom := by
+    refine evenRow_imageRelDeep_le_of_deepSupply H i hvi 2 (le_refl 2)
+      (Subgroup.mem_inf.mpr ⟨?_, ?_⟩)
+    · obtain ⟨y, hy⟩ := evenRow_mUnit_mem_range_of_imChiM hrange
+      exact ⟨y, hy⟩
+    · rw [evenSharp_mem_ker_iff, hb]
+      exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) _
+  have hker := evenSharp_map_twoCentralSeries_le (by omega : 1 ≤ α) hbound 0 hmem
+  rw [evenSharp_mem_ker_iff, hb, show α + 0 + 1 = α + 1 by omega] at hker
+  obtain ⟨c, hc⟩ := hker
+  have hval : ((mUnit α : ℤ_[2]ˣ) : ℤ_[2]) = 2 * c := by
+    refine mul_left_cancel₀ (pow_ne_zero α (two_ne_zero (α := ℤ_[2]))) ?_
+    rw [hc]
+    ring
+  exact GQ2.not_isUnit_two (isUnit_of_mul_isUnit_left (hval ▸ (mUnit α).isUnit))
+
+/-- **The pin.**  `s = α - 2` is already too shallow: the depth-`(α-2)` supply is false on the
+`M` branch for every `α ≥ 3`, while `evenRow_deepSupply_imChiM_of_two_le` gives the
+depth-`(α-1)` supply outright.  Zero slack. -/
+theorem evenRow_not_deepSupply_sub_two_imChiM {α : ℕ} (hα3 : 3 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α)
+    (i : Fin n) (hvi : v i ∈ Set.range chi) :
+    ¬ EvenRowDeepFibreLiftSupply (α - 2) v G chi :=
+  evenRow_not_deepSupply_of_le_sub_two_imChiM hα3 (by omega) hrange i hvi
+
+end Necessity
+
 end
 
 end GQ2.Dyadic.EvenRowSupply
@@ -706,3 +813,6 @@ end GQ2.Dyadic.EvenRowSupply
 #print axioms GQ2.Dyadic.EvenRowSupply.evenRow_pow_root_imChiM
 #print axioms GQ2.Dyadic.EvenRowSupply.evenRow_deepSupply_imChiM_of_two_le
 #print axioms GQ2.Dyadic.EvenRowSupply.evenRow_rowSupply_imChiN_two
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_imageRelDeep_le_of_deepSupply
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_deepSupply_of_le_sub_two_imChiM
+#print axioms GQ2.Dyadic.EvenRowSupply.evenRow_not_deepSupply_sub_two_imChiM

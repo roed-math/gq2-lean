@@ -600,42 +600,26 @@ theorem sqHeisDefect_congr_ab {m m' : Fin (sqRank h) → SqHeis R}
 /-! ### Index disequalities -/
 
 private theorem sel_ne_handleU_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
-    i ≠ sqHandleIdxU j := by
-  intro hc
-  rw [hc, sqHandleIdxU_val] at hi
-  omega
+    i ≠ sqHandleIdxU j :=
+  (SqHandleIdx.u_ne_of_val_lt j hi).symm
 
 private theorem sel_ne_handleV_of_lt {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
-    i ≠ sqHandleIdxV j := by
-  intro hc
-  rw [hc, sqHandleIdxV_val] at hi
-  omega
+    i ≠ sqHandleIdxV j :=
+  (SqHandleIdx.v_ne_of_val_lt j hi).symm
 
-private theorem sel_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxV_val, sqHandleIdxU_val] at hv
-  omega
+private theorem sel_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHandleIdxU j :=
+  SqHandleIdx.v_ne_u j' j
 
-private theorem sel_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
-  omega
+private theorem sel_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j :=
+  SqHandleIdx.u_ne_v j' j
 
 private theorem sel_handleU_ne_handleU {j' : Fin h} (hne : j' ≠ j) :
-    sqHandleIdxU j' ≠ sqHandleIdxU j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
-  exact hne (Fin.val_injective (by omega))
+    sqHandleIdxU j' ≠ sqHandleIdxU j :=
+  SqHandleIdx.u_ne_u hne
 
 private theorem sel_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
-    sqHandleIdxV j' ≠ sqHandleIdxV j := by
-  intro hc
-  have hv := congrArg Fin.val hc
-  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
-  exact hne (Fin.val_injective (by omega))
+    sqHandleIdxV j' ≠ sqHandleIdxV j :=
+  SqHandleIdx.v_ne_v hne
 
 /-! ### The refinement action -/
 

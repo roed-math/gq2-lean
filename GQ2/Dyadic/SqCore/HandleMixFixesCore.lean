@@ -466,40 +466,31 @@ section Transvections
 variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
   [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
 
-/-! ### Index bookkeeping for `Fin (sqRank h)` -/
+/-! ### Index bookkeeping for `Fin (sqRank h)`
 
-theorem sqHandleIdxU_injective : Function.Injective (sqHandleIdxU (h := h)) := by
-  intro i j hij
-  have h1 : (3 + 2 * (i : ℕ)) = 3 + 2 * (j : ℕ) := by
-    rw [← sqHandleIdxU_val i, ← sqHandleIdxU_val j, hij]
-  exact Fin.ext (by omega)
+W52-BATCH: the canonical set is `SqCore.SqHandleIdx` in `GQ2/Dyadic/SqCore/Cores.lean`, beside
+the `sqHandleIdxU`/`sqHandleIdxV` definitions and reachable from every consumer of the family;
+the five declarations here are proof-rewired onto it, statements unchanged. -/
 
-theorem sqHandleIdxV_injective : Function.Injective (sqHandleIdxV (h := h)) := by
-  intro i j hij
-  have h1 : (4 + 2 * (i : ℕ)) = 4 + 2 * (j : ℕ) := by
-    rw [← sqHandleIdxV_val i, ← sqHandleIdxV_val j, hij]
-  exact Fin.ext (by omega)
+theorem sqHandleIdxU_injective : Function.Injective (sqHandleIdxU (h := h)) :=
+  SqHandleIdx.u_injective
+
+theorem sqHandleIdxV_injective : Function.Injective (sqHandleIdxV (h := h)) :=
+  SqHandleIdx.v_injective
 
 /-- The two letters of a handle pair never collide: `3 + 2i` is odd, `4 + 2j` is even. -/
 theorem sqHandleIdxU_ne_sqHandleIdxV (i j : Fin h) :
-    (sqHandleIdxU i : Fin (sqRank h)) ≠ sqHandleIdxV j := by
-  intro hij
-  have h1 : (3 + 2 * (i : ℕ)) = 4 + 2 * (j : ℕ) := by
-    rw [← sqHandleIdxU_val i, ← sqHandleIdxV_val j, hij]
-  omega
+    (sqHandleIdxU i : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  SqHandleIdx.u_ne_v i j
 
 /-- Handle letters are never core letters. -/
 theorem sqHandleIdxU_ne_of_val_lt (j : Fin h) {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
-    (sqHandleIdxU j : Fin (sqRank h)) ≠ i := by
-  intro hij
-  rw [← hij, sqHandleIdxU_val] at hi
-  omega
+    (sqHandleIdxU j : Fin (sqRank h)) ≠ i :=
+  SqHandleIdx.u_ne_of_val_lt j hi
 
 theorem sqHandleIdxV_ne_of_val_lt (j : Fin h) {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
-    (sqHandleIdxV j : Fin (sqRank h)) ≠ i := by
-  intro hij
-  rw [← hij, sqHandleIdxV_val] at hi
-  omega
+    (sqHandleIdxV j : Fin (sqRank h)) ≠ i :=
+  SqHandleIdx.v_ne_of_val_lt j hi
 
 /-! ### The two substitutions -/
 

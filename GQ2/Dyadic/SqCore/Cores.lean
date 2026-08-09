@@ -302,6 +302,72 @@ theorem sqHandleIdxU_val {h : ℕ} (j : Fin h) :
 theorem sqHandleIdxV_val {h : ℕ} (j : Fin h) :
     ((sqHandleIdxV j : Fin (sqRank h)) : ℕ) = 4 + 2 * j := rfl
 
+/-! ### The handle-index disequalities
+
+Core letters occupy `0, 1, 2`, the `j`-th handle pair occupies `3 + 2j` and `4 + 2j`, so every
+disequality among these indices is one `omega` away from
+`sqHandleIdxU_val`/`sqHandleIdxV_val` and `sqVal_zero`/`sqVal_one`/`sqVal_two`.  Cheap to
+reprove, and reproved a dozen times downstream for exactly that reason.  This is the canonical
+set: it lives here, at the definition site, because this is the only file every consumer of the
+family reaches, and the committed copies are proof-rewired onto it.  Names are kept in the
+`SqHandleIdx` sub-namespace so the rewired copies keep their own names without collision. -/
+
+namespace SqHandleIdx
+
+variable {h : ℕ}
+
+/-- A handle letter is never a core letter: core indices have value `< 3`, handle indices
+have value `≥ 3`. -/
+theorem u_ne_of_val_lt (j : Fin h) {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    (sqHandleIdxU j : Fin (sqRank h)) ≠ i := by
+  intro hij
+  rw [← hij, sqHandleIdxU_val] at hi
+  omega
+
+/-- The second-letter form of `u_ne_of_val_lt`. -/
+theorem v_ne_of_val_lt (j : Fin h) {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
+    (sqHandleIdxV j : Fin (sqRank h)) ≠ i := by
+  intro hij
+  rw [← hij, sqHandleIdxV_val] at hi
+  omega
+
+/-- The two letters of a handle pair never collide: `3 + 2i` is odd, `4 + 2j` is even. -/
+theorem u_ne_v (i j : Fin h) : (sqHandleIdxU i : Fin (sqRank h)) ≠ sqHandleIdxV j := by
+  intro hij
+  have hv := congrArg Fin.val hij
+  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
+  omega
+
+/-- `u_ne_v` the other way round. -/
+theorem v_ne_u (i j : Fin h) : (sqHandleIdxV i : Fin (sqRank h)) ≠ sqHandleIdxU j :=
+  (u_ne_v j i).symm
+
+/-- The first handle letter determines its slot. -/
+theorem u_injective : Function.Injective (sqHandleIdxU (h := h)) := by
+  intro i j hij
+  have hv := congrArg Fin.val hij
+  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
+  exact Fin.ext (by omega)
+
+/-- The second handle letter determines its slot. -/
+theorem v_injective : Function.Injective (sqHandleIdxV (h := h)) := by
+  intro i j hij
+  have hv := congrArg Fin.val hij
+  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
+  exact Fin.ext (by omega)
+
+/-- Distinct handle slots give distinct first letters. -/
+theorem u_ne_u {i j : Fin h} (hne : i ≠ j) :
+    (sqHandleIdxU i : Fin (sqRank h)) ≠ sqHandleIdxU j :=
+  fun hc => hne (u_injective hc)
+
+/-- Distinct handle slots give distinct second letters. -/
+theorem v_ne_v {i j : Fin h} (hne : i ≠ j) :
+    (sqHandleIdxV i : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  fun hc => hne (v_injective hc)
+
+end SqHandleIdx
+
 /-- **The standard marking shape**: three core values, `1` on every handle letter (MC2's
 `coreMark` pattern).  Every character of this core built below has this shape — the handle
 lemma `commP_wordLift_one`/`handleWord_wordLift_one` forces `χ ≡ 1` there. -/

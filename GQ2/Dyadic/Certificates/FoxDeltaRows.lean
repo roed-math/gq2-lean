@@ -80,6 +80,28 @@ hand-duplicated shallow rows become instantiations of one statement (§4 subsume
 committed ramified rows and `MpcUnramifiedBranch`'s copies; rewiring those consumers is
 deliberately **not** in this wave's scope).
 
+## The one row this layer does not carry: `E₂^pc`
+
+There is **no** `foxDelta_e2W` here, and the reason is structural rather than budgetary.  W51
+deferred it and W52-BATCH re-examined it without landing it; the finding, recorded so the next
+attempt does not restart from zero:
+
+* The two committed readings exist — `MpcStokes.foxD_e2W` (ramified) and
+  `MpcUnramifiedBranch.foxD_e2W_unram` — but unlike every row in §4 they are **not** linear in
+  the δ-row alone.  `foxD_e2W` factors through `MpcStokes.foxD_zW`, the row of the `z` block,
+  and there is no δ-parameterised `zW` row anywhere in the tree.  So a `foxDelta_e2W` needs a
+  `foxDelta_zW` first, which is new mathematics, not a restatement.
+* The orbit-norm half additionally needs `MpcStokes.geomS`, `MpcStokes.sum_orbit_geomS` and
+  `Export.orbitNormFactors`, and the first two live in `MpcStokes.lean`.  This file must not
+  import it — `MpcStokes` sits above the certificate layer and the whole point of this file is
+  to stay below it — so the finished row cannot live here.  The **placement** is nevertheless
+  solved: `GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean` already imports this file directly
+  and reaches `MpcStokes` transitively, so it can host the row without any import moving.  What
+  is missing is the mathematics, not the home.
+
+So the row is deferred a second time, deliberately, and the single blocker is named: the
+δ-parameterised `zW` row, from which the rest of `foxD_e2W`'s argument transcribes.
+
 ## Scope decisions
 
 * **`N0Fox` / `M0Fox` are in scope only through their δ-row constructors.**  Both files already
