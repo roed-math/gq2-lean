@@ -85,10 +85,11 @@ sitting at the bracket partner of a squarefree row.  On the `N` branch every bra
 of every squarefree row has table value `1`, so no flip is constructible by partner powers:
 the `N` character mass sits at the twisted index `1`, whose row `[p, base 0]` it does not
 partner.  The flip supply at the remaining slots is carried, exactly as the odd route carries
-`Hflip`; it is strictly weaker than `Hup` (one digit at one slot per correction, against a
-span equality), and unlike the neutral supply it is not refutable by depth counting, since
-sharp classes at `k + α - 2` exist in abundance (§2) and only their shift words are in
-question.
+`Hflip`.  As a bare statement it asks far less than `Hup` (one digit at one slot per
+correction, against a span equality), and §5's equivalence certifies that it asks for exactly
+as much as the endpoints need; unlike the neutral supply it is not refutable by depth
+counting, since sharp classes at `k + α - 2` exist in abundance (§2) and only their shift
+words are in question.
 
 ## The per-`K` endpoints, re-cut
 
