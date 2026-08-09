@@ -159,6 +159,15 @@ for e0 in MARKS do
     ckL := dm[j] - Dimension(RSL);
     resid := Dimension(KS) - Dimension(RSK);
     VV := VectorSpace(GF(2), dm[j]);
+    /* the ambient's pure-power space L_j / [L_{j-1}, V], and where the relator's own
+       Frobenius row sits in it: the relator's initial form makes F^(j-1)(x1) a bracket in Q,
+       so pdim = d - 1 here (it is d in the free ambient) and F^(j-1)(beta_x1) is IN [L,V] --
+       the two effects cancel and the corank stays at d - 1. */
+    brows := [];
+    for x in LG do for i in [1..D] do Append(~brows, Coord((x, gQ[i]), j)); end for; end for;
+    BR := RowSpace(Matrix(brows));
+    pdim := dm[j] - Dimension(BR);
+    hitd := (VV!Coord(beta[3]^(2^(j-1)), j) in BR) select "in [L,V]" else "outside [L,V]";
     CQL, mpl := quo< VV | RSL >;
     CQK, mpk := quo< VV | RSK >;
 
@@ -210,8 +219,8 @@ for e0 in MARKS do
             and (RSK subset KS) and t3 and t4 and (rkphi eq 2) and w6 and (conjbad eq 0)
             and (tar in RSK);
     NCASE +:= 1; if not good then NFAIL +:= 1; end if;
-    Say(Sprintf("  L%o: dimL %o dimK %o | T1 form-mism %o of %o | ckK %o (=d+1 %o) ckFull %o (=d-1 %o) resid %o | im<=K %o | T3 purepow rank %o ker=<e_x1> %o | T4 brkpow in K %o rank %o ker %o +duals rank %o (=ckK %o) | T5 rk(phi) %o | T6 diag-power witness %o conj-kernel %o of %o | T7 defect in im %o | %o s",
-      j, dm[j], Dimension(KS), mism, D*nb, ckK, ckK eq D+1, ckL, ckL eq D-1, resid,
+    Say(Sprintf("  L%o: dimL %o dimK %o | purepow space dim %o, F^(j-1)(beta_x1) %o | T1 form-mism %o of %o | ckK %o (=d+1 %o) ckFull %o (=d-1 %o) resid %o | im<=K %o | T3 purepow rank %o ker=<e_x1> %o | T4 brkpow in K %o rank %o ker %o +duals rank %o (=ckK %o) | T5 rk(phi) %o | T6 diag-power witness %o conj-kernel %o of %o | T7 defect in im %o | %o s",
+      j, dm[j], Dimension(KS), pdim, hitd, mism, D*nb, ckK, ckK eq D+1, ckL, ckL eq D-1, resid,
       RSK subset KS, Rank(M4), Kernel(M4) eq predk, inK, Rank(Mq), Kernel(Mq) eq predk,
       Rank(Mall), Rank(Mall) eq ckK, rkphi, w6, #cbasis - conjbad, #cbasis,
       tar in RSK, Cputime(tj)));

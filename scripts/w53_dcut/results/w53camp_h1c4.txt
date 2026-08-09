@@ -3,18 +3,18 @@ W53-DCUT campaign ambient -- h = 1 (d = 5), class 4, markings [
 [ 1, 0 ],
 [ 1, 1 ]
 ]
-Q_4 : order 2^243, layers [ 5, 14, 49, 175 ] (build 0.230 s)
+Q_4 : order 2^243, layers [ 5, 14, 49, 175 ] (build 0.210 s)
 ---- (t,s)=(0,1): K-layer dims [ 3, 12, 47, 173 ] of [ 5, 14, 49, 175 ], codim-2 certificates [ true, true, true, true ] ----
-  L3: dimL 49 dimK 47 | T1 form-mism 0 of 60 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 5 of 5 | T7 defect in im true | 0.010 s
-  L4: dimL 175 dimK 173 | T1 form-mism 0 of 235 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 14 of 14 | T7 defect in im true | 0.110 s
+  L3: dimL 49 dimK 47 | purepow space dim 4, F^(j-1)(beta_x1) in [L,V] | T1 form-mism 0 of 60 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 5 of 5 | T7 defect in im true | 0.010 s
+  L4: dimL 175 dimK 173 | purepow space dim 4, F^(j-1)(beta_x1) in [L,V] | T1 form-mism 0 of 235 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 14 of 14 | T7 defect in im true | 0.110 s
 (t,s)=(0,1): R(m) = 1 in Q_4 : true
 ---- (t,s)=(1,0): K-layer dims [ 3, 12, 47, 173 ] of [ 5, 14, 49, 175 ], codim-2 certificates [ true, true, true, true ] ----
-  L3: dimL 49 dimK 47 | T1 form-mism 0 of 60 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 5 of 5 | T7 defect in im true | 0.010 s
-  L4: dimL 175 dimK 173 | T1 form-mism 0 of 235 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 14 of 14 | T7 defect in im true | 0.100 s
+  L3: dimL 49 dimK 47 | purepow space dim 4, F^(j-1)(beta_x1) in [L,V] | T1 form-mism 0 of 60 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 5 of 5 | T7 defect in im true | 0.020 s
+  L4: dimL 175 dimK 173 | purepow space dim 4, F^(j-1)(beta_x1) in [L,V] | T1 form-mism 0 of 235 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 14 of 14 | T7 defect in im true | 0.110 s
 (t,s)=(1,0): R(m) = 1 in Q_4 : true
 ---- (t,s)=(1,1): K-layer dims [ 3, 12, 47, 173 ] of [ 5, 14, 49, 175 ], codim-2 certificates [ true, true, true, true ] ----
-  L3: dimL 49 dimK 47 | T1 form-mism 0 of 60 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 5 of 5 | T7 defect in im true | 0.010 s
-  L4: dimL 175 dimK 173 | T1 form-mism 0 of 235 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 14 of 14 | T7 defect in im true | 0.120 s
+  L3: dimL 49 dimK 47 | purepow space dim 4, F^(j-1)(beta_x1) in [L,V] | T1 form-mism 0 of 60 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 5 of 5 | T7 defect in im true | 0.020 s
+  L4: dimL 175 dimK 173 | purepow space dim 4, F^(j-1)(beta_x1) in [L,V] | T1 form-mism 0 of 235 | ckK 6 (=d+1 true) ckFull 4 (=d-1 true) resid 4 | im<=K true | T3 purepow rank 4 ker=<e_x1> true | T4 brkpow in K true rank 4 ker true +duals rank 6 (=ckK true) | T5 rk(phi) 2 | T6 diag-power witness true conj-kernel 14 of 14 | T7 defect in im true | 0.120 s
 (t,s)=(1,1): R(m) = 1 in Q_4 : true
 SUMMARY: 9 scored assertions, 0 failures
 DONE

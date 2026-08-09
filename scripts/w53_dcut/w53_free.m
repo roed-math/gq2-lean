@@ -140,6 +140,32 @@ for D in DS do
 
   VD := VectorSpace(GF(2), D);
 
+  /* ---- C0 : the pure-power space of the ambient, P_j = L_j / [L_{j-1}, V].  In the free
+     ambient pi : V -> P_j,  v |-> F^(j-1)(v),  is a linear isomorphism (linearity is the
+     exact identity [B]: F^(j-1)(v+w) - F^(j-1)(v) - F^(j-1)(w) = F^(j-2)([v,w]) lies in
+     [L_{j-1}, V]).  This is the space the d-1 cut lives in. ---- */
+  for j in [3..CLS] do
+    brows := [];
+    for x in LGEN[j-1] do for i in [1..D] do Append(~brows, Coord((x, g[i]), j)); end for; end for;
+    BR := RowSpace(Matrix(brows));
+    pdim := dm[j] - Dimension(BR);
+    VVj := VectorSpace(GF(2), dm[j]);
+    CB, mb := quo< VVj | BR >;
+    pib := [ mb(VVj!Coord(g[i]^(2^(j-1)), j)) : i in [1..D] ];
+    Mpi := Matrix(pib);
+    linbad := 0;
+    for v in VD do
+      lhs := mb(VVj!Coord(grpelt(v)^(2^(j-1)), j));
+      rhs := Zero(CB);
+      for i in [1..D] do if v[i] ne 0 then rhs +:= pib[i]; end if; end for;
+      if lhs ne rhs then linbad +:= 1; end if;
+    end for;
+    good := (pdim eq D) and (Rank(Mpi) eq D) and (linbad eq 0);
+    NCASE +:= 1; if not good then NFAIL +:= 1; end if;
+    Say(Sprintf("  [C0] L%o : dim L_j / [L_{j-1},V] = %o (=d %o) | pi : V -> P_j rank %o injective %o | pi linear: %o failures of %o",
+        j, pdim, pdim eq D, Rank(Mpi), Rank(Mpi) eq D, linbad, 2^D));
+  end for;
+
   Battery := procedure(bmat, SS, tag, expect, ~NC, ~NF)
     bet := [ grpelt(bmat[i]) : i in [1..D] ];
     rkb := Rank(bmat);
