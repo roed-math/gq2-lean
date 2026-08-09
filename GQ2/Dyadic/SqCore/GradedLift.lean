@@ -495,6 +495,258 @@ theorem gr3R_exists_half_of_odd : ∀ x : gr3R, selPar x = 1 → ∃ y : gr3R, y
 
 end LiftLattice
 
+/-! ## §4 ⭐⭐ The whole-binder witness at class four
+
+The `U₅`-lift of `GradedContain.selConWit`: the same five slot values with the class-four
+binder's new column `χ_d` (weights `E` on `U`, `F` on `V`, half `W2` with parity row `hb`)
+and the `x₁`-slot's new class-two weight `R` (half row `hg`), all deep coordinates zero.  Its
+ten relator rows, through the two `U₄`-quotients:
+
+* rows `a, b, c, e, f` **vanish** and row `h` is the **committed class-three residue**
+  `4·P·Q − 2·(A+B)·Q + B·C·(T+S)`: the left quotient of the lifted tuple *is* `selConWit`
+  (`toU4L_selLiftWit`), so `GradedContain`'s whole-binder theorem answers all six rows at
+  once, and the committed completion machinery of `GradedSelect` §6 governs the `h`-row;
+* rows `d, g` **vanish** (`sqRelWord_selLiftWit_d`, `_g`), through the right quotient and the
+  committed `SqU4` closed forms; these are the class-`≤ 2` stories of the `(c, d)`-columns;
+* row `i` is **genuinely new** (`sqRelWord_selLiftWit_i`): its closed form at the witness is
+  `2·N − C·F·T` with `N = 2·S·T·(C+D)·W2`, so its parity is `C·F·T` — the class-three
+  selection bit of the columns class three could not see, the `(c, d)`-analogue of the
+  committed `B·C·(T+S)`-bit one level down;
+* row `j` is the engine's target: it is not computed in closed form here, and the stage
+  hypothesis `sqRelWord = liftC res` of §3's completions is exactly "rows `h` and `i` have
+  been killed too" — stage 3 is **two functionals wide** from up here, and a class-three
+  survivor means both die.
+
+`selLiftWit_complete_odd` is the stage-3 → stage-4 engine instance at the witness: at a
+`κ₄ = B·D·F` odd point, **any** stage-three survivor residue is killed by one explicit
+achievable `γ₃`-move, with all objects exhibited.  The concrete instances at the end run the
+whole pipe by `decide` at a binder point with an **odd** surviving residue. -/
+
+section LiftWitness
+
+variable {h : ℕ} {j : Fin h} {A B C D E F T S P Q R W2 : gr3R}
+
+/-- **The whole-binder witness tuple at class four**: the `U₅`-lift of
+`GradedContain.selConWit` — slot `0` the marked `σ`, slot `1` the forced dressing value with
+the `Λ`-correction, slot `2` the `x₁`-letter, the `j`-handle pair the `U`-, `V`-letters, all
+other slots trivial, every deep (class-`≥ 3`) coordinate zero. -/
+def selLiftWit (h : ℕ) (j : Fin h) (A B C D E F T S P Q R : gr3R) :
+    Fin (sqRank h) → SqU5 gr3R :=
+  fun i =>
+    if (i : ℕ) = 0 then ⟨0, 1, 0, 0, 0, 0, 0, 0, 0, 0⟩ else
+    if (i : ℕ) = 1 then
+      ⟨B * T - A * S, 0, D * T - C * S, F * T - E * S, -(2 * (T * S * B)),
+        S * (T * C) + T * S * D, 0, 0, 0, 0⟩ else
+    if (i : ℕ) = 2 then ⟨0, 0, 0, 0, P, Q, R, -((A + B) * Q), 0, 0⟩ else
+    if i = sqHandleIdxU j then ⟨A, 0, C, E, 0, -(T * C), 0, 0, 0, 0⟩ else
+    if i = sqHandleIdxV j then ⟨B, 0, D, F, -(B * S), 0, 0, 0, 0, 0⟩ else 1
+
+private theorem lift_handleU_ne_handleU {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxU j' ≠ sqHandleIdxU j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxU_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+private theorem lift_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
+    sqHandleIdxV j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxV_val, sqHandleIdxV_val] at hv
+  exact hne (Fin.val_injective (by omega))
+
+@[simp] theorem selLiftWit_zero :
+    selLiftWit h j A B C D E F T S P Q R 0 = ⟨0, 1, 0, 0, 0, 0, 0, 0, 0, 0⟩ := by
+  rw [selLiftWit, if_pos (sqVal_zero h)]
+
+@[simp] theorem selLiftWit_one :
+    selLiftWit h j A B C D E F T S P Q R 1
+      = ⟨B * T - A * S, 0, D * T - C * S, F * T - E * S, -(2 * (T * S * B)),
+          S * (T * C) + T * S * D, 0, 0, 0, 0⟩ := by
+  rw [selLiftWit, if_neg (by rw [sqVal_one]; omega), if_pos (sqVal_one h)]
+
+@[simp] theorem selLiftWit_two :
+    selLiftWit h j A B C D E F T S P Q R 2
+      = ⟨0, 0, 0, 0, P, Q, R, -((A + B) * Q), 0, 0⟩ := by
+  rw [selLiftWit, if_neg (by rw [sqVal_two]; omega), if_neg (by rw [sqVal_two]; omega),
+    if_pos (sqVal_two h)]
+
+@[simp] theorem selLiftWit_handleU :
+    selLiftWit h j A B C D E F T S P Q R (sqHandleIdxU j)
+      = ⟨A, 0, C, E, 0, -(T * C), 0, 0, 0, 0⟩ := by
+  rw [selLiftWit, if_neg (by rw [sqHandleIdxU_val]; omega),
+    if_neg (by rw [sqHandleIdxU_val]; omega), if_neg (by rw [sqHandleIdxU_val]; omega),
+    if_pos rfl]
+
+@[simp] theorem selLiftWit_handleV :
+    selLiftWit h j A B C D E F T S P Q R (sqHandleIdxV j)
+      = ⟨B, 0, D, F, -(B * S), 0, 0, 0, 0, 0⟩ := by
+  rw [selLiftWit, if_neg (by rw [sqHandleIdxV_val]; omega),
+    if_neg (by rw [sqHandleIdxV_val]; omega), if_neg (by rw [sqHandleIdxV_val]; omega),
+    if_neg (lift_handleV_ne_handleU j), if_pos rfl]
+
+theorem selLiftWit_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
+    selLiftWit h j A B C D E F T S P Q R (sqHandleIdxU j') = 1 := by
+  rw [selLiftWit, if_neg (by rw [sqHandleIdxU_val]; omega),
+    if_neg (by rw [sqHandleIdxU_val]; omega), if_neg (by rw [sqHandleIdxU_val]; omega),
+    if_neg (lift_handleU_ne_handleU hne), if_neg (lift_handleU_ne_handleV j')]
+
+theorem selLiftWit_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
+    selLiftWit h j A B C D E F T S P Q R (sqHandleIdxV j') = 1 := by
+  rw [selLiftWit, if_neg (by rw [sqHandleIdxV_val]; omega),
+    if_neg (by rw [sqHandleIdxV_val]; omega), if_neg (by rw [sqHandleIdxV_val]; omega),
+    if_neg (lift_handleV_ne_handleU j'), if_neg (lift_handleV_ne_handleV hne)]
+
+/-- ⭐ **The left `U₄`-quotient of the lifted witness is the committed class-three witness**,
+slot for slot: the class-`≤ 3` face of the class-four binder is `GradedContain`'s binder on
+the nose, which is what hands rows `a, b, c, e, f, h` to the committed machinery. -/
+theorem toU4L_selLiftWit :
+    (fun i => SqU5.toU4L (selLiftWit h j A B C D E F T S P Q R i))
+      = selConWit h j A B C D P Q T S := by
+  funext i
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [selLiftWit_zero, selConWit_zero]; rfl
+  · rw [selLiftWit_one, selConWit_one]; rfl
+  · rw [selLiftWit_two, selConWit_two]; rfl
+  · by_cases hj : j' = j
+    · subst hj; rw [selLiftWit_handleU, selConWit_handleU]; rfl
+    · rw [selLiftWit_handleU_ne hj, selConWit_handleU_ne hj]; rfl
+  · by_cases hj : j' = j
+    · subst hj; rw [selLiftWit_handleV, selConWit_handleV]; rfl
+    · rw [selLiftWit_handleV_ne hj, selConWit_handleV_ne hj]; rfl
+
+/-- The whole `U₄`-image of the witness relator, from the committed whole-binder theorem: the
+five low rows die and the `f`-row is the committed class-three residue. -/
+theorem sqRelWord_selLiftWit_toU4L (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) :
+    SqU5.toU4L (sqRelWord (selLiftWit h j A B C D E F T S P Q R))
+      = ⟨0, 0, 0, 0, 0, 4 * (P * Q) - 2 * ((A + B) * Q) + B * C * (T + S)⟩ := by
+  rw [map_sqRelWord, toU4L_selLiftWit, sqRelWord_selConWit hd he]
+
+/-- ⭐ **The `h`-row of the lifted witness is the committed class-three residue**, verbatim:
+even at every binder point (`GradedContain.selConWit_even`), killed on the live locus by the
+committed completion move (`GradedSelect.sqRelWord_selRefine_eq_one` through `toU4L`). -/
+theorem sqRelWord_selLiftWit_h (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) :
+    (sqRelWord (selLiftWit h j A B C D E F T S P Q R)).h
+      = 4 * (P * Q) - 2 * ((A + B) * Q) + B * C * (T + S) := by
+  have h1 := congrArg SqU4.f
+    (sqRelWord_selLiftWit_toU4L (h := h) (j := j) (E := E) (F := F) (R := R) hd he)
+  simpa only [SqU5.toU4L_apply] using h1
+
+/-- The new abelian row `d` (the `χ_d`-column's `ρ_sq`-balance) dies at every binder point:
+`−4·(F·T − E·S) = −8·W2 = 0`, the `hb`-parity's job. -/
+theorem sqRelWord_selLiftWit_d (hb : 2 * W2 + (E * S - F * T) = 0) :
+    (sqRelWord (selLiftWit h j A B C D E F T S P Q R)).d = 0 := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have h1 := congrArg SqU4.c
+    (map_sqRelWord SqU5.toU4R (selLiftWit h j A B C D E F T S P Q R))
+  simp only [SqU4.sqRelWord_c, SqU5.toU4R_apply, selLiftWit_one, selLiftWit_two] at h1
+  rw [h1]
+  linear_combination 4 * hb + (-W2) * h8
+
+/-- The new class-two row `g` (the `(c, d)`-pairing) dies at every binder point, through the
+right quotient and the committed `SqHeis` defect form. -/
+theorem sqRelWord_selLiftWit_g (he : 2 * Q + (T * D - S * C) = 0)
+    (hg : 2 * R + (C * F - D * E) = 0) (hb : 2 * W2 + (E * S - F * T) = 0) :
+    (sqRelWord (selLiftWit h j A B C D E F T S P Q R)).g = 0 := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have h1 := congrArg SqU4.e
+    (map_sqRelWord SqU5.toU4R (selLiftWit h j A B C D E F T S P Q R))
+  simp only [SqU4.sqRelWord_e, sqHeisDefect] at h1
+  rw [sum_eq_at _ (fun j' hne => by
+    rw [selLiftWit_handleU_ne hne, selLiftWit_handleV_ne hne]; simp)] at h1
+  simp only [SqU5.toU4R_apply, SqU4.toHeisBC_apply, selLiftWit_zero, selLiftWit_one,
+    selLiftWit_two, selLiftWit_handleU, selLiftWit_handleV] at h1
+  rw [h1]
+  linear_combination (2 * (C * S - D * T)) * hb + (4 * W2) * he + hg
+    + (C * E * S ^ 2 - C * F * S * T - D * E * S * T + D * F * T ^ 2 - Q * W2) * h8
+
+/-- ⭐⭐ **The new `i`-row, in closed form**: `2·N − C·F·T` with `N = 2·S·T·(C+D)·W2`.  This is
+the class-three residue of the columns class three could not see: its parity is `C·F·T`, the
+`(c, d)`-column selection bit, the mirror of the committed `B·C·(T+S)`-bit of the `h`-row.  A
+stage-three survivor at the witness needs *both* bits dead — stage 3 is two functionals wide
+from class four. -/
+theorem sqRelWord_selLiftWit_i (hb : 2 * W2 + (E * S - F * T) = 0) :
+    (sqRelWord (selLiftWit h j A B C D E F T S P Q R)).i
+      = 2 * (2 * (S * T * ((C + D) * W2))) - C * F * T := by
+  have h8 : (8 : gr3R) = 0 := by decide
+  have h1 := congrArg SqU4.f
+    (map_sqRelWord SqU5.toU4R (selLiftWit h j A B C D E F T S P Q R))
+  simp only [SqU4.sqRelWord_f, sqU4Defect] at h1
+  rw [sum_eq_at _ (fun j' hne => by
+      rw [selLiftWit_handleU_ne hne, selLiftWit_handleV_ne hne]; simp),
+    sum_eq_at _ (fun j' hne => by
+      rw [selLiftWit_handleU_ne hne, selLiftWit_handleV_ne hne]
+      simp [SqU4.u4Comm3])] at h1
+  simp only [SqU5.toU4R_apply, sqU4Core, SqU4.u4Comm3, selLiftWit_zero, selLiftWit_one,
+    selLiftWit_two, selLiftWit_handleU, selLiftWit_handleV] at h1
+  rw [h1]
+  linear_combination (-(2 * (S * T * (C + D))) - 4 * (C * S - D * T)) * hb
+    + (-(C * E * S ^ 2 * T) + C * F * S * T ^ 2 + C * S * W2 - D * E * S ^ 2 * T
+        + D * F * S * T ^ 2 - D * T * W2) * h8
+
+/-- ⭐ **The witness relator is `γ₃`-shaped at every binder point**: all seven class-`≤ 2` rows
+die, with only `h`, `i`, `j` possibly alive.  The four parity rows are consumed exactly where
+the numerics said they would be. -/
+theorem sqRelWord_selLiftWit_isGaThree (hd : 2 * P + (A * S - B * T) = 0)
+    (he : 2 * Q + (T * D - S * C) = 0) (hg : 2 * R + (C * F - D * E) = 0)
+    (hb : 2 * W2 + (E * S - F * T) = 0) :
+    (sqRelWord (selLiftWit h j A B C D E F T S P Q R)).IsGaThree := by
+  have hL := sqRelWord_selLiftWit_toU4L (h := h) (j := j) (E := E) (F := F) (R := R) hd he
+  refine ⟨?_, ?_, ?_, sqRelWord_selLiftWit_d (W2 := W2) hb, ?_, ?_,
+    sqRelWord_selLiftWit_g (W2 := W2) he hg hb⟩
+  · simpa only [SqU5.toU4L_apply] using congrArg SqU4.a hL
+  · simpa only [SqU5.toU4L_apply] using congrArg SqU4.b hL
+  · simpa only [SqU5.toU4L_apply] using congrArg SqU4.c hL
+  · simpa only [SqU5.toU4L_apply] using congrArg SqU4.d hL
+  · simpa only [SqU5.toU4L_apply] using congrArg SqU4.e hL
+
+/-- ⭐⭐ **The stage-3 → stage-4 engine at the witness, odd regime**: at a `κ₄ = B·D·F` odd
+binder point, any stage-three survivor residue at the lifted witness is killed by one explicit
+handle-`γ₃` move, exhibited with its `Λ₃`-membership.  The stage hypothesis `h5` is the honest
+"rows `h` and `i` are dead too" state that §3's completions consume; the concrete instances
+below realise it by `decide`. -/
+theorem selLiftWit_complete_odd (hκ : selPar (B * D * F) = 1) {res : gr3R}
+    (h5 : sqRelWord (selLiftWit h j A B C D E F T S P Q R) = liftC res) :
+    ∃ z₃ : SqU5 gr3R, z₃.IsGaThree ∧ selLamThree A B C D E F T S P Q R z₃ ∧
+      sqRelWord (selLift j (selLiftWit h j A B C D E F T S P Q R) 1 1 z₃ 1) = 1 := by
+  have h3 : selPar (-(3 * (B * D * F))) = 1 := by
+    rw [selPar_neg, selPar_mul, hκ]
+    decide
+  obtain ⟨rr, hrr⟩ := gr3R_exists_inv_of_odd _ h3
+  refine ⟨⟨0, 0, 0, 0, 0, 0, 0, -(rr * res * -(2 * (B * D))), -(rr * res * (D * F)), 0⟩,
+    ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩,
+    selLamThree_completion_move A B C D E F T S P Q R rr res, ?_⟩
+  refine sqRelWord_selLift_eq_one_odd (zh := -(2 * (B * D))) (zi := D * F) (rr := rr) h5 ?_
+  rw [selLiftWit_handleV]
+  linear_combination hrr
+
+/-! ### Concrete instances
+
+The pipe end to end at one handle, at the binder point
+`(A, B, C, D, E, F, T, S) = (2, 1, 0, 1, 2, 1, 0, 1)` with halves
+`(P, Q, R, W2) = (3, 0, 1, 3)` (all four parity rows check by `decide`): the lifted witness
+kills all nine lower rows outright — stage 3 needs no completion move here — and survives
+with the **odd** central residue `5`.  With `κ₄ = B·D·F = 1` odd, the `(−B, D)⋆V` pairing is
+`−3 = 5`, its inverse is `rr = 5`, and the odd-regime move `(h, i) = (2, 7)` on the `U`-handle
+slot kills the relator: a completion at odd residue, which class three can never do. -/
+
+/-- The lifted witness is a stage-three survivor with odd central residue `5`. -/
+example : sqRelWord (selLiftWit 1 0 2 1 0 1 2 1 0 1 3 0 1) = liftC (5 : gr3R) := by decide
+
+/-- …and the explicit odd-regime `γ₃`-move kills it. -/
+example : sqRelWord (selLift 0 (selLiftWit 1 0 2 1 0 1 2 1 0 1 3 0 1) 1 1
+    ⟨0, 0, 0, 0, 0, 0, 0, 2, 7, 0⟩ 1) = 1 := by decide
+
+/-- The engine instance, through the general theorem: hypotheses by `decide`, conclusion by
+`selLiftWit_complete_odd`. -/
+example : ∃ z₃ : SqU5 gr3R, z₃.IsGaThree ∧ selLamThree 2 1 0 1 2 1 0 1 3 0 1 z₃ ∧
+    sqRelWord (selLift 0 (selLiftWit 1 0 2 1 0 1 2 1 0 1 3 0 1) 1 1 z₃ 1) = 1 :=
+  selLiftWit_complete_odd (by decide) (res := 5) (by decide)
+
+end LiftWitness
+
 end SqCore
 
 end Dyadic
