@@ -1,0 +1,5 @@
+(a) witness relator rows: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 ]
+(b) solution check: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+(b) dressed defect: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ]
+(b) killed: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+(c) uncovered-corner rows: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 5 ]
