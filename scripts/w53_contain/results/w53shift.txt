@@ -1,0 +1,29 @@
+T0 inv sanity (all zero): true
+T1 translation identity at h = 2, row differences (want ten zeros):
+  row 1: 0
+  row 2: 0
+  row 3: 0
+  row 4: 0
+  row 5: 0
+  row 6: 0
+  row 7: 0
+  row 8: 0
+  row 9: 0
+  row 10: 0
+T1 at h = 1 (want ten zeros): true
+T2 core identity at fixed slots (want ten zeros): true
+T3 witness rows a..i against committed forms, modulo the parity-row ideal:
+  row a: OK
+  row b: OK
+  row c: OK
+  row d: OK
+  row e: OK
+  row f: MISMATCH 4*D*T^2 + 4*D*T*S
+  row g: OK
+  row h: MISMATCH 4*D*T^2*P + 4*D*T*S*P
+  row i: OK
+T3 raw j-row (over Z8[A..W2], no reduction):
+4*A*C*E*T*S^3 + 6*A*C*E*S^3 + 4*A*C*F*T^2*S^2 + 2*A*C*F*T*S^2 + 4*A*C*F*T*S + A*C*F*T + A*C*F*S + 4*A*D*E*T*S^3 + 2*A*D*E*T*S^2 + 7*A*D*E*S + 4*A*D*F*T^2*S^2 + 6*A*D*F*T^2*S + 2*A*S*Rv + 4*B*C*E*T^2*S^2 + 2*B*C*E*T*S^2 + 4*B*C*F*T^3*S + 6*B*C*F*T^2*S + 4*B*C*F*T^2 + B*C*F*S + 4*B*D*E*T^2*S^2 + 6*B*D*E*T^2*S + B*D*E*T + 7*B*D*E*S + 4*B*D*F*T^3*S + 2*B*D*F*T^3 + 6*B*T*Rv + 2*C*F*P + 6*D*E*P + P*Rv
+T3 j-row normal form modulo the parity rows:
+6*A*E*Q + 6*A*T*Rv + B*C*E*T + B*D*E*T + 6*B*T*Rv + 6*B*S*Rv + 6*C*E*P + 5*P*Rv
+done
