@@ -1,0 +1,26 @@
+==============================================================================
+W53-SIGMA / sweep_sigma4.py
+==============================================================================
+
+## V1  conjugation by a gamma-3 element is central
+  [ok ] 4000 random pairs, mismatches = 0
+
+## V2  the sigma-slot gamma-3 move on the core word
+  [ok ] 4000 random triples, mismatches = 0
+
+## V3  the five-slot class-four translation identity
+  [ok ] h = 1,2,3, 1500 each, mismatches = 0
+
+## V4  the sigma-dressing row shifts at a nu'-trivial exponent pair
+  [ok ] h = 1,2, 3000 each, mismatches = 0
+
+## V5  the gauge collapse of the reading mod 2
+  [ok ] 20000 gauge points, mismatches = 0
+
+## V5b the class-three reading on the same gauge is even (the committed blindness)
+     (class three = the toU4L quotient: coordinates a,b,c,e,f,h of SqU5)
+  [ok ] class-three (h-row) shift always even on the gauge: bad = 0
+
+==============================================================================
+ALL CLAIMS OK
+==============================================================================

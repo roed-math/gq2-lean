@@ -1,0 +1,75 @@
+==============================================================================
+W53-SIGMA / derive_sigma4.py : the class-four sigma reading
+==============================================================================
+
+## 0.  conjugation by a gamma-3 element is a central liftC translation
+  (conjP p z).a - p.a = 0
+  (conjP p z).b - p.b = 0
+  (conjP p z).c - p.c = 0
+  (conjP p z).d - p.d = 0
+  (conjP p z).e - p.e = 0
+  (conjP p z).f - p.f = 0
+  (conjP p z).g - p.g = 0
+  (conjP p z).h - p.h = 0
+  (conjP p z).i - p.i = 0
+  (conjP p z).j - p.j = pa*zi - pd*zh
+  claim: only the j-coordinate moves, by  z.i*p.a - z.h*p.d .
+  check: True
+
+## 1.  regime A: the sigma-slot gamma-3 move
+  Delta.a = 0
+  Delta.b = 0
+  Delta.c = 0
+  Delta.d = 0
+  Delta.e = 0
+  Delta.f = 0
+  Delta.g = 0
+  Delta.h = 0
+  Delta.i = 0
+  Delta.j = vh*xd - vi*xa
+  claim Delta.j =  v.h*x.d - v.i*x.a : True
+
+## 2.  regime B: a general nu'-trivial dressing (v.b = 0)
+  Delta.a = 0
+  Delta.b = 0
+  Delta.c = 0
+  Delta.d = 0
+  Delta.e = va*xb
+  Delta.f = -vc*xb
+  Delta.g = vc*xd - vd*xc
+  Delta.h = sa*vc*xb - sb*va*xc - sb*vc*xa + sc*va*xb + va*vc*xb + 4*va*xb*xc + 2*va*xb*yc + va*xf + va*yb*yc + vc*xa*xb - vc*xe + vc*ya*yb + ve*xc - vf*xa
+  Delta.i = sb*vd*xc - sc*vd*xb + 3*vc*xb*xd - 2*vc*xb*yd - 2*vc*yb*yd + vd*xb*xc - vd*xf + vd*yb*yc + vf*xd - vg*xb
+
+  Delta.j (mod 8) =
+    -sa*sb*vd*xc + sa*sc*vd*xb - 3*sa*vc*xb*xd + 2*sa*vc*xb*yd + sa*vc*yb*yd - sa*vd*xb*xc + sa*vd*xf + sa*vg*xb + sb*sc*va*xd - sb*sd*va*xc - sb*va*vd*xc + 4*sb*va*xc*xd - 2*sb*va*xc*yd - sb*va*xg - sb*va*yc*yd + 3*sb*vc*xa*xd - 2*sb*vc*xa*yd - sb*vc*ya*yd - sb*vd*ya*yc - sb*vg*xa + sc*va*vd*xb - 3*sc*va*xb*xd + 2*sc*va*xb*yd + sc*va*yb*yd + sc*vd*xa*xb - sc*vd*xe + sc*vd*ya*yb - sc*ve*xd - sd*va*xb*xc + sd*va*xf + sd*ve*xc + se*vd*xc - sf*va*xd - sf*vd*xa + sg*va*xb - 3*va*vc*xb*xd + 2*va*vc*xb*yd + va*vc*yb*yd - va*vd*xb*xc + va*vd*xf - va*vf*xd + va*vg*xb + 2*va*xb*xc*xd + 4*va*xb*xg + va*xb*yc*yd + 2*va*xb*yg + 4*va*xd*xf + 2*va*xf*yd + va*xi + va*yb*yg + va*yd*yf - vc*ve*xd - 3*vc*xa*xb*xd + 2*vc*xa*xb*yd + 3*vc*xd*xe - 2*vc*xe*yd - 2*vc*yd*ye + vd*ve*xc - vd*xa*xb*xc + vd*xa*xf + 4*vd*xa*yb*yc + vd*xc*xe - vd*xh + vd*ya*yf + vd*yc*ye + 4*ve*xc*xd + 2*ve*xc*yd + ve*xg + ve*yc*yd + 3*vf*xa*xd - 2*vf*xa*yd - 2*vf*ya*yd + vg*xa*xb - vg*xe + vg*ya*yb + vh*xd - vi*xa
+
+  ... number of monomials: 77
+
+## 3.  regime B at the sigma marking shape s = <A0, 1, C0, D0, 0,...,0>
+  Delta.j (mod 8) =
+    A0*C0*vd*xb - 3*A0*vc*xb*xd + 2*A0*vc*xb*yd + A0*vc*yb*yd - A0*vd*xb*xc - A0*vd*xc + A0*vd*xf + A0*vg*xb + C0*va*vd*xb - 3*C0*va*xb*xd + 2*C0*va*xb*yd + C0*va*xd + C0*va*yb*yd + C0*vd*xa*xb - C0*vd*xe + C0*vd*ya*yb - C0*ve*xd - D0*va*xb*xc - D0*va*xc + D0*va*xf + D0*ve*xc - 3*va*vc*xb*xd + 2*va*vc*xb*yd + va*vc*yb*yd - va*vd*xb*xc - va*vd*xc + va*vd*xf - va*vf*xd + va*vg*xb + 2*va*xb*xc*xd + 4*va*xb*xg + va*xb*yc*yd + 2*va*xb*yg + 4*va*xc*xd - 2*va*xc*yd + 4*va*xd*xf + 2*va*xf*yd - va*xg + va*xi + va*yb*yg - va*yc*yd + va*yd*yf - vc*ve*xd - 3*vc*xa*xb*xd + 2*vc*xa*xb*yd + 3*vc*xa*xd - 2*vc*xa*yd + 3*vc*xd*xe - 2*vc*xe*yd - vc*ya*yd - 2*vc*yd*ye + vd*ve*xc - vd*xa*xb*xc + vd*xa*xf + 4*vd*xa*yb*yc + vd*xc*xe - vd*xh - vd*ya*yc + vd*ya*yf + vd*yc*ye + 4*ve*xc*xd + 2*ve*xc*yd + ve*xg + ve*yc*yd + 3*vf*xa*xd - 2*vf*xa*yd - 2*vf*ya*yd + vg*xa*xb - vg*xa - vg*xe + vg*ya*yb + vh*xd - vi*xa
+
+  Delta.a = 0
+  Delta.b = 0
+  Delta.c = 0
+  Delta.d = 0
+  Delta.e = va*xb
+  Delta.f = -vc*xb
+  Delta.g = vc*xd - vd*xc
+  Delta.h = A0*vc*xb + C0*va*xb + va*vc*xb + 4*va*xb*xc + 2*va*xb*yc - va*xc + va*xf + va*yb*yc + vc*xa*xb - vc*xa - vc*xe + vc*ya*yb + ve*xc - vf*xa
+  Delta.i = -C0*vd*xb + 3*vc*xb*xd - 2*vc*xb*yd - 2*vc*yb*yd + vd*xb*xc + vd*xc - vd*xf + vd*yb*yc + vf*xd - vg*xb
+
+## 4.  Delta.j at the sigma marking, collected by the dressing's fields
+  (linear part in each dressing coordinate; the constant term is 0)
+  d(Delta.j)/d(v.a) at v = 0 :  -3*C0*xb*xd + 2*C0*xb*yd + C0*xd + C0*yb*yd - D0*xb*xc - D0*xc + D0*xf + 2*xb*xc*xd + 4*xb*xg + xb*yc*yd + 2*xb*yg + 4*xc*xd - 2*xc*yd + 4*xd*xf + 2*xf*yd - xg + xi + yb*yg - yc*yd + yd*yf
+  d(Delta.j)/d(v.c) at v = 0 :  -3*A0*xb*xd + 2*A0*xb*yd + A0*yb*yd - 3*xa*xb*xd + 2*xa*xb*yd + 3*xa*xd - 2*xa*yd + 3*xd*xe - 2*xe*yd - ya*yd - 2*yd*ye
+  d(Delta.j)/d(v.d) at v = 0 :  A0*C0*xb - A0*xb*xc - A0*xc + A0*xf + C0*xa*xb - C0*xe + C0*ya*yb - xa*xb*xc + xa*xf + 4*xa*yb*yc + xc*xe - xh - ya*yc + ya*yf + yc*ye
+  d(Delta.j)/d(v.e) at v = 0 :  -C0*xd + D0*xc + 4*xc*xd + 2*xc*yd + xg + yc*yd
+  d(Delta.j)/d(v.f) at v = 0 :  3*xa*xd - 2*xa*yd - 2*ya*yd
+  d(Delta.j)/d(v.g) at v = 0 :  A0*xb + xa*xb - xa - xe + ya*yb
+  d(Delta.j)/d(v.h) at v = 0 :  xd
+  d(Delta.j)/d(v.i) at v = 0 :  -xa
+  d(Delta.j)/d(v.j) at v = 0 :  0
+
+  full remainder (Delta.j minus its linear part at v = 0):
+    C0*va*vd*xb - 3*va*vc*xb*xd + 2*va*vc*xb*yd + va*vc*yb*yd - va*vd*xb*xc - va*vd*xc + va*vd*xf - va*vf*xd + va*vg*xb - vc*ve*xd + vd*ve*xc
