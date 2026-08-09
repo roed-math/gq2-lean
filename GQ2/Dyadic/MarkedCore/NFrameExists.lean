@@ -178,24 +178,19 @@ theorem nIsProP_two_topAb_DN (α h : ℕ) : IsProP 2 (topAbelianization (DN α h
 `dn_abRel` says `x̄₀^{2+2^α} = 1` and nothing more.  What that buys depends entirely on
 `v₂(2 + 2^α)`, and the three cases below are the three values it takes. -/
 
-/-- **The missing upstream fact** (hoist request F1), restated privately: for `α ≥ 2` the marked
+/-- **The missing upstream fact** (hoist request F1) — **discharged**: for `α ≥ 2` the marked
 torsion generator `x̄₀` is 2-torsion.  Proof: `2 + 2^α = 2·(1 + 2^{α−1})` with `1 + 2^{α−1}`
 **odd** once `α ≥ 2`, so `(x̄₀²)^{1+2^{α−1}} = 1 = 1^{1+2^{α−1}}`, and raising to an odd
 `ℤ₂`-exponent is injective on a pro-2 group (`zpowZtwo_bijective`).
 
-This is the `N` analogue of `dm_torsionGen_sq` (`Cores.lean:1813`), and the hypothesis really is
-`2 ≤ α`: at `α = 1` the statement is **false** (`dnX0_sq_ne_one_one`). -/
+This is the `N` analogue of `dm_torsionGen_sq`, and the hypothesis really is `2 ≤ α`: at
+`α = 1` the statement is **false** (`dnX0_sq_ne_one_one`).  W52-BATCH landed it upstream as
+`dn_torsionGen_sq` in `Cores.lean` §5 beside `dm_torsionGen_sq` and `dn_abRel`, exactly as F1
+asked; this private restatement is now proof-rewired onto it and kept only so the proofs below
+read unchanged. -/
 private theorem dnTorsionGen_sq {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
-    (abMk (dnX0 α h)) ^ 2 = 1 := by
-  obtain ⟨k, rfl⟩ : ∃ k, α = k + 2 := ⟨α - 2, by omega⟩
-  obtain ⟨u, hu⟩ := isUnit_intCast_of_odd (m := 1 + 2 * 2 ^ k) ⟨2 ^ k, by ring⟩
-  refine (zpowZtwo_bijective (nIsProP_two_topAb_DN (k + 2) h) u).injective ?_
-  show zpowZtwo (nIsProP_two_topAb_DN (k + 2) h) ((abMk (dnX0 (k + 2) h)) ^ 2) ((u : ℤ_[2]))
-    = zpowZtwo (nIsProP_two_topAb_DN (k + 2) h) 1 ((u : ℤ_[2]))
-  rw [zpowZtwo_one_base, hu, zpowZtwo_intCast,
-    ← zpow_natCast (abMk (dnX0 (k + 2) h)) 2, ← zpow_mul,
-    show ((2 : ℕ) : ℤ) * (1 + 2 * 2 ^ k) = ((2 + 2 ^ (k + 2) : ℕ) : ℤ) by push_cast; ring,
-    zpow_natCast, dn_abRel]
+    (abMk (dnX0 α h)) ^ 2 = 1 :=
+  dn_torsionGen_sq hα h
 
 /-- **The `α = 0` obstruction**: the relation vector is `3·x̄₀` and `3` is a unit of `ℤ₂`, so
 `x̄₀` is **trivial** in `D_N^{ab}` (not merely torsion).  Contrast the `M` side, where `α = 0`
