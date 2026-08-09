@@ -5,6 +5,49 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 52 (2026-08-09)
+
+**Open, still yours (unchanged):** §1 (the `q = 4` ramified Arf sign; recommendation stands:
+option 3) and item 6's `α = 1` even cores.
+
+**Decision-adjacent, new this wave, for orientation before the paper's even sections:** the
+W51 even endpoints were found VACUOUS as stated, machine-checked: a uniform-in-`K` range
+hypothesis at fixed `α` is inconsistent (odd-degree `K` has full cyclotomic range;
+`rangeFinal_uniform_Hrange_imChiN_absurd`).  The honest, and now committed, endpoint shape
+is per-`K` with an existential `α ≥ 2` (`evenPerK_orientedEquivN/M` in
+`Instances/StageAbstractionEvenPerK.lean`), with six of the former named hypotheses
+discharged outright (the range identity, both mod-8 seams, the corrected deep row seam, the
+model Demushkin package, fin-gen, and the rank identity) and only the stage base plus the
+two honest frontier inputs (`Hfam`, `Hup`) carried.  On the `α = 2` stratum even the base
+discharges, leaving exactly the odd route's two-input shape.  The paper's even sections
+should be drafted against this per-`K` existential quantifier shape.
+
+**Landed this wave:** the range identity itself, as a theorem with zero census axioms
+(`Instances/EvenCyclotomicRange.lean`: `range chiCycKTwo = imChi{M,N} α`, branch decided by
+`−1` membership, even-degree hypothesis unnecessary, odd degree recovering the committed
+surjectivity); the corank vanishing explained in three layers (`SqCore/GradedVanish.lean` +
+`docs/dyadic/w52-vanish-note.md`: the dressing defect IS the graded Fox form, two of the
+`d + 1` cokernel functionals canonical and proved, and the containment measured to be
+THIS-RELATOR-SPECIFIC while the corank is generic, so the identity to prove is now located
+at class four); the class-four stage engine (`SqCore/GradedFour.lean` + `GradedLift.lean`:
+the `U₅` carrier, the translation identity, the two-regime completion collapsed by parity
+with a genuinely new surjective regime, the whole-binder witness with the new `i`-row
+residue, and the reusable `LiftStep` schema); the first EV-3f boundary discharged and the
+second refuted-and-relocated to a one-digit character-depth demand
+(`StageAbstractionEvenDerivKer/EvenRawToBracket/EvenClimbFinal.lean`); the even model
+Demushkin package tightened (`Instances/EvenDemushkin.lean`, six hypotheses to five, the
+`α`-threshold separation machine-checked); and the consolidation batch (general-level pivot
+machinery hoisted upstream, the owed `dn_torsionGen_sq` at its honest `2 ≤ α` threshold,
+the depth-necessity pin making `s = α − 1` zero-slack a theorem, the even cup-transport
+clone `Instances/EvenModelCupForm.lean`, and two stale-reference repairs).  Final state
+`9375e108`: 4252 jobs green, census 11, zero sorries, capstones frozen.
+
+**Process note you may care about:** the wave survived a mid-wave orchestrator handoff (the
+prior session hit its usage limit with two agents in flight; the takeover prompt plus
+salvage commits lost zero lines) and, later, several hours of kernel file-table exhaustion
+caused by an unrelated parallel mathlib build on the same machine; all failures were
+environmental, none mathematical.
+
 ## Status at wave 51 (2026-08-08)
 
 **Open, still yours (unchanged):** §1 (the `q = 4` ramified Arf sign; recommendation stands:
