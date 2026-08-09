@@ -333,6 +333,267 @@ theorem evenPerK_not_mLevelTwoLift_of_range (hα3 : 3 ≤ α)
 
 end LevelTwo
 
+/-! ## §4 The `α = 2` stratum
+
+At `α = 2` the depth `α - 1` is `1`, so the corrected seam *is* the committed one, and both
+branches satisfy it: on `M` because `imChiM 2 = ⊤` makes the character surjective, on `N`
+without surjectivity, by `evenRow_rowSupply_imChiN_two`.  So on this stratum the level-three
+base is not a hypothesis at all: the range identity, the ramified-`i` binder in the form
+`κ ≠ 0`, and a marked reciprocity bundle produce it. -/
+
+section AlphaTwo
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+local instance evenPerKScalar : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+local instance evenPerKContinuousScalar :
+    ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+/-- **The level-three base at `α = 2`, `N` branch, with no frame-input hypothesis.**  Both
+components of `EvenLevelThreeNFrameInputSupply 2` are consequences of the range identity here:
+the mod-eight seam by `evenRange_evenDegreeNModEightImage`, and the depth-`1` row seam, refuted
+from `α = 3` on, by `evenRow_rowSupply_imChiN_two`. -/
+theorem evenPerK_stageBaseN_two {R : LocalReciprocity} (B : MarkedRecip R K) (h : ℕ)
+    (hdeg : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN 2) :
+    Nonempty (Tuple (nStageWord 2 h one_le_two) (vN 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) 3) :=
+  evenLevelThreeN_stageBase (le_refl 2) B h hdeg hkappa
+    (evenRange_evenDegreeNModEightImage (le_refl 2) hrange)
+    (evenRow_rowSupply_imChiN_two hrange (evenClimb_vN_mem_range hrange))
+
+/-- **The level-three base at `α = 2`, `M` branch.**  Here `imChiM 2 = ⊤`, so the character is
+surjective and the depth-`1` row seam holds for every table; the attainment seam is
+`evenRange_evenDegreeMModEightRowAttained`. -/
+theorem evenPerK_stageBaseM_two {R : LocalReciprocity} (B : MarkedRecip R K) (h : ℕ)
+    (hdeg : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2) :
+    Nonempty (Tuple (mStageWord 2 h one_le_two) (vM 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) 3) :=
+  evenLevelThreeM_stageBase (le_refl 2) B h hdeg hkappa
+    (evenRange_evenDegreeMModEightImage (le_refl 2) hrange)
+    (evenRange_evenDegreeMModEightRowAttained hrange)
+    (evenRow_rowSupply_imChiM_two hrange (vM 2))
+
+end AlphaTwo
+
+/-! ## §5 The carried per-field inputs
+
+Three `Prop`s per branch, each at one field and each quantified over the branch depth `α`, since
+`α` is produced by the range identity rather than chosen.  The last two are the `Hfam` and `Hup`
+of `evenClimbFinal_residualSupply{N,M}` verbatim; the first is the conclusion shape of the
+level-three station, which is what the finite-level layer consumes.  This is the same endpoint
+shape the odd route carries at
+`nonempty_orientedEquiv_oddDegree_of_family_of_digitRepair`. -/
+
+section Carried
+
+variable (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The `N` level-three base at one field**, at every branch depth. -/
+def EvenPerKNStageBase : Prop :=
+  ∀ (alpha : ℕ) (halpha : 1 ≤ alpha),
+    Nonempty (Tuple (nStageWord alpha h halpha) (vN alpha) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) 3)
+
+/-- **The `M` level-three base at one field**, at every branch depth. -/
+def EvenPerKMStageBase : Prop :=
+  ∀ (alpha : ℕ) (halpha : 1 ≤ alpha),
+    Nonempty (Tuple (mStageWord alpha h halpha) (vM alpha) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) 3)
+
+/-- **`Hfam` at one field**: a coordinate derivation family with its relator kill, at every
+level and every branch depth. -/
+def EvenPerKNFamilySupply : Prop :=
+  ∀ (alpha : ℕ) (halpha : 1 ≤ alpha) (k : ℕ), 3 ≤ k →
+    ∀ T : Tuple (nStageWord alpha h halpha) (vN alpha) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) k, ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
+
+/-- **`Hfam` at one field**, `M` branch. -/
+def EvenPerKMFamilySupply : Prop :=
+  ∀ (alpha : ℕ) (halpha : 1 ≤ alpha) (k : ℕ), 3 ≤ k →
+    ∀ T : Tuple (mStageWord alpha h halpha) (vM alpha) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) k, ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
+
+/-- **`Hup` at one field**: the raw-to-bracket upgrade at the corrected depth `α - 1`. -/
+def EvenPerKNRawToBracket : Prop :=
+  ∀ (alpha : ℕ) (halpha : 1 ≤ alpha),
+    EvenKernelRawToBracketSupply (alpha - 1) (nStageWord alpha h halpha) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+/-- **`Hup` at one field**, `M` branch. -/
+def EvenPerKMRawToBracket : Prop :=
+  ∀ (alpha : ℕ) (halpha : 1 ≤ alpha),
+    EvenKernelRawToBracketSupply (alpha - 1) (mStageWord alpha h halpha) (vM alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+end Carried
+
+/-! ## §6 The per-`K` endpoints
+
+The replacements announced in the module docstring.  Each field with `K(i)/K` ramified gets its
+own branch depth `α ≥ 2` from the range identity, and the whole even machinery is run at that
+`α`: the corrected deep row seam (crux (ii)), the residual supply of the climb, the finite-level
+inverse limit, the model-side Demushkin package, and the forward rigidity bypass.  No hypothesis
+of any of these statements is quantified over fields.
+
+The branch inputs are those of `evenRange_range_eq_imChi{N,M}`: the `N` endpoint carries the
+ramified-`i` datum and `-1 ∉ im χ`, and the `M` endpoint carries `-1 ∈ im χ` and no ramification
+input at all, since `-1` is itself a witness that the range escapes `1 + 4ℤ₂`. -/
+
+section Endpoints
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The `N` forward-generator package at one field and one branch depth.**  The stage climb
+with its two named inputs, against the corrected deep seam, then the finite-level station.  This
+is `evenAssembly_nForwardSupply` with every uniform-in-`K` quantifier removed. -/
+theorem evenPerK_forwardGeneratorDataN {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
+    (base : Tuple (nStageWord alpha h (Nat.le_of_succ_le halpha)) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord alpha h (Nat.le_of_succ_le halpha))
+        (vN alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hup : EvenKernelRawToBracketSupply (alpha - 1)
+      (nStageWord alpha h (Nat.le_of_succ_le halpha)) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (NForwardGeneratorData alpha h (chiCycKTwo (K := K))) :=
+  evenForwardGeneratorDataN_of_base_and_corrections (Nat.le_of_succ_le halpha)
+    (LSquare.maxProTwoGalK_isTopologicallyFinGen K) base fun _k hk T ↦
+      evenClimb_defectReachable hk T (evenClimbFinal_residualSupplyN K halpha Hfam Hup)
+        (evenSharpDbarShiftSupply_n halpha (Nat.le_of_succ_le halpha) hk)
+        (evenClimb_deepRowSupply_n halpha hrange)
+
+/-- **The `M` forward-generator package at one field and one branch depth.** -/
+theorem evenPerK_forwardGeneratorDataM {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (base : Tuple (mStageWord alpha h (Nat.le_of_succ_le halpha)) (vM alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord alpha h (Nat.le_of_succ_le halpha))
+        (vM alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hup : EvenKernelRawToBracketSupply (alpha - 1)
+      (mStageWord alpha h (Nat.le_of_succ_le halpha)) (vM alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (MForwardGeneratorData alpha h (chiCycKTwo (K := K))) :=
+  evenForwardGeneratorDataM_of_base_and_corrections (Nat.le_of_succ_le halpha)
+    (LSquare.maxProTwoGalK_isTopologicallyFinGen K) base fun _k hk T ↦
+      evenClimb_defectReachable hk T (evenClimbFinal_residualSupplyM K halpha Hfam Hup)
+        (evenSharpDbarShiftSupply_m halpha (Nat.le_of_succ_le halpha) hk)
+        (evenClimb_deepRowSupply_m halpha hrange)
+
+/-- **The even `N` endpoint, per field.**  Every even-degree dyadic field of degree `2 + 2h`
+whose `K(i)` is ramified and whose cyclotomic range omits `-1` has a branch depth `α ≥ 2`, its
+own, at which its maximal pro-`2` Galois group is oriented-isomorphic to the presented `N` core.
+
+This supersedes `evenAssembly_orientedEquivN` and `ev1eFinal_orientedEquivN`, whose uniform
+`Hrange` is inconsistent by `rangeFinal_uniform_Hrange_imChiN_absurd`.  What is carried here is
+carried per field and at every depth: the level-three base, the derivation family with its
+relator kill, and the raw-to-bracket upgrade.  Everything else, in particular the image
+identification and the corrected deep row seam, is discharged. -/
+theorem evenPerK_orientedEquivN {R : LocalReciprocity} (B : MarkedRecip R K)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hbase : EvenPerKNStageBase h K) (Hfam : EvenPerKNFamilySupply h K)
+    (Hup : EvenPerKNRawToBracket h K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨alpha, halpha, hrange⟩ := evenRange_range_eq_imChiN B deltaI hdeltaI hram hneg
+  obtain ⟨base⟩ := Hbase alpha (Nat.le_of_succ_le halpha)
+  exact ⟨alpha, halpha, nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData alpha h
+    (Nat.le_of_succ_le halpha) hev (EvenDemushkin.evenDem_nModelDemushkin alpha h halpha)
+    (evenPerK_forwardGeneratorDataN halpha hrange base
+      (Hfam alpha (Nat.le_of_succ_le halpha)) (Hup alpha (Nat.le_of_succ_le halpha)))⟩
+
+/-- **The even `M` endpoint, per field.**  The `M` twin, with `-1 ∈ im χ` in place of the two
+`N` branch inputs; no ramification datum is needed, exactly as in `evenRange_range_eq_imChiM`.
+
+This supersedes `evenAssembly_orientedEquivM` and `ev1eFinal_orientedEquivM`, whose uniform
+`Hrange` forces `α = 2` by `rangeFinal_uniform_Hrange_imChiM_forces_two`, where `imChiM 2 = ⊤`
+and the hypothesis carries no information. -/
+theorem evenPerK_orientedEquivM {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hbase : EvenPerKMStageBase h K) (Hfam : EvenPerKMFamilySupply h K)
+    (Hup : EvenPerKMRawToBracket h K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨alpha, halpha, hrange⟩ := evenRange_range_eq_imChiM B hneg
+  obtain ⟨base⟩ := Hbase alpha (Nat.le_of_succ_le halpha)
+  exact ⟨alpha, halpha, nonempty_orientedEquivM_evenDegree_of_forwardGeneratorData alpha h
+    (Nat.le_of_succ_le halpha) hev (EvenDemushkin.evenDem_mModelDemushkin alpha h halpha)
+    (evenPerK_forwardGeneratorDataM halpha hrange base
+      (Hfam alpha (Nat.le_of_succ_le halpha)) (Hup alpha (Nat.le_of_succ_le halpha)))⟩
+
+end Endpoints
+
 end
 
 end GQ2.Dyadic.EvenPerK
+
+/-! ## §7 Axiom pins
+
+Every public declaration of this file, printed, the two local coefficient-action instances
+included.  §1 to §3 are character-level statements and are expected at std-3
+(`propext`, `Classical.choice`, `Quot.sound`) together with whatever the committed range
+identity and the committed refutations carry.  §4 and §6 additionally reach the field layer, so
+they acquire exactly the census axioms of their committed inputs: the level-three base, the
+marked reciprocity clauses of the range identity, and
+`absGalQ2_isTopologicallyFinitelyGenerated`, which is where the odd route acquires its own
+finite-generation input as well.  No axiom of this file is new. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenPerK
+
+-- §1 the re-cut deep frame inputs
+#print axioms EvenPerKNDeepFrameInput
+#print axioms EvenPerKMDeepFrameInput
+#print axioms evenPerK_nDeepFrameInput_of_range
+#print axioms evenPerK_mDeepFrameInput_of_range
+
+-- §2 the refuted depth-one demand
+#print axioms evenPerK_not_rowSupplyN
+#print axioms evenPerK_not_rowSupplyM
+#print axioms evenPerK_not_levelThreeNFrameInputSupply
+#print axioms evenPerK_not_levelThreeMFrameInputSupply
+
+-- §3 the level-two instance
+#print axioms EvenPerKLevelTwoLift
+#print axioms evenPerK_levelTwoLift_of_rowSupply
+#print axioms evenPerK_dvd_of_modEight_imChiN
+#print axioms evenPerK_nLevelTwoLift_of_range
+#print axioms evenPerK_not_mLevelTwoLift_of_range
+
+-- §4 the `α = 2` stratum, and its two coefficient-action instances
+#print axioms evenPerKScalar
+#print axioms evenPerKContinuousScalar
+#print axioms evenPerK_stageBaseN_two
+#print axioms evenPerK_stageBaseM_two
+
+-- §5 the carried per-field inputs
+#print axioms EvenPerKNStageBase
+#print axioms EvenPerKMStageBase
+#print axioms EvenPerKNFamilySupply
+#print axioms EvenPerKMFamilySupply
+#print axioms EvenPerKNRawToBracket
+#print axioms EvenPerKMRawToBracket
+
+-- §6 the per-field endpoints
+#print axioms evenPerK_forwardGeneratorDataN
+#print axioms evenPerK_forwardGeneratorDataM
+#print axioms evenPerK_orientedEquivN
+#print axioms evenPerK_orientedEquivM
+
+end AxiomPins
