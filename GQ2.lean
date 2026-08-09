@@ -574,6 +574,7 @@ import GQ2.Dyadic.Instances.EvenForwardRouteSkeleton
 import GQ2.Dyadic.Instances.EvenDemushkinQ
 import GQ2.Dyadic.Instances.EvenModelH2
 import GQ2.Dyadic.Instances.EvenModelDemushkin
+import GQ2.Dyadic.Instances.EvenModelCupForm
 import GQ2.Dyadic.Instances.EvenNLabWitness
 import GQ2.Dyadic.Instances.GammaLSylowPreimageArithmeticResidual
 import GQ2.Dyadic.GammaRHom
