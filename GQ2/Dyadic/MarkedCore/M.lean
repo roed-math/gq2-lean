@@ -310,42 +310,13 @@ theorem mUnit_sub_one {α : ℕ} (hα : 1 ≤ α) :
 /-- Level telescoping: from `η − 1 = 2^s·a` (`a` a unit, `s ≥ 2`) the `2^m`-th power has
 `η^{2^m} − 1 = 2^{m+s}·(unit)`.  Generalizes `exists_unit_pow_two_pow_sub_one` (level 2);
 dedup note: MC4's `N`-side consumes this same lemma — it is stated once, here, `m`-prefixed
-per the reserved-name rule. -/
+per the reserved-name rule.  W52-BATCH: the canonical form now lives upstream as
+`GQ2.exists_unit_pow_two_pow_sub_one_of_level` (`GQ2/ZtwoPowering.lean`, beside the level-2
+original it generalizes); this declaration is proof-rewired onto it, statement unchanged. -/
 theorem mExists_unit_pow_two_pow_sub_one (η a : ℤ_[2]ˣ) (s : ℕ) (hs : 2 ≤ s)
     (hη : ((η : ℤ_[2])) - 1 = 2 ^ s * a) (m : ℕ) :
-    ∃ b : ℤ_[2]ˣ, ((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ (m + s) * b := by
-  induction m with
-  | zero => exact ⟨a, by simpa using hη⟩
-  | succ m ih =>
-    obtain ⟨b, hb⟩ := ih
-    have hunit : IsUnit (1 + 2 ^ (m + s - 1) * (b : ℤ_[2])) := by
-      have hms : m + s - 1 = m + s - 2 + 1 := by omega
-      have hsplit : (2 : ℤ_[2]) ^ (m + s - 1) * (b : ℤ_[2])
-          = 2 * (2 ^ (m + s - 2) * (b : ℤ_[2])) := by
-        rw [hms, pow_succ]
-        ring
-      rw [hsplit]
-      exact isUnit_one_add_two_mul _
-    refine ⟨b * hunit.unit, ?_⟩
-    have hpow : (η ^ 2 ^ (m + 1) : ℤ_[2]ˣ) = (η ^ 2 ^ m) ^ 2 := by
-      rw [← pow_mul, pow_succ]
-    have hplus : ((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) + 1
-        = 2 * (1 + 2 ^ (m + s - 1) * (b : ℤ_[2])) := by
-      have h2pow : (2 : ℤ_[2]) ^ (m + s) = 2 * 2 ^ (m + s - 1) := by
-        obtain ⟨k, hk⟩ : ∃ k, m + s = k + 1 := ⟨m + s - 1, by omega⟩
-        rw [hk, Nat.add_sub_cancel, pow_succ]
-        ring
-      have hx : ((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) = 1 + 2 ^ (m + s) * (b : ℤ_[2]) := by
-        linear_combination hb
-      rw [hx, h2pow]
-      ring
-    have hfact : (((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2])) ^ 2 - 1
-        = (((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) - 1) * (((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) + 1) := by
-      ring
-    have hexp : (2 : ℤ_[2]) ^ (m + 1 + s) = 2 ^ (m + s) * 2 := by
-      rw [show m + 1 + s = m + s + 1 by omega, pow_succ]
-    rw [hpow, Units.val_pow_eq_pow_val, hfact, hb, hplus, Units.val_mul, IsUnit.unit_spec, hexp]
-    ring
+    ∃ b : ℤ_[2]ˣ, ((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ (m + s) * b :=
+  GQ2.exists_unit_pow_two_pow_sub_one_of_level η a s hs hη m
 
 /-- **Level-`s` injectivity of unit powering**: if `η − 1 = 2^s·a` with `a ∈ ℤ₂ˣ` and `s ≥ 2`
 then `u ↦ η^u` is injective on 2-adic exponents.  Extends

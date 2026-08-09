@@ -212,6 +212,19 @@ theorem sq_mem_twoCentralSeries_succ {k : ℕ} {v : G} (hv : v ∈ twoCentralSer
   | 0 => exact Subgroup.mem_top _
   | (k + 1) => exact sq_mem_twoCentralSucc hv
 
+/-- **`2`-power powers sink into the tower**: `g^{2^m} ∈ λ_{m+1}` for every `g`, by `m`-fold
+application of `sq_mem_twoCentralSeries_succ` from `λ₁ = ⊤`.  This is the mechanism by which a
+`2^{m}`-th root of a target produces a layer element realizing it; the stage-abstraction and
+even-row files consume it under their own names. -/
+theorem pow_two_pow_mem_twoCentralSeries_succ (g : G) (m : ℕ) :
+    g ^ (2 ^ m) ∈ twoCentralSeries G (m + 1) := by
+  induction m with
+  | zero => exact Subgroup.mem_top _
+  | succ m ih =>
+    have hsq : (g ^ (2 ^ m)) ^ 2 ∈ twoCentralSeries G (m + 2) :=
+      sq_mem_twoCentralSeries_succ G ih
+    rwa [← pow_mul, ← pow_succ] at hsq
+
 /-- Commutators `⁅λₖ, G⁆` land in `λ_{k+1}` (also at the junk index `k = 0`). -/
 theorem commutator_mem_twoCentralSeries_succ {k : ℕ} {v : G} (hv : v ∈ twoCentralSeries G k)
     (g : G) : ⁅v, g⁆ ∈ twoCentralSeries G (k + 1) := by

@@ -417,12 +417,12 @@ open GQ2.Dyadic.MarkedCore (mUnit nUnit imChiM imChiN mUnit_sub_one nUnit_mul nU
 
 /-! ### §5.1 The `±1 mod 2^α` shadow and the depth bound -/
 
-/-- Reduction mod `2^j` detects differences up to `2^j`. -/
+/-- Reduction mod `2^j` detects differences up to `2^j`.  W52-BATCH: rewired onto the canonical
+`GQ2.toZModPow_eq_iff_two_pow_dvd` (`GQ2/ZtwoPowering.lean`); kept as a local abbreviation
+because the proofs below use it unqualified. -/
 private theorem toZModPow_eq_iff_dvd {j : ℕ} {x y : ℤ_[2]} :
-    PadicInt.toZModPow j x = PadicInt.toZModPow j y ↔ (2 : ℤ_[2]) ^ j ∣ x - y := by
-  rw [← sub_eq_zero, ← map_sub, ← RingHom.mem_ker, PadicInt.ker_toZModPow,
-    Ideal.mem_span_singleton]
-  norm_num
+    PadicInt.toZModPow j x = PadicInt.toZModPow j y ↔ (2 : ℤ_[2]) ^ j ∣ x - y :=
+  GQ2.toZModPow_eq_iff_two_pow_dvd
 
 private theorem toZModPow_eq_one_iff_dvd {j : ℕ} {x : ℤ_[2]} :
     PadicInt.toZModPow j x = 1 ↔ (2 : ℤ_[2]) ^ j ∣ x - 1 := by
@@ -806,15 +806,13 @@ theorem evenRow_rowSupply_of_deepSupply_one (H : EvenRowDeepFibreLiftSupply 1 v 
   exact H.lift m hm i g hq
 
 /-- Powers of the tower: `g^(2^(m-1)) ∈ λ_m(G)`, the mechanism by which a `2^(m-1)`-th root
-of a target produces a layer element realizing it. -/
+of a target produces a layer element realizing it.  W52-BATCH: the canonical form is
+`GQ2.Roe.Labute.pow_two_pow_mem_twoCentralSeries_succ` (`GQ2/Roe/Labute/TwoCentralTower.lean`,
+beside `sq_mem_twoCentralSeries_succ`, which is the only input); this declaration is
+proof-rewired onto it, statement unchanged. -/
 theorem evenSharp_pow_mem_twoCentralSeries (g : G) (m : ℕ) :
-    g ^ (2 ^ m) ∈ twoCentralSeries G (m + 1) := by
-  induction m with
-  | zero => exact Subgroup.mem_top _
-  | succ m ih =>
-    have hsq : (g ^ (2 ^ m)) ^ 2 ∈ twoCentralSeries G (m + 2) :=
-      sq_mem_twoCentralSeries_succ G ih
-    rwa [← pow_mul, ← pow_succ] at hsq
+    g ^ (2 ^ m) ∈ twoCentralSeries G (m + 1) :=
+  pow_two_pow_mem_twoCentralSeries_succ G g m
 
 /-- **The reduction of the owed half.**  The nontrivial direction of the depth-`s` identity
 follows from one purely 2-adic statement: every unit that is `1` modulo `2^(m+s)` is a

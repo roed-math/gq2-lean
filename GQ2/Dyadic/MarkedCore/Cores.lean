@@ -1817,6 +1817,55 @@ theorem dm_torsionGen_sq {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
     show 2 ^ k * 2 = 2 ^ (k + 1) by rw [pow_succ]]
   exact dm_abRel (k + 1) h
 
+/-- `G^{ab}` is compact (local clone of `GQ2/SectionThree.lean`, as for the `CommGroup` above;
+`local`, so nothing leaks to importers). -/
+local instance instCompactSpaceTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
+    CompactSpace (topAbelianization G) :=
+  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
+
+/-- `G^{ab}` is Hausdorff (local clone). -/
+local instance instT2SpaceTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
+    T2Space (topAbelianization G) :=
+  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
+    (commutator G).isClosed_topologicalClosure
+  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
+
+/-- `G^{ab}` is totally disconnected (local clone). -/
+local instance instTotDiscTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
+    TotallyDisconnectedSpace (topAbelianization G) :=
+  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
+    (commutator G).isClosed_topologicalClosure
+  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+
+/-- **The `N`-frame torsion generator is 2-torsion** ⟦memo §3.1⟧, the `N` analogue of
+`dm_torsionGen_sq` and the discharge of hoist request F1 recorded at
+`GQ2/Dyadic/MarkedCore/NFrameExists.lean`: for `α ≥ 2` the marked generator `x̄₀` squares to
+`1` in `D_N^{ab}`.
+
+`dn_abRel` gives only `x̄₀^{2+2^α} = 1`, and `2 + 2^α = 2·(1 + 2^{α−1})` with `1 + 2^{α−1}`
+**odd** once `α ≥ 2`; so `(x̄₀²)^{1+2^{α−1}} = 1 = 1^{1+2^{α−1}}`, and raising to an odd
+`ℤ₂`-exponent is injective on a pro-2 group (`zpowZtwo_bijective`).
+
+The threshold really is `2 ≤ α`, not the `1 ≤ α` of `dm_torsionGen_sq`: at `α = 1` the
+relation vector is `4·x̄₀`, the generator has order `4`, and the statement is **false**
+(refuted downstream by `dnX0_sq_ne_one_one`). -/
+theorem dn_torsionGen_sq {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    (abMk (dnX0 α h)) ^ 2 = 1 := by
+  obtain ⟨k, rfl⟩ : ∃ k, α = k + 2 := ⟨α - 2, by omega⟩
+  have hpro : IsProP 2 (topAbelianization (DN (k + 2) h : Type)) :=
+    isProP_of_surjective abMk continuous_abMk abMk_surjective (isProP_DN (k + 2) h)
+  obtain ⟨u, hu⟩ := isUnit_intCast_of_odd (m := 1 + 2 * 2 ^ k) ⟨2 ^ k, by ring⟩
+  refine (zpowZtwo_bijective hpro u).injective ?_
+  show zpowZtwo hpro ((abMk (dnX0 (k + 2) h)) ^ 2) ((u : ℤ_[2]))
+    = zpowZtwo hpro 1 ((u : ℤ_[2]))
+  rw [zpowZtwo_one_base, hu, zpowZtwo_intCast,
+    ← zpow_natCast (abMk (dnX0 (k + 2) h)) 2, ← zpow_mul,
+    show ((2 : ℕ) : ℤ) * (1 + 2 * 2 ^ k) = ((2 + 2 ^ (k + 2) : ℕ) : ℤ) by push_cast; ring,
+    zpow_natCast, dn_abRel]
+
 /-- **Equation (11) analogue for `M_α`** (memo §2.1/§6.1): a continuous isomorphism
 `D_M^{ab} ≅ ℤ/2 × ℤ₂ × ℤ₂ × ℤ₂` in the coordinates `(t, B̄, C̄₀, D̄)`, with the **α-dependent**
 torsion generator `t = Ā·C̄₀^{2^{α−1}}`.  The `Ā`-row is then forced (`mE_A`). -/
