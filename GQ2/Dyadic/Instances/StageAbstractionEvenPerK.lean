@@ -46,6 +46,11 @@ classification hypothesis, no `demushkinQ`, and no canonicity predicate, which i
 `orientedAbstractEquiv_KTwoN` carries.  Following the abstract-equiv pattern here would mean
 adding hypotheses the route does not use.
 
+§6 also lands the `α = 2` stratum separately, as `evenPerK_orientedEquiv{N,M}_two`.  There the
+range identity has already been evaluated, the level-three base is built rather than carried
+(§4), and what remains is the pair `Hfam`, `Hup`, which is exactly the odd route's endpoint
+shape.  That pair of statements is the layer's non-vacuity witness.
+
 ## The deep re-cut (§1 to §4)
 
 The second correction of this file concerns the level-three frame inputs.
@@ -116,6 +121,20 @@ open GQ2.Dyadic.EvenRowSupply
 open GQ2.Dyadic.EvenCyclotomicRange
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- The coefficient action at `G_K(2)`, as everywhere on this route: the unique action of a group
+on `𝔽₂`, which is the trivial one.  Declared once for the whole file, since §4 and §6 both state
+the ramified-`i` binder in the form `κ ≠ 0`, whose class group needs it. -/
+local instance evenPerKScalar {K : IntermediateField ℚ_[2] ℚ̄₂} [CompactSpace (GalK K)]
+    [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] :
+    DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+/-- Continuity of that action. -/
+local instance evenPerKContinuousScalar {K : IntermediateField ℚ_[2] ℚ̄₂} [CompactSpace (GalK K)]
+    [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] :
+    ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
 
 /-! ## §1 The re-cut level-three frame inputs
 
@@ -346,13 +365,6 @@ section AlphaTwo
 variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
 
-local instance evenPerKScalar : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
-  scalarActionZmodTwo _
-
-local instance evenPerKContinuousScalar :
-    ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
-  scalarActionZmodTwo_continuousSMul _
-
 /-- **The level-three base at `α = 2`, `N` branch, with no frame-input hypothesis.**  Both
 components of `EvenLevelThreeNFrameInputSupply 2` are consequences of the range identity here:
 the mod-eight seam by `evenRange_evenDegreeNModEightImage`, and the depth-`1` row seam, refuted
@@ -387,10 +399,15 @@ end AlphaTwo
 
 Three `Prop`s per branch, each at one field and each quantified over the branch depth `α`, since
 `α` is produced by the range identity rather than chosen.  The last two are the `Hfam` and `Hup`
-of `evenClimbFinal_residualSupply{N,M}` verbatim; the first is the conclusion shape of the
-level-three station, which is what the finite-level layer consumes.  This is the same endpoint
-shape the odd route carries at
-`nonempty_orientedEquiv_oddDegree_of_family_of_digitRepair`. -/
+of `evenClimbFinal_residualSupply{N,M}` verbatim, and they match the odd route's endpoint
+`nonempty_orientedEquiv_oddDegree_of_family_of_digitRepair`, which carries exactly two inputs of
+this kind (`Hfam` and `Hrepair`) and constructs neither.
+
+The base is the one extra binder the even lane pays, and §2 is the reason it is paid: at odd
+degree the cyclotomic character is surjective, so the depth-`1` row seam holds and the
+level-three station builds its own base, while in even degree that seam is false from `α = 3`
+on.  The `Prop` is the station's conclusion shape, `Nonempty (Tuple … 3)`, which is exactly what
+`evenForwardGeneratorData{N,M}_of_base_and_corrections` consumes. -/
 
 section Carried
 
@@ -536,6 +553,43 @@ theorem evenPerK_orientedEquivM {R : LocalReciprocity} (B : MarkedRecip R K)
     (evenPerK_forwardGeneratorDataM halpha hrange base
       (Hfam alpha (Nat.le_of_succ_le halpha)) (Hup alpha (Nat.le_of_succ_le halpha)))⟩
 
+/-- **The `N` endpoint on the `α = 2` stratum, with the level-three base discharged.**  When the
+range identity lands at `α = 2` the depth-`1` row seam is true, so §4 builds the base and it is
+not carried: what remains is `Hfam` and `Hup`, which is exactly the two-input endpoint shape of
+the odd route.  This is the non-vacuity witness for the layer: on this stratum the even route
+owes no more than the odd one. -/
+theorem evenPerK_orientedEquivN_two {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN 2)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord 2 h one_le_two) (vN 2)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hup : EvenKernelRawToBracketSupply 1 (nStageWord 2 h one_le_two) (vN 2)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 2 h) (chiCycKTwo (K := K))) := by
+  obtain ⟨base⟩ := evenPerK_stageBaseN_two B h hev hkappa hrange
+  exact nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData 2 h one_le_two hev
+    (EvenDemushkin.evenDem_nModelDemushkin 2 h (le_refl 2))
+    (evenPerK_forwardGeneratorDataN (le_refl 2) hrange base Hfam Hup)
+
+/-- **The `M` endpoint on the `α = 2` stratum**, the same discharge.  Here the range is all of
+`ℤ₂ˣ`, so the depth-`1` seam holds by surjectivity. -/
+theorem evenPerK_orientedEquivM_two {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord 2 h one_le_two) (vM 2)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hup : EvenKernelRawToBracketSupply 1 (mStageWord 2 h one_le_two) (vM 2)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 2 h) (chiCycKTwo (K := K))) := by
+  obtain ⟨base⟩ := evenPerK_stageBaseM_two B h hev hkappa hrange
+  exact nonempty_orientedEquivM_evenDegree_of_forwardGeneratorData 2 h one_le_two hev
+    (EvenDemushkin.evenDem_mModelDemushkin 2 h (le_refl 2))
+    (evenPerK_forwardGeneratorDataM (le_refl 2) hrange base Hfam Hup)
+
 end Endpoints
 
 end
@@ -595,5 +649,7 @@ open GQ2.Dyadic.EvenPerK
 #print axioms evenPerK_forwardGeneratorDataM
 #print axioms evenPerK_orientedEquivN
 #print axioms evenPerK_orientedEquivM
+#print axioms evenPerK_orientedEquivN_two
+#print axioms evenPerK_orientedEquivM_two
 
 end AxiomPins
