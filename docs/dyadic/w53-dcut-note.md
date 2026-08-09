@@ -114,7 +114,8 @@ components".
 
 > **`corank(Δ\|_{K^d}) = corank(Δ_full) + codim K`, and `dim K_j / im(Δ\|_{K^d}) = corank(Δ_full)`.**
 
-Certified at `codim K = 1, 2, 3` for every `d` and level.  For the campaign, `codim K = 2` and
+Certified at `codim K = 1, 2, 3` (each whenever `codim K < d`) for every `d` and level.  For
+the campaign, `codim K = 2` and
 `corank(Δ_full) = d − 1`, which is the measured `d + 1`.  The residue inside `K_j` is `d − 1`
 for **all three** codimensions, so the `d − 1` is not a `K`-phenomenon in any way.
 
@@ -216,9 +217,9 @@ full-rank frame with one Frobenius slot in the free layers; a relator quotient c
 it, by the part of the relator's graded ideal that survives to the pure-power space; and this
 relator does not shrink it, by the alignment of §4.2.  The `λ, ν` block, by contrast, is the
 same subspace `L_j/K_j` for every word, and the number `rank φ = 2` never moves.  Also recorded:
-the subspace `im(Δ_full)` itself is different for essentially every word (35 distinct subspaces
-among 41 words at `L₃`, likewise at `L₄`) and, in the free ambient, is not determined by `β_s`
-alone.  So the block is uniform in *description*, not literally the same subspace.
+the subspace `im(Δ_full)` itself is different for essentially every word (35 and 34 distinct
+subspaces among the 41 words at the two markings, the same counts at `L₃` and `L₄`) and, in the
+free ambient, is not determined by `β_s` alone.  So the block is uniform in *description*, not literally the same subspace.
 
 ---
 
@@ -229,8 +230,8 @@ splitting is W52's committed material (`GradedVanish.lean`); the conjugation-fam
 `vanShift_commP`/`vanShift_commP_eq_zero`.
 
 **Measured (this wave, exact linear algebra over `𝔽₂`, no sampling in the free ambient):**
-1081 scored assertions in the free sweeps (574 at class 4, 507 at class 5) and 198 in the campaign and word sweeps (9 + 16 + 9 + 164), **0
-failures**: the power identity §1.1, the linearity and injectivity of `π` §1.2, the corank
+1081 scored assertions in the free sweeps (574 at class 4, 507 at class 5) and 198 in the
+campaign and word sweeps (9 + 16 + 9 + 164), **0 failures**: the power identity §1.1, the linearity and injectivity of `π` §1.2, the corank
 `d − 1` §2.1, the cokernel bases §2.2 and §3.2 with their exact kernels, the bookkeeping
 identity §3.1, `rank φ = codim K` §3.3, the campaign instance §4, and the word sweep §5.  The
 free-ambient statements are exhaustive over the stated ranks, levels and codimensions and over
