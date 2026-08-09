@@ -278,6 +278,12 @@ private theorem lift_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHan
   rw [sqHandleIdxV_val, sqHandleIdxU_val] at hv
   omega
 
+private theorem lift_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHandleIdxV j := by
+  intro hc
+  have hv := congrArg Fin.val hc
+  rw [sqHandleIdxU_val, sqHandleIdxV_val] at hv
+  omega
+
 @[simp] theorem selLift_zero : selLift j m w₁ w₂ z₃ z₄ 0 = m 0 := by
   simp only [selLift, sqVal_zero]
   rw [if_neg (by omega), if_neg (by omega),
@@ -344,6 +350,7 @@ theorem sqRelWord_selLift (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour) (hz₃
     handleWord_mul_gaThree _ _ hz₃ hz₄, hw₁.eq_liftC, hw₂.eq_liftC,
     sqWord_mul_liftC, mul_assoc, ← mul_assoc (liftC _), ← liftC_comm, mul_assoc, ← mul_assoc,
     liftC_mul_liftC]
+  simp only [liftC_j]
 
 end LiftCalculus
 
