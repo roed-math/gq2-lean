@@ -57,8 +57,8 @@ cross-validated numerically before transcription (`scripts/w53_sigma/`, certifie
   it.
 * **⭐⭐ The forcing, executed** (paragraph 6).  At the explicit binder point `sigFourWit` -
   one handle, cleared letters `U = (1,0,0,0,...)`, `V = (2,0,0,0,...)`, `x0`-slot the class-two
-  forced value `V` corrected by one `gamma_3`-element (`sigFourX_eq`), `x1`-slot solving the
-  nine lower rows - the class-four selection bit is `selPar v.a` **on the nose**
+  forced value `V` corrected by one `gamma_3`-element (`sigFourX_eq`), `x1`-slot solving every
+  row at the trivial sigma dressing - the class-four selection bit is `selPar v.a` on the nose
   (⭐⭐ `sigFourWit_bit`), and every sigma dressing killing the relator after **any** achievable
   five-slot refinement has even `chi_a`-character (⭐⭐ `sigFourWit_sigma_forced`).  The
   undressed frame kills the relator outright, the class-two forced dressing leaves the even
@@ -101,7 +101,7 @@ statement about `sqArbFrame` itself, exactly as `GradedSigma` paragraph 6 does a
 * **3** the reading: the marking `sigFourMark`, the four row-shift forms, and the four
   `sqWord`-level identities;
 * **4** the transfer to the relator: `SqU5.handleWord_d`, `sigFourDress`,
-  `sqRelWord_sigFourDress`;
+  `sqRelWord_sigFourDress_low` and `sqRelWord_sigFourDress`;
 * **5** the gauge collapse and the class-three comparison;
 * **6** the witness binder point, its three verdicts, its soundness, the bit and the forcing;
 * **7** the residual obstruction;
@@ -435,6 +435,34 @@ variable {m : Fin (sqRank h) → SqU5 R} {v : SqU5 R}
 
 theorem sigFourDress_ne {i : Fin (sqRank h)} (hi : (i : ℕ) ≠ 0) : sigFourDress m v i = m i :=
   if_neg hi
+
+/-- ⭐ **A sigma-slot dressing moves no class-`<= 2` row of the relator**: the three abelian
+rows and the first two class-two rows are untouched, exactly as at class three.  The handle
+block never sees the sigma slot, so this is the `sqWord` statement transported. -/
+theorem sqRelWord_sigFourDress_low (hm0 : m 0 = sigFourMark R) (hxb : (m 1).b = 0)
+    (hyb : (m 2).b = 0) (hvb : v.b = 0) :
+    (sqRelWord (sigFourDress m v)).a = (sqRelWord m).a ∧
+    (sqRelWord (sigFourDress m v)).b = (sqRelWord m).b ∧
+    (sqRelWord (sigFourDress m v)).c = (sqRelWord m).c ∧
+    (sqRelWord (sigFourDress m v)).d = (sqRelWord m).d ∧
+    (sqRelWord (sigFourDress m v)).e = (sqRelWord m).e ∧
+    (sqRelWord (sigFourDress m v)).f = (sqRelWord m).f := by
+  have hone : sigFourDress m v 1 = m 1 := sigFourDress_ne (by rw [sqVal_one]; omega)
+  have htwo : sigFourDress m v 2 = m 2 := sigFourDress_ne (by rw [sqVal_two]; omega)
+  have hU : ∀ j' : Fin h, sigFourDress m v (sqHandleIdxU j') = m (sqHandleIdxU j') :=
+    fun j' => sigFourDress_ne (by rw [sqHandleIdxU_val]; omega)
+  have hV : ∀ j' : Fin h, sigFourDress m v (sqHandleIdxV j') = m (sqHandleIdxV j') :=
+    fun j' => sigFourDress_ne (by rw [sqHandleIdxV_val]; omega)
+  obtain ⟨ha, hb, hc, hd, he, hf⟩ := sqWord_sigFour_low (R := R) (v := v) (x := m 1)
+    (y := m 2) hvb hxb hyb
+  rw [sqRelWord, sqRelWord, sigFourDress_zero, hone, htwo, funext hU, funext hV, hm0]
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [SqU5.mul_a, SqU5.mul_a, ha]
+  · rw [SqU5.mul_b, SqU5.mul_b, hb]
+  · rw [SqU5.mul_c, SqU5.mul_c, hc]
+  · rw [SqU5.mul_d, SqU5.mul_d, hd]
+  · rw [SqU5.mul_e, SqU5.mul_e, ha, he]
+  · rw [SqU5.mul_f, SqU5.mul_f, hb, hf]
 
 /-- ⭐⭐ **The four top rows of the relator under a sigma-slot dressing**, at the plain
 class-four sigma marking with `nu'`-trivial exponent slots.  The three class-`<= 2` abelian rows
@@ -818,6 +846,7 @@ section AxiomPins
 #print axioms sigFourDress
 #print axioms sigFourDress_zero
 #print axioms sigFourDress_ne
+#print axioms sqRelWord_sigFourDress_low
 #print axioms sqRelWord_sigFourDress
 #print axioms sigFourG_gauge_even
 #print axioms sigFourH_gauge_even
