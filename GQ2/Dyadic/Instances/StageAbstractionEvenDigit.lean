@@ -66,9 +66,13 @@ The even replacement (§4, §5):
 The engine `evenDigit_exists_neutral_shift` then repairs an *arbitrary* raw depth correction
 to a neutral one with the same literal shift word, so the flips give not merely the residual
 instance but the whole span upgrade: `evenDigit_rawToBracket_of_flip` proves
-`EvenKernelRawToBracketSupply (α - 1)` outright from `EvenDigitFlipSupply`.  `Hup` is thereby
-REDUCED to the one-digit flip supply, with the second digit and the whole central layer paid
-by the range identity.
+`EvenKernelRawToBracketSupply (α - 1)` outright from `EvenDigitFlipSupply`.  And the converse
+holds too: seeding one coordinate with a sharp class of §2 and dividing off the neutral
+correction `Hup` provides turns `Hup` back into the flips
+(`evenDigit_flip_of_rawToBracket`).  So on either branch image the two statements are
+EQUIVALENT (`evenDigit_rawToBracket_iff_flip_{M,N}`): `Hup` is not merely reduced to the
+one-digit flip supply, it *is* the one-digit flip supply, with the second digit and the whole
+central layer paid by the range identity.
 
 ## What is constructed, and what is honestly left
 
@@ -103,7 +107,7 @@ on its natural route.
 2. the exact-level layer witnesses on the two branch images;
 3. the neutral-supply verdict: the cliff sits at `s = α - 2`;
 4. the digit flip supply and the repair engine;
-5. `Hup` from the flips;
+5. `Hup` and the flips are the same statement;
 6. the constructed flip at coordinate `2`;
 7. the per-`K` endpoints, re-cut at the flips;
 8. axiom pins.
@@ -595,12 +599,19 @@ theorem evenDigit_exists_neutral_shift {α : ℕ} (hα : 2 ≤ α)
 
 end Flip
 
-/-! ## §5 `Hup` from the flips
+/-! ## §5 `Hup` and the flips are the same statement
 
 The engine repairs any raw correction, so the flips deliver not merely the residual instance
 the climb needs but the whole span upgrade: the raw shift span *equals* the bracket span
-(`evenRawTo_supply_iff_span_eq` reads the conclusion that way).  The named input `Hup` of the
-per-`K` endpoints is thereby reduced to `EvenDigitFlipSupply`. -/
+(`evenRawTo_supply_iff_span_eq` reads the conclusion that way).  Conversely, `Hup` produces
+the flips outright: seed one coordinate with a sharp class from §2, ask `Hup` for a neutral
+correction with the same one-row shift, and divide it off; what remains has literally trivial
+shift word, the seeded slot keeps its sharp digit because neutral coordinates cannot touch
+it, and every other slot is an inverted neutral coordinate.  So on either branch image the
+named input `Hup` of the per-`K` endpoints is *equivalent* to `EvenDigitFlipSupply`
+(`evenDigit_rawToBracket_iff_flip_{M,N}`): the flip supply is exactly the content of `Hup`,
+with the second digit and the central layer stripped away because the range identity pays
+for them. -/
 
 section Supply
 
@@ -629,6 +640,104 @@ theorem evenDigit_rawToBracket_of_flip {α h : ℕ} {W : StageWord (MarkedCore.c
     (s := α - 1) (chi := chi) (fun i ↦ canonLift G k (T.generators i)) hk]
   exact ⟨evenSharpNeutralShiftHom (fun i ↦ canonLift G k (T.generators i)) hk N,
     ⟨N, rfl⟩, hN⟩
+
+/-- Congruence to `1` passes to the inverse unit. -/
+private theorem evenDigit_dvd_inv {n : ℕ} {u : ℤ_[2]ˣ}
+    (h : (2 : ℤ_[2]) ^ n ∣ ((u : ℤ_[2]ˣ) : ℤ_[2]) - 1) :
+    (2 : ℤ_[2]) ^ n ∣ ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  obtain ⟨c, hc⟩ := h
+  have huu : ((u : ℤ_[2]ˣ) : ℤ_[2]) * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+  exact ⟨-(((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * c), by
+    linear_combination (-((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) * hc + huu⟩
+
+/-- A sharp digit is preserved by multiplication with a trivial one. -/
+private theorem evenDigit_ndvd_mul {n : ℕ} {u w : ℤ_[2]}
+    (hu : ¬ (2 : ℤ_[2]) ^ n ∣ u - 1) (hw : (2 : ℤ_[2]) ^ n ∣ w - 1) :
+    ¬ (2 : ℤ_[2]) ^ n ∣ u * w - 1 := by
+  intro hd
+  refine hu ?_
+  have hsplit : u - 1 = (u * w - 1) - u * (w - 1) := by ring
+  rw [hsplit]
+  exact dvd_sub hd (hw.mul_left u)
+
+/-- **The flips from `Hup`.**  Given one sharp seed class in `λ_{k-1}` per level, the
+raw-to-bracket upgrade produces the flip supply: seed a one-coordinate correction, obtain a
+neutral correction with the same literal shift, and divide it off.  Together with
+`evenDigit_rawToBracket_of_flip` this makes the reduction an equivalence, so nothing is
+given away in the re-cut. -/
+theorem evenDigit_flip_of_rawToBracket {α h : ℕ} {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (hseed : ∀ k : ℕ, 3 ≤ k → ∃ g ∈ twoCentralSeries G (k - 1),
+      ¬ (2 : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+    (Hup : EvenKernelRawToBracketSupply (α - 1) W v G chi) :
+    EvenDigitFlipSupply α W v G chi := by
+  intro k hk T i₀
+  obtain ⟨gs, hgsmem, hgssharp⟩ := hseed k hk
+  set base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1) :=
+    fun i ↦ canonLift G k (T.generators i) with hbase
+  have hp : levelMk G (k + 1) gs ∈ lambdaImage G (k - 1) (k + 1) := ⟨gs, hgsmem, rfl⟩
+  set coord : EvenRawDepthCorrection G h k :=
+    evenRawDepthCoordinateCorrection i₀ ⟨levelMk G (k + 1) gs, hp⟩ with hcoord
+  have hrow : ((evenRawDepthShiftHom base hk) coord).1 ∈ evenBracketSpan (α - 1) chi base :=
+    Hup k hk T _ (evenRawDepthShift_mem_shiftSpan base hk coord)
+  rw [← evenSharpNeutralShiftHom_range_eq_bracketSpan (s := α - 1) (chi := chi) base hk]
+    at hrow
+  obtain ⟨q, ⟨N, rfl⟩, hval⟩ := hrow
+  have hNword : (evenRawDepthShiftHom base hk) (EvenSharpNeutralCorrection.toRawHom N) =
+      (evenRawDepthShiftHom base hk) coord := Subtype.ext hval
+  have hinvc : ∀ (V : EvenRawDepthCorrection G h k) (j : Fin (MarkedCore.coreRank h)),
+      (V⁻¹).correction j = (V.correction j)⁻¹ := fun V j ↦ rfl
+  have hNdvd : ∀ j : Fin (MarkedCore.coreRank h), ∃ gN : G,
+      N.correction j = levelMk G (k + 1) gN ∧
+        (2 : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi gN : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    intro j
+    obtain ⟨gN, hgN, hgNmap⟩ := N.neutral j
+    exact ⟨gN, hgN, (pow_dvd_pow (2 : ℤ_[2]) (by omega)).trans
+      (evenSharp_mem_ker_iff.mp (MonoidHom.mem_ker.mpr hgNmap))⟩
+  refine ⟨coord * (EvenSharpNeutralCorrection.toRawHom N)⁻¹, ?_, ?_, ?_⟩
+  · have hword : (evenRawDepthShiftHom base hk)
+        (coord * (EvenSharpNeutralCorrection.toRawHom N)⁻¹) = 1 := by
+      rw [map_mul, map_inv, hNword, mul_inv_cancel]
+    exact congrArg Subtype.val hword
+  · obtain ⟨gN, hgN, hgNdvd⟩ := hNdvd i₀
+    refine ⟨gs * gN⁻¹, ?_, ?_⟩
+    · rw [EvenRawDepthCorrection.mul_correction, hinvc, map_mul, map_inv,
+        EvenSharpNeutralCorrection.toRawHom_correction, hgN, hcoord,
+        evenRawDepthCoordinateCorrection_apply, if_pos rfl]
+    · rw [map_mul, map_inv, Units.val_mul]
+      exact evenDigit_ndvd_mul hgssharp (evenDigit_dvd_inv hgNdvd)
+  · intro j hj
+    obtain ⟨gN, hgN, hgNdvd⟩ := hNdvd j
+    refine ⟨gN⁻¹, ?_, ?_⟩
+    · rw [EvenRawDepthCorrection.mul_correction, hinvc, map_inv,
+        EvenSharpNeutralCorrection.toRawHom_correction, hgN, hcoord,
+        evenRawDepthCoordinateCorrection_apply, if_neg hj, one_mul]
+    · rw [map_inv]
+      exact evenDigit_dvd_inv hgNdvd
+
+/-- **`Hup` is the flip supply, `M` branch**: on the `M` image the raw-to-bracket upgrade at
+depth `α - 1` and the digit flip supply are equivalent.  The re-cut of §7 loses nothing. -/
+theorem evenDigit_rawToBracket_iff_flip_M {α h : ℕ} {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hα : 2 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM α) :
+    EvenKernelRawToBracketSupply (α - 1) W v G chi ↔ EvenDigitFlipSupply α W v G chi :=
+  ⟨fun Hup ↦ evenDigit_flip_of_rawToBracket
+      (fun _k hk ↦ evenDigit_lambda_witness_M hα hrange hk) Hup,
+    fun Hflip ↦ evenDigit_rawToBracket_of_flip hα
+      (fun g ↦ evenSharp_pmOne_of_mem_imChiM (by omega) (by rw [← hrange]; exact ⟨g, rfl⟩))
+      (fun _k hk ↦ evenDigit_sharp_zLayer_M hα hrange hk) Hflip⟩
+
+/-- **`Hup` is the flip supply, `N` branch.** -/
+theorem evenDigit_rawToBracket_iff_flip_N {α h : ℕ} {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hα : 2 ≤ α)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN α) :
+    EvenKernelRawToBracketSupply (α - 1) W v G chi ↔ EvenDigitFlipSupply α W v G chi :=
+  ⟨fun Hup ↦ evenDigit_flip_of_rawToBracket
+      (fun _k hk ↦ evenDigit_lambda_witness_N hα hrange hk) Hup,
+    fun Hflip ↦ evenDigit_rawToBracket_of_flip hα
+      (fun g ↦ evenSharp_pmOne_of_mem_imChiN (by omega) (by rw [← hrange]; exact ⟨g, rfl⟩))
+      (fun _k hk ↦ evenDigit_sharp_zLayer_N hα hrange hk) Hflip⟩
 
 end Supply
 
@@ -921,8 +1030,11 @@ open GQ2.Dyadic.StageGeneric
 #print axioms evenDigit_dbarWord_eq_one_of_zLayer
 #print axioms evenDigit_exists_neutral_shift
 
--- §5 `Hup` from the flips
+-- §5 `Hup` and the flips are the same statement
 #print axioms evenDigit_rawToBracket_of_flip
+#print axioms evenDigit_flip_of_rawToBracket
+#print axioms evenDigit_rawToBracket_iff_flip_M
+#print axioms evenDigit_rawToBracket_iff_flip_N
 
 -- §6 the constructed flip at coordinate `2`
 #print axioms evenDigit_flip_two_of_sharp_value
