@@ -78,7 +78,21 @@ the corank.
 
 ### 1.4  The corank reduction
 
-On the **full** domain `(L_{j-1})^d` the form is onto `L_j` (the `β_i` span `L_1` by
+> **CORRECTED BY W53-DCUT (2026-08-09).**  The surjectivity claim below is FALSE: on the
+> full domain the form is NOT onto `L_j` (the span argument ignores that the Frobenius
+> slot ties the power contribution to a single coordinate).  W53 measured
+> `corank(Delta_full) = d - 1` at every level, with explicit basis the pure powers
+> `beta_i^(2^(j-1))` of the Fox rows, `i` away from the Frobenius slot; the corrected
+> bookkeeping is `corank(delta restricted) = corank(Delta_full) + codim K`, which settles
+> the campaign's `corank = d + 1` at every level in one stroke and identifies the
+> `d - 1` block as the duals of the Frobenius-image components, generic in the relator.
+> The derived identity and the quoted kernel numbers in this subsection do not reproduce
+> (`rank Delta_full = 45`, `ker = 25` at `h = 1`, `L_3`); the restricted numbers (43/17/6)
+> do reproduce exactly.  Nothing else in this note depends on this subsection.  See
+> `w53-dcut-note.md` for the full account and the statement the next wave should prove.
+
+The original (erroneous) text follows for the record.  On the **full** domain
+`(L_{j-1})^d` the form is onto `L_j` (the `β_i` span `L_1` by
 `SqModTwoIndep`, and `L_j = [L_{j-1}, L_1] + F(L_{j-1})`), so
 
 > `corank(δ) = 2d − dim proj_{(L/K)^d}(ker Δ_full)`,
