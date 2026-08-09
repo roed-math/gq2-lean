@@ -710,6 +710,7 @@ import GQ2.Dyadic.SqCore.GradedSigma
 import GQ2.Dyadic.SqCore.GradedVanish
 import GQ2.Dyadic.SqCore.GradedFour
 import GQ2.Dyadic.SqCore.GradedLift
+import GQ2.Dyadic.SqCore.GradedContainFour
 import GQ2.Dyadic.SqCore.GradedSigmaFour
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
