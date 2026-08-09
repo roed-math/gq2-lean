@@ -1042,6 +1042,8 @@ open GQ2.Dyadic.StageGeneric
 #print axioms evenDigit_flipSlotTwo_M
 
 -- §7 the per-`K` endpoints, with the two local coefficient-action instances
+#print axioms evenDigitScalar
+#print axioms evenDigitContinuousScalar
 #print axioms EvenPerKNDigitFlip
 #print axioms EvenPerKMDigitFlip
 #print axioms evenDigit_perKRawToBracketN
