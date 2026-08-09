@@ -747,6 +747,87 @@ example : ∃ z₃ : SqU5 gr3R, z₃.IsGaThree ∧ selLamThree 2 1 0 1 2 1 0 1 3
 
 end LiftWitness
 
+/-! ## §5 The stage schema `LiftStep` and its 3 → 4 instance
+
+What the note's stage-`k` conjecture asks a class-`k` engine to supply, as data: a central
+`R`-line in the test group, an action of dressing data on marking tuples, an increment
+functional, and the translation identity binding them.  The completion is then **generic**
+(`LiftStep.complete`): any stage instance kills any central residue whose negative is an
+achievable increment.  This is deliberately refutation-friendly: a claimed stage-`k` engine
+is exactly a term of `LiftStep`, and a failed stage is a provably empty one.  The stage-3 → 4
+instance `liftStepFour` packages §1–§2; its dressing data type `LiftDress` carries the two
+`γ₄` exponent dressings and the two `γ₃` handle dressings with their filtration proofs. -/
+
+section LiftSchema
+
+variable {R : Type} [CommRing R] {G D : Type} [Group G]
+
+/-- **The dressing datum of the stage-3 → 4 engine**: `γ₄`-elements for the two exponent
+slots, `γ₃`-elements for the two `j`-handle slots. -/
+structure LiftDress (R : Type) [CommRing R] where
+  /-- The `x₀`-slot dressing. -/
+  w₁ : SqU5 R
+  /-- The `x₁`-slot dressing. -/
+  w₂ : SqU5 R
+  /-- The `U`-handle-slot dressing. -/
+  z₃ : SqU5 R
+  /-- The `V`-handle-slot dressing. -/
+  z₄ : SqU5 R
+  /-- The exponent dressings are `γ₄`-shaped. -/
+  hw₁ : w₁.IsGaFour
+  /-- The exponent dressings are `γ₄`-shaped. -/
+  hw₂ : w₂.IsGaFour
+  /-- The handle dressings are `γ₃`-shaped. -/
+  hz₃ : z₃.IsGaThree
+  /-- The handle dressings are `γ₃`-shaped. -/
+  hz₄ : z₄.IsGaThree
+
+/-- ⭐ **The stage schema**: what a class-`k` engine instance must supply.  `cen` is the
+central `R`-line of the class-`k` test group, `act` the dressing action on marking tuples,
+`incr` the increment functional, and `translate` the affine translation identity.  A later
+wave iterates this schema at `k = 5, 6, …`; a stage that fails is an empty type of
+instances. -/
+structure LiftStep (R : Type) [CommRing R] (G : Type) [Group G] (D : Type) where
+  /-- The central `R`-line. -/
+  cen : R → G
+  /-- The line is central. -/
+  cen_comm : ∀ (g : G) (w : R), g * cen w = cen w * g
+  /-- The line is additive. -/
+  cen_add : ∀ v w : R, cen v * cen w = cen (v + w)
+  /-- The line is based. -/
+  cen_zero : cen 0 = 1
+  /-- The dressing action on marking tuples. -/
+  act : ∀ {h : ℕ}, Fin h → (Fin (sqRank h) → G) → D → Fin (sqRank h) → G
+  /-- The increment functional. -/
+  incr : ∀ {h : ℕ}, Fin h → (Fin (sqRank h) → G) → D → R
+  /-- ⭐ The translation identity. -/
+  translate : ∀ {h : ℕ} (j : Fin h) (m : Fin (sqRank h) → G) (d : D),
+    sqRelWord (act j m d) = sqRelWord m * cen (incr j m d)
+
+/-- ⭐ **The generic stage completion**: a central residue whose negative is an achievable
+increment dies.  Both regimes of §3, and every later stage's completion, factor through
+this. -/
+theorem LiftStep.complete (L : LiftStep R G D) {h : ℕ} (j : Fin h)
+    {m : Fin (sqRank h) → G} {r : R} (d : D) (h5 : sqRelWord m = L.cen r)
+    (hincr : L.incr j m d = -r) : sqRelWord (L.act j m d) = 1 := by
+  rw [L.translate, h5, hincr, L.cen_add, add_neg_cancel, L.cen_zero]
+
+/-- ⭐⭐ **The stage-3 → stage-4 engine instance**: `U₅`'s central line `liftC`, the four-slot
+refinement `selLift`, the affine increment of the translation identity
+`sqRelWord_selLift`. -/
+def liftStepFour (R : Type) [CommRing R] : LiftStep R (SqU5 R) (LiftDress R) where
+  cen := liftC
+  cen_comm := liftC_comm
+  cen_add := liftC_mul_liftC
+  cen_zero := liftC_zero
+  act j m d := selLift j m d.w₁ d.w₂ d.z₃ d.z₄
+  incr j m d := -4 * d.w₁.j + 2 * d.w₂.j
+    + ((d.z₃.h * (m (sqHandleIdxV j)).d - d.z₃.i * (m (sqHandleIdxV j)).a)
+      + ((m (sqHandleIdxU j)).a * d.z₄.i - (m (sqHandleIdxU j)).d * d.z₄.h))
+  translate _ _ d := sqRelWord_selLift d.hw₁ d.hw₂ d.hz₃ d.hz₄
+
+end LiftSchema
+
 end SqCore
 
 end Dyadic
