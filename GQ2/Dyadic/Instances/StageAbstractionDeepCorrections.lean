@@ -98,13 +98,13 @@ variable {n : ℕ} {W : StageWord n} {v : Fin n → ℤ_[2]ˣ}
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ}
 
-/-- Reduction mod `2^j` detects differences up to `2^j` (local restatement of the private
-helper in `StageAbstractionEvenRowSupply.lean`; hoist request recorded there). -/
+/-- Reduction mod `2^j` detects differences up to `2^j`.  W52-BATCH: the hoist request recorded
+here is discharged — the canonical form is `GQ2.toZModPow_eq_iff_two_pow_dvd`
+(`GQ2/ZtwoPowering.lean`, beside the rest of the `toZModPow` level arithmetic, which is the
+lowest committed file where it type-checks); this restatement is rewired onto it. -/
 private theorem deep_toZModPow_eq_iff_dvd {j : ℕ} {x y : ℤ_[2]} :
-    PadicInt.toZModPow j x = PadicInt.toZModPow j y ↔ (2 : ℤ_[2]) ^ j ∣ x - y := by
-  rw [← sub_eq_zero, ← map_sub, ← RingHom.mem_ker, PadicInt.ker_toZModPow,
-    Ideal.mem_span_singleton]
-  norm_num
+    PadicInt.toZModPow j x = PadicInt.toZModPow j y ↔ (2 : ℤ_[2]) ^ j ∣ x - y :=
+  GQ2.toZModPow_eq_iff_two_pow_dvd
 
 /-- **Precision is monotone**: a congruence modulo `2^j` survives every coarser modulus.
 This is the only arithmetic the correction layer needs. -/
@@ -425,96 +425,41 @@ open GQ2.Dyadic.MarkedCore (mUnit imChiM mUnit_sub_one mExists_unit_pow_two_pow_
 /-- **The approximation half at exact level `s`.**  Port of `GQ2.exists_nat_pow_sub_dvd` from
 `4` to `2^s`: if `η - 1 = 2^s·a` with `a` a unit, every `ξ ≡ 1 mod 2^s` is matched by a
 natural power of `η` modulo `2^(s+k)`.  The digit step is
-`mExists_unit_pow_two_pow_sub_one`. -/
+`mExists_unit_pow_two_pow_sub_one`.  W52-BATCH: the canonical general form now lives beside
+the level-two original as `GQ2.exists_nat_pow_sub_dvd_of_level`
+(`GQ2/Dyadic/SqCore/PivotLemma.lean`); this declaration is proof-rewired onto it, statement
+unchanged. -/
 theorem pivot_exists_nat_pow_sub_dvd (η a : ℤ_[2]ˣ) (s : ℕ) (hs : 2 ≤ s)
     (hη : ((η : ℤ_[2])) - 1 = 2 ^ s * (a : ℤ_[2]))
     {ξ : ℤ_[2]} (hξ : (2 : ℤ_[2]) ^ s ∣ ξ - 1) (k : ℕ) :
-    ∃ n : ℕ, (2 : ℤ_[2]) ^ (s + k) ∣ ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) - ξ := by
-  induction k with
-  | zero =>
-    obtain ⟨t, ht⟩ := hξ
-    refine ⟨0, -t, ?_⟩
-    rw [pow_zero, Units.val_one]
-    linear_combination -ht
-  | succ j ih =>
-    obtain ⟨n, d, hd⟩ := ih
-    by_cases hdiv : (2 : ℤ_[2]) ∣ d
-    · obtain ⟨e, he⟩ := hdiv
-      exact ⟨n, e, by rw [hd, he]; ring⟩
-    obtain ⟨u, hu⟩ := mExists_unit_pow_two_pow_sub_one η a s hs hη j
-    have hval : ((η ^ (n + 2 ^ j) : ℤ_[2]ˣ) : ℤ_[2])
-        = ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) * ((η ^ 2 ^ j : ℤ_[2]ˣ) : ℤ_[2]) := by
-      rw [pow_add, Units.val_mul]
-    have hstep : ((η ^ (n + 2 ^ j) : ℤ_[2]ˣ) : ℤ_[2]) - ξ
-        = 2 ^ (s + j) * (d + (u : ℤ_[2]) * ((η ^ n : ℤ_[2]ˣ) : ℤ_[2])) := by
-      rw [show j + s = s + j by omega] at hu
-      rw [hval]
-      linear_combination hd + ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) * hu
-    obtain ⟨e, he⟩ := GQ2.two_dvd_add_of_isUnit (GQ2.isUnit_of_not_two_dvd hdiv)
-      (u.isUnit.mul (η ^ n).isUnit)
-    exact ⟨n + 2 ^ j, e, by rw [show s + (j + 1) = s + j + 1 by omega, hstep, he]; ring⟩
+    ∃ n : ℕ, (2 : ℤ_[2]) ^ (s + k) ∣ ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) - ξ :=
+  GQ2.exists_nat_pow_sub_dvd_of_level η a s hs hη hξ k
 
 /-- **Procyclic surjectivity at exact level `s`.**  Port of
 `GQ2.exists_zpowZtwo_eq_of_exact_level`: an element of exact level `s ≥ 2` hits every
 `ξ ≡ 1 mod 2^s` at some `2`-adic exponent.  The Cantor-intersection argument is
-level-agnostic; only the approximation input changed. -/
+level-agnostic; only the approximation input changed.  W52-BATCH: the canonical general form
+now lives beside the level-two original as `GQ2.exists_zpowZtwo_eq_of_level`
+(`GQ2/Dyadic/SqCore/PivotLemma.lean`); this declaration is proof-rewired onto it, statement
+unchanged. -/
 theorem pivot_exists_zpowZtwo_eq (η a : ℤ_[2]ˣ) (s : ℕ) (hs : 2 ≤ s)
     (hη : ((η : ℤ_[2])) - 1 = 2 ^ s * (a : ℤ_[2]))
     {ξ : ℤ_[2]ˣ} (hξ : (2 : ℤ_[2]) ^ s ∣ ((ξ : ℤ_[2])) - 1) :
-    ∃ c : ℤ_[2], zpowZtwo isProP_two_unitsPadicInt η c = ξ := by
-  set f : ℤ_[2] → ℤ_[2] :=
-    fun c ↦ ((zpowZtwo isProP_two_unitsPadicInt η c : ℤ_[2]ˣ) : ℤ_[2]) with hf
-  have hcont : Continuous f :=
-    Units.continuous_val.comp (continuous_zpowZtwo isProP_two_unitsPadicInt η)
-  set A : ℕ → Set ℤ_[2] := fun k ↦ {c | (2 : ℤ_[2]) ^ (s + k) ∣ f c - (ξ : ℤ_[2])} with hA
-  have hball : ∀ k, A k = f ⁻¹' Metric.closedBall ((ξ : ℤ_[2]))
-      (((2 : ℕ) : ℝ) ^ (-((s + k : ℕ) : ℤ))) := by
-    intro k
-    ext c
-    show (2 : ℤ_[2]) ^ (s + k) ∣ f c - (ξ : ℤ_[2]) ↔ _
-    rw [Set.mem_preimage, Metric.mem_closedBall, dist_eq_norm,
-      PadicInt.norm_le_pow_iff_mem_span_pow, Ideal.mem_span_singleton]
-    norm_cast
-  have hclosed : ∀ k, IsClosed (A k) := fun k ↦ by
-    rw [hball k]; exact Metric.isClosed_closedBall.preimage hcont
-  have hne : ∀ k, (A k).Nonempty := by
-    intro k
-    obtain ⟨n, hn⟩ := pivot_exists_nat_pow_sub_dvd η a s hs hη hξ k
-    refine ⟨(n : ℤ_[2]), ?_⟩
-    have hpow : f ((n : ℕ) : ℤ_[2]) = ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) :=
-      congrArg Units.val (zpowZtwo_natCast isProP_two_unitsPadicInt η n)
-    show (2 : ℤ_[2]) ^ (s + k) ∣ f ((n : ℕ) : ℤ_[2]) - (ξ : ℤ_[2])
-    rw [hpow]
-    exact hn
-  have hmono : ∀ k, A (k + 1) ⊆ A k := fun k c hc ↦
-    dvd_trans (pow_dvd_pow (2 : ℤ_[2]) (by omega)) hc
-  obtain ⟨c, hc⟩ := IsCompact.nonempty_iInter_of_sequence_nonempty_isCompact_isClosed A hmono
-    hne (hclosed 0).isCompact hclosed
-  rw [Set.mem_iInter] at hc
-  refine ⟨c, Units.ext ?_⟩
-  have hzero : f c - (ξ : ℤ_[2]) = 0 := by
-    refine PadicInt.ext_of_toZModPow.mp fun m ↦ ?_
-    have hdvd : (2 : ℤ_[2]) ^ m ∣ f c - (ξ : ℤ_[2]) :=
-      dvd_trans (pow_dvd_pow (2 : ℤ_[2]) (by omega)) (hc m)
-    rw [map_zero, ← RingHom.mem_ker, PadicInt.ker_toZModPow, Ideal.mem_span_singleton]
-    exact hdvd
-  exact sub_eq_zero.mp hzero
+    ∃ c : ℤ_[2], zpowZtwo isProP_two_unitsPadicInt η c = ξ :=
+  GQ2.exists_zpowZtwo_eq_of_level η a s hs hη hξ
 
 /-! ### §6.2 From `zpowZtwo` to the topological closure -/
 
 /-- **The missing bridge.**  A `2`-adic power of `η` lies in the closed subgroup generated by
 `η`: the exponent map is continuous and `ℕ` is dense in `ℤ₂`, so every `2`-adic power is a
-limit of honest integer powers. -/
+limit of honest integer powers.  W52-BATCH: the canonical form is stated for an arbitrary
+pro-2 group as `GQ2.zpowZtwo_mem_topologicalClosure` (`GQ2/ZtwoPowering.lean`, beside the
+`zpowZtwo` calculus it uses); this declaration is its `ℤ₂ˣ` specialization, proof-rewired onto
+it, statement unchanged. -/
 theorem mem_topologicalClosure_of_zpowZtwo (η : ℤ_[2]ˣ) (c : ℤ_[2]) :
     zpowZtwo isProP_two_unitsPadicInt η c ∈
-      (Subgroup.closure ({η} : Set ℤ_[2]ˣ)).topologicalClosure := by
-  have hgen : η ∈ Subgroup.closure ({η} : Set ℤ_[2]ˣ) := Subgroup.subset_closure (by simp)
-  refine PadicInt.denseRange_natCast.induction_on c ?_ ?_
-  · exact (Subgroup.isClosed_topologicalClosure _).preimage
-      (continuous_zpowZtwo isProP_two_unitsPadicInt η)
-  · intro m
-    rw [zpowZtwo_natCast]
-    exact Subgroup.le_topologicalClosure _ (pow_mem hgen m)
+      (Subgroup.closure ({η} : Set ℤ_[2]ˣ)).topologicalClosure :=
+  GQ2.zpowZtwo_mem_topologicalClosure isProP_two_unitsPadicInt η c
 
 /-! ### §6.3 The `M`-branch image contains the principal units at level `α` -/
 
@@ -633,21 +578,15 @@ open GQ2.Dyadic.MarkedCore (nUnit imChiN nUnit_sq_sub_one mUnit imChiM mUnit_sub
 /-- **Roots from the pivot, one level up.**  If `η` has exact level `L ≥ 2` then every
 `ξ ≡ 1 mod 2^(L+t)` is a `2^t`-th power of an element of the procyclic group generated by
 `η`: the element `η^(2^t)` has exact level `L + t` by telescoping, so the pivot lemma hits
-`ξ` with it, and `(η^(2^t))^c = (η^c)^(2^t)`. -/
+`ξ` with it, and `(η^(2^t))^c = (η^c)^(2^t)`.  W52-BATCH: the canonical form now lives beside
+the pivot lemma as `GQ2.exists_zpowZtwo_pow_eq_of_level`
+(`GQ2/Dyadic/SqCore/PivotLemma.lean`); this declaration is proof-rewired onto it, statement
+unchanged. -/
 theorem pivot_pow_surjective (η b : ℤ_[2]ˣ) (L : ℕ) (hL : 2 ≤ L)
     (hη : ((η : ℤ_[2])) - 1 = 2 ^ L * (b : ℤ_[2])) (t : ℕ) {ξ : ℤ_[2]ˣ}
     (hξ : (2 : ℤ_[2]) ^ (L + t) ∣ ((ξ : ℤ_[2])) - 1) :
-    ∃ c : ℤ_[2], (zpowZtwo isProP_two_unitsPadicInt η c) ^ 2 ^ t = ξ := by
-  obtain ⟨b', hb'⟩ := GQ2.Dyadic.MarkedCore.mExists_unit_pow_two_pow_sub_one η b L hL hη t
-  obtain ⟨c, hc⟩ := pivot_exists_zpowZtwo_eq (η ^ 2 ^ t) b' (L + t) (by omega)
-    (by rw [show L + t = t + L by omega]; exact hb') hξ
-  refine ⟨c, ?_⟩
-  rw [← hc, ← zpowZtwo_natCast isProP_two_unitsPadicInt η (2 ^ t),
-    ← zpowZtwo_natCast isProP_two_unitsPadicInt
-      (zpowZtwo isProP_two_unitsPadicInt η c) (2 ^ t),
-    zpowZtwo_zpowZtwo, zpowZtwo_zpowZtwo]
-  congr 1
-  ring
+    ∃ c : ℤ_[2], (zpowZtwo isProP_two_unitsPadicInt η c) ^ 2 ^ t = ξ :=
+  GQ2.exists_zpowZtwo_pow_eq_of_level η b L hL hη t hξ
 
 /-- The `N` generator squared has exact level `α + 1`, so `nUnit α ^ 2^(m-1)` has exact level
 `α + m - 1`, and every `ξ ≡ 1 mod 2^(m+α-1)` is a `2^(m-1)`-th power inside `imChiN α`.  The

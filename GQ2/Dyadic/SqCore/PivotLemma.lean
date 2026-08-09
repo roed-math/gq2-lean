@@ -109,16 +109,21 @@ theorem two_dvd_add_of_isUnit {x y : ℤ_[2]} (hx : IsUnit x) (hy : IsUnit y) :
   rw [hxy]
   exact dvd_add h dvd_rfl
 
-/-- **The approximation half** (digit induction): if `η − 1 = 4a` with `a` a unit — i.e.
-`v₂(η − 1) = 2` exactly — then every `ξ ∈ 1 + 4ℤ₂` is matched by a *natural* power of `η`
-modulo `2^{k+2}`, for every `k`.
+/-- **The approximation half at an arbitrary exact level `s ≥ 2`** (digit induction): if
+`η − 1 = 2^s·a` with `a` a unit then every `ξ ≡ 1 mod 2^s` is matched by a *natural* power of
+`η` modulo `2^{s+k}`, for every `k`.
 
-The step is the 2-adic digit step: `η^{2^k} = 1 + 2^{k+2}·(unit)`
-(`exists_unit_pow_two_pow_sub_one`), so multiplying by `η^{2^k}` changes the residue by exactly
-`2^{k+2}·(odd)`; if the current defect digit is odd, that move kills it. -/
-theorem exists_nat_pow_sub_dvd (η a : ℤ_[2]ˣ) (hη : ((η : ℤ_[2])) - 1 = 4 * (a : ℤ_[2]))
-    {ξ : ℤ_[2]} (hξ : (2 : ℤ_[2]) ^ 2 ∣ ξ - 1) (k : ℕ) :
-    ∃ n : ℕ, (2 : ℤ_[2]) ^ (k + 2) ∣ ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) - ξ := by
+The step is the 2-adic digit step: `η^{2^k} = 1 + 2^{k+s}·(unit)`
+(`exists_unit_pow_two_pow_sub_one_of_level`), so multiplying by `η^{2^k}` changes the residue
+by exactly `2^{k+s}·(odd)`; if the current defect digit is odd, that move kills it.
+
+Canonical general form; `exists_nat_pow_sub_dvd` is its `s = 2` case and
+`GQ2.Dyadic.EvenRowSupply.pivot_exists_nat_pow_sub_dvd` its even-lane restatement, both
+proof-rewired onto it. -/
+theorem exists_nat_pow_sub_dvd_of_level (η a : ℤ_[2]ˣ) (s : ℕ) (hs : 2 ≤ s)
+    (hη : ((η : ℤ_[2])) - 1 = 2 ^ s * (a : ℤ_[2]))
+    {ξ : ℤ_[2]} (hξ : (2 : ℤ_[2]) ^ s ∣ ξ - 1) (k : ℕ) :
+    ∃ n : ℕ, (2 : ℤ_[2]) ^ (s + k) ∣ ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) - ξ := by
   induction k with
   | zero =>
     obtain ⟨t, ht⟩ := hξ
@@ -130,40 +135,58 @@ theorem exists_nat_pow_sub_dvd (η a : ℤ_[2]ˣ) (hη : ((η : ℤ_[2])) - 1 = 
     by_cases hdiv : (2 : ℤ_[2]) ∣ d
     · obtain ⟨e, he⟩ := hdiv
       exact ⟨n, e, by rw [hd, he]; ring⟩
-    obtain ⟨u, hu⟩ := exists_unit_pow_two_pow_sub_one η a hη j
+    obtain ⟨u, hu⟩ := exists_unit_pow_two_pow_sub_one_of_level η a s hs hη j
     have hval : ((η ^ (n + 2 ^ j) : ℤ_[2]ˣ) : ℤ_[2])
         = ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) * ((η ^ 2 ^ j : ℤ_[2]ˣ) : ℤ_[2]) := by
       rw [pow_add, Units.val_mul]
     have hstep : ((η ^ (n + 2 ^ j) : ℤ_[2]ˣ) : ℤ_[2]) - ξ
-        = 2 ^ (j + 2) * (d + (u : ℤ_[2]) * ((η ^ n : ℤ_[2]ˣ) : ℤ_[2])) := by
+        = 2 ^ (s + j) * (d + (u : ℤ_[2]) * ((η ^ n : ℤ_[2]ˣ) : ℤ_[2])) := by
+      rw [show j + s = s + j by omega] at hu
       rw [hval]
       linear_combination hd + ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) * hu
     obtain ⟨e, he⟩ := two_dvd_add_of_isUnit (isUnit_of_not_two_dvd hdiv)
       (u.isUnit.mul (η ^ n).isUnit)
-    exact ⟨n + 2 ^ j, e, by rw [hstep, he]; ring⟩
+    exact ⟨n + 2 ^ j, e, by rw [show s + (j + 1) = s + j + 1 by omega, hstep, he]; ring⟩
 
-/-- **Procyclic surjectivity of `1 + 4ℤ₂`**: an element `η` of exact level two hits every
-`ξ ∈ 1 + 4ℤ₂` at some 2-adic exponent.
+/-- **The approximation half** (digit induction): if `η − 1 = 4a` with `a` a unit — i.e.
+`v₂(η − 1) = 2` exactly — then every `ξ ∈ 1 + 4ℤ₂` is matched by a *natural* power of `η`
+modulo `2^{k+2}`, for every `k`.
 
-*Proof.*  The approximation sets `A k = {c | 2^{k+2} ∣ η^c − ξ}` are closed (the map
+The step is the 2-adic digit step: `η^{2^k} = 1 + 2^{k+2}·(unit)`
+(`exists_unit_pow_two_pow_sub_one`), so multiplying by `η^{2^k}` changes the residue by exactly
+`2^{k+2}·(odd)`; if the current defect digit is odd, that move kills it. -/
+theorem exists_nat_pow_sub_dvd (η a : ℤ_[2]ˣ) (hη : ((η : ℤ_[2])) - 1 = 4 * (a : ℤ_[2]))
+    {ξ : ℤ_[2]} (hξ : (2 : ℤ_[2]) ^ 2 ∣ ξ - 1) (k : ℕ) :
+    ∃ n : ℕ, (2 : ℤ_[2]) ^ (k + 2) ∣ ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) - ξ := by
+  rw [show k + 2 = 2 + k by omega]
+  exact exists_nat_pow_sub_dvd_of_level η a 2 le_rfl (by rw [hη]; norm_num) hξ k
+
+/-- **Procyclic surjectivity at exact level `s`**: an element `η` with `η − 1 = 2^s·(unit)`,
+`s ≥ 2`, hits every `ξ ≡ 1 mod 2^s` at some 2-adic exponent.
+
+*Proof.*  The approximation sets `A k = {c | 2^{s+k} ∣ η^c − ξ}` are closed (the map
 `c ↦ η^c` is continuous and the divisibility condition is a closed ball), decreasing, and
-nonempty by `exists_nat_pow_sub_dvd` — the integer exponents witnessing the congruences.  `ℤ₂`
-is compact, so Cantor's intersection theorem gives a common exponent `c`, and an element
-divisible by every `2^n` is zero. -/
-theorem exists_zpowZtwo_eq_of_exact_level (η a : ℤ_[2]ˣ)
-    (hη : ((η : ℤ_[2])) - 1 = 4 * (a : ℤ_[2])) {ξ : ℤ_[2]ˣ}
-    (hξ : (2 : ℤ_[2]) ^ 2 ∣ ((ξ : ℤ_[2])) - 1) :
+nonempty by `exists_nat_pow_sub_dvd_of_level` — the integer exponents witnessing the
+congruences.  `ℤ₂` is compact, so Cantor's intersection theorem gives a common exponent `c`,
+and an element divisible by every `2^n` is zero.
+
+Canonical general form; `exists_zpowZtwo_eq_of_exact_level` is its `s = 2` case and
+`GQ2.Dyadic.EvenRowSupply.pivot_exists_zpowZtwo_eq` its even-lane restatement, both
+proof-rewired onto it. -/
+theorem exists_zpowZtwo_eq_of_level (η a : ℤ_[2]ˣ) (s : ℕ) (hs : 2 ≤ s)
+    (hη : ((η : ℤ_[2])) - 1 = 2 ^ s * (a : ℤ_[2])) {ξ : ℤ_[2]ˣ}
+    (hξ : (2 : ℤ_[2]) ^ s ∣ ((ξ : ℤ_[2])) - 1) :
     ∃ c : ℤ_[2], zpowZtwo isProP_two_unitsPadicInt η c = ξ := by
   set f : ℤ_[2] → ℤ_[2] :=
     fun c => ((zpowZtwo isProP_two_unitsPadicInt η c : ℤ_[2]ˣ) : ℤ_[2]) with hf
   have hcont : Continuous f :=
     Units.continuous_val.comp (continuous_zpowZtwo isProP_two_unitsPadicInt η)
-  set A : ℕ → Set ℤ_[2] := fun k => {c | (2 : ℤ_[2]) ^ (k + 2) ∣ f c - (ξ : ℤ_[2])} with hA
+  set A : ℕ → Set ℤ_[2] := fun k => {c | (2 : ℤ_[2]) ^ (s + k) ∣ f c - (ξ : ℤ_[2])} with hA
   have hball : ∀ k, A k = f ⁻¹' Metric.closedBall ((ξ : ℤ_[2]))
-      (((2 : ℕ) : ℝ) ^ (-((k + 2 : ℕ) : ℤ))) := by
+      (((2 : ℕ) : ℝ) ^ (-((s + k : ℕ) : ℤ))) := by
     intro k
     ext c
-    show (2 : ℤ_[2]) ^ (k + 2) ∣ f c - (ξ : ℤ_[2]) ↔ _
+    show (2 : ℤ_[2]) ^ (s + k) ∣ f c - (ξ : ℤ_[2]) ↔ _
     rw [Set.mem_preimage, Metric.mem_closedBall, dist_eq_norm,
       PadicInt.norm_le_pow_iff_mem_span_pow, Ideal.mem_span_singleton]
     norm_cast
@@ -171,11 +194,11 @@ theorem exists_zpowZtwo_eq_of_exact_level (η a : ℤ_[2]ˣ)
     rw [hball k]; exact Metric.isClosed_closedBall.preimage hcont
   have hne : ∀ k, (A k).Nonempty := by
     intro k
-    obtain ⟨n, hn⟩ := exists_nat_pow_sub_dvd η a hη hξ k
+    obtain ⟨n, hn⟩ := exists_nat_pow_sub_dvd_of_level η a s hs hη hξ k
     refine ⟨(n : ℤ_[2]), ?_⟩
     have hpow : f ((n : ℕ) : ℤ_[2]) = ((η ^ n : ℤ_[2]ˣ) : ℤ_[2]) :=
       congrArg Units.val (zpowZtwo_natCast isProP_two_unitsPadicInt η n)
-    show (2 : ℤ_[2]) ^ (k + 2) ∣ f ((n : ℕ) : ℤ_[2]) - (ξ : ℤ_[2])
+    show (2 : ℤ_[2]) ^ (s + k) ∣ f ((n : ℕ) : ℤ_[2]) - (ξ : ℤ_[2])
     rw [hpow]
     exact hn
   have hmono : ∀ k, A (k + 1) ⊆ A k := by
@@ -192,6 +215,42 @@ theorem exists_zpowZtwo_eq_of_exact_level (η a : ℤ_[2]ˣ)
     rw [map_zero, ← RingHom.mem_ker, PadicInt.ker_toZModPow, Ideal.mem_span_singleton]
     exact hdvd
   exact sub_eq_zero.mp hzero
+
+/-- **Roots from the pivot, one level up.**  If `η` has exact level `L ≥ 2` then every
+`ξ ≡ 1 mod 2^{L+t}` is a `2^t`-th power of an element of the procyclic group generated by `η`:
+the element `η^{2^t}` has exact level `L + t` by telescoping, so the pivot lemma hits `ξ` with
+it, and `(η^{2^t})^c = (η^c)^{2^t}`.
+
+Canonical general form; `GQ2.Dyadic.EvenRowSupply.pivot_pow_surjective` is proof-rewired onto
+it.  There is no committed level-two original. -/
+theorem exists_zpowZtwo_pow_eq_of_level (η b : ℤ_[2]ˣ) (L : ℕ) (hL : 2 ≤ L)
+    (hη : ((η : ℤ_[2])) - 1 = 2 ^ L * (b : ℤ_[2])) (t : ℕ) {ξ : ℤ_[2]ˣ}
+    (hξ : (2 : ℤ_[2]) ^ (L + t) ∣ ((ξ : ℤ_[2])) - 1) :
+    ∃ c : ℤ_[2], (zpowZtwo isProP_two_unitsPadicInt η c) ^ 2 ^ t = ξ := by
+  obtain ⟨b', hb'⟩ := exists_unit_pow_two_pow_sub_one_of_level η b L hL hη t
+  obtain ⟨c, hc⟩ := exists_zpowZtwo_eq_of_level (η ^ 2 ^ t) b' (L + t) (by omega)
+    (by rw [show L + t = t + L by omega]; exact hb') hξ
+  refine ⟨c, ?_⟩
+  rw [← hc, ← zpowZtwo_natCast isProP_two_unitsPadicInt η (2 ^ t),
+    ← zpowZtwo_natCast isProP_two_unitsPadicInt
+      (zpowZtwo isProP_two_unitsPadicInt η c) (2 ^ t),
+    zpowZtwo_zpowZtwo, zpowZtwo_zpowZtwo]
+  congr 1
+  ring
+
+/-- **Procyclic surjectivity of `1 + 4ℤ₂`**: an element `η` of exact level two hits every
+`ξ ∈ 1 + 4ℤ₂` at some 2-adic exponent.
+
+*Proof.*  The approximation sets `A k = {c | 2^{k+2} ∣ η^c − ξ}` are closed (the map
+`c ↦ η^c` is continuous and the divisibility condition is a closed ball), decreasing, and
+nonempty by `exists_nat_pow_sub_dvd` — the integer exponents witnessing the congruences.  `ℤ₂`
+is compact, so Cantor's intersection theorem gives a common exponent `c`, and an element
+divisible by every `2^n` is zero. -/
+theorem exists_zpowZtwo_eq_of_exact_level (η a : ℤ_[2]ˣ)
+    (hη : ((η : ℤ_[2])) - 1 = 4 * (a : ℤ_[2])) {ξ : ℤ_[2]ˣ}
+    (hξ : (2 : ℤ_[2]) ^ 2 ∣ ((ξ : ℤ_[2])) - 1) :
+    ∃ c : ℤ_[2], zpowZtwo isProP_two_unitsPadicInt η c = ξ :=
+  exists_zpowZtwo_eq_of_level η a 2 le_rfl (by rw [hη]; norm_num) hξ
 
 /-- **No unit of exact level two is a square**: `y² − 1 = 4·t(t+1)` with `t(t+1)` always even,
 so a square unit satisfies `v₂(· − 1) ≥ 3` — the classical "odd squares are `1 mod 8`". -/
