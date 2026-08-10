@@ -141,7 +141,7 @@ committed statements should migrate:
 committed                                     carries now                on the sharp line
 GradedFiveForce.fiveWit_sigma_forced          v.c even, and all three    z₀.m even, z₄.n even,
                                               moves achievable           z₃ arbitrary
-  ->  fiveWit_sigma_forced_sharp
+  ->  fiveWit_sigma_forced_of_columns
 
 GradedFiveForce.sqRelWord_fiveWit_diag_ne_one same, at v = forceX        same
   ->  fiveWit_diag_ne_one_sharp
@@ -1236,8 +1236,17 @@ dressing `v`, a five-slot class-five refinement that kills leaves an even class-
 soon as the sigma move's FIRST class-four coordinate and the handle-`V` move's SECOND one are
 even.  The handle-`U` move is arbitrary; the even-`(3,4)`-column hypothesis `hv` of
 `GradedFiveForce.fiveWit_sigma_forced` is gone, and so is achievability in all three slots.
-This is the migration the campaign should make. -/
-theorem fiveWit_sigma_forced_sharp {v z₀ w₁ w₂ z₃ z₄ : SqU6 gr3R} {a b : gr3R}
+This is the migration the campaign should make.
+
+Naming, recorded at merge: the SHARPER companion of this statement, taking only the SUM
+`z0.m + z4.n` even rather than both columns separately, is `fiveWit_sigma_forced_sharp` in
+`SqCore/GradedFiveFrame.lean`.  Both landed in wave 60 from sibling lanes that did not import
+each other and both were originally called `fiveWit_sigma_forced_sharp`; this one was renamed
+at merge.  The frame file's version is the stronger theorem and should be preferred; this one
+is kept because the pairing machinery of this file produces it directly and because the
+characterisation `fiveForces_iff_fiveOrth` below is stated against this file's `fiveIncrPair`,
+of which the sum condition is the specialisation at the binder point. -/
+theorem fiveWit_sigma_forced_of_columns {v z₀ w₁ w₂ z₃ z₄ : SqU6 gr3R} {a b : gr3R}
     (hz₀ : z₀.IsGaFour) (h₀ : z₀.m = 2 * a) (hw₁ : w₁.IsGaFive) (hw₂ : w₂.IsGaFive)
     (hz₃ : z₃.IsGaFour) (hz₄ : z₄.IsGaFour) (h₄ : z₄.n = 2 * b)
     (hkill : sqRelWord (fiveLift j (fiveWit h j v) z₀ w₁ w₂ z₃ z₄) = 1) :
@@ -1407,7 +1416,7 @@ section AxiomPins
 #print axioms fiveWit_diag_ne_one_sharp
 #print axioms sqRelWord_fiveWit_diag_ne_one_of_sharp
 #print axioms liveFive_covectors
-#print axioms fiveWit_sigma_forced_sharp
+#print axioms fiveWit_sigma_forced_of_columns
 #print axioms fiveWit_fiveForces_of_le_forceN1
 #print axioms fiveWit_diag_kill_iff
 #print axioms fiveWit_gaThree_kill_pair_odd
