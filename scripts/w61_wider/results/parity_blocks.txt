@@ -1,0 +1,16 @@
+============================================================================================
+== block-by-block evenness of the class-five row ==
+   gaTwoQuadO                   : EVEN (52 terms, half has 52)
+   gaTwoCorrO                   : EVEN (276 terms, half has 276)
+   gaTwoPairO - channel         : EVEN (15 terms, half has 15)
+   gaTwoPairJ                   : EVEN (2 terms, half has 2)
+   gaTwoHandle.o - channels     : EVEN (84 terms, half has 84)
+   gaTwoHandle.j                : EVEN (4 terms, half has 4)
+   gaTwoHandleX                 : EVEN (16 terms, half has 16)
+
+============================================================================================
+== the class-four rows, for the record ==
+   gaTwoQuadM                   : EVEN (5 terms, half has 5)
+   gaTwoQuadN                   : NOT EVEN, 3 odd terms: z0_g * z1_i + -1 * z0_i * z1_g + z2_g * z2_i
+
+witnesses written to results/witnesses.txt

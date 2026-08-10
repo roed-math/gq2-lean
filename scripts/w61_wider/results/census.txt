@@ -1,0 +1,33 @@
+============================================================================================
+== 1. the pairwise commutators of the point's letters: achievable gamma_2-dressings ==
+   [U,V]        = <g=6, h=6, l=6, m=5, o=6>                       f,h,j = 0,0,0   i,l,m = 0,0,1
+   [sigma,U]    = <f=2, g=4, k=5, m=2>                            f,h,j = 0,0,0   i,l,m = 0,0,0
+   [sigma,V]    = <f=2, g=6, j=4, k=3, m=6>                       f,h,j = 0,0,0   i,l,m = 0,0,0
+   [sigma,x0]   = <f=6>                                           f,h,j = 0,0,0   i,l,m = 0,0,0
+   [sigma,x1]   = <k=1>                                           f,h,j = 0,0,0   i,l,m = 0,0,0
+   [x0,U]       = <f=6, i=3, j=2, l=3, n=4>                       f,h,j = 0,0,0   i,l,m = 1,1,0
+   [x0,V]       = <f=6, i=3, j=6, l=7, n=6, o=5>                  f,h,j = 0,0,0   i,l,m = 1,1,0
+   [x0,x1]      = <j=2, l=3, o=4>                                 f,h,j = 0,0,0   i,l,m = 0,1,0
+   [x1,U]       = <i=6, j=6, k=2, l=1, m=1, n=5, o=4>             f,h,j = 0,0,0   i,l,m = 0,1,1
+   [x1,V]       = <i=6, k=2, l=1, m=2, n=5, o=7>                  f,h,j = 0,0,0   i,l,m = 0,1,0
+
+   wave 60's stageN2 (f, h, j all even) holds for every one: True
+
+============================================================================================
+== 2. the three-channel functional on these generators ==
+   [U,V]        : channel parity per slot (sigma,x0,x1,U,V) = [1, 0, 0, 1, 1]
+   [sigma,U]    : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 0, 0, 0]
+   [sigma,V]    : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 0, 0, 0]
+   [sigma,x0]   : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 0, 0, 0]
+   [sigma,x1]   : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 0, 0, 0]
+   [x0,U]       : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 1, 1, 0]
+   [x0,V]       : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 1, 1, 0]
+   [x0,x1]      : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 1, 1, 0]
+   [x1,U]       : channel parity per slot (sigma,x0,x1,U,V) = [1, 0, 1, 0, 1]
+   [x1,V]       : channel parity per slot (sigma,x0,x1,U,V) = [0, 0, 1, 1, 0]
+
+   the functional is LIVE on the achievable lattice: True (6 of 10 generators)
+
+============================================================================================
+== 3. do any of these single-slot moves kill the dressed frame? ==
+   total kills among the 10 generators and their powers, five slots: 0

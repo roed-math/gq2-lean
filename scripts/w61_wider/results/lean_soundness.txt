@@ -1,0 +1,231 @@
+/-- ⭐⭐⭐ **THE HEADLINE: the class-five quadratic block is EVEN on the achievable
+lattice.**  At a marking whose slots have even `(1,2)`- and `(3,4)`-columns, and for dressings
+in the honest `gamma_2` of the image (which `GradedFiveStageFour.stageN2_of_commutator` puts
+inside `f`, `h`, `j` all even), every one of the fifty-two terms of `SqU6.gaTwoQuadO` is even.
+So the `gamma_2` transport at class five is **affine mod two**, exactly as wave 54 found one
+class down, and the difficulty the campaign had been anticipating collapses.  ⚠ The class-four
+RIGHT row does not share this: `SqU6.gaTwoQuadN` is generically odd there
+(`scripts/w61_wider/results/parity_blocks.txt`). -/
+theorem SqU6.gaTwoQuadO_even {R : Type} [CommRing R] {s x y z₀ z₁ z₂ : SqU6 R}
+    (hsa : (2 : R) ∣ s.a) (hsc : (2 : R) ∣ s.c) (hxa : (2 : R) ∣ x.a) (hxc : (2 : R) ∣ x.c)
+    (hya : (2 : R) ∣ y.a) (hyc : (2 : R) ∣ y.c) (h0f : (2 : R) ∣ z₀.f) (h0h : (2 : R) ∣ z₀.h)
+    (h0j : (2 : R) ∣ z₀.j) (h1f : (2 : R) ∣ z₁.f) (h1h : (2 : R) ∣ z₁.h) (h1j : (2 : R) ∣ z₁.j)
+    (h2f : (2 : R) ∣ z₂.f) (h2h : (2 : R) ∣ z₂.h) (h2j : (2 : R) ∣ z₂.j) :
+    (2 : R) ∣ SqU6.gaTwoQuadO s x y z₀ z₁ z₂ := by
+  obtain ⟨sa, hsa⟩ := hsa
+  obtain ⟨sc, hsc⟩ := hsc
+  obtain ⟨xa, hxa⟩ := hxa
+  obtain ⟨xc, hxc⟩ := hxc
+  obtain ⟨ya, hya⟩ := hya
+  obtain ⟨yc, hyc⟩ := hyc
+  obtain ⟨zf0, h0f⟩ := h0f
+  obtain ⟨zh0, h0h⟩ := h0h
+  obtain ⟨zj0, h0j⟩ := h0j
+  obtain ⟨zf1, h1f⟩ := h1f
+  obtain ⟨zh1, h1h⟩ := h1h
+  obtain ⟨zj1, h1j⟩ := h1j
+  obtain ⟨zf2, h2f⟩ := h2f
+  obtain ⟨zh2, h2h⟩ := h2h
+  obtain ⟨zj2, h2j⟩ := h2j
+  refine ⟨-z₀.i * zj1 - z₀.l * zf1 + z₁.i * zj0 + 10 * z₁.i * zj1 + z₁.l * zf0 + 10 * z₁.l * zf1
+    - 8 * z₂.i * zj1 + z₂.i * zj2 - 8 * z₂.l * zf1 + z₂.l * zf2 + 2 * s.e * zf0 * zh1
+    + 2 * s.e * zf2 * zh2 + sa * z₀.i * z₁.g - 4 * sa * z₁.g * z₁.i + 2 * sa * z₁.g * z₂.i
+    + sa * z₂.g * z₂.i - 2 * sc * z₀.i * zf1 - 2 * sc * z₁.i * zf0 + 8 * sc * z₁.i * zf1
+    - 4 * sc * z₂.i * zf1 - 4 * sc * z₂.i * zf2 - 8 * x.e * zf0 * zh1 + 6 * x.e * zf1 * zh0
+    - 20 * x.e * zf1 * zh1 + 7 * xa * z₀.g * z₁.i - 2 * xa * z₀.g * z₂.i
+    - 4 * xa * z₀.i * z₁.g + 30 * xa * z₁.g * z₁.i - 20 * xa * z₁.g * z₂.i
+    + 2 * xc * z₀.i * zf1 - 6 * xc * z₁.i * zf0 - 40 * xc * z₁.i * zf1 + 4 * xc * z₂.i * zf0
+    + 40 * xc * z₂.i * zf1 + 4 * y.e * zf0 * zh1 + 2 * y.e * zf0 * zh2 - 4 * y.e * zf1 * zh0
+    + 24 * y.e * zf1 * zh1 - 8 * y.e * zf1 * zh2 - 4 * y.e * zf2 * zh0 + 2 * y.e * zf2 * zh2
+    - 2 * ya * z₀.g * z₁.i - 2 * ya * z₀.g * z₂.i + 2 * ya * z₀.i * z₁.g + ya * z₀.i * z₂.g
+    - 20 * ya * z₁.g * z₁.i + 16 * ya * z₁.g * z₂.i - ya * z₂.g * z₂.i + 2 * yc * z₀.i * zf2
+    + 16 * yc * z₁.i * zf1 + 2 * yc * z₂.i * zf0 - 24 * yc * z₂.i * zf1, ?_⟩
+  rw [SqU6.gaTwoQuadO, hsa, hsc, hxa, hxc, hya, hyc, h0f, h0h, h0j, h1f, h1h, h1j, h2f, h2h,
+    h2j]
+  ring
+
+/-- ⭐⭐ **The class-five correction block is even on the achievable lattice.**  Nine of
+its twenty-one coefficient blocks are killed by the dressing's even `f`, `h`, `j`; the other
+twelve have every monomial carrying a frame `(1,2)`- or `(3,4)`-column. -/
+theorem SqU6.gaTwoCorrO_even {R : Type} [CommRing R] {s x y z₀ z₁ z₂ : SqU6 R}
+    (hsa : (2 : R) ∣ s.a) (hsc : (2 : R) ∣ s.c) (hxa : (2 : R) ∣ x.a) (hxc : (2 : R) ∣ x.c)
+    (hya : (2 : R) ∣ y.a) (hyc : (2 : R) ∣ y.c) (h0f : (2 : R) ∣ z₀.f) (h0h : (2 : R) ∣ z₀.h)
+    (h0j : (2 : R) ∣ z₀.j) (h1f : (2 : R) ∣ z₁.f) (h1h : (2 : R) ∣ z₁.h) (h1j : (2 : R) ∣ z₁.j)
+    (h2f : (2 : R) ∣ z₂.f) (h2h : (2 : R) ∣ z₂.h) (h2j : (2 : R) ∣ z₂.j) :
+    (2 : R) ∣ SqU6.gaTwoCorrO s x y z₀ z₁ z₂ := by
+  obtain ⟨sa, hsa⟩ := hsa
+  obtain ⟨sc, hsc⟩ := hsc
+  obtain ⟨xa, hxa⟩ := hxa
+  obtain ⟨xc, hxc⟩ := hxc
+  obtain ⟨ya, hya⟩ := hya
+  obtain ⟨yc, hyc⟩ := hyc
+  obtain ⟨zf0, h0f⟩ := h0f
+  obtain ⟨zh0, h0h⟩ := h0h
+  obtain ⟨zj0, h0j⟩ := h0j
+  obtain ⟨zf1, h1f⟩ := h1f
+  obtain ⟨zh1, h1h⟩ := h1h
+  obtain ⟨zj1, h1j⟩ := h1j
+  obtain ⟨zf2, h2f⟩ := h2f
+  obtain ⟨zh2, h2h⟩ := h2h
+  obtain ⟨zj2, h2j⟩ := h2j
+  refine ⟨-2 * s.b * sa * z₁.l - s.b * xa * z₀.l + 13 * s.b * xa * z₁.l - 10 * s.b * ya * z₁.l
+    - 2 * s.b * ya * z₂.l - s.d * x.e * zj0 + 3 * s.d * x.e * zj1 - 2 * s.d * y.e * zj1
+    - 2 * s.d * y.e * zj2 + 2 * s.e * s.f * zh1 + 2 * s.e * sa * z₁.k + s.e * x.d * zj0
+    + s.e * x.d * zj1 - 14 * s.e * x.f * zh1 + s.e * x.h * zf0 + s.e * x.h * zf1
+    - 14 * s.e * xa * z₁.k + s.e * y.d * zj2 + 10 * s.e * y.f * zh1 + s.e * y.f * zh2
+    + s.e * y.h * zf2 + 10 * s.e * ya * z₁.k + s.e * ya * z₂.k - 2 * s.f * sc * z₁.i
+    - 14 * s.f * x.e * zh1 + s.f * xc * z₀.i + 11 * s.f * xc * z₁.i + 10 * s.f * y.e * zh1
+    + s.f * y.e * zh2 - 8 * s.f * yc * z₁.i + s.f * yc * z₂.i - 2 * s.g * sa * z₁.i
+    - s.g * xa * z₀.i + 13 * s.g * xa * z₁.i - 10 * s.g * ya * z₁.i - 2 * s.g * ya * z₂.i
+    - s.h * x.e * zf0 + 3 * s.h * x.e * zf1 - 2 * s.h * y.e * zf1 - 2 * s.h * y.e * zf2
+    + 2 * s.i * sa * z₁.g - 14 * s.i * xa * z₁.g + 2 * s.i * xc * zf0 + 2 * s.i * xc * zf1
+    + 10 * s.i * ya * z₁.g + s.i * ya * z₂.g + 2 * s.i * yc * zf2 + sa * x.b * z₀.l
+    + 11 * sa * x.b * z₁.l - 14 * sa * x.e * z₁.k + sa * x.g * z₀.i + 11 * sa * x.g * z₁.i
+    - 14 * sa * x.i * z₁.g - 8 * sa * y.b * z₁.l + sa * y.b * z₂.l + 10 * sa * y.e * z₁.k
+    + sa * y.e * z₂.k - 8 * sa * y.g * z₁.i + sa * y.g * z₂.i + 10 * sa * y.i * z₁.g
+    + sa * y.i * z₂.g - sc * x.f * z₀.i + 13 * sc * x.f * z₁.i - 2 * sc * x.i * zf0
+    + 6 * sc * x.i * zf1 - 10 * sc * y.f * z₁.i - 2 * sc * y.f * z₂.i - 4 * sc * y.i * zf1
+    - 4 * sc * y.i * zf2 - 4 * x.b * xa * z₀.l - 110 * x.b * xa * z₁.l + 2 * x.b * ya * z₀.l
+    + 100 * x.b * ya * z₁.l - 4 * x.d * x.e * zj0 - 20 * x.d * x.e * zj1
+    + 2 * x.d * y.e * zj0 + 20 * x.d * y.e * zj1 + 8 * x.e * x.f * zh0
+    + 130 * x.e * x.f * zh1 - 4 * x.e * x.h * zf0 - 20 * x.e * x.h * zf1
+    + 8 * x.e * xa * z₀.k + 130 * x.e * xa * z₁.k - 2 * x.e * y.f * zh0
+    - 100 * x.e * y.f * zh1 - 2 * x.e * ya * z₀.k - 100 * x.e * ya * z₁.k
+    - 4 * x.f * xc * z₀.i - 110 * x.f * xc * z₁.i - 2 * x.f * y.e * zh0
+    - 100 * x.f * y.e * zh1 + 80 * x.f * yc * z₁.i - 4 * x.g * xa * z₀.i
+    - 110 * x.g * xa * z₁.i + 2 * x.g * ya * z₀.i + 100 * x.g * ya * z₁.i
+    + 2 * x.h * y.e * zf0 + 20 * x.h * y.e * zf1 + 8 * x.i * xa * z₀.g
+    + 130 * x.i * xa * z₁.g - 8 * x.i * xc * zf0 - 40 * x.i * xc * zf1 - 2 * x.i * ya * z₀.g
+    - 100 * x.i * ya * z₁.g + 80 * xa * y.b * z₁.l - 2 * xa * y.e * z₀.k
+    - 100 * xa * y.e * z₁.k + 80 * xa * y.g * z₁.i - 2 * xa * y.i * z₀.g
+    - 100 * xa * y.i * z₁.g + 2 * xc * y.f * z₀.i + 100 * xc * y.f * z₁.i
+    + 4 * xc * y.i * zf0 + 40 * xc * y.i * zf1 + y.b * ya * z₀.l - 76 * y.b * ya * z₁.l
+    + y.d * y.e * zj0 - 4 * y.d * y.e * zj1 - 2 * y.e * y.f * zh0 + 80 * y.e * y.f * zh1
+    + y.e * y.h * zf0 - 4 * y.e * y.h * zf1 - 2 * y.e * ya * z₀.k + 80 * y.e * ya * z₁.k
+    + y.f * yc * z₀.i - 76 * y.f * yc * z₁.i + y.g * ya * z₀.i - 76 * y.g * ya * z₁.i
+    - 2 * y.i * ya * z₀.g + 80 * y.i * ya * z₁.g + 2 * y.i * yc * zf0 - 8 * y.i * yc * zf1
+    - 14 * s.b * s.e * xa * zh1 + 12 * s.b * s.e * ya * zh1 - 2 * s.b * s.e * ya * zh2
+    - 12 * s.b * sa * x.e * zh1 - 2 * s.b * sa * xc * z₀.i + 18 * s.b * sa * xc * z₁.i
+    + 12 * s.b * sa * y.e * zh1 - 2 * s.b * sa * y.e * zh2 - 16 * s.b * sa * yc * z₁.i
+    - 2 * s.b * sa * yc * z₂.i + 14 * s.b * sc * xa * z₁.i - 12 * s.b * sc * ya * z₁.i
+    + 2 * s.b * sc * ya * z₂.i + 8 * s.b * x.e * xa * zh0 + 176 * s.b * x.e * xa * zh1
+    - 144 * s.b * x.e * ya * zh1 + 6 * s.b * xa * xc * z₀.i - 194 * s.b * xa * xc * z₁.i
+    - 4 * s.b * xa * y.e * zh0 - 148 * s.b * xa * y.e * zh1 + 160 * s.b * xa * yc * z₁.i
+    - 4 * s.b * xc * ya * z₀.i + 156 * s.b * xc * ya * z₁.i - 2 * s.b * y.e * ya * zh0
+    + 120 * s.b * y.e * ya * zh1 - 4 * s.b * y.e * ya * zh2 - 2 * s.b * ya * yc * z₀.i
+    - 144 * s.b * ya * yc * z₁.i - 3 * s.d * sa * x.e * z₁.g + 2 * s.d * sa * y.e * z₁.g
+    + s.d * sa * y.e * z₂.g + 2 * s.d * sc * x.e * zf0 + 2 * s.d * sc * y.e * zf2
+    - 4 * s.d * x.e * xa * z₀.g + 12 * s.d * x.e * xa * z₁.g - 6 * s.d * x.e * xc * zf0
+    - 6 * s.d * x.e * xc * zf1 + 2 * s.d * x.e * ya * z₀.g - 6 * s.d * x.e * ya * z₁.g
+    - 8 * s.d * xa * y.e * z₁.g + 4 * s.d * xc * y.e * zf0 + 4 * s.d * xc * y.e * zf1
+    + s.d * y.e * ya * z₀.g + 4 * s.d * y.e * ya * z₁.g + 2 * s.d * y.e * ya * z₂.g
+    + 2 * s.d * y.e * yc * zf0 + 16 * s.d * y.e * yc * zf1 - 18 * s.e * sa * x.b * zh1
+    - s.e * sa * x.d * z₁.g + 16 * s.e * sa * y.b * zh1 - 2 * s.e * sc * x.d * zf0
+    - 2 * s.e * sc * y.d * zf2 + 188 * s.e * x.b * xa * zh1 - 144 * s.e * x.b * ya * zh1
+    + 4 * s.e * x.d * xa * z₀.g + 4 * s.e * x.d * xa * z₁.g - 2 * s.e * x.d * xc * zf0
+    - 2 * s.e * x.d * xc * zf1 - 2 * s.e * x.d * ya * z₀.g - 2 * s.e * x.d * ya * z₁.g
+    - 160 * s.e * xa * y.b * zh1 + 122 * s.e * y.b * ya * zh1 - 2 * s.e * y.b * ya * zh2
+    - s.e * y.d * ya * z₀.g - s.e * y.d * ya * z₂.g - 8 * s.e * y.d * yc * zf1
+    + 2 * sa * sc * x.b * z₀.i + 20 * sa * sc * x.b * z₁.i - 16 * sa * sc * y.b * z₁.i
+    + 2 * sa * sc * y.b * z₂.i - 8 * sa * x.b * x.e * zh0 + 192 * sa * x.b * x.e * zh1
+    - 200 * sa * x.b * xc * z₁.i + 4 * sa * x.b * y.e * zh0 - 156 * sa * x.b * y.e * zh1
+    + 160 * sa * x.b * yc * z₁.i + 10 * sa * x.d * x.e * z₁.g - 8 * sa * x.d * y.e * z₁.g
+    - 160 * sa * x.e * y.b * zh1 + 160 * sa * xc * y.b * z₁.i + 2 * sa * y.b * y.e * zh0
+    + 128 * sa * y.b * y.e * zh1 + 2 * sa * y.b * y.e * zh2 - 120 * sa * y.b * yc * z₁.i
+    - 2 * sa * y.b * yc * z₂.i + sa * y.d * y.e * z₁.g - 6 * sc * x.b * xa * z₀.i
+    - 194 * sc * x.b * xa * z₁.i + 4 * sc * x.b * ya * z₀.i + 148 * sc * x.b * ya * z₁.i
+    + 8 * sc * x.d * x.e * zf0 - 12 * sc * x.d * x.e * zf1 - 4 * sc * x.d * y.e * zf0
+    + 12 * sc * x.d * y.e * zf1 + 160 * sc * xa * y.b * z₁.i + 2 * sc * y.b * ya * z₀.i
+    - 114 * sc * y.b * ya * z₁.i + 4 * sc * y.b * ya * z₂.i - 2 * sc * y.d * y.e * zf0
+    - 10 * sc * y.d * y.e * zf1 + 28 * x.b * x.e * xa * zh0 - 1930 * x.b * x.e * xa * zh1
+    - 28 * x.b * x.e * ya * zh0 + 1480 * x.b * x.e * ya * zh1 - 4 * x.b * xa * xc * z₀.i
+    + 1990 * x.b * xa * xc * z₁.i - 12 * x.b * xa * y.e * zh0 + 1560 * x.b * xa * y.e * zh1
+    - 1600 * x.b * xa * yc * z₁.i + 12 * x.b * xc * ya * z₀.i - 1560 * x.b * xc * ya * z₁.i
+    + 8 * x.b * y.e * ya * zh0 - 1200 * x.b * y.e * ya * zh1 + 1280 * x.b * ya * yc * z₁.i
+    - 22 * x.d * x.e * xa * z₀.g - 65 * x.d * x.e * xa * z₁.g + 20 * x.d * x.e * xc * zf0
+    + 70 * x.d * x.e * xc * zf1 + 8 * x.d * x.e * ya * z₀.g + 40 * x.d * x.e * ya * z₁.g
+    + 14 * x.d * xa * y.e * z₀.g + 60 * x.d * xa * y.e * z₁.g - 16 * x.d * xc * y.e * zf0
+    - 80 * x.d * xc * y.e * zf1 - 4 * x.d * y.e * ya * z₀.g - 40 * x.d * y.e * ya * z₁.g
+    + 1600 * x.e * xa * y.b * zh1 + 6 * x.e * y.b * ya * zh0 - 1220 * x.e * y.b * ya * zh1
+    - 1600 * xa * xc * y.b * z₁.i - 1280 * xa * y.b * y.e * zh1
+    + 1280 * xa * y.b * yc * z₁.i - xa * y.d * y.e * z₀.g - 10 * xa * y.d * y.e * z₁.g
+    - 6 * xc * y.b * ya * z₀.i + 1220 * xc * y.b * ya * z₁.i + 2 * xc * y.d * y.e * zf0
+    + 20 * xc * y.d * y.e * zf1 + 8 * y.b * y.e * ya * zh0 + 976 * y.b * y.e * ya * zh1
+    - 4 * y.b * ya * yc * z₀.i - 992 * y.b * ya * yc * z₁.i - 2 * y.d * y.e * ya * z₀.g
+    + 8 * y.d * y.e * ya * z₁.g, ?_⟩
+  rw [SqU6.gaTwoCorrO, hsa, hsc, hxa, hxc, hya, hyc, h0f, h0h, h0j, h1f, h1h, h1j, h2f, h2h,
+    h2j]
+  ring
+
+/-- **The three channels the frame does not close**: the class-five pairing
+form's terms against the letter's fifth abelian column, its class-three row, and its class-two
+row.  Wave 60's stage-four analogue closes two of five channels with the frame and three with
+the dressing; here the same three survive, one filtration step wider. -/
+def SqU6.gaTwoChannel {R : Type} [CommRing R] (z L : SqU6 R) : R :=
+  z.m * L.e + z.i * L.j + z.l * L.f
+
+/-- ⭐ **The class-five pairing form is even modulo the three channels.** -/
+theorem SqU6.gaTwoPairO_channel_even {R : Type} [CommRing R] {z L : SqU6 R}
+    (hLa : (2 : R) ∣ L.a) (hLc : (2 : R) ∣ L.c) (hzf : (2 : R) ∣ z.f) (hzh : (2 : R) ∣ z.h)
+    (hzj : (2 : R) ∣ z.j) :
+    (2 : R) ∣ (SqU6.gaTwoPairO z L - SqU6.gaTwoChannel z L) := by
+  obtain ⟨La, hLa⟩ := hLa
+  obtain ⟨Lc, hLc⟩ := hLc
+  obtain ⟨zf, hzf⟩ := hzf
+  obtain ⟨zh, hzh⟩ := hzh
+  obtain ⟨zj, hzj⟩ := hzj
+  refine ⟨-L.f * z.l + L.i * zj - L.j * z.i + L.l * zf - La * z.n + L.b * La * z.l
+    - L.e * L.f * zh - L.e * La * z.k - 2 * L.e * zf * zh + L.f * Lc * z.i + L.g * La * z.i
+    - L.i * La * z.g + 2 * Lc * z.i * zf + 2 * L.b * L.e * La * zh - 2 * L.b * La * Lc * z.i, ?_⟩
+  rw [SqU6.gaTwoPairO, SqU6.gaTwoChannel, hLa, hLc, hzf, hzh, hzj]
+  ring
+
+/-- **The first class-three pairing form is even**, which is what kills the
+collection element and the cross-handle term. -/
+theorem SqU6.gaTwoPairJ_even {R : Type} [CommRing R] {z L : SqU6 R}
+    (hzf : (2 : R) ∣ z.f) (hLa : (2 : R) ∣ L.a) : (2 : R) ∣ SqU6.gaTwoPairJ z L := by
+  obtain ⟨zf, hzf⟩ := hzf
+  obtain ⟨La, hLa⟩ := hLa
+  exact ⟨zf * L.c - z.g * La, by rw [SqU6.gaTwoPairJ, hzf, hLa]; ring⟩
+
+/-- ⭐ **The handle shift's class-five row is even modulo its two channels.** -/
+theorem SqU6.gaTwoHandle_o_channel_even {R : Type} [CommRing R] {p q z w : SqU6 R}
+    (hpa : (2 : R) ∣ p.a) (hpc : (2 : R) ∣ p.c) (hqa : (2 : R) ∣ q.a) (hqc : (2 : R) ∣ q.c)
+    (hzf : (2 : R) ∣ z.f) (hzh : (2 : R) ∣ z.h) (hzj : (2 : R) ∣ z.j) (hwf : (2 : R) ∣ w.f)
+    (hwh : (2 : R) ∣ w.h) (hwj : (2 : R) ∣ w.j) :
+    (2 : R) ∣ ((SqU6.gaTwoHandle p q z w).o
+      - (SqU6.gaTwoChannel z q - SqU6.gaTwoChannel w p)) := by
+  obtain ⟨pa, hpa⟩ := hpa
+  obtain ⟨pc, hpc⟩ := hpc
+  obtain ⟨qa, hqa⟩ := hqa
+  obtain ⟨qc, hqc⟩ := hqc
+  obtain ⟨zf, hzf⟩ := hzf
+  obtain ⟨zh, hzh⟩ := hzh
+  obtain ⟨zj, hzj⟩ := hzj
+  obtain ⟨wf, hwf⟩ := hwf
+  obtain ⟨wh, hwh⟩ := hwh
+  obtain ⟨wj, hwj⟩ := hwj
+  refine ⟨p.f * w.l - p.i * wj + p.j * w.i - p.l * wf + pa * w.n - q.f * z.l + q.i * zj
+    - q.j * z.i + q.l * zf - qa * z.n + w.i * zj + w.l * zf - wf * z.l - wj * z.i
+    - p.b * pa * w.l - p.b * qa * w.l - p.b * qa * z.l - p.d * q.e * wj - p.d * q.e * zj
+    + p.e * p.f * wh + p.e * pa * w.k + p.e * q.d * wj + p.e * q.d * zj + p.e * q.h * wf
+    + p.e * q.h * zf + 2 * p.e * wf * wh + 2 * p.e * wh * zf - p.f * pc * w.i
+    + p.f * qc * w.i + p.f * qc * z.i - p.g * pa * w.i - p.g * qa * w.i - p.g * qa * z.i
+    - p.h * q.e * wf - p.h * q.e * zf + p.i * pa * w.g + 2 * p.i * qc * wf
+    + 2 * p.i * qc * zf + pa * q.b * w.l + pa * q.b * z.l + pa * q.g * w.i + pa * q.g * z.i
+    + pa * w.g * z.i - pc * q.f * w.i - pc * q.f * z.i - 2 * pc * q.i * wf
+    - 2 * pc * q.i * zf - 2 * pc * w.i * wf - 2 * pc * w.i * zf - 2 * pc * wf * z.i
+    + q.b * qa * z.l - q.e * q.f * zh - q.e * qa * z.k - 2 * q.e * wf * zh
+    - 2 * q.e * zf * zh + q.f * qc * z.i + q.g * qa * z.i - q.i * qa * z.g - qa * w.i * z.g
+    + 2 * qc * w.i * zf + 2 * qc * wf * z.i + 2 * qc * z.i * zf - 2 * p.b * p.e * pa * wh
+    - 2 * p.b * p.e * qa * wh + 2 * p.b * pa * pc * w.i - 2 * p.b * pa * qc * w.i
+    - 2 * p.b * pa * qc * z.i + 2 * p.b * pc * qa * w.i - 2 * p.b * qa * qc * w.i
+    - 2 * p.b * qa * qc * z.i + p.d * pa * q.e * w.g + 2 * p.d * pc * q.e * zf
+    + 2 * p.d * q.e * qc * wf + 2 * p.d * q.e * qc * zf + 2 * p.e * pa * q.b * wh
+    - p.e * pa * q.d * w.g - 2 * p.e * pc * q.d * zf - 2 * p.e * q.d * qc * wf
+    - 2 * p.e * q.d * qc * zf + 2 * pa * pc * q.b * z.i + 2 * pc * q.b * qa * w.i
+    + 2 * pc * q.b * qa * z.i + 2 * q.b * q.e * qa * zh - 2 * q.b * qa * qc * z.i, ?_⟩
+  simp only [SqU6.gaTwoHandle, SqU6.gaTwoHandleX, SqU6.gaTwoChannel, SqU6.gaTwoPairO,
+    SqU6.u6Comm3L, SqU6.u6Comm3R,
+    hpa, hpc, hqa, hqc, hzf, hzh, hzj, hwf, hwh, hwj]
+  ring

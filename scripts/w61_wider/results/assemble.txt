@@ -1,0 +1,40 @@
+============================================================================================
+== 1. the handle shift, as a closed form ==
+   commP(p z, q w) = commP(p, q) * handleShift : EXACT, all fifteen rows
+
+============================================================================================
+== 2. the handle WORD under an all-pair gamma_2-dressing ==
+   h = 0 : EXACT
+   h = 1 : EXACT
+   h = 2 : EXACT
+   h = 3 : EXACT
+
+============================================================================================
+== 3. the collection of the core shift past the handle word ==
+   K.m = C.f H.h - C.h H.f                     : True
+   K.n = C.g H.i - C.i H.g                     : True
+   K.o = C.f H.l - C.l H.f + C.j H.i - C.i H.j : True
+
+============================================================================================
+== 4. THE ASSEMBLED FIVE-SLOT RELATOR IDENTITY, symbolically ==
+   h = 0 : sqRelWord(m . z) = sqRelWord(m) * shift : EXACT, all fifteen rows
+   h = 1 : sqRelWord(m . z) = sqRelWord(m) * shift : EXACT, all fifteen rows
+   h = 2 : sqRelWord(m . z) = sqRelWord(m) * shift : EXACT, all fifteen rows
+
+============================================================================================
+== 5. the core shift's blocks, and their sizes ==
+   [m] correction  44 terms, quadratic   5 terms
+   [n] correction  44 terms, quadratic   5 terms
+   [o] correction 276 terms, quadratic  52 terms
+
+   the class-five quadratic block, grouped by its frame factor:
+     (frame-free) : z0_f * z1_l + -1 * z0_i * z1_j + z0_j * z1_i + -1 * z0_l * z1_f + 10 * z1_f * z1_l + -8 * z1_f * z2_l + 10 * z1_i * z1_j + -8 * z1_j * z2_i + z2_f * z2_l + z2_i * z2_j
+     s_a          : z0_i * z1_g + -4 * z1_g * z1_i + 2 * z1_g * z2_i + z2_g * z2_i
+     s_c          : -1 * z0_f * z1_i + -1 * z0_i * z1_f + 4 * z1_f * z1_i + -2 * z1_f * z2_i + -2 * z2_f * z2_i
+     s_e          : z0_f * z1_h + z2_f * z2_h
+     x_a          : 7 * z0_g * z1_i + -2 * z0_g * z2_i + -4 * z0_i * z1_g + 30 * z1_g * z1_i + -20 * z1_g * z2_i
+     x_c          : -3 * z0_f * z1_i + 2 * z0_f * z2_i + z0_i * z1_f + -20 * z1_f * z1_i + 20 * z1_f * z2_i
+     x_e          : -4 * z0_f * z1_h + 3 * z0_h * z1_f + -10 * z1_f * z1_h
+     y_a          : -2 * z0_g * z1_i + -2 * z0_g * z2_i + 2 * z0_i * z1_g + z0_i * z2_g + -20 * z1_g * z1_i + 16 * z1_g * z2_i + -1 * z2_g * z2_i
+     y_c          : z0_f * z2_i + z0_i * z2_f + 8 * z1_f * z1_i + -12 * z1_f * z2_i
+     y_e          : 2 * z0_f * z1_h + z0_f * z2_h + -2 * z0_h * z1_f + -2 * z0_h * z2_f + 12 * z1_f * z1_h + -4 * z1_f * z2_h + z2_f * z2_h

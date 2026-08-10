@@ -1,0 +1,82 @@
+============================================================================================
+== the class-five row of the gamma_2 shift, on the achievable lattice ==
+
+   h = 0 :  shift.o has 348 terms; mod 2 on the lattice 9 terms remain
+            dressing-degree 0: 0,  1: 9,  >= 2: 0
+            *** QUADRATIC BLOCK EVEN ON THE LATTICE: YES ***
+            surviving AFFINE channels (9):
+              z0_i     * ( m1_j )
+              z0_l     * ( m1_f )
+              z0_m     * ( m1_e )
+              z1_i     * ( m0_j )
+              z1_l     * ( m0_f )
+              z1_m     * ( m0_e )
+              z2_i     * ( m2_j )
+              z2_l     * ( m2_f )
+              z2_m     * ( m2_e )
+
+   h = 1 :  shift.o has 522 terms; mod 2 on the lattice 15 terms remain
+            dressing-degree 0: 0,  1: 15,  >= 2: 0
+            *** QUADRATIC BLOCK EVEN ON THE LATTICE: YES ***
+            surviving AFFINE channels (15):
+              z0_i     * ( m1_j )
+              z0_l     * ( m1_f )
+              z0_m     * ( m1_e )
+              z1_i     * ( m0_j )
+              z1_l     * ( m0_f )
+              z1_m     * ( m0_e )
+              z2_i     * ( m2_j )
+              z2_l     * ( m2_f )
+              z2_m     * ( m2_e )
+              z3_i     * ( m4_j )
+              z3_l     * ( m4_f )
+              z3_m     * ( m4_e )
+              z4_i     * ( m3_j )
+              z4_l     * ( m3_f )
+              z4_m     * ( m3_e )
+
+   h = 2 :  shift.o has 712 terms; mod 2 on the lattice 21 terms remain
+            dressing-degree 0: 0,  1: 21,  >= 2: 0
+            *** QUADRATIC BLOCK EVEN ON THE LATTICE: YES ***
+            surviving AFFINE channels (21):
+              z0_i     * ( m1_j )
+              z0_l     * ( m1_f )
+              z0_m     * ( m1_e )
+              z1_i     * ( m0_j )
+              z1_l     * ( m0_f )
+              z1_m     * ( m0_e )
+              z2_i     * ( m2_j )
+              z2_l     * ( m2_f )
+              z2_m     * ( m2_e )
+              z3_i     * ( m4_j )
+              z3_l     * ( m4_f )
+              z3_m     * ( m4_e )
+              z4_i     * ( m3_j )
+              z4_l     * ( m3_f )
+              z4_m     * ( m3_e )
+              z5_i     * ( m6_j )
+              z5_l     * ( m6_f )
+              z5_m     * ( m6_e )
+              z6_i     * ( m5_j )
+              z6_l     * ( m5_f )
+              z6_m     * ( m5_e )
+
+============================================================================================
+== the same question for the two class-four rows ==
+   [m] mod 2 on the lattice: 0 terms, of which quadratic 0
+   [n] mod 2 on the lattice: 35 terms, of which quadratic 5
+        quadratic survivors: z0_g * z1_i + z0_i * z1_g + z2_g * z2_i + z3_g * z4_i + z3_i * z4_g
+
+============================================================================================
+== what the surviving affine channels are, structurally ==
+   Every surviving term of the class-five row is one dressing coordinate against one
+   frame quantity, and there are exactly THREE channels, the three terms of the class-five
+   pairing form the frame does not already close:
+
+       z.m * L.e        class-four dressing coordinate against the letter's fifth column
+       z.i * L.j        class-two  dressing coordinate against the letter's class-three row
+       z.l * L.f        class-three dressing coordinate against the letter's class-two row
+
+   plus, from the handle block, the same three channels with the opposite handle letter, and
+   the cross term  C.j * H.i  (killed: C.j is even on the lattice).  The class-four rows have
+   the single channel  z.j * L.d  /  z.k * L.e  respectively.

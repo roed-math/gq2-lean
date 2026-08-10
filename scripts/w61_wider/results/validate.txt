@@ -1,0 +1,36 @@
+============================================================================================
+== 0. the two group-law implementations agree ==
+PASS 1600 comparisons of the transcribed group law against 6 x 6 matrices, 0 mismatches
+
+============================================================================================
+== 1. the six pairing forms ==
+PASS 1600 comparisons over Z, Z/4, Z/8, Z/16, 0 mismatches
+
+============================================================================================
+== 2. gaTwoHandle: the commutator under a two-sided gamma_2-dressing ==
+PASS 1600 comparisons over Z, Z/4, Z/8, Z/16, 0 mismatches
+
+============================================================================================
+== 3. gaTwoCore: the core word under a three-slot gamma_2-dressing ==
+PASS 1200 comparisons over Z, Z/4, Z/8, Z/16, 0 mismatches
+
+============================================================================================
+== 4. gaTwoShift: the five-slot relator identity, handle counts 0 to 4 ==
+PASS 1200 comparisons over Z, Z/4, Z/8, Z/16 at handle counts 0 to 4, 0 mismatches
+
+============================================================================================
+== 4b. the gamma_3 specialisation reproduces the committed stage-four identity ==
+PASS 600 comparisons with gamma_3-shaped dressings, 0 mismatches
+
+============================================================================================
+== 5. the soundness, by brute force ==
+PASS 3000 achievable dressings: the class-five row equals the channel functional mod two, 0 exceptions
+PASS 2400 achievable dressings: gaTwoQuadO is EVEN, 0 exceptions
+PASS …and the block is not vacuous: 1030 of 1200 unrestricted dressings make it non-zero
+
+============================================================================================
+== 6. sharpness ==
+PASS without the hypotheses, 734 of 1500 unrestricted dressings move the row oddly
+PASS the class-four RIGHT quadratic block is NOT even on the lattice: 530 of 1200 odd
+
+TOTAL CHECKS: 11   FAILURES: 0
