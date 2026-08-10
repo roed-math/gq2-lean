@@ -715,6 +715,7 @@ import GQ2.Dyadic.SqCore.GradedGammaTwo
 import GQ2.Dyadic.SqCore.GradedObstructionPlus
 import GQ2.Dyadic.SqCore.GradedSigmaFour
 import GQ2.Dyadic.SqCore.GradedFourHom
+import GQ2.Dyadic.SqCore.GradedFourRow
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
