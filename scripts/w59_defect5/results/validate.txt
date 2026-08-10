@@ -1,0 +1,82 @@
+==============================================================================
+W59-DEFECT5 validation: closed forms against honest 6 x 6 group collection
+==============================================================================
+
+## A the group law itself: all fifteen relator rows, symbolic vs honest matrices
+  all fifteen rows over ZZ                             h=0 trials=   40  mismatches=0
+  all fifteen rows over ZZ                             h=1 trials=   40  mismatches=0
+  all fifteen rows over ZZ                             h=2 trials=   40  mismatches=0
+  all fifteen rows over ZZ                             h=3 trials=   40  mismatches=0
+  all fifteen rows over ZZ                             h=4 trials=   40  mismatches=0
+  all fifteen rows over ZMod 8                         h=0 trials=   40  mismatches=0
+  all fifteen rows over ZMod 8                         h=1 trials=   40  mismatches=0
+  all fifteen rows over ZMod 8                         h=2 trials=   40  mismatches=0
+  all fifteen rows over ZMod 8                         h=3 trials=   40  mismatches=0
+  all fifteen rows over ZMod 8                         h=4 trials=   40  mismatches=0
+
+## B the class-five and class-four defect closed forms over ZZ
+  sqU6Defect / sqU6Defect4 over ZZ, dense              h=0 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, dense              h=1 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, dense              h=2 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, dense              h=3 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, dense              h=4 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, wide range         h=0 trials=  150  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, wide range         h=1 trials=  150  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, wide range         h=2 trials=  150  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, wide range         h=3 trials=  150  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZZ, wide range         h=4 trials=  150  mismatches=0
+
+## C over the campaign's gate rings
+  sqU6Defect / sqU6Defect4 over ZMod 8                 h=0 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 8                 h=1 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 8                 h=2 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 8                 h=3 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 8                 h=4 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 4                 h=0 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 4                 h=1 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 4                 h=2 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 4                 h=3 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 4                 h=4 trials=  300  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 16                h=0 trials=  200  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 16                h=1 trials=  200  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 16                h=2 trials=  200  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 16                h=3 trials=  200  mismatches=0
+  sqU6Defect / sqU6Defect4 over ZMod 16                h=4 trials=  200  mismatches=0
+
+## D sparse markings (few live coordinates), where cancellations hide
+  sparse marking, 1 live coordinates per slot          h=0 trials=  200  mismatches=0
+  sparse marking, 1 live coordinates per slot          h=1 trials=  200  mismatches=0
+  sparse marking, 1 live coordinates per slot          h=2 trials=  200  mismatches=0
+  sparse marking, 1 live coordinates per slot          h=3 trials=  200  mismatches=0
+  sparse marking, 2 live coordinates per slot          h=0 trials=  200  mismatches=0
+  sparse marking, 2 live coordinates per slot          h=1 trials=  200  mismatches=0
+  sparse marking, 2 live coordinates per slot          h=2 trials=  200  mismatches=0
+  sparse marking, 2 live coordinates per slot          h=3 trials=  200  mismatches=0
+  sparse marking, 3 live coordinates per slot          h=0 trials=  200  mismatches=0
+  sparse marking, 3 live coordinates per slot          h=1 trials=  200  mismatches=0
+  sparse marking, 3 live coordinates per slot          h=2 trials=  200  mismatches=0
+  sparse marking, 3 live coordinates per slot          h=3 trials=  200  mismatches=0
+  sparse marking, 5 live coordinates per slot          h=0 trials=  200  mismatches=0
+  sparse marking, 5 live coordinates per slot          h=1 trials=  200  mismatches=0
+  sparse marking, 5 live coordinates per slot          h=2 trials=  200  mismatches=0
+  sparse marking, 5 live coordinates per slot          h=3 trials=  200  mismatches=0
+
+## E the class-five gamma_4 translation identity
+  conFiveDress transport over ZZ                       h=0 trials=  200  mismatches=0
+  conFiveDress transport over ZZ                       h=1 trials=  200  mismatches=0
+  conFiveDress transport over ZZ                       h=2 trials=  200  mismatches=0
+  conFiveDress transport over ZZ                       h=3 trials=  200  mismatches=0
+  conFiveDress transport over ZZ                       h=4 trials=  200  mismatches=0
+  conFiveDress transport over ZMod 8                   h=0 trials=  200  mismatches=0
+  conFiveDress transport over ZMod 8                   h=1 trials=  200  mismatches=0
+  conFiveDress transport over ZMod 8                   h=2 trials=  200  mismatches=0
+  conFiveDress transport over ZMod 8                   h=3 trials=  200  mismatches=0
+  conFiveDress transport over ZMod 8                   h=4 trials=  200  mismatches=0
+  conFiveDress transport over ZZ, wide range           h=0 trials=  100  mismatches=0
+  conFiveDress transport over ZZ, wide range           h=1 trials=  100  mismatches=0
+  conFiveDress transport over ZZ, wide range           h=2 trials=  100  mismatches=0
+
+==============================================================================
+TOTAL COMPARISONS: 59400
+TOTAL MISMATCHES : 0
+==============================================================================
