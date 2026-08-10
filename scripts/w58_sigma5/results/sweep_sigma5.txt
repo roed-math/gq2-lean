@@ -1,0 +1,35 @@
+== 1. SOUNDNESS at the separating point ==
+   |gamma_3 of the image| = 16384, |gamma_4| = 128, |gamma_5| = 4
+PASS    every achievable gamma_3-dressing has EVEN class-three coordinates (x14, x25, x36)
+PASS    every achievable gamma_4-dressing has EVEN class-four coordinates (x15, x26)
+PASS    every achievable gamma_5-dressing has EVEN class-five coordinate (x16)
+PASS    the dressed relator is liftC 7
+PASS    392 single-slot ACHIEVABLE refinements: parity never flips
+PASS    60000 random FIVE-SLOT achievable refinements: parity never flips
+   UNRESTRICTED gamma_4 moves: 96 of 320 flip the parity, so achievability is load-bearing
+PASS    ...and it is: some unrestricted move does flip it
+
+== 2. the `a0 = a1` census over relator-killing markings ==
+PASS    the closed form x12*y24*y46 + x56*y13*y35 matches on 120000 markings
+   odd in 26135 of 120000 (21.8%) of markings with vanishing abelian rows
+PASS    ...and in 0 of 7502 with ALL FOUR abelian columns of x0 even (the full gauge)
+   -> the class-two-forced gauge of GradedSigmaFour constrains x12, x34, x45 only;
+      x56 is the escape, and it is a column U_5 does not have.
+
+== 3. the DEAD-BLOCK census: a live block is necessary for the escape ==
+   with a trivial handle block the relator forces H = 1, hence the core word W = 1.
+   Row x13 then gives x12 EVEN, and the class-four row x15 of the core word is
+     W.m = x12*x35 + y13*y35   (mod 2),
+   which the block cannot help to kill.  So y13*y35 must be even, and the `a0 = a1`
+   response x12*y24*y46 + x56*y13*y35 is even too.  The escape needs a block that is
+   LIVE IN THE x15 ROW - and the separating point's block has x15 = 3, odd.
+PASS    over 568 dead-block relator-killing markings: y13*y35 is always EVEN
+PASS    ...and NONE of them separates the `a0 = a1` dressing
+   -> with a dead handle block the class-five escape is invisible among stage-three
+      survivors: the separating point NEEDS a live block, though the block never
+      enters the selection bit itself.
+
+== 4. the handle-block coupling census ==
+PASS    the coupling formula holds at 80000 markings (h = 1, 2; 80000 with a live block)
+
+TOTAL CHECKS: 12   FAILURES: 0
