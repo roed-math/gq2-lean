@@ -557,7 +557,14 @@ theorem evenPerK_orientedEquivM {R : LocalReciprocity} (B : MarkedRecip R K)
 range identity lands at `α = 2` the depth-`1` row seam is true, so §4 builds the base and it is
 not carried: what remains is `Hfam` and `Hup`, which is exactly the two-input endpoint shape of
 the odd route.  This is the non-vacuity witness for the layer: on this stratum the even route
-owes no more than the odd one. -/
+owes no more than the odd one.
+
+**(vacuous, wave 58)** `Hup` here is `EvenKernelRawToBracketSupply 1`, refuted at every depth
+`α ≥ 2` on both branches (`EvenSlotZero.evenSlotZero_not_rawToBracket_{N,M}`), so this statement
+and its `M` twin have unsatisfiable hypothesis sets and are **not** non-vacuity witnesses.  The
+reading that survives is better than the one retracted: wave 57 proved `Hup` unnecessary rather
+than merely false, so the even route owes exactly `Hfam`, one input and not two, at every depth
+and on both branches (`EvenRouteFinal.evenRouteFinal_orientedEquiv{N,M}_atDepth`). -/
 theorem evenPerK_orientedEquivN_two {R : LocalReciprocity} (B : MarkedRecip R K)
     (hkappa : cyclotomicModFourClassKTwo (K := K) ≠ 0)
     (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN 2)
