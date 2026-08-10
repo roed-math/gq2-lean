@@ -38,6 +38,16 @@ exactly what it was meant to do, for the second wave running. Two lanes of one w
 be right while their composition is wrong, and the close now checks for that before anything
 is written down.
 
+**Scoping correction, added during wave 59.** The invisibility statement above is now a
+theorem, but only at the committed sigma slot, and the class-eight forecast inherits that
+scope. The step it rests on turned out to be slot-local: the general row carries a term the
+abelian rows do not control, and at a slot one trivial letter away from the committed one
+there is a certified relator-killing marking whose block is odd and visible at class five,
+with the selection bit separating it. So the honest statement is that the block is invisible
+at class five at the committed slot and visible at class five away from it. That is better
+news than it sounds for the `h >= 1` route, since visibility is what the route wants; it just
+does not come from where we thought.
+
 Final state `5ee25049`: 4277 jobs green, census 11, zero sorries, capstones frozen, all gates
 passing at every station; about 5800 new lines of Lean this wave, every declaration pinned,
 no census axiom newly consumed. Progress estimate about 89 to 91 percent. The even route did
