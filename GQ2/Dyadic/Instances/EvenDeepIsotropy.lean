@@ -437,7 +437,15 @@ theorem evenDeep_isotropic {α : ℕ} (hα : 2 ≤ α)
     exact evenDeepDigit_eq_redFour (by omega) (hbound g)
 
 /-- **The per-field isotropy supply is a theorem.**  `EvenDeepMIsotropicSupply` was the last
-new datum of the `M` frame re-cut; it is carried by nobody after this line. -/
+new datum of the `M` frame re-cut; it is carried by nobody after this line.
+
+**Correction (waves 55, 56).**  "Carried by nobody" was false when written.  The sibling lane of
+this same wave, `StageAbstractionEvenEndpoint.lean` (W54-COMPOSE), published
+`EvenEndpoint.EvenRouteCarriedM` with `isotropy : EvenDeepMIsotropicSupply K` as a third field,
+and neither file imports the other, so no committed statement composed the two until wave 55's
+`EvenRouteWitness.lean` §1.  The sentence is true from wave 56 on:
+`EvenRouteCarried.EvenRouteCarriedDeepM` has two fields and discharges the isotropy here, at the
+point of use. -/
 theorem evenDeepMIsotropicSupply_holds : EvenDeepMIsotropicSupply K :=
   fun _ hα hrange ↦ evenDeep_isotropic hα hrange
 
