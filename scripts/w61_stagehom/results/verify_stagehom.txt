@@ -1,0 +1,63 @@
+=== 0 library cross-check: u6mat (6x6 matrices) against u6lib (coordinates) ===
+  [ok ] 0.1 the two libraries agree on 3000 random products
+  [ok ] 0.2 the two libraries agree on 3000 random inverses
+  [ok ] 0.3 the two libraries agree on 400 random relators
+
+=== A the three verdicts at the new stage-four point ===
+  [ok ] A.1 the undressed frame kills the relator at all 10 (h, j) with h <= 4
+  [ok ] A.2 the x0-dressing leaves exactly <o = 1> at all 10 (h, j)
+  [ok ] A.3 the residue is odd, so the selection bit separates
+  [ok ] A.4 both U_5-quotients of the x0-dressed relator are trivial (class-four blind)
+
+=== B the pivot anchor at the new point ===
+  [ok ] B.1 all ten flat obstructions vanish at stageX  obstructions [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  [ok ] B.2 the x0-slot's powers are coordinatewise linear (flat)
+  [ok ] B.3 the pivot image has b-coordinate 1 at every pivot residue
+  [ok ] B.4 the pivot image is a = -2c, e = -5c
+  [ok ] B.5 the pivot image is never trivial
+
+=== C the wave-59 killing word [[sigma, u_j], x1] at both points ===
+  [ok ] C.1 at wave 59's point its image is <m = 5, n = 6>  <m=5, n=6>
+  [ok ] C.2 at the new point its image is <m = 2, n = 2, o = 4>  <m=2, n=2, o=4>
+  [ok ] C.3 at wave 59's point it has an ODD class-four coordinate, so it is outside stageN3
+  [ok ] C.4 at the new point j, l and m are all even, so it IS in stageN3
+  [ok ] C.5 at wave 59's point it KILLS the x0-dressed frame
+  [ok ] C.6 at the new point it moves the residue 1 -> 7 and does NOT kill, at all h <= 4
+
+=== D the achievable stage-four lattice at the new point, and the exclusion ===
+  [stage] |gamma_3(image)| = 8192
+  [ok ] D.1 gamma_3 of the new point's image has order 8192, matching wave 60  order 8192
+  [ok ] D.2 every achievable stage-four dressing has j, l, m even (the Lean chain)
+  [ok ] D.3 no achievable single-slot stage-four dressing kills the x0-dressed frame  0 of 8192 kill
+  [wave59] |gamma_3(image)| = 16384
+  [ok ] D.4 at wave 59's point achievable stage-four dressings DO kill  512 of 16384 kill
+  [ok ] D.5 4000 random FIVE-slot achievable stage-four refinements kill nothing
+
+=== E the legal-dressing census, exhaustive over gamma_2 of the image ===
+    A dressing that is legal for EVERY continuous nu' must lie in the commutator
+    subgroup, so its image lies in gamma_2 of the point's image.  The relator under a
+    gamma_2 sigma dressing has only j, l, m, n, o live, and gamma_2 = U coset reps x
+    gamma_3, so the census below is exhaustive rather than sampled.
+  [ok ] E.0 [stage] the coset key is constant on gamma_3(image)-cosets
+  [ok ] E.a [stage] the coset shift is additive in the dressing (60 random pairs)
+  [stage] |gamma_2/gamma_3| = 8192, |gamma_3| = 8192, |gamma_2(image)| = 67108864; cosets whose class-three rows vanish: 1024; central-and-odd dressings: 1024
+  [ok ] E.1 gamma_2 of the new point's image has order 67108864 and is exhausted by the coset decomposition  order 67108864
+  [ok ] E.2 universally legal dressings leaving a CENTRAL ODD residue DO exist at the new point  1024 of 67108864
+  [ok ] E.5 [x1, v_j] * [x1, u_j]^-1 is one of them, with residue <o = 5>  <o=5>
+  [ok ] E.6 …at every handle count and handle up to h = 4
+  [ok ] E.7 …and the single commutator [x1, u_j] is NOT one of them
+  [ok ] E.0 [wave59] the coset key is constant on gamma_3(image)-cosets
+  [ok ] E.a [wave59] the coset shift is additive in the dressing (60 random pairs)
+  [wave59] |gamma_2/gamma_3| = 4096, |gamma_3| = 16384, |gamma_2(image)| = 67108864; cosets whose class-three rows vanish: 512; central-and-odd dressings: 1024
+  [ok ] E.3 at wave 59's point such dressings also exist  1024 of 67108864
+  [ok ] E.4 and there the SINGLE commutator [x1, u_j] is one of them  <o=5>
+
+=== F wave 60's commutator repair [x1, u_j], old point versus new point ===
+  [ok ] F.1 at wave 59's point the repair leaves the purely central odd residue <o = 5>  <o=5>
+  [ok ] F.2 at the new point the SAME group element leaves <m = 4, n = 2, o = 5>  <m=4, n=2, o=5>
+  [ok ] F.3 the new residue is still ODD at class five, so the exclusion applies to it
+  [ok ] F.4 but it is NOT central, so the left U_5-quotient is non-trivial and class four sees it
+  [ok ] F.5 the new residue is the same at every handle count and handle up to h = 4
+  [ok ] F.6 the two-commutator replacement restores BOTH halves at the new point: central and odd
+
+=== 40 named checks, 0 failures ===
