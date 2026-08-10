@@ -36,11 +36,23 @@ Proving or refuting it is the single decisive question, and it is the top of the
 If it fails, the even route as architected is closed rather than re-cut, and I will tell you
 so plainly.
 
-**On the `h >= 1` route, only good news.** All four selected rows at class four are now
-covered at every handle count, the doubly-uncleared row turned out not to be obstructed, and
-the class-four obstruction now holds over the honest commutator image rather than an
-over-approximation, so last wave's exhaustive corner verdict is certified in its own terms.
-The paper-facing structures are also corrected and minimal now.
+**On the `h >= 1` route, only good news.** Three of the four selected rows at class four are
+now covered at every handle count (the cleared row is still at one handle; I wrote "all four"
+here first and the next wave's audit caught it), the doubly-uncleared row turned out not to
+be obstructed, and the class-four obstruction now holds over the honest commutator image
+rather than an over-approximation, so last wave's exhaustive corner verdict is certified in
+its own terms.
+
+**Correction to the sentence that stood here, and it matters for the paper.** I wrote that
+the paper-facing structures were corrected and minimal. They are not usable, and the paper
+must not quote them. The corrected structures kept one field, the coordinate-`0` flip demand,
+which a sibling lane in the same wave refuted at every depth two commits later; the two lanes
+never met in the import graph. Composed, they make the "corrected" list hold exactly where it
+is vacuous and false everywhere else. Two wave-57 lanes found this independently. What
+replaces it is better: the endpoint now holds over the single residual supply alone, with no
+reciprocity bundle, no ramification datum and no sign condition, at every depth. This is the
+third time in three waves that a claim of mine outran its proof, and all three were caught by
+lanes whose job was to look rather than to build.
 
 **A process note I think you should see.** This is the second wave running in which a claim
 outran its proof. Wave 55's drift was between prose and Lean; this wave's was inside the
