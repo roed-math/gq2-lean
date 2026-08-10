@@ -115,7 +115,18 @@ is sharp: it is a statement about **one** handle.
   that **kills the relator at the odd sigma dressing**.  So the class-four sigma forcing is
   **FALSE** there, and the file proves the negation of its own shape.
 
-  The frame invariant `liveFrameSub` is exactly what rules this out, and at one live handle wave
+  The frame invariant `liveFrameSub` is SUFFICIENT to rule this out
+
+  CORRECTED BY W59-INVARIANT: `liveFrameSub` is MERELY SUFFICIENT here, not the sharp line.
+  The sharp invariant is `FrameOrth` (both mod-two covectors of the handle slots' outer
+  abelian columns annihilate the class-three parity image), characterised in both directions
+  by `sigmaForces_iff_frameOrth`. The killing point below, the orthogonal point and the mixed
+  point all carry the SAME odd block and all have their `v`-letter outside `liveFrameSub`,
+  yet the forcing FAILS at the first and HOLDS at the other two; the mixed point differs from
+  the killing point in ONE coordinate of ONE letter, which is not a frame invariant. So the
+  reading "two live blocks outside the frame invariant break the forcing" is FALSE; what
+  breaks it is an odd handle pairing. See `SqCore/GradedFrameNecessity.lean`.
+  It, and at one live handle wave
   57 proved that the relator supplies it for free.  **At two live handles the frame invariants
   stop being bookkeeping and become the load-bearing hypothesis of the forcing.**
 
@@ -2389,7 +2400,18 @@ hence a legal `γ₂`-level dressing under the standing achievability convention
 - which **kills the relator at the odd sigma dressing**.  So the class-four sigma forcing is
 FALSE here: the conclusion `selPar v.a = 0` fails at `v = sigFourU`, whose character is `1`.
 
-The frame invariant `GradedFourCleared.liveFrameSub` is exactly what rules this out, and at one
+The frame invariant `GradedFourCleared.liveFrameSub` is SUFFICIENT to rule this out
+
+  CORRECTED BY W59-INVARIANT: `liveFrameSub` is MERELY SUFFICIENT here, not the sharp line.
+  The sharp invariant is `FrameOrth` (both mod-two covectors of the handle slots' outer
+  abelian columns annihilate the class-three parity image), characterised in both directions
+  by `sigmaForces_iff_frameOrth`. The killing point below, the orthogonal point and the mixed
+  point all carry the SAME odd block and all have their `v`-letter outside `liveFrameSub`,
+  yet the forcing FAILS at the first and HOLDS at the other two; the mixed point differs from
+  the killing point in ONE coordinate of ONE letter, which is not a frame invariant. So the
+  reading "two live blocks outside the frame invariant break the forcing" is FALSE; what
+  breaks it is an odd handle pairing. See `SqCore/GradedFrameNecessity.lean`.
+  It, and at one
 live handle wave 57 proved the relator supplies it for free.  At two it does not. -/
 theorem twoLiveOdd_kill (hlt : (j₁ : ℕ) < (j₂ : ℕ)) :
     sqRelWord (sigLift j₁ (twoLiveWit h j₁ j₂ sigFourU oddLiveV sigFourU) 1 1 (liftC 3)
