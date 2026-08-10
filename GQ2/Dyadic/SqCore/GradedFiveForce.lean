@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import Mathlib.GroupTheory.Commutator.Basic
 import GQ2.Dyadic.SqCore.GradedFive
+import GQ2.Dyadic.SqCore.GradedFiveDefect
 import GQ2.Dyadic.SqCore.GradedSigmaFive
 
 /-!
@@ -178,12 +179,11 @@ section Filtration
 
 variable {R : Type} [CommRing R]
 
-/-- A `gamma_4`-shaped element of the class-five carrier: the twelve coordinates of class
-`<= 3` vanish, so only `m`, `n` and `o` survive.  `GradedLift.SqU5.IsGaThree` is the shape
-that dresses the sigma slot one class down. -/
-def SqU6.IsGaFour (z : SqU6 R) : Prop :=
-  z.a = 0 ∧ z.b = 0 ∧ z.c = 0 ∧ z.d = 0 ∧ z.e = 0 ∧ z.f = 0 ∧ z.g = 0 ∧ z.h = 0 ∧ z.i = 0
-    ∧ z.j = 0 ∧ z.k = 0 ∧ z.l = 0
+/-! `SqU6.IsGaFour`, the `gamma_4`-shaped elements of the class-five carrier (the twelve
+coordinates of class `<= 3` vanish, so only `m`, `n` and `o` survive), is defined in
+`GradedFiveDefect` and imported here.  Both wave-59 lanes wrote it independently and
+character-identically; this file consumes that one.  `GradedLift.SqU5.IsGaThree` is the
+shape that dresses the sigma slot one class down. -/
 
 /-- A `gamma_5`-shaped element: only the class-five coordinate may be non-zero.  These are
 the central translations. -/
