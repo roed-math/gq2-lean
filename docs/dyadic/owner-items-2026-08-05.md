@@ -5,6 +5,47 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 54 (2026-08-10)
+
+**Open, still yours (unchanged):** section 1 (the `q = 4` ramified Arf sign; recommendation
+stands: option 3) and item 6's `alpha = 1` even cores.
+
+**Retired this wave:** the Bockstein identity I flagged last wave for a sanity check is now
+a theorem, proved group-generically, and it came in cheaper than the route we had recorded.
+We had justified the `Z/4` lift by a procyclicity argument; the proof needs none of it.
+Writing `u^2 - 1 = 2^(alpha+1) x`, the cofactor is additive once read mod 4, because
+`4` divides `2^(alpha+1)`. No logarithm, no topological generator, no filtration. The
+Hilbert-symbol route we also considered is written up in the file with a full sketch and is
+strictly more expensive in census terms, so we did not take it. Nothing needs your review
+here; I am recording it because you asked to see that one identity.
+
+**The even route is now symmetric and minimal.** Both branches carry exactly two inputs at
+every `alpha >= 2`: `Hfam`, and the digit-flip supply. Everything else is discharged: the
+stage base on both branches, the ramified-`i` binder, the marked reciprocity bundle, and the
+M-side isotropy. The M slot-2 flip is a theorem and is out of the carried set; slot 3 is
+reduced to one commutator identity. For the paper: the carried inputs are now published as
+Lean structures (`EvenRouteCarried{N,M,NTwo,MTwo}`) rather than described in prose, so the
+even sections can quote a machine-checked list rather than a narrative one.
+
+**The `h >= 1` route's corner question is closed.** Last wave's containment file recorded
+certain binder corners as provable dead ends and named the `gamma_2` transport as the
+sharpest open step. Both records are now updated: those are dead ends of the ENGINE, not of
+the tower, and the transport is a mod-two affine phenomenon rather than the quadratic one we
+expected. Three new moves raise corner coverage from `16384` to `97280` of `131072`, and the
+remaining `33792` are exhaustively certified dead, so no corner is left open. The class-four
+results have also been transported to the level of continuous homomorphisms, which is the
+form the endgame needs.
+
+**Two long-rolling tickets were refuted rather than done,** both with evidence. The
+unramified-branch rewire has no second half; the phrase "first half" in a wave-51 commit is
+what kept it on the board for three waves, and each remaining hand-proved row is provably
+not a duplicate. And our instance-dedup backlog entry had the wrong inventory (35 copies
+over 11 files, not 32 over 12), because the counting grep missed this repository's
+`public import` form.
+
+Final state `b25e530b`: 4260 jobs green, census 11, zero sorries, capstones frozen; five
+lanes, five successes, all gates passing at every station.
+
 ## Status at wave 53 (2026-08-09)
 
 **Open, still yours (unchanged):** section 1 (the `q = 4` ramified Arf sign; recommendation
