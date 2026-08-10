@@ -1606,30 +1606,12 @@ private theorem sqCubicFin_zero_ne_one (h : ℕ) :
   simp at he
 
 private theorem sqCubicHandleU_ne_one {h : ℕ} (j : Fin h) :
-    sqHandleIdxU j ≠ (1 : Fin (sqRank h)) := by
-  intro e
-  have he := congrArg Fin.val e
-  have h1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
-    change 1 % sqRank h = 1
-    apply Nat.mod_eq_of_lt
-    rw [sqRank]
-    omega
-  rw [h1] at he
-  change 3 + 2 * (j : Nat) = 1 at he
-  omega
+    sqHandleIdxU j ≠ (1 : Fin (sqRank h)) :=
+  SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_one]; omega)
 
 private theorem sqCubicHandleV_ne_one {h : ℕ} (j : Fin h) :
-    sqHandleIdxV j ≠ (1 : Fin (sqRank h)) := by
-  intro e
-  have he := congrArg Fin.val e
-  have h1 : ((1 : Fin (sqRank h)) : Nat) = 1 := by
-    change 1 % sqRank h = 1
-    apply Nat.mod_eq_of_lt
-    rw [sqRank]
-    omega
-  rw [h1] at he
-  change 4 + 2 * (j : Nat) = 1 at he
-  omega
+    sqHandleIdxV j ≠ (1 : Fin (sqRank h)) :=
+  SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_one]; omega)
 
 /-- The rank-one correction changes only `X`, hence leaves the entire relator suffix fixed. -/
 theorem sqCubicXFromSRelatorSuffix_eq_zero (h : ℕ)

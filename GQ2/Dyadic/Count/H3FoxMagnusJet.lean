@@ -289,67 +289,55 @@ def sqMagnusOneCoordinate (h : ℕ) (a : Fin (sqRank h)) :
   · subst j; simp
   · simp [hja]
 
+/-! ### The handle-index disequalities, `ContCoh` spelling
+
+The sixteen `simp` lemmas below are the `ContCoh`-facing names for the canonical family
+`GQ2.Dyadic.SqCore.SqHandleIdx` (`GQ2/Dyadic/SqCore/Cores.lean`), which sits at the
+definition site of `sqHandleIdxU`/`sqHandleIdxV` and is the set every consumer reaches.
+The statements are the ones the downstream `simp` sets expect and are unchanged; only the
+proofs are rewired, off the detour through the alphabet equivalence
+`sqInitialAlphabetEquiv` and onto the canonical index arithmetic (core letters have value
+`< 3`, the `j`-th handle pair has values `3 + 2j` and `4 + 2j`). -/
+
 @[simp] theorem sqHandleIdxU_eq_iff {h : ℕ} (j k : Fin h) :
-    sqHandleIdxU j = sqHandleIdxU k ↔ j = k := by
-  constructor
-  · intro e
-    have e' := congrArg (sqInitialAlphabetEquiv h) e
-    simpa using e'
-  · exact congrArg sqHandleIdxU
+    sqHandleIdxU j = sqHandleIdxU k ↔ j = k :=
+  SqHandleIdx.u_injective.eq_iff
 
 @[simp] theorem sqHandleIdxV_eq_iff {h : ℕ} (j k : Fin h) :
-    sqHandleIdxV j = sqHandleIdxV k ↔ j = k := by
-  constructor
-  · intro e
-    have e' := congrArg (sqInitialAlphabetEquiv h) e
-    simpa using e'
-  · exact congrArg sqHandleIdxV
+    sqHandleIdxV j = sqHandleIdxV k ↔ j = k :=
+  SqHandleIdx.v_injective.eq_iff
 
 @[simp] theorem sqHandleIdxU_ne_handleV {h : ℕ} (j k : Fin h) :
-    sqHandleIdxU j ≠ sqHandleIdxV k := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    sqHandleIdxU j ≠ sqHandleIdxV k :=
+  SqHandleIdx.u_ne_v j k
 
 @[simp] theorem sqHandleIdxV_ne_handleU {h : ℕ} (j k : Fin h) :
     sqHandleIdxV j ≠ sqHandleIdxU k :=
-  Ne.symm (sqHandleIdxU_ne_handleV k j)
+  SqHandleIdx.v_ne_u j k
 
 @[simp] theorem sqCoreZero_ne_handleU {h : ℕ} (j : Fin h) :
-    (0 : Fin (sqRank h)) ≠ sqHandleIdxU j := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    (0 : Fin (sqRank h)) ≠ sqHandleIdxU j :=
+  (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_zero]; omega)).symm
 
 @[simp] theorem sqCoreZero_ne_handleV {h : ℕ} (j : Fin h) :
-    (0 : Fin (sqRank h)) ≠ sqHandleIdxV j := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    (0 : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_zero]; omega)).symm
 
 @[simp] theorem sqCoreOne_ne_handleU {h : ℕ} (j : Fin h) :
-    (1 : Fin (sqRank h)) ≠ sqHandleIdxU j := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    (1 : Fin (sqRank h)) ≠ sqHandleIdxU j :=
+  (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_one]; omega)).symm
 
 @[simp] theorem sqCoreOne_ne_handleV {h : ℕ} (j : Fin h) :
-    (1 : Fin (sqRank h)) ≠ sqHandleIdxV j := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    (1 : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_one]; omega)).symm
 
 @[simp] theorem sqCoreTwo_ne_handleU {h : ℕ} (j : Fin h) :
-    (2 : Fin (sqRank h)) ≠ sqHandleIdxU j := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    (2 : Fin (sqRank h)) ≠ sqHandleIdxU j :=
+  (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_two]; omega)).symm
 
 @[simp] theorem sqCoreTwo_ne_handleV {h : ℕ} (j : Fin h) :
-    (2 : Fin (sqRank h)) ≠ sqHandleIdxV j := by
-  intro e
-  have e' := congrArg (sqInitialAlphabetEquiv h) e
-  simpa using e'
+    (2 : Fin (sqRank h)) ≠ sqHandleIdxV j :=
+  (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_two]; omega)).symm
 
 @[simp] theorem sqHandleU_ne_coreZero {h : ℕ} (j : Fin h) :
     sqHandleIdxU j ≠ (0 : Fin (sqRank h)) := Ne.symm (sqCoreZero_ne_handleU j)
