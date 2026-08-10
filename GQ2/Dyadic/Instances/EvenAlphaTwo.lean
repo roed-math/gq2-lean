@@ -72,6 +72,22 @@ At `α = 2`: the stratum is **non-empty and generic**, its flip route is **dead*
 endpoints are **no longer vacuous**: they carry `EvenClimbResidualSupply 1`, which is exactly
 "the residual of one depth-`1` admissible correction lies in the depth-`1` bracket span".
 Proving or refuting that is the successor ticket.
+
+**(stale, wave 58)** Two corrections to that paragraph, both in the direction it hoped for.
+
+* The `α ≥ 3` line is wrong: the single flip coordinate `0` is refuted there too, at every depth
+  (`EvenSlotZero.evenSlotZero_not_slotZeroSupply_{N,M}`), so the wave-56 `α ≥ 3` bundle has no
+  model and the stratum split this file preserved has been deleted.
+* The successor ticket was **discharged in the affirmative** by wave 57:
+  `EvenResidual.evenResidual_residualSupply_iff_rawDefect_{N,M}` proves
+  `EvenClimbResidualSupply (α − 1)` *equivalent* to `EvenKernelRawDefectSupply` at every depth on
+  both branches, so `Hfam` alone delivers it and it leaves the carried set.  §6.1's conclusion is
+  right and its stated reason is one step too strong; the re-audit's
+  `EvenRouteAudit.evenRouteAudit_neutral_meets_refined_digit` re-derives it against the sharpest
+  bound the tree owns.
+
+The even route therefore carries `Hfam` alone, on both branches and at **every** depth `α ≥ 2`:
+`EvenRouteFinal.EvenRouteFinalCarried{N,M}` and `evenRouteFinal_status{N,M}`.
 -/
 
 namespace GQ2.Dyadic.EvenAlphaTwo

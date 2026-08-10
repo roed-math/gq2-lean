@@ -48,6 +48,18 @@ filtration not to drop between consecutive layers, one digit deeper than the com
 bound `evenSharp_map_le_deep` provides.  That price is real and is not paid by anything in this
 lane, which is why `Hup` is carried rather than discharged.
 
+**(stale, wave 58)** `Hup` is neither carried nor payable: it is **refuted** at every depth on
+both branches (`EvenSlotZero.evenSlotZero_not_rawToBracket_{N,M}`), and the route through
+`EvenRawToNeutralSupply` priced above is refuted at the same depths
+(`StageAbstractionEvenDigit.evenDigit_not_neutralSupply_lane_{M,N}`), so the price was never
+payable either.  It is also unnecessary: wave 57 proved `EvenClimbResidualSupply (α − 1)`
+*equivalent* to `EvenKernelRawDefectSupply`
+(`EvenResidual.evenResidual_residualSupply_iff_rawDefect_{N,M}`), which `Hfam` supplies on its
+own, by a span comparison that spends the off-zero flips and the sharp central class and never
+`Hup`.  So the shape claimed above is achieved with one input rather than two: the even route
+carries `Hfam` alone, at every depth on both branches
+(`EvenResidual.evenResidual_residualSupply{N,M}`, `EvenRouteFinal.EvenRouteFinalCarried{N,M}`).
+
 ## Numbering
 
 1. the residual supply from the discharged criterion;

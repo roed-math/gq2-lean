@@ -10,6 +10,34 @@ import GQ2.Dyadic.Instances.EvenRouteWitness
 /-!
 # W56-RECUT: the even route's carried inputs, re-cut to what waves 54 and 55 left true
 
+## RETRACTED (wave 58).  DO NOT QUOTE `EvenRouteCarriedDeepN` OR `EvenRouteCarriedDeepM`
+
+**The two structures this file publishes as the corrected paper-facing list are unusable, and the
+before/after table below is stale in all four of its "after" cells.**  Their second field, the
+coordinate-`0` flip demand `EvenRouteDeepFlip{N,M}`, was refuted at **every** branch depth by
+`EvenSlotZero.lean` (W56-SLOTZERO), landing in a sibling module four commits later in the same
+wave, so neither file could see the other.  Composed, in wave 57:
+
+* `EvenRouteModel.evenRouteModel_not_carriedDeep{N,M}` and
+  `EvenRouteAudit.evenRouteAudit_not_carriedDeep{N,M}`: both bundles are **FALSE** at every field
+  of branch depth `alpha >= 3`, which is the only range in which they are stated;
+* `EvenRouteModel.evenRouteModel_deep{N,M}_iff_depth_two`: they hold **exactly** on the depth-`2`
+  stratum, which is where §4.3 below proves them vacuous.
+
+So the bundles are true only where they are empty, and false everywhere else, and §5's four
+endpoints over them have unsatisfiable hypothesis sets.
+
+**The replacement is `GQ2/Dyadic/Instances/EvenRouteFinal.lean`**, whose
+`EvenRouteFinalCarried{N,M}` carry `Hfam` and nothing else, at **every** depth `alpha >= 2` and on
+both branches, with the two arithmetic binders stated explicitly.  Wave 57's
+`EvenResidual.evenResidual_residualSupply_iff_rawDefect_{N,M}` is what removed the rest.
+`EvenRouteFinal.evenRouteFinal_carriedDeep{N,M}_split` records the repair in Lean: this file's
+bundle is exactly the replacement's family field, cut at `alpha >= 3`, conjoined with the refuted
+flip, so the repair is a deletion and nothing of substance was lost.
+
+Everything below is left as committed; only this notice and the corrections marked
+**(stale, wave 58)** are new.  No statement or proof in this file has been changed.
+
 ## What this file is
 
 `StageAbstractionEvenEndpoint.lean` §8 published four structures `EvenRouteCarried{N,M,NTwo,MTwo}`
@@ -36,16 +64,24 @@ This file publishes the corrected list.  It changes no committed statement; it s
 
 ## Before and after: what each branch carries
 
-| branch | stratum | wave 54 published | after waves 54, 55 and this lane |
-| --- | --- | --- | --- |
-| `N` | `alpha = 2` | `Hfam`, all `4 + 2h` flip slots | **nothing: the input set is FALSE** (§6) |
-| `N` | `alpha >= 3` | `Hfam`, all `4 + 2h` flip slots, unguarded in `alpha` | **`Hfam` and the slot-`0` flip, guarded by `hrange`** |
-| `M` | `alpha = 2` | `Hfam`, flips off slot `2` | **nothing: the input set is FALSE** (§6) |
-| `M` | `alpha >= 3` | `Hfam`, flips off slot `2`, **and the isotropy**, unguarded in `alpha` | **`Hfam` and the slot-`0` flip, guarded by `hrange`** |
+| branch | stratum | wave 54 published | after waves 54, 55 and this lane | **(stale, wave 58)** the truth |
+| --- | --- | --- | --- | --- |
+| `N` | `alpha = 2` | `Hfam`, all `4 + 2h` flip slots | **nothing: the input set is FALSE** (§6) | `Hfam` alone; the endpoint holds here |
+| `N` | `alpha >= 3` | `Hfam`, all `4 + 2h` flip slots, unguarded in `alpha` | **`Hfam` and the slot-`0` flip, guarded by `hrange`** | `Hfam` alone; the slot-`0` flip is FALSE |
+| `M` | `alpha = 2` | `Hfam`, flips off slot `2` | **nothing: the input set is FALSE** (§6) | `Hfam` alone; the endpoint holds here |
+| `M` | `alpha >= 3` | `Hfam`, flips off slot `2`, **and the isotropy**, unguarded in `alpha` | **`Hfam` and the slot-`0` flip, guarded by `hrange`** | `Hfam` alone; the slot-`0` flip is FALSE |
 
 ("`alpha = 2`" names the stratum of fields whose branch depth is `2`.  §6 proves the falsity
 there and claims nothing elsewhere: at a field of depth `>= 3` the same `alpha = 2` instance is
 vacuous rather than refuted, and §6.1 proves that too.)
+
+**(stale, wave 58)** All four cells of the fourth column are superseded, two of them outright
+false.  The `alpha >= 3` cells name an input that W56-SLOTZERO refuted at every depth, so the row
+they describe has no model.  The `alpha = 2` cells are right that the *wave-54* input set is false
+there, and wrong as a description of what the route carries: wave 57's
+`EvenResidual.evenResidual_orientedEquiv{N,M}_two_of_family` runs the even route on that stratum
+carrying `Hfam` alone, so the stratum is live and is no longer split off.  The fifth column is the
+wave-58 statement, and it is uniform in `alpha`; see `EvenRouteFinal.lean`.
 
 Three changes, in decreasing order of what they cost to justify.
 
@@ -53,7 +89,9 @@ Three changes, in decreasing order of what they cost to justify.
    stated at `alpha >= 3`.  §6 states the retraction as Lean, not as prose.
 2. **The flip demand is one coordinate.**  `EvenDigitFlipSupplySlotZero` replaces the full
    supply and the wave-54 slot-`2`-free supply; wave 55's §4 proves every other slot on both
-   branches.
+   branches.  **(stale, wave 58)** That one coordinate is itself refuted at every depth
+   (`EvenSlotZero.evenSlotZero_not_slotZeroSupply_{N,M}`), so the flip demand is not shorter, it
+   is gone: the even route carries no flip input at all.
 3. **The `M` isotropy field is gone**, discharged at the point of use by
    `evenDeepMIsotropicSupply_holds`.  With it goes the `[FiniteDimensional ℚ_[2] K]` binder that
    `EvenRouteCarriedM` carried only because `EvenDeepMIsotropicSupply` mentions it, so the two
@@ -95,6 +133,13 @@ which is what makes the `alpha = 2` instance of a deep `M` field vacuous rather 
 * while the two bundles of §4 hold vacuously (`evenRouteCarried_deep{N,M}_of_two`), which is the
   point of guarding: the corrected artefact is true where the published one is false, and says
   nothing there rather than something unsatisfiable.
+
+**(stale, wave 58)** The last clause is the sentence the re-audit singled out, and it reads as a
+recommendation it cannot support.  Being "true where the published one is false" buys nothing
+here, because that is the *only* place the corrected artefact is true: at every depth `alpha >= 3`
+it is false as well (`EvenRouteModel.evenRouteModel_deep{N,M}_iff_depth_two`).  A bundle that is
+vacuous on one stratum and refuted on the rest is not a carrier.  The wave-58 replacement is true
+on both strata and carries `Hfam` alone; see `EvenRouteFinal.lean`.
 
 The `M` half of the open question has a concrete arithmetic form:
 `evenRouteCarried_depthM_two_iff_top` says the refuted `M` stratum is exactly the fields whose
@@ -297,9 +342,14 @@ def EvenRouteDeepFamilyM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
       (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
       ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
 
-/-- **The flip demand at one field, `N` branch**: one digit at the single coordinate `0` per
-stage, at the produced branch depths `alpha >= 3` only.  Every other coordinate is a theorem
-(`evenFlip_flipOffZero_N`). -/
+/-- **REFUTED (wave 57), at every branch depth.**  `EvenRouteModel.evenRouteModel_not_deepFlipN`:
+false at every field of depth `alpha >= 3` whose degree is even, the tuple the refutation needs
+being built by wave 54's own level-three base.  This is the field that killed
+`EvenRouteCarriedDeepN`, and it is off the even route entirely.
+
+Original text.  **The flip demand at one field, `N` branch**: one digit at the single coordinate
+`0` per stage, at the produced branch depths `alpha >= 3` only.  Every other coordinate is a
+theorem (`evenFlip_flipOffZero_N`). -/
 def EvenRouteDeepFlipN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
   ∀ (alpha : ℕ) (halpha : 3 ≤ alpha),
@@ -307,9 +357,12 @@ def EvenRouteDeepFlipN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     EvenDigitFlipSupplySlotZero alpha (nStageWord alpha h (by omega)) (vN alpha)
       (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
 
-/-- **The flip demand at one field, `M` branch**: one digit at the single coordinate `0` per
-stage, at the produced branch depths `alpha >= 3` only.  Every other coordinate is a theorem
-(`evenFlip_flipOffZero_M`), slot `2` already since wave 53. -/
+/-- **REFUTED (wave 57), at every branch depth**, by
+`EvenRouteModel.evenRouteModel_not_deepFlipM`.  See the `N` twin.
+
+Original text.  **The flip demand at one field, `M` branch**: one digit at the single coordinate
+`0` per stage, at the produced branch depths `alpha >= 3` only.  Every other coordinate is a
+theorem (`evenFlip_flipOffZero_M`), slot `2` already since wave 53. -/
 def EvenRouteDeepFlipM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
   ∀ (alpha : ℕ) (halpha : 3 ≤ alpha),
@@ -321,8 +374,13 @@ end Inputs
 
 /-! ## §4 The two corrected bundles
 
-The artefact.  One `Prop` per branch, whose fields are exactly the inputs the even route carries
-after waves 54 and 55, and nothing else.  Two fields on **both** branches, with identical binders:
+**(stale, wave 58)** These are not the artefact; see the retraction at the head of the file and
+`EvenRouteFinal.EvenRouteFinalCarried{N,M}`.  §4.2's collapse is the part that survives, and the
+replacement reproves it at every depth (`evenRouteFinal_family{N,M}_iff_atDepth`).
+
+Original text.  The artefact.  One `Prop` per branch, whose fields are exactly the inputs the even
+route carries after waves 54 and 55, and nothing else.  Two fields on **both** branches, with
+identical binders:
 the `M`-side isotropy is discharged at the point of use by `evenDeepMIsotropicSupply_holds`, and
 with it goes the `[FiniteDimensional ℚ_[2] K]` binder that only `EvenDeepMIsotropicSupply` needed.
 
@@ -337,9 +395,18 @@ audit's Finding 3 shows that the tuple-emptiness route is unavailable on `M`. -/
 
 section Bundles
 
-/-- **What the even route carries on the `N` branch, above the refuted stratum.**  Two inputs:
-the coordinate derivation family with its relator kill, and one digit at coordinate `0` per
-stage, both asked only at branch depths `alpha >= 3` that this field's range identity actually
+/-- **RETRACTED (wave 58).  Do not quote.**  This `Prop` is FALSE at every field of branch depth
+`alpha >= 3` (`EvenRouteModel.evenRouteModel_not_carriedDeepN`), because its `flip` field is
+refuted at every depth by `EvenSlotZero.evenSlotZero_not_slotZeroSupply_N`, and it holds exactly
+on the depth-`2` stratum where §4.3 proves it vacuous
+(`EvenRouteModel.evenRouteModel_deepN_iff_depth_two`).  It is therefore never a non-vacuous
+carrier.  **Use `EvenRouteFinal.EvenRouteFinalCarriedN`**, which keeps the `family` field, drops
+the `flip` field, and holds at every depth `alpha >= 2`;
+`EvenRouteFinal.evenRouteFinal_carriedDeepN_split` and `evenRouteFinal_repairN` record the repair.
+
+Original text.  **What the even route carries on the `N` branch, above the refuted stratum.**  Two
+inputs: the coordinate derivation family with its relator kill, and one digit at coordinate `0`
+per stage, both asked only at branch depths `alpha >= 3` that this field's range identity actually
 produces. -/
 structure EvenRouteCarriedDeepN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
@@ -348,9 +415,14 @@ structure EvenRouteCarriedDeepN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄�
   /-- The one-digit flip demand, at the one coordinate `0`. -/
   flip : EvenRouteDeepFlipN h K
 
-/-- **What the even route carries on the `M` branch, above the refuted stratum.**  The same two
-inputs, with the same binders: the isotropy that `EvenRouteCarriedM` carried as a third field is
-`evenDeepMIsotropicSupply_holds`, a theorem of wave 54, and is discharged in §5. -/
+/-- **RETRACTED (wave 58).  Do not quote.**  The `M` twin of the notice on
+`EvenRouteCarriedDeepN`: FALSE at every field of branch depth `alpha >= 3`
+(`EvenRouteModel.evenRouteModel_not_carriedDeepM`), true exactly where vacuous
+(`evenRouteModel_deepM_iff_depth_two`).  **Use `EvenRouteFinal.EvenRouteFinalCarriedM`.**
+
+Original text.  **What the even route carries on the `M` branch, above the refuted stratum.**  The
+same two inputs, with the same binders: the isotropy that `EvenRouteCarriedM` carried as a third
+field is `evenDeepMIsotropicSupply_holds`, a theorem of wave 54, and is discharged in §5. -/
 structure EvenRouteCarriedDeepM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
   /-- `Hfam`, `M` branch. -/
@@ -479,9 +551,17 @@ end Bundles
 
 /-! ## §5 The endpoints over the corrected bundles
 
-The wave-55 at-depth endpoints, with the flip input taken from the bundle and, on `M`, the
-isotropy discharged by `evenDeepMIsotropicSupply_holds` rather than carried.  Everything is
-stated at `alpha >= 3`.
+**(vacuous, wave 58)** Every endpoint in this section has an unsatisfiable hypothesis set: its
+bundle argument is refuted at the depths it is stated at (`EvenRouteAudit.evenRouteAudit
+_orientedEquiv{N,M}_vacuous`, `EvenRouteModel.evenRouteModel_not_carriedDeep{N,M}`), and the
+`_dichotomy` forms retain content only at branch depth `2`, where their conclusion is empty
+(`evenRouteAudit_dichotomy{N,M}_forces_two`).  The live at-depth endpoints are
+`EvenRouteFinal.evenRouteFinal_orientedEquiv{N,M}_atDepth`, over `Hfam` alone and at every depth,
+and the per-field statement is `EvenRouteFinal.evenRouteFinal_status{N,M}`.
+
+Original text.  The wave-55 at-depth endpoints, with the flip input taken from the bundle and, on
+`M`, the isotropy discharged by `evenDeepMIsotropicSupply_holds` rather than carried.  Everything
+is stated at `alpha >= 3`.
 
 The per-field forms come in two shapes, and the pair is the honest statement of the campaign's
 position.  `evenRouteCarried_orientedEquiv{N,M}` add one named hypothesis, that the field is not

@@ -36,6 +36,11 @@ artefacts.
 3. **The flip demand above `α = 2` is one coordinate, not a family.**  The same wave-55 file
    proves every flip coordinate but `0` on both branches, so the honest carried flip input is
    `EvenDigitFlipSupplySlotZero`, and shave 3 below (the `M` slot `2`) is subsumed.
+   **(stale, wave 58)** `EvenDigitFlipSupplySlotZero` is itself refuted at **every** depth
+   `α ≥ 2` on both branches (`EvenSlotZero.evenSlotZero_not_slotZeroSupply_{N,M}`), so there is
+   no honest carried flip input: the even route carries none.  Wave 57 then showed the route does
+   not need one (`EvenResidual.evenResidual_residualSupply_iff_rawDefect_{N,M}`), and the carried
+   set is `Hfam` alone at every depth on both branches: `EvenRouteFinal.lean`.
 4. **The depth binders below are unguarded.**  `EvenEndpointMFamily`, `EvenEndpointMFlipOffTwo`,
    `EvenEndpointNFamily`, `EvenEndpointNFlip` and the four structures quantify over every
    `α ≥ 2` without the range identity, while the identity produces one `α` per field.
@@ -906,7 +911,15 @@ Read against the committed lists:
 
 `evenRoute_carried{N,M}_of_perK` certify the reading in the only direction that could hide a
 strengthening: the wave-53 inputs *imply* the bundles, so every consumer holding the old data
-holds the new. -/
+holds the new.
+
+**(stale, wave 58)** Every flip entry in that list is refuted, at every depth and on both
+branches, and `Hiso` is a theorem (`evenDeepMIsotropicSupply_holds`).  What the even route carries
+is `Hfam` and nothing else, at every depth on both branches:
+`EvenRouteFinal.EvenRouteFinalCarried{N,M}`, with the endpoints
+`evenRouteFinal_orientedEquiv{N,M}_atDepth` and the status theorems `evenRouteFinal_status{N,M}`.
+`Hup` is refuted (`EvenSlotZero.evenSlotZero_not_rawToBracket_{N,M}`) and, by wave 57,
+unnecessary. -/
 
 section Carried
 
@@ -922,7 +935,14 @@ supply.  No level-three base, no ramification binder, no raw-to-bracket span equ
 refuted stratum the flip demand is one coordinate, not the whole supply.  See
 `EvenRouteCarried.EvenRouteCarriedDeepN`, which also drops the binder asymmetry with the `M` twin:
 neither corrected bundle needs `[FiniteDimensional ℚ_[2] K]`, which this one lacked and its twin
-carried only for the isotropy field. -/
+carried only for the isotropy field.
+
+**Refuted, sharply (wave 57), and the pointer above is retracted (wave 58).**  This `Prop` is
+false at **every** even-degree field carrying the `N` identification, not only at the depth-`2`
+ones: `EvenRouteModel.evenRouteModel_not_carriedN`.  And
+`EvenRouteCarried.EvenRouteCarriedDeepN`, recommended above, is itself retracted, its own flip
+field being refuted at every depth.  **Use `EvenRouteFinal.EvenRouteFinalCarriedN`**, which
+carries `Hfam` alone at every depth `α ≥ 2`. -/
 structure EvenRouteCarriedN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
   /-- `Hfam`: the coordinate derivation family with its relator kill, at every `α ≥ 2`. -/
@@ -937,7 +957,12 @@ equivalent to the existence of the `M`-row frame and hence not removable.
 **Corrected.**  The third field is a theorem, `EvenDeepIsotropy.evenDeepMIsotropicSupply_holds`,
 so "not removable" is wrong: it is unavoidable but free.  The `flip` field is false at a
 depth-`2` field (wave 55).  Two fields, guarded, at `α ≥ 3`, in
-`EvenRouteCarried.EvenRouteCarriedDeepM`. -/
+`EvenRouteCarried.EvenRouteCarriedDeepM`.
+
+**Refuted, sharply (wave 57), and the pointer above is retracted (wave 58).**  False at **every**
+even-degree field carrying the `M` identification (`EvenRouteModel.evenRouteModel_not_carriedM`),
+and `EvenRouteCarried.EvenRouteCarriedDeepM` is itself retracted.  **Use
+`EvenRouteFinal.EvenRouteFinalCarriedM`**, which carries `Hfam` alone at every depth `α ≥ 2`. -/
 structure EvenRouteCarriedM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where

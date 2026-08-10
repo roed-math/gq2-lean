@@ -117,6 +117,16 @@ coordinate `0` alone; and neither is available at `α = 2`.  What slot `0` needs
 depth-`(k-1)` class whose square is a product of commutators and whose character level lies in
 `[k+1, k+α-2]` - an empty range precisely when `α = 2`.
 
+**(stale, wave 58)** The last paragraph is right about the mechanism and wrong about the range.
+W56-SLOTZERO refined the bound to `k + α - 1` and closed the interval at **every** `α ≥ 2`, not
+only at `α = 2` (`EvenSlotZero.evenSlotZero_digit`,
+`evenSlotZero_not_slotZeroSupply_{N,M}`), so the honest carried flip set is **empty** on both
+branches at every depth, and the two at-depth endpoints in the table above have unsatisfiable
+hypothesis sets.  Wave 57 then removed the need for a flip entirely: the even route carries
+`Hfam` alone (`EvenRouteFinal.EvenRouteFinalCarried{N,M}`).  What survives here and is used by
+that route is §4, the off-zero half (`evenFlip_flipOffZero_{M,N}`), which is a theorem and is one
+of the two ingredients of wave 57's span comparison.
+
 ## Numbering
 
 1. the power-commutator identity in the two-central tower, and the row bilinearity it needs;
