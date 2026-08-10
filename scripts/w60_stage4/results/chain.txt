@@ -1,0 +1,40 @@
+== A. a commutator of two general letters ==
+   abelian columns of a commutator all vanish: True
+   [p, q].f : 2 terms, EVEN
+   [p, q].g : 2 terms, EVEN
+   [p, q].h : 2 terms, EVEN
+   [p, q].i : 2 terms, NOT forced even
+        the terms that escape: p_d * q_e + -1 * p_e * q_d
+   [p, q].j : 8 terms, EVEN
+   [p, q].k : 8 terms, NOT forced even
+        the terms that escape: p_b * q_h + -1 * p_d * q_g + p_g * q_d + -1 * p_h * q_b
+   [p, q].l : 8 terms, NOT forced even
+        the terms that escape: -1 * p_e * q_h + p_h * q_e
+
+== B. a commutator of a gamma_2-element against a letter ==
+   the class-<= 2 coordinates of [w, q] vanish: True
+   [w, q].j : 2 terms, EVEN
+   [w, q].k : 2 terms, NOT forced even
+        the terms that escape: q_d * w_g
+   [w, q].l : 2 terms, EVEN
+   [w, q].m : 6 terms, EVEN
+   [w, q].n : 6 terms, NOT forced even
+        the terms that escape: -1 * q_b * w_l + q_e * w_k + -1 * q_g * w_i + q_i * w_g
+
+   the exact class-four rows, for the record:
+     [w, q].m = -1 * q_a * w_k + q_d * w_j + -1 * q_f * w_h + q_h * w_f + q_a * q_b * w_h + -1 * q_a * q_d * w_g
+     [w, q].n = -1 * q_b * w_l + q_e * w_k + -1 * q_g * w_i + q_i * w_g + q_b * q_c * w_i + -1 * q_b * q_e * w_h
+
+== C. a commutator of a gamma_3-element against a letter (wave 59's level) ==
+   [z, q] is gamma_4-shaped: True
+     [z, q].m = -1 * q_a * z_k + q_d * z_j
+     [z, q].n = -1 * q_b * z_l + q_e * z_k
+     [z, q].o = -1 * q_a * z_n + q_e * z_m + -1 * q_f * z_l + q_i * z_j + q_a * q_b * z_l + -1 * q_a * q_e * z_k
+
+== D. the three subgroup conditions, closed under the group law ==
+   (u*v).f = u_f + v_f + u_a * v_b
+   (u*v).j = u_j + v_j + u_a * v_g + u_f * v_c
+   (u*v).m = u_m + v_m + u_a * v_k + u_f * v_h + u_j * v_d
+   gamma_2-shaped: (u*v).f = u_f + v_f, (u*v).h = u_h + v_h, (u*v).j = u_j + v_j
+   gamma_3-shaped: (u*v).j = u_j + v_j, (u*v).m = u_m + v_m, (u*v).o = u_o + v_o
+   gamma_3-shaped inverse: (u^-1).j = -1 * u_j, (u^-1).m = -1 * u_m

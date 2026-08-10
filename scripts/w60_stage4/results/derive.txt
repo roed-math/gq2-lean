@@ -1,0 +1,75 @@
+========================================================================================
+== 1. the handle commutator under a two-sided gamma_3-dressing ==
+   dead coordinates outside gamma_4: NONE (gamma_4-shaped)
+   [m] 4 terms
+         = p_a * w_k + -1 * p_d * w_j + -1 * q_a * z_k + q_d * z_j
+   [n] 4 terms
+         = p_b * w_l + -1 * p_e * w_k + -1 * q_b * z_l + q_e * z_k
+   [o] 20 terms
+         = p_a * w_n + -1 * p_e * w_m + p_f * w_l + -1 * p_i * w_j + -1 * q_a * z_n + q_e * z_m + -1 * q_f * z_l + q_i * z_j + -1 * p_a * p_b * w_l + p_a * p_e * w_k + p_a * q_b * w_l + p_a * q_b * z_l + -1 * p_b * q_a * w_l + -1 * p_b * q_a * z_l + -1 * p_d * q_e * w_j + -1 * p_d * q_e * z_j + p_e * q_d * w_j + p_e * q_d * z_j + q_a * q_b * z_l + -1 * q_a * q_e * z_k
+
+========================================================================================
+== 2. the core word under a three-slot gamma_3-dressing ==
+   dead coordinates outside gamma_3: NONE (gamma_3-shaped)
+   [j] 2 terms, degree 1
+   [k] 2 terms, degree 1
+   [l] 2 terms, degree 1
+   [m] 12 terms, degree 2
+   [n] 12 terms, degree 2
+   [o] 66 terms, degree 3
+
+      core shift . j = -4 * z1_j + 2 * z2_j
+      core shift . k = -4 * z1_k + 2 * z2_k
+      core shift . l = -4 * z1_l + 2 * z2_l
+
+      core shift . m = -4 * z1_m + 2 * z2_m + s_a * z1_k + -1 * s_d * z1_j + -1 * x_a * z0_k + -10 * x_a * z1_k + x_d * z0_j + 10 * x_d * z1_j + 8 * y_a * z1_k + -1 * y_a * z2_k + -8 * y_d * z1_j + y_d * z2_j
+      core shift . n = -4 * z1_n + 2 * z2_n + s_b * z1_l + -1 * s_e * z1_k + -1 * x_b * z0_l + -10 * x_b * z1_l + x_e * z0_k + 10 * x_e * z1_k + 8 * y_b * z1_l + -1 * y_b * z2_l + -8 * y_e * z1_k + y_e * z2_k
+
+========================================================================================
+== 3. the class-five row of the core shift, split into blocks ==
+   total: 66 terms, degree 3
+   after removing the Frobenius part and the three Fox pairings: 44 terms, degree 3
+
+   QUADRATIC block (dressings only): 0 terms
+        quad = 0
+
+   CORRECTION block (dressings against the frame): 44 terms, degree 3
+        z0_j * = -1 * s_d * x_e + s_e * x_d + -4 * x_d * x_e + 2 * x_d * y_e + y_d * y_e
+        z0_k * = 8 * x_a * x_e + -2 * x_a * y_e + -2 * x_e * y_a + -2 * y_a * y_e
+        z0_l * = s_a * x_b + -1 * s_b * x_a + -4 * x_a * x_b + 2 * x_b * y_a + y_a * y_b
+        z1_j * = 3 * s_d * x_e + -2 * s_d * y_e + s_e * x_d + -20 * x_d * x_e + 20 * x_d * y_e + -4 * y_d * y_e
+        z1_k * = 2 * s_a * s_e + -14 * s_a * x_e + 10 * s_a * y_e + -14 * s_e * x_a + 10 * s_e * y_a + 130 * x_a * x_e + -100 * x_a * y_e + -100 * x_e * y_a + 80 * y_a * y_e
+        z1_l * = -2 * s_a * s_b + 11 * s_a * x_b + -8 * s_a * y_b + 13 * s_b * x_a + -10 * s_b * y_a + -110 * x_a * x_b + 80 * x_a * y_b + 100 * x_b * y_a + -76 * y_a * y_b
+        z2_j * = -2 * s_d * y_e + s_e * y_d
+        z2_k * = s_a * y_e + s_e * y_a
+        z2_l * = s_a * y_b + -2 * s_b * y_a
+
+========================================================================================
+== 3b. the class-four rows of the core shift, as Fox pairings ==
+   [m] Frobenius + the three pairings against (x0, foxletter, x1): EXACT
+   [n] Frobenius + the three pairings against (x0, foxletter, x1): EXACT
+
+========================================================================================
+== 3c. the correction, against the class-four precedent gaTwoCorr, transposed ==
+   z0 block on j : VERBATIM
+   z0 block on k : VERBATIM
+   z0 block on l : VERBATIM
+   z1 block on j : VERBATIM
+   z1 block on k : VERBATIM
+   z1 block on l : VERBATIM
+   z2 block on j : VERBATIM
+   z2 block on k : VERBATIM
+   z2 block on l : VERBATIM
+   => the class-five stage-four correction is `gaTwoCorr` transposed: True
+
+========================================================================================
+== 4. the five-slot relator shift ==
+   the collection term core-shift-past-handle-word is central: yes
+      collection = 4 * H_f * z1_l + -2 * H_f * z2_l + -4 * H_i * z1_j + 2 * H_i * z2_j
+
+========================================================================================
+== 5. sanity: the gamma_4 specialisation reproduces the committed class-five identity ==
+   m row matches GradedFiveDefect.SqU6.sqWord_mul_gaFour : True
+   n row matches                                        : True
+   o row matches                                        : True
+   j, k, l rows vanish                                  : True

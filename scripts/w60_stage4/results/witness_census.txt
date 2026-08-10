@@ -1,0 +1,45 @@
+== the candidate point ==
+   sigma = <b=1>
+   x0    = <a=2, e=5>
+   x1    = <e=2, f=1, g=1, h=1, m=3, n=3>
+   U     = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>
+   V     = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+
+== 1. the two verdicts, at several handle counts ==
+   h=1 j=0 : undressed <1>     dressed <o=1>     OK
+   h=2 j=0 : undressed <1>     dressed <o=1>     OK
+   h=2 j=1 : undressed <1>     dressed <o=1>     OK
+   h=3 j=2 : undressed <1>     dressed <o=1>     OK
+   h=4 j=3 : undressed <1>     dressed <o=1>     OK
+
+== 2. the frame hypotheses ==
+   every letter has an even (1,2)-column: True
+   every letter has an even (3,4)-column: True
+   the handle block is live: True, class-four row 5 (odd: True)
+   the gauge columns x0.b, x0.c, x0.d, x0.f, x0.g = [0, 0, 0, 0, 0]
+   x1.a, x1.c, x1.d = [0, 0, 0]
+   x0.a even and x0.e odd: True, True
+
+== 3. the achievable lattices ==
+   Howell   |gamma_3| =   8192  |gamma_4| =   32
+   closure  |gamma_3| =   8192  |gamma_4| =   32  |gamma_5| = 2
+   the two agree elementwise: True
+   members of gamma_3(im) with j, l or m ODD: 0 of 8192
+   gamma_4-SHAPED members of gamma_3(im): 256 (wave 59's point had 512)
+   of those, with odd m: 0
+
+== 4. THE CENSUS: every achievable gamma_3-dressing, every slot, honestly ==
+   slot sigma :     0 of  8192 achievable gamma_3-dressings kill the dressed frame
+   slot x0    :     0 of  8192 achievable gamma_3-dressings kill the dressed frame
+   slot x1    :     0 of  8192 achievable gamma_3-dressings kill the dressed frame
+   slot U     :     0 of  8192 achievable gamma_3-dressings kill the dressed frame
+   slot V     :     0 of  8192 achievable gamma_3-dressings kill the dressed frame
+   TOTAL single-slot stage-four kills: 0 of 40960   (wave 59: 1280 of 81920)
+
+== 5. random five-slot achievable refinements ==
+   4000 random five-slot achievable gamma_3-refinements: 0 kills
+
+== 6. UNRESTRICTED gamma_3-dressings do kill, so achievability is load-bearing ==
+   24 of the 320 unrestricted gamma_4-shaped single-slot moves kill: [('U', '<m=1, n=2>'), ('sigma', '<m=1, n=3>'), ('V', '<m=1, n=3>'), ('U', '<m=1, n=6>')]
+
+VERDICT: the point is CLEAN
