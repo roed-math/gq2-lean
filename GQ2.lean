@@ -721,6 +721,7 @@ import GQ2.Dyadic.SqCore.GradedLatticeWide
 import GQ2.Dyadic.SqCore.GradedFourCleared
 import GQ2.Dyadic.SqCore.GradedFourTwoLive
 import GQ2.Dyadic.SqCore.GradedFrameNecessity
+import GQ2.Dyadic.SqCore.GradedFourSharp
 import GQ2.Dyadic.SqCore.GradedFive
 import GQ2.Dyadic.SqCore.GradedFiveDefect
 import GQ2.Dyadic.SqCore.GradedSigmaFive
