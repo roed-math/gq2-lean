@@ -1,0 +1,16 @@
+   from seed: total weight 23, digit sum 73
+      x0 = <a=2, e=1>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=3, g=3, h=3>
+      x1 = <e=2, f=1, g=1, h=1, n=1, o=1>   residue 5
+
+== the sparsest clean witness found ==
+   x0 = <a=2, e=1>
+   x1 = <e=2, f=1, g=1, h=1, n=1, o=1>
+   U  = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>
+   V  = <a=6, b=7, c=6, d=1, e=3, f=3, g=3, h=3>
+   residue = 5
+   handle block [U, V] = <g=6, h=6, l=6, m=3, n=4, o=2>  (class-four row 3)
+   as raw tuples:
+      x0 = [2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      x1 = [0, 0, 0, 0, 2, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1]
+      U = [6, 7, 4, 1, 3, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0]
+      V = [6, 7, 6, 1, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0]

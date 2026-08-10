@@ -1,0 +1,35 @@
+== 0. the two group-law implementations agree ==
+PASS 2400 comparisons against the wave-59 matrix library, 0 mismatches
+
+== 1. gaThreeHandle: the commutator under a two-sided gamma_3-dressing ==
+PASS 1600 comparisons over Z, Z/4, Z/8, Z/16, 0 mismatches
+
+== 2. gaThreeCore: the core word under a three-slot gamma_3-dressing ==
+PASS 1200 comparisons over Z, Z/4, Z/8, Z/16, 0 mismatches
+   the class-four precedent's quadratic block, evaluated here, is NOT part of the form:
+     GradedGammaTwo.gaTwoQuad transposes to
+     (z0.j*z1.l - z0.l*z1.j) + 10*(z1.j*z1.l) - 8*(z1.j*z2.l) + z2.j*z2.l,
+PASS that transposed block is generically NON-zero (400 of 400) yet absent from the identity, which is the structural finding
+
+== 3. gaThreeShift: the five-slot relator identity ==
+PASS 1200 comparisons over Z, Z/4, Z/8, Z/16 at handle counts 0 to 4, 0 mismatches
+
+== 3b. the gamma_4 specialisation reproduces the committed class-five identity ==
+PASS 300 comparisons against GradedFiveDefect's conFiveShift, 0 mismatches
+
+== 4. the stage-four soundness, by brute force ==
+PASS 4500 dressings with j, l, m even: the shift's class-five row is always even (0 exceptions)
+   …and the hypothesis is sharp: dropping it produces odd shifts.
+PASS without it, 756 of 1500 unrestricted dressings move the row oddly
+
+== 5. the witness point and the wave-59 comparison ==
+PASS h=1 j=0 : undressed trivial and dressed = <o=1>
+PASS h=2 j=1 : undressed trivial and dressed = <o=1>
+PASS h=3 j=2 : undressed trivial and dressed = <o=1>
+PASS every letter of the new point has an even (1,2)-column
+PASS every letter of the new point has an even (3,4)-column
+PASS wave 59's U-letter does NOT have an even (1,2)-column (forceU.a = 1)
+PASS wave 59's killing dressing [[sigma, U], x1] = <m=5, n=6> has an ODD class-four coordinate
+PASS the new point's handle block is live with an odd class-four row (<g=6, h=6, l=6, m=5, o=6>)
+
+TOTAL CHECKS: 16   FAILURES: 0

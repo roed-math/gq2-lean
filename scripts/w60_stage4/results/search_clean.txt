@@ -1,0 +1,510 @@
+W60-STAGE4: the search behind the witness point (interrupted long run, `search_clean.py`).
+
+Random (x0, U, V) with every letter's (1,2)- and (3,4)-column EVEN; `x1` solved by the
+two-sided cascade; a point is LIVE when the undressed frame kills the relator and the
+`a0 = a1`-dressed frame is central with an odd class-five residue, and CLEAN when in addition
+every member of `gamma_3(im)` has `j`, `l` and `m` even.
+
+FINAL TALLY OF THIS RUN: [69564/200000] live 160, clean 160; best weight 6 residue 1
+  => every live point found under the two frame hypotheses was clean.  The hypotheses are
+     therefore not merely sufficient at the chosen point; no counterexample to their
+     sufficiency turned up in the whole search.
+
+The trace below repeats the running best after each new clean point.
+========================================================================================
+== the wave-59 point ==
+   ('OK', 14, 4, 3)
+
+== the wave-59 point with U.a even ==
+   U.a=0 : ('class 5: undressed row odd', 14, 7, 6)
+   U.a=2 : ('class 5: undressed row odd', 14, 1, 0)
+
+== a random sweep: where do candidates die? ==
+     1506   row odd at i (class 2)
+     1142   row odd at k (class 3)
+      374   row odd at l (class 3)
+      303   row odd at m (class 4)
+      270   row odd at n (class 4)
+      257   class 5: residue EVEN
+      135   class 5: undressed row odd
+       13   OK
+[272/200000] live 1, clean 1; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[801/200000] live 2, clean 2; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[1167/200000] live 3, clean 3; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[1187/200000] live 4, clean 4; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[1624/200000] live 5, clean 5; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[2426/200000] live 6, clean 6; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[3581/200000] live 7, clean 7; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[3787/200000] live 8, clean 8; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[4299/200000] live 9, clean 9; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[4436/200000] live 10, clean 10; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[4840/200000] live 11, clean 11; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[5192/200000] live 12, clean 12; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[5744/200000] live 13, clean 13; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[5748/200000] live 14, clean 14; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[5772/200000] live 15, clean 15; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[6433/200000] live 16, clean 16; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[6731/200000] live 17, clean 17; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[6809/200000] live 18, clean 18; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[7278/200000] live 19, clean 19; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[8921/200000] live 20, clean 20; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[9196/200000] live 21, clean 21; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[9489/200000] live 22, clean 22; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[10064/200000] live 23, clean 23; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[10365/200000] live 24, clean 24; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[10426/200000] live 25, clean 25; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[10451/200000] live 26, clean 26; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[11043/200000] live 27, clean 27; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[11465/200000] live 28, clean 28; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[11499/200000] live 29, clean 29; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[11975/200000] live 30, clean 30; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[12506/200000] live 31, clean 31; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[12892/200000] live 32, clean 32; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[12921/200000] live 33, clean 33; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[13955/200000] live 34, clean 34; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[15564/200000] live 35, clean 35; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[15644/200000] live 36, clean 36; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[16582/200000] live 37, clean 37; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[17418/200000] live 38, clean 38; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[17722/200000] live 39, clean 39; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[17760/200000] live 40, clean 40; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[18169/200000] live 41, clean 41; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[18640/200000] live 42, clean 42; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[18916/200000] live 43, clean 43; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[19130/200000] live 44, clean 44; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[19752/200000] live 45, clean 45; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[19895/200000] live 46, clean 46; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[20002/200000] live 47, clean 47; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[20539/200000] live 48, clean 48; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[22742/200000] live 49, clean 49; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[22861/200000] live 50, clean 50; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[23037/200000] live 51, clean 51; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[23174/200000] live 52, clean 52; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[23225/200000] live 53, clean 53; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[23464/200000] live 54, clean 54; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[23674/200000] live 55, clean 55; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[24101/200000] live 56, clean 56; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[24286/200000] live 57, clean 57; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[25986/200000] live 58, clean 58; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[26425/200000] live 59, clean 59; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[27983/200000] live 60, clean 60; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[28240/200000] live 61, clean 61; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[28702/200000] live 62, clean 62; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[28705/200000] live 63, clean 63; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[29173/200000] live 64, clean 64; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[29767/200000] live 65, clean 65; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[30076/200000] live 66, clean 66; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[31231/200000] live 67, clean 67; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[31716/200000] live 68, clean 68; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[31975/200000] live 69, clean 69; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[32599/200000] live 70, clean 70; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[33436/200000] live 71, clean 71; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[33524/200000] live 72, clean 72; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[34004/200000] live 73, clean 73; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[34018/200000] live 74, clean 74; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[34439/200000] live 75, clean 75; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[34767/200000] live 76, clean 76; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[35829/200000] live 77, clean 77; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[36455/200000] live 78, clean 78; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[36537/200000] live 79, clean 79; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[36591/200000] live 80, clean 80; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[36696/200000] live 81, clean 81; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[36770/200000] live 82, clean 82; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[36981/200000] live 83, clean 83; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[37750/200000] live 84, clean 84; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[37897/200000] live 85, clean 85; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[38592/200000] live 86, clean 86; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[38662/200000] live 87, clean 87; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[38965/200000] live 88, clean 88; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39244/200000] live 89, clean 89; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39381/200000] live 90, clean 90; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39384/200000] live 91, clean 91; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39518/200000] live 92, clean 92; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39539/200000] live 93, clean 93; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39852/200000] live 94, clean 94; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[39945/200000] live 95, clean 95; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[40817/200000] live 96, clean 96; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[40909/200000] live 97, clean 97; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[41223/200000] live 98, clean 98; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[41897/200000] live 99, clean 99; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[41904/200000] live 100, clean 100; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[41940/200000] live 101, clean 101; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[42159/200000] live 102, clean 102; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[42922/200000] live 103, clean 103; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[43060/200000] live 104, clean 104; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[43200/200000] live 105, clean 105; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[43516/200000] live 106, clean 106; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[43924/200000] live 107, clean 107; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[44756/200000] live 108, clean 108; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[44870/200000] live 109, clean 109; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[45878/200000] live 110, clean 110; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[46882/200000] live 111, clean 111; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[47280/200000] live 112, clean 112; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[47396/200000] live 113, clean 113; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[47742/200000] live 114, clean 114; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[48590/200000] live 115, clean 115; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[50041/200000] live 116, clean 116; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[50092/200000] live 117, clean 117; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[50136/200000] live 118, clean 118; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[51393/200000] live 119, clean 119; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[52186/200000] live 120, clean 120; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[52806/200000] live 121, clean 121; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[53533/200000] live 122, clean 122; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[53584/200000] live 123, clean 123; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[53794/200000] live 124, clean 124; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[54314/200000] live 125, clean 125; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[54394/200000] live 126, clean 126; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[54651/200000] live 127, clean 127; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[55020/200000] live 128, clean 128; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[55577/200000] live 129, clean 129; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[55600/200000] live 130, clean 130; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[56455/200000] live 131, clean 131; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[56867/200000] live 132, clean 132; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[57289/200000] live 133, clean 133; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[59190/200000] live 134, clean 134; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[59369/200000] live 135, clean 135; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[59519/200000] live 136, clean 136; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[59626/200000] live 137, clean 137; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[60572/200000] live 138, clean 138; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[61257/200000] live 139, clean 139; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[61404/200000] live 140, clean 140; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[61502/200000] live 141, clean 141; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[61638/200000] live 142, clean 142; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[62202/200000] live 143, clean 143; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[63108/200000] live 144, clean 144; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[63489/200000] live 145, clean 145; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[64085/200000] live 146, clean 146; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[65771/200000] live 147, clean 147; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[66083/200000] live 148, clean 148; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[66830/200000] live 149, clean 149; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[66878/200000] live 150, clean 150; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[67020/200000] live 151, clean 151; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[67021/200000] live 152, clean 152; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[67748/200000] live 153, clean 153; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[67810/200000] live 154, clean 154; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[68226/200000] live 155, clean 155; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[68531/200000] live 156, clean 156; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[68967/200000] live 157, clean 157; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[69039/200000] live 158, clean 158; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[69550/200000] live 159, clean 159; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+[69564/200000] live 160, clean 160; best weight 6 residue 1
+        x0 = <a=2, e=5>   U = <a=6, b=7, c=4, d=1, e=3, g=5, h=5>   V = <a=6, b=7, c=6, d=1, e=3, f=5, g=3, h=3, i=4>
+        x1 = <e=2, f=1, g=1, h=1, m=3, n=3>

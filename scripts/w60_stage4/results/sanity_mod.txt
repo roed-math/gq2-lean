@@ -1,0 +1,6 @@
+Howell:   |gamma_3(im)| = 16384   |gamma_4(im)| = 128
+closure:  |gamma_3(im)| = 16384   |gamma_4(im)| = 128   |gamma_5(im)| = 4
+the two gamma_3 sets agree elementwise: True
+the two gamma_4 sets agree elementwise: True
+gamma_4-shaped part of gamma_3(im): Howell 512, honest 512, equal True
+its (m, n) parity classes: [(0, 0), (0, 1), (1, 0), (1, 1)]
