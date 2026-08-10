@@ -1,0 +1,68 @@
+W56-ALPHA2 computational summary
+================================
+
+QUESTION (A).  The wave-52 range identity `evenRange_range_eq` produces, for each finite K/Q_2
+with K(i)/K ramified, an alpha >= 2 with range(chi_cyc on G_K(2)) = imChiM alpha or imChiN alpha.
+Can that alpha equal 2 for K in the even route's intended class?
+
+ANSWER.  YES, and generically so.  alpha = 2 is the typical value, not a corner.
+
+CRITERION (proved by hand, verified computationally on all 113 in-class fields below,
+zero mismatches):
+
+        alpha >= 3   <=>   sqrt(2) in K.
+
+Reason: alpha >= 3 iff range chi <= {u : u = +-1 mod 8}, and that subgroup of
+Z_2^* = Gal(Q_2(mu_{2^oo})/Q_2) is exactly the one fixing sqrt(2) = zeta_8 + zeta_8^{-1}.
+Equivalently: alpha = 2 iff K cap Q_2(mu_{2^oo}) is Q_2 (M branch, range = Z_2^*, i.e. the
+cyclotomic character is surjective) or Q_2(sqrt(-2)) (N branch, range = {u : u = 1,3 mod 8}).
+
+CENSUS (scripts/w56_alpha2/alpha_census.m -> results/alpha_census.txt).
+Degrees 1, 2, 3, 4, 6 over Q_2, enumerated by Magma's AllExtensions.  CAVEAT: that enumeration
+repeats a few isomorphism classes above degree three (it returns 63 quartics and 64 sextics,
+where the isomorphism-class counts are 59 and 47), so the numbers below count enumeration
+entries, not isomorphism classes.  The degree-1,2,3 rows are exact (1, 7, 2 = the true counts).
+"in class" = i notin K and K(i)/K ramified.  113 in-class entries:
+
+        branch M, alpha = 2 :  91 fields
+        branch M, alpha = 3 :  10 fields
+        branch M, alpha = 4 :   1 field
+        branch N, alpha = 2 :  10 fields
+        branch N, alpha = 3 :   1 field
+        -----------------------------------
+        alpha = 2 : 101 of 113        alpha >= 3 : 12 of 113
+
+Method is exact, not sampled: H = range chi is the subgroup of (Z/2^n)^* fixing
+K cap Q_2(mu_{2^n}), computed by intersecting every subgroup of (Z/2^n)^* whose fixed field
+(a Gaussian-period generator, degree-verified) has a root in K.  n = max(5, v_2(d)+3) suffices
+because [Z_2^*:H] divides d, so (Z_2^*)^d <= H.
+Independent cross-check by local class field theory: chi_K(rec_K x) = (unit part of N_{K/Q_2} x)^{-1},
+so unit parts of actual norms lie in H; the subgroup they generate equalled the computed H in
+113 of 113 cases (column "norms" = "=H" everywhere, no "!!BAD", no "<H").
+
+THE SEVEN QUADRATIC FIELDS (scripts/w56_alpha2/quadratic_named.m -> results/quadratic_named.txt).
+
+  K              i in K   K(i)/K   sqrt2   branch  alpha   in class
+  Q_2(sqrt -1)   yes      n/a      no      -       -       no  (i in K)
+  Q_2(sqrt  2)   no       ram      yes     M       3       yes
+  Q_2(sqrt -2)   no       ram      no      N       2       yes
+  Q_2(sqrt  5)   no       ram      no      M       2       yes   (unramified quadratic; range = Z_2^*)
+  Q_2(sqrt -5)   no       unram    no      M       2       no  (K(i)/K unramified)
+  Q_2(sqrt 10)   no       ram      no      M       2       yes
+  Q_2(sqrt-10)   no       ram      no      M       2       yes
+
+So of the five in-class quadratic fields (all of degree 2 = 2 + 2*0, i.e. h = 0, exactly the
+even route's smallest rank), FOUR are at alpha = 2 and one is at alpha = 3.
+
+MINIMAL EVEN-DEGREE WITNESSES FOR alpha = 2:
+  * M branch: K = Q_2(sqrt 5), the unramified quadratic extension.  Q_2(mu_{2^oo})/Q_2 is
+    totally ramified, so K cap Q_2(mu_{2^oo}) = Q_2 and chi is surjective; imChiM 2 = top.
+    In the repo this field is `GQ2.Dyadic.Fields.KSqrtFive`.
+  * N branch: K = Q_2(sqrt -2).  K itself is the fixed field of {u : u = 1,3 mod 8}, so
+    range chi = imChiN 2 exactly.  In the repo this field is `GQ2.Dyadic.Fields.KSqrtNegTwo`.
+
+CONSEQUENCE FOR THE REPOSITORY'S TWO PILOT FIELDS.
+  `KSqrtTwo` = Q_2(sqrt 2)  : M branch, alpha = 3.  Above the refuted stratum; unaffected.
+  `KSqrtNegTwo` = Q_2(sqrt -2) : N branch, alpha = 2.  Its `Hflip` input is refuted, so
+  `evenRouteWitness_orientedEquivN_sqrtNegTwo` is a vacuous theorem.
+  The M pilot and the N pilot sit on opposite sides of the cliff.
