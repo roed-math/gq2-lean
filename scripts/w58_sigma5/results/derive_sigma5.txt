@@ -1,0 +1,173 @@
+== 1. the class-five carrier U_6, and its two U_5 quotients ==
+PASS U_6 is a group (associativity, inverses), 4000 instances
+PASS the coordinate law agrees with honest 6x6 matrix arithmetic
+PASS ...and with the generic unitriangular library `unilib`
+PASS toU5L is a homomorphism onto the COMMITTED SqU5
+PASS toU5R is a homomorphism onto the COMMITTED SqU5
+PASS toU5L(sigFiveMark) = the committed sigFourMark
+PASS the core word commutes with toU5L (so every class-four fact survives)
+PASS the lift restricts to sigFourX
+PASS the lift restricts to sigFourY
+PASS *** the lift already kills all FIFTEEN rows: sqRelWord(fiveWit 1) = 1
+PASS the committed class-four verdict U (odd residue 1) is the left corner of the lift
+PASS the committed class-four verdict V (even residue 2) likewise
+
+== 2. the fifteen-row class-five sigma response ==
+PASS rows a,b,c,d,e (abelian) do not move
+PASS rows f (x13) and g (x24) do not move either
+   the seven rows a..g are sigma-INVARIANT; every deeper row moves.
+PASS D[x35] is the committed sigFourG
+PASS D[x14] is the committed sigFourH
+PASS D[x25] is the committed sigFourI
+PASS *** D[x15] is the committed sigFourRead, verbatim
+   -> the class-four reading is the (1,5) row of the class-five one: nothing is lost.
+
+   THE CLASS-FIVE READING sigFiveRead = D[x16], 135 terms:
+   - va*xl + va*xn - ve*xm + vf*xl - vi*xj + vj*xi - vl*xa - vl*xf + vm*xe - vn*xa - va*ve*xh + va*ve*xk - va*vg*xi - va*vi*xc + va*vi*xg - va*vk*xe + 4*va*xc*xi - 2*va*xc*yi + 4*va*xe*xh - 4*va*xe*xk - 4*va*xg*xi + 2*va*xg*yi - 2*va*xh*ye + 2*va*xk*ye - va*yc*yi - va*ye*yh + va*ye*yk + va*yg*yi - vc*vf*xi + 3*vc*xa*xi - 2*vc*xa*yi + 3*vc*xf*xi - 2*vc*xf*yi - vc*ya*yi - 2*vc*yf*yi - vd*vj*xe + 3*vd*xe*xj - 2*vd*xj*ye - 2*vd*ye*yj + ve*vf*xh + ve*vj*xd + ve*xa*xk + ve*xd*xj + ve*xf*xh - ve*ya*yh + ve*ya*yk + ve*yd*yj + ve*yf*yh - vf*vh*xe + vf*vi*xc - 4*vf*xc*xi + 2*vf*xc*yi - 4*vf*xe*xh + 2*vf*xh*ye + vf*yc*yi + vf*ye*yh + 3*vg*xa*xi - 2*vg*xa*yi - 2*vg*ya*yi + 3*vh*xa*xe - 2*vh*xa*ye + 3*vh*xe*xf - 2*vh*xf*ye - vh*ya*ye - 2*vh*ye*yf + vi*xa*xg + vi*xc*xf - vi*ya*yc + vi*ya*yg + vi*yc*yf - 4*vj*xd*xe + 2*vj*xd*ye + vj*yd*ye + 3*vk*xa*xe - 2*vk*xa*ye - 2*vk*ya*ye + va*vd*vg*xe + 3*va*vd*xc*xe - 2*va*vd*xc*ye - 3*va*vd*xe*xg + 2*va*vd*xg*ye - va*vd*yc*ye + va*vd*ye*yg - va*ve*vg*xd + va*ve*xc*xd - va*ve*xd*xg + 4*va*vg*xd*xe - 2*va*vg*xd*ye - va*vg*yd*ye - 10*va*xc*xd*xe + 8*va*xc*xd*ye - va*xc*yd*ye + 10*va*xd*xe*xg - 8*va*xd*xg*ye + va*xg*yd*ye + vc*vd*vf*xe + vc*vd*ye*yf - vc*ve*vf*xd - vc*ve*yd*yf + 4*vc*vf*xd*xe - 2*vc*vf*xd*ye - vc*vf*yd*ye - 6*vc*xa*xd*xe + 6*vc*xa*xd*ye - 2*vc*xa*yd*ye - 6*vc*xd*xe*xf + 6*vc*xd*xf*ye - 5*vc*xf*yd*ye - vc*ya*yd*ye - 3*vd*vf*xc*xe + 2*vd*vf*xc*ye + vd*vf*yc*ye + vd*vg*ya*ye - 3*vd*xa*xe*xg + 2*vd*xa*xg*ye - 2*vd*xa*yc*ye + 8*vd*xa*ye*yg - 3*vd*xc*xe*xf + 2*vd*xc*xf*ye + 8*vd*xf*yc*ye + 2*vd*ya*yc*ye - ve*vf*xc*xd - ve*vg*ya*yd - ve*xa*xd*xg - ve*xa*yc*yd - 4*ve*xa*yd*yg - ve*xc*xd*xf - 4*ve*xf*yc*yd - ve*ya*yc*yd + 10*vf*xc*xd*xe - 8*vf*xc*xd*ye + vf*xc*yd*ye - 6*vg*xa*xd*xe + 6*vg*xa*xd*ye - 5*vg*xa*yd*ye
+
+   channel decomposition (the coefficient of each dressing coordinate):
+     v.a (v12) : - xl + xn - ve*xh + ve*xk - vg*xi - vi*xc + vi*xg - vk*xe + 4*xc*xi - 2*xc*yi + 4*xe*xh - 4*xe*xk - 4*xg*xi + 2*xg*yi - 2*xh*ye + 2*xk*ye - yc*yi - ye*yh + ye*yk + yg*yi + vd*vg*xe + 3*vd*xc*xe - 2*vd*xc*ye - 3*vd*xe*xg + 2*vd*xg*ye - vd*yc*ye + vd*ye*yg - ve*vg*xd + ve*xc*xd - ve*xd*xg + 4*vg*xd*xe - 2*vg*xd*ye - vg*yd*ye - 10*xc*xd*xe + 8*xc*xd*ye - xc*yd*ye + 10*xd*xe*xg - 8*xd*xg*ye + xg*yd*ye
+     v.c (v34) : - vf*xi + 3*xa*xi - 2*xa*yi + 3*xf*xi - 2*xf*yi - ya*yi - 2*yf*yi + vd*vf*xe + vd*ye*yf - ve*vf*xd - ve*yd*yf + 4*vf*xd*xe - 2*vf*xd*ye - vf*yd*ye - 6*xa*xd*xe + 6*xa*xd*ye - 2*xa*yd*ye - 6*xd*xe*xf + 6*xd*xf*ye - 5*xf*yd*ye - ya*yd*ye
+     v.d (v45) : - vj*xe + 3*xe*xj - 2*xj*ye - 2*ye*yj - 3*vf*xc*xe + 2*vf*xc*ye + vf*yc*ye + vg*ya*ye - 3*xa*xe*xg + 2*xa*xg*ye - 2*xa*yc*ye + 8*xa*ye*yg - 3*xc*xe*xf + 2*xc*xf*ye + 8*xf*yc*ye + 2*ya*yc*ye
+     v.e (v56) : - xm + vf*xh + vj*xd + xa*xk + xd*xj + xf*xh - ya*yh + ya*yk + yd*yj + yf*yh - vf*xc*xd - vg*ya*yd - xa*xd*xg - xa*yc*yd - 4*xa*yd*yg - xc*xd*xf - 4*xf*yc*yd - ya*yc*yd
+     v.f (v13) : xl - vh*xe + vi*xc - 4*xc*xi + 2*xc*yi - 4*xe*xh + 2*xh*ye + yc*yi + ye*yh + 10*xc*xd*xe - 8*xc*xd*ye + xc*yd*ye
+     v.g (v24) : 3*xa*xi - 2*xa*yi - 2*ya*yi - 6*xa*xd*xe + 6*xa*xd*ye - 5*xa*yd*ye
+     v.h (v35) : 3*xa*xe - 2*xa*ye + 3*xe*xf - 2*xf*ye - ya*ye - 2*ye*yf
+     v.i (v46) : - xj + xa*xg + xc*xf - ya*yc + ya*yg + yc*yf
+     v.j (v14) : xi - 4*xd*xe + 2*xd*ye + yd*ye
+     v.k (v25) : 3*xa*xe - 2*xa*ye - 2*ya*ye
+     v.l (v36) : - xa - xf
+     v.m (v15) : xe
+     v.n (v26) : - xa
+PASS the reading has no dressing-free part
+
+== 3. the gauge collapse ==
+   on the WEAK gauge (all four abelian columns of x0 even, the two lower
+   class-two coordinates even, the x1 slot's abelian columns even), mod 2:
+     va*xl + va*xn + ve*xm + vf*xl + vi*xj + vj*xi + va*ve*xh + va*ve*xk + va*vg*xi + va*yg*yi + vc*vf*xi + ve*vf*xh + ve*yf*yh
+   on the HONEST class-two-forced gauge (x0 = forced value times a gamma_3 element,
+   so all four of its class-two coordinates vanish), mod 2:
+     va*xl + va*xn + ve*xm + vf*xl + vi*xj + va*ve*xk + va*yg*yi + ve*yf*yh
+
+   LIVE CHANNELS there (class four had THREE: v.a = v12, v.d = v45, v.e = v13):
+     v.a (v12) -> x36 + x26        [class-three + class-four coordinates of x0]
+     v.e (v56) -> x15              [class-four]
+     v.f (v13) -> x36              [class-three]
+     v.i (v46) -> x14              [class-three]   *** NEW: a class-two channel
+     plus the quadratic cross-term v.a*v.e*x25 and the x1-slot terms v.a*y24*y46,
+     v.e*y13*y35 - the class-five reading is NOT linear in the dressing.
+PASS the honest-gauge reading is exactly those eight monomials
+PASS    channel va*xl present
+PASS    channel va*xn present
+PASS    channel ve*xm present
+PASS    channel vf*xl present
+PASS    channel vi*xj present
+PASS    channel va*ve*xk present
+PASS    channel va*yg*yi present
+PASS    channel ve*yf*yh present
+
+== 4. (b) DOES THE `a0 = a1` FORCING BECOME VISIBLE? ==
+   Careful with the gauge.  The two substitutions above make ALL FOUR abelian columns of
+   the x0 slot even, including the fifth entry x56 - a matrix entry U_5 does not have, so
+   GradedSigmaFour's class-two-forced gauge says nothing about it.  Call that stronger
+   hypothesis set the EXTENDED gauge, and the committed one (x12, x34, x45 even; x13, x24
+   even; the x1 slot's abelian columns even) the COMMITTED gauge.
+PASS *** on the EXTENDED gauge the diagonal dressing v = x is read evenly (weak form)
+PASS *** on the EXTENDED gauge likewise in the honest form
+   on the COMMITTED gauge (x56 left free) the diagonal is:  xe*yf*yh
+PASS *** on the COMMITTED gauge the diagonal is NOT even: the channel x56*y13*y35 is open
+   -> POSITIVE: class five DOES separate the sweep's forced dressing, through the
+      x0-slot's fifth abelian column, which no class-four hypothesis constrains.
+
+   On the EXTENDED gauge it dies, and the reason is worth recording: the reading's
+   (dressing, x0)-bilinear part is ALTERNATING over F_2.
+
+   No channel has the form v.p * x.p, and every off-diagonal pair has b_pq + b_qp even -
+      v.i*x14 and v.j*x46 enter as  v.j*x.i - v.i*x.j   (exactly alternating),
+      v.e*x15 and v.m*x56 as         v.m*x.e - v.e*x.m,
+      v.a*x26 and v.n*x12 as         v.a*x.n - v.n*x.a,
+      v.f*x36 and v.l*x13 as         v.f*x.l - v.l*x.f,
+      v.a*x36 and v.l*x12 as        -v.a*x.l - v.l*x.a   (symmetric: 2*(..) mod 2 = 0).
+   A bilinear form with even diagonal and even symmetrisation vanishes on v = x, which
+   is why the escape has to come from a channel the extended gauge closes by hand.
+
+   The vanishing is in any case no longer IDENTICAL.  Impose only the relator's own abelian
+   rows (-4x + 2y = 0 in each column over Z/8, whence every abelian column of the x1
+   slot is even) and compare the two classes:
+     class five : xa*yg*yi + xe*yf*yh
+     class four : 0
+PASS *** at class FOUR the diagonal is even at EVERY relator-killing marking
+PASS *** at class FIVE it is the nonzero functional  x12*y24*y46 + x56*y13*y35
+   -> class five is the FIRST level at which the `a0 = a1` response is not identically
+      even; it vanishes on the class-two-forced gauge only because that gauge makes the
+      x0-slot's abelian columns x12 and x56 even.  The residual has moved from `no
+      channel exists` to `the channel exists and the gauge closes it`.
+
+== 5. (c) DOES THE HANDLE BLOCK BECOME VISIBLE? ==
+   the relator's top row at any marking:  (W*H).o = Ho + Wo + Hi*Wj + Hl*Wf + Hn*Wa
+PASS the block meets the top row through exactly three coefficients: W.a, W.f, W.j
+   a sigma dressing does not move W.a or W.f (section 2), so the response is
+     Delta(W*H).o = sigFiveRead(v,x,y)  +  sigFourH(v,x) * H.i          (H.i = block_46)
+   *** the wave-57 IDENTICAL cancellation FAILS at class five: the block is present.
+
+   Two independent evennesses kill it anyway.
+PASS    (i) sigFourH(v,x) is even on the class-two-forced gauge (the committed sigFourH_gauge_even)
+   (i') on the diagonal it is even at EVERY marking:  sigFourH(x,x) = - 2*xa*xc
+PASS        sigFourH(x,x) = -2*x12*x34
+   (ii) the relator pins the block to the core word's inverse, and
+        W.i (x46) = - 4*xi + 2*yi + 10*xd*xe - 8*xd*ye + yd*ye
+        so W.i = y45*y56 mod 2, and the relator's abelian rows (W.d = -4*x45 + 2*y45 = 0,
+        W.e = -4*x56 + 2*y56 = 0 over Z/8) force y45 and y56 EVEN.
+PASS    W.i is even once the x1 slot's outer abelian columns are even
+   -> H.i = -W.i is EVEN at every relator-killing marking, at every handle count, on
+      every row, with NO gauge hypothesis at all.
+
+   *** NEGATIVE at class five: the class-five selection bit is handle-blind.
+
+   The general shape, at every class c (carrier U_{c+1}, top row (1, c+1)):
+     Delta(relator top) = [class-c reading] + sum_{m=2}^{c-1} [class-(m-1) reading]*H_{m,c+1}
+   because the (1,m) entry only sees the corner (1..m), on which the marking restricts to
+   the class-(m-1) one.  The two factors of each coupling term:
+     coefficient [class-(m-1) reading]:  identically 0 for m <= 3;
+                                          EVEN on the gauge for m = 4 (sigFourH);
+                                          odd-able for m >= 5 (sigFourRead onwards).
+     block coordinate H_{m,c+1}: for m >= 3 the corner (m..c+1) misses the sigma letter
+     E_23 entirely, so the core word restricts there to x^{-4} y^2 and the block to its
+     inverse.  Parity of those coordinates, given the relator's abelian rows:
+       corner size 3, class 2 : always EVEN
+PASS       corner size 3: every block coordinate of class <= 3 is even
+       corner size 4, class 2 : always EVEN
+       corner size 4, class 3 : always EVEN
+PASS       corner size 4: every block coordinate of class <= 3 is even
+       corner size 5, class 2 : always EVEN
+       corner size 5, class 3 : always EVEN
+       corner size 5, class 4 : can be ODD [(1, 5)]
+PASS       corner size 5: every block coordinate of class <= 3 is even
+       corner size 6, class 2 : always EVEN
+       corner size 6, class 3 : always EVEN
+       corner size 6, class 4 : can be ODD [(1, 5), (2, 6)]
+       corner size 6, class 5 : can be ODD [(1, 6)]
+PASS       corner size 6: every block coordinate of class <= 3 is even
+
+   COMBINING: a coupling term can be odd only when the coefficient is odd-able
+   (m >= 5, or m = 4 off the gauge) AND the block coordinate is odd-able (class
+   c + 1 - m >= 4).  So
+     on the class-two-forced gauge : need m >= 5 and c >= m + 3, first opening CLASS 8;
+     off it                        : need m >= 4 and c >= m + 3, first opening CLASS 7.
+   Classes four, five, six and seven are handle-blind on the gauge; class five is the
+   first at which the block is PRESENT in the response at all.
+
+== 6. the class-five gauge parity theorem ==
+   (the transposition of GradedFourCleared's sqWord_sigFourMark_gauge_even)
+PASS on the honest class-two-forced gauge the twelve rows of class <= 3 are all EVEN
+   W.m (x15, class 4) can be odd:  yf*yh
+   W.n (x26, class 4) can be odd:  xl + yg*yi
+   W.o (x16, class 5) can be odd:  yf*yl + yi*yj
+   -> at class four only ONE row could be odd; at class five THREE can, and the two new
+      ones are the class-four rows x15 and x26.  The class-two-forced gauge controls
+      exactly the rows of class <= 3, at either level.
+
+== 7. the generated closed forms agree with honest group evaluation ==
+PASS 300000 row comparisons against honest U_6 collection, zero mismatches
+
+TOTAL CHECKS: 43   FAILURES: 0

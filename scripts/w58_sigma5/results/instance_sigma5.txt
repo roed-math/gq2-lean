@@ -1,0 +1,61 @@
+== A. the committed class-four witness, lifted ==
+PASS the lift restricts to the committed sigFourX, sigFourY, sigFourU, sigFourV
+PASS all fifteen rows die at every handle count h = 1..4 and every handle
+PASS dressing by 1              leaves <1> at every (h, j)
+PASS dressing by U (chi_a = 1)  leaves <m=1> at every (h, j)
+PASS dressing by V (chi_a = 2)  leaves <m=2> at every (h, j)
+   -> the three committed verdicts are the class-four ones, in the (1,5) row; the
+      class-five row (1,6) is ZERO at all three: this point is class-five blind.
+PASS the class-five row is blind here: every live coefficient of the reading vanishes
+
+== B. points where one class-five channel is live ==
+PASS   relator dies at the v46                                        point
+PASS   the class-five bit is exactly selPar(v.i), 4000 dressings
+PASS   relator dies at the v56                                        point
+PASS   the class-five bit is exactly selPar(v.e), 4000 dressings
+PASS   relator dies at the v12                                        point
+PASS   the class-five bit is exactly selPar(v.a), 4000 dressings
+   -> class five reads characters of the sigma dressing that class four cannot: the
+      channel v46 lives on a matrix entry that U_5 does not have at all.
+
+== C. *** THE SEPARATING POINT: the sweep's `a0 = a1` dressing, decided ==
+   U  = <a=1, c=2, d=3, f=3, g=2, h=2, i=2>
+   V  = <d=1, e=2, f=3, g=2, h=3, i=3>
+   x0 = <a=2, e=1>
+   x1 = <e=2, f=1, h=3, i=1, j=2, k=2, l=2, m=3, n=2, o=2>
+   handle block [U, V] = <h=2, i=6, j=4, k=4, l=6, m=3, n=2, o=6>   *** LIVE, and live at class four (x15 = 3)
+PASS the undressed marking kills all fifteen rows, h = 1
+PASS *** the `a0 = a1` dressing leaves exactly liftC 7: fourteen rows dead, top row ODD
+PASS     all fourteen lower rows of the dressed relator vanish
+PASS     the class-FOUR row of the dressed relator is zero: class four is blind here
+PASS     the whole class-four relator is trivial at both dressings (through toU5L)
+
+   THE GAUGE AUDIT (GradedSigmaFour's class-two-forced gauge, transposed verbatim):
+     x0 abelian columns   x12 = 2, x34 = 0, x45 = 0   (nu'-column x23 = 0)
+     x0 lower class-two   x13 = 0, x24 = 0
+     x1 abelian columns   y12 = 0, y34 = 0, y45 = 0
+PASS     every datum the class-four gauge constrains is EVEN here
+     the ONE odd datum is  x0's fifth abelian column x56 = 1,
+     a matrix entry that does not exist in U_5: the class-four gauge cannot mention it.
+
+   THE CLOSED FORM.  At every relator-killing marking the `a0 = a1` response is
+     x12 * y24 * y46  +  x56 * y13 * y35   (mod 2),
+   here  2*0*1 + 1*1*3 = 1.
+PASS     the closed form predicts the observed parity
+PASS     the whole verdict holds at every handle count h = 1..4 and every handle
+
+== D. the handle-block audit ==
+   the relator's top row is  (W*H).o = W.o + H.o + W.a*H.n + W.f*H.l + W.j*H.i,
+   and a sigma dressing moves neither W.a nor W.f, so
+     Delta(top) = sigFiveRead(v, x, y) + sigFourH(v, x) * H.i.
+PASS    the coupling formula holds at 3000 random markings (any letters, live or dead)
+   the block therefore does NOT cancel identically, as it did at class four
+   (GradedFourCleared.sqRelWord_sigFourDress_handle_blind).  But:
+PASS    H.i = -W.i is EVEN at every marking whose abelian rows vanish, 2000 instances
+   -> the class-five selection bit is handle-blind, at every handle count, on every
+      row, with no gauge hypothesis: the block coordinate it meets is forced even.
+PASS    two arbitrary blocks differ by exactly sigFourH(v,x)*(H1.i - H2.i), 2000 markings
+   -> that discrepancy is the whole failure of wave 57's identical cancellation, and it
+      dies mod 2 the moment the relator's abelian rows hold (H.i even).
+
+TOTAL CHECKS: 23   FAILURES: 0
