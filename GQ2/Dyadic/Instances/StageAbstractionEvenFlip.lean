@@ -7,8 +7,126 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenEndpoint
 import GQ2.Dyadic.MarkedCore.N
 
 /-!
-# W55-SLOT3: the paired move is false, the corrected move is true, and the even flip supply
-collapses to one slot
+# W55-SLOT3: the paired move refuted and repaired, every slot but one constructed, and the
+`α = 2` stratum refuted
+
+## What this file is
+
+Wave 54 (`StageAbstractionEvenEndpoint.lean` §4.1) reduced the `M`-branch slot-`3` flip to a
+single group identity in `levelQuot G (k + 1)`,
+
+  `[a^n, b] · [b^n, a] = 1`,   `a = base 3`, `b = base 2`, `n = 2^(k-2)`,
+
+and recorded that the identity is not in the tree.  This lane was asked to prove it.
+
+## Headline
+
+**The identity is FALSE, its exact defect is computed, the repaired move is proved, the same
+repair gives *every* slot but `0` on *both* branches, and slot `0` is then refuted outright at
+`α = 2`.**
+
+Four statements, in the order they are proved.
+
+1. **The exact value of the wave-54 move** (§2).  With `c = [a, b]` and `m = 2^(k-3)`,
+
+     `[a^n, b] · [b^n, a] = [c^m, a] · [c^m, b]`   (`evenFlip_pairedMove_eq`),
+
+   an identity in the central involutive layer `Z_k`, valid for every `a` and `b`.  So the
+   wave-54 hypothesis `hpair` is *equivalent* to the vanishing of `[c^m, a] · [c^m, b]`
+   (`evenFlip_pairedMove_iff`), which is `[[a,b], a·b]` up to the half power, and which does
+   not vanish: in the free two-generated pro-`2` group modulo `λ_4` it is a nontrivial element
+   of a group of order `2^10`, and in the `M`-relator Demushkin group of rank `4` at `α = 2`,
+   `k = 3` it is nontrivial in a quotient of order `2^38`
+   (`scripts/w55_slot3/`, `results/w55_slot3_paired_move.txt`).  Wave 54's reduction is sound
+   but its target was unreachable.
+
+2. **The corrected move** (§2).  Add the defect back at *both* cross slots:
+
+     `[a^n · c^m, b] · [b^n · c^m, a] = 1`   (`evenFlip_pairedMove_corrected`),
+
+   with no hypothesis at all.  Each of `[c^m, a]` and `[c^m, b]` now occurs twice in a layer of
+   exponent two, so the whole product dies.  The character side is untouched, because `c` is a
+   commutator and characters are abelian-valued: the correction carries no digit.
+
+   Both statements rest on §1's **power-commutator identity**
+
+     `[a^{2^j}, b] · c^{2^j} · [c^{2^(j-1)}, a] = 1`   in `Q_{j+3}`
+     (`evenFlip_commP_pow_two`),
+
+   proved by induction on `j`, each step running one level higher in the tower with the
+   induction hypothesis pulled back along `levelProj` and both error terms killed by the depth
+   count `(j+3) + (j+2) ≥ j+5`.  This is the arithmetic of `2`-power commutators in the lower
+   two-central tower, and it is what was missing.
+
+3. **Every slot but `0`, on both branches** (§3, §4).  The corrected move is one of two
+   engines.
+
+   * *Partner move* (`evenFlip_flip_of_partner`): if slot `i₀`'s row brackets against `iw` and
+     some other slot `i₁`'s row brackets against the sharp letter `ig`, place
+     `base ig^n · e^m` at `i₀` and `base iw^n · e^m` at `i₁`, `e = [base ig, base iw]`.  On the
+     `M` table the sharp letter is `3` and `i₁ = 2`, so this reaches slots `1`, `3` and every
+     handle; slot `2` is wave 53's `evenDigit_flipSlotTwo_M`.
+   * *Diagonal move* (`evenFlip_flip_of_diagonal`): place `base 1^n` at `i₀` and `e^m` at
+     *both* slots `0` and `1`.  Slot `0`'s row is `p² · [p, base 0] · [p, base 1]` and slot
+     `1`'s is `[p, base 0]`, so the two `[e^m, base 0]` cancel in the involutive layer and what
+     is left is exactly §1's identity at the pair `(base 1, base iw)`.  On the `N` table the
+     sharp letter *is* `1`, so this reaches every nonzero slot.
+
+   Wave 53's verdict that no `N` slot is constructible **by partner powers** was correct and is
+   not contradicted: the `N` character mass sits at a letter that is nobody's bracket partner.
+   What it missed is that slot `0`'s row carries `[p, base 1]` alongside its diagonal square,
+   and that slot `1`'s row cancels the leftover.  So the `N` branch is not the hard branch; the
+   diagonal coordinate is.
+
+   Consequently `EvenDigitFlipSupply` is equivalent, on *both* even row tables, to its
+   single-slot restriction `EvenDigitFlipSupplySlotZero` (`evenFlip_{m,n}Flip_iff_slotZero`).
+
+4. **Slot `0` is refuted at `α = 2`** (§6).  Coordinate `0` is the only coordinate whose row is
+   not a bracket: it carries the *square* `correction 0 ^ 2` of the relator's leading letter.
+   So a correction with literally trivial shift word has that square inside the commutator
+   subgroup (`evenFlip_slotZero_sq_mem_commutator`), whence for any representative `g`
+
+     `χ(g)² ≡ 1 (mod 2^(k+2))`,  and `χ(g) ≡ 1 (mod 2^k)` from the depth,
+
+   which force `χ(g) ≡ 1 (mod 2^(k+1))` (`evenFlip_slotZero_digit`).  The flip demands
+   sharpness at `k + α - 2`, that is `¬ 2^(k + α - 1) ∣ χ(g) - 1`; at `α = 2` that reads
+   `¬ 2^(k+1) ∣ χ(g) - 1`.  Contradiction.
+
+   So **`EvenDigitFlipSupply 2 W v G chi` is false on every row table** as soon as one stage
+   tuple exists (`evenFlip_not_flipSupply_two`), and with wave 53's equivalence
+   `evenDigit_rawToBracket_iff_flip_{M,N}` so is `Hup` at `α = 2`
+   (`evenFlip_not_rawToBracket_two_{M,N}`).  Every per-field flip input of waves 53 and 54
+   quantifies over `α ≥ 2` and therefore contains the refuted instance: `EvenPerK{N,M}DigitFlip`,
+   `EvenEndpointNFlip` and `EvenEndpointMFlipOffTwo` are all false
+   (§7.3).  The `α = 2` stratum endpoints `evenDigit_orientedEquiv{N,M}_two` and
+   `evenEndpoint_orientedEquiv{N,M}_two` are therefore vacuous, and no bookkeeping repairs
+   them: the obstruction is the shape of the relator's first letter, not the choice of table.
+
+## What the even route carries after this lane
+
+| statement | flip input |
+| --- | --- |
+| `evenDigit_orientedEquiv{N,M}` (W53) | all `4 + 2h` slots, every `α ≥ 2` - false |
+| `evenEndpoint_orientedEquivN` (W54) | all slots, every `α ≥ 2` - false |
+| `evenEndpoint_orientedEquivM` (W54) | all slots but `2`, every `α ≥ 2` - false |
+| **`evenFlip_orientedEquiv{N,M}_atDepth`** | **slot `0` only, at the one produced depth** |
+| **`evenFlip_orientedEquiv{N,M}_atDepth_deep`** | **slot `0` only, at depths `α ≥ 3`** |
+
+So the honest carried flip set is: on the `M` branch, coordinate `0` alone; on the `N` branch,
+coordinate `0` alone; and neither is available at `α = 2`.  What slot `0` needs, exactly, is a
+depth-`(k-1)` class whose square is a product of commutators and whose character level lies in
+`[k+1, k+α-2]` - an empty range precisely when `α = 2`.
+
+## Numbering
+
+1. the power-commutator identity in the two-central tower, and the row bilinearity it needs;
+2. the wave-54 paired move: its exact value, its equivalent form, and its repair;
+3. the two flip engines;
+4. the two branches: every slot but `0`;
+5. the reduced flip supplies, and the two equivalences;
+6. the slot-`0` obstruction and the `α = 2` refutation;
+7. the even endpoints at the reduced input, the deep repair, and the refuted per-field inputs;
+8. axiom pins.
 -/
 
 namespace GQ2.Dyadic.StageGeneric
@@ -885,7 +1003,201 @@ theorem evenFlip_mOffTwo_of_slotZero {α : ℕ} (hα : 2 ≤ α) {hα₁ : 1 ≤
 
 end Supply
 
-/-! ## §6 The even endpoints, with the flip input reduced to one slot -/
+/-! ## §6 The slot-`0` obstruction, and the refutation at `α = 2`
+
+### §6.1 The diagonal square is a product of commutators -/
+
+section SlotZero
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k : ℕ}
+
+open scoped commutatorElement
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- Every `commP` lies in the commutator subgroup. -/
+private theorem evenFlip_commP_mem_commutator {H : Type*} [Group H] (x y : H) :
+    commP x y ∈ commutator H := by
+  rw [show commP x y = ⁅x⁻¹, y⁻¹⁆ from by simp only [commP, commutatorElement_def, inv_inv]]
+  exact Subgroup.commutator_mem_commutator (Subgroup.mem_top _) (Subgroup.mem_top _)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The handle block of the shift word is a product of commutators. -/
+private theorem evenFlip_handle_mem_commutator
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    evenRawHandleDbarWord base correction ∈ commutator (levelQuot G (k + 1)) := by
+  rw [evenRawHandleDbarWord]
+  refine Subgroup.list_prod_mem _ ?_
+  intro x hx
+  simp only [List.mem_map] at hx
+  obtain ⟨j, _, rfl⟩ := hx
+  exact Subgroup.mul_mem _ (evenFlip_commP_mem_commutator _ _)
+    (evenFlip_commP_mem_commutator _ _)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The diagonal square is trapped in the commutator subgroup.**  Coordinate `0` is the only
+coordinate whose row is not a bracket: it carries the *square* `correction 0 ^ 2` of the even
+relator's leading letter.  So a correction with trivial shift word has that square equal to
+the inverse of a product of commutators.  This is the structural reason slot `0` is the one
+slot §4 does not reach - and, with §6.2, the reason it cannot be reached at all at `α = 2`. -/
+theorem evenFlip_slotZero_sq_mem_commutator
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hrow : evenRawDbarWord base correction = 1) :
+    correction 0 ^ 2 ∈ commutator (levelQuot G (k + 1)) := by
+  set X := commP (correction 0) (base 0) *
+    (commP (correction 1) (base 0) * commP (correction 0) (base 1)) *
+    (commP (correction 3) (base 2) * commP (correction 2) (base 3)) *
+    evenRawHandleDbarWord base correction with hX
+  have hXmem : X ∈ commutator (levelQuot G (k + 1)) :=
+    Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (evenFlip_commP_mem_commutator _ _)
+      (Subgroup.mul_mem _ (evenFlip_commP_mem_commutator _ _)
+        (evenFlip_commP_mem_commutator _ _)))
+      (Subgroup.mul_mem _ (evenFlip_commP_mem_commutator _ _)
+        (evenFlip_commP_mem_commutator _ _)))
+      (evenFlip_handle_mem_commutator base correction)
+  have hprod : correction 0 ^ 2 * X = 1 := by
+    rw [← hrow, evenRawDbarWord, evenRawCoreDbarWord, hX]
+    group
+  rw [eq_inv_of_mul_eq_one_left hprod]
+  exact Subgroup.inv_mem _ hXmem
+
+/-! ### §6.2 What the trapped square does to the character digit -/
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- A representative of a depth-`(k-1)` class lies in `λ_{k-1}`. -/
+private theorem evenFlip_rep_mem {q : levelQuot G (k + 1)}
+    (hq : q ∈ lambdaImage G (k - 1) (k + 1)) {g : G} (hg : q = levelMk G (k + 1) g) :
+    g ∈ twoCentralSeries G (k - 1) := by
+  obtain ⟨w, hw, hwq⟩ := hq
+  have hker : g * w⁻¹ ∈ twoCentralSeries G (k + 1) := by
+    have : levelMk G (k + 1) (g * w⁻¹) = 1 := by
+      rw [map_mul, map_inv, ← hg, hwq, mul_inv_cancel]
+    rwa [levelMk, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at this
+  have hle : twoCentralSeries G (k + 1) ≤ twoCentralSeries G (k - 1) :=
+    twoCentralSeries_antitone G (by omega)
+  have := Subgroup.mul_mem _ (hle hker) hw
+  simpa using this
+
+omit [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- A character kills the commutator subgroup, `ℤ_[2]ˣ` being commutative. -/
+private theorem evenFlip_chi_commutator {y : G} (hy : y ∈ commutator G) : chi y = 1 := by
+  have hle : commutator G ≤ (chi.toMonoidHom).ker := by
+    rw [commutator_eq_closure]
+    refine (Subgroup.closure_le _).mpr ?_
+    rintro x ⟨g₁, g₂, rfl⟩
+    simp only [SetLike.mem_coe, MonoidHom.mem_ker, commutatorElement_def, map_mul, map_inv]
+    exact mul_inv_eq_one.mpr (by rw [mul_comm]; group)
+  exact hle hy
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The two-adic step: an element of `1 + 2^k ℤ₂` whose square lies in `1 + 2^(k+2) ℤ₂` already
+lies in `1 + 2^(k+1) ℤ₂`. -/
+private theorem evenFlip_two_adic_step {t : ℤ_[2]} (hk : 3 ≤ k)
+    (h1 : (2 : ℤ_[2]) ^ k ∣ t - 1) (h2 : (2 : ℤ_[2]) ^ (k + 2) ∣ t * t - 1) :
+    (2 : ℤ_[2]) ^ (k + 1) ∣ t - 1 := by
+  obtain ⟨u, hu⟩ := h1
+  have hfac : t * t - 1 = 2 ^ (k + 1) * (u * (2 ^ (k - 1) * u + 1)) := by
+    have ht : t = 1 + 2 ^ k * u := by linear_combination hu
+    have hkk : (2 : ℤ_[2]) ^ k = 2 ^ (k - 1) * 2 := by
+      rw [← pow_succ, show k - 1 + 1 = k by omega]
+    rw [ht, show (2 : ℤ_[2]) ^ (k + 1) = 2 ^ k * 2 by rw [pow_succ], hkk]
+    ring
+  have hcancel : (2 : ℤ_[2]) ∣ u * (2 ^ (k - 1) * u + 1) := by
+    rw [hfac, show k + 2 = k + 1 + 1 by omega, pow_succ] at h2
+    exact (mul_dvd_mul_iff_left (a := (2 : ℤ_[2]) ^ (k + 1))
+      (pow_ne_zero _ two_ne_zero)).mp h2
+  have hu2 : (2 : ℤ_[2]) ∣ u := by
+    have hdiff : u * (2 ^ (k - 1) * u + 1) - u = 2 * (2 ^ (k - 2) * u * u) := by
+      have hkk : (2 : ℤ_[2]) ^ (k - 1) = 2 * 2 ^ (k - 2) := by
+        rw [← pow_succ', show k - 2 + 1 = k - 1 by omega]
+      rw [hkk]
+      ring
+    have := dvd_sub hcancel (Dvd.intro _ hdiff.symm)
+    simpa using this
+  obtain ⟨w, hw⟩ := hu2
+  exact ⟨w, by rw [hu, hw, pow_succ]; ring⟩
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The slot-`0` digit is never sharp at level `k`.**  A correction with literally trivial
+shift word has `correction 0 ^ 2` in the commutator subgroup (§6.1), so any representative `g`
+of that coordinate has `χ(g)² ≡ 1 (mod 2^(k+2))`; and the coordinate has depth `k-1`, so
+`χ(g) ≡ 1 (mod 2^k)` to begin with.  The two together force `χ(g) ≡ 1 (mod 2^(k+1))`. -/
+theorem evenFlip_slotZero_digit (hk : 3 ≤ k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (F : EvenRawDepthCorrection G h k)
+    (hrow : evenRawDbarWord base F.correction = 1) {g : G}
+    (hg : F.correction 0 = levelMk G (k + 1) g) :
+    (2 : ℤ_[2]) ^ (k + 1) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  -- the coordinate has depth `k-1`
+  have hgmem : g ∈ twoCentralSeries G (k - 1) := evenFlip_rep_mem (F.depth 0) hg
+  have h1 : (2 : ℤ_[2]) ^ k ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    have := dvd_chi_of_mem_twoCentralSeries chi (k := k - 1) (by omega) hgmem
+    rwa [show k - 1 + 1 = k by omega] at this
+  -- the square is a product of commutators
+  have hsq := evenFlip_slotZero_sq_mem_commutator base F.correction hrow
+  have hmapc : commutator (levelQuot G (k + 1)) =
+      Subgroup.map (levelMk G (k + 1)) (commutator G) := by
+    rw [commutator, commutator, Subgroup.map_commutator,
+      Subgroup.map_top_of_surjective _ (levelMk_surjective G (k + 1))]
+  rw [hmapc, hg, ← map_pow] at hsq
+  obtain ⟨y, hy, hyeq⟩ := hsq
+  have hker : g ^ 2 * y⁻¹ ∈ twoCentralSeries G (k + 1) := by
+    have : levelMk G (k + 1) (g ^ 2 * y⁻¹) = 1 := by
+      rw [map_mul, map_inv, hyeq, mul_inv_cancel]
+    rwa [levelMk, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at this
+  have h2 : (2 : ℤ_[2]) ^ (k + 2) ∣
+      ((chi g : ℤ_[2]ˣ) : ℤ_[2]) * ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    have hd := dvd_chi_of_mem_twoCentralSeries chi (k := k + 1) (by omega) hker
+    rw [map_mul, map_inv, map_pow, evenFlip_chi_commutator hy, inv_one, mul_one] at hd
+    rwa [Units.val_pow_eq_pow_val, sq] at hd
+  exact evenFlip_two_adic_step hk h1 h2
+
+/-! ### §6.3 The refutation -/
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The flip supply is FALSE at `α = 2`**, on every row table, as soon as one stage tuple
+exists.  The demand at slot `0` is sharpness at `k + α - 2 = k`, that is
+`¬ 2^(k+1) ∣ χ(g) - 1`; §6.2 proves `2^(k+1) ∣ χ(g) - 1` for every correction with trivial
+shift word.  So the `α = 2` stratum of the even route cannot be supplied through the flips. -/
+theorem evenFlip_not_flipSupply_two {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hk : 3 ≤ k) (T : Tuple W v G chi k) :
+    ¬ EvenDigitFlipSupply 2 W v G chi := by
+  intro H
+  obtain ⟨F, hrow, ⟨g, hg, hsharp⟩, -⟩ := H k hk T 0
+  exact hsharp (evenFlip_slotZero_digit hk _ F hrow hg)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The same refutation for the reduced supply of §5. -/
+theorem evenFlip_not_slotZeroSupply_two {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hk : 3 ≤ k) (T : Tuple W v G chi k) :
+    ¬ EvenDigitFlipSupplySlotZero 2 W v G chi := by
+  intro H
+  obtain ⟨F, hrow, ⟨g, hg, hsharp⟩, -⟩ := H k hk T
+  exact hsharp (evenFlip_slotZero_digit hk _ F hrow hg)
+
+/-- **And therefore `Hup` itself is false at `α = 2`, `M` branch**: wave 53 proved the
+raw-to-bracket upgrade *equivalent* to the flip supply on the pinned image, so the refutation
+transports verbatim. -/
+theorem evenFlip_not_rawToBracket_two_M {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hk : 3 ≤ k) (T : Tuple W v G chi k)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiM 2) :
+    ¬ EvenKernelRawToBracketSupply (2 - 1) W v G chi := fun Hup ↦
+  evenFlip_not_flipSupply_two hk T
+    ((evenDigit_rawToBracket_iff_flip_M (le_refl 2) hrange).mp Hup)
+
+/-- **`Hup` is false at `α = 2`, `N` branch.** -/
+theorem evenFlip_not_rawToBracket_two_N {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hk : 3 ≤ k) (T : Tuple W v G chi k)
+    (hrange : MonoidHom.range chi.toMonoidHom = imChiN 2) :
+    ¬ EvenKernelRawToBracketSupply (2 - 1) W v G chi := fun Hup ↦
+  evenFlip_not_flipSupply_two hk T
+    ((evenDigit_rawToBracket_iff_flip_N (le_refl 2) hrange).mp Hup)
+
+end SlotZero
+
+/-! ## §7 The even endpoints, with the flip input reduced to one slot -/
 
 section Endpoints
 
@@ -1023,8 +1335,142 @@ theorem evenFlip_orientedEquivM_two {h : ℕ}
   evenEndpoint_orientedEquivM_two hrange hev Hfam
     (evenFlip_mOffTwo_of_slotZero (le_refl 2) Hflip)
 
+/-! ### §7.2 The honest repair: the flip input above the refuted stratum
+
+§6 refutes the flip supply at `α = 2`, and every per-field flip input of waves 53 and 54
+quantifies over `α ≥ 2`, so those inputs are false outright (§7.3).  What survives is the same
+supply asked only at `α ≥ 3`, together with the at-depth endpoints, which consume the supply at
+the one depth the range identity produces. -/
+
+/-- **The deep slot-`0` flip supply, `N` branch**: one digit at one coordinate per stage, asked
+only at the branch depths `α ≥ 3` that §6 does not refute. -/
+def EvenFlipNSlotZeroDeep (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
+  ∀ (alpha : ℕ) (halpha : 3 ≤ alpha),
+    EvenDigitFlipSupplySlotZero alpha (nStageWord alpha h (by omega)) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+/-- **The deep slot-`0` flip supply, `M` branch.** -/
+def EvenFlipMSlotZeroDeep (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
+  ∀ (alpha : ℕ) (halpha : 3 ≤ alpha),
+    EvenDigitFlipSupplySlotZero alpha (mStageWord alpha h (by omega)) (vM alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+/-- **The `N` endpoint above the refuted stratum.**  Carried: `Hfam` and the deep slot-`0`
+flips, at one field and one branch depth `α ≥ 3`. -/
+theorem evenFlip_orientedEquivN_atDepth_deep {alpha h : ℕ} (halpha : 3 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord alpha h (by omega))
+        (vN alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hflip : EvenFlipNSlotZeroDeep h K) :
+    Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) :=
+  evenFlip_orientedEquivN_atDepth (by omega) hrange hev Hfam (Hflip alpha halpha)
+
+/-- **The `M` endpoint above the refuted stratum.** -/
+theorem evenFlip_orientedEquivM_atDepth_deep {alpha h : ℕ} (halpha : 3 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (hiso : frattiniFrameCup (evenDeepClass alpha (by omega) hrange)
+      (evenDeepClass alpha (by omega) hrange) = 0)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord alpha h (by omega))
+        (vM alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hflip : EvenFlipMSlotZeroDeep h K) :
+    Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) :=
+  evenFlip_orientedEquivM_atDepth (by omega) hrange hev hiso Hfam (Hflip alpha halpha)
+
+/-! ### §7.3 The wave-53 and wave-54 per-field flip inputs are false
+
+Each of them quantifies over every `α ≥ 2`, so each of them contains the refuted `α = 2`
+instance.  A stage tuple at that depth is all it takes. -/
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **`EvenEndpointNFlip` is false** as soon as one `α = 2` stage tuple exists. -/
+theorem evenFlip_not_endpointNFlip {h k : ℕ} (hk : 3 ≤ k)
+    (T : Tuple (nStageWord 2 h one_le_two) (vN 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) k) : ¬ EvenEndpointNFlip h K :=
+  fun H ↦ evenFlip_not_flipSupply_two hk T (H 2 (le_refl 2))
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **`EvenEndpointMFlipOffTwo` is false** as soon as one `α = 2` stage tuple exists: deleting
+the slot-`2` demand does not delete the slot-`0` one. -/
+theorem evenFlip_not_endpointMFlipOffTwo {h k : ℕ} (hk : 3 ≤ k)
+    (T : Tuple (mStageWord 2 h one_le_two) (vM 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) k) : ¬ EvenEndpointMFlipOffTwo h K := by
+  intro H
+  refine evenFlip_not_flipSupply_two hk T ?_
+  exact GQ2.Dyadic.EvenEndpoint.evenEndpoint_mFlip_of_offTwo (le_refl 2) (H 2 (le_refl 2))
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **`EvenFlipNSlotZero` is false** for the same reason; only its deep form survives. -/
+theorem evenFlip_not_nSlotZero {h k : ℕ} (hk : 3 ≤ k)
+    (T : Tuple (nStageWord 2 h one_le_two) (vN 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) k) : ¬ EvenFlipNSlotZero h K :=
+  fun H ↦ evenFlip_not_slotZeroSupply_two hk T (H 2 (le_refl 2))
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **`EvenFlipMSlotZero` is false**; only its deep form survives. -/
+theorem evenFlip_not_mSlotZero {h k : ℕ} (hk : 3 ≤ k)
+    (T : Tuple (mStageWord 2 h one_le_two) (vM 2) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)) k) : ¬ EvenFlipMSlotZero h K :=
+  fun H ↦ evenFlip_not_slotZeroSupply_two hk T (H 2 (le_refl 2))
+
 end Endpoints
 
 end
 
 end GQ2.Dyadic.StageGeneric
+
+/-! ## §8 Axiom pins -/
+
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_commP_pow_two
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_commP_pow_of_three_le
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_pow_flip_mem
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_commP_pow_half_mem
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_commP_pow_flip_mem
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_commP_mul_left
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_commP_inv_left
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_pairedMove_eq
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_pairedMove_iff
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_pairedMove_corrected
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_flip_of_partner
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_flip_of_diagonal
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_sharp_M
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_sharp_N
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_triv_one
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_flipOffZero_M
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_flipOffZero_N
+#print axioms GQ2.Dyadic.StageGeneric.EvenDigitFlipSupplySlotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_slotZero_of_flip
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_mFlip_of_slotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_nFlip_of_slotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_mFlip_iff_slotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_nFlip_iff_slotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_mOffTwo_of_slotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_slotZero_sq_mem_commutator
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_slotZero_digit
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_flipSupply_two
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_slotZeroSupply_two
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_rawToBracket_two_M
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_rawToBracket_two_N
+#print axioms GQ2.Dyadic.StageGeneric.EvenFlipNSlotZero
+#print axioms GQ2.Dyadic.StageGeneric.EvenFlipMSlotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_nFlip_of_nSlotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_mFlipOffTwo_of_mSlotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivN_atDepth
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivM_atDepth
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivN
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivM
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivN_two
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivM_two
+#print axioms GQ2.Dyadic.StageGeneric.EvenFlipNSlotZeroDeep
+#print axioms GQ2.Dyadic.StageGeneric.EvenFlipMSlotZeroDeep
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivN_atDepth_deep
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_orientedEquivM_atDepth_deep
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_endpointNFlip
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_endpointMFlipOffTwo
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_nSlotZero
+#print axioms GQ2.Dyadic.StageGeneric.evenFlip_not_mSlotZero
