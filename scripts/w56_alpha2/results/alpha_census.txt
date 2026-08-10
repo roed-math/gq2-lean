@@ -1,0 +1,190 @@
+Magma V2.29-4     Mon Aug 10 2026 06:03:24 on MacBook-Pro-6 [Seed = 3165616048]
+
++-------------------------------------------------------------------+
+|       This copy of Magma has been made available through a        |
+|                   generous initiative of the                      |
+|                                                                   |
+|                         Simons Foundation                         |
+|                                                                   |
+| covering U.S. Colleges, Universities, Nonprofit Research entities,|
+|               and their students, faculty, and staff              |
++-------------------------------------------------------------------+
+
+Type ? for help.  Type <Ctrl>-D to quit.
+
+Loading startup file "/Users/roed/.magmarc"
+
+Loading file "alpha_census.m"
+
+=========== degree 1 over Q_2   (H determined mod 2^5) ===========
+fields of degree 1 : 1
+idx    e    f    i in L  L(i)/L    sqrt2   branch  alpha  norms 
+subgroups of (Z/2^5)^* : 11
+1      1    1    false   ram       false   M       2      =H    
+
+=========== degree 2 over Q_2   (H determined mod 2^5) ===========
+fields of degree 2 : 7
+idx    e    f    i in L  L(i)/L    sqrt2   branch  alpha  norms 
+subgroups of (Z/2^5)^* : 11
+1      2    1    true    n/a       false   *       0      =H       (out of class)
+2      2    1    false   unram     false   M       2      =H       (out of class)
+3      2    1    false   ram       false   N       2      =H    
+4      2    1    false   ram       false   M       2      =H    
+5      2    1    false   ram       false   M       2      =H    
+6      2    1    false   ram       true    M       3      =H    
+7      1    2    false   ram       false   M       2      =H    
+
+=========== degree 3 over Q_2   (H determined mod 2^5) ===========
+fields of degree 3 : 2
+idx    e    f    i in L  L(i)/L    sqrt2   branch  alpha  norms 
+subgroups of (Z/2^5)^* : 11
+1      3    1    false   ram       false   M       2      =H    
+2      1    3    false   ram       false   M       2      =H    
+
+=========== degree 4 over Q_2   (H determined mod 2^5) ===========
+fields of degree 4 : 63
+idx    e    f    i in L  L(i)/L    sqrt2   branch  alpha  norms 
+subgroups of (Z/2^5)^* : 11
+1      4    1    false   ram       false   M       2      =H    
+2      4    1    true    n/a       false   *       0      =H       (out of class)
+3      4    1    false   unram     false   M       2      =H       (out of class)
+4      4    1    false   ram       false   M       2      =H    
+5      4    1    false   ram       false   M       2      =H    
+6      4    1    false   ram       false   M       2      =H    
+7      4    1    true    n/a       true    *       0      =H       (out of class)
+8      4    1    true    n/a       false   *       0      =H       (out of class)
+9      4    1    true    n/a       false   *       0      =H       (out of class)
+10     4    1    false   unram     false   M       2      =H       (out of class)
+11     4    1    false   unram     false   N       2      =H       (out of class)
+12     4    1    false   unram     true    M       3      =H       (out of class)
+13     4    1    true    n/a       false   *       0      =H       (out of class)
+14     4    1    true    n/a       false   *       0      =H       (out of class)
+15     4    1    true    n/a       false   *       0      =H       (out of class)
+16     4    1    true    n/a       false   *       0      =H       (out of class)
+17     4    1    false   unram     false   M       2      =H       (out of class)
+18     4    1    false   unram     false   M       2      =H       (out of class)
+19     4    1    false   unram     false   M       2      =H       (out of class)
+20     4    1    false   unram     false   M       2      =H       (out of class)
+21     4    1    false   ram       true    M       3      =H    
+22     4    1    false   ram       false   M       2      =H    
+23     4    1    false   ram       true    M       3      =H    
+24     4    1    false   ram       false   M       2      =H    
+25     4    1    false   ram       false   N       2      =H    
+26     4    1    false   ram       false   M       2      =H    
+27     4    1    false   ram       false   N       2      =H    
+28     4    1    false   ram       false   M       2      =H    
+29     4    1    false   ram       false   N       2      =H    
+30     4    1    false   ram       false   N       2      =H    
+31     4    1    false   ram       false   M       2      =H    
+32     4    1    false   ram       false   M       2      =H    
+33     4    1    false   ram       false   M       2      =H    
+34     4    1    false   ram       false   M       2      =H    
+35     4    1    false   ram       true    M       3      =H    
+36     4    1    false   ram       true    M       3      =H    
+37     4    1    false   ram       false   N       2      =H    
+38     4    1    false   ram       false   M       2      =H    
+39     4    1    false   ram       false   N       2      =H    
+40     4    1    false   ram       false   M       2      =H    
+41     4    1    false   ram       false   M       2      =H    
+42     4    1    false   ram       false   M       2      =H    
+43     4    1    false   ram       true    N       3      =H    
+44     4    1    false   ram       true    M       3      =H    
+45     4    1    false   ram       false   M       2      =H    
+46     4    1    false   ram       false   M       2      =H    
+47     4    1    false   ram       true    M       3      =H    
+48     4    1    false   ram       true    M       4      =H    
+49     2    1    false   ram       false   M       2      =H    
+50     2    1    false   ram       false   M       2      =H    
+51     2    1    true    n/a       false   *       0      <H       (out of class)
+52     2    1    false   unram     false   M       2      =H       (out of class)
+53     2    1    false   ram       false   M       2      =H    
+54     2    1    false   ram       false   M       2      =H    
+55     2    1    false   ram       false   N       2      <H    
+56     2    1    false   ram       false   M       2      <H    
+57     2    1    false   ram       false   M       2      =H    
+58     2    1    false   ram       false   M       2      =H    
+59     2    1    false   ram       true    M       3      <H    
+60     2    1    false   ram       false   M       2      <H    
+61     2    1    false   ram       false   M       2      =H    
+62     2    1    false   ram       false   M       2      =H    
+63     1    4    false   ram       false   M       2      =H    
+
+=========== degree 6 over Q_2   (H determined mod 2^5) ===========
+fields of degree 6 : 64
+idx    e    f    i in L  L(i)/L    sqrt2   branch  alpha  norms 
+subgroups of (Z/2^5)^* : 11
+1      2    1    false   ram       false   M       2      =H    
+2      2    1    false   ram       false   M       2      =H    
+3      2    1    false   unram     false   M       2      =H       (out of class)
+4      2    1    true    n/a       false   *       0      =H       (out of class)
+5      2    1    false   ram       false   M       2      =H    
+6      2    1    false   ram       false   M       2      =H    
+7      2    1    false   ram       false   M       2      =H    
+8      2    1    false   ram       false   M       2      =H    
+9      2    1    false   ram       false   M       2      =H    
+10     2    1    false   ram       false   M       2      =H    
+11     2    1    false   ram       false   M       2      =H    
+12     2    1    false   ram       false   M       2      =H    
+13     2    1    false   ram       false   M       2      =H    
+14     2    1    false   ram       false   M       2      =H    
+15     2    1    false   ram       true    M       3      =H    
+16     2    1    false   ram       false   M       2      =H    
+17     2    1    false   ram       false   M       2      =H    
+18     2    1    false   ram       false   M       2      =H    
+19     2    1    false   ram       false   N       2      =H    
+20     2    1    false   ram       false   M       2      =H    
+21     2    1    false   ram       false   M       2      =H    
+22     2    1    false   ram       false   M       2      =H    
+23     2    1    false   ram       false   M       2      =H    
+24     2    1    false   ram       false   M       2      =H    
+25     2    1    false   ram       false   M       2      =H    
+26     2    1    false   ram       false   M       2      =H    
+27     2    1    false   ram       false   M       2      =H    
+28     2    1    false   ram       false   M       2      =H    
+29     2    1    false   ram       false   M       2      =H    
+30     2    1    false   ram       false   M       2      =H    
+31     3    1    false   ram       false   M       2      <H    
+32     3    1    false   ram       false   M       2      =H    
+33     3    1    false   ram       false   M       2      =H    
+34     2    1    false   ram       false   M       2      <H    
+35     2    1    false   ram       false   M       2      <H    
+36     2    1    false   ram       false   M       2      <H    
+37     2    1    false   ram       false   M       2      <H    
+38     2    1    false   ram       false   M       2      <H    
+39     2    1    false   ram       false   M       2      =H    
+40     2    1    true    n/a       false   *       0      =H       (out of class)
+41     2    1    false   unram     false   M       2      =H       (out of class)
+42     2    1    false   ram       false   M       2      <H    
+43     2    1    false   ram       false   M       2      <H    
+44     2    1    false   ram       false   M       2      <H    
+45     2    1    false   ram       false   M       2      <H    
+46     2    1    false   ram       false   M       2      <H    
+47     2    1    false   ram       false   M       2      <H    
+48     2    1    false   ram       false   N       2      =H    
+49     2    1    false   ram       false   M       2      =H    
+50     2    1    false   ram       false   M       2      <H    
+51     2    1    false   ram       false   M       2      =H    
+52     2    1    false   ram       false   M       2      =H    
+53     2    1    false   ram       false   M       2      <H    
+54     2    1    false   ram       false   M       2      <H    
+55     2    1    false   ram       false   M       2      =H    
+56     2    1    false   ram       false   M       2      =H    
+57     2    1    false   ram       true    M       3      =H    
+58     2    1    false   ram       false   M       2      =H    
+59     2    1    false   ram       false   M       2      <H    
+60     2    1    false   ram       false   M       2      <H    
+61     2    1    false   ram       false   M       2      =H    
+62     2    1    false   ram       false   M       2      =H    
+63     2    1    false   ram       false   M       2      <H    
+64     1    6    false   ram       false   M       2      =H    
+
+=========== tally over the in-class fields of degree 1,2,3,4,6 ===========
+  branch M  alpha = 2 :  91 fields
+  branch M  alpha = 3 :  10 fields
+  branch M  alpha = 4 :  1 fields
+  branch N  alpha = 2 :  10 fields
+  branch N  alpha = 3 :  1 fields
+
+done
+
+Total time: 15.450 seconds, Total memory usage: 32.09MB

@@ -1,0 +1,36 @@
+Magma V2.29-4     Mon Aug 10 2026 06:16:34 on MacBook-Pro-6 [Seed = 992539840]
+
++-------------------------------------------------------------------+
+|       This copy of Magma has been made available through a        |
+|                   generous initiative of the                      |
+|                                                                   |
+|                         Simons Foundation                         |
+|                                                                   |
+| covering U.S. Colleges, Universities, Nonprofit Research entities,|
+|               and their students, faculty, and staff              |
++-------------------------------------------------------------------+
+
+Type ? for help.  Type <Ctrl>-D to quit.
+
+Loading startup file "/Users/roed/.magmarc"
+
+Loading file "quadratic_named.m"
+K          i in K   K(i)/K    sqrt2    branch   alpha  in class  
+Q2(rt-1)   true     n/a       false    -        0      false     
+     H mod 32 = [ 1, 5, 9, 13, 17, 21, 25, 29 ]
+Q2(rt2)    false    ram       true     M        3      true      
+     H mod 32 = [ 1, 7, 9, 15, 17, 23, 25, 31 ]
+Q2(rt-2)   false    ram       false    N        2      true      
+     H mod 32 = [ 1, 3, 9, 11, 17, 19, 25, 27 ]
+Q2(rt5)    false    ram       false    M        2      true      
+     H mod 32 = [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 ]
+Q2(rt-5)   false    unram     false    M        2      false     
+     H mod 32 = [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 ]
+Q2(rt10)   false    ram       false    M        2      true      
+     H mod 32 = [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 ]
+Q2(rt-10)  false    ram       false    M        2      true      
+     H mod 32 = [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 ]
+
+done
+
+Total time: 0.069 seconds, Total memory usage: 32.09MB
