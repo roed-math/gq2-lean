@@ -1,0 +1,17 @@
+L0 closed-form increment vs honest collection, 300 random points x random five-slot gamma2 dressings: 0 mismatches
+L2 stage-3 odd survivors: Lam3-covered 16384, new-generator-covered 80896, leftover 33792
+L2 leftover corners (neither criterion): 400 points, full-gamma2 lattice kills the odd residue at 0, provably dead at 400; all generators even-g at 400; |S meet last| multiset {* 4^^400 *}
+L2 new-generator-covered corners (cross-check, want all killed): 60 points, full-gamma2 lattice kills the odd residue at 60, provably dead at 0; all generators even-g at 60; |S meet last| multiset {* 8^^60 *}
+L2 Lam3-covered corners (cross-check, want all killed): 60 points, full-gamma2 lattice kills the odd residue at 60, provably dead at 0; all generators even-g at 60; |S meet last| multiset {* 8^^60 *}
+
+L2 sample leftover corners with their exact verdicts:
+   [ 0, 2, 0, 2, 1, 0, 1, 0, 1, 3, 1, 0 ]  residue 5  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 1, 2, 1, 3, 1, 3 ]  residue 5  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 1, 4, 1, 3, 1, 2 ]  residue 5  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 1, 6, 1, 3, 1, 1 ]  residue 5  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 3, 0, 3, 1, 1, 0 ]  residue 7  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 3, 2, 3, 1, 1, 3 ]  residue 7  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 3, 4, 3, 1, 1, 2 ]  residue 7  killed false  |K| 4
+   [ 0, 2, 0, 2, 1, 0, 3, 6, 3, 1, 1, 1 ]  residue 7  killed false  |K| 4
+
+done

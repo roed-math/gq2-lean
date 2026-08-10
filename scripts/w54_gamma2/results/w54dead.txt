@@ -1,0 +1,20 @@
+leftover corners (stage-3 odd survivors, no odd pairing old or new): 33792
+  killed by the honest gamma2 lattice gamma2(im Phi):  0
+  killed by the FREE gamma2 model:                     18432
+  every generator of gamma2(im Phi) has even g:        true
+  |span meet last axis| multiset, honest model: {* 4^^33792 *}
+  |span meet last axis| multiset, free model:   {* 4^^15360, 8^^18432 *}
+  number of distinct mod-2 classes of (A..S,P,Q,R,W2) among them: 10
+  the mod-2 classes: [
+[ 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0 ],
+[ 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1 ],
+[ 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0 ],
+[ 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1 ],
+[ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0 ],
+[ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 ],
+[ 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1 ],
+[ 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1 ],
+[ 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1 ],
+[ 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1 ]
+]
+done
