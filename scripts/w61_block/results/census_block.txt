@@ -1,0 +1,105 @@
+
+## A  relator-killing markings at handle counts 0..4
+
+    h = 0:  251 relator-killing markings found
+    h = 1:  46 relator-killing markings found
+    h = 2:  42 relator-killing markings found
+    h = 3:  23 relator-killing markings found
+    h = 4:  48 relator-killing markings found
+[ok ] every marking really kills all fifteen rows  410 markings
+[ok ] …by honest 6 x 6 matrix collection too  80 markings, 0 mismatches
+[ok ] ⭐⭐ THE BLOCK EQUATION  selPar H_46 = selPar (s_45 x_56 - s_56 x_45)  410 markings, 0 mismatches
+    of which 49 have an ODD block reading (12.0 %)
+[ok ] …and the exact pinning  H_46 = -W_46  (Lean `handleWord_i_of_relator`)
+
+## B  row `i` of the layered solve, in isolation
+
+    W_46 depends on the x1 slot only through y_45, y_56 (the abelian layer) and y_46
+    itself, so row `i` can be tested on its own once the abelian layer is fixed - and
+    that layer always solves, because a handle block has vanishing abelian rows.
+    Row `i` is solvable IFF the block equation holds.  The solver assumes neither.
+[ok ] row `i` solvable  <=>  block equation holds, BOTH directions  20000 agreements, 0 disagreements
+
+## C  ⭐⭐ the h = 0 forcing
+
+    At h = 0 the relator IS the core word, so H_46 = 0 and the block equation reads
+    `s_45 x_56 - s_56 x_45` EVEN.  Contrapositive: a relator-killing marking with an
+    ODD block reading forces h >= 1.
+[ok ] h = 0: every relator-killing marking has EVEN block reading  251 markings
+[ok ] h = 0: an ODD block reading is never completable to a relator-killing marking  3074 odd (s,x) pairs, all rejected; 0 completions
+
+    …and at h >= 1 an odd block reading IS realizable:
+    h = 1:  8 of 46 relator-killing markings have odd block
+    h = 2:  14 of 42 relator-killing markings have odd block
+    h = 3:  9 of 23 relator-killing markings have odd block
+    h = 4:  18 of 48 relator-killing markings have odd block
+[ok ] odd block readings exist at every h >= 1
+
+## D  the class-five bit collapse, against honestly collected relators
+
+    claim:  selPar[ Delta_v relator.o ]  =  selPar[ Delta_v coreword.o ]
+                                          + selPar[coupling] * selPar[blockRead]
+    at EVERY relator-killing marking, EVERY sigma slot, EVERY nu'-trivial dressing.
+    markings on the nu'-gauge (x.b = y.b = 0): 34 of 410
+[ok ] ⭐⭐⭐ the bit collapse  1360 comparisons, 0 mismatches
+    the block channel is LIVE (odd contribution) at 41 of 1360 (3.0 %)
+[ok ] the wave-58 coupling identity, integrally
+
+## E  the block ELEMENT is pinned outright
+
+    `sqRelWord m = 1` says handleWord = sqWord^{-1}: the WHOLE block element, not
+    just its (4,6) coordinate, is a function of the three core slots.  So the
+    class-five bit is core-determined for a trivial reason, and the content of the
+    block equation is the CLOSED FORM of the pinned coordinate's parity - four core
+    entries out of thirty, and no evaluation of sqWord at all.
+[ok ] handleWord = sqWord^{-1} at every relator-killing marking, all fifteen rows
+
+    the freedom that remains: same core slots, different handle letters and counts.
+[ok ] alternative handle configurations still kill the relator  318 alternatives built
+[ok ] …and every one has the SAME class-five selection bit  1908 comparisons, 0 separations
+
+## F  what an odd block reading costs the handle letters
+
+    H_46 = sum_j (u_j,45 v_j,56 - u_j,56 v_j,45): a sum of 2x2 minors in the
+    (4,5)/(5,6) columns.  Odd block reading => at least one handle's minor is odd.
+[ok ] odd block reading => some handle pair has an ODD minor
+[ok ] …and the minors sum to the block reading, mod 2
+
+    the two handle letters of that pair must be INDEPENDENT mod 2 in the two
+    columns (4,5) and (5,6): an odd 2x2 minor is exactly independence over F_2.
+
+## G  ⭐⭐⭐ the block channel sits BELOW the achievable lattice
+
+    Every element of gamma_2 has vanishing abelian columns, so a gamma_2-dressing of
+    ANY slot leaves the (4,5)- and (5,6)-columns alone and cannot move blockRead.
+    Every element of gamma_3 has vanishing class-two columns too, so a gamma_3-
+    dressing cannot move the COUPLING either.  The campaign's achievable refinements
+    live in gamma_4 at class five and in gamma_3 at the one filtration step wider
+    that produced wave 59's hole; both are inside gamma_3.
+[ok ] ⭐⭐⭐ no gamma_2-dressing of any slot moves the block reading  10000 dressings
+[ok ] ⭐⭐⭐ no gamma_3-dressing of any slot moves the coupling parity  10000 dressings
+
+    the CONTROL: gamma_2-dressings DO move the coupling, and gamma_1-dressings do
+    move the block reading, so neither invariance is vacuous.
+[ok ] gamma_2-dressings move the coupling parity  3875 of 10000
+[ok ] full dressings move the block reading  2981 of 10000
+
+## H  the committed points, re-measured
+
+[ok ] GradedFive.liveFiveMark kills the relator
+    blockRead = 0,  H_46 = 2   -> both EVEN, as the theorem says
+[ok ] liveFiveMark: block equation
+    ⭐ and GradedFive.deadFiveMark - the marking wave 58 compares it against - does
+      NOT kill the relator, which is the whole reason the block looked visible:
+[ok ] deadFiveMark does NOT kill the relator
+[ok ] GradedFiveBlind.blindCexMark kills the relator
+    blockRead = 7,  H_46 = 1   -> both ODD
+[ok ] blindCexMark: block equation
+    ⭐ so wave 59's counterexample is not a free odd block: its own core slots
+      predict the odd block coordinate, and that is what the bit reads.
+    the a0-dressed relator at blindCex: j=1, m=4, o=7
+[ok ] ⚠ it is NOT a central translation, so blindCex is not itself a forcing witness
+
+========================================================================================
+25 of 25 checks passed, 0 failures
+========================================================================================
