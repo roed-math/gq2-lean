@@ -1,0 +1,80 @@
+== 0. the imported machinery ==
+  [PASS] wave 60's fast product agrees with u6mat's honest 6 x 6 matrices (20000)
+  [PASS] the Howell gamma_3(im) matches honest closure at wave 60's stage-four point (|gamma_3| = 8192)
+  [PASS] ...and elementwise
+  [PASS] the Howell gamma_3(im) matches honest closure at wave 59's binder point (|gamma_3| = 16384)
+  [PASS] ...and elementwise
+
+== 1. the stage-four shift map is linear ==
+  [PASS] the shift is additive ACROSS slots (1200 tuples, 10 markings)
+  [PASS] ...and linear IN each slot (`gaThreeShift_mul` measured)
+  [PASS] ...and trivial at the trivial dressing
+  (this is what licenses computing the achievable image as a module rather than by
+   enumeration, and it is the measured form of the Lean `gaThreeShift_mul`)
+
+== 2. the exact kill test against a brute-force search ==
+  [PASS] no brute-force kill is missed by the exact test (52 markings)
+  markings where the module test finds a kill                             2
+  markings where the single-slot brute force finds one                    2
+  (the module test also sees multi-slot kills, so it is the larger count)
+
+== 3. the stage-four covectors: honest against transcribed ==
+  [PASS] the covectors transcribed from `GradedFiveStageFour` match the honest shift (2000)
+  live entries seen per slot (of the five (j,k,l,m,n)):
+    slot sigma  5
+    slot x0     5
+    slot x1     4
+    slot U      5
+    slot V      5
+  so the stage-four line reads FIVE covectors of length FIVE at one handle,
+  against class four's two of length two and class five's three of length two.
+
+== 4. the mixed point of Lean section 4 ==
+  [PASS] the relator is the central translation <o = 7>
+  [PASS] every letter has an even (1,2)-column
+  [PASS] ...an even (5,6)-column
+  [PASS] ...and an even outer class-two column
+  [PASS] W60-HYP FAILS: the handle-V letter's (3,4)-column is odd
+  [PASS] W60-CONS FAILS: [[x0, V], V] = <l=4, m=7, o=2>
+  [PASS] ...with an ODD first class-four coordinate
+  [PASS] every achievable dressing has an even `l` (the outer chain's output)
+  [PASS] the parity line HOLDS
+  [PASS] the sharp line HOLDS
+  [PASS] and NO achievable stage-four dressing kills the relator
+  [PASS] ...confirmed by the independent brute force
+  |gamma_3(im)| = 256, covectors [(0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 1, 0, 0), (0, 0, 0, 0, 0)]
+
+== 5. wave 60's class-five ORTHOGONAL point dies at stage four ==
+  [PASS] the relator is the central translation <o = 1>
+  [PASS] all three class-five covectors (slot.e, slot.a) vanish
+  [PASS] [[V, sigma], x0] = <j = 1>
+  [PASS] ...and its fifth power is <j = 5>
+  [PASS] dressing the handle-U slot by it KILLS the relator
+  single-slot achievable stage-four kills at this point              2048 of 81920
+  [PASS] the stage-four forcing FAILS here
+  stage-four covectors [(0, 0, 0, 0, 0), (0, 0, 0, 0, 1), (0, 0, 0, 0, 0), (1, 0, 0, 0, 0), (0, 0, 0, 0, 0)]
+  (the killing dressing is <j = 5>: no class-five covector reads `j`)
+
+== 6. the orthogonal route is CLOSED at stage four ==
+  [PASS] four even columns (a, e, f, i) kill EVERY stage-four covector (2000 markings)
+  [PASS] ...and force the class-five selection bit EVEN (`stageQ_bit_even`)
+  even in a, e    : the bit is still odd at 1032 of 2000 markings
+  even in a, e, f : the bit is still odd at  948 of 2000 markings
+  even in a, e, i : the bit is still odd at  974 of 2000 markings
+  even in f, i    : the bit is still odd at 1026 of 2000 markings
+  so THREE of the four columns leave the forcing with content and four do not:
+  the free hypothesis exists and is vacuous, which is new at stage four.
+  [PASS] ...and every marking with all covectors zero has the four columns even (5 found)
+
+== 7. wave 60's committed stage-four point, unchanged ==
+  [PASS] the relator is <o = 1>
+  [PASS] W60-HYP holds (all letters even in the (1,2)- and (3,4)-columns)
+  [PASS] W60-CONS holds (every achievable dressing has j, l, m even)
+  [PASS] the parity line holds
+  [PASS] the sharp line holds, and no achievable dressing kills
+  |gamma_3(im)| = 8192; covectors [(0, 0, 0, 1, 0), (0, 0, 0, 1, 0), (0, 0, 1, 0, 0), (0, 0, 1, 1, 0), (0, 0, 0, 1, 0)]
+  nothing wave 60 proved is retracted: its point is inside every condition here.
+
+== summary ==
+  failures: none
+  elapsed 820 s

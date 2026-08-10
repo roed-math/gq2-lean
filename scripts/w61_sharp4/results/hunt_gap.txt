@@ -1,0 +1,23 @@
+$ python3 hunt_gap.py 150
+
+seed 6101 density 0.35 even (): 374 admissible, 2 with ORTH failing and the forcing holding
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   covectors [(0, 0, 0, 0, 0), (0, 1, 0, 1, 1), (0, 0, 0, 0, 0), (0, 0, 0, 1, 0), (0, 0, 0, 0, 0)]
+   |gamma_3| 1024  image 128  central [(0, 0, 0, 0, 0, 2)]
+   odd achievable dressing at slot U: (4, 4, 6, 1, 5, 6) -> shift (0, 0, 0, 0, 2, 7)
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1, n=4> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   covectors [(0, 0, 0, 0, 0), (0, 1, 0, 1, 1), (0, 0, 0, 0, 0), (0, 0, 0, 1, 0), (0, 0, 0, 0, 0)]
+   |gamma_3| 1024  image 128  central [(0, 0, 0, 0, 0, 2)]
+   odd achievable dressing at slot U: (4, 4, 6, 1, 5, 6) -> shift (0, 0, 0, 0, 2, 7)
+seed 61301 density 0.30 even (0, 2): 490 admissible, 0 with ORTH failing and the forcing holding
+seed 61302 density 0.45 even (): 258 admissible, 2 with ORTH failing and the forcing holding
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   covectors [(0, 0, 0, 0, 0), (0, 1, 0, 1, 1), (0, 0, 0, 0, 0), (1, 0, 1, 0, 0), (0, 0, 1, 0, 0)]
+   |gamma_3| 256  image 64  central [(0, 0, 0, 0, 0, 2)]
+   odd achievable dressing at slot x0: (2, 4, 0, 0, 1, 5) -> shift (0, 0, 0, 4, 0, 1)
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3, n=4> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   covectors [(0, 0, 0, 0, 0), (0, 1, 0, 1, 1), (0, 0, 0, 0, 0), (1, 0, 1, 0, 0), (0, 0, 1, 0, 0)]
+   |gamma_3| 256  image 64  central [(0, 0, 0, 0, 0, 2)]
+   odd achievable dressing at slot x0: (2, 4, 0, 0, 1, 5) -> shift (0, 0, 0, 4, 0, 1)
+seed 61303 density 0.30 even (4,): 350 admissible, 0 with ORTH failing and the forcing holding
+TOTAL 1472 admissible, 4 with the parity line failing and the forcing holding

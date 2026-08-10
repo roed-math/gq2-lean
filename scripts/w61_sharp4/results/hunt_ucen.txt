@@ -1,0 +1,5 @@
+seed 61401 density 0.30: 490 admissible, 0 with ORTH failing and the forcing holding UNCONDITIONALLY
+seed 61402 density 0.45: 542 admissible, 0 with ORTH failing and the forcing holding UNCONDITIONALLY
+seed 61403 density 0.20: 448 admissible, 0 with ORTH failing and the forcing holding UNCONDITIONALLY
+seed 61404 density 0.60: 252 admissible, 0 with ORTH failing and the forcing holding UNCONDITIONALLY
+TOTAL 1732 admissible, 0 hits

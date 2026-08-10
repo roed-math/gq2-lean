@@ -1,0 +1,55 @@
+== 1. the census ==
+  family the committed point + its own dressings       13 admissible markings
+  family neighbours of the point's letters            451 admissible markings
+  family column sweep ((1,2)- and (3,4)-columns)       12 admissible markings
+  family random letters (density .3)                  192 admissible markings
+  family random letters (density .5)                   94 admissible markings
+  family random, outer columns even                   302 admissible markings
+  family covector hunt                                108 admissible markings
+  family random letters (density .35)                 302 admissible markings
+  family random letters (density .45)                 176 admissible markings
+
+  TOTAL admissible stage-four markings swept                          1650
+  the forcing HOLDS (no achievable stage-four kill)                   1560
+  the forcing FAILS (an achievable stage-four kill exists)              90
+
+  inside W60-HYP  (all letters even in the (1,2)- and (3,4)-columns)    940
+  inside W60-SND  (the exact hypothesis of `gaThreeShiftO_even`)       1206
+  inside W60-CONS (every achievable dressing has j, l, m even)         1482
+  inside ORTH     (the parity line on the whole lattice)               1556
+  inside MODLOW   (class-five row = fixed combination of class-four)      0
+  inside GA4      (the gamma_4-shaped part pairs evenly)               1577
+  inside CEN      (the sharp line)                                     1560
+
+  ** W60-HYP  FAILS and the forcing HOLDS                               620
+  ** W60-SND  FAILS and the forcing HOLDS                               354
+  ** W60-CONS FAILS and the forcing HOLDS                                80
+  ** ORTH     FAILS and the forcing HOLDS                                 4
+
+  [PASS] the sharp line CEN and the exact kill search agree everywhere
+  [PASS] ORTH is sufficient   (ORTH -> no kill)
+  [PASS] MODLOW is sufficient (MODLOW -> no kill)
+  [PASS] GA4 is necessary     (no kill -> GA4)
+  [PASS] W60's soundness hypothesis implies the parity line
+  ORTH is STRICTLY stronger than the sharp line at                        4 markings
+  MODLOW is STRICTLY stronger than the sharp line at                   1560 markings
+  the sharp line holds and BOTH sufficient conditions fail at             4 markings
+
+  verdict patterns (hyp snd cons orth modlow ga4 cen kill):
+    False  False  False  False  False  False  False  True       71
+    False  False  False  False  False  True   False  True       17
+    False  False  False  False  False  True   True   False       2
+    False  False  False  True   False  True   True   False      78
+    False  False  True   False  False  False  False  True        2
+    False  False  True   False  False  True   True   False       2
+    False  False  True   True   False  True   True   False     272
+    False  True   True   True   False  True   True   False     266
+    True   True   True   True   False  True   True   False     940
+
+== summary ==
+  1650 admissible stage-four markings; 620 with wave 60's HYPOTHESIS failing and the
+  forcing holding, 354 with its exact soundness hypothesis failing, 80 with its
+  CONCLUSION failing; and 4 with the PARITY LINE itself failing and the forcing
+  still holding, which is what makes the sharp line the CENTRAL one.
+  failures: none
+  elapsed 853 s
