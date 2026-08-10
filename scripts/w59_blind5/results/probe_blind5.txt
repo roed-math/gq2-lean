@@ -1,0 +1,60 @@
+==============================================================================
+W59-BLIND5  probe_blind5.py   is the class-five block parity sigma-slot-free?
+==============================================================================
+
+## 1  A handle block with odd (4,6) coordinate
+
+      U = <d=1>,  V = <e=1>,  H = [U,V] = U6(i=1)
+  [ok ] the block is exactly the (4,6) generator, so H.i = 1 is ODD
+      the relator pins the core word to H^-1 = U6(i=7)
+
+## 2  Two sigma slots, one committed and one nu'-trivially dressed
+
+      committed : s = U6(b=1)
+      dressed   : s = U6(b=1, e=1)   (E_23 times a nu'-trivial letter)
+  [ok ] the dressing letter is nu'-trivial (b-column zero)
+
+## 3  A relator-killing marking at the dressed sigma slot
+
+  [ok ] layered solve succeeds at the dressed sigma slot
+      x0 slot = U6(d=1)
+      x1 slot = U6(d=2)
+      core word W = U6(i=7)
+  [ok ] the full fifteen-row relator dies: sqWord * [U,V] = 1
+  [ok ] ...and the block's (4,6) coordinate is ODD there
+      x as a fifteen-tuple: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      y as a fifteen-tuple: [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      s as a fifteen-tuple: [0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+## 4  The same block is unreachable at the committed sigma slot
+
+  [ok ] the layered solve FAILS at the committed sigma slot E_23
+       row i: pinned, but off target by 7
+      that is theorem (a): at s = E_23 the row i residue the relator demands is even,
+      so no relator-killing marking there can carry an odd block coordinate.
+
+## 5  Exhaustive corroboration at the committed slot
+
+  [ok ] at s = E_23 the (4,6) row is even at all 16384 abelian-row solutions, 0 odd
+
+## 6  Is the refuted lemma load-bearing, or does the theorem survive anyway?
+
+      The coupling term is  coefficient * H.i  with
+        coefficient = v.a*x.g - v.g*x.a + v.f*x.c - v.c*x.f - s.b*(v.a*x.c + v.c*x.a).
+      At the section-3 point the coefficient is 0 for every dressing, so the block is
+      still invisible there.  A genuine failure of theorem (a) needs BOTH factors odd.
+  [ok ] layered solve succeeds with the class-three response also switched on
+  [ok ] the fifteen-row relator dies at that point too
+  [ok ] the dressing is nu'-trivial
+      x0 slot = U6(d=1, g=1, l=1)
+      x1 slot = U6(d=2, g=2, k=1, l=2, n=1)
+      coefficient = 1,  H.i = 1,  coupling term = 1
+  [ok ] the coupling term is ODD: the class-five bit DOES see the block here
+      relator response = 7,  core-word reading = 6,  difference = 1
+  [ok ] relator response and core reading differ by an ODD amount
+      x as a fifteen-tuple: [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]
+      y as a fifteen-tuple: [0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 1, 2, 0, 1, 0]
+
+==============================================================================
+12 of 12 named checks passed, 0 failures
+==============================================================================

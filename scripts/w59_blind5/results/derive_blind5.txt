@@ -1,0 +1,103 @@
+==============================================================================
+W59-BLIND5  derive_blind5.py   exact integer arithmetic, no floating point
+==============================================================================
+
+## 1  The transcribed U_6 law against honest 6 x 6 matrices
+
+  [ok ] coordinate law vs 6x6 matrices: 2000 comparisons, 0 mismatches
+  [ok ] sqWord: coordinate route vs honest matrix route, 60 markings, 0 mismatches
+
+## 2  The (4,6) row of the core word, arbitrary sigma slot
+
+  [ok ] sqWord_i  =  -4 x.i + 2 y.i + (s.d x.e - s.e x.d + 10 x.d x.e - 8 x.d y.e + y.d y.e)
+      W.i = sd*xe - se*xd + 10*xd*xe - 8*xd*ye - 4*xi + yd*ye + 2*yi
+  [ok ] ...and it is the committed sqWord_f with (a,b,f) -> (d,e,i)
+  [ok ] at the committed sigma slot the s-term drops: W.i = -4x.i+2y.i+10x.d x.e-8x.d y.e+y.d y.e
+
+  NOTE-CHECK  w58-sigma5-note.md section 4.2 prints
+      W_46 = -4x_46 + 2y_46 + 10 x_45 x_56 - 8 x_45 y_56 + y_45 y_56
+  which is the sigma slot E_23 instance.  At an ARBITRARY sigma slot the row
+  carries the extra pairing  s_45 x_56 - s_56 x_45,  which is not forced even by
+  the relator's abelian rows.  See section 4 for a certified counterexample.
+
+## 3  The coupling coefficient is the committed class-four functional sigFourH
+
+  [ok ] sqWord_j_dress reproduced on the nu'-gauge
+  [ok ] sqWord_j_dress at the sigma slot E_23  =  sigFourH (toU5L v) (toU5L x)
+
+## 4  The handle block's (4,6) coordinate at a relator-killing marking
+
+  relator row i :  (W*H).i = W.i + H.i + W.d * H.e = W.i + H.i   (H.e = 0)
+  so  H.i = -W.i.  Abelian rows d, e of the relator give  -4x.d+2y.d = 0,
+  -4x.e+2y.e = 0, which over Z/8 force y.d and y.e even; then
+      W.i = -4x.i + 2y.i + s.d x.e - s.e x.d + 10 x.d x.e - 8 x.d y.e + y.d y.e
+  is even as soon as  s.d x.e - s.e x.d  is.
+  [ok ] over Z/8 the abelian rows alone do NOT force W.i even at an arbitrary sigma slot
+      witness (s.d,s.e,x.d,x.e,y.d,y.e) = (0, 1, 1, 0, 2, 0),  W.i core term = 7 (odd)
+  [ok ] ...but with s.d = s.e = 0 it is even at every one of the 256 (x,y) solutions
+
+## 5  The class-five gauge parity theorem: the twelve rows of class <= 3
+
+  [ok ] row a (class 1) is even
+  [ok ] row b (class 1) is even
+  [ok ] row c (class 1) is even
+  [ok ] row d (class 1) is even
+  [ok ] row e (class 1) is even
+  [ok ] row f (class 2) is even
+  [ok ] row g (class 2) is even
+  [ok ] row h (class 2) is even
+  [ok ] row i (class 2) is even
+  [ok ] row j (class 3) is even
+  [ok ] row k (class 3) is even
+  [ok ] row l (class 3) is even
+  [ok ] row b vanishes outright
+
+  the halves, for transcription into Lean:
+    a : -4*XA + 2*YA
+    b : 0
+    c : -4*XC + 2*YC
+    d : -4*XD + 2*YD
+    e : -4*XE + 2*YE
+    f : -XA - 4*XF + yf
+    g : XC - 4*XG + yg
+    h : 20*XC*XD - 16*XC*YD - 4*XH + 2*YC*YD + yh
+    i : 20*XD*XE - 16*XD*YE - 4*XI + 2*YD*YE + yi
+    j : 6*XA*XC + 20*XA*XG - 4*XA*YC - 8*XA*yg + 20*XC*XF - 16*XF*YC - 4*YA*YC + YA*yg + YC*yf - 2*xj + yj
+    k : -8*XC*XD + 4*XC*YD + 20*XD*XG - 16*XG*YD + XH + 2*YC*YD + YD*yg - 2*xk + yk
+    l : -80*XC*XD*XE + 80*XC*XD*YE + 20*XC*XI - 16*XC*YD*YE - 8*XC*yi + 20*XE*XH - 16*XH*YE + YC*yi + YE*yh - 2*xl + yl
+
+  the three top rows over Z (the class-four and class-five rows):
+
+    m : -48*XA*XC*XD + 48*XA*XC*YD - 160*XA*XD*XG + 160*XA*XG*YD + 12*XA*XH - 40*XA*YC*YD - 16*XA*YD*yg + 20*XA*xk - 4*XA*yh - 16*XA*yk - 160*XC*XD*XF + 160*XC*XF*YD + 20*XD*xj + 40*XF*XH - 32*XF*YC*YD - 16*XF*yh - 4*YA*yh + 2*YA*yk - 16*YD*xj + 2*YD*yj - 4*xm + yf*yh + 2*ym
+
+    n : 80*XC*XD*XE - 64*XC*XD*YE - 16*XC*XI + 8*XC*YD*YE + 4*XC*yi - 160*XD*XE*XG + 160*XD*XG*YE - 16*XE*XH + 20*XE*xk + 40*XG*XI - 32*XG*YD*YE - 16*XG*yi + 8*XH*YE + 2*YC*yi - 16*YE*xk + 2*YE*yh + 2*YE*yk + xl - 4*xn + yg*yi + 2*yn
+
+    o : 160*XA*XC*XD*XE - 192*XA*XC*XD*YE - 48*XA*XC*XI + 48*XA*XC*YD*YE + 24*XA*XC*yi + 560*XA*XD*XE*XG - 640*XA*XD*XG*YE - 48*XA*XE*XH - 80*XA*XE*xk - 160*XA*XG*XI + 160*XA*XG*YD*YE + 80*XA*XG*yi + 48*XA*XH*YE - 20*XA*YC*yi + 80*XA*YE*xk - 20*XA*YE*yh - 16*XA*YE*yk + 6*XA*xl + 20*XA*xn - 8*XA*yg*yi - 4*XA*yl - 16*XA*yn + 560*XC*XD*XE*XF - 640*XC*XD*XF*YE - 160*XC*XF*XI + 160*XC*XF*YD*YE + 80*XC*XF*yi - 80*XD*XE*xj + 80*XD*YE*xj - 160*XE*XF*XH + 20*XE*xm + 160*XF*XH*YE - 16*XF*YC*yi - 16*XF*YE*yh + 20*XF*xl - 16*XF*yl + 20*XI*xj - 4*YA*yl + 2*YA*yn - 16*YD*YE*xj - 16*YE*xm + 2*YE*ym - 8*xj*yi - 4*xo + yf*yl + yi*yj + 2*yo
+
+  the same three reduced mod 2 (only odd-coefficient monomials kept):
+    m : yf*yh
+    n : xl + yg*yi
+    o : yf*yl + yi*yj
+
+## 6  A gauge point at which all three of m, n, o are odd
+
+  [ok ] a gauge point with all twelve lower rows even and all three top rows odd exists
+      x = {'j': 0, 'k': 0, 'l': 1, 'm': 0, 'n': 0, 'o': 0}
+      y = {'f': 1, 'g': 0, 'h': 1, 'i': 0, 'j': 0, 'k': 0, 'l': 1, 'm': 0, 'n': 0, 'o': 0}
+      sqWord rows mod 8 = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 2, 'g': 0, 'h': 2, 'i': 0, 'j': 0, 'k': 0, 'l': 6, 'm': 1, 'n': 1, 'o': 1}
+      x as a fifteen-tuple: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+      y as a fifteen-tuple: [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+
+## 7  Which gauge hypotheses each of the three non-quotient rows consumes
+
+    row e: needs no gauge hypothesis at all
+    row i: needs no gauge hypothesis at all
+    row l: needs ['yc', 'ye']
+
+  rows a,b,c,d,f,g,h,j,k are the nine lower rows of the LEFT U_5 quotient, and
+  toU5L(E_23) = sigFourMark, so GradedFourCleared.sqWord_sigFourMark_gauge_even
+  supplies them verbatim; only e, i, l need new work at class five.
+
+==============================================================================
+23 of 23 named checks passed, 0 failures
+==============================================================================
