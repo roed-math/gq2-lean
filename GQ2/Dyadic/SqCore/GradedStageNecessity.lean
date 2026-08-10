@@ -141,7 +141,7 @@ hypothesis AND conclusion failing there; the closure of the orthogonal route; th
 convention verbatim.  The characterisation's converse half needs the relator to be a central
 translation with an odd residue, exactly as wave 60's class-five characterisation does.
 
-**Measured, not proved** (`scripts/w61_sharp4/results/`, `validate.txt` has **25** named
+**Measured, not proved** (`scripts/w61_sharp4/results/`, `validate.txt` has **36** named
 checks and **0** failures): the census (`sweep_sharp4.txt`); the four markings where the parity
 line fails and the forcing holds (`hunt_gap.txt`); that all five covectors vanish **only** under
 the four even columns of section 5; and the kill counts at the named points.  The engine reads
