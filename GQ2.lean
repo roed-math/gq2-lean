@@ -773,4 +773,5 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenEndpoint
 import GQ2.Dyadic.Instances.EvenDeepIsotropy
 import GQ2.Dyadic.Instances.EvenRouteWitness
 import GQ2.Dyadic.Instances.StageAbstractionEvenFlip
+import GQ2.Dyadic.Instances.EvenRouteCarried
 import GQ2.Dyadic.Main
