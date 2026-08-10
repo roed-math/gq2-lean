@@ -1,0 +1,35 @@
+== §1 the cleared row nuSel h j 0 0 at every handle count ==
+PASS cleared row: ten-row solve, verdicts, blindness, hom data, commutators, invariants
+PASS cleared soundness: selLamThree and selLamThreePlus
+
+== §2 the handle block is invisible to the sigma forcing ==
+PASS sqRelWord_sigFourDress_handle_blind, 30000 random pairs of markings  (120000 comparisons)
+PASS sqRelWord_mirTuple_dress_response(_low), 30000 random instances  (120000 comparisons)
+PASS mirTuple_sigma_bit, arbitrary handle letters  (30000 comparisons)
+PASS sqRelWord_mirTuple_j, arbitrary core and arbitrary block  (30000 comparisons)
+PASS handle-blindness of the four top responses and of the selection bit
+
+== §3 the gauge parity theorem and the automatic evenness of a live block ==
+PASS sqWord_sigFourMark_gauge_even over random gauge-legal (x, y)  (100000 comparisons)
+PASS commP_gaThree_even_of_relator over random gauge-legal cores  (100000 comparisons)
+PASS gauge parity, and the forced block is even where the increment reads it
+
+== §4-§5 the live-handle-block point ==
+PASS live point: ten-row solve with a LIVE block, verdicts, blindness, hom data, invariants
+
+== §6 the widened invariants ==
+PASS liveFrameSub is a subgroup, random pairs  (40000 comparisons)
+PASS commP_mem_liveGaTwoSub, random pairs in liveFrameSub  (40000 comparisons)
+PASS rowFrameSub_le_liveFrameSub, random rowFrameSub elements  (40000 comparisons)
+PASS commP_central_of_rowFrameSub: inside the wave-55 invariants a nu'-trivial block is CENTRAL  (40000 comparisons)
+PASS liveFrameSub / liveGaTwoSub / commP_mem_liveGaTwoSub / the sharpest bound
+
+== §7 the forcing at the live point ==
+PASS liveFourWit_increment_even, random even-dressing instances  (40000 comparisons)
+PASS liveFourWit_sigma_forced h=1 j=0: the odd dressing survives every achievable refinement  (262144 comparisons)
+PASS liveFourWit_sigma_forced h=2 j=0: the odd dressing survives every achievable refinement  (262144 comparisons)
+PASS liveFourWit_sigma_forced h=2 j=1: the odd dressing survives every achievable refinement  (262144 comparisons)
+PASS liveFourWit_increment_even / _sigma_forced / sqArbFrame_sigma_forced_live
+PASS liveFour_escape_separates, at every handle count
+
+TOTAL CHECKS: 1487360   FAILURES: 0

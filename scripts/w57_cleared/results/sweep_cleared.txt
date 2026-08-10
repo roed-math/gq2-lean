@@ -1,0 +1,56 @@
+== A. the committed lattice selLamThree ==
+PASS CLEARED (t,s)=(0,0): selLamThree (1, 2, 0, 0, 0, 0, 1, 0) even in (h,i) over all 512 (P,Q,R)
+PASS LIVE    (t,s)=(0,0): selLamThree (1, 2, 0, 0, 0, 0, 1, 0) even in (h,i) over all 512 (P,Q,R)
+   (both points carry the COMMITTED cleared-row parameters, so
+    GradedSigmaFour.sigFourWit_lamThree_even applies verbatim at each.)
+
+== B. the three x1-slot commutators, and the extended lattice ==
+PASS CLEARED (t,s)=(0,0): commP(sigma, x1) = (0, 4)
+PASS CLEARED (t,s)=(0,0): commP(x1, U)     = (0, 0)
+PASS CLEARED (t,s)=(0,0): commP(x1, V)     = (0, 0)
+PASS CLEARED (t,s)=(0,0): selLamThreePlus (1, 2, 0, 0, 0, 0, 1, 0) 0 0 4 generators all even
+PASS LIVE    (t,s)=(0,0): commP(sigma, x1) = (0, 4)
+PASS LIVE    (t,s)=(0,0): commP(x1, U)     = (0, 0)
+PASS LIVE    (t,s)=(0,0): commP(x1, V)     = (0, 0)
+PASS LIVE    (t,s)=(0,0): selLamThreePlus (1, 2, 0, 0, 0, 0, 1, 0) 0 0 4 generators all even
+
+== C. the honest gamma_2 level ==
+PASS CLEARED (t,s)=(0,0): |<slots>| = 65536, c-column vanishes
+PASS CLEARED (t,s)=(0,0): f-column EVEN throughout
+PASS CLEARED (t,s)=(0,0): g-column EVEN throughout
+     f-column identically zero on all of the subgroup (wave-55 invariant: true)
+PASS CLEARED (t,s)=(0,0): 20000 random commutators are gamma_2 with EVEN (h, i)
+PASS CLEARED (t,s)=(0,0): all generator-pair commutators likewise
+     realised commutator h-values: [0]   i-values: [0, 4]
+PASS CLEARED (t,s)=(0,0): h = 0 is the SHARP bound here
+PASS LIVE    (t,s)=(0,0): |<slots>| = 1048576, c-column vanishes
+PASS LIVE    (t,s)=(0,0): f-column EVEN throughout
+PASS LIVE    (t,s)=(0,0): g-column EVEN throughout
+     f-column identically zero on none of the subgroup (wave-55 invariant: FALSE here)
+PASS LIVE    (t,s)=(0,0): 20000 random commutators are gamma_2 with EVEN (h, i)
+PASS LIVE    (t,s)=(0,0): all generator-pair commutators likewise
+     realised commutator h-values: [0, 2, 4, 6]   i-values: [0, 4]
+PASS LIVE    (t,s)=(0,0): h = 0 is FALSE here, `h even` is the sharp bound
+
+== D. the kill sweep ==
+PASS the gamma_3 dressings' class-four coordinate is invisible (exhaustive)
+PASS CLEARED (t,s)=(0,0): residue at the trivial dressing
+PASS CLEARED (t,s)=(0,0): residue at the chi_a = 1 dressing
+PASS CLEARED (t,s)=(0,0): residue at the chi_a = 2 dressing
+PASS CLEARED (t,s)=(0,0): kills of the ODD dressing over 4096 refinements (= 2097152 with the invisible coordinates restored)
+PASS CLEARED (t,s)=(0,0): the EVEN dressing dies (1024 of 4096)
+PASS CLEARED (t,s)=(0,0): one explicit gamma_4 move kills the even dressing
+PASS LIVE    (t,s)=(0,0): residue at the trivial dressing
+PASS LIVE    (t,s)=(0,0): residue at the chi_a = 1 dressing
+PASS LIVE    (t,s)=(0,0): residue at the chi_a = 2 dressing
+PASS LIVE    (t,s)=(0,0): kills of the ODD dressing over 262144 refinements (= 134217728 with the invisible coordinates restored)
+PASS LIVE    (t,s)=(0,0): the EVEN dressing dies (65536 of 262144)
+PASS LIVE    (t,s)=(0,0): one explicit gamma_4 move kills the even dressing
+
+== E. the forcing genuinely needs achievability ==
+PASS CLEARED (t,s)=(0,0): 0 of 64 unrestricted gamma_3 U-slot moves kill the odd dressing
+PASS CLEARED (t,s)=(0,0): 8 of 64 unrestricted gamma_3 V-slot moves kill the odd dressing
+PASS LIVE    (t,s)=(0,0): 0 of 64 unrestricted gamma_3 U-slot moves kill the odd dressing
+PASS LIVE    (t,s)=(0,0): 8 of 64 unrestricted gamma_3 V-slot moves kill the odd dressing
+
+TOTAL CHECKS: 35   FAILURES: 0

@@ -1,0 +1,759 @@
+== 1. library validation against the committed class-four facts ==
+PASS sqRelWord_sigFourWit_triv
+PASS sqRelWord_sigFourWit_V
+PASS sqRelWord_sigFourWit_U
+PASS sqRelWord_sigFourWit_V_complete
+PASS sqWord(sigFourMark, sigFourX, sigFourY) = 1
+PASS commP_sigFour (the committed handle block is DEAD)
+PASS mirFourU_sq (sigFourU^2 = sigFourV)
+PASS mirror point relator h=1 j=0
+PASS wave-55 row relator h=1 j=0
+PASS doubly-uncleared relator h=1 j=0
+PASS mirror point relator h=2 j=0
+PASS wave-55 row relator h=2 j=0
+PASS doubly-uncleared relator h=2 j=0
+PASS mirror point relator h=2 j=1
+PASS wave-55 row relator h=2 j=1
+PASS doubly-uncleared relator h=2 j=1
+PASS mirror point relator h=3 j=0
+PASS wave-55 row relator h=3 j=0
+PASS doubly-uncleared relator h=3 j=0
+PASS mirror point relator h=3 j=1
+PASS wave-55 row relator h=3 j=1
+PASS doubly-uncleared relator h=3 j=1
+PASS mirror point relator h=3 j=2
+PASS wave-55 row relator h=3 j=2
+PASS doubly-uncleared relator h=3 j=2
+PASS mirror point relator h=4 j=0
+PASS wave-55 row relator h=4 j=0
+PASS doubly-uncleared relator h=4 j=0
+PASS mirror point relator h=4 j=1
+PASS wave-55 row relator h=4 j=1
+PASS doubly-uncleared relator h=4 j=1
+PASS mirror point relator h=4 j=2
+PASS wave-55 row relator h=4 j=2
+PASS doubly-uncleared relator h=4 j=2
+PASS mirror point relator h=4 j=3
+PASS wave-55 row relator h=4 j=3
+PASS doubly-uncleared relator h=4 j=3
+
+== 2. (a) THE CLEARED ROW nuSel h j 0 0 AT EVERY HANDLE COUNT ==
+PASS commP_clrFour h=1 j=0
+PASS sqRelWord_clrFourMark h=1 j=0
+PASS sqRelWord_clrFourWit_U h=1 j=0
+PASS sqRelWord_clrFourWit_Usq h=1 j=0
+PASS sqRelWord_clrFourWit_V h=1 j=0
+PASS sqRelWord_clrFourWit_Usq_complete h=1 j=0
+PASS clrFourWit_class_three_blind L h=1 j=0 triv
+PASS clrFourWit_class_three_blind R h=1 j=0 triv
+PASS clrFourWit_class_three_blind L h=1 j=0 U
+PASS clrFourWit_class_three_blind R h=1 j=0 U
+PASS clrFourWit_class_three_blind L h=1 j=0 Usq
+PASS clrFourWit_class_three_blind R h=1 j=0 Usq
+PASS clrFourHom_sigma h=1 j=0
+PASS clrFourHom_x0 h=1 j=0
+PASS clrFourHom_x1 h=1 j=0
+PASS clrFourHom_handleU h=1 j=0
+PASS clrFourHom_handleV h=1 j=0
+PASS clrFourHom_sqPivot h=1 j=0 c=0
+PASS clrFourHom_sqPivot h=1 j=0 c=1
+PASS clrFourHom_sqPivot h=1 j=0 c=2
+PASS clrFourHom_sqPivot h=1 j=0 c=3
+PASS clrFourHom_sqPivot h=1 j=0 c=4
+PASS clrFourHom_sqPivot h=1 j=0 c=5
+PASS clrFourHom_sqPivot h=1 j=0 c=6
+PASS clrFourHom_sqPivot h=1 j=0 c=7
+PASS clrFourHom_b h=1 j=0
+PASS clrFourMark_le_rowFrameSub h=1 j=0
+PASS clrFourMark_le_rowFrameSub h=1 j=0
+PASS clrFourMark_le_rowFrameSub h=1 j=0
+PASS clrFourMark_le_rowFrameSub h=1 j=0
+PASS clrFourMark_le_rowFrameSub h=1 j=0
+PASS commP_clrFour h=2 j=0
+PASS sqRelWord_clrFourMark h=2 j=0
+PASS sqRelWord_clrFourWit_U h=2 j=0
+PASS sqRelWord_clrFourWit_Usq h=2 j=0
+PASS sqRelWord_clrFourWit_V h=2 j=0
+PASS sqRelWord_clrFourWit_Usq_complete h=2 j=0
+PASS clrFourWit_class_three_blind L h=2 j=0 triv
+PASS clrFourWit_class_three_blind R h=2 j=0 triv
+PASS clrFourWit_class_three_blind L h=2 j=0 U
+PASS clrFourWit_class_three_blind R h=2 j=0 U
+PASS clrFourWit_class_three_blind L h=2 j=0 Usq
+PASS clrFourWit_class_three_blind R h=2 j=0 Usq
+PASS clrFourHom_sigma h=2 j=0
+PASS clrFourHom_x0 h=2 j=0
+PASS clrFourHom_x1 h=2 j=0
+PASS clrFourHom_handleU h=2 j=0
+PASS clrFourHom_handleV h=2 j=0
+PASS clrFourHom_handle_ne h=2 j=0 k=1
+PASS clrFourHom_sqPivot h=2 j=0 c=0
+PASS clrFourHom_sqPivot h=2 j=0 c=1
+PASS clrFourHom_sqPivot h=2 j=0 c=2
+PASS clrFourHom_sqPivot h=2 j=0 c=3
+PASS clrFourHom_sqPivot h=2 j=0 c=4
+PASS clrFourHom_sqPivot h=2 j=0 c=5
+PASS clrFourHom_sqPivot h=2 j=0 c=6
+PASS clrFourHom_sqPivot h=2 j=0 c=7
+PASS clrFourHom_b h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS clrFourMark_le_rowFrameSub h=2 j=0
+PASS commP_clrFour h=2 j=1
+PASS sqRelWord_clrFourMark h=2 j=1
+PASS sqRelWord_clrFourWit_U h=2 j=1
+PASS sqRelWord_clrFourWit_Usq h=2 j=1
+PASS sqRelWord_clrFourWit_V h=2 j=1
+PASS sqRelWord_clrFourWit_Usq_complete h=2 j=1
+PASS clrFourWit_class_three_blind L h=2 j=1 triv
+PASS clrFourWit_class_three_blind R h=2 j=1 triv
+PASS clrFourWit_class_three_blind L h=2 j=1 U
+PASS clrFourWit_class_three_blind R h=2 j=1 U
+PASS clrFourWit_class_three_blind L h=2 j=1 Usq
+PASS clrFourWit_class_three_blind R h=2 j=1 Usq
+PASS clrFourHom_sigma h=2 j=1
+PASS clrFourHom_x0 h=2 j=1
+PASS clrFourHom_x1 h=2 j=1
+PASS clrFourHom_handleU h=2 j=1
+PASS clrFourHom_handleV h=2 j=1
+PASS clrFourHom_handle_ne h=2 j=1 k=0
+PASS clrFourHom_sqPivot h=2 j=1 c=0
+PASS clrFourHom_sqPivot h=2 j=1 c=1
+PASS clrFourHom_sqPivot h=2 j=1 c=2
+PASS clrFourHom_sqPivot h=2 j=1 c=3
+PASS clrFourHom_sqPivot h=2 j=1 c=4
+PASS clrFourHom_sqPivot h=2 j=1 c=5
+PASS clrFourHom_sqPivot h=2 j=1 c=6
+PASS clrFourHom_sqPivot h=2 j=1 c=7
+PASS clrFourHom_b h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS clrFourMark_le_rowFrameSub h=2 j=1
+PASS commP_clrFour h=3 j=0
+PASS sqRelWord_clrFourMark h=3 j=0
+PASS sqRelWord_clrFourWit_U h=3 j=0
+PASS sqRelWord_clrFourWit_Usq h=3 j=0
+PASS sqRelWord_clrFourWit_V h=3 j=0
+PASS sqRelWord_clrFourWit_Usq_complete h=3 j=0
+PASS clrFourWit_class_three_blind L h=3 j=0 triv
+PASS clrFourWit_class_three_blind R h=3 j=0 triv
+PASS clrFourWit_class_three_blind L h=3 j=0 U
+PASS clrFourWit_class_three_blind R h=3 j=0 U
+PASS clrFourWit_class_three_blind L h=3 j=0 Usq
+PASS clrFourWit_class_three_blind R h=3 j=0 Usq
+PASS clrFourHom_sigma h=3 j=0
+PASS clrFourHom_x0 h=3 j=0
+PASS clrFourHom_x1 h=3 j=0
+PASS clrFourHom_handleU h=3 j=0
+PASS clrFourHom_handleV h=3 j=0
+PASS clrFourHom_handle_ne h=3 j=0 k=1
+PASS clrFourHom_handle_ne h=3 j=0 k=2
+PASS clrFourHom_sqPivot h=3 j=0 c=0
+PASS clrFourHom_sqPivot h=3 j=0 c=1
+PASS clrFourHom_sqPivot h=3 j=0 c=2
+PASS clrFourHom_sqPivot h=3 j=0 c=3
+PASS clrFourHom_sqPivot h=3 j=0 c=4
+PASS clrFourHom_sqPivot h=3 j=0 c=5
+PASS clrFourHom_sqPivot h=3 j=0 c=6
+PASS clrFourHom_sqPivot h=3 j=0 c=7
+PASS clrFourHom_b h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS clrFourMark_le_rowFrameSub h=3 j=0
+PASS commP_clrFour h=3 j=1
+PASS sqRelWord_clrFourMark h=3 j=1
+PASS sqRelWord_clrFourWit_U h=3 j=1
+PASS sqRelWord_clrFourWit_Usq h=3 j=1
+PASS sqRelWord_clrFourWit_V h=3 j=1
+PASS sqRelWord_clrFourWit_Usq_complete h=3 j=1
+PASS clrFourWit_class_three_blind L h=3 j=1 triv
+PASS clrFourWit_class_three_blind R h=3 j=1 triv
+PASS clrFourWit_class_three_blind L h=3 j=1 U
+PASS clrFourWit_class_three_blind R h=3 j=1 U
+PASS clrFourWit_class_three_blind L h=3 j=1 Usq
+PASS clrFourWit_class_three_blind R h=3 j=1 Usq
+PASS clrFourHom_sigma h=3 j=1
+PASS clrFourHom_x0 h=3 j=1
+PASS clrFourHom_x1 h=3 j=1
+PASS clrFourHom_handleU h=3 j=1
+PASS clrFourHom_handleV h=3 j=1
+PASS clrFourHom_handle_ne h=3 j=1 k=0
+PASS clrFourHom_handle_ne h=3 j=1 k=2
+PASS clrFourHom_sqPivot h=3 j=1 c=0
+PASS clrFourHom_sqPivot h=3 j=1 c=1
+PASS clrFourHom_sqPivot h=3 j=1 c=2
+PASS clrFourHom_sqPivot h=3 j=1 c=3
+PASS clrFourHom_sqPivot h=3 j=1 c=4
+PASS clrFourHom_sqPivot h=3 j=1 c=5
+PASS clrFourHom_sqPivot h=3 j=1 c=6
+PASS clrFourHom_sqPivot h=3 j=1 c=7
+PASS clrFourHom_b h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS clrFourMark_le_rowFrameSub h=3 j=1
+PASS commP_clrFour h=3 j=2
+PASS sqRelWord_clrFourMark h=3 j=2
+PASS sqRelWord_clrFourWit_U h=3 j=2
+PASS sqRelWord_clrFourWit_Usq h=3 j=2
+PASS sqRelWord_clrFourWit_V h=3 j=2
+PASS sqRelWord_clrFourWit_Usq_complete h=3 j=2
+PASS clrFourWit_class_three_blind L h=3 j=2 triv
+PASS clrFourWit_class_three_blind R h=3 j=2 triv
+PASS clrFourWit_class_three_blind L h=3 j=2 U
+PASS clrFourWit_class_three_blind R h=3 j=2 U
+PASS clrFourWit_class_three_blind L h=3 j=2 Usq
+PASS clrFourWit_class_three_blind R h=3 j=2 Usq
+PASS clrFourHom_sigma h=3 j=2
+PASS clrFourHom_x0 h=3 j=2
+PASS clrFourHom_x1 h=3 j=2
+PASS clrFourHom_handleU h=3 j=2
+PASS clrFourHom_handleV h=3 j=2
+PASS clrFourHom_handle_ne h=3 j=2 k=0
+PASS clrFourHom_handle_ne h=3 j=2 k=1
+PASS clrFourHom_sqPivot h=3 j=2 c=0
+PASS clrFourHom_sqPivot h=3 j=2 c=1
+PASS clrFourHom_sqPivot h=3 j=2 c=2
+PASS clrFourHom_sqPivot h=3 j=2 c=3
+PASS clrFourHom_sqPivot h=3 j=2 c=4
+PASS clrFourHom_sqPivot h=3 j=2 c=5
+PASS clrFourHom_sqPivot h=3 j=2 c=6
+PASS clrFourHom_sqPivot h=3 j=2 c=7
+PASS clrFourHom_b h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS clrFourMark_le_rowFrameSub h=3 j=2
+PASS commP_clrFour h=4 j=0
+PASS sqRelWord_clrFourMark h=4 j=0
+PASS sqRelWord_clrFourWit_U h=4 j=0
+PASS sqRelWord_clrFourWit_Usq h=4 j=0
+PASS sqRelWord_clrFourWit_V h=4 j=0
+PASS sqRelWord_clrFourWit_Usq_complete h=4 j=0
+PASS clrFourWit_class_three_blind L h=4 j=0 triv
+PASS clrFourWit_class_three_blind R h=4 j=0 triv
+PASS clrFourWit_class_three_blind L h=4 j=0 U
+PASS clrFourWit_class_three_blind R h=4 j=0 U
+PASS clrFourWit_class_three_blind L h=4 j=0 Usq
+PASS clrFourWit_class_three_blind R h=4 j=0 Usq
+PASS clrFourHom_sigma h=4 j=0
+PASS clrFourHom_x0 h=4 j=0
+PASS clrFourHom_x1 h=4 j=0
+PASS clrFourHom_handleU h=4 j=0
+PASS clrFourHom_handleV h=4 j=0
+PASS clrFourHom_handle_ne h=4 j=0 k=1
+PASS clrFourHom_handle_ne h=4 j=0 k=2
+PASS clrFourHom_handle_ne h=4 j=0 k=3
+PASS clrFourHom_sqPivot h=4 j=0 c=0
+PASS clrFourHom_sqPivot h=4 j=0 c=1
+PASS clrFourHom_sqPivot h=4 j=0 c=2
+PASS clrFourHom_sqPivot h=4 j=0 c=3
+PASS clrFourHom_sqPivot h=4 j=0 c=4
+PASS clrFourHom_sqPivot h=4 j=0 c=5
+PASS clrFourHom_sqPivot h=4 j=0 c=6
+PASS clrFourHom_sqPivot h=4 j=0 c=7
+PASS clrFourHom_b h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS clrFourMark_le_rowFrameSub h=4 j=0
+PASS commP_clrFour h=4 j=1
+PASS sqRelWord_clrFourMark h=4 j=1
+PASS sqRelWord_clrFourWit_U h=4 j=1
+PASS sqRelWord_clrFourWit_Usq h=4 j=1
+PASS sqRelWord_clrFourWit_V h=4 j=1
+PASS sqRelWord_clrFourWit_Usq_complete h=4 j=1
+PASS clrFourWit_class_three_blind L h=4 j=1 triv
+PASS clrFourWit_class_three_blind R h=4 j=1 triv
+PASS clrFourWit_class_three_blind L h=4 j=1 U
+PASS clrFourWit_class_three_blind R h=4 j=1 U
+PASS clrFourWit_class_three_blind L h=4 j=1 Usq
+PASS clrFourWit_class_three_blind R h=4 j=1 Usq
+PASS clrFourHom_sigma h=4 j=1
+PASS clrFourHom_x0 h=4 j=1
+PASS clrFourHom_x1 h=4 j=1
+PASS clrFourHom_handleU h=4 j=1
+PASS clrFourHom_handleV h=4 j=1
+PASS clrFourHom_handle_ne h=4 j=1 k=0
+PASS clrFourHom_handle_ne h=4 j=1 k=2
+PASS clrFourHom_handle_ne h=4 j=1 k=3
+PASS clrFourHom_sqPivot h=4 j=1 c=0
+PASS clrFourHom_sqPivot h=4 j=1 c=1
+PASS clrFourHom_sqPivot h=4 j=1 c=2
+PASS clrFourHom_sqPivot h=4 j=1 c=3
+PASS clrFourHom_sqPivot h=4 j=1 c=4
+PASS clrFourHom_sqPivot h=4 j=1 c=5
+PASS clrFourHom_sqPivot h=4 j=1 c=6
+PASS clrFourHom_sqPivot h=4 j=1 c=7
+PASS clrFourHom_b h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS clrFourMark_le_rowFrameSub h=4 j=1
+PASS commP_clrFour h=4 j=2
+PASS sqRelWord_clrFourMark h=4 j=2
+PASS sqRelWord_clrFourWit_U h=4 j=2
+PASS sqRelWord_clrFourWit_Usq h=4 j=2
+PASS sqRelWord_clrFourWit_V h=4 j=2
+PASS sqRelWord_clrFourWit_Usq_complete h=4 j=2
+PASS clrFourWit_class_three_blind L h=4 j=2 triv
+PASS clrFourWit_class_three_blind R h=4 j=2 triv
+PASS clrFourWit_class_three_blind L h=4 j=2 U
+PASS clrFourWit_class_three_blind R h=4 j=2 U
+PASS clrFourWit_class_three_blind L h=4 j=2 Usq
+PASS clrFourWit_class_three_blind R h=4 j=2 Usq
+PASS clrFourHom_sigma h=4 j=2
+PASS clrFourHom_x0 h=4 j=2
+PASS clrFourHom_x1 h=4 j=2
+PASS clrFourHom_handleU h=4 j=2
+PASS clrFourHom_handleV h=4 j=2
+PASS clrFourHom_handle_ne h=4 j=2 k=0
+PASS clrFourHom_handle_ne h=4 j=2 k=1
+PASS clrFourHom_handle_ne h=4 j=2 k=3
+PASS clrFourHom_sqPivot h=4 j=2 c=0
+PASS clrFourHom_sqPivot h=4 j=2 c=1
+PASS clrFourHom_sqPivot h=4 j=2 c=2
+PASS clrFourHom_sqPivot h=4 j=2 c=3
+PASS clrFourHom_sqPivot h=4 j=2 c=4
+PASS clrFourHom_sqPivot h=4 j=2 c=5
+PASS clrFourHom_sqPivot h=4 j=2 c=6
+PASS clrFourHom_sqPivot h=4 j=2 c=7
+PASS clrFourHom_b h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS clrFourMark_le_rowFrameSub h=4 j=2
+PASS commP_clrFour h=4 j=3
+PASS sqRelWord_clrFourMark h=4 j=3
+PASS sqRelWord_clrFourWit_U h=4 j=3
+PASS sqRelWord_clrFourWit_Usq h=4 j=3
+PASS sqRelWord_clrFourWit_V h=4 j=3
+PASS sqRelWord_clrFourWit_Usq_complete h=4 j=3
+PASS clrFourWit_class_three_blind L h=4 j=3 triv
+PASS clrFourWit_class_three_blind R h=4 j=3 triv
+PASS clrFourWit_class_three_blind L h=4 j=3 U
+PASS clrFourWit_class_three_blind R h=4 j=3 U
+PASS clrFourWit_class_three_blind L h=4 j=3 Usq
+PASS clrFourWit_class_three_blind R h=4 j=3 Usq
+PASS clrFourHom_sigma h=4 j=3
+PASS clrFourHom_x0 h=4 j=3
+PASS clrFourHom_x1 h=4 j=3
+PASS clrFourHom_handleU h=4 j=3
+PASS clrFourHom_handleV h=4 j=3
+PASS clrFourHom_handle_ne h=4 j=3 k=0
+PASS clrFourHom_handle_ne h=4 j=3 k=1
+PASS clrFourHom_handle_ne h=4 j=3 k=2
+PASS clrFourHom_sqPivot h=4 j=3 c=0
+PASS clrFourHom_sqPivot h=4 j=3 c=1
+PASS clrFourHom_sqPivot h=4 j=3 c=2
+PASS clrFourHom_sqPivot h=4 j=3 c=3
+PASS clrFourHom_sqPivot h=4 j=3 c=4
+PASS clrFourHom_sqPivot h=4 j=3 c=5
+PASS clrFourHom_sqPivot h=4 j=3 c=6
+PASS clrFourHom_sqPivot h=4 j=3 c=7
+PASS clrFourHom_b h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+PASS clrFourMark_le_rowFrameSub h=4 j=3
+   (the row is cleared, so BOTH Eichler letters are the raw generators and the
+    pivot residue never enters the marking: no `Gen` family is needed at all.)
+
+== 3. the gauge parity theorem (symbolic, exact over Z) ==
+PASS row a of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .a = 2 * ( - 4*xa + 2*ya )
+PASS row b of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .b = 2 * ( 0 )
+PASS row c of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .c = 2 * ( - 4*xc + 2*yc )
+PASS row d of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .d = 2 * ( - 4*xd + 2*yd )
+PASS row e of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .e = 2 * ( - xa - 4*xe + ye )
+PASS row f of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .f = 2 * ( xc - 4*xf + yf )
+PASS row g of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .g = 2 * ( - 4*xg + yg + 20*xc*xd - 16*xc*yd + 2*yc*yd )
+PASS row h of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .h = 2 * ( - 2*xh + yh + 6*xa*xc + 20*xa*xf - 4*xa*yc - 8*xa*yf + 20*xc*xe - 16*xe*yc - 4*ya*yc + ya*yf + yc*ye )
+PASS row i of sqWord(sigFourMark, x, y) is EVEN on the gauge
+     .i = 2 * ( xg - 2*xi + yi - 8*xc*xd + 4*xc*yd + 20*xd*xf - 16*xf*yd + 2*yc*yd + yd*yf )
+PASS row j is NOT forced even on the gauge
+     .j = - 4*xj + 2*yj + 12*xa*xg + 20*xa*xi - 4*xa*yg - 16*xa*yi + 20*xd*xh + 40*xe*xg - 16*xe*yg - 16*xh*yd - 4*ya*yg + 2*ya*yi + 2*yd*yh + ye*yg - 48*xa*xc*xd + 48*xa*xc*yd - 160*xa*xd*xf + 160*xa*xf*yd - 40*xa*yc*yd - 16*xa*yd*yf - 160*xc*xd*xe + 160*xc*xe*yd - 32*xe*yc*yd
+PASS gauge parity numerically, 4096 gauge-legal (x, y) pairs
+
+== 4. (b) THE LIVE HANDLE BLOCK ==
+PASS commP(liveFourU, liveFourV) is LIVE
+PASS commP(liveFourU, liveFourV)
+PASS the live block is a class-three element of order 4
+PASS sqWord(sigFourMark, sigFourX, liveFourY)
+PASS core word and handle block are inverse
+PASS liveFourY is sigFourY with class-three coordinate 3
+PASS liveFourV is sigFourV with second class-two coordinate 2
+PASS sqRelWord_liveFourMark h=1 j=0 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=1 j=0
+PASS sqRelWord_liveFourWit_Usq h=1 j=0
+PASS sqRelWord_liveFourWit_Usq_complete h=1 j=0
+PASS liveFourWit_class_three_blind L h=1 j=0 triv
+PASS liveFourWit_class_three_blind R h=1 j=0 triv
+PASS liveFourWit_class_three_blind L h=1 j=0 U
+PASS liveFourWit_class_three_blind R h=1 j=0 U
+PASS liveFourWit_class_three_blind L h=1 j=0 Usq
+PASS liveFourWit_class_three_blind R h=1 j=0 Usq
+PASS liveFourHom_b h=1 j=0
+PASS liveFourHom_sqPivot h=1 j=0 c=0
+PASS liveFourHom_sqPivot h=1 j=0 c=1
+PASS liveFourHom_sqPivot h=1 j=0 c=2
+PASS liveFourHom_sqPivot h=1 j=0 c=3
+PASS liveFourHom_sqPivot h=1 j=0 c=4
+PASS liveFourHom_sqPivot h=1 j=0 c=5
+PASS liveFourHom_sqPivot h=1 j=0 c=6
+PASS liveFourHom_sqPivot h=1 j=0 c=7
+PASS liveFourMark_le_liveFrameSub h=1 j=0
+PASS liveFourMark_le_liveFrameSub h=1 j=0
+PASS liveFourMark_le_liveFrameSub h=1 j=0
+PASS liveFourMark_le_liveFrameSub h=1 j=0
+PASS liveFourMark_le_liveFrameSub h=1 j=0
+PASS the v-letter leaves rowFrameSub h=1 j=0
+PASS ...the selection bit still reads the dressing h=1 j=0
+PASS sqRelWord_liveFourMark h=2 j=0 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=2 j=0
+PASS sqRelWord_liveFourWit_Usq h=2 j=0
+PASS sqRelWord_liveFourWit_Usq_complete h=2 j=0
+PASS liveFourWit_class_three_blind L h=2 j=0 triv
+PASS liveFourWit_class_three_blind R h=2 j=0 triv
+PASS liveFourWit_class_three_blind L h=2 j=0 U
+PASS liveFourWit_class_three_blind R h=2 j=0 U
+PASS liveFourWit_class_three_blind L h=2 j=0 Usq
+PASS liveFourWit_class_three_blind R h=2 j=0 Usq
+PASS liveFourHom_b h=2 j=0
+PASS liveFourHom_sqPivot h=2 j=0 c=0
+PASS liveFourHom_sqPivot h=2 j=0 c=1
+PASS liveFourHom_sqPivot h=2 j=0 c=2
+PASS liveFourHom_sqPivot h=2 j=0 c=3
+PASS liveFourHom_sqPivot h=2 j=0 c=4
+PASS liveFourHom_sqPivot h=2 j=0 c=5
+PASS liveFourHom_sqPivot h=2 j=0 c=6
+PASS liveFourHom_sqPivot h=2 j=0 c=7
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS liveFourMark_le_liveFrameSub h=2 j=0
+PASS the v-letter leaves rowFrameSub h=2 j=0
+PASS ...the selection bit still reads the dressing h=2 j=0
+PASS sqRelWord_liveFourMark h=2 j=1 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=2 j=1
+PASS sqRelWord_liveFourWit_Usq h=2 j=1
+PASS sqRelWord_liveFourWit_Usq_complete h=2 j=1
+PASS liveFourWit_class_three_blind L h=2 j=1 triv
+PASS liveFourWit_class_three_blind R h=2 j=1 triv
+PASS liveFourWit_class_three_blind L h=2 j=1 U
+PASS liveFourWit_class_three_blind R h=2 j=1 U
+PASS liveFourWit_class_three_blind L h=2 j=1 Usq
+PASS liveFourWit_class_three_blind R h=2 j=1 Usq
+PASS liveFourHom_b h=2 j=1
+PASS liveFourHom_sqPivot h=2 j=1 c=0
+PASS liveFourHom_sqPivot h=2 j=1 c=1
+PASS liveFourHom_sqPivot h=2 j=1 c=2
+PASS liveFourHom_sqPivot h=2 j=1 c=3
+PASS liveFourHom_sqPivot h=2 j=1 c=4
+PASS liveFourHom_sqPivot h=2 j=1 c=5
+PASS liveFourHom_sqPivot h=2 j=1 c=6
+PASS liveFourHom_sqPivot h=2 j=1 c=7
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS liveFourMark_le_liveFrameSub h=2 j=1
+PASS the v-letter leaves rowFrameSub h=2 j=1
+PASS ...the selection bit still reads the dressing h=2 j=1
+PASS sqRelWord_liveFourMark h=3 j=0 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=3 j=0
+PASS sqRelWord_liveFourWit_Usq h=3 j=0
+PASS sqRelWord_liveFourWit_Usq_complete h=3 j=0
+PASS liveFourWit_class_three_blind L h=3 j=0 triv
+PASS liveFourWit_class_three_blind R h=3 j=0 triv
+PASS liveFourWit_class_three_blind L h=3 j=0 U
+PASS liveFourWit_class_three_blind R h=3 j=0 U
+PASS liveFourWit_class_three_blind L h=3 j=0 Usq
+PASS liveFourWit_class_three_blind R h=3 j=0 Usq
+PASS liveFourHom_b h=3 j=0
+PASS liveFourHom_sqPivot h=3 j=0 c=0
+PASS liveFourHom_sqPivot h=3 j=0 c=1
+PASS liveFourHom_sqPivot h=3 j=0 c=2
+PASS liveFourHom_sqPivot h=3 j=0 c=3
+PASS liveFourHom_sqPivot h=3 j=0 c=4
+PASS liveFourHom_sqPivot h=3 j=0 c=5
+PASS liveFourHom_sqPivot h=3 j=0 c=6
+PASS liveFourHom_sqPivot h=3 j=0 c=7
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS liveFourMark_le_liveFrameSub h=3 j=0
+PASS the v-letter leaves rowFrameSub h=3 j=0
+PASS ...the selection bit still reads the dressing h=3 j=0
+PASS sqRelWord_liveFourMark h=3 j=1 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=3 j=1
+PASS sqRelWord_liveFourWit_Usq h=3 j=1
+PASS sqRelWord_liveFourWit_Usq_complete h=3 j=1
+PASS liveFourWit_class_three_blind L h=3 j=1 triv
+PASS liveFourWit_class_three_blind R h=3 j=1 triv
+PASS liveFourWit_class_three_blind L h=3 j=1 U
+PASS liveFourWit_class_three_blind R h=3 j=1 U
+PASS liveFourWit_class_three_blind L h=3 j=1 Usq
+PASS liveFourWit_class_three_blind R h=3 j=1 Usq
+PASS liveFourHom_b h=3 j=1
+PASS liveFourHom_sqPivot h=3 j=1 c=0
+PASS liveFourHom_sqPivot h=3 j=1 c=1
+PASS liveFourHom_sqPivot h=3 j=1 c=2
+PASS liveFourHom_sqPivot h=3 j=1 c=3
+PASS liveFourHom_sqPivot h=3 j=1 c=4
+PASS liveFourHom_sqPivot h=3 j=1 c=5
+PASS liveFourHom_sqPivot h=3 j=1 c=6
+PASS liveFourHom_sqPivot h=3 j=1 c=7
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS liveFourMark_le_liveFrameSub h=3 j=1
+PASS the v-letter leaves rowFrameSub h=3 j=1
+PASS ...the selection bit still reads the dressing h=3 j=1
+PASS sqRelWord_liveFourMark h=3 j=2 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=3 j=2
+PASS sqRelWord_liveFourWit_Usq h=3 j=2
+PASS sqRelWord_liveFourWit_Usq_complete h=3 j=2
+PASS liveFourWit_class_three_blind L h=3 j=2 triv
+PASS liveFourWit_class_three_blind R h=3 j=2 triv
+PASS liveFourWit_class_three_blind L h=3 j=2 U
+PASS liveFourWit_class_three_blind R h=3 j=2 U
+PASS liveFourWit_class_three_blind L h=3 j=2 Usq
+PASS liveFourWit_class_three_blind R h=3 j=2 Usq
+PASS liveFourHom_b h=3 j=2
+PASS liveFourHom_sqPivot h=3 j=2 c=0
+PASS liveFourHom_sqPivot h=3 j=2 c=1
+PASS liveFourHom_sqPivot h=3 j=2 c=2
+PASS liveFourHom_sqPivot h=3 j=2 c=3
+PASS liveFourHom_sqPivot h=3 j=2 c=4
+PASS liveFourHom_sqPivot h=3 j=2 c=5
+PASS liveFourHom_sqPivot h=3 j=2 c=6
+PASS liveFourHom_sqPivot h=3 j=2 c=7
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS liveFourMark_le_liveFrameSub h=3 j=2
+PASS the v-letter leaves rowFrameSub h=3 j=2
+PASS ...the selection bit still reads the dressing h=3 j=2
+PASS sqRelWord_liveFourMark h=4 j=0 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=4 j=0
+PASS sqRelWord_liveFourWit_Usq h=4 j=0
+PASS sqRelWord_liveFourWit_Usq_complete h=4 j=0
+PASS liveFourWit_class_three_blind L h=4 j=0 triv
+PASS liveFourWit_class_three_blind R h=4 j=0 triv
+PASS liveFourWit_class_three_blind L h=4 j=0 U
+PASS liveFourWit_class_three_blind R h=4 j=0 U
+PASS liveFourWit_class_three_blind L h=4 j=0 Usq
+PASS liveFourWit_class_three_blind R h=4 j=0 Usq
+PASS liveFourHom_b h=4 j=0
+PASS liveFourHom_sqPivot h=4 j=0 c=0
+PASS liveFourHom_sqPivot h=4 j=0 c=1
+PASS liveFourHom_sqPivot h=4 j=0 c=2
+PASS liveFourHom_sqPivot h=4 j=0 c=3
+PASS liveFourHom_sqPivot h=4 j=0 c=4
+PASS liveFourHom_sqPivot h=4 j=0 c=5
+PASS liveFourHom_sqPivot h=4 j=0 c=6
+PASS liveFourHom_sqPivot h=4 j=0 c=7
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS liveFourMark_le_liveFrameSub h=4 j=0
+PASS the v-letter leaves rowFrameSub h=4 j=0
+PASS ...the selection bit still reads the dressing h=4 j=0
+PASS sqRelWord_liveFourMark h=4 j=1 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=4 j=1
+PASS sqRelWord_liveFourWit_Usq h=4 j=1
+PASS sqRelWord_liveFourWit_Usq_complete h=4 j=1
+PASS liveFourWit_class_three_blind L h=4 j=1 triv
+PASS liveFourWit_class_three_blind R h=4 j=1 triv
+PASS liveFourWit_class_three_blind L h=4 j=1 U
+PASS liveFourWit_class_three_blind R h=4 j=1 U
+PASS liveFourWit_class_three_blind L h=4 j=1 Usq
+PASS liveFourWit_class_three_blind R h=4 j=1 Usq
+PASS liveFourHom_b h=4 j=1
+PASS liveFourHom_sqPivot h=4 j=1 c=0
+PASS liveFourHom_sqPivot h=4 j=1 c=1
+PASS liveFourHom_sqPivot h=4 j=1 c=2
+PASS liveFourHom_sqPivot h=4 j=1 c=3
+PASS liveFourHom_sqPivot h=4 j=1 c=4
+PASS liveFourHom_sqPivot h=4 j=1 c=5
+PASS liveFourHom_sqPivot h=4 j=1 c=6
+PASS liveFourHom_sqPivot h=4 j=1 c=7
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS liveFourMark_le_liveFrameSub h=4 j=1
+PASS the v-letter leaves rowFrameSub h=4 j=1
+PASS ...the selection bit still reads the dressing h=4 j=1
+PASS sqRelWord_liveFourMark h=4 j=2 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=4 j=2
+PASS sqRelWord_liveFourWit_Usq h=4 j=2
+PASS sqRelWord_liveFourWit_Usq_complete h=4 j=2
+PASS liveFourWit_class_three_blind L h=4 j=2 triv
+PASS liveFourWit_class_three_blind R h=4 j=2 triv
+PASS liveFourWit_class_three_blind L h=4 j=2 U
+PASS liveFourWit_class_three_blind R h=4 j=2 U
+PASS liveFourWit_class_three_blind L h=4 j=2 Usq
+PASS liveFourWit_class_three_blind R h=4 j=2 Usq
+PASS liveFourHom_b h=4 j=2
+PASS liveFourHom_sqPivot h=4 j=2 c=0
+PASS liveFourHom_sqPivot h=4 j=2 c=1
+PASS liveFourHom_sqPivot h=4 j=2 c=2
+PASS liveFourHom_sqPivot h=4 j=2 c=3
+PASS liveFourHom_sqPivot h=4 j=2 c=4
+PASS liveFourHom_sqPivot h=4 j=2 c=5
+PASS liveFourHom_sqPivot h=4 j=2 c=6
+PASS liveFourHom_sqPivot h=4 j=2 c=7
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS liveFourMark_le_liveFrameSub h=4 j=2
+PASS the v-letter leaves rowFrameSub h=4 j=2
+PASS ...the selection bit still reads the dressing h=4 j=2
+PASS sqRelWord_liveFourMark h=4 j=3 (TEN ROWS, live block)
+PASS sqRelWord_liveFourWit_U h=4 j=3
+PASS sqRelWord_liveFourWit_Usq h=4 j=3
+PASS sqRelWord_liveFourWit_Usq_complete h=4 j=3
+PASS liveFourWit_class_three_blind L h=4 j=3 triv
+PASS liveFourWit_class_three_blind R h=4 j=3 triv
+PASS liveFourWit_class_three_blind L h=4 j=3 U
+PASS liveFourWit_class_three_blind R h=4 j=3 U
+PASS liveFourWit_class_three_blind L h=4 j=3 Usq
+PASS liveFourWit_class_three_blind R h=4 j=3 Usq
+PASS liveFourHom_b h=4 j=3
+PASS liveFourHom_sqPivot h=4 j=3 c=0
+PASS liveFourHom_sqPivot h=4 j=3 c=1
+PASS liveFourHom_sqPivot h=4 j=3 c=2
+PASS liveFourHom_sqPivot h=4 j=3 c=3
+PASS liveFourHom_sqPivot h=4 j=3 c=4
+PASS liveFourHom_sqPivot h=4 j=3 c=5
+PASS liveFourHom_sqPivot h=4 j=3 c=6
+PASS liveFourHom_sqPivot h=4 j=3 c=7
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS liveFourMark_le_liveFrameSub h=4 j=3
+PASS the v-letter leaves rowFrameSub h=4 j=3
+PASS ...the selection bit still reads the dressing h=4 j=3
+
+== 5. the forcing is HANDLE-BLIND: the block cancels out of every dressing response ==
+PASS handle-blindness of the four top dressing responses, 20000 random instances
+PASS the response is exactly (sigFourG, sigFourH, sigFourI, sigFourRead), 20000 instances
+
+== 6. a live handle block is AUTOMATICALLY SOUND ==
+   the relator forces commP U V = (core word)^{-1}, and the gauge forces the core
+   word's nine lower rows even, so the block is even where the increment reads it.
+PASS 200000 gauge-legal cores: the forced handle block has EVEN (h, i)
+PASS relator-killing markings found in the scanned family (live + dead)
+     120 have a LIVE handle block, 8 a dead one
+PASS every one of the 120 live-block markings kills the relator with even (h, i)
+PASS the transcribed point is one of them
+
+TOTAL CHECKS: 731   FAILURES: 0
