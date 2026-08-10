@@ -71,7 +71,22 @@ uncovered corners (all eight generator pairings even, e.g. `(A,…,S) = (0,1,1,1
 the obstruction theorem PROVES the engine is stuck.  The containment along the honest
 tower at such corners must route through `γ₂`-level moves or a different stage-three
 completion, which is exactly the located remaining gap: the `γ₂`-torsor transport of the
-class-four residue.  The stage-three completion moves themselves (killing the witness's
+class-four residue.
+
+> **UPDATED BY W54-GAMMA2 (2026-08-10), see `docs/dyadic/w54-gamma2-note.md` and
+> `SqCore/GradedGammaTwo.lean`.**  The dead ends recorded in this file are dead ends of
+> the `Λ₃` ENGINE, not of the tower: the `γ₂` transport reaches them.  It is also a
+> mod-two AFFINE phenomenon rather than the quadratic one anticipated below, because the
+> quadratic block of the `γ₂` defect is even on the achievable lattice.  Three new
+> `γ₂`-level moves (commutators of the witness's `x₁`-slot letter against `σ`, `U`, `V`,
+> whose `(h,i)` data are exact halves of committed `selLamThree` generators) raise
+> odd-residue coverage from `16384` to `97280` of `131072`, and the residual `33792` is
+> exhaustively certified DEAD at the `γ₂` level under both the achievable and the
+> unrestricted models, so no corner is left open.  In particular the corner
+> `(0,1,1,1,2,0,2,0)` cited here and its instance below are killed by the fifth power of
+> `⁅σ, x₁⁆` on the U-handle slot.  The extended lattice `selLamThreePlus` contains
+> `selLamThree` (`selLamThree_plus`), so nothing here breaks; a future wave should migrate
+> the obstruction theorem's hypotheses onto the six new pairings.  The stage-three completion moves themselves (killing the witness's
 `h`- and `i`-rows) are likewise out of scope here: the gate corollary carries them as
 hypotheses, and the `i`-row's parity `C·F·T` shows the witness needs a `γ₂`-move to reach
 stage 3 at `C·F·T`-odd points, which no `γ₃`-dressing supplies (their `i`-increment
