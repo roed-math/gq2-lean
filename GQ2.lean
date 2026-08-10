@@ -765,4 +765,5 @@ import GQ2.Dyadic.Instances.EvenCyclotomicRange
 import GQ2.Dyadic.Instances.StageAbstractionEvenPerK
 import GQ2.Dyadic.Instances.StageAbstractionEvenFrameDeep
 import GQ2.Dyadic.Instances.StageAbstractionEvenDigit
+import GQ2.Dyadic.Instances.StageAbstractionEvenEndpoint
 import GQ2.Dyadic.Main
