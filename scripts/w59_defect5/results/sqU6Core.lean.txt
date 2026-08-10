@@ -1,0 +1,84 @@
+    s.a * x.n - s.e * x.m + s.f * x.l - s.i * x.j + s.j * x.i - s.l * x.f + s.m * x.e
+      - s.n * x.a + 10 * (x.a * x.n) - 8 * (x.a * y.n) + 10 * (x.e * x.m) + 10 * (x.f * x.l)
+      - 8 * (x.f * y.l) + 10 * (x.i * x.j) - 8 * (x.j * y.i) - 8 * (x.m * y.e) + y.a * y.n
+      + y.e * y.m + y.f * y.l + y.i * y.j - s.a * s.b * x.l + s.a * s.e * x.k - s.a * s.g * x.i
+      + s.a * s.i * x.g - s.a * s.k * x.e + s.a * s.l * x.b - 4 * (s.a * x.b * x.l)
+      + 2 * (s.a * x.b * y.l) - 4 * (s.a * x.e * x.k) - 4 * (s.a * x.g * x.i)
+      + 2 * (s.a * x.g * y.i) + 2 * (s.a * x.k * y.e) + s.a * y.b * y.l + s.a * y.e * y.k
+      + s.a * y.g * y.i + 3 * (s.b * x.a * x.l) - 2 * (s.b * x.a * y.l) - 2 * (s.b * y.a * y.l)
+      - s.c * s.f * x.i + 3 * (s.c * x.f * x.i) - 2 * (s.c * x.f * y.i) - 2 * (s.c * y.f * y.i)
+      - s.d * s.j * x.e + 3 * (s.d * x.e * x.j) - 2 * (s.d * x.j * y.e) - 2 * (s.d * y.e * y.j)
+      + s.e * s.f * x.h + s.e * s.j * x.d + s.e * x.a * x.k + s.e * x.d * x.j + s.e * x.f * x.h
+      + s.e * y.a * y.k + s.e * y.d * y.j + s.e * y.f * y.h - s.f * s.h * x.e + s.f * s.i * x.c
+      - 4 * (s.f * x.c * x.i) + 2 * (s.f * x.c * y.i) - 4 * (s.f * x.e * x.h)
+      + 2 * (s.f * x.h * y.e) + s.f * y.c * y.i + s.f * y.e * y.h + 3 * (s.g * x.a * x.i)
+      - 2 * (s.g * x.a * y.i) - 2 * (s.g * y.a * y.i) + 3 * (s.h * x.e * x.f)
+      - 2 * (s.h * x.f * y.e) - 2 * (s.h * y.e * y.f) + s.i * x.a * x.g + s.i * x.c * x.f
+      + s.i * y.a * y.g + s.i * y.c * y.f - 4 * (s.j * x.d * x.e) + 2 * (s.j * x.d * y.e)
+      + s.j * y.d * y.e + 3 * (s.k * x.a * x.e) - 2 * (s.k * x.a * y.e) - 2 * (s.k * y.a * y.e)
+      + s.l * x.a * x.b + s.l * y.a * y.b - 20 * (x.a * x.b * x.l) + 20 * (x.a * x.b * y.l)
+      - 20 * (x.a * x.e * x.k) - 20 * (x.a * x.g * x.i) + 20 * (x.a * x.g * y.i)
+      + 20 * (x.a * x.k * y.e) - 4 * (x.a * y.b * y.l) - 4 * (x.a * y.e * y.k)
+      - 4 * (x.a * y.g * y.i) - 20 * (x.c * x.f * x.i) + 20 * (x.c * x.f * y.i)
+      - 20 * (x.d * x.e * x.j) + 20 * (x.d * x.j * y.e) - 20 * (x.e * x.f * x.h)
+      + 20 * (x.f * x.h * y.e) - 4 * (x.f * y.c * y.i) - 4 * (x.f * y.e * y.h)
+      - 4 * (x.j * y.d * y.e) + s.a * s.b * s.c * x.i - s.a * s.b * s.e * x.h
+      + s.a * s.b * s.h * x.e - s.a * s.b * s.i * x.c + 4 * (s.a * s.b * x.c * x.i)
+      - 2 * (s.a * s.b * x.c * y.i) + 4 * (s.a * s.b * x.e * x.h) - 2 * (s.a * s.b * x.h * y.e)
+      - s.a * s.b * y.c * y.i - s.a * s.b * y.e * y.h - 3 * (s.a * s.c * x.b * x.i)
+      + 2 * (s.a * s.c * x.b * y.i) + s.a * s.c * y.b * y.i + s.a * s.d * s.g * x.e
+      - 3 * (s.a * s.d * x.e * x.g) + 2 * (s.a * s.d * x.g * y.e) + s.a * s.d * y.e * y.g
+      - s.a * s.e * s.g * x.d - s.a * s.e * x.b * x.h - s.a * s.e * x.d * x.g
+      + 4 * (s.a * s.g * x.d * x.e) - 2 * (s.a * s.g * x.d * y.e) - s.a * s.g * y.d * y.e
+      - 3 * (s.a * s.h * x.b * x.e) + 2 * (s.a * s.h * x.b * y.e) + s.a * s.h * y.b * y.e
+      - s.a * s.i * x.b * x.c + 10 * (s.a * x.b * x.c * x.i) - 8 * (s.a * x.b * x.c * y.i)
+      + 10 * (s.a * x.b * x.e * x.h) - 8 * (s.a * x.b * x.h * y.e) + s.a * x.b * y.c * y.i
+      + s.a * x.b * y.e * y.h + 10 * (s.a * x.d * x.e * x.g) - 8 * (s.a * x.d * x.g * y.e)
+      + s.a * x.g * y.d * y.e + s.b * s.c * y.a * y.i - s.b * s.e * y.a * y.h
+      + s.b * s.h * y.a * y.e - s.b * s.i * y.a * y.c - 6 * (s.b * x.a * x.c * x.i)
+      + 6 * (s.b * x.a * x.c * y.i) - 6 * (s.b * x.a * x.e * x.h) + 6 * (s.b * x.a * x.h * y.e)
+      - 5 * (s.b * x.a * y.c * y.i) - 5 * (s.b * x.a * y.e * y.h) + s.c * s.d * s.f * x.e
+      + s.c * s.d * y.e * y.f - s.c * s.e * s.f * x.d - s.c * s.e * y.d * y.f
+      + 4 * (s.c * s.f * x.d * x.e) - 2 * (s.c * s.f * x.d * y.e) - s.c * s.f * y.d * y.e
+      - 3 * (s.c * x.a * x.b * x.i) + 2 * (s.c * x.a * x.b * y.i) + 8 * (s.c * x.a * y.b * y.i)
+      - 6 * (s.c * x.d * x.e * x.f) + 6 * (s.c * x.d * x.f * y.e) - 5 * (s.c * x.f * y.d * y.e)
+      - 3 * (s.d * s.f * x.c * x.e) + 2 * (s.d * s.f * x.c * y.e) + s.d * s.f * y.c * y.e
+      + s.d * s.g * y.a * y.e - 3 * (s.d * x.a * x.e * x.g) + 2 * (s.d * x.a * x.g * y.e)
+      + 8 * (s.d * x.a * y.e * y.g) - 3 * (s.d * x.c * x.e * x.f) + 2 * (s.d * x.c * x.f * y.e)
+      + 8 * (s.d * x.f * y.c * y.e) - s.e * s.f * x.c * x.d - s.e * s.g * y.a * y.d
+      - s.e * x.a * x.b * x.h - s.e * x.a * x.d * x.g - 4 * (s.e * x.a * y.b * y.h)
+      - 4 * (s.e * x.a * y.d * y.g) - s.e * x.c * x.d * x.f - 4 * (s.e * x.f * y.c * y.d)
+      + 10 * (s.f * x.c * x.d * x.e) - 8 * (s.f * x.c * x.d * y.e) + s.f * x.c * y.d * y.e
+      - 6 * (s.g * x.a * x.d * x.e) + 6 * (s.g * x.a * x.d * y.e) - 5 * (s.g * x.a * y.d * y.e)
+      - 3 * (s.h * x.a * x.b * x.e) + 2 * (s.h * x.a * x.b * y.e) + 8 * (s.h * x.a * y.b * y.e)
+      - s.i * x.a * x.b * x.c - 4 * (s.i * x.a * y.b * y.c) + 35 * (x.a * x.b * x.c * x.i)
+      - 40 * (x.a * x.b * x.c * y.i) + 35 * (x.a * x.b * x.e * x.h)
+      - 40 * (x.a * x.b * x.h * y.e) + 10 * (x.a * x.b * y.c * y.i)
+      + 10 * (x.a * x.b * y.e * y.h) + 35 * (x.a * x.d * x.e * x.g)
+      - 40 * (x.a * x.d * x.g * y.e) + 10 * (x.a * x.g * y.d * y.e)
+      + 35 * (x.c * x.d * x.e * x.f) - 40 * (x.c * x.d * x.f * y.e)
+      + 10 * (x.c * x.f * y.d * y.e) - s.a * s.b * s.c * s.d * x.e + s.a * s.b * s.c * s.e * x.d
+      - 4 * (s.a * s.b * s.c * x.d * x.e) + 2 * (s.a * s.b * s.c * x.d * y.e)
+      + s.a * s.b * s.c * y.d * y.e + 3 * (s.a * s.b * s.d * x.c * x.e)
+      - 2 * (s.a * s.b * s.d * x.c * y.e) - s.a * s.b * s.d * y.c * y.e
+      + s.a * s.b * s.e * x.c * x.d - 10 * (s.a * s.b * x.c * x.d * x.e)
+      + 8 * (s.a * s.b * x.c * x.d * y.e) - s.a * s.b * x.c * y.d * y.e
+      + 6 * (s.a * s.c * x.b * x.d * x.e) - 6 * (s.a * s.c * x.b * x.d * y.e)
+      + 2 * (s.a * s.c * x.b * y.d * y.e) + s.a * s.c * y.b * y.d * y.e
+      + 3 * (s.a * s.d * x.b * x.c * x.e) - 2 * (s.a * s.d * x.b * x.c * y.e)
+      - 2 * (s.a * s.d * x.b * y.c * y.e) - 2 * (s.a * s.d * y.b * y.c * y.e)
+      + s.a * s.e * x.b * x.c * x.d + s.a * s.e * x.b * y.c * y.d + s.a * s.e * y.b * y.c * y.d
+      - 20 * (s.a * x.b * x.c * x.d * x.e) + 20 * (s.a * x.b * x.c * x.d * y.e)
+      - 4 * (s.a * x.b * x.c * y.d * y.e) - s.b * s.c * s.d * y.a * y.e
+      + s.b * s.c * s.e * y.a * y.d + 3 * (s.b * s.c * x.a * y.d * y.e)
+      - s.b * s.c * y.a * y.d * y.e - 2 * (s.b * s.d * x.a * y.c * y.e)
+      + 2 * (s.b * s.d * y.a * y.c * y.e) - s.b * s.e * x.a * y.c * y.d
+      - s.b * s.e * y.a * y.c * y.d + 10 * (s.b * x.a * x.c * x.d * x.e)
+      - 12 * (s.b * x.a * x.c * x.d * y.e) + 3 * (s.b * x.a * x.c * y.d * y.e)
+      - 4 * (s.c * s.d * x.a * y.b * y.e) + 4 * (s.c * s.e * x.a * y.b * y.d)
+      + 6 * (s.c * x.a * x.b * x.d * x.e) - 6 * (s.c * x.a * x.b * x.d * y.e)
+      + 11 * (s.c * x.a * x.b * y.d * y.e) + 3 * (s.d * x.a * x.b * x.c * x.e)
+      - 2 * (s.d * x.a * x.b * x.c * y.e) - 20 * (s.d * x.a * x.b * y.c * y.e)
+      + s.e * x.a * x.b * x.c * x.d + 10 * (s.e * x.a * x.b * y.c * y.d)
+      - 56 * (x.a * x.b * x.c * x.d * x.e) + 70 * (x.a * x.b * x.c * x.d * y.e)
+      - 20 * (x.a * x.b * x.c * y.d * y.e)

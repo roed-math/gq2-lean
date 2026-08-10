@@ -1,0 +1,143 @@
+==============================================================================
+W59-DEFECT5: the class-five gamma_4-dressing transport
+==============================================================================
+
+## gamma_4 = {a, ..., l = 0} is abelian and the product is coordinatewise
+  [PASS] (p*q).m is the plain sum on gamma_4
+  [PASS] (p*q).n is the plain sum on gamma_4
+  [PASS] (p*q).o is the plain sum on gamma_4
+
+## how a gamma_4 dressing moves one slot
+  (p*z).a - p.a = 0
+  (p*z).b - p.b = 0
+  (p*z).c - p.c = 0
+  (p*z).d - p.d = 0
+  (p*z).e - p.e = 0
+  (p*z).f - p.f = 0
+  (p*z).g - p.g = 0
+  (p*z).h - p.h = 0
+  (p*z).i - p.i = 0
+  (p*z).j - p.j = 0
+  (p*z).k - p.k = 0
+  (p*z).l - p.l = 0
+  (p*z).m - p.m = z_m
+  (p*z).n - p.n = z_n
+  (p*z).o - p.o = z_o + p_a*z_n
+
+## the transport identity
+  h = 0: the class-five row moves by a form with 12 terms, degree 2
+  h = 1: the class-five row moves by a form with 16 terms, degree 2
+  h = 2: the class-five row moves by a form with 20 terms, degree 2
+  h = 3: the class-five row moves by a form with 24 terms, degree 2
+
+## the shape: affine-linear in the dressing, coefficients in the marking
+  h = 0: dressing variables z0_m, z0_n, z1_m, z1_n, z1_o, z2_m, z2_n, z2_o, degree in the dressing = 1
+  [PASS] h = 0: no dressing coordinate below class four is read
+  h = 1: dressing variables z0_m, z0_n, z1_m, z1_n, z1_o, z2_m, z2_n, z2_o, z3_m, z3_n, z4_m, z4_n, degree in the dressing = 1
+  [PASS] h = 1: no dressing coordinate below class four is read
+  h = 2: dressing variables z0_m, z0_n, z1_m, z1_n, z1_o, z2_m, z2_n, z2_o, z3_m, z3_n, z4_m, z4_n, z5_m, z5_n, z6_m, z6_n, degree in the dressing = 1
+  [PASS] h = 2: no dressing coordinate below class four is read
+  h = 3: dressing variables z0_m, z0_n, z1_m, z1_n, z1_o, z2_m, z2_n, z2_o, z3_m, z3_n, z4_m, z4_n, z5_m, z5_n, z6_m, z6_n, z7_m, z7_n, z8_m, z8_n, degree in the dressing = 1
+  [PASS] h = 3: no dressing coordinate below class four is read
+
+## the closed form of the shift, slot by slot
+
+### h = 0
+  z_sigma.m  *  ( m1_e )
+  z_sigma.n  *  ( -1*m1_a )
+  z_x0.m  *  ( -1*m0_e + 10*m1_e + -8*m2_e )
+  z_x0.n  *  ( m0_a + 6*m1_a )
+  z_x0.o  *  ( -4 )
+  z_x1.m  *  ( m2_e )
+  z_x1.n  *  ( -8*m1_a + 3*m2_a )
+  z_x1.o  *  ( 2 )
+
+### h = 1
+  z_sigma.m  *  ( m1_e )
+  z_sigma.n  *  ( -1*m1_a )
+  z_x0.m  *  ( -1*m0_e + 10*m1_e + -8*m2_e )
+  z_x0.n  *  ( m0_a + 6*m1_a )
+  z_x0.o  *  ( -4 )
+  z_x1.m  *  ( m2_e )
+  z_x1.n  *  ( -8*m1_a + 3*m2_a )
+  z_x1.o  *  ( 2 )
+  z_u0.m  *  ( m4_e )
+  z_u0.n  *  ( -1*m4_a )
+  z_v0.m  *  ( -1*m3_e )
+  z_v0.n  *  ( m3_a )
+
+### h = 2
+  z_sigma.m  *  ( m1_e )
+  z_sigma.n  *  ( -1*m1_a )
+  z_x0.m  *  ( -1*m0_e + 10*m1_e + -8*m2_e )
+  z_x0.n  *  ( m0_a + 6*m1_a )
+  z_x0.o  *  ( -4 )
+  z_x1.m  *  ( m2_e )
+  z_x1.n  *  ( -8*m1_a + 3*m2_a )
+  z_x1.o  *  ( 2 )
+  z_u0.m  *  ( m4_e )
+  z_u0.n  *  ( -1*m4_a )
+  z_v0.m  *  ( -1*m3_e )
+  z_v0.n  *  ( m3_a )
+  z_u1.m  *  ( m6_e )
+  z_u1.n  *  ( -1*m6_a )
+  z_v1.m  *  ( -1*m5_e )
+  z_v1.n  *  ( m5_a )
+
+### h = 3
+  z_sigma.m  *  ( m1_e )
+  z_sigma.n  *  ( -1*m1_a )
+  z_x0.m  *  ( -1*m0_e + 10*m1_e + -8*m2_e )
+  z_x0.n  *  ( m0_a + 6*m1_a )
+  z_x0.o  *  ( -4 )
+  z_x1.m  *  ( m2_e )
+  z_x1.n  *  ( -8*m1_a + 3*m2_a )
+  z_x1.o  *  ( 2 )
+  z_u0.m  *  ( m4_e )
+  z_u0.n  *  ( -1*m4_a )
+  z_v0.m  *  ( -1*m3_e )
+  z_v0.n  *  ( m3_a )
+  z_u1.m  *  ( m6_e )
+  z_u1.n  *  ( -1*m6_a )
+  z_v1.m  *  ( -1*m5_e )
+  z_v1.n  *  ( m5_a )
+  z_u2.m  *  ( m8_e )
+  z_u2.n  *  ( -1*m8_a )
+  z_v2.m  *  ( -1*m7_e )
+  z_v2.n  *  ( m7_a )
+
+## the uniform class-five form, checked at h = 0, 1, 2, 3
+  [PASS] h = 0: the uniform class-five transport form is exact
+  [PASS] h = 1: the uniform class-five transport form is exact
+  [PASS] h = 2: the uniform class-five transport form is exact
+  [PASS] h = 3: the uniform class-five transport form is exact
+
+## the class-four cross-check against the COMMITTED conFourShift
+  GradedContainFour section 2 committed the class-four transport under a gamma_3
+  dressing.  Re-deriving it here with the same machinery, through the left
+  U_5-quotient (SqU5 (d, a, h, i, j) = SqU6 (d, a, j, k, m)), must reproduce it.
+  [PASS] h = 0: the committed class-four conFourShift is reproduced exactly
+  [PASS] h = 1: the committed class-four conFourShift is reproduced exactly
+  [PASS] h = 2: the committed class-four conFourShift is reproduced exactly
+  [PASS] h = 3: the committed class-four conFourShift is reproduced exactly
+
+## the finding
+  The class-four translation identity TRANSPOSES VERBATIM to class five.  The
+  class-five transport is the committed `conFourShift` with the class-three data
+  (h, i) replaced by the class-four data (m, n) and the outermost abelian column
+  d replaced by e, plus the same cross term the committed
+  `sqRelWord_conFourDress_j` carries: the relator's own a-row against the
+  dressing's Frobenius class-four n-row.  Nothing new in shape appears at class
+  five; what was missing was the carrier and the defect, not the shape.
+
+  CROSS-CHECK RECORD: transcribing `conFourShift` WITHOUT that cross term leaves
+  a residual of exactly (-4 z_x0.i + 2 z_x1.i) * (-4 m_x0.a + 2 m_x1.a), which is
+  the cross term the committed theorem carries; so the two agree exactly.
+
+## the full translation identity, all fifteen rows
+  sqRelWord (m . z) = sqRelWord m * <0,...,0, F_m, F_n, F_o + conFiveShift>
+  with F_x = -4 (z 1).x + 2 (z 2).x, at h = 0, 1, 2, 3.
+  [PASS] h = 0: all fifteen rows of the translation identity
+  [PASS] h = 1: all fifteen rows of the translation identity
+  [PASS] h = 2: all fifteen rows of the translation identity
+  [PASS] h = 3: all fifteen rows of the translation identity
