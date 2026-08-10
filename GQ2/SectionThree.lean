@@ -100,24 +100,53 @@ lemma abMk_surjective : Function.Surjective (abMk (G := G)) := Quotient.mk_surje
 
 end TopAb
 
-/-! ## Pro-2 abelianization infrastructure for `D₀`
+/-! ## The shared profinite instances on `G^{ab}` (hoist request **H1**, stage 1)
 
-The instances and coordinate machinery that Lemmas 3.5/3.7/3.8 and Prop. 1.1 consume: the
-profinite-group instances on `G^{ab}` (so `ZtwoPowering`'s `zpowZtwo` applies), the pro-2-ness of
-`D₀^{ab}`, and the **coordinate surjection** `D0ab_coord`: every element of `D₀^{ab}` is
-`Ā^a S̄^s Ȳ^y` (topological generation of `{Ā, S̄, Ȳ}` pushed through
-`F₃ ↠ D0Full ↠ D₀ ↠ D₀^{ab}`, with the range a closed subgroup). -/
+The four profinite-group instances on `topAbelianization G` had been copied verbatim, as
+`local instance`s, into eight files (`SectionThree`, `ProPAbelianization`, `PropOneOneAssembly`,
+`AnabelianBridge/Classification`, `Roe/DRAbelianization`, `Dyadic/MarkedCore/Cores`,
+`Dyadic/MarkedCore/MFrameExists`, `Dyadic/MarkedCore/NFrameExists`), plus a `T2Space`-only copy
+in three more (`Dyadic/ProTwoReciprocity`, `Dyadic/FiniteTwoLocalReciprocity`,
+`Dyadic/FiniteTwoLocalReciprocityKummer`): 35 copies of four mathematical facts.
+`MFrameExists.lean` §1 raised **hoist request H1** for exactly this, and `NFrameExists.lean` §1
+reasserted it.
 
--- The `topAbelianization` profinite-group instances below are registered **`local`** (direct
--- `local instance`, so the `CommGroup` is the genuine construction — wrapping it in a `def` +
--- `attribute [local instance]` breaks the group structure downstream) and **file-scoped**: a global
--- generic `CommGroup`/`CompactSpace`/… on `topAbelianization G` perturbs instance resolution for
--- unrelated profinite quotients `K ⧸ M` in files that import this one (`AnabelianBridge`),
--- whereas a file-local instance stays confined to the Lemmas 3.4–3.5 proofs
--- (`Phi`/`D0ab_coord`/`lemma_3_5_injective`).
+This block is that shared home, and it is `scoped` rather than global or `local`.  The three
+constraints it has to respect, all documented and all still binding:
+
+* **Not global.**  A global generic `CommGroup`/`CompactSpace`/… on `topAbelianization G`
+  perturbs instance resolution for unrelated profinite quotients `K ⧸ M` in importers
+  (`AnabelianBridge`); ticket P-07 recorded that the global version *builds*, so the objection is
+  perturbation, not breakage, but it is the reason the copies were `local` in the first place.
+* **Not `def` + `attribute [local instance]`.**  The repo's usual sharing idiom is exactly that
+  (28 sites, mostly re-registering `Count.heisTopologicalSpace`), and it is the one route ruled
+  out here: wrapping the `CommGroup` in a `def` breaks the group structure downstream.  So these
+  must stay direct `instance` declarations, which is what forces `scoped`.
+* **Not opened by accident.**  The namespace is a *sub*-namespace of `SectionThree`, so the
+  `open SectionThree` that the cluster files already do does **not** activate it; only an
+  explicit `open scoped SectionThree.TopAbInstances` does.  That is what keeps the firewall
+  exactly where P-07 put it while removing the copying.
+
+**Staging.**  Stage 1 (here) publishes the block and makes this file its first consumer, so four
+of the 35 copies are gone.  Stages 2+ are one file each, and each is a two-line diff: delete that
+file's copies, add `open scoped GQ2.SectionThree.TopAbInstances`.  They are deliberately *not*
+done here: this file is the universal ancestor of the whole cluster, so a single-file check of a
+consumer would elaborate it against a stale artifact of this file and would not verify anything.
+Order to take them in, shallowest first: `ProPAbelianization`, `AnabelianBridge/Classification`,
+`Roe/DRAbelianization`, `Dyadic/ProTwoReciprocity`, `Dyadic/FiniteTwoLocalReciprocity`,
+`PropOneOneAssembly`, `Dyadic/MarkedCore/Cores`, `Dyadic/MarkedCore/MFrameExists`,
+`Dyadic/MarkedCore/NFrameExists`, `Dyadic/FiniteTwoLocalReciprocityKummer`.  Two of them need
+care: `ProPAbelianization` declares its four copies under the *same four names* as this file did,
+and it carries a fifth `local instance` on `maxProPQuotient` that is **not** part of this block
+and must stay; `AnabelianBridge/Classification` is the file P-07's perturbation warning is about,
+so it should be taken early and watched.  Six of the eleven consumers are module-system files
+(`module` + `@[expose] public section`) and five are not; the `open scoped` line is the same in
+both, but that split is the reason to do them one at a time. -/
+
+namespace TopAbInstances
 
 /-- `G^{ab}` is commutative. -/
-noncomputable local instance instCommGroupTopAb {G : Type*} [Group G] [TopologicalSpace G]
+noncomputable scoped instance instCommGroupTopAb {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
   __ := (inferInstance : Group (topAbelianization G))
   mul_comm := by
@@ -135,23 +164,47 @@ noncomputable local instance instCommGroupTopAb {G : Type*} [Group G] [Topologic
     rw [commutator_def]
     simpa [commutatorElement_def] using hmem
 
-local instance instCompactSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
+/-- `G^{ab}` is compact. -/
+scoped instance instCompactSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
     CompactSpace (topAbelianization G) :=
   inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
 
-local instance instT2SpaceTopAb {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] : T2Space (topAbelianization G) :=
+/-- `G^{ab}` is Hausdorff: the commutator's topological closure is closed. -/
+scoped instance instT2SpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
+    T2Space (topAbelianization G) :=
   haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
     (commutator G).isClosed_topologicalClosure
   inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
 
-local instance instTotallyDisconnectedSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
+/-- `G^{ab}` is totally disconnected. -/
+scoped instance instTotallyDisconnectedSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
     TotallyDisconnectedSpace (topAbelianization G) :=
   haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
     (commutator G).isClosed_topologicalClosure
   inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+
+end TopAbInstances
+
+/-! ## Pro-2 abelianization infrastructure for `D₀`
+
+The instances and coordinate machinery that Lemmas 3.5/3.7/3.8 and Prop. 1.1 consume: the
+profinite-group instances on `G^{ab}` (so `ZtwoPowering`'s `zpowZtwo` applies), the pro-2-ness of
+`D₀^{ab}`, and the **coordinate surjection** `D0ab_coord`: every element of `D₀^{ab}` is
+`Ā^a S̄^s Ȳ^y` (topological generation of `{Ā, S̄, Ȳ}` pushed through
+`F₃ ↠ D0Full ↠ D₀ ↠ D₀^{ab}`, with the range a closed subgroup). -/
+
+-- The `topAbelianization` profinite-group instances are no longer copied here: they live in the
+-- `TopAbInstances` sub-namespace above and this file activates them by `open scoped`, which keeps
+-- them exactly as confined as the four `local instance`s they replace.  The firewall reason is
+-- unchanged and is recorded at that block: a global generic `CommGroup`/`CompactSpace`/… on
+-- `topAbelianization G` perturbs instance resolution for unrelated profinite quotients `K ⧸ M` in
+-- files that import this one (`AnabelianBridge`), whereas activation stays confined to the
+-- Lemmas 3.4–3.5 proofs (`Phi`/`D0ab_coord`/`lemma_3_5_injective`).
+
+open scoped TopAbInstances
 
 /-- `IsProP p` passes along a continuous surjection. -/
 theorem isProP_of_surjective {p : ℕ} {G H : Type*}
