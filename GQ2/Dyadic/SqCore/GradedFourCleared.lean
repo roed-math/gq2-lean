@@ -129,6 +129,17 @@ realised in `γ₂` of the honest image to be exactly `{0, 2, 4, 6}` at the live
 is refuted there) against exactly `{0}` at the cleared point, and `|⟨slots⟩| = 1048576` against
 `65536`.
 
+CORRECTED BY W59-INVARIANT AND W60-MIGRATE: "the sharpest bound the point admits" is right
+about the CONCLUSION - `even` cannot be improved to `vanishing` here - and wrong if read as a
+statement about the HYPOTHESIS.  The forcing does not need both class-three coordinates of an
+achievable move: over the committed gauge the increment's parity is the move's pairing against
+the handle slots' outer abelian columns, and at this point the `v`-covector `(V.d, V.a)`
+vanishes and the `u`-covector is `(0, 1)`, so **only the second class-three coordinate of the
+second handle move is read** (`GradedFourSharp.liveFour_frameOrth_iff`,
+`liveFourWit_sigma_forced_sharp`).  The evenness of the first coordinate, which the census
+above measures, is spare at this point.  The sharp line is
+`GradedFrameNecessity.sigmaForces_iff_frameOrth`.
+
 ## PROVED versus carried versus measured
 
 **PROVED**, with no live hypothesis: the cleared row end to end at every handle count and every
@@ -1131,7 +1142,16 @@ used.  The repair is exactly one notch: the `f`-column need only be **even**.  T
 subgroup, and its commutators still have both class-three coordinates even - which is all the
 increment lemma asks.  What is lost is the sharper "first class-three coordinate **vanishes**",
 and that loss is real rather than an artefact: the census in `scripts/w57_cleared/` finds the
-value `2` realised among the honest commutators of the image. -/
+value `2` realised among the honest commutators of the image.
+
+CORRECTED BY W60-MIGRATE: "which is all the increment lemma asks" overstates.  The increment
+lemma below asks for both class-three coordinates because it is stated for an arbitrary marking;
+the increment itself asks only that the move PAIR evenly against the handle slots' outer abelian
+columns (`GradedFrameNecessity.gaugeX_increment_even_of_pair`), and at this point the
+`v`-covector vanishes, so the first class-three coordinate is never read
+(`GradedFourSharp.liveFour_frameOrth_iff`).  The widening to an even `f`-column is still
+necessary for a live block, and `commP_mem_liveGaTwoSub` is still true; only the reading "and
+that is exactly what the forcing needs" is wrong. -/
 
 section LiveSoundness
 
