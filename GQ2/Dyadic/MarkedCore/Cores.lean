@@ -1767,31 +1767,17 @@ block also enlarges the stabilizer.
 **Scope note (recorded).** The two `Nonempty` existence theorems (the `phiEquiv` route of
 `GQ2/Roe/DRAbelianization.lean`, ≈300 lines per core at rank four) are *not* in this file; MC3/MC4
 consume `MDecomposition`/`NDecomposition` as hypotheses exactly as `prop_3_8_classification`
-consumes `BDecomposition` (`GQ2/AnabelianBridge/Classification.lean:342`).  Everything the
+consumes `BDecomposition` (`GQ2/AnabelianBridge/Classification.lean`).  Everything the
 stabilizer classification needs from the frame — the forced row, the torsion relation and the
 `q`-invariant — is derived here *from the structure*. -/
 
 section Frames
 
-/-- `G^{ab}` is commutative (local clone of `GQ2/SectionThree.lean:112–160`, as in
-`GQ2/Roe/DRAbelianization.lean:54`). -/
-noncomputable local instance instCommGroupTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
-    apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-    rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
+/- The four profinite-group instances on `G^{ab}` — the ones **hoist request H1** was raised
+about — live once in `GQ2.SectionThree.TopAbInstances` and are activated here for the extent of
+`section Frames`.  They are `scoped` there rather than global, so nothing leaks to importers,
+and the `open SectionThree` at the top of this file does not activate them either. -/
+open scoped GQ2.SectionThree.TopAbInstances
 
 /-- The `M_α` abelianized relation `Ā² · C̄₀^{2^α} = 1` — the relation vector
 `ρ_M = 2Ā + 2^αC̄₀` (memo §2.1). -/
@@ -1816,29 +1802,6 @@ theorem dm_torsionGen_sq {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
   rw [map_mul, map_pow, mul_pow, ← pow_mul, Nat.add_sub_cancel,
     show 2 ^ k * 2 = 2 ^ (k + 1) by rw [pow_succ]]
   exact dm_abRel (k + 1) h
-
-/-- `G^{ab}` is compact (local clone of `GQ2/SectionThree.lean`, as for the `CommGroup` above;
-`local`, so nothing leaks to importers). -/
-local instance instCompactSpaceTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-/-- `G^{ab}` is Hausdorff (local clone). -/
-local instance instT2SpaceTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-/-- `G^{ab}` is totally disconnected (local clone). -/
-local instance instTotDiscTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
 
 /-- **The `N`-frame torsion generator is 2-torsion** ⟦memo §3.1⟧, the `N` analogue of
 `dm_torsionGen_sq` and the discharge of hoist request F1 recorded at
