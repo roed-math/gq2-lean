@@ -179,6 +179,32 @@ theorem continuous_evenDeepDigitFour (α : ℕ) (chi : ContinuousMonoidHom G ℤ
 
 end DigitFourChar
 
+/-! ### §2.2 The identification with `ω` at depth two -/
+
+/-- **At depth two the digit is Serre's `ω`.** -/
+theorem evenDeepDigit_two_eq_omega (u : ℤ_[2]ˣ) :
+    evenDeepDigit 2 u = Multiplicative.toAdd (unitsModEightOmega
+      (Units.map (PadicInt.toZModPow 3).toMonoidHom u)) := by
+  have key : ∀ w : (ZMod 16)ˣ,
+      evenDeepDigitOfSq 2 ((w : ZMod 16) ^ 2)
+        = Multiplicative.toAdd (unitsModEightOmega
+            (Units.map (ZMod.castHom (by norm_num : (8 : ℕ) ∣ 16) (ZMod 8)).toMonoidHom w)) := by
+    decide
+  have hcast : Units.map (PadicInt.toZModPow 3).toMonoidHom u
+      = Units.map (ZMod.castHom (by norm_num : (8 : ℕ) ∣ 16) (ZMod 8)).toMonoidHom
+          (Units.map (PadicInt.toZModPow 4).toMonoidHom u) := by
+    refine Units.ext ?_
+    rw [Units.coe_map, Units.coe_map, Units.coe_map]
+    show PadicInt.toZModPow 3 ((u : ℤ_[2])) =
+      ZMod.castHom (by norm_num : (8 : ℕ) ∣ 16) (ZMod 8) (PadicInt.toZModPow 4 (u : ℤ_[2]))
+    rw [ZMod.castHom_apply]
+    exact (PadicInt.cast_toZModPow 3 4 (by norm_num) _).symm
+  have hsq : PadicInt.toZModPow (2 + 2) ((u : ℤ_[2]) ^ 2)
+      = ((Units.map (PadicInt.toZModPow 4).toMonoidHom u : (ZMod 16)ˣ) : ZMod 16) ^ 2 := by
+    rw [Units.coe_map, ← map_pow]
+    rfl
+  rw [evenDeepDigit, hsq, key, hcast]
+
 /-! ## §3 The Bockstein vanishing at the field cup form -/
 
 section FieldBockstein
@@ -272,6 +298,18 @@ theorem evenDeepIsotropy_mStageBase {α h : ℕ} (hα : 2 ≤ α)
       (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) 3) :=
   evenFrameDeep_mStageBase hα hdeg hkappa hrange (evenDeep_isotropic hα hrange)
 
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The depth class at `α = 2` is the `ω` class.** -/
+theorem evenDeepClass_two_eq_omegaClass
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2) :
+    evenDeepClass 2 one_le_two hrange = cyclotomicModEightOmegaClassKTwo (K := K) := by
+  unfold evenDeepClass SqCyclotomicFrattiniFrame.characterClass
+    cyclotomicModEightOmegaClassKTwo
+  congr 1
+  apply Subtype.ext
+  funext g
+  exact evenDeepDigit_two_eq_omega (chiCycKTwo (K := K) g)
+
 /-- **The even `M` endpoint**, with the isotropy discharged and the ramified-`i` binder derived. -/
 theorem evenDeepIsotropy_orientedEquivM {R : LocalReciprocity} (B : MarkedRecip R K)
     (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
@@ -311,6 +349,8 @@ open GQ2.Dyadic.EvenDeepIsotropy
 #print axioms evenDeepMIsotropicSupply_holds
 #print axioms evenDeepIsotropy_mFrame
 #print axioms evenDeepIsotropy_mStageBase
+#print axioms evenDeepDigit_two_eq_omega
+#print axioms evenDeepClass_two_eq_omegaClass
 #print axioms evenDeepIsotropy_orientedEquivM
 
 end AxiomPins
