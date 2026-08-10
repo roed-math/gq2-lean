@@ -100,16 +100,12 @@ private theorem sqFin_two_ne_one (h : ℕ) :
   omega
 
 private theorem sqHandleIdxU_ne_one {h : ℕ} (j : Fin h) :
-    sqHandleIdxU j ≠ (1 : Fin (sqRank h)) := by
-  intro e
-  have he := congrArg (sqInitialAlphabetEquiv h) e
-  simp at he
+    sqHandleIdxU j ≠ (1 : Fin (sqRank h)) :=
+  SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_one]; omega)
 
 private theorem sqHandleIdxV_ne_one {h : ℕ} (j : Fin h) :
-    sqHandleIdxV j ≠ (1 : Fin (sqRank h)) := by
-  intro e
-  have he := congrArg (sqInitialAlphabetEquiv h) e
-  simp at he
+    sqHandleIdxV j ≠ (1 : Fin (sqRank h)) :=
+  SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_one]; omega)
 
 /-! ## The terminating `X` action -/
 
