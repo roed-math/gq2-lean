@@ -1,0 +1,55 @@
+## staged solve for a class-five point with a live handle block (h = 1)
+  sigma                    = <trivial>
+  x0                       = <g=1>
+  x1 (solved)              = <g=2, i=3, n=1>
+  U                        = <d=1>
+  V                        = <e=2>
+  sqWord (core word)       = <i=6>
+  commP U V (block)        = <i=2>
+  sqRelWord (closed form)  = <trivial>
+  sqRelWord (matrix)       = <trivial>
+  RELATOR TRIVIAL (all fifteen rows): True
+  HANDLE BLOCK LIVE: True, order 4
+  handleWord.i (the class-five invariant) = 2
+
+## the sigma response at that point
+  dressing v               = <a=1>
+  class-three sigma response of the core word : 1
+  class-two   sigma response of the core word : 0  (0 on the nu'-gauge)
+  class-five  sigma response of the core word : 4
+  HANDLE CONTRIBUTION  dj * H.i               : 2
+  total class-five response (o-row)           : 6
+  total class-four  response (m-row)          : 0
+  split check resp_o == do + dj*H.i           : True
+
+## the same core slots with the block removed (that marking is NOT legal)
+  class-five response without the block : 4
+  class-four response without the block : 0
+  CLASS FIVE SEES THE BLOCK : True
+  class four is blind       : True
+
+## sweep: every single-column nu'-trivial dressing at the live point
+  dressings swept: 98
+  class-five responses that see the block: 6
+  class-four responses that see the block: 0 (asserted for all 98)
+
+## the point at every handle count h, with the extra pairs trivial
+  h = 1: relator trivial = True, handleWord.i = 2
+  h = 2: relator trivial = True, handleWord.i = 2
+  h = 3: relator trivial = True, handleWord.i = 2
+  h = 4: relator trivial = True, handleWord.i = 2
+
+## the strengthened powering base (section 4 of the Lean file)
+  fivePowBase              = <a=1, e=1, k=2>
+  obstruction a*b                  = 0
+  obstruction b*c                  = 0
+  obstruction c*d                  = 0
+  obstruction d*e                  = 0
+  obstruction a*g+f*c              = 0
+  obstruction b*h+g*d              = 0
+  obstruction c*i+h*e              = 0
+  obstruction a*k+f*h+j*d          = 2
+  obstruction b*l+g*i+k*e          = 2
+  obstruction a*n+f*l+j*i+m*e      = 0
+  class-five C(n,3) layer = 2  (nonzero: the flat lemmas do not apply)
+  powering polynomial (w2 = 0, w3 = 3) checked for n < 20, mismatches: 0

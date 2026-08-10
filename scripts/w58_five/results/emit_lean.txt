@@ -1,0 +1,210 @@
+-- ############ mul ############
+mul_a:     p.a + q.a
+mul_b:     p.b + q.b
+mul_c:     p.c + q.c
+mul_d:     p.d + q.d
+mul_e:     p.e + q.e
+mul_f:     p.a*q.b + p.f + q.f
+mul_g:     p.b*q.c + p.g + q.g
+mul_h:     p.c*q.d + p.h + q.h
+mul_i:     p.d*q.e + p.i + q.i
+mul_j:     p.a*q.g + p.f*q.c + p.j + q.j
+mul_k:     p.b*q.h + p.g*q.d + p.k + q.k
+mul_l:     p.c*q.i + p.h*q.e + p.l + q.l
+mul_m:     p.a*q.k + p.f*q.h + p.j*q.d + p.m + q.m
+mul_n:     p.b*q.l + p.g*q.i + p.k*q.e + p.n + q.n
+mul_o:     p.a*q.n + p.f*q.l + p.j*q.i + p.m*q.e + p.o + q.o
+
+-- ############ inv ############
+inv_a:
+    -p.a
+inv_b:
+    -p.b
+inv_c:
+    -p.c
+inv_d:
+    -p.d
+inv_e:
+    -p.e
+inv_f:
+    p.a*p.b - p.f
+inv_g:
+    p.b*p.c - p.g
+inv_h:
+    p.c*p.d - p.h
+inv_i:
+    p.d*p.e - p.i
+inv_j:
+    -p.a*p.b*p.c + p.a*p.g + p.c*p.f - p.j
+inv_k:
+    -p.b*p.c*p.d + p.b*p.h + p.d*p.g - p.k
+inv_l:
+    -p.c*p.d*p.e + p.c*p.i + p.e*p.h - p.l
+inv_m:
+    p.a*p.b*p.c*p.d - p.a*p.b*p.h - p.a*p.d*p.g + p.a*p.k - p.c*p.d*p.f + p.d*p.j + p.f*p.h
+      - p.m
+inv_n:
+    p.b*p.c*p.d*p.e - p.b*p.c*p.i - p.b*p.e*p.h + p.b*p.l - p.d*p.e*p.g + p.e*p.k + p.g*p.i
+      - p.n
+inv_o:
+    -p.a*p.b*p.c*p.d*p.e + p.a*p.b*p.c*p.i + p.a*p.b*p.e*p.h - p.a*p.b*p.l + p.a*p.d*p.e*p.g
+      - p.a*p.e*p.k - p.a*p.g*p.i + p.a*p.n + p.c*p.d*p.e*p.f - p.c*p.f*p.i - p.d*p.e*p.j
+      - p.e*p.f*p.h + p.e*p.m + p.f*p.l + p.i*p.j - p.o
+
+-- ############ commP ############
+commP_a:
+    0
+commP_b:
+    0
+commP_c:
+    0
+commP_d:
+    0
+commP_e:
+    0
+commP_f:
+    p.a*q.b - p.b*q.a
+commP_g:
+    p.b*q.c - p.c*q.b
+commP_h:
+    p.c*q.d - p.d*q.c
+commP_i:
+    p.d*q.e - p.e*q.d
+commP_j:
+    -p.a*p.b*q.c + p.a*p.c*q.b + p.a*q.g - p.b*q.a*q.c + p.c*q.a*q.b - p.c*q.f + p.f*q.c
+      - p.g*q.a
+commP_k:
+    -p.b*p.c*q.d + p.b*p.d*q.c + p.b*q.h - p.c*q.b*q.d + p.d*q.b*q.c - p.d*q.g + p.g*q.d
+      - p.h*q.b
+commP_l:
+    -p.c*p.d*q.e + p.c*p.e*q.d + p.c*q.i - p.d*q.c*q.e + p.e*q.c*q.d - p.e*q.h + p.h*q.e
+      - p.i*q.c
+commP_m:
+    p.a*p.b*p.c*q.d - p.a*p.b*p.d*q.c - p.a*p.b*q.h + p.a*p.c*q.b*q.d - p.a*p.d*q.b*q.c
+      + p.a*p.d*q.g - p.a*p.g*q.d + p.a*p.h*q.b + p.a*q.k - p.b*q.a*q.h - p.c*p.f*q.d
+      + p.c*q.a*q.b*q.d - p.c*q.d*q.f + p.d*p.f*q.c - p.d*q.a*q.b*q.c + p.d*q.a*q.g
+      + p.d*q.c*q.f - p.d*q.j + p.f*q.h - p.g*q.a*q.d + p.h*q.a*q.b - p.h*q.f + p.j*q.d
+      - p.k*q.a
+commP_n:
+    p.b*p.c*p.d*q.e - p.b*p.c*p.e*q.d - p.b*p.c*q.i + p.b*p.d*q.c*q.e - p.b*p.e*q.c*q.d
+      + p.b*p.e*q.h - p.b*p.h*q.e + p.b*p.i*q.c + p.b*q.l - p.c*q.b*q.i - p.d*p.g*q.e
+      + p.d*q.b*q.c*q.e - p.d*q.e*q.g + p.e*p.g*q.d - p.e*q.b*q.c*q.d + p.e*q.b*q.h
+      + p.e*q.d*q.g - p.e*q.k + p.g*q.i - p.h*q.b*q.e + p.i*q.b*q.c - p.i*q.g + p.k*q.e
+      - p.l*q.b
+commP_o:
+    -p.a*p.b*p.c*p.d*q.e + p.a*p.b*p.c*p.e*q.d + p.a*p.b*p.c*q.i - p.a*p.b*p.d*q.c*q.e
+      + p.a*p.b*p.e*q.c*q.d - p.a*p.b*p.e*q.h + p.a*p.b*p.h*q.e - p.a*p.b*p.i*q.c
+      - p.a*p.b*q.l + p.a*p.c*q.b*q.i + p.a*p.d*p.g*q.e - p.a*p.d*q.b*q.c*q.e
+      + p.a*p.d*q.e*q.g - p.a*p.e*p.g*q.d + p.a*p.e*q.b*q.c*q.d - p.a*p.e*q.b*q.h
+      - p.a*p.e*q.d*q.g + p.a*p.e*q.k - p.a*p.g*q.i + p.a*p.h*q.b*q.e - p.a*p.i*q.b*q.c
+      + p.a*p.i*q.g - p.a*p.k*q.e + p.a*p.l*q.b + p.a*q.n - p.b*q.a*q.l + p.c*p.d*p.f*q.e
+      - p.c*p.e*p.f*q.d - p.c*p.f*q.i + p.c*q.a*q.b*q.i - p.c*q.f*q.i + p.d*p.f*q.c*q.e
+      - p.d*p.j*q.e - p.d*q.a*q.b*q.c*q.e + p.d*q.a*q.e*q.g + p.d*q.c*q.e*q.f - p.d*q.e*q.j
+      - p.e*p.f*q.c*q.d + p.e*p.f*q.h + p.e*p.j*q.d + p.e*q.a*q.b*q.c*q.d - p.e*q.a*q.b*q.h
+      - p.e*q.a*q.d*q.g + p.e*q.a*q.k - p.e*q.c*q.d*q.f + p.e*q.d*q.j + p.e*q.f*q.h - p.e*q.m
+      - p.f*p.h*q.e + p.f*p.i*q.c + p.f*q.l - p.g*q.a*q.i + p.h*q.a*q.b*q.e - p.h*q.e*q.f
+      - p.i*q.a*q.b*q.c + p.i*q.a*q.g + p.i*q.c*q.f - p.i*q.j + p.j*q.i - p.k*q.a*q.e
+      + p.l*q.a*q.b - p.l*q.f + p.m*q.e - p.n*q.a
+
+-- ############ conjP (conjP p g = g^-1 p g) ############
+conjP_a: p.a +
+    0
+conjP_b: p.b +
+    0
+conjP_c: p.c +
+    0
+conjP_d: p.d +
+    0
+conjP_e: p.e +
+    0
+conjP_f: p.f +
+    -g.a*p.b + g.b*p.a
+conjP_g: p.g +
+    -g.b*p.c + g.c*p.b
+conjP_h: p.h +
+    -g.c*p.d + g.d*p.c
+conjP_i: p.i +
+    -g.d*p.e + g.e*p.d
+conjP_j: p.j +
+    g.a*g.b*p.c - g.a*g.c*p.b - g.a*p.g + g.c*p.f - g.f*p.c + g.g*p.a
+conjP_k: p.k +
+    g.b*g.c*p.d - g.b*g.d*p.c - g.b*p.h + g.d*p.g - g.g*p.d + g.h*p.b
+conjP_l: p.l +
+    g.c*g.d*p.e - g.c*g.e*p.d - g.c*p.i + g.e*p.h - g.h*p.e + g.i*p.c
+conjP_m: p.m +
+    -g.a*g.b*g.c*p.d + g.a*g.b*g.d*p.c + g.a*g.b*p.h - g.a*g.d*p.g + g.a*g.g*p.d - g.a*g.h*p.b
+      - g.a*p.k + g.c*g.f*p.d - g.d*g.f*p.c + g.d*p.j - g.f*p.h + g.h*p.f - g.j*p.d + g.k*p.a
+conjP_n: p.n +
+    -g.b*g.c*g.d*p.e + g.b*g.c*g.e*p.d + g.b*g.c*p.i - g.b*g.e*p.h + g.b*g.h*p.e - g.b*g.i*p.c
+      - g.b*p.l + g.d*g.g*p.e - g.e*g.g*p.d + g.e*p.k - g.g*p.i + g.i*p.g - g.k*p.e + g.l*p.b
+conjP_o: p.o +
+    g.a*g.b*g.c*g.d*p.e - g.a*g.b*g.c*g.e*p.d - g.a*g.b*g.c*p.i + g.a*g.b*g.e*p.h
+      - g.a*g.b*g.h*p.e + g.a*g.b*g.i*p.c + g.a*g.b*p.l - g.a*g.d*g.g*p.e + g.a*g.e*g.g*p.d
+      - g.a*g.e*p.k + g.a*g.g*p.i - g.a*g.i*p.g + g.a*g.k*p.e - g.a*g.l*p.b - g.a*p.n
+      - g.c*g.d*g.f*p.e + g.c*g.e*g.f*p.d + g.c*g.f*p.i + g.d*g.j*p.e - g.e*g.f*p.h
+      - g.e*g.j*p.d + g.e*p.m + g.f*g.h*p.e - g.f*g.i*p.c - g.f*p.l + g.i*p.j - g.j*p.i
+      + g.l*p.f - g.m*p.e + g.n*p.a
+
+-- ############ power laws ############
+pow_a: C(n,1) * (p.a)
+pow_b: C(n,1) * (p.b)
+pow_c: C(n,1) * (p.c)
+pow_d: C(n,1) * (p.d)
+pow_e: C(n,1) * (p.e)
+pow_f: C(n,1) * (p.f) + C(n,2) * (p.a*p.b)
+pow_g: C(n,1) * (p.g) + C(n,2) * (p.b*p.c)
+pow_h: C(n,1) * (p.h) + C(n,2) * (p.c*p.d)
+pow_i: C(n,1) * (p.i) + C(n,2) * (p.d*p.e)
+pow_j: C(n,1) * (p.j) + C(n,2) * (p.a*p.g + p.c*p.f) + C(n,3) * (p.a*p.b*p.c)
+pow_k: C(n,1) * (p.k) + C(n,2) * (p.b*p.h + p.d*p.g) + C(n,3) * (p.b*p.c*p.d)
+pow_l: C(n,1) * (p.l) + C(n,2) * (p.c*p.i + p.e*p.h) + C(n,3) * (p.c*p.d*p.e)
+pow_m: C(n,1) * (p.m) + C(n,2) * (p.a*p.k + p.d*p.j + p.f*p.h) + C(n,3) * (p.a*p.b*p.h + p.a*p.d*p.g + p.c*p.d*p.f) + C(n,4) * (p.a*p.b*p.c*p.d)
+pow_n: C(n,1) * (p.n) + C(n,2) * (p.b*p.l + p.e*p.k + p.g*p.i) + C(n,3) * (p.b*p.c*p.i + p.b*p.e*p.h + p.d*p.e*p.g) + C(n,4) * (p.b*p.c*p.d*p.e)
+pow_o: C(n,1) * (p.o) + C(n,2) * (p.a*p.n + p.e*p.m + p.f*p.l + p.i*p.j) + C(n,3) * (p.a*p.b*p.l + p.a*p.e*p.k + p.a*p.g*p.i + p.c*p.f*p.i + p.d*p.e*p.j + p.e*p.f*p.h) + C(n,4) * (p.a*p.b*p.c*p.i + p.a*p.b*p.e*p.h + p.a*p.d*p.e*p.g + p.c*p.d*p.e*p.f) + C(n,5) * (p.a*p.b*p.c*p.d*p.e)
+
+-- ############ gamma-2 cross terms (P,Q with abelian coords 0) ############
+  gaTwo mul_a extra: 0
+  gaTwo mul_b extra: 0
+  gaTwo mul_c extra: 0
+  gaTwo mul_d extra: 0
+  gaTwo mul_e extra: 0
+  gaTwo mul_f extra: 0
+  gaTwo mul_g extra: 0
+  gaTwo mul_h extra: 0
+  gaTwo mul_i extra: 0
+  gaTwo mul_j extra: 0
+  gaTwo mul_k extra: 0
+  gaTwo mul_l extra: 0
+  gaTwo mul_m extra: p.f*q.h
+  gaTwo mul_n extra: p.g*q.i
+  gaTwo mul_o extra: p.f*q.l + p.j*q.i
+
+-- ############ sqWord rows a..e and the f,j response rows ############
+sqWord_a: -4*x.a + 2*y.a
+sqWord_b: -4*x.b + 2*y.b
+sqWord_c: -4*x.c + 2*y.c
+sqWord_d: -4*x.d + 2*y.d
+sqWord_e: -4*x.e + 2*y.e
+sqWord_f - (-4*x.f + 2*y.f):
+    s.a*x.b - s.b*x.a + 10*x.a*x.b - 8*x.a*y.b + y.a*y.b
+sqWord_g - (-4*x.g + 2*y.g):
+    s.b*x.c - s.c*x.b + 10*x.b*x.c - 8*x.b*y.c + y.b*y.c
+sqWord_h - (-4*x.h + 2*y.h):
+    s.c*x.d - s.d*x.c + 10*x.c*x.d - 8*x.c*y.d + y.c*y.d
+sqWord_i - (-4*x.i + 2*y.i):
+    s.d*x.e - s.e*x.d + 10*x.d*x.e - 8*x.d*y.e + y.d*y.e
+sqWord_j - (-4*x.j + 2*y.j):
+    -s.a*s.b*x.c + s.a*s.c*x.b - 4*s.a*x.b*x.c + 2*s.a*x.b*y.c + s.a*x.g + s.a*y.b*y.c
+      + 3*s.b*x.a*x.c - 2*s.b*x.a*y.c - 2*s.b*y.a*y.c + s.c*x.a*x.b - s.c*x.f + s.c*y.a*y.b
+      + s.f*x.c - s.g*x.a - 20*x.a*x.b*x.c + 20*x.a*x.b*y.c + 10*x.a*x.g - 4*x.a*y.b*y.c
+      - 8*x.a*y.g + 10*x.c*x.f - 8*x.f*y.c + y.a*y.g + y.c*y.f
+
+-- ############ sigma response of the f- and j-rows of the core word ############
+delta core .a = 0
+   under x.b=y.b=v.b=0: 0
+delta core .f = v.a*x.b - v.b*x.a
+   under x.b=y.b=v.b=0: 0
+delta core .j = s.a*v.c*x.b - s.b*v.a*x.c - s.b*v.c*x.a + s.c*v.a*x.b - v.a*v.b*x.c + v.a*v.c*x.b - 4*v.a*x.b*x.c + 2*v.a*x.b*y.c + v.a*x.g + v.a*y.b*y.c + 3*v.b*x.a*x.c - 2*v.b*x.a*y.c - 2*v.b*y.a*y.c + v.c*x.a*x.b
+  - v.c*x.f + v.c*y.a*y.b + v.f*x.c - v.g*x.a
+   under x.b=y.b=v.b=0: -s.b*v.a*x.c - s.b*v.c*x.a + v.a*x.g - v.c*x.f + v.f*x.c - v.g*x.a
+
