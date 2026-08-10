@@ -1,0 +1,140 @@
+============================================================================================
+== 0. the shape of gamma_2 and of [gamma_2, gamma_2] ==
+   gamma_2 is a subgroup (product stays gamma_2-shaped): True
+   [gamma_2, gamma_2] is gamma_4-shaped: True
+      [z, w] . m = -1 * w_f * z_h + w_h * z_f
+      [z, w] . n = -1 * w_g * z_i + w_i * z_g
+      [z, w] . o = -1 * w_f * z_l + w_i * z_j + -1 * w_j * z_i + w_l * z_f
+   [[gamma_2, gamma_2], gamma_2] = 1 (so the shift is at most QUADRATIC): True
+   [[gamma_2, gamma_2], letter] is central (gamma_5-shaped): True
+      [[z, w], L] . o = L_a * w_g * z_i + -1 * L_a * w_i * z_g + -1 * L_e * w_f * z_h + L_e * w_h * z_f
+
+============================================================================================
+== 1. the pairing forms: [gamma_2-element, letter] coordinate by coordinate ==
+   [gamma_2, letter] is gamma_3-shaped: True
+   [j] 2 terms
+        pair_j = -1 * L_a * z_g + L_c * z_f
+   [k] 2 terms
+        pair_k = -1 * L_b * z_h + L_d * z_g
+   [l] 2 terms
+        pair_l = -1 * L_c * z_i + L_e * z_h
+   [m] 6 terms
+        pair_m = -1 * L_a * z_k + L_d * z_j + -1 * L_f * z_h + L_h * z_f + L_a * L_b * z_h + -1 * L_a * L_d * z_g
+   [n] 6 terms
+        pair_n = -1 * L_b * z_l + L_e * z_k + -1 * L_g * z_i + L_i * z_g + L_b * L_c * z_i + -1 * L_b * L_e * z_h
+   [o] 16 terms
+        pair_o = -1 * L_a * z_n + L_e * z_m + -1 * L_f * z_l + L_i * z_j + -1 * L_j * z_i + L_l * z_f + L_a * L_b * z_l + -1 * L_a * L_e * z_k + L_a * L_g * z_i + -1 * L_a * L_i * z_g + L_c * L_f * z_i + L_c * z_f * z_i + -1 * L_e * L_f * z_h + -1 * L_e * z_f * z_h + -1 * L_a * L_b * L_c * z_i + L_a * L_b * L_e * z_h
+
+============================================================================================
+== 2. the handle commutator under a two-sided gamma_2-dressing ==
+   dead coordinates outside gamma_3: NONE (gamma_3-shaped)
+   [j] 4 terms; degree-1 in dressings: 4, degree-2: 0
+   [k] 4 terms; degree-1 in dressings: 4, degree-2: 0
+   [l] 4 terms; degree-1 in dressings: 4, degree-2: 0
+   [m] 22 terms; degree-1 in dressings: 20, degree-2: 2
+   [n] 22 terms; degree-1 in dressings: 20, degree-2: 2
+   [o] 86 terms; degree-1 in dressings: 70, degree-2: 16
+
+   [j] handle shift  -  ( pair(z,q) - pair(w,p) ) :  0 terms
+   [k] handle shift  -  ( pair(z,q) - pair(w,p) ) :  0 terms
+   [l] handle shift  -  ( pair(z,q) - pair(w,p) ) :  0 terms
+   [m] handle shift  -  ( pair(z,q) - pair(w,p) ) :  10 terms
+           remainder = -1 * w_f * z_h + w_h * z_f + p_a * q_b * w_h + p_a * q_b * z_h + -1 * p_b * q_a * w_h + -1 * p_b * q_a * z_h + -1 * p_c * q_d * w_f + -1 * p_c * q_d * z_f + p_d * q_c * w_f + p_d * q_c * z_f
+   [n] handle shift  -  ( pair(z,q) - pair(w,p) ) :  10 terms
+           remainder = -1 * w_g * z_i + w_i * z_g + p_b * q_c * w_i + p_b * q_c * z_i + -1 * p_c * q_b * w_i + -1 * p_c * q_b * z_i + -1 * p_d * q_e * w_g + -1 * p_d * q_e * z_g + p_e * q_d * w_g + p_e * q_d * z_g
+   [o] handle shift  -  ( pair(z,q) - pair(w,p) ) :  54 terms
+           remainder = -1 * w_f * z_l + w_i * z_j + -1 * w_j * z_i + w_l * z_f + p_a * q_b * w_l + p_a * q_b * z_l + p_a * q_g * w_i + p_a * q_g * z_i + p_a * w_g * z_i + -1 * p_b * q_a * w_l + -1 * p_b * q_a * z_l + -1 * p_c * q_f * w_i + -1 * p_c * q_f * z_i + -1 * p_c * q_i * w_f + -1 * p_c * q_i * z_f + -1 * p_c * w_f * z_i + -1 * p_c * w_i * z_f + -1 * p_d * q_e * w_j + -1 * p_d * q_e * z_j + p_e * q_d * w_j + p_e * q_d * z_j + p_e * q_h * w_f + p_e * q_h * z_f + p_e * w_h * z_f + p_f * q_c * w_i + p_f * q_c * z_i + -1 * p_g * q_a * w_i + -1 * p_g * q_a * z_i + -1 * p_h * q_e * w_f + -1 * p_h * q_e * z_f + p_i * q_c * w_f + p_i * q_c * z_f + -1 * q_a * w_i * z_g + q_c * w_f * z_i + q_c * w_i * z_f + -1 * q_e * w_f * z_h + -1 * p_a * p_b * q_c * w_i + -1 * p_a * p_b * q_c * z_i + p_a * p_c * q_b * z_i + p_a * p_d * q_e * w_g + p_a * p_e * q_b * w_h + -1 * p_a * p_e * q_d * w_g + p_b * p_c * q_a * w_i + -1 * p_b * p_e * q_a * w_h + -1 * p_b * q_a * q_c * w_i + -1 * p_b * q_a * q_c * z_i + p_c * p_d * q_e * z_f + -1 * p_c * p_e * q_d * z_f + p_c * q_a * q_b * w_i + p_c * q_a * q_b * z_i + p_d * q_c * q_e * w_f + p_d * q_c * q_e * z_f + -1 * p_e * q_c * q_d * w_f + -1 * p_e * q_c * q_d * z_f
+
+============================================================================================
+== 3. the core word under a three-slot gamma_2-dressing ==
+   dead coordinates outside gamma_2: NONE (gamma_2-shaped)
+   [f] 2 terms, degree 1; dressing-degree 1: 2, 2: 0
+   [g] 2 terms, degree 1; dressing-degree 1: 2, 2: 0
+   [h] 2 terms, degree 1; dressing-degree 1: 2, 2: 0
+   [i] 2 terms, degree 1; dressing-degree 1: 2, 2: 0
+   [j] 12 terms, degree 2; dressing-degree 1: 12, 2: 0
+   [k] 12 terms, degree 2; dressing-degree 1: 12, 2: 0
+   [l] 12 terms, degree 2; dressing-degree 1: 12, 2: 0
+   [m] 71 terms, degree 3; dressing-degree 1: 66, 2: 5
+   [n] 71 terms, degree 3; dressing-degree 1: 66, 2: 5
+   [o] 348 terms, degree 4; dressing-degree 1: 294, 2: 54
+
+   --- class-two rows: pure Frobenius? ---
+   [f] -4 z1.f + 2 z2.f : EXACT
+   [g] -4 z1.g + 2 z2.g : EXACT
+   [h] -4 z1.h + 2 z2.h : EXACT
+   [i] -4 z1.i + 2 z2.i : EXACT
+
+   --- class-three rows: Frobenius + three Fox pairings? ---
+   [j] residual after Frobenius + pairings: 0 terms
+   [k] residual after Frobenius + pairings: 0 terms
+   [l] residual after Frobenius + pairings: 0 terms
+
+   --- class-four and class-five rows ---
+   [m] residual after Frobenius + pairings: 49 terms  (deg-1 44, deg-2 5)
+        QUADRATIC part (5 terms):
+              = z0_f * z1_h + -1 * z0_h * z1_f + 10 * z1_f * z1_h + -8 * z1_f * z2_h + z2_f * z2_h
+        CORRECTION part (44 terms), grouped by dressing coordinate:
+             z0_f * = -1 * s_c * x_d + s_d * x_c + -4 * x_c * x_d + 2 * x_c * y_d + y_c * y_d
+             z0_g * = 8 * x_a * x_d + -2 * x_a * y_d + -2 * x_d * y_a + -2 * y_a * y_d
+             z0_h * = s_a * x_b + -1 * s_b * x_a + -4 * x_a * x_b + 2 * x_b * y_a + y_a * y_b
+             z1_f * = 3 * s_c * x_d + -2 * s_c * y_d + s_d * x_c + -20 * x_c * x_d + 20 * x_c * y_d + -4 * y_c * y_d
+             z1_g * = 2 * s_a * s_d + -14 * s_a * x_d + 10 * s_a * y_d + -14 * s_d * x_a + 10 * s_d * y_a + 130 * x_a * x_d + -100 * x_a * y_d + -100 * x_d * y_a + 80 * y_a * y_d
+             z1_h * = -2 * s_a * s_b + 11 * s_a * x_b + -8 * s_a * y_b + 13 * s_b * x_a + -10 * s_b * y_a + -110 * x_a * x_b + 80 * x_a * y_b + 100 * x_b * y_a + -76 * y_a * y_b
+             z2_f * = -2 * s_c * y_d + s_d * y_c
+             z2_g * = s_a * y_d + s_d * y_a
+             z2_h * = s_a * y_b + -2 * s_b * y_a
+
+   [n] residual after Frobenius + pairings: 49 terms  (deg-1 44, deg-2 5)
+        QUADRATIC part (5 terms):
+              = z0_g * z1_i + -1 * z0_i * z1_g + 10 * z1_g * z1_i + -8 * z1_g * z2_i + z2_g * z2_i
+        CORRECTION part (44 terms), grouped by dressing coordinate:
+             z0_g * = -1 * s_d * x_e + s_e * x_d + -4 * x_d * x_e + 2 * x_d * y_e + y_d * y_e
+             z0_h * = 8 * x_b * x_e + -2 * x_b * y_e + -2 * x_e * y_b + -2 * y_b * y_e
+             z0_i * = s_b * x_c + -1 * s_c * x_b + -4 * x_b * x_c + 2 * x_c * y_b + y_b * y_c
+             z1_g * = 3 * s_d * x_e + -2 * s_d * y_e + s_e * x_d + -20 * x_d * x_e + 20 * x_d * y_e + -4 * y_d * y_e
+             z1_h * = 2 * s_b * s_e + -14 * s_b * x_e + 10 * s_b * y_e + -14 * s_e * x_b + 10 * s_e * y_b + 130 * x_b * x_e + -100 * x_b * y_e + -100 * x_e * y_b + 80 * y_b * y_e
+             z1_i * = -2 * s_b * s_c + 11 * s_b * x_c + -8 * s_b * y_c + 13 * s_c * x_b + -10 * s_c * y_b + -110 * x_b * x_c + 80 * x_b * y_c + 100 * x_c * y_b + -76 * y_b * y_c
+             z2_g * = -2 * s_d * y_e + s_e * y_d
+             z2_h * = s_b * y_e + s_e * y_b
+             z2_i * = s_b * y_c + -2 * s_c * y_b
+
+   [o] residual after Frobenius + pairings: 328 terms  (deg-1 276, deg-2 52)
+        QUADRATIC part (52 terms):
+              = z0_f * z1_l + -1 * z0_i * z1_j + z0_j * z1_i + -1 * z0_l * z1_f + 10 * z1_f * z1_l + -8 * z1_f * z2_l + 10 * z1_i * z1_j + -8 * z1_j * z2_i + z2_f * z2_l + z2_i * z2_j + s_a * z0_i * z1_g + -4 * s_a * z1_g * z1_i + 2 * s_a * z1_g * z2_i + s_a * z2_g * z2_i + -1 * s_c * z0_f * z1_i + -1 * s_c * z0_i * z1_f + 4 * s_c * z1_f * z1_i + -2 * s_c * z1_f * z2_i + -2 * s_c * z2_f * z2_i + s_e * z0_f * z1_h + s_e * z2_f * z2_h + 7 * x_a * z0_g * z1_i + -2 * x_a * z0_g * z2_i + -4 * x_a * z0_i * z1_g + 30 * x_a * z1_g * z1_i + -20 * x_a * z1_g * z2_i + -3 * x_c * z0_f * z1_i + 2 * x_c * z0_f * z2_i + x_c * z0_i * z1_f + -20 * x_c * z1_f * z1_i + 20 * x_c * z1_f * z2_i + -4 * x_e * z0_f * z1_h + 3 * x_e * z0_h * z1_f + -10 * x_e * z1_f * z1_h + -2 * y_a * z0_g * z1_i + -2 * y_a * z0_g * z2_i + 2 * y_a * z0_i * z1_g + y_a * z0_i * z2_g + -20 * y_a * z1_g * z1_i + 16 * y_a * z1_g * z2_i + -1 * y_a * z2_g * z2_i + y_c * z0_f * z2_i + y_c * z0_i * z2_f + 8 * y_c * z1_f * z1_i + -12 * y_c * z1_f * z2_i + 2 * y_e * z0_f * z1_h + y_e * z0_f * z2_h + -2 * y_e * z0_h * z1_f + -2 * y_e * z0_h * z2_f + 12 * y_e * z1_f * z1_h + -4 * y_e * z1_f * z2_h + y_e * z2_f * z2_h
+        CORRECTION part (276 terms), grouped by dressing coordinate:
+             z0_f * = -1 * s_c * x_i + s_e * x_h + -1 * s_h * x_e + s_i * x_c + -4 * x_c * x_i + 2 * x_c * y_i + -4 * x_e * x_h + 2 * x_h * y_e + y_c * y_i + y_e * y_h + s_c * s_d * x_e + -1 * s_c * s_e * x_d + 4 * s_c * x_d * x_e + -2 * s_c * x_d * y_e + -1 * s_c * y_d * y_e + -3 * s_d * x_c * x_e + 2 * s_d * x_c * y_e + s_d * y_c * y_e + -1 * s_e * x_c * x_d + 10 * x_c * x_d * x_e + -8 * x_c * x_d * y_e + x_c * y_d * y_e
+             z0_g * = 8 * x_a * x_i + -2 * x_a * y_i + -2 * x_i * y_a + -2 * y_a * y_i + -4 * s_d * x_a * x_e + 2 * s_d * x_e * y_a + s_d * y_a * y_e + 4 * s_e * x_a * x_d + -2 * s_e * x_d * y_a + -1 * s_e * y_a * y_d + -22 * x_a * x_d * x_e + 14 * x_a * x_d * y_e + -1 * x_a * y_d * y_e + 8 * x_d * x_e * y_a + -4 * x_d * y_a * y_e + -2 * y_a * y_d * y_e
+             z0_h * = 8 * x_e * x_f + -2 * x_e * y_f + -2 * x_f * y_e + -2 * y_e * y_f + -4 * s_a * x_b * x_e + 2 * s_a * x_b * y_e + s_a * y_b * y_e + 4 * s_b * x_a * x_e + -2 * s_b * x_a * y_e + -1 * s_b * y_a * y_e + 14 * x_a * x_b * x_e + -6 * x_a * x_b * y_e + -14 * x_b * x_e * y_a + 4 * x_b * y_a * y_e + 3 * x_e * y_a * y_b + 4 * y_a * y_b * y_e
+             z0_i * = s_a * x_g + -1 * s_c * x_f + s_f * x_c + -1 * s_g * x_a + -4 * x_a * x_g + -4 * x_c * x_f + 2 * x_c * y_f + 2 * x_g * y_a + y_a * y_g + y_c * y_f + -1 * s_a * s_b * x_c + s_a * s_c * x_b + 3 * s_b * x_a * x_c + -2 * s_b * x_c * y_a + -1 * s_b * y_a * y_c + -3 * s_c * x_a * x_b + 2 * s_c * x_b * y_a + s_c * y_a * y_b + -2 * x_a * x_b * x_c + 6 * x_b * x_c * y_a + -3 * x_c * y_a * y_b + -2 * y_a * y_b * y_c
+             z0_j * = -1 * s_d * x_e + s_e * x_d + -4 * x_d * x_e + 2 * x_d * y_e + y_d * y_e
+             z0_k * = 8 * x_a * x_e + -2 * x_a * y_e + -2 * x_e * y_a + -2 * y_a * y_e
+             z0_l * = s_a * x_b + -1 * s_b * x_a + -4 * x_a * x_b + 2 * x_b * y_a + y_a * y_b
+             z1_f * = 3 * s_c * x_i + -2 * s_c * y_i + s_e * x_h + 3 * s_h * x_e + -2 * s_h * y_e + s_i * x_c + -20 * x_c * x_i + 20 * x_c * y_i + -20 * x_e * x_h + 20 * x_h * y_e + -4 * y_c * y_i + -4 * y_e * y_h + -6 * s_c * x_d * x_e + 6 * s_c * x_d * y_e + -5 * s_c * y_d * y_e + -3 * s_d * x_c * x_e + 2 * s_d * x_c * y_e + 8 * s_d * y_c * y_e + -1 * s_e * x_c * x_d + -4 * s_e * y_c * y_d + 35 * x_c * x_d * x_e + -40 * x_c * x_d * y_e + 10 * x_c * y_d * y_e
+             z1_g * = 2 * s_a * s_i + -14 * s_a * x_i + 10 * s_a * y_i + -14 * s_i * x_a + 10 * s_i * y_a + 130 * x_a * x_i + -100 * x_a * y_i + -100 * x_i * y_a + 80 * y_a * y_i + -3 * s_a * s_d * x_e + 2 * s_a * s_d * y_e + -1 * s_a * s_e * x_d + 10 * s_a * x_d * x_e + -8 * s_a * x_d * y_e + s_a * y_d * y_e + 12 * s_d * x_a * x_e + -8 * s_d * x_a * y_e + -6 * s_d * x_e * y_a + 4 * s_d * y_a * y_e + 4 * s_e * x_a * x_d + -2 * s_e * x_d * y_a + -65 * x_a * x_d * x_e + 60 * x_a * x_d * y_e + -10 * x_a * y_d * y_e + 40 * x_d * x_e * y_a + -40 * x_d * y_a * y_e + 8 * y_a * y_d * y_e
+             z1_h * = 2 * s_e * s_f + -14 * s_e * x_f + 10 * s_e * y_f + -14 * s_f * x_e + 10 * s_f * y_e + 130 * x_e * x_f + -100 * x_e * y_f + -100 * x_f * y_e + 80 * y_e * y_f + -6 * s_a * s_b * x_e + 6 * s_a * s_b * y_e + -9 * s_a * s_e * x_b + 8 * s_a * s_e * y_b + 96 * s_a * x_b * x_e + -78 * s_a * x_b * y_e + -80 * s_a * x_e * y_b + 64 * s_a * y_b * y_e + -7 * s_b * s_e * x_a + 6 * s_b * s_e * y_a + 88 * s_b * x_a * x_e + -74 * s_b * x_a * y_e + -72 * s_b * x_e * y_a + 60 * s_b * y_a * y_e + 94 * s_e * x_a * x_b + -80 * s_e * x_a * y_b + -72 * s_e * x_b * y_a + 61 * s_e * y_a * y_b + -965 * x_a * x_b * x_e + 780 * x_a * x_b * y_e + 800 * x_a * x_e * y_b + -640 * x_a * y_b * y_e + 740 * x_b * x_e * y_a + -600 * x_b * y_a * y_e + -610 * x_e * y_a * y_b + 488 * y_a * y_b * y_e
+             z1_i * = -2 * s_a * s_g + 11 * s_a * x_g + -8 * s_a * y_g + -2 * s_c * s_f + 13 * s_c * x_f + -10 * s_c * y_f + 11 * s_f * x_c + -8 * s_f * y_c + 13 * s_g * x_a + -10 * s_g * y_a + -110 * x_a * x_g + 80 * x_a * y_g + -110 * x_c * x_f + 100 * x_c * y_f + 80 * x_f * y_c + 100 * x_g * y_a + -76 * y_a * y_g + -76 * y_c * y_f + 9 * s_a * s_b * x_c + -8 * s_a * s_b * y_c + 10 * s_a * s_c * x_b + -8 * s_a * s_c * y_b + -100 * s_a * x_b * x_c + 80 * s_a * x_b * y_c + 80 * s_a * x_c * y_b + -60 * s_a * y_b * y_c + 7 * s_b * s_c * x_a + -6 * s_b * s_c * y_a + -97 * s_b * x_a * x_c + 80 * s_b * x_a * y_c + 78 * s_b * x_c * y_a + -72 * s_b * y_a * y_c + -97 * s_c * x_a * x_b + 80 * s_c * x_a * y_b + 74 * s_c * x_b * y_a + -57 * s_c * y_a * y_b + 995 * x_a * x_b * x_c + -800 * x_a * x_b * y_c + -800 * x_a * x_c * y_b + 640 * x_a * y_b * y_c + -780 * x_b * x_c * y_a + 640 * x_b * y_a * y_c + 610 * x_c * y_a * y_b + -496 * y_a * y_b * y_c
+             z1_j * = 3 * s_d * x_e + -2 * s_d * y_e + s_e * x_d + -20 * x_d * x_e + 20 * x_d * y_e + -4 * y_d * y_e
+             z1_k * = 2 * s_a * s_e + -14 * s_a * x_e + 10 * s_a * y_e + -14 * s_e * x_a + 10 * s_e * y_a + 130 * x_a * x_e + -100 * x_a * y_e + -100 * x_e * y_a + 80 * y_a * y_e
+             z1_l * = -2 * s_a * s_b + 11 * s_a * x_b + -8 * s_a * y_b + 13 * s_b * x_a + -10 * s_b * y_a + -110 * x_a * x_b + 80 * x_a * y_b + 100 * x_b * y_a + -76 * y_a * y_b
+             z2_f * = -2 * s_c * y_i + s_e * y_h + -2 * s_h * y_e + s_i * y_c + s_c * s_d * y_e + -1 * s_c * s_e * y_d
+             z2_g * = s_a * y_i + s_i * y_a + s_a * s_d * y_e + 2 * s_d * y_a * y_e + -1 * s_e * y_a * y_d
+             z2_h * = s_e * y_f + s_f * y_e + -1 * s_a * s_b * y_e + s_a * y_b * y_e + -1 * s_b * s_e * y_a + -2 * s_b * y_a * y_e + -1 * s_e * y_a * y_b
+             z2_i * = s_a * y_g + -2 * s_c * y_f + s_f * y_c + -2 * s_g * y_a + -1 * s_a * s_b * y_c + s_a * s_c * y_b + -1 * s_a * y_b * y_c + s_b * s_c * y_a + 2 * s_c * y_a * y_b
+             z2_j * = -2 * s_d * y_e + s_e * y_d
+             z2_k * = s_a * y_e + s_e * y_a
+             z2_l * = s_a * y_b + -2 * s_b * y_a
+
+============================================================================================
+== 4. the collection term: the core shift past the handle word ==
+   collection term is gamma_4-shaped: True
+      collection . m = C_f * H_h + -1 * C_h * H_f
+      collection . n = C_g * H_i + -1 * C_i * H_g
+      collection . o = C_f * H_l + -1 * C_i * H_j + C_j * H_i + -1 * C_l * H_f
+
+============================================================================================
+== 5. sanity: the gamma_3 specialisation reproduces GradedFiveStageFour ==
+   gamma_3 dressing gives a gamma_3-shaped core shift: True
+   [m] matches gaThreeCore: True
+   [n] matches gaThreeCore: True
+   [j,k,l] pure Frobenius: True
