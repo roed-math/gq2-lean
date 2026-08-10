@@ -228,6 +228,22 @@ This is the exact failure of `GradedFourCleared.sqRelWord_sigFourDress_handle_bl
 four the two coefficients the block met were both sigma-invariant, so the block cancelled from
 the difference identically; at class five one of the three is not.
 
+> **SCOPED BY W59-BLIND5 (2026-08-10), and this scope also bounds row (c) of the summary
+> table above and the class-eight forecast in section 4.3.**  The evenness argument below is
+> the COMMITTED SIGMA SLOT's instance, not a general fact.  The general `(4,6)` row
+> (`SqU6.sqWord_i`, now proved in `SqCore/GradedFiveBlind.lean`) carries a further sigma
+> pairing `s_45 * x_56 - s_56 * x_45` which no abelian row touches, and the closed form
+> printed below drops it because it was computed at `sigma = E_23`.  At the sigma slot
+> obtained from the committed one by a SINGLE `nu'`-trivial letter, wave 59 exhibits a
+> relator-killing marking, certified by decision procedure at every handle count, whose block
+> coordinate `H_46` is ODD and whose class-five response differs from the core reading by
+> exactly one, with the selection bit separating them.  So the correct statement is: THE
+> HANDLE BLOCK IS INVISIBLE AT CLASS FIVE AT THE COMMITTED SIGMA SLOT (a theorem,
+> `SqU6.sqRelWord_sigFiveDress_handle_blind_five`, and it needs only ONE abelian row rather
+> than the two used below), AND VISIBLE AT CLASS FIVE AWAY FROM IT.  Section 4.3's
+> class-eight forecast is derived from the same conditional step at every class and inherits
+> exactly the same committed-slot scope.
+
 ### 4.2  Why it dies anyway, twice over
 
 1. **The coefficient.**  `sigFourH(v, x)` is even on the class-two-forced gauge - that is
