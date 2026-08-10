@@ -1,0 +1,28 @@
+========================================================================================
+W59-INVARIANT stage 3: numerical mirror of every claim in GradedFrameNecessity.lean
+========================================================================================
+
+-- 1 sigIncrPair, sigIncrPair_eq_add, and the two sufficient conditions ------------
+  12000 checks
+
+-- 2 gaugeX_increment_even_of_pair, gaugeX_sigma_forced_pair -----------------------
+  2829 checks
+
+-- 3 gaugeX_kill_of_pair, selPar_res_of_odd, gaugeX_kill_of_pair_odd ---------------
+  26228 checks
+
+-- 4 sigmaForces_iff_frameOrth, on every point of the catalogue --------------------
+  250 checks
+
+-- 5 the orthogonal point, end to end ---------------------------------------------
+  4160 checks
+
+-- 6 the mixed point, end to end ---------------------------------------------------
+  200188 checks
+
+-- 7 twoLiveOdd_block_not_the_criterion -------------------------------------------
+  42 checks
+
+========================================================================================
+named checks: 245697    MISMATCHES: 0
+========================================================================================
