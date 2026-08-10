@@ -68,9 +68,12 @@ The origin note is **partly stale**, and the residual is stated precisely rather
    and the unramified certificates were always there, alongside the ramified ones.  Same for the
    two h=0 twins: `N0Fox` and `M0Fox` carry a full `_unram` copy of every `_ram` row.
 2. The Mpc lane's `section Factors` (`MpcFox.lean` 1333–1642, `include hσ hwild hτfpf hTodd`) is
-   the real ramified-only region, and `GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean` has since
+   the real ramified-only region, and `GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean` had
    *duplicated by hand* its shallow half at the unramified reading (`foxD_dW_unram`,
    `foxD_aHatW_unram`, `foxD_bHatW_unram`, `foxD_e01W_unram`).
+   ⚠ UPDATED W54-BATCH: that duplication is **gone**.  All four are one-line instances of §6 as
+   of `a464e65c`, and W54-BATCH audited the remainder and found no further duplicate to remove;
+   the reasons, per declaration, are recorded in that file's module docstring.
 3. The section's **headline**, `MpcFox.foxD_mpcHatW_ram`, is the hat copy's first Fox derivative.
    ⚠ CORRECTED W54-BATCH: an earlier revision of this note, and of `foxDelta_mpcHatW_unram`'s
    own docstring in §6, called that theorem "unreachable at any reading other than the ramified
@@ -84,8 +87,8 @@ The origin note is **partly stale**, and the residual is stated precisely rather
 
 So the layer's value is two things at once: the hat row becomes available `hS₂`-free, and the
 hand-duplicated shallow rows become instantiations of one statement (§4 subsumes both the
-committed ramified rows and `MpcUnramifiedBranch`'s copies; rewiring those consumers is
-deliberately **not** in this wave's scope).
+committed ramified rows and `MpcUnramifiedBranch`'s copies; the rewire of those consumers, out
+of scope when this was written, has since been done and closed).
 
 ## The one row this layer does not carry: `E₂^pc`
 
@@ -821,9 +824,12 @@ unramified noncompact-`N` row, showing the parameterisation is genuinely two-sid
 ramified layer with a hole); the rest are the procyclic-`M` factor rows at the unramified δ-row,
 ending with the one the tree could not state.
 
-`GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean` currently proves the shallow three by hand.
-Those are now corollaries of §4 and this section subsumes them, but that file is downstream of
-`Certificates/` and rewiring it is a separate ticket, deliberately out of this wave's scope. -/
+⚠ UPDATED W54-BATCH.  This header used to say that `GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean`
+"currently proves the shallow three by hand" and that rewiring it was a separate ticket out of
+this wave's scope.  Both statements are now stale: the four shallow rows the module docstring
+lists (`foxD_dW_unram`, `foxD_aHatW_unram`, `foxD_bHatW_unram`, `foxD_e01W_unram`) have been
+one-line instances of this section since `a464e65c`, and the separate ticket is closed.  See that
+file's module docstring for the audit of what deliberately stays hand-proved and why. -/
 
 section UnramPinNpc
 
