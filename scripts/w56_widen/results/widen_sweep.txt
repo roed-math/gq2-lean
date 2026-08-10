@@ -1,0 +1,80 @@
+W56-WIDEN part 3: the Z/8 sweep and the honest-collection validation
+======================================================================================
+
+T0  library sanity against committed Lean facts
+--------------------------------------------------------------------------------------
+  sqRelWord (selLiftWit 1 0 2 0 2 0 0 1 0 1 3 1 3) = liftC 5 : OK
+  sqRelWord (selLiftWit 1 0 0 1 1 1 2 0 2 0 1 3 1) = liftC 5 : OK
+  commP slot0 slot2 there = (0,..,0,1,0)  [GradedGammaTwo]   : OK
+  the three committed gamma2 moves reproduce their (h,i)     : OK
+
+T1  EXHAUSTIVE mod 2: all 66 census generators at every live mod-2 class,
+    by honest U5 group arithmetic over F2
+--------------------------------------------------------------------------------------
+  live mod-2 classes                          : 64  (of 4096)
+  census generators tested (66 per class)     : 4224
+  U-slot pairing  h*F - i*B  odd              : 0
+  V-slot pairing  h*E - i*A  odd              : 0
+  generator g-column odd                      : 0
+
+T2  EXHAUSTIVE over the whole Z/8 binder: the live set
+--------------------------------------------------------------------------------------
+  binder points with the four parity rows even            : 4194304
+  ... fourteen pairings even AND class-four bit odd (LIVE): 98304
+
+T3  is the honest object strictly wider than selLamThreePlus?  EXHAUSTIVE
+--------------------------------------------------------------------------------------
+  live corners (ALL)                                          : 98304
+  ... at which some census generator leaves selLamThreePlus   : 0
+
+  Control: the same test OFF the live set (rows even, but the fourteen pairings
+  not all even), to show the containment is a consequence of the hypotheses.
+    control corners (T = S = 1, rows even)                    : 32768
+    ... with some generator outside selLamThreePlus           : 7008
+    first: (A..S) = (0, 2, 0, 2, 0, 2, 1, 1) halves (P,Q,R) = (1, 3, 0)
+           outside: [sigma,x0], [sigma,V], x1^2
+    generators responsible, by frequency (top 8):
+        [sigma,V]              6960
+        [sigma,U]              6960
+        [sigma,x0]             192
+        x1^2                   96
+
+  Monomial census on the live set (which products are forced even):
+      A*C        odd at      0 of 98304 live corners
+      B*D        odd at      0 of 98304 live corners
+      A*D        odd at      0 of 98304 live corners
+      B*C        odd at      0 of 98304 live corners
+      A*D+B*C    odd at      0 of 98304 live corners
+      C*E        odd at      0 of 98304 live corners
+      C*F        odd at      0 of 98304 live corners
+      D*E        odd at      0 of 98304 live corners
+      D*F        odd at      0 of 98304 live corners
+      A*E        odd at      0 of 98304 live corners
+      B*F        odd at      0 of 98304 live corners
+      A*F        odd at      0 of 98304 live corners
+      B*E        odd at      0 of 98304 live corners
+      A*F+B*E    odd at      0 of 98304 live corners
+      A          odd at      0 of 98304 live corners
+      B          odd at      0 of 98304 live corners
+      R          odd at  98304 of 98304 live corners
+      P          odd at  98304 of 98304 live corners
+      Q          odd at  73728 of 98304 live corners
+
+T4  random elements of K = <five frame slots> over Z/8, and their commutators
+--------------------------------------------------------------------------------------
+  random elements of K tested against `selFrameW`  : 32000
+  ... outside the shape predicate                  : 0
+  random commutators [p, q] with p, q in K         : 64000
+  ... g-column odd                                 : 0
+  ... U-slot pairing odd                           : 0
+  ... V-slot pairing odd                           : 0
+
+T5  end to end: five-slot dressings drawn from gamma2(K), by honest collection
+--------------------------------------------------------------------------------------
+  gamma2(K) elements drawn          : 8400  (not gamma2-shaped: 0)
+  five-slot gamma2(im Phi) dressings: 4800
+  ... that kill the relator (ZERO)  : 0
+
+======================================================================================
+TOTAL MISMATCHES: 0
+======================================================================================

@@ -1,0 +1,52 @@
+W56-WIDEN part 1: the mod-2 core
+==============================================================================
+
+mod-2 parameter points (A,B,C,D,E,F,T,S,P,Q,R,W2) : 4096
+  ... satisfying the four parity rows              : 1024
+  ... and the fourteen pairings even               : 520
+  ... and the class-four selection bit ODD  (LIVE) : 64
+
+C. the six facts the Lean ZMod 2 core produces, on the LIVE set
+------------------------------------------------------------------------------
+  A            even at all live points : YES
+  B            even at all live points : YES
+  P*C*E        even at all live points : YES
+  P*C*F        even at all live points : YES
+  P*D*E        even at all live points : YES
+  P*D*F        even at all live points : YES
+
+  => monomial mismatches: 0
+
+B. the honest object: Kbar = <five reduced slots> <= U5(F2)/gamma3,
+   and every ORDERED PAIR of its elements
+------------------------------------------------------------------------------
+  |Kbar| distribution over live points : 4:16, 8:24, 16:24
+  ordered pairs tested                 : 7936
+  commutator g-column odd              : 0
+  U-slot pairing  h*F - i*B  odd       : 0
+  V-slot pairing  h*E - i*A  odd       : 0
+
+D. the Lean shape predicate `selFrameW` contains Kbar
+------------------------------------------------------------------------------
+  elements of Kbar outside the shape set, live points : 0
+  ... over ALL points satisfying the four rows        : 12360  (expected nonzero:
+      the shape's `a` column is even only because A and B are, which is a
+      consequence of the hypotheses, not of the parity rows)
+
+B'. the three parities for every ordered pair from the SHAPE set
+    (this is the statement the Lean commutator lemma proves)
+------------------------------------------------------------------------------
+  ordered pairs tested           : 53248
+  commutator g-column odd        : 0
+  U-slot pairing odd             : 0
+  V-slot pairing odd             : 0
+
+E. minimality: which of the fourteen pairings the six facts consume
+------------------------------------------------------------------------------
+  pairings whose removal breaks the six facts : h5, h7, h5', h6'
+  a minimal sufficient subset                 : h5, h7, h5', h6'
+  ... and without the odd class-four bit      : FAILS (the bit is load-bearing)
+
+==============================================================================
+TOTAL MISMATCHES: 0
+==============================================================================

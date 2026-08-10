@@ -1,0 +1,166 @@
+W56-WIDEN part 2: the (h, i)-data of every census generator of gamma2(im Phi)
+====================================================================================================
+
+Frame slots of `selLiftWit h j A B C D E F T S P Q R` (GradedLift.lean):
+  sigma  = (0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+  x0     = (-A*S + B*T, 0, -C*S + D*T, -E*S + F*T, -2*B*S*T, C*S*T + D*S*T, 0, 0, 0, 0)
+  x1     = (0, 0, 0, 0, P, Q, R, -Q*(A + B), 0, 0)
+  U      = (A, 0, C, E, 0, -C*T, 0, 0, 0, 0)
+  V      = (B, 0, D, F, -B*S, 0, 0, 0, 0, 0)
+
+Pairings the class-four obstruction reads (the (a,d)-columns of the opposite letter):
+  U-slot :  h*F - i*B        V-slot :  h*E - i*A
+
+66 census generators
+
+Reference corner (the one `GradedObstructionPlus` runs end to end):
+  (A,B,C,D,E,F,T,S) = (2,0,2,0,0,1,0,1),  halves (P,Q,R,W2) = (3,1,3,0)
+  |selLamThreePlus span in (Z/8)^2| = 16  (of 64)
+
+generator              h                              i                        U-even  V-even  in L3+ 
+----------------------------------------------------------------------------------------------------
+[sigma,x0]             -A*C*S**2 + A*D*S*T + B*C*S*T  0                        NEEDS   NEEDS   yes    
+[sigma,x1]             0                              -C*F/2 + D*E/2           auto    auto    yes    
+[sigma,U]              -A*C                           0                        NEEDS   NEEDS   yes    
+[sigma,V]              -B*D                           0                        NEEDS   NEEDS   yes    
+[x0,x1]                -A*C*S**2 + A*D*S*T + B*C*S*T  C*E*S**2/2 - C*F*S*T/2 - NEEDS   NEEDS   yes    
+[x0,U]                 -A*D*S*T - 2*B*C*S*T - B*C*T** C*F*T**2 + D*E*S*T       NEEDS   NEEDS   yes    
+[x0,V]                 -B*C*S**2 - B*C*S*T - 2*B*D*S* C*F*S*T + D*F*S*T        NEEDS   NEEDS   yes    
+[x1,U]                 -A*C*S + A*D*T/2 + B*C*T/2     C*E*S/2 - D*E*T/2        NEEDS   NEEDS   yes    
+[x1,V]                 -A*D*S/2 - B*C*S/2 + B*D*T     C*F*S/2 - D*F*T/2        NEEDS   NEEDS   yes    
+[U,V]                  B*C*S + B*C*T                  -C*F*T                   NEEDS   NEEDS   yes    
+[[sigma,x0],sigma]     0                              0                        auto    auto    yes    
+[[sigma,x0],x0]        -2*A*C*S**2 + 2*A*D*S*T + 2*B* C*E*S**2 - C*F*S*T - D*E NEEDS   NEEDS   yes    
+[[sigma,x0],x1]        0                              0                        auto    auto    yes    
+[[sigma,x0],U]         2*A*C*S - A*D*T - B*C*T        -C*E*S + D*E*T           NEEDS   NEEDS   yes    
+[[sigma,x0],V]         A*D*S + B*C*S - 2*B*D*T        -C*F*S + D*F*T           NEEDS   NEEDS   yes    
+[[sigma,x1],sigma]     0                              0                        auto    auto    yes    
+[[sigma,x1],x0]        0                              0                        auto    auto    yes    
+[[sigma,x1],x1]        0                              0                        auto    auto    yes    
+[[sigma,x1],U]         0                              0                        auto    auto    yes    
+[[sigma,x1],V]         0                              0                        auto    auto    yes    
+[[sigma,U],sigma]      0                              0                        auto    auto    yes    
+[[sigma,U],x0]         2*A*C*S - A*D*T - B*C*T        -C*E*S + C*F*T           NEEDS   NEEDS   yes    
+[[sigma,U],x1]         0                              0                        auto    auto    yes    
+[[sigma,U],U]          -2*A*C                         C*E                      NEEDS   NEEDS   yes    
+[[sigma,U],V]          -A*D - B*C                     C*F                      NEEDS   NEEDS   yes    
+[[sigma,V],sigma]      0                              0                        auto    auto    yes    
+[[sigma,V],x0]         A*D*S + B*C*S - 2*B*D*T        -D*E*S + D*F*T           NEEDS   NEEDS   yes    
+[[sigma,V],x1]         0                              0                        auto    auto    yes    
+[[sigma,V],U]          -A*D - B*C                     D*E                      NEEDS   NEEDS   yes    
+[[sigma,V],V]          -2*B*D                         D*F                      NEEDS   NEEDS   yes    
+[[x0,x1],sigma]        0                              0                        auto    auto    yes    
+[[x0,x1],x0]           0                              0                        auto    auto    yes    
+[[x0,x1],x1]           0                              0                        auto    auto    yes    
+[[x0,x1],U]            0                              0                        auto    auto    yes    
+[[x0,x1],V]            0                              0                        auto    auto    yes    
+[[x0,U],sigma]         0                              C*F*T - D*E*T            NEEDS   NEEDS   yes    
+[[x0,U],x0]            0                              0                        auto    auto    yes    
+[[x0,U],x1]            0                              0                        auto    auto    yes    
+[[x0,U],U]             0                              0                        auto    auto    yes    
+[[x0,U],V]             0                              0                        auto    auto    yes    
+[[x0,V],sigma]         0                              C*F*S - D*E*S            NEEDS   NEEDS   yes    
+[[x0,V],x0]            0                              0                        auto    auto    yes    
+[[x0,V],x1]            0                              0                        auto    auto    yes    
+[[x0,V],U]             0                              0                        auto    auto    yes    
+[[x0,V],V]             0                              0                        auto    auto    yes    
+[[x1,U],sigma]         0                              0                        auto    auto    yes    
+[[x1,U],x0]            0                              0                        auto    auto    yes    
+[[x1,U],x1]            0                              0                        auto    auto    yes    
+[[x1,U],U]             0                              0                        auto    auto    yes    
+[[x1,U],V]             0                              0                        auto    auto    yes    
+[[x1,V],sigma]         0                              0                        auto    auto    yes    
+[[x1,V],x0]            0                              0                        auto    auto    yes    
+[[x1,V],x1]            0                              0                        auto    auto    yes    
+[[x1,V],U]             0                              0                        auto    auto    yes    
+[[x1,V],V]             0                              0                        auto    auto    yes    
+[[U,V],sigma]          0                              -C*F + D*E               NEEDS   NEEDS   yes    
+[[U,V],x0]             0                              0                        auto    auto    yes    
+[[U,V],x1]             0                              0                        auto    auto    yes    
+[[U,V],U]              0                              0                        auto    auto    yes    
+[[U,V],V]              0                              0                        auto    auto    yes    
+x1^2                   -A*C*S + A*D*T - B*C*S + B*D*T 0                        NEEDS   NEEDS   yes    
+[x1^2,sigma]           0                              C*F - D*E                NEEDS   NEEDS   yes    
+[x1^2,x0]              2*A*C*S**2 - 2*A*D*S*T - 2*B*C -C*E*S**2 + C*F*S*T + D* NEEDS   NEEDS   yes    
+[x1^2,x1]              0                              0                        auto    auto    yes    
+[x1^2,U]               -2*A*C*S + A*D*T + B*C*T       C*E*S - D*E*T            NEEDS   NEEDS   yes    
+[x1^2,V]               -A*D*S - B*C*S + 2*B*D*T       C*F*S - D*F*T            NEEDS   NEEDS   yes    
+----------------------------------------------------------------------------------------------------
+
+generators with nonzero (h, i) after row reduction     : 27
+generators OUTSIDE selLamThreePlus at the reference corner : 0
+generators whose two pairings are NOT even from the parity rows alone : 26
+
+Reading.  'auto' means the pairing is even as a consequence of the four parity rows
+alone, with no hypothesis on the binder point.  'NEEDS' means the pairing carries
+genuine mod-2 content and must be discharged from the obstruction's own hypotheses.
+The ones that need discharging, with their pairings:
+
+  [sigma,x0]             U-pairing = -A*C*F*S**2 + A*D*F*S*T + B*C*F*S*T - B*D*F*T**2
+                         V-pairing = -A*C*E*S**2 + A*D*E*S*T + B*C*E*S*T - B*D*E*T**2
+  [sigma,U]              U-pairing = -A*C*F
+                         V-pairing = -A*C*E
+  [sigma,V]              U-pairing = -B*D*F
+                         V-pairing = -B*D*E
+  [x0,x1]                U-pairing = -A*C*F*S**2 + A*D*F*S*T - B*C*E*S**2/2 + 3*B*C*F*S*T/2 + B*D*E*S*T/2 - 3*B*D*F*T**2/2
+                         V-pairing = -3*A*C*E*S**2/2 + A*C*F*S*T/2 + 3*A*D*E*S*T/2 - A*D*F*T**2/2 + B*C*E*S*T - B*D*E*T**2
+  [x0,U]                 U-pairing = -A*D*F*S*T - 2*B*C*F*S*T - 2*B*C*F*T**2 - B*D*E*S*T
+                         V-pairing = -A*C*F*T**2 - 2*A*D*E*S*T - 2*B*C*E*S*T - B*C*E*T**2
+  [x0,V]                 U-pairing = -B*C*F*S**2 - 2*B*C*F*S*T - 3*B*D*F*S*T
+                         V-pairing = -A*C*F*S*T - A*D*F*S*T - B*C*E*S**2 - B*C*E*S*T - 2*B*D*E*S*T
+  [x1,U]                 U-pairing = -A*C*F*S + A*D*F*T/2 - B*C*E*S/2 + B*C*F*T/2 + B*D*E*T/2
+                         V-pairing = -3*A*C*E*S/2 + A*D*E*T + B*C*E*T/2
+  [x1,V]                 U-pairing = -A*D*F*S/2 - B*C*F*S + 3*B*D*F*T/2
+                         V-pairing = -A*C*F*S/2 - A*D*E*S/2 + A*D*F*T/2 - B*C*E*S/2 + B*D*E*T
+  [U,V]                  U-pairing = B*C*F*S + 2*B*C*F*T
+                         V-pairing = A*C*F*T + B*C*E*S + B*C*E*T
+  [[sigma,x0],x0]        U-pairing = -2*A*C*F*S**2 + 2*A*D*F*S*T - B*C*E*S**2 + 3*B*C*F*S*T + B*D*E*S*T - 3*B*D*F*T**2
+                         V-pairing = -3*A*C*E*S**2 + A*C*F*S*T + 3*A*D*E*S*T - A*D*F*T**2 + 2*B*C*E*S*T - 2*B*D*E*T**2
+  [[sigma,x0],U]         U-pairing = 2*A*C*F*S - A*D*F*T + B*C*E*S - B*C*F*T - B*D*E*T
+                         V-pairing = 3*A*C*E*S - 2*A*D*E*T - B*C*E*T
+  [[sigma,x0],V]         U-pairing = A*D*F*S + 2*B*C*F*S - 3*B*D*F*T
+                         V-pairing = A*C*F*S + A*D*E*S - A*D*F*T + B*C*E*S - 2*B*D*E*T
+  [[sigma,U],x0]         U-pairing = 2*A*C*F*S - A*D*F*T + B*C*E*S - 2*B*C*F*T
+                         V-pairing = 3*A*C*E*S - A*C*F*T - A*D*E*T - B*C*E*T
+  [[sigma,U],U]          U-pairing = -2*A*C*F - B*C*E
+                         V-pairing = -3*A*C*E
+  [[sigma,U],V]          U-pairing = -A*D*F - 2*B*C*F
+                         V-pairing = -A*C*F - A*D*E - B*C*E
+  [[sigma,V],x0]         U-pairing = A*D*F*S + B*C*F*S + B*D*E*S - 3*B*D*F*T
+                         V-pairing = 2*A*D*E*S - A*D*F*T + B*C*E*S - 2*B*D*E*T
+  [[sigma,V],U]          U-pairing = -A*D*F - B*C*F - B*D*E
+                         V-pairing = -2*A*D*E - B*C*E
+  [[sigma,V],V]          U-pairing = -3*B*D*F
+                         V-pairing = -A*D*F - 2*B*D*E
+  [[x0,U],sigma]         U-pairing = -B*C*F*T + B*D*E*T
+                         V-pairing = -A*C*F*T + A*D*E*T
+  [[x0,V],sigma]         U-pairing = -B*C*F*S + B*D*E*S
+                         V-pairing = -A*C*F*S + A*D*E*S
+  [[U,V],sigma]          U-pairing = B*C*F - B*D*E
+                         V-pairing = A*C*F - A*D*E
+  x1^2                   U-pairing = -A*C*F*S + A*D*F*T - B*C*F*S + B*D*F*T
+                         V-pairing = -A*C*E*S + A*D*E*T - B*C*E*S + B*D*E*T
+  [x1^2,sigma]           U-pairing = -B*C*F + B*D*E
+                         V-pairing = -A*C*F + A*D*E
+  [x1^2,x0]              U-pairing = 2*A*C*F*S**2 - 2*A*D*F*S*T + B*C*E*S**2 - 3*B*C*F*S*T - B*D*E*S*T + 3*B*D*F*T**2
+                         V-pairing = 3*A*C*E*S**2 - A*C*F*S*T - 3*A*D*E*S*T + A*D*F*T**2 - 2*B*C*E*S*T + 2*B*D*E*T**2
+  [x1^2,U]               U-pairing = -2*A*C*F*S + A*D*F*T - B*C*E*S + B*C*F*T + B*D*E*T
+                         V-pairing = -3*A*C*E*S + 2*A*D*E*T + B*C*E*T
+  [x1^2,V]               U-pairing = -A*D*F*S - 2*B*C*F*S + 3*B*D*F*T
+                         V-pairing = -A*C*F*S - A*D*E*S + A*D*F*T - B*C*E*S + 2*B*D*E*T
+
+====================================================================================================
+VERDICT.
+(1) 26 of the 66 census generators have a pairing with genuine mod-2 content, so the
+    (h, i)-data of gamma2(im Phi) is NOT even for formal reasons: the obstruction has
+    to consume the binder point's own hypotheses to kill them.
+(2) At the reference residual corner 0 of the 66 fall outside the selLamThreePlus
+    span.  That is a POINTWISE (Z/8)^2 statement, not an identity: the containment
+    fails at other binder points satisfying the four parity rows -- see
+    results/widen_sweep.txt, T3 control, where [sigma,U] and [sigma,V] leave the span
+    at 6960 of 32768 control corners.  So selLamThreePlus does not contain
+    gamma2(im Phi), and the wave-55 scope caveat was real.
+(3) What closes it is not a wider lattice but no lattice: every pairing above is
+    discharged from `A` and `B` even, which four of the fourteen hypotheses force
+    (results/widen_core.txt, parts C and E).
+====================================================================================================
