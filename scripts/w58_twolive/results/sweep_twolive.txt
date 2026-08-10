@@ -1,0 +1,64 @@
+==============================================================================
+W58-TWOLIVE sweeps
+==============================================================================
+
+--- MIRROR-live (1,0)
+    |<slots>| = 1048576 ;  |[K,K]| = 256 ;  achievable gamma_3 dressings = 32
+    commutator h-values realised: [0, 4] ;  i-values: [0, 4]
+    refinements swept: 33554432 ;  kill the ODD dressing: 0 ;  the EVEN one: 8388608
+    with UNRESTRICTED gamma_3 handle moves: 1073741824 of 8589934592 kill it
+
+--- ROWLIVE (0,1)
+    |<slots>| = 1048576 ;  |[K,K]| = 256 ;  achievable gamma_3 dressings = 32
+    commutator h-values realised: [0, 4] ;  i-values: [0, 4]
+    refinements swept: 33554432 ;  kill the ODD dressing: 0 ;  the EVEN one: 8388608
+    with UNRESTRICTED gamma_3 handle moves: 1073741824 of 8589934592 kill it
+
+--- DOUBLY-live (1,1)
+    |<slots>| = 262144 ;  |[K,K]| = 256 ;  achievable gamma_3 dressings = 32
+    commutator h-values realised: [0, 4] ;  i-values: [0, 4]
+    refinements swept: 33554432 ;  kill the ODD dressing: 0 ;  the EVEN one: 8388608
+    with UNRESTRICTED gamma_3 handle moves: 1073741824 of 8589934592 kill it
+
+--- HIGHER-power (2,0)
+    |<slots>| = 2097152 ;  |[K,K]| = 512 ;  achievable gamma_3 dressings = 64
+    commutator h-values realised: [0, 2, 4, 6] ;  i-values: [0, 4]
+    refinements swept: 134217728 ;  kill the ODD dressing: 0 ;  the EVEN one: 33554432
+    with UNRESTRICTED gamma_3 handle moves: 1073741824 of 8589934592 kill it
+
+==============================================================================
+the TWO-LIVE-HANDLE point
+==============================================================================
+
+--- TWO-LIVE (cleared row, two handles)
+    |<slots>| = 1048576 ;  |[K,K]| = 512 ;  achievable gamma_3 dressings = 64
+    commutator h-values realised: [0, 2, 4, 6] ;  i-values: [0, 4]
+    refinements swept: 134217728 ;  kill the ODD dressing: 0 ;  the EVEN one: 33554432
+    with UNRESTRICTED gamma_3 handle moves: 1073741824 of 8589934592 kill it
+
+==============================================================================
+the ODD two-live marking: the forcing FAILS
+==============================================================================
+  |<slots>| = 4194304 ; |[K,K]| = 1024 ; achievable gamma_3 dressings = 128
+  [K,K] h-values realised: [0, 1, 2, 3, 4, 5, 6, 7]
+  relator at the odd dressing: (0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+  refinements swept: 536870912 ; KILLING the odd dressing: 67108864
+  the explicit Lean witness (z0 = 1, w1 = 1, w2 = liftC 3, z3 = [U,V], z4 = 1):
+     increment = 7, relator after = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+==============================================================================
+subgroup census at every pivot residue
+==============================================================================
+  MIRROR-live    (|<slots>|, |[K,K]|) over c = 0..7 : [(1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256)]
+  ROWLIVE        (|<slots>|, |[K,K]|) over c = 0..7 : [(1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256), (1048576, 256)]
+  DOUBLY-live    (|<slots>|, |[K,K]|) over c = 0..7 : [(262144, 256), (262144, 256), (262144, 256), (262144, 256), (262144, 256), (262144, 256), (262144, 256), (262144, 256)]
+  HIGHER-power   (|<slots>|, |[K,K]|) over c = 0..7 : [(2097152, 512), (2097152, 512), (2097152, 512), (2097152, 512), (2097152, 512), (2097152, 512), (2097152, 512), (2097152, 512)]
+
+==============================================================================
+the two-live family: how many live pairs, and the coupling census
+==============================================================================
+  of 200000 random cleared-letter pairs: 195216 give a LIVE two-handle point, 4784 dead
+
+==============================================================================
+named checks: 149, failures: 0
+==============================================================================
