@@ -1,0 +1,95 @@
+== 0. the two libraries, and the lattice engine ==
+  [PASS] the fast product agrees with u6mat's honest 6x6 matrices (20000 comparisons)
+  [PASS] the lattice engine agrees with wave 59's (spanning over the whole abelian image)
+  [PASS] |gamma_3| of the witness image = 16384 (wave 59's figure)
+  [PASS] |gamma_4| of the witness image = 128 (wave 59's figure)
+  [PASS] the honest gamma_3 (j,k,l)-image is the computed Lam3
+  [PASS] * the honest gamma_4 (m,n)-image is the computed Lam4
+  |A| = 4096, |Lam2| = 512, |Lam3| = 32, |Lam4| = 16 at the witness
+
+== 1. the class-five increment pairing, against honest collection ==
+  [PASS] the translation identity of `sqRelWord_fiveLift` at 4100 refinements of 41 markings
+  (the pairing is the whole increment modulo the exponent slots' `-4 w1.o + 2 w2.o`)
+
+== 2. the census ==
+  family witness + achievable dressings          61 admissible markings
+  family neighbours of the witness letters      491 admissible markings
+  family covector sweep                         198 admissible markings
+  family random letters (density .25)           538 admissible markings
+  family random letters (density .5)            252 admissible markings
+  family random, achievable lattice ODD         216 admissible markings
+  family random, ODD lattice + even covectors   180 admissible markings
+
+  TOTAL admissible markings swept                                    1936
+  [PASS] the sharp criterion and the independent kill search agree everywhere
+  markings at which the forcing HOLDS (sharp / no kill)              1883
+  markings at which the forcing FAILS (a kill exists)                  53
+  markings inside W59-HYP  (every slot has an even (3,4)-column)     1261
+  markings inside W59-CONS (every achievable dressing even)          1517
+  ** W59-CONS FAILS and the forcing HOLDS                             366
+  ** W59-HYP  FAILS and the forcing HOLDS                             622
+  ** outside BOTH sufficient conditions and the forcing HOLDS         154
+  [PASS] no marking inside W59-CONS ever breaks the forcing
+
+  by covector pattern ((X.e,X.a),(V.e,V.a),(U.e,U.a)):  count / forcing holds
+    ((0, 0), (0, 0), (0, 0))     487 /    487
+    ((0, 0), (0, 0), (0, 1))      85 /     81
+    ((0, 0), (0, 0), (1, 0))      82 /     82
+    ((0, 0), (0, 0), (1, 1))      10 /      8
+    ((0, 0), (0, 1), (0, 0))      78 /     76
+    ((0, 0), (0, 1), (0, 1))      30 /     30
+    ((0, 0), (0, 1), (1, 0))      14 /     10
+    ((0, 0), (1, 0), (0, 0))      85 /     81
+    ((0, 0), (1, 0), (0, 1))       6 /      6
+    ((0, 0), (1, 0), (1, 0))      18 /     18
+    ((0, 0), (1, 1), (0, 0))      11 /     11
+    ((0, 0), (1, 1), (0, 1))       3 /      3
+    ((0, 0), (1, 1), (1, 0))       4 /      4
+    ((0, 0), (1, 1), (1, 1))       4 /      3
+    ((0, 1), (0, 0), (0, 0))      80 /     78
+    ((0, 1), (0, 0), (0, 1))      14 /     14
+    ((0, 1), (0, 0), (1, 0))      12 /     10
+    ((0, 1), (0, 1), (0, 0))      12 /     12
+    ((0, 1), (0, 1), (0, 1))       4 /      4
+    ((0, 1), (0, 1), (1, 0))       2 /      2
+    ((0, 1), (1, 0), (0, 0))       4 /      2
+    ((0, 1), (1, 0), (0, 1))       6 /      6
+    ((0, 1), (1, 0), (1, 0))       6 /      4
+    ((0, 1), (1, 1), (0, 0))       4 /      0
+    ((1, 0), (0, 0), (0, 0))     129 /    123
+    ((1, 0), (0, 0), (0, 1))     589 /    581
+    ((1, 0), (0, 0), (1, 0))      16 /     16
+    ((1, 0), (0, 0), (1, 1))       4 /      4
+    ((1, 0), (0, 1), (0, 0))      34 /     32
+    ((1, 0), (0, 1), (0, 1))      30 /     30
+    ((1, 0), (0, 1), (1, 0))       2 /      2
+    ((1, 0), (1, 0), (0, 0))      14 /     14
+    ((1, 0), (1, 0), (0, 1))       3 /      3
+    ((1, 0), (1, 0), (1, 0))       3 /      3
+    ((1, 0), (1, 0), (1, 1))       3 /      1
+    ((1, 0), (1, 1), (0, 0))       8 /      8
+    ((1, 0), (1, 1), (1, 1))       1 /      1
+    ((1, 1), (0, 0), (0, 0))      20 /     20
+    ((1, 1), (0, 0), (0, 1))       8 /      4
+    ((1, 1), (0, 0), (1, 1))       2 /      2
+    ((1, 1), (0, 1), (0, 1))       1 /      1
+    ((1, 1), (0, 1), (1, 0))       2 /      2
+    ((1, 1), (1, 0), (0, 0))       4 /      2
+    ((1, 1), (1, 0), (1, 0))       2 /      2
+
+== 3. the five slot-column conditions, and which force what ==
+  every letter even in a = x_{12} ->  m always even: True    n always even: False
+  every letter even in b = x_{23} ->  m always even: True    n always even: True 
+  every letter even in c = x_{34} ->  m always even: True    n always even: True 
+  every letter even in d = x_{45} ->  m always even: True    n always even: True 
+  every letter even in e = x_{56} ->  m always even: False   n always even: True 
+  [PASS] even c forces BOTH class-four coordinates even (wave 59's chain)
+  [PASS] even b and even d do too, and neither implies even c
+  [PASS] even a forces ONLY the first, even e ONLY the second
+
+== summary ==
+  1936 admissible class-five markings; 366 with wave 59's CONSEQUENCE failing and the
+  forcing holding; 622 with its HYPOTHESIS failing and the forcing holding; 154
+  outside both sufficient conditions with the forcing holding.
+  failures: none
+  elapsed 2248 s

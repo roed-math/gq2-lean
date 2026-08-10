@@ -1,0 +1,25 @@
+kind B density 0.16: 86713 tried, 6 hits
+  w=53  S=<b=7, c=1, f=6, o=5> X=<c=4, e=4, j=6> Y=<g=2, i=3, n=1> U=<a=1, d=7> V=<a=4, d=3, e=6, n=3>
+   relator <o=3>  covectors ((0, 0), (0, 0), (0, 1))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 32
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   4 four-fold commutators outside forceN4; first: [[[S,U],S],V] = <m=7, n=2, o=4>
+  w=54  S=<a=2, e=4, f=3> X=<b=7, c=6, e=2> Y=<b=2, f=1, g=2, j=3> U=<a=1, m=3> V=<a=2, c=3, d=7, e=4, n=7>
+   relator <o=3>  covectors ((0, 0), (0, 0), (0, 1))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 16
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   6 four-fold commutators outside forceN4; first: [[[X,U],V],V] = <m=5>
+  w=55  S=<b=7, c=1, f=6, o=5> X=<c=4, e=4, j=6> Y=<g=2, i=3, n=5> U=<a=1, d=7> V=<a=4, d=3, e=6, n=3>
+   relator <o=3>  covectors ((0, 0), (0, 0), (0, 1))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 32
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   4 four-fold commutators outside forceN4; first: [[[S,U],S],V] = <m=7, n=2, o=4>
+  w=55  S=<a=3, e=6, i=2> X=<c=1, o=7> Y=<c=2, i=2, l=3, n=7> U=<a=7, b=1, d=4, e=4, k=1> V=<d=3, e=2, f=3, n=1>
+   relator <o=5>  covectors ((0, 0), (0, 0), (0, 1))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 32
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   14 four-fold commutators outside forceN4; first: [[[S,U],X],V] = <m=1>
+  w=55  S=<b=1, c=6, e=2> X=<a=6, b=6, e=2, k=7> Y=<f=3, g=2, i=1, k=2, l=1, m=2> U=<a=1, e=6> V=<a=2, c=7, d=3, e=4>
+   relator <o=7>  covectors ((0, 0), (0, 0), (0, 1))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 32
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   6 four-fold commutators outside forceN4; first: [[[S,U],V],V] = <m=3>
+  w=55  S=<b=1, c=6, e=2> X=<a=6, b=6, e=2, k=7> Y=<f=3, g=2, i=1, k=2, l=1, m=6> U=<a=1, e=6> V=<a=2, c=7, d=3, e=4>
+   relator <o=7>  covectors ((0, 0), (0, 0), (0, 1))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 32
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   6 four-fold commutators outside forceN4; first: [[[S,U],V],V] = <m=3>

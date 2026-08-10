@@ -1,0 +1,91 @@
+== WITNESS (wave 59's binder point) ==
+  S = <a=2, b=1, e=1>                                           Lean ⟨2, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  X = <a=2, e=1>                                                Lean ⟨2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  Y = <e=2, f=1, h=3, i=1, j=2, k=2, l=2, m=3, n=2, o=2>        Lean ⟨0, 0, 0, 0, 2, 1, 0, 3, 1, 2, 2, 2, 3, 2, 2⟩
+  U = <a=1, c=2, d=3, f=3, g=2, h=2, i=2>                       Lean ⟨1, 0, 2, 3, 0, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0⟩
+  V = <d=1, e=2, f=3, g=2, h=3, i=3>                            Lean ⟨0, 0, 0, 1, 2, 3, 2, 3, 3, 0, 0, 0, 0, 0, 0⟩
+  relator = <o=7>
+  [PASS] the relator is a CENTRAL translation
+  [PASS] …with an ODD class-five residue
+  [PASS] the lattice engine agrees with the slow route
+  [PASS] the honest closure of gamma_4 has the same (m, n)-image
+  |A| = 4096, |Lam2| = 512, |Lam3| = 32, |Lam4| = 16, |gamma_3| = 16384, |gamma_4| = 128
+  Lam4 = [(0, 0), (0, 2), (0, 4), (0, 6), (2, 0), (2, 2), (2, 4), (2, 6), (4, 0), (4, 2), (4, 4), (4, 6), (6, 0), (6, 2), (6, 4), (6, 6)]
+  covectors ((X.e,X.a),(V.e,V.a),(U.e,U.a)) = ((1, 0), (0, 0), (0, 1))
+  [PASS] * THE SHARP INVARIANT HOLDS
+  [PASS] wave 59's CONSEQUENCE holds here (the point is inside its own chain)
+  [PASS] wave 59's HYPOTHESIS holds here
+  [PASS] * at the WITNESS the sharp line and wave 59's CONSEQUENCE COINCIDE, because the two live covectors span the mod-2 dual
+  every letter even in a : False
+  every letter even in b : False
+  every letter even in c : True
+  every letter even in d : False
+  every letter even in e : False
+  0 four-fold commutators of the letters lie outside forceN4
+  [PASS] * NO achievable five-slot refinement kills the relator (honest search)
+  UNRESTRICTED single-slot class-four moves that kill, by dressed slot (512 each): sigma 64, handle-U 0, handle-V 64
+    first: dressed slot S, move <m=1, n=0>, exponent liftC6 0
+
+== ORTH ==
+  S = <a=1, l=2>                                                Lean ⟨1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0⟩
+  X = <b=4, c=3, j=5>                                           Lean ⟨0, 4, 3, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0⟩
+  Y = <c=2, f=2, n=7>                                           Lean ⟨0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 7, 0⟩
+  U = <d=1, g=6, j=3, n=2>                                      Lean ⟨0, 0, 0, 1, 0, 0, 6, 0, 0, 3, 0, 0, 0, 2, 0⟩
+  V = <b=5, i=3>                                                Lean ⟨0, 5, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0⟩
+  relator = <o=1>
+  [PASS] the relator is a CENTRAL translation
+  [PASS] …with an ODD class-five residue
+  [PASS] the lattice engine agrees with the slow route
+  [PASS] the honest closure of gamma_4 has the same (m, n)-image
+  |A| = 4096, |Lam2| = 512, |Lam3| = 64, |Lam4| = 8, |gamma_3| = 16384, |gamma_4| = 64
+  Lam4 = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+  covectors ((X.e,X.a),(V.e,V.a),(U.e,U.a)) = ((0, 0), (0, 0), (0, 0))
+  [PASS] * THE SHARP INVARIANT HOLDS
+  [PASS] * wave 59's CONSEQUENCE (every achievable dressing in forceN4) FAILS
+  [PASS] * wave 59's HYPOTHESIS (every slot has an even (3,4)-column) FAILS
+  every letter even in a : False
+  every letter even in b : False
+  every letter even in c : False
+  every letter even in d : False
+  every letter even in e : True
+  8 four-fold commutators of the letters lie outside forceN4
+    [[[S, V], X], U] = <m=7>
+    [[[X, U], V], S] = <m=7>
+    [[[X, V], S], U] = <m=7>
+    [[[X, V], U], S] = <m=7>
+  [PASS] * NO achievable five-slot refinement kills the relator (honest search)
+  UNRESTRICTED single-slot class-four moves that kill, by dressed slot (512 each): sigma 0, handle-U 0, handle-V 0
+
+  [PASS] the increment pairing vanishes IDENTICALLY (sampled over all three slots)
+== HALF ==
+  S = <a=2, e=4, f=3>                                           Lean ⟨2, 0, 0, 0, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  X = <b=7, c=6, e=2>                                           Lean ⟨0, 7, 6, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  Y = <b=2, f=1, g=2, j=3>                                      Lean ⟨0, 2, 0, 0, 0, 1, 2, 0, 0, 3, 0, 0, 0, 0, 0⟩
+  U = <a=1, m=3>                                                Lean ⟨1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0⟩
+  V = <a=2, c=3, d=7, e=4, n=7>                                 Lean ⟨2, 0, 3, 7, 4, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0⟩
+  relator = <o=3>
+  [PASS] the relator is a CENTRAL translation
+  [PASS] …with an ODD class-five residue
+  [PASS] the lattice engine agrees with the slow route
+  [PASS] the honest closure of gamma_4 has the same (m, n)-image
+  |A| = 2048, |Lam2| = 256, |Lam3| = 128, |Lam4| = 16, |gamma_3| = 16384, |gamma_4| = 64
+  Lam4 = [(0, 0), (0, 4), (1, 0), (1, 4), (2, 0), (2, 4), (3, 0), (3, 4), (4, 0), (4, 4), (5, 0), (5, 4), (6, 0), (6, 4), (7, 0), (7, 4)]
+  covectors ((X.e,X.a),(V.e,V.a),(U.e,U.a)) = ((0, 0), (0, 0), (0, 1))
+  [PASS] * THE SHARP INVARIANT HOLDS
+  [PASS] * wave 59's CONSEQUENCE (every achievable dressing in forceN4) FAILS
+  [PASS] * wave 59's HYPOTHESIS (every slot has an even (3,4)-column) FAILS
+  every letter even in a : False
+  every letter even in b : False
+  every letter even in c : False
+  every letter even in d : False
+  every letter even in e : True
+  6 four-fold commutators of the letters lie outside forceN4
+    [[[X, U], V], V] = <m=5>
+    [[[X, V], U], V] = <m=5>
+    [[[X, V], V], U] = <m=5>
+    [[[U, X], V], V] = <m=3>
+  [PASS] * NO achievable five-slot refinement kills the relator (honest search)
+  UNRESTRICTED single-slot class-four moves that kill, by dressed slot (512 each): sigma 0, handle-U 0, handle-V 64
+    first: dressed slot V, move <m=0, n=1>, exponent liftC6 2
+
+failures: none
