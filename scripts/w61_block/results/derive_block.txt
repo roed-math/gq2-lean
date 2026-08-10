@@ -1,0 +1,67 @@
+======================================================================================
+W61-BLOCK  derive_block.py   the handle block's (4,6) coordinate, and what pins it
+======================================================================================
+
+## 1  the coordinate law against honest 6 x 6 matrices
+
+[ok ] U_6 coordinate law vs honest matrices  2000 comparisons, 0 mismatches
+[ok ] sqWord by both routes  60 markings, 0 mismatches
+
+## 2  the (4,6) row of the core word, at an ARBITRARY sigma slot
+
+[ok ] W.i closed form (= Lean `SqU6.sqWord_i`)
+    W_46 = -4*x_46 + 2*y_46 + (s_45*x_56 - s_56*x_45)
+                            + 10*x_45*x_56 - 8*x_45*y_56 + y_45*y_56
+
+    the sigma pairing  s_45*x_56 - s_56*x_45  is the ONLY term the wave-58 note dropped
+    (it computed at sigma = E_23, where s_45 = s_56 = 0).
+[ok ] W.d abelian row
+[ok ] W.e abelian row
+
+## 3  THE BLOCK PARITY LAW, exhaustively over ZMod 8
+
+    claim:  at every marking whose relator's (4,5)-row vanishes,
+            W_46  ==  s_45*x_56 - s_56*x_45   (mod 2).
+    W.i depends on exactly eight coordinates: s.d s.e x.d x.e x.i y.d y.e y.i,
+    and the (4,5)-row `-4*x.d + 2*y.d = 0` pins y.d to one of two values per x.d.
+[ok ] block parity law, EXHAUSTIVE on ZMod 8  4194304 points, 0 failures
+
+    …and it needs only the (4,5)-row.  Dropping it:
+[ok ] …and WITHOUT the (4,5)-row it FAILS  1024 of 4096 correction terms odd
+
+    the (5,6)-row does the same job by symmetry:
+[ok ] block parity law from the (5,6)-row instead
+
+    the exact form, over ZMod 8, with y_45 = 2*k:
+[ok ] exact witness  W_46 = blockRead + 2*(-2x_46 + y_46 + 5x_45x_56 - 4x_45y_56 + k*y_56)
+
+## 4  the class-five bit collapse, symbolically
+
+[ok ] sqWord_j_dress at v.b = x.b = y.b = 0
+    so, from GradedFive.SqU6.sqRelWord_sigFiveDress_o,
+
+      Delta_v (relator top row) - Delta_v (core top row)  =  coupling(v,s,x) * H_46
+
+    and section 3 pins  H_46 = -W_46 == -(s_45 x_56 - s_56 x_45)  (mod 2).  Hence
+
+      selPar[ Delta_v relator.o ]  =  selPar[ Delta_v coreword.o ]
+                                    + selPar[ coupling(v,s,x) ] * selPar[ blockRead(s,x) ]
+
+    ⭐⭐ every symbol on the right is a CORE slot.  The handle letters are gone.
+
+## 5  which quotient can express the law
+
+    blockRead(s,x) = s.d*x.e - s.e*x.d  and  H_46  use coordinates d, e, i only.
+    toU5L keeps (a,b,c,d,f,g,h,j,k,m):  e and i are DROPPED  -> cannot express it.
+    toU5R keeps (b,c,d,e,g,h,i,k,l,n):  d, e, i all present  -> CAN express it.
+    toU4RR keeps (c,d,e,h,i,l):         d, e, i all present  -> CAN express it.
+
+    but toU5R carries the class-five sigma marking E_23 = <b=1> to <a=1> in SqU5,
+    NOT to sigFourMark = <b=1>.  So the corner that can see the block is not the
+    corner any committed sigma instrument is built on.
+[ok ] blockRead lives in the toU5R corner
+[ok ] blockRead does NOT live in the toU5L corner
+
+======================================================================================
+12 of 12 checks passed, 0 failures
+======================================================================================

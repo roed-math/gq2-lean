@@ -1,0 +1,56 @@
+========================================================================================
+W61-BLOCK  forcing_block.py   the forcing, its scope, and its soundness
+========================================================================================
+
+## A  ⭐⭐ which sigma slots admit a relator-killing completion
+
+    Fix the handle letters and the x0 slot.  A sigma slot admits a relator-killing
+    x1 slot IFF selPar blockRead(s, x) = selPar H_46.  The block equation is not just
+    a consequence of relator-killing: it CHARACTERISES the admissible sigma slots.
+[ok ] ⭐⭐ admissible sigma slots = { selPar blockRead = selPar H_46 }  30000 agreements, 0 disagreements, 15228 admissible
+
+## B  the forcing in the campaign's shape, and its exact scope
+
+    `a sigma dressing that keeps the relator killed must have an even bit`:
+      selPar( v_45 * x_56 - v_56 * x_45 ) = 0.
+[ok ] ⭐⭐ relator-preserving sigma dressings pair EVENLY against the x0 slot  85 relator-preserving dressings, 0 odd pairings
+
+    …and the scope, stated because it decides what the forcing is worth:
+[ok ] the DIAGONAL dressing v = x0 always pairs evenly (a minor of a slot against itself)  2000 of 2000
+[ok ] every gamma_2-dressing pairs evenly  2000 of 2000
+[ok ] …so the forcing bites exactly on ABELIAN dressings, and there it is not vacuous  747 of 2000 abelian dressings pair oddly
+
+## C  ⭐⭐⭐ the handle-count separation, exhaustively
+
+[ok ] h = 1: the committed marking kills the relator (GradedFiveBlind)
+    blockRead(sigma, x0) = 7  (odd)
+
+    h = 0: EVERY x1 slot, exhaustively.  W_46 depends on the x1 slot only through
+    y_45, y_56 and y_46, so 8^3 = 512 values decide it; the other twelve coordinates
+    cannot enter.  The relator's own (4,5)-row `-4*x_45 + 2*y_45 = 0` is imposed,
+    because a marking that kills the relator kills that row too.
+[ok ] ⭐⭐⭐ no x1 slot kills the (4,6) row at h = 0  512 values of (y_45, y_56, y_46), 0 kills
+[ok ] …and the (4,5)-row is load-bearing: without it there ARE kills  32 of 512 kill the (4,6) row when the (4,5)-row is dropped
+
+    a wider sweep, all fifteen x1 coordinates random, for the whole relator:
+[ok ] …and none of 300000 random x1 slots kills the relator at h = 0
+
+## D  ⭐⭐ the block channel against the honest image subgroup
+
+    The campaign's achievable refinements are gamma_3- and gamma_4-dressings of the
+    IMAGE subgroup <sigma, x0, x1, u_j, v_j>.  Every element of gamma_2 of the CARRIER
+    already has vanishing abelian columns, so no achievable dressing at any stage from
+    two upwards can move the block reading.  Measured on the honest lower central
+    series of the image at wave 59's counterexample point:
+    |gamma_2(im)| =    512   elements with a nonzero (4,5) or (5,6) column: 0
+[ok ] gamma_2(im) cannot move the block reading
+    |gamma_3(im)| =      8   elements with a nonzero (4,5) or (5,6) column: 0
+[ok ] gamma_3(im) cannot move the block reading
+    |gamma_4(im)| =      1   elements with a nonzero (4,5) or (5,6) column: 0
+[ok ] gamma_4(im) cannot move the block reading
+    |gamma_5(im)| =      1   elements with a nonzero (4,5) or (5,6) column: 0
+[ok ] gamma_5(im) cannot move the block reading
+
+========================================================================================
+13 of 13 checks passed, 0 failures
+========================================================================================
