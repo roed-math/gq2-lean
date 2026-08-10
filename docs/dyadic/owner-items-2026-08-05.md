@@ -5,6 +5,44 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 59 (2026-08-10)
+
+**The sigma residual we have carried since wave 51 is discharged.** The forced dressing that
+class four reads as invisible is now excluded at class five, at every handle count, with both
+class-four quotients trivial at both dressings so the separation is genuinely class-five. The
+lane also volunteered a scope limit the reconnaissance had not stated, and it matters: the
+exclusion holds against stage-five refinements and is FALSE one filtration step wider, where a
+triple commutator of the point's own letters kills the dressed frame. The committed class-four
+point has no such hole, so this statement is genuinely weaker than the class-four model it
+imitates. Closing that gap is the top of the next wave.
+
+**The class-five defect landed, and with it the reason two carriers had deferred it.** The
+handle block stops being a sum over handles at class four, because a cross-handle pairing
+appears that is order-dependent, so the closed form everyone was implicitly looking for could
+never have existed. The same work discharged class four's own deferral as a corollary. This
+unblocks class-five containment and transport, which previously could not even be stated.
+
+**Two things I told you last wave are corrected, and both were caught by the lanes sent to
+build on them rather than by an auditor.** First, the invisibility result is slot-local: the
+handle block is invisible at class five at the committed sigma slot, and visible at class five
+one trivial letter away, so last wave's class-eight forecast was never general. Second, and
+more useful: the frame invariant we have been carrying for class-four soundness was never the
+sharp line. The sharp condition is now characterised in both directions, and several of our
+committed points need only half the hypothesis we carry. The composite I reported last wave,
+that two live blocks outside the invariant break the forcing, is false; what breaks it is an
+odd handle pairing, and three points carrying the identical odd block split two-to-one on
+whether the forcing holds.
+
+I would rather report this pattern than hide it: three waves running, the lane dispatched to
+extend a result has been the thing that found the result overstated. That is the check working
+where I want it, inside the work rather than after it. It also means our published claims have
+been running slightly ahead of our proofs for several waves, and the corrections have all
+narrowed scope rather than overturned mathematics.
+
+Final state `2513bd0a`: 4281 jobs green, census 11, zero sorries, capstones frozen, all gates
+passing. Progress estimate about 90 to 92 percent. The even route is untouched and still
+stands on `Hfam` alone.
+
 ## Status at wave 58 (2026-08-10)
 
 **The even route's public face is finished.** Its carried set is published in final form:
