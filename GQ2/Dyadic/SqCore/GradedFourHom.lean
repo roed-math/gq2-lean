@@ -388,6 +388,94 @@ noncomputable def sigFourHom : ContinuousMonoidHom (DSq 1 : Type) (SqU5 gr3R) :=
   simp only [sigFourWit, sqHandleIdxV_val]
   norm_num
 
+/-- The already-cleared selected row leaves the `u`-letter `ν'`-trivial. -/
+theorem nuSelClear_handleU : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxU 0)) = 1 := by
+  rw [nuSel_handleU, ofAdd_zero]
+
+/-- …and the `v`-letter likewise. -/
+theorem nuSelClear_handleV : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxV 0)) = 1 := by
+  rw [nuSel_handleV, ofAdd_zero]
+
+/-! ### The `b`-column of the sigma-witness hom is the selected row
+
+`GradedSelect`'s class-three slice was designed so that "the `b`-column **is** `ν'`", which
+is what makes `ν'`-trivial dressings have vanishing `b`-coordinate.  The class-four witness
+was built tuple-side and carries no such design statement, so the identification has to be
+made here, and it is: the `b`-column of `sigFourHom` is the already-cleared selected row
+`nuSel 1 0 0 0` reduced mod `8`.  Both sides are continuous homs on `D_sq 1`, so
+`dsq_hom_ext` reduces the claim to the five generators.  This is what turns the `b`-column
+hypothesis of the forcing theorem from a carried side condition into a consequence of the
+dressing's legality. -/
+
+/-- The `b`-column of the class-four carrier, as a continuous endomorphism: the `b`-column is
+a character, and the elements carried on it alone form an abelian subgroup. -/
+def bProjC {R : Type} [CommRing R] : ContinuousMonoidHom (SqU5 R) (SqU5 R) where
+  toFun p := ⟨0, p.b, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  map_one' := rfl
+  map_mul' _ _ := by ext <;> simp
+  continuous_toFun := continuous_of_discreteTopology
+
+@[simp] theorem bProjC_apply {R : Type} [CommRing R] (p : SqU5 R) :
+    bProjC p = (⟨0, p.b, 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 R) := rfl
+
+/-- A `ℤ₂`-row, pushed into the `b`-column of the class-four carrier over `ℤ/8`. -/
+noncomputable def nuBC : ContinuousMonoidHom (Multiplicative ℤ_[2]) (SqU5 gr3R) where
+  toFun u := ⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩
+  map_one' := by ext <;> simp
+  map_mul' _ _ := by ext <;> simp
+  continuous_toFun := by
+    refine IsLocallyConstant.continuous fun s => ?_
+    show IsOpen ((fun u : Multiplicative ℤ_[2] =>
+      (⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R)) ⁻¹' s)
+    have hfact : (fun u : Multiplicative ℤ_[2] =>
+        (⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R)) ⁻¹' s
+        = toAdd ⁻¹' (gr3Pi ⁻¹'
+            {r : gr3R | (⟨0, r, 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R) ∈ s}) := rfl
+    rw [hfact]
+    exact (gr3Pi_open _).preimage continuous_toAdd
+
+@[simp] theorem nuBC_apply (u : Multiplicative ℤ_[2]) :
+    nuBC u = (⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R) := rfl
+
+/-- The `x₁`-row of the selected marking: trivial at every bump. -/
+theorem nuSel_x1 {h : ℕ} {j : Fin h} {t s : ℤ_[2]} : nuSel h j t s (dsqX1 h) = 1 := by
+  rw [dsqX1, nuSel]
+  exact (sqLiftHom_gen _ _ _ _ 2).trans sqSelMark_two
+
+/-- ⭐ **The `b`-column of the sigma-witness hom is the already-cleared selected row**, reduced
+mod `8`.  Two continuous homs agreeing on the five generators. -/
+theorem sigFourHom_b (x : (DSq 1 : Type)) :
+    (sigFourHom x).b = gr3Pi (toAdd (nuSel 1 0 0 0 x)) := by
+  have hext : bProjC.comp sigFourHom = nuBC.comp (nuSel 1 0 0 0) := by
+    refine dsq_hom_ext _ _ fun i => ?_
+    rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+    · show bProjC (sigFourHom (dsqSigma 1)) = nuBC (nuSel 1 0 0 0 (dsqSigma 1))
+      rw [sigFourHom_sigma, nuSel_sigma, bProjC_apply, nuBC_apply, toAdd_ofAdd, map_one]
+      rfl
+    · show bProjC (sigFourHom (dsqX0 1)) = nuBC (nuSel 1 0 0 0 (dsqX0 1))
+      rw [sigFourHom_x0, nuSel_x0, bProjC_apply, nuBC_apply, toAdd_ofAdd, map_zero]
+      rfl
+    · show bProjC (sigFourHom (dsqX1 1)) = nuBC (nuSel 1 0 0 0 (dsqX1 1))
+      rw [sigFourHom_x1, nuSel_x1, bProjC_apply, nuBC_apply, toAdd_one, map_zero]
+      rfl
+    · rw [Subsingleton.elim j' 0]
+      show bProjC (sigFourHom (sqGen 1 (sqHandleIdxU 0)))
+        = nuBC (nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxU 0)))
+      rw [sigFourHom_handleU, nuSelClear_handleU, bProjC_apply, nuBC_apply, toAdd_one, map_zero]
+      rfl
+    · rw [Subsingleton.elim j' 0]
+      show bProjC (sigFourHom (sqGen 1 (sqHandleIdxV 0)))
+        = nuBC (nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxV 0)))
+      rw [sigFourHom_handleV, nuSelClear_handleV, bProjC_apply, nuBC_apply, toAdd_one, map_zero]
+      rfl
+  exact congrArg SqU5.b (DFunLike.congr_fun hext x)
+
+/-- ⭐ **A `ν'`-trivial element has vanishing `b`-column** at the sigma-witness hom: the
+class-four form of `GradedSelect`'s design statement, proved rather than built in. -/
+theorem sigFourHom_b_eq_zero {g : (DSq 1 : Type)} (hg : nuSel 1 0 0 0 g = 1) :
+    (sigFourHom g).b = 0 := by
+  rw [sigFourHom_b, hg, toAdd_one, map_zero]
+
 /-! ### The pivot anchor
 
 The class-three slice got its pivot image for free: the `x0`-slot image of `GradedSigma`'s
@@ -533,10 +621,10 @@ The two carried hypotheses are named exactly:
   pivot power in either handle slot would move the frame image off `sigFourWit` and out of
   reach of the committed forcing theorem (see the section-4 pivot anchor for what the
   displaced image would be).
-* `hgb` is the class-four form of "the dressing is `ν'`-trivial": the `b`-column of
-  `sigFourHom` is the character sending `σ` to `1` and every other letter to `0`, so it
-  vanishes on every dressing built from the non-`σ` letters, and is checked on the nose at
-  the three instances below. -/
+* `hgb` is the class-four form of "the dressing is `ν'`-trivial".  It is **not** carried at
+  the selected row: `sigFourHom_b` identifies the `b`-column of `sigFourHom` with
+  `nuSel 1 0 0 0` reduced mod `8`, so `sqArbFrame_sigma_forced_nuSel` below discharges it
+  from the dressing's own legality. -/
 theorem sqArbFrame_sigma_forced
     {nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])}
     (hu : nu' (sqGen 1 (sqHandleIdxU 0)) = 1) (hv : nu' (sqGen 1 (sqHandleIdxV 0)) = 1)
@@ -553,6 +641,34 @@ theorem sqArbFrame_sigma_forced
   rw [sigFourHom_sqArbFrame hu hv g] at hkill
   exact sigFourWit_sigma_forced hgb hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄ hkill
 
+/-- ⭐⭐ **The headline: the class-four sigma forcing on `sqArbFrame`, with nothing carried
+beyond legality.**  At the already-cleared selected row `nuSel 1 0 0 0`, every sigma dressing
+that is `ν'`-trivial - the class the residual quantifies over - and whose frame image is
+killed by **any** achievable five-slot class-four refinement has an **even**
+`chi_a`-character.  This is `GradedSigmaFour`'s `sigFourWit_sigma_forced` made into a
+statement about the arbitrary-dressing frame and an honest continuous homomorphism, which is
+exactly what that file's "exact remaining gaps" asked for. -/
+theorem sqArbFrame_sigma_forced_nuSel {g : (DSq 1 : Type)} (hg : nuSel 1 0 0 0 g = 1)
+    {z₀ w₁ w₂ z₃ z₄ : SqU5 gr3R} {P Q R : gr3R}
+    (hz₀ : z₀.IsGaThree) (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour)
+    (hz₃ : z₃.IsGaThree) (hz₄ : z₄.IsGaThree)
+    (l₀ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₀)
+    (l₃ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₃)
+    (l₄ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₄)
+    (hkill : sqRelWord (sigLift 0
+      (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0 (sigArbDress 1 g) i))
+      z₀ w₁ w₂ z₃ z₄) = 1) :
+    selPar (sigFourHom g).a = 0 :=
+  sqArbFrame_sigma_forced nuSelClear_handleU nuSelClear_handleV (sigFourHom_b_eq_zero hg)
+    hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄ hkill
+
+/-- The selection bit at the selected row, likewise with legality as the only hypothesis. -/
+theorem sqArbFrame_sigma_bit_nuSel {g : (DSq 1 : Type)} (hg : nuSel 1 0 0 0 g = 1) :
+    selPar ((sqRelWord fun i =>
+        sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0 (sigArbDress 1 g) i)).j)
+      = selPar (sigFourHom g).a :=
+  sqArbFrame_sigma_bit nuSelClear_handleU nuSelClear_handleV (sigFourHom_b_eq_zero hg)
+
 /-! ### The three verdicts on `sqArbFrame`, at the already-cleared selected row
 
 The escape executed on the frame itself, the class-four analogue of `GradedSigma` §6's
@@ -563,14 +679,6 @@ verdicts: the trivial one kills the relator outright, the `V`-letter leaves the 
 `2` and dies to one explicit achievable move, and the `U`-letter leaves the **odd** residue
 `1` and survives no achievable refinement whatsoever.  All three dressings are `λ`-trivial and
 `ν'`-trivial slotwise, so all three lie in the class the residual quantifies over. -/
-
-/-- The already-cleared selected row leaves the `u`-letter `ν'`-trivial. -/
-theorem nuSelClear_handleU : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxU 0)) = 1 := by
-  rw [nuSel_handleU, ofAdd_zero]
-
-/-- …and the `v`-letter likewise. -/
-theorem nuSelClear_handleV : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxV 0)) = 1 := by
-  rw [nuSel_handleV, ofAdd_zero]
 
 /-- The `U`-dressing is `λ`-trivial slotwise. -/
 theorem nuLam_sigArbDress_U (i : Fin (sqRank 1)) :
