@@ -34,13 +34,10 @@ noncomputable section
 
 local notation "ℚbar2" => AlgebraicClosure ℚ_[2]
 
-noncomputable local instance instT2SpaceTopAbCyclicRecip
-    {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
+/- `topAbelianization` is a quotient by a closed subgroup, hence Hausdorff.  That instance and
+its three companions live once in `GQ2.SectionThree.TopAbInstances`; they are activated here
+rather than made global, for the reason recorded at that block. -/
+open scoped GQ2.SectionThree.TopAbInstances
 
 variable {R : LocalReciprocity}
   {K : IntermediateField ℚ_[2] ℚbar2} [FiniteDimensional ℚ_[2] K]

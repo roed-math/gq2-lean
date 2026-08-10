@@ -222,11 +222,16 @@ omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
 /-- **The binder on the `M` branch**, from `hneg` alone: `-1` is `≡ 3 (mod 4)`
 (`evenDegreeM_parity_negOne`), and `-1 ∈ im χ` is the hypothesis the `M` endpoints carry to
 run the range identity.  So the `M` branch pays nothing for the binder either, and in
-particular no branch depth is needed. -/
+particular no branch depth is needed.
+
+The argument itself is `EvenFrameDeep.evenFrameDeep_kappa_ne_zero_of_negOne`, which is where the
+shared proof lives; `EvenDeepIsotropy.evenDeep_kappa_ne_zero_of_neg` is the other face of it,
+with the same statement.  The general `evenEndpoint_kappa_of_value` stays: it is what
+`evenEndpoint_kappa_of_rangeN` needs, at a value other than `-1`. -/
 theorem evenEndpoint_kappa_of_negOne
     (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom) :
     cyclotomicModFourClassKTwo (K := K) ≠ 0 :=
-  evenEndpoint_kappa_of_value hneg evenDegreeM_parity_negOne
+  evenFrameDeep_kappa_ne_zero_of_negOne hneg
 
 omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
 /-- The `M` binder read off the branch identification instead, for the at-depth endpoints,

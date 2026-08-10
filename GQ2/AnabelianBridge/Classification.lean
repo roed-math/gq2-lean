@@ -30,45 +30,14 @@ section ClassificationHalf
 
 open SectionThree
 
--- The `topAbelianization` instances beyond the §3 statement layer globals are file-local (as in
--- `GQ2/SectionThree.lean`, and for the same reason: a generic global instance perturbs
--- unrelated quotient instance resolution).
-noncomputable local instance instCommGroupTopAbBridge {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
-    apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-    rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
-
-local instance instCompactSpaceTopAbBridge {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-local instance instT2SpaceTopAbBridge {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  have : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-local instance instTotallyDisconnectedSpaceTopAbBridge {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  have : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+-- The `topAbelianization` instances beyond the §3 statement layer globals live once in
+-- `GQ2.SectionThree.TopAbInstances` and are activated here for the extent of this section, which
+-- is exactly the extent the file-local copies used to have.  They are still kept out of the
+-- global instance set for the reason recorded at that block and in ticket P-07: a generic global
+-- instance perturbs unrelated quotient instance resolution, and this file is the one the warning
+-- is about.  Note that the `open SectionThree` above does not activate them, since
+-- `TopAbInstances` is a sub-namespace.
+open scoped GQ2.SectionThree.TopAbInstances
 
 variable (B : SectionThree.BDecomposition)
 

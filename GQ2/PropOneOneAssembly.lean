@@ -44,42 +44,11 @@ open SectionThree
 The repo's `topAbelianization` (`G ⧸ closure⁅G,G⁆`) is not packaged as a functor; we supply just
 enough — the pushforward of a continuous hom, and its promotion to an equivalence — for the
 comparison `e_ab` vs `equiv`.  As elsewhere (`SectionThree`, `AnabelianBridge`) the
-`CommGroup`/`Compact`/`T2`/`TotDisc` instances on `topAbelianization` are file-local. -/
+`CommGroup`/`Compact`/`T2`/`TotDisc` instances on `topAbelianization` are kept out of the global
+instance graph: they live once in `GQ2.SectionThree.TopAbInstances` and are activated below.
+The `open SectionThree` above does not activate them, since that is a sub-namespace. -/
 
-noncomputable local instance instCommGroupTopAbP10 {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine QuotientGroup.eq.mpr ?_
-    rw [show (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a by group]
-    apply Subgroup.le_topologicalClosure
-    rw [commutator_def]
-    simpa [commutatorElement_def] using Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-
-local instance instCompactSpaceTopAbP10 {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-local instance instT2SpaceTopAbP10 {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-local instance instTotallyDisconnectedSpaceTopAbP10 {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+open scoped GQ2.SectionThree.TopAbInstances
 
 section FunctorialAb
 

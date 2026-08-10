@@ -152,7 +152,7 @@ letter) rather than `MDecomposition`-like. -/
 generator `t = x̄₁ − 2x̄₀`; the `x̄₁`-row is forced.
 
 Stated against the frozen `D_R` (memo risk R3(ii)) and discharged verbatim from
-`br_decomposition` (`GQ2/Roe/DRAbelianization.lean:462`) — the fields are in bijection with
+`br_decomposition` (`GQ2/Roe/DRAbelianization.lean`) — the fields are in bijection with
 `BRDecomposition`'s, which is what `sq_decomposition` exhibits. -/
 structure SqDecomposition where
   /-- The coordinate isomorphism `L_sq ≅ ℤ/2 ⊕ ℤ₂ ⊕ ℤ₂`. -/

@@ -14,7 +14,7 @@ public import GQ2.Dyadic.MarkedCore.M
 
 **Ticket W50-MFRAME** (owner memo `docs/dyadic/owner-items-2026-08-05.md` §6, item "`MFrame` at
 general `h`").  Before this file the `M`-side `q`-invariant existed only at `h = 0`, and only
-out of MC2's rank-four frame `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean:1823`,
+out of MC2's rank-four frame `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean`,
 `demushkinQ_DM` at `Cores.lean:1946`); the `N`-side already had the general-`h` layer
 (`GQ2/Dyadic/MarkedCore/N.lean` §1, `demushkinQ_DN_nFrame`).  This file is the `M` twin of that
 layer.
@@ -150,7 +150,7 @@ noncomputable def mFrameModelZero : ContinuousMulEquiv (MFrameModel 0) MModel wh
             continuous_const))))
 
 /-- **The `h = 0` bridge**: a rank-four `MFrame` *is* MC2's `MDecomposition`
-(`GQ2/Dyadic/MarkedCore/Cores.lean:1823`), so the whole MC3 frame layer — `mChi_frame`,
+(`GQ2/Dyadic/MarkedCore/Cores.lean`), so the whole MC3 frame layer — `mChi_frame`,
 `mSqEqOne_iff`, `mXi_fixes_t`, `mStabilizer_classification`, and the `Variance.lean` cup
 dictionary — applies to any group carrying the general-`h` frame at `h = 0`.  The `N`-side twin
 is `NFrame.toNDecomposition`. -/

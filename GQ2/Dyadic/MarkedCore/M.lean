@@ -536,7 +536,7 @@ end Extract
 
 MC3 consumes a frame `B : MDecomposition α` as a hypothesis, exactly as
 `prop_3_8_classification` consumes `BDecomposition`
-(`GQ2/AnabelianBridge/Classification.lean:342`); MC2's scope note (`Cores.lean`, §7 preamble)
+(`GQ2/AnabelianBridge/Classification.lean`); MC2's scope note (`Cores.lean`, §7 preamble)
 records the same split.  The frame is the rank-four (`h = 0`) one: the `2h` handle coordinates
 are extra free `ℤ₂` summands and belong to MC5 (memo §4.2).
 
@@ -550,7 +550,7 @@ Three things live here.
   formula composed with `B.e`.
 * `mSqEqOne_iff` / `mXi_fixes_t` — `t = Ā·C̄₀^{2^{α−1}}` is the unique nontrivial 2-torsion
   class, hence fixed by every continuous automorphism: the rank-four `xi_fixes_t`
-  (`GQ2/AnabelianBridge/Classification.lean:161`). -/
+  (`GQ2/AnabelianBridge/Classification.lean`). -/
 
 section Frame
 

@@ -454,18 +454,15 @@ one item of this file that no later consumer needs but that pins the layer's pro
 omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
 /-- **The ramified-`i` binder is implied by the `M`-branch sign datum.**  If `-1` is a
 cyclotomic value then some group element has mod-four parity `1`, so the mod-four class is
-nonzero.  This removes `hkappa` from the endpoint's input list. -/
+nonzero.  This removes `hkappa` from the endpoint's input list.
+
+The argument itself is `EvenFrameDeep.evenFrameDeep_kappa_ne_zero_of_negOne`; this name is the
+`EvenDeepIsotropy` face of it.  `StageAbstractionEvenEndpoint.evenEndpoint_kappa_of_negOne` is
+the other face, with the same statement. -/
 theorem evenDeep_kappa_ne_zero_of_neg
     (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom) :
-    cyclotomicModFourClassKTwo (K := K) ≠ 0 := by
-  obtain ⟨g, hg⟩ := hneg
-  intro h0
-  have h1 : frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) g = 0 := by
-    rw [h0]
-    exact frattiniFrameEval_zero g
-  rw [frattiniFrameEval_modFour, show chiCycKTwo (K := K) g = -1 from hg,
-    evenDegreeM_parity_negOne] at h1
-  exact one_ne_zero h1
+    cyclotomicModFourClassKTwo (K := K) ≠ 0 :=
+  evenFrameDeep_kappa_ne_zero_of_negOne hneg
 
 /-- **The `M`-row cup-adapted Frattini frame, unconditionally in the isotropy**, for every
 `α ≥ 2`: `evenFrameDeep_mFrame_of_range` with its last hypothesis discharged. -/

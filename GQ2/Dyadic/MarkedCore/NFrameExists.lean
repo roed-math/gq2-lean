@@ -123,49 +123,11 @@ namespace MarkedCore
 
 /-! ## §1 The `topAbelianization` instances, and pro-2-ness of `D_N^{ab}`
 
-Restated `local` exactly as in `MFrameExists.lean` §1 (they are file-scoped there, so importing
-that file does not bring them along).  Hoist request **H1** stands and now covers five copies. -/
+Activated from the shared block exactly as in `MFrameExists.lean` §1: importing that file does
+not bring them along, since they are `scoped` in a sub-namespace, so each consumer opens them
+for itself.  Hoist request **H1**, which this file reasserted, is discharged. -/
 
-/-- `G^{ab}` is commutative (local restatement). -/
-noncomputable local instance instCommGroupTopAbNFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
-    apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-    rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
-
-/-- `G^{ab}` is compact (local restatement). -/
-local instance instCompactSpaceTopAbNFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-/-- `G^{ab}` is Hausdorff (local restatement). -/
-local instance instT2SpaceTopAbNFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-/-- `G^{ab}` is totally disconnected (local restatement). -/
-local instance instTotDiscTopAbNFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+open scoped GQ2.SectionThree.TopAbInstances
 
 /-- **`D_N^{ab}` is pro-2**, the image of the pro-2 group `D_N` under `abMk`; the `N` twin of
 `mIsProP_two_topAb_DM`.  It is what licenses `ℤ₂`-powering inside `D_N^{ab}`, and in particular
