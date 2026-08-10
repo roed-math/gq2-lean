@@ -1,0 +1,970 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus 5
+-/
+import GQ2.Dyadic.SqCore.GradedSigmaFour
+import GQ2.Dyadic.SqCore.GradedContainFour
+
+/-!
+# W54-HOM: the class-four layer as a layer of continuous homomorphisms
+
+`GradedFour` built the class-four carrier `SqU5 R` and deliberately left out the pro-2 and
+topology layer; `GradedLift`, `GradedContainFour` and `GradedSigmaFour` then did all their
+work at the level of **marking tuples**, so that no statement of the class-four stack claimed
+that a given tuple is the image of a continuous homomorphism on `D_sq h`.  `GradedSigmaFour`'s
+scope note priced the missing piece exactly:
+
+> Building the class-four hom layer (mechanical from `GradedThree` paragraphs 1 and 3) is what
+> would turn `sigFourWit_sigma_forced` into a statement about `sqArbFrame` itself, exactly as
+> `GradedSigma` paragraph 6 does at class three.
+
+This file builds that layer and spends it.
+
+## Headline: the class-four sigma forcing is now a statement about `sqArbFrame`
+
+⭐⭐ `sqArbFrame_sigma_forced_nuSel`.  At one handle, at the selected row `nuSel 1 0 0 0`, at
+the honest continuous homomorphism `sigFourHom : D_sq 1 → U_5(ℤ/8)` built by the committed
+lift from `GradedSigmaFour`'s binder point: **every `ν'`-trivial sigma dressing of the
+arbitrary-dressing frame whose image is killed by any achievable five-slot class-four
+refinement has an even `chi_a`-character.**  Nothing is carried beyond the dressing's own
+legality.  The three verdicts are executed on the frame itself, with both regression dressings
+exhibited as `λ`-trivial and `ν'`-trivial slotwise (`sigmaFour_escape_separates`):
+
+```text
+a0 = 1                      relator dies outright              (sqRelWord_arbFrame_sigTriv)
+a0 = V-letter (chi_a = 2)   residue 2, dies to one move        (sqRelWord_arbFrame_sigV[_complete])
+a0 = U-letter (chi_a = 1)   residue 1, survives nothing        (sqRelWord_arbFrame_sigU[_ne_one])
+```
+
+and `arbFrame_class_three_blind` records that both `U_4`-quotients of the frame's relator
+image are trivial in all three cases, so the whole committed class-three machinery cannot see
+the separation.  This is `GradedSigma`'s `sigma_escape_separates` one level up.
+
+## What was mechanical, and what was not
+
+Sections 1 and 2 transpose `GradedThree` §1 and §3 to the ten-coordinate carrier:
+`equivProd`/`Finite`/`nat_card`, the `⊥` topology, `SqU5.isProP_two`, the ten power laws, and
+the lift `sqU5Hom`.  All of that is mechanical, with one bookkeeping change: the class-four
+coordinate has **four** binomial layers (`SqU5.pow_j` carries `C(n,2)`, `C(n,3)` and `C(n,4)`)
+where class three had at most two.
+
+⚠ **One step is not mechanical, and it is the pivot.**  `GradedThree`'s `zpowZtwo_of_flat`
+needs three obstructions to vanish; its class-four transposition needs six, and at the object
+the class-four sigma witness actually powers - the `x0`-slot `sigFourX` - the sixth does
+**not** vanish: `a·i + e·g + h·d = 2`.  The class-three slice never met this because its
+`x0`-slot image `⟨A1, 0, C1, 0, 0, 0⟩` has a vanishing `b`-column, which kills all three of
+its obstructions at once.  The replacement is ⭐ `SqU5.zpowZtwo_of_flatTwo`: with an **even**
+class-four obstruction `2·w` the powering is still continuous and still factors through the
+reduction `pi : ℤ₂ → R`, because `C(n,2)·(2w) = (n² − n)·w` is a polynomial in `n` with
+integer coefficients even though `C(n,2)` alone is not.  The flat six-condition lemma is its
+`w = 0` case.  The anchor `sigFourHom_sqPivot` computes the pivot image in closed form through
+it, with the quadratic `c² + c` in the class-four coordinate that the flat lemma could never
+produce.
+
+A second thing had to be proved rather than transposed.  `GradedSelect`'s class-three slice was
+*designed* so that "the `b`-column is `ν'`", which is what makes `ν'`-trivial dressings have
+vanishing `b`-coordinate.  The class-four witness was built tuple-side and carries no such
+design statement, so ⭐ `sigFourHom_b` establishes it: the `b`-column of `sigFourHom` **is**
+`nuSel 1 0 0 0` reduced mod `8`, two continuous homs agreeing on five generators.  That is
+what removes the last carried side condition from the headline.
+
+## PROVED versus carried
+
+**PROVED**, with no live hypothesis: the pro-2 layer, the power laws, `sqU5Hom`, both `ℤ₂`-power
+lemmas, the gate `sqU5Balance`, the hom-level containment (section 3), the pivot anchor, the
+`b`-column identification, the frame identification `sigFourHom_sqArbFrame`, the selection bit
+`sqArbFrame_sigma_bit`, the forcing `sqArbFrame_sigma_forced[_nuSel]` and all five verdicts.
+
+**Carried, and named**: the general forcing theorem `sqArbFrame_sigma_forced` takes `hu`, `hv`
+- the handle is already `ν'`-cleared - and `hgb` - the dressing has vanishing `b`-column.  At
+the selected row `nuSel 1 0 0 0` both are discharged (`nuSelClear_handleU`/`_handleV`,
+`sigFourHom_b_eq_zero`), so the headline carries neither.
+
+⚠ **The honest cost: the reachable row type is the already-cleared one.**  `GradedSigma` §6
+runs at the *uncleared* row `nuSel 1 0 0 1`; this file runs at `nuSel 1 0 0 0`, and that is
+forced, not chosen.  `sigFourWit`'s handle slots are the **raw** generator images
+(`sigFourU`, `sigFourV`), so any frame whose image is `sigFourWit` must have trivial pivot
+powers in both handle slots (`sqArbBase_of_cleared` is exactly this), and `ν'(v_j) = 1` would
+displace the `V`-slot image by `sigFourHom_sqPivot`'s value and put the frame out of reach of
+the committed `sigFourWit_sigma_forced`.  Reaching the uncleared row at class four is **not**
+transport: it needs a class-four marking solving all ten relator rows with `m V = V·Φ(w)`,
+i.e. a new solve at the displaced binder point, and the dressing lattice cannot compensate
+(the compensating dressing would have to be `ν'`-nontrivial).  That solve is the exact
+remaining gap this file leaves, and it is the natural next lane.
+
+## Contents
+
+* **1** the carrier as a pro-2 target: `equivProd`, `Finite`, `nat_card`, `⊥`,
+  `SqU5.isProP_two`, and the ten power laws `SqU5.pow_a` … `SqU5.pow_j`;
+* **2** the lift `sqU5Hom`, and the two `ℤ₂`-power lemmas
+  ⭐ `SqU5.zpowZtwo_of_flatTwo`, `SqU5.zpowZtwo_of_flat`;
+* **3** ⭐ the gate `sqU5Balance`, and `GradedContainFour`'s pure-artefact containment
+  transported to arbitrary frames and arbitrary class-four test homs;
+* **4** the sigma-witness hom `sigFourHom`, its letter values, ⭐ the `b`-column
+  identification `sigFourHom_b`, and ⭐⭐ the pivot anchor `sigFourHom_sqPivot`;
+* **5** ⭐⭐ the sigma forcing on `sqArbFrame`: the cleared-row lemmas, the sigma-only dressing
+  `sigArbDress`, the frame identification, the bit, the forcing, and the three verdicts;
+* **6** committed axiom prints.
+
+## Axiom hygiene
+
+No `sorry`, no new axiom, no `native_decide`; every `decide` is on `ZMod 8`.  All **65**
+committed prints are **std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a subset; no
+census axiom is reachable, `sqPivotExp` included.
+-/
+
+open Multiplicative
+
+namespace GQ2
+
+open Roe
+
+namespace Dyadic
+
+namespace SqCore
+
+open MarkedCore
+
+/-! ## 1 The class-four carrier as a pro-2 target -/
+
+section U5ProP
+
+namespace SqU5
+
+variable {R : Type} [CommRing R]
+
+/-- The underlying ten-tuple, as an equivalence. -/
+def equivProd : SqU5 R ≃ R × R × R × R × R × R × R × R × R × R where
+  toFun p := (p.a, p.b, p.c, p.d, p.e, p.f, p.g, p.h, p.i, p.j)
+  invFun v := ⟨v.1, v.2.1, v.2.2.1, v.2.2.2.1, v.2.2.2.2.1, v.2.2.2.2.2.1, v.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+instance [Finite R] : Finite (SqU5 R) := Finite.of_equiv _ equivProd.symm
+
+/-- The cardinality of the class-four test group. -/
+theorem nat_card [Finite R] : Nat.card (SqU5 R) = Nat.card R ^ 10 := by
+  rw [Nat.card_congr equivProd, Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod,
+    Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod]
+  ring
+
+instance : TopologicalSpace (SqU5 R) := ⊥
+
+instance : DiscreteTopology (SqU5 R) := ⟨rfl⟩
+
+/-- **The class-four test group is pro-2** whenever the coefficient ring is a finite 2-ring:
+its order is `(#R)^10`. -/
+theorem isProP_two [Finite R] {m : ℕ} (hR : Nat.card R = 2 ^ m) : IsProP 2 (SqU5 R) :=
+  isProP_of_isPGroup (IsPGroup.of_card (n := 10 * m) (by rw [nat_card, hR, ← pow_mul, mul_comm]))
+
+/-! ### The power laws -/
+
+private theorem choose_two_succ (n : ℕ) : ((n + 1).choose 2 : ℕ) = n.choose 2 + n := by
+  rw [Nat.choose_succ_succ n 1, Nat.choose_one_right]
+  show n + n.choose 2 = n.choose 2 + n
+  omega
+
+private theorem choose_three_succ (n : ℕ) :
+    ((n + 1).choose 3 : ℕ) = n.choose 3 + n.choose 2 := by
+  rw [Nat.choose_succ_succ n 2]
+  show n.choose 2 + n.choose 3 = n.choose 3 + n.choose 2
+  omega
+
+private theorem choose_four_succ (n : ℕ) :
+    ((n + 1).choose 4 : ℕ) = n.choose 4 + n.choose 3 := by
+  rw [Nat.choose_succ_succ n 3]
+  show n.choose 3 + n.choose 4 = n.choose 4 + n.choose 3
+  omega
+
+@[simp] theorem pow_a (p : SqU5 R) (n : ℕ) : (p ^ n).a = n * p.a := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [pow_succ, mul_a, ih]; push_cast; ring
+
+@[simp] theorem pow_b (p : SqU5 R) (n : ℕ) : (p ^ n).b = n * p.b := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [pow_succ, mul_b, ih]; push_cast; ring
+
+@[simp] theorem pow_c (p : SqU5 R) (n : ℕ) : (p ^ n).c = n * p.c := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [pow_succ, mul_c, ih]; push_cast; ring
+
+@[simp] theorem pow_d (p : SqU5 R) (n : ℕ) : (p ^ n).d = n * p.d := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [pow_succ, mul_d, ih]; push_cast; ring
+
+theorem pow_e (p : SqU5 R) (n : ℕ) :
+    (p ^ n).e = n * p.e + (n.choose 2 : ℕ) * (p.a * p.b) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, mul_e, ih, pow_a, choose_two_succ]
+    push_cast
+    ring
+
+theorem pow_f (p : SqU5 R) (n : ℕ) :
+    (p ^ n).f = n * p.f + (n.choose 2 : ℕ) * (p.b * p.c) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, mul_f, ih, pow_b, choose_two_succ]
+    push_cast
+    ring
+
+theorem pow_g (p : SqU5 R) (n : ℕ) :
+    (p ^ n).g = n * p.g + (n.choose 2 : ℕ) * (p.c * p.d) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, mul_g, ih, pow_c, choose_two_succ]
+    push_cast
+    ring
+
+/-- The first class-three power law: `C(n,2)` on the two class-two/abelian pairings of the
+first four columns, `C(n,3)` on the cubic abelian term.  This is `SqU4.pow_f` through
+`toU4L`. -/
+theorem pow_h (p : SqU5 R) (n : ℕ) :
+    (p ^ n).h = n * p.h + (n.choose 2 : ℕ) * (p.a * p.f + p.e * p.c)
+      + (n.choose 3 : ℕ) * (p.a * p.b * p.c) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, mul_h, ih, pow_a, pow_e, choose_two_succ, choose_three_succ]
+    push_cast
+    ring
+
+/-- …and the second, through `toU4R`. -/
+theorem pow_i (p : SqU5 R) (n : ℕ) :
+    (p ^ n).i = n * p.i + (n.choose 2 : ℕ) * (p.b * p.g + p.f * p.d)
+      + (n.choose 3 : ℕ) * (p.b * p.c * p.d) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, mul_i, ih, pow_b, pow_f, choose_two_succ, choose_three_succ]
+    push_cast
+    ring
+
+/-- **The class-four power law**: the `(1,5)`-coordinate of `p^n` carries `C(n,2)` on the
+three "outermost times innermost" products, `C(n,3)` on the three cubic terms and `C(n,4)`
+on the quartic abelian monomial.  A **fourth** binomial layer appears here that class three
+never saw, and it is what forces the `ℤ₂`-power lemma of section 4 to be stated with an
+even obstruction rather than a vanishing one. -/
+theorem pow_j (p : SqU5 R) (n : ℕ) :
+    (p ^ n).j = n * p.j + (n.choose 2 : ℕ) * (p.a * p.i + p.e * p.g + p.h * p.d)
+      + (n.choose 3 : ℕ) * (p.a * p.b * p.g + p.a * p.f * p.d + p.e * p.c * p.d)
+      + (n.choose 4 : ℕ) * (p.a * p.b * p.c * p.d) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, mul_j, ih, pow_a, pow_e, pow_h, choose_two_succ, choose_three_succ,
+      choose_four_succ]
+    push_cast
+    ring
+
+end SqU5
+
+end U5ProP
+
+/-! ## 2 The lift: markings of the class-four test group classify class-four quotients -/
+
+section Lift
+
+variable {R : Type} [CommRing R] [Finite R] {mm : ℕ} {h : ℕ}
+
+/-- **The class-four test homomorphism** attached to a marking of `SqU5 R` killing the
+relator: four characters of `D_sq(h)^ab`, three solutions of the class-two defect equations,
+two of the class-three equations and one of the class-four equation, *is* a class-four
+quotient.  The verbatim transposition of `GradedThree`'s `sqU4Hom`. -/
+noncomputable def sqU5Hom (hR : Nat.card R = 2 ^ mm) (h : ℕ) (m : Fin (sqRank h) → SqU5 R)
+    (hrel : sqRelWord m = 1) : ContinuousMonoidHom (DSq h : Type) (SqU5 R) :=
+  sqLiftHom h (SqU5.isProP_two hR) m hrel
+
+@[simp] theorem sqU5Hom_gen (hR : Nat.card R = 2 ^ mm) (m : Fin (sqRank h) → SqU5 R)
+    (hrel : sqRelWord m = 1) (i : Fin (sqRank h)) :
+    sqU5Hom hR h m hrel (sqGen h i) = m i :=
+  sqLiftHom_gen _ _ _ _ i
+
+/-- **`ℤ₂`-powers in the class-four test group, with an even class-four obstruction.**
+
+At class three (`SqU4.zpowZtwo_of_flat`) the map `n ↦ gⁿ` is `R`-linear exactly when the
+three power corrections of `SqU4.pow_d/_e/_f` vanish, and every use of that lemma in the
+committed slices supplies vanishing.  Class four has **four** binomial layers
+(`SqU5.pow_j`), and the layer that the class-four sigma witness actually meets does **not**
+vanish: at the witness `x₀`-slot `sigFourX` the class-four obstruction
+`a·i + e·g + h·d` equals `2`, not `0`, so the mechanical transposition of the class-three
+lemma does not apply.  What saves the situation is arithmetic rather than geometry:
+`C(n,2)·(2w) = (n² − n)·w` is a **polynomial in `n` with integer coefficients**, so it
+still factors through the ring map `pi : ℤ₂ → R` even though `C(n,2)` alone does not.  This
+lemma is that observation, and it is the one step of the class-three transposition that is
+not mechanical.
+
+The remaining five conditions must still vanish on the nose (`C(n,2)` and `C(n,3)` are not
+polynomial in `n` over `ℤ` after division), and the `C(n,3)`/`C(n,4)` layers are killed by
+those same five: `a·b = b·c = c·d = 0` already annihilates `a·b·g`, `a·f·d`, `e·c·d` and
+`a·b·c·d` once `a·f + e·c = 0 = b·g + f·d` is imposed on top of them. -/
+theorem SqU5.zpowZtwo_of_flatTwo (hQ : IsProP 2 (SqU5 R)) (pi : ℤ_[2] →+* R)
+    (hpi : ∀ T : Set R, IsOpen (pi ⁻¹' T)) {g : SqU5 R} {w : R}
+    (hab : g.a * g.b = 0) (hbc : g.b * g.c = 0) (hcd : g.c * g.d = 0)
+    (hh : g.a * g.f + g.e * g.c = 0) (hi : g.b * g.g + g.f * g.d = 0)
+    (hj : g.a * g.i + g.e * g.g + g.h * g.d = 2 * w) (u : ℤ_[2]) :
+    zpowZtwo hQ g u
+      = ⟨pi u * g.a, pi u * g.b, pi u * g.c, pi u * g.d, pi u * g.e, pi u * g.f, pi u * g.g,
+          pi u * g.h, pi u * g.i, pi u * g.j + (pi u * pi u - pi u) * w⟩ := by
+  set phi : Multiplicative ℤ_[2] →* SqU5 R :=
+    { toFun := fun z => ⟨pi (toAdd z) * g.a, pi (toAdd z) * g.b, pi (toAdd z) * g.c,
+        pi (toAdd z) * g.d, pi (toAdd z) * g.e, pi (toAdd z) * g.f, pi (toAdd z) * g.g,
+        pi (toAdd z) * g.h, pi (toAdd z) * g.i,
+        pi (toAdd z) * g.j + (pi (toAdd z) * pi (toAdd z) - pi (toAdd z)) * w⟩
+      map_one' := by ext <;> simp
+      map_mul' := fun z y => by
+        have hadd : pi (toAdd (z * y)) = pi (toAdd z) + pi (toAdd y) := by
+          rw [show toAdd (z * y) = toAdd z + toAdd y from rfl, map_add]
+        ext
+        · simp only [SqU5.mul_a]; rw [hadd]; ring
+        · simp only [SqU5.mul_b]; rw [hadd]; ring
+        · simp only [SqU5.mul_c]; rw [hadd]; ring
+        · simp only [SqU5.mul_d]; rw [hadd]; ring
+        · simp only [SqU5.mul_e]; rw [hadd]
+          linear_combination (-(pi (toAdd z) * pi (toAdd y))) * hab
+        · simp only [SqU5.mul_f]; rw [hadd]
+          linear_combination (-(pi (toAdd z) * pi (toAdd y))) * hbc
+        · simp only [SqU5.mul_g]; rw [hadd]
+          linear_combination (-(pi (toAdd z) * pi (toAdd y))) * hcd
+        · simp only [SqU5.mul_h]; rw [hadd]
+          linear_combination (-(pi (toAdd z) * pi (toAdd y))) * hh
+        · simp only [SqU5.mul_i]; rw [hadd]
+          linear_combination (-(pi (toAdd z) * pi (toAdd y))) * hi
+        · simp only [SqU5.mul_j]; rw [hadd]
+          linear_combination (-(pi (toAdd z) * pi (toAdd y))) * hj } with hphi
+  have hcont : Continuous phi := by
+    refine IsLocallyConstant.continuous fun s => ?_
+    show IsOpen ((fun z : Multiplicative ℤ_[2] =>
+      (⟨pi (toAdd z) * g.a, pi (toAdd z) * g.b, pi (toAdd z) * g.c, pi (toAdd z) * g.d,
+        pi (toAdd z) * g.e, pi (toAdd z) * g.f, pi (toAdd z) * g.g, pi (toAdd z) * g.h,
+        pi (toAdd z) * g.i,
+        pi (toAdd z) * g.j + (pi (toAdd z) * pi (toAdd z) - pi (toAdd z)) * w⟩ :
+          SqU5 R)) ⁻¹' s)
+    have hfact : (fun z : Multiplicative ℤ_[2] =>
+        (⟨pi (toAdd z) * g.a, pi (toAdd z) * g.b, pi (toAdd z) * g.c, pi (toAdd z) * g.d,
+          pi (toAdd z) * g.e, pi (toAdd z) * g.f, pi (toAdd z) * g.g, pi (toAdd z) * g.h,
+          pi (toAdd z) * g.i,
+          pi (toAdd z) * g.j + (pi (toAdd z) * pi (toAdd z) - pi (toAdd z)) * w⟩ :
+            SqU5 R)) ⁻¹' s
+        = toAdd ⁻¹' (pi ⁻¹' {r : R | (⟨r * g.a, r * g.b, r * g.c, r * g.d, r * g.e, r * g.f,
+            r * g.g, r * g.h, r * g.i, r * g.j + (r * r - r) * w⟩ : SqU5 R) ∈ s}) := rfl
+    rw [hfact]
+    exact (hpi _).preimage continuous_toAdd
+  have hone : phi (ofAdd (1 : ℤ_[2])) = g := by
+    show (⟨pi 1 * g.a, pi 1 * g.b, pi 1 * g.c, pi 1 * g.d, pi 1 * g.e, pi 1 * g.f, pi 1 * g.g,
+      pi 1 * g.h, pi 1 * g.i, pi 1 * g.j + (pi 1 * pi 1 - pi 1) * w⟩ : SqU5 R) = g
+    rw [map_one]
+    ext <;> simp
+  have := zpowZtwoHom_unique hQ hcont u
+  rw [hone] at this
+  exact this.symm
+
+/-- **`ℤ₂`-powers in the class-four test group, flat base**: the verbatim transposition of
+`SqU4.zpowZtwo_of_flat`, with **six** conditions instead of three - one for each of the
+three class-two coordinates, one for each of the two class-three coordinates, and one for
+the class-four coordinate.  These are exactly the conditions under which `n ↦ gⁿ` is
+`R`-linear, by `SqU5.pow_e` through `SqU5.pow_j`.  It is the `w = 0` case of
+`SqU5.zpowZtwo_of_flatTwo`. -/
+theorem SqU5.zpowZtwo_of_flat (hQ : IsProP 2 (SqU5 R)) (pi : ℤ_[2] →+* R)
+    (hpi : ∀ T : Set R, IsOpen (pi ⁻¹' T)) {g : SqU5 R}
+    (hab : g.a * g.b = 0) (hbc : g.b * g.c = 0) (hcd : g.c * g.d = 0)
+    (hh : g.a * g.f + g.e * g.c = 0) (hi : g.b * g.g + g.f * g.d = 0)
+    (hj : g.a * g.i + g.e * g.g + g.h * g.d = 0) (u : ℤ_[2]) :
+    zpowZtwo hQ g u
+      = ⟨pi u * g.a, pi u * g.b, pi u * g.c, pi u * g.d, pi u * g.e, pi u * g.f, pi u * g.g,
+          pi u * g.h, pi u * g.i, pi u * g.j⟩ := by
+  rw [SqU5.zpowZtwo_of_flatTwo hQ pi hpi hab hbc hcd hh hi (w := 0) (by rw [hj]; ring)]
+  ext <;> simp
+
+end Lift
+
+/-! ## 3 The class-four gate, and the containment, at the hom level -/
+
+section Engine
+
+variable {R : Type} [CommRing R] {h : ℕ}
+
+/-- ⭐ **The class-four gate.**  Every frame of `D_sq h` that kills the relator has an image
+tuple killing the relator in **every** class-four test group.  One `rw`, and it is what turns
+tuple-level statements about `SqU5 R` into statements about continuous homomorphisms. -/
+theorem sqU5Balance (Phi : ContinuousMonoidHom (DSq h : Type) (SqU5 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1) :
+    sqRelWord (fun i => Phi (n i)) = 1 := by
+  rw [← map_sqRelWord Phi n, hn, map_one]
+
+/-- The gate at the standard frame: the marked generators already satisfy the relation
+(`dsq_relation`), so every class-four test hom sends them to a relator-solution. -/
+theorem sqU5Balance_gen (Phi : ContinuousMonoidHom (DSq h : Type) (SqU5 R)) :
+    sqRelWord (fun i => Phi (sqGen h i)) = 1 :=
+  sqU5Balance Phi _ (dsq_relation h)
+
+variable {z : Fin (sqRank h) → SqU5 R}
+
+/-- ⭐⭐ **The pure-artefact containment, at the hom level.**  `GradedContainFour`'s
+`sqRelWord_conFourDress_of_rel` says: at a *tuple* killing the relator, the defect of any
+five-slot `γ₃`-dressing is the explicit translation element, reading the dressing alone
+through the graded Fox form.  Through the gate the hypothesis becomes a statement about the
+group: at the image of **any** frame of `D_sq h` killing the relator, under **any** class-four
+test hom, the `K`-dressing defect is a pure artefact.  This is the campaign's target shape
+with the tuple hypothesis discharged. -/
+theorem sqRelWord_conFourDress_of_hom (Phi : ContinuousMonoidHom (DSq h : Type) (SqU5 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1)
+    (hz : ∀ i, (z i).IsGaThree) :
+    sqRelWord (conFourDress (fun i => Phi (n i)) z)
+      = ⟨0, 0, 0, 0, 0, 0, 0, -4 * (z 1).h + 2 * (z 2).h, -4 * (z 1).i + 2 * (z 2).i,
+          -4 * (z 1).j + 2 * (z 2).j + conFourShift h (fun i => Phi (n i)) z⟩ :=
+  sqRelWord_conFourDress_of_rel hz (sqU5Balance Phi n hn)
+
+/-- …and the central form once the dressing survives stage three, at the hom level. -/
+theorem sqRelWord_conFourDress_liftC_of_hom (Phi : ContinuousMonoidHom (DSq h : Type) (SqU5 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1)
+    (hz : ∀ i, (z i).IsGaThree)
+    (hh : -4 * (z 1).h + 2 * (z 2).h = 0) (hi : -4 * (z 1).i + 2 * (z 2).i = 0) :
+    sqRelWord (conFourDress (fun i => Phi (n i)) z)
+      = liftC (-4 * (z 1).j + 2 * (z 2).j + conFourShift h (fun i => Phi (n i)) z) :=
+  sqRelWord_conFourDress_liftC hz (sqU5Balance Phi n hn) hh hi
+
+/-- ⭐⭐ **The engine kill at the hom level, odd regime**: at the image of any frame killing
+the relator, whose `j`-handle `V`-slot columns admit a unit pairing, every stage-surviving
+`γ₃`-`K`-dressing of the image is killed by one explicit achievable engine move.  The
+committed `conFour_contain_odd` with its tuple hypothesis discharged by the gate. -/
+theorem conFour_contain_odd_of_hom {j : Fin h} {zh zi rr : R}
+    (Phi : ContinuousMonoidHom (DSq h : Type) (SqU5 R))
+    (n : Fin (sqRank h) → (DSq h : Type)) (hn : sqRelWord n = 1)
+    (hz : ∀ i, (z i).IsGaThree)
+    (hh : -4 * (z 1).h + 2 * (z 2).h = 0) (hi : -4 * (z 1).i + 2 * (z 2).i = 0)
+    (hmu : rr * (zh * (Phi (n (sqHandleIdxV j))).d - zi * (Phi (n (sqHandleIdxV j))).a) = 1) :
+    sqRelWord (selLift j (conFourDress (fun i => Phi (n i)) z) 1 1
+      ⟨0, 0, 0, 0, 0, 0, 0,
+        -(rr * (-4 * (z 1).j + 2 * (z 2).j
+          + conFourShift h (fun i => Phi (n i)) z) * zh),
+        -(rr * (-4 * (z 1).j + 2 * (z 2).j
+          + conFourShift h (fun i => Phi (n i)) z) * zi), 0⟩ 1) = 1 :=
+  conFour_contain_odd hz (sqU5Balance Phi n hn) hh hi hmu
+
+end Engine
+
+/-! ## 4 The class-four sigma witness as a homomorphism -/
+
+section SigmaHom
+
+/-- The class-four test group over `ℤ/8` is pro-2. -/
+theorem isProP_two_gr5 : IsProP 2 (SqU5 gr3R) := SqU5.isProP_two gr3R_card
+
+/-- ⭐ **The class-four sigma-witness test hom.**  `GradedSigmaFour`'s binder point
+`sigFourWit 1` kills the relator (`sqRelWord_sigFourWit_triv`), so the committed lift turns
+it into an honest continuous homomorphism `D_sq 1 → U_5(ℤ/8)`.  Every tuple statement of
+`GradedSigmaFour` at that point is now a statement about this hom. -/
+noncomputable def sigFourHom : ContinuousMonoidHom (DSq 1 : Type) (SqU5 gr3R) :=
+  sqU5Hom gr3R_card 1 (sigFourWit 1) sqRelWord_sigFourWit_triv
+
+@[simp] theorem sigFourHom_gen (i : Fin (sqRank 1)) :
+    sigFourHom (sqGen 1 i) = sigFourWit 1 i :=
+  sqU5Hom_gen _ _ _ i
+
+@[simp] theorem sigFourHom_sigma : sigFourHom (dsqSigma 1) = sigFourMark gr3R := by
+  rw [dsqSigma, sigFourHom_gen, sigFourWit_zero, mul_one]
+
+@[simp] theorem sigFourHom_x0 : sigFourHom (dsqX0 1) = sigFourX := by
+  rw [dsqX0, sigFourHom_gen, sigFourWit_one]
+
+@[simp] theorem sigFourHom_x1 : sigFourHom (dsqX1 1) = sigFourY := by
+  rw [dsqX1, sigFourHom_gen, sigFourWit_two]
+
+@[simp] theorem sigFourHom_handleU : sigFourHom (sqGen 1 (sqHandleIdxU 0)) = sigFourU := by
+  rw [sigFourHom_gen]
+  simp only [sigFourWit, sqHandleIdxU_val]
+  norm_num
+
+@[simp] theorem sigFourHom_handleV : sigFourHom (sqGen 1 (sqHandleIdxV 0)) = sigFourV := by
+  rw [sigFourHom_gen]
+  simp only [sigFourWit, sqHandleIdxV_val]
+  norm_num
+
+/-- The already-cleared selected row leaves the `u`-letter `ν'`-trivial. -/
+theorem nuSelClear_handleU : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxU 0)) = 1 := by
+  rw [nuSel_handleU, ofAdd_zero]
+
+/-- …and the `v`-letter likewise. -/
+theorem nuSelClear_handleV : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxV 0)) = 1 := by
+  rw [nuSel_handleV, ofAdd_zero]
+
+/-! ### The `b`-column of the sigma-witness hom is the selected row
+
+`GradedSelect`'s class-three slice was designed so that "the `b`-column **is** `ν'`", which
+is what makes `ν'`-trivial dressings have vanishing `b`-coordinate.  The class-four witness
+was built tuple-side and carries no such design statement, so the identification has to be
+made here, and it is: the `b`-column of `sigFourHom` is the already-cleared selected row
+`nuSel 1 0 0 0` reduced mod `8`.  Both sides are continuous homs on `D_sq 1`, so
+`dsq_hom_ext` reduces the claim to the five generators.  This is what turns the `b`-column
+hypothesis of the forcing theorem from a carried side condition into a consequence of the
+dressing's legality. -/
+
+/-- The `b`-column of the class-four carrier, as a continuous endomorphism: the `b`-column is
+a character, and the elements carried on it alone form an abelian subgroup. -/
+def bProjC {R : Type} [CommRing R] : ContinuousMonoidHom (SqU5 R) (SqU5 R) where
+  toFun p := ⟨0, p.b, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  map_one' := rfl
+  map_mul' _ _ := by ext <;> simp
+  continuous_toFun := continuous_of_discreteTopology
+
+@[simp] theorem bProjC_apply {R : Type} [CommRing R] (p : SqU5 R) :
+    bProjC p = (⟨0, p.b, 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 R) := rfl
+
+/-- A `ℤ₂`-row, pushed into the `b`-column of the class-four carrier over `ℤ/8`. -/
+noncomputable def nuBC : ContinuousMonoidHom (Multiplicative ℤ_[2]) (SqU5 gr3R) where
+  toFun u := ⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩
+  map_one' := by ext <;> simp
+  map_mul' _ _ := by ext <;> simp
+  continuous_toFun := by
+    refine IsLocallyConstant.continuous fun s => ?_
+    show IsOpen ((fun u : Multiplicative ℤ_[2] =>
+      (⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R)) ⁻¹' s)
+    have hfact : (fun u : Multiplicative ℤ_[2] =>
+        (⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R)) ⁻¹' s
+        = toAdd ⁻¹' (gr3Pi ⁻¹'
+            {r : gr3R | (⟨0, r, 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R) ∈ s}) := rfl
+    rw [hfact]
+    exact (gr3Pi_open _).preimage continuous_toAdd
+
+@[simp] theorem nuBC_apply (u : Multiplicative ℤ_[2]) :
+    nuBC u = (⟨0, gr3Pi (toAdd u), 0, 0, 0, 0, 0, 0, 0, 0⟩ : SqU5 gr3R) := rfl
+
+/-- The `x₁`-row of the selected marking: trivial at every bump. -/
+theorem nuSel_x1 {h : ℕ} {j : Fin h} {t s : ℤ_[2]} : nuSel h j t s (dsqX1 h) = 1 := by
+  rw [dsqX1, nuSel]
+  exact (sqLiftHom_gen _ _ _ _ 2).trans sqSelMark_two
+
+/-- ⭐ **The `b`-column of the sigma-witness hom is the already-cleared selected row**, reduced
+mod `8`.  Two continuous homs agreeing on the five generators. -/
+theorem sigFourHom_b (x : (DSq 1 : Type)) :
+    (sigFourHom x).b = gr3Pi (toAdd (nuSel 1 0 0 0 x)) := by
+  have hext : bProjC.comp sigFourHom = nuBC.comp (nuSel 1 0 0 0) := by
+    refine dsq_hom_ext _ _ fun i => ?_
+    rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+    · show bProjC (sigFourHom (dsqSigma 1)) = nuBC (nuSel 1 0 0 0 (dsqSigma 1))
+      rw [sigFourHom_sigma, nuSel_sigma, bProjC_apply, nuBC_apply, toAdd_ofAdd, map_one]
+      rfl
+    · show bProjC (sigFourHom (dsqX0 1)) = nuBC (nuSel 1 0 0 0 (dsqX0 1))
+      rw [sigFourHom_x0, nuSel_x0, bProjC_apply, nuBC_apply, toAdd_ofAdd, map_zero]
+      rfl
+    · show bProjC (sigFourHom (dsqX1 1)) = nuBC (nuSel 1 0 0 0 (dsqX1 1))
+      rw [sigFourHom_x1, nuSel_x1, bProjC_apply, nuBC_apply, toAdd_one, map_zero]
+      rfl
+    · rw [Subsingleton.elim j' 0]
+      show bProjC (sigFourHom (sqGen 1 (sqHandleIdxU 0)))
+        = nuBC (nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxU 0)))
+      rw [sigFourHom_handleU, nuSelClear_handleU, bProjC_apply, nuBC_apply, toAdd_one, map_zero]
+      rfl
+    · rw [Subsingleton.elim j' 0]
+      show bProjC (sigFourHom (sqGen 1 (sqHandleIdxV 0)))
+        = nuBC (nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxV 0)))
+      rw [sigFourHom_handleV, nuSelClear_handleV, bProjC_apply, nuBC_apply, toAdd_one, map_zero]
+      rfl
+  exact congrArg SqU5.b (DFunLike.congr_fun hext x)
+
+/-- ⭐ **A `ν'`-trivial element has vanishing `b`-column** at the sigma-witness hom: the
+class-four form of `GradedSelect`'s design statement, proved rather than built in. -/
+theorem sigFourHom_b_eq_zero {g : (DSq 1 : Type)} (hg : nuSel 1 0 0 0 g = 1) :
+    (sigFourHom g).b = 0 := by
+  rw [sigFourHom_b, hg, toAdd_one, map_zero]
+
+/-! ### The pivot anchor
+
+The class-three slice got its pivot image for free: the `x0`-slot image of `GradedSigma`'s
+family is `⟨A1, 0, C1, 0, 0, 0⟩`, whose vanishing `b`-column kills all three obstructions of
+`SqU4.zpowZtwo_of_flat`, so `sigHom_sqPivot` is a two-line `rw`.  At class four this fails:
+the sigma witness's `x0`-slot `sigFourX` has `a·i = 2 ≠ 0`, so the flat lemma does **not**
+apply and the pivot image needs the even-obstruction lemma of section 2.  This is the one
+place where the class-three transposition is not mechanical, and the anchor below is the
+proof that the replacement works. -/
+
+/-- ⭐ **The `x0`-slot's `ℤ₂`-powers at the sigma witness**, through the even-obstruction
+lemma: the class-four coordinate is the *quadratic* `π(u)² − π(u)`, not a linear multiple. -/
+theorem sigFourX_zpowZtwo (u : ℤ_[2]) :
+    zpowZtwo isProP_two_gr5 sigFourX u
+      = ⟨2 * gr3Pi u, 0, 0, 0, 0, 0, 0, 0, gr3Pi u, gr3Pi u * gr3Pi u - gr3Pi u⟩ := by
+  rw [SqU5.zpowZtwo_of_flatTwo isProP_two_gr5 gr3Pi gr3Pi_open (w := 1) (by decide) (by decide)
+    (by decide) (by decide) (by decide) (by decide)]
+  ext <;> simp [sigFourX]
+  ring
+
+/-- ⭐⭐ **The pivot image at the sigma-witness hom**, in closed form: the
+`sqPivotExp`-dependence returns only through the residue `c = gr3Pi sqPivotExp`, and the
+class-four coordinate is the quadratic `c² + c` that the even-obstruction lemma produced.
+The class-three anchor `sigHom_sqPivot` one level up. -/
+theorem sigFourHom_sqPivot :
+    sigFourHom (sqPivot 1)
+      = ⟨-(2 * gr3Pi sqPivotExp), 1, 0, 0, 0, 0, 0, 0, -gr3Pi sqPivotExp,
+          gr3Pi sqPivotExp * gr3Pi sqPivotExp + gr3Pi sqPivotExp⟩ := by
+  rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
+    map_zpowZtwo (isProP_DSq 1) isProP_two_gr5, sigFourHom_x0, sigFourX_zpowZtwo,
+    sigFourHom_sigma]
+  ext <;> simp [sigFourMark]
+  ring
+
+end SigmaHom
+
+/-! ## 5 The sigma forcing on `sqArbFrame` -/
+
+section ArbSigma
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+
+/-- At a row where the `u`-letter is already `ν'`-trivial the cleared letter **is** the
+letter: no pivot power is subtracted. -/
+theorem sqEichU_of_cleared (hu : nu' (sqGen h (sqHandleIdxU j)) = 1) :
+    sqEichU h nu' j = sqGen h (sqHandleIdxU j) := by
+  rw [sqEichU, hu, toAdd_one, zpowZtwo_zero_exp, inv_one, one_mul]
+
+/-- …and likewise for the `v`-letter. -/
+theorem sqEichV_of_cleared (hv : nu' (sqGen h (sqHandleIdxV j)) = 1) :
+    sqEichV h nu' j = sqGen h (sqHandleIdxV j) := by
+  rw [sqEichV, hv, toAdd_one, zpowZtwo_zero_exp, inv_one, mul_one]
+
+/-- **The undressed frame at an already-cleared handle is the standard frame.**  This is the
+exact price of the transposition: `sigFourWit`'s handle slots are the *raw* generator images,
+so a frame whose image is `sigFourWit` must have trivial pivot powers in both handle slots. -/
+theorem sqArbBase_of_cleared (hu : nu' (sqGen h (sqHandleIdxU j)) = 1)
+    (hv : nu' (sqGen h (sqHandleIdxV j)) = 1) (i : Fin (sqRank h)) :
+    sqArbBase h nu' j i = sqGen h i := by
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqArbBase_zero]; rfl
+  · rw [sqArbBase_one]; rfl
+  · rw [sqArbBase_two]; rfl
+  · by_cases hjj : j' = j
+    · subst hjj; rw [sqArbBase_handleU, sqEichU_of_cleared hu]
+    · rw [sqArbBase_handleU_ne hjj]
+  · by_cases hjj : j' = j
+    · subst hjj; rw [sqArbBase_handleV, sqEichV_of_cleared hv]
+    · rw [sqArbBase_handleV_ne hjj]
+
+variable (h) in
+/-- **The sigma-only dressing** of the arbitrary-dressing frame: the sigma slot dressed by
+`g`, every other slot standing.  This is `GradedSigma`'s `sigDressF`/`sigDressO` shape with
+the dressing element left free. -/
+noncomputable def sigArbDress (g : (DSq h : Type)) : Fin (sqRank h) → (DSq h : Type) :=
+  fun i => if (i : ℕ) = 0 then g else 1
+
+@[simp] theorem sigArbDress_zero (g : (DSq h : Type)) : sigArbDress h g 0 = g := by
+  simp only [sigArbDress, sqVal_zero]
+  norm_num
+
+theorem sigArbDress_ne {g : (DSq h : Type)} {i : Fin (sqRank h)} (hi : (i : ℕ) ≠ 0) :
+    sigArbDress h g i = 1 := if_neg hi
+
+/-- The sigma-only dressing is `λ`-trivial slotwise as soon as its one entry is. -/
+theorem nuLam_sigArbDress {g : (DSq h : Type)} (hg : nuLam h g = 1) (i : Fin (sqRank h)) :
+    nuLam h (sigArbDress h g i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), sigArbDress_zero, hg]
+  · rw [sigArbDress_ne h0, map_one]
+
+/-- …and `ν'`-trivial slotwise likewise: it belongs to the class the residual quantifies
+over. -/
+theorem nu_sigArbDress {g : (DSq h : Type)} (hg : nu' g = 1) (i : Fin (sqRank h)) :
+    nu' (sigArbDress h g i) = 1 := by
+  by_cases h0 : (i : ℕ) = 0
+  · rw [show i = 0 from Fin.val_injective (by rw [h0, sqVal_zero]), sigArbDress_zero, hg]
+  · rw [sigArbDress_ne h0, map_one]
+
+/-- ⭐⭐ **The frame identification**: at an already-cleared handle row, the sigma-witness hom
+sends the arbitrary-dressing frame with a sigma-only dressing `g` to exactly the class-four
+sigma witness at the dressing value `sigFourHom g`.  This is `GradedSigma`'s
+`sigEscHom_frame_F`/`_O` one level up, and it is what makes every tuple verdict of
+`GradedSigmaFour` §6 a verdict about `sqArbFrame`. -/
+theorem sigFourHom_sqArbFrame
+    {nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])}
+    (hu : nu' (sqGen 1 (sqHandleIdxU 0)) = 1) (hv : nu' (sqGen 1 (sqHandleIdxV 0)) = 1)
+    (g : (DSq 1 : Type)) :
+    (fun i => sigFourHom (sqArbFrame 1 nu' 0 (sigArbDress 1 g) i))
+      = sigFourWit (sigFourHom g) := by
+  rw [sigFourWit_eq_dress]
+  funext i
+  by_cases h0 : (i : ℕ) = 0
+  · have hi : i = 0 := Fin.val_injective (by rw [h0, sqVal_zero])
+    subst hi
+    rw [sqArbFrame, sqArbBase_of_cleared hu hv, sigArbDress_zero, map_mul, sigFourHom_gen,
+      sigFourDress_zero]
+  · rw [sqArbFrame, sqArbBase_of_cleared hu hv, sigArbDress_ne h0, mul_one, sigFourHom_gen,
+      sigFourDress_ne h0]
+
+/-- ⭐⭐ **The class-four selection bit on `sqArbFrame`.**  At an already-cleared handle row,
+the parity of the class-four residue of the frame's image is the parity of the sigma
+dressing's own `chi_a`-character.  The `sqArbFrame_x0_dressing_forced` conclusion one slot
+over, at the hom level. -/
+theorem sqArbFrame_sigma_bit
+    {nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])}
+    (hu : nu' (sqGen 1 (sqHandleIdxU 0)) = 1) (hv : nu' (sqGen 1 (sqHandleIdxV 0)) = 1)
+    {g : (DSq 1 : Type)} (hgb : (sigFourHom g).b = 0) :
+    selPar ((sqRelWord fun i => sigFourHom (sqArbFrame 1 nu' 0 (sigArbDress 1 g) i)).j)
+      = selPar (sigFourHom g).a := by
+  rw [sigFourHom_sqArbFrame hu hv g, sigFourWit_bit hgb]
+
+/-- ⭐⭐ **The class-four sigma forcing on `sqArbFrame` itself.**  At an already-cleared handle
+row, a sigma dressing whose frame image is killed by **any** achievable five-slot class-four
+refinement has an **even** `chi_a`-character.  This is `sigFourWit_sigma_forced` transported
+through the gate: the hypothesis is now about an honest frame of `D_sq 1` and an honest
+continuous homomorphism, not about a tuple.
+
+The two carried hypotheses are named exactly:
+
+* `hu`, `hv` say the handle is already `ν'`-cleared.  They are **forced** by the shape of the
+  witness, not a convenience: `sigFourWit`'s handle slots are the raw generator images, so a
+  pivot power in either handle slot would move the frame image off `sigFourWit` and out of
+  reach of the committed forcing theorem (see the section-4 pivot anchor for what the
+  displaced image would be).
+* `hgb` is the class-four form of "the dressing is `ν'`-trivial".  It is **not** carried at
+  the selected row: `sigFourHom_b` identifies the `b`-column of `sigFourHom` with
+  `nuSel 1 0 0 0` reduced mod `8`, so `sqArbFrame_sigma_forced_nuSel` below discharges it
+  from the dressing's own legality. -/
+theorem sqArbFrame_sigma_forced
+    {nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2])}
+    (hu : nu' (sqGen 1 (sqHandleIdxU 0)) = 1) (hv : nu' (sqGen 1 (sqHandleIdxV 0)) = 1)
+    {g : (DSq 1 : Type)} (hgb : (sigFourHom g).b = 0)
+    {z₀ w₁ w₂ z₃ z₄ : SqU5 gr3R} {P Q R : gr3R}
+    (hz₀ : z₀.IsGaThree) (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour)
+    (hz₃ : z₃.IsGaThree) (hz₄ : z₄.IsGaThree)
+    (l₀ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₀)
+    (l₃ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₃)
+    (l₄ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₄)
+    (hkill : sqRelWord (sigLift 0
+      (fun i => sigFourHom (sqArbFrame 1 nu' 0 (sigArbDress 1 g) i)) z₀ w₁ w₂ z₃ z₄) = 1) :
+    selPar (sigFourHom g).a = 0 := by
+  rw [sigFourHom_sqArbFrame hu hv g] at hkill
+  exact sigFourWit_sigma_forced hgb hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄ hkill
+
+/-- ⭐⭐ **The headline: the class-four sigma forcing on `sqArbFrame`, with nothing carried
+beyond legality.**  At the already-cleared selected row `nuSel 1 0 0 0`, every sigma dressing
+that is `ν'`-trivial - the class the residual quantifies over - and whose frame image is
+killed by **any** achievable five-slot class-four refinement has an **even**
+`chi_a`-character.  This is `GradedSigmaFour`'s `sigFourWit_sigma_forced` made into a
+statement about the arbitrary-dressing frame and an honest continuous homomorphism, which is
+exactly what that file's "exact remaining gaps" asked for. -/
+theorem sqArbFrame_sigma_forced_nuSel {g : (DSq 1 : Type)} (hg : nuSel 1 0 0 0 g = 1)
+    {z₀ w₁ w₂ z₃ z₄ : SqU5 gr3R} {P Q R : gr3R}
+    (hz₀ : z₀.IsGaThree) (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour)
+    (hz₃ : z₃.IsGaThree) (hz₄ : z₄.IsGaThree)
+    (l₀ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₀)
+    (l₃ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₃)
+    (l₄ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₄)
+    (hkill : sqRelWord (sigLift 0
+      (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0 (sigArbDress 1 g) i))
+      z₀ w₁ w₂ z₃ z₄) = 1) :
+    selPar (sigFourHom g).a = 0 :=
+  sqArbFrame_sigma_forced nuSelClear_handleU nuSelClear_handleV (sigFourHom_b_eq_zero hg)
+    hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄ hkill
+
+/-- The selection bit at the selected row, likewise with legality as the only hypothesis. -/
+theorem sqArbFrame_sigma_bit_nuSel {g : (DSq 1 : Type)} (hg : nuSel 1 0 0 0 g = 1) :
+    selPar ((sqRelWord fun i =>
+        sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0 (sigArbDress 1 g) i)).j)
+      = selPar (sigFourHom g).a :=
+  sqArbFrame_sigma_bit nuSelClear_handleU nuSelClear_handleV (sigFourHom_b_eq_zero hg)
+
+/-! ### The three verdicts on `sqArbFrame`, at the already-cleared selected row
+
+The escape executed on the frame itself, the class-four analogue of `GradedSigma` §6's
+`sigDressF`/`sigDressO` pair.  The selected row `nuSel 1 0 0 0` is `ν'(σ) = 1`, `ν'(x₀) = 0`
+and both handle letters `ν'`-trivial, so the two cleared letters are the letters themselves
+and the frame is the standard frame with a sigma dressing.  Three legal dressings, three
+verdicts: the trivial one kills the relator outright, the `V`-letter leaves the even residue
+`2` and dies to one explicit achievable move, and the `U`-letter leaves the **odd** residue
+`1` and survives no achievable refinement whatsoever.  All three dressings are `λ`-trivial and
+`ν'`-trivial slotwise, so all three lie in the class the residual quantifies over. -/
+
+/-- The `U`-dressing is `λ`-trivial slotwise. -/
+theorem nuLam_sigArbDress_U (i : Fin (sqRank 1)) :
+    nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1 :=
+  nuLam_sigArbDress (nuLam_handleU 0) i
+
+/-- …and `ν'`-trivial slotwise at the already-cleared row. -/
+theorem nu_sigArbDress_U (i : Fin (sqRank 1)) :
+    nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1 :=
+  nu_sigArbDress nuSelClear_handleU i
+
+/-- The `V`-dressing is `λ`-trivial slotwise. -/
+theorem nuLam_sigArbDress_V (i : Fin (sqRank 1)) :
+    nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1 :=
+  nuLam_sigArbDress (nuLam_handleV 0) i
+
+/-- …and `ν'`-trivial slotwise. -/
+theorem nu_sigArbDress_V (i : Fin (sqRank 1)) :
+    nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1 :=
+  nu_sigArbDress nuSelClear_handleV i
+
+/-- ⭐ **The undressed frame kills the relator outright** at the sigma-witness hom: all ten
+rows vanish, so the hom is a genuine class-four quotient of the frame and the gate is live. -/
+theorem sqRelWord_arbFrame_sigTriv :
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0 (sigArbDress 1 1) i)) = 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, map_one]
+  exact sqRelWord_sigFourWit_triv
+
+/-- ⭐ **The `V`-dressed frame leaves the even residue `2`.** -/
+theorem sqRelWord_arbFrame_sigV :
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = liftC 2 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleV]
+  exact sqRelWord_sigFourWit_V
+
+/-- ⭐⭐ **The `U`-dressed frame leaves the odd residue `1`**: the class-four slice separates
+two legal sigma dressings of the same frame over the same hom. -/
+theorem sqRelWord_arbFrame_sigU :
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = liftC 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleU]
+  exact sqRelWord_sigFourWit_U
+
+/-- The `V`-dressed frame's even residue dies by one explicit achievable `γ₄`-move on the
+`x₁` slot. -/
+theorem sqRelWord_arbFrame_sigV_complete :
+    sqRelWord (sigLift 0 (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) 1 1 (liftC 7) 1 1) = 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleV]
+  exact sqRelWord_sigFourWit_V_complete
+
+/-- ⭐⭐ **The `U`-dressed frame survives nothing**: no achievable five-slot class-four
+refinement of the frame's image kills the relator.  The soundness is a theorem, not a
+hypothesis: every generator of the achievable lattice at this point has both class-three
+coordinates even (`sigFourWit_lamThree_even`), so no refinement can flip the bit. -/
+theorem sqRelWord_arbFrame_sigU_ne_one {z₀ w₁ w₂ z₃ z₄ : SqU5 gr3R} {P Q R : gr3R}
+    (hz₀ : z₀.IsGaThree) (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour)
+    (hz₃ : z₃.IsGaThree) (hz₄ : z₄.IsGaThree)
+    (l₀ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₀)
+    (l₃ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₃)
+    (l₄ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₄) :
+    sqRelWord (sigLift 0 (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) z₀ w₁ w₂ z₃ z₄) ≠ 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleU]
+  exact sqRelWord_sigFourWit_U_ne_one hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄
+
+/-- ⭐⭐ **The class-four escape separates the sigma dressings on `sqArbFrame` itself**, with
+the legality of both dressings exhibited: same hom, same frame, same already-cleared row, both
+dressings `λ`-trivial and `ν'`-trivial slotwise; the `V`-dressing has even class-four residue
+and the `U`-dressing odd.  This is `GradedSigma`'s `sigma_escape_separates` one level up, and
+by `sigFourWit_class_three_blind` the whole committed class-three machinery cannot see the
+difference. -/
+theorem sigmaFour_escape_separates :
+    ((∀ i, nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1) ∧
+      ∀ i, nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1) ∧
+    ((∀ i, nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1) ∧
+      ∀ i, nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1) ∧
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = liftC 2 ∧
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = liftC 1 :=
+  ⟨⟨nuLam_sigArbDress_V, nu_sigArbDress_V⟩, ⟨nuLam_sigArbDress_U, nu_sigArbDress_U⟩,
+    sqRelWord_arbFrame_sigV, sqRelWord_arbFrame_sigU⟩
+
+/-- ⭐ **Every class-`≤ 3` verdict on the frame is the same for all three dressings**: both
+`U₄`-quotients of the frame's relator image are trivial in each case, so the separation above
+is purely class-four.  `sigFourWit_class_three_blind`, on `sqArbFrame`. -/
+theorem arbFrame_class_three_blind :
+    (SqU5.toU4L (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 1) i)) = 1 ∧
+      SqU5.toU4R (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 1) i)) = 1) ∧
+    (SqU5.toU4L (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = 1 ∧
+      SqU5.toU4R (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = 1) ∧
+    (SqU5.toU4L (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = 1 ∧
+      SqU5.toU4R (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = 1) := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV 1,
+    sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV (sqGen 1 (sqHandleIdxV 0)),
+    sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV (sqGen 1 (sqHandleIdxU 0)),
+    map_one, sigFourHom_handleV, sigFourHom_handleU]
+  exact sigFourWit_class_three_blind
+
+end ArbSigma
+
+/-! ## 6 Axiom pins
+
+Committed prints for every public declaration of this file. -/
+
+section AxiomPins
+
+#print axioms SqU5.equivProd
+#print axioms SqU5.nat_card
+#print axioms SqU5.isProP_two
+#print axioms SqU5.pow_a
+#print axioms SqU5.pow_b
+#print axioms SqU5.pow_c
+#print axioms SqU5.pow_d
+#print axioms SqU5.pow_e
+#print axioms SqU5.pow_f
+#print axioms SqU5.pow_g
+#print axioms SqU5.pow_h
+#print axioms SqU5.pow_i
+#print axioms SqU5.pow_j
+#print axioms sqU5Hom
+#print axioms sqU5Hom_gen
+#print axioms SqU5.zpowZtwo_of_flatTwo
+#print axioms SqU5.zpowZtwo_of_flat
+#print axioms sqU5Balance
+#print axioms sqU5Balance_gen
+#print axioms sqRelWord_conFourDress_of_hom
+#print axioms sqRelWord_conFourDress_liftC_of_hom
+#print axioms conFour_contain_odd_of_hom
+#print axioms isProP_two_gr5
+#print axioms sigFourHom
+#print axioms sigFourHom_gen
+#print axioms sigFourHom_sigma
+#print axioms sigFourHom_x0
+#print axioms sigFourHom_x1
+#print axioms sigFourHom_handleU
+#print axioms sigFourHom_handleV
+#print axioms nuSelClear_handleU
+#print axioms nuSelClear_handleV
+#print axioms bProjC
+#print axioms bProjC_apply
+#print axioms nuBC
+#print axioms nuBC_apply
+#print axioms nuSel_x1
+#print axioms sigFourHom_b
+#print axioms sigFourHom_b_eq_zero
+#print axioms sigFourX_zpowZtwo
+#print axioms sigFourHom_sqPivot
+#print axioms sqEichU_of_cleared
+#print axioms sqEichV_of_cleared
+#print axioms sqArbBase_of_cleared
+#print axioms sigArbDress
+#print axioms sigArbDress_zero
+#print axioms sigArbDress_ne
+#print axioms nuLam_sigArbDress
+#print axioms nu_sigArbDress
+#print axioms sigFourHom_sqArbFrame
+#print axioms sqArbFrame_sigma_bit
+#print axioms sqArbFrame_sigma_forced
+#print axioms sqArbFrame_sigma_forced_nuSel
+#print axioms sqArbFrame_sigma_bit_nuSel
+#print axioms nuLam_sigArbDress_U
+#print axioms nu_sigArbDress_U
+#print axioms nuLam_sigArbDress_V
+#print axioms nu_sigArbDress_V
+#print axioms sqRelWord_arbFrame_sigTriv
+#print axioms sqRelWord_arbFrame_sigV
+#print axioms sqRelWord_arbFrame_sigU
+#print axioms sqRelWord_arbFrame_sigV_complete
+#print axioms sqRelWord_arbFrame_sigU_ne_one
+#print axioms sigmaFour_escape_separates
+#print axioms arbFrame_class_three_blind
+
+end AxiomPins
+
+end SqCore
+
+end Dyadic
+
+end GQ2
