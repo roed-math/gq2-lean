@@ -148,9 +148,10 @@ theorem redFour_eq_castHom (a : ZMod 4) :
     redFour a = ZMod.castHom (by norm_num) (ZMod 2) a := by
   rw [redFour, ZMod.castHom_apply, ZMod.natCast_val]
 
-/-- **The carry identity on `ℤ/4`**: the coboundary of the upper digit is the square of the
-lower one.  Adding two residues carries into the second binary place exactly when both lower
-digits are `1`, which is the whole of the Bockstein computation. -/
+/-- **The carry identity on `ℤ/4`**: the failure of the upper digit to be additive is the product
+of the two lower digits.  Adding two residues carries into the second binary place exactly when
+both lower digits are `1`, and that is the whole of the Bockstein computation: read as a cochain
+identity it says the coboundary of the upper digit is the cup square of the lower one. -/
 theorem carryFour_add (a b : ZMod 4) :
     carryFour b - carryFour (a + b) + carryFour a = redFour a * redFour b := by
   revert a b
