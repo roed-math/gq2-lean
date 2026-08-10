@@ -1,0 +1,126 @@
+============================================================================================
+W59-INVARIANT stage 2: kill sweeps and the census deciding necessity vs sufficiency
+============================================================================================
+
+-- 0. The subgroup engine, validated against the honest orbit BFS ------------------
+
+  The census needs gamma_2 of each marking's image, cut to its gamma_3-shaped part.
+  It is computed by an induced polycyclic generating sequence; here that engine is
+  checked against a full orbit enumeration of the same subgroup wherever the latter
+  is affordable, on order AND on the gamma_3 part element by element.
+  38 markings validated element by element against the BFS closure
+  (W58 census: |[K,K]| = 512 at the two-live point; here 512)
+
+-- 1. Kill sweeps at the catalogue points and the new ones -------------------------
+
+  `odd` = the committed odd-character dressing sigFourU;  `even` = its square.
+  A refinement kills when the lifted relator is trivial.  ORTH is the sharp criterion.
+
+  point                                                   |A3|        space      killOdd   killEven   ORTH
+  W57/58 twoLive  (both letters inside liveFrameSub)        64    134217728            0   33554432   True
+  W58  oddLive    (V.f odd AND V.d odd)  <- the W58 KILL   128    536870912     67108864   67108864  False
+  W59  orth       (V.c = 1; both covectors vanish)          32     33554432            0    8388608   True
+  W59  mix        (V.f odd, V.d even; u-covector (0,1))    128    536870912            0  134217728   True
+  W59  ctrl-d     (V.f even, V.d odd)                       16      8388608            0    2097152   True
+  W59  ctrl-ad    (V.f odd, V.d odd, U even columns)        32     33554432            0    8388608   True
+
+  W58 reproduction: at the oddLive point the lane reported 67108864 of 536870912
+  achievable refinements killing the odd dressing.
+    reproduced: 67108864 of 536870912
+
+-- 2. Unrestricted gamma_3 moves: where achievability is load-bearing and where not --
+
+  Same sweep with z3, z4 over ALL 512 gamma_3-shaped elements rather than the achievable
+  ones.  At the ORTH point even this cannot kill the odd dressing: the pairing is
+  identically zero, so the forcing there needs no achievability convention at all.
+
+  point                                                           space   killOdd(unrestricted)
+  W57/58 twoLive  (both letters inside liveFrameSub)         8589934592              1073741824
+  W58  oddLive    (V.f odd AND V.d odd)  <- the W58 KILL     8589934592              1073741824
+  W59  orth       (V.c = 1; both covectors vanish)           8589934592                       0
+  W59  mix        (V.f odd, V.d even; u-covector (0,1))      8589934592              1073741824
+  W59  ctrl-d     (V.f even, V.d odd)                        8589934592              1073741824
+  W59  ctrl-ad    (V.f odd, V.d odd, U even columns)         8589934592              1073741824
+
+-- 3. THE CENSUS: predicted (pairing) versus actual (kill search) -------------------
+
+  For each marking of each family: `predicted` is the sharp criterion evaluated from
+  the marking's own subgroup data; `actual` is whether some achievable five-slot
+  refinement kills the relator at the committed odd dressing.  Any disagreement
+  refutes the characterisation.  The cross-tabulations below decide the question.
+
+  family A (exhaustive 0/1 letters, 4096 markings)
+    markings                                  4096
+    forcing BREAKS (some achievable kill)     2928
+    predicted = actual                        4096
+    DISAGREEMENTS                             0
+    outside liveFrameSub                      4032
+      ...of which the forcing still HOLDS     1104
+    inside liveFrameSub and broken            0
+    [348s]
+  family B (random nu'-trivial letters, 2000 markings)
+    markings                                  2000
+    forcing BREAKS (some achievable kill)     1277
+    predicted = actual                        2000
+    DISAGREEMENTS                             0
+    outside liveFrameSub                      1999
+      ...of which the forcing still HOLDS     722
+    inside liveFrameSub and broken            0
+    [486s]
+  family C (catalogue letters crossed, 324 markings)
+    markings                                  324
+    forcing BREAKS (some achievable kill)     24
+    predicted = actual                        324
+    DISAGREEMENTS                             0
+    outside liveFrameSub                      99
+      ...of which the forcing still HOLDS     75
+    inside liveFrameSub and broken            0
+    [490s]
+  family D (V.a, V.d, V.f swept, 512 markings)
+    markings                                  512
+    forcing BREAKS (some achievable kill)     128
+    predicted = actual                        512
+    DISAGREEMENTS                             0
+    outside liveFrameSub                      256
+      ...of which the forcing still HOLDS     128
+    inside liveFrameSub and broken            0
+    [499s]
+
+-- 4. What separates the safe markings from the dangerous ones ----------------------
+
+  Cross-tabulations over all four families together.  Rows read:
+  'property holds / property fails' against 'the forcing breaks / holds'.
+
+    marking inside liveFrameSub (the CARRIED hypothesis)
+      holds & breaks      0      holds & HOLDS    546
+      fails & breaks   4357      fails & HOLDS   2029
+    every achievable move even in class three (its CONSEQUENCE)
+      holds & breaks      0      holds & HOLDS    968
+      fails & breaks   4357      fails & HOLDS   1607
+    handle slots have even outer columns (the DUAL sufficient condition)
+      holds & breaks      0      holds & HOLDS    412
+      fails & breaks   4357      fails & HOLDS   2163
+    the handle block is ODD in a class-three coordinate
+      holds & breaks   3209      holds & HOLDS   1067
+      fails & breaks   1148      fails & HOLDS   1508
+    OUTSIDE both sufficient conditions
+      holds & breaks   4357      holds & HOLDS   1252
+      fails & breaks      0      fails & HOLDS   1323
+
+
+-- 5. Every nu'-trivial dressing at the headline points -----------------------------
+
+  The forcing quantifies over ALL nu'-trivial sigma dressings, not just the committed
+  one.  Sample v uniformly with v.b = 0 and check that no kill ever has odd character
+  where the criterion says the forcing holds.
+
+  W57/58 twoLive  (both letters inside liveFrameSub)     kills    6164 of 200000   odd-character kills       0   ORTH True
+  W58  oddLive    (V.f odd AND V.d odd)  <- the W58 KILL kills    6274 of 200000   odd-character kills    3102   ORTH False
+  W59  orth       (V.c = 1; both covectors vanish)       kills    6119 of 200000   odd-character kills       0   ORTH True
+  W59  mix        (V.f odd, V.d even; u-covector (0,1))  kills    6303 of 200000   odd-character kills       0   ORTH True
+  W59  ctrl-d     (V.f even, V.d odd)                    kills    6143 of 200000   odd-character kills       0   ORTH True
+  W59  ctrl-ad    (V.f odd, V.d odd, U even columns)     kills    6210 of 200000   odd-character kills       0   ORTH True
+
+============================================================================================
+named checks: 128    MISMATCHES: 0    [539s]
+============================================================================================

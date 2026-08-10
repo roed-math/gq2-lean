@@ -1,0 +1,57 @@
+========================================================================================
+W59-INVARIANT stage 1: library validation, the pairing closed form, the two witnesses
+========================================================================================
+
+-- 1. Library validated against the committed Lean facts ---------------------------
+  committed-fact checks so far: 66, mismatches 0
+
+-- 2. The five-slot translation identity, and the increment's parity ----------------
+  sqRelWord_sigLift verified directly on 30000 random (marking, refinement) pairs; mismatches 0
+  parity(increment) = parity(pairing) on 30000 random gauge markings; mismatches 0
+
+-- 3. The two sufficient conditions, and the sharp line between them ----------------
+
+  liveFrameSub containment  ==>  every achievable move is EVEN in both class-three
+  coordinates             ==>  the pairing is even WHATEVER the handle columns are.
+  even handle columns (U.a, U.d, V.a, V.d all even)
+                          ==>  the pairing is even WHATEVER the achievable set is.
+  Sharp line: both mod-2 covectors (V.d, V.a) and (U.d, U.a) annihilate the
+  class-three parity image of gamma_2 of the marking's image.
+
+  commP_mem_liveGaTwoSub confirmed on 200000 uniform liveFrameSub pairs
+  commP_mem_halfGaTwoSub confirmed on 200000 uniform halfFrameSub pairs
+
+-- 4. THE THREE MARKINGS WITH THE SAME ODD BLOCK ------------------------------------
+
+  All three carry the SAME live handle block, the class-three element with h = 1:
+  odd in its first class-three coordinate, hence outside every evenness the campaign
+  has ever carried.  One breaks the forcing.  Two do not.
+
+  point                                                         block(h,i)  liveFrame  evenMoves  evenCols   ORTH
+  W58 oddLive   U=sigFourU   V=(2,0,0,1,0,1,0,0,0,0)                (1, 0)      False      False     False  False
+  W59 orth      U=(0,0,0,0,1,0,0,0,0,0)  V=(0,0,1,0,0,0,0,0,0,0)      (1, 0)      False      False      True   True
+  W59 mix       U=sigFourU   V=(0,0,0,0,0,1,0,0,0,0)                (1, 0)      False      False     False   True
+  W57/58 twoLive  U=sigFourU  V=(2,0,0,0,0,2,0,0,0,0)               (2, 0)       True       True     False   True
+
+-- 5. The COVECTORS of the campaign's own committed points --------------------------
+
+  The sharp line reads the two handle slots through their mod-2 covectors
+  (U.d, U.a) and (V.d, V.a).  A vanishing covector means that slot imposes NOTHING.
+  This is what tells the campaign how much of `liveFrameSub` each committed point
+  actually needs.
+
+  point                       (U.d,U.a)  (V.d,V.a)   needs
+  W57 cleared      (0,0)         (0, 1)     (0, 0)   z.i even
+  W57 live         (0,0)         (0, 1)     (0, 0)   z.i even
+  W58 twoLive      (0,0)         (0, 1)     (0, 0)   z.i even
+  W58 mirLive      (1,0)         (0, 1)     (1, 0)   z.h and z.i even
+  W58 rowLive      (0,1)         (1, 0)     (0, 1)   z.h and z.i even
+  W58 dblLive      (1,1)         (0, 1)     (0, 1)   z.i even
+  W58 hiLive       (2,0)         (0, 1)     (1, 0)   z.h and z.i even
+  W58 oddLive  (the kill)        (0, 1)     (1, 0)   z.h and z.i even
+  W59 orth                       (0, 0)     (0, 0)   NOTHING even
+  W59 mix                        (0, 1)     (0, 0)   z.i even
+
+========================================================================================
+named checks: 460090    MISMATCHES: 0
+========================================================================================
