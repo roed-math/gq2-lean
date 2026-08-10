@@ -9,6 +9,38 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenDigit
 /-!
 # W54-COMPOSE: the composed even endpoints, and the honest input list of the even route
 
+## Status: this file's *claims* are superseded in three places (waves 54, 55, 56)
+
+Nothing below is unsound and no statement of this file has been changed.  Three of its **prose**
+claims were falsified after it was written, twice by later results and once by a sibling lane of
+its own wave, and a reader who quotes this file without the following four sentences will quote
+something false.  `GQ2/Dyadic/Instances/EvenRouteCarried.lean` (W56-RECUT) publishes the corrected
+artefacts.
+
+1. **The isotropy is not refused; it is a theorem.**  The "Refused" paragraph below, the §8
+   docstring and the `α = 2` headline all say the `M` branch owes `EvenDeepMIsotropicSupply`
+   above `α = 2`.  `GQ2/Dyadic/Instances/EvenDeepIsotropy.lean` (W54-BOCK, same wave, sibling in
+   the import graph) proves `evenDeepMIsotropicSupply_holds : EvenDeepMIsotropicSupply K`
+   outright.  What §7's `evenEndpoint_mIso_iff_frame` establishes is still true and still sharp:
+   the isotropy is *equivalent* to the `M` frame, so no route through a frame avoids it.  It is
+   not an *input*, because it is proved.  `EvenRouteCarriedM` below therefore has one field too
+   many; `EvenRouteCarried.EvenRouteCarriedDeepM` has two.
+2. **The flip supplies are FALSE at `α = 2`.**  `StageAbstractionEvenFlip.lean` §6 (W55-SLOT3)
+   proves `¬ EvenDigitFlipSupply 2 W v G chi` on every row table as soon as one stage tuple
+   exists.  So `EvenEndpointNFlip`, `EvenEndpointMFlipOffTwo` and all four `EvenRouteCarried*`
+   structures below are false at every field whose branch depth is `2`
+   (`EvenRouteCarried.evenRouteCarried_not_carried{N,M,NTwo,MTwo}`), and with them the four
+   endpoints `evenEndpoint_orientedEquiv{N,M}_two`, `evenRoute_orientedEquiv{N,M}` and
+   `evenRoute_orientedEquiv{N,M}_two` are vacuous there.  Every sentence below asserting that the
+   `α = 2` stratum carries two inputs should be read as retracted.
+3. **The flip demand above `α = 2` is one coordinate, not a family.**  The same wave-55 file
+   proves every flip coordinate but `0` on both branches, so the honest carried flip input is
+   `EvenDigitFlipSupplySlotZero`, and shave 3 below (the `M` slot `2`) is subsumed.
+4. **The depth binders below are unguarded.**  `EvenEndpointMFamily`, `EvenEndpointMFlipOffTwo`,
+   `EvenEndpointNFamily`, `EvenEndpointNFlip` and the four structures quantify over every
+   `α ≥ 2` without the range identity, while the identity produces one `α` per field.
+   `EvenDeepMIsotropicSupply` is the correct pattern and the re-cut follows it.
+
 ## What this file is
 
 Wave 53 pushed the even route forward on two independent fronts, each re-cutting one of the
@@ -57,6 +89,13 @@ raw-to-bracket half reduced to one digit per slot and, on `M`, one slot fewer th
 the `N` branch carries those same two inputs at **every** `α ≥ 2`.  The only input the `M`
 branch owes above `α = 2` that the `N` branch does not is the isotropy, and W53-KAPPA §5
 proves it necessary.
+
+**Retracted, twice** (see the status section above).  The `α = 2` sentence is false: wave 55
+refutes both branches' flip supplies there, so the two `α = 2` bundles have no model at a
+depth-`2` field and the stratum endpoints are vacuous.  The isotropy sentence is false: W53-KAPPA
+§5 proves the isotropy *unavoidable on any route through a frame*, which is not the same as
+proving it an input, and W54-BOCK proves it outright in this same wave.  Above `α = 2` the two
+branches carry the same two inputs, and the second of them is one flip coordinate.
 
 ## The four shaves, and the one refusal
 
@@ -112,6 +151,15 @@ mere existence of an `M`-row cup-adapted frame, so any route to the `M` base thr
 pays it.  §7 restates that as the sharp statement about this file's own `M` endpoint.  The `N`
 analogue is free precisely because `evenDeep_digit_imChiN` makes the `N` depth class `κ` itself,
 whose isotropy is `evenFrameCup_kappa_self`, a parity corollary at even degree.
+
+**This refusal is withdrawn.**  "Not removable" confuses *unavoidable* with *unproved*.  The
+sharpness statement stands: every route through a frame does pay the isotropy.  What this
+paragraph got wrong is that paying it costs an input, and it does not, because
+`GQ2/Dyadic/Instances/EvenDeepIsotropy.lean` (W54-BOCK, this same wave) proves
+`evenDeepMIsotropicSupply_holds : EvenDeepMIsotropicSupply K` for every field and every `α ≥ 2`,
+by lifting the depth class to a `ℤ/4`-valued character and killing the Bockstein.  The two lanes
+never met in the import graph, which is why this file was published carrying it.  Cost of the
+discharge: `tateDualityAt` only, no norm criterion.
 
 **Also dropped, and worth naming: the marked reciprocity bundle `B`.**  Every committed even
 endpoint carries a `MarkedRecip R K`, and every one of them uses it for exactly one thing:
@@ -755,6 +803,13 @@ end PerField
 
 /-! ## §7 The `α = 2` stratum, and the sharpness of what is left
 
+**The two endpoints of this section are vacuous.**  Wave 55's `evenFlip_not_flipSupply_two`
+refutes `EvenDigitFlipSupply 2` on every row table as soon as an `α = 2` stage tuple exists, and
+at a field of branch depth `2` one does (`EvenRouteCarried.evenRouteCarried_{n,m}Tuple_two`).  So
+`evenEndpoint_orientedEquiv{N,M}_two` have unsatisfiable hypotheses exactly at the fields they
+were written for.  The two statements are correct and are kept; what is retracted is the claim
+that they cover the stratum.  §7.2's sharpness statements are unaffected.
+
 On the stratum the range identity actually reaches by a committed route, the `M` isotropy is a
 theorem (`evenFrameDeep_isotropic_two`), so both branches carry exactly `Hfam` and the flips,
 with slot `2` free on `M`.  Neither stratum endpoint carries a reciprocity bundle or a
@@ -827,6 +882,13 @@ end AlphaTwo
 
 /-! ## §8 The honest carried-input list
 
+**Superseded; do not quote this section.**  All four structures below are false at a field whose
+branch depth is `2` (wave 55's flip refutation, reported at the head of this file), the `M` one
+has a third field that is a theorem, and all four leave the depth binder unguarded.  The
+corrected artefact is `EvenRouteCarried.EvenRouteCarriedDeep{N,M}` in
+`GQ2/Dyadic/Instances/EvenRouteCarried.lean`, two fields per branch, guarded by the range
+identity, at `α ≥ 3`.  What follows is kept unchanged as the wave-54 record.
+
 The artefact.  One `Prop` per branch per stratum, whose fields are *exactly* the inputs the even
 route still carries after this lane, and one endpoint theorem per bundle, so that the list can
 be read off a Lean statement rather than off prose.  Nothing else is a hypothesis of those four
@@ -853,7 +915,14 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
 
 /-- **What the even route carries on the `N` branch, at every branch depth.**  Two inputs, the
 odd route's two: a coordinate derivation family with its relator kill, and the one-digit flip
-supply.  No level-three base, no ramification binder, no raw-to-bracket span equality. -/
+supply.  No level-three base, no ramification binder, no raw-to-bracket span equality.
+
+**Corrected.**  The `flip` field is false at a field of branch depth `2`
+(`EvenRouteCarried.evenRouteCarried_not_carriedN`), and the depth binder is unguarded.  Above the
+refuted stratum the flip demand is one coordinate, not the whole supply.  See
+`EvenRouteCarried.EvenRouteCarriedDeepN`, which also drops the binder asymmetry with the `M` twin:
+neither corrected bundle needs `[FiniteDimensional ℚ_[2] K]`, which this one lacked and its twin
+carried only for the isotropy field. -/
 structure EvenRouteCarriedN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
   /-- `Hfam`: the coordinate derivation family with its relator kill, at every `α ≥ 2`. -/
@@ -863,7 +932,12 @@ structure EvenRouteCarriedN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
 
 /-- **What the even route carries on the `M` branch, at every branch depth.**  Three inputs: the
 `N` two, with the flips one slot shorter, plus the isotropy of the depth class, which §7 proves
-equivalent to the existence of the `M`-row frame and hence not removable. -/
+equivalent to the existence of the `M`-row frame and hence not removable.
+
+**Corrected.**  The third field is a theorem, `EvenDeepIsotropy.evenDeepMIsotropicSupply_holds`,
+so "not removable" is wrong: it is unavoidable but free.  The `flip` field is false at a
+depth-`2` field (wave 55).  Two fields, guarded, at `α ≥ 3`, in
+`EvenRouteCarried.EvenRouteCarriedDeepM`. -/
 structure EvenRouteCarriedM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] K]
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
@@ -875,7 +949,11 @@ structure EvenRouteCarriedM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
   isotropy : EvenDeepMIsotropicSupply K
 
 /-- **What the even route carries on the `N` branch at `α = 2`.**  The same two inputs, at the
-one depth. -/
+one depth.
+
+**Refuted.**  This `Prop` has no model at a field of branch depth `2`
+(`EvenRouteCarried.evenRouteCarried_not_carriedNTwo`), because wave 55 refutes the flip supply at
+`α = 2`.  `evenRoute_orientedEquivN_two` is therefore vacuous. -/
 structure EvenRouteCarriedNTwo (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
   /-- `Hfam` at `α = 2`. -/
@@ -888,7 +966,11 @@ structure EvenRouteCarriedNTwo (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂
 
 /-- **What the even route carries on the `M` branch at `α = 2`.**  Two inputs: the isotropy is a
 theorem here (`evenFrameDeep_isotropic_two`), so the `M` branch owes exactly what the `N` branch
-owes, minus the slot-`2` flip. -/
+owes, minus the slot-`2` flip.
+
+**Refuted.**  As for the `N` twin: no model at a field of branch depth `2`
+(`EvenRouteCarried.evenRouteCarried_not_carriedMTwo`), so `evenRoute_orientedEquivM_two` is
+vacuous. -/
 structure EvenRouteCarriedMTwo (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
     [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
   /-- `Hfam` at `α = 2`, `M` branch. -/
