@@ -582,6 +582,27 @@ local instance evenFrameDeepContinuousScalar :
     ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
   scalarActionZmodTwo_continuousSMul _
 
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The ramified-`i` binder is implied by the sign datum.**  If `-1` is a cyclotomic value then
+the group element realising it has mod-four parity `1` (`evenDegreeM_parity_negOne`), so the
+mod-four class is not zero.
+
+This lives here because both of the two files that need it — `EvenDeepIsotropy` (as
+`evenDeep_kappa_ne_zero_of_neg`) and `StageAbstractionEvenEndpoint` (as
+`evenEndpoint_kappa_of_negOne`) — import this one and neither imports the other, so this is
+their earliest common home.  They had proved it independently, with the same statement. -/
+theorem evenFrameDeep_kappa_ne_zero_of_negOne
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom) :
+    cyclotomicModFourClassKTwo (K := K) ≠ 0 := by
+  obtain ⟨g, hg⟩ := hneg
+  intro h0
+  have h1 : frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) g = 0 := by
+    rw [h0]
+    exact frattiniFrameEval_zero g
+  rw [frattiniFrameEval_modFour, show chiCycKTwo (K := K) g = -1 from hg,
+    evenDegreeM_parity_negOne] at h1
+  exact one_ne_zero h1
+
 /-- **The even frame from exact realizers.**  Given an adapted coordinate system on
 `H¹(G_K(2), 𝔽₂)` and, for each letter, one group element realising that letter's coordinate
 functional and having exactly the row value, the family is a `StageGeneric.Frame` at the row
