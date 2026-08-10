@@ -1,0 +1,22 @@
+=== free pro-2 groups F_r / lambda_{k+1}, a = x1, b = x2 ===
+free r=2 k=3  |Q|=2^10   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+free r=2 k=4  |Q|=2^18   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+free r=3 k=3  |Q|=2^23   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+free r=3 k=4  |Q|=2^55   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+free r=4 k=3  |Q|=2^44   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+free r=4 k=4  |Q|=2^134   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+free r=2 k=5  |Q|=2^32   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+=== M-relator Demushkin groups A^2[A,B]C^(2^alpha)[C,D]prod[u,v] ===
+    slot-3 paired move: a = D = base 3, b = C = base 2
+M alpha=2 h=0 k=3  |Q|=2^38   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+M alpha=2 h=0 k=4  |Q|=2^108   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+M alpha=3 h=0 k=3  |Q|=2^38   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+M alpha=3 h=0 k=4  |Q|=2^108   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+M alpha=2 h=1 k=3  |Q|=2^110   W54 move trivial: false   |   W54 move = [c^m,a][c^m,b]: true   |   corrected move trivial: true
+=== the key power-commutator identity [a^n,b] c^n [c^m,a] = 1 ===
+free r=2 k=3   identity holds: true
+free r=2 k=4   identity holds: true
+free r=3 k=3   identity holds: true
+free r=3 k=4   identity holds: true
+free r=4 k=3   identity holds: true
+free r=4 k=4   identity holds: true
