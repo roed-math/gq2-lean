@@ -1,0 +1,107 @@
+== 1. library validation against committed GradedSigmaFour facts ==
+PASS sqRelWord_sigFourWit_triv
+PASS sqRelWord_sigFourWit_V
+PASS sqRelWord_sigFourWit_U
+PASS sqRelWord_sigFourWit_V_complete
+PASS sigFourX_eq
+PASS commP(sigFourU,sigFourV)=1
+PASS sqWord(mark,X,Y)=1
+PASS sqRelWord_sigFourDress j-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress g-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress h-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress i-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress j-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress g-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress h-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress i-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS sqRelWord_sigFourDress j-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+PASS sqRelWord_sigFourDress g-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+PASS sqRelWord_sigFourDress h-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+PASS sqRelWord_sigFourDress i-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+PASS sqRelWord_sigFourDress j-row at v=(0, 0, 0, 0, 1, 0, 4, 0, 2, 0)
+PASS sqRelWord_sigFourDress g-row at v=(0, 0, 0, 0, 1, 0, 4, 0, 2, 0)
+PASS sqRelWord_sigFourDress h-row at v=(0, 0, 0, 0, 1, 0, 4, 0, 2, 0)
+PASS sqRelWord_sigFourDress i-row at v=(0, 0, 0, 0, 1, 0, 4, 0, 2, 0)
+PASS sqRelWord_sigFourDress j-row at v=(3, 0, 5, 2, 7, 1, 4, 6, 2, 5)
+PASS sqRelWord_sigFourDress g-row at v=(3, 0, 5, 2, 7, 1, 4, 6, 2, 5)
+PASS sqRelWord_sigFourDress h-row at v=(3, 0, 5, 2, 7, 1, 4, 6, 2, 5)
+PASS sqRelWord_sigFourDress i-row at v=(3, 0, 5, 2, 7, 1, 4, 6, 2, 5)
+
+== 2. the pivot image P(c) = Phi(sqPivot) = sigma-slot * (x0-slot^c)^{-1} ==
+PASS zpow_closed(sigFourX,0)
+PASS zpow_closed(sigFourX,1)
+PASS zpow_closed(sigFourX,2)
+PASS zpow_closed(sigFourX,3)
+PASS zpow_closed(sigFourX,4)
+PASS zpow_closed(sigFourX,5)
+PASS zpow_closed(sigFourX,6)
+PASS zpow_closed(sigFourX,7)
+PASS sigFourHom_sqPivot closed form at c=0
+PASS sigFourHom_sqPivot closed form at c=1
+PASS sigFourHom_sqPivot closed form at c=2
+PASS sigFourHom_sqPivot closed form at c=3
+PASS sigFourHom_sqPivot closed form at c=4
+PASS sigFourHom_sqPivot closed form at c=5
+PASS sigFourHom_sqPivot closed form at c=6
+PASS sigFourHom_sqPivot closed form at c=7
+
+== 3. the displaced binder point ==
+PASS rowFourV closed form at c=0
+PASS sqRelWord(rowFourMark) = 1 at c=0
+PASS rowFourV closed form at c=1
+PASS sqRelWord(rowFourMark) = 1 at c=1
+PASS rowFourV closed form at c=2
+PASS sqRelWord(rowFourMark) = 1 at c=2
+PASS rowFourV closed form at c=3
+PASS sqRelWord(rowFourMark) = 1 at c=3
+PASS rowFourV closed form at c=4
+PASS sqRelWord(rowFourMark) = 1 at c=4
+PASS rowFourV closed form at c=5
+PASS sqRelWord(rowFourMark) = 1 at c=5
+PASS rowFourV closed form at c=6
+PASS sqRelWord(rowFourMark) = 1 at c=6
+PASS rowFourV closed form at c=7
+PASS sqRelWord(rowFourMark) = 1 at c=7
+PASS sqRelWord(rowFourWit 1) = 1
+
+== 4. the three verdicts at the displaced point ==
+PASS rowV0^2
+PASS verdict trivial
+PASS verdict V0^2 (chi_a = 2)
+PASS verdict V0   (chi_a = 1)
+PASS verdict U    (chi_a = 0)
+PASS V0^2 dies to one gamma_4 move
+
+== 5. the reading at the displaced point is the same functional ==
+PASS read((0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS relator j-row at v=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS read((0, 0, 0, 1, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS relator j-row at v=(0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+PASS read((1, 0, 0, 0, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS relator j-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS read((2, 0, 0, 0, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS relator j-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS read((5, 0, 0, 4, 2, 0, 3, 7, 6, 1)) = v.a - 2 v.g - 2 v.i
+PASS relator j-row at v=(5, 0, 0, 4, 2, 0, 3, 7, 6, 1)
+
+== 6. class-three blindness at the displaced point ==
+PASS toU4L trivial at triv
+PASS toU4R trivial at triv
+PASS toU4L trivial at V0^2
+PASS toU4R trivial at V0^2
+PASS toU4L trivial at V0
+PASS toU4R trivial at V0
+PASS toU4L trivial at U
+PASS toU4R trivial at U
+
+== 7. the b-column is the uncleared row nuSel 1 0 0 1 ==
+PASS b-column at c=0
+PASS b-column at c=1
+PASS b-column at c=2
+PASS b-column at c=3
+PASS b-column at c=4
+PASS b-column at c=5
+PASS b-column at c=6
+PASS b-column at c=7
+
+TOTAL FAILURES: 0
