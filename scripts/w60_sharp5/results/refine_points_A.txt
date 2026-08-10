@@ -1,0 +1,25 @@
+kind A density 0.16: 363087 tried, 6 hits
+  w=46  S=<a=1, l=2> X=<b=4, c=3, j=5> Y=<c=2, f=2, n=7> U=<d=1, g=6, j=3, n=2> V=<b=5, i=3>
+   relator <o=1>  covectors ((0, 0), (0, 0), (0, 0))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 8
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   8 four-fold commutators outside forceN4; first: [[[S,V],X],U] = <m=7>
+  w=48  S=<a=7, c=4, m=1, n=2> X=<b=4, c=1, h=4> Y=<c=2, f=2, j=2> U=<b=1, l=1> V=<d=5, f=1, j=4>
+   relator <o=7>  covectors ((0, 0), (0, 0), (0, 0))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 8
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   8 four-fold commutators outside forceN4; first: [[[S,U],X],V] = <m=3>
+  w=48  S=<a=1, l=2> X=<b=4, c=3, j=5> Y=<c=2, f=2, n=3> U=<d=1, g=6, j=3, n=2> V=<b=5, i=3>
+   relator <o=1>  covectors ((0, 0), (0, 0), (0, 0))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 8
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   8 four-fold commutators outside forceN4; first: [[[S,V],X],U] = <m=7>
+  w=51  S=<a=1, l=2> X=<b=4, c=3, j=5> Y=<c=2, f=2, m=4, n=7> U=<d=1, g=6, j=3, n=2> V=<b=5, i=3>
+   relator <o=1>  covectors ((0, 0), (0, 0), (0, 0))  Lam4mod2 [(0, 0), (1, 0)]  |Lam4| 8
+   even a/b/c/d/e at every letter: [False, False, False, False, True]
+   8 four-fold commutators outside forceN4; first: [[[S,V],X],U] = <m=7>
+  w=52  S=<b=2, e=3, i=6> X=<b=4, c=7, l=4, m=1> Y=<c=2, g=1, k=1, l=1, m=2, n=2> U=<b=3, d=7, g=3> V=<h=2>
+   relator <o=5>  covectors ((0, 0), (0, 0), (0, 0))  Lam4mod2 [(0, 0), (0, 1)]  |Lam4| 8
+   even a/b/c/d/e at every letter: [True, False, False, False, False]
+   4 four-fold commutators outside forceN4; first: [[[S,U],X],U] = <n=7>
+  w=52  S=<b=2, e=3, i=6> X=<b=4, c=7, l=4, m=1> Y=<c=2, g=1, k=1, l=1, m=2, n=6> U=<b=3, d=7, g=3> V=<h=2>
+   relator <o=5>  covectors ((0, 0), (0, 0), (0, 0))  Lam4mod2 [(0, 0), (0, 1)]  |Lam4| 8
+   even a/b/c/d/e at every letter: [True, False, False, False, False]
+   4 four-fold commutators outside forceN4; first: [[[S,U],X],U] = <n=7>

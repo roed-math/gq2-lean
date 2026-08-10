@@ -1,0 +1,16 @@
+== the five slot-column conditions, over EVERY abelian parity subspace ==
+
+  every slot even in     x_{15} always even   x_{26} always even   subspaces swept
+  a = x_{12}           True                 False                67
+  b = x_{23}           True                 True                 67
+  c = x_{34}           True                 True                 67
+  d = x_{45}           True                 True                 67
+  e = x_{56}           False                True                 67
+
+  (the c-row is GradedFiveForce.forceLcs_three_le_forceN4, a theorem;
+   the e-row is GradedFiveNecessity.forceLcs_three_le_fiveEvenN, a theorem;
+   the a-, b- and d-rows are this computation.)
+
+  with NO column condition: 374 subspaces of F_2^5 in all, 172 of which force both
+
+  [PASS] the table is exactly the one the Lean docstring carries
