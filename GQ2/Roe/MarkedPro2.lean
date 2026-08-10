@@ -62,10 +62,10 @@ historical.
    unique-`u` step; orientation-compatibility of the abstract `f` is
    `isLabuteOrientation_comp_iso` + `isLabuteOrientation_ext`.)
 3. Correct `f` by `prop_3_8_classification` + `prop_3_8_lift`
-   (`GQ2/AnabelianBridge/Classification.lean:342`, `Construction.lean:1089` — both live on the
+   (`GQ2/AnabelianBridge/Classification.lean`, `Construction.lean:1089` — both live on the
    `D₀` side and are reused **as-is**), so the corrected isomorphism abelianizes to `φ_ab`,
    hence preserves the full `ℤ₂`-marking; finish with the marked local normalization
-   `prop_1_1` (`GQ2/PropOneOneAssembly.lean:298`).
+   `prop_1_1` (`GQ2/PropOneOneAssembly.lean`).
 
 Cross-check numerics for R15 (R2 spike §2.4): `b ≡ 91367 (mod 2²⁰)`, `u ≡ 898793 (mod 2²⁰)`;
 mod-2 Gram-isometry seed `s̄ ↦ S̄+Ȳ, x̄ ↦ Ȳ, ȳ ↦ Ā`.

@@ -169,7 +169,7 @@ marked generator `x̄₀`, there is **no forced row**, and the handle block cont
 `ℤ₂`-coordinates (memo §4.2: handles are invisible to the relation vector).  The frame is
 completely α-free; `α` appears only through the relator that presents the group.
 
-As with MC2's `NDecomposition` (the `h = 0` case, `GQ2/Dyadic/MarkedCore/Cores.lean:1786`),
+As with MC2's `NDecomposition` (the `h = 0` case, `GQ2/Dyadic/MarkedCore/Cores.lean`),
 the existence theorem (`phiEquiv` route) is *not* in scope: consumers take the frame as a
 hypothesis, exactly as `prop_3_8_classification` consumes `BDecomposition`. -/
 
@@ -239,7 +239,7 @@ noncomputable def nFrameModelZero :
             continuous_const))))
 
 /-- **The `h = 0` bridge**: a rank-four `NFrame` *is* MC2's `NDecomposition`
-(`GQ2/Dyadic/MarkedCore/Cores.lean:1786`), so the §3 stabilizer classification below applies
+(`GQ2/Dyadic/MarkedCore/Cores.lean`), so the §3 stabilizer classification below applies
 to any group carrying the general-`h` frame at `h = 0`. -/
 noncomputable def NFrame.toNDecomposition {α : ℕ} (F : NFrame α 0) : NDecomposition α where
   e := F.e.trans nFrameModelZero
@@ -1060,7 +1060,7 @@ theorem nStabParam_tauSolve_unique (τ : ZMod 2) (p q : ℤ_[2]) {g : Matrix (Fi
 /-- **Every frame automorphism fixes the torsion generator** (memo §3.2(ii)): `t = x̄₀` is the
 unique element of order 2 of `D_N^{ab}`, so the relation-vector clause `φ(ρ_N) = ρ_N` costs
 nothing and is legitimately built into the `t`-column of `NRows.col`.  (The rank-three precedent
-is `xi_fixes_t`, `GQ2/AnabelianBridge/Classification.lean:161`.) -/
+is `xi_fixes_t`, `GQ2/AnabelianBridge/Classification.lean`.) -/
 theorem nFrameModel_map_t {h : ℕ} (φ : NFrameModel h ≃* NFrameModel h) :
     φ (ofAdd ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
       (0 : Fin (2 * h) → ℤ_[2]))) = ofAdd (1, 0, 0, 0, 0) := by

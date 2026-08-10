@@ -78,7 +78,7 @@ with `α ≥ 2` (`GQ2/Dyadic/Parameters.lean` `LabuteType.M/N`, validity `2 ≤ 
 * The **existence** theorems `Nonempty (MDecomposition α)` / `Nonempty (NDecomposition α)` —
   the `phiEquiv` route of `GQ2/Roe/DRAbelianization.lean` at rank four.  MC3/MC4 consume the
   frames as hypotheses, exactly as `prop_3_8_classification` consumes `BDecomposition`
-  (`GQ2/AnabelianBridge/Classification.lean:342`); every frame consequence they need (forced
+  (`GQ2/AnabelianBridge/Classification.lean`); every frame consequence they need (forced
   row, torsion relation, `q`-invariant) is derived here *from the structure*.
 * The `H¹`/`H²` **bridge** `obsH2_DM`/`obsH2_DN` and hence `IsDemushkin`, `card_H1`,
   `card_H2`.  `GQ2/Roe/DRWordCoh.lean`'s `relZ`/`obs` layer is hard-wired to `drWord` and
@@ -747,7 +747,7 @@ private lemma presQ_surjective (r : FreeProfiniteGroup (Fin n)) :
     (quotientMk_surjective (relatorSubgroup {r}))
 
 /-- The free generators of a free profinite group on a `Fin n` topologically generate
-(the `GQ2/Roe/DRAbelianization.lean:113` argument, stated at general rank). -/
+(the `GQ2/Roe/DRAbelianization.lean` argument, stated at general rank). -/
 theorem freeProfiniteFin_topGen (n : ℕ) :
     (Subgroup.closure (Set.range (FreeProfiniteGroup.of (X := Fin n)))).topologicalClosure
       = ⊤ := by
@@ -1885,7 +1885,7 @@ theorem nE_torsion {α : ℕ} (B : NDecomposition α) :
 
 The torsion subgroup of the model `ℤ/2 × ℤ₂³` is the `ℤ/2` factor (`ℤ₂` is torsion-free), so
 `demushkinQ = 2` for either core once a frame is given — the rank-four
-`demushkinQ_DR_eq_two` (`GQ2/Roe/DRAbelianization.lean:576`). -/
+`demushkinQ_DR_eq_two` (`GQ2/Roe/DRAbelianization.lean`). -/
 
 private lemma padicInt_nsmul_eq_zero_mc {n : ℕ} (hn : 0 < n) {b : ℤ_[2]} (h : n • b = 0) :
     b = 0 := by

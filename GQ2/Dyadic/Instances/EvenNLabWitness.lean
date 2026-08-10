@@ -46,7 +46,7 @@ the two rows.
   `noCanonicityGuard` (the refutation that made the guard necessary).  `demushkinQ (DM α h) = 2`
   is threaded as an explicit hypothesis there, and discharged from a frame in the two
   corollaries: `nonempty_equiv_DM_DN_zero_of_nLabHypothesis` at `h = 0` from MC2's rank-four
-  `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean:1946`), and — since W50-MFRAME supplied
+  `MDecomposition α` (`GQ2/Dyadic/MarkedCore/Cores.lean`), and — since W50-MFRAME supplied
   the general-`h` `M`-frame — `nonempty_equiv_DM_DN_of_mFrame` at **every** handle count from
   an `MFrame α h` (`GQ2/Dyadic/MarkedCore/MFrame.lean`, `demushkinQ_DM_mFrame`).  So the
   counterexample now costs exactly what the `N`-side sanity pin of §5 costs: one frame.
@@ -185,7 +185,7 @@ theorem nonempty_equiv_DM_DN_of_unguarded_nLabHypothesis (α h : ℕ) (hα2 : 2 
   nonempty_equiv_DM_DN_of_nLabHypothesis α h hα2 noCanonicityGuard hq hLab trivial
 
 /-- The `h = 0` specialisation, with the `q`-invariant discharged from MC2's rank-four `M`
-frame (`GQ2/Dyadic/MarkedCore/Cores.lean:1823`).  The repo proves no `Nonempty (MDecomposition α)`
+frame (`GQ2/Dyadic/MarkedCore/Cores.lean`).  The repo proves no `Nonempty (MDecomposition α)`
 (the `phiEquiv` route is explicitly out of scope there), so the frame stays a hypothesis. -/
 theorem nonempty_equiv_DM_DN_zero_of_nLabHypothesis (α : ℕ) (hα2 : 2 ≤ α)
     (nIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
