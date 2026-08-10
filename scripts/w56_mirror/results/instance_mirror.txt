@@ -1,0 +1,24 @@
+== §1 mirTuple, sqRelWord_mirTuple, sqRelWord_mirTuple_e ==
+PASS sqRelWord_mirTuple / _e at every (h, j), 8 random tuples each
+
+== §1 the three displacement identities and the row obstruction ==
+PASS sqRelWord_e_displace_two / _left / _right at every (h, j)
+PASS chiA_row_forced / chiA_mirror_forced / chiA_double_forced
+
+== §2 the shared machinery ==
+PASS sqRelWord_mirWit / _triv / mirWit_bit at every (h, j) and all three letter pairs
+PASS mirWit_increment_even / mirWit_sigma_forced
+
+== §3-§6 the MIRROR point (t,s) = (1,0) ==
+PASS mirror letters, generators and the two displacement equations
+PASS mirror point: ten-row solve, verdicts, blindness, commutators, hom data, invariants
+PASS mirror soundness: selLamThree and selLamThreePlus
+
+== §7 the DOUBLY-UNCLEARED point (t,s) = (1,1) ==
+PASS doubly point: ten-row solve, verdicts, blindness, commutators, hom data, invariants
+PASS doubly soundness: selLamThree and selLamThreePlus
+
+== commP_mem_rowGaTwoSub, reused from GradedFourRow ==
+PASS commP_mem_rowGaTwoSub
+
+TOTAL CHECKS: 3803   FAILURES: 0

@@ -1,0 +1,103 @@
+== A. the committed lattice selLamThree ==
+PASS MIRROR (t,s)=(1,0): selLamThree (1, 0, 0, 0, 0, 1, 1, 0) even in (h,i) over all 512 (P,Q,R)
+PASS DOUBLY (t,s)=(1,1): selLamThree (1, 1, 0, 0, 0, 0, 1, 1) even in (h,i) over all 512 (P,Q,R)
+PASS (committed cleared row  (GradedSigmaFour) (1, 2, 0, 0, 0, 0, 1, 0) likewise)
+PASS (committed wave-55 row  (GradedFourRow)  (0, 1, 0, 0, 1, 0, 0, 1) likewise)
+
+== B. the three x1-slot commutators, and the extended lattice ==
+PASS MIRROR (t,s)=(1,0): commP(sigma,x1) = (h,i) = (0,4)
+PASS MIRROR (t,s)=(1,0): commP(x1,U0)   has (h,i) = (0,0)
+PASS MIRROR (t,s)=(1,0): commP(x1,V0)   has (h,i) = (0,0)
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=0 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=1 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=2 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=3 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=4 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=5 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=6 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): commP(x1, marking handles) at c=7 have h = 0, i even
+PASS MIRROR (t,s)=(1,0): selLamThreePlus (1, 0, 0, 0, 0, 1, 1, 0) 0 0 4 generators all even
+PASS DOUBLY (t,s)=(1,1): commP(sigma,x1) = (h,i) = (0,4)
+PASS DOUBLY (t,s)=(1,1): commP(x1,U0)   has (h,i) = (0,0)
+PASS DOUBLY (t,s)=(1,1): commP(x1,V0)   has (h,i) = (0,0)
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=0 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=1 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=2 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=3 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=4 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=5 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=6 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): commP(x1, marking handles) at c=7 have h = 0, i even
+PASS DOUBLY (t,s)=(1,1): selLamThreePlus (1, 1, 0, 0, 0, 0, 1, 1) 0 0 4 generators all even
+
+== C. the honest gamma_2 level ==
+PASS MIRROR (t,s)=(1,0) c=0: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=0: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=0: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=1: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=1: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=1: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=2: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=2: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=2: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=3: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=3: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=3: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=4: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=4: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=4: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=5: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=5: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=5: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=6: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=6: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=6: all generator-pair commutators likewise
+PASS MIRROR (t,s)=(1,0) c=7: |<slots>| = 524288; c-col 0, f-col 0, g even, h-col 0
+PASS MIRROR (t,s)=(1,0) c=7: 20000 random commutators are gamma_2 with h = 0, i even
+PASS MIRROR (t,s)=(1,0) c=7: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=0: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=0: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=0: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=1: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=1: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=1: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=2: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=2: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=2: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=3: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=3: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=3: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=4: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=4: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=4: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=5: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=5: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=5: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=6: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=6: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=6: all generator-pair commutators likewise
+PASS DOUBLY (t,s)=(1,1) c=7: |<slots>| = 65536; c-col 0, f-col 0, g even, h-col 0
+PASS DOUBLY (t,s)=(1,1) c=7: 20000 random commutators are gamma_2 with h = 0, i even
+PASS DOUBLY (t,s)=(1,1) c=7: all generator-pair commutators likewise
+
+== D. the kill sweep ==
+PASS MIRROR (t,s)=(1,0): residue at the trivial dressing
+PASS MIRROR (t,s)=(1,0): residue at the chi_a = 1 dressing
+PASS MIRROR (t,s)=(1,0): residue at the chi_a = 2 dressing
+PASS MIRROR (t,s)=(1,0): kills of the ODD dressing over 2097152 achievable refinements
+PASS MIRROR (t,s)=(1,0): the even dressing dies: 524288 of 2097152 achievable refinements kill it
+PASS MIRROR (t,s)=(1,0): one explicit gamma_4 move kills the even dressing
+PASS DOUBLY (t,s)=(1,1): residue at the trivial dressing
+PASS DOUBLY (t,s)=(1,1): residue at the chi_a = 1 dressing
+PASS DOUBLY (t,s)=(1,1): residue at the chi_a = 2 dressing
+PASS DOUBLY (t,s)=(1,1): kills of the ODD dressing over 2097152 achievable refinements
+PASS DOUBLY (t,s)=(1,1): the even dressing dies: 524288 of 2097152 achievable refinements kill it
+PASS DOUBLY (t,s)=(1,1): one explicit gamma_4 move kills the even dressing
+
+== E. the forcing genuinely needs achievability ==
+PASS MIRROR (t,s)=(1,0): 8 of 64 unrestricted gamma_3 U-slot moves kill the odd dressing
+PASS MIRROR (t,s)=(1,0): 8 of 64 unrestricted gamma_3 V-slot moves kill the odd dressing
+PASS DOUBLY (t,s)=(1,1): 8 of 64 unrestricted gamma_3 U-slot moves kill the odd dressing
+PASS DOUBLY (t,s)=(1,1): 8 of 64 unrestricted gamma_3 V-slot moves kill the odd dressing
+
+TOTAL FAILURES: 0
