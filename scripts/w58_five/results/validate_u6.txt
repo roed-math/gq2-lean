@@ -1,0 +1,23 @@
+## 1. closed forms vs honest 6x6 collection
+   ok (1920 comparisons so far)
+## 2. the two U5-quotients
+   ok
+## 3. the power-layer identities (exact, over Z)
+   X3 identity holds
+   X4 identity holds
+   X5 identity holds
+   Y3m identity holds
+   Y3n identity holds
+## 4. the powering polynomial at flat / even-class-four bases
+   bases meeting the flat hypotheses: 279
+   bases meeting the even-class-four hypotheses but NOT flat: 673
+   bases outside both (hypotheses genuinely bite): 2648
+## 5. the relator's top-row split and the sigma response
+   ok
+## 6. class-five non-blindness of the sigma reading
+   class-five o-row responses that DIFFER between handle blocks: 288
+   class-four m-row responses that agree (wave-57 blindness): 400
+
+TOTAL comparisons: 39804
+TOTAL named checks: 9
+TOTAL mismatches: 0
