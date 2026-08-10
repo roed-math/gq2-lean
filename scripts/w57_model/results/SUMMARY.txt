@@ -1,0 +1,53 @@
+W57-MODEL computational summary
+===============================
+
+QUESTION.  Wave 56 left the campaign with no non-vacuous N-branch field model: the tree's only
+N pilot, Q_2(sqrt -2), sits at branch depth alpha = 2, which wave 55 had refuted.  The wave-56
+census (scripts/w56_alpha2/) found exactly ONE in-class N-branch field of depth alpha >= 3 among
+the 113 in-class entries of degrees 1, 2, 3, 4, 6 -- degree-4 entry 43, a totally ramified
+quartic -- but named no polynomial for it.  Name it, and certify everything the Lean model
+cannot prove.
+
+THE FIELD.
+
+        K = Q_2[x] / (x^4 + 4 x^2 + 2),      beta = zeta_16 - zeta_16^{-1}.
+
+beta^2 = zeta_8 + zeta_8^{-1} - 2 = sqrt(2) - 2, so (beta^2 + 2)^2 = 2 and beta^4+4beta^2+2 = 0.
+The polynomial is Eisenstein at 2 (coefficients 2, 0, 4, 0, 1 from the constant term up: the four
+lower ones even, the constant not divisible by 4), so K is totally ramified of degree 4, and K is
+the quartic subfield of Q_2(zeta_16) fixed by sigma_7.
+
+RESULTS (scripts/w57_model/quartic_model.m -> results/quartic_model.txt, ALL ASSERTIONS PASSED).
+
+  (1)  [K:Q_2] = 4,  e = 4,  f = 1.
+  (2)  i notin K, and K(i)/K is ramified.  So K is in the even route's class.
+  (3)  sqrt 2 in K, and (beta^2 + 2)^2 - 2 = 0 to the full working precision 2^200.  This is the
+       field side of the wave-56 criterion  alpha >= 3  <=>  sqrt 2 in K, and it is the one
+       arithmetic fact about the field that the Lean model proves rather than assumes
+       (`evenRouteModel_beta_sq_add_two_sq`).
+  (4)  range chi mod 32 = { 1, 7, 17, 23 }, computed exactly by the wave-56 method: intersect
+       every subgroup of (Z/32)^* whose fixed field (a verified-degree period generator) has a
+       root in K.  H is determined mod 32 because [Z_2^*:H] divides 4, so (Z_2^*)^4 = 1+16Z_2
+       lies in H.
+  (5)  imChiN 3 mod 32, read off the Lean definition
+       imChiN alpha = { u : u = 1 or nUnit alpha mod 2^(alpha+1) },  nUnit alpha = -(1+2^alpha)^-1,
+       is also { 1, 7, 17, 23 }.  So  range chi = imChiN 3  exactly: branch N, alpha = 3.
+       Checked distinct from imChiN 2 and imChiN 4.
+  (6)  CROSS-CHECK, independent, local class field theory.  chi_K(rec_K x) = (unit part of
+       N_{K/Q_2} x)^{-1}, so the unit parts of actual norms lie in H; the subgroup they generate
+       is { 1, 7, 17, 23 } = H exactly (uniformizer norm plus 400 random elements of K^*).
+  (7)  UNIQUENESS.  Of Magma's 63 quartic extensions of Q_2, exactly one is in class with branch
+       N and alpha >= 3: census index 43, defining polynomial x^4 + 8x + 14 in Magma's own
+       normalisation, and x^4 + 4x^2 + 2 has a root in it.  So the lane's field IS the census's
+       degree-4 entry 43.
+
+MINIMALITY.  A quadratic field cannot be an N-branch field of depth >= 3: imChiN alpha has index
+2^(alpha-1) in Z_2^*, which is >= 4 for alpha >= 3, and that index is the degree of
+K cap Q_2(mu_{2^oo}), which divides [K:Q_2].  So degree 4 is the smallest possible and K attains
+it: K is the smallest N-branch field of depth >= 3 that exists.
+
+WHAT THE LEAN FILE PROVES VS WHAT THIS SCRIPT MEASURES.
+  proved in GQ2/Dyadic/Instances/EvenRouteModel.lean : the field, its irreducibility (Eisenstein
+    over Z_2 plus Gauss's lemma), [K:Q_2] = 4 = 2 + 2*1, and (beta^2+2)^2 = 2;
+  measured here : items (2), (4), (5), (6), (7) -- the branch identification and the in-class
+    binder.  No statement in the tree computes the cyclotomic range at a named even-degree field.
