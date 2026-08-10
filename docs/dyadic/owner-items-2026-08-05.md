@@ -19,13 +19,27 @@ Hilbert-symbol route we also considered is written up in the file with a full sk
 strictly more expensive in census terms, so we did not take it. Nothing needs your review
 here; I am recording it because you asked to see that one identity.
 
-**The even route is now symmetric and minimal.** Both branches carry exactly two inputs at
-every `alpha >= 2`: `Hfam`, and the digit-flip supply. Everything else is discharged: the
-stage base on both branches, the ramified-`i` binder, the marked reciprocity bundle, and the
-M-side isotropy. The M slot-2 flip is a theorem and is out of the carried set; slot 3 is
-reduced to one commutator identity. For the paper: the carried inputs are now published as
-Lean structures (`EvenRouteCarried{N,M,NTwo,MTwo}`) rather than described in prose, so the
-even sections can quote a machine-checked list rather than a narrative one.
+**The even route is now symmetric and minimal.** Both branches carry the same two SUPPLIES
+at every `alpha >= 2`: `Hfam`, and the digit-flip supply. Discharged: the stage base on both
+branches, the frame form of the ramified-`i` binder, and the M-side isotropy. The M slot-2
+flip is a theorem and is out of the carried set; slot 3 is reduced to one commutator
+identity. For the paper: the carried inputs are now published as Lean structures
+(`EvenRouteCarried{N,M,NTwo,MTwo}`) rather than described in prose, so the even sections can
+quote a machine-checked list rather than a narrative one.
+
+I audited that claim adversarially before writing more on top of it, and I got three
+sentences of it wrong the first time; the corrections are worth your eye since this is the
+paragraph the paper's even sections will lean on. The reciprocity bundle is dropped from the
+stratum endpoints but is still carried by both per-field endpoints. What fell of the
+ramified-`i` binder is its frame form, not the ramification hypothesis itself. And the
+published `EvenRouteCarriedM` still has three fields rather than two: it carries the isotropy
+input even though that input is now a theorem, because the lane that proved it and the lane
+that published the structure never met in the import graph. The mathematics is as claimed;
+the structure needs a one-field re-cut, which I have queued. The audit found no vacuity of
+the kind that bit us at wave 52, every composition link present with the correct per-`K`
+quantifier shape, no circularity, and the axiom census exactly 11. Its note is
+`docs/dyadic/w55-audit-note.md`, and it also committed field-level models witnessing that
+both branch endpoints are satisfiable at concrete fields.
 
 **The `h >= 1` route's corner question is closed.** Last wave's containment file recorded
 certain binder corners as provable dead ends and named the `gamma_2` transport as the
