@@ -553,6 +553,130 @@ theorem sqArbFrame_sigma_forced
   rw [sigFourHom_sqArbFrame hu hv g] at hkill
   exact sigFourWit_sigma_forced hgb hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄ hkill
 
+/-! ### The three verdicts on `sqArbFrame`, at the already-cleared selected row
+
+The escape executed on the frame itself, the class-four analogue of `GradedSigma` §6's
+`sigDressF`/`sigDressO` pair.  The selected row `nuSel 1 0 0 0` is `ν'(σ) = 1`, `ν'(x₀) = 0`
+and both handle letters `ν'`-trivial, so the two cleared letters are the letters themselves
+and the frame is the standard frame with a sigma dressing.  Three legal dressings, three
+verdicts: the trivial one kills the relator outright, the `V`-letter leaves the even residue
+`2` and dies to one explicit achievable move, and the `U`-letter leaves the **odd** residue
+`1` and survives no achievable refinement whatsoever.  All three dressings are `λ`-trivial and
+`ν'`-trivial slotwise, so all three lie in the class the residual quantifies over. -/
+
+/-- The already-cleared selected row leaves the `u`-letter `ν'`-trivial. -/
+theorem nuSelClear_handleU : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxU 0)) = 1 := by
+  rw [nuSel_handleU, ofAdd_zero]
+
+/-- …and the `v`-letter likewise. -/
+theorem nuSelClear_handleV : nuSel 1 0 0 0 (sqGen 1 (sqHandleIdxV 0)) = 1 := by
+  rw [nuSel_handleV, ofAdd_zero]
+
+/-- The `U`-dressing is `λ`-trivial slotwise. -/
+theorem nuLam_sigArbDress_U (i : Fin (sqRank 1)) :
+    nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1 :=
+  nuLam_sigArbDress (nuLam_handleU 0) i
+
+/-- …and `ν'`-trivial slotwise at the already-cleared row. -/
+theorem nu_sigArbDress_U (i : Fin (sqRank 1)) :
+    nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1 :=
+  nu_sigArbDress nuSelClear_handleU i
+
+/-- The `V`-dressing is `λ`-trivial slotwise. -/
+theorem nuLam_sigArbDress_V (i : Fin (sqRank 1)) :
+    nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1 :=
+  nuLam_sigArbDress (nuLam_handleV 0) i
+
+/-- …and `ν'`-trivial slotwise. -/
+theorem nu_sigArbDress_V (i : Fin (sqRank 1)) :
+    nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1 :=
+  nu_sigArbDress nuSelClear_handleV i
+
+/-- ⭐ **The undressed frame kills the relator outright** at the sigma-witness hom: all ten
+rows vanish, so the hom is a genuine class-four quotient of the frame and the gate is live. -/
+theorem sqRelWord_arbFrame_sigTriv :
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0 (sigArbDress 1 1) i)) = 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, map_one]
+  exact sqRelWord_sigFourWit_triv
+
+/-- ⭐ **The `V`-dressed frame leaves the even residue `2`.** -/
+theorem sqRelWord_arbFrame_sigV :
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = liftC 2 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleV]
+  exact sqRelWord_sigFourWit_V
+
+/-- ⭐⭐ **The `U`-dressed frame leaves the odd residue `1`**: the class-four slice separates
+two legal sigma dressings of the same frame over the same hom. -/
+theorem sqRelWord_arbFrame_sigU :
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = liftC 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleU]
+  exact sqRelWord_sigFourWit_U
+
+/-- The `V`-dressed frame's even residue dies by one explicit achievable `γ₄`-move on the
+`x₁` slot. -/
+theorem sqRelWord_arbFrame_sigV_complete :
+    sqRelWord (sigLift 0 (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) 1 1 (liftC 7) 1 1) = 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleV]
+  exact sqRelWord_sigFourWit_V_complete
+
+/-- ⭐⭐ **The `U`-dressed frame survives nothing**: no achievable five-slot class-four
+refinement of the frame's image kills the relator.  The soundness is a theorem, not a
+hypothesis: every generator of the achievable lattice at this point has both class-three
+coordinates even (`sigFourWit_lamThree_even`), so no refinement can flip the bit. -/
+theorem sqRelWord_arbFrame_sigU_ne_one {z₀ w₁ w₂ z₃ z₄ : SqU5 gr3R} {P Q R : gr3R}
+    (hz₀ : z₀.IsGaThree) (hw₁ : w₁.IsGaFour) (hw₂ : w₂.IsGaFour)
+    (hz₃ : z₃.IsGaThree) (hz₄ : z₄.IsGaThree)
+    (l₀ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₀)
+    (l₃ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₃)
+    (l₄ : selLamThree 1 2 0 0 0 0 1 0 P Q R z₄) :
+    sqRelWord (sigLift 0 (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) z₀ w₁ w₂ z₃ z₄) ≠ 1 := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV, sigFourHom_handleU]
+  exact sqRelWord_sigFourWit_U_ne_one hz₀ hw₁ hw₂ hz₃ hz₄ l₀ l₃ l₄
+
+/-- ⭐⭐ **The class-four escape separates the sigma dressings on `sqArbFrame` itself**, with
+the legality of both dressings exhibited: same hom, same frame, same already-cleared row, both
+dressings `λ`-trivial and `ν'`-trivial slotwise; the `V`-dressing has even class-four residue
+and the `U`-dressing odd.  This is `GradedSigma`'s `sigma_escape_separates` one level up, and
+by `sigFourWit_class_three_blind` the whole committed class-three machinery cannot see the
+difference. -/
+theorem sigmaFour_escape_separates :
+    ((∀ i, nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1) ∧
+      ∀ i, nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0)) i) = 1) ∧
+    ((∀ i, nuLam 1 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1) ∧
+      ∀ i, nuSel 1 0 0 0 (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0)) i) = 1) ∧
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = liftC 2 ∧
+    sqRelWord (fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+      (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = liftC 1 :=
+  ⟨⟨nuLam_sigArbDress_V, nu_sigArbDress_V⟩, ⟨nuLam_sigArbDress_U, nu_sigArbDress_U⟩,
+    sqRelWord_arbFrame_sigV, sqRelWord_arbFrame_sigU⟩
+
+/-- ⭐ **Every class-`≤ 3` verdict on the frame is the same for all three dressings**: both
+`U₄`-quotients of the frame's relator image are trivial in each case, so the separation above
+is purely class-four.  `sigFourWit_class_three_blind`, on `sqArbFrame`. -/
+theorem arbFrame_class_three_blind :
+    (SqU5.toU4L (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 1) i)) = 1 ∧
+      SqU5.toU4R (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 1) i)) = 1) ∧
+    (SqU5.toU4L (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = 1 ∧
+      SqU5.toU4R (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxV 0))) i)) = 1) ∧
+    (SqU5.toU4L (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = 1 ∧
+      SqU5.toU4R (sqRelWord fun i => sigFourHom (sqArbFrame 1 (nuSel 1 0 0 0) 0
+        (sigArbDress 1 (sqGen 1 (sqHandleIdxU 0))) i)) = 1) := by
+  rw [sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV 1,
+    sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV (sqGen 1 (sqHandleIdxV 0)),
+    sigFourHom_sqArbFrame nuSelClear_handleU nuSelClear_handleV (sqGen 1 (sqHandleIdxU 0)),
+    map_one, sigFourHom_handleV, sigFourHom_handleU]
+  exact sigFourWit_class_three_blind
+
 end ArbSigma
 
 end SqCore
