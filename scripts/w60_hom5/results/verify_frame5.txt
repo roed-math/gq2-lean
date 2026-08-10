@@ -1,0 +1,69 @@
+W60-HOM5 certificate: the class-five sigma forcing on `sqArbFrame`
+==============================================================================
+
+carrier: SqU6(Z/8), fifteen coordinates a..o, re-implemented from the group law
+point:   fiveSigMark = <b=1>, forceX = <a=2,e=1>,
+         forceY = <e=2,f=1,h=3,i=1,j=2,k=2,l=2,m=3,n=2,o=2>,
+         forceU = <a=1,c=2,d=3,f=3,g=2,h=2,i=2>, forceV = <d=1,e=2,f=3,g=2,h=3,i=3>
+
+[PASS] A1 undressed frame kills the relator   (relator = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+[PASS] A2 a0 = a1 dressing leaves liftC6 7   (relator = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7))
+[PASS] A3 the residue is odd
+[PASS] A4 class-four rows of the dressed relator vanish
+[PASS] B2 the letterwise triple commutators generate exactly forceN4 (128 elements)   (|<triples>| = 128, |forceN4| = 128)
+[PASS] B3 hence gamma_4(image) = forceN4 EXACTLY: the forceN4 bound is SHARP
+[PASS] B4 forceN4 is a subgroup of the carrier
+[PASS] B5 gamma_3(image) contains an odd-m gamma_4-shaped element (the wider hole)   ([[sigMark,U],Y] = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 6, 0))
+[PASS] C1 no forceN4 refinement kills the dressed frame (262144 combinations)   (kills = 0)
+[PASS] C2 translation identity, 4000 honest refinements of the dressed point   (mismatches = 0)
+[PASS] C3 honest sweep: no kill among 4000 random forceN4 refinements   (kills = 0)
+[PASS] C4 the unrestricted gamma_4-move <m=1> DOES kill
+[PASS] C5 ... and is not in forceN4
+[PASS] C6 the triple commutator [[sigma,U],x1] = <m=5,n=6> DOES kill   (kill3 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 6, 0))
+[PASS] C7 ... is gamma_4-shaped, lies in gamma_3(image) by construction, and is not in forceN4
+[PASS] D1 nontrivial letterwise triple commutators exist   (174 of 625)
+[PASS] D2 ... and some of them move the class-five residue   (48 of 625 have a non-zero class-four coordinate)
+[PASS] D3 [[[V,U],x0],sigma] = <n=2>   (witness = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0))
+[PASS] D4 the witness is an achievable dressing (lies in forceN4)
+[PASS] D5 dressing the sigma slot by it MOVES the residue from 7 to 3 without killing it   (relator = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3))
+[PASS] G1 no refinement with z0.m + z4.n EVEN kills (262144 combinations)   (kills = 0)
+[PASS] G2 every refinement with z0.m + z4.n ODD is killed by some central w2, so the condition is a CHARACTERISATION   (missing witnesses = 0)
+[PASS] G3 honest sweep of the even-sum class, 4000 refinements, no kill   (kills = 0)
+[PASS] G4 the condition is NECESSARY on the sigma side: <m=1> on the sigma slot kills
+[PASS] G5 ... and on the handle-V side: <n=1> on the handle-V slot kills
+[PASS] G6 ⭐ but the two together do NOT kill: the sharp line is the SUM, residue 1
+[PASS] G7 the handle-U dressing z3 is UNCONSTRAINED: <m=1> there leaves residue 1
+[PASS] G8 z0.n is unconstrained: <n=1> on the sigma slot leaves residue 5
+[PASS] G9 z4.m is unconstrained: <m=1> on the handle-V slot leaves residue 7
+[PASS] G10 z3.n never enters the relator at all (2000 random pairs)
+[PASS] H1 [x1, u_j] leaves the purely central residue liftC6 5   (relator = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5))
+[PASS] H2 ... which is ODD, so it survives every even-sum refinement
+[PASS] H3 ... and central, so both U_5-quotients of the relator are trivial
+[PASS] H4 no even-sum refinement kills the legal dressing (262144 combinations)   (kills = 0)
+[PASS] H5 [x1,u] is the unique letterwise commutator with a central ODD relator   (central odd commutator dressings: ['[x1,u]'])
+[PASS] E1 every letter has an even c-column   (U.c = 2, V.c = 0, X.c = 0, Y.c = 0, sigMark.c = 0)
+[PASS] E2 every element of the image has an even c-column (20000 random words)
+[PASS] E3 forceU is the only letter with a non-zero c-column, and it is 2
+[PASS] F1 all ten flat obstructions vanish at forceX (the pivot lemma is FLAT here)   (a*b = 0, b*c = 0, c*d = 0, d*e = 0, a*g+f*c = 0, b*h+g*d = 0, c*i+h*e = 0, a*k+f*h+j*d = 0, b*l+g*i+k*e = 0, a*n+f*l+j*i+m*e = 0)
+[PASS] F2 pivot image at c = 1 is <a=6, b=1, e=7>   (pivot = (6, 1, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+[PASS] F3 pivot image at c = 1 is non-trivial (b = 1)
+[PASS] F4 displaced U-slot at c = 1 differs from forceU
+[PASS] F5 displaced V-slot at c = 1 differs from forceV
+[PASS] F2 pivot image at c = 3 is <a=2, b=1, e=5>   (pivot = (2, 1, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+[PASS] F3 pivot image at c = 3 is non-trivial (b = 1)
+[PASS] F4 displaced U-slot at c = 3 differs from forceU
+[PASS] F5 displaced V-slot at c = 3 differs from forceV
+[PASS] F2 pivot image at c = 5 is <a=6, b=1, e=3>   (pivot = (6, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+[PASS] F3 pivot image at c = 5 is non-trivial (b = 1)
+[PASS] F4 displaced U-slot at c = 5 differs from forceU
+[PASS] F5 displaced V-slot at c = 5 differs from forceV
+[PASS] F2 pivot image at c = 7 is <a=2, b=1, e=1>   (pivot = (2, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+[PASS] F3 pivot image at c = 7 is non-trivial (b = 1)
+[PASS] F4 displaced U-slot at c = 7 differs from forceU
+[PASS] F5 displaced V-slot at c = 7 differs from forceV
+
+55 checks, 0 failures
+
+note: class four's sigFourX has a*i = 2, so its sixth obstruction is non-zero
+non-vacuity witness: commP (commP (commP V U) x0) sigma = <n=2>, residue moves 7 -> 3
+wider-hole witness:  commP (commP sigma U) x1 = <m=5, n=6>, kills the dressed frame outright
