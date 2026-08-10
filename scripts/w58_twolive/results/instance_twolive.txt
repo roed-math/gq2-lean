@@ -1,0 +1,24 @@
+==============================================================================
+W58-TWOLIVE instance validation
+==============================================================================
+
+## A  regression against the committed tree
+
+## B  the sided displacement calculus (Lean sec 3)
+
+## C  the three displaced live points and the second-power point
+   block orders: {'mirLive': 2, 'rowLive': 2, 'dblLive': 2, 'hiLive': 4}
+
+## D  the selection bit is blind to the WHOLE handle block
+
+## E  the two-live-handle point
+
+## F  no cross-handle coupling, and what the relator still forces
+
+## G  the ODD two-live marking: the forcing FAILS
+
+## H  the block-order separation across the catalogue
+
+==============================================================================
+comparisons: 978987, mismatches: 0
+==============================================================================

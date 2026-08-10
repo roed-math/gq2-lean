@@ -1,0 +1,55 @@
+==============================================================================
+W58-TWOLIVE derivation
+==============================================================================
+
+## 0  regression against the committed tree
+
+## 1  the two displacement identities, as group identities
+   (120000 random quadruples each, 0 mismatches)
+
+## 2  conjugation on gamma_3, and the pivot's defect
+
+## 3  the block-preservation criteria at each selected row
+   (200000 random cleared-letter pairs, 0 mismatches)
+   >> the LEFT displacement leaves the block alone; the RIGHT one CONJUGATES it,
+      and the defect 2c*block.i must be absorbed by the u-letter's own i-column.
+
+## 4  the achievable core words on the class-two-forced gauge
+   4096 distinct core words; 64 of them in gamma_3
+
+## 5  the three DISPLACED live points
+  MIRROR      (1,0)  U0=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0) V0=(0, 0, 0, 1, 0, 4, 0, 0, 0, 0)
+      block = (0, 0, 0, 0, 0, 0, 0, 4, 0, 0)  order 2 ; x1-slot (0, 0, 0, 0, 1, 0, 4, 2, 2, 0)
+      relator at the open dressing  : (0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+      relator at its square         : (0, 0, 0, 0, 0, 0, 0, 0, 0, 2)
+  UNCLEARED-v (0,1)  U0=(0, 0, 0, 1, 0, 4, 0, 0, 0, 0) V0=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      block = (0, 0, 0, 0, 0, 0, 0, 4, 0, 0)  order 2 ; x1-slot (0, 0, 0, 0, 1, 0, 4, 2, 2, 0)
+      relator at the open dressing  : (0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+      relator at its square         : (0, 0, 0, 0, 0, 0, 0, 0, 0, 2)
+  DOUBLY      (1,1)  U0=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0) V0=(1, 0, 0, 0, 0, 4, 0, 0, 0, 0)
+      block = (0, 0, 0, 0, 0, 0, 0, 4, 0, 0)  order 2 ; x1-slot (0, 0, 0, 0, 1, 0, 4, 2, 2, 0)
+      relator at the open dressing  : (0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+      relator at its square         : (0, 0, 0, 0, 0, 0, 0, 0, 0, 2)
+
+## 6  the DOUBLY row's coupling, and the row obstruction at each point
+
+## 7  the TWO-LIVE-HANDLE point
+   C1 = (0, 0, 0, 0, 0, 0, 0, 2, 0, 0)   C2 = (0, 0, 0, 0, 0, 0, 0, 6, 0, 0)   C1*C2 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+## 8  no cross-handle coupling inside the campaign's invariants
+   >> the class-four cross-handle coupling C1.e * C2.g is identically ZERO
+      whenever the second pair's letters have vanishing c-column.
+
+## 9  the two-live obstruction: the relator no longer forces the block even
+   D1 = (0, 0, 0, 0, 0, 0, 0, 1, 0, 0)   D2 = (0, 0, 0, 0, 0, 0, 0, 7, 0, 0)
+   >> the class-four sigma forcing is FALSE at the odd two-live point.
+
+## 10  the HIGHER pivot power row (2, 0)
+   block = (0, 0, 0, 0, 0, 0, 0, 2, 0, 0)  order 4
+   (218 / 251 / 158 admissible pairs at the three first-power rows, 0 violations)
+
+## 11  the pivot square
+
+==============================================================================
+named checks: 117, failures: 0
+==============================================================================
