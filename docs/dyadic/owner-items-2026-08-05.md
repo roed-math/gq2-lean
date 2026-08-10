@@ -5,6 +5,38 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 60 (2026-08-10)
+
+**The class-five exclusion is now unconditional**, at exactly the scope the class-four one
+enjoys, and the class-five forcing now holds for continuous homomorphisms rather than for
+marking tuples. Those were the two things the `h >= 1` route was missing after last wave.
+
+Two accounting notes worth your eye, since both correct things I have told you.
+
+First, last wave's reason for deferring the wider translation identity was wrong in a useful
+direction. We expected its defect shifts to be quadratic; they are affine, because the
+relevant commutator subgroup vanishes one class up. The identity was therefore strictly
+easier than the class-four version it imitates, not harder. Wave 59's obstruction also turned
+out to be one coordinate wide, closed by a single extra evenness hypothesis.
+
+Second, both soundness conditions we have been carrying, at class four and at class five,
+are now known to be merely sufficient, and both sharp lines are characterised in both
+directions. Class four's needs two covectors, class five's needs three, the difference being
+that the sigma term is free at class four and live at class five. At class four every
+committed point is now proved at its weakest condition. I should temper something I wrote
+last wave: I said several points need only half the carried hypothesis, which is true, but
+per achievable move only five of eleven actually halve. The uniform gain is per pair of moves,
+where four conditions collapse to one, and the migrated statements also stop depending on the
+achievability convention entirely.
+
+There is a genuinely pleasant sub-result: at wave 59's own witness point the old condition and
+the sharp line coincide, so nothing we published there was weaker than it looked. Only the
+general reading was wrong.
+
+Final state `5effc4e8`: 4285 jobs green, census 11, zero sorries, capstones frozen, all gates
+passing. Progress estimate about 91 to 93 percent. The even route is untouched and still
+stands on `Hfam` alone, which remains the one thing held for a Fable wave.
+
 ## Status at wave 59 (2026-08-10)
 
 **The sigma residual we have carried since wave 51 is discharged.** The forced dressing that
