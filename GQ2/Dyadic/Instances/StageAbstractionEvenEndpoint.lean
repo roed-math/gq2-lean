@@ -31,12 +31,26 @@ audits what is left.
 endpoints are §6's `evenEndpoint_orientedEquiv{N,M}` with the strata
 `evenEndpoint_orientedEquiv{N,M}_two`, and the even route's carried list after this lane is:
 
-| branch | before this lane (wave-53 best) | after this lane |
+| statement | carried inputs | extra binders |
 | --- | --- | --- |
-| `N`, every `α ≥ 2` | `Hbase`, `Hfam`, flips; binder `κ ≠ 0` at `α = 2` | `Hfam`, flips |
-| `M`, every `α ≥ 2` | `Hbase` or (`κ ≠ 0` and `Hiso`), `Hfam`, `Hup` | `Hfam`, flips off slot `2`, `Hiso` |
-| `N`, `α = 2` | `Hfam`, flips; binders `B`, `κ ≠ 0` | `Hfam`, flips |
-| `M`, `α = 2` | `Hfam`, flips; binders `B`, `κ ≠ 0` | `Hfam`, flips off slot `2` |
+| `evenPerK_orientedEquivN` | `Hbase`, `Hfam`, `Hup` | - |
+| `evenDigit_orientedEquivN` | `Hbase`, `Hfam`, flips | - |
+| **`evenEndpoint_orientedEquivN`** | **`Hfam`, flips** | **-** |
+| `evenPerK_orientedEquivM` | `Hbase`, `Hfam`, `Hup` | - |
+| `evenDigit_orientedEquivM` | `Hbase`, `Hfam`, flips | - |
+| `evenFrameDeep_orientedEquivM` | `Hiso`, `Hfam`, `Hup` | `κ ≠ 0` |
+| **`evenEndpoint_orientedEquivM`** | **`Hiso`, `Hfam`, flips off slot `2`** | **-** |
+| `evenPerK_orientedEquivN_two` | `Hfam`, `Hup` | `B`, `κ ≠ 0` |
+| `evenDigit_orientedEquivN_two` | `Hfam`, flips | `B`, `κ ≠ 0` |
+| **`evenEndpoint_orientedEquivN_two`** | **`Hfam`, flips** | **-** |
+| `evenPerK_orientedEquivM_two` | `Hfam`, `Hup` | `B`, `κ ≠ 0` |
+| `evenDigit_orientedEquivM_two` | `Hfam`, flips | `B`, `κ ≠ 0` |
+| **`evenEndpoint_orientedEquivM_two`** | **`Hfam`, flips off slot `2`** | **-** |
+
+("Extra binders" excludes the branch data every one of these carries: the even-degree binder,
+and what the range identity needs - `B` with the ramification datum and `-1 ∉ im χ` on `N`, `B`
+with `-1 ∈ im χ` on `M`, or the identification itself on the strata.  The `α ≥ 2` forms of the
+carried supplies are used throughout; see shave 4.)
 
 So at `α = 2` **both** branches now carry exactly the odd route's two inputs, with the
 raw-to-bracket half reduced to one digit per slot and, on `M`, one slot fewer than that; and
@@ -68,13 +82,21 @@ proves it necessary.
    is `EvenDigitFlipSupply` with the coordinate `2` demand deleted; on the `M` row the deleted
    demand is the theorem `evenDigit_flipSlotTwo_M`, so the two are equivalent there
    (`evenEndpoint_mFlip_iff_offTwo`) and only the reduced one is carried.
-4. **The `α ≥ 1` quantifier of the carried supplies, tightened to `α ≥ 2` (§5).**  Every
+4. **The `α ≥ 1` quantifier of the carried supplies, tightened to `α ≥ 2` (§5.1).**  Every
    committed per-`K` input (`EvenPerK{N,M}StageBase`, `…FamilySupply`, `…RawToBracket`,
    `EvenPerK{N,M}DigitFlip`) quantifies over every `α ≥ 1`, while the range identity produces
-   one `α`, and that `α` is `≥ 2`.  The endpoints below carry the `α ≥ 2` forms, which is
-   strictly less.  (This is also what forced W53-KAPPA to re-assemble rather than instantiate:
-   `EvenPerKMStageBase` at `α = 1` is unreachable from the identity.  With the tightened
-   binder the re-assembly is no longer forced, and §6 records that.)
+   one `α`, and that `α` is `≥ 2`.  The endpoints below carry the `α ≥ 2` forms, which demand
+   strictly fewer instances; `evenEndpoint_{n,m}Family_of_perK` and
+   `evenEndpoint_nFlip_of_perK` / `evenEndpoint_mFlipOffTwo_of_perK` certify that the committed
+   forms imply them, so no wave-53 consumer loses anything.
+
+   Tightening the binder is *not* what W53-KAPPA's remark asked for, and this file does not
+   pretend otherwise.  That remark observes that `EvenPerKMStageBase` quantifies over depths at
+   all while the identity produces one, so the base can only ever be supplied at the produced
+   depth; narrowing `α ≥ 1` to `α ≥ 2` does not repair that, and no quantified base `Prop` can.
+   The structural repair is to state the endpoint *at* a depth, which is §5.2, and to let §6
+   produce the depth once.  So the re-assembly KAPPA performed is exactly right, and §5.2 is its
+   general form.
 
 **Refused: the isotropy on `M`.**  `EvenDeepMIsotropicSupply` is not removable, and this is a
 theorem, not a judgement: W53-KAPPA §5's `evenFrameDeep_isotropic_of_frame` derives it from the
@@ -93,13 +115,16 @@ the station, the at-depth endpoints of §5 and the strata of §7 carry no bundle
 
 The only place where a conflict could have arisen is the shape of the depth binder: W53-KAPPA
 states its isotropy supply at `2 ≤ alpha` and W53-HUP states its flip supplies at `1 ≤ alpha`,
-and the two are fed to the same `α` produced by the identity.  Since `1 ≤ alpha` implies
-`2 ≤ alpha` nowhere, the honest joint form is the `2 ≤ alpha` one, which is what §5 carries;
-the wave-53 files' `1 ≤ alpha` forms imply it (`evenEndpoint_nFlip_of_perK`,
-`evenEndpoint_mFlip_of_perK`), so nothing is strengthened and every wave-53 consumer still
-applies.  Beyond that the two advances touch disjoint machinery: KAPPA re-cuts the frame that
-produces the level-three base, HUP re-cuts the residual supply of the climb above it, and the
-committed `evenPerK_forwardGeneratorData{N,M}` is the unchanged seam between them.
+and the two are fed to the same `α` produced by the identity.  A `1 ≤ alpha` supply demands
+strictly more instances than a `2 ≤ alpha` one, so the honest joint form is the `2 ≤ alpha` one,
+which is what §5.1 carries and what the committed forms imply.  Nothing is strengthened, and
+every wave-53 consumer still applies.
+
+Beyond that the two advances touch disjoint machinery: KAPPA re-cuts the frame that produces the
+level-three base, HUP re-cuts the residual supply of the climb above it, and the committed
+`evenPerK_forwardGeneratorData{N,M}` is the unchanged seam between them.  So the answer to the
+lane's honesty question is that there is no conflict to report: the composition is clean, and
+the four shaves are what the composing exposed.
 
 ## Numbering
 
@@ -384,6 +409,499 @@ theorem evenEndpoint_mFlip_iff_offTwo {α : ℕ} (hα : 2 ≤ α) {hα₁ : 1 �
 
 end OffTwo
 
+/-! ## §5 The at-depth endpoints
+
+The composition proper.  Each branch is run at one field and one branch depth, with `hrange`
+given rather than produced, which is the shape in which the two wave-53 advances actually meet:
+KAPPA's base discharge and HUP's flip bridge both consume the identification at a *fixed* `α`,
+and the committed `evenPerK_forwardGeneratorData{N,M}` is the unchanged seam between them.
+
+Stating the endpoints at a fixed depth is also what removes the `MarkedRecip` bundle: the bundle
+exists on this route only to produce `α` (`evenRange_range_eq_imChi{N,M}`), and §6 pays for it
+once, there.
+
+§5.1 first records the carried per-field inputs in their tightened `α ≥ 2` form, together with
+the certificates that the wave-53 forms imply them, so that no consumer of a wave-53 statement
+loses anything. -/
+
+section AtDepth
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-! ### §5.1 The carried per-field inputs, at the depths the identity can produce -/
+
+/-- **`Hfam` at one field, `N` branch**, at every branch depth `α ≥ 2`.  This is
+`EvenPerKNFamilySupply` with the depth binder tightened from `1 ≤ alpha` to `2 ≤ alpha`, which
+is the only stratum the range identity produces. -/
+def EvenEndpointNFamily (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
+  ∀ (alpha : ℕ) (halpha : 2 ≤ alpha) (k : ℕ), 3 ≤ k →
+    ∀ T : Tuple (nStageWord alpha h (Nat.le_of_succ_le halpha)) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
+
+/-- **`Hfam` at one field, `M` branch**, at every branch depth `α ≥ 2`. -/
+def EvenEndpointMFamily (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
+  ∀ (alpha : ℕ) (halpha : 2 ≤ alpha) (k : ℕ), 3 ≤ k →
+    ∀ T : Tuple (mStageWord alpha h (Nat.le_of_succ_le halpha)) (vM alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
+
+/-- **The flip supply at one field, `N` branch**, at every branch depth `α ≥ 2`.  No slot is
+shaved here: every bracket partner of every squarefree `N` row has table value `1`, so the
+partner-power construction `evenDigit_flip_two_of_sharp_value`, which is what discharges the `M`
+slot `2`, produces nothing on this branch, and the whole supply is carried. -/
+def EvenEndpointNFlip (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
+  ∀ (alpha : ℕ) (halpha : 2 ≤ alpha),
+    EvenDigitFlipSupply alpha (nStageWord alpha h (Nat.le_of_succ_le halpha)) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+/-- **The reduced flip supply at one field, `M` branch**, at every branch depth `α ≥ 2` and off
+the slot `2` that `evenDigit_flipSlotTwo_M` already proves. -/
+def EvenEndpointMFlipOffTwo (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop :=
+  ∀ (alpha : ℕ) (halpha : 2 ≤ alpha),
+    EvenDigitFlipSupplyOffTwo alpha (mStageWord alpha h (Nat.le_of_succ_le halpha)) (vM alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The wave-53 `N` family input implies the tightened one. -/
+theorem evenEndpoint_nFamily_of_perK {h : ℕ} (H : EvenPerKNFamilySupply h K) :
+    EvenEndpointNFamily h K :=
+  fun alpha halpha ↦ H alpha (Nat.le_of_succ_le halpha)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The wave-53 `M` family input implies the tightened one. -/
+theorem evenEndpoint_mFamily_of_perK {h : ℕ} (H : EvenPerKMFamilySupply h K) :
+    EvenEndpointMFamily h K :=
+  fun alpha halpha ↦ H alpha (Nat.le_of_succ_le halpha)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The wave-53 `N` flip input implies the tightened one. -/
+theorem evenEndpoint_nFlip_of_perK {h : ℕ} (H : EvenPerKNDigitFlip h K) :
+    EvenEndpointNFlip h K :=
+  fun alpha halpha ↦ H alpha (Nat.le_of_succ_le halpha)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The wave-53 `M` flip input implies the tightened, slot-`2`-free one: first weaken the depth
+binder, then delete the demand that is a theorem. -/
+theorem evenEndpoint_mFlipOffTwo_of_perK {h : ℕ} (H : EvenPerKMDigitFlip h K) :
+    EvenEndpointMFlipOffTwo h K :=
+  fun alpha halpha ↦ evenEndpoint_offTwo_of_flip (H alpha (Nat.le_of_succ_le halpha))
+
+/-! ### §5.2 The endpoints at one branch depth -/
+
+/-- **The composed `N` endpoint at one field and one branch depth.**  Both wave-53 advances at
+once, with the `N` half of KAPPA's re-cut (§2, §3) discharging the level-three base and HUP's
+bridge turning the flips into `Hup`.  Carried: `Hfam` and the flips, and nothing else - no base,
+no ramification binder, no reciprocity bundle, no mod-eight seam.
+
+This is the shortest honest even statement of the whole route at a fixed depth, and its input
+list is the odd route's. -/
+theorem evenEndpoint_orientedEquivN_atDepth {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord alpha h (Nat.le_of_succ_le halpha))
+        (vN alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hflip : EvenDigitFlipSupply alpha (nStageWord alpha h (Nat.le_of_succ_le halpha)) (vN alpha)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨base⟩ := evenEndpoint_nStageBase (h := h) halpha hev hrange
+  exact nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData alpha h
+    (Nat.le_of_succ_le halpha) hev (EvenDemushkin.evenDem_nModelDemushkin alpha h halpha)
+    (evenPerK_forwardGeneratorDataN halpha hrange base Hfam
+      (evenDigit_perKRawToBracketN halpha hrange Hflip))
+
+/-- **The composed `M` endpoint at one field and one branch depth.**  KAPPA's base discharge and
+HUP's flip bridge at once, with the ramified-`i` binder discharged by §1 and the slot-`2` flip
+deleted by §4.  Carried: `Hfam`, the flips off slot `2`, and the isotropy of the depth class,
+which §7 shows cannot be dropped. -/
+theorem evenEndpoint_orientedEquivM_atDepth {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (hiso : frattiniFrameCup (evenDeepClass alpha (Nat.le_of_succ_le halpha) hrange)
+      (evenDeepClass alpha (Nat.le_of_succ_le halpha) hrange) = 0)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord alpha h (Nat.le_of_succ_le halpha))
+        (vM alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hflip : EvenDigitFlipSupplyOffTwo alpha (mStageWord alpha h (Nat.le_of_succ_le halpha))
+      (vM alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨base⟩ := evenFrameDeep_mStageBase (h := h) halpha hev
+    (evenEndpoint_kappa_of_rangeM hrange) hrange hiso
+  exact nonempty_orientedEquivM_evenDegree_of_forwardGeneratorData alpha h
+    (Nat.le_of_succ_le halpha) hev (EvenDemushkin.evenDem_mModelDemushkin alpha h halpha)
+    (evenPerK_forwardGeneratorDataM halpha hrange base Hfam
+      (evenDigit_perKRawToBracketM halpha hrange (evenEndpoint_mFlip_of_offTwo halpha Hflip)))
+
+end AtDepth
+
+/-! ## §6 The per-field endpoints
+
+The at-depth endpoints with `α` produced by the range identity, exactly as the committed
+`evenPerK_orientedEquiv{N,M}` produce it, and with the carried inputs in their per-field form.
+The branch inputs are unchanged: the `N` endpoint carries the ramified-`i` datum in its
+norm-group form together with `-1 ∉ im χ`, and the `M` endpoint carries `-1 ∈ im χ` and no
+ramification datum at all.
+
+Note what has become of the ramified-`i` binder.  The `N` endpoint still carries `hram` because
+`evenRange_range_eq_imChiN` needs it to produce `α`; what it no longer carries is the *frame*
+form `κ ≠ 0`, which the committed endpoints paid separately.  The `M` endpoint carries neither. -/
+
+section PerField
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The composed even `N` endpoint, per field.**  Every even-degree dyadic field of degree
+`2 + 2h` whose `K(i)` is ramified and whose cyclotomic range omits `-1` has its own branch depth
+`α ≥ 2` at which its maximal pro-`2` Galois group is oriented-isomorphic to the presented `N`
+core, and the whole route costs two named inputs: the coordinate derivation family with its
+relator kill, and the one-digit flip supply.
+
+This supersedes `evenPerK_orientedEquivN` (which carries `Hbase`, `Hfam`, `Hup`) and
+`evenDigit_orientedEquivN` (which carries `Hbase`, `Hfam`, flips): the level-three base is
+discharged in §3. -/
+theorem evenEndpoint_orientedEquivN {R : LocalReciprocity} (B : MarkedRecip R K)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : EvenEndpointNFamily h K) (Hflip : EvenEndpointNFlip h K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨alpha, halpha, hrange⟩ := evenRange_range_eq_imChiN B deltaI hdeltaI hram hneg
+  exact ⟨alpha, halpha, evenEndpoint_orientedEquivN_atDepth halpha hrange hev
+    (Hfam alpha halpha) (Hflip alpha halpha)⟩
+
+/-- **The composed even `M` endpoint, per field.**  The `M` twin, with `-1 ∈ im χ` in place of
+the two `N` branch inputs and with the isotropy of the depth class as the one datum the `M`
+branch owes above `α = 2`.
+
+This supersedes `evenPerK_orientedEquivM` (`Hbase`, `Hfam`, `Hup`), `evenDigit_orientedEquivM`
+(`Hbase`, `Hfam`, flips) and `evenFrameDeep_orientedEquivM` (`κ ≠ 0`, `Hiso`, `Hfam`, `Hup`): the
+base is discharged as in the last of those, the ramified-`i` binder is discharged by §1, the
+raw-to-bracket input is in flip form, and slot `2` of the flips is a theorem. -/
+theorem evenEndpoint_orientedEquivM {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hiso : EvenDeepMIsotropicSupply K)
+    (Hfam : EvenEndpointMFamily h K) (Hflip : EvenEndpointMFlipOffTwo h K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) := by
+  obtain ⟨alpha, halpha, hrange⟩ := evenRange_range_eq_imChiM B hneg
+  exact ⟨alpha, halpha, evenEndpoint_orientedEquivM_atDepth halpha hrange hev
+    (Hiso alpha halpha hrange) (Hfam alpha halpha) (Hflip alpha halpha)⟩
+
+end PerField
+
+/-! ## §7 The `α = 2` stratum, and the sharpness of what is left
+
+On the stratum the range identity actually reaches by a committed route, the `M` isotropy is a
+theorem (`evenFrameDeep_isotropic_two`), so both branches carry exactly `Hfam` and the flips,
+with slot `2` free on `M`.  Neither stratum endpoint carries a reciprocity bundle or a
+ramification binder: `hrange` is given, and §1 reads the binder off it.
+
+§7.2 records why the isotropy is the honest residue on `M` and not on `N`: on `M` it is
+*equivalent* to the existence of the frame, and on `N` its analogue is the committed
+`evenFrameCup_kappa_self`, free at even degree. -/
+
+section AlphaTwo
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The composed `N` endpoint on the `α = 2` stratum.**  Two inputs, `Hfam` and the flips. -/
+theorem evenEndpoint_orientedEquivN_two {h : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord 2 h one_le_two) (vN 2)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hflip : EvenDigitFlipSupply 2 (nStageWord 2 h one_le_two) (vN 2)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 2 h) (chiCycKTwo (K := K))) :=
+  evenEndpoint_orientedEquivN_atDepth (le_refl 2) hrange hev Hfam Hflip
+
+/-- **The composed `M` endpoint on the `α = 2` stratum.**  Two inputs as well: the isotropy is
+discharged by `evenFrameDeep_isotropic_two`, and the slot-`2` flip by
+`evenDigit_flipSlotTwo_M`.  So on this stratum the even `M` branch owes exactly what the odd
+route owes, minus one slot. -/
+theorem evenEndpoint_orientedEquivM_two {h : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hfam : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord 2 h one_le_two) (vM 2)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F)
+    (Hflip : EvenDigitFlipSupplyOffTwo 2 (mStageWord 2 h one_le_two) (vM 2)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 2 h) (chiCycKTwo (K := K))) := by
+  refine evenEndpoint_orientedEquivM_atDepth (le_refl 2) hrange hev ?_ Hfam Hflip
+  exact evenFrameDeep_isotropic_two (h := h) (by omega)
+    (evenEndpoint_kappa_of_rangeM hrange) hrange
+
+/-! ### §7.2 Why the `M` isotropy stays and the `N` one does not -/
+
+/-- **The `M` isotropy is exactly the `M` frame**, with the ramified-`i` binder discharged.
+`evenFrameDeep_mFrame_iff_isotropic` with one hypothesis fewer: so no bookkeeping removes the
+input, and any route to the `M` level-three base through a cup-adapted frame pays it. -/
+theorem evenEndpoint_mIso_iff_frame {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha) :
+    (∃ F : Frame (vM (h := h) alpha) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+        F.IsCupAdapted (evenFrameGram h) (evenFramePairing (K := K))) ↔
+      frattiniFrameCup (evenDeepClass alpha (Nat.le_of_succ_le halpha) hrange)
+        (evenDeepClass alpha (Nat.le_of_succ_le halpha) hrange) = 0 :=
+  evenFrameDeep_mFrame_iff_isotropic halpha (by omega)
+    (evenEndpoint_kappa_of_rangeM hrange) hrange
+
+omit [T2Space (GalK K)] in
+/-- **The `N` analogue of the isotropy input is a theorem.**  On `imChiN α` the depth class is
+`κ` itself (`evenDeep_digit_imChiN`), and the isotropy of `κ` at even degree is the committed
+`evenFrameCup_kappa_self`.  That single fact is the whole reason §2 needs no input and
+`evenFrameDeep_mFrame_of_range` does. -/
+theorem evenEndpoint_nIso {h : ℕ} (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    frattiniFrameCup (cyclotomicModFourClassKTwo (K := K))
+      (cyclotomicModFourClassKTwo (K := K)) = 0 :=
+  evenFrameCup_kappa_self (K := K) ⟨h + 1, by omega⟩
+
+end AlphaTwo
+
+/-! ## §8 The honest carried-input list
+
+The artefact.  One `Prop` per branch per stratum, whose fields are *exactly* the inputs the even
+route still carries after this lane, and one endpoint theorem per bundle, so that the list can
+be read off a Lean statement rather than off prose.  Nothing else is a hypothesis of those four
+theorems except the branch data that produces the identification (`B`, the ramification datum
+and the sign condition on `N`; `B` and the sign condition on `M`; on the strata, `hrange`
+itself) and the even-degree binder `hev`.
+
+Read against the committed lists:
+
+* `evenPerK_orientedEquiv{N,M}` carry `Hbase + Hfam + Hup`, plus `κ ≠ 0` on the strata;
+* `evenDigit_orientedEquiv{N,M}` carry `Hbase + Hfam +` flips, plus `κ ≠ 0` on the strata;
+* `evenFrameDeep_orientedEquivM` carries `κ ≠ 0 + Hiso + Hfam + Hup`;
+* the four bundles below carry, respectively, `Hfam +` flips; `Hfam +` flips off slot `2` `+
+  Hiso`; `Hfam +` flips; `Hfam +` flips off slot `2`.
+
+`evenRoute_carried{N,M}_of_perK` certify the reading in the only direction that could hide a
+strengthening: the wave-53 inputs *imply* the bundles, so every consumer holding the old data
+holds the new. -/
+
+section Carried
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **What the even route carries on the `N` branch, at every branch depth.**  Two inputs, the
+odd route's two: a coordinate derivation family with its relator kill, and the one-digit flip
+supply.  No level-three base, no ramification binder, no raw-to-bracket span equality. -/
+structure EvenRouteCarriedN (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
+  /-- `Hfam`: the coordinate derivation family with its relator kill, at every `α ≥ 2`. -/
+  family : EvenEndpointNFamily h K
+  /-- The one-digit flip supply, at every `α ≥ 2` and at every slot. -/
+  flip : EvenEndpointNFlip h K
+
+/-- **What the even route carries on the `M` branch, at every branch depth.**  Three inputs: the
+`N` two, with the flips one slot shorter, plus the isotropy of the depth class, which §7 proves
+equivalent to the existence of the `M`-row frame and hence not removable. -/
+structure EvenRouteCarriedM (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
+  /-- `Hfam`, `M` branch. -/
+  family : EvenEndpointMFamily h K
+  /-- The one-digit flip supply off the slot `2` that `evenDigit_flipSlotTwo_M` proves. -/
+  flip : EvenEndpointMFlipOffTwo h K
+  /-- The isotropy `frattiniFrameCup μ μ = 0` of the depth class, at every `α ≥ 2`. -/
+  isotropy : EvenDeepMIsotropicSupply K
+
+/-- **What the even route carries on the `N` branch at `α = 2`.**  The same two inputs, at the
+one depth. -/
+structure EvenRouteCarriedNTwo (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
+  /-- `Hfam` at `α = 2`. -/
+  family : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord 2 h one_le_two) (vN 2)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+    ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
+  /-- The flip supply at `α = 2`. -/
+  flip : EvenDigitFlipSupply 2 (nStageWord 2 h one_le_two) (vN 2)
+    (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+/-- **What the even route carries on the `M` branch at `α = 2`.**  Two inputs: the isotropy is a
+theorem here (`evenFrameDeep_isotropic_two`), so the `M` branch owes exactly what the `N` branch
+owes, minus the slot-`2` flip. -/
+structure EvenRouteCarriedMTwo (h : ℕ) (K : IntermediateField ℚ_[2] ℚ̄₂)
+    [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] : Prop where
+  /-- `Hfam` at `α = 2`, `M` branch. -/
+  family : ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord 2 h one_le_two) (vM 2)
+      (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+    ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F
+  /-- The reduced flip supply at `α = 2`. -/
+  flip : EvenDigitFlipSupplyOffTwo 2 (mStageWord 2 h one_le_two) (vM 2)
+    (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The wave-53 `N` inputs imply the bundle: nothing below is a strengthening. -/
+theorem evenRoute_carriedN_of_perK {h : ℕ} (Hfam : EvenPerKNFamilySupply h K)
+    (Hflip : EvenPerKNDigitFlip h K) : EvenRouteCarriedN h K :=
+  ⟨evenEndpoint_nFamily_of_perK Hfam, evenEndpoint_nFlip_of_perK Hflip⟩
+
+/-- The wave-53 `M` inputs, plus KAPPA's isotropy supply, imply the bundle. -/
+theorem evenRoute_carriedM_of_perK {h : ℕ} (Hfam : EvenPerKMFamilySupply h K)
+    (Hflip : EvenPerKMDigitFlip h K) (Hiso : EvenDeepMIsotropicSupply K) :
+    EvenRouteCarriedM h K :=
+  ⟨evenEndpoint_mFamily_of_perK Hfam, evenEndpoint_mFlipOffTwo_of_perK Hflip, Hiso⟩
+
+/-- **The even `N` route, from the carried bundle and nothing else.** -/
+theorem evenRoute_orientedEquivN {R : LocalReciprocity} (B : MarkedRecip R K)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (C : EvenRouteCarriedN h K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) :=
+  evenEndpoint_orientedEquivN B deltaI hdeltaI hram hneg h hev C.family C.flip
+
+/-- **The even `M` route, from the carried bundle and nothing else.** -/
+theorem evenRoute_orientedEquivM {R : LocalReciprocity} (B : MarkedRecip R K)
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (h : ℕ) (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (C : EvenRouteCarriedM h K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) :=
+  evenEndpoint_orientedEquivM B hneg h hev C.isotropy C.family C.flip
+
+/-- **The even `N` route on the `α = 2` stratum, from the carried bundle and nothing else.** -/
+theorem evenRoute_orientedEquivN_two {h : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (C : EvenRouteCarriedNTwo h K) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 2 h) (chiCycKTwo (K := K))) :=
+  evenEndpoint_orientedEquivN_two hrange hev C.family C.flip
+
+/-- **The even `M` route on the `α = 2` stratum, from the carried bundle and nothing else.** -/
+theorem evenRoute_orientedEquivM_two {h : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (C : EvenRouteCarriedMTwo h K) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 2 h) (chiCycKTwo (K := K))) :=
+  evenEndpoint_orientedEquivM_two hrange hev C.family C.flip
+
+end Carried
+
 end
 
 end GQ2.Dyadic.EvenEndpoint
+
+/-! ## §9 Axiom pins
+
+Every public declaration of this file, printed, the two local coefficient-action instances
+included.  §1's `κ` discharges and §4's flip reduction are character-level and expected at
+std-3 together with whatever the committed row tables carry; §2, §3, §5 to §8 reach the field
+layer and acquire exactly the census axioms of their committed inputs.  No axiom of this file is
+new.
+
+**The comparison the campaign's re-cut rule demands**, measured.  Each superseded print is
+re-emitted below next to the new one, so the comparison is on the page and needs no cross-file
+reading.  Write `S` for the seven-element set
+
+  `[propext, Classical.choice, hilbertSymbol_normCriterion_finiteDyadic, tateDualityAt,
+   Quot.sound, absGalQ2_isTopologicallyFinitelyGenerated, absGalQ2_localEulerCharacteristic]`
+
+and `S⁻` for `S` without `hilbertSymbol_normCriterion_finiteDyadic`.  Then:
+
+* every endpoint of this file prints exactly `S`;
+* `evenPerK_orientedEquiv{N,M}` and `evenDigit_orientedEquiv{N,M}` print `S⁻`, and
+  `evenFrameDeep_orientedEquivM` and all four committed `α = 2` endpoints print `S`.
+
+So the four `α = 2` endpoints and the `M` endpoint of §6 are **character-identical** to the
+committed statements they supersede, and the `N` endpoint of §6 **exceeds** the base-carrying
+`evenPerK_orientedEquivN` / `evenDigit_orientedEquivN` by exactly
+`hilbertSymbol_normCriterion_finiteDyadic`.  That difference is understood and is the same one
+W53-KAPPA recorded for its `M` endpoint: it is the price of *building* the level-three base
+instead of carrying it, since the frame layer's Witt adaptation runs through the Hilbert-symbol
+norm criterion.  The honest comparison target for a base-building statement is a base-building
+statement, and against those (`evenPerK_orientedEquiv{N,M}_two`, `evenFrameDeep_orientedEquivM`)
+the print is equal, not larger.  No print here is a superset of a comparable one, and no axiom of
+this file is new.
+
+Two statement-level prints are worth naming: `EvenRouteCarriedM` and `evenRoute_carriedM_of_perK`
+carry `tateDualityAt` because `EvenDeepMIsotropicSupply` mentions `frattiniFrameCup`, exactly as
+the committed `EvenDeepMIsotropicSupply` does; and `evenEndpoint_nIso` prints `S` minus
+`absGalQ2_isTopologicallyFinitelyGenerated`, being the committed `evenFrameCup_kappa_self`. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenEndpoint
+
+-- the two coefficient-action instances
+#print axioms evenEndpointScalar
+#print axioms evenEndpointContinuousScalar
+
+-- §1 the ramified-`i` binder, discharged
+#print axioms evenEndpoint_kappa_of_value
+#print axioms evenEndpoint_kappa_of_rangeN
+#print axioms evenEndpoint_kappa_of_negOne
+#print axioms evenEndpoint_kappa_of_rangeM
+
+-- §2 the `N`-row frame from the deep seam
+#print axioms evenEndpoint_nShadow
+#print axioms evenEndpoint_nFrame_of_range
+
+-- §3 the `N` level-three base
+#print axioms evenEndpoint_nStageBase
+
+-- §4 the reduced `M` flip supply
+#print axioms EvenDigitFlipSupplyOffTwo
+#print axioms evenEndpoint_offTwo_of_flip
+#print axioms evenEndpoint_mFlip_of_offTwo
+#print axioms evenEndpoint_mFlip_iff_offTwo
+
+-- §5.1 the carried per-field inputs and the wave-53 certificates
+#print axioms EvenEndpointNFamily
+#print axioms EvenEndpointMFamily
+#print axioms EvenEndpointNFlip
+#print axioms EvenEndpointMFlipOffTwo
+#print axioms evenEndpoint_nFamily_of_perK
+#print axioms evenEndpoint_mFamily_of_perK
+#print axioms evenEndpoint_nFlip_of_perK
+#print axioms evenEndpoint_mFlipOffTwo_of_perK
+
+-- §5.2 the at-depth endpoints
+#print axioms evenEndpoint_orientedEquivN_atDepth
+#print axioms evenEndpoint_orientedEquivM_atDepth
+
+-- §6 the per-field endpoints, against the committed ones they supersede
+#print axioms evenEndpoint_orientedEquivN
+#print axioms GQ2.Dyadic.EvenPerK.evenPerK_orientedEquivN
+#print axioms GQ2.Dyadic.StageGeneric.evenDigit_orientedEquivN
+#print axioms evenEndpoint_orientedEquivM
+#print axioms GQ2.Dyadic.EvenPerK.evenPerK_orientedEquivM
+#print axioms GQ2.Dyadic.StageGeneric.evenDigit_orientedEquivM
+#print axioms GQ2.Dyadic.EvenFrameDeep.evenFrameDeep_orientedEquivM
+
+-- §7 the `α = 2` stratum, against the committed strata
+#print axioms evenEndpoint_orientedEquivN_two
+#print axioms GQ2.Dyadic.EvenPerK.evenPerK_orientedEquivN_two
+#print axioms GQ2.Dyadic.StageGeneric.evenDigit_orientedEquivN_two
+#print axioms evenEndpoint_orientedEquivM_two
+#print axioms GQ2.Dyadic.EvenPerK.evenPerK_orientedEquivM_two
+#print axioms GQ2.Dyadic.StageGeneric.evenDigit_orientedEquivM_two
+#print axioms evenEndpoint_mIso_iff_frame
+#print axioms evenEndpoint_nIso
+
+-- §8 the honest carried-input list
+#print axioms EvenRouteCarriedN
+#print axioms EvenRouteCarriedM
+#print axioms EvenRouteCarriedNTwo
+#print axioms EvenRouteCarriedMTwo
+#print axioms evenRoute_carriedN_of_perK
+#print axioms evenRoute_carriedM_of_perK
+#print axioms evenRoute_orientedEquivN
+#print axioms evenRoute_orientedEquivM
+#print axioms evenRoute_orientedEquivN_two
+#print axioms evenRoute_orientedEquivM_two
+
+end AxiomPins
