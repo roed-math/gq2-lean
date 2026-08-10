@@ -778,6 +778,7 @@ import GQ2.Dyadic.Instances.StageAbstractionEvenFlip
 import GQ2.Dyadic.Instances.EvenRouteCarried
 import GQ2.Dyadic.Instances.EvenAlphaTwo
 import GQ2.Dyadic.Instances.EvenSlotZero
+import GQ2.Dyadic.Instances.EvenResidual
 import GQ2.Dyadic.Instances.EvenRouteModel
 import GQ2.Dyadic.Instances.EvenRouteAudit
 import GQ2.Dyadic.Main
