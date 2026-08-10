@@ -25,46 +25,14 @@ open CategoryTheory SectionThree
 
 noncomputable section
 
-/-! The canonical quotient instances are kept local for the same instance-firewall reason as in
-`SectionThree.lean`: global generic instances on `topAbelianization` perturb unrelated quotient
-instance synthesis. -/
+/-! The four canonical quotient instances on `topAbelianization` are no longer copied here: they
+live once in `GQ2.SectionThree.TopAbInstances` and are activated below.  They stay out of the
+global instance set for the same instance-firewall reason as in `SectionThree.lean`: global
+generic instances on `topAbelianization` perturb unrelated quotient instance synthesis.  Note
+that the `open SectionThree` above does *not* activate them, since `TopAbInstances` is a
+sub-namespace; only the explicit `open scoped` line does. -/
 
-noncomputable local instance instCommGroupTopAb {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
-    apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-    rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
-
-local instance instCompactSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-local instance instT2SpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-local instance instTotallyDisconnectedSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+open scoped GQ2.SectionThree.TopAbInstances
 
 /-- A maximal pro-`p` quotient of a commutative profinite group is commutative.  The embedded
 `Group` field is the bundled quotient's existing group structure, avoiding an instance-path
