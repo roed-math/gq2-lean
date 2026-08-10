@@ -27,7 +27,7 @@ audits what is left.
 
 ## Headline
 
-**Both advances compose with no conflict, and three further inputs fall.**  The composed
+**Both advances compose with no conflict, and four further inputs fall.**  The composed
 endpoints are §6's `evenEndpoint_orientedEquiv{N,M}` with the strata
 `evenEndpoint_orientedEquiv{N,M}_two`, and the even route's carried list after this lane is:
 
@@ -82,6 +82,14 @@ proves it necessary.
    is `EvenDigitFlipSupply` with the coordinate `2` demand deleted; on the `M` row the deleted
    demand is the theorem `evenDigit_flipSlotTwo_M`, so the two are equivalent there
    (`evenEndpoint_mFlip_iff_offTwo`) and only the reduced one is carried.
+
+   The backlog's companion item, the `M` slot `3`, is **reduced but not shaved** (§4.1).  Slot
+   `3`'s bracket partner is index `2`, whose `M` table value is `1`, so no partner power is
+   sharp; the paired move that places `base 3 ^ 2^(k-2)` at slot `3` and `base 2 ^ 2^(k-2)` at
+   slot `2` has all the right digits, and the entire remaining demand is the single identity
+   `[a^n, b] · [b^n, a] = 1` in `levelQuot G (k + 1)`
+   (`evenEndpoint_flipSlotThree_M_of_pairedMove`).  That identity is not in the tree, so the
+   carried set below keeps slot `3`.
 4. **The `α ≥ 1` quantifier of the carried supplies, tightened to `α ≥ 2` (§5.1).**  Every
    committed per-`K` input (`EvenPerK{N,M}StageBase`, `…FamilySupply`, `…RawToBracket`,
    `EvenPerK{N,M}DigitFlip`) quantifies over every `α ≥ 1`, while the range identity produces
@@ -131,7 +139,7 @@ the four shaves are what the composing exposed.
 1. the ramified-`i` binder, discharged on both branches;
 2. the `N`-row frame from the deep seam, with no new input;
 3. the `N` level-three base;
-4. the reduced `M` flip supply;
+4. the reduced `M` flip supply, and the slot-`3` reduction;
 5. the at-depth endpoints, both branches;
 6. the per-field endpoints;
 7. the `α = 2` stratum, and the sharpness of what is left;
@@ -406,6 +414,147 @@ theorem evenEndpoint_mFlip_iff_offTwo {α : ℕ} (hα : 2 ≤ α) {hα₁ : 1 �
     EvenDigitFlipSupply α (mStageWord α h hα₁) (vM α) G chi ↔
       EvenDigitFlipSupplyOffTwo α (mStageWord α h hα₁) (vM α) G chi :=
   ⟨evenEndpoint_offTwo_of_flip, evenEndpoint_mFlip_of_offTwo hα⟩
+
+/-! ### §4.1 The slot-`3` reduction
+
+The backlog's second flip shave, reduced to one identity.  The `M` slot `3` cannot be discharged
+the way slot `2` was: the row of coordinate `3` is `[p, base 2]`
+(`evenRawDepthShiftHom_three_apply`) and the `M` table value at index `2` is `1`, so a power of
+the bracket partner has no character digit at all.  What *does* work is the paired move.  The
+core shift word pairs the two cross brackets,
+
+  `… * (commP (correction 3) (base 2) * commP (correction 2) (base 3))`,
+
+so the correction that places `base 3 ^ 2^(k-2)` at slot `3` **and** `base 2 ^ 2^(k-2)` at slot
+`2` has row `[a^n, b] · [b^n, a]` with `a = base 3`, `b = base 2`, `n = 2^(k-2)`.  Its digits are
+exactly right: slot `3` carries `(mUnit α)^(2^(k-2))`, sharp at `k + α - 2` by the telescoping,
+and slot `2` carries `1^(2^(k-2)) = 1`, which is trivial at every depth, so the flip's
+"trivial elsewhere" clause survives the second placement.
+
+So the whole slot-`3` demand is the single identity `[a^n, b] · [b^n, a] = 1` in
+`levelQuot G (k + 1)`, which is a Hall-Petrescu statement about the two-central filtration and is
+not in the tree.  This section states the reduction, so that the backlog item is one identity
+rather than a construction; the carried set of §5.1 is *not* changed, because the identity is
+unproved. -/
+
+section SlotThree
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k : ℕ}
+
+/-- The two cross-paired letters are distinct.  (`StageAbstractionEvenRawSpan.lean`'s index
+lemmas are `private`, so the one this section needs is re-proved here.) -/
+private theorem evenEndpoint_idx23 : (2 : Fin (MarkedCore.coreRank h)) ≠ 3 := fun hh ↦ by
+  have := congrArg Fin.val hh
+  rw [MarkedCore.coreVal_two, MarkedCore.coreVal_three] at this
+  omega
+
+/-- **The flip at coordinate `3`, from the paired move and a sharp table value at index `3`.**
+Generic in the word datum and the table, exactly as `evenDigit_flip_two_of_sharp_value` is: what
+is used is the exact level of `v 3`, the triviality of `v 2`, the exact fibres of the tuple's
+rows `2` and `3`, and the paired-move identity at those two generators. -/
+theorem evenEndpoint_flip_three_of_pairedMove {α : ℕ} {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ} (hα : 2 ≤ α) (a : ℤ_[2]ˣ)
+    (hv3 : ((v 3 : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ α * (a : ℤ_[2])) (hv2 : v 2 = 1)
+    (hk : 3 ≤ k) (T : Tuple W v G chi k)
+    (hpair : commP (canonLift G k (T.generators 3) ^ 2 ^ (k - 2))
+          (canonLift G k (T.generators 2)) *
+        commP (canonLift G k (T.generators 2) ^ 2 ^ (k - 2))
+          (canonLift G k (T.generators 3)) = 1) :
+    ∃ F : EvenRawDepthCorrection G h k,
+      evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) F.correction = 1 ∧
+      (∃ g : G, F.correction 3 = levelMk G (k + 1) g ∧
+        ¬ (2 : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1) ∧
+      (∀ j : Fin (MarkedCore.coreRank h), j ≠ 3 →
+        ∃ g : G, F.correction j = levelMk G (k + 1) g ∧
+          (2 : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1) := by
+  obtain ⟨x, hxchi, hxrep⟩ := T.rows 3
+  obtain ⟨y, hychi, hyrep⟩ := T.rows 2
+  set base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1) :=
+    fun i ↦ canonLift G k (T.generators i) with hbase
+  have hmem : ∀ i : Fin (MarkedCore.coreRank h),
+      base i ^ 2 ^ (k - 2) ∈ lambdaImage G (k - 1) (k + 1) := by
+    intro i
+    have hm := pow_two_pow_mem_lambdaImage (base i) (k - 2)
+    rwa [show 1 + (k - 2) = k - 1 by omega] at hm
+  -- the two placements, and the group elements realising them
+  have hlift : ∀ (i : Fin (MarkedCore.coreRank h)) (z : G), T.generators i = levelMk G k z →
+      base i ^ 2 ^ (k - 2) = levelMk G (k + 1) (z ^ 2 ^ (k - 2)) := by
+    intro i z hz
+    have hbi : base i = canonLift G k (levelMk G k z) := by
+      rw [show base i = canonLift G k (T.generators i) from rfl, hz]
+    have h1 : base i ^ 2 = levelMk G (k + 1) z ^ 2 := by
+      rw [hbi]
+      exact (sq_levelMk_eq_sq_canonLift G k z).symm
+    have hsplit : (2 : ℕ) * 2 ^ (k - 3) = 2 ^ (k - 2) := by
+      rw [show k - 2 = k - 3 + 1 by omega, pow_succ']
+    calc base i ^ 2 ^ (k - 2) = (base i ^ 2) ^ 2 ^ (k - 3) := by rw [← pow_mul, hsplit]
+      _ = (levelMk G (k + 1) z ^ 2) ^ 2 ^ (k - 3) := by rw [h1]
+      _ = levelMk G (k + 1) (z ^ 2 ^ (k - 2)) := by rw [← pow_mul, hsplit, ← map_pow]
+  set F : EvenRawDepthCorrection G h k :=
+    evenRawDepthCoordinateCorrection 3 ⟨base 3 ^ 2 ^ (k - 2), hmem 3⟩ *
+      evenRawDepthCoordinateCorrection 2 ⟨base 2 ^ 2 ^ (k - 2), hmem 2⟩ with hF
+  have hcorr : ∀ j : Fin (MarkedCore.coreRank h), F.correction j =
+      (if j = 3 then base 3 ^ 2 ^ (k - 2) else 1) * (if j = 2 then base 2 ^ 2 ^ (k - 2) else 1) := by
+    intro j
+    rw [hF, EvenRawDepthCorrection.mul_correction, evenRawDepthCoordinateCorrection_apply,
+      evenRawDepthCoordinateCorrection_apply]
+  refine ⟨F, ?_, ?_, ?_⟩
+  · -- the row is the paired move
+    have hmul : ((evenRawDepthShiftHom base hk) F).1 =
+        ((evenRawDepthShiftHom base hk)
+            (evenRawDepthCoordinateCorrection 3 ⟨base 3 ^ 2 ^ (k - 2), hmem 3⟩)).1 *
+          ((evenRawDepthShiftHom base hk)
+            (evenRawDepthCoordinateCorrection 2 ⟨base 2 ^ 2 ^ (k - 2), hmem 2⟩)).1 := by
+      rw [hF, map_mul]
+      rfl
+    show ((evenRawDepthShiftHom base hk) F).1 = 1
+    rw [hmul, evenRawDepthShiftHom_three_apply base hk, evenRawDepthShiftHom_two_apply base hk]
+    exact hpair
+  · -- slot `3` is sharp
+    refine ⟨x ^ 2 ^ (k - 2), ?_, ?_⟩
+    · rw [hcorr 3, if_pos rfl, if_neg evenEndpoint_idx23.symm, mul_one]
+      exact hlift 3 x hxrep
+    · rw [map_pow, hxchi, show k + (α - 1) = k - 2 + α + 1 by omega]
+      exact (evenDigit_pow_sharp (v 3) a hα hv3 (k - 2)).2
+  · -- every other slot is trivial, the second placement included
+    intro j hj
+    by_cases hj2 : j = 2
+    · subst hj2
+      refine ⟨y ^ 2 ^ (k - 2), ?_, ?_⟩
+      · rw [hcorr 2, if_neg evenEndpoint_idx23, if_pos rfl, one_mul]
+        exact hlift 2 y hyrep
+      · rw [map_pow, hychi, hv2, one_pow, Units.val_one]
+        simp
+    · refine ⟨1, ?_, ?_⟩
+      · rw [hcorr j, if_neg hj, if_neg hj2, mul_one, map_one]
+      · rw [map_one, Units.val_one]
+        simp
+
+/-- **The `M`-branch slot-`3` flip, from the paired move alone.**  `vM α 3 = mUnit α` has exact
+level `α` and `vM α 2 = 1`, so the two table hypotheses of the reduction are discharged and the
+whole demand is the identity `[a^n, b] · [b^n, a] = 1`.
+
+Proving that identity at `a = base 3`, `b = base 2`, `n = 2^(k-2)` would let a future lane carry
+the `M` flips off slots `2` **and** `3`, that is at `2 + 2h` of the `4 + 2h` coordinates. -/
+theorem evenEndpoint_flipSlotThree_M_of_pairedMove {α : ℕ} (hα : 2 ≤ α) {hα₁ : 1 ≤ α}
+    (hk : 3 ≤ k) (T : Tuple (mStageWord α h hα₁) (vM α) G chi k)
+    (hpair : commP (canonLift G k (T.generators 3) ^ 2 ^ (k - 2))
+          (canonLift G k (T.generators 2)) *
+        commP (canonLift G k (T.generators 2) ^ 2 ^ (k - 2))
+          (canonLift G k (T.generators 3)) = 1) :
+    ∃ F : EvenRawDepthCorrection G h k,
+      evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) F.correction = 1 ∧
+      (∃ g : G, F.correction 3 = levelMk G (k + 1) g ∧
+        ¬ (2 : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1) ∧
+      (∀ j : Fin (MarkedCore.coreRank h), j ≠ 3 →
+        ∃ g : G, F.correction j = levelMk G (k + 1) g ∧
+          (2 : ℤ_[2]) ^ (k + (α - 1)) ∣ ((chi g : ℤ_[2]ˣ) : ℤ_[2]) - 1) :=
+  evenEndpoint_flip_three_of_pairedMove hα (mUnit α)
+    (by rw [vM_three]; exact mUnit_sub_one (by omega)) (vM_two α) hk T hpair
+
+end SlotThree
 
 end OffTwo
 
@@ -858,6 +1007,8 @@ open GQ2.Dyadic.EvenEndpoint
 #print axioms evenEndpoint_offTwo_of_flip
 #print axioms evenEndpoint_mFlip_of_offTwo
 #print axioms evenEndpoint_mFlip_iff_offTwo
+#print axioms evenEndpoint_flip_three_of_pairedMove
+#print axioms evenEndpoint_flipSlotThree_M_of_pairedMove
 
 -- §5.1 the carried per-field inputs and the wave-53 certificates
 #print axioms EvenEndpointNFamily
