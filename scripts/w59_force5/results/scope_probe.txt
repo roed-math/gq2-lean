@@ -1,0 +1,31 @@
+== A. the class-five point: which gamma_3-moves kill the dressed frame ==
+   |gamma_3 of the image| = 16384
+   slot sigma :   512 of 16384 achievable gamma_3-dressings kill the frame
+               e.g. <m=1>, <m=1, o=1>, <m=1, o=2>
+               (all of them move the class-four rows: yes)
+   slot x0    :   256 of 16384 achievable gamma_3-dressings kill the frame
+               e.g. <k=2, l=2, m=3, n=1, o=1>, <k=2, l=2, m=3, n=1, o=3>, <k=2, l=2, m=3, n=1, o=5>
+               (all of them move the class-four rows: yes)
+   slot x1    :     0 of 16384 achievable gamma_3-dressings kill the frame
+   slot U     :     0 of 16384 achievable gamma_3-dressings kill the frame
+   slot V     :   512 of 16384 achievable gamma_3-dressings kill the frame
+               e.g. <n=1>, <n=1, o=1>, <n=1, o=2>
+               (all of them move the class-four rows: yes)
+
+   A gamma_3-dressing is a stage-FOUR move: it changes the class-four rows of the relator,
+   which the stage-four verdict has already fixed.  The class-five forcing quantifies over
+   stage-FIVE moves, exactly as the committed class-four forcing quantifies over stage-four
+   ones.  The question B settles is whether the committed class-four statement has the same
+   shape of caveat one class down.
+
+== B. the committed class-four point, one class down ==
+   committed verdicts, re-derived: undressed relator = <1>, sigFourU-dressed = <j=1>
+   |gamma_2 of the class-four image| = 128
+   slot sigma :    0 of  128 achievable gamma_2-dressings kill the ODD class-four frame
+   slot x0    :    0 of  128 achievable gamma_2-dressings kill the ODD class-four frame
+   slot x1    :    0 of  128 achievable gamma_2-dressings kill the ODD class-four frame
+   slot U     :    0 of  128 achievable gamma_2-dressings kill the ODD class-four frame
+   slot V     :    0 of  128 achievable gamma_2-dressings kill the ODD class-four frame
+
+   => The committed class-four exclusion survives gamma_2-dressings, so the class-five
+      statement IS weaker than its class-four model, and that must be said out loud.
