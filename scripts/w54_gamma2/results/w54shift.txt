@@ -1,0 +1,68 @@
+T0 inv sanity (want true): true
+
+T1 core j-row residual after Frobenius + Fox + quadratic, by dressing coordinate:
+   corr coefficient of z0.e :  -sc*xd + sd*xc - 4*xc*xd + 2*xc*yd + yc*yd
+   corr coefficient of z0.f :  8*xa*xd - 2*xa*yd - 2*xd*ya - 2*ya*yd
+   corr coefficient of z0.g :  sa*xb - sb*xa - 4*xa*xb + 2*xb*ya + ya*yb
+   corr coefficient of z1.e :  3*sc*xd - 2*sc*yd + sd*xc - 20*xc*xd + 20*xc*yd - 4*yc*yd
+   corr coefficient of z1.f :  2*sa*sd - 14*sa*xd + 10*sa*yd - 14*sd*xa + 10*sd*ya + 130*xa*xd - 100*xa*yd - 100*xd*ya + 80*ya*yd
+   corr coefficient of z1.g :  -2*sa*sb + 11*sa*xb - 8*sa*yb + 13*sb*xa - 10*sb*ya - 110*xa*xb + 80*xa*yb + 100*xb*ya - 76*ya*yb
+   corr coefficient of z2.e :  -2*sc*yd + sd*yc
+   corr coefficient of z2.f :  sa*yd + sd*ya
+   corr coefficient of z2.g :  sa*yb - 2*sb*ya
+T1 residual minus the rebuilt correction (want 0): 0
+T1 core block, ten row differences (want ten zeros):
+   row a: 0
+   row b: 0
+   row c: 0
+   row d: 0
+   row e: 0
+   row f: 0
+   row g: 0
+   row h: 0
+   row i: 0
+   row j: 0
+
+T2 handle block, ten row differences (want ten zeros):
+   row a: 0
+   row b: 0
+   row c: 0
+   row d: 0
+   row e: 0
+   row f: 0
+   row g: 0
+   row h: 0
+   row i: 0
+   row j: 0
+
+T3 assembled identity at h = 1, ten row differences (want ten zeros):
+   row a: 0
+   row b: 0
+   row c: 0
+   row d: 0
+   row e: 0
+   row f: 0
+   row g: 0
+   row h: 0
+   row i: 0
+   row j: 0
+
+T3 assembled identity at h = 2, ten row differences (want ten zeros):
+   row a: 0
+   row b: 0
+   row c: 0
+   row d: 0
+   row e: 0
+   row f: 0
+   row g: 0
+   row h: 0
+   row i: 0
+   row j: 0
+
+T4 h = 1: h-row against toU4L vanShift (want 0): 0
+T4 h = 1: i-row against toU4R vanShift (want 0): 0
+
+T4 h = 2: h-row against toU4L vanShift (want 0): 0
+T4 h = 2: i-row against toU4R vanShift (want 0): 0
+
+done
