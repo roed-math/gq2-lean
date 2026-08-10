@@ -712,6 +712,7 @@ import GQ2.Dyadic.SqCore.GradedFour
 import GQ2.Dyadic.SqCore.GradedLift
 import GQ2.Dyadic.SqCore.GradedContainFour
 import GQ2.Dyadic.SqCore.GradedGammaTwo
+import GQ2.Dyadic.SqCore.GradedObstructionPlus
 import GQ2.Dyadic.SqCore.GradedSigmaFour
 import GQ2.Dyadic.SqCore.GradedFourHom
 import GQ2.Dyadic.LabuteInterface
