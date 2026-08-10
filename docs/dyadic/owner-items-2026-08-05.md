@@ -29,6 +29,24 @@ single coordinate `0`, and open at `alpha = 2`. The campaign owes one of two thi
 not go through flips, or a proof that the range identity never produces `alpha = 2`, in
 which case the stratum is empty and nothing is lost. I do not yet know which is true.
 
+
+**The rest of wave 55, briefly.** The uncleared row at class four is solved, and the sigma
+forcing now runs there on the frame itself with two hypotheses removed rather than
+discharged; the structural reason wave 54 could not reach it is now understood (the two
+handle letters swap roles with the row type). That lane also produced the campaign's first
+class-four forcing whose soundness quantifies over the group rather than over a generating
+model. On the `h >= 1` route the residual corner census is now a theorem rather than a
+measurement. The instance refactor is complete (31 of 35 copies gone), and a duplicate
+declaration we had recorded as harmless turned out to be import-order dependent, meaning the
+tree contained a genuine ambiguity about which proof was in force; it is resolved.
+
+Final state `f8be7209`: 4264 jobs green, census 11, zero sorries, capstones frozen, all
+gates passing at every station.
+
+**My progress estimate goes DOWN this wave, from about 87 to 89 percent to about 85 to 87.**
+A stratum previously counted as proved is now known not to be. I would rather the number
+move backwards honestly than hold still.
+
 **Open, still yours (unchanged):** section 1 (the `q = 4` ramified Arf sign; recommendation
 stands: option 3) and item 6's `alpha = 1` even cores.
 
