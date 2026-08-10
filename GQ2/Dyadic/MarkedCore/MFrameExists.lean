@@ -111,59 +111,17 @@ namespace MarkedCore
 
 /-! ## §1 The `topAbelianization` instances, and pro-2-ness of `D_M^{ab}`
 
-Restated `local` from `GQ2/SectionThree.lean:112–160` exactly as
-`GQ2/Roe/DRAbelianization.lean:54` and `GQ2/Dyadic/MarkedCore/Cores.lean:1775` restate them:
-the originals are file-scoped in their homes, so a fourth consumer has to re-register them.
-They are `local`, so nothing leaks to importers.  (**Hoist request H1**: these four instances
-have now been copied verbatim four times; they belong in a shared module-system file, e.g. as a
-`public` instance block in `GQ2/SectionThree.lean` or a new `GQ2/TopAbelianizationInst.lean`.)
+**Hoist request H1 is discharged.**  This file raised it (the four instances had by then been
+copied verbatim four times); they now live once, as `scoped instance`s, in
+`GQ2.SectionThree.TopAbInstances`, and this file activates them by `open scoped` instead of
+restating them.  The block stays `scoped` rather than global, so nothing leaks to importers, and
+`DRAbelianization.lean`'s warning is respected there: they are direct `instance` declarations,
+**not** wrapped in a `def`, which would break the group structure. -/
 
-`DRAbelianization.lean`'s warning applies: register them as direct `local instance`s, **not**
-wrapped in a `def`, which breaks the group structure. -/
-
-/-- `G^{ab}` is commutative (local restatement). -/
-noncomputable local instance instCommGroupTopAbMFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
-    apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-    rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
-
-/-- `G^{ab}` is compact (local restatement). -/
-local instance instCompactSpaceTopAbMFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-/-- `G^{ab}` is Hausdorff (local restatement). -/
-local instance instT2SpaceTopAbMFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-/-- `G^{ab}` is totally disconnected (local restatement). -/
-local instance instTotDiscTopAbMFE {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+open scoped GQ2.SectionThree.TopAbInstances
 
 /-- **`D_M^{ab}` is pro-2**, the image of the pro-2 group `D_M` (`isProP_DM`) under `abMk`.
-The general-`(α, h)` clone of `isProP_two_topAb_DR` (`DRAbelianization.lean:91`); it is what
+The general-`(α, h)` clone of `isProP_two_topAb_DR` (`DRAbelianization.lean`); it is what
 licenses `ℤ₂`-powering (`zpowZtwo`) inside `D_M^{ab}`. -/
 theorem mIsProP_two_topAb_DM (α h : ℕ) : IsProP 2 (topAbelianization (DM α h : Type)) :=
   isProP_of_surjective abMk continuous_abMk abMk_surjective (isProP_DM α h)
