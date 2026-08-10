@@ -35,8 +35,9 @@ paper eq. (11)).  The abelianized relation is `drWord_comm`: in `B_R` the relato
 * `demushkinQ_DR_eq_two`: the `q`-invariant feed for `DRDemushkin.demushkinQ_DR` — the torsion
   subgroup of `B_R` is `C₂` (`ℤ₂` is torsion-free), so `demushkinQ D_R = 2`.
 
-The pro-2 `topAbelianization` instances are cloned `local` from `GQ2/SectionThree.lean:112–160`
-(direct `local instance`, **not** wrapped in a `def` — that breaks the group structure).
+The pro-2 `topAbelianization` instances are the shared `GQ2.SectionThree.TopAbInstances` block,
+activated here by `open scoped` (direct `instance` declarations, **not** wrapped in a `def` —
+that breaks the group structure).
 -/
 
 open CategoryTheory Multiplicative
@@ -47,45 +48,12 @@ open SectionThree
 
 /-! ## Pro-2 instances on `B_R = topAbelianization D_R`
 
-Cloned `local` from `GQ2/SectionThree.lean:112–160` (the block there is file-scoped, so it does
-not leak to importers; we re-register for `topAbelianization D_R`). -/
+The four instances are no longer cloned here: they live once in the shared
+`GQ2.SectionThree.TopAbInstances` block and are activated below.  That block is `scoped` in a
+sub-namespace of `SectionThree`, so it does not leak to importers and the `open SectionThree`
+above does not activate it; only the explicit `open scoped` line does. -/
 
-/-- `G^{ab}` is commutative (local clone). -/
-noncomputable local instance instCommGroupTopAbR {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
-  __ := (inferInstance : Group (topAbelianization G))
-  mul_comm := by
-    intro x y
-    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
-    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
-    rw [← map_mul, ← map_mul]
-    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
-    apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
-    rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
-
-local instance instCompactSpaceTopAbR {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    CompactSpace (topAbelianization G) :=
-  inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
-
-local instance instT2SpaceTopAbR {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] : T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
-
-local instance instTotallyDisconnectedSpaceTopAbR {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
+open scoped GQ2.SectionThree.TopAbInstances
 
 /-- `B_R = topAbelianization D_R` is pro-2 (image of the pro-2 group `D_R` under `abMk`). -/
 theorem isProP_two_topAb_DR : IsProP 2 (topAbelianization (DR : Type)) :=
