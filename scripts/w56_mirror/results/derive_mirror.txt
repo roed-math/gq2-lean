@@ -1,0 +1,463 @@
+== 1. library validation against committed GradedSigmaFour / GradedFourHom facts ==
+PASS sqRelWord_sigFourWit_triv
+PASS sqRelWord_sigFourWit_V
+PASS sqRelWord_sigFourWit_U
+PASS sqRelWord_sigFourWit_V_complete
+PASS sqWord(mark,X,Y)=1
+PASS commP(sigFourU,sigFourV)=1
+PASS zpow_closed(sigFourX,0)
+PASS zpow_closed(sigFourX,1)
+PASS zpow_closed(sigFourX,2)
+PASS zpow_closed(sigFourX,3)
+PASS zpow_closed(sigFourX,4)
+PASS zpow_closed(sigFourX,5)
+PASS zpow_closed(sigFourX,6)
+PASS zpow_closed(sigFourX,7)
+PASS rowPivotVal closed form at c=0
+PASS rowPivotVal closed form at c=1
+PASS rowPivotVal closed form at c=2
+PASS rowPivotVal closed form at c=3
+PASS rowPivotVal closed form at c=4
+PASS rowPivotVal closed form at c=5
+PASS rowPivotVal closed form at c=6
+PASS rowPivotVal closed form at c=7
+
+== 1b. validation against the committed wave-55 row lane (GradedFourRow) ==
+PASS rowFourVGen at c=0
+PASS sqRelWord_rowFourMark at c=0
+PASS rowFourVGen at c=1
+PASS sqRelWord_rowFourMark at c=1
+PASS rowFourVGen at c=2
+PASS sqRelWord_rowFourMark at c=2
+PASS rowFourVGen at c=3
+PASS sqRelWord_rowFourMark at c=3
+PASS rowFourVGen at c=4
+PASS sqRelWord_rowFourMark at c=4
+PASS rowFourVGen at c=5
+PASS sqRelWord_rowFourMark at c=5
+PASS rowFourVGen at c=6
+PASS sqRelWord_rowFourMark at c=6
+PASS rowFourVGen at c=7
+PASS sqRelWord_rowFourMark at c=7
+PASS sqRelWord_rowFourWit_triv
+PASS sqRelWord_rowFourWit_V
+PASS sqRelWord_rowFourWit_Vsq
+PASS rowFourWit_commP_zero_two
+PASS rowFourWit_commP_two_handleU
+PASS rowFourWit_commP_two_handleV
+
+== 2. the general displacement identity and the unified obstruction ==
+PASS two-sided e-displacement: 400 random tuples
+  (control: dropping the interaction term fails on 336 of 400 random tuples)
+PASS RIGHT e-displacement (wave 55's identity): 200 random tuples
+PASS LEFT  e-displacement (the mirror's):      200 random tuples
+PASS unified obstruction  t*chi_a(V0) = s*chi_a(U0)  (5632 admissible shapes)
+
+== 3. THE MIRROR POINT, row (t,s) = (1,0) ==
+PASS mirUGen closed form at c=0
+PASS commP(P*U0, V0) = 1 at c=0
+PASS mirUGen closed form at c=1
+PASS commP(P*U0, V0) = 1 at c=1
+PASS mirUGen closed form at c=2
+PASS commP(P*U0, V0) = 1 at c=2
+PASS mirUGen closed form at c=3
+PASS commP(P*U0, V0) = 1 at c=3
+PASS mirUGen closed form at c=4
+PASS commP(P*U0, V0) = 1 at c=4
+PASS mirUGen closed form at c=5
+PASS commP(P*U0, V0) = 1 at c=5
+PASS mirUGen closed form at c=6
+PASS commP(P*U0, V0) = 1 at c=6
+PASS mirUGen closed form at c=7
+PASS commP(P*U0, V0) = 1 at c=7
+PASS commP(U0, V0) = 1
+PASS mirror chi_a(V0) = 0 (forced)
+PASS mirror chi_a(U0) = 1 (odd channel)
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=0
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=1
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=2
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=3
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=4
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=5
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=6
+PASS sqRelWord(mirMark) = 1 at h=1 j=0 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=1 j=0
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=0
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=1
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=2
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=3
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=4
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=5
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=6
+PASS sqRelWord(mirMark) = 1 at h=2 j=0 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=2 j=0
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=0
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=1
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=2
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=3
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=4
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=5
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=6
+PASS sqRelWord(mirMark) = 1 at h=2 j=1 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=2 j=1
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=0
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=1
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=2
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=3
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=4
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=5
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=6
+PASS sqRelWord(mirMark) = 1 at h=3 j=0 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=3 j=0
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=0
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=1
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=2
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=3
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=4
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=5
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=6
+PASS sqRelWord(mirMark) = 1 at h=3 j=1 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=3 j=1
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=0
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=1
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=2
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=3
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=4
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=5
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=6
+PASS sqRelWord(mirMark) = 1 at h=3 j=2 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=3 j=2
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=0
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=1
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=2
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=3
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=4
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=5
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=6
+PASS sqRelWord(mirMark) = 1 at h=4 j=0 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=4 j=0
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=0
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=1
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=2
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=3
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=4
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=5
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=6
+PASS sqRelWord(mirMark) = 1 at h=4 j=1 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=4 j=1
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=0
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=1
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=2
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=3
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=4
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=5
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=6
+PASS sqRelWord(mirMark) = 1 at h=4 j=2 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=4 j=2
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=0
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=1
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=2
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=3
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=4
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=5
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=6
+PASS sqRelWord(mirMark) = 1 at h=4 j=3 c=7
+PASS sqRelWord(mirWit 1) = 1 at h=4 j=3
+PASS U0^2 = sigFourV
+PASS mirror verdict U0   (chi_a=1) at h=1
+PASS mirror verdict U0^2 (chi_a=2) at h=1
+PASS mirror verdict V0   (chi_a=0) at h=1
+PASS mirror verdict U0   (chi_a=1) at h=2
+PASS mirror verdict U0^2 (chi_a=2) at h=2
+PASS mirror verdict V0   (chi_a=0) at h=2
+PASS mirror verdict U0   (chi_a=1) at h=3
+PASS mirror verdict U0^2 (chi_a=2) at h=3
+PASS mirror verdict V0   (chi_a=0) at h=3
+PASS mirror verdict U0   (chi_a=1) at h=4
+PASS mirror verdict U0^2 (chi_a=2) at h=4
+PASS mirror verdict V0   (chi_a=0) at h=4
+PASS mirror even residue dies to one gamma_4 move
+PASS mirror b-column at h=1 j=0 c=0
+PASS mirror b-column at h=1 j=0 c=1
+PASS mirror b-column at h=1 j=0 c=2
+PASS mirror b-column at h=1 j=0 c=3
+PASS mirror b-column at h=1 j=0 c=4
+PASS mirror b-column at h=1 j=0 c=5
+PASS mirror b-column at h=1 j=0 c=6
+PASS mirror b-column at h=1 j=0 c=7
+PASS mirror b-column at h=2 j=0 c=0
+PASS mirror b-column at h=2 j=0 c=1
+PASS mirror b-column at h=2 j=0 c=2
+PASS mirror b-column at h=2 j=0 c=3
+PASS mirror b-column at h=2 j=0 c=4
+PASS mirror b-column at h=2 j=0 c=5
+PASS mirror b-column at h=2 j=0 c=6
+PASS mirror b-column at h=2 j=0 c=7
+PASS mirror b-column at h=2 j=1 c=0
+PASS mirror b-column at h=2 j=1 c=1
+PASS mirror b-column at h=2 j=1 c=2
+PASS mirror b-column at h=2 j=1 c=3
+PASS mirror b-column at h=2 j=1 c=4
+PASS mirror b-column at h=2 j=1 c=5
+PASS mirror b-column at h=2 j=1 c=6
+PASS mirror b-column at h=2 j=1 c=7
+PASS mirror b-column at h=3 j=0 c=0
+PASS mirror b-column at h=3 j=0 c=1
+PASS mirror b-column at h=3 j=0 c=2
+PASS mirror b-column at h=3 j=0 c=3
+PASS mirror b-column at h=3 j=0 c=4
+PASS mirror b-column at h=3 j=0 c=5
+PASS mirror b-column at h=3 j=0 c=6
+PASS mirror b-column at h=3 j=0 c=7
+PASS mirror b-column at h=3 j=1 c=0
+PASS mirror b-column at h=3 j=1 c=1
+PASS mirror b-column at h=3 j=1 c=2
+PASS mirror b-column at h=3 j=1 c=3
+PASS mirror b-column at h=3 j=1 c=4
+PASS mirror b-column at h=3 j=1 c=5
+PASS mirror b-column at h=3 j=1 c=6
+PASS mirror b-column at h=3 j=1 c=7
+PASS mirror b-column at h=3 j=2 c=0
+PASS mirror b-column at h=3 j=2 c=1
+PASS mirror b-column at h=3 j=2 c=2
+PASS mirror b-column at h=3 j=2 c=3
+PASS mirror b-column at h=3 j=2 c=4
+PASS mirror b-column at h=3 j=2 c=5
+PASS mirror b-column at h=3 j=2 c=6
+PASS mirror b-column at h=3 j=2 c=7
+
+== 4. THE DOUBLY-UNCLEARED POINT, row (t,s) = (1,1) ==
+PASS dblUGen closed form at c=0
+PASS dblVGen closed form at c=0
+PASS commP(P*U0, V0*P) = 1 at c=0
+PASS dblUGen closed form at c=1
+PASS dblVGen closed form at c=1
+PASS commP(P*U0, V0*P) = 1 at c=1
+PASS dblUGen closed form at c=2
+PASS dblVGen closed form at c=2
+PASS commP(P*U0, V0*P) = 1 at c=2
+PASS dblUGen closed form at c=3
+PASS dblVGen closed form at c=3
+PASS commP(P*U0, V0*P) = 1 at c=3
+PASS dblUGen closed form at c=4
+PASS dblVGen closed form at c=4
+PASS commP(P*U0, V0*P) = 1 at c=4
+PASS dblUGen closed form at c=5
+PASS dblVGen closed form at c=5
+PASS commP(P*U0, V0*P) = 1 at c=5
+PASS dblUGen closed form at c=6
+PASS dblVGen closed form at c=6
+PASS commP(P*U0, V0*P) = 1 at c=6
+PASS dblUGen closed form at c=7
+PASS dblVGen closed form at c=7
+PASS commP(P*U0, V0*P) = 1 at c=7
+PASS commP(U0, V0) = 1
+PASS doubly chi_a(U0) = chi_a(V0)
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=0
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=1
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=2
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=3
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=4
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=5
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=6
+PASS sqRelWord(dblMark) = 1 at h=1 j=0 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=1 j=0
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=0
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=1
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=2
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=3
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=4
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=5
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=6
+PASS sqRelWord(dblMark) = 1 at h=2 j=0 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=2 j=0
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=0
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=1
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=2
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=3
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=4
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=5
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=6
+PASS sqRelWord(dblMark) = 1 at h=2 j=1 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=2 j=1
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=0
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=1
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=2
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=3
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=4
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=5
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=6
+PASS sqRelWord(dblMark) = 1 at h=3 j=0 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=3 j=0
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=0
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=1
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=2
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=3
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=4
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=5
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=6
+PASS sqRelWord(dblMark) = 1 at h=3 j=1 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=3 j=1
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=0
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=1
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=2
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=3
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=4
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=5
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=6
+PASS sqRelWord(dblMark) = 1 at h=3 j=2 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=3 j=2
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=0
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=1
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=2
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=3
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=4
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=5
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=6
+PASS sqRelWord(dblMark) = 1 at h=4 j=0 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=4 j=0
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=0
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=1
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=2
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=3
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=4
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=5
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=6
+PASS sqRelWord(dblMark) = 1 at h=4 j=1 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=4 j=1
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=0
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=1
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=2
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=3
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=4
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=5
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=6
+PASS sqRelWord(dblMark) = 1 at h=4 j=2 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=4 j=2
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=0
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=1
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=2
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=3
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=4
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=5
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=6
+PASS sqRelWord(dblMark) = 1 at h=4 j=3 c=7
+PASS sqRelWord(dblWit 1) = 1 at h=4 j=3
+PASS doubly verdict U0   (chi_a=1) at h=1
+PASS doubly verdict U0^2 (chi_a=2) at h=1
+PASS doubly verdict U0   (chi_a=1) at h=2
+PASS doubly verdict U0^2 (chi_a=2) at h=2
+PASS doubly verdict U0   (chi_a=1) at h=3
+PASS doubly verdict U0^2 (chi_a=2) at h=3
+PASS doubly verdict U0   (chi_a=1) at h=4
+PASS doubly verdict U0^2 (chi_a=2) at h=4
+PASS doubly even residue dies to one gamma_4 move
+PASS doubly b-column at h=1 j=0 c=0
+PASS doubly b-column at h=1 j=0 c=1
+PASS doubly b-column at h=1 j=0 c=2
+PASS doubly b-column at h=1 j=0 c=3
+PASS doubly b-column at h=1 j=0 c=4
+PASS doubly b-column at h=1 j=0 c=5
+PASS doubly b-column at h=1 j=0 c=6
+PASS doubly b-column at h=1 j=0 c=7
+PASS doubly b-column at h=2 j=0 c=0
+PASS doubly b-column at h=2 j=0 c=1
+PASS doubly b-column at h=2 j=0 c=2
+PASS doubly b-column at h=2 j=0 c=3
+PASS doubly b-column at h=2 j=0 c=4
+PASS doubly b-column at h=2 j=0 c=5
+PASS doubly b-column at h=2 j=0 c=6
+PASS doubly b-column at h=2 j=0 c=7
+PASS doubly b-column at h=2 j=1 c=0
+PASS doubly b-column at h=2 j=1 c=1
+PASS doubly b-column at h=2 j=1 c=2
+PASS doubly b-column at h=2 j=1 c=3
+PASS doubly b-column at h=2 j=1 c=4
+PASS doubly b-column at h=2 j=1 c=5
+PASS doubly b-column at h=2 j=1 c=6
+PASS doubly b-column at h=2 j=1 c=7
+PASS doubly b-column at h=3 j=0 c=0
+PASS doubly b-column at h=3 j=0 c=1
+PASS doubly b-column at h=3 j=0 c=2
+PASS doubly b-column at h=3 j=0 c=3
+PASS doubly b-column at h=3 j=0 c=4
+PASS doubly b-column at h=3 j=0 c=5
+PASS doubly b-column at h=3 j=0 c=6
+PASS doubly b-column at h=3 j=0 c=7
+PASS doubly b-column at h=3 j=1 c=0
+PASS doubly b-column at h=3 j=1 c=1
+PASS doubly b-column at h=3 j=1 c=2
+PASS doubly b-column at h=3 j=1 c=3
+PASS doubly b-column at h=3 j=1 c=4
+PASS doubly b-column at h=3 j=1 c=5
+PASS doubly b-column at h=3 j=1 c=6
+PASS doubly b-column at h=3 j=1 c=7
+PASS doubly b-column at h=3 j=2 c=0
+PASS doubly b-column at h=3 j=2 c=1
+PASS doubly b-column at h=3 j=2 c=2
+PASS doubly b-column at h=3 j=2 c=3
+PASS doubly b-column at h=3 j=2 c=4
+PASS doubly b-column at h=3 j=2 c=5
+PASS doubly b-column at h=3 j=2 c=6
+PASS doubly b-column at h=3 j=2 c=7
+
+== 5. the sigma reading and the selection bit at both new points ==
+PASS read((0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS read((1, 0, 0, 0, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS read((0, 0, 0, 1, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS read((2, 0, 0, 0, 0, 0, 0, 0, 0, 0)) = v.a - 2 v.g - 2 v.i
+PASS read((5, 0, 0, 4, 2, 0, 3, 7, 6, 1)) = v.a - 2 v.g - 2 v.i
+PASS read((3, 0, 5, 2, 7, 1, 4, 6, 2, 5)) = v.a - 2 v.g - 2 v.i
+PASS mirror relator j-row at v=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS mirror bit at v=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS doubly relator j-row at v=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS doubly bit at v=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS mirror relator j-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS mirror bit at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS doubly relator j-row at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS doubly bit at v=(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS mirror relator j-row at v=(0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+PASS mirror bit at v=(0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+PASS doubly relator j-row at v=(0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+PASS doubly bit at v=(0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+PASS mirror relator j-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS mirror bit at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS doubly relator j-row at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS doubly bit at v=(2, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+PASS mirror relator j-row at v=(5, 0, 0, 4, 2, 0, 3, 7, 6, 1)
+PASS mirror bit at v=(5, 0, 0, 4, 2, 0, 3, 7, 6, 1)
+PASS doubly relator j-row at v=(5, 0, 0, 4, 2, 0, 3, 7, 6, 1)
+PASS doubly bit at v=(5, 0, 0, 4, 2, 0, 3, 7, 6, 1)
+
+== 6. class-three blindness at both new points ==
+PASS mirror toU4L trivial at triv
+PASS mirror toU4R trivial at triv
+PASS mirror toU4L trivial at U0
+PASS mirror toU4R trivial at U0
+PASS mirror toU4L trivial at U0^2
+PASS mirror toU4R trivial at U0^2
+PASS mirror toU4L trivial at V0
+PASS mirror toU4R trivial at V0
+PASS doubly toU4L trivial at triv
+PASS doubly toU4R trivial at triv
+PASS doubly toU4L trivial at U0
+PASS doubly toU4R trivial at U0
+PASS doubly toU4L trivial at U0^2
+PASS doubly toU4R trivial at U0^2
+PASS doubly toU4L trivial at V0
+PASS doubly toU4R trivial at V0
+
+== 7. the extended-lattice data: the three x1-slot commutators ==
+  mirror: commP(sigma,x1) = (0, 0, 0, 0, 0, 0, 0, 0, 4, 0)
+  mirror: commP(x1,U0)    = (0, 0, 0, 0, 0, 0, 0, 0, 0, 6)
+  mirror: commP(x1,V0)    = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  doubly: commP(sigma,x1) = (0, 0, 0, 0, 0, 0, 0, 0, 4, 0)
+  doubly: commP(x1,U0)    = (0, 0, 0, 0, 0, 0, 0, 0, 0, 6)
+  doubly: commP(x1,V0)    = (0, 0, 0, 0, 0, 0, 0, 0, 0, 6)
+PASS mirror commP(sigma,x1)
+PASS mirror commP(x1,U0)
+PASS mirror commP(x1,V0)
+PASS doubly commP(x1,U0)
+PASS doubly commP(x1,V0)
+
+TOTAL CHECKS: 439   FAILURES: 0
