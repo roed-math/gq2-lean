@@ -5,6 +5,53 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 57 (2026-08-10)
+
+**The decisive question came back proved, and the even route is now down to one input.**
+
+Last wave I told you the even route's only live supply was `EvenClimbResidualSupply`, and
+that proving or refuting it would decide the route. It is proved, and in the form that
+removes it rather than merely discharging it: on both branches, at every depth, it is
+EQUIVALENT to the derivation-family supply, so `Hfam` alone delivers it. The supply is not
+carried any more. `Hup`, the flip supplies and the neutral supply are off the route entirely,
+and no live endpoint needs any of them.
+
+So the even route now carries exactly one input, `Hfam`, on both branches at every depth,
+and it is the item I have been holding for a Fable wave. The route stands or falls on it.
+
+The mechanism is worth one sentence because it is the nicest thing this campaign has found in
+a while: the object that killed the flip architecture, a one-bit character functional, is the
+same object that shows the architecture was never needed, because every exponent sum of an
+even relator is even and that puts the stage defect on the functional's trivial side, where
+the two spans agree.
+
+**Also good: both branches have honest field models again.** The N branch lost its witness
+last wave when I found its field sat on the refuted stratum. It has a new one: the Eisenstein
+quartic `x^4 + 4x^2 + 2`, with irreducibility, degree and the branch criterion's field side
+all proved in Lean rather than measured, and degree four shown minimal for such a field.
+Neither new model consumes the reciprocity axiom that an earlier audit flagged as never
+constructed, which is a small tightening of the foundations.
+
+**A correction, and it is the third in three waves.** The structures I reported last wave as
+"corrected and minimal" are unusable, and the paper must not quote them. They kept one field
+that a sibling lane in the same wave refuted at every depth, two commits later; the two lanes
+never met in the import graph. Two lanes this wave found it independently. I have retracted
+it in the log and above. All three of these were caught by lanes whose job was to look rather
+than to build, which is why I now spend one lane per wave that way, and I have added a
+structural check for the specific failure: a wave's own landings must be checked against each
+other before anything built from them is published.
+
+**On the `h >= 1` route.** All four selected rows at class four are now covered at every
+handle count. And a class-four point with a live handle block exists for the first time, with
+a sharp negative attached: the handle block can be live but is provably invisible to the
+class-four forcing, so its information cannot be seen below class five. That locates what
+remains on this route precisely.
+
+Final state `4875ca1c`: 4273 jobs green, census 11, zero sorries, capstones frozen, all gates
+passing at every station. Progress estimate about 88 to 90 percent, up sharply and honestly:
+the even route's input list went from two named supplies to one, and that one was already the
+known frontier.
+
 ## Status at wave 56 (2026-08-10)
 
 **The wave-55 retraction got worse before it got better, and it ends better. Please read
