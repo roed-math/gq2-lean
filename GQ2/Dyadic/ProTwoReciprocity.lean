@@ -27,14 +27,9 @@ noncomputable section
 local notation "ℚbar2" => AlgebraicClosure ℚ_[2]
 
 /- The topological abelianization is a quotient by a closed subgroup, hence Hausdorff.  As in
-`ProPAbelianization`, keep this generic quotient instance local so it does not perturb the
-global quotient instance graph. -/
-noncomputable local instance instT2SpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
-    T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
-    (commutator G).isClosed_topologicalClosure
-  inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
+`ProPAbelianization`, that instance is taken from the shared scoped block rather than made
+global, so it does not perturb the global quotient instance graph. -/
+open scoped GQ2.SectionThree.TopAbInstances
 
 variable {R : LocalReciprocity}
   {K : IntermediateField ℚ_[2] ℚbar2} [FiniteDimensional ℚ_[2] K]
@@ -47,9 +42,10 @@ def MarkedRecip.continuousRecip (B : MarkedRecip R K) :
 
 /-- The purely group-theoretic identification `(G_K^ab)(2) ≃ (G_K(2))^ab`.
 
-The inferred source type carries the deliberately local quotient instances from
-`GQ2.ProPAbelianization`; keeping those instances out of the global instance graph avoids the
-topological-quotient conflicts documented in `SectionThree.lean`. -/
+The inferred source type carries the deliberately non-global quotient instances of
+`GQ2.SectionThree.TopAbInstances`, which is what `GQ2.ProPAbelianization` elaborates against;
+keeping those instances out of the global instance graph avoids the topological-quotient
+conflicts documented in `SectionThree.lean`. -/
 def maxProTwoGalKabEquivTopAbMaxProTwoGalK :=
   maxProPTopAbEquiv (p := 2) (GalK K)
 
