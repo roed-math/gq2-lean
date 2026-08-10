@@ -5,6 +5,44 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 58 (2026-08-10)
+
+**The even route's public face is finished.** Its carried set is published in final form:
+`Hfam` on each branch at every depth, plus the degree identity and the branch identification.
+Nothing else, no stratum split, both branches symmetric in fields and binders, and the route's
+status is a single named theorem (`evenRouteFinal_status`) with three concrete field models
+behind it. That theorem is what the paper's even sections should quote. The retracted wave-56
+structures now carry retractions in their own docstrings so nobody quotes them by accident.
+
+**On the `h >= 1` route the class-five machinery exists.** The carrier is complete with its
+hom layer, and the long-deferred sigma residual OPENS there: the forcing that class four reads
+as identically zero becomes visible at class five, with an explicit witness whose only odd
+datum is a matrix entry the class-four carrier does not have. Proving it is one new lemma plus
+two decision steps, and the census for the lemma is already run. That is the top of the next
+wave.
+
+**Two corrections, both caught inside the wave that created the risk.** First, wave 57's
+soundness result for a live handle block is a statement about ONE handle; at two handles the
+relator controls only their product, both can be odd, and there is an achievable move that
+breaks the forcing's shape. The honest form is that a live block inside the frame invariant is
+harmless and two outside it are not, so anything we publish about class-four soundness at
+positive handle count must carry that invariant. Second, and more subtle: one lane proved the
+handle block's invisibility mechanism breaks at class five, another measured that the block
+still stays invisible there for a different, arithmetic reason. Both are right. The statement
+we are entitled to is that the structural cancellation ends at class five but arithmetic keeps
+the block invisible through class seven, with the first opening at class eight. Neither lane's
+headline alone would have been correct to publish.
+
+I mention the second one because it is the check I instituted after last wave's failure doing
+exactly what it was meant to do, for the second wave running. Two lanes of one wave can each
+be right while their composition is wrong, and the close now checks for that before anything
+is written down.
+
+Final state `5ee25049`: 4277 jobs green, census 11, zero sorries, capstones frozen, all gates
+passing at every station; about 5800 new lines of Lean this wave, every declaration pinned,
+no census axiom newly consumed. Progress estimate about 89 to 91 percent. The even route did
+not move, since its single input is untouched; what moved is the other route.
+
 ## Status at wave 57 (2026-08-10)
 
 **The decisive question came back proved, and the even route is now down to one input.**
