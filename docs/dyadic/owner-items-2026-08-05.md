@@ -5,10 +5,43 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
-## Status at wave 54 (2026-08-10)
+## Status at wave 55 (2026-08-10)
+
+**Read this first: a wave-55 lane refuted an input the even route depends on, and part of
+what I reported to you at wave 54 is now known to be vacuous.** The digit-flip supply is
+FALSE at `alpha = 2` (`evenFlip_not_flipSupply_two`, machine-checked, with the mechanism
+identified: coordinate `0` is the only one whose row is not a bracket, so a trivial shift
+word forces a congruence that contradicts the demand exactly when `alpha = 2`). Because
+wave 53 proved `Hup` EQUIVALENT to that supply, `Hup` is false at `alpha = 2` on both
+branches too, and the `alpha = 2` stratum endpoints of waves 53 and 54 have unsatisfiable
+hypotheses. Concretely: what I told you at wave 54 as "both branches carry two inputs at
+every `alpha >= 2`" is true only for `alpha >= 3`.
+
+The same lane also found the paired-move identity I reported last wave as the sole
+remaining demand for one slot is itself FALSE, computed its exact defect, and proved a
+hypothesis-free repair. With the repair, every flip coordinate EXCEPT `0` is now a theorem
+on both branches, so at `alpha >= 3` the even route's flip demand is one coordinate rather
+than a family. That is a real advance and it arrived in the same lane as the refutation.
+
+Where that leaves the even route, stated honestly: proved for `alpha >= 3` modulo the
+single coordinate `0`, and open at `alpha = 2`. The campaign owes one of two things at
+`alpha = 2`, and I have made this the top item of the next wave: either a route that does
+not go through flips, or a proof that the range identity never produces `alpha = 2`, in
+which case the stratum is empty and nothing is lost. I do not yet know which is true.
 
 **Open, still yours (unchanged):** section 1 (the `q = 4` ramified Arf sign; recommendation
 stands: option 3) and item 6's `alpha = 1` even cores.
+
+**Also this wave:** an adversarial audit of the whole even endpoint chain found it sound
+(no vacuity of the wave-52 kind, every composition link present with the correct per-`K`
+quantifier shape, no circularity, census exactly 11) and committed field-level models
+showing both branch endpoints are satisfiable at concrete fields. Note that the audit's
+verdict was explicitly conditional on the two named supplies, which is precisely the gap
+the flip refutation then found; the two results are consistent, and the pairing of a
+verification lane with a construction lane is what caught it. On the `h >= 1` route, wave
+54's exhaustive corner census is now a theorem rather than a measurement.
+
+## Status at wave 54 (2026-08-10)
 
 **Retired this wave:** the Bockstein identity I flagged last wave for a sanity check is now
 a theorem, proved group-generically, and it came in cheaper than the route we had recorded.
