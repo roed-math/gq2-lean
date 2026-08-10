@@ -1,0 +1,108 @@
+== 0. the independent library agrees with wave 58's ==
+PASS 9000 comparisons of mul / inv / commP / conjP / sqWord / sqRelWord: 0 mismatches
+   `u6mat` builds the group law from honest 6 x 6 matrices and inverts by back
+   substitution; wave 58's `u6lib` uses the coordinate formula and a Neumann series.
+
+== 1. the section-3.2 point ==
+   sigma = <b=1>
+   U     = <a=1, c=2, d=3, f=3, g=2, h=2, i=2>
+   V     = <d=1, e=2, f=3, g=2, h=3, i=3>
+   x0    = <a=2, e=1>
+   x1    = <e=2, f=1, h=3, i=1, j=2, k=2, l=2, m=3, n=2, o=2>
+   [U,V] = <h=2, i=6, j=4, k=4, l=6, m=3, n=2, o=6>
+PASS sqRelWord(undressed) = 1                            (h = 1)
+PASS sqRelWord(a0 = a1 dressed) = liftC 7                (h = 1)
+PASS both verdicts hold at every handle count h = 1..4 and every handle (10 cases)
+PASS the handle block is LIVE
+PASS ...and live in the x15 row: [U,V].m is ODD
+PASS toU5L(sqRelWord(undressed)) = 1   (the left class-four quotient)
+PASS toU5R(sqRelWord(undressed)) = 1   (the right class-four quotient)
+PASS toU5L(sqRelWord(dressed  )) = 1   (the left class-four quotient)
+PASS toU5R(sqRelWord(dressed  )) = 1   (the right class-four quotient)
+   so the whole committed class-<=4 machinery reads BOTH dressings as trivial.
+   gauge audit of the class-two-forced gauge (GradedSigmaFour.sigFourRead_gauge):
+     x0 abelian columns (x12, x34, x45) = (2, 0, 0);  nu'-column x23 = 0
+     x0 lower class-two (x13, x24) = (0, 0);  x1 abelian (y12, y34, y45) = (0, 0, 0)
+     the ONE odd datum: x0's fifth abelian column x56 = 1
+PASS every datum the committed gauge constrains is even, and x56 is odd
+
+== 2. the achievable lattices, two independent ways ==
+   the letters' abelian columns (a, b, c, d, e):
+     sigma = (0, 1, 0, 0, 0)
+     x0    = (2, 0, 0, 0, 1)
+     x1    = (0, 0, 0, 0, 2)
+     U     = (1, 0, 2, 3, 0)
+     V     = (0, 0, 0, 1, 2)
+   structural:  |A| = 4096, |Lam2| = 512, |Lam3| = 32, |Lam4| = 16
+   closure:     |gamma_3| = 16384, |gamma_4| = 128, |gamma_5| = 4
+   (gamma_2 of the image is far too large to enumerate; wave 58 did not either.
+    its (f,g,h,i)-lattice is checked by sampling instead.)
+PASS 3000 sampled commutators of image elements land in the structural Lam2
+PASS the two computations of the gamma_3 (j,k,l)-lattice agree
+PASS * the two computations of the gamma_4 (m,n)-lattice agree
+PASS every achievable gamma_3-dressing has EVEN (x14, x25, x36)
+PASS ** every achievable gamma_4-dressing has EVEN (x15, x26)
+PASS every achievable gamma_5-dressing has EVEN x16
+   
+   THE GENERATORS THE LEAN SPANS WILL CARRY
+   Lam2, as pairings of the letters' abelian columns:
+     [sigma, x0   ] -> (f,g,h,i) = (6, 0, 0, 0)
+     [sigma, U    ] -> (f,g,h,i) = (7, 2, 0, 0)
+     [x0   , U    ] -> (f,g,h,i) = (0, 0, 0, 5)
+     [x0   , V    ] -> (f,g,h,i) = (0, 0, 0, 7)
+     [x1   , U    ] -> (f,g,h,i) = (0, 0, 0, 2)
+     [x1   , V    ] -> (f,g,h,i) = (0, 0, 0, 6)
+     [U    , V    ] -> (f,g,h,i) = (0, 0, 2, 6)
+   Lam2 = span of the 12 nonzero pairings; every element:  NOT all even
+   Lam3, as pairings of Lam2 against the letters:
+     31 distinct nonzero (j,k,l)-generators; all even: True
+   Lam4, as pairings of Lam3 against the letters, by letter:
+     sigma : span [(0, 0), (0, 2), (0, 4), (0, 6)] ... (4 distinct), all even = True
+     x0    : span [(0, 0), (0, 4), (4, 2), (4, 6)] ... (4 distinct), all even = True
+     x1    : span [(0, 0), (0, 4)] ... (2 distinct), all even = True
+     U     : span [(0, 0), (2, 0), (4, 0), (6, 0)] ... (4 distinct), all even = True
+     V     : span [(0, 0), (0, 4), (4, 0), (4, 4)] ... (4 distinct), all even = True
+   Lam3 as a set: [(0, 0, 0), (0, 0, 2), (0, 0, 4), (0, 0, 6), (0, 2, 0), (0, 2, 2), (0, 2, 4), (0, 2, 6), (0, 4, 0), (0, 4, 2), (0, 4, 4), (0, 4, 6), (0, 6, 0), (0, 6, 2), (0, 6, 4), (0, 6, 6), (4, 0, 0), (4, 0, 2), (4, 0, 4), (4, 0, 6), (4, 2, 0), (4, 2, 2), (4, 2, 4), (4, 2, 6), (4, 4, 0), (4, 4, 2), (4, 4, 4), (4, 4, 6), (4, 6, 0), (4, 6, 2), (4, 6, 4), (4, 6, 6)]
+   Lam4 as a set: [(0, 0), (0, 2), (0, 4), (0, 6), (2, 0), (2, 2), (2, 4), (2, 6), (4, 0), (4, 2), (4, 4), (4, 6), (6, 0), (6, 2), (6, 4), (6, 6)]
+   Lam2 as a set: 512 elements
+
+== 3. the class-five translation identity of the five-slot refinement ==
+PASS the identity holds at 3600 refinements (h = 1, 2, every handle)
+   increment = (z0.m*x0.e - z0.n*x0.a) + (-4*w1.o + 2*w2.o)
+             + (z3.m*V.e - z3.n*V.a) + (U.a*z4.n - U.e*z4.m)
+PASS ...and at 400 RANDOM markings, not just the witness point
+
+== 4. the exclusion: no ACHIEVABLE refinement kills the dressed relator ==
+PASS 392 single-slot ACHIEVABLE refinements: the class-five residue stays ODD
+PASS 4000 random FIVE-SLOT achievable refinements: residue stays ODD (never 0)
+   UNRESTRICTED gamma_4 moves: 64 of 192 flip the parity
+PASS achievability is load-bearing: some unrestricted move DOES flip it
+   
+   SCOPE PROBES: the Lean theorem dresses the sigma and handle slots by achievable
+   gamma_4-elements and the two exponent slots by achievable gamma_5-elements, exactly as
+   `GradedSigmaFour.sigFourWit_sigma_forced` does one class down.  Two wider classes of
+   refinement are measured here; the first is harmless and the SECOND IS NOT.
+PASS    gamma_4 dressings on ALL FIVE slots (640 single-slot moves): none kills the frame
+PASS ⚠⚠ achievable gamma_3 dressings (81920 single-slot moves): 1280 DO kill the frame
+      ...and 24576 of them make the class-five residue even.
+      THE FINDING: gamma_3 of the image contains the WHOLE of gamma_4 of the carrier here,
+      so it contains gamma_4-shaped dressings with an ODD class-four coordinate - exactly
+      the ones gamma_4 of the image excludes.  The exclusion therefore holds for the
+      stage-five refinement class and not one filtration step wider.  `scope_probe.py`
+      locates the killers slot by slot and checks the committed class-four point for the
+      same phenomenon (it does NOT have it); `gamma3_witness.py` produces the short word
+      `[[sigma, U], x1] = <m=5, n=6>`, which the Lean file carries as `fiveWit_gaThree_kill`.
+
+== 5. sharpness of the achievable gamma_4-lattice ==
+PASS * Lam4 is EXACTLY the even lattice {(2a, 2b)}: neither too small nor too large
+   so the Lean span is the sharpest bound the tree owns at this point: it contains every
+   achievable move (nothing is excluded by fiat) and every element of it is even.
+
+== 6. cross-checks ==
+PASS wave 58's closed form x12*y24*y46 + x56*y13*y35 = 1 is ODD, matching the residue 7
+   sigFourH(x0, x0) = 0 (even, as GradedSigmaFive.sigFourH_diag says: -2*x.a*x.c)
+PASS the coupling coefficient sigFourH is even on the diagonal here
+PASS the block's (4,6) coordinate H_46 = [U,V].i is EVEN (wave 58 section 4.2)
+PASS the class-four rows of BOTH relators vanish (m and n)
+
+TOTAL CHECKS: 29   FAILURES: 0

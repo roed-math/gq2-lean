@@ -1,0 +1,25 @@
+== a short word for a gamma_4-shaped, gamma_3-achievable killing dressing ==
+   triple commutators that are gamma_4-shaped with ODD class-four coordinate:
+     [[sigma, x1], U]         = <m=5, o=6>
+     [[sigma, U], x1]         = <m=5, n=6>
+     [[sigma, V], U]          = <m=5>
+     [[x1, sigma], U]         = <m=3, o=2>
+     [[U, sigma], x1]         = <m=3, n=2>
+     [[V, sigma], U]          = <m=3>
+     (6 found)
+
+== the kill ==
+   sigma slot dressed by [[sigma, x1], U]         -> relator <o=4>   
+   sigma slot dressed by [[sigma, U], x1]         -> relator <1>   KILLS
+   sigma slot dressed by [[sigma, V], U]          -> relator <o=4>   
+   sigma slot dressed by [[x1, sigma], U]         -> relator <o=2>   
+   sigma slot dressed by [[U, sigma], x1]         -> relator <o=6>   
+   sigma slot dressed by [[V, sigma], U]          -> relator <o=2>   
+
+== the same element, with its gamma_4-of-the-image status ==
+   [[sigma, x1], U]         = <m=5, o=6> : class-four coordinates (m, n) = (5, 0), m ODD, so it is NOT in
+                              gamma_4 of the image (every element of which is even in both)
+   [[sigma, U], x1]         = <m=5, n=6> : class-four coordinates (m, n) = (5, 6), m ODD, so it is NOT in
+                              gamma_4 of the image (every element of which is even in both)
+   [[sigma, V], U]          = <m=5> : class-four coordinates (m, n) = (5, 0), m ODD, so it is NOT in
+                              gamma_4 of the image (every element of which is even in both)
