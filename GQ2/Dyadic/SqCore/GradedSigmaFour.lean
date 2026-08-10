@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable 5
 -/
 import GQ2.Dyadic.SqCore.GradedLift
+import GQ2.Dyadic.SqCore.GradedContainFour
 
 /-!
 # W53-SIGMA: the sigma-slot selection at class four, and the escape executed
@@ -100,8 +101,9 @@ statement about `sqArbFrame` itself, exactly as `GradedSigma` paragraph 6 does a
 * **2** the five-slot class-four refinement `sigLift` and its translation identity;
 * **3** the reading: the marking `sigFourMark`, the four row-shift forms, and the four
   `sqWord`-level identities;
-* **4** the transfer to the relator: `SqU5.handleWord_d`, `sigFourDress`,
-  `sqRelWord_sigFourDress_low` and `sqRelWord_sigFourDress`;
+* **4** the transfer to the relator: `sigFourDress`, `sqRelWord_sigFourDress_low` and
+  `sqRelWord_sigFourDress` (the handle-column input `SqU5.handleWord_d` is
+  `GradedContainFour`'s);
 * **5** the gauge collapse and the class-three comparison;
 * **6** the witness binder point, its three verdicts, its soundness, the bit and the forcing;
 * **7** the residual obstruction;
@@ -412,15 +414,11 @@ section RelatorShift
 
 variable {R : Type} [CommRing R] {h : ℕ}
 
-/-- The handle block has no fourth abelian column: it is a product of commutators, and the
-`d`-column of a commutator vanishes.  Read off the right `U_4`-quotient. -/
-theorem SqU5.handleWord_d (u v : Fin h → SqU5 R) : (handleWord u v).d = 0 := by
-  have h1 : SqU5.toU4R (handleWord u v)
-      = handleWord (fun k => SqU5.toU4R (u k)) (fun k => SqU5.toU4R (v k)) :=
-    map_handleWord _ u v
-  have h2 := congrArg SqU4.c h1
-  rw [SqU4.handleWord_c] at h2
-  simpa using h2
+-- The handle block has no fourth abelian column (`SqU5.handleWord_d`, used in
+-- `sqRelWord_sigFourDress` below) is `GradedContainFour`'s, which this file now imports.  It had
+-- been proved a second time here, under the *same* fully qualified name
+-- `GQ2.Dyadic.SqCore.SqU5.handleWord_d` but with a different proof and without the `@[simp]`,
+-- which left the surviving constant depending on import order.
 
 /-- **The sigma-dressed tuple**: the marking with the sigma slot multiplied by `v` on the
 right and every other slot untouched. -/
