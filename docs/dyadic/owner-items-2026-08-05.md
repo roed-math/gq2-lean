@@ -5,6 +5,43 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 61 (2026-08-10)
+
+**The `h >= 1` route now has the statement it has been building toward.** At every handle
+count, for an honest continuous homomorphism and an honest frame, the forced dressing is
+excluded against achievable stage-four refinements, with no achievability convention, no
+legality hypothesis and no column hypothesis. Unconditional and at the level of homomorphisms,
+in one theorem. That was the thing wave 60 left in two halves.
+
+**The step we had been dreading turned out easy.** The transport one level wider is proved at
+every handle count over any ring, and the quadratic block we expected to fight is even on the
+achievable lattice, so the transport is affine mod two. I had told you last wave that this
+would be the genuinely hard one; it was not, and the reason is specific rather than lucky.
+It is not yet an exclusion, and the lane was clear about that: the surviving channels are live,
+and the experiment that would widen the exclusion is now named and cheap.
+
+**Three corrections and one closed door**, all from lanes doing their assigned work.
+
+The soundness condition we carry at the wider level is merely sufficient, which is the third
+such finding in three waves, but this time the sharp line stopped being a parity condition
+altogether. One level out a dressing can move rows that the mod-two reading cannot see, so the
+real criterion is that the shift act centrally. Four markings separate the two, where a row
+moves by an even amount that is invisible mod two and decisive over the eight-element ring;
+those four are measured, not yet proved.
+
+Wave 60's class-five sharp line has a limitation I should flag: the point that witnessed it
+does not survive one step wider, so that line is correct at its own level and is not a general
+criterion.
+
+And the handle block, which we proved visible two waves ago and had never used, turns out to
+see nothing about the handle letters that we could not already see. That closes a direction I
+would otherwise have spent a wave on. It does see the handle count, which is a small new
+instrument with no soundness cost.
+
+Final state `62fce996`: 4289 jobs green, census 11, zero sorries, capstones frozen, all gates
+passing. Progress estimate about 92 to 94 percent. The even route is untouched and still
+stands on `Hfam` alone.
+
 ## Status at wave 60 (2026-08-10)
 
 **The class-five exclusion is now unconditional**, at exactly the scope the class-four one
