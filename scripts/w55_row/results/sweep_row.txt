@@ -1,0 +1,59 @@
+== A. committed lattice selLamThree at (A,B,C,D,E,F,T,S) = (0,1,0,0,1,0,0,1) ==
+PASS all 7 generators even in (h,i), over all 512 (P,Q,R)
+PASS (committed cleared-row point 1 2 0 0 0 0 1 0 likewise)
+
+== B. the three x1-slot commutators at the displaced point ==
+PASS commP(sigma, x1)
+PASS commP(x1, U)
+PASS commP(x1, V0)
+PASS commP(x1, v-slot) at c=0 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=1 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=2 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=3 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=4 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=5 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=6 has (h,i) = (0,0)
+PASS commP(x1, v-slot) at c=7 has (h,i) = (0,0)
+   -> extended-lattice data (0,4), (0,0), (0,0): selLamThreePlus .. P Q R = 0 0 4
+PASS selLamThreePlus 0 1 0 0 1 0 0 1 0 0 4 generators all even
+
+== C. the honest gamma_2 level ==
+PASS c=0: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=0: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=0: all generator-pair commutators likewise
+PASS c=1: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=1: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=1: all generator-pair commutators likewise
+PASS c=2: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=2: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=2: all generator-pair commutators likewise
+PASS c=3: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=3: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=3: all generator-pair commutators likewise
+PASS c=4: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=4: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=4: all generator-pair commutators likewise
+PASS c=5: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=5: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=5: all generator-pair commutators likewise
+PASS c=6: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=6: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=6: all generator-pair commutators likewise
+PASS c=7: |<slots>| = 524288; c-column 0, f-column 0, g even, h-column 0
+PASS c=7: 40000 random commutators are gamma_2 with h = 0 and i even
+PASS c=7: all generator-pair commutators likewise
+
+== D. the kill sweep ==
+PASS residue at the trivial dressing
+PASS residue at the chi_a = 2 dressing
+PASS residue at the chi_a = 1 dressing
+PASS kills of the odd dressing over 2097152 achievable refinements
+PASS the even dressing dies: 524288 of 2097152 achievable refinements kill it
+PASS one explicit gamma_4 move kills the even dressing
+
+== E. the forcing genuinely needs achievability ==
+PASS 8 of 64 unrestricted gamma_3 U-slot moves kill the odd dressing
+PASS the explicit unrestricted killer (h,i) = (0,1) has ODD i
+
+TOTAL FAILURES: 0
+EXIT=0

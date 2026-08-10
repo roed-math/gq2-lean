@@ -1,0 +1,69 @@
+== section 1: sqRelWord_e_displace, rowFour_chiA_handleU_forced ==
+PASS sqRelWord_e_displace at 4000 random tuples
+PASS rowFour_chiA_handleU_forced: no counterexample in 200000 random draws
+
+== section 2: the point ==
+PASS rowFourVGen_eq at c=0
+PASS rowFourV_eq at c=0
+PASS sqRelWord_rowFourMark at c=0
+PASS rowFourVGen_eq at c=1
+PASS rowFourV_eq at c=1
+PASS sqRelWord_rowFourMark at c=1
+PASS rowFourVGen_eq at c=2
+PASS rowFourV_eq at c=2
+PASS sqRelWord_rowFourMark at c=2
+PASS rowFourVGen_eq at c=3
+PASS rowFourV_eq at c=3
+PASS sqRelWord_rowFourMark at c=3
+PASS rowFourVGen_eq at c=4
+PASS rowFourV_eq at c=4
+PASS sqRelWord_rowFourMark at c=4
+PASS rowFourVGen_eq at c=5
+PASS rowFourV_eq at c=5
+PASS sqRelWord_rowFourMark at c=5
+PASS rowFourVGen_eq at c=6
+PASS rowFourV_eq at c=6
+PASS sqRelWord_rowFourMark at c=6
+PASS rowFourVGen_eq at c=7
+PASS rowFourV_eq at c=7
+PASS sqRelWord_rowFourMark at c=7
+PASS sqRelWord_rowFourWit_triv
+PASS rowFourU_chiA
+PASS rowFourV_chiA
+PASS rowFourV_sq
+
+== section 3: the verdicts ==
+PASS sqRelWord_rowFourWit_Vsq
+PASS sqRelWord_rowFourWit_V
+PASS sqRelWord_rowFourWit_U
+PASS sqRelWord_rowFourWit_Vsq_complete
+PASS rowFourWit_class_three_blind toU4L at 1
+PASS rowFourWit_class_three_blind toU4R at 1
+PASS rowFourWit_class_three_blind toU4L at Vsq
+PASS rowFourWit_class_three_blind toU4R at Vsq
+PASS rowFourWit_class_three_blind toU4L at V
+PASS rowFourWit_class_three_blind toU4R at V
+PASS rowFourWit_class_three_blind toU4L at U
+PASS rowFourWit_class_three_blind toU4R at U
+
+== section 4/5: the b-column and the bit ==
+PASS rowFourHom_b at c=0
+PASS rowFourHom_b at c=1
+PASS rowFourHom_b at c=2
+PASS rowFourHom_b at c=3
+PASS rowFourHom_b at c=4
+PASS rowFourHom_b at c=5
+PASS rowFourHom_b at c=6
+PASS rowFourHom_b at c=7
+PASS rowFourWit_bit at 20000 random nu'-trivial dressings
+
+== section 6: soundness ==
+PASS rowFourWit_commP_zero_two
+PASS rowFourWit_commP_two_handleU
+PASS rowFourWit_commP_two_handleV
+PASS rowFourMark_le_rowFrameSub: c-column 0, f-column 0, g even on every slot
+PASS commP_mem_rowGaTwoSub at 40000 random invariant pairs
+PASS sqRelWord_sigLift + rowFourWit_increment_even at 20000 random moves
+
+TOTAL FAILURES: 0
+EXIT=0
