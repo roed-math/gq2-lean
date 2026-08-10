@@ -7,9 +7,111 @@ import GQ2.Dyadic.SqCore.GradedSigmaFour
 import GQ2.Dyadic.SqCore.GradedContainFour
 
 /-!
-# W54-HOM: the class-four hom layer
+# W54-HOM: the class-four layer as a layer of continuous homomorphisms
 
-Placeholder docstring, rewritten at the end of the lane.
+`GradedFour` built the class-four carrier `SqU5 R` and deliberately left out the pro-2 and
+topology layer; `GradedLift`, `GradedContainFour` and `GradedSigmaFour` then did all their
+work at the level of **marking tuples**, so that no statement of the class-four stack claimed
+that a given tuple is the image of a continuous homomorphism on `D_sq h`.  `GradedSigmaFour`'s
+scope note priced the missing piece exactly:
+
+> Building the class-four hom layer (mechanical from `GradedThree` paragraphs 1 and 3) is what
+> would turn `sigFourWit_sigma_forced` into a statement about `sqArbFrame` itself, exactly as
+> `GradedSigma` paragraph 6 does at class three.
+
+This file builds that layer and spends it.
+
+## Headline: the class-four sigma forcing is now a statement about `sqArbFrame`
+
+⭐⭐ `sqArbFrame_sigma_forced_nuSel`.  At one handle, at the selected row `nuSel 1 0 0 0`, at
+the honest continuous homomorphism `sigFourHom : D_sq 1 → U_5(ℤ/8)` built by the committed
+lift from `GradedSigmaFour`'s binder point: **every `ν'`-trivial sigma dressing of the
+arbitrary-dressing frame whose image is killed by any achievable five-slot class-four
+refinement has an even `chi_a`-character.**  Nothing is carried beyond the dressing's own
+legality.  The three verdicts are executed on the frame itself, with both regression dressings
+exhibited as `λ`-trivial and `ν'`-trivial slotwise (`sigmaFour_escape_separates`):
+
+```text
+a0 = 1                      relator dies outright              (sqRelWord_arbFrame_sigTriv)
+a0 = V-letter (chi_a = 2)   residue 2, dies to one move        (sqRelWord_arbFrame_sigV[_complete])
+a0 = U-letter (chi_a = 1)   residue 1, survives nothing        (sqRelWord_arbFrame_sigU[_ne_one])
+```
+
+and `arbFrame_class_three_blind` records that both `U_4`-quotients of the frame's relator
+image are trivial in all three cases, so the whole committed class-three machinery cannot see
+the separation.  This is `GradedSigma`'s `sigma_escape_separates` one level up.
+
+## What was mechanical, and what was not
+
+Sections 1 and 2 transpose `GradedThree` §1 and §3 to the ten-coordinate carrier:
+`equivProd`/`Finite`/`nat_card`, the `⊥` topology, `SqU5.isProP_two`, the ten power laws, and
+the lift `sqU5Hom`.  All of that is mechanical, with one bookkeeping change: the class-four
+coordinate has **four** binomial layers (`SqU5.pow_j` carries `C(n,2)`, `C(n,3)` and `C(n,4)`)
+where class three had at most two.
+
+⚠ **One step is not mechanical, and it is the pivot.**  `GradedThree`'s `zpowZtwo_of_flat`
+needs three obstructions to vanish; its class-four transposition needs six, and at the object
+the class-four sigma witness actually powers - the `x0`-slot `sigFourX` - the sixth does
+**not** vanish: `a·i + e·g + h·d = 2`.  The class-three slice never met this because its
+`x0`-slot image `⟨A1, 0, C1, 0, 0, 0⟩` has a vanishing `b`-column, which kills all three of
+its obstructions at once.  The replacement is ⭐ `SqU5.zpowZtwo_of_flatTwo`: with an **even**
+class-four obstruction `2·w` the powering is still continuous and still factors through the
+reduction `pi : ℤ₂ → R`, because `C(n,2)·(2w) = (n² − n)·w` is a polynomial in `n` with
+integer coefficients even though `C(n,2)` alone is not.  The flat six-condition lemma is its
+`w = 0` case.  The anchor `sigFourHom_sqPivot` computes the pivot image in closed form through
+it, with the quadratic `c² + c` in the class-four coordinate that the flat lemma could never
+produce.
+
+A second thing had to be proved rather than transposed.  `GradedSelect`'s class-three slice was
+*designed* so that "the `b`-column is `ν'`", which is what makes `ν'`-trivial dressings have
+vanishing `b`-coordinate.  The class-four witness was built tuple-side and carries no such
+design statement, so ⭐ `sigFourHom_b` establishes it: the `b`-column of `sigFourHom` **is**
+`nuSel 1 0 0 0` reduced mod `8`, two continuous homs agreeing on five generators.  That is
+what removes the last carried side condition from the headline.
+
+## PROVED versus carried
+
+**PROVED**, with no live hypothesis: the pro-2 layer, the power laws, `sqU5Hom`, both `ℤ₂`-power
+lemmas, the gate `sqU5Balance`, the hom-level containment (section 3), the pivot anchor, the
+`b`-column identification, the frame identification `sigFourHom_sqArbFrame`, the selection bit
+`sqArbFrame_sigma_bit`, the forcing `sqArbFrame_sigma_forced[_nuSel]` and all five verdicts.
+
+**Carried, and named**: the general forcing theorem `sqArbFrame_sigma_forced` takes `hu`, `hv`
+- the handle is already `ν'`-cleared - and `hgb` - the dressing has vanishing `b`-column.  At
+the selected row `nuSel 1 0 0 0` both are discharged (`nuSelClear_handleU`/`_handleV`,
+`sigFourHom_b_eq_zero`), so the headline carries neither.
+
+⚠ **The honest cost: the reachable row type is the already-cleared one.**  `GradedSigma` §6
+runs at the *uncleared* row `nuSel 1 0 0 1`; this file runs at `nuSel 1 0 0 0`, and that is
+forced, not chosen.  `sigFourWit`'s handle slots are the **raw** generator images
+(`sigFourU`, `sigFourV`), so any frame whose image is `sigFourWit` must have trivial pivot
+powers in both handle slots (`sqArbBase_of_cleared` is exactly this), and `ν'(v_j) = 1` would
+displace the `V`-slot image by `sigFourHom_sqPivot`'s value and put the frame out of reach of
+the committed `sigFourWit_sigma_forced`.  Reaching the uncleared row at class four is **not**
+transport: it needs a class-four marking solving all ten relator rows with `m V = V·Φ(w)`,
+i.e. a new solve at the displaced binder point, and the dressing lattice cannot compensate
+(the compensating dressing would have to be `ν'`-nontrivial).  That solve is the exact
+remaining gap this file leaves, and it is the natural next lane.
+
+## Contents
+
+* **1** the carrier as a pro-2 target: `equivProd`, `Finite`, `nat_card`, `⊥`,
+  `SqU5.isProP_two`, and the ten power laws `SqU5.pow_a` … `SqU5.pow_j`;
+* **2** the lift `sqU5Hom`, and the two `ℤ₂`-power lemmas
+  ⭐ `SqU5.zpowZtwo_of_flatTwo`, `SqU5.zpowZtwo_of_flat`;
+* **3** ⭐ the gate `sqU5Balance`, and `GradedContainFour`'s pure-artefact containment
+  transported to arbitrary frames and arbitrary class-four test homs;
+* **4** the sigma-witness hom `sigFourHom`, its letter values, ⭐ the `b`-column
+  identification `sigFourHom_b`, and ⭐⭐ the pivot anchor `sigFourHom_sqPivot`;
+* **5** ⭐⭐ the sigma forcing on `sqArbFrame`: the cleared-row lemmas, the sigma-only dressing
+  `sigArbDress`, the frame identification, the bit, the forcing, and the three verdicts;
+* **6** committed axiom prints.
+
+## Axiom hygiene
+
+No `sorry`, no new axiom, no `native_decide`; every `decide` is on `ZMod 8`.  All **65**
+committed prints are **std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a subset; no
+census axiom is reachable, `sqPivotExp` included.
 -/
 
 open Multiplicative
@@ -786,6 +888,80 @@ theorem arbFrame_class_three_blind :
   exact sigFourWit_class_three_blind
 
 end ArbSigma
+
+/-! ## 6 Axiom pins
+
+Committed prints for every public declaration of this file. -/
+
+section AxiomPins
+
+#print axioms SqU5.equivProd
+#print axioms SqU5.nat_card
+#print axioms SqU5.isProP_two
+#print axioms SqU5.pow_a
+#print axioms SqU5.pow_b
+#print axioms SqU5.pow_c
+#print axioms SqU5.pow_d
+#print axioms SqU5.pow_e
+#print axioms SqU5.pow_f
+#print axioms SqU5.pow_g
+#print axioms SqU5.pow_h
+#print axioms SqU5.pow_i
+#print axioms SqU5.pow_j
+#print axioms sqU5Hom
+#print axioms sqU5Hom_gen
+#print axioms SqU5.zpowZtwo_of_flatTwo
+#print axioms SqU5.zpowZtwo_of_flat
+#print axioms sqU5Balance
+#print axioms sqU5Balance_gen
+#print axioms sqRelWord_conFourDress_of_hom
+#print axioms sqRelWord_conFourDress_liftC_of_hom
+#print axioms conFour_contain_odd_of_hom
+#print axioms isProP_two_gr5
+#print axioms sigFourHom
+#print axioms sigFourHom_gen
+#print axioms sigFourHom_sigma
+#print axioms sigFourHom_x0
+#print axioms sigFourHom_x1
+#print axioms sigFourHom_handleU
+#print axioms sigFourHom_handleV
+#print axioms nuSelClear_handleU
+#print axioms nuSelClear_handleV
+#print axioms bProjC
+#print axioms bProjC_apply
+#print axioms nuBC
+#print axioms nuBC_apply
+#print axioms nuSel_x1
+#print axioms sigFourHom_b
+#print axioms sigFourHom_b_eq_zero
+#print axioms sigFourX_zpowZtwo
+#print axioms sigFourHom_sqPivot
+#print axioms sqEichU_of_cleared
+#print axioms sqEichV_of_cleared
+#print axioms sqArbBase_of_cleared
+#print axioms sigArbDress
+#print axioms sigArbDress_zero
+#print axioms sigArbDress_ne
+#print axioms nuLam_sigArbDress
+#print axioms nu_sigArbDress
+#print axioms sigFourHom_sqArbFrame
+#print axioms sqArbFrame_sigma_bit
+#print axioms sqArbFrame_sigma_forced
+#print axioms sqArbFrame_sigma_forced_nuSel
+#print axioms sqArbFrame_sigma_bit_nuSel
+#print axioms nuLam_sigArbDress_U
+#print axioms nu_sigArbDress_U
+#print axioms nuLam_sigArbDress_V
+#print axioms nu_sigArbDress_V
+#print axioms sqRelWord_arbFrame_sigTriv
+#print axioms sqRelWord_arbFrame_sigV
+#print axioms sqRelWord_arbFrame_sigU
+#print axioms sqRelWord_arbFrame_sigV_complete
+#print axioms sqRelWord_arbFrame_sigU_ne_one
+#print axioms sigmaFour_escape_separates
+#print axioms arbFrame_class_three_blind
+
+end AxiomPins
 
 end SqCore
 
