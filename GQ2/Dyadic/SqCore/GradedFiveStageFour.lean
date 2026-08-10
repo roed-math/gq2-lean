@@ -103,9 +103,12 @@ checks and 0 failures):
   moves do kill, so achievability is load-bearing here too;
 * that the `gamma_4`-shaped part of `gamma_3(im)` is `256` elements with **no odd** class-four
   coordinate, where wave 59's is the whole `512` with `256` odd;
-* the search behind the point (`results/search_clean.txt`): of `160` live class-five sigma
-  points found with both columns even, **all 160** were clean, so the two frame hypotheses are
-  not merely sufficient at this point but appear to be the whole story.
+* the search behind the point (`results/search_clean.txt`): `160` live class-five sigma points
+  with both columns even, every one of them clean.  ⚠ This is a **confirmation of the chain, not
+  evidence about its sharpness**: `forceLcs_two_le_stageN3` proves cleanness from the two
+  hypotheses, so all 160 had to come out clean, and a live point violating them was not searched
+  for.  What the run does establish is that the hypotheses are far from vacuous: live points
+  satisfying them are common, one in roughly 430 random triples.
 
 ## Scope, honestly
 

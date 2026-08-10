@@ -6,9 +6,12 @@ two-sided cascade; a point is LIVE when the undressed frame kills the relator an
 every member of `gamma_3(im)` has `j`, `l` and `m` even.
 
 FINAL TALLY OF THIS RUN: [69564/200000] live 160, clean 160; best weight 6 residue 1
-  => every live point found under the two frame hypotheses was clean.  The hypotheses are
-     therefore not merely sufficient at the chosen point; no counterexample to their
-     sufficiency turned up in the whole search.
+  => every live point found under the two frame hypotheses was clean.  WARNING: this is a
+     CONFIRMATION of the subgroup chain, not evidence about its sharpness - the chain PROVES
+     cleanness from the two hypotheses, so all 160 had to come out clean.  What the run does
+     establish is that the hypotheses are far from vacuous: live points satisfying them turn
+     up at roughly one per 430 random triples, so the exclusion is not being bought by an
+     empty hypothesis.
 
 The trace below repeats the running best after each new clean point.
 ========================================================================================
