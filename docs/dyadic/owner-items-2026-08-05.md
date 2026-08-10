@@ -5,6 +5,56 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 56 (2026-08-10)
+
+**The wave-55 retraction got worse before it got better, and it ends better. Please read
+this block rather than the wave-55 one; it supersedes it.**
+
+Wave 55 told you the digit-flip supply fails at `alpha = 2`. Two things are now known.
+First, `alpha = 2` is not a corner case: the range identity produces it generically. The
+criterion is proved (`alpha >= 3` exactly when `sqrt 2` lies in `K`, a codimension-one
+condition), and an exact census over the in-class fields of degree up to six finds 101 of
+113 at `alpha = 2`, including four of the five quadratic ones; odd degree forces it. One of
+our two pilot fields is on that side, which makes one of the non-vacuity witnesses I
+reported last wave a vacuous theorem.
+
+Second, and worse before better: the flip supply is false not just at `alpha = 2` but at
+EVERY depth, on both branches, and so is `Hup`. Wave 55 read the requirement as satisfiable
+above `alpha = 2` using a generic bound; the sharper bound needed to settle it has been in
+our own tree for several waves, and with it the argument closes everywhere. The margin is
+one binary digit, and it is exactly the digit a square costs. So the whole flip architecture,
+which is how the even route has been organised for three waves, is dead.
+
+**Why the route survives anyway.** The refutation is narrow in a way that matters: it kills
+supplies demanding a sharp digit at one coordinate of a correction whose shift word is
+trivial, and the climb never asks for that. `Hup` was only ever a sufficient condition for
+what the climb actually consumes, being a span equality where one element in the span
+suffices. Both endpoints are re-cut onto that weaker supply, `EvenClimbResidualSupply`,
+which carries one hypothesis beyond the arithmetic binders and which nothing in the tree
+refutes. The even route now has one live supply per branch at every depth, plus `Hfam`.
+Proving or refuting it is the single decisive question, and it is the top of the next wave.
+If it fails, the even route as architected is closed rather than re-cut, and I will tell you
+so plainly.
+
+**On the `h >= 1` route, only good news.** All four selected rows at class four are now
+covered at every handle count, the doubly-uncleared row turned out not to be obstructed, and
+the class-four obstruction now holds over the honest commutator image rather than an
+over-approximation, so last wave's exhaustive corner verdict is certified in its own terms.
+The paper-facing structures are also corrected and minimal now.
+
+**A process note I think you should see.** This is the second wave running in which a claim
+outran its proof. Wave 55's drift was between prose and Lean; this wave's was inside the
+Lean, where a sharper bound we already owned would have refuted a route we spent a wave
+building on. The standing check is now doctrine: whenever a bound is used to conclude that a
+possibility survives, verify it is the sharpest bound the tree already owns. I have also
+started spending one lane per wave on verification rather than construction, which is what
+caught both.
+
+Final state `84fa2e5f`: 4269 jobs green, census 11, zero sorries, capstones frozen, all
+gates passing at every station. Progress estimate about 84 to 86 percent, essentially flat
+against last wave despite a lot of proof landing, because the route being measured was
+replaced by a shorter one whose single input is not yet proved.
+
 ## Status at wave 55 (2026-08-10)
 
 **Read this first: a wave-55 lane refuted an input the even route depends on, and part of
