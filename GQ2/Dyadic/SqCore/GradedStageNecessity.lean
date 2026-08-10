@@ -153,8 +153,10 @@ computation - the measured form of `gaThreeShift_mul` - at `1200` tuples over te
 ⚠ **What the language needs.**  The sharp line is not a mod-`2` covector condition and cannot
 be made into one.  A natural candidate - that the class-five covector be a fixed mod-`2`
 combination of the two class-four ones, which would make centrality force evenness by pure
-linear algebra - holds at **0** of the 1650 markings (`MODLOW` in the census), because it forces
-all five class-five covector entries to vanish and then the bit is even by section 5.  What
+linear algebra - holds at **0** of the 1650 markings (`MODLOW` in the census): the class-four
+rows' own covectors read the dressing's `(j, k)` and `(k, l)` alone, so no combination of them
+can match the class-five covector's `(m, n)` entries unless those vanish, which is wave 60's
+class-five orthogonality at every slot at once.  What
 makes the four gap markings work is arithmetic over `Z/8` rather than mod `2`: the class-four
 row there is `4` or `2` times the coordinate the class-five covector reads, so it is invisible
 mod `2` and still forces that coordinate even once it is set to zero.  A sharp stage-four line
