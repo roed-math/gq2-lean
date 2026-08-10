@@ -71,11 +71,18 @@ The origin note is **partly stale**, and the residual is stated precisely rather
    the real ramified-only region, and `GQ2/Dyadic/Instances/MpcUnramifiedBranch.lean` has since
    *duplicated by hand* its shallow half at the unramified reading (`foxD_dW_unram`,
    `foxD_aHatW_unram`, `foxD_bHatW_unram`, `foxD_e01W_unram`).
-3. What no file has, at any reading other than the ramified one, is the section's **headline**:
-   `MpcFox.foxD_mpcHatW_ram`, the hat copy's first Fox derivative.  That is the one genuinely
-   unreachable consumer-facing theorem, and `foxDelta_mpcHatW_unram` (§6) is it.
+3. The section's **headline**, `MpcFox.foxD_mpcHatW_ram`, is the hat copy's first Fox derivative.
+   ⚠ CORRECTED W54-BATCH: an earlier revision of this note, and of `foxDelta_mpcHatW_unram`'s
+   own docstring in §6, called that theorem "unreachable at any reading other than the ramified
+   one".  That was already false when written.
+   `MpcUnramifiedBranch.foxD_mpcHatW_unram` (landed `3f8a42dc`, 2026-08-06; this note landed
+   `b8779bb9`, 2026-08-07) states `D(R̂^pc) = 0` at the unramified reading, and states it for
+   **every** `α`, not just `α ≥ 1`.  The two are **incomparable**, and that is the real content:
+   the committed one buys `α = 0` at the price of `hS₂` (every prefix weight trivial), §6's buys
+   freedom from `hS₂` at the price of the packet balance `α ≥ 1`.  Neither implies the other, so
+   neither can be rewired onto the other.
 
-So the layer's value is two things at once: the unreachable endpoint becomes reachable, and the
+So the layer's value is two things at once: the hat row becomes available `hS₂`-free, and the
 hand-duplicated shallow rows become instantiations of one statement (§4 subsumes both the
 committed ramified rows and `MpcUnramifiedBranch`'s copies; rewiring those consumers is
 deliberately **not** in this wave's scope).
@@ -898,18 +905,24 @@ theorem foxDelta_e01W_unram (hσ : a Generator.sigma = 0) (hV₂ : ∀ w : V, w 
     mul_smul, hU, hU, hU]
   exact h4 _
 
-/-- **The previously unreachable theorem: `D(R̂^pc) = 0` at the unramified reading.**
+/-- **`D(R̂^pc) = 0` at the unramified reading, with no `hS₂`.**
 
 The hat copy has zero first Fox derivative at `σ`-free offsets on an *unramified* simple module
-too, at every `(α, r, p)` with `α ≥ 1` and every `η̂` display.  No file in the tree could state
-this before: `MProcyclic.foxD_mpcHatW_ram` is the only version and it sits inside
-`include hσ hwild hτfpf hTodd`, whose `hτfpf` is false at unramified parameters, while
-`Instances/MpcUnramifiedBranch.lean` redid only the shallow rows by hand and stopped short of the
-hat copy.
+too, at every `(α, r, p)` with `α ≥ 1` and every `η̂` display.  `MProcyclic.foxD_mpcHatW_ram` is
+the ramified version and it sits inside `include hσ hwild hτfpf hTodd`, whose `hτfpf` is false at
+unramified parameters, so it does not reach here.
 
-It costs one line here, and that is the point of the wave: the hat row never needed the
-ramification hypothesis, it needed the δ-row.  Note also that no `hS₂` appears, unlike the
-unramified `E₀₁^pc` row above: the assembled statement is exact at every `σ`-action. -/
+It costs one line, and that is the point of the wave: the hat row never needed the ramification
+hypothesis, it needed the δ-row.  The gain over the committed unramified version is precisely the
+absence of `hS₂`, unlike the unramified `E₀₁^pc` row above: the assembled statement is exact at
+every `σ`-action.
+
+⚠ CORRECTED W54-BATCH.  This docstring used to open "the previously unreachable theorem" and
+claim that `Instances/MpcUnramifiedBranch.lean` "stopped short of the hat copy".  Both are
+contradicted by the tree: that file's `foxD_mpcHatW_unram` predates this one by a day and covers
+**every** `α`, at the cost of `hS₂`.  The two statements are incomparable - `α = 0` here, `hS₂`
+there - so neither is a duplicate of the other and neither can be rewired onto the other.  See
+the module docstring's item 3. -/
 theorem foxDelta_mpcHatW_unram (hσ : a Generator.sigma = 0) (hV₂ : ∀ w : V, w + w = 0)
     (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w) (hτ : ∀ w : V, t.τ • w = w)
     {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay) :

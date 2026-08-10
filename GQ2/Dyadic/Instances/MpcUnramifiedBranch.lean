@@ -65,6 +65,38 @@ represents a field unit, i.e. for everything `SelectedEta.MpcDisplayFor` can pro
 sub-branch), are the honest remainder; the scalar one's *first*-order half is discharged here
 too, so what it still needs is exactly the scalar second-order row of `mpcW`, the analogue of
 `NpcScalarRow`.
+
+## The δ-row rewire: status, and why it is finished
+
+W51 rewired the shallow factor rows onto the δ-row layer `Certificates/FoxDeltaRows.lean`
+(commit `a464e65c`, "Item 4, first half") and left the rest open.  W54-BATCH audited the rest
+declaration by declaration.  **There is no second half.**  Every row this file still proves by
+hand is provably not a duplicate of anything in the layer, for a stated reason:
+
+* `foxD_e2W_unram`: the layer has **no** `foxDelta_e2W` and cannot get one by restatement.
+  Unlike every row of §4 it is not linear in the δ-row: it factors through `MpcStokes.foxD_zW`,
+  and no δ-parameterised `zW` row exists anywhere in the tree.  That is new mathematics.  The
+  *placement* question is settled and should not be reopened: this file already imports
+  `Certificates.FoxDeltaRows` directly and reaches `Certificates.MpcStokes` transitively, so it
+  can host the row with no import moving.  What is missing is the mathematics, not the home.
+* `foxD_mpcLinW_unram`: consumes `foxD_e2W_unram`, so it is blocked by exactly the same gap.
+* `foxD_mpcHatW_unram`: **incomparable** with `FoxDelta.foxDelta_mpcHatW_unram`, not weaker
+  and not stronger.  This one holds at every `α` and pays `hS₂`; the layer's holds `hS₂`-free
+  and pays the packet balance `α ≥ 1`.  Rewiring either onto the other would change a
+  hypothesis list, i.e. a statement.  (The layer's docstring used to call itself "previously
+  unreachable" and this file "stopped short of the hat copy"; both were false when written and
+  are corrected there.)
+* `trivAct_dW_unram`: already canonical.  The layer's `FoxDelta.foxDelta_trivAct_dW` is
+  `FoxDeltaRow.trivAct_delta`, whose unramified instance `deltaRowUnram` is built from exactly
+  the `MCompact.trivAct_deltaBlock_unram` this proof cites, and constructing that instance costs
+  `hV₂`, which this statement does not carry.  Going through the layer would *add* a hypothesis.
+* `foxD_dW_sigma_single_unram`: a two-line corollary of the already-rewired `foxD_dW_unram`;
+  the layer carries no `sigma_single` analogue to rewire onto.
+
+Separately, the `UnramSmulPivot` section below is still parked here rather than in
+`N0M0UnramifiedStokes.lean`; see its own ⚠ note.  That is a cross-file hoist with a namespace
+change on six public declarations, not a proof rewire, and it is deliberately not folded into
+this ticket.
 -/
 
 namespace GQ2.Dyadic.MProcyclicUnram
