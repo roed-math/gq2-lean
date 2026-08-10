@@ -1910,7 +1910,18 @@ theorem commP_pair_no_coupling' (h₁ : U₁.b = 0) (h₂ : V₁.b = 0) :
 /-- **Realising the coupling needs a nonzero `c`-column**, hence a marking outside
 `GradedFourCleared.liveFrameSub` - where `commP_mem_liveGaTwoSub` fails and the class-four
 increment is no longer even.  So the coupling is not merely unrealised: it is unavailable to
-any point the forcing can be run at. -/
+any point the forcing can be run at.
+
+CORRECTED BY W59-INVARIANT AND W60-MIGRATE: the last sentence is FALSE.  The implication
+proved here stands, and so does the failure of `commP_mem_liveGaTwoSub` outside the frame
+invariant; what does not follow is the conclusion about the forcing.  The increment is even
+whenever the handle PAIRING is even, not only when `commP_mem_liveGaTwoSub` applies, so a
+nonzero `c`-column does not put a point beyond the forcing.
+`GradedFrameNecessity.orthV` has `c = 1`, sits outside `liveFrameSub`, and the forcing HOLDS at
+it (`orth_sigmaForces`) with the coupling still vanishing (`commP_orth_g`); a nonzero
+`c`-column is therefore necessary for the coupling and not sufficient, and it is available to a
+point the forcing runs at.  See `SqCore/GradedFrameNecessity.lean` §5 and
+`SqCore/GradedFourSharp.lean`. -/
 theorem commP_coupling_ne_zero_imp (hne : (commP U₂ V₂).g ≠ 0) : U₂.c ≠ 0 ∨ V₂.c ≠ 0 := by
   by_contra hc
   rw [not_or, not_not, not_not] at hc
