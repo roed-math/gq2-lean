@@ -719,6 +719,7 @@ import GQ2.Dyadic.SqCore.GradedFourRow
 import GQ2.Dyadic.SqCore.GradedFourMirror
 import GQ2.Dyadic.SqCore.GradedLatticeWide
 import GQ2.Dyadic.SqCore.GradedFourCleared
+import GQ2.Dyadic.SqCore.GradedFive
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
