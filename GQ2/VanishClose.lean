@@ -165,7 +165,7 @@ omit [Finite C] in
 /-- **The free orbit's inner cochain vanishes in `H²`** (the Lemma 6.17 vanishing proof wiring): the cup product of a deep
 `ker ρ`-block cocycle with the `g`-conjugate of another deep block cocycle is an `H²`-coboundary.
 Discharges the `Sum.inr (Sum.inr _)` branch of the `hvanish` obligation. -/
-theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
+theorem hvanish_free_conj [LiteratureInputs] (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (β γ : AbsGalQ2 → RegRep (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (g : AbsGalQ2)
     (hZβ : shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β
       ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
@@ -202,7 +202,7 @@ theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
 /-- **`lemma_6_17_vanish`, closed downstream** (the Lemma 6.17 vanishing proof): the base connecting map `Q⁰loc`
 vanishes on the deep half, from `lemma_6_17_vanish`'s own hypotheses plus the reciprocity datum
 `(R, horient)` threaded per the c2c4 consumer note (the architecture review flag). -/
-theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+theorem lemma_6_17_vanish_final [LiteratureInputs] (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (horient : TameUnitOrientation R B.tameF)

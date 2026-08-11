@@ -52,8 +52,8 @@ Turturean, §9.2 — lifting through an elementary quotient `M`; the strict-decr
 For the elementary `𝔽₂`-modules there (`#M = 2 ^ dim M`) this reads `#H¹ = #H⁰ · #H² · #M`
 (`card_H1_of_card_eq_two_pow`).
 
-The axiom itself (`GQ2.Foundations.absGalQ2_localEulerCharacteristic`) lives in
-`GQ2/Foundations/Axioms.lean` (the consolidated axiom interface consolidation); this file documents its conventions and
+The corresponding legacy axiom (`GQ2.Foundations.absGalQ2_localEulerCharacteristic`) lives in
+`GQ2/Foundations/Axioms.lean`; this file documents its conventions and
 derives the consequences below from it.
 -/
 
@@ -67,27 +67,27 @@ namespace GQ2.Foundations
 
 section Consequences
 
-variable (M : Type*) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+variable (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
   [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M]
 
 
 /-- `B7`: finiteness of `H¹(G_ℚ₂, M)`. -/
-theorem finite_H1 : Finite (H1 AbsGalQ2 M) :=
-  (absGalQ2_localEulerCharacteristic M).2.1
+theorem finite_H1 [lit : GQ2.LiteratureInputs] : Finite (H1 AbsGalQ2 M) :=
+  (lit.absGalQ2_localEulerCharacteristic M).2.1
 
 /-- `B7`: finiteness of `H²(G_ℚ₂, M)`. -/
-theorem finite_H2 : Finite (H2 AbsGalQ2 M) :=
-  (absGalQ2_localEulerCharacteristic M).2.2.1
+theorem finite_H2 [lit : GQ2.LiteratureInputs] : Finite (H2 AbsGalQ2 M) :=
+  (lit.absGalQ2_localEulerCharacteristic M).2.2.1
 
 /-- `B7`, the Euler-characteristic identity `#H¹ = #H⁰ · #H² · 2 ^ v₂(#M)`. -/
-theorem card_H1 : Nat.card (H1 AbsGalQ2 M)
+theorem card_H1 [lit : GQ2.LiteratureInputs] : Nat.card (H1 AbsGalQ2 M)
     = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M) :=
-  (absGalQ2_localEulerCharacteristic M).2.2.2
+  (lit.absGalQ2_localEulerCharacteristic M).2.2.2
 
 
 /-- For a module whose order is a power of `2` (e.g. the elementary `𝔽₂`-modules of §9.2, where
 `#M = 2 ^ dim M`), `B7` reads `#H¹ = #H⁰ · #H² · #M`. -/
-theorem card_H1_of_card_eq_two_pow {k : ℕ} (hk : Nat.card M = 2 ^ k) :
+theorem card_H1_of_card_eq_two_pow [GQ2.LiteratureInputs] {k : ℕ} (hk : Nat.card M = 2 ^ k) :
     Nat.card (H1 AbsGalQ2 M)
       = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * Nat.card M := by
   rw [card_H1, hk, padicValNat.prime_pow]

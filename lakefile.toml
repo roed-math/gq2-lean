@@ -33,3 +33,10 @@ name = "Challenge"
 
 [[lean_lib]]
 name = "Solution"
+
+# Axiom-free Comparator pair: the literature results are explicit bundled hypotheses.
+[[lean_lib]]
+name = "ChallengePalomar"
+
+[[lean_lib]]
+name = "SolutionPalomar"

@@ -279,7 +279,7 @@ theorem deepClass_eq_kummerClassK (k : IntermediateField ℚ_[2] (AlgebraicClosu
 f2-orbit-vanishing leaf, over a finite intermediate field `k`): two deep Kummer classes in
 `H¹(G_k, 𝔽₂)` cup to zero.  Bridges `deepClasses` to the Tier-5 `GQ2.cup_deep_deep` via
 `deepClass_eq_kummerClassK`.  std-3 ∪ {B11a}. -/
-theorem cup_deepClasses (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+theorem cup_deepClasses [LiteratureInputs] (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     {ξ η : H1 k.fixingSubgroup (ZMod 2)}

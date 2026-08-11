@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # T-19 guard: axiom hygiene for the GQ2 library.
 #
-# Checks 1-4 are textual and comment-aware; check 5 walks the elaborated environment
+# Checks 1-4 are textual and comment-aware; checks 5-6 walk elaborated environments
 # (run from anywhere):
 #   1. `axiom` declarations appear ONLY in GQ2/Foundations/Axioms.lean.
 #   2. `sorry` appears nowhere (the allowlist is empty — the library is fully proved;
@@ -10,9 +10,11 @@
 #      when a new B-leaf lands, in the same commit).
 #   4. No `native_decide` anywhere (it would add `Lean.ofReduceBool` beyond the standard
 #      three axioms; the project convention is kernel-checked `decide` only).
-#   5. Terminal-theorem axiom audit: the campaign capstones print EXACTLY the standard
+#   5. Terminal-theorem axiom audit: the legacy campaign capstones print EXACTLY the standard
 #      three plus the frozen literature census, and each Γ_R capstone prints identically
 #      to its Γ_A twin.  Needs a built library; skips with a notice otherwise.
+#   6. Explicit-hypothesis audit: the Palomar import closure contains none of the nine legacy
+#      axiom declarations, and both solutions use only the standard three axioms.
 #
 # For checks 1-4, comments and docstrings are stripped before matching (a nesting-aware
 # scan of `/- … -/` and `--`), so prose mentioning "axiom"/"sorry" does not trip the guard.
@@ -290,6 +292,18 @@ EOF
   else
     fail=1
   fi
+fi
+
+# -- 6. explicit-hypothesis import-closure audit -----------------------------
+if ! command -v lake >/dev/null 2>&1 ||
+    [ ! -f .lake/build/lib/lean/SolutionPalomar.olean ]; then
+  echo "SKIP: explicit-hypothesis audit — SolutionPalomar not built"
+elif palomar_out=$(lake env lean GQ2/PalomarAxiomAudit.lean 2>&1); then
+  echo "OK:   explicit-hypothesis audit: legacy literature axioms absent; std-3 only"
+else
+  echo "FAIL: explicit-hypothesis audit failed:"
+  printf '%s\n' "$palomar_out" | sed 's/^/          /'
+  fail=1
 fi
 
 # -- Untracked-scratch WARN (P-24) -------------------------------------------

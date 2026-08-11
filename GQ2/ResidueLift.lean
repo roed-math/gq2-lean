@@ -330,7 +330,7 @@ plus only the finiteness instance `[Finite (H¹(ker ρ, 𝔽₂))]` (the local f
 `H¹(G_K, 𝔽₂) ≅ K^×/2`, supplied by the B12/B13 interface).  No new
 axiom: the residue-trivial tame lift is `exists_residueTrivial_tameLift`, and the splitting
 field with its Galois-correspondence data is `splitField`. -/
-theorem lemma_6_17_dim_final (B : BoundaryMaps)
+theorem lemma_6_17_dim_final [LiteratureInputs] (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

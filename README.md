@@ -41,6 +41,32 @@ in [`GQ2/SectionTenSources.lean`](GQ2/SectionTenSources.lean): for every finite 
 cardinality of the continuous surjections $G_{\mathbf{Q}_2} \twoheadrightarrow G$ equals the
 cardinality of the admissible marked generating quadruples in $G^4$.
 
+The same proof graph is also available without declaring the nine literature results as Lean
+axioms. [`GQ2/Foundations/LiteratureInputs.lean`](GQ2/Foundations/LiteratureInputs.lean) bundles
+their interfaces into an ordinary `LiteratureInputs` typeclass hypothesis, and the generic
+capstones are
+
+```lean
+GQ2.main_presentation_literal_of_inputs [LiteratureInputs] :
+  Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)
+
+GQ2.main_presentation_literal_roe_unconditional_of_inputs [LiteratureInputs] :
+  Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)
+```
+
+Eight fields have the same universe scope as their legacy declarations.  B7 is restricted to
+`M : Type` because a Lean structure field cannot quantify over a fresh universe level; this covers
+every consumer in this proof, while the legacy B7 axiom retains `M : Type*`.
+
+The original public names remain compatibility wrappers backed by the nine declarations in
+`GQ2/Foundations/Axioms.lean`, assembled in `GQ2/Foundations/AxiomInstance.lean`. The independent
+Palomar/Comparator pair
+[`ChallengePalomar.lean`](ChallengePalomar.lean) and [`SolutionPalomar.lean`](SolutionPalomar.lean)
+uses only the explicit-hypothesis route; its import-closure audit checks that the legacy axiom
+declarations are not present at all. The pair was locally verified with Comparator commit
+`68a064109f01c08f47c8edc9f51d6a2bbffaa188` and the `lean4export` tag matching Lean
+`v4.31.0-rc2`.
+
 With $x^g=g^{-1}xg$ and $[x,y]=x^{-1}y^{-1}xy$, the presented group has generators
 $\sigma,\tau,x_0,x_1$, a pro-2 normal closure of $x_0,x_1$, and relations
 
@@ -120,11 +146,13 @@ be conflated.
 
 ### Kernel and axiom hygiene
 
-The proof uses Lean's standard `propext`, `Classical.choice`, and `Quot.sound`, together with nine
-explicit literature axioms in
-[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean) — a file that contains the nine
-`axiom` declarations and nothing else, so its imports are exactly the statement vocabulary (the
-derived same-name interfaces over them live in
+The legacy API uses Lean's standard `propext`, `Classical.choice`, and `Quot.sound`, together with
+nine explicit literature axioms in
+[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean). That axioms-only file retains the nine
+historical declarations, and
+[`GQ2/Foundations/AxiomInstance.lean`](GQ2/Foundations/AxiomInstance.lean) assembles them into the
+compatibility `LiteratureInputs` instance. The axiom file's imports are exactly the statement
+vocabulary (the derived same-name interfaces over them live in
 [`GQ2/Foundations/Interfaces.lean`](GQ2/Foundations/Interfaces.lean)). The axioms cover external
 local-arithmetic, cohomological, and peripheral-action inputs not currently supplied by Mathlib;
 their precise statements, citations, and deviations from the cited formulations are documented in
@@ -142,9 +170,10 @@ three plus the nine literature axioms — which is also how the repository certi
 $\Gamma_R$ result introduces no new axiom and rests on no unfinished proof.
 
 Building [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) reports the transitive consumers of every
-literature axiom, lists everything still resting on a `sorry`, detects unknown non-standard axioms,
-and fails outright if any capstone acquires a `sorry` or an off-census axiom, or if a $\Gamma_R$
-capstone stops matching its paper counterpart axiom for axiom.
+legacy axiom, summarizes by module which elaborated declaration types carry `LiteratureInputs`,
+lists everything still resting on a `sorry`, detects unknown non-standard axioms, and fails
+outright if any capstone acquires a `sorry` or an off-census axiom, or if a $\Gamma_R$ capstone
+stops matching its paper counterpart axiom for axiom.
 
 ### `formalization.yaml` and Comparator
 
@@ -215,6 +244,8 @@ lake build
 bash scripts/check_axioms.sh
 lake env lean GQ2/AxiomLedger.lean
 lake build Challenge Solution
+lake build ChallengePalomar SolutionPalomar
+lake env lean GQ2/PalomarAxiomAudit.lean
 
 lake exe atlas graph-data -o atlas-graph.json
 python3 scripts/atlas_audit.py atlas-graph.json
@@ -236,6 +267,7 @@ on every push to and pull request against `master`.
 | `GQ2/Words.lean` | Finite-group marking, auxiliary words, and admissibility predicate |
 | `GQ2/GammaA.lean` | Construction of the candidate profinite group $\Gamma_A$ |
 | `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs (axioms only) |
+| `GQ2/Foundations/AxiomInstance.lean` | Opt-in legacy instance assembled from those axioms |
 | `GQ2/Foundations/Interfaces.lean` | Derived same-name interfaces over the axioms (discharged B7′/B11b/B12/B13, derived B9 form, …) |
 | `GQ2/SectionTenSources.lean` | Counting capstone and paper equation (154) |
 | `GQ2/PresentationLiteral.lean` | Literal profinite-group isomorphism theorem |

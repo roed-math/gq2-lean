@@ -14,8 +14,12 @@ axioms it transitively depends on, drops the standard three (`propext`, `Classic
 `Quot.sound`), maps the nine literature axioms (`GQ2/Foundations/Axioms.lean`) to their
 B-labels, and reports:
 
-* **certificate** — which declarations consume each B-axiom.  Compare this with the App. D rows in
-  `docs/literature-axioms.md` §C.
+* **legacy certificate** — which declarations consume each B-axiom.  With the compatibility
+  instance, these uses are intentionally concentrated in the provider and legacy wrappers; field
+  provenance for generic declarations is represented by their `LiteratureInputs` hypothesis.
+* **explicit-input inventory** — a per-module count of declarations whose elaborated type mentions
+  `LiteratureInputs`.  This makes accidental hypothesis propagation visible even though many
+  proofs consume the class only transitively.
 * **gap map** — declarations still depending on `sorryAx`.  **Currently empty, and expected to
   stay so**: the library is fully proved, and `scripts/check_axioms.sh`'s sorry allowlist is
   likewise empty (it last held the four `GQ2/Roe/Labute/` skeletons while the L-campaign was in
@@ -24,11 +28,10 @@ B-labels, and reports:
   enforces.
 * **alarm** — any *other* non-standard axiom.  Must be empty: a stray `axiom`, a `native_decide`
   (`Lean.ofReduceBool`), or a miscounted census would surface here.
-* **terminal certificate** — the campaign capstones, *checked* rather than reported: each is free of
-  `sorryAx` and of any axiom outside the census, and each Γ_R capstone depends on exactly the same
-  axioms as its Γ_A twin — including the hypothesis-free
-  `main_presentation_literal_roe_unconditional`, whose twin-identity is the trust-base claim of the
-  L-campaign.  Unlike the three reports above, a violation here fails the command.
+* **terminal certificate** — the campaign capstones, *checked* rather than reported: each legacy
+  capstone is free of `sorryAx` and of any axiom outside the census and matches its Γ_A/Γ_R twin;
+  each explicit-input capstone uses only the standard three axioms.  Unlike the reports above, a
+  violation here fails the command.
 
 Unlike the textual guard `scripts/check_axioms.sh`, this walks the elaborated environment directly,
 so it reports transitive dependencies and covers the whole library, including `private` lemmas.
@@ -72,6 +75,11 @@ def isTracked (bnames : List Name) (n : Name) (info : ConstantInfo) : Bool :=
   (`GQ2).isPrefixOf userName && !userName.isInternalDetail && !(bnames.contains n) &&
     (match info with | .thmInfo _ | .defnInfo _ => true | _ => false)
 
+def moduleOf (env : Environment) (n : Name) : Name :=
+  match env.getModuleIdxFor? n with
+  | some idx => env.header.moduleNames[idx.toNat]!
+  | none => env.mainModule
+
 /-- Regression fixture for private-declaration coverage in `isTracked`. -/
 private theorem privateTrackingRegression : True := True.intro
 
@@ -110,6 +118,39 @@ run_cmd do
   for a in alarms.qsort (· < ·) do out := out ++ s!"    {a}\n"
   IO.println out
 
+run_cmd do
+  let env ← getEnv
+  let bnames := bAxioms.map (·.1)
+  let cands : Array (Name × Name) := env.constants.fold (init := #[]) fun acc n info =>
+    if isTracked bnames n info && info.type.getUsedConstants.contains ``GQ2.LiteratureInputs then
+      acc.push (moduleOf env n, privateToUserName n)
+    else
+      acc
+  let cands := cands.qsort fun a b =>
+    if a.1 == b.1 then a.2.toString < b.2.toString else a.1.toString < b.1.toString
+  let mut out := s!"\n--- explicit LiteratureInputs inventory: {cands.size} declaration(s) ---\n"
+  let mut previousModule : Option Name := none
+  let mut moduleCount := 0
+  let mut modules := 0
+  for (modName, _) in cands do
+    match previousModule with
+    | none =>
+        previousModule := some modName
+        moduleCount := 1
+    | some previous =>
+        if previous == modName then
+          moduleCount := moduleCount + 1
+        else
+          out := out ++ s!"{previous}: {moduleCount}\n"
+          previousModule := some modName
+          moduleCount := 1
+          modules := modules + 1
+  if let some previous := previousModule then
+    out := out ++ s!"{previous}: {moduleCount}\n"
+    modules := modules + 1
+  out := out ++ s!"{modules} module(s) carry the hypothesis\n"
+  IO.println out
+
 /-! ### Terminal certificate
 
 The three reports above are informational — they print what the library depends on.  This section
@@ -128,10 +169,10 @@ The `Γ_R` sides of the first three rows are hypothesis-parametrized by `BLabHyp
 Labute classification enters those capstones as an explicit binder, never as an axiom); a binder
 contributes nothing to an axiom print, so the two sides of each pair are directly comparable.  The
 fourth row carries no binder at all: `main_presentation_literal_roe_unconditional` is that
-hypothesis *discharged*, by the theorem `GQ2.Roe.Labute.bLab` (L6, 2026-07-26).  Auditing it here
-rather than only for census membership is deliberate — that it prints *identically* to
-`main_presentation_literal` is exactly the claim that proving the Labute instance, rather than
-assuming it, widened the trust base by nothing. -/
+hypothesis *discharged*, by the theorem `GQ2.Roe.Labute.bLab` (L6, 2026-07-26).  Since both legacy
+routes select the same axiom-backed `LiteratureInputs` provider, twin identity chiefly guards
+against a new off-census dependency in either wrapper; the explicit-input certificate below is the
+stronger check on the generic proof terms. -/
 def terminalPairs : List (Name × Name) :=
   [ (``GQ2.main_presentation_literal,         ``GQ2.main_presentation_literal_roe)
   , (``GQ2.SectionTen.eq_154,                 ``GQ2.eq_154_R)
@@ -141,6 +182,19 @@ def terminalPairs : List (Name × Name) :=
 /-- `Γ_R`-side terminal declarations with no `Γ_A` twin to compare against: the bridge identifying
 the two admissible-marking semantics (`admissibleCountR` vs `admissibleCount`). -/
 def terminalSolo : List Name := [``GQ2.admissibleCountR_eq_admissibleCount]
+
+/-- Explicit-hypothesis capstones.  Their literature dependencies occur in their theorem types as
+the ordinary `[LiteratureInputs]` parameter, so their proof terms may use only the standard three
+axioms. -/
+def explicitInputTerminals : List Name :=
+  [ ``GQ2.main_presentation_literal_of_inputs
+  , ``GQ2.SectionTen.eq_154_of_inputs
+  , ``GQ2.SectionTen.main_surjection_count_of_inputs
+  , ``GQ2.eq_154_R_of_inputs
+  , ``GQ2.main_surjection_count_R_of_inputs
+  , ``GQ2.admissibleCountR_eq_admissibleCount_of_inputs
+  , ``GQ2.main_presentation_literal_roe_of_inputs
+  , ``GQ2.main_presentation_literal_roe_unconditional_of_inputs ]
 
 run_cmd do
   let env ← getEnv
@@ -173,6 +227,22 @@ run_cmd do
   unless bad.isEmpty do
     let badMsg := String.intercalate "\n  " bad.toList
     throwError "terminal certificate FAILED:\n  {badMsg}"
+
+run_cmd do
+  let env ← getEnv
+  let mut bad : Array String := #[]
+  for n in explicitInputTerminals do
+    unless env.contains n do
+      bad := bad.push s!"unknown explicit-input declaration {n}"
+      continue
+    let axs ← collectAxioms n
+    for a in axs do
+      unless stdAxioms.contains a do
+        bad := bad.push s!"{n} uses non-standard axiom {a}"
+  IO.println s!"\n--- explicit-input certificate ---\n{explicitInputTerminals.length} capstones checked; {bad.size} violation(s) (must be 0)"
+  unless bad.isEmpty do
+    let badMsg := String.intercalate "\n  " bad.toList
+    throwError "explicit-input certificate FAILED:\n  {badMsg}"
 
 end GQ2.AxiomLedger
 

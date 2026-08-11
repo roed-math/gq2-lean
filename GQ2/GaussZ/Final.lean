@@ -60,7 +60,7 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpa
 /-- **`hGaussZF`, unramified case** (the Prop. 8.9 assembly): with a per-lift tame package whose inertia
 acts trivially on `V`, `GaussZResidue B.bF F En l h (−2^m)` — the `prop_8_9` ledger
 hypothesis at the pinned unramified value. -/
-theorem gaussZResidue_local_unramified (D6 : TateDuality 2)
+theorem gaussZResidue_local_unramified [LiteratureInputs] (D6 : TateDuality 2)
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hVne : ∃ v : En.Vmod, v ≠ 0)
@@ -137,7 +137,7 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpa
 /-- **`hGaussZF`, ramified case** (the Prop. 8.9 assembly): with a per-lift tame package whose inertia
 moves `V`, `GaussZResidue B.bF F En l h (+2^m)` — the `prop_8_9` ledger hypothesis at the
 pinned ramified value. -/
-theorem gaussZResidue_local_ramified (D6 : TateDuality 2) (R : LocalReciprocity)
+theorem gaussZResidue_local_ramified [LiteratureInputs] (D6 : TateDuality 2) (R : LocalReciprocity)
     (horient : TameUnitOrientation R B.tameF)
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)

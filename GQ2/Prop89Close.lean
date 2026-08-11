@@ -57,8 +57,9 @@ through `half139_via_radData`) + the four residues (`hsep_gammaA` /
 `hpartial_gammaA` / `hZcard_gammaA` / `tcocycle_card_gammaA`) through the source-generic
 `phase140_from_residues`.
 
-`#print axioms prop_8_9` is the standard three axioms plus B6 `tateDualityAt` and
-B7 `absGalQ2_localEulerCharacteristic`, leaner than the App. D budget because B9 never enters
+The explicit literature-input dependencies of `prop_8_9` are B6
+`LiteratureInputs.tateDualityAt` and B7 `absGalQ2_localEulerCharacteristic`; its `#print axioms`
+output is std-3, and the field footprint is leaner than the App. D budget because B9 never enters
 this proof.  One elaboration detail is worth preserving: `simpa … using` fails the cross-`λ`
 `TCharC` definitional-equality close, while `simp only […]` followed by a bare `exact` works.
 -/
@@ -242,7 +243,7 @@ candidate slot abstracted over `(Γ, b)` and the supply obligations taken as hyp
 the exact shapes of the `_gammaA` supply lemmas (see the section docstring above).  Proof =
 the Prop. 8.9 assembly verbatim, with each `_gammaA` citation replaced by the corresponding
 obligation. -/
-theorem prop_8_9_of_source (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
+theorem prop_8_9_of_source [LiteratureInputs] (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
     (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)
@@ -374,7 +375,7 @@ smaller marked 2-kernel, so the system is a closed deterministic recursion (pape
 §8).  [the §8 proof layer statement — relocated & amended at the Prop. 8.9 assembly, see the module docstring; proof =
 the Prop. 8.9 assembly.  Verified axioms: std-3 + {B6, B7} (within the App. D ≤ {B6, B7, B9}
 budget; B9 never enters).] -/
-theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
+theorem prop_8_9 [LiteratureInputs] (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
     (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)

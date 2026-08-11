@@ -301,7 +301,7 @@ theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
 topological finite generation, the B1-shaped input) precedents — they finitize the counted
 `MLifts`.  Proof: the central-obstruction framework's central-obstruction engine + the B6 twist of
 `GQ2/RadicalEdgeLocal.lean` (`half_torsor_local`).  Ax: B6, B7. -/
-theorem lemma_8_6_local (D : RadicalCoverData Bg)
+theorem lemma_8_6_local [LiteratureInputs] (D : RadicalCoverData Bg)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hfg : ∃ s : Finset AbsGalQ2,
       (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)

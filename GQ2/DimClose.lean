@@ -30,7 +30,9 @@ theorem `lemma_6_17_dim_of_residueLift` is `lemma_6_17_dim` reduced to exactly t
 standard Galois-correspondence `k`-plumbing (`k`/`FiniteDimensional`/`hker`, threaded as
 everywhere in `LocalKummer`/`DeepDualityK`).
 
-Axioms: std-3 + B6 (`tateDualityAt`) + B7 + B11a (`hilbertSymbol_normCriterion_finiteDyadic`)
+Literature-input dependencies: B6 (`LiteratureInputs.tateDualityAt`) + B7 + B11a
+(`LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic`); as an explicit-hypothesis
+declaration, its `#print axioms` output is std-3.
 + B12 (`kummerClassK_surjective`) + B13 (`dyadicUnitFiltration`) — the §6.3 deep-part budget,
 no new axiom.  Closing `SectionSix.lemma_6_17_dim` outright needs the residue-trivial-lift fact
 (an axiom-or-infrastructure decision).
@@ -52,7 +54,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 deep-half dimension identity `#X₊² = #H¹(ℚ₂, V)`, assembled from f7's `hduality_of_data` + f8's
 `lemma_6_17_dim_of_hduality`, with the single arithmetic input — a residue-trivial lift of tame
 inertia — threaded as a hypothesis, alongside the standard Galois-correspondence `k`-plumbing. -/
-theorem lemma_6_17_dim_of_residueLift (B : BoundaryMaps)
+theorem lemma_6_17_dim_of_residueLift [LiteratureInputs] (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

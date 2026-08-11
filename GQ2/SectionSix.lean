@@ -757,7 +757,7 @@ local fields", needed by B9/B11) and the **Kummer presentation of `L/k`** — th
 unit `A = u + vδ` (the paper's "write `L = k(√d)`, `a = u + v√d`"); consumers (6.17, the deep-part proof)
 construct these concretely, and char-≠2 Kummer theory guarantees them abstractly.  See
 `docs/section67-extraction.md`.] -/
-theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+theorem lemma_6_16 [LiteratureInputs] (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
