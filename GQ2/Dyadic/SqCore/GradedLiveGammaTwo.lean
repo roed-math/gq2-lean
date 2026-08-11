@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.SqCore.GradedFiveLive
 import GQ2.Dyadic.SqCore.GradedGammaTwoCentral
+import GQ2.Dyadic.SqCore.GradedGammaTwoCensus
 
 /-!
 # W64-VERIFY task B: W63-CENTRAL2's `gamma_2` kill DOES apply at W63-LIVE5's point
@@ -28,10 +29,10 @@ and **every** handle, all three `gamma_2` lines FAIL, with the very same killing
 `liftO 1` (`GradedFiveLive.sqRelWord_liveBlkWit_diag`), the shift is `liftO 7`
 (`gaTwoShift_liveBlkWit_cenKill`), and `1 + 7 = 0`.
 
-⭐⭐ `liveCenKill_comm_form`: at the live point the killer is achievable by a **single** honest
-commutator of the point's own letters, `commP (liveBlkSig * stageX) (liveBlkV * liveBlkU⁻¹)`,
-where wave 60's point needed a product of two.  `cenSigDress_liveCenKill_mem` turns that into
-membership of `forceLcs (liveBlkImage h j stageX) 1`.
+⭐⭐ `liveCenKill_comm_form`: at the live point the killer is a **single** honest commutator of
+the point's own letters, `commP (liveBlkSig * stageX) (liveBlkV * liveBlkU⁻¹)`, where wave 60's
+point needed a product of two.  ⚠ Since the fold below, this is a standalone record and not the
+route to `cenSigDress_liveCenKill_mem`, which now takes the census's own certificate.
 
 ⭐ `liveCen_shared_x0`: the one-line reason.  `stageWit h j stageX 1 = liveBlkWit h j stageX 1`,
 both `stageX`, so `GradedGammaTwoCentral.cenKill_mechanism` - `selPar stageX.e = 1` and
@@ -51,9 +52,10 @@ and this one's is `3`.
 
 ## PROVED versus MEASURED
 
-**PROVED** (this file, no `sorry`, no new axiom, no `native_decide`): the reparametrisation of
-the live point by a sigma-slot dressing; the commutator form of the killer and hence its
-achievability at `gamma_2`; the kill; the central shift `liftO 7`; the failure of all three
+**PROVED** (this file and, since the fold below, `GradedGammaTwoCensus`; no `sorry`, no new
+axiom, no `native_decide`): the reparametrisation of the live point by a sigma-slot dressing; the
+single-commutator form of the killer; its achievability at `gamma_2`; the kill; the central shift
+`liftO 7`; the failure of all three
 `gamma_2` lines; the exclusion of the killer from the achievable stage-four lattice; and the
 shared `x0` slot.  All at every handle count and every handle.
 
@@ -73,6 +75,28 @@ handle count or the handle.  Since `GradedGammaTwoCensus.censKnob_eq_gaTwoCenKil
 corollaries of that identity, and the vulnerability is a property of the WITNESS STANDARD - which
 demands an odd `x0.e` and an odd diagonal residue - rather than of two points.
 
+## ⭐ Folded onto the census (W66-CONSOLEGAL)
+
+Five of the eleven results below were proved twice: once here as a decide at this point, once in
+`GradedGammaTwoCensus` as a corollary of the ring-level knob identity.  They now route through
+the census, which is the stronger derivation, and this file imports it:
+
+| here | now proved by |
+|---|---|
+| `gaTwoForces_liveBlkWit_false` | `GradedGammaTwoCensus.liveBlkWit_lines_false` `.1` |
+| `gaTwoCentral_liveBlkWit_false` | the same, `.2.1` |
+| `gaTwoOrth_liveBlkWit_false` | the same, `.2.2` |
+| `sqRelWord_liveBlkWit_cenKill` | `GradedGammaTwoCensus.sqRelWord_liveBlkWit_censKnob` |
+| `cenSigDress_liveCenKill_mem` | `GradedGammaTwoCensus.liveBlk_censKnob_mem` |
+
+⚠ **Every name and every statement below is unchanged**; only the proofs moved.  The six that
+did not fold are genuinely this file's own: `liveCen_shared_x0`, `liveCen_knob`,
+`cenSigDress_liveBlkWit`, `gaTwoShift_liveBlkWit_cenKill` (the census records the kill but not
+the value `liftO 7` of the shift), `liveCenKill_not_stageFour_achievable`, and
+`liveCenKill_comm_form` - whose SINGLE-commutator certificate is a different statement from the
+census's `liveBlk_censKnob_comm_form`, which uses a product of two.  It is kept as a record and
+is no longer a step in any proof here.
+
 ## Merge notes
 
 Reused: `liveBlkSig`, `liveBlkU`, `liveBlkV`, `liveBlkWit`, `liveBlkWit_zero`,
@@ -81,7 +105,10 @@ Reused: `liveBlkSig`, `liveBlkU`, `liveBlkV`, `liveBlkWit`, `liveBlkWit_zero`,
 `gaTwoCenKill_not_mem_stageN3`, `cenSigDress`, `conFiveDress_fiveTuple_cenSigDress`,
 `GaTwoForces`, `GaTwoCentral`, `GaTwoOrth`, `gaTwoCentral_of_gaTwoOrth`, `cenKill_mechanism`
 (`GradedGammaTwoCentral`); `stageX`, `stageWit`, `forceLcs_two_le_stageN3`, `stageN3`
-(`GradedFiveStageFour`); `commP`, `commP_mem_commSub` (`GradedFiveNecessity`); `forceLcs`
+(`GradedFiveStageFour`); `censKnob_eq_gaTwoCenKill`, `cens_sigDress_mem_forceLcs`,
+`liveBlk_censKnob_mem`, `liveBlkWit_lines_false`, `sqRelWord_liveBlkWit_censKnob`
+(`GradedGammaTwoCensus`, all new with the W66-CONSOLEGAL fold); `commP`, `commP_mem_commSub`
+(`GradedFiveNecessity`); `forceLcs`
 (`GradedFiveForce`); `fiveTuple`, `sqRelWord_fiveTuple`, `SqU6.liftO`, `selPar`
 (`GradedFive`, `Cores`).  New public names carry the `liveCen` prefix except the five
 `_liveBlkWit_` theorems, which name the point they are about, and `cenSigDress_liveBlkWit` and
@@ -151,41 +178,36 @@ sigma mark and the new handle letters put it one commutator away. -/
 theorem liveCenKill_comm_form :
     gaTwoCenKill = commP (liveBlkSig * stageX) (liveBlkV * liveBlkU⁻¹) := by decide
 
-/-- ⭐⭐ **…so the sigma-slot dressing by the killer is ACHIEVABLE at the live point**: every
-slot lies in `forceLcs (liveBlkImage h j stageX) 1`, the honest `gamma_2` of the image. -/
+/-- ⭐⭐ **The sigma-slot dressing by the killer is ACHIEVABLE at the live point**: every slot
+lies in `forceLcs (liveBlkImage h j stageX) 1`, the honest `gamma_2` of the image.
+
+Proved through `GradedGammaTwoCensus.liveBlk_censKnob_mem`, which puts the knob itself in the
+`gamma_2` of the image, and `cens_sigDress_mem_forceLcs`, which spreads a sigma-slot element
+across the slots.  ⚠ It no longer reads `liveCenKill_comm_form`; the census reaches the same
+membership by its own two-commutator certificate. -/
 theorem cenSigDress_liveCenKill_mem (i : Fin (sqRank h)) :
-    cenSigDress h gaTwoCenKill i ∈ forceLcs (liveBlkImage h j stageX) 1 := by
-  by_cases hi : (i : ℕ) = 0
-  · rw [cenSigDress, if_pos hi]
-    have hS : liveBlkSig * stageX ∈ liveBlkImage h j stageX :=
-      Subgroup.subset_closure ⟨0, by rw [liveBlkWit_zero]⟩
-    have hU : liveBlkU ∈ liveBlkImage h j stageX :=
-      Subgroup.subset_closure ⟨sqHandleIdxU j, by rw [liveBlkWit_handleU]⟩
-    have hV : liveBlkV ∈ liveBlkImage h j stageX :=
-      Subgroup.subset_closure ⟨sqHandleIdxV j, by rw [liveBlkWit_handleV]⟩
-    rw [liveCenKill_comm_form]
-    exact commP_mem_commSub hS (mul_mem hV (inv_mem hU))
-  · rw [cenSigDress, if_neg hi]
-    exact one_mem _
+    cenSigDress h gaTwoCenKill i ∈ forceLcs (liveBlkImage h j stageX) 1 :=
+  cens_sigDress_mem_forceLcs (by rw [censKnob_eq_gaTwoCenKill]; exact liveBlk_censKnob_mem) i
 
 /-- ⭐⭐⭐ **THE KILL.**  At the live point's diagonal dressing, at every handle count and every
 handle, the achievable `gamma_2`-dressing `gaTwoCenKill` on the sigma slot kills the dressed
-frame outright. -/
+frame outright.
+
+Proved through `GradedGammaTwoCensus.sqRelWord_liveBlkWit_censKnob`, i.e. off the ring-level knob
+identity, where this file originally decided it at the point. -/
 theorem sqRelWord_liveBlkWit_cenKill (h : ℕ) (j : Fin h) :
     sqRelWord (conFiveDress (liveBlkWit h j stageX) (cenSigDress h gaTwoCenKill)) = 1 := by
-  rw [cenSigDress_liveBlkWit, liveBlkWit, sqRelWord_fiveTuple]
-  decide
+  rw [censKnob_eq_gaTwoCenKill]
+  exact sqRelWord_liveBlkWit_censKnob h j
 
 /-- ⭐⭐⭐ **The `gamma_2` forcing FAILS at the live point**: the residue is odd and an
 achievable `gamma_2`-dressing kills.  W63-LIVE5's point is NOT a fresh place to stand one
-filtration step wider. -/
+filtration step wider.
+
+Proved through `GradedGammaTwoCensus.liveBlkWit_lines_false`, whose statement is exactly the
+conjunction of this theorem and its two siblings below. -/
 theorem gaTwoForces_liveBlkWit_false (h : ℕ) (j : Fin h) :
-    ¬ GaTwoForces (liveBlkWit h j stageX) := by
-  intro hF
-  have hb := hF (cenSigDress h gaTwoCenKill) (fun i => cenSigDress_liveCenKill_mem i)
-    (sqRelWord_liveBlkWit_cenKill h j)
-  rw [sqRelWord_liveBlkWit_diag, SqU6.liftO_o, selPar_one] at hb
-  exact absurd hb (by decide)
+    ¬ GaTwoForces (liveBlkWit h j stageX) := (liveBlkWit_lines_false h j).1
 
 /-- ⭐⭐ **The killing dressing acts CENTRALLY**, with the odd class-five row `7`, so it refutes
 the centrality line and not merely the parity line. -/
@@ -204,18 +226,18 @@ theorem gaTwoShift_liveBlkWit_cenKill (h : ℕ) (j : Fin h) :
   rw [← hid, SqU6.liftO_mul_liftO]
   decide
 
-/-- ⭐⭐⭐ **…so the CENTRALITY LINE FAILS at the live point too.** -/
-theorem gaTwoCentral_liveBlkWit_false (h : ℕ) (j : Fin h) :
-    ¬ GaTwoCentral (liveBlkWit h j stageX) := by
-  intro hC
-  obtain ⟨t, ht⟩ := hC (cenSigDress h gaTwoCenKill) 7 (fun i => cenSigDress_liveCenKill_mem i)
-    (gaTwoShift_liveBlkWit_cenKill h j)
-  exact (by decide : ∀ t : gr3R, (7 : gr3R) ≠ 2 * t) t ht
+/-- ⭐⭐⭐ **…so the CENTRALITY LINE FAILS at the live point too.**
 
-/-- ⭐⭐ …and so does the parity line, which the centrality line implies. -/
+Proved through `GradedGammaTwoCensus.liveBlkWit_lines_false`.  ⚠ The census route does not read
+`gaTwoShift_liveBlkWit_cenKill`, so that theorem is no longer a step here; it survives as the
+record of the shift's VALUE, `liftO 7`, which the census does not state. -/
+theorem gaTwoCentral_liveBlkWit_false (h : ℕ) (j : Fin h) :
+    ¬ GaTwoCentral (liveBlkWit h j stageX) := (liveBlkWit_lines_false h j).2.1
+
+/-- ⭐⭐ …and so does the parity line, which the centrality line implies.  Proved through
+`GradedGammaTwoCensus.liveBlkWit_lines_false`, which carries all three lines together. -/
 theorem gaTwoOrth_liveBlkWit_false (h : ℕ) (j : Fin h) :
-    ¬ GaTwoOrth (liveBlkWit h j stageX) :=
-  fun hO => gaTwoCentral_liveBlkWit_false h j (gaTwoCentral_of_gaTwoOrth hO)
+    ¬ GaTwoOrth (liveBlkWit h j stageX) := (liveBlkWit_lines_false h j).2.2
 
 end Kill
 
