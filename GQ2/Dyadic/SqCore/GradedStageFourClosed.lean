@@ -67,8 +67,9 @@ steps, and the middle one is the only new mathematics:
   frame quantity times a Frobenius weight `-4 x + 2 y`.  The certificate reads the class-five
   row multiplied by `4`, and `4 * (-4 x + 2 y) = 8 * (-2 x + y) = 0`, which is what makes
   `psiOne_gaThreeShift` a statement with no block term in it, at ANY marking and any handle
-  count.  ⚠ `four_mul_frob` records that arithmetic but is invoked by no proof in this file; the
-  block terms are discharged inside the reduction lemmas themselves;
+  count.  ⚠ That arithmetic is not a named lemma: the block terms are discharged inside the
+  reduction lemmas themselves, by the `gr8c` witness each of their `linear_combination` calls
+  carries;
 * **the dead handles die.**  At a `fiveTuple` marking every handle other than the live one has
   both letters trivial, and `gaThreeHandle 1 1 z w = 1` (`gaThreeHandle_one_one`), so the handle
   sums collapse to their single live term (`handleShiftSum`).  Neither step reads the letters;
@@ -246,13 +247,6 @@ section CertificateRows
 variable {h : ℕ} {j : Fin h}
 
 private theorem gr8c : (8 : gr3R) = 0 := by decide
-
-/-- ⭐ **A Frobenius weight dies against the certificate's factor of `4`.**  Both block terms of
-`gaThreeShiftO` are a frame quantity times `-4 x + 2 y`, and `4 * (-4 x + 2 y) = 8 * (-2 x + y)`
-vanishes over `Z/8`.  This is the whole reason the certificate never has to see the handle
-block's class-two rows. -/
-private theorem four_mul_frob (t a b : gr3R) : (4 : gr3R) * (t * (-4 * a + 2 * b)) = 0 := by
-  linear_combination (t * (-2 * a + b)) * gr8c
 
 /-- ⭐⭐ **The `gap-1` certificate reads the shift with NO block term**, at any marking and any
 handle count: the class-three row is the Frobenius weights alone, and the two central collection
