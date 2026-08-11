@@ -17,7 +17,7 @@ either alone is not measured anywhere".
 This file builds the second reading and answers the question.  The answer has three parts, and
 the middle one is a negative.
 
-## ⭐⭐ Headline 1: the second reading exists, and everything wave 61 proved holds of it
+## ⭐⭐ Headline 1: the block equation, handle-count forcing and minor selection transpose verbatim
 
 `SqU6.blockReadCD s x = s.c * x.d - s.d * x.c`.  The `(3,5)` row of the core word has the same
 shape as the `(4,6)` row (`SqU6.sqWord_h`), so the same argument gives the same three theorems:
@@ -28,7 +28,16 @@ gauge); ⭐⭐ `SqU6.pos_of_blockReadCD_odd`; ⭐ `SqU6.exists_handle_minorCD_od
 level `blockParCD` is an alternating bi-additive form that kills commutators and the torsion
 letter, ⭐⭐ `blockParCD_relator_frame` is a second symplectic identity, ⭐⭐⭐
 `blockParCD_handleFree` kills it on every pair at `h = 0`, and ⭐⭐
-`exists_blockParCD_odd_iff_pos` is the characterisation.
+`exists_blockParCD_odd_iff_pos` is the characterisation.  Section 5 adds the dressing-invariance
+analogues `SqU6.blockReadCD_gaTwoDress` and `SqU6.blockReadCD_gaThreeDress`.
+
+⚠ **What does NOT transpose, and is not attempted here**, so "everything wave 61 proved holds of
+it" would be too strong: `GradedBlockRead.blindCexCore_not_relator_handleFree`, the concrete core
+pair at which the `h = 0` exclusion is exhibited to have content (nothing here plays that role
+for the CD reading); `SqU6.blockCoupling` and its suite
+(`SqU6.sqRelWord_sigFiveDress_o_blockCoupling`, `SqU6.blockCoupling_gaThreeDress`); and
+`SqU6.blockChannel_gaThreeDress`, the coupled-channel invariance.  The coupled channel has no CD
+analogue anywhere in this file.
 
 ⚠ **This is a REFORMULATION of `0 < h`, exactly as wave 62's was, and it is stated as one.**
 `exists_blockPar_odd_iff_pos` and `exists_blockParCD_odd_iff_pos` are both equivalences with
@@ -84,7 +93,9 @@ cheap item of section 6.3.  It really is one lemma plus one corollary.
 ## PROVED versus MEASURED
 
 **PROVED** (this file, no `sorry`, no new axiom, no `native_decide`; every `decide` is on
-`ZMod 8` or `ZMod 2`): everything named above.
+`ZMod 8` or `ZMod 2`): every declaration named above, with the single exception of the three
+wave-61 families listed in Headline 1's ⚠ paragraph, which are named there precisely because they
+are **not** transposed here.
 
 **MEASURED** (`scripts/w63_second/`, certified outputs in `scripts/w63_second/results/`;
 `88` named checks in three scripts, `0` failures, on `scripts/w61_block/blocklib.py` over the
@@ -93,6 +104,7 @@ independently certified `U_6(Z/8)` of `scripts/w59_blind5/u6lib.py`):
 | measurement | scale | result |
 |---|---|---|
 | the four class-two rows of the core word have the same shape, over `Z` | symbolic | exact |
+| ⚠ the outer flip pairs `(2,4)` with `(3,5)`, NOT `(3,5)` with `(4,6)` | `120` pairs, `20` markings | the two readings lie in different flip-orbits |
 | the second block parity law, **exhaustive** on `ZMod 8` | `4194304` points | `0` failures |
 | …and its failure without the `(3,4)`-row | `4096` correction terms | `1024` odd |
 | the `(5,6)`-row variant, exact witness, **exhaustive** | `16777216` points | `0` failures |
@@ -168,11 +180,12 @@ slot against the `x0` slot in the two **middle** abelian columns, one column in 
 `SqU6.blockRead`.
 
 `docs/dyadic/w61-block-note.md` section 6.3 asked for it by name.  ⚠ It is **not** the image of
-`SqU6.blockRead` under any symmetry of `U_6`: the outer flip of `U_6` pairs the `(1,3)` row with
-the `(4,6)` row and the `(2,4)` row with the `(3,5)` row, so this reading is in the flip-orbit
-the campaign has never looked at (`scripts/w63_second/results/derive_second.txt` section 7).
-What makes it work is not symmetry but that all four class-two rows of `sqWord` have the same
-shape, which section 1 proves directly. -/
+`SqU6.blockRead` under the OUTER FLIP of `U_6`, which pairs the `(1,3)` row with the `(4,6)` row
+and the `(2,4)` row with the `(3,5)` row, so this reading is in the flip-orbit the campaign has
+never looked at.  ⚠ That is the only symmetry checked, it is MEASURED rather than proved
+(`scripts/w63_second/results/derive_second.txt` section 7), and **no claim is made about the
+whole symmetry group of `U_6`**.  What makes the reading work is in any case not symmetry but
+that all four class-two rows of `sqWord` have the same shape, which section 1 proves directly. -/
 def SqU6.blockReadCD (s x : SqU6 R) : R := s.c * x.d - s.d * x.c
 
 theorem SqU6.blockReadCD_def (s x : SqU6 R) : SqU6.blockReadCD s x = s.c * x.d - s.d * x.c := rfl
