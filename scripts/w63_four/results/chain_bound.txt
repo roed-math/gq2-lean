@@ -1,0 +1,57 @@
+$ python3 chain_bound.py
+== gap-1a
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   |forceLcs H 2| (wave-61 lattice) 1024
+   |B| 128   class-five unit in B: False   separating characters: 1024
+   filtered congruence hull K0 of the letters: |K0| = 68719476736
+      level 1 span order 128   basis [(1, 2, 7, 0, 7), (0, 1, 0, 2, 1), (0, 0, 0, 0, 4)]
+      level 2 span order 2048   basis [(1, 0, 6, 0), (0, 1, 0, 2), (0, 0, 1, 0), (0, 0, 0, 2)]
+      level 3 span order 512   basis [(1, 0, 6), (0, 1, 1), (0, 0, 1)]
+      level 4 span order 64   basis [(1, 2), (0, 1)]
+      level 5 span order 8   basis [(1,)]
+   |gamma_3(K0)| 8192   contains the honest lattice: True
+   separating characters that survive on gamma_3(K0): 0
+   closest character psi = 1l + 2n + 4o misses 6 of 30 slot/basis pairs
+
+== gap-1b
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1, n=4> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   |forceLcs H 2| (wave-61 lattice) 1024
+   |B| 128   class-five unit in B: False   separating characters: 1024
+   filtered congruence hull K0 of the letters: |K0| = 68719476736
+      level 1 span order 128   basis [(1, 2, 7, 0, 7), (0, 1, 0, 2, 1), (0, 0, 0, 0, 4)]
+      level 2 span order 2048   basis [(1, 0, 6, 0), (0, 1, 0, 2), (0, 0, 1, 0), (0, 0, 0, 2)]
+      level 3 span order 512   basis [(1, 0, 6), (0, 1, 1), (0, 0, 1)]
+      level 4 span order 64   basis [(1, 2), (0, 1)]
+      level 5 span order 8   basis [(1,)]
+   |gamma_3(K0)| 8192   contains the honest lattice: True
+   separating characters that survive on gamma_3(K0): 0
+   closest character psi = 1l + 2n + 4o misses 6 of 30 slot/basis pairs
+
+== gap-2a
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   |forceLcs H 2| (wave-61 lattice) 256
+   |B| 64   class-five unit in B: False   separating characters: 2048
+   filtered congruence hull K0 of the letters: |K0| = 17179869184
+      level 1 span order 64   basis [(1, 7, 3, 0, 5), (0, 2, 2, 0, 6), (0, 0, 0, 4, 0)]
+      level 2 span order 1024   basis [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 4, 0), (0, 0, 0, 1)]
+      level 3 span order 512   basis [(1, 0, 0), (0, 1, 5), (0, 0, 1)]
+      level 4 span order 64   basis [(1, 3), (0, 1)]
+      level 5 span order 8   basis [(1,)]
+   |gamma_3(K0)| 1024   contains the honest lattice: True
+   separating characters that survive on gamma_3(K0): 0
+   closest character psi = 1m + 4o misses 2 of 25 slot/basis pairs
+
+== gap-2b
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3, n=4> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   |forceLcs H 2| (wave-61 lattice) 256
+   |B| 64   class-five unit in B: False   separating characters: 2048
+   filtered congruence hull K0 of the letters: |K0| = 17179869184
+      level 1 span order 64   basis [(1, 7, 3, 0, 5), (0, 2, 2, 0, 6), (0, 0, 0, 4, 0)]
+      level 2 span order 1024   basis [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 4, 0), (0, 0, 0, 1)]
+      level 3 span order 512   basis [(1, 0, 0), (0, 1, 5), (0, 0, 1)]
+      level 4 span order 64   basis [(1, 3), (0, 1)]
+      level 5 span order 8   basis [(1,)]
+   |gamma_3(K0)| 1024   contains the honest lattice: True
+   separating characters that survive on gamma_3(K0): 0
+   closest character psi = 1m + 4o misses 2 of 25 slot/basis pairs
+

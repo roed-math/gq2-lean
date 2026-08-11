@@ -1,0 +1,29 @@
+$ python3 normal_chain.py
+== gap-1a
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   |forceLcs H 2| 1024   |B| 128   separating characters 1024
+   NORMAL-G  |K1| levels L2:8 L3:512 L4:64 L5:8   |K2| 8192   surviving characters 0
+   NORMAL-H  |K1| levels L2:8 L3:64 L4:64 L5:8   |K2| 2048   surviving characters 0
+   EXACT     |K2| 1024   surviving characters 1024
+
+== gap-1b
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1, n=4> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   |forceLcs H 2| 1024   |B| 128   separating characters 1024
+   NORMAL-G  |K1| levels L2:8 L3:512 L4:64 L5:8   |K2| 8192   surviving characters 0
+   NORMAL-H  |K1| levels L2:8 L3:64 L4:64 L5:8   |K2| 2048   surviving characters 0
+   EXACT     |K2| 1024   surviving characters 1024
+
+== gap-2a
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   |forceLcs H 2| 256   |B| 64   separating characters 2048
+   NORMAL-G  |K1| levels L2:8 L3:128 L4:64 L5:8   |K2| 2048   surviving characters 0
+   NORMAL-H  |K1| levels L2:8 L3:128 L4:32 L5:8   |K2| 1024   surviving characters 0
+   EXACT     |K2| 256   surviving characters 2048
+
+== gap-2b
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3, n=4> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   |forceLcs H 2| 256   |B| 64   separating characters 2048
+   NORMAL-G  |K1| levels L2:8 L3:128 L4:64 L5:8   |K2| 2048   surviving characters 0
+   NORMAL-H  |K1| levels L2:8 L3:128 L4:32 L5:8   |K2| 1024   surviving characters 0
+   EXACT     |K2| 256   surviving characters 2048
+
