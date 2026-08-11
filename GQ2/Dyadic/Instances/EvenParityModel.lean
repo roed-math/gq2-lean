@@ -251,6 +251,87 @@ theorem parityFinal_orientedEquivN_quartic [T2Space (GalK KQuarticN)]
 
 end Models
 
+/-! ## §5 The wave-58 artefacts, now carried
+
+`EvenRouteFinalCarried{N,M}` was the even route's packaged conclusion, guarded by the family
+supply.  Wave 65 proved it equivalent to the endpoint; §2 proves the endpoint from the range
+identity, so the artefact now follows from the range identity and the degree. -/
+
+section Artefacts
+
+/-- **The wave-58 `N` artefact from the range identity alone.** -/
+theorem parityFinal_carriedN_of_range {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    EvenRouteFinalCarriedN h K :=
+  (hfamFinal_carriedN_iff_orientedEquiv halpha hrange hev).mpr
+    (parityFinal_orientedEquivN_of_range halpha hrange hev)
+
+/-- **The wave-58 `M` artefact from the range identity alone.** -/
+theorem parityFinal_carriedM_of_range {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    EvenRouteFinalCarriedM h K :=
+  (hfamFinal_carriedM_iff_orientedEquiv halpha hrange hev).mpr
+    (parityFinal_orientedEquivM_of_range halpha hrange hev)
+
+/-- **The artefact holds on one of the two branches at every even-degree field** with `K(i)/K`
+ramified, over the reciprocity bundle alone. -/
+theorem parityFinal_carried_evenClassification {R : LocalReciprocity} (B : MarkedRecip R K)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI) {h : ℕ}
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    EvenRouteFinalCarriedM h K ∨ EvenRouteFinalCarriedN h K := by
+  obtain ⟨alpha, halpha, hr⟩ :=
+    GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq B deltaI hdeltaI hram
+  rcases hr with hr | hr
+  · exact Or.inl (parityFinal_carriedM_of_range halpha hr hev)
+  · exact Or.inr (parityFinal_carriedN_of_range halpha hr hev)
+
+end Artefacts
+
 end
+
+/-! ## §6 Axiom pins
+
+The lane's endpoints printed side by side with the committed even endpoints they consume and
+with the odd route's parity supply whose argument this wave clones.  Nothing here may exceed the
+committed endpoint set. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenParity
+
+-- §1 `Hfam` at every even-degree field
+#print axioms evenParity_hfamN_of_finrank
+#print axioms evenParity_hfamM_of_finrank
+
+-- §2 the endpoint from the range identity
+#print axioms parityFinal_orientedEquivN_of_range
+#print axioms parityFinal_orientedEquivM_of_range
+
+-- §3 the even classification
+#print axioms parityFinal_evenClassification
+#print axioms parityFinal_evenClassification_evenDegree
+
+-- §4 the model fields
+#print axioms parityFinal_classification_sqrtNegTwo
+#print axioms parityFinal_classification_sqrtTwo
+#print axioms parityFinal_orientedEquivN_sqrtNegTwo
+#print axioms parityFinal_orientedEquivM_sqrtTwo
+#print axioms parityFinal_orientedEquivN_quartic
+
+-- §5 the artefacts
+#print axioms parityFinal_carriedN_of_range
+#print axioms parityFinal_carriedM_of_range
+#print axioms parityFinal_carried_evenClassification
+
+-- the committed endpoints consumed, for the side-by-side
+#print axioms GQ2.Dyadic.EvenRouteFinal.evenRouteFinal_orientedEquivN_atDepth
+#print axioms GQ2.Dyadic.EvenRouteFinal.evenRouteFinal_orientedEquivM_atDepth
+#print axioms GQ2.Dyadic.EvenFamily.hfamFinal_carriedN_iff_orientedEquiv
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq
+
+end AxiomPins
 
 end GQ2.Dyadic.EvenParity
