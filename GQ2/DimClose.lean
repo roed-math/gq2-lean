@@ -40,8 +40,6 @@ no new axiom.  Closing `SectionSix.lemma_6_17_dim` outright needs the residue-tr
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace DimClose
 
@@ -53,12 +51,11 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
-include lit in
 /-- **`lemma_6_17_dim`, reduced to the residue-trivial tame lift** (the deep-part proof finale): the §6.3
 deep-half dimension identity `#X₊² = #H¹(ℚ₂, V)`, assembled from f7's `hduality_of_data` + f8's
 `lemma_6_17_dim_of_hduality`, with the single arithmetic input — a residue-trivial lift of tame
 inertia — threaded as a hypothesis, alongside the standard Galois-correspondence `k`-plumbing. -/
-theorem lemma_6_17_dim_of_residueLift (B : BoundaryMaps)
+theorem lemma_6_17_dim_of_residueLift [LiteratureInputs] (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

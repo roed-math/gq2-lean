@@ -33,27 +33,23 @@ No new axiom, no `sorryAx`.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-include lit in
 /-- **The orientation clause at the witness's tame coordinate** (the Lemma 6.17 vanishing proof(iii), the witness
 discharge): `SectionThree.tameFHom` satisfies `TameUnitOrientation LiteratureInputs.localReciprocity`.  Since
 `tameFHom = LiteratureInputs.tameQuotient.equiv ∘ mk` by construction (`locTame` repackages the B10′ bundle), the
 clause is verbatim `LiteratureInputs.tameQuotient.nuT_recip_unit`. -/
-theorem tameUnitOrientation_tameFHom :
+theorem tameUnitOrientation_tameFHom [LiteratureInputs] :
     TameUnitOrientation LiteratureInputs.localReciprocity SectionThree.tameFHom :=
   LiteratureInputs.tameQuotient.nuT_recip_unit
 
-include lit in
 /-- **The witness discharge in the consumer's verbatim shape** (`B := boundaryMapsWitness`):
 `boundaryMapsWitness.tameF` satisfies `TameUnitOrientation LiteratureInputs.localReciprocity`.  This is the
 instantiation the literal-presentation proof/the architecture review assembly uses to discharge the orientation hypothesis of the moved
 `lemma_6_17_vanish` at the axiom witness (`boundaryMapsWitness.tameF ≡ tameFHom` by the
 structure-literal projection). -/
-theorem tameUnitOrientation_witness :
+theorem tameUnitOrientation_witness [LiteratureInputs] :
     TameUnitOrientation LiteratureInputs.localReciprocity (SectionThree.boundaryMapsWitness).tameF :=
   tameUnitOrientation_tameFHom
 

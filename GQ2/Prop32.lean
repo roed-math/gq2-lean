@@ -53,8 +53,6 @@ open CategoryTheory
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionThree
 
@@ -1264,12 +1262,12 @@ theorem tameData_maximal [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGa
     T.equiv.injective (by rw [map_one]; exact h1)
   exact (QuotientGroup.eq_one_iff x).mp h2q
 
-include lit in
 /-- **Prop. 3.2, local side** (`Ax = B10`): the tame quotient of
 `G_{ℚ₂}` is `T_tame`, by the *maximal* closed normal pro-2 subgroup.  Existence is axiom B10
 (oriented form B10′ since the marked pro-2 isomorphisms; only the underlying `TameQuotientData` is used here);
 maximality is Lemma 3.3 (`tameData_maximal`). -/
-theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem prop_3_2_local [lit : LiteratureInputs] [CompactSpace AbsGalQ2]
+    [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty LocalTameQuotient :=
   ⟨{ toTameQuotientData := lit.tameQuotient.toTameQuotientData,
      maximal := tameData_maximal lit.tameQuotient.toTameQuotientData }⟩

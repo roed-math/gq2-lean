@@ -16,8 +16,6 @@ open scoped Pointwise
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionEight
 
@@ -298,14 +296,13 @@ theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
     2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ) :=
   LedgerGammaA.half_torsor_gammaA D hedge ρ hρ
 
-include lit in
 /-- **Lemma 8.6 (half-torsor count), local source**: as `lemma_8_6_gammaA`, for `G_ℚ₂`
 (degree-one duality = B6).  The standing §8 side conditions are explicit, following
 `lemma_8_2_local` (compactness) and `lemma_8_3` (`hfg`
 topological finite generation, the B1-shaped input) precedents — they finitize the counted
 `MLifts`.  Proof: the central-obstruction framework's central-obstruction engine + the B6 twist of
 `GQ2/RadicalEdgeLocal.lean` (`half_torsor_local`).  Ax: B6, B7. -/
-theorem lemma_8_6_local (D : RadicalCoverData Bg)
+theorem lemma_8_6_local [LiteratureInputs] (D : RadicalCoverData Bg)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hfg : ∃ s : Finset AbsGalQ2,
       (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)

@@ -29,8 +29,6 @@ solved by `count_eq_of_closedRecursion` against the §9 induction bounds).
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open SectionEight
 
@@ -99,13 +97,12 @@ theorem sup_MB_eq_top_of_map_piBC (T : MarkedTarget H E Y)
 
 end RStageHelpers
 
-include lit in
 /-- **The `M`-stage lane** (`R = ⊥`) of the §9 master induction: the two `mStage_partition`
 (the §9 induction) identities at the block frame, multiplicity `|M_B|²` per source, solved against the
 strong-induction hypothesis `IH`.  Extracted from `thm_4_2`; source-generic over
 `S : SourceData` since the SourceData refactor (the `Γ_A` supply enters through `S.tfg` and
 `S.liftsOver_card`). -/
-private theorem mStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
+private theorem mStage_lane [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
     (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
@@ -288,11 +285,10 @@ private theorem rStage_phase (S : SourceData) (B : BoundaryMaps) (F : BoundaryFr
     (blockFrameImpl T Blk hE2).nPhase_eq_liftableCount_top B.bF F Cζ]
   omega
 
-include lit in
 /-- **The `R`-stage lane** (`R ≠ ⊥`) of the §9 master induction: the closed system of
 `prop_8_9` (the Prop. 8.9 assembly) at `blockEnrichment` (the §9 induction), solved by `count_eq_of_closedRecursion`
 (the §9 induction) against the IH at the (145)/(148)/(153) bounds.  Extracted from `thm_4_2`. -/
-private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
+private theorem rStage_lane [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
@@ -381,7 +377,6 @@ private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
     rw [exactImageCount_eq_zero_of_not_headSurj S.b F T hhead,
       exactImageCount_eq_zero_of_not_headSurj B.bF F T hhead]
 
-include lit in
 /-- **Theorem 4.2 over an abstract source** (the SourceData refactor): for every
 `S : SourceData`, every boundary frame, and every boundary-framed marked target `𝒴`, the
 exact-image lift counts of `S` and `G_ℚ₂` agree: `e^β_S(𝒴) = e^β_{G_ℚ₂}(𝒴)`.  The `Γ_A`
@@ -389,7 +384,7 @@ capstone `thm_4_2` below is this statement at `B.sourceA` (definitionally: `B.so
 **is** `B.bA`); R32 instantiates it at `sourceR` with zero further refactoring.  Same
 strong-induction skeleton as `thm_4_2`, with the terminal lane through
 `terminal_count_eq_of_sources`. -/
-theorem thm_4_2_of_sources (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
+theorem thm_4_2_of_sources [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y]
@@ -419,7 +414,6 @@ theorem thm_4_2_of_sources (S : SourceData) (B : BoundaryMaps) (F : BoundaryFram
       · -- **`R`-stage lane** (`R ≠ ⊥`, §9.3): delegated to `rStage_lane`.
         exact rStage_lane S B F R horient T hE2 Blk hstack hR n hcard IH
 
-include lit in
 /-- **Theorem 4.2 (boundary-framed exact-image theorem).**  For every boundary frame and
 every boundary-framed marked target `𝒴`, the exact-image lift counts from the two sources
 agree: `e^β_{Γ_A}(𝒴) = e^β_{G_ℚ₂}(𝒴)`.
@@ -447,7 +441,7 @@ The proof combines the induction scaffold, terminal lane, `M`-stage lane, and th
 assembled against `prop_8_9` in `GQ2/Prop89Close.lean`.
 Axioms B1/B3c/B6/B7/B8/B9 enter through the ingredients, per App. D (B7′, the dyadic Hilbert
 symbol, is now an in-repo theorem, not an axiom). -/
-theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
+theorem thm_4_2 [LiteratureInputs] (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y]
@@ -459,11 +453,10 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
   -- whose boundary map is definitionally `B.bA` (`BoundaryMaps.sourceA_b`).
   exact thm_4_2_of_sources B.sourceA B F R horient T hE2
 
-include lit in
 /-- Theorem 4.2's second clause: "the same equality holds for every exact-image target `𝒥`"
 — an *instance* of the first (strata are ordinary objects of the same category), recorded to
 fix the consumption shape for §8.  [Relocated with `thm_4_2`; carries the same `hE2`.] -/
-theorem thm_4_2_stratum (B : BoundaryMaps) (F : BoundaryFrame H E)
+theorem thm_4_2_stratum [LiteratureInputs] (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {Y : Type} [Group Y]
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)

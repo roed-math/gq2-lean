@@ -82,15 +82,12 @@ end GQ2.HilbertSymbol
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 /-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `lit.tateDualityAt` -/
 
-include lit in
 /-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `lit.tateDualityAt`, using
 `isLocalDualizingGroup_absGalQ2`. -/
-noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
+noncomputable def tateDuality [lit : LiteratureInputs] (n : ℕ) [NeZero n] : TateDuality n :=
   lit.tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
 
 /-! ## The B11 convention layer and the discharged B11b
@@ -159,7 +156,6 @@ lemma not_hasEqualNormValueGroups_sqrt_two (δa : AlgebraicClosure ℚ_[2])
 
 /-! ## B9, derived form (the pre-flip axiom, now a theorem over B9 + B11a) -/
 
-include lit in
 /-- **Formerly the B9 axiom — since 2026-07-24 a derived theorem** (the B9-A flip; the statement
 is byte-identical to the pre-flip axiom, zero consumer churn — the B7′/B11b/B12/B13 pattern).
 Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`,
@@ -175,7 +171,7 @@ rewriting.  Its explicit literature-input dependencies are
 `lit.relativeStiefelWhitney_dyadic` and `lit.hilbertSymbol_normCriterion_finiteDyadic`; its
 `#print axioms` output is the standard three.  Full setting and citations:
 the B9 axiom's docstring in `GQ2/Foundations/Axioms.lean` and `docs/literature-axioms.md` §B9. -/
-theorem evensKahn_dyadic
+theorem evensKahn_dyadic [lit : LiteratureInputs]
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (u n d : (↥k)ˣ) (v : ↥k)
     (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
@@ -229,12 +225,11 @@ theorem unramifiedQuadratic_units_are_norms
       ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
   UnramifiedQuadraticNorms.unramifiedQuadratic_units_are_norms' k a δa hδa hunram
 
-include lit in
 /-- **The combined dyadic norm criterion.**  This theorem pairs the classical B11a leaf with the
 proved unramified-unit theorem.  The equal-norm-value-groups convention remains isolated in
 `HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24), which is a
 definition rather than an axiom. -/
-theorem dyadicNormCriterion
+theorem dyadicNormCriterion [lit : LiteratureInputs]
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
     (∀ a b : (↥k)ˣ,

@@ -49,8 +49,6 @@ there is no remaining gap.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionThree
 
@@ -235,48 +233,41 @@ lemma padic_hom_eq_of_gens (φ ψ : ℚ_[2]ˣ →* Multiplicative ℤ_[2])
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-include lit in
 /-- The chosen local tame quotient: **the B10′ oriented witness** (`LiteratureInputs.tameQuotient`), with
 Lemma 3.3's maximality attached (`tameData_maximal`).  Using the axiom's witness directly (not
 `prop_3_2_local.some`) keeps the orientation clauses `nuT_recip_unit`/`nuT_recip_uniformizer`
 available for the two `tame_recip_*` atoms below. -/
-noncomputable def locTame : LocalTameQuotient :=
+noncomputable def locTame [LiteratureInputs] : LocalTameQuotient :=
   { toTameQuotientData := LiteratureInputs.tameQuotient.toTameQuotientData,
     maximal := tameData_maximal LiteratureInputs.tameQuotient.toTameQuotientData }
 
 
-include lit in
 /-- The chosen local pro-2 marked iso (the marked pro-2 isomorphisms `prop_3_10_local_marked`) at `R = LiteratureInputs.localReciprocity`. -/
-noncomputable def locPro2 := prop_3_10_local_marked_proved (LiteratureInputs.localReciprocity)
+noncomputable def locPro2 [LiteratureInputs] := prop_3_10_local_marked_proved (LiteratureInputs.localReciprocity)
 
-include lit in
 /-- `tameF : G_{ℚ₂} ↠ T_tame`, the tame quotient map (composite `G ↠ G/W ≅ T_tame`). -/
-noncomputable def tameFHom : ContinuousMonoidHom AbsGalQ2 Ttame :=
+noncomputable def tameFHom [LiteratureInputs] : ContinuousMonoidHom AbsGalQ2 Ttame :=
   haveI := locTame.normal
   (⟨locTame.equiv.toMulEquiv.toMonoidHom, locTame.equiv.continuous_toFun⟩ :
     ContinuousMonoidHom (AbsGalQ2 ⧸ locTame.W) Ttame).comp (quotientMk locTame.W)
 
 
-include lit in
 /-- `pro2F : G_{ℚ₂} ↠ Π`, the maximal pro-2 quotient map (composite `G ↠ G(2) ≅ Π`). -/
-noncomputable def pro2FHom : ContinuousMonoidHom AbsGalQ2 PiBd :=
+noncomputable def pro2FHom [LiteratureInputs] : ContinuousMonoidHom AbsGalQ2 PiBd :=
   (⟨locPro2.choose_spec.2.choose.toMulEquiv.toMonoidHom,
       locPro2.choose_spec.2.choose.continuous_toFun⟩ :
     ContinuousMonoidHom (maxProPQuotient 2 AbsGalQ2) PiBd).comp (maxProPMk 2 AbsGalQ2)
 
 
-include lit in
-private theorem tameFHom_surjective : Function.Surjective tameFHom := by
+private theorem tameFHom_surjective [LiteratureInputs] : Function.Surjective tameFHom := by
   haveI := locTame.normal
   exact locTame.equiv.surjective.comp (quotientMk_surjective locTame.W)
 
-include lit in
-private theorem pro2FHom_surjective : Function.Surjective pro2FHom :=
+private theorem pro2FHom_surjective [LiteratureInputs] : Function.Surjective pro2FHom :=
   locPro2.choose_spec.2.choose.surjective.comp (quotientMk_surjective (proPKernel 2 AbsGalQ2))
 
-include lit in
 /-- `ker tameF = W`. -/
-theorem ker_tameFHom : tameFHom.toMonoidHom.ker = locTame.W := by
+theorem ker_tameFHom [LiteratureInputs] : tameFHom.toMonoidHom.ker = locTame.W := by
   haveI := locTame.normal
   ext x
   rw [MonoidHom.mem_ker]
@@ -288,9 +279,8 @@ theorem ker_tameFHom : tameFHom.toMonoidHom.ker = locTame.W := by
     have hmk : quotientMk locTame.W x = 1 := (QuotientGroup.eq_one_iff x).mpr h
     rw [hmk, map_one]
 
-include lit in
 /-- `ker pro2F = proPKernel 2 G_{ℚ₂}`. -/
-theorem ker_pro2FHom : pro2FHom.toMonoidHom.ker = proPKernel 2 AbsGalQ2 := by
+theorem ker_pro2FHom [LiteratureInputs] : pro2FHom.toMonoidHom.ker = proPKernel 2 AbsGalQ2 := by
   ext x
   rw [MonoidHom.mem_ker]
   constructor
@@ -303,26 +293,22 @@ theorem ker_pro2FHom : pro2FHom.toMonoidHom.ker = proPKernel 2 AbsGalQ2 := by
     have hmk : maxProPMk 2 AbsGalQ2 x = 1 := (QuotientGroup.eq_one_iff x).mpr h
     rw [hmk, map_one]
 
-include lit in
 /-- The tame unramified character `f₁ = ι∘ν_t∘tameF : G_{ℚ₂} → Multiplicative ℤ₂`. -/
-noncomputable def tameCharRaw : ContinuousMonoidHom AbsGalQ2 (Multiplicative ℤ_[2]) :=
+noncomputable def tameCharRaw [LiteratureInputs] : ContinuousMonoidHom AbsGalQ2 (Multiplicative ℤ_[2]) :=
   (⟨locPro2.choose.toMulEquiv.toMonoidHom, locPro2.choose.continuous_toFun⟩ :
     ContinuousMonoidHom Ztwo (Multiplicative ℤ_[2])).comp (GQ2.nuT.comp tameFHom)
 
-include lit in
 /-- `f₁` descended through the topological abelianization `G_{ℚ₂}^{ab}`. -/
-noncomputable def tameChar : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_[2]) :=
+noncomputable def tameChar [LiteratureInputs] : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_[2]) :=
   abLiftG tameCharRaw
 
-include lit in
-@[simp] private lemma tameChar_toAb (g : AbsGalQ2) :
+@[simp] private lemma tameChar_toAb [LiteratureInputs] (g : AbsGalQ2) :
     tameChar (toAb g) = locPro2.choose (GQ2.nuT (tameFHom g)) :=
   abLiftG_abMk tameCharRaw g
 
-include lit in
 /-- **Atom (F)** — the uniformizer: `f₁(rec 2) = ofAdd(−1)` (arithmetic Frobenius, geometric
 coordinate `−1`).  Discharged by the B10′ orientation clause `nuT_recip_uniformizer`. -/
-theorem tame_recip_uniformizer :
+theorem tame_recip_uniformizer [LiteratureInputs] :
     tameChar ((LiteratureInputs.localReciprocity).recip uniformizer)
       = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2]) := by
   obtain ⟨g, hg⟩ :=
@@ -333,10 +319,9 @@ theorem tame_recip_uniformizer :
   rw [← hg', tameChar_toAb, hval, map_inv, locPro2.choose_spec.1, ← ofAdd_neg]
   congr 1
 
-include lit in
 /-- **Atom (U₋₃)** — the unit `−3`: `f₁(rec(−3)) = 1` (unramified-trivial).  Discharged by the
 B10′ orientation clause `nuT_recip_unit` at the unit `−3` (odd, hence a `ℤ₂`-unit). -/
-theorem tame_recip_unitNeg3 :
+theorem tame_recip_unitNeg3 [LiteratureInputs] :
     tameChar ((LiteratureInputs.localReciprocity).recip unitNeg3) = 1 := by
   obtain ⟨u, hu⟩ : ∃ u : ℤ_[2]ˣ, (u : ℤ_[2]) = -3 :=
     ⟨(isUnit_intCast_of_odd (⟨-2, by ring⟩ : Odd (-3 : ℤ))).unit, by
@@ -355,12 +340,11 @@ theorem tame_recip_unitNeg3 :
     LiteratureInputs.tameQuotient.nuT_recip_unit u g (by rw [hg', hemb])
   rw [← hg', tameChar_toAb, hval, map_one]
 
-include lit in
 /-- **Tame reciprocity** (the boundary-witness reduction reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
 through `G_{ℚ₂}^{ab}`; agree on the dense image of `recip` by `padic_hom_eq_of_gens`, whose two
 generator inputs are exactly the atoms `tame_recip_uniformizer` (F) and `tame_recip_unitNeg3`
 (U₋₃) matched against `nu_ur_recip_*`. -/
-theorem tame_reciprocity (g : AbsGalQ2) :
+theorem tame_reciprocity [LiteratureInputs] (g : AbsGalQ2) :
     locPro2.choose (GQ2.nuT (tameFHom g)) = (LiteratureInputs.localReciprocity).nu_ur (toAb g) := by
   have key : ⇑tameChar = ⇑(LiteratureInputs.localReciprocity).nu_ur := by
     apply Continuous.ext_on (LiteratureInputs.localReciprocity).denseRange_recip tameChar.continuous_toFun
@@ -377,10 +361,9 @@ theorem tame_reciprocity (g : AbsGalQ2) :
   have h := congrFun key (toAb g)
   rwa [tameChar_toAb] at h
 
-include lit in
 /-- `ν_t ∘ tameF = ν₂ ∘ pro2F` on `G_{ℚ₂}` — from `tame_reciprocity` and
 `prop_3_10_local_marked`. -/
-theorem compatF_proved (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FHom g) := by
+theorem compatF_proved [LiteratureInputs] (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FHom g) := by
   refine locPro2.choose.injective ?_
   rw [tame_reciprocity g]
   exact locPro2.choose_spec.2.choose_spec g
@@ -414,9 +397,8 @@ theorem hker_uniform {dom : Type*} [Group dom] [TopologicalSpace dom] [IsTopolog
     show pro2X (g₀ * k⁻¹) = b
     rw [map_mul, map_inv, hkpro, inv_one, mul_one, hg₀]
 
-include lit in
 /-- **`prop_3_14` witness**: the full `BoundaryMaps` bundle. -/
-noncomputable def boundaryMapsWitness : BoundaryMaps where
+noncomputable def boundaryMapsWitness [LiteratureInputs] : BoundaryMaps where
   tameA := phiA
   pro2A := phiP
   compatA := compatA_proved
@@ -453,9 +435,8 @@ noncomputable def boundaryMapsWitness : BoundaryMaps where
         ker_pro2FHom.ge compatF_proved) t p hmem
     exact ⟨g, Subtype.ext (Prod.ext hg1 hg2)⟩
 
-include lit in
 /-- **Prop. 3.14**: the eq. (27) boundary data exists. -/
-theorem prop_3_14_proved : Nonempty BoundaryMaps :=
+theorem prop_3_14_proved [LiteratureInputs] : Nonempty BoundaryMaps :=
   ⟨boundaryMapsWitness⟩
 
 end SectionThree

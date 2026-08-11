@@ -59,8 +59,6 @@ display-(57) numerics.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace FoxH
 
@@ -503,14 +501,13 @@ section Cor517
 
 open GQ2.ContCoh GQ2.LocalLiftingDuality
 
-include lit in
 /-- **Corollary 5.17, numerics half, on the `r_R` spine** (⟦prop:duality⟧, "Comparison with the
 local complex then uses local Tate duality as in [RT Prop. 5.16 and Cor. 5.17]"): the
 obstruction-space and unobstructed-lift-multiplicity cardinalities agree between the Roe word
 complex and the local cochain complex of `G_ℚ₂`.  `Γ_R` twin of `cor_5_17_card`: the word side is
 `prop_5_15_R` (clauses 1–2 of `IsSelfDual_R`), the local side is the **word-generic** `prop_5_16`
 reused verbatim (this is where axioms B6/B7 enter, exactly as for `Γ_A`). -/
-theorem cor_5_17_card_R {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C]
+theorem cor_5_17_card_R [LiteratureInputs] {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C]
     [Finite C]
     (t : Marking C) (ht : t.TameRel) (hw : t.WildRelR) (hgen : t.Generates)
     (hcore : t.Pro2Core)

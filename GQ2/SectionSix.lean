@@ -69,8 +69,6 @@ Axioms: **none consumed here** (statement layer).
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open ContCoh QuadraticFp2 Corestriction
 
@@ -746,7 +744,6 @@ def IsDeepUnit (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) (A : ℚ̄₂) : Prop
   A ≠ 0 ∧ (∀ g ∈ N, g • A = A) ∧
     ∃ b : ℚ̄₂, (∀ g ∈ N, g • b = b) ∧ A = 1 + 2 * b ∧ ‖b‖ < 1
 
-include lit in
 /-- **Lemma 6.16 (deep-unit Evens norm), eq. (110)**: for an unramified quadratic extension
 `L/k` of finite dyadic local fields (encoded: `G_L ≤ G_k` of index 2, equal norm value groups)
 and a deep unit `a ∈ U_{e+1}(L)`, the index-two Evens norm of the Kummer class `[a]` vanishes:
@@ -761,7 +758,7 @@ local fields", needed by B9/B11) and the **Kummer presentation of `L/k`** — th
 unit `A = u + vδ` (the paper's "write `L = k(√d)`, `a = u + v√d`"); consumers (6.17, the deep-part proof)
 construct these concretely, and char-≠2 Kummer theory guarantees them abstractly.  See
 `docs/section67-extraction.md`.] -/
-theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+theorem lemma_6_16 [LiteratureInputs] (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)

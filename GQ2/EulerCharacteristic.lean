@@ -61,8 +61,6 @@ open GQ2.ContCoh
 
 namespace GQ2.Foundations
 
-variable [lit : GQ2.LiteratureInputs]
-omit lit
 
 /-! ## Consequences / stress tests
 
@@ -74,27 +72,23 @@ variable (M : Type) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
   [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M]
 
 
-include lit in
 /-- `B7`: finiteness of `H¹(G_ℚ₂, M)`. -/
-theorem finite_H1 : Finite (H1 AbsGalQ2 M) :=
+theorem finite_H1 [lit : GQ2.LiteratureInputs] : Finite (H1 AbsGalQ2 M) :=
   (lit.absGalQ2_localEulerCharacteristic M).2.1
 
-include lit in
 /-- `B7`: finiteness of `H²(G_ℚ₂, M)`. -/
-theorem finite_H2 : Finite (H2 AbsGalQ2 M) :=
+theorem finite_H2 [lit : GQ2.LiteratureInputs] : Finite (H2 AbsGalQ2 M) :=
   (lit.absGalQ2_localEulerCharacteristic M).2.2.1
 
-include lit in
 /-- `B7`, the Euler-characteristic identity `#H¹ = #H⁰ · #H² · 2 ^ v₂(#M)`. -/
-theorem card_H1 : Nat.card (H1 AbsGalQ2 M)
+theorem card_H1 [lit : GQ2.LiteratureInputs] : Nat.card (H1 AbsGalQ2 M)
     = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M) :=
   (lit.absGalQ2_localEulerCharacteristic M).2.2.2
 
 
-include lit in
 /-- For a module whose order is a power of `2` (e.g. the elementary `𝔽₂`-modules of §9.2, where
 `#M = 2 ^ dim M`), `B7` reads `#H¹ = #H⁰ · #H² · #M`. -/
-theorem card_H1_of_card_eq_two_pow {k : ℕ} (hk : Nat.card M = 2 ^ k) :
+theorem card_H1_of_card_eq_two_pow [GQ2.LiteratureInputs] {k : ℕ} (hk : Nat.card M = 2 ^ k) :
     Nat.card (H1 AbsGalQ2 M)
       = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * Nat.card M := by
   rw [card_H1, hk, padicValNat.prime_pow]

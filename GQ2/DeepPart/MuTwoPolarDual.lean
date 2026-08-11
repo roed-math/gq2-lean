@@ -26,16 +26,13 @@ namespace GQ2.DeepPart
 
 open GQ2 GQ2.ContCoh GQ2.Foundations
 
-variable [lit : GQ2.LiteratureInputs]
-omit lit
 
 variable {M : Type} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
   [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M]
 
-include lit in
 /-- **Euler-characteristic collapse**: for a finite `2`-power-order `G_ℚ₂`-module with trivial
 `H⁰` and `H²`, the local Euler characteristic (B7) reads `#H¹ = #M`. -/
-theorem card_H1_eq_card_of_H0_H2_trivial (hH0 : Nat.card (H0 AbsGalQ2 M) = 1)
+theorem card_H1_eq_card_of_H0_H2_trivial [GQ2.LiteratureInputs] (hH0 : Nat.card (H0 AbsGalQ2 M) = 1)
     (hH2 : Nat.card (H2 AbsGalQ2 M) = 1) {k : ℕ} (hk : Nat.card M = 2 ^ k) :
     Nat.card (H1 AbsGalQ2 M) = Nat.card M := by
   rw [card_H1_of_card_eq_two_pow M hk, hH0, hH2, one_mul, one_mul]
@@ -315,11 +312,10 @@ theorem card_eq_two_pow_of_exp_two {A : Type*} [AddCommGroup A] [Finite A]
   refine ⟨Module.finrank (ZMod 2) A, ?_⟩
   rw [Nat.card_eq_fintype_card, Module.card_eq_pow_finrank (K := ZMod 2) (V := A), ZMod.card]
 
-include lit in
 /-- **`#H¹ = #V` in the §6.3 setting** (steps 1–2 of `lemma_6_17_dim` / Prop 6.18 assembled):
 simple `C`-module, surjective classifying map, an element moving a vector, a nonsingular
 invariant form.  Ax: **B6** (via `D`), **B7** (`finite_H2` + the Euler collapse). -/
-theorem card_H1_eq_card_of_simple (D : TateDuality 2) {C : Type*} [Group C]
+theorem card_H1_eq_card_of_simple [GQ2.LiteratureInputs] (D : TateDuality 2) {C : Type*} [Group C]
     [DistribMulAction C V]
     (ρ : AbsGalQ2 →* C) (hρsurj : Function.Surjective ρ)
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

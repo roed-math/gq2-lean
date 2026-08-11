@@ -41,8 +41,6 @@ source, the exact `stageR136` field of the `RecursionInputs` bundle (the Prop. 8
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace RStageLocal
 
@@ -224,13 +222,12 @@ private lemma card_fixedPts_eq_card_RCharSub
 
 section ZCount
 
-include lit in
 /-- **The `z_R` torsor count, local source** (the Prop. 8.9 assembly residue): for every boundary lift `f₀`,
 `#RCocycle = z_R = #R² · #D_R`.  Route: `RCocycle ≃ Z¹(G_ℚ₂, R_{f₀})` (multiplicative crossed ↔
 additive, the conjugation action through `C = Y/K` pulled back along the surjective
 `mk' K ∘ f₀`), `card_Z1_eq` (5.16 clause (ii), B6+B7), and the invariant-character bridge
 `fixedPts C (R^∨) ≃ D_Rmod` + `blockRChar_card`. -/
-theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem hZcount_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
@@ -334,10 +331,9 @@ theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
 section SepHom
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-include lit in
 /-- First stage of `hsep_hom_local`: when `obs g = 0`, every paired defect class in `H²(Γ,𝔽₂)`
 vanishes (`obs_zero_iff_pairClass_zero`, with the zero-`DR` case handled directly). -/
-private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+private theorem pairClass_all_zero [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
     (g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB)
@@ -366,7 +362,6 @@ private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedS
       (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
       g.1.1 d h).mp (LinearMap.congr_fun hg d)
 
-include lit in
 /-- **The `(R^∨)^C`-separation, local source** (the Prop. 8.9 assembly residue): if the obstruction functional
 of a boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route:
 `obs g = 0` kills every paired defect class (`obs_zero_iff_pairClass_zero`); the paired classes
@@ -375,7 +370,7 @@ are the `cup20`-values of the `R`-valued defect class against the invariant char
 (5.16 clause (vi), B6) then forces `[rDefect] = 0` in `H²(G_ℚ₂, R_ρ)`; `B²`-extraction yields a
 continuous splitting cochain (exponent 2 kills the signs), and `homLift_of_split` assembles the
 lift. -/
-theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem hsep_hom_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
@@ -617,7 +612,6 @@ end SepHom
 section Assembly
 
 
-include lit in
 /-- **(136) for the block frame at the local source, parametric over `hsep_hom`**
 (the Prop. 8.9 assembly residue assembly): `htriv`/`hcard`/`hZcount` are discharged
 (`htriv_local`/`card_H2_zmod2_eq_two`/`hZcount_local`); the remaining inputs are the
@@ -625,7 +619,7 @@ include lit in
 **`hsep_hom`** — the `(R^∨)^C`-separation (next increment: `prop_5_16` clause (vi) +
 `B²`-extraction + `homLift_of_split`; see the module docstring for the surjectivity
 scoping note). -/
-theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem stageR136_local_of_hsep [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
@@ -643,12 +637,11 @@ theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpac
   blockStageR136 T Blk hE2 htriv_local (card_H2_zmod2_eq_two htriv_local) hfg b F hsep_hom
     (fun f₀ => hZcount_local hE2 hRK hR2 b F f₀)
 
-include lit in
 /-- **(136) for the block frame at the local source — all residues discharged**
 (the Prop. 8.9 assembly): `htriv`/`hcard`/`hZcount`/`hsep_hom` are all proved; the remaining hypotheses are
 the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for the §9 induction).  The
 conclusion is the `stageR136` field of the local `RecursionInputs` bundle, verbatim. -/
-theorem stageR136_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem stageR136_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)

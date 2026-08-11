@@ -33,8 +33,6 @@ Axioms: B9, B11a (through `cup_deepClasses`/(94)).
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace ShapiroDeepness
 
@@ -49,14 +47,13 @@ theorem H2ofFun_eq_zero_of_H2mk {φ : G × G → ZMod 2} (hZ2 : φ ∈ Z2 G (ZMo
     (h0 : H2mk G (ZMod 2) ⟨φ, hZ2⟩ = 0) : H2ofFun G φ = 0 := by
   rwa [H2ofFun_of_mem hZ2]
 
-include lit in
 /-- **The deep-class cup vanishing** (the Lemma 6.17 vanishing proof, the square/free `hvanish` core): if two scalar
 cocycles `a, b` over `k.fixingSubgroup` have **deep** classes, their cup 2-cochain
 `α ⌣ β` has trivial `H²ofFun` class.  Composes the eq.-(94) orthogonality
 `LocalKummer.cup_deepClasses` (`trivialCupPairing = 0`) with the `cup11`/`H2mk` identification
 and `B²`-extraction.  This is `H2ofFun ↥(U o) (inner o) = 0` for the square orbit
 (`inner o = α ⌣ α`, `U o = k.fixingSubgroup = ker ρ`) and, at `a ≠ b`, the free orbit. -/
-theorem hvanish_cup (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+theorem hvanish_cup [LiteratureInputs] (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (a b : Z1 k.fixingSubgroup (ZMod 2))
@@ -172,7 +169,6 @@ end ReindexQ0loc
 
 section InvolutionAssembly
 
-include lit in
 /-- **The involution-orbit `hvanish`, assembled from `lemma_6_16`** (the Lemma 6.17 vanishing proof, the spine's
 assembly core): given the concrete Kummer field data of the deep unit `A` at an involution block
 coordinate — the tower `k ≤ L` (index 2, unramified `hunram`), the √-generator `(d, δ, hδ, hδL,
@@ -192,7 +188,7 @@ involution orbit** (Step-0 decision, `docs/orchestration/p15f2c-design.md`): `ρ
 tame inertia `⟨c tameTau⟩` has odd order (`Tame.tame_odd_order`), so `ρ(ĝ) ∉ inertia` ⟹ `L/k`
 unramified; c2c discharges `hunram` in spectral-norm vocabulary.
 **Ax: B9, B11a (via `lemma_6_16`).** -/
-theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+theorem hvanish_involution [LiteratureInputs] (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k] (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : AlgebraicClosure ℚ_[2], x ≠ 0 → x ∈ L →
@@ -222,7 +218,6 @@ theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure �
     (lemma_6_16 k L hkL hindex hunram d δ hδ hδL hLδ A β hdeep hβ hβ0 u v hAuv s hs htriv hUo
       hα hαc)
 
-include lit in
 /-- **Deep class → involution `hvanish`** (the Lemma 6.17 vanishing proof, the witness-plumbing step): given a deep
 Kummer class `ξ ∈ deepClasses (L.fixingSubgroup)` at the involution block coordinate and the c2a
 "abstract Kummer presentation package" `hc2a` (`IsDeepUnit L.fixingSubgroup A ⟹ ∃ d δ u v, …`),
@@ -234,7 +229,7 @@ which fixes `A`) and `hαc` (continuity via `kummerCocycleFun_continuous`), and 
 `hvanish_involution`.  This is steps (2)–(5) of the Lemma 6.17 vanishing proof in `L`-vocabulary; the remaining
 `ker ρ = L.fixingSubgroup` transport (to feed `mem_deepPart_iff`) and the c2a-package proof
 (the Lemma 6.17 vanishing proof) are the last pieces.  **Ax: B9, B11a, B11b (via `hvanish_involution`/`lemma_6_16`).** -/
-theorem hvanish_involution_of_deepClass
+theorem hvanish_involution_of_deepClass [LiteratureInputs]
     (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)

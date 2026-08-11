@@ -32,8 +32,6 @@ This file discharges both for the two real sources, so `eq_154_of_inputs` can in
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionTen
 
@@ -78,17 +76,15 @@ section Witness
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-include lit in
 /-- **`htame` for `Γ_A`** (the witness `boundaryMapsWitness`): `tameA = φ_A` is onto
 (`phiA_surjective`). -/
-theorem tameCoord_bA_surjective :
+theorem tameCoord_bA_surjective [LiteratureInputs] :
     Function.Surjective (tameCoord boundaryMapsWitness.bA) := by
   rw [tameCoord_bA]; exact phiA_surjective
 
-include lit in
 /-- **`hwild` for `Γ_A`** (the witness): the wild inertia `ker tameA = ker φ_A = W_A` is pro-2
 (`isProP_wildPart`). -/
-theorem tameCoord_bA_ker_isProP :
+theorem tameCoord_bA_ker_isProP [LiteratureInputs] :
     IsProP 2 (tameCoord boundaryMapsWitness.bA).toMonoidHom.ker := by
   rw [tameCoord_bA]
   show IsProP 2 phiA.toMonoidHom.ker
@@ -101,12 +97,11 @@ Both live here (not in `SectionTen`) because `eq_154_of_inputs`'s A-side needs t
 `BoundaryMapsWitness` is downstream of `SectionTen`.  The proof then applies the proved
 `thm_4_2` frame by frame. -/
 
-include lit in
 /-- **Eq. (154)**: the two sources have identical continuous-surjection counts onto every finite
 group.  `card_contSurj_eq` at `boundaryMapsWitness.bA`/`.bF` (per-source hypotheses above) rewrites
 each count as the sum of the fixed-frame exact-image counts; `thm_4_2` equates them frame-by-frame
 (`hE2` trivial on `E₀ = PUnit`). -/
-theorem eq_154_of_inputs (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G] :
+theorem eq_154_of_inputs [LiteratureInputs] (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G] :
     Nat.card (ContSurj GammaA G) = Nat.card (ContSurj AbsGalQ2 G) := by
   have hE2 : ∀ e : E₀, e ^ 2 = 1 := fun _ => Subsingleton.elim _ _
   rw [card_contSurj_eq boundaryMapsWitness.bA G tameCoord_bA_surjective
@@ -118,12 +113,11 @@ theorem eq_154_of_inputs (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopo
     thm_4_2 boundaryMapsWitness (tameFrame α.1 α.2) LiteratureInputs.localReciprocity
       tameUnitOrientation_witness (tameTarget G) hE2
 
-include lit in
 /-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
 Prop 2.3.  The original `Statement.lean` placeholder was resolved by the statement-move pattern
 (Statement is upstream of the tower); the moved statement carries the tower-standing
 `AbsGalQ2` instance binders. -/
-theorem main_surjection_count_of_inputs
+theorem main_surjection_count_of_inputs [LiteratureInputs]
     (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
     contSurjCount G = admissibleCount G :=
   (eq_154_of_inputs G).symm.trans (prop_2_3 (G := G))

@@ -38,8 +38,6 @@ B13 (`dyadicUnitFiltration`), already in the census.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace ResidueLift
 
@@ -327,14 +325,13 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 open ContCoh QuadraticFp2 in
-include lit in
 /-- **`lemma_6_17_dim`, closed** (the deep-part proof + the residue-lift derivation): the §6.3 deep-half
 dimension identity `#X₊² = #H¹(ℚ₂, V)`, from `SectionSix.lemma_6_17_dim`'s own hypothesis set
 plus only the finiteness instance `[Finite (H¹(ker ρ, 𝔽₂))]` (the local finiteness
 `H¹(G_K, 𝔽₂) ≅ K^×/2`, supplied by the B12/B13 interface).  No new
 axiom: the residue-trivial tame lift is `exists_residueTrivial_tameLift`, and the splitting
 field with its Galois-correspondence data is `splitField`. -/
-theorem lemma_6_17_dim_final (B : BoundaryMaps)
+theorem lemma_6_17_dim_final [LiteratureInputs] (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

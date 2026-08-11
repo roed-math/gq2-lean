@@ -19,8 +19,6 @@ See `GQ2.DeepCount` for the paper-facing overview, source citations, and deviati
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open ContCoh LocalKummer
 
@@ -40,14 +38,13 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [DistribMulAction C V] [Finite V]
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
-include lit in
 /-- **`hduality`** — the deep-part proof's result.  Inputs: the `V^∨` regular-summand package
 (f8's Lemma-6.11 output at `dualModule`: `hsimple`/`hnt`/`ι`/`r`/`hι`/`hr`/`hri`), the
 self-duality `eU`/`heU` (§H's `dualSelfDual(_equivariant)` given the 6.17 invariant form),
 the dualized inertia `ht₀U` (§H's `exists_dualModule_smul_ne` given `hram`), a
 residue-trivial lift `g₀` of `t₀` (tame inertia; the f8 arithmetic), and the B13 bundle
 data for the splitting field `k` with the pointwise kernel identification `hker`. -/
-theorem hduality_of_data (hρsurj : Function.Surjective ⇑ρ)
+theorem hduality_of_data [LiteratureInputs] (hρsurj : Function.Surjective ⇑ρ)
     [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
     (hsimple : ∀ S : AddSubgroup (V →+ ZMod 2),
       (∀ (h : C), ∀ w ∈ S,

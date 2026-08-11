@@ -30,8 +30,6 @@ qualified name stays `GQ2.SectionSix.prop_6_18_unramified` is preserved by re-ex
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open ContCoh QuadraticFp2 Corestriction SectionSix DeepPart
 
@@ -309,7 +307,6 @@ private theorem cCoeff_card_eq (T : C) (hVnt : Nontrivial V)
   exact Nat.card_eq_of_bijective _ ⟨hθinj, hθsurj⟩
 
 omit [DiscreteTopology C] in
-include lit in
 /-- **The Schur transfer (brick (c))**: for a cyclic `C = ⟨T⟩` acting faithfully and simply on a
 finite nontrivial `V`, the coefficient action `cCoeff` on `H¹(G_ℚ₂, V)` is again *faithful* and
 *simple*, provided `#H¹ = #V`.
@@ -322,7 +319,7 @@ so bijective by simplicity: `#F = #V`.  `mapCoeff1` transfers `F` multiplicative
 `End(H¹)`, where units of `F` stay pointwise-invertible; the orbit map `F → H¹` at any
 `0 ≠ x₀ ∈ S` for a `C`-stable `S` is injective with range inside `S`, so
 `#S ≥ #F = #V = #H¹` forces `S = ⊤`. -/
-theorem cCoeff_faithful_and_simple (ρ : ContinuousMonoidHom AbsGalQ2 C)
+theorem cCoeff_faithful_and_simple [LiteratureInputs] (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hCcomm : ∀ a b : C, a * b = b * a)
     (T : C) (hcyc : ∀ x : C, x ∈ Subgroup.zpowers T)
@@ -577,7 +574,6 @@ private theorem Q0loc_smul_eq (D : TateDuality 2) (ρ : ContinuousMonoidHom AbsG
           hicompat x := rfl
   rw [hsm, ← h614, hQeq]
 
-include lit in
 /-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
 
@@ -587,7 +583,7 @@ transport `Q⁰_loc` to a norm-one-invariant nonsingular form, and count zeros w
 
 **Signature note:** the hypothesis `hc : Function.Surjective ⇑c` (as in
 `prop_6_18_ramified`). -/
-theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
+theorem prop_6_18_unramified [LiteratureInputs] (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C)
     (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))

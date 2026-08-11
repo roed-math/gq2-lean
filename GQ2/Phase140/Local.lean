@@ -52,8 +52,6 @@ as in `hMcountM_local`/`hZcount_local`.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionEight
 
@@ -253,14 +251,13 @@ private noncomputable def tcocycleEquivZ1 (ρ : BoundaryLifts b F RF.TC) :
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
   [DiscreteTopology Y] in
-include lit in
 /-- **The `T`-cocycle count for `G_ℚ₂`** (the `hμ` supplier, the Prop. 8.9 assembly): the crossed-`T`-cocycle
 count is the `card_Z1_eq` closed form `#T² · #(T^∨)^{YB/M_B}`, which is **`ρ`-independent** (the RHS
 sees only the frame-level datum `En.radData l h`, not `ρ`) — so the capstone reads off `μ₀` and
 `hμ := fun ρ => tcocycle_card_local … ρ`.  Mirrors `hMcountM_local` steps 1–3 at
 `A := Additive (En.radData l h).T`, but with a **direct** `TCocycle ≃ Z¹_cont` bridge (`TCocycle`
 stores continuity into `Bg` directly, and is always nonempty — no torsor/`Nonempty` detour). -/
-theorem tcocycle_card_local (ρ : BoundaryLifts b F RF.TC) :
+theorem tcocycle_card_local [LiteratureInputs] (ρ : BoundaryLifts b F RF.TC) :
     Nat.card (TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = Nat.card (Additive ↥(En.radData l h).T) ^ 2
         * Nat.card (fixedPts (RF.YB ⧸ (En.radData l h).M)
@@ -313,7 +310,6 @@ theorem vFixedPts_eq_one
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
   [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
   [DiscreteTopology Y] in
-include lit in
 /-- **`hZcard` for `G_ℚ₂`** — `#Z¹_{Γ,ρ'}(V) = #V²`.  Mirrors `hMcountM_local` at `A := En.Vmod`
 (which already carries the `RF.YC`-action of the enrichment) with the descent lower map
 `rho0 = ρ.1.1` (`rho0_descData_rhoPrime`, surjective since `ρ` is a `ContSurj`), building the
@@ -328,7 +324,7 @@ YC = 1` the ledger is satisfiable (`𝔽₂` is a faithful — vacuously — sim
 `#(V^∨)^{YC} = 2 ≠ 1`, so `hZcard` is FALSE there.  `hnt` (equivalently `Nontrivial RF.YC`, via
 `hfaith`) rules it out and is discharged at the capstone from the block's chief-factor structure
 (the ramified regular summand has a nontrivial `YC`-action). -/
-theorem hZcard_local
+theorem hZcard_local [LiteratureInputs]
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hVne : ∃ v : En.Vmod, v ≠ 0)
@@ -506,7 +502,6 @@ private theorem tDef_mem_Z2 (ρ : BoundaryLifts b F RF.TC)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
   [DiscreteTopology Y] in
-include lit in
 /-- **`hsep` for `G_ℚ₂`** — the `(T^∨)^C`-separation: a `V`-coordinate with all `χ`-obstructions
 `betaChi χ c = 0` is `T`-liftable.  The converse of the generic `betaChi_of_tliftable`
 (`VLiftCount.lean`); the `hsep_hom_local` pattern (`prop_5_16` cup clause (vi) `cup20`-bijectivity
@@ -541,7 +536,7 @@ include lit in
    `ψ ∈ T ⊆ M` so `mk_M (f γ) = mk_M (fLift γ) = ρ'γ`), and `mk_T (f γ) = mk_T (fLift γ) =
    (qOfCocycle c) γ` (since `ψ ∈ T`) ⟹ `redTLift f = qOfCocycle c` ⟹ `TLiftable`.
    Bespoke ~40 lines. -/
-theorem hsep_local
+theorem hsep_local [LiteratureInputs]
     (ρ : BoundaryLifts b F RF.TC)
     (c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
     (hc : ∀ χ : ↥(TCharC (En.radData l h)),
@@ -777,13 +772,12 @@ theorem hsep_local
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
   [ContinuousSMul AbsGalQ2 (ZMod 2)] in
-include lit in
 /-- **cup11 right-slot separation** (clause (iv), vanishing-detector form): a degree-1
 `ElemDual`-class killed by the evaluation cup against every `H¹(A)`-class is zero.  Mirrors
 `bijective_cup11_dualEval`'s internals (`cup11_comm` slot swap + B6 `perfect11` injectivity on
 the `MuDual` side); stated separately because the bijective form detects in the *left* slot
 while `hpartial` needs the *right*. -/
-theorem cup11_dualEval_right_separating
+theorem cup11_dualEval_right_separating [LiteratureInputs]
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
     [DistribMulAction AbsGalQ2 A] [ContinuousSMul AbsGalQ2 A]
     [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
@@ -854,7 +848,6 @@ private theorem vco_mul :
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
   [DiscreteTopology Y] in
-include lit in
 /-- **`hpartial` for `G_ℚ₂`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  Cup-duality clauses (iv)/(v) of
 `prop_5_16`.
@@ -870,7 +863,7 @@ injectivity half of the perfect pairing, contradicting `hχ`.  The `∂`-surject
 `c ↦ defect-class` map hits enough of `H¹`/`H²` to realize the pairing) is the substantive step,
 dual to `hsep`'s `bijective_cup20` injectivity.  Couples to `hsep_local`'s stage-1–4 infrastructure
 (same module `A`, dual, and `χ ↔ n` bridge). -/
-theorem hpartial_local
+theorem hpartial_local [LiteratureInputs]
     (ρ : BoundaryLifts b F RF.TC)
     (χ : ↥(TCharC (En.radData l h))) (hχ : χ ≠ 0) :
     ∃ c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ),
@@ -1324,12 +1317,11 @@ end LocalResidues
 
 /-! ## The local (140) display -/
 
-include lit in
 /-- **The `RecursionInputs.phase140` field for `G_ℚ₂`**: the source-generic
 `phase140_from_residues` with `htriv`/`hH2` discharged locally and the four per-source residues
 supplied by the lemmas above.  `hGaussZ`, `μ₀`, `G0`, and the module hypotheses
 `hsimple`/`hVne`/`hnt` are supplied by the `prop_8_9` assembly in `GQ2/Prop89Close.lean`. -/
-theorem phase140_local
+theorem phase140_local [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)

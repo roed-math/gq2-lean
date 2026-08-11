@@ -35,8 +35,6 @@ the lane's inputs (design note `docs/section9-extraction.md` §the §9 induction
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open SectionEight SectionSeven
 
@@ -454,12 +452,11 @@ private theorem RecursionFrame.card_fixedPts_MB_dual (RF : RecursionFrame T Blk)
     ⟨⟨0, smul_zero⟩⟩⟩
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-include lit in
 /-- **Nonemptiness of the `G_ℚ₂` `B`-lift fibre**: every lower boundary lift `ρ : G_ℚ₂ ↠ C`
 lifts to a continuous homomorphism through `π_{BC}`.  The extension obstruction lives in
 `#H²(G_ℚ₂, M_B) = 1` (B6 Euler characteristic + `card_fixedPts_MB_dual`), so the factor set of a
 continuous set-section is a coboundary and the correction is a genuine lift. -/
-private theorem RecursionFrame.liftsOver_nonempty_local
+private theorem RecursionFrame.liftsOver_nonempty_local [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
     (F : BoundaryFrame H E) (ρ : BoundaryLifts b F RF.TC) :
@@ -584,11 +581,10 @@ private theorem RecursionFrame.liftsOver_nonempty_local
       hsρ_mk]
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-include lit in
 /-- **The `Z¹`-torsor count** given a base lift: `#LiftsOver(ρ) = |M_B|²`.  Translating by a fixed
 lift `f₀` identifies the fibre with `Z¹_cont(G_ℚ₂, M_B)`, whose cardinality is `|M_B|² · #fixedPts`
 (`card_Z1_eq`, B7) with `#fixedPts = 1` (`card_fixedPts_MB_dual`). -/
-private theorem RecursionFrame.liftsOver_card_local_of_nonempty
+private theorem RecursionFrame.liftsOver_card_local_of_nonempty [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
     (F : BoundaryFrame H E) (ρ : BoundaryLifts b F RF.TC)
@@ -702,10 +698,9 @@ end MBModulePack
 
 end SectionEight
 
-include lit in
 /-- **`hmult` for `G_ℚ₂`** (the `M`-stage multiplicity): `#LiftsOver(ρ) = |M_B|²` over every
 lower boundary lift `ρ` of the `C`-stage target. -/
-theorem SectionEight.RecursionFrame.liftsOver_card_local
+theorem SectionEight.RecursionFrame.liftsOver_card_local [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
     {T : MarkedTarget H E Y} {Blk : MinimalBlock T.LY} (RF : RecursionFrame T Blk)

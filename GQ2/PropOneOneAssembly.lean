@@ -37,8 +37,6 @@ open scoped Classical
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open SectionThree
 
@@ -177,50 +175,40 @@ open SectionThree PropOneOne
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-include lit in
 /-- The B3c dyadic-orientation bundle (a fixed witness of the axiom `LiteratureInputs.dyadicOrientation`). -/
-noncomputable def orientBundle : DyadicOrientation := LiteratureInputs.dyadicOrientation
+noncomputable def orientBundle [LiteratureInputs] : DyadicOrientation := LiteratureInputs.dyadicOrientation
 
-include lit in
 /-- `χ` transported to `D₀^{ab}`: `chiD0 (abMk d) = chiTwo (equiv.symm d)`.  Its generator values
 are `(−1, 1, (−3)⁻¹)` (`orientBundle.chi_A/S/Y`). -/
-noncomputable def chiD0 : ContinuousMonoidHom (topAbelianization (D0 : Type)) ℤ_[2]ˣ :=
+noncomputable def chiD0 [LiteratureInputs] : ContinuousMonoidHom (topAbelianization (D0 : Type)) ℤ_[2]ˣ :=
   abDescend ⟨orientBundle.chiTwo.comp orientBundle.equiv.symm.toMulEquiv.toMonoidHom,
     orientBundle.continuous_chiTwo.comp orientBundle.equiv.symm.continuous_toFun⟩
 
-include lit in
 /-- `χ` on `G_{ℚ₂}(2)^{ab}`: `chiG (abMk h) = chiTwo h`. -/
-noncomputable def chiG :
+noncomputable def chiG [LiteratureInputs] :
     ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) ℤ_[2]ˣ :=
   abDescend ⟨orientBundle.chiTwo, orientBundle.continuous_chiTwo⟩
 
-include lit in
-@[simp] private lemma chiD0_abMk (d : (D0 : Type)) :
+@[simp] private lemma chiD0_abMk [LiteratureInputs] (d : (D0 : Type)) :
     chiD0 (abMk d) = orientBundle.chiTwo (orientBundle.equiv.symm d) := rfl
 
-include lit in
-@[simp] private lemma chiG_abMk (h : (maxProPQuotient 2 AbsGalQ2 : Type)) :
+@[simp] private lemma chiG_abMk [LiteratureInputs] (h : (maxProPQuotient 2 AbsGalQ2 : Type)) :
     chiG (abMk h) = orientBundle.chiTwo h := rfl
 
-include lit in
-private lemma chiD0_A : chiD0 (abMk d0A) = -1 := orientBundle.chi_A
-include lit in
-private lemma chiD0_S : chiD0 (abMk d0S) = 1 := orientBundle.chi_S
-include lit in
-private lemma chiD0_Y (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ :=
+private lemma chiD0_A [LiteratureInputs] : chiD0 (abMk d0A) = -1 := orientBundle.chi_A
+private lemma chiD0_S [LiteratureInputs] : chiD0 (abMk d0S) = 1 := orientBundle.chi_S
+private lemma chiD0_Y [LiteratureInputs] (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ :=
   orientBundle.chi_Y y hy
 
-include lit in
 /-- `χ_G ∘ markedPi = chiCycAb`: the cyclotomic values agree with `markedPi`'s reciprocity classes
 (via `chiTwo_factors`). -/
-lemma chiG_markedPi (x : AbsGalQ2ab) : chiG (markedPi x) = chiCycAb x := by
+lemma chiG_markedPi [LiteratureInputs] (x : AbsGalQ2ab) : chiG (markedPi x) = chiCycAb x := by
   obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
   show chiG (markedPi (toAb g)) = chiCycAb (toAb g)
   rw [markedPi_toAb, chiG_abMk, orientBundle.chiTwo_factors, chiCycAb_toAb]
 
-include lit in
 /-- `chiD0 ∘ (topAbCongr equiv) = chiG`. -/
-lemma chiD0_equivAb (w : topAbelianization (maxProPQuotient 2 AbsGalQ2)) :
+lemma chiD0_equivAb [LiteratureInputs] (w : topAbelianization (maxProPQuotient 2 AbsGalQ2)) :
     chiD0 (topAbCongr orientBundle.equiv w) = chiG w := by
   obtain ⟨h, rfl⟩ := abMk_surjective (G := (maxProPQuotient 2 AbsGalQ2 : Type)) w
   rw [topAbCongr_abMk, chiD0_abMk, chiG_abMk, ContinuousMulEquiv.symm_apply_apply]
@@ -303,13 +291,12 @@ lemma chiCycAb_recip_unitNeg3 : chiCycAb (R.recip unitNeg3) = unitNegThree⁻¹ 
 
 /-! ### Proposition 1.1 -/
 
-include lit in
 /-- **Proposition 1.1.**  A marked isomorphism `e : G_{ℚ₂}(2) ≅ D₀` with unramified
 coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.  Assembled from B3c (`orientBundle.equiv`), Lemma 3.5
 (`lemma_3_5_marked_abelianization`, using `markedHom_bijective`),
 and Prop. 3.8 (`prop_3_8_classification`/`prop_3_8_lift`).  The statement is placed here to
 respect the import DAG; see the pointer in `GQ2/SectionThree.lean`. -/
-theorem SectionThree.prop_1_1 :
+theorem SectionThree.prop_1_1 [LiteratureInputs] :
     ∃ e : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0,
       (∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e.symm d0A →
         R.nu_ur (toAb g) = Multiplicative.ofAdd ((-2 : ℤ) : ℤ_[2])) ∧

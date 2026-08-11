@@ -66,8 +66,6 @@ this proof.  One elaboration detail is worth preserving: `simpa … using` fails
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionEight
 
@@ -241,13 +239,12 @@ theorem half139_of_leaves
 
 end SourceGeneric
 
-include lit in
 /-- **Proposition 8.9 over an abstract source** (the SourceData seam): `prop_8_9` with the
 candidate slot abstracted over `(Γ, b)` and the supply obligations taken as hypotheses, in
 the exact shapes of the `_gammaA` supply lemmas (see the section docstring above).  Proof =
 the Prop. 8.9 assembly verbatim, with each `_gammaA` citation replaced by the corresponding
 obligation. -/
-theorem prop_8_9_of_source (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
+theorem prop_8_9_of_source [LiteratureInputs] (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
     (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)
@@ -371,7 +368,6 @@ theorem prop_8_9_of_source (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalS
         ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F,
           fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
 
-include lit in
 /-- **Proposition 8.9 (closed exact-image recursion)**: for the concrete block frame of a
 boundary-framed target with a §7 simple-head block, there are **shared** data
 `(μ, G⁰, D_T)` and a **per-`λ`** phase family such that the boxed system (136)–(142) holds
@@ -380,7 +376,7 @@ smaller marked 2-kernel, so the system is a closed deterministic recursion (pape
 §8).  [the §8 proof layer statement — relocated & amended at the Prop. 8.9 assembly, see the module docstring; proof =
 the Prop. 8.9 assembly.  Verified axioms: std-3 + {B6, B7} (within the App. D ≤ {B6, B7, B9}
 budget; B9 never enters).] -/
-theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
+theorem prop_8_9 [LiteratureInputs] (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
     (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)

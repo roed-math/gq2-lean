@@ -18,8 +18,6 @@ argument on `D₀`'s three generators, matching the `prop_1_1` unramified coordi
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionThree
 
@@ -45,10 +43,9 @@ noncomputable def zetaNuTwo : ContinuousMonoidHom PiBd (Multiplicative ℤ_[2]) 
 
 private lemma zetaNuTwo_apply (x : PiBd) : zetaNuTwo x = ztwoEquivPadic (nuTwo x) := rfl
 
-include lit in
 /-- **Prop 3.10, local half** (proved): the boundary group `Π` with `ν₂` is the fully unramified
 marked pair `(G_{ℚ₂}(2), ν_ur)`. -/
-theorem prop_3_10_local_marked_proved
+theorem prop_3_10_local_marked_proved [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] (R : LocalReciprocity) :
     ∃ ι : ContinuousMulEquiv Ztwo (Multiplicative ℤ_[2]),
       ι ztwoOne = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) ∧

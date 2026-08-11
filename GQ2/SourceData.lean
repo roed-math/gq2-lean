@@ -46,8 +46,6 @@ axiom footprints of the consumers are unchanged (the R30 regression gate).
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open SectionEight
 open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
@@ -381,14 +379,13 @@ theorem terminal_count_eq_of_sources (S : SourceData) (B : BoundaryMaps)
     _ = Nat.card (BoundaryLifts B.bF F T) :=
         (SectionNine.boundaryLifts_equiv_qlifts F T hE2 D hDpi B.bF hbF).symm
 
-include lit in
 /-- **The shared-`G0` obtain over an abstract source** (the SourceData refactor, the
 recon's external-`G0` seam): `SectionNine.gaussZ_obtain_blockD` replayed — the exponent `m`
 (from the nonsingular form, source-independent) and the head dichotomy (on
 `F.alpha τ`, source-independent) are decided once, and each source contributes exactly its
 dichotomy leaf at the resulting `G0 = ∓2^m`: the abstract slot through
 `gaussZ_unramified`/`gaussZ_ramified`, the `G_ℚ₂` slot through the proved local twins. -/
-theorem gaussZ_obtain_blockD_of_sources {Y : Type} [Group Y] [TopologicalSpace Y]
+theorem gaussZ_obtain_blockD_of_sources [LiteratureInputs] {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY)
     [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
@@ -437,13 +434,12 @@ theorem gaussZ_obtain_blockD_of_sources {Y : Type} [Group Y] [TopologicalSpace Y
   · push Not at hex
     exact ⟨0, fun l h => absurd (hex l) h, fun l h => absurd (hex l) h⟩
 
-include lit in
 /-- **Proposition 8.9 over a bundled source** (the SourceData refactor): the recon's
 "`prop_8_9` runs over a `SourceData` instance" form — `SectionEight.prop_8_9_of_source` fed
 from the structure's fields.  R32 consumes this at `sourceR`; the `Γ_A` capstone
 `SectionEight.prop_8_9` is (equivalently) the same statement at `B.sourceA`, re-derived in
 `GQ2/Prop89Close.lean` directly from the unbundled form. -/
-theorem prop_8_9_of_sources (S : SourceData) (B : BoundaryMaps) {Y : Type} [Group Y]
+theorem prop_8_9_of_sources [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) {Y : Type} [Group Y]
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
     (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)

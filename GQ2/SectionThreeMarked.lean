@@ -27,8 +27,6 @@ in `GQ2/BoundaryMapsWitness.lean`.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace SectionThree
 
@@ -53,7 +51,6 @@ theorem prop_3_10_gammaA :
       e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₁)) = piX1 :=
   prop_3_10_gammaA_proved
 
-include lit in
 /-- **Prop. 3.10, local half = Cor. 3.12 (fully marked form)**: `(Π, ν₂)` is isomorphic to
 the fully unramified marked pair `(G_{ℚ₂}(2), ν_ur)`.  The `ℤ₂`-identification between the
 two `ν`-targets (`Ztwo = maxProPQuotient 2 ℤ̂` on the boundary side, `Multiplicative ℤ₂` on
@@ -61,7 +58,7 @@ the B5 side) is quantified explicitly as a continuous isomorphism `ι` pinned by
 `ι(1) = ofAdd 1`; the `ν_ur`-values are read through arbitrary lifts, as in `prop_1_1`.
 The proof combines Prop. 1.1, the Nielsen transform (23)/(24) of Prop. 3.11, and the
 `Ztwo ≅ ℤ₂` bridge. -/
-theorem prop_3_10_local_marked
+theorem prop_3_10_local_marked [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] (R : LocalReciprocity) :
     ∃ ι : ContinuousMulEquiv Ztwo (Multiplicative ℤ_[2]),
       ι ztwoOne = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) ∧
@@ -82,13 +79,12 @@ exactly the boundary-frame design's `BoundaryMaps` bundle (eq. (27)); the two su
 `ν₂ : Π ↠ Z₂` (eq. (21)'s arrow) — are stated and **proved** in `GQ2/Prop32.lean`
 (`GQ2.SectionThree.nuT_surjective`, `GQ2.SectionThree.nuTwo_surjective`). -/
 
-include lit in
 /-- **Prop. 3.14** (with Cor. 3.12 supplying the `G_{ℚ₂}`-side): the eq. (27) boundary data
 exists — tame and maximal pro-2 quotient maps for both sources, `ν`-compatible, jointly
 surjective onto the fibred boundary, with the `Γ_A`-side taking the marked generator values
 and the `G_{ℚ₂}`-side pinned intrinsically (Lemma 3.3 2-core kernel; `proPKernel` kernel).
 The construction instantiates `BoundaryMaps` from Prop. 3.2 and Prop. 1.1. -/
-theorem prop_3_14 [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem prop_3_14 [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty BoundaryMaps :=
   prop_3_14_proved
 

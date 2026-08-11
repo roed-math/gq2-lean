@@ -73,8 +73,6 @@ mod-2 Gram-isometry seed `s̄ ↦ S̄+Ȳ, x̄ ↦ Ȳ, ȳ ↦ Ā`.
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 open SectionThree Roe Multiplicative
 
@@ -153,7 +151,6 @@ end Draft
 
 /-! ## The marked identification -/
 
-include lit in
 /-- **The marked pro-2 identification** ⟦prop:markedpro2⟧ (note Prop. 3.6), in the marked
 vocabulary of `prop_3_10_local_marked` (`GQ2/SectionThreeMarked.lean:60`), which the
 boundary-frame layer consumes: given the B-Lab hypothesis, there is a continuous isomorphism
@@ -164,7 +161,7 @@ the two `ν`-targets is quantified explicitly and pinned by `ι(1) = ofAdd 1`, a
 Fill (R15): the three-step route of the module docstring — B-Lab abstract isomorphism,
 `φ_ab`-correction via `prop_3_8_classification`/`prop_3_8_lift` (both on the `D₀` side, reused
 as-is), and the `prop_1_1`/`prop_3_10_local_marked` assembly pattern for the `ι`-bridge. -/
-theorem markedPro2_R [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem markedPro2_R [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (R : LocalReciprocity) (hBLab : BLabHypothesis) :
     ∃ ι : ContinuousMulEquiv Ztwo (Multiplicative ℤ_[2]),
       ι ztwoOne = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) ∧

@@ -32,8 +32,6 @@ which adds only B6/B7 via `D`) — the full §6.3 deep-part budget, **no new axi
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace DetRamified
 
@@ -43,7 +41,6 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
-include lit in
 /-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case** — wired
 downstream (the deep-part proof/f2d statement-move): the local base determinant form has the positive
 Gauss sign, `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is
@@ -54,7 +51,7 @@ Proved from the two §6.3 Kummer cores now that both are proved downstream:
 (`Q⁰_loc|X₊ = 0`), fed to the banked Lagrangian-Arf count `card_Q0loc_zero_eq_of_dim_of_vanish`.
 Amended (the architecture review flag) with `(R, horient)` — the reciprocity datum `lemma_6_17_vanish_final`
 requires; consumers discharge it at the boundary-maps witness. -/
-theorem prop_6_18_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+theorem prop_6_18_ramified [LiteratureInputs] (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (horient : TameUnitOrientation R B.tameF)

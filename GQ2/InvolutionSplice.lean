@@ -51,8 +51,6 @@ B13 (`dyadicUnitFiltration`, via `hunram_involution`)} — the §6.3 involution 
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 namespace InvolutionSplice
 
@@ -345,7 +343,6 @@ private theorem kummerCocycleFun_add_on_subgroupOf {W L' : Subgroup (Kummer.Galo
   rw [hmul]
   exact kummerCocycleFun_hom_on hβ hβ0 hAfix ⟨_, hwL⟩ ⟨_, hzL⟩
 
-include lit in
 /-- **The involution `hvanish` over `ker ρ`** (the Lemma 6.17 vanishing proof, the U₀-splice): for a deep block
 coordinate `α` on `N = ker ρ` and an involution lift `ĝ` (`ĝ ∉ N`, `ĝ² ∈ N`,
 `U₀ = N ⊔ ⟨ĝ⟩`), the Evens-norm inner cochain of the reducer's involution orbit has trivial
@@ -358,7 +355,7 @@ the c2a Kummer package (`kummer_presentation_of_index_two`), the c2c analytic `h
 (`hunram_involution`), the c2b spine (`hvanish_involution` = Lemma 6.16 + descent), and the
 carrier splice pulling the `B²`-witness back along the underlying-identity `↥U₀ →
 ↥k.fixingSubgroup`. -/
-theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
+theorem hvanish_involution_ker [LiteratureInputs] (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (horient : TameUnitOrientation R B.tameF)
@@ -541,12 +538,11 @@ theorem cup11Fun_comp {G₁ G₂ : Type*} [Group G₁] [Group G₂]
   rw [htriv₁, htriv₂, hα, hβ]
 
 omit [Finite C] in
-include lit in
 /-- **The square/free `hvanish` over `ker ρ`** (the Lemma 6.17 vanishing proof): the cup of two deep block coordinates
 over `N = ker ρ` has trivial `H²ofFun` class.  Same tower/carrier splice as
 `hvanish_involution_ker`, but with `U = N` (no lift, no index-2) and the cup in place of the
 Evens norm; the field-side vanishing is `hvanish_cup` (eq.-(94) orthogonality). -/
-theorem hvanish_cup_ker (ρ : ContinuousMonoidHom AbsGalQ2 C)
+theorem hvanish_cup_ker [LiteratureInputs] (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (α β : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → ZMod 2)
     (hαZ1 : α ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
     (hβZ1 : β ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))

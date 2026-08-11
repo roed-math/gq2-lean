@@ -42,8 +42,6 @@ open GQ2 GQ2.ContCoh
 
 namespace GQ2
 
-variable [lit : LiteratureInputs]
-omit lit
 
 /-- The finite **coinduced / permutation module** `𝔽₂[G/U]` for Shapiro's lemma: functions
 `G ⧸ U → 𝔽₂` with the coinduced `G`-action `(g • f) x = f (g⁻¹ • x)`.  An instance-opaque
@@ -259,11 +257,10 @@ theorem theta_surjective (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ 
 
 end PermMod
 
-include lit in
 /-- **Finiteness of `H¹(U, 𝔽₂)` for an open subgroup `U ≤ G_ℚ₂`** — Shapiro's lemma reduces it
 to `H¹(G_ℚ₂, 𝔽₂[G/U])`, finite by B7.  Discharges the `[Finite (H¹(G_K, 𝔽₂))]` instance threaded
 through the deep-part counting layer.  No new axiom (std-3 + B7). -/
-theorem finite_H1_open (U : Subgroup AbsGalQ2) (hU : IsOpen (U : Set AbsGalQ2))
+theorem finite_H1_open [LiteratureInputs] (U : Subgroup AbsGalQ2) (hU : IsOpen (U : Set AbsGalQ2))
     [Finite (AbsGalQ2 ⧸ U)] : Finite (H1 U (ZMod 2)) := by
   haveI := PermMod.continuousSMul hU
   haveI : Finite (H1 AbsGalQ2 (PermMod U)) := GQ2.Foundations.finite_H1 (PermMod U)
