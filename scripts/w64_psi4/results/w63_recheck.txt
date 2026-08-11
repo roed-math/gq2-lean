@@ -1,0 +1,108 @@
+$ python3 certify.py
+== gap-1a  (gapOneMark)
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   relator is the central translation <o=5>                   OK (admissible)
+   all 216 weight-three brackets lie in the target            OK (0 violations)
+   target stable under conjugation by every slot value        OK (|target| = 16384)
+   forceLcs H 2 lies inside the target                        OK (lattice 1024, target 16384, slack index 16)
+   certificate kills every single-slot shift from the target  OK (0 of 81920 slot/target pairs)
+      psi = 1l + 2n + 4o
+         slot sigma  pullback 0
+         slot x0     pullback 6k + 4m + 4n
+         slot x1     pullback 2l + 4n
+         slot U      pullback 6k + 2l + 4m
+         slot V      pullback 0
+   …and on a spanning family of five-slot dressings           OK 
+   certificate does NOT kill the relator's inverse            OK (psi = 4)
+   no achievable dressing kills (the forcing HOLDS)           OK 
+   the parity line StageOrth FAILS                            OK 
+   the sharp line StageCentral HOLDS                          OK 
+
+== gap-1b  (gapOneMark')
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1, n=4> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   relator is the central translation <o=5>                   OK (admissible)
+   all 216 weight-three brackets lie in the target            OK (0 violations)
+   target stable under conjugation by every slot value        OK (|target| = 16384)
+   forceLcs H 2 lies inside the target                        OK (lattice 1024, target 16384, slack index 16)
+   certificate kills every single-slot shift from the target  OK (0 of 81920 slot/target pairs)
+      psi = 1l + 2n + 4o
+         slot sigma  pullback 0
+         slot x0     pullback 6k + 4m + 4n
+         slot x1     pullback 2l + 4n
+         slot U      pullback 6k + 2l + 4m
+         slot V      pullback 0
+   …and on a spanning family of five-slot dressings           OK 
+   certificate does NOT kill the relator's inverse            OK (psi = 4)
+   no achievable dressing kills (the forcing HOLDS)           OK 
+   the parity line StageOrth FAILS                            OK 
+   the sharp line StageCentral HOLDS                          OK 
+
+== gap-2a  (gapTwoMark)
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   relator is the central translation <o=1>                   OK (admissible)
+   all 216 weight-three brackets lie in the target            OK (0 violations)
+   target stable under conjugation by every slot value        OK (|target| = 4096)
+   forceLcs H 2 lies inside the target                        OK (lattice 256, target 4096, slack index 16)
+   certificate kills every single-slot shift from the target  OK (0 of 20480 slot/target pairs)
+      psi = 1m + 4o
+         slot sigma  pullback 0
+         slot x0     pullback 5k + 4n
+         slot x1     pullback 2m
+         slot U      pullback 4l
+         slot V      pullback 6k + 4l
+   …and on a spanning family of five-slot dressings           OK 
+   certificate does NOT kill the relator's inverse            OK (psi = 4)
+   no achievable dressing kills (the forcing HOLDS)           OK 
+   the parity line StageOrth FAILS                            OK 
+   the sharp line StageCentral HOLDS                          OK 
+
+== gap-2b  (gapTwoMark')
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3, n=4> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   relator is the central translation <o=1>                   OK (admissible)
+   all 216 weight-three brackets lie in the target            OK (0 violations)
+   target stable under conjugation by every slot value        OK (|target| = 4096)
+   forceLcs H 2 lies inside the target                        OK (lattice 256, target 4096, slack index 16)
+   certificate kills every single-slot shift from the target  OK (0 of 20480 slot/target pairs)
+      psi = 1m + 4o
+         slot sigma  pullback 0
+         slot x0     pullback 5k + 4n
+         slot x1     pullback 2m
+         slot U      pullback 4l
+         slot V      pullback 6k + 4l
+   …and on a spanning family of five-slot dressings           OK 
+   certificate does NOT kill the relator's inverse            OK (psi = 4)
+   no achievable dressing kills (the forcing HOLDS)           OK 
+   the parity line StageOrth FAILS                            OK 
+   the sharp line StageCentral HOLDS                          OK 
+
+TOTAL FAILURES: 0
+
+$ python3 lean_match.py
+== letters
+   gap-1a   gapOneS    OK
+   gap-1a   gapOneX    OK
+   gap-1a   gapOneY    OK
+   gap-1a   gapOneU    OK
+   gap-1a   gapOneV    OK
+   gap-1b   gapOneS    OK
+   gap-1b   gapOneX    OK
+   gap-1b   gapOneY'   OK
+   gap-1b   gapOneU    OK
+   gap-1b   gapOneV    OK
+   gap-2a   gapTwoS    OK
+   gap-2a   gapTwoX    OK
+   gap-2a   gapTwoY    OK
+   gap-2a   gapTwoU    OK
+   gap-2a   gapTwoV    OK
+   gap-2b   gapTwoS    OK
+   gap-2b   gapTwoX    OK
+   gap-2b   gapTwoY'   OK
+   gap-2b   gapTwoU    OK
+   gap-2b   gapTwoV    OK
+== targets and certificates
+   gapKOne  OK   2 * z.k + 4 * z.m + 4 * z.n = 0 ; 2 * z.l + 4 * z.n = 0
+   gapKTwo  OK   z.k + 4 * z.n = 0 ; 4 * z.l = 0 ; 2 * z.m = 0
+   psiOne   OK   w.l + 2 * w.n + 4 * w.o
+   psiTwo   OK   w.m + 4 * w.o
+
+TOTAL FAILURES: 0

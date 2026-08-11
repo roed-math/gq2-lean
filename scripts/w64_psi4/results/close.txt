@@ -1,0 +1,55 @@
+$ python3 close.py
+== A  the four hypotheses, textually
+   gap-1a   psiOne_gapOneMark discharges stageForces_gapOneA_of_psi OK 
+   gap-1b   psiOne_gapOneMark' discharges stageForces_gapOneB_of_psi OK 
+   gap-2a   psiTwo_gapTwoMark discharges stageForces_gapTwoA_of_psi OK 
+   gap-2b   psiTwo_gapTwoMark' discharges stageForces_gapTwoB_of_psi OK 
+   both sections quantify h and j the same way                OK 
+   gap-1a   stageForces_gapOneA is exactly stageForces_gapOneA_of_psi psiOne_gapOneMark OK 
+   gap-1b   stageForces_gapOneB is exactly stageForces_gapOneB_of_psi psiOne_gapOneMark' OK 
+   gap-2a   stageForces_gapTwoA is exactly stageForces_gapTwoA_of_psi psiTwo_gapTwoMark OK 
+   gap-2b   stageForces_gapTwoB is exactly stageForces_gapTwoB_of_psi psiTwo_gapTwoMark' OK 
+
+== B  the identity on the honest matrices, five slots at a time
+   gap-1a   certificate kills 4000 random five-slot target tuples OK (0 failures, |target| = 16384)
+   gap-1a   the five slot pullbacks are the derived ones      OK (0 | 6k + 4m + 4n | 2l + 4n | 6k + 2l + 4m | 0)
+   gap-1b   certificate kills 4000 random five-slot target tuples OK (0 failures, |target| = 16384)
+   gap-1b   the five slot pullbacks are the derived ones      OK (0 | 6k + 4m + 4n | 2l + 4n | 6k + 2l + 4m | 0)
+   gap-2a   certificate kills 4000 random five-slot target tuples OK (0 failures, |target| = 4096)
+   gap-2a   the five slot pullbacks are the derived ones      OK (0 | 5k + 4n | 2m | 4l | 6k + 4l)
+   gap-2b   certificate kills 4000 random five-slot target tuples OK (0 failures, |target| = 4096)
+   gap-2b   the five slot pullbacks are the derived ones      OK (0 | 5k + 4n | 2m | 4l | 6k + 4l)
+
+== C  the conclusion the four theorems now assert, without hypotheses
+   gap-1a   relator is a central translation with an ODD residue OK (<o=5>)
+   gap-1a   the achievable lattice lies in the target         OK (lattice 1024)
+   gap-1a   no achievable dressing kills: the forcing HOLDS   OK 
+   gap-1b   relator is a central translation with an ODD residue OK (<o=5>)
+   gap-1b   the achievable lattice lies in the target         OK (lattice 1024)
+   gap-1b   no achievable dressing kills: the forcing HOLDS   OK 
+   gap-2a   relator is a central translation with an ODD residue OK (<o=1>)
+   gap-2a   the achievable lattice lies in the target         OK (lattice 256)
+   gap-2a   no achievable dressing kills: the forcing HOLDS   OK 
+   gap-2b   relator is a central translation with an ODD residue OK (<o=1>)
+   gap-2b   the achievable lattice lies in the target         OK (lattice 256)
+   gap-2b   no achievable dressing kills: the forcing HOLDS   OK 
+
+== D  the MATHLIB bracket convention, and the odd dressing
+   gap-1a   all 216 MATHLIB weight-three brackets lie in the target OK (0 violations)
+   gap-1a   the odd dressing pairs to 7 on slot U             OK (w = <k=4, l=6, m=1, n=1, o=6>, shift = <n=2, o=7>)
+   gap-1a   ...and moves a class-four row, so it kills nothing OK (m = 0, n = 2)
+   gap-1a   the odd dressing is inside the target too         OK 
+   gap-1b   all 216 MATHLIB weight-three brackets lie in the target OK (0 violations)
+   gap-1b   the odd dressing pairs to 7 on slot U             OK (w = <k=4, l=6, m=1, n=1, o=6>, shift = <n=2, o=7>)
+   gap-1b   ...and moves a class-four row, so it kills nothing OK (m = 0, n = 2)
+   gap-1b   the odd dressing is inside the target too         OK 
+   gap-2a   all 216 MATHLIB weight-three brackets lie in the target OK (0 violations)
+   gap-2a   the odd dressing pairs to 5 on slot x0            OK (w = <k=4, m=4, n=5, o=4>, shift = <m=4, o=5>)
+   gap-2a   ...and moves a class-four row, so it kills nothing OK (m = 4, n = 0)
+   gap-2a   the odd dressing is inside the target too         OK 
+   gap-2b   all 216 MATHLIB weight-three brackets lie in the target OK (0 violations)
+   gap-2b   the odd dressing pairs to 5 on slot x0            OK (w = <k=4, m=4, n=5, o=4>, shift = <m=4, o=5>)
+   gap-2b   ...and moves a class-four row, so it kills nothing OK (m = 4, n = 0)
+   gap-2b   the odd dressing is inside the target too         OK 
+
+TOTAL FAILURES: 0
