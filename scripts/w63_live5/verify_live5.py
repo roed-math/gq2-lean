@@ -77,7 +77,7 @@ def main():
                               [LIVE_V if k == j else U6() for k in range(h)]), L.liftO(1))
               for h in range(1, 6) for j in range(h)), "15 (h, j) pairs")
 
-    print("\n2  THE BLOCK CHANNEL IS LIVE (this is what the two committed witnesses lack)")
+    print("\n2  THE CORE BLOCK PAIRING IS LIVE (this is the pair the committed witnesses lack)")
     br = L.block_read(LIVE_SIG, LIVE_X)
     check("block reading of the core pair is ODD", L.par(br) == 1, f"blockRead = {br}")
     mn = L.handle_minor(LIVE_U, LIVE_V)
@@ -87,11 +87,21 @@ def main():
     check("the handle block's (4,6) coordinate is odd", L.par(blk.co["i"]) == 1, str(blk))
     check("the handle block is live in the CLASS-FOUR row too",
           (not L.is_one(blk)) and L.par(blk.co["m"]) == 1, f"m = {blk.co['m']}")
-    check("the two committed witnesses are block-blind (control)",
+    check("CONTROL: the two committed witnesses have an EVEN core pair and handle pair",
           L.par(L.block_read(L.FIVE_SIG, L.STAGE_X)) == 0
           and L.par(L.block_read(L.FIVE_SIG, L.FORCE_X)) == 0
           and L.par(L.handle_minor(L.STAGE_U, L.STAGE_V)) == 0
           and L.par(L.handle_minor(L.FORCE_U, L.FORCE_V)) == 0)
+    check("...but they are NOT block-blind as points: (x0, U) is ODD at both  [W63-SECOND]",
+          L.par(L.block_read(L.STAGE_X, L.STAGE_U)) == 1
+          and L.par(L.block_read(L.FORCE_X, L.FORCE_U)) == 1,
+          f"blockRead(stageX, stageU) = {L.block_read(L.STAGE_X, L.STAGE_U)}, "
+          f"blockRead(forceX, forceU) = {L.block_read(L.FORCE_X, L.FORCE_U)}")
+    check("...and the gauge reduction does not apply to that pair: U is not gauged",
+          L.par(L.STAGE_U.co["d"]) == 1 and L.par(L.FORCE_U.co["d"]) == 1,
+          "the reduction gauges its SECOND argument; a handle letter has odd (4,5)")
+    check("...so the live pairs at the committed points cannot exclude h = 0: "
+          "they name a handle generator", True, "recorded, structural")
 
     print("\n3  THE WITNESS STANDARD, CONDITION BY CONDITION")
     ck = L.std_checks(*POINT)

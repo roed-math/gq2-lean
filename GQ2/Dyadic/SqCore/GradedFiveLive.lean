@@ -6,19 +6,36 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 import GQ2.Dyadic.SqCore.GradedBlockFrame
 
 /-!
-# W63-LIVE5: a class-five witness whose BLOCK channel is live, and what it does not buy
+# W63-LIVE5: a class-five witness whose CORE block pairing is live, and what it does not buy
 
 `GradedBlockFrame`'s Honesty 3 closed with a challenge.  The handle-count instrument
 (`pos_of_blockPar_odd`, `exists_blockPar_odd_iff_pos`) is a genuine invariant of the topological
-group `D_sq h`, but it says **nothing** at either of the two points the class-five lanes run at:
+group `D_sq h`, and W62 computed it at two pairs at each of the two committed class-five points:
 `blockPar_fiveFrameHom`, `blockPar_fiveFrameHom_handle`, `blockPar_stageFrameHom` and
-`blockPar_stageFrameHom_handle` are all `0`.  Any lane hoping to feed the instrument into the
-class-five stack "has to move the point first".
+`blockPar_stageFrameHom_handle` are all `0`, on the **core pair** `(sigma, x0)` and on the
+**handle pair** `(u_j, v_j)`.
 
-This file moves the point, explains **why** it had to be moved, and then reports honestly on how
-little the move buys.
+⚠⚠ **Honesty 3 generalised that two-pair computation into a claim about the points, and the
+generalisation is FALSE.**  W63-SECOND proved by kernel computation that
+`blockPar (stageFrameHom h j) (dsqX0 h) (sqGen h (sqHandleIdxU j)) = 1`, and the same at wave
+60's point: the underlying readings are `blockRead stageX stageU = -5` and
+`blockRead forceX forceU = -3`, both **odd**.  So the committed points are **not** block-blind.
+W62's four theorems are true exactly as stated - they compute two pairs - and it is the sentence
+about the *points* that does not follow.  This file does not repeat it.
 
-## ⭐⭐⭐ Headline 1: the blindness is one coordinate, and the theorem says which
+⚠ No statement here is affected, and the reason is scoping rather than luck: Headline 1 requires
+its **second** argument to be on the committed gauge, and `stageU` is a handle letter and is not
+gauged, so the live pair `(x0, u_j)` is outside every hypothesis this file uses.
+
+What is true, and is what this file proves and then consumes, is the sharper localised
+statement: **at both committed points the CORE pair is dead, and Headline 1 says exactly why.**
+That is the pair the handle-count forcing needs, and it is the only one of the three that still
+exists at `h = 0` - a pairing against `u_j` cannot exclude `h = 0`, there being no `u_j` there to
+pair with, so `blockPar Phi x0 u_j = 1` is necessarily free of content for the forcing.  This
+file therefore builds a class-five witness whose **core** pairing is live, which is a genuine
+first, and then reports honestly on how little even that buys.
+
+## ⭐⭐⭐ Headline 1: the core-pair channel is one coordinate, and the theorem says which
 
 `SqU6.selPar_blockRead_of_gauge`.  At **any** two slots `s`, `x` with `x` on the committed
 class-two-forced gauge - `(2 : gr3R) ∣ x.d` and `selPar x.e = 1`, the two conditions
@@ -28,21 +45,30 @@ class-two-forced gauge - `(2 : gr3R) ∣ x.d` and `selPar x.e = 1`, the two cond
 selPar (blockRead s x)  =  selPar s.d
 ```
 
-So at every gauged class-five witness the block channel is **exactly the parity of the sigma
-slot's `(4,5)`-entry**, and nothing else about the point can move it.  Both committed witnesses
-carry the sigma mark `fiveSigMark = E_23`, whose `(4,5)`-entry is `0`; that single zero is the
-whole of their block-blindness (`blockRead_fiveSigMark_gauge`).  ⭐ The corollary is the answer
-to the cheaper question the brief asked first: **no, the witness standard does not force the
-channel even.**  The standard says nothing at all about `s.d`, because the relator's four
-abelian rows read only the `x0`- and `x1`-slots (`SqU6.sqRelWord_d`, and
-`sqRelWord_d_indep_sigma` records exactly that).
+⚠ Read the quantifier: the reduction is about a pair whose **second** argument is gauged, that
+is, about a pairing against the `x0` slot.  It says nothing about pairings against a handle
+letter, and the live pairs `(x0, u_j)` at the committed points are exactly such pairings.
 
-⭐ It also says which of the two obvious repairs is available.  Wave 59's live counterexample
-gets its odd reading the other way round: `blindCexS` has `d = 0` and `e = 1`, and the reading
-is live because `blindCexX` has an **odd** `(4,5)`-entry.  A class-five witness cannot copy that,
-because the committed gauge forces the `x0` slot's `(4,5)`-column even (`stageX_gauge`,
-`forceX_gauge`).  So the sigma slot is the only slot left to move, and moving it by `E_45` is
-the whole of the construction below.
+So at every gauged class-five witness the pairing against the `x0` slot is **exactly the parity
+of the first slot's `(4,5)`-entry**, and nothing else about the point can move it.  On the core
+pair the first slot is the sigma mark; both committed witnesses carry `fiveSigMark = E_23`, whose
+`(4,5)`-entry is `0`, and that single zero is the whole of the death of their **core** pairing
+(`blockRead_fiveSigMark_gauge`).  ⭐ This is a sharper and more useful statement than "the points
+are blind" would have been, and it is the reason the corrected picture is coherent: the same
+theorem that kills `(sigma, x0)` at both committed points leaves `(x0, u_j)` untouched, because
+`u_j` is not gauged and `stageU.d = 1` is odd.  It locates the blindness exactly.
+
+⭐ The corollary is the answer to the cheaper question the brief asked first: **no, the witness
+standard does not force the core channel even.**  The standard says nothing at all about `s.d`,
+because the relator's four abelian rows read only the `x0`- and `x1`-slots (`SqU6.sqRelWord_d`,
+and `sqRelWord_d_indep_sigma` records exactly that).
+
+⭐ It also says which of the two obvious repairs of the **core** pair is available.  Wave 59's
+live counterexample gets its odd core reading the other way round: `blindCexS` has `d = 0` and
+`e = 1`, and the reading is live because `blindCexX` has an **odd** `(4,5)`-entry.  A class-five
+witness cannot copy that, because the committed gauge forces the `x0` slot's `(4,5)`-column even
+(`stageX_gauge`, `forceX_gauge`).  So the sigma slot is the only slot left to move, and moving it
+by `E_45` is the whole of the construction below.
 
 ## ⭐⭐⭐ Headline 2: the witness, and it moves exactly that one coordinate
 
@@ -67,12 +93,15 @@ stage-four exclusion goes through verbatim (`sqRelWord_liveBlkWit_diag_ne_one`,
 row (`commP_liveBlkUV_live`); and the point sits on the sharp class-five line
 (`liveBlkWit_fiveOrth`).
 
-⭐ And the block channel is **live**: `blockPar_liveBlkHom` and `blockPar_liveBlkHom_handle` are
-both `1`, on the core pair *and* on the live handle pair, so
-`GradedBlockFrame.blockPar_relator_frame` has content at it and
-`blockPar_liveBlkHom_crosscheck` checks both sides independently.  This is the first point in
-the tree that is a class-five witness and a live block point at once: wave 59's `blockCexHom` is
-live and is not a witness, waves 60 and 61's witnesses are witnesses and are not live.
+⭐ And the block pairing is `1` on the **core** pair *and* on the live handle pair
+(`blockPar_liveBlkHom`, `blockPar_liveBlkHom_handle`), so
+`GradedBlockFrame.blockPar_relator_frame` has content on both sides at it and
+`blockPar_liveBlkHom_crosscheck` checks them independently.  ⚠ **The first of those two is the
+one that is new**, and it is what the composite of Headline 3 consumes: both committed points
+have live pairs (W63-SECOND), but at both of them the live pairs known to the tree pair the `x0`
+slot against a **handle** generator, and no such pair can exclude `h = 0`.  This is the first
+class-five witness whose **core** pairing is odd; wave 59's `blockCexHom` has an odd core pairing
+and is a counterexample rather than a witness.
 
 ## ⭐⭐ Headline 3: what genuinely composes - the core pair now REQUIRES a handle
 
@@ -110,10 +139,24 @@ Headline 3 it gains nothing at all, and three separate proofs in this file say s
 
 And by `GradedBlockFrame`'s Headline 4 the supplied datum is **equivalent** to `0 < h`
 (`exists_blockPar_odd_iff_pos`), so no committed statement drops a hypothesis by consuming it.
-⚠ **Do not report this file as letting anything drop `0 < h`.**  What it retires is the
-direction: the two committed class-five points were blind, the blindness looked like an accident
-of the sigma mark, and it is - but repairing it does not open a route, because the only thing on
-the other side of the door was a hypothesis the class-five statements already have.
+⚠ **Do not report this file as letting anything drop `0 < h`.**
+
+⭐ **W63-SECOND's correction strengthens this retirement rather than weakening it**, and the
+check is worth stating because it is doctrine rule iii applied to this file's own composite.  All
+three theorems above are about the **content of the datum**, not about which pair carries it: the
+first says `0 < h` was already in the context, the second says the handle named was already
+named, the third says the class-five bit is a core functional.  None of them mentions the core
+pair, so none of them is disturbed by learning that other pairs were live all along.  What the
+correction adds is that the committed points could **already** produce `0 < h` from the block
+instrument, at `(x0, u_j)` - and vacuously, since that pair does not exist at `h = 0`.  So the
+route was doubly empty: the datum was already available at the old points, and it was already
+free there.
+
+What retires is therefore the direction, not the phenomenon.  The committed points' **core**
+pairing is dead, Headline 1 says why in one coordinate, and repairing it does not open a route,
+because the only thing on the other side of the door was a hypothesis the class-five statements
+already have.  What survives is Headline 3, which is the one statement that needs the core pair
+specifically.
 
 ## ⚠ The legality audit, REDONE, and the column that has to change
 
@@ -164,7 +207,7 @@ read off the fifth abelian column, and here that column is reachable (`3 * 7 = 5
 arbitrary continuous `nu'` cleared at the selected handle, and for every continuous
 homomorphism where the statement quantifies over one.
 
-**MEASURED** (`scripts/w63_live5/`, certified output in `results/verify_live5.txt`; **47** named
+**MEASURED** (`scripts/w63_live5/`, certified output in `results/verify_live5.txt`; **50** named
 checks, **0** failures, on the independently certified `U_6(Z/8)` of
 `scripts/w59_blind5/u6lib.py` through `scripts/w61_block/blocklib.py`, re-certified against
 honest `6 x 6` matrix arithmetic in section 0 before any measurement is taken):
@@ -172,9 +215,10 @@ honest `6 x 6` matrix arithmetic in section 0 before any measurement is taken):
 | measurement | scale | result |
 |---|---|---|
 | the witness standard, entry by entry, and its calibration at `stageWit` / `fiveWit` | `12` entries | all hold; `fiveWit` fails exactly the stage-four column |
+| ⚠ the committed points: core pair and handle pair even, but `(x0, u_j)` **odd** | `2` points | W63-SECOND's correction, re-measured here |
 | the relator and the residue, at every handle count and handle | `h = 1..5` | `1` and `liftO 1` |
 | no `h = 0` completion of the live core pair | `200000` random `x1` slots + `400` layered solves | `0` completions, all failing at row `(4,6)` |
-| an odd handle minor never completes at the block-blind sigma slot | `3000` letter pairs | `0` completions |
+| an odd handle minor never completes at the even-`(4,5)` sigma slot | `3000` letter pairs | `0` completions |
 | the block reading is unmoved by `gamma_2`-dressings, with a live control | `2000` + `2000` | `0` moves, `1725` control moves |
 | the legality obstruction on the first abelian column | exhaustive over even `a_0` | no legal dressing reaches `stageX` |
 | the gauge reduction, **exhaustive** on `ZMod 8` | `1024` gauged pairs | `0` failures |
@@ -186,9 +230,10 @@ class-five separation.  `scripts/w63_live5/results/h0_sweep.txt`: `200000` rando
 triples produce `6277` relator-killing `h = 0` markings, `994` of them with a purely central
 `a0 = a1` residue, and **`0`** with an odd one.  This file proves the statement only for the two
 named core pairs, and for the live one only; ⚠ and the block instrument cannot settle the
-general question, because at a block-blind core pair its hypothesis is false and
-`sqRelWord_blindCore_handleFree` shows the conclusion is too.  It is the obvious next question
-and it is open.
+general question, because at a core pair with an even reading its hypothesis is false and
+`sqRelWord_blindCore_handleFree` shows the conclusion is too.  ⚠ Nor do the live pairs
+W63-SECOND found at the committed points help: they pair against a handle generator, so they
+exclude nothing at `h = 0`.  It is the obvious next question and it is open.
 
 ## Contents
 
@@ -265,16 +310,24 @@ theorem SqU6.selPar_blockRead_of_gauge {s x : SqU6 gr3R} (hxd : (2 : gr3R) ∣ x
   rw [SqU6.blockRead, selPar_sub, selPar_mul, selPar_mul, hxe, mul_one, ht, selPar_two_mul,
     mul_zero, sub_zero]
 
-/-- …so a sigma slot with an even `(4,5)`-entry is block-blind on the whole gauge. -/
+/-- …so a slot with an even `(4,5)`-entry pairs EVENLY against every gauged slot.  ⚠ This is a
+statement about pairings whose second argument is gauged; it says nothing about pairings against
+a handle letter. -/
 theorem SqU6.selPar_blockRead_of_gauge_zero {s x : SqU6 gr3R} (hxd : (2 : gr3R) ∣ x.d)
     (hxe : selPar x.e = 1) (hsd : (2 : gr3R) ∣ s.d) : selPar (SqU6.blockRead s x) = 0 := by
   obtain ⟨t, ht⟩ := hsd
   rw [SqU6.selPar_blockRead_of_gauge hxd hxe, ht, selPar_two_mul]
 
-/-- ⚠ **The blindness of the two committed witnesses, explained in one line.**  Both carry the
-sigma mark `fiveSigMark = E_23`, whose `(4,5)`-entry is `0`, so on the gauge their block channel
-is dead for a structural reason and not by accident of the letters.  `blockPar_fiveFrameHom` and
-`blockPar_stageFrameHom` are the two instances. -/
+/-- ⚠ **The dead CORE pairing of the two committed witnesses, explained in one line.**  Both
+carry the sigma mark `fiveSigMark = E_23`, whose `(4,5)`-entry is `0`, so their pairing against
+any gauged `x0` slot is dead for a structural reason and not by accident of the letters.
+`blockPar_fiveFrameHom` and `blockPar_stageFrameHom` are the two instances.
+
+⚠⚠ **This is a statement about the core pair only, and it must not be read as one about the
+points.**  W63-SECOND proved `blockPar Phi (dsqX0 h) (sqGen h (sqHandleIdxU j)) = 1` at both
+committed points, so neither point is block-blind.  There is no tension: the hypothesis here
+gauges the **second** argument, and a handle letter is not gauged - `stageU.d = 1` is odd, which
+is precisely why that pair is live while this one is dead. -/
 theorem blockRead_fiveSigMark_gauge {x : SqU6 gr3R} (hxd : (2 : gr3R) ∣ x.d)
     (hxe : selPar x.e = 1) : selPar (SqU6.blockRead (fiveSigMark gr3R) x) = 0 :=
   SqU6.selPar_blockRead_of_gauge_zero hxd hxe ⟨0, by decide⟩
@@ -748,8 +801,10 @@ section Pairing
 
 variable {h : ℕ} {j : Fin h}
 
-/-- ⭐⭐⭐ **THE BLOCK CHANNEL IS LIVE AT A CLASS-FIVE WITNESS.**  This is the statement
-`GradedBlockFrame`'s Honesty 3 says both committed witnesses fail. -/
+/-- ⭐⭐⭐ **THE CORE BLOCK PAIRING IS LIVE AT A CLASS-FIVE WITNESS.**  This is the pairing
+`GradedBlockFrame`'s `blockPar_fiveFrameHom` and `blockPar_stageFrameHom` compute as `0` at the
+two committed witnesses, and it is the only one of the three computed pairs that can exclude
+`h = 0`, both generators being core generators. -/
 theorem blockPar_liveBlkHom : blockPar (liveBlkHom h j) (dsqSigma h) (dsqX0 h) = 1 := by
   rw [blockPar_def, liveBlkHom_sigma, liveBlkHom_x0]
   exact blockRead_liveBlkSig_stageX_odd
@@ -803,8 +858,10 @@ live class-five point admit a relator-killing marking at **every** `h >= 1` and 
 
 This is the one statement that genuinely needs both instruments: the class-five stack supplies a
 witness carrying the separation, and `SqU6.pos_of_blockRead_odd` supplies the impossibility at
-`h = 0`.  Neither committed class-five witness can state it - see
-`sqRelWord_blindCore_handleFree` for the proved control. -/
+`h = 0`.  Neither committed class-five witness can state it, and not for want of a live pairing:
+W63-SECOND's live pairs at those points pair the `x0` slot against a **handle** generator, and
+such a pair excludes nothing at `h = 0`.  It is the **core** pair that is needed and the core
+pair that is dead there - see `sqRelWord_blindCore_handleFree` for the proved control. -/
 theorem liveBlkCore_not_relator_handleFree (m : Fin (sqRank 0) → SqU6 gr3R)
     (h0 : m 0 = liveBlkSig) (h1 : m 1 = stageX) : sqRelWord m ≠ 1 := by
   intro hrel
@@ -826,10 +883,16 @@ solve of `scripts/w61_block/blocklib.py`. -/
 def blindCoreY : SqU6 gr3R := ⟨0, 0, 4, 4, 6, 5, 4, 0, 0, 2, 4, 0, 4, 0, 4⟩
 
 /-- ⚠⚠ **THE CONTROL, PROVED: the committed witness's core pair does NOT require a handle.**
-`GradedFiveStageFour.stageWit`'s two core slots admit a relator-killing marking at `h = 0`, so
-the block-blindness of `GradedBlockFrame`'s Honesty 3 is not a gap in the instrument - the
-obstruction it reads genuinely fails at the committed point.  The same holds at wave 60's point,
-whose `x0` slot differs only in the fifth abelian column. -/
+`GradedFiveStageFour.stageWit`'s two core slots admit a relator-killing marking at `h = 0`.  So
+the dead core pairing at the committed point is not a gap in the instrument: the obstruction the
+instrument reads genuinely fails there, and this exhibits the completion it fails to exclude.
+The same holds at wave 60's point, whose `x0` slot differs only in the fifth abelian column.
+
+⚠ This is also why the live pairs W63-SECOND found at the committed points cannot substitute.
+`blockPar Phi (dsqX0 h) (sqGen h (sqHandleIdxU j)) = 1` does force `0 < h`, but vacuously: the
+pair names a handle generator, so there is nothing at `h = 0` for it to exclude, and the theorem
+below shows there really is a completion there to be excluded.  Only a live **core** pair
+reaches it. -/
 theorem sqRelWord_blindCore_handleFree :
     sqRelWord (fun i : Fin (sqRank 0) =>
       if (i : ℕ) = 0 then fiveSigMark gr3R else
@@ -883,7 +946,9 @@ theorem liveBlkWit_bit_eq_core (h : ℕ) (j : Fin h) :
   SqU6.selPar_handleWord_i_of_relator (sqRelWord_liveBlkWit_triv h j)
 
 /-- …and both sides are `1` at the live point, where at both committed witnesses both sides are
-`0`.  That is the whole of the difference the move makes. -/
+`0` (`blockPar_stageFrameHom`, and the even handle minor of `commP_stageUV_live`).  That is the
+whole of the difference the move makes to the class-five bit, and by the theorem above it is a
+difference of input rather than of information. -/
 theorem liveBlkWit_bit_eq_core_value (h : ℕ) (j : Fin h) :
     selPar (handleWord (fun j' => liveBlkWit h j 1 (sqHandleIdxU j'))
         (fun j' => liveBlkWit h j 1 (sqHandleIdxV j'))).i = 1 := by

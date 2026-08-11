@@ -19,13 +19,16 @@ THE POINT (fifteen coordinates a b c d e f g h i j k l m n o, mod 8)
   [ok ] the relator is handle-independent (h = 1..5, every handle)  15 (h, j) pairs
   [ok ] ...and so is the dressed residue  15 (h, j) pairs
 
-2  THE BLOCK CHANNEL IS LIVE (this is what the two committed witnesses lack)
+2  THE CORE BLOCK PAIRING IS LIVE (this is the pair the committed witnesses lack)
   [ok ] block reading of the core pair is ODD  blockRead = 5
   [ok ] the handle minor is ODD  minor = 3
   [ok ] the symplectic identity holds at the point
   [ok ] the handle block's (4,6) coordinate is odd  U6(h=6, i=3, l=4, m=3, o=1)
   [ok ] the handle block is live in the CLASS-FOUR row too  m = 3
-  [ok ] the two committed witnesses are block-blind (control)
+  [ok ] CONTROL: the two committed witnesses have an EVEN core pair and handle pair
+  [ok ] ...but they are NOT block-blind as points: (x0, U) is ODD at both  [W63-SECOND]  blockRead(stageX, stageU) = 3, blockRead(forceX, forceU) = 5
+  [ok ] ...and the gauge reduction does not apply to that pair: U is not gauged  the reduction gauges its SECOND argument; a handle letter has odd (4,5)
+  [ok ] ...so the live pairs at the committed points cannot exclude h = 0: they name a handle generator  recorded, structural
 
 3  THE WITNESS STANDARD, CONDITION BY CONDITION
   [ok ] standard: A_fifteen_rows
@@ -79,4 +82,4 @@ THE POINT (fifteen coordinates a b c d e f g h i j k l m n o, mod 8)
   [ok ] CROSS-CHECK: an odd minor NEVER completes at the block-blind sigma slot  3000 letter pairs, 0 completions
 
 ==============================================================================
-CHECKS: 47   FAILURES: 0
+CHECKS: 50   FAILURES: 0
