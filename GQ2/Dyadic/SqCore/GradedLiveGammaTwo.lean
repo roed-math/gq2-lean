@@ -30,7 +30,7 @@ and **every** handle, all three `gamma_2` lines FAIL, with the very same killing
 
 ⭐⭐ `liveCenKill_comm_form`: at the live point the killer is achievable by a **single** honest
 commutator of the point's own letters, `commP (liveBlkSig * stageX) (liveBlkV * liveBlkU⁻¹)`,
-where wave 63's point needed a product of two.  `cenSigDress_liveCenKill_mem` turns that into
+where wave 60's point needed a product of two.  `cenSigDress_liveCenKill_mem` turns that into
 membership of `forceLcs (liveBlkImage h j stageX) 1`.
 
 ⭐ `liveCen_shared_x0`: the one-line reason.  `stageWit h j stageX 1 = liveBlkWit h j stageX 1`,
@@ -45,7 +45,7 @@ sigma mark from `E_23` to `E_23 E_45` and re-solving the `x1` slot changes neith
 never a `gamma_2` one, so this is not a refutation of anything published.  What it removes is
 the hope that the new point is a fresh place for the class-five stack to stand one filtration
 step wider: it is not.  ⭐ `liveCenKill_not_stageFour_achievable` marks the boundary exactly,
-as at wave 63's point: the killer is NOT an achievable stage-four dressing, because
+as at wave 60's point: the killer is NOT an achievable stage-four dressing, because
 `GradedFiveStageFour.forceLcs_two_le_stageN3` forces those to have even class-four coordinate
 and this one's is `3`.
 
@@ -61,15 +61,17 @@ shared `x0` slot.  All at every handle count and every handle.
 `scripts/w64_verify/results/task_b.txt`): the achievable `gamma_2` lattice at the live point is
 `2^26` and is EXACTLY the same box `{z gamma_2-shaped : f, g, h, j even}` that wave 63 measured
 at its point, so the killer is not merely achievable but sits in a lattice of the same shape;
-the exhaustive sigma-slot sweep, which counts how many achievable sigma dressings kill; and one
-general identity that is NOT proved here and is the natural target -
+the exhaustive sigma-slot sweep, which counts how many achievable sigma dressings kill; and the
+general form of the mechanism, which this file measured but did not prove -
 
-⚠ **the general form of the mechanism, MEASURED ONLY**: at every five-tuple
-`fiveTuple R h j S X Y U V` over `ZMod 8`, dressing the sigma slot by `<m = t>` multiplies the
-relator by `SqU6.liftO (t * X.e)`, with no hypothesis on `S`, `Y`, `U`, `V`, the handle count or
-the handle (3000 random tuples, 0 failures).  If that were proved, both this file's kill and
-wave 63's would be corollaries, and the vulnerability would be visibly a property of the WITNESS
-STANDARD - which demands an odd `x0.e` and an odd diagonal residue - rather than of two points.
+✅ **the general form of the mechanism is now PROVED**, in
+`GradedGammaTwoCensus.sqRelWord_fiveTuple_censKnob`: at every five-tuple
+`fiveTuple R h j S X Y U V` over **any commutative ring**, dressing the sigma slot by `<m = t>`
+multiplies the relator by `SqU6.liftO (X.e * t)`, with no hypothesis on `S`, `Y`, `U`, `V`, the
+handle count or the handle.  Since `GradedGammaTwoCensus.censKnob_eq_gaTwoCenKill` identifies
+`gaTwoCenKill` with `SqU6.censKnob 3` by `rfl`, this file's kill and wave 63's are both
+corollaries of that identity, and the vulnerability is a property of the WITNESS STANDARD - which
+demands an odd `x0.e` and an odd diagonal residue - rather than of two points.
 
 ## Merge notes
 
@@ -81,8 +83,9 @@ Reused: `liveBlkSig`, `liveBlkU`, `liveBlkV`, `liveBlkWit`, `liveBlkWit_zero`,
 (`GradedGammaTwoCentral`); `stageX`, `stageWit`, `forceLcs_two_le_stageN3`, `stageN3`
 (`GradedFiveStageFour`); `commP`, `commP_mem_commSub` (`GradedFiveNecessity`); `forceLcs`
 (`GradedFiveForce`); `fiveTuple`, `sqRelWord_fiveTuple`, `SqU6.liftO`, `selPar`
-(`GradedFive`, `Cores`).  New public names all carry the `liveCen` prefix except the four
-`_liveBlkWit_` theorems, which name the point they are about.
+(`GradedFive`, `Cores`).  New public names carry the `liveCen` prefix except the five
+`_liveBlkWit_` theorems, which name the point they are about, and `cenSigDress_liveBlkWit` and
+`cenSigDress_liveCenKill_mem`, which are named for the dressing they apply.
 
 ## Axiom hygiene
 
@@ -111,8 +114,10 @@ transports: `GradedGammaTwoCentral.cenKill_mechanism` reads `stageX.e`, and the 
 theorem liveCen_shared_x0 : stageWit h j stageX 1 = liveBlkWit h j stageX 1 := by
   rw [stageWit, liveBlkWit, fiveTuple_one, fiveTuple_one]
 
-/-- …and the knob is the same unit: `stageX.e = 5` is odd and `stageX.e * gaTwoCenKill.m = 7`,
-so the sigma-slot dressing by `gaTwoCenKill` moves the class-five row by `7`. -/
+/-- …and the knob is the same unit.  Two coordinate facts about the shared `x0` slot: its `e`
+coordinate is ODD, and `x0.e * gaTwoCenKill.m = 7`.  Both are ring identities about the slot; that
+the sigma-slot dressing by `gaTwoCenKill` actually shifts the relator by `liftO 7` is the separate
+`gaTwoShift_liveBlkWit_cenKill` in section 4. -/
 theorem liveCen_knob : selPar (liveBlkWit h j stageX 1).e = 1
     ∧ (liveBlkWit h j stageX 1).e * gaTwoCenKill.m = 7 := by
   rw [← liveCen_shared_x0, stageWit, fiveTuple_one]
@@ -141,8 +146,8 @@ section Kill
 variable {h : ℕ} {j : Fin h}
 
 /-- ⭐⭐ **The killer is a SINGLE honest commutator of the live point's own letters.**  Wave
-63's point needed a product of two; here the moved sigma mark and the new handle letters put it
-one commutator away. -/
+60's point - the one `GradedGammaTwoCentral` works at - needed a product of two; here the moved
+sigma mark and the new handle letters put it one commutator away. -/
 theorem liveCenKill_comm_form :
     gaTwoCenKill = commP (liveBlkSig * stageX) (liveBlkV * liveBlkU⁻¹) := by decide
 

@@ -81,8 +81,9 @@ point.
 
 **PROVED** (this file, no `sorry`, no new axiom, no `native_decide`): the knob identity at the
 sigma slot and at both letters of a commutator, over any commutative ring; the three relator
-identities at the one-handle-live family; that the sigma knob's `gamma_2` shift is exactly the
-central translation; the refutation engine; the three dichotomies; the widening of
+identities at the one-handle-live family; the refutation engine, whose proof derives - but whose
+statement does not export - that the dressing's `gamma_2` shift is exactly the central
+translation; the three dichotomies; the widening of
 W63-CENTRAL2's refutation from its one point to the whole `stageWit` family; and the kill at
 W63-LIVE5's point with its certificate.
 
@@ -363,7 +364,8 @@ If some achievable `gamma_2`-dressing translates that relator centrally by `SqU6
 `c + g = 0`, then **all three `gamma_2` lines fail at that marking**: the forcing, the centrality
 line and the parity line.
 
-⭐ Nothing about the shape of the dressing is used - only that its effect on the relator is a
+⭐ Beyond the standing hypotheses that the dressing is `gamma_2`-shaped (`hga`, load-bearing) and
+achievable (`hach`), nothing further about it is used - only that its effect on the relator is a
 CENTRAL translation, which is what turns a kill into a counterexample to the centrality line and
 not merely to the parity line.  `GradedGammaTwoCentral` had to check that separately at its one
 dressing (`gaTwoShift_stageWit_cenKill`); here it is part of the hypothesis and is discharged
@@ -475,8 +477,11 @@ section Criterion
 
 variable {h : ℕ} {j : Fin h} {S X Y U V : SqU6 gr3R} {c : gr3R}
 
-/-- **The knob equation is solvable exactly when the gearing is a unit**, and then the solution
-has the parity of the residue: over `ZMod 8` an odd `u` is invertible and `t = -c u^{-1}`. -/
+/-- **The knob equation is solvable whenever the gearing is a unit**, and then the solution
+has the parity of the residue: over `ZMod 8` an odd `u` is invertible and `t = -c u^{-1}`.
+
+⚠ Only this one implication is stated.  The converse is FALSE: `c = 4`, `u = 2`, `t = 2` solves
+`c + u * t = 0` at a gearing that is not a unit. -/
 theorem censKnob_solve : ∀ c u : gr3R, selPar u = 1 →
     ∃ t : gr3R, c + u * t = 0 ∧ selPar t = selPar c ∧ selPar (u * t) = selPar c := by decide
 
@@ -492,8 +497,9 @@ binder point.  If the `gamma_2` forcing HOLDS there, then for **each** of the th
 `x0.e`, `v_j.e`, `u_j.e`,
 
 * either the gearing is EVEN,
-* or the achievable `gamma_2` lattice of the image misses `censKnob t` for the (unique) `t` that
-  solves that knob's equation, and that `t` is ODD.
+* or the achievable `gamma_2` lattice of the image misses `censKnob t` for SOME `t` solving that
+  knob's equation, and that `t` is ODD.  The conclusion is bare existence; no uniqueness of `t`
+  is stated or used.
 
 ⚠ This is the exact form of `GradedGammaTwoCentral`'s prose criterion, and it is sharper in three
 ways: it is quantified over points rather than stated at one; it runs at THREE slots rather than
