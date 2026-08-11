@@ -186,6 +186,104 @@ theorem sepSix_wit_five_even :
 
 end Witness
 
+/-! ## 3 The refutations, at the tuple, marking and hom levels -/
+
+section Refutation
+
+/-- ⭐⭐⭐ **THE CLASS-SIX RESPONSE IS NOT IN THE ROW IDEAL.**  The exact class-six analogue of
+`SqU6.selPar_sqWord_diagDress_o` is **false**.  Since the witness kills every row of the
+undressed word, any identity expressing the class-six response as a combination of those rows
+plus `2 *` anything would make the response even there; none does. -/
+theorem SqU7.not_selPar_sqWord_diagDress_e17 :
+    ¬ ∀ s x y : SqU7 gr3R, sqWord s x y = 1 → selPar (sqWord (s * x) x y).e17 = 0 := by
+  intro hall
+  have h : selPar sepSixDressed.e17 = 0 :=
+    hall sepSixWitS sepSixWitX sepSixWitY sepSix_wit_relator
+  rw [sepSix_wit_bit_odd] at h
+  exact absurd h (by decide)
+
+/-- The witness as a marking of the handle-free `D_sq 0`. -/
+def sepSixMark : Fin (sqRank 0) → SqU7 gr3R :=
+  fun i => if (i : ℕ) = 0 then sepSixWitS else if (i : ℕ) = 1 then sepSixWitX else sepSixWitY
+
+@[simp] theorem sepSixMark_zero : sepSixMark 0 = sepSixWitS := by
+  simp only [sepSixMark, sqVal_zero]
+  norm_num
+
+@[simp] theorem sepSixMark_one : sepSixMark 1 = sepSixWitX := by
+  simp only [sepSixMark, sqVal_one]
+  norm_num
+
+@[simp] theorem sepSixMark_two : sepSixMark 2 = sepSixWitY := by
+  simp only [sepSixMark, sqVal_two]
+  norm_num
+
+/-- The marking kills the relator, with no handle. -/
+theorem sepSix_mark_relator : sqRelWord sepSixMark = 1 := by
+  rw [sqRelWord_zero, sepSixMark_zero, sepSixMark_one, sepSixMark_two]
+  exact sepSix_wit_relator
+
+/-- The marking's `a0 = a1` dressing separates at class six. -/
+theorem sepSix_mark_bit_odd :
+    selPar (sqRelWord (sepSixDress sepSixMark (sepSixMark 1))).e17 = 1 := by
+  rw [sqRelWord_zero, sepSixDress_zero, sepSixDress_one, sepSixDress_two, sepSixMark_zero,
+    sepSixMark_one, sepSixMark_two]
+  exact sepSix_wit_bit_odd
+
+/-- ⭐⭐⭐ **The class-six analogue of `sepZero_bit_even` is FALSE.**  A handle-free marking over
+`gr3R` can kill the relator and still have an odd class-six separation bit. -/
+theorem sepSix_not_bit_even :
+    ¬ ∀ m : Fin (sqRank 0) → SqU7 gr3R, sqRelWord m = 1 →
+        selPar (sqRelWord (sepSixDress m (m 1))).e17 = 0 := by
+  intro hall
+  have h := hall sepSixMark sepSix_mark_relator
+  rw [sepSix_mark_bit_odd] at h
+  exact absurd h (by decide)
+
+/-- ⭐⭐⭐ **THE FORCING FAILS AT CLASS SIX.**  The exact class-six analogue of
+`sepZero_pos_of_bit_odd` is false: a class-six sigma separation does not require a handle.  ⚠
+The class-five statement is untouched; see `sepSix_wit_five_even`. -/
+theorem sepSix_not_pos_of_bit_odd :
+    ¬ ∀ (h : ℕ) (m : Fin (sqRank h) → SqU7 gr3R), sqRelWord m = 1 →
+        selPar (sqRelWord (sepSixDress m (m 1))).e17 = 1 → 0 < h := by
+  intro hall
+  exact absurd (hall 0 sepSixMark sepSix_mark_relator sepSix_mark_bit_odd) (lt_irrefl 0)
+
+/-- The witness marking, classified as a continuous homomorphism on the handle-free `D_sq 0`
+through the presentation's universal property and the new `SqU7.isProP_two`. -/
+noncomputable def sepSixHom : ContinuousMonoidHom (DSq 0 : Type) (SqU7 gr3R) :=
+  sqLiftHom 0 (SqU7.isProP_two gr3R_card) sepSixMark sepSix_mark_relator
+
+theorem sepSixHom_gen (i : Fin (sqRank 0)) : sepSixHom (sqGen 0 i) = sepSixMark i :=
+  sqLiftHom_gen _ _ _ _ i
+
+/-- ⭐⭐ **The hom form.**  The class-six analogue of `sepZero_bit_even_hom` is false: an honest
+continuous homomorphism from the handle-free `D_sq 0` into the class-six test group has an odd
+class-six separation bit. -/
+theorem sepSix_not_bit_even_hom :
+    ¬ ∀ Phi : ContinuousMonoidHom (DSq 0 : Type) (SqU7 gr3R),
+        selPar (sqRelWord (sepSixDress (fun i => Phi (sqGen 0 i)) (Phi (sqGen 0 1)))).e17 = 0 := by
+  intro hall
+  have h := hall sepSixHom
+  rw [funext sepSixHom_gen, sepSixHom_gen, sepSix_mark_bit_odd] at h
+  exact absurd h (by decide)
+
+end Refutation
+
+/-! ## 4 Axiom pins -/
+
+section AxiomPins
+
+#print axioms sepSix_wit_relator
+#print axioms sepSix_wit_bit_odd
+#print axioms sepSix_wit_low_even
+#print axioms SqU7.not_selPar_sqWord_diagDress_e17
+#print axioms sepSix_not_bit_even
+#print axioms sepSix_not_pos_of_bit_odd
+#print axioms sepSix_not_bit_even_hom
+
+end AxiomPins
+
 end SqCore
 
 end Dyadic
