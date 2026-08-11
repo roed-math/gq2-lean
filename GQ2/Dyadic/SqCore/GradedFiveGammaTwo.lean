@@ -109,6 +109,11 @@ checks and 0 failures):
   `SqU6 gr3R`: the hom layer of `GradedFive` is not consumed, so no statement here claims that a
   given tuple is the image of a continuous homomorphism on `D_sq h`.
 * The soundness hypotheses are **sufficient, not shown sharp**, exactly as at stage four.
+  ⚠ **W62-MIGRATE4 annotation.**  "Exactly as at stage four" no longer holds: the stage-four
+  line **is** computed (`GradedStageNecessity.stageForces_iff_stageCentral`) and the committed
+  stage-four statements are migrated onto it (`GradedStageSharp`).  The comparison to keep is
+  that stage four's carried condition turned out merely sufficient, which is a reason to expect
+  the same one filtration step wider, not a statement that the wider line is equally open.
 
 ## Contents
 

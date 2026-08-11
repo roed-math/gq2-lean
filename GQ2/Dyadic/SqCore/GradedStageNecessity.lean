@@ -490,7 +490,13 @@ theorem stageForces_iff_stageCentral {c : gr3R} (hres : sqRelWord m = SqU6.liftO
     (hc : selPar c = 1) : StageForces m ↔ StageCentral m :=
   ⟨stageCentral_of_stageForces hres hc, stageForces_of_stageCentral hres⟩
 
-/-- **The parity line suffices**, at a central relator. -/
+/-- **The parity line suffices**, at a central relator.
+
+⚠ **W62-MIGRATE4 annotation.**  The centrality of the relator is **not needed**: the parity line
+forces at every marking whatsoever, by the argument `GradedFiveStageFour.stageWit_sigma_forced`
+already used (the relator's `(1,2)`-column and the shift's outer class-three row are even
+outright).  `GradedStageSharp.stageForces_of_stageOrth_free` is this statement without `hres`,
+and it is what migrates the committed exclusions whose relator is not central. -/
 theorem stageForces_of_stageOrth {c : gr3R} (hres : sqRelWord m = SqU6.liftO c)
     (hO : StageOrth m) : StageForces m :=
   stageForces_of_stageCentral hres (stageCentral_of_stageOrth hO)
@@ -1017,7 +1023,14 @@ variable {h : ℕ} {j : Fin h}
 
 /-- **Wave 60's committed forcing, on the sharp line.**  `stageWit_sigma_forced` carries
 `v.a` and `v.c` even together with the whole lower-central-series chain; on the line it carries
-only that the centrally acting achievable dressings pair evenly. -/
+only that the centrally acting achievable dressings pair evenly.
+
+⚠ **W62-MIGRATE4 annotation.**  "Only" understates by exactly one hypothesis: the statement also
+carries `hres`, the relator being a **central translation**, which `stageWit_sigma_forced` does
+not need.  At the committed dressing `v = stageX` that is free (`sqRelWord_stageWit_diag`), and
+at a general even-column `v` it is a genuine restriction; `GradedStageSharp` reports the trade
+per statement, and proves that the **parity** line - not the centrality line - forces with no
+hypothesis on the relator at all. -/
 theorem stageWit_stageForces_of_stageCentral {v : SqU6 gr3R} {c : gr3R}
     (hres : sqRelWord (stageWit h j v) = SqU6.liftO c)
     (hC : StageCentral (stageWit h j v)) : StageForces (stageWit h j v) :=

@@ -145,9 +145,16 @@ forced, not chosen).  What is **not** claimed:
   again, `gamma_2`-dressings, is neither proved nor refuted, here or anywhere in the tree, and
   would need the `gamma_2`-level identity at class five, which WILL carry a quadratic block.
 * The soundness chain `forceLcs_two_le_stageN3` is **sufficient, not shown sharp**.  The
-  survival statements are therefore stated against `stageN3`, which is the sharpest class the
-  tree owns (it strictly contains the achievable lattice and consumes no achievability
-  convention); the sharp stage-four line itself is not computed here.
+  survival statements are therefore stated against `stageN3`, which contains the achievable
+  lattice and consumes no achievability convention; the sharp stage-four line itself is not
+  computed here.
+  ⚠ **W62-MIGRATE4 annotation, two corrections.**  (i) "the sharpest class the tree owns" was
+  true when this file landed and is not true now: `GradedStageNecessity.stageForces_iff_stageCentral`
+  computed the sharp stage-four line in the same wave, and `GradedStageSharp` migrates every
+  forcing and every exclusion of this file onto it, so `stageN3` is one sufficient class among
+  others.  (ii) the containment of the achievable lattice in `stageN3` is proved
+  (`forceLcs_two_le_stageN3`); its **strictness** is measured, in
+  `scripts/w61_stagehom/results/`, and is proved nowhere in the tree.
 * At `h >= 2` the row hypothesis is strictly weaker than "the row is cleared": `sqArbBase`
   displaces the `j`-th handle pair only, so `nu'` is arbitrary away from `j`.
 
@@ -502,7 +509,14 @@ the sigma dressing to have both columns even; here the refinement is asked only 
 `(1,2)`-column.  This is the sharpest class the tree owns at stage four: it strictly contains
 the achievable lattice by `forceLcs_two_le_stageN3`, and consumes no achievability convention
 at all.  ⚠ It is not shown to be the sharp LINE; the sharp stage-four line is not computed
-here, and `gaThreeShiftO_even` is the reason exactly these three coordinates appear. -/
+here, and `gaThreeShiftO_even` is the reason exactly these three coordinates appear.
+
+⚠ **W62-MIGRATE4 annotation.**  Two claims above no longer stand.  "The sharpest class the tree
+owns" is superseded: the sharp line is `GradedStageNecessity.StageCentral`, and
+`GradedStageSharp.stageWit_sigma_forced_sharp_central` is this statement over the same class
+`stageN3` with the hypothesis weakened to it.  And "strictly contains … by
+`forceLcs_two_le_stageN3`" attributes to that lemma more than it proves: the lemma gives
+containment, and the strictness is measured rather than proved. -/
 theorem stageWit_sigma_forced_sharp {v : SqU6 gr3R} {z : Fin (sqRank h) → SqU6 gr3R}
     (hv : (2 : gr3R) ∣ v.a) (hz : ∀ i, z i ∈ stageN3)
     (hkill : sqRelWord (conFiveDress (stageWit h j v) z) = 1) :

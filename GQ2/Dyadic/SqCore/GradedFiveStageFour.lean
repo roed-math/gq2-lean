@@ -79,6 +79,15 @@ the frame's even `(1,2)`-columns; the `j`-, `l`- and `m`-channels meet columns t
 and are killed by the dressing.  So the soundness hypothesis is not padding: it is the exact
 list of channels the frame does not already close.
 
+⚠ **W62-MIGRATE4 annotation.**  "The exact list" is exact only **relative to reading the
+letter's `(1,2)`-column and nothing else**.  `GradedStageNecessity.gaThreeShiftO_even_of_outer`
+closes the same class-five row from three letter columns and a single dressing coordinate, and
+neither hypothesis implies the other; and
+`GradedStageNecessity.gaThreeShiftO_even_of_columns` closes it from four letter columns with
+**no** hypothesis on the dressing at all.  Neither the list of three coordinates nor the
+soundness chain that supplies them is the sharp stage-four line, which is
+`GradedStageNecessity.StageCentral`; `GradedStageSharp` carries out the migration.
+
 ## What is proved versus what is measured
 
 **PROVED** (this file, no `sorry`, no new axiom, no `native_decide`): everything above, at every
@@ -741,7 +750,12 @@ def stageN2 : Subgroup (SqU6 gr3R) where
 /-- **`M_3`**: a `gamma_3`-element with `j`, `l` and `m` even.  ⭐ This is the lattice the
 stage-four exclusion reads, and `gaThreeShiftO_even` is why exactly these three coordinates
 appear: the `n`-channel and the `k`-channel are closed by the frame, the other three by the
-dressing. -/
+dressing.
+
+⚠ **W62-MIGRATE4 annotation.**  "Exactly these three" is relative to the one letter column this
+file reads; see the module docstring's annotation, and
+`GradedStageNecessity.gaThreeShiftO_even_of_outer` for an incomparable route that reads one
+dressing coordinate instead of three. -/
 def stageN3 : Subgroup (SqU6 gr3R) where
   carrier := {z | z.a = 0 ∧ z.b = 0 ∧ z.c = 0 ∧ z.d = 0 ∧ z.e = 0 ∧ z.f = 0 ∧ z.g = 0
     ∧ z.h = 0 ∧ z.i = 0 ∧ (2 : gr3R) ∣ z.j ∧ (2 : gr3R) ∣ z.l ∧ (2 : gr3R) ∣ z.m}
