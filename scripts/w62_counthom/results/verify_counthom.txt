@@ -1,0 +1,88 @@
+======================================================================================
+W62-COUNTHOM  verify_counthom.py   the block pairing as a form on D_sq h
+======================================================================================
+
+## A  the block pairing is an ALTERNATING BI-ADDITIVE form mod 2
+
+    omega(p, q) = par(p_45 q_56 - p_56 q_45),  p, q in U_6(Z/8)
+
+[ok ] bi-additive on the left  20000 triples, 0 failures
+[ok ] bi-additive on the right  20000 triples, 0 failures
+[ok ] alternating  20000 elements, 0 failures
+[ok ] symmetric mod 2  20000 pairs, 0 failures
+[ok ] inverse-invariant mod 2  20000 pairs, 0 failures
+[ok ] kills commutators, so it is a form on the abelianisation  20000 triples, 0 failures
+[ok ] bi-additivity, EXHAUSTIVE on the four live columns  262144 points, 0 failures
+[ok ] the INTEGRAL reading is already additive, so the parity is not doing the work  10000 triples, 0 disagreements
+
+## B  the torsion letter has both live columns EVEN, at every relator-killing marking
+
+    the relator's own (4,5)- and (5,6)-rows are  -4 x_45 + 2 y_45 = 0  and
+    -4 x_56 + 2 y_56 = 0 in Z/8, and each pins its y-coordinate EVEN.
+
+[ok ] (4,5)-row forces y_45 even, EXHAUSTIVE  16 admissible pairs, 0 odd
+[ok ] (5,6)-row forces y_56 even, EXHAUSTIVE  16 admissible pairs, 0 odd
+[ok ] …and at honestly collected relator-killing markings  201 markings at h = 0..4, 0 odd columns
+[ok ] hence the x1 slot pairs evenly against EVERYTHING  804 pairings, 0 odd
+
+## C  THE SYMPLECTIC IDENTITY at honestly collected relator-killing markings
+
+    claim:  par blockRead(sigma, x0)  ==  sum_j par minor(u_j, v_j)   (mod 2)
+
+[ok ] the symplectic identity  201 markings at h = 0..4, 0 mismatches
+    live (odd) fraction by handle count:
+      h = 0:  0 of 95 markings have an ODD pairing
+      h = 1:  8 of 38 markings have an ODD pairing
+      h = 2:  12 of 18 markings have an ODD pairing
+      h = 3:  9 of 24 markings have an ODD pairing
+      h = 4:  14 of 26 markings have an ODD pairing
+[ok ] control: every collected marking really kills the relator, all fifteen rows  201 markings, 0 live rows
+[ok ] h = 0: the reading is FORCED even (the empty sum)  95 handle-free markings, 0 odd
+
+## D  the h = 0 vanishing on EVERY pair, as the finite F_2 fact
+
+    at h = 0 the mod-2 datum of a hom is the triple of vectors
+        tau(sigma), tau(x0), tau(x1)  in  F_2^2,   tau(g) = (par g_45, par g_56),
+    subject to  tau(x1) = 0  (section B)  and  det(tau sigma, tau x0) = 0
+    (section C).  The claim behind `blockPar_handleFree` is that the form then
+    dies on the WHOLE subgroup they generate, not merely on the three letters.
+
+[ok ] the form dies on the generated subgroup, EXHAUSTIVE over F_2^2  10 admissible generator data, 0 live pairs
+[ok ] control: WITHOUT the relator's own vanishing the claim is false  6 of 16 generator pairs have a live det
+[ok ] control: WITHOUT the x1 evenness the claim is false  18 of 64 triples kill det(sigma,x0) but not the x1 pairings
+
+## E  the committed points
+
+[ok ] wave 60 fiveWit  core pair (fiveSigMark, forceX): reading 0, parity 0  expected parity 0
+[ok ] wave 60 fiveWit  handle pair (forceU, forceV): reading 6, parity 0  expected parity 0
+[ok ] wave 61 stageWit core pair (fiveSigMark, stageX): reading 0, parity 0  expected parity 0
+[ok ] wave 61 stageWit handle pair (stageU, stageV): reading 0, parity 0  expected parity 0
+[ok ] wave 59 blindCex core pair (blindCexS, blindCexX): reading 7, parity 1  expected parity 1
+[ok ] wave 59 blindCex handle pair (blindCexU, blindCexV): reading 1, parity 1  expected parity 1
+
+    ⚠ the two committed class-five witnesses are BLOCK-BLIND on both pairs, so the
+      instrument says nothing at either; wave 59's counterexample is the only
+      committed point at which the channel is live.
+[ok ] control: blindCex really kills the relator at h = 1  all fifteen rows
+
+## F  the composite check at the counterexample
+
+[ok ] blindCexMark h=1 j=0: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=2 j=0: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=2 j=1: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=3 j=0: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=3 j=1: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=3 j=2: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=4 j=0: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=4 j=1: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=4 j=2: relator killed, lhs=1, rhs=1, par H_46=1
+[ok ] blindCexMark h=4 j=3: relator killed, lhs=1, rhs=1, par H_46=1
+
+## G  non-vacuity: the pairing is live at a positive rate
+
+[ok ] the pairing is ODD at a positive rate on relator-killing markings at h >= 1  42 of 129 markings live (32.6 %)
+[ok ] …and NEVER odd at h = 0  0 of 477 handle-free markings live
+
+======================================================================================
+37 named checks, 0 failures
+======================================================================================
