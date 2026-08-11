@@ -217,6 +217,164 @@ theorem evenFam_exists_kill_iff_nonemptyM {α : ℕ} {hα : 1 ≤ α}
 
 end Kill
 
+/-! ## §3 The model derivations at every precision and offset
+
+The even clone of `sqDerivModel`: for every offset vector a continuous homomorphism from the
+presented core to the finite lift group, with base the mod-`2^N` shadow of the canonical
+orientation.  Existence is §1's universal closure read through `redWL`; everything else is the
+universal property of the cores. -/
+
+section Model
+
+/-- The finite lift group is pro-`2` (the third private clone of this fifteen-line count; the
+committed original and both prior clones are `private`). -/
+private theorem evenFam_isProP_WL {N : ℕ} (hN : 1 ≤ N) : IsProP 2 (WL N) := by
+  refine isProP_of_isPGroup (IsPGroup.of_card (n := N + (N - 1)) ?_)
+  have h1 : Nat.card (WL N) = Nat.card (ZMod (2 ^ N)) * Nat.card ((ZMod (2 ^ N))ˣ) := by
+    rw [Nat.card_congr (FoxH.WordLift.equivProd (A := ZMod (2 ^ N)) (C := (ZMod (2 ^ N))ˣ)),
+      Nat.card_prod]
+  have h2 : Nat.card (ZMod (2 ^ N)) = 2 ^ N := by
+    haveI : NeZero (2 ^ N) := ⟨by positivity⟩
+    simp [Nat.card_eq_fintype_card]
+  have h3 : Nat.card ((ZMod (2 ^ N))ˣ) = 2 ^ (N - 1) := by
+    haveI : NeZero (2 ^ N) := ⟨by positivity⟩
+    rw [Nat.card_eq_fintype_card, ZMod.card_units_eq_totient,
+      Nat.totient_prime_pow Nat.prime_two (by omega)]
+    simp
+  rw [h1, h2, h3, ← pow_add]
+
+/-- The `N` core is topologically finitely generated, in the `Finset` shape the tower and
+discreteness lemmas consume. -/
+theorem evenFam_isTopFinGen_DN (α h : ℕ) : IsTopologicallyFinGen (DN α h : Type) := by
+  refine ⟨(Set.finite_range (dnGen α h)).toFinset, ?_⟩
+  rw [Set.Finite.coe_toFinset]
+  exact dn_topGen α h
+
+/-- The `M` core is topologically finitely generated. -/
+theorem evenFam_isTopFinGen_DM (α h : ℕ) : IsTopologicallyFinGen (DM α h : Type) := by
+  refine ⟨(Set.finite_range (dmGen α h)).toFinset, ?_⟩
+  rw [Set.Finite.coe_toFinset]
+  exact dm_topGen α h
+
+/-- The canonical orientation takes its table values on the generators, `N` branch. -/
+theorem evenFam_chiN_dnGen (α h : ℕ) (i : Fin (MarkedCore.coreRank h)) :
+    chiN α h (dnGen α h i) = vN α i := by
+  rw [chiN, nLiftHom_gen]
+  rfl
+
+/-- The canonical orientation takes its table values on the generators, `M` branch. -/
+theorem evenFam_chiM_dmGen (α h : ℕ) (i : Fin (MarkedCore.coreRank h)) :
+    chiM α h (dmGen α h i) = vM α i := by
+  rw [chiM, mLiftHom_gen]
+  rfl
+
+variable {N : ℕ}
+
+/-- **The `N` model derivation.**  The continuous homomorphism `D_N(α, h) → WL N` carrying the
+`i`-th generator to the lift with offset `w i` over the `N` table.  It exists at every
+precision and offset because the relator is universally closed at the table (§1). -/
+def evenFamDerivModelN (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) :
+    ContinuousMonoidHom (DN α h : Type) (WL N) :=
+  nLiftHom α h (evenFam_isProP_WL hN)
+    (fun i ↦ redWL N ⟨w i, vN α i⟩) (by
+      rw [← MarkedCore.map_nRelWord (redWL N), evenFam_nRelWord_wordLift α hα, map_one])
+
+/-- **The `M` model derivation.** -/
+def evenFamDerivModelM (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) :
+    ContinuousMonoidHom (DM α h : Type) (WL N) :=
+  mLiftHom α h (evenFam_isProP_WL hN)
+    (fun i ↦ redWL N ⟨w i, vM α i⟩) (by
+      rw [← MarkedCore.map_mRelWord (redWL N), evenFam_mRelWord_wordLift α hα, map_one])
+
+@[simp] theorem evenFamDerivModelN_gen (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) (i : Fin (MarkedCore.coreRank h)) :
+    evenFamDerivModelN α h hα hN w (dnGen α h i) = redWL N ⟨w i, vN α i⟩ :=
+  nLiftHom_gen _ _ _ _ _ i
+
+@[simp] theorem evenFamDerivModelM_gen (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) (i : Fin (MarkedCore.coreRank h)) :
+    evenFamDerivModelM α h hα hN w (dmGen α h i) = redWL N ⟨w i, vM α i⟩ :=
+  mLiftHom_gen _ _ _ _ _ i
+
+/-- The base component of the `N` model derivation is the mod-`2^N` shadow of the canonical
+orientation: the model derivation is `χ_N`-shadowed. -/
+theorem evenFamDerivModelN_isChiShadow (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) :
+    IsChiShadowDeriv (chiN α h) (evenFamDerivModelN α h hα hN w) := by
+  intro a
+  let baseMap : ContinuousMonoidHom (WL N) ((ZMod (2 ^ N))ˣ) :=
+    { toFun := fun p ↦ p.g
+      map_one' := rfl
+      map_mul' := fun _ _ ↦ rfl
+      continuous_toFun := continuous_of_discreteTopology }
+  haveI := discreteTopology_levelQuot (DN α h : Type) (evenFam_isTopFinGen_DN α h)
+    (isProP_DN α h) N
+  let targetMap : ContinuousMonoidHom (DN α h : Type) ((ZMod (2 ^ N))ˣ) :=
+    { toMonoidHom := (chiLevel (chiN α h) N).comp (levelMk (DN α h : Type) N)
+      continuous_toFun := (continuous_of_discreteTopology
+        (f := ⇑(chiLevel (chiN α h) N))).comp (continuous_levelMk (DN α h : Type) N) }
+  have heq : baseMap.comp (evenFamDerivModelN α h hα hN w) = targetMap := by
+    apply dn_hom_ext
+    intro i
+    change (evenFamDerivModelN α h hα hN w (dnGen α h i)).g =
+      chiLevel (chiN α h) N (levelMk (DN α h : Type) N (dnGen α h i))
+    rw [evenFamDerivModelN_gen, chiLevel_levelMk, GQ2.Roe.Labute.redWL_g,
+      evenFam_chiN_dnGen]
+  have htarget : targetMap a =
+      Units.map (PadicInt.toZModPow N).toMonoidHom (chiN α h a) := by
+    show chiLevel (chiN α h) N (levelMk (DN α h : Type) N a) = _
+    rw [chiLevel_levelMk]
+  rw [← htarget]
+  exact DFunLike.congr_fun heq a
+
+/-- The `M` model derivation is `χ_M`-shadowed. -/
+theorem evenFamDerivModelM_isChiShadow (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) :
+    IsChiShadowDeriv (chiM α h) (evenFamDerivModelM α h hα hN w) := by
+  intro a
+  let baseMap : ContinuousMonoidHom (WL N) ((ZMod (2 ^ N))ˣ) :=
+    { toFun := fun p ↦ p.g
+      map_one' := rfl
+      map_mul' := fun _ _ ↦ rfl
+      continuous_toFun := continuous_of_discreteTopology }
+  haveI := discreteTopology_levelQuot (DM α h : Type) (evenFam_isTopFinGen_DM α h)
+    (isProP_DM α h) N
+  let targetMap : ContinuousMonoidHom (DM α h : Type) ((ZMod (2 ^ N))ˣ) :=
+    { toMonoidHom := (chiLevel (chiM α h) N).comp (levelMk (DM α h : Type) N)
+      continuous_toFun := (continuous_of_discreteTopology
+        (f := ⇑(chiLevel (chiM α h) N))).comp (continuous_levelMk (DM α h : Type) N) }
+  have heq : baseMap.comp (evenFamDerivModelM α h hα hN w) = targetMap := by
+    apply dm_hom_ext
+    intro i
+    change (evenFamDerivModelM α h hα hN w (dmGen α h i)).g =
+      chiLevel (chiM α h) N (levelMk (DM α h : Type) N (dmGen α h i))
+    rw [evenFamDerivModelM_gen, chiLevel_levelMk, GQ2.Roe.Labute.redWL_g,
+      evenFam_chiM_dmGen]
+  have htarget : targetMap a =
+      Units.map (PadicInt.toZModPow N).toMonoidHom (chiM α h a) := by
+    show chiLevel (chiM α h) N (levelMk (DM α h : Type) N a) = _
+    rw [chiLevel_levelMk]
+  rw [← htarget]
+  exact DFunLike.congr_fun heq a
+
+/-- The offset of the `N` model derivation at a generator. -/
+theorem evenFamDerivModelN_u (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) (i : Fin (MarkedCore.coreRank h)) :
+    (evenFamDerivModelN α h hα hN w (dnGen α h i)).u = PadicInt.toZModPow N (w i) := by
+  rw [evenFamDerivModelN_gen]
+  rfl
+
+/-- The offset of the `M` model derivation at a generator. -/
+theorem evenFamDerivModelM_u (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
+    (w : Fin (MarkedCore.coreRank h) → ℤ_[2]) (i : Fin (MarkedCore.coreRank h)) :
+    (evenFamDerivModelM α h hα hN w (dmGen α h i)).u = PadicInt.toZModPow N (w i) := by
+  rw [evenFamDerivModelM_gen]
+  rfl
+
+end Model
+
 end
 
 end GQ2.Dyadic.EvenFamily
