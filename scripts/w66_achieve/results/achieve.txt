@@ -61,7 +61,7 @@
    EXACT single-slot kill counts over the whole lattice, all five slots:
       sigma 4096   x0 256   x1 0   u 0   v 512
    [ok]   the point IS killed, at three of the five slots            4864 achievable single-slot killers
-   [ok]   the Lean certificate [x0, sigma] is achievable             <l=1, o=6>
+   [ok]   the Lean certificate commP x0 S is achievable              <l=1, o=6>
    [ok]   ...and dressing the sigma slot with it kills the relator   
 
    five-slot random search (EVIDENCE, not a decision): 90 kills in 200000 draws
@@ -83,5 +83,5 @@
    and the ungauged counterexample all die by a general lattice element.
 
 ====================================================================================================
-== 27 named checks, 0 failures, 225.4 s
+== 27 named checks, 0 failures, 226.4 s
 ====================================================================================================

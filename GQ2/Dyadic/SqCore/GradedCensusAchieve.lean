@@ -73,9 +73,9 @@ still be killed by some other dressing is not decided here".
 
 ⭐⭐⭐ `censAch_cex_lines_false`.  It can.  At `censHorn_binder_cex` - a genuine binder point
 where horn 1 is FALSE, all five letters on `stageN1`, the bare frame killing, the diagonal
-frame carrying `liftO 1` - the **single commutator `[x0, sigma]`** of the point's own two core
-letters is achievable and kills the relator from the sigma slot.  All three lines fail there
-too.
+frame carrying `liftO 1` - the **single commutator `commP x0 S`** of the point's own two core
+letters is achievable and kills the relator from the sigma slot, `S` being the marking's own
+sigma slot `censHornCexSig * censHornCexX'`.  All three lines fail there too.
 
 ⭐⭐ So the parity horn and the census verdict come apart exactly at the gauge: `2 ∣ s.e` is
 necessary for horn 1's statement and for its proof, and it is **not** necessary for the census.
@@ -1795,8 +1795,9 @@ theorem censAch_cex_sigKnob_dead (t : gr3R) : selPar (censHornCexX'.e * t) = 0 :
   censKnob_shift_even_of_gear_even (by decide) t
 
 /-- ⭐⭐⭐ **THE UNGAUGED BINDER POINT IS KILLED ANYWAY.**  At `censHorn_binder_cex`, where
-horn 1 is FALSE and the sigma knob is dead, the single commutator `[x0, sigma]` of the point's
-own two core letters is achievable and, dressed onto the sigma slot, takes the relator to `1`.
+horn 1 is FALSE and the sigma knob is dead, the single commutator `commP x0 S` of the point's
+own two core letters - `S` its sigma slot `censHornCexSig * censHornCexX'` - is achievable and,
+dressed onto that slot, takes the relator to `1`.
 So all three `gamma_2` lines fail there, at every handle count and every handle.
 
 ⭐⭐ **The verdict on the named open.**  `GradedCensusHorn` closed with "whether an ungauged

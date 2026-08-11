@@ -262,7 +262,7 @@ chk("the point IS killed, at three of the five slots", sum(counts) > 0,
     "%d achievable single-slot killers" % sum(counts))
 gw = ('comm', ('g', 'X'), ('g', 'S'))
 gv = w_eval(gw, dict(S=S, X=cexX, Y=cexY, U=cexU, V=cexV))
-chk("the Lean certificate [x0, sigma] is achievable", K.contains(gv), show(gv))
+chk("the Lean certificate commP x0 S is achievable", K.contains(gv), show(gv))
 mm = list(m)
 mm[0] = mul(mm[0], gv)
 chk("...and dressing the sigma slot with it kills the relator", sqRelWord(mm) == ONE)
