@@ -25,7 +25,8 @@ because `TameTwoQuotient.lean` (namespace `GQ2`) and `BoundaryMapsWitness.lean` 
 `GQ2.SectionThree`) declare same-named bricks (`maxProPMk_tameTau`, `ker_nuT_le_proPKernel`) —
 importing one into the other would put both in scope of the other's `open`.
 
-Axioms: std-3 + B10′ (`LiteratureInputs.tameQuotient`) + B5 (`LiteratureInputs.localReciprocity`, via the statement); the
+Literature-input dependencies: B10′ (`LiteratureInputs.tameQuotient`) + B5
+(`LiteratureInputs.localReciprocity`, via the statement); the
 `boundaryMapsWitness`-shaped corollary additionally carries the witness's own bundle axioms.
 No new axiom, no `sorryAx`.
 -/

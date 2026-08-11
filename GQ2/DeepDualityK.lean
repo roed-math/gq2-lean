@@ -314,7 +314,8 @@ Eq. (94)'s `(U_{e+1}, U_{e+1}) = 1` in class vocabulary.  The Tier-5 fact
   witness's coboundary identity over pointwise (`map_sub`/`map_add`; all actions trivial).
 
 Since `inv_K` is injective, vanishing of the `H²(μ₂)`-class (= `B²`-membership of the explicit
-cup cocycle) forces `pairingK = 0`.  No new leaf: the axioms are `LiteratureInputs.tateDualityAt` (B6′) plus
+cup cocycle) forces `pairingK = 0`.  No new leaf: the literature inputs are
+`LiteratureInputs.tateDualityAt` (B6′) plus
 `cup_deepClasses`'s Tier-5 chain. -/
 
 section IsotropySplice

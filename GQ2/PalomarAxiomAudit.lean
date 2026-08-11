@@ -29,6 +29,10 @@ def legacyLiteratureAxioms : List Name :=
   , "GQ2.tameQuotient".toName
   , "GQ2.hilbertSymbol_normCriterion_finiteDyadic".toName ]
 
+def legacyCompatibilityProviders : List Name :=
+  [ "GQ2.axiomaticLiteratureInputs".toName
+  , "GQ2.axiomaticLiteratureInputsInstance".toName ]
+
 def solutionDeclarations : List Name :=
   [ ``challenge_main_presentation_literal_of_inputs
   , ``challenge_main_presentation_literal_roe_unconditional_of_inputs ]
@@ -40,6 +44,9 @@ run_cmd do
   let present := legacyLiteratureAxioms.filter env.contains
   unless present.isEmpty do
     throwError "Palomar audit: legacy literature axioms entered the import closure: {present}"
+  let presentProviders := legacyCompatibilityProviders.filter env.contains
+  unless presentProviders.isEmpty do
+    throwError "Palomar audit: legacy compatibility provider entered the import closure: {presentProviders}"
   for n in solutionDeclarations do
     unless env.contains n do
       throwError "Palomar audit: missing solution declaration {n}"

@@ -25,10 +25,15 @@ theorems.  It is deliberately a `Type`-valued class: five inputs are mathematica
 than propositions, and the oriented tame quotient depends on the chosen reciprocity datum.
 
 Generic theorems take `[LiteratureInputs]` as an explicit hypothesis.  The legacy axiom-backed
-API is recovered separately in `GQ2.Foundations.Axioms` by assembling the original nine axiom
-declarations into an instance.  Downstream modules disable `unusedSectionVars`: many internal
-propositions do not mention this proof-only hypothesis in their conclusions even though their
-proof terms consume it transitively.
+API is recovered separately in `GQ2.Foundations.AxiomInstance` by assembling the original nine
+axiom declarations into an instance.  Downstream modules disable `unusedSectionVars`: many
+internal propositions do not mention this proof-only hypothesis in their conclusions even though
+their proof terms consume it transitively.
+
+Lean structure fields cannot quantify over a fresh universe level.  Consequently B7 is stated
+here for `M : Type`, which covers every consumer in this development, while the legacy B7 axiom
+retains its universe-polymorphic `M : Type*` statement.  The other eight fields transcribe their
+legacy declarations without this restriction.
 -/
 
 open GQ2.ContCoh

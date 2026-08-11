@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.PresentationLiteralCore
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.AxiomInstance
 
 /-!
 # Theorem 1.2, literal presentation form

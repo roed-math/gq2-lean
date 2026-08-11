@@ -20,7 +20,7 @@ classification:
 sources:
   - title: "A Presentation of the Absolute Galois Group of Q_2"
     authors: ["David Turturean"]
-    id: "current writeup at https://roed314.github.io/gq2/; original source snapshot at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
+    id: "machine-generated preprint (GPT); current writeup at https://roed314.github.io/gq2/; original source snapshot at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
     type: "other"
     location: "https://roed314.github.io/gq2/"
     relationship: "formalizes"
@@ -49,6 +49,11 @@ status:
     GQ2/Roe/Labute/Assembly.lean, at the standard three axioms), so both main results are now
     unconditional and the axiom census stayed at 9. The hypothesis-parametrized form
     GQ2.main_presentation_literal_roe is retained as a frozen statement.
+
+    The two declarations suffixed `_of_inputs` move the nine cited results from Lean axioms to an
+    explicit `LiteratureInputs` hypothesis; this repository does not construct an axiom-free
+    instance of that structure. Their standard-three axiom lists therefore do not claim proofs of
+    the nine literature inputs.
   # Repo-wide count: the library is fully sorry-free (the last gap, the Labute classification
   # instance under GQ2/Roe/Labute/, closed 2026-07-26). Enforced mechanically by
   # scripts/check_axioms.sh check 2, whose allowlist is empty, and cross-checked by

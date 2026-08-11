@@ -201,7 +201,7 @@ rank-3 `q = 2` classification honestly requires Labute's *canonical* character (
 dualizing characterization — route (i) of the orientation interface, deferred); quantifying over an arbitrary
 continuous character with the right image would be a different (and possibly false) statement.
 At the field level the classification instance the paper uses is the **B4 isomorphism**
-`G_{ℚ₂}(2) ≅ D₀`, supplied in marked, oriented form by axiom B3c (`GQ2.dyadicOrientation`,
+`G_{ℚ₂}(2) ≅ D₀`, supplied in marked, oriented form by axiom B3c (`dyadicOrientation`,
 route (ii); the standalone B4 axiom was deleted 2026-07-10 as unused).  This section supplies the invariant so that the classification *data*
 `(rank, q) = (3, 2)` is at least expressible; `demushkinQ D₀ = 2` itself is Labute-content and
 is not attempted. -/

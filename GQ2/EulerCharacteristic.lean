@@ -52,8 +52,8 @@ Turturean, §9.2 — lifting through an elementary quotient `M`; the strict-decr
 For the elementary `𝔽₂`-modules there (`#M = 2 ^ dim M`) this reads `#H¹ = #H⁰ · #H² · #M`
 (`card_H1_of_card_eq_two_pow`).
 
-The axiom itself (`lit.absGalQ2_localEulerCharacteristic`) lives in
-`GQ2/Foundations/Axioms.lean` (the consolidated axiom interface consolidation); this file documents its conventions and
+The corresponding legacy axiom (`GQ2.Foundations.absGalQ2_localEulerCharacteristic`) lives in
+`GQ2/Foundations/Axioms.lean`; this file documents its conventions and
 derives the consequences below from it.
 -/
 

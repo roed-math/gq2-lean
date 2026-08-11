@@ -16,8 +16,7 @@ the legacy axiom declarations or their compatibility instance.
 
 open GQ2 in
 /-- Theorem 1.2 from explicit literature inputs. -/
-theorem challenge_main_presentation_literal_of_inputs [lit : LiteratureInputs]
-    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem challenge_main_presentation_literal_of_inputs [lit : LiteratureInputs] :
     Nonempty (ContinuousMulEquiv GammaA AbsGalQ2) := sorry
 
 open GQ2 in

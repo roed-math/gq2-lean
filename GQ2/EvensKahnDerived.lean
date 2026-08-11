@@ -37,8 +37,10 @@ it as a hypothesis (`GQ2/StiefelWhitney.lean`'s `swTwo_diag`/`swTwo_congr` alrea
 file inherits it one level up.  The owner approved this design (Q2,
 `docs/orchestration/b9a-tickets.md`).  The degree-1 component needs no such input.  At the flip
 the hypothesis is discharged from B11a, so the flipped `evensKahn_dyadic` is byte-identical (no
-`hnorm`) with `#print axioms` = {`LiteratureInputs.relativeStiefelWhitney_dyadic`,
-`LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic`, + std-3} (plan node N2).
+`hnorm`).  Its explicit literature-input dependencies are
+`LiteratureInputs.relativeStiefelWhitney_dyadic` and
+`LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic`; its `#print axioms` output is std-3
+(plan node N2).
 
 ## No unit-arithmetic bridge is needed
 

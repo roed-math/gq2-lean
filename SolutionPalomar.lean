@@ -15,8 +15,7 @@ Neither this module nor its import closure contains `GQ2.Foundations.Axioms`.
 
 open GQ2 in
 /-- Theorem 1.2 from explicit literature inputs. -/
-theorem challenge_main_presentation_literal_of_inputs [lit : LiteratureInputs]
-    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem challenge_main_presentation_literal_of_inputs [lit : LiteratureInputs] :
     Nonempty (ContinuousMulEquiv GammaA AbsGalQ2) :=
   GQ2.main_presentation_literal_of_inputs
 

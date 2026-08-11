@@ -43,7 +43,7 @@ cardinality of the admissible marked generating quadruples in $G^4$.
 
 The same proof graph is also available without declaring the nine literature results as Lean
 axioms. [`GQ2/Foundations/LiteratureInputs.lean`](GQ2/Foundations/LiteratureInputs.lean) bundles
-their exact interfaces into an ordinary `LiteratureInputs` typeclass hypothesis, and the generic
+their interfaces into an ordinary `LiteratureInputs` typeclass hypothesis, and the generic
 capstones are
 
 ```lean
@@ -54,8 +54,13 @@ GQ2.main_presentation_literal_roe_unconditional_of_inputs [LiteratureInputs] :
   Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)
 ```
 
+Eight fields have the same universe scope as their legacy declarations.  B7 is restricted to
+`M : Type` because a Lean structure field cannot quantify over a fresh universe level; this covers
+every consumer in this proof, while the legacy B7 axiom retains `M : Type*`.
+
 The original public names remain compatibility wrappers backed by the nine declarations in
-`GQ2/Foundations/Axioms.lean`. The independent Palomar/Comparator pair
+`GQ2/Foundations/Axioms.lean`, assembled in `GQ2/Foundations/AxiomInstance.lean`. The independent
+Palomar/Comparator pair
 [`ChallengePalomar.lean`](ChallengePalomar.lean) and [`SolutionPalomar.lean`](SolutionPalomar.lean)
 uses only the explicit-hypothesis route; its import-closure audit checks that the legacy axiom
 declarations are not present at all. The pair was locally verified with Comparator commit
@@ -143,9 +148,11 @@ be conflated.
 
 The legacy API uses Lean's standard `propext`, `Classical.choice`, and `Quot.sound`, together with
 nine explicit literature axioms in
-[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean). That file retains the nine historical
-declarations and assembles them into the compatibility `LiteratureInputs` instance; its imports are
-exactly the statement vocabulary (the derived same-name interfaces over them live in
+[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean). That axioms-only file retains the nine
+historical declarations, and
+[`GQ2/Foundations/AxiomInstance.lean`](GQ2/Foundations/AxiomInstance.lean) assembles them into the
+compatibility `LiteratureInputs` instance. The axiom file's imports are exactly the statement
+vocabulary (the derived same-name interfaces over them live in
 [`GQ2/Foundations/Interfaces.lean`](GQ2/Foundations/Interfaces.lean)). The axioms cover external
 local-arithmetic, cohomological, and peripheral-action inputs not currently supplied by Mathlib;
 their precise statements, citations, and deviations from the cited formulations are documented in
@@ -163,9 +170,10 @@ three plus the nine literature axioms — which is also how the repository certi
 $\Gamma_R$ result introduces no new axiom and rests on no unfinished proof.
 
 Building [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) reports the transitive consumers of every
-literature axiom, lists everything still resting on a `sorry`, detects unknown non-standard axioms,
-and fails outright if any capstone acquires a `sorry` or an off-census axiom, or if a $\Gamma_R$
-capstone stops matching its paper counterpart axiom for axiom.
+legacy axiom, summarizes by module which elaborated declaration types carry `LiteratureInputs`,
+lists everything still resting on a `sorry`, detects unknown non-standard axioms, and fails
+outright if any capstone acquires a `sorry` or an off-census axiom, or if a $\Gamma_R$ capstone
+stops matching its paper counterpart axiom for axiom.
 
 ### `formalization.yaml` and Comparator
 
@@ -259,6 +267,7 @@ on every push to and pull request against `master`.
 | `GQ2/Words.lean` | Finite-group marking, auxiliary words, and admissibility predicate |
 | `GQ2/GammaA.lean` | Construction of the candidate profinite group $\Gamma_A$ |
 | `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs (axioms only) |
+| `GQ2/Foundations/AxiomInstance.lean` | Opt-in legacy instance assembled from those axioms |
 | `GQ2/Foundations/Interfaces.lean` | Derived same-name interfaces over the axioms (discharged B7′/B11b/B12/B13, derived B9 form, …) |
 | `GQ2/SectionTenSources.lean` | Counting capstone and paper equation (154) |
 | `GQ2/PresentationLiteral.lean` | Literal profinite-group isomorphism theorem |

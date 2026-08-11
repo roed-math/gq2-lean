@@ -169,8 +169,9 @@ Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u,
 Proof: `evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`) applied to the B9 axiom
 `lit.relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
 layer); the T2 trace-form diagonalizations and the proved `swOne`/`swTwo` invariance do the
-rewriting.  `#print axioms`: `lit.relativeStiefelWhitney_dyadic` and
-`lit.hilbertSymbol_normCriterion_finiteDyadic` (+ the standard three).  Full setting and citations:
+rewriting.  Its explicit literature-input dependencies are
+`lit.relativeStiefelWhitney_dyadic` and `lit.hilbertSymbol_normCriterion_finiteDyadic`; its
+`#print axioms` output is the standard three.  Full setting and citations:
 the B9 axiom's docstring in `GQ2/Foundations/Axioms.lean` and `docs/literature-axioms.md` §B9. -/
 theorem evensKahn_dyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]

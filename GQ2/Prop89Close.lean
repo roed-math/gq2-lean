@@ -57,8 +57,9 @@ through `half139_via_radData`) + the four residues (`hsep_gammaA` /
 `hpartial_gammaA` / `hZcard_gammaA` / `tcocycle_card_gammaA`) through the source-generic
 `phase140_from_residues`.
 
-`#print axioms prop_8_9` is the standard three axioms plus B6 `LiteratureInputs.tateDualityAt` and
-B7 `absGalQ2_localEulerCharacteristic`, leaner than the App. D budget because B9 never enters
+The explicit literature-input dependencies of `prop_8_9` are B6
+`LiteratureInputs.tateDualityAt` and B7 `absGalQ2_localEulerCharacteristic`; its `#print axioms`
+output is std-3, and the field footprint is leaner than the App. D budget because B9 never enters
 this proof.  One elaboration detail is worth preserving: `simpa … using` fails the cross-`λ`
 `TCharC` definitional-equality close, while `simp only […]` followed by a bare `exact` works.
 -/

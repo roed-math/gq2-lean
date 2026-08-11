@@ -350,6 +350,15 @@ argument, not a smuggled weakening of the conclusion.
 
 ## 5. Appendix D certificate diff (per-node `#print axioms`)
 
+> **Explicit-input refactor note (2026-08-11).**  The tables in this section preserve the
+> pre-refactor direct-axiom footprints and still describe the field-level literature dependencies
+> of the proof graph.  In the generic API, those leaves are projections from an ordinary
+> `[LiteratureInputs]` hypothesis, so `#print axioms` now reports only the standard three.  The
+> legacy wrappers select one provider assembled from all nine axioms and therefore report all
+> nine.  `GQ2/AxiomLedger.lean` now prints per-module counts of elaborated declarations whose types
+> carry `LiteratureInputs`; use that inventory, rather than the historical literal prints below, to
+> review hypothesis propagation.
+
 The paper's **Appendix D** is a *proof-dependency certificate*: nine rows, each naming a
 "proved input" and its "first downstream use" — an **internal implication chain** among the paper's
 own lemmas (it names no literature axioms).  The certificate check has two layers: **(a)** does the
