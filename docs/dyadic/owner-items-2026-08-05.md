@@ -5,6 +5,46 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 64 (2026-08-11)
+
+**The four stubborn markings are closed.** They have been on this list since wave 61, when we
+could only measure them. Wave 62 failed and diagnosed why; wave 63 showed the diagnosis was aimed
+at the wrong object and removed the real obstacle; this wave discharged the one arithmetic
+identity that was left. So a measurement we have carried for three waves is now a theorem, in both
+of its halves. The lane checked the join three independent ways before claiming it, which I asked
+for because a mistake there would have silently turned four conditional theorems into false
+unconditional ones.
+
+**A second long-standing question also closed, and in a better form than we asked for.** We wanted
+to know whether the class-five separation needs a handle. It does, and the proof needs none of the
+technical side conditions we expected to have to carry. The mechanism is clean enough to be worth
+stating plainly: the response we care about is built out of nine lower rows of an underlying word,
+and in the no-handle case that word is the relator itself, so all nine vanish at once. A
+by-product is that we now have closed formulas for all fifteen rows of that word for the first
+time, which will pay off again one class up.
+
+**The verification lane had its best wave.** It resolved a question I had left explicitly open and
+flagged as unresolved rather than guessed at, and the answer was the unwelcome one: a new witness
+built last wave inherits the same weakness as the old one, because it reuses the same slot. A
+second lane reached the same conclusion independently by a different route, so I am confident in
+it. The same lane audited our lattice bounds and found two that are not as sharp as they could be
+- and then did the analysis that actually matters, showing that neither is used anywhere to argue
+that a possibility survives, so this is an opportunity rather than a defect.
+
+**Twelve places where our own commentary overstated what we had proved.** Two of them were
+licensing conclusions the proofs do not support, including one where the file's own contents
+refute the sentence in its header. All twelve are fixed, in a separate pass that changed prose
+only and proved mechanically that no theorem, proof or axiom line moved. I want to flag the
+pattern rather than the instances: this is the second wave running in which the tree's commentary,
+not its mathematics, was the thing that was wrong, and the failure is always the same shape - a
+computation on a few cases described as a property of the general object.
+
+**On models.** Opus only throughout, and the Fable-scoped ticket skipped rather than converted, as
+you asked. `Hfam`, and with it the entire even route, is untouched by this wave as well.
+
+Nothing here needs a decision from you. Items 1 and 6 below are unchanged and the d-1 question
+stays parked.
+
 ## Status at wave 63 (2026-08-11)
 
 **Two routes we had been carrying as open are now closed, and one of them was closed by finding
