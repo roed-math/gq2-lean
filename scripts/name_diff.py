@@ -48,6 +48,8 @@ DECL_KEYWORDS = (
 )
 
 # Modifiers that may sit between the start of the line and the declaration keyword.
+# The attribute entry must be a literal `@[...]`: writing it as `@[.*?]` makes the
+# brackets a character class, which silently drops every `@[simp] theorem` in the tree.
 MODIFIERS = (
     "protected",
     "noncomputable",
@@ -56,7 +58,7 @@ MODIFIERS = (
     "nonrec",
     "scoped",
     "local",
-    "@[.*?]",
+    r"@\[[^\]]*\]",
 )
 
 _MOD = r"(?:(?:" + "|".join(MODIFIERS) + r")\s+)*"
