@@ -1,0 +1,33 @@
+============================================================================================
+W63-CENTRAL2  exhaustive sigma-slot sweep at wave 60's binder point
+============================================================================================
+
+1  The sigma-slot shift is blind to the dressing's i, j and o coordinates
+
+  [ok ] 3000 random pairs differing only in i, j, o have equal shifts differences 0
+  [ok ] 2000 random shifts agree with the honest relator route     mismatches 0
+
+2  The exhaustive sweep over (f, g, h, k, l, m, n)
+
+   swept                              262144 dressings
+   shift is a central translation       4096
+   central with an ODD class-five       2048
+   outright KILLS (shift = liftO 7)      512
+   first kill witnesses: <m=1, n=3>, <m=1, n=7>, <m=3>, <m=3, n=4>, <m=5, n=1>, <m=5, n=5>
+  [ok ] the sweep finds kills                                      
+  [ok ] <m=3> is among them                                        
+
+   Scaling back to the full lattice: the shift ignores i, j and o, each with 8, 4 and 8
+   free values, so the sweep's 262144 dressings stand for 67108864 achievable ones,
+   and the kills for 131072 of them.
+  [ok ] exactly one eighth of the CENTRAL sigma dressings kill     512 of 4096
+  [ok ] exactly half of the central ones have an odd class-five row 2048 of 4096
+
+   => the kill is not a coincidence of one element.  The sigma slot's class-four
+      coordinate is a UNIT knob on the class-five residue, so once a sigma dressing
+      acts centrally its translation amount is equidistributed over Z/8, and exactly
+      one eighth of the central ones - 512 here - land on the killing value 7.
+
+============================================================================================
+6 named checks, 0 failures
+============================================================================================
