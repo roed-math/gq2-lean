@@ -1,0 +1,227 @@
+==========================================================================================================
+== W64-CENSUS5: the gamma_2 census over binder points ==
+==========================================================================================================
+
+==========================================================================================================
+== A  wave 60's committed binder point
+==========================================================================================================
+
+   wave 60 (stageWit stageX)  res 1  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+
+   W63-CENTRAL2's exhaustive sigma sweep scaled back to 131072 killing dressings;
+   this census says 131072.  AGREE
+
+==========================================================================================================
+== B  the `x0` sweep at wave 60's handle letters: which `x0` are LIVE at all
+==========================================================================================================
+
+   `x0 = <a, e>` over all 32 values with `a` even.  A triple is live when some `x1`
+   makes the undressed frame kill and the `a0 = a1` frame central with an ODD
+   residue.  The enumeration is `pointlib.solve_y_central`, exhaustive per triple.
+
+   a = 0 :  e = 0..7  ->  . . . . . . . .
+   a = 2 :  e = 0..7  ->  . L . L . L . L
+   a = 4 :  e = 0..7  ->  . . . . . . . .
+   a = 6 :  e = 0..7  ->  . L . L . L . L
+
+   8 of 32 are live.  Every live one has an ODD `e`: True
+   Every live one has `a = 2` or `a = 6`, i.e. `a == 2 mod 4`: True
+
+==========================================================================================================
+== C  the wide `x1` census at every live `x0`
+==========================================================================================================
+
+   Live `x1` slots are drawn by a RANDOMISED cascade so the sample spreads over the
+   solution set instead of clustering on the sparse lifts.
+
+   x0 = <a=2, e=1>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=1>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=1>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=1>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=1>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=1>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=3>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=3>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=3>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=3>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=3>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=3>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=5>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=5>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=5>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=5>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=5>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=5>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=7>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=7>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=7>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=7>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=7>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=2, e=7>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=1>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=1>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=1>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=1>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=1>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=1>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (1, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=3>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=3>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=3>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=3>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=3>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=3>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (3, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=5>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=5>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=5>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=5>            res 7  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=5>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=5>            res 3  L 2^26  gearings (x0.e,v.e,-u.e) (5, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=7>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=7>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=7>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=7>            res 1  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=7>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+   x0 = <a=6, e=7>            res 5  L 2^26  gearings (x0.e,v.e,-u.e) (7, 3, 5)  knobs ('Y', 'Y', 'Y')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 8192, 16384]   w58 bit 1
+
+==========================================================================================================
+== D  FRESH handle letters
+==========================================================================================================
+
+   Live triples with handle letters unrelated to wave 60's, found by random search
+   over `stageN1` letters.  Six parallel searches tried 2942 random triples in 2400 s
+   each and produced 2 live ones (both with a sparse `x0`); a seventh search produced
+   the third.  Live triples are the census's bottleneck, not the decision procedure.
+
+   x0 = <a=2, e=3>
+   u  = <a=2, b=6, c=4, d=5, e=1, f=5, g=3, h=5, j=3, k=6, l=7, m=5, o=4>
+   v  = <c=6, d=7, e=1, f=1, g=5, h=1, i=4, j=6, k=2, l=6, m=3, n=4, o=3>
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (3, 1, 7)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [0, None, None, 4096, 8192]      w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (3, 1, 7)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [0, None, None, 4096, 8192]      w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (3, 1, 7)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [0, None, None, 4096, 8192]      w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (3, 1, 7)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [0, None, None, 4096, 8192]      w58 bit 1
+   fresh handle               res 7  L 2^25  gearings (x0.e,v.e,-u.e) (3, 1, 7)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [0, None, None, 4096, 8192]      w58 bit 1
+   fresh handle               res 7  L 2^25  gearings (x0.e,v.e,-u.e) (3, 1, 7)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [0, None, None, 4096, 8192]      w58 bit 1
+
+   x0 = <a=4, e=5>
+   u  = <b=3, c=2, d=1, e=4, f=2, g=1, h=3, i=2, j=7, k=3, l=6, m=4, n=2, o=7>
+   v  = <a=6, b=4, c=4, d=1, e=6, f=1, h=5, i=5, j=3, k=3, l=5, m=3, n=5, o=3>
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 6, 4)  knobs ('N', '-', '-')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 32768, 0]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 6, 4)  knobs ('N', '-', '-')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 32768, 0]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 6, 4)  knobs ('N', '-', '-')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 32768, 0]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 6, 4)  knobs ('N', '-', '-')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 32768, 0]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 6, 4)  knobs ('N', '-', '-')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 32768, 0]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 6, 4)  knobs ('N', '-', '-')
+                              kills per slot (sigma,x0,x1,u,v) [131072, None, None, 32768, 0]   w58 bit 1
+
+   x0 = <a=6, e=5>
+   u  = <a=6, b=4, c=6, d=7, e=7, f=6, h=4, i=5, j=7, k=1, l=7, m=4, n=7, o=2>
+   v  = <a=2, b=4, d=5, e=1, f=3, g=6, h=2, i=7, k=1, m=7, n=1, o=3>
+   fresh handle               res 7  L 2^25  gearings (x0.e,v.e,-u.e) (5, 1, 1)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [65536, None, None, 8192, 4096]   w58 bit 1
+   fresh handle               res 7  L 2^25  gearings (x0.e,v.e,-u.e) (5, 1, 1)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [65536, None, None, 8192, 4096]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 1, 1)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [65536, None, None, 8192, 4096]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 1, 1)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [65536, None, None, 8192, 4096]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 1, 1)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [65536, None, None, 8192, 4096]   w58 bit 1
+   fresh handle               res 3  L 2^25  gearings (x0.e,v.e,-u.e) (5, 1, 1)  knobs ('N', 'N', 'N')
+                              kills per slot (sigma,x0,x1,u,v) [65536, None, None, 8192, 4096]   w58 bit 1
+
+
+==========================================================================================================
+== E  W63-LIVE5's point
+==========================================================================================================
+
+   `liveBlkWit h j stageX` reuses `stageX` in the `x0` slot, which is the slot the
+   sigma knob's gearing reads.  Its sigma letter is `liveBlkSig * stageX` rather
+   than `sigFiveMark * stageX`, so it is reported directly rather than through the
+   census helper.
+
+   undressed relator <1> ; `a0 = a1` relator <o=1>
+   L = 2^26 ; gearings (x0.e, v.e, -u.e) = (5, 3, 0)
+   `censKnob 3` achievable: True ; it kills: True
+   kills per slot (sigma, x0, x1, u, v) [131072, None, None, 131072, 0]
+   certificate: censKnob 3 = [u, sigma x0] * [sigma x0, v] : True
+
+==========================================================================================================
+== F  THE VERDICT
+==========================================================================================================
+
+   binder points decided exactly at all five slots : 67
+   with NO achievable killing dressing at the sigma slot   : 6
+   with NO achievable killing dressing at ANY of the five  : 0
+   where the solving sigma knob is NOT achievable          : 18
+   with an EVEN `x0.e`                                     : 0
+   with an EVEN wave-58 separation bit                     : 0
+
+   ⭐ Every point reached is KILLED by an achievable single-slot gamma_2
+   dressing, so the `gamma_2` route is dead at every binder point this census
+   reaches.  ⚠ The knob is NOT always what kills: at the points whose knobs are
+   unachievable or whose gearings are even, the killer is a general element of
+   the achievable lattice.  The knob theorems are a proved SUFFICIENT mechanism
+   and a criterion a census can check, not a classification of the killers.
+
+   total run time 469 s
+==========================================================================================================
