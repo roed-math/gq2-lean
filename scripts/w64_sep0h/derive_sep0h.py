@@ -111,8 +111,20 @@ def main():
     check("...and the GENERAL sigma slot carries strictly more", len(gen) == 42,
           f"{len(gen)} monomials mod 2 at a general sigma slot, against {len(want)} at E_23")
 
-    print("\n4.  THE ROW EXPANSION, and its exact witnesses")
+    print("\n4.  THE ROW EXPANSION: the search that finds it, and its exact witnesses")
     t = table(YAB)
+    rows2 = {k: S.s_mod(S.s_subst(W.co[k], t), 2)
+             for k in ["f", "g", "h", "i", "j", "k", "l", "m", "n"]}
+    for r in ["j", "k", "l", "m", "n", "o"]:
+        tgt = S.s_mod(S.s_subst(D[r], t), 2)
+        pool = [k for k in ["f", "g", "h", "i", "j", "k", "l", "m", "n"]
+                if k != r and (r != "o" or k != "o")]
+        pool = [k for k in pool if k < r or (k in "fghi" and r not in "fghi")]
+        found = f2_combination(tgt, rows2, pool)
+        check(f"the row-{r} combination is FOUND by F_2 elimination, not assumed",
+              found == sorted(ROW_COMB[r]), f"{len(found or [])} generators")
+
+    print("\n     the exact witnesses")
     wits = {}
     for r in ["j", "k", "l", "m", "n", "o"]:
         Z = S.s_subst(S.s_sub(D[r], combo_poly(W, ROW_COMB[r])), t)
@@ -168,6 +180,56 @@ def main():
     print("\n" + "=" * 86)
     npass = sum(1 for _, c in CHECKS if c)
     print(f"{npass} / {len(CHECKS)} named checks passed, {len(CHECKS) - npass} failures")
+
+
+def f2_combination(target, rows2, pool):
+    """Express `target` over `F_2` as `sum_k c_k * rows2[k]` with monomial coefficients.
+
+    Gaussian elimination on the span of `monomial * row`, monomials up to the degree that keeps
+    the product inside the target's degree.  Returns the sorted `(row, monomial)` list, or
+    `None` if the target is not in the span (which is a genuine negative: the basis is in
+    echelon form by leading monomial, so a leading monomial outside the pivot set proves
+    non-membership).
+    """
+    import itertools
+    vu = set()
+    for p in [target] + [rows2[k] for k in pool]:
+        for mo in p:
+            vu.update(mo)
+    vu = sorted(vu)
+    deg = {"f": 3, "g": 3, "h": 3, "i": 3, "j": 2, "k": 2, "l": 2, "m": 1, "n": 1}
+    gens, labels = [], []
+    for k in pool:
+        mults = [()] + [(v,) for v in vu]
+        for d in range(2, deg[k] + 1):
+            mults += [tuple(sorted(c)) for c in itertools.combinations_with_replacement(vu, d)]
+        for mu in mults:
+            g = rows2[k]
+            for v in mu:
+                g = S.s_mul(g, S.s_var(v))
+            g = S.s_mod(g, 2)
+            if g:
+                gens.append(frozenset(g))
+                labels.append((k, mu))
+    basis = {}
+
+    def reduce(vec, lab):
+        vec, lab = set(vec), set(lab)
+        while vec:
+            piv = max(vec)
+            if piv not in basis:
+                return vec, piv, lab
+            v2, l2 = basis[piv]
+            vec ^= v2
+            lab ^= l2
+        return set(), None, lab
+
+    for i, g in enumerate(gens):
+        v, p, lab = reduce(g, {i})
+        if p is not None:
+            basis[p] = (v, lab)
+    _v, p, lab = reduce(set(target), set())
+    return None if p is not None else sorted(labels[i] for i in lab)
 
 
 def randenv(rng, halves, xb_zero=False):

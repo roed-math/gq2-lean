@@ -14,7 +14,15 @@ W64-SEP0H: the class-five sigma separation at h = 0
      (docs/dyadic/w58-sigma5-note.md section 3.1, reproduced from scratch)
   [ok] ...and the GENERAL sigma slot carries strictly more : 42 monomials mod 2 at a general sigma slot, against 2 at E_23
 
-4.  THE ROW EXPANSION, and its exact witnesses
+4.  THE ROW EXPANSION: the search that finds it, and its exact witnesses
+  [ok] the row-j combination is FOUND by F_2 elimination, not assumed : 2 generators
+  [ok] the row-k combination is FOUND by F_2 elimination, not assumed : 2 generators
+  [ok] the row-l combination is FOUND by F_2 elimination, not assumed : 2 generators
+  [ok] the row-m combination is FOUND by F_2 elimination, not assumed : 6 generators
+  [ok] the row-n combination is FOUND by F_2 elimination, not assumed : 6 generators
+  [ok] the row-o combination is FOUND by F_2 elimination, not assumed : 14 generators
+
+     the exact witnesses
   [ok] the response row j is the stated row combination plus an even remainder : 10 monomials, witness 10 terms
   [ok] the response row k is the stated row combination plus an even remainder : 10 monomials, witness 10 terms
   [ok] the response row l is the stated row combination plus an even remainder : 10 monomials, witness 10 terms
@@ -48,4 +56,4 @@ W64-SEP0H: the class-five sigma separation at h = 0
      seven Lean witnesses written to /Users/roed/claude/cla/worktrees/w64-sep0h/scripts/w64_sep0h/results
 
 ======================================================================================
-31 / 31 named checks passed, 0 failures
+37 / 37 named checks passed, 0 failures

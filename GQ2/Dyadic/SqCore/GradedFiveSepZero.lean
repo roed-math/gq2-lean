@@ -16,8 +16,8 @@ remaining item: **does the class-five sigma separation force `0 < h`?**  Wave 63
 separations in `200000` gauged `h = 0` trials, proved nothing about it, and showed that the
 block instrument cannot settle it at either end.  This file settles it, in the affirmative and
 **with no gauge hypothesis at all**, by an argument that uses no block reading, no frame, no
-lattice and no homomorphism: the fifteen rows of the core word over an arbitrary commutative
-ring.
+lattice and no homomorphism on `D_sq h`: the fifteen rows of the core word over an arbitrary
+commutative ring.
 
 ## ⭐⭐⭐ Headline: YES, and the mechanism is that the response is a combination of lower rows
 
