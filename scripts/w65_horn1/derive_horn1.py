@@ -221,6 +221,59 @@ for sc, xc, o in hits:                                   # independent 6 x 6 mat
        f"honest 6 x 6 matrices agree at sigma=<{sc}=1>, x0=<{xc[0]}=1,{xc[1]}=1>",
        f"(1,6) entry {P[0][5] % 8}")
 
+print()
+print("   And a FULL one-handle binder point with an EVEN gearing, the sharpest form of the")
+print("   refutation: the undressed frame kills the relator outright and the diagonally")
+print("   dressed frame is central and odd.  This is `censHorn_binder_cex` in the Lean file.")
+print()
+
+CEXS, CEXX = mk(e=1), mk(f=1, h=1)
+CEXU = mk(a=2, d=1, e=7, f=1, h=1, m=1, n=1)
+CEXV = mk(a=6, b=6, c=4, d=7, e=1, f=7, g=2, j=7, k=6, l=7, m=1)
+blk = L.commP(CEXU, CEXV)
+bare = L.red(L.mul(L.sqWord(CEXS, CEXX, mk()), blk))
+diag = L.red(L.mul(L.sqWord(L.mul(CEXS, CEXX), CEXX, mk()), blk))
+ok(all(bare.co[k] % 8 == 0 for k in NAMES), "the undressed frame kills the relator outright",
+   "all fifteen rows")
+ok(all(diag.co[k] % 8 == 0 for k in NAMES if k != "o") and diag.co["o"] % 8 == 1,
+   "the diagonally dressed frame is CENTRAL with the odd residue liftO 1",
+   f"o = {diag.co['o'] % 8}")
+ok(all(z.a % 2 == 0 and z.c % 2 == 0 for z in (CEXS, CEXX, mk(), CEXU, CEXV)),
+   "all five letters lie on `stageN1`")
+ok(CEXX.e % 2 == 0 and CEXS.e % 2 == 1, "the GEARING is EVEN and the sigma slot is off gauge",
+   f"x0.e = {CEXX.e}, sigma.e = {CEXS.e}")
+
+Pm = L.mat_mul                                             # honest 6 x 6 integer recheck
+def _prod(*ms):
+    out = ms[0]
+    for m in ms[1:]:
+        out = Pm(out, m)
+    return out
+
+
+def _conj(a, g):
+    return _prod(L.mat_inv(g), a, g)
+
+
+def _comm(a, b):
+    return _prod(L.mat_inv(a), L.mat_inv(b), a, b)
+
+
+def _sq(a, b, c):
+    return _prod(L.mat_inv(_conj(b, a)), L.mat_inv(_prod(b, b, b)), Pm(c, c),
+                 _comm(c, _conj(c, a)))
+
+
+sm, xm, ym = L.mat_of(CEXS), L.mat_of(CEXX), L.mat_of(mk())
+um, vm = L.mat_of(CEXU), L.mat_of(CEXV)
+Wb = _prod(_sq(sm, xm, ym), _comm(um, vm))
+Wd = _prod(_sq(Pm(sm, xm), xm, ym), _comm(um, vm))
+ok(all(Wb[r][c] % 8 == (1 if r == c else 0) for r in range(6) for c in range(6)),
+   "honest 6 x 6 matrices agree: the undressed frame is the identity")
+ok(Wd[0][5] % 8 == 1 and all(Wd[r][c] % 8 == (1 if r == c else 0)
+                             for r in range(6) for c in range(6) if (r, c) != (0, 5)),
+   "honest 6 x 6 matrices agree: the dressed frame is the identity plus a (1,6) of 1")
+
 head("4  THE GAUGE IS NOT A PROOF ARTEFACT: sampling at an ungauged sigma")
 print("   Random letters with x0 on `stageN1` and x1's five abelian columns even, keeping only")
 print("   the samples whose residue is CENTRAL (the census's own condition on the diagonal")

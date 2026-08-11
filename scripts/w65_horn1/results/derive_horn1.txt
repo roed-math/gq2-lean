@@ -54,6 +54,17 @@
    [ok ] honest 6 x 6 matrices agree at sigma=<e=1>, x0=<d=1,j=1>           (1,6) entry 1
    [ok ] honest 6 x 6 matrices agree at sigma=<e=1>, x0=<f=1,h=1>           (1,6) entry 1
 
+   And a FULL one-handle binder point with an EVEN gearing, the sharpest form of the
+   refutation: the undressed frame kills the relator outright and the diagonally
+   dressed frame is central and odd.  This is `censHorn_binder_cex` in the Lean file.
+
+   [ok ] the undressed frame kills the relator outright                     all fifteen rows
+   [ok ] the diagonally dressed frame is CENTRAL with the odd residue liftO 1 o = 1
+   [ok ] all five letters lie on `stageN1`                                  
+   [ok ] the GEARING is EVEN and the sigma slot is off gauge                x0.e = 0, sigma.e = 1
+   [ok ] honest 6 x 6 matrices agree: the undressed frame is the identity   
+   [ok ] honest 6 x 6 matrices agree: the dressed frame is the identity plus a (1,6) of 1 
+
 ==================================================================================================
 == 4  THE GAUGE IS NOT A PROOF ARTEFACT: sampling at an ungauged sigma
 ==================================================================================================
@@ -84,6 +95,6 @@
    [ok ] liveBlkWit: at this sigma the cofactor collapses to wave 58's `x1.f * x1.h` q = 1
 
 ==================================================================================================
-== 32 named checks, 0 failures
+== 38 named checks, 0 failures
 ==================================================================================================
 
