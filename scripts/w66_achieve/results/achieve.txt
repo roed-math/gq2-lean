@@ -1,0 +1,87 @@
+====================================================================================================
+== W66-ACHIEVE: the census endgame - achievability, horn 2, and the gauge ==
+====================================================================================================
+
+====================================================================================================
+== 0  two independent lattice implementations, on all 67 points
+====================================================================================================
+
+   [ok]   the driver rebuilds exactly 67 binder points               67
+   [ok]   results/census.txt carries exactly 67 records              67
+   [ok]   siftlib and centrallib agree on |[H,H]| at every point     67/67
+   [ok]   ...and on every knob-membership test                       67/67
+
+====================================================================================================
+== 1  the 67 points, against the committed record
+====================================================================================================
+
+   [ok]   the BARE frame kills the relator at every point            67/67
+   [ok]   the DIAGONAL frame is central with an ODD top row          67/67
+   [ok]   all five letters lie on stageN1 at every point             67/67
+   [ok]   residue, lattice order, gearings and knob flags match census.txt 67/67
+
+====================================================================================================
+== 2  every certificate the Lean file carries
+====================================================================================================
+
+   [ok]   the emitted word evaluates to the emitted element          67/67
+   [ok]   the element lies in [H, H]            (siftlib)            67/67
+   [ok]   the element lies in [H, H]            (centrallib)         67/67
+   [ok]   the dressed relator is the identity                        67/67
+
+   certificate word sizes: min 7, median 8, max 11
+   slots used: sigma 55, x0 6, u 6
+
+====================================================================================================
+== 3  the knob census
+====================================================================================================
+
+   [ok]   the sigma knob is achievable at 49 of the 67               49
+   [ok]   ...and unachievable at the other 18                        18
+   [ok]   no knob at all can kill at exactly 18 points               points [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67]
+   [ok]   ...at 12 of those all three knobs exist and none is achievable points [50, 51, 52, 53, 54, 55, 62, 63, 64, 65, 66, 67]
+
+   at the other six the two handle GEARINGS are even, so those knobs are dead outright.
+   At all eighteen the census's KNOB mechanism is silent and the killer is a general
+   lattice element: they are the wave-64 queue's horn-2 candidates.
+
+====================================================================================================
+== 4  the ungauged binder point censHorn_binder_cex
+====================================================================================================
+
+   [ok]   the BARE frame kills the relator                           
+   [ok]   the DIAGONAL frame's relator is liftO 1                    <o=1>
+   [ok]   every letter lies on stageN1                               
+   [ok]   the sigma knob's GEARING is even (the knob is dead, not merely unachievable) x0.e = 0
+   [ok]   |[H,H]| = 2^15                                             2^15
+   [ok]   the u knob's solving value [7] is NOT achievable           achievable knobs: [0, 4]
+   [ok]   the v knob's solving value [7] is NOT achievable           achievable knobs: [0, 4]
+   [ok]   the lattice enumerates to 2^15 distinct elements           
+
+   EXACT single-slot kill counts over the whole lattice, all five slots:
+      sigma 4096   x0 256   x1 0   u 0   v 512
+   [ok]   the point IS killed, at three of the five slots            4864 achievable single-slot killers
+   [ok]   the Lean certificate commP x0 S is achievable              <l=1, o=6>
+   [ok]   ...and dressing the sigma slot with it kills the relator   
+
+   five-slot random search (EVIDENCE, not a decision): 90 kills in 200000 draws
+
+====================================================================================================
+== 5  the verdict
+====================================================================================================
+
+   census points decided                                     : 67
+   points with an exhibited achievable killing dressing       : 67
+   survivors                                                  : 0
+   points at which NO knob is achievable                      : 18
+   of those, points with no achievable killer at any slot     : 0
+   ungauged binder point (censHorn_binder_cex): all three knobs silent, and
+      4864 achievable single-slot killers, so the gauge is NOT necessary for the census.
+
+   HORN 2 (a live point where all three knobs are unachievable AND the lattice kills
+   at no slot): REFUTED at every point reached - the eighteen knob-free census points
+   and the ungauged counterexample all die by a general lattice element.
+
+====================================================================================================
+== 27 named checks, 0 failures, 226.4 s
+====================================================================================================

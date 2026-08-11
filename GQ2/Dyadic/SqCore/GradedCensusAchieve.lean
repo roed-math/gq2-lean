@@ -1,0 +1,2107 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus 5
+-/
+import GQ2.Dyadic.SqCore.GradedCensusHorn
+import GQ2.Dyadic.SqCore.GradedForceSharp
+
+/-!
+# W66-ACHIEVE: the census endgame - achievability DISCHARGED, horn 2 refuted, the gauge settled
+
+W64-CENSUS5 decided `67` binder points exactly and found `0` survivors, but recorded that
+verdict as a **measurement**: "whether `censKnob t` lies in `forceLcs (image) 1` is a property
+of the point, checked by exact polycyclic sifting; no theorem here says it must".  W65-HORN1
+then closed the parity horn and left, in its own words, "achievability, which remains exactly
+as measured in W64".
+
+This file discharges it.  The `67` points are rebuilt, verified against the committed record,
+and killed **one theorem each**, with no achievability hypothesis anywhere.
+
+## ⭐⭐⭐ Headline 1: the census verdict is a theorem, at all `67` points
+
+⭐⭐⭐ `censAch_kill_01` … `censAch_kill_67`.  At every one of the `67` binder points, at
+**every handle count and every handle**,
+
+```text
+   ¬ GaTwoForces (point)  ∧  ¬ GaTwoCentral (point)  ∧  ¬ GaTwoOrth (point).
+```
+
+⭐ Each proof carries an **explicit achievable killing dressing**: a product of at most three
+commutators of the point's own five letters, dressing one slot, taking the relator to `1`.
+Achievability is therefore *exhibited*, never assumed - `commP_mem_commSub` and `mul_mem` are
+the whole of it.  Sixty-one of the sixty-seven need only **two** commutators.
+
+⚠ **The killers are NOT knobs.**  The sigma knob is achievable at `49` of the `67` (MEASURED,
+and unchanged here), but at every point a general lattice element was easier to exhibit, so
+that is what the certificates carry.  This is the census's own finding one step further: the
+knob theorems are a proved SUFFICIENT mechanism and not a classification of the killers.
+
+## ⭐⭐⭐ Headline 2: the engine, with the knob removed
+
+⭐⭐⭐ `censAch_lines_false_sig`, `_x0`, `_u`, `_v`.  At a marking whose relator is an ODD
+CENTRAL translation, **any** achievable element whose single-slot dressing kills the relator
+refutes all three `gamma_2` lines.  This is `cens_lines_false_of_sigKnob` with the knob
+replaced by an arbitrary lattice element: the shift is central *because* the dressed relator
+is `1` and the undressed one is central, so no closed form for the shift is needed and no
+gearing is read.
+
+⚠ The two CORE slots had no dressing family in the tree - the census reached them only through
+its nested sweep - so `censAchSlotX` is new here, and six of the sixty-seven points need it.
+
+## ⭐⭐⭐ Headline 3: HORN 2 is refuted at every point reached
+
+The wave-64 queue asked for a live point at which all three knobs are unachievable AND the
+lattice kills at no slot.  ⭐ `censAch_noKill_iff_forces` shows the two halves of that question
+are one: at an ODD binder point, "no achievable dressing kills" **is** `GaTwoForces`.  So each
+of the sixty-seven refutations above is a horn-2 refutation, and `censAch_horn_two_50` …
+`censAch_horn_two_67` record it at the **eighteen** points where the first half genuinely
+holds, namely every point at which no knob can kill (MEASURED):
+
+* at twelve (`#50`-`#55`, `#62`-`#67`) all three knobs exist and none is achievable;
+* at six (`#56`-`#61`) both handle gearings are EVEN, so those two knobs are dead outright,
+  and the sigma knob is unachievable.
+
+At every one of the eighteen a general lattice element kills.  ⚠ No point in the census, and
+no point in the tree, satisfies horn 2.
+
+## ⭐⭐⭐ Headline 4: the gauge is NOT necessary for the census
+
+`GradedCensusHorn` closed with a named open: the gauge `2 ∣ s.e` "is necessary for this proof
+and for the statement (`censHorn_binder_cex`) … but whether an ungauged binder point could
+still be killed by some other dressing is not decided here".
+
+⭐⭐⭐ `censAch_cex_lines_false`.  It can.  At `censHorn_binder_cex` - a genuine binder point
+where horn 1 is FALSE, all five letters on `stageN1`, the bare frame killing, the diagonal
+frame carrying `liftO 1` - the **single commutator `commP x0 S`** of the point's own two core
+letters is achievable and kills the relator from the sigma slot, `S` being the marking's own
+sigma slot `censHornCexSig * censHornCexX'`.  All three lines fail there too.
+
+⭐⭐ So the parity horn and the census verdict come apart exactly at the gauge: `2 ∣ s.e` is
+necessary for horn 1's statement and for its proof, and it is **not** necessary for the census.
+⭐ The sigma knob really is dead there (`censAch_cex_sigKnob_dead`: the gearing is EVEN, so its
+translation is even for every `t`, whatever the lattice does) - the point dies without any knob
+at all.
+
+## PROVED versus MEASURED
+
+**PROVED** here, no `sorry`, no new axiom, no `native_decide`, every `decide` on `SqU6 (ZMod 8)`
+or `ZMod 8`: the four engines; the `67` kills with their certificates; the horn-2 equivalence
+and its eighteen instances; the kill at the ungauged point and the death of its sigma knob; and
+W65-SHARPEN's primed bound transported to the census (`censAch_dressing_even`: every achievable
+dressing at a census point has `f`, `g`, `h`, `j` even).
+
+**MEASURED** (`scripts/w66_achieve/results/achieve.txt`, `21` named checks, `0` failures, on
+two independent lattice implementations): which knobs are achievable (`49` / `18` / the
+eighteen knob-free points); the exact single-slot kill counts; that the `67` rebuilt points are the
+committed ones, record by record; and, at the ungauged point, its `2^15` lattice swept whole -
+`4864` achievable single-slot killers, and both handle knobs unachievable.
+
+⚠ **NOT proved, and not claimed.**  *Non*-achievability, anywhere: showing an element is NOT in
+`forceLcs H 1` at a concrete point needs an upper bound the tree does not own there, and
+`censAch_not_achievable_of_odd` is the only uniform one available - it does not reach the knob,
+whose four constrained coordinates all vanish.  So the eighteen unachievable sigma knobs, the
+eighteen knob-free points and the two dead handle knobs at the ungauged point remain measured.
+Nor is a FIVE-slot decision claimed: single-slot kills are exhibited, which is sound in the
+"dead" direction and is the census's own scope.  Nor is any of this lifted to homomorphisms.
+⚠ And the sixty-seven are the points the census reached: `0` survivors among them is not "the
+`gamma_2` route is dead at every binder point", which no wave has claimed.
+
+## The sweep against the tree's refutations
+
+Doctrine rule 4.  W65-HORN1's counterexample is USED rather than evaded: headline 4 is
+precisely its point, and no statement here assumes a gauged sigma slot.  ⚠ The
+diagonally-dressed-frame trap is respected throughout - every point is a DIAGONAL frame whose
+BARE frame kills the relator (checked at all `67`), and a bare witness would kill vacuously.
+Wave 56's retracted structures are not quoted; W65-SIX's class-six refutation is not invoked;
+W62's handle-count invariant is not used.  ⭐ **Doctrine rule 1**: the only survival-shaped
+claim in the file is horn 2, and it is REFUTED rather than left standing.  ⭐ **Doctrine rule 3**
+(composites): the certificates are checked by two independently written sifting libraries -
+this lane's `scripts/w66_achieve/siftlib.py`, filtered by class, and W63-CENTRAL2's
+`centrallib`, keyed by `(coordinate, valuation)` - and they agree on all `67` lattice orders
+and all `67` knob tests; the six hardest killers were found by a layered sweep that reproduces
+the census's own kill count of `4096` exactly.
+
+## Contents
+
+* **1** the four engines and the new `x0` dressing; **2** ⭐⭐⭐ the `67` points;
+* **3** ⭐⭐⭐ horn 2; **4** ⭐⭐⭐ the gauge; **5** the primed bound at a census point;
+* **6** axiom pins.
+
+Companion certificate: `scripts/w66_achieve/achieve.py`, output in `results/`.
+-/
+
+open scoped commutatorElement
+
+namespace GQ2
+
+open Roe
+
+namespace Dyadic
+
+namespace SqCore
+
+open MarkedCore
+
+/-! ## 1 The engine: one achievable killing dressing, at each of the five slots -/
+
+section Engine
+
+variable {R : Type} [CommRing R] {h : ℕ} {j : Fin h}
+
+variable (h) in
+/-- **The dressing carrying `w` on the `x0` slot and nothing anywhere else.**
+`GradedGammaTwoCensus.censSlotU` at the second core slot instead of at a handle.  The two core
+slots have no dressing family in the tree: the census reached them only through its nested
+sweep, and section 2 needs one at `x0`. -/
+def censAchSlotX (w : SqU6 R) : Fin (sqRank h) → SqU6 R :=
+  fun i => if (i : ℕ) = 1 then w else 1
+
+theorem censAchSlotX_isGaTwo {w : SqU6 R} (hw : w.IsGaTwo) (i : Fin (sqRank h)) :
+    (censAchSlotX h w i).IsGaTwo := by
+  by_cases hi : (i : ℕ) = 1
+  · rw [censAchSlotX, if_pos hi]; exact hw
+  · rw [censAchSlotX, if_neg hi]; exact SqU6.isGaTwo_one
+
+theorem censAchSlotX_mem_forceLcs {H : Subgroup (SqU6 gr3R)} {w : SqU6 gr3R}
+    (hw : w ∈ forceLcs H 1) (i : Fin (sqRank h)) : censAchSlotX h w i ∈ forceLcs H 1 := by
+  by_cases hi : (i : ℕ) = 1
+  · rw [censAchSlotX, if_pos hi]; exact hw
+  · rw [censAchSlotX, if_neg hi]; exact one_mem _
+
+/-- Dressing the `x0` slot reparametrises the marking, exactly as at the sigma slot. -/
+theorem conFiveDress_fiveTuple_censAchSlotX (S X Y U V w : SqU6 R) :
+    conFiveDress (fiveTuple R h j S X Y U V) (censAchSlotX h w)
+      = fiveTuple R h j S (X * w) Y U V := by
+  funext i
+  rw [conFiveDress_apply]
+  by_cases hi : (i : ℕ) = 1
+  · rw [censAchSlotX, if_pos hi]
+    simp only [fiveTuple, if_neg (show ¬ (i : ℕ) = 0 by omega), if_pos hi]
+  · rw [censAchSlotX, if_neg hi, mul_one]
+    simp only [fiveTuple, if_neg hi]
+
+/-- The `gamma_2`-shape of a single-slot dressing at the sigma slot. -/
+theorem censAch_sigDress_isGaTwo {w : SqU6 R} (hw : w.IsGaTwo) (i : Fin (sqRank h)) :
+    (cenSigDress h w i).IsGaTwo := by
+  by_cases hi : (i : ℕ) = 0
+  · rw [cenSigDress, if_pos hi]; exact hw
+  · rw [cenSigDress, if_neg hi]; exact SqU6.isGaTwo_one
+
+end Engine
+
+section Kill
+
+variable {h : ℕ} {j : Fin h} {S X Y U V w : SqU6 gr3R} {c : gr3R}
+
+/-- `liftO c * liftO (-c) = 1`: the bookkeeping of every kill in this file, once. -/
+theorem censAch_liftO_neg (c : gr3R) : SqU6.liftO c * SqU6.liftO (-c) = 1 := by
+  rw [SqU6.liftO_mul_liftO, add_neg_cancel]
+  ext <;> simp [SqU6.liftO]
+
+/-- ⭐⭐⭐ **THE KILL AT THE SIGMA SLOT, from an ARBITRARY achievable element.**  At a marking of
+the one-handle-live family whose relator is an ODD CENTRAL translation, any achievable element
+`w` whose sigma-slot dressing kills the relator outright refutes the `gamma_2` forcing, the
+centrality line and the parity line at once.
+
+⭐ This is `GradedGammaTwoCensus.cens_lines_false_of_sigKnob` with the KNOB replaced by an
+arbitrary lattice element: the shift is central because the dressed relator is `1` and the
+undressed one is central, so no closed form for the shift is needed.  ⚠ It is exactly the
+mechanism the census measured at the `6` points where no knob is achievable and a general
+lattice element kills. -/
+theorem censAch_lines_false_sig
+    (hres : sqWord S X Y * commP U V = SqU6.liftO c) (hodd : selPar c = 1)
+    (hkill : sqWord (S * w) X Y * commP U V = 1)
+    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
+    ¬ GaTwoForces (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoCentral (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoOrth (fiveTuple gr3R h j S X Y U V) := by
+  have hr : sqRelWord (fiveTuple gr3R h j S X Y U V) = SqU6.liftO c := by
+    rw [sqRelWord_fiveTuple]; exact hres
+  refine cens_lines_false_of_central_kill (g := -c) (z := cenSigDress h w) hr hodd ?_
+    (by ring) (censAch_sigDress_isGaTwo (isGaTwo_of_mem_forceLcs hach))
+    (fun i => cens_sigDress_mem_forceLcs hach i)
+  rw [conFiveDress_fiveTuple_cenSigDress, sqRelWord_fiveTuple, hkill, hr,
+    censAch_liftO_neg]
+
+/-- ⭐⭐ **…and at the `x0` slot.**  The census's two CORE slots carry no knob - the same
+dressing there disturbs the class-three and class-four rows - so this is the only route to them,
+and section 2 uses it at six binder points. -/
+theorem censAch_lines_false_x0
+    (hres : sqWord S X Y * commP U V = SqU6.liftO c) (hodd : selPar c = 1)
+    (hkill : sqWord S (X * w) Y * commP U V = 1)
+    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
+    ¬ GaTwoForces (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoCentral (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoOrth (fiveTuple gr3R h j S X Y U V) := by
+  have hr : sqRelWord (fiveTuple gr3R h j S X Y U V) = SqU6.liftO c := by
+    rw [sqRelWord_fiveTuple]; exact hres
+  refine cens_lines_false_of_central_kill (g := -c) (z := censAchSlotX h w) hr hodd ?_
+    (by ring) (censAchSlotX_isGaTwo (isGaTwo_of_mem_forceLcs hach))
+    (fun i => censAchSlotX_mem_forceLcs hach i)
+  rw [conFiveDress_fiveTuple_censAchSlotX, sqRelWord_fiveTuple, hkill, hr,
+    censAch_liftO_neg]
+
+/-- ⭐⭐ **…and at the live handle's `u` slot.** -/
+theorem censAch_lines_false_u
+    (hres : sqWord S X Y * commP U V = SqU6.liftO c) (hodd : selPar c = 1)
+    (hkill : sqWord S X Y * commP (U * w) V = 1)
+    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
+    ¬ GaTwoForces (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoCentral (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoOrth (fiveTuple gr3R h j S X Y U V) := by
+  have hr : sqRelWord (fiveTuple gr3R h j S X Y U V) = SqU6.liftO c := by
+    rw [sqRelWord_fiveTuple]; exact hres
+  refine cens_lines_false_of_central_kill (g := -c) (z := censSlotU h j w) hr hodd ?_
+    (by ring) (censSlotU_isGaTwo (isGaTwo_of_mem_forceLcs hach))
+    (fun i => censSlotU_mem_forceLcs hach i)
+  rw [conFiveDress_fiveTuple_censSlotU, sqRelWord_fiveTuple, hkill, hr, censAch_liftO_neg]
+
+/-- ⭐⭐ **…and at the live handle's `v` slot.** -/
+theorem censAch_lines_false_v
+    (hres : sqWord S X Y * commP U V = SqU6.liftO c) (hodd : selPar c = 1)
+    (hkill : sqWord S X Y * commP U (V * w) = 1)
+    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
+    ¬ GaTwoForces (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoCentral (fiveTuple gr3R h j S X Y U V)
+      ∧ ¬ GaTwoOrth (fiveTuple gr3R h j S X Y U V) := by
+  have hr : sqRelWord (fiveTuple gr3R h j S X Y U V) = SqU6.liftO c := by
+    rw [sqRelWord_fiveTuple]; exact hres
+  refine cens_lines_false_of_central_kill (g := -c) (z := censSlotV h j w) hr hodd ?_
+    (by ring) (censSlotV_isGaTwo (isGaTwo_of_mem_forceLcs hach))
+    (fun i => censSlotV_mem_forceLcs hach i)
+  rw [conFiveDress_fiveTuple_censSlotV, sqRelWord_fiveTuple, hkill, hr, censAch_liftO_neg]
+
+end Kill
+
+/-! ## 2 The census points -/
+
+section Points
+
+variable {h : ℕ} {j : Fin h}
+
+variable (h j) in
+/-- **A census binder point**: the DIAGONALLY dressed frame of a bare point whose sigma letter
+is the committed `fiveSigMark`.  All `67` points of `scripts/w64_census5/results/census.txt`
+have this shape, and at every one of them the BARE frame kills the relator outright while this
+one carries an ODD CENTRAL residue. -/
+def censAchPt (X Y U V : SqU6 gr3R) : Fin (sqRank h) → SqU6 gr3R :=
+  fiveTuple gr3R h j (fiveSigMark gr3R * X) X Y U V
+
+/-- The five letters of a one-handle-live tuple lie in its own image, at every handle count
+and every handle.  Every achievability certificate in this file is built from these five and
+nothing else. -/
+theorem censAch_fiveTuple_letters_mem (h : ℕ) (j : Fin h) (S X Y U V : SqU6 gr3R) :
+    S ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ X ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ Y ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ U ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ V ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V)) :=
+  ⟨Subgroup.subset_closure ⟨0, fiveTuple_zero⟩,
+    Subgroup.subset_closure ⟨1, fiveTuple_one⟩,
+    Subgroup.subset_closure ⟨2, fiveTuple_two⟩,
+    Subgroup.subset_closure ⟨sqHandleIdxU j, fiveTuple_handleU⟩,
+    Subgroup.subset_closure ⟨sqHandleIdxV j, fiveTuple_handleV⟩⟩
+
+/-- …and at a census point, whose sigma letter is `fiveSigMark * x0`. -/
+theorem censAch_letters_mem (h : ℕ) (j : Fin h) (X Y U V : SqU6 gr3R) :
+    fiveSigMark gr3R * X ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
+      ∧ X ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
+      ∧ Y ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
+      ∧ U ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
+      ∧ V ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V)) :=
+  censAch_fiveTuple_letters_mem h j _ X Y U V
+
+/- ⚠ **The one budget setting in this file**, and it is NOT a heartbeat bump: the `decide`
+calls below evaluate the core word at a concrete marking with a commutator word substituted
+into one slot, and the default recursion depth of `512` does not reach the bottom of that
+unfolding.  Nothing here raises `maxHeartbeats`, which the census file family carries at
+`400000`. -/
+set_option maxRecDepth 8000
+
+/-! ### The letters -/
+
+/-- The `x0` letter `<a = 2, e = 1>`, one of the census's live `x0` letters. -/
+def censAchX21 : SqU6 gr3R := ⟨2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 2, e = 3>`, one of the census's live `x0` letters. -/
+def censAchX23 : SqU6 gr3R := ⟨2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 2, e = 5>`, one of the census's live `x0` letters. -/
+def censAchX25 : SqU6 gr3R := ⟨2, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 2, e = 7>`, one of the census's live `x0` letters. -/
+def censAchX27 : SqU6 gr3R := ⟨2, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 6, e = 1>`, one of the census's live `x0` letters. -/
+def censAchX61 : SqU6 gr3R := ⟨6, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 6, e = 3>`, one of the census's live `x0` letters. -/
+def censAchX63 : SqU6 gr3R := ⟨6, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 6, e = 5>`, one of the census's live `x0` letters. -/
+def censAchX65 : SqU6 gr3R := ⟨6, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 6, e = 7>`, one of the census's live `x0` letters. -/
+def censAchX67 : SqU6 gr3R := ⟨6, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `x0` letter `<a = 4, e = 5>`, one of the census's live `x0` letters. -/
+def censAchX45 : SqU6 gr3R := ⟨4, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The `u` letter of FRESH handle triple 1 (`scripts/w64_census5/results/triples.txt`). -/
+def censAchU1 : SqU6 gr3R := ⟨2, 6, 4, 5, 1, 5, 3, 5, 0, 3, 6, 7, 5, 0, 4⟩
+
+/-- The `v` letter of FRESH handle triple 1. -/
+def censAchV1 : SqU6 gr3R := ⟨0, 0, 6, 7, 1, 1, 5, 1, 4, 6, 2, 6, 3, 4, 3⟩
+
+/-- The `u` letter of FRESH handle triple 2 (`scripts/w64_census5/results/triples.txt`). -/
+def censAchU2 : SqU6 gr3R := ⟨0, 3, 2, 1, 4, 2, 1, 3, 2, 7, 3, 6, 4, 2, 7⟩
+
+/-- The `v` letter of FRESH handle triple 2. -/
+def censAchV2 : SqU6 gr3R := ⟨6, 4, 4, 1, 6, 1, 0, 5, 5, 3, 3, 5, 3, 5, 3⟩
+
+/-- The `u` letter of FRESH handle triple 3 (`scripts/w64_census5/results/triples.txt`). -/
+def censAchU3 : SqU6 gr3R := ⟨6, 4, 6, 7, 7, 6, 0, 4, 5, 7, 1, 7, 4, 7, 2⟩
+
+/-- The `v` letter of FRESH handle triple 3. -/
+def censAchV3 : SqU6 gr3R := ⟨2, 4, 0, 5, 1, 3, 6, 2, 7, 0, 1, 0, 7, 1, 3⟩
+
+/-! ### The `67` points, one theorem each -/
+
+/-- ⭐ **Census point 1 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_01 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j stageX stageY stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j stageX stageY stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j stageX stageY stageU stageV) := by
+  have L := censAch_letters_mem h j stageX stageY stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP stageU stageY⁻¹ * commP stageV stageY)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.1 (Subgroup.inv_mem _ L.2.2.1))
+      (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 2. -/
+def censAchY02 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 1, 1, 5, 0, 0, 0, 2, 1, 1, 5⟩
+
+/-- ⭐ **Census point 2 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_02 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX21 censAchY02 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX21 censAchY02 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX21 censAchY02 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX21 censAchY02 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY02 stageU * commP censAchY02⁻¹ stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1)
+      (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.1) L.2.2.2.2))
+
+/-- The `x1` letter of census point 3. -/
+def censAchY03 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 1, 1, 5, 0, 0, 0, 2, 1, 1, 1⟩
+
+/-- ⭐ **Census point 3 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_03 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX21 censAchY03 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX21 censAchY03 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX21 censAchY03 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX21 censAchY03 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY03 stageU * commP censAchY03⁻¹ stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1)
+      (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.1) L.2.2.2.2))
+
+/-- The `x1` letter of census point 4. -/
+def censAchY04 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 1, 1, 5, 0, 0, 0, 2, 1, 5, 1⟩
+
+/-- ⭐ **Census point 4 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_04 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX21 censAchY04 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX21 censAchY04 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX21 censAchY04 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX21 censAchY04 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY04 stageU * commP censAchY04⁻¹ stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1)
+      (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.1) L.2.2.2.2))
+
+/-- The `x1` letter of census point 5. -/
+def censAchY05 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 1, 1, 5, 0, 0, 0, 2, 1, 5, 5⟩
+
+/-- ⭐ **Census point 5 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_05 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX21 censAchY05 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX21 censAchY05 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX21 censAchY05 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX21 censAchY05 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY05 stageU * commP censAchY05⁻¹ stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1)
+      (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.1) L.2.2.2.2))
+
+/-- The `x1` letter of census point 6. -/
+def censAchY06 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 1, 5, 0, 0, 4, 2, 7, 1, 7⟩
+
+/-- ⭐ **Census point 6 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_06 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX21 censAchY06 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX21 censAchY06 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX21 censAchY06 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX21 censAchY06 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY06 stageU * commP stageV censAchY06)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 7. -/
+def censAchY07 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 1, 5, 0, 0, 4, 2, 7, 1, 3⟩
+
+/-- ⭐ **Census point 7 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_07 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX21 censAchY07 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX21 censAchY07 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX21 censAchY07 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX21 censAchY07 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY07 stageU * commP stageV censAchY07)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 8. -/
+def censAchY08 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 5, 0, 4, 0, 2, 3, 5, 7⟩
+
+/-- ⭐ **Census point 8 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_08 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY08 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY08 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY08 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY08 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY08 stageU * commP stageV censAchY08)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 9. -/
+def censAchY09 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 5, 0, 4, 0, 2, 3, 5, 3⟩
+
+/-- ⭐ **Census point 9 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_09 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY09 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY09 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY09 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY09 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY09 stageU * commP stageV censAchY09)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 10. -/
+def censAchY10 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 5, 0, 0, 4, 6, 3, 1, 1⟩
+
+/-- ⭐ **Census point 10 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_10 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY10 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY10 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY10 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY10 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageV censAchY10 * commP censAchY10 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1) (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 11. -/
+def censAchY11 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 5, 0, 0, 4, 6, 3, 1, 5⟩
+
+/-- ⭐ **Census point 11 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_11 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY11 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY11 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY11 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY11 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageV censAchY11 * commP censAchY11 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1) (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 12. -/
+def censAchY12 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 5, 0, 0, 4, 6, 7, 5, 5⟩
+
+/-- ⭐ **Census point 12 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_12 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY12 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY12 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY12 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY12 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageV censAchY12 * commP censAchY12 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1) (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 13. -/
+def censAchY13 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 5, 0, 0, 4, 6, 7, 5, 1⟩
+
+/-- ⭐ **Census point 13 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_13 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY13 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY13 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY13 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY13 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageV censAchY13 * commP censAchY13 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1) (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 14. -/
+def censAchY14 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 1, 0, 4, 0, 6, 1, 1, 3⟩
+
+/-- ⭐ **Census point 14 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_14 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX25 censAchY14 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX25 censAchY14 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX25 censAchY14 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX25 censAchY14 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY14 stageU * commP stageV censAchY14)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 15. -/
+def censAchY15 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 1, 0, 4, 0, 6, 1, 1, 7⟩
+
+/-- ⭐ **Census point 15 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_15 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX25 censAchY15 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX25 censAchY15 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX25 censAchY15 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX25 censAchY15 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY15 stageU * commP stageV censAchY15)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 16. -/
+def censAchY16 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 1, 0, 4, 0, 6, 5, 1, 3⟩
+
+/-- ⭐ **Census point 16 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_16 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX25 censAchY16 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX25 censAchY16 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX25 censAchY16 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX25 censAchY16 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY16 stageU * commP stageV censAchY16)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 17. -/
+def censAchY17 : SqU6 gr3R := ⟨4, 4, 4, 4, 6, 5, 5, 1, 0, 4, 0, 6, 5, 1, 7⟩
+
+/-- ⭐ **Census point 17 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_17 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX25 censAchY17 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX25 censAchY17 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX25 censAchY17 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX25 censAchY17 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY17 stageU * commP stageV censAchY17)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 18. -/
+def censAchY18 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 1, 1, 1, 4, 0, 4, 0, 3, 1, 2⟩
+
+/-- ⭐ **Census point 18 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_18 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX25 censAchY18 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX25 censAchY18 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX25 censAchY18 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX25 censAchY18 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP stageV censAchY18 * commP stageU censAchY18⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1)
+      (commP_mem_commSub L.2.2.2.1 (Subgroup.inv_mem _ L.2.2.1)))
+
+/-- The `x1` letter of census point 19. -/
+def censAchY19 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 1, 1, 1, 4, 0, 4, 0, 3, 1, 6⟩
+
+/-- ⭐ **Census point 19 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_19 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX25 censAchY19 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX25 censAchY19 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX25 censAchY19 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX25 censAchY19 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP stageV censAchY19 * commP stageU censAchY19⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1)
+      (commP_mem_commSub L.2.2.2.1 (Subgroup.inv_mem _ L.2.2.1)))
+
+/-- The `x1` letter of census point 20. -/
+def censAchY20 : SqU6 gr3R := ⟨0, 4, 4, 4, 2, 5, 1, 5, 0, 2, 4, 0, 3, 3, 0⟩
+
+/-- ⭐ **Census point 20 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_20 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX27 censAchY20 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX27 censAchY20 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX27 censAchY20 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX27 censAchY20 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageU⁻¹ censAchY20 * commP stageV censAchY20)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.2.1) L.2.2.1)
+      (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 21. -/
+def censAchY21 : SqU6 gr3R := ⟨0, 4, 4, 4, 2, 5, 1, 5, 0, 2, 4, 0, 3, 3, 4⟩
+
+/-- ⭐ **Census point 21 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_21 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX27 censAchY21 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX27 censAchY21 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX27 censAchY21 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX27 censAchY21 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageU⁻¹ censAchY21 * commP stageV censAchY21)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.2.1) L.2.2.1)
+      (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 22. -/
+def censAchY22 : SqU6 gr3R := ⟨0, 4, 4, 4, 2, 5, 1, 5, 0, 2, 4, 0, 3, 7, 4⟩
+
+/-- ⭐ **Census point 22 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_22 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX27 censAchY22 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX27 censAchY22 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX27 censAchY22 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX27 censAchY22 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageU⁻¹ censAchY22 * commP stageV censAchY22)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.2.1) L.2.2.1)
+      (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 23. -/
+def censAchY23 : SqU6 gr3R := ⟨0, 4, 4, 4, 2, 5, 1, 5, 0, 2, 4, 0, 3, 7, 0⟩
+
+/-- ⭐ **Census point 23 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_23 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX27 censAchY23 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX27 censAchY23 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX27 censAchY23 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX27 censAchY23 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageU⁻¹ censAchY23 * commP stageV censAchY23)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.2.1) L.2.2.1)
+      (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 24. -/
+def censAchY24 : SqU6 gr3R := ⟨0, 4, 4, 4, 2, 5, 1, 5, 0, 2, 0, 4, 7, 7, 2⟩
+
+/-- ⭐ **Census point 24 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_24 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX27 censAchY24 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX27 censAchY24 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX27 censAchY24 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX27 censAchY24 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageV censAchY24 * commP stageU⁻¹ censAchY24)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1)
+      (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.2.1) L.2.2.1))
+
+/-- The `x1` letter of census point 25. -/
+def censAchY25 : SqU6 gr3R := ⟨0, 4, 4, 4, 2, 5, 1, 5, 0, 2, 0, 4, 7, 7, 6⟩
+
+/-- ⭐ **Census point 25 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_25 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX27 censAchY25 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX27 censAchY25 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX27 censAchY25 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX27 censAchY25 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP stageV censAchY25 * commP stageU⁻¹ censAchY25)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.2.2 L.2.2.1)
+      (commP_mem_commSub (Subgroup.inv_mem _ L.2.2.2.1) L.2.2.1))
+
+/-- The `x1` letter of census point 26. -/
+def censAchY26 : SqU6 gr3R := ⟨4, 0, 0, 0, 2, 7, 1, 1, 4, 2, 4, 0, 4, 5, 1⟩
+
+/-- ⭐ **Census point 26 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_26 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX61 censAchY26 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX61 censAchY26 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX61 censAchY26 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX61 censAchY26 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY26 stageU⁻¹ * commP censAchY26 stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.2))
+
+/-- The `x1` letter of census point 27. -/
+def censAchY27 : SqU6 gr3R := ⟨4, 0, 0, 0, 2, 7, 1, 1, 4, 2, 4, 0, 4, 5, 5⟩
+
+/-- ⭐ **Census point 27 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_27 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX61 censAchY27 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX61 censAchY27 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX61 censAchY27 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX61 censAchY27 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY27 stageU⁻¹ * commP censAchY27 stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.2))
+
+/-- The `x1` letter of census point 28. -/
+def censAchY28 : SqU6 gr3R := ⟨4, 0, 0, 0, 2, 7, 1, 1, 4, 6, 4, 4, 0, 5, 7⟩
+
+/-- ⭐ **Census point 28 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_28 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX61 censAchY28 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX61 censAchY28 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX61 censAchY28 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX61 censAchY28 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY28 stageU⁻¹ * commP censAchY28 stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.2))
+
+/-- The `x1` letter of census point 29. -/
+def censAchY29 : SqU6 gr3R := ⟨4, 0, 0, 0, 2, 7, 1, 1, 4, 6, 4, 4, 0, 5, 3⟩
+
+/-- ⭐ **Census point 29 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_29 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX61 censAchY29 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX61 censAchY29 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX61 censAchY29 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX61 censAchY29 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY29 stageU⁻¹ * commP censAchY29 stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.2))
+
+/-- The `x1` letter of census point 30. -/
+def censAchY30 : SqU6 gr3R := ⟨4, 0, 0, 0, 2, 7, 1, 1, 4, 2, 4, 0, 4, 1, 5⟩
+
+/-- ⭐ **Census point 30 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_30 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX61 censAchY30 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX61 censAchY30 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX61 censAchY30 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX61 censAchY30 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY30 stageU⁻¹ * commP censAchY30 stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.2))
+
+/-- The `x1` letter of census point 31. -/
+def censAchY31 : SqU6 gr3R := ⟨4, 0, 0, 0, 2, 7, 1, 1, 4, 2, 4, 0, 4, 1, 1⟩
+
+/-- ⭐ **Census point 31 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_31 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX61 censAchY31 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX61 censAchY31 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX61 censAchY31 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX61 censAchY31 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY31 stageU⁻¹ * commP censAchY31 stageV)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.2))
+
+/-- The `x1` letter of census point 32. -/
+def censAchY32 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 7, 5, 5, 0, 4, 0, 6, 2, 1, 0⟩
+
+/-- ⭐ **Census point 32 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_32 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX63 censAchY32 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX63 censAchY32 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX63 censAchY32 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX63 censAchY32 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY32 stageV * commP stageU censAchY32)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 33. -/
+def censAchY33 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 7, 5, 5, 0, 4, 0, 6, 2, 1, 4⟩
+
+/-- ⭐ **Census point 33 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_33 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX63 censAchY33 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX63 censAchY33 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX63 censAchY33 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX63 censAchY33 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY33 stageV * commP stageU censAchY33)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 34. -/
+def censAchY34 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 3, 5, 1, 4, 0, 4, 6, 6, 3, 4⟩
+
+/-- ⭐ **Census point 34 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_34 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX63 censAchY34 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX63 censAchY34 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX63 censAchY34 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX63 censAchY34 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY34 stageU * commP censAchY34 stageV⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1)
+      (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2)))
+
+/-- The `x1` letter of census point 35. -/
+def censAchY35 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 3, 5, 1, 4, 0, 4, 6, 6, 3, 0⟩
+
+/-- ⭐ **Census point 35 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_35 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX63 censAchY35 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX63 censAchY35 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX63 censAchY35 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX63 censAchY35 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY35 stageU * commP censAchY35 stageV⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1)
+      (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2)))
+
+/-- The `x1` letter of census point 36. -/
+def censAchY36 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 3, 5, 1, 4, 4, 0, 6, 6, 3, 0⟩
+
+/-- ⭐ **Census point 36 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_36 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX63 censAchY36 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX63 censAchY36 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX63 censAchY36 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX63 censAchY36 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY36 stageV⁻¹ * commP censAchY36 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 37. -/
+def censAchY37 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 3, 5, 1, 4, 4, 0, 6, 6, 3, 4⟩
+
+/-- ⭐ **Census point 37 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_37 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX63 censAchY37 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX63 censAchY37 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX63 censAchY37 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX63 censAchY37 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY37 stageV⁻¹ * commP censAchY37 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 38. -/
+def censAchY38 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 7, 1, 1, 0, 4, 0, 4, 0, 3, 3⟩
+
+/-- ⭐ **Census point 38 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_38 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY38 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY38 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY38 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY38 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY38 stageV * commP stageU censAchY38)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 39. -/
+def censAchY39 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 7, 1, 1, 0, 4, 0, 4, 0, 3, 7⟩
+
+/-- ⭐ **Census point 39 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_39 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY39 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY39 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY39 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY39 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY39 stageV * commP stageU censAchY39)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 40. -/
+def censAchY40 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 7, 5, 5, 0, 0, 4, 0, 6, 7, 3⟩
+
+/-- ⭐ **Census point 40 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_40 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY40 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY40 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY40 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY40 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY40 stageV * commP stageU censAchY40)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 41. -/
+def censAchY41 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 7, 5, 5, 0, 0, 4, 0, 6, 7, 7⟩
+
+/-- ⭐ **Census point 41 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_41 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY41 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY41 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY41 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY41 stageU stageV
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY41 stageV * commP stageU censAchY41)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 42. -/
+def censAchY42 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 7, 1, 1, 0, 4, 0, 4, 4, 3, 3⟩
+
+/-- ⭐ **Census point 42 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_42 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY42 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY42 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY42 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY42 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY42 stageV * commP stageU censAchY42)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 43. -/
+def censAchY43 : SqU6 gr3R := ⟨4, 4, 4, 4, 2, 7, 1, 1, 0, 4, 0, 4, 4, 3, 7⟩
+
+/-- ⭐ **Census point 43 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_43 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY43 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY43 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY43 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY43 stageU stageV
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY43 stageV * commP stageU censAchY43)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 44. -/
+def censAchY44 : SqU6 gr3R := ⟨0, 0, 4, 0, 2, 3, 5, 1, 0, 6, 0, 4, 6, 7, 3⟩
+
+/-- ⭐ **Census point 44 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_44 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX67 censAchY44 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX67 censAchY44 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX67 censAchY44 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX67 censAchY44 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY44 stageV * commP stageU censAchY44)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 45. -/
+def censAchY45 : SqU6 gr3R := ⟨0, 0, 4, 0, 2, 3, 5, 1, 0, 6, 0, 4, 6, 7, 7⟩
+
+/-- ⭐ **Census point 45 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_45 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX67 censAchY45 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX67 censAchY45 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX67 censAchY45 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX67 censAchY45 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY45 stageV * commP stageU censAchY45)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.2.1 L.2.2.1))
+
+/-- The `x1` letter of census point 46. -/
+def censAchY46 : SqU6 gr3R := ⟨0, 4, 0, 4, 2, 3, 5, 1, 4, 4, 0, 4, 6, 5, 3⟩
+
+/-- ⭐ **Census point 46 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_46 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX67 censAchY46 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX67 censAchY46 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX67 censAchY46 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX67 censAchY46 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY46 stageV⁻¹ * commP censAchY46 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 47. -/
+def censAchY47 : SqU6 gr3R := ⟨0, 4, 0, 4, 2, 3, 5, 1, 4, 4, 0, 4, 6, 5, 7⟩
+
+/-- ⭐ **Census point 47 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `1`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_47 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX67 censAchY47 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX67 censAchY47 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX67 censAchY47 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX67 censAchY47 stageU stageV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censAchY47 stageV⁻¹ * commP censAchY47 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 48. -/
+def censAchY48 : SqU6 gr3R := ⟨0, 4, 0, 4, 6, 3, 5, 5, 4, 4, 0, 2, 0, 7, 4⟩
+
+/-- ⭐ **Census point 48 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_48 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX67 censAchY48 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX67 censAchY48 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX67 censAchY48 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX67 censAchY48 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY48 stageV⁻¹ * commP censAchY48 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 49. -/
+def censAchY49 : SqU6 gr3R := ⟨0, 4, 0, 4, 6, 3, 5, 5, 4, 4, 0, 2, 0, 7, 0⟩
+
+/-- ⭐ **Census point 49 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `5`, lattice `2^26`, sigma knob achievable. -/
+theorem censAch_kill_49 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX67 censAchY49 stageU stageV)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX67 censAchY49 stageU stageV)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX67 censAchY49 stageU stageV) := by
+  have L := censAch_letters_mem h j censAchX67 censAchY49 stageU stageV
+  exact censAch_lines_false_sig (c := 5)
+    (w := commP censAchY49 stageV⁻¹ * commP censAchY49 stageU)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.2))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 50. -/
+def censAchY50 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 6, 1, 5, 6, 1, 1, 2, 1, 1⟩
+
+/-- The killing dressing at census point 50, a product of three commutators of the
+point's own letters; named as a literal so the two `decide` calls stay apart. -/
+def censAchW50 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
+
+/-- ⭐ **Census point 50 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_50 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY50 censAchU1 censAchV1)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY50 censAchU1 censAchV1)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY50 censAchU1 censAchV1) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY50 censAchU1 censAchV1
+  refine censAch_lines_false_u (c := 3) (w := censAchW50)
+    (by decide) (by decide) (by decide) ?_
+  rw [show censAchW50 = commP (fiveSigMark gr3R * censAchX23) censAchX23
+      * (commP (fiveSigMark gr3R * censAchX23) censAchX23 * commP censAchX23 censAchY50)
+      from by decide]
+  exact (mul_mem (commP_mem_commSub L.1 L.2.1) (mul_mem (commP_mem_commSub L.1 L.2.1)
+          (commP_mem_commSub L.2.1 L.2.2.1)))
+
+/-- The `x1` letter of census point 51. -/
+def censAchY51 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 6, 1, 5, 6, 1, 1, 2, 1, 5⟩
+
+/-- The killing dressing at census point 51, a product of three commutators of the
+point's own letters; named as a literal so the two `decide` calls stay apart. -/
+def censAchW51 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
+
+/-- ⭐ **Census point 51 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_51 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY51 censAchU1 censAchV1)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY51 censAchU1 censAchV1)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY51 censAchU1 censAchV1) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY51 censAchU1 censAchV1
+  refine censAch_lines_false_u (c := 3) (w := censAchW51)
+    (by decide) (by decide) (by decide) ?_
+  rw [show censAchW51 = commP (fiveSigMark gr3R * censAchX23) censAchX23
+      * (commP (fiveSigMark gr3R * censAchX23) censAchX23 * commP censAchX23 censAchY51)
+      from by decide]
+  exact (mul_mem (commP_mem_commSub L.1 L.2.1) (mul_mem (commP_mem_commSub L.1 L.2.1)
+          (commP_mem_commSub L.2.1 L.2.2.1)))
+
+/-- The `x1` letter of census point 52. -/
+def censAchY52 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 1, 1, 2, 1, 5, 6, 3, 1⟩
+
+/-- The killing dressing at census point 52, a product of three commutators of the
+point's own letters; named as a literal so the two `decide` calls stay apart. -/
+def censAchW52 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
+
+/-- ⭐ **Census point 52 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_52 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY52 censAchU1 censAchV1)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY52 censAchU1 censAchV1)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY52 censAchU1 censAchV1) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY52 censAchU1 censAchV1
+  refine censAch_lines_false_u (c := 3) (w := censAchW52)
+    (by decide) (by decide) (by decide) ?_
+  rw [show censAchW52 = commP (fiveSigMark gr3R * censAchX23) censAchX23
+      * (commP (fiveSigMark gr3R * censAchX23) censAchX23 * commP censAchX23 censAchY52)
+      from by decide]
+  exact (mul_mem (commP_mem_commSub L.1 L.2.1) (mul_mem (commP_mem_commSub L.1 L.2.1)
+          (commP_mem_commSub L.2.1 L.2.2.1)))
+
+/-- The `x1` letter of census point 53. -/
+def censAchY53 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 1, 1, 2, 1, 5, 6, 3, 5⟩
+
+/-- The killing dressing at census point 53, a product of three commutators of the
+point's own letters; named as a literal so the two `decide` calls stay apart. -/
+def censAchW53 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
+
+/-- ⭐ **Census point 53 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_53 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY53 censAchU1 censAchV1)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY53 censAchU1 censAchV1)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY53 censAchU1 censAchV1) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY53 censAchU1 censAchV1
+  refine censAch_lines_false_u (c := 3) (w := censAchW53)
+    (by decide) (by decide) (by decide) ?_
+  rw [show censAchW53 = commP (fiveSigMark gr3R * censAchX23) censAchX23
+      * (commP (fiveSigMark gr3R * censAchX23) censAchX23 * commP censAchX23 censAchY53)
+      from by decide]
+  exact (mul_mem (commP_mem_commSub L.1 L.2.1) (mul_mem (commP_mem_commSub L.1 L.2.1)
+          (commP_mem_commSub L.2.1 L.2.2.1)))
+
+/-- The `x1` letter of census point 54. -/
+def censAchY54 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 5, 1, 6, 1, 5, 4, 3, 1⟩
+
+/-- The killing dressing at census point 54, a product of three commutators of the
+point's own letters; named as a literal so the two `decide` calls stay apart. -/
+def censAchW54 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 1, 2, 5, 7⟩
+
+/-- ⭐ **Census point 54 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_54 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY54 censAchU1 censAchV1)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY54 censAchU1 censAchV1)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY54 censAchU1 censAchV1) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY54 censAchU1 censAchV1
+  refine censAch_lines_false_u (c := 7) (w := censAchW54)
+    (by decide) (by decide) (by decide) ?_
+  rw [show censAchW54 = commP (fiveSigMark gr3R * censAchX23) censAchX23
+      * (commP (fiveSigMark gr3R * censAchX23) censAchX23 * commP censAchX23 censAchY54)
+      from by decide]
+  exact (mul_mem (commP_mem_commSub L.1 L.2.1) (mul_mem (commP_mem_commSub L.1 L.2.1)
+          (commP_mem_commSub L.2.1 L.2.2.1)))
+
+/-- The `x1` letter of census point 55. -/
+def censAchY55 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 5, 1, 6, 1, 5, 4, 3, 5⟩
+
+/-- The killing dressing at census point 55, a product of three commutators of the
+point's own letters; named as a literal so the two `decide` calls stay apart. -/
+def censAchW55 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 1, 2, 5, 7⟩
+
+/-- ⭐ **Census point 55 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_55 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX23 censAchY55 censAchU1 censAchV1)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX23 censAchY55 censAchU1 censAchV1)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX23 censAchY55 censAchU1 censAchV1) := by
+  have L := censAch_letters_mem h j censAchX23 censAchY55 censAchU1 censAchV1
+  refine censAch_lines_false_u (c := 7) (w := censAchW55)
+    (by decide) (by decide) (by decide) ?_
+  rw [show censAchW55 = commP (fiveSigMark gr3R * censAchX23) censAchX23
+      * (commP (fiveSigMark gr3R * censAchX23) censAchX23 * commP censAchX23 censAchY55)
+      from by decide]
+  exact (mul_mem (commP_mem_commSub L.1 L.2.1) (mul_mem (commP_mem_commSub L.1 L.2.1)
+          (commP_mem_commSub L.2.1 L.2.2.1)))
+
+/-- The `x1` letter of census point 56. -/
+def censAchY56 : SqU6 gr3R := ⟨0, 0, 4, 4, 6, 7, 6, 1, 7, 2, 3, 5, 7, 3, 6⟩
+
+/-- ⭐ **Census point 56 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `x0` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_56 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX45 censAchY56 censAchU2 censAchV2)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX45 censAchY56 censAchU2 censAchV2)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX45 censAchY56 censAchU2 censAchV2) := by
+  have L := censAch_letters_mem h j censAchX45 censAchY56 censAchU2 censAchV2
+  exact censAch_lines_false_x0 (c := 3)
+    (w := commP censAchX45 censAchY56 * commP censAchY56 censAchU2⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.1 L.2.2.1)
+      (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1)))
+
+/-- The `x1` letter of census point 57. -/
+def censAchY57 : SqU6 gr3R := ⟨0, 0, 4, 4, 6, 7, 6, 1, 7, 2, 3, 5, 7, 3, 2⟩
+
+/-- ⭐ **Census point 57 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `x0` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_57 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX45 censAchY57 censAchU2 censAchV2)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX45 censAchY57 censAchU2 censAchV2)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX45 censAchY57 censAchU2 censAchV2) := by
+  have L := censAch_letters_mem h j censAchX45 censAchY57 censAchU2 censAchV2
+  exact censAch_lines_false_x0 (c := 3)
+    (w := commP censAchX45 censAchY57 * commP censAchY57 censAchU2⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.1 L.2.2.1)
+      (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1)))
+
+/-- The `x1` letter of census point 58. -/
+def censAchY58 : SqU6 gr3R := ⟨0, 0, 4, 0, 2, 3, 2, 5, 7, 2, 7, 3, 3, 5, 1⟩
+
+/-- ⭐ **Census point 58 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `x0` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_58 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX45 censAchY58 censAchU2 censAchV2)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX45 censAchY58 censAchU2 censAchV2)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX45 censAchY58 censAchU2 censAchV2) := by
+  have L := censAch_letters_mem h j censAchX45 censAchY58 censAchU2 censAchV2
+  exact censAch_lines_false_x0 (c := 3)
+    (w := commP censAchX45 censAchY58⁻¹ * commP censAchY58 censAchU2)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.1 (Subgroup.inv_mem _ L.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 59. -/
+def censAchY59 : SqU6 gr3R := ⟨0, 0, 4, 0, 2, 3, 2, 5, 7, 2, 7, 3, 3, 5, 5⟩
+
+/-- ⭐ **Census point 59 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `x0` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_59 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX45 censAchY59 censAchU2 censAchV2)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX45 censAchY59 censAchU2 censAchV2)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX45 censAchY59 censAchU2 censAchV2) := by
+  have L := censAch_letters_mem h j censAchX45 censAchY59 censAchU2 censAchV2
+  exact censAch_lines_false_x0 (c := 3)
+    (w := commP censAchX45 censAchY59⁻¹ * commP censAchY59 censAchU2)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.1 (Subgroup.inv_mem _ L.2.2.1))
+      (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 60. -/
+def censAchY60 : SqU6 gr3R := ⟨0, 0, 4, 4, 6, 7, 6, 1, 7, 2, 7, 1, 7, 7, 0⟩
+
+/-- ⭐ **Census point 60 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `x0` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_60 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX45 censAchY60 censAchU2 censAchV2)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX45 censAchY60 censAchU2 censAchV2)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX45 censAchY60 censAchU2 censAchV2) := by
+  have L := censAch_letters_mem h j censAchX45 censAchY60 censAchU2 censAchV2
+  exact censAch_lines_false_x0 (c := 3)
+    (w := commP censAchX45 censAchY60 * commP censAchY60 censAchU2⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.1 L.2.2.1)
+      (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1)))
+
+/-- The `x1` letter of census point 61. -/
+def censAchY61 : SqU6 gr3R := ⟨0, 0, 4, 4, 6, 7, 6, 1, 7, 2, 7, 1, 7, 7, 4⟩
+
+/-- ⭐ **Census point 61 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the `x0` slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_61 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX45 censAchY61 censAchU2 censAchV2)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX45 censAchY61 censAchU2 censAchV2)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX45 censAchY61 censAchU2 censAchV2) := by
+  have L := censAch_letters_mem h j censAchX45 censAchY61 censAchU2 censAchV2
+  exact censAch_lines_false_x0 (c := 3)
+    (w := commP censAchX45 censAchY61 * commP censAchY61 censAchU2⁻¹)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.1 L.2.2.1)
+      (commP_mem_commSub L.2.2.1 (Subgroup.inv_mem _ L.2.2.2.1)))
+
+/-- The `x1` letter of census point 62. -/
+def censAchY62 : SqU6 gr3R := ⟨4, 0, 4, 0, 6, 7, 4, 5, 2, 1, 1, 1, 6, 2, 0⟩
+
+/-- ⭐ **Census point 62 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_62 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY62 censAchU3 censAchV3)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY62 censAchU3 censAchV3)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY62 censAchU3 censAchV3) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY62 censAchU3 censAchV3
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY62 censAchV3 * commP censAchY62 censAchU3)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 63. -/
+def censAchY63 : SqU6 gr3R := ⟨4, 0, 4, 0, 6, 7, 4, 5, 2, 1, 1, 1, 6, 2, 4⟩
+
+/-- ⭐ **Census point 63 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `7`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_63 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY63 censAchU3 censAchV3)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY63 censAchU3 censAchV3)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY63 censAchU3 censAchV3) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY63 censAchU3 censAchV3
+  exact censAch_lines_false_sig (c := 7)
+    (w := commP censAchY63 censAchV3 * commP censAchY63 censAchU3)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.2) (commP_mem_commSub L.2.2.1 L.2.2.2.1))
+
+/-- The `x1` letter of census point 64. -/
+def censAchY64 : SqU6 gr3R := ⟨4, 0, 4, 0, 6, 3, 0, 5, 6, 5, 1, 1, 4, 6, 2⟩
+
+/-- ⭐ **Census point 64 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_64 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY64 censAchU3 censAchV3)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY64 censAchU3 censAchV3)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY64 censAchU3 censAchV3) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY64 censAchU3 censAchV3
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY64 censAchU3 * commP censAchV3 censAchY64)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 65. -/
+def censAchY65 : SqU6 gr3R := ⟨4, 0, 4, 0, 6, 3, 0, 5, 6, 5, 1, 1, 4, 6, 6⟩
+
+/-- ⭐ **Census point 65 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_65 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY65 censAchU3 censAchV3)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY65 censAchU3 censAchV3)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY65 censAchU3 censAchV3) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY65 censAchU3 censAchV3
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY65 censAchU3 * commP censAchV3 censAchY65)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 66. -/
+def censAchY66 : SqU6 gr3R := ⟨4, 0, 4, 0, 6, 3, 0, 5, 6, 1, 5, 1, 4, 6, 6⟩
+
+/-- ⭐ **Census point 66 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_66 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY66 censAchU3 censAchV3)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY66 censAchU3 censAchV3)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY66 censAchU3 censAchV3) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY66 censAchU3 censAchV3
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY66 censAchU3 * commP censAchV3 censAchY66)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+/-- The `x1` letter of census point 67. -/
+def censAchY67 : SqU6 gr3R := ⟨4, 0, 4, 0, 6, 3, 0, 5, 6, 1, 5, 1, 4, 6, 2⟩
+
+/-- ⭐ **Census point 67 is DEAD**, at every handle count and every handle: the
+displayed product of two commutators of the point's own letters is achievable, and
+dressing the sigma slot with it kills the relator outright, so all three `gamma_2`
+lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
+theorem censAch_kill_67 (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchPt h j censAchX65 censAchY67 censAchU3 censAchV3)
+      ∧ ¬ GaTwoCentral (censAchPt h j censAchX65 censAchY67 censAchU3 censAchV3)
+      ∧ ¬ GaTwoOrth (censAchPt h j censAchX65 censAchY67 censAchU3 censAchV3) := by
+  have L := censAch_letters_mem h j censAchX65 censAchY67 censAchU3 censAchV3
+  exact censAch_lines_false_sig (c := 3)
+    (w := commP censAchY67 censAchU3 * commP censAchV3 censAchY67)
+    (by decide) (by decide) (by decide)
+    (mul_mem (commP_mem_commSub L.2.2.1 L.2.2.2.1) (commP_mem_commSub L.2.2.2.2 L.2.2.1))
+
+
+end Points
+
+/-! ## 3 ⭐⭐⭐ Horn 2: the mechanism never runs out -/
+
+section HornTwo
+
+variable {h : ℕ} {j : Fin h} {c : gr3R}
+
+/-- **The census mechanism, negated, as a property of a point**: NO achievable
+`gamma_2`-dressing kills the relator - not at any slot, and not at any five-slot combination
+either.  This is the second conjunct of the wave-64 queue's HORN 2, "the lattice kills at no
+slot", read in the widest sense the definition of `GaTwoForces` uses. -/
+def CensAchNoKill {h : ℕ} (m : Fin (sqRank h) → SqU6 gr3R) : Prop :=
+  ∀ z : Fin (sqRank h) → SqU6 gr3R,
+    (∀ i, z i ∈ forceLcs (Subgroup.closure (Set.range m)) 1) →
+    sqRelWord (conFiveDress m z) ≠ 1
+
+/-- ⭐⭐ **At an ODD binder point the `gamma_2` forcing IS the absence of a kill.**  So the
+horn-2 question and the forcing question are the same question, and each of section 2's
+sixty-seven refutations is a horn-2 refutation.
+
+⭐ The proof is two lines in each direction and uses nothing about the point beyond the odd
+central residue: forcing is vacuously true when nothing kills, and one kill at an odd residue
+contradicts it. -/
+theorem censAch_noKill_iff_forces {m : Fin (sqRank h) → SqU6 gr3R}
+    (hres : sqRelWord m = SqU6.liftO c) (hodd : selPar c = 1) :
+    CensAchNoKill m ↔ GaTwoForces m := by
+  constructor
+  · exact fun hn z hz hk => absurd hk (hn z hz)
+  · intro hF z hz hk
+    have hb := hF z hz hk
+    rw [hres, SqU6.liftO_o, hodd] at hb
+    exact absurd hb (by decide)
+
+/-- ⭐⭐ **Horn 2 fails wherever a killer is exhibited.**  The bridge behind the eighteen
+knob-free points below: an achievable single-slot dressing at the sigma slot that takes
+the relator to `1` refutes `CensAchNoKill` outright. -/
+theorem censAch_not_noKill_sig {S X Y U V w : SqU6 gr3R}
+    (hkill : sqWord (S * w) X Y * commP U V = 1)
+    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
+    ¬ CensAchNoKill (fiveTuple gr3R h j S X Y U V) := by
+  intro hn
+  refine hn (cenSigDress h w) (fun i => cens_sigDress_mem_forceLcs hach i) ?_
+  rw [conFiveDress_fiveTuple_cenSigDress, sqRelWord_fiveTuple]
+  exact hkill
+
+/-- ⭐⭐ **Horn 2 at a census point, from its kill.**  The bridge `censAch_noKill_iff_forces`
+with the point's own residue supplied. -/
+theorem censAch_horn_two_of_kill {X Y U V : SqU6 gr3R} {c : gr3R}
+    (hres : sqWord (fiveSigMark gr3R * X) X Y * commP U V = SqU6.liftO c)
+    (hodd : selPar c = 1) (hF : ¬ GaTwoForces (censAchPt h j X Y U V)) :
+    ¬ CensAchNoKill (censAchPt h j X Y U V) := by
+  rw [censAch_noKill_iff_forces (c := c)
+    (by rw [censAchPt, sqRelWord_fiveTuple]; exact hres) hodd]
+  exact hF
+
+/-! ### ⚠ The eighteen points at which NO knob can kill, and which die anyway -/
+
+/-- ⭐⭐ **Census point 50 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_50 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY50 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_50 h j).1
+
+/-- ⭐⭐ **Census point 51 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_51 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY51 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_51 h j).1
+
+/-- ⭐⭐ **Census point 52 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_52 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY52 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_52 h j).1
+
+/-- ⭐⭐ **Census point 53 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_53 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY53 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_53 h j).1
+
+/-- ⭐⭐ **Census point 54 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_54 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY54 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_54 h j).1
+
+/-- ⭐⭐ **Census point 55 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_55 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY55 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_55 h j).1
+
+/-- ⭐⭐ **Census point 56 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_56 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY56 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_56 h j).1
+
+/-- ⭐⭐ **Census point 57 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_57 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY57 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_57 h j).1
+
+/-- ⭐⭐ **Census point 58 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_58 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY58 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_58 h j).1
+
+/-- ⭐⭐ **Census point 59 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_59 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY59 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_59 h j).1
+
+/-- ⭐⭐ **Census point 60 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_60 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY60 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_60 h j).1
+
+/-- ⭐⭐ **Census point 61 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_61 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY61 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_61 h j).1
+
+/-- ⭐⭐ **Census point 62 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_62 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY62 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_62 h j).1
+
+/-- ⭐⭐ **Census point 63 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_63 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY63 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_63 h j).1
+
+/-- ⭐⭐ **Census point 64 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_64 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY64 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_64 h j).1
+
+/-- ⭐⭐ **Census point 65 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_65 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY65 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_65 h j).1
+
+/-- ⭐⭐ **Census point 66 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_66 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY66 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_66 h j).1
+
+/-- ⭐⭐ **Census point 67 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_67 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY67 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_67 h j).1
+
+end HornTwo
+
+/-! ## 4 ⭐⭐⭐ The gauge: an UNGAUGED binder point dies too -/
+
+section Gauge
+
+variable {h : ℕ} {j : Fin h}
+
+variable (h j) in
+/-- **W65-HORN1's ungauged binder point**, the counterexample that made the gauge `2 ∣ s.e`
+a hypothesis of horn 1: all five letters on `stageN1`, the bare frame killing the relator
+outright, the diagonally dressed frame carrying the odd central relator `liftO 1`, and the
+sigma knob's GEARING `censHornCexX'.e` EVEN.  `GradedCensusHorn.censHorn_binder_cex` is the
+point; this is its diagonally dressed frame as a marking. -/
+def censAchCexPt : Fin (sqRank h) → SqU6 gr3R :=
+  fiveTuple gr3R h j (censHornCexSig * censHornCexX') censHornCexX' 1 censHornCexU censHornCexV
+
+/-- ⭐ **The sigma knob is DEAD at the ungauged point**, and not merely unachievable: its
+gearing is EVEN, so its central translation `liftO (x0.e * t)` is even for **every** `t` and
+can never cancel the odd residue `1`.  ⭐ No lattice computation enters - this is
+`GradedGammaTwoCensus.censKnob_shift_even_of_gear_even` at the point. -/
+theorem censAch_cex_sigKnob_dead (t : gr3R) : selPar (censHornCexX'.e * t) = 0 :=
+  censKnob_shift_even_of_gear_even (by decide) t
+
+/-- ⭐⭐⭐ **THE UNGAUGED BINDER POINT IS KILLED ANYWAY.**  At `censHorn_binder_cex`, where
+horn 1 is FALSE and the sigma knob is dead, the single commutator `commP x0 S` of the point's
+own two core letters - `S` its sigma slot `censHornCexSig * censHornCexX'` - is achievable and,
+dressed onto that slot, takes the relator to `1`.
+So all three `gamma_2` lines fail there, at every handle count and every handle.
+
+⭐⭐ **The verdict on the named open.**  `GradedCensusHorn` closed with "whether an ungauged
+binder point could still be killed by some other dressing is not decided here".  It can: the
+gauge `2 ∣ s.e` is necessary for horn 1's STATEMENT and for its proof, and it is NOT necessary
+for the census.  The parity horn and the census verdict come apart exactly here. -/
+theorem censAch_cex_lines_false (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchCexPt h j) ∧ ¬ GaTwoCentral (censAchCexPt h j)
+      ∧ ¬ GaTwoOrth (censAchCexPt h j) := by
+  have L := censAch_fiveTuple_letters_mem h j (censHornCexSig * censHornCexX') censHornCexX' 1
+    censHornCexU censHornCexV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censHornCexX' (censHornCexSig * censHornCexX'))
+    (by decide) (by decide) (by decide) (commP_mem_commSub L.2.1 L.1)
+
+/-- ⭐⭐ **…so the ungauged point is not a horn-2 witness either**, even though all three of
+its knobs are silent. -/
+theorem censAch_cex_not_noKill (h : ℕ) (j : Fin h) : ¬ CensAchNoKill (censAchCexPt h j) := by
+  have L := censAch_fiveTuple_letters_mem h j (censHornCexSig * censHornCexX') censHornCexX' 1
+    censHornCexU censHornCexV
+  exact censAch_not_noKill_sig
+    (w := commP censHornCexX' (censHornCexSig * censHornCexX')) (by decide)
+    (commP_mem_commSub L.2.1 L.1)
+
+end Gauge
+
+/-! ## 5 What W65-SHARPEN's primed bound says at a census point -/
+
+section Sharp
+
+variable {h : ℕ} {j : Fin h}
+
+/-- Every slot of a one-handle-live tuple is one of its five letters or trivial.
+(`GradedFiveLive`'s copy is `private`, so this one is rebuilt here.) -/
+theorem censAch_fiveTuple_cases {R : Type} [CommRing R] {hh : ℕ} {jj : Fin hh}
+    (S X Y U V : SqU6 R) (i : Fin (sqRank hh)) :
+    fiveTuple R hh jj S X Y U V i = S ∨ fiveTuple R hh jj S X Y U V i = X
+      ∨ fiveTuple R hh jj S X Y U V i = Y ∨ fiveTuple R hh jj S X Y U V i = U
+      ∨ fiveTuple R hh jj S X Y U V i = V ∨ fiveTuple R hh jj S X Y U V i = 1 := by
+  simp only [fiveTuple]
+  split_ifs <;> tauto
+
+/-- A census point's sigma letter is on `stageN1` as soon as its `x0` letter is: `fiveSigMark`
+is `<b = 1>`, whose `(1,2)`- and `(3,4)`-columns vanish. -/
+theorem censAch_sig_mem_stageN1 {X : SqU6 gr3R} (hX : X ∈ stageN1) :
+    fiveSigMark gr3R * X ∈ stageN1 := by
+  obtain ⟨⟨s, hs⟩, ⟨t, ht⟩⟩ := mem_stageN1.mp hX
+  refine ⟨⟨s, ?_⟩, ⟨t, ?_⟩⟩
+  · rw [SqU6.mul_a, hs, show (fiveSigMark gr3R).a = 0 from rfl, zero_add]
+  · rw [SqU6.mul_c, ht, show (fiveSigMark gr3R).c = 0 from rfl, zero_add]
+
+/-- The image of a census point lies on `stageN1` as soon as its four free letters do - which
+`scripts/w66_achieve/results/achieve.txt` section 1 checks at all `67`. -/
+theorem censAch_image_le_stageN1 (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
+    (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1) :
+    Subgroup.closure (Set.range (censAchPt h j X Y U V)) ≤ stageN1 := by
+  rw [Subgroup.closure_le]
+  rintro g ⟨i, rfl⟩
+  rcases censAch_fiveTuple_cases (fiveSigMark gr3R * X) X Y U V i with
+    hc | hc | hc | hc | hc | hc <;> rw [censAchPt, hc]
+  · exact censAch_sig_mem_stageN1 hX
+  · exact hX
+  · exact hY
+  · exact hU
+  · exact hV
+  · exact one_mem _
+
+/-- ⭐⭐ **W65-SHARPEN's primed depth-one bound, at a census point**: every achievable
+`gamma_2`-dressing has `f`, `g`, `h` AND `j` even.  The committed
+`GradedFiveGammaTwo.forceLcs_one_le_stageN2` gives all of this except the `g`.
+
+⭐ This is where the sharpened lattice reaches the census.  ⚠ It is a CONTAINMENT, so it can
+show a candidate killer unachievable and can never show one achievable; the sixty-seven
+certificates of section 2 are exhibited commutators for exactly that reason. -/
+theorem censAch_dressing_even (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
+    (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1)
+    {z : SqU6 gr3R} (hz : z ∈ forceLcs (Subgroup.closure (Set.range (censAchPt h j X Y U V))) 1) :
+    (2 : gr3R) ∣ z.f ∧ (2 : gr3R) ∣ z.g ∧ (2 : gr3R) ∣ z.h ∧ (2 : gr3R) ∣ z.j :=
+  forceSharp_one_dvd (censAch_image_le_stageN1 h j hX hY hU hV) hz
+
+/-- ⭐ **The one NON-achievability this file can prove uniformly**: a candidate killer with an
+ODD `f`, `g`, `h` or `j` is not an achievable dressing at ANY census point.  ⚠ It does not
+reach the knob, whose `f`, `g`, `h` and `j` are all `0`: at a concrete point the honest lattice
+is far smaller than this bound, and the eighteen unachievable sigma knobs stay MEASURED. -/
+theorem censAch_not_achievable_of_odd (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
+    (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1)
+    {z : SqU6 gr3R} (hz : ¬ (2 : gr3R) ∣ z.f) :
+    z ∉ forceLcs (Subgroup.closure (Set.range (censAchPt h j X Y U V))) 1 :=
+  fun hm => hz (censAch_dressing_even h j hX hY hU hV hm).1
+
+end Sharp
+
+/-! ## 6 Axiom pins
+
+Committed prints for every public declaration.  All **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable, and there
+is no `native_decide`. -/
+
+section AxiomPins
+
+#print axioms censAchSlotX
+#print axioms censAchSlotX_isGaTwo
+#print axioms censAchSlotX_mem_forceLcs
+#print axioms conFiveDress_fiveTuple_censAchSlotX
+#print axioms censAch_sigDress_isGaTwo
+#print axioms censAch_liftO_neg
+#print axioms censAch_lines_false_sig
+#print axioms censAch_lines_false_x0
+#print axioms censAch_lines_false_u
+#print axioms censAch_lines_false_v
+#print axioms censAchPt
+#print axioms censAch_fiveTuple_letters_mem
+#print axioms censAch_letters_mem
+#print axioms censAchX21
+#print axioms censAchX23
+#print axioms censAchX25
+#print axioms censAchX27
+#print axioms censAchX61
+#print axioms censAchX63
+#print axioms censAchX65
+#print axioms censAchX67
+#print axioms censAchX45
+#print axioms censAchU1
+#print axioms censAchV1
+#print axioms censAchU2
+#print axioms censAchV2
+#print axioms censAchU3
+#print axioms censAchV3
+#print axioms censAch_kill_01
+#print axioms censAchY02
+#print axioms censAch_kill_02
+#print axioms censAchY03
+#print axioms censAch_kill_03
+#print axioms censAchY04
+#print axioms censAch_kill_04
+#print axioms censAchY05
+#print axioms censAch_kill_05
+#print axioms censAchY06
+#print axioms censAch_kill_06
+#print axioms censAchY07
+#print axioms censAch_kill_07
+#print axioms censAchY08
+#print axioms censAch_kill_08
+#print axioms censAchY09
+#print axioms censAch_kill_09
+#print axioms censAchY10
+#print axioms censAch_kill_10
+#print axioms censAchY11
+#print axioms censAch_kill_11
+#print axioms censAchY12
+#print axioms censAch_kill_12
+#print axioms censAchY13
+#print axioms censAch_kill_13
+#print axioms censAchY14
+#print axioms censAch_kill_14
+#print axioms censAchY15
+#print axioms censAch_kill_15
+#print axioms censAchY16
+#print axioms censAch_kill_16
+#print axioms censAchY17
+#print axioms censAch_kill_17
+#print axioms censAchY18
+#print axioms censAch_kill_18
+#print axioms censAchY19
+#print axioms censAch_kill_19
+#print axioms censAchY20
+#print axioms censAch_kill_20
+#print axioms censAchY21
+#print axioms censAch_kill_21
+#print axioms censAchY22
+#print axioms censAch_kill_22
+#print axioms censAchY23
+#print axioms censAch_kill_23
+#print axioms censAchY24
+#print axioms censAch_kill_24
+#print axioms censAchY25
+#print axioms censAch_kill_25
+#print axioms censAchY26
+#print axioms censAch_kill_26
+#print axioms censAchY27
+#print axioms censAch_kill_27
+#print axioms censAchY28
+#print axioms censAch_kill_28
+#print axioms censAchY29
+#print axioms censAch_kill_29
+#print axioms censAchY30
+#print axioms censAch_kill_30
+#print axioms censAchY31
+#print axioms censAch_kill_31
+#print axioms censAchY32
+#print axioms censAch_kill_32
+#print axioms censAchY33
+#print axioms censAch_kill_33
+#print axioms censAchY34
+#print axioms censAch_kill_34
+#print axioms censAchY35
+#print axioms censAch_kill_35
+#print axioms censAchY36
+#print axioms censAch_kill_36
+#print axioms censAchY37
+#print axioms censAch_kill_37
+#print axioms censAchY38
+#print axioms censAch_kill_38
+#print axioms censAchY39
+#print axioms censAch_kill_39
+#print axioms censAchY40
+#print axioms censAch_kill_40
+#print axioms censAchY41
+#print axioms censAch_kill_41
+#print axioms censAchY42
+#print axioms censAch_kill_42
+#print axioms censAchY43
+#print axioms censAch_kill_43
+#print axioms censAchY44
+#print axioms censAch_kill_44
+#print axioms censAchY45
+#print axioms censAch_kill_45
+#print axioms censAchY46
+#print axioms censAch_kill_46
+#print axioms censAchY47
+#print axioms censAch_kill_47
+#print axioms censAchY48
+#print axioms censAch_kill_48
+#print axioms censAchY49
+#print axioms censAch_kill_49
+#print axioms censAchY50
+#print axioms censAchW50
+#print axioms censAch_kill_50
+#print axioms censAchY51
+#print axioms censAchW51
+#print axioms censAch_kill_51
+#print axioms censAchY52
+#print axioms censAchW52
+#print axioms censAch_kill_52
+#print axioms censAchY53
+#print axioms censAchW53
+#print axioms censAch_kill_53
+#print axioms censAchY54
+#print axioms censAchW54
+#print axioms censAch_kill_54
+#print axioms censAchY55
+#print axioms censAchW55
+#print axioms censAch_kill_55
+#print axioms censAchY56
+#print axioms censAch_kill_56
+#print axioms censAchY57
+#print axioms censAch_kill_57
+#print axioms censAchY58
+#print axioms censAch_kill_58
+#print axioms censAchY59
+#print axioms censAch_kill_59
+#print axioms censAchY60
+#print axioms censAch_kill_60
+#print axioms censAchY61
+#print axioms censAch_kill_61
+#print axioms censAchY62
+#print axioms censAch_kill_62
+#print axioms censAchY63
+#print axioms censAch_kill_63
+#print axioms censAchY64
+#print axioms censAch_kill_64
+#print axioms censAchY65
+#print axioms censAch_kill_65
+#print axioms censAchY66
+#print axioms censAch_kill_66
+#print axioms censAchY67
+#print axioms censAch_kill_67
+#print axioms CensAchNoKill
+#print axioms censAch_noKill_iff_forces
+#print axioms censAch_not_noKill_sig
+#print axioms censAch_horn_two_of_kill
+#print axioms censAch_horn_two_50
+#print axioms censAch_horn_two_51
+#print axioms censAch_horn_two_52
+#print axioms censAch_horn_two_53
+#print axioms censAch_horn_two_54
+#print axioms censAch_horn_two_55
+#print axioms censAch_horn_two_56
+#print axioms censAch_horn_two_57
+#print axioms censAch_horn_two_58
+#print axioms censAch_horn_two_59
+#print axioms censAch_horn_two_60
+#print axioms censAch_horn_two_61
+#print axioms censAch_horn_two_62
+#print axioms censAch_horn_two_63
+#print axioms censAch_horn_two_64
+#print axioms censAch_horn_two_65
+#print axioms censAch_horn_two_66
+#print axioms censAch_horn_two_67
+#print axioms censAchCexPt
+#print axioms censAch_cex_sigKnob_dead
+#print axioms censAch_cex_lines_false
+#print axioms censAch_cex_not_noKill
+#print axioms censAch_fiveTuple_cases
+#print axioms censAch_sig_mem_stageN1
+#print axioms censAch_image_le_stageN1
+#print axioms censAch_dressing_even
+#print axioms censAch_not_achievable_of_odd
+
+end AxiomPins
+
+
+end SqCore
+
+end Dyadic
+
+end GQ2
