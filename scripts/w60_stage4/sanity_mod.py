@@ -1,4 +1,13 @@
-"""W60-STAGE4 step 0b: the module route agrees with the honest closure at the wave-59 point."""
+"""W60-STAGE4 step 0b: the module route agrees with the honest closure at the wave-59 point.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
+"""
 import sys
 import os
 

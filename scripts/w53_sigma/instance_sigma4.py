@@ -1,4 +1,27 @@
 #!/usr/bin/env python3
+"""instance_sigma4.py.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
+"""
+
+"""instance_sigma4.py.
+"""
+
+"""instance_sigma4.py.
+"""
+
+"""instance_sigma4.py.
+"""
+
+"""instance_sigma4.py.
+"""
+
 """W53-SIGMA step 4: the class-four separation instance at h = 1, certified.
 
 The binder point (slot images of a level-one dressed frame in U5(Z/8)):

@@ -11,6 +11,14 @@ docstring makes are tested here on wave 59's honest matrices through wave 61's `
      stage-four dressing an even `j`.
   C  the docstring's reason for wave 61's `MODLOW` count of 0: `MODLOW` forces the `(1,2)`- and
      `(5,6)`-columns even at every letter, hence (by A) implies the parity line.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os, random, sys
 HERE = os.path.dirname(os.path.abspath(__file__))

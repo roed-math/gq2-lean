@@ -16,6 +16,14 @@ This file transposes the reading to U_6 (class five, fifteen coordinates) and as
 questions there.  Everything is exact integer arithmetic; the fifteen-row response is derived
 symbolically over Z, machine-emitted into `sigfive_forms.py`, and certified against honest
 group evaluation in `instance_sigma5.py` / `sweep_sigma5.py`.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys, os, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

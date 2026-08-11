@@ -1,0 +1,176 @@
+W65-CONSOL: BRACKET CONVENTION lines, one per certification script
+==============================================================================
+
+Element-level mathlib-bracket declarations in GQ2/ (the whole risk surface):
+    gapOneABr     GQ2/Dyadic/SqCore/GradedStageFour.lean
+    gapOneBBr     GQ2/Dyadic/SqCore/GradedStageFour.lean
+    gapOneW       GQ2/Dyadic/SqCore/GradedStageFourClosed.lean
+    gapTwoABr     GQ2/Dyadic/SqCore/GradedStageFour.lean
+    gapTwoBBr     GQ2/Dyadic/SqCore/GradedStageFour.lean
+    gapTwoW       GQ2/Dyadic/SqCore/GradedStageFourClosed.lean
+
+Names stated in terms of them (also risky to certify in the wrong convention):
+    gapOneA_brackets, gapOneA_brackets_raw, gapOneB_brackets, gapOneB_brackets_raw, gapOneOdd, gapOneOdd_handleU, gapOneW_shift, gapTwoA_brackets, gapTwoA_brackets_raw, gapTwoB_brackets, gapTwoB_brackets_raw, gapTwoOdd, gapTwoOdd_one, gapTwoW_shift, gapTwoW_shift'
+
+Wave directories whose Lean target is mathlib-bracketed: w63_four, w64_psi4
+
+  PAPER     rewrote  scripts/w50_depth_sweep/calibration_dihedral.py
+  NONE      rewrote  scripts/w50_depth_sweep/graded_crosscheck.py
+  NONE      rewrote  scripts/w50_depth_sweep/indep_class2.py
+  NONE      rewrote  scripts/w50_depth_sweep/padic_c0.py
+  NONE      rewrote  scripts/w52_lift/certs_u5.py
+  PAPER     rewrote  scripts/w52_lift/derive_u5.py
+  PAPER     rewrote  scripts/w52_lift/sweep2_u5.py
+  NONE      rewrote  scripts/w52_lift/sweep3_u5.py
+  NONE      rewrote  scripts/w52_lift/sweep4_u5.py
+  NONE      rewrote  scripts/w52_lift/sweep5_u5.py
+  PAPER     rewrote  scripts/w52_lift/sweep_u5.py
+  PAPER     rewrote  scripts/w52_lift/witness_forms.py
+  PAPER     rewrote  scripts/w53_sigma/derive_exact.py
+  PAPER     rewrote  scripts/w53_sigma/derive_sigma4.py
+  NONE      rewrote  scripts/w53_sigma/instance_sigma4.py
+  PAPER     rewrote  scripts/w53_sigma/sweep_sigma4.py
+  PAPER     rewrote  scripts/w53_sigma/u5lib.py
+  PAPER     rewrote  scripts/w55_row/derive_row.py
+  PAPER     rewrote  scripts/w55_row/instance_row.py
+  PAPER     rewrote  scripts/w55_row/sweep_row.py
+  PAPER     rewrote  scripts/w55_row/u5lib.py
+  PAPER     rewrote  scripts/w56_mirror/derive_mirror.py
+  PAPER     rewrote  scripts/w56_mirror/instance_mirror.py
+  PAPER     rewrote  scripts/w56_mirror/sweep_mirror.py
+  PAPER     rewrote  scripts/w56_mirror/u5lib.py
+  NONE      rewrote  scripts/w56_slotzero/step.py
+  PAPER     rewrote  scripts/w56_widen/widen_core.py
+  PAPER     rewrote  scripts/w56_widen/widen_gens.py
+  PAPER     rewrote  scripts/w56_widen/widen_sweep.py
+  PAPER     rewrote  scripts/w57_cleared/derive_cleared.py
+  PAPER     rewrote  scripts/w57_cleared/instance_cleared.py
+  PAPER     rewrote  scripts/w57_cleared/poly.py
+  PAPER     rewrote  scripts/w57_cleared/sweep_cleared.py
+  PAPER     rewrote  scripts/w57_cleared/u5lib.py
+  PAPER     rewrote  scripts/w58_five/derive_u6.py
+  PAPER     rewrote  scripts/w58_five/emit_lean.py
+  PAPER     rewrote  scripts/w58_five/live_five.py
+  PAPER     rewrote  scripts/w58_five/validate_u6.py
+  NONE      rewrote  scripts/w58_sigma5/derive_sigma5.py
+  PAPER     rewrote  scripts/w58_sigma5/instance_sigma5.py
+  PAPER     rewrote  scripts/w58_sigma5/poly6.py
+  NONE      rewrote  scripts/w58_sigma5/sigfive_forms.py
+  PAPER     rewrote  scripts/w58_sigma5/sweep_sigma5.py
+  PAPER     rewrote  scripts/w58_sigma5/u6lib.py
+  PAPER     rewrote  scripts/w58_sigma5/unilib.py
+  PAPER     rewrote  scripts/w58_twolive/derive_twolive.py
+  PAPER     rewrote  scripts/w58_twolive/instance_twolive.py
+  PAPER     rewrote  scripts/w58_twolive/poly.py
+  PAPER     rewrote  scripts/w58_twolive/sweep_twolive.py
+  PAPER     rewrote  scripts/w58_twolive/u5lib.py
+  PAPER     rewrote  scripts/w59_blind5/derive_blind5.py
+  PAPER     rewrote  scripts/w59_blind5/probe_blind5.py
+  PAPER     rewrote  scripts/w59_blind5/u6lib.py
+  PAPER     rewrote  scripts/w59_defect5/derive_defect5.py
+  NONE      rewrote  scripts/w59_defect5/derive_transport.py
+  NONE      rewrote  scripts/w59_defect5/emit_lean.py
+  PAPER     rewrote  scripts/w59_defect5/u6poly.py
+  PAPER     rewrote  scripts/w59_defect5/validate_defect5.py
+  PAPER     rewrote  scripts/w59_force5/gamma3_witness.py
+  PAPER-RAW rewrote  scripts/w59_force5/scope_probe.py
+  PAPER     rewrote  scripts/w59_force5/u6mat.py
+  PAPER-RAW rewrote  scripts/w59_force5/verify_force5.py
+  IMMUNE    rewrote  scripts/w59_invariant/derive_necessity.py
+  PAPER     rewrote  scripts/w59_invariant/instance_necessity.py
+  PAPER     rewrote  scripts/w59_invariant/sweep_necessity.py
+  IMMUNE    rewrote  scripts/w59_invariant/u5lib.py
+  PAPER     rewrote  scripts/w60_hom5/verify_frame5.py
+  NONE      rewrote  scripts/w60_sharp5/column_table.py
+  PAPER     rewrote  scripts/w60_sharp5/fastu6.py
+  NONE      rewrote  scripts/w60_sharp5/find_points.py
+  PAPER-RAW rewrote  scripts/w60_sharp5/points_sharp5.py
+  PAPER-RAW rewrote  scripts/w60_sharp5/refine_points.py
+  PAPER-RAW rewrote  scripts/w60_sharp5/sharp5lib.py
+  NONE      rewrote  scripts/w60_sharp5/sweep_sharp5.py
+  PAPER     rewrote  scripts/w60_stage4/derive_chain.py
+  PAPER     rewrote  scripts/w60_stage4/derive_stage4.py
+  NONE      rewrote  scripts/w60_stage4/diagnose.py
+  PAPER-RAW rewrote  scripts/w60_stage4/gam3lib.py
+  PAPER     rewrote  scripts/w60_stage4/modlib.py
+  NONE      rewrote  scripts/w60_stage4/nudge.py
+  PAPER-RAW rewrote  scripts/w60_stage4/pointlib.py
+  NONE      rewrote  scripts/w60_stage4/sanity.py
+  NONE      rewrote  scripts/w60_stage4/sanity_mod.py
+  NONE      rewrote  scripts/w60_stage4/search_clean.py
+  PAPER     rewrote  scripts/w60_stage4/search_point.py
+  PAPER     rewrote  scripts/w60_stage4/sparsify.py
+  PAPER-RAW rewrote  scripts/w60_stage4/validate_stage4.py
+  PAPER     rewrote  scripts/w60_stage4/verify_point.py
+  PAPER     rewrote  scripts/w61_block/blocklib.py
+  PAPER     rewrote  scripts/w61_block/census_block.py
+  NONE      rewrote  scripts/w61_block/derive_block.py
+  PAPER     rewrote  scripts/w61_block/forcing_block.py
+  PAPER-RAW rewrote  scripts/w61_sharp4/find_half_point.py
+  PAPER-RAW rewrote  scripts/w61_sharp4/find_orth_point.py
+  PAPER-RAW rewrote  scripts/w61_sharp4/find_points.py
+  NONE      rewrote  scripts/w61_sharp4/hunt_gap.py
+  NONE      rewrote  scripts/w61_sharp4/hunt_ucen.py
+  PAPER-RAW rewrote  scripts/w61_sharp4/sharp4lib.py
+  NONE      rewrote  scripts/w61_sharp4/sweep_sharp4.py
+  PAPER-RAW rewrote  scripts/w61_sharp4/validate_sharp4.py
+  PAPER-RAW rewrote  scripts/w61_stagehom/verify_stagehom.py
+  PAPER     rewrote  scripts/w61_wider/assemble_lean.py
+  PAPER     rewrote  scripts/w61_wider/census_fast.py
+  PAPER     rewrote  scripts/w61_wider/derive_assemble.py
+  PAPER     rewrote  scripts/w61_wider/derive_blocks.py
+  PAPER     rewrote  scripts/w61_wider/derive_split.py
+  PAPER     rewrote  scripts/w61_wider/derive_wider.py
+  NONE      rewrote  scripts/w61_wider/emit_lean.py
+  PAPER     rewrote  scripts/w61_wider/emit_soundness.py
+  NONE      rewrote  scripts/w61_wider/forms.py
+  PAPER     rewrote  scripts/w61_wider/parity.py
+  NONE      rewrote  scripts/w61_wider/parity_blocks.py
+  PAPER     rewrote  scripts/w61_wider/validate_wider.py
+  PAPER     rewrote  scripts/w61_wider/wlib.py
+  PAPER     rewrote  scripts/w62_channels/census_points.py
+  PAPER     rewrote  scripts/w62_channels/chanlib.py
+  PAPER     rewrote  scripts/w62_channels/derive_channels.py
+  NONE      rewrote  scripts/w62_channels/sweep_f2.py
+  PAPER     rewrote  scripts/w62_counthom/verify_counthom.py
+  NONE      rewrote  scripts/w62_separate/check_ae.py
+  NONE      rewrote  scripts/w62_separate/diagnose.py
+  PAPER-RAW rewrote  scripts/w62_separate/feasible2.py
+  PAPER     rewrote  scripts/w62_separate/feasible3.py
+  PAPER-RAW rewrote  scripts/w62_separate/find_sep3.py
+  NONE      rewrote  scripts/w62_separate/inspect_four.py
+  PAPER     rewrote  scripts/w62_separate/mod2_probe.py
+  PAPER-RAW rewrote  scripts/w62_separate/verify_sep.py
+  IMMUNE    rewrote  scripts/w63_central2/centrallib.py
+  IMMUNE    rewrote  scripts/w63_central2/derive_central2.py
+  PAPER     rewrote  scripts/w63_central2/sweep_sigma.py
+  MATHLIB   rewrote  scripts/w63_four/certify.py
+  PAPER     rewrote  scripts/w63_four/chain_bound.py
+  IMMUNE    rewrote  scripts/w63_four/fourlib.py
+  NONE      rewrote  scripts/w63_four/lean_match.py
+  PAPER     rewrote  scripts/w63_four/normal_chain.py
+  PAPER     rewrote  scripts/w63_live5/derive_live5.py
+  NONE      rewrote  scripts/w63_live5/h0_sweep.py
+  PAPER     rewrote  scripts/w63_live5/livelib.py
+  PAPER     rewrote  scripts/w63_live5/minimise_live5.py
+  PAPER     rewrote  scripts/w63_live5/verify_live5.py
+  PAPER     rewrote  scripts/w63_second/census_second.py
+  PAPER     rewrote  scripts/w63_second/derive_second.py
+  NONE      rewrote  scripts/w63_second/pair_second.py
+  PAPER     rewrote  scripts/w63_second/secondlib.py
+  PAPER     rewrote  scripts/w64_census5/census.py
+  IMMUNE    rewrote  scripts/w64_census5/censuslib.py
+  PAPER     rewrote  scripts/w64_census5/derive_census.py
+  MATHLIB   rewrote  scripts/w64_psi4/close.py
+  NONE      rewrote  scripts/w64_psi4/derive.py
+  NONE      rewrote  scripts/w64_psi4/psilib.py
+  NONE      rewrote  scripts/w64_sep0h/derive_sep0h.py
+  PAPER     rewrote  scripts/w64_sep0h/seplib.py
+  PAPER     rewrote  scripts/w64_sep0h/sweep_sep0h.py
+  IMMUNE    rewrote  scripts/w64_verify/task_a_audit.py
+  IMMUNE    rewrote  scripts/w64_verify/task_b_live5_kill.py
+  NONE      rewrote  scripts/w64_verify/task_c_legality.py
+  PAPER-RAW rewrote  scripts/w64_verify/task_e_bracket_convention.py
+
+totals: IMMUNE=8, MATHLIB=2, NONE=39, PAPER=90, PAPER-RAW=18
+scripts touched: 157

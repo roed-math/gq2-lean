@@ -16,6 +16,15 @@ over eight different moduli so the ring-generic claim is tested and not asserted
      lattice's class-four parity is decided by the ten pairwise commutators.
   5. LIVENESS AND `x0.e`.  The measured half of the census criterion: at a point whose undressed
      frame kills and whose `a0 = a1` frame is central, an EVEN `x0.e` forces an EVEN residue.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import random

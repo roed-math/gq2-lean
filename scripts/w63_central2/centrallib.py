@@ -14,6 +14,16 @@ class (a b c d e | f g h i | j k l | m n | o), so an element that vanishes in ev
 before position `k` adds exactly at position `k`: within one class the group law is addition.
 That makes the standard induced-polycyclic-sequence algorithm exact, with one table row per
 (coordinate, 2-valuation) pair, hence at most 45 rows and a subgroup order of `2^(#rows)`.
+
+BRACKET CONVENTION.  [IMMUNE]
+This script only ever sifts brackets into a closure, which is convention-IMMUNE (the
+generated subgroup is the same in either convention), so nothing here depends on the
+choice.  Its Lean target is written with commP.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import sys

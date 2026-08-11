@@ -27,6 +27,16 @@ leading coordinate has class 2, 3, 4, 5 respectively.  A + B + C then say the se
 by class, and D collapses the last three stages to linear algebra over `Z/8`: only the class-two
 layer needs brute force, so one point costs `2^(#class-two rows)` relator evaluations instead of
 the whole lattice.
+
+BRACKET CONVENTION.  [IMMUNE]
+This script only ever sifts brackets into a closure, which is convention-IMMUNE (the
+generated subgroup is the same in either convention), so nothing here depends on the
+choice.  Its Lean target is written with commP.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import sys

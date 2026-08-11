@@ -19,6 +19,17 @@ Sections:
   D  the achievable stage-four lattice at the new point, and the exclusion re-run
   E  the legal-dressing census, EXHAUSTIVE over `gamma_2` of the image at both points
   F  the commutator repair, old point versus new point
+
+BRACKET CONVENTION.  [PAPER-RAW]
+This script builds RAW nested bracket sets, and its Lean target is written with commP,
+so the paper convention is the right one to compute.  Raw bracket sets are the only
+computations in this tree that can be wrong about the convention: check this line
+before repointing the script at a [.,.]-written statement.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import sys

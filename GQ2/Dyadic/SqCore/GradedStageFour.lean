@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
+import GQ2.Dyadic.SqCore.GradedLcsGens
 import GQ2.Dyadic.SqCore.GradedStageSeparate
 
 /-!
@@ -28,11 +29,18 @@ Wave 62's three impossibility measurements are all measurements about that `K0`.
 ⭐⭐⭐ `le_of_gens_three` / `forceLcs_two_le_of_gens`: if `K` is **normalised by** `closure S`
 and contains the weight-three bracket `[[s, t], u]` of every triple of GENERATORS, then
 `[[closure S, closure S], closure S] <= K`.  No `K0` appears.  The proof is two reductions to
-generators, `commutator_mem_of_gens_left` and `commutator_mem_of_gens_right`, each of which
-works because `{g normalising K : [p, g] in K}` is a subgroup - the identities
+generators, `LcsGens.commutator_mem_of_gens_left` and `LcsGens.commutator_mem_of_gens_right`,
+each of which works because `{g normalising K : [p, g] in K}` is a subgroup - the identities
 `[p, u v] = [p, u] * (u [p, v] u⁻¹)` and `[p q, u] = (p [q, u] p⁻¹) * [p, u]` need exactly
-the normalisation and nothing else - and the middle term of the chain is `commAll K H`,
-itself normalised by `H`.
+the normalisation and nothing else - and the middle term of the chain is
+`LcsGens.commAll K H`, itself normalised by `H`.
+
+⚠ **W65-CONSOL: the reduction itself now lives in `GradedLcsGens`, at arbitrary depth.**  This
+file kept root-level copies of `subset_normalizer_of_conj`, `commLeft`, `commRight`, `commAll`
+and their API until wave 65.  `LcsGens.lcsSeries_le_of_gens` subsumes all of them, Mathlib's
+`Subgroup.le_set_normalizer_iff` subsumes `subset_normalizer_of_conj`, and the copies are gone;
+`le_of_gens_three` and `forceLcs_two_le_of_gens` survive as the tree's committed names for the
+depth-two case and delegate.
 
 ⚠ **The normalisation is load-bearing and it is normalisation by the IMAGE, not by the whole
 carrier.**  Measured (`scripts/w63_four/results/normal_chain.txt`): at `gap-2` the smallest
@@ -129,7 +137,8 @@ the only part offered for reuse.
 
 ## Merge notes
 
-Reused: `forceLcs`, `isGaThree_of_mem_forceLcs`, `SqU6.IsGaThree`, `SqU6.isGaThree_one`,
+Reused: `LcsGens.le_of_gens_three` (`GradedLcsGens`), `Subgroup.le_set_normalizer_iff`
+(Mathlib); `forceLcs`, `isGaThree_of_mem_forceLcs`, `SqU6.IsGaThree`, `SqU6.isGaThree_one`,
 `SqU6.IsGaThree.mul`, `SqU6.gaThree_mul_k/_l/_m/_n`, `gaThreeShift`, `sqRelWord_gaThreeDress`
 (`GradedFiveStageFour`, `GradedFiveForce`, `GradedStageNecessity`); `StageForces`
 (`GradedStageNecessity`); `fiveTuple`, `sqRelWord_fiveTuple`, `sqRank`, `SqU6.liftO`
@@ -140,8 +149,9 @@ Reused: `forceLcs`, `isGaThree_of_mem_forceLcs`, `SqU6.IsGaThree`, `SqU6.isGaThr
 ## Axiom hygiene
 
 No `sorry`, no new axiom, no `native_decide`; every `decide` is on `ZMod 8`, `Fin 6` or tuples
-over them.  All **75** committed prints are subsets of `[propext, Classical.choice, Quot.sound]`:
-`31` std-3, `39` `propext` + `Quot.sound`, `5` `propext` alone.  No census axiom is consumed.
+over them.  All **65** committed prints are subsets of `[propext, Classical.choice, Quot.sound]`:
+`22` std-3, `38` `propext` + `Quot.sound`, `5` `propext` alone.  No census axiom is consumed.
+(Wave 65 retired ten duplicated helpers and their ten prints; the count was `75`.)
 -/
 
 open scoped commutatorElement
@@ -158,108 +168,7 @@ namespace SqCore
 
 section GenReduce
 
-variable {G : Type*} [Group G] {K H : Subgroup G} {S : Set G}
-
-/-- Conjugation-stability upgrades to membership of the normaliser, because the inverse of a
-normalising element normalises too. -/
-theorem subset_normalizer_of_conj {N : Subgroup G}
-    (h : ∀ g ∈ H, ∀ x ∈ N, g * x * g⁻¹ ∈ N) :
-    (H : Set G) ⊆ Subgroup.normalizer (N : Set G) := by
-  intro g hg
-  rw [SetLike.mem_coe] at hg ⊢
-  rw [Subgroup.mem_normalizer_iff]
-  refine fun x => ⟨fun hx => h g hg x hx, fun hx => ?_⟩
-  simpa [mul_assoc] using h g⁻¹ (inv_mem hg) _ hx
-
-/-- `{g normalising K : [g, t] in K}`.  A subgroup, because
-`[p * q, t] = (p * [q, t] * p⁻¹) * [p, t]` and `p` normalises `K`. -/
-def commLeft (K : Subgroup G) (t : G) : Subgroup G where
-  carrier := {g | g ∈ Subgroup.normalizer (K : Set G) ∧ ⁅g, t⁆ ∈ K}
-  mul_mem' := by
-    rintro p q ⟨hp, hpt⟩ ⟨hq, hqt⟩
-    refine ⟨mul_mem hp hq, ?_⟩
-    have hid : ⁅p * q, t⁆ = p * ⁅q, t⁆ * p⁻¹ * ⁅p, t⁆ := by group
-    exact hid ▸ mul_mem ((Subgroup.mem_normalizer_iff.mp hp _).mp hqt) hpt
-  one_mem' := ⟨one_mem _, by rw [commutatorElement_one_left]; exact one_mem _⟩
-  inv_mem' := by
-    rintro p ⟨hp, hpt⟩
-    refine ⟨inv_mem hp, ?_⟩
-    have hid : ⁅p⁻¹, t⁆ = p⁻¹ * ⁅p, t⁆⁻¹ * p⁻¹⁻¹ := by group
-    exact hid ▸ (Subgroup.mem_normalizer_iff.mp (inv_mem hp) _).mp (inv_mem hpt)
-
-theorem mem_commLeft {t g : G} :
-    g ∈ commLeft K t ↔ g ∈ Subgroup.normalizer (K : Set G) ∧ ⁅g, t⁆ ∈ K := Iff.rfl
-
-/-- `{g normalising K : [p, g] in K}`.  A subgroup, because
-`[p, u * v] = [p, u] * (u * [p, v] * u⁻¹)` and `u` normalises `K`. -/
-def commRight (K : Subgroup G) (p : G) : Subgroup G where
-  carrier := {g | g ∈ Subgroup.normalizer (K : Set G) ∧ ⁅p, g⁆ ∈ K}
-  mul_mem' := by
-    rintro u v ⟨hu, hpu⟩ ⟨hv, hpv⟩
-    refine ⟨mul_mem hu hv, ?_⟩
-    have hid : ⁅p, u * v⁆ = ⁅p, u⁆ * (u * ⁅p, v⁆ * u⁻¹) := by group
-    exact hid ▸ mul_mem hpu ((Subgroup.mem_normalizer_iff.mp hu _).mp hpv)
-  one_mem' := ⟨one_mem _, by rw [commutatorElement_one_right]; exact one_mem _⟩
-  inv_mem' := by
-    rintro u ⟨hu, hpu⟩
-    refine ⟨inv_mem hu, ?_⟩
-    have hid : ⁅p, u⁻¹⁆ = u⁻¹ * ⁅p, u⁆⁻¹ * u⁻¹⁻¹ := by group
-    exact hid ▸ (Subgroup.mem_normalizer_iff.mp (inv_mem hu) _).mp (inv_mem hpu)
-
-theorem mem_commRight {p g : G} :
-    g ∈ commRight K p ↔ g ∈ Subgroup.normalizer (K : Set G) ∧ ⁅p, g⁆ ∈ K := Iff.rfl
-
-/-- ⭐ **Reduction on the right**: a commutator into a subgroup normalised by `closure S` need
-only be tested against the generators `S`. -/
-theorem commutator_mem_of_gens_right
-    (hS : S ⊆ Subgroup.normalizer (K : Set G)) {p : G}
-    (hp : ∀ t ∈ S, ⁅p, t⁆ ∈ K) {u : G} (hu : u ∈ Subgroup.closure S) :
-    ⁅p, u⁆ ∈ K :=
-  (mem_commRight.mp
-    ((Subgroup.closure_le (commRight K p)).mpr
-      (fun t ht => mem_commRight.mpr ⟨hS ht, hp t ht⟩) hu)).2
-
-/-- ⭐ **Reduction on the left**: …and only against the generators on the left as well. -/
-theorem commutator_mem_of_gens_left
-    (hS : S ⊆ Subgroup.normalizer (K : Set G)) {t : G}
-    (ht : ∀ s ∈ S, ⁅s, t⁆ ∈ K) {p : G} (hp : p ∈ Subgroup.closure S) :
-    ⁅p, t⁆ ∈ K :=
-  (mem_commLeft.mp
-    ((Subgroup.closure_le (commLeft K t)).mpr
-      (fun s hs => mem_commLeft.mpr ⟨hS hs, ht s hs⟩) hp)).2
-
-/-- `{p normalising K : [p, u] in K for every u in H}`: where the middle term of the chain has
-to land. -/
-def commAll (K H : Subgroup G) : Subgroup G where
-  carrier := {p | p ∈ Subgroup.normalizer (K : Set G) ∧ ∀ u ∈ H, ⁅p, u⁆ ∈ K}
-
-  mul_mem' := by
-    rintro p q ⟨hp, hpu⟩ ⟨hq, hqu⟩
-    refine ⟨mul_mem hp hq, fun u hu => ?_⟩
-    have hid : ⁅p * q, u⁆ = p * ⁅q, u⁆ * p⁻¹ * ⁅p, u⁆ := by group
-    exact hid ▸ mul_mem ((Subgroup.mem_normalizer_iff.mp hp _).mp (hqu u hu)) (hpu u hu)
-  one_mem' := ⟨one_mem _, fun u _ => by rw [commutatorElement_one_left]; exact one_mem _⟩
-  inv_mem' := by
-    rintro p ⟨hp, hpu⟩
-    refine ⟨inv_mem hp, fun u hu => ?_⟩
-    have hid : ⁅p⁻¹, u⁆ = p⁻¹ * ⁅p, u⁆⁻¹ * p⁻¹⁻¹ := by group
-    exact hid ▸ (Subgroup.mem_normalizer_iff.mp (inv_mem hp) _).mp (inv_mem (hpu u hu))
-
-theorem mem_commAll {p : G} :
-    p ∈ commAll K H ↔ p ∈ Subgroup.normalizer (K : Set G) ∧ ∀ u ∈ H, ⁅p, u⁆ ∈ K :=
-  Iff.rfl
-
-/-- `commAll K H` is normalised by `H` as soon as `K` is: the conjugation passes through both
-arguments, `[r x r⁻¹, u] = r * [x, r⁻¹ u r] * r⁻¹`. -/
-theorem le_normalizer_commAll
-    (hH : (H : Set G) ⊆ Subgroup.normalizer (K : Set G)) :
-    (H : Set G) ⊆ Subgroup.normalizer ((commAll K H : Subgroup G) : Set G) := by
-  refine subset_normalizer_of_conj (H := H) fun r hr x hx => ?_
-  obtain ⟨hxn, hxu⟩ := mem_commAll.mp hx
-  refine mem_commAll.mpr ⟨mul_mem (mul_mem (hH hr) hxn) (inv_mem (hH hr)), fun u hu => ?_⟩
-  have hid : ⁅r * x * r⁻¹, u⁆ = r * ⁅x, r⁻¹ * u * r⁆ * r⁻¹ := by group
-  exact hid ▸ (Subgroup.mem_normalizer_iff.mp (hH hr) _).mp
-    (hxu _ (mul_mem (mul_mem (inv_mem hr) hu) hr))
+variable {G : Type*} [Group G]
 
 /-- ⭐⭐⭐ **THE GENERATOR REDUCTION FOR THE STAGE-FOUR LATTICE.**  If `K` is normalised by the
 image `closure S` and contains the weight-three bracket `[[s, t], u]` of every triple of
@@ -270,35 +179,16 @@ This is what stops the argument from relaxing the achievable lattice: the bound 
 not mod `2` or mod `4`.  ⚠ It is a one-sided containment, and it does **not** by itself say that
 the reduction loses nothing; that the bracket condition is not merely sufficient but EQUIVALENT
 to containing the series term, among subgroups normalised by `S`, is the separate statement
-`LcsGens.lcsSeries_le_iff_of_gens` of `GradedLcsGens`.  Both reductions are needed - the left one
-by `commLeft`, the right one by `commRight` - and both need `K` to be normalised, which is why
-the statement is about a normalised `K` rather than an arbitrary one. -/
+`LcsGens.lcsSeries_le_iff_of_gens` of `GradedLcsGens`.
+
+⚠ **W65-CONSOL.**  The proof used to be repeated here.  It is now exactly the depth-two
+case `LcsGens.le_of_gens_three`, and this declaration is retained only because it is the name
+the tree already cites. -/
 theorem le_of_gens_three {K : Subgroup G} {S : Set G}
     (hS : S ⊆ Subgroup.normalizer (K : Set G))
     (hbr : ∀ s ∈ S, ∀ t ∈ S, ∀ u ∈ S, ⁅⁅s, t⁆, u⁆ ∈ K) :
-    ⁅⁅Subgroup.closure S, Subgroup.closure S⁆, Subgroup.closure S⁆ ≤ K := by
-  set H := Subgroup.closure S with hH
-  have hHn : (H : Set G) ⊆ Subgroup.normalizer (K : Set G) := by
-    rw [hH]
-    exact fun x hx => (Subgroup.closure_le _).mpr hS hx
-  set D := commAll K H with hD
-  have hDn : (H : Set G) ⊆ Subgroup.normalizer ((D : Subgroup G) : Set G) :=
-    le_normalizer_commAll hHn
-  have hSD : S ⊆ Subgroup.normalizer ((D : Subgroup G) : Set G) := fun s hs =>
-    hDn (Subgroup.subset_closure hs)
-  -- every basic commutator lands in `D`
-  have hbase : ∀ s ∈ S, ∀ t ∈ S, ⁅s, t⁆ ∈ D := by
-    intro s hs t ht
-    refine mem_commAll.mpr ⟨mul_mem (mul_mem (mul_mem (hS hs) (hS ht)) (inv_mem (hS hs)))
-      (inv_mem (hS ht)), fun u hu => ?_⟩
-    exact commutator_mem_of_gens_right hS (fun v hv => hbr s hs t ht v hv) hu
-  -- …hence so does every commutator of the image, by the two reductions
-  have hDD : ⁅H, H⁆ ≤ D := by
-    refine Subgroup.commutator_le.mpr fun p hp q hq => ?_
-    refine commutator_mem_of_gens_right hSD (p := p) (fun t ht => ?_) hq
-    exact commutator_mem_of_gens_left hSD (fun s hs => hbase s hs t ht) hp
-  refine Subgroup.commutator_le.mpr fun p hp u hu => ?_
-  exact (mem_commAll.mp (hDD hp)).2 u hu
+    ⁅⁅Subgroup.closure S, Subgroup.closure S⁆, Subgroup.closure S⁆ ≤ K :=
+  LcsGens.le_of_gens_three hS hbr
 
 /-- …in the shape the tree states achievability. -/
 theorem forceLcs_two_le_of_gens {S : Set (SqU6 gr3R)} {K : Subgroup (SqU6 gr3R)}
@@ -609,12 +499,12 @@ theorem gapKTwo_conj {g z : SqU6 gr3R} (hg : g ∈ gapQuadD) (hz : z ∈ gapKTwo
 theorem gapEvenD_le_normalizer :
     (gapEvenD : Set (SqU6 gr3R))
       ⊆ Subgroup.normalizer ((gapKOne : Subgroup (SqU6 gr3R)) : Set (SqU6 gr3R)) :=
-  subset_normalizer_of_conj (H := gapEvenD) fun _ hg _ hx => gapKOne_conj hg hx
+  Subgroup.le_set_normalizer_iff.mpr fun _ hg _ hx => gapKOne_conj hg hx
 
 theorem gapQuadD_le_normalizer :
     (gapQuadD : Set (SqU6 gr3R))
       ⊆ Subgroup.normalizer ((gapKTwo : Subgroup (SqU6 gr3R)) : Set (SqU6 gr3R)) :=
-  subset_normalizer_of_conj (H := gapQuadD) fun _ hg _ hx => gapKTwo_conj hg hx
+  Subgroup.le_set_normalizer_iff.mpr fun _ hg _ hx => gapKTwo_conj hg hx
 
 end GapLattice
 
@@ -974,16 +864,6 @@ end Certificate
 
 section AxiomPins
 
-#print axioms subset_normalizer_of_conj
-#print axioms commLeft
-#print axioms mem_commLeft
-#print axioms commRight
-#print axioms mem_commRight
-#print axioms commutator_mem_of_gens_right
-#print axioms commutator_mem_of_gens_left
-#print axioms commAll
-#print axioms mem_commAll
-#print axioms le_normalizer_commAll
 #print axioms le_of_gens_three
 #print axioms forceLcs_two_le_of_gens
 #print axioms gaThree_conj_j

@@ -20,6 +20,15 @@ The forcing at these markings is `e_o not in B`, `B` the module of achievable sh
 `psi` of `gamma_3` kills `B` and not `e_o`; and then the forcing is provable from any lattice
 bound `forceLcs H 2 <= A_psi := intersection of the kernels of the five pullbacks of psi`.  So
 `gamma_3(K0) <= A_psi` for one separating `psi` is EXACTLY the condition for the chain to work.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import fourlib as F

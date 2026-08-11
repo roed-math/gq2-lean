@@ -6,6 +6,14 @@ only kills if it also leaves the two class-four rows alone, which at stage four 
 condition because a `gamma_3`-dressing moves them.  This script looks for admissible markings
 where `ORTH` FAILS and the forcing HOLDS, and reports the achievable odd dressing together
 with the class-four row it disturbs.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import random

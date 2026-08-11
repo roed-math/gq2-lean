@@ -4,6 +4,14 @@ Writes `results/sqU6Core.lean.txt` and `results/sqU6Core4.lean.txt`, the bodies 
 the `def sqU6Core` and `def sqU6Core4` declarations transcribed into
 `GQ2/Dyadic/SqCore/GradedFiveDefect.lean`.  The polynomials themselves come from
 `derive_defect5.py`; nothing is typed by hand.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import os

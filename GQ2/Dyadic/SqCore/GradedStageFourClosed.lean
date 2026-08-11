@@ -49,8 +49,9 @@ The refuting dressing is again the marking's own arithmetic: `gapOneW = [[sigma,
 three applications of `Subgroup.commutator_mem_commutator` and nothing else.  Carried on the live
 handle's `U`-slot (`gap-1`) or on the `x0`-slot (`gap-2`), each moves the class-five row by an
 ODD amount, `7` and `5` respectively, and moves a class-four row by `2` and by `4` respectively,
-which is exactly why it pairs oddly and yet kills nothing.  ⚠ Note what this does NOT say: it
-does not touch `StageCentral`, which `stageForces_iff_stageCentral` already ties to the forcing.
+which is exactly why it pairs oddly and yet kills nothing.  `StageCentral` is settled separately
+in section 6, where it HOLDS at all four: `stageForces_iff_stageCentral` ties it to the forcing,
+and the four relators satisfy that theorem's hypothesis.
 
 ## ⭐⭐ What the identity actually is, and why it is not an arithmetic accident
 
@@ -96,11 +97,11 @@ at each of the four markings, against wave 61's `sharp4lib.slot_matrix`, which i
 lemmas (`psiOne_gaThreeShift`, `psiTwo_gaThreeShift`) at any marking and any handle count; the
 dead-handle collapse at any `fiveTuple` marking over any commutative ring; the four identities;
 the four forcing statements and their no-kill readings; the two single-slot closed forms of the
-class-five row; and the failure of the parity line at all four.  Everything at every handle count
+class-five row; the failure of the parity line at all four; and (W65-CONSOL) the SHARP line
+`StageCentral` at all four.  Everything at every handle count
 and every handle.
 
-**MEASURED**, and NOT claimed here: that the sharp line `StageCentral` holds at the four
-(`scripts/w63_four/results/certify.txt`); that these are the ONLY four of wave 61's 1650
+**MEASURED**, and NOT claimed here: that these are the ONLY four of wave 61's 1650
 admissible markings with this behaviour (`scripts/w61_sharp4/results/sweep_sharp4.txt`); and the
 lattice cardinalities `1024` and `256` against which the Lean targets carry index-`16` slack.
 Nothing below asserts that the targets ARE the lattices.
@@ -137,14 +138,18 @@ criterion in the sense wave 60's three-covector class-five line failed to be, si
 statement below is about four named markings; nothing here widens the `gamma_2` route that wave
 62 closed by a functional collision or that W63-CENTRAL2 refuted at wave 60's binder point, the
 filtration layer being `gamma_3` throughout; nothing here asserts block-blindness, which
-W63-SECOND refuted; and W62's handle-count invariant is not consumed.  The centrality line
-remains the sharp line only within the admissible family, and this file does not touch it.
+W63-SECOND refuted; and W62's handle-count invariant is not consumed.  ⚠ **W65-CONSOL amends
+the last sentence of this paragraph**, which used to read "the centrality line ... this file does
+not touch it": section 6 now DOES touch it, and holds it at all four, by composing section 4 with
+`stageForces_iff_stageCentral` after checking that theorem's load-bearing hypothesis (W62's
+`stageForces_not_imp_stageCentral` shows it cannot be dropped).
 
 ## Contents
 
 * **1** the dead-handle collapse; **2** ⭐⭐ the certificate rows of the shift;
 * **3** ⭐⭐⭐ the four identities; **4** ⭐⭐⭐ the four forcing statements;
-* **5** ⭐⭐⭐ the parity line refuted at all four; **6** axiom pins.
+* **5** ⭐⭐⭐ the parity line refuted at all four; **6** ⭐⭐⭐ the SHARP line HELD at all four;
+* **7** axiom pins.
 
 ## Merge notes
 
@@ -160,13 +165,14 @@ Every declaration below is new.  Reused: `psiOne`, `psiTwo`, `gapKOne`, `gapKTwo
 `GradedFiveDefect`); `StageOrth`, `sqVal_zero`/`_one`/`_two`, `sqHandleIdxU_val`,
 `sqHandleIdxV_val`, `conFiveDress`, `SqU6.liftO_o`, `forceLcs` (`GradedStageNecessity`, `Cores`,
 `GradedFiveDefect`, `GradedFiveForce`).  `gr8c` is a private copy of `GradedStageFour`'s private
-`gr8`.
+`gr8`.  W65-CONSOL's section 6 additionally reuses `StageCentral`, `stageForces_iff_stageCentral`
+(`GradedStageNecessity`) and `selPar`, `selPar_one` (`GradedSelect`).
 
 ## Axiom hygiene
 
 No `sorry`, no new axiom, no `native_decide`; every `decide` is on `ZMod 8` or on `SqU6 gr3R`
-built over it.  All **48** committed prints are subsets of
-`[propext, Classical.choice, Quot.sound]`: `33` std-3, `14` `propext` + `Quot.sound`, `1`
+built over it.  All **56** committed prints are subsets of
+`[propext, Classical.choice, Quot.sound]`: `41` std-3, `14` `propext` + `Quot.sound`, `1`
 `propext` alone.  No census axiom is consumed.
 -/
 
@@ -660,7 +666,79 @@ theorem gapTwoB_gap :
 
 end Parity
 
-/-! ## 6 Axiom pins -/
+/-! ## 6 The SHARP line at the four -/
+
+section Central
+
+variable {h : ℕ} {j : Fin h}
+
+/-- The `gap-1` residue `5` is odd; this is the second hypothesis of
+`stageCentral_of_stageForces` and it is genuinely checked, not assumed. -/
+private theorem selPar_five : selPar (5 : gr3R) = 1 := by decide
+
+/-- ⭐⭐⭐ **THE SHARP LINE HOLDS AT `gap-1a`**, at every handle count and every handle.
+
+⚠ **The hypothesis of `stageForces_iff_stageCentral` is LOAD-BEARING and is verified here, not
+assumed.**  W62 proved that the forcing does NOT imply the sharp line in general
+(`GradedStageSeparate.stageForces_not_imp_stageCentral`, whose witness `sepMark` has a relator
+that is central in every row **but its class-three one**).  The composition below is legitimate
+exactly because `sqRelWord_gapOneMark` says the relator is the central translation `liftO 5` -
+central in ALL rows - and `selPar_five` says its class-five residue is odd. -/
+theorem stageCentral_gapOneA : StageCentral (gapOneMark h j) :=
+  (stageForces_iff_stageCentral sqRelWord_gapOneMark selPar_five).mp stageForces_gapOneA
+
+/-- ⭐⭐⭐ …at `gap-1b`. -/
+theorem stageCentral_gapOneB : StageCentral (gapOneMark' h j) :=
+  (stageForces_iff_stageCentral sqRelWord_gapOneMark' selPar_five).mp stageForces_gapOneB
+
+/-- ⭐⭐⭐ …at `gap-2a`, where the residue is `liftO 1`. -/
+theorem stageCentral_gapTwoA : StageCentral (gapTwoMark h j) :=
+  (stageForces_iff_stageCentral sqRelWord_gapTwoMark selPar_one).mp stageForces_gapTwoA
+
+/-- ⭐⭐⭐ …and at `gap-2b`. -/
+theorem stageCentral_gapTwoB : StageCentral (gapTwoMark' h j) :=
+  (stageForces_iff_stageCentral sqRelWord_gapTwoMark' selPar_one).mp stageForces_gapTwoB
+
+/-- ⭐⭐⭐ **WAVE 61'S TABLE, WITH ITS LAST MEASURED ENTRY DISCHARGED**, at `gap-1a`, at every
+handle count and every handle.  The relator is the central translation `liftO 5`; the stage-four
+forcing HOLDS; the SHARP line `StageCentral` HOLDS; and the parity line `StageOrth` FAILS.
+
+So at these markings the diagram
+
+```text
+   letters in stageN1  =>  achievable in stageN3  =>  StageOrth  =>  StageCentral  <=>  forcing
+```
+
+has its last arrow strict as a THEOREM in both halves: `StageCentral` holds and `StageOrth` does
+not.  ⚠ This says nothing about the FIRST two arrows at these markings, which are strict for the
+separate reasons of `GradedStageSeparate`, and nothing about how many markings behave this way -
+"exactly four of 1650" is still MEASURED. -/
+theorem gapOneA_sharp :
+    sqRelWord (gapOneMark h j) = SqU6.liftO 5 ∧ StageForces (gapOneMark h j)
+      ∧ StageCentral (gapOneMark h j) ∧ ¬ StageOrth (gapOneMark h j) :=
+  ⟨sqRelWord_gapOneMark, stageForces_gapOneA, stageCentral_gapOneA, not_stageOrth_gapOneMark⟩
+
+/-- ⭐⭐⭐ …at `gap-1b`. -/
+theorem gapOneB_sharp :
+    sqRelWord (gapOneMark' h j) = SqU6.liftO 5 ∧ StageForces (gapOneMark' h j)
+      ∧ StageCentral (gapOneMark' h j) ∧ ¬ StageOrth (gapOneMark' h j) :=
+  ⟨sqRelWord_gapOneMark', stageForces_gapOneB, stageCentral_gapOneB, not_stageOrth_gapOneMark'⟩
+
+/-- ⭐⭐⭐ …at `gap-2a`. -/
+theorem gapTwoA_sharp :
+    sqRelWord (gapTwoMark h j) = SqU6.liftO 1 ∧ StageForces (gapTwoMark h j)
+      ∧ StageCentral (gapTwoMark h j) ∧ ¬ StageOrth (gapTwoMark h j) :=
+  ⟨sqRelWord_gapTwoMark, stageForces_gapTwoA, stageCentral_gapTwoA, not_stageOrth_gapTwoMark⟩
+
+/-- ⭐⭐⭐ …and at `gap-2b`. -/
+theorem gapTwoB_sharp :
+    sqRelWord (gapTwoMark' h j) = SqU6.liftO 1 ∧ StageForces (gapTwoMark' h j)
+      ∧ StageCentral (gapTwoMark' h j) ∧ ¬ StageOrth (gapTwoMark' h j) :=
+  ⟨sqRelWord_gapTwoMark', stageForces_gapTwoB, stageCentral_gapTwoB, not_stageOrth_gapTwoMark'⟩
+
+end Central
+
+/-! ## 7 Axiom pins -/
 
 section AxiomPins
 
@@ -712,6 +790,14 @@ section AxiomPins
 #print axioms gapOneB_gap
 #print axioms gapTwoA_gap
 #print axioms gapTwoB_gap
+#print axioms stageCentral_gapOneA
+#print axioms stageCentral_gapOneB
+#print axioms stageCentral_gapTwoA
+#print axioms stageCentral_gapTwoB
+#print axioms gapOneA_sharp
+#print axioms gapOneB_sharp
+#print axioms gapTwoA_sharp
+#print axioms gapTwoB_sharp
 
 end AxiomPins
 

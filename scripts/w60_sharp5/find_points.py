@@ -13,6 +13,14 @@ Two targets, the class-five transpositions of `GradedFrameNecessity`'s sections 
 Both must be admissible: the relator CENTRAL with an ODD class-five residue, the class-five
 form of wave 59's `hres` + `hva`.  The x1-slot is produced by the layered solve; the search
 minimises the letters' weight so that the Lean file carries readable constants.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import random

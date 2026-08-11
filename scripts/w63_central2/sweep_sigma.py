@@ -8,6 +8,15 @@ sweep of `sqRelWord (stageWit h j (stageX * g))`.
 
 Section 1 establishes that the sigma-slot shift does not read `g.i`, `g.j` or `g.o`, which cuts
 the sweep from `2^26` to `4^3 * 8^4 = 262144` and makes it exhaustive rather than sampled.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import random

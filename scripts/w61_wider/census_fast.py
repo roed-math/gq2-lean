@@ -7,6 +7,15 @@ decisive part of the census: the pairwise commutators of the point's letters are
 `gamma_2`-dressings by definition, so if the functional is odd on one of them it is live.
 
 Group law: `w59_force5/u6mat.py`, honest 6 x 6 matrices.  Nothing is read from Lean.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys, os
 HERE = os.path.dirname(os.path.abspath(__file__))

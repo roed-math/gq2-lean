@@ -23,6 +23,14 @@ never touches the Lean formulas, so a transcription error here cannot survive.
 by `4` and each carries a factor `-4 (z 1).x + 2 (z 2).x`, so `4 * block` is `8 * something`
 and vanishes mod `8`; the Lean proof discharges them separately, by the same `h8`.  Everything
 below is therefore the shift's certificate row MODULO 8, which is all the identity needs.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import os

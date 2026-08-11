@@ -3,6 +3,17 @@
 The marking (`sepS, sepX, sepY, sepU, sepV`) is the one the Lean file commits.  Everything here
 runs through `scripts/w59_force5/u6mat.py` - matrix multiplication and back-substitution
 inverses - and wave 61's `sharp4lib`, so no formula transcribed into Lean is trusted.
+
+BRACKET CONVENTION.  [PAPER-RAW]
+This script builds RAW nested bracket sets, and its Lean target is written with commP,
+so the paper convention is the right one to compute.  Raw bracket sets are the only
+computations in this tree that can be wrong about the convention: check this line
+before repointing the script at a [.,.]-written statement.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os, sys, itertools
 HERE = os.path.dirname(os.path.abspath(__file__))

@@ -5,6 +5,17 @@ ZERO, so the increment pairing vanishes on the nose rather than merely evenly; t
 weight is minimised; and an explicit FOUR-FOLD commutator of the letters with an odd
 class-four coordinate is demanded, because that is the achievability witness the Lean proof
 has to exhibit (a membership proof, not a census).
+
+BRACKET CONVENTION.  [PAPER-RAW]
+This script builds RAW nested bracket sets, and its Lean target is written with commP,
+so the paper convention is the right one to compute.  Raw bracket sets are the only
+computations in this tree that can be wrong about the convention: check this line
+before repointing the script at a [.,.]-written statement.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import random
