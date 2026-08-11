@@ -1,0 +1,82 @@
+$ python3 derive.py
+== gap-1a   target gapKOne   certificate psiOne = l + 2n + 4o
+   letters from Lean: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   Lean letters are the measured gap letters                OK 
+   integer form matches the honest shift matrices mod 8     OK (30 coefficients, 0 mismatches)
+   pullbacks mod 8:
+      slot sigma  0
+      slot x0     6k + 4m + 4n
+      slot x1     2l + 4n
+      slot U      6k + 2l + 4m
+      slot V      0
+   slot sigma  in the mod-8 span of the target's conditions OK (coefficients (0, 0))
+   slot x0     in the mod-8 span of the target's conditions OK (coefficients (3, 0))
+   slot x1     in the mod-8 span of the target's conditions OK (coefficients (0, 1))
+   slot U      in the mod-8 span of the target's conditions OK (coefficients (3, 1))
+   slot V      in the mod-8 span of the target's conditions OK (coefficients (0, 0))
+   residue divisible by 8, exact integer witness found      OK (13 non-zero coefficients)
+   psi-row - combination - 8 * W is identically zero over Z OK 
+   W = +3*sigma.j +30*x0.j +6*x0.k -5*x0.l -3*x0.m -2*x0.o +1*x1.o +12*U.j -2*U.l -2*U.n +12*V.j -1*V.k -2*V.m
+   Lean: linear_combination 3 * e1 + f2 + 3 * e3 + f3 + (3 * (z 0).j + 30 * (z 1).j + 6 * (z 1).k - 5 * (z 1).l - 3 * (z 1).m - 2 * (z 1).o + (z 2).o + 12 * (z (sqHandleIdxU j)).j - 2 * (z (sqHandleIdxU j)).l - 2 * (z (sqHandleIdxU j)).n + 12 * (z (sqHandleIdxV j)).j - (z (sqHandleIdxV j)).k - 2 * (z (sqHandleIdxV j)).m) * gr8c
+
+== gap-1b   target gapKOne   certificate psiOne = l + 2n + 4o
+   letters from Lean: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1, n=4> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   Lean letters are the measured gap letters                OK 
+   integer form matches the honest shift matrices mod 8     OK (30 coefficients, 0 mismatches)
+   pullbacks mod 8:
+      slot sigma  0
+      slot x0     6k + 4m + 4n
+      slot x1     2l + 4n
+      slot U      6k + 2l + 4m
+      slot V      0
+   slot sigma  in the mod-8 span of the target's conditions OK (coefficients (0, 0))
+   slot x0     in the mod-8 span of the target's conditions OK (coefficients (3, 0))
+   slot x1     in the mod-8 span of the target's conditions OK (coefficients (0, 1))
+   slot U      in the mod-8 span of the target's conditions OK (coefficients (3, 1))
+   slot V      in the mod-8 span of the target's conditions OK (coefficients (0, 0))
+   residue divisible by 8, exact integer witness found      OK (13 non-zero coefficients)
+   psi-row - combination - 8 * W is identically zero over Z OK 
+   W = +3*sigma.j +30*x0.j +6*x0.k -5*x0.l -3*x0.m -2*x0.o +1*x1.o +12*U.j -2*U.l -2*U.n +12*V.j -1*V.k -2*V.m
+   Lean: linear_combination 3 * e1 + f2 + 3 * e3 + f3 + (3 * (z 0).j + 30 * (z 1).j + 6 * (z 1).k - 5 * (z 1).l - 3 * (z 1).m - 2 * (z 1).o + (z 2).o + 12 * (z (sqHandleIdxU j)).j - 2 * (z (sqHandleIdxU j)).l - 2 * (z (sqHandleIdxU j)).n + 12 * (z (sqHandleIdxV j)).j - (z (sqHandleIdxV j)).k - 2 * (z (sqHandleIdxV j)).m) * gr8c
+
+== gap-2a   target gapKTwo   certificate psiTwo = m + 4o
+   letters from Lean: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   Lean letters are the measured gap letters                OK 
+   integer form matches the honest shift matrices mod 8     OK (30 coefficients, 0 mismatches)
+   pullbacks mod 8:
+      slot sigma  0
+      slot x0     5k + 4n
+      slot x1     2m
+      slot U      4l
+      slot V      6k + 4l
+   slot sigma  in the mod-8 span of the target's conditions OK (coefficients (0, 0, 0))
+   slot x0     in the mod-8 span of the target's conditions OK (coefficients (5, 0, 0))
+   slot x1     in the mod-8 span of the target's conditions OK (coefficients (0, 0, 1))
+   slot U      in the mod-8 span of the target's conditions OK (coefficients (0, 1, 0))
+   slot V      in the mod-8 span of the target's conditions OK (coefficients (6, 1, 0))
+   residue divisible by 8, exact integer witness found      OK (9 non-zero coefficients)
+   psi-row - combination - 8 * W is identically zero over Z OK 
+   W = +2*x0.k -3*x0.l -3*x0.m -2*x0.n -2*x0.o +1*x1.o +4*U.j -4*U.l -1*V.j
+   Lean: linear_combination 5 * e1 + g2 + f3 + 6 * e4 + f4 + (2 * (z 1).k - 3 * (z 1).l - 3 * (z 1).m - 2 * (z 1).n - 2 * (z 1).o + (z 2).o + 4 * (z (sqHandleIdxU j)).j - 4 * (z (sqHandleIdxU j)).l - (z (sqHandleIdxV j)).j) * gr8c
+
+== gap-2b   target gapKTwo   certificate psiTwo = m + 4o
+   letters from Lean: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3, n=4> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   Lean letters are the measured gap letters                OK 
+   integer form matches the honest shift matrices mod 8     OK (30 coefficients, 0 mismatches)
+   pullbacks mod 8:
+      slot sigma  0
+      slot x0     5k + 4n
+      slot x1     2m
+      slot U      4l
+      slot V      6k + 4l
+   slot sigma  in the mod-8 span of the target's conditions OK (coefficients (0, 0, 0))
+   slot x0     in the mod-8 span of the target's conditions OK (coefficients (5, 0, 0))
+   slot x1     in the mod-8 span of the target's conditions OK (coefficients (0, 0, 1))
+   slot U      in the mod-8 span of the target's conditions OK (coefficients (0, 1, 0))
+   slot V      in the mod-8 span of the target's conditions OK (coefficients (6, 1, 0))
+   residue divisible by 8, exact integer witness found      OK (9 non-zero coefficients)
+   psi-row - combination - 8 * W is identically zero over Z OK 
+   W = +2*x0.k -3*x0.l -3*x0.m -2*x0.n -2*x0.o +1*x1.o +4*U.j -4*U.l -1*V.j
+   Lean: linear_combination 5 * e1 + g2 + f3 + 6 * e4 + f4 + (2 * (z 1).k - 3 * (z 1).l - 3 * (z 1).m - 2 * (z 1).n - 2 * (z 1).o + (z 2).o + 4 * (z (sqHandleIdxU j)).j - 4 * (z (sqHandleIdxU j)).l - (z (sqHandleIdxV j)).j) * gr8c
+
+TOTAL FAILURES: 0
