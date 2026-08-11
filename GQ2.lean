@@ -735,6 +735,7 @@ import GQ2.Dyadic.SqCore.GradedStageFrame
 import GQ2.Dyadic.SqCore.GradedFiveGammaTwo
 import GQ2.Dyadic.SqCore.GradedStageNecessity
 import GQ2.Dyadic.SqCore.GradedStageSharp
+import GQ2.Dyadic.SqCore.GradedBlockFrame
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
