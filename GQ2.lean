@@ -814,4 +814,6 @@ import GQ2.Dyadic.Instances.EvenResidual
 import GQ2.Dyadic.Instances.EvenRouteModel
 import GQ2.Dyadic.Instances.EvenRouteAudit
 import GQ2.Dyadic.Instances.EvenRouteFinal
+import GQ2.Dyadic.Instances.EvenFamilyConstruct
+import GQ2.Dyadic.Instances.EvenFamilyStatus
 import GQ2.Dyadic.Main
