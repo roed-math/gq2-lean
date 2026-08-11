@@ -33,7 +33,9 @@ what `gapOneA_no_kill` and its three siblings state with the relator substituted
 ## ⭐⭐⭐ Headline 2: WAVE 61'S STRICTNESS MEASUREMENT, IN FULL, AS A THEOREM
 
 ⭐⭐⭐ `gapOneA_gap` and its three siblings: at each of the four, at every handle count and every
-handle, the marking is admissible, the forcing HOLDS **and the parity line `StageOrth` FAILS**.
+handle, the relator is the stated central translation, the forcing HOLDS **and the parity line
+`StageOrth` FAILS**.  (There is no `Admissible` predicate in the tree; the first conjunct is the
+relator identity itself.)
 Wave 61's diagram
 
 ```text
@@ -45,11 +47,13 @@ recorded the strictness of the first two implications as theorems and the strict
 **last** one as a measurement at exactly these four markings.  It is now a theorem too.
 
 The refuting dressing is again the marking's own arithmetic: `gapOneW = [[sigma, V], V]` and
-`gapTwoW = [[sigma, V], sigma]` are weight-three brackets of the letters, so achievability is
-three applications of `Subgroup.commutator_mem_commutator` and nothing else.  Carried on the live
-handle's `U`-slot (`gap-1`) or on the `x0`-slot (`gap-2`), each moves the class-five row by an
-ODD amount, `7` and `5` respectively, and moves a class-four row by `2` and by `4` respectively,
-which is exactly why it pairs oddly and yet kills nothing.  `StageCentral` is settled separately
+`gapTwoW = [[sigma, V], sigma]` are weight-three brackets of the letters, so achievability is two
+applications of `Subgroup.commutator_mem_commutator` on top of three `Subgroup.subset_closure`,
+and nothing else.  Carried on the live handle's `U`-slot (`gap-1`) or on the `x0`-slot (`gap-2`),
+each moves the class-five row by an ODD amount, `7` and `5` respectively, which is what makes it
+pair oddly while killing nothing.  ⚠ The accompanying class-four movements, by `2` and by `4`,
+are MEASURED (`scripts/w64_psi4/results/close.txt`); the Lean statements below compute the `.o`
+row only.  `StageCentral` is settled separately
 in section 6, where it HOLDS at all four: `stageForces_iff_stageCentral` ties it to the forcing,
 and the four relators satisfy that theorem's hypothesis.
 
@@ -61,9 +65,10 @@ steps, and the middle one is the only new mathematics:
 
 * **the block terms die.**  `gaThreeShiftO` carries two central collection terms, and each is a
   frame quantity times a Frobenius weight `-4 x + 2 y`.  The certificate reads the class-five
-  row multiplied by `4`, and `4 * (-4 x + 2 y) = 8 * (-2 x + y) = 0`, so `four_mul_frob` kills
-  both outright.  This is what makes `psiOne_gaThreeShift` a statement with no block term in it,
-  at ANY marking and any handle count;
+  row multiplied by `4`, and `4 * (-4 x + 2 y) = 8 * (-2 x + y) = 0`, which is what makes
+  `psiOne_gaThreeShift` a statement with no block term in it, at ANY marking and any handle
+  count.  ⚠ `four_mul_frob` records that arithmetic but is invoked by no proof in this file; the
+  block terms are discharged inside the reduction lemmas themselves;
 * **the dead handles die.**  At a `fiveTuple` marking every handle other than the live one has
   both letters trivial, and `gaThreeHandle 1 1 z w = 1` (`gaThreeHandle_one_one`), so the handle
   sums collapse to their single live term (`handleShiftSum`).  Neither step reads the letters;
@@ -81,7 +86,8 @@ steps, and the middle one is the only new mathematics:
   | `gap-2`, slot `U` | `4l` | `1 * (4l)` |
   | `gap-2`, slot `V` | `6k + 4l` | `6 * (k + 4n) + 1 * (4l)` |
 
-  and the `sigma` slot's pullback identically zero at all four.
+  and the remaining pullbacks identically zero: the `sigma` slot at all four, and at `gap-1` the
+  `V` slot as well, so `gap-1` has TWO identically-zero slots and not one.
 
 ⚠ **`ring` does not close it.**  `ring` normalises numerals as integers and does not reduce them
 modulo `8`, so the identity is closed by `linear_combination` against the target's conditions
@@ -135,7 +141,9 @@ consults a Lean formula.
 
 Nothing here quotes the retracted wave-56 carried-input structures; nothing here is a general
 criterion in the sense wave 60's three-covector class-five line failed to be, since every
-statement below is about four named markings; nothing here widens the `gamma_2` route that wave
+statement below that names a marking names one of the four, and the rest - sections 1-2, and the
+`gaThreeShiftO_fiveTuple_*` forms of section 5 - are marking-agnostic reduction identities that
+assert no criterion at all; nothing here widens the `gamma_2` route that wave
 62 closed by a functional collision or that W63-CENTRAL2 refuted at wave 60's binder point, the
 filtration layer being `gamma_3` throughout; nothing here asserts block-blindness, which
 W63-SECOND refuted; and W62's handle-count invariant is not consumed.  ⚠ **W65-CONSOL amends
@@ -476,8 +484,9 @@ theorem gaThreeShiftO_fiveTuple_handleU {S X Y U V w : SqU6 gr3R}
     SqU6.one_j, SqU6.one_k, SqU6.one_l, SqU6.one_m, SqU6.one_n, SqU6.one_o]
   ring
 
-/-- …and at a dressing carried by the `x0`-slot alone, where the two block terms need the
-dressing's own class-three rows to vanish. -/
+/-- …and at a dressing carried by the `x0`-slot alone, where the two block terms need TWO of the
+dressing's three class-three rows to vanish: the hypotheses are `w.j = 0` and `w.l = 0`, and
+`w.k` is left free. -/
 theorem gaThreeShiftO_fiveTuple_x0 {S X Y U V w : SqU6 gr3R}
     {z : Fin (sqRank h) → SqU6 gr3R} (h0 : z 0 = 1) (h1 : z 1 = w) (h2 : z 2 = 1)
     (hU : z (sqHandleIdxU j) = 1) (hV : z (sqHandleIdxV j) = 1)
@@ -520,12 +529,15 @@ theorem gapOneOdd_handleV : gapOneOdd h j (sqHandleIdxV j) = 1 := by
   exact if_neg (by omega)
 
 /-- ⭐ **The `gap-1` odd dressing pairs to `7`**, at every handle count and every handle: the
-whole shift is the single live handle's, and it is odd.  Its class-four row moves by `2`, which
-is exactly why it pairs oddly and yet kills nothing. -/
+whole shift is the single live handle's, and it is odd.  That oddness is why it pairs oddly and
+yet kills nothing.  ⚠ The statement computes the `.o` row and nothing else; that the class-four
+row moves by `2` is MEASURED (`scripts/w64_psi4/results/close.txt`), not proved here. -/
 theorem gapOneW_shift : (gaThreeHandle gapOneU gapOneV gapOneW 1).o = 7 := by decide
 
 /-- ⭐ **The `gap-2` ODD dressing**: the weight-three bracket `[[sigma, V], sigma]`, which is
-`<k = 4, m = 4, n = 5, o = 4>`, so its class-three rows vanish and the block terms die. -/
+`<k = 4, m = 4, n = 5, o = 4>`.  ⚠ Not all its class-three rows vanish - `k` is one of them and
+equals `4` - but the two the block terms need do: `gapTwoW_j` and `gapTwoW_l` are what feed
+`gaThreeShiftO_fiveTuple_x0`, and that is why the block terms die. -/
 def gapTwoW : SqU6 gr3R := ⁅⁅gapTwoS, gapTwoV⁆, gapTwoS⁆
 
 theorem gapTwoW_j : gapTwoW.j = 0 := by decide
@@ -557,8 +569,9 @@ theorem gapTwoOdd_handleV : gapTwoOdd h (sqHandleIdxV j) = 1 := by
   simp only [gapTwoOdd, sqHandleIdxV_val]
   exact if_neg (by omega)
 
-/-- ⭐ **The `gap-2` odd dressing pairs to `5`.**  Its class-four row moves by `4`, which is
-exactly why it pairs oddly and yet kills nothing. -/
+/-- ⭐ **The `gap-2` odd dressing pairs to `5`**, an odd amount, which is why it pairs oddly and
+yet kills nothing.  ⚠ The statement computes the `.o` row and nothing else; that the class-four
+row moves by `4` is MEASURED (`scripts/w64_psi4/results/close.txt`), not proved here. -/
 theorem gapTwoW_shift : (gaThreeCore gapTwoS gapTwoX gapTwoY 1 gapTwoW 1).o = 5 := by decide
 
 /-- …and the same at the `gap-2b` letters, whose `x1`-slot differs only in a row the core
@@ -574,9 +587,17 @@ private theorem not_dvd_five : ¬ (2 : gr3R) ∣ 5 := by
   exact absurd ht (by revert t; decide)
 
 /-- ⭐⭐⭐ **THE PARITY LINE FAILS AT `gap-1a`**, at every handle count and every handle.  Wave
-61 measured this; together with `stageForces_gapOneA` it makes the strictness of
-`StageOrth => StageCentral` a THEOREM at an admissible marking, which is the last of wave 61's
-three implications and the only one that wave left unproved. -/
+61 measured this; together with `stageCentral_gapOneA` of section 6 it makes the strictness of
+`StageOrth => StageCentral` a THEOREM here, `StageCentral` holding and `StageOrth` failing at the
+same marking.  This is the last of wave 61's three implications and the only one that wave left
+unproved.
+
+⚠ `stageCentral_gapOneA` is the load-bearing input and `stageForces_gapOneA` alone is NOT enough:
+the forcing does not imply the sharp line in general, which is exactly what
+`GradedStageSeparate.sepMark_separates` and `stageForces_not_imp_stageCentral` exhibit.  What
+licenses the composition at this marking is the hypothesis of `stageForces_iff_stageCentral`,
+namely `sqRelWord_gapOneMark`: the relator is the central translation `liftO 5`, central in ALL
+rows, with odd class-five residue. -/
 theorem not_stageOrth_gapOneMark : ¬ StageOrth (gapOneMark h j) := by
   intro hO
   have hv := hO (gapOneOdd h j) (fun i => by
