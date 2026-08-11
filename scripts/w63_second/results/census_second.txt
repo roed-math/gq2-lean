@@ -1,0 +1,103 @@
+======================================================================================
+W63-SECOND  census_second.py   the (3,5) reading against honest relators
+======================================================================================
+
+## A  the block equation at all four class-two rows, at honest relator-killing markings
+
+    Markings are built the honest way round: random handle letters first, then the
+    layered solve for the x1 slot against the target handleWord^{-1}.  Every one is
+    re-verified by recomputing all fifteen rows of sqRelWord from the letters.
+
+    collected: h = 0: 111, h = 1: 34, h = 2: 32, h = 3: 22, h = 4: 26   (total 225)
+
+[ok ] control: every collected marking really kills the relator, all fifteen rows  225 markings, 0 live rows
+[ok ] handleWord.row = -sqWord.row at all four class-two rows  900 comparisons, 0 mismatches
+[ok ] handleWord.row = sum of the handles' wedges, integrally  900 comparisons, 0 mismatches
+[ok ] ⭐⭐ the block equation at row (1,3)  225 markings, 0 mismatches, 41 live (18.2 %)
+[ok ] ⭐⭐ the block equation at row (2,4)  225 markings, 0 mismatches, 40 live (17.8 %)
+[ok ] ⭐⭐ the block equation at row (3,5)  225 markings, 0 mismatches, 35 live (15.6 %)
+[ok ] ⭐⭐ the block equation at row (4,6)  225 markings, 0 mismatches, 43 live (19.1 %)
+[ok ] ⭐⭐ the symplectic identity at all four rows  900 comparisons, 0 mismatches
+
+## B  the layered solve's class-two rows CHARACTERISE the four block equations
+
+    For random handle letters, a random sigma slot and a random x0 slot, run the solve
+    and record the first row at which the residual came out ODD.  The claim is that
+    the first failing row among f, g, h, i is exactly the first of the four block
+    equations that fails, and that the solve gets past row i exactly when all four
+    hold.  Neither direction is assumed anywhere in the solve.
+
+[ok ] ⭐ the first failing class-two row IS the first failing block equation  26374 trials with a predicted failure, 0 disagreements
+[ok ] ⭐ …and the solve gets past all four exactly when all four equations hold  3626 trials with no predicted failure, 0 disagreements
+    first failing row, by row:  (1,3) 13526, (2,4) 6586, (3,5) 3976, (4,6) 2286,  none 3626
+
+## C  the h = 0 forcing for the SECOND reading, and a core pair that requires a handle
+
+[ok ] at h = 0 the second reading is EVEN, at every collected marking  111 handle-free markings, 0 odd
+
+    The sharp form: a core pair whose second reading is ODD admits no relator-killing
+    completion at h = 0, whatever the x1 slot.  The pair used here is the mirror of
+    wave 59's counterexample core pair one column in:
+      sigma = <c=1>,  x0 = <d=1>
+      second reading  s_34 x_45 - s_45 x_34 = 1  (ODD)
+      first reading   s_45 x_56 - s_56 x_45 = 0  (EVEN), so the two disagree here
+
+[ok ] no h = 0 completion: the (3,5) row cannot be killed, EXHAUSTIVE on the three x1 coordinates  128 admissible values, 0 kills
+[ok ] …and WITHOUT the relator's (3,4)-row some values do kill it, so the row is needed  32 of 512 values kill the (3,5) row
+[ok ] …and a random sweep of the WHOLE x1 slot finds nothing either  200000 x1 slots, 0 kills
+
+    …and the same core pair IS realized at every h >= 1, with the handle letters
+      U = <c=1>, V = <d=1>, whose (3,5) minor is 1:
+[ok ] ⭐⭐ the CD core pair is relator-killing at every h = 1..4  4 of 4 handle counts realized
+[ok ] control: those markings really kill all fifteen rows  4 markings, 0 live rows
+      at h = 1 the solve returns  x1 = <b=4, c=4, d=6, h=3, i=4, j=4, k=2, o=4>
+      as a fifteen-tuple for Lean:  ⟨0, 4, 4, 6, 0, 0, 0, 3, 4, 4, 2, 0, 0, 0, 4⟩
+      readings there:  (3,5) 1,  (4,6) 0
+
+## D  the second pairing is an ALTERNATING BI-ADDITIVE form mod 2
+
+    omegaCD(p, q) = par(p_34 q_45 - p_45 q_34),  p, q in U_6(Z/8).
+    It is a form on the group because the (3,4)- and (4,5)-columns are CHARACTERS:
+    both are abelian coordinates of U_6, so `SqU6.mul_c` and `SqU6.mul_d` are additive.
+
+[ok ] bi-additive on the left  20000 triples, 0 failures
+[ok ] bi-additive on the right  20000 triples, 0 failures
+[ok ] alternating  20000 elements, 0 failures
+[ok ] symmetric mod 2  20000 pairs, 0 failures
+[ok ] inverse-invariant mod 2  20000 pairs, 0 failures
+[ok ] kills commutators, so it is a form on the abelianisation  20000 triples, 0 failures
+[ok ] bi-additivity, EXHAUSTIVE on the four live columns  262144 points, 0 failures
+[ok ] the INTEGRAL second reading is already additive, so the parity is not doing the work  10000 triples, 0 disagreements
+
+## E  the torsion letter's (3,4)- and (4,5)-columns are EVEN
+
+[ok ] (3,4)-row forces y_34 even, EXHAUSTIVE  16 admissible pairs, 0 odd
+[ok ] (4,5)-row forces y_45 even, EXHAUSTIVE  16 admissible pairs, 0 odd
+[ok ] …and at honestly collected relator-killing markings  225 markings, 0 odd columns
+[ok ] hence the x1 slot pairs evenly against EVERYTHING, for the second form too  900 pairings, 0 odd
+
+## F  the h = 0 vanishing of the second form on EVERY pair
+
+    At h = 0 the group is generated by sigma, x0, x1.  The form is bi-additive, kills
+    commutators, and kills x1 by section E, so it is determined by the mod-2 data
+    (sigma_34, sigma_45, x0_34, x0_45), and the relator forces its value on the core
+    pair to be 0.  Claim: it then vanishes on every pair of the subgroup.
+
+[ok ] ⭐⭐ at h = 0 the second form dies on EVERY pair, EXHAUSTIVE on the mod-2 data  10 admissible data, 0 live pairs
+[ok ] control: DROPPING the relator condition, the form is live  6 of 16 data have a live core pair
+[ok ] control: DROPPING the x1 evenness, the form is live  18 of 40 data have a live pair somewhere
+
+## G  the second channel sits below the achievable lattice, exactly as the first does
+
+    Every element of gamma_2 has vanishing abelian columns, so no gamma_2-dressing of
+    either core slot can move a reading built from two of them.  Measured for both
+    readings, with the control that FULL dressings do move them.
+
+[ok ] gamma_2-dressings cannot move the second (3,5) reading  10000 dressings, 0 moves
+[ok ] control: FULL dressings do move the second (3,5) reading  8656 of 10000 dressings move it
+[ok ] gamma_2-dressings cannot move the first (4,6) reading  10000 dressings, 0 moves
+[ok ] control: FULL dressings do move the first (4,6) reading  8690 of 10000 dressings move it
+
+======================================================================================
+35 of 35 checks passed, 0 failures
+======================================================================================

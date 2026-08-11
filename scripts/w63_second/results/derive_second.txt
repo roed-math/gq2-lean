@@ -1,0 +1,121 @@
+======================================================================================
+W63-SECOND  derive_second.py   the (3,5) block reading, and the family it belongs to
+======================================================================================
+
+## 1  anchors
+
+[ok ] U_6 coordinate law vs honest matrices  2000 comparisons, 0 mismatches
+[ok ] sqWord by both routes  60 markings, 0 mismatches
+
+## 2  ALL FOUR class-two rows of the core word, at an ARBITRARY sigma slot
+
+    U_6 has four class-two coordinates, and each is the wedge of the two abelian
+    columns beneath it.  The claim is that the core word has the SAME shape at all
+    four, so the sigma pairing wave 61 read at (4,6) is one of four:
+
+[ok ] W.f closed form, row (1,3), columns (1,2)/(2,3)
+[ok ] W.g closed form, row (2,4), columns (2,3)/(3,4)
+[ok ] W.h closed form, row (3,5), columns (3,4)/(4,5)
+[ok ] W.i closed form, row (4,6), columns (4,5)/(5,6)
+
+    In particular, the row this lane is about, spelled out in the campaign's naming:
+
+      W_35 = -4*x_35 + 2*y_35 + (s_34*x_45 - s_45*x_34)
+                              + 10*x_34*x_45 - 8*x_34*y_45 + y_34*y_45
+
+    which is the committed `SqU6.sqWord_i` with (d, e, i) replaced by (c, d, h),
+    and the committed `SqU6.sqWord_f` with (a, b, f) replaced by (c, d, h).
+
+    ⭐⭐ THE SECOND BLOCK READING is the bracket:  blockReadCD(s, x) = s_34*x_45 - s_45*x_34.
+[ok ] W.c abelian row
+[ok ] W.d abelian row
+
+## 3  THE SECOND BLOCK PARITY LAW, exhaustively over ZMod 8
+
+    claim:  at every marking whose relator's (3,4)-row vanishes,
+            W_35  ==  s_34*x_45 - s_45*x_34   (mod 2).
+    W.h depends on exactly eight coordinates: s.c s.d x.c x.d x.h y.c y.d y.h,
+    and the (3,4)-row `-4*x.c + 2*y.c = 0` pins y.c to one of two values per x.c.
+[ok ] second block parity law, EXHAUSTIVE on ZMod 8  4194304 points, 0 failures
+
+    …and it needs the abelian row.  Dropping it:
+[ok ] …and WITHOUT the (3,4)-row it FAILS  1024 of 4096 correction terms odd
+
+    the (4,5)-row does the same job for this reading, by the same symmetry:
+[ok ] second block parity law from the (4,5)-row instead
+
+    the exact form, over ZMod 8, with y_34 = 2*k:
+[ok ] exact witness  W_35 = blockReadCD + 2*(-2x_35 + y_35 + 5x_34x_45 - 4x_34y_45 + k*y_45)
+[ok ] …and it is an identity over Z, not only over ZMod 8
+
+## 4  the (5,6)-row variant of wave 61's FIRST block equation
+
+    `docs/dyadic/w61-block-note.md` section 6.3 item 1, priced at one line in Lean:
+    the committed `SqU6.sqWord_i_eq_blockRead` uses the relator's (4,5)-row to force
+    y_45 even; the (5,6)-row forces y_56 even and does the same job.
+[ok ] (5,6)-row variant, exact witness, EXHAUSTIVE on ZMod 8  16777216 points, 0 failures
+[ok ] …and it too is an identity over Z
+
+## 5  the relator's class-two rows, symbolically
+
+    The handle block's five abelian columns vanish, so the class-two rows of
+    `sqRelWord m = sqWord(m0,m1,m2) * handleWord` carry no cross term at any of the
+    four class-two coordinates: the `U_6` product law contributes `p.lo * q.hi` there,
+    and `q = handleWord` has `q.hi = 0`.  Hence `handleWord.row = -sqWord.row` at every
+    relator-killing marking, at all four rows.  Checked symbolically:
+[ok ] no cross term at row (1,3)
+[ok ] no cross term at row (2,4)
+[ok ] no cross term at row (3,5)
+[ok ] no cross term at row (4,6)
+
+    The census against honestly collected relator-killing markings is section 1 of
+    `results/census_second.txt`; it is not repeated here.
+
+## 6  which quotient can express the second law
+
+    blockRead  (4,6) uses  d, e, i;   blockReadCD (3,5) uses  c, d, h.
+    toU5L keeps (a,b,c,d,f,g,h,j,k,m)
+    toU5R keeps (b,c,d,e,g,h,i,k,l,n)
+    toU4RR keeps (c,d,e,h,i,l)
+
+[ok ] blockRead does NOT live in the toU5L corner (wave 61)
+[ok ] blockRead lives in the toU5R corner (wave 61)
+[ok ] ⭐ blockReadCD lives in the toU5L corner
+[ok ] ⭐ blockReadCD ALSO lives in the toU5R corner
+[ok ] blockReadCD lives in the toU4RR corner too
+
+    ⭐ THE DIFFERENCE FROM WAVE 61.  `results/derive_block.txt` section 5 records that
+    the first reading survives only in the toU5R corner, and that toU5R carries the
+    class-five sigma marking E_23 = <b=1> to <a=1>, not to sigFourMark = <b=1>, so
+    'the corner that can see the block is not the corner any committed sigma instrument
+    is built on'.  The second reading survives in BOTH corners, and toU5L carries
+    E_23 = <b=1> to sigFourMark = <b=1> (`toU5L_fiveSigMark`, committed).  So the
+    second reading is expressible in the corner the committed sigma instruments live in,
+    and the first is not.  That is a structural difference, not a numerical one.
+
+## 7  the corner symmetry, precisely
+
+    `w61-block-note.md` section 6.3 says the (3,5) coordinate has 'the same shape as'
+    the (4,6) coordinate 'under the campaign's corner symmetry'.  Section 2 above
+    certifies the same-shape half directly, for all four rows at once.  The symmetry
+    half needs care, and this section is the correction.
+
+    U_6's outer symmetry is the flip  p |-> J (p^{-1})^T J,  J the antidiagonal.
+[ok ] the flip is an automorphism of U_6  120 pairs, 0 failures
+[ok ] …so it commutes with sqWord  20 markings, 0 mismatches
+
+    on entries it is  (i,j) |-> (7-j, 7-i), so on the campaign's names:
+      a -> e,  b -> d,  c -> c,  d -> b,  e -> a,  f -> i,  g -> h,  h -> g,  i -> f
+[ok ] the flip pairs the (1,3) and (4,6) rows
+[ok ] ⚠ the flip pairs the (2,4) and (3,5) rows, NOT (3,5) with (4,6)
+
+    ⚠ SCOPE CORRECTION.  The second reading is therefore NOT the flip image of the
+    first: the flip image of the (4,6) reading is the (1,3) reading, and the flip image
+    of the (3,5) reading is the (2,4) reading.  The four readings fall into two
+    flip-orbits {(1,3),(4,6)} and {(2,4),(3,5)}, and the second reading is in the orbit
+    the campaign has never looked at.  Nothing about the second reading follows from
+    wave 61 by symmetry; everything here is derived.
+
+======================================================================================
+28 of 28 checks passed, 0 failures
+======================================================================================
