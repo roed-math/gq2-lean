@@ -31,12 +31,13 @@ also owns depth-three bounds (`GradedFiveForce.forceLcs_three_le_forceN4`,
 committed form could not reach at all.  The induction runs on the SAME middle term `commAll`,
 carried as the new `K` rather than as a one-off.
 
-## ⭐⭐ Headline 2: THREE INDEPENDENT GENERATING SETS AT DEPTH ONE
+## ⭐⭐ Headline 2: TWO INDEPENDENT GENERATING SETS AT DEPTH ONE
 
 ⭐⭐ `LcsGens.commutator_closure_le`: `[closure S, closure T] <= K` as soon as `S` and `T` both
 normalise `K` and `[s, t] in K` for generators.  This is the reduction the depth-`n` induction is
-built on and is the one most likely to be wanted on its own; nothing in the tree had it, and
-`Subgroup.commutator_le` is strictly weaker (it quantifies over the closures).
+built on and is the one most likely to be wanted on its own; nothing in the tree had it.  It is
+INCOMPARABLE with `Subgroup.commutator_le`, which quantifies over the closures but asks for no
+normalisation: the proof here is `Subgroup.commutator_le.mpr` applied to a generator argument.
 
 ## ⚠ Two honest limits, both load-bearing
 
@@ -184,9 +185,10 @@ end Aux
 
 section DepthOne
 
-/-- ⭐⭐ **The commutator of two closures, tested on generators.**  Strictly more general than
-`Subgroup.commutator_le`, which quantifies over the closures; the price is that both generating
-sets must normalise `K`. -/
+/-- ⭐⭐ **The commutator of two closures, tested on generators.**  INCOMPARABLE with
+`Subgroup.commutator_le`, which quantifies over the closures but asks for no normalisation: this
+one tests generators, at the price that both generating sets must normalise `K`.  The proof is
+`Subgroup.commutator_le.mpr` applied to a generator argument. -/
 theorem commutator_closure_le
     (hS : S ⊆ Subgroup.normalizer (K : Set G)) (hT : T ⊆ Subgroup.normalizer (K : Set G))
     (hst : ∀ s ∈ S, ∀ t ∈ T, ⁅s, t⁆ ∈ K) :
@@ -234,9 +236,9 @@ theorem lcsGensSet_subset_closure (S : Set G) :
 contains every left-normed bracket of `n + 2` generators, then it contains the `(n+1)`-st term
 of the descending series of `closure S`.
 
-No subgroup containing an intermediate image is named anywhere, so the bound is the
-`closure S`-normal closure of finitely many explicit elements and reads the achievable lattice
-as finely as the group law allows. -/
+The hypothesis tests only brackets of GENERATORS, and `K` is an arbitrary subgroup normalised by
+`S`; no finiteness of `S` is assumed anywhere.  The induction does name an intermediate subgroup,
+`D := commAll K H`, and carries it as the new `K` at the next depth. -/
 theorem lcsSeries_le_of_gens (S : Set G) :
     ∀ (n : ℕ) (K : Subgroup G), S ⊆ Subgroup.normalizer (K : Set G) →
       lcsGensSet S (n + 1) ⊆ (K : Set G) → lcsSeries (Subgroup.closure S) (n + 1) ≤ K := by

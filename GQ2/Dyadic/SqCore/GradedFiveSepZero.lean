@@ -106,15 +106,18 @@ No new closed form is derived and no new polynomial is transcribed for these fou
    correction (the committed class-five points are not block-blind, only their core pairs are)
    therefore touches nothing here, and neither does W62's `exists_blockPar_odd_iff_pos`.
 3. ⚠ **`h = 0` is load-bearing and the tree contains the witness that says so.**
-   `sepZero_fiveWit_bit_odd` records that `GradedFiveForce.fiveWit` kills the relator at every
-   `h >= 1` and has class-five bit `1`.  The row expansion is not contradicted: at `h >= 1` the
+   `sepZero_fiveWit_bit_odd` records ONE fact: at every `h >= 1` the `a0 = a1` dressing of
+   `GradedFiveForce.fiveWit` has class-five bit `1`.  ⚠ It does not also say the relator dies
+   there, and the two properties sit at DIFFERENT dressing values: the kill is
+   `GradedFiveForce.sqRelWord_fiveWit_triv` at `v = 1`, while the bit is read at `v = forceX`,
+   where the relator is `liftC6 7`.  The row expansion is not contradicted: at `h >= 1` the
    relator pins the core word to the handle word's inverse rather than to `1`, so the nine rows
    the response reads are free to be odd.  ⭐ That is also the sharpest reading of what a handle
    is *for* at class five: it is what lets the core word be non-trivial while the relator dies.
 4. ⚠ **The statement is about the `a0 = a1` dressing only.**  `sigFiveDress m v` at a general
-   `v` is not covered, and the response there is genuinely different: the nine rows of class at
-   most two move (`SqU6.sqWord_diagDress_low` is a statement about `v = m 1` and about nothing
-   else).  Do not read this as "no sigma dressing separates at `h = 0`".
+   `v` is not covered, and the response there is genuinely different: the `(3,5)` and `(4,6)`
+   rows do move, two of the nine (`SqU6.sqWord_diagDress_low` is a statement about `v = m 1` and
+   about nothing else).  Do not read this as "no sigma dressing separates at `h = 0`".
 5. ⚠ **It says nothing about class six and above**, and nothing about whether an `h = 0`
    marking can separate at some other coordinate: the six high rows are proved **even**, not
    zero, and `SqU6.sqWord_diagDress_low` gives the nine low rows exactly.
@@ -203,8 +206,10 @@ composite of the right `U_5`-quotient with the padding of `U_5` into the top-lef
 a padding map the tree does not have.
 
 It exists here for one purpose: the tree has closed forms for the core word's rows `f`, `h`,
-`i`, `j`, `m`, and the four remaining rows `g`, `k`, `l`, `n` are their images one step
-outwards.  Naturality of `sqWord` does the rest. -/
+`i`, `j`, `m`, and the four remaining rows `g`, `k`, `l`, `n` are their images under this shift.
+⚠ Not all at one step: `g`, `k` and `n` take ONE application, but `l` takes TWO (it is the shift
+of `k`, itself the shift of `j`), which is why `SqU6.sqWord_l_of_shift` iterates `sepShiftRow`.
+Naturality of `sqWord` does the rest. -/
 def SqU6.sepShiftRow : SqU6 R →* SqU6 R where
   toFun p := ⟨p.b, p.c, p.d, p.e, 0, p.g, p.h, p.i, 0, p.k, p.l, 0, p.n, 0, 0⟩
   map_one' := rfl
@@ -1109,8 +1114,10 @@ theorem SqU6.selPar_sqWord_diagDress_high (hw : sqWord s x y = 1) :
     ring
 
 /-- ⭐⭐ **The relator form.**  At handle count `0` the relator is the core word, so every
-relator-killing marking has an even class-five separation bit.  This is the negative answer to
-"is there an `h = 0` class-five separation?", with no gauge. -/
+relator-killing marking has an even class-five separation bit **at the `a0 = a1` dressing**.
+This is the negative answer to "is there an `h = 0` class-five separation at that dressing?",
+with no gauge.  ⚠ Honest limit 4 of the header forbids the general reading: `sigFiveDress m v`
+at a general `v` is not covered. -/
 theorem sepZero_bit_even {m : Fin (sqRank 0) → SqU6 gr3R} (hrel : sqRelWord m = 1) :
     selPar (sqRelWord (sigFiveDress m (m 1))).o = 0 := by
   rw [sqRelWord_zero] at hrel ⊢
@@ -1162,9 +1169,11 @@ end Forcing
 section Calibration
 
 /-- **The committed `h = 0` completion, explained.**  `GradedFiveLive.blindCoreY` completes the
-committed core pair `(fiveSigMark, stageX)` at `h = 0`, and W63-LIVE5 computed by `decide` that
-its `a0 = a1` dressing leaves residue `1`.  The theorem above predicts the class-five half of
-that without computing anything at the point.  ⭐ This is the composite check of doctrine rule
+committed core pair `(fiveSigMark, stageX)` at `h = 0`, and the tree's datum
+(`sqRelWord_blindCore_handleFree`) is that the UNDRESSED core word there is `1`.  ⚠ What is
+stated here is a PARITY and nothing more: the class-five row of the `a0 = a1` dressing is EVEN.
+It is not the claim that the dressing itself leaves residue `1`.  The theorem above predicts
+that parity without computing anything at the point.  ⭐ This is the composite check of doctrine
 iii against the tree's own `h = 0` datum, and it passes. -/
 theorem sepZero_blindCore_bit :
     selPar (sqWord (fiveSigMark gr3R * stageX) stageX blindCoreY).o = 0 := by
@@ -1174,9 +1183,11 @@ theorem sepZero_blindCore_bit :
     exact h
   exact SqU6.selPar_sqWord_diagDress_o hw
 
-/-- ⚠ **`h = 0` is load-bearing.**  `GradedFiveForce.fiveWit` kills the relator at every handle
-count and every handle, and its class-five bit is `1`.  So the forcing is sharp in the handle
-count, and the row expansion is not contradicted: at `h >= 1` the relator pins the core word to
+/-- ⚠ **`h = 0` is load-bearing.**  At every handle count and every handle, the `a0 = a1`
+dressing of `GradedFiveForce.fiveWit` has class-five bit `1`.  ⚠ That is the whole statement: the
+relator is NOT killed at this dressing value, where `GradedFiveForce.sqRelWord_fiveWit_diag`
+gives `liftC6 7`; the kill is the separate `sqRelWord_fiveWit_triv`, at `v = 1`.  The row
+expansion is not contradicted: at `h >= 1` the relator pins the core word to
 the handle word's inverse rather than to `1`, and the nine rows the response reads are then free
 to be odd.  ⭐ That is the sharpest reading of what the handle is for at class five. -/
 theorem sepZero_fiveWit_bit_odd (h : ℕ) (j : Fin h) :
