@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Fable 5
 import GQ2.Dyadic.Instances.StageAbstractionEvenPerK
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageDerivationCocycle
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStageRankOne
+import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteReverse
 
 /-!
 # W65-HFAM: the even derivation family, constructed where it can be and calibrated where it
@@ -374,6 +375,286 @@ theorem evenFamDerivModelM_u (α h : ℕ) (hα : 1 ≤ α) (hN : 1 ≤ N)
   rfl
 
 end Model
+
+/-! ## §4 Mod-2 parity linear algebra on the Frattini quotient
+
+The offsets of a `χ`-shadowed derivation reduce mod `2` to a group homomorphism into `𝔽₂`
+(the twist dies: every `2`-adic unit is odd), and that homomorphism factors through the
+level-`2` quotient.  Conversely, level-`2` functionals with prescribed values on a generating
+family exist by pure counting: if the level-`2` quotient has order `2^n` then no `n − 1`
+elements span it, so each index of a generating `n`-family carries a dual functional.  This
+section is generic in the carrier; §5 instantiates it at the presented cores, where the
+count is the committed Demushkin rank identity. -/
+
+section Parity
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {N : ℕ}
+
+/-- Two divides every power `2^N` with `N ≥ 1`; the witness the mod-`2` cast rides on. -/
+theorem evenFam_two_dvd_two_pow (hN : 1 ≤ N) : 2 ∣ 2 ^ N :=
+  dvd_pow_self 2 (by omega)
+
+/-- Units of `ℤ/2^N` cast to `1` mod `2`: the mod-`2` shadow of any character is trivial. -/
+theorem evenFam_castHom_unit (hN : 1 ≤ N) (u : (ZMod (2 ^ N))ˣ) :
+    ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (u : ZMod (2 ^ N)) = 1 := by
+  have hunit : IsUnit (ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2)
+      (u : ZMod (2 ^ N))) := (u.isUnit).map _
+  have hone : ∀ z : ZMod 2, IsUnit z → z = 1 := by decide
+  exact hone _ hunit
+
+/-- **The parity bridge**: divisibility by `2` in `ℤ/2^N` is vanishing of the mod-`2` cast. -/
+theorem evenFam_two_dvd_iff_castHom_eq_zero (hN : 1 ≤ N) (x : ZMod (2 ^ N)) :
+    (2 : ZMod (2 ^ N)) ∣ x ↔
+      ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) x = 0 := by
+  haveI : NeZero (2 ^ N) := ⟨by positivity⟩
+  constructor
+  · rintro ⟨y, rfl⟩
+    rw [map_mul, show (2 : ZMod (2 ^ N)) = ((2 : ℕ) : ZMod (2 ^ N)) by push_cast; ring,
+      map_natCast, show ((2 : ℕ) : ZMod 2) = 0 by decide, zero_mul]
+  · intro hcast
+    have hval : x = ((x.val : ℕ) : ZMod (2 ^ N)) := (ZMod.natCast_rightInverse x).symm
+    have hcastval : ((x.val : ℕ) : ZMod 2) = 0 := by
+      rw [hval, map_natCast] at hcast
+      exact hcast
+    obtain ⟨y, hy⟩ := (CharP.cast_eq_zero_iff (ZMod 2) 2 x.val).mp hcastval
+    refine ⟨((y : ℕ) : ZMod (2 ^ N)), ?_⟩
+    rw [hval, hy]
+    push_cast
+    ring
+
+/-- **The mod-2 offset functional of a word-lift-valued homomorphism.**  The twist is
+invisible mod `2` because base values are units, so the offset reduces to an honest
+homomorphism into `𝔽₂`; no shadow hypothesis is needed. -/
+def evenFamParityHom (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N)) :
+    G →* Multiplicative (ZMod 2) where
+  toFun g := Multiplicative.ofAdd
+    (ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ g).u)
+  map_one' := by
+    show Multiplicative.ofAdd
+      (ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ 1).u) = 1
+    rw [map_one Φ, show ((1 : WL N)).u = 0 from rfl, map_zero]
+    rfl
+  map_mul' g g' := by
+    have hmul : (Φ (g * g')).u = (Φ g).u + ((Φ g).g : ZMod (2 ^ N)) * (Φ g').u := by
+      rw [map_mul Φ, FoxH.WordLift.mul_u, Units.smul_def, smul_eq_mul]
+    have hcast : ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ (g * g')).u =
+        ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ g).u +
+          ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ g').u := by
+      rw [hmul, map_add, map_mul, evenFam_castHom_unit hN ((Φ g).g), one_mul]
+    show Multiplicative.ofAdd _ = Multiplicative.ofAdd _ * Multiplicative.ofAdd _
+    rw [← ofAdd_add, hcast]
+
+/-- The parity functional vanishes on the second two-central step: offsets there are even. -/
+theorem evenFamParityHom_eq_one_of_mem (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N))
+    {d : G} (hd : d ∈ twoCentralSeries G 2) :
+    evenFamParityHom hN Φ d = 1 := by
+  have hdvd := GQ2.Dyadic.LSquare.stageDeriv_u_dvd hN Φ (by omega : 1 ≤ 2) hd
+  rw [pow_one] at hdvd
+  have hzero := (evenFam_two_dvd_iff_castHom_eq_zero hN _).mp hdvd
+  show Multiplicative.ofAdd
+    (ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ d).u) = 1
+  rw [ofAdd_eq_one]
+  exact hzero
+
+/-- **The parity functional at level two**: the mod-2 offset functional descends to the
+level-`2` quotient, where §4's counting lives. -/
+def evenFamParityLevel (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N)) :
+    levelQuot G 2 →* Multiplicative (ZMod 2) :=
+  QuotientGroup.lift (twoCentralSeries G 2) (evenFamParityHom hN Φ)
+    (fun _ hd ↦ evenFamParityHom_eq_one_of_mem hN Φ hd)
+
+@[simp] theorem evenFamParityLevel_levelMk (hN : 1 ≤ N)
+    (Φ : ContinuousMonoidHom G (WL N)) (g : G) :
+    evenFamParityLevel hN Φ (levelMk G 2 g) = evenFamParityHom hN Φ g :=
+  rfl
+
+/-- **Parity of an offset is a level-two statement**: divisibility of the offset by `2` at any
+element is read off the parity functional at its level-`2` class. -/
+theorem evenFam_two_dvd_u_iff (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N)) (g : G) :
+    (2 : ZMod (2 ^ N)) ∣ (Φ g).u ↔
+      evenFamParityLevel hN Φ (levelMk G 2 g) = 1 := by
+  rw [evenFamParityLevel_levelMk, evenFam_two_dvd_iff_castHom_eq_zero hN]
+  show _ ↔ Multiplicative.ofAdd
+    (ZMod.castHom (evenFam_two_dvd_two_pow hN) (ZMod 2) (Φ g).u) = 1
+  rw [ofAdd_eq_one]
+
+end Parity
+
+/-! ### §4.2 Dual functionals on a level-two quotient of known order
+
+Pure counting, generic in the group: if `levelQuot G 2` has order `2^n` and `x : Fin n`
+generates it, then no proper subfamily generates, so each slot carries a mod-`2` functional
+that is `1` there and `0` on the other slots.  The proof runs through the `ℤ/2`-module
+structure of the elementary abelian level-two quotient. -/
+
+section Dual
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Every element of the level-two quotient squares to one. -/
+theorem evenFam_levelTwo_sq (q : levelQuot G 2) : q ^ 2 = 1 := by
+  have hq : q ∈ zLayer G 1 := by
+    rw [GQ2.Dyadic.LSquare.zLayer_one_eq_top]; trivial
+  exact zLayer_sq G hq
+
+/-- The level-two quotient is abelian. -/
+theorem evenFam_levelTwo_comm (a b : levelQuot G 2) : a * b = b * a :=
+  (zLayer_commute (z := a)
+    (by rw [GQ2.Dyadic.LSquare.zLayer_one_eq_top]; trivial) b).eq
+
+/-- **Dual functionals exist on a generated level-two quotient of full order.**  If the
+level-two quotient has order `2^n` and an `n`-family generates it, every slot `i₀` carries a
+functional into `𝔽₂` equal to `1` at slot `i₀` and `0` elsewhere.  The counting heart of the
+family construction: an `(n-1)`-subfamily spans at most `2^(n-1)` classes. -/
+theorem evenFam_exists_levelTwo_dual {n : ℕ}
+    (hcard : Nat.card (levelQuot G 2) = 2 ^ n)
+    (x : Fin n → levelQuot G 2)
+    (htop : Subgroup.closure (Set.range x) = ⊤) (i₀ : Fin n) :
+    ∃ φ : levelQuot G 2 →* Multiplicative (ZMod 2),
+      φ (x i₀) = Multiplicative.ofAdd 1 ∧
+      ∀ j : Fin n, j ≠ i₀ → φ (x j) = 1 := by
+  classical
+  -- the elementary abelian module structure
+  letI : CommGroup (levelQuot G 2) :=
+    { (inferInstance : Group (levelQuot G 2)) with mul_comm := evenFam_levelTwo_comm }
+  letI : Module (ZMod 2) (Additive (levelQuot G 2)) :=
+    AddCommGroup.zmodModule (fun q ↦ by
+      show q.toMul ^ 2 = 1
+      exact evenFam_levelTwo_sq q.toMul)
+  set V := Additive (levelQuot G 2)
+  set xa : Fin n → V := fun i ↦ Additive.ofMul (x i) with hxa
+  -- the subfamily span
+  set H : Submodule (ZMod 2) V :=
+    Submodule.span (ZMod 2) (Set.range fun j : {j : Fin n // j ≠ i₀} ↦ xa j.1) with hH
+  -- a submodule is in particular closed under the group operations of `levelQuot G 2`
+  have hsubmul : ∀ (W : Submodule (ZMod 2) V) (a b : levelQuot G 2),
+      Additive.ofMul a ∈ W → Additive.ofMul b ∈ W → Additive.ofMul (a * b) ∈ W :=
+    fun W a b ha hb ↦ W.add_mem ha hb
+  have hsubinv : ∀ (W : Submodule (ZMod 2) V) (a : levelQuot G 2),
+      Additive.ofMul a ∈ W → Additive.ofMul a⁻¹ ∈ W :=
+    fun W a ha ↦ W.neg_mem ha
+  -- membership of every slot forces the submodule to be everything
+  have hall : ∀ (W : Submodule (ZMod 2) V), (∀ j, xa j ∈ W) → ∀ v : V, v ∈ W := by
+    intro W hW v
+    have hmem : v.toMul ∈ Subgroup.closure (Set.range x) := by rw [htop]; trivial
+    have hind := Subgroup.closure_induction
+      (p := fun w _ ↦ Additive.ofMul w ∈ W)
+      (by rintro a ⟨j, rfl⟩; exact hW j)
+      W.zero_mem
+      (fun a b _ _ ha hb ↦ hsubmul W a b ha hb)
+      (fun a _ ha ↦ hsubinv W a ha) hmem
+    exact hind
+  -- the distinguished class is outside the subfamily span, by counting
+  have hnotmem : xa i₀ ∉ H := by
+    intro hmem
+    have hWall : ∀ j, xa j ∈ H := by
+      intro j
+      by_cases hj : j = i₀
+      · rwa [hj]
+      · exact Submodule.subset_span ⟨⟨j, hj⟩, rfl⟩
+    -- H is everything, so its card is the full 2^n
+    have hHtop : ∀ v : V, v ∈ H := hall H hWall
+    -- but H is spanned by n-1 vectors, so its card is at most 2^(n-1)
+    have hsurj : Function.Surjective
+        (fun c : {j : Fin n // j ≠ i₀} → ZMod 2 ↦
+          (⟨∑ j, c j • xa j.1, Submodule.sum_mem H
+            (fun j _ ↦ Submodule.smul_mem H _ (Submodule.subset_span ⟨j, rfl⟩))⟩ : H)) := by
+      rintro ⟨v, hv⟩
+      obtain ⟨c, hc⟩ := (Submodule.mem_span_range_iff_exists_fun (ZMod 2)).mp hv
+      exact ⟨c, Subtype.ext hc⟩
+    have hle := Nat.card_le_card_of_surjective _ hsurj
+    have hcardfun : Nat.card ({j : Fin n // j ≠ i₀} → ZMod 2) =
+        2 ^ Fintype.card {j : Fin n // j ≠ i₀} := by
+      rw [Nat.card_eq_fintype_card, Fintype.card_fun]
+      congr 1
+    have hlt : Fintype.card {j : Fin n // j ≠ i₀} < n := by
+      simpa using Fintype.card_subtype_lt (p := fun j : Fin n ↦ j ≠ i₀)
+        (x := i₀) (by simp)
+    have hcardV : Nat.card H = 2 ^ n := by
+      have hequiv : Function.Bijective (fun v : V ↦ (⟨v, hHtop v⟩ : H)) :=
+        ⟨fun a b hab ↦ by simpa using congrArg Subtype.val hab,
+          fun ⟨v, hv⟩ ↦ ⟨v, rfl⟩⟩
+      rw [← Nat.card_congr (Equiv.ofBijective _ hequiv)]
+      exact hcard
+    have hlt2 : (2 : ℕ) ^ Fintype.card {j : Fin n // j ≠ i₀} < 2 ^ n :=
+      Nat.pow_lt_pow_right one_lt_two hlt
+    omega
+  -- quotient by the subfamily span and identify it with 𝔽₂
+  set q₀ : V ⧸ H := Submodule.Quotient.mk (xa i₀) with hq₀
+  have hq₀ne : q₀ ≠ 0 := fun hc ↦
+    hnotmem ((Submodule.Quotient.mk_eq_zero H).mp hc)
+  have hspanq : ∀ w : V ⧸ H, ∃ c : ZMod 2, c • q₀ = w := by
+    intro w
+    obtain ⟨v, rfl⟩ := Submodule.mkQ_surjective H w
+    have hvtop : v ∈ Submodule.span (ZMod 2) (Set.range xa) := by
+      have := hall (Submodule.span (ZMod 2) (Set.range xa))
+        (fun j ↦ Submodule.subset_span ⟨j, rfl⟩) v
+      exact this
+    obtain ⟨c, hc⟩ := (Submodule.mem_span_range_iff_exists_fun (ZMod 2)).mp hvtop
+    refine ⟨c i₀, ?_⟩
+    have hsum : H.mkQ (∑ i, c i • xa i) = c i₀ • q₀ := by
+      rw [map_sum]
+      rw [Finset.sum_eq_single i₀]
+      · rw [map_smul]
+        rfl
+      · intro j _ hj
+        have hjH : xa j ∈ H := Submodule.subset_span ⟨⟨j, hj⟩, rfl⟩
+        have hz : H.mkQ (xa j) = 0 := (Submodule.Quotient.mk_eq_zero H).mpr hjH
+        rw [map_smul, hz, smul_zero]
+      · intro hi
+        exact absurd (Finset.mem_univ i₀) hi
+    have hmk : H.mkQ v = c i₀ • q₀ := by rw [← hc, hsum]
+    exact hmk.symm
+  -- the induced functional
+  have hker : ∀ c : ZMod 2, c • q₀ = 0 → c = 0 := by
+    intro c hc
+    rcases (by decide : ∀ z : ZMod 2, z = 0 ∨ z = 1) c with h0 | h1
+    · exact h0
+    · rw [h1, one_smul] at hc
+      exact absurd hc hq₀ne
+  set e : ZMod 2 ≃ₗ[ZMod 2] (V ⧸ H) :=
+    LinearEquiv.ofBijective (LinearMap.toSpanSingleton (ZMod 2) (V ⧸ H) q₀)
+      ⟨fun a b hab ↦ by
+        have hsub : (a - b) • q₀ = 0 := by
+          rw [sub_smul]
+          rw [show LinearMap.toSpanSingleton (ZMod 2) (V ⧸ H) q₀ a = a • q₀ from rfl,
+            show LinearMap.toSpanSingleton (ZMod 2) (V ⧸ H) q₀ b = b • q₀ from rfl] at hab
+          rw [hab, sub_self]
+        exact sub_eq_zero.mp (hker _ hsub),
+        fun w ↦ hspanq w⟩ with he
+  set delta : V →ₗ[ZMod 2] ZMod 2 := e.symm.toLinearMap.comp H.mkQ with hdelta
+  have he1 : e 1 = q₀ := by
+    rw [he]
+    show LinearMap.toSpanSingleton (ZMod 2) (V ⧸ H) q₀ 1 = q₀
+    rw [LinearMap.toSpanSingleton_apply_one]
+  have hdelta_i₀ : delta (xa i₀) = 1 := by
+    have hstep : delta (xa i₀) = e.symm (H.mkQ (xa i₀)) := rfl
+    rw [hstep, show H.mkQ (xa i₀) = q₀ from rfl, ← he1, LinearEquiv.symm_apply_apply]
+  have hdelta_off : ∀ j : Fin n, j ≠ i₀ → delta (xa j) = 0 := by
+    intro j hj
+    have hjH : xa j ∈ H := Submodule.subset_span ⟨⟨j, hj⟩, rfl⟩
+    have hz : H.mkQ (xa j) = 0 := (Submodule.Quotient.mk_eq_zero H).mpr hjH
+    have hstep : delta (xa j) = e.symm (H.mkQ (xa j)) := rfl
+    rw [hstep, hz, map_zero]
+  -- repackage as a monoid homomorphism
+  refine ⟨{ toFun := fun q ↦ Multiplicative.ofAdd (delta (Additive.ofMul q))
+            map_one' := by
+              show Multiplicative.ofAdd (delta 0) = 1
+              rw [map_zero]
+              rfl
+            map_mul' := fun a b ↦ by
+              show Multiplicative.ofAdd (delta (Additive.ofMul a + Additive.ofMul b)) = _
+              rw [map_add]
+              rfl }, ?_, ?_⟩
+  · show Multiplicative.ofAdd (delta (xa i₀)) = Multiplicative.ofAdd 1
+    rw [hdelta_i₀]
+  · intro j hj
+    show Multiplicative.ofAdd (delta (xa j)) = 1
+    rw [hdelta_off j hj]
+    rfl
+
+end Dual
 
 end
 
