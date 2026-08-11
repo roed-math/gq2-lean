@@ -1,0 +1,31 @@
+W63-LIVE5 derivation
+==============================================================================
+
+1  THE COMMUTATOR'S ROWS MOD 2, at letters with even (1,2)- and (3,4)-columns
+    [u, v]_f = 0
+    [u, v]_g = 0
+    [u, v]_h = 0
+    [u, v]_i = ud*ve + ue*vd
+    [u, v]_j = 0
+    [u, v]_k = ub*vh + ud*vg + ug*vd + uh*vb
+    [u, v]_l = ue*vh + uh*ve
+    [u, v]_m = ud*vj + uf*vh + uh*vf + uj*vd
+
+  so the (4,6) row (the block channel) needs d/e entries, and the (1,5) row
+  (the class-four liveness the committed witnesses record) needs d/j or f/h.
+
+2  THE GAUGE REDUCTION, exhaustive over ZMod 8
+    selPar(blockRead s x) = selPar s_45 on the gauge: 1024 points, 0 failures
+
+3  THE RELATOR'S ABELIAN ROWS DO NOT SEE THE SIGMA SLOT
+    4000 pairs of sigma slots, 5 abelian rows each: 0 mismatches
+    (so the fifteen-row standard places NO condition on the sigma slot's (4,5)
+     entry, which is why the live witness exists at all)
+
+4  THE COMMITTED SIGMA MARK, AND THE MOVED ONE
+    fiveSigMark = E_23         d = 0, e = 0, blockRead against stageX = 0
+    liveBlkSig  = E_23 E_45    d = 1, e = 0, blockRead against stageX = 5
+    blindCexS   = E_23 <e=1>   d = 0, e = 1, blockRead against stageX = 0
+
+==============================================================================
+CHECKS: 3   FAILURES: 0
