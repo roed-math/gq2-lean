@@ -1,0 +1,100 @@
+====================================================================================================
+W64-VERIFY  task B: W63-CENTRAL2's gamma_2 kill at W63-LIVE5's point
+====================================================================================================
+
+0  The live point, and the two frames it names
+
+   sigma  liveBlkSig * stageX <a=2, b=1, d=1, e=5, i=5>
+   x0     stageX              <a=2, e=5>
+   x1     liveBlkY            <e=2, f=5, h=5, l=5, n=7, o=3>
+   U      liveBlkU            <c=2, d=1>
+   V      liveBlkV            <c=2, e=3, j=5>
+
+  [ok ] the BARE witness kills the relator outright (sqRelWord_liveBlkWit_triv) -> a naive kill sweep here is vacuous; the diagonal frame is the object
+  [ok ] the DIAGONAL dressing leaves <o=1> (sqRelWord_liveBlkWit_diag)   <o=1>
+  [ok ] the residue is ODD, so the separation is genuinely class five    
+  [ok ] the x0 slot is the SAME letter as wave 60's point                stageX = <a=2, e=5>, and stageX.e = 5 is a unit
+
+1  The achievable gamma_2 lattice at the live point,  forceLcs H 1
+
+   log2 |H| = 38,   log2 |forceLcs H 1| = 26
+  [ok ] |forceLcs H 1| = 2^26, the same count wave 63 measured at ITS point 
+  [ok ] the lattice is the SAME box {gamma_2-shaped : f, g, h, j even}   box = 67108864
+  [ok ] 4000 random box elements all lie in forceLcs H 1                 misses 0
+  [ok ] forceLcs H 1 contains <f=1>: False                               
+  [ok ] forceLcs H 1 contains <g=1>: False                               
+  [ok ] forceLcs H 1 contains <h=1>: False                               
+  [ok ] forceLcs H 1 contains <i=1>: True                                
+  [ok ] forceLcs H 1 contains <j=1>: False                               
+  [ok ] forceLcs H 1 contains <k=1>: True                                
+  [ok ] forceLcs H 1 contains <l=1>: True                                
+  [ok ] forceLcs H 1 contains <m=1>: True                                
+  [ok ] forceLcs H 1 contains <n=1>: True                                
+  [ok ] forceLcs H 1 contains <o=1>: True                                
+  [ok ] log2 |forceLcs H 2| = 13, and it does NOT contain <m=3>          
+  [ok ] <m=3> IS achievable at gamma_2 and is NOT at stage four          so the killer sits strictly between the two lattices
+
+2  THE VERDICT: the kill transports, at every handle count and every handle
+
+  [ok ] h=1 j=0: the dressed frame is KILLED                             
+  [ok ] h=1 j=0: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=1 j=0: dressing slot 0 reparametrises the point                
+  [ok ] h=2 j=0: the dressed frame is KILLED                             
+  [ok ] h=2 j=0: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=2 j=0: dressing slot 0 reparametrises the point                
+  [ok ] h=2 j=1: the dressed frame is KILLED                             
+  [ok ] h=2 j=1: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=2 j=1: dressing slot 0 reparametrises the point                
+  [ok ] h=3 j=0: the dressed frame is KILLED                             
+  [ok ] h=3 j=0: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=3 j=0: dressing slot 0 reparametrises the point                
+  [ok ] h=3 j=1: the dressed frame is KILLED                             
+  [ok ] h=3 j=1: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=3 j=1: dressing slot 0 reparametrises the point                
+  [ok ] h=3 j=2: the dressed frame is KILLED                             
+  [ok ] h=3 j=2: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=3 j=2: dressing slot 0 reparametrises the point                
+  [ok ] h=4 j=0: the dressed frame is KILLED                             
+  [ok ] h=4 j=0: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=4 j=0: dressing slot 0 reparametrises the point                
+  [ok ] h=4 j=1: the dressed frame is KILLED                             
+  [ok ] h=4 j=1: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=4 j=1: dressing slot 0 reparametrises the point                
+  [ok ] h=4 j=2: the dressed frame is KILLED                             
+  [ok ] h=4 j=2: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=4 j=2: dressing slot 0 reparametrises the point                
+  [ok ] h=4 j=3: the dressed frame is KILLED                             
+  [ok ] h=4 j=3: the shift is the central translation liftO 7            <o=7>
+  [ok ] h=4 j=3: dressing slot 0 reparametrises the point                
+
+   => GaTwoForces, GaTwoCentral and GaTwoOrth are ALL FALSE at liveBlkWit h j stageX.
+      The live point inherits wave 60's point's gamma_2 vulnerability in full.
+
+3  The killer as a commutator of the live point's OWN letters
+
+  [ok ] commP(liveBlkSig * stageX, liveBlkV * liveBlkU^-1) = <m=3>       <m=3>
+  [ok ] …and it lies in forceLcs H 1                                     
+   (wave 63's point needed a PRODUCT of two commutators, `commP(S^-1, U)^2 * commP(Y, X U)`;
+    at the live point one commutator suffices.)
+
+4  How special is the killer?  The exhaustive sigma-slot sweep
+
+  [ok ] the sigma-slot shift ignores the dressing's i and o (3000 random pairs) differences 0
+  [ok ] ⚠ but it DOES read the dressing's j, where wave 63's point ignored j j = 0,2,4,6 give <1>, <o=6>, <o=4>, <o=2> (liveBlkSig.d = 1 is odd; fiveSigMark.d = 0)
+   1048576 sigma dressings swept (exhaustive modulo the two ignored coordinates i and o):
+      16384 act centrally, 8192 of those move the class-five row ODDLY, 2048 KILL
+  [ok ] the killers are exactly one eighth of the central dressings      2048 * 8 = 16384
+  [ok ] the kill is not an accident of one dressing                      
+
+5  The general mechanism, MEASURED at random five-tuples and NOT proved anywhere
+
+  [ok ] at EVERY five-tuple, a sigma dressing by <m=t> shifts the relator by liftO (t * X.e) 3000 random tuples, 0 failures
+
+   ⚠ This is MEASURED, not proved.  If it were proved, wave 63's kill and this one would
+     both be corollaries, and the vulnerability would be visibly a property of the WITNESS
+     STANDARD - which demands an odd `x0.e` (D_gauge_x0_e_odd) and an odd diagonal residue
+     (B_odd_residue) - rather than of two particular points.
+
+====================================================================================================
+56 named checks, 0 failures
+====================================================================================================

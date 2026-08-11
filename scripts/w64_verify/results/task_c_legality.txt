@@ -1,0 +1,55 @@
+====================================================================================================
+W64-VERIFY  task C: one statement for the ArbFrames legality question?
+====================================================================================================
+
+1  THE UNIFORM CRITERION:  is  x0_ab  in  M(L) ?   (L is the SAME lattice at all three)
+
+   |L mod 8| = 512
+  [ok ] w60  fiveFrameHom: x0_ab = (2, 0, 0, 0, 1) is NOT reachable by any legal dressing |M(L)| = 64
+  [ok ] w61  stageFrameHom: x0_ab = (2, 0, 0, 0, 5) is NOT reachable by any legal dressing |M(L)| = 64
+  [ok ] w63  liveBlkHom: x0_ab = (2, 0, 0, 0, 5) is NOT reachable by any legal dressing |M(L)| = 128
+
+   => ONE statement, three instances, no per-point column argument needed:
+      `legality pins the exponents to L; the point's abelian matrix maps L to M(L);
+       the x0 slot is outside M(L)'.  Verified exhaustively over all 512 legal vectors.
+
+2  THE CERTIFIED NEGATIVE: no single abelian column, at any modulus, works at all three
+
+   column  modulus   w60      w61      w63     works everywhere?
+      a      2      False    False    False    no
+      a      4      False    False    True     no
+      a      8      False    False    True     no
+      b      2      False    False    False    no
+      b      4      False    False    False    no
+      b      8      False    False    False    no
+      c      2      False    False    False    no
+      c      4      False    False    False    no
+      c      8      False    False    False    no
+      d      2      False    False    False    no
+      d      4      False    False    False    no
+      d      8      False    False    False    no
+      e      2      True     False    False    no
+      e      4      True     False    False    no
+      e      8      True     False    False    no
+  [ok ] NO single abelian column with a single modulus closes the door at all three points survivors: none
+
+   The three routes' own columns, and where each one dies:
+      w60/w61 read the FIFTH column at w60  fiveFrameHom    x0.e = 1, reachable: False
+      w60/w61 read the FIFTH column at w61  stageFrameHom   x0.e = 5, reachable: True
+      w60/w61 read the FIFTH column at w63  liveBlkHom      x0.e = 5, reachable: True
+      w63-live5 reads the FIRST column at w60  fiveFrameHom    x0.a = 2, reachable: True
+      w63-live5 reads the FIRST column at w61  stageFrameHom   x0.a = 2, reachable: True
+      w63-live5 reads the FIRST column at w63  liveBlkHom      x0.a = 2, reachable: False
+
+3  Dropping the `nu'` half (lambda-triviality alone, a_s free)
+
+      w60  fiveFrameHom      x0 reachable on lambda alone: False  (|M(L)| = 1408)
+  [ok ] w60  fiveFrameHom: whether nu'-triviality is load-bearing is decided NOT load-bearing (lambda alone suffices)
+      w61  stageFrameHom     x0 reachable on lambda alone: False  (|M(L)| = 1408)
+  [ok ] w61  stageFrameHom: whether nu'-triviality is load-bearing is decided NOT load-bearing (lambda alone suffices)
+      w63  liveBlkHom        x0 reachable on lambda alone: False  (|M(L)| = 1536)
+  [ok ] w63  liveBlkHom: whether nu'-triviality is load-bearing is decided NOT load-bearing (lambda alone suffices)
+
+====================================================================================================
+7 named checks, 0 failures
+====================================================================================================
