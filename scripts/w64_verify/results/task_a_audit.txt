@@ -1,0 +1,122 @@
+====================================================================================================
+W64-VERIFY  task A audit: are the tree's committed lattice bounds the sharpest it owns?
+====================================================================================================
+
+0  The target subgroups, re-entered and checked against the group law
+
+  [ok ] (whole group) log2 |.| = 45, generated and closed                sift gives 45  (-)
+  [ok ] gaTwoSub    log2 |.| = 30, generated and closed                  sift gives 30  (GradedFiveNecessity:336)
+  [ok ] gaThreeSub  log2 |.| = 18, generated and closed                  sift gives 18  (GradedFiveNecessity:352)
+  [ok ] gaFourSub   log2 |.| =  9, generated and closed                  sift gives 9  (GradedFiveNecessity:373)
+  [ok ] stageN1     log2 |.| = 43, generated and closed                  sift gives 43  (GradedFiveStageFour:716)
+  [ok ] stageN2     log2 |.| = 27, generated and closed                  sift gives 27  (GradedFiveStageFour:728)
+  [ok ] stageN3     log2 |.| = 15, generated and closed                  sift gives 15  (GradedFiveStageFour:759)
+  [ok ] forceN1     log2 |.| = 44, generated and closed                  sift gives 44  (GradedFiveForce:654)
+  [ok ] forceN2     log2 |.| = 28, generated and closed                  sift gives 28  (GradedFiveForce:665)
+  [ok ] forceN3     log2 |.| = 15, generated and closed                  sift gives 15  (GradedFiveForce:684)
+  [ok ] forceN4     log2 |.| =  7, generated and closed                  sift gives 7  (GradedFiveForce:714)
+  [ok ] fiveEvenE   log2 |.| = 44, generated and closed                  sift gives 44  (GradedFiveNecessity:672)
+  [ok ] fiveEvenI   log2 |.| = 29, generated and closed                  sift gives 29  (GradedFiveNecessity:684)
+  [ok ] fiveEvenL   log2 |.| = 17, generated and closed                  sift gives 17  (GradedFiveNecessity:700)
+  [ok ] fiveEvenN   log2 |.| =  8, generated and closed                  sift gives 8  (GradedFiveNecessity:724)
+  [ok ] sepEvenA    log2 |.| = 44, generated and closed                  sift gives 44  (GradedStageSeparate:414)
+  [ok ] sepEvenF    log2 |.| = 29, generated and closed                  sift gives 29  (GradedStageSeparate:427)
+  [ok ] sepEvenJ    log2 |.| = 17, generated and closed                  sift gives 17  (GradedStageSeparate:448)
+
+1  UNIFORM sharpness:  is  forceLcs N_in k = N_out ?
+
+   bound                                    file                      N_in       k  log2 |forceLcs N_in k|  log2 |N_out|  verdict
+   forceLcs_one_le_gaTwoSub                 GradedGammaTwoCentral:198 (whole group) 1              30            30       SHARP
+  [ok ] forceLcs_one_le_gaTwoSub: containment holds (soundness re-derived) 
+   forceLcs_two_le_gaThreeSub               GradedStageNecessity:393  (whole group) 2              18            18       SHARP
+  [ok ] forceLcs_two_le_gaThreeSub: containment holds (soundness re-derived) 
+   forceLcs_three_le_gaFourSub              GradedFiveNecessity:445   (whole group) 3               9             9       SHARP
+  [ok ] forceLcs_three_le_gaFourSub: containment holds (soundness re-derived) 
+   forceLcs_one_le_stageN2                  GradedFiveGammaTwo:1251   stageN1    1              26            27       NOT sharp
+  [ok ] forceLcs_one_le_stageN2: containment holds (soundness re-derived) 
+   forceLcs_two_le_stageN3                  GradedFiveStageFour:869   stageN1    2              13            15       NOT sharp
+  [ok ] forceLcs_two_le_stageN3: containment holds (soundness re-derived) 
+   forceLcs_three_le_forceN4                GradedFiveForce:868       forceN1    3               7             7       SHARP
+  [ok ] forceLcs_three_le_forceN4: containment holds (soundness re-derived) 
+   forceLcs_two_le_fiveEvenL                GradedStageNecessity:663  fiveEvenE  2              17            17       SHARP
+  [ok ] forceLcs_two_le_fiveEvenL: containment holds (soundness re-derived) 
+   forceLcs_three_le_fiveEvenN              GradedFiveNecessity:799   fiveEvenE  3               8             8       SHARP
+  [ok ] forceLcs_three_le_fiveEvenN: containment holds (soundness re-derived) 
+   forceLcs_two_le_sepEvenJ                 GradedStageSeparate:515   sepEvenA   2              17            17       SHARP
+  [ok ] forceLcs_two_le_sepEvenJ: containment holds (soundness re-derived) 
+
+  [ok ] forceLcs_one_le_gaTwoSub uniform sharpness                       forceLcs (whole group) 1 = 2^30, gaTwoSub = 2^30 -> SHARP
+  [ok ] forceLcs_two_le_gaThreeSub uniform sharpness                     forceLcs (whole group) 2 = 2^18, gaThreeSub = 2^18 -> SHARP
+  [ok ] forceLcs_three_le_gaFourSub uniform sharpness                    forceLcs (whole group) 3 = 2^9, gaFourSub = 2^9 -> SHARP
+  [ok ] forceLcs_one_le_stageN2 uniform sharpness                        forceLcs stageN1 1 = 2^26, stageN2 = 2^27 -> SLACK 2^1
+  [ok ] forceLcs_two_le_stageN3 uniform sharpness                        forceLcs stageN1 2 = 2^13, stageN3 = 2^15 -> SLACK 2^2
+  [ok ] forceLcs_three_le_forceN4 uniform sharpness                      forceLcs forceN1 3 = 2^7, forceN4 = 2^7 -> SHARP
+  [ok ] forceLcs_two_le_fiveEvenL uniform sharpness                      forceLcs fiveEvenE 2 = 2^17, fiveEvenL = 2^17 -> SHARP
+  [ok ] forceLcs_three_le_fiveEvenN uniform sharpness                    forceLcs fiveEvenE 3 = 2^8, fiveEvenN = 2^8 -> SHARP
+  [ok ] forceLcs_two_le_sepEvenJ uniform sharpness                       forceLcs sepEvenA 2 = 2^17, sepEvenJ = 2^17 -> SHARP
+
+2  POINTWISE: the honest lattice at the tree's named markings, against the bound used
+
+   marking                                k  log2 lattice  log2 N_out  slack  hyp?  w63-four target  its slack
+   stageWit h j stageX  (w60 binder)      2           13          15  2^2    yes 
+  [ok ] stageWit: hypothesis stageN1 holds, lattice inside stageN3 (soundness re-derived) 
+   liveBlkWit h j stageX  (w63 live)      2           13          15  2^2    yes 
+  [ok ] liveBlkWit: hypothesis stageN1 holds, lattice inside stageN3 (soundness re-derived) 
+   fiveWit h j forceX  (w59/w60)          3            7           7  2^0    yes 
+  [ok ] fiveWit: hypothesis forceN1 holds, lattice inside forceN4 (soundness re-derived) 
+   mixStageMark  (w61 strictness)         2            8          15  2^7    NO  
+  [ok ] mixStageMark: hypothesis stageN1 FAILS, so the bound is not claimed there lattice inside stageN3 anyway: False
+   orthFiveMark  (w59 strictness)         3            6           7  2^1    NO  
+  [ok ] orthFiveMark: hypothesis forceN1 FAILS, so the bound is not claimed there lattice inside forceN4 anyway: False
+   halfFiveMark  (w59 half point)         3            6           7  2^1    NO  
+  [ok ] halfFiveMark: hypothesis forceN1 FAILS, so the bound is not claimed there lattice inside forceN4 anyway: False
+  [ok ] gapOneMark: lattice inside gapKOne                               
+   gapOneMark  (w63-four)                 2           10          15  2^5    NO    gapKOne  2^14  slack 2^4
+  [ok ] gapOneMark: hypothesis stageN1 FAILS, so the bound is not claimed there lattice inside stageN3 anyway: False
+  [ok ] gapOneMark': lattice inside gapKOne                              
+   gapOneMark' (w63-four)                 2           10          15  2^5    NO    gapKOne  2^14  slack 2^4
+  [ok ] gapOneMark': hypothesis stageN1 FAILS, so the bound is not claimed there lattice inside stageN3 anyway: False
+  [ok ] gapTwoMark: lattice inside gapKTwo                               
+   gapTwoMark  (w63-four)                 2            8          15  2^7    NO    gapKTwo  2^12  slack 2^4
+  [ok ] gapTwoMark: hypothesis stageN1 FAILS, so the bound is not claimed there lattice inside stageN3 anyway: True
+  [ok ] gapTwoMark': lattice inside gapKTwo                              
+   gapTwoMark' (w63-four)                 2            8          15  2^7    NO    gapKTwo  2^12  slack 2^4
+  [ok ] gapTwoMark': hypothesis stageN1 FAILS, so the bound is not claimed there lattice inside stageN3 anyway: True
+
+3  `le_of_gens_three` loses NOTHING: the normal closure of the generator triple brackets
+   IS the lattice, at every named marking
+
+   ⚠ the brackets here are MATHLIB's `[x, y] = x y x^-1 y^-1`, which is what
+     `le_of_gens_three`'s hypothesis is stated with - not the paper `commP` that every
+     python library in this tree provides.  See scripts/w64_verify/task_e_bracket*.py.
+
+  [ok ] stageWit: normal closure of the 125 brackets = forceLcs H 2      2^13 vs 2^13
+  [ok ] liveBlkWit: normal closure of the 125 brackets = forceLcs H 2    2^13 vs 2^13
+  [ok ] mixStageMark: normal closure of the 125 brackets = forceLcs H 2  2^8 vs 2^8
+  [ok ] gapOneMark: normal closure of the 125 brackets = forceLcs H 2    2^10 vs 2^10
+  [ok ] gapOneMark': normal closure of the 125 brackets = forceLcs H 2   2^10 vs 2^10
+  [ok ] gapTwoMark: normal closure of the 125 brackets = forceLcs H 2    2^8 vs 2^8
+  [ok ] gapTwoMark': normal closure of the 125 brackets = forceLcs H 2   2^8 vs 2^8
+
+4  The exact uniform lattices, for the two bounds that are NOT sharp
+
+   forceLcs stageN1 1  (log2 = 26; stageN2 is log2 = 27)
+      single-coordinate members: a in {0};  b in {0};  c in {0};  d in {0};  e in {0};  f in {0,2,4,6};  g in {0,2,4,6};  h in {0,2,4,6};  i in {0,1,2,3,4,5,6,7};  j in {0,2,4,6};  k in {0,1,2,3,4,5,6,7};  l in {0,1,2,3,4,5,6,7};  m in {0,1,2,3,4,5,6,7};  n in {0,1,2,3,4,5,6,7};  o in {0,1,2,3,4,5,6,7}
+      generators of stageN2 NOT in it: <g=1>
+
+   forceLcs stageN1 2  (log2 = 13; stageN3 is log2 = 15)
+      single-coordinate members: a in {0};  b in {0};  c in {0};  d in {0};  e in {0};  f in {0};  g in {0};  h in {0};  i in {0};  j in {0,4};  k in {0,2,4,6};  l in {0,2,4,6};  m in {0,2,4,6};  n in {0,1,2,3,4,5,6,7};  o in {0,1,2,3,4,5,6,7}
+      generators of stageN3 NOT in it: <j=2>, <k=1>
+
+  [ok ] forceLcs stageN1 1 has order 2^26 = |stageN2'| and contains every stageN2' generator so the two agree: 2^26
+  [ok ] forceLcs stageN1 2 = stageN3' = {a..i = 0, 4|j, 2|k, 2|l, 2|m}, exhaustively 8192 elements checked, all inside
+  [ok ] stageN3' is STRICTLY inside stageN3: <j=2> and <k=1> are in stageN3 and not achievable 
+   => the sharp uniform statements the tree should own:
+        forceLcs H 1 <= stageN2' = {a..e = 0, 2|f, 2|g, 2|h, 2|j}   (stageN2 misses 2|g)
+        forceLcs H 2 <= stageN3' = {a..i = 0, 4|j, 2|k, 2|l, 2|m}   (stageN3 has 2|j and no k)
+      both for every  H <= stageN1, both index 2 resp. 4 sharper than the committed form.
+
+
+====================================================================================================
+60 named checks, 0 failures
+====================================================================================================
