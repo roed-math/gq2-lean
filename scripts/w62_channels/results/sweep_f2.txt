@@ -1,0 +1,72 @@
+================================================================================================
+== W62-CHANNELS: the exhaustive parity sweep, all 2^20 letter patterns ==
+================================================================================================
+
+   patterns swept                                          1048576
+   with an ODD class-five residue                           131072
+   with all three channels EVEN                             103576
+   on the committed class-two-forced gauge                  131072
+
+   with x1.d, x1.e even (what the RELATOR forces)           262144
+
+   ODD and EVEN, ON the gauge                                    0
+   ODD and EVEN, with only the relator's own two columns         0
+   ODD and EVEN, OFF the gauge                                2432
+
+   *** THE TWO CONDITIONS ARE ALREADY INCOMPATIBLE UNDER WHAT THE RELATOR
+       FORCES: no gauge hypothesis on the x0 slot is needed.  This is
+       `SqU6.gaTwoChannel_even_bit_even`, from the other side. ***
+
+   *** ON THE GAUGE THE TWO CONDITIONS ARE INCOMPATIBLE. ***
+
+   Which pair and which slot refutes each odd gauge pattern:
+      [x0, x1] against the x1 slot :   8192 patterns
+      [x0, x1] against the x0 slot :   8192 patterns
+
+   the OFF-gauge survivors, as (d, e, f, h, j) parities:
+      x0=01000 x1=10111 U=00000 V=00000
+      x0=01000 x1=10111 U=00000 V=00101
+      x0=01000 x1=10111 U=00000 V=01000
+      x0=01000 x1=10111 U=00000 V=01101
+      x0=01000 x1=10111 U=00000 V=10010
+      x0=01000 x1=10111 U=00000 V=10111
+      x0=01000 x1=10111 U=00000 V=11010
+      x0=01000 x1=10111 U=00000 V=11111
+      x0=01000 x1=10111 U=00101 V=00000
+      x0=01000 x1=10111 U=00101 V=00101
+      x0=01000 x1=10111 U=00101 V=01000
+      x0=01000 x1=10111 U=00101 V=01101
+      x0=01000 x1=10111 U=00101 V=10010
+      x0=01000 x1=10111 U=00101 V=10111
+      x0=01000 x1=10111 U=00101 V=11010
+      x0=01000 x1=10111 U=00101 V=11111
+      x0=01000 x1=10111 U=01000 V=00000
+      x0=01000 x1=10111 U=01000 V=00101
+      x0=01000 x1=10111 U=01000 V=01000
+      x0=01000 x1=10111 U=01000 V=01101
+      x0=01000 x1=10111 U=01000 V=10010
+      x0=01000 x1=10111 U=01000 V=10111
+      x0=01000 x1=10111 U=01000 V=11010
+      x0=01000 x1=10111 U=01000 V=11111
+      x0=01000 x1=10111 U=01101 V=00000
+      x0=01000 x1=10111 U=01101 V=00101
+      x0=01000 x1=10111 U=01101 V=01000
+      x0=01000 x1=10111 U=01101 V=01101
+      x0=01000 x1=10111 U=01101 V=10010
+      x0=01000 x1=10111 U=01101 V=10111
+      x0=01000 x1=10111 U=01101 V=11010
+      x0=01000 x1=10111 U=01101 V=11111
+      x0=01000 x1=10111 U=10010 V=00000
+      x0=01000 x1=10111 U=10010 V=00101
+      x0=01000 x1=10111 U=10010 V=01000
+      x0=01000 x1=10111 U=10010 V=01101
+      x0=01000 x1=10111 U=10010 V=10010
+      x0=01000 x1=10111 U=10010 V=10111
+      x0=01000 x1=10111 U=10010 V=11010
+      x0=01000 x1=10111 U=10010 V=11111
+      ... 2432 distinct patterns in all
+
+   of the 2432 off-gauge survivors: 1920 have x0.f odd, 1472 have x1.d odd,
+   992 have x0.d odd (the gauge forbids all three).
+
+================================================================================================

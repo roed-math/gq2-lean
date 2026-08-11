@@ -1,0 +1,101 @@
+================================================================================================
+== W62-CHANNELS: what decides the three-channel functional ==
+================================================================================================
+
+== 1. parity3 = (m, i, l) mod 2 is a homomorphism on the achievable lattice ==
+
+   The lattice is inside `stageN2` (wave 60's `stageN2_of_commutator`, committed):
+   gamma_2-shaped with f, h, j even.  On such elements
+      (z w).m = z.m + w.m + z.f * w.h,   (z w).i = z.i + w.i,
+      (z w).l = z.l + w.l,
+   and z.f * w.h is divisible by four, so parity3 is additive.
+
+   parity3(z w) = parity3(z) + parity3(w), 4000 random lattice pairs OK
+   parity3(z^{-1}) = parity3(z), same 4000                          OK
+   sharpness: on UNRESTRICTED gamma_2-elements additivity fails at 532 of 2000
+
+== 2. the commutator of two `stageN1` letters, in the three coordinates ==
+
+   For p, q with even (1,2)- and (3,4)-columns, modulo two:
+      [p,q].m = p.j q.d + p.d q.j + p.f q.h + p.h q.f
+      [p,q].i = p.d q.e + p.e q.d
+      [p,q].l = p.h q.e + p.e q.h
+
+   [p,q].m formula, 6000 random stageN1 letter pairs                OK
+   [p,q].i formula, same 6000                                       OK
+   [p,q].l formula, same 6000                                       OK
+   sharpness: without the two even columns the `m` formula fails at 850 of 2000
+
+== 3. parity3 kills gamma_3 of the image, so only the ten letter pairs matter ==
+
+   For z in the lattice and r in H (both columns even), modulo two:
+      [z,r].i = 0,  [z,r].l = z.i r.c + z.h r.e,  [z,r].m = z.j r.d + z.f r.h
+                                                            + z.h r.f,
+   and z.f, z.h, z.j, r.a, r.c are all even, so all three vanish.
+
+   parity3([z, r]) = 0 for z in the lattice, r in H, 4000 random    OK
+
+   consequence, checked by DEEP random sampling of the lattice at 400 points:
+   every sampled lattice element lies in the fast span (24000 samples) OK
+   the sampling also REACHES the whole span at 365 of 400 points, so the span is
+   not an over-estimate either.
+
+== 4. the class-five separation bit of the `a0 = a1` dressing, modulo two ==
+
+   Wave 58's measured closed form for the bit is `x0.a x1.g x1.i + x0.e x1.f x1.h`.
+   Re-measured here in the stronger DIFFERENCE form, which needs no relator-killing
+   hypothesis:
+
+      (dressed relator).o - (undressed relator).o                        (mod 2)
+         = x0.a * x1.g * x1.i  +  x0.e * x1.f * x1.h
+
+   the difference form at 4000 random GAUGE markings                OK
+
+   ⭐ SHARPER: the `x0`-gauge is not what the form needs.  Keeping ONLY the `x1`
+   slot's even abelian columns - which the relator's own class-one rows force at
+   any marking killing them - and letting the `x0` slot range over all of
+   `stageN1`:
+
+   the difference form at 4000 markings with x1 abelian columns even OK
+   sharpness: drop the `x1` columns too and the form fails at 1022 of 4000, so the
+   hypothesis is exactly the one the relator supplies for free.
+
+   With `stageN1` making `x0.a` even the bit is therefore `x0.e * x1.f * x1.h`.
+
+== 5. ⭐ THE COLLISION: the channel IS the bit ==
+
+   Substituting section 2 into the channel at the achievable dressing `[x0, x1]`
+   of the `x1` slot, and using only `x1.d`, `x1.e` even:
+
+      [x0,x1].m * x1.e = 0,  [x0,x1].i * x1.j = 0,
+      [x0,x1].l * x1.f = x0.e * x1.f * x1.h                       (mod 2)
+
+   which is the bit of section 4 exactly.  So the three-channel functional and the
+   class-five separation bit are the SAME F_2 functional at every marking the
+   campaign can use.  ⭐ Nothing is asked of the `x0` slot beyond `stageN1`.
+
+   chan([x0,x1], x1) = x0.e x1.f x1.h, 6000 relator-shaped letter pairs OK
+   sharpness: without the two `x1` columns the collision fails at 935 of 4000.
+
+   Consequence.  At a point with an ODD bit the functional is ODD at an achievable
+   dressing, so wave 61's `stageWit_gaTwo_forced` is SATISFIED there and yields no
+   contradiction: the `gamma_2` route cannot widen the exclusion at ANY binder
+   point, on the gauge or off it.
+
+   bit + chan is EVEN at 4000 relator-shaped markings (the forced condition holds) OK
+
+== 6. wave 60's committed point ==
+
+   x0 = <a=2, e=5>
+   x1 = <e=2, f=1, g=1, h=1, m=3, n=3>
+   on the gauge (x0: a,c,d,f,g,h even, b = 0; x1: a,c,d,e even, b = 0): True
+   [x0, x1]                     = <j=2, l=3, o=4>
+   its (m, i, l) parities        = (0, 0, 1)
+   chan([x0,x1], x1)             = 3, parity 1
+   the bit x0.e * x1.f * x1.h    = 1
+   the measured relator residue  = <o=1>
+   the point: chan is odd, the bit is odd, their sum is even        OK
+
+================================================================================================
+   15 named checks, 0 failures
+================================================================================================

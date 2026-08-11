@@ -1,0 +1,68 @@
+================================================================================================
+== W62-CHANNELS: the marking census ==
+================================================================================================
+
+== A. ON the class-two-forced gauge ==
+
+   x0 on the gauge, x1 with even abelian columns   markings   8000
+      channels EVEN and bit ODD   (the target) :      0
+      channels EVEN and bit even              :   1652
+      channels odd  and bit ODD               :   1030
+      channels odd  and bit even              :   5318
+
+== B. OFF the gauge: only what the relator forces ==
+
+   `x1`'s abelian columns are even at every marking killing the four abelian rows
+   (`sqRelWord_lower_x1_even`), so that much is kept; the `x0` slot is free apart
+   from `stageN1`.
+
+   x0 free (stageN1 only), x1 relator-shaped       markings   8000
+      channels EVEN and bit ODD   (the target) :      0
+      channels EVEN and bit even              :   1316
+      channels odd  and bit ODD               :   1004
+      channels odd  and bit even              :   5680
+
+   NO off-gauge hit either, at this sample size.
+
+================================================================================================
+== C. honest relator-killing points, by wave 60's layered solve ==
+================================================================================================
+
+   Budget 200 s.  Each point: the undressed frame kills the relator, the `a0 = a1`
+   frame is central with an ODD class-five residue, every letter is `stageN1`.
+
+   The layered solve enumerates EVERY `x1` slot making a given `(x0, U, V)` triple
+   live, so one triple supplies thousands of genuine binder points differing in the
+   `x1` letter.  Wave 60's committed triple first, then whatever a random search
+   turns up inside the budget of 200 s.
+
+   wave 60's U, V             x0 = <a=2, e=1>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's U, V             x0 = <a=2, e=3>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's COMMITTED triple x0 = <a=2, e=5>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's U, V             x0 = <a=2, e=7>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's U, V             x0 = <a=6, e=1>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's U, V             x0 = <a=6, e=3>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's U, V             x0 = <a=6, e=5>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+   wave 60's U, V             x0 = <a=6, e=7>     live points  16384
+      all three channels even (the target)          :      0
+      chan([x0,x1], x1) ODD (the theorem's verdict) :  16384
+
+   8 live (x0, U, V) triples in all: 8 from the `x0` gauge family against wave
+   60's handle letters, and 0 from 40 random triples in 665 s.
+   131072 live binder points.  Channels all even: 0.  chan([x0,x1], x1) odd: 131072 of 131072.
+
+================================================================================================
