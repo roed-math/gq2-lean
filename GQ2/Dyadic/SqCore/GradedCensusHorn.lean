@@ -86,10 +86,16 @@ the sigma letter's fifth abelian column is required even.
 it is invisible to `stageN1` (which constrains only the `(1,2)` and `(3,4)` columns).  ⭐ It
 costs the census verdict **nothing**: `censHorn_marks_gauged` checks that `fiveSigMark` and
 `liveBlkSig`, the only sigma letters any binder point in the tree uses, both lie on the gauge, so
-`censHorn_stageWit_gear_odd` and `censHorn_liveBlkWit_gear_odd` deliver horn 1 at W63-CENTRAL2's
-family and at W63-LIVE5's point unconditionally.  ⚠ It is NOT a proof artefact: with an ungauged
-sigma, central residues with an odd `(1,6)` row and an EVEN gearing exist in quantity
-(`scripts/w65_horn1/results/`, `833` in `400000` samples), so no proof can drop it.
+`censHorn_stageWit_verdict` and `censHorn_liveBlkWit_verdict` deliver the verdict at
+W63-CENTRAL2's family and at W63-LIVE5's point unconditionally.
+
+⚠⚠⚠ **And it is not a proof artefact.**  `censHorn_binder_cex` exhibits a GENUINE ONE-HANDLE
+BINDER POINT with an EVEN gearing: all five letters on `stageN1`, the undressed frame killing
+the relator outright, and the diagonally dressed frame carrying the odd central relator
+`liftO 1`.  So the parity horn is FALSE at an ungauged sigma slot as a statement about binder
+points, not merely about residues, and no proof can drop the hypothesis.  ⭐ The sharp line is
+exactly this: `2 ∣ s.e` forbids an even gearing, and an odd `s.e` permits it in quantity
+(`scripts/w65_horn1/results/`, `833` of `1537` odd central residues in `400000` samples).
 
 ⚠ This is the same failure mode `GradedFiveSepZero` flagged for wave 58's two-term form, one
 level up: a form measured at the committed sigma slot `E_23` was recorded as if it held at a
@@ -110,9 +116,10 @@ under the tree's committed `x0` gauge, `0` under the gauge used here).
 
 **NOT proved, and not claimed**: achievability, which remains exactly as measured in W64;
 that the family's other two knobs have odd gearings (this file speaks only of the sigma knob);
-and any hom-level lift.  ⚠ Whether an ungauged sigma admits a FULL binder point, with the
-handle block realised, is recorded as measured-only: the `833` witnesses satisfy centrality and
-oddness but their bare frames were not solved for a handle block.
+and any hom-level lift.  ⚠ Nor is it claimed that the gauge is NECESSARY for the census: it is
+necessary for this proof and for the statement (`censHorn_binder_cex`), and it happens to hold
+at every point the tree uses, but whether an ungauged binder point could still be killed by some
+other dressing is not decided here.
 
 ## Contents
 
@@ -608,6 +615,36 @@ theorem censHorn_recorded_false' :
       ∧ selPar (censHornCexX'.e * (1 : SqU6 gr3R).f * (1 : SqU6 gr3R).h) = 0 :=
   ⟨⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩, by decide, by decide⟩
 
+/-- The `u` letter of the FULL binder counterexample, `<a=2, d=1, e=7, f=1, h=1, m=1, n=1>`. -/
+def censHornCexU : SqU6 gr3R := ⟨2, 0, 0, 1, 7, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0⟩
+
+/-- The `v` letter, `<a=6, b=6, c=4, d=7, e=1, f=7, g=2, j=7, k=6, l=7, m=1>`.  Its commutator
+with `censHornCexU` inverts `sqWord censHornCexSig censHornCexX' 1` exactly, so the undressed
+frame kills. -/
+def censHornCexV : SqU6 gr3R := ⟨6, 6, 4, 7, 1, 7, 2, 0, 0, 7, 6, 7, 1, 0, 0⟩
+
+/-- ⚠⚠⚠ **A GENUINE ONE-HANDLE BINDER POINT WITH AN EVEN GEARING.**  Not merely a residue of
+the right shape: the UNDRESSED frame kills the relator outright, the DIAGONALLY dressed frame
+carries the odd central relator `SqU6.liftO 1`, and all five letters lie on `stageN1`.  This is
+a binder point of exactly the kind the census enumerates, and its gearing `censHornCexX'.e` is
+**EVEN**.
+
+⚠ So horn 1 is FALSE without a hypothesis on the sigma letter, and no proof can drop the one
+this file adds: here `censHornCexSig.e = 1`.  ⭐ Every sigma letter the tree actually uses
+satisfies it (`censHorn_marks_gauged`), so the `67`-point census verdict is untouched. -/
+theorem censHorn_binder_cex :
+    sqRelWord (fiveTuple gr3R 1 0 censHornCexSig censHornCexX' 1 censHornCexU censHornCexV) = 1
+      ∧ sqRelWord (fiveTuple gr3R 1 0 (censHornCexSig * censHornCexX') censHornCexX' 1
+          censHornCexU censHornCexV) = SqU6.liftO 1
+      ∧ selPar (1 : gr3R) = 1
+      ∧ selPar censHornCexX'.e = 0
+      ∧ (censHornCexSig ∈ stageN1 ∧ censHornCexX' ∈ stageN1 ∧ (1 : SqU6 gr3R) ∈ stageN1
+        ∧ censHornCexU ∈ stageN1 ∧ censHornCexV ∈ stageN1) :=
+  ⟨by rw [sqRelWord_fiveTuple]; decide, by rw [sqRelWord_fiveTuple]; decide, by decide,
+    by decide, ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩, ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩,
+    ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩, ⟨⟨1, by decide⟩, ⟨0, by decide⟩⟩,
+    ⟨⟨3, by decide⟩, ⟨2, by decide⟩⟩⟩
+
 /-- ⭐ **The row theorem is not contradicted**: at both counterexamples the cofactor
 `y.f * y.h + s.f * x.h + s.j * x.d` is `0` and the gearing is `0`, so `censHorn_row_o` would
 predict an EVEN row.  It does not apply, because `censHornCexSig.e` is odd, and this records
@@ -688,6 +725,9 @@ section AxiomPins
 #print axioms censHornCexX'
 #print axioms censHorn_recorded_false
 #print axioms censHorn_recorded_false'
+#print axioms censHornCexU
+#print axioms censHornCexV
+#print axioms censHorn_binder_cex
 #print axioms censHorn_cex_offGauge
 #print axioms censHorn_marks_gauged
 #print axioms censHorn_stageWit_verdict
