@@ -203,6 +203,78 @@ theorem evenFam_hfamM_of_orientedEquiv {alpha h : ℕ} (halpha : 2 ≤ alpha)
 
 end FromEndpoint
 
+/-! ## §3 The arithmetic residual: the twisted-cocycle parity supply
+
+The even clone of the odd route's `SqStageTwistedCocycleParitySupply`, generic in the word
+datum and value table: exact-fibre lifts and, per non-twisted slot, a continuous `χ`-twisted
+one-cocycle at precision `2^(k+1)` with the Kronecker parity pattern at the lifts.  This is
+the exact arithmetic content of `Hfam` at a field, and by §4 it is exactly calibrated: it
+holds at every stage if and only if the even classification holds at the field.  Mod-2
+surjectivity of `Z¹(χ mod 2^(k+1)) → Z¹(𝔽₂)` on the prescribed coordinates, which is where
+higher Kummer theory enters, is what remains. -/
+
+section Parity
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The even twisted-cocycle parity supply at a stage tuple.**  Exact-fibre lifts of the
+generators and, for each non-twisted slot `i₀ ≠ 1`, a continuous `χ`-twisted one-cocycle at
+precision `2^(k+1)` odd at the `i₀`-lift and even at the other non-twisted lifts.  The
+twisted slot `1` is unconstrained.  Generic in the even word datum and table. -/
+def EvenFamParitySupply {h k : ℕ} {W : StageWord (MarkedCore.coreRank h)}
+    {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (T : Tuple W v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k) : Prop :=
+  ∃ lifts : Fin (MarkedCore.coreRank h) → maxProPQuotient 2 (GalK K),
+    (∀ i, chiCycKTwo (K := K) (lifts i) = v i) ∧
+    (∀ i, levelMk (maxProPQuotient 2 (GalK K)) k (lifts i) = T.generators i) ∧
+    ∀ i₀ : Fin (MarkedCore.coreRank h), i₀ ≠ 1 →
+      ∃ u : maxProPQuotient 2 (GalK K) → ZMod (2 ^ (k + 1)),
+        IsChiTwistedCocycle (chiCycKTwo (K := K)) (k + 1) u ∧
+        ¬ (2 : ZMod (2 ^ (k + 1))) ∣ u (lifts i₀) ∧
+        ∀ j : Fin (MarkedCore.coreRank h), j ≠ 1 → j ≠ i₀ →
+          (2 : ZMod (2 ^ (k + 1))) ∣ u (lifts j)
+
+/-- **The family from the parity supply**: cocycles assemble into `χ`-shadowed derivations
+(`chiShadowDerivOfCocycle`), and the parity pattern is the family's Kronecker fields. -/
+theorem evenFam_nonempty_family_of_paritySupply {h k : ℕ}
+    {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    {T : Tuple W v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k}
+    (H : EvenFamParitySupply T) : Nonempty (EvenKernelDerivationFamily T) := by
+  obtain ⟨lifts, hchi, hlvl, hcoc⟩ := H
+  choose u hu hdiag hoff using hcoc
+  exact ⟨{ lifts := lifts
+           lifts_chi := hchi
+           lifts_level := hlvl
+           deriv := fun i₀ hi₀ ↦ chiShadowDerivOfCocycle
+             (GQ2.Dyadic.LSquare.maxProTwoGalK_isTopologicallyFinGen K)
+             isProP_maxProPQuotient (chiCycKTwo (K := K)) (u i₀ hi₀) (hu i₀ hi₀)
+           deriv_base := fun i₀ hi₀ ↦
+             isChiShadowDeriv_chiShadowDerivOfCocycle _ _ _ _ _
+           deriv_diag := fun i₀ hi₀ ↦ hdiag i₀ hi₀
+           deriv_off := fun i₀ hi₀ j hj hji ↦ hoff i₀ hi₀ j hj hji }⟩
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The parity supply from the family**: the offset of each functional is a twisted
+cocycle. -/
+theorem evenFam_paritySupply_of_family {h k : ℕ}
+    {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    {T : Tuple W v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k}
+    (F : EvenKernelDerivationFamily T) : EvenFamParitySupply T :=
+  ⟨F.lifts, F.lifts_chi, F.lifts_level, fun i₀ hi₀ ↦
+    ⟨fun g ↦ ((F.deriv i₀ hi₀) g).u,
+      isChiTwistedCocycle_of_isChiShadowDeriv (F.deriv_base i₀ hi₀),
+      F.deriv_diag i₀ hi₀, fun j hj hji ↦ F.deriv_off i₀ hi₀ j hj hji⟩⟩
+
+/-- The family exists exactly when the parity supply holds. -/
+theorem evenFam_nonempty_family_iff_paritySupply {h k : ℕ}
+    {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    {T : Tuple W v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k} :
+    Nonempty (EvenKernelDerivationFamily T) ↔ EvenFamParitySupply T :=
+  ⟨fun ⟨F⟩ ↦ evenFam_paritySupply_of_family F, evenFam_nonempty_family_of_paritySupply⟩
+
+end Parity
+
 /-! ## §4 The status theorems
 
 The headline: over the two arithmetic binders, the even route's carried input is its
@@ -309,8 +381,95 @@ theorem hfamFinal_not_familyM_iff {alpha h : ℕ} (halpha : 2 ≤ alpha)
   rw [hfamFinal_familyM_iff_orientedEquiv halpha hrange hev,
     not_nonempty_iff]
 
+/-- **The residual, in arithmetic form and exactly costed, `N` branch**: the per-stage
+twisted-cocycle parity supply holds at every level and tuple if and only if the even
+classification holds at the field.  This is the statement left open, and its cost is
+exact. -/
+theorem hfamFinal_parityN_iff_orientedEquiv {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    (∀ (k : ℕ), 3 ≤ k →
+      ∀ T : Tuple (nStageWord alpha h (Nat.le_of_succ_le halpha)) (vN alpha)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+        EvenFamParitySupply T) ↔
+      Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))) := by
+  rw [← hfamFinal_statusN_atDepth halpha hrange hev]
+  constructor
+  · intro H k hk T
+    exact evenFam_exists_kill_iff_nonemptyN.mpr
+      (evenFam_nonempty_family_of_paritySupply (H k hk T))
+  · intro H k hk T
+    exact evenFam_nonempty_family_iff_paritySupply.mp
+      (evenFam_exists_kill_iff_nonemptyN.mp (H k hk T))
+
+/-- **The residual, in arithmetic form and exactly costed, `M` branch.** -/
+theorem hfamFinal_parityM_iff_orientedEquiv {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    (∀ (k : ℕ), 3 ≤ k →
+      ∀ T : Tuple (mStageWord alpha h (Nat.le_of_succ_le halpha)) (vM alpha)
+        (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+        EvenFamParitySupply T) ↔
+      Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) := by
+  rw [← hfamFinal_statusM_atDepth halpha hrange hev]
+  constructor
+  · intro H k hk T
+    exact evenFam_exists_kill_iff_nonemptyM.mpr
+      (evenFam_nonempty_family_of_paritySupply (H k hk T))
+  · intro H k hk T
+    exact evenFam_nonempty_family_iff_paritySupply.mp
+      (evenFam_exists_kill_iff_nonemptyM.mp (H k hk T))
+
 end Status
 
 end
 
 end GQ2.Dyadic.EvenFamily
+
+/-! ## §5 Axiom pins
+
+Every public declaration, printed.  §1 to §3 stay at std-3.  §4's status theorems consume the
+committed even endpoint chain in their forward halves, so they print the seven-element set
+`S = std-3 + {hilbertSymbol_normCriterion_finiteDyadic, tateDualityAt,
+absGalQ2_isTopologicallyFinitelyGenerated, absGalQ2_localEulerCharacteristic}` that
+`EvenRouteFinal.lean` §8 records for the endpoints; the backward halves add nothing.  The
+committed endpoints are printed alongside for the side-by-side. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenFamily
+
+-- §1 pullback and transport
+#print axioms evenFamTuplePullback
+#print axioms evenFamTuplePullback_generators
+#print axioms evenFamFamilyTransport
+
+-- §2 the family from the endpoint
+#print axioms evenFam_hfamN_of_orientedEquiv
+#print axioms evenFam_hfamM_of_orientedEquiv
+
+-- §3 the arithmetic residual
+#print axioms EvenFamParitySupply
+#print axioms evenFam_nonempty_family_of_paritySupply
+#print axioms evenFam_paritySupply_of_family
+#print axioms evenFam_nonempty_family_iff_paritySupply
+
+-- §4 the status theorems
+#print axioms hfamFinal_statusN_atDepth
+#print axioms hfamFinal_statusM_atDepth
+#print axioms hfamFinal_familyN_iff_orientedEquiv
+#print axioms hfamFinal_familyM_iff_orientedEquiv
+#print axioms hfamFinal_carriedN_iff_orientedEquiv
+#print axioms hfamFinal_carriedM_iff_orientedEquiv
+#print axioms hfamFinal_not_familyN_iff
+#print axioms hfamFinal_not_familyM_iff
+#print axioms hfamFinal_parityN_iff_orientedEquiv
+#print axioms hfamFinal_parityM_iff_orientedEquiv
+
+-- the committed endpoints, for the side-by-side
+#print axioms GQ2.Dyadic.EvenRouteFinal.evenRouteFinal_orientedEquivN_atDepth
+#print axioms GQ2.Dyadic.EvenRouteFinal.evenRouteFinal_orientedEquivM_atDepth
+#print axioms GQ2.Dyadic.EvenRouteFinal.evenRouteFinal_statusN
+#print axioms GQ2.Dyadic.EvenRouteFinal.evenRouteFinal_statusM
+
+end AxiomPins
