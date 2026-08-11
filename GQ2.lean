@@ -752,6 +752,7 @@ import GQ2.Dyadic.SqCore.GradedConsolShift
 import GQ2.Dyadic.SqCore.GradedConsolLegal
 import GQ2.Dyadic.SqCore.GradedSeven
 import GQ2.Dyadic.SqCore.GradedSepSix
+import GQ2.Dyadic.SqCore.GradedCensusHorn
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
