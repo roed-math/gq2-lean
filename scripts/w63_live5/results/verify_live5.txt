@@ -1,0 +1,82 @@
+W63-LIVE5 verification
+==============================================================================
+
+THE POINT (fifteen coordinates a b c d e f g h i j k l m n o, mod 8)
+  liveSig         ⟨0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩   U6(b=1, d=1)
+  liveX = stageX  ⟨2, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩   U6(a=2, e=5)
+  liveY           ⟨0, 0, 0, 0, 2, 5, 0, 5, 0, 0, 0, 5, 0, 7, 3⟩   U6(e=2, f=5, h=5, l=5, n=7, o=3)
+  liveU           ⟨0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩   U6(c=2, d=1)
+  liveV           ⟨0, 0, 2, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0⟩   U6(c=2, e=3, j=5)
+
+0  THE ARITHMETIC IS RE-CERTIFIED BEFORE ANY MEASUREMENT
+  [ok ] U_6 coordinate law vs honest 6 x 6 matrices  2000 comparisons
+  [ok ] sqWord in coordinates vs sqWord by matrices  300 random triples
+
+1  THE FIFTEEN-ROW STANDARD, AND THE CLASS-FIVE SEPARATION
+  [ok ] undressed relator dies (all fifteen rows)  U6()
+  [ok ] a0 = a1 dressing leaves a PURELY CENTRAL residue  U6(o=1)
+  [ok ] ...and the residue is ODD  o = 1
+  [ok ] the relator is handle-independent (h = 1..5, every handle)  15 (h, j) pairs
+  [ok ] ...and so is the dressed residue  15 (h, j) pairs
+
+2  THE BLOCK CHANNEL IS LIVE (this is what the two committed witnesses lack)
+  [ok ] block reading of the core pair is ODD  blockRead = 5
+  [ok ] the handle minor is ODD  minor = 3
+  [ok ] the symplectic identity holds at the point
+  [ok ] the handle block's (4,6) coordinate is odd  U6(h=6, i=3, l=4, m=3, o=1)
+  [ok ] the handle block is live in the CLASS-FOUR row too  m = 3
+  [ok ] the two committed witnesses are block-blind (control)
+
+3  THE WITNESS STANDARD, CONDITION BY CONDITION
+  [ok ] standard: A_fifteen_rows
+  [ok ] standard: B_central_residue
+  [ok ] standard: B_odd_residue
+  [ok ] standard: C_stageN1_letters
+  [ok ] standard: D_gauge_x0
+  [ok ] standard: D_gauge_x1
+  [ok ] standard: D_gauge_x0_e_odd
+  [ok ] standard: E_block_live
+  [ok ] standard: F_sigma_b_one
+  [ok ] standard: G_x0_flat
+  [ok ] the standard is calibrated: stageWit satisfies every entry
+  [ok ] ...and fiveWit fails exactly the stage-four column condition
+
+4  CLASS-FOUR BLINDNESS, AND THE CLASS-FIVE SOUNDNESS INPUTS
+  [ok ] both U_5 quotients of the undressed relator are trivial
+  [ok ] both U_5 quotients of the dressed relator are trivial (residue central)
+  [ok ] every letter has an even (1,2)-column  [stageN1, and stageWit_a_even]
+  [ok ] every letter has an even (3,4)-column  [stageN1, hence FiveOrth via forceN1]
+  [ok ] the ten flat obstructions vanish at the x0 slot [the pivot anchor]
+  [ok ] the x0 slot is the committed stageX, unchanged
+  [ok ] the sigma slot keeps the nu'-column of E_23
+  [ok ] the sigma slot is fiveSigMark * E_45
+
+5  THE COMPOSITE: THE CORE PAIR REQUIRES A HANDLE
+  [ok ] no h = 0 completion of the LIVE core pair, random sweep  200000 x1 slots, 0 kills
+  [ok ] ...and the layered solve reports the (4,6) row as the obstruction  400 layered solves, all fail at row i
+  [ok ] CONTROL: the BLIND core pair (fiveSigMark, stageX) DOES complete at h = 0  U6(c=4, d=4, e=6, f=5, g=4, j=2, k=4, m=4, o=4)
+  [ok ] ...and its h = 0 class-five residue is EVEN  U6()
+
+6  THE ABELIAN COLUMNS OF THE POINT, AS CHARACTERS  [the legality audit]
+    column a on (sigma, x0, x1, u, v): [0, 2, 0, 0, 0]
+    column b on (sigma, x0, x1, u, v): [1, 0, 0, 0, 0]
+    column c on (sigma, x0, x1, u, v): [0, 0, 0, 2, 2]
+    column d on (sigma, x0, x1, u, v): [1, 0, 0, 1, 0]
+    column e on (sigma, x0, x1, u, v): [0, 5, 2, 0, 3]
+  [ok ] the (1,2)-column sees only the x0 generator, with value 2
+  [ok ] no dressing in ker(lambda) n ker(nu') can have image liveX  legality forces a_0 even, and (Phi g).a = 2 a_0 is then 0 or 4, never 2
+  [ok ] the nu'-column of the point is the committed one
+
+7  DOCTRINE-RULE-4 SWEEP AGAINST THE TREE'S REFUTATIONS
+  [ok ] W62-CHANNELS: the point does NOT claim three even gamma_2 channels (it is not a gamma_2 point at all)
+  [ok ] W61: the block reading is unmoved by a gamma_2-dressing of either core slot  2000 gamma_2 dressings
+  [ok ] ...and the control is nonzero: full dressings DO move it  1725 of 2000
+  [ok ] W61 dressing forcing: the a0 = a1 dressing meets its conclusion outright
+  [ok ] W62 misreading 8: the datum supplied is EQUIVALENT to 0 < h, so nothing drops  recorded, not measured
+
+8  NON-VACUITY OF THE SEARCH, AND THE SHAPE OF THE OBSTRUCTION
+  [ok ] the block equation gates the solve: odd minor completes only at the live sigma  live 39, blind 116 of 3000
+  [ok ] CROSS-CHECK: an odd minor NEVER completes at the block-blind sigma slot  3000 letter pairs, 0 completions
+
+==============================================================================
+CHECKS: 47   FAILURES: 0

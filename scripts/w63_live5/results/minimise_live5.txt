@@ -1,0 +1,23 @@
+letters enumerated       : 64 x 1024 = 65536
+pairs with an odd (4,6) minor AND an odd (1,5) block row: 24576
+lowest letter weights    : [4, 5, 6, 7]
+
+  weight  18   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(a=4, c=4, e=2, f=1, g=4, h=5, i=5, j=6, k=4, l=7, m=2, n=3, o=6)   residue = U6(o=5)
+  weight  17   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(c=4, d=4, e=6, f=1, g=4, h=5, i=1, j=2, l=1, m=6, n=1, o=5)   residue = U6(o=1)
+  weight  16   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(a=4, c=4, e=6, f=5, h=1, i=1, j=2, l=5, m=6, n=7, o=3)   residue = U6(o=5)
+  weight  15   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(c=4, e=6, f=5, h=1, i=5, j=6, l=1, m=6, n=3, o=1)   residue = U6(o=1)
+  weight  14   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(d=4, e=2, f=5, h=5, i=1, l=5, m=6, n=7, o=2)   residue = U6(o=1)
+  weight  13   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(e=2, f=5, h=5, i=1, k=4, l=1, m=6, n=3)   residue = U6(o=1)
+  weight  12   U = U6(c=2, d=1)   V = U6(c=2, e=1, j=1)   Y = U6(e=2, f=5, h=1, i=1, l=5, n=7, o=4)   residue = U6(o=5)
+  weight  11   U = U6(c=2, d=1)   V = U6(c=2, e=3, j=5)   Y = U6(e=2, f=5, h=5, l=5, n=7, o=3)   residue = U6(o=1)
+
+MINIMUM total weight of (U, V, x1) over the family: 11
+  total weight of the whole point (sigma, x0, x1, U, V): 15
+
+THE POINT, in the campaign's fifteen coordinates a b c d e f g h i j k l m n o:
+  liveBlkSig  = ⟨0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  stageX      = ⟨2, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  liveBlkY    = ⟨0, 0, 0, 0, 2, 5, 0, 5, 0, 0, 0, 5, 0, 7, 3⟩
+  liveBlkU    = ⟨0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+  liveBlkV    = ⟨0, 0, 2, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0⟩
+minimise exit=0

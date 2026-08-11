@@ -1,0 +1,16 @@
+W63-LIVE5: the h = 0 sweep for a class-five separation
+==============================================================================
+trials: 200000, seed 2026
+
+  gauged relator-killing h = 0 triples found : 6277
+  ...whose a0 = a1 residue is purely central  : 994
+  ...and ODD there (a class-five separation)  : 0
+
+  The control that the sweep is not vacuous: the committed core pair
+    sqWord(fiveSigMark, stageX, blindCoreY) = U6()
+    its a0 = a1 residue                     = U6()
+
+==============================================================================
+VERDICT: MEASURED, NOT PROVED.  No h = 0 class-five separation was found.
+This is an open question; the Lean file proves nothing about it.
+h0 exit=0
