@@ -80,10 +80,12 @@ four lattice bounds; and the reduction of the forcing to the certificate identit
 **MEASURED**, and NOT proved: (i) the certificate identity itself, that
 `psiOne (gaThreeShift h m z) = 0` for every `z` with slots in `gapKOne` (and the `psiTwo`
 analogue); (ii) that no achievable dressing kills, that the parity line fails and that the sharp
-line holds at all four.  `scripts/w63_four/results/certify.txt` runs **44** named checks with
+line holds at all four.  `scripts/w63_four/results/certify.txt` runs **40** named checks with
 **0** failures on wave 59's honest `6 x 6` matrices through wave 61's `sharp4lib`, including the
 certificate identity on **all 16384** members of `gapKOne` at each of the five slots and on a
-spanning family of five-slot tuples.
+spanning family of five-slot tuples; `lean_match.txt` adds **24** more checking, coordinate by
+coordinate, that this file's twelve letters, two targets and two certificates are exactly the
+measured ones and not a transcription of them.
 
 ⚠ **The certificate is exactly the annihilator of the target.**  `gapKOne` is by construction
 the joint kernel of the five slot pullbacks of `psiOne`, so the identity is not an extra

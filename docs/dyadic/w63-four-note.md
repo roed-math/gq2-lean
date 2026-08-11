@@ -138,8 +138,10 @@ dead handle slot shifts by nothing.
 
 * The four markings are **not** proved.  What is proved is the lattice bound at all four, and
   the reduction of the forcing to one identity.  The identity itself is MEASURED
-  (`scripts/w63_four/results/certify.txt`, 44 named checks, 0 failures), including on all
-  `16384` members of `gapKOne` at each of the five slots.
+  (`scripts/w63_four/results/certify.txt`, 40 named checks, 0 failures), including on all
+  `16384` members of `gapKOne` at each of the five slots.  A further 24 checks
+  (`lean_match.txt`) confirm coordinate by coordinate that the Lean file's twelve letters, two
+  targets and two certificates are the measured ones.
 * The Lean targets are strictly bigger than the honest lattices, by index `16` at all four.
   The certificate survives all of that slack; nothing in the file claims the targets are the
   lattices.
