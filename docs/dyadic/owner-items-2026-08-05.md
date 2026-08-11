@@ -5,6 +5,39 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 62 (2026-08-10)
+
+**The route I said last wave was cheap to widen is closed, and that is the wave's most useful
+result.** I sent a lane to search for a binder point where three specific channels are even,
+which would have widened the exclusion a full filtration step using theorems we already had.
+There is no such point: the channel functional and the separation bit turn out to be the same
+functional over the two-element field, so even channels force an even residue. That is now a
+theorem rather than a failed search, so we will not spend another wave looking. A conditional
+widening did land, covering half the achievable lattice.
+
+**Two audits found their predecessors incomplete.** The migration onto the sharp stage-four line
+was recorded last wave as covering two statements; it is fourteen, because a file that landed in
+the same wave carried the same condition in twelve more places. And the mod-two candidate we
+recorded as holding at none of 1650 markings now has its explanation: it implies the parity line,
+so it could never have separated anything.
+
+**One lane did not achieve its target and said so.** I sent it to prove the four markings that
+separate two conditions, and it proved a related separation at a different witness that sits
+outside the relevant family. The four are still measured, not proved. What it did do is diagnose
+exactly why they resist, which tells the next attempt what will not work, and it verified the
+four are real rather than a census artefact.
+
+**A caveat on something I reported last wave.** The handle-count instrument is now an invariant
+of the group rather than of a marking, which is a genuine generalisation. But the datum it
+supplies is equivalent to the hypothesis it replaces, so it buys a reformulation rather than
+strength, and no committed statement can drop anything because of it. I would rather correct
+that now than have it read as more than it is.
+
+Final state `10201fa4`: 4293 jobs green, census 11, zero sorries, capstones frozen, all gates
+passing. Progress estimate about 92 to 94 percent, flat: the wave closed a route, generalised an
+instrument and corrected two accounts, but did not move either route's remaining input. The even
+route is untouched and still stands on `Hfam` alone.
+
 ## Status at wave 61 (2026-08-10)
 
 **The `h >= 1` route now has the statement it has been building toward.** At every handle
