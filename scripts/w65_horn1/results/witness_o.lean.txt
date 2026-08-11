@@ -1,0 +1,207 @@
+    - 2 * s.b * x.l * xa
+    - s.d * x.e * x.j
+    + s.f * x.i * xc
+    - 2 * s.g * x.i * xa
+    - s.h * x.e * x.f
+    + s.i * x.f * xc
+    + s.i * x.g * xa
+    - 2 * s.k * x.e * xa
+    + s.l * x.b * xa
+    + sa * x.b * x.l
+    + sa * x.e * x.k
+    + sa * x.g * x.i
+    - 2 * sc * x.f * x.i
+    + se * x.d * x.j
+    + se * x.f * x.h
+    + 2 * se * x.k * xa
+    - 2 * x.b * y.l * ya
+    - 2 * x.d * y.j * ye
+    + x.e * y.j * yd
+    + x.e * y.k * ya
+    + x.f * y.h * ye
+    + x.f * y.i * yc
+    - 2 * x.g * y.i * ya
+    - 2 * x.h * y.f * ye
+    + x.i * y.f * yc
+    + x.i * y.g * ya
+    + 2 * x.j * yd * ye
+    - 4 * x.k * ya * ye
+    + 2 * x.l * ya * yb
+    + xa * y.g * y.i
+    + 2 * xa * y.k * ye
+    + 2 * xa * y.l * yb
+    - 2 * xc * y.f * y.i
+    + s.b * s.h * x.e * xa
+    - 2 * s.b * s.i * xa * xc
+    - s.b * sa * x.e * x.h
+    - 2 * s.b * sa * x.i * xc
+    + 2 * s.b * sc * x.i * xa
+    - 2 * s.b * se * x.h * xa
+    - 2 * s.b * x.e * x.h * xa
+    - s.b * x.e * y.h * ya
+    - 2 * s.b * x.h * ya * ye
+    - 4 * s.b * x.i * xa * xc
+    - 2 * s.b * x.i * ya * yc
+    - 2 * s.b * xa * y.h * ye
+    - 2 * s.b * xa * y.i * yc
+    - 2 * s.b * xc * y.i * ya
+    + s.d * s.f * x.e * xc
+    + s.d * s.g * x.e * xa
+    + s.d * sa * x.e * x.g
+    + s.d * sc * x.e * x.f
+    + 4 * s.d * x.e * x.f * xc
+    + 4 * s.d * x.e * x.g * xa
+    + s.d * x.e * y.f * yc
+    + s.d * x.e * y.g * ya
+    + 2 * s.d * x.f * yc * ye
+    + 2 * s.d * x.g * ya * ye
+    + 2 * s.d * xa * y.g * ye
+    + 2 * s.d * xc * y.f * ye
+    - s.f * sc * x.d * x.e
+    + 2 * s.f * x.d * yc * ye
+    - s.g * sa * x.d * x.e
+    - 2 * s.g * se * x.d * xa
+    - 2 * s.g * x.d * x.e * xa
+    - 2 * s.g * x.d * ya * ye
+    - 2 * s.g * x.e * ya * yd
+    - 4 * s.g * xa * yd * ye
+    + s.h * sa * x.b * x.e
+    + 4 * s.h * x.b * x.e * xa
+    + 2 * s.h * x.b * ya * ye
+    + 2 * s.h * x.e * ya * yb
+    + 4 * s.h * xa * yb * ye
+    - 4 * s.i * x.b * xa * xc
+    - 2 * s.i * x.b * ya * yc
+    + 2 * sa * sc * x.b * x.i
+    + 2 * sa * x.d * y.g * ye
+    + 4 * sa * x.h * yb * ye
+    + 4 * sa * xc * y.i * yb
+    - 2 * sc * se * x.d * x.f
+    + 8 * sc * x.b * x.i * xa
+    + 2 * sc * x.b * y.i * ya
+    - 2 * sc * x.d * x.e * x.f
+    - 2 * sc * x.d * y.f * ye
+    - 2 * sc * x.e * y.f * yd
+    - 4 * sc * x.f * yd * ye
+    + 4 * sc * x.i * ya * yb
+    + 4 * sc * xa * y.i * yb
+    - 4 * se * x.b * x.h * xa
+    - 2 * se * x.b * y.h * ya
+    - 4 * se * x.d * x.f * xc
+    - 4 * se * x.d * x.g * xa
+    - 4 * se * x.g * ya * yd
+    - 4 * se * xc * y.f * yd
+    - 9 * x.b * x.e * y.h * ya
+    + 2 * x.b * x.h * ya * ye
+    - 18 * x.b * x.i * ya * yc
+    - 10 * x.b * xa * y.h * ye
+    - 10 * x.b * xa * y.i * yc
+    + 2 * x.b * xc * y.i * ya
+    + 8 * x.b * y.h * ya * ye
+    + 8 * x.b * y.i * ya * yc
+    + 4 * x.d * x.e * y.f * yc
+    + 4 * x.d * x.e * y.g * ya
+    + 18 * x.d * x.f * yc * ye
+    + 2 * x.d * x.g * ya * ye
+    + 18 * x.d * xa * y.g * ye
+    + 2 * x.d * xc * y.f * ye
+    - 4 * x.d * y.f * yc * ye
+    - 4 * x.d * y.g * ya * ye
+    - 18 * x.e * x.g * ya * yd
+    + 8 * x.e * x.h * ya * yb
+    - 18 * x.e * xc * y.f * yd
+    - 20 * x.f * xc * yd * ye
+    - 8 * x.f * yc * yd * ye
+    - 20 * x.g * xa * yd * ye
+    + 16 * x.g * ya * yd * ye
+    + 36 * x.h * xa * yb * ye
+    - 8 * x.h * ya * yb * ye
+    + 16 * x.i * xc * ya * yb
+    + 36 * xa * xc * y.i * yb
+    - 8 * xa * y.g * yd * ye
+    - 8 * xa * y.h * yb * ye
+    - 8 * xa * y.i * yb * yc
+    + 16 * xc * y.f * yd * ye
+    - 8 * xc * y.i * ya * yb
+    - 2 * s.b * s.d * sa * x.e * xc
+    - 2 * s.b * s.d * sc * x.e * xa
+    - 2 * s.b * s.d * x.e * ya * yc
+    - 4 * s.b * s.d * xa * yc * ye
+    + 2 * s.b * sa * sc * x.d * x.e
+    - 4 * s.b * sa * x.d * yc * ye
+    + 4 * s.b * sc * se * x.d * xa
+    + 2 * s.b * sc * x.d * x.e * xa
+    + 4 * s.b * sc * x.e * ya * yd
+    + 8 * s.b * sc * xa * yd * ye
+    - 4 * s.b * se * x.d * xa * xc
+    - 8 * s.b * x.d * x.e * ya * yc
+    - 12 * s.b * x.d * xa * yc * ye
+    + 16 * s.b * x.d * ya * yc * ye
+    - 20 * s.b * x.e * xa * yc * yd
+    - 16 * s.b * x.e * xc * ya * yd
+    - 4 * s.b * x.e * ya * yc * yd
+    - 8 * s.b * xa * xc * yd * ye
+    + 16 * s.b * xa * yc * yd * ye
+    + 8 * s.b * xc * ya * yd * ye
+    - 4 * s.d * sa * x.b * x.e * xc
+    - 4 * s.d * sc * x.b * x.e * xa
+    - 4 * s.d * sc * x.b * ya * ye
+    - 12 * s.d * x.b * x.e * xa * xc
+    - 6 * s.d * x.b * x.e * ya * yc
+    - 20 * s.d * x.b * xa * yc * ye
+    - 4 * s.d * x.b * xc * ya * ye
+    + 16 * s.d * x.b * ya * yc * ye
+    - 20 * s.d * x.e * xa * yb * yc
+    - 4 * s.d * x.e * xc * ya * yb
+    - 32 * s.d * xa * xc * yb * ye
+    - 16 * s.d * xa * yb * yc * ye
+    + 2 * sa * sc * x.b * x.d * x.e
+    + 8 * sa * sc * x.d * yb * ye
+    + 4 * sa * se * x.b * x.d * xc
+    - 8 * sa * x.b * x.d * yc * ye
+    + 4 * sa * x.b * x.e * yc * yd
+    + 8 * sa * x.b * xc * yd * ye
+    - 16 * sa * x.d * yb * yc * ye
+    + 32 * sa * x.e * xc * yb * yd
+    + 8 * sa * x.e * yb * yc * yd
+    - 16 * sa * xc * yb * yd * ye
+    + 8 * sc * se * x.b * x.d * xa
+    + 8 * sc * se * x.b * ya * yd
+    + 6 * sc * x.b * x.d * x.e * xa
+    + 20 * sc * x.b * x.e * ya * yd
+    + 40 * sc * x.b * xa * yd * ye
+    - 24 * sc * x.b * ya * yd * ye
+    + 16 * sc * x.d * x.e * ya * yb
+    + 40 * sc * x.d * xa * yb * ye
+    - 16 * sc * x.d * ya * yb * ye
+    + 64 * sc * x.e * xa * yb * yd
+    - 16 * sc * xa * yb * yd * ye
+    + 12 * se * x.b * x.d * xa * xc
+    - 8 * se * x.b * x.d * ya * yc
+    + 8 * se * x.b * xc * ya * yd
+    - 8 * se * x.b * ya * yc * yd
+    + 8 * se * x.d * xa * yb * yc
+    + 8 * se * x.d * xc * ya * yb
+    + 64 * se * xa * xc * yb * yd
+    + 16 * se * xa * yb * yc * yd
+    - 32 * x.b * x.d * x.e * ya * yc
+    - 100 * x.b * x.d * xa * yc * ye
+    - 4 * x.b * x.d * xc * ya * ye
+    + 16 * x.b * x.d * ya * yc * ye
+    - 40 * x.b * x.e * xa * yc * yd
+    + 20 * x.b * x.e * xc * ya * yd
+    + 60 * x.b * x.e * ya * yc * yd
+    + 120 * x.b * xa * xc * yd * ye
+    + 80 * x.b * xa * yc * yd * ye
+    - 24 * x.b * xc * ya * yd * ye
+    - 48 * x.b * ya * yc * yd * ye
+    - 40 * x.d * x.e * xa * yb * yc
+    + 24 * x.d * x.e * xc * ya * yb
+    - 32 * x.d * xa * xc * yb * ye
+    + 48 * x.d * xa * yb * yc * ye
+    + 320 * x.e * xa * xc * yb * yd
+    - 56 * x.e * xa * yb * yc * yd
+    - 64 * x.e * xc * ya * yb * yd
+    - 272 * xa * xc * yb * yd * ye
+    + 48 * xa * yb * yc * yd * ye
+    + 48 * xc * ya * yb * yd * ye
