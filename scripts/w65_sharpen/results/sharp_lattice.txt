@@ -1,0 +1,115 @@
+======================================================================================================
+W65-SHARPEN  the two sharpened stage-four lattice bounds, certified
+======================================================================================================
+
+bracket convention: commP x y = x^-1 y^-1 x y  (the tree's, and the Lean targets')
+
+0  The five lattices, re-entered from their Lean `carrier` fields
+
+  [ok ] stageN1  is a subgroup of order 2^43                                   sift gives 2^43  (GradedFiveStageFour:716)
+  [ok ] stageN2  is a subgroup of order 2^27                                   sift gives 2^27  (GradedFiveStageFour:728)
+  [ok ] stageN3  is a subgroup of order 2^15                                   sift gives 2^15  (GradedFiveStageFour:759)
+  [ok ] forceSharpN2 is a subgroup of order 2^26                               sift gives 2^26  (GradedForceSharp)
+  [ok ] forceSharpN3 is a subgroup of order 2^13                               sift gives 2^13  (GradedForceSharp)
+  [ok ] forceSharpN2 < stageN2, index 2                                        the one generator that leaves is <g=1>
+  [ok ] forceSharpN3 < stageN3, index 4                                        the two generators that leave are <j=2> and <k=1>
+
+1  The two-step chain, and whether it loses anything
+
+  [ok ] [stageN1, stageN1] = forceSharpN2 exactly (both containments)          2^26 = 2^26
+  [ok ] [forceSharpN2, stageN1] = forceSharpN3 exactly (both containments)     2^13 = 2^13
+  [ok ] forceLcs stageN1 2 = [forceSharpN2, stageN1], so the RELAXED middle term costs nothing 2^13 both ways
+  [ok ] [stageN2, stageN1] is STRICTLY bigger than forceSharpN3: the committed middle term DOES cost 2^15 vs 2^13, so the committed stageN2 cannot reach stageN3'
+   [stageN2, stageN1] single-coordinate members: j in {0,2,4,6}; k in {0,1,2,3,4,5,6,7}; l in {0,2,4,6}; m in {0,2,4,6}; n in {0,1,2,3,4,5,6,7}; o in {0,1,2,3,4,5,6,7}
+   [forceSharpN2, stageN1] single-coordinate members: j in {0,4}; k in {0,2,4,6}; l in {0,2,4,6}; m in {0,2,4,6}; n in {0,1,2,3,4,5,6,7}; o in {0,1,2,3,4,5,6,7}
+
+   => the `2|g` half of the depth-one sharpening is LOAD-BEARING for the depth-two one:
+      without it the j-coordinate of the second bracket is only even, not 4-divisible.
+
+2  The Lean proof's per-coordinate identities, on random members of the hypotheses
+
+  [ok ] p,q in stageN1  =>  [p,q] in forceSharpN2   (a..e = 0, 2|f, 2|g, 2|h, 2|j) 20000 random pairs, violations {'f': 0, 'g': 0, 'h': 0, 'j': 0, 'k': 0, 'l': 0, 'm': 0}
+  [ok ] …and [p,q].g = p.b q.c - p.c q.b, the identity the Lean proof rewrites to 20000 random pairs
+  [ok ] p in forceSharpN2, q in stageN1  =>  [p,q] in forceSharpN3   (a..i = 0, 4|j, 2|k, 2|l, 2|m) 20000 random pairs, violations {'j': 0, 'k': 0, 'l': 0, 'm': 0}
+  [ok ] …and the four reduced coordinate identities the Lean proof rewrites to hold 20000 random pairs, mismatches {'j': 0, 'k': 0, 'l': 0, 'm': 0}
+  [ok ] with the COMMITTED stageN2 the conclusion FAILS, as it must            4945/20000 have 4 not dividing j, 5008/20000 have k odd
+
+3  Reverse containment: are the sharpened targets ACHIEVED, generator by generator?
+
+   Every element of a lattice with a..i = 0 is a product of the six single-coordinate
+   generators, because that set is abelian with coordinatewise addition (checked).
+
+  [ok ] the a..i = 0 lattice is abelian with coordinatewise addition           4000 random pairs
+  [ok ] <j=4> is achievable, i.e. lies in forceLcs stageN1 2                   
+  [ok ] <k=2> is achievable, i.e. lies in forceLcs stageN1 2                   
+  [ok ] <l=2> is achievable, i.e. lies in forceLcs stageN1 2                   
+  [ok ] <m=2> is achievable, i.e. lies in forceLcs stageN1 2                   
+  [ok ] <n=1> is achievable, i.e. lies in forceLcs stageN1 2                   
+  [ok ] <o=1> is achievable, i.e. lies in forceLcs stageN1 2                   
+  [ok ] <f=2> lies in [stageN1, stageN1]                                       
+  [ok ] <g=2> lies in [stageN1, stageN1]                                       
+  [ok ] <h=2> lies in [stageN1, stageN1]                                       
+  [ok ] <i=1> lies in [stageN1, stageN1]                                       
+  [ok ] <j=2> lies in [stageN1, stageN1]                                       
+  [ok ] <k=1> lies in [stageN1, stageN1]                                       
+  [ok ] <l=1> lies in [stageN1, stageN1]                                       
+  [ok ] <m=1> lies in [stageN1, stageN1]                                       
+  [ok ] <n=1> lies in [stageN1, stageN1]                                       
+  [ok ] <o=1> lies in [stageN1, stageN1]                                       
+
+   explicit witnesses (p in forceSharpN2, q in stageN1) with commP p q = the generator:
+  [ok ] <j=4> = commP p q for single-coordinate p in forceSharpN2, q in stageN1 ('<f=2>', '<c=2>')
+  [ok ] <k=2> = commP p q for single-coordinate p in forceSharpN2, q in stageN1 ('<g=2>', '<d=1>')
+  [ok ] <l=2> = commP p q for single-coordinate p in forceSharpN2, q in stageN1 ('<h=2>', '<e=1>')
+  [ok ] <m=2> = commP p q for single-coordinate p in forceSharpN2, q in stageN1 ('<f=2>', '<h=1>')
+  [ok ] <n=1> = commP p q for single-coordinate p in forceSharpN2, q in stageN1 ('<i=1>', '<g=7>')
+  [ok ] <o=1> = commP p q for single-coordinate p in forceSharpN2, q in stageN1 ('<i=1>', '<j=7>')
+
+4  Consumer sweep: which named non-achievable elements need which bound
+
+   element                                                          in stageN3?  in forceSharpN3?  newly excluded?
+   gaTwoCenKill = <m=3>  (GradedGammaTwoCentral:~600)               False        False        no
+  [ok ] gaTwoCenKill: forceSharpN3 excludes it too (no committed kill is lost) stageN3 False / forceSharpN3 False
+  [ok ] gaTwoCenKill: the sharpening never RE-ADMITS it                        
+   <m=1,n=3>             (GradedFiveStageFour:999)                  False        False        no
+  [ok ] <m=1,n=3>: forceSharpN3 excludes it too (no committed kill is lost)    stageN3 False / forceSharpN3 False
+  [ok ] <m=1,n=3>: the sharpening never RE-ADMITS it                           
+   commP (commP fiveSigMark forceU) forceY  (GradedFiveStageFour:1020) False        False        no
+  [ok ] commP: forceSharpN3 excludes it too (no committed kill is lost)        stageN3 False / forceSharpN3 False
+  [ok ] commP: the sharpening never RE-ADMITS it                               
+
+   census of one-coordinate elements <c=t> with c in jklmno:  which lattice excludes them
+
+   c   excluded by stageN3            excluded by stageN3' (sharp)      NEW
+   j   [1, 3, 5, 7]                   [1, 2, 3, 5, 6, 7]               [2, 6]
+  [ok ] <j=t> census: the sharp lattice excludes a superset                    
+   k   []                             [1, 3, 5, 7]                     [1, 3, 5, 7]
+  [ok ] <k=t> census: the sharp lattice excludes a superset                    
+   l   [1, 3, 5, 7]                   [1, 3, 5, 7]                     -
+  [ok ] <l=t> census: the sharp lattice excludes a superset                    
+   m   [1, 3, 5, 7]                   [1, 3, 5, 7]                     -
+  [ok ] <m=t> census: the sharp lattice excludes a superset                    
+   n   []                             []                               -
+  [ok ] <n=t> census: the sharp lattice excludes a superset                    
+   o   []                             []                               -
+  [ok ] <o=t> census: the sharp lattice excludes a superset                    
+
+  [ok ] on the (j,k,l,m) box of 4096 elements the sharpening newly excludes 3/4 of stageN3 384 of the 512 stageN3 members leave
+
+5  Doctrine rule 3: where the lattice sits in each committed consumer
+
+   `forceLcs H k <= N` puts N in the CONCLUSION, so shrinking N STRENGTHENS the bound.
+   A consumer that takes `z in N` as a HYPOTHESIS is WEAKENED by shrinking N, and must
+   keep the old lattice unless its own input is an achievability statement.
+
+   GradedFiveStageFour.stageWit_sigma_forced      hz : z i in forceLcs .. 2    conclusion of the bound feeds a hypothesis; strengthened, hypothesis unchanged
+   GradedFiveGammaTwo.stageWit_gaTwo_forced       hz : z i in forceLcs .. 1    same
+   GradedStageSharp.gaThreeShiftO_even users      z i in stageN3 (declared)    HYPOTHESIS on a declared lattice: shrinking it WEAKENS, keep stageN3
+   GradedStageFrame.stageFrameHom_*               z i in forceLcs .. 2         same as the first
+   GradedFiveLive.liveBlk*                        z i in forceLcs .. 2         same as the first
+   GradedGammaTwoCentral.*_not_stageFour_achievable x notin stageN3              NEGATIVE membership: shrinking the lattice makes the statement EASIER, so the old proofs stay valid and new ones become possible
+
+======================================================================================================
+52 named checks, 0 failures
+======================================================================================================
+
