@@ -172,8 +172,9 @@ theorem evenParity_characters_ext {n k : ℕ} (hk : 3 ≤ k) {W : StageWord n}
 
 omit [T2Space (GalK K)] in
 /-- **The dual-basis character at a slot.**  At even degree, evaluation of the mod-2 character
-group of `G_K(2)` at the exact-fibre lifts of an even stage tuple is a bijection onto all value
-patterns, so each slot carries a character odd exactly there.  This is the Kronecker dual whose
+group of `G_K(2)` at any lifts of an even stage tuple's generators is a bijection onto all value
+patterns, so each slot carries a character odd exactly there.  Only the level condition on the
+lifts is used; the exact-fibre condition is not needed here.  This is the Kronecker dual whose
 Kummer realization drives §4. -/
 theorem evenParity_exists_dual_character {h k : ℕ}
     (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (hk : 3 ≤ k)

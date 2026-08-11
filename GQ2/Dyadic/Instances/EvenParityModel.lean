@@ -36,6 +36,15 @@ wave-65 equivalences.  Three statements, in increasing finality.
 `KSqrtNegTwo` and `KSqrtTwo` are quadratic (`h = 0`), the quartic `KQuarticN` has `h = 1`.
 §5 records the wave-58 artefacts, now carried.
 
+## How to read the word "alone" below
+
+Every statement in this file carries, in addition to the hypotheses named in its docstring, the
+standing profinite instance binders the whole even route carries: `FiniteDimensional ℚ_[2] K`,
+`CompactSpace (GalK K)`, `T2Space (GalK K)`, `TotallyDisconnectedSpace (GalK K)`, and in §4 the
+ambient `CompactSpace AbsGalQ2` and `TotallyDisconnectedSpace AbsGalQ2`.  These are load bearing
+and have no global instances in the tree.  "Alone" below always means "and nothing else beyond
+those binders"; in particular it means no supply `Prop`, which is the thing this wave removed.
+
 ## What is left
 
 Only the branch *label* and the depth *value*: §3 gives `∃ α ≥ 2` and a disjunction of the two
@@ -198,9 +207,11 @@ theorem evenParity_sqrtIn_neg_one_sq :
   push_cast
   ring
 
-/-- **THE EVEN CLASSIFICATION AT `ℚ₂(√−2)`.**  The first even field the campaign closes: over a
-marked reciprocity bundle alone, `G_K(2)` for `K = ℚ₂(√−2)` is oriented-isomorphic to an even
-core at handle count `0` and some depth `α ≥ 2`, on one of the two branches. -/
+/-- **THE EVEN CLASSIFICATION AT `ℚ₂(√−2)`.**  The first even field the campaign closes.
+Over a marked reciprocity bundle and the standing profinite instance binders, and nothing else,
+`G_K(2)` for `K = ℚ₂(√−2)` is oriented-isomorphic to an even core at handle count `0` and some
+depth `α ≥ 2`, on one of the two branches.  The bundle is a datum, not a supply: it is
+parametrized here rather than instantiated, so `markedRecipAt` is not carried. -/
 theorem parityFinal_classification_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
     (B : MarkedRecip R KSqrtNegTwo) :
     ∃ alpha : ℕ, 2 ≤ alpha ∧
@@ -224,8 +235,8 @@ theorem parityFinal_classification_sqrtTwo [T2Space (GalK KSqrtTwo)]
     (not_hasEqualNormValueGroups_KSqrtTwo _ evenParity_sqrtIn_neg_one_sq)
     (by rw [finrank_KSqrtTwo])
 
-/-- **The `N` endpoint at `ℚ₂(√−2)` at the measured depth `2`**, over the branch identification
-alone.  The wave-55 pilot statement with both of its supplies discharged: wave 56 refuted its
+/-- **The `N` endpoint at `ℚ₂(√−2)` at the measured depth `2`**, over the branch identification and
+the standing instance binders.  The wave-55 pilot statement with both of its supplies discharged: wave 56 refuted its
 flip input and wave 65 showed its family input was the conclusion; this is the conclusion. -/
 theorem parityFinal_orientedEquivN_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
     (hrange : MonoidHom.range (chiCycKTwo (K := KSqrtNegTwo)).toMonoidHom = imChiN 2) :
@@ -233,8 +244,8 @@ theorem parityFinal_orientedEquivN_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
   parityFinal_orientedEquivN_of_range (le_refl 2) hrange
     (by rw [finrank_KSqrtNegTwo])
 
-/-- **The `M` endpoint at `ℚ₂(√2)` at the measured depth `3`**, over the branch identification
-alone. -/
+/-- **The `M` endpoint at `ℚ₂(√2)` at the measured depth `3`**, over the branch identification and the
+standing instance binders. -/
 theorem parityFinal_orientedEquivM_sqrtTwo [T2Space (GalK KSqrtTwo)]
     (hrange : MonoidHom.range (chiCycKTwo (K := KSqrtTwo)).toMonoidHom = imChiM 3) :
     Nonempty (OrientedContinuousMulEquiv (chiM 3 0) (chiCycKTwo (K := KSqrtTwo))) :=
@@ -242,7 +253,8 @@ theorem parityFinal_orientedEquivM_sqrtTwo [T2Space (GalK KSqrtTwo)]
     (by rw [finrank_KSqrtTwo])
 
 /-- **The `N` endpoint at the quartic `ℚ₂(β)` at the measured depth `3` and handle count `1`**,
-over the branch identification alone.  The field wave 56's census singled out. -/
+over the branch identification and the standing instance binders.  The field wave 56's census
+singled out. -/
 theorem parityFinal_orientedEquivN_quartic [T2Space (GalK KQuarticN)]
     (hrange : MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom = imChiN 3) :
     Nonempty (OrientedContinuousMulEquiv (chiN 3 1) (chiCycKTwo (K := KQuarticN))) :=
@@ -259,7 +271,7 @@ identity, so the artefact now follows from the range identity and the degree. -/
 
 section Artefacts
 
-/-- **The wave-58 `N` artefact from the range identity alone.** -/
+/-- **The wave-58 `N` artefact from the range identity and the degree.** -/
 theorem parityFinal_carriedN_of_range {alpha h : ℕ} (halpha : 2 ≤ alpha)
     (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha)
     (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
@@ -267,7 +279,7 @@ theorem parityFinal_carriedN_of_range {alpha h : ℕ} (halpha : 2 ≤ alpha)
   (hfamFinal_carriedN_iff_orientedEquiv halpha hrange hev).mpr
     (parityFinal_orientedEquivN_of_range halpha hrange hev)
 
-/-- **The wave-58 `M` artefact from the range identity alone.** -/
+/-- **The wave-58 `M` artefact from the range identity and the degree.** -/
 theorem parityFinal_carriedM_of_range {alpha h : ℕ} (halpha : 2 ≤ alpha)
     (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha)
     (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
@@ -276,7 +288,7 @@ theorem parityFinal_carriedM_of_range {alpha h : ℕ} (halpha : 2 ≤ alpha)
     (parityFinal_orientedEquivM_of_range halpha hrange hev)
 
 /-- **The artefact holds on one of the two branches at every even-degree field** with `K(i)/K`
-ramified, over the reciprocity bundle alone. -/
+ramified, over the reciprocity bundle and the standing instance binders. -/
 theorem parityFinal_carried_evenClassification {R : LocalReciprocity} (B : MarkedRecip R K)
     (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
     (hram : ¬ HasEqualNormValueGroups K deltaI) {h : ℕ}
