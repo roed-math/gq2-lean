@@ -1,0 +1,10 @@
+    2 * (x.c * x.i)
+    - x.c * y.i
+    + 2 * (x.e * x.h)
+    - x.e * y.h
+    - s.d * x.c * x.e
+    + s.e * x.c * x.d
+    - 10 * (x.c * x.d * x.e)
+    - 4 * (yc * ye * x.d)
+    + 8 * (yd * x.c * x.e)
+    + 8 * (ye * x.c * x.d)

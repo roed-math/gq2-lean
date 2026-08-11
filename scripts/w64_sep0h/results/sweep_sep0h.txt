@@ -1,0 +1,56 @@
+W64-SEP0H: the h = 0 sweep, as a corroboration of GradedFiveSepZero.lean
+======================================================================================
+  [ok] the coordinate law against honest integer 6 x 6 matrices : 1200 comparisons, 0 mismatches
+
+  wave 63's family: the committed gauge, sigma with b = 1
+    trials 200000, relator-killing h = 0 markings 6251, of which purely central after dressing 966
+  [ok] [w63] no ODD class-five bit : 6251 markings, 0 odd
+  [ok] [w63] the WHOLE dressing is even : 6251 markings, 0 with any odd coordinate
+  [ok] [w63] the nine rows of class <= 2 do not move : 6251 markings, 0 moved
+
+  no gauge at all: every slot uniform over (Z/8)^15
+    trials 200000, relator-killing h = 0 markings 1564, of which purely central after dressing 154
+  [ok] [free] no ODD class-five bit : 1564 markings, 0 odd
+  [ok] [free] the WHOLE dressing is even : 1564 markings, 0 with any odd coordinate
+  [ok] [free] the nine rows of class <= 2 do not move : 1564 markings, 0 moved
+
+  gauge broken at the x0 slot's (1,2)-column
+    trials 120000, relator-killing h = 0 markings 1075, of which purely central after dressing 228
+  [ok] [break:a] no ODD class-five bit : 1075 markings, 0 odd
+  [ok] [break:a] the WHOLE dressing is even : 1075 markings, 0 with any odd coordinate
+  [ok] [break:a] the nine rows of class <= 2 do not move : 1075 markings, 0 moved
+
+  gauge broken at the x0 slot's (3,4)-column
+    trials 120000, relator-killing h = 0 markings 1328, of which purely central after dressing 163
+  [ok] [break:c] no ODD class-five bit : 1328 markings, 0 odd
+  [ok] [break:c] the WHOLE dressing is even : 1328 markings, 0 with any odd coordinate
+  [ok] [break:c] the nine rows of class <= 2 do not move : 1328 markings, 0 moved
+
+  gauge broken at the x0 slot's (2,3)-column
+    trials 120000, relator-killing h = 0 markings 1240, of which purely central after dressing 90
+  [ok] [break:b] no ODD class-five bit : 1240 markings, 0 odd
+  [ok] [break:b] the WHOLE dressing is even : 1240 markings, 0 with any odd coordinate
+  [ok] [break:b] the nine rows of class <= 2 do not move : 1240 markings, 0 moved
+
+  gauge broken at the x0 slot's (1,3)-coordinate
+    trials 120000, relator-killing h = 0 markings 1951, of which purely central after dressing 372
+  [ok] [break:f] no ODD class-five bit : 1951 markings, 0 odd
+  [ok] [break:f] the WHOLE dressing is even : 1951 markings, 0 with any odd coordinate
+  [ok] [break:f] the nine rows of class <= 2 do not move : 1951 markings, 0 moved
+
+  gauge broken at the x0 slot's (2,4)-coordinate
+    trials 120000, relator-killing h = 0 markings 2180, of which purely central after dressing 263
+  [ok] [break:g] no ODD class-five bit : 2180 markings, 0 odd
+  [ok] [break:g] the WHOLE dressing is even : 2180 markings, 0 with any odd coordinate
+  [ok] [break:g] the nine rows of class <= 2 do not move : 2180 markings, 0 moved
+
+  totals: 1000000 trials, 15589 relator-killing h = 0 markings, 0 separations
+
+  Calibration: at h = 1 the prediction is FALSE, and the tree's witness says so
+  [ok] GradedFiveForce.fiveWit kills the relator at h = 1
+  [ok] ...and its a0 = a1 dressing is central with class-five coordinate 7 : residue 7
+  [ok] ...so its core word is NOT trivial, which is what h = 0 forbids : the handle is exactly what lets the core word survive
+  [ok] ...and the two rows the gauge collapse reads are odd there : x_56 * W_15 + x_14 * W_46 = 1
+
+======================================================================================
+26 / 26 named checks passed, 0 failures
