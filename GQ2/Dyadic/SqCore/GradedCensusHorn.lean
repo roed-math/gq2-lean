@@ -563,6 +563,138 @@ theorem censHorn_lines_false_of_ach
 
 end Verdict
 
+/-! ## 5 ⚠⚠⚠ The recorded form is FALSE -/
+
+section Cex
+
+/-- The counterexample's sigma letter, `<e = 1>`.  It lies ON `stageN1`, whose two columns are
+`0`, and its fifth abelian column is ODD, which is exactly the datum `stageN1` cannot see. -/
+def censHornCexSig : SqU6 gr3R := ⟨0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- The counterexample's `x0` letter, `<d = 1, j = 1>`.  Its fifth abelian column, the sigma
+knob's GEARING, is `0`: this is a would-be survivor of horn 1. -/
+def censHornCexX : SqU6 gr3R := ⟨0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0⟩
+
+/-- A second `x0` letter with disjoint support, `<f = 1, h = 1>`, giving an independent
+counterexample on the other surviving monomial. -/
+def censHornCexX' : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0⟩
+
+/-- ⚠⚠⚠ **THE RECORDED ROW FORM IS FALSE.**  Every hypothesis W64 recorded holds at
+`(censHornCexSig, censHornCexX, 1)`: all three letters lie on `stageN1`, and the `x1` letter's
+five abelian columns are `0`, hence even.  The residue is `SqU6.liftO 1`, so it is CENTRAL with
+an ODD `(1,6)` row, while the recorded value `x0.e * x1.f * x1.h` is `0`.
+
+⚠ The one hypothesis that fails is the one this file adds: the sigma letter's `(5,6)` column is
+`1`.  `stageN1` constrains only the `(1,2)` and `(3,4)` columns, so the recorded sentence has no
+way to exclude this point. -/
+theorem censHorn_recorded_false :
+    (censHornCexSig ∈ stageN1 ∧ censHornCexX ∈ stageN1 ∧ (1 : SqU6 gr3R) ∈ stageN1)
+      ∧ ((1 : SqU6 gr3R).a = 2 * 0 ∧ (1 : SqU6 gr3R).b = 2 * 0 ∧ (1 : SqU6 gr3R).c = 2 * 0
+        ∧ (1 : SqU6 gr3R).d = 2 * 0 ∧ (1 : SqU6 gr3R).e = 2 * 0)
+      ∧ sqWord (censHornCexSig * censHornCexX) censHornCexX 1
+          * (sqWord censHornCexSig censHornCexX 1)⁻¹ = SqU6.liftO 1
+      ∧ selPar (censHornCexX.e * (1 : SqU6 gr3R).f * (1 : SqU6 gr3R).h) = 0
+      ∧ selPar censHornCexSig.e = 1 :=
+  ⟨⟨⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩, ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩,
+      ⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩⟩,
+    ⟨by decide, by decide, by decide, by decide, by decide⟩, by decide, by decide, by decide⟩
+
+/-- ⚠⚠ **The second witness**, on the other surviving monomial and with disjoint support: the
+failure is not an accident of one letter. -/
+theorem censHorn_recorded_false' :
+    censHornCexX' ∈ stageN1
+      ∧ sqWord (censHornCexSig * censHornCexX') censHornCexX' 1
+          * (sqWord censHornCexSig censHornCexX' 1)⁻¹ = SqU6.liftO 1
+      ∧ selPar (censHornCexX'.e * (1 : SqU6 gr3R).f * (1 : SqU6 gr3R).h) = 0 :=
+  ⟨⟨⟨0, by decide⟩, ⟨0, by decide⟩⟩, by decide, by decide⟩
+
+/-- ⭐ **The row theorem is not contradicted**: at both counterexamples the cofactor
+`y.f * y.h + s.f * x.h + s.j * x.d` is `0` and the gearing is `0`, so `censHorn_row_o` would
+predict an EVEN row.  It does not apply, because `censHornCexSig.e` is odd, and this records
+that the gauge is the exact hypothesis in play. -/
+theorem censHorn_cex_offGauge :
+    ¬ (∃ k : gr3R, censHornCexSig.e = 2 * k)
+      ∧ (∃ k : gr3R, censHornCexSig.a = 2 * k) ∧ (∃ k : gr3R, censHornCexSig.c = 2 * k) := by
+  refine ⟨?_, ⟨0, by decide⟩, ⟨0, by decide⟩⟩
+  decide
+
+end Cex
+
+/-! ## 6 The committed points: the correction costs the census nothing -/
+
+section Committed
+
+/-- ⭐⭐ **Both committed sigma letters lie on the gauge.**  `fiveSigMark` is `E_23` and
+`liveBlkSig` is `<b = 1, d = 1>`; the `(1,2)`, `(3,4)` and `(5,6)` columns of each are `0`, so
+every binder point in the tree satisfies the added hypothesis and the correction of headline 4
+costs the census verdict nothing. -/
+theorem censHorn_marks_gauged :
+    ((∃ k : gr3R, (fiveSigMark gr3R).a = 2 * k) ∧ (∃ k : gr3R, (fiveSigMark gr3R).c = 2 * k)
+        ∧ (∃ k : gr3R, (fiveSigMark gr3R).e = 2 * k))
+      ∧ ((∃ k : gr3R, liveBlkSig.a = 2 * k) ∧ (∃ k : gr3R, liveBlkSig.c = 2 * k)
+        ∧ (∃ k : gr3R, liveBlkSig.e = 2 * k)) :=
+  ⟨⟨⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩⟩,
+    ⟨⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩⟩⟩
+
+/-- ⭐⭐⭐ **The verdict at W63-CENTRAL2's whole family**, at every handle count and every
+handle: if the `gamma_2` forcing holds there, the achievable lattice misses the solving knob.
+⭐ Horn 1 is discharged by `censHorn_gear_odd` and not by the point's own numbers: the input is
+`sqRelWord_stageWit_triv` (the bare frame kills) and `sqRelWord_stageWit_diag` (the diagonal
+frame is central and odd), both committed. -/
+theorem censHorn_stageWit_verdict (h : ℕ) (j : Fin h)
+    (hF : GaTwoForces (stageWit h j stageX)) :
+    ∃ t : gr3R, selPar t = 1 ∧ (1 : gr3R) + stageX.e * t = 0 ∧ SqU6.censKnob t
+      ∉ forceLcs (stageImage h j stageX) 1 := by
+  rw [stageImage, stageWit]
+  rw [stageWit] at hF
+  exact censHorn_verdict ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨1, by decide⟩
+    ⟨0, by decide⟩
+    (by have hb := sqRelWord_stageWit_triv h j; rwa [stageWit, mul_one] at hb)
+    (by have hd := sqRelWord_stageWit_diag h j; rwa [stageWit] at hd) (by decide) hF
+
+/-- ⭐⭐⭐ **The verdict at W63-LIVE5's point**, at every handle count and every handle.  ⚠ W64
+already proved all three lines FALSE there, because the knob is achievable
+(`liveBlkWit_lines_false`); what is new is that the point needs no parity input at all, its
+gearing being odd by the general theorem. -/
+theorem censHorn_liveBlkWit_verdict (h : ℕ) (j : Fin h)
+    (hF : GaTwoForces (liveBlkWit h j stageX)) :
+    ∃ t : gr3R, selPar t = 1 ∧ (1 : gr3R) + stageX.e * t = 0 ∧ SqU6.censKnob t
+      ∉ forceLcs (liveBlkImage h j stageX) 1 := by
+  rw [liveBlkImage, liveBlkWit]
+  rw [liveBlkWit] at hF
+  exact censHorn_verdict ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨1, by decide⟩
+    ⟨0, by decide⟩
+    (by have hb := sqRelWord_liveBlkWit_triv h j; rwa [liveBlkWit, mul_one] at hb)
+    (by have hd := sqRelWord_liveBlkWit_diag h j; rwa [liveBlkWit] at hd) (by decide) hF
+
+end Committed
+
+/-! ## 7 Axiom pins -/
+
+section AxiomPins
+
+#print axioms censHornWit
+#print axioms SqU6.censHorn_row_o
+#print axioms SqU6.censHorn_row_even
+#print axioms censHorn_diag_eq_resid
+#print axioms censHorn_abelRow_even
+#print axioms censHorn_x1_cols_even
+#print axioms censHorn_gear_odd
+#print axioms censHorn_knob_solvable
+#print axioms censHorn_verdict
+#print axioms censHorn_lines_false_of_ach
+#print axioms censHornCexSig
+#print axioms censHornCexX
+#print axioms censHornCexX'
+#print axioms censHorn_recorded_false
+#print axioms censHorn_recorded_false'
+#print axioms censHorn_cex_offGauge
+#print axioms censHorn_marks_gauged
+#print axioms censHorn_stageWit_verdict
+#print axioms censHorn_liveBlkWit_verdict
+
+end AxiomPins
+
 end SqCore
 
 end Dyadic
