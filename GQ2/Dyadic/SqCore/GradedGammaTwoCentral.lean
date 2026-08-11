@@ -25,8 +25,9 @@ It does not, and the reason is not subtle.
 and **every** handle, the achievable `gamma_2`-dressing carrying `gaTwoCenKill = <m = 3>` on the
 **sigma slot** and `1` on every other slot **kills the dressed frame outright**.  Its dressing
 is achievable - `cenSigDress_cenKill_mem` writes it as
-`commP (sigma x0)^{-1} u_j ^ 2 * commP x1 (x0 u_j)`, a product of two honest commutators of the
-point's own letters - and the residue there is `1`, odd.  So
+`commP (sigma x0)^{-1} u_j ^ 2 * commP x1 (x0 u_j)`, the product of a SQUARED commutator and a
+commutator of the point's own letters (the displayed `^ 2` is on the first factor) - and the
+residue there is `1`, odd.  So
 
 * ⭐⭐⭐ `gaTwoForces_stageWit_false`: the `gamma_2` forcing FAILS at wave 60's point;
 * ⭐⭐⭐ `gaTwoCentral_stageWit_false`, `gaTwoOrth_stageWit_false`: so do the centrality line
@@ -34,10 +35,17 @@ point's own letters - and the residue there is `1`, odd.  So
 
 ⚠ This is the question `GradedStageFrame` recorded as open in exactly these words - "one
 filtration step wider again, `gamma_2`-dressings, is neither proved nor refuted, here or
-anywhere in the tree" - and it is now **refuted**.  Wave 62's even-channel hypothesis is
-therefore **load-bearing** and cannot be removed by any restatement: without it the conclusion
-is false.  ⭐ `cenKill_chan_odd` closes the circle: the killing dressing's three-channel
-functional is `7`, odd, exactly as wave 62's transport predicts of any kill at an odd residue.
+anywhere in the tree" - and it is now **refuted at the MARKING-TUPLE level**.
+⚠ `GradedStageFrame` records the question of its **frame/hom-level** composite, and everything
+proved here is about tuples in `SqU6 gr3R`; the hom-level form of the question is therefore
+refuted only modulo the lift the Scope section below leaves undone.
+
+Wave 62's even-channel hypothesis is therefore **load-bearing** and cannot be removed by any
+restatement: without it the conclusion is false.
+⭐ `cenKill_chan_odd` closes the circle: the killing dressing's three-channel
+functional is **odd**, exactly as wave 62's transport predicts of any kill at an odd residue.
+⚠ Only its parity is proved; no theorem here names its value.  The `7` that does appear in this
+file is `gaTwoShift_stageWit_cenKill`'s, the shift's `o`-row, which is a different quantity.
 
 ## ⭐⭐⭐ Nothing committed is contradicted, and the boundary is exact
 
@@ -68,10 +76,14 @@ wave 61's transport applies, `GaTwoCentral m` **is** the statement that every ac
 dressing acting centrally has an even three-channel functional.  Centrality is the parity line
 read on the central tuples and nothing else, so wave 62's collision does apply to it - and
 ⭐⭐ `stageWit_gaTwoSlotTwo_not_central` shows the two lines are nonetheless SEPARATED at wave
-60's point: wave 62's odd-channel witness `[x0, x1]` on the `x1` slot does not act centrally
-(the dressed relator is `<j = 4, l = 6, o = 6>`), so it is a counterexample to the parity line
-and not to the centrality line.  The refutation genuinely needed a new dressing, and the one
-section 4 produces is central.
+60's point: wave 62's odd-channel witness `[x0, x1]` on the `x1` slot leaves a dressed RELATOR
+`<j = 4, l = 6, o = 6>` that is not a central translation.  ⚠ Read the quantifier: `GaTwoCentral`
+is a condition on the SHIFT `SqU6.gaTwoShift`, not on the dressed relator, and the bridge between
+the two - `SqU6.sqRelWord_gaTwoDress` at a marking whose own relator is central - exists but is
+not invoked in the theorem.  ⚠ And that this dressing is a counterexample to the PARITY line is
+`GradedGammaTwoPoint`'s result, inherited, not reproved here; what is proved here is the
+non-centrality alone.  The refutation genuinely needed a new dressing, and the one section 4
+produces is central.
 
 ## ⭐⭐ The `ZMod 8` mechanism of `GradedStageSeparate` reproduces one filtration step wider
 
@@ -81,8 +93,14 @@ central translation forces the `x1`-slot dressing's own **class-two** coordinate
 class-two rows are the Frobenius weights `-4 (z 1).x + 2 (z 2).x` and nothing else
 (`SqU6.gaTwoShift_f`, `_g`, `_h`, and the committed `_i`), and `2 b = 4 a` in `ZMod 8` forces
 `b` even.  Mod `2` the same equation is vacuous.  That is `GradedStageSeparate`'s
-`stageCentral_x1_j_even` one class down, at FOUR coordinates instead of three, and two of them
-(`g` and `i`) are not even on the achievable lattice, so the sharpening is not empty.
+`stageCentral_x1_j_even` one class down, at FOUR coordinates instead of three, and **one** of
+them (`i`) is not even on the achievable lattice, so the sharpening is not empty.
+
+⚠ **An earlier reading of this sentence named `g` as well, and the file's own MEASURED block
+below refutes it**: the achievable `gamma_2` lattice at the point is exactly
+`{z gamma_2-shaped : f, g, h, j even}`, so `g` is already even there and the `g` half of the
+sharpening is redundant.  (Re-measured independently at both class-five points in
+`docs/dyadic/w64-verify-note.md` section 0.5: `<g=1>` is in neither lattice.)
 
 ⚠ **And it is not enough at wave 60's point**, which is worth recording precisely: the only
 channel coordinate it reaches is `(z 2).i`, and at that point every letter has `L.j = 0`, so the
@@ -93,7 +111,8 @@ point.
 
 **PROVED** (this file, no `sorry`, no new axiom, no `native_decide`): the three lines and the
 two implications; the `ZMod 8` sharpening over `ZMod 8`; the sigma-slot dressing as a
-reparametrisation of the binder point (`cenSigDress_stageWit`, over any commutative ring); the
+reparametrisation (`conFiveDress_fiveTuple_cenSigDress`, over any commutative ring;
+`cenSigDress_stageWit` is its instance at the binder point and is `gr3R`-only); the
 kill, its achievability certificate, its shift `SqU6.liftO 7`, its odd channel, and the failure
 of all three lines, at every handle count and every handle; that the killing element is
 `gamma_3`-shaped and NOT achievable at stage four; and the separation from wave 62's witness.
@@ -126,10 +145,10 @@ relator rather than from any emitted form):
 * **Marking-tuple level, not hom level.**  Like `GradedFiveGammaTwo` and `GradedGammaTwoPoint`
   this file works with tuples in `SqU6 gr3R`; nothing here claims the killing dressing is the
   image of a continuous homomorphism on `D_sq h`.  ⭐ It is however the image of an explicit
-  element of the commutator subgroup of the frame - the certificate's two factors are
-  commutators of the letters, which are `stageFrameHom`-images of `sigma * x0`, `x0`, `x1`,
-  `u_j` - so a hom-level lift is a bookkeeping exercise and not a new mathematical step.  It is
-  left undone here and named in the landing report.
+  element of the commutator subgroup of the frame - the certificate's two factors are a SQUARED
+  commutator and a commutator of the letters, which are `stageFrameHom`-images of `sigma * x0`,
+  `x0`, `x1`, `u_j` - so a hom-level lift is a bookkeeping exercise and not a new mathematical
+  step.  It is left undone here and named in the landing report.
 * **What is refuted is the WIDENING, not wave 60.**  `sqRelWord_stageWit_diag_ne_one` quantifies
   over `forceLcs (stageImage) 2` and is untouched; this file exhibits a kill in
   `forceLcs (stageImage) 1`.
@@ -494,10 +513,11 @@ theorem gaTwoCenKill_isGaThree : gaTwoCenKill.IsGaThree :=
 
 theorem gaTwoCenKill_isGaTwo : gaTwoCenKill.IsGaTwo := gaTwoCenKill_isGaThree.isGaTwo
 
-/-- ⭐⭐ **It is a product of two honest commutators of the point's own letters.**  Wave 61's
-census over the ten pairwise commutators of the letters found no kill at any power on any single
-slot, and that census was over GENERATORS: this element is a genuine product, and the search
-that found it is `scripts/w63_central2/derive_central2.py` section 4. -/
+/-- ⭐⭐ **It is a product of a SQUARED honest commutator and an honest commutator of the point's
+own letters**, as the displayed `^ 2` on the first factor shows.  Wave 61's census over the ten
+pairwise commutators of the letters found no kill at any power on any single slot, and that
+census was over GENERATORS: this element is a genuine product, and the search that found it is
+`scripts/w63_central2/derive_central2.py` section 4. -/
 theorem gaTwoCenKill_comm_form :
     gaTwoCenKill = commP (fiveSigMark gr3R * stageX)⁻¹ stageU ^ 2
       * commP stageY (stageX * stageU) := by decide
@@ -602,7 +622,11 @@ theorem gaTwoCenKill_not_stageFour_achievable (h : ℕ) (j : Fin h) :
 /-- ⭐⭐ **The killing dressing's three-channel functional is ODD.**  So wave 62's
 `sqRelWord_stageWit_diag_gaTwo_ne_one` does not apply to it, its hypothesis is exactly what
 keeps that theorem true, and `GradedFiveGammaTwo.stageWit_gaTwo_forced` is confirmed at the
-kill: residue `1` plus channel `7` is even. -/
+kill: the odd residue `1` plus an odd channel is even.
+
+⚠ Only the PARITY is proved: the statement is `selPar (...) = 1`, and no theorem in this file
+names the functional's value.  The `7` of `gaTwoShift_stageWit_cenKill` is the shift's `o`-row, a
+different quantity. -/
 theorem cenKill_chan_odd (h : ℕ) (j : Fin h) :
     selPar (SqU6.gaTwoShiftChan h (stageWit h j stageX) (cenSigDress h gaTwoCenKill)) = 1 := by
   rw [SqU6.gaTwoShiftChan_cenSigDress, stageWit, fiveTuple_one]
@@ -631,11 +655,16 @@ theorem sqRelWord_stageWit_gaTwoSlotTwo (h : ℕ) (j : Fin h) :
   rw [stageWit, conFiveDress_fiveTuple_gaTwoSlotTwo, sqRelWord_fiveTuple]
   decide
 
-/-- ⭐⭐ **Wave 62's odd-channel witness does NOT act centrally.**  `[x0, x1]` on the `x1` slot
-is the dressing whose three-channel functional `GradedGammaTwoPoint` proves odd, and it moves
-two lower rows, so it refutes the parity line at wave 60's point and says nothing about the
-centrality line.  The two lines are genuinely separated here, which is why the refutation of
-section 4 needed a different dressing - and the one it uses is central. -/
+/-- ⭐⭐ **Wave 62's odd-channel witness leaves a NON-CENTRAL dressed relator.**  `[x0, x1]` on
+the `x1` slot is the dressing whose three-channel functional `GradedGammaTwoPoint` proves odd,
+and it moves two lower rows.
+
+⚠ What is stated below is about the dressed RELATOR; `GaTwoCentral` quantifies over the SHIFT
+`SqU6.gaTwoShift`, and the bridge - `SqU6.sqRelWord_gaTwoDress` at a marking whose own relator is
+central - is available but is not invoked here.  ⚠ That this dressing refutes the parity line at
+wave 60's point is `GradedGammaTwoPoint`'s result, inherited rather than reproved.  The two lines
+are genuinely separated here, which is why the refutation of section 4 needed a different
+dressing - and the one it uses is central. -/
 theorem stageWit_gaTwoSlotTwo_not_central (h : ℕ) (j : Fin h) :
     ¬ ∃ w : gr3R, sqRelWord (conFiveDress (stageWit h j stageX)
       (gaTwoSlotTwo h (commP stageX stageY))) = SqU6.liftO w := by

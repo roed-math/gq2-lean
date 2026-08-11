@@ -58,17 +58,28 @@ are blind" would have been, and it is the reason the corrected picture is cohere
 theorem that kills `(sigma, x0)` at both committed points leaves `(x0, u_j)` untouched, because
 `u_j` is not gauged and `stageU.d = 1` is odd.  It locates the blindness exactly.
 
-⭐ The corollary is the answer to the cheaper question the brief asked first: **no, the witness
-standard does not force the core channel even.**  The standard says nothing at all about `s.d`,
-because the relator's four abelian rows read only the `x0`- and `x1`-slots (`SqU6.sqRelWord_d`,
-and `sqRelWord_d_indep_sigma` records exactly that).
+⭐ The corollary is the answer to the cheaper question the brief asked first: **the relator's
+`(4,5)`-row does not force the core channel even.**  That row reads only the `x0`- and
+`x1`-slots (`SqU6.sqRelWord_d`), so it is independent of the sigma slot, which is exactly what
+`sqRelWord_d_indep_sigma` records.  There are **five** abelian rows `a`-`e`, and `d` is the only
+one recorded here.
+
+⚠⚠ **That is NOT the statement that the fifteen-row standard places no condition on the sigma
+slot's `(4,5)`-entry, and THIS FILE REFUTES the stronger reading.**  The higher rows do see the
+sigma slot: `liveBlkCore_not_relator_handleFree` shows that with `m 0 = liveBlkSig`, whose `d` is
+`1`, and `m 1 = stageX`, **no** `h = 0` marking kills the relator at all, and it proves that
+through `SqU6.pos_of_blockRead_odd`, which reads the `(4,6)`-row.  So the standard does constrain
+the sigma slot's `(4,5)`-entry.  What is true is that at `h >= 1` the handle block absorbs an odd
+core reading, and that is what the witness of section 2 exhibits.
 
 ⭐ It also says which of the two obvious repairs of the **core** pair is available.  Wave 59's
 live counterexample gets its odd core reading the other way round: `blindCexS` has `d = 0` and
-`e = 1`, and the reading is live because `blindCexX` has an **odd** `(4,5)`-entry.  A class-five
-witness cannot copy that, because the committed gauge forces the `x0` slot's `(4,5)`-column even
-(`stageX_gauge`, `forceX_gauge`).  So the sigma slot is the only slot left to move, and moving it
-by `E_45` is the whole of the construction below.
+`e = 1`, and the reading is live because `blindCexX` has an **odd** `(4,5)`-entry.  ⚠ **A witness
+on the committed gauge cannot copy that**, because the gauge forces the `x0` slot's
+`(4,5)`-column even; the evidence is `stageX_gauge` and `forceX_gauge`, two `decide` facts about
+the two committed letters, and nothing here rules the repair out for a class-five witness off
+that gauge.  So on the gauge the sigma slot is the only slot left to move, and moving it by
+`E_45` is the whole of the construction below.
 
 ## ⭐⭐⭐ Headline 2: the witness, and it moves exactly that one coordinate
 
@@ -87,11 +98,12 @@ handle: the fifteen rows die undressed (`sqRelWord_liveBlkWit_triv`); the `a0 = 
 leaves the **purely central, odd** class-five residue `1` (`sqRelWord_liveBlkWit_diag`), so the
 separation is class-five and both `U_5`-quotients are blind to it
 (`liveBlkWit_class_four_blind`); every letter has an even `(1,2)`- and an even `(3,4)`-column,
-which is the stage-four soundness input (`liveBlkImage_le_stageN1`), so the unconditional
-stage-four exclusion goes through verbatim (`sqRelWord_liveBlkWit_diag_ne_one`,
-`sqRelWord_liveBlkFrame_diag_ne_one_sharp`); the handle block is live and live in the class-four
-row (`commP_liveBlkUV_live`); and the point sits on the sharp class-five line
-(`liveBlkWit_fiveOrth`).
+which is the stage-four soundness input (`liveBlkImage_le_stageN1`), so the stage-four exclusion
+goes through verbatim (`sqRelWord_liveBlkWit_diag_ne_one`, and
+`sqRelWord_liveBlkFrame_diag_ne_one_sharp`, ⚠ which is unconditional in its **dressing**
+quantifier but carries the two row hypotheses `hu` and `hv`, as the pivot-anchor bullet below
+discloses); the handle block is live and live in the class-four row (`commP_liveBlkUV_live`); and
+the point sits on the sharp class-five line (`liveBlkWit_fiveOrth`).
 
 ⭐ And the block pairing is `1` on the **core** pair *and* on the live handle pair
 (`blockPar_liveBlkHom`, `blockPar_liveBlkHom_handle`), so
@@ -123,7 +135,9 @@ there for a reason the block channel does not see.
 ## ⚠ Headline 4: THE HONEST ANSWER - the class-five stack cannot consume the live point
 
 The brief asked what the class-five stack gains once a live point exists.  Ruthlessly: **beyond
-Headline 3 it gains nothing at all, and three separate proofs in this file say so.**
+Headline 3 it gains nothing at all**, and the first two theorems below say so outright.  ⚠ The
+third does not: it is about the handle block's `(4,6)`-parity rather than about the class-five
+selection bit, and the bullet says so.
 
 * ⚠ `liveBlkHom_pos_free`: the instrument's conclusion `0 < h` is **free** at the point.  Every
   class-five statement of this lane is indexed by a handle `j : Fin h`, so `0 < h` is available
@@ -132,10 +146,16 @@ Headline 3 it gains nothing at all, and three separate proofs in this file say s
 * ⚠ `exists_handle_minor_odd_liveBlkHom_free`: the sharper handle-**selection** form names a
   handle whose letters are independent mod `2`, and the handle it names is `j` itself
   (`liveBlkUV_minor_odd`), which is again already in the context.
-* ⚠ `liveBlkWit_bit_eq_core`: the class-five selection bit at the point is a functional of the
-  three **core** slots, by wave 61's `SqU6.selPar_handleWord_i_of_relator` collapse.  So a live
-  block channel cannot add a datum to the bit even in principle: `blockRead` *is* a core
-  functional, and moving it moves the bit's input, not the bit's information content.
+* ⚠ `liveBlkWit_bit_eq_core`: at the undressed marking the **handle block's `(4,6)`-parity** is a
+  functional of the **two** core slots `m 0` and `m 1`, by wave 61's
+  `SqU6.selPar_handleWord_i_of_relator` collapse.
+  ⚠⚠ **That quantity is not the class-five selection bit**, and the two differ at this very
+  point.  In this file the bit is `selPar (sqRelWord ...).o`: `liveBlkWit_bit_separates` gives it
+  the value `0` at `liveBlkWit h j 1`, where `liveBlkWit_bit_eq_core_value` gives the handle
+  block's parity `1`.  So this theorem does **not** license "a live block channel cannot add a
+  datum to the bit even in principle".  To retire the route on that ground one would have to
+  prove the corresponding collapse for `selPar (sqRelWord ...).o` itself; that is not proved
+  here, and the retirement rests on the first two bullets.
 
 And by `GradedBlockFrame`'s Headline 4 the supplied datum is **equivalent** to `0 < h`
 (`exists_blockPar_odd_iff_pos`), so no committed statement drops a hypothesis by consuming it.
@@ -145,12 +165,12 @@ And by `GradedBlockFrame`'s Headline 4 the supplied datum is **equivalent** to `
 check is worth stating because it is doctrine rule iii applied to this file's own composite.  All
 three theorems above are about the **content of the datum**, not about which pair carries it: the
 first says `0 < h` was already in the context, the second says the handle named was already
-named, the third says the class-five bit is a core functional.  None of them mentions the core
-pair, so none of them is disturbed by learning that other pairs were live all along.  What the
-correction adds is that the committed points could **already** produce `0 < h` from the block
-instrument, at `(x0, u_j)` - and vacuously, since that pair does not exist at `h = 0`.  So the
-route was doubly empty: the datum was already available at the old points, and it was already
-free there.
+named, the third says the handle block's `(4,6)`-parity is a functional of the two core slots.
+None of them depends on which pairs are live, so none of them is disturbed by learning that other
+pairs were live all along.  What the correction adds is that the committed points could
+**already** produce `0 < h` from the block instrument, at `(x0, u_j)` - and vacuously, since that
+pair does not exist at `h = 0`.  So the route was doubly empty: the datum was already available
+at the old points, and it was already free there.
 
 What retires is therefore the direction, not the phenomenon.  The committed points' **core**
 pairing is dead, Headline 1 says why in one coordinate, and repairing it does not open a route,
@@ -203,9 +223,14 @@ read off the fifth abelian column, and here that column is reachable (`3 * 7 = 5
 ## PROVED versus MEASURED
 
 **PROVED** (this file, no `sorry`, no new axiom, no `native_decide`; every `decide` is on
-`ZMod 8` or `ZMod 2`): everything above, at every handle count and every handle, for an
-arbitrary continuous `nu'` cleared at the selected handle, and for every continuous
-homomorphism where the statement quantifies over one.
+`ZMod 8` or `ZMod 2`): everything named in **Headlines 1-4**, at every handle count and every
+handle, for an arbitrary continuous `nu'` cleared at the selected handle, and for every
+continuous homomorphism where the statement quantifies over one.
+
+⚠ **The legality audit above is deliberately NOT in that list.**  It says in its own words that
+it is "recorded here rather than formalised", and it reappears as a MEASURED row below.  Nor are
+the two expectations flagged in the pivot-anchor bullet: that `hu` and `hv` are forced at the new
+point is a claim about a proof not run.
 
 **MEASURED** (`scripts/w63_live5/`, certified output in `results/verify_live5.txt`; **50** named
 checks, **0** failures, on the independently certified `U_6(Z/8)` of
@@ -332,10 +357,15 @@ theorem blockRead_fiveSigMark_gauge {x : SqU6 gr3R} (hxd : (2 : gr3R) ∣ x.d)
     (hxe : selPar x.e = 1) : selPar (SqU6.blockRead (fiveSigMark gr3R) x) = 0 :=
   SqU6.selPar_blockRead_of_gauge_zero hxd hxe ⟨0, by decide⟩
 
-/-- ⭐ **…and the witness standard does NOT force it.**  The relator's four abelian rows read
-only the `x0`- and `x1`-slots (`SqU6.sqRelWord_d`), so the fifteen-row standard places no
-condition whatsoever on the sigma slot's `(4,5)`-entry.  Stated as the fact that the relator's
-`(4,5)`-row is independent of the sigma slot. -/
+/-- ⭐ **…and the relator's `(4,5)`-ROW does not force it.**  That row reads only the `x0`- and
+`x1`-slots (`SqU6.sqRelWord_d`), so it is independent of the sigma slot.  It is one of the five
+abelian rows `a`-`e` and the only one recorded here.
+
+⚠⚠ **This does NOT say that the fifteen-row standard places no condition on the sigma slot's
+`(4,5)`-entry, and this file refutes that stronger claim.**  The higher rows do see the sigma
+slot: `liveBlkCore_not_relator_handleFree` excludes **every** `h = 0` relator-killing marking
+whose core slots are `(liveBlkSig, stageX)`, and `liveBlkSig.d = 1` is odd.  What is true is that
+at `h >= 1` the handle block absorbs an odd core reading. -/
 theorem sqRelWord_d_indep_sigma {h : ℕ} (m m' : Fin (sqRank h) → SqU6 gr3R)
     (h1 : m 1 = m' 1) (h2 : m 2 = m' 2) : (sqRelWord m).d = (sqRelWord m').d := by
   rw [SqU6.sqRelWord_d, SqU6.sqRelWord_d, h1, h2]
@@ -548,10 +578,12 @@ theorem liveBlkWit_fiveOrth {v : SqU6 gr3R} (hv : (2 : gr3R) ∣ v.a ∧ (2 : gr
     FiveOrth (liveBlkWit h j v) j :=
   fiveOrth_of_le_forceN1 (le_trans (liveBlkImage_le_stageN1 hv) stageN1_le_forceN1)
 
-/-- ⭐⭐ **The stage-four selection bit is forced even at the live point.**  A sigma dressing
-whose marking is killed by **any** achievable five-slot stage-four refinement leaves an even
-class-five residue.  This is `GradedFiveStageFour.stageWit_sigma_forced` verbatim at the new
-point: the argument reads only the even `(1,2)`-columns, which the new letters have. -/
+/-- ⭐⭐ **The stage-four selection bit is forced even at the live point.**  ⚠ At a sigma
+parameter `v` **whose `(1,2)`- and `(3,4)`-columns are even** (`2 ∣ v.a` and `2 ∣ v.c`, the
+hypothesis `hv`): if the marking is killed by **any** achievable five-slot stage-four refinement
+then it leaves an even class-five residue.  This is `GradedFiveStageFour.stageWit_sigma_forced`
+verbatim at the new point, restriction on `v` included: the argument reads only the even
+`(1,2)`-columns, which the new letters have. -/
 theorem liveBlkWit_sigma_forced {v : SqU6 gr3R} {z : Fin (sqRank h) → SqU6 gr3R}
     (hv : (2 : gr3R) ∣ v.a ∧ (2 : gr3R) ∣ v.c)
     (hz : ∀ i, z i ∈ forceLcs (liveBlkImage h j v) 2)
@@ -886,7 +918,11 @@ def blindCoreY : SqU6 gr3R := ⟨0, 0, 4, 4, 6, 5, 4, 0, 0, 2, 4, 0, 4, 0, 4⟩
 `GradedFiveStageFour.stageWit`'s two core slots admit a relator-killing marking at `h = 0`.  So
 the dead core pairing at the committed point is not a gap in the instrument: the obstruction the
 instrument reads genuinely fails there, and this exhibits the completion it fails to exclude.
-The same holds at wave 60's point, whose `x0` slot differs only in the fifth abelian column.
+
+⚠ The same is **expected** at wave 60's point, whose `x0` slot differs only in the fifth abelian
+column, but nothing here establishes it: no theorem exhibits an `h = 0` completion for
+`(fiveSigMark, forceX)`, and no measurement of this lane records one.  Treat it as an
+expectation, not as a result.
 
 ⚠ This is also why the live pairs W63-SECOND found at the committed points cannot substitute.
 `blockPar Phi (dsqX0 h) (sqGen h (sqHandleIdxU j)) = 1` does force `0 < h`, but vacuously: the
@@ -934,11 +970,16 @@ theorem exists_handle_minor_odd_liveBlkHom_free :
   rw [liveBlkHom_handleU, liveBlkHom_handleV]
   exact liveBlkUV_minor_odd
 
-/-- ⚠ **The class-five selection bit is a functional of the CORE slots**, at the live point as
-everywhere else, by wave 61's collapse `SqU6.selPar_handleWord_i_of_relator`.  So a live block
-channel cannot add a datum to the bit even in principle: the block reading *is* a core
-functional, and making it odd changes the bit's input rather than its information content.
-Stated as the instance of the collapse at the point. -/
+/-- ⚠ **The handle block's `(4,6)`-parity is a functional of the TWO core slots**, at the live
+point as everywhere else, by wave 61's collapse `SqU6.selPar_handleWord_i_of_relator`.  Stated as
+the instance of that collapse at the undressed marking.
+
+⚠⚠ **This is not the class-five selection bit.**  In this file the bit is
+`selPar (sqRelWord ...).o`, and the two quantities differ at this very marking:
+`liveBlkWit_bit_separates` gives the bit `0` at `liveBlkWit h j 1`, where
+`liveBlkWit_bit_eq_core_value` gives this parity `1`.  So the theorem does not by itself say that
+a live block channel cannot add a datum to the bit; that would need the same collapse for the bit
+itself, which is not proved here. -/
 theorem liveBlkWit_bit_eq_core (h : ℕ) (j : Fin h) :
     selPar (handleWord (fun j' => liveBlkWit h j 1 (sqHandleIdxU j'))
         (fun j' => liveBlkWit h j 1 (sqHandleIdxV j'))).i
@@ -946,9 +987,10 @@ theorem liveBlkWit_bit_eq_core (h : ℕ) (j : Fin h) :
   SqU6.selPar_handleWord_i_of_relator (sqRelWord_liveBlkWit_triv h j)
 
 /-- …and both sides are `1` at the live point, where at both committed witnesses both sides are
-`0` (`blockPar_stageFrameHom`, and the even handle minor of `commP_stageUV_live`).  That is the
-whole of the difference the move makes to the class-five bit, and by the theorem above it is a
-difference of input rather than of information. -/
+`0` (`blockPar_stageFrameHom`, and the even handle minor of `commP_stageUV_live`).  ⚠ That is the
+whole of the difference the move makes to the handle block's `(4,6)`-parity.  It says nothing
+directly about the class-five selection bit, which is `0` at this undressed marking either way
+(`liveBlkWit_bit_separates`). -/
 theorem liveBlkWit_bit_eq_core_value (h : ℕ) (j : Fin h) :
     selPar (handleWord (fun j' => liveBlkWit h j 1 (sqHandleIdxU j'))
         (fun j' => liveBlkWit h j 1 (sqHandleIdxV j'))).i = 1 := by

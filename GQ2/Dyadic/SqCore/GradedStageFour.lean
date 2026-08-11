@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 import GQ2.Dyadic.SqCore.GradedStageSeparate
 
 /-!
-# W63-FOUR: the achievable lattice at wave 61's FOUR gap markings, bounded EXACTLY
+# W63-FOUR: the achievable lattice at wave 61's FOUR gap markings, bounded with index-16 slack
 
 Wave 61 proved `stageForces_iff_stageCentral` and recorded the strictness of the parity line
 `StageOrth` as a **measurement**: four of 1650 admissible markings at which the parity line
@@ -49,10 +49,18 @@ every handle, every achievable stage-four dressing satisfies explicit `Z/8`-line
   `l + 2n` vanish **mod 4**;
 * `gap-2` (`gapKTwo`): `k + 4 n = 0`, `4 l = 0` and `2 m = 0`.
 
-None of these is a per-coordinate congruence and none is visible mod `2`: `gapKOne` forces `k`
-and `l` even but that is strictly weaker than either condition, and wave 62 measured that the
-even-`k`, even-`l` relaxation does not repair the implication.  The whole arithmetic input is
-the `216` weight-three brackets of the six slot values, one `decide` on `ZMod 8` per marking.
+⚠ **For `gapKOne` neither condition is a per-coordinate congruence and neither is visible mod
+`2`**: `gapKOne` forces `k` and `l` even but that is strictly weaker than either condition, and
+wave 62 measured that the even-`k`, even-`l` relaxation does not repair the implication.
+
+⚠ **For `gapKTwo` that is false of two of the three conditions.**  Over `ZMod 8`, `4 l = 0` is
+exactly "`l` is even" and `2 m = 0` is exactly "`4 ∣ m`": both are per-coordinate congruences, so
+only `k + 4 n = 0` is a genuine two-coordinate relation there.  And `4 l = 0` is the one
+condition of the three that a mod-`2` reading of the coordinates DOES see; the other two it does
+not.
+
+The whole arithmetic input is the `216` weight-three brackets of the six slot values, one
+`decide` on `ZMod 8` per marking.
 
 The normalisation is supplied by a single column: every `gap-1` letter has an EVEN `(4,5)`-column
 and every `gap-2` letter has one divisible by `4` (`gapEvenD`, `gapQuadD`), and by
@@ -72,10 +80,15 @@ what proving it needs.
 ## PROVED versus MEASURED
 
 **PROVED**: the generator reduction, in any group; the `gamma_3` conjugation and inversion
-calculus; the four markings, their relators (`<o=5>` and `<o=1>`, central with ODD residues, so
-all four are ADMISSIBLE and the forcing's conclusion is FALSE there); the two target subgroups,
+calculus; the four markings and their relators (`SqU6.liftO 5` and `SqU6.liftO 1`, central with
+ODD residues, by `sqRelWord_gapOneMark` and its three siblings); the two target subgroups,
 their normalisation along the respective column, the `216 * 4` bracket memberships and hence the
 four lattice bounds; and the reduction of the forcing to the certificate identity.
+
+⚠ **NOT proved here**: that the four markings are ADMISSIBLE, and that the forcing's conclusion
+`selPar (sqRelWord ...).o = 0` is FALSE at them.  Both are one-line consequences of the relator
+values, but there is no admissibility predicate anywhere in the tree and no theorem in this file
+states `selPar (sqRelWord ...).o = 1`, so neither is a statement this file owns.
 
 **MEASURED**, and NOT proved: (i) the certificate identity itself, that
 `psiOne (gaThreeShift h m z) = 0` for every `z` with slots in `gapKOne` (and the `psiTwo`
@@ -252,11 +265,14 @@ theorem le_normalizer_commAll
 image `closure S` and contains the weight-three bracket `[[s, t], u]` of every triple of
 GENERATORS, then it contains the whole achievable lattice `forceLcs (closure S) 2`.
 
-This is what turns the achievable lattice from a relaxation into an exact object: the bound is
-the `closure S`-normal closure of finitely many explicit elements, so it reads the lattice mod
-`8`, not mod `2` or mod `4`.  Both reductions are needed - the left one by `commLeft`, the
-right one by `commRight` - and both need `K` to be normalised, which is why the statement is
-about a normalised `K` rather than an arbitrary one. -/
+This is what stops the argument from relaxing the achievable lattice: the bound is the
+`closure S`-normal closure of finitely many explicit elements, so it reads the lattice mod `8`,
+not mod `2` or mod `4`.  ⚠ It is a one-sided containment, and it does **not** by itself say that
+the reduction loses nothing; that the bracket condition is not merely sufficient but EQUIVALENT
+to containing the series term, among subgroups normalised by `S`, is the separate statement
+`LcsGens.lcsSeries_le_iff_of_gens` of `GradedLcsGens`.  Both reductions are needed - the left one
+by `commLeft`, the right one by `commRight` - and both need `K` to be normalised, which is why
+the statement is about a normalised `K` rather than an arbitrary one. -/
 theorem le_of_gens_three {K : Subgroup G} {S : Set G}
     (hS : S ⊆ Subgroup.normalizer (K : Set G))
     (hbr : ∀ s ∈ S, ∀ t ∈ S, ∀ u ∈ S, ⁅⁅s, t⁆, u⁆ ∈ K) :
@@ -524,8 +540,10 @@ def gapKOne : Subgroup (SqU6 gr3R) where
       linear_combination -hp2
 
 /-- ⭐⭐ **THE `gap-2` TARGET.**  A `gamma_3`-element with `k + 4 n = 0`, `4 l = 0` and
-`2 m = 0`: the first says `k` is `0` mod `4` once `n` is known, and the pair `4 l = 2 m = 0`
-is the mod-`4` half of the lattice that no mod-`2` condition sees. -/
+`2 m = 0`.  ⚠ Only the first is a genuine two-coordinate relation: it forces `k` to be `0` or
+`4`, and `n`'s parity decides which.  Over `ZMod 8` the other two are per-coordinate congruences:
+`4 l = 0` says `l` is even, which a mod-`2` reading DOES see, and `2 m = 0` says `4 ∣ m`, which
+it does not.  So `4 l = 0` is the one condition of the three visible mod `2`. -/
 def gapKTwo : Subgroup (SqU6 gr3R) where
   carrier := {z | z.IsGaThree ∧ z.k + 4 * z.n = 0 ∧ 4 * z.l = 0 ∧ 2 * z.m = 0}
   mul_mem' := by
@@ -648,11 +666,15 @@ theorem gapOneAMark_column (i : Fin (sqRank h)) :
   exacts [⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
     ⟨3, by decide⟩, ⟨0, by decide⟩]
 
-/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `OneA`, BOUNDED WITHOUT RELAXATION.**  Every achievable
-stage-four dressing of `OneA` satisfies the target's conditions, at every handle count and
-every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear condition
-and no letter-column chain can bound this lattice usefully; the generator reduction of section 1
-bounds it because it never relaxes the lattice at all. -/
+/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `OneA`, BOUNDED BY AN EXPLICIT `Z/8`-LINEAR TARGET.**
+Every achievable stage-four dressing of `OneA` satisfies the target's conditions, at every handle
+count and every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear
+condition and no letter-column chain can bound this lattice usefully; the generator reduction of
+section 1 bounds it without relaxing the lattice mod `2` or mod `4` anywhere in the argument.
+
+⚠ This is a ONE-SIDED containment, and the target is strictly bigger than the honest lattice:
+index `16`, `1024` inside `16384`, per the Slack paragraph of the header.  That the method itself
+loses nothing is the separate statement `LcsGens.lcsSeries_le_iff_of_gens`. -/
 theorem forceLcs_two_le_gapOneA :
     forceLcs (Subgroup.closure (Set.range (gapOneMark h j))) 2 ≤ gapKOne := by
   refine forceLcs_two_le_of_gens ?_ ?_
@@ -707,11 +729,15 @@ theorem gapOneBMark_column (i : Fin (sqRank h)) :
   exacts [⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
     ⟨3, by decide⟩, ⟨0, by decide⟩]
 
-/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `OneB`, BOUNDED WITHOUT RELAXATION.**  Every achievable
-stage-four dressing of `OneB` satisfies the target's conditions, at every handle count and
-every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear condition
-and no letter-column chain can bound this lattice usefully; the generator reduction of section 1
-bounds it because it never relaxes the lattice at all. -/
+/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `OneB`, BOUNDED BY AN EXPLICIT `Z/8`-LINEAR TARGET.**
+Every achievable stage-four dressing of `OneB` satisfies the target's conditions, at every handle
+count and every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear
+condition and no letter-column chain can bound this lattice usefully; the generator reduction of
+section 1 bounds it without relaxing the lattice mod `2` or mod `4` anywhere in the argument.
+
+⚠ This is a ONE-SIDED containment, and the target is strictly bigger than the honest lattice:
+index `16`, `1024` inside `16384`, per the Slack paragraph of the header.  That the method itself
+loses nothing is the separate statement `LcsGens.lcsSeries_le_iff_of_gens`. -/
 theorem forceLcs_two_le_gapOneB :
     forceLcs (Subgroup.closure (Set.range (gapOneMark' h j))) 2 ≤ gapKOne := by
   refine forceLcs_two_le_of_gens ?_ ?_
@@ -766,11 +792,15 @@ theorem gapTwoAMark_column (i : Fin (sqRank h)) :
   exacts [⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
     ⟨1, by decide⟩, ⟨0, by decide⟩]
 
-/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `TwoA`, BOUNDED WITHOUT RELAXATION.**  Every achievable
-stage-four dressing of `TwoA` satisfies the target's conditions, at every handle count and
-every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear condition
-and no letter-column chain can bound this lattice usefully; the generator reduction of section 1
-bounds it because it never relaxes the lattice at all. -/
+/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `TwoA`, BOUNDED BY AN EXPLICIT `Z/8`-LINEAR TARGET.**
+Every achievable stage-four dressing of `TwoA` satisfies the target's conditions, at every handle
+count and every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear
+condition and no letter-column chain can bound this lattice usefully; the generator reduction of
+section 1 bounds it without relaxing the lattice mod `2` or mod `4` anywhere in the argument.
+
+⚠ This is a ONE-SIDED containment, and the target is strictly bigger than the honest lattice:
+index `16`, `256` inside `4096`, per the Slack paragraph of the header.  That the method itself
+loses nothing is the separate statement `LcsGens.lcsSeries_le_iff_of_gens`. -/
 theorem forceLcs_two_le_gapTwoA :
     forceLcs (Subgroup.closure (Set.range (gapTwoMark h j))) 2 ≤ gapKTwo := by
   refine forceLcs_two_le_of_gens ?_ ?_
@@ -825,11 +855,15 @@ theorem gapTwoBMark_column (i : Fin (sqRank h)) :
   exacts [⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩, ⟨0, by decide⟩,
     ⟨1, by decide⟩, ⟨0, by decide⟩]
 
-/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `TwoB`, BOUNDED WITHOUT RELAXATION.**  Every achievable
-stage-four dressing of `TwoB` satisfies the target's conditions, at every handle count and
-every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear condition
-and no letter-column chain can bound this lattice usefully; the generator reduction of section 1
-bounds it because it never relaxes the lattice at all. -/
+/-- ⭐⭐⭐ **THE ACHIEVABLE LATTICE AT `TwoB`, BOUNDED BY AN EXPLICIT `Z/8`-LINEAR TARGET.**
+Every achievable stage-four dressing of `TwoB` satisfies the target's conditions, at every handle
+count and every handle.  Wave 62 measured that no per-coordinate congruence, no mod-`2` linear
+condition and no letter-column chain can bound this lattice usefully; the generator reduction of
+section 1 bounds it without relaxing the lattice mod `2` or mod `4` anywhere in the argument.
+
+⚠ This is a ONE-SIDED containment, and the target is strictly bigger than the honest lattice:
+index `16`, `256` inside `4096`, per the Slack paragraph of the header.  That the method itself
+loses nothing is the separate statement `LcsGens.lcsSeries_le_iff_of_gens`. -/
 theorem forceLcs_two_le_gapTwoB :
     forceLcs (Subgroup.closure (Set.range (gapTwoMark' h j))) 2 ≤ gapKTwo := by
   refine forceLcs_two_le_of_gens ?_ ?_
