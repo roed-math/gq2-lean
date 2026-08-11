@@ -14,8 +14,8 @@ What it certifies, section by section:
   2  every certificate the Lean file carries: the emitted word evaluates to the emitted
      element, the element lies in the honest `[H, H]`, and dressing the named slot with it
      takes the relator to `1`;
-  3  the knob census: which of the three knobs is achievable at each point, and the twelve
-     points at which none is;
+  3  the knob census: which of the three knobs is achievable at each point, and the eighteen
+     points at which none can kill;
   4  the ungauged binder point `censHorn_binder_cex`: its five letters, both frames, the
      three dead knobs, the EXACT single-slot kill counts over its whole 2^15 lattice, and
      the single-commutator certificate the Lean file uses;
@@ -214,10 +214,14 @@ sig_un = sum(1 for r in rows if r["ach"][0] is False)
 allnone = [r["idx"] for r in rows if not any(a is True for a in r["ach"])]
 chk("the sigma knob is achievable at 49 of the 67", sig_ach == 49, "%d" % sig_ach)
 chk("...and unachievable at the other 18", sig_un == 18, "%d" % sig_un)
-chk("no knob at all is achievable at exactly 12 points", len(allnone) == 12,
+nnn = [r["idx"] for r in rows if all(a is False for a in r["ach"])]
+chk("no knob at all can kill at exactly 18 points", len(allnone) == 18,
     "points %s" % allnone)
+chk("...at 12 of those all three knobs exist and none is achievable", len(nnn) == 12,
+    "points %s" % nnn)
 print()
-print("   at those twelve the census's KNOB mechanism is silent and the killer is a general")
+print("   at the other six the two handle GEARINGS are even, so those knobs are dead outright.")
+print("   At all eighteen the census's KNOB mechanism is silent and the killer is a general")
 print("   lattice element: they are the wave-64 queue's horn-2 candidates.")
 
 head("4  the ungauged binder point censHorn_binder_cex")
@@ -280,7 +284,7 @@ print("      %d achievable single-slot killers, so the gauge is NOT necessary fo
       % sum(counts))
 print()
 print("   HORN 2 (a live point where all three knobs are unachievable AND the lattice kills")
-print("   at no slot): REFUTED at every point reached - the twelve knob-free census points")
+print("   at no slot): REFUTED at every point reached - the eighteen knob-free census points")
 print("   and the ungauged counterexample all die by a general lattice element.")
 print()
 print("=" * 100)

@@ -54,10 +54,16 @@ its nested sweep - so `censAchSlotX` is new here, and six of the sixty-seven poi
 The wave-64 queue asked for a live point at which all three knobs are unachievable AND the
 lattice kills at no slot.  ⭐ `censAch_noKill_iff_forces` shows the two halves of that question
 are one: at an ODD binder point, "no achievable dressing kills" **is** `GaTwoForces`.  So each
-of the sixty-seven refutations above is a horn-2 refutation, and `censAch_horn_two_*` records
-it at the twelve points where the first half genuinely holds - the twelve at which **no knob is
-achievable at all** (`#50`-`#55` and `#62`-`#67`, MEASURED).  At every one of them a general
-lattice element kills.  ⚠ No point in the census, and no point in the tree, satisfies horn 2.
+of the sixty-seven refutations above is a horn-2 refutation, and `censAch_horn_two_50` …
+`censAch_horn_two_67` record it at the **eighteen** points where the first half genuinely
+holds, namely every point at which no knob can kill (MEASURED):
+
+* at twelve (`#50`-`#55`, `#62`-`#67`) all three knobs exist and none is achievable;
+* at six (`#56`-`#61`) both handle gearings are EVEN, so those two knobs are dead outright,
+  and the sigma knob is unachievable.
+
+At every one of the eighteen a general lattice element kills.  ⚠ No point in the census, and
+no point in the tree, satisfies horn 2.
 
 ## ⭐⭐⭐ Headline 4: the gauge is NOT necessary for the census
 
@@ -81,13 +87,13 @@ at all.
 
 **PROVED** here, no `sorry`, no new axiom, no `native_decide`, every `decide` on `SqU6 (ZMod 8)`
 or `ZMod 8`: the four engines; the `67` kills with their certificates; the horn-2 equivalence
-and its twelve instances; the kill at the ungauged point and the death of its sigma knob; and
+and its eighteen instances; the kill at the ungauged point and the death of its sigma knob; and
 W65-SHARPEN's primed bound transported to the census (`censAch_dressing_even`: every achievable
 dressing at a census point has `f`, `g`, `h`, `j` even).
 
 **MEASURED** (`scripts/w66_achieve/results/achieve.txt`, `21` named checks, `0` failures, on
-two independent lattice implementations): which knobs are achievable (`49` / `18` / the twelve
-knob-free points); the exact single-slot kill counts; that the `67` rebuilt points are the
+two independent lattice implementations): which knobs are achievable (`49` / `18` / the
+eighteen knob-free points); the exact single-slot kill counts; that the `67` rebuilt points are the
 committed ones, record by record; and, at the ungauged point, its `2^15` lattice swept whole -
 `4864` achievable single-slot killers, and both handle knobs unachievable.
 
@@ -95,7 +101,7 @@ committed ones, record by record; and, at the ungauged point, its `2^15` lattice
 `forceLcs H 1` at a concrete point needs an upper bound the tree does not own there, and
 `censAch_not_achievable_of_odd` is the only uniform one available - it does not reach the knob,
 whose four constrained coordinates all vanish.  So the eighteen unachievable sigma knobs, the
-twelve knob-free points and the two dead handle knobs at the ungauged point remain measured.
+eighteen knob-free points and the two dead handle knobs at the ungauged point remain measured.
 Nor is a FIVE-slot decision claimed: single-slot kills are exhibited, which is sound in the
 "dead" direction and is the census's own scope.  Nor is any of this lifted to homomorphisms.
 ⚠ And the sixty-seven are the points the census reached: `0` survivors among them is not "the
@@ -1608,8 +1614,8 @@ theorem censAch_noKill_iff_forces {m : Fin (sqRank h) → SqU6 gr3R}
     rw [hres, SqU6.liftO_o, hodd] at hb
     exact absurd hb (by decide)
 
-/-- ⭐⭐ **Horn 2 fails wherever a killer is exhibited.**  The bridge used by the twelve
-knob-free points of section 4: an achievable single-slot dressing at the sigma slot that takes
+/-- ⭐⭐ **Horn 2 fails wherever a killer is exhibited.**  The bridge behind the eighteen
+knob-free points below: an achievable single-slot dressing at the sigma slot that takes
 the relator to `1` refutes `CensAchNoKill` outright. -/
 theorem censAch_not_noKill_sig {S X Y U V w : SqU6 gr3R}
     (hkill : sqWord (S * w) X Y * commP U V = 1)
@@ -1619,6 +1625,150 @@ theorem censAch_not_noKill_sig {S X Y U V w : SqU6 gr3R}
   refine hn (cenSigDress h w) (fun i => cens_sigDress_mem_forceLcs hach i) ?_
   rw [conFiveDress_fiveTuple_cenSigDress, sqRelWord_fiveTuple]
   exact hkill
+
+/-- ⭐⭐ **Horn 2 at a census point, from its kill.**  The bridge `censAch_noKill_iff_forces`
+with the point's own residue supplied. -/
+theorem censAch_horn_two_of_kill {X Y U V : SqU6 gr3R} {c : gr3R}
+    (hres : sqWord (fiveSigMark gr3R * X) X Y * commP U V = SqU6.liftO c)
+    (hodd : selPar c = 1) (hF : ¬ GaTwoForces (censAchPt h j X Y U V)) :
+    ¬ CensAchNoKill (censAchPt h j X Y U V) := by
+  rw [censAch_noKill_iff_forces (c := c)
+    (by rw [censAchPt, sqRelWord_fiveTuple]; exact hres) hodd]
+  exact hF
+
+/-! ### ⚠ The eighteen points at which NO knob can kill, and which die anyway -/
+
+/-- ⭐⭐ **Census point 50 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_50 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY50 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_50 h j).1
+
+/-- ⭐⭐ **Census point 51 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_51 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY51 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_51 h j).1
+
+/-- ⭐⭐ **Census point 52 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_52 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY52 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_52 h j).1
+
+/-- ⭐⭐ **Census point 53 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_53 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY53 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_53 h j).1
+
+/-- ⭐⭐ **Census point 54 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_54 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY54 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_54 h j).1
+
+/-- ⭐⭐ **Census point 55 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_55 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX23 censAchY55 censAchU1 censAchV1) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_55 h j).1
+
+/-- ⭐⭐ **Census point 56 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_56 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY56 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_56 h j).1
+
+/-- ⭐⭐ **Census point 57 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_57 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY57 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_57 h j).1
+
+/-- ⭐⭐ **Census point 58 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_58 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY58 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_58 h j).1
+
+/-- ⭐⭐ **Census point 59 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_59 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY59 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_59 h j).1
+
+/-- ⭐⭐ **Census point 60 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_60 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY60 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_60 h j).1
+
+/-- ⭐⭐ **Census point 61 is not a horn-2 witness**:
+the sigma knob is unachievable and both handle gearings are EVEN, so the two handle
+knobs are dead outright
+(`N--`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_61 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX45 censAchY61 censAchU2 censAchV2) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_61 h j).1
+
+/-- ⭐⭐ **Census point 62 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_62 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY62 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_62 h j).1
+
+/-- ⭐⭐ **Census point 63 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_63 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY63 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 7) (by decide) (by decide) (censAch_kill_63 h j).1
+
+/-- ⭐⭐ **Census point 64 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_64 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY64 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_64 h j).1
+
+/-- ⭐⭐ **Census point 65 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_65 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY65 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_65 h j).1
+
+/-- ⭐⭐ **Census point 66 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_66 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY66 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_66 h j).1
+
+/-- ⭐⭐ **Census point 67 is not a horn-2 witness**:
+all three knobs exist and none is achievable
+(`NNN`, MEASURED), and a general lattice element kills it all the same. -/
+theorem censAch_horn_two_67 (h : ℕ) (j : Fin h) :
+    ¬ CensAchNoKill (censAchPt h j censAchX65 censAchY67 censAchU3 censAchV3) :=
+  censAch_horn_two_of_kill (c := 3) (by decide) (by decide) (censAch_kill_67 h j).1
 
 end HornTwo
 
@@ -1738,6 +1888,216 @@ theorem censAch_not_achievable_of_odd (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R
   fun hm => hz (censAch_dressing_even h j hX hY hU hV hm).1
 
 end Sharp
+
+/-! ## 6 Axiom pins
+
+Committed prints for every public declaration.  All **std-3** (`propext`,
+`Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable, and there
+is no `native_decide`. -/
+
+section AxiomPins
+
+#print axioms censAchSlotX
+#print axioms censAchSlotX_isGaTwo
+#print axioms censAchSlotX_mem_forceLcs
+#print axioms conFiveDress_fiveTuple_censAchSlotX
+#print axioms censAch_sigDress_isGaTwo
+#print axioms censAch_liftO_neg
+#print axioms censAch_lines_false_sig
+#print axioms censAch_lines_false_x0
+#print axioms censAch_lines_false_u
+#print axioms censAch_lines_false_v
+#print axioms censAchPt
+#print axioms censAch_fiveTuple_letters_mem
+#print axioms censAch_letters_mem
+#print axioms censAchX21
+#print axioms censAchX23
+#print axioms censAchX25
+#print axioms censAchX27
+#print axioms censAchX61
+#print axioms censAchX63
+#print axioms censAchX65
+#print axioms censAchX67
+#print axioms censAchX45
+#print axioms censAchU1
+#print axioms censAchV1
+#print axioms censAchU2
+#print axioms censAchV2
+#print axioms censAchU3
+#print axioms censAchV3
+#print axioms censAch_kill_01
+#print axioms censAchY02
+#print axioms censAch_kill_02
+#print axioms censAchY03
+#print axioms censAch_kill_03
+#print axioms censAchY04
+#print axioms censAch_kill_04
+#print axioms censAchY05
+#print axioms censAch_kill_05
+#print axioms censAchY06
+#print axioms censAch_kill_06
+#print axioms censAchY07
+#print axioms censAch_kill_07
+#print axioms censAchY08
+#print axioms censAch_kill_08
+#print axioms censAchY09
+#print axioms censAch_kill_09
+#print axioms censAchY10
+#print axioms censAch_kill_10
+#print axioms censAchY11
+#print axioms censAch_kill_11
+#print axioms censAchY12
+#print axioms censAch_kill_12
+#print axioms censAchY13
+#print axioms censAch_kill_13
+#print axioms censAchY14
+#print axioms censAch_kill_14
+#print axioms censAchY15
+#print axioms censAch_kill_15
+#print axioms censAchY16
+#print axioms censAch_kill_16
+#print axioms censAchY17
+#print axioms censAch_kill_17
+#print axioms censAchY18
+#print axioms censAch_kill_18
+#print axioms censAchY19
+#print axioms censAch_kill_19
+#print axioms censAchY20
+#print axioms censAch_kill_20
+#print axioms censAchY21
+#print axioms censAch_kill_21
+#print axioms censAchY22
+#print axioms censAch_kill_22
+#print axioms censAchY23
+#print axioms censAch_kill_23
+#print axioms censAchY24
+#print axioms censAch_kill_24
+#print axioms censAchY25
+#print axioms censAch_kill_25
+#print axioms censAchY26
+#print axioms censAch_kill_26
+#print axioms censAchY27
+#print axioms censAch_kill_27
+#print axioms censAchY28
+#print axioms censAch_kill_28
+#print axioms censAchY29
+#print axioms censAch_kill_29
+#print axioms censAchY30
+#print axioms censAch_kill_30
+#print axioms censAchY31
+#print axioms censAch_kill_31
+#print axioms censAchY32
+#print axioms censAch_kill_32
+#print axioms censAchY33
+#print axioms censAch_kill_33
+#print axioms censAchY34
+#print axioms censAch_kill_34
+#print axioms censAchY35
+#print axioms censAch_kill_35
+#print axioms censAchY36
+#print axioms censAch_kill_36
+#print axioms censAchY37
+#print axioms censAch_kill_37
+#print axioms censAchY38
+#print axioms censAch_kill_38
+#print axioms censAchY39
+#print axioms censAch_kill_39
+#print axioms censAchY40
+#print axioms censAch_kill_40
+#print axioms censAchY41
+#print axioms censAch_kill_41
+#print axioms censAchY42
+#print axioms censAch_kill_42
+#print axioms censAchY43
+#print axioms censAch_kill_43
+#print axioms censAchY44
+#print axioms censAch_kill_44
+#print axioms censAchY45
+#print axioms censAch_kill_45
+#print axioms censAchY46
+#print axioms censAch_kill_46
+#print axioms censAchY47
+#print axioms censAch_kill_47
+#print axioms censAchY48
+#print axioms censAch_kill_48
+#print axioms censAchY49
+#print axioms censAch_kill_49
+#print axioms censAchY50
+#print axioms censAchW50
+#print axioms censAch_kill_50
+#print axioms censAchY51
+#print axioms censAchW51
+#print axioms censAch_kill_51
+#print axioms censAchY52
+#print axioms censAchW52
+#print axioms censAch_kill_52
+#print axioms censAchY53
+#print axioms censAchW53
+#print axioms censAch_kill_53
+#print axioms censAchY54
+#print axioms censAchW54
+#print axioms censAch_kill_54
+#print axioms censAchY55
+#print axioms censAchW55
+#print axioms censAch_kill_55
+#print axioms censAchY56
+#print axioms censAch_kill_56
+#print axioms censAchY57
+#print axioms censAch_kill_57
+#print axioms censAchY58
+#print axioms censAch_kill_58
+#print axioms censAchY59
+#print axioms censAch_kill_59
+#print axioms censAchY60
+#print axioms censAch_kill_60
+#print axioms censAchY61
+#print axioms censAch_kill_61
+#print axioms censAchY62
+#print axioms censAch_kill_62
+#print axioms censAchY63
+#print axioms censAch_kill_63
+#print axioms censAchY64
+#print axioms censAch_kill_64
+#print axioms censAchY65
+#print axioms censAch_kill_65
+#print axioms censAchY66
+#print axioms censAch_kill_66
+#print axioms censAchY67
+#print axioms censAch_kill_67
+#print axioms CensAchNoKill
+#print axioms censAch_noKill_iff_forces
+#print axioms censAch_not_noKill_sig
+#print axioms censAch_horn_two_of_kill
+#print axioms censAch_horn_two_50
+#print axioms censAch_horn_two_51
+#print axioms censAch_horn_two_52
+#print axioms censAch_horn_two_53
+#print axioms censAch_horn_two_54
+#print axioms censAch_horn_two_55
+#print axioms censAch_horn_two_56
+#print axioms censAch_horn_two_57
+#print axioms censAch_horn_two_58
+#print axioms censAch_horn_two_59
+#print axioms censAch_horn_two_60
+#print axioms censAch_horn_two_61
+#print axioms censAch_horn_two_62
+#print axioms censAch_horn_two_63
+#print axioms censAch_horn_two_64
+#print axioms censAch_horn_two_65
+#print axioms censAch_horn_two_66
+#print axioms censAch_horn_two_67
+#print axioms censAchCexPt
+#print axioms censAch_cex_sigKnob_dead
+#print axioms censAch_cex_lines_false
+#print axioms censAch_cex_not_noKill
+#print axioms censAch_fiveTuple_cases
+#print axioms censAch_sig_mem_stageN1
+#print axioms censAch_image_le_stageN1
+#print axioms censAch_dressing_even
+#print axioms censAch_not_achievable_of_odd
+
+end AxiomPins
+
 
 end SqCore
 
