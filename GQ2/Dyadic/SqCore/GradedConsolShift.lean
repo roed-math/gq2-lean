@@ -20,9 +20,11 @@ This file gives that ritual ONE home.
 ## ⭐ What the one home is
 
 `SqU6.consolShift_sqWord` is naturality of the core word along the shift, and
-`SqU6.consolShift_iterate_sqWord` is the same at **arbitrary iterate depth**, which is what the
-`l`-row needs (it is the class-three row shifted TWICE, and SEP0H reaches it by transporting the
-already-transported `k`-row rather than by iterating).  `SqU6.consolShiftRows` then reads all
+`SqU6.consolShift_iterate_sqWord` is the same at **arbitrary iterate depth**, the shape the
+`l`-row's transport composes through (it is the class-three row shifted TWICE, and SEP0H reaches
+it by transporting the already-transported `k`-row rather than by iterating).  ⚠ It is currently
+**without consumers**: the `l` row of `SqU6.consolShiftRows` is proved by applying the depth-one
+lemma twice, not by instantiating the iterate.  `SqU6.consolShiftRows` then reads all
 four rows off in one statement:
 
 ```text
@@ -45,8 +47,9 @@ The edit-window action, for whoever opens `GradedFiveSepZero` next:
 
 * `SqU6.sqWord_g_of_shift`, `_k_of_shift`, `_n_of_shift`: replace the three-line body by
   `rw [(SqU6.consolShiftRows s x y).1]` (respectively `.2.1`, `.2.2.2`) followed by the same
-  committed source row and `ring`.  `private theorem consolShift_g_delegate` below is that
-  replacement, run, so the claim is CHECKED and not merely asserted.
+  committed source row, finishing with `simp only` on the `SqU6.sepShiftRow_*` projections (not
+  with `ring`).  ⚠ `private theorem consolShift_g_delegate` below runs that replacement for the
+  `g` row ONLY, so the claim is CHECKED at `g` and remains ASSERTED at `k` and `n`.
 * `SqU6.sqWord_l_of_shift`: same with `.2.2.1`; `private theorem consolShift_l_delegate` is the
   depth-two case, also run.
 * Neither delegate is offered for reuse; both are `private` precisely so that the retirement is
@@ -106,9 +109,11 @@ theorem SqU6.consolShift_sqWord (s x y : SqU6 R) :
       = sqWord (SqU6.sepShiftRow s) (SqU6.sepShiftRow x) (SqU6.sepShiftRow y) :=
   map_sqWord _ s x y
 
-/-- ⭐ …and at **arbitrary iterate depth**, which is the shape the `l`-row needs.  SEP0H reaches
-that row by transporting its own already-transported `k`-row, which works but does not compose;
-this states the depth-`n` fact once and for all.  ⚠ It says nothing about which rows survive `n`
+/-- ⭐ …and at **arbitrary iterate depth**, the shape the `l`-row's transport composes through.
+SEP0H reaches that row by transporting its own already-transported `k`-row, which works but does
+not compose; this states the depth-`n` fact once and for all.  ⚠ It has **no consumers** at
+present, `SqU6.consolShiftRows` proving its depth-two row from the depth-one lemma applied twice.
+⚠ It says nothing about which rows survive `n`
 shifts: the shift kills the sixth column, so most rows of the image are `0` for `n` large. -/
 theorem SqU6.consolShift_iterate_sqWord (n : ℕ) (s x y : SqU6 R) :
     (SqU6.sepShiftRow (R := R))^[n] (sqWord s x y)

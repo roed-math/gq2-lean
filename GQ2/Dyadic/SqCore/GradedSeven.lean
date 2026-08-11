@@ -316,8 +316,10 @@ instance : Group (SqU7 R) where
 
 /-! ## 2 Finiteness, the discrete topology, and pro-`2`-ness
 
-Transposed from `SqU6`'s block (`GradedFive.lean` section 3): the same six declarations with
-`15` replaced by `21`.  They exist so that a relator-killing marking into `SqU7` classifies a
+Transposed from `SqU6`'s blocks with `15` replaced by `21`: the six declarations of
+`GradedFive.lean` section 3 (`equivProd`, the `Finite` instance, `nat_card`, the two topology
+instances, `isProP_two`), plus `eq_one_iff` and `instDecidableEq` from that file's section 1 -
+eight in all.  They exist so that a relator-killing marking into `SqU7` classifies a
 continuous homomorphism through `sqLiftHom`, which needs `IsProP 2`. -/
 
 /-- The underlying twenty-one-tuple, as an equivalence. -/

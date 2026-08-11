@@ -55,8 +55,9 @@ even products into two products of two even factors.  Run the same chain from th
 ## ⭐⭐⭐ Headline 2: at `H = stageN1` both bounds are EQUALITIES
 
 `forceSharp_stageN1_one_eq` and `forceSharp_stageN1_two_eq`.  The reverse
-containments are proved by exhibiting each of the sixteen (resp. six) coordinate generators as
-an explicit iterated commutator of single-coordinate letters of `stageN1`, and then decomposing
+containments are proved by exhibiting each of the ten (resp. six) coordinate generators as an
+explicit commutator of single-coordinate letters of `stageN1` - a SINGLE commutator `⁅x, y⁆` at
+depth one, an iterated `⁅⁅x, y⁆, z⁆` at depth two - and then decomposing
 an arbitrary member of the target along the abelian `gamma_3` layer.
 
 ⭐ This is what the audit could only MEASURE.  Its consequence is a **decidable membership test
@@ -252,9 +253,9 @@ theorem forceSharp_gGen_mem_stageN2_not_N2 :
   revert t
   decide
 
-/-- ⭐ **The depth-two sharpening is strict in BOTH new conditions**: `<j=2>` and `<k=1>` lie in
-`stageN3` and in neither case in `forceSharpN3`, so the index is at least four (MEASURED: exactly
-four). -/
+/-- ⭐ **The depth-two sharpening is strict in the `j` condition**: `<j=2>` lies in `stageN3` and
+not in `forceSharpN3`.  The `k` half is the companion theorem immediately below; the two together
+give index at least four (MEASURED: exactly four). -/
 theorem forceSharp_jGen_mem_stageN3_not_N3 :
     (⟨0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0⟩ : SqU6 gr3R) ∈ stageN3
       ∧ (⟨0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0⟩ : SqU6 gr3R) ∉ forceSharpN3 := by
@@ -916,9 +917,15 @@ end Consumer
 
 /-! ## 7 Axiom pins
 
-Committed prints for every public declaration.  All **std-3** (`propext`, `Classical.choice`,
-`Quot.sound`) or a subset; no census axiom is reachable.  Every `decide` is on `ZMod 8` or on
-`SqU6 (ZMod 8)`; there is no `native_decide`. -/
+Committed prints for **37** of the file's **44** public declarations.  All of those are **std-3**
+(`propext`, `Classical.choice`, `Quot.sound`) or a subset; no census axiom is reachable.  Every
+`decide` is on `ZMod 8` or on `SqU6 (ZMod 8)`; there is no `native_decide`.
+
+⚠ Seven public declarations are NOT pinned here: the `forceSharpUnit2` block (`forceSharpUnit2`,
+`forceSharpUnit2_one`, `forceSharpUnit2_mul`, `forceSharpUnit2_eq`, `forceSharpUnit2_split`) and
+the two depth-one results `forceSharpN2_le_forceLcs_stageN1_one` and
+`forceSharp_stageN1_one_eq`.  (The two `private` helpers `forceSharpNatCast` and
+`forceSharpUnitDvd` are unpinned as well, by design.) -/
 
 section AxiomPins
 

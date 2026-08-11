@@ -28,9 +28,10 @@ class-six coordinate.  So the class-six analogue of `sepZero_bit_even` is false,
 
 with ⭐⭐ `sepSix_not_bit_even_hom` the same at the hom level, through `sqLiftHom` and the new
 `SqU7.isProP_two`: an honest continuous homomorphism on the handle-free `D_sq 0` separates at
-class six.  ⭐ So **class five is sharp**: it is the top class at which the separation forces a
-handle, and W64-SEP0H's item 5 ("it says nothing about class six and above") is now settled in
-the negative rather than left open.
+class six.  ⭐ So **class five is sharp against class six**: the forcing holds at class five and
+fails at class six, so it cannot be pushed up by one, and W64-SEP0H's item 5 ("it says nothing
+about class six and above") is settled in the negative at class six.  ⚠ Not "the top class":
+classes seven and up are deliberately unasked here, and item 4 below says so.
 
 ## ⭐ Why the mechanism dies, stated as the mechanism
 
@@ -78,8 +79,9 @@ re-checked by `decide` inside Lean.
 
 ## Naming
 
-Everything new carries a `sepSix` prefix, except the two `SqU7`-namespaced statements.  Nothing
-in the tree imports this file.
+Everything new carries a `sepSix` prefix, except the one `SqU7`-namespaced statement,
+`SqU7.not_selPar_sqWord_diagDress_e17`.  (`SqU7.isProP_two` is used here but declared in
+`GradedSeven`.)  Nothing in the tree imports this file.
 -/
 
 namespace GQ2

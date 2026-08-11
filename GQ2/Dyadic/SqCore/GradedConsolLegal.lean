@@ -16,9 +16,22 @@ column.  All three are recorded in prose and none is formalised; W63-LIVE5's say
 words, "recorded here rather than formalised" (`GradedFiveLive`, section "The legality audit,
 REDONE"), and reappears as a MEASURED row.  W64-VERIFY's task C then found ONE criterion that
 covers all three and measured it exhaustively
-(`scripts/w64_verify/results/task_c_legality.txt`).
+(`scripts/w64_verify/results/task_c_legality.txt`, section 1): the LATTICE criterion, `x0_ab`
+outside `M(L)` for the single exponent lattice `L` of legal dressings.
 
-This file makes that criterion a theorem, and takes the strengthening W64-VERIFY found for free.
+⚠ That is **not** what this file proves.  Section 2 of the same measurement certifies the
+negative that forces the difference: **no single abelian column, at any modulus, closes the door
+at all three points**, and W63-LIVE5's first-column row shuts it at exactly one of them, its own.
+What is made a theorem below is that single-column route - the column identity off the FIRST
+abelian column, with the target's `b`-column parity as its side condition - packaged so that the
+hypotheses read uniformly at any `fiveTuple` point.  Uniform SHAPE is not uniform APPLICABILITY:
+nothing here says the hypotheses hold at wave 60's or wave 61's point, and by that certified
+negative they cannot all hold.  The lattice is the reading, not the proof; see "What this file
+does NOT do" below.  The strengthening W64-VERIFY found is taken for free.
+
+The wave-66 sequel `GradedConsolLegalPoints` decided the other two points: wave 60's is
+**structurally unreachable** by this route, and wave 61's is reachable only under an explicit
+odd-sigma-parity hypothesis on `lambda`.
 
 ## ⭐⭐⭐ The uniform criterion
 
@@ -59,8 +72,16 @@ is why the strengthening costs nothing here and why the criterion asks the targe
 * It instantiates the criterion at **one** of the three points, W63-LIVE5's live binder point
   (`consolLegal_liveBlk_ne_stageX`), the one whose audit is explicitly unformalised.  Wave 60's
   `fiveFrameHom` and wave 61's `stageFrameHom` are **not** instantiated here and nothing below
-  asserts the criterion's hypotheses hold at them; each is a five-slot `decide` for a later
-  wave, and until it is run the other two rows stay where W64-VERIFY left them, MEASURED.
+  asserts the criterion's hypotheses hold at them.  ⚠ Wave 66 ran those five-slot `decide`s
+  (`GradedConsolLegalPoints`) and **both instantiations are REFUTED**: at wave 60 the generator
+  hypothesis of `consolLegal_column` is unsatisfiable, for either value of `e`
+  (`consolLegalPt_fiveFrame_hgen_false`, off `consolLegalPt_fiveFrame_column_ne`), and at wave 61
+  the packaged hypotheses are false at the two handle slots
+  (`consolLegalPt_stageFrame_packaged_false`).  Wave 61 survives only in a generalised form that
+  carries `e` explicitly, under `e = 1`
+  (`consolLegalPt_stageFrame_ne_stageX_of_sigmaOdd`) - the very input this file was built to
+  avoid.  The two non-membership CONCLUSIONS are untouched by that: they keep their own
+  incomparable prose arguments off other columns, where W64-VERIFY left them, MEASURED.
 * It says nothing about which dressings ARE reachable, and nothing about achievability: the
   conclusion is a non-membership at one slot value, not a description of the image.
 * It does not re-derive the exponent lattice `L` of W64-VERIFY's task C.  ⚠ The Lean route does
@@ -90,7 +111,8 @@ Nothing is redefined.  Reused: `SqU6`, `SqU6.one_a`, `SqU6.one_b`, `SqU6.mul_a`,
 (`GradedFiveStageFour`).
 
 New public names, all carrying a `consol` marker against the concurrent wave-65 lanes:
-`consolRedFour`, `consolRedFour_zero`, `consolRedFour_add`, `consolTwoUp`, `consolTwoUp_add`,
+`consolRedFour`, `consolRedFour_zero`, `consolRedFour_add`, `consolRedFour_two`, `consolTwoUp`,
+`consolTwoUp_add`,
 `consolTwoUp_self`, `consolTwoUp_zero`, `consolLegal_column`, `consolLegal_fiveTuple_ne`,
 `consolLegal_liveBlk_ne_stageX`.
 

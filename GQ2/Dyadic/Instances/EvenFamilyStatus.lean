@@ -15,7 +15,8 @@ import GQ2.Dyadic.Instances.EvenRouteFinal
 `EvenRouteFinalCarried{N,M}` (the measured branch identification and the proved degree), the
 even route's one carried input `EvenRouteFinalFamily{N,M} h K` is *equivalent* to its one
 conclusion, `Nonempty (OrientedContinuousMulEquiv (chi{N,M} alpha h) chiCycKTwo)`
-(`hfamFinal_status{N,M}`).
+(`hfamFinal_family{N,M}_iff_orientedEquiv`; unfolded to the depth-level supply it is
+`hfamFinal_status{N,M}_atDepth`).
 
 The forward direction is the committed wave-58 endpoint.  The backward direction is this
 wave's: an oriented equivalence pulls every field-side stage tuple back to a model tuple,
@@ -27,7 +28,7 @@ not an input strictly weaker than the goal, it *is* the goal, stated one station
 
 * `Hfam` cannot be **refuted** at any field without refuting the even classification itself
   there: a refutation of the supply at `K` is a proof that `G_K(2)` is not oriented-isomorphic
-  to the even core, by `hfamFinal_status{N,M}`.  The wave-56-style failure mode (a published
+  to the even core, by `hfamFinal_not_family{N,M}_iff`.  The wave-56-style failure mode (a published
   supply falsified by a sibling lane) is structurally impossible for `Hfam`.
 * `Hfam` cannot be **discharged** at any field by soft means either: any proof of it at `K`
   proves the classification at `K`.  The honest residual is therefore exactly the theorem the
@@ -428,7 +429,12 @@ end GQ2.Dyadic.EvenFamily
 
 /-! ## §5 Axiom pins
 
-Every public declaration, printed.  §1 to §3 stay at std-3.  §4's status theorems consume the
+Every public declaration, printed.  §1, §2 and most of §3 stay at std-3.  ⚠ Two §3 declarations
+do not: `evenFam_nonempty_family_of_paritySupply` reaches
+`absGalQ2_isTopologicallyFinitelyGenerated`, and so does the iff it feeds,
+`evenFam_nonempty_family_iff_paritySupply`.  That axiom is already inside the set `S` below, so
+nothing new leaks from this file; only the per-section split is coarser than std-3.  §4's status
+theorems consume the
 committed even endpoint chain in their forward halves, so they print the seven-element set
 `S = std-3 + {hilbertSymbol_normCriterion_finiteDyadic, tateDualityAt,
 absGalQ2_isTopologicallyFinitelyGenerated, absGalQ2_localEulerCharacteristic}` that

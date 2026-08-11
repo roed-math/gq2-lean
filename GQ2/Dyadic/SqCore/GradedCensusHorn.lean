@@ -491,7 +491,10 @@ CENTRAL relator, the sigma knob's gearing `X.e` is **ODD**.
 
 ⭐ So `cens_sigKnob_dichotomy`'s first horn `selPar X.e = 0` is empty, and W64's criterion
 collapses onto achievability.  ⚠ The `(5,6)`-column hypothesis on the SIGMA letter cannot be
-dropped: `censHorn_recorded_false` is a counterexample with every other hypothesis in force. -/
+dropped: `censHorn_binder_cex` is a counterexample with every other hypothesis of THIS theorem in
+force - undressed frame killing, diagonally dressed frame odd and central, all five letters on
+`stageN1` - and an even gearing.  (`censHorn_recorded_false` refutes the RECORDED row form
+instead; it asserts neither of the two frame hypotheses above.) -/
 theorem censHorn_gear_odd
     (hsa : (2 : gr3R) ∣ S.a) (hsc : (2 : gr3R) ∣ S.c) (hse : (2 : gr3R) ∣ S.e)
     (hxa : (2 : gr3R) ∣ X.a) (hxc : (2 : gr3R) ∣ X.c)
@@ -560,7 +563,10 @@ theorem censHorn_verdict
 
 /-- ⭐⭐⭐ **Achievability is the ONLY remaining input.**  The contrapositive shape: if the
 lattice achieves the knob solving the sigma equation, then all three `gamma_2` lines fail at the
-point, with no parity hypothesis anywhere.  ⚠ Whether the lattice does achieve it is a property
+point.  ⚠ What is dropped relative to `censHorn_verdict` is the `gamma_2` forcing hypothesis, not
+the parity one: `hodd : selPar c = 1` is still carried here and is load-bearing, feeding both
+`censHorn_knob_solvable` and `cens_lines_false_of_sigKnob`.  ⚠ Whether the lattice does achieve
+it is a property
 of the point, measured in `scripts/w64_census5/`, and nothing here proves it. -/
 theorem censHorn_lines_false_of_ach
     (hsa : (2 : gr3R) ∣ S.a) (hsc : (2 : gr3R) ∣ S.c) (hse : (2 : gr3R) ∣ S.e)
