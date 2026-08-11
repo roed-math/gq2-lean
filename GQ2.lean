@@ -743,6 +743,8 @@ import GQ2.Dyadic.SqCore.GradedBlockSecond
 import GQ2.Dyadic.SqCore.GradedFiveLive
 import GQ2.Dyadic.SqCore.GradedStageFour
 import GQ2.Dyadic.SqCore.GradedStageFourClosed
+import GQ2.Dyadic.SqCore.GradedLcsGens
+import GQ2.Dyadic.SqCore.GradedLiveGammaTwo
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
