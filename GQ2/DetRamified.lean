@@ -32,7 +32,6 @@ which adds only B6/B7 via `D`) — the full §6.3 deep-part budget, **no new axi
 
 namespace GQ2
 
-
 namespace DetRamified
 
 open ContCoh QuadraticFp2 SectionSix

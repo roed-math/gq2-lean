@@ -31,7 +31,6 @@ Axioms: **B6** (`tateDuality`) and **B7** (through `card_H2_zmod2_eq_two`'s fini
 
 namespace GQ2
 
-
 namespace SectionEight
 
 namespace RadicalEdgeLocal

@@ -51,7 +51,6 @@ B13 (`dyadicUnitFiltration`, via `hunram_involution`)} — the §6.3 involution 
 
 namespace GQ2
 
-
 namespace InvolutionSplice
 
 open ContCoh

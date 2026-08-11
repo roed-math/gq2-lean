@@ -30,7 +30,6 @@ characteristic behind `card_Z1_eq`.
 
 namespace GQ2
 
-
 namespace SectionEight
 
 open CentralObstruction AffineTLift ContCoh LocalLiftingDuality FoxH

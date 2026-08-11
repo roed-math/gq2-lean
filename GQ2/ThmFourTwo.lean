@@ -29,7 +29,6 @@ solved by `count_eq_of_closedRecursion` against the §9 induction bounds).
 
 namespace GQ2
 
-
 open SectionEight
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

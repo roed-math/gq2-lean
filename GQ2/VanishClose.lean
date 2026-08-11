@@ -28,7 +28,6 @@ action — the two facts needed to feed the reindexed orbit sum into the reducer
 
 namespace GQ2
 
-
 namespace VanishClose
 
 open OrbitVanish (sumDatum)

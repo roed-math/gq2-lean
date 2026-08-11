@@ -3,13 +3,13 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
-import GQ2.Roe.MainCore
+import GQ2.Roe.MainWithInputs
 import GQ2.Foundations.AxiomInstance
 
 /-!
 # Legacy axiom-backed `Γ_R` capstones
 
-The generic implementations live in `GQ2.Roe.MainCore` and take `[LiteratureInputs]`.  This
+The generic implementations live in `GQ2.Roe.MainWithInputs` and take `[LiteratureInputs]`.  This
 compatibility module preserves the historical public statements by selecting the instance assembled
 from the original nine literature axioms.
 -/

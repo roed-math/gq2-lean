@@ -24,7 +24,6 @@ namespace GQ2
 
 open Multiplicative
 
-
 /-! ## `ẑ`-power helpers -/
 
 section ZpowHatHelpers

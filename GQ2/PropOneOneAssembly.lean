@@ -37,7 +37,6 @@ open scoped Classical
 
 namespace GQ2
 
-
 open SectionThree
 
 /-! ## Functorial abelianization of a continuous isomorphism

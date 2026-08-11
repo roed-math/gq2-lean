@@ -35,7 +35,6 @@ budget (B6 via the `D` parameter, B7).
 
 namespace GQ2
 
-
 namespace SectionEight
 
 namespace AffineTLift

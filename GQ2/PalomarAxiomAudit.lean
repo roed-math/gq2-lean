@@ -30,8 +30,7 @@ def legacyLiteratureAxioms : List Name :=
   , "GQ2.hilbertSymbol_normCriterion_finiteDyadic".toName ]
 
 def legacyCompatibilityProviders : List Name :=
-  [ "GQ2.axiomaticLiteratureInputs".toName
-  , "GQ2.axiomaticLiteratureInputsInstance".toName ]
+  ["GQ2.axiomaticLiteratureInputs".toName]
 
 def solutionDeclarations : List Name :=
   [ ``challenge_main_presentation_literal_of_inputs

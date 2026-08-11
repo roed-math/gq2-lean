@@ -19,8 +19,8 @@ This module is the opt-in bridge from the nine historical axiom declarations to 
 
 namespace GQ2
 
-/-- Assemble the original nine axiom declarations into the explicit input bundle. -/
-@[implicit_reducible] noncomputable def axiomaticLiteratureInputs : LiteratureInputs where
+/-- Importing this module selects the legacy axiom-backed literature inputs. -/
+noncomputable instance axiomaticLiteratureInputs : LiteratureInputs where
   absGalQ2_isTopologicallyFinitelyGenerated :=
     Foundations.absGalQ2_isTopologicallyFinitelyGenerated
   absGalQ2_localEulerCharacteristic :=
@@ -32,9 +32,5 @@ namespace GQ2
   relativeStiefelWhitney_dyadic := relativeStiefelWhitney_dyadic
   tameQuotient := tameQuotient
   hilbertSymbol_normCriterion_finiteDyadic := hilbertSymbol_normCriterion_finiteDyadic
-
-/-- Importing this module selects the legacy axiom-backed literature inputs. -/
-noncomputable instance axiomaticLiteratureInputsInstance : LiteratureInputs :=
-  axiomaticLiteratureInputs
 
 end GQ2

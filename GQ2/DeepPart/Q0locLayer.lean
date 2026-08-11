@@ -27,7 +27,6 @@ open scoped Classical
 
 namespace GQ2.DeepPart
 
-
 open GQ2 GQ2.ContCoh GQ2.Foundations
 
 section Q0locLayer

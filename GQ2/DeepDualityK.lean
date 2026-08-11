@@ -41,7 +41,6 @@ Design details are recorded in `docs/orchestration/p15f-handoff.md` §8 and
 
 namespace GQ2
 
-
 open ContCoh LocalKummer
 
 variable {C : Type} [Group C] [TopologicalSpace C]

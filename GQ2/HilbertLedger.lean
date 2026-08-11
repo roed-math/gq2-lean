@@ -74,7 +74,6 @@ namespace GQ2
 
 open ContCoh
 
-
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-! ## Tier 0: coefficient 2-torsion -/

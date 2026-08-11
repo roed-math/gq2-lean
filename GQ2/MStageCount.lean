@@ -35,7 +35,6 @@ the lane's inputs (design note `docs/section9-extraction.md` §the §9 induction
 
 namespace GQ2
 
-
 open SectionEight SectionSeven
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

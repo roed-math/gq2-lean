@@ -69,7 +69,6 @@ Axioms: **none consumed here** (statement layer).
 
 namespace GQ2
 
-
 open ContCoh QuadraticFp2 Corestriction
 
 open scoped Classical

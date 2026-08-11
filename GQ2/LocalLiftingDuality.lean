@@ -35,7 +35,6 @@ namespace GQ2.LocalLiftingDuality
 
 open ContCoh GQ2 FoxH
 
-
 /-! ## The `n = 2` transport `MuN 2 ≅ ZMod 2` (trivial `G`-module). -/
 
 /-- `#μ₂ = 2`. -/
@@ -304,8 +303,7 @@ end Bridge
 invariants are
 everything, so `#H⁰(MuDual 2 𝔽₂) = #(𝔽₂ →+ μ₂) = #(𝔽₂ →+ 𝔽₂) = 2`; B6's `(0,2)` duality then pins
 `#H²(𝔽₂)`. -/
-theorem card_H2_zmod2_eq_two [lit : LiteratureInputs] [TopologicalSpace (ZMod 2)]
-    [DiscreteTopology (ZMod 2)]
+theorem card_H2_zmod2_eq_two [lit : LiteratureInputs] [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m) :
     Nat.card (H2 AbsGalQ2 (ZMod 2)) = 2 := by
@@ -381,8 +379,7 @@ that matches B6's `μ₂`-side pairing `Ψ` through the class transport `e` and 
 transport `muNTwoEquiv` (`hcomm`), with B6-side perfect surjectivity `hP` and equal finite
 cardinalities, is itself bijective — `bijective_cup` applied to the `τ`-transported opposite
 currying. -/
-private theorem bijective_cup_of_comm [lit : LiteratureInputs] {V W Y : Type*}
-    [AddCommGroup V] [AddCommGroup W]
+private theorem bijective_cup_of_comm [lit : LiteratureInputs] {V W Y : Type*} [AddCommGroup V] [AddCommGroup W]
     [AddCommGroup Y] [Finite V] [Finite W]
     (hV₂ : ∀ v : V, v + v = 0) (hW₂ : ∀ w : W, w + w = 0) (hcardVW : Nat.card V = Nat.card W)
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
@@ -531,7 +528,6 @@ qualified names are unchanged) rather than in `FoxHeisenberg.lean`, because thei
 `FoxHeisenberg`, so proving them there would be an import cycle. -/
 
 namespace GQ2.FoxH
-
 
 open GQ2.ContCoh GQ2.LocalLiftingDuality
 

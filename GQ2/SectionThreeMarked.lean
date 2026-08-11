@@ -27,7 +27,6 @@ in `GQ2/BoundaryMapsWitness.lean`.
 
 namespace GQ2
 
-
 namespace SectionThree
 
 /-! ## Proposition 3.10 — the maximal pro-2 quotient of `Γ_A` is `Π`

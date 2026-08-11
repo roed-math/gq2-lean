@@ -82,7 +82,6 @@ end GQ2.HilbertSymbol
 
 namespace GQ2
 
-
 /-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `lit.tateDualityAt` -/
 
 /-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `lit.tateDualityAt`, using

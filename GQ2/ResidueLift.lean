@@ -38,7 +38,6 @@ B13 (`dyadicUnitFiltration`), already in the census.
 
 namespace GQ2
 
-
 namespace ResidueLift
 
 open Polynomial

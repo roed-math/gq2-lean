@@ -41,7 +41,6 @@ source, the exact `stageR136` field of the `RecursionInputs` bundle (the Prop. 8
 
 namespace GQ2
 
-
 namespace RStageLocal
 
 open ContCoh SectionEight SectionSeven LocalLiftingDuality GQ2.FoxH

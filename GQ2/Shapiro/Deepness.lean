@@ -33,7 +33,6 @@ Axioms: B9, B11a (through `cup_deepClasses`/(94)).
 
 namespace GQ2
 
-
 namespace ShapiroDeepness
 
 open ContCoh SectionSix LocalKummer

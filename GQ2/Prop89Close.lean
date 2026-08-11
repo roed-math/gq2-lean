@@ -66,7 +66,6 @@ this proof.  One elaboration detail is worth preserving: `simpa … using` fails
 
 namespace GQ2
 
-
 namespace SectionEight
 
 open SectionSeven AffineTLift CentralObstruction ContCoh LocalLiftingDuality FoxH

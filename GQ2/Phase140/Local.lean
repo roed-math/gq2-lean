@@ -52,7 +52,6 @@ as in `hMcountM_local`/`hZcount_local`.
 
 namespace GQ2
 
-
 namespace SectionEight
 
 open CentralObstruction AffineTLift ContCoh LocalLiftingDuality FoxH QuadraticFp2

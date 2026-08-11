@@ -16,7 +16,6 @@ open scoped Pointwise
 
 namespace GQ2
 
-
 namespace SectionEight
 
 open QuadraticFp2

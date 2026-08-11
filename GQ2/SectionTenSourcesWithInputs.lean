@@ -32,7 +32,6 @@ This file discharges both for the two real sources, so `eq_154_of_inputs` can in
 
 namespace GQ2
 
-
 namespace SectionTen
 
 open SectionThree

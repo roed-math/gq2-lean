@@ -59,7 +59,6 @@ display-(57) numerics.
 
 namespace GQ2
 
-
 namespace FoxH
 
 open scoped Classical

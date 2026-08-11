@@ -33,7 +33,6 @@ No new axiom, no `sorryAx`.
 
 namespace GQ2
 
-
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 /-- **The orientation clause at the witness's tame coordinate** (the Lemma 6.17 vanishing proof(iii), the witness

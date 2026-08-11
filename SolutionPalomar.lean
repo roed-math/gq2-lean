@@ -3,8 +3,8 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8, Fable-5, and OpenAI Codex
 -/
-import GQ2.PresentationLiteralCore
-import GQ2.Roe.MainCore
+import GQ2.PresentationLiteralWithInputs
+import GQ2.Roe.MainWithInputs
 
 /-!
 # Axiom-free Comparator solution

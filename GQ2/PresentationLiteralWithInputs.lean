@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8, Fable-5, and OpenAI Codex
 -/
 import GQ2.GammaA
-import GQ2.SectionTenSourcesCore
+import GQ2.SectionTenSourcesWithInputs
 import GQ2.Prop23
 import GQ2.FinitelyGenerated
 import Mathlib.FieldTheory.Galois.Profinite
@@ -12,8 +12,8 @@ import Mathlib.FieldTheory.Galois.Profinite
 /-!
 # Theorem 1.2 from explicit literature inputs
 
-This is the axiom-free core of the literal `Γ_A` presentation theorem.  Its single bundled
-hypothesis exposes the nine cited literature results used by the proof graph.
+This form of the literal `Γ_A` presentation theorem takes the nine cited literature results as a
+single bundled hypothesis.
 -/
 
 namespace GQ2

@@ -61,7 +61,6 @@ open GQ2.ContCoh
 
 namespace GQ2.Foundations
 
-
 /-! ## Consequences / stress tests
 
 (The axiom `absGalQ2_localEulerCharacteristic` is stated in `GQ2/Foundations/Axioms.lean`.) -/

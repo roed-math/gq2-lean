@@ -40,7 +40,6 @@ no new axiom.  Closing `SectionSix.lemma_6_17_dim` outright needs the residue-tr
 
 namespace GQ2
 
-
 namespace DimClose
 
 open ContCoh DimAssembly LocalKummer QuadraticFp2

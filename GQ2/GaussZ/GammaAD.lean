@@ -43,7 +43,6 @@ provided by `zeroCount_qDouble_ramified_of_faithful` through `finsum_sign_ramifi
 
 namespace GQ2
 
-
 namespace SectionNine
 
 open ContCoh QuadraticFp2 SectionSix SectionSeven SectionEight SectionEight.AffineTLift

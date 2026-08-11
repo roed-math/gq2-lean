@@ -439,15 +439,11 @@ marked B4, and B5/B7′ enter at the `lemma_3_5_hilbert_ledger` sub-node), and *
 **Prop 3.2** (local) is `{B10}` as §C states — note the `AxiomLedger.lean` header's older
 "Prop 3.2 → B5" predates the B10 census decision.
 
-**Explicit-input refactor note (2026-08-11).**  The footprint descriptions below record the
-field-level literature dependencies of the proof graph.  After those inputs were bundled into the
-ordinary `[LiteratureInputs]` hypothesis, a generic declaration's `#print axioms` reports only the
-standard three: its literature dependencies now occur in its type and proof through structure
-projections, not axiom constants.  Conversely, a legacy public wrapper selects the single provider
-assembled from all nine axioms and therefore reports all nine.  Run `GQ2/AxiomLedger.lean` for both
-the current legacy-axiom report and the per-module elaborated declaration inventory carrying
-`LiteratureInputs`; do not read the historical per-node rows below as current literal
-`#print axioms` output.
+**Interpreting the footprints.**  The descriptions below record field-level literature
+dependencies.  Generic declarations receive those inputs through `[LiteratureInputs]`, so their
+`#print axioms` output contains only the standard three; legacy wrappers select the provider
+assembled from all nine literature axioms and therefore print all nine.  `GQ2/AxiomLedger.lean`
+reports both the legacy axiom dependencies and the declarations carrying `LiteratureInputs`.
 
 **B9-A footprint note (added 2026-07-24).**  After the B9-A flip the `B9` entries in the "reduces
 to" column and in the dependency chain below are consumed through the *derived* theorem

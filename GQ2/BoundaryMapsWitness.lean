@@ -49,7 +49,6 @@ there is no remaining gap.
 
 namespace GQ2
 
-
 namespace SectionThree
 
 open scoped Classical

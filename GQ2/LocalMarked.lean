@@ -18,7 +18,6 @@ argument on `D₀`'s three generators, matching the `prop_1_1` unramified coordi
 
 namespace GQ2
 
-
 namespace SectionThree
 
 open scoped Classical

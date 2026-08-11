@@ -53,7 +53,6 @@ open CategoryTheory
 
 namespace GQ2
 
-
 namespace SectionThree
 
 /-! ## Topological generation: free profinite groups and their quotients -/
@@ -1266,8 +1265,7 @@ theorem tameData_maximal [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGa
 `G_{ℚ₂}` is `T_tame`, by the *maximal* closed normal pro-2 subgroup.  Existence is axiom B10
 (oriented form B10′ since the marked pro-2 isomorphisms; only the underlying `TameQuotientData` is used here);
 maximality is Lemma 3.3 (`tameData_maximal`). -/
-theorem prop_3_2_local [lit : LiteratureInputs] [CompactSpace AbsGalQ2]
-    [TotallyDisconnectedSpace AbsGalQ2] :
+theorem prop_3_2_local [lit : LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty LocalTameQuotient :=
   ⟨{ toTameQuotientData := lit.tameQuotient.toTameQuotientData,
      maximal := tameData_maximal lit.tameQuotient.toTameQuotientData }⟩

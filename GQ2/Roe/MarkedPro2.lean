@@ -73,7 +73,6 @@ mod-2 Gram-isometry seed `s̄ ↦ S̄+Ȳ, x̄ ↦ Ȳ, ȳ ↦ Ā`.
 
 namespace GQ2
 
-
 open SectionThree Roe Multiplicative
 
 /-! ## The unramified marking `ν_R` -/

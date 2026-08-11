@@ -30,7 +30,6 @@ qualified name stays `GQ2.SectionSix.prop_6_18_unramified` is preserved by re-ex
 
 namespace GQ2
 
-
 open ContCoh QuadraticFp2 Corestriction SectionSix DeepPart
 
 open scoped Classical

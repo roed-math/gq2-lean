@@ -75,7 +75,7 @@ status:
     - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"                # B11a
   main_results:
     - declaration: "GQ2.main_presentation_literal_of_inputs"
-      file: "GQ2/PresentationLiteralCore.lean"
+      file: "GQ2/PresentationLiteralWithInputs.lean"
       sorry_count: 0
       axioms:
         - "propext"
@@ -93,7 +93,7 @@ status:
         - "B10: oriented tame quotient structure of G_Q2"
         - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
     - declaration: "GQ2.main_presentation_literal_roe_unconditional_of_inputs"
-      file: "GQ2/Roe/MainCore.lean"
+      file: "GQ2/Roe/MainWithInputs.lean"
       sorry_count: 0
       axioms:
         - "propext"

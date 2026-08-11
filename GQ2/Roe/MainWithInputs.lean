@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.SourceData
-import GQ2.SectionTenSourcesCore
-import GQ2.PresentationLiteralCore
+import GQ2.SectionTenSourcesWithInputs
+import GQ2.PresentationLiteralWithInputs
 import GQ2.Roe.Prop23
 import GQ2.Roe.Supply
 import GQ2.Roe.MarkedPro2
@@ -103,7 +103,6 @@ archive convention `g^h = hgh⁻¹` reconciled to Lean's `g⁻¹xg` by the `σ �
 -/
 
 namespace GQ2
-
 
 open SectionThree SectionEight SectionTen ProfiniteGrp
 
@@ -582,8 +581,7 @@ example [LiteratureInputs] (hBLab : BLabHypothesis) :
 
 /-- **Stress (count shapes).**  The two surjection-count capstones, side by side: same
 `G_{ℚ₂}` count, the two word semantics (`admissibleCount` vs `admissibleCountR`). -/
-example [LiteratureInputs] (hBLab : BLabHypothesis) (G : Type) [Group G] [Finite G]
-    [TopologicalSpace G]
+example [LiteratureInputs] (hBLab : BLabHypothesis) (G : Type) [Group G] [Finite G] [TopologicalSpace G]
     [DiscreteTopology G] :
     contSurjCount G = admissibleCount G ∧ contSurjCount G = admissibleCountR G :=
   ⟨SectionTen.main_surjection_count_of_inputs G, main_surjection_count_R_of_inputs hBLab G⟩

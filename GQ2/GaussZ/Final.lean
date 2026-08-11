@@ -38,7 +38,6 @@ pinned step cannot be abstracted into a common core without Π-over-instances no
 
 namespace GQ2
 
-
 namespace SectionEight
 
 namespace AffineTLift
