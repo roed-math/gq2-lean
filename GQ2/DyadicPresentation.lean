@@ -17,7 +17,7 @@ public import GQ2.MaxProP
 The paper's Prop. 1.1 / Lemma 3.4 normalizes the maximal pro-2 quotient `G_{ℚ₂}(2)` as the
 **Demushkin group** `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩` (Labute's classification at `d = 1`).  This
 file constructs `D₀` as a `GQ2.profinitePresentation` and provides the relator; the actual
-isomorphism `G_{ℚ₂}(2) ≅ D₀` enters through the composite axiom **B3c** (`dyadicOrientation`) in
+isomorphism `G_{ℚ₂}(2) ≅ D₀` enters through the composite axiom **B3c** (`LiteratureInputs.dyadicOrientation`) in
 `GQ2/Foundations/Axioms.lean`, which bundles a marked B4 isomorphism — the standalone B4 axiom
 was deleted 2026-07-10 as unused (`docs/literature-axioms.md` §B4).
 
@@ -57,7 +57,7 @@ noncomputable def D0Full : ProfiniteGrp := profinitePresentation {d0Relator}
 
 /-- **`D₀`** (paper Prop. 1.1): the **pro-2** group presented by `⟨A, S, Y | A²S⁴[S,Y] = 1⟩`, i.e.
 the maximal pro-2 quotient of the free profinite presentation.  This is the rank-3 dyadic
-Demushkin group; the B3c bundle (`dyadicOrientation`) supplies the B4 isomorphism
+Demushkin group; the B3c bundle (`LiteratureInputs.dyadicOrientation`) supplies the B4 isomorphism
 `G_{ℚ₂}(2) ≅ D₀`. -/
 noncomputable def D0 : ProfiniteGrp := maxProPQuotient 2 D0Full
 

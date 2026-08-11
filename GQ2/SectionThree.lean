@@ -40,14 +40,14 @@ records the absorption and deviation decisions summarized here:
   standard rank-3, `q = 2` Demushkin group") is deliberately-unformalized Labute content per
   the standing B3b decision (the Demushkin classification and orientation interface).  No
   additional statement is introduced for it.
-* **Lemma 3.6 is absorbed**: it is axiom B8 (`peripheralCyclotomicAction`) verbatim — the
+* **Lemma 3.6 is absorbed**: it is axiom B8 (`LiteratureInputs.peripheralCyclotomicAction`) verbatim — the
   peripheral-action interface bundle is exactly Lemma 3.6's group-theoretic conclusion.
 * **Lemma 3.5's `(ν_ur, χ_D)` rows of eq. (13) and the abelianized relation `ā²s̄⁴ = 1` are
   already proved** (bundle-parametrized) in `GQ2/Reciprocity.lean`: `nu_ur_recip_neg4` /
   `nu_ur_recip_uniformizer` / `nu_ur_recip_neg3`, `chiCyc_recip_neg4` / `chiCyc_recip_neg3`,
   `abelianized_relator`.  What remains here: the marked pro-2-abelianization identification,
   the Hilbert-symbol square-class ledger, and the injectivity of the pair `(ν_ur, χ_D)`.
-* **Prop. 3.2's local side rests on axiom B10** (`GQ2.tameQuotient`): the classical
+* **Prop. 3.2's local side rests on axiom B10** (`LiteratureInputs.tameQuotient`): the classical
   tame-quotient description
   of `G_{ℚ₂}` (NSW (7.5.3), Iwasawa) is not derivable from the 2-centric step-1 census.
   The bundle and citation discussion live in `GQ2/TameQuotient.lean`; what remains a

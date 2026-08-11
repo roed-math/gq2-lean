@@ -1,0 +1,14 @@
+{
+    "challenge_module": "ChallengePalomar",
+    "solution_module": "SolutionPalomar",
+    "theorem_names": [
+        "challenge_main_presentation_literal_of_inputs",
+        "challenge_main_presentation_literal_roe_unconditional_of_inputs"
+    ],
+    "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice"
+    ],
+    "enable_nanoda": false
+}

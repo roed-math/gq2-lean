@@ -16,13 +16,13 @@ set_option backward.privateInPublic.warn false
 /-!
 # The K-level Tate pairing
 
-The first consumer of the **base-generalized B6** (`GQ2.tateDualityAt`): the `𝔽₂`-valued Tate
+The first consumer of the **base-generalized B6** (`LiteratureInputs.tateDualityAt`): the `𝔽₂`-valued Tate
 pairing on `M = H¹(G_K, 𝔽₂)` for `K` the splitting field
 (`G_K = ker ρ`), supplying the pairing hypotheses of the abstract `hduality`
 (`GQ2.card_equivHoms_deep_eq_quot`, `GQ2/DeepDuality.lean` §F):
 
 * `ker_isLocalDualizingGroup` — `↥(ker ρ)` is a local dualizing group (the subtype embedding;
-  finite index from `Finite C`), so `tateDualityAt` applies: `tateDualityK`.
+  finite index from `Finite C`), so `LiteratureInputs.tateDualityAt` applies: `tateDualityK`.
 * `pairingK := inv_K ∘ cup` on `H¹(↥(ker ρ), 𝔽₂)`, through the coefficient bridge
   `ZMod 2 ≃+ MuDual 2 (ZMod 2)` (`zmodMuDualEquiv`) and the `(1,1)` evaluation cup.
 * **(H2)** `pairingK_nondeg` — nondegeneracy, from the bundle's `perfect11` injectivity.
@@ -49,7 +49,7 @@ variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 section Probes
 
 -- instance-resolution probes for the subgroup `G := ↥(ker ρ)` (empirical: these gate the
--- `tateDualityAt` application)
+-- `LiteratureInputs.tateDualityAt` application)
 noncomputable example : IsTopologicalGroup ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := inferInstance
 noncomputable example : DistribMulAction ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) :=
   inferInstance
@@ -81,9 +81,9 @@ theorem ker_isLocalDualizingGroup :
   exact Subgroup.finiteIndex_of_finite_quotient
 
 /-- **The Tate-duality bundle at `G_K`** — the first consumer of the base-generalized B6. -/
-noncomputable def tateDualityK :
+noncomputable def tateDualityK [LiteratureInputs] :
     TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 :=
-  tateDualityAt ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 (ker_isLocalDualizingGroup ρ)
+  LiteratureInputs.tateDualityAt ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 (ker_isLocalDualizingGroup ρ)
 
 omit [DiscreteTopology C] [Finite C] in
 /-- The kernel acts trivially on `μ₂` (restriction of the trivial `G_ℚ₂`-action). -/
@@ -142,7 +142,7 @@ variable [DiscreteTopology C] [Finite C]
 /-- **The K-level Tate pairing** on `M = H¹(G_K, 𝔽₂)`: transport the left argument through the
 coefficient bridge, cup with the evaluation pairing, and read off through the invariant map of
 `tateDualityK` — `B(x, y) := inv_K (x′ ∪ y)`. -/
-noncomputable def pairingK :
+noncomputable def pairingK [LiteratureInputs] :
     H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)
       →+ H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) →+ ZMod 2 where
   toFun x :=
@@ -156,7 +156,7 @@ noncomputable def pairingK :
 
 /-- **(H2) Nondegeneracy of the K-level pairing** — the `(1,1)`-perfectness clause of the
 base-generalized B6 at `G_K`: a class pairing trivially with everything is zero. -/
-theorem pairingK_nondeg (x : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+theorem pairingK_nondeg [LiteratureInputs] (x : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
     (hx : ∀ y, pairingK ρ x y = 0) : x = 0 := by
   have hperf := (tateDualityK ρ).perfect11 (ZMod 2) (by decide)
   have h0 : (tateDualityK ρ).inv.toAddMonoidHom.comp
@@ -245,7 +245,7 @@ with `conjMap × conjMap`, the two `inv`-values agree.  `ZMod 2`-valued, so it s
 two classes vanish together — and vanishing is `B²`-membership, transported by
 `comp_conjMap_mem_B2_iff`.  (Stated with the composition as an *equation hypothesis* so the
 call site avoids higher-order unification.) -/
-theorem inv_H2mk_eq_of_comp_conjMap (g : AbsGalQ2)
+theorem inv_H2mk_eq_of_comp_conjMap [LiteratureInputs] (g : AbsGalQ2)
     (Fc F : ↥(Z2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2)))
     (hco : Fc.1 = fun p => F.1 (conjMap ρ g p.1, conjMap ρ g p.2)) :
     (tateDualityK ρ).inv (H2mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) Fc)
@@ -266,7 +266,7 @@ theorem inv_H2mk_eq_of_comp_conjMap (g : AbsGalQ2)
 `conjAct`-action of any `g : G_ℚ₂`.  The transported cup cocycle is on the nose the original
 precomposed with `conjMap × conjMap` (the coefficient actions are trivial), and the invariant
 map kills that precomposition (`inv_H2mk_comp_conjMap`). -/
-theorem pairingK_conjAct (g : AbsGalQ2)
+theorem pairingK_conjAct [LiteratureInputs] (g : AbsGalQ2)
     (x y : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
     pairingK ρ (conjAct ρ g x) (conjAct ρ g y) = pairingK ρ x y := by
   obtain ⟨a, rfl⟩ := H1mk_surjective x
@@ -286,7 +286,7 @@ theorem pairingK_conjAct (g : AbsGalQ2)
 
 /-- **(H1) in `conjModule` form** — the literal `hBinv` hypothesis of the abstract `hduality`
 (`card_equivHoms_deep_eq_quot` with `instA := conjModule ρ hρsurj`). -/
-theorem pairingK_conjModule (hρsurj : Function.Surjective ⇑ρ) (c : C)
+theorem pairingK_conjModule [LiteratureInputs] (hρsurj : Function.Surjective ⇑ρ) (c : C)
     (x y : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
     letI := conjModule ρ hρsurj
     pairingK ρ (c • x) (c • y) = pairingK ρ x y := by
@@ -311,7 +311,8 @@ Eq. (94)'s `(U_{e+1}, U_{e+1}) = 1` in class vocabulary.  The Tier-5 fact
   witness's coboundary identity over pointwise (`map_sub`/`map_add`; all actions trivial).
 
 Since `inv_K` is injective, vanishing of the `H²(μ₂)`-class (= `B²`-membership of the explicit
-cup cocycle) forces `pairingK = 0`.  No new leaf: the axioms are `tateDualityAt` (B6′) plus
+cup cocycle) forces `pairingK = 0`.  No new leaf: the literature inputs are
+`LiteratureInputs.tateDualityAt` (B6′) plus
 `cup_deepClasses`'s Tier-5 chain. -/
 
 section IsotropySplice
@@ -388,7 +389,7 @@ theorem midClass_eq_kummerClassK (k : IntermediateField ℚ_[2] ℚ̄₂)
 /-- **Eq. (94), mid ⟂ deep in class vocabulary** over the finite base `k`
 (`(U_e, U_{e+1}) = 1`) — combines the two `kummerClassK` bridges with the Tier-5
 `cup_mid_deep`. -/
-theorem cup_midClasses_deepClasses (k : IntermediateField ℚ_[2] ℚ̄₂)
+theorem cup_midClasses_deepClasses [LiteratureInputs] (k : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     {ξ η : H1 k.fixingSubgroup (ZMod 2)}
@@ -420,7 +421,7 @@ variable [DiscreteTopology C] [Finite C]
 classes of `N`-fixed squares vanishes, the corresponding `pairingK`-value over `ker ρ`
 vanishes — the `k`-side coboundary witness transports through `kerToFixing` and the
 `𝔽₂ ≃+ μ₂` bridge, and the injective `inv_K` kills the class. -/
-private theorem pairingK_kummer_eq_zero (k : IntermediateField ℚ_[2] ℚ̄₂)
+private theorem pairingK_kummer_eq_zero [LiteratureInputs] (k : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
@@ -511,7 +512,7 @@ private theorem pairingK_kummer_eq_zero (k : IntermediateField ℚ_[2] ℚ̄₂)
 
 /-- **(H3) Isotropy of the deep classes under the K-level pairing**: two deep Kummer classes
 pair to zero.  Spliced from the Tier-5 `cup_deepClasses` as described in the section header. -/
-theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+theorem pairingK_deep_deep [LiteratureInputs] (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
       x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
@@ -531,7 +532,7 @@ theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
 /-- **Mid ⟂ deep under the K-level pairing** — `(U_e, U_{e+1}) = 1` spliced to `ker ρ`
 (same witness-transport as `pairingK_deep_deep`, with the Tier-5 input
 `cup_midClasses_deepClasses`).  The "easy half" of (H4)'s sharpness `Deep^⊥ = E`. -/
-theorem pairingK_mid_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+theorem pairingK_mid_deep [LiteratureInputs] (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
       x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
@@ -551,7 +552,7 @@ theorem pairingK_mid_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimens
 /-- **The "easy half" of (H4) in `pairPerp` form**: `E = midClasses ≤ Deep^⊥` under
 `pairingK`.  Sharpness (`Deep^⊥ ≤ E`) follows from this + the cardinality balance
 `#Deep^⊥ = #(M ⧸ Deep) = #E` (the counting brick). -/
-theorem midClassesSubgroup_le_pairPerp_pairingK
+theorem midClassesSubgroup_le_pairPerp_pairingK [LiteratureInputs]
     (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
@@ -564,7 +565,7 @@ theorem midClassesSubgroup_le_pairPerp_pairingK
 
 /-- The `hiso` input of the abstract `hduality` in `pairPerp` form:
 `Deep ≤ Deep^⊥` under `pairingK`. -/
-theorem deepClassesSubgroup_le_pairPerp_pairingK
+theorem deepClassesSubgroup_le_pairPerp_pairingK [LiteratureInputs]
     (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],

@@ -22,7 +22,7 @@ set_option backward.privateInPublic.warn false
 
 The paper's local lifting duality `prop_5_16` (§5.16) is the local Tate duality bundle **B6**
 (`GQ2.tateDuality`) plus the local Euler characteristic **B7**
-(`GQ2.Foundations.absGalQ2_localEulerCharacteristic`), re-expressed against the `𝔽₂`-valued
+(`lit.absGalQ2_localEulerCharacteristic`), re-expressed against the `𝔽₂`-valued
 `ElemDual`/`dualEval` cup framework (the Tate-duality interface) used in §5.
 
 The bridge is the `n = 2` transport `MuN 2 ≅ ZMod 2` (the second roots of unity are `{±1} ⊂ ℚ₂`,
@@ -226,10 +226,10 @@ include hρ hcomp in
 omit [DiscreteTopology C] [Finite C] in
 /-- **Clause (i)**: `#H²(A) = #fixedPts C (ElemDual A)` — B6's `(0,2)` duality (`H⁰(A′) ≅
 Hom(H²(A), 𝔽₂)`), the self-dual count `#Hom(H²(A),𝔽₂) = #H²(A)`, and the degree-0 transport. -/
-theorem card_H2_eq_fixedPts (hA₂ : ∀ a : A, a + a = 0) :
+theorem card_H2_eq_fixedPts [lit : LiteratureInputs] (hA₂ : ∀ a : A, a + a = 0) :
     Nat.card (H2 AbsGalQ2 A) = Nat.card (fixedPts C (ElemDual A)) := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
-  haveI : Finite (H2 AbsGalQ2 A) := (Foundations.absGalQ2_localEulerCharacteristic A).2.2.1
+  haveI : Finite (H2 AbsGalQ2 A) := (lit.absGalQ2_localEulerCharacteristic A).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   calc Nat.card (H2 AbsGalQ2 A)
       = Nat.card (H2 AbsGalQ2 A →+ ZMod 2) := (card_addHom_zmod2 (H2_two_torsion hA₂)).symm
@@ -282,10 +282,10 @@ include hρ hcomp in
 omit [DiscreteTopology C] [Finite C] in
 /-- **Clause (ii)**: `#Z¹(A) = #A² · #fixedPts C (ElemDual A)` — from `#Z¹ = #H¹·#B¹`, the B7 Euler
 characteristic `#H¹ = #H⁰·#H²·#A`, `#A = #B¹·#H⁰`, and clause (i). -/
-theorem card_Z1_eq (hA₂ : ∀ a : A, a + a = 0) :
+theorem card_Z1_eq [lit : LiteratureInputs] (hA₂ : ∀ a : A, a + a = 0) :
     Nat.card (Z1 AbsGalQ2 A)
       = Nat.card A ^ 2 * Nat.card (fixedPts C (ElemDual A)) := by
-  have hEuler := (Foundations.absGalQ2_localEulerCharacteristic A).2.2.2
+  have hEuler := (lit.absGalQ2_localEulerCharacteristic A).2.2.2
   rw [card_Z1_eq_H1_mul_B1, hEuler, pow_padicValNat_card hA₂, card_H2_eq_fixedPts hρ hcomp hA₂,
     pow_two,
     show Nat.card (H0 AbsGalQ2 A) * Nat.card (fixedPts C (ElemDual A)) * Nat.card A
@@ -303,13 +303,13 @@ end Bridge
 invariants are
 everything, so `#H⁰(MuDual 2 𝔽₂) = #(𝔽₂ →+ μ₂) = #(𝔽₂ →+ 𝔽₂) = 2`; B6's `(0,2)` duality then pins
 `#H²(𝔽₂)`. -/
-theorem card_H2_zmod2_eq_two [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+theorem card_H2_zmod2_eq_two [lit : LiteratureInputs] [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m) :
     Nat.card (H2 AbsGalQ2 (ZMod 2)) = 2 := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
   haveI : Finite (H2 AbsGalQ2 (ZMod 2)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
+    (lit.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
   have hZtor : ∀ m : ZMod 2, m + m = 0 := fun m => CharTwo.add_self_eq_zero m
   have htor : ∀ x : ZMod 2, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hZtor x
   have hall : H0 AbsGalQ2 (MuDual 2 (ZMod 2)) = ⊤ := by
@@ -379,7 +379,7 @@ that matches B6's `μ₂`-side pairing `Ψ` through the class transport `e` and 
 transport `muNTwoEquiv` (`hcomm`), with B6-side perfect surjectivity `hP` and equal finite
 cardinalities, is itself bijective — `bijective_cup` applied to the `τ`-transported opposite
 currying. -/
-private theorem bijective_cup_of_comm {V W Y : Type*} [AddCommGroup V] [AddCommGroup W]
+private theorem bijective_cup_of_comm [lit : LiteratureInputs] {V W Y : Type*} [AddCommGroup V] [AddCommGroup W]
     [AddCommGroup Y] [Finite V] [Finite W]
     (hV₂ : ∀ v : V, v + v = 0) (hW₂ : ∀ w : W, w + w = 0) (hcardVW : Nat.card V = Nat.card W)
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
@@ -390,7 +390,7 @@ private theorem bijective_cup_of_comm {V W Y : Type*} [AddCommGroup V] [AddCommG
     Function.Bijective ⇑Φ := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
   haveI : Finite (H2 AbsGalQ2 (ZMod 2)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
+    (lit.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
   let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
     (H2congr muNTwoEquiv (muNTwoEquiv_equivariant htriv)).symm.trans (tateDuality 2).inv
   have hτapp : ∀ X, τ (H2congr muNTwoEquiv (muNTwoEquiv_equivariant htriv) X)
@@ -405,16 +405,16 @@ private theorem bijective_cup_of_comm {V W Y : Type*} [AddCommGroup V] [AddCommG
 
 /-- **Clause (iv)**: the `(1,1)` evaluation cup `c ↦ (d ↦ c ∪ d) : H¹(A) → Hom(H¹(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect11`, discharged by graded-commutativity + counting. -/
-theorem bijective_cup11_dualEval
+theorem bijective_cup11_dualEval [lit : LiteratureInputs]
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : AbsGalQ2) (a : A) (lam : ElemDual A),
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Function.Bijective (fun c : H1 AbsGalQ2 A => cup11 (dualEval A) hpair c) := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
-  haveI : Finite (H1 AbsGalQ2 A) := (Foundations.absGalQ2_localEulerCharacteristic A).2.1
+  haveI : Finite (H1 AbsGalQ2 A) := (lit.absGalQ2_localEulerCharacteristic A).2.1
   haveI : Finite (H1 AbsGalQ2 (ElemDual A)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ElemDual A)).2.1
+    (lit.absGalQ2_localEulerCharacteristic (ElemDual A)).2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have heD := edEquivariant hpair htriv
   refine bijective_cup_of_comm (H1_two_torsion_gen hA₂)
@@ -433,7 +433,7 @@ theorem bijective_cup11_dualEval
 
 /-- **Clause (v)**: the `(0,2)` evaluation cup `c ↦ (d ↦ c ∪ d) : H⁰(A) → Hom(H²(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect20` (`cup02 = cup20ᵀ` swaps the degree pair). -/
-theorem bijective_cup02_dualEval
+theorem bijective_cup02_dualEval [lit : LiteratureInputs]
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : AbsGalQ2) (a : A) (lam : ElemDual A),
@@ -441,7 +441,7 @@ theorem bijective_cup02_dualEval
     Function.Bijective (fun c : ↥(H0 AbsGalQ2 A) => cup02 (dualEval A) hpair c) := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
   haveI : Finite (H2 AbsGalQ2 (ElemDual A)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ElemDual A)).2.2.1
+    (lit.absGalQ2_localEulerCharacteristic (ElemDual A)).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have h0₂ : ∀ v : ↥(H0 AbsGalQ2 A), v + v = 0 := fun v => Subtype.ext (by simpa using hA₂ v.1)
   have heD := edEquivariant hpair htriv
@@ -458,14 +458,14 @@ theorem bijective_cup02_dualEval
 
 /-- **Clause (vi)**: the `(2,0)` evaluation cup `c ↦ (d ↦ c ∪ d) : H²(A) → Hom(H⁰(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect02` (`cup20 = cup02ᵀ` swaps the degree pair). -/
-theorem bijective_cup20_dualEval
+theorem bijective_cup20_dualEval [lit : LiteratureInputs]
     (hA₂ : ∀ a : A, a + a = 0)
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
     (hpair : ∀ (γ : AbsGalQ2) (a : A) (lam : ElemDual A),
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Function.Bijective (fun c : H2 AbsGalQ2 A => cup20 (dualEval A) hpair c) := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
-  haveI : Finite (H2 AbsGalQ2 A) := (Foundations.absGalQ2_localEulerCharacteristic A).2.2.1
+  haveI : Finite (H2 AbsGalQ2 A) := (lit.absGalQ2_localEulerCharacteristic A).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have hED0₂ : ∀ w : ↥(H0 AbsGalQ2 (ElemDual A)), w + w = 0 :=
     fun w => Subtype.ext (by simpa using ElemDual.add_self_eq_zero w.1)
@@ -493,7 +493,7 @@ paper's exact signature (`GQ2.FoxH.prop_5_16`).  This is the complete the Prop. 
 `FoxHeisenberg` (where it was declared) would then have had to import this file, which already
 imports `FoxHeisenberg` (for `ElemDual`/`dualEval`) — an import cycle.  The statement was
 therefore relocated out of `FoxHeisenberg.lean` and is proved from this bundle below. -/
-theorem prop_5_16_bundle {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+theorem prop_5_16_bundle [LiteratureInputs] {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
     [DistribMulAction C A]
@@ -541,7 +541,7 @@ type.
 The proof is `GQ2.LocalLiftingDuality.prop_5_16_bundle`; this is where axioms B6 and B7 enter
 (App. D row).  It lives outside `GQ2/FoxHeisenberg.lean` to break an
 public import cycle (the `𝔽₂`-cup/B6 infrastructure imports that file). -/
-theorem prop_5_16 {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+theorem prop_5_16 [LiteratureInputs] {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
     [DistribMulAction C A]
@@ -568,7 +568,7 @@ theorem prop_5_16 {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C
 unobstructed-lift-multiplicity cardinalities agree for the two sources.  (The
 adjoint-boundary identity (58) is deferred: it needs connecting-map infrastructure in both
 theories — see the module docstring.) -/
-theorem cor_5_17_card {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+theorem cor_5_17_card [LiteratureInputs] {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
     (hcore : t.Pro2Core)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)

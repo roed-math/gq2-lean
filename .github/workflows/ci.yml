@@ -29,7 +29,7 @@ jobs:
         with:
           auto-config: false
           build: true
-          build-args: GQ2 Challenge Solution
+          build-args: GQ2 Challenge Solution ChallengePalomar SolutionPalomar
           use-mathlib-cache: true
 
       - name: Check axiom and placeholder hygiene
@@ -37,3 +37,6 @@ jobs:
 
       - name: Check transitive axiom ledger
         run: lake env lean GQ2/AxiomLedger.lean
+
+      - name: Check explicit-hypothesis import closure
+        run: lake env lean GQ2/PalomarAxiomAudit.lean

@@ -104,7 +104,7 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 enrichment `blockEnrichmentD`, `GaussZResidue B.bF F (blockEnrichmentD …) l h (−2^m)` with
 **no per-lift tame package** — the dichotomy hypothesis is the head-level
 `F.alpha tameTau`-triviality, uniform in `ρ`. -/
-theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps)
+theorem gaussZResidueD_local_unramified [LiteratureInputs] (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps)
     (F : BoundaryFrame H E) (D6 : TateDuality 2)
     (hsimple : ∀ W : AddSubgroup (blockEnrichmentD T Blk hE2 F).Vmod,
       (∀ g : (blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -238,7 +238,7 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 /-- **`hGaussZF` at the head-inflated enrichment, ramified case** (P4c): inertia moves the
 module at the head — `GaussZResidue B.bF F (blockEnrichmentD …) l h (+2^m)`, no per-lift
 package; the local side carries the tame-unit orientation as before. -/
-theorem gaussZResidueD_local_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps)
+theorem gaussZResidueD_local_ramified [LiteratureInputs] (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps)
     (F : BoundaryFrame H E) (D6 : TateDuality 2) (R : LocalReciprocity)
     (horient : TameUnitOrientation R B.tameF)
     (hsimple : ∀ W : AddSubgroup (blockEnrichmentD T Blk hE2 F).Vmod,
