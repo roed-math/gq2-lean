@@ -7,12 +7,29 @@ project:
   authors:
     - "David Roe"
   license: "Apache-2.0"
+  responsible_maintainers:
+    - "David Roe"
+
+repository:
+  role: "substantive-development"
+
+classification:
+  arxiv:
+    - "math.NT"
+    - "math.GR"
+  msc2020:
+    - "11S20"
+    - "20E18"
+    - "20F05"
+    - "11S25"
 
 sources:
   - title: "A Presentation of the Absolute Galois Group of Q_2"
     authors: ["David Turturean"]
     id: "current writeup at https://roed314.github.io/gq2/; original source snapshot at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
-    type: "machine-generated preprint (GPT)"
+    # Optional source type omitted because the previous free-form value is not allowed.
+    note: "Machine-generated preprint (GPT)."
+    relationship: "formalizes"
     license: ""
     author_contacted: "yes"
     prior_work: ""
@@ -20,135 +37,86 @@ sources:
 status:
   scope: >
     Complete end-to-end formalization of the paper's main result (numbered Theorem 1.2
-    in the retained original PDF): the
-    absolute Galois group of Q_2 is isomorphic as a profinite group to an explicit
-    4-generator 2-relator marked quotient Gamma_A, together with the surjection-count
-    form (for every finite G, the number of continuous surjections G_Q2 ->> G equals
-    the number of admissible marked quadruples in G^4). Proved sorry-free from a
-    frozen census of 9 literature axioms (deep local-arithmetic inputs Mathlib does
-    not yet contain, each with a precise citation — see GQ2/Foundations/Axioms.lean
-    and docs/literature-axioms.md).
+    in the retained original PDF): the absolute Galois group of Q_2 is isomorphic as a
+    profinite group to an explicit 4-generator 2-relator marked quotient Gamma_A,
+    together with the surjection-count form (for every finite G, the number of
+    continuous surjections G_Q2 ->> G equals the number of admissible marked
+    quadruples in G^4).
 
-    A second main result was added later: the same literal isomorphism for a different
-    candidate group Gamma_R (the "Replacement theorem",
-    GQ2.main_presentation_literal_roe_unconditional). It is sorry-free and rests on exactly
-    the same 9 literature axioms -- `#print axioms` returns the same 12 names as for the
-    Gamma_A result. It was conditional for one day, on an explicit hypothesis BLabHypothesis
-    (a Labute-classification instance carried as a theorem binder, NOT as an axiom); that
-    hypothesis was PROVED in-repo on 2026-07-26 (GQ2.Roe.Labute.bLab,
-    GQ2/Roe/Labute/Assembly.lean, at the standard three axioms), so both main results are now
-    unconditional and the axiom census stayed at 9. The hypothesis-parametrized form
-    GQ2.main_presentation_literal_roe is retained as a frozen statement.
-  # Repo-wide count: the library is fully sorry-free (the last gap, the Labute classification
-  # instance under GQ2/Roe/Labute/, closed 2026-07-26). Enforced mechanically by
-  # scripts/check_axioms.sh check 2, whose allowlist is empty, and cross-checked by
-  # GQ2/AxiomLedger.lean's gap map and by check 5 (no capstone depends on sorryAx).
+    This metadata records the explicit-input route. The capstone
+    GQ2.main_presentation_literal_of_inputs is sorry-free and takes
+    [LiteratureInputs] as an explicit bundled hypothesis containing the nine cited
+    local-arithmetic results that Mathlib does not yet provide. Its proof term uses
+    only Lean's standard three axioms: propext, Classical.choice, and Quot.sound. This
+    repository does not construct a LiteratureInputs instance without assumptions, so
+    the standard-three axiom print does not claim proofs of those nine inputs.
+
+    A second capstone, GQ2.main_presentation_literal_roe_unconditional_of_inputs,
+    proves the same literal isomorphism for the different candidate group Gamma_R.
+    The theorem remains conditional on the same explicit LiteratureInputs bundle
+    as the Gamma_A result.
+  # Counts and axiom inventory for the explicit-input route.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms:
     - "propext"
     - "Classical.choice"
     - "Quot.sound"
-    - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"   # B1
-    - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"           # B7
-    - "GQ2.dyadicOrientation"                                       # B3c
-    - "GQ2.localReciprocity"                                        # B5
-    - "GQ2.tateDualityAt"                                           # B6
-    - "GQ2.peripheralCyclotomicAction"                              # B8
-    - "GQ2.relativeStiefelWhitney_dyadic"                                        # B9
-    - "GQ2.tameQuotient"                                            # B10
-    - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"                # B11a
   main_results:
-    - declaration: "GQ2.main_presentation_literal"
-      file: "GQ2/PresentationLiteral.lean"
+    - declaration: "GQ2.main_presentation_literal_of_inputs"
+      file: "GQ2/PresentationLiteralWithInputs.lean"
       sorry_count: 0
       axioms:
         - "propext"
         - "Classical.choice"
         - "Quot.sound"
-        - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"
-        - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"
-        - "GQ2.dyadicOrientation"
-        - "GQ2.localReciprocity"
-        - "GQ2.tateDualityAt"
-        - "GQ2.peripheralCyclotomicAction"
-        - "GQ2.relativeStiefelWhitney_dyadic"
-        - "GQ2.tameQuotient"
-        - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
-      comparator_config: "comparator-config.json"
+      comparator_config: "comparator-config-palomar.json"
       literature_dependencies:
         - statement: "G_Q2 is topologically finitely generated (B1)"
-          source: "standard local-fields literature; citation in GQ2/Foundations/Axioms.lean"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "local Euler characteristic formula at p = 2 (B7)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "dyadic orientation / cyclotomic normalization (B3c)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "local reciprocity (local class field theory) for Q_2 (B5)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "local Tate duality at finite extensions k/Q_2 (B6, base-generalized)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "peripheral cyclotomic action (B8)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "relative Stiefel-Whitney identity (Evens-Kahn/Kozlowski), dyadic case (B9)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "oriented tame quotient structure of G_Q2 (B10)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-    # Second main result: the same statement shape as the entry above with the candidate group
-    # replaced by Gamma_R, and NO added hypothesis. The axioms list is identical to the entry
-    # above -- not "similar": `#print axioms` returns the same 12 names, which
-    # scripts/check_axioms.sh (check 5) and GQ2/AxiomLedger.lean's terminal certificate both
-    # enforce mechanically. Between 2026-07-25 and 2026-07-26 this result was conditional on an
-    # explicit hypothesis BLabHypothesis (a Labute-classification instance, deliberately NOT
-    # admitted as an axiom); the L-campaign proved it as GQ2.Roe.Labute.bLab at the standard
-    # three axioms, so the entry below is the discharged form
-    # (main_presentation_literal_roe bLab) and the literature_dependencies list is again exactly
-    # the 9 census axioms. The hypothesis-parametrized GQ2.main_presentation_literal_roe is kept
-    # in the library as the general form; comparator-config.json names the unconditional
-    # declaration below, so the Comparator pair certifies the unconditional statement.
-    - declaration: "GQ2.main_presentation_literal_roe_unconditional"
-      file: "GQ2/Roe/Main.lean"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
+    - declaration: "GQ2.main_presentation_literal_roe_unconditional_of_inputs"
+      file: "GQ2/Roe/MainWithInputs.lean"
       sorry_count: 0
       axioms:
         - "propext"
         - "Classical.choice"
         - "Quot.sound"
-        - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"
-        - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"
-        - "GQ2.dyadicOrientation"
-        - "GQ2.localReciprocity"
-        - "GQ2.tateDualityAt"
-        - "GQ2.peripheralCyclotomicAction"
-        - "GQ2.relativeStiefelWhitney_dyadic"
-        - "GQ2.tameQuotient"
-        - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
-      comparator_config: "comparator-config.json"
+      comparator_config: "comparator-config-palomar.json"
       literature_dependencies:
         - statement: "G_Q2 is topologically finitely generated (B1)"
-          source: "standard local-fields literature; citation in GQ2/Foundations/Axioms.lean"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "local Euler characteristic formula at p = 2 (B7)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "dyadic orientation / cyclotomic normalization (B3c)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "local reciprocity (local class field theory) for Q_2 (B5)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "local Tate duality at finite extensions k/Q_2 (B6, base-generalized)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "peripheral cyclotomic action (B8)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "relative Stiefel-Whitney identity (Evens-Kahn/Kozlowski), dyadic case (B9)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "oriented tame quotient structure of G_Q2 (B10)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
         - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
-          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-        # NOT a literature dependency (removed 2026-07-26): the Labute classification instance
-        # for the Gamma_R two-central tower (B-Lab) was listed here while it was an undischarged
-        # hypothesis. It is now the in-repo theorem GQ2.Roe.Labute.bLab
-        # (GQ2/Roe/Labute/Assembly.lean, standard three axioms, sorry-free), proved from the
-        # two-central-tower stage lemma rather than cited -- see docs/literature-axioms.md
-        # section B3, addendum "B-Lab".
+          source: "Appendix B of the source paper; precise citation in docs/literature-axioms.md"
 
 automation:
   methods:
@@ -161,10 +129,10 @@ automation:
         board, per-ticket plans, and handoff documents (raw archive preserved in
         docs/orchestration/). Workers used the lean-lsp MCP server and streaming
         `lake build` verification; an axiom-hygiene gate (scripts/check_axioms.sh)
-        enforced the frozen axiom census, zero sorries, and no native_decide on every
-        wave. A post-completion 34-wave cleanup marathon (mathlib-quality skill suite:
-        per-file golf, renames, cross-file dedup, proof decomposition, file splitting)
-        improved the lean code quality, though not up to mathlib standards.
+        enforced the literature-input dependency boundary, zero sorries, and no
+        native_decide on every wave. A post-completion 34-wave cleanup marathon (mathlib-quality skill
+        suite: per-file golf, renames, cross-file dedup, proof decomposition, file
+        splitting) improved the Lean code quality, though not up to mathlib standards.
       cost:
         wall_time: "~2 weeks wall clock (2026-07-01 to 2026-07-14); main proof complete 2026-07-08"
         spend_usd: "$600 (three Claude Max 20 subscriptions)"
@@ -174,68 +142,81 @@ automation:
         docs/orchestration/tickets.md and p*.md plan files); cleanup-phase worker
         prompts enforced byte-identical theorem statements, streaming-only builds,
         and anti-destruction rules for parallel lanes.
+    - method: "AI-assisted"
+      models: ["gpt-5.6"]
+      framework: "OpenAI Codex"
+      tool_setup: >
+        Repository inspection, Lean refactoring, kernel builds, environment-level axiom
+        audits, metadata validation, and Comparator packaging.
+      cost:
+        wall_time: "one implementation session"
+        spend_usd: "subscription-based"
+        hardware: "local development container plus API"
+      prompting_notes: >
+        Refactor the literature-dependent proof graph to take an explicit bundled
+        hypothesis and package the explicit-input Palomar Comparator entry points.
   spend_usd: "$600 (three Claude Max 20 subscriptions)"
   notes: >
-    Human role was orchestration-level: approving axiom-census changes, owner-gated
+    Human role was orchestration-level: approving trust-base changes, owner-gated
     design decisions, and review checkpoints; the Lean code was written by the agent
     swarm. Commit trailers record the models used per commit.
 
 fidelity:
   divergences: >
     Statements track the paper closely; module docstrings carry paper-tag ledgers
-    mapping equations/propositions to declarations. Known deviations: (i) the nine
-    literature inputs are axiomatized rather than proved (each base-generalized only
-    where noted, e.g. Tate duality stated for all finite k/Q_2); (ii) a transcription
-    erratum in the paper's H^0 bookkeeping was found and corrected during
-    formalization (docs/erratum-h0-transcription.md); (iii) helper-lemma names follow
-    mathlib conventions rather than paper numbering; (iv) six axioms present at proof
-    completion were later discharged in-repo or deleted as unused (census 15 -> 9),
-    so the axiom set is smaller than the one the paper's appendix assumes; (v) on
-    2026-07-24 B9 was restated as the relative Stiefel-Whitney identity
+    mapping equations and propositions to declarations. Known deviations: (i) the nine
+    literature inputs are not proved in-repository. The `_of_inputs`
+    capstones take them as fields of an explicit `[LiteratureInputs]` hypothesis. The
+    bundled B7 field uses `M : Type`, which covers every consumer in this development;
+    (ii) a transcription erratum in the paper's H^0 bookkeeping was found and corrected
+    during formalization (docs/erratum-h0-transcription.md); (iii) helper-lemma names
+    follow mathlib conventions rather than paper numbering; (iv) on 2026-07-24 B9 was
+    restated as the relative Stiefel-Whitney identity
     (relativeStiefelWhitney_dyadic), and the previous composite B9 statement is now a
-    derived theorem (evensKahn_dyadic) proved from it + B11a; census unchanged at 9;
-    (vi) the Gamma_R "Replacement theorem" (GQ2/Roe/) is not part of the paper at all --
-    it verifies a different candidate group proposed after the fact. Its one extra input,
-    a Labute classification instance, was deliberately NOT admitted as an axiom but carried
-    as an explicit theorem binder (BLabHypothesis), so that the conditionality was visible
-    in the statement itself rather than hidden in an axiom file; on 2026-07-26 that binder
-    was discharged in-repo (GQ2.Roe.Labute.bLab) and the result became unconditional, with
-    the census still 9.
+    derived theorem (evensKahn_dyadic) proved from it plus B11a; (v) the Gamma_R
+    "Replacement theorem" (GQ2/Roe/) is not part of the paper and verifies a different
+    candidate group proposed afterward. Its former extra input, the Labute
+    classification instance, was carried as the explicit theorem binder BLabHypothesis
+    rather than admitted as an axiom, and was discharged in-repository on 2026-07-26 by
+    GQ2.Roe.Labute.bLab. Thus the `_of_inputs` Gamma_R capstone is unconditional with
+    respect to BLabHypothesis but remains conditional on the same LiteratureInputs
+    bundle as the Gamma_A capstone.
 
 review:
   status: "agent-reviewed"
   reviewers: []
   notes: >
-    No external human peer review yet. Internal review: adversarial multi-agent review
-    of the axiom census (docs/adversarial-axioms-review.md), a foundations audit
-    (docs/foundations-audit.md), off-path statement checks (docs/off-path-statements.md),
-    and continuous mechanical gates (kernel-checked builds, axiom census script,
-    zero-sorry enforcement). The post-refactor Lean Compass report identifies 30 project
-    declarations for human semantic review (atlas-audit.md); those declarations have not yet
-    received external human review. Both main results are independently checkable with
-    leanprover/comparator via comparator-config.json (Challenge.lean / Solution.lean), which
-    names one challenge theorem per main result. The Gamma_R result has had no external human
-    review either; its former hypothesis BLabHypothesis is now the in-repo theorem
-    GQ2.Roe.Labute.bLab (2026-07-26), whose proof -- a two-central-tower stage lemma feeding a
-    profinite Hopfian endgame -- has likewise had no external review. The comparator challenge
-    theorem for that result is challenge_main_presentation_literal_roe_unconditional, which
-    carries no hBLab binder, so comparator certifies the UNCONDITIONAL statement; the solution's
-    import closure reaches GQ2/Roe/Labute/, where the discharge is proved, while neither
-    challenge statement's closure does.
+    No external human peer review yet. Internal review includes a foundations audit
+    (docs/foundations-audit.md), off-path statement checks
+    (docs/off-path-statements.md), kernel-checked builds, zero-sorry enforcement, and
+    transitive environment audits. The Palomar route is checked by
+    GQ2/PalomarAxiomAudit.lean, which imports only SolutionPalomar and checks
+    that both exported solutions use only propext, Classical.choice, and Quot.sound. The two Palomar-facing main results are
+    independently checkable with leanprover/comparator through
+    comparator-config-palomar.json (ChallengePalomar.lean / SolutionPalomar.lean). The
+    post-refactor Lean Compass report identifies 30 project declarations for human
+    semantic review (atlas-audit.md); those declarations have not yet received external
+    human review. The Gamma_R result and the proof of GQ2.Roe.Labute.bLab have likewise
+    had no external human review.
 
 alignment:
   namespace: "GQ2"
   statements:
     - source: "Presentation theorem (Theorem 1.2 in the retained original PDF)"
-      lean: "GQ2.main_presentation_literal"
-      module: "GQ2/PresentationLiteral.lean"
-      status: "proved"
-      note: "literal form: Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)"
+      lean: "GQ2.main_presentation_literal_of_inputs"
+      module: "GQ2/PresentationLiteralWithInputs.lean"
+      status: "proved-from-explicit-literature-inputs"
+      note: >
+        Literal form: Nonempty (ContinuousMulEquiv GammaA AbsGalQ2), conditional on
+        the explicit [LiteratureInputs] bundle; proof term uses only the standard three
+        Lean axioms.
     - source: "Presentation theorem, surjection-count form (Theorem 1.2 in the retained original PDF)"
-      lean: "GQ2.SectionTen.main_surjection_count'"
-      module: "GQ2/SectionTenSources.lean"
-      status: "proved"
-      note: "#{continuous surjections G_Q2 ->> G} = #{admissible marked quadruples in G^4}"
+      lean: "GQ2.SectionTen.main_surjection_count_of_inputs"
+      module: "GQ2/SectionTenSourcesWithInputs.lean"
+      status: "proved-from-explicit-literature-inputs"
+      note: >
+        #{continuous surjections G_Q2 ->> G} = #{admissible marked quadruples in G^4},
+        conditional on [LiteratureInputs].
     - source: "Definition of the candidate group Gamma_A (equation (7) in the retained original PDF)"
       lean: "GQ2.GammaA"
       module: "GQ2/GammaA.lean"
@@ -246,60 +227,63 @@ alignment:
       module: "GQ2/Prop23.lean"
       status: "proved"
     - source: "Literature inputs B1-B11a (Appendix B in the retained original PDF)"
-      lean: "GQ2/Foundations/Axioms.lean (9 axioms)"
-      module: "GQ2/Foundations/Axioms.lean"
-      status: "literature-dependency"
-      note: "frozen census enforced by scripts/check_axioms.sh; per-axiom citations in docs/literature-axioms.md"
-    # Roe-candidate verification. Not in the original paper: a later campaign asking whether a
-    # DIFFERENT candidate group, Gamma_R, also presents G_Q2. See docs/orchestration/roe-verification-plan.md.
-    - source: "Replacement theorem (Roe candidate; not in the original PDF)"
-      lean: "GQ2.main_presentation_literal_roe_unconditional"
-      module: "GQ2/Roe/Main.lean"
-      status: "proved"
+      lean: "GQ2.LiteratureInputs"
+      module: "GQ2/Foundations/LiteratureInputs.lean"
+      status: "explicit-literature-dependency"
       note: >
-        literal form: Nonempty (ContinuousMulEquiv GammaR AbsGalQ2). Sorry-free and at the same
-        9 literature axioms as GQ2.main_presentation_literal. The hypothesis-parametrized form
-        GQ2.main_presentation_literal_roe (BLabHypothesis -> ...) is kept in the same file; the
-        two differ by the argument GQ2.Roe.Labute.bLab, the L-campaign's proof of the Labute
-        classification instance (2026-07-26).
+        Bundle of nine cited inputs, supplied as an ordinary typeclass hypothesis and
+        not constructed in-repository.
+    # Roe-candidate verification. Not in the original paper: a later campaign asking whether a
+    # different candidate group, Gamma_R, also presents G_Q2.
+    - source: "Replacement theorem (Roe candidate; not in the original PDF)"
+      lean: "GQ2.main_presentation_literal_roe_unconditional_of_inputs"
+      module: "GQ2/Roe/MainWithInputs.lean"
+      status: "proved-from-explicit-literature-inputs"
+      note: >
+        Literal form: Nonempty (ContinuousMulEquiv GammaR AbsGalQ2). The former
+        BLabHypothesis is discharged by GQ2.Roe.Labute.bLab; the theorem remains
+        conditional on [LiteratureInputs] and uses only the standard three Lean axioms.
     - source: "Labute classification instance for Gamma_R (Cor. 3.4 of the Roe note; D_R = D_0)"
       lean: "GQ2.Roe.Labute.bLab"
       module: "GQ2/Roe/Labute/Assembly.lean"
       status: "proved"
       note: >
-        BLabHypothesis, proved rather than assumed: levelwise nonemptiness along the two-central
-        tower (stage lemma) gives continuous epis both ways between D_R and D_0, and the profinite
-        Hopfian endgame turns them into an isomorphism. Standard three axioms only -- no literature
-        axiom is used.
+        BLabHypothesis, proved rather than assumed: levelwise nonemptiness along the
+        two-central tower gives continuous epimorphisms both ways between D_R and D_0,
+        and the profinite Hopfian endgame turns them into an isomorphism. Standard three
+        axioms only; no literature input is used.
     - source: "Replacement theorem, surjection-count form (Roe candidate; not in the original PDF)"
-      lean: "GQ2.main_surjection_count_R"
-      module: "GQ2/Roe/Main.lean"
-      status: "proved"
+      lean: "GQ2.main_surjection_count_R_of_inputs"
+      module: "GQ2/Roe/MainWithInputs.lean"
+      status: "proved-from-explicit-literature-inputs-and-BLabHypothesis"
       note: >
-        #{continuous surjections G_Q2 ->> G} = #{admissible Roe-marked quadruples in G^4}. Stated
-        with the BLabHypothesis binder, which GQ2.Roe.Labute.bLab discharges unconditionally.
+        #{continuous surjections G_Q2 ->> G} = #{admissible Roe-marked quadruples in
+        G^4}. The declaration takes both [LiteratureInputs] and an explicit
+        hBLab : BLabHypothesis argument; GQ2.Roe.Labute.bLab can discharge hBLab when
+        an unconditional corollary is needed.
     - source: "Definition of the Roe candidate group Gamma_R (not in the original PDF)"
       lean: "GQ2.GammaR"
       module: "GQ2/Roe/GammaR.lean"
       status: "proved"
-      note: "unconditional: the definition and its basic theory need no hypothesis"
+      note: "unconditional: the definition and its basic theory need no literature input"
     - source: "Admissible-marking count for Gamma_R (Roe analogue of Proposition 2.3)"
       lean: "GQ2.prop_2_3_R"
       module: "GQ2/Roe/Prop23.lean"
       status: "proved"
-      note: "unconditional, and at the standard three axioms only -- no literature axiom is used"
+      note: "unconditional and at the standard three axioms; no literature input is used"
     - source: "Agreement of the two admissible-marking semantics (Roe campaign)"
-      lean: "GQ2.admissibleCountR_eq_admissibleCount"
-      module: "GQ2/Roe/Main.lean"
-      status: "proved"
+      lean: "GQ2.admissibleCountR_eq_admissibleCount_of_inputs"
+      module: "GQ2/Roe/MainWithInputs.lean"
+      status: "proved-from-explicit-literature-inputs-and-BLabHypothesis"
       note: >
-        admissibleCountR G = admissibleCount G for every finite G; the bridge tying the Gamma_R
-        word semantics to the Gamma_A one. Stated with the BLabHypothesis binder, which
-        GQ2.Roe.Labute.bLab discharges unconditionally. Independently pinned numerically on C2,
-        C4, V4, D4, Q8 by two Python engines and the June LMFDB-verified counts
-        (GQ2/Roe/Sanity.lean).
+        admissibleCountR G = admissibleCount G for every finite G. The declaration
+        takes both [LiteratureInputs] and an explicit hBLab : BLabHypothesis argument;
+        GQ2.Roe.Labute.bLab can discharge hBLab in downstream use. Independently
+        pinned numerically on C2, C4, V4, D4, and Q8 by two Python engines and the June
+        LMFDB-verified counts (GQ2/Roe/Sanity.lean).
 
 acknowledgements: >
   Built on mathlib4 (pinned at ec410d2, 2026-06-12). Comparator verification uses
-  leanprover/comparator and leanprover/lean4export. Process archive:
-  docs/orchestration/.
+  leanprover/comparator (locally checked at commit
+  68a064109f01c08f47c8edc9f51d6a2bbffaa188) and leanprover/lean4export. Process
+  archive: docs/orchestration/.
