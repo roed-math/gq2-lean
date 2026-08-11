@@ -6,3 +6,6 @@ references/
 /atlas-graph.json.cache
 .mcp.json
 .mathlib-quality/
+# Python bytecode from the derivation scripts under scripts/.
+__pycache__/
+*.pyc
