@@ -1,0 +1,100 @@
+
+==================================================================================================
+== 0  THE ENGINE, against the committed Lean shapes
+==================================================================================================
+
+   `seplib` re-certifies its coordinate law against honest integer 6 x 6 matrices;
+   here we only pin the shapes the Lean file quotes.
+
+   [ok ] the class-five row of the residue has 210 terms, no hypotheses     210
+   [ok ] the residue lies in gamma_4: its nine rows of class <= 2 vanish identically 
+   [ok ] `SqU6.sqWord_diagDress_low` reproduced: the dressing moves no row of class <= 2 
+
+==================================================================================================
+== 1  THE ROW MODULO 2, under three hypothesis sets
+==================================================================================================
+
+   The `x1` letter's five abelian columns are EVEN throughout: that is forced by the
+   relator's own five abelian rows (`censHorn_x1_cols_even`), not assumed.
+
+   [ok ] under `stageN1` on x0 alone: 17 correction monomials survive       17
+        s.a*x.b*x.l, s.a*x.e*x.k, s.a*x.g*x.i, s.e*x.d*x.j, s.e*x.f*x.h, s.f*x.e*x.h, s.j*x.d*x.e, s.a*s.b*x.e*x.h, s.a*s.c*x.b*x.i, s.a*s.d*x.e*x.g, s.a*s.g*x.d*x.e, s.a*s.h*x.b*x.e, s.c*s.d*x.e*x.f, s.c*s.e*x.d*x.f, s.c*s.f*x.d*x.e, s.a*s.b*s.c*x.d*x.e, s.a*s.c*x.b*x.d*x.e
+   [ok ] every correction reads the SIGMA slot, through a, c, e, f or j     0 exceptions
+   [ok ] 6 of the 17 do NOT carry the gearing x.e: these are what horn 1 fears 6
+        s.a*x.b*x.l, s.a*x.g*x.i, s.e*x.d*x.j, s.e*x.f*x.h, s.a*s.c*x.b*x.i, s.c*s.e*x.d*x.f
+   [ok ] and every one of those 6 carries s.a or s.e                        so two sigma columns suffice
+   [ok ] under the tree's committed x0 gauge (`sqWord_diagDress_o_gauge`): 8 survive 8
+   [ok ] under this file's gauge (sigma a, c, e even): 2 survive, both with x.e 2
+        s.f*x.e*x.h, s.j*x.d*x.e
+   [ok ] so the whole row is a multiple of the gearing                      
+
+==================================================================================================
+== 2  THE FACTORED IDENTITY, and the witness in the committed Lean file
+==================================================================================================
+
+   [ok ] D.o - x.e * (y.f*y.h + s.f*x.h + s.j*x.d) is EVEN over Z           0 odd terms
+   [ok ] the even witness has 207 monomials                                 207
+   [ok ] of degree at most 5                                                5
+   [ok ] the witness in `GQ2/Dyadic/SqCore/GradedCensusHorn.lean` IS this one, line for line 207 committed lines
+
+==================================================================================================
+== 3  THE COUNTEREXAMPLES: the recorded form at an ungauged sigma
+==================================================================================================
+
+   Recorded: the row is `x0.e * x1.f * x1.h` mod 2 under `stageN1` plus the relator's
+   own x1 columns.  Exhaustive small search, with x1 = 1 (its columns are then 0, so
+   the recorded hypotheses hold) and every letter on `stageN1`.
+
+   [ok ] exactly TWO counterexamples in the whole one-column/two-column range 2
+        sigma = <e = 1>,  x0 = <d = 1, j = 1>,  x1 = 1   ->  residue = liftO 1
+        sigma = <e = 1>,  x0 = <f = 1, h = 1>,  x1 = 1   ->  residue = liftO 1
+   [ok ] both have sigma = <e = 1>: the fifth abelian column                the column `stageN1` cannot see
+   [ok ] both residues are liftO 1: CENTRAL with an ODD (1,6) row           
+   [ok ] and NONE of them survives the added hypothesis 2 | s.e             0 left
+   [ok ] honest 6 x 6 matrices agree at sigma=<e=1>, x0=<d=1,j=1>           (1,6) entry 1
+   [ok ] honest 6 x 6 matrices agree at sigma=<e=1>, x0=<f=1,h=1>           (1,6) entry 1
+
+   And a FULL one-handle binder point with an EVEN gearing, the sharpest form of the
+   refutation: the undressed frame kills the relator outright and the diagonally
+   dressed frame is central and odd.  This is `censHorn_binder_cex` in the Lean file.
+
+   [ok ] the undressed frame kills the relator outright                     all fifteen rows
+   [ok ] the diagonally dressed frame is CENTRAL with the odd residue liftO 1 o = 1
+   [ok ] all five letters lie on `stageN1`                                  
+   [ok ] the GEARING is EVEN and the sigma slot is off gauge                x0.e = 0, sigma.e = 1
+   [ok ] honest 6 x 6 matrices agree: the undressed frame is the identity   
+   [ok ] honest 6 x 6 matrices agree: the dressed frame is the identity plus a (1,6) of 1 
+
+==================================================================================================
+== 4  THE GAUGE IS NOT A PROOF ARTEFACT: sampling at an ungauged sigma
+==================================================================================================
+
+   Random letters with x0 on `stageN1` and x1's five abelian columns even, keeping only
+   the samples whose residue is CENTRAL (the census's own condition on the diagonal
+   frame).  The bare frame is NOT solved for a handle block here, so these are residues
+   of the right shape and not certified full binder points.
+
+   ungauged sigma                 8572 central,  1537 odd,  833 of those with EVEN x0.e
+   [ok ] ungauged: an EVEN gearing produces odd rows in quantity            833 of 1537
+   gauged sigma (a, c, e even)   16782 central,  1208 odd,    0 of those with EVEN x0.e
+   [ok ] gauged: an EVEN gearing never produces an odd row                  0 of 1208
+
+==================================================================================================
+== 5  CALIBRATION at the committed points
+==================================================================================================
+
+   [ok ] fiveSigMark lies on the gauge (a, c, e all even)                   a=0 c=0 e=0
+   [ok ] fiveSigMark also kills the two extra cofactor terms s.f * x.h and s.j * x.d f=0 j=0
+   [ok ] liveBlkSig lies on the gauge (a, c, e all even)                    a=0 c=0 e=0
+   [ok ] liveBlkSig also kills the two extra cofactor terms s.f * x.h and s.j * x.d f=0 j=0
+   [ok ] stageWit: the factored row predicts the committed bit              predicted 1, residue row 1
+   [ok ] stageWit: the gearing stageX.e is ODD, as horn 1 now proves        stageX.e = 5
+   [ok ] stageWit: at this sigma the cofactor collapses to wave 58's `x1.f * x1.h` q = 1
+   [ok ] liveBlkWit: the factored row predicts the committed bit            predicted 1, residue row 1
+   [ok ] liveBlkWit: the gearing stageX.e is ODD, as horn 1 now proves      stageX.e = 5
+   [ok ] liveBlkWit: at this sigma the cofactor collapses to wave 58's `x1.f * x1.h` q = 1
+
+==================================================================================================
+== 38 named checks, 0 failures
+==================================================================================================
+
