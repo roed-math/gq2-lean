@@ -656,6 +656,287 @@ theorem evenFam_exists_levelTwo_dual {n : ℕ}
 
 end Dual
 
+/-! ## §5 The family at every tuple of the model cores
+
+The assembly.  A stage tuple of the even word data over the presented core itself always
+carries a coordinate derivation family: the tuple's own rows provide the exact-fibre lifts,
+the Demushkin rank identity provides the level-two count, §4.2 provides the dual functionals
+at the lifts' level-two classes, and §3 realizes each dual functional as the mod-2 shadow of
+a model derivation with the corresponding zero-one offsets.  This is `Hfam`'s statement
+verbatim, with the field carrier replaced by the model core. -/
+
+section ModelFamily
+
+/-- The level-two quotient of the `N` core has the full elementary abelian order `2^(4+2h)`:
+the committed Demushkin package (EV-1e) with its rank identity (EV-1b). -/
+theorem evenFam_card_levelTwo_DN (α h : ℕ) (hα : 2 ≤ α) :
+    Nat.card (levelQuot (DN α h : Type) 2) = 2 ^ MarkedCore.coreRank h := by
+  rw [GQ2.Dyadic.LSquare.card_levelQuot_two_eq_two_pow_demushkinRank (DN α h : Type)
+    (evenFam_isTopFinGen_DN α h) (GQ2.Dyadic.EvenModel.isDemushkin_DN α h hα)]
+  congr 1
+  exact GQ2.Dyadic.EvenModel.demushkinRank_DN α h (by omega)
+
+/-- The level-two quotient of the `M` core has order `2^(4+2h)`. -/
+theorem evenFam_card_levelTwo_DM (α h : ℕ) (hα : 2 ≤ α) :
+    Nat.card (levelQuot (DM α h : Type) 2) = 2 ^ MarkedCore.coreRank h := by
+  rw [GQ2.Dyadic.LSquare.card_levelQuot_two_eq_two_pow_demushkinRank (DM α h : Type)
+    (evenFam_isTopFinGen_DM α h) (GQ2.Dyadic.EvenModel.isDemushkin_DM α h hα)]
+  congr 1
+  exact GQ2.Dyadic.EvenModel.demushkinRank_DM α h (by omega)
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Generation descends the tower (the private committed original is in
+`StageAbstractionEvenDerivKer.lean` §1). -/
+private theorem evenFam_levelMk_generates_down {n : ℕ} (x : Fin n → G) (m : ℕ) :
+    ∀ d : ℕ,
+      Subgroup.closure (Set.range fun i ↦ levelMk G (m + d) (x i)) = ⊤ →
+        Subgroup.closure (Set.range fun i ↦ levelMk G m (x i)) = ⊤
+  | 0, H => H
+  | d + 1, H => by
+      apply evenFam_levelMk_generates_down x m d
+      have hproj := closure_range_levelProj
+        (T := fun i ↦ levelMk G (m + d + 1) (x i)) H
+      simpa only [levelProj_levelMk] using hproj
+
+/-- Generation at level `k ≥ 2` descends to level `2`. -/
+theorem evenFam_levelMk_generates_two {n : ℕ} (x : Fin n → G) {k : ℕ} (hk : 2 ≤ k)
+    (H : Subgroup.closure (Set.range fun i ↦ levelMk G k (x i)) = ⊤) :
+    Subgroup.closure (Set.range fun i ↦ levelMk G 2 (x i)) = ⊤ := by
+  refine evenFam_levelMk_generates_down x 2 (k - 2) ?_
+  rw [show 2 + (k - 2) = k by omega]
+  exact H
+
+/-! ### §5.2 The discrete target, and the assembly -/
+
+private local instance : TopologicalSpace (Multiplicative (ZMod 2)) := ⊥
+
+private local instance : DiscreteTopology (Multiplicative (ZMod 2)) := ⟨rfl⟩
+
+private local instance : IsTopologicalGroup (Multiplicative (ZMod 2)) where
+  continuous_mul := continuous_of_discreteTopology
+  continuous_inv := continuous_of_discreteTopology
+
+/-- **The family at every tuple of the `N` core.**  `Hfam`'s inner statement, verbatim, with
+the field carrier replaced by the presented `N` core: every stage tuple of the `N` word data
+over `D_N(α, h)` itself carries a coordinate derivation family. -/
+theorem evenFam_modelFamilyN (α h : ℕ) (hα : 2 ≤ α) (hα1 : 1 ≤ α) {k : ℕ} (hk : 3 ≤ k)
+    (T : Tuple (nStageWord α h hα1) (vN α) (DN α h : Type) (chiN α h) k) :
+    Nonempty (EvenKernelDerivationFamily T) := by
+  classical
+  choose x hchi hlvl using T.rows
+  have htopk : Subgroup.closure
+      (Set.range fun i ↦ levelMk (DN α h : Type) k (x i)) = ⊤ := by
+    rw [show (fun i ↦ levelMk (DN α h : Type) k (x i)) = T.generators from
+      funext fun i ↦ (hlvl i).symm]
+    exact T.topGen
+  have htop2 := evenFam_levelMk_generates_two x (by omega) htopk
+  have hdual := fun i₀ : Fin (MarkedCore.coreRank h) ↦
+    evenFam_exists_levelTwo_dual (evenFam_card_levelTwo_DN α h hα)
+      (fun i ↦ levelMk (DN α h : Type) 2 (x i)) htop2 i₀
+  choose φ hφdiag hφoff using hdual
+  set w : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ℤ_[2] := fun i₀ j ↦
+    (((Multiplicative.toAdd
+      (φ i₀ (levelMk (DN α h : Type) 2 (dnGen α h j)))).val : ℕ) : ℤ_[2]) with hw
+  have hmatch : ∀ (i₀ : Fin (MarkedCore.coreRank h)) (g : (DN α h : Type)),
+      evenFamParityHom (N := k + 1) (by omega)
+          (evenFamDerivModelN α h hα1 (by omega) (w i₀)) g =
+        φ i₀ (levelMk (DN α h : Type) 2 g) := by
+    intro i₀ g
+    haveI := discreteTopology_levelQuot (DN α h : Type) (evenFam_isTopFinGen_DN α h)
+      (isProP_DN α h) 2
+    let ψ₁ : ContinuousMonoidHom (DN α h : Type) (Multiplicative (ZMod 2)) :=
+      { toMonoidHom := evenFamParityHom (N := k + 1) (by omega)
+          (evenFamDerivModelN α h hα1 (by omega) (w i₀))
+        continuous_toFun := by
+          have houter : Continuous (fun p : WL (k + 1) ↦ Multiplicative.ofAdd
+              (ZMod.castHom (evenFam_two_dvd_two_pow (by omega : 1 ≤ k + 1))
+                (ZMod 2) p.u)) := continuous_of_discreteTopology
+          exact houter.comp
+            (evenFamDerivModelN α h hα1 (by omega) (w i₀)).continuous_toFun }
+    let ψ₂ : ContinuousMonoidHom (DN α h : Type) (Multiplicative (ZMod 2)) :=
+      { toMonoidHom := (φ i₀).comp (levelMk (DN α h : Type) 2)
+        continuous_toFun := by
+          exact (continuous_of_discreteTopology (f := ⇑(φ i₀))).comp
+            (continuous_levelMk (DN α h : Type) 2) }
+    have hgen : ∀ j, ψ₁ (dnGen α h j) = ψ₂ (dnGen α h j) := by
+      intro j
+      show Multiplicative.ofAdd
+          (ZMod.castHom (evenFam_two_dvd_two_pow (by omega : 1 ≤ k + 1)) (ZMod 2)
+            ((evenFamDerivModelN α h hα1 (by omega) (w i₀)) (dnGen α h j)).u) =
+        φ i₀ (levelMk (DN α h : Type) 2 (dnGen α h j))
+      rw [evenFamDerivModelN_u, hw]
+      haveI : NeZero (2 : ℕ) := ⟨by omega⟩
+      rw [map_natCast, map_natCast, ZMod.natCast_rightInverse _]
+      exact ofAdd_toAdd _
+    have hext := dn_hom_ext ψ₁ ψ₂ hgen
+    exact DFunLike.congr_fun hext g
+  refine ⟨{ lifts := x
+            lifts_chi := hchi
+            lifts_level := fun i ↦ (hlvl i).symm
+            deriv := fun i₀ _ ↦ evenFamDerivModelN α h hα1 (by omega) (w i₀)
+            deriv_base := fun i₀ _ ↦ evenFamDerivModelN_isChiShadow α h hα1 (by omega) (w i₀)
+            deriv_diag := fun i₀ hi₀ ↦ ?_
+            deriv_off := fun i₀ hi₀ j hj hji ↦ ?_ }⟩
+  · rw [evenFam_two_dvd_u_iff (by omega : 1 ≤ k + 1), evenFamParityLevel_levelMk,
+      hmatch i₀ (x i₀), hφdiag i₀]
+    intro hcon
+    have := ofAdd_eq_one.mp hcon
+    exact absurd this (by decide)
+  · rw [evenFam_two_dvd_u_iff (by omega : 1 ≤ k + 1), evenFamParityLevel_levelMk,
+      hmatch i₀ (x j)]
+    exact hφoff i₀ j hji
+
+/-- **The family at every tuple of the `M` core.** -/
+theorem evenFam_modelFamilyM (α h : ℕ) (hα : 2 ≤ α) (hα1 : 1 ≤ α) {k : ℕ} (hk : 3 ≤ k)
+    (T : Tuple (mStageWord α h hα1) (vM α) (DM α h : Type) (chiM α h) k) :
+    Nonempty (EvenKernelDerivationFamily T) := by
+  classical
+  choose x hchi hlvl using T.rows
+  have htopk : Subgroup.closure
+      (Set.range fun i ↦ levelMk (DM α h : Type) k (x i)) = ⊤ := by
+    rw [show (fun i ↦ levelMk (DM α h : Type) k (x i)) = T.generators from
+      funext fun i ↦ (hlvl i).symm]
+    exact T.topGen
+  have htop2 := evenFam_levelMk_generates_two x (by omega) htopk
+  have hdual := fun i₀ : Fin (MarkedCore.coreRank h) ↦
+    evenFam_exists_levelTwo_dual (evenFam_card_levelTwo_DM α h hα)
+      (fun i ↦ levelMk (DM α h : Type) 2 (x i)) htop2 i₀
+  choose φ hφdiag hφoff using hdual
+  set w : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ℤ_[2] := fun i₀ j ↦
+    (((Multiplicative.toAdd
+      (φ i₀ (levelMk (DM α h : Type) 2 (dmGen α h j)))).val : ℕ) : ℤ_[2]) with hw
+  have hmatch : ∀ (i₀ : Fin (MarkedCore.coreRank h)) (g : (DM α h : Type)),
+      evenFamParityHom (N := k + 1) (by omega)
+          (evenFamDerivModelM α h hα1 (by omega) (w i₀)) g =
+        φ i₀ (levelMk (DM α h : Type) 2 g) := by
+    intro i₀ g
+    haveI := discreteTopology_levelQuot (DM α h : Type) (evenFam_isTopFinGen_DM α h)
+      (isProP_DM α h) 2
+    let ψ₁ : ContinuousMonoidHom (DM α h : Type) (Multiplicative (ZMod 2)) :=
+      { toMonoidHom := evenFamParityHom (N := k + 1) (by omega)
+          (evenFamDerivModelM α h hα1 (by omega) (w i₀))
+        continuous_toFun := by
+          have houter : Continuous (fun p : WL (k + 1) ↦ Multiplicative.ofAdd
+              (ZMod.castHom (evenFam_two_dvd_two_pow (by omega : 1 ≤ k + 1))
+                (ZMod 2) p.u)) := continuous_of_discreteTopology
+          exact houter.comp
+            (evenFamDerivModelM α h hα1 (by omega) (w i₀)).continuous_toFun }
+    let ψ₂ : ContinuousMonoidHom (DM α h : Type) (Multiplicative (ZMod 2)) :=
+      { toMonoidHom := (φ i₀).comp (levelMk (DM α h : Type) 2)
+        continuous_toFun := by
+          exact (continuous_of_discreteTopology (f := ⇑(φ i₀))).comp
+            (continuous_levelMk (DM α h : Type) 2) }
+    have hgen : ∀ j, ψ₁ (dmGen α h j) = ψ₂ (dmGen α h j) := by
+      intro j
+      show Multiplicative.ofAdd
+          (ZMod.castHom (evenFam_two_dvd_two_pow (by omega : 1 ≤ k + 1)) (ZMod 2)
+            ((evenFamDerivModelM α h hα1 (by omega) (w i₀)) (dmGen α h j)).u) =
+        φ i₀ (levelMk (DM α h : Type) 2 (dmGen α h j))
+      rw [evenFamDerivModelM_u, hw]
+      haveI : NeZero (2 : ℕ) := ⟨by omega⟩
+      rw [map_natCast, map_natCast, ZMod.natCast_rightInverse _]
+      exact ofAdd_toAdd _
+    have hext := dm_hom_ext ψ₁ ψ₂ hgen
+    exact DFunLike.congr_fun hext g
+  refine ⟨{ lifts := x
+            lifts_chi := hchi
+            lifts_level := fun i ↦ (hlvl i).symm
+            deriv := fun i₀ _ ↦ evenFamDerivModelM α h hα1 (by omega) (w i₀)
+            deriv_base := fun i₀ _ ↦ evenFamDerivModelM_isChiShadow α h hα1 (by omega) (w i₀)
+            deriv_diag := fun i₀ hi₀ ↦ ?_
+            deriv_off := fun i₀ hi₀ j hj hji ↦ ?_ }⟩
+  · rw [evenFam_two_dvd_u_iff (by omega : 1 ≤ k + 1), evenFamParityLevel_levelMk,
+      hmatch i₀ (x i₀), hφdiag i₀]
+    intro hcon
+    have := ofAdd_eq_one.mp hcon
+    exact absurd this (by decide)
+  · rw [evenFam_two_dvd_u_iff (by omega : 1 ≤ k + 1), evenFamParityLevel_levelMk,
+      hmatch i₀ (x j)]
+    exact hφoff i₀ j hji
+
+/-- **The model `N` core satisfies `Hfam` outright**: at every level `k ≥ 3` and every stage
+tuple over `D_N(α, h)`, the derivation family exists and kills the relator.  This is the
+statement the even endpoints carry, with the field carrier replaced by the model. -/
+theorem evenFam_modelHfamN (α h : ℕ) (hα : 2 ≤ α) (hα1 : 1 ≤ α) :
+    ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (nStageWord α h hα1) (vN α) (DN α h : Type) (chiN α h) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F := by
+  intro k hk T
+  obtain ⟨F⟩ := evenFam_modelFamilyN α h hα hα1 hk T
+  exact ⟨F, evenFam_relatorKillN F⟩
+
+/-- **The model `M` core satisfies `Hfam` outright.** -/
+theorem evenFam_modelHfamM (α h : ℕ) (hα : 2 ≤ α) (hα1 : 1 ≤ α) :
+    ∀ (k : ℕ), 3 ≤ k → ∀ T : Tuple (mStageWord α h hα1) (vM α) (DM α h : Type) (chiM α h) k,
+      ∃ F : EvenKernelDerivationFamily T, EvenKernelRelatorKill F := by
+  intro k hk T
+  obtain ⟨F⟩ := evenFam_modelFamilyM α h hα hα1 hk T
+  exact ⟨F, evenFam_relatorKillM F⟩
+
+end ModelFamily
+
 end
 
 end GQ2.Dyadic.EvenFamily
+
+/-! ## §6 Axiom pins
+
+Every public declaration of this file, printed.  All are expected at std-3,
+`[propext, Classical.choice, Quot.sound]`: the file consumes the committed orientation data,
+the Demushkin package of the model cores, and pure mod-2 linear algebra, none of which
+touches a census axiom.  In particular `evenFam_modelHfam{N,M}`, the model-side `Hfam`, is
+census-free. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenFamily
+
+-- §1 the universal closure
+#print axioms evenFam_nRelWord_wordLift
+#print axioms evenFam_mRelWord_wordLift
+
+-- §2 the free relator kill
+#print axioms evenFam_word_mem_derivKer
+#print axioms evenFam_relatorKill_of_univ
+#print axioms evenFam_relatorKillN
+#print axioms evenFam_relatorKillM
+#print axioms evenFam_exists_kill_iff_nonemptyN
+#print axioms evenFam_exists_kill_iff_nonemptyM
+
+-- §3 the model derivations
+#print axioms evenFam_isTopFinGen_DN
+#print axioms evenFam_isTopFinGen_DM
+#print axioms evenFam_chiN_dnGen
+#print axioms evenFam_chiM_dmGen
+#print axioms evenFamDerivModelN
+#print axioms evenFamDerivModelM
+#print axioms evenFamDerivModelN_gen
+#print axioms evenFamDerivModelM_gen
+#print axioms evenFamDerivModelN_isChiShadow
+#print axioms evenFamDerivModelM_isChiShadow
+#print axioms evenFamDerivModelN_u
+#print axioms evenFamDerivModelM_u
+
+-- §4 the parity calculus
+#print axioms evenFam_two_dvd_two_pow
+#print axioms evenFam_castHom_unit
+#print axioms evenFam_two_dvd_iff_castHom_eq_zero
+#print axioms evenFamParityHom
+#print axioms evenFamParityHom_eq_one_of_mem
+#print axioms evenFamParityLevel
+#print axioms evenFamParityLevel_levelMk
+#print axioms evenFam_two_dvd_u_iff
+#print axioms evenFam_levelTwo_sq
+#print axioms evenFam_levelTwo_comm
+#print axioms evenFam_exists_levelTwo_dual
+
+-- §5 the model families
+#print axioms evenFam_card_levelTwo_DN
+#print axioms evenFam_card_levelTwo_DM
+#print axioms evenFam_levelMk_generates_two
+#print axioms evenFam_modelFamilyN
+#print axioms evenFam_modelFamilyM
+#print axioms evenFam_modelHfamN
+#print axioms evenFam_modelHfamM
+
+end AxiomPins
