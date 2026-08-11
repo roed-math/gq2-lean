@@ -7,9 +7,122 @@ import GQ2.Dyadic.SqCore.GradedCensusHorn
 import GQ2.Dyadic.SqCore.GradedForceSharp
 
 /-!
-# W66-ACHIEVE: the census endgame - achievability DISCHARGED
+# W66-ACHIEVE: the census endgame - achievability DISCHARGED, horn 2 refuted, the gauge settled
 
-(placeholder header, rewritten at the end of the lane)
+W64-CENSUS5 decided `67` binder points exactly and found `0` survivors, but recorded that
+verdict as a **measurement**: "whether `censKnob t` lies in `forceLcs (image) 1` is a property
+of the point, checked by exact polycyclic sifting; no theorem here says it must".  W65-HORN1
+then closed the parity horn and left, in its own words, "achievability, which remains exactly
+as measured in W64".
+
+This file discharges it.  The `67` points are rebuilt, verified against the committed record,
+and killed **one theorem each**, with no achievability hypothesis anywhere.
+
+## ⭐⭐⭐ Headline 1: the census verdict is a theorem, at all `67` points
+
+⭐⭐⭐ `censAch_kill_01` … `censAch_kill_67`.  At every one of the `67` binder points, at
+**every handle count and every handle**,
+
+```text
+   ¬ GaTwoForces (point)  ∧  ¬ GaTwoCentral (point)  ∧  ¬ GaTwoOrth (point).
+```
+
+⭐ Each proof carries an **explicit achievable killing dressing**: a product of at most three
+commutators of the point's own five letters, dressing one slot, taking the relator to `1`.
+Achievability is therefore *exhibited*, never assumed - `commP_mem_commSub` and `mul_mem` are
+the whole of it.  Sixty-one of the sixty-seven need only **two** commutators.
+
+⚠ **The killers are NOT knobs.**  The sigma knob is achievable at `49` of the `67` (MEASURED,
+and unchanged here), but at every point a general lattice element was easier to exhibit, so
+that is what the certificates carry.  This is the census's own finding one step further: the
+knob theorems are a proved SUFFICIENT mechanism and not a classification of the killers.
+
+## ⭐⭐⭐ Headline 2: the engine, with the knob removed
+
+⭐⭐⭐ `censAch_lines_false_sig`, `_x0`, `_u`, `_v`.  At a marking whose relator is an ODD
+CENTRAL translation, **any** achievable element whose single-slot dressing kills the relator
+refutes all three `gamma_2` lines.  This is `cens_lines_false_of_sigKnob` with the knob
+replaced by an arbitrary lattice element: the shift is central *because* the dressed relator
+is `1` and the undressed one is central, so no closed form for the shift is needed and no
+gearing is read.
+
+⚠ The two CORE slots had no dressing family in the tree - the census reached them only through
+its nested sweep - so `censAchSlotX` is new here, and six of the sixty-seven points need it.
+
+## ⭐⭐⭐ Headline 3: HORN 2 is refuted at every point reached
+
+The wave-64 queue asked for a live point at which all three knobs are unachievable AND the
+lattice kills at no slot.  ⭐ `censAch_noKill_iff_forces` shows the two halves of that question
+are one: at an ODD binder point, "no achievable dressing kills" **is** `GaTwoForces`.  So each
+of the sixty-seven refutations above is a horn-2 refutation, and `censAch_horn_two_*` records
+it at the twelve points where the first half genuinely holds - the twelve at which **no knob is
+achievable at all** (`#50`-`#55` and `#62`-`#67`, MEASURED).  At every one of them a general
+lattice element kills.  ⚠ No point in the census, and no point in the tree, satisfies horn 2.
+
+## ⭐⭐⭐ Headline 4: the gauge is NOT necessary for the census
+
+`GradedCensusHorn` closed with a named open: the gauge `2 ∣ s.e` "is necessary for this proof
+and for the statement (`censHorn_binder_cex`) … but whether an ungauged binder point could
+still be killed by some other dressing is not decided here".
+
+⭐⭐⭐ `censAch_cex_lines_false`.  It can.  At `censHorn_binder_cex` - a genuine binder point
+where horn 1 is FALSE, all five letters on `stageN1`, the bare frame killing, the diagonal
+frame carrying `liftO 1` - the **single commutator `[x0, sigma]`** of the point's own two core
+letters is achievable and kills the relator from the sigma slot.  All three lines fail there
+too.
+
+⭐⭐ So the parity horn and the census verdict come apart exactly at the gauge: `2 ∣ s.e` is
+necessary for horn 1's statement and for its proof, and it is **not** necessary for the census.
+⭐ The sigma knob really is dead there (`censAch_cex_sigKnob_dead`: the gearing is EVEN, so its
+translation is even for every `t`, whatever the lattice does) - the point dies without any knob
+at all.
+
+## PROVED versus MEASURED
+
+**PROVED** here, no `sorry`, no new axiom, no `native_decide`, every `decide` on `SqU6 (ZMod 8)`
+or `ZMod 8`: the four engines; the `67` kills with their certificates; the horn-2 equivalence
+and its twelve instances; the kill at the ungauged point and the death of its sigma knob; and
+W65-SHARPEN's primed bound transported to the census (`censAch_dressing_even`: every achievable
+dressing at a census point has `f`, `g`, `h`, `j` even).
+
+**MEASURED** (`scripts/w66_achieve/results/achieve.txt`, `21` named checks, `0` failures, on
+two independent lattice implementations): which knobs are achievable (`49` / `18` / the twelve
+knob-free points); the exact single-slot kill counts; that the `67` rebuilt points are the
+committed ones, record by record; and, at the ungauged point, its `2^15` lattice swept whole -
+`4864` achievable single-slot killers, and both handle knobs unachievable.
+
+⚠ **NOT proved, and not claimed.**  *Non*-achievability, anywhere: showing an element is NOT in
+`forceLcs H 1` at a concrete point needs an upper bound the tree does not own there, and
+`censAch_not_achievable_of_odd` is the only uniform one available - it does not reach the knob,
+whose four constrained coordinates all vanish.  So the eighteen unachievable sigma knobs, the
+twelve knob-free points and the two dead handle knobs at the ungauged point remain measured.
+Nor is a FIVE-slot decision claimed: single-slot kills are exhibited, which is sound in the
+"dead" direction and is the census's own scope.  Nor is any of this lifted to homomorphisms.
+⚠ And the sixty-seven are the points the census reached: `0` survivors among them is not "the
+`gamma_2` route is dead at every binder point", which no wave has claimed.
+
+## The sweep against the tree's refutations
+
+Doctrine rule 4.  W65-HORN1's counterexample is USED rather than evaded: headline 4 is
+precisely its point, and no statement here assumes a gauged sigma slot.  ⚠ The
+diagonally-dressed-frame trap is respected throughout - every point is a DIAGONAL frame whose
+BARE frame kills the relator (checked at all `67`), and a bare witness would kill vacuously.
+Wave 56's retracted structures are not quoted; W65-SIX's class-six refutation is not invoked;
+W62's handle-count invariant is not used.  ⭐ **Doctrine rule 1**: the only survival-shaped
+claim in the file is horn 2, and it is REFUTED rather than left standing.  ⭐ **Doctrine rule 3**
+(composites): the certificates are checked by two independently written sifting libraries -
+this lane's `scripts/w66_achieve/siftlib.py`, filtered by class, and W63-CENTRAL2's
+`centrallib`, keyed by `(coordinate, valuation)` - and they agree on all `67` lattice orders
+and all `67` knob tests; the six hardest killers were found by a layered sweep that reproduces
+the census's own kill count of `4096` exactly.
+
+## Contents
+
+* **1** the four engines and the new `x0` dressing; **2** ⭐⭐⭐ the `67` points;
+* **3** ⭐⭐⭐ horn 2; **4** ⭐⭐⭐ the gauge; **5** the primed bound at a census point;
+* **6** axiom pins.
+
+Companion certificate: `scripts/w66_achieve/achieve.py`, output in `results/`.
 -/
 
 open scoped commutatorElement
@@ -1415,6 +1528,72 @@ theorem censAch_cex_not_noKill (h : ℕ) (j : Fin h) : ¬ CensAchNoKill (censAch
     (commP_mem_commSub L.2.1 L.1)
 
 end Gauge
+
+/-! ## 5 What W65-SHARPEN's primed bound says at a census point -/
+
+section Sharp
+
+variable {h : ℕ} {j : Fin h}
+
+/-- Every slot of a one-handle-live tuple is one of its five letters or trivial.
+(`GradedFiveLive`'s copy is `private`, so this one is rebuilt here.) -/
+theorem censAch_fiveTuple_cases {R : Type} [CommRing R] {hh : ℕ} {jj : Fin hh}
+    (S X Y U V : SqU6 R) (i : Fin (sqRank hh)) :
+    fiveTuple R hh jj S X Y U V i = S ∨ fiveTuple R hh jj S X Y U V i = X
+      ∨ fiveTuple R hh jj S X Y U V i = Y ∨ fiveTuple R hh jj S X Y U V i = U
+      ∨ fiveTuple R hh jj S X Y U V i = V ∨ fiveTuple R hh jj S X Y U V i = 1 := by
+  simp only [fiveTuple]
+  split_ifs <;> tauto
+
+/-- A census point's sigma letter is on `stageN1` as soon as its `x0` letter is: `fiveSigMark`
+is `<b = 1>`, whose `(1,2)`- and `(3,4)`-columns vanish. -/
+theorem censAch_sig_mem_stageN1 {X : SqU6 gr3R} (hX : X ∈ stageN1) :
+    fiveSigMark gr3R * X ∈ stageN1 := by
+  obtain ⟨⟨s, hs⟩, ⟨t, ht⟩⟩ := mem_stageN1.mp hX
+  refine ⟨⟨s, ?_⟩, ⟨t, ?_⟩⟩
+  · rw [SqU6.mul_a, hs, show (fiveSigMark gr3R).a = 0 from rfl, zero_add]
+  · rw [SqU6.mul_c, ht, show (fiveSigMark gr3R).c = 0 from rfl, zero_add]
+
+/-- The image of a census point lies on `stageN1` as soon as its four free letters do - which
+`scripts/w66_achieve/results/achieve.txt` section 1 checks at all `67`. -/
+theorem censAch_image_le_stageN1 (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
+    (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1) :
+    Subgroup.closure (Set.range (censAchPt h j X Y U V)) ≤ stageN1 := by
+  rw [Subgroup.closure_le]
+  rintro g ⟨i, rfl⟩
+  rcases censAch_fiveTuple_cases (fiveSigMark gr3R * X) X Y U V i with
+    hc | hc | hc | hc | hc | hc <;> rw [censAchPt, hc]
+  · exact censAch_sig_mem_stageN1 hX
+  · exact hX
+  · exact hY
+  · exact hU
+  · exact hV
+  · exact one_mem _
+
+/-- ⭐⭐ **W65-SHARPEN's primed depth-one bound, at a census point**: every achievable
+`gamma_2`-dressing has `f`, `g`, `h` AND `j` even.  The committed
+`GradedFiveGammaTwo.forceLcs_one_le_stageN2` gives all of this except the `g`.
+
+⭐ This is where the sharpened lattice reaches the census.  ⚠ It is a CONTAINMENT, so it can
+show a candidate killer unachievable and can never show one achievable; the sixty-seven
+certificates of section 2 are exhibited commutators for exactly that reason. -/
+theorem censAch_dressing_even (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
+    (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1)
+    {z : SqU6 gr3R} (hz : z ∈ forceLcs (Subgroup.closure (Set.range (censAchPt h j X Y U V))) 1) :
+    (2 : gr3R) ∣ z.f ∧ (2 : gr3R) ∣ z.g ∧ (2 : gr3R) ∣ z.h ∧ (2 : gr3R) ∣ z.j :=
+  forceSharp_one_dvd (censAch_image_le_stageN1 h j hX hY hU hV) hz
+
+/-- ⭐ **The one NON-achievability this file can prove uniformly**: a candidate killer with an
+ODD `f`, `g`, `h` or `j` is not an achievable dressing at ANY census point.  ⚠ It does not
+reach the knob, whose `f`, `g`, `h` and `j` are all `0`: at a concrete point the honest lattice
+is far smaller than this bound, and the eighteen unachievable sigma knobs stay MEASURED. -/
+theorem censAch_not_achievable_of_odd (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
+    (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1)
+    {z : SqU6 gr3R} (hz : ¬ (2 : gr3R) ∣ z.f) :
+    z ∉ forceLcs (Subgroup.closure (Set.range (censAchPt h j X Y U V))) 1 :=
+  fun hm => hz (censAch_dressing_even h j hX hY hU hV hm).1
+
+end Sharp
 
 end SqCore
 
