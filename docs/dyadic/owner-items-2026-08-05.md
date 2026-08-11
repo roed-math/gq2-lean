@@ -1,5 +1,23 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 66 (2026-08-11)
+
+**Open, still yours (unchanged):** the standing items below.  Nothing new needs a decision.
+
+**For orientation, the wave's headline:** the even route is now closed as mathematics at
+even degree.  The parity supply named at wave 65 is proved at EVERY even-degree field on
+both branches (the odd route's parity pigeonhole was degree-agnostic all along), so Hfam is
+a theorem there with no range or ramification binder, the even classification holds at
+every even-degree ramified-i field over the reciprocity bundle, and Q2(sqrt -2) and
+Q2(sqrt 2) are the first even fields ever closed (branch-pinned over the per-field range
+identity `hrange`, which is local class field theory the campaign has always measured and
+never computed in-tree; that computation is now the last even item with a route).  On the
+h >= 1 side the census endgame closed: unconditional kills at all 67 points, horn 2 refuted
+at the eighteen knob-free points, and the gauge proved unnecessary for the census.  The
+wave-60/61 legality points were refuted rather than instantiated (wave 64's own unread
+table already said so).  Final state after the docs pass `c3c62654`: 4314 jobs green,
+census 11, zero sorries, capstones frozen.
+
 ## Status at wave 65 (2026-08-11)
 
 **Open, still yours (unchanged):** the standing items below.  Nothing new needs a decision.
