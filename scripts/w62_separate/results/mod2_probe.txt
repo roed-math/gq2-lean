@@ -1,0 +1,34 @@
+$ python3 mod2_probe.py
+
+== gap-1a
+   mod-2 image of the achievable lattice: dim 2, basis [[0, 0, 0, 1, 1, 0], [0, 0, 0, 0, 0, 1]]
+   functionals killing it: ['j', 'k', 'j+k', 'l', 'j+l', 'k+l', 'j+k+l', 'm+n', 'j+m+n', 'k+m+n', 'j+k+m+n', 'l+m+n', 'j+l+m+n', 'k+l+m+n', 'j+k+l+m+n']
+   implication under the mod-2 condition alone: False
+   |lattice + 4Z^6| 4096 vs |achievable| 1024
+   implication under the mod-4 condition alone: True
+   implication on the honest achievable lattice: True
+
+== gap-1b
+   mod-2 image of the achievable lattice: dim 2, basis [[0, 0, 0, 1, 1, 0], [0, 0, 0, 0, 0, 1]]
+   functionals killing it: ['j', 'k', 'j+k', 'l', 'j+l', 'k+l', 'j+k+l', 'm+n', 'j+m+n', 'k+m+n', 'j+k+m+n', 'l+m+n', 'j+l+m+n', 'k+l+m+n', 'j+k+l+m+n']
+   implication under the mod-2 condition alone: False
+   |lattice + 4Z^6| 4096 vs |achievable| 1024
+   implication under the mod-4 condition alone: True
+   implication on the honest achievable lattice: True
+
+== gap-2a
+   mod-2 image of the achievable lattice: dim 2, basis [[0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1]]
+   functionals killing it: ['j', 'k', 'j+k', 'l', 'j+l', 'k+l', 'j+k+l', 'm', 'j+m', 'k+m', 'j+k+m', 'l+m', 'j+l+m', 'k+l+m', 'j+k+l+m']
+   implication under the mod-2 condition alone: False
+   |lattice + 4Z^6| 2048 vs |achievable| 256
+   implication under the mod-4 condition alone: False
+   implication on the honest achievable lattice: True
+
+== gap-2b
+   mod-2 image of the achievable lattice: dim 2, basis [[0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1]]
+   functionals killing it: ['j', 'k', 'j+k', 'l', 'j+l', 'k+l', 'j+k+l', 'm', 'j+m', 'k+m', 'j+k+m', 'l+m', 'j+l+m', 'k+l+m', 'j+k+l+m']
+   implication under the mod-2 condition alone: False
+   |lattice + 4Z^6| 2048 vs |achievable| 256
+   implication under the mod-4 condition alone: False
+   implication on the honest achievable lattice: True
+

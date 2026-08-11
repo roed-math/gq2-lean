@@ -1,0 +1,78 @@
+$ python3 inspect_four.py
+
+== gap-1a
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   relator: <o=5>   admissible True
+   |gamma_3(im)| 1024   |image| 128   central image [(0, 0, 0, 0, 0, 2)]
+   KILL False   ORTH(all) False   ORTH(central) True
+   ORTH(central, NO achievability) False   MODLOW []
+   covectors (j,k,l,m,n) of the class-five row, per slot:
+      sigma  o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      x0     o (0, 1, 0, 1, 1)   m-row (0, 1, 0, 0, 0)   n-row (0, 1, 0, 0, 0)
+      x1     o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      U      o (0, 0, 0, 1, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 1, 1, 0, 0)
+      V      o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+   512 single-slot achievable dressings with an ODD class-five row
+      slot U      dressing (j,k,l,m,n,o)=(4, 4, 6, 1, 5, 6) -> shift (0, 0, 0, 0, 2, 7)
+      slot U      dressing (j,k,l,m,n,o)=(2, 0, 2, 1, 1, 0) -> shift (0, 0, 0, 4, 2, 7)
+      slot U      dressing (j,k,l,m,n,o)=(4, 4, 2, 3, 7, 0) -> shift (0, 0, 0, 0, 6, 5)
+      slot U      dressing (j,k,l,m,n,o)=(2, 0, 6, 3, 1, 5) -> shift (0, 0, 0, 4, 6, 5)
+   W60-HYP (stageN1 at every letter) False   W60-CONS (stageN3) False
+
+== gap-1b
+   letters: <a=5, b=2, c=3, e=3, j=2, n=6> | <i=6, n=7> | <k=2, l=1, n=4> | <e=4, g=2, m=6> | <b=3, d=6, e=3, f=2, h=1, k=1, l=1, o=7>
+   relator: <o=5>   admissible True
+   |gamma_3(im)| 1024   |image| 128   central image [(0, 0, 0, 0, 0, 2)]
+   KILL False   ORTH(all) False   ORTH(central) True
+   ORTH(central, NO achievability) False   MODLOW []
+   covectors (j,k,l,m,n) of the class-five row, per slot:
+      sigma  o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      x0     o (0, 1, 0, 1, 1)   m-row (0, 1, 0, 0, 0)   n-row (0, 1, 0, 0, 0)
+      x1     o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      U      o (0, 0, 0, 1, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 1, 1, 0, 0)
+      V      o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+   512 single-slot achievable dressings with an ODD class-five row
+      slot U      dressing (j,k,l,m,n,o)=(4, 4, 6, 1, 5, 6) -> shift (0, 0, 0, 0, 2, 7)
+      slot U      dressing (j,k,l,m,n,o)=(2, 0, 2, 1, 1, 0) -> shift (0, 0, 0, 4, 2, 7)
+      slot U      dressing (j,k,l,m,n,o)=(4, 4, 2, 3, 7, 0) -> shift (0, 0, 0, 0, 6, 5)
+      slot U      dressing (j,k,l,m,n,o)=(2, 0, 6, 3, 1, 5) -> shift (0, 0, 0, 4, 6, 5)
+   W60-HYP (stageN1 at every letter) False   W60-CONS (stageN3) False
+
+== gap-2a
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   relator: <o=1>   admissible True
+   |gamma_3(im)| 256   |image| 64   central image [(0, 0, 0, 0, 0, 2)]
+   KILL False   ORTH(all) False   ORTH(central) True
+   ORTH(central, NO achievability) False   MODLOW []
+   covectors (j,k,l,m,n) of the class-five row, per slot:
+      sigma  o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      x0     o (0, 1, 0, 1, 1)   m-row (0, 1, 0, 0, 0)   n-row (0, 1, 1, 0, 0)
+      x1     o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      U      o (1, 0, 1, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      V      o (0, 0, 1, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+   128 single-slot achievable dressings with an ODD class-five row
+      slot x0     dressing (j,k,l,m,n,o)=(2, 4, 0, 0, 1, 5) -> shift (0, 0, 0, 4, 0, 1)
+      slot x0     dressing (j,k,l,m,n,o)=(6, 4, 0, 0, 5, 3) -> shift (0, 0, 0, 4, 0, 5)
+      slot x0     dressing (j,k,l,m,n,o)=(6, 4, 0, 0, 3, 3) -> shift (0, 0, 0, 4, 0, 3)
+      slot x0     dressing (j,k,l,m,n,o)=(0, 4, 0, 0, 7, 5) -> shift (0, 0, 0, 4, 0, 7)
+   W60-HYP (stageN1 at every letter) False   W60-CONS (stageN3) True
+
+== gap-2b
+   letters: <a=1, b=7, c=3, e=5, f=1, k=3, l=7, m=6, o=1> | <g=2, o=7> | <j=3, n=4> | <a=6, f=1, i=2, j=4, l=4, m=4, o=4> | <d=4, f=7, i=7, j=5, l=5, n=3>
+   relator: <o=1>   admissible True
+   |gamma_3(im)| 256   |image| 64   central image [(0, 0, 0, 0, 0, 2)]
+   KILL False   ORTH(all) False   ORTH(central) True
+   ORTH(central, NO achievability) False   MODLOW []
+   covectors (j,k,l,m,n) of the class-five row, per slot:
+      sigma  o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      x0     o (0, 1, 0, 1, 1)   m-row (0, 1, 0, 0, 0)   n-row (0, 1, 1, 0, 0)
+      x1     o (0, 0, 0, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      U      o (1, 0, 1, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+      V      o (0, 0, 1, 0, 0)   m-row (0, 0, 0, 0, 0)   n-row (0, 0, 0, 0, 0)
+   128 single-slot achievable dressings with an ODD class-five row
+      slot x0     dressing (j,k,l,m,n,o)=(2, 4, 0, 0, 1, 5) -> shift (0, 0, 0, 4, 0, 1)
+      slot x0     dressing (j,k,l,m,n,o)=(6, 4, 0, 0, 5, 3) -> shift (0, 0, 0, 4, 0, 5)
+      slot x0     dressing (j,k,l,m,n,o)=(6, 4, 0, 0, 3, 3) -> shift (0, 0, 0, 4, 0, 3)
+      slot x0     dressing (j,k,l,m,n,o)=(0, 4, 0, 0, 7, 5) -> shift (0, 0, 0, 4, 0, 7)
+   W60-HYP (stageN1 at every letter) False   W60-CONS (stageN3) True
+

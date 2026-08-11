@@ -1,0 +1,14 @@
+$ python3 feasible3.py
+
+column conditions that admit a provable separating pattern:
+
+even-coordinate table for the single-column conditions:
+   a even at every letter  =>  j even on every achievable dressing
+   b even at every letter  =>  jk even on every achievable dressing
+   c even at every letter  =>  jkl even on every achievable dressing
+   d even at every letter  =>  kl even on every achievable dressing
+   e even at every letter  =>  l even on every achievable dressing
+   f even at every letter  =>  - even on every achievable dressing
+   g even at every letter  =>  - even on every achievable dressing
+   h even at every letter  =>  - even on every achievable dressing
+   i even at every letter  =>  - even on every achievable dressing

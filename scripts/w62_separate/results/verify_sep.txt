@@ -1,0 +1,42 @@
+$ python3 verify_sep.py
+
+== 1. the marking ==
+  letters  <a=1, c=1, h=1> | <a=1> | <a=2> | <d=1, e=1, g=1, m=1, n=1> | <a=1, i=1, k=1, n=1>
+  relator  <j=7, o=7>
+  [PASS] the relator is gamma_3-shaped
+  [PASS] the relator's class-three row j is ODD
+  [PASS] the relator's class-five residue is ODD
+  [PASS] the relator is exactly <j=7, o=7>
+  [PASS] the handle block is live
+  [PASS] the relator is NOT central (so wave 61's admissibility fails here)
+
+== 2. the dressing ==
+  [[sigma, U], U] = <l=1, m=1>
+  [PASS] the dressing is <l=1, m=1>
+  [PASS] the dressing is gamma_3-shaped
+  [PASS] the dressing is achievable (in the honest gamma_3 of the image)
+  shift of the V-handle slot: (0, 0, 0, 0, 0, 7)
+  [PASS] the shift is CENTRAL (its five lower rows vanish)
+  [PASS] the shift's class-five row is ODD
+  [PASS] the shift is exactly <o=7>
+  relator of the dressed marking: <j=7, o=6>
+  [PASS] dressed relator = relator * <o=7>
+
+== 3. the three verdicts ==
+  [PASS] KILL: no achievable stage-four dressing kills the relator (the forcing HOLDS)
+  [PASS] ORTH: the parity line FAILS
+  [PASS] CEN: the sharp line FAILS too
+  |gamma_3(im)| 512   |image| 128   central image [(0, 0, 0, 0, 0, 1)]
+  covectors [(0, 0, 0, 0, 1), (0, 0, 0, 0, 1), (0, 0, 0, 0, 0), (1, 0, 0, 0, 1), (0, 0, 0, 1, 0)]
+
+== 4. the obstruction is the class-three row, exactly ==
+  [PASS] every achievable single-slot shift has an EVEN class-three j-row
+  [PASS] every achievable single-slot shift has even j, k and l rows
+  256 single-slot achievable dressings pair ODDLY
+
+== 5. the ZMod 8 content: mod 2 the obstruction is invisible ==
+  [PASS] the shift's class-three rows vanish identically mod 2 (so no covector sees them)
+  [PASS] the relator's class-three row is nonzero mod 2
+
+== summary ==
+  failures: none
