@@ -1,0 +1,29 @@
+$ python3 lean_match.py
+== letters
+   gap-1a   gapOneS    OK
+   gap-1a   gapOneX    OK
+   gap-1a   gapOneY    OK
+   gap-1a   gapOneU    OK
+   gap-1a   gapOneV    OK
+   gap-1b   gapOneS    OK
+   gap-1b   gapOneX    OK
+   gap-1b   gapOneY'   OK
+   gap-1b   gapOneU    OK
+   gap-1b   gapOneV    OK
+   gap-2a   gapTwoS    OK
+   gap-2a   gapTwoX    OK
+   gap-2a   gapTwoY    OK
+   gap-2a   gapTwoU    OK
+   gap-2a   gapTwoV    OK
+   gap-2b   gapTwoS    OK
+   gap-2b   gapTwoX    OK
+   gap-2b   gapTwoY'   OK
+   gap-2b   gapTwoU    OK
+   gap-2b   gapTwoV    OK
+== targets and certificates
+   gapKOne  OK   2 * z.k + 4 * z.m + 4 * z.n = 0 ; 2 * z.l + 4 * z.n = 0
+   gapKTwo  OK   z.k + 4 * z.n = 0 ; 4 * z.l = 0 ; 2 * z.m = 0
+   psiOne   OK   w.l + 2 * w.n + 4 * w.o
+   psiTwo   OK   w.m + 4 * w.o
+
+TOTAL FAILURES: 0
