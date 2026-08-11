@@ -169,18 +169,29 @@ one carries an ODD CENTRAL residue. -/
 def censAchPt (X Y U V : SqU6 gr3R) : Fin (sqRank h) → SqU6 gr3R :=
   fiveTuple gr3R h j (fiveSigMark gr3R * X) X Y U V
 
-/-- The five letters of a census point lie in its own image. -/
+/-- The five letters of a one-handle-live tuple lie in its own image, at every handle count
+and every handle.  Every achievability certificate in this file is built from these five and
+nothing else. -/
+theorem censAch_fiveTuple_letters_mem (h : ℕ) (j : Fin h) (S X Y U V : SqU6 gr3R) :
+    S ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ X ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ Y ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ U ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))
+      ∧ V ∈ Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V)) :=
+  ⟨Subgroup.subset_closure ⟨0, fiveTuple_zero⟩,
+    Subgroup.subset_closure ⟨1, fiveTuple_one⟩,
+    Subgroup.subset_closure ⟨2, fiveTuple_two⟩,
+    Subgroup.subset_closure ⟨sqHandleIdxU j, fiveTuple_handleU⟩,
+    Subgroup.subset_closure ⟨sqHandleIdxV j, fiveTuple_handleV⟩⟩
+
+/-- …and at a census point, whose sigma letter is `fiveSigMark * x0`. -/
 theorem censAch_letters_mem (h : ℕ) (j : Fin h) (X Y U V : SqU6 gr3R) :
     fiveSigMark gr3R * X ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
       ∧ X ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
       ∧ Y ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
       ∧ U ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V))
       ∧ V ∈ Subgroup.closure (Set.range (censAchPt h j X Y U V)) :=
-  ⟨Subgroup.subset_closure ⟨0, by rw [censAchPt, fiveTuple_zero]⟩,
-    Subgroup.subset_closure ⟨1, by rw [censAchPt, fiveTuple_one]⟩,
-    Subgroup.subset_closure ⟨2, by rw [censAchPt, fiveTuple_two]⟩,
-    Subgroup.subset_closure ⟨sqHandleIdxU j, by rw [censAchPt, fiveTuple_handleU]⟩,
-    Subgroup.subset_closure ⟨sqHandleIdxV j, by rw [censAchPt, fiveTuple_handleV]⟩⟩
+  censAch_fiveTuple_letters_mem h j _ X Y U V
 
 /- ⚠ **The one budget setting in this file**, and it is NOT a heartbeat bump: the `decide`
 calls below evaluate the core word at a concrete marking with a commutator word substituted
@@ -1307,6 +1318,103 @@ theorem censAch_kill_67 (h : ℕ) (j : Fin h) :
 
 
 end Points
+
+/-! ## 3 ⭐⭐⭐ Horn 2: the mechanism never runs out -/
+
+section HornTwo
+
+variable {h : ℕ} {j : Fin h} {c : gr3R}
+
+/-- **The census mechanism, negated, as a property of a point**: NO achievable
+`gamma_2`-dressing kills the relator - not at any slot, and not at any five-slot combination
+either.  This is the second conjunct of the wave-64 queue's HORN 2, "the lattice kills at no
+slot", read in the widest sense the definition of `GaTwoForces` uses. -/
+def CensAchNoKill {h : ℕ} (m : Fin (sqRank h) → SqU6 gr3R) : Prop :=
+  ∀ z : Fin (sqRank h) → SqU6 gr3R,
+    (∀ i, z i ∈ forceLcs (Subgroup.closure (Set.range m)) 1) →
+    sqRelWord (conFiveDress m z) ≠ 1
+
+/-- ⭐⭐ **At an ODD binder point the `gamma_2` forcing IS the absence of a kill.**  So the
+horn-2 question and the forcing question are the same question, and each of section 2's
+sixty-seven refutations is a horn-2 refutation.
+
+⭐ The proof is two lines in each direction and uses nothing about the point beyond the odd
+central residue: forcing is vacuously true when nothing kills, and one kill at an odd residue
+contradicts it. -/
+theorem censAch_noKill_iff_forces {m : Fin (sqRank h) → SqU6 gr3R}
+    (hres : sqRelWord m = SqU6.liftO c) (hodd : selPar c = 1) :
+    CensAchNoKill m ↔ GaTwoForces m := by
+  constructor
+  · exact fun hn z hz hk => absurd hk (hn z hz)
+  · intro hF z hz hk
+    have hb := hF z hz hk
+    rw [hres, SqU6.liftO_o, hodd] at hb
+    exact absurd hb (by decide)
+
+/-- ⭐⭐ **Horn 2 fails wherever a killer is exhibited.**  The bridge used by the twelve
+knob-free points of section 4: an achievable single-slot dressing at the sigma slot that takes
+the relator to `1` refutes `CensAchNoKill` outright. -/
+theorem censAch_not_noKill_sig {S X Y U V w : SqU6 gr3R}
+    (hkill : sqWord (S * w) X Y * commP U V = 1)
+    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
+    ¬ CensAchNoKill (fiveTuple gr3R h j S X Y U V) := by
+  intro hn
+  refine hn (cenSigDress h w) (fun i => cens_sigDress_mem_forceLcs hach i) ?_
+  rw [conFiveDress_fiveTuple_cenSigDress, sqRelWord_fiveTuple]
+  exact hkill
+
+end HornTwo
+
+/-! ## 4 ⭐⭐⭐ The gauge: an UNGAUGED binder point dies too -/
+
+section Gauge
+
+variable {h : ℕ} {j : Fin h}
+
+variable (h j) in
+/-- **W65-HORN1's ungauged binder point**, the counterexample that made the gauge `2 ∣ s.e`
+a hypothesis of horn 1: all five letters on `stageN1`, the bare frame killing the relator
+outright, the diagonally dressed frame carrying the odd central relator `liftO 1`, and the
+sigma knob's GEARING `censHornCexX'.e` EVEN.  `GradedCensusHorn.censHorn_binder_cex` is the
+point; this is its diagonally dressed frame as a marking. -/
+def censAchCexPt : Fin (sqRank h) → SqU6 gr3R :=
+  fiveTuple gr3R h j (censHornCexSig * censHornCexX') censHornCexX' 1 censHornCexU censHornCexV
+
+/-- ⭐ **The sigma knob is DEAD at the ungauged point**, and not merely unachievable: its
+gearing is EVEN, so its central translation `liftO (x0.e * t)` is even for **every** `t` and
+can never cancel the odd residue `1`.  ⭐ No lattice computation enters - this is
+`GradedGammaTwoCensus.censKnob_shift_even_of_gear_even` at the point. -/
+theorem censAch_cex_sigKnob_dead (t : gr3R) : selPar (censHornCexX'.e * t) = 0 :=
+  censKnob_shift_even_of_gear_even (by decide) t
+
+/-- ⭐⭐⭐ **THE UNGAUGED BINDER POINT IS KILLED ANYWAY.**  At `censHorn_binder_cex`, where
+horn 1 is FALSE and the sigma knob is dead, the single commutator `[x0, sigma]` of the point's
+own two core letters is achievable and, dressed onto the sigma slot, takes the relator to `1`.
+So all three `gamma_2` lines fail there, at every handle count and every handle.
+
+⭐⭐ **The verdict on the named open.**  `GradedCensusHorn` closed with "whether an ungauged
+binder point could still be killed by some other dressing is not decided here".  It can: the
+gauge `2 ∣ s.e` is necessary for horn 1's STATEMENT and for its proof, and it is NOT necessary
+for the census.  The parity horn and the census verdict come apart exactly here. -/
+theorem censAch_cex_lines_false (h : ℕ) (j : Fin h) :
+    ¬ GaTwoForces (censAchCexPt h j) ∧ ¬ GaTwoCentral (censAchCexPt h j)
+      ∧ ¬ GaTwoOrth (censAchCexPt h j) := by
+  have L := censAch_fiveTuple_letters_mem h j (censHornCexSig * censHornCexX') censHornCexX' 1
+    censHornCexU censHornCexV
+  exact censAch_lines_false_sig (c := 1)
+    (w := commP censHornCexX' (censHornCexSig * censHornCexX'))
+    (by decide) (by decide) (by decide) (commP_mem_commSub L.2.1 L.1)
+
+/-- ⭐⭐ **…so the ungauged point is not a horn-2 witness either**, even though all three of
+its knobs are silent. -/
+theorem censAch_cex_not_noKill (h : ℕ) (j : Fin h) : ¬ CensAchNoKill (censAchCexPt h j) := by
+  have L := censAch_fiveTuple_letters_mem h j (censHornCexSig * censHornCexX') censHornCexX' 1
+    censHornCexU censHornCexV
+  exact censAch_not_noKill_sig
+    (w := commP censHornCexX' (censHornCexSig * censHornCexX')) (by decide)
+    (commP_mem_commSub L.2.1 L.1)
+
+end Gauge
 
 end SqCore
 
