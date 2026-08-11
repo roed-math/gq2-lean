@@ -1,0 +1,20 @@
+$ python3 check_ae.py
+
+== A. the two-column parity line ==
+  33 admissible markings with even (1,2)- and (5,6)-columns, 24 of them with an ODD outer class-two column somewhere
+  [PASS] the parity line holds at every one of them
+  [PASS] the sample reaches markings outside wave 61's three-column condition
+
+== B. the mirror chain: even (1,2)-columns give every achievable dressing an even j ==
+  [PASS] no achievable dressing has an odd j, over 400 random letter tuples
+
+== C. why MODLOW is empty ==
+  300 random letter tuples, 4 with MODLOW
+  [PASS] every MODLOW tuple has even (1,2)- and (5,6)-columns at every letter
+
+== D. the separating marking is outside the two-column condition, as it must be ==
+  [PASS] some letter of sepMark has an ODD (1,2)-column
+  [PASS] its relator's class-three row is odd
+
+== summary ==
+  failures: none

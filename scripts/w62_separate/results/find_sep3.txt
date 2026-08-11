@@ -1,0 +1,8 @@
+$ python3 find_sep3.py 21 600 0.25 2
+
+hits 3 of 600
+weight 41
+letters  <a=1, c=1, e=1, f=1, h=1> | <a=1, g=1, i=1, m=2, o=1> | <a=2, g=2, i=2> | <b=1, e=1, f=1, i=2> | <j=1>
+relator  <j=7, l=1, n=6, o=7>
+dressing <n=7, o=1> = [[sigma,x0],U] at slot sigma -> shift (0, 0, 0, 0, 0, 1)
+covectors [(1, 0, 0, 0, 1), (0, 1, 1, 1, 1), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 1, 1, 0)]

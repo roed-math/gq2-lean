@@ -1,0 +1,9 @@
+$ python3 find_sep3.py 31 1500 0.3 1
+  (this is the search that produced the committed marking `sepMark`)
+
+hits 41 of 1500
+weight 29
+letters  <a=1, c=1, h=1> | <a=1> | <a=2> | <d=1, e=1, g=1, m=1, n=1> | <a=1, i=1, k=1, n=1>
+relator  <j=7, o=7>
+dressing <l=1, m=1> = [[sigma,U],U] at slot V -> shift (0, 0, 0, 0, 0, 7)
+covectors [(0, 0, 0, 0, 1), (0, 0, 0, 0, 1), (0, 0, 0, 0, 0), (1, 0, 0, 0, 1), (0, 0, 0, 1, 0)]
