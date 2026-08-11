@@ -5,6 +5,44 @@ general-`K` program and needs a decision; items 2–6 are statement or documenta
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
 on the forward side.
 
+## Status at wave 63 (2026-08-11)
+
+**Two routes we had been carrying as open are now closed, and one of them was closed by finding
+out that a thing we believed was simply not true.** Last wave I reported that the gamma-2 route
+was closed in its parity form. I sent a lane to try the remaining form of it, phrased on
+centrality rather than on parity. That form is not merely unprovable, it is false: at the very
+point our committed exclusions are stated at, there is a legitimate dressing that kills the frame
+outright. So the route is refuted by counterexample rather than left undecided, and we will not
+return to it. Nothing we have published is affected, and the lane proved that rather than
+asserting it.
+
+**The correction is the part worth your attention.** Wave 62 reported that both of our committed
+class-five witnesses were blind to the handle-block instrument. They are not. That claim came
+from computing the instrument on two pairs of elements and then describing the result as a
+property of the points; a third pair, never computed, is live at both of them. The four theorems
+involved are all true as written, so nothing in the library is wrong, but a paragraph of
+commentary was wrong and it had already sent one of this wave's four lanes off on a charter built
+on it. I caught it when the lane that found it landed, relayed the correction to the affected
+lane while it was still working, and had that lane's write-up reconciled before merging it. The
+lane also left two small tools that make the whole class of claim safe to state in future.
+
+**The four stubborn markings moved a long way, though they are still not proved.** For two waves
+they have resisted, and last wave we diagnosed the resistance as the forcing needing to read a
+lattice too finely for our language. That diagnosis turns out to have been about the wrong object:
+the standard technique for bounding these lattices drags in a larger subgroup that is not actually
+needed, and all three impossibility measurements were about that larger subgroup. Removing it
+lands the exact bound at all four markings. What remains is one arithmetic identity, measured
+exhaustively on the relevant set and reduced to bookkeeping with two routes written out. I expect
+a later wave to finish it. The general tool that came out of this is likely to be worth more than
+the four markings themselves.
+
+**On models.** You asked for Opus only and for the Fable-scoped ticket to be skipped rather than
+converted. It was skipped. `Hfam`, and with it the entire even route, is untouched by this wave
+and still waiting.
+
+Nothing here needs a decision from you. Items 1 and 6 below are unchanged, and the d-1 question
+stays parked.
+
 ## Status at wave 62 (2026-08-10)
 
 **The route I said last wave was cheap to widen is closed, and that is the wave's most useful
