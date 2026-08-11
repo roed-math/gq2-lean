@@ -1,5 +1,24 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 65 (2026-08-11)
+
+**Open, still yours (unchanged):** the standing items below.  Nothing new needs a decision.
+
+**For orientation, the wave's headline:** the ticket held for Fable through eleven waves is
+settled, and the answer is structural.  `Hfam` is constructed outright on both model cores
+(census-free), and at every real field it is proved EQUIVALENT to the even oriented
+equivalence itself, so the even route's last carried supply was the classification one
+station earlier.  The honest remaining content of the whole even route is one arithmetic
+statement per branch, `EvenFamParitySupply` (mod-2 twisted-cocycle surjectivity, higher
+Kummer theory), proved equivalent to the endpoint, with two attack routes named in
+`docs/dyadic/w65-hfam-note.md`.  On the `h >= 1` side: class five is now the SHARP top
+class at which the sigma separation forces a handle (class six refuted by mechanism); the
+census criterion's horn 1 is closed with its recorded form corrected (the census verdict
+now needs only achievability); the force lattice bounds are exact with a decidable
+achievability test.  Final state `c98a85db`: 4310 jobs green, census 11, zero sorries,
+capstones frozen.  The wave also retired all 25 audited commentary defects from wave 64
+(comment-only edits, code proved byte-identical).
+
 Six items surfaced during the wave. Item 1 is a genuine mathematical constraint on the
 general-`K` program and needs a decision; items 2–6 are statement or documentation defects
 with recommended fixes. Nothing here blocks the odd-degree L row, which is now unconditional
