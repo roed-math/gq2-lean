@@ -35,6 +35,10 @@ already trusts, one index wider.
 group, its coordinate projections, and decidable equality.
 -/
 
+namespace GQ2
+
+namespace Dyadic
+
 namespace SqCore
 
 /-! ## 1 The class-six test group `SqU7 R` -/
@@ -310,6 +314,47 @@ instance : Group (SqU7 R) where
       one_e14, one_e25, one_e36, one_e47, one_e15, one_e26, one_e37, one_e16, one_e27, one_e17
       ] <;> ring
 
+/-! ## 2 Finiteness, the discrete topology, and pro-`2`-ness
+
+Transposed from `SqU6`'s block (`GradedFive.lean` section 3): the same six declarations with
+`15` replaced by `21`.  They exist so that a relator-killing marking into `SqU7` classifies a
+continuous homomorphism through `sqLiftHom`, which needs `IsProP 2`. -/
+
+/-- The underlying twenty-one-tuple, as an equivalence. -/
+def equivProd : SqU7 R ≃
+    R × R × R × R × R × R × R × R × R × R × R × R × R × R × R × R × R × R × R × R × R where
+  toFun p := (p.e12, p.e23, p.e34, p.e45, p.e56, p.e67, p.e13, p.e24, p.e35, p.e46, p.e57, p.e14,
+    p.e25, p.e36, p.e47, p.e15, p.e26, p.e37, p.e16, p.e27, p.e17)
+  invFun v := ⟨v.1, v.2.1, v.2.2.1, v.2.2.2.1, v.2.2.2.2.1, v.2.2.2.2.2.1, v.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1, v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1,
+    v.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+instance [Finite R] : Finite (SqU7 R) := Finite.of_equiv _ equivProd.symm
+
+/-- The cardinality of the class-six test group. -/
+theorem nat_card [Finite R] : Nat.card (SqU7 R) = Nat.card R ^ 21 := by
+  rw [Nat.card_congr equivProd,
+    Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod,
+    Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod,
+    Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod,
+    Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod, Nat.card_prod]
+  ring
+
+instance : TopologicalSpace (SqU7 R) := ⊥
+
+instance : DiscreteTopology (SqU7 R) := ⟨rfl⟩
+
+/-- **The class-six test group is pro-2** whenever the coefficient ring is a finite 2-ring:
+its order is `(#R)^21`. -/
+theorem isProP_two [Finite R] {mm : ℕ} (hR : Nat.card R = 2 ^ mm) : IsProP 2 (SqU7 R) :=
+  isProP_of_isPGroup (IsPGroup.of_card (n := 21 * mm) (by rw [nat_card, hR, ← pow_mul, mul_comm]))
+
 /-- The twenty-one coordinates of a `SqU7` element determine triviality. -/
 theorem eq_one_iff {p : SqU7 R} :
     p = 1 ↔ p.e12 = 0 ∧ p.e23 = 0 ∧ p.e34 = 0 ∧ p.e45 = 0 ∧ p.e56 = 0 ∧ p.e67 = 0 ∧ p.e13 = 0 ∧
@@ -331,3 +376,7 @@ end SqU7
 end U7Group
 
 end SqCore
+
+end Dyadic
+
+end GQ2

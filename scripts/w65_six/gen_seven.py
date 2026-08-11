@@ -53,6 +53,10 @@ already trusts, one index wider.
 group, its coordinate projections, and decidable equality.
 -/
 
+namespace GQ2
+
+namespace Dyadic
+
 namespace SqCore
 
 /-! ## 1 The class-six test group `SqU7 R` -/
@@ -66,6 +70,37 @@ structure SqU7 (R : Type) [CommRing R] where
 '''
 
 FOOTER = '''
+/-! ## 2 Finiteness, the discrete topology, and pro-`2`-ness
+
+Transposed from `SqU6`'s block (`GradedFive.lean` section 3): the same six declarations with
+`15` replaced by `21`.  They exist so that a relator-killing marking into `SqU7` classifies a
+continuous homomorphism through `sqLiftHom`, which needs `IsProP 2`. -/
+
+/-- The underlying twenty-one-tuple, as an equivalence. -/
+def equivProd : SqU7 R ≃
+    %(prodty)s where
+  toFun p := (%(tofun)s)
+  invFun v := ⟨%(invfun)s⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+instance [Finite R] : Finite (SqU7 R) := Finite.of_equiv _ equivProd.symm
+
+/-- The cardinality of the class-six test group. -/
+theorem nat_card [Finite R] : Nat.card (SqU7 R) = Nat.card R ^ 21 := by
+  rw [Nat.card_congr equivProd,
+    %(cardprod)s]
+  ring
+
+instance : TopologicalSpace (SqU7 R) := ⊥
+
+instance : DiscreteTopology (SqU7 R) := ⟨rfl⟩
+
+/-- **The class-six test group is pro-2** whenever the coefficient ring is a finite 2-ring:
+its order is `(#R)^21`. -/
+theorem isProP_two [Finite R] {mm : ℕ} (hR : Nat.card R = 2 ^ mm) : IsProP 2 (SqU7 R) :=
+  isProP_of_isPGroup (IsPGroup.of_card (n := 21 * mm) (by rw [nat_card, hR, ← pow_mul, mul_comm]))
+
 /-- The twenty-one coordinates of a `SqU7` element determine triviality. -/
 theorem eq_one_iff {p : SqU7 R} :
     p = 1 ↔ %(conj)s := by
@@ -83,6 +118,10 @@ end SqU7
 end U7Group
 
 end SqCore
+
+end Dyadic
+
+end GQ2
 '''
 
 
@@ -160,7 +199,15 @@ def main():
                          "] <;> ring\n"))
 
     conj = " ∧ ".join(f"p.{FIELD[rc]} = 0" for rc in ORDER)
+    n = len(ORDER)
+    proj = ["v" + ".2" * i + (".1" if i < n - 1 else "") for i in range(n)]
     L.append(FOOTER % {
+        "prodty": wrap_expr(" × ".join(["R"] * n), width=90, lead="    "),
+        "tofun": wrap_expr(", ".join(f"p.{FIELD[rc]}" for rc in ORDER), width=88,
+                           lead="    "),
+        "invfun": wrap_expr(", ".join(proj), width=88, lead="    "),
+        "cardprod": wrap_expr(", ".join(["Nat.card_prod"] * (n - 1)), width=88,
+                              lead="    "),
         "conj": wrap_conj(conj),
         "rfls": wrap_expr(", ".join(["rfl"] * len(ORDER)), width=88, lead="      "),
         "names": wrap_expr(", ".join(f"h{FIELD[rc]}" for rc in ORDER), width=88,
