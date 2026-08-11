@@ -739,6 +739,7 @@ import GQ2.Dyadic.SqCore.GradedBlockFrame
 import GQ2.Dyadic.SqCore.GradedGammaTwoPoint
 import GQ2.Dyadic.SqCore.GradedStageSeparate
 import GQ2.Dyadic.SqCore.GradedGammaTwoCentral
+import GQ2.Dyadic.SqCore.GradedBlockSecond
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
