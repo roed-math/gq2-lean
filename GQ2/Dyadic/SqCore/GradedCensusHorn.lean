@@ -105,14 +105,22 @@ coincidence of the slot, not an identity.
 
 ## PROVED versus MEASURED
 
+⚠ **One localised budget bump**, `set_option maxHeartbeats 400000` on `censHorn_row_o` alone:
+the `207`-monomial `ring` call does not fit the default `200000`, and `300000` is the measured
+floor.  `GradedGammaTwoCensus` carries the same bump on its two commutator identities and a
+larger one on `sqWord_mul_censKnob`, so this is the file family's own minimum tier and nothing
+else in this file raises anything.
+
 **PROVED** here, with no `sorry`, no new axiom, no `native_decide`: the row identity over any
 commutative ring; that the relator's abelian rows force the `x1` columns; that the diagonal
 frame's relator IS the residue when the bare frame kills; horn 1; the verdict; and both
 counterexamples (`decide` on `ZMod 8`).
 
-**MEASURED** (`scripts/w65_horn1/results/`): that the gauge cannot be dropped, by sampling; and
-the shape of the correction at a general slot (`17` odd monomials under `stageN1` alone, `8`
-under the tree's committed `x0` gauge, `0` under the gauge used here).
+**MEASURED** (`scripts/w65_horn1/results/`, `38` named checks): the shape of the correction at a
+general slot, namely `17` odd monomials under `stageN1` alone, of which `6` do NOT carry the
+gearing; `8` under the tree's committed `x0` gauge; and `2` under the gauge used here, both
+carrying the gearing, which is why the row factors.  Also the sampling behind headline 4, and
+the emitted witness compared line for line against `censHornWit` above.
 
 **NOT proved, and not claimed**: achievability, which remains exactly as measured in W64;
 that the family's other two knobs have odd gearings (this file speaks only of the sigma knob);
@@ -360,7 +368,7 @@ def censHornWit (s x y : SqU6 R) (sa sc se xa xc ya yb yc yd ye : R) : R :=
     + 48 * xa * yb * yc * yd * ye
     + 48 * xc * ya * yb * yd * ye
 
-set_option maxHeartbeats 2000000 in
+set_option maxHeartbeats 400000 in
 /-- ⭐⭐⭐ **THE `(1,6)` ROW OF THE DIAGONAL RESIDUE, IN CLOSED FORM.**  Over **any** commutative
 ring, with the sigma letter's `(1,2)`, `(3,4)` and `(5,6)` columns even, the `x0` letter's
 `(1,2)` and `(3,4)` columns even (`stageN1`) and the `x1` letter's five abelian columns even,
