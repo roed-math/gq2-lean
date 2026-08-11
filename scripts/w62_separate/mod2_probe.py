@@ -10,6 +10,15 @@ This script computes, at each gap marking:
   * the mod-2 image `V2` of the achievable lattice and the functionals killing it;
   * whether restricting the tuple lattice to `{v : v mod 2 in V2}` forces the implication;
   * the same for the mod-4 image, the next shape up.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import os

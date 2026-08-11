@@ -16,6 +16,17 @@ Sections
   5. sharpness: the achievable gamma_4-lattice is EXACTLY the even lattice, so the Lean
      span is neither too small (the forcing would be vacuous) nor too large;
   6. cross-checks against wave 58's measured closed form and against the class-four files.
+
+BRACKET CONVENTION.  [PAPER-RAW]
+This script builds RAW nested bracket sets, and its Lean target is written with commP,
+so the paper convention is the right one to compute.  Raw bracket sets are the only
+computations in this tree that can be wrong about the convention: check this line
+before repointing the script at a [.,.]-written statement.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys
 import os

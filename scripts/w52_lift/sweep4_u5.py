@@ -1,4 +1,27 @@
 #!/usr/bin/env python3
+"""sweep4_u5.py.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
+"""
+
+"""sweep4_u5.py.
+"""
+
+"""sweep4_u5.py.
+"""
+
+"""sweep4_u5.py.
+"""
+
+"""sweep4_u5.py.
+"""
+
 """W52-LIFT step 5: the live-locus engine, focused.
 
 On the class-3 live locus (B*D odd, the committed hypothesis shape), with the

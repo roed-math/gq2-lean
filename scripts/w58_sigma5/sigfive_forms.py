@@ -5,6 +5,14 @@ slot values.  Do not edit by hand; rerun the deriver.
 Each row is a tuple of (coefficient, [(slot, coord), ...]) monomials with slot 0 = v (the
 sigma dressing), 1 = x (the x0 slot), 2 = y (the x1 slot), and coord the index into
 u6lib.COORDS.  `apply(name, v, x, y)` evaluates one.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 ROWS = {}

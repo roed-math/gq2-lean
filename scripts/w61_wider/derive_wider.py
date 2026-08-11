@@ -17,6 +17,15 @@ Sections
   3. the core word under a three-slot `gamma_2`-dressing, split into blocks;
   4. the collection term (core shift past handle word) and the assembled relator shift;
   5. sanity: the `gamma_3` specialisation reproduces `GradedFiveStageFour`.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys
 import os

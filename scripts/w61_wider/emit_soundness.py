@@ -3,6 +3,15 @@
 Each lemma below says "this block is even on the achievable lattice", and its proof is
 `refine <half>, by rw [...]; ring` where `<half>` is the exact integer half computed in
 `parity_blocks.py`.  Nothing is guessed and nothing is hand-transcribed.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys
 import os

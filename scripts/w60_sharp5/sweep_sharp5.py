@@ -22,6 +22,14 @@ At each admissible marking four verdicts are compared:
 
 The claim under test is `SHARP <-> not KILL`, and the question the wave asked is how many
 markings have `not W59-CONS` (or `not W59-HYP`) together with `not KILL`.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import itertools

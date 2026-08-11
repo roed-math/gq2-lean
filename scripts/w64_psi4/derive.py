@@ -17,6 +17,14 @@ Step 3 is the safeguard: if `psilib`'s transcription of `gaThreeCore`, `gaThreeC
 `gaThreePair` or `gaThreeHandle` were wrong, or if the Lean letters were not the measured
 letters, the emitted witness would still be internally consistent but would disagree with the
 honest matrices, and the check fails.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import os

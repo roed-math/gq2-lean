@@ -18,6 +18,18 @@ through wave 61's `sharp4lib`:
      forcing;
   7  the wave-61 and wave-62 verdicts, re-run: no achievable dressing kills, the parity line
      fails, the sharp line holds.
+
+BRACKET CONVENTION.  [MATHLIB]
+WARNING: the Lean target of this script is written with MATHLIB's bracket, not with
+commP.  Any raw bracket set computed here must be computed in mathlib's convention.
+The target is GQ2/Dyadic/SqCore/GradedStageFour.lean, whose gapOneABr .. gapTwoBBr
+are [[L a, L b], L c] in mathlib's bracket.
+
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import fourlib as F

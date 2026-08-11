@@ -11,6 +11,15 @@ point, to the wave-55/56 standard.
   D. the kill sweep: no achievable five-slot refinement kills the odd-dressing frame, and the
      even one dies;
   E. achievability is load-bearing: unrestricted gamma_3 moves DO kill the odd dressing.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys, os, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

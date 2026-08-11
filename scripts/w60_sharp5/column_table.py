@@ -14,6 +14,14 @@ The output is the table in the file docstring of `GQ2/Dyadic/SqCore/GradedFiveNe
 the `c`-row is `GradedFiveForce.forceLcs_three_le_forceN4` and the `e`-row is
 `GradedFiveNecessity.forceLcs_three_le_fiveEvenN`, both theorems.  The other three rows are
 this computation and nothing else.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import itertools

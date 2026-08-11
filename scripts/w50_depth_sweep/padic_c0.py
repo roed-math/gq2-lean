@@ -9,6 +9,14 @@ Committed cross-checks (Cores.lean docstring):   X = 5, S = 13, Y = 7   (mod 16)
 Extra check: Y^2 = X^4 (YvalUnit_sq_eq), which is the abelian collapse of the relator.
 
 Everything is plain integer arithmetic modulo 2^N; no dependencies.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 N = 160                       # working precision, bits

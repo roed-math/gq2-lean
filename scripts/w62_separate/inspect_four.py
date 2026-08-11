@@ -13,6 +13,14 @@ this script rebuilds them from the recorded letters and checks, independently:
   * `modlow`: the mod-2 span candidate wave 61 reported at 0 of 1650.
 
 Everything runs on wave 59's honest 6 x 6 matrix library through wave 61's `sharp4lib`.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 import os

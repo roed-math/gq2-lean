@@ -5,6 +5,16 @@ committed Lean fact the question touches, (b) derives the increment's parity clo
 the sharp criterion, and (c) certifies the two W59 witness markings.
 
 Run:  python3 derive_necessity.py            (writes results/derive_necessity.txt)
+
+BRACKET CONVENTION.  [IMMUNE]
+This script only ever sifts brackets into a closure, which is convention-IMMUNE (the
+generated subgroup is the same in either convention), so nothing here depends on the
+choice.  Its Lean target is written with commP.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 

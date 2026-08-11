@@ -10,6 +10,14 @@ odd because `U.a` and `x1.h` are both odd.  `x1.h` cannot be made even: the resi
 parity is `x0.a * x1.g * x1.i + x0.e * x1.f * x1.h`, and on the gauge (`x0.a` even, `x0.e` odd)
 an odd residue FORCES `x1.f` and `x1.h` odd.  So the lever is `U.a`.  This script varies it,
 and the `x0` slot's own columns, re-solving the `x1` slot each time with the two-sided cascade.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import sys
 import os

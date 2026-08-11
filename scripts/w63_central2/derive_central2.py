@@ -14,6 +14,16 @@ Sections
   6  wave 62's odd-channel witness is NOT central: the two lines are separated
   7  the gamma_2 shift is not a homomorphism of the dressing tuple
   8  the general mechanism: the sigma slot's class-four coordinate against `x0.e`
+
+BRACKET CONVENTION.  [IMMUNE]
+This script only ever sifts brackets into a closure, which is convention-IMMUNE (the
+generated subgroup is the same in either convention), so nothing here depends on the
+choice.  Its Lean target is written with commP.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import random

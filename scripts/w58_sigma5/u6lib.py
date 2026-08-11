@@ -27,6 +27,15 @@ Class filtration: gamma_2 = {a..e = 0}, gamma_3 = gamma_2 and {f..i = 0},
 gamma_4 = gamma_3 and {j,k,l = 0}, gamma_5 = the centre = {only o}.
 
 All arithmetic is plain Python integers reduced mod N (default 8); no external packages.
+
+BRACKET CONVENTION.  [PAPER]
+This script computes brackets in the paper convention, and its Lean target is written
+with commP, the same convention.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 N = 8

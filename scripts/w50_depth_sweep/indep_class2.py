@@ -17,6 +17,14 @@ This file re-derives, with no group-theory library at all:
   * the level-one survivor set of the class-two balance gate,
   * the forced x0-slot dressing  a1 = U^-s V^t  (GradedTwo S6),
   * the GL_2(F_2) structure of the handle block.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 
 from itertools import product

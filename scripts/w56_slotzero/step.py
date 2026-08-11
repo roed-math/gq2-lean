@@ -1,4 +1,27 @@
 #!/usr/bin/env python3
+"""step.py.
+
+BRACKET CONVENTION.  [NONE]
+This script computes no commutators, so the convention does not arise.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
+"""
+
+"""step.py.
+"""
+
+"""step.py.
+"""
+
+"""step.py.
+"""
+
+"""step.py.
+"""
+
 """W56-SLOTZERO: exhaustive check of the two-adic step and of the slot-zero arithmetic.
 
 Three checks, all exhaustive over the relevant residues.

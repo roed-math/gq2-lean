@@ -13,6 +13,16 @@ gamma_2 shift read off the relator (`scripts/w63_central2/centrallib.py`), and t
 lattices by exact polycyclic sift.  Nothing is transcribed from an emitted closed form.
 
 Run: `python3 scripts/w64_verify/task_b_live5_kill.py`
+
+BRACKET CONVENTION.  [IMMUNE]
+This script only ever sifts brackets into a closure, which is convention-IMMUNE (the
+generated subgroup is the same in either convention), so nothing here depends on the
+choice.  Its Lean target is written with commP.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os
 import random

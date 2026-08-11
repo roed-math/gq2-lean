@@ -6,6 +6,17 @@ filtration layer `gamma_3`.  Among those the search wants an ODD class-four `j` 
 class-three obstruction) and an ODD class-five residue (so the forcing's conclusion is false
 and `StageForces` has its full content), together with a double-commutator dressing pairing
 oddly (the parity line fails).
+
+BRACKET CONVENTION.  [PAPER-RAW]
+This script builds RAW nested bracket sets, and its Lean target is written with commP,
+so the paper convention is the right one to compute.  Raw bracket sets are the only
+computations in this tree that can be wrong about the convention: check this line
+before repointing the script at a [.,.]-written statement.
+Paper convention: commP x y = x^-1 y^-1 x y (GQ2/Words.lean:59, and every python commP
+in scripts/).  Mathlib convention: [x, y] = x y x^-1 y^-1.  They are DIFFERENT families,
+[x, y]_mathlib = commP x^-1 y^-1 (GradedFiveForce.commutatorElement_eq_commP), so a
+paper-convention computation certifies a commP-written Lean statement and MIS-certifies a
+[.,.]-written one.  Normal-closure and subgroup sifts are convention-IMMUNE.
 """
 import os, random, sys, itertools
 HERE = os.path.dirname(os.path.abspath(__file__))
