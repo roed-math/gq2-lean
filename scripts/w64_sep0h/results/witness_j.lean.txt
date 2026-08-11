@@ -1,0 +1,10 @@
+    2 * (x.a * x.g)
+    - x.a * y.g
+    + 2 * (x.c * x.f)
+    - x.c * y.f
+    - s.b * x.a * x.c
+    + s.c * x.a * x.b
+    - 10 * (x.a * x.b * x.c)
+    - 4 * (ya * yc * x.b)
+    + 8 * (yb * x.a * x.c)
+    + 8 * (yc * x.a * x.b)

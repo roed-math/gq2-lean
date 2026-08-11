@@ -1,0 +1,51 @@
+W64-SEP0H: the class-five sigma separation at h = 0
+======================================================================================
+
+1.  The coordinate law against honest integer 6 x 6 matrices
+  [ok] coordinate law = matrix arithmetic : 2400 comparisons, 0 mismatches
+
+2.  The a0 = a1 response, symbolically over Z
+  [ok] nine rows a..i of the response vanish over Z : identically, no hypothesis, over any commutative ring
+     response term counts over Z: j=6, k=6, l=6, m=41, n=41, o=202
+  [ok] the core word's class-five row has 250 terms over Z
+
+3.  Cross-check: wave 58's closed form, rederived
+  [ok] sigFiveRead(x, x, y) = x_12 y_24 y_46 + x_56 y_13 y_35 (mod 2) at sigma = E_23, on the relator's abelian rows alone : xa*yg*yi + xe*yf*yh
+     (docs/dyadic/w58-sigma5-note.md section 3.1, reproduced from scratch)
+  [ok] ...and the GENERAL sigma slot carries strictly more : 42 monomials mod 2 at a general sigma slot, against 2 at E_23
+
+4.  THE ROW EXPANSION, and its exact witnesses
+  [ok] the response row j is the stated row combination plus an even remainder : 10 monomials, witness 10 terms
+  [ok] the response row k is the stated row combination plus an even remainder : 10 monomials, witness 10 terms
+  [ok] the response row l is the stated row combination plus an even remainder : 10 monomials, witness 10 terms
+  [ok] the response row m is the stated row combination plus an even remainder : 52 monomials, witness 52 terms
+  [ok] the response row n is the stated row combination plus an even remainder : 52 monomials, witness 52 terms
+  [ok] the response row o is the stated row combination plus an even remainder : 230 monomials, witness 230 terms
+
+5.  The gauge collapse
+  [ok] on the class-two-forced gauge only x_56 * (1,5) and x_14 * (4,6) survive : 149 monomials, witness 149 terms
+  [ok] the collapse consumes 'xa even' : 13 monomials survive without it
+  [ok] the collapse consumes 'xc even' : 2 monomials survive without it
+  [ok] the collapse consumes 'xf even' : 5 monomials survive without it
+  [ok] the collapse consumes 'xg even' : 1 monomials survive without it
+  [ok] the collapse consumes 'ya even' : 2 monomials survive without it
+  [ok] the collapse consumes 'yb even' : 1 monomials survive without it
+  [ok] the collapse consumes 'yc even' : 1 monomials survive without it
+  [ok] the collapse consumes 'yd even' : 2 monomials survive without it
+  [ok] the collapse consumes 'ye even' : 2 monomials survive without it
+  [ok] the collapse consumes 'x_23 = 0' : sa*xb*xl + sa*sc*xb*xi
+  [ok] the collapse does NOT need 'xd even' : the x0 slot's fourth and fifth abelian columns are free
+  [ok] the collapse does NOT need 'xe even' : the x0 slot's fourth and fifth abelian columns are free
+
+6.  Numeric certification of every emitted witness, exactly over Z
+  [ok] witness for row j exact over Z : 1500 points, 0 mismatches
+  [ok] witness for row k exact over Z : 1500 points, 0 mismatches
+  [ok] witness for row l exact over Z : 1500 points, 0 mismatches
+  [ok] witness for row m exact over Z : 1500 points, 0 mismatches
+  [ok] witness for row n exact over Z : 1500 points, 0 mismatches
+  [ok] witness for row o exact over Z : 1500 points, 0 mismatches
+  [ok] witness for the gauge collapse exact over Z : 1500 points, 0 mismatches
+     seven Lean witnesses written to /Users/roed/claude/cla/worktrees/w64-sep0h/scripts/w64_sep0h/results
+
+======================================================================================
+31 / 31 named checks passed, 0 failures
