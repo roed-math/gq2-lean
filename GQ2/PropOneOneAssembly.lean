@@ -37,8 +37,8 @@ open scoped Classical
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open SectionThree
 
@@ -177,31 +177,40 @@ open SectionThree PropOneOne
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+include lit in
 /-- The B3c dyadic-orientation bundle (a fixed witness of the axiom `LiteratureInputs.dyadicOrientation`). -/
 noncomputable def orientBundle : DyadicOrientation := LiteratureInputs.dyadicOrientation
 
+include lit in
 /-- `χ` transported to `D₀^{ab}`: `chiD0 (abMk d) = chiTwo (equiv.symm d)`.  Its generator values
 are `(−1, 1, (−3)⁻¹)` (`orientBundle.chi_A/S/Y`). -/
 noncomputable def chiD0 : ContinuousMonoidHom (topAbelianization (D0 : Type)) ℤ_[2]ˣ :=
   abDescend ⟨orientBundle.chiTwo.comp orientBundle.equiv.symm.toMulEquiv.toMonoidHom,
     orientBundle.continuous_chiTwo.comp orientBundle.equiv.symm.continuous_toFun⟩
 
+include lit in
 /-- `χ` on `G_{ℚ₂}(2)^{ab}`: `chiG (abMk h) = chiTwo h`. -/
 noncomputable def chiG :
     ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) ℤ_[2]ˣ :=
   abDescend ⟨orientBundle.chiTwo, orientBundle.continuous_chiTwo⟩
 
+include lit in
 @[simp] private lemma chiD0_abMk (d : (D0 : Type)) :
     chiD0 (abMk d) = orientBundle.chiTwo (orientBundle.equiv.symm d) := rfl
 
+include lit in
 @[simp] private lemma chiG_abMk (h : (maxProPQuotient 2 AbsGalQ2 : Type)) :
     chiG (abMk h) = orientBundle.chiTwo h := rfl
 
+include lit in
 private lemma chiD0_A : chiD0 (abMk d0A) = -1 := orientBundle.chi_A
+include lit in
 private lemma chiD0_S : chiD0 (abMk d0S) = 1 := orientBundle.chi_S
+include lit in
 private lemma chiD0_Y (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ :=
   orientBundle.chi_Y y hy
 
+include lit in
 /-- `χ_G ∘ markedPi = chiCycAb`: the cyclotomic values agree with `markedPi`'s reciprocity classes
 (via `chiTwo_factors`). -/
 lemma chiG_markedPi (x : AbsGalQ2ab) : chiG (markedPi x) = chiCycAb x := by
@@ -209,6 +218,7 @@ lemma chiG_markedPi (x : AbsGalQ2ab) : chiG (markedPi x) = chiCycAb x := by
   show chiG (markedPi (toAb g)) = chiCycAb (toAb g)
   rw [markedPi_toAb, chiG_abMk, orientBundle.chiTwo_factors, chiCycAb_toAb]
 
+include lit in
 /-- `chiD0 ∘ (topAbCongr equiv) = chiG`. -/
 lemma chiD0_equivAb (w : topAbelianization (maxProPQuotient 2 AbsGalQ2)) :
     chiD0 (topAbCongr orientBundle.equiv w) = chiG w := by
@@ -293,6 +303,7 @@ lemma chiCycAb_recip_unitNeg3 : chiCycAb (R.recip unitNeg3) = unitNegThree⁻¹ 
 
 /-! ### Proposition 1.1 -/
 
+include lit in
 /-- **Proposition 1.1.**  A marked isomorphism `e : G_{ℚ₂}(2) ≅ D₀` with unramified
 coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.  Assembled from B3c (`orientBundle.equiv`), Lemma 3.5
 (`lemma_3_5_marked_abelianization`, using `markedHom_bijective`),

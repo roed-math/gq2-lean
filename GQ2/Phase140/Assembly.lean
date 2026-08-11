@@ -31,9 +31,6 @@ All source-generic; the per-source leaves discharge the residues.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 open AffineTLift CentralObstruction ContCoh

@@ -35,8 +35,8 @@ budget (B6 via the `D` parameter, B7).
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionEight
 
@@ -247,6 +247,7 @@ theorem exists_smul_ne_of_card (hsimple : ∀ W : AddSubgroup V,
   omega
 
 omit [DiscreteTopology C] [Finite C] in
+include lit in
 /-- The signed-sum extraction shared by both cases: with `zeroCount(Q⁰_loc)` and
 `#H¹ = 2^{2m}` known, `∑ᶠ sign(Q⁰_loc) = 2·zeroCount − 2^{2m}`. -/
 theorem finsum_sign_eq (D : TateDuality 2) (dat : FactorSet C V)
@@ -271,6 +272,7 @@ theorem finsum_sign_eq (D : TateDuality 2) (dat : FactorSet C V)
         push_cast
         ring
 
+include lit in
 /-- **The pinned local Gauss value, unramified** (the Prop. 8.9 assembly (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = −2^m` — `prop_6_18_unramified`'s zero count through `gaussSum_eq`. -/
 theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
@@ -305,6 +307,7 @@ theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
   push_cast [Nat.cast_sub hle]
   linarith [e1, e2]
 
+include lit in
 /-- **The pinned local Gauss value, ramified** (the Prop. 8.9 assembly (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = +2^m` — `prop_6_18_ramified`'s zero count through `gaussSum_eq`. -/
 theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)

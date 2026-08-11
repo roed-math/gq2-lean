@@ -74,8 +74,8 @@ namespace GQ2
 
 open ContCoh
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
@@ -251,6 +251,7 @@ section CupLedger
 variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
   (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
+include lit in
 /-- The norm-form direction of the **B11** criterion, applied: an explicit representation
 `b = x² − a y²` kills the symbol.  This consumes **B11a** directly rather than the bundled
 `dyadicNormCriterion`, so the axiom trace is std-3 ∪ {B11a} without the unused B11b clause. -/
@@ -259,16 +260,19 @@ theorem cup_of_normForm (a b : (↥k)ˣ) (x y : ↥k)
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
   (lit.hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
 
+include lit in
 /-- `(a, −a) = 0` — the norm form represents `−a` as `0² − a·1²`. -/
 theorem cup_neg_self (a : (↥k)ˣ) :
     kummerClassK k a ⌣[htriv] kummerClassK k (-a) = 0 :=
   cup_of_normForm k htriv a (-a) 0 1 (by rw [Units.val_neg]; ring)
 
+include lit in
 /-- Steinberg `(a, 1−a) = 0` — the norm form represents `1 − a` as `1² − a·1²`. -/
 theorem cup_steinberg (a b : (↥k)ˣ) (hab : (b : ↥k) = 1 - (a : ↥k)) :
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
   cup_of_normForm k htriv a b 1 1 (by rw [hab]; ring)
 
+include lit in
 /-- `(2, −1) = 0` — `−1 = 1² − 2·1²` (the paper's `2 = N_{k(i)/k}(1+i)` step, replaced by the
 explicit dyadic representation; cf. the B11 docstring). -/
 theorem cup_two_neg_one :
@@ -277,6 +281,7 @@ theorem cup_two_neg_one :
     simp only [Units.val_neg, Units.val_one, twoUnit, Units.val_mk0]
     ring)
 
+include lit in
 /-- `(a, a) = (a, −1)` (derived: `0 = (a, −a) = (a, −1) + (a, a)` + 2-torsion). -/
 theorem cup_self_eq_neg_one (a : (↥k)ˣ) :
     kummerClassK k a ⌣[htriv] kummerClassK k a
@@ -289,6 +294,7 @@ theorem cup_self_eq_neg_one (a : (↥k)ˣ) :
     neg_eq_of_add_eq_zero_left (h2_add_self
       (kummerClassK k a ⌣[htriv] kummerClassK k a))]
 
+include lit in
 /-- Unramified unit-norm vanishing: if `k(δa)/k` has equal norm value groups then every unit
 symbol `(a, u)` dies — the **B11** clause-2 consumer. -/
 theorem cup_unramified_unit (a : (↥k)ˣ) (δa : ℚ̄₂)
@@ -548,6 +554,7 @@ private lemma kummerClassK_eq_of_sq_ratio (k : IntermediateField ℚ_[2] ℚ̄�
   rw [hnp, kummerClassK_mul, kummerClassK_mul_self, add_zero]
 
 set_option maxHeartbeats 300000 in
+include lit in
 /-- Step 5 of the ledger: for `[n] = [p]` with `p = 2u − 1`, Steinberg (`(2u, 1−2u) = 0`) and
 `(2, −1) = 0` give `(2, n) + (u, n) = (u, −1)`. -/
 private lemma cup_two_add_cup_eq_cup_neg_one (k : IntermediateField ℚ_[2] ℚ̄₂)
@@ -573,6 +580,7 @@ end LedgerHelpers
 /-! ## Tier 4: the assembled ledger -/
 
 set_option maxHeartbeats 300000 in
+include lit in
 /-- **The Hilbert ledger** (paper, proof of Lemma 6.16; eqs. (111)–(114)) in the B9-native
 vocabulary: for a deep unit `a = u + vδ = 1 + 2b` (`‖b‖ < 1`) over the unramified quadratic
 Kummer datum `(d, δ)`, the index-two Evens norm of its Kummer cocycle vanishes.
@@ -898,6 +906,7 @@ theorem normForm_of_mid (a b : ↥k)
 
 variable (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
+include lit in
 /-- **Eq. (94), deep ⟂ deep** (the deep-part proof's isotropy `hiso` and the Lemma 6.17 vanishing proof's free-orbit leaf): the
 symbol of two deep units vanishes.  std-3 ∪ {B11a}. -/
 theorem cup_deep_deep (a b : (↥k)ˣ)
@@ -907,6 +916,7 @@ theorem cup_deep_deep (a b : (↥k)ˣ)
   obtain ⟨x, y, hxy⟩ := normForm_of_deep k (a : ↥k) (b : ↥k) ha hb
   exact cup_of_normForm k htriv a b x y hxy
 
+include lit in
 /-- **Eq. (94), mid ⟂ deep** — `(U_e, U_{e+1}) = 1` (the deep-part proof's `hsharp` inclusion input): the
 symbol of a MID unit against a deep unit vanishes.  std-3 ∪ {B11a}. -/
 theorem cup_mid_deep (a b : (↥k)ˣ)

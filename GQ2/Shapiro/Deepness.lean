@@ -33,8 +33,8 @@ Axioms: B9, B11a (through `cup_deepClasses`/(94)).
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace ShapiroDeepness
 
@@ -49,6 +49,7 @@ theorem H2ofFun_eq_zero_of_H2mk {φ : G × G → ZMod 2} (hZ2 : φ ∈ Z2 G (ZMo
     (h0 : H2mk G (ZMod 2) ⟨φ, hZ2⟩ = 0) : H2ofFun G φ = 0 := by
   rwa [H2ofFun_of_mem hZ2]
 
+include lit in
 /-- **The deep-class cup vanishing** (the Lemma 6.17 vanishing proof, the square/free `hvanish` core): if two scalar
 cocycles `a, b` over `k.fixingSubgroup` have **deep** classes, their cup 2-cochain
 `α ⌣ β` has trivial `H²ofFun` class.  Composes the eq.-(94) orthogonality
@@ -171,6 +172,7 @@ end ReindexQ0loc
 
 section InvolutionAssembly
 
+include lit in
 /-- **The involution-orbit `hvanish`, assembled from `lemma_6_16`** (the Lemma 6.17 vanishing proof, the spine's
 assembly core): given the concrete Kummer field data of the deep unit `A` at an involution block
 coordinate — the tower `k ≤ L` (index 2, unramified `hunram`), the √-generator `(d, δ, hδ, hδL,
@@ -220,6 +222,7 @@ theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure �
     (lemma_6_16 k L hkL hindex hunram d δ hδ hδL hLδ A β hdeep hβ hβ0 u v hAuv s hs htriv hUo
       hα hαc)
 
+include lit in
 /-- **Deep class → involution `hvanish`** (the Lemma 6.17 vanishing proof, the witness-plumbing step): given a deep
 Kummer class `ξ ∈ deepClasses (L.fixingSubgroup)` at the involution block coordinate and the c2a
 "abstract Kummer presentation package" `hc2a` (`IsDeepUnit L.fixingSubgroup A ⟹ ∃ d δ u v, …`),

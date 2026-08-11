@@ -34,9 +34,6 @@ Axioms (target): std-3 only — the pairing comes from `prop_5_15` (the Prop. 5.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 namespace RadicalEdgeGammaA

@@ -54,9 +54,6 @@ Axioms: none introduced (`htriv_gammaR` is `rfl`; the instances are definitional
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace RStageGammaR
 
 open ContCoh SectionEight SectionSeven WordCohBridgeR GQ2.FoxH RStageGammaA

@@ -18,9 +18,6 @@ the verbatim statement bodies).
 
 namespace GQ2.Roe.Labute
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 /-- The span theorem, `r₀` shape, in span-target form (= `span_free_r0` verbatim). -/
 theorem span_free_r0_proof (k : ℕ) (hk : 3 ≤ k) :
     zLayer (freeProTwo : Type) k ≤ SpanTargetR0 k := by

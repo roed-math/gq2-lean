@@ -15,8 +15,8 @@ See `GQ2.GaussZ.FinalGammaA` for the paper-facing overview, source citations, an
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionEight
 
@@ -325,6 +325,7 @@ structure TamePackageUnram (B : BoundaryMaps) (F : BoundaryFrame H E)
     Function.Surjective ⇑c ∧ (∀ g : AbsGalQ2, ρ.1.1 g = c (B.tameF g)) ∧
       ∀ v : En.Vmod, c tameTau • v = v
 
+include lit in
 /-- **The c3-G0 tame package, ramified flavor**: inertia moves the module; the local
 side additionally needs the tame-unit orientation (at `R := LiteratureInputs.localReciprocity`). -/
 structure TamePackageRam (B : BoundaryMaps) (F : BoundaryFrame H E)

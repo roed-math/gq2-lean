@@ -29,9 +29,6 @@ of the witness is `G0 = gaussSum (En.qbar l h)` (part of the Prop. 8.9 assembly;
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 open CentralObstruction AffineTLift

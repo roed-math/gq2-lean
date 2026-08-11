@@ -60,8 +60,8 @@ Everything here is `axiom`-free modulo the June-side inputs it cites (B3c/B8 via
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open FoxH Multiplicative SectionThree Roe
 
@@ -291,17 +291,22 @@ private lemma masterRel (c : Fin 3 → ℤ_[2]) :
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+include lit in
 /-- The canonical orientation of `D₀` at the group level: `χ₀ = chiD0 ∘ abMk`
 (generator values `(−1, 1, (−3)⁻¹)`, from the B3c bundle). -/
 noncomputable def chiD0G : ContinuousMonoidHom (D0 : Type) ℤ_[2]ˣ :=
   chiD0.comp ⟨abMk, continuous_abMk⟩
 
+include lit in
 private lemma chiD0G_abMk (d : (D0 : Type)) : chiD0G d = chiD0 (abMk d) := rfl
 
+include lit in
 private lemma chiD0G_A : chiD0G d0A = -1 := orientBundle.chi_A
 
+include lit in
 private lemma chiD0G_S : chiD0G d0S = 1 := orientBundle.chi_S
 
+include lit in
 private lemma chiD0G_Y : chiD0G d0Y = unitNegThree⁻¹ :=
   orientBundle.chi_Y unitNegThree unitNegThree_val'
 
@@ -329,6 +334,7 @@ private lemma masterH_Y (c : Fin 3 → ℤ_[2]) : masterH c d0Y = ⟨c 2, unitNe
   rw [masterH, d0LiftHom_Y]
   simp
 
+include lit in
 /-- The base component of every master is the canonical orientation (they agree on the three
 topological generators). -/
 private lemma masterH_base (c : Fin 3 → ℤ_[2]) (d : (D0 : Type)) :
@@ -346,11 +352,13 @@ private lemma masterH_base (c : Fin 3 → ℤ_[2]) (d : (D0 : Type)) :
     · show (masterH c d0Y).g = chiD0G d0Y
       rw [masterH_Y, chiD0G_Y]
 
+include lit in
 /-- The crossed-derivation product rule for the derivation component of a master. -/
 private lemma masterH_mul_u (c : Fin 3 → ℤ_[2]) (g h : (D0 : Type)) :
     (masterH c (g * h)).u = (masterH c g).u + chiD0G g • (masterH c h).u := by
   rw [map_mul, WordLift.mul_u, masterH_base]
 
+include lit in
 /-- **The `c`-contraction of the basis masters**: `g ↦ ⟨∑ⱼ cⱼ·Dⱼ(g), χ₀(g)⟩`, a group
 homomorphism by the crossed-derivation product rule (`ℤ₂`-linear combinations of crossed
 derivations over a common character are crossed derivations).  This makes the derivation
@@ -378,9 +386,11 @@ private noncomputable def masterContract (c : Fin 3 → ℤ_[2]) :
     · show chiD0G (g * h) = chiD0G g * chiD0G h
       exact map_mul _ _ _
 
+include lit in
 private lemma masterContract_apply_u (c : Fin 3 → ℤ_[2]) (g : (D0 : Type)) :
     (masterContract c g).u = ∑ j, c j * (masterH (Pi.single j 1) g).u := rfl
 
+include lit in
 private lemma masterContract_apply_g (c : Fin 3 → ℤ_[2]) (g : (D0 : Type)) :
     (masterContract c g).g = chiD0G g := rfl
 
@@ -424,6 +434,7 @@ private noncomputable def masterMod2 : (D0 : Type) →* Multiplicative (Fin 3 �
     rw [Units.smul_def, smul_eq_mul, map_mul,
       zmod2_eq_one_of_isUnit ((chiD0G g).isUnit.map (PadicInt.toZModPow (p := 2) 1)), one_mul]
 
+include lit in
 private lemma continuous_masterMod2 : Continuous masterMod2 := by
   refine continuous_ofAdd.comp (continuous_pi fun j => ?_)
   exact continuous_toZModPow_one.comp
@@ -488,10 +499,12 @@ private noncomputable def evalMatrix (f : ContinuousMulEquiv (DR : Type) (D0 : T
     Matrix (Fin 3) (Fin 3) ℤ_[2] :=
   Matrix.of fun i j => (masterH (Pi.single j 1) (f (![drS, drX, drY] i))).u
 
+include lit in
 private lemma evalMatrixMod_row (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) (i : Fin 3) :
     ((evalMatrix f).map (PadicInt.toZModPow 1)) i = (masterMod2 (f (![drS, drX, drY] i))).toAdd :=
   rfl
 
+include lit in
 private lemma masterMod2_d0A :
     (masterMod2 d0A).toAdd = Pi.single (0 : Fin 3) (1 : ZMod (2 ^ 1)) := by
   funext j
@@ -502,6 +515,7 @@ private lemma masterMod2_d0A :
   · simp
   · rw [Pi.single_eq_of_ne (Ne.symm hj), Pi.single_eq_of_ne hj, map_zero]
 
+include lit in
 private lemma masterMod2_d0S :
     (masterMod2 d0S).toAdd = Pi.single (1 : Fin 3) (1 : ZMod (2 ^ 1)) := by
   funext j
@@ -512,6 +526,7 @@ private lemma masterMod2_d0S :
   · simp
   · rw [Pi.single_eq_of_ne (Ne.symm hj), Pi.single_eq_of_ne hj, map_zero]
 
+include lit in
 private lemma masterMod2_d0Y :
     (masterMod2 d0Y).toAdd = Pi.single (2 : Fin 3) (1 : ZMod (2 ^ 1)) := by
   funext j
@@ -522,6 +537,7 @@ private lemma masterMod2_d0Y :
   · simp
   · rw [Pi.single_eq_of_ne (Ne.symm hj), Pi.single_eq_of_ne hj, map_zero]
 
+include lit in
 /-- **The evaluation matrix is invertible** — mod 2 its rows span `𝔽₂³` by the generation
 engine (the mod-2 masters hit the standard basis at `A, S₀, Y₀`), and a matrix over `ℤ₂` with
 mod-2-invertible reduction is invertible (`det` is a unit). -/
@@ -570,6 +586,7 @@ private lemma isUnit_evalMatrix (f : ContinuousMulEquiv (DR : Type) (D0 : Type))
 
 /-! ## Orientation functoriality -/
 
+include lit in
 /-- **Canonical orientations are functorial across the B-Lab isomorphism** (note §3.3, step
 "canonical orientations are functorial"): for every continuous isomorphism `f : D_R ≅ D₀`, the
 pullback `χ₀ ∘ f` of the canonical orientation of `D₀` is a Labute orientation of `D_R` — every
@@ -654,6 +671,7 @@ private lemma rootX_unique_pair : ∀ a b : ℤ_[2]ˣ,
     (↑b : ℤ_[2]) ^ 3 + 2 * (↑b : ℤ_[2]) ^ 2 + 1 = 0 → a = b := fun _ _ ha hb =>
   Units.ext ((rootX_unique ha).trans (rootX_unique hb).symm)
 
+include lit in
 /-- **`χ₀ ∘ f = χ_R`**: the pullback of `D₀`'s canonical orientation along the B-Lab
 isomorphism is the Roe orientation, by uniqueness of Labute orientations of `D_R`
 (`isLabuteOrientation_ext`, fed by `isLabuteOrientation_comp_iso` and R11's
@@ -664,11 +682,13 @@ private lemma chiD0G_comp_iso_eq_chiR (f : ContinuousMulEquiv (DR : Type) (D0 : 
     (chiD0G.continuous_toFun.comp f.continuous_toFun) chiR.continuous_toFun
     (isLabuteOrientation_comp_iso f) isLabuteOrientation_chiR
 
+include lit in
 private lemma chiD0_abMk_iso_drX (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
     chiD0 (abMk (f drX)) = rootXUnit := by
   have h := DFunLike.congr_fun (chiD0G_comp_iso_eq_chiR f) drX
   exact h.trans chiR_drX
 
+include lit in
 /-- The squared canonical orientation, as a continuous hom. -/
 private noncomputable def chiSqHom :
     ContinuousMonoidHom (topAbelianization (D0 : Type)) ℤ_[2]ˣ where
@@ -686,6 +706,7 @@ private noncomputable def etaYHom :
   continuous_toFun := (zpowZtwoHom isProP_two_unitsPadicInt
     (unitNegThree⁻¹ ^ 2)).continuous_toFun.comp yHom.continuous_toFun
 
+include lit in
 /-- The squared canonical orientation kills the torsion and reads off the `Ȳ₀`-coordinate:
 `χ₀(z)² = (η²)^{Ȳ₀-coordinate of z}`. -/
 private lemma chiD0_sq_eq (z : topAbelianization (D0 : Type)) :
@@ -761,6 +782,7 @@ private lemma unitsMod16_eta_four :
     _ = (v * 13) ^ 4 := by ring
     _ = 1 := by rw [hv, one_pow]
 
+include lit in
 /-- **The `Ȳ₀`-coordinate of `f(x)` is odd**: `X² = (η²)^{τ₂}` with `X ≡ 5 (mod 16)`, while
 an even `τ₂` would give `X² = (η⁴)^{t} ≡ 1 (mod 16)` — but `X² ≡ 25 ≡ 9`. -/
 private lemma toZModPow_one_tau (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
@@ -979,6 +1001,7 @@ private lemma isUnit_coordMatrix (f : ContinuousMulEquiv (DR : Type) (D0 : Type)
     exact zmod2_eq_one_of_isUnit ((Matrix.isUnit_iff_isUnit_det Nb).mp hNbUnit)
   exact isUnit_of_toZModPow_one_eq_one' hdet2
 
+include lit in
 /-- **The correction data**: `(u, b)` with `σ₁u + τ₁b = 1`, `σ₂u + τ₂b = 0`, and `u` odd. -/
 private lemma exists_correction (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
     ∃ u b : ℤ_[2],
@@ -1105,6 +1128,7 @@ private lemma sHom_psi (B0 : BDecomposition) (Ψ : ContinuousMulEquiv (D0 : Type
     congr 1
     ring
 
+include lit in
 /-- **The matching isomorphism** (⟦prop:markedpro2⟧ engine, note §3.3): from any abstract
 continuous isomorphism `D_R ≅ D₀` (the B-Lab input) there is a **marked** one — a corrected
 `F = Ψ_{u,b} ∘ f` whose `S̄₀`-coordinate takes the unramified marking values `(1, 0, 0)` on
@@ -1180,12 +1204,14 @@ theorem nuUrBar_symm_eq_sHom (R : LocalReciprocity)
 
 /-! ## Stress lemmas (plan rule 9) -/
 
+include lit in
 /-- **Stress test (group-level orientation values)** ⟦eq:chi0⟧:
 `χ₀(A, S₀, Y₀) = (−1, 1, (−3)⁻¹)`. -/
 theorem chiD0G_values :
     chiD0G d0A = -1 ∧ chiD0G d0S = 1 ∧ chiD0G d0Y = unitNegThree⁻¹ :=
   ⟨chiD0G_A, chiD0G_S, chiD0G_Y⟩
 
+include lit in
 /-- **Stress test (orientation functoriality, `X`-value)**: the pulled-back canonical
 orientation agrees with `χ_R` on the wild generator — `χ₀(f(x)) = χ_R(x) = X`, the Hensel
 root, for **every** continuous isomorphism `f : D_R ≅ D₀`. -/

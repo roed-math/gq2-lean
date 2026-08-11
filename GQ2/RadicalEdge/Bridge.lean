@@ -31,9 +31,6 @@ std-3; the axiom budget (B6, B7) enters only through the consumed Lemma 8.6.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 open scoped Classical

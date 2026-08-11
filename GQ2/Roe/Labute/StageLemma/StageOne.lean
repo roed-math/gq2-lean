@@ -15,9 +15,6 @@ two reachability statements `stageSL1R0` / `stageSL1R2`.
 
 namespace GQ2.Roe.Labute
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 -- The `WL`-side topologies are declared as `local instance`s in
 -- `GQ2.Roe.Labute.StageLemma.CrossedDerivation`; re-attach them here (same declarations,
 -- no new ones) so the derivations remain `ContinuousMonoidHom`s in this module.

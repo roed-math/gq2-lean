@@ -73,8 +73,8 @@ mod-2 Gram-isometry seed `s̄ ↦ S̄+Ȳ, x̄ ↦ Ȳ, ȳ ↦ Ā`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open SectionThree Roe Multiplicative
 
@@ -153,6 +153,7 @@ end Draft
 
 /-! ## The marked identification -/
 
+include lit in
 /-- **The marked pro-2 identification** ⟦prop:markedpro2⟧ (note Prop. 3.6), in the marked
 vocabulary of `prop_3_10_local_marked` (`GQ2/SectionThreeMarked.lean:60`), which the
 boundary-frame layer consumes: given the B-Lab hypothesis, there is a continuous isomorphism

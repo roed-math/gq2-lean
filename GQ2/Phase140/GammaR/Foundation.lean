@@ -31,9 +31,6 @@ corestricted `Pro2Core` certificate instead of cloning the descent.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace Phase140GammaR
 
 -- `RStageGammaA` is opened for the **word-free** marking calculus it hosts (`marking_ext`,

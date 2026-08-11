@@ -30,8 +30,8 @@ characteristic behind `card_Z1_eq`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionEight
 
@@ -232,6 +232,7 @@ theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
 
 /-! ## The two hypotheses for `G_ℚ₂` -/
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
+include lit in
 /-- **`hlem86M` for `G_ℚ₂`** — the source's Lemma 8.6 half-torsor count over every boundary lift,
 for the radical datum `En.radData l h`, threading the `NoDescent` field hypothesis. -/
 theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
@@ -249,6 +250,7 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
     (rhoPrime_surjective RF b F (En.radData l h) rfl ρ)
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
+include lit in
 /-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.
 
 The proof uses `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`),
@@ -530,6 +532,7 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   rw [htorsor, key, hfix, mul_one]
   rfl
 
+include lit in
 /-- **the Prop. 8.9 assembly result**: the (139) half count for `G_ℚ₂`, in the exact shape of the
 `RecursionInputs.half139` field (consumed at the Prop. 8.9 assembly). -/
 theorem half139_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]

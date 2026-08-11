@@ -21,9 +21,6 @@ cores `MixedBObs.obs_inflation` and `MixedBObs.mixedB_eq_relZPair`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 namespace LedgerGammaA

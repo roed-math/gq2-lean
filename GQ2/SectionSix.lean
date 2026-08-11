@@ -69,8 +69,8 @@ Axioms: **none consumed here** (statement layer).
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open ContCoh QuadraticFp2 Corestriction
 
@@ -746,6 +746,7 @@ def IsDeepUnit (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) (A : ℚ̄₂) : Prop
   A ≠ 0 ∧ (∀ g ∈ N, g • A = A) ∧
     ∃ b : ℚ̄₂, (∀ g ∈ N, g • b = b) ∧ A = 1 + 2 * b ∧ ‖b‖ < 1
 
+include lit in
 /-- **Lemma 6.16 (deep-unit Evens norm), eq. (110)**: for an unramified quadratic extension
 `L/k` of finite dyadic local fields (encoded: `G_L ≤ G_k` of index 2, equal norm value groups)
 and a deep unit `a ∈ U_{e+1}(L)`, the index-two Evens norm of the Kummer class `[a]` vanishes:

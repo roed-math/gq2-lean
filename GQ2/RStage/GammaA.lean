@@ -39,9 +39,6 @@ is the main mechanical cost of the candidate side and is isolated to the proof i
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace RStageGammaA
 
 open ContCoh SectionEight SectionSeven WordCohBridge GQ2.FoxH

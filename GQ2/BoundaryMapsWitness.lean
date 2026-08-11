@@ -49,8 +49,8 @@ there is no remaining gap.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionThree
 
@@ -235,6 +235,7 @@ lemma padic_hom_eq_of_gens (φ ψ : ℚ_[2]ˣ →* Multiplicative ℤ_[2])
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+include lit in
 /-- The chosen local tame quotient: **the B10′ oriented witness** (`LiteratureInputs.tameQuotient`), with
 Lemma 3.3's maximality attached (`tameData_maximal`).  Using the axiom's witness directly (not
 `prop_3_2_local.some`) keeps the orientation clauses `nuT_recip_unit`/`nuT_recip_uniformizer`
@@ -244,9 +245,11 @@ noncomputable def locTame : LocalTameQuotient :=
     maximal := tameData_maximal LiteratureInputs.tameQuotient.toTameQuotientData }
 
 
+include lit in
 /-- The chosen local pro-2 marked iso (the marked pro-2 isomorphisms `prop_3_10_local_marked`) at `R = LiteratureInputs.localReciprocity`. -/
 noncomputable def locPro2 := prop_3_10_local_marked_proved (LiteratureInputs.localReciprocity)
 
+include lit in
 /-- `tameF : G_{ℚ₂} ↠ T_tame`, the tame quotient map (composite `G ↠ G/W ≅ T_tame`). -/
 noncomputable def tameFHom : ContinuousMonoidHom AbsGalQ2 Ttame :=
   haveI := locTame.normal
@@ -254,6 +257,7 @@ noncomputable def tameFHom : ContinuousMonoidHom AbsGalQ2 Ttame :=
     ContinuousMonoidHom (AbsGalQ2 ⧸ locTame.W) Ttame).comp (quotientMk locTame.W)
 
 
+include lit in
 /-- `pro2F : G_{ℚ₂} ↠ Π`, the maximal pro-2 quotient map (composite `G ↠ G(2) ≅ Π`). -/
 noncomputable def pro2FHom : ContinuousMonoidHom AbsGalQ2 PiBd :=
   (⟨locPro2.choose_spec.2.choose.toMulEquiv.toMonoidHom,
@@ -261,13 +265,16 @@ noncomputable def pro2FHom : ContinuousMonoidHom AbsGalQ2 PiBd :=
     ContinuousMonoidHom (maxProPQuotient 2 AbsGalQ2) PiBd).comp (maxProPMk 2 AbsGalQ2)
 
 
+include lit in
 private theorem tameFHom_surjective : Function.Surjective tameFHom := by
   haveI := locTame.normal
   exact locTame.equiv.surjective.comp (quotientMk_surjective locTame.W)
 
+include lit in
 private theorem pro2FHom_surjective : Function.Surjective pro2FHom :=
   locPro2.choose_spec.2.choose.surjective.comp (quotientMk_surjective (proPKernel 2 AbsGalQ2))
 
+include lit in
 /-- `ker tameF = W`. -/
 theorem ker_tameFHom : tameFHom.toMonoidHom.ker = locTame.W := by
   haveI := locTame.normal
@@ -281,6 +288,7 @@ theorem ker_tameFHom : tameFHom.toMonoidHom.ker = locTame.W := by
     have hmk : quotientMk locTame.W x = 1 := (QuotientGroup.eq_one_iff x).mpr h
     rw [hmk, map_one]
 
+include lit in
 /-- `ker pro2F = proPKernel 2 G_{ℚ₂}`. -/
 theorem ker_pro2FHom : pro2FHom.toMonoidHom.ker = proPKernel 2 AbsGalQ2 := by
   ext x
@@ -295,19 +303,23 @@ theorem ker_pro2FHom : pro2FHom.toMonoidHom.ker = proPKernel 2 AbsGalQ2 := by
     have hmk : maxProPMk 2 AbsGalQ2 x = 1 := (QuotientGroup.eq_one_iff x).mpr h
     rw [hmk, map_one]
 
+include lit in
 /-- The tame unramified character `f₁ = ι∘ν_t∘tameF : G_{ℚ₂} → Multiplicative ℤ₂`. -/
 noncomputable def tameCharRaw : ContinuousMonoidHom AbsGalQ2 (Multiplicative ℤ_[2]) :=
   (⟨locPro2.choose.toMulEquiv.toMonoidHom, locPro2.choose.continuous_toFun⟩ :
     ContinuousMonoidHom Ztwo (Multiplicative ℤ_[2])).comp (GQ2.nuT.comp tameFHom)
 
+include lit in
 /-- `f₁` descended through the topological abelianization `G_{ℚ₂}^{ab}`. -/
 noncomputable def tameChar : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_[2]) :=
   abLiftG tameCharRaw
 
+include lit in
 @[simp] private lemma tameChar_toAb (g : AbsGalQ2) :
     tameChar (toAb g) = locPro2.choose (GQ2.nuT (tameFHom g)) :=
   abLiftG_abMk tameCharRaw g
 
+include lit in
 /-- **Atom (F)** — the uniformizer: `f₁(rec 2) = ofAdd(−1)` (arithmetic Frobenius, geometric
 coordinate `−1`).  Discharged by the B10′ orientation clause `nuT_recip_uniformizer`. -/
 theorem tame_recip_uniformizer :
@@ -321,6 +333,7 @@ theorem tame_recip_uniformizer :
   rw [← hg', tameChar_toAb, hval, map_inv, locPro2.choose_spec.1, ← ofAdd_neg]
   congr 1
 
+include lit in
 /-- **Atom (U₋₃)** — the unit `−3`: `f₁(rec(−3)) = 1` (unramified-trivial).  Discharged by the
 B10′ orientation clause `nuT_recip_unit` at the unit `−3` (odd, hence a `ℤ₂`-unit). -/
 theorem tame_recip_unitNeg3 :
@@ -342,6 +355,7 @@ theorem tame_recip_unitNeg3 :
     LiteratureInputs.tameQuotient.nuT_recip_unit u g (by rw [hg', hemb])
   rw [← hg', tameChar_toAb, hval, map_one]
 
+include lit in
 /-- **Tame reciprocity** (the boundary-witness reduction reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
 through `G_{ℚ₂}^{ab}`; agree on the dense image of `recip` by `padic_hom_eq_of_gens`, whose two
 generator inputs are exactly the atoms `tame_recip_uniformizer` (F) and `tame_recip_unitNeg3`
@@ -363,6 +377,7 @@ theorem tame_reciprocity (g : AbsGalQ2) :
   have h := congrFun key (toAb g)
   rwa [tameChar_toAb] at h
 
+include lit in
 /-- `ν_t ∘ tameF = ν₂ ∘ pro2F` on `G_{ℚ₂}` — from `tame_reciprocity` and
 `prop_3_10_local_marked`. -/
 theorem compatF_proved (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FHom g) := by
@@ -399,6 +414,7 @@ theorem hker_uniform {dom : Type*} [Group dom] [TopologicalSpace dom] [IsTopolog
     show pro2X (g₀ * k⁻¹) = b
     rw [map_mul, map_inv, hkpro, inv_one, mul_one, hg₀]
 
+include lit in
 /-- **`prop_3_14` witness**: the full `BoundaryMaps` bundle. -/
 noncomputable def boundaryMapsWitness : BoundaryMaps where
   tameA := phiA
@@ -437,6 +453,7 @@ noncomputable def boundaryMapsWitness : BoundaryMaps where
         ker_pro2FHom.ge compatF_proved) t p hmem
     exact ⟨g, Subtype.ext (Prod.ext hg1 hg2)⟩
 
+include lit in
 /-- **Prop. 3.14**: the eq. (27) boundary data exists. -/
 theorem prop_3_14_proved : Nonempty BoundaryMaps :=
   ⟨boundaryMapsWitness⟩

@@ -38,9 +38,6 @@ lemmas at instantiation.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace DimAssembly
 
 open ContCoh LocalKummer

@@ -19,9 +19,6 @@ shift computations run on.
 
 namespace GQ2.Roe.Labute
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 /-! ## The congruence calculus (spike §2.1; generic pro-2 `G`, `k ≥ 3`)
 
 The full profinite instance pack is carried deliberately (the fills run through

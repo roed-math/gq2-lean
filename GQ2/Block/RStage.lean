@@ -28,9 +28,6 @@ are the two irreducible source cores — see the notes on `blockStageR136`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 open SectionEight SectionSeven
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

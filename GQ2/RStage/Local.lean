@@ -41,8 +41,8 @@ source, the exact `stageR136` field of the `RecursionInputs` bundle (the Prop. 8
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace RStageLocal
 
@@ -224,6 +224,7 @@ private lemma card_fixedPts_eq_card_RCharSub
 
 section ZCount
 
+include lit in
 /-- **The `z_R` torsor count, local source** (the Prop. 8.9 assembly residue): for every boundary lift `f₀`,
 `#RCocycle = z_R = #R² · #D_R`.  Route: `RCocycle ≃ Z¹(G_ℚ₂, R_{f₀})` (multiplicative crossed ↔
 additive, the conjugation action through `C = Y/K` pulled back along the surjective
@@ -333,6 +334,7 @@ theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
 section SepHom
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
+include lit in
 /-- First stage of `hsep_hom_local`: when `obs g = 0`, every paired defect class in `H²(Γ,𝔽₂)`
 vanishes (`obs_zero_iff_pairClass_zero`, with the zero-`DR` case handled directly). -/
 private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
@@ -364,6 +366,7 @@ private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedS
       (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
       g.1.1 d h).mp (LinearMap.congr_fun hg d)
 
+include lit in
 /-- **The `(R^∨)^C`-separation, local source** (the Prop. 8.9 assembly residue): if the obstruction functional
 of a boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route:
 `obs g = 0` kills every paired defect class (`obs_zero_iff_pairClass_zero`); the paired classes
@@ -614,6 +617,7 @@ end SepHom
 section Assembly
 
 
+include lit in
 /-- **(136) for the block frame at the local source, parametric over `hsep_hom`**
 (the Prop. 8.9 assembly residue assembly): `htriv`/`hcard`/`hZcount` are discharged
 (`htriv_local`/`card_H2_zmod2_eq_two`/`hZcount_local`); the remaining inputs are the
@@ -639,6 +643,7 @@ theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpac
   blockStageR136 T Blk hE2 htriv_local (card_H2_zmod2_eq_two htriv_local) hfg b F hsep_hom
     (fun f₀ => hZcount_local hE2 hRK hR2 b F f₀)
 
+include lit in
 /-- **(136) for the block frame at the local source — all residues discharged**
 (the Prop. 8.9 assembly): `htriv`/`hcard`/`hZcount`/`hsep_hom` are all proved; the remaining hypotheses are
 the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for the §9 induction).  The

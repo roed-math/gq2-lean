@@ -24,9 +24,6 @@ the obstruction bridge, fibre count, separation-based lift construction, and the
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 open SectionSeven

@@ -32,8 +32,8 @@ which adds only B6/B7 via `D`) — the full §6.3 deep-part budget, **no new axi
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace DetRamified
 
@@ -43,6 +43,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
+include lit in
 /-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case** — wired
 downstream (the deep-part proof/f2d statement-move): the local base determinant form has the positive
 Gauss sign, `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is

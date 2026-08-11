@@ -38,8 +38,8 @@ total — no `H¹`-pairing is involved.
 
 namespace GQ2.LocalKummer
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open Finset ContCoh SectionSix DeepPart RepIndependence
 
@@ -278,6 +278,7 @@ theorem deepClass_eq_kummerClassK (k : IntermediateField ℚ_[2] (AlgebraicClosu
         : AlgebraicClosure ℚ_[2])) _ = Kummer.kummerCocycleFun β _
     rw [show ((Units.mk0 (⟨A, hAk⟩ : ↥k) hA0 : ↥k) : AlgebraicClosure ℚ_[2]) = A from rfl, hccfun]
 
+include lit in
 /-- **Eq.-(94) orthogonality in `deepClasses` vocabulary** (the shared f1-isotropy /
 f2-orbit-vanishing leaf, over a finite intermediate field `k`): two deep Kummer classes in
 `H¹(G_k, 𝔽₂)` cup to zero.  Bridges `deepClasses` to the Tier-5 `GQ2.cup_deep_deep` via

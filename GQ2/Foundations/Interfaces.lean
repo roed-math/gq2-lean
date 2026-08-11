@@ -82,11 +82,12 @@ end GQ2.HilbertSymbol
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 /-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `lit.tateDualityAt` -/
 
+include lit in
 /-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `lit.tateDualityAt`, using
 `isLocalDualizingGroup_absGalQ2`. -/
 noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
@@ -158,6 +159,7 @@ lemma not_hasEqualNormValueGroups_sqrt_two (δa : AlgebraicClosure ℚ_[2])
 
 /-! ## B9, derived form (the pre-flip axiom, now a theorem over B9 + B11a) -/
 
+include lit in
 /-- **Formerly the B9 axiom — since 2026-07-24 a derived theorem** (the B9-A flip; the statement
 is byte-identical to the pre-flip axiom, zero consumer churn — the B7′/B11b/B12/B13 pattern).
 Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`,
@@ -227,6 +229,7 @@ theorem unramifiedQuadratic_units_are_norms
       ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
   UnramifiedQuadraticNorms.unramifiedQuadratic_units_are_norms' k a δa hδa hunram
 
+include lit in
 /-- **The combined dyadic norm criterion.**  This theorem pairs the classical B11a leaf with the
 proved unramified-unit theorem.  The equal-norm-value-groups convention remains isolated in
 `HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24), which is a

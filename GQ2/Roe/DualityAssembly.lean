@@ -59,8 +59,8 @@ display-(57) numerics.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace FoxH
 
@@ -503,6 +503,7 @@ section Cor517
 
 open GQ2.ContCoh GQ2.LocalLiftingDuality
 
+include lit in
 /-- **Corollary 5.17, numerics half, on the `r_R` spine** (⟦prop:duality⟧, "Comparison with the
 local complex then uses local Tate duality as in [RT Prop. 5.16 and Cor. 5.17]"): the
 obstruction-space and unobstructed-lift-multiplicity cardinalities agree between the Roe word

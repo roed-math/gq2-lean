@@ -43,8 +43,8 @@ provided by `zeroCount_qDouble_ramified_of_faithful` through `finsum_sign_ramifi
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionNine
 
@@ -901,6 +901,7 @@ global `tateDuality 2`; the tame-unit orientation (needed by the local ramified 
 carried as a hypothesis — it is provable at the concrete `boundaryMapsWitness`
 (`tameUnitOrientation_witness`), the P5 consumer's discharge point. -/
 
+include lit in
 /-- **The G0-obtain at `blockEnrichmentD`** (P4e): shared `G0 = ∓2^m` with the four
 `gaussZResidueD_*` twins dispatched by the head dichotomy. -/
 theorem gaussZ_obtain_blockD [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]

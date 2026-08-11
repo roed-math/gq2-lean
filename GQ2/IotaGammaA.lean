@@ -34,9 +34,6 @@ axioms, no sorries.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace IotaGammaA
 
 open SectionEight SectionEight.AffineTLift WordCohBridge WordCoh2 ContCoh

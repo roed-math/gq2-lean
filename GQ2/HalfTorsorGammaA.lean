@@ -17,9 +17,6 @@ crossed `T`-cocycle `u` whose variation class `[varCoc u] ∈ H²(Γ_A, 𝔽₂)
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 namespace LedgerGammaA

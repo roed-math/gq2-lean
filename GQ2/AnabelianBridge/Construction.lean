@@ -24,8 +24,8 @@ namespace GQ2
 
 open Multiplicative
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 /-! ## `ẑ`-power helpers -/
 
@@ -815,6 +815,7 @@ lemma bCoord_psiHom_S (R : PeripheralCyclotomicAction) (u : ℤ_[2]ˣ) :
 
 namespace SectionThree
 
+include lit in
 /-- **Lemma 3.7** (paper (15)): for every `u ∈ ℤ₂ˣ` there is a continuous automorphism `Ψ_u`
 of `D₀` acting on `B`-coordinates by `Ā = (1,−2,0) ↦ (1,−2u,0)`, `S̄ = (0,1,0) ↦ (0,u,0)`.
 Consumes axiom **B8** (`lit.peripheralCyclotomicAction`).  Declared here (not in
@@ -1086,6 +1087,7 @@ lemma zpowZtwo_bcoord_S (hBc : IsProP 2 (Multiplicative (ZMod 2 × ℤ_[2] × �
 
 namespace SectionThree
 
+include lit in
 /-- **Proposition 3.8, lifting half** (paper (18)/(19)): every `α_{u,b}` lifts to a continuous
 automorphism of `D₀` — `Ψ_u` composed with the shear `Θ_{b'}`, `b' = (b − c(u))u⁻¹`.
 Consumes axiom **B8**.  Declared here per the Prop. 3.2 precedent. -/

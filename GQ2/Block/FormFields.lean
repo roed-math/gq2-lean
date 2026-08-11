@@ -23,9 +23,6 @@ drops them into the record.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 open SectionSeven SectionEight SectionNine QuadraticFp2
 
 open scoped Classical

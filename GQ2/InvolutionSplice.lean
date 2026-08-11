@@ -51,8 +51,8 @@ B13 (`dyadicUnitFiltration`, via `hunram_involution`)} — the §6.3 involution 
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace InvolutionSplice
 
@@ -345,6 +345,7 @@ private theorem kummerCocycleFun_add_on_subgroupOf {W L' : Subgroup (Kummer.Galo
   rw [hmul]
   exact kummerCocycleFun_hom_on hβ hβ0 hAfix ⟨_, hwL⟩ ⟨_, hzL⟩
 
+include lit in
 /-- **The involution `hvanish` over `ker ρ`** (the Lemma 6.17 vanishing proof, the U₀-splice): for a deep block
 coordinate `α` on `N = ker ρ` and an involution lift `ĝ` (`ĝ ∉ N`, `ĝ² ∈ N`,
 `U₀ = N ⊔ ⟨ĝ⟩`), the Evens-norm inner cochain of the reducer's involution orbit has trivial
@@ -540,6 +541,7 @@ theorem cup11Fun_comp {G₁ G₂ : Type*} [Group G₁] [Group G₂]
   rw [htriv₁, htriv₂, hα, hβ]
 
 omit [Finite C] in
+include lit in
 /-- **The square/free `hvanish` over `ker ρ`** (the Lemma 6.17 vanishing proof): the cup of two deep block coordinates
 over `N = ker ρ` has trivial `H²ofFun` class.  Same tower/carrier splice as
 `hvanish_involution_ker`, but with `U = N` (no lift, no index-2) and the cup in place of the

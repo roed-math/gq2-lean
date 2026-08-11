@@ -37,9 +37,6 @@ c2c2/c2c3; the final instantiation adds B13 at the `dyadicUnitFiltration` call s
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace UnramifiedBridge
 
 open GaloisCosetNorm UnramifiedNorm IntermediateField
@@ -515,7 +512,7 @@ groups of `L` and `k` agree, verbatim in the shape `ShapiroDeepness.hvanish_invo
 Composes the whole c2c chain: half (A) + increments 1–2 of this file + c2c1's `relE` kit +
 c2c2's `card_unitImage_eq_e` + c2c3's factoring/orientation.  Parametric in
 `R : LocalReciprocity` and the orientation `horient` (instantiated by the consumer at
-`R := LiteratureInputs.localReciprocity`, `horient := tameUnitOrientation_witness`-style at the axiom witness);
+`R := localReciprocity`, `horient := tameUnitOrientation_witness`-style at the axiom witness);
 the B13 filtrations are taken from `dyadicUnitFiltration`.  **Ax: std-3 + B13** (B5/B10′ enter
 only at the consumer's instantiation of `R`/`horient`). -/
 theorem hunram_involution {k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}

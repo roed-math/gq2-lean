@@ -31,8 +31,8 @@ Axioms: **B6** (`tateDuality`) and **B7** (through `card_H2_zmod2_eq_two`'s fini
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionEight
 
@@ -387,6 +387,7 @@ private theorem shiftedEdge_class_ne_zero (ρ : ContinuousMonoidHom AbsGalQ2 (Bg
   rw [hedgeval, hconj]
   exact (by decide : ∀ a e : ZMod 2, a - e = e + a) _ _
 
+include lit in
 /-- **The B6 step**: perfectness of the `(1,1)` pairing plus `[φ] ≠ 0` produce a class
 pairing nontrivially with the shifted edge. -/
 private theorem exists_pairing_partner (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
@@ -469,6 +470,7 @@ private theorem cup11Fun_shiftedEdge_eq_varCoc (ρ : ContinuousMonoidHom AbsGalQ
     rhoConj_inv_rhoConj D ρ γ (Additive.toMul (w δ))]
   rfl
 
+include lit in
 /-- **The B6 twist construction** (Lemma 8.6, local source, duality step): from `NoDescent`,
 a crossed `T`-cocycle whose variation cochain is not a (trivial-action) coboundary.  The
 statement is action-free (raw cochain level) so the consumer can bridge it to the
@@ -521,6 +523,7 @@ private theorem exists_good_twist (S : TComplement D)
 
 end GoodTwist
 
+include lit in
 /-- **Lemma 8.6, local source, engine form** — the half-torsor count for `G_ℚ₂` from
 `NoDescent`, via B6.  Consumed by `SectionEight.lemma_8_6_local`. -/
 theorem half_torsor_local

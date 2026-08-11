@@ -40,9 +40,6 @@ Proof architecture:
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionTen
 
 /-! ## The 2-core `O₂(G)`

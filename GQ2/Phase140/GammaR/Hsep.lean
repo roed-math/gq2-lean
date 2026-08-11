@@ -16,9 +16,6 @@ See `GQ2.Phase140.GammaR` for the paper-facing overview and architectural notes.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace Phase140GammaR
 
 open SectionEight AffineTLift CentralObstruction ContCoh WordCohBridgeR GQ2.FoxH RStageGammaR

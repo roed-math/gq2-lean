@@ -38,9 +38,6 @@ Everything is finite-group / generic-`Γ`; **no B6/B7, no the Prop. 5.15 proof m
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 namespace AffineTLift

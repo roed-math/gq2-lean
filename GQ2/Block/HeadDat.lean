@@ -37,9 +37,6 @@ hypothesis-free G0-obtain), P5 (the ThmFourTwo `En`-swap).
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionNine
 
 open SectionSeven SectionEight QuadraticFp2

@@ -28,8 +28,8 @@ action — the two facts needed to feed the reindexed orbit sum into the reducer
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace VanishClose
 
@@ -165,6 +165,7 @@ theorem evensNormFun_orbit_mem_Z2 (N : Subgroup AbsGalQ2) [N.Normal]
   exact evensNormFun_mem_Z2 (fun _ _ => rfl) hUo hUi hsU _ hα hαc
 
 omit [Finite C] in
+include lit in
 /-- **The free orbit's inner cochain vanishes in `H²`** (the Lemma 6.17 vanishing proof wiring): the cup product of a deep
 `ker ρ`-block cocycle with the `g`-conjugate of another deep block cocycle is an `H²`-coboundary.
 Discharges the `Sum.inr (Sum.inr _)` branch of the `hvanish` obligation. -/
@@ -202,6 +203,7 @@ theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (fun n => shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
     hZβ hZ1conj hDβ hdeepconj
 
+include lit in
 /-- **`lemma_6_17_vanish`, closed downstream** (the Lemma 6.17 vanishing proof): the base connecting map `Q⁰loc`
 vanishes on the deep half, from `lemma_6_17_vanish`'s own hypotheses plus the reciprocity datum
 `(R, horient)` threaded per the c2c4 consumer note (the architecture review flag). -/

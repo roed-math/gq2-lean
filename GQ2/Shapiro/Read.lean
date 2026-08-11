@@ -48,9 +48,6 @@ Paper: §6.2–§6.3, proof of Lemma 6.15 / eq. (102)–(105).  Axioms: **∅** 
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 open ContCoh Corestriction
 
 namespace ShapiroRead

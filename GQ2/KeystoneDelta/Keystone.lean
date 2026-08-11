@@ -21,9 +21,6 @@ See `GQ2.KeystoneDelta` for the umbrella module docstring.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 namespace AffineTLift

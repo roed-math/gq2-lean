@@ -26,9 +26,6 @@ open scoped Classical
 
 namespace GQ2.DeepPart
 
-set_option linter.unusedSectionVars false
-variable [lit : GQ2.LiteratureInputs]
-
 open GQ2 GQ2.ContCoh GQ2.Foundations
 
 section HermitianCount

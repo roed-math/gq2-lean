@@ -19,8 +19,8 @@ See `GQ2.DeepCount` for the paper-facing overview, source citations, and deviati
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open ContCoh LocalKummer
 
@@ -40,6 +40,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [DistribMulAction C V] [Finite V]
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
+include lit in
 /-- **`hduality`** — the deep-part proof's result.  Inputs: the `V^∨` regular-summand package
 (f8's Lemma-6.11 output at `dualModule`: `hsimple`/`hnt`/`ι`/`r`/`hι`/`hr`/`hri`), the
 self-duality `eU`/`heU` (§H's `dualSelfDual(_equivariant)` given the 6.17 invariant form),

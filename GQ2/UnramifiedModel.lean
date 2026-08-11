@@ -30,8 +30,8 @@ qualified name stays `GQ2.SectionSix.prop_6_18_unramified` is preserved by re-ex
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open ContCoh QuadraticFp2 Corestriction SectionSix DeepPart
 
@@ -309,6 +309,7 @@ private theorem cCoeff_card_eq (T : C) (hVnt : Nontrivial V)
   exact Nat.card_eq_of_bijective _ ⟨hθinj, hθsurj⟩
 
 omit [DiscreteTopology C] in
+include lit in
 /-- **The Schur transfer (brick (c))**: for a cyclic `C = ⟨T⟩` acting faithfully and simply on a
 finite nontrivial `V`, the coefficient action `cCoeff` on `H¹(G_ℚ₂, V)` is again *faithful* and
 *simple*, provided `#H¹ = #V`.
@@ -576,6 +577,7 @@ private theorem Q0loc_smul_eq (D : TateDuality 2) (ρ : ContinuousMonoidHom AbsG
           hicompat x := rfl
   rw [hsm, ← h614, hQeq]
 
+include lit in
 /-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
 

@@ -16,8 +16,8 @@ open scoped Pointwise
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionEight
 
@@ -298,6 +298,7 @@ theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
     2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ) :=
   LedgerGammaA.half_torsor_gammaA D hedge ρ hρ
 
+include lit in
 /-- **Lemma 8.6 (half-torsor count), local source**: as `lemma_8_6_gammaA`, for `G_ℚ₂`
 (degree-one duality = B6).  The standing §8 side conditions are explicit, following
 `lemma_8_2_local` (compactness) and `lemma_8_3` (`hfg`

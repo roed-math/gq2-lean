@@ -57,9 +57,6 @@ deliberately **not** frozen — no `bLab`-consumer needs it; the design memo rec
 
 namespace GQ2.Roe.Labute
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 /-! ## Topological finite generation, `Finset`-packaged
 
 The `Finset` forms consumed by `profinite_hopfian` and `finite_continuousMonoidHom`

@@ -35,8 +35,8 @@ sources.  Everything std-3.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionNine
 
@@ -103,6 +103,7 @@ variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [IsTopologicalGroup AbsGalQ2] in
+include lit in
 /-- **`hGaussZF` at the head-inflated enrichment, unramified case** (P4c): for the block
 enrichment `blockEnrichmentD`, `GaussZResidue B.bF F (blockEnrichmentD …) l h (−2^m)` with
 **no per-lift tame package** — the dichotomy hypothesis is the head-level
@@ -238,6 +239,7 @@ theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bounda
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [IsTopologicalGroup AbsGalQ2] in
+include lit in
 /-- **`hGaussZF` at the head-inflated enrichment, ramified case** (P4c): inertia moves the
 module at the head — `GaussZResidue B.bF F (blockEnrichmentD …) l h (+2^m)`, no per-lift
 package; the local side carries the tame-unit orientation as before. -/

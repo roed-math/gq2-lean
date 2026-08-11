@@ -33,11 +33,12 @@ No new axiom, no `sorryAx`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+include lit in
 /-- **The orientation clause at the witness's tame coordinate** (the Lemma 6.17 vanishing proof(iii), the witness
 discharge): `SectionThree.tameFHom` satisfies `TameUnitOrientation LiteratureInputs.localReciprocity`.  Since
 `tameFHom = LiteratureInputs.tameQuotient.equiv ∘ mk` by construction (`locTame` repackages the B10′ bundle), the
@@ -46,6 +47,7 @@ theorem tameUnitOrientation_tameFHom :
     TameUnitOrientation LiteratureInputs.localReciprocity SectionThree.tameFHom :=
   LiteratureInputs.tameQuotient.nuT_recip_unit
 
+include lit in
 /-- **The witness discharge in the consumer's verbatim shape** (`B := boundaryMapsWitness`):
 `boundaryMapsWitness.tameF` satisfies `TameUnitOrientation LiteratureInputs.localReciprocity`.  This is the
 instantiation the literal-presentation proof/the architecture review assembly uses to discharge the orientation hypothesis of the moved

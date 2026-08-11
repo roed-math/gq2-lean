@@ -39,9 +39,6 @@ Everything is source-generic; all std-3.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 open QuadraticFp2 ContCoh

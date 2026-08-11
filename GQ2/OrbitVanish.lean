@@ -27,9 +27,6 @@ corestriction lands in `B²` and its class is `0`.  All std-3, no axiom.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace OrbitVanish
 
 open Corestriction ShapiroLedger ContCoh

@@ -38,8 +38,8 @@ B13 (`dyadicUnitFiltration`), already in the census.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace ResidueLift
 
@@ -327,6 +327,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 open ContCoh QuadraticFp2 in
+include lit in
 /-- **`lemma_6_17_dim`, closed** (the deep-part proof + the residue-lift derivation): the §6.3 deep-half
 dimension identity `#X₊² = #H¹(ℚ₂, V)`, from `SectionSix.lemma_6_17_dim`'s own hypothesis set
 plus only the finiteness instance `[Finite (H¹(ker ρ, 𝔽₂))]` (the local finiteness

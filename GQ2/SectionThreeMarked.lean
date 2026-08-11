@@ -27,8 +27,8 @@ in `GQ2/BoundaryMapsWitness.lean`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionThree
 
@@ -53,6 +53,7 @@ theorem prop_3_10_gammaA :
       e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₁)) = piX1 :=
   prop_3_10_gammaA_proved
 
+include lit in
 /-- **Prop. 3.10, local half = Cor. 3.12 (fully marked form)**: `(Π, ν₂)` is isomorphic to
 the fully unramified marked pair `(G_{ℚ₂}(2), ν_ur)`.  The `ℤ₂`-identification between the
 two `ν`-targets (`Ztwo = maxProPQuotient 2 ℤ̂` on the boundary side, `Multiplicative ℤ₂` on
@@ -81,6 +82,7 @@ exactly the boundary-frame design's `BoundaryMaps` bundle (eq. (27)); the two su
 `ν₂ : Π ↠ Z₂` (eq. (21)'s arrow) — are stated and **proved** in `GQ2/Prop32.lean`
 (`GQ2.SectionThree.nuT_surjective`, `GQ2.SectionThree.nuTwo_surjective`). -/
 
+include lit in
 /-- **Prop. 3.14** (with Cor. 3.12 supplying the `G_{ℚ₂}`-side): the eq. (27) boundary data
 exists — tame and maximal pro-2 quotient maps for both sources, `ν`-compatible, jointly
 surjective onto the fibred boundary, with the `Γ_A`-side taking the marked generator values

@@ -66,8 +66,8 @@ this proof.  One elaboration detail is worth preserving: `simpa … using` fails
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace SectionEight
 
@@ -241,6 +241,7 @@ theorem half139_of_leaves
 
 end SourceGeneric
 
+include lit in
 /-- **Proposition 8.9 over an abstract source** (the SourceData seam): `prop_8_9` with the
 candidate slot abstracted over `(Γ, b)` and the supply obligations taken as hypotheses, in
 the exact shapes of the `_gammaA` supply lemmas (see the section docstring above).  Proof =
@@ -370,6 +371,7 @@ theorem prop_8_9_of_source (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalS
         ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F,
           fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
 
+include lit in
 /-- **Proposition 8.9 (closed exact-image recursion)**: for the concrete block frame of a
 boundary-framed target with a §7 simple-head block, there are **shared** data
 `(μ, G⁰, D_T)` and a **per-`λ`** phase family such that the boxed system (136)–(142) holds

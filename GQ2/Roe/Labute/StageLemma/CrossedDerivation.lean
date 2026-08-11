@@ -17,9 +17,6 @@ two tails.
 
 namespace GQ2.Roe.Labute
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 /-! ### The χ-twisted crossed derivations (SL1's separating functionals)
 
 SL1 needs functionals on `Zₖ` that kill `Im d̄` and the defect but pair non-degenerately with

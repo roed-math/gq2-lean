@@ -104,8 +104,8 @@ archive convention `g^h = hgh⁻¹` reconciled to Lean's `g⁻¹xg` by the `σ �
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 open SectionThree SectionEight SectionTen ProfiniteGrp
 
@@ -222,6 +222,7 @@ section BoundaryLane
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+include lit in
 /-- **The `Γ_R` pro-2 boundary coordinate exists** (⟦prop:markedpro2⟧ + Prop 3.10, local
 half): a continuous `pro2R : Γ_R → Π` that is `ν`-compatible with `φ_R`, surjective, has
 kernel exactly the pro-2 kernel, and kills `τ` — the composite
@@ -296,27 +297,33 @@ theorem exists_pro2R (hBLab : BLabHypothesis) :
 
 variable (hBLab : BLabHypothesis)
 
+include lit in
 /-- **The `Γ_R` pro-2 boundary coordinate** `pro2R : Γ_R → Π` (a choice from
 `exists_pro2R`; B-Lab-conditional). -/
 noncomputable def pro2R : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NR) PiBd :=
   (exists_pro2R hBLab).choose
 
+include lit in
 /-- `ν`-compatibility: `ν_t ∘ φ_R = ν₂ ∘ pro2R` (the eq. (27) fibre condition for `Γ_R`). -/
 theorem pro2R_compat : ∀ g, nuT (phiR g) = nuTwo (pro2R hBLab g) :=
   (exists_pro2R hBLab).choose_spec.1
 
+include lit in
 theorem pro2R_surjective : Function.Surjective (pro2R hBLab) :=
   (exists_pro2R hBLab).choose_spec.2.1
 
+include lit in
 /-- `ker pro2R = proPKernel 2 Γ_R` — the promoted `SourceData.ker_pro2` field, from the
 max-pro-2 identification (the recon's "Γ_R from its max-pro-2 identification"). -/
 theorem ker_pro2R :
     (pro2R hBLab).toMonoidHom.ker = proPKernel 2 (FreeProfiniteGroup (Fin 4) ⧸ NR) :=
   (exists_pro2R hBLab).choose_spec.2.2.1
 
+include lit in
 theorem pro2R_gammaTauR : pro2R hBLab gammaTauR = 1 :=
   (exists_pro2R hBLab).choose_spec.2.2.2
 
+include lit in
 /-- **Joint surjectivity of the `Γ_R` boundary pair** (eq. (27) for `Γ_R`): the generic
 fibred-product kit at `(φ_R, pro2R)`, exactly as `boundaryMapsWitness.surjA`. -/
 theorem bR_joint_surjective :
@@ -349,32 +356,38 @@ private noncomputable def x1Bd : ↥boundarySubgroup :=
   ⟨(1, piX1), by show nuT 1 = nuTwo piX1
                  rw [map_one, nuTwo_piX1]⟩
 
+include lit in
 /-- The marked-pinned `σ`-generator of `sourceR`: an element of `Γ_R` over the boundary
 point `(σ_t, σ_Π)` (joint surjectivity).  *Not* the honest `gammaSigmaR` — see the module
 docstring's design finding. -/
 noncomputable def sigmaMarkR : FreeProfiniteGroup (Fin 4) ⧸ NR :=
   (bR_joint_surjective hBLab sigmaBd).choose
 
+include lit in
 theorem sigmaMarkR_spec :
     phiR (sigmaMarkR hBLab) = tameSigma ∧ pro2R hBLab (sigmaMarkR hBLab) = piSigma := by
   have h := (bR_joint_surjective hBLab sigmaBd).choose_spec
   exact ⟨congrArg (fun x : ↥boundarySubgroup => (x : Ttame × PiBd).1) h,
     congrArg (fun x : ↥boundarySubgroup => (x : Ttame × PiBd).2) h⟩
 
+include lit in
 /-- The marked-pinned `x₀`-generator of `sourceR`. -/
 noncomputable def x0MarkR : FreeProfiniteGroup (Fin 4) ⧸ NR :=
   (bR_joint_surjective hBLab x0Bd).choose
 
+include lit in
 theorem x0MarkR_spec :
     phiR (x0MarkR hBLab) = 1 ∧ pro2R hBLab (x0MarkR hBLab) = piX0 := by
   have h := (bR_joint_surjective hBLab x0Bd).choose_spec
   exact ⟨congrArg (fun x : ↥boundarySubgroup => (x : Ttame × PiBd).1) h,
     congrArg (fun x : ↥boundarySubgroup => (x : Ttame × PiBd).2) h⟩
 
+include lit in
 /-- The marked-pinned `x₁`-generator of `sourceR`. -/
 noncomputable def x1MarkR : FreeProfiniteGroup (Fin 4) ⧸ NR :=
   (bR_joint_surjective hBLab x1Bd).choose
 
+include lit in
 theorem x1MarkR_spec :
     phiR (x1MarkR hBLab) = 1 ∧ pro2R hBLab (x1MarkR hBLab) = piX1 := by
   have h := (bR_joint_surjective hBLab x1Bd).choose_spec
@@ -383,6 +396,7 @@ theorem x1MarkR_spec :
 
 /-! ## The `Γ_R` source instance -/
 
+include lit in
 /-- **The `Γ_R` instance of the source interface** (the R-campaign assembly): carrier
 `GammaR`, tame side `φ_R`/`ν_R` (⟦lem:tame⟧, R6), pro-2 side `pro2R` (⟦lem:pro2word⟧ +
 ⟦prop:markedpro2⟧ + Prop 3.10 local, B-Lab-conditional), and the seven supply-obligation
@@ -432,20 +446,24 @@ noncomputable def sourceR : SourceData where
     (htσ := phiR_gammaSigma) (htτ := phiR_gammaTau) (htx0 := phiR_gammaX0)
     (htx1 := phiR_gammaX1)
 
+include lit in
 /-- The tame field of `sourceR` is `φ_R` on the nose (mirror of
 `BoundaryMaps.sourceA_b`'s load-bearing `rfl`). -/
 @[simp] theorem sourceR_tame : (sourceR hBLab).tame = phiR := rfl
 
+include lit in
 /-- The carrier of `sourceR` is `Γ_R` on the nose. -/
 theorem sourceR_Γ : (sourceR hBLab).Γ = GammaR := rfl
 
 /-! ## The tame coordinate of `b_{Γ_R}` (the per-source Lemma 10.1 hypotheses) -/
 
+include lit in
 /-- The tame coordinate of `b_{Γ_R}` is `φ_R` (mirror of `SectionTen.tameCoord_bA`). -/
 theorem tameCoord_bR : SectionTen.tameCoord (sourceR hBLab).b = phiR := by
   ext g
   simp only [SectionTen.tameCoord_apply, SourceData.b_apply_coe, sourceR_tame]
 
+include lit in
 /-- **`htame` for `Γ_R`**: `φ_R` is onto (Prop 3.2, `Γ_R` side; mirror of
 `SectionTen.tameCoord_bA_surjective`). -/
 theorem tameCoord_bR_surjective :
@@ -453,6 +471,7 @@ theorem tameCoord_bR_surjective :
   rw [tameCoord_bR]
   exact phiR_surjective
 
+include lit in
 /-- **`hwild` for `Γ_R`**: the wild inertia `ker φ_R = W_R` is pro-2 (`ker_phiR` +
 `isProP_wildCoreR`; mirror of `SectionTen.tameCoord_bA_ker_isProP`). -/
 theorem tameCoord_bR_ker_isProP :
@@ -470,6 +489,7 @@ section Capstones
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
+include lit in
 /-- **Eq. (154) at `Γ_R`** (⟦thm:main⟧, counting layer): the Roe candidate and `G_{ℚ₂}` have
 identical continuous-surjection counts onto every finite group.  `card_contSurj_eq` at
 `(sourceR hBLab).b` / `boundaryMapsWitness.bF` rewrites each count as the sum of fixed-frame
@@ -496,6 +516,7 @@ theorem eq_154_R_of_inputs (hBLab : BLabHypothesis) (G : Type) [Group G] [Topolo
           (tameCoord_bF_ker_isProP boundaryMapsWitness)
           LiteratureInputs.absGalQ2_isTopologicallyFinitelyGenerated).symm
 
+include lit in
 /-- **The `Γ_R` surjection-count capstone** (⟦thm:main⟧, counting layer, mirroring
 `SectionTen.main_surjection_count_of_inputs`): the number of continuous surjections `G_{ℚ₂} ↠ G`
 equals the number of admissible **Roe**-marked generating quadruples of `G`
@@ -504,6 +525,7 @@ theorem main_surjection_count_R_of_inputs (hBLab : BLabHypothesis) (G : Type) [G
     [TopologicalSpace G] [DiscreteTopology G] : contSurjCount G = admissibleCountR G :=
   (eq_154_R_of_inputs hBLab G).symm.trans (prop_2_3_R (G := G))
 
+include lit in
 /-- **The two admissible-marking semantics agree** on every finite group (the numerical
 content R5 verified four ways on `C₂ : 7`, `C₄ : 24`, `V₄ : 42`, `D₄ : 144`, `Q₈ : 144` —
 Lean word-level pins, two independent Python engines, and the June LMFDB-verified counts;
@@ -531,6 +553,7 @@ noncomputable local instance absGalQ2_totallyDisconnectedSpace_roe :
   change TotallyDisconnectedSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
   infer_instance
 
+include lit in
 /-- **The Replacement theorem** (note ⟦thm:main⟧, verbatim `Γ_R ≅ G_{ℚ₂}`; the R-campaign
 terminal theorem): granted the single Labute-classification instance `hBLab` (note
 Cor. 3.4 ⟦cor:abstractD0⟧ — an explicit hypothesis, **not** an axiom; discharged by the
@@ -549,6 +572,7 @@ theorem main_presentation_literal_roe_of_inputs (hBLab : BLabHypothesis) :
     (fun G => (eq_154_R_of_inputs hBLab G).trans (SectionTen.main_surjection_count_of_inputs G))
     (fun G => SectionTen.main_surjection_count_of_inputs G)
 
+include lit in
 /-- **The Replacement theorem, unconditionally** (note ⟦thm:main⟧; the campaign's terminal
 statement): the Roe candidate `Γ_R` (Definition 1.1 ⟦def:GammaR⟧) is continuously isomorphic
 to `G_{ℚ₂}` — no hypotheses, no instance binders.

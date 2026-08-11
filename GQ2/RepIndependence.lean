@@ -26,9 +26,6 @@ its use of `Q⁰_loc` requires: `hdatW` (equivariant factor set on `W`), `hiC` (
 -/
 
 namespace GQ2
-
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
 namespace RepIndependence
 
 open ContCoh QuadraticFp2 Corestriction SectionSix

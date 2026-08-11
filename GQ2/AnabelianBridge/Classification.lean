@@ -17,9 +17,6 @@ open scoped Classical
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 open Multiplicative
 
 /-! ## Proposition 3.8, classification half

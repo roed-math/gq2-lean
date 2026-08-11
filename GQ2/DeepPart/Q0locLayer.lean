@@ -27,8 +27,8 @@ open scoped Classical
 
 namespace GQ2.DeepPart
 
-set_option linter.unusedSectionVars false
 variable [lit : GQ2.LiteratureInputs]
+omit lit
 
 open GQ2 GQ2.ContCoh GQ2.Foundations
 
@@ -543,6 +543,7 @@ noncomputable def deepPartSubgroup (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
 
 omit [Finite C] in
+include lit in
 /-- **Prop 6.18 (eq. (115), ramified) from Lemma 6.17**: given the dim clause (`hdim`,
 `#X₊² = #H¹`) and the vanishing clause (`hvanish`, `Q⁰_loc|X₊ = 0`), the zero-count of
 `Q⁰_loc` is `2^{2m−1} + 2^{m−1}` — the positive Gauss sign, via the Lagrangian Arf package

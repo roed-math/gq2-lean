@@ -72,9 +72,6 @@ The main consumer is `card_deepPart_sq_of_duality`.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 section ActionHelpers
 
 variable {C : Type} [Group C] {M : Type} [AddCommGroup M] [DistribMulAction C M]

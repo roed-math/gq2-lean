@@ -38,9 +38,6 @@ between these declarations and the structure is caught here rather than in R32's
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 namespace SectionEight
 
 namespace LedgerGammaR

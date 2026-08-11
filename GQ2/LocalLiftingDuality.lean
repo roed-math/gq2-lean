@@ -35,8 +35,8 @@ namespace GQ2.LocalLiftingDuality
 
 open ContCoh GQ2 FoxH
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 /-! ## The `n = 2` transport `MuN 2 ≅ ZMod 2` (trivial `G`-module). -/
 
@@ -227,6 +227,7 @@ theorem H2_two_torsion (hA₂ : ∀ a : A, a + a = 0) (z : H2 AbsGalQ2 A) : z + 
 
 include hρ hcomp in
 omit [DiscreteTopology C] [Finite C] in
+include lit in
 /-- **Clause (i)**: `#H²(A) = #fixedPts C (ElemDual A)` — B6's `(0,2)` duality (`H⁰(A′) ≅
 Hom(H²(A), 𝔽₂)`), the self-dual count `#Hom(H²(A),𝔽₂) = #H²(A)`, and the degree-0 transport. -/
 theorem card_H2_eq_fixedPts (hA₂ : ∀ a : A, a + a = 0) :
@@ -283,6 +284,7 @@ theorem pow_padicValNat_card (hA₂ : ∀ a : A, a + a = 0) :
 
 include hρ hcomp in
 omit [DiscreteTopology C] [Finite C] in
+include lit in
 /-- **Clause (ii)**: `#Z¹(A) = #A² · #fixedPts C (ElemDual A)` — from `#Z¹ = #H¹·#B¹`, the B7 Euler
 characteristic `#H¹ = #H⁰·#H²·#A`, `#A = #B¹·#H⁰`, and clause (i). -/
 theorem card_Z1_eq (hA₂ : ∀ a : A, a + a = 0) :
@@ -302,6 +304,7 @@ end Bridge
 
 /-! ## Clause (iii): `#H²(𝔽₂) = 2`. -/
 
+include lit in
 /-- **Clause (iii)**: `#H²(G_ℚ₂, 𝔽₂) = 2`.  With `G_ℚ₂` acting trivially the `μ₂`-dual
 invariants are
 everything, so `#H⁰(MuDual 2 𝔽₂) = #(𝔽₂ →+ μ₂) = #(𝔽₂ →+ 𝔽₂) = 2`; B6's `(0,2)` duality then pins
@@ -377,6 +380,7 @@ theorem edEquivariant
   rw [hEDsmul]
   simp only [dualAddEquiv_apply, muDual_smul_apply, smul_muN_two_trivial]
 
+include lit in
 /-- **The shared cup-clause skeleton** of clauses (iv)–(vi): an `𝔽₂`-side evaluation cup `Φ`
 that matches B6's `μ₂`-side pairing `Ψ` through the class transport `e` and the coefficient
 transport `muNTwoEquiv` (`hcomm`), with B6-side perfect surjectivity `hP` and equal finite
@@ -406,6 +410,7 @@ private theorem bijective_cup_of_comm {V W Y : Type*} [AddCommGroup V] [AddCommG
     exact DFunLike.congr_fun hd'' c
   exact bijective_cup hV₂ hW₂ hcardVW τ Φ hsurj
 
+include lit in
 /-- **Clause (iv)**: the `(1,1)` evaluation cup `c ↦ (d ↦ c ∪ d) : H¹(A) → Hom(H¹(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect11`, discharged by graded-commutativity + counting. -/
 theorem bijective_cup11_dualEval
@@ -434,6 +439,7 @@ theorem bijective_cup11_dualEval
   rw [H1congr_mk, cup11_mk_mk, cup11_mk_mk, H2congr_mk]
   congr 1
 
+include lit in
 /-- **Clause (v)**: the `(0,2)` evaluation cup `c ↦ (d ↦ c ∪ d) : H⁰(A) → Hom(H²(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect20` (`cup02 = cup20ᵀ` swaps the degree pair). -/
 theorem bijective_cup02_dualEval
@@ -459,6 +465,7 @@ theorem bijective_cup02_dualEval
   rw [H2congr_mk, cup20_mk_mk, cup20_mk_mk, H2congr_mk]
   congr 1
 
+include lit in
 /-- **Clause (vi)**: the `(2,0)` evaluation cup `c ↦ (d ↦ c ∪ d) : H²(A) → Hom(H⁰(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect02` (`cup20 = cup02ᵀ` swaps the degree pair). -/
 theorem bijective_cup20_dualEval
@@ -488,6 +495,7 @@ end CupClauses
 
 /-! ## Assembly: the full `prop_5_16` conclusion. -/
 
+include lit in
 /-- **`prop_5_16` (local lifting duality), fully assembled** — all six clauses, stated with the
 paper's exact signature (`GQ2.FoxH.prop_5_16`).  This is the complete the Prop. 5.16 proof result: clauses
 (i)–(iii) are the numeric/Euler-characteristic content, (iv)–(vi) the cup-perfectness content.
@@ -533,9 +541,11 @@ qualified names are unchanged) rather than in `FoxHeisenberg.lean`, because thei
 namespace GQ2.FoxH
 
 variable [lit : LiteratureInputs]
+omit lit
 
 open GQ2.ContCoh GQ2.LocalLiftingDuality
 
+include lit in
 /-- **Prop 5.16 (local lifting duality)**: for a finite elementary module with `G_ℚ₂`-action
 factoring through `ρ : G_ℚ₂ ↠ C`, the display-(57) numerics hold and the cup-product API evaluation-cup
 pairings are perfect in all three degree pairs (the Tate-duality interface phrasing; the clause `#H²(𝔽₂) = 2`
@@ -569,6 +579,7 @@ theorem prop_5_16 {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C
     Function.Bijective (fun c : H2 AbsGalQ2 A => cup20 (dualEval A) hpair c) :=
   prop_5_16_bundle ρ hρ hcomp hA₂ hcompD htriv hpair
 
+include lit in
 /-- **Corollary 5.17, numerics half** (proved wiring): the obstruction-space and
 unobstructed-lift-multiplicity cardinalities agree for the two sources.  (The
 adjoint-boundary identity (58) is deferred: it needs connecting-map infrastructure in both

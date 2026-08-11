@@ -64,9 +64,6 @@ Axioms: none introduced (std-3 only).
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 open ContCoh SectionEight WordCohBridgeR RStageGammaA
 
 namespace RStageGammaR

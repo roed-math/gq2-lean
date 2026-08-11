@@ -40,8 +40,8 @@ no new axiom.  Closing `SectionSix.lemma_6_17_dim` outright needs the residue-tr
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
 variable [lit : LiteratureInputs]
+omit lit
 
 namespace DimClose
 
@@ -53,6 +53,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
+include lit in
 /-- **`lemma_6_17_dim`, reduced to the residue-trivial tame lift** (the deep-part proof finale): the §6.3
 deep-half dimension identity `#X₊² = #H¹(ℚ₂, V)`, assembled from f7's `hduality_of_data` + f8's
 `lemma_6_17_dim_of_hduality`, with the single arithmetic input — a residue-trivial lift of tame

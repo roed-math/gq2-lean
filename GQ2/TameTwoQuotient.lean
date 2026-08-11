@@ -29,9 +29,6 @@ Parts (i) and (ii) are std-3; part (iii) uses B10′.
 
 namespace GQ2
 
-set_option linter.unusedSectionVars false
-variable [lit : LiteratureInputs]
-
 open scoped Classical
 open SectionThree
 
@@ -119,7 +116,7 @@ theorem map_eq_one_of_nuT_eq_one_finite {Q : Type*} [Group Q] [Finite Q] [Topolo
 coordinate `tameF : G_ℚ₂ → T_tame` — every local-reciprocity image of a `2`-adic **unit** is killed
 by `ν_t ∘ tameF`.  For the axiom bundle's own tame coordinate this is `OrientedTameQuotient`'s
 `nuT_recip_unit`; a general `B : BoundaryMaps` carries no reciprocity clause, so the moved
-`lemma_6_17_vanish` threads `TameUnitOrientation lit.localReciprocity B.tameF` as one hypothesis
+`lemma_6_17_vanish` threads `TameUnitOrientation localReciprocity B.tameF` as one hypothesis
 (the `hc`/`hV2` precedent), discharged at `boundaryMapsWitness`. -/
 def TameUnitOrientation (R : LocalReciprocity)
     (tameF : ContinuousMonoidHom AbsGalQ2 Ttame) : Prop :=
