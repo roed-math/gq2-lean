@@ -748,6 +748,8 @@ import GQ2.Dyadic.SqCore.GradedLiveGammaTwo
 import GQ2.Dyadic.SqCore.GradedFiveSepZero
 import GQ2.Dyadic.SqCore.GradedGammaTwoCensus
 import GQ2.Dyadic.SqCore.GradedForceSharp
+import GQ2.Dyadic.SqCore.GradedConsolShift
+import GQ2.Dyadic.SqCore.GradedConsolLegal
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
