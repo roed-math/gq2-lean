@@ -38,6 +38,9 @@ total — no `H¹`-pairing is involved.
 
 namespace GQ2.LocalKummer
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open Finset ContCoh SectionSix DeepPart RepIndependence
 
 /-! ## Layer 1: the halving arithmetic -/

@@ -35,7 +35,7 @@ Proves the §3 statements for the paper's **Prop. 3.2** (common tame quotient) a
 * **`ν`-surjectivities** (`nuT_surjective`, `nuTwo_surjective`, axiom-free): the ranges are
   closed subgroups (continuous images of compact groups) containing `ν(σ) = 1`, and `1`
   topologically generates `Z₂` (via `ℤ` dense in `ℤ̂`, the profinite-exponentiation API).
-* **Local side** (`prop_3_2_local`, `Ax = B10`): the axiom `GQ2.tameQuotient` supplies the
+* **Local side** (`prop_3_2_local`, `Ax = B10`): the axiom `lit.tameQuotient` supplies the
   closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ T_tame`; Lemma 3.3's **maximality** is proved —
   `T_tame` has no nontrivial "normal subgroup with 2-group finite images", by the paper's
   argument: through each Fermat-level quotient `C_{2^{2^m}−1} ⋊ C_{2^m}` (faithful squaring
@@ -52,6 +52,9 @@ continuous homomorphisms.
 open CategoryTheory
 
 namespace GQ2
+
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
 namespace SectionThree
 
@@ -1267,8 +1270,8 @@ theorem tameData_maximal [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGa
 maximality is Lemma 3.3 (`tameData_maximal`). -/
 theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty LocalTameQuotient :=
-  ⟨{ toTameQuotientData := GQ2.tameQuotient.toTameQuotientData,
-     maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }⟩
+  ⟨{ toTameQuotientData := lit.tameQuotient.toTameQuotientData,
+     maximal := tameData_maximal lit.tameQuotient.toTameQuotientData }⟩
 
 end SectionThree
 

@@ -28,6 +28,9 @@ action — the two facts needed to feed the reindexed orbit sum into the reducer
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace VanishClose
 
 open OrbitVanish (sumDatum)

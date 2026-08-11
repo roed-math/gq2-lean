@@ -59,6 +59,9 @@ display-(57) numerics.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace FoxH
 
 open scoped Classical

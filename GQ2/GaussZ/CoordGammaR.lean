@@ -34,6 +34,9 @@ The `hnt`-variant fixed-point freeness `hfix_of_simple_nt` is generic and import
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift

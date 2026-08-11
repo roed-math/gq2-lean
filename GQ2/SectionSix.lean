@@ -69,6 +69,9 @@ Axioms: **none consumed here** (statement layer).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open ContCoh QuadraticFp2 Corestriction
 
 open scoped Classical

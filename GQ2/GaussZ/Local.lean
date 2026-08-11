@@ -35,6 +35,9 @@ budget (B6 via the `D` parameter, B7).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift

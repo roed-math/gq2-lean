@@ -29,6 +29,9 @@ solved by `count_eq_of_closedRecursion` against the §9 induction bounds).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open SectionEight
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
@@ -119,7 +122,7 @@ private theorem mStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
       S.tfg
     have hfgF : ∃ s : Finset AbsGalQ2,
         (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤ :=
-      Foundations.absGalQ2_isTopologicallyFinitelyGenerated
+      LiteratureInputs.absGalQ2_isTopologicallyFinitelyGenerated
     have hheadS : Function.Surjective (fun γ : ↥S.Γ => (F.frameMap (S.b γ)).1) :=
       hhead.comp S.b_surjective
     have hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1) :=
@@ -307,7 +310,7 @@ private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
       S.tfg
     have hfgF : ∃ s : Finset AbsGalQ2,
         (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤ :=
-      Foundations.absGalQ2_isTopologicallyFinitelyGenerated
+      LiteratureInputs.absGalQ2_isTopologicallyFinitelyGenerated
     have hheadS : Function.Surjective (fun γ : ↥S.Γ => (F.frameMap (S.b γ)).1) :=
       hhead.comp S.b_surjective
     have hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1) :=

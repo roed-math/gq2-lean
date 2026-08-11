@@ -39,6 +39,9 @@ tail transport and the commutator-convention bridge.
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SpanStepAux
 
 /-! ### Restated layer-image calculus

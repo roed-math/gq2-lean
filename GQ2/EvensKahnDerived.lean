@@ -16,8 +16,8 @@ public import GQ2.StiefelWhitney
 This file supplies the engine behind the B9-A flip (plan `docs/orchestration/b9a-proof-plan.md`,
 nodes N4/N5): since 2026-07-24, `GQ2/Foundations/Axioms.lean` proves the same-name theorem
 `evensKahn_dyadic` — byte-identical to the pre-flip axiom — as
-`evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic …
-(hilbertSymbol_normCriterion_finiteDyadic k htriv)`.
+`evensKahn_dyadic_of_rsw LiteratureInputs.relativeStiefelWhitney_dyadic …
+(LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic k htriv)`.
 
 One declaration:
 
@@ -29,7 +29,7 @@ One declaration:
 ## The `hnorm` hypothesis (owner-approved firewall, Q2)
 
 The engine carries `hnorm`, the dyadic Hilbert-symbol norm criterion — the exact conclusion of
-axiom **B11a**, `hilbertSymbol_normCriterion_finiteDyadic k htriv`.  It is forced: the degree-2
+axiom **B11a**, `LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic k htriv`.  It is forced: the degree-2
 component evaluates `swTwo` on the diagonal transfer forms via `swTwo_diag`, whose Delzant
 well-definedness (`swTwo_well_defined`, plan node N2) consumes the criterion.  B11a lives
 downstream in `GQ2/Foundations/Axioms.lean`, so it cannot be imported here; the firewall carries
@@ -37,8 +37,8 @@ it as a hypothesis (`GQ2/StiefelWhitney.lean`'s `swTwo_diag`/`swTwo_congr` alrea
 file inherits it one level up.  The owner approved this design (Q2,
 `docs/orchestration/b9a-tickets.md`).  The degree-1 component needs no such input.  At the flip
 the hypothesis is discharged from B11a, so the flipped `evensKahn_dyadic` is byte-identical (no
-`hnorm`) with `#print axioms` = {`relativeStiefelWhitney_dyadic`,
-`hilbertSymbol_normCriterion_finiteDyadic`, + std-3} (plan node N2).
+`hnorm`) with `#print axioms` = {`LiteratureInputs.relativeStiefelWhitney_dyadic`,
+`LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic`, + std-3} (plan node N2).
 
 ## No unit-arithmetic bridge is needed
 
@@ -77,7 +77,7 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-- **B9 from the relative Stiefel–Whitney identity `hrsw`, given the B11a norm criterion `hnorm`.**
 The reusable engine of this file.  From the abstract identity `hrsw` (the exact statement of
-`relativeStiefelWhitney_dyadic`, taken as a hypothesis so the file stays upstream of the axiom file)
+`LiteratureInputs.relativeStiefelWhitney_dyadic`, taken as a hypothesis so the file stays upstream of the axiom file)
 and the norm criterion `hnorm`, it proves the byte-identical B9 conclusion at `a = u + vδ`.
 
 Proof (plan node N5): the transfer unit `a = u + vδ ∈ k(δ)ˣ` is built as a nonzero element of the
@@ -86,7 +86,7 @@ gives the two Stiefel–Whitney components; the Lemma 6.16 diagonalizations `Tr�
 `Tr⟨1⟩ ≃ ⟨2, 2d⟩`, via `swOne_diag`/`swTwo_diag`, rewrite them into the B9 Kummer-class form.
 
 `GQ2/Foundations/Axioms.lean` instantiates this at the B9 axiom
-`relativeStiefelWhitney_dyadic` and `hnorm := hilbertSymbol_normCriterion_finiteDyadic k htriv`,
+`LiteratureInputs.relativeStiefelWhitney_dyadic` and `hnorm := LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic k htriv`,
 recovering the byte-identical B9 statement as the same-name theorem. -/
 theorem evensKahn_dyadic_of_rsw
     (hrsw : ∀ (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]

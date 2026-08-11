@@ -33,6 +33,9 @@ isomorphisms are constructed before the final `BoundaryMaps` witness bundles bot
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionThree
 
 open scoped Classical

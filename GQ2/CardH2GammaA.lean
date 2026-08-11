@@ -33,6 +33,9 @@ duality route is axiom-free, and the witness is elementary group theory).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace CardH2GammaA
 
 open DihedralGroup SectionEight CentralObstruction ContCoh WordCohBridge

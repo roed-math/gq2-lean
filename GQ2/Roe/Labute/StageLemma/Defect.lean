@@ -16,6 +16,9 @@ the Frattini generation transfer, and the span theorem `span_free_*` / `span_des
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-! ## Shift formula and modification stability (spike §2.1–2.2; concrete towers) -/
 
 /-- **The transported shift formula, direction 1** (spike §2.2, machine-verified 24/24):

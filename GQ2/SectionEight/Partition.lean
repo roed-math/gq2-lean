@@ -16,6 +16,9 @@ open scoped Pointwise
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 open QuadraticFp2

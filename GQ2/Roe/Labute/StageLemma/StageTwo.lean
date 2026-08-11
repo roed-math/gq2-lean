@@ -16,6 +16,9 @@ and the statement freeze).  The two digit-adjustment statements `stageSL2R0` /
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-- **SL2 (digit adjustment), direction 1**: for `T ∈ S^P_ₖ` (`k ≥ 3`) with vanishing
 defect, some `ker d̄`-modification of the canonical lift lands in `S^P_{k+1}` — the memo's
 "`ker d̄ₖ → (ℤ/2)²` onto" in its consumed form (the digit bookkeeping, including the

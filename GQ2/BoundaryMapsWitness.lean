@@ -35,7 +35,7 @@ With these, the kernel hypothesis of `fiberProductExists` (`h(ker f) ⊇ ker β`
 * `Γ_A` side: `tameA = φ_A` (Prop. 3.2), `pro2A = φ_Π` (the marked pro-2 isomorphisms `prop_3_10_gammaA`), `compatA` by density
   on the four marked generators.
 * `G_{ℚ₂}` side: `tameF` from `prop_3_2_local` (B10 `LocalTameQuotient` + Lemma 3.3 maximality),
-  `pro2F` from `prop_3_10_local_marked` (the marked pro-2 isomorphisms) with `R = GQ2.localReciprocity` (B5).
+  `pro2F` from `prop_3_10_local_marked` (the marked pro-2 isomorphisms) with `R = LiteratureInputs.localReciprocity` (B5).
 
 ## The arithmetic compatibility: `compatF` (`tame_reciprocity`)
 
@@ -48,6 +48,9 @@ there is no remaining gap.
 -/
 
 namespace GQ2
+
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
 namespace SectionThree
 
@@ -232,17 +235,17 @@ lemma padic_hom_eq_of_gens (φ ψ : ℚ_[2]ˣ →* Multiplicative ℤ_[2])
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-/-- The chosen local tame quotient: **the B10′ oriented witness** (`GQ2.tameQuotient`), with
+/-- The chosen local tame quotient: **the B10′ oriented witness** (`LiteratureInputs.tameQuotient`), with
 Lemma 3.3's maximality attached (`tameData_maximal`).  Using the axiom's witness directly (not
 `prop_3_2_local.some`) keeps the orientation clauses `nuT_recip_unit`/`nuT_recip_uniformizer`
 available for the two `tame_recip_*` atoms below. -/
 noncomputable def locTame : LocalTameQuotient :=
-  { toTameQuotientData := GQ2.tameQuotient.toTameQuotientData,
-    maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }
+  { toTameQuotientData := LiteratureInputs.tameQuotient.toTameQuotientData,
+    maximal := tameData_maximal LiteratureInputs.tameQuotient.toTameQuotientData }
 
 
-/-- The chosen local pro-2 marked iso (the marked pro-2 isomorphisms `prop_3_10_local_marked`) at `R = localReciprocity`. -/
-noncomputable def locPro2 := prop_3_10_local_marked_proved (localReciprocity)
+/-- The chosen local pro-2 marked iso (the marked pro-2 isomorphisms `prop_3_10_local_marked`) at `R = LiteratureInputs.localReciprocity`. -/
+noncomputable def locPro2 := prop_3_10_local_marked_proved (LiteratureInputs.localReciprocity)
 
 /-- `tameF : G_{ℚ₂} ↠ T_tame`, the tame quotient map (composite `G ↠ G/W ≅ T_tame`). -/
 noncomputable def tameFHom : ContinuousMonoidHom AbsGalQ2 Ttame :=
@@ -308,20 +311,20 @@ noncomputable def tameChar : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_
 /-- **Atom (F)** — the uniformizer: `f₁(rec 2) = ofAdd(−1)` (arithmetic Frobenius, geometric
 coordinate `−1`).  Discharged by the B10′ orientation clause `nuT_recip_uniformizer`. -/
 theorem tame_recip_uniformizer :
-    tameChar ((localReciprocity).recip uniformizer)
+    tameChar ((LiteratureInputs.localReciprocity).recip uniformizer)
       = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2]) := by
   obtain ⟨g, hg⟩ :=
-    QuotientGroup.mk'_surjective commClosure ((localReciprocity).recip uniformizer)
-  have hg' : toAb g = (localReciprocity).recip uniformizer := hg
+    QuotientGroup.mk'_surjective commClosure ((LiteratureInputs.localReciprocity).recip uniformizer)
+  have hg' : toAb g = (LiteratureInputs.localReciprocity).recip uniformizer := hg
   have hval : GQ2.nuT (tameFHom g) = ztwoOne⁻¹ :=
-    GQ2.tameQuotient.nuT_recip_uniformizer g hg'
+    LiteratureInputs.tameQuotient.nuT_recip_uniformizer g hg'
   rw [← hg', tameChar_toAb, hval, map_inv, locPro2.choose_spec.1, ← ofAdd_neg]
   congr 1
 
 /-- **Atom (U₋₃)** — the unit `−3`: `f₁(rec(−3)) = 1` (unramified-trivial).  Discharged by the
 B10′ orientation clause `nuT_recip_unit` at the unit `−3` (odd, hence a `ℤ₂`-unit). -/
 theorem tame_recip_unitNeg3 :
-    tameChar ((localReciprocity).recip unitNeg3) = 1 := by
+    tameChar ((LiteratureInputs.localReciprocity).recip unitNeg3) = 1 := by
   obtain ⟨u, hu⟩ : ∃ u : ℤ_[2]ˣ, (u : ℤ_[2]) = -3 :=
     ⟨(isUnit_intCast_of_odd (⟨-2, by ring⟩ : Odd (-3 : ℤ))).unit, by
       rw [IsUnit.unit_spec]
@@ -333,10 +336,10 @@ theorem tame_recip_unitNeg3 :
     show algebraMap ℤ_[2] ℚ_[2] (-3) = ((unitNeg3 : ℚ_[2]ˣ) : ℚ_[2])
     simp only [unitNeg3, Units.val_mk0, map_neg, map_ofNat]
   obtain ⟨g, hg⟩ :=
-    QuotientGroup.mk'_surjective commClosure ((localReciprocity).recip unitNeg3)
-  have hg' : toAb g = (localReciprocity).recip unitNeg3 := hg
+    QuotientGroup.mk'_surjective commClosure ((LiteratureInputs.localReciprocity).recip unitNeg3)
+  have hg' : toAb g = (LiteratureInputs.localReciprocity).recip unitNeg3 := hg
   have hval : GQ2.nuT (tameFHom g) = 1 :=
-    GQ2.tameQuotient.nuT_recip_unit u g (by rw [hg', hemb])
+    LiteratureInputs.tameQuotient.nuT_recip_unit u g (by rw [hg', hemb])
   rw [← hg', tameChar_toAb, hval, map_one]
 
 /-- **Tame reciprocity** (the boundary-witness reduction reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
@@ -344,18 +347,18 @@ through `G_{ℚ₂}^{ab}`; agree on the dense image of `recip` by `padic_hom_eq_
 generator inputs are exactly the atoms `tame_recip_uniformizer` (F) and `tame_recip_unitNeg3`
 (U₋₃) matched against `nu_ur_recip_*`. -/
 theorem tame_reciprocity (g : AbsGalQ2) :
-    locPro2.choose (GQ2.nuT (tameFHom g)) = (localReciprocity).nu_ur (toAb g) := by
-  have key : ⇑tameChar = ⇑(localReciprocity).nu_ur := by
-    apply Continuous.ext_on (localReciprocity).denseRange_recip tameChar.continuous_toFun
-      (localReciprocity).continuous_nu_ur
+    locPro2.choose (GQ2.nuT (tameFHom g)) = (LiteratureInputs.localReciprocity).nu_ur (toAb g) := by
+  have key : ⇑tameChar = ⇑(LiteratureInputs.localReciprocity).nu_ur := by
+    apply Continuous.ext_on (LiteratureInputs.localReciprocity).denseRange_recip tameChar.continuous_toFun
+      (LiteratureInputs.localReciprocity).continuous_nu_ur
     rintro _ ⟨u, rfl⟩
-    refine padic_hom_eq_of_gens (tameChar.toMonoidHom.comp (localReciprocity).recip)
-      ((localReciprocity).nu_ur.comp (localReciprocity).recip) ?_ ?_ u
-    · show tameChar ((localReciprocity).recip uniformizer)
-        = (localReciprocity).nu_ur ((localReciprocity).recip uniformizer)
+    refine padic_hom_eq_of_gens (tameChar.toMonoidHom.comp (LiteratureInputs.localReciprocity).recip)
+      ((LiteratureInputs.localReciprocity).nu_ur.comp (LiteratureInputs.localReciprocity).recip) ?_ ?_ u
+    · show tameChar ((LiteratureInputs.localReciprocity).recip uniformizer)
+        = (LiteratureInputs.localReciprocity).nu_ur ((LiteratureInputs.localReciprocity).recip uniformizer)
       rw [tame_recip_uniformizer, nu_ur_recip_uniformizer']
-    · show tameChar ((localReciprocity).recip unitNeg3)
-        = (localReciprocity).nu_ur ((localReciprocity).recip unitNeg3)
+    · show tameChar ((LiteratureInputs.localReciprocity).recip unitNeg3)
+        = (LiteratureInputs.localReciprocity).nu_ur ((LiteratureInputs.localReciprocity).recip unitNeg3)
       rw [tame_recip_unitNeg3, nu_ur_recip_unitNeg3, Int.cast_zero, ofAdd_zero]
   have h := congrFun key (toAb g)
   rwa [tameChar_toAb] at h

@@ -57,13 +57,16 @@ through `half139_via_radData`) + the four residues (`hsep_gammaA` /
 `hpartial_gammaA` / `hZcard_gammaA` / `tcocycle_card_gammaA`) through the source-generic
 `phase140_from_residues`.
 
-`#print axioms prop_8_9` is the standard three axioms plus B6 `tateDualityAt` and
+`#print axioms prop_8_9` is the standard three axioms plus B6 `LiteratureInputs.tateDualityAt` and
 B7 `absGalQ2_localEulerCharacteristic`, leaner than the App. D budget because B9 never enters
 this proof.  One elaboration detail is worth preserving: `simpa … using` fails the cross-`λ`
 `TCharC` definitional-equality close, while `simp only […]` followed by a bare `exact` works.
 -/
 
 namespace GQ2
+
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
 namespace SectionEight
 

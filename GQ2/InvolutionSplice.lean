@@ -51,6 +51,9 @@ B13 (`dyadicUnitFiltration`, via `hunram_involution`)} — the §6.3 involution 
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace InvolutionSplice
 
 open ContCoh

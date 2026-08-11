@@ -7,15 +7,25 @@ project:
   authors:
     - "David Roe"
   license: "Apache-2.0"
+  responsible_maintainers:
+    - "David Roe"
+
+repository:
+  role: "substantive-development"
+
+classification:
+  arxiv: ["math.NT", "math.GR"]
+  msc2020: ["11S20", "11S25", "20E18"]
 
 sources:
   - title: "A Presentation of the Absolute Galois Group of Q_2"
     authors: ["David Turturean"]
     id: "current writeup at https://roed314.github.io/gq2/; original source snapshot at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
-    type: "machine-generated preprint (GPT)"
-    license: ""
-    author_contacted: "yes"
-    prior_work: ""
+    type: "other"
+    location: "https://roed314.github.io/gq2/"
+    relationship: "formalizes"
+    license: "unknown"
+    author_endorsement: "n/a"
 
 status:
   scope: >
@@ -59,6 +69,42 @@ status:
     - "GQ2.tameQuotient"                                            # B10
     - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"                # B11a
   main_results:
+    - declaration: "GQ2.main_presentation_literal_of_inputs"
+      file: "GQ2/PresentationLiteralCore.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator-config-palomar.json"
+      literature_dependencies:
+        - "B1: G_Q2 is topologically finitely generated"
+        - "B7: local Euler characteristic formula at p = 2"
+        - "B3c: dyadic orientation / cyclotomic normalization"
+        - "B5: local reciprocity for Q_2"
+        - "B6: local Tate duality at finite extensions of Q_2"
+        - "B8: peripheral cyclotomic action"
+        - "B9: relative Stiefel-Whitney identity, dyadic case"
+        - "B10: oriented tame quotient structure of G_Q2"
+        - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
+    - declaration: "GQ2.main_presentation_literal_roe_unconditional_of_inputs"
+      file: "GQ2/Roe/MainCore.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator-config-palomar.json"
+      literature_dependencies:
+        - "B1: G_Q2 is topologically finitely generated"
+        - "B7: local Euler characteristic formula at p = 2"
+        - "B3c: dyadic orientation / cyclotomic normalization"
+        - "B5: local reciprocity for Q_2"
+        - "B6: local Tate duality at finite extensions of Q_2"
+        - "B8: peripheral cyclotomic action"
+        - "B9: relative Stiefel-Whitney identity, dyadic case"
+        - "B10: oriented tame quotient structure of G_Q2"
+        - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
     - declaration: "GQ2.main_presentation_literal"
       file: "GQ2/PresentationLiteral.lean"
       sorry_count: 0
@@ -174,6 +220,19 @@ automation:
         docs/orchestration/tickets.md and p*.md plan files); cleanup-phase worker
         prompts enforced byte-identical theorem statements, streaming-only builds,
         and anti-destruction rules for parallel lanes.
+    - method: "AI-assisted"
+      models: ["gpt-5.6"]
+      framework: "OpenAI Codex"
+      tool_setup: >
+        Repository inspection, Lean refactoring, kernel builds, environment-level axiom audits,
+        metadata validation, and Comparator packaging.
+      cost:
+        wall_time: "one implementation session"
+        spend_usd: "subscription-based"
+        hardware: "local development container plus API"
+      prompting_notes: >
+        Refactor the literature-dependent proof graph to take an explicit bundled hypothesis while
+        preserving the legacy public theorem statements and their exact axiom prints.
   spend_usd: "$600 (three Claude Max 20 subscriptions)"
   notes: >
     Human role was orchestration-level: approving axiom-census changes, owner-gated
@@ -301,5 +360,6 @@ alignment:
 
 acknowledgements: >
   Built on mathlib4 (pinned at ec410d2, 2026-06-12). Comparator verification uses
-  leanprover/comparator and leanprover/lean4export. Process archive:
+  leanprover/comparator (locally checked at commit
+  68a064109f01c08f47c8edc9f51d6a2bbffaa188) and leanprover/lean4export. Process archive:
   docs/orchestration/.

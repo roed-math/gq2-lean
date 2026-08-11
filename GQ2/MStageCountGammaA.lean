@@ -35,6 +35,9 @@ Axioms (target at close): `⊆ std-3 + B6 + B7` (as `liftsOver_card_local` / `hZ
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 open ContCoh SectionSeven WordCohBridge GQ2.FoxH RStageGammaA

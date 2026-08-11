@@ -18,6 +18,9 @@ See `GQ2.GaussZ.FinalGammaA` for the paper-facing overview, source citations, an
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift

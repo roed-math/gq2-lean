@@ -60,6 +60,9 @@ Everything here is `axiom`-free modulo the June-side inputs it cites (B3c/B8 via
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open FoxH Multiplicative SectionThree Roe
 
 /-! ## The lift group `ℤ₂ ⋊ ℤ₂ˣ` as a profinite 2-group

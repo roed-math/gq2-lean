@@ -36,6 +36,9 @@ nonzero `k`-integral element's norm an exact power of `‖π‖`.  We lift it to
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace UnramifiedNorm
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]

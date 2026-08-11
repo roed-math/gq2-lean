@@ -15,6 +15,9 @@ See `GQ2.GaussZ.FinalGammaA` for the paper-facing overview, source citations, an
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift
@@ -323,14 +326,14 @@ structure TamePackageUnram (B : BoundaryMaps) (F : BoundaryFrame H E)
       ∀ v : En.Vmod, c tameTau • v = v
 
 /-- **The c3-G0 tame package, ramified flavor**: inertia moves the module; the local
-side additionally needs the tame-unit orientation (at `R := localReciprocity`). -/
+side additionally needs the tame-unit orientation (at `R := LiteratureInputs.localReciprocity`). -/
 structure TamePackageRam (B : BoundaryMaps) (F : BoundaryFrame H E)
     (En : RF.Enrichment) where
   m : ℕ
   hm : 1 ≤ m
   hcard : Nat.card En.Vmod = 2 ^ (2 * m)
   hfaith : ∀ g : RF.YC, (∀ v : En.Vmod, g • v = v) → g = 1
-  horient : TameUnitOrientation localReciprocity B.tameF
+  horient : TameUnitOrientation LiteratureInputs.localReciprocity B.tameF
   packA : ∀ ρ : BoundaryLifts B.bA F RF.TC, ∃ c : ContinuousMonoidHom Ttame RF.YC,
     Function.Surjective ⇑c ∧ (∀ g : GammaA, ρ.1.1 g = c (B.tameA g)) ∧
       ∃ v : En.Vmod, c tameTau • v ≠ v

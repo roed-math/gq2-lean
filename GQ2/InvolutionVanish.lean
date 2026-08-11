@@ -27,6 +27,9 @@ composed with `IsGalois.card_aut_eq_finrank`.  Everything else is the deep-unit 
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace ShapiroDeepness
 
 open IntermediateField ContCoh SectionSix LocalKummer

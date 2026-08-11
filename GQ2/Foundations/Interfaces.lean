@@ -5,7 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.LiteratureInputs
 public import GQ2.HilbertSymbol
 public import GQ2.HilbertSymbolDyadicClose
 public import GQ2.KummerSurjectivity
@@ -27,8 +27,8 @@ shares the axioms' public interface:
   names — `HilbertSymbol.hilbertSymbol_dyadic` (B7′), `unramifiedQuadratic_units_are_norms`
   (B11b), `kummerClassK_surjective` (B12), `dyadicUnitFiltration` (B13);
 * `evensKahn_dyadic` — the pre-2026-07-24 B9 axiom, re-derived byte-identically from the
-  current B9 leaf `relativeStiefelWhitney_dyadic` together with B11a;
-* `tateDuality` — the `k = ℚ₂` member of the B6 axiom `tateDualityAt`;
+  current B9 leaf `lit.relativeStiefelWhitney_dyadic` together with B11a;
+* `tateDuality` — the `k = ℚ₂` member of the B6 axiom `lit.tateDualityAt`;
 * the `HasEqualNormValueGroups` convention `def`, its negative stress test, and the combined
   `dyadicNormCriterion`.
 
@@ -82,12 +82,15 @@ end GQ2.HilbertSymbol
 
 namespace GQ2
 
-/-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `tateDualityAt` -/
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
-/-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `tateDualityAt`, using
+/-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `lit.tateDualityAt` -/
+
+/-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `lit.tateDualityAt`, using
 `isLocalDualizingGroup_absGalQ2`. -/
 noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
-  tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
+  lit.tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
 
 /-! ## The B11 convention layer and the discharged B11b
 
@@ -164,10 +167,10 @@ Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u,
 * degree 2: `[2u] ⌣ [2dn/u] = [2] ⌣ [2d] + ([2] + [2d]) ⌣ cor[a] + N^{Ev}[a]`.
 
 Proof: `evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`) applied to the B9 axiom
-`relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
+`lit.relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
 layer); the T2 trace-form diagonalizations and the proved `swOne`/`swTwo` invariance do the
-rewriting.  `#print axioms`: `relativeStiefelWhitney_dyadic` and
-`hilbertSymbol_normCriterion_finiteDyadic` (+ the standard three).  Full setting and citations:
+rewriting.  `#print axioms`: `lit.relativeStiefelWhitney_dyadic` and
+`lit.hilbertSymbol_normCriterion_finiteDyadic` (+ the standard three).  Full setting and citations:
 the B9 axiom's docstring in `GQ2/Foundations/Axioms.lean` and `docs/literature-axioms.md` §B9. -/
 theorem evensKahn_dyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
@@ -198,8 +201,8 @@ theorem evensKahn_dyadic
         + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
             corH1 htriv hUo hidx hs α hα hαc
         + evensNormH2 htriv hUo hidx hs α hα hαc) :=
-  evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
-    htriv hUo α hαdef hα hαc (hilbertSymbol_normCriterion_finiteDyadic k htriv)
+  evensKahn_dyadic_of_rsw lit.relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
+    htriv hUo α hαdef hα hαc (lit.hilbertSymbol_normCriterion_finiteDyadic k htriv)
 
 /-- **Unramified unit-norm surjectivity, formerly interface B11b.**  If
 `k(√a)/k` is unramified (the `HasEqualNormValueGroups` convention on a chosen root `δa`,
@@ -240,7 +243,7 @@ theorem dyadicNormCriterion
           ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖) →
         ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
           ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
-  ⟨hilbertSymbol_normCriterion_finiteDyadic k htriv,
+  ⟨lit.hilbertSymbol_normCriterion_finiteDyadic k htriv,
    fun a δa hδa hunram u hu =>
      unramifiedQuadratic_units_are_norms k a δa hδa hunram u hu⟩
 

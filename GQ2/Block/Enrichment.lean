@@ -26,6 +26,9 @@ for `prop_7_4`, and the tame generators `F.alpha tameSigma/tameTau` for `htame`)
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionNine
 
 open SectionSeven SectionEight QuadraticFp2

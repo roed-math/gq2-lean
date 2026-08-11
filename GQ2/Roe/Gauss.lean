@@ -48,6 +48,9 @@ evaluation (`κ⁰`/`QZero`, `GaussZ/RelatorGammaA`) and the full `Γ_R` residue
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace FoxH
 
 open QuadraticFp2

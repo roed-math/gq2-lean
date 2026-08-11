@@ -5,15 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
-public import GQ2.Statement
-public import GQ2.Cohomology
-public import GQ2.Reciprocity
-public import GQ2.TateDuality
-public import GQ2.EvensKahn
-public import GQ2.PeripheralAction
-public import GQ2.Orientation
-public import GQ2.TameQuotient
-public import GQ2.TraceForm
+public import GQ2.Foundations.LiteratureInputs
 
 @[expose] public section
 
@@ -21,10 +13,10 @@ public import GQ2.TraceForm
 # Classical literature inputs for Theorem 1.2
 
 Every `axiom` in the GQ2 library lives in this file, a rule enforced by
-`scripts/check_axioms.sh` — and since 2026-07-27 the file contains the nine `axiom`
-declarations and **nothing else**, so that its transitive imports are exactly the statement
-vocabulary an auditor must read.  Each axiom represents a published mathematical input used by
-the paper; the paper-specific propositions and theorems are proved elsewhere in the library.
+`scripts/check_axioms.sh`.  The nine declarations retain their historical names and statements;
+the only additional declaration here assembles them into the compatibility
+`LiteratureInputs` instance.  Each axiom represents a published mathematical input used by the
+paper; the paper-specific propositions and theorems are proved elsewhere in the library.
 
 The current census contains nine axioms:
 
@@ -371,6 +363,28 @@ axiom hilbertSymbol_normCriterion_finiteDyadic
     ∀ a b : (↥k)ˣ,
       kummerClassK k a ⌣[htriv] kummerClassK k b = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+
+/-! ## Legacy compatibility provider -/
+
+/-- Assemble the original nine axiom declarations into the explicit input bundle.
+
+Generic modules do not import this file.  Importing it opts into the historical axiom-backed API.
+-/
+@[implicit_reducible] noncomputable def axiomaticLiteratureInputs : LiteratureInputs where
+  absGalQ2_isTopologicallyFinitelyGenerated :=
+    Foundations.absGalQ2_isTopologicallyFinitelyGenerated
+  absGalQ2_localEulerCharacteristic :=
+    Foundations.absGalQ2_localEulerCharacteristic
+  dyadicOrientation := dyadicOrientation
+  localReciprocity := localReciprocity
+  tateDualityAt := tateDualityAt
+  peripheralCyclotomicAction := peripheralCyclotomicAction
+  relativeStiefelWhitney_dyadic := relativeStiefelWhitney_dyadic
+  tameQuotient := tameQuotient
+  hilbertSymbol_normCriterion_finiteDyadic := hilbertSymbol_normCriterion_finiteDyadic
+
+/-- Importing `GQ2.Foundations.Axioms` selects the legacy literature inputs. -/
+noncomputable instance : LiteratureInputs := axiomaticLiteratureInputs
 
 end GQ2
 

@@ -45,6 +45,9 @@ pushout-compatible cover maps are constructed in `GQ2/RStage/ObstructionBuild.le
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 open SectionSeven

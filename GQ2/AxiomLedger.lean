@@ -142,6 +142,19 @@ def terminalPairs : List (Name × Name) :=
 the two admissible-marking semantics (`admissibleCountR` vs `admissibleCount`). -/
 def terminalSolo : List Name := [``GQ2.admissibleCountR_eq_admissibleCount]
 
+/-- Explicit-hypothesis capstones.  Their literature dependencies occur in their theorem types as
+the ordinary `[LiteratureInputs]` parameter, so their proof terms may use only the standard three
+axioms. -/
+def explicitInputTerminals : List Name :=
+  [ ``GQ2.main_presentation_literal_of_inputs
+  , ``GQ2.SectionTen.eq_154_of_inputs
+  , ``GQ2.SectionTen.main_surjection_count_of_inputs
+  , ``GQ2.eq_154_R_of_inputs
+  , ``GQ2.main_surjection_count_R_of_inputs
+  , ``GQ2.admissibleCountR_eq_admissibleCount_of_inputs
+  , ``GQ2.main_presentation_literal_roe_of_inputs
+  , ``GQ2.main_presentation_literal_roe_unconditional_of_inputs ]
+
 run_cmd do
   let env ← getEnv
   let permitted := stdAxioms ++ bAxioms.map (·.1)
@@ -173,6 +186,22 @@ run_cmd do
   unless bad.isEmpty do
     let badMsg := String.intercalate "\n  " bad.toList
     throwError "terminal certificate FAILED:\n  {badMsg}"
+
+run_cmd do
+  let env ← getEnv
+  let mut bad : Array String := #[]
+  for n in explicitInputTerminals do
+    unless env.contains n do
+      bad := bad.push s!"unknown explicit-input declaration {n}"
+      continue
+    let axs ← collectAxioms n
+    for a in axs do
+      unless stdAxioms.contains a do
+        bad := bad.push s!"{n} uses non-standard axiom {a}"
+  IO.println s!"\n--- explicit-input certificate ---\n{explicitInputTerminals.length} capstones checked; {bad.size} violation(s) (must be 0)"
+  unless bad.isEmpty do
+    let badMsg := String.intercalate "\n  " bad.toList
+    throwError "explicit-input certificate FAILED:\n  {badMsg}"
 
 end GQ2.AxiomLedger
 

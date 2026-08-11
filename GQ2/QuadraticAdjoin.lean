@@ -38,6 +38,9 @@ Paper: §6.3, around eq. (110).  Axioms: **∅** (std-3 target).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace QuadraticAdjoin
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]

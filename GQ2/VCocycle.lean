@@ -36,6 +36,9 @@ Since `DescData`'s `V`/`C₀` are opaque finite types (no topology), continuity 
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift

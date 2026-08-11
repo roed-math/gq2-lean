@@ -25,6 +25,9 @@ the consumers instantiate at `freeProTwo`.
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-! ### Pure group identities (restated from `StageLemma.lean`)
 
 `StageLemma.lean` sits *above* this file in the import graph (it imports

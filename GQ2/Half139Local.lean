@@ -30,6 +30,9 @@ characteristic behind `card_Z1_eq`.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 open CentralObstruction AffineTLift ContCoh LocalLiftingDuality FoxH

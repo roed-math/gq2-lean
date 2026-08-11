@@ -55,6 +55,9 @@ convention paragraph in `TwoCentralTower.lean`.
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-! ## The `r₀` word shape
 
 `drWord` exists in-tree (`GQ2/Roe/DRPresentation.lean`); its `r₀`-mirror is defined here

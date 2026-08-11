@@ -46,7 +46,7 @@ No bespoke light structure is needed.
   a single Steinberg instance).  Its cup-relation input is the B11a norm criterion; since this
   file is strictly upstream of `GQ2/Foundations/Axioms.lean` (the B9 axiom lives there and
   imports this file), the criterion enters as the explicit hypothesis `hnorm`, instantiated by
-  `hilbertSymbol_normCriterion_finiteDyadic` at the flip site (plan node N2; owner decision Q2).
+  `LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic` at the flip site (plan node N2; owner decision Q2).
   All three are sorry-free with `#print axioms` = the standard three.
 
 The evaluation lemmas `swOne_diag`/`swTwo_diag` and the isometry-class congruences
@@ -383,7 +383,7 @@ lemma extracts `x' = x·a² + y·b²` from the isometry, then a chain equivalenc
 identities close the computation.  The cup-relation inputs (Steinberg-type identities) are
 consequences of the B11a norm criterion, which enters as the hypothesis `hnorm` so that this
 file stays strictly upstream of `GQ2/Foundations/Axioms.lean`; the flip (ticket T5)
-instantiates `hnorm := hilbertSymbol_normCriterion_finiteDyadic k htriv`. -/
+instantiates `hnorm := LiteratureInputs.hilbertSymbol_normCriterion_finiteDyadic k htriv`. -/
 theorem swTwo_well_defined (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hnorm : ∀ a b : (↥k)ˣ,
       kummerClassK k a ⌣[htriv] kummerClassK k b = 0

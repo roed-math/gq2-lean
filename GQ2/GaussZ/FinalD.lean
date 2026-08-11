@@ -35,6 +35,9 @@ sources.  Everything std-3.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionNine
 
 open ContCoh QuadraticFp2 SectionSix SectionSeven SectionEight SectionEight.AffineTLift

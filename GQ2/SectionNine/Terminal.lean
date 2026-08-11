@@ -22,6 +22,9 @@ See `GQ2.SectionNine` for the paper-facing overview, source citations, and devia
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open SectionEight QuadraticFp2
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

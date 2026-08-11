@@ -74,6 +74,9 @@ namespace GQ2
 
 open ContCoh
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-! ## Tier 0: coefficient 2-torsion -/
@@ -254,7 +257,7 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
 theorem cup_of_normForm (a b : (↥k)ˣ) (x y : ↥k)
     (hb : (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2) :
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
-  (hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
+  (lit.hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
 
 /-- `(a, −a) = 0` — the norm form represents `−a` as `0² − a·1²`. -/
 theorem cup_neg_self (a : (↥k)ˣ) :

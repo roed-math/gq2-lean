@@ -22,7 +22,7 @@ cycle that would arise if the theorem lived with the shared definitions in `Sect
 involution `hunram` (odd tame inertia ⟹ the involution extension is unramified, in CFT
 vocabulary).  So `prop_6_18_ramified` gains `(R, horient)` as hypotheses (the `hc`/`hV2`
 precedent); consumers discharge them at `B := boundaryMapsWitness` via
-`TameOrientationWitness.tameFHom_tameUnitOrientation` (B10′) with `R := localReciprocity` (B5).
+`TameOrientationWitness.tameFHom_tameUnitOrientation` (B10′) with `R := LiteratureInputs.localReciprocity` (B5).
 
 Axioms: std-3 + {B6, B7, B9, B11a} (B11b/B12/B13 have since been discharged as in-repo std-3
 theorems/defs; the original budget was `lemma_6_17_dim_final`'s B6/B7/B11a/B12/B13 +
@@ -31,6 +31,9 @@ which adds only B6/B7 via `D`) — the full §6.3 deep-part budget, **no new axi
 -/
 
 namespace GQ2
+
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
 namespace DetRamified
 

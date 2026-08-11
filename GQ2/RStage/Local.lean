@@ -41,6 +41,9 @@ source, the exact `stageR136` field of the `RecursionInputs` bundle (the Prop. 8
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace RStageLocal
 
 open ContCoh SectionEight SectionSeven LocalLiftingDuality GQ2.FoxH

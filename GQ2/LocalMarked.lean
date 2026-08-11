@@ -18,6 +18,9 @@ argument on `D₀`'s three generators, matching the `prop_1_1` unramified coordi
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionThree
 
 open scoped Classical

@@ -38,6 +38,9 @@ pinned step cannot be abstracted into a common core without Π-over-instances no
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift

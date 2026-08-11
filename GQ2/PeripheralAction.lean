@@ -50,7 +50,7 @@ compatibility of `hι_one` with `hι_proj` is the *proved* `GQ2.zhatProjTwo_omeg
 (strengthened) bundle; the mathematical content is unchanged — the decomposition group acts on
 inertia through the cyclotomic character, whose 2-adic component at `u` **is** `u`.
 
-The axiom `GQ2.Foundations` `peripheralCyclotomicAction : PeripheralCyclotomicAction` asserts this
+The axiom `GQ2.peripheralCyclotomicAction : PeripheralCyclotomicAction` asserts this
 bundle exists.  **Reviewers check the implication** (Lemma 3.6 ⟹ this bundle), **not a `π₁`
 formalization**.
 

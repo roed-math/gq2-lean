@@ -25,6 +25,9 @@ WIP (this file is under construction for brick iii).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open ContCoh LocalKummer
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]

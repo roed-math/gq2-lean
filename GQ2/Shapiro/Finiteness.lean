@@ -42,6 +42,9 @@ open GQ2 GQ2.ContCoh
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-- The finite **coinduced / permutation module** `𝔽₂[G/U]` for Shapiro's lemma: functions
 `G ⧸ U → 𝔽₂` with the coinduced `G`-action `(g • f) x = f (g⁻¹ • x)`.  An instance-opaque
 synonym (plain `def`) so the coinduced action is not shadowed by the global pointwise (trivial)

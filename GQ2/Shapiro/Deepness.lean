@@ -33,6 +33,9 @@ Axioms: B9, B11a (through `cup_deepClasses`/(94)).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace ShapiroDeepness
 
 open ContCoh SectionSix LocalKummer

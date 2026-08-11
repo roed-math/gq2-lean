@@ -70,6 +70,9 @@ open CategoryTheory ProfiniteGrp
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open SectionThree
 
 /-! ## Profinite instances on the raw quotient `Γ_R = F₄ ⧸ N_R`

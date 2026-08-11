@@ -57,6 +57,9 @@ modules); `central_pair` is not needed for the Roe word.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open ContCoh WordCohBridgeR GQ2.FoxH RStageGammaA
 
 namespace RStageGammaR

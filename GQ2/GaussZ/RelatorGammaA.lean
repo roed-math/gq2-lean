@@ -34,6 +34,9 @@ All std-3; no axioms, no sorries.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace AffineTLift

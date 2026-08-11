@@ -16,7 +16,7 @@ the source-generic `phase140_from_residues` in `GQ2/Phase140Assembly.lean`: `hse
 `card_H2_zmod2_eq_two`).
 
 `#print axioms phase140_local` is contained in the standard three axioms together with B6
-(`tateDualityAt`) and B7 (`absGalQ2_localEulerCharacteristic`).  The four residues are
+(`LiteratureInputs.tateDualityAt`) and B7 (`absGalQ2_localEulerCharacteristic`).  The four residues are
 `htriv_local'`, `vFixedPts_eq_one`, the two **counting** residues
 **`tcocycle_card_local`** (the `hμ` supplier) and **`hZcard_local`**; the deep separation residue
 **`hsep_local`** (7 stages: `Additive T` module → `tDef ∈ Z²` → dual/`hpair` → `cup20`-bridge with
@@ -50,6 +50,9 @@ as in `hMcountM_local`/`hZcount_local`.
 -/
 
 namespace GQ2
+
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
 namespace SectionEight
 

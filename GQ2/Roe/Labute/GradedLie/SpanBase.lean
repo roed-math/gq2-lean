@@ -51,6 +51,9 @@ binder-for-binder from `StageLemma.lean` (house precedent; this file must not im
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-! ## Stage 0: pure group identities -/
 
 section PureCalculus

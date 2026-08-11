@@ -16,7 +16,7 @@ isomorphism itself.  Paper: *"there exist topological generators `a, s, y` of `D
 
 ## Proof structure (paper §3, "composes B3c/B4 with Lemma 3.5 and Prop. 3.8")
 
-* **B3c** (`dyadicOrientation`) provides a *group* isomorphism `equiv : G_{ℚ₂}(2) ≅ D₀` whose
+* **B3c** (`LiteratureInputs.dyadicOrientation`) provides a *group* isomorphism `equiv : G_{ℚ₂}(2) ≅ D₀` whose
   descended cyclotomic character `chiTwo` takes the marked values `(−1, 1, (−3)⁻¹)` on `A, S, Y`.
 * **Lemma 3.5** (`lemma_3_5_marked_abelianization`) provides an *abelianization*
   isomorphism `e_ab : D₀^{ab} ≅ G_{ℚ₂}(2)^{ab}` sending `Ā, S̄, Ȳ` to the reciprocity classes
@@ -36,6 +36,9 @@ is `std-3 + B3c + B8`.
 open scoped Classical
 
 namespace GQ2
+
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
 
 open SectionThree
 
@@ -174,8 +177,8 @@ open SectionThree PropOneOne
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-/-- The B3c dyadic-orientation bundle (a fixed witness of the axiom `dyadicOrientation`). -/
-noncomputable def orientBundle : DyadicOrientation := dyadicOrientation
+/-- The B3c dyadic-orientation bundle (a fixed witness of the axiom `LiteratureInputs.dyadicOrientation`). -/
+noncomputable def orientBundle : DyadicOrientation := LiteratureInputs.dyadicOrientation
 
 /-- `χ` transported to `D₀^{ab}`: `chiD0 (abMk d) = chiTwo (equiv.symm d)`.  Its generator values
 are `(−1, 1, (−3)⁻¹)` (`orientBundle.chi_A/S/Y`). -/

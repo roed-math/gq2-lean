@@ -3,11 +3,8 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
-import GQ2.GammaA
-import GQ2.SectionTenSources
-import GQ2.Prop23
-import GQ2.FinitelyGenerated
-import Mathlib.FieldTheory.Galois.Profinite
+import GQ2.PresentationLiteralCore
+import GQ2.Foundations.Axioms
 
 /-!
 # Theorem 1.2, literal presentation form
@@ -45,11 +42,7 @@ admissible-marking count), `hcount := SectionTen.main_surjection_count'` (the `G
 count), and the topological finite-generation witnesses of `Γ_A` and `G_{ℚ₂}`. -/
 theorem main_presentation_literal :
     Nonempty (ContinuousMulEquiv GammaA AbsGalQ2) :=
-  main_presentation GammaA
-    gammaA_topologicallyFinitelyGenerated
-    Foundations.absGalQ2_isTopologicallyFinitelyGenerated
-    prop_2_3
-    (fun G => SectionTen.main_surjection_count' G)
+  main_presentation_literal_of_inputs
 
 end GQ2
 

@@ -31,6 +31,9 @@ Axioms: **B6** (`tateDuality`) and **B7** (through `card_H2_zmod2_eq_two`'s fini
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 namespace RadicalEdgeLocal

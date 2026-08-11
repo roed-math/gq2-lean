@@ -24,6 +24,9 @@ namespace GQ2
 
 open Multiplicative
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-! ## `ẑ`-power helpers -/
 
 section ZpowHatHelpers
@@ -814,14 +817,14 @@ namespace SectionThree
 
 /-- **Lemma 3.7** (paper (15)): for every `u ∈ ℤ₂ˣ` there is a continuous automorphism `Ψ_u`
 of `D₀` acting on `B`-coordinates by `Ā = (1,−2,0) ↦ (1,−2u,0)`, `S̄ = (0,1,0) ↦ (0,u,0)`.
-Consumes axiom **B8** (`peripheralCyclotomicAction`).  Declared here (not in
+Consumes axiom **B8** (`lit.peripheralCyclotomicAction`).  Declared here (not in
 `GQ2/SectionThree.lean`) because the proof needs this file's bridge; same namespace, per the
 Prop. 3.2 precedent (`GQ2/Prop32.lean`). -/
 theorem lemma_3_7 (u : ℤ_[2]ˣ) :
     ∃ Ψ : ContinuousMulEquiv (D0 : Type) (D0 : Type),
       B.e (abMk (Ψ d0A)) = Multiplicative.ofAdd (1, -2 * (u : ℤ_[2]), 0) ∧
       B.e (abMk (Ψ d0S)) = Multiplicative.ofAdd (0, (u : ℤ_[2]), 0) :=
-  ⟨psiEquiv peripheralCyclotomicAction u,
+  ⟨psiEquiv lit.peripheralCyclotomicAction u,
     (bCoordHom_apply B _).symm.trans (bCoord_psiHom_A B _ u),
     (bCoordHom_apply B _).symm.trans (bCoord_psiHom_S B _ u)⟩
 
@@ -1091,7 +1094,7 @@ theorem prop_3_8_lift (u : ℤ_[2]ˣ) (b : ℤ_[2]) :
       B.e (abMk (Ψ d0A)) = Multiplicative.ofAdd (1, -2 * (u : ℤ_[2]), 0) ∧
       B.e (abMk (Ψ d0S)) = Multiplicative.ofAdd (0, (u : ℤ_[2]), 0) ∧
       B.e (abMk (Ψ d0Y)) = Multiplicative.ofAdd (0, b, 1) := by
-  set R := peripheralCyclotomicAction with hR
+  set R := lit.peripheralCyclotomicAction with hR
   obtain ⟨c, hc⟩ := bCoord_psiHom_Y B R u
   set b' := (b - c) * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) with hb'
   refine ⟨(thetaEquiv b').trans (psiEquiv R u), ?_, ?_, ?_⟩

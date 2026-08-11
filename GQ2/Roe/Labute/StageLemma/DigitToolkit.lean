@@ -16,6 +16,9 @@ and the explicit `ker d̄` witnesses.  Consumed by both SL1 and SL2.
 
 namespace GQ2.Roe.Labute
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 /-! ## The digit calculus (SL2's internal mechanism; spike §2.4, memo §1)
 
 A level-`k` triple carries character values `χ(Tᵢ) = targetᵢ·ρᵢ` with `ρᵢ ≡ 1 mod 2^k`

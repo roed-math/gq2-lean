@@ -31,6 +31,9 @@ Everything is glue over proved technology: `iotaB`/`iotaB_eq_zero_iff` and
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace IotaGammaR
 
 open SectionEight SectionEight.AffineTLift WordCohBridgeR WordCoh2R ContCoh

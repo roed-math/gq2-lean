@@ -46,6 +46,9 @@ axiom footprints of the consumers are unchanged (the R30 regression gate).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open SectionEight
 open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
 

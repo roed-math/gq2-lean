@@ -26,6 +26,9 @@ mapCoeff2 muTwoOfF2`, both factors injective) is the enumerated remaining sub-ob
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 open ContCoh SectionSix

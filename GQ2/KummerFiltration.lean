@@ -36,6 +36,9 @@ discreteness `hπ_max` — enter only as **hypotheses** (the consumer pulls them
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open ContCoh
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]

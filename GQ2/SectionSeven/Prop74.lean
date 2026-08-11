@@ -20,6 +20,9 @@ See `GQ2.SectionSeven` for the umbrella module docstring.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionSeven
 
 open QuadraticFp2

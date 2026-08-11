@@ -27,6 +27,9 @@ in `GQ2/BoundaryMapsWitness.lean`.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionThree
 
 /-! ## Proposition 3.10 — the maximal pro-2 quotient of `Γ_A` is `Π`

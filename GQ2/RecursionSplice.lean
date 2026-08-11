@@ -36,6 +36,9 @@ obstruction, half-torsor, and phase APIs.  The final theorem is assembled downst
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

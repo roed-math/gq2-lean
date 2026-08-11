@@ -25,6 +25,9 @@ but with **no word collapse** — the relators match by pure `group` algebra + `
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionThree
 
 open scoped Classical

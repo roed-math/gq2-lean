@@ -31,6 +31,9 @@ Axiom-free throughout (`Ax = ∅`, std-3).
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace GaloisCosetNorm
 
 open IntermediateField

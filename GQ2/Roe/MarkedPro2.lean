@@ -73,6 +73,9 @@ mod-2 Gram-isometry seed `s̄ ↦ S̄+Ȳ, x̄ ↦ Ȳ, ȳ ↦ Ā`.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open SectionThree Roe Multiplicative
 
 /-! ## The unramified marking `ν_R` -/

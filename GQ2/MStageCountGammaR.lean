@@ -52,6 +52,9 @@ restriction is one-directional.
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 namespace SectionEight
 
 open ContCoh SectionSeven WordCohBridgeR GQ2.FoxH RStageGammaA RStageGammaR

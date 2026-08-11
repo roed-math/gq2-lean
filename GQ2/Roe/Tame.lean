@@ -54,6 +54,9 @@ open CategoryTheory ProfiniteGrp
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open SectionThree
 
 /-! ## Finite-level facts: the Roe wild relation is redundant after killing `x₀, x₁`

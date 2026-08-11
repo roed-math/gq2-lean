@@ -26,7 +26,10 @@ namespace GQ2.DeepPart
 
 open GQ2 GQ2.ContCoh GQ2.Foundations
 
-variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
+set_option linter.unusedSectionVars false
+variable [lit : GQ2.LiteratureInputs]
+
+variable {M : Type} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
   [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M]
 
 /-- **Euler-characteristic collapse**: for a finite `2`-power-order `G_ℚ₂`-module with trivial

@@ -16,13 +16,13 @@ set_option backward.privateInPublic.warn false
 /-!
 # The K-level Tate pairing
 
-The first consumer of the **base-generalized B6** (`GQ2.tateDualityAt`): the `𝔽₂`-valued Tate
+The first consumer of the **base-generalized B6** (`LiteratureInputs.tateDualityAt`): the `𝔽₂`-valued Tate
 pairing on `M = H¹(G_K, 𝔽₂)` for `K` the splitting field
 (`G_K = ker ρ`), supplying the pairing hypotheses of the abstract `hduality`
 (`GQ2.card_equivHoms_deep_eq_quot`, `GQ2/DeepDuality.lean` §F):
 
 * `ker_isLocalDualizingGroup` — `↥(ker ρ)` is a local dualizing group (the subtype embedding;
-  finite index from `Finite C`), so `tateDualityAt` applies: `tateDualityK`.
+  finite index from `Finite C`), so `LiteratureInputs.tateDualityAt` applies: `tateDualityK`.
 * `pairingK := inv_K ∘ cup` on `H¹(↥(ker ρ), 𝔽₂)`, through the coefficient bridge
   `ZMod 2 ≃+ MuDual 2 (ZMod 2)` (`zmodMuDualEquiv`) and the `(1,1)` evaluation cup.
 * **(H2)** `pairingK_nondeg` — nondegeneracy, from the bundle's `perfect11` injectivity.
@@ -41,6 +41,9 @@ Design details are recorded in `docs/orchestration/p15f-handoff.md` §8 and
 
 namespace GQ2
 
+set_option linter.unusedSectionVars false
+variable [lit : LiteratureInputs]
+
 open ContCoh LocalKummer
 
 variable {C : Type} [Group C] [TopologicalSpace C]
@@ -49,7 +52,7 @@ variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 section Probes
 
 -- instance-resolution probes for the subgroup `G := ↥(ker ρ)` (empirical: these gate the
--- `tateDualityAt` application)
+-- `LiteratureInputs.tateDualityAt` application)
 noncomputable example : IsTopologicalGroup ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := inferInstance
 noncomputable example : DistribMulAction ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) :=
   inferInstance
@@ -83,7 +86,7 @@ theorem ker_isLocalDualizingGroup :
 /-- **The Tate-duality bundle at `G_K`** — the first consumer of the base-generalized B6. -/
 noncomputable def tateDualityK :
     TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 :=
-  tateDualityAt ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 (ker_isLocalDualizingGroup ρ)
+  LiteratureInputs.tateDualityAt ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 (ker_isLocalDualizingGroup ρ)
 
 omit [DiscreteTopology C] [Finite C] in
 /-- The kernel acts trivially on `μ₂` (restriction of the trivial `G_ℚ₂`-action). -/
@@ -311,7 +314,7 @@ Eq. (94)'s `(U_{e+1}, U_{e+1}) = 1` in class vocabulary.  The Tier-5 fact
   witness's coboundary identity over pointwise (`map_sub`/`map_add`; all actions trivial).
 
 Since `inv_K` is injective, vanishing of the `H²(μ₂)`-class (= `B²`-membership of the explicit
-cup cocycle) forces `pairingK = 0`.  No new leaf: the axioms are `tateDualityAt` (B6′) plus
+cup cocycle) forces `pairingK = 0`.  No new leaf: the axioms are `LiteratureInputs.tateDualityAt` (B6′) plus
 `cup_deepClasses`'s Tier-5 chain. -/
 
 section IsotropySplice
