@@ -1,0 +1,171 @@
+======================================================================================
+W63-SECOND  pair_second.py   do the two block readings together pin more than either?
+======================================================================================
+
+## H  the committed points, both readings, on EVERY generator pair
+
+    `GradedBlockFrame`'s Honesty 3 records the first reading as EVEN at the two
+    committed class-five witnesses.  It computes two pairs: the core pair
+    (sigma, x0) and the live handle pair (u_j, v_j).  Both forms are defined on the
+    WHOLE group, so the honest question is whether they vanish on EVERY pair, and the
+    generators are sigma, x0, x1, u_j, v_j (the other handle letters map to 1).
+
+[ok ] control: every transcribed point really kills the relator, all fifteen rows  4 points at h = 2, 0 failures
+    blockCexHom  (wave 59 counterexample)
+      row (3,5):  core pair 0,  handle pair 0,  DEAD everywhere
+      row (4,6):  core pair 1,  handle pair 1,  LIVE on (sigma,x0), (sigma,u0), (x0,v0), (u0,v0)
+
+    fiveFrameHom (wave 60 binder point)
+      row (3,5):  core pair 0,  handle pair 0,  DEAD everywhere
+      row (4,6):  core pair 0,  handle pair 0,  LIVE on (x0,u0), (x0,v0)
+
+    stageFrameHom (wave 61 stage-four point)
+      row (3,5):  core pair 0,  handle pair 0,  DEAD everywhere
+      row (4,6):  core pair 0,  handle pair 0,  LIVE on (x0,u0), (x0,v0)
+
+    liveFiveMark (the live class-five marking)
+      row (3,5):  core pair 0,  handle pair 0,  DEAD everywhere
+      row (4,6):  core pair 0,  handle pair 0,  DEAD everywhere
+
+[ok ] ⭐⭐⭐ the FIRST reading is LIVE at fiveFrameHom, on the pair (x0, u_j)  blockRead(forceX, forceU) = 5, odd
+[ok ] ⭐⭐⭐ …and LIVE at stageFrameHom, on the pair (x0, u_j)  blockRead(stageX, stageU) = 3, odd
+[ok ] …and on (x0, v_j) at both points as well
+[ok ] ⭐⭐ the SECOND reading is DEAD on every generator pair at fiveFrameHom
+[ok ] ⭐⭐ …and DEAD on every generator pair at stageFrameHom
+[ok ] ⭐⭐ …and DEAD on every generator pair at the wave-59 counterexample
+[ok ] the first reading is DEAD everywhere at liveFiveMark, and so is the second
+    ⚠ CORRECTION TO `GradedBlockFrame`'s Honesty 3.  'Block-blind' is true of the two
+    pairs that file computes and FALSE of the points: at both committed class-five
+    witnesses the first reading is odd on (x0, u_j) and on (x0, v_j), because the x0
+    slot's (5,6)-column and the handle letters' (4,5)-columns are both odd there.
+    `pos_of_blockPar_odd` quantifies over ALL pairs, so it does fire at those points.
+    (What it produces there, 0 < h, is free from the handle index j, so nothing is
+    lost or gained downstream; the correction is to the description, not to a theorem.)
+
+## I  the joint distribution of the two readings
+
+    Over honestly collected relator-killing markings (no parity pre-filter), the four
+    liveness cells of (second, first) on the core pair:
+
+      h   (0,0)   (0,1)   (1,0)   (1,1)      [ (second, first) on the core pair ]
+      0     119       0       0       0
+      1      27       3       2       4
+      2      15       4       6       1
+      3      11       5       5       6
+      4       9       4       4       8
+      all   181      16      17      19      (total 233)
+
+[ok ] ⭐⭐ all four cells occur, so NEITHER reading is a function of the other  233 honestly collected markings, cells [181, 16, 17, 19]
+[ok ] …and at h = 0 only the dead cell occurs, as both forcings require  119 handle-free markings, all (0,0)
+
+## J  Lean-ready witnesses for the two off-diagonal cells
+
+    The cells that matter are the ones where the two readings DISAGREE.  A witness for
+    each, at every handle count 1..4, with the marking printed as fifteen-tuples in the
+    campaign's coordinate order so it can be transcribed into Lean directly.
+
+[ok ] witness found at every h = 1..4:  second LIVE, first DEAD  4 of 4
+[ok ] witness found at every h = 1..4:  second DEAD, first LIVE  4 of 4
+[ok ] witness found at every h = 1..4:  both LIVE  4 of 4
+
+    The designed witnesses of `results/census_second.txt` section C are simpler and are
+    the ones to transcribe.  For the second reading, the CD core pair:
+[ok ] the CD witness solves at h = 1
+[ok ] …and the relator really dies there, all fifteen rows
+      S = <c=1>   ⟨0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+      X = <d=1>   ⟨0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+      Y = <b=4, c=4, d=6, g=4, h=7, j=4, k=2, m=4, n=4, o=4>   ⟨0, 4, 4, 6, 0, 0, 4, 7, 0, 4, 2, 0, 4, 4, 4⟩
+      U = <c=1>   ⟨0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+      V = <d=1>   ⟨0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0⟩
+      readings on the core pair:  (3,5) 1,  (4,6) 0
+      readings on the handle pair: (3,5) 1,  (4,6) 0
+[ok ] ⭐⭐ the CD witness has the second reading LIVE and the first DEAD
+
+## K  both readings live at h = 1: the pair pins NOTHING more about the handle count
+
+    If the pair were a finer handle-count instrument than either member, the cheapest
+    shape would be `both live => h >= 2`.  It is false: one handle suffices.
+
+      S = <c=1, e=1>,  X = <d=1>,  U = <c=1, d=1>,  V = <d=1, e=1>
+      core pair:    (3,5) 1,  (4,6) 1
+      handle pair:  (3,5) 1,  (4,6) 1
+[ok ] ⭐ a single handle carries BOTH readings
+[ok ] …and the relator dies, all fifteen rows
+      Y = <d=6, f=4, h=3, j=4, m=6, o=6>   ⟨0, 0, 0, 6, 0, 4, 0, 3, 0, 4, 0, 0, 6, 0, 6⟩
+
+    ⭐⭐ SO THE PAIR IS NOT A SHARPER HANDLE-COUNT INSTRUMENT.  Each reading alone
+    is equivalent to 0 < h (wave 62's `exists_blockPar_odd_iff_pos` for the first,
+    section F of `census_second.txt` plus this witness for the second), and their
+    CONJUNCTION is realized at h = 1, so it is equivalent to 0 < h as well.
+[ok ] ⭐ all four cells are realized at h = 1  4 of 4 cells realized with a single handle
+
+## L  the span of the two forms
+
+    As alternating forms on the F_2 span of the generators, the pair spans a space of
+    dimension 0, 1 or 2.  Dimension 2 means they are independent AS FORMS, not merely
+    that their values on the core pair differ.
+
+      dimension 0: 13    dimension 1: 18    dimension 2: 83      (of 114 markings at h = 1..4)
+[ok ] ⭐⭐ the two forms span a TWO-dimensional space at a positive rate  83 of 114 markings
+[ok ] …and they are equal as forms only in the degenerate cases  18 markings of dimension 1, 13 of dimension 0
+
+## M  where each reading is READ: the class-four and class-five couplings
+
+    The committed rows are `SqU6.sqRelWord_m` and `SqU6.sqRelWord_o`:
+
+      relator_15 = W_15 + H_15 + W_12 * H_25 + W_13 * H_35
+      relator_16 = W_16 + H_16 + W_12 * H_26 + W_13 * H_36 + W_14 * H_46
+
+    so of the four class-two block coordinates only H_35 (the SECOND reading's) and
+    H_46 (the FIRST reading's) reach a selection row at all: H_13 and H_24 appear
+    nowhere.  The difference between the two that do is the COEFFICIENT.
+
+[ok ] the class-two coefficient W_12 is dressing-invariant
+[ok ] ⭐ the class-two coefficient W_13 is dressing-invariant on the nu' gauge
+[ok ] ⭐⭐ the class-three coefficient W_14 is NOT
+
+    W_13 is the coefficient of the SECOND reading's block coordinate H_35 in the
+    class-four row, and it does not move under a sigma dressing on the nu' gauge, so
+    H_35 CANCELS in the class-four response.  That is the committed
+    `SqU6.sqRelWord_sigFiveDress_handle_blind_four`, and it is why the second reading
+    has no live channel to the class-four selection bit.
+    W_14 is the coefficient of the FIRST reading's H_46 in the class-five row, and it
+    does move: that is `SqU6.blockCoupling`, and it is the whole of wave 61's
+    class-five channel.
+
+    ⭐⭐ CONCLUSION.  The second reading is an honest second alternating form on
+    `D_sq h`, independent of the first, but it has NO live coupling into any committed
+    selection bit.  Its content is exactly the handle-count forcing, which the first
+    reading already supplies.
+
+## N  the sweep of this lane's claims against the refutations already in the tree
+
+    Doctrine rule 4.  Every claim this lane publishes, against every refutation and
+    scope note the tree carries that could bear on it.
+
+    * W62 `exists_blockPar_odd_iff_pos` makes the first reading's datum EQUIVALENT to 0 < h, so a second reading with the same h = 0 consequence is a REFORMULATION, not a strengthening.
+      -> ACCEPTED AND STATED.  Section K measures exactly this: the second reading alone is equivalent to 0 < h, and so is the conjunction.  This lane claims no strengthening.
+
+    * W61: the block reading sees nothing about the handle LETTERS that the sigma reading does not; do not reopen that with a different column pair.
+      -> NOT REOPENED.  The second block equation (census section A) makes the (3,5) block coordinate a functional of the two core slots at every relator-killing marking, so the second reading is blind to the handle letters for the same reason the first is.
+
+    * W60's three-covector class-five sharp line is not a general criterion.
+      -> NOT USED.  No statement of this lane mentions covectors or the class-five sharp line.
+
+    * W61's gamma-2 affineness is not an exclusion.
+      -> NOT USED.  The gamma_2 statement here is the invariance of section G of `census_second.txt`, which is a soundness fact, not an exclusion.
+
+    * W62-CHANNELS closed the gamma-2 widening route by the functional collision `gaTwoChannel_even_bit_even`.
+      -> NOT TOUCHED.  The second reading is class-ONE data (two abelian columns); it is not a gamma_2 channel and does not widen one.
+
+    * W56: the `EvenRouteCarriedDeep{N,M}` structures are unusable.
+      -> NOT QUOTED anywhere in this lane.
+
+    * W62: the centrality migration ADDS a relator-centrality hypothesis.
+      -> NOT USED.  Nothing here migrates a centrality statement.
+
+[ok ] the sweep is recorded  7 refutations and scope notes checked
+
+======================================================================================
+25 of 25 checks passed, 0 failures
+======================================================================================
