@@ -128,6 +128,179 @@ theorem evenParity_card_characters (h : ℕ)
   simp only [MarkedCore.coreRank, hev]
   omega
 
+/-! ## §3 Evaluation at the lifts, and the dual-basis character
+
+A continuous mod-2 character of `G_K(2)` kills the second two-central term, hence kills `λ_k`
+for `k ≥ 2`, so it factors through level `k`; the tuple's generators generate that level, so a
+character is determined by its values at any lifts of the generators.  Evaluation at the lifts
+is therefore injective, and by §2 it is a map between finite sets of equal cardinality, hence
+bijective: every Kronecker pattern is realized. -/
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **Characters are determined at the lifts.**  Two continuous mod-2 characters of `G_K(2)`
+agreeing at ambient lifts of an even stage tuple's generators are equal.  Generic in the word
+datum, the value table, and the orientation character. -/
+theorem evenParity_characters_ext {n k : ℕ} (hk : 3 ≤ k) {W : StageWord n}
+    {v : Fin n → ℤ_[2]ˣ}
+    {chi : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) ℤ_[2]ˣ}
+    (T : Tuple W v (maxProPQuotient 2 (GalK K)) chi k)
+    {lifts : Fin n → maxProPQuotient 2 (GalK K)}
+    (hlvl : ∀ i, levelMk (maxProPQuotient 2 (GalK K)) k (lifts i) = T.generators i)
+    {c₁ c₂ : ContinuousMonoidHom (maxProPQuotient 2 (GalK K))
+      (Multiplicative (ZMod 2))}
+    (hval : ∀ i, c₁ (lifts i) = c₂ (lifts i)) : c₁ = c₂ := by
+  have hle₁ : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ c₁.toMonoidHom.ker :=
+    le_trans (twoCentralSeries_antitone _ (by omega : 2 ≤ k))
+      (twoCentralSeries_two_le_continuousCharacter_ker c₁)
+  have hle₂ : twoCentralSeries (maxProPQuotient 2 (GalK K)) k ≤ c₂.toMonoidHom.ker :=
+    le_trans (twoCentralSeries_antitone _ (by omega : 2 ≤ k))
+      (twoCentralSeries_two_le_continuousCharacter_ker c₂)
+  set f₁ := quotientLift (twoCentralSeries (maxProPQuotient 2 (GalK K)) k) c₁ hle₁
+  set f₂ := quotientLift (twoCentralSeries (maxProPQuotient 2 (GalK K)) k) c₂ hle₂
+  have heqOn : Set.EqOn ⇑f₁.toMonoidHom ⇑f₂.toMonoidHom (Set.range T.generators) := by
+    rintro x ⟨i, rfl⟩
+    rw [← hlvl i]
+    show c₁ (lifts i) = c₂ (lifts i)
+    exact hval i
+  have hclosure := MonoidHom.eqOn_closure heqOn
+  ext g
+  have hg : levelMk (maxProPQuotient 2 (GalK K)) k g ∈
+      (Subgroup.closure (Set.range T.generators) : Set _) := by
+    rw [T.topGen]
+    trivial
+  exact hclosure hg
+
+omit [T2Space (GalK K)] in
+/-- **The dual-basis character at a slot.**  At even degree, evaluation of the mod-2 character
+group of `G_K(2)` at the exact-fibre lifts of an even stage tuple is a bijection onto all value
+patterns, so each slot carries a character odd exactly there.  This is the Kronecker dual whose
+Kummer realization drives §4. -/
+theorem evenParity_exists_dual_character {h k : ℕ}
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (hk : 3 ≤ k)
+    {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    {chi : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) ℤ_[2]ˣ}
+    (T : Tuple W v (maxProPQuotient 2 (GalK K)) chi k)
+    {lifts : Fin (MarkedCore.coreRank h) → maxProPQuotient 2 (GalK K)}
+    (hlvl : ∀ i, levelMk (maxProPQuotient 2 (GalK K)) k (lifts i) = T.generators i)
+    (i₀ : Fin (MarkedCore.coreRank h)) :
+    ∃ c : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2)),
+      Multiplicative.toAdd (c (lifts i₀)) = 1 ∧
+        ∀ j : Fin (MarkedCore.coreRank h), j ≠ i₀ →
+          Multiplicative.toAdd (c (lifts j)) = 0 := by
+  have hbij : Function.Bijective
+      (fun (c : ContinuousMonoidHom (maxProPQuotient 2 (GalK K))
+        (Multiplicative (ZMod 2))) (i : Fin (MarkedCore.coreRank h)) ↦ c (lifts i)) := by
+    rw [Nat.bijective_iff_injective_and_card]
+    exact ⟨fun c₁ c₂ hcc ↦ evenParity_characters_ext hk T hlvl (fun i ↦ congrFun hcc i),
+      evenParity_card_characters h hev⟩
+  obtain ⟨c, hc⟩ := hbij.2
+    (fun j ↦ if j = i₀ then Multiplicative.ofAdd 1 else 1)
+  refine ⟨c, ?_, ?_⟩
+  · have h1 : c (lifts i₀) = Multiplicative.ofAdd 1 := by
+      have h2 := congrFun hc i₀
+      simpa using h2
+    rw [h1]
+    rfl
+  · intro j hj
+    have h1 : c (lifts j) = 1 := by
+      have h2 := congrFun hc j
+      simpa [hj] using h2
+    rw [h1]
+    rfl
+
+/-! ## §4 The parity supply
+
+The headline.  For each non-twisted slot `i₀ ≠ 1`, §3 gives a continuous mod-2 character odd
+exactly at the `i₀`-lift; mod-2 Kummer surjectivity realizes it as the Kummer sign cocycle of
+some `a ∈ Kˣ` (the odd route's `stageKummer_exists_kummer_of_character`, already generic in the
+character); and the χ-twisted higher Kummer cocycle of `a` at a `2^(k+1)`-th root of unity is a
+continuous χ-twisted one-cocycle at precision `2^(k+1)` whose value parities at classes from
+`G_K` are exactly those signs.  The twisted slot `1` is never used, so no constraint on it is
+needed. -/
+
+omit [T2Space (GalK K)] in
+/-- **THE EVEN TWISTED-COCYCLE PARITY SUPPLY, AT EVERY EVEN-DEGREE FIELD.**  For
+`[K : ℚ₂] = 2 + 2h`, every stage tuple of every even word datum at every level `k ≥ 3` has the
+supply: exact-fibre lifts of the generators, and for each non-twisted slot a continuous
+`χ`-twisted one-cocycle at precision `2^(k+1)` odd at that lift and even at the other
+non-twisted lifts.  This is wave 65's named residual, discharged with no hypothesis beyond the
+degree parity.  Generic in the word datum `W` and the value table `v`, so it covers both
+branches at once.
+
+`T2Space (GalK K)` is not needed: the Kummer construction descends through the finite word-lift
+group, and the counting is cohomological. -/
+theorem evenParity_paritySupply_of_finrank {h k : ℕ}
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) (hk : 3 ≤ k)
+    {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+    (T : Tuple W v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k) :
+    EvenFamParitySupply T := by
+  obtain ⟨lifts, hchi, hlvl⟩ := evenParity_exists_lifts T
+  refine ⟨lifts, hchi, hlvl, ?_⟩
+  intro i₀ _
+  have hsurj : Function.Surjective (maxProPMk 2 (GalK K)) := quotientMk_surjective _
+  choose gs hgs using fun i ↦ hsurj (lifts i)
+  obtain ⟨c, hcd, hco⟩ := evenParity_exists_dual_character hev hk T hlvl i₀
+  obtain ⟨a, ha⟩ := stageKummer_exists_kummer_of_character (K := K) c
+  obtain ⟨z, hz⟩ := HasEnoughRootsOfUnity.exists_primitiveRoot ℚ̄₂ (2 ^ (k + 1))
+  have h2p : (2 : ℕ) ^ (k + 1) ≠ 0 := by positivity
+  have hzu : IsPrimitiveRoot ((hz.isUnit h2p).unit) (2 ^ (k + 1)) := hz.isUnit_unit h2p
+  have halpha := higherRootUnit_pow (2 ^ (k + 1)) a
+  have hN1 : 1 ≤ k + 1 := by omega
+  have hvalu : ∀ i, (chiTwistedKummerDescent hzu a halpha hN1 (lifts i)).u =
+      chiTwistedKummerFun hzu a halpha (gs i) := by
+    intro i
+    rw [← hgs i, chiTwistedKummerDescent_u_mk]
+  refine ⟨fun q ↦ (chiTwistedKummerDescent hzu a halpha hN1 q).u,
+    isChiTwistedCocycle_chiTwistedKummerDescent hzu a halpha hN1, ?_, ?_⟩
+  · intro hdvd
+    have hdvd' : (2 : ZMod (2 ^ (k + 1))) ∣
+        (chiTwistedKummerDescent hzu a halpha hN1 (lifts i₀)).u := hdvd
+    rw [hvalu i₀] at hdvd'
+    have h0 := (chiTwistedKummerFun_parity hzu a halpha hN1 (gs i₀)).mp hdvd'
+    rw [ha (gs i₀), hgs i₀, hcd] at h0
+    exact one_ne_zero h0
+  · intro j _ hji
+    show (2 : ZMod (2 ^ (k + 1))) ∣ (chiTwistedKummerDescent hzu a halpha hN1 (lifts j)).u
+    rw [hvalu j]
+    refine (chiTwistedKummerFun_parity hzu a halpha hN1 (gs j)).mpr ?_
+    rw [ha (gs j), hgs j]
+    exact hco j hji
+
+omit [T2Space (GalK K)] in
+/-- **The parity supply at even degree**, in the handle count `(n - 2)/2` the campaign uses at
+the endpoint. -/
+theorem evenParity_paritySupply_evenDegree (hpos : 2 ≤ Module.finrank ℚ_[2] K)
+    (heven : Even (Module.finrank ℚ_[2] K)) {k : ℕ} (hk : 3 ≤ k)
+    {W : StageWord (MarkedCore.coreRank ((Module.finrank ℚ_[2] K - 2) / 2))}
+    {v : Fin (MarkedCore.coreRank ((Module.finrank ℚ_[2] K - 2) / 2)) → ℤ_[2]ˣ}
+    (T : Tuple W v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k) :
+    EvenFamParitySupply T :=
+  evenParity_paritySupply_of_finrank (by obtain ⟨m, hm⟩ := heven; omega) hk T
+
 end
+
+/-! ## §5 Axiom pins
+
+Printed side by side with the odd route's `sqStageTwistedCocycleParitySupply_of_finrank`, whose
+argument this file clones: the even supply must not exceed what the odd one already carries. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenParity
+
+-- §1 to §3
+#print axioms evenParity_exists_lifts
+#print axioms evenParity_card_characters
+#print axioms evenParity_characters_ext
+#print axioms evenParity_exists_dual_character
+
+-- §4 the headline
+#print axioms evenParity_paritySupply_of_finrank
+#print axioms evenParity_paritySupply_evenDegree
+
+-- the odd route's analogue, for the side-by-side
+#print axioms GQ2.Dyadic.LSquare.sqStageTwistedCocycleParitySupply_of_finrank
+
+end AxiomPins
 
 end GQ2.Dyadic.EvenParity
