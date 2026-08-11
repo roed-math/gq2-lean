@@ -1,0 +1,119 @@
+==================================================================================================
+== W64-CENSUS5: the knob identity, the census machinery, and the parity horn ==
+==================================================================================================
+
+==================================================================================================
+== 1  THE KNOB IDENTITY: one class-four coordinate, one gearing
+==================================================================================================
+
+   Dressing slot `i` by `<m = t>` and reading the shift off the relator, never from
+   an emitted closed form.  The five gearings are the `(5,6)`-columns of the
+   Fox-permuted letters `(x0, 10 x0 - sigma - 8 x1, x1, v_j, -u_j)`.
+
+   [ok ] class-five row moves by gearing * t: sigma slot   (gearing x0.e )        0/400 exceptions
+   [ok ] class-five row moves by gearing * t: x0 slot      (gearing fox.e)        0/400 exceptions
+   [ok ] class-five row moves by gearing * t: x1 slot      (gearing x1.e )        0/400 exceptions
+   [ok ] class-five row moves by gearing * t: u-handle slot(gearing v.e  )        0/400 exceptions
+   [ok ] class-five row moves by gearing * t: v-handle slot(gearing -u.e )        0/400 exceptions
+   [ok ] whole shift IS that central translation: sigma slot   (gearing x0.e )    0/400 exceptions
+   [ok ] whole shift IS that central translation: u-handle slot(gearing v.e  )    0/400 exceptions
+   [ok ] whole shift IS that central translation: v-handle slot(gearing -u.e )    0/400 exceptions
+   [ok ] the two core slots are NOT central (so they carry no knob of this kind)  x0 slot 201/400, x1 slot 318/400 non-central
+
+   The same three central identities over eight moduli, which is the ring-generic
+   claim the Lean statements make.
+
+   [ok ] sigma and both handle knobs over Z/3                                     0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/4                                     0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/5                                     0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/7                                     0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/8                                     0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/9                                     0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/16                                    0/360 exceptions
+   [ok ] sigma and both handle knobs over Z/32                                    0/360 exceptions
+
+==================================================================================================
+== 2  THE CENSUS MACHINERY: which structural facts hold, and where
+==================================================================================================
+
+   `Phi_i(w)` is the shift of a single-slot gamma_2 dressing on slot `i`, read off
+   the relator.  The WEAK fact licenses the nested sweep `slot_kill_exact` at every
+   slot; the four STRONG facts license the fast `slot_kill_census`, and they hold at
+   the sigma slot and both handle slots and FAIL at the two core slots, where the
+   dressing enters through the powers `x^3` and `y^2`.
+
+   [ok ] WEAK, slot 0: class-c rows read only the dressing's class-<=c part       exceptions per c=2,3,4,5: [0, 0, 0, 0] of 200
+   [ok ] WEAK, slot 1: class-c rows read only the dressing's class-<=c part       exceptions per c=2,3,4,5: [0, 0, 0, 0] of 200
+   [ok ] WEAK, slot 2: class-c rows read only the dressing's class-<=c part       exceptions per c=2,3,4,5: [0, 0, 0, 0] of 200
+   [ok ] WEAK, slot 3: class-c rows read only the dressing's class-<=c part       exceptions per c=2,3,4,5: [0, 0, 0, 0] of 200
+   [ok ] WEAK, slot 4: class-c rows read only the dressing's class-<=c part       exceptions per c=2,3,4,5: [0, 0, 0, 0] of 200
+   [ok ] STRONG A, slot 0: class-three rows read only the class-two part          0/200
+   [ok ] STRONG B, slot 0: class-four rows read only the class-<=3 part           0/200
+   [ok ] STRONG C, slot 0: the shift ignores w.o                                  0/200
+   [ok ] STRONG D, slot 0: Phi(w r) = Phi(w) Phi(r), r gamma_3-shaped             0/200
+   [ok ] STRONG A, slot 3: class-three rows read only the class-two part          0/200
+   [ok ] STRONG B, slot 3: class-four rows read only the class-<=3 part           0/200
+   [ok ] STRONG C, slot 3: the shift ignores w.o                                  0/200
+   [ok ] STRONG D, slot 3: Phi(w r) = Phi(w) Phi(r), r gamma_3-shaped             0/200
+   [ok ] STRONG A, slot 4: class-three rows read only the class-two part          0/200
+   [ok ] STRONG B, slot 4: class-four rows read only the class-<=3 part           0/200
+   [ok ] STRONG C, slot 4: the shift ignores w.o                                  0/200
+   [ok ] STRONG D, slot 4: Phi(w r) = Phi(w) Phi(r), r gamma_3-shaped             0/200
+   [ok ] the strong facts FAIL at both core slots, so the fast census is not run there A: 171, 197 of 200; D: 135, 165 of 200
+   [ok ] gamma_3-shaped elements multiply COORDINATEWISE (so the deep layers are linear) 0/400
+
+==================================================================================================
+== 3  CROSS-CHECKS of the census
+==================================================================================================
+
+   [ok ] wave 60's achievable gamma_2 lattice has order 2^26 (W63-CENTRAL2's count) 2^26
+   [ok ] sigma-slot kill count is W63-CENTRAL2's 131072                           131072
+   [ok ] the generic per-slot census agrees with the sigma-only one at slot 0     131072 vs 131072
+   [ok ] every exhibited killer is achievable AND kills, by direct evaluation     witness <j=6, l=6, m=7, o=2>
+   [ok ] W63-CENTRAL2's own killer <m=3> is in the lattice and kills              
+
+   Three independent routes on SUB-LATTICES of wave 60's achievable lattice, small
+   enough to enumerate outright: the fast census, the nested sweep, and honest
+   brute force over every element.  The base relator is central at this point, so
+   all three decide the same question.
+
+   [ok ] slot 0: the nested sweep equals brute force on 12 sub-lattices           0 mismatches
+   [ok ] slot 0: the FAST census equals brute force on the same sub-lattices      0 mismatches
+   [ok ] slot 1: the nested sweep equals brute force on 12 sub-lattices           0 mismatches
+   [ok ] slot 2: the nested sweep equals brute force on 12 sub-lattices           0 mismatches
+   [ok ] slot 3: the nested sweep equals brute force on 12 sub-lattices           0 mismatches
+   [ok ] slot 3: the FAST census equals brute force on the same sub-lattices      0 mismatches
+   [ok ] slot 4: the nested sweep equals brute force on 12 sub-lattices           0 mismatches
+   [ok ] slot 4: the FAST census equals brute force on the same sub-lattices      0 mismatches
+
+==================================================================================================
+== 4  THE CLASS-FOUR PARITY: W62's form, and what the lattice can reach
+==================================================================================================
+
+   [ok ] W62 `commP_m_parity`: [p,q].m = p.j q.d + p.d q.j + p.f q.h + p.h q.f (mod 2) 0/3000 exceptions on stageN1 pairs
+   [ok ] at wave 60's point the ten pairwise commutators give an odd class-four coordinate 2 of 10 odd
+   [ok ] the class-four parity is a HOMOMORPHISM on the achievable lattice        0/2000 exceptions
+
+==================================================================================================
+== 5  LIVENESS AND `x0.e`: the measured half of the census criterion
+==================================================================================================
+
+   The `a0 = a1` residue is `sqWord(sigma x0, x0, x1) * sqWord(sigma, x0, x1)^{-1}`
+   whenever the undressed frame kills, so the liveness condition DECOUPLES from the
+   handle letters and can be swept far more widely than whole binder points.  The
+   `x1` slot's abelian columns are pinned by the relator's own rows
+   (`sqRelWord_lower_x1_even`), which is imposed here.
+
+   x0.e EVEN :   8434 of 60000 have a CENTRAL residue,      0 of those are ODD
+   x0.e ODD  :   2982 of 60000 have a CENTRAL residue,    611 of those are ODD
+
+   [ok ] an EVEN `x0.e` never produces an odd residue (the incompatibility)       0 of 8434 central cases
+   [ok ] an ODD `x0.e` produces them in quantity (so the horn is not vacuous)     611 of 2982 central cases
+
+   And wave 58's closed form for the bit, on the same sample.
+
+   [ok ] wave 58's form `x0.a x1.g x1.i + x0.e x1.f x1.h` IS the bit, mod two     0/20000 exceptions
+
+==================================================================================================
+== 55 named checks, 0 failures ==
+==================================================================================================
