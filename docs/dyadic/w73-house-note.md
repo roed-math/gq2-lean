@@ -38,7 +38,7 @@ note after the census claim:
 > run `check_dyadic.sh` end to end for exactly this reason.
 
 **Ticket 3.**  **28 findings in the four wave-72 modules** (5 high, 8 medium, 7 medium-low, 8
-low), plus the lane-note findings of §3.5.  Counted one per label: §3.1 has 15 (a-o), §3.2 has 9
+low), plus the lane-note findings of §3.4.  Counted one per label: §3.1 has 15 (a-o), §3.2 has 9
 (a-i), §3.3 has 4 (a-d).  The three worth reading first:
 
 1. **A ⭐⭐⭐ docstring is on the wrong theorem.**  `GradedClassFourDefect.lean:435-455` states
@@ -465,7 +465,44 @@ a power of two exactly at `a = 1`**" sits on a one-direction theorem.  `:395`'s 
 fields of the datum are free**" is qualified correctly by the next sentence and by the module
 header, so it is a bold-headline-only overreach.
 
-### 3.4  What came up clean
+### 3.4  The four wave-72 lane notes, and the wave-72 status prose
+
+**(a) HIGH, and it is the same claim as §3.1(c) in two more places.**  The nine-field structure is
+called ten-field in the prose as well as in the Lean:
+
+* `docs/dyadic/w72-stratum-note.md:78-79`: "That `Prop` is a **structure with ten fields**, so the
+  phrase understates it."  (The line breaks between "ten" and "fields", which is why a naive grep
+  for the phrase misses it; the propagation is easy to under-count.)
+* `docs/dyadic/owner-items-2026-08-05.md:25`: "the surviving point turned out to be a ten-field
+  structure rather than a single condition; six fields are already free".
+
+Both then break it down as six plus three, which is nine.  The **substance** survives in both
+places: the point of the sentence is that "one `Prop`" understates the price, and a nine-field
+structure understates it just as much.  Only the number is wrong.  Correction: "nine" at both
+sites, together with the two Lean sites of §3.1(c).
+
+**(b) `w72-house-note.md`'s four tree-wide counts are all stale-by-a-later-landing, none
+wrong-when-written.**  Recomputed here at `a515b437`:
+
+| claim | as written | today | why |
+| --- | --- | --- | --- |
+| `:9` "923 modules under `GQ2/`" | 923 | **926** | wave 72 landed `GradedClassFourDefect`, `GradedClassFiveKnob`, `EvenStratumFrame` |
+| `:134` "836 import lines, 836 distinct" | 836 | **840**, still all distinct | the four registrations `a515b437`, `dfa240a7`, `6e8910aa`, `36a93bbf` |
+| `:162` "`GQ2/Dyadic/SqCore/` ... now has 87" | 87 | **89** | the two `SqCore` landings above |
+| `:192` "**17** files ... `open scoped commutatorElement`" | 17 | **17** | unchanged, and it was the corrected figure |
+
+This is worth recording as a **null** result on the round's intra-wave item: the note was written
+mid-wave and every one of its counts moved for a legitimate reason, none of them because the count
+was wrong when taken.  The bracket count, which was the one round 9 corrected, has held.
+
+**(c) `w72-house-note.md:16`'s self-count is exact.**  "**37** labelled findings (12 high, 13
+medium, 3 medium-low, 9 low)".  Recounted here label by label: §2.2 contributes 2 high, 4 medium,
+0 medium-low, 4 low; §2.3 contributes 5, 3, 2, 1; §2.4 contributes 2, 2, 0, 0; §2.4b contributes
+3, 4, 1, 4.  Totals 12, 13, 3, 9 = **37**.  The note carries 38 `**(x)`-labelled paragraphs, the
+extra being §2.4(e), which carries no severity, so "labelled findings" is the right reading of its
+own figure.  Commit `8e58b2cf` did make it exact.
+
+### 3.5  What came up clean
 
 Said in detail, because a round that reports only hits is not a check.
 
@@ -518,7 +555,7 @@ Said in detail, because a round that reports only hits is not a check.
   occur twice"; `coreRank h = 4 + 2h` against `card_H1_zmodTwo_maxProTwoGalK`; "the five committed
   rows are `±2, 5, ±10`"; `SqNuSeed`'s three ν-fields; `StageGeneric.Frame`'s three fields; prefix
   discipline 38/38 and 41/41.
-* **Notes-versus-Lean:** covered separately in §3.5, the four wave-72 lane notes.
+* **Notes-versus-Lean:** covered separately in §3.4, the four wave-72 lane notes.
 
 ---
 
