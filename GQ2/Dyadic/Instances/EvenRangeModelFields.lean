@@ -55,11 +55,11 @@ is not one at `ℚ₂(√2)`, which is exactly what §3 asks for.  `ζ` and `α`
 committed mod-eight Kummer bridge already builds; `β` is new here.
 
 This is the first computation of a cyclotomic range at a named even-degree field in the campaign.
-Three committed docstrings assert the opposite as of wave 66, in the words "no statement in the
+Three committed docstrings asserted the opposite as of wave 66, in the words "no statement in the
 tree computes the cyclotomic range at a named field": `EvenRouteModel.lean` §4,
-`EvenRouteFinal.lean` §1, `EvenParityModel.lean` §4.  Those three sentences are false from this
-file onward.  They are not edited here, this lane being new-files-only; they are flagged for the
-docstring watch.
+`EvenRouteFinal.lean` §1, `EvenParityModel.lean` §4.  Those three sentences were false from this
+file onward, and they are gone: this lane, being new-files-only, did not edit them, and they were
+superseded at the wave-67 merge instead.
 
 ## What lands and what is left
 
@@ -72,9 +72,10 @@ docstring watch.
 * `KQuarticN`: **blocked**, and one step earlier than `hrange`.  The tree carries no ramification
   fact for it (there is no `not_hasEqualNormValueGroups_KQuarticN`; its ledger in
   `EvenRouteModel.lean` records `K(i)/K` ramified as *measured*), so §9 states its identity over
-  that binder, together with the second residue `9 ∉ range χ` which needs a sixteenth root of
-  unity this file does not build.  What does land there is `5 ∉ range χ`, the field-to-image
-  direction of the census's criterion `α ≥ 3 ⟺ √2 ∈ K`.
+  that binder, over the `N`-branch entry condition `−1 ∉ range χ` which nothing here supplies at
+  this field, and over the second residue `9 ∉ range χ` which needs a sixteenth root of unity this
+  file does not build: three costs, not two.  What does land there is `5 ∉ range χ`, the
+  field-to-image direction of the census's criterion `α ≥ 3 ⟺ √2 ∈ K`.
 * The stratum `evenRange_range_eq` excludes turns out to be a third answer rather than a gap
   (§10): when `K(i)/K` is not ramified the range is a principal-unit group `1 + 2^α ℤ₂`, and with
   that case named the range identity holds with **no ramification binder at all**.
@@ -217,7 +218,8 @@ end ImageLevels
 which the proof computes as `2 + e` for `[K : ℚ₂] = 2^e · m` with `m` odd.  The statement below is
 that proof with `e` and `m` named rather than obtained, and it is the only place this file repeats
 committed reasoning.  Combining it with §2 bounds the depth from above by the degree; the
-classification bounds it from below by `2`; and §4 reads off the fields where the two meet. -/
+classification bounds it from below by `2`; and the three identities below read off the fields
+where the two meet. -/
 
 section Supply
 
