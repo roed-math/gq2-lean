@@ -74,10 +74,17 @@ stale ticket dispatch.  Do not re-derive any of them.)
   (`…StageAbstractionDeepCorrections.lean`), with the `α = 2` boundary satisfying the
   committed seam on both branches.
 
-Two thresholds, not one: `1 ≤ α` is the Frattini/rank threshold, `2 ≤ α` the Gram/
-nondegeneracy threshold (at `α = 1` the `N` relator exponent is `2 + 2 = 4`, whose mod-2
-quadratic initial form vanishes, and the `N` core is not Demushkin; `M` keeps its
-q-invariant there but the shared Gram costs `α ≥ 2` downstream).
+Two thresholds, not one: `1 ≤ α` is the Frattini/rank threshold, `2 ≤ α` the Gram threshold
+(at `α = 1` the `N` relator exponent is `2 + 2 = 4`, so the head diagonal entry dies and the
+two rows stop sharing one Gram; the shared Gram costs `α ≥ 2` downstream).
+
+⚠ **Corrected at wave 70.**  This paragraph used to continue "and the `N` core is not
+Demushkin".  That is **false**: `Instances/EvenAlphaOne.lean` proves `IsDemushkin 2 (DN 1 h)`
+at every handle count, because the `α = 1` `N` Gram is two hyperbolic blocks, which is
+*alternating* and **nondegenerate**, not degenerate.  The `M` row is also Demushkin there.
+Nor do the rows share a `q`-invariant at `α = 1`: `MarkedCore/NFrameAlphaOne.lean` proves
+`demushkinQ (DN 1 h) = 4`, against `= 2` on the `M` row.  So `2 ≤ α` is where the two rows
+share one Gram, not where either core becomes Demushkin.
 -/
 
 namespace GQ2.Dyadic.EvenForward

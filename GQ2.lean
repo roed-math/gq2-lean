@@ -764,6 +764,7 @@ import GQ2.Dyadic.SqCore.GradedGammaThreeFour
 import GQ2.Dyadic.SqCore.GradedClassFourIdentity
 import GQ2.Dyadic.SqCore.GradedRelatorBase
 import GQ2.Dyadic.SqCore.GradedClassFive
+import GQ2.Dyadic.SqCore.GradedGammaFourFive
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
@@ -838,4 +839,5 @@ import GQ2.Dyadic.Instances.EvenParityFlags
 import GQ2.Dyadic.Instances.EvenUnramified
 import GQ2.Dyadic.Instances.EvenAlphaOne
 import GQ2.Dyadic.Instances.NFrameAlphaOneInvariants
+import GQ2.Dyadic.Instances.EvenStratumPoint
 import GQ2.Dyadic.Main
