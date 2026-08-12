@@ -508,7 +508,7 @@ Said in detail, because a round that reports only hits is not a check.
   occur twice"; `coreRank h = 4 + 2h` against `card_H1_zmodTwo_maxProTwoGalK`; "the five committed
   rows are `±2, 5, ±10`"; `SqNuSeed`'s three ν-fields; `StageGeneric.Frame`'s three fields; prefix
   discipline 38/38 and 41/41.
-* **Notes-versus-Lean:** covered in §3.5.
+* **Notes-versus-Lean:** covered separately in §3.5, the four wave-72 lane notes.
 
 ---
 
