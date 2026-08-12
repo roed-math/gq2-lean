@@ -84,8 +84,9 @@ memberships `EvenRangeModel.hrangeFinal_quartic` carries, so `hrange` and the en
 5. the ramified-`i` witness at the quartic;
 6. the quartic's ramification fact over `i ∉ ℚ₂(β)`;
 7. `i ∉ ℚ₂(β)`, and the ramification fact unconditionally;
-8. the sixteenth root of unity in `ℚ₂(β)`, the two residues, and the quartic endpoint;
-9. axiom pins.
+8. the sixteenth root of unity in `ℚ₂(β)`, and the mod-sixteen branch machinery;
+9. the two residues, the quartic's `hrange`, and the third even field closed;
+10. axiom pins.
 -/
 
 namespace GQ2.Dyadic.EvenRangePolish
@@ -693,9 +694,188 @@ theorem evenPolish_not_hasEqualNormValueGroups_KQuarticN (deltaI : ℚ̄₂)
 
 end NoSqrtNegOne
 
+/-! ## §8 The sixteenth root of unity in `ℚ₂(β)`, and the quartic endpoint
+
+Wave 67 recorded the quartic's remaining cost as an *identification*: the separating period is
+`ζ₁₆ − ζ₁₆⁻¹` and the model's `β` is one of the four roots of `X⁴ + 4X² + 2`, so closing `hrange`
+looked like it needed to pin which root `Classical.choose` picked.  §7's construction removes the
+question.  `η` is built *from* `β`, and the same two relations that give `η⁸ = −1` give
+
+`η² − 1 = ηβ`,   i.e.   `η − η⁻¹ = β`,
+
+with no choice to identify.  So the model field literally contains the separating period, and the
+wave-67 argument at the eighth root runs verbatim one level deeper.
+
+Reading `g η = η^{χ(g)}` modulo `16`: at residue `9` we get `η⁹ = −η` (from `η⁸ = −1`) and hence
+`η⁻⁹ = −η⁻¹`, so `η − η⁻¹` is negated; at residue `15` we get `η¹⁵ = η⁻¹` (from `η¹⁶ = 1`) and
+again `η − η⁻¹` is negated.  A Galois element over `ℚ₂(β)` fixes `β`, and `β ≠ 0`, so neither
+residue occurs.  `9 = 1 + 2³` and `−1` are exactly the two values
+`EvenRangeModel.hrangeFinal_quartic` needs excluded. -/
+
+section Quartic16
+
+open GQ2.Dyadic.EvenRouteModel
+
+/-- The sixteenth root of unity attached to the model field, built from `β` and the committed
+square root of `−1`. -/
+noncomputable def evenPolish_zeta : ℚ̄₂ := evenPolish_eta evenRangeF_iota
+
+theorem evenPolish_zeta_pow_eight : evenPolish_zeta ^ 8 = -1 :=
+  evenPolish_eta_pow_eight evenRangeF_iota_sq
+
+theorem evenPolish_zeta_pow_sixteen : evenPolish_zeta ^ (2 ^ 4) = 1 := by
+  change evenPolish_zeta ^ 16 = 1
+  calc evenPolish_zeta ^ 16 = (evenPolish_zeta ^ 8) ^ 2 := by ring
+    _ = 1 := by rw [evenPolish_zeta_pow_eight]; norm_num
+
+theorem evenPolish_zeta_ne_zero : evenPolish_zeta ≠ 0 := by
+  intro h
+  have h8 := evenPolish_zeta_pow_eight
+  rw [h] at h8
+  norm_num at h8
+
+/-- `η² − 1 = ηβ`: the two committed relations, with nothing left over. -/
+theorem evenPolish_zeta_sq_sub_one :
+    evenPolish_zeta ^ 2 - 1 = evenPolish_zeta * evenRouteModelBeta := by
+  have h2 := evenPolish_eta_sq evenRangeF_iota_sq
+  have hspec := evenPolish_eta_spec evenRangeF_iota
+  have hkey : 2 * (evenPolish_zeta ^ 2 - 1) = 2 * (evenPolish_zeta * evenRouteModelBeta) := by
+    rw [evenPolish_zeta]
+    linear_combination h2 - hspec
+  exact mul_left_cancel₀ two_ne_zero hkey
+
+/-- **`η − η⁻¹ = β`.**  The model field contains the separating period, by construction rather
+than by identification. -/
+theorem evenPolish_zeta_sub_inv :
+    evenPolish_zeta - evenPolish_zeta⁻¹ = evenRouteModelBeta := by
+  have hz := evenPolish_zeta_ne_zero
+  have h := evenPolish_zeta_sq_sub_one
+  field_simp
+  linear_combination h
+
+theorem evenPolish_zeta_pow_nine : evenPolish_zeta ^ 9 = -evenPolish_zeta := by
+  calc evenPolish_zeta ^ 9 = evenPolish_zeta ^ 8 * evenPolish_zeta := by ring
+    _ = -evenPolish_zeta := by rw [evenPolish_zeta_pow_eight]; ring
+
+theorem evenPolish_zeta_pow_fifteen : evenPolish_zeta ^ 15 = evenPolish_zeta⁻¹ := by
+  apply mul_left_cancel₀ evenPolish_zeta_ne_zero
+  rw [mul_inv_cancel₀ evenPolish_zeta_ne_zero]
+  calc evenPolish_zeta * evenPolish_zeta ^ 15 = evenPolish_zeta ^ (2 ^ 4) := by ring
+    _ = 1 := evenPolish_zeta_pow_sixteen
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂}
+
+/-- The mod-sixteen residue of the cyclotomic character on `G_K`. -/
+noncomputable def evenPolish_chiSixteen (g : GalK K) : ZMod 16 :=
+  PadicInt.toZModPow 4 (((chiCycK K g : ℤ_[2]ˣ)) : ℤ_[2])
+
+/-- `g η = η^{χ(g)}`, with the exponent modulo `16` because `η¹⁶ = 1`. -/
+theorem evenPolish_gr_zeta (g : GalK K) :
+    evenRangeF_gr g evenPolish_zeta = evenPolish_zeta ^ (evenPolish_chiSixteen g).val :=
+  cyclotomicCharacter.spec 2 (evenRangeF_gr g) evenPolish_zeta evenPolish_zeta_pow_sixteen
+
+/-- **`χ ≡ 9 (mod 16)` negates `β = η − η⁻¹`.** -/
+theorem evenPolish_gr_beta_of_nine (g : GalK K) (hu : evenPolish_chiSixteen g = 9) :
+    evenRangeF_gr g evenRouteModelBeta = -evenRouteModelBeta := by
+  have hz := evenPolish_gr_zeta g
+  rw [hu, show (9 : ZMod 16).val = 9 from by decide] at hz
+  rw [← evenPolish_zeta_sub_inv]
+  simp only [map_sub, map_inv₀, hz, evenPolish_zeta_pow_nine, inv_neg]
+  ring
+
+/-- **`χ ≡ 15 (mod 16)` negates `β = η − η⁻¹`.** -/
+theorem evenPolish_gr_beta_of_fifteen (g : GalK K) (hu : evenPolish_chiSixteen g = 15) :
+    evenRangeF_gr g evenRouteModelBeta = -evenRouteModelBeta := by
+  have hz := evenPolish_gr_zeta g
+  rw [hu, show (15 : ZMod 16).val = 15 from by decide] at hz
+  rw [← evenPolish_zeta_sub_inv]
+  simp only [map_sub, map_inv₀, hz, evenPolish_zeta_pow_fifteen, inv_inv]
+  ring
+
+variable [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **The branch fact from a period lying in `K`, at level sixteen.**  This is
+`EvenRangeModel.evenRangeF_notMem_range_of_neg` one level deeper. -/
+theorem evenPolish_notMem_range_of_neg {x : ℚ̄₂} (hx : x ∈ K) (hx0 : x ≠ 0) {r : ZMod 16}
+    (hneg : ∀ g : GalK K, evenPolish_chiSixteen g = r → evenRangeF_gr g x = -x)
+    {v : ℤ_[2]ˣ} (hv : PadicInt.toZModPow 4 ((v : ℤ_[2])) = r) :
+    v ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom := by
+  intro hmem
+  obtain ⟨g, hg⟩ := evenRangeF_exists_chiCycK hmem
+  have hr : evenPolish_chiSixteen g = r := by
+    simp only [evenPolish_chiSixteen, hg]
+    exact hv
+  have h1 := hneg g hr
+  rw [evenRangeF_gr_fix g hx] at h1
+  have h2 : (2 : ℚ̄₂) * x = 0 := by linear_combination h1
+  rcases mul_eq_zero.mp h2 with h | h
+  · exact absurd h (by norm_num)
+  · exact hx0 h
+
+end Quartic16
+
+/-! ## §9 The quartic's `hrange`, and the third even field closed
+
+Assembly.  §7 supplies the ramification binder, §8 the two residues; wave 67 supplied everything
+else. -/
+
+section QuarticEndpoint
+
+open GQ2.Dyadic.EvenRouteModel
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `−1` reduces to `15` modulo `16`. -/
+theorem evenPolish_neg_one_modSixteen :
+    PadicInt.toZModPow 4 (((-1 : ℤ_[2]ˣ) : ℤ_[2])) = (15 : ZMod 16) := by
+  rw [Units.val_neg, Units.val_one, map_neg, map_one]
+  decide
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `9 = 1 + 2³` reduces to `9` modulo `16`. -/
+theorem evenPolish_nine_modSixteen :
+    PadicInt.toZModPow 4 (((evenRangeF_onePlus 3 : ℤ_[2]ˣ) : ℤ_[2])) = (9 : ZMod 16) := by
+  rw [evenRangeF_onePlus_val (by omega)]
+  simp only [map_add, map_one, map_pow, map_ofNat]
+  decide
+
+/-- **`−1` IS NOT A CYCLOTOMIC VALUE AT THE QUARTIC.** -/
+theorem evenPolish_neg_one_notMem_quartic :
+    (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom :=
+  evenPolish_notMem_range_of_neg evenRouteModelBeta_mem evenPolish_beta_ne_zero
+    (fun _ hg => evenPolish_gr_beta_of_fifteen _ hg) evenPolish_neg_one_modSixteen
+
+/-- **`9` IS NOT A CYCLOTOMIC VALUE AT THE QUARTIC.**  The mod-sixteen residue wave 67 could not
+reach, and the second of the quartic's two costs. -/
+theorem evenPolish_nine_notMem_quartic :
+    evenRangeF_onePlus 3 ∉ MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom :=
+  evenPolish_notMem_range_of_neg evenRouteModelBeta_mem evenPolish_beta_ne_zero
+    (fun _ hg => evenPolish_gr_beta_of_nine _ hg) evenPolish_nine_modSixteen
+
+/-- **`hrange` AT THE QUARTIC, PROVED.**  The cyclotomic image on `G_K(2)` for `K = ℚ₂(β)` is
+exactly `imChiN 3`, the value the wave-56 census measured.  Both of the wave-67 costs are
+discharged: the ramification binder in §7 and the mod-sixteen residue in §8. -/
+theorem hrangeFinal_quartic' (B : MarkedRecip R KQuarticN) :
+    MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom = imChiN 3 :=
+  GQ2.Dyadic.EvenRangeModel.hrangeFinal_quartic B evenRangeF_iota evenRangeF_iota_sq
+    (evenPolish_not_hasEqualNormValueGroups_KQuarticN _ evenRangeF_iota_sq)
+    evenPolish_neg_one_notMem_quartic evenPolish_nine_notMem_quartic
+
+/-- **THE THIRD EVEN FIELD CLOSED.**  `G_K(2)` for `K = ℚ₂(β)`, the quartic model field, is
+oriented-isomorphic to the `N` core at depth `3` and handle count `1`, over the reciprocity bundle
+and the standing instance binders alone.  Every previous form of this statement carried a
+ramification binder and two membership binders. -/
+theorem hrangeFinal_orientedEquivN_quartic' [T2Space (GalK KQuarticN)]
+    (B : MarkedRecip R KQuarticN) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 3 1) (chiCycKTwo (K := KQuarticN))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivN_quartic (hrangeFinal_quartic' B)
+
+end QuarticEndpoint
+
 end GQ2.Dyadic.EvenRangePolish
 
-/-! ## §9 Axiom pins
+/-! ## §10 Axiom pins
 
 The primed endpoints printed beside the wave-67 originals they replace, and beside the committed
 statements they consume.  Nothing here may exceed the committed even endpoint set. -/
@@ -735,8 +915,22 @@ open GQ2.Dyadic.EvenRangePolish
 #print axioms evenPolish_notMem_quartic
 #print axioms evenPolish_not_hasEqualNormValueGroups_KQuarticN
 
+-- §8 and §9 the sixteenth root of unity and the quartic endpoint
+#print axioms evenPolish_zeta_sub_inv
+#print axioms evenPolish_gr_beta_of_nine
+#print axioms evenPolish_gr_beta_of_fifteen
+#print axioms evenPolish_notMem_range_of_neg
+#print axioms evenPolish_neg_one_notMem_quartic
+#print axioms evenPolish_nine_notMem_quartic
+#print axioms hrangeFinal_quartic'
+#print axioms hrangeFinal_orientedEquivN_quartic'
+
 -- the quadratic row's ramification fact, the statement §6 mirrors
 #print axioms GQ2.Dyadic.Fields.not_hasEqualNormValueGroups_quadField
+
+-- the wave-67 quartic forms these close, for the side-by-side
+#print axioms GQ2.Dyadic.EvenRangeModel.hrangeFinal_quartic
+#print axioms GQ2.Dyadic.EvenRangeModel.hrangeFinal_orientedEquivN_quartic
 
 -- the wave-67 originals they replace, for the side-by-side
 #print axioms GQ2.Dyadic.EvenRangeModel.hrangeFinal_sqrtTwo
