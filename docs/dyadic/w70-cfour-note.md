@@ -149,6 +149,38 @@ two hard sub-steps are the `L₃(V)` spanning claim above, which needs the *rela
 graded decomposition and not only `gThreeFour_zLayer_le`'s generation half, and the fourth-power
 cancellation.
 
+## 4a.  Relation to the sibling lane `GradedRelatorBase.lean` (W70-FIVE)
+
+That lane generalised wave 69's `cfour_relator_base` to every class and moved it upstairs:
+`relBase_relator_base` says `sqRelWord (sqArbBase h nu' j) = conjP (relBaseEichDefect nu' j) t`
+in `D_sq h` itself, unconditionally, and `relBase_relator_base_mem_iff` turns it into an `iff`
+inside any normal subgroup.  `relBase_supply_of_eichDefect k` is then the all-`k` form of
+`cfour_supply_of_eichDefect`.
+
+**The two lanes do not overlap and neither subsumes the other.**
+
+* Their result is about the *trivial* dressing at every class; ours is about *wave 68's*
+  dressing corrected inside `γ₂` at class four.  These are two different sufficient conditions
+  for the same target `SqClassClearingSupply h 4`, and either alone would discharge it.  Our
+  `cfourId_supply_of_reach` does not use `relBase_supply_of_eichDefect` and is not weakened by
+  it.
+* Their §4 docstring already records that their clause is only *sufficient* for the supply and
+  that "wave 68's class-three witness is a nontrivial dressing, so the gap is real".  §0 above is
+  the quantitative form of exactly that remark: `relBase_defectDies_iff_trivial` says their
+  clause **is** "the trivial dressing clears class `k`", and `cfourId_eichDefect_levelProj` says
+  that at `k = 4` it forces `bridgeDefect nu' j = 1`, i.e. forces wave 68's dressing to have been
+  unnecessary at that marking.  So the gap they name in prose is here measured against a
+  committed object.
+* Their `relBase_eichDefect_four` (`levelMk _ 4 (relBaseEichDefect nu' j) = cfourEichDefect nu' j`)
+  composes with `cfourId_eichDefect_levelProj` to give the defect at three consecutive levels:
+  upstairs in `D_sq h`, in `Q₄` as wave 69's `cfourEichDefect`, and in `Q₃` as wave 68's
+  `bridgeDefect`.  A later wave that wants `cfourId_bridgeDefect_of_eichDefect` derived from the
+  schema rather than by hand can get it from `relBase_relator_base_levelMk` at `k = 3` and
+  `k = 4` plus antitonicity; the content our statement adds, and which their file does not
+  contain, is the identification of the level-three *value* with `bridgeDefect` itself
+  (`cfourId_base_relator_three`).  Their `k = 3` instance is an `iff` about triviality, not an
+  evaluation.
+
 ## 5.  What class five will need
 
 Wave 69's `ClassFourResidual h` (the instances `k ≥ 5`) is unchanged, and this wave does not

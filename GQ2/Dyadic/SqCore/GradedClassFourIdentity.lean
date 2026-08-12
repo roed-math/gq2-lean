@@ -31,9 +31,11 @@ construction of that dressing to cancel exactly this defect, the hypothesis of
 the trivial dressing to do a job wave 68 already had to hire a dressing for.  Nothing here is a
 refutation of class four, and nothing here refutes the residual: it locates the route.
 
-## §2 The route that is one graded layer better
+## §2 and §3 The route that is one graded layer better
 
-Dress with wave 68's tuple and correct **inside `γ₂`**.  Writing
+Dress with wave 68's tuple and correct **inside `γ₂`**.  A `γ₂`-valued correction costs nothing
+on either row and nothing on mod-2 independence (§2: `cfourId_modTwoIndep_mul`, through
+`cfourId_twoCentral_le_index_two`).  Writing
 
 ```text
   LEFTOVER = levelMk (D_sq h) 4 (sqRelWord (sqArbFrame h nu' j (bridgeTuple nu' j)))
@@ -41,9 +43,7 @@ Dress with wave 68's tuple and correct **inside `γ₂`**.  Writing
 
 wave 68's `bridge_relator_mem` says the leftover already lies in `γ₃`, so
 ⭐ `cfourId_leftover_mem_zLayer`: **the leftover lies in the central layer `Z = γ₃/γ₄`**, an
-elementary abelian 2-group, and it is its own inverse.  A `γ₂`-valued correction of the frame
-costs nothing on either row and nothing on mod-2 independence
-(`cfourId_modTwoIndep_mul`, through `cfourId_twoCentral_le_index_two`), so
+elementary abelian 2-group, and it is its own inverse.  Hence
 
 ⭐⭐⭐ `cfourId_supply_of_reach`: **`SqClassClearingSupply h 4` follows as soon as some
 `γ₂`-valued, exactly row-trivial correction of wave 68's frame kills the relator in `Q₄`.**
@@ -51,7 +51,7 @@ costs nothing on either row and nothing on mod-2 independence
 Against wave 69 this trades an identity in `Y = γ₂/γ₄` for a membership in `Z = γ₃/γ₄`: one
 graded layer down, and a subgroup to hit rather than a point.
 
-## §3 The knob inventory, completed
+## §4 The knob inventory, completed
 
 Wave 69 computed what a `γ₂`-valued correction buys on the three core slots.  This section adds
 the two families it did not have, the **handle slots**, which is where the brackets against the
@@ -69,7 +69,7 @@ So a `γ₂`-valued correction reaches `commP c g` for `c ∈ γ₂` and `g` **e
 with the `x₁`-letter alone arriving bundled with the square `c²`, and `c²` itself available only
 through that bundle.  `cfourId_dress_core` composes the three core knobs into one.
 
-## §4 The `x₁`-bundle: wave 69's analysis verified, its justification corrected
+## §5 The `x₁`-bundle: wave 69's analysis verified, its justification corrected
 
 Wave 69's §5 recorded, as analysis and not as proof, that the delicate direction is
 `⁅⁅x₁, g⁆, x₁⁆`, that Jacobi does not reach it, and that it is instead reached "by a correction
@@ -94,7 +94,7 @@ at all, neither its bracket part (`cfourId_comm_zLayer_dress`) nor its square pa
 (`cfourId_sq_zLayer_dress`).  ⭐⭐ `cfourId_x1_sq_admissible` is the two put together.  The
 `x₁`-coordinate functional never enters.
 
-## §5 What is left, named
+## §6 and §7 What is left, named
 
 `cfourId_zLayer_le` is `gThreeFour_zLayer_le` with its closedness hypothesis discharged at
 `D_sq h`, the tower there being discrete; it is the form a witness search consumes.
