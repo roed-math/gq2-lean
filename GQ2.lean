@@ -759,6 +759,8 @@ import GQ2.Dyadic.SqCore.TwoCentralFacts
 import GQ2.Dyadic.SqCore.GradedLimit
 import GQ2.Dyadic.SqCore.GradedBridge
 import GQ2.Dyadic.SqCore.GradedClassFour
+import GQ2.Dyadic.SqCore.GradedRelatorBase
+import GQ2.Dyadic.SqCore.GradedClassFive
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
