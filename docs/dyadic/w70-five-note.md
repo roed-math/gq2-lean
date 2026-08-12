@@ -102,7 +102,7 @@ Three buckets, as asked.  **"Class-four-only" means the wave-69 proof delivers n
 | `cfour_pow_four_mem_zLayer` | **class-four-only** | `cfive_pow_four_mem_lambdaThree`, `cfive_pow_eight_mem_zLayer` |
 | `cfour_pow_four_inv` | **class-four-only**, no class-five reading (it is `p⁸ ∈ γ₄`) | none |
 | `cfour_sq_mul_lambdaTwo`, `cfour_pow_four_mul` | class-four-only (need `Y` abelian) | none |
-| ⭐⭐ `cfour_sqWord`, `cfour_sqRelWord` | **class-four-only** | `relBase_sqWord_free` is the general form; the two simplifications are exactly the class-four content |
+| ⭐⭐ `cfour_sqWord`, `cfour_sqRelWord` | **class-four-only** | `relBase_sqWord_free` is the general form; **one** of the two simplifications is the class-four content (see below) |
 | `cfour_zLayer_le_lambdaTwo` | verbatim in shape | not restated |
 | `cfour_commute_lambdaTwo` | class-four-only | see `cfour_commP_lambdaTwo` row |
 | `cfour_handleWord_mem_lambdaTwo`, `cfour_sqRelWord_mem_lambdaTwo` | verbatim, every class | - |
@@ -122,6 +122,20 @@ The relator itself.  `cfour_pow_four_inv` is `p⁸ ∈ γ₄`, which says nothin
 `conjP c a` factor does not collapse either.  The class-five relator is therefore strictly larger
 than the class-four one, and this is where a class-five run's real work begins.  What it does
 *not* have to redo is §4 of wave 69: `relBase_relator_base` already covers it.
+
+> **[Corrected W72-HOUSE, watch round 9.]**  "and the `conjP c a` factor does not collapse
+> either" is **false**, and so is the same claim in `SqCore/GradedRelatorBase.lean:53-54`,
+> `:92-94` and `:105-107`.  `commP c (conjP c a) = commP c (commP c a)` is a **free-group
+> identity**: wave 69's own proof (`SqCore/GradedClassFour.lean:491-493`) closes it with
+> `cfour_commP_mul_right`, `cfour_comm_self` and `cfour_one_comm`, all three of which sit in that
+> file's `section FreeIdentities` under `variable {Q : Type*} [Group Q]`.  By hand,
+> `conjP c a = c · w` with `w = commP c a`, and `commP c (c·w) = c⁻¹w⁻¹cw = commP c w`.  So the
+> class-five relator loses **only** the fourth-power simplification, which is what
+> `SqCore/GradedClassFive.lean:350-354` correctly says; the two wave-70 files disagreed, and this
+> one was the wrong side.  Consequence worth taking: `relBase_sqWord_free` can be stated with
+> `commP c (commP c a)` over an arbitrary group, which is strictly stronger than what landed.
+> (`GradedClassFive.lean:353-354`'s "may **not** be simplified" is separately unhedged; nothing
+> proves `p⁸ ∉ γ₅`, so it should read "not by this argument".)
 
 ## 3.  Verification record
 
