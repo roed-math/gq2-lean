@@ -455,9 +455,96 @@ theorem evenStratum_baseN_frame_not_cupAdapted {h : ℕ}
 
 end Reduction
 
+/-! ## §7 The `q`-invariant of the `N` family stops at `4`
+
+Wave 69's queue item 4 and wave 71's queue item 4 both record, in prose, that `q ≥ 8` is out of
+reach for the committed core families because no `2 + 2^a` is a power of two above `4`.  Two
+statements, so that it is no longer prose.
+
+The first is the arithmetic: `pAlpha α = 2 + 2^α` is the `x₀` exponent of the `N_α` core, and
+it is a power of two at exactly one parameter.  The second is the invariant itself, composed
+from the two committed computations (`nFrame4_demushkinQ_DN_one` at `α = 1` and
+`nFrameExists_demushkinQ_DN` at `α ≥ 2`), which needs no arithmetic at all.  Neither says
+anything about fields: `ℚ₂(ζ₈)` has `q = 8`, and the content here is that no member of the
+present `N` family is isomorphic to its maximal pro-`2` quotient. -/
+
+section QInvariant
+
+/-- **`2 + 2^a` is a power of two exactly at `a = 1`**, where it is `4`.  Both `2 ≤ a` and
+`a = 0` are excluded by a mod-four count: `2 + 2^a` is `2` mod `4` in the first case and odd in
+the second, while a power of two above `2` is `0` mod `4`. -/
+theorem evenStratum_two_add_two_pow_eq_two_pow {a b : ℕ} (hab : 2 + 2 ^ a = 2 ^ b) :
+    a = 1 ∧ b = 2 := by
+  have hfour : ∀ n : ℕ, 2 ≤ n → (4 : ℕ) ∣ 2 ^ n := fun n hn =>
+    dvd_trans (by norm_num) (pow_dvd_pow 2 hn)
+  have hsmall : ∀ n : ℕ, n ≤ 1 → (2 : ℕ) ^ n ≤ 2 := by
+    intro n hn
+    interval_cases n <;> norm_num
+  have hpos : ∀ n : ℕ, 0 < (2 : ℕ) ^ n := fun n => pow_pos (by norm_num) n
+  have ha : a ≤ 1 := by
+    by_contra hlt
+    have h4a := hfour a (by omega)
+    have hge : (4 : ℕ) ≤ 2 ^ a := Nat.le_of_dvd (hpos a) h4a
+    have hb : 2 ≤ b := by
+      by_contra hb1
+      have := hsmall b (by omega)
+      omega
+    have h4b := hfour b hb
+    omega
+  interval_cases a
+  · exfalso
+    simp only [pow_zero] at hab
+    rcases Nat.lt_or_ge b 2 with hb | hb
+    · have := hsmall b (by omega)
+      omega
+    · have := hfour b hb
+      omega
+  · refine ⟨rfl, ?_⟩
+    simp only [pow_one] at hab
+    have h2 : (2 : ℕ) ^ b = 2 ^ 2 := by
+      rw [show (2 : ℕ) ^ 2 = 4 from rfl]
+      omega
+    exact Nat.pow_right_injective (le_refl 2) h2
+
+/-- The same for the campaign's named exponent `pAlpha α = 2 + 2^α`, the `x₀` exponent of the
+`N_α` core `x₀^{p_α}[x₀,x₁][σ,x₂]`. -/
+theorem evenStratum_pAlpha_eq_pow_two_iff {a b : ℕ} :
+    pAlpha a = 2 ^ b ↔ (a = 1 ∧ b = 2) := by
+  constructor
+  · exact fun h => evenStratum_two_add_two_pow_eq_two_pow h
+  · rintro ⟨rfl, rfl⟩
+    rfl
+
+/-- **The `N` family's `q`-invariant never exceeds `4`.**  Wave 70's `α = 1` computation and the
+committed `α ≥ 2` one, side by side.  Nothing else in the range `1 ≤ α` is left. -/
+theorem evenStratum_demushkinQ_DN_le_four {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    demushkinQ (MarkedCore.DN α h : Type) ≤ 4 := by
+  rcases Nat.lt_or_ge α 2 with hlt | hge
+  · have hone : α = 1 := by omega
+    subst hone
+    rw [MarkedCore.nFrame4_demushkinQ_DN_one]
+  · rw [MarkedCore.nFrameExists_demushkinQ_DN hge]
+    omega
+
+/-- **`q ≥ 8` is out of reach for the present `N` family**, at every parameter `α ≥ 1` and every
+handle count.  This is a statement about the family, not about fields: a field whose maximal
+pro-`2` quotient has `q = 2^b` with `b ≥ 3` is simply not one of these cores, and reaching it
+needs a new core family. -/
+theorem evenStratum_demushkinQ_DN_ne_pow_two {α h b : ℕ} (hα : 1 ≤ α) (hb : 3 ≤ b) :
+    demushkinQ (MarkedCore.DN α h : Type) ≠ 2 ^ b := by
+  intro heq
+  have hle := evenStratum_demushkinQ_DN_le_four hα h
+  rw [heq] at hle
+  have hge : (8 : ℕ) ≤ 2 ^ b := by
+    calc (8 : ℕ) = 2 ^ 3 := by norm_num
+      _ ≤ 2 ^ b := Nat.pow_le_pow_right (by norm_num) hb
+  omega
+
+end QInvariant
+
 end
 
-/-! ## §7 Axiom pins -/
+/-! ## §8 Axiom pins -/
 
 #print axioms evenStratumFrame_gram_diag
 #print axioms evenStratumFrame_eval_sub
@@ -479,6 +566,11 @@ end
 #print axioms evenStratum_forwardGeneratorDataN_one_of_base_and_climb
 #print axioms evenStratum_orientedEquivN_one_of_base_and_climb
 #print axioms evenStratum_baseN_frame_not_cupAdapted
+
+#print axioms evenStratum_two_add_two_pow_eq_two_pow
+#print axioms evenStratum_pAlpha_eq_pow_two_iff
+#print axioms evenStratum_demushkinQ_DN_le_four
+#print axioms evenStratum_demushkinQ_DN_ne_pow_two
 
 -- The `α ≥ 2` analogues §6 stands against, printed beside it.
 #print axioms GQ2.Dyadic.StageGeneric.evenForwardGeneratorDataN_of_base_and_corrections
