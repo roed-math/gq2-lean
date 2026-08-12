@@ -1,5 +1,57 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## ONE ITEM AWAITS YOU (wave 73, 2026-08-12)
+
+**The plan-A6 freeze on `GQ2/Roe/*`, for two stale docstrings.**  Plan §3 A6
+(`docs/dyadic/sq-design.md:426`) says "no edit to any `GQ2/Roe/*`".  Wave 72's audit found two
+things there that are wrong in prose only, and both have sat as recorded hazards (`R6`) since
+that plan was written:
+
+* **Four docstrings cite `GQ2/Roe/DRH2.lean`, a file that does not exist and never did.**  The
+  decision recorded at `docs/orchestration/roe-tickets.md:101` was "NO DRH2.lean (helpers private
+  in DRDemushkin)".  The fix is to repoint all four at `GQ2/Roe/DRDemushkin.lean`.  Sites:
+  `GQ2/Roe/DRWordCoh.lean:35` and `:913`, `GQ2/Dyadic/Word/WordCoh.lean:1334` and `:1463`.  Note
+  two of the four are outside `GQ2/Roe/` and could be fixed without touching the freeze at all.
+* **`GQ2/Roe/Labute/TwoCentralTower.lean:65-66` announces `sorry`s that are not there.**  It
+  reads that the `sorry`s below are the L2 fill contract; the file contains zero, the L-campaign
+  having filled them on 2026-07-26.  A docstring announcing sorries in a sorry-free file is the
+  worst-reading kind of stale prose, and it sits in a file this campaign cites for the
+  `commP`/bracket identity.
+
+**What each way costs.**  Lifting the freeze for these two is a five-minute prose edit with no
+mathematical content and no rebuild risk beyond a docstring recompile; the cost is that the
+freeze stops being absolute, and A6's value has partly been that nobody has had to think about
+whether an edit is "really" harmless.  Leaving it costs nothing today, but the second item is
+actively misleading to any reader who greps for `sorry` to check the tree's status, and it will
+outlive everyone who knows it is stale.  **My recommendation is to lift it for these two edits
+only, recorded as a named exception in `sq-design.md` rather than as a general relaxation.**  I
+have not made either edit; the housekeeping lane was instructed to leave both alone.
+
+## Status at wave 73 (2026-08-12)
+
+**For orientation.**  The wave's result is a convergence.
+
+* **Both graded classes now reduce to the same condition**, reached independently by two lanes
+  working different classes with different methods: is the `x₁`-bracket of a correction-layer
+  element a move?  At class four that is one `𝔽₂`-linear question and the leftover collapses to
+  the core defect exactly; at class five the same condition is the sole open input to an
+  equivalence, so no rearrangement of the inventory can do better.  This is the same scarcity
+  that made a wave-70 argument unsound, and it is now clear it was never a local accident.
+* **Class four gained the piece wave 70 was missing.**  The relations half of the graded
+  decomposition is proved, and it is sharper than the class-five version because the relevant
+  subgroup is abelian one class down.
+* **On the even side the base half is inverted.**  Wave 72 refuted the cup-adapted frame against
+  one Gram; the `α = 1` Gram differs from it in exactly one entry, and for that one a frame
+  **exists**.  So that half is blocked by a choice of Gram, not by the stratum.  The climb's
+  disputed row is now refuted rather than merely documented, with a finite witness, and scoped
+  so that it does not claim more than it proves.
+* **The axiom-ledger gate now runs inside `check_dyadic`** as an opt-in, exercised for the first
+  time this wave: 32078 declarations, no gap-map entries, no alarms, no terminal violations.
+
+**On my own record.**  I wrote that the unbuilt module went "seven waves" without a green build;
+a background audit recounted it as more than twenty, and I have corrected it above.  I had read
+the seven days since it landed as a wave count.
+
 ## Status at wave 72 (2026-08-12)
 
 **Nothing awaits you.**  All five decisions are taken and implemented; this wave needed none.
