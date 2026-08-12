@@ -52,20 +52,24 @@ the conclusion needs no reciprocity bundle and no ramification binder.
 
 ## What is NOT claimed
 
-Nothing here bears on `Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)` in either
-direction, and no declaration below mentions it.  What is refuted is the availability of one
-*route*: a frame cup-adapted for `evenFrameGram h`.  That Gram is the `α ≥ 2` shape, whose
-model is non-alternating; the surviving point's cup form is alternating, so a forward-generator
-tuple there is not required to be cup-adapted for it, and §5's reduction is untouched by §4.
-The two live side by side deliberately.
+Nothing here refutes `Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)`, and §6 does
+not prove it: §6 states an implication *into* it and names its two unproved hypotheses.  What
+§4 refutes is the availability of one *route*: a frame cup-adapted for `evenFrameGram h`.  That
+Gram is the `α ≥ 2` shape, whose model is non-alternating; the surviving point's cup form is
+alternating, so a forward-generator tuple there is not required to be cup-adapted for it, and
+§6's reduction is untouched by §4.  The two live side by side deliberately, and
+`evenStratum_baseN_frame_not_cupAdapted` is the exact seam between them.
 
 ## Contents
 
 * **§1** The diagonal of `evenFrameGram`.
 * **§2** Characters, and the duality that `Frame.levelTwoGen` supplies.
 * **§3** On the stratum every class evaluates to zero at the zeroth generator.
-* **§4** The refutation, and its two instantiations.
-* **§5** Axiom pins.
+* **§4** The refutation, and its surviving-point instantiation.
+* **§5** The model field `ℚ₂(i)`, and `[ℚ₂(i) : ℚ₂] = 2`.
+* **§6** The surviving point, unfolded into a base and a climb.
+* **§7** The `q`-invariant of the `N` family stops at `4`.
+* **§8** Axiom pins.
 -/
 
 namespace GQ2.Dyadic.EvenStratumFrame
@@ -358,7 +362,7 @@ about how the base may be *built*, not about whether it holds. -/
 section Reduction
 
 /-- **The level-three base at the surviving parameter.**  A `StageGeneric.Frame` at the `N` row
-table `vN 1` — actual elements with the exact cyclotomic values and Frattini generation —
+table `vN 1` (actual elements with the exact cyclotomic values, and Frattini generation)
 whose relator dies modulo `λ₃`.  This is `Frame.toLevelThree`'s input, hence a level-three
 stage tuple. -/
 def EvenStratumBaseN (K : IntermediateField ℚ_[2] ℚ̄₂) [CompactSpace (GalK K)]
@@ -369,9 +373,15 @@ def EvenStratumBaseN (K : IntermediateField ℚ_[2] ℚ̄₂) [CompactSpace (Gal
 
 /-- **The climb at the surviving parameter.**  Defect reachability for every level-`k` stage
 tuple at the `N_1` word datum, `k ≥ 3`.  This is the `Hcorr` input of
-`evenForwardGeneratorDataN_of_base_and_corrections`; the committed producers of it
-(`evenClimb_defectReachable` through `evenSharpDbarShiftSupply_n` and
-`evenClimb_deepRowSupply_n`) all carry `2 ≤ α`, so none of them applies here. -/
+`evenForwardGeneratorDataN_of_base_and_corrections`.
+
+The committed producer is `evenClimb_defectReachable`, and all three of its inputs are supplied
+on the `N` row only under `2 ≤ α`: the residual supply at depth `α − 1`, the `d̄`-shift supply
+`evenSharpDbarShiftSupply_n`, and the deep row supply `evenClimb_deepRowSupply_n`.  The middle
+one is the sharpest obstruction: it is `evenRawStageShift_n`, whose own file records in prose
+that the factorization's coordinate-`0` row is false at `α = 1`.  So this `Prop` is not merely
+unproved at the surviving parameter; the committed route to it is blocked, exactly as the
+committed route to `EvenStratumBaseN` is blocked by §4. -/
 def EvenStratumClimbN (K : IntermediateField ℚ_[2] ℚ̄₂) [CompactSpace (GalK K)]
     [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ) : Prop :=
   ∀ k : ℕ, 3 ≤ k → ∀ T : StageGeneric.Tuple (StageGeneric.nStageWord 1 h (le_refl 1))
