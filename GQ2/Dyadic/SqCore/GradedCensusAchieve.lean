@@ -85,11 +85,13 @@ at all.
 
 ## PROVED versus MEASURED
 
-**PROVED** here, no `sorry`, no new axiom, no `native_decide`, every `decide` on `SqU6 (ZMod 8)`
-or `ZMod 8`: the four engines; the `67` kills with their certificates; the horn-2 equivalence
-and its eighteen instances; the kill at the ungauged point and the death of its sigma knob; and
-W65-SHARPEN's primed bound transported to the census (`censAch_dressing_even`: every achievable
-dressing at a census point has `f`, `g`, `h`, `j` even).
+**PROVED** here, no `sorry`, no new axiom, no `native_decide`, every `decide` on `SqU6 (ZMod 8)`,
+`ZMod 8` or `ZMod 2` (`selPar` lands in `ZMod 2`, so every residue-parity side condition is a
+`ZMod 2` decision): the four engines; the `67` kills with their certificates; the horn-2
+equivalence and its eighteen instances; the kill at the ungauged point and the death of its sigma
+knob; and W65-SHARPEN's primed bound transported to the census (`censAch_dressing_even`: every
+achievable dressing has `f`, `g`, `h`, `j` even at a census point whose four free letters lie on
+`stageN1`, a HYPOTHESIS of that statement which is MEASURED, not decided here, at the `67`).
 
 **MEASURED** (`scripts/w66_achieve/results/achieve.txt`, `21` named checks, `0` failures, on
 two independent lattice implementations): which knobs are achievable (`49` / `18` / the
@@ -1232,8 +1234,8 @@ def censAchY50 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 6, 1, 5, 6, 1, 1, 2, 1, 1⟩
 point's own letters; named as a literal so the two `decide` calls stay apart. -/
 def censAchW50 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
 
-/-- ⭐ **Census point 50 is DEAD**, at every handle count and every handle: the
-displayed product of two commutators of the point's own letters is achievable, and
+/-- ⭐ **Census point 50 is DEAD**, at every handle count and every handle: the killer
+`censAchW50`, a product of THREE commutators of the point's own letters, is achievable, and
 dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
 lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
 theorem censAch_kill_50 (h : ℕ) (j : Fin h) :
@@ -1256,8 +1258,8 @@ def censAchY51 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 6, 1, 5, 6, 1, 1, 2, 1, 5⟩
 point's own letters; named as a literal so the two `decide` calls stay apart. -/
 def censAchW51 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
 
-/-- ⭐ **Census point 51 is DEAD**, at every handle count and every handle: the
-displayed product of two commutators of the point's own letters is achievable, and
+/-- ⭐ **Census point 51 is DEAD**, at every handle count and every handle: the killer
+`censAchW51`, a product of THREE commutators of the point's own letters, is achievable, and
 dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
 lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
 theorem censAch_kill_51 (h : ℕ) (j : Fin h) :
@@ -1280,8 +1282,8 @@ def censAchY52 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 1, 1, 2, 1, 5, 6, 3, 1⟩
 point's own letters; named as a literal so the two `decide` calls stay apart. -/
 def censAchW52 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
 
-/-- ⭐ **Census point 52 is DEAD**, at every handle count and every handle: the
-displayed product of two commutators of the point's own letters is achievable, and
+/-- ⭐ **Census point 52 is DEAD**, at every handle count and every handle: the killer
+`censAchW52`, a product of THREE commutators of the point's own letters, is achievable, and
 dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
 lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
 theorem censAch_kill_52 (h : ℕ) (j : Fin h) :
@@ -1304,8 +1306,8 @@ def censAchY53 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 1, 1, 2, 1, 5, 6, 3, 5⟩
 point's own letters; named as a literal so the two `decide` calls stay apart. -/
 def censAchW53 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 5, 2, 5, 5⟩
 
-/-- ⭐ **Census point 53 is DEAD**, at every handle count and every handle: the
-displayed product of two commutators of the point's own letters is achievable, and
+/-- ⭐ **Census point 53 is DEAD**, at every handle count and every handle: the killer
+`censAchW53`, a product of THREE commutators of the point's own letters, is achievable, and
 dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
 lines fail.  Residue `3`, lattice `2^25`, sigma knob NOT achievable. -/
 theorem censAch_kill_53 (h : ℕ) (j : Fin h) :
@@ -1328,8 +1330,8 @@ def censAchY54 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 5, 1, 6, 1, 5, 4, 3, 1⟩
 point's own letters; named as a literal so the two `decide` calls stay apart. -/
 def censAchW54 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 1, 2, 5, 7⟩
 
-/-- ⭐ **Census point 54 is DEAD**, at every handle count and every handle: the
-displayed product of two commutators of the point's own letters is achievable, and
+/-- ⭐ **Census point 54 is DEAD**, at every handle count and every handle: the killer
+`censAchW54`, a product of THREE commutators of the point's own letters, is achievable, and
 dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
 lines fail.  Residue `7`, lattice `2^25`, sigma knob NOT achievable. -/
 theorem censAch_kill_54 (h : ℕ) (j : Fin h) :
@@ -1352,8 +1354,8 @@ def censAchY55 : SqU6 gr3R := ⟨0, 0, 0, 0, 6, 5, 2, 5, 1, 6, 1, 5, 4, 3, 5⟩
 point's own letters; named as a literal so the two `decide` calls stay apart. -/
 def censAchW55 : SqU6 gr3R := ⟨0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 1, 2, 5, 7⟩
 
-/-- ⭐ **Census point 55 is DEAD**, at every handle count and every handle: the
-displayed product of two commutators of the point's own letters is achievable, and
+/-- ⭐ **Census point 55 is DEAD**, at every handle count and every handle: the killer
+`censAchW55`, a product of THREE commutators of the point's own letters, is achievable, and
 dressing the `u` slot with it kills the relator outright, so all three `gamma_2`
 lines fail.  Residue `7`, lattice `2^25`, sigma knob NOT achievable. -/
 theorem censAch_kill_55 (h : ℕ) (j : Fin h) :
@@ -1614,9 +1616,12 @@ theorem censAch_noKill_iff_forces {m : Fin (sqRank h) → SqU6 gr3R}
     rw [hres, SqU6.liftO_o, hodd] at hb
     exact absurd hb (by decide)
 
-/-- ⭐⭐ **Horn 2 fails wherever a killer is exhibited.**  The bridge behind the eighteen
-knob-free points below: an achievable single-slot dressing at the sigma slot that takes
-the relator to `1` refutes `CensAchNoKill` outright. -/
+/-- ⭐⭐ **Horn 2 fails wherever a killer is exhibited.**  An achievable single-slot dressing at
+the sigma slot that takes the relator to `1` refutes `CensAchNoKill` outright.
+
+⚠ This is NOT the route to the eighteen knob-free points below: those go through
+`censAch_horn_two_of_kill`, off their own `censAch_kill_*`.  Its one consumer is section 4's
+`censAch_cex_not_noKill`, at the ungauged point. -/
 theorem censAch_not_noKill_sig {S X Y U V w : SqU6 gr3R}
     (hkill : sqWord (S * w) X Y * commP U V = 1)
     (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
@@ -1865,9 +1870,13 @@ theorem censAch_image_le_stageN1 (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
   · exact hV
   · exact one_mem _
 
-/-- ⭐⭐ **W65-SHARPEN's primed depth-one bound, at a census point**: every achievable
-`gamma_2`-dressing has `f`, `g`, `h` AND `j` even.  The committed
+/-- ⭐⭐ **W65-SHARPEN's primed depth-one bound, at a census point whose four free letters lie
+on `stageN1`**: every achievable `gamma_2`-dressing has `f`, `g`, `h` AND `j` even.  The committed
 `GradedFiveGammaTwo.forceLcs_one_le_stageN2` gives all of this except the `g`.
+
+⚠ `hX`, `hY`, `hU`, `hV` are genuine hypotheses and are not discharged anywhere in this file:
+that the `67` points satisfy them is MEASURED
+(`scripts/w66_achieve/results/achieve.txt` section 1).
 
 ⭐ This is where the sharpened lattice reaches the census.  ⚠ It is a CONTAINMENT, so it can
 show a candidate killer unachievable and can never show one achievable; the sixty-seven
@@ -1879,9 +1888,12 @@ theorem censAch_dressing_even (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
   forceSharp_one_dvd (censAch_image_le_stageN1 h j hX hY hU hV) hz
 
 /-- ⭐ **The one NON-achievability this file can prove uniformly**: a candidate killer with an
-ODD `f`, `g`, `h` or `j` is not an achievable dressing at ANY census point.  ⚠ It does not
-reach the knob, whose `f`, `g`, `h` and `j` are all `0`: at a concrete point the honest lattice
-is far smaller than this bound, and the eighteen unachievable sigma knobs stay MEASURED. -/
+ODD `f` is not an achievable dressing at any census point whose four free letters lie on
+`stageN1`.  ⚠ Only the `f` coordinate is read, though `censAch_dressing_even` bounds `g`, `h` and
+`j` too, so the same statement off any one of those four is available and is simply not taken
+here.  ⚠ It does not reach the knob, whose `f`, `g`, `h` and `j` are all `0`: at a concrete point
+the honest lattice is far smaller than this bound, and the eighteen unachievable sigma knobs stay
+MEASURED. -/
 theorem censAch_not_achievable_of_odd (h : ℕ) (j : Fin h) {X Y U V : SqU6 gr3R}
     (hX : X ∈ stageN1) (hY : Y ∈ stageN1) (hU : U ∈ stageN1) (hV : V ∈ stageN1)
     {z : SqU6 gr3R} (hz : ¬ (2 : gr3R) ∣ z.f) :

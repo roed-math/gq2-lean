@@ -32,7 +32,8 @@ wave-65 equivalences.  Three statements, in increasing finality.
    oriented-isomorphic to an even presented core at some depth `α ≥ 2` on one of the two
    branches.  No supply remains.
 
-§4 lands it at the three model fields, where the ramification binder is a committed theorem;
+§4 lands the CLASSIFICATION at the two QUADRATIC model fields, where the ramification binder is a
+committed theorem, and records the branch-pinned endpoints at all three model fields;
 `KSqrtNegTwo` and `KSqrtTwo` are quadratic (`h = 0`), the quartic `KQuarticN` has `h = 1`.
 §5 records the wave-58 artefacts, now carried.
 
@@ -186,12 +187,20 @@ end Classification
 
 /-! ## §4 The three model fields
 
-At each model field the ramification binder is a committed theorem
-(`not_hasEqualNormValueGroups_KSqrtNegTwo`, `..._KSqrtTwo`, and the quartic through its own
-degree), so §3 applies with only the reciprocity bundle carried.  The branch-pinned forms, at
-the depths the wave-56 census measured, are also recorded: those carry `hrange` and nothing
-else, which is the honest shape, since no statement in the tree computes the cyclotomic range at
-a named field. -/
+At the two QUADRATIC model fields the ramification binder is a committed theorem
+(`not_hasEqualNormValueGroups_KSqrtNegTwo`, `..._KSqrtTwo`), so §3 applies there with only the
+reciprocity bundle carried.
+
+⚠ At the quartic it is NOT.  The tree holds no `not_hasEqualNormValueGroups_KQuarticN`, and no
+route reaches it from the degree: `not_hasEqualNormValueGroups_sqrt_neg_one_of_odd_finrank`
+needs ODD degree and `not_hasEqualNormValueGroups_quadField` a quadratic field, and `KQuarticN`
+is neither.  So the quartic carries NO classification statement here, only its branch-pinned
+endpoint.
+
+The branch-pinned forms, at the depths the wave-56 census measured, are recorded at all three
+model fields: those carry `hrange` and nothing else beyond the standing instance binders, which
+is the honest shape, since no statement in the tree computes the cyclotomic range at a named
+field. -/
 
 section Models
 
@@ -235,17 +244,18 @@ theorem parityFinal_classification_sqrtTwo [T2Space (GalK KSqrtTwo)]
     (not_hasEqualNormValueGroups_KSqrtTwo _ evenParity_sqrtIn_neg_one_sq)
     (by rw [finrank_KSqrtTwo])
 
-/-- **The `N` endpoint at `ℚ₂(√−2)` at the measured depth `2`**, over the branch identification and
-the standing instance binders.  The wave-55 pilot statement with both of its supplies discharged: wave 56 refuted its
-flip input and wave 65 showed its family input was the conclusion; this is the conclusion. -/
+/-- **The `N` endpoint at `ℚ₂(√−2)` at the measured depth `2`**, over the branch identification
+and the standing instance binders.  The wave-55 pilot statement with both of its supplies
+discharged: wave 56 refuted its flip input and wave 65 showed its family input was the
+conclusion; this is the conclusion. -/
 theorem parityFinal_orientedEquivN_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
     (hrange : MonoidHom.range (chiCycKTwo (K := KSqrtNegTwo)).toMonoidHom = imChiN 2) :
     Nonempty (OrientedContinuousMulEquiv (chiN 2 0) (chiCycKTwo (K := KSqrtNegTwo))) :=
   parityFinal_orientedEquivN_of_range (le_refl 2) hrange
     (by rw [finrank_KSqrtNegTwo])
 
-/-- **The `M` endpoint at `ℚ₂(√2)` at the measured depth `3`**, over the branch identification and the
-standing instance binders. -/
+/-- **The `M` endpoint at `ℚ₂(√2)` at the measured depth `3`**, over the branch identification
+and the standing instance binders. -/
 theorem parityFinal_orientedEquivM_sqrtTwo [T2Space (GalK KSqrtTwo)]
     (hrange : MonoidHom.range (chiCycKTwo (K := KSqrtTwo)).toMonoidHom = imChiM 3) :
     Nonempty (OrientedContinuousMulEquiv (chiM 3 0) (chiCycKTwo (K := KSqrtTwo))) :=

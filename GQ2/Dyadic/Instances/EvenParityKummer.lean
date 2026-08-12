@@ -269,7 +269,9 @@ theorem evenParity_paritySupply_of_finrank {h k : ℕ}
 
 omit [T2Space (GalK K)] in
 /-- **The parity supply at even degree**, in the handle count `(n - 2)/2` the campaign uses at
-the endpoint. -/
+the endpoint.  ⚠ It carries `2 ≤ [K : ℚ₂]` as an explicit hypothesis, where the corresponding
+`EvenParityModel.parityFinal_evenClassification_evenDegree` takes positivity from
+`Module.finrank_pos` instead and so carries the degree parity alone. -/
 theorem evenParity_paritySupply_evenDegree (hpos : 2 ≤ Module.finrank ℚ_[2] K)
     (heven : Even (Module.finrank ℚ_[2] K)) {k : ℕ} (hk : 3 ≤ k)
     {W : StageWord (MarkedCore.coreRank ((Module.finrank ℚ_[2] K - 2) / 2))}

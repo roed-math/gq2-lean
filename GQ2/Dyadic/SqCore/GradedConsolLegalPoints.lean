@@ -170,8 +170,9 @@ no reshuffling of the ten packaged conditions instantiates the criterion here. -
 theorem consolLegalPt_fiveFrame_column_ne :
     ∀ e : ZMod 2, consolRedFour forceU.a ≠ consolTwoUp (e * selPar forceU.b) := by decide
 
-/-- ⭐⭐ **THE SAME, AT THE HOM.**  For every marking `lam` that is trivial on the handle letters
-(one of `consolLegal_fiveTuple_ne`'s own hypotheses) and every `e`, the generator hypothesis
+/-- ⭐⭐ **THE SAME, AT THE HOM.**  For every marking `lam` that is trivial on the `U` handle
+letters (one of `consolLegal_fiveTuple_ne`'s own hypotheses; the `V` half is not needed, since
+the failure is already at the marked `U` handle) and every `e`, the generator hypothesis
 `hgen` of `consolLegal_column` is **unsatisfiable** at wave 60's point: it already fails at the
 marked `U` handle.
 
@@ -321,6 +322,11 @@ theorem consolLegalPt_stageFrame_column_iff :
 /-- ⭐⭐ **WAVE 61'S POINT, UNDER THE SIGMA-PARITY HYPOTHESIS.**  If `lambda` is odd on the sigma
 generator, then at every handle count and every handle **no `lambda`-legal `g` has
 `stageFrameHom h j g = stageX`**.
+
+`lambda` is normalised exactly as `consolLegal_fiveTuple_ne` normalises it, and all four of
+those conditions are carried here too: `lambda` sends `x0` to `1` and `x1` to `2`, and is
+trivial on every handle letter (`hlx0`, `hlx1`, `hlU`, `hlV`).  `hsig` is the fifth condition
+and the only new one.
 
 ⚠ `hsig` is not free.  `consolLegal_fiveTuple_ne` never evaluates the sigma parity, and
 `GradedConsolLegal` records that as the reason no census axiom is reachable from it; wave 61's
