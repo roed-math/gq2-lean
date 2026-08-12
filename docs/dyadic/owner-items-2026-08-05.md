@@ -1,5 +1,44 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## ALL FIVE OPEN DECISIONS TAKEN (owner, 2026-08-12)
+
+Recorded verbatim, with what each one commits the campaign to.  Nothing below this block is
+still awaiting you.
+
+1. **The `q = 4` ramified Arf sign: OPTION 3, split.**  Prove the even rows at `f` odd now;
+   open a separate ticket for the sign-corrected general form (the corrected Gauss sign
+   `(−1)^(gcd(deg P, F·ω) + 1)` carried through §6 and the determinant bridge).  Consequence:
+   the even determinant lane, when it opens, states its results with `Odd f` and cites the
+   ticket; §6's displayed statements are not touched now.  Note the standing narrowing: the
+   even rows' Stokes lane consumes no Arf sign at all, and the determinant residues are not
+   built, so this costs nothing until that lane opens.
+2. **`α = 1` even cores: CLOSE, after class four.**  The N direction needs the `α = 1` Gram
+   computed afresh (the committed diagonal-coefficient lemma requires `α ≥ 2`) plus a kernel
+   vector; the M direction reuses the committed dual map.  The three residual `Prop`s are
+   already recorded in `Instances/EvenDemushkin.lean`
+   (`EvenDemResidualAlphaOneN`, `EvenDemResidualAlphaOneM`, `EvenDemResidualAlphaZeroNRank`).
+   Consequence: the even theorem's `α ≥ 2` hypothesis becomes a theorem about the boundary
+   rather than a convenience.  Queued behind the class-four step, deliberately.
+3. **The degree-one endpoint: QUOTE `NuAdapted.gammaR_lSq_equiv_galK_degreeOne`**, and state
+   the nesting as a measured remark rather than quoting the nested twin.  Applied in-tree
+   the same day: the decision is recorded in both docstrings
+   (`SqCore/PivotSeedD0.lean` and `Instances/DegreeOneNesting.lean`), with the reason (since
+   the wave-42 bundle work the two print the same set, so the nesting is a fact about the
+   quoted theorem too).  The nested twin stays as the independent route and as the pin that
+   makes the remark checkable.
+4. **The `d − 1` one-stroke statement: STAY PARKED until class four resolves.**  Consequence:
+   the wave-53 explanation stays measured (certified `d = 2 … 6`, classes 3 to 5, plus the
+   campaign's own relator at `h = 1, 2`) and nothing in the main line consumes it.  If the
+   class-four step turns out to need an exponent-2 graded layer for its own reasons, the
+   statement comes nearly free inside it; if not, the layer is not worth building for one
+   explanatory theorem.
+5. **`SqCore` importing `Count`: NO. HOIST instead.**  The fact the class-four step wants,
+   `dsqSigma_pow_four_not_mem_twoCentralSeries_four`, moves to a shared lower module that
+   both layers may import; the `SqCore`-to-`Count` import is not created.  Consequence: the
+   layering stays exact and the fact stays single-sourced, at the cost of a small module plus
+   rewiring its existing consumers.  This is the only decision that touches the next wave, and
+   it is dispatched with it.
+
 ## Status at wave 68 (2026-08-12)
 
 **ONE NEW ITEM FOR YOU, small and architectural** (everything else below is unchanged):

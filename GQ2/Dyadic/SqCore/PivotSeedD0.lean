@@ -583,7 +583,12 @@ structural binders every row of the packet carries — an `OrientedTameQuotientK
 `MarkedFrame.SqCupAdaptedFramePresentation`, no `SqCore.SqNuClearHypothesis`.  Its verified
 root-level axiom print is std-3 + `{B1, B3c, B6, B7, B8, B9, B11a}`, a **strict subset** of the
 frozen `ℚ₂` capstone's nine (it misses `localReciprocity` and `tameQuotient`).  **This is the
-degree-one endpoint the paper should quote.**
+degree-one endpoint the paper should quote** (owner decision, 2026-08-12).  The nesting fact
+is to be stated as a remark beside it rather than by quoting the nested twin
+`Nesting.gammaR_lSq_equiv_galK_degreeOne_nested_unconditional`
+(`GQ2/Dyadic/Instances/DegreeOneNesting.lean` §6): since the wave-42 bundle work the two
+print the *same* set, so the nesting is a fact about this theorem too and reads better as a
+measured remark than as a second theorem name.
 
 The other is `GQ2.Dyadic.LSquare.gammaR_lSq_equiv_galK_degreeOne`
 (`GQ2/Dyadic/Instances/GammaLOddDegreeGrandAssembly.lean` §7), the `h = 0` face of the grand

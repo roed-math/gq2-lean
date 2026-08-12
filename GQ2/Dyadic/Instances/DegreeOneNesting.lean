@@ -327,9 +327,15 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_orientedClear_nested (B : MarkedRecip
 
 /-- **THE NESTED DEGREE-ONE MILESTONE.**  Statement-for-statement the committed
 `NuAdapted.gammaR_lSq_equiv_galK_degreeOne`: at `[K : ℚ₂] = 1` the odd-degree row of the
-general-`K` machine holds outright, `Γ_{R_K} ≅ G_K`.  Only the route differs — every use of
-`markedRecipAt` is replaced by the caller's own bundle `B` — and the print drops five census
-members, landing strictly inside the frozen `ℚ₂` capstone's nine.  §7 pins that. -/
+general-`K` machine holds outright, `Γ_{R_K} ≅ G_K`.  Only the route differs (every use of
+`markedRecipAt` is replaced by the caller's own bundle `B`), and the print drops five census
+members, landing strictly inside the frozen `ℚ₂` capstone's nine.  §7 pins that.
+
+⚠ **Not the theorem the paper quotes** (owner decision, 2026-08-12): the paper quotes
+`NuAdapted.gammaR_lSq_equiv_galK_degreeOne` and states the nesting as a measured remark.
+Since the wave-42 bundle work that endpoint prints the same set as this one, so this route's
+original selling point, a strictly smaller print, no longer distinguishes it.  This theorem
+stays as the independent route and as the pin that makes the remark checkable. -/
 theorem gammaR_lSq_equiv_galK_degreeOne_nested_unconditional (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) (T : OrientedTameQuotientK B FF)
     (D : FiniteDyadicParameters K FF) (hdeg : Module.finrank ℚ_[2] K = 1)
