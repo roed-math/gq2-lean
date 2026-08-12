@@ -1,5 +1,28 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Two notes on the decisions, from the wave that implemented them (2026-08-12)
+
+Both are corrections to what you were told when you decided, not to the decisions.
+
+* **Decision 2 (`α = 1` cores): the expected ANSWER is now under review, though the decision
+  to close it is unaffected.**  You were told the expected shape was "N is not Demushkin at
+  `α = 1`, M is".  Wave 69 challenges the N half with specific reasoning: the `α = 1` N
+  relator has the hyperbolic mod-2 cup form, which is *nondegenerate*, and that core is a
+  candidate for `G_{ℚ₂(i)}(2)`, Demushkin with `q = 4` rather than not Demushkin; on that
+  reading the empty N frame is evidence *for* `q = 4`, not against Demushkin-ness.  Neither
+  direction is proved.  The residual's docstring in `Instances/EvenDemushkin.lean` now carries
+  the challenge, so the lane settles the direction before spending.  If the challenge is
+  right, the lane proves the positive and deletes the residual rather than proving a negative.
+* **Decision 5 (hoist): implemented, and it is not on the class-four critical path after
+  all.**  The hoist landed cleanly (the fact's new module has a 123-module closure with no
+  `Count` module in it, single-sourced by re-export, prints byte-identical).  But wave 69's
+  class-four lane showed the fourth-power fact does not obstruct class four, so the citation
+  the hoist was meant to enable is not needed there.  The decision remains right as layering
+  (the alternative would have created a direct `SqCore`-to-`Count` edge for nothing), and one
+  premise of how it was framed to you was wrong: no `SqCore` file imports `Count` directly,
+  but sixty-plus reach it transitively, so the discipline is a direct-edge rule rather than a
+  DAG separation.
+
 ## ALL FIVE OPEN DECISIONS TAKEN (owner, 2026-08-12)
 
 Recorded verbatim, with what each one commits the campaign to.  Nothing below this block is
