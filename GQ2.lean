@@ -842,4 +842,5 @@ import GQ2.Dyadic.Instances.EvenUnramified
 import GQ2.Dyadic.Instances.EvenAlphaOne
 import GQ2.Dyadic.Instances.NFrameAlphaOneInvariants
 import GQ2.Dyadic.Instances.EvenStratumPoint
+import GQ2.Dyadic.Instances.EvenStratumFrame
 import GQ2.Dyadic.Main
