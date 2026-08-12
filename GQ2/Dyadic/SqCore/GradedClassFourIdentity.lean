@@ -77,7 +77,7 @@ whose square part involves `x₁`", admissible because "the `x₁`-coordinate fu
 the span of `λ` and `ν'` modulo 2".
 
 The mechanism is confirmed and is now a theorem, but the justification is simpler and stronger
-than the span argument.  ⭐ `cfourId_x1_sq_knob`: the correction `c = x₁²` is a `γ₂`-element
+than the span argument.  ⭐ `cfourId_x1_sq_direction`: the correction `c = x₁²` is a `γ₂`-element
 whose knob against a slot `q` is exactly the iterated bracket, modulo one square,
 
 ```text
@@ -85,12 +85,25 @@ whose knob against a slot `q` is exactly the iterated bracket, modulo one square
 ```
 
 by `gThreeFour_commP_sq_left`, so it lands in the direction Jacobi cannot produce.  And it is
-admissible not by any span argument but on the nose: ⭐ `cfourId_x1_sq_rows` gives
-`λ(x₁²) = 4` and `ν'(x₁²) = 0` at every selected marking, both in `4ℤ₂`, because `λ(x₁) = 2`
-(`nuLam_x1`) and `ν'(x₁) = 2ν'(x₀) = 0` (`toAdd_nu_dsqX1` at a selected marking).  Rows in
-`4ℤ₂` are repairable **inside `γ₃`** by wave 68's `bridge_row_image` at `m = 2`
-(`cfourId_row_repair`), and a `γ₃`-repair does not move the knob at all, since
-`⁅γ₃, G⁆ ≤ γ₄`.  That is the whole of it, and the `x₁`-coordinate functional never enters.
+admissible not by any span argument but on the nose: `cfourId_x1_sq_nuLam` and
+`cfourId_x1_sq_nu` give `λ(x₁²) = 4` and `ν'(x₁²) = 0` at every selected marking, both in
+`4ℤ₂`, because `λ(x₁) = 2` (`nuLam_x1`) and `ν'(x₁) = 2ν'(x₀) = 0` (`toAdd_nu_dsqX1` at a
+selected marking).  Rows in `4ℤ₂` are repairable **inside `γ₃`** by wave 68's
+`bridge_row_image` at `m = 2` (`cfourId_row_repair`), and a `γ₃`-repair does not move the knob
+at all, neither its bracket part (`cfourId_comm_zLayer_dress`) nor its square part
+(`cfourId_sq_zLayer_dress`).  ⭐⭐ `cfourId_x1_sq_admissible` is the two put together.  The
+`x₁`-coordinate functional never enters.
+
+## §5 What is left, named
+
+`cfourId_zLayer_le` is `gThreeFour_zLayer_le` with its closedness hypothesis discharged at
+`D_sq h`, the tower there being discrete; it is the form a witness search consumes.
+`CfourIdReachable h` names the remainder, and `cfourId_markTransitivity_of_reachable` carries it
+plus the classes `k ≥ 5` to `SqLamMarkTransitivity h` through wave 68's standing equivalence.
+
+**Verdict.**  `SqClassClearingSupply h 4` is **not** discharged by this wave, and nothing here
+refutes it.  What is committed is the relocation of the obligation from `Y` to `Z`, the
+completed knob inventory, the verified `x₁`-bundle mechanism, and the named remainder.
 
 Lane W70-CFOUR.  New file; no edits to existing files.  Prefix `cfourId`.
 -/
@@ -349,6 +362,52 @@ theorem cfourId_dress_handleV {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4
     rw [hU i, hVne i hi]
   · rw [hVj, hU j', cfourId_comm_dress_right _ _ hc]
 
+/-- ⭐ **The three core knobs, composed.**  Correcting the `σ`-, `x₀`- and `x₁`-slots by
+`γ₂`-elements `c₀, c₁, c₂` at once moves the class-four relator by the product of wave 69's three
+knobs, each read at the **undressed** frame: the only cross term is `commP c₀ c₁`, and it dies
+because `Y` is abelian.  Chaining works the same way for the handle slots, through
+`cfourId_dress_handleU` and `cfourId_dress_handleV`, every knob being central. -/
+theorem cfourId_dress_core {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4)
+    {c0 c1 c2 : levelQuot G 4} (hc0 : c0 ∈ lambdaImage G 2 4) (hc1 : c1 ∈ lambdaImage G 2 4)
+    (hc2 : c2 ∈ lambdaImage G 2 4)
+    (h0 : m' 0 = m 0 * c0) (h1 : m' 1 = m 1 * c1) (h2 : m' 2 = m 2 * c2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m *
+      (commP c0 (m 1) * commP (m 0) c1 * (c2 ^ 2 * commP c2 (m 2))) := by
+  classical
+  obtain ⟨mA, hA0, hA1, hA2, hAU, hAV⟩ :
+      ∃ mA : Fin (sqRank n) → levelQuot G 4,
+        mA 0 = m 0 * c0 ∧ mA 1 = m 1 ∧ mA 2 = m 2 ∧
+          (∀ i, mA (sqHandleIdxU i) = m (sqHandleIdxU i)) ∧
+            (∀ i, mA (sqHandleIdxV i) = m (sqHandleIdxV i)) := by
+    refine ⟨fun i => if (i : ℕ) = 0 then m 0 * c0 else m i, ?_, ?_, ?_, ?_, ?_⟩
+    · simp only [sqVal_zero, if_pos]
+    · simp only [sqVal_one]; norm_num
+    · simp only [sqVal_two]; norm_num
+    · intro i; simp only [sqHandleIdxU_val]; rw [if_neg (by omega)]
+    · intro i; simp only [sqHandleIdxV_val]; rw [if_neg (by omega)]
+  obtain ⟨mB, hB0, hB1, hB2, hBU, hBV⟩ :
+      ∃ mB : Fin (sqRank n) → levelQuot G 4,
+        mB 0 = mA 0 ∧ mB 1 = mA 1 * c1 ∧ mB 2 = mA 2 ∧
+          (∀ i, mB (sqHandleIdxU i) = mA (sqHandleIdxU i)) ∧
+            (∀ i, mB (sqHandleIdxV i) = mA (sqHandleIdxV i)) := by
+    refine ⟨fun i => if (i : ℕ) = 1 then mA 1 * c1 else mA i, ?_, ?_, ?_, ?_, ?_⟩
+    · simp only [sqVal_zero]; norm_num
+    · simp only [sqVal_one, if_pos]
+    · simp only [sqVal_two]; norm_num
+    · intro i; simp only [sqHandleIdxU_val]; rw [if_neg (by omega)]
+    · intro i; simp only [sqHandleIdxV_val]; rw [if_neg (by omega)]
+  have step0 := cfour_dress_zero m mA hc0 hA0 hA1 hA2 hAU hAV
+  have step1 := cfour_dress_one mA mB hc1 hB0 hB1 hB2 hBU hBV
+  have step2 := cfour_dress_two mB m' hc2 (by rw [h0, ← hA0, ← hB0])
+    (by rw [h1, ← hA1, ← hB1]) (by rw [h2, ← hA2, ← hB2])
+    (fun i => by rw [hU i, ← hAU i, ← hBU i]) (fun i => by rw [hV i, ← hAV i, ← hBV i])
+  have hknob1 : commP (mA 0) c1 = commP (m 0) c1 := by
+    rw [hA0, cfourId_comm_dress_left _ _ hc0, cfour_commP_lambdaTwo hc0 hc1, mul_one]
+  rw [step2, step1, step0, hknob1, hB2, hA2]
+  simp only [mul_assoc]
+
 end HandleKnobs
 
 /-! ## §5 The `x₁`-bundle -/
@@ -525,6 +584,7 @@ section AxiomPins
 #print axioms cfourId_dress_handle
 #print axioms cfourId_dress_handleU
 #print axioms cfourId_dress_handleV
+#print axioms cfourId_dress_core
 #print axioms cfourId_x1_sq_mem
 #print axioms cfourId_x1_sq_direction
 #print axioms cfourId_x1_sq_nuLam
