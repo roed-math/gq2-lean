@@ -47,9 +47,9 @@ put at `x`:
 | --- | --- |
 | `g ^ 8` | equivalent to `commP (commP (g ^ 2) x) x` (`cfiveJoin_family_one_iff`) |
 | `commP a b ^ 4` | equivalent to `commP (commP (commP a b) x) x` (`cfiveJoin_family_two_iff`) |
-| `(commP (g ^ 2) r) ^ 2` | equivalent to `commP (commP (g ^ 2) r) x` (`cfiveJoin_family_three_iff`) |
+| `(commP (g ^ 2) r) ^ 2` | equivalent to `commP (commP (g ^ 2) r) x` (`..._three_iff`) |
 | `(commP (commP a b) r) ^ 2` | equivalent to `commP (commP (commP a b) r) x` (`..._four_iff`) |
-| `commP (commP (g ^ 2) r) q` | **unconditional** for `q` in the closed span of `X ∪ Y`; open at `q = x` |
+| `commP (commP (g ^ 2) r) q` | **unconditional** for `q` in the span of `X ∪ Y`; open at `x` |
 | `commP (commP (commP a b) r) q` | the same |
 
 So the four square families are not reached by the bracket knobs at all, and the two bracket
