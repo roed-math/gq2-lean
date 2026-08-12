@@ -248,7 +248,293 @@ theorem cfiveRow_supply_of_reachable (H : CfiveRowReachable h) : SqClassClearing
 
 end Weakened
 
-/-! ## §5 Axiom pins -/
+/-! ## §5 The two ingredients of the pairing, re-established at `γ₄/γ₅`
+
+Wave 71 removed a square from the `x₁`-slot knob by pairing two knobs
+(`cfourKnob_sq_knob_pair`) rather than by reading one, and recorded that the pairing needs
+exactly two inputs per class: a Hall-Petrescu step in the shape of `gThreeFour_commP_sq_left`,
+and "a `Y`-element has trivial fourth power".  Both change one class up, and the second changes
+in a way that wave 70's §5 warning predicted. -/
+
+section Pair
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- A square of a `Y`-element lies in `T`. -/
+theorem cfiveSpan_sq_mem_lambdaThree {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5) :
+    y ^ 2 ∈ lambdaImage G 3 5 := by
+  obtain ⟨v, hv, rfl⟩ := hy
+  exact ⟨v ^ 2, sq_mem_twoCentralSeries_succ (G := G) hv, by rw [map_pow]⟩
+
+/-- ⭐ **Hall-Petrescu at `γ₄/γ₅`**: `commP (y ^ 2) q = (commP y q) ^ 2 * commP (commP y q) y`
+for `y ∈ Y`.  Wave 70's `gThreeFour_commP_sq_left` holds at **arbitrary** near slot; here the
+hypothesis `y ∈ Y` is doing real work, because the step that reorders the three factors needs
+`commP (commP y q) y` central, and at `Q₅` an iterated bracket is central only when the innermost
+slot is a `Y`-element (`cfive_commP_lambdaTwo_mem_lambdaThree` puts `commP y q` in `T`, and a
+bracket with a `T`-slot lands in `Z`).  The restriction costs nothing where the statement is
+used: the class-five knob corrections range over `T ≤ Y`. -/
+theorem cfiveSpan_commP_sq_left {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (q : levelQuot G 5) : commP (y ^ 2) q = (commP y q) ^ 2 * commP (commP y q) y := by
+  have hz : commP (commP y q) y ∈ zLayer G 4 :=
+    cfive_commP_mem_zLayer_left (cfive_commP_lambdaTwo_mem_lambdaThree hy q) y
+  conv_lhs => rw [pow_two, cfour_commP_mul_left]
+  rw [mul_assoc, gFourFive_zLayer_comm hz, ← mul_assoc, ← pow_two]
+
+/-- ⭐ **A `T`-element has trivial fourth power**: its square is already a `Z`-element, and `Z`
+has exponent two.  This is the cancellation the pairing runs on, and it is `T` and not `Y` that
+carries it. -/
+theorem cfiveSpan_pow_four_lambdaThree {t : levelQuot G 5} (ht : t ∈ lambdaImage G 3 5) :
+    t ^ 2 * t ^ 2 = 1 := by
+  rw [← pow_two]
+  exact zLayer_sq G (gFourFive_sq_mem_zLayer ht)
+
+/-- ⭐ **What a `Y`-element has at class five is a trivial *eighth* power.**  This is where wave
+70's §5 warning bites and why the fact had to be re-established rather than transported: the
+class-four proof of `cfourKnob_pow_four_lambdaTwo` puts the square of a `Y`-element in the top
+layer, and one class up that square only reaches `T`.  Nothing here says a `Y`-element's fourth
+power is nontrivial at class five; what is proved is that it lies in `Z`
+(`cfiveSpan_pow_four_lambdaTwo_mem`), one layer short of where the class-four argument needs
+it. -/
+theorem cfiveSpan_pow_four_lambdaTwo_mem {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5) :
+    y ^ 2 * y ^ 2 ∈ zLayer G 4 := by
+  rw [← pow_two]
+  exact gFourFive_sq_mem_zLayer (cfiveSpan_sq_mem_lambdaThree hy)
+
+/-- The eighth power of a `Y`-element is trivial in `Q₅`, in the shape the pairing would need. -/
+theorem cfiveSpan_pow_eight_lambdaTwo {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5) :
+    (y ^ 2) ^ 2 * (y ^ 2) ^ 2 = 1 :=
+  cfiveSpan_pow_four_lambdaThree (cfiveSpan_sq_mem_lambdaThree hy)
+
+/-- ⭐⭐ **The two `x₁`-slot knobs whose squares cancel, at class five.**  The class-five
+`x₁`-slot knob is `c ↦ c ^ 2 * commP c (m 2)` (`cfiveKnob_dress_two`, whose square part is the
+only square in the inventory), with the correction `c` ranging over `T`.  Run it at `c = y ^ 2`
+and at `c = commP y q` for `y ∈ Y` (both are `T`-elements, so both are legal corrections) and
+multiply: each contributes `(commP y q) ^ 2`, and the two cancel because `commP y q` is a
+`T`-element and `T`-elements have trivial fourth power.  What is left is
+
+```text
+  y⁴ · ⁅⁅y, q⁆, y⁆ · ⁅⁅y, q⁆, q⁆ ,
+```
+
+a fourth power times two pure iterated brackets, with no square attached.  This is wave 71's
+`cfourKnob_sq_knob_pair` one class up; the difference is that the near slot must now come from
+`Y`, which is exactly the regime where both ingredients hold. -/
+theorem cfiveSpan_sq_knob_pair {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (q : levelQuot G 5) :
+    ((y ^ 2) ^ 2 * commP (y ^ 2) q) * ((commP y q) ^ 2 * commP (commP y q) q)
+      = y ^ 4 * (commP (commP y q) y * commP (commP y q) q) := by
+  have ht : commP y q ∈ lambdaImage G 3 5 := cfive_commP_lambdaTwo_mem_lambdaThree hy q
+  have hz1 : (commP y q) ^ 2 ∈ zLayer G 4 := gFourFive_sq_mem_zLayer ht
+  have hz2 : commP (commP y q) y ∈ zLayer G 4 := cfive_commP_mem_zLayer_left ht y
+  have hsq : (y ^ 2 : levelQuot G 5) ^ 2 = y ^ 4 := by rw [← pow_mul]
+  have hmid : commP (commP y q) y * ((commP y q) ^ 2 * commP (commP y q) q)
+      = (commP y q) ^ 2 * (commP (commP y q) y * commP (commP y q) q) := by
+    rw [← mul_assoc, ← gFourFive_zLayer_comm hz1 (commP (commP y q) y), mul_assoc]
+  rw [hsq, cfiveSpan_commP_sq_left hy]
+  simp only [mul_assoc]
+  rw [hmid, ← mul_assoc ((commP y q) ^ 2), cfiveSpan_pow_four_lambdaThree ht, one_mul]
+
+/-- A square of a product of two `T`-elements splits: the correction of `gFourFive_sq_dress` is
+a bracket of a `T`-element against a `T ≤ Y`-element, and `⁅T, Y⁆` is trivial. -/
+theorem cfiveSpan_sq_mul_lambdaThree {c₁ c₂ : levelQuot G 5} (hc₁ : c₁ ∈ lambdaImage G 3 5)
+    (hc₂ : c₂ ∈ lambdaImage G 3 5) : (c₁ * c₂) ^ 2 = c₁ ^ 2 * c₂ ^ 2 := by
+  rw [gFourFive_sq_dress hc₂, gFourFive_commP_vanish hc₂ (gFourFive_lambdaThree_le hc₁), mul_one]
+
+/-- ⭐ **The `x₁`-slot knob is multiplicative in its correction**, so the pairing above is the
+knob of the **single** `T`-element `y ^ 2 * commP y q` and costs no extra slot.  This is
+`cfourKnob_dress_two_mul` one class up, run on `T` rather than on `Y`. -/
+theorem cfiveSpan_dress_two_mul {c₁ c₂ : levelQuot G 5} (hc₁ : c₁ ∈ lambdaImage G 3 5)
+    (hc₂ : c₂ ∈ lambdaImage G 3 5) (q : levelQuot G 5) :
+    (c₁ * c₂) ^ 2 * commP (c₁ * c₂) q = c₁ ^ 2 * commP c₁ q * (c₂ ^ 2 * commP c₂ q) := by
+  have hz2 : c₂ ^ 2 ∈ zLayer G 4 := gFourFive_sq_mem_zLayer hc₂
+  have key : c₂ ^ 2 * (commP c₁ q * commP c₂ q) = commP c₁ q * (c₂ ^ 2 * commP c₂ q) := by
+    rw [← mul_assoc, gFourFive_zLayer_comm hz2 (commP c₁ q), mul_assoc]
+  rw [cfiveSpan_sq_mul_lambdaThree hc₁ hc₂, gFourFive_ad_left hc₁ c₂ q]
+  simp only [mul_assoc]
+  rw [key]
+
+/-- ⭐⭐ **The pairing as a single correction.**  For `y ∈ Y` the `T`-element
+`c = y ^ 2 * commP y q` has `x₁`-slot knob `y⁴ · ⁅⁅y, q⁆, y⁆ · ⁅⁅y, q⁆, q⁆`, with no square
+attached.  This is the class-five form of wave 71's `cfourKnob_pair_correction`, stated at the
+layer rather than at `D_sq h`. -/
+theorem cfiveSpan_pair_correction {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (q : levelQuot G 5) :
+    (y ^ 2 * commP y q) ^ 2 * commP (y ^ 2 * commP y q) q
+      = y ^ 4 * (commP (commP y q) y * commP (commP y q) q) := by
+  rw [cfiveSpan_dress_two_mul (cfiveSpan_sq_mem_lambdaThree hy)
+    (cfive_commP_lambdaTwo_mem_lambdaThree hy q) q]
+  exact cfiveSpan_sq_knob_pair hy q
+
+end Pair
+
+/-! ## §6 Jacobi as a rewriting, and the relations half of the graded decomposition
+
+`gFourFive_zLayer_le_gen` gives the "generated by" half: `Z` is reached from the squares and the
+brackets of `T`.  That is not consumable on its own, because `T` is opaque: it is the image of
+`γ₃`, not a family indexed by `Q₅`.  The relations half turns the two `T`-indexed families into
+three families indexed by `Y × Q₅ × Q₅`, and what pays for it is that both maps
+`t ↦ t ^ 2` and `t ↦ commP t q` are **homomorphisms** on `T` (`cfiveSpan_sq_mul_lambdaThree`,
+`gFourFive_ad_left`), so a check on generators of `T` suffices.  The generators of `T` are the
+squares and the brackets of `Y`, and on each the check is evaluated by §5's Hall-Petrescu step
+and by Jacobi. -/
+
+section Relations
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **Jacobi as a rewriting inside `Z`.**  All three rotations lie in the top layer, which is
+central of exponent two, so `gFourFive_jacobi` can be solved for its first factor with no signs
+and no ordering.  This is the relation that lets a fourfold bracket's two outer slots be
+exchanged at the cost of one bracket of `Y`-elements. -/
+theorem cfiveSpan_jacobi_rewrite {p : levelQuot G 5} (hp : p ∈ lambdaImage G 2 5)
+    (q r : levelQuot G 5) :
+    commP (commP p q) r = commP (commP q r) p * commP (commP r p) q := by
+  have hB : commP (commP q r) p ∈ zLayer G 4 :=
+    cfive_commP_lambdaTwo_mem_zLayer (gFourFive_commP_mem_lambdaTwo q r) hp
+  have hC : commP (commP r p) q ∈ zLayer G 4 :=
+    cfive_commP_mem_zLayer_left (gFourFive_commP_mem_lambdaThree_right r hp) q
+  have h1 : commP (commP p q) r = (commP (commP q r) p * commP (commP r p) q)⁻¹ :=
+    eq_inv_of_mul_eq_one_left (by rw [← mul_assoc]; exact gFourFive_jacobi hp q r)
+  rw [h1, mul_inv_rev, zLayer_inv_self hC, zLayer_inv_self hB, gFourFive_zLayer_comm hC]
+
+/-- **The fourfold form of the rewriting**, with no hypothesis at all, since a bracket of two
+`Q₅`-elements lies in `Y`.  This is `gFourFive_jacobi_iter` solved for its first factor. -/
+theorem cfiveSpan_jacobi_iter_rewrite (a b q r : levelQuot G 5) :
+    commP (commP (commP a b) q) r
+      = commP (commP q r) (commP a b) * commP (commP r (commP a b)) q :=
+  cfiveSpan_jacobi_rewrite (gFourFive_commP_mem_lambdaTwo a b) q r
+
+/-- **The `T`-elements whose square lies in `S`.**  A subgroup, because squaring is a
+homomorphism on `T` (`cfiveSpan_sq_mul_lambdaThree`). -/
+def cfiveSpanSqSub (S : Subgroup (levelQuot G 5)) : Subgroup (levelQuot G 5) where
+  carrier := {y | y ∈ lambdaImage G 3 5 ∧ y ^ 2 ∈ S}
+  mul_mem' := fun {a b} ha hb =>
+    ⟨(lambdaImage G 3 5).mul_mem ha.1 hb.1, by
+      rw [cfiveSpan_sq_mul_lambdaThree ha.1 hb.1]; exact S.mul_mem ha.2 hb.2⟩
+  one_mem' := ⟨(lambdaImage G 3 5).one_mem, by rw [one_pow]; exact S.one_mem⟩
+  inv_mem' := fun {a} ha =>
+    ⟨(lambdaImage G 3 5).inv_mem ha.1, by rw [inv_pow]; exact S.inv_mem ha.2⟩
+
+/-- **The `T`-elements whose bracket against `q` lies in `S`.**  A subgroup, because
+`t ↦ commP t q` is a homomorphism on `T` (`gFourFive_ad_left`, `gFourFive_ad_inv_left`). -/
+def cfiveSpanAdSub (S : Subgroup (levelQuot G 5)) (q : levelQuot G 5) :
+    Subgroup (levelQuot G 5) where
+  carrier := {y | y ∈ lambdaImage G 3 5 ∧ commP y q ∈ S}
+  mul_mem' := fun {a b} ha hb =>
+    ⟨(lambdaImage G 3 5).mul_mem ha.1 hb.1, by
+      rw [gFourFive_ad_left ha.1 b q]; exact S.mul_mem ha.2 hb.2⟩
+  one_mem' := ⟨(lambdaImage G 3 5).one_mem, by rw [cfour_one_comm]; exact S.one_mem⟩
+  inv_mem' := fun {a} ha =>
+    ⟨(lambdaImage G 3 5).inv_mem ha.1, by rw [gFourFive_ad_inv_left ha.1 q]; exact ha.2⟩
+
+/-- **The layer `γ_{k+1}` seen inside `Q_n`**, generated by the squares and the brackets of the
+layer below.  `gFourFive_zLayer_le_gen` is the case `n = k + 2`; the level is free here because
+nothing in the proof is about the level, and the relations half needs `k = 2` with `n = 5`, where
+the target is `T` and not the top layer. -/
+theorem cfiveSpan_lambdaImage_le {k n : ℕ} (hk : 1 ≤ k) {S : Subgroup (levelQuot G n)}
+    (hS : IsClosed ((S : Subgroup (levelQuot G n)) : Set (levelQuot G n)))
+    (hsq : ∀ y ∈ lambdaImage G k n, y ^ 2 ∈ S)
+    (hcomm : ∀ y ∈ lambdaImage G k n, ∀ q, commP y q ∈ S) :
+    lambdaImage G (k + 1) n ≤ S := by
+  rintro _ ⟨v, hv, rfl⟩
+  have hpre : IsClosed ((Subgroup.comap (levelMk G n) S : Subgroup G) : Set G) := by
+    rw [Subgroup.coe_comap]
+    exact hS.preimage (continuous_levelMk G n)
+  have hsub : twoCentralSeries G (k + 1) ≤ Subgroup.comap (levelMk G n) S := by
+    rw [twoCentralSeries_succ (G := G) hk, twoCentralSucc]
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) hpre
+    · refine (Subgroup.closure_le _).2 ?_
+      rintro _ ⟨g, hg, rfl⟩
+      show levelMk G n (g ^ 2) ∈ S
+      rw [map_pow]
+      exact hsq _ ⟨g, hg, rfl⟩
+    · refine Subgroup.commutator_le.2 fun a ha b _ => ?_
+      rw [commutatorElement_def]
+      show levelMk G n (a * b * a⁻¹ * b⁻¹) ∈ S
+      rw [gFourFive_levelMk_commutator]
+      exact hcomm _ ⟨a⁻¹, (twoCentralSeries G k).inv_mem ha, rfl⟩ _
+  exact hsub hv
+
+/-- ⭐⭐⭐ **The relations half of the graded decomposition of `γ₄/γ₅`.**  A closed subgroup of
+`Q₅` containing the three families
+
+* `(y ^ 2) ^ 2` for `y ∈ Y`,
+* `(commP y r) ^ 2` for `y ∈ Y` and `r ∈ Q₅`,
+* `commP (commP y r) q` for `y ∈ Y` and `r, q ∈ Q₅`,
+
+contains the whole of `Z = γ₄/γ₅`.  Compared with the generation half `gFourFive_zLayer_le`,
+whose two families are indexed by the opaque `T`, every family here is indexed by `Y` with one or
+two free slots of `Q₅`, and in graded language the three are the restricted summands of
+`γ₄/γ₅` together with `L₄(V)`.
+
+Two relations pay for the reduction.  Squaring and `ad(·)(q)` are homomorphisms on `T`, so both
+`T`-indexed families of the generation half need only be checked on generators of `T`; and the
+generators of `T` are the squares and the brackets of `Y` (`cfiveSpan_lambdaImage_le` at
+`k = 2`, `n = 5`).  On a square generator the check is §5's Hall-Petrescu step, which is where
+the third family is consumed with `q` in its innermost slot. -/
+theorem cfiveSpan_zLayer_le_rel {S : Subgroup (levelQuot G 5)}
+    (hS : IsClosed ((S : Subgroup (levelQuot G 5)) : Set (levelQuot G 5)))
+    (hT : IsClosed ((lambdaImage G 3 5 : Subgroup (levelQuot G 5)) : Set (levelQuot G 5)))
+    (hfour : ∀ y ∈ lambdaImage G 2 5, (y ^ 2) ^ 2 ∈ S)
+    (hsqbr : ∀ y ∈ lambdaImage G 2 5, ∀ r, (commP y r) ^ 2 ∈ S)
+    (hJ : ∀ y ∈ lambdaImage G 2 5, ∀ r q, commP (commP y r) q ∈ S) :
+    zLayer G 4 ≤ S := by
+  have hsqSub : IsClosed
+      ((cfiveSpanSqSub S : Subgroup (levelQuot G 5)) : Set (levelQuot G 5)) :=
+    hT.inter (hS.preimage (continuous_pow 2))
+  have hsq : ∀ y ∈ lambdaImage G 3 5, y ^ 2 ∈ S := by
+    intro y hy
+    exact (cfiveSpan_lambdaImage_le (k := 2) (n := 5) (by norm_num) hsqSub
+      (fun w hw => ⟨cfiveSpan_sq_mem_lambdaThree hw, hfour w hw⟩)
+      (fun w hw r => ⟨cfive_commP_lambdaTwo_mem_lambdaThree hw r, hsqbr w hw r⟩) hy).2
+  have hcomm : ∀ y ∈ lambdaImage G 3 5, ∀ q, commP y q ∈ S := by
+    intro y hy q
+    have hcont : Continuous fun t : levelQuot G 5 => commP t q := by
+      simp only [commP]
+      fun_prop
+    have hadSub : IsClosed
+        ((cfiveSpanAdSub S q : Subgroup (levelQuot G 5)) : Set (levelQuot G 5)) :=
+      hT.inter (hS.preimage hcont)
+    refine (cfiveSpan_lambdaImage_le (k := 2) (n := 5) (by norm_num) hadSub ?_ ?_ hy).2
+    · intro w hw
+      refine ⟨cfiveSpan_sq_mem_lambdaThree hw, ?_⟩
+      rw [cfiveSpan_commP_sq_left hw q]
+      exact S.mul_mem (hsqbr w hw q) (hJ w hw q w)
+    · intro w hw r
+      exact ⟨cfive_commP_lambdaTwo_mem_lambdaThree hw r, hJ w hw r q⟩
+  exact gFourFive_zLayer_le hS hsq hcomm
+
+end Relations
+
+/-! ## §7 The relations half at `D_sq h`, with no closedness side conditions -/
+
+section RelationsDsq
+
+variable {h : ℕ}
+
+/-- Every level of the tower of `D_sq h` is discrete, at level five as at level four. -/
+theorem cfiveSpan_discreteTopology : DiscreteTopology (levelQuot (DSq h : Type) 5) :=
+  discreteTopology_levelQuot (DSq h : Type) (lim_dsq_finsetGen h) (isProP_DSq h) 5
+
+/-- Every subgroup of `Q₅` is closed, `Q₅` being discrete. -/
+theorem cfiveSpan_isClosed (S : Subgroup (levelQuot (DSq h : Type) 5)) :
+    IsClosed ((S : Subgroup (levelQuot (DSq h : Type) 5)) : Set (levelQuot (DSq h : Type) 5)) := by
+  haveI : DiscreteTopology (levelQuot (DSq h : Type) 5) := cfiveSpan_discreteTopology
+  exact isClosed_discrete _
+
+/-- ⭐⭐⭐ **The relations half at `D_sq h`, with no side condition**: this is the form a
+class-five witness search consumes.  To reach the whole leftover it is enough to reach the fourth
+powers of `Y`, the squares of the brackets of `Y`, and the fourfold brackets. -/
+theorem cfiveSpan_zLayer_le_dsq {S : Subgroup (levelQuot (DSq h : Type) 5)}
+    (hfour : ∀ y ∈ lambdaImage (DSq h : Type) 2 5, (y ^ 2) ^ 2 ∈ S)
+    (hsqbr : ∀ y ∈ lambdaImage (DSq h : Type) 2 5, ∀ r, (commP y r) ^ 2 ∈ S)
+    (hJ : ∀ y ∈ lambdaImage (DSq h : Type) 2 5, ∀ r q, commP (commP y r) q ∈ S) :
+    zLayer (DSq h : Type) 4 ≤ S :=
+  cfiveSpan_zLayer_le_rel (cfiveSpan_isClosed S) (cfiveSpan_isClosed _) hfour hsqbr hJ
+
+end RelationsDsq
+
+/-! ## §8 Axiom pins -/
 
 section AxiomPins
 
@@ -265,6 +551,24 @@ section AxiomPins
 #print axioms cfiveRow_mul_admissible
 #print axioms CfiveRowReachable
 #print axioms cfiveRow_supply_of_reachable
+#print axioms cfiveSpan_sq_mem_lambdaThree
+#print axioms cfiveSpan_commP_sq_left
+#print axioms cfiveSpan_pow_four_lambdaThree
+#print axioms cfiveSpan_pow_four_lambdaTwo_mem
+#print axioms cfiveSpan_pow_eight_lambdaTwo
+#print axioms cfiveSpan_sq_knob_pair
+#print axioms cfiveSpan_sq_mul_lambdaThree
+#print axioms cfiveSpan_dress_two_mul
+#print axioms cfiveSpan_pair_correction
+#print axioms cfiveSpan_jacobi_rewrite
+#print axioms cfiveSpan_jacobi_iter_rewrite
+#print axioms cfiveSpanSqSub
+#print axioms cfiveSpanAdSub
+#print axioms cfiveSpan_lambdaImage_le
+#print axioms cfiveSpan_zLayer_le_rel
+#print axioms cfiveSpan_discreteTopology
+#print axioms cfiveSpan_isClosed
+#print axioms cfiveSpan_zLayer_le_dsq
 
 end AxiomPins
 
