@@ -10,7 +10,7 @@ import GQ2.Dyadic.SqCore.GradedClassFourIdentity
 # W71-FIVE: the graded layer `γ₄/γ₅`, on the tower
 
 Wave 70 built `γ₃/γ₄` on the tower (`SqCore/GradedGammaThreeFour.lean`) and recorded two of its
-three declarations as **layer-agnostic standing tooling**: `gThreeFour_hallWitt`, an identity in
+fourteen declarations as **layer-agnostic standing tooling**: `gThreeFour_hallWitt`, an identity in
 an arbitrary group, and `gThreeFour_jacobi_of`, the passage from Hall-Witt to Jacobi over an
 arbitrary group taking its two reductions as hypotheses.  This file is the next layer up, and it
 is the first test of that record.
@@ -25,9 +25,13 @@ lands in `Z` (`cfive_commP_mem_zLayer_left` at `k = 3`), a bracket with a `Y`-sl
 
 ⭐ `gFourFive_commP_vanish`: in `Q₅`, `commP z y = 1` for `z ∈ T` and `y ∈ Y`, and symmetrically
 `gFourFive_commP_vanish'`.  This is `cfive_commutator_lambdaTwo` at `k = 3` read downstairs, and
-it is what makes every correction term of the class-five knob computation die.  The additivity
-laws `gFourFive_ad_left` / `gFourFive_ad_right` and the two inverse laws are wave 70's, with the
-near slot moved from `Y` to `T`.
+it is what kills the correction terms of the additivity laws.  It is **not** what kills every
+correction term of §4: `gFourFive_drop_right`, `gFourFive_sq_dress` and
+`gFourFive_sq_zLayer_dress` run on the **centrality** of `Z` instead
+(`cfive_commP_zLayer_left`, `gFourFive_commP_zLayer_right`) and never cite the vanishing at all.
+The additivity laws `gFourFive_ad_left` / `gFourFive_ad_right` and the two inverse laws are wave
+70's, with the `T`-element in the near slot for `ad_left` and in the **far** slot for `ad_right`
+(the convention, fixed at `GradedGammaThreeFour.lean` §1, is near = left slot, far = right slot).
 
 ## §2 Jacobi, and what the layer-agnostic tooling actually covers
 
@@ -37,9 +41,8 @@ the ambient group.  At `γ₃/γ₄` that is right, because a triple bracket is 
 layer there.  At `γ₄/γ₅` a triple bracket lies in `T`, one layer short of `Z`
 (`cfive_commP_lambdaTwo_mem_lambdaThree`), so its `hcentral` is not available: ⭐
 `gFourFive_hcentral_iff` proves that `hcentral` read in `Q₅` is **equivalent** to the vanishing
-of every fourfold bracket in `Q₅`.  Nothing here refutes that vanishing; what is committed is
-that the class-five calculus does not supply it, and that if it did hold then the Jacobi identity
-below would be an identity between three trivial elements.
+of every **left-normed** fourfold bracket in `Q₅`.  Nothing here refutes that vanishing; what is
+committed is that the class-five calculus does not supply it.
 
 The repair keeps the tooling and weakens the hypotheses to the six words the Hall-Witt reduction
 actually rewrites:
@@ -102,8 +105,8 @@ relator value of the base frame, and it is reached by the knob product.
 
 No instance of `SqClassClearingSupply` is discharged, at class four or at class five, and nothing
 is refuted.  In particular `gFourFive_hcentral_iff` is an equivalence, not a refutation: no
-witness for the failure of the fourfold-bracket vanishing in `Q₅` is committed anywhere, and none
-is claimed here.
+witness for the failure of the left-normed fourfold-bracket vanishing in `Q₅` is committed
+anywhere, and none is claimed here.
 
 Lane W71-FIVE.  New file; no edits to existing files.  Prefixes `gFourFive` / `cfiveKnob`.
 -/
@@ -152,7 +155,8 @@ theorem gFourFive_sq_mem_zLayer {y : levelQuot G 5} (hy : y ∈ lambdaImage G 3 
 
 /-- ⭐ **`⁅T, Y⁆` is trivial in `Q₅`**: a bracket of a `γ₃`-image against a `γ₂`-image dies,
 because upstairs it lands in `γ₅`.  This is `cfive_commutator_lambdaTwo` at `k = 3`, read
-downstairs, and it is the fact every correction term of §4 is killed by. -/
+downstairs, and it is the fact the additivity laws below are killed by.  Not every correction
+term of §4: the square and drop lemmas run on the centrality of `Z` instead. -/
 theorem gFourFive_commP_vanish {z y : levelQuot G 5} (hz : z ∈ lambdaImage G 3 5)
     (hy : y ∈ lambdaImage G 2 5) : commP z y = 1 := by
   obtain ⟨v, hv, rfl⟩ := hz
@@ -186,7 +190,9 @@ theorem gFourFive_ad_left {y : levelQuot G 5} (hy : y ∈ lambdaImage G 3 5)
     (p q : levelQuot G 5) : commP (y * p) q = commP y q * commP p q := by
   rw [cfour_commP_mul_left, cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hy q) p, mul_one]
 
-/-- **Right additivity with a `T`-element in the near slot.** -/
+/-- **Right additivity with a `T`-element in the far slot.**  The `T`-element `y` is the right
+entry of `commP`, which is the far slot by the convention of `GradedGammaThreeFour.lean` §1;
+compare `gThreeFour_ad_right`, docstring'd the same way one class down. -/
 theorem gFourFive_ad_right (p : levelQuot G 5) {y : levelQuot G 5}
     (hy : y ∈ lambdaImage G 3 5) (q : levelQuot G 5) :
     commP p (y * q) = commP p q * commP p y := by
@@ -275,10 +281,12 @@ section JacobiFive
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
 /-- ⭐ **What wave 70's `hcentral` says at `Q₅`.**  Its hypothesis `hcentral`, read in `Q₅`, is
-equivalent to the statement that every fourfold bracket of `Q₅`-elements is trivial.  This
-locates the failure of `gThreeFour_jacobi_of` to instantiate here: the class-five calculus places
-a triple bracket in `T` (`cfive_commP_lambdaTwo_mem_lambdaThree`), one layer short of the central
-`Z`, and supplies no vanishing for the fourfold bracket.  No such vanishing is refuted here. -/
+equivalent to the statement that every **left-normed** fourfold bracket `⁅⁅⁅p, q⁆, r⁆, t⁆` of
+`Q₅`-elements is trivial.  Left-normed only: the right-hand side below says nothing about, say,
+`⁅⁅p, q⁆, ⁅r, t⁆⁆`.  This locates the failure of `gThreeFour_jacobi_of` to instantiate here: the
+class-five calculus places a triple bracket in `T` (`cfive_commP_lambdaTwo_mem_lambdaThree`), one
+layer short of the central `Z`, and supplies no vanishing for the left-normed fourfold bracket.
+No such vanishing is refuted here. -/
 theorem gFourFive_hcentral_iff :
     (∀ p q r t : levelQuot G 5, conjP (commP (commP p q) r) t = commP (commP p q) r) ↔
       ∀ p q r t : levelQuot G 5, commP (commP (commP p q) r) t = 1 := by
@@ -433,8 +441,8 @@ end Generation
 /-! ## §4 The knob inventory at class five
 
 `cfour_sqRelWord` is class-four-only, so the relator is expanded here by the free-group calculus
-of `relBase_sqWord_free` instead, and every correction term is killed by §1 rather than by the
-abelianness of `Y`. -/
+of `relBase_sqWord_free` instead, and every correction term is killed either by §1 or by the
+centrality of `Z` rather than by the abelianness of `Y`. -/
 
 section FreeShapes
 

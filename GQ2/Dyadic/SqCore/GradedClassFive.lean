@@ -8,14 +8,19 @@ import GQ2.Dyadic.SqCore.GradedRelatorBase
 /-!
 # W70-FIVE: the class-five map
 
-Wave 69 recorded that class five loses the property which made class four tractable: `⁅γ₂, γ₂⁆ ≤ γ₄`
+Class five loses the property which made class four tractable: `⁅γ₂, γ₂⁆ ≤ γ₄`
 is exactly a class-four fact, so the class-four proof that `γ₂` is abelian delivers nothing in
-`Q₅`, the "reorder at will" step of `GradedClassFour` §3 is no longer justified, and the relator
-can no longer be treated as a product in an abelian group.  (That is a statement about the
-available proof, not about `Y`; see the scope note below.)  It named
-two things the class-five analogue would need: `⁅γ₂, γ₃⁆ ≤ γ₅`, and a non-abelian bookkeeping
-layer.  This file supplies both, and locates the degradation of the rest of the class-four
-calculus precisely.
+`Q₅`, the "reorder at will" step of `GradedClassFour` §3 is no longer justified (the phrase is
+that file's, verbatim), and the relator can no longer be treated as a product in an abelian
+group.  (That is a statement about the available proof, not about `Y`; see the scope note
+below.)  Two things the class-five analogue therefore needs are `⁅γ₂, γ₃⁆ ≤ γ₅` and a
+non-abelian bookkeeping layer.  This file supplies both, and locates the degradation of the rest
+of the class-four calculus precisely.
+
+**Attribution.**  This reading is **this file's own**, not wave 69's.  Wave 69 is
+`GradedClassFour.lean` together with `docs/dyadic/w69-class4-note.md`; the module mentions class
+five on exactly one line ("the residual would start at class five") and says nothing about
+`⁅γ₂, γ₃⁆ ≤ γ₅` or about a bookkeeping layer, and the note does not mention class five at all.
 
 ## The three answers
 
@@ -51,7 +56,10 @@ That is strictly more bookkeeping than class four, but it is a linear amount, no
 jungle, and it is the honest replacement for `cfour_commP_lambdaTwo`.
 
 **(c) Which of wave 69's lemmas survive, and in what form.**  There is no table anywhere in this
-file; what follows is the whole inventory, in three groups.
+file; what follows is the inventory of the lemmas §1 to §5 restate or replace, in three groups.
+It is not the complete list of wave-69 lemmas without a class-five reading: the scope note below
+names `cfour_pow_four_inv` as a further one, and `cfour_commP_lambdaTwo` (`Y` abelian) is the
+lemma whose replacement (b) is about.
 
 *Surviving verbatim once restated uniformly*: the bracket step (§1 `cfive_commP_mem_succ`, which
 subsumes `cfour_commP_mem_three` and `cfour_commP_mem_four`) and the annihilator argument (§3,
@@ -76,8 +84,11 @@ wave-69 proof delivers nothing there; see the scope note below.
 No class-five instance of `SqClassClearingSupply` is discharged here, and nothing is refuted.  In
 particular this file does **not** claim that `Y` fails to be abelian in `Q₅`: that would need a
 witness in `D_sq h`, and none is committed.  What is committed is that the class-four *proof* of
-abelianness is unavailable one class up, since it delivers `⁅γ₂, γ₂⁆ ≤ γ₄` and `γ₄ ⊄ γ₅`, together
-with the weaker statement that does survive (`cfive_commP_lambdaTwo_mem_zLayer`).  Likewise
+abelianness is unavailable one class up, since it delivers `⁅γ₂, γ₂⁆ ≤ γ₄` and `γ₄`-membership
+does not imply `γ₅`-membership, together
+with the weaker statement that does survive (`cfive_commP_lambdaTwo_mem_zLayer`).  (`γ₄ ⊄ γ₅` as
+a *strictness* claim is not committed and over these binders is false: for the trivial group all
+layers coincide, `twoCentralSeries` being antitone and nothing making it strict.)  Likewise
 `cfour_pow_four_inv` (`p⁴` an involution) is not restated at class five in any form: it is `p⁸ ∈ γ₄`,
 which says nothing about `γ₅`.
 
@@ -266,8 +277,9 @@ theorem cfive_commutator_lambdaTwo_swap {k : ℕ} {v w : G} (hv : v ∈ twoCentr
   rw [h]
   exact Subgroup.inv_mem _ (cfive_commutator_lambdaTwo hv hw)
 
-/-- ⭐⭐ **`⁅γ₂, γ₃⁆ ≤ γ₅`**: the fact wave 69 named as the class-five prerequisite, as the
-instance `k = 3` of `cfive_commutator_lambdaTwo`. -/
+/-- ⭐⭐ **`⁅γ₂, γ₃⁆ ≤ γ₅`**: the class-five prerequisite named in this file's header, as the
+instance `k = 3` of `cfive_commutator_lambdaTwo`.  (Not wave 69's; see the attribution note in
+the header.) -/
 theorem cfive_commutator_two_three {v w : G} (hv : v ∈ twoCentralSeries G 3)
     (hw : w ∈ twoCentralSeries G 2) : commP v w ∈ twoCentralSeries G 5 :=
   cfive_commutator_lambdaTwo hv hw

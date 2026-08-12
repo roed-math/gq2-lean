@@ -13,21 +13,28 @@ Wave 69 (`Instances/EvenUnramified.lean`) showed the presented even cores meet t
 of the range identity in exactly one point, `imChiN 1 = evenRangePrin 2`, with model field
 `ℚ₂(i)`.  Wave 70 supplied the group-side invariant there, `demushkinQ (D_N 1 h) = 4`
 (`MarkedCore/NFrameAlphaOne.lean`), and proved both `α = 1` cores Demushkin
-(`Instances/EvenAlphaOne.lean`).  The wave-69 note priced two further replacements before the
-classification could be stated at that point: a `q = 4` frame at the stage level, and a
-substitute for the relator-shift factorization at an even half-exponent.
+(`Instances/EvenAlphaOne.lean`).  The wave-69 note (`docs/dyadic/w69-unram-note.md`) priced
+**three** replacements before the classification could be stated at that point: a `q = 4` frame,
+a Gram at head exponent `4`, and a substitute for the relator-shift factorization at an even
+half-exponent.  Of these the first two remained open after wave 70, and it is those two that are
+weighed below.  Note that the note's `q = 4` frame is explicitly an **abelianization**-layer item
+("the abelianization torsion there should be `Z/4`, not the `Z/2` that `NFrame` demands"), which
+is precisely what wave 70 supplied; the note never asked for a stage-level one.
 
 ## Which replacement is binding
 
 **Neither.**  Both are mis-priced, in opposite directions, and a third obstruction sits upstream
 of both.
 
-1. The `q = 4` frame at the stage level is a **non-item**.  `MarkedCore.NFrame` is an object of
-   the abelianization layer, and no file in the stage layer consumes one: the stage layer's frame
-   is `StageGeneric.Frame`, whose fields are generators in the target group, their character rows,
-   and level-two generation, with no torsion slot anywhere.  So there is nothing for wave 70's
-   `NFrame4` to lift to, and the emptiness of `NFrame 1 h` was never a stage-level obstruction.
-   `NFrame4` remains what wave 70 built it for, the `q`-invariant, and this file does not use it.
+1. A `q = 4` frame **at the stage level** is a **non-item**, and was never asked for.
+   `MarkedCore.NFrame` is an object of the abelianization layer, and no file in the stage layer
+   consumes one: the stage layer's frame is `StageGeneric.Frame`, whose fields are generators in
+   the target group, their character rows, and level-two generation, with no torsion slot
+   anywhere.  So there is nothing for wave 70's `NFrame4` to lift to, and the emptiness of
+   `NFrame 1 h` was never a stage-level obstruction.  `NFrame4` remains what wave 70 built it
+   for, the `q`-invariant, and this file does not use it.  (`NFrame` and `StageGeneric.Frame`
+   being different objects is the finding; the wave-69 note is not the source of the conflation,
+   its own item being the abelianization one, which wave 70 discharged.)
 2. The relator-shift factorization at an even half-exponent is **not reached**, because the frame
    step that precedes it fails first.
 3. What is binding is a single arithmetical fact, `4 ∣ nUnit α + 1`, equivalently
@@ -61,16 +68,20 @@ included (§7), and not only at the surviving point.
 The classification at the surviving point is **neither proved nor refuted here**, and nothing
 below should be read as either.  What is refuted is one route's frame step, not the existence of
 an oriented equivalence: no declaration in this file, or anywhere in the tree, asserts or denies
-`Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)` at a third-stratum field.  Wave
+`Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)` at the stratum's **depth-2** point,
+which is the one this file is about.  (Deeper on the same stratum it *is* denied, by wave 69's
+`evenUnram_isEmpty_orientedN`, at every `α ≥ 3` and every `a`, `h`.)  Wave
 70's invariant match `(rank, q) = (4 + 2h, 4)` remains a match of invariants and is not an
 isomorphism; it is not used below.
 
 ## The reduction that survives
 
-§6 records what the point now costs.  Of the three inputs of
-`nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData`, two are discharged at `α = 1`: the
-depth binder is `1 ≤ 1`, and the model-side package is wave 70's `evenAlphaOne_nModelDemushkin`.
-So the classification at the surviving point follows from the forward-generator datum alone:
+§6 records what the point now costs.  Of the **four** inputs of
+`nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData` (`hα`, `hev`, `hmodel`, `hdata`),
+two are discharged at `α = 1`: the depth binder is `1 ≤ 1`, and the model-side package is wave
+70's `evenAlphaOne_nModelDemushkin`.  The degree hypothesis `hev` survives into the statement
+below alongside the datum.  So the classification at the surviving point follows from the
+forward-generator datum plus the degree:
 
 > **`evenStratum_orientedEquivN_one_of_forwardGeneratorData`**: given
 > `Nonempty (NForwardGeneratorData 1 h χ_cyc)` and the degree, the oriented equivalence follows.
@@ -82,7 +93,7 @@ step is unavailable on this stratum.
 ## Contents
 
 * **§1** The mod-four alignment and its sharpness, `evenStratum_four_dvd_nUnit_add_one_iff`.
-* **§2** The `α = 1` parity table is the zero table.
+* **§2** The `α = 1` parity table vanishes at the twisted index.
 * **§3** `κ = 0` on the third stratum.
 * **§4** The cup form is alternating there, and the adapted model equivalence is refuted.
 * **§5** The same at the surviving point, with the hypothesis shape of `evenEndpoint_kappa_of_rangeN`.
@@ -142,7 +153,8 @@ theorem evenStratum_not_four_dvd_nUnit_one_add_one :
   rw [map_neg, map_one] at hdvd
   exact absurd hdvd (by decide)
 
-/-- **The alignment is sharp.**  `4 ∣ nUnit α + 1` holds exactly on `α ≥ 2`.  This one
+/-- **The alignment is sharp.**  For `α ≥ 1`, `4 ∣ nUnit α + 1` holds exactly on `α ≥ 2`.  The
+binder `1 ≤ α` is genuinely consumed (by the `omega` below) and `α = 0` is not covered.  This one
 arithmetical fact is what every `2 ≤ α` binder in the `N` stage layer is carrying. -/
 theorem evenStratum_four_dvd_nUnit_add_one_iff {α : ℕ} (hα : 1 ≤ α) :
     (2 : ℤ_[2]) ^ 2 ∣ ((nUnit α : ℤ_[2]ˣ) : ℤ_[2]) + 1 ↔ 2 ≤ α := by
@@ -152,7 +164,11 @@ theorem evenStratum_four_dvd_nUnit_add_one_iff {α : ℕ} (hα : 1 ≤ α) :
   subst hone
   exact evenStratum_not_four_dvd_nUnit_one_add_one hdvd
 
-/-! ## §2 The `α = 1` parity table is the zero table -/
+/-! ## §2 The `α = 1` parity table vanishes at the twisted index
+
+One entry, not the table.  The `α ≥ 2` whole-table statement is
+`evenDegreeN_parity_table` (`StageAbstractionEvenFrattiniFrameN.lean`), which quantifies over all
+`i : Fin (coreRank h)`; no `α = 1` analogue of that is proved here or anywhere. -/
 
 /-- **The `N` row's mod-four parity vanishes at `α = 1`.**  Contrast `evenDegreeN_parity_nUnit`,
 which is `= 1` for `α ≥ 2`; the twisted index of the parity table loses its mark here. -/
@@ -309,11 +325,13 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
 
 /-- **THE REDUCTION AT THE SURVIVING POINT.**  The even classification at branch parameter `1`
-follows from the forward-generator datum ALONE.  Both other inputs of
+follows from the forward-generator datum together with the degree.  Two of the **four** inputs of
 `nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData` are discharged here: the depth
-binder is `1 ≤ 1`, and the model-side package is wave 70's `evenAlphaOne_nModelDemushkin`.
+binder is `1 ≤ 1`, and the model-side package is wave 70's `evenAlphaOne_nModelDemushkin`.  The
+degree hypothesis `hev` is still bound below, alongside the datum.
 
-So the model layer at the surviving point is fully paid, and what remains is exactly one `Prop`.
+So the **model layer** at the surviving point is fully paid, and what remains beyond the degree
+is exactly one `Prop`.
 This is a reduction, not a classification: no declaration in the tree asserts that
 `G_{ℚ₂(i)}(2)` is isomorphic to any `DN 1 h`, and none is asserted here. -/
 theorem evenStratum_orientedEquivN_one_of_forwardGeneratorData {h : ℕ}
@@ -369,8 +387,12 @@ end
 
 /-! ## §8 Axiom pins
 
-Every declaration is expected std-3 (`propext`, `Classical.choice`, `Quot.sound`).  Each block is
-printed beside the `α ≥ 2` analogue it stands against, so that the two are read together. -/
+**Not** every declaration here is std-3.  The measured scope is the one in the module header:
+§1, §2, §3 and §5's range lemma are std-3 (`propext`, `Classical.choice`, `Quot.sound`); §4 and
+§7 add `tateDualityAt` and `hilbertSymbol_normCriterion_finiteDyadic`; §6 adds `tateDualityAt`
+and `Foundations.absGalQ2_localEulerCharacteristic`.  Every one of those sets is a subset of the
+set printed by the `α ≥ 2` analogue it stands against.  Each block is printed beside that
+analogue, so that the two are read together. -/
 
 #print axioms evenStratum_nUnit_add_one
 #print axioms evenStratum_nUnit_one_toZModPow

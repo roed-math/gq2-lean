@@ -107,7 +107,7 @@ local instance evenAlphaOneContinuousDM (α h : ℕ) : ContinuousSMul (DM α h :
 /-! ## §1 The two `α = 1` diagonal coefficients
 
 The whole direction question is these two numbers.  `diagCoeff k = C(k,2) mod 2` is the fibre
-contribution of a `k`-th power in a class-two central extension (`MarkedCore/Cores.lean:1212`). -/
+contribution of a `k`-th power in a class-two central extension (`MarkedCore/Cores.lean:1215`). -/
 
 /-- **The `N` head diagonal dies at `α = 1`.**  `C(4,2) = 6 ≡ 0 (mod 2)`.  This is the one
 computation the residual's docstring got right, and it is the reason the committed
@@ -121,7 +121,7 @@ theorem evenAlphaOne_diagCoeff_mSecond : diagCoeff (2 ^ 1) = 1 := by decide
 /-! ## §2 The two `α = 1` relator fibres
 
 The committed fibre lemmas `nWord_centLift_fib` / `mWord_centLift_fib`
-(`MarkedCore/Cores.lean:1408`, `:1389`) carry `2 ≤ α` only through §1.  These are the same
+(`MarkedCore/Cores.lean:1411`, `:1392`) carry `2 ≤ α` only through §1.  These are the same
 proofs with §1 substituted, so the two rows now have genuinely different fibres. -/
 
 section Fib
@@ -700,8 +700,9 @@ theorem evenAlphaOne_survivingPoint_isDemushkin :
 /-! ## §12 Axiom pins
 
 Every declaration is expected std-3 (`propext`, `Classical.choice`, `Quot.sound`), matching the
-`2 ≤ α` analogues they replace.  The pins are listed beside those analogues in the report: §6
-against `card_H2_DN` / `card_H2_DM`, §8 against `isDemushkin_DN` / `isDemushkin_DM`. -/
+`2 ≤ α` analogues they replace.  The pins are listed beside those analogues in the report: §7
+against `card_H2_DN` / `card_H2_DM` (§7 is the `#H² = 2` section; §6 is the inverse Grams),
+§8 against `isDemushkin_DN` / `isDemushkin_DM`. -/
 
 #print axioms evenAlphaOne_diagCoeff_nHead
 #print axioms evenAlphaOne_diagCoeff_mSecond

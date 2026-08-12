@@ -86,8 +86,10 @@ local instance nFourContinuousDN (α h : ℕ) : ContinuousSMul (DN α h : Type) 
 
 /-- **The `α = 1` `N`-row invariant package**: the core is Demushkin, of rank `4 + 2h`, with
 `q = 4`, at every handle count.  The three conjuncts come from three independent places (the
-cup-form computation of `EvenAlphaOne.lean`, the `H¹`-count of `EvenModel.lean`, and the frame
-half's `nFrame4_demushkinQ_DN_one`), and only the third is proved in this lane. -/
+cup-form computation of `EvenAlphaOne.lean`, the `H¹`-count of `Instances/EvenModelH2.lean`,
+where `EvenModel.demushkinRank_DN` lives, and the frame half's `nFrame4_demushkinQ_DN_one`), and
+only the third is proved in this lane.  (`EvenModel` is a namespace; there is no
+`EvenModel.lean`.) -/
 theorem nFrame4_invariants_DN_one (h : ℕ) :
     IsDemushkin 2 (DN 1 h : Type) ∧ demushkinRank 2 (DN 1 h : Type) = 4 + 2 * h ∧
       demushkinQ (DN 1 h : Type) = 4 :=

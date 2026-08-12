@@ -15,8 +15,11 @@ frame - `CfourIdReachable h`.  That analysis put the reachable subgroup at codim
 two in `Z`, missing the fourth powers of the two odd-row generators, and expected a `w⁴`
 cancellation to close the gap.
 
-This file evaluates the leftover and settles both directions the analysis flagged.  Neither
-turns out to be missing, and neither is closed by the mechanism the analysis proposed.
+This file evaluates the leftover and settles both directions the analysis flagged.  Neither is
+an obstruction, and neither is closed by the mechanism the analysis proposed.  (The two are
+settled in different senses, and §3 and §4 say which: the fourth-power direction is simply
+absent from the leftover, whereas the `ad(x₁)²`-direction is reached only modulo an uncommitted
+residue.)
 
 ## §1 and §2 Squares of exactly row-trivial elements are legal knobs, with no repair
 
@@ -30,6 +33,9 @@ square knob is the fourth power `d⁴` (`cfourKnob_sq_knob`).
 ⭐⭐ `cfourKnob_dressSq_admissible`: wave 68's dressing `A = bridgeDress nu' j` is exactly
 row-trivial by construction (`bridge_nuLam_dress`, `bridge_nu_dress`; that is what wave 68's
 pivot factor was inserted to arrange), so `A²` is an admissible correction and `A⁴` is free.
+"By construction" is not "unconditionally": `bridge_nuLam_dress` is unconditional, but
+`bridge_nu_dress` holds only at a **selected** marking, and `cfourKnob_dressSq_admissible`
+accordingly carries the two selection clauses `ν'(σ) = 1` and `ν'(x₀) = 0` as hypotheses.
 ⭐ `cfourKnob_comm_admissible`: a commutator is exactly row-trivial too, the rows being
 homomorphisms into a commutative group.
 
@@ -48,10 +54,13 @@ The fourth-power factor is `cfour_pow_four_mul`; the triple bracket is
 `cfourKnob_triple_right_hom`, the statement that `ad(p)²` is additive in its far slot.
 
 **First half of the wave-70 question, answered.**  The only fourth power in the leftover is
-`A⁴`.  The fourth powers `σ⁴` and `x₀⁴` occur in the frame's relator and in the generator
-relation alike and cancel, so they never reach the leftover; the directions the analysis named
-as missing are not directions the leftover has a component in.  And `A⁴` is the square knob of
-the admissible correction `A²`.
+`A⁴`.  The reason is not symmetric in the two generators: `cfour_sqRelWord` has exactly one
+fourth power, the `x₀`-slot's `x₀⁴` (`sqArbBase_one` gives `m 1 = x₀`), and that one occurs in
+the frame's relator and in the generator relation alike and cancels.  **`σ⁴` does not occur in
+the relator at all**, at any stage of the computation, so there is nothing for it to cancel
+against.  Either way neither reaches the leftover, and the directions the analysis named as
+missing are not directions the leftover has a component in.  And `A⁴` is the square knob of the
+admissible correction `A²`.
 
 ## §4 The pairing that frees the `ad(x₁)²`-direction
 
@@ -90,10 +99,21 @@ is not two moves but one: ⭐⭐ `cfourKnob_pair_correction` exhibits the single
 **Verdict.**  `SqClassClearingSupply h 4` is **not** discharged here, and nothing here refutes
 it.  What is settled is that neither of the two directions the wave-70 analysis named as the
 obstruction is one: the `σ⁴`/`x₀⁴` directions do not occur in the leftover, and the
-`ad(x₁)²`-direction is reachable, though not by the argument that was recorded.  What is left is
-the leftover's remaining factor `⁅σA, x₀A⁆ · ⁅σ, x₀⁆⁻¹ · cfourEichDefect nu' j`, the two
-class-four defects whose class-three images cancel, and the assembly of the knobs above into one
-correction tuple.
+`ad(x₁)²`-direction is reachable **modulo the residue `⁅⁅A, x₁⁆, A⁆`**, which §4 explicitly does
+not commit, and not by the argument that was recorded.
+
+What is left is **three** things, not one:
+
+* the leftover's remaining factor `⁅σA, x₀A⁆ · ⁅σ, x₀⁆⁻¹ · cfourEichDefect nu' j`, the two
+  class-four defects whose class-three images cancel;
+* the **square `⁅A, x₀⁆²`**, a factor of `cfourKnob_leftover_eq` that nothing in this file
+  delivers: `cfourKnob_pair_correction`'s knob is `A⁴ · ⁅⁅A, x₁⁆, A⁆ · ⁅x₁, ⁅x₁, A⁆⁆`, which
+  meets the leftover only in `A⁴` and the triple bracket;
+* the residue `⁅⁅A, x₁⁆, A⁆` of the pairing;
+
+and then the assembly of the knobs into one correction tuple.  (Wave 72 discharged the second
+and rewrote the third: see `GQ2/Dyadic/SqCore/GradedClassFourDefect.lean`, whose header opens
+from exactly this three-item list.)
 
 Lane W71-CFOUR.  New file; no edits to existing files.  Prefix `cfourKnob`.
 -/
@@ -120,12 +140,13 @@ variable {h : ℕ}
 theorem cfourKnob_sq_mem (g : (DSq h : Type)) : g ^ 2 ∈ twoCentralSeries (DSq h : Type) 2 :=
   sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) (Subgroup.mem_top _)
 
-/-- **The `λ`-row of a square doubles.**  In particular an exactly `λ`-trivial element has an
-exactly `λ`-trivial square. -/
+/-- **An exactly `λ`-trivial element has an exactly `λ`-trivial square.**  The `λ`-row of a
+square doubles, which is the proof; the statement is only the implication for the trivial row. -/
 theorem cfourKnob_sq_nuLam {d : (DSq h : Type)} (hl : nuLam h d = 1) : nuLam h (d ^ 2) = 1 := by
   rw [map_pow, hl, one_pow]
 
-/-- **The `ν'`-row of a square doubles.** -/
+/-- **An exactly `ν'`-trivial element has an exactly `ν'`-trivial square.**  As above: the row
+doubling is the proof, the implication for the trivial row is the statement. -/
 theorem cfourKnob_sq_nu (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
     {d : (DSq h : Type)} (hn : nu' d = 1) : nu' (d ^ 2) = 1 := by
   rw [map_pow, hn, one_pow]
@@ -240,11 +261,12 @@ the handle word are untouched:
 The last two are `Z`-elements, hence central, which is why they may be listed at the end.
 
 **Consequence for the fourth-power question.**  The only fourth power in the leftover is `A⁴`.
-The generators' own fourth powers `σ⁴` and `x₀⁴` occur in the frame's relator and in the
-generator relation alike and cancel; they never reach the leftover.  This is the first half of
-the wave-70 §4 question, answered: the leftover has no `σ⁴`- or `x₀⁴`-component to begin with,
-and its one fourth-power term `A⁴` is the square knob of the admissible correction `A²`
-(`cfourKnob_dressSq_admissible`). -/
+The generator fourth power `x₀⁴` occurs in the frame's relator and in the generator relation
+alike and cancels (it is the `x0 ^ 4` of `hbase` and of `hfr` below); `σ⁴` occurs in **neither**,
+`cfour_sqRelWord` carrying exactly one fourth power and that one being the `x₀`-slot's.  Neither
+reaches the leftover.  This is the first half of the wave-70 §4 question, answered: the leftover
+has no `σ⁴`- or `x₀⁴`-component to begin with, and its one fourth-power term `A⁴` is the square
+knob of the admissible correction `A²` (`cfourKnob_dressSq_admissible`). -/
 theorem cfourKnob_leftover_eq :
     cfourIdLeftover nu' j
       = commP (levelMk (DSq h : Type) 4 (dsqSigma h) * levelMk (DSq h : Type) 4 (bridgeDress nu' j))

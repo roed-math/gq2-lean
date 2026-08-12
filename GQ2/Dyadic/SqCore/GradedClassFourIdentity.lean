@@ -76,7 +76,8 @@ through that bundle.  `cfourId_dress_core` composes the three core knobs into on
 
 ## §5 The `x₁`-bundle: wave 69's analysis verified, its justification corrected
 
-Wave 69's §5 recorded, as analysis and not as proof, that the delicate direction is
+Wave 69's `ANALYSIS, NOT COMMITTED` block (its module header, not its §5) recorded, as analysis
+and not as proof, that the delicate direction is
 `⁅⁅x₁, g⁆, x₁⁆`, that Jacobi does not reach it, and that it is instead reached "by a correction
 whose square part involves `x₁`", admissible because "the `x₁`-coordinate functional is never in
 the span of `λ` and `ν'` modulo 2".
@@ -104,7 +105,8 @@ at all, neither its bracket part (`cfourId_comm_zLayer_dress`) nor its square pa
 ## §6 and §7 What is left, named
 
 `cfourId_zLayer_le` is `gThreeFour_zLayer_le` with its closedness hypothesis discharged at
-`D_sq h`, the tower there being discrete; it is the form a witness search consumes.
+`D_sq h`, level four of the tower there being discrete; it is the form a witness search consumes,
+its other two hypotheses being unrestricted universals that §4's inventory does not supply.
 `CfourIdReachable h` names the remainder, and `cfourId_markTransitivity_of_reachable` carries it
 plus the classes `k ≥ 5` to `SqLamMarkTransitivity h` through wave 68's standing equivalence.
 
@@ -188,7 +190,7 @@ theorem cfourId_base_relator_three_of_eichDefect (H : cfourEichDefect nu' j = 1)
 
 end BaseThree
 
-/-! ## §2 A `γ₂`-valued correction is free on the rows and on mod-2 independence -/
+/-! ## §2 A `γ₂`-valued correction is free on mod-2 independence -/
 
 section GammaTwoFree
 
@@ -264,9 +266,14 @@ variable {h : ℕ}
 /-- ⭐⭐⭐ **The class-four supply from a `γ₂`-valued correction of wave 68's frame.**  Rows
 multiply, so an exactly row-trivial correction keeps the frame exactly row-trivial; mod-2
 independence is blind to a `γ₂`-factor; and the relator clause is read in `Q₄` by
-`cfour_supply_iff`.  So the entire class-four obligation is: **some `γ₂`-valued, exactly
+`cfour_supply_iff`.  So the class-four obligation follows from: **some `γ₂`-valued, exactly
 row-trivial correction of wave 68's class-three witness kills the relator one class up.**  By
-`cfourId_leftover_mem_zLayer` the amount to be killed is a single element of `γ₃/γ₄`. -/
+`cfourId_leftover_mem_zLayer` the amount to be killed is a single element of `γ₃/γ₄`.
+
+**Sufficiency only**, and deliberately not an equivalence: `SqClassClearingSupply h 4` quantifies
+over *all* admissible tuples, not only over `γ₂`-corrections of `bridgeTuple`.  This is the same
+distinction §1 draws against `cfour_supply_of_eichDefect`, and `relBase_defectDies_iff_trivial`
+in `GradedRelatorBase.lean` is the pattern for stating such a scope exactly. -/
 theorem cfourId_supply_of_reach
     (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
       nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -510,8 +517,10 @@ section LayerDsq
 
 variable {h : ℕ}
 
-/-- Every level of the tower of `D_sq h` is discrete: the group is topologically finitely
-generated (`lim_dsq_finsetGen`) and pro-2 (`isProP_DSq`). -/
+/-- **Level four of the tower of `D_sq h` is discrete**, which is the instance this file needs.
+`discreteTopology_levelQuot` gives every level, on the same two inputs: the group is
+topologically finitely generated (`lim_dsq_finsetGen`) and pro-2 (`isProP_DSq`).  The statement
+below is the `4` instance only. -/
 theorem cfourId_discreteTopology : DiscreteTopology (levelQuot (DSq h : Type) 4) :=
   discreteTopology_levelQuot (DSq h : Type) (lim_dsq_finsetGen h) (isProP_DSq h) 4
 
@@ -521,11 +530,18 @@ theorem cfourId_isClosed (S : Subgroup (levelQuot (DSq h : Type) 4)) :
   haveI : DiscreteTopology (levelQuot (DSq h : Type) 4) := cfourId_discreteTopology
   exact isClosed_discrete _
 
-/-- ⭐⭐ **Generation of the layer at `D_sq h`, with no side condition**: a subgroup of `Q₄`
-holding every square and every bracket of a `Y`-element holds the whole of `Z = γ₃/γ₄`.  This is
-`gThreeFour_zLayer_le` with its closedness hypothesis discharged, and it is the form a class-four
-witness search consumes: to reach the leftover it is enough to reach every square of `γ₂` and
-every bracket `commP γ₂ Q₄`. -/
+/-- ⭐⭐ **Generation of the layer at `D_sq h`, with the closedness side condition discharged**:
+a subgroup of `Q₄` holding every square and every bracket of a `Y`-element holds the whole of
+`Z = γ₃/γ₄`.  This is `gThreeFour_zLayer_le` with its closedness hypothesis discharged, the
+tower at `D_sq h` being discrete; the other two hypotheses remain, and they are not small.
+
+**What would have to hold to use it.**  `hsq` and `hcomm` are *unrestricted* universals over
+`Y` and over all of `Q₄`, and `S` must be a subgroup.  §4's knob inventory reaches `commP c g`
+only for `g` a **frame letter**, five families, and reaches `c²` only bundled with
+`commP c (m 2)`; nothing shows the reachable knobs closed under multiplication.  So "it is
+enough to reach every square of `γ₂` and every bracket `commP γ₂ Q₄`" is true as a reading of
+this statement and describes a supply this file does not have.  The gap between `hcomm` and the
+frame-letter inventory is the open part. -/
 theorem cfourId_zLayer_le {S : Subgroup (levelQuot (DSq h : Type) 4)}
     (hsq : ∀ y ∈ lambdaImage (DSq h : Type) 2 4, y ^ 2 ∈ S)
     (hcomm : ∀ y ∈ lambdaImage (DSq h : Type) 2 4, ∀ q, commP y q ∈ S) :

@@ -9,7 +9,8 @@ import GQ2.Dyadic.MarkedCore.NFrameExists
 # W70-NFRAME4: the `ℤ/4` frame at `α = 1`, and `demushkinQ (D_N 1 h) = 4`
 
 Wave 70 proved both `α = 1` even cores Demushkin at every handle count
-(`GQ2/Dyadic/Instances/EvenAlphaOne.lean`, `evenAlphaOne_isDemushkin_DN`).  It did **not**
+(`GQ2/Dyadic/Instances/EvenAlphaOne.lean`: `evenAlphaOne_isDemushkin_DN` on the `N` row and
+`evenAlphaOne_isDemushkin_DM` on the `M` row).  It did **not**
 compute the `q`-invariant there, and it could not: `demushkinQ` is a torsion count on the
 abelianization, logically independent of `IsDemushkin`, and the committed route to a `q`-value
 on the `N` row runs through `NFrame`, which is **provably empty** at `α = 1`
@@ -25,7 +26,9 @@ This file builds the `ℤ/4` twin (`NFrameModel4`, `NFrame4`, `nFrame4Exists_phi
 `nonempty_nFrame4`) and reads the invariant off it: `demushkinQ (D_N 1 h) = 4` at every handle
 count, with **no** frame hypothesis (§7).  Together with `evenAlphaOne_isDemushkin_DN` and the
 committed `demushkinRank_DN` this closes the `α = 1` `N`-row invariant package
-`(rank, q) = (4 + 2h, 4)` (§8).
+`(rank, q) = (4 + 2h, 4)`, but **not here**: composing them needs `Instances/`, so the package is
+assembled in `GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean` (§8 says why, and this file's
+§8 carries only the cross-check).
 
 ## Why `q = 4` rather than "`x̄₀` has order 4"
 
@@ -91,8 +94,10 @@ principal-unit group, `imChiN 1 = evenRangePrin 2` (`evenUnram_imChiN_one_eq_pri
   invariant it would record is not `2`".  §8's `nFrame4_isEmpty_nFrame_one` derives that
   emptiness from the computed invariant, in the direction the reading was stated.
 * The same section records that "the identification of the invariant as `q = 4` is **not** proved
-  here", and `Instances/EvenDemushkin.lean`'s residual R1 records the `α = 1` `q`-invariant as
-  uncomputed.  §7 computes it, so both records are discharged rather than inherited.
+  here", and `Instances/EvenDemushkin.lean`'s residual R1 **recorded** the `α = 1` `q`-invariant
+  as uncomputed.  §7 computes it, so both records are discharged rather than inherited.
+  (`EvenDemushkin.lean` has since been corrected and now cites `nFrame4_demushkinQ_DN_one`
+  directly; `EvenAlphaOne.lean` §10 has not, and its sentence stays literally true of that file.)
 
 What this buys at the surviving point is one matching invariant and nothing beyond it.  The
 stratum at depth `α` carries `q = 2^α`, so depth `2` demands `q = 4`, and
@@ -622,9 +627,13 @@ proved in `NFrameExists.lean` by exhibiting a `ℤ/4`-valued character separatin
 It is re-derived here from the `q`-invariant instead: a `ℤ/2`-slotted frame would force
 `demushkinQ (D_N 1 h) = 2`, and §7 computes `4`.
 
-The two proofs share `dn_abRel` and nothing else, so this is a genuine consistency check on §7
-rather than a restatement of it.  It is also the sharpest form of the reason `NFrame` had to be
-replaced rather than repaired at `α = 1`. -/
+The two proofs share more than `dn_abRel`: both run through the same coordinate homomorphism
+`abLiftG (nLiftHom 1 h _ (coreMark (ofAdd (1 : ZMod 4)) 1 1 1) _)` with the same `ℤ/4` marking,
+`NFrameExists.lean`'s private `nZ4Hom` writing it out and §4's `nFourTHom` reaching it through
+the `nCoordHom` builder (which is *defined* as `abLiftG (nLiftHom …)`).  The duplication is
+recorded in the layering note above.  So this is a consistency check on §7's *reading* of that
+hom, not an independent second route to the emptiness.  It is still the sharpest form of the
+reason `NFrame` had to be replaced rather than repaired at `α = 1`. -/
 theorem nFrame4_isEmpty_nFrame_one (h : ℕ) : IsEmpty (NFrame 1 h) := by
   refine ⟨fun F => ?_⟩
   have h2 : demushkinQ (DN 1 h : Type) = 2 := demushkinQ_DN_nFrame F
