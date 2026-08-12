@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.EvenStratumPoint
+import GQ2.Dyadic.Instances.StageAbstractionEvenFinite
+import GQ2.Dyadic.Instances.StageAbstractionEvenStageClimb
 
 /-!
 # W72-STRATUM: no cup-adapted stage frame on the third stratum
@@ -327,9 +329,135 @@ theorem evenStratum_no_cupAdaptedFrame_KNegOne (v : Fin (MarkedCore.coreRank 0) 
 
 end ModelField
 
+/-! ## §6 The surviving point, reduced to a base and a climb
+
+Wave 71 reduced the classification at the surviving point to one `Prop`,
+`Nonempty (NForwardGeneratorData 1 h χ_cyc)`.  That `Prop` is a *structure* with ten fields, so
+"one `Prop`" understates what is owed; this section unfolds it against the committed tree.
+
+Of the ten fields, the six row fields (`x0`, `x1`, `sigma`, `x2`, `handleU`, `handleV`) are the
+row table `vN 1` entry by entry, and every one of its values is attained by `χ_cyc` as soon as
+the range is `imChiN 1`: `evenClimb_vN_mem_range` carries **no** `2 ≤ α`, so it applies at the
+surviving parameter unchanged (§6.1).  What is not free is the interaction of the rows with the
+other three fields: a tuple must have those values *and* generate *and* kill the relator.
+
+The committed assembly of exactly that is `evenForwardGeneratorDataN_of_base_and_corrections`,
+whose own binder is `1 ≤ α`.  Its two inputs are a level-three stage tuple and defect
+reachability from level three up, and a level-three stage tuple is a `StageGeneric.Frame` whose
+relator dies modulo `λ₃` (`Frame.toLevelThree`, which converts Frattini generation into
+topological generation).  So §6.2 names those two and §6.3 composes:
+
+> **`evenStratum_orientedEquivN_one_of_base_and_climb`**: at degree `2 + 2h`, a frame at the
+> `vN 1` row table whose relator dies modulo `λ₃`, plus defect reachability at every level
+> `≥ 3`, give the oriented equivalence.
+
+§6.4 is the seam with §4: the frame in that base is exactly the kind of object §4 refutes
+cup-adaptedness of, so a lane building it must build it by other means.  That is a statement
+about how the base may be *built*, not about whether it holds. -/
+
+section Reduction
+
+/-- **The level-three base at the surviving parameter.**  A `StageGeneric.Frame` at the `N` row
+table `vN 1` — actual elements with the exact cyclotomic values and Frattini generation —
+whose relator dies modulo `λ₃`.  This is `Frame.toLevelThree`'s input, hence a level-three
+stage tuple. -/
+def EvenStratumBaseN (K : IntermediateField ℚ_[2] ℚ̄₂) [CompactSpace (GalK K)]
+    [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ) : Prop :=
+  ∃ F : StageGeneric.Frame (StageGeneric.vN (h := h) 1) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K)),
+    F.LevelThreeRelation (StageGeneric.nStageWord 1 h (le_refl 1))
+
+/-- **The climb at the surviving parameter.**  Defect reachability for every level-`k` stage
+tuple at the `N_1` word datum, `k ≥ 3`.  This is the `Hcorr` input of
+`evenForwardGeneratorDataN_of_base_and_corrections`; the committed producers of it
+(`evenClimb_defectReachable` through `evenSharpDbarShiftSupply_n` and
+`evenClimb_deepRowSupply_n`) all carry `2 ≤ α`, so none of them applies here. -/
+def EvenStratumClimbN (K : IntermediateField ℚ_[2] ℚ̄₂) [CompactSpace (GalK K)]
+    [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)] (h : ℕ) : Prop :=
+  ∀ k : ℕ, 3 ≤ k → ∀ T : StageGeneric.Tuple (StageGeneric.nStageWord 1 h (le_refl 1))
+      (StageGeneric.vN (h := h) 1) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)) k,
+    StageGeneric.Tuple.DefectReachable T
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+omit [FiniteDimensional ℚ_[2] K] [T2Space (GalK K)] in
+/-- **The six row fields of the datum are free at the surviving parameter.**  Every value of
+the `vN 1` table is attained by `χ_cyc` once the range is `imChiN 1`.  The committed
+`evenClimb_vN_mem_range` carries no lower bound on `α`, so nothing has to be re-proved here;
+naming it records that the obstruction at `α = 1` is not in the values. -/
+theorem evenStratum_vN_one_mem_range {h : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN 1)
+    (i : Fin (MarkedCore.coreRank h)) :
+    StageGeneric.vN 1 i ∈ Set.range (chiCycKTwo (K := K)) :=
+  StageGeneric.evenClimb_vN_mem_range hrange i
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **What the base demands, unfolded.**  A tuple of actual elements of `G_K(2)` with the exact
+`vN 1` cyclotomic values, generating the Frattini quotient, whose `N_1` relator dies at level
+three.  Nothing is hidden in the structure: these three conditions are its three fields. -/
+theorem evenStratumBaseN_iff {h : ℕ} :
+    EvenStratumBaseN K h ↔
+      ∃ g : Fin (MarkedCore.coreRank h) → maxProPQuotient 2 (GalK K),
+        (∀ i, chiCycKTwo (K := K) (g i) = StageGeneric.vN 1 i) ∧
+        Subgroup.closure
+            (Set.range fun i ↦ levelMk (maxProPQuotient 2 (GalK K)) 2 (g i)) = ⊤ ∧
+        MarkedCore.nRelWord 1
+          (fun i ↦ levelMk (maxProPQuotient 2 (GalK K)) 3 (g i)) = 1 := by
+  constructor
+  · rintro ⟨F, hrel⟩
+    exact ⟨F.generators, F.rows, F.levelTwoGen, hrel⟩
+  · rintro ⟨g, hrows, hgen, hrel⟩
+    exact ⟨{ generators := g, rows := hrows, levelTwoGen := hgen }, hrel⟩
+
+/-- **The forward-generator datum at `α = 1`, from the base and the climb.**  The committed
+inverse-limit endpoint at its own binder `1 ≤ α`, fed by `Frame.toLevelThree`. -/
+theorem evenStratum_forwardGeneratorDataN_one_of_base_and_climb {h : ℕ}
+    (Hbase : EvenStratumBaseN K h) (Hclimb : EvenStratumClimbN K h) :
+    Nonempty (EvenForward.NForwardGeneratorData 1 h (chiCycKTwo (K := K))) := by
+  obtain ⟨F, hrel⟩ := Hbase
+  exact StageGeneric.evenForwardGeneratorDataN_of_base_and_corrections (le_refl 1)
+    (LSquare.maxProTwoGalK_isTopologicallyFinGen K)
+    (F.toLevelThree hrel (LSquare.maxProTwoGalK_isTopologicallyFinGen K)
+      isProP_maxProPQuotient)
+    Hclimb
+
+/-- **THE REDUCTION AT THE SURVIVING POINT, UNFOLDED.**  At degree `2 + 2h`, the base and the
+climb at `α = 1` give the oriented equivalence `chiN 1 h ≃ χ_cyc`.
+
+Composed with wave 71's `evenStratum_orientedEquivN_one_of_forwardGeneratorData`, whose other
+two inputs (the depth binder and the model-side package) are already discharged at `α = 1`.
+This is a reduction, not a classification: neither this file nor any other asserts or denies
+the existence of that equivalence. -/
+theorem evenStratum_orientedEquivN_one_of_base_and_climb {h : ℕ}
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (Hbase : EvenStratumBaseN K h) (Hclimb : EvenStratumClimbN K h) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 1 h) (chiCycKTwo (K := K))) :=
+  EvenStratum.evenStratum_orientedEquivN_one_of_forwardGeneratorData hev
+    (evenStratum_forwardGeneratorDataN_one_of_base_and_climb Hbase Hclimb)
+
+omit [T2Space (GalK K)] in
+/-- **The seam with §4.**  On the third stratum, the frame witnessing a base is never
+cup-adapted for `evenFrameGram h`.  So the base is not refuted, but the committed route to it
+is: any lane producing the base must produce its frame by some means other than the
+cup-adaptation step that all three even frame producers share.
+
+Read with §4: the Gram whose adaptation is impossible here is the `α ≥ 2` shape, whose model is
+non-alternating, while this stratum's cup form is alternating. -/
+theorem evenStratum_baseN_frame_not_cupAdapted {h : ℕ}
+    (hle : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (F : StageGeneric.Frame (StageGeneric.vN (h := h) 1) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K))) :
+    ¬ F.IsCupAdapted (StageGeneric.evenFrameGram h)
+      (StageGeneric.evenFramePairing (K := K)) :=
+  fun hF ↦ evenStratum_no_cupAdaptedFrame hle hev _ ⟨F, hF⟩
+
+end Reduction
+
 end
 
-/-! ## §6 Axiom pins -/
+/-! ## §7 Axiom pins -/
 
 #print axioms evenStratumFrame_gram_diag
 #print axioms evenStratumFrame_eval_sub
@@ -343,5 +471,18 @@ end
 #print axioms evenStratumFrame_not_isSquare_neg_one
 #print axioms evenStratumFrame_finrank_KNegOne
 #print axioms evenStratum_no_cupAdaptedFrame_KNegOne
+
+#print axioms evenStratum_vN_one_mem_range
+#print axioms EvenStratumBaseN
+#print axioms EvenStratumClimbN
+#print axioms evenStratumBaseN_iff
+#print axioms evenStratum_forwardGeneratorDataN_one_of_base_and_climb
+#print axioms evenStratum_orientedEquivN_one_of_base_and_climb
+#print axioms evenStratum_baseN_frame_not_cupAdapted
+
+-- The `α ≥ 2` analogues §6 stands against, printed beside it.
+#print axioms GQ2.Dyadic.StageGeneric.evenForwardGeneratorDataN_of_base_and_corrections
+#print axioms GQ2.Dyadic.EvenAlphaTwo.evenAlphaTwo_forwardGeneratorDataN_of_residual
+#print axioms GQ2.Dyadic.EvenStratum.evenStratum_orientedEquivN_one_of_forwardGeneratorData
 
 end GQ2.Dyadic.EvenStratumFrame
