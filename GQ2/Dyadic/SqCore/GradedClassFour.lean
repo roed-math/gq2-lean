@@ -594,7 +594,134 @@ theorem cfour_relator_base :
 
 end BaseDefect
 
-/-! ## §5 Axiom pins -/
+/-! ## §5 The dressing knobs
+
+A dressing correction taken **inside `γ₂`** leaves the class-three picture alone and moves the
+class-four relator by a single central factor, computed here slot by slot.  These are the class-four
+analogue of `bridge_row_image`'s consumer: `bridge_row_image` says a `γ₂`-valued correction can
+always be arranged to have exactly trivial rows, and these lemmas say what such a correction buys.
+
+The three core slots behave differently, and the difference is the whole story:
+
+* slot `σ` buys the bracket `commP c (m 1)`, slot `x₀` buys `commP (m 0) c` - **pure brackets**;
+* slot `x₁` buys `c² · commP c (m 2)` - a **square bundled with a bracket against `m 2`**, and
+  it is the only slot of the relator carrying a square, hence the only source of squares.
+
+The `x₀`-slot's fourth power buys **nothing**: `c⁴ = 1` and `(commP c (m 1))² = 1` for `c ∈ Y`,
+so `cfour_pow_four_mul`'s defect is invisible to a `γ₂`-valued correction.  The triple bracket
+also buys nothing (`cfour_dress_zero`, `cfour_dress_two`, both leave it fixed). -/
+
+section Knobs
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- A `Z`-element commutes with everything, in the form the shuffles below consume. -/
+theorem cfour_zLayer_comm {z : levelQuot G 4} (hz : z ∈ zLayer G 3) (x : levelQuot G 4) :
+    z * x = x * z := (zLayer_commute hz x).eq
+
+/-- Moving a central factor from the first slot of a five-fold product to the end. -/
+theorem cfour_shuffle {z : levelQuot G 4} (hz : z ∈ zLayer G 3)
+    (A B C D E : levelQuot G 4) : A * z * B * C * D * E = A * B * C * D * E * z := by
+  simp only [mul_assoc]
+  rw [cfour_zLayer_comm hz]
+  simp only [mul_assoc]
+
+/-- Moving a central factor from the middle of a five-fold product to the end. -/
+theorem cfour_shuffle_mid {z : levelQuot G 4} (hz : z ∈ zLayer G 3)
+    (A B C D E : levelQuot G 4) : A * B * (C * z) * D * E = A * B * C * D * E * z := by
+  simp only [mul_assoc]
+  rw [cfour_zLayer_comm hz]
+  simp only [mul_assoc]
+
+/-- The `x₀`-slot's fourth power is blind to a `Y`-valued correction: both `c⁴` and the
+`cfour_pow_four_mul` defect `(commP c p)²` die. -/
+theorem cfour_pow_four_dress (p : levelQuot G 4) {c : levelQuot G 4}
+    (hc : c ∈ lambdaImage G 2 4) : (p * c) ^ 4 = p ^ 4 := by
+  have hc4 : c ^ 4 = 1 := by
+    have h : c ^ 4 = (c ^ 2) ^ 2 := by rw [← pow_mul]
+    rw [h]
+    exact zLayer_sq G (cfour_sq_mem_zLayer hc)
+  rw [cfour_pow_four_mul, hc4, mul_one,
+    zLayer_sq G (cfour_commP_mem_zLayer_left hc p), mul_one]
+
+/-- The triple bracket is blind to a `Y`-valued correction of the `σ`-slot. -/
+theorem cfour_triple_dress_zero (p q : levelQuot G 4) {c : levelQuot G 4}
+    (hc : c ∈ lambdaImage G 2 4) :
+    commP p (commP p (q * c)) = commP p (commP p q) := by
+  rw [cfour_commP_mul_right p q c, cfour_commP_lambdaTwo (cfour_commP_mem_lambdaTwo p q) hc,
+    mul_one, cfour_commP_mul_right p (commP p c) (commP p q),
+    cfour_commP_zLayer_right (cfour_commP_mem_zLayer_right p hc) p, cfour_one_comm,
+    mul_one, mul_one]
+
+/-- ⭐ **The `σ`-slot knob**: a `γ₂`-valued correction of the `σ`-slot moves the class-four
+relator by the single bracket `commP c (m 1)`. -/
+theorem cfour_dress_zero {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) {c : levelQuot G 4}
+    (hc : c ∈ lambdaImage G 2 4) (h0 : m' 0 = m 0 * c) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * commP c (m 1) := by
+  have hfac1 : commP (m' 0) (m' 1) = commP (m 0) (m 1) * commP c (m 1) := by
+    rw [h0, h1, cfour_commP_mul_left,
+      cfour_commP_lambdaTwo (cfour_commP_mem_lambdaTwo (m 0) (m 1)) hc, mul_one]
+  rw [cfour_sqRelWord, cfour_sqRelWord, hfac1, h1, h2, h0,
+    cfour_triple_dress_zero (m 2) (m 0) hc]
+  simp only [hU, hV]
+  exact cfour_shuffle (cfour_commP_mem_zLayer_left hc (m 1)) _ _ _ _ _
+
+/-- ⭐ **The `x₀`-slot knob**: a `γ₂`-valued correction of the `x₀`-slot moves the class-four
+relator by `commP (m 0) c`.  The fourth power contributes nothing
+(`cfour_pow_four_dress`). -/
+theorem cfour_dress_one {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) {c : levelQuot G 4}
+    (hc : c ∈ lambdaImage G 2 4) (h0 : m' 0 = m 0) (h1 : m' 1 = m 1 * c) (h2 : m' 2 = m 2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * commP (m 0) c := by
+  have hfac1 : commP (m' 0) (m' 1) = commP (m 0) c * commP (m 0) (m 1) := by
+    rw [h0, h1, cfour_commP_mul_right,
+      cfour_commP_lambdaTwo (cfour_commP_mem_lambdaTwo (m 0) (m 1)) hc, mul_one]
+  have hz : commP (m 0) c ∈ zLayer G 3 := cfour_commP_mem_zLayer_right (m 0) hc
+  rw [cfour_sqRelWord, cfour_sqRelWord, hfac1, h1, h2, h0, cfour_pow_four_dress (m 1) hc]
+  simp only [hU, hV, mul_assoc]
+  rw [cfour_zLayer_comm hz]
+  simp only [mul_assoc]
+
+/-- ⭐ **The `x₁`-slot knob**: a `γ₂`-valued correction of the `x₁`-slot moves the class-four
+relator by `c² · commP c (m 2)`.  This is the **only** knob producing a square, because `m 2 ^ 2`
+is the only square in the relator; and the square arrives **bundled** with a bracket against
+`m 2` that no other knob can produce, because `m 2` is the one frame slot that never appears as
+a bracket partner elsewhere in the relator. -/
+theorem cfour_dress_two {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) {c : levelQuot G 4}
+    (hc : c ∈ lambdaImage G 2 4) (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2 * c)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * (c ^ 2 * commP c (m 2)) := by
+  have hzc : commP c (m 2) ∈ zLayer G 3 := cfour_commP_mem_zLayer_left hc (m 2)
+  have hfac3 : (m' 2) ^ 2 = m 2 ^ 2 * (c ^ 2 * commP c (m 2)) := by
+    rw [h2, cfour_sq_mul, cfour_commP_zLayer_left hzc c, mul_one, mul_assoc]
+  have hzc0 : commP c (m 0) ∈ zLayer G 3 := cfour_commP_mem_zLayer_left hc (m 0)
+  have hzt : commP (m 2) (commP (m 2) (m 0)) ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_right (m 2) (cfour_commP_mem_lambdaTwo (m 2) (m 0))
+  have hW : commP (m 2) (m 0) * commP c (m 0) ∈ lambdaImage G 2 4 :=
+    Subgroup.mul_mem _ (cfour_commP_mem_lambdaTwo (m 2) (m 0)) (cfour_zLayer_le_lambdaTwo hzc0)
+  have hinner : commP (m 2 * c) (m 0) = commP (m 2) (m 0) * commP c (m 0) := by
+    rw [cfour_commP_mul_left (m 2) c (m 0),
+      cfour_commP_lambdaTwo (cfour_commP_mem_lambdaTwo (m 2) (m 0)) hc, mul_one]
+  have houter : commP (m 2) (commP (m 2) (m 0) * commP c (m 0))
+      = commP (m 2) (commP (m 2) (m 0)) := by
+    rw [cfour_commP_mul_right (m 2) (commP (m 2) (m 0)) (commP c (m 0)),
+      cfour_commP_zLayer_right hzc0 (m 2), one_mul,
+      cfour_commP_zLayer_left hzt (commP c (m 0)), mul_one]
+  have hfac4 : commP (m' 2) (commP (m' 2) (m' 0)) = commP (m 2) (commP (m 2) (m 0)) := by
+    rw [h0, h2, hinner, cfour_commP_mul_left (m 2) c (commP (m 2) (m 0) * commP c (m 0)),
+      cfour_commP_lambdaTwo hc hW, mul_one, houter,
+      cfour_commP_zLayer_left hzt c, mul_one]
+  rw [cfour_sqRelWord, cfour_sqRelWord, hfac3, hfac4, h0, h1]
+  simp only [hU, hV]
+  exact cfour_shuffle_mid (Subgroup.mul_mem _ (cfour_sq_mem_zLayer hc) hzc) _ _ _ _ _
+
+end Knobs
+
+/-! ## §6 Axiom pins -/
 
 section AxiomPins
 
@@ -645,6 +772,14 @@ section AxiomPins
 #print axioms cfour_eichDefect_mem
 #print axioms cfour_base_eq_gen
 #print axioms cfour_relator_base
+#print axioms cfour_zLayer_comm
+#print axioms cfour_shuffle
+#print axioms cfour_shuffle_mid
+#print axioms cfour_pow_four_dress
+#print axioms cfour_triple_dress_zero
+#print axioms cfour_dress_zero
+#print axioms cfour_dress_one
+#print axioms cfour_dress_two
 
 end AxiomPins
 
