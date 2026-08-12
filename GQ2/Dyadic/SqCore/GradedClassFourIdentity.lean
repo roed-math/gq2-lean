@@ -13,7 +13,7 @@ Wave 69 reduced `SqClassClearingSupply h 4` to the single `Q₄`-identity
 flagged that this is sufficient and not necessary.  This file settles the status of that route
 and replaces it with one whose obligation is a full graded layer smaller.
 
-## §1 The trivial-dressing route is vacuous
+## §1 The trivial-dressing route, located
 
 ⭐⭐ `cfourId_eichDefect_levelProj`: the class-four Eichler defect projects to wave 68's
 class-three defect,
@@ -33,9 +33,14 @@ refutation of class four, and nothing here refutes the residual: it locates the 
 
 ## §2 and §3 The route that is one graded layer better
 
-Dress with wave 68's tuple and correct **inside `γ₂`**.  A `γ₂`-valued correction costs nothing
-on either row and nothing on mod-2 independence (§2: `cfourId_modTwoIndep_mul`, through
-`cfourId_twoCentral_le_index_two`).  Writing
+Dress with wave 68's tuple and correct **inside `γ₂`**.  A `γ₂`-valued correction costs nothing on
+mod-2 independence (§2: `cfourId_modTwoIndep_mul`, through `cfourId_twoCentral_le_index_two`).  It
+is **not** free on the rows: `γ₂`-membership implies nothing about `λ` or `ν'`, which is why exact
+row-triviality of the correction is carried as a hypothesis throughout
+(`cfourId_supply_of_reach`, `CfourIdReachable`), and why §5 has to repair the rows of its own knob
+by hand (`cfourId_row_repair`, at `λ(x₁²) = 4`).  What the rows do give for free is that they
+multiply, so an exactly row-trivial correction keeps an exactly row-trivial frame exactly
+row-trivial.  Writing
 
 ```text
   LEFTOVER = levelMk (D_sq h) 4 (sqRelWord (sqArbFrame h nu' j (bridgeTuple nu' j)))
@@ -76,8 +81,10 @@ Wave 69's §5 recorded, as analysis and not as proof, that the delicate directio
 whose square part involves `x₁`", admissible because "the `x₁`-coordinate functional is never in
 the span of `λ` and `ν'` modulo 2".
 
-The mechanism is confirmed and is now a theorem, but the justification is simpler and stronger
-than the span argument.  ⭐ `cfourId_x1_sq_direction`: the correction `c = x₁²` is a `γ₂`-element
+The *reachability* half of the mechanism is confirmed and is now a theorem, and the justification
+is simpler and stronger than the span argument.  (The other half, that Jacobi does **not** reach
+the direction, stays analysis: no declaration in the tree states it.)
+⭐ `cfourId_x1_sq_direction`: the correction `c = x₁²` is a `γ₂`-element
 whose knob against a slot `q` is exactly the iterated bracket, modulo one square,
 
 ```text
@@ -422,9 +429,11 @@ theorem cfourId_x1_sq_mem : dsqX1 h ^ 2 ∈ twoCentralSeries (DSq h : Type) 2 :=
 
 /-- ⭐ **The direction the `x₁`-square knob reaches**: against a slot `q` its knob is the
 iterated bracket `commP (commP x₁ q) x₁`, modulo one square.  This is the direction
-`⁅⁅x₁, q⁆, x₁⁆` that Jacobi cannot produce from brackets with outer slot different from `x₁`
-(`gThreeFour_jacobi` degenerates there in characteristic two), and it is exactly wave 69's
-"correction whose square part involves `x₁`". -/
+`⁅⁅x₁, q⁆, x₁⁆` that wave 69's analysis identified as the one Jacobi does not deliver from
+brackets whose outer slot differs from `x₁`, `gThreeFour_jacobi` degenerating there in
+characteristic two.  That non-reachability is **analysis and is proved nowhere in the tree**, and
+this theorem neither states nor depends on it: what is stated is the reachability, which is
+exactly wave 69's "correction whose square part involves `x₁`". -/
 theorem cfourId_x1_sq_direction (q : levelQuot (DSq h : Type) 4) :
     commP (levelMk (DSq h : Type) 4 (dsqX1 h ^ 2)) q
       = (commP (levelMk (DSq h : Type) 4 (dsqX1 h)) q) ^ 2 *

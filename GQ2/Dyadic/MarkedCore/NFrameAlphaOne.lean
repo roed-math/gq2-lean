@@ -56,8 +56,9 @@ non-torsion coordinate homs `nBHom`/`nCHom`/`nDHom`/`nHHom` with their word form
 index lemmas, and `nSurjVec` together with its four non-torsion evaluation lemmas (§6.2 wraps it
 rather than cloning it).
 
-Four helper lemmas could not be reused because they are `private` in their home files and are
-therefore restated here, each in the *generic* form that a later dedup ticket can hoist:
+Three helper lemmas could not be reused because they are `private` in their home files and are
+therefore restated here, each in the *generic* form that a later dedup ticket can hoist; a fourth
+private construction is replaced rather than restated:
 
 * `nFourPadicInt_nsmul_eq_zero` and `nFourFinOrder_model` restate `N.lean`'s private
   `nPadicInt_nsmul_eq_zero`/`nFinOrder_model` (the latter is `ZMod 2`-typed, so it needed a new
@@ -65,8 +66,9 @@ therefore restated here, each in the *generic* form that a later dedup ticket ca
 * `zpowZtwo_eq_pow_toZModPow` (§2) restates the private lemma of the same name in
   `GQ2/Dyadic/Instances/NpcCore.lean`, which is itself the all-level form of the public
   `SectionThree.zpowZtwo_of_sq_eq_one`;
-* `nFourZ4Hom`-style content is re-derived rather than taken from `NFrameExists.lean`'s private
-  `nZ4Hom`.
+* `NFrameExists.lean`'s private `nZ4Hom` is **not** restated at all.  §4 builds its own `ℤ/4`
+  target from the α-free `nCoordHom` builder instead, as `nFourIsProP_two_multZMod4` and
+  `nFourTHom`.  No declaration named `nFourZ4Hom` exists here, and none is intended.
 
 §1's `demushkinQ_of_torsionEquivZMod` is the **generic** counting step this file was asked to
 produce instead of a fourth specialized clone.  It is stated for an arbitrary `MulEquiv` onto an

@@ -9,8 +9,10 @@ import GQ2.Dyadic.SqCore.GradedRelatorBase
 # W70-FIVE: the class-five map
 
 Wave 69 recorded that class five loses the property which made class four tractable: `⁅γ₂, γ₂⁆ ≤ γ₄`
-is exactly a class-four fact, so `γ₂` is **not** abelian in `Q₅`, the "reorder at will" step of
-`GradedClassFour` §3 fails, and the relator stops being a product in an abelian group.  It named
+is exactly a class-four fact, so the class-four proof that `γ₂` is abelian delivers nothing in
+`Q₅`, the "reorder at will" step of `GradedClassFour` §3 is no longer justified, and the relator
+can no longer be treated as a product in an abelian group.  (That is a statement about the
+available proof, not about `Y`; see the scope note below.)  It named
 two things the class-five analogue would need: `⁅γ₂, γ₃⁆ ≤ γ₅`, and a non-abelian bookkeeping
 layer.  This file supplies both, and locates the degradation of the rest of the class-four
 calculus precisely.
@@ -33,9 +35,10 @@ the central layer `Z_{k+1}`.  Hence it contains `twoCentralSucc ⊤ = γ₂`.
 `cfour_commutator_lambdaTwo` is the instance `k = 2`, re-derived here as
 `cfive_commutator_four_of_two`.
 
-**(b) What replaces `γ₂`-abelianness is a nilpotency-class-two layer, and it is linear.**  In `Q₅`
-the layer `Y = lambdaImage G 2 5` is not abelian, but by (a) at `k = 2` its commutators land in
-`zLayer G 4`, which is **central** in `Q₅` and of **exponent two**.  So (§4):
+**(b) What replaces `γ₂`-abelianness is a nilpotency-class-at-most-two layer, and it is linear.**
+In `Q₅` the layer `Y = lambdaImage G 2 5` is no longer *known* to be abelian, but by (a) at
+`k = 2` its commutators land in `zLayer G 4`, which is **central** in `Q₅` and of **exponent
+two**.  So (§4):
 
 * `cfive_swap_free`: `y · y' = y' · y · commP y y'` in any group at all;
 * ⭐ `cfive_commP_lambdaTwo_central` and `cfive_commP_lambdaTwo_sq`: the correction is central and
@@ -47,15 +50,26 @@ So the class-five reordering device is: reorder freely, and collect an `F₂`-bi
 That is strictly more bookkeeping than class four, but it is a linear amount, not a bracket
 jungle, and it is the honest replacement for `cfour_commP_lambdaTwo`.
 
-**(c) The surviving-lemma table.**  §2 is the general statement behind the middle column: in
+**(c) Which of wave 69's lemmas survive, and in what form.**  There is no table anywhere in this
+file; what follows is the whole inventory, in three groups.
+
+*Surviving verbatim once restated uniformly*: the bracket step (§1 `cfive_commP_mem_succ`, which
+subsumes `cfour_commP_mem_three` and `cfour_commP_mem_four`) and the annihilator argument (§3,
+which subsumes `cfour_commutator_lambdaTwo` as `cfive_commutator_four_of_two`).
+
+*Surviving with a side condition*: bimultiplicativity.  §2 is the general statement: in
 `Q_{k+2}`, a bracket whose slot is a `γ_k`-image lands in the central layer, so bimultiplicativity
-survives **against a slot `k` layers down**, not against a `γ₂`-slot.  Wave 69's
-`cfour_commP_left_hom` is the case `k = 2`; the class-five statement is the case `k = 3`
-(`cfive_commP_left_hom_five`), and that is exactly the `λ`-image side condition.  §5 pins the two
-places where class four had a collapse that class five does not: fourth powers are central at
-class four but only three layers down at class five (`cfive_pow_four_mem_lambdaThree`, against
-`cfour_pow_four_mem_zLayer`), and it is **eighth** powers that are central at class five
-(`cfive_pow_eight_mem_zLayer`).
+survives **against a slot `k` layers down**.  Wave 69's `cfour_commP_left_hom` is the case
+`k = 2`; the class-five statement is the case `k = 3` (`cfive_commP_left_hom_five`), and that is
+exactly the `λ`-image side condition.
+
+*Not surviving*: two class-four lemmas, both replaced in §5.  `cfour_pow_four_mem_zLayer` stops,
+because fourth powers are only three layers down at class five
+(`cfive_pow_four_mem_lambdaThree`) and it is **eighth** powers that are central
+(`cfive_pow_eight_mem_zLayer`); and `cfour_commP_mem_zLayer_left` stops, because a bracket with a
+`Y`-slot is likewise only three layers down (`cfive_commP_lambdaTwo_mem_lambdaThree`).  Nothing
+in this third group is asserted to be **false** one class up.  What is committed is only that the
+wave-69 proof delivers nothing there; see the scope note below.
 
 ## Scope
 
@@ -107,7 +121,8 @@ Wave 69's ⭐ `cfour_commP_left_hom` says that bimultiplicativity survives in `Q
 `Y`-slot, and reads that as "the class-four degradation of wave 68's calculus".  The uniform
 statement shows what is really going on: what a slot must be is **two layers above the bottom of
 the quotient**, and at `Q₄` that happens to be `γ₂`.  At `Q₅` it is `γ₃`, so the class-five form of
-`cfour_commP_left_hom` carries a `λ`-image side condition and a `γ₂`-slot no longer suffices. -/
+`cfour_commP_left_hom` carries a `λ`-image side condition and the argument no longer runs on a
+`γ₂`-slot.  Whether a `γ₂`-slot would in fact do at `Q₅` is not decided here. -/
 
 section LayerCalculus
 
@@ -267,8 +282,9 @@ end AnnihilatorGeneral
 
 /-! ## §4 The class-five bookkeeping layer
 
-`Y = lambdaImage G 2 5` is not abelian in `Q₅`, and wave 69's §3 ("the relator may be reordered at
-will") therefore has no class-five analogue.  What does survive is one step weaker and still
+`Y = lambdaImage G 2 5` is not *known* to be abelian in `Q₅` (the scope note in the module header
+records that no witness is committed either way), so wave 69's §3 ("the relator may be reordered
+at will") has no class-five analogue available.  What does survive is one step weaker and still
 linear: `⁅Y, Y⁆` lands in `zLayer G 4`, which is central in `Q₅` and of exponent two, and the
 bracket is bimultiplicative on `Y × Y`.  A class-five run reorders freely and collects an
 `F₂`-bilinear correction. -/
@@ -286,8 +302,9 @@ theorem cfive_commP_lambdaTwo_mem_zLayer {y y' : levelQuot G 5} (hy : y ∈ lamb
   obtain ⟨v', hv', rfl⟩ := hy'
   exact ⟨commP v v', cfive_commutator_lambdaTwo hv hv', by simp only [commP, map_mul, map_inv]⟩
 
-/-- ⭐ **`Y` is nilpotent of class two in `Q₅`**: its commutators are central.  This is the
-statement that replaces `cfour_commP_lambdaTwo`. -/
+/-- ⭐ **`Y` is nilpotent of class at most two in `Q₅`**: its commutators are central.  This is
+the statement that replaces `cfour_commP_lambdaTwo`.  The bound is not claimed to be sharp:
+nothing here rules out `Y` being abelian, which would be class one. -/
 theorem cfive_commP_lambdaTwo_central {y y' : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
     (hy' : y' ∈ lambdaImage G 2 5) (p : levelQuot G 5) : Commute (commP y y') p :=
   zLayer_commute (cfive_commP_lambdaTwo_mem_zLayer hy hy') p
@@ -324,8 +341,11 @@ end BookkeepingFive
 
 /-! ## §5 Where class four had a collapse and class five does not
 
-Two entries of wave 69's calculus are genuinely class-four-only, and it is worth having their
-class-five replacements committed rather than described, because both are easy to misremember.
+Two entries of wave 69's calculus have no class-five reading by the wave-69 argument, and it is
+worth having their replacements committed rather than described, because both are easy to
+misremember.  The two are `cfour_pow_four_mem_zLayer` and `cfour_commP_mem_zLayer_left`; this
+section carries three replacement statements, two for the first and one for the second.  Neither
+class-four lemma is asserted to be false in `Q₅`; each is simply about `Q₄`.
 
 The fourth power is the important one.  `cfour_pow_four_mem_zLayer` puts `p⁴` in the central layer
 of `Q₄`; one class up `p⁴` is only three layers down, and it is `p⁸` that is central.  In
@@ -354,17 +374,18 @@ theorem cfive_pow_eight_mem_zLayer (p : levelQuot G 5) : p ^ 8 ∈ zLayer G 4 :=
   rwa [show (2 : ℕ) ^ 3 = 8 from by norm_num] at h
 
 /-- **A bracket with a `Y`-slot in `Q₅` lies three layers down**, where at class four it was
-central.  This is where `cfour_commP_mem_zLayer_left` stops, and it is why a `γ₂`-slot no longer
-buys bimultiplicativity. -/
+central.  This is where `cfour_commP_mem_zLayer_left` stops, and it is why the class-five
+bimultiplicativity statement asks for a `γ₃`-slot instead. -/
 theorem cfive_commP_lambdaTwo_mem_lambdaThree {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
     (q : levelQuot G 5) : commP y q ∈ lambdaImage G 3 5 := by
   obtain ⟨v, hv, rfl⟩ := hy
   obtain ⟨b, rfl⟩ := levelMk_surjective G 5 q
   exact ⟨commP v b, cfive_commP_mem_succ hv b, by simp only [commP, map_mul, map_inv]⟩
 
-/-- ⭐ **The class-five form of `cfour_commP_left_hom`**: bimultiplicativity survives, but only
-against a `γ₃`-image slot.  This is the `λ`-image side condition, and it is the case `k = 3` of
-`cfive_commP_left_hom`. -/
+/-- ⭐ **The class-five form of `cfour_commP_left_hom`**: bimultiplicativity survives against a
+`γ₃`-image slot.  This is the `λ`-image side condition, and it is the case `k = 3` of
+`cfive_commP_left_hom`.  The class-four form's `γ₂`-slot is not available to this argument one
+class up; it is not shown to fail. -/
 theorem cfive_commP_left_hom_five (p q : levelQuot G 5) {y : levelQuot G 5}
     (hy : y ∈ lambdaImage G 3 5) : commP (p * q) y = commP p y * commP q y :=
   cfive_commP_left_hom p q hy

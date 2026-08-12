@@ -55,7 +55,9 @@ through it (`relBase_relator_base_four`) as an independent check against wave 69
 * §2 The handle surgery with **no** hypothesis: `relBase_prod_map_update` and
   `relBase_handleWord_update` insert a factor at one entry of a product and pay for it with a
   conjugation instead of a commutation.  Wave 69's `cfour_prod_map_update` /
-  `cfour_handleWord_update` are the `Commute` versions, and are reused unchanged in §3.
+  `cfour_handleWord_update` are the `Commute` versions.  Of those two only
+  `cfour_handleWord_update` is cited here, unchanged, inside §3's
+  `relBase_relator_base_of_commuting`; `cfour_prod_map_update` is reached only through it.
 * §3 The base identity, upstairs and at every class.
 * §4 The schema: what the trivial dressing buys, class by class, and what the whole `h ≥ 1`
   residual would follow from.
