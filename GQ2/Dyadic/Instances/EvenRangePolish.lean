@@ -40,7 +40,7 @@ endpoint already carries.  §3 restates the two `ℚ₂(√2)` headlines with th
 
 ## §4 to §6: the quartic's ramification fact
 
-`not_hasEqualNormValueGroups_KQuarticN` does not exist, and the quadratic row's proof
+As of wave 67 the tree carried no ramification fact for `KQuarticN`, and the quadratic row's proof
 (`Fields.not_hasEqualNormValueGroups_quadField`) does not reach a quartic: its engine is
 `Fields.exists_norm_sq_eq`, "every `z ∈ ℚ₂(√a)` has `‖z‖² ∈ ‖ℚ₂ˣ‖`", which is the statement that
 the ramification index divides `2`.  At a quartic that statement is false.
@@ -61,7 +61,7 @@ at level `1/8` while §4 puts every level of `ℚ₂(β)` in `(1/4)ℤ`.  So the
 `EvenRouteModel.lean` §5 records as *measured* is now a theorem:
 `evenPolish_not_hasEqualNormValueGroups_KQuarticN`.
 
-## §8: the quartic's `hrange`, and the third even field
+## §8 and §9: the quartic's `hrange`, and the third even field
 
 The `η` of §7 is a sixteenth root of unity given by a formula in `β`, and the formula's own
 consequence is `η − η⁻¹ = β` **exactly** (both sides are `(2β²)/(2β)`).  That removes the
@@ -685,8 +685,9 @@ theorem evenPolish_notMem_quartic (hdeltaI : deltaI ^ 2 = -1) :
   rw [Padic.valuation_pow, Padic.valuation_pow, GQ2.Dyadic.Fields.valuation_two] at hval
   omega
 
-/-- **`ℚ₂(β)(i)/ℚ₂(β)` IS RAMIFIED, UNCONDITIONALLY.**  The ramification binder the tree has never
-carried for the quartic model field, discharged: `not_hasEqualNormValueGroups_KQuarticN`. -/
+/-- **`ℚ₂(β)(i)/ℚ₂(β)` IS RAMIFIED, UNCONDITIONALLY.**  The ramification binder no statement in
+the tree carried for the quartic model field before this one, discharged.  This is the quartic's
+row of `Fields.lean` §7, which had entries only at the four quadratic rows. -/
 theorem evenPolish_not_hasEqualNormValueGroups_KQuarticN (deltaI : ℚ̄₂)
     (hdeltaI : deltaI ^ 2 = -1) :
     ¬ GQ2.HasEqualNormValueGroups KQuarticN deltaI :=
