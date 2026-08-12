@@ -605,6 +605,7 @@ import GQ2.Dyadic.MarkedCore.MFrame
 import GQ2.Dyadic.MarkedCore.MFrameExists
 import GQ2.Dyadic.MarkedCore.NFrameExists
 import GQ2.Dyadic.MarkedCore.MFrameApi
+import GQ2.Dyadic.MarkedCore.NFrameAlphaOne
 import GQ2.Dyadic.MarkedCore.CoVDischarge
 import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedCore.CompactCoV
@@ -836,4 +837,5 @@ import GQ2.Dyadic.Instances.EvenRangePolish
 import GQ2.Dyadic.Instances.EvenParityFlags
 import GQ2.Dyadic.Instances.EvenUnramified
 import GQ2.Dyadic.Instances.EvenAlphaOne
+import GQ2.Dyadic.Instances.NFrameAlphaOneInvariants
 import GQ2.Dyadic.Main
