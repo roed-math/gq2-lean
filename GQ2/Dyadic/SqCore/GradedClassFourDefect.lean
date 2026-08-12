@@ -476,9 +476,227 @@ theorem cfourDef_leftover_reduce :
     cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo _ _) _
   exact cfourDef_assemble hq hs ht hr hp _ _ _
 
+/-- ⭐ **The tail is one bracket.**  The two triple brackets of `cfourDefTriple` and the Jacobi
+term have a common outer slot, the dressing, so they merge: the whole tail of
+`cfourDef_leftover_reduce` is `⁅y, A⁆` for the single `Y`-element
+`y = ⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆`. -/
+theorem cfourDef_triple_mul_jacobi :
+    cfourDefTriple nu' j *
+        commP (commP (levelMk (DSq h : Type) 4 (dsqX0 h)) (levelMk (DSq h : Type) 4 (dsqX1 h)))
+          (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+      = commP (commP (levelMk (DSq h : Type) 4 (dsqSigma h))
+                (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
+              commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+                (levelMk (DSq h : Type) 4 (dsqX0 h)) *
+            commP (levelMk (DSq h : Type) 4 (dsqX0 h)) (levelMk (DSq h : Type) 4 (dsqX1 h)))
+          (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) := by
+  rw [cfourDefTriple, gThreeFour_ad_left (Subgroup.mul_mem _ (cfour_commP_mem_lambdaTwo _ _)
+      (cfour_commP_mem_lambdaTwo _ _)) _ _,
+    gThreeFour_ad_left (cfour_commP_mem_lambdaTwo _ _) _ _]
+
+/-- ⭐⭐⭐ **The wave-68 leftover, reduced: the two defects and one bracket.**  This is
+`cfourDef_leftover_reduce` with its tail merged by `cfourDef_triple_mul_jacobi`:
+
+```text
+  sqRelWord (wave 68's frame corrected by cfourDefCorr)
+    = cfourDefCore nu' j · ⁅⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆, A⁆ .
+```
+
+Both factors are `Z`-elements.  The first is the two class-four defects, `x₁`-free; the second is
+a bracket with a `Y`-element in the near slot and **the dressing** in the far slot, which
+`cfourDef_comm_dress_mem` decomposes into brackets against the two handle generators. -/
+theorem cfourDef_leftover_reduce_merged :
+    sqRelWord (fun i => levelMk (DSq h : Type) 4
+        (sqArbFrame h nu' j (bridgeTuple nu' j) i * cfourDefCorr nu' j i))
+      = cfourDefCore nu' j *
+        commP (commP (levelMk (DSq h : Type) 4 (dsqSigma h))
+                (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
+              commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+                (levelMk (DSq h : Type) 4 (dsqX0 h)) *
+            commP (levelMk (DSq h : Type) 4 (dsqX0 h)) (levelMk (DSq h : Type) 4 (dsqX1 h)))
+          (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) := by
+  rw [cfourDef_leftover_reduce, cfourDef_triple_mul_jacobi]
+
 end Correction
 
-/-! ## §7 Axiom pins -/
+/-! ## §7 The far slot of the dressing -/
+
+section FarSlot
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- **An inverse in the far slot is invisible to a `Y`-element in the near slot.**  For `y ∈ Y`
+the map `commP y ·` is a homomorphism into the exponent-two layer `Z`, so it kills inverses. -/
+theorem cfourDef_comm_inv_right {y : levelQuot G 4} (hy : y ∈ lambdaImage G 2 4)
+    (z : levelQuot G 4) : commP y z⁻¹ = commP y z := by
+  have hz := cfour_commP_right_hom hy z z⁻¹
+  rw [mul_inv_cancel, cfour_comm_one] at hz
+  rw [eq_inv_of_mul_eq_one_left hz.symm, zLayer_inv_self (cfour_commP_mem_zLayer_left hy z)]
+
+end FarSlot
+
+section DressFarSlot
+
+variable {h : ℕ} (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+
+/-- **A bracket against a `ℤ₂`-power reads only the exponent's parity.**  An even power is a
+`γ₂`-element and dies against a `Y`-slot; an odd power is its base times a `γ₂`-element.  Stated
+against an arbitrary subgroup so that no decidability of `2 ∣ k` in `ℤ₂` is needed. -/
+theorem cfourDef_comm_zpow_mem {y : levelQuot (DSq h : Type) 4}
+    (hy : y ∈ lambdaImage (DSq h : Type) 2 4) (g : (DSq h : Type)) (k : ℤ_[2])
+    {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (hg : commP y (levelMk (DSq h : Type) 4 g) ∈ S) :
+    commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) g k)) ∈ S := by
+  by_cases hk : (2 : ℤ_[2]) ∣ k
+  · have hone : commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) g k)) = 1 :=
+      cfour_commP_lambdaTwo hy ⟨_, bridge_zpow_even g hk, rfl⟩
+    rw [hone]
+    exact Subgroup.one_mem _
+  · obtain ⟨u, hu, hug⟩ := bridge_zpow_odd_eq g hk
+    have hstep : commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) g k))
+        = commP y (levelMk (DSq h : Type) 4 g) := by
+      rw [hug, map_mul, cfour_commP_right_hom hy, cfour_commP_lambdaTwo hy ⟨u, hu, rfl⟩, mul_one]
+    rw [hstep]
+    exact hg
+
+/-- ⭐⭐ **The far slot of wave 68's dressing, resolved into the two handle generators.**  The
+dressing is `A = u_j^{ν'(v_j)} · v_j^{ν'(u_j)} · w^{-2ν'(u_j)ν'(v_j)}`.  The pivot factor has an
+even exponent, hence lies in `γ₂` and is invisible to a bracket with a `Y`-element in the near
+slot; the two handle powers are read through their exponents' parity only.  So `⁅y, A⁆` lies in
+any subgroup containing `⁅y, u_j⁆` and `⁅y, v_j⁆`.
+
+This is exactly the step the wave-71 note listed as missing for the pairing's residue
+`⁅⁅A, x₁⁆, A⁆`: bilinearity in the far slot plus the `zpowZtwo` bookkeeping of `bridgeDress`. -/
+theorem cfourDef_comm_dress_mem {y : levelQuot (DSq h : Type) 4}
+    (hy : y ∈ lambdaImage (DSq h : Type) 2 4) {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (hu : commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j))) ∈ S)
+    (hv : commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) ∈ S) :
+    commP y (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ∈ S := by
+  have hdvd : (2 : ℤ_[2]) ∣ -(2 * bridgeRowU nu' j * bridgeRowV nu' j) :=
+    ⟨-(bridgeRowU nu' j * bridgeRowV nu' j), by ring⟩
+  rw [bridgeDress, map_mul, map_mul, cfour_commP_right_hom hy,
+    cfour_commP_lambdaTwo hy ⟨_, bridge_zpow_even (sqPivot h) hdvd, rfl⟩, one_mul,
+    cfour_commP_right_hom hy]
+  exact Subgroup.mul_mem _ (cfourDef_comm_zpow_mem hy _ _ hv)
+    (cfourDef_comm_zpow_mem hy _ _ hu)
+
+/-- **From the cleared `u`-letter to the generator.**  `U_j = w^{-ν'(u_j)} · u_j`, so the two
+brackets differ by a bracket against a pivot power, which the parity lemma reads off the pivot
+itself.  The cleared letters are what the frame's handle slots carry, so this is the step that
+turns a handle knob into a bracket against a handle generator. -/
+theorem cfourDef_comm_genU_mem {y : levelQuot (DSq h : Type) 4}
+    (hy : y ∈ lambdaImage (DSq h : Type) 2 4) {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (hw : commP y (levelMk (DSq h : Type) 4 (sqPivot h)) ∈ S)
+    (he : commP y (levelMk (DSq h : Type) 4 (sqEichU h nu' j)) ∈ S) :
+    commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j))) ∈ S := by
+  have hz : commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+      (toAdd (nu' (sqGen h (sqHandleIdxU j)))))) ∈ S := cfourDef_comm_zpow_mem hy _ _ hw
+  have hzz : commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+      (toAdd (nu' (sqGen h (sqHandleIdxU j)))))) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hy _
+  have hsplit : commP y (levelMk (DSq h : Type) 4 (sqEichU h nu' j))
+      = commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j))) *
+        commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+          (toAdd (nu' (sqGen h (sqHandleIdxU j)))))) := by
+    rw [sqEichU, map_mul, map_inv, cfour_commP_right_hom hy, cfourDef_comm_inv_right hy]
+  have hgen : commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+      = commP y (levelMk (DSq h : Type) 4 (sqEichU h nu' j)) *
+        commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+          (toAdd (nu' (sqGen h (sqHandleIdxU j)))))) := by
+    rw [hsplit, mul_assoc, cfourDef_z_sq hzz, mul_one]
+  rw [hgen]
+  exact Subgroup.mul_mem _ he hz
+
+/-- **From the cleared `v`-letter to the generator.**  `V_j = v_j · w^{-ν'(v_j)}`. -/
+theorem cfourDef_comm_genV_mem {y : levelQuot (DSq h : Type) 4}
+    (hy : y ∈ lambdaImage (DSq h : Type) 2 4) {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (hw : commP y (levelMk (DSq h : Type) 4 (sqPivot h)) ∈ S)
+    (he : commP y (levelMk (DSq h : Type) 4 (sqEichV h nu' j)) ∈ S) :
+    commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) ∈ S := by
+  have hz : commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+      (toAdd (nu' (sqGen h (sqHandleIdxV j)))))) ∈ S := cfourDef_comm_zpow_mem hy _ _ hw
+  have hzz : commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+      (toAdd (nu' (sqGen h (sqHandleIdxV j)))))) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hy _
+  have hsplit : commP y (levelMk (DSq h : Type) 4 (sqEichV h nu' j))
+      = commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+          (toAdd (nu' (sqGen h (sqHandleIdxV j)))))) *
+        commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) := by
+    rw [sqEichV, map_mul, map_inv, cfour_commP_right_hom hy, cfourDef_comm_inv_right hy]
+  have hgen : commP y (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j)))
+      = commP y (levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h)
+          (toAdd (nu' (sqGen h (sqHandleIdxV j)))))) *
+        commP y (levelMk (DSq h : Type) 4 (sqEichV h nu' j)) := by
+    rw [hsplit, ← mul_assoc, cfourDef_z_sq hzz, one_mul]
+  rw [hgen]
+  exact Subgroup.mul_mem _ hz he
+
+end DressFarSlot
+
+/-! ## §8 The residual -/
+
+section Residual
+
+variable {h : ℕ}
+
+/-- ⭐⭐⭐ **The wave-72 residual.**  Everything wave 68's leftover carries except the two
+class-four defects and one bracket against the dressing is moved by the single admissible
+correction `cfourDefCorr` (`cfourDef_leftover_reduce_merged`).  What remains is exactly this: a
+further admissible correction of the already-corrected frame must kill
+
+```text
+  cfourDefCore nu' j · ⁅⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆, A⁆ ,
+```
+
+one element of the elementary abelian 2-group `Z = γ₃/γ₄`.
+
+**Honesty marker.**  This is a residual of one *route* - `γ₂`-valued corrections of wave 68's
+frame, wave 70's `CfourIdReachable` - not of `SqClassClearingSupply h 4` itself.  A failure of
+this Prop would not refute the supply. -/
+def CfourDefResidual (h : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ d : Fin (sqRank h) → (DSq h : Type),
+        (∀ i, d i ∈ twoCentralSeries (DSq h : Type) 2) ∧ (∀ i, nuLam h (d i) = 1) ∧
+          (∀ i, nu' (d i) = 1) ∧
+          sqRelWord (fun i => levelMk (DSq h : Type) 4
+              (sqArbFrame h nu' j (bridgeTuple nu' j) i * cfourDefCorr nu' j i * d i)) = 1
+
+/-- ⭐⭐ **The residual discharges the class-four supply.**  `cfourDefCorr` is admissible and
+admissible corrections compose, so a further correction of the corrected frame is a correction of
+wave 68's frame, and `cfourId_supply_of_reach` applies. -/
+theorem cfourDef_supply_of_residual (H : CfourDefResidual h) : SqClassClearingSupply h 4 := by
+  refine cfourId_supply_of_reach fun nu' j hs hx => ?_
+  obtain ⟨d, hd2, hdl, hdn, hrel⟩ := H nu' j hs hx
+  refine ⟨fun i => cfourDefCorr nu' j i * d i, ?_, ?_, ?_, ?_⟩
+  · intro i
+    exact Subgroup.mul_mem _ ((cfourDefCorr_admissible nu' j hs hx i).1) (hd2 i)
+  · intro i
+    rw [map_mul, (cfourDefCorr_admissible nu' j hs hx i).2.1, hdl i, one_mul]
+  · intro i
+    rw [map_mul, (cfourDefCorr_admissible nu' j hs hx i).2.2, hdn i, one_mul]
+  · simpa only [← mul_assoc] using hrel
+
+/-- **The residual holds wherever the residue simply vanishes**: take the trivial further
+correction.  This is the sufficient condition a wave-73 run would most like to have; nothing here
+says it holds. -/
+theorem cfourDef_residual_of_vanish
+    (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+      cfourDefCore nu' j *
+        commP (commP (levelMk (DSq h : Type) 4 (dsqSigma h))
+                (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
+              commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+                (levelMk (DSq h : Type) 4 (dsqX0 h)) *
+            commP (levelMk (DSq h : Type) 4 (dsqX0 h)) (levelMk (DSq h : Type) 4 (dsqX1 h)))
+          (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) = 1) :
+    CfourDefResidual h := by
+  intro nu' j _ _
+  refine ⟨fun _ => 1, fun _ => Subgroup.one_mem _, fun _ => map_one _, fun _ => map_one _, ?_⟩
+  simpa only [mul_one, cfourDef_leftover_reduce_merged] using H nu' j
+
+end Residual
+
+/-! ## §9 Axiom pins -/
 
 section AxiomPins
 
@@ -504,6 +722,15 @@ section AxiomPins
 #print axioms cfourDefCorr_admissible
 #print axioms cfourDef_relator_step
 #print axioms cfourDef_leftover_reduce
+#print axioms cfourDef_triple_mul_jacobi
+#print axioms cfourDef_leftover_reduce_merged
+#print axioms cfourDef_comm_inv_right
+#print axioms cfourDef_comm_zpow_mem
+#print axioms cfourDef_comm_dress_mem
+#print axioms cfourDef_comm_genU_mem
+#print axioms cfourDef_comm_genV_mem
+#print axioms cfourDef_supply_of_residual
+#print axioms cfourDef_residual_of_vanish
 
 end AxiomPins
 
