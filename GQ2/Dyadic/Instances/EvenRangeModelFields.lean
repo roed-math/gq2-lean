@@ -42,28 +42,49 @@ measurement at all.  On the `M` branch and at the quartic the degree bound is on
 one further elementary fact is needed, and §3 names it: the unit `5` (respectively `9`) is not a
 cyclotomic value.
 
-## What is proved and what is carried
+## Where the branch fact comes from
 
-Nothing here computes a cyclotomic range from field arithmetic; the tree has no cyclotomic-tower
-data at any named field (three docstrings say so verbatim: `EvenRouteModel.lean` §4,
-`EvenRouteFinal.lean` §1, `EvenParityModel.lean` §4).  What this file does is *shrink* `hrange`,
-a statement about a subgroup of `ℤ₂ˣ`, to a statement about one or two named units, and then
-compose the shrunken form into the wave-66 endpoints.  §5 records the exact residue at each
-field, with the wave-56/57 measured value it corresponds to.
+The remaining input is genuinely arithmetic, and §4 to §6 supply it.  `chiCycKTwo` unfolds to
+Mathlib's `cyclotomicCharacter`, so `g ζ = ζ^{χ(g)}` is available as a theorem
+(`cyclotomicCharacter.spec`).  Building a primitive eighth root `ζ` and the two quadratic periods
+`α = ζ + ζ⁻¹` (`α² = 2`) and `β = ζ − ζ⁻¹` (`β² = −2`), a Galois element with `χ ≡ 7 (mod 8)`
+negates `β` and one with `χ ≡ 5 (mod 8)` negates `α`.  A Galois element over `K` fixes every
+element of `K`, and `β ∈ ℚ₂(√−2)`, `α ∈ ℚ₂(√2)` because in each case the period and the field's
+chosen square root have the same square.  So `−1` is not a cyclotomic value at `ℚ₂(√−2)` and `5`
+is not one at `ℚ₂(√2)`, which is exactly what §3 asks for.  `ζ` and `α` are the same ones the
+committed mod-eight Kummer bridge already builds; `β` is new here.
 
-The quartic `KQuarticN` is additionally blocked one step earlier: the tree carries no
-ramification fact for it (there is no `not_hasEqualNormValueGroups_KQuarticN`, and its ledger in
-`EvenRouteModel.lean` records `K(i)/K` ramified as *measured*), so its range identity is stated
-over that binder as a hypothesis rather than discharged from a committed theorem.
+This is the first computation of a cyclotomic range at a named even-degree field in the campaign.
+Three committed docstrings state the opposite as of wave 66 (`EvenRouteModel.lean` §4,
+`EvenRouteFinal.lean` §1, `EvenParityModel.lean` §4); they are now out of date, and §9 records
+that.
+
+## What lands and what is left
+
+* `ℚ₂(√−2)`: **unconditional** (§7).  `hrange` is a theorem and the `N` endpoint at depth `2`,
+  handle count `0` carries only the reciprocity bundle and the standing instance binders.
+* `ℚ₂(√2)`: `hrange` at `imChiM 3` needs two facts; `5 ∉ range χ` is proved here and
+  `−1 ∈ range χ` is proved from a reciprocity bundle **at `ℚ₂` itself**, which is the one extra
+  datum the `M` branch costs (§8).  A cyclotomic value must be produced, not excluded, and the
+  tree's only source of produced values is reciprocity at an odd-degree field.
+* `KQuarticN`: **blocked**, and one step earlier than `hrange`.  The tree carries no ramification
+  fact for it (there is no `not_hasEqualNormValueGroups_KQuarticN`; its ledger in
+  `EvenRouteModel.lean` records `K(i)/K` ramified as *measured*), so §8 states its identity over
+  that binder, together with the second residue `9 ∉ range χ` which needs a sixteenth root of
+  unity this file does not build.
 
 ## Numbering
 
 1. two-adic level arithmetic;
 2. the principal-unit level of each committed image;
 3. the degree-indexed deep supply, and the depth-pinned range identities;
-4. the model fields;
-5. the residues, and the endpoints they buy;
-6. axiom pins.
+4. the eighth root of unity and the two quadratic periods;
+5. the Galois action on the periods, and the branch facts;
+6. the periods at the model fields;
+7. `ℚ₂(√−2)`, unconditional;
+8. `ℚ₂(√2)` and the quartic;
+9. the stale docstrings this wave invalidates;
+10. axiom pins.
 -/
 
 namespace GQ2.Dyadic.EvenRangeModel
@@ -414,5 +435,199 @@ theorem evenRangeF_zeta_pow_seven : evenRangeF_zeta ^ 7 = evenRangeF_zeta⁻¹ :
     _ = 1 := evenRangeF_zeta_pow_eight
 
 end Periods
+
+/-! ## §5 The Galois action on the periods, and the branch facts
+
+`cyclotomicCharacter.spec` evaluates a Galois element on `ζ` as `ζ^{χ}`, and an element of `G_K`
+fixes every element of `K`.  Putting the two together: if a period lies in `K`, then no Galois
+element over `K` can negate it, so no cyclotomic value can have the residue that negates it.  That
+single argument produces both branch facts this file needs, at opposite periods. -/
+
+section GaloisAction
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂}
+
+/-- The ambient ring automorphism of `ℚ̄₂` attached to an element of `G_K`. -/
+noncomputable def evenRangeF_gr (g : GalK K) : ℚ̄₂ ≃+* ℚ̄₂ :=
+  MulSemiringAction.toRingAut (ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂) ℚ̄₂
+    (show Field.absoluteGaloisGroup ℚ_[2] from g.1)
+
+/-- The mod-eight residue of the cyclotomic character on `G_K`. -/
+noncomputable def evenRangeF_chiEight (g : GalK K) : ZMod 8 :=
+  PadicInt.toZModPow 3 (((chiCycK K g : ℤ_[2]ˣ)) : ℤ_[2])
+
+/-- **The defining property of the cyclotomic character**, read at `ζ`: `g ζ = ζ^{χ(g)}`, with the
+exponent taken modulo `8` because `ζ^8 = 1`.  This is Mathlib's `cyclotomicCharacter.spec`. -/
+theorem evenRangeF_gr_zeta (g : GalK K) :
+    evenRangeF_gr g evenRangeF_zeta = evenRangeF_zeta ^ (evenRangeF_chiEight g).val :=
+  cyclotomicCharacter.spec 2 (evenRangeF_gr g) evenRangeF_zeta evenRangeF_zeta_pow_eight
+
+/-- An element of `G_K` fixes every element of `K`. -/
+theorem evenRangeF_gr_fix (g : GalK K) {x : ℚ̄₂} (hx : x ∈ K) : evenRangeF_gr g x = x :=
+  (IntermediateField.mem_fixingSubgroup_iff K
+    (show ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂ from g.1)).mp g.2 x hx
+
+/-- **`χ ≡ 7 (mod 8)` negates `β = ζ − ζ⁻¹`.** -/
+theorem evenRangeF_gr_beta_of_seven (g : GalK K) (hu : evenRangeF_chiEight g = 7) :
+    evenRangeF_gr g evenRangeF_beta = -evenRangeF_beta := by
+  have hz := evenRangeF_gr_zeta g
+  rw [hu, show (7 : ZMod 8).val = 7 from by decide] at hz
+  simp only [evenRangeF_beta, map_sub, map_inv₀, hz, evenRangeF_zeta_pow_seven, inv_inv]
+  ring
+
+/-- **`χ ≡ 5 (mod 8)` negates `α = ζ + ζ⁻¹`.** -/
+theorem evenRangeF_gr_alpha_of_five (g : GalK K) (hu : evenRangeF_chiEight g = 5) :
+    evenRangeF_gr g evenRangeF_alpha = -evenRangeF_alpha := by
+  have hz := evenRangeF_gr_zeta g
+  rw [hu, show (5 : ZMod 8).val = 5 from by decide] at hz
+  simp only [evenRangeF_alpha, map_add, map_inv₀, hz, evenRangeF_zeta_pow_five, inv_neg]
+  ring
+
+/-- **`χ ≡ 7 (mod 8)` fixes `α = ζ + ζ⁻¹`.** -/
+theorem evenRangeF_gr_alpha_of_seven (g : GalK K) (hu : evenRangeF_chiEight g = 7) :
+    evenRangeF_gr g evenRangeF_alpha = evenRangeF_alpha := by
+  have hz := evenRangeF_gr_zeta g
+  rw [hu, show (7 : ZMod 8).val = 7 from by decide] at hz
+  simp only [evenRangeF_alpha, map_add, map_inv₀, hz, evenRangeF_zeta_pow_seven, inv_inv]
+  ring
+
+variable [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- Every cyclotomic value on `G_K(2)` is already a value on `G_K`. -/
+theorem evenRangeF_exists_chiCycK {v : ℤ_[2]ˣ}
+    (hv : v ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom) :
+    ∃ g : GalK K, chiCycK K g = v := by
+  rw [GQ2.Dyadic.LSquare.range_chiCycKTwo_eq_chiCycKAb] at hv
+  obtain ⟨a, ha⟩ := hv
+  obtain ⟨g, rfl⟩ := surjective_toAbK K a
+  exact ⟨g, (chiCycKAb_toAbK K g).symm.trans ha⟩
+
+/-- **The branch fact from a period lying in `K`.**  If a nonzero `x ∈ K` is negated by every
+Galois element whose cyclotomic value has residue `r` modulo `8`, then no cyclotomic value has
+residue `r`: such an element would have to fix `x` as well, forcing `x = 0`. -/
+theorem evenRangeF_notMem_range_of_neg {x : ℚ̄₂} (hx : x ∈ K) (hx0 : x ≠ 0) {r : ZMod 8}
+    (hneg : ∀ g : GalK K, evenRangeF_chiEight g = r → evenRangeF_gr g x = -x)
+    {v : ℤ_[2]ˣ} (hv : PadicInt.toZModPow 3 ((v : ℤ_[2])) = r) :
+    v ∉ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom := by
+  intro hmem
+  obtain ⟨g, hg⟩ := evenRangeF_exists_chiCycK hmem
+  have hr : evenRangeF_chiEight g = r := by
+    simp only [evenRangeF_chiEight, hg]
+    exact hv
+  have h1 := hneg g hr
+  rw [evenRangeF_gr_fix g hx] at h1
+  have h2 : (2 : ℚ̄₂) * x = 0 := by linear_combination h1
+  rcases mul_eq_zero.mp h2 with h | h
+  · exact absurd h (by norm_num)
+  · exact hx0 h
+
+end GaloisAction
+
+/-! ## §6 The periods at the model fields
+
+`ℚ₂(√−2)` contains `β` and `ℚ₂(√2)` contains `α`, in each case because the field's chosen square
+root and the period have the same square and therefore agree up to sign.  §5 then reads off the
+residue each field forbids: `7` at `ℚ₂(√−2)`, which is `−1`, and `5` at `ℚ₂(√2)`. -/
+
+section ModelPeriods
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+open GQ2.Dyadic.Fields
+
+/-- Two elements of `ℚ̄₂` with the same square agree up to sign. -/
+theorem evenRangeF_eq_or_eq_neg {x y : ℚ̄₂} (h : x ^ 2 = y ^ 2) : x = y ∨ x = -y := by
+  rcases mul_eq_zero.mp (show (x - y) * (x + y) = 0 by linear_combination h) with h' | h'
+  · exact Or.inl (sub_eq_zero.mp h')
+  · exact Or.inr (eq_neg_of_add_eq_zero_left h')
+
+/-- `β = ζ − ζ⁻¹` lies in `ℚ₂(√−2)`. -/
+theorem evenRangeF_beta_mem_sqrtNegTwo : evenRangeF_beta ∈ KSqrtNegTwo := by
+  have hsq : evenRangeF_beta ^ 2 = sqrtIn (-2) ^ 2 := by
+    rw [evenRangeF_beta_sq, sqrtIn_sq, map_neg, map_ofNat]
+  rcases evenRangeF_eq_or_eq_neg hsq with h | h
+  · exact h ▸ sqrtIn_mem_quadField (-2)
+  · exact h ▸ neg_mem (sqrtIn_mem_quadField (-2))
+
+/-- `α = ζ + ζ⁻¹` lies in `ℚ₂(√2)`. -/
+theorem evenRangeF_alpha_mem_sqrtTwo : evenRangeF_alpha ∈ KSqrtTwo := by
+  have hsq : evenRangeF_alpha ^ 2 = sqrtIn 2 ^ 2 := by
+    rw [evenRangeF_alpha_sq, sqrtIn_sq, map_ofNat]
+  rcases evenRangeF_eq_or_eq_neg hsq with h | h
+  · exact h ▸ sqrtIn_mem_quadField 2
+  · exact h ▸ neg_mem (sqrtIn_mem_quadField 2)
+
+/-- `−1` reduces to `7` modulo `8`. -/
+theorem evenRangeF_neg_one_modEight :
+    PadicInt.toZModPow 3 (((-1 : ℤ_[2]ˣ) : ℤ_[2])) = (7 : ZMod 8) := by
+  rw [Units.val_neg, Units.val_one, map_neg, map_one]
+  decide
+
+/-- `5 = 1 + 2^2` reduces to `5` modulo `8`. -/
+theorem evenRangeF_five_modEight :
+    PadicInt.toZModPow 3 (((evenRangeF_onePlus 2 : ℤ_[2]ˣ) : ℤ_[2])) = (5 : ZMod 8) := by
+  rw [evenRangeF_onePlus_val (by omega)]
+  simp only [map_add, map_one, map_pow, map_ofNat]
+  decide
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- **`−1` IS NOT A CYCLOTOMIC VALUE AT `ℚ₂(√−2)`.**  The branch fact, proved.  A Galois element
+over `ℚ₂(√−2)` with `χ = −1` would have residue `7` modulo `8`, hence would negate
+`β = ζ − ζ⁻¹`; but `β` spans the same quadratic as `√−2` and so is fixed. -/
+theorem evenRangeF_neg_one_notMem_sqrtNegTwo :
+    (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := KSqrtNegTwo)).toMonoidHom :=
+  evenRangeF_notMem_range_of_neg evenRangeF_beta_mem_sqrtNegTwo evenRangeF_beta_ne_zero
+    (fun _ hg => evenRangeF_gr_beta_of_seven _ hg) evenRangeF_neg_one_modEight
+
+/-- **`5` IS NOT A CYCLOTOMIC VALUE AT `ℚ₂(√2)`.**  The same argument at the other period: a
+Galois element with `χ = 5` negates `α = ζ + ζ⁻¹`, which is `±√2` and so is fixed. -/
+theorem evenRangeF_five_notMem_sqrtTwo :
+    evenRangeF_onePlus 2 ∉ MonoidHom.range (chiCycKTwo (K := KSqrtTwo)).toMonoidHom :=
+  evenRangeF_notMem_range_of_neg evenRangeF_alpha_mem_sqrtTwo evenRangeF_alpha_ne_zero
+    (fun _ hg => evenRangeF_gr_alpha_of_five _ hg) evenRangeF_five_modEight
+
+end ModelPeriods
+
+/-! ## §7 `ℚ₂(√−2)`: the range identity and the endpoint, unconditional
+
+The headline.  §6 proved the branch fact and §3 showed it is the only one a quadratic `N` field
+needs, so the range identity at `ℚ₂(√−2)` is a theorem, and composing it with the wave-66 endpoint
+`parityFinal_orientedEquivN_sqrtNegTwo` removes the last hypothesis from the first even field in
+the campaign.  What remains on the endpoint is the reciprocity bundle (a datum, parametrized here
+rather than instantiated, so `markedRecipAt` is not summoned) and the standing profinite instance
+binders. -/
+
+section SqrtNegTwo
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+open GQ2.Dyadic.Fields
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **`hrange` AT `ℚ₂(√−2)`, PROVED.**  The cyclotomic image on `G_K(2)` for `K = ℚ₂(√−2)` is
+exactly `imChiN 2`, the value the wave-56 census measured.  The branch comes from `β = ζ − ζ⁻¹`
+lying in `K` (§6) and the depth from the degree (§3); no measurement is carried. -/
+theorem hrangeFinal_sqrtNegTwo (B : MarkedRecip R KSqrtNegTwo) :
+    MonoidHom.range (chiCycKTwo (K := KSqrtNegTwo)).toMonoidHom = imChiN 2 :=
+  evenRangeF_eq_imChiN_two_of_quadratic B _
+    GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq
+    (not_hasEqualNormValueGroups_KSqrtNegTwo _
+      GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq)
+    finrank_KSqrtNegTwo evenRangeF_neg_one_notMem_sqrtNegTwo
+
+/-- **THE FIRST EVEN FIELD CLOSED UNCONDITIONALLY.**  `G_K(2)` for `K = ℚ₂(√−2)` is
+oriented-isomorphic to the `N` core at depth `2` and handle count `0`, over the reciprocity bundle
+and the standing instance binders alone.  Every previous form of this statement carried `hrange`;
+this one does not. -/
+theorem hrangeFinal_orientedEquivN_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip R KSqrtNegTwo) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 2 0) (chiCycKTwo (K := KSqrtNegTwo))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivN_sqrtNegTwo (hrangeFinal_sqrtNegTwo B)
+
+end SqrtNegTwo
 
 end GQ2.Dyadic.EvenRangeModel
