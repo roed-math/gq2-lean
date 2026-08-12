@@ -448,10 +448,12 @@ end Quartic
 Each is §2's endpoint at a literal field, with the degree binder discharged and the branch
 identification carried.  What each carries beyond `hrange` is exactly one supply.
 
-The `hrange` binder is the honest residue and is the same residue the wave-55 models had: no
-statement in the tree computes the cyclotomic range at a named even-degree field, because that is
-local class field theory at a named field.  Wave 56 measured it at the two pilot fields, and
-`scripts/w57_model/` measures it at the quartic. -/
+The `hrange` binder is the honest residue and is the same residue the wave-55 models had.
+(Superseded at wave 67: `EvenRangeModelFields.lean` now computes the range at the named
+fields, `hrangeFinal_sqrtNegTwo` proving `imChiN 2` at `ℚ₂(√−2)` outright and
+`hrangeFinal_sqrtTwo` proving `imChiM 3` at `ℚ₂(√2)` over a base reciprocity bundle; the
+quartic stays measured, two named costs recorded there.)  Wave 56 measured it at the two
+pilot fields, and `scripts/w57_model/` measures it at the quartic. -/
 
 section Models
 

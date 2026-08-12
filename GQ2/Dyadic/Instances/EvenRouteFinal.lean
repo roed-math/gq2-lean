@@ -57,10 +57,11 @@ Both structures carry exactly two binders beyond `Hfam`, and both are genuinely 
   tree (`finrank_KQuarticN_even`, `finrank_KSqrtNegTwo`, `finrank_KSqrtTwo`).
 * `branch : ∃ α ≥ 2, range χ_cyc = imChiN α` (resp. `imChiM α`).  This is what places `K` on the
   branch at all, and it is what the level-three stage base is built from
-  (`evenEndpoint_nStageBase`, `evenDeepIsotropy_mStageBase`).  It is **measured**, never proved:
-  no statement in the tree computes the cyclotomic range at a named even-degree field, because
-  that is local class field theory at a named field.  Wave 56's census and `scripts/w57_model/`
-  measure it at the three model fields.
+  (`evenEndpoint_nStageBase`, `evenDeepIsotropy_mStageBase`).  (Status corrected at wave 67:
+  the range IS now computed at the two quadratic model fields, `EvenRangeModelFields.lean`,
+  `hrangeFinal_sqrtNegTwo` and `hrangeFinal_sqrtTwo`; at the quartic it stays measured, per
+  wave 56's census and `scripts/w57_model/`, with the two remaining costs named in that
+  file.)
 
 Nothing else survives.  In particular the `M` branch carries **no** ramification binder: the
 `κ ≠ 0` that `evenDeepIsotropy_mStageBase` needs is read off the identification by

@@ -198,9 +198,11 @@ is neither.  So the quartic carries NO classification statement here, only its b
 endpoint.
 
 The branch-pinned forms, at the depths the wave-56 census measured, are recorded at all three
-model fields: those carry `hrange` and nothing else beyond the standing instance binders, which
-is the honest shape, since no statement in the tree computes the cyclotomic range at a named
-field. -/
+model fields: those carry `hrange` and nothing else beyond the standing instance binders.
+(Superseded at wave 67: `EvenRangeModelFields.lean` discharges `hrange` at the two quadratic
+fields, `hrangeFinal_orientedEquivN_sqrtNegTwo` closing `ℚ₂(√−2)` unconditionally and the
+`ℚ₂(√2)` twin closing over a base reciprocity bundle; the quartic's `hrange` stays open with
+its two costs named there.) -/
 
 section Models
 

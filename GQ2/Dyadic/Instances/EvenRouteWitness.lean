@@ -326,8 +326,10 @@ statement is the branch sign condition and the two named inputs, and nothing els
 
 The sign conditions are the classical facts that `√−2 = ζ₈ − ζ₈⁻¹` is negated by complex
 conjugation while `√2 = ζ₈ + ζ₈⁻¹` is fixed by it, so `−1 ∉ range χ` on the first field and
-`−1 ∈ range χ` on the second.  Neither is in the tree, and neither is claimed here; they are
-named as the residue. -/
+`−1 ∈ range χ` on the second.  (Status corrected at wave 67: both are now in the tree,
+`EvenRangeModelFields.lean`, the first via exactly this period argument,
+`evenRangeF_neg_one_notMem_sqrtNegTwo`, and the second over a base reciprocity bundle,
+`evenRangeF_neg_one_mem_sqrtTwo`.) -/
 
 section Literal
 
