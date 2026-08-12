@@ -1,5 +1,29 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 68 (2026-08-12)
+
+**ONE NEW ITEM FOR YOU, small and architectural** (everything else below is unchanged):
+
+* **May a `SqCore` module import a `Count` module?**  No such import exists today.  The
+  class-four step wants to cite the committed
+  `dsqSigma_pow_four_not_mem_twoCentralSeries_four` (in `Count`) to record that the
+  class-three argument provably cannot be replayed one class up.  The lane verified the
+  two-line derivation out of band and deliberately did not commit it, because making wave 68
+  the first `SqCore -> Count` import is your call, not a worker's.  The alternatives are to
+  re-prove the fact inside `SqCore`, or to hoist it to a shared lower module.
+
+**For orientation, the wave's results.**  The `h >= 1` residual now provably starts at
+**class four**: the class-three clearing supply is discharged for every handle count, every
+selected marking and every handle, by reading the question on the tower instead of a graded
+slice (the relator is bilinear mod gamma_3, and dressing the sigma- and x0-slots by one
+common element cancels the Eichler twist against the handle defect).  Wave 67's named attack
+surface, the row-lifting question, is answered and is not an obstruction: the joint row image
+on every kernel contains the full square.  What class four needs is stated exactly, and it is
+genuinely a different calculus.  On the even side, `Q2(beta)` (the quartic) is now the third
+unconditionally closed field: its ramification fact is proved outright by a norm-power route,
+and the mod-16 obstruction dissolved.  Final state `649ba08a`: 4319 jobs green, census 11,
+zero sorries, capstones frozen.
+
 ## Status at wave 67 (2026-08-11)
 
 **Open, still yours (unchanged):** the standing items below.  Nothing new needs a decision.
