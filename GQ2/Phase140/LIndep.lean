@@ -11,7 +11,8 @@ import GQ2.AffineTLift
 
 The (140) witness `μ` of `prop_8_9` is fixed once, at a reference scalar `l₀`
 (`docs/orchestration/p16d6-concrete-spec.md` §1: `μ := Nat.card (TCocycle (En.radData l₀ h₀) …)`), but the
-`phase140_of_nonsingular` field needs `hμ (l h) : ∀ ρ, Nat.card (TCocycle (En.radData l h) …) = μ`
+`phase140_of_phaseObstruction` binder needs `hμ (l h) : ∀ ρ, Nat.card (TCocycle (En.radData l h)
+…) = μ`
 at the **current** scalar `l`.  Combined with the `ρ`-independence of the Prop. 8.9 assembly
 (`tcocycle_mu_indep`), that requires the count to be **independent of `l`** as well.
 

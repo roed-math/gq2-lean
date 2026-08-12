@@ -23,7 +23,8 @@ namespace GQ2
 
 /-! ## The weight-orbit kernel: the involution counting bound
 
-`involution_fixedPoints_sq_le` was the last `sorry` of the `lemma_6_11` chain (the paper's
+`involution_fixedPoints_sq_le_of_odd_normal` was the last `sorry` of the `lemma_6_11` chain
+(the paper's
 pp. 29–30 weight-orbit content).  It is proved here by an **explicit `𝔽₂`-rational trace
 element** — a recorded deviation from the paper's `𝔽̄₂` weight-orbit argument: no base
 change, no idempotent decomposition, no semilinear algebra.
@@ -632,8 +633,8 @@ theorem involution_fixedPoints_sq_le_of_odd_normal {C : Type} [Group C]
 /-- **The Sylow-2 fixed-space bound on a ramified simple faithful module.**  The full bound
 `#V^P ^ |P| ≤ #V` follows (via `card_fixedPoints_pow_le_of_half`, the elementary-abelian
 reduction) from the **involution counting bound** `#V^ω ^ 2 ≤ #V` for the involution
-`ω = g₀^{2^{s-1}}` in the cyclic Sylow-2 subgroup (`involution_fixedPoints_sq_le` above,
-which needs `1 ≤ s`); a trivial Sylow-2 subgroup gives the bound by subtype counting.
+`ω = g₀^{2^{s-1}}` in the cyclic Sylow-2 subgroup (`involution_fixedPoints_sq_le_of_odd_normal`
+above, which needs `1 ≤ s`); a trivial Sylow-2 subgroup gives the bound by subtype counting.
 
 Faithfulness is genuinely needed (Remark 6.12: `C₃ ⋊ C₄` acting through `S₃` on `𝔽₄` is
 ramified simple but its central `C₂` fixes everything, so `#V^ω = #V > #V^{1/2}`). -/

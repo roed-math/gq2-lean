@@ -787,4 +787,26 @@ theorem.
 
 ---
 
+## Addendum (W70-HOUSE, 2026-08-12): a third API finding, the element bracket
+
+The element bracket `⁅a, b⁆` does not elaborate in `GQ2.Dyadic.SqCore` (`failed to synthesize
+instance of type class Bracket G G`), and wave 69 read that as a `SqCore` defect. It is not one.
+Mathlib's `commutatorElement : Bracket G G` is a `def` carrying `attribute [scoped instance]`
+inside `namespace commutatorElement` (`Mathlib/Algebra/Group/Commutator.lean`), deliberately, to
+avoid clashing with other brackets; `Bracket G G` is therefore unsynthesizable in *any* file
+until that file writes `open scoped commutatorElement`. Ten `SqCore` files already do, so nothing
+here is forced by the elaborator to spell brackets as `commP`. What disguises the cause: the
+subgroup bracket `⁅H, K⁆` needs no `open` (`Subgroup.commutator` is a global instance), and
+`commutatorElement_def` resolves by name (a theorem is not an instance).
+
+The `open` was **not** installed in `SqCore/Cores.lean`, on purpose. It is file-local, so it
+cannot serve on behalf of the 77 `SqCore` modules that import that file; and, decisively, the two
+brackets are different functions, `commP a b = ⁅a⁻¹, b⁻¹⁆`. Opening the notation alongside
+`commP` would arm the trap rather than defuse it, since `⁅v, g⁆` would elaborate and silently
+mean something other than `commP v g`. Port `TwoCentralTower` lemmas down through that identity
+instead of by opening the notation and matching shapes. Full diagnosis in the header of
+`GQ2/Dyadic/SqCore/Cores.lean`.
+
+---
+
 *End of memo. Ticket SQ1, branch `dyadic-sq1`.*

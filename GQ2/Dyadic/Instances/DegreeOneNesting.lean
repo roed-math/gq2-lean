@@ -328,8 +328,11 @@ theorem gammaR_lSq_equiv_galK_oddDegree_of_orientedClear_nested (B : MarkedRecip
 /-- **THE NESTED DEGREE-ONE MILESTONE.**  Statement-for-statement the committed
 `NuAdapted.gammaR_lSq_equiv_galK_degreeOne`: at `[K : ℚ₂] = 1` the odd-degree row of the
 general-`K` machine holds outright, `Γ_{R_K} ≅ G_K`.  Only the route differs (every use of
-`markedRecipAt` is replaced by the caller's own bundle `B`), and the print drops five census
-members, landing strictly inside the frozen `ℚ₂` capstone's nine.  §7 pins that.
+`markedRecipAt` is replaced by the caller's own bundle `B`), and the print drops four census
+members, landing strictly inside the frozen `ℚ₂` capstone's nine.  §7 pins that.  (Wave 70
+corrected the count, which read five: the census is **11** as this file's header records, the
+print carries the seven of `{B1, B3c, B6, B7, B8, B9, B11a}`, and the four it drops are
+`localReciprocity`, `markedRecipAt`, `tameQuotient` and `orientedTameQuotientAt`.)
 
 ⚠ **Not the theorem the paper quotes** (owner decision, 2026-08-12): the paper quotes
 `NuAdapted.gammaR_lSq_equiv_galK_degreeOne` and states the nesting as a measured remark.

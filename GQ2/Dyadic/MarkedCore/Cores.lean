@@ -80,8 +80,11 @@ with `α ≥ 2` (`GQ2/Dyadic/Parameters.lean` `LabuteType.M/N`, validity `2 ≤ 
   frames as hypotheses, exactly as `prop_3_8_classification` consumes `BDecomposition`
   (`GQ2/AnabelianBridge/Classification.lean`); every frame consequence they need (forced
   row, torsion relation, `q`-invariant) is derived here *from the structure*.
-* The `H¹`/`H²` **bridge** `obsH2_DM`/`obsH2_DN` and hence `IsDemushkin`, `card_H1`,
-  `card_H2`.  `GQ2/Roe/DRWordCoh.lean`'s `relZ`/`obs` layer is hard-wired to `drWord` and
+* The `H¹`/`H²` **bridge** `obsH2_DM`/`obsH2_DN` and hence `IsDemushkin` with its `finiteH1` and
+  `cardH2` clauses.  (Wave 70: this line used to cite `card_H1` and `card_H2`; the first names a
+  theorem about `AbsGalQ2` rather than a core, the second names nothing.  `IsDemushkin`'s own
+  fields are `finiteH1` and `cardH2`, `GQ2/Demushkin.lean:115`.)
+  `GQ2/Roe/DRWordCoh.lean`'s `relZ`/`obs` layer is hard-wired to `drWord` and
   `Fin 3` (only its `TwoCocycle`/`CentExt` algebra is generic, and that is what §6 uses); a
   relator-generic port is a separate ticket.  §6 delivers the *mathematical* content that port
   would consume — the cup Gram value of both relators, α-uniformly.

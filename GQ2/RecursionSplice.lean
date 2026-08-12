@@ -330,7 +330,9 @@ omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] in
 /-- **The `|V| = |M_B|/|T_B|` match** (the Prop. 8.9 assembly): the enrichment's descent `M_B ↠ V` with
 `ker = T_B` gives `|V| = |M_B|/|T_B|` by the first isomorphism theorem — discharging the `hWV`
-cardinality match of `phase140_of_nonsingular` directly from `En` (with `W := En.Vmod`). -/
+cardinality match of `phase140_of_phaseObstruction` directly from `En` (with `W := En.Vmod`).
+(Wave 70 fixed the name here, which read `phase140_of_nonsingular`; the reducer carrying the
+`hWV` and `hμ` binders is `phase140_of_phaseObstruction`.) -/
 theorem enrichment_card_Vmod {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
     [Finite Y] {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
     (RF : RecursionFrame T Blk) (En : RF.Enrichment) [Finite ↥RF.MB] :

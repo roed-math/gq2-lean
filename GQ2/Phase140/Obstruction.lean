@@ -24,9 +24,10 @@ continuous hom `f : Γ → C₀` lifts through the cover.  This file builds that
   and the `s_Γ(ζ)`-to-`n_{Γ,0}(ζ)` conversion.
 * **`phaseSign`/`sum_phaseSign`** — the signed liftability count (141):
   `Σ_ρ (±1) = 2·n_{Γ,0}(ζ) − e_Γ(C)`.
-* **`phase140_of_phaseObstruction`** — the **paper-faithful (140) reducer**: unlike
-  `phase140_of_nonsingular` (which routes through the `Lin`/`κ_ρ`/`ε_ρ`/`N(κ,ε)`-interpolation of
-  `lemma_8_5`), this reducer consumes the per-`ρ` **phase-obstruction identity**
+* **`phase140_of_phaseObstruction`** — the **paper-faithful (140) reducer**: unlike the earlier
+  design, which routed through the `Lin`/`κ_ρ`/`ε_ρ`/`N(κ,ε)`-interpolation of `lemma_8_5` and
+  which the tree does not carry as a declaration, this reducer consumes the per-`ρ`
+  **phase-obstruction identity**
 
   `2·|D_T| · #(central red_T image)(ρ) = |V| · (|V| + G0 · Σ_ζ phaseSign(ζ, ρ))`
 
@@ -373,8 +374,9 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 
 open AffineTLift CentralObstruction in
 /-- **The (140) display from per-`ρ` phase-obstruction data** (the Prop. 8.9 assembly, paper-faithful form).
-Unlike `phase140_of_nonsingular` (which interpolates through `lemma_8_5`'s
-`Lin`/`κ_ρ`/`ε_ρ`/`N(κ,ε)` data), this reducer consumes the identity the paper's Prop 8.9 proof
+Unlike the earlier design, which interpolated through `lemma_8_5`'s `Lin`/`κ_ρ`/`ε_ρ`/`N(κ,ε)`
+data and which no declaration in the tree carries, this reducer consumes the identity the
+paper's Prop 8.9 proof
 actually produces per lower map (pp. 42–43, (126)+(135) before the `ρ`-sum):
 
   `2·|D_T| · #(central red_T image)(ρ) = |V| · (|V| + G0 · Σ_ζ (±1)_{ζ,ρ})`,

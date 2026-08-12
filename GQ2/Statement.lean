@@ -69,7 +69,8 @@ readings provably agree).  The literal Theorem 1.2 is stated there as
 
 The schematic form below keeps the top-level logic explicit and checked: given Prop. 2.3 for a
 candidate (`hΓA`: its continuous surjection counts are the admissible-marking counts) and
-topological finite generation, `reconstruction` (Lemma 2.5) + `main_surjection_count` deliver
+topological finite generation, `reconstruction` (Lemma 2.5) + `SectionTen.main_surjection_count'`
+deliver
 the isomorphism.  `GQ2/PresentationLiteral.lean` instantiates it at `Γ_A`, discharging `hΓA`
 (paper §2, Prop. 2.3) and `hfgΓ`.
 -/

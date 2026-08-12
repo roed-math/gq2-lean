@@ -112,8 +112,11 @@ theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [F
     thm_4_2 boundaryMapsWitness (tameFrame α.1 α.2) localReciprocity
       tameUnitOrientation_witness (tameTarget G) hE2
 
-/-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
-Prop 2.3.  The original `Statement.lean` placeholder was resolved by the statement-move pattern
+/-- **Theorem 1.2, surjection-count form**, proved from eq. (154) +
+Prop 2.3.  (Wave 70: this line used to cite `GQ2.main_surjection_count`, which names no
+declaration in the tree; the count identity is the theorem below, and the paper's Theorem 1.2 is
+what the bare name refers to.)  The original `Statement.lean` placeholder was resolved by the
+statement-move pattern
 (Statement is upstream of the tower); the moved statement carries the tower-standing
 `AbsGalQ2` instance binders. -/
 theorem main_surjection_count'
