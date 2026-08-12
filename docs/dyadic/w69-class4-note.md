@@ -16,6 +16,17 @@ class-four obligation to a single identity in `Q4 = levelQuot (DSq h) 4`:
 handle letters miss the plain handle bracket.  So the class-four attack surface is one element
 of one abelian group, not a word problem.
 
+> **[W72-HOUSE, watch round 9.]  "The whole class-four obligation" overstates the theorem, and
+> wave 70 showed why.**  `cfour_supply_of_eichDefect` is a **sufficient** condition, and its
+> hypothesis is the trivial dressing's.  Wave 70's `cfourId_bridgeDefect_of_eichDefect` and
+> `cfourId_base_relator_three_of_eichDefect` (`SqCore/GradedClassFourIdentity.lean:24-31`) show
+> that `cfourEichDefect nu' j = 1` *forces* `bridgeDefect nu' j = 1`, so the hypothesis is
+> exactly the assertion that wave 68 never needed its dressing, and wave 70 records it as "not a
+> plausible thing to prove".  What wave 69 committed is a real reduction along **one** route;
+> the obligation `SqClassClearingSupply h 4` quantifies over every admissible dressing.  The
+> honest headline is "a sufficient condition for class four, with the trivial dressing, that is
+> one element of one abelian group".
+
 All declarations pin to the standard three axioms (several to strict subsets); no `sorry`, no
 new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 
