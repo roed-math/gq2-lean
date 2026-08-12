@@ -11,7 +11,8 @@ import GQ2.AdmissibleLimit
 The paper's **Prop. 2.3** (§2.2): for every finite group `G`, continuous surjections
 `Γ_A ↠ G` correspond bijectively to *admissible marked generating quadruples* in `G`, so
 `Nat.card (ContSurj Γ_A G) = admissibleCount G`.  This is the `Γ_A` half of the
-surjection-count Theorem 1.2 (the `G_{ℚ₂}` half is `main_surjection_count`, Track B); together
+surjection-count Theorem 1.2 (the `G_{ℚ₂}` half is `SectionTen.main_surjection_count'`, Track
+B); together
 with Lemma 2.5 (`reconstruction`, the reconstruction proof) and t.f.g. (the finite-generation proof) it yields the literal presentation
 form in the literal-presentation proof.
 

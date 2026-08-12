@@ -34,7 +34,8 @@ Clifford, Ann. of Math. **38** (1937) 533–550, and Higman, Duke Math. J. **21*
    criterion `free_of_card_fixedPoints_pow_le` (geometric-series retraction, no structure
    theorem) reduces freeness to the bound `#V^P ^ |P| ≤ #V`; Jordan-block concavity
    (`card_fixedPoints_pow_le_of_half`) reduces the bound to the single involution
-   `ω = g₀^{2^{s−1}}`; and `involution_fixedPoints_sq_le` proves `#V^ω ^ 2 ≤ #V` by an
+   `ω = g₀^{2^{s−1}}`; and `involution_fixedPoints_sq_le_of_odd_normal` proves `#V^ω ^ 2 ≤ #V`
+   by an
    explicit `𝔽₂`-rational **trace element** (see the `InvolutionKernel` section header) —
    a recorded deviation from the paper's `𝔽̄₂` weight-orbit argument.
 3. Freeness over `P` ⟹ split summand over `C`: the odd-index relative trace
