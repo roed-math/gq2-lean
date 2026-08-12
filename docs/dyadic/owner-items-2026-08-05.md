@@ -1,5 +1,36 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 72 (2026-08-12)
+
+**Nothing awaits you.**  All five decisions are taken and implemented; this wave needed none.
+
+**For orientation.**  Class four is now reduced to a single explicit question, and one piece of
+housekeeping turned up something you should know about.
+
+* **Class four reduces to one `x₁`-free defect.**  A single explicit correction of wave 68's
+  frame removes everything else from the leftover.  What remains is a product of three
+  `Y`-elements, and the question is whether it is a knob.  The inventory makes `Z`-elements in
+  exactly two shapes, brackets and squares-bundled-with-a-bracket, and the defect is `x₁`-free
+  while the `x₁`-slot bundle, the only source of squares, is already spent.  So a presentation
+  would have to come from the other four slots.  That is a concrete, checkable question, and it
+  is where class four now stands.  One technical lemma is also missing before the reduction is
+  fully tight, and its ingredients all exist.
+* **A module had never been built.**  The manifest audit found `SqCore/NuSeeds.lean`, landed on
+  2026-08-05, imported by nothing.  Because the build roots only `GQ2.lean`, its eight
+  declarations had never been in a green build, through seven waves of accurate green reports.
+  It typechecks clean at the standard axioms and is now registered.  Nothing else in the tree
+  is unreachable except the axiom ledger, which is meant to be.
+* **On the even side**, the cup-adapted frame is now refuted outright on the unramified stratum
+  rather than only its model equivalence, and the refutation covers both rows at once.  The
+  surviving point turned out to be a ten-field structure rather than a single condition; six
+  fields are already free, and the remaining two halves each have a committed route that is
+  blocked rather than merely unproved.
+
+**One thing on my own record**, since it recurs.  The false claim about the element bracket that
+watch round nine was sent to kill had already spread through three notes, twice inside a single
+wave.  My brief for that lane repeated the wrong file count while sending it to fix the claim.
+The correction is now in the modules, not only in the notes.
+
 ## Status at wave 71 (2026-08-12)
 
 **Nothing awaits you.**  All five decisions are taken and implemented; this wave needed none.
