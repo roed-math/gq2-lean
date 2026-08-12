@@ -13,7 +13,8 @@ declarations have never been in a green build.  It typechecks clean at std-3 tod
 one-line patch in §1(a) is safe.  No duplicate and no dangling import line.  One doc file map
 mismatches the tree in both directions.
 
-**Ticket 2.**  36 findings.  The five worth reading first:
+**Ticket 2.**  **37** labelled findings (12 high, 13 medium, 3 medium-low, 9 low), plus the known
+item of §2.0 and the two dangling Lean citations of §1(c).  The five worth reading first:
 
 1. **A false census claim sitting on top of an axiom block.**
    `EvenStratumPoint.lean:371` says "Every declaration is expected std-3"; `mirror.sh` says five
