@@ -39,7 +39,7 @@ knob theorems are a proved SUFFICIENT mechanism and not a classification of the 
 
 ## ⭐⭐⭐ Headline 2: the engine, with the knob removed
 
-⭐⭐⭐ `censAch_lines_false_sig`, `_x0`, `_u`, `_v`.  At a marking whose relator is an ODD
+⭐⭐⭐ `censAch_lines_false_sig`, `_x0`, `_u`.  At a marking whose relator is an ODD
 CENTRAL translation, **any** achievable element whose single-slot dressing kills the relator
 refutes all three `gamma_2` lines.  This is `cens_lines_false_of_sigKnob` with the knob
 replaced by an arbitrary lattice element: the shift is central *because* the dressed relator
@@ -87,7 +87,7 @@ at all.
 
 **PROVED** here, no `sorry`, no new axiom, no `native_decide`, every `decide` on `SqU6 (ZMod 8)`,
 `ZMod 8` or `ZMod 2` (`selPar` lands in `ZMod 2`, so every residue-parity side condition is a
-`ZMod 2` decision): the four engines; the `67` kills with their certificates; the horn-2
+`ZMod 2` decision): the three engines; the `67` kills with their certificates; the horn-2
 equivalence and its eighteen instances; the kill at the ungauged point and the death of its sigma
 knob; and W65-SHARPEN's primed bound transported to the census (`censAch_dressing_even`: every
 achievable dressing has `f`, `g`, `h`, `j` even at a census point whose four free letters lie on
@@ -126,7 +126,7 @@ the census's own kill count of `4096` exactly.
 
 ## Contents
 
-* **1** the four engines and the new `x0` dressing; **2** ⭐⭐⭐ the `67` points;
+* **1** the three engines and the new `x0` dressing; **2** ⭐⭐⭐ the `67` points;
 * **3** ⭐⭐⭐ horn 2; **4** ⭐⭐⭐ the gauge; **5** the primed bound at a census point;
 * **6** axiom pins.
 
@@ -258,21 +258,6 @@ theorem censAch_lines_false_u
     (by ring) (censSlotU_isGaTwo (isGaTwo_of_mem_forceLcs hach))
     (fun i => censSlotU_mem_forceLcs hach i)
   rw [conFiveDress_fiveTuple_censSlotU, sqRelWord_fiveTuple, hkill, hr, censAch_liftO_neg]
-
-/-- ⭐⭐ **…and at the live handle's `v` slot.** -/
-theorem censAch_lines_false_v
-    (hres : sqWord S X Y * commP U V = SqU6.liftO c) (hodd : selPar c = 1)
-    (hkill : sqWord S X Y * commP U (V * w) = 1)
-    (hach : w ∈ forceLcs (Subgroup.closure (Set.range (fiveTuple gr3R h j S X Y U V))) 1) :
-    ¬ GaTwoForces (fiveTuple gr3R h j S X Y U V)
-      ∧ ¬ GaTwoCentral (fiveTuple gr3R h j S X Y U V)
-      ∧ ¬ GaTwoOrth (fiveTuple gr3R h j S X Y U V) := by
-  have hr : sqRelWord (fiveTuple gr3R h j S X Y U V) = SqU6.liftO c := by
-    rw [sqRelWord_fiveTuple]; exact hres
-  refine cens_lines_false_of_central_kill (g := -c) (z := censSlotV h j w) hr hodd ?_
-    (by ring) (censSlotV_isGaTwo (isGaTwo_of_mem_forceLcs hach))
-    (fun i => censSlotV_mem_forceLcs hach i)
-  rw [conFiveDress_fiveTuple_censSlotV, sqRelWord_fiveTuple, hkill, hr, censAch_liftO_neg]
 
 end Kill
 
@@ -1919,7 +1904,6 @@ section AxiomPins
 #print axioms censAch_lines_false_sig
 #print axioms censAch_lines_false_x0
 #print axioms censAch_lines_false_u
-#print axioms censAch_lines_false_v
 #print axioms censAchPt
 #print axioms censAch_fiveTuple_letters_mem
 #print axioms censAch_letters_mem
