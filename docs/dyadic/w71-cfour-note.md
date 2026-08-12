@@ -13,9 +13,12 @@ the optimistic direction.**
 
 1. **The missing directions are not directions the leftover has.**  `cfourKnob_leftover_eq`
    evaluates the leftover, and its **only** fourth power is `A⁴`, `A = bridgeDress nu' j` being
-   wave 68's dressing.  The generators' fourth powers `σ⁴` and `x₀⁴` occur in the dressed
-   frame's relator and in the generator relation alike, and cancel.  No `w⁴` cancellation is
-   needed anywhere, and wave 69's `A⁴`-computation, which §4 leaned on, is not used.
+   wave 68's dressing.  The generator fourth power `x₀⁴` occurs in the dressed frame's relator
+   and in the generator relation alike, and cancels; `σ⁴` occurs in **neither**, `cfour_sqRelWord`
+   carrying exactly one fourth power and that one being the `x₀`-slot's.  (Corrected at wave 73:
+   this line originally named both generators as cancelling, which is right about the conclusion
+   and wrong about the reason.)  No `w⁴` cancellation is needed anywhere, and wave 69's
+   `A⁴`-computation, which §4 leaned on, is not used.
 2. **`A⁴` is a knob outright.**  Admissibility of a square knob `c = d²` was measured in §4 by a
    codimension-two condition on the rows of `c`, repaired inside `γ₃` by `cfourId_row_repair`.
    That measurement is sound but does not govern the terms that occur: if `d` is **exactly**
@@ -23,7 +26,8 @@ the optimistic direction.**
    to be exactly row-trivial - that is what the pivot factor `w^{-2ν'(u)ν'(v)}` is for - so `A²`
    is a legal correction and `A⁴` is its square knob (`cfourKnob_dressSq_admissible`).
    Likewise every commutator is exactly row-trivial (`cfourKnob_comm_admissible`).
-3. **The `ad(x₁)²`-direction is reachable, but §4's argument for it is unsound.**  See §3 below.
+3. **The `ad(x₁)²`-direction is reachable modulo the uncommitted residue `⁅⁅A, x₁⁆, A⁆`, and
+   §4's argument for it is unsound.**  See §3 below, and §4 item 3 for the residue.
 
 So the wave-71 ticket's question - does the leftover lie in the knob subgroup - is answered
 `yes` for the two terms that were believed to be the obstruction, and remains open for one
