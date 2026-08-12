@@ -187,7 +187,9 @@ Commits (branch `claude/w73-stratum`, based on `6a8fbc90`), all path-limited:
 * `2f33a6b3` build the alpha = 1 Gram into the frame interface and produce an adapted frame
 * `9d64637b` settle what depth zero buys for the even climb's residual supply
 * `a4d7ad06` pin every named declaration and write the lane note
-* (final) state the refutation at the committed supply and scope it
+* `a426191d` state the refutation at the committed supply and scope it exactly
+
+plus one docs-only commit recording these hashes.
 
 ## 5.  For the orchestrator
 
