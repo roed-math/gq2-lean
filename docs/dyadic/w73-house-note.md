@@ -575,17 +575,20 @@ Said in detail, because a round that reports only hits is not a check.
 3. **`GradedClassFourDefect.lean:435-455`'s misplaced docstring** (§3.1(a)) is the round's top
    item and is a two-minute move, but it touches a wave-72 landing and should go to the lane that
    owns that file, or to a house lane once it is quiet.
-4. **`NuSeeds.lean`'s prose has never been audited before this round** (§3.2).  Six findings in
-   192 lines, two of them HIGH.  The registration at `a515b437` is what made it visible; the prose
-   should be brought up to the tree it now sits in, together with the `chifree-clearing-note.md`
-   staleness of §3.2(f), which round 9 also flagged and which is an owner call.
+4. **`NuSeeds.lean`'s prose has never been audited before this round** (§3.2).  **Eight** findings
+   in 192 lines, two of them HIGH: §3.2 has nine labels, of which (f) is about
+   `chifree-clearing-note.md` rather than the module.  The registration at `a515b437` is what made
+   the module visible; its prose should be brought up to the tree it now sits in, together with
+   that note's staleness, which round 9 also flagged and which is an owner call.
 5. **The two `GQ2/Roe/` R6 hazards remain live** (round 9's queue item 2): four docstrings citing
    the nonexistent `GQ2/Roe/DRH2.lean`, and `TwoCentralTower.lean:65-66` announcing `sorry`s in a
    sorry-free file.  Still frozen by plan A6, still needing an owner nod.  Unchanged this wave.
 6. **Round 11 should keep all three checklist items.**  Item 3 (a claim fixed in one file is often
    half a fix) earned its place immediately: it produced three reciprocal edits inside ticket 1
    alone, one of which, `GradedClassFour.lean:841`, is a module carrying the exact overreach that a
-   *later* module criticises it for.  It also produced a **null** result worth keeping visible, the
+   *later* module criticises it for, and one more inside ticket 3, §3.1(o), where correcting a
+   class-four headline and then grepping the phrase turned up the same defect at class five in a
+   wave-72 landing.  It also produced a **null** result worth keeping visible, the
    `EvenAlphaOne.lean` census sentence that turned out to be true.  A fourth item to consider:
    **a docstring can be attached to the wrong declaration**, which §3.1(a) is and which no previous
    round has looked for; the check is cheap, and is to read each `⭐` display against the statement
