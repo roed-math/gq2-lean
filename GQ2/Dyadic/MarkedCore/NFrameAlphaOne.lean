@@ -3,7 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under the Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
-import GQ2.Dyadic.Instances.EvenAlphaOne
+import GQ2.Dyadic.MarkedCore.NFrameExists
 
 /-!
 # W70-NFRAME4: the `ℤ/4` frame at `α = 1`, and `demushkinQ (D_N 1 h) = 4`
@@ -96,8 +96,9 @@ What this buys at the surviving point is one matching invariant and nothing beyo
 stratum at depth `α` carries `q = 2^α`, so depth `2` demands `q = 4`, and
 `evenUnram_head_eq_two_pow_iff` already showed that `2 + 2^a = 2^b` has the single solution
 `(a, b) = (1, 2)`; §7 supplies the group-side value that the arithmetic side demands.
-`nFrame4_survivingPoint_invariants` states that agreement as a conjunction, so that the range
-identity and the two core invariants are read together.
+`nFrame4_survivingPoint_invariants`, in the companion file
+`GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean`, states that agreement as a conjunction, so
+that the range identity and the core invariants are read together.
 
 What is **not** proved, here or anywhere in the tree, is that `G_{ℚ₂(i)}(2)` is isomorphic to any
 `DN 1 h`: no declaration asserts that in either direction.  An invariant match is not an
@@ -106,13 +107,15 @@ isomorphism, and the classification at that point still needs the marked and ori
 `q = 4` frame, a Gram at head exponent `4`, and a substitute for the relator-shift factorization
 at an even half-exponent) this file supplies the first and does not touch the other two.
 
-## Layering note
+## Layering
 
-This file sits in `MarkedCore/` but imports `Instances/EvenAlphaOne.lean`, because §8's invariant
-package needs `evenAlphaOne_isDemushkin_DN` and `EvenModel.demushkinRank_DN`, both of which live
-under `Instances/`.  It is the first `MarkedCore/` file to depend on `Instances/`, and nothing
-imports it, so the dependency is latent; §1 through §7 use only `MarkedCore/` material and could
-be moved back above `Instances/` by splitting §8 off.
+This file imports `MarkedCore/NFrameExists.lean` and nothing else, so every import stays inside
+`MarkedCore/` and the `q`-invariant is available above `Instances/`.  The composites that
+genuinely need `Instances/` material, the invariant package and the surviving-point statement,
+are in `GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean`, which imports this file and
+`Instances/EvenAlphaOne.lean`.  Splitting them off is what keeps a `MarkedCore/ -> Instances/`
+edge, which would have been the first of its kind, out of the tree; it follows the owner decision
+of 2026-08-12 (owner memo, decisions block, item 5) on the `SqCore`/`Count` boundary.
 
 ## Variance (MC-VAR discipline)
 
@@ -121,8 +124,8 @@ As in `NFrameExists.lean`, and for the same reason: everything here happens in t
 statement or proof in this file, so the `M`/`N` row-vs-column dictionary
 (`GQ2/Dyadic/MarkedCore/Variance.lean`) is not invoked and no transposition arises.  The
 `Finset.prod` inherited from `nAbWord` is a product in an abelian group, not a matrix product.
-The one import from outside the abelianization layer, `evenAlphaOne_isDemushkin_DN`, is consumed
-in §8 as a black box conjunct and is never unfolded.
+Nothing from the `H¹`/`H²` layer is cited anywhere in this file; the two statements that do cite
+it are in the companion `Instances/` file, which consumes them as black-box conjuncts.
 
 ## Contents
 
@@ -133,15 +136,17 @@ in §8 as a black box conjunct and is never unfolded.
 * **§5** The combined hom `nFourPhiHom` and its word formula.
 * **§6** Injectivity and surjectivity.
 * **§7** `nFrame4Exists_phiEquiv`, `nonempty_nFrame4`, and `demushkinQ (D_N 1 h) = 4`.
-* **§8** The invariant package, and the cross-check against `nFrameExists_isEmpty_one`.
+* **§8** The cross-check against `nFrameExists_isEmpty_one`.
 * **§9** Axiom pins.
+
+The invariant package `(rank, q) = (4 + 2h, 4)` and the surviving-point statement are in
+`GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean`; see the layering section above.
 
 ## Axiom scope (measured)
 
 Every declaration in this file prints at most `[propext, Classical.choice, Quot.sound]` (std-3);
 see §9.  This matches the `α ≥ 2` analogues `nonempty_nFrame` and `nFrameExists_demushkinQ_DN`.
-The §8 package inherits whatever `evenAlphaOne_isDemushkin_DN` carries, which is also std-3, so
-the package is std-3 as well.
+The companion file's package is std-3 as well, since the two inputs it adds are.
 -/
 
 open Multiplicative
@@ -602,62 +607,13 @@ So the `N`-row `q`-invariant is not uniform in `α`: it is `4` at `α = 1` and `
 theorem nFrame4_demushkinQ_DN_one (h : ℕ) : demushkinQ (DN 1 h : Type) = 4 :=
   (nonempty_nFrame4 h).elim demushkinQ_DN_one_nFrame4
 
-/-! ## §8 The invariant package, and a cross-check
+/-! ## §8 The cross-check against the committed emptiness theorem
 
-`evenAlphaOne_isDemushkin_DN` (wave 70) and `EvenModel.demushkinRank_DN` (EV-1b) supply the other
-two components.  `coreRank h` is `4 + 2h` by definition, so the package reads
-`(rank, q) = (4 + 2h, 4)`.
-
-The coefficient action is a `local instance` in every file on the even route, so it does not
-travel with the import and has to be restated here for `IsDemushkin 2 (DN 1 h)` to elaborate at
-all.  It is declared at the start of this section rather than at the top of the file, so that
-§1 through §7 stay independent of it.
-
-The value computed in §7 agrees with an independently computed one from the `H²` layer.
-`EvenAlphaOne.lean` §3 proves `evenAlphaOneNCupForm_self`, that the `α = 1` `N` cup form is
-alternating, where the committed `α ≥ 2` form has `evenCupForm v v = v 0` and is not; §7 computes
-`q = 4` at `α = 1` where `nFrameExists_demushkinQ_DN` gives `q = 2` at `α ≥ 2`.  The two layers
-therefore split at the same place and in the same direction.  The agreement is evidence and not a
-proof of either statement from the other: the implication relating an alternating cup form to
-`q ≠ 2` is Demushkin-theoretic and is not formalized in this tree, so neither §7 nor
-`EvenAlphaOne.lean` §3 is derived from the other here. -/
-
-/-- The coefficient action at the `N` core, as everywhere on this route. -/
-noncomputable local instance nFourScalarDN (α h : ℕ) :
-    DistribMulAction (DN α h : Type) (ZMod 2) :=
-  scalarActionZmodTwo _
-
-/-- Continuity of the `N`-core coefficient action. -/
-local instance nFourContinuousDN (α h : ℕ) : ContinuousSMul (DN α h : Type) (ZMod 2) :=
-  scalarActionZmodTwo_continuousSMul _
-
-/-- **The `α = 1` `N`-row invariant package**: the core is Demushkin, of rank `4 + 2h`, with
-`q = 4`, at every handle count.  The three conjuncts come from three independent places (the
-cup-form computation of `EvenAlphaOne.lean`, the `H¹`-count of `EvenModel.lean`, and §7 above),
-and only the third is proved here. -/
-theorem nFrame4_invariants_DN_one (h : ℕ) :
-    IsDemushkin 2 (DN 1 h : Type) ∧ demushkinRank 2 (DN 1 h : Type) = 4 + 2 * h ∧
-      demushkinQ (DN 1 h : Type) = 4 :=
-  ⟨GQ2.Dyadic.EvenAlphaOne.evenAlphaOne_isDemushkin_DN h,
-    GQ2.Dyadic.EvenModel.demushkinRank_DN 1 h le_rfl,
-    nFrame4_demushkinQ_DN_one h⟩
-
-/-- **The surviving point's invariants.**  The strengthening of
-`EvenAlphaOne.evenAlphaOne_survivingPoint_isDemushkin` by the `q`-value: at the unique point where
-an `N`-row image is a principal-unit group, the core over it is Demushkin, of rank `4 + 2h`, and
-has `q = 4`.
-
-Stated as a conjunction so the range identity is not separated from the invariants it is being
-matched against.  It asserts an agreement of invariants at that point and nothing else; in
-particular it makes no claim that any `DN 1 h` is the maximal pro-2 quotient of a Galois group,
-which is not proved anywhere in the tree. -/
-theorem nFrame4_survivingPoint_invariants (h : ℕ) :
-    imChiN 1 = GQ2.Dyadic.EvenCyclotomicRange.evenRangePrin 2 ∧
-      IsDemushkin 2 (DN 1 h : Type) ∧ demushkinRank 2 (DN 1 h : Type) = 4 + 2 * h ∧
-        demushkinQ (DN 1 h : Type) = 4 :=
-  ⟨GQ2.Dyadic.EvenUnram.evenUnram_imChiN_one_eq_prin_two,
-    (nFrame4_invariants_DN_one h).1, (nFrame4_invariants_DN_one h).2.1,
-    (nFrame4_invariants_DN_one h).2.2⟩
+The invariant package that composes §7 with `evenAlphaOne_isDemushkin_DN` and
+`EvenModel.demushkinRank_DN` is **not** here: both of those live under `Instances/`, and citing
+them would put a `MarkedCore/ -> Instances/` edge in the tree.  They are composed in
+`GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean` instead, which keeps this file's imports
+inside `MarkedCore/`.  The cross-check below needs nothing outside `MarkedCore/` and stays. -/
 
 /-- **Cross-check against the committed emptiness theorem.**  `nFrameExists_isEmpty_one` is
 proved in `NFrameExists.lean` by exhibiting a `ℤ/4`-valued character separating `x̄₀²` from `1`.
@@ -714,8 +670,6 @@ section AxiomPins
 #print axioms nonempty_nFrame4
 #print axioms demushkinQ_DN_one_nFrame4
 #print axioms nFrame4_demushkinQ_DN_one
-#print axioms nFrame4_invariants_DN_one
-#print axioms nFrame4_survivingPoint_invariants
 #print axioms nFrame4_isEmpty_nFrame_one
 
 -- the private model-torsion lemmas, printed because §7 rests on them
