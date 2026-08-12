@@ -265,9 +265,71 @@ theorem evenStratum_no_cupAdaptedFrame_of_rangeN_one {h : ℕ}
 
 end Field
 
+/-! ## §5 The model field `ℚ₂(i)`
+
+Wave 71 could state its `ℚ₂(i)` corollaries with no degree hypothesis; the counting step of §4
+needs one, so the degree is computed here.  `finrank_quadField` wants `−1` to be a non-square,
+which the committed row list does not contain: the five committed rows are `±2, 5, ±10`, and
+`−1` is a unit, so the valuation criterion says nothing.  The mod-eight criterion of
+`not_isSquare_five` applies verbatim. -/
+
+section ModelField
+
+open GQ2.Dyadic.Fields GQ2.Dyadic.EvenParity
+
+/-- **`−1` is not a square in `ℚ₂`.**  A square of a `2`-adic integer is `0`, `1` or `4` mod
+`8`, and `−1` is `7`.  This is `not_isSquare_five`'s criterion at the one remaining unit the
+campaign needs. -/
+theorem evenStratumFrame_not_isSquare_neg_one : ¬ IsSquare (-1 : ℚ_[2]) := by
+  rintro ⟨b, hb⟩
+  have hb1 : ‖b‖ ≤ 1 := by
+    have hn : ‖b‖ * ‖b‖ = 1 := by rw [← norm_mul, ← hb, norm_neg, norm_one]
+    nlinarith [norm_nonneg b]
+  set bz : ℤ_[2] := ⟨b, hb1⟩ with hbz
+  have hcoe : bz * bz = (-1 : ℤ_[2]) := by
+    apply Subtype.ext
+    push_cast [hbz]
+    exact hb.symm
+  have himg := congrArg (PadicInt.toZModPow (p := 2) 3) hcoe
+  rw [map_mul, map_neg, map_one] at himg
+  revert himg
+  exact (by decide : ∀ x : ZMod (2 ^ 3), x * x ≠ -1) _
+
+/-- **`[ℚ₂(i) : ℚ₂] = 2`**, in the even lane's `2 + 2h` spelling with `h = 0`. -/
+theorem evenStratumFrame_finrank_KNegOne :
+    Module.finrank ℚ_[2] EvenUnram.evenUnramKNegOne = 2 + 2 * 0 :=
+  finrank_quadField evenStratumFrame_not_isSquare_neg_one
+
+variable [CompactSpace (GalK EvenUnram.evenUnramKNegOne)]
+  [TotallyDisconnectedSpace (GalK EvenUnram.evenUnramKNegOne)]
+
+local instance evenStratumFrameKScalar :
+    DistribMulAction (maxProPQuotient 2 (GalK EvenUnram.evenUnramKNegOne)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+local instance evenStratumFrameKContinuousScalar :
+    ContinuousSMul (maxProPQuotient 2 (GalK EvenUnram.evenUnramKNegOne)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+/-- **NO CUP-ADAPTED STAGE FRAME AT `ℚ₂(i)`**, at every row table.  Over the standing profinite
+binders and nothing else: no reciprocity bundle, since the range bound comes from the square
+root of `−1` directly, and no ramification binder, since §4 uses none.
+
+Wave 71 refuted the coordinate model here; this refutes the frame. -/
+theorem evenStratum_no_cupAdaptedFrame_KNegOne (v : Fin (MarkedCore.coreRank 0) → ℤ_[2]ˣ) :
+    ¬ ∃ F : StageGeneric.Frame v (maxProPQuotient 2 (GalK EvenUnram.evenUnramKNegOne))
+        (chiCycKTwo (K := EvenUnram.evenUnramKNegOne)),
+      F.IsCupAdapted (StageGeneric.evenFrameGram 0)
+        (StageGeneric.evenFramePairing (K := EvenUnram.evenUnramKNegOne)) :=
+  evenStratum_no_cupAdaptedFrame
+    (EvenUnram.evenUnram_range_le_prin_two_of_sqrt_neg_one (sqrtIn_mem_quadField (-1))
+      evenParity_sqrtIn_neg_one_sq) evenStratumFrame_finrank_KNegOne v
+
+end ModelField
+
 end
 
-/-! ## §5 Axiom pins -/
+/-! ## §6 Axiom pins -/
 
 #print axioms evenStratumFrame_gram_diag
 #print axioms evenStratumFrame_eval_sub
@@ -278,5 +340,8 @@ end
 #print axioms evenStratumFrame_eval_gen_zero
 #print axioms evenStratum_no_cupAdaptedFrame
 #print axioms evenStratum_no_cupAdaptedFrame_of_rangeN_one
+#print axioms evenStratumFrame_not_isSquare_neg_one
+#print axioms evenStratumFrame_finrank_KNegOne
+#print axioms evenStratum_no_cupAdaptedFrame_KNegOne
 
 end GQ2.Dyadic.EvenStratumFrame
