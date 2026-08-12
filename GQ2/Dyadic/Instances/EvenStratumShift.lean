@@ -54,6 +54,7 @@ noncomputable section
 
 open GQ2
 open GQ2.Roe.Labute
+open GQ2.Dyadic.Certificates.LSqStokes
 
 /-! ## §1 The literal factorization at `α = 1`
 
@@ -302,7 +303,357 @@ theorem evenStratum_no_rawStageShift_one :
 
 end Witness
 
-/-! ## §4 Axiom pins -/
+/-! ## §4 The `α = 1` quadratic-initial Gram, in the frame interface
+
+Wave 72's queue item 1 asked for this Gram to be computed.  It **already existed**: wave 70's
+`EvenAlphaOne.evenAlphaOneNCupForm` is the quadratic-initial form of `nRelWord 1`, derived from
+`evenAlphaOne_nRelWord_fib` and not asserted.  What was missing is the bridge into the shape
+`Frame.IsCupAdapted` demands, which takes the Gram as a function of the full matrix of character
+products rather than of two vectors.  `evenStratumGramOne` is that bridge, and §4.1 checks it
+against wave 70's form on the nose.
+
+The difference from `evenFrameGram h` is exactly the single entry `M 0 0`, which is the frame
+shadow of §1: the diagonal atom that the `α = 1` parity kills is the same atom that produces the
+`(0,0)` entry of the `α ≥ 2` Gram. -/
+
+section GramOne
+
+/-- **The `α = 1` even quadratic-initial Gram at rank `coreRank h`**, in the shape of the `gram`
+parameter of `Frame.IsCupAdapted`: `evenFrameGram h` with its `(0,0)` entry deleted.  Purely
+hyperbolic: the plane `(x₀, x₁)`, the plane `(σ, x₂)`, and one plane per handle. -/
+def evenStratumGramOne (h : ℕ)
+    (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) : ZMod 2 :=
+  (M 0 1 + M 1 0) + (M 2 3 + M 3 2)
+    + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
+        + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j))
+
+theorem evenStratumGramOne_expand (h : ℕ)
+    (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
+    evenStratumGramOne h M = (M 0 1 + M 1 0) + (M 2 3 + M 3 2)
+      + ∑ j : Fin h, (M (MarkedCore.handleIdxU j) (MarkedCore.handleIdxV j)
+          + M (MarkedCore.handleIdxV j) (MarkedCore.handleIdxU j)) := rfl
+
+/-- **It is wave 70's committed `α = 1` `N` Gram.**  Contracting `evenStratumGramOne h` against
+the matrix of coordinate products of two vectors returns `evenAlphaOneNCupForm`, which
+`EvenAlphaOne.evenAlphaOne_obsH2_DN` identifies with the `α = 1` relator obstruction.  So no Gram
+is invented here: only re-shaped. -/
+theorem evenStratumGramOne_alphaOneNCupForm (h : ℕ)
+    (v w : Fin (MarkedCore.coreRank h) → ZMod 2) :
+    evenStratumGramOne h (fun i j ↦ v i * w j) =
+      GQ2.Dyadic.EvenAlphaOne.evenAlphaOneNCupForm v w := rfl
+
+/-- **The two Grams differ by exactly one entry.**  `evenFrameGram h` is `evenStratumGramOne h`
+plus the `(0,0)` entry, which is the `x₀`-Bockstein term that `2 + 2 ^ α ≡ 2 (mod 4)` supplies at
+`α ≥ 2` and `2 + 2 ^ 1 = 4` does not. -/
+theorem evenStratumGramOne_add_diag (h : ℕ)
+    (M : Fin (MarkedCore.coreRank h) → Fin (MarkedCore.coreRank h) → ZMod 2) :
+    evenFrameGram h M = M 0 0 + evenStratumGramOne h M := by
+  rw [evenFrameGram_expand, evenStratumGramOne_expand]
+  ring
+
+/-- **THE `α = 1` GRAM IS ALTERNATING.**  Contracting it against a rank-one matrix returns `0`,
+where `evenStratumFrame_gram_diag` returns `f 0` for `evenFrameGram h`.  This one line is why
+wave 72's refutation cannot be reproduced against this Gram: the step that turned
+cup-adaptedness into a statement about a single generator produces `0 = 0` here. -/
+theorem evenStratumGramOne_diag {h : ℕ} (f : Fin (MarkedCore.coreRank h) → ZMod 2) :
+    evenStratumGramOne h (fun i j ↦ f i * f j) = 0 := by
+  rw [evenStratumGramOne_alphaOneNCupForm]
+  exact GQ2.Dyadic.EvenAlphaOne.evenAlphaOneNCupForm_self f
+
+/-! ### §4.1 The purely hyperbolic model
+
+`evenFrameGramModel h` is `headGram ⊥ H^{⊥(h+1)}`.  The `α = 1` model replaces the
+non-alternating head by one more hyperbolic plane, so it is `H^{⊥(h+2)}` written on the same
+carrier `evenFrameModel h`; §4.2 records that identification through `Fin.cons`. -/
+
+/-- **The `α = 1` model Gram**: `H^{⊥(h+2)}` on the carrier `evenFrameModel h`, with the head
+pair `(x₀, x₁)` read as a hyperbolic plane. -/
+def evenStratumGramOneModel (h : ℕ) (z z' : evenFrameModel h) : ZMod 2 :=
+  (z.1.1 * z'.1.2 + z.1.2 * z'.1.1) + hypGram z.2 z'.2
+
+/-- **The adapter is the model Gram**, the `α = 1` twin of `evenFrameGram_modelCoord`. -/
+theorem evenStratumGramOne_modelCoord (h : ℕ) (z z' : evenFrameModel h) :
+    evenStratumGramOne h (fun i j ↦ evenFrameCoord i z * evenFrameCoord j z') =
+      evenStratumGramOneModel h z z' := by
+  rw [evenStratumGramOne_expand, evenStratumGramOneModel]
+  simp only [evenFrameCoord_zero, evenFrameCoord_one, evenFrameCoord_two, evenFrameCoord_three,
+    evenFrameCoord_handleU, evenFrameCoord_handleV, hypGram, Fin.sum_univ_succ]
+  ring
+
+private abbrev evenStratumPlane : ℕ → Type := fun _ ↦ ZMod 2 × ZMod 2
+
+private theorem evenStratumCons_zero {h : ℕ} (a : ZMod 2 × ZMod 2)
+    (p : Fin (h + 1) → ZMod 2 × ZMod 2) :
+    Fin.cons (α := fun _ : Fin (h + 2) ↦ ZMod 2 × ZMod 2) a p 0 = a :=
+  Fin.cons_zero _ _
+
+private theorem evenStratumCons_succ {h : ℕ} (a : ZMod 2 × ZMod 2)
+    (p : Fin (h + 1) → ZMod 2 × ZMod 2) (j : Fin (h + 1)) :
+    Fin.cons (α := fun _ : Fin (h + 2) ↦ ZMod 2 × ZMod 2) a p j.succ = p j :=
+  Fin.cons_succ _ _ _
+
+private theorem evenStratumCons_self {h : ℕ} (r : Fin (h + 2) → ZMod 2 × ZMod 2) :
+    Fin.cons (α := fun _ : Fin (h + 2) ↦ ZMod 2 × ZMod 2) (r 0) (fun j ↦ r j.succ) = r := by
+  funext i
+  refine Fin.cases ?_ (fun j ↦ ?_) i
+  · exact evenStratumCons_zero _ _
+  · exact evenStratumCons_succ _ _ j
+
+/-- The relabelling `Fin (h + 2)` planes `↔` head plus `Fin (h + 1)` planes. -/
+def evenStratumModelEquiv (h : ℕ) :
+    (Fin (h + 2) → ZMod 2 × ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h where
+  toFun r := (r 0, fun j ↦ r j.succ)
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  invFun z := Fin.cons (α := fun _ : Fin (h + 2) ↦ ZMod 2 × ZMod 2) z.1 z.2
+  left_inv r := evenStratumCons_self r
+  right_inv z :=
+    Prod.ext (evenStratumCons_zero z.1 z.2) (funext fun j ↦ evenStratumCons_succ z.1 z.2 j)
+
+@[simp] theorem evenStratumModelEquiv_apply (h : ℕ) (r : Fin (h + 2) → ZMod 2 × ZMod 2) :
+    evenStratumModelEquiv h r = (r 0, fun j ↦ r j.succ) := rfl
+
+/-- **The `α = 1` model Gram is the standard `H^{⊥(h+2)}`.**  Both hyperbolic plane counts are
+`h + 2`; the only content is where the plane boundaries sit. -/
+theorem evenStratumGramOneModel_hypGram (h : ℕ) (r r' : Fin (h + 2) → ZMod 2 × ZMod 2) :
+    evenStratumGramOneModel h (evenStratumModelEquiv h r) (evenStratumModelEquiv h r') =
+      hypGram r r' := by
+  rw [evenStratumModelEquiv_apply, evenStratumModelEquiv_apply, evenStratumGramOneModel]
+  conv_rhs => rw [← evenStratumCons_self r, ← evenStratumCons_self r']
+  rw [hypGram_cons]
+
+end GramOne
+
+/-! ## §5 On the stratum an adapted coordinate system EXISTS
+
+Wave 71's `evenStratum_no_adaptedModelEquiv` says there is no linear isomorphism carrying the
+field cup form to `evenFrameGramModel h`, because the source is alternating and the target is
+not.  Against the `α = 1` model Gram the same two facts give the opposite conclusion: the source
+is alternating, the target is alternating, both are nondegenerate, and over `𝔽₂` that is a
+complete invariant once the ranks agree.  The rank is pinned by the degree.
+
+The committed alternating normal form `FieldDataEven.exists_cupForm_normalForm_alternating` is
+applied directly to `frattiniFrameCup`, whose `IsCupFormFp2`, `NondegFp2` and Labute facts are
+all committed; the Labute vector is `0` on the stratum by wave 71's
+`evenStratum_kappa_eq_zero`. -/
+
+section Adapted
+
+open GQ2.ContCoh
+open GQ2.Dyadic.LSquare GQ2.Dyadic.LSquare.FrattiniFrameSupply
+open GQ2.Dyadic.EvenCyclotomicRange
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+local instance evenStratumShiftScalar :
+    DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) := scalarActionZmodTwo _
+
+local instance evenStratumShiftContinuousScalar :
+    ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+/-- **AN ADAPTED COORDINATE SYSTEM FOR THE `α = 1` GRAM EXISTS ON THE THIRD STRATUM.**  At a
+field whose cyclotomic range lies in `evenRangePrin 2` and whose degree is `2 + 2h`, there is a
+linear isomorphism of `H¹(G_K(2), 𝔽₂)` with `evenFrameModel h` carrying the field cup form to
+`evenStratumGramOneModel h`.
+
+This is the exact statement wave 71 refuted for `evenFrameGramModel h`, with the `α = 1` Gram in
+place of the `α ≥ 2` one, and it is **true**. -/
+theorem evenStratum_exists_gramOne_modelEquiv {h : ℕ}
+    (hle : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    ∃ Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h,
+      ∀ x y, frattiniFrameCup (K := K) x y = evenStratumGramOneModel h (Φ x) (Φ y) := by
+  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (4 + 2 * h) := by
+    rw [card_H1_zmodTwo_maxProTwoGalK, hev]
+    congr 1
+    omega
+  haveI : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :=
+    Nat.finite_of_card_ne_zero (by rw [hcard]; positivity)
+  obtain ⟨m, φ, hφ⟩ := FieldDataEven.exists_cupForm_normalForm_alternating
+    (isCupFormFp2_frattiniFrameCup (K := K)) (nondegFp2_frattiniFrameCup (K := K))
+    (fun w ↦ frattiniFrameCup_kappa (K := K) w)
+    (GQ2.Dyadic.EvenStratum.evenStratum_kappa_eq_zero hle)
+  have hm : m = h + 2 := by
+    have h1 : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 4 ^ m := by
+      rw [Nat.card_congr φ.toEquiv]
+      simp
+    have h2 : (2 : ℕ) ^ (2 * m) = 2 ^ (4 + 2 * h) := by
+      rw [← hcard, h1, show (4 : ℕ) = 2 ^ 2 from rfl, ← pow_mul]
+    have h3 := Nat.pow_right_injective (le_refl 2) h2
+    omega
+  subst hm
+  refine ⟨φ.trans (evenStratumModelEquiv h), fun x y ↦ ?_⟩
+  rw [hφ x y]
+  exact (evenStratumGramOneModel_hypGram h (φ x) (φ y)).symm
+
+/-! ### §5.1 From an adapted coordinate system to an adapted frame
+
+The Gram-independent half of `evenFrame_of_adapted`, extracted: a family of group elements
+realizing the coordinate functionals generates the Frattini quotient.  Its hypotheses are
+satisfied by the realizers of any linear isomorphism onto `evenFrameModel h`, which is exactly
+how §5.2 uses it, so it is not general-in-the-binders only. -/
+
+/-- **Realizers of a coordinate system generate the Frattini quotient.**  No Gram enters: the
+input is only that evaluation at `gens i` computes the `i`-th coordinate of a linear
+isomorphism. -/
+theorem evenStratum_levelTwoGen_of_realizers {h : ℕ}
+    (Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h)
+    (gens : Fin (MarkedCore.coreRank h) → maxProPQuotient 2 (GalK K))
+    (hD : ∀ (i : Fin (MarkedCore.coreRank h)) (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
+      frattiniFrameEval x (gens i) = evenFrameCoord i (Φ x)) :
+    Subgroup.closure
+      (Set.range fun i ↦ levelMk (maxProPQuotient 2 (GalK K)) 2 (gens i)) = ⊤ := by
+  classical
+  by_contra hne
+  haveI hFfin : Finite (levelQuot (maxProPQuotient 2 (GalK K)) 2) :=
+    finite_levelQuot _ (maxProTwoGalK_isTopologicallyFinGen K) isProP_maxProPQuotient 2
+  haveI hFdisc : DiscreteTopology (levelQuot (maxProPQuotient 2 (GalK K)) 2) :=
+    discreteTopology_levelQuot _ (maxProTwoGalK_isTopologicallyFinGen K)
+      isProP_maxProPQuotient 2
+  obtain ⟨c, hcH, hcne⟩ := frattiniFrame_exists_modTwo_character
+    (frattiniFrame_levelTwo_mul_comm (maxProPQuotient 2 (GalK K)))
+    (frattiniFrame_levelTwo_sq (maxProPQuotient 2 (GalK K))) hne
+  set cQ : ContinuousMonoidHom (maxProPQuotient 2 (GalK K)) (Multiplicative (ZMod 2)) :=
+    ⟨c.comp (levelMk (maxProPQuotient 2 (GalK K)) 2), by
+      have h1 : Continuous c := continuous_of_discreteTopology
+      exact h1.comp (continuous_levelMk (maxProPQuotient 2 (GalK K)) 2)⟩ with hcQ
+  have hvanish : ∀ i, frattiniFrameEval
+      (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) (gens i) = 0 := by
+    intro i
+    rw [frattiniFrameEval_characterClass]
+    show Multiplicative.toAdd (c (levelMk (maxProPQuotient 2 (GalK K)) 2 (gens i))) = 0
+    rw [hcH _ (Subgroup.subset_closure ⟨i, rfl⟩)]
+    rfl
+  have hΦ0 : Φ (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) = 0 := by
+    refine evenFrameCoord_eq_zero _ fun i ↦ ?_
+    rw [← hD i]
+    exact hvanish i
+  have hcc0 : SqCyclotomicFrattiniFrame.characterClass (K := K) cQ = 0 := by
+    have hs := congrArg Φ.symm hΦ0
+    rwa [LinearEquiv.symm_apply_apply, map_zero] at hs
+  apply hcne
+  apply MonoidHom.ext
+  intro fq
+  obtain ⟨g, rfl⟩ := levelMk_surjective (maxProPQuotient 2 (GalK K)) 2 fq
+  have hg : frattiniFrameEval
+      (SqCyclotomicFrattiniFrame.characterClass (K := K) cQ) g =
+        Multiplicative.toAdd (cQ g) := frattiniFrameEval_characterClass cQ g
+  rw [hcc0, frattiniFrameEval_zero] at hg
+  show c (levelMk (maxProPQuotient 2 (GalK K)) 2 g) = 1
+  have hone : cQ g = 1 := by
+    apply Multiplicative.toAdd.injective
+    rw [← hg]
+    rfl
+  exact hone
+
+/-- **An adapted coordinate system produces a cup-adapted frame for the `α = 1` Gram**, at the
+row table its own realizers carry.  The exact-row supply of `evenFrame_of_adapted` is not used
+and not needed: `v` is read off the constructed generators, so the `rows` field is `rfl`.
+
+What this therefore does **not** produce is a frame at a *prescribed* row table, and in
+particular not at `vN 1`.  That is the whole remaining cost, and it is stated as such in §5.3. -/
+theorem evenStratum_frame_of_gramOne_modelEquiv {h : ℕ}
+    (hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)))
+    (Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h)
+    (hGram : ∀ x y, frattiniFrameCup (K := K) x y = evenStratumGramOneModel h (Φ x) (Φ y)) :
+    ∃ (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+      (F : Frame v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))),
+      F.IsCupAdapted (evenStratumGramOne h) (evenFramePairing (K := K)) := by
+  classical
+  haveI := hfin
+  choose gens hgens using fun i : Fin (MarkedCore.coreRank h) ↦
+    frattiniFrameEval_realizable (K := K) hfin ((evenFrameCoordL i).comp Φ.toLinearMap)
+  have hD : ∀ (i : Fin (MarkedCore.coreRank h))
+      (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
+      frattiniFrameEval x (gens i) = evenFrameCoord i (Φ x) := fun i x ↦ hgens i x
+  refine ⟨fun i ↦ chiCycKTwo (K := K) (gens i),
+    ⟨gens, fun _ ↦ rfl, evenStratum_levelTwoGen_of_realizers Φ gens hD⟩, ?_⟩
+  intro c d
+  show frattiniFrameCup (K := K) (SqCyclotomicFrattiniFrame.characterClass (K := K) c)
+      (SqCyclotomicFrattiniFrame.characterClass (K := K) d) =
+    evenStratumGramOne h (fun i j ↦ Multiplicative.toAdd (c (gens i)) *
+      Multiplicative.toAdd (d (gens j)))
+  rw [hGram, ← evenStratumGramOne_modelCoord]
+  congr 1
+  funext i j
+  rw [← hD i (SqCyclotomicFrattiniFrame.characterClass (K := K) c),
+    ← hD j (SqCyclotomicFrattiniFrame.characterClass (K := K) d),
+    frattiniFrameEval_characterClass, frattiniFrameEval_characterClass]
+
+/-! ### §5.2 The answer to wave 72's queue item 1 -/
+
+/-- **A FRAME CUP-ADAPTED FOR THE `α = 1` GRAM EXISTS ON THE THIRD STRATUM.**  At a field whose
+cyclotomic range lies in `evenRangePrin 2` and whose degree is `2 + 2h`, some row table carries a
+`StageGeneric.Frame` that is cup-adapted for `evenStratumGramOne h`.
+
+Read against `evenStratum_no_cupAdaptedFrame`, which says that for `evenFrameGram h` **no** row
+table carries one, this is the repair wave 72's queue item 1 asked for: the frame step of the
+even stage layer fails on the stratum because it is aimed at the wrong Gram, not because frames
+are unavailable there. -/
+theorem evenStratum_exists_gramOne_adaptedFrame {h : ℕ}
+    (hle : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
+    ∃ (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+      (F : Frame v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K))),
+      F.IsCupAdapted (evenStratumGramOne h) (evenFramePairing (K := K)) := by
+  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (4 + 2 * h) := by
+    rw [card_H1_zmodTwo_maxProTwoGalK, hev]
+    congr 1
+    omega
+  haveI hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :=
+    Nat.finite_of_card_ne_zero (by rw [hcard]; positivity)
+  obtain ⟨Φ, hΦ⟩ := evenStratum_exists_gramOne_modelEquiv hle hev
+  exact evenStratum_frame_of_gramOne_modelEquiv hfin Φ hΦ
+
+/-! ### §5.3 What is **not** claimed
+
+`Frame v G chi` pins the cyclotomic values on the nose, and §5.2 chooses `v` after the fact.  A
+level-three base for `EvenStratumBaseN` needs the *prescribed* table `vN 1`, so §5.2 is not a
+base: between them stand the row-exactness step (`evenFrameExactLift`, which needs a
+`RowExactLevelFibreLiftSupply` at `vN 1`) and the level-three relation
+`nRelWord 1 (levelMk 3 ∘ generators) = 1`, neither of which is touched here.
+
+Nothing in this module asserts or denies
+`Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)`. -/
+
+section ModelField
+
+variable [CompactSpace (GalK EvenUnram.evenUnramKNegOne)]
+  [TotallyDisconnectedSpace (GalK EvenUnram.evenUnramKNegOne)]
+
+local instance evenStratumShiftKScalar :
+    DistribMulAction (maxProPQuotient 2 (GalK EvenUnram.evenUnramKNegOne)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+local instance evenStratumShiftKContinuousScalar :
+    ContinuousSMul (maxProPQuotient 2 (GalK EvenUnram.evenUnramKNegOne)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+/-- **A CUP-ADAPTED FRAME FOR THE `α = 1` GRAM EXISTS AT `ℚ₂(i)`**, at the same field and over the
+same standing profinite binders at which wave 72's `evenStratum_no_cupAdaptedFrame_KNegOne`
+refutes one for `evenFrameGram 0`.  The degree computation is wave 72's
+`evenStratumFrame_finrank_KNegOne`. -/
+theorem evenStratum_exists_gramOne_adaptedFrame_KNegOne :
+    ∃ (v : Fin (MarkedCore.coreRank 0) → ℤ_[2]ˣ)
+      (F : Frame v (maxProPQuotient 2 (GalK EvenUnram.evenUnramKNegOne))
+        (chiCycKTwo (K := EvenUnram.evenUnramKNegOne))),
+      F.IsCupAdapted (evenStratumGramOne 0)
+        (evenFramePairing (K := EvenUnram.evenUnramKNegOne)) :=
+  evenStratum_exists_gramOne_adaptedFrame
+    (EvenUnram.evenUnram_range_le_prin_two_of_sqrt_neg_one
+      (GQ2.Dyadic.Fields.sqrtIn_mem_quadField (-1))
+      GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq)
+    GQ2.Dyadic.EvenStratumFrame.evenStratumFrame_finrank_KNegOne
+
+end ModelField
+
+end Adapted
+
+/-! ## §6 Axiom pins -/
 
 section Pins
 
@@ -322,6 +673,25 @@ section Pins
 #print axioms evenStratumShiftWitnessP_mem
 #print axioms evenStratumShiftWitnessP_sq_ne_one
 #print axioms evenStratum_no_rawStageShift_one
+
+#print axioms evenStratumGramOne
+#print axioms evenStratumGramOne_alphaOneNCupForm
+#print axioms evenStratumGramOne_add_diag
+#print axioms evenStratumGramOne_diag
+#print axioms evenStratumGramOneModel
+#print axioms evenStratumGramOne_modelCoord
+#print axioms evenStratumModelEquiv
+#print axioms evenStratumGramOneModel_hypGram
+#print axioms evenStratum_exists_gramOne_modelEquiv
+#print axioms evenStratum_levelTwoGen_of_realizers
+#print axioms evenStratum_frame_of_gramOne_modelEquiv
+#print axioms evenStratum_exists_gramOne_adaptedFrame
+#print axioms evenStratum_exists_gramOne_adaptedFrame_KNegOne
+
+-- The `α ≥ 2` statements §4 and §5 stand against, printed beside them.
+#print axioms GQ2.Dyadic.EvenStratumFrame.evenStratumFrame_gram_diag
+#print axioms GQ2.Dyadic.EvenStratum.evenStratum_no_adaptedModelEquiv
+#print axioms GQ2.Dyadic.EvenStratumFrame.evenStratum_no_cupAdaptedFrame
 
 end Pins
 
