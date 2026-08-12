@@ -39,9 +39,20 @@ which fail at `Q4`; here is what replaces them.
   `(p q)^4 = p^4 q^4 (commP q p)^2`.  Its defect is the *square of a bracket*, and that is
   precisely the shape that cancels in the analysis of §5 below.
 
-The element commutator notation `⁅ , ⁆` does not elaborate inside `GQ2.Dyadic.SqCore` (the
-`Bracket G G` instance is not synthesizable there, checked in isolation), so the whole section
-is written in `commP` and never writes the bracket.  Worth knowing for the next lane.
+The whole section is written in `commP` and never writes the element commutator notation `⁅ , ⁆`.
+
+> **[Corrected W72-HOUSE.]**  This paragraph originally read "The element commutator notation
+> `⁅ , ⁆` does not elaborate inside `GQ2.Dyadic.SqCore` (the `Bracket G G` instance is not
+> synthesizable there, checked in isolation)", and offered that as the *reason* for writing
+> `commP`.  It is **false**, and this is where the error entered the campaign: waves 70 and 71
+> then repeated it in four further places.  `Bracket G G` is not synthesizable in *any* file, at
+> *any* namespace, until that file writes `open scoped commutatorElement`, because mathlib makes
+> `commutatorElement` a scoped instance on purpose (`Mathlib/Algebra/Group/Commutator.lean`).
+> Nothing about `GQ2.Dyadic.SqCore` is involved; 17 files in that very directory open the
+> instance and use the bracket.  The full diagnosis is the header of
+> `GQ2/Dyadic/SqCore/Cores.lean` (landed `f82cb316`, wave 70).  Note also that `commP` and the
+> bracket are **different functions**, `commP a b = ⁅a⁻¹, b⁻¹⁆`, which is the actual reason this
+> lane's `commP` spelling is right.
 
 ## 2.  The relator modulo `gamma_4` (module §2)
 

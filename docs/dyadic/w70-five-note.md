@@ -134,10 +134,17 @@ than the class-four one, and this is where a class-five run's real work begins. 
 * No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 * Imports added: `GQ2.Dyadic.SqCore.GradedClassFour` (by `GradedRelatorBase`) and
   `GQ2.Dyadic.SqCore.GradedRelatorBase` (by `GradedClassFive`) only.
-* Wave 69's notation finding reconfirmed: the **element** bracket `⁅ , ⁆` does not elaborate
-  inside `GQ2.Dyadic.SqCore`, so everything is written in `commP`.  The **subgroup** bracket
-  `⁅H, K⁆` does elaborate there, which is new information and is what let the restatement check
-  below state `⁅γ₂, γ₃⁆ ≤ γ₅` in mathlib's own terms.
+* Everything is written in `commP`.  The **subgroup** bracket `⁅H, K⁆` does elaborate inside
+  `GQ2.Dyadic.SqCore`, which is what let the restatement check below state `⁅γ₂, γ₃⁆ ≤ γ₅` in
+  mathlib's own terms.  **[Corrected W72-HOUSE.]**  This bullet originally opened "Wave 69's
+  notation finding reconfirmed: the **element** bracket `⁅ , ⁆` does not elaborate inside
+  `GQ2.Dyadic.SqCore`".  That is **false**, and it was contradicted by a *concurrent landing of
+  this same wave*, `f82cb316` (W70-HOUSE, 11:26:18), two minutes before this note was written at
+  11:28:07.  The element bracket needs `open scoped commutatorElement`, which mathlib requires
+  everywhere, at every namespace, because `commutatorElement` is a deliberately scoped instance;
+  17 files under `GQ2/Dyadic/SqCore/` already write it.  The contrast this bullet draws between
+  the subgroup and element brackets is real, but its cause is `Subgroup.commutator` being a
+  *global* instance while `commutatorElement` is a *scoped* one, not anything about `SqCore`.
 * Independent restatement check (scratch, not committed), six items, all typecheck:
   `⁅γ₂, γ₃⁆ ≤ γ₅` and `⁅γ_k, γ₂⁆ ≤ γ_{k+2}` as raw mathlib subgroup containments and at the raw
   element level `v⁻¹w⁻¹vw`; `relBase_relator_base` with `sqRelWord`, `conjP`, `commP` and

@@ -794,13 +794,17 @@ instance of type class Bracket G G`), and wave 69 read that as a `SqCore` defect
 Mathlib's `commutatorElement : Bracket G G` is a `def` carrying `attribute [scoped instance]`
 inside `namespace commutatorElement` (`Mathlib/Algebra/Group/Commutator.lean`), deliberately, to
 avoid clashing with other brackets; `Bracket G G` is therefore unsynthesizable in *any* file
-until that file writes `open scoped commutatorElement`. Ten `SqCore` files already do, so nothing
+until that file writes `open scoped commutatorElement`. Seventeen `SqCore` files already do
+(corrected from "ten" by W72-HOUSE: the count was already 17 at `f82cb316`, when this addendum
+was written, and is 17 today), so nothing
 here is forced by the elaborator to spell brackets as `commP`. What disguises the cause: the
 subgroup bracket `⁅H, K⁆` needs no `open` (`Subgroup.commutator` is a global instance), and
 `commutatorElement_def` resolves by name (a theorem is not an instance).
 
 The `open` was **not** installed in `SqCore/Cores.lean`, on purpose. It is file-local, so it
-cannot serve on behalf of the 77 `SqCore` modules that import that file; and, decisively, the two
+cannot serve on behalf of the 84 `SqCore` modules that import that file (recounted W72-HOUSE; the
+figure was 78 at `f82cb316`, so "77" was off by one even then, and it grows with every landing);
+and, decisively, the two
 brackets are different functions, `commP a b = ⁅a⁻¹, b⁻¹⁆`. Opening the notation alongside
 `commP` would arm the trap rather than defuse it, since `⁅v, g⁆` would elaborate and silently
 mean something other than `commP v g`. Port `TwoCentralTower` lemmas down through that identity

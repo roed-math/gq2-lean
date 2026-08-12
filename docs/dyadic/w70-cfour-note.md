@@ -221,6 +221,13 @@ longer die against a `Y`-slot.
 * Imports added: `GQ2.Roe.Labute.SpanFoundation` (for `continuous_levelMk` and
   `discreteTopology_levelQuot`) alongside `GQ2.Dyadic.SqCore.GradedClassFour`.  No `SqCore → Count`
   import was taken; the owner item is untouched.
-* The element bracket `⁅ , ⁆` still does not elaborate inside `GQ2.Dyadic.SqCore` (wave 69's
-  finding, re-hit twice here).  Everything is written in `commP`, and the two places that must
-  meet mathlib's bracket go through `commutatorElement_def` and spell the word out.
+* Everything is written in `commP`, and the two places that must meet mathlib's bracket go through
+  `commutatorElement_def` and spell the word out.  **[Corrected W72-HOUSE.]**  The reason this
+  bullet originally gave (wave 69's "the element bracket `⁅ , ⁆` still does not elaborate inside
+  `GQ2.Dyadic.SqCore`", "re-hit twice here") is **false**, and it was already retracted on trunk
+  by an *earlier landing of this same wave*: `f82cb316` (W70-HOUSE), on trunk at `a4776cf0`
+  11:37:56, whereas this note was written at 11:39:38 and merged at `4b257876` 12:04:54.  Mathlib
+  scopes `commutatorElement` deliberately, so `Bracket G G` is unsynthesizable in *any* file until
+  that file writes `open scoped commutatorElement`; 17 files under `GQ2/Dyadic/SqCore/` do.
+  `commP` remains the right spelling here, but because `commP a b = ⁅a⁻¹, b⁻¹⁆` is a **different
+  function** from the bracket, not because the elaborator forbids the bracket.
