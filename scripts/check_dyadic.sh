@@ -308,7 +308,7 @@ fi
 # command so that "the gate exists" is discoverable from a default run.
 LEDGER_SCRIPT='scripts/check_ledger.sh'
 if [ "$LEDGER_GATE" != "1" ]; then
-  echo "SKIP: axiom-ledger gate — off by default because it runs \`lake\` and lanes must not."
+  echo "SKIP: axiom-ledger gate - off by default because it runs \`lake\` and lanes must not."
   echo "      The orchestrator runs it at a merge with:"
   echo "          GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh"
   echo "      or standalone:  bash ${LEDGER_SCRIPT}"
@@ -317,9 +317,9 @@ elif [ ! -f "$LEDGER_SCRIPT" ]; then
   fail=1
 else
   if ledger_out=$(bash "$LEDGER_SCRIPT" 2>&1); then
-    echo "OK:   ${LEDGER_SCRIPT} passed — its report follows"
+    echo "OK:   ${LEDGER_SCRIPT} passed - its report follows"
   else
-    echo "FAIL: ${LEDGER_SCRIPT} failed — its report follows"
+    echo "FAIL: ${LEDGER_SCRIPT} failed - its report follows"
     fail=1
   fi
   printf '%s\n' "$ledger_out" | sed 's/^/      /'

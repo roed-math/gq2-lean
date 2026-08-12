@@ -161,7 +161,7 @@ and never asserted: they move with every landing, and a gate pinning them would 
 D6 is **off by default**.  The default path of `check_dyadic.sh` is unchanged, and prints
 
 ```text
-SKIP: axiom-ledger gate — off by default because it runs `lake` and lanes must not.
+SKIP: axiom-ledger gate - off by default because it runs `lake` and lanes must not.
       The orchestrator runs it at a merge with:
           GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh
       or standalone:  bash scripts/check_ledger.sh
@@ -237,7 +237,7 @@ evaluates nothing, produces neither `cfourDefCore` nor `cfourDefTriple`, and nev
 Both landed in the same commit (`32ead642`).  Correction: move the docstring down onto
 `cfourDef_leftover_reduce` and give `cfourDef_relator_step` its own, naming what it actually does.
 
-**(b) MEDIUM.  "Five of the leftover's factors" — three are the leftover's; the other two
+**(b) MEDIUM.  "Five of the leftover's factors": three are the leftover's; the other two
 cancellations are internal to the knob.**  `GradedClassFourDefect.lean:53` (module header) and
 `:443`.
 
@@ -291,7 +291,7 @@ condition than the theorem proves.
 `hT`, `:727`, and `hY`, `:728`).  The module header (`:71-72`) says "the closedness side
 conditions", plural, so the file knows; only the headlines overstate.
 
-**(g) MEDIUM-LOW.  "only needs a topological generating set" — it also needs `S` closed.**
+**(g) MEDIUM-LOW.  "only needs a topological generating set", but it also needs `S` closed.**
 `GradedClassFiveKnob.lean:518-521`.  `cfiveSpan_ad_far_of_gens` takes `hS : IsClosed S` (`:523`)
 and the proof uses it (`hS.preimage hcont` into `Subgroup.topologicalClosure_minimal`).
 
@@ -472,7 +472,7 @@ Said in detail, because a round that reports only hits is not a check.
   `evenStratumFrame_pairing_self`'s "this holds at every field" is right, it carrying no range
   hypothesis.
 * **Hypothesis satisfiability: clean apart from §3.1(d), and `EvenStratumFrame.lean` is careful in
-  exactly the place round 9's defects appeared** — it does not claim the climb is reusable at
+  exactly the place round 9's defects appeared**: it does not claim the climb is reusable at
   `α = 1`, it says the opposite and names why.  `cfiveRow_handleWord_congr` is genuinely reusable
   (one pointwise hypothesis, discharged at the use site); the four `section Involutions` lemmas are
   genuinely layer-free; `cfiveSpan_lambdaImage_le`'s two unrestricted universals are discharged at

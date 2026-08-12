@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The axiom-ledger gate — `GQ2/AxiomLedger.lean`, run as a merge gate.
+# The axiom-ledger gate - `GQ2/AxiomLedger.lean`, run as a merge gate.
 #
 #     bash scripts/check_ledger.sh
 #
@@ -19,7 +19,7 @@
 # ---------------------------------------------------------------------------
 # WHY IT IS NOT IN THE DEFAULT `check_dyadic.sh` PATH
 # ---------------------------------------------------------------------------
-# It invokes `lake`.  Campaign LANES must never run `lake` — the orchestrator owns
+# It invokes `lake`.  Campaign LANES must never run `lake` - the orchestrator owns
 # all builds, and a lane's verification of record is `scripts/mirror.sh` (see the
 # header of that script for why a naive `lake env lean` check comes out
 # FALSE-CLEAN against a stale cached olean).  A lane runs `check_dyadic.sh`
@@ -29,7 +29,9 @@
 #     GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh     # or:  --ledger
 #
 # and otherwise prints a SKIP line naming this script.  The default path of
-# `check_dyadic.sh` is byte-for-byte what it was before this script landed.
+# `check_dyadic.sh` runs exactly the checks it ran before this script landed; the
+# only difference is that one extra SKIP line is printed, so that the gate is
+# discoverable from a default run without being triggered by one.
 #
 # ---------------------------------------------------------------------------
 # WHAT IT CHECKS
@@ -38,12 +40,12 @@
 #       certificate `throwError`s on a violation, so a nonzero exit here already
 #       means a capstone rests on `sorryAx`, on a non-census axiom, or has
 #       stopped printing identically to its Γ_A twin.
-#   L2  gap map empty — no declaration depends on `sorryAx`.  The ledger only
+#   L2  gap map empty - no declaration depends on `sorryAx`.  The ledger only
 #       REPORTS this; its own docstring says it is "expected to stay" empty, and
 #       `scripts/check_axioms.sh`'s `SORRY_ALLOWLIST` is the mechanism that lets
 #       it be non-empty mid-wave.  A wave closes with the allowlist empty, so a
 #       nonzero gap map at merge time is a failure.
-#   L3  ALARM empty — no unknown non-standard axiom.  The ledger's docstring:
+#   L3  ALARM empty - no unknown non-standard axiom.  The ledger's docstring:
 #       "Must be empty: a stray `axiom`, a `native_decide` (`Lean.ofReduceBool`),
 #       or a miscounted census would surface here."
 #   L4  terminal violations = 0, read back from the printed count.  Redundant
@@ -81,16 +83,16 @@ if [ -n "${GQ2_LEDGER_FIXTURE:-}" ]; then
     exit 1
   fi
   ledger_out=$(cat "$GQ2_LEDGER_FIXTURE")
-  echo "SKIP: L1 ledger run — parsing the fixture ${GQ2_LEDGER_FIXTURE} instead"
+  echo "SKIP: L1 ledger run - parsing the fixture ${GQ2_LEDGER_FIXTURE} instead"
 else
   if ! command -v lake >/dev/null 2>&1; then
     echo "FAIL: \`lake\` not found on PATH; this gate needs the toolchain"
     exit 1
   fi
   if ledger_out=$(lake env lean "$LEDGER_FILE" 2>&1); then
-    echo "OK:   L1 lake env lean ${LEDGER_FILE} — exit 0"
+    echo "OK:   L1 lake env lean ${LEDGER_FILE} - exit 0"
   else
-    echo "FAIL: L1 lake env lean ${LEDGER_FILE} — nonzero exit"
+    echo "FAIL: L1 lake env lean ${LEDGER_FILE} - nonzero exit"
     echo "      Either the library is not built (\`lake build GQ2\` first) or the"
     echo "      terminal certificate fired.  Its report follows."
     fail=1
@@ -114,46 +116,46 @@ scanned=$(count_from 's/^scanned \([0-9][0-9]*\) tracked declarations under `GQ2
 
 # -- L2. gap map -------------------------------------------------------------
 if [ -z "$gap" ]; then
-  echo "FAIL: L2 gap map — no \`--- gap map: N declaration(s) ... ---\` line in the output"
+  echo "FAIL: L2 gap map - no \`--- gap map: N declaration(s) ... ---\` line in the output"
   fail=1
 elif [ "$gap" -ne 0 ]; then
-  echo "FAIL: L2 gap map — ${gap} declaration(s) depend on \`sorryAx\` (must be 0 at a merge)"
+  echo "FAIL: L2 gap map - ${gap} declaration(s) depend on \`sorryAx\` (must be 0 at a merge)"
   echo "      A mid-wave \`sorry\` is allowed only in a file named in check_axioms.sh's"
   echo "      SORRY_ALLOWLIST, and that allowlist is empty at every wave close."
   fail=1
 else
-  echo "OK:   L2 gap map — 0 declarations depend on \`sorryAx\`"
+  echo "OK:   L2 gap map - 0 declarations depend on \`sorryAx\`"
 fi
 
 # -- L3. alarm ---------------------------------------------------------------
 if [ -z "$alarm" ]; then
-  echo "FAIL: L3 alarm — no \`--- ALARM: N unknown non-standard axiom use(s) ... ---\` line"
+  echo "FAIL: L3 alarm - no \`--- ALARM: N unknown non-standard axiom use(s) ... ---\` line"
   fail=1
 elif [ "$alarm" -ne 0 ]; then
-  echo "FAIL: L3 alarm — ${alarm} use(s) of an axiom outside the census (must be 0)"
+  echo "FAIL: L3 alarm - ${alarm} use(s) of an axiom outside the census (must be 0)"
   echo "      A stray \`axiom\`, a \`native_decide\` (\`Lean.ofReduceBool\`), or a census"
   echo "      that moved without \`bAxioms\` moving with it."
   fail=1
 else
-  echo "OK:   L3 alarm — 0 unknown non-standard axiom uses"
+  echo "OK:   L3 alarm - 0 unknown non-standard axiom uses"
 fi
 
 # -- L4. terminal certificate ------------------------------------------------
 if [ -z "$term" ]; then
-  echo "FAIL: L4 terminal certificate — no \`N terminal violation(s) (must be 0)\` line"
+  echo "FAIL: L4 terminal certificate - no \`N terminal violation(s) (must be 0)\` line"
   fail=1
 elif [ "$term" -ne 0 ]; then
-  echo "FAIL: L4 terminal certificate — ${term} violation(s) (must be 0)"
+  echo "FAIL: L4 terminal certificate - ${term} violation(s) (must be 0)"
   fail=1
 else
-  echo "OK:   L4 terminal certificate — 0 violations"
+  echo "OK:   L4 terminal certificate - 0 violations"
 fi
 
 # -- informational -----------------------------------------------------------
 if [ -n "$scanned" ]; then
   echo "INFO: ${scanned} tracked declarations scanned (reported, never asserted)"
 else
-  echo "FAIL: no \`scanned N tracked declarations\` line — the ledger did not report"
+  echo "FAIL: no \`scanned N tracked declarations\` line - the ledger did not report"
   fail=1
 fi
 
