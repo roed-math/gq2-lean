@@ -37,9 +37,11 @@ note after the census claim:
 > "a lane running `check_dyadic.sh` does not touch `lake`" was false before this wave.  I did not
 > run `check_dyadic.sh` end to end for exactly this reason.
 
-**Ticket 3.**  **28 findings in the four wave-72 modules** (5 high, 8 medium, 7 medium-low, 8
-low), plus the lane-note findings of §3.4.  Counted one per label: §3.1 has 15 (a-o), §3.2 has 9
-(a-i), §3.3 has 4 (a-d).  The three worth reading first:
+**Ticket 3.**  **29 findings**: 28 in the four wave-72 modules (5 high, 8 medium, 7 medium-low,
+8 low) and one more in the lane notes and the owner's wave-72 status prose (§3.4(a), which is the
+prose half of §3.1(c)), plus two **null** results recorded in §3.4 because a null result is the
+point of the intra-wave item.  Counted one per label: §3.1 has 15 (a-o), §3.2 has 9 (a-i), §3.3
+has 4 (a-d), §3.4 has 1 finding and 2 nulls.  The three worth reading first:
 
 1. **A ⭐⭐⭐ docstring is on the wrong theorem.**  `GradedClassFourDefect.lean:435-455` states
    `cfourDef_leftover_reduce`'s conclusion verbatim but sits on `cfourDef_relator_step`, which
