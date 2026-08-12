@@ -63,8 +63,10 @@ theorem Sval_toZModPow_five :
       z = 29) _ h
 
 /-- The fourth power of `sigma` is not in the fourth lower-two-central subgroup.  Its
-cyclotomic value is `29^4 = 17`, not `1`, modulo `32`, whereas every element of `lambda_4`
-has trivial mod-`32` cyclotomic shadow. -/
+cyclotomic value is `29^4 = 17`, not `1`, modulo `32`, whereas the fourth term of the tower on
+`ℤ₂ˣ` lies in the kernel of reduction mod `32` (`twoCentralSeries_units_le`).  (Wave 70: the
+comparison group on this line used to be spelled `lambda_4`, which names nothing in the tree and
+read as `γ₄` of the source group rather than of `ℤ₂ˣ`.) -/
 theorem dsqSigma_pow_four_not_mem_twoCentralSeries_four (h : ℕ) :
     dsqSigma h ^ 4 ∉ twoCentralSeries (DSq h : Type) 4 := by
   intro hs

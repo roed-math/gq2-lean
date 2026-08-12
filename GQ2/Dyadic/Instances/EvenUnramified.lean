@@ -43,7 +43,10 @@ and at no point of depth `α ≥ 3`.
 
 3. **The head exponent explains the coincidence** (§3).  The `N` relator head is
    `a ^ (2 + 2 ^ α)` and `2 + 2 ^ a = 2 ^ b` has the unique solution `(a, b) = (1, 2)`, so
-   `DN 1 h` is the core whose relator is `x₀ ^ 4 [x₀, x₁] [x₂, x₃]` times handles.  The `M`
+   `DN 1 h` is the core whose relator is `x₀ ^ 4 [x₀, x₁] [σ, x₂]` times handles.  (Wave 70
+   fixed the letters: `MarkedCore/Cores.lean:123` fixes `a, b, c, d = x₀, x₁, σ, x₂`, so the
+   second bracket is `[σ, x₂]`; this line used to read `[x₂, x₃]`, which names a letter the
+   core does not have.)  The `M`
    relator head is `a ^ 2` at every `α`.  The third stratum at depth `α` is the locus where
    `μ_{2^α} ⊆ K`, whose Demushkin invariant is `q = 2^α`; the cores realize `q = 4` at
    `(N, α = 1)` and `q = 2` elsewhere, which is the same one-point overlap seen from the
@@ -58,8 +61,12 @@ is refuted at such a field (`evenUnram_classification_conclusion_false`), so its
 binder `hram` is necessary and not merely convenient.  This is the boundary result the ticket
 asked to state honestly if the cores did not cover the stratum.
 
-At depth `α = 2` the statement survives, at the *shifted* parameter `a = 1`, and only there
-(`evenUnram_le_one_of_orientedN`).  The proof does not transport with it: the `N` endpoint chain
+At depth `α = 2` the statement survives, at the *shifted* parameter `a ≤ 1`
+(`evenUnram_le_one_of_orientedN`), and at no other depth (`evenUnram_eq_two_of_orientedN`).
+Wave 70 corrected this line, which used to read `a = 1`, and only there: the cited theorem
+concludes `a ≤ 1`, and `a = 0` is not excluded by the image, `imChiN 0` and `imChiN 1` being the
+same subgroup.  It is §3's head-exponent criterion, not §2's image criterion, that singles out
+`a = 1`.  The proof does not transport with it: the `N` endpoint chain
 needs `2 ≤ α` at five independent leaves, one of which (`evenRawStageShift_n`) is documented
 false at `α = 1`, and the frame layer records `IsEmpty (NFrame 1 h)`.  §5 states that
 obstruction in the form it takes here: any core admitting an oriented equivalence with a
@@ -253,8 +260,13 @@ cyclotomic character exactly when `μ_{2^α} ⊆ K`, so the Demushkin invariant 
 power of `2` that is at least `4`.  A presented core can carry that invariant only if its head
 exponent is itself such a power, and `2 + 2 ^ a = 2 ^ b` has the single solution
 `(a, b) = (1, 2)`.  That is the group-side shadow of §2's one-point coincidence, and it says
-which core the surviving point is: `DN 1 h`, with relator `x₀ ^ 4 [x₀, x₁] [x₂, x₃]` and
-handles. -/
+which core the surviving point is: `DN 1 h`, with relator `x₀ ^ 4 [x₀, x₁] [σ, x₂]` and
+handles (Labute letters as fixed at `MarkedCore/Cores.lean:123`; wave 70 corrected `[x₂, x₃]`
+here).
+
+Note that the two criteria are not equally sharp, and §2's is the weaker one: the *image*
+criterion admits `a ≤ 1`, since `imChiN 0 = imChiN 1`, while the *head-exponent* criterion
+above singles out `a = 1`. -/
 
 section HeadExponent
 

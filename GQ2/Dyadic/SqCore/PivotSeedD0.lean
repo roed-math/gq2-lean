@@ -588,7 +588,9 @@ is to be stated as a remark beside it rather than by quoting the nested twin
 `Nesting.gammaR_lSq_equiv_galK_degreeOne_nested_unconditional`
 (`GQ2/Dyadic/Instances/DegreeOneNesting.lean` §6): since the wave-42 bundle work the two
 print the *same* set, so the nesting is a fact about this theorem too and reads better as a
-measured remark than as a second theorem name.
+measured remark than as a second theorem name.  **Verified at wave 70** by printing both
+against a single import: identical `10`-member sets, std-3 plus exactly the seven listed above,
+neither side carrying a member the other lacks.
 
 The other is `GQ2.Dyadic.LSquare.gammaR_lSq_equiv_galK_degreeOne`
 (`GQ2/Dyadic/Instances/GammaLOddDegreeGrandAssembly.lean` §7), the `h = 0` face of the grand

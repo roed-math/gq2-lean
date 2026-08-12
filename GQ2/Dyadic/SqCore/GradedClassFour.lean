@@ -82,8 +82,13 @@ What a correction taken **inside `γ₂`** buys, slot by slot (`cfour_dress_zero
 
 and the `x₀`-slot's fourth power buys **nothing** (`cfour_pow_four_dress`), nor does the triple
 bracket (`cfour_triple_dress_zero`).  Note the asymmetry: the `x₁`-slot is the only source of
-**squares**, and its square arrives **bundled** with a bracket against `m 2`, which is the one
-frame slot that appears nowhere else in the relator as a bracket partner.
+**squares**, and its square arrives **bundled** with a bracket against `m 2` that neither other
+knob produces (they buy `commP c (m 1)` and `commP (m 0) c`).
+
+Corrected at wave 70: this line used to give as the reason that `m 2` appears nowhere else in
+the relator as a bracket partner.  That is false, and `cfour_sqRelWord` shows it: the relator
+carries the triple bracket `commP (m 2) (commP (m 2) (m 0))`, in which `m 2` is the bracket
+partner twice over.  The asymmetry is one of the **knob inventory**, not of the relator.
 
 ## §6 The obligation, exactly
 
@@ -117,8 +122,11 @@ group on `V = G/γ₂` decomposes as `V^{[4]} ⊕ (Λ²V)^{[2]} ⊕ L₃(V)`:
   `⁅⁅c, x₁⁆, g⁆` re-expands into brackets whose outer slot is *not* `x₁` - except in the
   direction `⁅⁅x₁, g⁆, x₁⁆`, which is reached instead by a correction whose square part
   involves `x₁`.  Such a correction exists at every selected marking, because the `x₁`-coordinate
-  functional is never in the span of `λ` and `ν'` modulo 2 (`λ(x₀) = 1` forces the `λ`-coefficient
-  to vanish, and then `ν'(σ) = 1 ≠ 0` forces the other).  This is the argument to formalise, and
+  functional is never in the span of `λ` and `ν'` modulo 2 (evaluate at `x₀`, where `λ(x₀) = 1`
+  and `ν'(x₀) = 0` by the selection clause of `cfour_supply_iff`, forcing the `λ`-coefficient to
+  vanish; then evaluate at `σ`, where `ν'(σ) = 1 ≠ 0` forces the other).  The `ν'(x₀) = 0` half
+  was left implicit here until wave 70, and without it the first step does not close.  This is
+  the argument to formalise, and
   it needs a graded-layer decomposition of `γ₃/γ₄` on the **tower**, which the tree has only on
   slices today.
 
@@ -611,9 +619,12 @@ section BaseDefect
 variable {h : ℕ} (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
 
 /-- **The class-four Eichler defect**: the amount by which the two cleared handle letters miss
-the plain handle bracket in `Q₄`.  At class three wave 68 evaluated it
-(`bridge_handle_comm`: it is `commP w^{ν'(u)} v · commP u w^{ν'(v)}`, an element of the central
-layer of `Q₃`); at class four it is a `Y`-element and is the entire obligation. -/
+the plain handle bracket in `Q₄`.  At class three wave 68 evaluated it: `bridge_defect_eq` is
+the evaluation, `bridgeDefect nu' j = commP w^{ν'(u)} v · commP u w^{ν'(v)}` with `w` the pivot,
+and `bridge_defect_central` puts it in the central layer of `Q₃`.  (Wave 70 corrected the
+citation on this line, which named `bridge_handle_comm`; that lemma transports the defect to the
+handle bracket, it does not evaluate it.)  At class four it is a `Y`-element and is the entire
+obligation. -/
 noncomputable def cfourEichDefect : levelQuot (DSq h : Type) 4 :=
   (commP (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
       (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))))⁻¹ *
@@ -755,8 +766,11 @@ theorem cfour_dress_one {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) {c :
 /-- ⭐ **The `x₁`-slot knob**: a `γ₂`-valued correction of the `x₁`-slot moves the class-four
 relator by `c² · commP c (m 2)`.  This is the **only** knob producing a square, because `m 2 ^ 2`
 is the only square in the relator; and the square arrives **bundled** with a bracket against
-`m 2` that no other knob can produce, because `m 2` is the one frame slot that never appears as
-a bracket partner elsewhere in the relator. -/
+`m 2` that neither other knob can produce (`cfour_dress_zero` buys `commP c (m 1)`,
+`cfour_dress_one` buys `commP (m 0) c`).  Corrected at wave 70: the reason recorded here used
+to be that `m 2` never appears as a bracket partner elsewhere in the relator, which
+`cfour_sqRelWord` refutes outright, its triple bracket being `commP (m 2) (commP (m 2) (m 0))`.
+The knob inventory is what is asymmetric here. -/
 theorem cfour_dress_two {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) {c : levelQuot G 4}
     (hc : c ∈ lambdaImage G 2 4) (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2 * c)
     (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
