@@ -17,12 +17,13 @@ housekeeping turned up something you should know about.
   fully tight, and its ingredients all exist.
 * **A module had never been built.**  The manifest audit found `SqCore/NuSeeds.lean`, landed on
   2026-08-05, imported by nothing.  Because the build roots only `GQ2.lean`, its eight
-  declarations had never been in a green build, through seven waves of accurate green reports.
+  declarations had never been in a green build, through more than twenty waves of accurate
+  green reports.
   It typechecks clean at the standard axioms and is now registered.  Nothing else in the tree
   is unreachable except the axiom ledger, which is meant to be.
 * **On the even side**, the cup-adapted frame is now refuted outright on the unramified stratum
   rather than only its model equivalence, and the refutation covers both rows at once.  The
-  surviving point turned out to be a ten-field structure rather than a single condition; six
+  surviving point turned out to be a nine-field structure rather than a single condition; six
   fields are already free, and the remaining two halves each have a committed route that is
   blocked rather than merely unproved.
 
