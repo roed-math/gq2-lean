@@ -62,8 +62,9 @@ nondegeneracy survives on both rows.  The
 committed `EvenModelDemushkin` docstring records that at `α = 1` the shared Gram
 `mGram = nGram` is no longer the common value: the `N` head exponent becomes
 `2 + 2 ^ 1 = 4 ≡ 0 (mod 4)` and its diagonal entry dies, while the `M` row picks up a second
-diagonal entry at slot `2`.  Both resulting matrices are nondegenerate, so §3's two questions
-are now settled (wave 70): see the residual docstrings below.
+diagonal entry at slot `2`.  Both resulting matrices are nondegenerate, so §3's two `α = 1`
+questions are now settled (wave 70): see the residual docstrings below.  §3's third residual, the
+`α = 0` rank, is untouched by wave 70 and stays open.
 
 ## Numbering
 
@@ -248,12 +249,19 @@ What the original reasoning got right: the head exponent is `2 + 2 ^ 1 = 4 ≡ 0
 and **nondegenerate**, not degenerate.  Alternating was read as degenerate.
 `evenDem_nFrame_isEmpty_alphaOne` is likewise not evidence against Demushkin-ness: the frame
 layer represents a `ℤ/2` torsion slot, and an alternating cup form is the mod-`2` signature of
-`q ≢ 2`.  ⚠ The `q`-invariant at `α = 1` is still **uncomputed**: `demushkinQ` is a torsion
-count on the abelianization, independent of `IsDemushkin`, and the committed route to it runs
-through `NFrame`, which is provably empty here, so that route is structurally unavailable
-rather than merely unproved.
+`q ≢ 2`.  The `q`-invariant at `α = 1` is **computed too**, later in the same wave:
+`demushkinQ (D_N 1 h) = 4` at every handle count, with no frame hypothesis
+(`GQ2/Dyadic/MarkedCore/NFrameAlphaOne.lean`, `nFrame4_demushkinQ_DN_one`), packaged with the rank
+and the Demushkin property in `GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean`.  The route
+through `NFrame` is indeed structurally unavailable, `NFrame 1 h` being empty; what wave 70 did
+was replace `NFrame` by a `ℤ/4`-slotted twin `NFrame4`, not repair it.  The torsion there is
+*identified* as `ℤ/4` rather than bounded below, so `q = 4` is a computation and not an estimate.
+(An earlier merge note in this docstring recorded the `q`-invariant as uncomputed.  That was true
+when written and was superseded within the same wave; it is corrected here.)
 
-The superseded original reasoning follows, for the record.  Nothing in the committed development
+The superseded original reasoning follows, for the record.  Everything from here to the end of
+this docstring is pre-wave-70 text, the sentence immediately below included, and that sentence is
+refuted by the committed `evenAlphaOne_isDemushkin_DN`.  Nothing in the committed development
 decides the Demushkin question itself, in either direction.
 
 Cost to close: the `α = 1` `N` Gram has to be computed afresh (the committed
@@ -277,9 +285,15 @@ def EvenDemResidualAlphaOneN : Prop := ∀ h : ℕ, ¬ IsDemushkin 2 (DN 1 h : T
 /-- **Residual R2 (`M` at `α = 1`), DISCHARGED (wave 70)** by
 `EvenAlphaOne.evenAlphaOne_residualM`.  The `α = 1` `M` Gram is
 `[[1,1,0,0],[1,0,0,0],[0,0,1,1],[0,0,1,0]]`, two copies of the committed head block,
-determinant `1`, nondegenerate and not alternating.  There is no asymmetry after all: both
-rows are Demushkin at `α = 1`, by the same machinery, exactly as this docstring's last sentence
-guessed the machinery would be.  The original text follows.
+determinant `1`, nondegenerate and not alternating.  There is no asymmetry **in Demushkin-ness**:
+both rows are Demushkin at `α = 1`, by the same machinery.  The rows do still part company at
+`α = 1`, in two computed ways.  The `N` form is alternating and the `M` form is not
+(`evenAlphaOneNCupForm_self` against `evenAlphaOneMCupForm_self`), and the two `q`-invariants
+differ: `4` on the `N` row (`MarkedCore/NFrameAlphaOne.lean`, `nFrame4_demushkinQ_DN_one`) against
+`2` on the `M` row (`evenDem_demushkinQ_DM_alphaOne` above).  The machinery guess in the original
+text's last sentence did **not** hold: `EvenAlphaOne.lean` §6 does not reuse `evenDualMap`, it
+defines a fresh `evenAlphaOneMDual` carrying a second correction term at slot `3`, and reuses only
+`evenPartner`, `evenDot` and `evenDot_single`.  The original text follows.
 
 At `α = 1` the `M` row does not
 lose its head diagonal entry; it *gains* a second one at slot `2`, from `c ^ (2 ^ α) = c ²`.  A
