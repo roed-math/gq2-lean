@@ -76,8 +76,16 @@ a fourth power and two **pure** iterated brackets.  ⭐⭐ `cfourKnob_dress_pair
 `cfourKnob_triple_swap`, the last factor is literally the leftover's triple bracket
 `⁅x₁, ⁅x₁, A⁆⁆`.  So the leftover's fourth power and its triple bracket are delivered together
 by two admissible corrections, and the residue `⁅⁅A, x₁⁆, A⁆` is a bracket whose **outer** slot
-is `A`, a slot the handle knobs `cfourId_dress_handleU` / `cfourId_dress_handleV` reach without
-touching the `x₁`-slot.
+is `A`.  Reaching that residue is a separate step, **not** committed here: it needs the far slot
+of a knob moved from a handle letter to `A`, which is bilinearity in the far slot plus the `zpow`
+bookkeeping of `bridgeDress`.
+
+## §5 The pairing as one correction
+
+The `x₁`-slot knob is multiplicative in its correction (`cfourKnob_dress_two_mul`), so the pair
+is not two moves but one: ⭐⭐ `cfourKnob_pair_correction` exhibits the single `γ₂`-element
+`c = A² · ⁅A, x₁⁆`, exactly row-trivial, whose `x₁`-slot knob is
+`A⁴ · ⁅⁅A, x₁⁆, A⁆ · ⁅x₁, ⁅x₁, A⁆⁆`.
 
 **Verdict.**  `SqClassClearingSupply h 4` is **not** discharged here, and nothing here refutes
 it.  What is settled is that neither of the two directions the wave-70 analysis named as the
@@ -381,9 +389,9 @@ and the product of their two `x₁`-slot knobs is
 By `cfourKnob_leftover_eq` the leftover carries exactly `A⁴` as its only fourth power and
 exactly `⁅x₁, ⁅x₁, A⁆⁆` as its triple bracket, and in the exponent-two layer `Z` that triple
 bracket is `⁅⁅A, x₁⁆, x₁⁆`.  So the pair delivers both of the leftover's `x₁`-involving terms at
-once, leaving only `⁅⁅A, x₁⁆, A⁆` - a pure bracket whose **outer** slot is `A`, hence one the
-handle knobs of `cfourId_dress_handleU` / `cfourId_dress_handleV` reach without touching the
-`x₁`-slot. -/
+once, leaving only `⁅⁅A, x₁⁆, A⁆` - a pure bracket whose **outer** slot is `A` rather than `x₁`,
+so that the `x₁`-slot is not needed again for it.  Whether that residue is itself reachable is a
+separate question, not settled here. -/
 theorem cfourKnob_dress_pair :
     (((levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ^ 2) ^ 2 *
         commP ((levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ^ 2)
@@ -403,7 +411,83 @@ theorem cfourKnob_dress_pair :
 
 end Application
 
-/-! ## §5 Axiom pins -/
+/-! ## §5 The pairing as a single correction -/
+
+section SingleCorrection
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **The `x₁`-slot knob is multiplicative in the correction.**  Squares of `Y`-elements add
+(`cfour_sq_mul_lambdaTwo`) and brackets against a `Y`-slot add (`gThreeFour_ad_left`), and every
+resulting factor is a `Z`-element, hence central.  So the two knobs paired in
+`cfourKnob_sq_knob_pair` are the knob of the **single** correction `c₁ · c₂`, and the pairing
+costs no extra slot. -/
+theorem cfourKnob_dress_two_mul {c₁ c₂ : levelQuot G 4} (hc₁ : c₁ ∈ lambdaImage G 2 4)
+    (hc₂ : c₂ ∈ lambdaImage G 2 4) (q : levelQuot G 4) :
+    (c₁ * c₂) ^ 2 * commP (c₁ * c₂) q = c₁ ^ 2 * commP c₁ q * (c₂ ^ 2 * commP c₂ q) := by
+  have hz2 : c₂ ^ 2 ∈ zLayer G 3 := cfour_sq_mem_zLayer hc₂
+  have key : c₂ ^ 2 * (commP c₁ q * commP c₂ q) = commP c₁ q * (c₂ ^ 2 * commP c₂ q) := by
+    rw [← mul_assoc, cfour_zLayer_comm hz2 (commP c₁ q), mul_assoc]
+  rw [cfour_sq_mul_lambdaTwo hc₁ hc₂, gThreeFour_ad_left hc₁ c₂ q]
+  simp only [mul_assoc]
+  rw [key]
+
+end SingleCorrection
+
+section Correction
+
+variable {h : ℕ} (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+
+/-- The level map carries `commP` to `commP`. -/
+theorem cfourKnob_levelMk_commP (a b : (DSq h : Type)) :
+    levelMk (DSq h : Type) 4 (commP a b)
+      = commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b) := by
+  simp only [commP, map_mul, map_inv]
+
+/-- A product of two exactly row-trivial `γ₂`-elements is again one. -/
+theorem cfourKnob_mul_admissible {c₁ c₂ : (DSq h : Type)}
+    (h₁ : c₁ ∈ twoCentralSeries (DSq h : Type) 2) (h₂ : c₂ ∈ twoCentralSeries (DSq h : Type) 2)
+    (hl₁ : nuLam h c₁ = 1) (hl₂ : nuLam h c₂ = 1) (hn₁ : nu' c₁ = 1) (hn₂ : nu' c₂ = 1) :
+    c₁ * c₂ ∈ twoCentralSeries (DSq h : Type) 2 ∧ nuLam h (c₁ * c₂) = 1 ∧ nu' (c₁ * c₂) = 1 :=
+  ⟨Subgroup.mul_mem _ h₁ h₂, by rw [map_mul, hl₁, hl₂, one_mul],
+    by rw [map_mul, hn₁, hn₂, one_mul]⟩
+
+/-- ⭐⭐⭐ **An explicit admissible correction delivering two of the leftover's three factors.**
+The single `γ₂`-element `c = A² · ⁅A, x₁⁆`, with `A = bridgeDress nu' j`, is exactly row-trivial
+- `A²` by `cfourKnob_dressSq_admissible`, `⁅A, x₁⁆` by `cfourKnob_comm_admissible`, the product
+by `cfourKnob_mul_admissible` - and its `x₁`-slot knob (`cfour_dress_two` at `m 2 = x₁`) is
+
+```text
+  A⁴ · ⁅⁅A, x₁⁆, A⁆ · ⁅x₁, ⁅x₁, A⁆⁆ .
+```
+
+Two of those three factors, `A⁴` and `⁅x₁, ⁅x₁, A⁆⁆`, are exactly the fourth power and the
+triple bracket of `cfourKnob_leftover_eq`.  The two terms the wave-69 and wave-70 analyses both
+flagged as the hard ones are therefore moved by one legal correction on one slot.  The third
+factor has outer slot `A` rather than `x₁`; that it is reachable is not claimed here. -/
+theorem cfourKnob_pair_correction (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    ∃ c ∈ twoCentralSeries (DSq h : Type) 2, nuLam h c = 1 ∧ nu' c = 1 ∧
+      (levelMk (DSq h : Type) 4 c) ^ 2 *
+          commP (levelMk (DSq h : Type) 4 c) (levelMk (DSq h : Type) 4 (dsqX1 h))
+        = (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ^ 4 *
+          (commP (commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+                (levelMk (DSq h : Type) 4 (dsqX1 h)))
+              (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
+            commP (levelMk (DSq h : Type) 4 (dsqX1 h))
+              (commP (levelMk (DSq h : Type) 4 (dsqX1 h))
+                (levelMk (DSq h : Type) 4 (bridgeDress nu' j)))) := by
+  obtain ⟨hm₁, hl₁, hn₁⟩ := cfourKnob_dressSq_admissible nu' j hsigma hx0
+  obtain ⟨hm₂, hl₂, hn₂⟩ := cfourKnob_comm_admissible nu' (bridgeDress nu' j) (dsqX1 h)
+  obtain ⟨hm, hl, hn⟩ := cfourKnob_mul_admissible nu' hm₁ hm₂ hl₁ hl₂ hn₁ hn₂
+  refine ⟨_, hm, hl, hn, ?_⟩
+  rw [map_mul, cfourKnob_levelMk_commP, map_pow,
+    cfourKnob_dress_two_mul (cfour_sq_mem_lambdaTwo _) (cfour_commP_mem_lambdaTwo _ _)]
+  exact cfourKnob_dress_pair nu' j
+
+end Correction
+
+/-! ## §6 Axiom pins -/
 
 section AxiomPins
 
@@ -424,6 +508,10 @@ section AxiomPins
 #print axioms cfourKnob_comm_row
 #print axioms cfourKnob_comm_admissible
 #print axioms cfourKnob_dress_pair
+#print axioms cfourKnob_dress_two_mul
+#print axioms cfourKnob_levelMk_commP
+#print axioms cfourKnob_mul_admissible
+#print axioms cfourKnob_pair_correction
 
 end AxiomPins
 
