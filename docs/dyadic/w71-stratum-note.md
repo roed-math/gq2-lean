@@ -1,7 +1,15 @@
 # W71: the even stage layer on the third stratum
 
 Lane W71-STRATUM.  New module `GQ2/Dyadic/Instances/EvenStratumPoint.lean`; no edits to existing
-files.  Prefix `evenStratum`.  19 declarations, all pinning inside the committed even axiom sets.
+files.  Prefix `evenStratum`.  **18** declarations (17 theorems and the model head vector
+`evenStratumHeadVec`), of which the 17 theorems carry an axiom pin, all inside the committed
+even axiom sets: the standard three, plus `tateDualityAt` and
+`hilbertSymbol_normCriterion_finiteDyadic` on the cup-form line, plus
+`Foundations.absGalQ2_localEulerCharacteristic` on
+`evenStratum_orientedEquivN_one_of_forwardGeneratorData`.  The file also carries five comparison
+pins on declarations from other modules, which is why it has 23 `#print axioms` lines.  (Count
+corrected from "19 declarations, all pinning" by W72-HOUSE, watch round 9, machine-checked with
+`scripts/mirror.sh check`.)
 
 ## 0.  Headline
 

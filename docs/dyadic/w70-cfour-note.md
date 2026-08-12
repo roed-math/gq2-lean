@@ -113,6 +113,20 @@ read `λ mod 2`, `ν' mod 2` on the square part.  That is a different, and easie
 
 ## 4.  ANALYSIS, NOT COMMITTED: where the remaining obligation sits
 
+> **WITHDRAWN BY WAVE 71.  Read `docs/dyadic/w71-cfour-note.md` §0 and §7 before using anything
+> below.**  (Forward pointer added by W72-HOUSE, watch round 9; the wave-71 note itemises the
+> corrections but this note was never marked.)  In summary: the fourth-power directions
+> `σ^{[4]}`, `x₀^{[4]}` identified below are **not directions the leftover has**
+> (`cfourKnob_leftover_eq` shows its only fourth power is `A⁴`); the `w⁴` cancellation invoked at
+> the end of this section is **unnecessary**, since `A⁴` is the square knob of the admissible
+> correction `A²`; and the bullet below that concludes `K ⊇ L₃(V)` **does not establish it**,
+> because the knob it appeals to is that bracket times `(commP x₁ a)²`, by this wave's own
+> `cfourId_x1_sq_direction`.  The headline sentence below ("the whole of class four is now one
+> question ... If that survives contact with a proof, class four is true") therefore does not
+> stand: what is actually left is the three factors of `w71-cfour-note.md` §4, of which the main
+> one, the two class-four defects, is a factor this section did not flag as hard at all.  What
+> this wave *committed* is unaffected: its Lean statements are untouched and wave 71 uses them.
+
 None of this section is formalised.  It is recorded because it is the sharp form of the wave-71
 ticket, and because it rests on tools this wave did commit.
 
