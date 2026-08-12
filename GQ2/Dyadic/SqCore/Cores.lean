@@ -102,9 +102,10 @@ unsynthesizable anywhere until a file writes
 open scoped commutatorElement
 ```
 
-after which it elaborates here exactly as it does anywhere else.  Ten files in this directory
-already do it (`GradedLcsGens.lean:76` and nine siblings), so nothing here is *forced* to spell
-brackets as `commP` by the elaborator.
+after which it elaborates here exactly as it does anywhere else.  Seventeen files in this
+directory already do it (`GradedLcsGens.lean:76` and sixteen siblings), so nothing here is
+*forced* to spell brackets as `commP` by the elaborator.  (Count corrected from "ten" by
+W72-HOUSE: it was already 17 when this paragraph was written.)
 
 Two things make the trap look like something it is not.  The **subgroup** bracket `⁅H, K⁆` works
 without the `open`, because `Subgroup.commutator` is a global instance; and
@@ -113,9 +114,11 @@ the element notation reads as specially broken in this lane when it is merely un
 
 **The `open` is deliberately not installed in this file.**  Two reasons, the second decisive.
 First, `open` is file-local: it does not reach importers, so it cannot be installed once here on
-behalf of the 77 `SqCore` modules that import this file.  (The only propagating alternative,
+behalf of the 84 `SqCore` modules that import this file.  (The only propagating alternative,
 re-declaring `commutatorElement` as a global instance, would reverse Mathlib's clash-avoidance
-decision for all 439 modules that reach this file, which is not a housekeeping lane's call.)
+decision for all 451 modules that reach this file, which is not a housekeeping lane's call.)
+(Both figures recounted at W72-HOUSE; they were 78 and 442 when written, and they grow with every
+landing, so read them as of the recount, not as invariants.)
 Second, **the two brackets are different functions**:
 
 ```text

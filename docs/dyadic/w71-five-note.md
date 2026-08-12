@@ -164,6 +164,18 @@ Lacks, and these are the named next steps:
   raw words; the `σ`- and `x₁`-slot knobs raw; wave 70's two-hypothesis passage discharged by the
   pointwise one; and a fully spelled-out `SqClassClearingSupply h 5` discharged by
   `cfiveKnob_supply_of_reach`.
-* The element bracket `⁅ , ⁆` still does not elaborate inside `GQ2.Dyadic.SqCore` (wave 69's
-  finding).  Everything is written in `commP`, and `gFourFive_levelMk_commutator` is the one place
-  that meets mathlib's bracket, through `commutatorElement_def` with the word spelled out.
+* Everything is written in `commP`, and `gFourFive_levelMk_commutator` is the one place that meets
+  mathlib's bracket, through `commutatorElement_def` with the word spelled out.
+  **[Corrected W72-HOUSE.]**  The reason this bullet originally gave (wave 69's "the element
+  bracket `⁅ , ⁆` still does not elaborate inside `GQ2.Dyadic.SqCore`") is **false**, and it had
+  already been retracted on trunk before this lane branched: see
+  `GQ2/Dyadic/SqCore/Cores.lean` §"The bracket notation, and why this lane writes `commP`"
+  (landed `f82cb316`, wave 70, and present in this lane's own tree) and `docs/dyadic/sq-design.md`
+  §"Addendum (W70-HOUSE, 2026-08-12): a third API finding, the element bracket".
+  Mathlib makes `commutatorElement` a **scoped** instance on purpose, so
+  `Bracket G G` is unsynthesizable in *any* file, at any namespace, until that file writes
+  `open scoped commutatorElement`; 17 files under `GQ2/Dyadic/SqCore/` already do,
+  `GradedLcsGens.lean:76` among them.  Writing `commP` here is a deliberate choice and the right
+  one, but for a different reason: `commP a b = ⁅a⁻¹, b⁻¹⁆`, so the two are **different
+  functions**, and opening the notation in a file that also uses `commP` arms the trap instead of
+  removing it.

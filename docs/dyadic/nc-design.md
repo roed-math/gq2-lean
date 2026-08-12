@@ -364,6 +364,13 @@ definitional rewrite of the `Sd`/`CentExt`/`kappa0` simp set or one of the four 
 
 ### 4.1 File map
 
+> **[W72-HOUSE, 2026-08-12, watch round 9.]  This map is the plan, not the tree.**  The directory
+> was built with a different five-way split.  Checked in both directions: `Omega.lean`,
+> `Main.lean` and `Handles.lean` landed as planned; **`Blocks.lean` and `Delta.lean` do not
+> exist**; and **`Defs.lean` and `Seams.lean` exist and are not listed here**.  The plain-file
+> decision and the directory name were both taken as written.  Read the table below as the
+> design's proposal, not as an inventory.
+
 New directory **`GQ2/Dyadic/NpcJet/`**, **plain (non-module) files** — forced: the proof
 imports both F2's module-style Word layer *and* the plain ℚ₂ κ⁰ layer
 (`GQ2/GaussZ/RelatorGammaA.lean` has no `module` header), and module files may not import

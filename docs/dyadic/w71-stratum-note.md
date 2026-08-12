@@ -1,7 +1,15 @@
 # W71: the even stage layer on the third stratum
 
 Lane W71-STRATUM.  New module `GQ2/Dyadic/Instances/EvenStratumPoint.lean`; no edits to existing
-files.  Prefix `evenStratum`.  19 declarations, all pinning inside the committed even axiom sets.
+files.  Prefix `evenStratum`.  **18** declarations (17 theorems and the model head vector
+`evenStratumHeadVec`), of which the 17 theorems carry an axiom pin, all inside the committed
+even axiom sets: the standard three, plus `tateDualityAt` and
+`hilbertSymbol_normCriterion_finiteDyadic` on the cup-form line, plus
+`Foundations.absGalQ2_localEulerCharacteristic` on
+`evenStratum_orientedEquivN_one_of_forwardGeneratorData`.  The file also carries five comparison
+pins on declarations from other modules, which is why it has 23 `#print axioms` lines.  (Count
+corrected from "19 declarations, all pinning" by W72-HOUSE, watch round 9, machine-checked with
+`scripts/mirror.sh check`.)
 
 ## 0.  Headline
 
@@ -104,6 +112,14 @@ unproved.
 ## 5.  Stale prose found, for the orchestrator
 
 I edited nothing.
+
+> **[W72-HOUSE, watch round 9.]  This section is discharged.**  The orchestrator applied the
+> repair later in the same wave, at `e6d10612`, and the paragraph now carries a correction
+> notice.  Two points for whoever reads the applied text: it is broader than the repair suggested
+> here (it also records `demushkinQ (DN 1 h) = 4` against `= 2` on the `M` row), and its notice
+> is headed "⚠ **Corrected at wave 70**", whereas the correction was applied at **wave 71**
+> against wave 70's landings.  Left as a finding rather than edited, because that file may be in
+> flight this wave.
 
 **`EvenForwardRouteSkeleton.lean:77-80`** is now false.  It reads that at `α = 1` the `N`
 relator's "mod-2 quadratic initial form vanishes, and the `N` core is not Demushkin".  Wave 70's

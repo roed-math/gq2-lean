@@ -16,6 +16,17 @@ class-four obligation to a single identity in `Q4 = levelQuot (DSq h) 4`:
 handle letters miss the plain handle bracket.  So the class-four attack surface is one element
 of one abelian group, not a word problem.
 
+> **[W72-HOUSE, watch round 9.]  "The whole class-four obligation" overstates the theorem, and
+> wave 70 showed why.**  `cfour_supply_of_eichDefect` is a **sufficient** condition, and its
+> hypothesis is the trivial dressing's.  Wave 70's `cfourId_bridgeDefect_of_eichDefect` and
+> `cfourId_base_relator_three_of_eichDefect` (`SqCore/GradedClassFourIdentity.lean:24-31`) show
+> that `cfourEichDefect nu' j = 1` *forces* `bridgeDefect nu' j = 1`, so the hypothesis is
+> exactly the assertion that wave 68 never needed its dressing, and wave 70 records it as "not a
+> plausible thing to prove".  What wave 69 committed is a real reduction along **one** route;
+> the obligation `SqClassClearingSupply h 4` quantifies over every admissible dressing.  The
+> honest headline is "a sufficient condition for class four, with the trivial dressing, that is
+> one element of one abelian group".
+
 All declarations pin to the standard three axioms (several to strict subsets); no `sorry`, no
 new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 
@@ -39,9 +50,20 @@ which fail at `Q4`; here is what replaces them.
   `(p q)^4 = p^4 q^4 (commP q p)^2`.  Its defect is the *square of a bracket*, and that is
   precisely the shape that cancels in the analysis of §5 below.
 
-The element commutator notation `⁅ , ⁆` does not elaborate inside `GQ2.Dyadic.SqCore` (the
-`Bracket G G` instance is not synthesizable there, checked in isolation), so the whole section
-is written in `commP` and never writes the bracket.  Worth knowing for the next lane.
+The whole section is written in `commP` and never writes the element commutator notation `⁅ , ⁆`.
+
+> **[Corrected W72-HOUSE.]**  This paragraph originally read "The element commutator notation
+> `⁅ , ⁆` does not elaborate inside `GQ2.Dyadic.SqCore` (the `Bracket G G` instance is not
+> synthesizable there, checked in isolation)", and offered that as the *reason* for writing
+> `commP`.  It is **false**, and this is where the error entered the campaign: waves 70 and 71
+> then repeated it in four further places.  `Bracket G G` is not synthesizable in *any* file, at
+> *any* namespace, until that file writes `open scoped commutatorElement`, because mathlib makes
+> `commutatorElement` a scoped instance on purpose (`Mathlib/Algebra/Group/Commutator.lean`).
+> Nothing about `GQ2.Dyadic.SqCore` is involved; 17 files in that very directory open the
+> instance and use the bracket.  The full diagnosis is the header of
+> `GQ2/Dyadic/SqCore/Cores.lean` (landed `f82cb316`, wave 70).  Note also that `commP` and the
+> bracket are **different functions**, `commP a b = ⁅a⁻¹, b⁻¹⁆`, which is the actual reason this
+> lane's `commP` spelling is right.
 
 ## 2.  The relator modulo `gamma_4` (module §2)
 

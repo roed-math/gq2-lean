@@ -102,7 +102,7 @@ Three buckets, as asked.  **"Class-four-only" means the wave-69 proof delivers n
 | `cfour_pow_four_mem_zLayer` | **class-four-only** | `cfive_pow_four_mem_lambdaThree`, `cfive_pow_eight_mem_zLayer` |
 | `cfour_pow_four_inv` | **class-four-only**, no class-five reading (it is `p⁸ ∈ γ₄`) | none |
 | `cfour_sq_mul_lambdaTwo`, `cfour_pow_four_mul` | class-four-only (need `Y` abelian) | none |
-| ⭐⭐ `cfour_sqWord`, `cfour_sqRelWord` | **class-four-only** | `relBase_sqWord_free` is the general form; the two simplifications are exactly the class-four content |
+| ⭐⭐ `cfour_sqWord`, `cfour_sqRelWord` | **class-four-only** | `relBase_sqWord_free` is the general form; **one** of the two simplifications is the class-four content (see below) |
 | `cfour_zLayer_le_lambdaTwo` | verbatim in shape | not restated |
 | `cfour_commute_lambdaTwo` | class-four-only | see `cfour_commP_lambdaTwo` row |
 | `cfour_handleWord_mem_lambdaTwo`, `cfour_sqRelWord_mem_lambdaTwo` | verbatim, every class | - |
@@ -123,6 +123,20 @@ The relator itself.  `cfour_pow_four_inv` is `p⁸ ∈ γ₄`, which says nothin
 than the class-four one, and this is where a class-five run's real work begins.  What it does
 *not* have to redo is §4 of wave 69: `relBase_relator_base` already covers it.
 
+> **[Corrected W72-HOUSE, watch round 9.]**  "and the `conjP c a` factor does not collapse
+> either" is **false**, and so is the same claim in `SqCore/GradedRelatorBase.lean:53-54`,
+> `:92-94` and `:105-107`.  `commP c (conjP c a) = commP c (commP c a)` is a **free-group
+> identity**: wave 69's own proof (`SqCore/GradedClassFour.lean:491-493`) closes it with
+> `cfour_commP_mul_right`, `cfour_comm_self` and `cfour_one_comm`, all three of which sit in that
+> file's `section FreeIdentities` under `variable {Q : Type*} [Group Q]`.  By hand,
+> `conjP c a = c · w` with `w = commP c a`, and `commP c (c·w) = c⁻¹w⁻¹cw = commP c w`.  So the
+> class-five relator loses **only** the fourth-power simplification, which is what
+> `SqCore/GradedClassFive.lean:350-354` correctly says; the two wave-70 files disagreed, and this
+> one was the wrong side.  Consequence worth taking: `relBase_sqWord_free` can be stated with
+> `commP c (commP c a)` over an arbitrary group, which is strictly stronger than what landed.
+> (`GradedClassFive.lean:353-354`'s "may **not** be simplified" is separately unhedged; nothing
+> proves `p⁸ ∉ γ₅`, so it should read "not by this argument".)
+
 ## 3.  Verification record
 
 * Harness: `scripts/mirror.sh sweep`, then `gen GQ2.Dyadic.SqCore.GradedRelatorBase`, then
@@ -134,10 +148,17 @@ than the class-four one, and this is where a class-five run's real work begins. 
 * No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 * Imports added: `GQ2.Dyadic.SqCore.GradedClassFour` (by `GradedRelatorBase`) and
   `GQ2.Dyadic.SqCore.GradedRelatorBase` (by `GradedClassFive`) only.
-* Wave 69's notation finding reconfirmed: the **element** bracket `⁅ , ⁆` does not elaborate
-  inside `GQ2.Dyadic.SqCore`, so everything is written in `commP`.  The **subgroup** bracket
-  `⁅H, K⁆` does elaborate there, which is new information and is what let the restatement check
-  below state `⁅γ₂, γ₃⁆ ≤ γ₅` in mathlib's own terms.
+* Everything is written in `commP`.  The **subgroup** bracket `⁅H, K⁆` does elaborate inside
+  `GQ2.Dyadic.SqCore`, which is what let the restatement check below state `⁅γ₂, γ₃⁆ ≤ γ₅` in
+  mathlib's own terms.  **[Corrected W72-HOUSE.]**  This bullet originally opened "Wave 69's
+  notation finding reconfirmed: the **element** bracket `⁅ , ⁆` does not elaborate inside
+  `GQ2.Dyadic.SqCore`".  That is **false**, and it was contradicted by a *concurrent landing of
+  this same wave*, `f82cb316` (W70-HOUSE, 11:26:18), two minutes before this note was written at
+  11:28:07.  The element bracket needs `open scoped commutatorElement`, which mathlib requires
+  everywhere, at every namespace, because `commutatorElement` is a deliberately scoped instance;
+  17 files under `GQ2/Dyadic/SqCore/` already write it.  The contrast this bullet draws between
+  the subgroup and element brackets is real, but its cause is `Subgroup.commutator` being a
+  *global* instance while `commutatorElement` is a *scoped* one, not anything about `SqCore`.
 * Independent restatement check (scratch, not committed), six items, all typecheck:
   `⁅γ₂, γ₃⁆ ≤ γ₅` and `⁅γ_k, γ₂⁆ ≤ γ_{k+2}` as raw mathlib subgroup containments and at the raw
   element level `v⁻¹w⁻¹vw`; `relBase_relator_base` with `sqRelWord`, `conjP`, `commP` and
