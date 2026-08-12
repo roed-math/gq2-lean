@@ -297,6 +297,317 @@ theorem evenUnram_mWord_head {G : Type*} [Group G] (alpha : ℕ) (a b c d : G) :
 
 end HeadExponent
 
+/-! ## §4 The verdict: the presented cores do not cover the deep third stratum
+
+Combining §1 and §2 at a field.  If `range χ_cyc = evenRangePrin α` then an oriented equivalence
+with `chiM a h` would force `evenRangePrin α = imChiM a`, and with `chiN a h` would force
+`evenRangePrin α = imChiN a`.  §2 rules the first out at every `a` and the second out at every
+`a` once `α ≥ 3`.
+
+So the ramification binder of `parityFinal_evenClassification` is necessary: its conclusion is
+false at any field on the third stratum of depth `α ≥ 3`.  That is a boundary result, not a gap:
+the classification target is the two `q = 2` Labute families, and the third stratum is where
+`q ≥ 4`. -/
+
+section Verdict
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂}
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **No `M` core on the third stratum, at any depth and any parameter.**  `-1` is a value of
+`chiM a h` and not of a third-stratum `χ_cyc`. -/
+theorem evenUnram_isEmpty_orientedM {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) (a h : ℕ) :
+    IsEmpty (OrientedContinuousMulEquiv (chiM a h) (chiCycKTwo (K := K))) := by
+  refine evenUnram_isEmpty_oriented_of_range_ne ?_
+  rw [hr, range_chiM]
+  exact Ne.symm (evenUnram_imChiM_ne_prin a halpha)
+
+/-- **No `N` core on the third stratum at depth `α ≥ 3`.** -/
+theorem evenUnram_isEmpty_orientedN {alpha : ℕ} (halpha : 3 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) (a h : ℕ) :
+    IsEmpty (OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K))) := by
+  refine evenUnram_isEmpty_oriented_of_range_ne ?_
+  rw [hr, range_chiN]
+  exact Ne.symm (evenUnram_imChiN_ne_prin_of_three_le a halpha)
+
+/-- **THE BOUNDARY.**  At a field whose cyclotomic image is a principal-unit group of level
+`α ≥ 3`, no presented even core at any parameter and any handle count is oriented-isomorphic to
+`G_K(2)`. -/
+theorem evenUnram_no_presented_core {alpha : ℕ} (halpha : 3 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) (a h : ℕ) :
+    IsEmpty (OrientedContinuousMulEquiv (chiM a h) (chiCycKTwo (K := K))) ∧
+      IsEmpty (OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K))) :=
+  ⟨evenUnram_isEmpty_orientedM (by omega) hr a h, evenUnram_isEmpty_orientedN halpha hr a h⟩
+
+/-- **THE RAMIFICATION BINDER IS NECESSARY.**  The conclusion of
+`parityFinal_evenClassification`, stated verbatim, is false at a field on the third stratum of
+depth `α ≥ 3`.  Since `hram` is the only hypothesis of that theorem which such a field can fail
+(the degree hypothesis is free and the bundle is carried), the binder cannot be dropped. -/
+theorem evenUnram_classification_conclusion_false {alpha : ℕ} (halpha : 3 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) (h : ℕ) :
+    ¬ ∃ a : ℕ, 2 ≤ a ∧
+      (Nonempty (OrientedContinuousMulEquiv (chiM a h) (chiCycKTwo (K := K))) ∨
+        Nonempty (OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K)))) := by
+  rintro ⟨a, -, hor | hor⟩
+  · exact (evenUnram_isEmpty_orientedM (by omega) hr a h).elim hor.some
+  · exact (evenUnram_isEmpty_orientedN halpha hr a h).elim hor.some
+
+/-- **The shifted-depth statement at `α = 2`.**  On the one stratum depth where a core image can
+match, the parameter is forced down to `a ≤ 1`: the classification statement, if it holds at
+all, holds at the shifted depth `α - 1` and nowhere else. -/
+theorem evenUnram_le_one_of_orientedN {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) {a h : ℕ}
+    (e : OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K))) : a ≤ 1 := by
+  have hrange := evenUnram_range_eq_of_oriented e
+  rw [hr, range_chiN] at hrange
+  exact ((evenUnram_imChiN_eq_prin_iff halpha).mp hrange.symm).1
+
+/-- The depth is forced too: only `α = 2` admits a matching core at all. -/
+theorem evenUnram_eq_two_of_orientedN {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) {a h : ℕ}
+    (e : OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K))) : alpha = 2 := by
+  have hrange := evenUnram_range_eq_of_oriented e
+  rw [hr, range_chiN] at hrange
+  exact ((evenUnram_imChiN_eq_prin_iff halpha).mp hrange.symm).2
+
+end Verdict
+
+/-! ## §5 The machinery obstruction at the surviving point
+
+The surviving parameter is exactly the one at which the committed frame layer has nothing.
+`nFrameExists_nonempty_iff` reads `Nonempty (NFrame α h) ↔ 2 ≤ α`, so the `N` frame is empty at
+`a ≤ 1`; and the `N` endpoint chain consumes `2 ≤ α` at five independent leaves, one of which
+(`evenRawStageShift_n`, `StageAbstractionEvenRawSpan.lean:625`) is recorded false at `α = 1`.
+
+The statement below is the form that obstruction takes on this stratum, and it is uniform in the
+depth: a core matching a third-stratum `G_K(2)` has no `N` frame, so no transport of the wave-58
+endpoint can produce one.  This is why §4's `α = 2` case is a *statement* that survives and not a
+theorem that transports. -/
+
+section FrameObstruction
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂}
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **A core matching the third stratum has no `N` frame.**  The parameter forced by §4 is below
+the frame threshold. -/
+theorem evenUnram_isEmpty_nFrame_of_orientedN {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) {a h : ℕ}
+    (e : OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K))) :
+    IsEmpty (NFrame a h) := by
+  have ha : a ≤ 1 := evenUnram_le_one_of_orientedN halpha hr e
+  rw [← not_nonempty_iff]
+  intro hne
+  exact absurd (GQ2.Dyadic.EvenDemushkin.evenDem_nFrame_nonempty_iff a h |>.mp hne) (by omega)
+
+end FrameObstruction
+
+/-! ## §6 The field side: what puts `K` on the third stratum
+
+The trichotomy splits on whether the range meets the class `3 mod 4`, so the third stratum is
+exactly the locus `range χ_cyc ≤ 1 + 4ℤ₂`.  A square root of `-1` inside `K` forces that: `i` is
+fixed by `G_K`, and `χ(g) ≡ -1 (mod 4)` would send `i` to `i ^ 3 = -i`.
+
+This is the direction the committed tree does not carry.  `MarkedRecipBundle.lean:715` records
+that only data implies field, and §10's `evenRangeF_hasEqualNormValueGroups_of_range_eq_prin`
+runs from the stratum to unramifiedness of `K(i)/K`.  The reverse implication is not available
+and is not true: a `K` with `K(i)/K` unramified quadratic has `i ∉ K`, so `χ mod 4` is the
+nontrivial character of `Gal(K(i)/K)` and the range meets the class `3 mod 4`.  The honest
+entry condition is `i ∈ K`, that is `μ_4 ⊆ K`, which is the `q ≥ 4` Demushkin locus §3 names. -/
+
+section FieldSide
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+open GQ2.Dyadic.Fields
+
+variable {R : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+omit [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
+/-- **A fourth root of unity in `K` makes every cyclotomic value `≡ 1 (mod 4)`.**  The mod-`4`
+half of `evenRangeF_gr_zeta`, run at `i` rather than at `ζ₈`. -/
+theorem evenUnram_toZModPow_two_eq_one_of_sqrt {w : ℚ̄₂} (hwK : w ∈ K) (hw : w ^ 2 = -1)
+    (g : GalK K) : PadicInt.toZModPow 2 (((chiCycK K g : ℤ_[2]ˣ)) : ℤ_[2]) = 1 := by
+  have hw4 : w ^ (2 ^ 2) = 1 := by
+    have hsq : w ^ (2 ^ 2) = (w ^ 2) ^ 2 := by ring
+    rw [hsq, hw]
+    norm_num
+  have hspec := cyclotomicCharacter.spec 2 (evenRangeF_gr g) w hw4
+  have hval : ((chiCycKModFour (K := K) g : (ZMod 4)ˣ) : ZMod 4)
+      = PadicInt.toZModPow 2 (((chiCycK K g : ℤ_[2]ˣ)) : ℤ_[2]) := rfl
+  have hspec' : evenRangeF_gr g w
+      = w ^ (((chiCycKModFour (K := K) g : (ZMod 4)ˣ) : ZMod 4)).val := by
+    rw [hval]
+    exact hspec
+  rcases unitsModFour_eq_one_or_neg_one (chiCycKModFour (K := K) g) with hu | hu
+  · rw [← hval, hu]
+    rfl
+  · exfalso
+    have hfix : evenRangeF_gr g w = w := evenRangeF_gr_fix g hwK
+    have hval3 : (((-1 : (ZMod 4)ˣ)) : ZMod 4).val = 3 := by decide
+    have hneg : evenRangeF_gr g w = -w := by
+      rw [hspec', hu, hval3]
+      calc w ^ 3 = w ^ 2 * w := by ring
+        _ = -w := by rw [hw]; ring
+    have h0 : w = 0 := by
+      have hww := hfix.symm.trans hneg
+      linear_combination hww / 2
+    rw [h0] at hw
+    norm_num at hw
+
+/-- **The stratum condition, from the field.**  If `K` contains a square root of `-1` then the
+cyclotomic image on `G_K(2)` lies in `1 + 4ℤ₂`. -/
+theorem evenUnram_range_le_prin_two_of_sqrt_neg_one {w : ℚ̄₂} (hwK : w ∈ K) (hw : w ^ 2 = -1) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2 := by
+  intro v hv
+  obtain ⟨g, rfl⟩ := evenRangeF_exists_chiCycK hv
+  exact evenRange_mem_prin_iff.mpr
+    (evenRange_toZModPow_eq_one_iff.mp (evenUnram_toZModPow_two_eq_one_of_sqrt hwK hw g))
+
+/-- **ENTERING THE THIRD STRATUM.**  A square root of `-1` in `K`, plus a marked reciprocity
+bundle, places `K` on the third stratum at a depth `α ≥ 2` determined by `K`.  Composed with §4
+this says which fields the boundary is about. -/
+theorem evenUnram_exists_range_eq_prin (B : MarkedRecip R K) {w : ℚ̄₂} (hwK : w ∈ K)
+    (hw : w ^ 2 = -1) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha :=
+  evenRangeF_eq_prin_of_forall_four_dvd _ evenRange_isClosed_range (evenRange_prin_le_range B)
+    (fun _ hu => evenRange_mem_prin_iff.mp
+      (evenUnram_range_le_prin_two_of_sqrt_neg_one hwK hw hu))
+
+/-- **The `M` row is excluded at such a field outright**, with no knowledge of the depth. -/
+theorem evenUnram_isEmpty_orientedM_of_sqrt (B : MarkedRecip R K) {w : ℚ̄₂} (hwK : w ∈ K)
+    (hw : w ^ 2 = -1) (a h : ℕ) :
+    IsEmpty (OrientedContinuousMulEquiv (chiM a h) (chiCycKTwo (K := K))) := by
+  obtain ⟨alpha, halpha, hr⟩ := evenUnram_exists_range_eq_prin B hwK hw
+  exact evenUnram_isEmpty_orientedM halpha hr a h
+
+/-- **And the `N` row survives only at the shifted parameter**, again with no knowledge of the
+depth. -/
+theorem evenUnram_le_one_of_orientedN_of_sqrt (B : MarkedRecip R K) {w : ℚ̄₂} (hwK : w ∈ K)
+    (hw : w ^ 2 = -1) {a h : ℕ}
+    (e : OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K))) : a ≤ 1 := by
+  obtain ⟨alpha, halpha, hr⟩ := evenUnram_exists_range_eq_prin B hwK hw
+  exact evenUnram_le_one_of_orientedN halpha hr e
+
+end FieldSide
+
+/-! ## §7 The model field on the stratum
+
+`quadField` is finite-dimensional at every argument and needs a non-square proof only for the
+degree computation, which nothing below uses.  So `quadField (-1)` is available with no new
+arithmetic, and `evenParity_sqrtIn_neg_one_sq` is the committed square root.  This is the
+tree's first named field on the third stratum; the five committed quadratic rows
+(`±2, 5, ±10`) all carry odd valuation and are ramified-`i` fields. -/
+
+section ModelField
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+open GQ2.Dyadic.Fields GQ2.Dyadic.EvenParity
+
+variable {R : LocalReciprocity}
+
+/-- **The model field `ℚ₂(i)`**, as an intermediate field of `ℚ̄₂/ℚ₂`. -/
+abbrev evenUnramKNegOne : IntermediateField ℚ_[2] ℚ̄₂ := quadField (-1)
+
+variable [CompactSpace (GalK evenUnramKNegOne)]
+  [TotallyDisconnectedSpace (GalK evenUnramKNegOne)]
+
+/-- **The model field lies on the third stratum**, over its own reciprocity bundle and the
+standing profinite instance binders, and nothing else. -/
+theorem evenUnram_exists_range_eq_prin_KNegOne (B : MarkedRecip R evenUnramKNegOne) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      MonoidHom.range (chiCycKTwo (K := evenUnramKNegOne)).toMonoidHom =
+        evenRangePrin alpha :=
+  evenUnram_exists_range_eq_prin B (sqrtIn_mem_quadField (-1)) evenParity_sqrtIn_neg_one_sq
+
+/-- **No `M` core at the model field**, at any parameter and any handle count. -/
+theorem evenUnram_isEmpty_orientedM_KNegOne (B : MarkedRecip R evenUnramKNegOne) (a h : ℕ) :
+    IsEmpty (OrientedContinuousMulEquiv (chiM a h) (chiCycKTwo (K := evenUnramKNegOne))) :=
+  evenUnram_isEmpty_orientedM_of_sqrt B (sqrtIn_mem_quadField (-1))
+    evenParity_sqrtIn_neg_one_sq a h
+
+/-- **The `N` core at the model field is forced to the shifted parameter.**  Together with §5,
+any such core has an empty `N` frame, which is where the committed endpoint chain stops. -/
+theorem evenUnram_le_one_of_orientedN_KNegOne (B : MarkedRecip R evenUnramKNegOne) {a h : ℕ}
+    (e : OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := evenUnramKNegOne))) :
+    a ≤ 1 :=
+  evenUnram_le_one_of_orientedN_of_sqrt B (sqrtIn_mem_quadField (-1))
+    evenParity_sqrtIn_neg_one_sq e
+
+end ModelField
+
 end
+
+/-! ## §8 Axiom pins
+
+Every statement of this file printed against the committed even endpoints it is stated about,
+and against the committed range identity and trichotomy, so that the two sets can be read side
+by side.  Nothing here may exceed the committed even set. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenUnram
+
+-- §1 the orientation extractor
+#print axioms evenUnram_range_eq_of_oriented
+#print axioms evenUnram_isEmpty_oriented_of_range_ne
+
+-- §2 the core images that are principal-unit groups
+#print axioms evenUnram_nUnit_zero_eq_one
+#print axioms evenUnram_imChiN_zero_eq_one
+#print axioms evenUnram_nUnit_one_sub_one
+#print axioms evenUnram_imChiN_one_eq_prin_two
+#print axioms evenUnram_imChiN_zero_eq_prin_two
+#print axioms evenUnram_imChiM_ne_prin
+#print axioms evenUnram_notMem_prin_of_add_one
+#print axioms evenUnram_imChiN_ne_prin
+#print axioms evenUnram_prin_two_ne_prin
+#print axioms evenUnram_imChiN_ne_prin_of_three_le
+#print axioms evenUnram_imChiN_eq_prin_iff
+
+-- §3 the head exponent
+#print axioms evenUnram_head_eq_two_pow_iff
+#print axioms evenUnram_nWord_one
+#print axioms evenUnram_mWord_head
+
+-- §4 the verdict
+#print axioms evenUnram_isEmpty_orientedM
+#print axioms evenUnram_isEmpty_orientedN
+#print axioms evenUnram_no_presented_core
+#print axioms evenUnram_classification_conclusion_false
+#print axioms evenUnram_le_one_of_orientedN
+#print axioms evenUnram_eq_two_of_orientedN
+
+-- §5 the frame obstruction
+#print axioms evenUnram_isEmpty_nFrame_of_orientedN
+
+-- §6 the field side
+#print axioms evenUnram_toZModPow_two_eq_one_of_sqrt
+#print axioms evenUnram_range_le_prin_two_of_sqrt_neg_one
+#print axioms evenUnram_exists_range_eq_prin
+#print axioms evenUnram_isEmpty_orientedM_of_sqrt
+#print axioms evenUnram_le_one_of_orientedN_of_sqrt
+
+-- §7 the model field
+#print axioms evenUnram_exists_range_eq_prin_KNegOne
+#print axioms evenUnram_isEmpty_orientedM_KNegOne
+#print axioms evenUnram_le_one_of_orientedN_KNegOne
+
+-- the committed statements this file is stated against, for the side-by-side
+#print axioms GQ2.Dyadic.EvenParity.parityFinal_evenClassification
+#print axioms GQ2.Dyadic.EvenRangeModel.evenRangeF_range_trichotomy
+#print axioms GQ2.Dyadic.EvenRangeModel.evenRangeF_hasEqualNormValueGroups_of_range_eq_prin
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq
+#print axioms GQ2.Dyadic.EvenDemushkin.evenDem_nFrame_nonempty_iff
+
+end AxiomPins
 
 end GQ2.Dyadic.EvenUnram
