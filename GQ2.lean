@@ -689,6 +689,7 @@ import GQ2.Dyadic.SqCore.HandleMixFixesCore
 import GQ2.Dyadic.SqCore.EichlerReduction
 import GQ2.Dyadic.SqCore.EichlerSeeds
 import GQ2.Dyadic.SqCore.ChiFreeClearing
+import GQ2.Dyadic.SqCore.NuSeeds
 import GQ2.Dyadic.SqCore.NuSeedWide
 import GQ2.Dyadic.SqCore.JointClearing
 import GQ2.Dyadic.SqCore.PivotCoreMoves
