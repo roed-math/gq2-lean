@@ -1,5 +1,29 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 71 (2026-08-12)
+
+**Nothing awaits you.**  All five decisions are taken and implemented; this wave needed none.
+
+**For orientation.**  No discharge and no refutation this wave, but three corrections to the
+campaign's own picture of what is hard, each of which moves the work:
+
+* **The class-four obstruction was mis-identified, and its argument was unsound.**  Wave 70
+  named fourth-power directions as what blocks; they do not occur in the object at all, and
+  the one fourth power that does occur is admissible outright because wave 68 built its
+  dressing exactly row-trivial.  More seriously, wave 70's argument for the containment it
+  relied on dropped a square that the inventory cannot supply separately, so that containment
+  is open rather than established.  A knob-pairing trick closes the direction that mattered.
+  What actually blocks is a factor wave 70 never flagged.
+* **The even stage layer is refuted on the unramified stratum**, so its surviving point is now
+  one named `Prop` and must be reached by some route other than frame-and-climb.  Both
+  replacements previously priced for it were mis-priced, one of them a non-item resting on a
+  conflation of two different objects both called "frame".
+* **"Layer-agnostic" turned out to have two meanings.**  Tooling stated over an arbitrary
+  group can still be unusable one layer up if its hypotheses are quantified over the whole
+  group; a binder check cannot see that.  Repaired by taking pointwise hypotheses.
+
+Final state `6db3ee88`: 4332 jobs green, census 11, zero sorries, capstones frozen.
+
 ## Decision 2 is implemented, and its expected answer was wrong (2026-08-12, wave 70)
 
 You scheduled the `α = 1` closure after class four and asked that the direction be settled
