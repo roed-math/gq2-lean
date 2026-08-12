@@ -77,11 +77,12 @@ Three points worth recording.
 * The witness is **`h`-uniform and marking-uniform**, with no parity case split: writing the
   exponents in `Z_2` rather than in `F_2` avoids the four-case analysis the `F_2` picture
   suggests.  There is no spot-checked instance anywhere in this wave.
-* The `x1`-slot is **forced** to be undressed.  In `gamma_2/gamma_3 = V (+) Lambda^2 V` the
-  squaring map contributes the `V`-component, which no bracket can cancel; so the `x1`-slot's
-  class mod `gamma_2` is pinned, and the alternative "kill the relator outright rather than
-  match the relator class" is excluded by mod-2 independence.  The committed proof simply takes
-  the `x1` dressing trivial.
+* The `x1`-slot is taken undressed, and that is the only choice that can work.  ANALYSIS, NOT
+  COMMITTED: in `gamma_2/gamma_3 = V (+) Lambda^2 V` the squaring map contributes the
+  `V`-component, which no bracket can cancel, so the `x1`-slot's class mod `gamma_2` is pinned;
+  and the alternative "kill the relator outright rather than match the relator class" costs a
+  dimension and so fails mod-2 independence.  None of this is formalised - the committed proof
+  simply takes the `x1` dressing trivial and never needs the converse.
 * The third factor `w^{-2 cU cV}` of the dressing is a **pure row correction**: an even pivot
   power, invisible mod `gamma_2`, present only so that both rows vanish exactly.
 
@@ -101,8 +102,9 @@ data be corrected inside its coset to *exact* rows, i.e. how large is the joint 
 > elements with `lambda`-row exactly `2^m a` and `nu'`-row exactly `2^m b`, for every
 > `a, b` in `Z_2`.
 
-So the joint image contains the **full square** `2^{k-1} Z_2 x 2^{k-1} Z_2`, which is also the
-largest it can be (`lambda(gamma_k)` is contained in `2^{k-1} Z_2` by induction).  The two
+So the joint image contains the **full square** `2^{k-1} Z_2 x 2^{k-1} Z_2`.  (The matching
+upper bound - `lambda(gamma_k)` contained in `2^{k-1} Z_2` - is standard but is NOT committed
+here; only the containment is, and it is the direction a coset repair consumes.)  The two
 witnesses are row-independent by construction: `x0` has `lambda = 1` and `nu' = 0` exactly (the
 second by selectedness), the pivot `w` has `lambda = 0` and `nu' = 1` exactly.  **Both rows can
 be corrected independently without leaving the coset, so the row-lifting step of
