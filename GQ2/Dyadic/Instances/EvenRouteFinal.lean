@@ -59,9 +59,9 @@ Both structures carry exactly two binders beyond `Hfam`, and both are genuinely 
   branch at all, and it is what the level-three stage base is built from
   (`evenEndpoint_nStageBase`, `evenDeepIsotropy_mStageBase`).  (Status corrected at wave 67:
   the range IS now computed at the two quadratic model fields, `EvenRangeModelFields.lean`,
-  `hrangeFinal_sqrtNegTwo` and `hrangeFinal_sqrtTwo`; at the quartic it stays measured, per
-  wave 56's census and `scripts/w57_model/`, with the two remaining costs named in that
-  file.)
+  `hrangeFinal_sqrtNegTwo` and `hrangeFinal_sqrtTwo`, each over a reciprocity bundle of that
+  file's own (one, and two respectively); at the quartic it stays measured, per wave 56's
+  census and `scripts/w57_model/`, with the three remaining costs named in that file.)
 
 Nothing else survives.  In particular the `M` branch carries **no** ramification binder: the
 `κ ≠ 0` that `evenDeepIsotropy_mStageBase` needs is read off the identification by

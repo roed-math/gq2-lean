@@ -450,10 +450,11 @@ identification carried.  What each carries beyond `hrange` is exactly one supply
 
 The `hrange` binder is the honest residue and is the same residue the wave-55 models had.
 (Superseded at wave 67: `EvenRangeModelFields.lean` now computes the range at the named
-fields, `hrangeFinal_sqrtNegTwo` proving `imChiN 2` at `ℚ₂(√−2)` outright and
-`hrangeFinal_sqrtTwo` proving `imChiM 3` at `ℚ₂(√2)` over a base reciprocity bundle; the
-quartic stays measured, two named costs recorded there.)  Wave 56 measured it at the two
-pilot fields, and `scripts/w57_model/` measures it at the quartic. -/
+fields, `hrangeFinal_sqrtNegTwo` proving `imChiN 2` at `ℚ₂(√−2)` over a reciprocity bundle and
+`hrangeFinal_sqrtTwo` proving `imChiM 3` at `ℚ₂(√2)` over two of them, its own and one at `ℚ₂`;
+the quartic stays measured, three named costs recorded there.  ⚠ Those bundles are that file's
+binders, not this one's: the ledger below is about the models in THIS file.)  Wave 56 measured
+it at the two pilot fields, and `scripts/w57_model/` measures it at the quartic. -/
 
 section Models
 

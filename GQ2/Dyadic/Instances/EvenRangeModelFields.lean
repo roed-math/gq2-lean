@@ -728,13 +728,19 @@ end SqrtTwo
 
 /-! ## §9 The quartic model field
 
-Two things are missing at `KQuarticN`, and only one of them is about the range.
+Three things are missing at `KQuarticN`, and two of them are about the range.
 
 *The ramification binder.*  `not_hasEqualNormValueGroups_KQuarticN` does not exist; the quadratic
 row gets its ramification from `Fields.not_hasEqualNormValueGroups_quadField`, which is a
 `quadField` lemma and does not apply to a field built from a different generator.  The quartic's
 own ledger (`EvenRouteModel.lean` §5) records `K(i)/K` ramified as *measured*, not proved.  So the
 `N` classification cannot even be started there without that binder.
+
+*The `−1` exclusion.*  What puts a field on the `N` branch at all is `−1 ∉ range χ`, which is the
+hypothesis `evenRange_range_eq_imChiN` reads.  At `ℚ₂(√−2)` §6 discharges it outright
+(`evenRangeF_neg_one_notMem_sqrtNegTwo`: the period `β = ζ − ζ⁻¹` lies in that field, and a
+residue-`7` element negates it).  The tree holds no counterpart at `KQuarticN` and this file does
+not build one, so it stays a binder there.
 
 *The second residue.*  On the `N` branch at degree `4` the degree bound gives `α ≤ 3`, and
 excluding `α = 2` needs `9 ∉ range χ`, a mod-`16` fact: `imChiN 2` and `imChiN 3` first differ at
@@ -771,8 +777,9 @@ theorem evenRangeF_five_notMem_quartic :
     (fun _ hg => evenRangeF_gr_alpha_of_five _ hg) evenRangeF_five_modEight
 
 /-- **`hrange` AT THE QUARTIC**, over the ramification binder the tree does not carry for this
-field and the mod-`16` residue this file does not reach.  Stated so the two costs are visible and
-separated; neither is a supply `Prop`, both are elementary statements about `KQuarticN`. -/
+field, the `−1` exclusion that places it on the `N` branch, and the mod-`16` residue this file
+does not reach.  Stated so the three costs are visible and separated; none is a supply `Prop`,
+all three are elementary statements about `KQuarticN`. -/
 theorem hrangeFinal_quartic (B : MarkedRecip R KQuarticN)
     (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
     (hram : ¬ HasEqualNormValueGroups KQuarticN deltaI)
@@ -782,7 +789,7 @@ theorem hrangeFinal_quartic (B : MarkedRecip R KQuarticN)
     MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom = imChiN 3 :=
   evenRangeF_eq_imChiN_three_of_quartic B deltaI hdeltaI hram finrank_KQuarticN hneg hnine
 
-/-- **The quartic endpoint over the same two binders.** -/
+/-- **The quartic endpoint over the same three costs.** -/
 theorem hrangeFinal_orientedEquivN_quartic [T2Space (GalK KQuarticN)]
     (B : MarkedRecip R KQuarticN)
     (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)

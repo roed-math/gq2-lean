@@ -200,9 +200,9 @@ endpoint.
 The branch-pinned forms, at the depths the wave-56 census measured, are recorded at all three
 model fields: those carry `hrange` and nothing else beyond the standing instance binders.
 (Superseded at wave 67: `EvenRangeModelFields.lean` discharges `hrange` at the two quadratic
-fields, `hrangeFinal_orientedEquivN_sqrtNegTwo` closing `ℚ₂(√−2)` unconditionally and the
-`ℚ₂(√2)` twin closing over a base reciprocity bundle; the quartic's `hrange` stays open with
-its two costs named there.) -/
+fields, `hrangeFinal_orientedEquivN_sqrtNegTwo` closing `ℚ₂(√−2)` with no `hrange` over its
+reciprocity bundle alone, and the `ℚ₂(√2)` twin closing over two bundles, its own and one at
+`ℚ₂`; the quartic's `hrange` stays open with its three costs named there.) -/
 
 section Models
 
