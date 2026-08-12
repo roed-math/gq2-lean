@@ -81,6 +81,53 @@ therefore false here, and the χ-trivial subspace of the `L_sq` frame is a rank-
 `ℤ₂`-module *transverse* to `σ̄` rather than `⟨σ̄⟩` — recorded for MC5's handle analysis
 (sq-design.md §7.1 R1, §7.4(1)), not patched in this lane.
 
+## The bracket notation, and why this lane writes `commP` (diagnosed W70-HOUSE)
+
+A porting trap, recorded rather than worked around.  Inside this namespace the element bracket
+`⁅a, b⁆` does **not** elaborate:
+
+```text
+failed to synthesize instance of type class  Bracket G G
+```
+
+This is not a missing import, not an `open` collision, and not a `SqCore` peculiarity: it fails
+identically at the root namespace and in any other file.  Mathlib makes the element bracket a
+**scoped** instance on purpose.  `Mathlib/Algebra/Group/Commutator.lean` defines
+`commutatorElement : Bracket G G` as a `def` and then writes
+`attribute [scoped instance] commutatorElement` inside `namespace commutatorElement`, giving the
+reason in its own docstring: to avoid clashing with other brackets.  So `Bracket G G` is
+unsynthesizable anywhere until a file writes
+
+```text
+open scoped commutatorElement
+```
+
+after which it elaborates here exactly as it does anywhere else.  Ten files in this directory
+already do it (`GradedLcsGens.lean:76` and nine siblings), so nothing here is *forced* to spell
+brackets as `commP` by the elaborator.
+
+Two things make the trap look like something it is not.  The **subgroup** bracket `⁅H, K⁆` works
+without the `open`, because `Subgroup.commutator` is a global instance; and
+`commutatorElement_def` resolves by name without it, because a theorem is not an instance.  So
+the element notation reads as specially broken in this lane when it is merely unopened.
+
+**The `open` is deliberately not installed in this file.**  Two reasons, the second decisive.
+First, `open` is file-local: it does not reach importers, so it cannot be installed once here on
+behalf of the 77 `SqCore` modules that import this file.  (The only propagating alternative,
+re-declaring `commutatorElement` as a global instance, would reverse Mathlib's clash-avoidance
+decision for all 439 modules that reach this file, which is not a housekeeping lane's call.)
+Second, **the two brackets are different functions**:
+
+```text
+commP a b = a⁻¹ * b⁻¹ * a * b        ⁅a, b⁆ = a * b * a⁻¹ * b⁻¹        commP a b = ⁅a⁻¹, b⁻¹⁆
+```
+
+(the relation is also recorded at `GQ2/Roe/Labute/TwoCentralTower.lean:60`).  Opening the
+notation in a file that also uses `commP` does not remove the trap, it arms it: `⁅v, g⁆` would
+then elaborate and silently mean something other than `commP v g`.  Anyone porting a
+`TwoCentralTower` lemma down should convert through `commP a b = ⁅a⁻¹, b⁻¹⁆` rather than open
+the notation and match shapes.
+
 ## Axiom hygiene
 
 Everything in this file prints within **std-3** (`propext`, `Classical.choice`, `Quot.sound`) —
