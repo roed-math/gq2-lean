@@ -838,8 +838,14 @@ theorem cfour_supply_iff :
 /-- ⭐⭐ **The class-four supply from the Eichler defect**: wherever the class-four Eichler
 defect has already died, the *trivial* dressing discharges the class-four clearing problem -
 rows on the nose, mod-2 independence by wave 67's `lim_sqArbBase_modTwoIndep`, and the relator
-by `cfour_relator_base`.  So the entire class-four obligation is the single `Q₄`-identity
-`cfourEichDefect nu' j = 1`, at every selected marking and every handle. -/
+by `cfour_relator_base`.  So the class-four obligation **follows from** the single `Q₄`-identity
+`cfourEichDefect nu' j = 1`, at every selected marking and every handle.
+
+Sufficiency only, not an equivalence: `SqClassClearingSupply h 4` quantifies over all admissible
+dressings and this uses just the trivial one.  Wave 70 sharpened the reading further:
+`GradedClassFourIdentity.lean` §1 proves the hypothesis here **forces** `bridgeDefect nu' j = 1`,
+so it asks the trivial dressing to do the job wave 68 built a dressing for, and is not a
+plausible thing to prove. -/
 theorem cfour_supply_of_eichDefect
     (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
       nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →

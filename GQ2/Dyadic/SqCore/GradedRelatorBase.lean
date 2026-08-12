@@ -10,10 +10,12 @@ import GQ2.Dyadic.SqCore.GradedClassFour
 
 Wave 69 (`SqCore/GradedClassFour.lean`) reduced the class-four instance of the residual to a
 single `Q₄`-identity, by way of ⭐⭐ `cfour_relator_base`: with the **trivial** dressing the
-class-four relator is exactly the class-four Eichler defect.  Its closing analysis observed that
-the proof of that step "used no commutativity" and "should replay at every class".  This file
-carries out the replay, and finds that the statement is stronger than the class-four reading
-suggests.
+class-four relator is exactly the class-four Eichler defect.  Its §4 header observed that the
+generator relation absorbs every other factor on the nose and that "no commutativity is used for
+that step" (`GradedClassFour.lean` §4; the same sentence is in `docs/dyadic/w69-class4-note.md`
+§4).  Wave 69 drew no conclusion from that about other classes, and made no commitment to a
+replay: that is this file's own idea.  The replay is carried out below, and the statement turns
+out to be stronger than the class-four reading suggests.
 
 ## The finding
 
@@ -42,16 +44,20 @@ at **every** class `k`:
 
 So the class-four form was not the general form with a hypothesis attached; it was the general
 form with an avoidable hypothesis attached.  §3 records the hypothesis anyway, as
-`RelBaseCommuting`, because it is what buys the equality **on the nose** in a target group where
-the layers are not normal, and because the `k = 4` instance of the general schema is re-derived
-through it (`relBase_relator_base_four`) as an independent check against wave 69.
+`RelBaseCommuting`, because it is what buys the equality **on the nose** in a target group with
+no layers at all: `relBase_relator_base_of_commuting` targets a bare `[Group Q]`.  Non-normality
+is not the reason, and could not be: `twoCentralSeries_normal`, cited just above, makes every
+layer of every topological group normal.  The hypothesis is recorded also because the `k = 4`
+instance of the general schema is re-derived through it (`relBase_relator_base_four`) as an
+independent check against wave 69.
 
 ## Contents
 
 * §1 `relBase_sqWord_free`: the core word expanded by the free-group calculus alone.  This is the
-  `hid` step inside wave 69's `cfour_sqWord`, isolated: it holds in every group, and the two
-  simplifications wave 69 applies to it afterwards (dropping the inverse on the fourth power,
-  collapsing `conjP c a` to `commP c a`) are the class-four-only part.
+  `hid` step inside wave 69's `cfour_sqWord`, isolated: it holds in every group.  Of the two
+  simplifications wave 69 applies to it afterwards, only the first (dropping the inverse on the
+  fourth power) is class-four-only; the second (collapsing `conjP c a` to `commP c a`) is free,
+  see §1's note.
 * §2 The handle surgery with **no** hypothesis: `relBase_prod_map_update` and
   `relBase_handleWord_update` insert a factor at one entry of a product and pay for it with a
   conjugation instead of a commutation.  Wave 69's `cfour_prod_map_update` /
@@ -68,8 +74,11 @@ Nothing here discharges any instance of `SqClassClearingSupply`.  What is commit
 reduction: the class-`k` obligation, **for the trivial dressing**, is the single upstairs
 membership `relBaseEichDefect nu' j ∈ γ_k`.  `relBase_defectDies_iff_trivial` states that scope
 as an equivalence, so the schema cannot be read as more than it is: a nontrivial dressing may
-well discharge a class at which the base defect survives, and wave 68's class-three witness is
-exactly such a dressing.
+well discharge a class at which the base defect survives.  Whether wave 68's class-three witness
+is *actually* such a dressing is **not** committed anywhere: that would need
+`¬ RelBaseDefectDies h 3`, i.e. a selected `nu', j` with `bridgeDefect nu' j ≠ 1`, and
+`bridgeDefect` is defined, shown central, shown of order dividing two and evaluated
+(`GradedBridge.lean` §"the class-three defect"), but never shown nontrivial.
 
 Lane W70-FIVE.  New file; no edits to existing files.  Prefix `relBase`.
 -/
@@ -89,9 +98,11 @@ open MarkedCore
 /-! ## §1 The core word, before any class is chosen
 
 Wave 69's `cfour_sqWord` reads the core word in `Q₄` as
-`commP a b · b⁴ · c² · commP c (commP c a)`.  Two of its three steps are class-four facts
-(`cfour_pow_four_inv`, and the collapse of `conjP c a`); the first step is not, and it is the one
-every class inherits. -/
+`commP a b · b⁴ · c² · commP c (commP c a)`.  Only **one** of its three steps is a class-four
+fact, `cfour_pow_four_inv`; the other two hold in every group and are the ones every class
+inherits.  (Wave 70's first reading of this file counted the `conjP` collapse as class-four
+because wave 69 proves it with `cfour_commP_mul_right`; but that lemma is itself free, and so is
+the collapse.  See the note on `relBase_sqWord_free`.) -/
 
 section FreeWord
 
@@ -100,11 +111,19 @@ variable {Q : Type*} [Group Q]
 /-- **The core word by the free-group calculus alone**: in every group,
 `sqWord a b c = commP a b · ((b²)²)⁻¹ · c² · commP c (conjP c a)`.
 
-This is the `hid` step of `cfour_sqWord`, isolated.  The two rewrites wave 69 applies to it
-afterwards are the class-four content: `((b²)²)⁻¹ = b⁴` needs `b⁴` to be an involution
-(`cfour_pow_four_inv`, which is `b⁸ ∈ γ₄`), and `commP c (conjP c a) = commP c (commP c a)` needs
-the correction term of `cfour_commP_mul_right` to die.  Neither is available one class up, so it
-is this statement, not `cfour_sqWord`, that a class-five run starts from. -/
+This is the `hid` step of `cfour_sqWord`, isolated.  Of the two rewrites wave 69 applies to it
+afterwards, exactly one is class-four content: `((b²)²)⁻¹ = b⁴` needs `b⁴` to be an involution
+(`cfour_pow_four_inv`, which is `b⁸ ∈ γ₄`), and that is **not** available one class up, so it is
+this statement, not `cfour_sqWord`, that a class-five run starts from.
+
+The other rewrite, `commP c (conjP c a) = commP c (commP c a)`, is **free**, and available at
+every class.  Wave 69 proves it from `cfour_commP_mul_right`, `cfour_comm_self` and
+`cfour_one_comm`, but all three of those live in `GradedClassFour.lean`'s `section
+FreeIdentities` under `variable {Q : Type*} [Group Q]`: no level, no class, no topology.  By
+hand, `conjP c a = c · w` with `w = commP c a`, and `commP c (c·w) = c⁻¹w⁻¹cw = commP c w`.
+`GradedClassFive.lean` §5 has this right: it names the `((b²)²)⁻¹` factor as the one that may not
+be simplified one class up, and says nothing about the collapse.  This file's earlier prose
+calling the collapse class-four-only was wrong, and is corrected above. -/
 theorem relBase_sqWord_free (a b c : Q) :
     sqWord a b c = commP a b * ((b ^ 2) ^ 2)⁻¹ * c ^ 2 * commP c (conjP c a) := by
   simp only [sqWord, conjP, commP]
@@ -113,7 +132,9 @@ theorem relBase_sqWord_free (a b c : Q) :
 end FreeWord
 
 /-- Naturality of the bracket.  `SqCore/GradedTwo.lean` has this as `map_commP`, but that module
-is not in this file's import closure and is far too heavy to pull in for two rewrites. -/
+is not in this file's import closure and is far too heavy to pull in for the six rewrites below
+(§3 uses it twice each in `relBase_relator_base_of_commuting`'s `hne` and `hj`, and twice in
+`relBase_eichDefect_four`). -/
 theorem relBase_map_commP {A B : Type*} [Group A] [Group B] {F : Type*} [FunLike F A B]
     [MonoidHomClass F A B] (φ : F) (a b : A) : φ (commP a b) = commP (φ a) (φ b) := by
   simp only [commP, map_mul, map_inv]
@@ -252,7 +273,9 @@ theorem relBase_relator_base :
 
 /-- ⭐ **The base relator and the base defect are interchangeable inside any normal subgroup.**
 This is the form in which every class consumes `relBase_relator_base`: the conjugator of that
-statement is invisible to `N`, so no hypothesis survives into the statement at all. -/
+statement is invisible to `N`, so no hypothesis on the *marking* survives.  The one hypothesis
+that does survive is `[hN : N.Normal]`, which is what makes the conjugator invisible and is used
+in the proof. -/
 theorem relBase_relator_base_mem_iff (N : Subgroup (DSq h : Type)) [hN : N.Normal] :
     sqRelWord (sqArbBase h nu' j) ∈ N ↔ relBaseEichDefect nu' j ∈ N := by
   have key : ∀ (z g : (DSq h : Type)), z ∈ N → conjP z g ∈ N := by
@@ -352,8 +375,10 @@ fresh relator analysis.  It begins with a single upstairs membership.
 The scope is stated exactly.  `RelBaseDefectDies h k` is **equivalent** to "the trivial dressing
 clears class `k`" (`relBase_defectDies_iff_trivial`), and it is only **sufficient** for
 `SqClassClearingSupply h k`, since that predicate quantifies over all admissible dressings.  Wave
-68's class-three witness is a nontrivial dressing, so the gap is real and is not an artefact of
-the statement. -/
+68's class-three witness is a nontrivial dressing, so the gap is not an artefact of the
+statement.  That the gap is **non-empty** is a different claim and is not committed: it would
+need `¬ RelBaseDefectDies h 3`, that is a selected `nu', j` with `bridgeDefect nu' j ≠ 1`, and
+nothing in the tree shows `bridgeDefect` nontrivial. -/
 
 section Schema
 
