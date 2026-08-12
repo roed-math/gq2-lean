@@ -13,6 +13,21 @@
 # build green as well (plan §7 item 1) — this script does not build.
 #
 # ---------------------------------------------------------------------------
+# THE ONE OPT-IN CHECK: D6, the axiom ledger
+# ---------------------------------------------------------------------------
+# D6 runs `scripts/check_ledger.sh`, which runs `lake env lean GQ2/AxiomLedger.lean`.  It is
+# OFF by default and the default path above is unchanged by its existence, because campaign
+# LANES must never run `lake` (the orchestrator owns all builds; a lane's verification of
+# record is `scripts/mirror.sh`), and lanes run this script routinely.  The ORCHESTRATOR turns
+# it on at a merge:
+#
+#     GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh     # or:  bash scripts/check_dyadic.sh --ledger
+#
+# With it off, D6 prints a SKIP line naming the script and the flag, so the gate is visible
+# even when it is not running.  See `scripts/check_ledger.sh` for what it checks and why the
+# separation exists.
+#
+# ---------------------------------------------------------------------------
 # The per-ticket SORRY_ALLOWLIST workflow
 # ---------------------------------------------------------------------------
 # The campaign runs many parallel lane worktrees, so a mid-flight `sorry` is allowed to land —
@@ -49,6 +64,10 @@
 #       → merge gate 7 (its hash half).
 #   D5  Python sanity harness (scripts/dyadic_sanity_counts.py, F5 — live since 2026-07-31).
 #       → evidence for merge gates 5 and 9 (regressions only, never cited by a proof).
+#   D6  Axiom ledger, OPT-IN (see above): delegate to `scripts/check_ledger.sh`, which runs
+#       `lake env lean GQ2/AxiomLedger.lean` and fails on a non-empty gap map, a non-empty
+#       ALARM, or a terminal-certificate violation.  → docs/dyadic/ax1-proposal.md's merge
+#       gate, which until wave 73 was prescribed but never wired to anything.
 #
 # NOT mechanized here, and still reviewed by hand at every merge: gate 5 (no field-specific
 # presentation-isomorphism axiom; no theorem proved by finite-target testing), gate 6 (full
@@ -75,6 +94,15 @@
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+# --ledger is the flag form of GQ2_LEDGER_GATE=1; either turns D6 on, nothing else is accepted.
+LEDGER_GATE=${GQ2_LEDGER_GATE:-0}
+for arg in "$@"; do
+  case "$arg" in
+    --ledger) LEDGER_GATE=1 ;;
+    *) echo "check_dyadic: unknown argument '$arg' (only --ledger is accepted)" >&2; exit 2 ;;
+  esac
+done
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
 DYADIC_DIR='GQ2/Dyadic'
@@ -272,6 +300,29 @@ if [ -f "$SANITY_SCRIPT" ]; then
   fi
 else
   echo "SKIP: dyadic sanity harness not yet ported (ticket F5, gated on word freeze)"
+fi
+
+# -- D6. axiom ledger, OPT-IN (ax1-proposal.md's merge gate) -----------------
+# OFF by default: it runs `lake`, and lanes must never run `lake`.  See this script's header
+# and `scripts/check_ledger.sh`.  The SKIP branch is what every lane sees, and it names the
+# command so that "the gate exists" is discoverable from a default run.
+LEDGER_SCRIPT='scripts/check_ledger.sh'
+if [ "$LEDGER_GATE" != "1" ]; then
+  echo "SKIP: axiom-ledger gate — off by default because it runs \`lake\` and lanes must not."
+  echo "      The orchestrator runs it at a merge with:"
+  echo "          GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh"
+  echo "      or standalone:  bash ${LEDGER_SCRIPT}"
+elif [ ! -f "$LEDGER_SCRIPT" ]; then
+  echo "FAIL: axiom-ledger gate requested but ${LEDGER_SCRIPT} is missing"
+  fail=1
+else
+  if ledger_out=$(bash "$LEDGER_SCRIPT" 2>&1); then
+    echo "OK:   ${LEDGER_SCRIPT} passed — its report follows"
+  else
+    echo "FAIL: ${LEDGER_SCRIPT} failed — its report follows"
+    fail=1
+  fi
+  printf '%s\n' "$ledger_out" | sed 's/^/      /'
 fi
 
 if [ "$fail" -ne 0 ]; then
