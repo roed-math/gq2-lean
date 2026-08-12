@@ -194,3 +194,276 @@ though only slightly and in the drifting direction: "77 `SqCore` modules that im
 was 78 at `f82cb316` and is **84** now; "439 modules that reach this file" was 442 and is
 **451**.  All three corrected, with the recount dates attached so the next reader knows they are
 snapshots.
+
+### 2.1  NEW ITEM ONE, hypothesis satisfiability: the refuted claim was never taken back
+
+**Severity: high.  Fixed in this lane.**
+
+`GQ2/Dyadic/SqCore/GradedGammaThreeFour.lean` (wave 70) presented `gThreeFour_jacobi_of` as
+layer-agnostic standing tooling.  Wave 71 refuted that in `GradedGammaFourFive.lean` §2 and told
+the owner so in the memo ("Layer-agnostic turned out to have two meanings").  **Nobody went back
+and corrected the module.**  Its last touch is `9b8e6f65`, wave 71's own house lane, which ran
+*before* the refutation landed, so the file still carried the refuted claim at `e2e8917a`.
+
+Wrong text, `GQ2/Dyadic/SqCore/GradedGammaThreeFour.lean:56-58` (module docstring):
+
+> "And `gThreeFour_jacobi_of` isolates the passage from Hall-Witt to Jacobi as an implication
+> over an arbitrary group, taking the two reductions as hypotheses.  So a run at any other layer
+> supplies its own two facts and gets Jacobi without touching the word."
+
+and `:165-170` (the docstring on the theorem itself):
+
+> "Stated abstractly so that a run at any other layer supplies its own two facts and gets Jacobi,
+> instead of redoing the Hall-Witt reduction."
+
+Both false: `hcentral` and `hinvmid` are unrestricted universals over the ambient group, and at
+`γ₄/γ₅` `hcentral` is *equivalent* to the vanishing of every left-normed fourfold bracket
+(`gFourFive_hcentral_iff`), which the class-five calculus does not supply.  Corrected, with the
+general lesson written into the module: **generality of binders is not reusability; what decides
+reusability is whether the hypotheses are satisfiable at the other layer.**  Mirror-checked.
+
+The line that makes this the exact round-8 blind spot is `GradedGammaThreeFour.lean:63-64`:
+
+> "What is layer-agnostic here is the pair in `section HallWitt`, whose only binders are
+> `{Q : Type*} [Group Q]`."
+
+That sentence is a *binder* check, correctly performed, and it is what let the false claim
+survive round 8.  Replaced.
+
+### 2.2  Findings in the wave-71 modules (reported, not edited)
+
+`GradedGammaFourFive.lean` and `GradedClassFourKnob.lean` are wave-71 `SqCore` landings that a
+sibling lane may be building on this wave, so these are findings.  Each is verified against the
+Lean.
+
+**(a) HIGH.  `GQ2/Dyadic/SqCore/GradedClassFourKnob.lean:51-53` says `σ⁴` occurs in the relator.
+It does not occur anywhere.**
+
+> "The fourth powers `σ⁴` and `x₀⁴` occur in the frame's relator and in the generator relation
+> alike and cancel, so they never reach the leftover"
+
+The same sentence repeats at `:242-244`.  But `cfour_sqRelWord`
+(`GQ2/Dyadic/SqCore/GradedClassFour.lean:500-502`) is
+
+```text
+  sqRelWord m = commP (m 0) (m 1) * m 1 ^ 4 * m 2 ^ 2 * commP (m 2) (commP (m 2) (m 0)) * handleWord …
+```
+
+and `sqArbBase_zero/one/two` (`ArbFrames.lean:445,450,455`) give `m 0 = σ`, `m 1 = x₀`,
+`m 2 = x₁`.  The **only** fourth power in the relator is `x₀⁴`.  Upstream is the same:
+`relBase_sqWord_free` has only `(b²)² = x₀⁴`.  The conclusion (`σ⁴` is not a direction the
+leftover has) is right; the stated reason is not, and it is the reason a reader would reuse.
+Correction: `x₀⁴` occurs in the relator and in the generator relation alike and cancels; `σ⁴`
+never occurs at all.  Note the wave-71 note `w71-cfour-note.md:16-18` carries the same sentence
+("The generators' fourth powers `σ⁴` and `x₀⁴` occur in the dressed frame's relator and in the
+generator relation alike, and cancel"), so this is one claim in two places.
+
+**(b) HIGH.  `GradedClassFourKnob.lean:93-96`'s "what is left" is incomplete, and it contradicts
+its own lane note.**
+
+> "What is left is the leftover's remaining factor `⁅σA, x₀A⁆ · ⁅σ, x₀⁆⁻¹ · cfourEichDefect nu'
+> j`, the two class-four defects whose class-three images cancel, and the assembly of the knobs
+> above into one correction tuple."
+
+The leftover has five factors (`cfourKnob_leftover_eq`, and the display at `:44`), including
+`A⁴ · ⁅A, x₀⁆²`.  `cfourKnob_pair_correction` delivers `A⁴ · ⁅⁅A, x₁⁆, A⁆ · ⁅x₁, ⁅x₁, A⁆⁆`.  So
+**`⁅A, x₀⁆²` is delivered by nothing in the file**, and the residue `⁅⁅A, x₁⁆, A⁆` is left over
+too.  The lane's own note has this right: `w71-cfour-note.md` §4 lists *three* remaining items,
+the two defects, `⁅A, x₀⁆²`, and `⁅⁅A, x₁⁆, A⁆`.  The module's Verdict lists one.  A reader who
+reads the module and not the note will think two thirds of the residue is gone.
+
+**(c) MEDIUM.  `GradedClassFourKnob.lean:92-93` and `:18-19`: "reachable" is stronger than the
+file's own two disclaimers.**
+
+> "the `ad(x₁)²`-direction is reachable, though not by the argument that was recorded"
+
+`:78-81` says of the residue "Reaching that residue is a separate step, **not** committed here",
+and `:467` says "that it is reachable is not claimed here".  What is proved is that a *bundle*
+containing the wanted term and an uncommitted residue is a knob.  The honest form is "reachable
+modulo the residue `⁅⁅A, x₁⁆, A⁆`, which is not committed".  `w71-cfour-note.md:24` carries the
+same unqualified "reachable", so again one claim in two places.
+
+**(d) MEDIUM.  `GradedGammaFourFive.lean:40-42` states a consequence nothing proves.**
+
+> "and that if it did hold then the Jacobi identity below would be an identity between three
+> trivial elements"
+
+No declaration says this and it does not follow from the cited `gFourFive_hcentral_iff`, whose
+right-hand side is `∀ p q r t, commP (commP (commP p q) r) t = 1`, that is, every **left-normed**
+fourfold bracket of arbitrary elements vanishes.  The Jacobi factors are `commP (commP p q) r`
+with `p ∈ Y = lambdaImage G 2 5`, and `Y` is the *2-central* layer, so it contains squares as
+well as brackets; such a factor is not literally a left-normed fourfold bracket, and the
+implication needs an argument the file does not give.  Recommend either deleting the clause or
+proving it.
+
+**(e) MEDIUM.  `GradedGammaFourFive.lean:189` names the wrong slot, against the convention wave 70
+fixed.**
+
+> `/-- **Right additivity with a `T`-element in the near slot.** -/`
+
+The statement is `commP p (y * q) = commP p q * commP p y` with `hy : y ∈ lambdaImage G 3 5`, so
+`y` is in the **far** (right) slot.  `GradedGammaThreeFour.lean:116-117` fixes the convention
+explicitly ("near = left slot, far = right slot") and its own parallel `gThreeFour_ad_right` is
+docstring'd "in the far slot".  The module header repeats the error at `:29-30` ("with the near
+slot moved from `Y` to `T`"), which is right for `ad_left` and wrong for `ad_right`.
+
+**(f) MEDIUM, a count.  `GradedGammaFourFive.lean:12-13`: "two of its three declarations".**
+
+`GradedGammaThreeFour.lean` has **14** declarations, 14 axiom pins.  The "three" is a confusion
+with that file's own line 16, "in the three **forms** a class-four run consumes".  Correction:
+"recorded two of its declarations".
+
+**(g) LOW.  `GradedGammaFourFive.lean:39-40`, `:281`, `:104-105` say "every fourfold bracket";
+`gFourFive_hcentral_iff` quantifies over left-normed ones only** (`⁅⁅⁅p,q⁆,r⁆,t⁆`, not
+`⁅⁅p,q⁆,⁅r,t⁆⁆`).  Insert "left-normed".  Same phrase now appears in my own repair at
+`GradedGammaThreeFour.lean`, where I wrote "left-normed" for exactly this reason.
+
+**(h) LOW.  `GradedGammaFourFive.lean:28`, `:155`, `:436`: "every correction term ... is killed by
+§1".**  Several are killed by centrality of `Z`, not by the `⁅T, Y⁆` vanishing:
+`gFourFive_sq_dress` (`:496`), `gFourFive_drop_right` (`:487`), `gFourFive_sq_zLayer_dress`
+(`:502`) all go through `cfive_commP_zLayer_left` with no use of `gFourFive_commP_vanish`.
+
+**(i) LOW.  `GradedClassFourKnob.lean:123` and `:128` headline "The `λ`-row of a square doubles" /
+"The `ν'`-row of a square doubles".**  The statements are only the implications
+`nuLam h d = 1 → nuLam h (d ^ 2) = 1` and `nu' d = 1 → nu' (d ^ 2) = 1`.  The doubling is a step
+of the proof, not the statement.  The "In particular" sentence that follows *is* the statement.
+
+**(j) LOW.  `GradedClassFourKnob.lean:30-32`** says wave 68's dressing "is exactly row-trivial by
+construction", dropping the two side conditions `cfourKnob_dressSq_admissible` actually carries
+(`nu' (dsqSigma h) = ofAdd 1`, `nu' (dsqX0 h) = ofAdd 0`).  The declaration docstring at `:158-160`
+is accurate; only the header drops them.
+
+### 2.3  Findings in the wave-70 modules (reported, not edited)
+
+Same reason: wave-70 `SqCore` landings that a sibling lane may be building on.  All verified
+against the Lean.
+
+**(a) HIGH.  A quotation attributed to wave 69 that has no source.**
+`GQ2/Dyadic/SqCore/GradedRelatorBase.lean:13-14`:
+
+> "Its closing analysis observed that the proof of that step "used no commutativity" and
+> "should replay at every class"."
+
+The first quotation is real: `docs/dyadic/w69-class4-note.md:80` has "**no commutativity is used
+for that step**", and `GradedClassFour.lean:558` repeats it.  **The second occurs nowhere in the
+repository.**  `grep -rn 'should replay' GQ2/ docs/` returns exactly one hit, this line itself.
+The whole of `GradedRelatorBase.lean` is built on it ("This file carries out the replay"), and a
+reader will go looking for a wave-69 commitment that was never made.  Correction: drop the second
+quotation and say the replay is this file's own idea.  Minor, same sentence: the sourced quote is
+in wave 69's **§4 header**, not its closing analysis, which is the `ANALYSIS, NOT COMMITTED` block
+at `GradedClassFour.lean:110-131`.
+
+**(b) HIGH.  A free-group identity called class-four-only, in three places.**
+`GradedRelatorBase.lean:105-107`:
+
+> "and `commP c (conjP c a) = commP c (commP c a)` needs the correction term of
+> `cfour_commP_mul_right` to die.  Neither is available one class up, so it is this statement, not
+> `cfour_sqWord`, that a class-five run starts from."
+
+`commP c (conjP c a) = commP c (commP c a)` is **free**.  Wave 69's own proof
+(`GradedClassFour.lean:491-493`) closes it with `cfour_commP_mul_right`, `cfour_comm_self` and
+`cfour_one_comm`, and all three live in `GradedClassFour.lean`'s `section FreeIdentities` under
+`variable {Q : Type*} [Group Q]` (`:154-191`): no level, no class, no topology.  By hand,
+`conjP c a = c · w` with `w = commP c a`, and `commP c (c·w) = c⁻¹w⁻¹cw = commP c w`.  So only
+`cfour_pow_four_inv` is class-four, and "Neither is available one class up" is wrong on one of the
+two.  Repeated at `:53-54` ("the two simplifications ... are the class-four-only part") and
+`:92-94` ("Two of its three steps are class-four facts").  `GradedClassFive.lean:350-354` states
+the correct restricted version, so the two wave-70 files disagree with each other.  Consequence
+worth flagging: `relBase_sqWord_free` could be stated with `commP c (commP c a)` over an arbitrary
+group, which is stronger and contradicts the stated reason for leaving `conjP` in it.
+
+**(c) HIGH.  A second instance of the round's NEW item, in a wave-70 file.**
+`GQ2/Dyadic/SqCore/GradedClassFourIdentity.lean:524-528`:
+
+> "⭐⭐ **Generation of the layer at `D_sq h`, with no side condition** ... it is the form a
+> class-four witness search consumes: to reach the leftover it is enough to reach every square of
+> `γ₂` and every bracket `commP γ₂ Q₄`."
+
+`cfourId_zLayer_le` (`:529-533`) discharges only the **closedness** hypothesis of
+`gThreeFour_zLayer_le`.  It still carries `hsq : ∀ y ∈ Y, y ^ 2 ∈ S` and
+`hcomm : ∀ y ∈ Y, ∀ q, commP y q ∈ S`, both unrestricted universals, plus the requirement that
+`S` be a *subgroup*.  Ask the round's question, what would have to hold to use it: §4's own knob
+inventory (`:65-75`) reaches `commP c g` only for `g` **a frame letter**, five families, and
+reaches `c²` only bundled with `commP c (m 2)`; and nothing shows the reachable knobs form a
+subgroup.  So the sentence "it is enough to reach every square and every bracket" describes a
+supply the file does not have.  Correction: headline to "with the closedness side condition
+discharged", and say plainly that the gap between `hcomm` and the frame-letter inventory is the
+open part.
+
+**(d) HIGH.  A section header that contradicts its own module header.**
+`GradedClassFourIdentity.lean:191`:
+
+> `/-! ## §2 A `γ₂`-valued correction is free on the rows and on mod-2 independence -/`
+
+against `:37-38` of the same file:
+
+> "It is **not** free on the rows: `γ₂`-membership implies nothing about `λ` or `ν'`"
+
+§2 contains exactly two declarations, `cfourId_twoCentral_le_index_two` and
+`cfourId_modTwoIndep_mul`; neither mentions `nuLam` or `nu'`.  The module header is the correct
+one, and the row-triviality hypothesis carried throughout the file is there precisely because the
+§2 header is false.  Correction: delete "on the rows and".
+
+**(e) HIGH.  Three attributions to wave 69 of statements wave 69 does not make.**
+`GradedClassFive.lean:11-17` and `:269-270` credit wave 69 with recording the class-five loss and
+with having "named two things the class-five analogue would need: `⁅γ₂, γ₃⁆ ≤ γ₅`, and a
+non-abelian bookkeeping layer".  Wave 69 is `GradedClassFour.lean` plus
+`docs/dyadic/w69-class4-note.md`.  The module mentions class five on exactly one line (`:860`,
+"the residual would start at class five") and says nothing about `⁅γ₂, γ₃⁆ ≤ γ₅` or bookkeeping;
+the note has neither phrase.  The observation is this file's own and should be claimed as such.
+(The one quotation here that *is* accurate is "reorder at will", `GradedClassFour.lean:511`.)
+
+**(f) MEDIUM.  `γ₄ ⊄ γ₅` asserted as committed, three lines after "nothing is refuted".**
+`GradedClassFive.lean:78-79`:
+
+> "What is committed is that the class-four *proof* of abelianness is unavailable one class up,
+> since it delivers `⁅γ₂, γ₂⁆ ≤ γ₄` and `γ₄ ⊄ γ₅`"
+
+Nothing proves `γ₄ ⊄ γ₅`, and over the file's binders (an arbitrary topological group) it is
+false: for the trivial group all layers coincide.  `twoCentralSeries` is antitone
+(`Roe/Labute/TwoCentralTower.lean:200`) and nothing makes it strict.  Correction: "`γ₄`-membership
+does not imply `γ₅`-membership".
+
+**(g) MEDIUM.  `cfourId_discreteTopology` docstring covers every level; the statement is level
+four.**  `GradedClassFourIdentity.lean:513`: "Every level of the tower of `D_sq h` is discrete",
+on `theorem cfourId_discreteTopology : DiscreteTopology (levelQuot (DSq h : Type) 4)`.  The cited
+`discreteTopology_levelQuot` does give every level, and the proof supplies `4` as its last
+argument, so generalising the statement to `(k : ℕ)` is a one-token change and is the better fix.
+Same over-reach at `:107`.
+
+**(h) MEDIUM.  "the entire class-four obligation" on a one-directional theorem.**
+`GradedClassFourIdentity.lean:266-268` says "So the entire class-four obligation is: some
+`γ₂`-valued, exactly row-trivial correction ... kills the relator one class up."
+`cfourId_supply_of_reach` is `H → SqClassClearingSupply h 4`, sufficiency only, and
+`SqClassClearingSupply h 4` quantifies over **all** admissible tuples, not only `γ₂`-corrections
+of `bridgeTuple`.  This is the same criticism the file's own §1 (`:28-32`) makes of
+`cfour_supply_of_eichDefect`.  `GradedRelatorBase.lean:386-389` already has the right wording.
+
+**(i) MEDIUM-LOW.  A reason that contradicts a lemma the same file cites.**
+`GradedRelatorBase.lean:45-46`: "because it is what buys the equality **on the nose** in a target
+group where the layers are not normal".  `twoCentralSeries_normal`
+(`Roe/Labute/TwoCentralTower.lean:189`, global instance at `:197`) says every layer of every
+topological group is normal, and this file cites it at `:32-33`.  The target of
+`relBase_relator_base_of_commuting` is a bare `[Group Q]`, which has no layers at all.
+
+**(j) MEDIUM-LOW.  "the gap is real" is not committed.**  `GradedRelatorBase.lean:70-72` and
+`:354-356`.  Asserting the gap needs `¬ RelBaseDefectDies h 3`, i.e. a selected `nu', j` with
+`bridgeDefect nu' j ≠ 1`.  `bridgeDefect` is defined, shown central, shown of order at most two
+and evaluated (`GradedBridge.lean:473-488`); nothing anywhere shows it nontrivial.
+
+**(k) LOW, counts and placement.**  `GradedRelatorBase.lean:115-116` says `relBase_map_commP` is
+too heavy to import `GradedTwo` "for two rewrites"; it is used **six** times (`:319` twice, `:323`
+twice, `:331` twice).  `GradedRelatorBase.lean:254-255` says "no hypothesis survives into the
+statement at all" of `relBase_relator_base_mem_iff`, which takes `[hN : N.Normal]` and uses it.
+`GradedClassFive.lean:53-54` calls its list "the whole inventory" while the file's own Scope note
+names two further wave-69 lemmas that do not survive.  `GradedClassFourIdentity.lean:79` cites
+"Wave 69's §5" for material that is in wave 69's `ANALYSIS, NOT COMMITTED` header block.
+
+**Clean in these two modules,** checked and confirmed: the subsumption claim at
+`GradedGammaFourFive.lean:47-49` is **true** (`gFourFive_jacobi_of_forall` has binders,
+hypotheses and conclusion identical to `gThreeFour_jacobi_of`, and `gFourFive_jacobi_of`'s six
+hypotheses are genuinely pointwise, hence satisfiable one layer up, which is the whole point);
+the §4 knob table is right row by row; the axiom pins are complete, in declaration order, and
+match the notes exactly (49/49 and 21/21); and roughly forty cross-referenced `cfive_*`,
+`cfour_*`, `gThreeFour_*`, `relBase_*` and `bridge_*` citations all say what the citing prose
+says they say.
