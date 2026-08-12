@@ -815,7 +815,10 @@ section Pins
 #print axioms evenStratumShiftWitnessP_sq_ne_one
 #print axioms evenStratum_no_rawStageShift_one
 
+#print axioms EvenStratumShiftWitness
 #print axioms evenStratumGramOne
+#print axioms evenStratumGramOne_expand
+#print axioms evenStratumModelEquiv_apply
 #print axioms evenStratumGramOne_alphaOneNCupForm
 #print axioms evenStratumGramOne_add_diag
 #print axioms evenStratumGramOne_diag
@@ -828,6 +831,10 @@ section Pins
 #print axioms evenStratum_frame_of_gramOne_modelEquiv
 #print axioms evenStratum_exists_gramOne_adaptedFrame
 #print axioms evenStratum_exists_gramOne_adaptedFrame_KNegOne
+#print axioms evenStratumShiftScalar
+#print axioms evenStratumShiftContinuousScalar
+#print axioms evenStratumShiftKScalar
+#print axioms evenStratumShiftKContinuousScalar
 
 #print axioms evenStratumResidual_chi_digit
 #print axioms evenStratumResidual_mem_zLayer
