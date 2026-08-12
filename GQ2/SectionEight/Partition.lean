@@ -275,9 +275,12 @@ on `T`.  The `H¹`-valued edge class of (128) is carried **operationally**: the 
 descends to `B/T` iff `p⁻¹(T)` has a normal complement missing `z` (the paper's own descent
 clause), and "edge ≠ 0" is the negation. -/
 
-/- `polarMul`, `RadicalCoverData` (+`instNormalM`, `NoDescent`), `two_mul_card_fiber`,
-`MLifts`, and `MLifts.Central` live in `GQ2/RadicalEdge/Data.lean`, upstream of the source-specific
-half-torsor proofs. -/
+/- `polarMul`, `RadicalCoverData` (+`instNormalM`, `NoDescent`), `MLifts`, and `MLifts.Central`
+live in `GQ2/RadicalEdge/Data.lean`, upstream of the source-specific half-torsor proofs.  This
+list used to carry `two_mul_card_fiber` as well; that declaration does not exist anywhere in the
+tree, having been deleted as dead code on 2026-07-09 in `2a238af1`.  The half-count engine the
+proofs below actually run on is `two_mul_card_of_swap` (`GQ2/CentralObstruction.lean`), reached
+through `half_count`. -/
 
 section HalfTorsor
 
@@ -300,7 +303,7 @@ theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
 `lemma_8_2_local` (compactness) and `lemma_8_3` (`hfg`
 topological finite generation, the B1-shaped input) precedents — they finitize the counted
 `MLifts`.  Proof: the central-obstruction framework's central-obstruction engine + the B6 twist of
-`GQ2/RadicalEdgeLocal.lean` (`half_torsor_local`).  Ax: B6, B7. -/
+`GQ2/RadicalEdge/Local.lean` (`half_torsor_local`).  Ax: B6, B7. -/
 theorem lemma_8_6_local (D : RadicalCoverData Bg)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hfg : ∃ s : Finset AbsGalQ2,

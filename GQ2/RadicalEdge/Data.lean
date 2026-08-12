@@ -10,9 +10,18 @@ import Mathlib.Topology.Algebra.Group.Quotient
 /-!
 # §8 radical-edge def-layer
 
-The Lemma 8.6 **definition layer** — `CentralCover`, `polarMul`, `RadicalCoverData`,
-`NoDescent`, `MLifts`, `MLifts.Central` — and the generic half-count engine
-`two_mul_card_fiber`, lifted out of `GQ2/SectionEight.lean` into this lower shared file.
+The Lemma 8.6 **definition layer**, lifted out of `GQ2/SectionEight.lean` into this lower shared
+file: `CentralCover`, `sq_eq_one_of_mem_ker`, `z_pow_val_add`, `polarMul`, `RadicalCoverData`
+(+`instNormalM`, `NoDescent`), `MLifts`, `MLifts.Central`.  That is the whole of this file's
+content; no counting lemma lives here.
+
+This manifest used to name a generic half-count engine `two_mul_card_fiber` as resident.  There is
+no such declaration anywhere in the tree: it was a real theorem here (then
+`GQ2/RadicalEdgeData.lean:107`, a fibre count for a nonzero `𝔽₂`-linear functional) until it was
+deleted as unreachable dead code on 2026-07-09 in `2a238af1`, having acquired no Lean consumer.
+It was not renamed.  The surviving half-count engine is `two_mul_card_of_swap`
+(`GQ2/CentralObstruction.lean`), a flip count against an involution rather than a linear
+functional, and it lives there, not here.
 
 **Why.**  The §8 proof-layer files (`GQ2/CentralObstruction.lean`, …) need these definitions to state and
 prove their lemmas, but must not import `SectionEight` — otherwise splicing a proved lemma
