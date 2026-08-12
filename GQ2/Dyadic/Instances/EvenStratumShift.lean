@@ -6,46 +6,59 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Instances.EvenStratumFrame
 
 /-!
-# W73-STRATUM: the `α = 1` relator shift, verified against its prose
+# W73-STRATUM: the `α = 1` shift refuted, the `α = 1` Gram repaired, depth zero read
 
-Lane **W73-STRATUM**, ticket 1.  `StageAbstractionEvenRawSpan.lean` §0 records **in prose**
-(lines 44-46 and 65) that the coordinate-`0` row of its literal factorization is *false* at
-`α = 1`, and wave 72 relayed that claim without verifying it.  This module settles it in Lean.
+Lane **W73-STRATUM**.  Three tickets against wave 72's queue, which left the surviving point of
+the even classification with two halves, a base and a climb, each carrying a *blocked* committed
+route.
 
-The prose is **correct**, and the failure is exactly one atom wide.
+**Ticket 1 (§1-§3): the climb's block is real.**  `StageAbstractionEvenRawSpan.lean` §0 records
+**in prose** (lines 44-46 and 65) that the coordinate-`0` row of its literal factorization is
+false at `α = 1`, and wave 72 relayed that claim without verifying it.  It is correct, and the
+failure is exactly one atom wide.  `MarkedCore.nWord 1 a b c d = a⁴[a,b][c,d]`, and `4 = 2 * 2`
+has an *even* half, so `evenRawPow_of_even_half` applies where `evenRawPow_of_odd_half` applies at
+`2 ≤ α`: the diagonal atom `w₀²·[w₀, base 0]` never appears.  §1 computes the true `α = 1` shift
+word, §2 measures the gap as exactly that atom, and §3 exhibits a profinite group at which the
+atom is nontrivial, so `EvenSharpDbarShiftSupply` is **false** there at `α = 1`.
 
-* **§1** computes the true `α = 1` shift word.  `MarkedCore.nWord 1 a b c d = a⁴[a,b][c,d]`, and
-  `4 = 2 * 2` has an *even* half, so `evenRawPow_of_even_half` applies where
-  `evenRawPow_of_odd_half` applies at `2 ≤ α`: the diagonal atom `w₀²·[w₀, base 0]` never
-  appears.  `evenStratumShift_n_one` is the resulting literal factorization, valid at `α = 1`
-  with no `2 ≤ α` anywhere.
-* **§2** measures the gap: `evenRawDbarWord` overshoots the true `α = 1` shift by exactly the
-  diagonal atom (`evenStratumShift_dbarWord_eq_diagonalAtom_mul`), so `evenRawStageShift_n`'s
-  conclusion at `α = 1` is equivalent to the vanishing of that atom.
-* **§3** refutes it: a discrete cyclic group of order eight has a depth-`2` element of `Q₄` whose
-  square is not `1`, so `evenStratum_no_rawStageShift_one` says the conclusion of
-  `evenRawStageShift_n` is **not** available at `α = 1`.
+**Ticket 2 (§4-§5): the base's block is an aiming error.**  Wave 70 already computed the `α = 1`
+quadratic-initial Gram of `nRelWord 1` (`EvenAlphaOne.evenAlphaOneNCupForm`, derived from
+`evenAlphaOne_nRelWord_fib`); §4 re-shapes it into the `gram` parameter that
+`Frame.IsCupAdapted` takes and records that it is `evenFrameGram h` minus the single entry
+`M 0 0`.  It is alternating, and on the third stratum the field cup form is alternating too, of
+the same rank; §5 turns the committed alternating normal form into an adapted coordinate system
+and then into an **existing** cup-adapted frame.  Against wave 72's
+`evenStratum_no_cupAdaptedFrame`, which says none exists for `evenFrameGram h` at any row table.
+
+**Ticket 3 (§6): depth zero, read.**  At `α = 1` the climb's residual supply is
+`EvenClimbResidualSupply 0`.  The one recorded obstruction to it is vacuous there (§6.1), and the
+neutral corrections depth zero supplies for free all have trivial shift word (§6.2).  So it is
+open, and it is not degenerate, free, or false.
 
 ## What this does and does not say
 
-It says that the *committed middle input* of `evenClimb_defectReachable` on the `N` row, namely
-`evenSharpDbarShiftSupply_n` and through it `evenRawStageShift_n`, is unavailable at `α = 1`
-as a matter of fact rather than of unproved binders.  Wave 72's §3.1 relayed this as prose; it
-is now a theorem, and `EvenStratumClimbN` is therefore blocked at a *named* step.
-
-It says nothing about `EvenStratumClimbN` itself, which quantifies over `EvenSharpDbarShiftSupply`
-only through `evenClimb_defectReachable`; a different shift supply, built from
-`evenStratumShiftWordOne` instead of `evenRawDbarWord`, is not refuted by anything here.  §1 is
-written so that such a rebuild has its literal factorization already available.  And it says
-nothing whatever about
+Nothing here asserts or denies
 `Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)`, in either direction.
+
+§3 refutes the shift supply *quantified over profinite groups*, which is the form
+`evenRawStageShift_n` and `evenSharpDbarShiftSupply_n` have; it does not decide it at
+`maxProPQuotient 2 (GalK K)` for any particular field, and §2 says exactly which question that
+would be.  A different shift supply, built from `evenStratumShiftWordOne` instead of
+`evenRawDbarWord`, is not refuted by anything here, and §1 is written so that such a rebuild has
+its literal factorization available.
+
+§5's frame is at a row table read off its own generators, **not** at the prescribed `vN 1`; §5.3
+states what still stands between it and `EvenStratumBaseN`.
 
 ## Contents
 
 1. §1 the `α = 1` core block, the `α = 1` shift word, and the literal factorization.
 2. §2 the diagonal atom as the exact discrepancy, and the conditional consequence.
-3. §3 the witness group and the refutation.
-4. §4 axiom pins.
+3. §3 the witness group and the refutation of the shift supply.
+4. §4 the `α = 1` Gram in the frame interface, and its purely hyperbolic model.
+5. §5 an adapted coordinate system, and a cup-adapted frame, on the third stratum.
+6. §6 the residual supply at depth zero.
+7. §7 axiom pins.
 -/
 
 namespace GQ2.Dyadic.StageGeneric
@@ -272,17 +285,16 @@ theorem evenStratumShiftWitnessP_sq_ne_one : evenStratumShiftWitnessP ^ 2 ≠ 1 
     ← ofAdd_nsmul] at hmem
   exact absurd (Multiplicative.ofAdd.injective hmem) (by decide)
 
-/-- **The prose is correct: `evenRawStageShift_n`'s conclusion is false at `α = 1`.**  There is
-no way to weaken its `2 ≤ α` to `1 ≤ α`: at `α = 1` the literal shift of the `N` relator is
-`evenStratumShiftWordOne`, which differs from `evenRawDbarWord` by the diagonal atom, and that
-atom is nontrivial already on the cyclic group of order eight. -/
-theorem evenStratum_no_rawStageShift_one :
-    ¬ ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
-        [T2Space G] [TotallyDisconnectedSpace G] (h k : ℕ), 3 ≤ k →
-        ∀ (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)),
-        (∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) →
-        stageShift (nStageWord 1 h (le_refl 1)) base correction =
-          evenRawDbarWord base correction := by
+/-- **THE COMMITTED SHIFT SUPPLY IS FALSE AT `α = 1`.**  `EvenSharpDbarShiftSupply` is the `Prop`
+that `evenSharpDbarShiftSupply_n` produces from `evenRawStageShift_n` and that
+`evenClimb_defectReachable` consumes as its middle input.  At `α = 1` it is **false** at the
+cyclic group of order eight, at `k = 3` and no handles.
+
+The failure is exactly the diagonal atom: by §2 the supply's conclusion forces
+`correction 0 ^ 2 * [correction 0, base 0] = 1`, and the correction supported at coordinate `0`
+by the image of the square of a generator has that atom nontrivial in `Q₄`. -/
+theorem evenStratum_not_dbarShiftSupply_one :
+    ¬ EvenSharpDbarShiftSupply (nStageWord 1 0 (le_refl 1)) EvenStratumShiftWitness 3 := by
   intro hall
   have hdepth : ∀ i : Fin (MarkedCore.coreRank 0),
       (if i = 0 then evenStratumShiftWitnessP else 1) ∈
@@ -296,10 +308,31 @@ theorem evenStratum_no_rawStageShift_one :
   have hatom := evenStratumShift_diagonalAtom_eq_one_of_rawShift
     (G := EvenStratumShiftWitness) 0 3 (by omega) (fun _ ↦ 1)
     (fun i ↦ if i = 0 then evenStratumShiftWitnessP else 1) hdepth
-    (hall EvenStratumShiftWitness 0 3 (by omega) (fun _ ↦ 1)
-      (fun i ↦ if i = 0 then evenStratumShiftWitnessP else 1) hdepth)
+    (hall (fun _ ↦ 1) (fun i ↦ if i = 0 then evenStratumShiftWitnessP else 1) hdepth)
   refine evenStratumShiftWitnessP_sq_ne_one ?_
   simpa [commP] using hatom
+
+/-- **The prose is correct: `evenRawStageShift_n`'s conclusion is false at `α = 1`.**  There is
+no way to weaken its `2 ≤ α` to `1 ≤ α`: at `α = 1` the literal shift of the `N` relator is
+`evenStratumShiftWordOne`, which differs from `evenRawDbarWord` by the diagonal atom, and that
+atom is nontrivial already on the cyclic group of order eight.
+
+**Scope.**  This refutes the statement *quantified over profinite groups*, which is the form
+`evenRawStageShift_n` and `evenSharpDbarShiftSupply_n` have, so the committed route to
+`EvenStratumClimbN` is blocked at a named step.  It does **not** decide
+`EvenSharpDbarShiftSupply (nStageWord 1 h _) (maxProPQuotient 2 (GalK K)) k` at any particular
+field: `evenStratumShift_diagonalAtom_eq_one_of_rawShift` reduces that question to whether the
+diagonal atom vanishes there, and nothing here says it does or does not. -/
+theorem evenStratum_no_rawStageShift_one :
+    ¬ ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+        [T2Space G] [TotallyDisconnectedSpace G] (h k : ℕ), 3 ≤ k →
+        ∀ (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)),
+        (∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) →
+        stageShift (nStageWord 1 h (le_refl 1)) base correction =
+          evenRawDbarWord base correction := by
+  intro hall
+  exact evenStratum_not_dbarShiftSupply_one fun base correction hdepth ↦
+    hall EvenStratumShiftWitness 0 3 (by omega) base correction hdepth
 
 end Witness
 
@@ -460,8 +493,9 @@ field whose cyclotomic range lies in `evenRangePrin 2` and whose degree is `2 + 
 linear isomorphism of `H¹(G_K(2), 𝔽₂)` with `evenFrameModel h` carrying the field cup form to
 `evenStratumGramOneModel h`.
 
-This is the exact statement wave 71 refuted for `evenFrameGramModel h`, with the `α = 1` Gram in
-place of the `α ≥ 2` one, and it is **true**. -/
+This is the statement wave 71 refuted for `evenFrameGramModel h`, with the `α = 1` Gram in place
+of the `α ≥ 2` one and the degree pinned (the rank count needs it, where wave 71's refutation did
+not), and it is **true**. -/
 theorem evenStratum_exists_gramOne_modelEquiv {h : ℕ}
     (hle : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2)
     (hev : Module.finrank ℚ_[2] K = 2 + 2 * h) :
@@ -729,8 +763,9 @@ omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 `2 ^ (k + 1 + s) ∣ χ(r) − 1`, holds at `s = 0` for **every** admissible correction, reachable or
 not, and with no `EvenSharpPmOne` hypothesis.
 
-So the one recorded obstruction to `EvenClimbResidualSupply` is vacuous at depth zero.  It is not
-vacuous at any `s ≥ 1`: the tower's level is `k + 1` and the demand is `k + 1 + s`. -/
+So the one recorded obstruction to `EvenClimbResidualSupply` is vacuous at depth zero.  This
+argument does not extend to `s ≥ 1`, where the tower's level `k + 1` falls short of the demand
+`k + 1 + s`; whether the obstruction bites there is not decided here. -/
 theorem evenStratum_residual_digit_zero_automatic (hk : 3 ≤ k)
     (Wc : DeepSharpAdmissibleCorrection s T) {r : G}
     (hr : evenSharpNeutralResidualElement Wc = levelMk G (k + 1) r) :
@@ -763,7 +798,7 @@ theorem evenStratum_dbarWord_eq_one_of_zLayer
 
 /-- **Every `zLayer`-valued correction is `0`-neutral.**  This is what "the depth collapses at
 `α = 1`" buys: at depth zero the neutrality demand is exactly the tower's own bound, so the whole
-central layer qualifies.  At `s ≥ 1` it does not. -/
+central layer qualifies.  The construction does not extend to `s ≥ 1`. -/
 def evenStratumNeutralOfZLayer (hk : 3 ≤ k)
     (correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
     (hz : ∀ i, correction i ∈ zLayer G k) :
@@ -779,9 +814,10 @@ def evenStratumNeutralOfZLayer (hk : 3 ≤ k)
 omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- **DEPTH ZERO DOES NOT MAKE THE SUPPLY FREE.**  The neutral corrections that depth zero hands
 over for nothing are exactly the `zLayer`-valued ones, and each of them has trivial literal
-shift, so it reaches the residual precisely when the residual is already trivial.  Whatever
-discharges `EvenClimbResidualSupply 0` has to produce a neutral correction with a coordinate
-*outside* the central layer, which is the same demand as at every other depth. -/
+shift, so it reaches the residual precisely when the residual is already trivial.  So at every
+stage whose residual is nontrivial, discharging `EvenClimbResidualSupply 0` needs a neutral
+correction with a coordinate *outside* the central layer, which is the same demand as at every
+other depth. -/
 theorem evenStratum_zLayerNeutral_reaches_iff
     (Wc : DeepSharpAdmissibleCorrection s T)
     (correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
@@ -813,6 +849,7 @@ section Pins
 #print axioms evenStratumShiftWitnessP
 #print axioms evenStratumShiftWitnessP_mem
 #print axioms evenStratumShiftWitnessP_sq_ne_one
+#print axioms evenStratum_not_dbarShiftSupply_one
 #print axioms evenStratum_no_rawStageShift_one
 
 #print axioms EvenStratumShiftWitness

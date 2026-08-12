@@ -2,7 +2,7 @@
 
 Lane W73-STRATUM.  New module `GQ2/Dyadic/Instances/EvenStratumShift.lean`; no edits to existing
 files.  Prefix `evenStratumShift` / `evenStratumGramOne` / `evenStratumResidual` / `evenStratum`.
-54 declarations: 43 named public, 6 private, 5 anonymous instances on the witness group.  All
+55 declarations: 44 named public, 6 private, 5 anonymous instances on the witness group.  All
 three tickets landed.
 
 ## 0.  Headline
@@ -10,8 +10,9 @@ three tickets landed.
 Wave 72 left the surviving point with two blocked halves.  This lane settles the status of both
 blocks, and they come out differently.
 
-> **The climb's block is real.**  `evenStratum_no_rawStageShift_one`: the conclusion of
-> `evenRawStageShift_n` is **false** at `alpha = 1`, not merely unproved.  The prose in
+> **The climb's block is real.**  `evenStratum_not_dbarShiftSupply_one`: the committed
+> `EvenSharpDbarShiftSupply` is **false** at `alpha = 1` at a named profinite group, so
+> `evenRawStageShift_n`'s conclusion is false there and not merely unproved.  The prose in
 > `StageAbstractionEvenRawSpan.lean` §0 is correct, and the failure is exactly one atom wide.
 >
 > **The base's block is an aiming error.**  `evenStratum_exists_gramOne_adaptedFrame`: on the
@@ -41,11 +42,21 @@ The diagonal atom `w0^2 * [w0, base 0]` never appears.
 * **`evenStratumShift_dbarWord_eq_diagonalAtom_mul`** measures the gap exactly:
   `evenRawDbarWord base c = (c 0 ^ 2 * [c 0, base 0]) * stageShift (nStageWord 1 h _) base c`.
   So the `alpha >= 2` conclusion holds at `alpha = 1` for given data **iff** that atom is `1`.
-* **`evenStratum_no_rawStageShift_one`** refutes it.  The witness is the smallest possible one:
-  the cyclic group of order eight with its discrete topology, `k = 3`, `h = 0`, trivial base, and
-  the correction supported at coordinate `0` by the image of the square of a generator.  That
-  element lies in `lambdaImage G 2 4` by `sq_mem_twoCentralSeries_succ`, and its square is
-  nontrivial in `Q_4` because `lambda_4 = bot` there.
+* **`evenStratum_not_dbarShiftSupply_one`** refutes it, at the committed `Prop` itself:
+  `EvenSharpDbarShiftSupply (nStageWord 1 0 _) EvenStratumShiftWitness 3` is false.  The witness
+  is the smallest possible one: the cyclic group of order eight with its discrete topology,
+  `k = 3`, `h = 0`, trivial base, and the correction supported at coordinate `0` by the image of
+  the square of a generator.  That element lies in `lambdaImage G 2 4` by
+  `sq_mem_twoCentralSeries_succ`, and its square is nontrivial in `Q_4` because `lambda_4 = bot`
+  there.  `evenStratum_no_rawStageShift_one` is the same fact in the shape of
+  `evenRawStageShift_n`'s own conclusion.
+
+**Scope, stated so it is not over-read.**  What is refuted is the statement *quantified over
+profinite groups*, which is the form both `evenRawStageShift_n` and `evenSharpDbarShiftSupply_n`
+have.  It does **not** decide
+`EvenSharpDbarShiftSupply (nStageWord 1 h _) (maxProPQuotient 2 (GalK K)) k` at any particular
+field.  `evenStratumShift_diagonalAtom_eq_one_of_rawShift` reduces that question to whether the
+diagonal atom vanishes there, and this lane says nothing about whether it does.
 
 The tower computation is two reusable lemmas: `evenStratumShift_twoCentralSucc_le` (a discrete
 abelian group's two-central step is contained in anything absorbing the squares of its input) and
@@ -53,9 +64,9 @@ abelian group's two-central step is contained in anything absorbing the squares 
 Their hypotheses are satisfied by the witness, not merely general in the binders.
 
 **Consequence for the tree.**  `evenSharpDbarShiftSupply_n` is `evenRawStageShift_n` verbatim, and
-it is the middle input of `evenClimb_defectReachable` on the `N` row.  So `EvenStratumClimbN` is
-blocked at a **named** step whose conclusion is now known false, and the surviving point's climb
-needs a genuinely new shift word, not a weakened binder.
+it is the middle input of `evenClimb_defectReachable` on the `N` row.  So the committed route to
+`EvenStratumClimbN` is blocked at a **named** step whose general form is now known false, and the
+surviving point's climb needs a genuinely new shift word, not a weakened binder.
 
 ## 2.  Ticket 2: wave 72's queue item 1 was half stale
 
@@ -80,8 +91,9 @@ Then the positive half, which is the actual answer:
 
 * **`evenStratum_exists_gramOne_modelEquiv`**: on the stratum at degree `2 + 2h` there **is** a
   linear isomorphism `H^1(G_K(2), F_2) ~= evenFrameModel h` carrying the field cup form to
-  `evenStratumGramOneModel h`.  This is the exact statement wave 71 refuted for
-  `evenFrameGramModel h`, with the `alpha = 1` Gram in place of the `alpha >= 2` one.  The proof
+  `evenStratumGramOneModel h`.  This is the statement wave 71 refuted for
+  `evenFrameGramModel h`, with the `alpha = 1` Gram in place of the `alpha >= 2` one and the
+  degree pinned - the rank count needs it, where wave 71's refutation did not.  The proof
   applies the committed `FieldDataEven.exists_cupForm_normalForm_alternating` directly to
   `frattiniFrameCup` (whose `IsCupFormFp2`, `NondegFp2` and Labute facts are all committed), with
   Labute vector `0` by wave 71's `evenStratum_kappa_eq_zero`, and pins the plane count at `h + 2`
@@ -142,7 +154,7 @@ real but narrower than hoped: the one recorded obstruction is gone, and no new o
 errors, no warnings.  No `lake` command was run.  No `sorry`, no new axiom, no `native_decide`, no
 `maxHeartbeats`, no `maxRecDepth`.
 
-`#print axioms` is run on **all 43 named public declarations** inside the module (§7), together
+`#print axioms` is run on **all 44 named public declarations** inside the module (§7), together
 with three comparison statements from waves 71 and 72.  The five anonymous instances on the
 witness group (`TopologicalSpace`, `DiscreteTopology`, `ContinuousMul`, `ContinuousInv`,
 `IsTopologicalGroup` on `Multiplicative (ZMod 8)`) have no user-written names and are not pinned;
@@ -174,6 +186,8 @@ Commits (branch `claude/w73-stratum`, based on `6a8fbc90`), all path-limited:
 * `7716d263` verify the alpha = 1 shift prose and refute the coordinate-zero row
 * `2f33a6b3` build the alpha = 1 Gram into the frame interface and produce an adapted frame
 * `9d64637b` settle what depth zero buys for the even climb's residual supply
+* `a4d7ad06` pin every named declaration and write the lane note
+* (final) state the refutation at the committed supply and scope it
 
 ## 5.  For the orchestrator
 
