@@ -467,3 +467,224 @@ the §4 knob table is right row by row; the axiom pins are complete, in declarat
 match the notes exactly (49/49 and 21/21); and roughly forty cross-referenced `cfive_*`,
 `cfour_*`, `gThreeFour_*`, `relBase_*` and `bridge_*` citations all say what the citing prose
 says they say.
+
+### 2.4  NEW ITEM TWO, intra-wave staleness
+
+Beyond the bracket propagation of §2.0, which is the purest example this round produced:
+
+**(a) HIGH.  `GQ2/Dyadic/Instances/EvenAlphaOne.lean` was left behind by its own wave, where its
+sibling was not.**  Wave 70 landed `EvenAlphaOne.lean` at `52239a0b` (11:18:21) and
+`MarkedCore/NFrameAlphaOne.lean` at `a3c34e59` (12:02:20), 44 minutes later.  `EvenAlphaOne.lean:668`
+says:
+
+> "The identification of the invariant as `q = 4` is **not** proved here: `demushkinQ` is a
+> torsion count on the abelianization, and computing it at `α = 1` is a separate step that this
+> file does not take."
+
+Literally true of the file, and it stays true.  But the step *was* taken, in the same wave, and
+`Instances/EvenDemushkin.lean:252-260` was updated to say so ("The `q`-invariant at `α = 1` is
+**computed too**, later in the same wave ... An earlier merge note in this docstring recorded the
+`q`-invariant as uncomputed.  That was true when written and was superseded within the same
+wave").  `EvenAlphaOne.lean` got no such pointer.  One file of a pair was fixed.  The repair is a
+sentence: "that step is `nFrame4_demushkinQ_DN_one` in `MarkedCore/NFrameAlphaOne.lean`, landed
+later in this wave".
+
+**(b) HIGH, and cross-wave.  `EvenAlphaOne.lean:673-675` records as open what wave 71 refuted.**
+
+> "Whether the classification extends to `α = 1` is a question about the frame and stage layers
+> above the model, and stays open."
+
+Wave 71's `Instances/EvenStratumPoint.lean` proves `evenStratum_no_adaptedModelEquiv`: on the
+whole third stratum, and at every handle count, there is **no** isomorphism carrying the field cup
+form to `evenFrameGramModel h`, which is the shared step of all three even frame producers (I
+verified "all three": `evenFrameAdaptedModelEquiv` is applied as a term at exactly
+`StageAbstractionEvenEndpoint.lean:360`, `StageAbstractionEvenFrameCore.lean:803`,
+`StageAbstractionEvenFrattiniFrameM.lean:646`).  The `α = 1` `N` core sits on that stratum, at the
+one surviving point `imChiN 1 = evenRangePrin 2`, and `EvenAlphaOne.lean`'s own §11 says so.  So
+the frame half of "stays open" is closed, negatively, for the committed route.
+
+**(c) MEDIUM.  `EvenAlphaOne.lean:688-689` cites its own §10.3 for a claim about the wrong
+frame.**
+
+> "it does **not** by itself prove the classification there, which needs the frame and stage
+> inputs that §10.3 says are missing at `α = 1`."
+
+§10.3 (`:659-665`) is about `MarkedCore.NFrame` being empty.  The classification's frame is
+`StageGeneric.Frame` (`Instances/StageAbstraction.lean:793`), a different structure with
+generators, character rows and level-two generation and **no torsion slot at all**.  Wave 71's
+`w71-stratum-note.md` §1(a) names exactly this conflation and prices a lane against it as a
+non-item; I re-verified its supporting count, `NFrame` is taken as a *term* by exactly three
+declarations tree-wide (`NFrame.toNDecomposition`, `demushkinQ_DN_nFrame`,
+`demushkinQ_DN_one_nFrame4`), none in the stage layer.
+
+**(d) MEDIUM.  Discharged-but-still-open: `w71-stratum-note.md` §5.**  It reported stale prose in
+`EvenForwardRouteSkeleton.lean` "for the orchestrator", who fixed it later in the same wave at
+`e6d10612`.  The note read as an open item.  Annotated in this lane.  One residue, reported not
+fixed because that file may be in flight: the applied notice is headed
+"⚠ **Corrected at wave 70**" (`EvenForwardRouteSkeleton.lean:81`), but the correction was applied
+at **wave 71** against wave 70's landings.
+
+**(e) The wave-69 headline, corrected here.**  `w69-class4-note.md` §0 called
+`cfour_supply_of_eichDefect` "a reduction of the whole class-four obligation".  It is a sufficient
+condition using the trivial dressing, and wave 70's own
+`GradedClassFourIdentity.lean:24-31` proves its hypothesis forces `bridgeDefect nu' j = 1`, that
+is, that wave 68 never needed the dressing it was built to construct.  Wave 70 calls the
+hypothesis "not a plausible thing to prove"; the wave-69 note was never marked.  Marked now.
+
+### 2.4b  Findings in the wave-70/71 `Instances` and `MarkedCore` modules (reported, not edited)
+
+`EvenStratumPoint.lean`, `EvenAlphaOne.lean`, `NFrameAlphaOne.lean` and
+`NFrameAlphaOneInvariants.lean` are squarely the subject matter of a sibling lane this wave, so
+none of these is edited.  All verified against the Lean; the axiom one is machine-verified.
+
+**(a) HIGH, machine-verified.  `GQ2/Dyadic/Instances/EvenStratumPoint.lean:371-372` states an
+axiom scope its own module header contradicts and `mirror.sh` refutes.**
+
+> "Every declaration is expected std-3 (`propext`, `Classical.choice`, `Quot.sound`)."
+
+The module header at `:95-98` says the opposite and is right: "§4 and §7 add `tateDualityAt` and
+`hilbertSymbol_normCriterion_finiteDyadic`, and §6 adds `tateDualityAt` and
+`Foundations.absGalQ2_localEulerCharacteristic`."  My own `scripts/mirror.sh check` on the file
+prints exactly that: `evenStratum_cup_self_eq_zero`, `evenStratum_no_adaptedModelEquiv` and its
+two corollaries carry `hilbertSymbol_normCriterion_finiteDyadic` and `tateDualityAt`, and
+`evenStratum_orientedEquivN_one_of_forwardGeneratorData` carries `tateDualityAt` and
+`Foundations.absGalQ2_localEulerCharacteristic`.  This is the highest-risk line in the round: it
+is a **census claim**, it sits directly above the `#print axioms` block, and it says "std-3" for
+declarations that consume three census axioms.  Correction: delete the sentence, or replace it
+with the header's per-section breakdown.
+
+**(b) HIGH.  `EvenStratumPoint.lean:311-316` and `:70-71`: "ALONE", "exactly one `Prop`", "three
+inputs".  The lemma has four hypotheses and one of them survives.**
+
+> "The even classification at branch parameter `1` follows from the forward-generator datum
+> ALONE.  Both other inputs of `nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData` are
+> discharged here ... So the model layer at the surviving point is fully paid, and what remains is
+> exactly one `Prop`."
+
+`nonempty_orientedEquivN_evenDegree_of_forwardGeneratorData`
+(`Instances/EvenForwardRouteSkeleton.lean:406-408`) takes `(hα : 1 ≤ α)`,
+`(hev : Module.finrank ℚ_[2] K = 2 + 2 * h)`, `(hmodel : NModelDemushkin α h)` and `(hdata : …)`:
+**four**, not three.  The theorem immediately below the docstring still binds `hev`
+(`EvenStratumPoint.lean:320`).  So two hypotheses remain, not one, and "ALONE" is wrong.  The
+file's own display quote at `:76-77` has it right ("given `Nonempty (NForwardGeneratorData 1 h
+χ_cyc)` **and** `[K : ℚ₂] = 2 + 2h`"), as does `w71-stratum-note.md:87-89`.  Only the headline
+prose overreaches, which is the classic shape.
+
+**(c) HIGH.  `EvenStratumPoint.lean:63-65`: "nowhere in the tree" is falsified by a committed
+theorem.**
+
+> "no declaration in this file, or anywhere in the tree, asserts or denies
+> `Nonempty (OrientedContinuousMulEquiv (chiN 1 h) chiCycKTwo)` at a third-stratum field."
+
+`Instances/EvenUnramified.lean:341-343`, wave 69's own lane:
+`evenUnram_isEmpty_orientedN {alpha} (halpha : 3 ≤ alpha) (hr : range … = evenRangePrin alpha)
+(a h : ℕ) : IsEmpty (OrientedContinuousMulEquiv (chiN a h) (chiCycKTwo (K := K)))`.  At `a := 1`
+this **denies** exactly that `Nonempty`, at every third-stratum field of depth `α ≥ 3`.  The
+intended scope is the surviving point, which sits at depth 2; the sentence overreaches to the
+whole stratum.  Correction: "at the stratum's depth-2 point".
+
+**(d) MEDIUM.  `GQ2/Dyadic/MarkedCore/NFrameAlphaOne.lean:27-28` points at the wrong section, and
+that section says so.**  The header claims the invariant package `(rank, q) = (4 + 2h, 4)` is
+closed "(§8)".  §8 (`:611-617`) opens by saying "The invariant package ... is **not** here", and
+sends the reader to `Instances/NFrameAlphaOneInvariants.lean`, which the same header names
+correctly 120 lines later.  Reads like a leftover from before the `ec8e6f9e` split.
+
+**(e) MEDIUM.  `EvenStratumPoint.lean:17-18` and `:25-26` rebut a claim the wave-69 note did not
+make.**  The header says the wave-69 note "priced two further replacements", the first being "a
+`q = 4` frame **at the stage level**".  `docs/dyadic/w69-unram-note.md:112-117` prices **three**
+items, and its first is explicitly the *abelianization* layer ("the abelianization torsion there
+should be `Z/4`, not the `Z/2` that `NFrame` demands"), which is precisely what wave 70 supplied.
+`NFrameAlphaOne.lean:108-110` states the same note correctly as three items.  So §1(a)'s "the
+`q = 4` frame at the stage level is a non-item" knocks down a stage-level claim the note never
+made.  The underlying finding, that `NFrame` and `StageGeneric.Frame` are different objects,
+stands and is important; only the attribution is wrong.
+
+**(f) MEDIUM.  `EvenStratumPoint.lean:155` (§2 header) and `:85`: "the `α = 1` parity table is the
+zero table" is a whole-table claim proved at one entry.**  §2 contains exactly one theorem,
+`evenStratum_parity_nUnit_one` (`:159`), the single value at the twisted index.  The `α ≥ 2`
+analogue `evenDegreeN_parity_table` (`StageAbstractionEvenFrattiniFrameN.lean:203`) quantifies
+over all `i : Fin (coreRank h)`; no `α = 1` analogue of that is proved.  The per-declaration
+docstring at `:157-158` is correctly scoped; the section header is not.  Note
+`w71-stratum-note.md:55-56` carries the same whole-table phrasing.
+
+**(g) MEDIUM.  `EvenStratumPoint.lean:145-146`: "holds exactly on `α ≥ 2`" drops the binder the
+theorem carries.**  `evenStratum_four_dvd_nUnit_add_one_iff` takes `(hα : 1 ≤ α)`, genuinely
+consumed by the `omega` at `:151`.  `α = 0` is not covered.  The lane note keeps the caveat
+(`w71-stratum-note.md:46`, "for α >= 1"); the module docstring drops it.
+
+**(h) MEDIUM-LOW, intra-wave.  `NFrameAlphaOne.lean:93-95` describes a docstring that has since
+been corrected, in the present tense.**
+
+> "and `Instances/EvenDemushkin.lean`'s residual R1 records the `α = 1` `q`-invariant as
+> uncomputed."
+
+`EvenDemushkin.lean:252-260` now says the opposite and cites this very file
+(`nFrame4_demushkinQ_DN_one`), having been corrected at `52ac5b7f`, wave 71.  The sentence's
+point survives (the next clause says "§7 computes it, so both records are discharged"), but the
+present tense is now false, and it is the reciprocal half of a fix that was applied on one side
+only.  Correction: past tense.
+
+**(i) LOW.  `GQ2/Dyadic/Instances/NFrameAlphaOneInvariants.lean:89` cites a file that does not
+exist**: "the `H¹`-count of `EvenModel.lean`".  There is no `EvenModel.lean` under `GQ2/`;
+`EvenModel` is a *namespace*, and `demushkinRank_DN` is at
+`Instances/EvenModelH2.lean:482`.  The namespace-only citations elsewhere (`:15`,
+`EvenAlphaOne.lean:19`) are fine.  This is the third dangling file citation this round, after the
+four `GQ2/Roe/DRH2.lean` sites of §1(c).
+
+**(j) LOW, systematic.  `EvenAlphaOne.lean:110` and `:124` cite three `Cores.lean` line numbers,
+each off by exactly 3**: `diagCoeff` is at `Cores.lean:1215` (cited `:1212`),
+`mWord_centLift_fib` at `:1392` (cited `:1389`), `nWord_centLift_fib` at `:1411` (cited `:1408`).
+Three lines were inserted above them and the citations never moved.  Every other line citation
+checked across these four files is exact.
+
+**(k) LOW.  `EvenAlphaOne.lean:703-704` pairs the wrong section**: "§6 against `card_H2_DN` /
+`card_H2_DM`" should be §7, whose `evenAlphaOne_card_H2_DN`/`_DM` (`:521`, `:543`) are the
+analogues.  §6 is the inverse-Gram section.  And `NFrameAlphaOne.lean:11-12` cites only
+`evenAlphaOne_isDemushkin_DN` for the two-row claim "both `α = 1` even cores Demushkin"; the `M`
+half is `evenAlphaOne_isDemushkin_DM` (`EvenAlphaOne.lean:598`).
+
+**(l) LOW.  `NFrameAlphaOne.lean:625-626`: "The two proofs share `dn_abRel` and nothing else".**
+Both run through the same `abLiftG ∘ nLiftHom` coordinate homomorphism with the same `ℤ/4`
+marking: `NFrameExists.lean:178-182`'s `nZ4Hom` and `NFrameAlphaOne.lean:339-343`'s `nFourTHom`,
+where `nCoordHom` is *defined* as `abLiftG (nLiftHom …)` (`NFrameExists.lean:213-215`).  The file
+itself records the duplication at `:69-71`.  The cross-check is still worth having; it is just not
+independent in the way claimed.
+
+**Clean in these four modules,** independently confirmed: every Gram matrix in `EvenAlphaOne.lean`
+checks entry by entry against the Lean (the `α ≥ 2` matrix, the `α = 1` `N` and `M` matrices, the
+inverse-Gram and its two correction slots); the `decide` inventory is exactly the four calls it
+claims; the directional claims are all proved in the direction stated (`demushkinQ (DN 1 h) = 4`
+with no frame hypothesis, `IsEmpty (NFrame 1 h)` derived *from* the invariant and not assumed,
+`evenStratum_kappa_eq_zero` rather than `≠ 0`, `evenStratum_no_adaptedModelEquiv` a genuine
+negation, both `α = 1` cores Demushkin at every handle count); the residual directions R1 FALSE /
+R2 TRUE are correctly signed; and `NFrameAlphaOne.lean:80`'s "over 740 transitive importers" is
+accurate on the module graph (`GQ2.Demushkin` has 770 transitive dependents).  One imprecision in
+the safe direction, recorded for completeness: `evenStratum_no_adaptedModelEquiv` refutes only the
+first conjunct of `evenFrameAdaptedModelEquiv`'s conclusion, so the refutation is *stronger* than
+the docstring advertises.
+
+### 2.5  Standing items: what came up clean
+
+Said plainly, because a watch round that reports only hits is not a check.
+
+* **Axiom and census claims: clean, machine-verified.**  Every axiom-pin claim in the wave-69, -70
+  and -71 notes matches `mirror.sh check` exactly, including the four named `[propext]`-only
+  exceptions of the wave-71 five note and the four named subset exceptions of the wave-70 five
+  note.  The census is **11**, matching `EXPECTED_AXIOMS=11` in `scripts/check_axioms.sh` and the
+  owner memo's "census 11".  `SORRY_ALLOWLIST` is empty and the tree has **zero** real `sorry`s:
+  all 11 occurrences of the string under `GQ2/` are the word "sorry-free" in prose.
+* **Cross-reference *names*: clean.**  Every backticked snake_case identifier in all seven wave
+  notes resolves to a declaration or a structure field in the tree, except mathematical notation
+  (`gamma_2`, `zeta_8`, `Q_k`), Lean features (`native_decide`) and mathlib names
+  (`commutatorElement_def`).  No note cites a lemma that does not exist.
+* **Counts: two hits, both the same mistake, both fixed.**  `w71-stratum-note.md` "19
+  declarations, all pinning" (18, one unpinned) and `w69-unram-note.md` "All 31 declarations"
+  (32, one unpinned).  Both count "declaration" as "declaration carrying a `#print axioms` line",
+  which drops a `def` and an `abbrev` respectively.  The four SqCore lane notes' declaration
+  counts (46, 21, 49, 21 + 27) are all **exact**.
+* **Headline-versus-statement: one hit in the notes** (§2.4(e)), plus the module hits of §2.2 and
+  §2.3.  The wave-71 stratum note's headline, the strongest of the round, is an exact reading of
+  `evenStratum_no_adaptedModelEquiv` including both its hypotheses.
+* **Conflation of `commP` with the element bracket: none found.**  `w70-cfour-note.md`,
+  `w71-cfour-note.md` and `Cores.lean` all state `commP a b = ⁅a⁻¹, b⁻¹⁆` correctly.  This was
+  worth checking separately from the elaboration claim, and it comes up clean.
