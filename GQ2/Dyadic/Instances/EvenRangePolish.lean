@@ -4,6 +4,7 @@ Released under the Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.EvenRangeModelFields
+import GQ2.Dyadic.OddDegreeRamifiedI
 
 /-!
 # W68-POLISH: the norm form of the `M` branch, and the quartic's ramification
@@ -45,8 +46,15 @@ endpoint already carries.  §3 restates the two `ℚ₂(√2)` headlines with th
 the ramification index divides `2`.  At a quartic that statement is false.
 
 What survives is the shape of the argument, with `2` replaced by the quartic's own index.  §4
-proves the replacement engine at `KQuarticN` from the committed model data, §5 exhibits a witness
-in `KQuarticN(i)` whose fourth power of the norm is an odd power of `‖2‖`, and §6 assembles.
+proves the replacement engine at `KQuarticN` (`‖w‖⁴ ∈ ‖ℚ₂ˣ‖`, hence `‖w‖⁸` an even power of
+`‖2‖`), §5 exhibits a witness in `KQuarticN(i)` with `‖z‖⁸ = ‖2‖¹¹`, and §6 assembles.
+
+The assembly carries **one** hypothesis this file does not discharge: `i ∉ ℚ₂(β)`.  That is not a
+gap in the argument but the statement's own content, since with `i` in the field the two value
+groups coincide by definition and the conclusion is false.  It is an elementary field fact whose
+value is measured (`scripts/w57_model/`, and the ledger row of `EvenRouteModel.lean` §5):
+`ℚ₂(β) = ℚ₂(ζ₁₆ − ζ₁₆⁻¹)` is the fixed field of the automorphism `ζ₁₆ ↦ ζ₁₆⁷`, which sends
+`i = ζ₁₆⁴` to `−i`.
 
 ## Numbering
 
@@ -254,6 +262,213 @@ theorem hrangeFinal_orientedEquivM_sqrtTwo' [T2Space (GalK KSqrtTwo)]
 
 end SqrtTwoEndpoints
 
+/-! ## §4 The value group of the quartic model field
+
+The quadratic row's engine is `Fields.exists_norm_sq_eq`: every `z ∈ ℚ₂(√a)` has `‖z‖² ∈ ‖ℚ₂ˣ‖`.
+Its proof is specific to `quadField` (it runs on the coordinates `x + y√a`), but the statement is
+not: for **any** finite `K/ℚ₂` the algebraic norm gives `‖z‖^{[K:ℚ₂]} = ‖N_{K/ℚ₂} z‖`
+(`Dyadic.norm_algebra_eq_norm_pow_finrank`, which needs no Galois hypothesis).  At the quartic
+that reads `‖z‖⁴ ∈ ‖ℚ₂ˣ‖`, so `‖z‖⁸` is always an **even** power of `‖2‖`.
+
+The same lemma at `β` itself pins the quartic's own uniformizer: `N(β)` is the constant
+coefficient `2` of `X⁴ + 4X² + 2`, so `‖β‖⁴ = ‖2‖`. -/
+
+section QuarticValueGroup
+
+open GQ2.Dyadic.EvenRouteModel
+
+/-- `β`, as an element of `ℚ₂(β)`, in the `AdjoinSimple` presentation the power basis uses. -/
+noncomputable def evenPolish_betaGen : ↥KQuarticN :=
+  IntermediateField.AdjoinSimple.gen ℚ_[2] evenRouteModelBeta
+
+theorem evenPolish_betaGen_val : ((evenPolish_betaGen : ↥KQuarticN) : ℚ̄₂) = evenRouteModelBeta :=
+  IntermediateField.AdjoinSimple.coe_gen ℚ_[2] evenRouteModelBeta
+
+theorem evenPolish_evenRouteModelPoly_coeff_zero : evenRouteModelPoly.coeff 0 = 2 := by
+  simp only [evenRouteModelPoly, coeff_add, coeff_X_pow, coeff_C_mul, coeff_C_zero]
+  norm_num
+
+/-- **`N_{ℚ₂(β)/ℚ₂}(β) = 2`.**  The constant coefficient of the Eisenstein quartic, read through
+the adjoined power basis. -/
+theorem evenPolish_norm_betaGen : Algebra.norm ℚ_[2] evenPolish_betaGen = 2 := by
+  have hpb := Algebra.PowerBasis.norm_gen_eq_coeff_zero_minpoly
+    (IntermediateField.adjoin.powerBasis evenRouteModelBeta_isIntegral)
+  rw [IntermediateField.adjoin.powerBasis_gen, IntermediateField.adjoin.powerBasis_dim,
+    IntermediateField.minpoly_gen, evenRouteModel_minpoly_beta,
+    evenRouteModelPoly_natDegree, evenPolish_evenRouteModelPoly_coeff_zero] at hpb
+  rw [show ((-1 : ℚ_[2]) ^ 4 * 2 : ℚ_[2]) = 2 by norm_num] at hpb
+  exact hpb
+
+/-- **`‖β‖⁴ = ‖2‖`.**  `β` is a uniformizer of the quartic: the field is totally ramified. -/
+theorem evenPolish_norm_beta_pow_four :
+    ‖evenRouteModelBeta‖ ^ 4 = ‖(2 : ℚ_[2])‖ := by
+  have h := GQ2.Dyadic.norm_algebra_eq_norm_pow_finrank KQuarticN evenPolish_betaGen
+  rw [evenPolish_norm_betaGen, finrank_KQuarticN, evenPolish_betaGen_val] at h
+  exact h.symm
+
+/-- **THE QUARTIC'S VALUE GROUP.**  Every nonzero element of `ℚ₂(β)` has `‖·‖⁴` in `‖ℚ₂ˣ‖`.  This
+is the degree-four replacement for `Fields.exists_norm_sq_eq`, and it is what makes `‖·‖⁸` an even
+power of `‖2‖` on the field. -/
+theorem evenPolish_quartic_norm_pow_four (w : ↥KQuarticN) (hw : (w : ℚ̄₂) ≠ 0) :
+    ∃ c : ℚ_[2], c ≠ 0 ∧ ‖(w : ℚ̄₂)‖ ^ 4 = ‖c‖ := by
+  have h := GQ2.Dyadic.norm_algebra_eq_norm_pow_finrank KQuarticN w
+  rw [finrank_KQuarticN] at h
+  refine ⟨Algebra.norm ℚ_[2] w, ?_, h.symm⟩
+  intro hz
+  rw [hz, norm_zero] at h
+  exact hw (norm_eq_zero.mp (pow_eq_zero_iff (n := 4) (by norm_num) |>.mp h.symm))
+
+end QuarticValueGroup
+
+/-! ## §5 The ramified-`i` witness at the quartic
+
+The witness is `z = (β² − 2β) + (β² + 2)·i`, whose two coordinates lie in `ℚ₂(β)` because `β` does
+and `(β² + 2)² = 2` is the committed square root of `2` there.  Up to the root `β` names, `z` is
+`2β(ζ₁₆ − 1)`, so it is a uniformizer of `ℚ₂(ζ₁₆) = ℚ₂(β)(i)` times a `ℚ₂(β)`-element, and its
+valuation has denominator `8`.
+
+The computation is one line of algebra and one Galois step.  The algebra: with `i² = −1` and
+`β⁴ + 4β² + 2 = 0`,
+
+`(x + y i)(x − y i) = x² + y² = (β² − 2β)² + (β² + 2)² = −4β³`.
+
+The Galois step: `x − y i` is the image of `z` under a conjugation of `ℚ̄₂` over `ℚ₂(β)` sending
+`i ↦ −i`, which exists exactly because `i ∉ ℚ₂(β)`, and every such automorphism preserves the
+spectral norm.  Hence `‖z‖² = ‖4β³‖`, and with `‖β‖⁴ = ‖2‖` from §4,
+
+`‖z‖⁸ = ‖4‖⁴ · ‖β‖¹² = ‖2‖⁸ · ‖2‖³ = ‖2‖¹¹`,
+
+an **odd** power, which §4 forbids on the field itself. -/
+
+section QuarticWitness
+
+open GQ2.Dyadic.EvenRouteModel GQ2.UnramifiedQuadraticNorms
+
+theorem evenPolish_two_mem_quartic : (2 : ℚ̄₂) ∈ KQuarticN := by
+  have h := KQuarticN.algebraMap_mem (2 : ℚ_[2])
+  rwa [map_ofNat] at h
+
+/-- The defining relation of `β`, in equational form. -/
+theorem evenPolish_beta_rel :
+    evenRouteModelBeta ^ 4 + 4 * evenRouteModelBeta ^ 2 + 2 = 0 := by
+  have h := evenRouteModel_aeval_beta
+  simp only [evenRouteModelPoly, map_add, map_pow, aeval_X, map_mul, map_ofNat] at h
+  linear_combination h
+
+/-- The witness's first coordinate `β² − 2β`. -/
+noncomputable def evenPolish_quarticX : ↥KQuarticN :=
+  ⟨evenRouteModelBeta ^ 2 - 2 * evenRouteModelBeta,
+    sub_mem (pow_mem evenRouteModelBeta_mem 2)
+      (mul_mem evenPolish_two_mem_quartic evenRouteModelBeta_mem)⟩
+
+/-- The witness's second coordinate `β² + 2`, a square root of `2` in `ℚ₂(β)`. -/
+noncomputable def evenPolish_quarticY : ↥KQuarticN :=
+  ⟨evenRouteModelBeta ^ 2 + 2,
+    add_mem (pow_mem evenRouteModelBeta_mem 2) evenPolish_two_mem_quartic⟩
+
+theorem evenPolish_quarticX_val :
+    ((evenPolish_quarticX : ↥KQuarticN) : ℚ̄₂)
+      = evenRouteModelBeta ^ 2 - 2 * evenRouteModelBeta := rfl
+
+theorem evenPolish_quarticY_val :
+    ((evenPolish_quarticY : ↥KQuarticN) : ℚ̄₂) = evenRouteModelBeta ^ 2 + 2 := rfl
+
+/-- **The witness** `z = (β² − 2β) + (β² + 2)·i`. -/
+noncomputable def evenPolish_quarticWitness (deltaI : ℚ̄₂) : ℚ̄₂ :=
+  ((evenPolish_quarticX : ↥KQuarticN) : ℚ̄₂)
+    + ((evenPolish_quarticY : ↥KQuarticN) : ℚ̄₂) * deltaI
+
+variable {deltaI : ℚ̄₂}
+
+/-- **The norm form of the witness**: `z · z̄ = −4β³`, from `i² = −1` and `β⁴ + 4β² + 2 = 0`. -/
+theorem evenPolish_witness_mul_conj (hdeltaI : deltaI ^ 2 = -1) :
+    evenPolish_quarticWitness deltaI
+        * (((evenPolish_quarticX : ↥KQuarticN) : ℚ̄₂)
+          - ((evenPolish_quarticY : ↥KQuarticN) : ℚ̄₂) * deltaI)
+      = -(4 * evenRouteModelBeta ^ 3) := by
+  rw [evenPolish_quarticWitness, evenPolish_quarticX_val, evenPolish_quarticY_val]
+  linear_combination (2 : ℚ̄₂) * evenPolish_beta_rel
+    - (evenRouteModelBeta ^ 2 + 2) ^ 2 * hdeltaI
+
+/-- **`‖z‖² = ‖4β³‖`.**  The conjugation over `ℚ₂(β)` exists because `i ∉ ℚ₂(β)`, and it preserves
+the spectral norm. -/
+theorem evenPolish_witness_norm_sq (hdeltaI : deltaI ^ 2 = -1) (hi : deltaI ∉ KQuarticN) :
+    ‖evenPolish_quarticWitness deltaI‖ ^ 2 = ‖(4 : ℚ̄₂) * evenRouteModelBeta ^ 3‖ := by
+  obtain ⟨sigma, hsigma⟩ :=
+    exists_conj (k := KQuarticN) (d := (-1 : ↥KQuarticN)) (by simpa using hdeltaI) hi
+  have hconj : sigma (evenPolish_quarticWitness deltaI)
+      = ((evenPolish_quarticX : ↥KQuarticN) : ℚ̄₂)
+        - ((evenPolish_quarticY : ↥KQuarticN) : ℚ̄₂) * deltaI :=
+    conj_apply hsigma _ _
+  calc ‖evenPolish_quarticWitness deltaI‖ ^ 2
+      = ‖evenPolish_quarticWitness deltaI‖ * ‖sigma (evenPolish_quarticWitness deltaI)‖ := by
+        rw [norm_conj_eq KQuarticN sigma]; ring
+    _ = ‖evenPolish_quarticWitness deltaI * sigma (evenPolish_quarticWitness deltaI)‖ := by
+        rw [norm_mul]
+    _ = ‖(4 : ℚ̄₂) * evenRouteModelBeta ^ 3‖ := by
+        rw [hconj, evenPolish_witness_mul_conj hdeltaI, norm_neg]
+
+/-- **`‖z‖⁸ = ‖2‖¹¹`**, an odd power of `‖2‖`. -/
+theorem evenPolish_witness_norm_pow_eight (hdeltaI : deltaI ^ 2 = -1)
+    (hi : deltaI ∉ KQuarticN) :
+    ‖evenPolish_quarticWitness deltaI‖ ^ 8 = ‖(2 : ℚ_[2])‖ ^ 11 := by
+  have hsq := evenPolish_witness_norm_sq hdeltaI hi
+  have hfour : ‖(4 : ℚ̄₂)‖ = ‖(2 : ℚ_[2])‖ ^ 2 := by
+    rw [show (4 : ℚ̄₂) = 2 ^ 2 by norm_num, norm_pow, GQ2.Dyadic.Fields.norm_two_alg]
+  have hbeta := evenPolish_norm_beta_pow_four
+  calc ‖evenPolish_quarticWitness deltaI‖ ^ 8
+      = (‖evenPolish_quarticWitness deltaI‖ ^ 2) ^ 4 := by ring
+    _ = (‖(4 : ℚ̄₂)‖ * ‖evenRouteModelBeta‖ ^ 3) ^ 4 := by rw [hsq, norm_mul, norm_pow]
+    _ = ‖(2 : ℚ_[2])‖ ^ 8 * (‖evenRouteModelBeta‖ ^ 4) ^ 3 := by rw [hfour]; ring
+    _ = ‖(2 : ℚ_[2])‖ ^ 11 := by rw [hbeta]; ring
+
+end QuarticWitness
+
+/-! ## §6 The quartic's ramification fact
+
+Assembly.  `‖z‖⁸ = ‖2‖¹¹` is odd and §4 says every value on the field has `‖·‖⁸` even, so `z`'s
+norm is outside the field's value group and `ℚ₂(β)(i)/ℚ₂(β)` is ramified.  The single input this
+file does not prove is `i ∉ ℚ₂(β)`, without which the statement is **false** (if `i` were in the
+field the two value groups would be equal by definition), so it is a hypothesis rather than a
+gap. -/
+
+section QuarticRamified
+
+open GQ2.Dyadic.EvenRouteModel
+
+variable {deltaI : ℚ̄₂}
+
+/-- **`ℚ₂(β)(i)/ℚ₂(β)` IS RAMIFIED**, over the single hypothesis `i ∉ ℚ₂(β)`.  This is
+`Fields.not_hasEqualNormValueGroups_quadField` at the quartic: the witness `z = (β² − 2β) +
+(β² + 2)i` has `‖z‖⁸ = ‖2‖¹¹`, and §4 shows every nonzero `w` in the field has
+`‖w‖⁸ = ‖N w‖²`, an even power. -/
+theorem evenPolish_not_hasEqualNormValueGroups_quartic (hdeltaI : deltaI ^ 2 = -1)
+    (hi : deltaI ∉ KQuarticN) :
+    ¬ GQ2.HasEqualNormValueGroups KQuarticN deltaI := by
+  intro H
+  have h8 := evenPolish_witness_norm_pow_eight hdeltaI hi
+  have hz0 : evenPolish_quarticWitness deltaI ≠ 0 := by
+    intro h
+    rw [h, norm_zero] at h8
+    have hpos : (0 : ℝ) < ‖(2 : ℚ_[2])‖ ^ 11 := by
+      have : (0 : ℝ) < ‖(2 : ℚ_[2])‖ := norm_pos_iff.mpr two_ne_zero
+      positivity
+    rw [← h8] at hpos
+    norm_num at hpos
+  obtain ⟨w, hw0, hwn⟩ := H (evenPolish_quarticWitness deltaI) hz0
+    ⟨evenPolish_quarticX, evenPolish_quarticY, rfl⟩
+  have hw0' : ((w : ↥KQuarticN) : ℚ̄₂) ≠ 0 := fun h => hw0 (Subtype.ext h)
+  obtain ⟨c, hc0, hc⟩ := evenPolish_quartic_norm_pow_four w hw0'
+  have hkey : ‖c ^ 2‖ = ‖(2 : ℚ_[2]) ^ 11‖ := by
+    rw [norm_pow, norm_pow, ← hc, ← h8, hwn]
+    ring
+  have hval := GQ2.Dyadic.Fields.valuation_eq_of_norm_eq (pow_ne_zero 2 hc0)
+    (pow_ne_zero 11 (two_ne_zero)) hkey
+  rw [Padic.valuation_pow, Padic.valuation_pow, GQ2.Dyadic.Fields.valuation_two] at hval
+  omega
+
+end QuarticRamified
+
 end GQ2.Dyadic.EvenRangePolish
 
 /-! ## §7 Axiom pins
@@ -279,6 +494,18 @@ open GQ2.Dyadic.EvenRangePolish
 -- §3 the primed endpoints
 #print axioms hrangeFinal_sqrtTwo'
 #print axioms hrangeFinal_orientedEquivM_sqrtTwo'
+
+-- §4 to §6 the quartic
+#print axioms evenPolish_norm_betaGen
+#print axioms evenPolish_norm_beta_pow_four
+#print axioms evenPolish_quartic_norm_pow_four
+#print axioms evenPolish_witness_mul_conj
+#print axioms evenPolish_witness_norm_sq
+#print axioms evenPolish_witness_norm_pow_eight
+#print axioms evenPolish_not_hasEqualNormValueGroups_quartic
+
+-- the quadratic row's ramification fact, the statement §6 mirrors
+#print axioms GQ2.Dyadic.Fields.not_hasEqualNormValueGroups_quadField
 
 -- the wave-67 originals they replace, for the side-by-side
 #print axioms GQ2.Dyadic.EvenRangeModel.hrangeFinal_sqrtTwo
