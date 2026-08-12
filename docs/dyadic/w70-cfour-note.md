@@ -124,11 +124,16 @@ basis is unipotent on `span{σ, x₀, u_*, v_*}`.
 * **The bundle then unbundles.**  For `c ∈ W'`, `[c, x₁] ∈ L₃(V) ⊆ K` (whether `c` is a bracket
   class or a square class, since `[g^{[2]}, x₁] = ad(g)²(x₁)`), so `φ(c) ∈ K` gives `c^{[2]} ∈ K`.
   Hence `K ⊇ L₃(V) ⊕ sq(W')`.
-* **What `K` misses.**  `sq` is injective on `W`, so `K` has codimension at most two in `Z`, and
-  the missing directions are **fourth powers `g^{[4]}` of generators with `λ(g)` or `ν'(g)` odd**,
-  i.e. `σ^{[4]}` and `x₀^{[4]}`.  These are not vacuous:
+* **What `K` misses.**  `sq` is injective on `W`, so `Z/K` is a quotient of `W/W'` and has
+  dimension at most two.  On the square part of `W` the two constraining functionals are
+  `λ̄ = κ_σ + κ_{x₀}` and `ν̄' = κ_σ + Σ_j (ν'(u_j) κ_{u_j} + ν'(v_j) κ_{v_j})`, using
+  `λ(σ) = sqPivotExp` odd, `λ(x₀) = 1`, `λ(x₁) = 2`, `λ(u) = λ(v) = 0` and, at a selected
+  marking, `ν'(σ) = 1`, `ν'(x₀) = ν'(x₁) = 0`.  These are independent, so the codimension is
+  exactly two and the missing part of `Z` sits in `V^{[4]}`, represented by `σ^{[4]}` and
+  `x₀^{[4]}`: the fourth powers of the two generators whose square class fails admissibility.
+  It is not a vacuous space:
   `GQ2.ContCoh.dsqSigma_pow_four_not_mem_twoCentralSeries_four` (`SqCore/TwoCentralFacts.lean`)
-  says `σ⁴ ∉ γ₄`.
+  says `σ⁴ ∉ γ₄`, so `σ^{[4]} ≠ 0`.
 
 **So the whole of class four is now one question: does the leftover have a component in the
 fourth-power directions of the two odd-row generators?**  Wave 69's other analysis point answers
