@@ -823,7 +823,14 @@ level.  So the honest identity has three strata, not two, and the third is neith
 
 `range χ = imChiM α`,   `range χ = imChiN α`,   or   `range χ = 1 + 2^α ℤ₂`,
 
-the last exactly when `K(i)/K` fails to be ramified.  The three are mutually exclusive at `α ≥ 2`
+the last when `K(i)/K` fails to be ramified.  ⚠ **Corrected at wave 69: that is an
+implication, not an `iff`, and the committed theorem proves only the stated direction
+(third stratum implies unramified).**  The converse is false: if `K(i)/K` is unramified
+quadratic then `i ∉ K`, so `χ mod 4` is the nontrivial character of `Gal(K(i)/K)` and the
+range meets the class `3 mod 4`, which the third case excludes.  Witness `K = ℚ₂(√−5)`,
+ramified over `ℚ₂` with `K(i) = K(√5)` unramified and `i ∉ K`.  The case split the third
+stratum actually records is `i ∈ K` (see `Instances/EvenUnramified.lean` §6, which proves
+that direction).  The three are mutually exclusive at `α ≥ 2`
 (`−1` lies in the first and not the other two; the class `3 mod 4` meets the first two and not the
 third).  This removes `hram` from the range identity outright. -/
 

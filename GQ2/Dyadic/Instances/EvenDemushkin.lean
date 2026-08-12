@@ -243,7 +243,17 @@ decides the Demushkin question itself, in either direction.
 Cost to close: the `α = 1` `N` Gram has to be computed afresh (the committed
 `diagCoeff_two_pow` route needs `2 ≤ α`), and then exhibited as *degenerate*, which additionally
 needs a nonzero `H¹` class whose cup with everything vanishes.  Estimate: one lane, comparable to
-the committed EV-1a/EV-1d pair, since it is the same machinery at a different matrix. -/
+the committed EV-1a/EV-1d pair, since it is the same machinery at a different matrix.
+
+⚠⚠ **THE DIRECTION OF THIS RESIDUAL IS CHALLENGED (wave 69) AND MUST BE SETTLED BEFORE ANY
+LANE SPENDS ON IT.**  `Instances/EvenUnramified.lean` argues the opposite: the relator
+`x₀^4[x₀,x₁][x₂,x₃]` has the hyperbolic mod-2 cup form, which is *nondegenerate*, so the
+reasoning above may be conflating "alternating" with "degenerate"; and `DN 1 0` is a candidate
+for `G_{ℚ₂(i)}(2)`, which is Demushkin with `q = 4` rather than not Demushkin.  On that reading
+`IsEmpty (NFrame 1 h)` is evidence *for* `q = 4` (the torsion is `ℤ/4`, not `ℤ/2`), which is
+what the frame layer requires, rather than evidence against Demushkin-ness.  Neither direction
+is proved.  Settle the direction first; if the challenge is right, the lane proves
+`IsDemushkin` with `demushkinQ = 4` and this `Prop` is the statement to delete, not to prove. -/
 def EvenDemResidualAlphaOneN : Prop := ∀ h : ℕ, ¬ IsDemushkin 2 (DN 1 h : Type)
 
 /-- **Residual R2 (`M` at `α = 1`).**  The asymmetry candidate.  At `α = 1` the `M` row does not
