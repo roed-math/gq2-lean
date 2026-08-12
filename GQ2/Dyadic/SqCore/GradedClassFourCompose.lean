@@ -16,7 +16,77 @@ Wave 72 left the class-four leftover of wave 68's frame at
 
 with `A = bridgeDress nu' j` and `y = ⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆`, and flagged that the tail
 `⁅y, A⁆` is a knob **expression** and not yet a knob, the tree having no lemma that composes a
-handle-slot correction with a core-slot correction.  This file supplies that lemma and cashes it.
+handle-slot correction with a core-slot correction.  This file supplies that lemma, cashes it, and
+then replaces the question "is `cfourDefCore` a knob" by three uniform ones.
+
+## §1 The composition lemma
+
+⭐⭐⭐ `cfourCmp_dress_all`: correcting the `σ`-, `x₀`- and `x₁`-slots and the two letters of one
+handle **at once** moves the class-four relator by the product of the five knobs of wave 70's
+inventory, each read at the undressed frame.  The chaining is the argument `cfourId_dress_core`
+already makes for its three slots; the only cross term is `commP c_U c_V`, and it dies because `Y`
+is abelian in `Q₄`.  `cfourCmp_dress_handles` is the instance with the core slots left alone.
+
+## §2 and §3 The tail is a knob
+
+⭐⭐⭐ `cfourCmp_dress_reach`: for **every** admissible `γ₂`-correction `c`, the bracket `⁅c, A⁆`
+against wave 68's dressing is exactly the knob of a handle-pair correction of the `j`-th handle,
+both of whose entries are `1` or `c`.  The mechanism is a two-way parity count on `ν'(u_j)` and
+`ν'(v_j)`:
+
+```text
+  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j + 2·ν'(u_j)·ν'(v_j)·w = A  (mod γ₂) ,
+```
+
+the two pivot contributions cancelling because their total exponent is even.  **The pivot is not
+needed**, so the three core slots stay free; wave 72's `cfourDef_comm_dress_frame_mem` routed
+through the pivot and had to spend the `σ`- and `x₀`-slot knobs on `cfourDef_core_knob_pair`, and
+that expenditure is avoidable.
+
+## §4 and §5 The collapse
+
+⭐⭐⭐ `cfourCmp_core_reduce`: **one admissible correction of wave 68's frame turns the class-four
+relator into `cfourDefCore nu' j` on the nose.**  `CfourCmpResidual` names what is left of wave
+70's `CfourIdReachable`, `cfourCmp_supply_of_residual` discharges the class-four supply from it,
+and `cfourCmp_supply_of_core_vanish` reads the whole obligation off the single `Z`-element
+`cfourDefCore`.
+
+## §6 The relations half, and the sharp reduction
+
+⭐⭐⭐ `cfourCmp_zLayer_le_gens`: a subgroup of `Q₄` containing every fourth power `p⁴`, every
+bracket square `⁅p, q⁆²` and every triple bracket `⁅⁅p, q⁆, r⁆` contains the whole of
+`Z = γ₃/γ₄`.  This is what wave 70's `L₃(V)` spanning claim needed and never had.  Three families
+indexed by `Q₄` alone, against wave 72's six at class five, and the reason is that `Y` is abelian
+at class four, so both maps of `cfourId_zLayer_le` are homomorphisms on `Y` and each family need
+only be checked on the generators of `Y`.  The three families are the three restricted summands
+`V^{[4]}`, `(Λ²V)^{[2]}` and `L₃(V)`.
+
+⭐⭐⭐ `cfourCmp_zLayer_le_triple` sharpens that against the shape the inventory actually
+delivers.  The `x₁`-slot knob is `c² · ⁅c, x₁⁆` and never yields a square on its own; but modulo
+the triple brackets the bundle is as good as the square, so **the two restricted summands cost
+nothing once `L₃(V)` is paid for**.
+
+⭐⭐⭐ `cfourCmp_residual_of_span` / `cfourCmp_supply_of_span`: with those in hand the residual is
+implied by "some subgroup all of whose elements are knobs contains the three families", a
+statement that no longer mentions `cfourDefCore` at all.
+
+## Honesty markers
+
+* Everything here concerns **one route**, `γ₂`-valued corrections of wave 68's frame, wave 70's
+  `CfourIdReachable`.  A failure of any Prop named here would be a statement about the knob
+  subgroup of one inventory; it would **not** refute `SqClassClearingSupply h 4`, which is what
+  wave 67's `limFinal_markTransitivity_iff` is stated against.  Nothing in this file is evidence
+  that no dressing works.
+* `cfourCmp_dress_all`, `cfourCmp_dress_handles` and `cfourCmp_z_pair` are stated over
+  `levelQuot G 4` for an arbitrary topological group, and they are **class-four, not
+  layer-agnostic**: `cfourCmp_dress_all` rests on `Y` being abelian (that is what kills the
+  `c_U`-`c_V` cross term), and one layer up it would acquire that term.  The §6 results are
+  stated at `D_sq h` only, because they consume discreteness of `Q₄` through `cfourId_isClosed`;
+  `cfourCmpTest` is a subgroup for the same class-four reason.  Their hypotheses are satisfiable
+  and not merely generally bound: `cfourCmp_zLayer_le_gens` fires at `S = ⊤`, and it is consumed
+  non-vacuously by `cfourCmp_residual_of_span`.
+* `cfourCmp_residual_of_span`'s hypothesis is **not** claimed to hold.  Whether the knob subgroup
+  contains the three families is open, and the note records where it is delicate.
 
 Lane W73-KNOB.  New file; no edits to existing files.  Prefix `cfourCmp`.
 -/
@@ -610,6 +680,53 @@ theorem cfourCmp_zLayer_le_gens {S : Subgroup (levelQuot (DSq h : Type) 4)}
   · obtain ⟨v, hv, rfl⟩ := hy
     exact (hsub hv).2.2 q
 
+/-- ⭐⭐ **The square family is redundant against the `x₁`-slot bundle.**  Wave 70's inventory
+never delivers a square `y²` on its own: the `x₁`-slot knob is `y² · ⁅y, x₁⁆` and the square
+always arrives bundled.  This says the bundle is just as good, *provided* the bracket against the
+`x₁`-letter is available: `y² = (y² · ⁅y, t⁆) · ⁅y, t⁆`, both factors in `S`, `Z` having
+exponent two.  Stated at a free `t` so it can be run at whatever the `x₁`-slot of the frame
+carries. -/
+theorem cfourCmp_zLayer_le_bundle {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (t : levelQuot (DSq h : Type) 4)
+    (hbundle : ∀ y ∈ lambdaImage (DSq h : Type) 2 4, y ^ 2 * commP y t ∈ S)
+    (hcomm : ∀ y ∈ lambdaImage (DSq h : Type) 2 4, ∀ q, commP y q ∈ S) :
+    zLayer (DSq h : Type) 3 ≤ S := by
+  refine cfourId_zLayer_le (fun y hy => ?_) hcomm
+  have hmul := Subgroup.mul_mem _ (hbundle y hy) (hcomm y hy t)
+  rwa [mul_assoc, cfourDef_z_sq (cfour_commP_mem_zLayer_left hy t), mul_one] at hmul
+
+/-- ⭐⭐⭐ **Everything reduces to the triple brackets.**  A subgroup of `Q₄` containing
+
+* every triple bracket `⁅⁅p, q⁆, r⁆`,
+* the `x₁`-slot bundle at a bracket correction, `⁅p, q⁆² · ⁅⁅p, q⁆, t⁆`, and
+* the paired `x₁`-slot knob of `cfourKnob_sq_knob_pair`, `p⁴ · ⁅⁅p, t⁆, p⁆ · ⁅⁅p, t⁆, t⁆`,
+
+contains the whole of `Z`.  The last two are exactly the forms wave 70's inventory delivers on the
+`x₁`-slot, and against the triple brackets both collapse to their square parts.  So **the two
+restricted summands `V^{[4]}` and `(Λ²V)^{[2]}` of `γ₃/γ₄` cost nothing once `L₃(V)` is paid
+for**: the whole class-four question along this route is the triple brackets, and among those the
+delicate ones are those whose far slot is the `x₁`-letter, since every other frame letter is
+reachable in the far slot without a square attached. -/
+theorem cfourCmp_zLayer_le_triple {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (t : levelQuot (DSq h : Type) 4)
+    (htriple : ∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S)
+    (hbSq : ∀ p q : levelQuot (DSq h : Type) 4, commP p q ^ 2 * commP (commP p q) t ∈ S)
+    (hbPow : ∀ p : levelQuot (DSq h : Type) 4,
+      p ^ 4 * (commP (commP p t) p * commP (commP p t) t) ∈ S) :
+    zLayer (DSq h : Type) 3 ≤ S := by
+  have hsq : ∀ p q : levelQuot (DSq h : Type) 4, commP p q ^ 2 ∈ S := by
+    intro p q
+    have hmul := Subgroup.mul_mem _ (hbSq p q) (htriple p q t)
+    rwa [mul_assoc,
+      cfourDef_z_sq (cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo p q) t),
+      mul_one] at hmul
+  refine cfourCmp_zLayer_le_gens (fun p => ?_) hsq htriple
+  have hB : commP (commP p t) p * commP (commP p t) t ∈ zLayer (DSq h : Type) 3 :=
+    Subgroup.mul_mem _ (cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo p t) p)
+      (cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo p t) t)
+  have hmul := Subgroup.mul_mem _ (hbPow p) (Subgroup.mul_mem _ (htriple p t p) (htriple p t t))
+  rwa [mul_assoc, cfourDef_z_sq hB, mul_one] at hmul
+
 /-- ⭐⭐⭐ **The sharp reduction of the class-four route.**  Suppose that at every selected
 marking and handle, and for every admissible correction `c` whose class-four relator is the core
 defect, there is a subgroup `S` of `Q₄` such that
@@ -686,6 +803,7 @@ section AxiomPins
 #print axioms cfourCmp_dress_all
 #print axioms cfourCmp_dress_handles
 #print axioms cfourCmp_z_pair
+#print axioms cfourCmpHandleCorr
 #print axioms cfourCmpHandleCorr_handleU
 #print axioms cfourCmpHandleCorr_handleV
 #print axioms cfourCmpHandleCorr_handleU_ne
@@ -701,9 +819,11 @@ section AxiomPins
 #print axioms cfourCmp_comm_eichU
 #print axioms cfourCmp_comm_eichV
 #print axioms cfourCmp_dress_reach
+#print axioms cfourCmpTail
 #print axioms cfourCmpTail_admissible
 #print axioms cfourCmpTail_levelMk
 #print axioms cfourCmp_core_reduce
+#print axioms CfourCmpResidual
 #print axioms cfourCmp_reachable_of_residual
 #print axioms cfourCmp_supply_of_residual
 #print axioms cfourCmp_residual_of_core_vanish
@@ -711,6 +831,8 @@ section AxiomPins
 #print axioms cfourCmpTest
 #print axioms cfourCmp_mem_test
 #print axioms cfourCmp_zLayer_le_gens
+#print axioms cfourCmp_zLayer_le_bundle
+#print axioms cfourCmp_zLayer_le_triple
 #print axioms cfourCmp_residual_of_span
 #print axioms cfourCmp_supply_of_span
 
