@@ -767,6 +767,7 @@ import GQ2.Dyadic.SqCore.GradedClassFive
 import GQ2.Dyadic.SqCore.GradedClassFourKnob
 import GQ2.Dyadic.SqCore.GradedGammaFourFive
 import GQ2.Dyadic.SqCore.GradedClassFiveKnob
+import GQ2.Dyadic.SqCore.GradedClassFourDefect
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
