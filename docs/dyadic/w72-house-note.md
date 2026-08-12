@@ -111,12 +111,86 @@ the aggregator files of §1.0, which is the intended pattern.
 
 ### 1(c)  Docs that claim to list modules
 
-Checked in both directions.  **One live discrepancy, already covered by 1(a)** (no doc lists
-`NuSeeds`).  Otherwise the module-naming docs under `docs/dyadic/` cite modules rather than
-enumerate them, and every module path I sampled from them resolves.  See §"1(c) detail" below.
+There is **no per-directory manifest file and no README** under `docs/dyadic/`.  What exists are
+three file maps inside design memos, plus the ticket boards' "files owned" columns.  Checked in
+both directions:
+
+| doc | verdict |
+| --- | --- |
+| `docs/dyadic/nc-design.md` §4.1 "File map" | **MISMATCH, both directions. Annotated.** |
+| `docs/dyadic/sq-design.md` §3.3 "File map and line estimates" | prospective; one file never built |
+| `docs/dyadic/mc-design.md` §6 | not a map (Lean skeletons); clean |
+| `docs/dyadic/cb-design.md` §5, `wl-recon.md`, `followup/*-plan.md` | ticket boards, prospective by construction |
+
+**`nc-design.md` §4.1 is the one real discrepancy.**  It names a five-file split of
+`GQ2/Dyadic/NpcJet/`; the directory was built with a *different* five-file split.  `Omega.lean`,
+`Main.lean`, `Handles.lean` match; **`Blocks.lean` and `Delta.lean` do not exist**; **`Defs.lean`
+and `Seams.lean` exist and are not in the map**.  I added a reality banner above the table rather
+than rewriting the plan.
+
+`sq-design.md` §3.3 plans four files for `GQ2/Dyadic/SqCore/`, which now has 87.  It is plainly a
+lane design and reads as one; the only substantive point is that **`GQ2/Dyadic/SqCore/Sanity.lean`
+(ticket SQ5) was never created**, so the stress pins it was to carry (the `q2.py` cross-check of
+§R7 among them) have no home.  Left as a finding; that is an owner call, not a docs fix.
+
+Two dangling Lean-side citations found while checking paths, both outside this round's wave scope
+and both in files no wave-72 lane is touching, so recorded rather than fixed.  They are the two
+`R6` hazards that `sq-design.md:681` already flags, and both are still live:
+
+* **`GQ2/Roe/DRH2.lean` does not exist and never did**, but four docstrings cite it:
+  `GQ2/Roe/DRWordCoh.lean:35`, `GQ2/Roe/DRWordCoh.lean:913`, `GQ2/Dyadic/Word/WordCoh.lean:1334`,
+  `GQ2/Dyadic/Word/WordCoh.lean:1463`.  `docs/orchestration/roe-tickets.md:101` records the
+  decision: "NO DRH2.lean (helpers private in DRDemushkin)".  The fix is to repoint all four at
+  `GQ2/Roe/DRDemushkin.lean`.  (`sq-design.md` names only one of the four.)
+* **`GQ2/Roe/Labute/TwoCentralTower.lean:65-66`** reads "Skeleton discipline: `sorry`s below are
+  the L2 fill contract (exact inventory in the design memo); the non-`sorry` lemmas are L1 smoke
+  tests."  The file contains **zero** `sorry`s; the only two occurrences of the string are in that
+  sentence.  The L-campaign filled them at L6 (2026-07-26).  A docstring announcing `sorry`s in a
+  sorry-free file is the worst-reading kind of stale prose, and it sits in a file the campaign
+  cites for the `commP` / bracket identity.
 
 ---
 
 ## Ticket 2: watch round 9
 
-*(written up below, after the ticket-1 bank)*
+Scope: the modules and notes of waves 69, 70 and 71, plus campaign-visible prose under
+`docs/dyadic/`.
+
+### 2.0  The known item: verified, corrected in five places
+
+**The claim is false, and I confirmed it three ways.**  `grep` finds **17** files under
+`GQ2/Dyadic/SqCore/` carrying `open scoped commutatorElement`; the tree's own diagnosis is
+already written up at `GQ2/Dyadic/SqCore/Cores.lean` §"The bracket notation" (landed `f82cb316`,
+wave 70) and `docs/dyadic/sq-design.md` §"Addendum (W70-HOUSE...)"; and `mirror.sh check` on
+`GradedGammaThreeFour.lean`, which uses the bracket after opening the instance, is clean.
+Mathlib makes `commutatorElement` a scoped instance deliberately, so `Bracket G G` is
+unsynthesizable in *any* file at *any* namespace until that file opens it.  Nothing about
+`GQ2.Dyadic.SqCore` is involved.  `commP a b = ⁅a⁻¹, b⁻¹⁆` is a **different function**, which is
+the real reason the lanes are right to write `commP`; no note I checked conflates the two, and
+`w70-cfour-note.md`, `w71-cfour-note.md` and `Cores.lean` all state the relation correctly.
+
+Corrected, in the order the error propagated:
+
+1. `docs/dyadic/w69-class4-note.md:42` (origin), 2. `docs/dyadic/w70-five-note.md:137`,
+3. `docs/dyadic/w70-cfour-note.md:224`, 4. `docs/dyadic/w71-five-note.md:167` (the known item),
+5. the count in `docs/dyadic/sq-design.md:797` and `GQ2/Dyadic/SqCore/Cores.lean:105`.
+
+**The propagation is itself the finding, and it is intra-wave twice over:**
+
+| note | written | the correction was on trunk at | verdict |
+| --- | --- | --- | --- |
+| `w70-five-note.md` | `ff13769e` 11:28:07 | `f82cb316` 11:26:18 (same wave) | falsified **two minutes** before it was written |
+| `w70-cfour-note.md` | `14088969` 11:39:38 | `a4776cf0` 11:37:56 (same wave) | trunk had already retracted it; lane branched earlier so could not see it |
+| `w71-five-note.md` | `ebdbabbe` 12:50:30 | in the lane's **own tree** (`f82cb316` is an ancestor) | the corrected `Cores.lean` paragraph was sitting in the lane's checkout |
+
+Wave 71's house lane (`9b8e6f65`, "correct nine docstring claims across the wave-70 landings") ran
+between the second and third rows and did not catch either.
+
+**And the count that came with it was wrong when written, not merely stale.**
+`Cores.lean:105` said "Ten files in this directory already do it".  Recomputing at `f82cb316`
+itself gives **17**, and it is 17 today.  The orchestrator's own brief for this round repeats the
+figure as "roughly ten".  The two neighbouring figures in the same paragraph are also off,
+though only slightly and in the drifting direction: "77 `SqCore` modules that import this file"
+was 78 at `f82cb316` and is **84** now; "439 modules that reach this file" was 442 and is
+**451**.  All three corrected, with the recount dates attached so the next reader knows they are
+snapshots.
