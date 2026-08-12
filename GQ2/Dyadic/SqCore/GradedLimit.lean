@@ -10,7 +10,7 @@ import GQ2.Roe.Labute.TwoCentralTower
 # W67-LIMIT: the compactness assembly - the `h ≥ 1` residual, one class at a time
 
 The residual `SqLamMarkTransitivity h` is committed-equivalent to the arbitrary-dressing word
-identity `SqArbRelWord h` (`SqCore/CommFrames.lean` §1).  Thirteen waves of instrumentation
+identity `SqArbRelWord h` (`SqCore/CommFrames.lean` §1).  Wave after wave of instrumentation
 measured the CLASS-`k` shadow of that identity - solvability of the clearing system in the
 finite quotients of the lower 2-central tower - without ever attempting the assembly: "if the
 class-`k` clearing problem is solvable for every `k`, the pro-2 clearing dressing exists".
@@ -29,11 +29,13 @@ The assembly needs the per-class solution sets to form an inverse system.  Verdi
   the same for every class and `twoCentralSeries_antitone` makes the family **antitone**
   (`limClearingSet_antitone`): a class-`(k+1)` solution *is* a class-`k` solution.  No
   inverse-system functor, no compatible-subsystem repair, no solutions-with-memory variant.
-* The König section-selection step of the committed template
-  (`Instances/StageAbstractionEvenFinite.lean`, `exists_globalMarking`) collapses accordingly
+* The committed template's assembly (`Instances/StageAbstractionEvenFinite.lean`,
+  `exists_globalMarking`: a König section selection by
+  `nonempty_sections_of_finite_cofiltered_system`, then a coordinate realization by
+  `IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed`) collapses accordingly
   into the finite-intersection property of a nested family of closed subsets of the compact
-  space `(DSq h)^(sqRank h)` - the same compactness, run one functor earlier, by the same
-  mathlib lemma (`IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed`).  The
+  space `(DSq h)^(sqRank h)` - the same compactness, run one functor earlier, by the mathlib
+  lemma the template's realization step uses.  The
   template's `OpenTuple` interface itself does not fit verbatim: it carries one `ℤ₂ˣ`-valued
   row functional where the clearing problem carries two `ℤ₂`-valued rows plus the independence
   clause, so this file re-instantiates the committed pattern rather than invoking the template.
@@ -43,8 +45,8 @@ The assembly needs the per-class solution sets to form an inverse system.  Verdi
   finite-level dressing to an exactly-row-trivial one) that is *not* settled here and belongs
   to the class-`k` attack surface.  The reduction does not consume it: `SqArbRelWord h` is
   **equivalent** to all-`k` upstairs solvability (`limFinal_arbRelWord_iff`), because a global
-  solution restricts to every class.  The sweep's affine-coset transition picture (w50 §5-§6,
-  w51) remains measured, and is not needed by the assembly.
+  solution restricts to every class.  The sweep's affine-coset picture (w50 §6.2) remains
+  measured, and is not needed by the assembly.
 
 ## §2 The per-class statement
 
@@ -73,17 +75,22 @@ two squares, the handles are commutators), and the undressed frame is mod-2 inde
 (`lim_sqArbBase_modTwoIndep`), so `SqClassClearingSupply h k` is a theorem for `k ≤ 2`
 (`sqClassClearingSupply_two`, `sqClassClearingSupply_of_le_two`) - the trivial dressing
 witnesses it.  No class `k ≥ 3` instance is committed today: the class-3 slice statement of
-`GradedContain` and the census kills of `GradedCensusAchieve` are proved on the *binder*
-(`SqU4 gr3R`), not on the tower, and the binder-to-tower bridge is part of the attack surface.
+`GradedContain` and the census kills of `GradedCensusAchieve` are proved on the graded slices
+over the marking binder (`SqU4 gr3R` and `SqU6 gr3R` respectively), not on the tower, and the
+binder-to-tower bridge is part of the attack surface.
 
 ## §5 The residual, restated
 
 `LimFinalResidual h`: `SqClassClearingSupply h k` for every `k ≥ 3` - the honest remainder
 after §4, and equivalent to the full residual (⭐⭐⭐ `limFinal_residual_iff`).  What a proof of
 the general class-`k` step has to produce, per the measurements: a dressing solving a linear
-system of uniform corank `d + 1` over the class-`k` layer (w50 §5), with the mod-2 parity
-dependence of w51 §4 and the graded Fox form `delta` of w52 as the structure; the conjectured
-mechanism is w52 §7's "the defect of a dressed relator frame is a pure dressing artefact".
+system of uniform corank `sqRank h + 1` over the class-`k` layer (w50 §6.3), with the mod-2
+parity dependence of w51 §2.4 (confirmed at class 6 in §5.3) and the graded Fox form δ of w52
+as the structure; the mechanism is w52 §7's containment target, that the defect of any
+`K`-dressed frame of the relator lies in `im δ` at every level.  ⚠ At class four ON THE SLICE
+that is already a theorem (`GradedContainFour.sqRelWord_conFourDress_of_rel`, whose docstring
+is the "pure dressing artefact" phrasing often quoted for it); on the tower it is conjectural,
+and the tower form is what this residual needs.
 
 Lane W67-LIMIT.  New file; no edits to existing files.  Prefixes `lim` / `sqClassClearing` /
 `limFinal`.
@@ -288,7 +295,8 @@ every `k` - upstairs, in the sense of `SqClassClearingSupply` - then the arbitra
 relator identity holds outright.  Nestedness (§1), closedness (§2), compactness of the
 dressing space, and the committed tower separation `lim_iInf_twoCentralSeries` are the whole
 argument; no finite-quotient argument is asked to conclude on its own, so the discrete
-obstruction (the amalgam's marking-transitivity failure) is not in the way. -/
+obstruction (the amalgam's marking-transitivity failure, recorded at
+`docs/dyadic/w67-limit-note.md` §2, which attributes it to wave 44) is not in the way. -/
 theorem limFinal_arbRelWord (H : ∀ k, SqClassClearingSupply h k) : SqArbRelWord h := by
   intro nu' j hsigma hx0
   have hne : ∀ k, (limClearingSet h nu' j k).Nonempty := fun k => H k nu' j hsigma hx0
