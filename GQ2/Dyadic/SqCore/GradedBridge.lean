@@ -734,7 +734,18 @@ second is recorded here as an explicit equivalence, because it is the one the tr
 knows to be **false** for `D_sq h`: `GQ2.ContCoh.dsqSigma_pow_four_not_mem_twoCentralSeries_four`
 says `σ⁴ ∉ γ₄`.  So the class-four relator identity must carry the `x₀`-slot's fourth power,
 which the class-three identity `bridge_sqWord` does not see, and a class-four run cannot be the
-present argument with `3` replaced by `4`. -/
+present argument with `3` replaced by `4`.
+
+When this section was written that refutation sat in
+`Count/LowerTwoCentralJenningsDegreeThree.lean`, so combining it with `bridge_pow_four_iff`
+would have needed the first `SqCore → Count` import, and the two-line derivation was left
+uncommitted.  It is now hoisted to `SqCore/TwoCentralFacts.lean` (owner decision 5 of
+`docs/dyadic/owner-items-2026-08-05.md`), under the same full name and with the same proof, in
+a module that sits strictly below both layers.  So the derivation is available to any `SqCore`
+module that adds that import: at `G = (DSq h : Type)`, contraposing `bridge_pow_four_iff`
+against the refutation at `g = σ` gives `∃ b : levelQuot (DSq h : Type) 4, (b²)² ≠ 1`.  This
+file deliberately does not take the import, so that the class-four development owns the step
+rather than the class-three record. -/
 
 section ClassFour
 

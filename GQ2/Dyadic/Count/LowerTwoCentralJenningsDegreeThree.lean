@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Count.H3CompletedAugmentationPowers
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
+import GQ2.Dyadic.SqCore.TwoCentralFacts
 import GQ2.Roe.Labute.SpanFoundation
 
 /-!
@@ -558,33 +559,14 @@ theorem dsqZLayerTwoSquareToThree_sigmaSquare (h : ℕ) :
     levelMk_dsqZLayerRepresentative]
   rfl
 
-/-- The mod-`32` value of the distinguished orientation coordinate is `29`. -/
-theorem Sval_toZModPow_five :
-    PadicInt.toZModPow 5 (SvalUnit : ℤ_[2]) = 29 := by
-  rw [val_SvalUnit]
-  have h := congrArg (PadicInt.toZModPow (p := 2) 5) Sval_mul_denom
-  simp only [map_mul, map_add, map_pow, map_one, map_neg] at h
-  rw [rootX_toZModPow_five] at h
-  exact (by decide : ∀ z : ZMod (2 ^ 5),
-    z * ((21 : ZMod (2 ^ 5)) ^ 2 + 21 + 1) = -(21 : ZMod (2 ^ 5)) ^ 3 →
-      z = 29) _ h
-
-/-- The fourth power of `sigma` is not in the fourth lower-two-central subgroup.  Its
-cyclotomic value is `29^4 = 17`, not `1`, modulo `32`, whereas every element of `lambda_4`
-has trivial mod-`32` cyclotomic shadow. -/
-theorem dsqSigma_pow_four_not_mem_twoCentralSeries_four (h : ℕ) :
-    dsqSigma h ^ 4 ∉ twoCentralSeries (DSq h : Type) 4 := by
-  intro hs
-  have himage : chiSq h (dsqSigma h ^ 4) ∈ twoCentralSeries ℤ_[2]ˣ 4 :=
-    map_twoCentralSeries_le (chiSq h).toMonoidHom (chiSq h).continuous_toFun 4
-      ⟨dsqSigma h ^ 4, hs, rfl⟩
-  have hker := twoCentralSeries_units_le 4 (by omega) himage
-  have hunit := MonoidHom.mem_ker.mp hker
-  have hval := congrArg Units.val hunit
-  change PadicInt.toZModPow 5 ((chiSq h (dsqSigma h ^ 4) : ℤ_[2]ˣ) : ℤ_[2]) = 1 at hval
-  rw [map_pow, chiSq_sigma, Units.val_pow_eq_pow_val,
-    map_pow, Sval_toZModPow_five] at hval
-  exact (by decide : (707281 : ZMod (2 ^ 5)) ≠ 1) hval
+/-! `Sval_toZModPow_five` and `dsqSigma_pow_four_not_mem_twoCentralSeries_four` were proved
+here, and now live one layer down in `SqCore/TwoCentralFacts.lean`, imported above.  Their full
+names `GQ2.ContCoh.Sval_toZModPow_five` and
+`GQ2.ContCoh.dsqSigma_pow_four_not_mem_twoCentralSeries_four` are unchanged, so this file and
+its importers still read them exactly as before.  The move is owner decision 5 of
+`docs/dyadic/owner-items-2026-08-05.md`: the class-four step in `SqCore/GradedBridge.lean`
+needs the same fact, and hoisting it keeps the fact single-sourced without creating a
+`SqCore → Count` import. -/
 
 /-- Consequently the explicit fourth-power class is nonzero in `Z_3`. -/
 theorem dsqSigmaFourthClass_ne_one (h : ℕ) : dsqSigmaFourthClass h ≠ 1 := by
