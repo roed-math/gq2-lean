@@ -56,7 +56,8 @@ prints std-3, census 11" is **true**, checked by `mirror.sh` on all eight declar
 which carry no pin.
 
 Nothing in this lane changes a statement.  The ten module files touched are comment-only, which I
-verified mechanically (§4), and all ten are `mirror.sh check`-clean.
+verified mechanically rather than by eye (see the verification record), and all ten are
+`mirror.sh check`-clean.
 
 ---
 
@@ -334,7 +335,8 @@ This file landed 2026-08-05 and was registered only at `a515b437`, wave 72.  Its
 therefore never been read against the tree, and it is where round 10's yield is highest per line.
 
 **(a) HIGH.  One sentence with three defects: a nonexistent declaration, a misspelled one, and a
-construction the file does not perform.**  `GQ2/Dyadic/SqCore/NuSeeds.lean:37-38`.
+construction the file does not perform.**  `GQ2/Dyadic/SqCore/NuSeeds.lean:37-38`.  *(Both name
+failures re-verified here.)*
 
 > "`sqNuAdmissible` below builds that family — one marking per `t ∈ ℤ₂` — and `nu_rho_sub_nu`
 > extracts the `ū`-coordinate condition from a seed by differencing two members of the family."
@@ -402,6 +404,7 @@ other four or say "four of the eight".
 
 **(a) HIGH.  "so that it is no longer prose" is false for half of §7; the arithmetic has been a
 committed theorem since wave 69.**  `GQ2/Dyadic/Instances/EvenStratumFrame.lean:470-475`.
+*(The wave-69 theorem re-verified here.)*
 
 > "Wave 69's queue item 4 and wave 71's queue item 4 both record, in prose, that `q ≥ 8` is out of
 > reach ... Two statements, so that it is no longer prose."
