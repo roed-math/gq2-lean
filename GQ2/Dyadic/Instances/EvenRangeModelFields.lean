@@ -55,9 +55,11 @@ is not one at `ℚ₂(√2)`, which is exactly what §3 asks for.  `ζ` and `α`
 committed mod-eight Kummer bridge already builds; `β` is new here.
 
 This is the first computation of a cyclotomic range at a named even-degree field in the campaign.
-Three committed docstrings state the opposite as of wave 66 (`EvenRouteModel.lean` §4,
-`EvenRouteFinal.lean` §1, `EvenParityModel.lean` §4); they are now out of date, and §9 records
-that.
+Three committed docstrings assert the opposite as of wave 66, in the words "no statement in the
+tree computes the cyclotomic range at a named field": `EvenRouteModel.lean` §4,
+`EvenRouteFinal.lean` §1, `EvenParityModel.lean` §4.  Those three sentences are false from this
+file onward.  They are not edited here, this lane being new-files-only; they are flagged for the
+docstring watch.
 
 ## What lands and what is left
 
@@ -69,9 +71,13 @@ that.
   tree's only source of produced values is reciprocity at an odd-degree field.
 * `KQuarticN`: **blocked**, and one step earlier than `hrange`.  The tree carries no ramification
   fact for it (there is no `not_hasEqualNormValueGroups_KQuarticN`; its ledger in
-  `EvenRouteModel.lean` records `K(i)/K` ramified as *measured*), so §8 states its identity over
+  `EvenRouteModel.lean` records `K(i)/K` ramified as *measured*), so §9 states its identity over
   that binder, together with the second residue `9 ∉ range χ` which needs a sixteenth root of
-  unity this file does not build.
+  unity this file does not build.  What does land there is `5 ∉ range χ`, the field-to-image
+  direction of the census's criterion `α ≥ 3 ⟺ √2 ∈ K`.
+* The stratum `evenRange_range_eq` excludes turns out to be a third answer rather than a gap
+  (§10): when `K(i)/K` is not ramified the range is a principal-unit group `1 + 2^α ℤ₂`, and with
+  that case named the range identity holds with **no ramification binder at all**.
 
 ## Numbering
 
@@ -82,9 +88,10 @@ that.
 5. the Galois action on the periods, and the branch facts;
 6. the periods at the model fields;
 7. `ℚ₂(√−2)`, unconditional;
-8. `ℚ₂(√2)` and the quartic;
-9. the stale docstrings this wave invalidates;
-10. axiom pins.
+8. `ℚ₂(√2)`, over one further reciprocity bundle;
+9. the quartic, and what blocks it;
+10. the stratum the range identity excludes, and the ramification binder removed;
+11. axiom pins.
 -/
 
 namespace GQ2.Dyadic.EvenRangeModel
@@ -630,4 +637,312 @@ theorem hrangeFinal_orientedEquivN_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
 
 end SqrtNegTwo
 
+/-! ## §8 `ℚ₂(√2)`: the `M` branch
+
+The `M` branch is not symmetric with the `N` branch, and the asymmetry is structural rather than
+technical.  `N` asks that a value be **absent**, and absence is what a period lying in `K` proves.
+`M` asks that `−1` be **present**, and no exclusion argument produces a value.  The tree's only
+source of produced cyclotomic values is reciprocity, and it produces them at odd degree: a bundle
+at `ℚ₂` itself makes `χ` surjective there, so some `g` over `ℚ₂` has `χ(g) = −1`; that `g` has
+residue `7` modulo `8`, hence fixes `α = ζ + ζ⁻¹ = ±√2`, hence fixes all of `ℚ₂(√2)` and is
+therefore a Galois element *over* `ℚ₂(√2)` carrying the value `−1`.  So the `M` endpoint costs one
+extra datum, a reciprocity bundle at `ℚ₂`, and nothing else. -/
+
+section SqrtTwo
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+open GQ2.Dyadic.Fields
+
+/-- `evenRangeF_gr` is the underlying field automorphism. -/
+theorem evenRangeF_gr_apply {K : IntermediateField ℚ_[2] ℚ̄₂} (g : GalK K) (x : ℚ̄₂) :
+    evenRangeF_gr g x = (show ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂ from g.1) x := rfl
+
+/-- **Fixing the square root fixes the quadratic field.**  Every element of `ℚ₂(√a)` is
+`x + y√a` (`Fields.exists_repr`), and a `ℚ₂`-algebra automorphism fixes the scalars. -/
+theorem evenRangeF_mem_fixingSubgroup_quadField {a : ℚ_[2]} (ha : ¬ IsSquare a)
+    (g : ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂) (hg : g (sqrtIn a) = sqrtIn a) :
+    g ∈ (quadField a).fixingSubgroup := by
+  rw [IntermediateField.mem_fixingSubgroup_iff]
+  intro z hz
+  obtain ⟨x, y, rfl⟩ := exists_repr ha hz
+  rw [map_add, map_mul, AlgEquiv.commutes, AlgEquiv.commutes, hg]
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- Every cyclotomic value on `G_K` is already a value on `G_K(2)`. -/
+theorem evenRangeF_mem_range_of_chiCycK {v : ℤ_[2]ˣ} (g : GalK K) (hg : chiCycK K g = v) :
+    v ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom :=
+  ⟨maxProPMk 2 (GalK K) g, (chiCycKTwo_maxProPMk (K := K) g).trans hg⟩
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **`−1` IS A CYCLOTOMIC VALUE AT `ℚ₂(√2)`.**  A reciprocity bundle at `ℚ₂` makes `χ` surjective
+on `G_{ℚ₂}(2)` (odd degree `1`), so some `g` over `ℚ₂` has `χ(g) = −1`.  Its residue `7` modulo `8`
+fixes `α = ζ + ζ⁻¹`, hence fixes `√2`, hence fixes `ℚ₂(√2)` pointwise; so `g` lies over `ℚ₂(√2)`
+and carries `−1` there. -/
+theorem evenRangeF_neg_one_mem_sqrtTwo
+    (B0 : MarkedRecip R (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := KSqrtTwo)).toMonoidHom := by
+  have htop : MonoidHom.range
+      (chiCycKTwo (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂))).toMonoidHom = ⊤ :=
+    GQ2.Dyadic.LSquare.range_chiCycKTwo_eq_top_of_odd_finrank _ B0
+      (by rw [IntermediateField.finrank_bot]; exact odd_one)
+  obtain ⟨g0, hg0⟩ := evenRangeF_exists_chiCycK
+    (K := (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) (v := (-1 : ℤ_[2]ˣ)) (by rw [htop]; trivial)
+  have hres : evenRangeF_chiEight g0 = 7 := by
+    simp only [evenRangeF_chiEight, hg0]
+    exact evenRangeF_neg_one_modEight
+  have hfix := evenRangeF_gr_alpha_of_seven g0 hres
+  have hsq : evenRangeF_alpha ^ 2 = sqrtIn 2 ^ 2 := by
+    rw [evenRangeF_alpha_sq, sqrtIn_sq, map_ofNat]
+  have hg2 : evenRangeF_gr g0 (sqrtIn 2) = sqrtIn 2 := by
+    rcases evenRangeF_eq_or_eq_neg hsq with h | h
+    · rw [← h]
+      exact hfix
+    · have h2 : sqrtIn 2 = -evenRangeF_alpha := by rw [h]; ring
+      rw [h2, map_neg, hfix]
+  exact evenRangeF_mem_range_of_chiCycK (K := KSqrtTwo)
+    ⟨g0.1, evenRangeF_mem_fixingSubgroup_quadField not_isSquare_two _ hg2⟩ hg0
+
+/-- **`hrange` AT `ℚ₂(√2)`, PROVED over a reciprocity bundle at `ℚ₂`.**  The cyclotomic image on
+`G_K(2)` for `K = ℚ₂(√2)` is exactly `imChiM 3`, the value the wave-56 census measured. -/
+theorem hrangeFinal_sqrtTwo (B : MarkedRecip R KSqrtTwo)
+    (B0 : MarkedRecip R (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    MonoidHom.range (chiCycKTwo (K := KSqrtTwo)).toMonoidHom = imChiM 3 :=
+  evenRangeF_eq_imChiM_three_of_quadratic B finrank_KSqrtTwo
+    (evenRangeF_neg_one_mem_sqrtTwo B0) evenRangeF_five_notMem_sqrtTwo
+
+/-- **THE SECOND EVEN FIELD CLOSED.**  `G_K(2)` for `K = ℚ₂(√2)` is oriented-isomorphic to the `M`
+core at depth `3` and handle count `0`, over the two reciprocity bundles and the standing instance
+binders alone. -/
+theorem hrangeFinal_orientedEquivM_sqrtTwo [T2Space (GalK KSqrtTwo)]
+    (B : MarkedRecip R KSqrtTwo)
+    (B0 : MarkedRecip R (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 3 0) (chiCycKTwo (K := KSqrtTwo))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_sqrtTwo (hrangeFinal_sqrtTwo B B0)
+
+end SqrtTwo
+
+/-! ## §9 The quartic model field
+
+Two things are missing at `KQuarticN`, and only one of them is about the range.
+
+*The ramification binder.*  `not_hasEqualNormValueGroups_KQuarticN` does not exist; the quadratic
+row gets its ramification from `Fields.not_hasEqualNormValueGroups_quadField`, which is a
+`quadField` lemma and does not apply to a field built from a different generator.  The quartic's
+own ledger (`EvenRouteModel.lean` §5) records `K(i)/K` ramified as *measured*, not proved.  So the
+`N` classification cannot even be started there without that binder.
+
+*The second residue.*  On the `N` branch at degree `4` the degree bound gives `α ≤ 3`, and
+excluding `α = 2` needs `9 ∉ range χ`, a mod-`16` fact: `imChiN 2` and `imChiN 3` first differ at
+level `16`.  The period that separates them is `ζ₁₆ − ζ₁₆⁻¹`, and this file builds only an eighth
+root.  (It is exactly the generator `β` of the model, up to which of the four roots
+`Classical.choose` picked, so the work is an identification of that choice, not new arithmetic.)
+
+What the eighth root does give at the quartic is the census's structural criterion `α ≥ 3 ⟺ √2 ∈ K`
+in its field-to-image direction: `√2 ∈ KQuarticN` is committed
+(`evenRouteModel_sqrtTwo_mem`), so `5` is not a cyclotomic value there. -/
+
+section Quartic
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+open GQ2.Dyadic.EvenRouteModel
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `α = ζ + ζ⁻¹` lies in the quartic model field, because `√2` does. -/
+theorem evenRangeF_alpha_mem_quartic : evenRangeF_alpha ∈ KQuarticN := by
+  obtain ⟨s, hs, hs2⟩ := evenRouteModel_sqrtTwo_mem
+  rcases evenRangeF_eq_or_eq_neg (show evenRangeF_alpha ^ 2 = s ^ 2 by
+    rw [evenRangeF_alpha_sq, hs2]) with h | h
+  · exact h ▸ hs
+  · exact h ▸ neg_mem hs
+
+/-- **`5` IS NOT A CYCLOTOMIC VALUE AT THE QUARTIC.**  The field side of the wave-56 criterion
+`α ≥ 3 ⟺ √2 ∈ K`, at the field the census singled out. -/
+theorem evenRangeF_five_notMem_quartic :
+    evenRangeF_onePlus 2 ∉ MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom :=
+  evenRangeF_notMem_range_of_neg evenRangeF_alpha_mem_quartic evenRangeF_alpha_ne_zero
+    (fun _ hg => evenRangeF_gr_alpha_of_five _ hg) evenRangeF_five_modEight
+
+/-- **`hrange` AT THE QUARTIC**, over the ramification binder the tree does not carry for this
+field and the mod-`16` residue this file does not reach.  Stated so the two costs are visible and
+separated; neither is a supply `Prop`, both are elementary statements about `KQuarticN`. -/
+theorem hrangeFinal_quartic (B : MarkedRecip R KQuarticN)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups KQuarticN deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom)
+    (hnine : evenRangeF_onePlus 3 ∉
+      MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom) :
+    MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom = imChiN 3 :=
+  evenRangeF_eq_imChiN_three_of_quartic B deltaI hdeltaI hram finrank_KQuarticN hneg hnine
+
+/-- **The quartic endpoint over the same two binders.** -/
+theorem hrangeFinal_orientedEquivN_quartic [T2Space (GalK KQuarticN)]
+    (B : MarkedRecip R KQuarticN)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups KQuarticN deltaI)
+    (hneg : (-1 : ℤ_[2]ˣ) ∉ MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom)
+    (hnine : evenRangeF_onePlus 3 ∉
+      MonoidHom.range (chiCycKTwo (K := KQuarticN)).toMonoidHom) :
+    Nonempty (OrientedContinuousMulEquiv (chiN 3 1) (chiCycKTwo (K := KQuarticN))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivN_quartic
+    (hrangeFinal_quartic B deltaI hdeltaI hram hneg hnine)
+
+end Quartic
+
+/-! ## §10 The stratum the range identity excludes
+
+`evenRange_range_eq` carries `hram`, and the reason is visible in its proof: the ramified-`K(i)`
+binder is used exactly once, to produce a cyclotomic value that is not `≡ 1 (mod 4)`.  Drop it and
+that value may not exist; the classification engine then has nothing to classify.
+
+But the failure is not a gap, it is a third answer.  Every `2`-adic unit is `≡ ±1 (mod 4)`, so if
+the range meets no class `3 mod 4` then *every* value is `≡ 1 (mod 4)`, and the depth argument
+that `evenRange_mem_prin_depth` already carries collapses the range onto its own least principal
+level.  So the honest identity has three strata, not two, and the third is neither `M` nor `N`:
+
+`range χ = imChiM α`,   `range χ = imChiN α`,   or   `range χ = 1 + 2^α ℤ₂`,
+
+the last exactly when `K(i)/K` fails to be ramified.  The three are mutually exclusive at `α ≥ 2`
+(`−1` lies in the first and not the other two; the class `3 mod 4` meets the first two and not the
+third).  This removes `hram` from the range identity outright. -/
+
+section Trichotomy
+
+/-- **The third stratum.**  A closed deep subgroup of `ℤ₂ˣ` all of whose elements are `≡ 1 (mod 4)`
+is exactly the principal-unit group at its own least depth. -/
+theorem evenRangeF_eq_prin_of_forall_four_dvd (H : Subgroup ℤ_[2]ˣ)
+    (hclosed : IsClosed (H : Set ℤ_[2]ˣ)) (hdeep : ∃ N : ℕ, evenRangePrin N ≤ H)
+    (h4 : ∀ w ∈ H, (2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) - 1) :
+    ∃ beta : ℕ, 2 ≤ beta ∧ H = evenRangePrin beta := by
+  obtain ⟨beta, hbeta2, hbetale, hbetamin⟩ := evenRange_exists_depth H hdeep
+  exact ⟨beta, hbeta2, le_antisymm
+    (fun u hu => evenRange_mem_prin_depth hclosed hbetamin hu (h4 u hu)) hbetale⟩
+
+/-- The third stratum omits `−1`, so it is disjoint from the `M` branch. -/
+theorem evenRangeF_neg_one_notMem_prin {beta : ℕ} (hbeta : 2 ≤ beta) :
+    (-1 : ℤ_[2]ˣ) ∉ evenRangePrin beta := by
+  intro h
+  obtain ⟨c, hc⟩ := (pow_dvd_pow (2 : ℤ_[2]) hbeta).trans (evenRange_mem_prin_iff.mp h)
+  rw [show (((-1 : ℤ_[2]ˣ)) : ℤ_[2]) - 1 = -2 from by rw [Units.val_neg, Units.val_one]; ring] at hc
+  have hd : (2 : ℤ_[2]) ^ 2 ∣ (2 : ℤ_[2]) ^ 1 :=
+    ⟨-c, by rw [pow_one]; linear_combination -hc⟩
+  exact absurd (evenRangeF_two_pow_dvd hd) (by omega)
+
+variable {R : LocalReciprocity}
+  {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **THE RANGE IDENTITY WITH NO RAMIFICATION BINDER.**  For every finite `K/ℚ₂` carrying a marked
+reciprocity bundle, the cyclotomic image on `G_K(2)` is one of exactly three things at an index
+`α ≥ 2` determined by `K`: the `M` image, the `N` image, or a principal-unit group.  The third
+case is precisely the stratum `evenRange_range_eq` excludes. -/
+theorem evenRangeF_range_trichotomy (B : MarkedRecip R K) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      (MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha ∨
+        MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha ∨
+        MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin alpha) := by
+  by_cases h4 : ∃ w ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom,
+      ¬ ((2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) - 1)
+  · obtain ⟨alpha, halpha, h⟩ :=
+      evenRange_classify _ evenRange_isClosed_range (evenRange_prin_le_range B) h4
+    rcases h with h | h
+    · exact ⟨alpha, halpha, Or.inl h⟩
+    · exact ⟨alpha, halpha, Or.inr (Or.inl h)⟩
+  · have h4' : ∀ w ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom,
+        (2 : ℤ_[2]) ^ 2 ∣ (w : ℤ_[2]) - 1 := by
+      intro w hw
+      by_contra hcon
+      exact h4 ⟨w, hw, hcon⟩
+    obtain ⟨beta, hbeta, h⟩ := evenRangeF_eq_prin_of_forall_four_dvd _
+      evenRange_isClosed_range (evenRange_prin_le_range B) h4'
+    exact ⟨beta, hbeta, Or.inr (Or.inr h)⟩
+
+/-- **The third stratum is exactly the unramified one.**  If the range is a principal-unit group at
+depth `≥ 2` then `K(i)/K` is not ramified, for every choice of `i`. -/
+theorem evenRangeF_hasEqualNormValueGroups_of_range_eq_prin (B : MarkedRecip R K) {beta : ℕ}
+    (hbeta : 2 ≤ beta)
+    (hr : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = evenRangePrin beta)
+    (deltaI : AlgebraicClosure ℚ_[2]) (hdeltaI : deltaI ^ 2 = -1) :
+    HasEqualNormValueGroups K deltaI := by
+  by_contra hram
+  obtain ⟨w, hw, hw4⟩ := evenRange_exists_not_four_dvd B deltaI hdeltaI hram
+  rw [hr] at hw
+  exact hw4 ((pow_dvd_pow (2 : ℤ_[2]) hbeta).trans (evenRange_mem_prin_iff.mp hw))
+
+end Trichotomy
+
 end GQ2.Dyadic.EvenRangeModel
+
+/-! ## §11 Axiom pins
+
+The two closed endpoints printed side by side with the committed wave-66 endpoints they consume,
+with the committed range identity, and with the odd-degree surjectivity the `M` branch borrows.
+Nothing here may exceed the committed endpoint set. -/
+
+section AxiomPins
+
+open GQ2.Dyadic.EvenRangeModel
+
+-- §1 to §3 the reduction machinery
+#print axioms evenRangeF_two_pow_dvd
+#print axioms evenRangeF_prin_le_imChiN_iff
+#print axioms evenRangeF_prin_le_imChiM_iff
+#print axioms evenRangeF_prin_le_range
+#print axioms evenRangeF_imChiN_depth_le
+#print axioms evenRangeF_imChiM_depth_le
+#print axioms evenRangeF_eq_imChiN_two_of_quadratic
+#print axioms evenRangeF_eq_imChiM_three_of_quadratic
+#print axioms evenRangeF_eq_imChiN_three_of_quartic
+
+-- §4 to §6 the periods and the branch facts
+#print axioms evenRangeF_alpha_sq
+#print axioms evenRangeF_beta_sq
+#print axioms evenRangeF_gr_zeta
+#print axioms evenRangeF_gr_fix
+#print axioms evenRangeF_gr_beta_of_seven
+#print axioms evenRangeF_gr_alpha_of_five
+#print axioms evenRangeF_gr_alpha_of_seven
+#print axioms evenRangeF_notMem_range_of_neg
+#print axioms evenRangeF_beta_mem_sqrtNegTwo
+#print axioms evenRangeF_alpha_mem_sqrtTwo
+#print axioms evenRangeF_neg_one_notMem_sqrtNegTwo
+#print axioms evenRangeF_five_notMem_sqrtTwo
+
+-- §7 the unconditional field
+#print axioms hrangeFinal_sqrtNegTwo
+#print axioms hrangeFinal_orientedEquivN_sqrtNegTwo
+
+-- §8 the second field
+#print axioms evenRangeF_mem_fixingSubgroup_quadField
+#print axioms evenRangeF_neg_one_mem_sqrtTwo
+#print axioms hrangeFinal_sqrtTwo
+#print axioms hrangeFinal_orientedEquivM_sqrtTwo
+
+-- §9 the quartic
+#print axioms evenRangeF_alpha_mem_quartic
+#print axioms evenRangeF_five_notMem_quartic
+#print axioms hrangeFinal_quartic
+#print axioms hrangeFinal_orientedEquivN_quartic
+
+-- §10 the third stratum
+#print axioms evenRangeF_eq_prin_of_forall_four_dvd
+#print axioms evenRangeF_neg_one_notMem_prin
+#print axioms evenRangeF_range_trichotomy
+#print axioms evenRangeF_hasEqualNormValueGroups_of_range_eq_prin
+
+-- the committed statements consumed, for the side-by-side
+#print axioms GQ2.Dyadic.EvenParity.parityFinal_orientedEquivN_sqrtNegTwo
+#print axioms GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_sqrtTwo
+#print axioms GQ2.Dyadic.EvenParity.parityFinal_orientedEquivN_quartic
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_classify
+#print axioms GQ2.Dyadic.LSquare.range_chiCycKTwo_eq_top_of_odd_finrank
+
+end AxiomPins
