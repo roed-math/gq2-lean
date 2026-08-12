@@ -24,8 +24,13 @@ That is a boundary result, not a gap: **the `hram` binder of the even classifica
 necessary, not convenient.**  The campaign's theorem targets the two `q = 2` Labute families,
 and the third stratum is exactly where `q >= 4`.
 
-All 31 declarations pin to the standard three axioms.  No `sorry`, no new axiom, no
-`native_decide`, no `maxHeartbeats`.
+The module has **32** declarations; **31** carry an axiom pin, and all 31 pin inside the standard
+three (two of them, `evenUnram_nWord_one` and `evenUnram_mWord_head`, to `[propext]` alone).  The
+unpinned one is the `abbrev evenUnramKNegOne`.  No `sorry`, no new axiom, no `native_decide`, no
+`maxHeartbeats`.  (Corrected from "All 31 declarations" by W72-HOUSE, watch round 9; the count
+had equated "declaration" with "declaration carrying a `#print axioms` line", which drops the
+`abbrev`.  The file also carries five comparison pins on other modules' declarations, one of
+which, `parityFinal_evenClassification`, legitimately carries five census axioms.)
 
 ## 1.  What the stratum actually is
 

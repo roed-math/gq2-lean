@@ -113,6 +113,14 @@ unproved.
 
 I edited nothing.
 
+> **[W72-HOUSE, watch round 9.]  This section is discharged.**  The orchestrator applied the
+> repair later in the same wave, at `e6d10612`, and the paragraph now carries a correction
+> notice.  Two points for whoever reads the applied text: it is broader than the repair suggested
+> here (it also records `demushkinQ (DN 1 h) = 4` against `= 2` on the `M` row), and its notice
+> is headed "⚠ **Corrected at wave 70**", whereas the correction was applied at **wave 71**
+> against wave 70's landings.  Left as a finding rather than edited, because that file may be in
+> flight this wave.
+
 **`EvenForwardRouteSkeleton.lean:77-80`** is now false.  It reads that at `α = 1` the `N`
 relator's "mod-2 quadratic initial form vanishes, and the `N` core is not Demushkin".  Wave 70's
 `evenAlphaOne_isDemushkin_DN` proves the `N` core **is** Demushkin at every handle count, and
