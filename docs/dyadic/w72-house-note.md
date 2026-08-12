@@ -4,6 +4,36 @@ Lane `claude/w72-house`, base `e2e8917a`, cache at `6db3ee88`.
 Verification of record: `scripts/mirror.sh` (sweep 5813 artifacts).
 No `lake` command was run.
 
+## Headline
+
+**Ticket 1.**  923 modules under `GQ2/`, **921 reachable**.  `AxiomLedger` is deliberately
+excluded and must stay so.  **`GQ2/Dyadic/SqCore/NuSeeds.lean` is a real wiring omission**: it
+landed 2026-08-05, nothing imports it, and `lakefile.toml` roots only `GQ2.lean`, so its eight
+declarations have never been in a green build.  It typechecks clean at std-3 today, so the
+one-line patch in §1(a) is safe.  No duplicate and no dangling import line.  One doc file map
+mismatches the tree in both directions.
+
+**Ticket 2.**  36 findings.  The five worth reading first:
+
+1. **A false census claim sitting on top of an axiom block.**
+   `EvenStratumPoint.lean:371` says "Every declaration is expected std-3"; `mirror.sh` says five
+   of them carry `tateDualityAt`, `hilbertSymbol_normCriterion_finiteDyadic` or
+   `absGalQ2_localEulerCharacteristic`, and the module's own header says so too.  §2.4b(a).
+2. **A quotation attributed to wave 69 that exists nowhere in the repository**, and on which a
+   whole wave-70 module is premised.  §2.3(a).
+3. **The refuted layer-agnostic claim was never taken back** in the module that makes it, even
+   though wave 71 refuted it, told the owner, and ran a house lane in between.  Fixed here.
+   §2.1.  And the same blind spot produced a **second, independent instance** in a wave-70 file
+   that nobody has flagged: `cfourId_zLayer_le`, headlined "with no side condition", keeps two
+   unrestricted universals that its own file's knob inventory cannot supply.  §2.3(c).
+4. **A free-group identity is called class-four-only in three places**, so the two wave-70 files
+   contradict each other about what class five loses.  §2.3(b).
+5. **The bracket claim propagated through four notes over three waves**, and the count that came
+   with it (`ten` files) was wrong when written: it was 17 then and is 17 now.  §2.0.
+
+Nothing in this lane changes a statement.  Every edit is prose; the two module files touched are
+comment-only and `mirror.sh check`-clean.
+
 ---
 
 ## Ticket 1: the manifest audit
@@ -688,3 +718,57 @@ Said plainly, because a watch round that reports only hits is not a check.
 * **Conflation of `commP` with the element bracket: none found.**  `w70-cfour-note.md`,
   `w71-cfour-note.md` and `Cores.lean` all state `commP a b = ⁅a⁻¹, b⁻¹⁆` correctly.  This was
   worth checking separately from the elaboration claim, and it comes up clean.
+
+---
+
+## Verification record
+
+* Base `e2e8917a`, lane branch `claude/w72-house`, shared cache at `6db3ee88`.
+* `scripts/mirror.sh sweep` (5813 artifacts) once at lane start.  **No `lake` command was run.**
+* `scripts/mirror.sh check` run on: `GQ2/Dyadic/SqCore/NuSeeds.lean` (the unwired module, clean,
+  four pins all std-3), `GQ2/Dyadic/SqCore/Cores.lean` and
+  `GQ2/Dyadic/SqCore/GradedGammaThreeFour.lean` (the two files I edited, comment-only, clean),
+  and, as evidence for claims rather than as edits,
+  `GQ2/Dyadic/Instances/EvenStratumPoint.lean`, `GQ2/Dyadic/Instances/EvenUnramified.lean`,
+  `GQ2/Dyadic/SqCore/GradedClassFive.lean`, `GQ2/Dyadic/SqCore/GradedRelatorBase.lean`,
+  `GQ2/Dyadic/SqCore/GradedClassFourIdentity.lean`,
+  `GQ2/Dyadic/SqCore/GradedClassFourKnob.lean`, `GQ2/Dyadic/SqCore/GradedGammaFourFive.lean`.
+  All clean.
+* Both files I edited are byte-identical after comment stripping.  No statement, binder,
+  hypothesis or proof was touched anywhere in this lane.
+* No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth` introduced.
+  Independently confirmed for the tree: `SORRY_ALLOWLIST` is empty, `EXPECTED_AXIOMS=11` matches
+  the 11 `axiom` declarations in `GQ2/Foundations/Axioms.lean`, and every occurrence of the
+  string `sorry` under `GQ2/` is the word "sorry-free" in prose.
+* `GQ2.lean` **not edited**, per the lane.  The one-line patch is §1(a).
+
+## Files edited
+
+| file | what |
+| --- | --- |
+| `GQ2/Dyadic/SqCore/Cores.lean` | three counts (10→17, 77→84, 439→451), comment-only |
+| `GQ2/Dyadic/SqCore/GradedGammaThreeFour.lean` | the refuted layer-agnostic claim, two docstrings |
+| `docs/dyadic/w69-class4-note.md` | bracket claim at its origin; headline qualified |
+| `docs/dyadic/w69-unram-note.md` | declaration count |
+| `docs/dyadic/w70-cfour-note.md` | bracket claim; §4 withdrawal banner; layer-agnostic claim |
+| `docs/dyadic/w70-five-note.md` | bracket claim; the `conjP` collapse is free, not class-four |
+| `docs/dyadic/w71-five-note.md` | bracket claim (the known item) |
+| `docs/dyadic/w71-stratum-note.md` | declaration count; §5 marked discharged |
+| `docs/dyadic/sq-design.md` | two counts in the W70-HOUSE addendum |
+| `docs/dyadic/nc-design.md` | file-map reality banner |
+
+## For the wave-73 queue
+
+1. **Apply the `GQ2.lean` patch** of §1(a).  One line.  Until it lands,
+   `GQ2/Dyadic/SqCore/NuSeeds.lean` is not built by CI.
+2. **The two `sq-design.md` R6 hazards are still live** and are cheap: repoint four docstrings
+   from the nonexistent `GQ2/Roe/DRH2.lean` to `GQ2/Roe/DRDemushkin.lean`, and delete
+   `GQ2/Roe/Labute/TwoCentralTower.lean:65-66`'s announcement of `sorry`s in a file that has
+   none.  Both are in `GQ2/Roe/`, which plan A6 freezes, so they need an owner nod.
+3. **A pass over the findings of §2.2, §2.3 and §2.4b** once the sibling lanes have merged.  They
+   are prose-only and I wrote each one with its correction, so they are a single mechanical lane.
+4. **Watch round 10 should keep both new items** and add a third, suggested by this round: **a
+   claim fixed in one file is often half a fix**.  Three times this round the reciprocal citation
+   was left stale (`EvenDemushkin` fixed but `EvenAlphaOne` and `NFrameAlphaOne` not; the module
+   corrected but the lane note not, twice).  The check is: when you correct a claim, grep the
+   claim's *subject* across the tree, not the file you are in.
