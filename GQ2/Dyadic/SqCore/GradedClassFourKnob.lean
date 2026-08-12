@@ -6,52 +6,86 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.SqCore.GradedClassFourIdentity
 
 /-!
-# W71-CFOUR: the knob subgroup, and the fourth-power direction
+# W71-CFOUR: the class-four leftover, and the two directions believed to be missing
 
 Wave 70 relocated the class-four obligation to a single element `cfourIdLeftover nu' j` of the
-central layer `Z = γ₃/γ₄`, and left as **uncommitted analysis** the question whether that element
-lies in the subgroup reachable by `γ₂`-valued, exactly row-trivial corrections of wave 68's frame
-(`CfourIdReachable h`).  That analysis argued the reachable subgroup misses exactly two
-directions, the fourth powers of the two odd-row generators, and that a delicate cancellation of
-`w⁴`-terms would close the gap.
+central layer `Z = γ₃/γ₄`, and left as **uncommitted analysis** (its note, §4) the question
+whether that element is reachable by `γ₂`-valued, exactly row-trivial corrections of wave 68's
+frame - `CfourIdReachable h`.  That analysis put the reachable subgroup at codimension exactly
+two in `Z`, missing the fourth powers of the two odd-row generators, and expected a `w⁴`
+cancellation to close the gap.
 
-This file evaluates the leftover and settles the fourth-power half of that question.  The
-outcome is not the recorded one.
+This file evaluates the leftover and settles both directions the analysis flagged.  Neither
+turns out to be missing, and neither is closed by the mechanism the analysis proposed.
 
-## §1 Squares of exactly row-trivial elements are legal knobs, with no repair
+## §1 and §2 Squares of exactly row-trivial elements are legal knobs, with no repair
 
-The wave-70 analysis measured admissibility by a **codimension-two** condition on `W = γ₂/γ₃`
-(`λ mod 2` and `ν' mod 2` on the square part).  That measurement is correct as far as it goes,
-but it is not what governs the terms that actually occur, because of the following triviality
-which the analysis did not use: if `d` is **exactly** row-trivial, `λ(d) = ν'(d) = 1`, then `d²`
-is a `γ₂`-element which is again **exactly** row-trivial, hence a legal correction outright -
-no `4ℤ₂` computation, no `cfourId_row_repair`.  Its square knob is the fourth power `d⁴`
-(`cfourKnob_sq_knob`).
+The analysis measured admissibility of a square knob `c = d²` by asking both rows of `c` to lie
+in `4ℤ₂` - a codimension-two condition on the class of `d` - and repaired the remainder inside
+`γ₃` (`cfourId_row_repair`).  That measurement is sound but it is not what governs the terms
+that occur, because of a triviality the analysis did not use: if `d` is **exactly** row-trivial
+then so is `d²` (`cfourKnob_sq_admissible`), so `d²` is a legal correction on the nose, and its
+square knob is the fourth power `d⁴` (`cfourKnob_sq_knob`).
 
-⭐⭐⭐ `cfourKnob_dressSq_admissible`: wave 68's dressing `A = bridgeDress nu' j` is exactly
-row-trivial **by construction** (`bridge_nuLam_dress`, `bridge_nu_dress` - that is precisely what
-wave 68's pivot factor `w^{-2ν'(u)ν'(v)}` was inserted to arrange).  So `A²` is an admissible
-knob and `A⁴` is available for free.
+⭐⭐ `cfourKnob_dressSq_admissible`: wave 68's dressing `A = bridgeDress nu' j` is exactly
+row-trivial by construction (`bridge_nuLam_dress`, `bridge_nu_dress`; that is what wave 68's
+pivot factor was inserted to arrange), so `A²` is an admissible correction and `A⁴` is free.
+⭐ `cfourKnob_comm_admissible`: a commutator is exactly row-trivial too, the rows being
+homomorphisms into a commutative group.
 
-## §2 The leftover in closed form
+## §3 The leftover in closed form
 
-⭐⭐ `cfourKnob_leftover_eq` evaluates `cfourIdLeftover nu' j` as a product of four ratios,
-each the amount by which one factor of `cfour_sqRelWord` moves when the standard generators are
-replaced by wave 68's frame:
+⭐⭐⭐ `cfourKnob_leftover_eq`.  Wave 68's tuple dresses the `σ`- and `x₀`-slots by `A` and
+nothing else, so against the undressed frame - whose class-four relator is exactly
+`cfourEichDefect nu' j` (`cfour_relator_base`) - only three factors of `cfour_sqRelWord` move,
+the `x₁`-square and the handle word being untouched:
 
 ```text
-  LEFTOVER = D₁ · D₂ · D₃ · D₄ ,
-  D₁ = commP (σA) (x₀A) · (commP σ x₀)⁻¹                              (core bracket)
-  D₂ = (x₀A)⁴ · (x₀⁴)⁻¹                                               (fourth power)
-  D₃ = commP x₁ (commP x₁ (σA)) · (commP x₁ (commP x₁ σ))⁻¹           (triple bracket)
-  D₄ = handleWord(frame) · handleWord(gens)⁻¹                         (handles)
+  LEFTOVER = ⁅σA, x₀A⁆ · ⁅σ, x₀⁆⁻¹ · cfourEichDefect · (A⁴ · ⁅A, x₀⁆²) · ⁅x₁, ⁅x₁, A⁆⁆ .
 ```
 
-The `x₁`-square factor of `cfour_sqRelWord` cancels exactly, wave 68's tuple being trivial on
-the `x₁`-slot.  `cfourKnob_D2_eq` then evaluates the fourth-power ratio as
-`A⁴ · (commP A x₀)²`, so **the only fourth power in the leftover is `A⁴`**: the generators `σ`
-and `x₀` contribute their fourth powers to the frame and to the standard generators alike, and
-those cancel.
+The fourth-power factor is `cfour_pow_four_mul`; the triple bracket is
+`cfourKnob_triple_right_hom`, the statement that `ad(p)²` is additive in its far slot.
+
+**First half of the wave-70 question, answered.**  The only fourth power in the leftover is
+`A⁴`.  The fourth powers `σ⁴` and `x₀⁴` occur in the frame's relator and in the generator
+relation alike and cancel, so they never reach the leftover; the directions the analysis named
+as missing are not directions the leftover has a component in.  And `A⁴` is the square knob of
+the admissible correction `A²`.
+
+## §4 The pairing that frees the `ad(x₁)²`-direction
+
+The remaining term `⁅x₁, ⁅x₁, A⁆⁆` is the direction the wave-69 and wave-70 analyses both
+identified as delicate.  The wave-70 argument for `K ⊇ L₃(V)` read it off the `x₁`-square knob,
+but the committed `cfourId_x1_sq_direction` says that knob is
+`(commP x₁ q)² · commP (commP x₁ q) x₁` - an iterated bracket **times a square** - and the
+`x₁`-slot bundle is the only source of squares, so the square cannot be supplied separately to
+cancel it.
+
+⭐⭐⭐ `cfourKnob_sq_knob_pair` removes it by pairing two knobs instead of reading one.  Run the
+`x₁`-slot knob `c ↦ c² · ⁅c, q⁆` at `c = p²` and at `c = ⁅p, q⁆` and multiply: each contributes
+`⁅p, q⁆²`, and the two cancel because `⁅p, q⁆` is a `Y`-element and `Y`-elements have trivial
+fourth power (`cfourKnob_pow_four_lambdaTwo`).  What is left is
+
+```text
+  p⁴ · ⁅⁅p, q⁆, p⁆ · ⁅⁅p, q⁆, q⁆ ,
+```
+
+a fourth power and two **pure** iterated brackets.  ⭐⭐ `cfourKnob_dress_pair` is the instance
+`p = A`, `q = x₁`, where both corrections are admissible by §1 and §2 and, through
+`cfourKnob_triple_swap`, the last factor is literally the leftover's triple bracket
+`⁅x₁, ⁅x₁, A⁆⁆`.  So the leftover's fourth power and its triple bracket are delivered together
+by two admissible corrections, and the residue `⁅⁅A, x₁⁆, A⁆` is a bracket whose **outer** slot
+is `A`, a slot the handle knobs `cfourId_dress_handleU` / `cfourId_dress_handleV` reach without
+touching the `x₁`-slot.
+
+**Verdict.**  `SqClassClearingSupply h 4` is **not** discharged here, and nothing here refutes
+it.  What is settled is that neither of the two directions the wave-70 analysis named as the
+obstruction is one: the `σ⁴`/`x₀⁴` directions do not occur in the leftover, and the
+`ad(x₁)²`-direction is reachable, though not by the argument that was recorded.  What is left is
+the leftover's remaining factor `⁅σA, x₀A⁆ · ⁅σ, x₀⁆⁻¹ · cfourEichDefect nu' j`, the two
+class-four defects whose class-three images cancel, and the assembly of the knobs above into one
+correction tuple.
 
 Lane W71-CFOUR.  New file; no edits to existing files.  Prefix `cfourKnob`.
 -/
@@ -245,7 +279,131 @@ theorem cfourKnob_leftover_eq :
 
 end Leftover
 
-/-! ## §4 Axiom pins -/
+/-! ## §4 The pairing that frees the `ad(x₁)²`-direction -/
+
+section Pair
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- A `Y`-element has trivial fourth power: its square is already a `Z`-element, and `Z` has
+exponent two.  This is the cancellation the pairing below runs on. -/
+theorem cfourKnob_pow_four_lambdaTwo {y : levelQuot G 4} (hy : y ∈ lambdaImage G 2 4) :
+    y ^ 2 * y ^ 2 = 1 := by
+  rw [← pow_two]
+  exact zLayer_sq G (cfour_sq_mem_zLayer hy)
+
+/-- **The iterated bracket is symmetric between its two outer readings**: `⁅⁅q, p⁆, p⁆` and
+`⁅p, ⁅p, q⁆⁆` are the same element of `Z`.  Both swaps are inverses (`commP a b = (commP b a)⁻¹`
+in any group), an inverse in a `Y`-slot is invisible (`gThreeFour_ad_inv_left`), and a bracket
+against a `Y`-element is its own inverse.  This is what lets `cfourKnob_sq_knob_pair` be read
+against `cfourKnob_leftover_eq`, whose triple bracket is written the second way. -/
+theorem cfourKnob_triple_swap (p q : levelQuot G 4) :
+    commP (commP q p) p = commP p (commP p q) := by
+  have hsw : ∀ a b : levelQuot G 4, commP a b = (commP b a)⁻¹ := by
+    intro a b; simp only [commP]; group
+  have hy : commP p q ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo p q
+  rw [hsw q p, gThreeFour_ad_inv_left hy p, hsw (commP p q) p,
+    zLayer_inv_self (cfour_commP_mem_zLayer_right p hy)]
+
+/-- ⭐⭐⭐ **The two `x₁`-slot knobs whose squares cancel.**  The `x₁`-slot knob is
+`c ↦ c² · ⁅c, q⁆` (`cfour_dress_two`, at `q = m 2`), the only knob carrying a square, and the
+square always arrives bundled.  Run it at the two corrections `c = p²` and `c = ⁅p, q⁆` and
+multiply: by `gThreeFour_commP_sq_left` the first contributes `⁅p, q⁆²` and the second
+contributes `⁅p, q⁆²` again, and the two cancel because `⁅p, q⁆` is a `Y`-element and `Y`-elements
+have trivial fourth power.  What is left is
+
+```text
+  p⁴ · ⁅⁅p, q⁆, p⁆ · ⁅⁅p, q⁆, q⁆ ,
+```
+
+a fourth power times **two pure iterated brackets, with no square attached**.
+
+This is the step the wave-70 §4 analysis was missing.  That analysis reached the delicate
+direction `⁅⁅p, q⁆, q⁆ = ad(q)²(p)` by identifying it with the `x₁`-square knob, citing
+`cfourId_x1_sq_direction`; but that committed statement reads
+`commP (x₁²) q = (commP x₁ q)² · commP (commP x₁ q) x₁`, so the identification drops a square,
+and the bundle is the only source of squares, so the dropped term cannot be supplied separately.
+Pairing two knobs instead of reading one removes the square honestly. -/
+theorem cfourKnob_sq_knob_pair (p q : levelQuot G 4) :
+    ((p ^ 2) ^ 2 * commP (p ^ 2) q) * (commP p q ^ 2 * commP (commP p q) q)
+      = p ^ 4 * (commP (commP p q) p * commP (commP p q) q) := by
+  have hy : commP p q ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo p q
+  have hz1 : commP p q ^ 2 ∈ zLayer G 3 := cfour_sq_mem_zLayer hy
+  have hT1 : commP (commP p q) p ∈ zLayer G 3 := cfour_commP_mem_zLayer_left hy p
+  have hsq : (p ^ 2 : levelQuot G 4) ^ 2 = p ^ 4 := by rw [← pow_mul]
+  have hmid : commP (commP p q) p * (commP p q ^ 2 * commP (commP p q) q)
+      = commP p q ^ 2 * (commP (commP p q) p * commP (commP p q) q) := by
+    rw [← mul_assoc, ← cfour_zLayer_comm hz1 (commP (commP p q) p), mul_assoc]
+  rw [hsq, gThreeFour_commP_sq_left]
+  simp only [mul_assoc]
+  rw [hmid, ← mul_assoc (commP p q ^ 2), cfourKnob_pow_four_lambdaTwo hy, one_mul]
+
+end Pair
+
+section Rows
+
+variable {h : ℕ}
+
+/-- **A commutator is exactly row-trivial**: the two rows are homomorphisms into a commutative
+group, so they kill every commutator.  No `4ℤ₂` computation and no `cfourId_row_repair` is
+needed for a commutator correction. -/
+theorem cfourKnob_comm_row (f : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (a b : (DSq h : Type)) : f (commP a b) = 1 := by
+  simp only [commP, map_mul, map_inv]
+  rw [mul_comm (f a)⁻¹ (f b)⁻¹, mul_assoc, mul_assoc, ← mul_assoc (f a)⁻¹, inv_mul_cancel,
+    one_mul, inv_mul_cancel]
+
+/-- ⭐⭐ **A commutator is an admissible knob.**  It lies in `γ₂` and both its rows are exactly
+trivial, so it is a legal correction with no repair.  Together with `cfourKnob_sq_admissible`
+this says the two corrections of `cfourKnob_sq_knob_pair` are admissible whenever `p` is: `p²`
+by §1 and `⁅p, q⁆` here. -/
+theorem cfourKnob_comm_admissible (nu' : ContinuousMonoidHom (DSq h : Type)
+    (Multiplicative ℤ_[2])) (a b : (DSq h : Type)) :
+    commP a b ∈ twoCentralSeries (DSq h : Type) 2 ∧ nuLam h (commP a b) = 1 ∧
+      nu' (commP a b) = 1 :=
+  ⟨cfour_commP_mem_two a b, cfourKnob_comm_row _ a b, cfourKnob_comm_row nu' a b⟩
+
+end Rows
+
+section Application
+
+variable {h : ℕ} (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+
+/-- ⭐⭐⭐ **The leftover's two hard terms are reached together.**  Instantiate
+`cfourKnob_sq_knob_pair` at `p = A` (wave 68's dressing) and `q = x₁`.  Both corrections are
+admissible - `A²` by `cfourKnob_dressSq_admissible`, `⁅A, x₁⁆` by `cfourKnob_comm_admissible` -
+and the product of their two `x₁`-slot knobs is
+
+```text
+  A⁴ · ⁅⁅A, x₁⁆, A⁆ · ⁅⁅A, x₁⁆, x₁⁆ .
+```
+
+By `cfourKnob_leftover_eq` the leftover carries exactly `A⁴` as its only fourth power and
+exactly `⁅x₁, ⁅x₁, A⁆⁆` as its triple bracket, and in the exponent-two layer `Z` that triple
+bracket is `⁅⁅A, x₁⁆, x₁⁆`.  So the pair delivers both of the leftover's `x₁`-involving terms at
+once, leaving only `⁅⁅A, x₁⁆, A⁆` - a pure bracket whose **outer** slot is `A`, hence one the
+handle knobs of `cfourId_dress_handleU` / `cfourId_dress_handleV` reach without touching the
+`x₁`-slot. -/
+theorem cfourKnob_dress_pair :
+    (((levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ^ 2) ^ 2 *
+        commP ((levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ^ 2)
+          (levelMk (DSq h : Type) 4 (dsqX1 h))) *
+      (commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+          (levelMk (DSq h : Type) 4 (dsqX1 h)) ^ 2 *
+        commP (commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+          (levelMk (DSq h : Type) 4 (dsqX1 h))) (levelMk (DSq h : Type) 4 (dsqX1 h)))
+      = (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ^ 4 *
+        (commP (commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j))
+              (levelMk (DSq h : Type) 4 (dsqX1 h)))
+            (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
+          commP (levelMk (DSq h : Type) 4 (dsqX1 h))
+            (commP (levelMk (DSq h : Type) 4 (dsqX1 h))
+              (levelMk (DSq h : Type) 4 (bridgeDress nu' j)))) := by
+  rw [cfourKnob_sq_knob_pair, cfourKnob_triple_swap]
+
+end Application
+
+/-! ## §5 Axiom pins -/
 
 section AxiomPins
 
@@ -260,6 +418,12 @@ section AxiomPins
 #print axioms cfourKnob_push_two
 #print axioms cfourKnob_push_four
 #print axioms cfourKnob_leftover_eq
+#print axioms cfourKnob_pow_four_lambdaTwo
+#print axioms cfourKnob_triple_swap
+#print axioms cfourKnob_sq_knob_pair
+#print axioms cfourKnob_comm_row
+#print axioms cfourKnob_comm_admissible
+#print axioms cfourKnob_dress_pair
 
 end AxiomPins
 
