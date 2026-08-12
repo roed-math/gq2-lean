@@ -102,6 +102,14 @@ theorem cfour_comm_one (p : Q) : commP p 1 = 1 := by simp only [commP]; group
 /-- The bracket of `1` is trivial. -/
 theorem cfour_one_comm (p : Q) : commP 1 p = 1 := by simp only [commP]; group
 
+/-- A trivial bracket means the entries commute (the converse of `bridge_comm_of_commute`). -/
+theorem cfour_commute_of_comm {p q : Q} (h : commP p q = 1) : Commute p q := by
+  refine (commute_iff_eq p q).mpr ?_
+  have h2 : q * p * commP p q = q * p := by rw [h, mul_one]
+  simp only [commP] at h2
+  calc p * q = q * p * (p⁻¹ * q⁻¹ * p * q) := by group
+    _ = q * p := h2
+
 /-- A bracket of an element against itself is trivial (restated for this file's namespace). -/
 theorem cfour_comm_self (p : Q) : commP p p = 1 := bridge_comm_self p
 
@@ -421,7 +429,172 @@ theorem cfour_sqRelWord {k : ℕ} (m : Fin (sqRank k) → levelQuot G 4) :
 
 end RelatorModFour
 
-/-! ## §3 Axiom pins -/
+/-! ## §3 The relator lives in an abelian group
+
+Every factor of `cfour_sqRelWord` - the two brackets, the fourth power, the square, the triple
+bracket, the handle word - lies in `Y`, and `Y` is abelian by `cfour_commP_lambdaTwo`.  So the
+class-four obligation, unlike the class-three one, may be **reordered at will**: it is an
+equation in an abelian group.  This is what replaces wave 68's "everything in sight is central"
+and it is what makes the class-four computation finite rather than a bracket jungle. -/
+
+section AbelianRelator
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- The central layer sits inside the `γ₂`-layer. -/
+theorem cfour_zLayer_le_lambdaTwo : zLayer G 3 ≤ lambdaImage G 2 4 := by
+  rintro _ ⟨v, hv, rfl⟩
+  exact ⟨v, twoCentralSeries_antitone (G := G) (by norm_num) hv, rfl⟩
+
+/-- Two `Y`-elements commute. -/
+theorem cfour_commute_lambdaTwo {y y' : levelQuot G 4} (hy : y ∈ lambdaImage G 2 4)
+    (hy' : y' ∈ lambdaImage G 2 4) : Commute y y' :=
+  cfour_commute_of_comm (cfour_commP_lambdaTwo hy hy')
+
+/-- A handle word lies in `Y`: it is a product of brackets. -/
+theorem cfour_handleWord_mem_lambdaTwo {k : ℕ} (u v : Fin k → levelQuot G 4) :
+    handleWord u v ∈ lambdaImage G 2 4 := by
+  refine Subgroup.list_prod_mem _ fun x hx => ?_
+  obtain ⟨i, -, rfl⟩ := List.mem_map.mp hx
+  exact cfour_commP_mem_lambdaTwo (u i) (v i)
+
+/-- ⭐ **The relator lies in `Y`** at every tuple of `Q₄`.  (Upstairs this is wave 67's
+`lim_sqRelWord_mem_twoCentralSeries_two`, read in `Q₄`.) -/
+theorem cfour_sqRelWord_mem_lambdaTwo {k : ℕ} (m : Fin (sqRank k) → levelQuot G 4) :
+    sqRelWord m ∈ lambdaImage G 2 4 := by
+  rw [cfour_sqRelWord]
+  refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+    (cfour_commP_mem_lambdaTwo _ _) ?_) (cfour_sq_mem_lambdaTwo _))
+    (cfour_zLayer_le_lambdaTwo (cfour_commP_mem_zLayer_right _
+      (cfour_commP_mem_lambdaTwo _ _)))) (cfour_handleWord_mem_lambdaTwo _ _)
+  exact cfour_zLayer_le_lambdaTwo (cfour_pow_four_mem_zLayer _)
+
+end AbelianRelator
+
+/-! ## §4 The undressed frame: the whole class-four obligation is the Eichler defect
+
+Wave 68's handle surgery needed its inserted factor to be **central**.  At class four the
+inserted factor is only a `Y`-element - but `Y` is abelian (§3) and every handle bracket lies
+in `Y`, so the same surgery goes through with `Commute` in place of centrality.  The payoff is
+`cfour_relator_base`: **with the trivial dressing the class-four relator is exactly the Eichler
+defect**, nothing else.  The generator relation `dsq_relation` absorbs every other factor on the
+nose, at class four just as at class three, and no commutativity is used for that step. -/
+
+section HandleSurgery
+
+variable {Q : Type*} [Group Q]
+
+/-- One entry of a product over `Fin n` picking up a right factor that **commutes with every
+entry** passes it to the whole product.  This is `bridge_prod_map_update_center` with
+centrality weakened to `Commute`, which is all §3 supplies at class four. -/
+theorem cfour_prod_map_update (n : ℕ) :
+    ∀ (F : Fin n → Q) (j : Fin n) (z : Q), (∀ i, Commute (F i) z) →
+      ((List.finRange n).map fun k => if k = j then F k * z else F k).prod
+        = ((List.finRange n).map F).prod * z := by
+  induction n with
+  | zero => exact fun F j z _ => j.elim0
+  | succ n ih =>
+    intro F j z hz
+    rw [List.finRange_succ, List.map_cons, List.map_cons, List.prod_cons, List.prod_cons,
+      List.map_map, List.map_map]
+    cases j using Fin.cases with
+    | zero =>
+      rw [if_pos rfl]
+      have htail : (List.finRange n).map ((fun k => if k = 0 then F k * z else F k)
+            ∘ Fin.succ) = (List.finRange n).map (F ∘ Fin.succ) := by
+        refine List.map_congr_left fun k _ => ?_
+        simp [Fin.succ_ne_zero]
+      have hcomm : Commute ((List.finRange n).map (F ∘ Fin.succ)).prod z := by
+        refine Commute.list_prod_left _ _ fun x hx => ?_
+        obtain ⟨i, -, rfl⟩ := List.mem_map.mp hx
+        exact hz i.succ
+      rw [htail, mul_assoc, ← hcomm.eq, ← mul_assoc]
+    | succ j' =>
+      rw [if_neg (Fin.succ_ne_zero j').symm]
+      have htail : (List.finRange n).map ((fun k => if k = Fin.succ j' then F k * z else F k)
+            ∘ Fin.succ)
+          = (List.finRange n).map fun k => if k = j' then (F ∘ Fin.succ) k * z
+              else (F ∘ Fin.succ) k := by
+        refine List.map_congr_left fun k _ => ?_
+        simp only [Function.comp_apply, Fin.succ_inj]
+      rw [htail, ih (F ∘ Fin.succ) j' z fun i => hz i.succ, ← mul_assoc]
+
+/-- **A handle word with one bracket changed by a commuting factor.** -/
+theorem cfour_handleWord_update {n : ℕ} (u v u' v' : Fin n → Q) (j : Fin n) (z : Q)
+    (hz : ∀ i, Commute (commP (u' i) (v' i)) z)
+    (hne : ∀ i, i ≠ j → commP (u i) (v i) = commP (u' i) (v' i))
+    (hj : commP (u j) (v j) = commP (u' j) (v' j) * z) :
+    handleWord u v = handleWord u' v' * z := by
+  have hmap : ((List.finRange n).map fun i => commP (u i) (v i))
+      = ((List.finRange n).map fun i => if i = j then commP (u' i) (v' i) * z
+          else commP (u' i) (v' i)) := by
+    refine List.map_congr_left fun i _ => ?_
+    by_cases hij : i = j
+    · rw [if_pos hij]
+      subst hij
+      exact hj
+    · rw [if_neg hij]
+      exact hne i hij
+  rw [handleWord, hmap, cfour_prod_map_update n _ j z hz, handleWord]
+
+end HandleSurgery
+
+section BaseDefect
+
+variable {h : ℕ} (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+
+/-- **The class-four Eichler defect**: the amount by which the two cleared handle letters miss
+the plain handle bracket in `Q₄`.  At class three wave 68 evaluated it
+(`bridge_handle_comm`: it is `commP w^{ν'(u)} v · commP u w^{ν'(v)}`, an element of the central
+layer of `Q₃`); at class four it is a `Y`-element and is the entire obligation. -/
+noncomputable def cfourEichDefect : levelQuot (DSq h : Type) 4 :=
+  (commP (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+      (levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))))⁻¹ *
+    commP (levelMk (DSq h : Type) 4 (sqEichU h nu' j))
+      (levelMk (DSq h : Type) 4 (sqEichV h nu' j))
+
+/-- The defect is a `Y`-element. -/
+theorem cfour_eichDefect_mem : cfourEichDefect nu' j ∈ lambdaImage (DSq h : Type) 2 4 :=
+  Subgroup.mul_mem _ (Subgroup.inv_mem _ (cfour_commP_mem_lambdaTwo _ _))
+    (cfour_commP_mem_lambdaTwo _ _)
+
+/-- Away from the two twisted slots the undressed frame is the generator frame. -/
+theorem cfour_base_eq_gen {i : Fin (sqRank h)} (hU : (i : ℕ) ≠ (sqHandleIdxU j : ℕ))
+    (hV : (i : ℕ) ≠ (sqHandleIdxV j : ℕ)) : sqArbBase h nu' j i = sqGen h i := by
+  simp only [sqArbBase, if_neg hU, if_neg hV]
+
+/-- ⭐⭐ **The undressed frame's class-four relator is exactly the Eichler defect.**  Every
+other factor of `cfour_sqRelWord` is absorbed by the generator relation `dsq_relation` - the
+fourth power and the triple bracket included, and with no commutativity used. -/
+theorem cfour_relator_base :
+    sqRelWord (fun i => levelMk (DSq h : Type) 4 (sqArbBase h nu' j i))
+      = cfourEichDefect nu' j := by
+  have hgen : sqRelWord (fun i => levelMk (DSq h : Type) 4 (sqGen h i)) = 1 := by
+    rw [← map_sqRelWord, dsq_relation, map_one]
+  have h0 : sqArbBase h nu' j 0 = sqGen h 0 := cfour_base_eq_gen nu' j
+    (by rw [sqVal_zero, sqHandleIdxU_val]; omega) (by rw [sqVal_zero, sqHandleIdxV_val]; omega)
+  have h1 : sqArbBase h nu' j 1 = sqGen h 1 := cfour_base_eq_gen nu' j
+    (by rw [sqVal_one, sqHandleIdxU_val]; omega) (by rw [sqVal_one, sqHandleIdxV_val]; omega)
+  have h2 : sqArbBase h nu' j 2 = sqGen h 2 := cfour_base_eq_gen nu' j
+    (by rw [sqVal_two, sqHandleIdxU_val]; omega) (by rw [sqVal_two, sqHandleIdxV_val]; omega)
+  have hhandle : handleWord
+      (fun i => levelMk (DSq h : Type) 4 (sqArbBase h nu' j (sqHandleIdxU i)))
+      (fun i => levelMk (DSq h : Type) 4 (sqArbBase h nu' j (sqHandleIdxV i)))
+      = handleWord (fun i => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU i)))
+          (fun i => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV i))) *
+        cfourEichDefect nu' j := by
+    refine cfour_handleWord_update _ _ _ _ j _ (fun i => cfour_commute_lambdaTwo
+      (cfour_commP_mem_lambdaTwo _ _) (cfour_eichDefect_mem nu' j)) ?_ ?_
+    · intro i hi
+      simp only [sqArbBase_handleU_ne hi, sqArbBase_handleV_ne hi]
+    · simp only [sqArbBase_handleU, sqArbBase_handleV, cfourEichDefect]
+      rw [mul_inv_cancel_left]
+  rw [sqRelWord] at hgen
+  rw [sqRelWord, h0, h1, h2, hhandle, ← mul_assoc, hgen, one_mul]
+
+end BaseDefect
+
+/-! ## §5 Axiom pins -/
 
 section AxiomPins
 
@@ -461,6 +634,17 @@ section AxiomPins
 #print axioms cfour_pow_four_mul
 #print axioms cfour_sqWord
 #print axioms cfour_sqRelWord
+#print axioms cfour_commute_of_comm
+#print axioms cfour_zLayer_le_lambdaTwo
+#print axioms cfour_commute_lambdaTwo
+#print axioms cfour_handleWord_mem_lambdaTwo
+#print axioms cfour_sqRelWord_mem_lambdaTwo
+#print axioms cfour_prod_map_update
+#print axioms cfour_handleWord_update
+#print axioms cfourEichDefect
+#print axioms cfour_eichDefect_mem
+#print axioms cfour_base_eq_gen
+#print axioms cfour_relator_base
 
 end AxiomPins
 
