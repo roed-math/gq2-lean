@@ -16,8 +16,55 @@ Wave 71 evaluated the class-four leftover of wave 68's frame to
 
 with `A = bridgeDress nu' j`, and moved `A⁴` and `⁅x₁, ⁅x₁, A⁆⁆` by one admissible correction of
 the `x₁`-slot (`cfourKnob_pair_correction`).  It left three things: the square `⁅A, x₀⁆²`, the
-residue `⁅⁅A, x₁⁆, A⁆` of that pairing, and the two defects.  This file commits the first two and
-opens up the third.
+residue `⁅⁅A, x₁⁆, A⁆` of that pairing, and the two defects.
+
+## §2 The square, and §7 the residue
+
+`cfourDef_commSq_correction`: `⁅A, x₀⁆` is a legal `x₁`-slot correction whose knob is
+`⁅A, x₀⁆² · ⁅⁅A, x₀⁆, x₁⁆`, and `cfourDef_jacobi_solve` rewrites the residue into two brackets
+with outer slots `A` and `x₀`.  `cfourDef_comm_dress_mem`: the far slot of the dressing resolves
+into the two handle generators, the pivot factor being an even `ℤ₂`-power and so invisible to a
+bracket with a `Y`-element in the near slot.
+
+## §4 The two defects, split
+
+⭐⭐⭐ `cfourDef_defect_eq`.  Expanding `⁅σA, x₀A⁆` by class-four bilinearity
+(`cfourDef_common_dress`) gives five factors, the term `⁅⁅σ, x₀⁆, A⁆` occurring twice and
+cancelling.  Stripping `⁅σ, x₀⁆` leaves
+
+```text
+  ⁅σA, x₀A⁆ · ⁅σ, x₀⁆⁻¹ · cfourEichDefect = cfourDefCore · cfourDefTriple ,
+```
+
+where `cfourDefCore = ⁅σ, A⁆ · ⁅A, x₀⁆ · cfourEichDefect` lies in `Z` and `cfourDefTriple` is the
+two triple brackets whose outer slot is the dressing.  **The expansion has no term outside these
+five brackets**, which is the wave-71 §4.1 question answered.
+
+## §6 The reduction
+
+⭐⭐⭐ `cfourDef_leftover_reduce_merged`.  The single admissible correction `cfourDefCorr` -
+`⁅x₁, A⁆` on the `σ`-slot, `A² · ⁅A, x₁⁆ · ⁅A, x₀⁆` on the `x₁`-slot, `1` elsewhere - turns the
+class-four relator of wave 68's frame into
+
+```text
+  cfourDefCore nu' j · ⁅⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆, A⁆ .
+```
+
+Five of the leftover's factors annihilate against the knob (`cfourDef_assemble`).  The relator
+identity itself needs **no** hypothesis on the marking; only admissibility does.
+
+## §8 What is left
+
+`CfourDefResidual` names it, and `cfourDef_supply_of_residual` shows it discharges
+`SqClassClearingSupply h 4`.  The residue is `x₁`-free apart from the near slot `⁅x₀, x₁⁆`, and
+its second factor is a bracket whose far slot is the dressing, which §7 resolves into the frame's
+own letters.  **What is not committed** is the frame surgery composing a handle-slot correction
+with a core-slot correction, without which the second factor is an expression rather than a
+knob.
+
+**Honesty marker.**  Nothing here is evidence that no dressing works.  All of it concerns one
+sufficient route - `γ₂`-valued corrections of wave 68's frame, wave 70's `CfourIdReachable` - and
+a failure of that route would not touch `SqClassClearingSupply h 4` itself.
 
 Lane W72-DEFECTS.  New file; no edits to existing files.  Prefix `cfourDef`.
 -/
@@ -533,6 +580,13 @@ theorem cfourDef_comm_inv_right {y : levelQuot G 4} (hy : y ∈ lambdaImage G 2 
   rw [mul_inv_cancel, cfour_comm_one] at hz
   rw [eq_inv_of_mul_eq_one_left hz.symm, zLayer_inv_self (cfour_commP_mem_zLayer_left hy z)]
 
+/-- **A bracket with a `Y`-element in one slot is symmetric**: it lies in the exponent-two layer
+`Z`, where inversion is the identity. -/
+theorem cfourDef_comm_swap {y : levelQuot G 4} (hy : y ∈ lambdaImage G 2 4)
+    (p : levelQuot G 4) : commP p y = commP y p := by
+  have hsw : commP p y = (commP y p)⁻¹ := by simp only [commP]; group
+  rw [hsw, zLayer_inv_self (cfour_commP_mem_zLayer_left hy p)]
+
 end FarSlot
 
 section DressFarSlot
@@ -631,6 +685,62 @@ theorem cfourDef_comm_genV_mem {y : levelQuot (DSq h : Type) 4}
   rw [hgen]
   exact Subgroup.mul_mem _ hz he
 
+/-- ⭐⭐ **The tail's far slot, in the frame's own letters.**  Chaining the three lemmas above:
+`⁅y, A⁆` lies in any subgroup holding the bracket of `y` against the pivot and against the two
+**cleared** handle letters at `j`, which are the letters wave 68's frame actually carries in its
+`j`-th handle slots.
+
+Those three brackets are the knob **expressions** of the frame's remaining slots: `⁅y, V_j⁆` is
+the `u_j`-slot knob of `cfourId_dress_handleU`, `⁅U_j, y⁆ = ⁅y, U_j⁆` (`cfourDef_comm_swap`) is
+the `v_j`-slot knob of `cfourId_dress_handleV`, and `⁅y, w⁆` is the product of the two core knobs
+by `cfourDef_core_knob_pair`.  What is **not** committed here is the frame surgery that composes
+a handle-slot correction with a core-slot correction: `cfourId_dress_core` composes the three
+core slots only, and `cfourId_dress_handleU`/`cfourId_dress_handleV` move one handle slot with
+the core slots fixed. -/
+theorem cfourDef_comm_dress_frame_mem {y : levelQuot (DSq h : Type) 4}
+    (hy : y ∈ lambdaImage (DSq h : Type) 2 4) {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (hw : commP y (levelMk (DSq h : Type) 4 (sqPivot h)) ∈ S)
+    (hU : commP y (levelMk (DSq h : Type) 4 (sqEichU h nu' j)) ∈ S)
+    (hV : commP y (levelMk (DSq h : Type) 4 (sqEichV h nu' j)) ∈ S) :
+    commP y (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ∈ S :=
+  cfourDef_comm_dress_mem nu' j hy (cfourDef_comm_genU_mem nu' j hy hw hU)
+    (cfourDef_comm_genV_mem nu' j hy hw hV)
+
+/-- ⭐⭐⭐ **The two core knobs at a common correction deliver the pivot bracket.**  On wave 68's
+frame the `σ`-slot knob at `c` is `⁅c, x₀·A⁆` and the `x₀`-slot knob at `c` is `⁅σ·A, c⁆`.  Each
+carries a copy of `⁅c, A⁆`, and the two cancel because `Z` has exponent two; what survives is
+`⁅c, x₀⁆ · ⁅c, σ⁆ = ⁅c, σ·x₀⁆`, and `σ·x₀` is the pivot modulo `γ₂`
+(`bridge_sigma_x0_eq_pivot`), which the bracket does not see.
+
+So the pivot bracket, which `cfourDef_comm_dress_frame_mem` needs, is the knob of **one**
+correction used on **two** core slots - and `cfourId_dress_core` does compose those two slots, so
+this one is available as a correction and not only as an expression.  It is the class-four shadow
+of wave 68's own `bridgeDefect`, which is `⁅w, A⁆` in `Q₃`. -/
+theorem cfourDef_core_knob_pair {c : levelQuot (DSq h : Type) 4}
+    (hc : c ∈ lambdaImage (DSq h : Type) 2 4) :
+    commP c (levelMk (DSq h : Type) 4 (dsqX0 h) * levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
+        commP (levelMk (DSq h : Type) 4 (dsqSigma h) *
+          levelMk (DSq h : Type) 4 (bridgeDress nu' j)) c
+      = commP c (levelMk (DSq h : Type) 4 (sqPivot h)) := by
+  obtain ⟨u, hu, hup⟩ := bridge_sigma_x0_eq_pivot (h := h)
+  have hA : commP c (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hc _
+  have hpiv : commP c (levelMk (DSq h : Type) 4 (dsqX0 h)) *
+      commP c (levelMk (DSq h : Type) 4 (dsqSigma h))
+      = commP c (levelMk (DSq h : Type) 4 (sqPivot h)) := by
+    have h1 : commP c (levelMk (DSq h : Type) 4 (dsqSigma h * dsqX0 h))
+        = commP c (levelMk (DSq h : Type) 4 (dsqX0 h)) *
+          commP c (levelMk (DSq h : Type) 4 (dsqSigma h)) := by
+      rw [map_mul, cfour_commP_right_hom hc]
+    rw [← h1, hup, map_mul, cfour_commP_right_hom hc,
+      cfour_commP_lambdaTwo hc ⟨u, hu, rfl⟩, mul_one]
+  rw [cfour_commP_right_hom hc, cfour_commP_left_hom _ _ hc,
+    cfourDef_comm_swap hc (levelMk (DSq h : Type) 4 (dsqSigma h)),
+    cfourDef_comm_swap hc (levelMk (DSq h : Type) 4 (bridgeDress nu' j))]
+  simp only [mul_assoc]
+  rw [cfourDef_z_push hA, cfourDef_z_push hA, cfourDef_z_sq hA, mul_one]
+  exact hpiv
+
 end DressFarSlot
 
 /-! ## §8 The residual -/
@@ -725,10 +835,13 @@ section AxiomPins
 #print axioms cfourDef_triple_mul_jacobi
 #print axioms cfourDef_leftover_reduce_merged
 #print axioms cfourDef_comm_inv_right
+#print axioms cfourDef_comm_swap
 #print axioms cfourDef_comm_zpow_mem
 #print axioms cfourDef_comm_dress_mem
 #print axioms cfourDef_comm_genU_mem
 #print axioms cfourDef_comm_genV_mem
+#print axioms cfourDef_comm_dress_frame_mem
+#print axioms cfourDef_core_knob_pair
 #print axioms cfourDef_supply_of_residual
 #print axioms cfourDef_residual_of_vanish
 
