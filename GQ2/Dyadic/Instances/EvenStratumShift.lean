@@ -653,7 +653,148 @@ end ModelField
 
 end Adapted
 
-/-! ## §6 Axiom pins -/
+/-! ## §6 The residual supply at depth zero
+
+Wave 72's queue item 2.  At `α = 1` the climb's residual supply is `EvenClimbResidualSupply 0`,
+because `evenClimb_defectReachable` is generic in the depth `s` and the `α ≥ 2` route runs it at
+`s = α - 1`.  Two facts settle what depth zero does and does not buy, and they point in opposite
+directions.
+
+* **§6.1 The recorded obstruction is vacuous at `s = 0`.**  `EvenRouteAudit`'s
+  `evenRouteAudit_residual_digit_necessary` extracts, from reachability of the residual, a
+  character-digit condition `2 ^ (k + 1 + s) ∣ χ(r) − 1` on a representative `r` of the
+  residual, and `evenRouteAudit_residual_digit_automatic` records that the tree gives only
+  `2 ^ (k + α − 1)` for free through `EvenSharpPmOne α`: at `α ≥ 2` a one-digit gap.  The
+  *generic* tower bound `twoCentralSeries_units_le` gives `2 ^ (k + 1)` with no bound hypothesis
+  at all, because the residual lies in `λ_k`.  At `s = 0` that is exactly the demanded level, so
+  the demand is met unconditionally; at `s ≥ 1` it is not, since `k + 1 < k + 1 + s`.
+* **§6.2 Depth zero does not make the supply free.**  The neutral corrections that depth zero
+  hands over for free are the `zLayer`-valued ones, and the literal shift word of a
+  `zLayer`-valued correction is trivial: every bracket dies by centrality and the slot-zero
+  square dies by `zLayer_sq`.  So the free supply reaches the residual only when the residual is
+  already `1`.
+
+Together: `EvenClimbResidualSupply 0` is neither refuted by the recorded obstruction nor
+discharged by the automatic corrections.  It is **open**, and the honest answer to "degenerate,
+free, or false" is none of the three. -/
+
+section ResidualZero
+
+open GQ2.Dyadic.EvenRowSupply
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k s : ℕ}
+variable {W : StageWord (MarkedCore.coreRank h)} {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+variable {T : Tuple W v G chi k}
+
+/-! ### §6.1 The digit demand is met by the tower at depth zero -/
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The tower's own digit bound.**  A depth-`k` element has character trivial to `k + 1`
+digits, for every continuous character and with no bound hypothesis: `χ` maps `λ_k(G)` into
+`λ_k(ℤ₂ˣ)`, and `twoCentralSeries_units_le` puts that inside `1 + 2 ^ (k+1) ℤ₂`. -/
+theorem evenStratumResidual_chi_digit (hk : 2 ≤ k) {g : G} (hg : g ∈ twoCentralSeries G k) :
+    Units.map (PadicInt.toZModPow (k + 1)).toMonoidHom (chi g) = 1 :=
+  MonoidHom.mem_ker.mp (twoCentralSeries_units_le k hk
+    (map_twoCentralSeries_le chi.toMonoidHom chi.continuous_toFun k ⟨g, hg, rfl⟩))
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The residual lies in the central layer**, at every depth.  The depth-generic form of
+`evenRouteAudit_residual_mem_zLayer`, which is stated at `α - 1`. -/
+theorem evenStratumResidual_mem_zLayer (hk : 3 ≤ k)
+    (Wc : DeepSharpAdmissibleCorrection s T) :
+    evenSharpNeutralResidualElement Wc ∈ zLayer G k :=
+  Subgroup.mul_mem _
+    (Subgroup.inv_mem _ (evenRawDbarWord_mem_zLayer h k hk _ _ Wc.depth))
+    (Subgroup.inv_mem _ (stageDefect_mem_zLayer W k T.relation))
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- A representative of the residual lies in `λ_k`. -/
+theorem evenStratumResidual_rep_mem (hk : 3 ≤ k) (Wc : DeepSharpAdmissibleCorrection s T)
+    {r : G} (hr : evenSharpNeutralResidualElement Wc = levelMk G (k + 1) r) :
+    r ∈ twoCentralSeries G k := by
+  obtain ⟨w, hw, hwq⟩ := evenStratumResidual_mem_zLayer hk Wc
+  have hker : r * w⁻¹ ∈ twoCentralSeries G (k + 1) := by
+    have hone : levelMk G (k + 1) (r * w⁻¹) = 1 := by
+      rw [map_mul, map_inv, ← hr, hwq, mul_inv_cancel]
+    rwa [levelMk, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at hone
+  have hmul := Subgroup.mul_mem _
+    (twoCentralSeries_antitone G (by omega : k ≤ k + 1) hker) hw
+  simpa using hmul
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **THE DEPTH-ZERO DIGIT DEMAND IS AUTOMATIC.**  The character-digit condition that
+`evenRouteAudit_residual_digit_necessary` extracts from reachability at depth `s`, namely
+`2 ^ (k + 1 + s) ∣ χ(r) − 1`, holds at `s = 0` for **every** admissible correction, reachable or
+not, and with no `EvenSharpPmOne` hypothesis.
+
+So the one recorded obstruction to `EvenClimbResidualSupply` is vacuous at depth zero.  It is not
+vacuous at any `s ≥ 1`: the tower's level is `k + 1` and the demand is `k + 1 + s`. -/
+theorem evenStratum_residual_digit_zero_automatic (hk : 3 ≤ k)
+    (Wc : DeepSharpAdmissibleCorrection s T) {r : G}
+    (hr : evenSharpNeutralResidualElement Wc = levelMk G (k + 1) r) :
+    (2 : ℤ_[2]) ^ (k + 1 + 0) ∣ ((chi r : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+  evenSharp_mem_ker_iff.mp (MonoidHom.mem_ker.mpr
+    (evenStratumResidual_chi_digit (by omega) (evenStratumResidual_rep_mem hk Wc hr)))
+
+/-! ### §6.2 The free neutral corrections shift nothing -/
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **A `zLayer`-valued correction has trivial literal shift.**  Every bracket in
+`evenRawDbarWord` has a central left slot and dies, and the slot-zero square dies because the
+layer is elementary abelian.  No hypothesis on the base. -/
+theorem evenStratum_dbarWord_eq_one_of_zLayer
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hz : ∀ i, correction i ∈ zLayer G k) :
+    evenRawDbarWord base correction = 1 := by
+  have hcomm : ∀ (i : Fin (MarkedCore.coreRank h)) (x : levelQuot G (k + 1)),
+      commP (correction i) x = 1 :=
+    fun i x ↦ commP_eq_one_of_mul_comm (zLayer_commute (hz i) x).eq
+  have hsq : correction 0 ^ 2 = 1 := zLayer_sq G (hz 0)
+  have hhandle : evenRawHandleDbarWord base correction = 1 := by
+    rw [evenRawHandleDbarWord]
+    refine List.prod_eq_one fun x hx ↦ ?_
+    simp only [List.mem_map] at hx
+    obtain ⟨j, _, rfl⟩ := hx
+    rw [hcomm, hcomm, mul_one]
+  rw [evenRawDbarWord, evenRawCoreDbarWord, hhandle, hsq, hcomm, hcomm, hcomm, hcomm, hcomm]
+  group
+
+/-- **Every `zLayer`-valued correction is `0`-neutral.**  This is what "the depth collapses at
+`α = 1`" buys: at depth zero the neutrality demand is exactly the tower's own bound, so the whole
+central layer qualifies.  At `s ≥ 1` it does not. -/
+def evenStratumNeutralOfZLayer (hk : 3 ≤ k)
+    (correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hz : ∀ i, correction i ∈ zLayer G k) :
+    EvenSharpNeutralCorrection 0 G chi h k where
+  correction := correction
+  depth i := evenSharpZLayer_le_lambdaImage G k (hz i)
+  neutral i := by
+    obtain ⟨g, hg, hgq⟩ := hz i
+    exact ⟨g, hgq.symm, by
+      rw [Nat.add_zero]
+      exact evenStratumResidual_chi_digit (by omega) hg⟩
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **DEPTH ZERO DOES NOT MAKE THE SUPPLY FREE.**  The neutral corrections that depth zero hands
+over for nothing are exactly the `zLayer`-valued ones, and each of them has trivial literal
+shift, so it reaches the residual precisely when the residual is already trivial.  Whatever
+discharges `EvenClimbResidualSupply 0` has to produce a neutral correction with a coordinate
+*outside* the central layer, which is the same demand as at every other depth. -/
+theorem evenStratum_zLayerNeutral_reaches_iff
+    (Wc : DeepSharpAdmissibleCorrection s T)
+    (correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hz : ∀ i, correction i ∈ zLayer G k) :
+    evenRawDbarWord (fun i ↦ canonLift G k (T.generators i)) correction =
+        evenSharpNeutralResidualElement Wc ↔
+      evenSharpNeutralResidualElement Wc = 1 := by
+  rw [evenStratum_dbarWord_eq_one_of_zLayer _ correction hz]
+  exact eq_comm
+
+end ResidualZero
+
+/-! ## §7 Axiom pins -/
 
 section Pins
 
@@ -687,6 +828,14 @@ section Pins
 #print axioms evenStratum_frame_of_gramOne_modelEquiv
 #print axioms evenStratum_exists_gramOne_adaptedFrame
 #print axioms evenStratum_exists_gramOne_adaptedFrame_KNegOne
+
+#print axioms evenStratumResidual_chi_digit
+#print axioms evenStratumResidual_mem_zLayer
+#print axioms evenStratumResidual_rep_mem
+#print axioms evenStratum_residual_digit_zero_automatic
+#print axioms evenStratum_dbarWord_eq_one_of_zLayer
+#print axioms evenStratumNeutralOfZLayer
+#print axioms evenStratum_zLayerNeutral_reaches_iff
 
 -- The `α ≥ 2` statements §4 and §5 stand against, printed beside them.
 #print axioms GQ2.Dyadic.EvenStratumFrame.evenStratumFrame_gram_diag
