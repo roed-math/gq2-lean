@@ -1,5 +1,31 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Decision 2 is implemented, and its expected answer was wrong (2026-08-12, wave 70)
+
+You scheduled the `α = 1` closure after class four and asked that the direction be settled
+first.  It was, by computation, and **the direction the campaign had recorded was wrong**.
+
+* **Both `α = 1` even cores are Demushkin**, at every handle count
+  (`Instances/EvenAlphaOne.lean`).  The recorded residual claimed the `N` core was not.  Its
+  head diagonal does die, which is the one step that reasoning got right, but the resulting
+  matrix is two hyperbolic blocks: *alternating* and **nondegenerate**.  Alternating had been
+  read as degenerate.  The anticipated asymmetry between the rows does not exist.
+* **`demushkinQ (DN 1 h) = 4`** is proved, at every handle count, with no frame hypothesis
+  (`MarkedCore/NFrameAlphaOne.lean`).  This is the first statement of that invariant in the
+  tree; it had been hypothesised in prose in three places and disclaimed each time.
+* **So `α ≥ 2` is not a Demushkin boundary.**  It is the range on which the two rows share one
+  Gram matrix.  What `α = 1` costs is the *frame* layer, and the committed frame-emptiness
+  there is the mod-2 signature of `q ≠ 2`, not evidence against Demushkin-ness.
+* Net for you: the residual you scheduled work against is refuted rather than proved, its
+  companion is discharged, and the even classification's `α ≥ 2` hypothesis is now understood
+  rather than merely assumed.  Nothing here needs a decision.
+
+**Decision 5's precedent was applied a second time, without asking.**  A new `MarkedCore` file
+would have been the first in that directory to import `Instances`.  Since you refused the
+analogous `SqCore`-to-`Count` edge, the two composites needing the upper layer were split into
+their own file there, keeping the lower file's imports clean; all public names and namespaces
+are unchanged.  Tell me if you would rather have taken the edge, it is cheap to reverse.
+
 ## Two notes on the decisions, from the wave that implemented them (2026-08-12)
 
 Both are corrections to what you were told when you decided, not to the decisions.
