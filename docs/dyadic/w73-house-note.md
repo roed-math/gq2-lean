@@ -37,8 +37,8 @@ note after the census claim:
 > "a lane running `check_dyadic.sh` does not touch `lake`" was false before this wave.  I did not
 > run `check_dyadic.sh` end to end for exactly this reason.
 
-**Ticket 3.**  **27 findings in the four wave-72 modules** (5 high, 7 medium, 7 medium-low, 8
-low), plus the lane-note findings of §3.5.  Counted one per label: §3.1 has 14 (a-n), §3.2 has 9
+**Ticket 3.**  **28 findings in the four wave-72 modules** (5 high, 8 medium, 7 medium-low, 8
+low), plus the lane-note findings of §3.5.  Counted one per label: §3.1 has 15 (a-o), §3.2 has 9
 (a-i), §3.3 has 4 (a-d).  The three worth reading first:
 
 1. **A ⭐⭐⭐ docstring is on the wrong theorem.**  `GradedClassFourDefect.lean:435-455` states
@@ -287,6 +287,26 @@ which contains squares as well as brackets.  The file reserves "the fourfold bra
 `commP (commP (commP a b) r) q` (`:65-66`, `:717-718`), and `cfiveSpan_zLayer_le_gens` separates
 `hJ2` from `hJ4` correctly.  As written the sentence advertises a strictly narrower sufficient
 condition than the theorem proves.
+
+**(o) MEDIUM, and the round's own item 1 recurring one class up.**  *(Out of alphabetical
+order: labelled last because it was found last, placed here by severity.  Found here, by applying the
+"half a fix" rule to my own ticket-1 edit; not in either parallel audit.)*  Round 9's §2.3(c) was
+that `cfourId_zLayer_le`'s headline "with no side condition" leaves two unrestricted universals
+standing.  **The two class-five `_dsq` forms carry the same headline and the same shape.**
+
+> `GradedClassFiveKnob.lean:763` "⭐⭐⭐ **The relations half at `D_sq h`, with no side
+> condition**" and `:773` "⭐⭐⭐ **The graded decomposition at `D_sq h`, with no side
+> condition.**"
+
+`cfiveSpan_zLayer_le_dsq` (`:766-770`) still binds `hfour`, `hsqbr`, `hJ`, all universally
+quantified over `Y` and over free `Q₅`-slots; `cfiveSpan_zLayer_le_gens_dsq` (`:775-781`) still
+binds **six** such, `h8` through `hJ4`.  What the `_dsq` forms discharge is the **closedness**,
+and the module header (`:71-72`) says exactly that: "the two forms at `D_sq h`, where `Q₅` is
+discrete and the closedness side conditions are free."  So the file knows, the headlines do not,
+and the phrase is the same one that had to be corrected at class four this wave.  Correction: "at
+`D_sq h`, with the closedness side conditions discharged", both sites.  Worth reading with (f)
+and (g): three of this file's headlines drop a side condition, and this pair drops the same one
+the campaign has already been bitten by once.
 
 **(f) MEDIUM-LOW.  Two ⭐⭐⭐ relations-half headlines drop closedness side conditions.**
 `GradedClassFiveKnob.lean:564-571` (`cfiveSpan_zLayer_le_rel` also needs
