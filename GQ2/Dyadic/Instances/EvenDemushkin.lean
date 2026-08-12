@@ -57,11 +57,13 @@ subgroup, consumes a generator, and the rank identity `= coreRank h` should be e
 target to aim at.
 
 At `α = 1` both cores are still one-relator pro-`2` groups with the relator in the Frattini
-subgroup, so the rank identity holds; what fails is the *Gram*, and with it nondegeneracy.  The
+subgroup, so the rank identity holds; what changes is the *Gram*, and wave 70 computes it:
+nondegeneracy survives on both rows.  The
 committed `EvenModelDemushkin` docstring records that at `α = 1` the shared Gram
 `mGram = nGram` is no longer the common value: the `N` head exponent becomes
 `2 + 2 ^ 1 = 4 ≡ 0 (mod 4)` and its diagonal entry dies, while the `M` row picks up a second
-diagonal entry at slot `2`.  Section §3 names the two resulting open questions.
+diagonal entry at slot `2`.  Both resulting matrices are nondegenerate, so §3's two questions
+are now settled (wave 70): see the residual docstrings below.
 
 ## Numbering
 
@@ -234,10 +236,24 @@ equivalent to the frame existing at all.  Contrast `nonempty_mFrame`, which need
 theorem evenDem_nFrame_nonempty_iff (α h : ℕ) : Nonempty (NFrame α h) ↔ 2 ≤ α :=
   nFrameExists_nonempty_iff α h
 
-/-- **Residual R1 (`N` at `α = 1`).**  The route skeleton asserts that the `α = 1` `N` core is
-*not* Demushkin: the head exponent is `2 + 2 ^ 1 = 4 ≡ 0 (mod 4)`, so its Gram diagonal entry
-dies and the mod-`2` quadratic initial form degenerates.  `evenDem_nFrame_isEmpty_alphaOne` is
-independent corroboration from the abelianization side.  Nothing in the committed development
+/-- **Residual R1 (`N` at `α = 1`), REFUTED (wave 70).**  This `Prop` is **false**, and is kept
+only so the refutation has something to name.  `Instances/EvenAlphaOne.lean` computes the
+`α = 1` `N` Gram directly and proves `IsDemushkin 2 (DN 1 h)` for every `h`
+(`evenAlphaOne_isDemushkin_DN`), hence `¬ EvenDemResidualAlphaOneN`
+(`evenAlphaOne_residualN_false`).
+
+What the original reasoning got right: the head exponent is `2 + 2 ^ 1 = 4 ≡ 0 (mod 4)`, so the
+`(0,0)` Gram entry does die.  What it got wrong: the resulting matrix
+`[[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]]` is two hyperbolic blocks, which is *alternating*
+and **nondegenerate**, not degenerate.  Alternating was read as degenerate.
+`evenDem_nFrame_isEmpty_alphaOne` is likewise not evidence against Demushkin-ness: the frame
+layer represents a `ℤ/2` torsion slot, and an alternating cup form is the mod-`2` signature of
+`q ≢ 2`.  ⚠ The `q`-invariant at `α = 1` is still **uncomputed**: `demushkinQ` is a torsion
+count on the abelianization, independent of `IsDemushkin`, and the committed route to it runs
+through `NFrame`, which is provably empty here, so that route is structurally unavailable
+rather than merely unproved.
+
+The superseded original reasoning follows, for the record.  Nothing in the committed development
 decides the Demushkin question itself, in either direction.
 
 Cost to close: the `α = 1` `N` Gram has to be computed afresh (the committed
@@ -256,7 +272,14 @@ is proved.  Settle the direction first; if the challenge is right, the lane prov
 `IsDemushkin` with `demushkinQ = 4` and this `Prop` is the statement to delete, not to prove. -/
 def EvenDemResidualAlphaOneN : Prop := ∀ h : ℕ, ¬ IsDemushkin 2 (DN 1 h : Type)
 
-/-- **Residual R2 (`M` at `α = 1`).**  The asymmetry candidate.  At `α = 1` the `M` row does not
+/-- **Residual R2 (`M` at `α = 1`), DISCHARGED (wave 70)** by
+`EvenAlphaOne.evenAlphaOne_residualM`.  The `α = 1` `M` Gram is
+`[[1,1,0,0],[1,0,0,0],[0,0,1,1],[0,0,1,0]]`, two copies of the committed head block,
+determinant `1`, nondegenerate and not alternating.  There is no asymmetry after all: both
+rows are Demushkin at `α = 1`, by the same machinery, exactly as this docstring's last sentence
+guessed the machinery would be.  The original text follows.
+
+At `α = 1` the `M` row does not
 lose its head diagonal entry; it *gains* a second one at slot `2`, from `c ^ (2 ^ α) = c ²`.  A
 Gram with more diagonal entries is not obviously degenerate, so the `M` core may well be
 Demushkin at `α = 1` even if R1 holds and the `N` core is not.  `evenDem_demushkinQ_DM_alphaOne`
