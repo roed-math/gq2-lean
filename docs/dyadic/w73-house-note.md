@@ -276,7 +276,9 @@ unsatisfiable.**  `GQ2/Dyadic/SqCore/GradedClassFiveKnob.lean:74-77`.
 round's own item 1 (satisfiability, not binder generality): `cfiveSpan_ad_far_of_gens` (`:522`)
 takes `hX : (Subgroup.closure X).topologicalClosure = ⊤`, and at "the five letters" that
 hypothesis is **false** as soon as `h ≥ 2`.  The theorem is fine; the prose names a set that does
-not close the gap.
+not close the gap.  *(Re-verified here, `sqRank` and the hypothesis both, including the nuance
+that makes this a header-only defect: `cfiveSpan_ad_far_of_gens`'s **own** docstring at `:521`
+says "the finitely many frame letters", which is right.  Only the module header says "five".)*
 
 **(e) MEDIUM.  `cfiveSpan_zLayer_le_dsq`'s third family is wider than "the fourfold brackets".**
 `GradedClassFiveKnob.lean:763-765`.  The hypothesis (`:769`) is
