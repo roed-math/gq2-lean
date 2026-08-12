@@ -523,6 +523,162 @@ theorem cfourCmp_supply_of_core_vanish
 
 end Residual
 
+/-! ## §6 The relations half of the graded decomposition, at class four -/
+
+section Relations
+
+variable {h : ℕ}
+
+/-- **The test subgroup for `cfourCmp_zLayer_le_gens`**: those `Y`-elements whose square, and
+whose bracket against every slot, lie in `S`.  It is a **subgroup** exactly because `Y` is abelian
+at class four: `cfour_sq_mul_lambdaTwo` makes `y ↦ y²` additive on `Y` and
+`cfourId_comm_dress_left` makes `y ↦ commP y q` additive, and both fail one class up, which is
+why wave 72's class-five analogue needed six families where three suffice here. -/
+def cfourCmpTest (S : Subgroup (levelQuot (DSq h : Type) 4)) :
+    Subgroup (levelQuot (DSq h : Type) 4) where
+  carrier := {y | y ∈ lambdaImage (DSq h : Type) 2 4 ∧ y ^ 2 ∈ S ∧
+    ∀ q : levelQuot (DSq h : Type) 4, commP y q ∈ S}
+  one_mem' := ⟨Subgroup.one_mem _, by rw [one_pow]; exact Subgroup.one_mem _,
+    fun q => by rw [cfour_one_comm]; exact Subgroup.one_mem _⟩
+  mul_mem' := fun {_ _} hy hy' => ⟨Subgroup.mul_mem _ hy.1 hy'.1,
+    by rw [cfour_sq_mul_lambdaTwo hy.1 hy'.1]; exact Subgroup.mul_mem _ hy.2.1 hy'.2.1,
+    fun q => by
+      rw [cfourId_comm_dress_left _ _ hy'.1]
+      exact Subgroup.mul_mem _ (hy.2.2 q) (hy'.2.2 q)⟩
+  inv_mem' := fun {_} hy => ⟨Subgroup.inv_mem _ hy.1,
+    by rw [inv_pow]; exact Subgroup.inv_mem _ hy.2.1,
+    fun q => by rw [gThreeFour_ad_inv_left hy.1]; exact hy.2.2 q⟩
+
+theorem cfourCmp_mem_test {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    {y : levelQuot (DSq h : Type) 4} :
+    y ∈ cfourCmpTest S ↔ y ∈ lambdaImage (DSq h : Type) 2 4 ∧ y ^ 2 ∈ S ∧
+      ∀ q : levelQuot (DSq h : Type) 4, commP y q ∈ S := Iff.rfl
+
+/-- ⭐⭐⭐ **The relations half of the graded decomposition of `Z = γ₃/γ₄`, at `D_sq h`: three
+families indexed by `Q₄` alone.**  A subgroup of `Q₄` containing
+
+* every fourth power `p⁴`,
+* every square of a bracket `⁅p, q⁆²`,
+* every triple bracket `⁅⁅p, q⁆, r⁆`
+
+contains the whole of `Z`.  This is what wave 70's `L₃(V)` spanning claim needed and never had,
+and it is the class-four analogue of wave 72's `cfiveSpan_zLayer_le_gens`.  Sharper than that one:
+three families instead of six, because `Y` is abelian at class four, so the two maps `y ↦ y²` and
+`y ↦ commP y q` of `cfourId_zLayer_le` are homomorphisms on `Y` and each family need only be
+checked on the generators of `Y`, namely the squares and brackets of `Q₄`.  On a square generator
+the check is `gThreeFour_commP_sq_left`, which turns `commP (p²) q` into a bracket square and a
+triple bracket, so no fourth family is needed for it.
+
+The three families are exactly the three restricted summands of `γ₃/γ₄`: `V^{[4]}` from `p⁴`,
+`(Λ²V)^{[2]}` from `⁅p, q⁆²`, and `L₃(V)` from the triple brackets. -/
+theorem cfourCmp_zLayer_le_gens {S : Subgroup (levelQuot (DSq h : Type) 4)}
+    (hpow : ∀ p : levelQuot (DSq h : Type) 4, p ^ 4 ∈ S)
+    (hsq : ∀ p q : levelQuot (DSq h : Type) 4, commP p q ^ 2 ∈ S)
+    (htriple : ∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S) :
+    zLayer (DSq h : Type) 3 ≤ S := by
+  have hgenSq : ∀ p : levelQuot (DSq h : Type) 4, p ^ 2 ∈ cfourCmpTest S := by
+    intro p
+    refine ⟨cfour_sq_mem_lambdaTwo p, ?_, fun q => ?_⟩
+    · have h4 : p ^ 4 = (p ^ 2) ^ 2 := by rw [← pow_mul]
+      rw [← h4]
+      exact hpow p
+    · rw [gThreeFour_commP_sq_left]
+      exact Subgroup.mul_mem _ (hsq p q) (htriple p q p)
+  have hgenComm : ∀ p q : levelQuot (DSq h : Type) 4, commP p q ∈ cfourCmpTest S :=
+    fun p q => ⟨cfour_commP_mem_lambdaTwo p q, hsq p q, fun r => htriple p q r⟩
+  have hpre : IsClosed ((Subgroup.comap (levelMk (DSq h : Type) 4) (cfourCmpTest S) :
+      Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [Subgroup.coe_comap]
+    exact (cfourId_isClosed _).preimage (continuous_levelMk (DSq h : Type) 4)
+  have hsub : twoCentralSeries (DSq h : Type) 2 ≤
+      Subgroup.comap (levelMk (DSq h : Type) 4) (cfourCmpTest S) := by
+    rw [cfour_lambda_two, twoCentralSucc]
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) hpre
+    · refine (Subgroup.closure_le _).2 ?_
+      rintro _ ⟨g, -, rfl⟩
+      show levelMk (DSq h : Type) 4 (g ^ 2) ∈ cfourCmpTest S
+      rw [map_pow]
+      exact hgenSq _
+    · refine Subgroup.commutator_le.2 fun a _ b _ => ?_
+      rw [commutatorElement_def]
+      show levelMk (DSq h : Type) 4 (a * b * a⁻¹ * b⁻¹) ∈ cfourCmpTest S
+      rw [gThreeFour_levelMk_commutator]
+      exact hgenComm _ _
+  refine cfourId_zLayer_le (fun y hy => ?_) (fun y hy q => ?_)
+  · obtain ⟨v, hv, rfl⟩ := hy
+    exact (hsub hv).2.1
+  · obtain ⟨v, hv, rfl⟩ := hy
+    exact (hsub hv).2.2 q
+
+/-- ⭐⭐⭐ **The sharp reduction of the class-four route.**  Suppose that at every selected
+marking and handle, and for every admissible correction `c` whose class-four relator is the core
+defect, there is a subgroup `S` of `Q₄` such that
+
+* every element of `S` is the knob of some further admissible correction, and
+* `S` contains the three families `p⁴`, `⁅p, q⁆²`, `⁅⁅p, q⁆, r⁆`.
+
+Then `CfourCmpResidual h`, hence `SqClassClearingSupply h 4`.  The mechanism is
+`cfourCmp_zLayer_le_gens`: those three families force `Z ≤ S`, and `cfourDefCore` lies in `Z`
+(`cfourDef_core_mem_zLayer`), so it is a knob, and being an involution it kills itself.
+
+**This is what a wave-74 lane has to decide, and it no longer mentions `cfourDefCore` at all.**
+The question "is the core defect a knob" is replaced by the three uniform questions "are fourth
+powers, bracket squares and triple brackets knobs".
+
+**Honesty marker.**  A failure of this hypothesis is a statement about the knob subgroup of one
+inventory along one route (wave 70's `CfourIdReachable`).  It is not a statement about
+`SqClassClearingSupply h 4`, and it would not refute the residual. -/
+theorem cfourCmp_residual_of_span
+    (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+      nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+        ∀ c : Fin (sqRank h) → (DSq h : Type),
+          (∀ i, c i ∈ twoCentralSeries (DSq h : Type) 2) → (∀ i, nuLam h (c i) = 1) →
+            (∀ i, nu' (c i) = 1) →
+              sqRelWord (fun i => levelMk (DSq h : Type) 4
+                  (sqArbFrame h nu' j (bridgeTuple nu' j) i * c i)) = cfourDefCore nu' j →
+                ∃ S : Subgroup (levelQuot (DSq h : Type) 4),
+                  (∀ p : levelQuot (DSq h : Type) 4, p ^ 4 ∈ S) ∧
+                    (∀ p q : levelQuot (DSq h : Type) 4, commP p q ^ 2 ∈ S) ∧
+                      (∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S) ∧
+                        ∀ z ∈ S, ∃ d : Fin (sqRank h) → (DSq h : Type),
+                          (∀ i, d i ∈ twoCentralSeries (DSq h : Type) 2) ∧
+                            (∀ i, nuLam h (d i) = 1) ∧ (∀ i, nu' (d i) = 1) ∧
+                              sqRelWord (fun i => levelMk (DSq h : Type) 4
+                                  (sqArbFrame h nu' j (bridgeTuple nu' j) i * c i * d i))
+                                = cfourDefCore nu' j * z) :
+    CfourCmpResidual h := by
+  intro nu' j hs hx c hcm hcl hcn hcrel
+  obtain ⟨S, hpow, hsq, htriple, hreach⟩ := H nu' j hs hx c hcm hcl hcn hcrel
+  obtain ⟨d, hdm, hdl, hdn, hdrel⟩ :=
+    hreach _ (cfourCmp_zLayer_le_gens hpow hsq htriple (cfourDef_core_mem_zLayer nu' j))
+  exact ⟨d, hdm, hdl, hdn, by
+    rw [hdrel, cfourDef_z_sq (cfourDef_core_mem_zLayer nu' j)]⟩
+
+/-- **The class-four supply, from the three families.**  `cfourCmp_residual_of_span` composed with
+`cfourCmp_supply_of_residual`. -/
+theorem cfourCmp_supply_of_span
+    (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+      nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+        ∀ c : Fin (sqRank h) → (DSq h : Type),
+          (∀ i, c i ∈ twoCentralSeries (DSq h : Type) 2) → (∀ i, nuLam h (c i) = 1) →
+            (∀ i, nu' (c i) = 1) →
+              sqRelWord (fun i => levelMk (DSq h : Type) 4
+                  (sqArbFrame h nu' j (bridgeTuple nu' j) i * c i)) = cfourDefCore nu' j →
+                ∃ S : Subgroup (levelQuot (DSq h : Type) 4),
+                  (∀ p : levelQuot (DSq h : Type) 4, p ^ 4 ∈ S) ∧
+                    (∀ p q : levelQuot (DSq h : Type) 4, commP p q ^ 2 ∈ S) ∧
+                      (∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S) ∧
+                        ∀ z ∈ S, ∃ d : Fin (sqRank h) → (DSq h : Type),
+                          (∀ i, d i ∈ twoCentralSeries (DSq h : Type) 2) ∧
+                            (∀ i, nuLam h (d i) = 1) ∧ (∀ i, nu' (d i) = 1) ∧
+                              sqRelWord (fun i => levelMk (DSq h : Type) 4
+                                  (sqArbFrame h nu' j (bridgeTuple nu' j) i * c i * d i))
+                                = cfourDefCore nu' j * z) :
+    SqClassClearingSupply h 4 :=
+  cfourCmp_supply_of_residual (cfourCmp_residual_of_span H)
+
+end Relations
+
 /-! ## §9 Axiom pins -/
 
 section AxiomPins
@@ -552,6 +708,11 @@ section AxiomPins
 #print axioms cfourCmp_supply_of_residual
 #print axioms cfourCmp_residual_of_core_vanish
 #print axioms cfourCmp_supply_of_core_vanish
+#print axioms cfourCmpTest
+#print axioms cfourCmp_mem_test
+#print axioms cfourCmp_zLayer_le_gens
+#print axioms cfourCmp_residual_of_span
+#print axioms cfourCmp_supply_of_span
 
 end AxiomPins
 
