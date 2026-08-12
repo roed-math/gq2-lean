@@ -55,6 +55,73 @@ this is the term `bridge_pow_four_iff` isolates, and `dsqSigma_pow_four_not_mem_
 forbids discarding), and the twisted commutator `commP y (conjP y s)` becomes the genuine
 triple bracket `commP y (commP y s)` instead of dying.  Hence ⭐⭐ `cfour_sqRelWord`.
 
+## §3 The relator lives in an abelian group
+
+Every factor of `cfour_sqRelWord` lies in `Y` (`cfour_sqRelWord_mem_lambdaTwo`), and `Y` is
+abelian, so the class-four obligation may be reordered at will.  This replaces wave 68's
+"everything in sight is central" and is what keeps the computation finite.
+
+## §4 The undressed frame
+
+⭐⭐ `cfour_relator_base`: with the **trivial** dressing the class-four relator is *exactly* the
+Eichler defect `cfourEichDefect` - the amount by which the two cleared handle letters miss the
+plain handle bracket.  Every other factor, the fourth power and the triple bracket included, is
+absorbed by `dsq_relation` on the nose.  Wave 68's handle surgery needed a central inserted
+factor; §3 supplies `Commute` instead, which is enough (`cfour_handleWord_update`).
+
+## §5 The dressing knobs
+
+What a correction taken **inside `γ₂`** buys, slot by slot (`cfour_dress_zero`,
+`cfour_dress_one`, `cfour_dress_two`):
+
+| slot | knob |
+| --- | --- |
+| `σ` | `commP c (m 1)` |
+| `x₀` | `commP (m 0) c` |
+| `x₁` | `c² · commP c (m 2)` |
+
+and the `x₀`-slot's fourth power buys **nothing** (`cfour_pow_four_dress`), nor does the triple
+bracket (`cfour_triple_dress_zero`).  Note the asymmetry: the `x₁`-slot is the only source of
+**squares**, and its square arrives **bundled** with a bracket against `m 2`, which is the one
+frame slot that appears nowhere else in the relator as a bracket partner.
+
+## §6 The obligation, exactly
+
+⭐ `cfour_supply_iff` reads the supply in `Q₄`, and ⭐⭐ `cfour_supply_of_eichDefect`: the
+**entire** class-four obligation is the single `Q₄`-identity `cfourEichDefect nu' j = 1` at every
+selected marking and handle - wherever it holds, the trivial dressing discharges the class-four
+clearing problem outright.
+
+## Verdict
+
+**`SqClassClearingSupply h 4` is NOT discharged by this wave**, and no negative result is
+claimed either.  What is committed is the calculus, the class-four relator, the reduction of the
+whole obligation to one `Q₄`-identity, and the exact knob inventory.  `ClassFourResidual` and
+`cfour_residual_of_classFour` state the remainder honestly: the class-four instance is stated as
+a *hypothesis*, not proved, so no equivalence with `SqLamMarkTransitivity` is asserted here.
+
+**ANALYSIS, NOT COMMITTED** (recorded because it is what a class-four run should attack next,
+and none of it is formalised).  Working in the graded layer `γ₃/γ₄`, which for the free pro-2
+group on `V = G/γ₂` decomposes as `V^{[4]} ⊕ (Λ²V)^{[2]} ⊕ L₃(V)`:
+
+* the **fourth-power obstruction cancels**.  The `A⁴` term of a wave-68-shaped dressing
+  `A ≡ u^{ν'(v)} v^{ν'(u)}` contributes `(u⁴)^{ν'(v)} (v⁴)^{ν'(u)}`, and writing
+  `u² = c · w^{2ν'(u)}`, `v² = d · w^{2ν'(v)}` with `c, d` of exactly trivial rows, the two
+  handle letters each contribute one copy of `w⁴` to the power `ν'(u)ν'(v)`.  They cancel,
+  because `w⁴` has order two.  So the class-four run is **not** blocked by
+  `dsqSigma_pow_four_not_mem_twoCentralSeries_four`, contrary to what §10 of the wave-68 module
+  might suggest on a first reading;
+* the delicate point is instead the `x₁`**-bundle** of §5: the squares that a class-four witness
+  needs are only available together with a bracket against `x₁`, and `x₁` is not in the span of
+  the other frame slots modulo `γ₂`.  The apparent shortfall is repaired by Jacobi -
+  `⁅⁅c, x₁⁆, g⁆` re-expands into brackets whose outer slot is *not* `x₁` - except in the
+  direction `⁅⁅x₁, g⁆, x₁⁆`, which is reached instead by a correction whose square part
+  involves `x₁`.  Such a correction exists at every selected marking, because the `x₁`-coordinate
+  functional is never in the span of `λ` and `ν'` modulo 2 (`λ(x₀) = 1` forces the `λ`-coefficient
+  to vanish, and then `ν'(σ) = 1 ≠ 0` forces the other).  This is the argument to formalise, and
+  it needs a graded-layer decomposition of `γ₃/γ₄` on the **tower**, which the tree has only on
+  slices today.
+
 Lane W69-CLASS4.  New file; no edits to existing files.  Prefixes `cfour` / `classFour` /
 `sqClassFour`.
 -/
@@ -721,7 +788,74 @@ theorem cfour_dress_two {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) {c :
 
 end Knobs
 
-/-! ## §6 Axiom pins -/
+/-! ## §6 The class-four supply, read in `Q₄`
+
+`SqClassClearingSupply h 4` is stated upstairs, with the relator asked to lie in `γ₄`.  Read in
+`Q₄` - where §1 to §5 live - it is the statement that some admissible dressing makes the relator
+**equal to `1`**.  Combined with `cfour_relator_base` this pins the obligation exactly: the
+trivial dressing already works at every marking whose Eichler defect has died to class four. -/
+
+section Supply
+
+variable {h : ℕ}
+
+/-- ⭐ **The class-four supply in `Q₄`**: the relator clause is `sqRelWord = 1` in the level-four
+quotient, at the frame's own residues. -/
+theorem cfour_supply_iff :
+    SqClassClearingSupply h 4 ↔
+      ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+        nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+          ∃ a : Fin (sqRank h) → (DSq h : Type),
+            (∀ i, nuLam h (a i) = 1) ∧ (∀ i, nu' (a i) = 1) ∧
+              SqModTwoIndep (sqArbFrame h nu' j a) ∧
+                sqRelWord (fun i => levelMk (DSq h : Type) 4 (sqArbFrame h nu' j a i)) = 1 := by
+  constructor
+  · intro H nu' j hs hx
+    obtain ⟨a, h1, h2, h3, h4⟩ := H nu' j hs hx
+    refine ⟨a, h1, h2, h3, ?_⟩
+    rw [← map_sqRelWord]
+    exact (lim_mem_twoCentralSeries_iff_levelMk 4 _).mp h4
+  · intro H nu' j hs hx
+    obtain ⟨a, h1, h2, h3, h4⟩ := H nu' j hs hx
+    refine ⟨a, h1, h2, h3, ?_⟩
+    rw [lim_mem_twoCentralSeries_iff_levelMk, map_sqRelWord]
+    exact h4
+
+/-- ⭐⭐ **The class-four supply from the Eichler defect**: wherever the class-four Eichler
+defect has already died, the *trivial* dressing discharges the class-four clearing problem -
+rows on the nose, mod-2 independence by wave 67's `lim_sqArbBase_modTwoIndep`, and the relator
+by `cfour_relator_base`.  So the entire class-four obligation is the single `Q₄`-identity
+`cfourEichDefect nu' j = 1`, at every selected marking and every handle. -/
+theorem cfour_supply_of_eichDefect
+    (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+      nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+        cfourEichDefect nu' j = 1) : SqClassClearingSupply h 4 := by
+  rw [cfour_supply_iff]
+  intro nu' j hs hx
+  have hfr : sqArbFrame h nu' j (fun _ => 1) = sqArbBase h nu' j := funext fun i => mul_one _
+  refine ⟨fun _ => 1, fun _ => map_one _, fun _ => map_one _, ?_, ?_⟩
+  · rw [hfr]
+    exact lim_sqArbBase_modTwoIndep
+  · rw [hfr, cfour_relator_base]
+    exact H nu' j hs hx
+
+/-- **The residual after this wave**, in the form the next class consumes: the class-four
+instance is the only thing between `BridgeFinalResidual` and the instances `k ≥ 5`. -/
+def ClassFourResidual (h : ℕ) : Prop := ∀ k, 5 ≤ k → SqClassClearingSupply h k
+
+/-- With the class-four instance in hand the residual would start at class five.  This is
+stated as an implication, not as an equivalence with `SqLamMarkTransitivity`, because the
+class-four instance is **not** discharged by this wave. -/
+theorem cfour_residual_of_classFour (hfour : SqClassClearingSupply h 4)
+    (H : ClassFourResidual h) : BridgeFinalResidual h := by
+  intro k hk
+  rcases eq_or_lt_of_le hk with hk4 | hk4
+  · exact hk4 ▸ hfour
+  · exact H k (by omega)
+
+end Supply
+
+/-! ## §7 Axiom pins -/
 
 section AxiomPins
 
@@ -780,6 +914,10 @@ section AxiomPins
 #print axioms cfour_dress_zero
 #print axioms cfour_dress_one
 #print axioms cfour_dress_two
+#print axioms cfour_supply_iff
+#print axioms cfour_supply_of_eichDefect
+#print axioms ClassFourResidual
+#print axioms cfour_residual_of_classFour
 
 end AxiomPins
 
