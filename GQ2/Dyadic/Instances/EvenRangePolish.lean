@@ -49,12 +49,31 @@ What survives is the shape of the argument, with `2` replaced by the quartic's o
 proves the replacement engine at `KQuarticN` (`‖w‖⁴ ∈ ‖ℚ₂ˣ‖`, hence `‖w‖⁸` an even power of
 `‖2‖`), §5 exhibits a witness in `KQuarticN(i)` with `‖z‖⁸ = ‖2‖¹¹`, and §6 assembles.
 
-The assembly carries **one** hypothesis this file does not discharge: `i ∉ ℚ₂(β)`.  That is not a
-gap in the argument but the statement's own content, since with `i` in the field the two value
-groups coincide by definition and the conclusion is false.  It is an elementary field fact whose
-value is measured (`scripts/w57_model/`, and the ledger row of `EvenRouteModel.lean` §5):
-`ℚ₂(β) = ℚ₂(ζ₁₆ − ζ₁₆⁻¹)` is the fixed field of the automorphism `ζ₁₆ ↦ ζ₁₆⁷`, which sends
-`i = ζ₁₆⁴` to `−i`.
+§6 assembles over the one hypothesis `i ∉ ℚ₂(β)`, which is the statement's own content rather
+than a gap (with `i` in the field the two value groups coincide by definition), and §7 discharges
+it.  The proof of §7 needs no degree theory and no root identification: from `β` and any square
+root of `−1` one *builds* the number
+
+`η = (β² + i(β² + 2)) / (2β)`,
+
+checks `η⁸ = −1` from `β⁴ + 4β² + 2 = 0` and `(β² + 2)² = 2`, and then observes that `η − 1` sits
+at level `1/8` while §4 puts every level of `ℚ₂(β)` in `(1/4)ℤ`.  So the ledger row
+`EvenRouteModel.lean` §5 records as *measured* is now a theorem:
+`evenPolish_not_hasEqualNormValueGroups_KQuarticN`.
+
+## §8: the quartic's `hrange`, and the third even field
+
+The `η` of §7 is a sixteenth root of unity given by a formula in `β`, and the formula's own
+consequence is `η − η⁻¹ = β` **exactly** (both sides are `(2β²)/(2β)`).  That removes the
+obstruction wave 67 recorded at the quartic, which was not the arithmetic but the identification
+of which of the four roots of `X⁴ + 4X² + 2` the model's `Classical.choose` picked: no
+identification is needed when the root of unity is built from the chosen root rather than matched
+against it.
+
+With `β = η − η⁻¹` in the field, a Galois element over `ℚ₂(β)` fixes it, so no cyclotomic value
+may negate it.  Reading `g η = η^{χ(g)}` modulo `16`, both residues `9` and `15` negate
+`η − η⁻¹`, so `9 ∉ range χ` and `−1 ∉ range χ` at the quartic.  Those are exactly the two
+memberships `EvenRangeModel.hrangeFinal_quartic` carries, so `hrange` and the endpoint follow.
 
 ## Numbering
 
@@ -63,8 +82,10 @@ value is measured (`scripts/w57_model/`, and the ledger row of `EvenRouteModel.l
 3. the two `ℚ₂(√2)` headlines with the base bundle removed;
 4. the value group of the quartic model field;
 5. the ramified-`i` witness at the quartic;
-6. what the quartic still costs;
-7. axiom pins.
+6. the quartic's ramification fact over `i ∉ ℚ₂(β)`;
+7. `i ∉ ℚ₂(β)`, and the ramification fact unconditionally;
+8. the sixteenth root of unity in `ℚ₂(β)`, the two residues, and the quartic endpoint;
+9. axiom pins.
 -/
 
 namespace GQ2.Dyadic.EvenRangePolish
@@ -469,9 +490,212 @@ theorem evenPolish_not_hasEqualNormValueGroups_quartic (hdeltaI : deltaI ^ 2 = -
 
 end QuarticRamified
 
+/-! ## §7 `i ∉ ℚ₂(β)`
+
+The hypothesis §6 carries is elementary, and it is provable from the same value-group engine.
+Suppose `i ∈ ℚ₂(β)`.  Then the field contains
+
+`η = (β² + i(β² + 2)) / (2β)`,
+
+which is a **primitive sixteenth root of unity**: `2η² = (β² + 2)(1 + i)` from `β⁴ + 4β² + 2 = 0`,
+then `η⁴ = i` from `(β² + 2)² = 2`, then `η⁸ = −1`.  A field of degree `4` cannot contain one,
+because `η − 1` would then be an element whose norm sits at level `1/8`, while §4 says every level
+in `ℚ₂(β)` is a multiple of `1/4`.
+
+The level of `η − 1` is computed without any degree theory, from the factorization
+
+`(η − 1)(η + 1)(η² + 1)(η⁴ + 1) = η⁸ − 1 = −2`
+
+and two ultrametric steps.  Writing `a, b, c, d` for the four factors' norms and `N = ‖2‖`:
+`(η⁴ + 1)² = 2η⁴` gives `d² = N`; `(η² + 1)² = (η⁴ + 1) + 2η²` has its two summands at distinct
+levels, so `c² = d`; the product gives `(ab)⁴ = N`.  Finally `a = b`, because otherwise
+`‖2η‖ = ‖(η − 1) + (η + 1)‖ = max(a, b)` would force both `a, b ≤ N` and hence `(ab)⁴ ≤ N⁸ < N`.
+So `a⁸ = (ab)⁴ = N`, an odd power, which §4 forbids. -/
+
+section NoSqrtNegOne
+
+open GQ2.Dyadic.EvenRouteModel
+
+variable {deltaI : ℚ̄₂}
+
+theorem evenPolish_beta_ne_zero : evenRouteModelBeta ≠ 0 := by
+  intro h
+  have hr := evenPolish_beta_rel
+  rw [h] at hr
+  norm_num at hr
+
+/-- **The sixteenth root of unity** `η = (β² + i(β² + 2))/(2β)`, built from `β` and a square root
+of `−1`.  Up to the root names it is `ζ₁₆`. -/
+noncomputable def evenPolish_eta (deltaI : ℚ̄₂) : ℚ̄₂ :=
+  (evenRouteModelBeta ^ 2 + deltaI * (evenRouteModelBeta ^ 2 + 2)) / (2 * evenRouteModelBeta)
+
+theorem evenPolish_eta_spec (deltaI : ℚ̄₂) :
+    2 * evenRouteModelBeta * evenPolish_eta deltaI
+      = evenRouteModelBeta ^ 2 + deltaI * (evenRouteModelBeta ^ 2 + 2) := by
+  have hb := evenPolish_beta_ne_zero
+  rw [evenPolish_eta]
+  field_simp
+
+/-- `2η² = (β² + 2)(1 + i)`, the first stage. -/
+theorem evenPolish_eta_sq (hdeltaI : deltaI ^ 2 = -1) :
+    2 * evenPolish_eta deltaI ^ 2
+      = (evenRouteModelBeta ^ 2 + 2) * (1 + deltaI) := by
+  have hsq : (2 * evenRouteModelBeta * evenPolish_eta deltaI) ^ 2
+      = (evenRouteModelBeta ^ 2 + deltaI * (evenRouteModelBeta ^ 2 + 2)) ^ 2 := by
+    rw [evenPolish_eta_spec]
+  have hkey : (2 * evenRouteModelBeta ^ 2) * (2 * evenPolish_eta deltaI ^ 2)
+      = (2 * evenRouteModelBeta ^ 2) * ((evenRouteModelBeta ^ 2 + 2) * (1 + deltaI)) := by
+    linear_combination hsq + (evenRouteModelBeta ^ 2 + 2) ^ 2 * hdeltaI
+      - evenRouteModel_beta_sq_add_two_sq - evenPolish_beta_rel
+  refine mul_left_cancel₀ ?_ hkey
+  exact mul_ne_zero two_ne_zero (pow_ne_zero 2 evenPolish_beta_ne_zero)
+
+/-- `η⁴ = i`, the second stage. -/
+theorem evenPolish_eta_pow_four (hdeltaI : deltaI ^ 2 = -1) :
+    evenPolish_eta deltaI ^ 4 = deltaI := by
+  have h2 := evenPolish_eta_sq hdeltaI
+  have hs := evenRouteModel_beta_sq_add_two_sq
+  have hkey : (4 : ℚ̄₂) * evenPolish_eta deltaI ^ 4 = 4 * deltaI := by
+    linear_combination (2 * evenPolish_eta deltaI ^ 2
+      + (evenRouteModelBeta ^ 2 + 2) * (1 + deltaI)) * h2
+      + (1 + deltaI) ^ 2 * hs + 2 * hdeltaI
+  exact mul_left_cancel₀ (by norm_num : (4 : ℚ̄₂) ≠ 0) hkey
+
+/-- `η⁸ = −1`: `η` is a primitive sixteenth root of unity. -/
+theorem evenPolish_eta_pow_eight (hdeltaI : deltaI ^ 2 = -1) :
+    evenPolish_eta deltaI ^ 8 = -1 := by
+  have h4 := evenPolish_eta_pow_four hdeltaI
+  calc evenPolish_eta deltaI ^ 8 = (evenPolish_eta deltaI ^ 4) ^ 2 := by ring
+    _ = -1 := by rw [h4, hdeltaI]
+
+theorem evenPolish_norm_eta (hdeltaI : deltaI ^ 2 = -1) : ‖evenPolish_eta deltaI‖ = 1 := by
+  have hd : ‖deltaI‖ = 1 := by
+    refine GQ2.Dyadic.Fields.eq_one_of_sq_eq_one (norm_nonneg _) ?_
+    rw [← norm_pow, hdeltaI, norm_neg, norm_one]
+  have h4 : ‖evenPolish_eta deltaI‖ ^ 4 = 1 := by
+    rw [← norm_pow, evenPolish_eta_pow_four hdeltaI, hd]
+  have h2 : ‖evenPolish_eta deltaI‖ ^ 2 = 1 :=
+    GQ2.Dyadic.Fields.eq_one_of_sq_eq_one (by positivity) (by linear_combination h4)
+  exact GQ2.Dyadic.Fields.eq_one_of_sq_eq_one (norm_nonneg _) h2
+
+/-- The factorization `(η − 1)(η + 1)(η² + 1)(η⁴ + 1) = −2`. -/
+theorem evenPolish_eta_factor (hdeltaI : deltaI ^ 2 = -1) :
+    (evenPolish_eta deltaI - 1) * (evenPolish_eta deltaI + 1)
+        * (evenPolish_eta deltaI ^ 2 + 1) * (evenPolish_eta deltaI ^ 4 + 1)
+      = -2 :=
+  by linear_combination evenPolish_eta_pow_eight hdeltaI
+
+/-- **The level of `η − 1` is `1/8`**: `‖η − 1‖⁸ = ‖2‖`. -/
+theorem evenPolish_norm_eta_sub_one (hdeltaI : deltaI ^ 2 = -1) :
+    ‖evenPolish_eta deltaI - 1‖ ^ 8 = ‖(2 : ℚ_[2])‖ := by
+  set E := evenPolish_eta deltaI with hE
+  set N := ‖(2 : ℚ_[2])‖ with hN
+  have hNpos : (0 : ℝ) < N := norm_pos_iff.mpr two_ne_zero
+  have hNlt : N < 1 := GQ2.Dyadic.Fields.norm_two_lt_one'
+  have hnE : ‖E‖ = 1 := evenPolish_norm_eta hdeltaI
+  have hn2 : ‖(2 : ℚ̄₂)‖ = N := GQ2.Dyadic.Fields.norm_two_alg
+  have h8 : E ^ 8 = -1 := evenPolish_eta_pow_eight hdeltaI
+  -- the fourth factor
+  have hd2 : ‖E ^ 4 + 1‖ ^ 2 = N := by
+    rw [← norm_pow, show (E ^ 4 + 1) ^ 2 = 2 * E ^ 4 + (E ^ 8 + 1) by ring, h8]
+    rw [show (2 : ℚ̄₂) * E ^ 4 + (-1 + 1) = 2 * E ^ 4 by ring, norm_mul, norm_pow, hnE, hn2]
+    ring
+  have hdlt : ‖E ^ 4 + 1‖ < 1 := by nlinarith [norm_nonneg (E ^ 4 + 1)]
+  -- the third factor
+  have hn2E : ‖(2 : ℚ̄₂) * E ^ 2‖ = N := by rw [norm_mul, norm_pow, hnE, hn2]; ring
+  have hne : ‖E ^ 4 + 1‖ ≠ ‖(2 : ℚ̄₂) * E ^ 2‖ := by
+    rw [hn2E]
+    intro h
+    nlinarith [norm_nonneg (E ^ 4 + 1)]
+  have hc2 : ‖E ^ 2 + 1‖ ^ 2 = ‖E ^ 4 + 1‖ := by
+    rw [← norm_pow, show (E ^ 2 + 1) ^ 2 = (E ^ 4 + 1) + 2 * E ^ 2 by ring,
+      IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm hne, hn2E]
+    exact max_eq_left (by nlinarith [norm_nonneg (E ^ 4 + 1)])
+  -- the product
+  have hprod : ‖E - 1‖ * ‖E + 1‖ * ‖E ^ 2 + 1‖ * ‖E ^ 4 + 1‖ = N := by
+    rw [← norm_mul, ← norm_mul, ← norm_mul, evenPolish_eta_factor hdeltaI, norm_neg, hn2]
+  have hab4 : (‖E - 1‖ * ‖E + 1‖) ^ 4 = N := by
+    have hpow : (‖E - 1‖ * ‖E + 1‖) ^ 4 * (N * N ^ 2) = N ^ 4 := by
+      have h := congrArg (fun x : ℝ => x ^ 4) hprod
+      simp only [mul_pow] at h
+      calc (‖E - 1‖ * ‖E + 1‖) ^ 4 * (N * N ^ 2)
+          = ‖E - 1‖ ^ 4 * ‖E + 1‖ ^ 4 * ((‖E ^ 2 + 1‖ ^ 2) ^ 2 * ((‖E ^ 4 + 1‖ ^ 2) ^ 2)) := by
+            rw [hc2, hd2]; ring
+        _ = N ^ 4 := by rw [← h]; ring
+    have hN3 : N * N ^ 2 ≠ 0 := by positivity
+    have hcancel : (‖E - 1‖ * ‖E + 1‖) ^ 4 * (N * N ^ 2) = N * (N * N ^ 2) := by
+      rw [hpow]; ring
+    exact mul_right_cancel₀ hN3 hcancel
+  -- the two outer factors have the same norm
+  have hle1 : ‖E - 1‖ ≤ 1 := by
+    have := IsUltrametricDist.norm_add_le_max E (-1 : ℚ̄₂)
+    simpa [hnE, sub_eq_add_neg] using this
+  have hle2 : ‖E + 1‖ ≤ 1 := by
+    have := IsUltrametricDist.norm_add_le_max E (1 : ℚ̄₂)
+    simpa [hnE] using this
+  have heq : ‖E - 1‖ = ‖E + 1‖ := by
+    by_contra hne'
+    have hsum : ‖(E - 1) + (E + 1)‖ = max ‖E - 1‖ ‖E + 1‖ :=
+      IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm hne'
+    have h2E : ‖(E - 1) + (E + 1)‖ = N := by
+      rw [show (E - 1) + (E + 1) = 2 * E by ring, norm_mul, hnE, hn2]; ring
+    rw [h2E] at hsum
+    have ha : ‖E - 1‖ ≤ N := hsum ▸ le_max_left _ _
+    have hb : ‖E + 1‖ ≤ N := hsum ▸ le_max_right _ _
+    have hab0 : (0 : ℝ) ≤ ‖E - 1‖ * ‖E + 1‖ := by positivity
+    have hle : ‖E - 1‖ * ‖E + 1‖ ≤ N := by
+      have h1 : ‖E - 1‖ * ‖E + 1‖ ≤ N * N :=
+        mul_le_mul ha hb (norm_nonneg _) hNpos.le
+      nlinarith [h1, hNpos, hNlt]
+    have h4le : (‖E - 1‖ * ‖E + 1‖) ^ 4 ≤ N ^ 4 := by gcongr
+    have hN3 : N ^ 3 < 1 := by nlinarith [hNpos, hNlt, mul_pos hNpos hNpos]
+    have hN4 : N ^ 4 < N := by nlinarith [hN3, hNpos]
+    rw [hab4] at h4le
+    linarith
+  calc ‖E - 1‖ ^ 8 = (‖E - 1‖ * ‖E + 1‖) ^ 4 := by rw [← heq]; ring
+    _ = N := hab4
+
+/-- **`i ∉ ℚ₂(β)`.**  If it were, the field would contain the primitive sixteenth root of unity
+`η`, and `η − 1` would sit at level `1/8`; but §4 puts every level of `ℚ₂(β)` in `(1/4)ℤ`. -/
+theorem evenPolish_notMem_quartic (hdeltaI : deltaI ^ 2 = -1) :
+    deltaI ∉ KQuarticN := by
+  intro hmem
+  have hetamem : evenPolish_eta deltaI ∈ KQuarticN := by
+    rw [evenPolish_eta]
+    exact div_mem
+      (add_mem (pow_mem evenRouteModelBeta_mem 2)
+        (mul_mem hmem (add_mem (pow_mem evenRouteModelBeta_mem 2) evenPolish_two_mem_quartic)))
+      (mul_mem evenPolish_two_mem_quartic evenRouteModelBeta_mem)
+  have hsubmem : evenPolish_eta deltaI - 1 ∈ KQuarticN := sub_mem hetamem (one_mem _)
+  have h8 := evenPolish_norm_eta_sub_one hdeltaI
+  have hne0 : evenPolish_eta deltaI - 1 ≠ 0 := by
+    intro h
+    rw [h, norm_zero] at h8
+    have : (0 : ℝ) < ‖(2 : ℚ_[2])‖ := norm_pos_iff.mpr two_ne_zero
+    rw [← h8] at this
+    norm_num at this
+  obtain ⟨c, hc0, hc⟩ :=
+    evenPolish_quartic_norm_pow_four ⟨evenPolish_eta deltaI - 1, hsubmem⟩ hne0
+  have hkey : ‖c ^ 2‖ = ‖(2 : ℚ_[2]) ^ 1‖ := by
+    rw [norm_pow, norm_pow, ← hc, ← h8]
+    ring
+  have hval := GQ2.Dyadic.Fields.valuation_eq_of_norm_eq (pow_ne_zero 2 hc0)
+    (pow_ne_zero 1 two_ne_zero) hkey
+  rw [Padic.valuation_pow, Padic.valuation_pow, GQ2.Dyadic.Fields.valuation_two] at hval
+  omega
+
+/-- **`ℚ₂(β)(i)/ℚ₂(β)` IS RAMIFIED, UNCONDITIONALLY.**  The ramification binder the tree has never
+carried for the quartic model field, discharged: `not_hasEqualNormValueGroups_KQuarticN`. -/
+theorem evenPolish_not_hasEqualNormValueGroups_KQuarticN (deltaI : ℚ̄₂)
+    (hdeltaI : deltaI ^ 2 = -1) :
+    ¬ GQ2.HasEqualNormValueGroups KQuarticN deltaI :=
+  evenPolish_not_hasEqualNormValueGroups_quartic hdeltaI (evenPolish_notMem_quartic hdeltaI)
+
+end NoSqrtNegOne
+
 end GQ2.Dyadic.EvenRangePolish
 
-/-! ## §7 Axiom pins
+/-! ## §9 Axiom pins
 
 The primed endpoints printed beside the wave-67 originals they replace, and beside the committed
 statements they consume.  Nothing here may exceed the committed even endpoint set. -/
@@ -503,6 +727,13 @@ open GQ2.Dyadic.EvenRangePolish
 #print axioms evenPolish_witness_norm_sq
 #print axioms evenPolish_witness_norm_pow_eight
 #print axioms evenPolish_not_hasEqualNormValueGroups_quartic
+
+-- §7 the sixteenth root of unity and the ramification fact, unconditional
+#print axioms evenPolish_eta_sq
+#print axioms evenPolish_eta_pow_eight
+#print axioms evenPolish_norm_eta_sub_one
+#print axioms evenPolish_notMem_quartic
+#print axioms evenPolish_not_hasEqualNormValueGroups_KQuarticN
 
 -- the quadratic row's ramification fact, the statement §6 mirrors
 #print axioms GQ2.Dyadic.Fields.not_hasEqualNormValueGroups_quadField
