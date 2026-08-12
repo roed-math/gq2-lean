@@ -1,5 +1,21 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 67 (2026-08-11)
+
+**Open, still yours (unchanged):** the standing items below.  Nothing new needs a decision.
+
+**For orientation, the wave's two headlines.**  First: the inverse-limit step of the
+`h >= 1` residual is now committed mathematics.  `SqLamMarkTransitivity h` is proved
+EQUIVALENT to the family of per-class clearing statements (`GradedLimit.lean`, all std-3,
+classes `k <= 2` discharged), so the campaign's last deep question is no longer "find the
+pro-2 limit argument" but "prove the class-k graded step for k >= 3", which is exactly
+where the instrumentation (containment identity, Fox-form identification, exact lattices,
+census) is concentrated.  Second: `Q2(sqrt -2)` is closed UNCONDITIONALLY (the per-field
+range identity is now a theorem there, the first computed cyclotomic range at a named even
+field), `Q2(sqrt 2)` closes over one base reciprocity bundle, and the range identity lost
+its ramification hypothesis entirely.  Final state after the docs pass `aed31eb8`: 4316
+jobs green, census 11, zero sorries, capstones frozen.
+
 ## Status at wave 66 (2026-08-11)
 
 **Open, still yours (unchanged):** the standing items below.  Nothing new needs a decision.
