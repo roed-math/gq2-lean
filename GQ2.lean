@@ -825,4 +825,6 @@ import GQ2.Dyadic.Instances.EvenFamilyStatus
 import GQ2.Dyadic.Instances.EvenParityKummer
 import GQ2.Dyadic.Instances.EvenParityModel
 import GQ2.Dyadic.Instances.EvenRangeModelFields
+import GQ2.Dyadic.Instances.EvenRangePolish
+import GQ2.Dyadic.Instances.EvenParityFlags
 import GQ2.Dyadic.Main

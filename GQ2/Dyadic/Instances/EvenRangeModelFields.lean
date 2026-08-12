@@ -75,7 +75,10 @@ superseded at the wave-67 merge instead.
   that binder, over the `N`-branch entry condition `−1 ∉ range χ` which nothing here supplies at
   this field, and over the second residue `9 ∉ range χ` which needs a sixteenth root of unity this
   file does not build: three costs, not two.  What does land there is `5 ∉ range χ`, the
-  field-to-image direction of the census's criterion `α ≥ 3 ⟺ √2 ∈ K`.
+  field-to-image direction of the census's criterion `α ≥ 3 ⟺ √2 ∈ K`.  (Superseded at wave 68:
+  `EvenRangePolish.lean` discharges all three, so `hrangeFinal_quartic'` and its endpoint carry
+  only the field's own reciprocity bundle.  The sixteenth root is built there *from* `β`, which
+  is why no root identification was needed after all.)
 * The stratum `evenRange_range_eq` excludes turns out to be a third answer rather than a gap
   (§10): when `K(i)/K` is not ramified the range is a principal-unit group `1 + 2^α ℤ₂`, and with
   that case named the range identity holds with **no ramification binder at all**.
@@ -781,7 +784,9 @@ theorem evenRangeF_five_notMem_quartic :
 /-- **`hrange` AT THE QUARTIC**, over the ramification binder the tree does not carry for this
 field, the `−1` exclusion that places it on the `N` branch, and the mod-`16` residue this file
 does not reach.  Stated so the three costs are visible and separated; none is a supply `Prop`,
-all three are elementary statements about `KQuarticN`. -/
+all three are elementary statements about `KQuarticN`.  (Wave 68 discharged all three in
+`EvenRangePolish.lean`; `hrangeFinal_quartic'` there is this statement with the three
+hypotheses gone.) -/
 theorem hrangeFinal_quartic (B : MarkedRecip R KQuarticN)
     (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
     (hram : ¬ HasEqualNormValueGroups KQuarticN deltaI)

@@ -191,18 +191,22 @@ At the two QUADRATIC model fields the ramification binder is a committed theorem
 (`not_hasEqualNormValueGroups_KSqrtNegTwo`, `..._KSqrtTwo`), so §3 applies there with only the
 reciprocity bundle carried.
 
-⚠ At the quartic it is NOT.  The tree holds no `not_hasEqualNormValueGroups_KQuarticN`, and no
-route reaches it from the degree: `not_hasEqualNormValueGroups_sqrt_neg_one_of_odd_finrank`
-needs ODD degree and `not_hasEqualNormValueGroups_quadField` a quadratic field, and `KQuarticN`
-is neither.  So the quartic carries NO classification statement here, only its branch-pinned
-endpoint.
+At the quartic it was not, when this file was written: the tree held no
+`not_hasEqualNormValueGroups_KQuarticN`, and neither degree route reaches it
+(`..._sqrt_neg_one_of_odd_finrank` needs ODD degree, `..._quadField` a quadratic field, and
+`KQuarticN` is neither), so §4 below records only its branch-pinned endpoint.  (Superseded at
+wave 68: `EvenRangePolish.lean` proves the quartic's ramification fact outright,
+`evenPolish_not_hasEqualNormValueGroups_KQuarticN`, by the norm-power route rather than a
+degree route, and closes that field's `hrange` and endpoint as well.)
 
 The branch-pinned forms, at the depths the wave-56 census measured, are recorded at all three
 model fields: those carry `hrange` and nothing else beyond the standing instance binders.
 (Superseded at wave 67: `EvenRangeModelFields.lean` discharges `hrange` at the two quadratic
 fields, `hrangeFinal_orientedEquivN_sqrtNegTwo` closing `ℚ₂(√−2)` with no `hrange` over its
 reciprocity bundle alone, and the `ℚ₂(√2)` twin closing over two bundles, its own and one at
-`ℚ₂`; the quartic's `hrange` stays open with its three costs named there.) -/
+`ℚ₂`; the quartic's `hrange` stayed open there with three costs named, and wave 68's
+`EvenRangePolish.lean` discharged all three, so `hrangeFinal_quartic'` and
+`hrangeFinal_orientedEquivN_quartic'` now close that field over its own bundle too.) -/
 
 section Models
 

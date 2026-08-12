@@ -522,8 +522,8 @@ end GQ2.Dyadic.EvenRouteModel
 | `[K : ℚ₂] = 2 + 2h` | proved | proved | **proved** (Eisenstein) |
 | `√2 ∈ K` | false, and correctly so | not applicable | **proved** |
 | level-three stage base | constructed | constructed | constructed |
-| branch identification `hrange` | **measured** (w56 census) | **measured** (w56 census) | **measured** (`scripts/w57_model/`) |
-| `i ∉ K`, `K(i)/K` ramified | proved in `Fields.lean` | proved in `Fields.lean` | **measured** |
+| branch identification `hrange` | measured when written; **proved** at w67 | measured when written; **proved** at w67 | measured when written; **proved** at w68 |
+| `i ∉ K`, `K(i)/K` ramified | proved in `Fields.lean` | proved in `Fields.lean` | measured when written; **proved** at w68 |
 | `EvenClimbResidualSupply (α−1)` | **carried** | **carried** | **carried** |
 | marked reciprocity bundle | not consumed | not consumed | not consumed |
 
