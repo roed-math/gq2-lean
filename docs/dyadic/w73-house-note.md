@@ -216,8 +216,18 @@ exposure is real and is not something this lane should change unasked.
 ## Ticket 3: watch round 10
 
 Scope: the wave-72 landings (`GradedClassFourDefect.lean`, `GradedClassFiveKnob.lean`,
-`EvenStratumFrame.lean`, `NuSeeds.lean`) and the four wave-72 lane notes.  Every finding below was
-verified against the Lean; the two I relay from parallel audits and re-checked myself are marked.
+`EvenStratumFrame.lean`, `NuSeeds.lean`) and the four wave-72 lane notes.
+
+**On provenance, since the campaign's rule is that a relayed claim gets checked.**  The sweep was
+run in parallel and most findings below arrive with their evidence attached.  I re-derived the
+following against the Lean myself rather than taking them on report, choosing the ones that are
+HIGH, that a reader would act on, or whose evidence is a count: §3.1(a) (both theorem statements
+read), §3.1(b) (`cfourDef_assemble`'s and `cfourDef_defect_mem_zLayer`'s own docstrings, which are
+the ones that contradict the header), §3.1(c) (the nine fields counted), §3.1(d) (`sqRank` and the
+`hX` hypothesis), §3.1(e) (the `hJ` binder), §3.1(g) (the `hS` binder), §3.1(m) (both cited
+lemmas and the use site), §3.1(o) (found here), §3.2(a) (both name failures grepped), §3.3(a) (the
+wave-69 theorem and its docstring), §3.3(c) (the cited lemma's zero uses).  The rest carry the
+evidence recorded with them.
 
 ### 3.1  The graded-class landings
 
