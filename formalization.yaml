@@ -1,6 +1,7 @@
-# formalization.yaml (v0.3) — see https://github.com/mathlib-initiative/formalization.yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+# formalization.yaml (v0.4) — see https://github.com/mathlib-initiative/formalization.yaml
 
-version: "v0.3"
+version: "v0.4"
 
 project:
   name: "gq2-lean"
@@ -31,9 +32,7 @@ sources:
     note: "Machine-generated preprint (GPT)."
     relationship: "formalizes"
     license: "unknown"
-    author_contacted: "yes"
     author_endorsement: "n/a"
-    prior_work: ""
 
 status:
   scope: >
@@ -73,15 +72,24 @@ status:
         - "Quot.sound"
       comparator_config: "comparator-config-palomar.json"
       literature_dependencies:
-        - "B1: G_Q2 is topologically finitely generated"
-        - "B7: local Euler characteristic formula at p = 2"
-        - "B3c: dyadic orientation / cyclotomic normalization"
-        - "B5: local reciprocity for Q_2"
-        - "B6: local Tate duality at finite extensions of Q_2"
-        - "B8: peripheral cyclotomic action"
-        - "B9: relative Stiefel-Whitney identity, dyadic case"
-        - "B10: oriented tame quotient structure of G_Q2"
-        - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
+        - statement: "B1: G_Q2 is topologically finitely generated"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B1"
+        - statement: "B7: local Euler characteristic formula at p = 2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B7"
+        - statement: "B3c: dyadic orientation / cyclotomic normalization"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B3c"
+        - statement: "B5: local reciprocity for Q_2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B5"
+        - statement: "B6: local Tate duality at finite extensions of Q_2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B6"
+        - statement: "B8: peripheral cyclotomic action"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B8"
+        - statement: "B9: relative Stiefel-Whitney identity, dyadic case"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B9"
+        - statement: "B10: oriented tame quotient structure of G_Q2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B10"
+        - statement: "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B11a"
     - declaration: "GQ2.main_presentation_literal_roe_unconditional_of_inputs"
       file: "GQ2/Roe/MainWithInputs.lean"
       sorry_count: 0
@@ -91,15 +99,24 @@ status:
         - "Quot.sound"
       comparator_config: "comparator-config-palomar.json"
       literature_dependencies:
-        - "B1: G_Q2 is topologically finitely generated"
-        - "B7: local Euler characteristic formula at p = 2"
-        - "B3c: dyadic orientation / cyclotomic normalization"
-        - "B5: local reciprocity for Q_2"
-        - "B6: local Tate duality at finite extensions of Q_2"
-        - "B8: peripheral cyclotomic action"
-        - "B9: relative Stiefel-Whitney identity, dyadic case"
-        - "B10: oriented tame quotient structure of G_Q2"
-        - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
+        - statement: "B1: G_Q2 is topologically finitely generated"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B1"
+        - statement: "B7: local Euler characteristic formula at p = 2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B7"
+        - statement: "B3c: dyadic orientation / cyclotomic normalization"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B3c"
+        - statement: "B5: local reciprocity for Q_2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B5"
+        - statement: "B6: local Tate duality at finite extensions of Q_2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B6"
+        - statement: "B8: peripheral cyclotomic action"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B8"
+        - statement: "B9: relative Stiefel-Whitney identity, dyadic case"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B9"
+        - statement: "B10: oriented tame quotient structure of G_Q2"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B10"
+        - statement: "B11a: Hilbert-symbol norm criterion for finite dyadic extensions"
+          source: "A Presentation of the Absolute Galois Group of Q_2, Appendix B11a"
 
 automation:
   methods:
@@ -125,7 +142,7 @@ automation:
         docs/orchestration/tickets.md and p*.md plan files); cleanup-phase worker
         prompts enforced byte-identical theorem statements, streaming-only builds,
         and anti-destruction rules for parallel lanes.
-    - method: "AI-assisted"
+    - method: "agent"
       models: ["gpt-5.6"]
       framework: "OpenAI Codex"
       tool_setup: >
