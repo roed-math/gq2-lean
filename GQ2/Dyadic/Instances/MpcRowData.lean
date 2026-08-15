@@ -175,6 +175,120 @@ theorem mpcRow_level_le_one_sqrtNegTen (B : MarkedRecip Rec KSqrtNegTen) : B.r �
 
 end Rows
 
+/-! ## §2 The determinant binder, wired
+
+`GaussZ/FinalDK.lean` §7's `affineDeterminant_galK` is the `K` clone of the (83)-evaluation
+bridge, and its §8 `example` produces `KSupply.determinant`'s field type verbatim.  **Verified
+here**: the two theorems below are that example promoted to named declarations, and then used to
+*remove the field* from both records that carry it.  There is no statement gap; what was missing
+was only that no declaration named the composite, so every consumer still had to supply
+`determinant` as a binder.
+
+The two record builders are the point of the ticket:
+
+* `mpcRow_kSupply_of_counting`: a `KSupply` from `exactLifting` and `stokes` and **no**
+  `determinant` argument;
+* `mpcRow_genAsmRowResidual_of_counting`: a `GenAsmRowResidual` from `exactLifting`, `stokes`,
+  `cand` and **no** `determinant` argument.
+
+Both take `params : FieldParameters` with its two pins and `ramifiedData`, which is not a
+weakening: `FieldParameters` carries the `f ∣ n` clause no lane has attached to a
+`DyadicUnitFiltration`, and `ramifiedData` is AX3's field-side interface, which
+`DyadicLocalInput` already carries as a constructor argument.  At the `GenAsmRowResidual` layer
+the numerics pins vanish outright (`standardNumerics` makes them `rfl`), which is why the second
+builder has two fewer hypotheses than the first.
+-/
+
+section DeterminantWiring
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- **`KSupply.determinant`, as a named theorem.**  `GaussZ/FinalDK.lean` §8's acceptance
+`example`, promoted: the field type of `KSupply.determinant` produced by the committed bridge.
+Nothing is transported and nothing is re-proved; the point is that the composite now has a name,
+so a `KSupply` can be built without the field. -/
+theorem mpcRow_determinant_of_bridge (T : OrientedTameQuotientK B FF) {n : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n}
+    (pro2 : ContinuousMonoidHom (GalK K) P)
+    (nu_compat : ∀ g : GalK K, ztwoIota (nuP (pro2 g)) = B.nu_ur (toAbK K g))
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF) (hdeg : Module.finrank ℚ_[2] K = n)
+    (hgu : ∀ m : ℕ, SN.gaussUnram m = (-1 : ℤ) ^ n * 2 ^ (n * m))
+    (hgr : ∀ m : ℕ, SN.gaussRam m = (2 : ℤ) ^ (n * m))
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg) (rho : ContinuousMonoidHom ↥(GalKsub K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    AffineDeterminantCertificate (galKProfinite K) n (qOf K FF) P nuP SN
+      T.tameFK pro2 (fun g => T.compatF_K pro2 nuP nu_compat g) (smulZmod2GalK K) :=
+  affineDeterminant_galK K params params_n params_qK hdeg hgu hgr T.tameFK T.tameFK_surjective
+    pro2 (fun g => T.compatF_K pro2 nuP nu_compat g) ramifiedData
+
+/-- **THE SUPPLY PACKAGE WITHOUT ITS DETERMINANT BINDER.**  A `KSupply` from the two genuinely
+unowned counting clauses (`exactLifting`, `stokes`) alone: ledger field 6 is discharged in place
+by the committed bridge.  This is what "the `determinant` obligation is wired" means at the
+record. -/
+noncomputable def mpcRow_kSupply_of_counting (T : OrientedTameQuotientK B FF) {n : ℕ}
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    {SN : SourceNumerics n} (hdeg : Module.finrank ℚ_[2] K = n)
+    (hhom : SN.homScalar = 2 ^ (n + 2)) (pro2 : ContinuousMonoidHom (GalK K) P)
+    (hpro2 : Function.Surjective pro2)
+    (ker_pro2 : pro2.toMonoidHom.ker = proPKernel 2 (GalK K))
+    (nu_compat : ∀ g : GalK K, ztwoIota (nuP (pro2 g)) = B.nu_ur (toAbK K g))
+    (exactLifting : ExactLiftingSemantics (galKProfinite K) n (qOf K FF) P nuP SN)
+    (stokes : StokesDualityCertificate (galKProfinite K) n (qOf K FF) P nuP SN (smulZmod2GalK K))
+    (params : FieldParameters) (params_n : params.n = n)
+    (params_qK : params.qK = qOf K FF)
+    (hgu : ∀ m : ℕ, SN.gaussUnram m = (-1 : ℤ) ^ n * 2 ^ (n * m))
+    (hgr : ∀ m : ℕ, SN.gaussRam m = (2 : ℤ) ^ (n * m))
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg) (rho : ContinuousMonoidHom ↥(GalKsub K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    KSupply T n P hP nuP SN where
+  hdeg := hdeg
+  hhom := hhom
+  pro2 := pro2
+  hpro2 := hpro2
+  ker_pro2 := ker_pro2
+  nu_compat := nu_compat
+  exactLifting := exactLifting
+  stokes := stokes
+  determinant := mpcRow_determinant_of_bridge T pro2 nu_compat params params_n params_qK hdeg
+    hgu hgr ramifiedData
+
+/-- **THE ROW RESIDUAL WITHOUT ITS DETERMINANT BINDER.**  The same wiring at
+`GeneralAssembly.GenAsmRowResidual`, where the numerics are `standardNumerics G.degree` and the
+two Gauss pins are therefore `rfl` (`gaussUnram_standard`, `gaussRam_standard`).  So the general
+row residual costs **three** blocks, not four: the two counting clauses and `cand`. -/
+noncomputable def mpcRow_genAsmRowResidual_of_counting {G : GenAsmBranch K B}
+    (T : OrientedTameQuotientK B FF)
+    (exactLifting : ExactLiftingSemantics (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
+      (standardNumerics G.degree))
+    (stokes : StokesDualityCertificate (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
+      (standardNumerics G.degree) (smulZmod2GalK K))
+    (cand : WordCertificate G.degree (qOf K FF) G.word G.core G.coreIsProP G.nuP
+      (standardNumerics G.degree))
+    (params : FieldParameters) (params_n : params.n = G.degree)
+    (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg) (rho : ContinuousMonoidHom ↥(GalKsub K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    GenAsmRowResidual G T where
+  exactLifting := exactLifting
+  stokes := stokes
+  determinant := mpcRow_determinant_of_bridge T G.pro2 G.realization.nu_compat params params_n
+    params_qK G.hdeg (gaussUnram_standard G.degree) (gaussRam_standard G.degree) ramifiedData
+  cand := cand
+
+end DeterminantWiring
+
 end
 
 end GQ2.Dyadic.Instances.MpcRow
