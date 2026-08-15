@@ -635,4 +635,78 @@ theorem genAsm_branch_of_oddSq_canonical (h : ℕ) (c : ℤ_[2])
 
 end ClassificationJoin
 
+/-! ## §5 Axiom pins
+
+One pin per declaration of this file, **42** in all, in declaration order.  The pins were
+measured when the module landed but were never recorded here; this block is the record.  Adding
+these lines changes no statement.
+
+⚠ **This file is not uniformly std-3, and the split is the point.**  Measured against the mirror
+at `1d3d5a84`:
+
+* **34 of the 42** print at most the std-3 set `propext, Classical.choice, Quot.sound`.  That is
+  every definition, every structure, every `SelectedPresentation` word/core row, the parity
+  lemmas, and all five `genAsm_branch_of_*` producers.  One of the 34, `genAsm_degree_frozen`,
+  prints **no** axioms at all.
+* **8 carry campaign axioms**, all of them the statements that cross from the constructor table
+  into arithmetic:
+  - `genAsm_candidate_equiv_galK_of_supply`, `genAsm_candidate_equiv_galK`,
+    `genAsm_rowEquiv_sqrtTwo`, `genAsm_rowEquiv_sqrtFive`, `genAsm_rowEquiv_sqrtTen`,
+    `genAsm_rowEquiv_sqrtNegTen` add `tateDualityAt`,
+    `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` and
+    `Foundations.absGalQ2_localEulerCharacteristic`;
+  - `genAsm_evenRoute_output` adds those three plus `hilbertSymbol_normCriterion_finiteDyadic`;
+  - `genAsm_rowEquiv_sqrtNegTwo` adds those four plus `relativeStiefelWhitney_dyadic`, the widest
+    pin in the file.
+
+The reading a consumer should take: the **general branch datum and its table are axiom-free**,
+and the campaign axioms enter only where a row is identified with `G_K`. -/
+
+section AxiomPins
+
+#print axioms genAsmCore
+#print axioms genAsmCoreIsProP
+#print axioms genAsmHandles
+#print axioms genAsmIsEven
+#print axioms genAsm_degree_odd
+#print axioms genAsm_degree_even
+#print axioms genAsm_degree_parity
+#print axioms GenAsmFieldInputs
+#print axioms GenAsmBranch
+#print axioms GenAsmBranch.degree
+#print axioms GenAsmBranch.word
+#print axioms GenAsmBranch.core
+#print axioms GenAsmBranch.coreIsProP
+#print axioms GenAsmBranch.pro2
+#print axioms GenAsmRowResidual
+#print axioms genAsm_candidate_equiv_galK_of_supply
+#print axioms genAsm_candidate_equiv_galK
+#print axioms genAsm_word_sqrtNegTwo
+#print axioms genAsm_core_sqrtNegTwo
+#print axioms genAsm_word_sqrtTwo
+#print axioms genAsm_core_sqrtTwo
+#print axioms genAsm_word_sqrtFive
+#print axioms genAsm_core_sqrtFive
+#print axioms genAsm_word_sqrtTen
+#print axioms genAsm_core_sqrtTen
+#print axioms genAsm_word_sqrtNegTen
+#print axioms genAsm_core_sqrtNegTen
+#print axioms genAsm_degree_frozen
+#print axioms genAsm_core_L
+#print axioms genAsm_nonempty_equiv_L_core_piBd
+#print axioms genAsm_rowEquiv_sqrtNegTwo
+#print axioms genAsm_rowEquiv_sqrtTwo
+#print axioms genAsm_rowEquiv_sqrtFive
+#print axioms genAsm_rowEquiv_sqrtTen
+#print axioms genAsm_rowEquiv_sqrtNegTen
+#print axioms genAsm_evenRoute_output
+#print axioms genAsm_branch_of_evenN
+#print axioms genAsm_branch_of_evenM
+#print axioms genAsm_oddResidual_gives_mix
+#print axioms genAsm_branch_of_oddSq
+#print axioms genAsm_lNu_surjective
+#print axioms genAsm_branch_of_oddSq_canonical
+
+end AxiomPins
+
 end GQ2.Dyadic

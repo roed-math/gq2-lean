@@ -74,11 +74,11 @@ comments, docstrings and line comments removed, blank lines dropped), and each p
 | inherited file | disposition | why |
 | --- | --- | --- |
 | `SqCore/GradedClassFiveJoin.lean` | **committed** (`aa8b9f65`) | round 11 §4.2(a),(b),(c),(f),(j).  All five verified.  §4.2(c)'s applied text is *better* than the finding; see §3.2. |
-| `SqCore/GradedClassFourCompose.lean` | **committed, amended** (`aa8b9f65`) | round 11 §4.2(d),(e),(g),(h),(i),(k).  Amended twice: one added line was 108 characters, and the `LamFrames.lean:301` citation is one line past the definition it cites (`:300`). |
+| `SqCore/GradedClassFourCompose.lean` | **committed, amended** (`aa8b9f65`) | round 11 §4.2(d),(e),(g),(h),(i),(k).  Amended twice: one added line was 108 characters, and the `LamFrames.lean:301` citation is one line past the definition it cites (`:300`). **[W77-HOUSE: the second amendment was wrong; `:300` is a `variable` line. Repaired to `:303` (`sqEichU`). See §4.2(e)'s W77 annotation.]** |
 | `Instances/EvenStratumShift.lean` | **committed, amended** (`aa8b9f65`) | round 11 §4.3(a)-(g).  Amended once: §4.3(f)'s "literal shift" survived inside the very docstring §4.3(a)'s fix rewrote, so the fix was half-applied within one declaration. |
 | `docs/dyadic/w72-stratum-note.md` | **committed** (`aa8b9f65`) | §4.3(e), two sites, both verified. |
 | `docs/dyadic/w73-five-note.md` | **committed** (`aa8b9f65`) | §4.2(a) second site, verified against `GradedLimit.lean:236` and `GradedGammaFourFive.lean:726`. |
-| `docs/dyadic/w73-knob-note.md` | **committed, amended** (`aa8b9f65`) | §4.2(e),(g) second sites.  Same `:301` → `:300` amendment. |
+| `docs/dyadic/w73-knob-note.md` | **committed, amended** (`aa8b9f65`) | §4.2(e),(g) second sites.  Same `:301` → `:300` amendment. **[W77-HOUSE: likewise wrong; repaired to `:303`/`:295`.]** |
 | `docs/dyadic/w73-stratum-note.md` | **committed, one hunk REVERTED to an annotation** (`aa8b9f65`) | §4.3(b),(e),(g) kept; §4.3(h) reverted and re-applied as an annotation.  See below. |
 
 **The one revert, and it is the inherited edits' only real defect.**  Round 11 §4.3(h) asks for
@@ -156,6 +156,18 @@ refutation does not reach them, and annotating them would over-claim.
 * **§4.2(e)'s second citation does not resolve.**  `LamFrames.lean:301` is the second line of the
   cleared-`u` docstring; the two definitions are at `:293` (`V_j = v_j·w^{−ν'(v_j)}`) and `:300`
   (`U_j = w^{−ν'(u_j)}·u_j`).  Corrected in both the module and `w73-knob-note.md`.
+  **[W77-HOUSE, ticket 2(b): THIS FINDING IS WRONG, and the correction it shipped is wrong.**
+  Verified at `1d3d5a84`, where `LamFrames.lean` is unchanged in this region since wave 73.
+  `:300` is a bare `variable (h) in` line, so it is not a definition and cites nothing; `:301` is
+  the **first** line of the cleared-`u` docstring, not the second; and `:293` is the cleared-**`v`**
+  docstring's first line, not a definition either.  The actual definitions are `sqEichV` at
+  **`:295`** and `sqEichU` at **`:303`**, so the consistent pairs are `:293`/`:301` for the two
+  docstrings and `:295`/`:303` for the two definitions, and this bullet mixes one of each.  The
+  `:301` it replaced was in fact the better of the two readings.  Both shipped sites are repaired
+  to the definitions, named and in each sentence's own `U_j`, `V_j` order:
+  `GradedClassFourCompose.lean:420` and `w73-knob-note.md:91`.  `w74-func-note.md:139` already
+  carried `295,303` correctly, and `w76-base-note.md:153`'s range `:295-306` is also right; this
+  note is the only source of the bad pair.]**
 * **§4.5's second finding under-reports by three.**  `StageAbstractionEvenRawSpan.lean`'s
   Contents list has **four** defects, not one: seven items against six sections and one section
   high from §3 onwards (reported); "five exact coordinate rows" where §5's own subheading and its
