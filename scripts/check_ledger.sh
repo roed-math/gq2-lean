@@ -163,4 +163,12 @@ if [ "$fail" -ne 0 ]; then
   echo "check_ledger: FAILED"
   exit 1
 fi
+# Fixture mode can never pass the gate: watch round 11 found that D6 reads only
+# this script's exit code, so an exit 0 here would let a saved transcript stand
+# in for a live `lake` run.  Parsing success in fixture mode therefore exits 3,
+# a code D6 treats as failure, and the line below says why.
+if [ -n "${GQ2_LEDGER_FIXTURE:-}" ]; then
+  echo "check_ledger: fixture parse OK, but FIXTURE MODE NEVER PASSES THE GATE (exit 3)"
+  exit 3
+fi
 echo "check_ledger: all checks passed"
