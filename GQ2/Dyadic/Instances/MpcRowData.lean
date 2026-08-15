@@ -603,7 +603,20 @@ theorem mpcRow_determinant_of_bridge (T : OrientedTameQuotientK B FF) {n : ℕ} 
 /-- **THE SUPPLY PACKAGE WITHOUT ITS DETERMINANT BINDER.**  A `KSupply` from the two genuinely
 unowned counting clauses (`exactLifting`, `stokes`) alone: ledger field 6 is discharged in place
 by the committed bridge.  This is what "the `determinant` obligation is wired" means at the
-record. -/
+record.
+
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: "genuinely unowned" is STALE for both.**  `stokes` is a
+theorem at this constructor's own numerics slot (`stokesDualityCertificate_galK`,
+`Instances/KAnalytic.lean:82`, all four clauses from `hdeg` alone), and `exactLifting`'s
+corrected companion is a theorem at every degree (`exactLiftingSemanticsRN_galK`).  Only the
+**frozen** bundle's equation-(136) coefficient survives, and `askC_exactLifting_iff_stageVanishing`
+identifies it at `2 ≤ n` with the single `Prop` `askCStageVanishing`.  So the two remaining
+binders of this constructor are one `Prop` and one free field, and the successor with both
+removed would be `askCKSupply_of_markedCore` (`Instances/AskCounting.lean:372`), which takes
+`hvan` and the four pro-`2` data and no `stokes` or `determinant` argument at all.  Not wired
+here: replacing this constructor's signature is a statement change.  The same correction
+applies to the §5 sentence "the general row residual costs three blocks, not four": it costs
+one `Prop` plus `cand`.]** -/
 noncomputable def mpcRow_kSupply_of_counting (T : OrientedTameQuotientK B FF) {n : ℕ}
     {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
     {SN : SourceNumerics n} (hdeg : Module.finrank ℚ_[2] K = n)

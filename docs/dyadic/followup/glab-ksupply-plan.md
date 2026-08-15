@@ -37,6 +37,18 @@ The missing work divides cleanly into three independent producers:
 3. **Candidate semantics:** construct the corresponding analytic fields of the branch's
    `WordCertificate`.
 
+**[W82-HOUSE, as of `a45bc557`: producer 2 IS BUILT.**  `stokes` is
+`stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`), `determinant` is
+`affineDeterminant_galK` (`GaussZ/FinalDK.lean`), and `exactLifting`'s corrected form
+`ExactLiftingSemanticsRN` is `exactLiftingSemanticsRN_galK` at every degree.  The frozen
+`ExactLiftingSemantics` the records spell keeps one coefficient condition, the named `Prop`
+`askCStageVanishing`, and `askCKSupply_of_markedCore` (`Instances/AskCounting.lean:372`) builds
+a whole `KSupply` at general degree from that `Prop` plus producer 1's four pro-`2` data plus
+the packet inputs.  So the plan's shape now reads: **producer 1 is the live work**, producer 2
+is one `Prop` whose desirability is itself the open question (carrying it at `2 ≤ n` asserts
+`G_K` admits no boundary-framed surjection onto any marked target with nontrivial Frattini
+block), and producer 3 is untouched.  See §5 below and `docs/dyadic/w81-ask-note.md`.]**
+
 This document plans the first producer and records its dependencies on the other two. G-Lab is
 not the only remaining obstacle to an unconditional presentation theorem.
 

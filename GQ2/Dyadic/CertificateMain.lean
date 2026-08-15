@@ -167,7 +167,26 @@ vocabulary.
 NpcFox, MpcFox, LFox}.lean` — closed the *first-order* content (universal rows, elementary
 row/column certificates, replay).  **What is missing:** the passage from a Fox certificate to
 `#LiftsOver(ρ) = SN.mMult #M_B`.  At `ℚ₂` that passage is `GQ2/MStageCount.lean` +
-`GQ2/RadicalEdge/`; at general `K` it has no owner.  AS2–AS5 supply this field per branch. -/
+`GQ2/RadicalEdge/`; at general `K` it has no owner.  AS2–AS5 supply this field per branch.
+
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: "at general `K` it has no owner" needs splitting by side,
+and on the ARITHMETIC side it is stale.**  This `Prop` is instantiated at two carriers, and
+they are in different states.
+
+* At `Γ = galKProfinite K` (the arithmetic side, `KSupply.exactLifting`): owned.
+  `liftsOver_card_galK` (`Instances/KExactLiftingGalK.lean:86`) is exactly this passage, and
+  with `lem86_galK_of_noDescent` and `correctedRStageSemantics_galK` gives the corrected bundle
+  `ExactLiftingSemanticsRN` at every degree.  What the frozen `Prop` defined below adds is the
+  equation-(136) coefficient (`RecursionFrame.zR = #R²·#D_R` where the `G_K` count is
+  `#R^{n+1}·#D_R`), equivalent at `2 ≤ n` to the single `Prop` `askCStageVanishing`
+  (`Instances/AskCounting.lean:184`).
+* At the candidate carrier `GammaR n q word`: genuinely unowned, and that is AS1 divergence 4.
+  The Fox-to-count bridge sentence above is right there and should stay.
+
+The obligation table at §5 of this module inherits the same split and is stale in the same way;
+`docs/dyadic/followup/analytic-bridges-plan.md` §6's AB-0 asked for that table to be
+truth-synced and AB-0 was never done.  Annotating rather than rewriting here, since rewriting an
+inventory table is more than a marker.]** -/
 def ExactLiftingSemantics : Prop :=
   (∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]

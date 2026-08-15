@@ -635,7 +635,17 @@ The five re-exports and the five branch-datum producers `fieldId_genAsmBranch_*`
 module; each producer discharges everything but one marked-data unimodularity clause (`hpivot`
 on the four `M` rows, `hpair` on the pilot).  The sentence above is kept, not deleted, because
 it states correctly what `parityFinal_evenClassification` *itself* supplies; what is false is
-the closing clause.  Read it as "and it is supplied elsewhere, per field".]** -/
+the closing clause.  Read it as "and it is supplied elsewhere, per field".]**
+
+⚠ **[W82-HOUSE, as of `a45bc557`: "one marked-data unimodularity clause" per row is now
+FOUR-OF-FIVE-FREE.**  The clause is discharged outright at `ℚ₂(√−2)`, `ℚ₂(√2)`
+(`fieldUni_genAsmBranch_sqrt{NegTwo,Two}`, wave 78), `ℚ₂(√5)` (`fieldFive_genAsmBranch_sqrtFive`,
+`Instances/FieldSqrtFiveUnramified.lean:235`, wave 79) and `ℚ₂(√10)`
+(`mpcNorm_genAsmBranch_sqrtTen`, `Instances/MpcNormValues.lean:1215`, wave 81).  Only
+`ℚ₂(√−10)` still carries one, the `ε = true` pivot, and W81-NORMS §5 shows the obstruction is
+real rather than an argument gap: wave 80's counterexample `(−8, 1, 4, 1)` makes that pivot
+independent of the level, both `λ`-values and surjectivity, so it must come from the
+certificate side or from a classification of the markings `D_M 2 0` admits.]** -/
 theorem genAsm_evenRoute_output [T2Space (GalK K)] (B : MarkedRecip Rec K) (deltaI : ℚ̄₂)
     (hdeltaI : deltaI ^ 2 = -1)
     (hram : ¬ HasEqualNormValueGroups K deltaI) {h : ℕ}

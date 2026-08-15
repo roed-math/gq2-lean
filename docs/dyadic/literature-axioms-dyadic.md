@@ -161,6 +161,26 @@ composite is written down (MC-N's `marked_matching_certificate_KN` consumed), an
 | `hpair` | **G-Lab pack** | marked-data pair-unimodularity |
 | `hexact` | **ASK carried leaf 2** | `ExactLiftingSemantics` at `G_K` — `KSupply.lean` §6 item 2 (ℚ₂ ancestors: `MStageCount.liftsOver_card_local`, `lemma_8_6_local`, `RStageLocal.stageR136_local`); natural first targets since both inputs (`absGalK_localEulerCharacteristic`, `tateDualityGalK`) exist at `K` |
 | `hstokes` | **ASK carried leaf 3** | `StokesDualityCertificate` at `G_K` — `KSupply.lean` §6 item 3; right shape = a Γ-generic `prop_5_16` over a `TateDualityG Γ 2` bundle + Euler-char hypothesis (ASK's design note), **not** a K-clone |
+
+**[W82-HOUSE, as of `a45bc557`: those two rows are SUPERSEDED, and this matters here more than
+anywhere else, because this file is the trust boundary a reviewer reads.**  Both are theorems
+at `G_K`, neither by a clone:
+
+| binder | status at this tree | supplier |
+|---|---|---|
+| `hstokes` | **theorem**, hypothesis `hdeg` only | `stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`), over `Count/LocalDuality.lean`'s `Γ`-generic layer.  The "right shape" this row predicted is what was built |
+| `hexact` | **one named `Prop`**, `askCStageVanishing` | `liftsOver_card_galK`, `lem86_galK_of_noDescent`, `correctedRStageSemantics_galK` give `ExactLiftingSemanticsRN` at every degree; the frozen bundle differs by the equation-(136) coefficient and `askC_exactLifting_iff_stageVanishing` makes the two the same statement at `2 ≤ n` |
+
+Neither supplier introduces an axiom: measured, `askC_stokes_galK` is std-3 plus `tateDualityAt`
+(B6) plus `absGalQ2_localEulerCharacteristic` (B7), and `askC_halfTorsor_galK` is std-3 plus B6
+plus `absGalQ2_isTopologicallyFinitelyGenerated` (B1) and **no B7**.  So the trust boundary does
+not move; what moves is the residual surface.  ⚠ One thing a reviewer should be told and this
+file does not yet say: `askC_isEmpty_boundaryLifts_of_exactLifting` derives from the *frozen*
+field, at `2 ≤ n`, that `G_K` admits no boundary-framed surjection onto any marked target with
+nontrivial Frattini block.  So `hexact` as currently spelled is a strong assertion about `G_K`,
+not a routine counting binder, and the recommended repair is the statement change to
+`ExactLiftingSemanticsRN` (`docs/dyadic/w81-ask-note.md` §3.1).  Row `hdet` below is unaffected
+and remains the largest genuinely unowned residual.]**
 | `hsimp` | **candidate residual** | per-simple-module Stokes duality (`PilotHsimp`) — **owner ruling B1/Q3: stays a hypothesis binder, never an axiom**; feeds every count-lane payload (CB-5 §5, `hsepN_marking`) |
 | `hsplit`, `hZcount` | **candidate residual** | `stageR136`'s recursion-side inputs (`PilotStageSep`/`PilotStageZ`), verbatim `blockStageR136K`'s open inputs — owner-visible queue item (b) |
 | `hdet` | **candidate residual** ⚠⚠ | `PilotDet` — the candidate-side Gauss-`Z` clauses.  **The largest single residual**: the CB lane's "clause list COMPLETE" is 9-of-11 clause *suppliers* — CB1's priced candidate-side gauss tickets (~1900 ln) were **never opened**; CB-DET is K-side only.  The missing lane is the Hessian ⇒ `GaussZResidueK` bridge over WN0-c's landed word-side layer.  Owner-visible queue item (a) |

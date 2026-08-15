@@ -78,6 +78,17 @@ This file is the **substrate** ASK identified, not the four `Phase140/Local.lean
 themselves (`tcocycle_card_local`, `hsep_local`, `hpartial_local`, `hZcard_local`).  Those consume
 `prop_5_16` and remain owed; what changes is that their `K` versions can now be *generic* proofs
 over `prop_5_16_gen` instead of `AbsGalQ2`-clones.  See the ticket report for the accounting.
+
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: "remain owed" is STALE, and the prediction in the next
+clause is what happened.**  All four `K` versions exist and all four are generic proofs over
+this file rather than `AbsGalQ2`-clones: `Count.tcocycle_field_of_localDualityG`,
+`Count.hZcard_field_of_localDualityG`, `Count.hsep_field_of_localDualityG` and
+`Count.hpartial_field_of_localDualityG` (`GQ2/Dyadic/Count/LocalDuality.lean:152`, `:178`,
+`:210`, `:252`), each taking `TateDualityG Γ 2` and `LocalEulerChar Γ d` and nothing else.
+They assemble as `stokesDualityCertificate_of_localDualityG`, and at the arithmetic carrier as
+`stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`), whose only hypothesis is the
+degree pin.  So the whole Stokes bundle at `G_K` is closed off this substrate, and the
+`Phase140/Local.lean` residues were never cloned.]**
 -/
 
 namespace GQ2.Dyadic.LiftingDualityG
