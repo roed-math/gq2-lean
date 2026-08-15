@@ -767,6 +767,72 @@ theorem mpcNorm_lambdaOne_mUnit_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) :
 
 end Values
 
+/-! ## §9 The two rows, over the pivot alone
+
+Wave 80's scoreboard read `MpcNoUnitKerChi` + one or two `λ`-values + the pivot at `ℚ₂(√10)` and
+`ℚ₂(√−10)`.  §8 discharges every entry except the pivot, so both rows now carry **one** clause,
+and it is the same clause on both: `ν'(C̄₀)` has `2`-adic valuation exactly one at wave 77's
+chosen oriented equivalence. -/
+
+section Rows
+
+variable {R : LocalReciprocity} [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- **`MpcRowData_sqrtTen` FROM THE PIVOT ALONE.** -/
+theorem mpcNorm_rowData_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    MpcRowData_sqrtTen B :=
+  mpcRow_rowData_sqrtTen B (mpcNorm_noUnitKerChi_sqrtTen B) (mpcNorm_lambdaOne_negOne_sqrtTen B)
+    hpivot
+
+/-- **THE `sqrtTen` BRANCH DATUM OVER THE PIVOT ALONE.**  Compare
+`mpcRow_genAsmBranch_sqrtTen`, which carried three inputs. -/
+theorem mpcNorm_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    ∃ G : GenAsmBranch KSqrtTen B, G.pres = .Mpc 2 1 false .one 0 :=
+  mpcRow_genAsmBranch_sqrtTen B (mpcNorm_noUnitKerChi_sqrtTen B)
+    (mpcNorm_lambdaOne_negOne_sqrtTen B) hpivot
+
+/-- **`MpcRowData_sqrtNegTen` FROM THE PIVOT ALONE.** -/
+theorem mpcNorm_rowData_sqrtNegTen [T2Space (GalK KSqrtNegTen)] (B : MarkedRecip R KSqrtNegTen)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtNegTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    MpcRowData_sqrtNegTen B :=
+  mpcRow_rowData_sqrtNegTen B (mpcNorm_noUnitKerChi_sqrtNegTen B)
+    (mpcNorm_lambdaOne_negOne_sqrtNegTen B) (mpcNorm_lambdaOne_mUnit_sqrtNegTen B) hpivot
+
+/-- **THE `sqrtNegTen` BRANCH DATUM OVER THE PIVOT ALONE.**  Compare
+`mpcRow_genAsmBranch_sqrtNegTen`, which carried four inputs. -/
+theorem mpcNorm_genAsmBranch_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip R KSqrtNegTen)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtNegTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 :=
+  mpcRow_genAsmBranch_sqrtNegTen B (mpcNorm_noUnitKerChi_sqrtNegTen B)
+    (mpcNorm_lambdaOne_negOne_sqrtNegTen B) (mpcNorm_lambdaOne_mUnit_sqrtNegTen B) hpivot
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **`B.r = 1` AT `ℚ₂(√10)`, UNCONDITIONALLY.**  The upper half is wave 80's
+`mpcRow_level_le_one_sqrtTen`; the lower half is `(2, 10)₂ = −1`, now a theorem.  This is the
+first of wave 78 §2.3's two claims to be discharged in full. -/
+theorem mpcNorm_level_sqrtTen (B : MarkedRecip R KSqrtTen) : B.r = 1 :=
+  le_antisymm (mpcRow_level_le_one_sqrtTen B)
+    (Nat.one_le_iff_ne_zero.2 (mpcRow_level_ne_zero (mpcNorm_noUnitKerChi_sqrtTen B)))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **`B.r = 1` AT `ℚ₂(√−10)`, UNCONDITIONALLY.** -/
+theorem mpcNorm_level_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) : B.r = 1 :=
+  le_antisymm (mpcRow_level_le_one_sqrtNegTen B)
+    (Nat.one_le_iff_ne_zero.2 (mpcRow_level_ne_zero (mpcNorm_noUnitKerChi_sqrtNegTen B)))
+
+end Rows
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
