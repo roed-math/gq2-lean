@@ -20,6 +20,14 @@ in-place correction that silently desynchronised two verbatim wave-74 quotations
 **Ticket 1 (the refuted-condition trail).**  The predecessor annotated seven sites; four more
 were found by the tree-wide grep, and three of them carry the sweep's real result:
 
+**[W77-HOUSE, ticket 2(c): "seven sites" should read "seven files, nineteen sites".**  §2's own
+enumeration of what the predecessor covered lists **seven files** and, adding up its own
+sub-counts, **nineteen sites**: `GradedClassFiveJoin.lean` (1), `GradedClassFourCompose.lean` (5),
+`owner-items-2026-08-05.md` wave-73 block (1), `w72-defects-note.md` §4 (1), `w72-five-note.md`
+queue item 1 (1), `w73-five-note.md` (3), `w73-knob-note.md` (7).  "Four more" is right as
+written, because §2's second list really is four sites in four files.  A reader comparing 7
+against 4 is comparing files against sites.]**
+
 > **The correct diagnosis was in the tree at wave 70 and was lost.**
 > `w70-cfour-note.md` §4's paragraph "What `K` misses" says the knob subgroup misses `V^{[4]}`,
 > represented by `σ^{[4]}` and `x₀^{[4]}`, and wave 71 §2 explicitly endorsed it as "not wrong
@@ -141,6 +149,17 @@ refutation does not reach them, and annotating them would over-claim.
 | §4.4(a)-(g) | 7 | `scripts/check_ledger.sh`, `scripts/check_dyadic.sh`, `w73-house-note.md` | `0012ce42` |
 | §4.5 first two | 2 | `GQ2/AxiomLedger.lean`, `StageAbstractionEvenRawSpan.lean` | `0012ce42` |
 | §4.5 third | 1 | **reported only** (Lean source: the unused `private abbrev evenStratumPlane`, round 11's `EvenStratumShift.lean:416`, now `:423`) | - |
+
+**[W77-HOUSE, ticket 2(c): the "29" is right and THIS TABLE is the thing that is one short.**
+The table's findings column sums to **28** (5 + 6 + 7 + 7 + 2 + 1; the fourth row is marked "(same
+7)" and correctly adds nothing).  Round 11's own enumeration in `w74-house-note.md` §4 is §4.2
+**(a)-(k)** = 11, §4.3 **(a)-(h)** = 8, §4.4 (a)-(g) = 7 and §4.5's three background bullets = 3,
+which is **29**.  (§4.1's four are excluded correctly: round 11 applied those itself.)  The row
+that is short is **`§4.3(a)-(g) | 7`**, which should be `§4.3(a)-(g) | 7` plus `§4.3(h) | 1`:
+§4.3(h) is a finding round 11 raised in its own right, about `w73-stratum-note.md:225`, and §2's
+disposition table above records it separately as "reverted and re-applied as an annotation".  It
+is currently absorbed into the "(same 7)" second-sites row, where it is not a second site of
+anything.  **The headline "29 findings" needs no change.**]**
 
 ### 3.2  Corrections to the findings themselves
 
@@ -496,6 +515,29 @@ unreachable module is `GQ2.AxiomLedger`, which is deliberate.
   `w74-even-note.md:194-196` describes ("all 46 named public declarations ... together with
   eight ...").
 
+**[W77-HOUSE, ticket 2(c): the three line counts in this subsection are correct as-of `f0a71688`
+and have since drifted; the as-of hash is what was missing, not the arithmetic.**  Recounted at
+`1d3d5a84`:
+
+| figure | as recorded (`f0a71688`) | at `1d3d5a84` |
+| --- | --- | --- |
+| `GradedUniformTower.lean` pins | 94 | **94**, unchanged (file 1895 lines) |
+| `GradedDeltaFunctionals.lean` lines | 1749 | **1757** |
+| `GradedDeltaFunctionals.lean` pins | 103 | **103**, unchanged |
+| `EvenStratumRowFrame.lean` lines | 1077 | **1088** |
+
+Every one of the recorded figures reproduces exactly at `f0a71688`, so this subsection measured
+correctly and only its tree moved.  The declaration-to-pin bijection that the wave-76 round-13
+annotation established for `GradedDeltaFunctionals.lean` still holds exactly: **103 declarations,
+103 pins, no declaration unpinned, no pin naming anything outside the file, no duplicate.**
+
+⚠ **A counting trap that is new since `f0a71688`, for whoever recounts next.**  `grep -c '#print
+axioms'` on `GradedDeltaFunctionals.lean` now returns **104**, one more than the true 103.  The
+extra hit is **prose**: `:111`, a module-docstring bullet reading "**§9 Axiom pins.** One `#print
+axioms` for each of the file's declarations", added after this note's tree.  Anchor the count at
+column zero (`grep -c '^#print axioms'`) or a recount will report a phantom 104th pin and read
+the bijection as broken.]**
+
 ## 5.  Ticket 4: the FUNC handoff's two loose ends, scoped for W76
 
 Both come from `w74-func-note.md` §4.4.  **Nothing was built.**
@@ -504,6 +546,12 @@ Both come from `w74-func-note.md` §4.4.  **Nothing was built.**
 
 **What exists.**  `gDelta_chiSq_sq_of_nuLam` and `gDelta_chiSq_of_nuLam`
 (`GradedDeltaFunctionals.lean:1190`): a `λ`-trivial dressing slot has `χ_sq = ±1`.
+**[W77-HOUSE, ticket 2(c): one line number is given for two declarations, and it resolves to only
+the second.**  At this note's own `f0a71688`, `gDelta_chiSq_sq_of_nuLam` is at **`:1180`** and
+`gDelta_chiSq_of_nuLam` at `:1190`; read the citation as `:1180`/`:1190`.  As of `1d3d5a84` the
+file has grown by 8 lines and both have moved, to **`:1188`** and **`:1198`**.  The other site of
+the same declaration, `:304` of this note, cites `:1190` for that declaration alone and was
+correct when written; it is likewise `:1198` today.]**
 `GDeltaDefectVanishing h` (`:1005`) with `gDeltaDefectVanishing_holds` (`:1012`): the `+1` branch,
 proved outright.  `gDelta_relWord_dvd_of_chi_mod` (`:1464`): the mod-8 branch, as a
 `2^3`-divisibility rather than a vanishing.  `gDelta_chi_gammaTwo_dvd` (`:1448`) and
@@ -614,6 +662,12 @@ proved only at `h = 0`.]**
 
 * Lane `claude/w75-house`, base `f0a71688`, inheriting `47094a9c`.  Five further commits, all
   path-limited.  Not pushed.
+  **[W77-HOUSE, ticket 2(c): "Five" is SEVEN.**  `git rev-list --count f0a71688..0add6034^2` is
+  **8**, of which `47094a9c` is the inherited one, leaving **seven further**: `aa8b9f65`,
+  `0012ce42`, `e22752e4`, `f03b6d1c`, `6eceb48c`, `e3e05329`, `314c5bb2`.  The last two landed
+  after this sentence was written, which is how the count went stale.  The wave-76 lane hit the
+  same defect in its own record and corrected it there (`11fbbd75`, four to seven); this is the
+  wave-75 instance, which that pass did not reach.]**
 * **No `lake` command was run.**  `scripts/check_dyadic.sh` was not run either.
 * `scripts/mirror.sh sweep` once at lane start (5863 artifacts), then `scripts/mirror.sh check` on
   every edited module after every edit and again at the final state.  **All six modules `OK`.**

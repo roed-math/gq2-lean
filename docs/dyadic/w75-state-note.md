@@ -167,6 +167,54 @@ row", which is true of the *clauses*; it is not true of the *producers* that tur
 piece of CAND work the memo does not name, and the `Npc` row has no producer at all, which is
 the certificate-side echo of `Main.lean`'s `no_frozen_Npc`.
 
+**[W77-HOUSE, ticket 2(c): the census sentence "exactly four `def`s" is wrong, and it was wrong
+at this note's own tree.**  Counting `def`s under `GQ2/` whose **return type** is a bare
+`WordCertificate` (not `WordCertificateRN`), at `f0a71688`, gives **nine**, not four.  The five
+this sentence does not name:
+
+* `Count/Routine.lean:463` **`pilotSubstitute`**, a *transformer*: it takes a
+  `WordCertificate (2+2*0) 2 pilotW ...` and returns one at the same type, replacing three
+  fields.  The sentence's own escape hatch, "plus one format converter ... and the consumer
+  `toSource`", is the right shape for it but does not cover it.
+* `Instances/Sqrt2.lean:128`, `Instances/Sqrt5.lean:104`, `Instances/SqrtNeg10.lean:126`, each a
+  `wordCertificate` in its field's namespace, at the frozen rows `M0 3 0`, `M0 2 0`, `M0 2 0`.
+  These are branch-row certificates on any reading, and excluding them while naming
+  `sqrtNegTwoWordCertificate` (which is equally frozen, at `(α, h) = (2, 0)`) is inconsistent.
+* `SourceDataRN.lean:284` `toWordCertificateStandardOne` is the named converter, so it is the one
+  case genuinely accounted for.
+
+The **table** above is unaffected: its five rows are about which producers cover which rows of the
+general table, and the three frozen `Instances.*` ones sit under its `M0` row, whose coverage
+claim ("free `(α, h)`" via `mWordCertificate`) is the stronger statement anyway.  What needs
+tightening is the word "exactly" and the sentence's implicit claim to be a census.  Suggested
+reading: "`GQ2/` contains four `def`s that *build* a branch row's `WordCertificate` from the
+analytic clauses", which is what the table then uses, with the transformer, the three frozen
+instances and the converter set aside explicitly.]**
+
+**[W77-HOUSE, ticket 3, STALENESS: F2's headline and three of its five table rows are OVERTAKEN
+by wave 76, and the module that overtakes them cites this section by name.**
+`GQ2/Dyadic/GeneralCertificates.lean` landed after this note and supplies:
+
+| row | this table says | `GeneralCertificates.lean` supplies |
+| --- | --- | --- |
+| `N0 α h` | `(α, h) = (2, 0)` only | `genCertNWordCertificate α h q` (`:499`) and `genCertNWordCertificateCanonical` (`:553`), **free `(α, h, q)`** |
+| `Mpc α r ε η h` | `h = 0` only | `genCertMpcWordCertificate alpha r p q h` (`:645`), **free `h`** |
+| `Npc α r η h` | **none** | `genCertNpcWordCertificate alpha r h q` (`:727`), free `(α, r, h, q)` at the `EtaData` display `⟨1, 1⟩` |
+
+That module's `:705-711` quotes this note as "`docs/dyadic/w75-state-note.md` §3.1 (F2) records
+`Npc` as the one row with **no** `CAND` producer at all" and then builds the producer, so the
+supersession is deliberate and is documented on one side only.  All four new producers have the
+same posture as `mWordCertificate` (`Instances/Cores.lean:654`): they take the four analytic
+clauses and the two `nuP` normalizations as hypotheses and assemble, so the comparison is like
+for like.
+
+**F2's headline, "The CAND layer has a free-parameter producer on one row out of five", is
+therefore no longer true**: at `1d3d5a84` it is four rows out of five, with `L h` over `D_sq h`
+still the exception (F1).  Two qualifications survive and should not be lost: the `Npc` producer
+is at the single display `⟨1, 1⟩`, not at general `η`; and none of these is *unconditional*,
+since the four analytic clauses remain hypotheses.  ⚠ Not rewritten in place, because the
+paragraph is the wave-75 record of what was true then.]**
+
 **F3.  The `M`-row records are not derivable from the general one in the selector direction, and
 this is structural, not a defect.**  A `ResidualSqrtTwo` carries a `KSupply`, whose four pro-`2`
 data fields are a *surjection with the right kernel*; the general branch datum carries an
