@@ -412,4 +412,292 @@ theorem genCert_candidate_equiv_galK_L_zero {T : OrientedTameQuotientK B FF}
 
 end LRow
 
+/-! ## §6 The compact-`N` word certificate at free `(α, h)`
+
+The sibling of `Instances.MCompactCore.mWordCertificate` at the `DN α h` core and the `N` word,
+in the same posture: thirteen fields proved, the four analytic clauses as explicit arguments
+(the certificate ⇒ count bridge does not exist at the candidate carrier, AS1 divergence 4).
+
+Two differences from the `M` template, both in the `N` row's favour and both checked here rather
+than assumed:
+
+* **no `1 ≤ α`.**  The `M` row carries `hα` because WM0-a's Gate-C headline needs `2m = 2^α`.
+  Nothing on the `N` side does: `nCorePresentation` (`Count/ProTwo.lean:607`),
+  `eval_pro2_nCompact` (`Words/N0.lean:378`) and `tameSpecializes_nCompact`
+  (`Count/Routine.lean:379`) are all free in `α`.
+* the `coreRel`/`proTwoWord` pair had no named form on this row.  `Count/ProTwo.lean`'s
+  `eval_pro2_nCompact_reindex` is the right statement but carries `[T2Space G]` (it is written
+  through `CoreReindex.toCore`, whose binder list has one), and `WordCertificate.coreRel` has
+  none.  §6 therefore re-derives the pair from `eval_pro2_nCompact` directly, exactly as the `M`
+  row does through `mCoreMark`. -/
+
+section NRow
+
+open Words Count Count.PilotN
+
+/-- The compact-`N` core marking: the alphabet marking read through `nIdx`, with **no**
+topological hypotheses, which is what lets it sit in the `coreRel` slot. -/
+def genCertNCoreMark (h : ℕ) {G : Type*} [Group G] (t : Marking (2 + 2 * h) G) :
+    Fin (coreRank h) → G :=
+  fun i => t (nIdx h i)
+
+/-- **`WordCertificate.coreRel` at the compact-`N` row.** -/
+def genCertNCoreRel (α h : ℕ) (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * h) G) : G :=
+  nRelWord α (genCertNCoreMark h t)
+
+/-- **`WordCertificate.proTwoWord` at the compact-`N` row**, at every handle count and every
+`α`: WN0's Gate-C headline read through the `nIdx` dictionary. -/
+theorem genCertNProTwoWord (α h : ℕ) (G : Type) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G]
+    (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (nCompactW α h)) = genCertNCoreRel α h G t := by
+  rw [eval_pro2_nCompact α h t]
+  show _ = nRelWord α (fun i => t (nIdx h i))
+  simp only [nRelWord, nIdx_zero, nIdx_one, nIdx_two, nIdx_three, nIdx_handleIdxU,
+    nIdx_handleIdxV, Marking.apply_sigma]
+
+/-- **`WordCertificate.pro2` at the compact-`N` row.** -/
+noncomputable def genCertNPro2 (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
+    ContinuousMonoidHom ((GammaR (2 + 2 * h) q (nCompactW α h)) : Type)
+      ((DN α h : ProfiniteGrp) : Type) :=
+  CorePresentation.coreHom (nCorePresentation α h) hq0 hqe
+
+/-- **`WordCertificate.ker_pro2` at the compact-`N` row.** -/
+theorem genCertN_ker_pro2 (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
+    (genCertNPro2 α h q hq0 hqe).toMonoidHom.ker
+      = proPKernel 2 ((GammaR (2 + 2 * h) q (nCompactW α h)) : Type) :=
+  CorePresentation.ker_coreHom (nCorePresentation α h) hq0 hqe
+
+/-- **`WordCertificate.hpro2` at the compact-`N` row.** -/
+theorem genCertNPro2_surjective (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
+    Function.Surjective (genCertNPro2 α h q hq0 hqe) :=
+  CorePresentation.coreHom_surjective (nCorePresentation α h) hq0 hqe
+
+/-- **`WordCertificate.tameSpecialization` at the compact-`N` row.** -/
+theorem genCertNTameSpecializes (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
+    TameSpecializes (2 + 2 * h) q (nCompactW α h) :=
+  Count.tameSpecializes_nCompact hq0 hqe α h
+
+/-- **`WordCertificate.compat` at the compact-`N` row.** -/
+theorem genCertNCompat (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    (hspec : TameSpecializes (2 + 2 * h) q (nCompactW α h))
+    (nuP : ContinuousMonoidHom ((DN α h : ProfiniteGrp) : Type) Ztwo)
+    (hnuSigma : nuP ((nCorePresentation α h).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * h + 1), nuP ((nCorePresentation α h).mark (.wild j)) = 1)
+    (g : ((GammaR (2 + 2 * h) q (nCompactW α h)) : Type)) :
+    nuTq q (tameOfSpec (2 + 2 * h) q (nCompactW α h) hspec g)
+      = nuP (genCertNPro2 α h q hq0 hqe g) :=
+  CorePresentation.nu_compat_coreHom (nCorePresentation α h) hq0 hqe hspec nuP hnuSigma hnuWild g
+
+/-- **The compact-`N` word certificate at free `(α, h, q)`.**  This is the `nWordCertificate`
+`docs/dyadic/w75-state-note.md` §6 item 2 asks for: the `N0 α h` row's `CAND` producer, no longer
+pinned to the pilot's `(α, h) = (2, 0)`.
+
+Thirteen fields are proved; the four arguments are AS1's analytic clauses at exactly the record's
+types, so the elaborator is the acceptance check. -/
+noncomputable def genCertNWordCertificate (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    {SN : SourceNumerics (2 + 2 * h)}
+    (nuP : ContinuousMonoidHom ((DN α h : ProfiniteGrp) : Type) Ztwo)
+    (hnuSigma : nuP ((nCorePresentation α h).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * h + 1), nuP ((nCorePresentation α h).mark (.wild j)) = 1)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * h) q (nCompactW α h))
+      (2 + 2 * h) q (DN α h) nuP SN)
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q
+      (DN α h) nuP SN (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) SN
+      (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * h) q (nCompactW α h))
+      (2 + 2 * h) q (DN α h) nuP SN
+      (tameOfSpec (2 + 2 * h) q (nCompactW α h) (genCertNTameSpecializes α h q hq0 hqe))
+      (genCertNPro2 α h q hq0 hqe)
+      (genCertNCompat α h q hq0 hqe (genCertNTameSpecializes α h q hq0 hqe) nuP hnuSigma hnuWild)
+      (scalarActionZmodTwo _)) :
+    WordCertificate (2 + 2 * h) q (nCompactW α h) (DN α h) (isProP_DN α h) nuP SN where
+  tameSpecialization := genCertNTameSpecializes α h q hq0 hqe
+  coreRel := genCertNCoreRel α h
+  proTwoWord := fun G _ _ _ _ _ t => genCertNProTwoWord α h G t
+  pro2 := genCertNPro2 α h q hq0 hqe
+  ker_pro2 := genCertN_ker_pro2 α h q hq0 hqe
+  hpro2 := genCertNPro2_surjective α h q hq0 hqe
+  compat := genCertNCompat α h q hq0 hqe (genCertNTameSpecializes α h q hq0 hqe) nuP hnuSigma
+    hnuWild
+  tfg := Count.gammaR_topologicallyFinitelyGenerated _ _ _
+  smulZmod2 := scalarActionZmodTwo _
+  contSMulZmod2 := scalarActionZmodTwo_continuousSMul _
+  htriv := scalarActionZmodTwo_triv _
+  exactLifting := exactLifting
+  stokes := stokes
+  scalar := scalar
+  determinant := determinant
+  htame := Count.htame_of_tameSpecializes _
+  hwild := Count.hwild_nCompact _
+
+/-! ### The canonical marking, and non-vacuity
+
+`SelectedCoreLeavesRN.nNuZtwo` is the handle-generic `Ztwo` marking of `D_N`, with both
+normalization clauses already proved at free `(α, h)`; what it lacked is surjectivity (the
+`(2, 0)` pilot has `SqrtNeg2.pilotNuP_surjective`, the general row had no twin).  With that
+one-liner supplied, the producer's three marking binders all vanish. -/
+
+/-- The handle-generic compact-`N` marking is onto (the missing twin of
+`SqrtNeg2.pilotNuP_surjective`). -/
+theorem genCertNNuZtwo_surjective (alpha h : ℕ) :
+    Function.Surjective (SelectedCoreLeavesRN.nNuZtwo alpha h) :=
+  Instances.NuWitness.surjective_of_ztwoOne_mem_range _
+    ⟨_, SelectedCoreLeavesRN.nNuZtwo_sigma alpha h⟩
+
+/-- **The compact-`N` word certificate at the canonical marking.**  No marking binders remain:
+the `N0 α h` row's `CAND` producer takes free `(α, h, q)`, the two `q`-conditions, and AS1's four
+analytic clauses, and nothing else. -/
+noncomputable def genCertNWordCertificateCanonical (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    {SN : SourceNumerics (2 + 2 * h)}
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * h) q (nCompactW α h))
+      (2 + 2 * h) q (DN α h) (SelectedCoreLeavesRN.nNuZtwo α h) SN)
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q
+      (DN α h) (SelectedCoreLeavesRN.nNuZtwo α h) SN (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) SN
+      (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * h) q (nCompactW α h))
+      (2 + 2 * h) q (DN α h) (SelectedCoreLeavesRN.nNuZtwo α h) SN
+      (tameOfSpec (2 + 2 * h) q (nCompactW α h) (genCertNTameSpecializes α h q hq0 hqe))
+      (genCertNPro2 α h q hq0 hqe)
+      (genCertNCompat α h q hq0 hqe (genCertNTameSpecializes α h q hq0 hqe)
+        (SelectedCoreLeavesRN.nNuZtwo α h) (SelectedCoreLeavesRN.nNuZtwo_sigma α h)
+        (SelectedCoreLeavesRN.nNuZtwo_wild α h))
+      (scalarActionZmodTwo _)) :
+    WordCertificate (2 + 2 * h) q (nCompactW α h) (DN α h) (isProP_DN α h)
+      (SelectedCoreLeavesRN.nNuZtwo α h) SN :=
+  genCertNWordCertificate α h q hq0 hqe (SelectedCoreLeavesRN.nNuZtwo α h)
+    (SelectedCoreLeavesRN.nNuZtwo_sigma α h) (SelectedCoreLeavesRN.nNuZtwo_wild α h)
+    exactLifting stokes scalar determinant
+
+/-- The producer sits over the general constructor table's `N0 α h` row: same degree, same
+word, same core. -/
+theorem genCertN_row_word (α h : ℕ) :
+    (SelectedPresentation.N0 α h).word = nCompactW α h := rfl
+
+/-- …and the same core. -/
+theorem genCertN_row_core (α h : ℕ) : genAsmCore (.N0 α h) = DN α h := rfl
+
+end NRow
+
+/-! ## §7 The procyclic-`M` row off `h = 0`
+
+`Instances.MProcyclicCore.mpcWordCertificate` is pinned to `h = 0`.  **The diagnosis** (the state
+note flagged the hole without one): the pin is *not* in the word layer, not in Gate B, not in
+the core `D_M`, and not in the Fox/Stokes layers.  Every one of those is already free in `h`
+(`Words.Mpc.eval_pro2_mpcW`, `Count.tameSpecializes_mpcW`, `Count.hwild_mpcW`, `isProP_DM`,
+`presentedBy_DM`, `dm_relation`, `Certificates.MProcyclic.mpc_stokesDuality`).  The pin is the
+`CoreReindex` dictionary `Instances.MProcyclicCore.mpcReindex`
+(`Instances/Cores.lean:882`), which is stated at `Fin (coreRank 0)` and proved by `fin_cases`;
+at symbolic `h` its four obligations are blocked on `(k : Fin (2 + 2h + 1)).val = k % (2h + 3)`.
+The compact-`M` row escapes only because `mReindex` factors through `nReindex`.
+
+**And the block is already bypassed in the tree**: `mpcCorePresentationUnit`
+(`Instances/MpcCoreUnit.lean:381`) is a `CorePresentation` at *every* `h` and every `2`-adic
+unit, built from the arbitrary-unit dictionary rather than from a `CoreReindex`.  What it is
+stated over is the arbitrary-unit word `mpcWUnit`, not the constructor table's `mpcW`.  The two
+coincide **as `PWord`s** exactly when the display is a `.hat`
+(`Words.Mpc.mpcWUnit_eq_hatDisplay`); at a `.one` or `.lit` display they agree only after
+evaluation (`eval_mpcWUnit_eq_display`).  So the lift lands at free `h` on the `.hat` rows, and
+what remains is a word-syntax residual, named as `GenCertMpcDisplayWordEq` below. -/
+
+section MpcRow
+
+open Words Words.Mpc Count Instances.MProcyclicCore
+
+/-- **The word transport.**  Trivial, and named because it is what the `Mpc` lift consumes: a
+`WordCertificate` depends on its word only through the index, so an equality of `PWord`s moves
+the whole record. -/
+noncomputable def WordCertificate.genCertWordTransport {n q : ℕ} {R R' : PWord (Generator n)}
+    {P : ProfiniteGrp} {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo}
+    {SN : SourceNumerics n} (W : WordCertificate n q R P hP nuP SN) (hR : R = R') :
+    WordCertificate n q R' P hP nuP SN :=
+  hR ▸ W
+
+/-- ⚠ **The residual of the `Mpc` lift**, as a named `Prop`: the arbitrary-unit word and the
+constructor table's word at a display `dsp` agree *as `PWord`s*.  At `dsp = .hat n d` with a
+compatible `d` this is `Words.Mpc.mpcWUnit_eq_hatDisplay`, i.e. a theorem; at `.one` and `.lit`
+it is open, and only the evaluated form `eval_mpcWUnit_eq_display` is available. -/
+def GenCertMpcDisplayWordEq (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (dsp : EtaDisplay) : Prop :=
+  mpcWUnit alpha r p eta h = mpcW alpha r p dsp h
+
+/-- The residual is discharged at every `.hat` display, at every handle count. -/
+theorem genCertMpcDisplayWordEq_hat (alpha r p h : ℕ) {eta : ℤ_[2]ˣ} (d : NpcDisplayFor eta) :
+    GenCertMpcDisplayWordEq alpha r p h eta (.hat d.data.num d.data.den) :=
+  mpcWUnit_eq_hatDisplay alpha r p h d
+
+/-- **The procyclic-`M` core presentation at the table's word**, at every handle count, given the
+display residual.  This is `mpcCorePresentationUnit` (free `h`) moved onto `mpcW`. -/
+noncomputable def genCertMpcCore (alpha r p h : ℕ) (halpha : 1 ≤ alpha) {eta : ℤ_[2]ˣ}
+    {dsp : EtaDisplay} (hw : GenCertMpcDisplayWordEq alpha r p h eta dsp) :
+    Count.CorePresentation (2 + 2 * h) (mpcW alpha r p dsp h) (DM alpha h) :=
+  hw ▸ mpcCorePresentationUnit alpha r p eta h halpha
+
+/-- **The procyclic-`M` word certificate off `h = 0`.**  Same posture as the `M0`/`N0` producers:
+thirteen fields proved, the four analytic clauses as arguments.  The only extra input over
+`mpcWordCertificate` is `hw`, the display residual, which is a theorem at every `.hat` display
+(`genCertMpcDisplayWordEq_hat`) and at every handle count.
+
+⚠ `1 ≤ alpha` is genuine here, as on the compact-`M` row: it is `eval_pro2_mpcWUnit`'s own
+hypothesis and `tameSpecializes_mpcW`'s. -/
+noncomputable def genCertMpcWordCertificate (alpha r p q h : ℕ) (halpha : 1 ≤ alpha)
+    (hq0 : q ≠ 0) (hqe : Even q) {eta : ℤ_[2]ˣ} {dsp : EtaDisplay}
+    (hw : GenCertMpcDisplayWordEq alpha r p h eta dsp)
+    {SN : SourceNumerics (2 + 2 * h)}
+    (nuP : ContinuousMonoidHom ((DM alpha h : ProfiniteGrp) : Type) Ztwo)
+    (hnuSigma : nuP ((genCertMpcCore alpha r p h halpha hw).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * h + 1),
+      nuP ((genCertMpcCore alpha r p h halpha hw).mark (.wild j)) = 1)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * h) q (mpcW alpha r p dsp h))
+      (2 + 2 * h) q (DM alpha h) nuP SN)
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * h) q (mpcW alpha r p dsp h))
+      (2 + 2 * h) q (DM alpha h) nuP SN (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * h) q (mpcW alpha r p dsp h))
+      (2 + 2 * h) SN (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * h) q (mpcW alpha r p dsp h))
+      (2 + 2 * h) q (DM alpha h) nuP SN
+      (tameOfSpec (2 + 2 * h) q (mpcW alpha r p dsp h)
+        (Count.tameSpecializes_mpcW hq0 hqe halpha r p dsp h))
+      (Count.CorePresentation.coreHom (genCertMpcCore alpha r p h halpha hw) hq0 hqe)
+      (Count.CorePresentation.nu_compat_coreHom (genCertMpcCore alpha r p h halpha hw) hq0 hqe
+        (Count.tameSpecializes_mpcW hq0 hqe halpha r p dsp h) nuP hnuSigma hnuWild)
+      (scalarActionZmodTwo _)) :
+    WordCertificate (2 + 2 * h) q (mpcW alpha r p dsp h) (DM alpha h) (isProP_DM alpha h) nuP
+      SN where
+  tameSpecialization := Count.tameSpecializes_mpcW hq0 hqe halpha r p dsp h
+  coreRel := fun G _ _ _ _ _ t => mpcCoreRelUnit alpha r p eta h t
+  proTwoWord := fun G _ _ _ _ _ t => by
+    rw [← hw]
+    exact mpcProTwoWordUnit alpha r p eta h halpha t
+  pro2 := Count.CorePresentation.coreHom (genCertMpcCore alpha r p h halpha hw) hq0 hqe
+  ker_pro2 := Count.CorePresentation.ker_coreHom (genCertMpcCore alpha r p h halpha hw) hq0 hqe
+  hpro2 := Count.CorePresentation.coreHom_surjective (genCertMpcCore alpha r p h halpha hw) hq0
+    hqe
+  compat := Count.CorePresentation.nu_compat_coreHom (genCertMpcCore alpha r p h halpha hw) hq0
+    hqe (Count.tameSpecializes_mpcW hq0 hqe halpha r p dsp h) nuP hnuSigma hnuWild
+  tfg := Count.gammaR_topologicallyFinitelyGenerated _ _ _
+  smulZmod2 := scalarActionZmodTwo _
+  contSMulZmod2 := scalarActionZmodTwo_continuousSMul _
+  htriv := scalarActionZmodTwo_triv _
+  exactLifting := exactLifting
+  stokes := stokes
+  scalar := scalar
+  determinant := determinant
+  htame := Count.htame_of_tameSpecializes _
+  hwild := Count.hwild_mpcW _
+
+/-- The producer sits over the general constructor table's `Mpc` row: at `p = p ε r` its word is
+the table's word, at every handle count and every display. -/
+theorem genCertMpc_row_word (alpha r : ℕ) (epsilon : Bool) (dsp : EtaDisplay) (h : ℕ) :
+    (SelectedPresentation.Mpc alpha r epsilon dsp h).word
+      = mpcW alpha r (GQ2.Dyadic.p epsilon r) dsp h := rfl
+
+/-- …and the same core. -/
+theorem genCertMpc_row_core (alpha r : ℕ) (epsilon : Bool) (dsp : EtaDisplay) (h : ℕ) :
+    genAsmCore (.Mpc alpha r epsilon dsp h) = DM alpha h := rfl
+
+end MpcRow
+
 end GQ2.Dyadic
