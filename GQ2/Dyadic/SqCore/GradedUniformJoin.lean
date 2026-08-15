@@ -518,7 +518,177 @@ theorem gJoin_bundle_dvd {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicati
 
 end KnobInvisibility
 
-/-! ## §6 Axiom pins -/
+/-! ## §6 The layer kernel, and the absorption of the invisible tower
+
+Two consequences of §4-§5.
+
+* The **layer kernel** `gJoinLayerDvd c k`: the classes in `Q_{k+2}` whose reading is
+  `2^{k+1}`-divisible.  This is well defined on classes (`gDelta_dvd_of_levelMk_eq`), it is a
+  subgroup, and by §5 it contains the whole knob span.
+* The **`x̃₁` tower is a knob**.  This is the one tower the functionals cannot see
+  (`gDelta_x1_tower_dvd`), so it *has* to be absorbed by the moves, and it is: the bundle at
+  `t = x̃₁^{2^{k-1}a}` gives `t²·⁅t, x₁⁆`, the bracket splits as `⁅t, x̃₁⁆·⁅t, x₀²⁆` through
+  the bracket homomorphism, the first factor is trivial (`t` is a power of `x̃₁`), and the
+  second is a far-span knob.  So Labute's excluded column costs nothing here. -/
+
+section LayerKernel
+
+variable {h : ℕ}
+
+variable (h) in
+/-- The subgroup of elements with `2^m`-divisible reading. -/
+def gJoinDvdSub (c : Fin (sqRank h) → ℤ_[2]) (m : ℕ) : Subgroup (DSq h : Type) where
+  carrier := {x | (2 : ℤ_[2]) ^ m ∣ gDelta h c x}
+  one_mem' := by
+    simp only [Set.mem_setOf_eq, gDelta_one]
+    exact dvd_zero _
+  mul_mem' := fun {a b} ha hb => by
+    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    rw [gDelta_mul]
+    exact dvd_add ha (hb.mul_left _)
+  inv_mem' := fun {a} ha => by
+    simp only [Set.mem_setOf_eq] at ha ⊢
+    rw [gDelta_inv]
+    exact dvd_neg.mpr (ha.mul_left _)
+
+variable (h) in
+/-- **The layer kernel at correction depth `k`**: the classes in `Q_{k+2}` whose reading is
+`2^{k+1}`-divisible, i.e. whose layer bit vanishes.  Well defined by lift independence. -/
+noncomputable def gJoinLayerDvd (c : Fin (sqRank h) → ℤ_[2]) (k : ℕ) :
+    Subgroup (levelQuot (DSq h : Type) (k + 2)) :=
+  (gJoinDvdSub h c (k + 1)).map (levelMk (DSq h : Type) (k + 2))
+
+/-- Membership in the layer kernel is exactly `2^{k+1}`-divisibility of *any* lift's
+reading. -/
+theorem gJoin_mem_layerDvd {c : Fin (sqRank h) → ℤ_[2]} {k : ℕ} {x : (DSq h : Type)} :
+    levelMk (DSq h : Type) (k + 2) x ∈ gJoinLayerDvd h c k ↔
+      (2 : ℤ_[2]) ^ (k + 1) ∣ gDelta h c x := by
+  constructor
+  · rintro ⟨y, hy, hxy⟩
+    exact gDelta_dvd_of_levelMk_eq c (k := k + 1) hxy.symm hy
+  · intro hx
+    exact ⟨x, hx, rfl⟩
+
+/-- ⭐⭐ **The knob span lies in every layer kernel**: §5, transported to classes. -/
+theorem gJoin_knob_le_layerDvd
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ}
+    (c : Fin (sqRank h) → ℤ_[2]) :
+    Subgroup.closure (gTowerKnobSet h nu' (k + 2)) ≤ gJoinLayerDvd h c (k + 2) := by
+  refine (Subgroup.closure_le _).2 ?_
+  rintro z (⟨t, q, ht, hq, rfl⟩ | ⟨t, ht, rfl⟩)
+  · exact gJoin_mem_layerDvd.2 (gJoin_knob_dvd ht hq c)
+  · exact gJoin_mem_layerDvd.2 (gJoin_bundle_dvd ht c)
+
+end LayerKernel
+
+section XOneAbsorption
+
+variable {h : ℕ}
+
+variable (h) in
+/-- The centralizer of a single element, as a subgroup (built by hand to keep the closedness
+argument one line). -/
+noncomputable def gJoinCent (x : (DSq h : Type)) : Subgroup (DSq h : Type) where
+  carrier := {g | g * x = x * g}
+  one_mem' := by simp
+  mul_mem' := fun {a b} ha hb => by
+    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    rw [mul_assoc, hb, ← mul_assoc, ha, mul_assoc]
+  inv_mem' := fun {a} ha => by
+    simp only [Set.mem_setOf_eq] at ha ⊢
+    rw [inv_mul_eq_iff_eq_mul, ← mul_assoc, ha, mul_assoc, mul_inv_cancel, mul_one]
+
+/-- **`ℤ₂`-powers commute with their base.** -/
+theorem gJoin_zpow_commP (x : (DSq h : Type)) (e : ℤ_[2]) :
+    commP (zpowZtwo (isProP_DSq h) x e) x = 1 := by
+  have hclosed : IsClosed ((gJoinCent h x : Subgroup (DSq h : Type)) : Set (DSq h : Type)) :=
+    isClosed_eq (continuous_id.mul continuous_const) (continuous_const.mul continuous_id)
+  have hle : (Subgroup.closure ({x} : Set (DSq h : Type))).topologicalClosure
+      ≤ gJoinCent h x :=
+    Subgroup.topologicalClosure_minimal _
+      ((Subgroup.closure_le _).2 (by rintro _ rfl; exact rfl)) hclosed
+  have hcomm : zpowZtwo (isProP_DSq h) x e * x = x * zpowZtwo (isProP_DSq h) x e :=
+    hle (zpowZtwo_mem_topologicalClosure (isProP_DSq h) x e)
+  simp only [commP]
+  calc (zpowZtwo (isProP_DSq h) x e)⁻¹ * x⁻¹ * zpowZtwo (isProP_DSq h) x e * x
+      = (zpowZtwo (isProP_DSq h) x e)⁻¹ * x⁻¹ * (zpowZtwo (isProP_DSq h) x e * x) := by
+        rw [mul_assoc]
+    _ = (zpowZtwo (isProP_DSq h) x e)⁻¹ * x⁻¹ * (x * zpowZtwo (isProP_DSq h) x e) := by
+        rw [hcomm]
+    _ = 1 := by group
+
+/-- The `x₁`-letter as the cleared letter times the `x₀`-tower. -/
+theorem gJoin_x1_eq : dsqX1 h = gTowerXOne h * zpowZtwo (isProP_DSq h) (dsqX0 h) 2 := by
+  rw [gTowerXOne, inv_mul_cancel_right]
+
+/-- The `x̃₁`-towers are admissible corrections at their depth. -/
+theorem gJoin_xOne_tower_adm
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} (hk : 1 ≤ k)
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (a : ℤ_[2]) :
+    GTowerAdm h nu' k (zpowZtwo (isProP_DSq h) (gTowerXOne h) (2 ^ (k - 1) * a)) := by
+  refine ⟨gTower_zpow_dvd_mem hk ⟨a, rfl⟩ _, ?_, ?_⟩
+  · refine Multiplicative.toAdd.injective ?_
+    rw [toAdd_map_zpowZtwo, gTower_xOne_nuLam, toAdd_one, mul_zero]
+  · refine Multiplicative.toAdd.injective ?_
+    rw [toAdd_map_zpowZtwo, gTower_xOne_nu nu' hx0, toAdd_one, mul_zero]
+
+/-- ⭐⭐⭐ **The invisible tower is a knob**: `x̃₁^{2^k a}` lies in the knob span at depth
+`k ≥ 1`.  This is what makes Labute's excluded column harmless here: the one tower no
+functional detects is the one the `x₁`-slot bundle manufactures.  Every other tower is
+detected, and §7 removes those by their readings. -/
+theorem gJoin_xOne_tower_knob
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} (hk : 1 ≤ k)
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (a : ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (gTowerXOne h) (2 ^ k * a))
+      ∈ Subgroup.closure (gTowerKnobSet h nu' k) := by
+  set t := zpowZtwo (isProP_DSq h) (gTowerXOne h) (2 ^ (k - 1) * a) with ht_def
+  have hadm : GTowerAdm h nu' k t := gJoin_xOne_tower_adm hk hx0 a
+  have hsq : t ^ 2 = zpowZtwo (isProP_DSq h) (gTowerXOne h) (2 ^ k * a) := by
+    rw [ht_def, sq, ← zpowZtwo_add]
+    congr 1
+    have h2 : (2 : ℤ_[2]) ^ (k - 1) * 2 = 2 ^ k := by
+      rw [← pow_succ, Nat.sub_add_cancel hk]
+    linear_combination a * h2
+  have hbundle : levelMk (DSq h : Type) (k + 2) (t ^ 2 * commP t (dsqX1 h))
+      ∈ Subgroup.closure (gTowerKnobSet h nu' k) :=
+    Subgroup.subset_closure (Or.inr ⟨t, hadm, rfl⟩)
+  have hsplit : levelMk (DSq h : Type) (k + 2) (commP t (dsqX1 h))
+      ∈ Subgroup.closure (gTowerKnobSet h nu' k) := by
+    have hhom : levelMk (DSq h : Type) (k + 2) (commP t (dsqX1 h))
+        = levelMk (DSq h : Type) (k + 2) (commP t (gTowerXOne h)) *
+          levelMk (DSq h : Type) (k + 2)
+            (commP t (zpowZtwo (isProP_DSq h) (dsqX0 h) 2)) := by
+      have hmm := map_mul (cfiveCommHom (k := k) hadm.1) (gTowerXOne h)
+        (zpowZtwo (isProP_DSq h) (dsqX0 h) 2)
+      rw [← gJoin_x1_eq] at hmm
+      exact hmm
+    have hzero : levelMk (DSq h : Type) (k + 2) (commP t (gTowerXOne h)) = 1 := by
+      rw [ht_def, gJoin_zpow_commP, map_one]
+    have hfar : zpowZtwo (isProP_DSq h) (dsqX0 h) 2 ∈ gTowerFar h := by
+      have hx0mem : dsqX0 h ∈ gTowerFar h :=
+        Subgroup.le_topologicalClosure _
+          (Subgroup.subset_closure (Or.inl (Or.inl (Or.inr rfl))))
+      have hclosedFar :
+          IsClosed ((gTowerFar h : Subgroup (DSq h : Type)) : Set (DSq h : Type)) :=
+        Subgroup.isClosed_topologicalClosure _
+      have hle : (Subgroup.closure ({dsqX0 h} : Set (DSq h : Type))).topologicalClosure
+          ≤ gTowerFar h :=
+        Subgroup.topologicalClosure_minimal _
+          ((Subgroup.closure_le _).2 (by rintro _ rfl; exact hx0mem)) hclosedFar
+      exact hle (zpowZtwo_mem_topologicalClosure (isProP_DSq h) (dsqX0 h) 2)
+    rw [hhom, hzero, one_mul]
+    exact Subgroup.subset_closure (Or.inl ⟨t, _, hadm, hfar, rfl⟩)
+  have hform : levelMk (DSq h : Type) (k + 2) (t ^ 2)
+      = levelMk (DSq h : Type) (k + 2) (t ^ 2 * commP t (dsqX1 h)) *
+        (levelMk (DSq h : Type) (k + 2) (commP t (dsqX1 h)))⁻¹ := by
+    rw [map_mul, mul_inv_cancel_right]
+  rw [← hsq, hform]
+  exact Subgroup.mul_mem _ hbundle (Subgroup.inv_mem _ hsplit)
+
+end XOneAbsorption
+
+/-! ## §7 Axiom pins -/
+
 
 section AxiomPins
 
@@ -556,6 +726,15 @@ section AxiomPins
 #print axioms gJoin_adm_reading
 #print axioms gJoin_knob_dvd
 #print axioms gJoin_bundle_dvd
+#print axioms GQ2.Dyadic.SqCore.gJoinDvdSub
+#print axioms GQ2.Dyadic.SqCore.gJoinLayerDvd
+#print axioms gJoin_mem_layerDvd
+#print axioms gJoin_knob_le_layerDvd
+#print axioms GQ2.Dyadic.SqCore.gJoinCent
+#print axioms gJoin_zpow_commP
+#print axioms gJoin_x1_eq
+#print axioms gJoin_xOne_tower_adm
+#print axioms gJoin_xOne_tower_knob
 
 end AxiomPins
 
