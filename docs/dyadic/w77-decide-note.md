@@ -1,13 +1,13 @@
 # W77-DECIDE: the depth-two base is FALSE, at every `h`, by a group of order sixteen
 
 **Lane W77-DECIDE, branch `claude/w77-decide`, base `1d3d5a84`.**  One new module,
-`GQ2/Dyadic/SqCore/GradedBaseDecide.lean` (prefix `gDecide`), 62 declarations, all pinned on
+`GQ2/Dyadic/SqCore/GradedBaseDecide.lean` (prefix `gDecide`), 63 declarations, all pinned on
 `[propext, Classical.choice, Quot.sound]` or a subset.  No edits to existing files, no `sorry`,
 no new axiom, no `native_decide`, no heartbeat or recursion-depth options.
 
 Commits: `9fa93556` (module opened), `e79cdce4` (the witness group), `e9521128` (the marking,
 the hom, `λ₄ = 1`), `3dea56c2` (the decision at `h = 0`), `3c453a7b` (the decision at every
-`h`, plus the depth-`3` restart).
+`h`, plus the depth-`3` restart), `59bead8d` (every-marking form at `h = 0`, and this note).
 
 Verification of record: `scripts/mirror.sh sweep` at lane start, `scripts/mirror.sh gen
 GQ2.Dyadic.SqCore.GradedBaseDecide` green after every commit, zero warnings, zero sorries.  New
