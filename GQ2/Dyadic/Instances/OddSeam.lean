@@ -45,7 +45,7 @@ image, rank `[K : ℚ₂] + 2`, and `q = 2`, all theorems over the bundle.
   live bridge `exists_orientedEquiv_fullNu_of_orientedClearAtUnitPivot` holds with its
   model-side binder `SqNuOrientedClearAtUnitPivot h` DELETED, and the `L`-row pro-2 block
   `MarkedCoreRealization (D_sq h) (lNu h)` costs the supply alone
-  (`oddSeam_realization_of_supply`) — no clearing binder, no frame residual.
+  (`oddSeam_realization_of_supply`): no clearing binder, no frame residual.
 * **the frame form, exactly**: the seam is equivalent to the existence of ONE cup-adapted
   Frattini frame that kills the improved relator and carries the two `ν`-rows
   (`oddSeam_supply_iff_cupAdaptedFrame`).  Forward is `frameOfOrientedEquiv` plus the committed
@@ -86,7 +86,7 @@ The `NFrameExists.lean` construction, adapted to the square relator.  Coordinate
 `D_sq(h)^{ab}`, written against the generator basis `σ̄ = ḡ₀, x̄₀ = ḡ₁, x̄₁ = ḡ₂, handles`:
 
 * the free `σ̄`-coordinate (`oddSeamSHom`): `σ̄ ↦ 1`, all else `0`;
-* the free `x̄₀`-coordinate (`oddSeamXHom`): `x̄₀ ↦ 1`, `x̄₁ ↦ 2`, all else `0` — the two-slot
+* the free `x̄₀`-coordinate (`oddSeamXHom`): `x̄₀ ↦ 1`, `x̄₁ ↦ 2`, all else `0`, the two-slot
   functional dual to `x̄₀` in the Smith basis `(σ̄, x̄₀, t = x̄₁ − 2x̄₀)`;
 * the torsion coordinate (`oddSeamTHom`): `x̄₁ ↦ 1` into `ℤ/2`, all else `0`;
 * the `2h` handle coordinates (`oddSeamHHom`).
@@ -100,7 +100,7 @@ section AbFrame
 theorem oddSeam_isProP_topAb (h : ℕ) : IsProP 2 (topAbelianization (DSq h : Type)) :=
   isProP_of_surjective abMk continuous_abMk abMk_surjective (isProP_DSq h)
 
-/-- **The abelianized relation**: `x̄₀⁻⁴ · x̄₁² = 1` in `D_sq(h)^{ab}` — the relator's abelian
+/-- **The abelianized relation**: `x̄₀⁻⁴ · x̄₁² = 1` in `D_sq(h)^{ab}`: the relator's abelian
 collapse `ρ_sq = −4x̄₀ + 2x̄₁` (`sqRelWord_comm`), with the handles contributing nothing. -/
 theorem oddSeam_abRel (h : ℕ) :
     ((abMk (dsqX0 h) : topAbelianization (DSq h : Type)) ^ 4)⁻¹ * abMk (dsqX1 h) ^ 2 = 1 := by
@@ -243,7 +243,7 @@ def oddSeamSHom (h : ℕ) :
       rw [oddSeamCoreMark_one, oddSeamCoreMark_two, one_pow, one_pow, inv_one, one_mul])
 
 /-- **The free `x̄₀`-coordinate**, the two-slot functional `x̄₀ ↦ 1, x̄₁ ↦ 2`: the dual of
-`x̄₀` in the Smith basis `(σ̄, x̄₀, t)`.  Relator check: `−4·1 + 2·2 = 0` — this is the one
+`x̄₀` in the Smith basis `(σ̄, x̄₀, t)`.  Relator check: `−4·1 + 2·2 = 0`; this is the one
 coordinate that sees the relation vector pair the two wild letters. -/
 def oddSeamXHom (h : ℕ) :
     ContinuousMonoidHom (topAbelianization (DSq h : Type)) (Multiplicative ℤ_[2]) :=
@@ -404,7 +404,7 @@ end WordFormulas
 /-! ### The model, and its torsion -/
 
 /-- **The abelianization model of the square family**: `ℤ/2 × ℤ₂² × ℤ₂^{2h}`, coordinates
-`(t, σ̄, x̄₀, handles)`.  Rank `2 + 2h` free part — one less than `NFrameModel h`, because the
+`(t, σ̄, x̄₀, handles)`.  Rank `2 + 2h` free part, one less than `NFrameModel h`: the
 square relation vector consumes one generator where the `N` vector consumes none. -/
 abbrev OddSeamModel (h : ℕ) : Type :=
   Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × (Fin (2 * h) → ℤ_[2]))
@@ -641,8 +641,8 @@ variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [Fini
   [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
 
 /-- **The arithmetic torsion premise, discharged at every odd-degree field.**
-`MaxProTwoAbTorsionGeneratedByFieldRoots B` — the per-field local-CFT premise of
-`DemushkinQRamifiedI.lean` — holds at every odd-degree `K` over the bundle alone, through wave
+`MaxProTwoAbTorsionGeneratedByFieldRoots B`, the per-field local-CFT premise of
+`DemushkinQRamifiedI.lean`, holds at every odd-degree `K` over the bundle alone, through wave
 81's relocation `oddId_torsionPremise_iff_model` and T1's model value. -/
 theorem oddSeam_torsionPremise (B : MarkedRecip Rec K) {h : ℕ}
     (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
@@ -659,9 +659,319 @@ theorem oddSeam_demushkinQ_galK (B : MarkedRecip Rec K) {h : ℕ}
 
 end QInvariant
 
-/-! ## §6 Axiom pins -/
+/-! ## §3 The seam calculus
+
+The one structural Prop left on the odd row is `SqMarkedForwardSupply B h`.  This section pins
+down exactly what it is worth and exactly what it costs, in three moves.
+
+* **Wave 80 self-improves the seam** (`oddSeam_supply_iff_fullMarking`): the two selected rows
+  buy the WHOLE standard marking, because `gOdd_markedMatching` corrects any selected marking
+  onto `ν_sq` by a χ-preserving automorphism of the model.  Consequently the live bridge
+  `exists_orientedEquiv_fullNu_of_orientedClearAtUnitPivot` holds with its model-side binder
+  `SqNuOrientedClearAtUnitPivot h` deleted, and the `L`-row pro-2 block
+  `MarkedCoreRealization (D_sq h) (lNu h)` costs the seam alone
+  (`oddSeam_realization_of_supply`): no clearing binder and no frame residual, where the
+  committed route (`markedCoreRealization_oddDegree`) consumed both.
+* **The frame form is exact** (`oddSeam_supply_iff_cupAdaptedFrame`): the seam is equivalent to
+  ONE cup-adapted Frattini frame killing the improved relator and carrying the two `ν`-rows.
+  So the halved relator clause `SqCupAdaptedFrameRelator K` (the same conclusion at EVERY
+  cup-adapted frame) overshoots the seam by exactly its quantifier, and the seam is the
+  smallest frame-shaped statement there is: forward is `frameOfOrientedEquiv` (the supply's own
+  equivalence pushed onto a frame, cup-adapted by the committed `H²` computation), backward is
+  odd-degree Demushkin rigidity.
+* **The relator clause produces the seam** (`oddSeam_supply_of_relator`), h-explicitly, through
+  the committed `ν`-endpoint wiring: the clause kills the relator on the row-marked cup-adapted
+  frame that reciprocity supplies, and rigidity does the rest.
+
+What this section does NOT do: discharge the relator clause or the seam itself at `h ≥ 1`.
+The two `ν`-rows are arithmetic: `GammaLSylowPreimagePivotNu.lean` §5 exhibits a marking
+interface-indistinguishable from the standard one with the opposite pivot row, so no
+orientation-plus-interface argument can supply them, and the exact rows reduce to their mod-2
+shadows (§2 there) whose pivot parity is an invariant of the target
+(`SqCore.isUnit_toAdd_transported_sqPivot_iff`).  The relator above level three is the stage
+lane's open problem.  The degree-one instance is the
+committed theorem (`oddId_markedSupply_degreeOne`); §5 stress-pins both it and its image under
+every equivalence of this section. -/
+
+section SeamCalculus
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+omit [T2Space (GalK K)] in
+/-- **The wave-80 self-improvement of the seam**: the marked forward supply produces an
+oriented equivalence carrying the ENTIRE standard marking `ν_sq`, not merely its two selected
+rows.  Proof: pull the field marking back along the supply's equivalence; its two rows are the
+selected ones, so `SqCore.gOdd_markedMatching` (wave 80) corrects it onto `ν_sq` by a
+χ-preserving automorphism; compose.  This deletes the model-side binder
+`SqNuOrientedClearAtUnitPivot h` from the live bridge
+`exists_orientedEquiv_fullNu_of_orientedClearAtUnitPivot`. -/
+theorem oddSeam_fullMarking_of_supply (B : MarkedRecip Rec K) (h : ℕ)
+    (H : SqMarkedForwardSupply B h) :
+    ∃ f : ContinuousMulEquiv (DSq h : Type) (maxProPQuotient 2 (GalK K)),
+      (∀ x, chiCycKTwo (K := K) (f x) = chiSq h x) ∧
+        ∀ x, nuUrKTwo B (f x) = nuSq h x := by
+  obtain ⟨f, horient, hsigma, hx0⟩ := H
+  obtain ⟨u, hchi, hnu⟩ := gOdd_markedMatching h (transportedNuUr B f)
+    (by rw [transportedNuUr_apply]; exact hsigma)
+    (by rw [transportedNuUr_apply]; exact hx0)
+  refine ⟨u.trans f, fun x => ?_, fun x => ?_⟩
+  · show chiCycKTwo (K := K) (f (u x)) = chiSq h x
+    rw [horient (u x), hchi x]
+  · show nuUrKTwo B (f (u x)) = nuSq h x
+    have hval := hnu x
+    rwa [transportedNuUr_apply] at hval
+
+omit [T2Space (GalK K)] in
+/-- **The seam, exactly, in full-marking form**: `SqMarkedForwardSupply B h` is equivalent to
+an oriented equivalence carrying the whole standard marking.  The forward direction is wave
+80's dividend; the backward direction reads off the `σ`- and `x₀`-rows. -/
+theorem oddSeam_supply_iff_fullMarking (B : MarkedRecip Rec K) (h : ℕ) :
+    SqMarkedForwardSupply B h ↔
+      ∃ f : ContinuousMulEquiv (DSq h : Type) (maxProPQuotient 2 (GalK K)),
+        (∀ x, chiCycKTwo (K := K) (f x) = chiSq h x) ∧
+          ∀ x, nuUrKTwo B (f x) = nuSq h x := by
+  refine ⟨oddSeam_fullMarking_of_supply B h, ?_⟩
+  rintro ⟨f, horient, hnu⟩
+  exact ⟨f, horient, (hnu (dsqSigma h)).trans (nuSq_sigma h),
+    (hnu (dsqX0 h)).trans (nuSq_x0 h)⟩
+
+omit [T2Space (GalK K)] in
+/-- The seam produces the χ-free full-row supply of the marking audit, a fortiori. -/
+theorem oddSeam_fullNuSupply_of_supply (B : MarkedRecip Rec K) (h : ℕ)
+    (H : SqMarkedForwardSupply B h) : MarkingAudit.SqFullNuForwardSupply B h := by
+  obtain ⟨f, _, hnu⟩ := oddSeam_fullMarking_of_supply B h H
+  exact ⟨f, hnu⟩
+
+section Realization
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+omit [T2Space (GalK K)] in
+/-- **The `L`-row pro-2 block over the seam alone.**  `MarkedCoreRealization (D_sq h) (lNu h)`
+costs exactly `SqMarkedForwardSupply B h`: no χ-free clearing binder (wave 80 pays it inside
+the full marking) and no frame residual (the supply IS the frame data).  Compare the committed
+`markedCoreRealization_oddDegree`, which consumes `SqCupAdaptedFramePresentation K` and the
+clearing binder. -/
+theorem oddSeam_realization_of_supply (B : MarkedRecip Rec K) (h : ℕ)
+    (H : SqMarkedForwardSupply B h) :
+    Nonempty (MarkedCoreRealization (K := K) (B := B) (DSq h)
+      (Instances.LSquareCore.lNu h)) :=
+  MarkingAudit.markedCoreRealization_of_fullSupply (oddSeam_fullNuSupply_of_supply B h H)
+
+end Realization
+
+/-- **The seam produces a row-marked cup-adapted presenting frame**, in fact one carrying the
+full standard marking on all `3 + 2h` generators; the statement records the two rows the
+backward direction consumes.  Cup-adaptation is the committed `H²(D_sq)` computation
+(`isCupAdapted_frameOfOrientedEquiv`); the relator and generation are the pushforward of the
+model presentation. -/
+theorem oddSeam_cupAdaptedFrame_of_supply (B : MarkedRecip Rec K) (h : ℕ)
+    (H : SqMarkedForwardSupply B h) :
+    ∃ F : SqCyclotomicFrattiniFrame K h, F.IsCupAdapted ∧ sqRelWord F.generators = 1 ∧
+      nuUrKTwo B (F.generators 0) = ofAdd (1 : ℤ_[2]) ∧
+        nuUrKTwo B (F.generators 1) = ofAdd (0 : ℤ_[2]) := by
+  obtain ⟨f, horient, hnu⟩ := oddSeam_fullMarking_of_supply B h H
+  refine ⟨frameOfOrientedEquiv f horient, isCupAdapted_frameOfOrientedEquiv f horient,
+    sqRelWord_frameOfOrientedEquiv f horient, ?_, ?_⟩
+  · show nuUrKTwo B (f (sqGen h 0)) = ofAdd (1 : ℤ_[2])
+    exact (hnu (sqGen h 0)).trans (nuSq_sigma h)
+  · show nuUrKTwo B (f (sqGen h 1)) = ofAdd (0 : ℤ_[2])
+    exact (hnu (sqGen h 1)).trans (nuSq_x0 h)
+
+/-- **A row-marked presenting frame is the whole seam** (backward direction): odd-degree
+Demushkin rigidity turns any Frattini frame killing the improved relator, with the two exact
+`ν`-rows, into the marked forward supply.  Cup-adaptation is NOT consumed here (rigidity works
+on any presenting frame), so the `∃`-form below quotes it only because the forward direction
+supplies it for free. -/
+theorem oddSeam_supply_of_presentingFrame (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (F : SqCyclotomicFrattiniFrame K h) (hrel : sqRelWord F.generators = 1)
+    (hsigma : nuUrKTwo B (F.generators 0) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nuUrKTwo B (F.generators 1) = ofAdd (0 : ℤ_[2])) :
+    SqMarkedForwardSupply B h := by
+  have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
+  have hh : h = (Module.finrank ℚ_[2] K - 1) / 2 := by omega
+  subst hh
+  exact sqMarkedForwardSupply_of_presentingFrame B hodd F hrel hsigma hx0
+
+/-- **The frame form of the seam, exactly.**  At `[K : ℚ₂] = 2h + 1` the marked forward supply
+is equivalent to the existence of ONE cup-adapted Frattini frame that kills the improved
+relator and carries the two selected `ν`-rows.  The halved relator clause
+`SqCupAdaptedFrameRelator K` demands the same relator conclusion at EVERY cup-adapted frame;
+this equivalence says the seam is its `∃`-row-marked instance, no more and no less. -/
+theorem oddSeam_supply_iff_cupAdaptedFrame (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    SqMarkedForwardSupply B h ↔
+      ∃ F : SqCyclotomicFrattiniFrame K h, F.IsCupAdapted ∧ sqRelWord F.generators = 1 ∧
+        nuUrKTwo B (F.generators 0) = ofAdd (1 : ℤ_[2]) ∧
+          nuUrKTwo B (F.generators 1) = ofAdd (0 : ℤ_[2]) := by
+  refine ⟨oddSeam_cupAdaptedFrame_of_supply B h, ?_⟩
+  rintro ⟨F, _, hrel, hsigma, hx0⟩
+  exact oddSeam_supply_of_presentingFrame B hdeg F hrel hsigma hx0
+
+/-- **The halved relator clause produces the seam**, h-explicitly: `SqCupAdaptedFrameRelator K`
+implies `SqMarkedForwardSupply B h` at the field's own handle count, through the committed
+generation theorem and `ν`-endpoint wiring. -/
+theorem oddSeam_supply_of_relator (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hrel : SqCupAdaptedFrameRelator K) : SqMarkedForwardSupply B h :=
+  oddId_markedSupply_of_presentation B FF hdeg (sqCupAdaptedFramePresentation_of_relator hrel)
+
+end SeamCalculus
+
+/-! ## §4 Acceptance: the odd classification over the halved relator clause
+
+The composites with wave 81's consumers.  Over `SqCupAdaptedFrameRelator K` every odd-degree
+`K` carries the `L`-row branch datum and the pro-2 block (ramified-`i` is automatic at odd
+degree), and what the general
+theorem `genAsm_candidate_equiv_galK` still needs is exactly its two record blocks
+(`GenAsmFieldInputs`, structural; `GenAsmRowResidual`, the ASK/CAND obligations).  The
+arithmetic torsion premise and the invariant triple are not conditional on anything: T1 pays
+them over the bundle. -/
+
+section Acceptance
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- **The `L`-row branch datum over the halved relator clause**: for `[K : ℚ₂] = 2h + 1`,
+`SqCupAdaptedFrameRelator K` places `K` on the `L h` row of the general assembly. -/
+theorem oddSeam_genAsmBranch_L_of_relator (B : MarkedRecip Rec K)
+    (FF : DyadicUnitFiltration K) {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hrel : SqCupAdaptedFrameRelator K) :
+    ∃ G : GenAsmBranch K B, G.pres = .L h :=
+  oddId_genAsmBranch_L_of_supply B hdeg (oddSeam_supply_of_relator B FF hdeg hrel)
+
+/-- The `L`-row pro-2 block over the halved relator clause, with no clearing binder. -/
+theorem oddSeam_realization_of_relator (B : MarkedRecip Rec K)
+    (FF : DyadicUnitFiltration K) {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hrel : SqCupAdaptedFrameRelator K) :
+    Nonempty (MarkedCoreRealization (K := K) (B := B) (DSq h)
+      (Instances.LSquareCore.lNu h)) :=
+  oddSeam_realization_of_supply B h (oddSeam_supply_of_relator B FF hdeg hrel)
+
+/-- **The full chain over the halved relator clause**: what the general theorem still needs at
+an odd-degree `K`, beyond `SqCupAdaptedFrameRelator K`, is exactly the two record blocks: the
+structural field inputs `GenAsmFieldInputs` and the residual record `GenAsmRowResidual`
+(exactLifting, stokes, determinant, cand).  This is the odd row's terminal statement of wave
+82. -/
+theorem oddSeam_candidate_equiv_galK_of_relator (B : MarkedRecip Rec K)
+    {FF : DyadicUnitFiltration K} {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hrel : SqCupAdaptedFrameRelator K) :
+    ∃ G : GenAsmBranch K B, G.pres = .L h ∧
+      ∀ F : GenAsmFieldInputs K B FF G.degree, GenAsmRowResidual G F.T →
+        Nonempty (ContinuousMulEquiv
+          ((candidateGroup G.degree (qOf K FF) G.word : ProfiniteGrp) : Type) (GalK K)) :=
+  oddId_candidate_equiv_galK_of_supply B hdeg (oddSeam_supply_of_relator B FF hdeg hrel)
+
+end Acceptance
+
+/-! ## §5 Stress pins -/
+
+section StressTests
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- Stress: the torsion generator is genuinely detected: its torsion coordinate is the
+nontrivial class, so §1's frame does not collapse it. -/
+example (h : ℕ) : oddSeamTHom h (oddSeamT h) = ofAdd (1 : ZMod 2) := by
+  rw [oddSeamT, map_mul, map_inv, map_pow, oddSeamTHom, oddSeamCoordHom_gen,
+    oddSeamCoordHom_gen, oddSeamCoreMark_one, oddSeamCoreMark_two, one_pow, inv_one, one_mul]
+
+/-- Stress: the `q`-invariant separates the square core from the `α = 1` `N`-core at every
+handle count; the two families the odd and even routes place at ramified versus unramified
+`i` really are non-isomorphic. -/
+example (h : ℕ) : demushkinQ (DSq h : Type) ≠ demushkinQ (DN 1 h : Type) := by
+  rw [oddSeam_demushkinQ_DSq, nFrame4_demushkinQ_DN_one]
+  omega
+
+/-- Stress: the model value agrees with the committed rank-3 census value at the Roe core
+(`demushkinQ_DR` proved `q = 2` for `D_R`); the square family now matches it at every `h`. -/
+example : demushkinQ (DSq 0 : Type) = 2 := oddSeam_demushkinQ_DSq 0
+
+/-- Stress (the degree-one floor): at `[K : ℚ₂] = 1` the seam is the committed theorem, so the
+full standard marking is carried unconditionally over the bundle and filtration. -/
+example (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (hdeg : Module.finrank ℚ_[2] K = 1) :
+    ∃ f : ContinuousMulEquiv (DSq 0 : Type) (maxProPQuotient 2 (GalK K)),
+      (∀ x, chiCycKTwo (K := K) (f x) = chiSq 0 x) ∧
+        ∀ x, nuUrKTwo B (f x) = nuSq 0 x :=
+  oddSeam_fullMarking_of_supply B 0 (oddId_markedSupply_degreeOne B FF hdeg)
+
+/-- Stress (the degree-one floor, frame form): a cup-adapted row-marked presenting frame of
+`G_K(2)` exists unconditionally at `[K : ℚ₂] = 1`. -/
+example (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (hdeg : Module.finrank ℚ_[2] K = 1) :
+    ∃ F : SqCyclotomicFrattiniFrame K 0, F.IsCupAdapted ∧ sqRelWord F.generators = 1 ∧
+      nuUrKTwo B (F.generators 0) = ofAdd (1 : ℤ_[2]) ∧
+        nuUrKTwo B (F.generators 1) = ofAdd (0 : ℤ_[2]) :=
+  oddSeam_cupAdaptedFrame_of_supply B 0 (oddId_markedSupply_degreeOne B FF hdeg)
+
+/-- Stress (the degree-one floor, block form): the `L`-row pro-2 block at `h = 0`,
+unconditionally over the bundle and filtration. -/
+example (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    (hdeg : Module.finrank ℚ_[2] K = 1) :
+    Nonempty (MarkedCoreRealization (K := K) (B := B) (DSq 0)
+      (Instances.LSquareCore.lNu 0)) :=
+  oddSeam_realization_of_supply B 0 (oddId_markedSupply_degreeOne B FF hdeg)
+
+/-- Stress: the torsion premise at a degree-one field, fully instantiated. -/
+example (B : MarkedRecip Rec K) (hdeg : Module.finrank ℚ_[2] K = 1) :
+    MaxProTwoAbTorsionGeneratedByFieldRoots B :=
+  oddSeam_torsionPremise B (h := 0) (by omega)
+
+end StressTests
+
+/-! ## §6 Axiom pins
+
+One pin per declaration, in declaration order, measured against the mirror at `a45bc557`.
+The file introduces no new axiom, no `sorry`, no `native_decide`; `B` is a binder throughout,
+and neither `B5 localReciprocity` nor `B5-K markedRecipAt` occurs in any pin.  The split:
+
+* **std-3 only** (`propext, Classical.choice, Quot.sound`): the whole of §1 (in particular
+  `oddSeam_demushkinQ_DSq`, so T1's headline is axiom-free) AND the wave-80 seam chain
+  `oddSeam_fullMarking_of_supply`, `oddSeam_supply_iff_fullMarking`,
+  `oddSeam_fullNuSupply_of_supply`, `oddSeam_realization_of_supply`: the self-improvement of
+  the seam and the pro-2 block over it touch no census axiom at all.
+* **std-3 + {B1, B6}** (`absGalQ2_isTopologicallyFinitelyGenerated`, `tateDualityAt`):
+  `oddSeam_cupAdaptedFrame_of_supply`, the forward frame direction: cup-adaptation's `H²`
+  identification is what brings in duality.
+* **std-3 + {B1, B6, B7}** (adding `absGalQ2_localEulerCharacteristic`):
+  `oddSeam_supply_of_presentingFrame` and `oddSeam_supply_iff_cupAdaptedFrame`: odd-degree
+  Demushkin rigidity adds the Euler characteristic.
+* **std-3 + {B1, B6, B7, B11a}** (adding `hilbertSymbol_normCriterion_finiteDyadic`): the two
+  `K`-facing T1 composites (`oddSeam_torsionPremise`, `oddSeam_demushkinQ_galK`), the relator
+  producer `oddSeam_supply_of_relator`, and all three §4 composites: exactly the census of
+  the committed free oriented equivalence, unchanged. -/
 
 section AxiomPins
+
+#print axioms oddSeamT
+#print axioms oddSeamHandleIdx
+#print axioms oddSeamOne_ne_handleIdx
+#print axioms oddSeamTwo_ne_handleIdx
+#print axioms oddSeamCoreMark
+#print axioms oddSeamCoreMark_zero
+#print axioms oddSeamCoreMark_one
+#print axioms oddSeamCoreMark_two
+#print axioms oddSeamCoreMark_eq_one
+#print axioms oddSeamHandleMark
+#print axioms oddSeamHandleMark_self
+#print axioms oddSeamHandleMark_of_ne
+#print axioms oddSeamCoordHom_gen
+#print axioms oddSeamAbWord
+#print axioms oddSeamAbWordHom
+#print axioms oddSeam_continuous_abWordHom
+#print axioms oddSeamAbWordHom_single
+#print axioms oddSeamSurjVec
+#print axioms oddSeamSurjVec_zero
+#print axioms oddSeamSurjVec_one
+#print axioms oddSeamSurjVec_two
+#print axioms oddSeamSurjVec_handle
 
 #print axioms oddSeam_isProP_topAb
 #print axioms oddSeam_abRel
@@ -690,6 +1000,17 @@ section AxiomPins
 #print axioms oddSeam_demushkinQ_DSq
 #print axioms oddSeam_torsionPremise
 #print axioms oddSeam_demushkinQ_galK
+#print axioms oddSeam_fullMarking_of_supply
+#print axioms oddSeam_supply_iff_fullMarking
+#print axioms oddSeam_fullNuSupply_of_supply
+#print axioms oddSeam_realization_of_supply
+#print axioms oddSeam_cupAdaptedFrame_of_supply
+#print axioms oddSeam_supply_of_presentingFrame
+#print axioms oddSeam_supply_iff_cupAdaptedFrame
+#print axioms oddSeam_supply_of_relator
+#print axioms oddSeam_genAsmBranch_L_of_relator
+#print axioms oddSeam_realization_of_relator
+#print axioms oddSeam_candidate_equiv_galK_of_relator
 
 end AxiomPins
 
