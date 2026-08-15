@@ -1,5 +1,30 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 81 (2026-08-15)
+
+**Five items await you, and two are new record-modernization calls:**
+
+* **The ASK restatement** (new).  Both counting bundles turned out to be already proved; what
+  survives is one frozen coefficient that pins a count to the square where the Galois side
+  carries the degree exponent.  Restating the rows against the degree-free bundle, which is
+  already proved, takes the ASK obligation block to zero; keeping the frozen spelling leaves
+  one bookkeeping Prop whose truth at degree two would assert something implausibly strong.
+  My recommendation is the restatement, and it should be decided together with the
+  pilot-record call, being the same kind of change to the same file.
+* **The pilot-record spelling** (standing, wave 78).
+* **The plan-A6 freeze** (standing; eight review rounds without motion).
+* **The line-length policy** (standing, minor).
+
+**For orientation.**  The campaign's remaining mathematics now fits in one paragraph.  At odd
+degree the oriented equivalence is a theorem and the classification's whole residue is one
+existing arithmetic Prop, the marked forward supply, plus one absent model computation, the
+torsion count of the square core.  On the selector side four of the five frozen rows carry
+clause-free branch data and the fifth carries exactly the pivot, whose obstruction is proved
+exact.  The counting obligations reduce to the one coefficient above.  What remains beyond
+that paragraph is the even route's surviving point (off the flagship path), the L-row word
+certificate at positive handle count, and the assembly wiring that turns these pieces into
+the general theorem's instances.
+
 ## Status at wave 80 (2026-08-15)
 
 **Three items await you** (unchanged): the plan-A6 freeze, now seven review rounds without
