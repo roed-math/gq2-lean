@@ -20,7 +20,8 @@ at the **prescribed** table `vN 1`.  §4 of this file builds that one.
 2. §2 the symplectic normal form with one nonzero vector pinned to a hyperbolic coordinate.
 3. §3 the `α = 1` model equivalence carrying the `ω` class to the `x₁` coordinate vector.
 4. §4 the frame at `vN 1`, cup-adapted for `evenStratumGramOne h`.
-5. §5 axiom pins.
+5. §5 the `α = 1` shift supply, and the climb that consumes it.
+6. §6 axiom pins.
 
 ## What is claimed and what is not
 
@@ -464,9 +465,212 @@ theorem evenStratumRow_exists_adaptedFrame_of_rangeN_one {h : ℕ}
 
 end ModelPin
 
+/-! ## §5 The `α = 1` shift supply, rebuilt on the true `α = 1` word
+
+Wave 73 refuted `EvenSharpDbarShiftSupply` at `α = 1` (`evenStratum_not_dbarShiftSupply_one`): the
+committed `Prop` compares the relator shift against `evenRawDbarWord`, and at `α = 1` the true
+shift is `evenStratumShiftWordOne`, which differs from it by the diagonal atom.  Queue item 2 asks
+for the supply rebuilt around the true word.
+
+The answer is sharper than "rebuilt": **there is nothing left to supply.**  The committed
+`EvenSharpDbarShiftSupply` is a `Prop` precisely because the comparison is an assertion about a
+word the machinery does not literally produce; `evenStratumShift_n_one` *is* the comparison at
+`α = 1`, unconditionally at every profinite group and every `k ≥ 3`.  So restating the
+actual-defect supply and the residual against `evenStratumShiftWordOne` removes the middle input
+of `evenClimb_defectReachable` altogether, and §5.4 is the `α = 1` climb with two inputs where the
+committed one has three.
+
+What this does *not* do is make the climb easier: the residual supply is the input that carries
+the arithmetic, and wave 73 §6 showed depth zero does not discharge it.  What changes is that the
+climb is no longer blocked at a **false** step. -/
+
+section ShiftOne
+
+open GQ2.Dyadic.EvenRowSupply
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+variable {chi : ContinuousMonoidHom G ℤ_[2]ˣ} {h k s : ℕ}
+variable {v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ}
+
+private theorem evenStratumRowRegroup {H' : Type*} [Group H'] (x₁ y₁ x₂ y₂ : H')
+    (hy₁ : ∀ t : H', Commute y₁ t) : x₁ * y₁ * (x₂ * y₂) = x₁ * x₂ * (y₁ * y₂) := by
+  calc x₁ * y₁ * (x₂ * y₂) = x₁ * (y₁ * x₂) * y₂ := by group
+    _ = x₁ * (x₂ * y₁) * y₂ := by rw [(hy₁ x₂).eq]
+    _ = x₁ * x₂ * (y₁ * y₂) := by group
+
+/-! ### §5.1 The `α = 1` word is a homomorphism on depth corrections
+
+The three facts `evenRawDbarWord` needs in order to carry the span and torsor calculus, for
+`evenStratumShiftWordOne`.  The core block's proof is the committed `evenRawCoreDbarWord_mul`
+minus its diagonal step, which is the only step that used `evenRawSq_mul`. -/
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The `α = 1` shift word lands in the central involutive layer. -/
+theorem evenStratumRow_wordOne_mem_zLayer (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenStratumShiftWordOne base correction ∈ zLayer G k :=
+  Subgroup.mul_mem _ (evenStratumShiftCoreOne_mem_zLayer k hk base correction hdepth)
+    (evenRawHandleDbarWord_mem_zLayer h k hk base correction hdepth)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The trivial correction has trivial `α = 1` shift. -/
+theorem evenStratumRow_wordOne_one
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    evenStratumShiftWordOne base (fun _ ↦ 1) = 1 := by
+  rw [evenStratumShiftWordOne, evenRawHandleDbarWord_one, mul_one]
+  simp [evenStratumShiftCoreOne, commP]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The `α = 1` core block is multiplicative in the depth correction: four bracket atoms, each
+one-coordinate linear, all central. -/
+theorem evenStratumRow_coreOne_mul (k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    {c c' : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, c i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, c' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenStratumShiftCoreOne base (fun i ↦ c i * c' i) =
+      evenStratumShiftCoreOne base c * evenStratumShiftCoreOne base c' := by
+  have hpair : ∀ i j : Fin (MarkedCore.coreRank h),
+      commP (c i * c' i) (base j) = commP (c i) (base j) * commP (c' i) (base j) :=
+    fun i j ↦ evenRawCommP_mul_left_of_depth k hk (hdepth i)
+  simp only [evenStratumShiftCoreOne, hpair]
+  rw [evenStratumRowRegroup (commP (c 1) (base 0)) (commP (c' 1) (base 0))
+      (commP (c 0) (base 1)) (commP (c' 0) (base 1))
+      (zLayer_commute (commP_mem_zLayer k hk (hdepth' 1) _)),
+    evenStratumRowRegroup (commP (c 3) (base 2)) (commP (c' 3) (base 2))
+      (commP (c 2) (base 3)) (commP (c' 2) (base 3))
+      (zLayer_commute (commP_mem_zLayer k hk (hdepth' 3) _))]
+  exact evenStratumRowRegroup _ _ _ _
+    (zLayer_commute (Subgroup.mul_mem _ (commP_mem_zLayer k hk (hdepth' 1) _)
+      (commP_mem_zLayer k hk (hdepth' 0) _)))
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The `α = 1` shift word is a homomorphism on depth corrections**, the property the torsor
+argument of the residual criterion consumes. -/
+theorem evenStratumRow_wordOne_mul (h k : ℕ) (hk : 3 ≤ k)
+    (base : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    {c c' : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)}
+    (hdepth : ∀ i, c i ∈ lambdaImage G (k - 1) (k + 1))
+    (hdepth' : ∀ i, c' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenStratumShiftWordOne base (fun i ↦ c i * c' i) =
+      evenStratumShiftWordOne base c * evenStratumShiftWordOne base c' := by
+  rw [evenStratumShiftWordOne, evenStratumShiftWordOne, evenStratumShiftWordOne,
+    evenStratumRow_coreOne_mul k hk base hdepth hdepth',
+    evenRawHandleDbarWord_mul h k hk base hdepth hdepth']
+  exact evenStratumRowRegroup _ _ _ _
+    (zLayer_commute (evenStratumShiftCoreOne_mem_zLayer k hk base c' hdepth'))
+
+/-! ### §5.2 The actual-defect supply against the true word -/
+
+variable {T : Tuple (nStageWord 1 h (le_refl 1)) v G chi k}
+
+/-- **A depth-`s` correction whose `α = 1` shift inverts the current defect.**  The `α = 1`
+replacement for `EvenSharpActualDefectSupply`, differing from it in exactly one place: the hit
+condition is stated against `evenStratumShiftWordOne`, which is what the `N₁` relator's shift
+literally is. -/
+structure EvenStratumRowActualDefectOne (s : ℕ)
+    (T : Tuple (nStageWord 1 h (le_refl 1)) v G chi k) where
+  /-- The underlying depth-`s` admissible correction. -/
+  correction : DeepSharpAdmissibleCorrection s T
+  /-- Its `α = 1` shift word inverts the current defect. -/
+  hitsDefect : evenStratumShiftWordOne (fun i ↦ canonLift G k (T.generators i))
+    correction.correction =
+      (stageDefect (nStageWord 1 h (le_refl 1)) G k T.generators)⁻¹
+
+/-- **THE CROSSED-DERIVATION INPUT IS FREE AT `α = 1`.**  Where
+`EvenSharpActualDefectSupply.toDefectReachable` consumes `EvenSharpDbarShiftSupply` — false at
+`α = 1` by wave 73 — the same passage against the true `α = 1` word consumes **no** shift
+hypothesis at all: `evenStratumShift_n_one` supplies the comparison outright. -/
+theorem EvenStratumRowActualDefectOne.toDefectReachable
+    (S : EvenStratumRowActualDefectOne s T) (hk : 3 ≤ k)
+    (Hlift : EvenRowDeepFibreLiftSupply s v G chi) :
+    Tuple.DefectReachable T :=
+  deep_defectReachable_of_kills Hlift (by omega) S.correction
+    (by rw [evenStratumShift_n_one h k hk _ _ S.correction.depth]; exact S.hitsDefect)
+
+/-! ### §5.3 The residual and its reachability criterion -/
+
+/-- **The `α = 1` residual of a depth-`s` correction**: what a neutral correction must produce,
+measured against the true `α = 1` shift word. -/
+def evenStratumRowResidualOne (Wc : DeepSharpAdmissibleCorrection s T) : levelQuot G (k + 1) :=
+  (evenStratumShiftWordOne (fun i ↦ canonLift G k (T.generators i)) Wc.correction)⁻¹ *
+    (stageDefect (nStageWord 1 h (le_refl 1)) G k T.generators)⁻¹
+
+/-- The `α = 1` residual is reachable when some neutral correction has it as its `α = 1`
+shift. -/
+def EvenStratumRowResidualReachableOne (Wc : DeepSharpAdmissibleCorrection s T) : Prop :=
+  ∃ N : EvenSharpNeutralCorrection s G chi h k,
+    evenStratumShiftWordOne (fun i ↦ canonLift G k (T.generators i)) N.correction =
+      evenStratumRowResidualOne Wc
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- **The `α = 1` criterion**, the clone of `nonempty_evenSharpActualDefectSupply_iff_residual`
+against the true word.  Both directions are the torsor identity together with §5.1's
+homomorphism property, which is why §5.1 had to be re-proved rather than reused. -/
+theorem evenStratumRow_nonempty_actualDefectOne_iff_residual (hk : 3 ≤ k)
+    (Wc : DeepSharpAdmissibleCorrection s T) :
+    Nonempty (EvenStratumRowActualDefectOne s T) ↔
+      EvenStratumRowResidualReachableOne Wc := by
+  constructor
+  · rintro ⟨S⟩
+    refine ⟨evenSharpDifferenceNeutral Wc S.correction, ?_⟩
+    have hmul := evenStratumRow_wordOne_mul h k hk (fun i ↦ canonLift G k (T.generators i))
+      Wc.depth (evenSharpDifferenceNeutral Wc S.correction).depth
+    have hfun : (fun i ↦ Wc.correction i *
+        (evenSharpDifferenceNeutral Wc S.correction).correction i) =
+        S.correction.correction :=
+      funext fun i ↦ evenSharpMulNeutral_difference_correction Wc S.correction i
+    rw [hfun] at hmul
+    rw [evenStratumRowResidualOne, ← S.hitsDefect, hmul]
+    group
+  · rintro ⟨N, hN⟩
+    refine ⟨⟨evenSharpMulNeutral Wc N, ?_⟩⟩
+    have hmul := evenStratumRow_wordOne_mul h k hk (fun i ↦ canonLift G k (T.generators i))
+      Wc.depth N.depth
+    show evenStratumShiftWordOne _ (fun i ↦ Wc.correction i * N.correction i) = _
+    rw [hmul, hN, evenStratumRowResidualOne]
+    group
+
+/-! ### §5.4 The `α = 1` climb, with two inputs -/
+
+/-- **The `α = 1` residual supply**, the clone of `EvenClimbResidualSupply` against the true
+`α = 1` word.  This is the one arithmetic input the `α = 1` climb still owes; wave 73 §6 read it
+at depth zero and found it neither free nor false. -/
+def EvenStratumRowClimbResidualOne (s h : ℕ)
+    (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ) (G : Type) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (chi : ContinuousMonoidHom G ℤ_[2]ˣ) : Prop :=
+  ∀ (k : ℕ), 3 ≤ k → ∀ (T : Tuple (nStageWord 1 h (le_refl 1)) v G chi k)
+    (Wc : DeepSharpAdmissibleCorrection s T), EvenStratumRowResidualReachableOne Wc
+
+/-- **THE `α = 1` STAGE CLIMB.**  `evenClimb_defectReachable` at `α = 1`, with the middle input
+gone: the residual supply and the deep row supply give defect reachability at every level
+`k ≥ 3`.
+
+Stated precisely, so the trade is visible.  The deep row supply `Hlift` is the committed `Prop`
+verbatim.  The residual supply is **not** the committed `EvenClimbResidualSupply`: it is that
+`Prop` with `evenRawDbarWord` replaced by `evenStratumShiftWordOne` in its two occurrences, which
+is the same replacement the whole section makes.  What is genuinely deleted is the third input,
+`EvenSharpDbarShiftSupply`, whose general form wave 73 refuted at `α = 1`.
+
+So the obstruction the committed route hits at `α = 1` is in the *word*, not in the climb. -/
+theorem evenStratumRow_climb_defectReachable_one (hk : 3 ≤ k)
+    (T : Tuple (nStageWord 1 h (le_refl 1)) v G chi k)
+    (Hres : EvenStratumRowClimbResidualOne s h v G chi)
+    (Hlift : EvenRowDeepFibreLiftSupply s v G chi) :
+    Tuple.DefectReachable T := by
+  obtain ⟨Wc⟩ := evenSharpDeepAdmissible_nonempty s T
+  obtain ⟨S⟩ := (evenStratumRow_nonempty_actualDefectOne_iff_residual hk Wc).mpr
+    (Hres k hk T Wc)
+  exact S.toDefectReachable hk Hlift
+
+end ShiftOne
+
 end
 
-/-! ## §5 Axiom pins -/
+/-! ## §6 Axiom pins -/
 
 section Pins
 
@@ -492,10 +696,24 @@ section Pins
 #print axioms evenStratumRow_exists_adaptedFrame_vN_one
 #print axioms evenStratumRow_exists_adaptedFrame_of_rangeN_one
 
+#print axioms evenStratumRow_wordOne_mem_zLayer
+#print axioms evenStratumRow_wordOne_one
+#print axioms evenStratumRow_coreOne_mul
+#print axioms evenStratumRow_wordOne_mul
+#print axioms EvenStratumRowActualDefectOne
+#print axioms EvenStratumRowActualDefectOne.toDefectReachable
+#print axioms evenStratumRowResidualOne
+#print axioms EvenStratumRowResidualReachableOne
+#print axioms evenStratumRow_nonempty_actualDefectOne_iff_residual
+#print axioms EvenStratumRowClimbResidualOne
+#print axioms evenStratumRow_climb_defectReachable_one
+
 -- The statements §4 stands against and beside, printed with it.
 #print axioms GQ2.Dyadic.EvenStratumFrame.evenStratum_no_cupAdaptedFrame
 #print axioms evenStratum_exists_gramOne_adaptedFrame
 #print axioms evenDegreeNCyclotomicFrattiniFrameSupply_holds
+#print axioms evenClimb_defectReachable
+#print axioms evenStratum_not_dbarShiftSupply_one
 
 end Pins
 
