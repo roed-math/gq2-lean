@@ -12,9 +12,35 @@ import GQ2.Dyadic.Instances.EvenMRamifiedPairing
 
 W83-RECORDS reduced each of the four tied quadratic rows to "the four analytic clauses at the
 row's candidate carrier `Γ_R = GammaR n q_K word`, plus two `ASK` blocks at `G_K`".  This module
-takes the cheapest row, `M0 2 0` at `ℚ₂(√5)`, and asks what those six things actually cost.
+takes the cheapest row, `M0 2 0` at `ℚ₂(√5)`, and measures what those six things actually cost.
 
-Nothing here is asserted that is not proved; every reduction names the residue it stops at.
+Four of the six close.  What is left is two genuinely open analytic clauses at the candidate
+carrier, `stokes` and `determinant`, and one coefficient `Prop` carried once at each of the row's
+two carriers.  The coefficient `Prop` is literally `askCStageVanishing`, wave 81's arithmetic
+residue, and the finding this module is built around is that the *candidate* side of the record
+carries the same statement: the frozen (136) coefficient is wrong on both carriers in the same
+way, and the RN spelling removes it from both.
+
+## Contents
+
+* **§1** the coefficient equivalence at an arbitrary carrier.  Wave 81 proved
+  `ExactLiftingSemantics ↔ askCStageVanishing` at `G_K` only, because its corrected input was
+  `correctedRStageSemantics_galK`.  Nothing in that argument is arithmetic, and §1 is the same
+  four lemmas with the corrected bundle as a hypothesis: the equivalence, the exact-image-count
+  vanishing, and the emptiness of `BoundaryLiftsK` that is the refutation handle.
+* **§2** the compact-`M` candidate.  `MCompact.exactLiftingRN_unconditional` and
+  `MCompact.uniformPushedHsimp` are unconditional at `2 ≤ α`, which covers both frozen `M0` rows,
+  so the row's `exactLifting` clause *is* `askCStageVanishing` at `Γ_R` and its `scalar` clause is
+  free.  The scalar character count at the `M` candidate had never been stated.
+* **§3** the row.  `rowCl_rowResidual_sqrtFive` and `rowCl_candidate_equiv_galK_sqrtFive`, with
+  the per-clause table.
+* **§4** the uniformity claim, checked: the reduction transfers to `N0 2 0` and to `M0 3 0`, and
+  **not** to the `Mpc` row, which has no unconditional corrected bundle.
+* **§5** the pilot spelling, shown dominated by the `genCertN` spelling at the same row.
+* **§6** 24 pins with the measured split; twenty are std-3.
+
+Nothing here is asserted that is not proved; every reduction names the residue it stops at, and
+the two open clauses are named as open.
 -/
 
 namespace GQ2.Dyadic.Instances.RowClauses
@@ -328,7 +354,7 @@ theorem rowCl_nCand_tfg (α h q : ℕ) :
   tfg_of_isAdmissibleMarkedPresentation
     (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (nCompactW α h))
 
-/-- **The `N0` row's `exactLifting` clause, measured** — §2's statement at the `N` twin. -/
+/-- **The `N0` row's `exactLifting` clause, measured**: §2's statement at the `N` twin. -/
 theorem rowCl_nCand_exactLifting_iff (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
     ExactLiftingSemantics (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q P nuP
         (standardNumerics (2 + 2 * h))
@@ -535,7 +561,7 @@ carries the uniform four, and `sqrtNegTwoWordCertificate`, which carries `PilotH
 *not* the uniform four, it sits one layer below).  The lane was asked to attack `PilotHsimp`
 first.  §4 makes that unnecessary and this section says why.
 
-`PilotStageZ q` is `#RCocycle = RF.zR` at every frame — the **frozen** coefficient, verbatim.
+`PilotStageZ q` is `#RCocycle = RF.zR` at every frame, the **frozen** coefficient verbatim.
 So the pilot's three recursion residues are not independent of the (136) question: together they
 imply `askCStageVanishing` at the pilot carrier, hence the emptiness of §1.  Meanwhile §4 gives
 the corrected bundle at that same carrier with no residue at all.  **The pilot spelling is
@@ -587,9 +613,10 @@ One line per declaration, **24** in all, in declaration order, measured against 
 Three sets occur, and the split is the lane's cleanest reading.
 
 * **std-3** (`propext, Classical.choice, Quot.sound`) on **twenty**: all of §1, all of §2,
-  all of §4, all of §5, `rowCl_scalar_standard_congr` and `rowCl_hdeg_sqrtFive`.  So *measuring* the row's
-  analytic residue costs no campaign axiom at all: the carrier-free coefficient equivalence, the
-  reduction of both `M0`/`N0` candidate `exactLifting` clauses to `askCStageVanishing`, the two
+  all of §4, all of §5, `rowCl_scalar_standard_congr` and `rowCl_hdeg_sqrtFive`.  So
+  *measuring* the row's analytic residue costs no campaign axiom at all: the carrier-free
+  coefficient equivalence, the reduction of both `M0`/`N0` candidate `exactLifting` clauses
+  to `askCStageVanishing`, the two
   free scalar clauses, and the refutation handle are all std-3.  The axioms in this campaign live
   on the arithmetic side, and nothing in the candidate-side measurement reaches them.
 * **`{tateDualityAt, Foundations.absGalQ2_isTopologicallyFinitelyGenerated,
