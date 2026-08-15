@@ -68,7 +68,7 @@ alternating, so a forward-generator tuple there is not required to be cup-adapte
 * **§4** The refutation, and its surviving-point instantiation.
 * **§5** The model field `ℚ₂(i)`, and `[ℚ₂(i) : ℚ₂] = 2`.
 * **§6** The surviving point, unfolded into a base and a climb.
-* **§7** The `q`-invariant of the `N` family stops at `4`.
+* **§7** The `demushkinQ`-invariant of the `N` family stops at `4`.
 * **§8** Axiom pins.
 -/
 
@@ -485,7 +485,8 @@ exponent of the `N_α` core.  The de-duplication would be a statement change and
 here.  **What this section genuinely supplies is the invariant half**, composed from the two
 committed computations (`nFrame4_demushkinQ_DN_one` at `α = 1` and
 `nFrameExists_demushkinQ_DN` at `α ≥ 2`), which needs no arithmetic at all.  Neither says
-anything about fields: `ℚ₂(ζ₈)` has `q = 8`, and the content here is that no member of the
+anything about fields: `ℚ₂(ζ₈)` has `demushkinQ = 8` (not `q_K`, which is `2` there, the
+extension being totally ramified), and the content here is that no member of the
 present `N` family is isomorphic to its maximal pro-`2` quotient. -/
 
 section QInvariant

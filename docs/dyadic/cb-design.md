@@ -525,7 +525,7 @@ def BLabHypothesis : Prop :=
 It enters `exists_pro2R` at **exactly one line** (`Roe/Main.lean:232`), through
 `markedPro2_R localReciprocity hBLab` — itself only 48 lines
 (`Roe/MarkedPro2.lean:163-210`), and hardcoded to the ℚ₂ numerics (Hensel root `X ≡ 5 mod 16`,
-`b ≡ 3 mod 4`, `u ≡ 1 mod 4`, `η = (−3)⁻¹`). It is **rank 3, q = 2** — it could not be reused at
+`b ≡ 3 mod 4`, `u ≡ 1 mod 4`, `η = (−3)⁻¹`). It is **rank 3, `demushkinQ` 2** — it could not be reused at
 rank four even if the architecture wanted it. Supporting measurement: the whole Labute subtree
 that discharges it is 15 files / 7,982 lines, and the `D_R`-side pro-2 identification is a
 further 10 files / 5,278 lines. **Neither multiplies by five under the two-sided design.**

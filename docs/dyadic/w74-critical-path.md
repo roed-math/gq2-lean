@@ -54,7 +54,7 @@ with the row's core.  **ASK** = the K-supply/arithmetic layer (`GQ2/Dyadic/Insta
 **CAND** = the candidate-side clause layer (AS1/AS2/AS3's analytic clauses at `GammaR`).
 **DONE** = already proved, or a pin that is definitional at the quadratic slot.
 
-### 1.1  `FieldInputs` — row-independent, 6 fields
+### 1.1  `FieldInputs`: row-independent, 6 fields
 
 | field | owes | note |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ with the row's core.  **ASK** = the K-supply/arithmetic layer (`GQ2/Dyadic/Insta
 | `ramified` | **not to be discharged** | this is the standing hypothesis that *selects* `K`; see §2 |
 | `ramifiedData` | DONE (constructible) | LG5's ramified-marking input, constructor `ramifiedCertificateOfSubtype` |
 
-### 1.2  `ResidualSqrtNegTwo` — the pilot, 13 fields
+### 1.2  `ResidualSqrtNegTwo`: the pilot, 13 fields
 
 | field | owes | note |
 | --- | --- | --- |
@@ -71,19 +71,19 @@ with the row's core.  **ASK** = the K-supply/arithmetic layer (`GQ2/Dyadic/Insta
 | `fLab`, `horient`, `hpair` | **CLASS** | the Labute/Demushkin identification `DN 2 0 ≅ G_K(2)`, oriented, with a unimodular marked pair |
 | `piAb`, `hpiAb`, `hpiNu` | **CLASS**, but see §1.5 | AS2's abelianization slot: `toAbK` does not factor through `G_K(2)`, so this is genuinely extra data *on this producer* |
 | `hexact`, `hstokes` | **ASK** | `ExactLiftingSemantics` / `StokesDualityCertificate` at the carrier `galKProfinite K` |
-| `hsimp` | **CAND** | `PilotHsimp` — per-simple-module Stokes duality; owner ruling: binder, never axiom.  The module derives every duality payload the count lane consumes from this one binder (`SqrtNeg2.lean:35`-`41`) |
+| `hsimp` | **CAND** | `PilotHsimp`, per-simple-module Stokes duality; owner ruling: binder, never axiom.  The module derives every duality payload the count lane consumes from this one binder (`SqrtNeg2.lean:35`-`41`) |
 | `hsplit`, `hZcount` | **CAND** | `stageR136`'s two recursion-side residues; `ℚ₂` ancestors are the `RStage` per-carrier computations |
 | `hdet` | **CAND**, ⚠⚠ **no supplier lane** | `PilotDet`, the candidate-side `AffineDeterminantCertificate` whole; the count lane closed 9 of the 11 `SourceDataN` clauses on the candidate side and these are the two it did not |
 
-### 1.3  `ResidualSqrt{Two,Five,Ten,NegTen}` — the `M` rows, 9 fields each
+### 1.3  `ResidualSqrt{Two,Five,Ten,NegTen}`: the `M` rows, 9 fields each
 
 | field | owes | note |
 | --- | --- | --- |
-| `nuP`, `hnuSigma`, `hnuWild`, `hnuP` | **CAND** (construction) | F3's `prop_3_4_three` conditions through AS3's core dictionary.  Main.lean:387 records "satisfiability hand-verified, Lean witness = ticket AS3-b" — so this is an *unbuilt construction*, not an open mathematical question |
+| `nuP`, `hnuSigma`, `hnuWild`, `hnuP` | **CAND** (construction) | F3's `prop_3_4_three` conditions through AS3's core dictionary.  Main.lean:387 records "satisfiability hand-verified, Lean witness = ticket AS3-b", so this is an *unbuilt construction*, not an open mathematical question |
 | `exactLifting`, `stokes`, `scalar`, `determinant` | **CAND** | the four analytic clauses at the candidate carrier `GammaR n q word`.  AS1 divergence 4: the certificate ⇒ count bridges have no owner.  Main.lean §6 prices the row certificate at **13 of 17 fields proved**, these four carried |
 | `KS : KSupply` | **ASK** + **CLASS**, see 1.4 | |
 
-### 1.4  `KSupply` — 9 fields, nested in each `M` row
+### 1.4  `KSupply`: 9 fields, nested in each `M` row
 
 `KSupply.lean`'s own table prices `SourceDataN` at **21 fields, 10 discharged, 11 carried**.
 The record's nine:
@@ -120,7 +120,7 @@ avoidable item on the residual surface: three of the pilot's thirteen fields.
 
 ---
 
-## 2.  (b) The `alpha = 1` stratum is OFF the critical path — verified, with a corrected reason
+## 2.  (b) The `alpha = 1` stratum is OFF the critical path: verified, with a corrected reason
 
 **Verdict: the orchestrator's conclusion is correct.  Its stated reason is not the tree's, and
 the reason it gives is weaker than the one available.**
@@ -130,7 +130,7 @@ the reason it gives is weaker than the one available.**
 The transitive import closure of `GQ2.Dyadic.Main` is **427 of the tree's 930 `GQ2` modules**.
 Not in it:
 
-* `GQ2.Dyadic.Instances.EvenStratumPoint`, `...EvenStratumFrame`, `...EvenStratumShift` — all
+* `GQ2.Dyadic.Instances.EvenStratumPoint`, `...EvenStratumFrame`, `...EvenStratumShift`, all
   three `alpha = 1` stratum modules;
 * the whole `SqCore/Graded*` family (68 modules), including `SqLamMarkTransitivity` and
   `SqClassClearingSupply`;
@@ -156,7 +156,7 @@ The chain is three committed statements and needs no reciprocity input:
 3. `EvenRangeModel.evenRangeF_hasEqualNormValueGroups_of_range_eq_prin`
    (`EvenRangeModelFields.lean:890`), whose docstring is *"The third stratum is exactly the
    unramified one"*: from `range = evenRangePrin beta` with `2 <= beta`, `K(i)/K` is unramified
-   for **every** choice of `i` — that is, `HasEqualNormValueGroups K deltaI` holds.
+   for **every** choice of `i`, that is, `HasEqualNormValueGroups K deltaI` holds.
 
 Step 3's conclusion is the literal negation of `FieldInputs.ramified`.  I composed the three into
 a standalone check and ran `scripts/mirror.sh check` on it; both statements elaborate and print
@@ -216,7 +216,7 @@ not about the **paper**: `evenUnram_classification_conclusion_false` (`:361`) sh
 ramification binder on `parityFinal_evenClassification` is *necessary*, so a classification
 statement that dropped it would be false, and the stratum work is what establishes where the
 boundary sits.  Second, the same reasoning that takes `alpha = 1` off the path also takes it off
-for the `alpha >= 3` third stratum, which is already known empty — so the stratum programme's
+for the `alpha >= 3` third stratum, which is already known empty, so the stratum programme's
 remaining value is entirely at the single surviving point.
 
 ---
@@ -234,36 +234,36 @@ field.  The honest goal is: *close every record at every ramified-`i` `K` **that
 identification places on that row***.  The list below is written to that goal, and item C is the
 item that makes the difference explicit.
 
-### The list — eight items, in three groups
+### The list: eight items, in three groups
 
 **A.  The classification input (group CLASS), for the row's own `(alpha, h)`.**
 
 1. **The branch identification, per field**: `range chiCycKTwo = imChiN alpha` (resp. `imChiM`)
    at the row's depth.  This is pure arithmetic about `K` and is what turns the even route's
-   *existential* output — `parityFinal_evenClassification` gives `∃ alpha >= 2, (M-branch ∨
-   N-branch)` — into the row's specific core.  `parityFinal_orientedEquivN_sqrtNegTwo`
+   *existential* output, `parityFinal_evenClassification` gives `∃ alpha >= 2, (M-branch ∨
+   N-branch)`, into the row's specific core.  `parityFinal_orientedEquivN_sqrtNegTwo`
    (`EvenParityModel.lean:257`) already takes exactly this as `hrange`.  **This is the smallest
    genuinely-open item and it gates all five rows.**
-2. **The `KTwoN`/`KTwoM` adapter into the two record spellings** (§1.5).  Not open mathematics —
-   a restatement — but until it is done the even route's output does not typecheck into either
+2. **The `KTwoN`/`KTwoM` adapter into the two record spellings** (§1.5).  Not open mathematics,
+   a restatement, but until it is done the even route's output does not typecheck into either
    record.
 
-**B.  The `G_K`-side counting pack (group ASK) — three clause bundles, one carrier.**
+**B.  The `G_K`-side counting pack (group ASK), three clause bundles, one carrier.**
 
-3. `ExactLiftingSemantics (galKProfinite K) ...` — the `K` clones of `liftsOver_card_local` and
+3. `ExactLiftingSemantics (galKProfinite K) ...`, the `K` clones of `liftsOver_card_local` and
    `lemma_8_6_local`.  `KSupply.lean:256`-`260` narrows the second to **one existential**: the
    `K` analogue of `RadicalEdgeLocal.exists_good_twist` (public entry `half_torsor_local`).
-4. `StokesDualityCertificate (galKProfinite K) ...` — `tcocycle_card`, `hsep`, `hpartial`,
+4. `StokesDualityCertificate (galKProfinite K) ...`, `tcocycle_card`, `hsep`, `hpartial`,
    `hZcard` at `G_K`.
-5. `AffineDeterminantCertificate (galKProfinite K) ...` — the **LG5 ⇒ `GaussZResidueK` bridge**,
+5. `AffineDeterminantCertificate (galKProfinite K) ...`, the **LG5 ⇒ `GaussZResidueK` bridge**,
    i.e. the (83)-evaluation rung from an Arf/zero-count statement to `GaussZResidueK`.
    `KSupply.lean` is explicit that this has **no `K` clone** and that inlining a hypothesis named
    after LG5 would have hidden the gap.  ⚠⚠
 
 **C.  The candidate-side clause layer (group CAND).**
 
-6. The four analytic clauses at `GammaR n q word` — `exactLifting`, `stokes`, `scalar`,
-   `determinant` — i.e. the **certificate ⇒ count bridges**, AS1 divergence 4.  One statement per
+6. The four analytic clauses at `GammaR n q word`, `exactLifting`, `stokes`, `scalar`,
+   `determinant`, i.e. the **certificate ⇒ count bridges**, AS1 divergence 4.  One statement per
    clause, uniform in the row (all four `M` rows ask for the identical shape at different words),
    so this is four statements, not sixteen.
 7. The pilot's four named candidate residuals: `hsimp` (`PilotHsimp`), `hsplit`/`hZcount`

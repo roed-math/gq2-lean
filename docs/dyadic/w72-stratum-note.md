@@ -5,6 +5,12 @@ files.  Prefix `evenStratum` / `evenStratumFrame`.  23 declarations.  All three 
 
 ## 0.  Headline
 
+> **The two `q`s** (gloss added at W74-HOUSE, because this note runs on bare `q` for over a
+> hundred lines).  Every bare `q` below is **`demushkinQ`**, the order of the torsion subgroup
+> of the abelianization (`GQ2/Demushkin.lean:224`).  It is **not** `qOf K FF = 2^f`, the
+> residue cardinality that the presentation relator `tau^sigma = tau^q` and `params.qK` use;
+> that one is written `q_K` throughout the campaign.
+
 Wave 71 refuted the *coordinate step* of the even frame producers on the third stratum.  This
 lane refutes the object those producers deliver.
 
@@ -160,7 +166,8 @@ Wave 69 queue item 4 and wave 71 queue item 4 both recorded this in prose.  Two 
   Hence `evenStratum_demushkinQ_DN_ne_pow_two`: no member of the present `N` family has
   `q = 2^b` with `b >= 3`.
 
-Both are **about the family, not about fields**.  `Q_2(zeta_8)` has `q = 8`; the content is only
+Both are **about the family, not about fields**.  `Q_2(zeta_8)` has `demushkinQ (G_K(2)) = 8`
+(its residue cardinality `q_K` is `2`, the extension being totally ramified); the content is only
 that it is not one of these cores, so reaching it needs a new core family.  Note also that the
 second statement needs no arithmetic: the two committed computations already close the range.
 

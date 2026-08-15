@@ -100,7 +100,8 @@ principal-unit group, `imChiN 1 = evenRangePrin 2` (`evenUnram_imChiN_one_eq_pri
   directly; `EvenAlphaOne.lean` §10 has not, and its sentence stays literally true of that file.)
 
 What this buys at the surviving point is one matching invariant and nothing beyond it.  The
-stratum at depth `α` carries `q = 2^α`, so depth `2` demands `q = 4`, and
+stratum at depth `α` carries `demushkinQ = 2^α` (the abelianization torsion count, not the
+residue cardinality `qOf K FF`), so depth `2` demands `demushkinQ = 4`, and
 `evenUnram_head_eq_two_pow_iff` already showed that `2 + 2^a = 2^b` has the single solution
 `(a, b) = (1, 2)`; §7 supplies the group-side value that the arithmetic side demands.
 `nFrame4_survivingPoint_invariants`, in the companion file

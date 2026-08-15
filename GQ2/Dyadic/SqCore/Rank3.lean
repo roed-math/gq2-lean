@@ -179,7 +179,9 @@ theorem sq_decomposition_forcedRow (B : SqDecomposition) :
 /-! ## §2 The four marked-data coordinates, restated in SQ vocabulary
 
 These are the antecedents `bLab` consumes plus the two invariants that identify the Labute type
-`(p, rank, q, im χ) = (2, 3, 2, ℤ₂ˣ)` — the odd-rank `q = 2`, `f = 2` type. -/
+`(p, rank, q, im χ) = (2, 3, 2, ℤ₂ˣ)` — the odd-rank `demushkinQ = 2`, Labute image invariant
+`f = 2` type.  Neither letter is the tame pair: this `f` is not the residue degree of
+`qOf K FF = 2^f`, and `ℚ₂` has `q_K = 2` with `f = 1`. -/
 
 /-- **Demushkin (i)**: the `L_sq` rank-3 core is a Demushkin pro-2 group. -/
 theorem sqCore_isDemushkin : IsDemushkin 2 (DR : Type) := isDemushkin_DR

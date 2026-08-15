@@ -1847,7 +1847,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 - **WN0-a**: `R_{N,α,0} = x₀^{p_α}[x₀,x₁]·x₂^{-σ}(x₂τ)^{ω₂}·H_h` (draft eq:Ncompact-word;
   `p_α = 2+2^α`, handles `H_h`, **conjugator is σ not σ₂**); tame specialization → 1 (δ-letters
   die, balanced exponents cancel — packet Prop. 9.2 proof shape), pro-2 specialization →
-  `x₀^{2+2^α}[x₀,x₁][σ,x₂]` = MC2's compact `N` core; α=2/q=2 instance pin
+  `x₀^{2+2^α}[x₀,x₁][σ,x₂]` = MC2's compact `N` core; α=2 / `q_K`=2 instance pin
   `x₀⁶[x₀,x₁]x₂^{-σ}(x₂τ)^{ω₂}` (the √-2 relation) + zmod8/small-group stress.
 - **WN0-b/c**: full packet Def. 9.1 items (3)–(6) via WW machinery; the unramified Fox block
   must exhibit the invertible `1−S^{-1}` term produced by `x₂^{-σ}` (packet §14); Hessian

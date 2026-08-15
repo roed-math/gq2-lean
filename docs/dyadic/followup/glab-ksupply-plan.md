@@ -171,7 +171,7 @@ IsDemushkin 2 (maxProPQuotient 2 (GalK K))
 ```
 
 The first two equivalences must respect cup products. This is not optional plumbing:
-`MLabHypothesis` and `NLabHypothesis` require `IsDemushkin`, rank, and `q`
+`MLabHypothesis` and `NLabHypothesis` require `IsDemushkin`, rank, and `demushkinQ`
 on the actual group supplied to them, namely `G_K(2)`.
 
 Landed API (the general cohomology maps have field-specialized names where needed):

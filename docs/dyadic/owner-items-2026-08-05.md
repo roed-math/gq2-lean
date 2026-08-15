@@ -162,7 +162,9 @@ Both are corrections to what you were told when you decided, not to the decision
 Recorded verbatim, with what each one commits the campaign to.  Nothing below this block is
 still awaiting you.
 
-1. **The `q = 4` ramified Arf sign: OPTION 3, split.**  Prove the even rows at `f` odd now;
+1. **The `q_K = 4` ramified Arf sign: OPTION 3, split.**  (Residue cardinality at even `f`, not
+   `demushkinQ`; disambiguated at W74-HOUSE, and the five later references to this label mean the
+   same one.)  Prove the even rows at `f` odd now;
    open a separate ticket for the sign-corrected general form (the corrected Gauss sign
    `(−1)^(gcd(deg P, F·ω) + 1)` carried through §6 and the determinant bridge).  Consequence:
    the even determinant lane, when it opens, states its results with `Odd f` and cites the

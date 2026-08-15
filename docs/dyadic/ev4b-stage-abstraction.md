@@ -293,7 +293,8 @@ premise `NModelDemushkin`/`MModelDemushkin` is EV-1e, a *different* lane). Size:
   mod-2 quadratic initial form and the core is not Demushkin; the even lane assumes
   `α ≥ 2`. (EV-3a/d only need `α ≥ 1`, but state them at the lane's `α ≥ 2` if that
   simplifies.)
-* **q = 4 Arf sign**: confined to the even *determinant* residues
+* **`q_K = 4` Arf sign** (residue cardinality at even `f`, not `demushkinQ`): confined to the
+  even *determinant* residues
   (`owner-items-2026-08-05.md` §1, narrowed 2026-08-06) — not in the forward lane; no
   EV-3 ticket touches it.
 * The frozen word hashes are untouched: the abstraction never redefines a word — the even
