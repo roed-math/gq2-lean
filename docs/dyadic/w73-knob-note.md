@@ -242,6 +242,11 @@ in `Z` (`cfourDef_core_mem_zLayer`).  **No claim is made here that no presentati
 3. **The knob subgroup as a `Subgroup`**, so that §5's span argument becomes a theorem.  The
    ingredient is that a `γ₂`-valued correction is invisible to every knob entry, which follows
    from `cfour_commP_lambdaTwo` and `cfourCmp_dress_all`.
-4. **Register the module.**  `GQ2/Dyadic/SqCore/GradedClassFourCompose.lean` is not wired into
+4. ~~**Register the module.**  `GQ2/Dyadic/SqCore/GradedClassFourCompose.lean` is not wired into
    `GQ2.lean`; the orchestrator owns that file.  (Wave 72's `NuSeeds` finding is the standing
-   reminder that an unregistered module has never been in a green build.)
+   reminder that an unregistered module has never been in a green build.)~~  **DISCHARGED at
+   `5d7ce5c9`, 73 seconds after this note landed** (`0063dc8c` 19:01:12, `5d7ce5c9` 19:02:25).
+   [W74-HOUSE, watch round 11: all three wave-73 lane notes carried this item and all three were
+   discharged within about a minute, so the wave-72 `NuSeeds` lesson took at the lane level and
+   at the orchestrator level; what is missing is only the annotation afterwards.  The tree has
+   exactly one unreachable module today, `GQ2.AxiomLedger`, which is deliberately excluded.]

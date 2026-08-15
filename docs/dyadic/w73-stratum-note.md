@@ -195,8 +195,10 @@ plus one docs-only commit recording these hashes.
 
 I edited nothing outside my own module and `docs/dyadic/w73-stratum-note.md`.
 
-1. **`GQ2/Dyadic/Instances/EvenStratumShift.lean` is unwired.**  Nothing imports it and it is not
-   in `GQ2.lean`; the same state `NuSeeds.lean` was in before `a515b437`.
+1. ~~**`GQ2/Dyadic/Instances/EvenStratumShift.lean` is unwired.**  Nothing imports it and it is
+   not in `GQ2.lean`; the same state `NuSeeds.lean` was in before `a515b437`.~~  **DISCHARGED at
+   `608d3ded`, 73 seconds after this note's final amendment** (`3f6aabb4` 19:16:57, `608d3ded`
+   19:18:10).  [W74-HOUSE, watch round 11.]
 2. **`StageAbstractionEvenRawSpan.lean` §0 lines 44-46 and 65 are now backed by a theorem.**  The
    prose is correct and can cite `evenStratum_no_rawStageShift_one`.  Two downstream files hedge
    the same claim as attributed rather than proved and can be sharpened:
