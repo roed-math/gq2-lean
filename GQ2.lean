@@ -876,6 +876,7 @@ import GQ2.Dyadic.Instances.CanonicalRecords
 import GQ2.Dyadic.Instances.MpcOrbit
 import GQ2.Dyadic.Instances.RowClauses
 import GQ2.Dyadic.Instances.MpcWord
+import GQ2.Dyadic.Instances.RecordBlocks
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
 import GQ2.Dyadic.Instances.OddSeam
