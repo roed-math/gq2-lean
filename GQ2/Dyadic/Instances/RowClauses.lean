@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.Instances.CanonicalRecords
 import GQ2.Dyadic.Instances.AskCounting
+import GQ2.Dyadic.Instances.EvenMRamifiedPairing
 
 /-!
 # The analytic clauses at a tied row's candidate carrier  (dyadic campaign, lane W84-CLAUSES)
@@ -148,14 +149,23 @@ end Coefficient
 
 /-! ## §2 The compact-`M` candidate carrier
 
-`MCompact.exactLiftingRN` proves the **corrected** bundle at `GammaR (2+2h) q (mCompactW α h)`
-from `Hsimp α h q` alone, with no `StageSep` and no `StageZ`.  Feeding it to §1 turns the frozen
-clause at that carrier into the *same* residual `Prop` that wave 81 isolated on the arithmetic
-side, and gives the refutation handle there. -/
+Two facts the row records had not been read against.
+
+* `MCompact.exactLiftingRN_unconditional` (`Instances/EvenMRamifiedPairing.lean`) proves the
+  **corrected** bundle at `GammaR (2+2h) q (mCompactW α h)` from `2 ≤ α`, `q ≠ 0`, `Even q` and
+  nothing else: no `Hsimp`, no `StageSep`, no `StageZ`.  Both frozen `M0` rows of the tied table
+  are at `α ≥ 2` (`M0 3 0` at `ℚ₂(√2)`, `M0 2 0` at `ℚ₂(√5)`), so it applies at both.
+* `MCompact.uniformPushedHsimp` is unconditional at `2 ≤ α` as well, which is what makes the
+  scalar clause below free rather than `Hsimp`-conditional.
+
+Feeding the first to §1 turns the row's frozen `exactLifting` clause into the *same* residual
+`Prop` that wave 81 isolated on the arithmetic side, with no side condition at all, and carries
+the refutation handle to the candidate carrier where the frames are branch data. -/
 
 section MCandidate
 
 open GQ2.Dyadic.MCompact GQ2.Dyadic.Words.MCompact GQ2.CardH2GammaA
+open GQ2.Dyadic.Certificates.MCompact
 open GQ2.Dyadic.Count.PilotN GQ2.SectionEight.CentralObstruction FoxH ContCoh
 
 attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
@@ -164,25 +174,26 @@ attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
 variable {α h q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
 
 /-- The corrected bundle at the compact-`M` candidate, respelled at the row table's degree
-`2 + 2h` (`MCompact.exactLiftingRN` states it at `2h + 2`). -/
-theorem rowCl_mCand_exactLiftingRN (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
-    (hqe : Even q) (nuP : ContinuousMonoidHom P Ztwo) :
+`2 + 2h` (`MCompact.exactLiftingRN_unconditional` states it at `2h + 2`).  **Unconditional**
+at `2 ≤ α`. -/
+theorem rowCl_mCand_exactLiftingRN (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
+    (nuP : ContinuousMonoidHom P Ztwo) :
     ExactLiftingSemanticsRN (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
       (standardNumerics (2 + 2 * h)) :=
-  exactLiftingRN_standard_congr (by omega) (exactLiftingRN hsimp hα hq0 hqe nuP)
+  exactLiftingRN_standard_congr (by omega) (exactLiftingRN_unconditional hα hq0 hqe nuP)
 
 /-- **The `M0` row's `exactLifting` clause, measured.**  At the candidate carrier the frozen
-bundle is *equivalent* to `askCStageVanishing` at that carrier, given only `Hsimp`.  So the first
-of W83-RECORDS' "four analytic clauses" is not four clauses' worth of work: it is `Hsimp` plus
-exactly the coefficient `Prop` that the `ASK` block at `G_K` also reduces to.  The two sides of
-the row record carry **one** statement between them, at two carriers. -/
-theorem rowCl_mCand_exactLifting_iff (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
-    (hqe : Even q) :
+bundle is *equivalent* to `askCStageVanishing` at that carrier, with no analytic side condition.
+So the first of W83-RECORDS' "four analytic clauses" is not a clause's worth of analysis at all:
+it is exactly the coefficient `Prop` that the row's `ASK` block at `G_K` also reduces to
+(`askC_exactLifting_iff_stageVanishing`).  **The two sides of the row record carry one statement
+between them, at two carriers.** -/
+theorem rowCl_mCand_exactLifting_iff (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
     ExactLiftingSemantics (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
         (standardNumerics (2 + 2 * h))
       ↔ askCStageVanishing (GammaR (2 + 2 * h) q (mCompactW α h)) q P nuP :=
   rowCl_exactLifting_iff_stageVanishing (by omega)
-    (rowCl_mCand_exactLiftingRN hsimp hα hq0 hqe nuP)
+    (rowCl_mCand_exactLiftingRN hα hq0 hqe nuP)
 
 /-- The candidate carrier is topologically finitely generated: it is an admissible marked
 presentation on finitely many generators. -/
@@ -198,8 +209,7 @@ Frattini block.  Contrapositively, exhibiting one such surjection refutes the cl
 `rowCl_mCand_exactLifting_iff` refutes `askCStageVanishing` at the candidate carrier.  Unlike the
 `G_K` form of this statement (`askC_isEmpty_boundaryLifts_of_exactLifting`), whose frames wave 81
 could not build, the frames here are candidate-side data. -/
-theorem rowCl_mCand_isEmpty_boundaryLifts (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
-    (hqe : Even q)
+theorem rowCl_mCand_isEmpty_boundaryLifts (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
     (hfroz : ExactLiftingSemantics (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
       (standardNumerics (2 + 2 * h)))
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
@@ -214,16 +224,18 @@ theorem rowCl_mCand_isEmpty_boundaryLifts (hsimp : Hsimp α h q) (hα : 1 ≤ α
     (F : BoundaryFrameK q P H E) (hR : 1 < Nat.card ↥Blk.frattiniK) :
     IsEmpty (BoundaryLiftsK b F T) :=
   rowCl_isEmpty_boundaryLifts_of_exactLifting (by omega)
-    (rowCl_mCand_exactLiftingRN hsimp hα hq0 hqe nuP) hfroz (rowCl_mCand_tfg α h q)
+    (rowCl_mCand_exactLiftingRN hα hq0 hqe nuP) hfroz (rowCl_mCand_tfg α h q)
     hE2 hRK hR2 b F hR
 
 /-! ### The `scalar` clause
 
-`ScalarHilbertCertificate` is `#Hom_c(Γ, 𝔽₂) = SN.homScalar` and `#H²(Γ, 𝔽₂) = 2`.  The second
-conjunct is `MCompact.cardH2`, already a theorem given `Hsimp`.  The first is the generic scalar
-count `Count.homCard_field_goal` fed the same handle-uniform datum surjection `MCompact.datumRho`
-that `cardH2` uses; this is the compact-`M` twin of `LSquare.homCard_of_uniformPushed`, which the
-`L` row has had since `GammaLAnalyticLeaves`.  Neither half was stated at the `M` candidate. -/
+`ScalarHilbertCertificate` is `#Hom_c(Γ, 𝔽₂) = SN.homScalar` together with `#H²(Γ, 𝔽₂) = 2`.  The
+second conjunct is `MCompact.cardH2_of_uniformPushed`.  The first is the generic scalar count
+`Count.homCard_field_goal` fed the handle-uniform datum surjection `MCompact.datumRho`; this is
+the compact-`M` twin of `LSquare.homCard_of_uniformPushed`, which the `L` row has had since
+`GammaLAnalyticLeaves`, and **it had never been stated at the `M` candidate** (no `MCompact`
+file mentions `homCard`).  With `MCompact.uniformPushedHsimp` both conjuncts are unconditional
+at `2 ≤ α`. -/
 
 /-- Transport only the numerical degree of a scalar certificate, keeping its carrier fixed.
 Twin of `MCompact.exactLifting_standard_congr`. -/
@@ -234,10 +246,11 @@ theorem rowCl_scalar_standard_congr {Gam : ProfiniteGrp} {n m : ℕ}
   subst m
   exact id
 
-/-- **The scalar character count at the compact-`M` candidate.**  `Count.homCard_field_goal` at
-`MCompact.datumRho`, with the resolver/endpoint pair and the per-simple Stokes upgrade the row
-already owns. -/
-theorem rowCl_mCand_homCard (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+/-- **The scalar character count at the compact-`M` candidate**, from the uniform pushed
+residue.  `Count.homCard_field_goal` at `MCompact.datumRho`, with the uniform Heisenberg
+resolver supplying `ResolvesAt` and `IsStokesEndpoint`. -/
+theorem rowCl_mCand_homCard_of_uniformPushed (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α)
+    (hq0 : q ≠ 0) (hqe : Even q) :
     Nat.card (ContinuousMonoidHom ((gamma α h q : Type)) (Multiplicative (ZMod 2)))
       = (standardNumerics (2 * h + 2)).homScalar := by
   letI : TopologicalSpace Base := ⊥
@@ -245,24 +258,31 @@ theorem rowCl_mCand_homCard (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠
   letI : DiscreteTopology (Base ⧸ datum.M) := discreteTopology_quotient datum
   letI := scalarActionZmodTwo (Base ⧸ datum.M)
   set rho := datumRho α h q hα hq0 hqe with hrho
-  have hb := resolvesAt_and_endpoint_mCompactFam
-    (Q := WordLift (ZMod 2) (Base ⧸ datum.M)) heisLevel_ne_zero heisLevel_even
-    orderOf_dvd_heisLevel_scal (α := α) (h := h) (q := q) hqe
+  have hb := resolvesAt_and_endpoint_mCompactFam_uniformHeis
+    (C := Base ⧸ datum.M) (A := ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0)
+    (α := α) (h := h) (q := q) hqe
+  have hres : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (mCompactFam α h q (omega2Exp (4 * Monoid.exponent (Base ⧸ datum.M))))
+      (WordLift (ZMod 2) (Base ⧸ datum.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (ZMod 2) (Base ⧸ datum.M))
+        (HeisLift (ZMod 2) (Base ⧸ datum.M)) :=
+      ⟨Count.heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisPrim_injective
   exact homCard_field_goal rho (fun _ => rfl)
-    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hb.1
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hres
     (isWildTwo_of_gammaGen rho (datumRho_surjective α h q hα hq0 hqe) (fun _ => rfl))
     (degree h)
-    (stokesDuality hsimp hqe rho (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hb.1
-      (ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0))
+    (hsimp (Base ⧸ datum.M) rho (ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0))
     hb.2
 
-/-- **The `M0` row's `scalar` clause is a theorem given `Hsimp`.**  So the second of
-W83-RECORDS' four analytic clauses costs nothing that the first does not already cost. -/
-theorem rowCl_mCand_scalar (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+/-- **The `M0` row's `scalar` clause is a theorem, unconditionally at `2 ≤ α`.**  So the second
+of W83-RECORDS' four analytic clauses costs nothing at all at either frozen `M0` row. -/
+theorem rowCl_mCand_scalar (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
     ScalarHilbertCertificate (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h)
       (standardNumerics (2 + 2 * h)) (scalarActionZmodTwo _) :=
   rowCl_scalar_standard_congr _ (by omega)
-    ⟨rowCl_mCand_homCard hsimp hα hq0 hqe, cardH2 hsimp hα hq0 hqe⟩
+    ⟨rowCl_mCand_homCard_of_uniformPushed (uniformPushedHsimp hα hqe) (by omega) hq0 hqe,
+     cardH2_of_uniformPushed (uniformPushedHsimp hα hqe) (by omega) hq0 hqe⟩
 
 end MCandidate
 
