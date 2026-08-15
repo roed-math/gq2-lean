@@ -1,5 +1,23 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 84 (2026-08-15)
+
+**Nine items await you** (unchanged list from wave 83's close plus the wave-84 additions
+noted in the log; A6 at eleven rounds).
+
+**For orientation.**  The odd route's residual lost its marking quantifier: every admissible
+marking is a twist of one explicit one, so what remains is a single model move at explicit
+markings, split into two one-parameter families of row-moving automorphisms, the first such
+automorphisms the campaign will have built.  The last selector question is one equation that
+is now decided at a finite class, with the class-four witness computed and classes five and
+six clearing in a widened ansatz; an exhaustive empty search at a finite class would be a
+genuine refutation, and the greedy walk was proved to produce false stalls, so only exact
+per-class linear algebra counts as evidence.  On the records, the corrected candidate
+lifting bundle turned out to exist unconditionally, so the row record carries one statement
+at two groups rather than two obligations, the pilot's special spelling is strictly
+dominated, and the general theorem is instantiated at one quadratic field over four binders.
+The restatement recommendation now rests on both carriers.
+
 ## Status at wave 83 (2026-08-15)
 
 **Seven items await you** (the five-site fix came off the list, executed under an
