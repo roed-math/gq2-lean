@@ -771,6 +771,7 @@ import GQ2.Dyadic.SqCore.GradedClassFiveKnob
 import GQ2.Dyadic.SqCore.GradedClassFourDefect
 import GQ2.Dyadic.SqCore.GradedClassFiveJoin
 import GQ2.Dyadic.SqCore.GradedClassFourCompose
+import GQ2.Dyadic.SqCore.GradedUniformTower
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
