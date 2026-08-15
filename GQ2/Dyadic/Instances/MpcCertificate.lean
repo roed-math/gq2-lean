@@ -76,7 +76,9 @@ congruence of `MpcMarkedData` is the second of those read on the core (`χ_M(B̄
 * §4 `MarkedCoreCertificateMpc` and the producers, ending at
   `mpcCert_marked_matching_certificate_KTwoMpc`;
 * §5 the realization and the branch datum at `pres = .Mpc α r ε η 0`;
-* §6 the two fields;
+* §6 the transport of the bundle's level onto the core, the two necessity directions
+  (`mpcCert_level_le_of_pivot`, `mpcCert_level_le_of_certificate`: both the clause and the
+  certificate force `B.r ≤ r`), and the two fields;
 * §7 axiom pins.
 
 No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
@@ -447,32 +449,49 @@ theorem mpcCert_chiKerLevel_of_level (B : MarkedRecip Rec K) {α r : ℕ} (hr : 
   obtain ⟨y, hy⟩ := mpcCert_nu_le_of_chiKerTwo B (h.trans hz)
   exact ⟨y, by rw [← hr]; exact hy⟩
 
-/-- **The level-`r` clause forces the level**, whenever `2^r` is the actual pivot value: `C̄₀`
-lies in `ker χ_M`, so `nu_ker_chi_le` puts its transported value in `2^{B.r} ℤ₂`, and a value of
-valuation exactly `r` cannot be more divisible than that.  Stated as the `r = 1` case, the only
-one the frozen table uses: the pivot clause **implies** `B.r ≤ 1`. -/
-theorem mpcCert_level_le_of_pivot (B : MarkedRecip Rec K) {α : ℕ}
-    (e : OrientedContinuousMulEquiv (chiM α 0) (chiCycKTwo (K := K)))
-    (hpivot : ∃ γ : ℤ_[2]ˣ, toAdd (fieldUni_nuPullbackM B e (dmC α 0)) = (γ : ℤ_[2]) * 2 ^ 1) :
-    B.r ≤ 1 := by
+/-- A value of 2-adic valuation exactly `r` cannot lie in `2^s ℤ₂` for `s > r`. -/
+theorem mpcCert_le_of_two_pow_eq {r s : ℕ} {γ y : ℤ_[2]} (hγ : IsUnit γ)
+    (h : γ * 2 ^ r = 2 ^ s * y) : s ≤ r := by
   by_contra hlt
+  obtain ⟨j, hj⟩ : ∃ j, s = r + (j + 1) := ⟨s - r - 1, by omega⟩
+  have hcancel : γ = 2 * (2 ^ j * y) := by
+    refine mul_left_cancel₀ (pow_ne_zero r (by norm_num : (2 : ℤ_[2]) ≠ 0)) ?_
+    calc (2 : ℤ_[2]) ^ r * γ = γ * 2 ^ r := by ring
+      _ = 2 ^ (r + (j + 1)) * y := by rw [← hj]; exact h
+      _ = 2 ^ r * (2 * (2 ^ j * y)) := by ring
+  rw [hcancel] at hγ
+  have hz : PadicInt.toZMod (2 * (2 ^ j * y) : ℤ_[2]) = 0 := by
+    rw [map_mul, map_ofNat, show ((2 : ZMod 2)) = 0 from by decide, zero_mul]
+  exact not_isUnit_zero (hz ▸ hγ.map (PadicInt.toZMod (p := 2)))
+
+/-- **The pivot clause forces `B.r ≤ r`.**  `C̄₀` lies in `ker χ_M`, so `nu_ker_chi_le` puts its
+transported value inside `2^{B.r} ℤ₂`, and a value of valuation exactly `r` cannot be more
+divisible than that.  This is the `Mpc` half of wave 78's `fieldUni_level_zero_of_pivotM`: at
+`r = 0` it reads `B.r = 0`, and at `r = 1` it is the upper half of the `Matches` clause
+`r = Q.r` at the two frozen procyclic rows. -/
+theorem mpcCert_level_le_of_pivot (B : MarkedRecip Rec K) {α r : ℕ}
+    (e : OrientedContinuousMulEquiv (chiM α 0) (chiCycKTwo (K := K)))
+    (hpivot : ∃ γ : ℤ_[2]ˣ, toAdd (fieldUni_nuPullbackM B e (dmC α 0)) = (γ : ℤ_[2]) * 2 ^ r) :
+    B.r ≤ r := by
   obtain ⟨γ, hγ⟩ := hpivot
   have h : chiCycKTwo (K := K) (e.1 (dmC α 0)) = 1 := (e.2 _).trans (chiM_dmC α 0)
   obtain ⟨y, hy⟩ := mpcCert_nu_le_of_chiKerTwo B h
-  have hval : (γ : ℤ_[2]) * 2 ^ 1 = 2 ^ B.r * y := hγ.symm.trans hy
-  obtain ⟨j, hj⟩ : ∃ j, B.r = j + 2 := ⟨B.r - 2, by omega⟩
-  have hcancel : (γ : ℤ_[2]) = 2 * (2 ^ j * y) := by
-    have h2 : (2 : ℤ_[2]) * (γ : ℤ_[2]) = 2 * (2 * (2 ^ j * y)) := by
-      rw [hj] at hval
-      calc (2 : ℤ_[2]) * (γ : ℤ_[2]) = (γ : ℤ_[2]) * 2 ^ 1 := by ring
-        _ = 2 ^ (j + 2) * y := hval
-        _ = 2 * (2 * (2 ^ j * y)) := by ring
-    exact mul_left_cancel₀ (by norm_num) h2
-  have := γ.isUnit
-  rw [hcancel] at this
-  have hz : PadicInt.toZMod (2 * (2 ^ j * y) : ℤ_[2]) = 0 := by
-    rw [map_mul, map_ofNat, show ((2 : ZMod 2)) = 0 from by decide, zero_mul]
-  exact not_isUnit_zero (hz ▸ this.map (PadicInt.toZMod (p := 2)))
+  exact mpcCert_le_of_two_pow_eq γ.isUnit (hγ.symm.trans hy)
+
+/-- **The certificate itself forces `B.r ≤ r`**, with no clause carried: the corrected image of
+`C̄₀` lies in `ker χ_cyc` and carries the value `2^r` on the nose.  So a field admitting a
+procyclic certificate at level `r` cannot have a strictly larger marked level, and the `Mpc`
+row's `Matches` demand `r = Q.r` is half a theorem about the certificate rather than an
+independent assumption. -/
+theorem mpcCert_level_le_of_certificate {B : MarkedRecip Rec K} {α r pp : ℕ} {hα1 : 1 ≤ α}
+    (C : MarkedCoreCertificateKTwoMpc B α r pp hα1) : B.r ≤ r := by
+  have hchi : chiCycKTwo (K := K) (C.abstractEquiv (C.correction (dmC α 0))) = 1 :=
+    (C.orientation _).trans ((C.correction_chi _).trans (chiM_dmC α 0))
+  obtain ⟨y, hy⟩ := mpcCert_nu_le_of_chiKerTwo B hchi
+  have hval : (1 : ℤ_[2]) * 2 ^ r = 2 ^ B.r * y := by
+    rw [one_mul, ← mpcCert_toAdd_nuMpc_dmC α r pp hα1, ← C.correction_nu (dmC α 0)]
+    exact hy
+  exact mpcCert_le_of_two_pow_eq isUnit_one hval
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
 
@@ -515,8 +534,9 @@ lane introduces no axiom of its own.
 
 * **The standard three** (`propext, Classical.choice, Quot.sound`) on everything in §1, §2, §5's
   realization, and §6's transport lemmas.  In particular `mpcCert_shift_mem`, the invariance
-  principle, and `mpcCert_level_le_of_pivot`, the necessity direction, cost no axiom: they are
-  bundle arithmetic.
+  principle, costs no axiom: it is
+  bundle arithmetic; so do `mpcCert_level_le_of_pivot` and
+  `mpcCert_level_le_of_certificate`, the two necessity directions.
 * **Plus `peripheralCyclotomicAction`** on `mpcCert_markedMatching` and everything downstream of
   it (both certificate producers, the branch-datum producer, the two field rows).  The single
   source is `MScaling.mScalingHypothesis_zero`, the M3 row.  This is the same axiom wave 78's
@@ -557,7 +577,9 @@ section AxiomPins
 #print axioms mpcCert_genAsmBranch_of_orientedMpc
 #print axioms mpcCert_nu_le_of_chiKerTwo
 #print axioms mpcCert_chiKerLevel_of_level
+#print axioms mpcCert_le_of_two_pow_eq
 #print axioms mpcCert_level_le_of_pivot
+#print axioms mpcCert_level_le_of_certificate
 #print axioms MpcRowData_sqrtTen
 #print axioms MpcRowData_sqrtNegTen
 #print axioms mpcCert_genAsmBranch_sqrtTen
