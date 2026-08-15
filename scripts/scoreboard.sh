@@ -97,6 +97,8 @@ ODD SEAM|seam = one cup-adapted frame|decl|oddSeam_supply_iff_cupAdaptedFrame
 ODD SEAM|seam = the full marking|decl|oddSeam_supply_iff_fullMarking
 ODD SEAM|halved relator clause|prod|SqCupAdaptedFrameRelator
 ODD SEAM|frame presentation clause|prod|SqCupAdaptedFramePresentation
+ODD SEAM|model clearing clause|prod|SqNuOrientedClearAtUnitPivot
+ODD SEAM|seam = clearing instance|decl|oddFrame_supply_iff_clearInstance
 ODD SEAM|q-invariant of D_sq h|decl|oddSeam_demushkinQ_DSq
 ODD SEAM|odd oriented equivalence|decl|nonempty_orientedEquiv_oddDegree
 ASK BLOCK|frozen: surviving Prop|decl|askCStageVanishing
@@ -408,5 +410,13 @@ echo "  * whether a clause a row CARRIES is discharged somewhere else in the"
 echo "    tree at the same instantiation: only the binder is machine-checked."
 echo "  * whether a producer's conclusion is at the row's CANONICAL marking;"
 echo "    \`GenAsmBranch\` does not pin \`nuP\` (GeneralAssembly.lean, W82-PIVOT)."
+echo "  * STRENGTH.  The carries column counts binders, and fewer binders is"
+echo "    not a weaker hypothesis: sqNuOrientedClearAtUnitPivot_of_pivotMoves"
+echo "    carries 2 against _of_families' 3, and is the STRONGER ask (the whole"
+echo "    unit-determinant pivot family, against two one-parameter ones)."
+echo "  * producers in modules no row imports.  A \`prod\` scan reads the"
+echo "    ENVIRONMENT, so it sees exactly the modules the rows above pull in."
+echo "    A new module with a new producer is invisible until some row names a"
+echo "    declaration in it.  This is the one way the board can be stale."
 echo "  * prose.  Every headline, table and inventory in the tree and in"
 echo "    docs/dyadic/ is outside this tool and stales on its own."
