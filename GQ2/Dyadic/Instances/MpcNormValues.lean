@@ -363,6 +363,78 @@ theorem mpcNorm_recip_values [FiniteDimensional ℚ_[2] (quadField a)] (ha : ¬ 
 
 end QuadRecip
 
+/-! ## §5 The descent from `G_K^{ab}` to `Kˣ`
+
+Wave 80 §4.2 steps 1 and 2.  `MpcNoUnitKerChi` and `MpcLambdaOne` quantify over `G_K^{ab}`, where
+only `rec_K(Kˣ)` is under control, and `ker χ` is **closed**, so density does not preserve it.
+What density *does* give is both residues at once: the fibres of `ℤ₂ → ℤ/2^k` are open
+(`isOpen_preimage_toZModPow`), so
+
+> every `g : G_K^{ab}` is matched by some `rec_K x` in `χ` modulo `8` **and** in `ν_ur` modulo
+> `2` simultaneously.
+
+That is all the two `Prop`s need, because both are congruence conditions: `χ(g) = u` implies
+`χ(g) ≡ u (mod 8)`, and `ν(g) ≡ c (mod 2)` is the conclusion. -/
+
+section Descent
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K] {Rec : LocalReciprocity}
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- `χ_K` on the abelianization is continuous: `chiCycKAb` is a quotient lift of the continuous
+`chiCycK`, exactly as `continuous_inclAbK` is of `continuous_inclHomK`. -/
+theorem mpcNorm_continuous_chiCycKAb : Continuous (chiCycKAb K) :=
+  continuous_quot_lift _ (continuous_chiCycK K)
+
+/-- **THE SIMULTANEOUS APPROXIMATION.**  Every class of `G_K^{ab}` is matched by a class in the
+image of `rec_K`, in the cyclotomic character modulo `8` and in the unramified coordinate modulo
+`2` at the same time.  This is the descent both remaining `Prop`s need, and it needs no
+information about `ker χ` beyond `χ`'s continuity. -/
+theorem mpcNorm_recip_approx (B : MarkedRecip Rec K) (g : GalKab K) :
+    ∃ x : (↥K)ˣ,
+      PadicInt.toZModPow 3 ((chiCycKAb K (B.recip x) : ℤ_[2]))
+          = PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2])) ∧
+        PadicInt.toZModPow 1 (toAdd (B.nu_ur (B.recip x)))
+          = PadicInt.toZModPow 1 (toAdd (B.nu_ur g)) := by
+  have hchi : Continuous fun h : GalKab K => ((chiCycKAb K h : ℤ_[2]ˣ) : ℤ_[2]) :=
+    Units.continuous_val.comp mpcNorm_continuous_chiCycKAb
+  have hnu : Continuous fun h : GalKab K => toAdd (B.nu_ur h) :=
+    continuous_toAdd.comp B.continuous_nu_ur
+  have hopen : IsOpen {h : GalKab K |
+      PadicInt.toZModPow 3 ((chiCycKAb K h : ℤ_[2])) = PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))
+        ∧ PadicInt.toZModPow 1 (toAdd (B.nu_ur h))
+            = PadicInt.toZModPow 1 (toAdd (B.nu_ur g))} := by
+    refine IsOpen.inter ?_ ?_
+    · exact (GQ2.isOpen_preimage_toZModPow 3
+        {PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))}).preimage hchi
+    · exact (GQ2.isOpen_preimage_toZModPow 1
+        {PadicInt.toZModPow 1 (toAdd (B.nu_ur g))}).preimage hnu
+  exact B.denseRange_recip.exists_mem_open hopen ⟨g, rfl, rfl⟩
+
+/-- `MpcLambdaOne` from the residue form: `ν ≡ c (mod 2)` in `ℤ/2` is the same congruence. -/
+theorem mpcNorm_lambdaOne_of_residue [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+    (B : MarkedRecip Rec K) (u : ℤ_[2]ˣ) (c : ℤ_[2])
+    (h : ∀ g : GalKab K, chiCycKAb K g = u →
+      PadicInt.toZModPow 1 (toAdd (B.nu_ur g)) = PadicInt.toZModPow 1 c) :
+    MpcLambdaOne B u c := by
+  intro g hg
+  obtain ⟨y, hy⟩ := GQ2.toZModPow_eq_iff_two_pow_dvd.1 (h g hg)
+  exact ⟨y, by rw [pow_one] at hy; linear_combination hy⟩
+
+/-- The residue modulo `2` of a `2`-adic **unit** is `1`.  How `MpcNoUnitKerChi`'s `IsUnit`
+clause becomes a congruence. -/
+theorem mpcNorm_residue_of_isUnit {z : ℤ_[2]} (hz : IsUnit z) :
+    PadicInt.toZModPow 1 z = 1 := by
+  rcases mpcRow_even_or_odd z with ⟨y, hy⟩ | ⟨v, hv⟩
+  · exact absurd (isUnit_of_dvd_one ((Dvd.intro y hy.symm).trans hz.dvd)) GQ2.not_isUnit_two
+  · rw [hv, map_add, map_mul, map_one,
+      show PadicInt.toZModPow (p := 2) 1 (2 : ℤ_[2]) = 0 by
+        rw [show ((2 : ℤ_[2])) = ((2 : ℕ) : ℤ_[2]) by push_cast; ring, map_natCast]
+        decide,
+      zero_mul, add_zero]
+
+end Descent
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
