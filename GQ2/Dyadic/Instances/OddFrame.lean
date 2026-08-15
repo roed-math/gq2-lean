@@ -313,6 +313,55 @@ theorem oddFrame_supply (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) {h
     rw [hval]
     exact nuSq_x0 h
 
+/-- **The reduction is exact at a point.**  For ANY fixed oriented equivalence `f`, the seam is
+equivalent to the single instance of the clearing at the transported marking `ν_ur ∘ f`: a
+χ-preserving automorphism of `D_sq(h)` carrying that one marking onto `ν_sq`.  So the
+quantifier structure mirrors wave 82's frame form: as `SqCupAdaptedFrameRelator K` overshoots
+the seam by its frame quantifier, `SqNuOrientedClearAtUnitPivot h` overshoots it by its marking
+quantifier, and the seam IS the instance at the marking the cup form has already vetted (§3:
+that instance's unit-pivot precondition is a theorem). -/
+theorem oddFrame_supply_iff_clearInstance (B : MarkedRecip Rec K) {h : ℕ}
+    (f : ContinuousMulEquiv (DSq h : Type) (maxProPQuotient 2 (GalK K)))
+    (horient : ∀ x, chiCycKTwo (K := K) (f x) = chiSq h x) :
+    SqMarkedForwardSupply B h ↔
+      ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+        (∀ x, chiSq h (Ψ x) = chiSq h x) ∧
+          ∀ x, transportedNuUr B f (Ψ x) = nuSq h x := by
+  constructor
+  · intro H
+    obtain ⟨f₁, horient₁, hnu₁⟩ := oddSeam_fullMarking_of_supply B h H
+    refine ⟨f₁.trans f.symm, fun x => ?_, fun x => ?_⟩
+    · show chiSq h (f.symm (f₁ x)) = chiSq h x
+      rw [← horient (f.symm (f₁ x)), f.apply_symm_apply]
+      exact horient₁ x
+    · show transportedNuUr B f (f.symm (f₁ x)) = nuSq h x
+      rw [transportedNuUr_apply, f.apply_symm_apply]
+      exact hnu₁ x
+  · rintro ⟨Ψ, hchi, hnu⟩
+    refine ⟨Ψ.trans f, fun x => ?_, ?_, ?_⟩
+    · show chiCycKTwo (K := K) (f (Ψ x)) = chiSq h x
+      rw [horient (Ψ x), hchi x]
+    · show nuUrKTwo B (f (Ψ (dsqSigma h))) = ofAdd (1 : ℤ_[2])
+      have hval := hnu (dsqSigma h)
+      rw [transportedNuUr_apply] at hval
+      rw [hval]
+      exact nuSq_sigma h
+    · show nuUrKTwo B (f (Ψ (dsqX0 h))) = ofAdd (0 : ℤ_[2])
+      have hval := hnu (dsqX0 h)
+      rw [transportedNuUr_apply] at hval
+      rw [hval]
+      exact nuSq_x0 h
+
+/-- **The graded lanes' direct target**: the handle stratum plus the two one-parameter pivot
+families buy the whole seam.  Composition of `sqNuOrientedClearAtUnitPivot_of_families` with
+`oddFrame_supply`; at `h ≥ 1` the two families are the open moves. -/
+theorem oddFrame_supply_of_families (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+    {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hfix : SqHandleMixFixesCore h sqPivotExp)
+    (htr : ∀ c : ℤ_[2], SqPivotTranslation h c)
+    (hsc : ∀ a : ℤ_[2], IsUnit a → SqPivotScaling h a) : SqMarkedForwardSupply B h :=
+  oddFrame_supply B FF hdeg (sqNuOrientedClearAtUnitPivot_of_families hfix htr hsc)
+
 /-- The full standard marking over the model clearing: wave 82's self-improvement applied to
 `oddFrame_supply`. -/
 theorem oddFrame_fullMarking_of_clear (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
@@ -439,6 +488,10 @@ degree-one seed identification `D_R ≅ D_sq(0)`.  Neither `B5 localReciprocity`
   duality, nothing else.
 * `oddFrame_isUnit_transported_sqPivot`: std-3 + {B1, B6, B11a}.  No B7: the pivot parity does
   not consume the Euler characteristic, only the frame's cup adaptation.
+* `oddFrame_supply_iff_clearInstance`: std-3 EXACTLY.  The two-sided localization of the seam
+  at one transported marking is pure structure; every census member sits in the unit-pivot
+  vetting (§3) or in producing `f`, not in the equivalence itself.
+* `oddFrame_supply_of_families`: std-3 + {B1, B6, B7, B11a}, same census as `oddFrame_supply`.
 * `oddFrame_clearAtUnitPivot_zero`: std-3 + {dyadicOrientation, peripheralCyclotomicAction}.
   The `h = 0` clearing rides the committed degree-one pivot seeds, which identify `D_sq(0)`
   with the Roe core; no bundle-side census member appears.
@@ -454,6 +507,8 @@ degree-one seed identification `D_R ≅ D_sq(0)`.  Neither `B5 localReciprocity`
 #print axioms GQ2.Dyadic.oddFrame_presenting_relator_rowSum
 #print axioms GQ2.Dyadic.oddFrame_isUnit_transported_sqPivot
 #print axioms GQ2.Dyadic.oddFrame_supply
+#print axioms GQ2.Dyadic.oddFrame_supply_iff_clearInstance
+#print axioms GQ2.Dyadic.oddFrame_supply_of_families
 #print axioms GQ2.Dyadic.oddFrame_fullMarking_of_clear
 #print axioms GQ2.Dyadic.oddFrame_cupAdaptedFrame_of_clear
 #print axioms GQ2.Dyadic.oddFrame_genAsmBranch_L_of_clear
