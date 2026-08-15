@@ -606,6 +606,18 @@ private theorem mpcBld_vanish {y ε : levelQuot G (j + 2)}
   exact (lim_mem_twoCentralSeries_iff_levelMk (j + 2) _).mp
     (cfive_commutator_lambdaTwo_swap hw hv)
 
+/-- `⁅λ_j, λ₂⁆` dies in `Q_{j+2}`, the slots the other way round. -/
+private theorem mpcBld_vanish' {y ε : levelQuot G (j + 2)}
+    (hy : y ∈ lambdaImage G 2 (j + 2)) (hε : ε ∈ lambdaImage G j (j + 2)) : commP ε y = 1 := by
+  have h : commP ε y = (commP y ε)⁻¹ := by simp only [commP]; group
+  rw [h, mpcBld_vanish hy hε, inv_one]
+
+/-- The square of a `λ_j`-image lands in the top layer of `Q_{j+2}`. -/
+private theorem mpcBld_sq_mem_zLayer {ε : levelQuot G (j + 2)}
+    (hε : ε ∈ lambdaImage G j (j + 2)) : ε ^ 2 ∈ zLayer G (j + 1) := by
+  obtain ⟨v, hv, rfl⟩ := hε
+  exact ⟨v ^ 2, sq_mem_twoCentralSeries_succ G hv, by rw [map_pow]⟩
+
 private theorem mpcBld_cmove3 {Q : Type*} [Group Q] {z : Q} (hz : ∀ x : Q, z * x = x * z)
     (x₁ x₂ x₃ x₄ : Q) : x₁ * (z * x₂) * x₃ * x₄ = x₁ * x₂ * x₃ * x₄ * z := by
   have e := mpcBld_cmove hz
@@ -646,6 +658,61 @@ theorem mpcBld_incr_near {C α β γ δ ε y : levelQuot G (j + 2)}
   simp only [mWord]
   rw [h1]
   exact mpcBld_cmove4 (mpcBld_zcomm (cfive_commP_mem_zLayer_right C hε)) _ _ _ _
+
+private theorem mpcBld_shuffle3 {Q : Type*} [Group Q] {z₁ z₂ : Q}
+    (h₁ : ∀ x : Q, z₁ * x = x * z₁) (h₂ : ∀ x : Q, z₂ * x = x * z₂) (x₁ x₂ x₃ x₄ : Q) :
+    x₁ * z₁ * (x₂ * z₂) * x₃ * x₄ = x₁ * x₂ * x₃ * x₄ * (z₁ * z₂) := by
+  have e₁ := mpcBld_cmove h₁
+  have e₂ := mpcBld_cmove h₂
+  calc x₁ * z₁ * (x₂ * z₂) * x₃ * x₄ = x₁ * z₁ * x₂ * z₂ * x₃ * x₄ := by group
+    _ = x₁ * x₂ * z₁ * z₂ * x₃ * x₄ := by rw [e₁ x₁ x₂]
+    _ = x₁ * x₂ * z₁ * x₃ * z₂ * x₄ := by rw [e₂ (x₁ * x₂ * z₁) x₃]
+    _ = x₁ * x₂ * x₃ * z₁ * z₂ * x₄ := by rw [e₁ (x₁ * x₂) x₃]
+    _ = x₁ * x₂ * x₃ * z₁ * x₄ * z₂ := by rw [e₂ (x₁ * x₂ * x₃ * z₁) x₄]
+    _ = x₁ * x₂ * x₃ * x₄ * z₁ * z₂ := by rw [e₁ (x₁ * x₂ * x₃) x₄]
+    _ = x₁ * x₂ * x₃ * x₄ * (z₁ * z₂) := by group
+
+/-- ⭐⭐ **The head slot's increment**: a `λ_j`-factor on the `Ā`-letter costs
+`u²·⁅u, Ā⁆·⁅u, b⁆` in `Q_{j+2}`, where `b` is the `B̄`-letter as it stands.  Unlike the two
+bracket slots this one sees the `B̄`-letter, which is why it is stated against `β` and not
+against a marked generator. -/
+theorem mpcBld_incr_head {A α β γ δ ε y : levelQuot G (j + 2)}
+    (hα : α = A * y) (hy : y ∈ lambdaImage G 2 (j + 2))
+    (hε : ε ∈ lambdaImage G j (j + 2)) :
+    mWord 2 (α * ε) β γ δ = mWord 2 α β γ δ * (ε ^ 2 * commP ε A * commP ε β) := by
+  have hεα : commP ε α = commP ε A := by
+    rw [hα, cfive_commP_right_hom hε A y, mpcBld_vanish' hy hε, one_mul]
+  have hsq : (α * ε) ^ 2 = α ^ 2 * (ε ^ 2 * commP ε A) := by
+    rw [cfour_sq_mul, cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hε α) ε, mul_one,
+      hεα, mul_assoc]
+  have hcomm : commP (α * ε) β = commP α β * commP ε β := by
+    rw [cfour_commP_mul_left, mpcBld_vanish (mpcBld_commP_mem_two α β) hε, mul_one]
+  simp only [mWord]
+  rw [hsq, hcomm]
+  exact mpcBld_shuffle3
+    (mpcBld_zcomm (Subgroup.mul_mem _ (mpcBld_sq_mem_zLayer hε)
+      (hεα ▸ cfive_commP_mem_zLayer_left hε α)))
+    (mpcBld_zcomm (cfive_commP_mem_zLayer_left hε β)) _ _ _ _
+
+/-- ⭐⭐ **The pivot slot's increment**: a `λ_j`-factor on the `C̄₀`-letter costs exactly
+`⁅u, d⁆` in `Q_{j+2}`, where `d` is the `D̄`-letter as it stands.  The fourth power does not
+see it at all. -/
+theorem mpcBld_incr_pivot {α β γ δ ε : levelQuot G (j + 2)}
+    (hε : ε ∈ lambdaImage G j (j + 2)) :
+    mWord 2 α β (γ * ε) δ = mWord 2 α β γ δ * commP ε δ := by
+  have hz : ε ^ 2 * commP ε γ ∈ zLayer G (j + 1) :=
+    Subgroup.mul_mem _ (mpcBld_sq_mem_zLayer hε) (cfive_commP_mem_zLayer_left hε γ)
+  have hsq : (γ * ε) ^ 2 = γ ^ 2 * (ε ^ 2 * commP ε γ) := by
+    rw [cfour_sq_mul, cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hε γ) ε, mul_one,
+      mul_assoc]
+  have hfour : (γ * ε) ^ 4 = γ ^ 4 := by
+    rw [pow_mul (γ * ε) 2 2, hsq, cfour_sq_mul, zLayer_sq G hz,
+      cfive_commP_zLayer_left hz (γ ^ 2), cfour_one_comm, mul_one, mul_one, mul_one,
+      ← pow_mul]
+  have hcomm : commP (γ * ε) δ = commP γ δ * commP ε δ := by
+    rw [cfour_commP_mul_left, mpcBld_vanish (mpcBld_commP_mem_two γ δ) hε, mul_one]
+  simp only [mWord, show (2 : ℕ) ^ 2 = 4 from rfl]
+  rw [hfour, hcomm, ← mul_assoc]
 
 end IncrGeneral
 
@@ -716,6 +783,84 @@ theorem mpcBld_incr_n {j : ℕ} (s t m n u : (DM 2 0 : Type))
   rw [hD, map_mul, map_mWord, map_mWord, map_mul, mpcBld_map_commP,
     mpcBld_incr_near hC ⟨_, mpcBld_letC_corr_mem hm, rfl⟩ ⟨u, hu, rfl⟩]
 
+/-- ⭐⭐ **THE `Ā`-SLOT INCREMENT ON `D_M 2 0`.**  Multiplying the `Ā`-correction by `u ∈ λ_j`
+multiplies the core word by `u²·⁅u, Ā⁆·⁅u, B̄-letter⁆`, exactly, modulo `λ_{j+2}`. -/
+theorem mpcBld_incr_s {j : ℕ} (s t m n u : (DM 2 0 : Type))
+    (hs : s ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hu : u ∈ twoCentralSeries (DM 2 0 : Type) j) :
+    levelMk (DM 2 0 : Type) (j + 2)
+        (mWord 2 (mpcWordLetA (s * u)) (mpcWordLetB t) (mpcWordLetC m) (mpcWordLetD n))
+      = levelMk (DM 2 0 : Type) (j + 2)
+        (mWord 2 (mpcWordLetA s) (mpcWordLetB t) (mpcWordLetC m) (mpcWordLetD n) *
+          (u ^ 2 * commP u (dmA 2 0) * commP u (mpcWordLetB t))) := by
+  have hAu : mpcWordLetA (s * u) = mpcWordLetA s * u := by
+    rw [mpcWordLetA, mpcWordLetA]; group
+  have hA : levelMk (DM 2 0 : Type) (j + 2) (mpcWordLetA s)
+      = levelMk (DM 2 0 : Type) (j + 2) (dmA 2 0) *
+        levelMk (DM 2 0 : Type) (j + 2) ((dmB 2 0 ^ 4)⁻¹ * s) := by
+    rw [mpcBld_letA_shape, map_mul]
+  rw [hAu, map_mul, map_mWord, map_mWord, map_mul, map_mul, map_mul, map_pow,
+    mpcBld_map_commP, mpcBld_map_commP,
+    mpcBld_incr_head hA ⟨_, mpcBld_letA_corr_mem hs, rfl⟩ ⟨u, hu, rfl⟩]
+
+/-- ⭐⭐ **THE PIVOT-SLOT INCREMENT ON `D_M 2 0`.**  Multiplying the `C̄₀`-correction by `u ∈ λ_j`
+multiplies the core word by `⁅u, D̄-letter⁆`, exactly, modulo `λ_{j+2}`; the row-shifted fourth
+power does not see it. -/
+theorem mpcBld_incr_m {j : ℕ} (s t m n u : (DM 2 0 : Type))
+    (hu : u ∈ twoCentralSeries (DM 2 0 : Type) j) :
+    levelMk (DM 2 0 : Type) (j + 2)
+        (mWord 2 (mpcWordLetA s) (mpcWordLetB t) (mpcWordLetC (m * u)) (mpcWordLetD n))
+      = levelMk (DM 2 0 : Type) (j + 2)
+        (mWord 2 (mpcWordLetA s) (mpcWordLetB t) (mpcWordLetC m) (mpcWordLetD n) *
+          commP u (mpcWordLetD n)) := by
+  have hCu : mpcWordLetC (m * u) = mpcWordLetC m * u := by
+    rw [mpcWordLetC, mpcWordLetC]; group
+  rw [hCu, map_mul, map_mWord, map_mWord, map_mul, mpcBld_map_commP,
+    mpcBld_incr_pivot ⟨u, hu, rfl⟩]
+
+/-- **The reachable increment of one rung**, from all four slots at once: the `Ā`-slot's
+`u²·⁅u,Ā⁆·⁅u,b⁆`, the pivot slot's `⁅u,d⁆`, the `B̄`-slot's `⁅Ā,u⁆` and the `D̄`-slot's
+`⁅C̄₀,u⁆`.  Modulo `λ_{j+2}` these commute and square to `1`, so the set of values is an
+`𝔽₂`-subspace of `λ_{j+1}/λ_{j+2}`. -/
+def mpcBldIncr (t n us ut um un : (DM 2 0 : Type)) : (DM 2 0 : Type) :=
+  us ^ 2 * commP us (dmA 2 0) * commP us (mpcWordLetB t) * commP um (mpcWordLetD n) *
+    commP (dmA 2 0) ut * commP (dmC 2 0) un
+
+/-- ⭐⭐⭐ **ONE RUNG, WITH EVERY SLOT.**  A class-`(j+1)` solution whose defect is killed by a
+reachable increment gives a class-`(j+2)` solution, explicitly. -/
+theorem mpcBld_step {j : ℕ}
+    {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type)}
+    (hp : p ∈ mpcWordSet (j + 1)) (us ut um un : (DM 2 0 : Type))
+    (hus : us ∈ mpcWordCorr) (husj : us ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hut : ut ∈ mpcWordCorr) (hutj : ut ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hum : um ∈ mpcWordCorrC) (humj : um ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hun : un ∈ mpcWordCorr) (hunj : un ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hkill : mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+          (mpcWordLetD p.2.2.2) * mpcBldIncr p.2.1 p.2.2.2 us ut um un
+        ∈ twoCentralSeries (DM 2 0 : Type) (j + 2)) :
+    (p.1 * us, p.2.1 * ut, p.2.2.1 * um, p.2.2.2 * un) ∈ mpcWordSet (j + 2) := by
+  obtain ⟨hp1, hp2, hp3, hp4, -⟩ := hp
+  refine ⟨Subgroup.mul_mem _ hp1 hus, Subgroup.mul_mem _ hp2 hut,
+    Subgroup.mul_mem _ hp3 hum, Subgroup.mul_mem _ hp4 hun, ?_⟩
+  have hsu : p.1 * us ∈ twoCentralSeries (DM 2 0 : Type) 2 :=
+    Subgroup.mul_mem _ hp1.1 hus.1
+  have hmu : p.2.2.1 * um ∈ twoCentralSeries (DM 2 0 : Type) 2 :=
+    Subgroup.mul_mem _ hp3.1.1 hum.1.1
+  have hassoc : mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+        (mpcWordLetD p.2.2.2) * mpcBldIncr p.2.1 p.2.2.2 us ut um un
+      = mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+          (mpcWordLetD p.2.2.2) *
+        (us ^ 2 * commP us (dmA 2 0) * commP us (mpcWordLetB p.2.1)) *
+        commP um (mpcWordLetD p.2.2.2) * commP (dmA 2 0) ut * commP (dmC 2 0) un := by
+    simp only [mpcBldIncr]; group
+  rw [mpcWord_mem_iff_levelMk,
+    mpcBld_incr_n (p.1 * us) (p.2.1 * ut) (p.2.2.1 * um) p.2.2.2 un hmu hunj, map_mul,
+    mpcBld_incr_t (p.1 * us) p.2.1 (p.2.2.1 * um) p.2.2.2 ut hsu hutj, map_mul,
+    mpcBld_incr_m (p.1 * us) p.2.1 p.2.2.1 p.2.2.2 um humj, map_mul,
+    mpcBld_incr_s p.1 p.2.1 p.2.2.1 p.2.2.2 us hp1.1 husj, map_mul,
+    ← map_mul, ← map_mul, ← map_mul, ← map_mul, ← hassoc]
+  exact (mpcWord_mem_iff_levelMk _ _).mp hkill
+
 /-- ⭐⭐⭐ **THE RESIDUE, AS A BRACKET-SUPPLY QUESTION.**  If at every class the defect of a
 class-`(j+1)` solution can be cleared by one `Ā`-bracket and one `C̄₀`-bracket of χ-trivial
 `λ_j`-elements, then `MpcPivShift 2` holds - and with it the tied `√−10` datum with no clause.
@@ -744,6 +889,35 @@ theorem mpcBld_shift_of_bracket_supply
       mpcBld_incr_n p.1 (p.2.1 * u) p.2.2.1 p.2.2.2 v hp3.1.1 hvj,
       map_mul, mpcBld_incr_t p.1 p.2.1 p.2.2.1 p.2.2.2 u hp1.1 huj, ← map_mul]
     exact (mpcWord_mem_iff_levelMk _ _).mp hkill
+
+/-- ⭐⭐⭐ **THE RESIDUE, COMPLETE FOR THIS SHAPE.**  `mpcBld_shift_of_bracket_supply` with the
+two remaining slots added.  `mpcBldIncr` is the *whole* effect of a `λ_j`-move on the four
+corrections, so this hypothesis is the weakest one-step supply the ansatz admits: a
+class-by-class walk that fails it has exhausted every increment of that depth, and only then is
+a stall about the ansatz rather than about the walk.
+
+One caution, load bearing.  The hypothesis quantifies over a class-`(j+1)` *solution*, and a
+class-`(j+2)` solution need not be a `λ_j`-move away from one, so failing it does **not** refute
+`M6`; the refutation route remains wave 84's, a proven empty `mpcWordSet k`. -/
+theorem mpcBld_shift_of_full_supply
+    (H : ∀ j, 3 ≤ j → ∀ p ∈ mpcWordSet (j + 1), ∃ us ut um un,
+      us ∈ mpcWordCorr ∧ us ∈ twoCentralSeries (DM 2 0 : Type) j ∧
+      ut ∈ mpcWordCorr ∧ ut ∈ twoCentralSeries (DM 2 0 : Type) j ∧
+      um ∈ mpcWordCorrC ∧ um ∈ twoCentralSeries (DM 2 0 : Type) j ∧
+      un ∈ mpcWordCorr ∧ un ∈ twoCentralSeries (DM 2 0 : Type) j ∧
+      mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+          (mpcWordLetD p.2.2.2) * mpcBldIncr p.2.1 p.2.2.2 us ut um un
+        ∈ twoCentralSeries (DM 2 0 : Type) (j + 2)) :
+    MpcPivShift 2 := by
+  refine mpcWord_shift_of_forall_class_four fun k hk => ?_
+  induction k, hk using Nat.le_induction with
+  | base => exact mpcBld_nonempty_four
+  | succ k hk ih =>
+    obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
+    obtain ⟨p, hp⟩ := ih
+    obtain ⟨us, ut, um, un, hus, husj, hut, hutj, hum, humj, hun, hunj, hkill⟩ :=
+      H j (by omega) p hp
+    exact ⟨_, mpcBld_step hp us ut um un hus husj hut hutj hum humj hun hunj hkill⟩
 
 end Increment
 
@@ -794,9 +968,16 @@ section AxiomPins
 #print axioms mpcBld_letA_corr_mem
 #print axioms mpcBld_letC_shape
 #print axioms mpcBld_letC_corr_mem
+#print axioms mpcBld_incr_head
+#print axioms mpcBld_incr_pivot
 #print axioms mpcBld_incr_t
 #print axioms mpcBld_incr_n
+#print axioms mpcBld_incr_s
+#print axioms mpcBld_incr_m
+#print axioms mpcBldIncr
+#print axioms mpcBld_step
 #print axioms mpcBld_shift_of_bracket_supply
+#print axioms mpcBld_shift_of_full_supply
 
 end AxiomPins
 
