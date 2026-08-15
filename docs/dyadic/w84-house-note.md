@@ -278,6 +278,15 @@ binder in §5 and think the claim false; it is the Γ-side analytic clause, not 
 Reading 2 ("the residue is uniform") is confirmed exactly: the binder lists are identical across
 the four rows.
 
+> **[W85-HOUSE, as of `76f21241`: this confirmation is narrower than it reads.]** What was
+> measured is the binder LISTS, and those are identical across four rows. What reading 2 gets
+> used for downstream is the REDUCTION of those binders, and that transfers to three rows only:
+> `M0 3 0`, `M0 2 0` and `N0 2 0` have an unconditional corrected bundle
+> (`MCompact.exactLiftingRN_unconditional`, `NCompact.exactLiftingRN_unconditional`);
+> `Mpc 2 1 false 1 0` does not, its corrected bundle still binding a `Hsimp`-family hypothesis.
+> W84-CLAUSES §2 found this inside the same wave, so the two wave-84 notes disagree and this is
+> the one that was wrong. Authoritative statement: `GQ2/Dyadic/Instances/RowClauses.lean` §4.
+
 `Instances/MpcOrbit.lean`: headlines check out.  `mpcOrb_defect` is the closed form claimed;
 `mpcOrb_shift_iff_marking` is a genuine two-way equivalence, both directions present;
 `mpcOrb_shift_of_marking`'s claim that "the *only* real content a caller must supply is `hrel`"
@@ -375,6 +384,9 @@ question is genuinely open in both directions rather than presumed false.
 ### The record blocks per row, under the two-template residue
 
 Measured, identical across all four tied rows (§2.4).  Beyond `B` and the field inputs `F`:
+
+*(W85-HOUSE: identical BINDER LISTS. The reduction of those binders reaches three of the four
+rows only; see the annotation on §2.4's reading 2 above.)*
 
 | template | what remains |
 | --- | --- |

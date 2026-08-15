@@ -50,6 +50,22 @@ record costs exactly three blocks.  Writing `q = q_K` and `Γ = Γ_R (deg) q (wo
 | `M0 2 0` | `ℚ₂(√5)` | `fieldId_mNuZtwo 2 0` | `mWordCertificate` (via §1) | the same |
 | `Mpc 2 1 false 1 0` | `ℚ₂(√10)` | `mpcNu 2 1 (p false 1)` | `mpcWordCertificate` | the same |
 
+[W85-HOUSE, as of `76f21241`, on the `N0 2 0` row's two `CAND` producers: **use
+`genCertNWordCertificateCanonical`, i.e. `canRec_candN` below, not `canRec_candPilot`.**  Wave
+84 (`Instances/RowClauses.lean` §5) showed the pilot spelling is dominated: it carries
+`PilotHsimp`, `PilotStageSep`, `PilotStageZ`, `PilotDet`, and its three recursion residues
+together already imply `askCStageVanishing` at the same carrier
+(`rowCl_pilot_stageVanishing`), which is all the `genCertN` spelling's `exactLifting` clause
+asks for there (`rowCl_nCand_exactLifting_iff`); the `genCertN` spelling additionally gets its
+`scalar` clause free (`rowCl_nCand_scalar`).  This module is already on the recommended
+spelling: `canRec_analytic_sqrtNegTwo` runs through `canRec_rowResidual_N0_of_analytic` and
+`canRec_candN`, and `canRec_candPilot` has no consumer in this file.  **The campaign assembly
+is not**: `Main.lean`'s `ResidualSqrtNegTwo` still carries all four pilot residues as fields,
+and `rowEquiv_sqrtNegTwo` feeds them to `ramifiedI_candidate_equiv_galK`, as does
+`GeneralAssembly.genAsm_rowEquiv_sqrtNegTwo`.  So "nothing consumes the pilot spelling any
+more" is true of the record lane and false of the assembly; retiring it is a statement-level
+lane, not a housekeeping edit.]
+
 Three readings worth keeping.
 
 1. **`ASK` `determinant` is gone.**  It is not a binder of any statement in §4 or §5: the
@@ -68,9 +84,24 @@ Three readings worth keeping.
    blocks; `canRec_analytic_<field>` carries `B`, `FF`, `F`, the four Γ-side clauses
    (`ExactLiftingSemantics`, `StokesDualityCertificate`, `ScalarHilbertCertificate`,
    `AffineDeterminantCertificate`), and the same two `ASK` blocks.  Identical across all four
-   rows, which is reading 2 confirmed.]
+   rows, which confirms reading 2 at the level of the binder LISTS.  See the W85-HOUSE note on
+   reading 2 for what that measurement does not cover.]
 2. **The residue is uniform.**  The four analytic clauses are the same four on every row, at
    the row's own candidate carrier; there is no per-row analytic obligation left.
+
+   [W85-HOUSE, as of `76f21241`: **true of the clause SHAPES, and of nothing more.**  What is
+   not uniform is the REDUCTION of those clauses, because each runs on its own branch's
+   resolver package.  `Instances/RowClauses.lean` §2 and §4 (wave 84) turn the `exactLifting`
+   clause into `askCStageVanishing` at the candidate carrier and discharge the `scalar` clause
+   outright, at `M0 3 0`, `M0 2 0` and `N0 2 0`.  All three have an unconditional corrected
+   bundle: `MCompact.exactLiftingRN_unconditional` (`Instances/EvenMRamifiedPairing.lean`) and
+   `NCompact.exactLiftingRN_unconditional` (`Instances/N0M0CompactBranches.lean`), both at
+   `2 ≤ α`, `q ≠ 0`, `Even q` and nothing else.  **`Mpc 2 1 false 1 0` has no such bundle**:
+   `MProcyclicExact` offers only `exactLiftingRN_of_uniformPushed` (`Instances/MpcExact.lean`),
+   which still binds a `Hsimp`-family hypothesis.  So the honest form of the uniformity claim
+   at this tree is SUCCESS AT ONE ROW IS SUCCESS AT THREE, and W83-RECORDS' reading 2, which
+   said four, is superseded here and in `docs/dyadic/w83-records-note.md`.  Bringing the fourth
+   row in is the wave-85 ticket `MProcyclicExact.exactLiftingRN_unconditional`.]
 3. **`ℚ₂(√−10)` is not here, and the reason is a statement.**  Its clause-free branch datum
    `Instances.MpcPivot.mpcPiv_genAsmBranch_sqrtNegTen` is built at the *transported* marking
    `mpcPiv_nuZtwo`, not at `mpcNu`, and no comparison of the two exists at this tree, so it

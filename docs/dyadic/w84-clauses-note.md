@@ -185,6 +185,38 @@ and `canRec_analytic_sqrtFive` (four analytic clauses plus two `ASK` blocks).
    the recommendation to route the `√−2` row through `canRec_candN` rather than
    `canRec_candPilot`.
 
+> **[W85-HOUSE, round 22, as of `76f21241`: disposition of items 1 to 4.]**
+>
+> 1. **Discharged before this lane, not by it.** `GQ2.lean:877` imports
+>    `GQ2.Dyadic.Instances.RowClauses` (commit `1630ab1e`), after `CanonicalRecords`,
+>    `AskCounting` and `EvenMRamifiedPairing`, as asked. The two sibling wave-84 modules are
+>    registered too: `GQ2.Dyadic.SqCore.GradedClearing` at `:785` (`3e2a5a60`) and
+>    `GQ2.Dyadic.Instances.MpcWord` at `:878` (`0a94a4bc`). Note that none of the three appears
+>    in the scoreboard's REGISTRATION section, which has the documented import-set horizon: it
+>    lists only modules some scoreboard row reaches. Read their absence there as "not reached",
+>    never as "not registered".
+> 2. **Done.** `CertificateMain.lean`'s second status bullet now carries an as-of-hash
+>    supersession block; the superseded phrase is left in place under a marker, per the file's
+>    own annotation convention.
+> 3. **Done, at four sites.** The origin (`w83-records-note.md` reading 2), the in-tree copy
+>    (`CanonicalRecords.lean`'s reading 2, which is the one a reader hits first), W84-HOUSE's
+>    own endorsement of it (§2.4, plus the record-block table heading), and W83-HOUSE's handover
+>    bullet, which had propagated the reading forward. A fifth site,
+>    `GeneralAssembly.lean`'s "the residue is uniform rather than per-row", is a DIFFERENT four
+>    (free-parameter producers, not tied rows) and is correct as it stands; it got a pointer
+>    only.
+> 4. **Done, with one correction to the recommendation.** The routing note is now at the
+>    `CanonicalRecords.lean` table. But "route through `canRec_candN`" is already the state of
+>    that module (`canRec_analytic_sqrtNegTwo` goes through `canRec_rowResidual_N0_of_analytic`
+>    and `canRec_candN`; `canRec_candPilot` has no consumer there beyond its own axiom pin).
+>    What is NOT on the recommended spelling is the campaign assembly: `Main.lean`'s
+>    `ResidualSqrtNegTwo` carries `hsimp : PilotHsimp`, `hsplit`, `hZcount` and `hdet` as
+>    fields, `rowEquiv_sqrtNegTwo` consumes all four, and both `ramifiedI_candidate_equiv_galK`
+>    (the five-row endpoint) and `GeneralAssembly.genAsm_rowEquiv_sqrtNegTwo` run through it.
+>    So §4's "strictly dominated" holds as a comparison of spellings, but the corollary a reader
+>    will draw from it, that nothing consumes the pilot residues any more, is false on the
+>    assembly path. Retiring them is a statement-level lane, not housekeeping.
+
 **W85 tickets, in the order the note recommends:**
 
 * **W85-A (sharpest).** Build one frame at a compact candidate carrier: a `MarkedTarget` with

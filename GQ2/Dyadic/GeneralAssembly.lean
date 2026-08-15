@@ -327,6 +327,12 @@ free-parameter producer** (`M0`, `Npc`, `L`, and `M0`'s `Mpc` sibling at `h = 0`
 carrying the same four analytic clauses, and the residue is uniform rather than per-row.  The
 one row with no free-parameter producer is `N0 α h`, covered only at `(α, h) = (2, 0)`.
 
+[W85-HOUSE, as of `76f21241`: "uniform" here means the clause SHAPES, and at that reading it is
+correct.  It is a different four from the four TIED rows of `Instances/CanonicalRecords.lean`,
+and it does not license the stronger reading that the clauses reduce the same way on every row.
+They do not: `Instances/RowClauses.lean` §4 discharges two of the four at `M0 3 0`, `M0 2 0` and
+`N0 2 0` only, `Mpc` having no unconditional corrected bundle.]
+
 Two cautions from that lane, worth carrying at this record: the existential branch producers
 (`genAsm_branch_of_oddSq_canonical`, `genAsm_branch_of_evenN`, `genAsm_branch_of_evenM`, the
 `fieldId_genAsmBranch_*` family) return `∃ G, G.pres = …` and so **forget** `G.nuP`, while this

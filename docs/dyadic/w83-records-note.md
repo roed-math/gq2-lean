@@ -144,6 +144,21 @@ Three readings, each checkable in the file.
 2. **The residue is uniform across the four rows**: the same four analytic clauses at the row's
    own candidate carrier, and no per-row analytic obligation. That extends W82-CAND's "uniform
    residue" observation from the `CorePresentation`-backed rows to the whole tied set.
+
+   > **[W85-HOUSE, as of `76f21241`: narrowed to THREE.]** The clause SHAPES are uniform across
+   > four rows, and the binder lists are identical across four rows (W84-HOUSE measured that,
+   > and that much stands). The REDUCTION of those clauses is not uniform: it runs on each
+   > branch's own resolver package. Wave 84 (`GQ2/Dyadic/Instances/RowClauses.lean` §2, §4)
+   > reduces the `exactLifting` clause to `askCStageVanishing` at the candidate carrier and
+   > discharges `scalar` outright, at `M0 3 0`, `M0 2 0` and `N0 2 0`; those three have an
+   > unconditional corrected bundle (`MCompact.exactLiftingRN_unconditional`,
+   > `NCompact.exactLiftingRN_unconditional`, both at `2 ≤ α`, `q ≠ 0`, `Even q`).
+   > `Mpc 2 1 false 1 0` has none: `MProcyclicExact` offers only
+   > `exactLiftingRN_of_uniformPushed`, which still binds a `Hsimp`-family hypothesis. The
+   > honest form is **success at one row is success at three**. Corrected in place at
+   > `GQ2/Dyadic/Instances/CanonicalRecords.lean` (the in-tree copy of this reading), in
+   > `docs/dyadic/w84-house-note.md` §2.4, and in `docs/dyadic/w83-house-note.md`'s handover
+   > bullet, which propagated it forward.
 3. **The branch datum and its marking are free at all four rows.** The four `canRec_branch_*`
    are unconditional; wave 78 through wave 81 removed the last clause at each of them, and
    ticket A is what makes that freedom usable rather than decorative.
