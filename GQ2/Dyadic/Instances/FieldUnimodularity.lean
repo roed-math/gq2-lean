@@ -362,7 +362,7 @@ theorem fieldUni_norm_two_le_sqrtIn (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) :
 theorem fieldUni_norm_le_one_of_mul_sqrtIn_lt_one (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {y : ℚ_[2]}
     (h : ‖y‖ * ‖sqrtIn a‖ < 1) : ‖y‖ ≤ 1 := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hy0 : y ≠ 0 := by
     rintro rfl
     rw [norm_zero] at hcon
@@ -385,7 +385,7 @@ theorem fieldUni_norm_le_one_of_mul_sqrtIn_lt_one (hna : ‖a‖ = ‖(2 : ℚ_[
 This is the second half of the B13 uniformizer spec, the half that makes
 `MarkedRecip.nu_ur_recip_uniformizer` non-vacuous at the field. -/
 theorem fieldUni_sqrtIn_max (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
-    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) (z : ↥(quadField a)) (hz : z ≠ 0)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) (z : ↥(quadField a)) (_hz : z ≠ 0)
     (h : ‖(z : ℚ̄₂)‖ < 1) : ‖(z : ℚ̄₂)‖ ≤ ‖sqrtIn a‖ := by
   obtain ⟨x, y, hxy⟩ := exists_repr ha z.2
   have hscalar : ∀ c : ℚ_[2], ‖(algebraMap ℚ_[2] ℚ̄₂ c)‖ < 1 →
@@ -600,6 +600,7 @@ theorem fieldUni_norm_twoUnit :
 
 variable [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
 
+omit [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
 /-- **Unramified forces level zero.**  The general-`K` companion of
 `MarkedRecip.level_eq_zero_of_odd_finrank`: there the witness class is `rec(π·ũ)` with a scalar
 correction, here it is `rec(2)` with none, because `N(2)` is a power of `2` on the nose. -/
