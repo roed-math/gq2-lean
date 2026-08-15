@@ -506,6 +506,319 @@ theorem gTower_engine_bundle {k : ℕ} (hk : 2 ≤ k) {t : G}
 
 end Engine
 
+/-! ## §3 The level-free knob inventory
+
+The wave-71 class-five dress calculus (`cfiveKnob_dress_*`), restated in `Q_{k+2}` for a
+correction in `lambdaImage G k (k+2)`.  The committed level-free calculus (`cfive_*`) already
+carries every membership; the only new inputs are the two vanishing statements, which are
+`⁅γ₂, γ_k⁆ ≤ γ_{k+2}` read in `Q_{k+2}` and hold at **every** `k`. -/
+
+section LayerCalculus
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ}
+
+/-- Every bracket of `Q_{k+2}` lies in the `γ₂`-image (the generic form of
+`gFourFive_commP_mem_lambdaTwo`). -/
+theorem gTower_commP_mem_lambdaTwo (p q : levelQuot G (k + 2)) :
+    commP p q ∈ lambdaImage G 2 (k + 2) := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective G (k + 2) p
+  obtain ⟨b, rfl⟩ := levelMk_surjective G (k + 2) q
+  exact ⟨commP a b, cfive_commP_mem_succ (Subgroup.mem_top a) b,
+    by simp only [commP, map_mul, map_inv]⟩
+
+/-- The `λ`-images are antitone in the depth index. -/
+theorem gTower_lambdaImage_le {j j' m : ℕ} (hjj : j' ≤ j) :
+    lambdaImage G j m ≤ lambdaImage G j' m :=
+  Subgroup.map_mono (twoCentralSeries_antitone G hjj)
+
+/-- **The vanishing that runs every layer**: a bracket of a `γ_k`-image slot against a
+`γ₂`-image slot dies in `Q_{k+2}`, at every `k`.  This is `⁅γ_k, γ₂⁆ ≤ γ_{k+2}` downstairs;
+at `k = 2` it is the abelianness of `Y` in `Q₄` that the class-four proofs used, and at
+`k = 3` it is `gFourFive_commP_vanish`. -/
+theorem gTower_commP_vanish {z y : levelQuot G (k + 2)} (hz : z ∈ lambdaImage G k (k + 2))
+    (hy : y ∈ lambdaImage G 2 (k + 2)) : commP z y = 1 := by
+  obtain ⟨v, hv, rfl⟩ := hz
+  obtain ⟨w, hw, rfl⟩ := hy
+  have hmem : commP v w ∈ twoCentralSeries G (k + 2) := cfive_commutator_lambdaTwo hv hw
+  have := (lim_mem_twoCentralSeries_iff_levelMk (k + 2) _).mp hmem
+  rwa [show commP (levelMk G (k + 2) v) (levelMk G (k + 2) w)
+    = levelMk G (k + 2) (commP v w) by simp only [commP, map_mul, map_inv]]
+
+/-- The symmetric vanishing, `γ₂`-image slot first. -/
+theorem gTower_commP_vanish' {y z : levelQuot G (k + 2)} (hy : y ∈ lambdaImage G 2 (k + 2))
+    (hz : z ∈ lambdaImage G k (k + 2)) : commP y z = 1 := by
+  have hswap : commP y z = (commP z y)⁻¹ := by
+    simp only [commP]
+    group
+  rw [hswap, gTower_commP_vanish hz hy, inv_one]
+
+/-- The square of a `γ_k`-image slot lands in the top layer of `Q_{k+2}`. -/
+theorem gTower_sq_mem_zLayer {c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2)) :
+    c ^ 2 ∈ zLayer G (k + 1) := by
+  obtain ⟨v, hv, rfl⟩ := hc
+  exact ⟨v ^ 2, sq_mem_twoCentralSeries_succ G hv, by rw [map_pow]⟩
+
+/-- A top-layer element of `Q_{k+2}` commutes with everything. -/
+theorem gTower_zLayer_comm {z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1))
+    (x : levelQuot G (k + 2)) : x * z = z * x :=
+  (zLayer_commute hz x).symm.eq
+
+/-- A top-layer element kills a bracket from the right slot. -/
+theorem gTower_commP_zLayer_right {z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1))
+    (q : levelQuot G (k + 2)) : commP q z = 1 := by
+  have hswap : commP q z = (commP z q)⁻¹ := by
+    simp only [commP]
+    group
+  rw [hswap, cfive_commP_zLayer_left hz q, inv_one]
+
+/-- Moving a top-layer factor from the first slot of a five-fold product to the end. -/
+theorem gTower_shuffle {z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1))
+    (A B C D E : levelQuot G (k + 2)) : A * z * B * C * D * E = A * B * C * D * E * z := by
+  simp only [mul_assoc]
+  rw [← gTower_zLayer_comm hz]
+  simp only [mul_assoc]
+
+/-- Moving a top-layer factor from the third slot of a five-fold product to the end. -/
+theorem gTower_shuffle_mid {z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1))
+    (A B C D E : levelQuot G (k + 2)) : A * B * (C * z) * D * E = A * B * C * D * E * z := by
+  simp only [mul_assoc]
+  rw [← gTower_zLayer_comm hz]
+  simp only [mul_assoc]
+
+/-- A central right factor in the far slot of a bracket is invisible. -/
+theorem gTower_drop_right (p q : levelQuot G (k + 2)) {z : levelQuot G (k + 2)}
+    (hz : z ∈ zLayer G (k + 1)) : commP p (q * z) = commP p q := by
+  rw [cfour_commP_mul_right, gTower_commP_zLayer_right hz p, one_mul,
+    gTower_commP_zLayer_right hz (commP p q), mul_one]
+
+/-- **A square with a correction one layer down**: `(p·c)² = p²·(c²·commP c p)`, the correction
+central of exponent two (`gFourFive_sq_dress`, level free). -/
+theorem gTower_sq_dress {p c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2)) :
+    (p * c) ^ 2 = p ^ 2 * (c ^ 2 * commP c p) := by
+  rw [cfour_sq_mul, cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hc p) c, mul_one,
+    mul_assoc]
+
+/-- A top-layer correction is invisible to a square. -/
+theorem gTower_sq_zLayer_dress {p z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1)) :
+    (p * z) ^ 2 = p ^ 2 := by
+  rw [cfour_sq_mul, cfive_commP_zLayer_left hz p, cfour_one_comm, zLayer_sq G hz, mul_one,
+    mul_one, mul_one]
+
+/-- **The fourth power is blind to a correction one layer down**, in the relator's `((·)²)²`
+shape (`gFourFive_pow_four_dress`, level free). -/
+theorem gTower_pow_four_dress {p c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2)) :
+    ((p * c) ^ 2) ^ 2 = (p ^ 2) ^ 2 := by
+  rw [gTower_sq_dress hc,
+    gTower_sq_zLayer_dress
+      (Subgroup.mul_mem _ (gTower_sq_mem_zLayer hc) (cfive_commP_mem_zLayer_left hc p))]
+
+/-- **The relator's `conjP` factor is blind to a correction of the `x₁`-slot**
+(`gFourFive_dress_two_conj_factor`, level free): the two terms it produces cancel in the
+exponent-two top layer, the far slot being blind to `γ₂`-images. -/
+theorem gTower_conj_factor {p s c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2)) :
+    commP (p * c) (conjP (p * c) s) = commP p (conjP p s) := by
+  have hz2 : commP p c ∈ zLayer G (k + 1) := cfive_commP_mem_zLayer_right p hc
+  have hinvXY : commP p c * commP c p = 1 := by
+    have hi : commP p c = (commP c p)⁻¹ := by
+      simp only [commP]
+      group
+    rw [hi, inv_mul_cancel]
+  have hcP : commP c (conjP p s) = commP c p := by
+    rw [gFourFive_conj_eq p s, cfive_commP_right_hom hc,
+      gTower_commP_vanish hc (gTower_commP_mem_lambdaTwo p s), one_mul]
+  have hinner : conjP (p * c) s = conjP p s * c * commP c s := by
+    rw [gFourFive_conj_mul_left, gFourFive_conj_eq c s, ← mul_assoc]
+  have hmid : commP p (conjP p s * c) = commP p c * commP p (conjP p s) := by
+    rw [cfour_commP_mul_right,
+      gTower_commP_vanish' (gTower_commP_mem_lambdaTwo p (conjP p s)) hc, mul_one]
+  have hkill : commP (commP p c * commP p (conjP p s)) c = 1 := by
+    rw [cfour_commP_mul_left (commP p c) (commP p (conjP p s)) c,
+      cfive_commP_zLayer_left hz2 c, cfour_one_comm, one_mul, one_mul,
+      gTower_commP_vanish' (gTower_commP_mem_lambdaTwo p (conjP p s)) hc]
+  have hlast : commP c (conjP p s * c) = commP c p := by
+    rw [cfour_commP_mul_right, cfour_comm_self, one_mul,
+      cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hc (conjP p s)) c, mul_one, hcP]
+  rw [hinner, gTower_drop_right _ _ (cfive_commP_mem_zLayer_left hc s),
+    cfour_commP_mul_left, hmid, hkill, hlast, mul_one, ← gTower_zLayer_comm hz2, mul_assoc,
+    hinvXY, mul_one]
+
+end LayerCalculus
+
+section DressLemmas
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ}
+
+/-- ⭐ **The `σ`-slot knob, level free**: a correction one layer down moves the relator of
+`Q_{k+2}` by the single bracket `commP c (m 1)`.  At `k = 2` this is `cfour_dress_zero`, at
+`k = 3` it is `cfiveKnob_dress_zero`; from `k = 4` on it is new. -/
+theorem gTower_dress_zero {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0 * c) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * commP c (m 1) := by
+  have hA : commP (m' 0) (m' 1) = commP (m 0) (m 1) * commP c (m 1) := by
+    rw [h0, h1, cfour_commP_mul_left,
+      gTower_commP_vanish' (gTower_commP_mem_lambdaTwo (m 0) (m 1)) hc, mul_one]
+  have hD : commP (m' 2) (conjP (m' 2) (m' 0)) = commP (m 2) (conjP (m 2) (m 0)) := by
+    rw [h0, h2, gFourFive_conj_mul_right, gFourFive_conj_eq (conjP (m 2) (m 0)) c,
+      gTower_drop_right _ _ (cfive_commP_mem_zLayer_right (conjP (m 2) (m 0)) hc)]
+  rw [gFourFive_sqRelWord, gFourFive_sqRelWord, hA, hD, h1, h2]
+  simp only [hU, hV]
+  exact gTower_shuffle (cfive_commP_mem_zLayer_left hc (m 1)) _ _ _ _ _
+
+/-- ⭐ **The `x₀`-slot knob, level free**: the move is `commP (m 0) c`; the fourth power
+contributes nothing. -/
+theorem gTower_dress_one {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0) (h1 : m' 1 = m 1 * c) (h2 : m' 2 = m 2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * commP (m 0) c := by
+  have hz : commP (m 0) c ∈ zLayer G (k + 1) := cfive_commP_mem_zLayer_right (m 0) hc
+  have hA : commP (m' 0) (m' 1) = commP (m 0) (m 1) * commP (m 0) c := by
+    rw [h0, h1, cfour_commP_mul_right,
+      gTower_commP_vanish' (gTower_commP_mem_lambdaTwo (m 0) (m 1)) hc, mul_one,
+      ← gTower_zLayer_comm hz]
+  have hB : ((m' 1 ^ 2) ^ 2)⁻¹ = ((m 1 ^ 2) ^ 2)⁻¹ := by rw [h1, gTower_pow_four_dress hc]
+  rw [gFourFive_sqRelWord, gFourFive_sqRelWord, hA, hB, h0, h2]
+  simp only [hU, hV]
+  exact gTower_shuffle hz _ _ _ _ _
+
+/-- ⭐ **The `x₁`-slot knob, level free**: the move is the bundle `c² · commP c (m 2)`, the
+only knob carrying a square, exactly as at classes four and five. -/
+theorem gTower_dress_two {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2 * c)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * (c ^ 2 * commP c (m 2)) := by
+  have hzc : commP c (m 2) ∈ zLayer G (k + 1) := cfive_commP_mem_zLayer_left hc (m 2)
+  have hC : (m' 2) ^ 2 = m 2 ^ 2 * (c ^ 2 * commP c (m 2)) := by rw [h2, gTower_sq_dress hc]
+  have hD : commP (m' 2) (conjP (m' 2) (m' 0)) = commP (m 2) (conjP (m 2) (m 0)) := by
+    rw [h0, h2, gTower_conj_factor hc]
+  rw [gFourFive_sqRelWord, gFourFive_sqRelWord, hC, hD, h0, h1]
+  simp only [hU, hV]
+  exact gTower_shuffle_mid (Subgroup.mul_mem _ (gTower_sq_mem_zLayer hc) hzc) _ _ _ _ _
+
+/-- A relator whose only change is one handle bracket, changed by a top-layer factor. -/
+theorem gTower_dress_handle {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2)) (j' : Fin n)
+    {z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1))
+    (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2)
+    (hne : ∀ i, i ≠ j' → commP (m' (sqHandleIdxU i)) (m' (sqHandleIdxV i))
+        = commP (m (sqHandleIdxU i)) (m (sqHandleIdxV i)))
+    (hj : commP (m' (sqHandleIdxU j')) (m' (sqHandleIdxV j'))
+        = commP (m (sqHandleIdxU j')) (m (sqHandleIdxV j')) * z) :
+    sqRelWord m' = sqRelWord m * z := by
+  have hhandle := cfour_handleWord_update (fun i => m' (sqHandleIdxU i))
+    (fun i => m' (sqHandleIdxV i)) (fun i => m (sqHandleIdxU i)) (fun i => m (sqHandleIdxV i))
+    j' z (fun i => (zLayer_commute hz _).symm) hne hj
+  rw [sqRelWord, sqRelWord, h0, h1, h2, hhandle, ← mul_assoc]
+
+/-- ⭐ **The `u_{j'}`-slot knob, level free**: `commP c (m (sqHandleIdxV j'))`. -/
+theorem gTower_dress_handleU {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2)) (j' : Fin n)
+    {c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2)
+    (hUj : m' (sqHandleIdxU j') = m (sqHandleIdxU j') * c)
+    (hUne : ∀ i, i ≠ j' → m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m * commP c (m (sqHandleIdxV j')) := by
+  refine gTower_dress_handle m m' j' (cfive_commP_mem_zLayer_left hc _) h0 h1 h2 ?_ ?_
+  · intro i hi
+    rw [hUne i hi, hV i]
+  · rw [hUj, hV j', cfour_commP_mul_left,
+      gTower_commP_vanish'
+        (gTower_commP_mem_lambdaTwo (m (sqHandleIdxU j')) (m (sqHandleIdxV j'))) hc, mul_one]
+
+/-- ⭐ **The `v_{j'}`-slot knob, level free**: `commP (m (sqHandleIdxU j')) c`. -/
+theorem gTower_dress_handleV {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2)) (j' : Fin n)
+    {c : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2)
+    (hVj : m' (sqHandleIdxV j') = m (sqHandleIdxV j') * c)
+    (hVne : ∀ i, i ≠ j' → m' (sqHandleIdxV i) = m (sqHandleIdxV i))
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i)) :
+    sqRelWord m' = sqRelWord m * commP (m (sqHandleIdxU j')) c := by
+  refine gTower_dress_handle m m' j' (cfive_commP_mem_zLayer_right _ hc) h0 h1 h2 ?_ ?_
+  · intro i hi
+    rw [hU i, hVne i hi]
+  · rw [hVj, hU j', cfour_commP_mul_right,
+      gTower_commP_vanish'
+        (gTower_commP_mem_lambdaTwo (m (sqHandleIdxU j')) (m (sqHandleIdxV j'))) hc, mul_one,
+      ← gTower_zLayer_comm (cfive_commP_mem_zLayer_right (m (sqHandleIdxU j')) hc)]
+
+/-- ⭐⭐ **The three core knobs composed, level free** (`cfiveKnob_dress_core` at every `k ≥ 2`):
+the only cross term is `commP c₀ c₁`, killed because `lambdaImage k ≤ lambdaImage 2` and
+`⁅γ₂, γ_k⁆` dies in `Q_{k+2}`. -/
+theorem gTower_dress_core {n : ℕ} (hk : 2 ≤ k) (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {c0 c1 c2 : levelQuot G (k + 2)} (hc0 : c0 ∈ lambdaImage G k (k + 2))
+    (hc1 : c1 ∈ lambdaImage G k (k + 2)) (hc2 : c2 ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0 * c0) (h1 : m' 1 = m 1 * c1) (h2 : m' 2 = m 2 * c2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i)) :
+    sqRelWord m' = sqRelWord m *
+      (commP c0 (m 1) * commP (m 0) c1 * (c2 ^ 2 * commP c2 (m 2))) := by
+  classical
+  obtain ⟨mA, hA0, hA1, hA2, hAU, hAV⟩ :
+      ∃ mA : Fin (sqRank n) → levelQuot G (k + 2),
+        mA 0 = m 0 * c0 ∧ mA 1 = m 1 ∧ mA 2 = m 2 ∧
+          (∀ i, mA (sqHandleIdxU i) = m (sqHandleIdxU i)) ∧
+            (∀ i, mA (sqHandleIdxV i) = m (sqHandleIdxV i)) := by
+    refine ⟨fun i => if (i : ℕ) = 0 then m 0 * c0 else m i, ?_, ?_, ?_, ?_, ?_⟩
+    · simp only [sqVal_zero, if_pos]
+    · simp only [sqVal_one]
+      norm_num
+    · simp only [sqVal_two]
+      norm_num
+    · intro i
+      simp only [sqHandleIdxU_val]
+      rw [if_neg (by omega)]
+    · intro i
+      simp only [sqHandleIdxV_val]
+      rw [if_neg (by omega)]
+  obtain ⟨mB, hB0, hB1, hB2, hBU, hBV⟩ :
+      ∃ mB : Fin (sqRank n) → levelQuot G (k + 2),
+        mB 0 = mA 0 ∧ mB 1 = mA 1 * c1 ∧ mB 2 = mA 2 ∧
+          (∀ i, mB (sqHandleIdxU i) = mA (sqHandleIdxU i)) ∧
+            (∀ i, mB (sqHandleIdxV i) = mA (sqHandleIdxV i)) := by
+    refine ⟨fun i => if (i : ℕ) = 1 then mA 1 * c1 else mA i, ?_, ?_, ?_, ?_, ?_⟩
+    · simp only [sqVal_zero]
+      norm_num
+    · simp only [sqVal_one, if_pos]
+    · simp only [sqVal_two]
+      norm_num
+    · intro i
+      simp only [sqHandleIdxU_val]
+      rw [if_neg (by omega)]
+    · intro i
+      simp only [sqHandleIdxV_val]
+      rw [if_neg (by omega)]
+  have step0 := gTower_dress_zero m mA hc0 hA0 hA1 hA2 hAU hAV
+  have step1 := gTower_dress_one mA mB hc1 hB0 hB1 hB2 hBU hBV
+  have step2 := gTower_dress_two mB m' hc2 (by rw [h0, ← hA0, ← hB0])
+    (by rw [h1, ← hA1, ← hB1]) (by rw [h2, ← hA2, ← hB2])
+    (fun i => by rw [hU i, ← hAU i, ← hBU i]) (fun i => by rw [hV i, ← hAV i, ← hBV i])
+  have hknob1 : commP (mA 0) c1 = commP (m 0) c1 := by
+    rw [hA0, cfive_commP_left_hom (m 0) c0 hc1,
+      gTower_commP_vanish' (gTower_lambdaImage_le hk hc0) hc1, mul_one]
+  rw [step2, step1, step0, hknob1, hB2, hA2]
+  simp only [mul_assoc]
+
+/-- ⭐ **The level-free obligation, as an identity** (`cfiveKnob_kills` at every `k ≥ 2`): if
+the composed knob of a correction one layer down inverts the base relator value, the corrected
+relator dies in `Q_{k+2}`. -/
+theorem gTower_kills {n : ℕ} (hk : 2 ≤ k) (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {c0 c1 c2 : levelQuot G (k + 2)} (hc0 : c0 ∈ lambdaImage G k (k + 2))
+    (hc1 : c1 ∈ lambdaImage G k (k + 2)) (hc2 : c2 ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0 * c0) (h1 : m' 1 = m 1 * c1) (h2 : m' 2 = m 2 * c2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i))
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i))
+    (hkill : commP c0 (m 1) * commP (m 0) c1 * (c2 ^ 2 * commP c2 (m 2))
+      = (sqRelWord m)⁻¹) :
+    sqRelWord m' = 1 := by
+  rw [gTower_dress_core hk m m' hc0 hc1 hc2 h0 h1 h2 hU hV, hkill, mul_inv_cancel]
+
+end DressLemmas
+
 /-! ## Axiom pins (§1 and §2) -/
 
 section AxiomPinsOne
@@ -538,6 +851,28 @@ section AxiomPinsOne
 #print axioms gTower_comm_near_add
 #print axioms gTower_comm_near_slack
 #print axioms gTower_engine_bundle
+#print axioms gTower_commP_mem_lambdaTwo
+#print axioms gTower_lambdaImage_le
+#print axioms gTower_commP_vanish
+#print axioms gTower_commP_vanish'
+#print axioms gTower_sq_mem_zLayer
+#print axioms gTower_zLayer_comm
+#print axioms gTower_commP_zLayer_right
+#print axioms gTower_shuffle
+#print axioms gTower_shuffle_mid
+#print axioms gTower_drop_right
+#print axioms gTower_sq_dress
+#print axioms gTower_sq_zLayer_dress
+#print axioms gTower_pow_four_dress
+#print axioms gTower_conj_factor
+#print axioms gTower_dress_zero
+#print axioms gTower_dress_one
+#print axioms gTower_dress_two
+#print axioms gTower_dress_handle
+#print axioms gTower_dress_handleU
+#print axioms gTower_dress_handleV
+#print axioms gTower_dress_core
+#print axioms gTower_kills
 
 end AxiomPinsOne
 
