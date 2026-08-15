@@ -259,7 +259,7 @@ theorem mpcPiv_pivot_of_even_dmB
 
 /-- **THE `ε = true` OBSTRUCTION, structurally.**  At `ν'(B̄)` odd the `ker χ_M` image is *all* of
 `2ℤ₂` on the `B̄`-column alone, with no contribution from `ν'(C̄₀)`.  So the lower half of the
-level — the input that discharges the `ε = false` pivot — is automatically satisfied on the
+level (the input that discharges the `ε = false` pivot) is automatically satisfied on the
 `ε = true` row and can never produce a contradiction there.  This is wave 80 §3.3's hand
 counterexample `(−8, 1, 4, 1)` promoted from one marking to the whole technique: **no argument
 that sees only the image of `(χ_M, ν')` decides the pivot**, because that image does not depend
@@ -345,7 +345,7 @@ end Orbit
 
 in the S3 block.  Its ν-frame action is `ν'(C̄₀) ↦ ν'(C̄₀) + 2c₁·ν'(B̄)`, and the exponent `2c₁` is
 forced: χ-preservation needs `χ_M(B̄)^{c} = 1`, i.e. an even power of `B̄`, since `χ_M(B̄) = −1`.
-That is exactly the direction §3 shows the level cannot see, and — by §4 — the only thing between
+That is exactly the direction §3 shows the level cannot see, and, by §4, the only thing between
 the tree and the `√−10` row. -/
 
 section Shift
@@ -386,7 +386,7 @@ end Shift
 
 The first is the honest one: the branch datum **at the row's own canonical marking**, over
 `MpcPivShift` and nothing else.  The second is the acceptance statement, and it needs no clause
-at all — for a reason that has nothing to do with the pivot.  Read the warning. -/
+at all, for a reason that has nothing to do with the pivot.  Read the warning. -/
 
 section SqrtNegTen
 
@@ -436,7 +436,7 @@ def mpcPiv_nuZtwo {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional �
   map_mul' x y := by rw [map_mul, map_mul]
   continuous_toFun := ztwoIota.symm.continuous_toFun.comp nu'.continuous_toFun
 
-/-- **THE ACCEPTANCE STATEMENT, WITH NO CLAUSE — AND A WARNING.**
+/-- **THE ACCEPTANCE STATEMENT, WITH NO CLAUSE, AND A WARNING.**
 
 ⚠ This is *not* the pivot.  `GenAsmBranch` stores `nuP` as "a construction, not an obligation"
 (`GeneralAssembly.lean:212`) and `MarkedCoreRealization` carries no orientation clause, so the
@@ -445,8 +445,8 @@ record's whole content at a fixed row is: the degree, plus a topological-group e
 transported marking is such a marking by construction, and wave 77's range identity supplies the
 equivalence, so no arithmetic is needed.
 
-What this branch datum does **not** carry is that the marking is the row's canonical `mpcNu 2 1 1`
-— which is what `GenAsmRowResidual.cand` needs, since the committed producer at this row is
+What this branch datum does **not** carry is that the marking is the row's canonical `mpcNu 2 1 1`.
+That is what `GenAsmRowResidual.cand` needs, since the committed producer at this row is
 `Instances.MProcyclicCore.mpcWordCertificate α r p q` at that marking, and equally what the three
 `Matches` conditions of `FieldBranchSelector` read.  For the tied statement use
 `mpcPiv_genAsmBranch_sqrtNegTen_of_shift`. -/
