@@ -284,4 +284,156 @@ theorem lCand_zero_nonempty :
 
 end ZeroCheck
 
+/-! ## §4 Feeding `GenAsmRowResidual.cand`, and what the odd rows now need in total
+
+`GenAsmRowResidual.cand` is stated at the branch datum's own marking `G.nuP`, so a producer at
+the canonical `lNu h` reaches it only if the branch datum is *known* to be at `lNu h`.  The
+odd route's producer `genAsm_branch_of_oddSq_canonical` does build the datum at `lNu h` — but it
+states `∃ G : GenAsmBranch K B, G.pres = .L h`, and the existential drops the marking.  So the
+first thing §4 does is rebuild the same datum as a **definition** rather than an existential
+(`lCandBranch`), which is a pure repackaging of `genAsm_branch_of_oddSq` with the two canonical
+marking binders discharged exactly as the committed theorem discharges them.
+
+With that, the `L h` row's `CAND` field is supplied at every `h` by the four analytic clauses,
+and `lCandRowResidual` assembles the whole residual record.
+
+### What the odd rows of the general theorem need, in total, after this lane
+
+Reading `oddId_candidate_equiv_galK_of_supply` and `genAsm_candidate_equiv_galK` against what
+is now producible:
+
+1. **the selector** — an oriented equivalence `D_sq h ≃ G_K(2)` with the two `ν` normalizations,
+   i.e. wave 81's seam `SqMarkedForwardSupply B h`.  Discharged at `h = 0`
+   (`oddId_markedSupply_degreeOne`), open at `h ≥ 1`;
+2. **the three ASK clauses** at the carrier `G_K` (`exactLifting`, `stokes`, `determinant`),
+   which are row-independent and are `KSupply`'s business, not this lane's;
+3. **the four CAND analytic clauses** at the candidate carrier `GammaR (2h+1) q (lSqW h)` —
+   what is left of `cand` after this module.
+
+⚠ Item 3 is the honest residue, and the lane brief's hypothesis that the wave-80/81 odd
+machinery would discharge it is **refuted by inspection of the statements**: `gOdd_certificate`
+and `oddId_supply_iff_certificate` produce a `MarkedCoreCertificateKTwoSq` / a
+`SqMarkedForwardSupply`, which are inputs to item 1, and neither record shares a single field
+with `WordCertificate`.  The odd supply is consumed by the *selector*, not by the certificate's
+recursion.  §4's `lCandRowResidual` makes the separation checkable: item 1 enters through
+`lCandBranch`'s arguments and item 3 enters through `lCandRowResidual`'s, and no argument of
+either is derivable from the other. -/
+
+section Row
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+  [FiniteDimensional ℚ_[2] K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- **The `L`-row branch datum as a definition.**  Field-for-field the datum
+`genAsm_branch_of_oddSq_canonical` builds, but returned rather than existentially quantified, so
+that `nuP` is *definitionally* `lNu h` and the canonical producer of §2 reaches the `cand`
+field.
+
+Nothing here is new: `hnuP` is `genAsm_lNu_surjective` and the `ztwoIota` clause is
+`LSquare.ztwoIota_lNu`, exactly the two the committed canonical theorem discharges. -/
+noncomputable def lCandBranch (h : ℕ) (c : ℤ_[2])
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
+    (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K)))
+    (hMix : SqCore.SqHandleMixFixesCore h c)
+    (hsigma : nuUrKTwo B (e.1 (SqCore.dsqSigma h)) = Multiplicative.ofAdd (1 : ℤ_[2]))
+    (hx0 : nuUrKTwo B (e.1 (SqCore.dsqX0 h)) = Multiplicative.ofAdd (0 : ℤ_[2])) :
+    GenAsmBranch K B where
+  pres := .L h
+  hdeg := hdeg
+  nuP := lNu h
+  hnuP := genAsm_lNu_surjective h
+  realization := MarkedCoreRealization.ofCertificateSq (lNu h) (LSquare.ztwoIota_lNu h)
+    (marked_matching_certificate_KTwoSq_of_fixesCore B h c e.1 e.2 hMix hsigma hx0).some
+
+variable (h : ℕ) (c : ℤ_[2]) (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
+  (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K)))
+  (hMix : SqCore.SqHandleMixFixesCore h c)
+  (hsigma : nuUrKTwo B (e.1 (SqCore.dsqSigma h)) = Multiplicative.ofAdd (1 : ℤ_[2]))
+  (hx0 : nuUrKTwo B (e.1 (SqCore.dsqX0 h)) = Multiplicative.ofAdd (0 : ℤ_[2]))
+
+/-- The datum sits on the `L h` row, which is what the existential form records. -/
+theorem lCandBranch_pres : (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).pres = .L h := rfl
+
+/-- …and, unlike the existential form, it remembers the marking. -/
+theorem lCandBranch_nuP : (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).nuP = lNu h := rfl
+
+include c hdeg e hMix hsigma hx0 in
+/-- The existential form is recovered, so nothing is lost by working with the definition. -/
+theorem lCandBranch_exists : ∃ G : GenAsmBranch K B, G.pres = .L h :=
+  ⟨lCandBranch h c hdeg e hMix hsigma hx0, rfl⟩
+
+/-- **The `CAND` field at the `L h` row, at free `h`.**  Stated at the branch datum's own
+projections, so the elaborator is the acceptance check: this term has *exactly* the type of
+`GenAsmRowResidual.cand` over `lCandBranch`, at the field's tame modulus `q_K` and the standard
+numerics.
+
+The `q`-side binders are discharged from the filtration (`qOf_ne_zero`, `even_qOf`), so the four
+analytic clauses are the only inputs. -/
+noncomputable def lCandCand
+    (exactLifting : ExactLiftingSemantics (GammaR (2 * h + 1) (qOf K FF) (lSqW h))
+      (2 * h + 1) (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)))
+    (stokes : StokesDualityCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h)) (2 * h + 1)
+      (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h)) (2 * h + 1)
+      (standardNumerics (2 * h + 1)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h))
+      (2 * h + 1) (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1))
+      (tameOfSpec (2 * h + 1) (qOf K FF) (lSqW h)
+        (lCandTameSpecializes h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)))
+      (lCandPro2 h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF))
+      (lCandCompat h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)
+        (lCandTameSpecializes h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)) (lNu h)
+        (lNu_sigma h) (lNu_wild h))
+      (scalarActionZmodTwo _)) :
+    WordCertificate (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).degree (qOf K FF)
+      (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).word
+      (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).core
+      (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).coreIsProP
+      (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).nuP
+      (standardNumerics (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).degree) :=
+  lCand_wordCertificateCanonical h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)
+    exactLifting stokes scalar determinant
+
+/-- **The whole residual record at the `L h` row.**  Three `ASK` clauses at the arithmetic
+carrier `G_K` and four `CAND` clauses at the candidate carrier `Γ_R`; no classification input,
+no per-`h` transport, no handle-count binder.
+
+This is the object the lane owes: after it, the odd rows of the general theorem need exactly
+the selector (item 1 of the section header) and these seven analytic clauses. -/
+noncomputable def lCandRowResidual (T : OrientedTameQuotientK B FF)
+    (askExactLifting : ExactLiftingSemantics (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)))
+    (askStokes : StokesDualityCertificate (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) (smulZmod2GalK K))
+    (askDeterminant : AffineDeterminantCertificate (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) T.tameFK
+      (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).pro2
+      (fun g => T.compatF_K (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).pro2 (lNu h)
+        (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)).realization.nu_compat g)
+      (smulZmod2GalK K))
+    (candExactLifting : ExactLiftingSemantics (GammaR (2 * h + 1) (qOf K FF) (lSqW h))
+      (2 * h + 1) (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)))
+    (candStokes : StokesDualityCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h)) (2 * h + 1)
+      (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) (scalarActionZmodTwo _))
+    (candScalar : ScalarHilbertCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h)) (2 * h + 1)
+      (standardNumerics (2 * h + 1)) (scalarActionZmodTwo _))
+    (candDeterminant : AffineDeterminantCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h))
+      (2 * h + 1) (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1))
+      (tameOfSpec (2 * h + 1) (qOf K FF) (lSqW h)
+        (lCandTameSpecializes h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)))
+      (lCandPro2 h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF))
+      (lCandCompat h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)
+        (lCandTameSpecializes h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)) (lNu h)
+        (lNu_sigma h) (lNu_wild h))
+      (scalarActionZmodTwo _)) :
+    GenAsmRowResidual (lCandBranch h c hdeg e hMix hsigma hx0 (B := B)) T where
+  exactLifting := askExactLifting
+  stokes := askStokes
+  determinant := askDeterminant
+  cand := lCandCand h c hdeg e hMix hsigma hx0 (FF := FF)
+    candExactLifting candStokes candScalar candDeterminant
+
+end Row
+
 end GQ2.Dyadic.Instances.LRowCand
