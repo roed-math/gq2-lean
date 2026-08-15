@@ -123,4 +123,276 @@ theorem fieldId_hrange_sqrtTwo (B : MarkedRecip R KSqrtTwo) :
 
 end AlreadyClosed
 
+/-! ## §1 The criterion: one cyclotomic value `≡ 5 (mod 8)`
+
+At a quadratic field the committed classification plus wave 67's degree bound leave exactly three
+possibilities for the range, `imChiN 2`, `imChiM 3` and `imChiM 2`.  Modulo `8` the first two are
+`{1, 3}` and `{1, 7}` (`imChiN 2`'s upper bound is `evenRange_mem_imChiN_dvd` at `α = 2`, whose
+modulus is `2^{α+1} = 8`, and its generator `nUnit 2 = −(1 + 2²)⁻¹` is `≡ 3`).  So a single value
+`≡ 5 (mod 8)` rules both out. -/
+
+section Criterion
+
+/-- The `N`-image generator at depth `2` is `≡ 3 (mod 8)`: `nUnit 2 · 5 = −1`. -/
+theorem fieldId_toZModPow_nUnit_two :
+    PadicInt.toZModPow 3 ((nUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) = 3 := by
+  have h := congrArg (PadicInt.toZModPow (p := 2) 3) (nUnit_mul (α := 2) (by omega))
+  simp only [map_mul, map_add, map_one, map_pow, map_ofNat, map_neg] at h
+  revert h
+  generalize PadicInt.toZModPow (p := 2) 3 ((nUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) = y
+  revert y
+  decide
+
+/-- Inverting does not move the residue `5` modulo `8`, since `5 · 5 = 1`. -/
+theorem fieldId_toZModPow_inv {u : ℤ_[2]ˣ}
+    (hu : PadicInt.toZModPow 3 ((u : ℤ_[2]ˣ) : ℤ_[2]) = 5) :
+    PadicInt.toZModPow 3 ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  have hmul : ((u : ℤ_[2]ˣ) : ℤ_[2]) * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+  have h := congrArg (PadicInt.toZModPow (p := 2) 3) hmul
+  rw [map_mul, map_one, hu] at h
+  revert h
+  generalize PadicInt.toZModPow (p := 2) 3 ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = y
+  revert y
+  decide
+
+/-- **`imChiN 2` carries no residue `5`.**  Its two residues modulo `8` are `1` and
+`nUnit 2 ≡ 3`. -/
+theorem fieldId_notMem_imChiN_two {w : ℤ_[2]ˣ}
+    (hw : PadicInt.toZModPow 3 ((w : ℤ_[2]ˣ) : ℤ_[2]) = 5) : w ∉ imChiN 2 := by
+  intro hmem
+  rcases evenRange_mem_imChiN_dvd (le_refl 2) hmem with h | h
+  · have hz := evenRange_toZModPow_eq_one_iff.mpr h
+    rw [hw] at hz
+    exact absurd hz (by decide)
+  · have hz := evenRange_toZModPow_eq_iff.mpr h
+    rw [hw, fieldId_toZModPow_nUnit_two] at hz
+    exact absurd hz (by decide)
+
+/-- **`imChiM 3` carries no residue `5`.**  Its two residues modulo `8` are `1` and `−1 ≡ 7`. -/
+theorem fieldId_notMem_imChiM_three {w : ℤ_[2]ˣ}
+    (hw : PadicInt.toZModPow 3 ((w : ℤ_[2]ˣ) : ℤ_[2]) = 5) : w ∉ imChiM 3 := by
+  intro hmem
+  rcases (evenRange_mem_imChiM_iff (by omega)).mp hmem with h | h
+  · have hz := evenRange_toZModPow_eq_one_iff.mpr h
+    rw [hw] at hz
+    exact absurd hz (by decide)
+  · have hd : (2 : ℤ_[2]) ^ 3 ∣ ((w : ℤ_[2]ˣ) : ℤ_[2]) - (-1 : ℤ_[2]) := by
+      rw [sub_neg_eq_add]; exact h
+    have hz := evenRange_toZModPow_eq_iff.mpr hd
+    rw [hw, map_neg, map_one] at hz
+    exact absurd hz (by decide)
+
+end Criterion
+
+/-! ## §2 The range identity at a quadratic field from one residue-`5` value
+
+Two entry points, differing only in how the committed classification is started: the
+ramification binder (`evenRange_range_eq`) or the `M`-branch entry condition
+(`evenRange_range_eq_imChiM`).  Both then run the same three-way exclusion.  Which one a field
+uses is decided by which input the tree supplies there, and §3/§4 record that per field. -/
+
+section QuadraticIdentity
+
+variable {R : LocalReciprocity}
+  {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **THE CRITERION.**  At a quadratic field, if the range is `imChiM α` or `imChiN α` for some
+`α ≥ 2` and it contains a unit `≡ 5 (mod 8)`, then it is `imChiM 2` (`= ⊤`).  The degree bounds
+`α` by `3` on `M` and by `2` on `N`; the residue kills `imChiM 3` and `imChiN 2`. -/
+theorem fieldId_range_eq_imChiM_two_of_classify (B : MarkedRecip R K)
+    (hdeg : Module.finrank ℚ_[2] K = 2)
+    (hcl : ∃ alpha : ℕ, 2 ≤ alpha ∧
+      (MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM alpha ∨
+        MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiN alpha))
+    {w : ℤ_[2]ˣ} (hmem : w ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (hw : PadicInt.toZModPow 3 ((w : ℤ_[2]ˣ) : ℤ_[2]) = 5) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2 := by
+  obtain ⟨alpha, halpha, hr | hr⟩ := hcl
+  · have hle := evenRangeF_imChiM_depth_le B (e := 1) (m := 1) odd_one
+      (by rw [hdeg]; norm_num) halpha hr
+    have hne : alpha ≠ 3 := by
+      rintro rfl
+      exact fieldId_notMem_imChiM_three hw (hr ▸ hmem)
+    obtain rfl : alpha = 2 := by omega
+    exact hr
+  · exfalso
+    have hle := evenRangeF_imChiN_depth_le B (e := 1) (m := 1) odd_one
+      (by rw [hdeg]; norm_num) halpha hr
+    obtain rfl : alpha = 2 := by omega
+    exact fieldId_notMem_imChiN_two hw (hr ▸ hmem)
+
+/-- **The criterion, ramified entry.**  For a quadratic `K` with `K(i)/K` ramified. -/
+theorem fieldId_range_eq_imChiM_two_of_ram (B : MarkedRecip R K)
+    (deltaI : ℚ̄₂) (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI)
+    (hdeg : Module.finrank ℚ_[2] K = 2)
+    {w : ℤ_[2]ˣ} (hmem : w ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (hw : PadicInt.toZModPow 3 ((w : ℤ_[2]ˣ) : ℤ_[2]) = 5) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2 :=
+  fieldId_range_eq_imChiM_two_of_classify B hdeg
+    (evenRange_range_eq B deltaI hdeltaI hram) hmem hw
+
+/-- **The criterion, `M`-branch entry.**  For a quadratic `K` carrying the value `−1`.  This is
+the route the *unramified* field `ℚ₂(√5)` takes, where the tree supplies no ramification fact. -/
+theorem fieldId_range_eq_imChiM_two_of_negOne (B : MarkedRecip R K)
+    (hdeg : Module.finrank ℚ_[2] K = 2)
+    (hneg : (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    {w : ℤ_[2]ˣ} (hmem : w ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom)
+    (hw : PadicInt.toZModPow 3 ((w : ℤ_[2]ˣ) : ℤ_[2]) = 5) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = imChiM 2 := by
+  obtain ⟨alpha, halpha, hr⟩ := evenRange_range_eq_imChiM B hneg
+  exact fieldId_range_eq_imChiM_two_of_classify B hdeg ⟨alpha, halpha, Or.inl hr⟩ hmem hw
+
+end QuadraticIdentity
+
+/-! ## §3 Cyclotomic values from norms, including at a uniformizer
+
+`EvenRangePolish` §2 read `χ_K(rec_K x) = N_{K/ℚ₂}(x)⁻¹` off the bundle's norm clause and the
+base bundle's clause (c) on **units**.  Two of the three fields here need the same reading at an
+element whose norm is `2` times a unit, so the base bundle's other cyclotomic clause,
+`chiCyc_recip_uniformizer : χ(rec 2) = 1`, enters as well.  That clause is not decoration: at
+`ℚ₂(√10)` and `ℚ₂(√−10)` the *unit* norms are exactly the units `≡ ±1 (mod 8)`, so no unit-norm
+element of either field carries a residue-`5` value. -/
+
+section NormValues
+
+variable {R : LocalReciprocity}
+  {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+open GQ2.Dyadic.LSquare
+
+/-- **The value carried by an element of known norm.**  If `N_{K/ℚ₂}(x) = u · 2^e` with `u` a
+`2`-adic unit, then `u⁻¹` is a cyclotomic value on `G_K(2)`. -/
+theorem fieldId_inv_mem_range_of_norm (B : MarkedRecip R K) (x : (↥K)ˣ) (u : ℤ_[2]ˣ) (e : ℕ)
+    (hx : normUnitsK K x = unitEmbed u * uniformizer ^ e) :
+    u⁻¹ ∈ MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom := by
+  rw [range_chiCycKTwo_eq_chiCycKAb]
+  refine ⟨B.recip x, ?_⟩
+  rw [← chiCycAb_inclAbK, B.norm_compat, hx]
+  simp only [map_mul, map_pow, R.chiCyc_recip_unit, R.chiCyc_recip_uniformizer, one_pow, mul_one]
+
+end NormValues
+
+/-! ## §4 The three `DM 2 0` fields
+
+Each field supplies one element and one norm.  The norms are `evenPolish_norm_quadElt`'s
+`N(t + u√a) = t² − a u²` at `(a, t, u) = (5, 1, 2)`, `(10, 2, 1)`, `(−10, 0, 1)`.
+
+`ℚ₂(√10)` and `ℚ₂(√−10)` are ramified and take §2's ramified entry.  `ℚ₂(√5)` is the unramified
+row (`Fields.lean:243`'s own docstring says so, `q_K = 4`) and the tree's ramification supplier
+`Fields.not_hasEqualNormValueGroups_quadField` has the hypothesis `Odd a.valuation`, false at
+`a = 5`; so that field takes the `M`-branch entry instead, on the strength of `N(2 + √5) = −1`.
+Nothing is carried either way. -/
+
+section Witnesses
+
+/-- The unit `−19 = N(1 + 2√5)`. -/
+noncomputable def fieldId_unitNegNineteen : ℤ_[2]ˣ := -(isUnit_one_add_two_mul (9 : ℤ_[2])).unit
+
+@[simp] theorem fieldId_unitNegNineteen_val :
+    ((fieldId_unitNegNineteen : ℤ_[2]ˣ) : ℤ_[2]) = -19 := by
+  rw [fieldId_unitNegNineteen, Units.val_neg, IsUnit.unit_spec]
+  norm_num
+
+/-- The unit `−3`, the unit part of `N(2 + √10) = −6`. -/
+noncomputable def fieldId_unitNegThree : ℤ_[2]ˣ := -(isUnit_one_add_two_mul (1 : ℤ_[2])).unit
+
+@[simp] theorem fieldId_unitNegThree_val :
+    ((fieldId_unitNegThree : ℤ_[2]ˣ) : ℤ_[2]) = -3 := by
+  rw [fieldId_unitNegThree, Units.val_neg, IsUnit.unit_spec]
+  norm_num
+
+/-- The unit `5`, the unit part of `N(√−10) = 10`. -/
+noncomputable def fieldId_unitFive : ℤ_[2]ˣ := (isUnit_one_add_two_mul (2 : ℤ_[2])).unit
+
+@[simp] theorem fieldId_unitFive_val : ((fieldId_unitFive : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  rw [fieldId_unitFive, IsUnit.unit_spec]
+  norm_num
+
+/-- `−19 ≡ 5 (mod 8)`. -/
+theorem fieldId_toZModPow_unitNegNineteen :
+    PadicInt.toZModPow 3 ((fieldId_unitNegNineteen : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  rw [fieldId_unitNegNineteen_val]
+  simp only [map_neg, map_ofNat]
+  decide
+
+/-- `−3 ≡ 5 (mod 8)`. -/
+theorem fieldId_toZModPow_unitNegThree :
+    PadicInt.toZModPow 3 ((fieldId_unitNegThree : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  rw [fieldId_unitNegThree_val]
+  simp only [map_neg, map_ofNat]
+  decide
+
+/-- `5 ≡ 5 (mod 8)`. -/
+theorem fieldId_toZModPow_unitFive :
+    PadicInt.toZModPow 3 ((fieldId_unitFive : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  rw [fieldId_unitFive_val]
+  simp only [map_ofNat]
+
+/-- **`1 + 2√5`**, as a unit of `ℚ₂(√5)`. -/
+noncomputable def fieldId_eltSqrtFive : (↥KSqrtFive)ˣ :=
+  Units.mk0 (evenPolish_quadElt 5 1 2) (evenPolish_quadElt_ne_zero not_isSquare_five two_ne_zero)
+
+/-- **`2 + √5`**, as a unit of `ℚ₂(√5)`; its norm is `−1`. -/
+noncomputable def fieldId_eltSqrtFiveNegOne : (↥KSqrtFive)ˣ :=
+  Units.mk0 (evenPolish_quadElt 5 2 1) (evenPolish_quadElt_ne_zero not_isSquare_five one_ne_zero)
+
+/-- **`2 + √10`**, as a unit of `ℚ₂(√10)`. -/
+noncomputable def fieldId_eltSqrtTen : (↥KSqrtTen)ˣ :=
+  Units.mk0 (evenPolish_quadElt 10 2 1) (evenPolish_quadElt_ne_zero not_isSquare_ten one_ne_zero)
+
+/-- **`√−10`**, as a unit of `ℚ₂(√−10)`. -/
+noncomputable def fieldId_eltSqrtNegTen : (↥KSqrtNegTen)ˣ :=
+  Units.mk0 (evenPolish_quadElt (-10) 0 1)
+    (evenPolish_quadElt_ne_zero not_isSquare_neg_ten one_ne_zero)
+
+/-- `N_{ℚ₂(√5)/ℚ₂}(1 + 2√5) = 1 − 20 = −19`. -/
+theorem fieldId_norm_eltSqrtFive :
+    normUnitsK KSqrtFive fieldId_eltSqrtFive = unitEmbed fieldId_unitNegNineteen * uniformizer ^ 0 := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val, fieldId_unitNegNineteen_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt 5 1 2)
+    = algebraMap ℤ_[2] ℚ_[2] (-19 : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ 0
+  rw [evenPolish_norm_quadElt not_isSquare_five two_ne_zero]
+  simp only [map_neg, map_ofNat]
+  norm_num
+
+/-- `N_{ℚ₂(√5)/ℚ₂}(2 + √5) = 4 − 5 = −1`. -/
+theorem fieldId_norm_eltSqrtFiveNegOne :
+    normUnitsK KSqrtFive fieldId_eltSqrtFiveNegOne = unitEmbed (-1 : ℤ_[2]ˣ) * uniformizer ^ 0 := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt 5 2 1)
+    = algebraMap ℤ_[2] ℚ_[2] ((-1 : ℤ_[2]ˣ) : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ 0
+  rw [evenPolish_norm_quadElt not_isSquare_five one_ne_zero]
+  simp only [Units.val_neg, Units.val_one, map_neg, map_one]
+  norm_num
+
+/-- `N_{ℚ₂(√10)/ℚ₂}(2 + √10) = 4 − 10 = −6 = (−3) · 2`. -/
+theorem fieldId_norm_eltSqrtTen :
+    normUnitsK KSqrtTen fieldId_eltSqrtTen = unitEmbed fieldId_unitNegThree * uniformizer ^ 1 := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val, fieldId_unitNegThree_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt 10 2 1)
+    = algebraMap ℤ_[2] ℚ_[2] (-3 : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ 1
+  rw [evenPolish_norm_quadElt not_isSquare_ten one_ne_zero]
+  simp only [map_neg, map_ofNat, uniformizer_val]
+  norm_num
+
+/-- `N_{ℚ₂(√−10)/ℚ₂}(√−10) = 0 + 10 = 5 · 2`. -/
+theorem fieldId_norm_eltSqrtNegTen :
+    normUnitsK KSqrtNegTen fieldId_eltSqrtNegTen = unitEmbed fieldId_unitFive * uniformizer ^ 1 := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val, fieldId_unitFive_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt (-10) 0 1)
+    = algebraMap ℤ_[2] ℚ_[2] (5 : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ 1
+  rw [evenPolish_norm_quadElt not_isSquare_neg_ten one_ne_zero]
+  simp only [map_ofNat, uniformizer_val]
+  norm_num
+
+end Witnesses
+
 end GQ2.Dyadic.FieldBranchId
