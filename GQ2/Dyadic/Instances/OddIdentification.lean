@@ -121,6 +121,19 @@ theorem oddId_certificate_of_supply (B : MarkedRecip Rec K) (h : ℕ)
   marked_matching_certificate_KTwoSq_of_supply B h sqPivotExp (gOdd_pivotFix h) H
 
 omit [T2Space (GalK K)] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **The seam, repackaged as the consumer's triple.**  The marked supply IS the oriented
+identification in the exact shape `genAsm_branch_of_oddSq_canonical` binds: an
+`OrientedContinuousMulEquiv` together with the two selected `ν`-rows at it.  Pure
+repackaging, no content. -/
+theorem oddId_orientedEquiv_withRows_of_supply (B : MarkedRecip Rec K) (h : ℕ)
+    (H : SqMarkedForwardSupply B h) :
+    ∃ e : OrientedContinuousMulEquiv (chiSq h) (chiCycKTwo (K := K)),
+      nuUrKTwo B (e.1 (dsqSigma h)) = ofAdd (1 : ℤ_[2]) ∧
+        nuUrKTwo B (e.1 (dsqX0 h)) = ofAdd (0 : ℤ_[2]) := by
+  obtain ⟨f, horient, hsigma, hx0⟩ := H
+  exact ⟨⟨f, horient⟩, hsigma, hx0⟩
+
+omit [T2Space (GalK K)] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **The seam is exact**: the marked supply and the `L`-row marked-core certificate are
 equivalent outright.  Compare `LSquare.sqMarkedForwardSupply_iff_nonempty_certificate`, which
 carried the handle stratum as a binder; wave 80 deleted it. -/
@@ -357,14 +370,15 @@ end Invariants
 
 /-! ## §5 Axiom pins
 
-One pin per declaration, **15** in all, in declaration order.  Measured against the mirror at
+One pin per declaration, **16** in all, in declaration order.  Measured against the mirror at
 `6f2916f3`.  Every member below is a committed census axiom of the classification layer
 (`GQ2/Foundations/Axioms.lean`); the file introduces **no new axiom**, no `sorry`, and no
 `native_decide`, and `B` is a binder throughout (neither `B5 localReciprocity` nor
 `B5-K markedRecipAt` occurs in any pin).  The split, honestly:
 
-* **std-3 only** (`propext, Classical.choice, Quot.sound`), 4 declarations:
-  `oddId_certificate_of_supply`, `oddId_supply_iff_certificate`,
+* **std-3 only** (`propext, Classical.choice, Quot.sound`), 5 declarations:
+  `oddId_certificate_of_supply`, `oddId_orientedEquiv_withRows_of_supply`,
+  `oddId_supply_iff_certificate`,
   `oddId_genAsmBranch_L_of_supply`, `oddId_demushkinQ_congr`.  The wave-80 seam collapse, the
   branch datum over the seam, and the `q`-transport are axiom-free: every census member in
   this file enters through an equivalence-producing input, never through the joins landed
@@ -391,6 +405,7 @@ section AxiomPins
 
 #print axioms oddId_orientedEquiv
 #print axioms oddId_certificate_of_supply
+#print axioms oddId_orientedEquiv_withRows_of_supply
 #print axioms oddId_supply_iff_certificate
 #print axioms oddId_markedSupply_of_presentation
 #print axioms oddId_markedSupply_degreeOne
