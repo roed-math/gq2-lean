@@ -17,6 +17,19 @@ gJoin_markTransitivity_of_base :
 
 This file attacks the first of them, `GJoinBase h = ∀ ν' selected, GTowerLayerReach h ν' 2`.
 
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: the three-input cut above is HISTORY, and none of its three
+inputs is live.**  `GJoinBase h` is REFUTED (`gDecide_not_joinBase`), and with it this file's
+`GBaseResidual h` (`gDecide_not_baseResidual`, already marked below);
+`GJoinSeparationAll h` is a THEOREM (`gExt_separationAll`, `SqCore/GradedExtraction.lean`);
+`GTowerKnobRealizable h` is unproved as quantified and was bypassed, not discharged (see its
+own annotation in `SqCore/GradedUniformTower.lean`).  The conclusion the cut was aiming at,
+`SqLamMarkTransitivity h`, is now a theorem at every `h` with no hypothesis at all:
+`gOdd_markTransitivity` (`SqCore/GradedOddClose.lean`), reached through the kill ladder
+(`gGen_killAt`) and the `x₁`-free chain, neither of which existed when this file was written.
+What is **not** superseded: this file's positive mathematics - the letter generation in `Q₄`,
+the degree-three relator consequence, and the reductions built on them - is untouched, and its
+refutation record stands.]**
+
 ## §1 Letter generation in `Q₄`
 
 `Q₄ = levelQuot (D_sq h) 4` is discrete (`gTower_discrete`), so every subgroup of it is closed

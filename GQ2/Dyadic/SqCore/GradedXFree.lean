@@ -896,7 +896,13 @@ theorem gXf_knobRealizable : GXfKnobRealizable h :=
 
 variable (h) in
 /-- **The supply with the `x₁`-freeness clause**: `GJoinChiSupply h k` with the extra clause on
-the dressing, which is what makes the extraction applicable at the next step. -/
+the dressing, which is what makes the extraction applicable at the next step.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THIS `Prop` IS A THEOREM at every `h` and every `k`** -
+`gOdd_chiSupply` (`SqCore/GradedOddClose.lean`), which is
+`gXf_chiSupply_of_vanishing (gOdd_defectVanishing h) k`.  Every conditional form below has a
+satisfiable hypothesis: `hsep` is `gExt_separationAll`, `HV` is `gOdd_defectVanishing`.  The
+weakened `GJoinChiSupply h k` follows by `gXf_chiSupply_le`.]** -/
 def GXfChiSupply (k : ℕ) : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -1020,10 +1026,21 @@ theorem gXf_markTransitivity_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k) 
 
 variable (h) in
 /-- ⭐⭐⭐ **The residual restated**: the kill ladder from `k = 4` on.  The rungs below are
-theorems, so this is the whole of what the graded route still owes. -/
+theorems, so this is the whole of what the graded route still owes.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: OWED NOTHING - this `Prop` IS A THEOREM at every `h`.**
+`gOdd_killResidual` (`SqCore/GradedOddClose.lean`) proves it in one line from `gGen_killAt`
+(`SqCore/GradedUniformGen.lean`), which supplies `GDeepKillAt h k` from rung 2 up and so
+covers rung 4 up with room to spare.]** -/
 def GXfKillResidual : Prop := ∀ k, 4 ≤ k → GDeepKillAt h k
 
-/-- The residual closes the `h ≥ 1` stratum. -/
+/-- The residual closes the `h ≥ 1` stratum.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THIS IS THE CLOSING IMPLICATION of the odd route, and its
+hypothesis is discharged: `gOdd_markTransitivity h := gXf_markTransitivity_of_residual
+(gOdd_killResidual h)` gives `SqLamMarkTransitivity h` at every `h` with no hypothesis of any
+kind.  Note the headline understates the reach - despite "the `h ≥ 1` stratum" the statement
+binds no positivity hypothesis, and the `h = 0` case is covered by the same proof.]** -/
 theorem gXf_markTransitivity_of_residual (H : GXfKillResidual h) : SqLamMarkTransitivity h := by
   refine gXf_markTransitivity_of_kills fun k hk => ?_
   by_cases h2 : k = 2

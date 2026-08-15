@@ -936,7 +936,31 @@ end Kill
 committed `gDeep_markTransitivity_of_kills`, what now stands between the tree and
 `SqLamMarkTransitivity h` is exactly the two wave-75 interfaces: the separation
 bookkeeping `GJoinSeparationAll h` (vacuous at `h = 0`) and the extraction
-`GTowerKnobRealizable h`. -/
+`GTowerKnobRealizable h`.
+
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: THE REMAINS-LIST ABOVE WAS WRONG WHEN WRITTEN, and is now
+moot.**  Two corrections, in order of seriousness.
+
+(i) `GJoinSeparationAll h` was ALREADY A THEOREM in this lane's own base.
+`gExt_separationAll (h : ℕ) : GJoinSeparationAll h` sits at `SqCore/GradedExtraction.lean:514`
+in `4f30776b`, the commit this lane branched from, proved unconditionally at every `h` by
+wave 79.  It was never one of "what now stands between the tree and
+`SqLamMarkTransitivity h`", and neither is it a wave-75 interface in the sense of being open:
+wave 75 STATED it, wave 79 PROVED it.  The same error is in
+`docs/dyadic/w80-uniform-note.md` §"What W81 needs" item 1, corrected there in the same pass.
+
+(ii) `GTowerKnobRealizable h` is not a residual either, though for a different reason: it is
+not proved and, as quantified, the route does not prove it (wave 79,
+`docs/dyadic/w79-extract-note.md`).  It was BYPASSED rather than discharged - wave 80's
+`SqCore/GradedXFree.lean` §8 re-runs the same recursion carrying an `x₁`-freeness clause, on
+which the weakened `GXfKnobRealizable h` is a theorem (`gXf_knobRealizable`).
+
+Net: nothing stands between the tree and `SqLamMarkTransitivity h`.  It is a theorem at every
+`h`, unconditionally: `gOdd_markTransitivity` (`SqCore/GradedOddClose.lean`), whose proof
+consumes THIS FILE's `gGen_killAt` through `gXf_markTransitivity_of_residual` rather than
+through the `gGen_*` composites below.  What is **not** superseded: `gGen_killAt` itself and
+everything in §§1-6 that proves it - the ladder is this file's contribution and it is what
+closed the route.]** -/
 
 section Ladder
 
@@ -949,7 +973,16 @@ theorem gGen_killAt : ∀ k, 2 ≤ k → GDeepKillAt h k := by
   intro nu' hsigma hx0 g hg hgl hgn hzero
   exact gGen_zero_reader_reach hsigma hx0 hg hgl hgn hzero
 
-/-- The vanishing interface, from separation alone. -/
+/-- The vanishing interface, from separation alone.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: the `hsep` binder of this composite family
+(`gGen_defectVanishing`, `gGen_supply`, `gGen_markTransitivity`) IS A THEOREM** -
+`gExt_separationAll` (`SqCore/GradedExtraction.lean`), unconditional at every `h`, and already
+present in this lane's base.  `gOdd_defectVanishing` (`SqCore/GradedOddClose.lean`) is exactly
+`gGen_defectVanishing (gExt_separationAll h)` and is the unconditional form.  The `HR :
+GTowerKnobRealizable h` binder on the other two is NOT a theorem and is bypassed, not
+discharged; their conclusions are nevertheless unconditional downstream (`gOdd_supply`,
+`gOdd_markTransitivity`).  Statements unchanged.]** -/
 theorem gGen_defectVanishing (hsep : GJoinSeparationAll h) : GJoinDefectVanishing h :=
   gDeep_defectVanishing_of_kills gGen_killAt hsep
 
@@ -960,7 +993,15 @@ theorem gGen_supply (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) 
 
 /-- ⭐⭐⭐ **The composite**: `SqLamMarkTransitivity h` from separation plus extraction
 alone.  No layer statement, no per-class witness, no per-level generation input remains:
-the whole graded side is theorems. -/
+the whole graded side is theorems.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: SUPERSEDED as a route, not as a statement.**  The
+conclusion holds with NO hypothesis (`gOdd_markTransitivity`, `SqCore/GradedOddClose.lean`),
+which this composite cannot deliver because its `HR` binder is unprovable as quantified.  The
+closing route replaces `gDeep_markTransitivity_of_kills` by
+`gXf_markTransitivity_of_residual` (`SqCore/GradedXFree.lean`) and feeds it this file's
+`gGen_killAt`.  Keep this theorem: it is the honest record of what the uniform lane could
+reach on its own.]** -/
 theorem gGen_markTransitivity (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
     SqLamMarkTransitivity h :=
   gDeep_markTransitivity_of_kills gGen_killAt hsep HR

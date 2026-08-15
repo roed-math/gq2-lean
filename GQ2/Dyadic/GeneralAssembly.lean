@@ -528,7 +528,23 @@ exactly the pair `(f, horient)` the `KTwo*` producers consume, which is the memo
 and the reason the branch datum is spelled this way.
 
 The odd route's residual `SqLamMarkTransitivity h` (`SqCore/GradedLimit.lean`, the target of
-waves 68-73) discharges the `hMix` binder of the `L`-row producer at every `h ≥ 1`. -/
+waves 68-73) discharges the `hMix` binder of the `L`-row producer at every `h ≥ 1`.
+
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: IT IS NO LONGER A RESIDUAL - it is a theorem.**
+`gOdd_markTransitivity (h : ℕ) : SqCore.SqLamMarkTransitivity h`
+(`SqCore/GradedOddClose.lean`, wave 80) proves it at every `h` with no hypothesis of any kind,
+on the standard three axioms.  So `genAsm_oddResidual_gives_mix` below has a discharged
+hypothesis, and `gOdd_handleMix` supplies `SqCore.SqHandleMixFixesCore h c` directly at every
+`h` (including `h = 0`, which this sentence's `h ≥ 1` excludes and which
+`sqHandleMixFixesCore_zero` covers).  The word "residual" is retained at three further points
+in this file (`:449`, `:609`, `:618`) and is stale at each.
+
+**Deliberately NOT done here**: no hypothesis-free `L`-row restatement is added.  That would
+be a statement change to an existing file and is the standing owner item recorded as
+`docs/dyadic/w80-final-note.md` §6 item 1.  What does NOT change with the closure: the
+`L`-row's other open binder `e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo)`,
+which IS the odd-degree classification statement and which no theorem in this tree produces at
+an arbitrary ramified-`i` `K`; and zero of `GenAsmRowResidual`'s four fields.]** -/
 
 section ClassificationJoin
 

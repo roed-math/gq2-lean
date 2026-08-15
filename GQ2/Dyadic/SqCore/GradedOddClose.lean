@@ -102,7 +102,14 @@ section ReadBack
 
 /-- ⭐⭐ **The class-`k` clearing supply at every class and every `h`**, read back off §1
 through wave 67's `limFinal_markTransitivity_iff`.  Wave 79 had this at `k ≤ 5` only
-(`gXf_supply_five`); the classes `k ≥ 6` were the open part. -/
+(`gXf_supply_five`); the classes `k ≥ 6` were the open part.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: the citation is misattributed by one wave.**
+`gXf_supply_five` is THIS wave's, not wave 79's: it lives in `SqCore/GradedXFree.lean`, whose
+module docstring is headed "W80-XFREE", and its own docstring says wave 79 supplied the
+separation it consumes.  What wave 79 had was the CONDITIONAL `gDeep_supply_five (hsep) (HR)`
+(`SqCore/GradedDepthThree.lean`); the unconditional `k ≤ 5` statement is wave 80's.  The
+substance of the sentence - that `k ≥ 6` was the open part before this file - is right.]** -/
 theorem gOdd_supply (h k : ℕ) : SqClassClearingSupply h k :=
   limFinal_markTransitivity_iff.mp (gOdd_markTransitivity h) k
 
@@ -190,6 +197,14 @@ end KFacing
 handle binder is discharged, so on an abstract slot the marked-core certificate for the odd row
 costs exactly an oriented identification and the two `ν`-normalizations, and no
 correction-stratum hypothesis at all.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: "exactly an oriented identification and the two
+`ν`-normalizations" drops one binder.**  `gOdd_certificate` below also takes
+`hcont : Continuous fun x => nuG (f x)`, the continuity of the transported marking, which is
+data about `nuG` and not implied by the other three.  The theorem's own docstring states the
+list correctly ("the oriented identification `f`, its continuity data, and the two selected
+core rows"); this section header is the loose one.  The substantive claim - no
+correction-stratum hypothesis - is exact.]**
 
 This is as far as `SqCore` can carry it.  Turning the abstract slot into `G_K(2)` is
 `GQ2/Dyadic/LabuteInterface.lean`'s `marked_matching_certificate_KTwoSq_of_fixesCore` and then

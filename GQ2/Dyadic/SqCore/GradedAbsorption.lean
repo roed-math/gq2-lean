@@ -1343,7 +1343,19 @@ variable {h : ℕ}
 variable (h) in
 /-- ⭐⭐⭐ **The repaired depth-2 vanishing**: the `k = 2` instance of
 `GJoinDefectVanishing`, exactly the statement whose wave-75 derivation consumed the refuted
-depth-2 base. -/
+depth-2 base.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THIS `Prop` IS A THEOREM at every `h`.**  Its only input,
+`gAbs_vanishingTwo_of_sep`'s depth-2 separation, is `gExt_towerSeparation`
+(`SqCore/GradedExtraction.lean`, wave 79), which holds at every `h`, marking and depth; so
+`gAbs_vanishingTwo_of_sep (fun _ => gExt_towerSeparation)` proves it outright, and that is how
+`SqCore/GradedXFree.lean`'s `gXf_chiSupply_four` consumes it.  Its depth-3 twin
+`GDeepVanishingThree h` and the whole-family form `GJoinDefectVanishing h`
+(`gOdd_defectVanishing`) are theorems too.  What this does **not** make unconditional: the
+composites below that additionally bind `HR : GTowerKnobRealizable h` (`gAbs_clear_step_two`,
+`gAbs_chiSupply_four`, `gAbs_supply_four`).  That binder is unproved as quantified and was
+bypassed rather than discharged, so their conclusions come instead from the `x₁`-free chain
+(`gXf_chiSupply_four`, `gXf_supply_five`, `gOdd_supply`).]** -/
 def GAbsVanishingTwo : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
