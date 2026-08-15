@@ -351,6 +351,58 @@ theorem oddId_demushkinRank (B : MarkedRecip Rec K) {h : ℕ}
 
 end Invariants
 
+/-! ## §5 Axiom pins
+
+One pin per declaration, **15** in all, in declaration order.  Measured against the mirror at
+`6f2916f3`.  Every member below is a committed census axiom of the classification layer
+(`GQ2/Foundations/Axioms.lean`); the file introduces **no new axiom**, no `sorry`, and no
+`native_decide`, and `B` is a binder throughout (neither `B5 localReciprocity` nor
+`B5-K markedRecipAt` occurs in any pin).  The split, honestly:
+
+* **std-3 only** (`propext, Classical.choice, Quot.sound`), 4 declarations:
+  `oddId_certificate_of_supply`, `oddId_supply_iff_certificate`,
+  `oddId_genAsmBranch_L_of_supply`, `oddId_demushkinQ_congr`.  The wave-80 seam collapse, the
+  branch datum over the seam, and the `q`-transport are axiom-free: every census member in
+  this file enters through an equivalence-producing input, never through the joins landed
+  here.
+* **std-3 + {B1, B6, B7, B11a}** (`absGalQ2_isTopologicallyFinitelyGenerated`, `tateDualityAt`,
+  `absGalQ2_localEulerCharacteristic`, `hilbertSymbol_normCriterion_finiteDyadic`), 8
+  declarations: `oddId_orientedEquiv`, `oddId_markedSupply_of_presentation`,
+  `oddId_genAsmBranch_L_of_presentation`, and all five invariant statements
+  (`oddId_chiCycKTwo_surjective`, `oddId_range_chiCycKTwo`, `oddId_demushkinQ_eq_model`,
+  `oddId_torsionPremise_iff_model`, `oddId_demushkinRank`).  This is exactly the set carried
+  by the free oriented equivalence (`nonempty_orientedEquiv_oddDegree`), unchanged.
+* **std-3 + {B1, B6, B7}**, 1 declaration: `oddId_candidate_equiv_galK_of_supply`.  The full
+  chain over the seam does not touch `B11a`: the seam replaces the free equivalence, and the
+  general assembly's own pins are these three.
+* **std-3 + {B1, B3c, B6, B7, B8, B11a}** (adding `dyadicOrientation` and
+  `peripheralCyclotomicAction`), 2 declarations: `oddId_markedSupply_degreeOne` and
+  `oddId_genAsmBranch_L_degreeOne`.  The degree-one discharge routes through the committed
+  `D₀` pivot machinery, which carries B3c and B8.  Note the set is a **strict subset** of the
+  frozen degree-one milestone's seven (`PivotSeedD0.gammaR_lSq_equiv_galK_degreeOne`,
+  std-3 + {B1, B3c, B6, B7, B8, B9, B11a}): the pro-2 slot needs no
+  `B9 relativeStiefelWhitney_dyadic`. -/
+
+section AxiomPins
+
+#print axioms oddId_orientedEquiv
+#print axioms oddId_certificate_of_supply
+#print axioms oddId_supply_iff_certificate
+#print axioms oddId_markedSupply_of_presentation
+#print axioms oddId_markedSupply_degreeOne
+#print axioms oddId_genAsmBranch_L_of_supply
+#print axioms oddId_genAsmBranch_L_of_presentation
+#print axioms oddId_genAsmBranch_L_degreeOne
+#print axioms oddId_candidate_equiv_galK_of_supply
+#print axioms oddId_demushkinQ_congr
+#print axioms oddId_chiCycKTwo_surjective
+#print axioms oddId_range_chiCycKTwo
+#print axioms oddId_demushkinQ_eq_model
+#print axioms oddId_torsionPremise_iff_model
+#print axioms oddId_demushkinRank
+
+end AxiomPins
+
 end
 
 end GQ2.Dyadic
