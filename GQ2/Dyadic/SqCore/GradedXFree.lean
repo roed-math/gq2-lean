@@ -859,7 +859,184 @@ end Knobs
 
 end Extraction
 
-/-! ## §8 Axiom pins -/
+/-! ## §8 The committed chain, with the clause carried
+
+The consumers of `GTowerKnobRealizable` (`gAbs_clear_step_two`, `gDeep_clear_step_three`,
+`gJoin_clear_step`) take the extraction as a hypothesis quantified over *all* admissible
+dressings, which §7 does not supply.  This section re-runs the same recursion with the
+`x₁`-freeness clause threaded through the supply, so the extraction is applied only where it is
+proved.  The clause survives every step for free (§1) and holds at the class-three base (§2), so
+the recursion is unchanged in every other respect. -/
+
+section Chain
+
+variable {h : ℕ}
+
+variable (h) in
+/-- ⭐⭐ **The weakened extraction interface**: `GTowerKnobRealizable h` with the `x₁`-freeness
+clause added to the dressing, and with the two marking hypotheses and the `γ_{k+1}`-membership
+of the relator dropped (§7 uses none of them).  Unlike `GTowerKnobRealizable h`, which wave 79
+showed the route does not prove as quantified, this one is a **theorem**. -/
+def GXfKnobRealizable : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    ∀ k, 2 ≤ k → ∀ a : Fin (sqRank h) → (DSq h : Type),
+      GXfFree h a → SqModTwoIndep (sqArbFrame h nu' j a) →
+      levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
+        ∈ Subgroup.closure (gTowerKnobSet h nu' k) →
+      ∃ d : Fin (sqRank h) → (DSq h : Type),
+        (∀ i, d i ∈ twoCentralSeries (DSq h : Type) k) ∧
+          (∀ i, nuLam h (d i) = 1) ∧ (∀ i, nu' (d i) = 1) ∧
+            sqRelWord (sqArbFrame h nu' j (fun i => a i * d i))
+              ∈ twoCentralSeries (DSq h : Type) (k + 2)
+
+/-- ⭐⭐⭐ **The weakened extraction interface holds**, at every `h`, every marking, every
+handle and every class `k ≥ 2`. -/
+theorem gXf_knobRealizable : GXfKnobRealizable h :=
+  fun _ _ _ hk _ hfree hindep hknob => gXf_realizable hk hfree hindep hknob
+
+variable (h) in
+/-- **The supply with the `x₁`-freeness clause**: `GJoinChiSupply h k` with the extra clause on
+the dressing, which is what makes the extraction applicable at the next step. -/
+def GXfChiSupply (k : ℕ) : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      ∃ a : Fin (sqRank h) → (DSq h : Type),
+        (∀ i, nuLam h (a i) = 1) ∧ (∀ i, nu' (a i) = 1) ∧ (∀ i, chiSq h (a i) = 1) ∧
+          SqModTwoIndep (sqArbFrame h nu' j a) ∧ GXfFree h a ∧
+            sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) k
+
+/-- Forgetting the clause gives the committed supply. -/
+theorem gXf_chiSupply_le {k : ℕ} (H : GXfChiSupply h k) : GJoinChiSupply h k := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, h1, h2, h3, h4, _, h6⟩ := H nu' j hsigma hx0
+  exact ⟨a, h1, h2, h3, h4, h6⟩
+
+/-- The clause-carrying supply is antitone in the class. -/
+theorem gXf_chiSupply_of_le {k k' : ℕ} (hkk : k' ≤ k) (H : GXfChiSupply h k) :
+    GXfChiSupply h k' := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, h1, h2, h3, h4, h5, h6⟩ := H nu' j hsigma hx0
+  exact ⟨a, h1, h2, h3, h4, h5, twoCentralSeries_antitone (DSq h : Type) hkk h6⟩
+
+/-- ⭐⭐ **The class-three base carries the clause**: wave 68's `bridgeTuple` is `x₁`-free. -/
+theorem gXf_chiSupply_three : GXfChiSupply h 3 := by
+  intro nu' j hsigma hx0
+  exact ⟨bridgeTuple nu' j, bridge_tuple_nuLam nu' j, bridge_tuple_nu nu' j hsigma hx0,
+    gDelta_chiSq_bridgeTuple nu' j, bridge_modTwoIndep nu' j, gXf_bridgeTuple_free nu' j,
+    bridge_relator_mem nu' j⟩
+
+/-- ⭐⭐⭐ **One clearing step, with the clause carried and the extraction discharged**: the
+knob-span membership of the defect is the only input, and the corrected dressing is again
+`x₁`-free because the correction is a `γ_k`-element with `k ≥ 2`. -/
+theorem gXf_clear_step_of_knob
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h} {k : ℕ}
+    (hk : 2 ≤ k) {a : Fin (sqRank h) → (DSq h : Type)} (hal : ∀ i, nuLam h (a i) = 1)
+    (han : ∀ i, nu' (a i) = 1) (hac : ∀ i, chiSq h (a i) = 1)
+    (hai : SqModTwoIndep (sqArbFrame h nu' j a)) (hfree : GXfFree h a)
+    (hknob : levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
+      ∈ Subgroup.closure (gTowerKnobSet h nu' k)) :
+    ∃ a' : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a' i) = 1) ∧ (∀ i, nu' (a' i) = 1) ∧ (∀ i, chiSq h (a' i) = 1) ∧
+        SqModTwoIndep (sqArbFrame h nu' j a') ∧ GXfFree h a' ∧
+          sqRelWord (sqArbFrame h nu' j a') ∈ twoCentralSeries (DSq h : Type) (k + 2) := by
+  obtain ⟨d, hd, hdl, hdn, hrel'⟩ := gXf_realizable hk hfree hai hknob
+  refine ⟨fun i => a i * d i, ?_, ?_, ?_, ?_, gXf_free_mul_gamma hk hfree hd, hrel'⟩
+  · intro i
+    rw [map_mul, hal i, hdl i, one_mul]
+  · intro i
+    rw [map_mul, han i, hdn i, one_mul]
+  · intro i
+    exact gJoin_chiSq_mul_correction (hac i) hk (hd i) (hdl i)
+  · rw [gTower_frame_mul]
+    exact cfourId_modTwoIndep_mul hai
+      (fun i => twoCentralSeries_antitone (G := (DSq h : Type)) hk (hd i))
+
+/-- ⭐⭐⭐ **The class-four supply, with no extraction hypothesis**: wave 78's absorption
+supplies the depth-2 knob membership, and §7 supplies the correction. -/
+theorem gXf_chiSupply_four (hsep : GJoinSeparationAll h) : GXfChiSupply h 4 := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, hal, han, hac, hai, hfree, hrel⟩ := gXf_chiSupply_three (h := h) nu' j hsigma hx0
+  exact gXf_clear_step_of_knob (le_refl 2) hal han hac hai hfree
+    (gAbs_vanishingTwo_of_sep (fun nu'' => hsep nu'' 2 (le_refl 2)) nu' j hsigma hx0 a hal han
+      hac hai hrel)
+
+/-- ⭐⭐⭐ **The class-five supply, with no extraction hypothesis**: wave 79's depth-3
+absorption supplies the depth-3 knob membership. -/
+theorem gXf_chiSupply_five (hsep : GJoinSeparationAll h) : GXfChiSupply h 5 := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, hal, han, hac, hai, hfree, hrel⟩ := gXf_chiSupply_four hsep nu' j hsigma hx0
+  exact gXf_clear_step_of_knob (by omega : 2 ≤ 3) hal han hac hai hfree
+    (gDeep_vanishingThree_of_sep (fun nu'' => hsep nu'' 3 (by omega)) nu' j hsigma hx0 a hal han
+      hac hai hrel)
+
+/-- ⭐⭐⭐ **`SqClassClearingSupply h 5`, UNCONDITIONAL**, at every `h`, every selected marking
+and every handle.  Wave 79 discharged the separation (`gExt_separationAll`); this file
+discharges the extraction on the dressings the chain actually produces.  `gDeep_supply_five`'s
+two hypotheses are both gone. -/
+theorem gXf_supply_five (h : ℕ) : SqClassClearingSupply h 5 :=
+  gJoin_supply_of_chiSupply (gXf_chiSupply_le (gXf_chiSupply_five (gExt_separationAll h)))
+
+/-- ⭐⭐⭐ **The clause-carrying supply at every class, from the vanishing interface alone**:
+wave 75's recursion with the extraction discharged and the clause threaded. -/
+theorem gXf_chiSupply_of_vanishing (HV : GJoinDefectVanishing h) : ∀ k, GXfChiSupply h k := by
+  have hmain : ∀ K, GXfChiSupply h (K + 3) := by
+    intro K
+    induction K with
+    | zero => exact gXf_chiSupply_three
+    | succ K ih =>
+      intro nu' j hsigma hx0
+      obtain ⟨a, hal, han, hac, hai, hfree, hrel⟩ := ih nu' j hsigma hx0
+      have hrel' : sqRelWord (sqArbFrame h nu' j a)
+          ∈ twoCentralSeries (DSq h : Type) ((K + 2) + 1) := by
+        rwa [(by omega : K + 2 + 1 = K + 3)]
+      obtain ⟨a', h1, h2, h3, h4, h5, h6⟩ := gXf_clear_step_of_knob (by omega : 2 ≤ K + 2)
+        hal han hac hai hfree (HV nu' j hsigma hx0 (K + 2) (by omega) a hal han hac hai hrel')
+      refine ⟨a', h1, h2, h3, h4, h5, ?_⟩
+      rwa [(by omega : K + 1 + 3 = K + 2 + 2)]
+  intro k
+  rcases Nat.lt_or_ge k 3 with hk | hk
+  · exact gXf_chiSupply_of_le (by omega) (hmain 0)
+  · obtain ⟨K, rfl⟩ : ∃ K, k = K + 3 := ⟨k - 3, by omega⟩
+    exact hmain K
+
+/-- ⭐⭐⭐ **The supply at every class, from the vanishing interface alone.** -/
+theorem gXf_supply_of_vanishing (HV : GJoinDefectVanishing h) :
+    ∀ k, SqClassClearingSupply h k :=
+  fun k => gJoin_supply_of_chiSupply (gXf_chiSupply_le (gXf_chiSupply_of_vanishing HV k))
+
+/-- ⭐⭐⭐ **The `h ≥ 1` residual from the vanishing interface alone.** -/
+theorem gXf_markTransitivity_of_vanishing (HV : GJoinDefectVanishing h) :
+    SqLamMarkTransitivity h :=
+  limFinal_markTransitivity (gXf_supply_of_vanishing HV)
+
+/-- ⭐⭐⭐ **The `h ≥ 1` residual is exactly the kill ladder.**  Wave 79's separation is a
+theorem and this file's extraction is a theorem, so `gDeep_markTransitivity_of_kills` loses both
+of its other two inputs: what remains of the graded route is the single family
+`GDeepKillAt h k`, whose rungs `k = 2` and `k = 3` are already theorems
+(`gDeep_killAt_two`, `gDeep_killAt_three`). -/
+theorem gXf_markTransitivity_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k) :
+    SqLamMarkTransitivity h :=
+  gXf_markTransitivity_of_vanishing (gDeep_defectVanishing_of_kills HK (gExt_separationAll h))
+
+variable (h) in
+/-- ⭐⭐⭐ **The residual restated**: the kill ladder from `k = 4` on.  The rungs below are
+theorems, so this is the whole of what the graded route still owes. -/
+def GXfKillResidual : Prop := ∀ k, 4 ≤ k → GDeepKillAt h k
+
+/-- The residual closes the `h ≥ 1` stratum. -/
+theorem gXf_markTransitivity_of_residual (H : GXfKillResidual h) : SqLamMarkTransitivity h := by
+  refine gXf_markTransitivity_of_kills fun k hk => ?_
+  by_cases h2 : k = 2
+  · subst h2
+    exact gDeep_killAt_two
+  by_cases h3 : k = 3
+  · subst h3
+    exact gDeep_killAt_three
+  exact H k (by omega)
+
+end Chain
+
+/-! ## §9 Axiom pins -/
 
 section AxiomPinsXFree
 
@@ -927,6 +1104,22 @@ section AxiomPinsXFree
 #print axioms gXf_knobSet_le_move
 #print axioms gXf_knobSpan_le_move
 #print axioms gXf_realizable
+#print axioms GXfKnobRealizable
+#print axioms gXf_knobRealizable
+#print axioms GXfChiSupply
+#print axioms gXf_chiSupply_le
+#print axioms gXf_chiSupply_of_le
+#print axioms gXf_chiSupply_three
+#print axioms gXf_clear_step_of_knob
+#print axioms gXf_chiSupply_four
+#print axioms gXf_chiSupply_five
+#print axioms gXf_supply_five
+#print axioms gXf_chiSupply_of_vanishing
+#print axioms gXf_supply_of_vanishing
+#print axioms gXf_markTransitivity_of_vanishing
+#print axioms gXf_markTransitivity_of_kills
+#print axioms GXfKillResidual
+#print axioms gXf_markTransitivity_of_residual
 
 end AxiomPinsXFree
 
