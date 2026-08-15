@@ -21,7 +21,7 @@ namespace GQ2.Dyadic.Instances.MpcNorm
 open GQ2 GQ2.Dyadic GQ2.Dyadic.MarkedCore Multiplicative
 open GQ2.Dyadic.Instances.MpcCert GQ2.Dyadic.Instances.MpcRow
 open GQ2.Dyadic.FieldUnimod GQ2.Dyadic.FieldBranchId
-open GQ2.Dyadic.Fields GQ2.Dyadic.LSquare
+open GQ2.Dyadic.Fields GQ2.Dyadic.LSquare GQ2.Dyadic.EvenRangePolish
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
@@ -157,6 +157,140 @@ theorem mpcNorm_exists_decomp (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
   rw [hcoe, norm_mul, norm_zpow, hn', ← zpow_add₀ (ne_of_gt hroot), add_neg_cancel, zpow_zero]
 
 end ValueGroup
+
+/-! ## §3 The norm of a spectral unit, and its residue modulo eight
+
+Wave 80 §4.2 step 4, the arithmetic step.  A spectral unit of `ℚ₂(√a)` is `t + s√a` with
+`t : ℤ₂ˣ` and `s : ℤ₂` (the parity separation forbids `‖s√a‖ = 1`, so `‖t‖ = 1` and then `‖s‖ ≤ 1`
+because the value group of `ℚ₂` is coarser than that of `K`).  Its norm is `t² − a s²`, whose
+residue modulo `8` is therefore one of `1`, `1 − a`, `1 − 4a`.
+
+**This replaces the Hilbert symbol.**  Together with §4's `N(√a) = −a` it determines the whole
+norm group of the field, and the four values of wave 80 §4.1 are read off it directly. -/
+
+section SpectralUnit
+
+variable {a : ℚ_[2]}
+
+/-- **The norm form.**  `N(t + s√a) = t² − a s²`, with **no** `s ≠ 0` side condition:
+`evenPolish_norm_quadElt` at `s ≠ 0`, and `Algebra.norm_algebraMap` with `[K : ℚ₂] = 2` at
+`s = 0`. -/
+theorem mpcNorm_norm_quadElt (ha : ¬ IsSquare a) (t s : ℚ_[2]) :
+    Algebra.norm ℚ_[2] (evenPolish_quadElt a t s) = t ^ 2 - a * s ^ 2 := by
+  rcases eq_or_ne s 0 with rfl | hs
+  · have hval : evenPolish_quadElt a t 0 = algebraMap ℚ_[2] (↥(quadField a)) t := by
+      apply Subtype.ext
+      rw [evenPolish_quadElt_val, map_zero, zero_mul, add_zero]
+      rfl
+    rw [hval, Algebra.norm_algebraMap, finrank_quadField ha]
+    ring
+  · rw [evenPolish_norm_quadElt ha hs]
+
+/-- **A `√a`-multiple never has spectral norm `1`** when `v(a)` is odd: the parity separation, in
+the form `normUnits_le_depthUnits` uses it internally. -/
+theorem mpcNorm_root_mul_ne_one (hodd : Odd a.valuation) {y : ℚ_[2]} (hy : y ≠ 0) :
+    ‖(algebraMap ℚ_[2] ℚ̄₂ y) * sqrtIn a‖ ≠ 1 := by
+  intro hcon
+  have ha0 := ne_zero_of_odd_valuation hodd
+  rw [norm_mul, GQ2.Dyadic.Fields.norm_algebraMap] at hcon
+  have hsq : ‖y ^ 2 * a‖ = ‖(1 : ℚ_[2])‖ := by
+    rw [norm_mul, norm_pow, ← norm_sqrtIn_sq a, ← mul_pow, hcon, one_pow, norm_one]
+  have hv := valuation_eq_of_norm_eq (mul_ne_zero (pow_ne_zero 2 hy) ha0) one_ne_zero hsq
+  rw [Padic.valuation_mul (pow_ne_zero 2 hy) ha0, Padic.valuation_pow, Padic.valuation_one] at hv
+  obtain ⟨k, hk⟩ := hodd
+  omega
+
+/-- **A spectral unit is `t + s√a` with `t` a `2`-adic unit and `s` a `2`-adic integer.**  The
+integrality of `s` is the discreteness of `ℚ₂`'s value group against `K`'s
+(`fieldUni_norm_le_one_of_mul_sqrtIn_lt_one`), not an assumption. -/
+theorem mpcNorm_repr_of_norm_one (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {z : ↥(quadField a)} (hz : ‖(z : ℚ̄₂)‖ = 1) :
+    ∃ t s : ℚ_[2], z = evenPolish_quadElt a t s ∧ ‖t‖ = 1 ∧ ‖s‖ ≤ 1 := by
+  obtain ⟨t, s, hts⟩ := exists_repr ha z.2
+  have hzt : z = evenPolish_quadElt a t s := Subtype.ext (by rw [evenPolish_quadElt_val, ← hts])
+  refine ⟨t, s, hzt, ?_, ?_⟩ <;> rcases eq_or_ne s 0 with rfl | hs
+  · rw [hts] at hz
+    simpa [GQ2.Dyadic.Fields.norm_algebraMap] using hz
+  · rcases eq_or_ne t 0 with rfl | ht
+    · rw [hts] at hz
+      simp only [map_zero, zero_add] at hz
+      exact absurd hz (mpcNorm_root_mul_ne_one hodd hs)
+    · rw [hts, norm_add_mul_sqrtIn hodd ht hs] at hz
+      rcases max_cases ‖(algebraMap ℚ_[2] ℚ̄₂ t)‖ ‖(algebraMap ℚ_[2] ℚ̄₂ s) * sqrtIn a‖ with
+        ⟨he, -⟩ | ⟨he, -⟩
+      · rw [he] at hz
+        rwa [GQ2.Dyadic.Fields.norm_algebraMap] at hz
+      · rw [he] at hz
+        exact absurd hz (mpcNorm_root_mul_ne_one hodd hs)
+  · rw [norm_zero]
+    norm_num
+  · rcases eq_or_ne t 0 with rfl | ht
+    · rw [hts] at hz
+      simp only [map_zero, zero_add] at hz
+      exact absurd hz (mpcNorm_root_mul_ne_one hodd hs)
+    · rw [hts, norm_add_mul_sqrtIn hodd ht hs] at hz
+      have hle : ‖(algebraMap ℚ_[2] ℚ̄₂ s) * sqrtIn a‖ ≤ 1 := hz ▸ le_max_right _ _
+      have hlt : ‖(algebraMap ℚ_[2] ℚ̄₂ s) * sqrtIn a‖ < 1 :=
+        lt_of_le_of_ne hle (mpcNorm_root_mul_ne_one hodd hs)
+      rw [norm_mul, GQ2.Dyadic.Fields.norm_algebraMap] at hlt
+      exact fieldUni_norm_le_one_of_mul_sqrtIn_lt_one hna hlt
+
+/-- **THE NORM OF A SPECTRAL UNIT, INTEGRALLY.**  `N(u) = t² − a s²` with `t : ℤ₂ˣ` and `s : ℤ₂`.
+The residues `t² ≡ 1` and `s² ∈ {0, 1, 4}` modulo `8` then pin `N(u)` to three residues. -/
+theorem mpcNorm_norm_spectral_unit (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
+    {z : ↥(quadField a)} (hz : ‖(z : ℚ̄₂)‖ = 1) :
+    ∃ (t : ℤ_[2]ˣ) (s : ℤ_[2]),
+      Algebra.norm ℚ_[2] z = ((((t : ℤ_[2]) ^ 2 - az * s ^ 2 : ℤ_[2]) : ℚ_[2])) := by
+  obtain ⟨t, s, hzt, ht, hs⟩ := mpcNorm_repr_of_norm_one ha hodd hna hz
+  obtain ⟨tz, htz⟩ : ∃ tz : ℤ_[2], ((tz : ℚ_[2])) = t := ⟨⟨t, le_of_eq ht⟩, rfl⟩
+  obtain ⟨sz, hsz⟩ : ∃ sz : ℤ_[2], ((sz : ℚ_[2])) = s := ⟨⟨s, hs⟩, rfl⟩
+  have htu : IsUnit tz := PadicInt.isUnit_iff.2 (by rw [PadicInt.norm_def, htz]; exact ht)
+  refine ⟨htu.unit, sz, ?_⟩
+  rw [hzt, mpcNorm_norm_quadElt ha, IsUnit.unit_spec]
+  push_cast
+  rw [haz, htz, hsz]
+
+/-- `a` is `2` times a `2`-adic integer, integrally: `‖a‖ = ‖2‖` says the ramified scalar has
+valuation one. -/
+theorem mpcNorm_two_dvd (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a) :
+    (2 : ℤ_[2]) ∣ az := by
+  refine (PadicInt.norm_lt_one_iff_dvd az).1 ?_
+  rw [PadicInt.norm_def, haz, hna]
+  exact GQ2.Dyadic.Fields.norm_two_lt_one'
+
+/-- `t² − a s²` is a `2`-adic **unit** whenever `t` is: `a` is even, so the norm form is odd. -/
+theorem mpcNorm_isUnit_form (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
+    (t : ℤ_[2]ˣ) (s : ℤ_[2]) : IsUnit ((t : ℤ_[2]) ^ 2 - az * s ^ 2) := by
+  obtain ⟨k, hk⟩ := mpcNorm_two_dvd hna haz
+  have hfac : (t : ℤ_[2]) ^ 2 - az * s ^ 2
+      = (t : ℤ_[2]) ^ 2 * (1 + 2 * (-(k * s ^ 2) * ((t⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 2)) := by
+    have hinv : ((t : ℤ_[2])) * ((t⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+      rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+    rw [hk]
+    linear_combination (2 * k * s ^ 2 * ((t : ℤ_[2]) * ((t⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) + 1)) * hinv
+  rw [hfac]
+  exact (t.isUnit.pow 2).mul (GQ2.isUnit_one_add_two_mul _)
+
+/-- **THE THREE RESIDUES.**  Modulo `8` the norm of a spectral unit is `1`, `1 − a` or `1 − 4a`.
+This is the entire arithmetic input of the lane: no Hilbert symbol, no norm-residue axiom. -/
+theorem mpcNorm_residue_spectral_unit (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
+    {z : ↥(quadField a)} (hz : ‖(z : ℚ̄₂)‖ = 1) :
+    ∃ w : ℤ_[2]ˣ, Algebra.norm ℚ_[2] z = (((w : ℤ_[2]) : ℚ_[2])) ∧
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 az ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 az) := by
+  obtain ⟨t, s, hval⟩ := mpcNorm_norm_spectral_unit ha hodd hna haz hz
+  refine ⟨(mpcNorm_isUnit_form hna haz t s).unit, ?_, ?_⟩
+  · rw [hval, IsUnit.unit_spec]
+  · rw [IsUnit.unit_spec, map_sub, map_mul, mpcNorm_unit_sq_mod_eight]
+    rcases mpcNorm_sq_mod_eight s with h | h | h <;> rw [h]
+    · exact Or.inl (by ring)
+    · exact Or.inr (Or.inl (by ring))
+    · exact Or.inr (Or.inr (by ring))
+
+end SpectralUnit
 
 end
 
