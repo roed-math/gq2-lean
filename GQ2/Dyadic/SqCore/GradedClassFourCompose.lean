@@ -70,6 +70,17 @@ nothing once `L₃(V)` is paid for**.
 implied by "some subgroup all of whose elements are knobs contains the three families", a
 statement that no longer mentions `cfourDefCore` at all.
 
+**[W75-HOUSE, wave-74 update.  That hypothesis is now known FALSE at every `h ≥ 1`**
+(`gDelta_cfourCmp_span_hyp_false`, `GradedDeltaFunctionals.lean:1575`), so the two theorems here
+are true but not instantiable: no lane can supply their `H`.  The failing family is the **fourth
+powers**, not the triple brackets this file expects to be delicate: `S` must contain the sigma
+tower `(levelMk σ)⁴`, and every correction of this route has `mod 8` chi-trivial slots, hence is
+invisible at the layer bit to the twisted functionals `gDelta`, while the tower reads `4 · unit`.
+`cfourCmp_zLayer_le_gens` and everything in §6 stand; what died is instantiating them at the knob
+subgroup.  The redirection is Labute's own: moves span at most the functional-invisible part of
+the layer, and the tower components of the defect die by the functionals instead.  See
+`GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean` §8 and `docs/dyadic/w74-func-note.md` §4.1, §4.3.]
+
 ## Honesty markers
 
 * Everything here concerns **one route**, `γ₂`-valued corrections of wave 68's frame, wave 70's
@@ -87,6 +98,9 @@ statement that no longer mentions `cfourDefCore` at all.
   non-vacuously by `cfourCmp_residual_of_span`.
 * `cfourCmp_residual_of_span`'s hypothesis is **not** claimed to hold.  Whether the knob subgroup
   contains the three families is open, and the note records where it is delicate.
+  **[W75-HOUSE: answered at wave 74, negatively -- `gDelta_cfourCmp_span_hyp_false` at `h ≥ 1`.
+  This marker did its job: the failure is exactly what it said it would be, a statement about the
+  knob subgroup of one inventory, and `SqClassClearingSupply h 4` is untouched by it.]**
 
 Lane W73-KNOB.  New file; no edits to existing files.  Prefix `cfourCmp`.
 -/
@@ -706,7 +720,16 @@ contains the whole of `Z`.  The last two are exactly the forms wave 70's invento
 restricted summands `V^{[4]}` and `(Λ²V)^{[2]}` of `γ₃/γ₄` cost nothing once `L₃(V)` is paid
 for**: the whole class-four question along this route is the triple brackets, and among those the
 delicate ones are those whose far slot is the `x₁`-letter, since every other frame letter is
-reachable in the far slot without a square attached. -/
+reachable in the far slot without a square attached.
+
+**[W75-HOUSE, wave-74 update.**  This theorem is unaffected -- it is a statement about generating
+`Z` from families, and it stands.  What is now known is that the *knob subgroup* satisfies none of
+the three families' hypotheses: `gDelta_cfourCmp_span_hyp_false` refutes the span hypothesis by
+`V^{[4]}`, so "the whole class-four question along this route is the triple brackets" reads the
+route's difficulty in the wrong place.  The fourth powers were never cheap; they were cheap only
+*relative to `Z`-generation*, which is what this statement measures, and not relative to
+reachability by moves.  See `GradedDeltaFunctionals.lean:1557` and `docs/dyadic/w74-func-note.md`
+§4.1.] -/
 theorem cfourCmp_zLayer_le_triple {S : Subgroup (levelQuot (DSq h : Type) 4)}
     (t : levelQuot (DSq h : Type) 4)
     (htriple : ∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S)
@@ -742,9 +765,22 @@ Then `CfourCmpResidual h`, hence `SqClassClearingSupply h 4`.  The mechanism is
 The question "is the core defect a knob" is replaced by the three uniform questions "are fourth
 powers, bracket squares and triple brackets knobs".
 
+**[W75-HOUSE: DECIDED at wave 74, and the answer is no.**  `gDelta_cfourCmp_span_hyp_false`
+(`GradedDeltaFunctionals.lean:1575`) proves `¬ H` for this exact `H` at every `h ≥ 1`, by
+instantiating it at the selected marking `nuSq h`, the handle `j = 0` and the correction
+`cfourCmp_core_reduce` supplies, then taking `z := (levelMk σ)⁴` out of the fourth-power clause.
+This theorem remains **true and untouched**; it is its hypothesis that no lane can ever supply, so
+it is no longer a route to `CfourCmpResidual h`.  The replacement obligation is Labute's Lemma 3
+analogue -- the functional-*invisible* part of the layer is spanned by knobs, the towers being
+separated by the functionals rather than reached by moves.  `docs/dyadic/w74-func-note.md` §4.3
+states it.]**
+
 **Honesty marker.**  A failure of this hypothesis is a statement about the knob subgroup of one
 inventory along one route (wave 70's `CfourIdReachable`).  It is not a statement about
-`SqClassClearingSupply h 4`, and it would not refute the residual. -/
+`SqClassClearingSupply h 4`, and it would not refute the residual.
+**[W75-HOUSE: this held up exactly.  The wave-74 refutation is a statement about the knob
+subgroup; `SqClassClearingSupply h 4` is neither discharged nor refuted, and the refutation's own
+docstring says so.]** -/
 theorem cfourCmp_residual_of_span
     (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
       nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -772,7 +808,9 @@ theorem cfourCmp_residual_of_span
     rw [hdrel, cfourDef_z_sq (cfourDef_core_mem_zLayer nu' j)]⟩
 
 /-- **The class-four supply, from the three families.**  `cfourCmp_residual_of_span` composed with
-`cfourCmp_supply_of_residual`. -/
+`cfourCmp_supply_of_residual`.
+**[W75-HOUSE: carries the same hypothesis, hence the same wave-74 verdict -- true, and not
+instantiable at `h ≥ 1` (`gDelta_cfourCmp_span_hyp_false`).]** -/
 theorem cfourCmp_supply_of_span
     (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
       nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →

@@ -62,6 +62,16 @@ have not made either edit; the housekeeping lane was instructed to leave both al
   the core defect exactly; at class five the same condition is the sole open input to an
   equivalence, so no rearrangement of the inventory can do better.  This is the same scarcity
   that made a wave-70 argument unsound, and it is now clear it was never a local accident.
+
+  > **[W75-HOUSE annotation, wave 74: the convergence held and the condition failed.**  The
+  > wave-74 block at the top of this file records the refutation; this is the pointer from the
+  > wave it supersedes, so that the block above is not read on its own as a live target.  Two
+  > precisions worth carrying: what is proved in Lean is the unsatisfiability of the **class-four
+  > span hypothesis** (`gDelta_cfourCmp_span_hyp_false`, `h ≥ 1`), and the step from there to "the
+  > `x₁`-bracket condition is false" runs through wave 73's own uncommitted span analysis
+  > (`w73-knob-note.md` §5).  The **class-five** half of the same story is argued but not
+  > committed: it needs the mod-16 congruence kit, listed as a W75 gap in `w74-func-note.md`
+  > §4.4.]**
 * **Class four gained the piece wave 70 was missing.**  The relations half of the graded
   decomposition is proved, and it is sharper than the class-five version because the relevant
   subgroup is abelian one class down.

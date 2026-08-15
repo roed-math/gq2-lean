@@ -25,6 +25,22 @@ So the honest form of the ticket's `K ⊇ L₄(V)` is: **`K = γ₄/γ₅`, the 
 its Lie part, conditionally on `∀ c ∈ γ₃, ⁅c, x₁⁆ ∈ K`, and unconditionally not without it.**
 That defect is neither proved nor refuted here.
 
+> **[W75-HOUSE, wave-74 update, with the qualifier that matters.**  One class down, the analogous
+> route is **refuted as a theorem**: `gDelta_cfourCmp_span_hyp_false`
+> (`GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean:1575`) kills the class-four span hypothesis at
+> every `h ≥ 1`, because the committed corrections cannot reach the Frobenius towers that the
+> twisted functionals detect.  `w74-func-note.md` §4.2 argues the same mechanism here, one level
+> up: `zLayer 4` contains the tower class `σ^{2^3}`, while class-five knob readings sit in
+> `2^4 ℤ₂`, so by this note's own equivalence read contrapositively the defect fails along the
+> committed route.
+>
+> **That class-five half is analysis, not a theorem.**  Wave 74 committed the mod-8 congruence
+> kit, which class four consumes; the mod-16 variant this paragraph needs was **not** committed
+> (`w74-func-note.md` §4.4, third bullet, carries it as a W75 gap).  So the sentence above stays
+> literally true -- the defect is still neither proved nor refuted in the tree -- and the honest
+> reading is that the route is expected dead rather than known dead.  Everything this note proves
+> is about arbitrary subgroups `S` and stands unchanged.]**
+
 **Nothing is discharged and nothing is refuted.**  `SqClassClearingSupply h 4` and
 `SqClassClearingSupply h 5` are untouched.  A failure of this join would be a statement about
 this route: `cfiveKnob_supply_of_reach` quantifies its base frame existentially, and class five
@@ -147,6 +163,11 @@ Lacks, as named next steps:
 1. **The defect `∀ c ∈ γ₃, ⁅c, x₁⁆ ∈ K`**, in either of its two equivalent forms.  This is now
    the *only* thing between the knob inventory and `K = γ₄/γ₅`.  Sharpest sub-question: is the
    `⁅Y, Y⁆` pairing of §5 a knob?
+   **[W75-HOUSE: still the only thing, and now expected to fail rather than to be supplied.  Wave
+   74's tower obstruction refutes the class-four analogue outright and argues this one; the
+   cheapest way to settle it is the mod-16 congruence kit of `w74-func-note.md` §4.4, one
+   congruence pass over the same coefficient bounds.  A lane that goes looking for the defect as
+   a *positive* should read `w74-func-note.md` §4.2 first.]**
 2. **A class-five leftover in closed form**, unchanged from wave 72's list.  §3 identifies its
    fourth-power term with family one, but no leftover is evaluated.
 3. **Class four itself**, ~~unchanged~~.  **[W74-HOUSE, watch round 11: the same defect the
@@ -167,6 +188,14 @@ classes reduce to the same condition, reached independently by the two lanes: th
 "is the `⁅Y, Y⁆` pairing of §5 a knob?" and `w73-knob-note.md` §9's "is `⁅y, x₁⁆` (equivalently
 `y²`) a move?".  Read the two together before quoting either "should not be assumed" or the
 convergence alone.
+
+**[W75-HOUSE, and this is the third reading the paragraph has needed.**  Wave 74 settled the
+question the caution was about: the two are the same obstruction, and it is the tower obstruction.
+The class-four half is a theorem (`gDelta_cfourCmp_span_hyp_false`); the class-five half is
+argued but uncommitted (`w74-func-note.md` §4.2, needing the mod-16 kit).  So the convergence the
+owner recorded is real, and what both classes converged on is a **dead end**, not a target: the
+condition fails at the committed knob subgroup because granting it would force functional-visible
+Frobenius towers into the move image.  Quote the convergence with that ending attached.]**
 
 ## 7.  Verification record
 

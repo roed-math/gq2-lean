@@ -180,6 +180,17 @@ things are missing, and they are different in kind.
    handle-slot knobs, i.e. from brackets `⁅y, g⁆` with `g` in the span of `σ`, `x₀`, the handle
    letters and the pivot - which by §3 is all of `V` except the `x₁`-direction.
 
+   **[W75-HOUSE, waves 73-74.**  Wave 73 replaced this question by a stronger one that does not
+   mention `cfourDefCore` (`cfourCmp_residual_of_span`), and wave 74 refuted **that** one at
+   `h ≥ 1` (`gDelta_cfourCmp_span_hyp_false`).  Note carefully what does and does not follow:
+   the question asked here -- **is `cfourDefCore` a knob?** -- is *not* answered.  Wave 73's
+   replacement was strictly stronger (a subgroup containing all three families, versus one
+   element), so refuting the replacement leaves this item open.  What the refutation does supply
+   is the reason to stop looking along this route, and a better place to look:
+   `cfourDefCore`'s functional reading is `S^{-1} X^{-1} (S - X) · gDelta(A)` with
+   `v₂(S - X) = 3` exactly (`gDelta_coreLift_eq`), so it is functional-invisible at the layer bit
+   -- which is the hypothesis the Lemma 3 analogue of `w74-func-note.md` §4.3(2) consumes.]**
+
 ## 5.  Honesty markers
 
 * Nothing in this wave is evidence that **no** dressing works.  Everything above concerns one

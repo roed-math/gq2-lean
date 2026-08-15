@@ -78,7 +78,21 @@ bracket knobs are exactly the frame letters other than `m 2` (`cfiveJoin_farSlot
 `cfiveJoin_zLayer_le_iff` is an equivalence, so a failure of the join at these knobs would be a
 statement about this route and not about `SqClassClearingSupply h 5`, which
 `cfiveKnob_supply_of_reach` reaches through an existentially quantified base frame and which is
-conditional on class four in any case.  §7 reduces the defect as far as this wave takes it: to
+conditional on class four in any case.
+
+**[W75-HOUSE, wave-74 update, and read the qualifier.**  One class down, the analogous span
+hypothesis is now **refuted** as a theorem (`gDelta_cfourCmp_span_hyp_false`,
+`GradedDeltaFunctionals.lean:1575`): the committed route's corrections cannot reach the Frobenius
+towers, which the twisted functionals detect and the moves do not move.  At class five the same
+mechanism is argued in `docs/dyadic/w74-func-note.md` §4.2 -- `zLayer 4` contains the tower class
+`σ^{2^3}` while class-five knob readings sit in `2^4 ℤ₂` -- so `zLayer G 4 ≤ S` is expected to
+fail at the committed knob subgroup, and with it, by this file's own equivalence read
+contrapositively, the defect clause.  **That class-five half is analysis, not a theorem**: it
+needs the mod-16 congruence kit, which wave 74 did **not** commit (it committed mod-8, which class
+four consumes).  So the defect above is still open *in the tree*, and the honest reading is that
+the route is expected dead rather than known dead.  Everything in this file stands as stated: the
+theorems are about arbitrary subgroups `S`, and only the instantiation at the knob subgroup is in
+question.]**  §7 reduces the defect as far as this wave takes it: to
 two families over `Y` (`cfiveJoin_defect_of_two_families`), and, on the bracket generators of
 `T`, to brackets of two `Y`-elements by Jacobi (`cfiveJoin_defect_jacobi`).  Neither reduction
 is a discharge, and no `SqClassClearingSupply` instance is proved or refuted at any class.
