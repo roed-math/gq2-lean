@@ -871,10 +871,20 @@ appears anywhere in the even shift.  At `α = 1` that row is `[p, base 1]` alone
 `α = 1` shift whatsoever is a product of brackets (§7.1).
 
 So the failure of `evenRawShiftSpan_eq_zLayer_of_pureSquares` to clone is not a gap in a proof:
-its `Hsq` input cannot be obtained from the `α = 1` rows at all, because they emit no square.  The
+its `Hsq` input is not *supplied* by the `α = 1` rows, because no `α = 1` row emits a square.  The
 compensation is real but lies elsewhere: at `α ≥ 2` the square and the bracket `[p, base 1]` sit
 in one row, so neither is available without the other, while at `α = 1` the bracket half is
-free. -/
+free.
+
+**[W76-HOUSE, round 12 §4.3(a).**  This paragraph read "cannot be obtained from the `α = 1`
+rows at all", which is an impossibility claim on a containment theorem, and it is not what §7.3
+proves.  §7.3 proves `evenStratumRow_sq_mem_bracketSpan_of_isShift`: *if* `p²` is an `α = 1`
+shift then `p²` lies in the bracket span - a containment, and a corollary of "every `α = 1`
+shift is a product of brackets".  Nothing rules out a **product** of shift values equalling a
+square, and `EvenRawPureSquareSpanSupply` asks for membership in a *span*, not for a row value.
+The declaration's own docstring below has the safe form throughout and even says what actually
+changes ("where its input could possibly come from"); it was this summary that over-reached.
+Second site, corrected there: `docs/dyadic/w74-even-note.md:151`.]** -/
 
 section SpanOne
 

@@ -148,10 +148,21 @@ smaller, since the slot-zero square is gone, so `evenRawShiftSpan_eq_zLayer` may
   is already a product of brackets.
 
 So `evenRawShiftSpan_eq_zLayer_of_pureSquares` fails to clone not because a proof is missing but
-because its `Hsq` input **cannot come from the `alpha = 1` rows at all**.  The compensation is real
+because its `Hsq` input **is not supplied by the `alpha = 1` rows**, no such row emitting a
+square.  The compensation is real
 and lies on the other side: at `alpha >= 2` the square and the bracket `[p, base 1]` sit in one
 row, so neither is available without the other, which is why `evenRawBracket_base_mem_shiftSpan`
 carries `Hsq`; at `alpha = 1` the bracket half is free.
+
+**[W76-HOUSE, round 12 §4.3(a).**  This sentence read "cannot come from the `alpha = 1` rows at
+all", an impossibility claim standing on a containment theorem.  What
+`evenStratumRow_sq_mem_bracketSpan_of_isShift` proves is: *if* a pure square is an `alpha = 1`
+shift then it lies in the bracket span.  Nothing rules out a **product** of shift values being a
+square, and `EvenRawPureSquareSpanSupply` asks for membership in a *span*, not for a row value.
+This note is careful about exactly this two paragraphs down ("proved in one direction only
+(`<=`)"), and the Lean declaration's own docstring is careful too; the summary sentence is where
+it over-reached.  First site, corrected there:
+`GQ2/Dyadic/Instances/EvenStratumRowFrame.lean` §7.3 header.]**
 
 I did **not** build the bundled span homomorphism or the six coordinate-row computations, so the
 identity "the `alpha = 1` span equals the bracket subgroup" is proved in one direction only
@@ -259,6 +270,13 @@ I edited nothing outside my own module and `docs/dyadic/w74-even-note.md`.
 1. **`GQ2/Dyadic/Instances/EvenStratumRowFrame.lean` is unwired.**  Nothing imports it and it is
    not in `GQ2.lean`, exactly as `EvenStratumShift.lean` was left by wave 73.  Both are now
    unwired; the new module imports the old one, so registering them is one decision, not two.
+   **[W76-HOUSE, round 12 §4.2(a), and the convention that retires this finding.**  Read
+   **as of the lane's last commit**: the orchestrator registered the module at `a1579dcc`
+   (00:23:38), **1 min 51 s** later, so the claim was stale almost as soon as it was written.
+   Round 11 §4.1(c) annotated all three wave-73 notes for the same thing and proposed nothing to
+   stop it; round 12 found it again on all three wave-74 notes.  Convention, adopted here: a
+   lane note's unwired claim is written "unwired **as of** `<hash>`", so that a claim about a
+   file the lane is forbidden to touch carries the timestamp that makes it checkable.]**
 2. **Wave 72's §3.1 first bullet should now be corrected a second time.**  Wave 73 already said the
    base is blocked by the *choice of Gram*, not the stratum.  With the repaired Gram the frame
    exists at the **prescribed** table too, so the base's remaining cost is the level-three

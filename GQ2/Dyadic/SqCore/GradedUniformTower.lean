@@ -1701,8 +1701,9 @@ variable (h) in
 /-- ⭐⭐ **The extraction interface**: a knob-span defect class is killed by an admissible
 correction tuple one layer down.  The three-core-slot instance is `gTower_kills` over
 `gTower_dress_core`; the general statement carries the multi-handle and accumulated-dressing
-bookkeeping that wave 73 flagged (`docs/dyadic/w73-knob-note.md` §"the multi-handle
-composition lemma"), which is deliberately **not** discharged in this lane. -/
+bookkeeping that wave 73 flagged (`docs/dyadic/w73-knob-note.md` §9, wave-74 queue item 2,
+"the multi-handle composition lemma"; it is a queue item, not a section), which is
+deliberately **not** discharged in this lane. -/
 def GTowerKnobRealizable : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
