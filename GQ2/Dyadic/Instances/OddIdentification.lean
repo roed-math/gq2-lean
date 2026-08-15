@@ -132,7 +132,11 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **Producer 1 (every odd degree): the stage lane's frame residual.**  The re-indexed form of
 `LSquare.sqMarkedForwardSupply_oddDegree`: at `[K : ℚ₂] = 2h + 1` the seam follows from
 `MarkedFrame.SqCupAdaptedFramePresentation K`, the frame-tracking residual the grand assembly
-already carries.  No other producer at `h ≥ 1` is in the tree. -/
+already carries.  Every `h ≥ 1` producer in the tree consumes frame data of this kind: this
+residual, a relator-killing marked frame (`sqMarkedForwardSupply_of_presentingFrame`), or a
+row-marked forward generator datum (`sqMarkedForwardSupply_of_forwardGeneratorData`); the only
+frame-free producer is the certificate itself, which is circular here
+(`oddId_supply_iff_certificate`). -/
 theorem oddId_markedSupply_of_presentation (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
     (hpres : MarkedFrame.SqCupAdaptedFramePresentation K) :
@@ -142,11 +146,11 @@ theorem oddId_markedSupply_of_presentation (B : MarkedRecip Rec K)
   rwa [hh] at hsup
 
 /-- **Producer 2 (degree one): a theorem.**  At `[K : ℚ₂] = 1` the model-side oriented clearing
-statement is the committed `SqCore.sqNuOrientedClear_zero`, so the wave-44 bridge
-(`NuAdapted.exists_orientedEquiv_fullNu_of_orientedClear`) turns the free oriented equivalence
-into one carrying the WHOLE standard marking; its `σ`- and `x₀`-rows are the two selected
-rows.  This is the `n = 1` face of the odd-degree classification, unconditional over the
-bundle. -/
+statement is the committed `SqCore.sqNuOrientedClear_zero`, so the oriented bridge
+(`NuAdapted.exists_orientedEquiv_fullNu_of_orientedClear`, live exactly at `h = 0`) turns the
+free oriented equivalence into one carrying the WHOLE standard marking; its `σ`- and
+`x₀`-rows are the two selected rows.  This is the `n = 1` face of the odd-degree
+classification, unconditional over the bundle. -/
 theorem oddId_markedSupply_degreeOne (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
     (hdeg : Module.finrank ℚ_[2] K = 1) :
     SqMarkedForwardSupply B 0 := by
@@ -239,11 +243,11 @@ relocates exactly onto the model group.
 * **Full image**: at odd degree `χ_cyc` is onto `ℤ₂ˣ` on `G_K(2)`, because `χ_sq` is onto
   (`SqCore.chiSq_surjective`) and the free equivalence matches them.  So there is no range
   dichotomy at odd degree: the even side's `imChiM α`/`imChiN α` stratification has no odd
-  analogue, exactly as the campaign briefing predicted.
+  analogue, every odd-degree `K` sits on the sq branch at the same cyclotomic image.
 * **Rank**: `demushkinRank 2 (G_K(2)) = [K : ℚ₂] + 2`, by transporting `H¹(−, 𝔽₂)` along the
   equivalence (`H1congrGroup`) into the committed model count `dsq_demushkinRank`.
 * **`q`-invariant**: `demushkinQ` transports along any continuous equivalence
-  (`oddId_demushkinQ_congr`), so `demushkinQ (G_K(2)) = demushkinQ (D_sq h)` — and
+  (`oddId_demushkinQ_congr`), so `demushkinQ (G_K(2)) = demushkinQ (D_sq h)`, and
   `demushkinQ (D_sq h) = 2` is exactly the model computation the tree does NOT yet have
   (`SqCore/DsqDemushkin.lean` records its absence; both precedents needed an explicit
   abelianization frame, and the square family has none).  Consequently the arithmetic torsion
@@ -283,7 +287,7 @@ theorem oddId_chiCycKTwo_surjective (B : MarkedRecip Rec K) {h : ℕ}
   obtain ⟨x, hx⟩ := chiSq_surjective h u
   exact ⟨e.1 x, (e.2 x).trans hx⟩
 
-/-- The range form: at odd degree there is no cyclotomic-range dichotomy — the image is all of
+/-- The range form: at odd degree there is no cyclotomic-range dichotomy, the image is all of
 `ℤ₂ˣ`, in contrast with the even side's `imChiM α`/`imChiN α` stratification. -/
 theorem oddId_range_chiCycKTwo (B : MarkedRecip Rec K) {h : ℕ}
     (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
