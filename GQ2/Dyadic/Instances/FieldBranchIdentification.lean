@@ -72,25 +72,27 @@ clause `chiCyc_recip_uniformizer` is doing real work.
 
 ## What is carried, and what is not
 
-Nothing here is carried at `ℚ₂(√10)` and `ℚ₂(√−10)`: those two close over the field's own
-reciprocity bundle and the standing instance binders, exactly like the two fields of §0.
+**Nothing is carried at any of the three.**  Each closes over the field's own reciprocity bundle
+and the standing instance binders, exactly like the two fields of §0.
 
-`ℚ₂(√5)` is different, and the difference is recorded honestly in §3.  It is the one **unramified**
-field of the five, and the classification's ramification input
-(`¬ HasEqualNormValueGroups K δi`) is supplied in the tree only by
-`Fields.not_hasEqualNormValueGroups_quadField`, whose hypothesis is `Odd a.valuation`.  That
-hypothesis holds at `−2, 2, 10, −10` and fails at `5`.  So the `ℚ₂(√5)` identity is landed as an
-implication over a named binder, `FieldIdSqrtFiveRamified`, and §3 says precisely what that binder
-is and why it is true; it is not asserted.
+One asymmetry is worth recording because it decides which entry point each field uses.  The
+classification `evenRange_range_eq` needs a ramification input, `¬ HasEqualNormValueGroups K δi`,
+and the tree's only supplier is `Fields.not_hasEqualNormValueGroups_quadField`, whose hypothesis
+is `Odd a.valuation`.  That holds at `−10` and `10` and **fails at `5`**: `ℚ₂(√5)` is the
+unramified row (`Fields.lean:243`, `q_K = 4`), and the tree carries no
+`not_hasEqualNormValueGroups_KSqrtFive`.  So `ℚ₂(√5)` cannot use that entry.  It does not need
+to: the *other* committed entry, `evenRange_range_eq_imChiM`, takes `−1 ∈ range χ` in place of the
+ramification binder, and `N(2 + √5) = 4 − 5 = −1` supplies it from the same bundle clause as
+everything else here.  The `ℚ₂(√5)` row therefore costs one extra element, not one extra binder.
 
 ## Numbering
 
 0. the two fields already closed, restated;
-1. the cyclotomic value `≡ 5 (mod 8)` at each of the three `DM 2 0` fields;
-2. the criterion: one such value pins the range at `imChiM 2` at a quadratic field;
-3. `ℚ₂(√10)` and `ℚ₂(√−10)`: the range identity and the oriented endpoint, over the field's bundle;
-4. `ℚ₂(√5)`: the same, over the named ramification binder;
-5. the composite: the five rows side by side;
+1. the criterion's arithmetic: the residues modulo `8` of `imChiN 2` and `imChiM 3`;
+2. the criterion itself, in its two entry forms;
+3. cyclotomic values from norms, including at an element of odd valuation;
+4. the three fields' elements, units and norms;
+5. the three range identities and the three oriented endpoints;
 6. axiom pins.
 -/
 
@@ -394,5 +396,149 @@ theorem fieldId_norm_eltSqrtNegTen :
   norm_num
 
 end Witnesses
+
+/-! ## §5 The three range identities and the three oriented endpoints
+
+Each is one application of §2 to the field's own witness.  `ℚ₂(√10)` and `ℚ₂(√−10)` are ramified
+and use the ramified entry with `Fields.not_hasEqualNormValueGroups_KSqrt{Ten,NegTen}`; `ℚ₂(√5)`
+is unramified and uses the `M`-branch entry with `N(2 + √5) = −1`.  All three then compose with
+`EvenParity.parityFinal_orientedEquivM_of_range` at `(α, h) = (2, 0)`. -/
+
+section Endpoints
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **`−1` IS A CYCLOTOMIC VALUE AT `ℚ₂(√5)`**, from the field's own bundle: `N(2 + √5) = −1`. -/
+theorem fieldId_neg_one_mem_sqrtFive (B : MarkedRecip R KSqrtFive) :
+    (-1 : ℤ_[2]ˣ) ∈ MonoidHom.range (chiCycKTwo (K := KSqrtFive)).toMonoidHom := by
+  have h := fieldId_inv_mem_range_of_norm B fieldId_eltSqrtFiveNegOne (-1 : ℤ_[2]ˣ) 0
+    fieldId_norm_eltSqrtFiveNegOne
+  simpa using h
+
+/-- **`hrange` AT `ℚ₂(√5)`, PROVED.**  The cyclotomic image on `G_K(2)` for `K = ℚ₂(√5)` is
+`imChiM 2`, the image the `sqrtFive` row's core `DM 2 0` asks for.  Over the field's own
+reciprocity bundle and the standing instance binders; **no ramification input**, which matters
+because `ℚ₂(√5)` is the unramified row and the tree supplies none there. -/
+theorem fieldId_hrange_sqrtFive (B : MarkedRecip R KSqrtFive) :
+    MonoidHom.range (chiCycKTwo (K := KSqrtFive)).toMonoidHom = imChiM 2 :=
+  fieldId_range_eq_imChiM_two_of_negOne B finrank_KSqrtFive (fieldId_neg_one_mem_sqrtFive B)
+    (fieldId_inv_mem_range_of_norm B fieldId_eltSqrtFive fieldId_unitNegNineteen 0
+      fieldId_norm_eltSqrtFive)
+    (fieldId_toZModPow_inv fieldId_toZModPow_unitNegNineteen)
+
+/-- **`hrange` AT `ℚ₂(√10)`, PROVED.**  Over the field's own reciprocity bundle and the standing
+instance binders. -/
+theorem fieldId_hrange_sqrtTen (B : MarkedRecip R KSqrtTen) :
+    MonoidHom.range (chiCycKTwo (K := KSqrtTen)).toMonoidHom = imChiM 2 :=
+  fieldId_range_eq_imChiM_two_of_ram B _
+    GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq
+    (not_hasEqualNormValueGroups_KSqrtTen _
+      GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq)
+    finrank_KSqrtTen
+    (fieldId_inv_mem_range_of_norm B fieldId_eltSqrtTen fieldId_unitNegThree 1
+      fieldId_norm_eltSqrtTen)
+    (fieldId_toZModPow_inv fieldId_toZModPow_unitNegThree)
+
+/-- **`hrange` AT `ℚ₂(√−10)`, PROVED.**  Over the field's own reciprocity bundle and the standing
+instance binders. -/
+theorem fieldId_hrange_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) :
+    MonoidHom.range (chiCycKTwo (K := KSqrtNegTen)).toMonoidHom = imChiM 2 :=
+  fieldId_range_eq_imChiM_two_of_ram B _
+    GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq
+    (not_hasEqualNormValueGroups_KSqrtNegTen _
+      GQ2.Dyadic.EvenParity.evenParity_sqrtIn_neg_one_sq)
+    finrank_KSqrtNegTen
+    (fieldId_inv_mem_range_of_norm B fieldId_eltSqrtNegTen fieldId_unitFive 1
+      fieldId_norm_eltSqrtNegTen)
+    (fieldId_toZModPow_inv fieldId_toZModPow_unitFive)
+
+/-- **THE `sqrtFive` ROW'S CLASSIFICATION DATUM.**  `G_K(2)` for `K = ℚ₂(√5)` is
+oriented-isomorphic to the `M` core at depth `2` and handle count `0`, over the field's
+reciprocity bundle and the standing instance binders alone. -/
+theorem fieldId_orientedEquivM_sqrtFive [T2Space (GalK KSqrtFive)] (B : MarkedRecip R KSqrtFive) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 2 0) (chiCycKTwo (K := KSqrtFive))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_of_range (le_refl 2)
+    (fieldId_hrange_sqrtFive B) (by rw [finrank_KSqrtFive])
+
+/-- **THE `sqrtTen` ROW'S CLASSIFICATION DATUM.** -/
+theorem fieldId_orientedEquivM_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 2 0) (chiCycKTwo (K := KSqrtTen))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_of_range (le_refl 2)
+    (fieldId_hrange_sqrtTen B) (by rw [finrank_KSqrtTen])
+
+/-- **THE `sqrtNegTen` ROW'S CLASSIFICATION DATUM.** -/
+theorem fieldId_orientedEquivM_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip R KSqrtNegTen) :
+    Nonempty (OrientedContinuousMulEquiv (chiM 2 0) (chiCycKTwo (K := KSqrtNegTen))) :=
+  GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_of_range (le_refl 2)
+    (fieldId_hrange_sqrtNegTen B) (by rw [finrank_KSqrtNegTen])
+
+end Endpoints
+
+/-! ## §6 Axiom pins
+
+Every declaration of this file, printed beside the committed even-route endpoints it consumes.
+Two sets appear, and both are already committed.
+
+* The **range identities** of §5 and everything they rest on are at the standard three,
+  `propext, Classical.choice, Quot.sound`, matching `evenRange_range_eq`,
+  `evenRange_range_eq_imChiM` and the two §0 restatements.  So the branch identification itself
+  costs no arithmetic axiom at any of the five fields.
+* The **oriented endpoints** are at the even route's endpoint set, the standard three plus
+  `hilbertSymbol_normCriterion_finiteDyadic`, `tateDualityAt`,
+  `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` and
+  `Foundations.absGalQ2_localEulerCharacteristic`.  That is exactly the set of
+  `EvenParity.parityFinal_orientedEquivM_of_range`, the committed endpoint they call: the three
+  new endpoints add nothing to it. -/
+
+section AxiomPins
+
+-- §0 the two fields already closed, restated
+#print axioms fieldId_hrange_sqrtNegTwo
+#print axioms fieldId_hrange_sqrtTwo
+
+-- §1 the residues modulo `8`
+#print axioms fieldId_toZModPow_nUnit_two
+#print axioms fieldId_toZModPow_inv
+#print axioms fieldId_notMem_imChiN_two
+#print axioms fieldId_notMem_imChiM_three
+
+-- §2 the criterion
+#print axioms fieldId_range_eq_imChiM_two_of_classify
+#print axioms fieldId_range_eq_imChiM_two_of_ram
+#print axioms fieldId_range_eq_imChiM_two_of_negOne
+
+-- §3 values from norms
+#print axioms fieldId_inv_mem_range_of_norm
+
+-- §4 the units, elements and norms
+#print axioms fieldId_unitNegNineteen_val
+#print axioms fieldId_unitNegThree_val
+#print axioms fieldId_unitFive_val
+#print axioms fieldId_toZModPow_unitNegNineteen
+#print axioms fieldId_toZModPow_unitNegThree
+#print axioms fieldId_toZModPow_unitFive
+#print axioms fieldId_norm_eltSqrtFive
+#print axioms fieldId_norm_eltSqrtFiveNegOne
+#print axioms fieldId_norm_eltSqrtTen
+#print axioms fieldId_norm_eltSqrtNegTen
+
+-- §5 the three range identities and the three endpoints
+#print axioms fieldId_neg_one_mem_sqrtFive
+#print axioms fieldId_hrange_sqrtFive
+#print axioms fieldId_hrange_sqrtTen
+#print axioms fieldId_hrange_sqrtNegTen
+#print axioms fieldId_orientedEquivM_sqrtFive
+#print axioms fieldId_orientedEquivM_sqrtTen
+#print axioms fieldId_orientedEquivM_sqrtNegTen
+
+-- the committed endpoints consumed, for the side-by-side
+#print axioms GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_of_range
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq
+#print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq_imChiM
+#print axioms GQ2.Dyadic.EvenRangeModel.hrangeFinal_sqrtNegTwo
+#print axioms GQ2.Dyadic.EvenRangePolish.hrangeFinal_sqrtTwo'
+
+end AxiomPins
 
 end GQ2.Dyadic.FieldBranchId
