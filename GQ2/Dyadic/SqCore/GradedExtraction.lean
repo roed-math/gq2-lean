@@ -519,7 +519,14 @@ end Separation
 /-! ## §5 The reduction with the separation removed
 
 Wave 78's repaired reduction took three inputs.  §4 discharges the second, so what is left
-of the odd route is the depth-3 base and the extraction. -/
+of the odd route is the depth-3 base and the extraction.
+
+⚠ **Marked at the wave-79 merge (orchestrator).**  This lane's sibling refuted its remaining
+layer input in the same wave: `gDeep_not_baseThree` (`GradedDepthThree.lean`) proves
+`¬ GDecideBaseThree h` at every `h`, so the three `_of_baseThree` composites below are TRUE
+WITH UNSATISFIABLE HYPOTHESES.  They are kept as the record of the two-input shape.  The live
+route is the sibling's kill ladder, `gDeep_markTransitivity_of_kills`, which consumes exactly
+this file's `gExt_separationAll`; with it, `gDeep_supply_five` needs only the extraction. -/
 
 section Collapse
 
