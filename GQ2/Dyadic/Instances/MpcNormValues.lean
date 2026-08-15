@@ -833,6 +833,116 @@ theorem mpcNorm_level_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) : B.r = 1 :=
 
 end Rows
 
+/-! ## §10 T1: the freeness of `ℤ₂ˣ` as `⟨−1⟩ × (mUnit 2)^{ℤ₂}`
+
+Wave 80 §3.3 named this the single missing input for the pivot: the tree has *generation*
+(`imChiM 2 = ⊤`, `neg_one_mem_imChiM`, `mUnit_mem_imChiM`) but not the **uniqueness** of the
+decomposition, and only uniqueness rules out relations.
+
+Only the uniqueness half is needed below, and it is short with the tree's own `zpowZtwo`
+calculus:
+
+* `(mUnit 2)^t` stays in the closed subgroup `1 + 4ℤ₂` for every `t : ℤ₂`, because
+  `mUnit 2 = (1 − 4)⁻¹ ≡ 1 (mod 4)` and `zpowZtwo_mem_topologicalClosure`;
+* `(−1)^s` is `1` or `−1` according to the parity of `s`, and `−1 ≢ 1 (mod 4)`;
+* on the residual `(mUnit 2)^t = 1` the tree's own `zpowZtwo_injective_neg_three_inv` gives
+  `t = 0`.
+
+So `(−1)^s · (mUnit 2)^t = 1` forces `s` even **and** `t = 0`, which is exactly freeness. -/
+
+section Freeness
+
+/-- The `2`-adic units congruent to `1` modulo `4`. -/
+def mpcNorm_oneModFour : Subgroup ℤ_[2]ˣ where
+  carrier := {u : ℤ_[2]ˣ | PadicInt.toZModPow 2 ((u : ℤ_[2])) = 1}
+  mul_mem' := by
+    intro x y hx hy
+    show PadicInt.toZModPow 2 ((x * y : ℤ_[2]ˣ) : ℤ_[2]) = 1
+    rw [Units.val_mul, map_mul, hx, hy, mul_one]
+  one_mem' := by
+    show PadicInt.toZModPow 2 ((1 : ℤ_[2]ˣ) : ℤ_[2]) = 1
+    rw [Units.val_one, map_one]
+  inv_mem' := by
+    intro x hx
+    show PadicInt.toZModPow 2 ((x⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1
+    have hmul : PadicInt.toZModPow 2 ((x⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+        * PadicInt.toZModPow 2 ((x : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+      rw [← map_mul, ← Units.val_mul, inv_mul_cancel, Units.val_one, map_one]
+    rw [hx, mul_one] at hmul
+    exact hmul
+
+theorem mpcNorm_isClosed_oneModFour : IsClosed (mpcNorm_oneModFour : Set ℤ_[2]ˣ) := by
+  rw [← isOpen_compl_iff]
+  have hset : (mpcNorm_oneModFour : Set ℤ_[2]ˣ)ᶜ
+      = (fun u : ℤ_[2]ˣ => ((u : ℤ_[2]))) ⁻¹'
+        (PadicInt.toZModPow (p := 2) 2 ⁻¹' (({1} : Set (ZMod (2 ^ 2)))ᶜ)) := rfl
+  rw [hset]
+  exact (GQ2.isOpen_preimage_toZModPow 2 _).preimage Units.continuous_val
+
+/-- `mUnit 2 = (1 − 4)⁻¹ ≡ 1 (mod 4)`. -/
+theorem mpcNorm_mUnitTwo_mem_oneModFour : mUnit 2 ∈ mpcNorm_oneModFour := by
+  show PadicInt.toZModPow 2 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2])) = 1
+  have hres : PadicInt.toZModPow 2 ((1 : ℤ_[2]) - 2 ^ 2) = 1 := by
+    rw [show ((1 : ℤ_[2]) - 2 ^ 2) = (((-3 : ℤ)) : ℤ_[2]) by norm_cast, map_intCast]
+    decide
+  have h1 : PadicInt.toZModPow 2 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]))
+      * PadicInt.toZModPow 2 ((1 : ℤ_[2]) - 2 ^ 2) = 1 := by
+    rw [← map_mul, mUnit_mul (α := 2) one_le_two, map_one]
+  rwa [hres, mul_one] at h1
+
+/-- **Every `ℤ₂`-power of `mUnit 2` is `≡ 1 (mod 4)`.**  The half of freeness that separates the
+procyclic factor from `⟨−1⟩`. -/
+theorem mpcNorm_zpow_mUnitTwo_mem (t : ℤ_[2]) :
+    GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) t ∈ mpcNorm_oneModFour := by
+  refine Subgroup.topologicalClosure_minimal (Subgroup.closure ({mUnit 2} : Set ℤ_[2]ˣ)) ?_
+    mpcNorm_isClosed_oneModFour (GQ2.zpowZtwo_mem_topologicalClosure _ _ t)
+  rw [Subgroup.closure_le]
+  rintro _ rfl
+  exact mpcNorm_mUnitTwo_mem_oneModFour
+
+theorem mpcNorm_zpow_negOne_even {s : ℤ_[2]} (hs : ∃ y : ℤ_[2], s = 2 * y) :
+    GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) s = 1 := by
+  obtain ⟨y, rfl⟩ := hs
+  have hsq : GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) 2 = 1 := by
+    rw [show ((2 : ℤ_[2])) = (((2 : ℕ)) : ℤ_[2]) by norm_cast, GQ2.zpowZtwo_natCast]
+    exact neg_one_sq
+  rw [← GQ2.zpowZtwo_zpowZtwo, hsq, GQ2.zpowZtwo_one_base]
+
+theorem mpcNorm_zpow_negOne_odd {s : ℤ_[2]} (hs : ∃ y : ℤ_[2], s = 1 + 2 * y) :
+    GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) s = -1 := by
+  obtain ⟨y, rfl⟩ := hs
+  rw [GQ2.zpowZtwo_add, GQ2.zpowZtwo_one_exp, mpcNorm_zpow_negOne_even ⟨y, rfl⟩, mul_one]
+
+theorem mpcNorm_zpow_mUnitTwo_injective :
+    Function.Injective (GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2)) :=
+  GQ2.zpowZtwo_injective_neg_three_inv (oneSubTwoPow 2)
+    (by rw [oneSubTwoPow_val one_le_two]; norm_num)
+
+/-- **THE FREENESS OF `ℤ₂ˣ`, uniqueness half.**  `(−1)^s · (mUnit 2)^t = 1` forces `s` even and
+`t = 0`.  With the tree's generation (`imChiM 2 = ⊤`) this is the decomposition
+`ℤ₂ˣ = ⟨−1⟩ × (mUnit 2)^{ℤ₂}`, and it is the input wave 80 §3.3 identified as missing. -/
+theorem mpcNorm_free_unique {s t : ℤ_[2]}
+    (h : GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) s
+        * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) t = 1) :
+    (∃ y : ℤ_[2], s = 2 * y) ∧ t = 0 := by
+  rcases mpcRow_even_or_odd s with hev | hod
+  · refine ⟨hev, ?_⟩
+    rw [mpcNorm_zpow_negOne_even hev, one_mul] at h
+    refine mpcNorm_zpow_mUnitTwo_injective ?_
+    rw [h, show ((0 : ℤ_[2])) = (((0 : ℕ)) : ℤ_[2]) by norm_cast, GQ2.zpowZtwo_natCast, pow_zero]
+  · exfalso
+    rw [mpcNorm_zpow_negOne_odd hod] at h
+    have hX : GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) t = -1 := by
+      have hcalc := congrArg (fun z : ℤ_[2]ˣ => (-1 : ℤ_[2]ˣ) * z) h
+      simpa using hcalc
+    have hmem := mpcNorm_zpow_mUnitTwo_mem t
+    rw [hX] at hmem
+    have hres : PadicInt.toZModPow 2 (((-1 : ℤ_[2]ˣ) : ℤ_[2])) = 1 := hmem
+    rw [show (((-1 : ℤ_[2]ˣ) : ℤ_[2])) = (((-1 : ℤ)) : ℤ_[2]) by norm_cast, map_intCast] at hres
+    exact absurd hres (by decide)
+
+end Freeness
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
