@@ -10,6 +10,9 @@ import GQ2.Dyadic.Instances.GammaLOddDegreeSingleResidual
 import GQ2.Dyadic.Instances.GammaLOddDegreeBridge
 import GQ2.Dyadic.DemushkinQRamifiedI
 import GQ2.Dyadic.OddDegreeRamifiedI
+import GQ2.Dyadic.LocalGauss.Q0
+import GQ2.Dyadic.MarkedCore.NFrameAlphaOne
+import GQ2.PropOneOneAssembly
 
 /-!
 # The oriented identification at the odd slot  (dyadic campaign, lane W81-ODDID)
@@ -224,6 +227,129 @@ theorem oddId_candidate_equiv_galK_of_supply (B : MarkedRecip Rec K)
   exact ⟨G, hG, fun F S => genAsm_candidate_equiv_galK G F S⟩
 
 end Consumer
+
+/-! ## §4 The invariants at odd degree
+
+The classical route to the odd slot would run: compute the three invariants of `G_K(2)`
+(full cyclotomic image, Demushkin rank `[K : ℚ₂] + 2`, `q = 2`), then apply the `q = 2`
+Demushkin classification.  The tree's forward route makes the equivalence first, so here the
+invariants COME OUT of the identification rather than feed it.  Two are theorems; the third
+relocates exactly onto the model group.
+
+* **Full image**: at odd degree `χ_cyc` is onto `ℤ₂ˣ` on `G_K(2)`, because `χ_sq` is onto
+  (`SqCore.chiSq_surjective`) and the free equivalence matches them.  So there is no range
+  dichotomy at odd degree: the even side's `imChiM α`/`imChiN α` stratification has no odd
+  analogue, exactly as the campaign briefing predicted.
+* **Rank**: `demushkinRank 2 (G_K(2)) = [K : ℚ₂] + 2`, by transporting `H¹(−, 𝔽₂)` along the
+  equivalence (`H1congrGroup`) into the committed model count `dsq_demushkinRank`.
+* **`q`-invariant**: `demushkinQ` transports along any continuous equivalence
+  (`oddId_demushkinQ_congr`), so `demushkinQ (G_K(2)) = demushkinQ (D_sq h)` — and
+  `demushkinQ (D_sq h) = 2` is exactly the model computation the tree does NOT yet have
+  (`SqCore/DsqDemushkin.lean` records its absence; both precedents needed an explicit
+  abelianization frame, and the square family has none).  Consequently the arithmetic torsion
+  premise of `DemushkinQRamifiedI.lean` is EQUIVALENT, at every odd-degree field at handle
+  count `h`, to that single field-free model statement: one abelianization-frame computation
+  on `D_sq h` would discharge `MaxProTwoAbTorsionGeneratedByFieldRoots B` at every odd-degree
+  `K` at once.  That relocation is `oddId_torsionPremise_iff_model`. -/
+
+section QCongr
+
+/-- **`demushkinQ` is an invariant of the topological group**: it transports along any
+continuous multiplicative equivalence of profinite groups.  The torsion subtype of the
+topological abelianization is carried by `topAbCongr`. -/
+theorem oddId_demushkinQ_congr {G G' : Type*}
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    [Group G'] [TopologicalSpace G'] [IsTopologicalGroup G']
+    [CompactSpace G'] [T2Space G'] [TotallyDisconnectedSpace G']
+    (φ : ContinuousMulEquiv G G') : demushkinQ G = demushkinQ G' :=
+  Nat.card_congr (MarkedCore.mulEquivSubtypeIsOfFinOrder (topAbCongr φ).toMulEquiv)
+
+end QCongr
+
+section Invariants
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [T2Space (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **Full cyclotomic image at odd degree.**  The descended cyclotomic character is onto
+`ℤ₂ˣ` on `G_K(2)`: the free oriented equivalence matches it with `χ_sq`, which is onto by the
+committed Burnside argument (`SqCore.chiSq_surjective`). -/
+theorem oddId_chiCycKTwo_surjective (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    Function.Surjective (chiCycKTwo (K := K)) := by
+  obtain ⟨e⟩ := oddId_orientedEquiv B hdeg
+  intro u
+  obtain ⟨x, hx⟩ := chiSq_surjective h u
+  exact ⟨e.1 x, (e.2 x).trans hx⟩
+
+/-- The range form: at odd degree there is no cyclotomic-range dichotomy — the image is all of
+`ℤ₂ˣ`, in contrast with the even side's `imChiM α`/`imChiN α` stratification. -/
+theorem oddId_range_chiCycKTwo (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = ⊤ :=
+  MonoidHom.range_eq_top.mpr (oddId_chiCycKTwo_surjective B hdeg)
+
+/-- **The `q`-invariant of `G_K(2)` is the model's.**  At `[K : ℚ₂] = 2h + 1`,
+`demushkinQ (G_K(2)) = demushkinQ (D_sq h)` outright. -/
+theorem oddId_demushkinQ_eq_model (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    demushkinQ (maxProPQuotient 2 (GalK K)) = demushkinQ (DSq h : Type) := by
+  obtain ⟨e⟩ := oddId_orientedEquiv B hdeg
+  exact (oddId_demushkinQ_congr e.1).symm
+
+/-- **The exact relocation of the torsion premise onto the model.**  For odd-degree `K` at
+handle count `h`, the remaining local-CFT torsion premise of `DemushkinQRamifiedI.lean`
+(every finite-order class of `G_K(2)^ab` comes from a 2-primary root of unity in `K`) is
+equivalent to the single field-free statement `demushkinQ (D_sq h) = 2`.  The ramified-`i`
+input is free at odd degree (`ramifiedIData_of_odd_finrank`).
+
+`demushkinQ (D_sq h) = 2` is not yet a theorem of the tree (`SqCore/DsqDemushkin.lean`
+records exactly this absence); one abelianization-frame computation on `D_sq h`, in the
+pattern of `demushkinQ_DR` or `NFrameModel4`, would discharge the arithmetic premise at every
+odd-degree field simultaneously. -/
+theorem oddId_torsionPremise_iff_model (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    MaxProTwoAbTorsionGeneratedByFieldRoots B ↔ demushkinQ (DSq h : Type) = 2 := by
+  have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
+  rw [← oddId_demushkinQ_eq_model B hdeg]
+  exact maxProTwoAbTorsionGeneratedByFieldRoots_iff_demushkinQ_eq_two B hodd
+    (ramifiedIData_of_odd_finrank K hodd)
+
+/-! The rank statement fixes the coefficient action on both sides to be the canonical scalar
+action, exactly as the committed model count does. -/
+
+noncomputable local instance : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+noncomputable local instance : ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+noncomputable local instance (h : ℕ) : DistribMulAction (DSq h : Type) (ZMod 2) :=
+  scalarActionZmodTwo _
+
+noncomputable local instance (h : ℕ) : ContinuousSMul (DSq h : Type) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+open ContCoh in
+/-- **The Demushkin rank of `G_K(2)` at odd degree**: `[K : ℚ₂] + 2`, i.e. `3 + 2h`.  Proof:
+transport `H¹(−, 𝔽₂)` along the free equivalence and read off the committed model count
+`dsq_demushkinRank`. -/
+theorem oddId_demushkinRank (B : MarkedRecip Rec K) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    demushkinRank 2 (maxProPQuotient 2 (GalK K)) = Module.finrank ℚ_[2] K + 2 := by
+  obtain ⟨e⟩ := oddId_orientedEquiv B hdeg
+  have hcard : Nat.card (H1 (DSq h : Type) (ZMod 2)) =
+      Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :=
+    Nat.card_congr (H1congrGroup e.1 (AddEquiv.refl (ZMod 2))
+      continuous_of_discreteTopology continuous_of_discreteTopology
+      (fun _ _ => rfl)).toEquiv
+  have hmodel := dsq_demushkinRank h
+  simp only [demushkinRank] at hmodel ⊢
+  rw [← hcard, hmodel, hdeg]
+  ring
+
+end Invariants
 
 end
 
