@@ -697,6 +697,166 @@ theorem gXf_frame_mem_move {hk : 2 ≤ k}
       (fun i hij => hcls _ _ (fun hc => hij (SqHandleIdx.u_injective hc)))
       (fun i => hcls _ _ (SqHandleIdx.v_ne_u i j)), hself _]
 
+/-! ### The knobs of an `x₁`-free frame -/
+
+section Knobs
+
+variable {j : Fin h} {a : Fin (sqRank h) → (DSq h : Type)}
+
+/-- The undressed frame is far away from `x₁` at every slot but the `x₁`-slot. -/
+theorem gXf_arbBase_far {i : Fin (sqRank h)} (hi : i ≠ 2) :
+    sqArbBase h nu' j i ∈ gTowerFar h := by
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j', rfl⟩ | ⟨j', rfl⟩
+  · rw [sqArbBase_zero]
+    exact gBase_sigma_far
+  · rw [sqArbBase_one]
+    exact gBase_x0_far
+  · exact absurd rfl hi
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqArbBase_handleU]
+      exact gAbs_eichU_far j'
+    · rw [sqArbBase_handleU_ne hjj]
+      exact gBase_handleU_far j'
+  · by_cases hjj : j' = j
+    · subst hjj
+      rw [sqArbBase_handleV]
+      exact gAbs_eichV_far j'
+    · rw [sqArbBase_handleV_ne hjj]
+      exact gBase_handleV_far j'
+
+/-- ⭐ **The non-`x₁` slots of an `x₁`-free frame are `x₁`-free**: the base letter is far and the
+dressing is `x₁`-free. -/
+theorem gXf_frame_mem_half (hfree : GXfFree h a) {i : Fin (sqRank h)} (hi : i ≠ 2) :
+    sqArbFrame h nu' j a i ∈ gXfHalf h :=
+  (gXfHalf h).mul_mem (gXf_far_le_half (gXf_arbBase_far hi)) (gXf_free_mem_half hfree i)
+
+/-- ⭐ **The `x₁`-slot of an `x₁`-free frame is not `x₁`-free**: its base letter is `x₁`. -/
+theorem gXf_frame_two_notMem_half (hfree : GXfFree h a) :
+    sqArbFrame h nu' j a 2 ∉ gXfHalf h := by
+  intro hc
+  refine gXf_xOne_notMem_half (h := h) ?_
+  have hx : dsqX1 h = sqArbFrame h nu' j a 2 * (a 2)⁻¹ := by
+    show dsqX1 h = sqArbBase h nu' j 2 * a 2 * (a 2)⁻¹
+    rw [sqArbBase_two]
+    group
+  rw [hx]
+  exact (gXfHalf h).mul_mem hc ((gXfHalf h).inv_mem (gXf_free_mem_half hfree 2))
+
+/-- The class of a group-level bracket is the bracket of the classes. -/
+theorem gXf_levelMk_commP (g g' : (DSq h : Type)) :
+    levelMk (DSq h : Type) (k + 2) (commP g g')
+      = commP (levelMk (DSq h : Type) (k + 2) g) (levelMk (DSq h : Type) (k + 2) g') := by
+  simp only [commP, map_mul, map_inv]
+
+/-- ⭐⭐⭐ **On an `x₁`-free frame, the bracket of an admissible correction against any
+`x₁`-free element is a move.**  This is where the half-space theorem of §3 is spent: the
+comap of the move subgroup along the bracket is a closed subgroup carrying `γ₂` and the
+`2 + 2h` non-`x₁` frame slots, so it carries the whole far span. -/
+theorem gXf_span_mem_move (hk : 2 ≤ k) (hfree : GXfFree h a)
+    (hindep : SqModTwoIndep (sqArbFrame h nu' j a)) {t : (DSq h : Type)}
+    (ht : GTowerAdm h nu' k t) {q : (DSq h : Type)} (hq : q ∈ gXfSpan h) :
+    levelMk (DSq h : Type) (k + 2) (commP t q)
+      ∈ gXfMove nu' hk (fun i => levelMk (DSq h : Type) (k + 2) (sqArbFrame h nu' j a i)) := by
+  set m := fun i => levelMk (DSq h : Type) (k + 2) (sqArbFrame h nu' j a i) with hm
+  set K := Subgroup.comap (cfiveCommHom ht.1) (gXfMove nu' hk m) with hK
+  have hKc : IsClosed ((K : Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    haveI : DiscreteTopology (levelQuot (DSq h : Type) (k + 2)) := gTower_discrete (k + 2)
+    rw [hK, Subgroup.coe_comap]
+    refine IsClosed.preimage ?_ (isClosed_discrete _)
+    show Continuous fun g => levelMk (DSq h : Type) (k + 2) (commP t g)
+    simp only [commP]
+    exact (continuous_levelMk (DSq h : Type) (k + 2)).comp (by fun_prop)
+  have hgam : twoCentralSeries (DSq h : Type) 2 ≤ K := by
+    intro z hz
+    show cfiveCommHom ht.1 z ∈ gXfMove nu' hk m
+    rw [cfive_commHom_apply, gXf_levelMk_commP,
+      gTower_commP_vanish ⟨t, ht.1, rfl⟩ ⟨z, hz, rfl⟩]
+    exact Subgroup.one_mem _
+  have hfar : gTowerFar h ≤ K := by
+    refine gXf_far_le_of_slots hindep hKc hgam (fun i hi => ?_)
+      (fun i hi => gXf_frame_mem_half hfree hi) (gXf_frame_two_notMem_half hfree)
+    show cfiveCommHom ht.1 (sqArbFrame h nu' j a i) ∈ gXfMove nu' hk m
+    rw [cfive_commHom_apply, gXf_levelMk_commP]
+    exact gXf_frame_mem_move ht hi
+  exact sup_le hfar hgam hq
+
+/-- ⭐⭐⭐ **Every knob generator of an `x₁`-free frame is a move.**  The far knobs are the
+previous theorem.  The bundle knob is the `x₁`-slot move corrected by one far knob: the
+`x₁`-slot frame value is `x₁` times its own `x₁`-free dressing, and the bracket against that
+dressing is itself a move. -/
+theorem gXf_knobSet_le_move (hk : 2 ≤ k) (hfree : GXfFree h a)
+    (hindep : SqModTwoIndep (sqArbFrame h nu' j a)) :
+    gTowerKnobSet h nu' k ⊆
+      gXfMove nu' hk (fun i => levelMk (DSq h : Type) (k + 2) (sqArbFrame h nu' j a i)) := by
+  set m := fun i => levelMk (DSq h : Type) (k + 2) (sqArbFrame h nu' j a i) with hm
+  rintro z (⟨t, q, ht, hq, rfl⟩ | ⟨t, ht, rfl⟩)
+  · exact gXf_span_mem_move hk hfree hindep ht (gXf_far_le_span hq)
+  · set T := levelMk (DSq h : Type) (k + 2) t with hT
+    set X := levelMk (DSq h : Type) (k + 2) (dsqX1 h) with hX
+    set A := levelMk (DSq h : Type) (k + 2) (a 2) with hA
+    have hTmem : T ∈ lambdaImage (DSq h : Type) k (k + 2) := ⟨t, ht.1, rfl⟩
+    have hm2 : m 2 = X * A := by
+      show levelMk (DSq h : Type) (k + 2) (sqArbBase h nu' j 2 * a 2) = X * A
+      rw [sqArbBase_two, map_mul]
+    have hzX : commP T X ∈ zLayer (DSq h : Type) (k + 1) :=
+      cfive_commP_mem_zLayer_left hTmem X
+    have hzA : commP T A ∈ zLayer (DSq h : Type) (k + 1) :=
+      cfive_commP_mem_zLayer_left hTmem A
+    have hslot : gExtMove k m (fun i => levelMk (DSq h : Type) (k + 2) (gXfSlot h 2 t i))
+        = T ^ 2 * commP T X * commP T A := by
+      have hcls : ∀ i : Fin (sqRank h), i ≠ 2 →
+          levelMk (DSq h : Type) (k + 2) (gXfSlot h 2 t i) = 1 := by
+        intro i hne
+        rw [gXfSlot_ne hne, map_one]
+      rw [gXf_move_two _ _ (hcls 0 gXf_zero_ne_two) (hcls 1 gXf_one_ne_two)
+        (fun i => hcls _ (SqHandleIdx.u_ne_of_val_lt i (by rw [sqVal_two]; omega)))
+        (fun i => hcls _ (SqHandleIdx.v_ne_of_val_lt i (by rw [sqVal_two]; omega)))]
+      rw [show gXfSlot h 2 t 2 = t from gXfSlot_self 2 t, ← hT, hm2,
+        cfour_commP_mul_right, cfive_commP_zLayer_left hzX A, mul_one,
+        ← gTower_zLayer_comm hzA (commP T X), ← mul_assoc]
+    have hmove : T ^ 2 * commP T X * commP T A ∈ gXfMove nu' hk m :=
+      hslot ▸ ⟨gXfSlot h 2 t, gXf_slot_adm ht 2, rfl⟩
+    have hAmove : commP T A ∈ gXfMove nu' hk m := by
+      have hspan := gXf_span_mem_move hk hfree hindep ht (hfree 2)
+      rwa [gXf_levelMk_commP] at hspan
+    have hbundle : levelMk (DSq h : Type) (k + 2) (t ^ 2 * commP t (dsqX1 h))
+        = T ^ 2 * commP T X := by
+      rw [map_mul, map_pow, gXf_levelMk_commP]
+    rw [hbundle]
+    have hfin := Subgroup.mul_mem _ hmove (Subgroup.inv_mem _ hAmove)
+    rwa [mul_inv_cancel_right] at hfin
+
+/-- ⭐⭐⭐ **The whole knob span consists of moves**, on an `x₁`-free frame. -/
+theorem gXf_knobSpan_le_move (hk : 2 ≤ k) (hfree : GXfFree h a)
+    (hindep : SqModTwoIndep (sqArbFrame h nu' j a)) :
+    Subgroup.closure (gTowerKnobSet h nu' k) ≤
+      gXfMove nu' hk (fun i => levelMk (DSq h : Type) (k + 2) (sqArbFrame h nu' j a i)) :=
+  (Subgroup.closure_le _).2 (gXf_knobSet_le_move hk hfree hindep)
+
+/-- ⭐⭐⭐ **The extraction, on `x₁`-free dressings**: a knob-span defect class of an `x₁`-free
+frame is killed by an admissible depth-`k` correction tuple.  This is wave 74's item (ii),
+closed at the quantifier wave 79 showed it does close at.
+
+No row hypothesis on `a` and no `γ_{k+1}`-membership of the relator is used: the only inputs
+are the mod-two independence of the frame, the `x₁`-freeness of its dressing, and the knob-span
+membership of the defect. -/
+theorem gXf_realizable (hk : 2 ≤ k) (hfree : GXfFree h a)
+    (hindep : SqModTwoIndep (sqArbFrame h nu' j a))
+    (hknob : levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
+      ∈ Subgroup.closure (gTowerKnobSet h nu' k)) :
+    ∃ d : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, d i ∈ twoCentralSeries (DSq h : Type) k) ∧
+        (∀ i, nuLam h (d i) = 1) ∧ (∀ i, nu' (d i) = 1) ∧
+          sqRelWord (sqArbFrame h nu' j (fun i => a i * d i))
+            ∈ twoCentralSeries (DSq h : Type) (k + 2) := by
+  obtain ⟨d, hd, hEq⟩ := gXf_knobSpan_le_move hk hfree hindep (Subgroup.inv_mem _ hknob)
+  refine ⟨d, fun i => (hd i).1, fun i => (hd i).2.1, fun i => (hd i).2.2, ?_⟩
+  rw [lim_mem_twoCentralSeries_iff_levelMk, gExt_frame_move j hk a d (fun i => (hd i).1), ← hEq,
+    mul_inv_cancel]
+
+end Knobs
+
 end Extraction
 
 /-! ## §8 Axiom pins -/
@@ -759,6 +919,14 @@ section AxiomPinsXFree
 #print axioms gXf_mem_move
 #print axioms gXf_commP_swap
 #print axioms gXf_frame_mem_move
+#print axioms gXf_arbBase_far
+#print axioms gXf_frame_mem_half
+#print axioms gXf_frame_two_notMem_half
+#print axioms gXf_levelMk_commP
+#print axioms gXf_span_mem_move
+#print axioms gXf_knobSet_le_move
+#print axioms gXf_knobSpan_le_move
+#print axioms gXf_realizable
 
 end AxiomPinsXFree
 
