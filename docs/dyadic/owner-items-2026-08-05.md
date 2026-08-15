@@ -1,5 +1,23 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 76 (2026-08-15)
+
+**Two items await you**, one standing and one minor:
+
+* **The plan-A6 freeze** (wave 73; unchanged).
+* **Minor: a line-length policy.**  A count audit assumed a 100-character limit; none is
+  enforced anywhere, and 25 SqCore modules carry 19 or more such lines.  Adopt one, or record
+  that there is none.
+
+**For orientation.**  The n = 1 case of the general theorem is now unconditional, via a
+reusable certificate transport; producers exist on four of five rows plus the Npc row, which
+the frozen table never covered.  On the odd route the base identity landed with a third term
+that two prior notes missed, and the base's one remaining family looks false at depth 2 for a
+precise two-dimensional reason, recorded as an argument rather than a theorem; wave 77 decides
+it in a finite quotient and either discharges or re-cuts the induction one depth up.  A
+redundant audit produced two alarming counts that match the campaign's own documented
+method trap exactly; they are quarantined pending adjudication rather than recorded.
+
 ## Status at wave 75 (2026-08-15)
 
 **One item still awaits you**: the plan-A6 freeze question (wave 73; costs both ways and a
