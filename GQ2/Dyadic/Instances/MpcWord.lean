@@ -22,7 +22,7 @@ namespace GQ2.Dyadic.Instances.MpcWord
 
 open GQ2 GQ2.Dyadic GQ2.Dyadic.MarkedCore Multiplicative
 open GQ2.Dyadic.Instances.MpcPiv GQ2.Dyadic.Instances.MpcOrb
-open GQ2.Roe.Labute
+open GQ2.Roe.Labute GQ2.Dyadic.SqCore
 
 noncomputable section
 
@@ -352,6 +352,150 @@ theorem mpcWord_shift_of_forall_class (H : ∀ k, (mpcWordSet k).Nonempty) : Mpc
     (mpcWord_lambdaTwo_le_frat h3.1.1) (mpcWord_lambdaTwo_le_frat h4.1)
     h1.2 h2.2 h3.1.2 h4.2 (fun f => (mpcWord_mem_rowKer.mp h3.2) f) hall
 
+/-! ## §7 The per-class extension record: classes at most three are free
+
+The first rungs of the ladder cost nothing: *every* quadruple of `λ₂`-corrections solves the
+`M6` identity to class three.  So the whole residue of the ansatz sits at classes `k ≥ 4`, and
+the first class that can obstruct is class four. -/
+
+section Central
+
+variable {G : Type*} [Group G]
+
+private theorem mpcWord_conjP_center_left {x y z : G} (hz : ∀ w : G, z * w = w * z) :
+    conjP (x * z) y = conjP x y * z := by
+  simp only [conjP]
+  have hxy : x * z * y = x * y * z := by rw [mul_assoc, hz y, ← mul_assoc]
+  rw [mul_assoc, hxy]
+  group
+
+private theorem mpcWord_conjP_center_right {x y z : G} (hz : ∀ w : G, z * w = w * z) :
+    conjP x (y * z) = conjP x y := by
+  have hcen : ∀ w : G, z⁻¹ * w * z = w := by
+    intro w
+    rw [mul_assoc, ← hz w, ← mul_assoc, inv_mul_cancel, one_mul]
+  simp only [conjP, mul_inv_rev]
+  have hrw : z⁻¹ * y⁻¹ * x * (y * z) = z⁻¹ * (y⁻¹ * x * y) * z := by group
+  rw [hrw, hcen]
+
+private theorem mpcWord_commP_conjP (x y : G) : commP x y = x⁻¹ * conjP x y := by
+  simp only [commP, conjP]
+  group
+
+private theorem mpcWord_commP_center {x y zx zy : G} (hx : ∀ w : G, zx * w = w * zx)
+    (hy : ∀ w : G, zy * w = w * zy) : commP (x * zx) (y * zy) = commP x y := by
+  rw [mpcWord_commP_conjP, mpcWord_conjP_center_right hy, mpcWord_conjP_center_left hx,
+    mpcWord_commP_conjP]
+  have hrw : (x * zx)⁻¹ * (conjP x y * zx) = zx⁻¹ * ((x⁻¹ * conjP x y) * zx) := by group
+  rw [hrw, ← hx (x⁻¹ * conjP x y), ← mul_assoc, inv_mul_cancel, one_mul]
+
+/-- **Central factors of the right order drop out of the core word.**  Multiplying the four
+letters by central elements, the `Ā`-factor an involution and the `C̄₀`-factor of order dividing
+`2^α`, leaves `mWord α` unchanged. -/
+private theorem mpcWord_mWord_center (α : ℕ) (a b c d za zb zc zd : G)
+    (hza : ∀ w : G, za * w = w * za) (hzb : ∀ w : G, zb * w = w * zb)
+    (hzc : ∀ w : G, zc * w = w * zc) (hzd : ∀ w : G, zd * w = w * zd)
+    (h2a : za ^ 2 = 1) (h2c : zc ^ (2 ^ α) = 1) :
+    mWord α (a * za) (b * zb) (c * zc) (d * zd) = mWord α a b c d := by
+  have hca : Commute a za := (hza a).symm
+  have hcc : Commute c zc := (hzc c).symm
+  simp only [mWord]
+  rw [hca.mul_pow, h2a, mul_one, hcc.mul_pow, h2c, mul_one,
+    mpcWord_commP_center hza hzb, mpcWord_commP_center hzc hzd]
+
+end Central
+
+section LevelThree
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Membership in `λₖ` is vanishing at level `k`. -/
+theorem mpcWord_mem_iff_levelMk (k : ℕ) (r : G) :
+    r ∈ twoCentralSeries G k ↔ levelMk G k r = 1 :=
+  (QuotientGroup.eq_one_iff r).symm
+
+/-- `λ₂` is central in the class-three quotient. -/
+theorem mpcWord_levelMk_central {u : G} (hu : u ∈ twoCentralSeries G 2)
+    (w : levelQuot G 3) : levelMk G 3 u * w = w * levelMk G 3 u := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective G 3 w
+  rw [← map_mul, ← map_mul]
+  have hc1 : levelMk G 3 (commP u g) = 1 :=
+    (mpcWord_mem_iff_levelMk 3 _).mp (cfive_commP_mem_succ hu g)
+  have hrw : u * g = g * u * commP u g := by
+    simp only [commP]
+    group
+  rw [hrw, map_mul, hc1, mul_one]
+
+/-- `λ₂` is an involution group in the class-three quotient. -/
+theorem mpcWord_levelMk_sq {u : G} (hu : u ∈ twoCentralSeries G 2) :
+    levelMk G 3 u ^ 2 = 1 := by
+  rw [← map_pow]
+  exact (mpcWord_mem_iff_levelMk 3 _).mp (sq_mem_twoCentralSeries_succ G hu)
+
+end LevelThree
+
+/-- ⭐ **CLASSES AT MOST THREE ARE FREE.**  For *every* quadruple of `λ₂`-corrections the `M6`
+core word already dies at class three: modulo `λ₃` the letters are the marked generators times
+central involutions, `B̄⁴` and the corrections all vanish, and the word collapses onto
+`mpcOrb_relation`.  So the ansatz imposes no condition below class four, and the first class
+that can obstruct is class four. -/
+theorem mpcWord_mem_three (s t m n : (DM 2 0 : Type))
+    (hs : s ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (ht : t ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hm : m ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hn : n ∈ twoCentralSeries (DM 2 0 : Type) 2) :
+    mWord 2 (mpcWordLetA s) (mpcWordLetB t) (mpcWordLetC m) (mpcWordLetD n)
+      ∈ twoCentralSeries (DM 2 0 : Type) 3 := by
+  set π := levelMk (DM 2 0 : Type) 3 with hπ
+  have hB2 : dmB 2 0 ^ 2 ∈ twoCentralSeries (DM 2 0 : Type) 2 :=
+    sq_mem_twoCentralSeries_succ _ (Subgroup.mem_top _)
+  have hB4 : π (dmB 2 0) ^ 4 = 1 := by
+    have h : dmB 2 0 ^ 4 = (dmB 2 0 ^ 2) ^ 2 := by rw [← pow_mul]
+    rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, ← map_pow, ← map_pow]
+    exact (mpcWord_mem_iff_levelMk 3 _).mp
+      (sq_mem_twoCentralSeries_succ _ hB2)
+  rw [mpcWord_mem_iff_levelMk, map_mWord]
+  have hA : π (mpcWordLetA s) = π (dmA 2 0) * π s := by
+    rw [mpcWordLetA, map_mul, map_mul, map_inv, map_pow, hB4, inv_one, mul_one]
+  have hB : π (mpcWordLetB t) = π (dmB 2 0) * π t := by rw [mpcWordLetB, map_mul]
+  have hC : π (mpcWordLetC m) = π (dmC 2 0) * (π (dmB 2 0) ^ 2 * π m) := by
+    rw [mpcWordLetC, map_mul, map_mul, map_pow]
+    rw [← mul_assoc, ← map_pow]
+    rw [mpcWord_levelMk_central hB2 (π (dmC 2 0)), map_pow]
+  have hD : π (mpcWordLetD n) = π (dmD 2 0) * π n := by rw [mpcWordLetD, map_mul]
+  rw [hA, hB, hC, hD]
+  have hzc : ∀ w : levelQuot (DM 2 0 : Type) 3,
+      (π (dmB 2 0) ^ 2 * π m) * w = w * (π (dmB 2 0) ^ 2 * π m) := by
+    intro w
+    rw [mul_assoc, mpcWord_levelMk_central hm w, ← mul_assoc, ← map_pow,
+      mpcWord_levelMk_central hB2 w, mul_assoc, map_pow]
+  have h2c : (π (dmB 2 0) ^ 2 * π m) ^ (2 ^ 2) = 1 := by
+    have hcm : Commute (π (dmB 2 0) ^ 2) (π m) := by
+      rw [← map_pow]
+      exact mpcWord_levelMk_central hB2 (π m)
+    have hsq : (π (dmB 2 0) ^ 2 * π m) ^ 2 = 1 := by
+      rw [hcm.mul_pow, ← map_pow, mpcWord_levelMk_sq hB2, mpcWord_levelMk_sq hm, one_mul]
+    rw [show (2 : ℕ) ^ 2 = 2 * 2 from rfl, pow_mul, hsq, one_pow]
+  rw [mpcWord_mWord_center 2 _ _ _ _ _ _ _ _
+    (fun w => mpcWord_levelMk_central hs w) (fun w => mpcWord_levelMk_central ht w)
+    hzc (fun w => mpcWord_levelMk_central hn w) (mpcWord_levelMk_sq hs) h2c]
+  rw [← map_mWord, mpcOrb_relation, map_one]
+
+/-- The class-`k` solution set is nonempty for every `k ≤ 3`, witnessed by the bare ansatz. -/
+theorem mpcWord_nonempty_of_le_three {k : ℕ} (hk : k ≤ 3) : (mpcWordSet k).Nonempty := by
+  refine ⟨(1, 1, 1, 1), one_mem _, one_mem _, one_mem _, one_mem _, ?_⟩
+  exact twoCentralSeries_antitone (G := (DM 2 0 : Type)) hk
+    (mpcWord_mem_three 1 1 1 1 (one_mem _) (one_mem _) (one_mem _) (one_mem _))
+
+/-- ⭐ **THE RESIDUE, EXACTLY.**  `MpcPivShift 2` follows from the class-`k` solvability of the
+`M6` ansatz for `k ≥ 4` alone: classes at most three are theorems. -/
+theorem mpcWord_shift_of_forall_class_four
+    (H : ∀ k, 4 ≤ k → (mpcWordSet k).Nonempty) : MpcPivShift 2 := by
+  refine mpcWord_shift_of_forall_class fun k => ?_
+  by_cases hk : 4 ≤ k
+  · exact H k hk
+  · exact mpcWord_nonempty_of_le_three (by omega)
+
 /-! ## §9 Axiom pins
 
 One line per declaration, measured against the mirror. -/
@@ -384,6 +528,12 @@ section AxiomPins
 #print axioms mpcWord_iInter_nonempty
 #print axioms mpcWord_iInf_twoCentralSeries
 #print axioms mpcWord_shift_of_forall_class
+#print axioms mpcWord_mem_iff_levelMk
+#print axioms mpcWord_levelMk_central
+#print axioms mpcWord_levelMk_sq
+#print axioms mpcWord_mem_three
+#print axioms mpcWord_nonempty_of_le_three
+#print axioms mpcWord_shift_of_forall_class_four
 
 end AxiomPins
 
