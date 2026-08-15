@@ -42,9 +42,27 @@ The two differ on **both** sides:
   isolates the `-1` branch.
 * **Conclusion side (Labute's `Im δ = ⋂ ker Δ`).**  The functional side delivers a
   *reading* (`gDelta … = 0`); the tower side wants a *membership* (knob span).  Bridging
-  them is the second half of his Lemma 4 and needs two further inputs, both named here:
-  the knobs must be invisible to the functionals at the layer bit, and the admissible
-  towers must be detected by them.
+  them is the second half of his Lemma 4: the knobs must be invisible to the functionals at
+  the layer bit, and the admissible towers must be detected by them.
+
+## What this file proves
+
+* §2 **the torsion gap closes**: a `γ₂`-valued admissible correction is exactly `χ`-trivial,
+  so the `-1` branch wave 74 flagged never occurs along the clearing recursion.  §3 re-runs
+  the recursion carrying the `χ`-clause, so the weaker interface `GJoinDefectVanishing`
+  suffices for the whole residual.
+* §4 the `ℤ₂`-exponent tower formula, and the readings of the cleared letters.
+* §5 **knob invisibility**: both knob families read one bit deeper than the layer.
+* §6 **the invisible tower is a knob**: Labute's excluded column `x̃₁` is manufactured by the
+  `x₁`-slot bundle, so it costs nothing.
+* §7 **tower detection**, and `gJoin_reach_le`: the reach exceeds the knob span by exactly
+  the `2h` handle towers, every one of them functional-visible.
+* §8 the join: `GJoinDefectVanishing h`, hence `SqClassClearingSupply h k` at every `k` and
+  the `h ≥ 1` residual, from three named inputs: wave 74's depth-`2` base `GJoinBase`, wave
+  74's `GTowerKnobRealizable`, and the `𝔽₂` bookkeeping `GJoinSeparationAll` of §7.
+
+The functional half of Labute's Lemma 4 is therefore fully discharged; what remains of the
+graded route is the depth-`2` base, the extraction, and one independence bookkeeping step.
 
 -/
 
@@ -931,7 +949,70 @@ theorem gJoin_reach_sep
 
 end ReachSplit
 
-/-! ## §8 Axiom pins -/
+/-! ## §8 The join
+
+Everything above assembles.  The `χ`-restricted vanishing interface - and with it
+`SqClassClearingSupply h k` at **every** class, and the whole `h ≥ 1` residual - follows from
+exactly two further inputs, both uniform in the class:
+
+* `GTowerLayerReach h ν' 2`, wave 74's depth-`2` base (the class-four layer, from the
+  committed per-class record).  This is the ENGINE lane's stated W75 item and is **not**
+  discharged here;
+* `GJoinTowerSeparation`, the `𝔽₂`-independence bookkeeping of §7.
+
+Nothing else is left of the functional side: the vanishing itself is a theorem
+(`gDeltaDefectVanishing_holds`), the torsion gap is closed (§2), the knobs are invisible
+(§5), the invisible tower is a knob (§6), and the visible towers are read on the nose (§7). -/
+
+section Assembly
+
+variable {h : ℕ}
+
+variable (h) in
+/-- The separation bookkeeping of §7, at every selected marking and every depth `k ≥ 2`. -/
+def GJoinSeparationAll : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ),
+    2 ≤ k → GJoinTowerSeparation h nu' k
+
+variable (h) in
+/-- Wave 74's depth-`2` base, at every selected marking. -/
+def GJoinBase : Prop :=
+  ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      GTowerLayerReach h nu' 2
+
+/-- ⭐⭐⭐ **The vanishing interface, from the base and the separation.**  This is the join:
+the defect lands in the reach by the base, its handle rows read zero because the dressing is
+`χ`-trivial and Labute's Lemma 4(2) kills dressed relators outright, and §7 converts that
+into knob-span membership. -/
+theorem gJoin_defectVanishing_of_base (hbase : GJoinBase h) (hsep : GJoinSeparationAll h) :
+    GJoinDefectVanishing h := by
+  intro nu' j hsigma hx0 k hk a hal han hac hai hrel
+  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 2 := ⟨k - 2, by omega⟩
+  have hreach := gTower_defect_reach_of_base (hbase nu' hsigma hx0) hsigma hx0 j
+    (by omega : 2 ≤ k' + 2) hal han hrel
+  have hzero : ∀ c : Fin (sqRank h) → ℤ_[2],
+      gDelta h c (sqRelWord (sqArbFrame h nu' j a)) = 0 :=
+    fun c => gJoin_reading_zero c nu' j ⟨hal, han, hac⟩
+  refine gJoin_reach_sep hx0 (hsep nu' (k' + 2) (by omega)) hreach (fun jj => ?_) (fun jj => ?_)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+
+/-- ⭐⭐⭐ **The per-class supply, at every class.** -/
+theorem gJoin_supply_of_base (hbase : GJoinBase h) (hsep : GJoinSeparationAll h)
+    (HR : GTowerKnobRealizable h) : ∀ k, SqClassClearingSupply h k :=
+  gJoin_supply_of_vanishing (gJoin_defectVanishing_of_base hbase hsep) HR
+
+/-- ⭐⭐⭐ **The `h ≥ 1` residual, from three named inputs.**  Two of them are wave 74's own
+open items (the depth-`2` base and the knob realizability); the third is the `𝔽₂`
+bookkeeping of §7.  The functional half of Labute's Lemma 4 is fully discharged. -/
+theorem gJoin_markTransitivity_of_base (hbase : GJoinBase h) (hsep : GJoinSeparationAll h)
+    (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
+  limFinal_markTransitivity (gJoin_supply_of_base hbase hsep HR)
+
+end Assembly
+
+/-! ## §9 Axiom pins -/
 
 
 section AxiomPins
@@ -996,6 +1077,11 @@ section AxiomPins
 #print axioms gJoin_eichSet_central
 #print axioms gJoin_eichSub_normal
 #print axioms gJoin_reach_sep
+#print axioms GQ2.Dyadic.SqCore.GJoinSeparationAll
+#print axioms GQ2.Dyadic.SqCore.GJoinBase
+#print axioms gJoin_defectVanishing_of_base
+#print axioms gJoin_supply_of_base
+#print axioms gJoin_markTransitivity_of_base
 
 end AxiomPins
 
