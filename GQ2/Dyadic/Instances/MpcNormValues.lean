@@ -334,7 +334,7 @@ theorem mpcNorm_normUnits_rootUnit (ha : ¬ IsSquare a) :
 value and the unramified value of `rec_K x` are computed by a single integer `n` and a single
 spectral-unit norm `w`: `χ = (w·w₀ⁿ)⁻¹` and `ν = −n`, with `w` one of three residues modulo `8`.
 Every statement of §5 and §6 is a mod-`8` reading of this. -/
-theorem mpcNorm_recip_values [FiniteDimensional ℚ_[2] (quadField a)] (ha : ¬ IsSquare a)
+theorem mpcNorm_recip_values (ha : ¬ IsSquare a)
     (hodd : Odd a.valuation) (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
     {w₀ : ℤ_[2]ˣ} (hw₀ : ((w₀ : ℤ_[2]) : ℚ_[2]) * 2 = -a)
     (B : MarkedRecip Rec (quadField a)) (x : (↥(quadField a))ˣ) :
@@ -412,8 +412,7 @@ theorem mpcNorm_recip_approx (B : MarkedRecip Rec K) (g : GalKab K) :
   exact B.denseRange_recip.exists_mem_open hopen ⟨g, rfl, rfl⟩
 
 /-- `MpcLambdaOne` from the residue form: `ν ≡ c (mod 2)` in `ℤ/2` is the same congruence. -/
-theorem mpcNorm_lambdaOne_of_residue [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
-    (B : MarkedRecip Rec K) (u : ℤ_[2]ˣ) (c : ℤ_[2])
+theorem mpcNorm_lambdaOne_of_residue (B : MarkedRecip Rec K) (u : ℤ_[2]ˣ) (c : ℤ_[2])
     (h : ∀ g : GalKab K, chiCycKAb K g = u →
       PadicInt.toZModPow 1 (toAdd (B.nu_ur g)) = PadicInt.toZModPow 1 c) :
     MpcLambdaOne B u c := by
@@ -434,6 +433,108 @@ theorem mpcNorm_residue_of_isUnit {z : ℤ_[2]} (hz : IsUnit z) :
       zero_mul, add_zero]
 
 end Descent
+
+/-! ## §6 The collision, and the parity criterion
+
+Putting §4 and §5 together: for every `g : G_K^{ab}` there are a spectral-unit norm `w` of known
+residue and an integer `n` with
+
+    χ(g) · w · w₀ⁿ ≡ 1 (mod 8)      and      ν_ur(g) ≡ −n (mod 2).
+
+Modulo `8` an even power of a unit is invisible (`mpcNorm_unit_sq_mod_eight`), so `w₀ⁿ` sees only
+the parity of `n`, which is the parity of `ν_ur(g)`.  The congruence therefore **decides** that
+parity from `χ(g) mod 8` whenever `w`'s three residues and `w₀`'s single residue leave only one
+option, and at both procyclic fields they do. -/
+
+section Collision
+
+variable {a : ℚ_[2]} {Rec : LocalReciprocity}
+
+/-- An even integer power of a `2`-adic unit is `1` modulo `8`. -/
+theorem mpcNorm_residue_zpow_even (v : ℤ_[2]ˣ) {n : ℤ} (hn : Even n) :
+    PadicInt.toZModPow 3 ((v ^ n : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+  obtain ⟨k, hk⟩ := hn
+  have hv : v ^ n = (v ^ k) ^ (2 : ℕ) := by
+    rw [← zpow_natCast (v ^ k) 2, ← zpow_mul, hk]
+    congr 1
+    push_cast
+    ring
+  rw [hv, Units.val_pow_eq_pow_val, mpcNorm_unit_sq_mod_eight]
+
+/-- An odd integer power of a `2`-adic unit has the unit's own residue modulo `8`. -/
+theorem mpcNorm_residue_zpow_odd (v : ℤ_[2]ˣ) {n : ℤ} (hn : Odd n) :
+    PadicInt.toZModPow 3 ((v ^ n : ℤ_[2]ˣ) : ℤ_[2]) = PadicInt.toZModPow 3 (v : ℤ_[2]) := by
+  obtain ⟨k, hk⟩ := hn
+  have h1 : v ^ (2 * k) = (v ^ k) ^ (2 : ℕ) := by
+    rw [← zpow_natCast (v ^ k) 2, ← zpow_mul]
+    congr 1
+    push_cast
+    ring
+  rw [hk, zpow_add, zpow_one, h1, Units.val_mul, map_mul, Units.val_pow_eq_pow_val,
+    mpcNorm_unit_sq_mod_eight, one_mul]
+
+/-- `−n` is `0` modulo `2` for `n` even. -/
+theorem mpcNorm_cast_even {n : ℤ} (hn : Even n) : (((-n : ℤ)) : ZMod (2 ^ 1)) = 0 := by
+  obtain ⟨k, hk⟩ := hn
+  have h2 : ((2 : ZMod (2 ^ 1))) = 0 := by decide
+  rw [hk]
+  push_cast
+  linear_combination (-(k : ZMod (2 ^ 1))) * h2
+
+/-- `−n` is `1` modulo `2` for `n` odd. -/
+theorem mpcNorm_cast_odd {n : ℤ} (hn : Odd n) : (((-n : ℤ)) : ZMod (2 ^ 1)) = 1 := by
+  obtain ⟨k, hk⟩ := hn
+  have h2 : ((2 : ZMod (2 ^ 1))) = 0 := by decide
+  rw [hk]
+  push_cast
+  linear_combination (-(k : ZMod (2 ^ 1)) - 1) * h2
+
+/-- **THE COLLISION.**  The mod-`8` congruence tying `χ(g)` to the parity of `ν_ur(g)`, valid at
+every `g` of `G_K^{ab}` and at every ramified quadratic field with the data `(a, az, w₀)`. -/
+theorem mpcNorm_collision (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
+    {w₀ : ℤ_[2]ˣ} (hw₀ : ((w₀ : ℤ_[2]) : ℚ_[2]) * 2 = -a)
+    (B : MarkedRecip Rec (quadField a)) (g : GalKab (quadField a)) :
+    ∃ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 az ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 az) ∧
+      PadicInt.toZModPow 1 (toAdd (B.nu_ur g)) = (((-n : ℤ)) : ZMod (2 ^ 1)) ∧
+      PadicInt.toZModPow 3 ((chiCycKAb (quadField a) g : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((w₀ ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 := by
+  obtain ⟨x, hx1, hx2⟩ := mpcNorm_recip_approx B g
+  obtain ⟨w, n, hchi, hnu, hres⟩ := mpcNorm_recip_values ha hodd hna haz hw₀ B x
+  refine ⟨w, n, hres, ?_, ?_⟩
+  · rw [← hx2, hnu, map_intCast]
+  · have hprod : ((((w * w₀ ^ n)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]))
+        * ((w : ℤ_[2]) * ((w₀ ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 := by
+      rw [← Units.val_mul, ← Units.val_mul, inv_mul_cancel, Units.val_one]
+    rw [← hx1, hchi, ← map_mul, ← map_mul, hprod, map_one]
+
+/-- **THE PARITY CRITERION.**  If the mod-`8` arithmetic leaves only one parity for `n` at every
+`g` with `χ(g) = u`, then `ν_ur` has that parity on the whole fibre.  The hypothesis `hcheck` is
+pure finite arithmetic in `ℤ/8`; everything Galois-theoretic is already discharged. -/
+theorem mpcNorm_parity (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
+    {w₀ : ℤ_[2]ˣ} (hw₀ : ((w₀ : ℤ_[2]) : ℚ_[2]) * 2 = -a)
+    (B : MarkedRecip Rec (quadField a)) {u : ℤ_[2]ˣ} {c : ZMod (2 ^ 1)}
+    (hcheck : ∀ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 az ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 az) →
+      PadicInt.toZModPow 3 ((u : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((w₀ ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 →
+      (((-n : ℤ)) : ZMod (2 ^ 1)) = c)
+    (g : GalKab (quadField a)) (hg : chiCycKAb (quadField a) g = u) :
+    PadicInt.toZModPow 1 (toAdd (B.nu_ur g)) = c := by
+  obtain ⟨w, n, hres, hnu, hprod⟩ := mpcNorm_collision ha hodd hna haz hw₀ B g
+  rw [hg] at hprod
+  rw [hnu]
+  exact hcheck w n hres hprod
+
+end Collision
 
 end
 
