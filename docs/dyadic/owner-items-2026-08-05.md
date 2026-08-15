@@ -1,5 +1,28 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 77 (2026-08-15)
+
+**Two items await you** (unchanged): the plan-A6 freeze, and the minor line-length policy call.
+
+**For orientation.**  A refutation and a closure, both clean:
+
+* **The odd route's depth-2 base is refuted at every handle count**, by an explicit finite
+  witness (the generalized quaternion group of order 16), turning wave 76's argument into a
+  theorem stronger than argued.  The per-class supply itself is untouched: a route died, not
+  the target.  The repair is identified in the published proof rather than invented: Labute's
+  Theorem-5 endgame absorbs exactly such unreachable classes into 2-adic generator exponents,
+  and the campaign's markings already carry that freedom.  Formalizing the absorption is the
+  next wave's lead.  The depth-3 shortcut alone is priced as insufficient, and the
+  widen-admissibility route is answered definitively in the negative.
+* **The branch identification is closed at all five quadratic rows**, unconditionally at every
+  field, and Group A of the flagship's closing set is now empty of open mathematics.  One
+  cyclotomic residue mod 8 pins the three previously open rows; the reciprocity bundle's
+  uniformizer clause turned out load-bearing for the first time.  Each field now produces its
+  general branch datum over exactly one remaining clause, with a scoped route that would
+  discharge that clause at all five fields at once.
+* The disputed audit from wave 76 is refuted on both alarming claims; the quarantine held, and
+  the recorded figures were never wrong.
+
 ## Status at wave 76 (2026-08-15)
 
 **Two items await you**, one standing and one minor:
