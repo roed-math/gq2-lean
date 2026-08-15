@@ -69,7 +69,13 @@ GBaseXOneTriple h ν' :  ∀ i, ⁅⁅x₁, letter i⁆, x₁⁆ ∈ gTowerReach
 
 The conclusion is `gBase_joinBase_of_residual : GBaseResidual h → GJoinBase h`, and with it
 `gBase_markTransitivity_of_residual`.  So wave 75's first named input is **discharged by** the
-`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, and by nothing else in this file.
+`2 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, and by nothing else in this file.
+
+⚠ **`2 + 2h`, not `3 + 2h`.**  `GBaseXOneTriple` is *indexed* by all `sqRank h = 3 + 2h`
+letters, but one of them is `x₁` itself and `⁅⁅x₁, x₁⁆, x₁⁆` is trivial on the nose, so it is in
+the reach for free at every `h` and carries no content.  Proved downstream as
+`gDecide_triple_self` (`SqCore/GradedBaseDecide.lean`, wave 77), by `cfour_comm_self` and
+`cfour_one_comm`.
 
 ⚠ **One direction only.**  What is proved here is `GBaseResidual h → GJoinBase h`.  The converse
 is *not* in this file, so "wave 75's first named input **is** the brackets" would be an
@@ -81,6 +87,14 @@ converse to `gBase_joinBase_of_residual`.
 **Whether they hold is open, and the lane note argues they do not.**  Nothing in this file is
 evidence either way: every statement here is a reduction, and `GBaseXOneTriple` is a
 hypothesis.  See `docs/dyadic/w76-base-note.md`.
+
+⚠⚠ **[W78-HOUSE, as of `e6bbd2b9`: no longer open.  They do not hold.**  `gDecide_not_baseResidual`
+and `gDecide_not_joinBase` (`SqCore/GradedBaseDecide.lean`, wave 77) refute `GBaseResidual h`
+and `GJoinBase h` at every `h`, from a group of order sixteen and with no structure theorem.
+So `gBase_markTransitivity_of_residual` and `gBase_supply_of_residual` below are **vacuous**,
+and the sentence "whether they hold is open" is superseded.  The reductions in this file are
+unaffected and remain correct; what has gone is their input.  `SqClassClearingSupply h k` is
+untouched by that refutation.]**
 
 Prefix: `gBase`.
 -/
@@ -617,14 +631,18 @@ theorem gBase_layerReach_of_xOneTriple (H : GBaseXOneTriple h nu')
     (fun p q r => gTower_reach_le_fullReach (gBase_triple H p q r)) ⟨g, hg, rfl⟩
 
 variable (h) in
-/-- **The residual of the depth-two base, at every selected marking.** -/
+/-- **The residual of the depth-two base, at every selected marking.**
+
+⚠⚠ **FALSE at every `h`**, as of `e6bbd2b9`: `gDecide_not_baseResidual`
+(`SqCore/GradedBaseDecide.lean`).  The two composites below are vacuous. -/
 def GBaseResidual : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
       GBaseXOneTriple h nu'
 
 /-- ⭐⭐⭐ **`GJoinBase h` from the residual.**  Wave 75's first named input is discharged by the
-`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, at every selected marking.
+`2 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆` with content, at every selected marking.  (The family is
+indexed by all `3 + 2h` letters; the `x₁` one is trivial on the nose, `gDecide_triple_self`.)
 
 ⚠ This is the implication `GBaseResidual h → GJoinBase h`, not an equivalence; no converse is
 proved in this file.  See the module docstring. -/

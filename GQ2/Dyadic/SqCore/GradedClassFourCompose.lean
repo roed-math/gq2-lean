@@ -72,7 +72,10 @@ implied by "some subgroup all of whose elements are knobs contains the three fam
 statement that no longer mentions `cfourDefCore` at all.
 
 **[W75-HOUSE, wave-74 update.  That hypothesis is now known FALSE at every `h ≥ 1`**
-(`gDelta_cfourCmp_span_hyp_false`, `GradedDeltaFunctionals.lean:1575`), so the two theorems here
+(`gDelta_cfourCmp_span_hyp_false`, `GradedDeltaFunctionals.lean:1583`, W78-HOUSE: `:1575` as
+written and as of `f0a71688`, `:1583` since the wave-76 landings and at `e6bbd2b9`; the same
+drift is corrected at `:783` below and at `GradedClassFiveJoin.lean:90`, and is *uncorrected* in
+the five notes that cite `:1575`, which were right at their own trees), so the two theorems here
 are true but not instantiable: no lane can supply their `H`.  The failing family is the **fourth
 powers**, not the triple brackets this file expects to be delicate: `S` must contain the sigma
 tower `(levelMk σ)⁴`, and every correction of this route has `mod 8` chi-trivial slots, hence is
@@ -780,7 +783,7 @@ The question "is the core defect a knob" is replaced by the three uniform questi
 powers, bracket squares and triple brackets knobs".
 
 **[W75-HOUSE: DECIDED at wave 74, and the answer is no.**  `gDelta_cfourCmp_span_hyp_false`
-(`GradedDeltaFunctionals.lean:1575`) proves `¬ H` for this exact `H` at every `h ≥ 1`, by
+(`GradedDeltaFunctionals.lean:1583`) proves `¬ H` for this exact `H` at every `h ≥ 1`, by
 instantiating it at the selected marking `nuSq h`, the handle `j = 0` and the correction
 `cfourCmp_core_reduce` supplies, then taking `z := (levelMk σ)⁴` out of the fourth-power clause.
 This theorem remains **true and untouched**; it is its hypothesis that no lane can ever supply, so

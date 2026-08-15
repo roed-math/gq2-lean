@@ -5,6 +5,19 @@
 `[propext, Classical.choice, Quot.sound]` or a subset.  No edits to existing files, no `sorry`,
 no new axiom, no `native_decide`, no heartbeat or recursion-depth options.
 
+**[W78-HOUSE, ticket 3: verified, with one qualification and a new counting trap.**  The
+bijection is exact on the **named** declarations: 63 named, 63 pins, none unpinned, no pin
+naming anything outside the file, no duplicate.  "No edits to existing files" is confirmed by
+`git diff --stat 958e8a59 294a197a`: two files, both new, 887 insertions and zero deletions.
+
+⚠ The file declares **15 more things than it pins**, and they are not a defect: the `GDecideQ`
+group and topology instances at `:104-137` are **anonymous** (`instance : Mul GDecideQ`, and
+fourteen more), so they have machine-generated names and carry no pin.  The file therefore has
+78 declarations of which 63 are pinnable by name.  The trap for a future recount: in a module
+with anonymous instances, `grep -c` on declarations and `grep -c '#print axioms'` will never
+agree, and the disagreement is not a broken bijection.  This is the first module in the campaign
+where the two conventions collide, because the sibling landings declare no instances at all.]**
+
 Commits: `9fa93556` (module opened), `e79cdce4` (the witness group), `e9521128` (the marking,
 the hom, `λ₄ = 1`), `3dea56c2` (the decision at `h = 0`), `3c453a7b` (the decision at every
 `h`, plus the depth-`3` restart), `59bead8d` (every-marking form at `h = 0`, and this note).
@@ -167,7 +180,17 @@ supply.**
   names `gDelta_chiSq_of_gammaTwo`; the actual committed lemma is
   **`gDelta_chiSq_of_nuLam`** (`GradedUniformJoin.lean:113`), and it is exact-`nuLam`-triviality
   that forces `χ_sq(a i) = ±1`.  The `-1` branch is then killed by `-1 ≢ 1 (mod 8)` together
-  with `gDelta_chi_gammaTwo_dvd` (`GradedUniformJoin.lean:137`).  A mod-`2` row would leave
+  with `gDelta_chi_gammaTwo_dvd` (`GradedUniformJoin.lean:137`).
+  ⚠ **[W78-HOUSE, ticket 3(a): the lemmas are right, both file citations are use sites.**  The
+  correction's substance holds: `gDelta_chiSq_of_gammaTwo` occurs nowhere in the tree, and both
+  named lemmas exist.  But they are **declared in `GradedDeltaFunctionals.lean`**, at `:1198`
+  (`gDelta_chiSq_of_nuLam`, with `gDelta_chiSq_sq_of_nuLam` at `:1188`) and `:1456`
+  (`gDelta_chi_gammaTwo_dvd`).  `GradedUniformJoin.lean:113` is the *proof term* of
+  `gJoin_slot_dichotomy`, and `:137` is a line of §2's module docstring, not a declaration at
+  all.  A correction that tells the reader which lemma is the real one should cite where it is
+  stated.  (Line numbers here are as of `e6bbd2b9`; `GradedUniformJoin.lean` gained a W78
+  annotation block above `:113` after this was written, so re-grep rather than re-read the
+  number.)]**  A mod-`2` row would leave
   `χ_sq(a i)` free in `1 + 2ℤ₂`, and the mod-`8` reading that discharges `GJoinDefectVanishing`
   breaks there.  Since the widening also fails to close the gap, this was not pursued further.
 

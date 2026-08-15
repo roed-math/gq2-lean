@@ -18,6 +18,12 @@ leaf module, no dependents, `GQ2.lean` untouched per protocol.
 **`GJoinBase h` is now one atomic family of `3 + 2h` layer classes, and the argument of §4 says
 that family is false.**
 
+**[W78-HOUSE: read `2 + 2h`, and the argument of §4 is now a theorem.**  The count is corrected
+in item 2 below, which this wave reconciled; and `§4`'s conclusion was proved inside the tree by
+the wave-77 decide lane (`gDecide_not_baseResidual`, `gDecide_not_joinBase`,
+`SqCore/GradedBaseDecide.lean`), with **no** structure theorem, so "the argument of §4 says" may
+now be read as "and it is false".  See `docs/dyadic/w77-decide-note.md`.]**
+
 ```
 gBase_joinBase_of_residual : GBaseResidual h → GJoinBase h
 ```
@@ -52,6 +58,15 @@ nothing else.  T3 and T4 were not attempted; T5 is stated conditionally
    (`cfour_comm_self`, `cfour_one_comm`).  §4 and "What W77 needs" both already work with the
    right number, "two layer classes" at `h = 0`; it is the headline and the module docstring that
    carry `3 + 2h`.  Reconcile when the sibling lands.
+
+   **[W78-HOUSE: RECONCILED.**  The sibling landed at `7be6d122` (merge `294a197a`).  The one
+   line is `gDecide_triple_self` (`SqCore/GradedBaseDecide.lean:54`), stated at every `h` and
+   proved exactly as predicted, by `cfour_comm_self` then `cfour_one_comm`.  The three module
+   sites now read `2 + 2h`: `GradedJoinBase.lean:72` and `:627`, and the decide module's own
+   preamble `GradedBaseDecide.lean:11`, each stating that the family is *indexed* by all
+   `3 + 2h` letters while only `2 + 2h` carry content.  `GradedBaseDecide.lean:62` is left as
+   written: it says "`3 + 2h = 3` classes ... the third being trivial", which is the same fact
+   spelled the other way and is not an overcount.]**
 
 3. **`gBase_joinBase_of_residual` is one direction only, and the module said "is exactly".**  The
    file proves `GBaseResidual h → GJoinBase h` and no converse.  So the brackets are *sufficient*

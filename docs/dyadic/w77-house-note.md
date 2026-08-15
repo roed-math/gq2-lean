@@ -170,7 +170,11 @@ identified with `G_K`.**  Had the block gone in with a blanket claim it would ha
 ⚠ **Reported, not applied: `GeneralCertificates.lean` has the same defect and I was not permitted
 to fix it.**  48 declarations, **zero** `#print axioms`, while `w76-cert-note.md` §6 reports a
 full measurement of all 48 (1 + 1 + 44 + 1 + 1, which sums correctly).  The measurement exists
-only in the note.  This is a wave-78 one-liner of exactly the shape applied here.  For
+only in the note.  **[W78-HOUSE, ticket 1: APPLIED, and "48" is wrong.**  The file has **44**
+declarations, and 44 pins are now recorded (`d19eb316`).  48 is the cert note's arithmetic taken
+at face value: its "the other 44" should read "the other 40".  The four exceptional declarations
+it names, and their four axiom sets, reproduce here **exactly**.  The right check was
+declaration-count against the file, not internal consistency of the sum.]**  This is a wave-78 one-liner of exactly the shape applied here.  For
 calibration: six of the seven modules added since `4fff1592` carry pins (42, 54, 103, 48, 65, 94);
 `GeneralCertificates.lean` is the only one that does not.  The convention is a *landing*
 convention, not a tree-wide one, since 350 of 626 `GQ2/Dyadic` modules carry no pins.
@@ -294,6 +298,11 @@ lane's own base, not merely overtaken.  `GeneralCertificates` was registered by 
 05:35, one minute after the cert note was committed (`edd7dd7a`, 05:34).  At `1d3d5a84` both are
 in `GQ2.lean` (`:857`, `:858`), as is `SqCore/GradedJoinBase.lean` (`:777`, by `681ce981` at
 05:37).  Nothing is left of the item.  Annotated at the cert note.
+**[W78-HOUSE: the finding stands; two of the three line numbers have drifted.**  At `e6bbd2b9`
+`GradedJoinBase` is still `GQ2.lean:777`, but `GeneralAssembly` is `:858` and
+`GeneralCertificates` `:859`, because `7be6d122` inserted `import GQ2.Dyadic.SqCore.GradedBaseDecide`
+at `:778`.  `Instances.FieldBranchIdentification` is `:860` (`f2ae3e20`).  A one-line grep of
+`GQ2.lean` beats a line number here, exactly as this item recommends.]**
 
 **(b) HIGH.  `w76-house-note.md` §4.2 breaks the very rule that note's §4.5 lays down.**
 `:443` verbatim: "`w75-state-note.md` §6, five items, **all still live and none touched this
@@ -331,10 +340,38 @@ decide lane proves exactly this, at every `h`, in one line
 flagged for wave 78 to reconcile when the sibling lands.  §4 and "What W77 needs" already use the
 right number ("two layer classes"); it is the headline and the module that carry `3 + 2h`.
 
+**[W78-HOUSE, ticket 2: RECONCILED, and this round's prediction was exact.**  The sibling landed
+at `7be6d122` (merge `294a197a`).  `gDecide_triple_self` is at `GradedBaseDecide.lean:54`, at
+every `h`, proved by `cfour_comm_self` then `cfour_one_comm`, and
+`gDecide_residual_zero_iff` (`:64`) is the `h = 0` equivalence with the two classes at `σ` and
+`x₀`.  Corrected in the tree at `GradedJoinBase.lean:72`, `:627` and `GradedBaseDecide.lean:11`;
+annotated at `w76-base-note.md:18` and its item 2.  One qualification the fix carries that this
+round's wording did not: `GBaseXOneTriple` is *indexed* by all `3 + 2h` letters, so the corrected
+prose says `2 + 2h` **with content** rather than simply `2 + 2h`.]**
+
 **(b) Recorded.**  The field lane's `Instances/FieldBranchIdentification.lean` is at §0 only, the
 two already-closed rows restated; §§1-4 are planned in its docstring but not written.  Flagship
 item 1 is therefore **in flight, not closed**, and wave 78 should not read the w76 queue's
 "still the smallest genuinely-open item" as discharged.
+
+⚠⚠ **[W78-HOUSE, ticket 3, STALENESS: HIGH.  This was already false when it was committed, and
+it is the exact defect §3.1(b) above diagnoses in the predecessor.**  Timeline, all `08-15`:
+
+| time | commit | state of the field module |
+| --- | --- | --- |
+| 06:06 | `62a8c05b` | opened, 126 lines: §0 only.  **This is the state described above.** |
+| 06:14 | `dddd3734` | 398 lines, the residue-5 criterion and the three norm witnesses |
+| 06:16 | `4e4a6541` | 544 lines, **all three remaining rows closed** |
+| 06:22 | `c9881c4c` | 746 lines, the five rows composed into `GenAsmBranch` |
+| 06:25 | `234ff5f1` | **merged into `dyadic`** |
+| 06:28 | `9443a52b` | *this note is committed* |
+
+So the module was complete and **already in `dyadic`** three minutes before this note recorded it
+as unwritten.  The read was taken at lane start and never refreshed, which is precisely what
+§4.5's rule (run staleness before the application pass) exists to prevent; this round applied that
+rule to its own edits and to the w76 queue, and not to its own §3.2/§4.2 sibling readings.  The
+correct finding is the opposite one: **flagship item 1 is closed at all five rows**, and the
+verdict on it is in §4.2's annotation below.]**
 
 ### 3.3  Identity headlines over containments: one found
 
@@ -398,6 +435,11 @@ Said in detail, because a round that reports only hits is not a check.
   and every one prints exactly `[propext, Classical.choice, Quot.sound]`.
 * `w76-cert-note.md` §6's axiom posture accounts for 1 + 1 + 44 + 1 + 1 = **48**, matching the
   file's 48 declarations.  (The pins themselves are not in the file; see §2(a).)
+  ⚠ **[W78-HOUSE: WRONG, and it is a miss of this checklist item.**  The file has **44**
+  declarations.  The sum was checked for internal consistency and never against the file, so a
+  bad summand ("the other 44", which should be "the other 40") was ratified as a count.  The
+  *content* of §6 is right: the same four declarations, the same four axiom sets, confirmed by
+  the 44 pins now in the file.  A sum that agrees with itself is not a count.]**
 * `w76-house-note.md`'s verification record is exact: 10 commits, 5 Lean modules, 10 docs, all
   three confirmed against `git diff --stat 97d51e93 e9f4d79f^2`.
 * `w76-cert-note.md` §5's coverage table agrees with the tree row by row, including the two
@@ -448,6 +490,34 @@ two rows were already closed at waves 67 and 68.  When it lands, flagship item 1
   (`1 + 2√5`, `2 + √10`, `√−10`);
 * the module is at §0 at `1d3d5a84`.  Wave 78 should confirm §§1-4 landed before treating item 1
   as struck, and should not inherit the w76 queue's description of it.
+
+**[W78-HOUSE, ticket 3: CONFIRMED LANDED, and the second bullet is doubly wrong.**  The module
+does not exist at `1d3d5a84` at all (`git cat-file -e` fails there); it is created by the field
+lane, and by the time this note was written it was at 746 lines with all eight sections written.
+See §3.2(b)'s table.  The first bullet **stands and is the important half**: the pin is per
+field, by explicit witnesses, and gives nothing at a general ramified-`i` `K`.
+
+**Verdict on the memo's Group A, checked item by item against `w74-critical-path.md` §3.**
+
+* **A1 (branch identification per field): DISCHARGED at the five frozen quadratic rows.**
+  `fieldId_hrange_sqrt{Five,Ten,NegTen}` prove `range chiCycKTwo = imChiM 2`, and the two older
+  rows are re-exported.  All five are over the field's own `MarkedRecip` bundle, and the
+  range identities print std-3, so the pin costs no arithmetic axiom.
+* **A2 (the `KTwoN`/`KTwoM` adapter into the two record spellings): BYPASSED, not discharged.**
+  The field lane's producers land in `GenAsmBranch K B`, which is `GeneralAssembly.lean`'s own
+  record from **wave 76**, not in `Main.lean`'s `ResidualSqrtNegTwo` or the four `ResidualSqrt*`
+  records that A2 names.  `Main.lean:352`'s pilot record still carries `fLab`, `piAb`, `hpiAb`,
+  `hpiNu` and `horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x`, the abelianization
+  spelling, exactly as the memo found it at `4fff1592`; `grep` finds `GenAsmBranch` in two files
+  only, `GeneralAssembly.lean` and `FieldBranchIdentification.lean`.  What performs the adapter
+  is `KSupply.ofMarkedCoreRealization` inside `genAsm_candidate_equiv_galK`, plus §4.2's record
+  map, and both predate this lane.  So the memo's own test, "until it is done the even route's
+  output does not typecheck into either record", is **still failing for `Main.lean`'s records**,
+  and A2 is discharged only on the new general-record path.
+* Consequently the field note's "Group A is now empty of open mathematics" is **true on the
+  general path and false on the committed one**.  It is not open *mathematics* either way (A2
+  was always priced as a restatement), so the disagreement is about which records the campaign
+  intends to ship, and that is an owner call, not a lane's.]**
 
 ### 4.3  Separation and realizability: untouched for three waves
 
@@ -500,6 +570,11 @@ closing the degree-spelling mismatch between `Instances/N0Exact.lean`'s `exactLi
   scoping corrections.
 * **New, small, and mine**: `GeneralCertificates.lean`'s 48 unrecorded pins (§2(a)), and the
   `3 + 2h` versus `2 + 2h` reconciliation once the decide lane lands (§3.2(a)).
+  **[W78-HOUSE: BOTH STRUCK.**  The pins are recorded (`d19eb316`) and the reconciliation is
+  applied (§3.2(a)'s annotation).  ⚠ **The pin figure was wrong**: the file has **44**
+  declarations and now carries 44 pins, not 48.  48 is `w76-cert-note.md` §6's
+  `1 + 1 + 44 + 1 + 1`, whose "other 44" should read "other 40"; this round checked that the sum
+  was internally consistent and did not check it against the file.  See §3.6's third bullet.]**
 * **New process suggestion, from ticket 1.**  Two independent auditors have now fallen into the
   `public import` trap.  The walk that avoids it is fifteen lines of Python.  Committing it under
   `scripts/` would make the next reachability audit mechanical rather than a matter of remembering

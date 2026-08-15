@@ -496,7 +496,7 @@ Three of `genAsm_branch_of_evenM`'s six remaining inputs are discharged here:
 * `hdeg`, from the field's `finrank`;
 * `hMix`, from `MarkedCore.mMixHypothesis`, which is unconditional at `alpha >= 2`;
 * the marking triple `nuP`/`hnuP`/`hnuIota`, from the canonical `Ztwo` marking.  The tree
-  carried `CertificateSupplyRN.nNuZtwo` for the `N` core and `LSquareCore.lNu` for the `L` core
+  carried `SelectedCoreLeavesRN.nNuZtwo` for the `N` core and `LSquareCore.lNu` for the `L` core
   but **no `M` counterpart**; §6.1 builds it, the same three lines.
 
 What is left at each field is then **one clause**, and it is the same clause the memo's §1.2 and
@@ -509,7 +509,9 @@ section Producer
 open MarkedCore
 
 /-- **The canonical `Ztwo` marking of the compact-`M` core**, the `M` counterpart of
-`CertificateSupplyRN.nNuZtwo`: `nuM` read back through the boundary seam `ztwoIota`.  It
+`SelectedCoreLeavesRN.nNuZtwo` (`CertificateSupplyRN.lean:223`, the *file* name the two earlier
+spellings of this citation used as a namespace): `nuM` read back through the boundary seam
+`ztwoIota`.  It
 introduces no new orientation. -/
 noncomputable def fieldId_mNuZtwo (alpha h : ℕ) (halpha : 1 ≤ alpha) :
     ContinuousMonoidHom (DM alpha h : Type) Ztwo :=

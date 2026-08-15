@@ -8,8 +8,10 @@ import GQ2.Dyadic.SqCore.GradedJoinBase
 /-!
 # W77-DECIDE: the depth-two residual is false, at every `h`
 
-Wave 76 reduced `GJoinBase h` to `GBaseResidual h`, the `3 + 2h` layer classes
-`⁅⁅x₁, xᵢ⁆, x₁⁆ ∈ gTowerReach h ν' 2`, and argued **outside the tree**, from Labute's
+Wave 76 reduced `GJoinBase h` to `GBaseResidual h`, the `2 + 2h` layer classes with content
+`⁅⁅x₁, xᵢ⁆, x₁⁆ ∈ gTowerReach h ν' 2` (the family is indexed by all `sqRank h = 3 + 2h` letters,
+but `gDecide_triple_self` below puts the `x₁` one in the reach for free at every `h`), and
+argued **outside the tree**, from Labute's
 structure theorem for `gr(D_sq h)`, that two of them are unreachable.  This file proves that,
 inside the tree and with no structure theorem, from a single finite group:
 
@@ -485,13 +487,17 @@ theorem gDecideMarkS_good : GDecideGoodMark (gDecideMarkS h) :=
     by rw [gDecideMarkS, sqMark_two], fun j => by rw [gDecideMarkS, sqMark_handleU],
     fun j => by rw [gDecideMarkS, sqMark_handleV]⟩
 
-/-- ⭐⭐⭐ **The `x₀` class is not reachable**: `⁅⁅x₁, x₀⁆, x₁⁆ ∉ gTowerReach h ν' 2`. -/
+/-- ⭐⭐⭐ **The `x₀` class is not reachable**:
+`⁅⁅x₁, x₀⁆, x₁⁆ ∉ gTowerReach h (gDecideNu h) 2`, at the selected marking of §6.  (One marking
+is all a refutation of the marking-quantified `GBaseResidual h` needs; §7's last theorem gives
+`h = 0` at every marking.) -/
 theorem gDecide_x0_not_mem :
     commP (commP (gBaseT h) (gBaseX h)) (gBaseT h) ∉ gTowerReach h (gDecideNu h) 2 :=
   gDecide_triple_not_mem (gDecideMarkX_rel h) (gDecideMarkX_good h) (gDecideNu_handleU h)
     (gDecideNu_handleV h) (i := 1) (by rw [gDecideMarkX, sqMark_one])
 
-/-- ⭐⭐⭐ **The `σ` class is not reachable**: `⁅⁅x₁, σ⁆, x₁⁆ ∉ gTowerReach h ν' 2`. -/
+/-- ⭐⭐⭐ **The `σ` class is not reachable**:
+`⁅⁅x₁, σ⁆, x₁⁆ ∉ gTowerReach h (gDecideNu h) 2`, at the same selected marking. -/
 theorem gDecide_sigma_not_mem :
     commP (commP (gBaseT h) (gBaseS h)) (gBaseT h) ∉ gTowerReach h (gDecideNu h) 2 :=
   gDecide_triple_not_mem (gDecideMarkS_rel h) (gDecideMarkS_good h) (gDecideNu_handleU h)

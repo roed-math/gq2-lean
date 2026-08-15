@@ -970,6 +970,16 @@ follows from exactly two further inputs, both uniform in the class:
 * `GJoinBase h`, wave 74's depth-`2` base `GTowerLayerReach h ν' 2` at every selected marking
   (the class-four layer, from the committed per-class record).  This is the ENGINE lane's
   stated W75 item and is **not** discharged here;
+  ⚠⚠ **[W78-HOUSE, as of `e6bbd2b9`: `GJoinBase h` is REFUTED, at every `h`.**
+  `gDecide_not_joinBase` (`SqCore/GradedBaseDecide.lean`, wave 77) proves `¬ GJoinBase h` from
+  one group of order sixteen, so every theorem below that takes `hbase : GJoinBase h` is now
+  **vacuous**: `gJoin_defectVanishing_of_base`, `gJoin_supply_of_base` and
+  `gJoin_markTransitivity_of_base` are correct statements about a hypothesis nothing can
+  supply.  Read "not discharged here" as "not dischargeable at all at this depth".  What is
+  **not** refuted is the target: `SqClassClearingSupply h k` and `SqLamMarkTransitivity h`
+  stand exactly where wave 67 left them, and the depth-`3` re-cut is costed in
+  `docs/dyadic/w77-decide-note.md` §T2, where it is shown to need a class-four supply witness
+  as well.]**
 * `GJoinSeparationAll h`, the `𝔽₂`-independence bookkeeping `GJoinTowerSeparation` of §7 at
   every marking and every depth `k ≥ 2`.
 
@@ -996,7 +1006,11 @@ def GJoinSeparationAll : Prop :=
     2 ≤ k → GJoinTowerSeparation h nu' k
 
 variable (h) in
-/-- Wave 74's depth-`2` base, at every selected marking. -/
+/-- Wave 74's depth-`2` base, at every selected marking.
+
+⚠⚠ **FALSE at every `h`**, as of `e6bbd2b9`: `gDecide_not_joinBase`
+(`SqCore/GradedBaseDecide.lean`).  The three theorems below that consume it are vacuous.  See
+§8's header for what this does and does not settle. -/
 def GJoinBase : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
