@@ -353,7 +353,156 @@ theorem mpcRow_surjective_nu_ur_quadField [CompactSpace (GalK (quadField a))]
 
 end Surjectivity
 
-/-! ## §4 The determinant binder, wired
+/-! ## §4 The two rows: what the arithmetic still owes, named
+
+Wave 79 left each procyclic field one `Prop` with four conjuncts (the level and three
+congruences), all asserted **at wave 77's chosen oriented equivalence**, which is a `Classical`
+choice about which nothing is known.  Three of the four can be restated as statements about the
+bundle alone, with no equivalence in sight, and that is what this section does:
+
+| conjunct | equivalence-free form | what it is |
+| --- | --- | --- |
+| `B.r = 1` | `MpcNoUnitKerChi` (plus §1's `B.r ≤ 1`) | `(2, ±10)₂ = −1` |
+| `ν'(B̄) ≡ p` | `MpcLambdaOne B (−1) p` | `λ(−1) = p`, i.e. `(−2, ±10)₂` |
+| `ν'(D̄) ≡ 1` | `MpcLambdaOne B (mUnit 2) 1` | `λ(5) = 1`, i.e. `(5, ±10)₂ = −1` |
+| `ν'(C̄₀) = γ·2` | **none** | see below |
+
+`MpcLambdaOne B u c` says every class of cyclotomic value `u` has `ν_ur`-value `≡ c (mod 2)`.
+That is exactly the marked pair's `λ` at level one (`MarkedRecip.nuMod`/`λ`), and it is
+well-posed for the same reason `λ` is: two classes with the same `χ` differ by a class in
+`ker χ`, whose `ν` is `2`-divisible at level `1`.  It is also literally what
+`FieldBranchSelector.Matches` calls `negOneVal` at `u = −1`.
+
+**The pivot has no such form**, and that is a finding rather than an omission: `C̄₀` is one chosen
+element of `ker χ_M`, so `ν'(C̄₀)` is not a function of `χ` at all.  What pins it is the *lower*
+half of the level, `nu_ker_chi_ge`, together with a description of `ker χ_M` inside `D_M` that the
+tree does not carry (§6 of the lane note spells out what is needed).  So the pivot stays as a
+clause at the chosen equivalence, on both rows. -/
+
+section RowInputs
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] {Rec : LocalReciprocity}
+
+/-- **The level's one arithmetic input**, in the bundle's vocabulary: no class of `ker χ_K`
+carries a unimodular `ν_ur`-value.  Wave 78 §2.3's `(2, ±10)₂ = −1` is exactly this: an element
+of odd valuation whose norm is a power of `2` with unit part `1` would supply such a class. -/
+def MpcNoUnitKerChi (B : MarkedRecip Rec K) : Prop :=
+  ∀ g : GalKab K, chiCycKAb K g = 1 → ¬ IsUnit (toAdd (B.nu_ur g))
+
+/-- **`λ(u) = c` at level one**: every class of cyclotomic value `u` has `ν_ur`-value congruent to
+`c` modulo `2`.  This is the marked pair's `λ` with no marked pair built, and it is the
+equivalence-free form of the two congruence clauses. -/
+def MpcLambdaOne (B : MarkedRecip Rec K) (u : ℤ_[2]ˣ) (c : ℤ_[2]) : Prop :=
+  ∀ g : GalKab K, chiCycKAb K g = u → ∃ y : ℤ_[2], toAdd (B.nu_ur g) = c + 2 * y
+
+omit [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
+/-- **The level is not zero** once no `ker χ` class is unimodular: `nu_ker_chi_ge` at `y = 1`
+would supply one. -/
+theorem mpcRow_level_ne_zero {B : MarkedRecip Rec K} (h : MpcNoUnitKerChi B) : B.r ≠ 0 := by
+  intro hr
+  obtain ⟨g, hchi, hnu⟩ := B.nu_ker_chi_ge 1
+  refine h g hchi ?_
+  rw [hnu, hr, pow_zero, one_mul]
+  exact isUnit_one
+
+/-- **A `λ`-value transports to any marked generator with that cyclotomic value.**  The step that
+makes the two congruence clauses independent of which oriented equivalence was chosen. -/
+theorem mpcRow_congr_of_lambda {B : MarkedRecip Rec K} {α : ℕ}
+    (e : OrientedContinuousMulEquiv (chiM α 0) (chiCycKTwo (K := K))) {u : ℤ_[2]ˣ} {c : ℤ_[2]}
+    (h : MpcLambdaOne B u c) {x : (DM α 0 : Type)} (hx : chiM α 0 x = u) :
+    ∃ y : ℤ_[2], toAdd (fieldUni_nuPullbackM B e x) = c + 2 * y := by
+  obtain ⟨g, hg⟩ := maxProPMk_surjective (p := 2) (G := GalK K) (e.1 x)
+  refine (h (toAbK K g) ?_).imp fun y hy => ?_
+  · have hchi : chiCycKTwo (K := K) (e.1 x) = chiM α 0 x := e.2 x
+    rw [← hg, chiCycKTwo_maxProPMk, ← chiCycKAb_toAbK] at hchi
+    exact hchi.trans hx
+  · show toAdd (nuUrKTwo B (e.1 x)) = c + 2 * y
+    rw [← hg, nuUrKTwo_maxProPMk]
+    exact hy
+
+end RowInputs
+
+/-! ### §4.1 The `ε = false` row: two clauses, not three -/
+
+section RowStatements
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **`MpcRowData_sqrtTen` FROM THE LEVEL, ONE `λ`-VALUE AND THE PIVOT.**  The `D̄` congruence is
+gone: at `p = 0` it follows from §2's rigidity.  So `ℚ₂(√10)`'s remaining input is
+`λ(−1) = 0` plus the pivot plus `(2, 10)₂ = −1`, and no clause about `D̄`. -/
+theorem mpcRow_rowData_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+    (hlev : MpcNoUnitKerChi B) (hneg : MpcLambdaOne B (-1) 0)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    MpcRowData_sqrtTen B := by
+  have hr : B.r = 1 :=
+    le_antisymm (mpcRow_level_le_one_sqrtTen B)
+      (Nat.one_le_iff_ne_zero.2 (mpcRow_level_ne_zero hlev))
+  refine ⟨hr, hpivot, ?_, ?_⟩
+  · have hsurj : Function.Surjective (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B)) :=
+      mpcRow_surjective_nuPullbackM B _
+        (mpcRow_surjective_nu_ur_quadField not_isSquare_ten mpcRow_valuation_ten_odd
+          mpcRow_norm_ten B)
+    obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda (fieldId_chosenEquivM_sqrtTen B) hneg
+      (chiM_dmB 2 0)
+    obtain ⟨w, hw⟩ := mpcRow_dmD_odd_of_dmB_even (α := 2) one_le_two _ hsurj
+      (mpcCert_chiKerLevel_of_level B hr _) ⟨y, by rw [hy]; ring⟩
+    exact ⟨w, by rw [hw, pow_one]⟩
+  · obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda (fieldId_chosenEquivM_sqrtTen B) hneg
+      (chiM_dmB 2 0)
+    refine ⟨y, ?_⟩
+    rw [hy, pow_one]
+    norm_num [GQ2.Dyadic.p, GQ2.Dyadic.epsVal]
+
+/-- **THE `sqrtTen` BRANCH DATUM over the reduced input.**  `mpcCert_genAsmBranch_sqrtTen` with
+wave 79's `Prop` replaced by the three named arithmetic facts. -/
+theorem mpcRow_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+    (hlev : MpcNoUnitKerChi B) (hneg : MpcLambdaOne B (-1) 0)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    ∃ G : GenAsmBranch KSqrtTen B, G.pres = .Mpc 2 1 false .one 0 :=
+  mpcCert_genAsmBranch_sqrtTen B (mpcRow_rowData_sqrtTen B hlev hneg hpivot)
+
+/-- **`MpcRowData_sqrtNegTen` FROM THE LEVEL, TWO `λ`-VALUES AND THE PIVOT.**  At `p = 1` the
+rigidity argument gives nothing (`ν'(B̄)` is odd there, so it already accounts for surjectivity),
+and the `D̄` congruence stays as its own arithmetic input `λ(5) = 1`. -/
+theorem mpcRow_rowData_sqrtNegTen [T2Space (GalK KSqrtNegTen)] (B : MarkedRecip R KSqrtNegTen)
+    (hlev : MpcNoUnitKerChi B) (hneg : MpcLambdaOne B (-1) 1)
+    (hgen : MpcLambdaOne B (mUnit 2) 1)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtNegTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    MpcRowData_sqrtNegTen B := by
+  have hr : B.r = 1 :=
+    le_antisymm (mpcRow_level_le_one_sqrtNegTen B)
+      (Nat.one_le_iff_ne_zero.2 (mpcRow_level_ne_zero hlev))
+  refine ⟨hr, hpivot, ?_, ?_⟩
+  · obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda (fieldId_chosenEquivM_sqrtNegTen B) hgen
+      (chiM_dmD 2 0)
+    exact ⟨y, by rw [hy, pow_one]⟩
+  · obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda (fieldId_chosenEquivM_sqrtNegTen B) hneg
+      (chiM_dmB 2 0)
+    refine ⟨y, ?_⟩
+    rw [hy, pow_one]
+    norm_num [GQ2.Dyadic.p, GQ2.Dyadic.epsVal]
+
+/-- **THE `sqrtNegTen` BRANCH DATUM over the reduced input.** -/
+theorem mpcRow_genAsmBranch_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip R KSqrtNegTen) (hlev : MpcNoUnitKerChi B) (hneg : MpcLambdaOne B (-1) 1)
+    (hgen : MpcLambdaOne B (mUnit 2) 1)
+    (hpivot : ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtNegTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1) :
+    ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 :=
+  mpcCert_genAsmBranch_sqrtNegTen B (mpcRow_rowData_sqrtNegTen B hlev hneg hgen hpivot)
+
+end RowStatements
+
+/-! ## §5 The determinant binder, wired
 
 `GaussZ/FinalDK.lean` §7's `affineDeterminant_galK` is the `K` clone of the (83)-evaluation
 bridge, and its §8 `example` produces `KSupply.determinant`'s field type verbatim.  **Verified
