@@ -181,6 +181,7 @@ the last step `S ⊔ ⊥ = P` reads `S = P`, against `S < P`.
 This is what closes the cheap route to ticket T1: every finite 2-group is nilpotent, so no
 surjection of the candidate carrier onto a finite 2-group can carry a refuting frame, whatever
 `H`, `E`, `b` and `F` are chosen alongside it. -/
+omit [Finite Y] in
 theorem recBl_minimalBlock_isEmpty_of_nilpotent [Group.IsNilpotent Y] (L : Subgroup Y) :
     IsEmpty (MinimalBlock L) := by
   refine ⟨fun B => ?_⟩
@@ -242,6 +243,351 @@ theorem recBl_minimalBlock_isEmpty_of_sq (h2 : ∀ y : Y, y * y = 1) (L : Subgro
 
 end CoefficientFrame
 
+/-! ## §3 The Stokes conjuncts at the compact-`M` candidate (ticket T2)
+
+W84-CLAUSES did not attempt this clause and said why: the `L` row's four conjuncts are a file's
+worth of plumbing over the generic count suppliers, and "that is a lane, not a section".  It is
+also, on inspection, entirely mechanical: `GammaLAnalyticLeaves` never uses anything about the
+`L` word except that it has a uniform Heisenberg resolver, a Stokes endpoint, an admissible
+marked presentation, a degree identity, and a surjective datum map.  The compact-`M` row has all
+five (`Count.resolvesAt_and_endpoint_mCompactFam_uniformHeis`,
+`isAdmissibleMarkedPresentation_gammaR`, `MCompact.degree`, `MCompact.datumRho_surjective`), and
+`MCompact.uniformPushedHsimp` is unconditional at `2 ≤ α`.  So §3 is the `L` file transposed, and
+the four conjuncts become theorems at the `M` candidate with the same hypotheses the row already
+carries.
+
+Three things are genuinely different from the `L` transcription and are worth naming:
+
+* the degree is **even**, `2h + 2` rather than `2h + 1`, so `MCompact.degree` feeds the count
+  suppliers `n = 2 * h + 2`, and the record spells the same number `2 + 2 * h`.  Those are not
+  definitionally equal as `Nat` and `SourceNumerics` is indexed by `n`, so §3 carries the
+  transport `recBl_stokes_standard_congr` (the Stokes twin of `rowCl_scalar_standard_congr`,
+  which did not exist);
+* `MCompact.cardH2_of_uniformPushed` carries `1 ≤ α` and `q ≠ 0`, which the `L` twin does not,
+  so the `hpartial` conjunct and everything downstream of it carry them too;
+* `MCompact.datumRho` needs `1 ≤ α` as well.
+
+Nothing here needs Tate duality or a local Euler characteristic: the alternative producer
+`KAnalytic.stokesDualityCertificate_of_localDualityG` takes both, and neither is available at an
+abstract candidate carrier (`GammaLDualityBoundary` records that using them there would be
+circular). -/
+
+section MStokes
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Words GQ2.Dyadic.Words.MCompact GQ2.Dyadic.MCompact
+open GQ2.Dyadic.Certificates GQ2.CardH2GammaA TameSpec
+
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+variable {α h q : ℕ}
+
+/-- **Degree transport for a Stokes certificate.**  The Stokes twin of
+`rowCl_scalar_standard_congr`: the `M` count lane produces `2 * h + 2` and the row records spell
+`2 + 2 * h`, and `SourceNumerics` is indexed by the degree, so the two elaborate to different
+types.  There was no such lemma in the tree. -/
+theorem recBl_stokes_standard_congr {Gam : ProfiniteGrp} {n m : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo} {smul : DistribMulAction ↥Gam (ZMod 2)} (hnm : n = m)
+    (S : StokesDualityCertificate Gam n q P nuP (standardNumerics n) smul) :
+    StokesDualityCertificate Gam m q P nuP (standardNumerics m) smul := by
+  subst hnm; exact S
+
+set_option maxHeartbeats 1200000 in
+/-- **Conjunct 1 at the compact-`M` candidate**: the `T`-cocycle count at every recursion frame.
+Transcription of `LSquare.tcocycle_of_uniformPushed`. -/
+theorem recBl_mCand_tcocycle (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((gamma α h q : Type)) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (En : RF.Enrichment) (l : RF.DR)
+    (hl : l ≠ RF.zeroDR) (ρ : BoundaryLiftsK b F RF.TC) :
+    Nat.card (TCocycle (En.radData l hl) (rhoPrimeK RF b F (En.radData l hl) rfl ρ)) =
+      (standardNumerics (2 * h + 2)).tMult
+          (Nat.card (Additive ↥(En.radData l hl).T)) *
+        Nat.card (fixedPts (RF.YB ⧸ (En.radData l hl).M)
+          (ElemDual (Additive ↥(En.radData l hl).T))) := by
+  let D := En.radData l hl
+  let rho := rhoPrimeK RF b F D rfl ρ
+  letI : TopologicalSpace (Additive ↥D.T) := ⊥
+  haveI : DiscreteTopology (Additive ↥D.T) := ⟨rfl⟩
+  letI : DistribMulAction ((gamma α h q : Type)) (Additive ↥D.T) :=
+    DistribMulAction.compHom _ rho.toMonoidHom
+  haveI : ContinuousSMul ((gamma α h q : Type)) (Additive ↥D.T) := by
+    constructor
+    have hfac :
+        (fun p : ((gamma α h q : Type)) × Additive ↥D.T => p.1 • p.2) =
+          (fun p : (RF.YB ⧸ D.M) × Additive ↥D.T => p.1 • p.2) ∘
+            (fun p : ((gamma α h q : Type)) × Additive ↥D.T => (rho p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((rho.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  letI := scalarActionZmodTwo (RF.YB ⧸ D.M)
+  have hb := Count.resolvesAt_and_endpoint_mCompactFam_uniformHeis
+    (C := RF.YB ⧸ D.M) (A := Additive ↥D.T) (radT_add_self D) (α := α) (h := h) (q := q) hqe
+  have hres : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent (RF.YB ⧸ D.M))))
+      (WordLift (Additive ↥D.T) (RF.YB ⧸ D.M)) := by
+    let incl : ContinuousMonoidHom
+        (WordLift (Additive ↥D.T) (RF.YB ⧸ D.M))
+        (HeisLift (Additive ↥D.T) (RF.YB ⧸ D.M)) :=
+      ⟨Count.heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisPrim_injective
+  exact Count.tcocycle_cardN rho (fun _ _ => rfl) (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hres
+    (radT_add_self D)
+    (isWildTwo_of_gammaGen rho (rhoPrimeK_surjective RF b F D rfl ρ) (fun _ => rfl))
+    (rhoPrimeK_surjective RF b F D rfl ρ) (MCompact.degree h)
+    (hsimp (RF.YB ⧸ D.M) rho (Additive ↥D.T) (radT_add_self D)) hb.2
+
+set_option maxHeartbeats 1200000 in
+/-- **Conjunct 2 at the compact-`M` candidate**: the `(T^∨)^C` separation clause, via the
+word-side marking route.  Transcription of `LSquare.hsep_of_uniformPushed`. -/
+theorem recBl_mCand_hsep (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((gamma α h q : Type)) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (En : RF.Enrichment) (l : RF.DR)
+    (hl : l ≠ RF.zeroDR) (Dsc : Descent (En.radData l hl))
+    (ρ : BoundaryLiftsK b F RF.TC)
+    (c : VCocycle (En.descData l hl) (rhoPrimeK RF b F (En.radData l hl) rfl ρ))
+    (hvan : letI := scalarActionZmodTwo ((gamma α h q : Type))
+      ∀ chi : ↥(TCharC (En.radData l hl)),
+        betaChi (descSections En l hl Dsc) (descSigma_spec En l hl Dsc) chi c = 0) :
+    TLiftable (descSigma_spec En l hl Dsc) c := by
+  let D := En.radData l hl
+  let rho := rhoPrimeK RF b F D rfl ρ
+  letI := scalarActionZmodTwo ((gamma α h q : Type))
+  letI := scalarActionZmodTwo (RF.YB ⧸ D.M)
+  have hb := Count.resolvesAt_and_endpoint_mCompactFam_uniformHeis
+    (C := RF.YB ⧸ D.M) (A := Additive ↥D.T) (radT_add_self D) (α := α) (h := h) (q := q) hqe
+  have hres2 : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent (RF.YB ⧸ D.M))))
+      (WordLift (ZMod 2) (RF.YB ⧸ D.M)) := by
+    let incl : ContinuousMonoidHom
+        (WordLift (ZMod 2) (RF.YB ⧸ D.M))
+        (HeisLift (Additive ↥D.T) (RF.YB ⧸ D.M)) :=
+      ⟨Count.heisScal, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisScal_injective
+  have hresT : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent (RF.YB ⧸ D.M))))
+      (WordLift (Additive ↥D.T) (RF.YB ⧸ D.M)) := by
+    let incl : ContinuousMonoidHom
+        (WordLift (Additive ↥D.T) (RF.YB ⧸ D.M))
+        (HeisLift (Additive ↥D.T) (RF.YB ⧸ D.M)) :=
+      ⟨Count.heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisPrim_injective
+  exact Count.hsep_field_goal_marking b F En l hl Dsc ρ (scalarActionZmodTwo _)
+    (scalarActionZmodTwo_triv _) (scalarActionZmodTwo _) (scalarActionZmodTwo_triv _)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) (fun _ => rfl)
+    (isWildTwo_of_gammaGen rho (rhoPrimeK_surjective RF b F D rfl ρ) (fun _ => rfl))
+    hres2 hresT (hsimp (RF.YB ⧸ D.M) rho (Additive ↥D.T) (radT_add_self D))
+    hb.2 c hvan
+
+set_option maxHeartbeats 1600000 in
+/-- Right separation for the descent module at the compact-`M` candidate: the fork feeding
+conjunct 3.  Transcription of `LSquare.hrsep_of_uniformPushed`. -/
+theorem recBl_mCand_hrsep (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((gamma α h q : Type)) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (En : RF.Enrichment) (l : RF.DR)
+    (hl : l ≠ RF.zeroDR) (ρ : BoundaryLiftsK b F RF.TC) :
+    letI := scalarActionZmodTwo ((gamma α h q : Type))
+    letI : TopologicalSpace (En.descData l hl).Vmod := ⊥
+    haveI : DiscreteTopology (En.descData l hl).Vmod := ⟨rfl⟩
+    letI : DistribMulAction ((gamma α h q : Type)) (En.descData l hl).Vmod :=
+      DistribMulAction.compHom (En.descData l hl).Vmod
+        (rho0 (En.descData l hl) (rhoPrimeK RF b F (En.radData l hl) rfl ρ))
+    letI : TopologicalSpace (ElemDual (En.descData l hl).Vmod) := ⊥
+    haveI : DiscreteTopology (ElemDual (En.descData l hl).Vmod) := ⟨rfl⟩
+    IsRightSeparating ((gamma α h q : Type)) (En.descData l hl).Vmod := by
+  let D := En.radData l hl
+  let DD := En.descData l hl
+  let rho := rhoPrimeK RF b F D rfl ρ
+  letI := scalarActionZmodTwo ((gamma α h q : Type))
+  haveI := scalarActionZmodTwo_continuousSMul ((gamma α h q : Type))
+  letI : TopologicalSpace DD.Vmod := ⊥
+  haveI : DiscreteTopology DD.Vmod := ⟨rfl⟩
+  letI : DistribMulAction ((gamma α h q : Type)) DD.Vmod :=
+    DistribMulAction.compHom DD.Vmod (rho0 DD rho)
+  letI : TopologicalSpace (ElemDual DD.Vmod) := ⊥
+  haveI : DiscreteTopology (ElemDual DD.Vmod) := ⟨rfl⟩
+  letI : TopologicalSpace DD.C0 := ⊥
+  haveI : DiscreteTopology DD.C0 := ⟨rfl⟩
+  letI := scalarActionZmodTwo DD.C0
+  let theta := Count.rho0Continuous DD rho
+  have hcompat : ∀ (g : ((gamma α h q : Type))) (a : DD.Vmod), g • a = theta g • a :=
+    fun _ _ => rfl
+  haveI : ContinuousSMul ((gamma α h q : Type)) (ElemDual DD.Vmod) := by
+    constructor
+    have hfac :
+        (fun p : ((gamma α h q : Type)) × ElemDual DD.Vmod => p.1 • p.2) =
+          (fun p : DD.C0 × ElemDual DD.Vmod => p.1 • p.2) ∘
+            (fun p : ((gamma α h q : Type)) × ElemDual DD.Vmod => (theta p.1, p.2)) := by
+      funext p
+      exact elemDual_compat theta hcompat p.1 p.2
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((theta.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hb := Count.resolvesAt_and_endpoint_mCompactFam_uniformHeis
+    (C := DD.C0) (A := DD.Vmod) (Vmod_exp2 DD) (α := α) (h := h) (q := q) hqe
+  have hresS : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent DD.C0)))
+      (WordLift (ZMod 2) DD.C0) := by
+    let incl : ContinuousMonoidHom (WordLift (ZMod 2) DD.C0) (HeisLift DD.Vmod DD.C0) :=
+      ⟨Count.heisScal, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisScal_injective
+  have hresP : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent DD.C0)))
+      (WordLift DD.Vmod DD.C0) := by
+    let incl : ContinuousMonoidHom (WordLift DD.Vmod DD.C0) (HeisLift DD.Vmod DD.C0) :=
+      ⟨Count.heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisPrim_injective
+  have hresD : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent DD.C0)))
+      (WordLift (ElemDual DD.Vmod) DD.C0) := by
+    let incl : ContinuousMonoidHom
+        (WordLift (ElemDual DD.Vmod) DD.C0) (HeisLift DD.Vmod DD.C0) :=
+      ⟨Count.heisDual, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisDual_injective
+  have hsurj : Function.Surjective theta :=
+    LSquare.rho0Continuous_surjective DD rho (rhoPrimeK_surjective RF b F D rfl ρ)
+  have hwild := isWildTwo_of_gammaGen theta hsurj (fun _ => rfl)
+  have hd := hsimp DD.C0 theta DD.Vmod (Vmod_exp2 DD)
+  have hsd : IsSelfDualN (2 * h + 2)
+      (fun g => theta (gammaGen (2 + 2 * h) q (mCompactW α h) g))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent DD.C0))) DD.Vmod :=
+    Count.isSelfDualN_of_stokesDuality (MCompact.degree h) hd
+      (lower_rel theta (fun _ => rfl)
+        (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hresP) hb.2
+  exact Count.isRightSeparating_of_selfDualN theta hcompat (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hwild
+    hresS hresP hresD hb.1 hsd hb.2 (Vmod_exp2 DD)
+
+set_option maxHeartbeats 1600000 in
+/-- **Conjunct 3 at the compact-`M` candidate**: the nonzero-character obstruction.
+Transcription of `LSquare.hpartial_of_uniformPushed`; `1 ≤ α` and `q ≠ 0` enter here, through
+`MCompact.cardH2_of_uniformPushed`. -/
+theorem recBl_mCand_hpartial (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
+    (hqe : Even q) {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((gamma α h q : Type)) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (En : RF.Enrichment) (l : RF.DR)
+    (hl : l ≠ RF.zeroDR) (Dsc : Descent (En.radData l hl))
+    (ρ : BoundaryLiftsK b F RF.TC) (chi : ↥(TCharC (En.radData l hl)))
+    (hchi : chi ≠ 0) :
+    letI := scalarActionZmodTwo ((gamma α h q : Type))
+    ∃ c : VCocycle (En.descData l hl) (rhoPrimeK RF b F (En.radData l hl) rfl ρ),
+      betaChi (descSections En l hl Dsc) (descSigma_spec En l hl Dsc) chi c ≠
+        betaChi (descSections En l hl Dsc) (descSigma_spec En l hl Dsc) chi
+          (0 : VCocycle (En.descData l hl)
+            (rhoPrimeK RF b F (En.radData l hl) rfl ρ)) :=
+  Count.hpartial_field_goal b F En l hl Dsc ρ (scalarActionZmodTwo _)
+    (scalarActionZmodTwo_triv _) (cardH2_of_uniformPushed hsimp hα hq0 hqe)
+    (recBl_mCand_hrsep hsimp hqe b F En l hl ρ) chi hchi
+
+set_option maxHeartbeats 1200000 in
+/-- **Conjunct 4 at the compact-`M` candidate**: the simple nontrivial `V`-cocycle count.
+Transcription of `LSquare.hZcard_of_uniformPushed`.  This one is also what the determinant
+bridge needs for its finiteness step, so §4 consumes it too. -/
+theorem recBl_mCand_hZcard (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((gamma α h q : Type)) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (En : RF.Enrichment) (l : RF.DR)
+    (hl : l ≠ RF.zeroDR)
+    (hsimple : ∀ W : AddSubgroup En.Vmod,
+      (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
+    (ρ : BoundaryLiftsK b F RF.TC) :
+    Nat.card (VCocycle (En.descData l hl)
+        (rhoPrimeK RF b F (En.radData l hl) rfl ρ)) =
+      Nat.card En.Vmod *
+        (standardNumerics (2 * h + 2)).h1Mult (Nat.card En.Vmod) := by
+  let D := En.radData l hl
+  let DD := En.descData l hl
+  letI : TopologicalSpace DD.Vmod := ⊥
+  haveI : DiscreteTopology DD.Vmod := ⟨rfl⟩
+  letI : DistribMulAction RF.YC DD.Vmod :=
+    (inferInstance : DistribMulAction RF.YC En.Vmod)
+  letI : DistribMulAction ((gamma α h q : Type)) DD.Vmod :=
+    DistribMulAction.compHom _ ρ.1.1.toMonoidHom
+  haveI : ContinuousSMul ((gamma α h q : Type)) DD.Vmod := by
+    constructor
+    have hfac :
+        (fun p : ((gamma α h q : Type)) × DD.Vmod => p.1 • p.2) =
+          (fun p : RF.YC × DD.Vmod => p.1 • p.2) ∘
+            (fun p : ((gamma α h q : Type)) × DD.Vmod => (ρ.1.1 p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  letI := scalarActionZmodTwo RF.YC
+  have hb := Count.resolvesAt_and_endpoint_mCompactFam_uniformHeis
+    (C := RF.YC) (A := DD.Vmod) (Vmod_exp2 DD) (α := α) (h := h) (q := q) hqe
+  have hres : ResolvesAt (gammaFam (2 + 2 * h) q (mCompactW α h))
+      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent RF.YC)))
+      (WordLift DD.Vmod RF.YC) := by
+    let incl : ContinuousMonoidHom (WordLift DD.Vmod RF.YC) (HeisLift DD.Vmod RF.YC) :=
+      ⟨Count.heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisPrim_injective
+  have hsimple' : IsSimpleModTwo RF.YC DD.Vmod := by
+    obtain ⟨v, hv⟩ := hVne
+    exact ⟨nontrivial_of_ne v 0 hv, hsimple⟩
+  exact Count.hZcardN ρ.1.1
+    (fun g v => congrArg (fun c : RF.YC => c • v)
+      (rho0_descData_rhoPrimeK b F En l hl ρ g))
+    (fun _ _ => rfl) (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hres
+    (Vmod_exp2 DD) (isWildTwo_of_gammaGen ρ.1.1 ρ.1.2 (fun _ => rfl)) ρ.1.2
+    (MCompact.degree h) (hsimp RF.YC ρ.1.1 DD.Vmod (Vmod_exp2 DD)) hb.2 hsimple' hnt
+
+/-- **The Stokes certificate at the compact-`M` candidate, from the uniform residue.**  The `M`
+twin of `LSquare.stokesDualityCertificate_of_uniformPushed`, at the count lane's degree
+spelling. -/
+theorem recBl_mCand_stokes_of_uniformPushed (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α)
+    (hq0 : q ≠ 0) (hqe : Even q) {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
+    StokesDualityCertificate (gamma α h q) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2))
+      (scalarActionZmodTwo ((gamma α h q : Type))) :=
+  ⟨fun b F En l hl ρ => recBl_mCand_tcocycle hsimp hqe b F En l hl ρ,
+   fun b F En l hl Dsc ρ c hvan => recBl_mCand_hsep hsimp hqe b F En l hl Dsc ρ c hvan,
+   fun b F En l hl Dsc ρ chi hchi =>
+    recBl_mCand_hpartial hsimp hα hq0 hqe b F En l hl Dsc ρ chi hchi,
+   fun b F En l hl hsimple hVne hnt ρ =>
+    recBl_mCand_hZcard hsimp hqe b F En l hl hsimple hVne hnt ρ⟩
+
+/-- **The `M0` row's `stokes` clause is a theorem, unconditionally at `2 ≤ α`**, at the degree
+spelling the row records use.  This is the clause W84-CLAUSES left open, and it closes with no
+new hypothesis: `MCompact.uniformPushedHsimp` is already unconditional at `2 ≤ α`. -/
+theorem recBl_mCand_stokes (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
+    {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
+    StokesDualityCertificate (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
+      (standardNumerics (2 + 2 * h))
+      (scalarActionZmodTwo ((GammaR (2 + 2 * h) q (mCompactW α h) : Type))) :=
+  recBl_stokes_standard_congr (by omega)
+    (recBl_mCand_stokes_of_uniformPushed (uniformPushedHsimp hα hqe) (by omega) hq0 hqe)
+
+end MStokes
+
 /-! ## Axiom audit -/
 
 section AxiomPins
@@ -251,6 +597,14 @@ section AxiomPins
 #print axioms recBl_minimalBlock_isEmpty_of_nilpotent
 #print axioms recBl_minimalBlock_isEmpty_of_isPGroup
 #print axioms recBl_minimalBlock_isEmpty_of_sq
+#print axioms recBl_stokes_standard_congr
+#print axioms recBl_mCand_tcocycle
+#print axioms recBl_mCand_hsep
+#print axioms recBl_mCand_hrsep
+#print axioms recBl_mCand_hpartial
+#print axioms recBl_mCand_hZcard
+#print axioms recBl_mCand_stokes_of_uniformPushed
+#print axioms recBl_mCand_stokes
 
 end AxiomPins
 
