@@ -33,10 +33,14 @@ This module replaces the conflict by an **exact computation**: it evaluates the 
    At `u = B̄²` this is the entire content of `M6` at parameter one: `MpcPivShift 2` holds iff
    that element can be absorbed by a compensating change of the `Ā`, `B̄`, `D̄` letters.
 
-2. **The recipe** (§2).  `mpcOrb_shift_of_marking`: a marking of `D_M 2 0` that kills the core
-   word, generates topologically, carries the four χ-values of the marked generators, and moves
-   the `C̄₀` row by `2B̄` produces `MpcPivShift 2` outright.  This is the only shape a
-   construction of `M6` can have, and it reduces the row to a single word identity.
+2. **The residue is exactly a word problem** (§2).  `mpcOrb_shift_iff_marking`: `MpcPivShift 2`
+   holds **if and only if** `D_M 2 0` carries a four-letter marking that kills the core word,
+   generates topologically, has the four χ-values of the marked generators, and moves the `C̄₀`
+   row by `2B̄`.  The forward direction (`mpcOrb_shift_of_marking`) is the construction recipe:
+   surjectivity is the closed range of a continuous map out of a compact group, injectivity is
+   `profinite_hopfian`, and χ-preservation is hom-extensionality, so a builder owes the relator
+   identity and nothing else.  The converse (`mpcOrb_marking_of_shift`) transports the marked
+   generators along the witness, so no other shape of construction exists.
 
 3. **The frame level cannot obstruct** (§3).  `mpcOrb_frame_shift`: the `M6`-shifted frame
    satisfies the *same* forced `Ā`-row relation `ν'(Ā) = −2^{α−1}ν'(C̄₀)` that every marking of
@@ -207,6 +211,60 @@ theorem mpcOrb_shift_of_marking {a b c d : (DM 2 0 : Type)}
     rw [hC]
     exact hrow f
 
+/-- **The converse: nothing else can produce `MpcPivShift`.**  A witness `Ψ` transports the
+marked generators to a marking with all four clauses of `mpcOrb_shift_of_marking`.  Together the
+two directions say that the `√−10` row's residue **is** the word problem of §1, with no slack
+left anywhere else in the assembly. -/
+theorem mpcOrb_marking_of_shift (h : MpcPivShift 2) :
+    ∃ a b c d : (DM 2 0 : Type), mWord 2 a b c d = 1 ∧
+      (Subgroup.closure ({a, b, c, d} : Set (DM 2 0 : Type))).topologicalClosure = ⊤ ∧
+      chiM 2 0 a = 1 ∧ chiM 2 0 b = -1 ∧ chiM 2 0 c = 1 ∧ chiM 2 0 d = mUnit 2 ∧
+      ∀ f : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]),
+        toAdd (f c) = toAdd (f (dmC 2 0)) + 2 * toAdd (f (dmB 2 0)) := by
+  obtain ⟨Psi, hchi, hrow⟩ := h
+  refine ⟨Psi (dmA 2 0), Psi (dmB 2 0), Psi (dmC 2 0), Psi (dmD 2 0), ?_, ?_, ?_, ?_, ?_, ?_,
+    hrow⟩
+  · rw [← map_mWord Psi, mpcOrb_relation, map_one]
+  · -- the closed subgroup `Ψ⁻¹(H)` contains the marked generators, hence is everything
+    set H := (Subgroup.closure ({Psi (dmA 2 0), Psi (dmB 2 0), Psi (dmC 2 0), Psi (dmD 2 0)} :
+      Set (DM 2 0 : Type))).topologicalClosure with hH
+    have hmem : ∀ i, Psi (dmGen 2 0 i) ∈ H := by
+      intro i
+      refine Subgroup.le_topologicalClosure _ (Subgroup.subset_closure ?_)
+      fin_cases i
+      exacts [Or.inl rfl, Or.inr (Or.inl rfl), Or.inr (Or.inr (Or.inl rfl)),
+        Or.inr (Or.inr (Or.inr rfl))]
+    have hKclosed : IsClosed ((Subgroup.comap Psi.toMonoidHom H : Subgroup (DM 2 0 : Type)) :
+        Set (DM 2 0 : Type)) :=
+      (Subgroup.isClosed_topologicalClosure _).preimage Psi.continuous_toFun
+    have hsub : Subgroup.closure (Set.range (dmGen 2 0)) ≤ Subgroup.comap Psi.toMonoidHom H := by
+      rw [Subgroup.closure_le]
+      rintro _ ⟨i, rfl⟩
+      exact hmem i
+    have hall := Subgroup.topologicalClosure_minimal _ hsub hKclosed
+    rw [dm_topGen, top_le_iff] at hall
+    refine eq_top_iff.mpr fun y _ => ?_
+    obtain ⟨x, rfl⟩ := Psi.surjective y
+    have hx : x ∈ Subgroup.comap Psi.toMonoidHom H := by rw [hall]; trivial
+    exact hx
+  · rw [hchi, chiM_dmA]
+  · rw [hchi, chiM_dmB]
+  · rw [hchi, chiM_dmC]
+  · rw [hchi, chiM_dmD]
+
+/-- **The `√−10` row's residue is exactly a word problem.**  `MpcPivShift 2` holds if and only if
+`D_M 2 0` carries a four-letter marking that kills the `M_2` core word, generates topologically,
+has the four χ-values, and shifts the `C̄₀` row by `2B̄`. -/
+theorem mpcOrb_shift_iff_marking :
+    MpcPivShift 2 ↔ ∃ a b c d : (DM 2 0 : Type), mWord 2 a b c d = 1 ∧
+      (Subgroup.closure ({a, b, c, d} : Set (DM 2 0 : Type))).topologicalClosure = ⊤ ∧
+      chiM 2 0 a = 1 ∧ chiM 2 0 b = -1 ∧ chiM 2 0 c = 1 ∧ chiM 2 0 d = mUnit 2 ∧
+      ∀ f : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]),
+        toAdd (f c) = toAdd (f (dmC 2 0)) + 2 * toAdd (f (dmB 2 0)) := by
+  refine ⟨mpcOrb_marking_of_shift, ?_⟩
+  rintro ⟨a, b, c, d, hrel, hgen, ha, hb, hc, hd, hrow⟩
+  exact mpcOrb_shift_of_marking hrel hgen ha hb hc hd hrow
+
 end Recipe
 
 /-! ## §3 The frame level cannot obstruct
@@ -260,6 +318,8 @@ section AxiomPins
 #print axioms mpcOrb_head_eq_inv_tail
 #print axioms mpcOrb_defect
 #print axioms mpcOrb_shift_of_marking
+#print axioms mpcOrb_marking_of_shift
+#print axioms mpcOrb_shift_iff_marking
 #print axioms mpcOrb_frame_shift
 #print axioms mpcOrb_chi_shift
 
