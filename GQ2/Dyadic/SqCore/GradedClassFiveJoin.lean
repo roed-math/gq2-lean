@@ -54,8 +54,11 @@ put at `x`:
 
 So the four square families are not reached by the bracket knobs at all, and the two bracket
 families are reached at every far slot except the `x₁`-direction.  The reduction of the first four
-to the last two runs through the pairing: ⭐ `cfiveJoin_pow_four_iff` is
-`cfiveSpan_pair_correction` read at `q = x`, and it is where wave 72's pairing is consumed.
+to the last two splits: families **three and four** are the `x₁`-slot knob read at a single
+correction, with no pairing (`cfiveJoin_defect_pt_iff`), and only families **one and two**, the
+fourth powers, run through the pairing.  ⭐ `cfiveJoin_pow_four_iff` is `cfiveJoin_pair_correction`
+(§5's form, with the second bracket already evaluated away) read at `q = x`, and it is where wave
+72's pairing is consumed.
 
 ## Two simplifications of the pairing (§5)
 
@@ -69,16 +72,18 @@ statements with a factor evaluated.
 
 ⭐⭐⭐ `cfiveJoin_zLayer_le_iff_frame` runs the whole join at a mod-2 independent frame of
 `D_sq h`: every closedness condition is free because `Q₅` is discrete, the generation condition
-**is** mod-2 independence (`cfiveJoin_topGen_of_modTwoIndep`), and the far slots of the four
-bracket knobs are exactly the frame letters other than `m 2` (`cfiveJoin_farSlot_cases`).
+**follows from** mod-2 independence (`cfiveJoin_topGen_of_modTwoIndep`, which proves that
+direction and only that direction), and the far slots of the four bracket knobs are exactly the
+frame letters other than `m 2` (`cfiveJoin_farSlot_cases`).
 
 ## What is **not** established
 
 `∀ c ∈ T, commP c x ∈ S` is **open**.  Nothing here says it holds and nothing here says it fails;
 `cfiveJoin_zLayer_le_iff` is an equivalence, so a failure of the join at these knobs would be a
 statement about this route and not about `SqClassClearingSupply h 5`, which
-`cfiveKnob_supply_of_reach` reaches through an existentially quantified base frame and which is
-conditional on class four in any case.
+`cfiveKnob_supply_of_reach` reaches through an existentially quantified base frame, presupposing
+no class-four witness, and which enters `limFinal_markTransitivity_iff` only alongside every other
+class, class four included.
 
 **[W75-HOUSE, wave-74 update, and read the qualifier.**  One class down, the analogous span
 hypothesis is now **refuted** as a theorem (`gDelta_cfourCmp_span_hyp_false`,
@@ -129,8 +134,9 @@ theorem cfiveJoin_far_lambdaTwo_mul {t : levelQuot G 5} (ht : t ∈ lambdaImage 
   rw [cfive_commP_right_hom_five ht, gFourFive_commP_vanish ht hy, one_mul]
 
 /-- **A knob check against `X` extends to the closed span of `X`.**  This is
-`cfiveSpan_ad_far_of_gens` with the conclusion kept at the span instead of being pushed to `⊤`,
-which is the form the partial results of §5 need. -/
+`cfiveSpan_ad_far_of_gens` with the conclusion kept at the span instead of being pushed to `⊤`.
+Its direct consumers are `cfiveJoin_ad_far_lambdaTwo` just below and §4's `cfiveJoin_ad_far_all`;
+through the former it is what §6's `cfiveJoin_family_five_of_span` and `..._six_of_span` need. -/
 theorem cfiveJoin_ad_far_mem {S : Subgroup (levelQuot G 5)}
     (hS : IsClosed ((S : Subgroup (levelQuot G 5)) : Set (levelQuot G 5)))
     {t : levelQuot G 5} (ht : t ∈ lambdaImage G 3 5) {X : Set (levelQuot G 5)}
@@ -145,8 +151,9 @@ theorem cfiveJoin_ad_far_mem {S : Subgroup (levelQuot G 5)}
   exact hle hq
 
 /-- ⭐ **The far slots a knob reaches are a subgroup containing `Y`.**  Adding `Y` to the check
-set costs nothing by `cfiveJoin_far_lambdaTwo_mul`, so the reached far slots are the closed span
-of `X ∪ Y`, i.e. the preimage in `Q₅` of the span of `X` in `Q₅ / Y`. -/
+set costs nothing by `cfiveJoin_far_lambdaTwo_mul`, so the reached far slots **include** the
+closed span of `X ∪ Y`, i.e. the preimage in `Q₅` of the span of `X` in `Q₅ / Y`.  Only that
+direction is proved: nothing here shows a far slot outside the span is unreached. -/
 theorem cfiveJoin_ad_far_lambdaTwo {S : Subgroup (levelQuot G 5)}
     (hS : IsClosed ((S : Subgroup (levelQuot G 5)) : Set (levelQuot G 5)))
     {t : levelQuot G 5} (ht : t ∈ lambdaImage G 3 5) {X : Set (levelQuot G 5)}
@@ -575,7 +582,7 @@ end Reduction
 /-! ## §8 At `D_sq h`, and at a mod-2 independent frame
 
 At `D_sq h` the level-five quotient is discrete, so every closedness side condition is free, and
-the generation hypothesis is exactly the mod-2 independence clause that
+the generation hypothesis follows from the mod-2 independence clause that
 `cfiveKnob_supply_of_reach` already carries. -/
 
 section Dsq
@@ -634,7 +641,7 @@ theorem cfiveJoin_topGen_of_subset {m : Fin (sqRank h) → (DSq h : Type)}
 /-- ⭐⭐⭐ **The join at a mod-2 independent frame of `D_sq h`.**  The far slots of the four
 bracket knobs are the frame letters other than `m 2` (`cfiveJoin_farSlot_cases`), the `x₁`-slot
 knob's far slot is `m 2`, every closedness condition is free because `Q₅` is discrete, and the
-generation condition is mod-2 independence.  So the whole join at the real inventory is
+generation condition follows from mod-2 independence.  So the whole join at the real inventory is
 
 ```text
   zLayer 4 ≤ S   ↔   ∀ c ∈ T, commP c (levelMk 5 (m 2)) ∈ S ,

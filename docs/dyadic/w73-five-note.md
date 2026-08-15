@@ -43,8 +43,12 @@ That defect is neither proved nor refuted here.
 
 **Nothing is discharged and nothing is refuted.**  `SqClassClearingSupply h 4` and
 `SqClassClearingSupply h 5` are untouched.  A failure of this join would be a statement about
-this route: `cfiveKnob_supply_of_reach` quantifies its base frame existentially, and class five
-is conditional on class four in any case.
+this route: `cfiveKnob_supply_of_reach` quantifies its base frame existentially and presupposes
+no class-four witness (its own docstring says so), and `SqClassClearingSupply h 5` enters
+`limFinal_markTransitivity_iff` only alongside every other class, class four included.
+**[W75-HOUSE, round 11 §4.2(a): the original "class five is conditional on class four in any
+case" was wrong.  `SqClassClearingSupply h k` (`GradedLimit.lean:236`) is a standalone per-class
+`Prop` and at `k = 5` mentions no class-four object; what is true is about the assembly.]**
 
 ## 1.  Why the join is one question and not six (module §4)
 

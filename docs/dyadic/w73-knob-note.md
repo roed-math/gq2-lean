@@ -68,19 +68,29 @@ left alone, and `cfourCmp_handle_knob` packages it against an explicit correctio
 ⭐⭐⭐ `cfourCmp_dress_reach`.  For **every** admissible `γ₂`-correction `c`,
 
 ```text
-  ⁅c, A⁆ = ⁅a, V_j⁆ · ⁅U_j, b⁆ ,     a, b ∈ {1, c} ,
+  ⁅c, A⁆ = ⁅a, V_j⁆ · ⁅U_j, b⁆ ,     a, b admissible ,
 ```
 
 an exact identity, not a subgroup membership.  The mechanism is a two-way parity count.  Modulo
 `γ₂` and modulo squares, which is all `⁅c, ·⁆` sees,
 
 ```text
-  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j + 2·ν'(u_j)·ν'(v_j)·w = A ,
+  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j - 2·ν'(u_j)·ν'(v_j)·w = A ,
 ```
 
 the two pivot contributions cancelling because their total exponent is even.  `a` is `c` exactly
 when `ν'(u_j)` is odd and `b` is `c` exactly when `ν'(v_j)` is odd; the four parity cases are the
 four branches of the proof.
+
+**[W75-HOUSE, round 11 §4.2(g) and §4.2(e).**  Two corrections to the display above.  `a, b ∈
+{1, c}` was written as a side condition of the identity; the theorem concludes only that `a` and
+`b` are **admissible**, and the `{1, c}` reading is a fact about the four parity branches that a
+consumer cannot use.  Strengthening the conclusion would be a statement change, so the display is
+what moved.  And the pivot coefficient is `- 2·ν'(u_j)·ν'(v_j)·w`, not `+`: `bridgeDress` is
+`u_j^{ν'(v_j)}·v_j^{ν'(u_j)}·w^{-2·ν'(u_j)·ν'(v_j)}` (`GradedBridge.lean:337`) and the cleared
+letters are `U_j = w^{-ν'(u_j)}·u_j`, `V_j = v_j·w^{-ν'(v_j)}` (`LamFrames.lean:293`, `:300`).
+The sign is invisible under this paragraph's own "modulo squares" hedge, which is why it survived;
+it is **not** invisible in the module, where the same display carries only a "(mod γ₂)" tag.]**
 
 **Correction to wave 72 §3, and it is an improvement rather than a retraction.**  Wave 72 routed
 `⁅y, A⁆` through the pivot (`cfourDef_comm_dress_frame_mem` needs `⁅y, w⁆`, and

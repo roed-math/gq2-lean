@@ -12,8 +12,9 @@ Lane **W73-STRATUM**.  Three tickets against wave 72's queue, which left the sur
 the even classification with two halves, a base and a climb, each carrying a *blocked* committed
 route.
 
-**Ticket 1 (§1-§3): the climb's block is real.**  `StageAbstractionEvenRawSpan.lean` §0 records
-**in prose** (lines 44-46 and 65) that the coordinate-`0` row of its literal factorization is
+**Ticket 1 (§1-§3): the climb's block is real.**  `StageAbstractionEvenRawSpan.lean`'s **module
+docstring** records **in prose** (lines 44-46 and 65) that the coordinate-`0` row of its
+literal factorization is
 false at `α = 1`, and wave 72 relayed that claim without verifying it.  It is correct, and the
 failure is exactly one atom wide.  `MarkedCore.nWord 1 a b c d = a⁴[a,b][c,d]`, and `4 = 2 * 2`
 has an *even* half, so `evenRawPow_of_even_half` applies where `evenRawPow_of_odd_half` applies at
@@ -72,8 +73,12 @@ open GQ2.Dyadic.Certificates.LSqStokes
 /-! ## §1 The literal factorization at `α = 1`
 
 Everything here is the `α ≥ 2` development of `StageAbstractionEvenRawSpan.lean` §3-§4 run at
-the *other* parity of the first letter's exponent.  The two central regrouping helpers are
-re-declared because the originals are `private`. -/
+the *other* parity of the first letter's exponent.  Of the two central regrouping helpers,
+`evenStratumShiftAssemble` is a re-declaration of the private `evenRawShiftAssemble`, statement
+for statement; `evenStratumShiftAssembleOne` is **not** a re-declaration but this section's own
+`α = 1` analogue -- the private `evenRawAssembleN` takes six elements with two commutation
+hypotheses, and deleting the `A` slot (the diagonal atom, which is what disappears at `α = 1`)
+leaves five elements, one hypothesis and a different conclusion. -/
 
 section ShiftOne
 
@@ -118,8 +123,9 @@ theorem evenStratumShiftCoreOne_mem_zLayer (k : ℕ) (hk : 3 ≤ k)
   exact commP_mem_zLayer k hk (hdepth _) _
 
 omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
-/-- **The `α ≥ 2` core block is the `α = 1` one times the diagonal atom.**  A regrouping, no
-hypotheses: the two words differ by exactly `w₀² · [w₀, base 0]`. -/
+/-- **The `α ≥ 2` core block is the diagonal atom times the `α = 1` one.**  A regrouping, no
+hypotheses: the two words differ by exactly a left factor `w₀² · [w₀, base 0]`.  The atom is on
+the left, and no depth hypothesis is carried here, so it is not known central. -/
 theorem evenStratumShift_coreDbarWord_eq
     (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
     evenRawCoreDbarWord base correction =
@@ -198,8 +204,9 @@ end ShiftOne
 
 /-! ## §3 The refutation
 
-One profinite group suffices, and the smallest one does: the cyclic group of order eight with
-its discrete topology.  Its `λ₂` contains an element of order four, so the diagonal atom of a
+One profinite group suffices, and a small one does: the cyclic group of order eight with
+its discrete topology.  (Nothing here proves minimality, and the smallest profinite group is of
+course the trivial one.)  Its `λ₂` contains an element of order four, so the diagonal atom of a
 correction supported at coordinate `0` is nontrivial in `Q₄`. -/
 
 section Witness
@@ -529,11 +536,15 @@ theorem evenStratum_exists_gramOne_modelEquiv {h : ℕ}
 The Gram-independent half of `evenFrame_of_adapted`, extracted: a family of group elements
 realizing the coordinate functionals generates the Frattini quotient.  Its hypotheses are
 satisfied by the realizers of any linear isomorphism onto `evenFrameModel h`, which is exactly
-how §5.2 uses it, so it is not general-in-the-binders only. -/
+how `evenStratum_frame_of_gramOne_modelEquiv` below uses it, so it is not general-in-the-binders
+only. -/
 
 /-- **Realizers of a coordinate system generate the Frattini quotient.**  No Gram enters: the
 input is only that evaluation at `gens i` computes the `i`-th coordinate of a linear
-isomorphism. -/
+isomorphism.
+
+Its sole call is inside §5.1's own `evenStratum_frame_of_gramOne_modelEquiv`; §5.2 reaches it
+only through that. -/
 theorem evenStratum_levelTwoGen_of_realizers {h : ℕ}
     (Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h)
     (gens : Fin (MarkedCore.coreRank h) → maxProPQuotient 2 (GalK K))
@@ -703,10 +714,11 @@ directions.
   at all, because the residual lies in `λ_k`.  At `s = 0` that is exactly the demanded level, so
   the demand is met unconditionally; at `s ≥ 1` it is not, since `k + 1 < k + 1 + s`.
 * **§6.2 Depth zero does not make the supply free.**  The neutral corrections that depth zero
-  hands over for free are the `zLayer`-valued ones, and the literal shift word of a
-  `zLayer`-valued correction is trivial: every bracket dies by centrality and the slot-zero
-  square dies by `zLayer_sq`.  So the free supply reaches the residual only when the residual is
-  already `1`.
+  hands over for free include every `zLayer`-valued one (that direction is what is proved; the
+  converse does not follow), and `evenRawDbarWord` -- the `α ≥ 2` shift word, which §2 shows is
+  not the literal shift at `α = 1` -- is trivial on a `zLayer`-valued correction: every bracket
+  dies by centrality and the slot-zero square dies by `zLayer_sq`.  So the free supply reaches
+  the residual only when the residual is already `1`.
 
 Together: `EvenClimbResidualSupply 0` is neither refuted by the recorded obstruction nor
 discharged by the automatic corrections.  It is **open**, and the honest answer to "degenerate,
@@ -776,9 +788,10 @@ theorem evenStratum_residual_digit_zero_automatic (hk : 3 ≤ k)
 /-! ### §6.2 The free neutral corrections shift nothing -/
 
 omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
-/-- **A `zLayer`-valued correction has trivial literal shift.**  Every bracket in
+/-- **A `zLayer`-valued correction has trivial `α ≥ 2` shift word.**  Every bracket in
 `evenRawDbarWord` has a central left slot and dies, and the slot-zero square dies because the
-layer is elementary abelian.  No hypothesis on the base. -/
+layer is elementary abelian.  No hypothesis on the base.  (`evenRawDbarWord` is the repo's
+"literal shift" only at `2 ≤ α`; §2 of this module measures the gap at `α = 1`.) -/
 theorem evenStratum_dbarWord_eq_one_of_zLayer
     (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
     (hz : ∀ i, correction i ∈ zLayer G k) :
@@ -813,11 +826,13 @@ def evenStratumNeutralOfZLayer (hk : 3 ≤ k)
 
 omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- **DEPTH ZERO DOES NOT MAKE THE SUPPLY FREE.**  The neutral corrections that depth zero hands
-over for nothing are exactly the `zLayer`-valued ones, and each of them has trivial literal
-shift, so it reaches the residual precisely when the residual is already trivial.  So at every
-stage whose residual is nontrivial, discharging `EvenClimbResidualSupply 0` needs a neutral
-correction with a coordinate *outside* the central layer, which is the same demand as at every
-other depth. -/
+over for nothing **include** every `zLayer`-valued one: `evenStratumNeutralOfZLayer` proves that
+direction and only that direction, since `EvenSharpNeutralCorrection` asks for membership in
+`lambdaImage G (k-1) (k+1)` together with a digit condition, and neither clause excludes a
+coordinate in `λ_{k-1} \ λ_k`.  Each `zLayer`-valued one has trivial `α ≥ 2` shift word, so it
+reaches the residual precisely when the residual is already trivial.  So at every stage whose
+residual is nontrivial, discharging `EvenClimbResidualSupply 0` needs a neutral correction with a
+coordinate *outside* the central layer, which is the same demand as at every other depth. -/
 theorem evenStratum_zLayerNeutral_reaches_iff
     (Wc : DeepSharpAdmissibleCorrection s T)
     (correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
