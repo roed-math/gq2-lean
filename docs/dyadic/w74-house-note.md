@@ -82,6 +82,17 @@ closure at any of those trees).  That settles
 "consume" literally but not usefully, since the records are hypotheses the classification
 workstreams exist to discharge from outside.
 
+**[W77-HOUSE, ticket 1: the figure is confirmed and a rival figure is refuted.**  A redundant
+count-audit reported this closure as **325**, not 427.  Recomputed here with the regex of record
+of `w72-house-note.md` §1.0, which admits `public import`: the closure is **427** at `4fff1592`
+and **427** at `1d3d5a84`, and the two closures are the *same set* of modules.  325 is exactly
+what a plain `^import ` grep returns, because that grep drops the 586 `public import` lines the
+aggregators use.  The denominator has moved and the numerator has not: as of `1d3d5a84` the tree
+holds **936** `.lean` files under `GQ2/`, **937** counting the root, so read this sentence as
+**427 of 930 as of `4fff1592`** and as 427 of 937 today.  All seven modules added since
+`4fff1592` are reached from `GQ2.lean` alone and none is in `GQ2.Dyadic.Main`'s closure, which is
+why the numerator is unchanged.]**
+
 **Mathematically**, and this is the real answer: a ramified-`i` field is **never** on the third
 stratum, so the `alpha = 1` point is outside `FieldInputs.ramified` outright.  Three committed
 statements:

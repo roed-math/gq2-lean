@@ -88,9 +88,21 @@ four branches of the proof.
 consumer cannot use.  Strengthening the conclusion would be a statement change, so the display is
 what moved.  And the pivot coefficient is `- 2·ν'(u_j)·ν'(v_j)·w`, not `+`: `bridgeDress` is
 `u_j^{ν'(v_j)}·v_j^{ν'(u_j)}·w^{-2·ν'(u_j)·ν'(v_j)}` (`GradedBridge.lean:337`) and the cleared
-letters are `U_j = w^{-ν'(u_j)}·u_j`, `V_j = v_j·w^{-ν'(v_j)}` (`LamFrames.lean:293`, `:300`).
+letters are `U_j = w^{-ν'(u_j)}·u_j`, `V_j = v_j·w^{-ν'(v_j)}` (`sqEichU`/`sqEichV`,
+`LamFrames.lean:303`/`:295`).
 The sign is invisible under this paragraph's own "modulo squares" hedge, which is why it survived;
 it is **not** invisible in the module, where the same display carries only a "(mod γ₂)" tag.]**
+
+**[W77-HOUSE, ticket 2(b): the citation in the paragraph above is repaired, and the wave-75
+correction that produced it was wrong.**  Round 11 shipped `LamFrames.lean:301` and then amended
+it to `:300`.  Both are wrong, and in opposite ways.  At `1d3d5a84`, `LamFrames.lean:300` is a
+bare `variable (h) in` line, and `:301` is the **first** line of the cleared-`u` docstring, not
+the second.  The consistent pairs are `:293`/`:301` if one wants the two docstrings and
+`:295`/`:303` if one wants the two definitions, and note that `:293` is the cleared-**`v`**
+docstring, so the original `:293`, `:300` was also mis-ordered against this sentence's own
+`U_j`, `V_j` order.  Repaired above to the definitions, named, in the sentence's order:
+`sqEichU` at `:303`, `sqEichV` at `:295`.  Same repair at the second shipped site,
+`GradedClassFourCompose.lean:420`.  `w74-func-note.md:139` already had `295,303` right.]**
 
 **Correction to wave 72 §3, and it is an improvement rather than a retraction.**  Wave 72 routed
 `⁅y, A⁆` through the pivot (`cfourDef_comm_dress_frame_mem` needs `⁅y, w⁆`, and

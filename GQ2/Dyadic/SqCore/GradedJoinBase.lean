@@ -68,8 +68,15 @@ GBaseXOneTriple h ν' :  ∀ i, ⁅⁅x₁, letter i⁆, x₁⁆ ∈ gTowerReach
   complement tower.  No letter-by-letter identification of the towers is needed.
 
 The conclusion is `gBase_joinBase_of_residual : GBaseResidual h → GJoinBase h`, and with it
-`gBase_markTransitivity_of_residual`.  So wave 75's first named input is now the `3 + 2h`
-brackets `⁅⁅x₁, letter⁆, x₁⁆`, and nothing else.
+`gBase_markTransitivity_of_residual`.  So wave 75's first named input is **discharged by** the
+`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, and by nothing else in this file.
+
+⚠ **One direction only.**  What is proved here is `GBaseResidual h → GJoinBase h`.  The converse
+is *not* in this file, so "wave 75's first named input **is** the brackets" would be an
+over-reading: supplying the brackets suffices for `GJoinBase h`, and refuting `GJoinBase h`
+refutes them, but refuting the brackets does not by itself refute `GJoinBase h`.
+`gBase_residual_iff` is an equivalence between two *spellings of one class* at a fixed `c`, not a
+converse to `gBase_joinBase_of_residual`.
 
 **Whether they hold is open, and the lane note argues they do not.**  Nothing in this file is
 evidence either way: every statement here is a reduction, and `GBaseXOneTriple` is a
@@ -616,8 +623,11 @@ def GBaseResidual : Prop :=
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
       GBaseXOneTriple h nu'
 
-/-- ⭐⭐⭐ **`GJoinBase h` from the residual.**  Wave 75's first named input is exactly the
-`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, at every selected marking. -/
+/-- ⭐⭐⭐ **`GJoinBase h` from the residual.**  Wave 75's first named input is discharged by the
+`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, at every selected marking.
+
+⚠ This is the implication `GBaseResidual h → GJoinBase h`, not an equivalence; no converse is
+proved in this file.  See the module docstring. -/
 theorem gBase_joinBase_of_residual (H : GBaseResidual h) : GJoinBase h :=
   fun nu' hsigma hx0 => gBase_layerReach_of_xOneTriple (H nu' hsigma hx0) hsigma hx0
 

@@ -417,7 +417,8 @@ the proof and not part of what a consumer may use.
 The mechanism is a two-way parity count.  Modulo `γ₂` and modulo squares, which is all a bracket
 with a `Y`-element in the near slot sees, `A = u_j^{ν'(v_j)}·v_j^{ν'(u_j)}·w^{even}` and the two
 cleared letters are `U_j = w^{-ν'(u_j)}·u_j`, `V_j = v_j·w^{-ν'(v_j)}` (the same convention as
-`cfourCmp_comm_eichU`/`cfourCmp_comm_eichV` above, and as `LamFrames.lean:293`, `:300`).  So
+`cfourCmp_comm_eichU`/`cfourCmp_comm_eichV` above, and as `sqEichU`/`sqEichV`,
+`LamFrames.lean:303`/`:295`).  So
 
 ```text
   ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j - 2·ν'(u_j)·ν'(v_j)·w = A ,

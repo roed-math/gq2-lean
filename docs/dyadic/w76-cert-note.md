@@ -219,5 +219,16 @@ union of their inputs' sets, and everything else is std-3.
    worth closing so the `N0` row's `exactLifting` argument can be discharged rather than passed.
 4. **Registration.**  Neither `GeneralAssembly.lean` nor `GeneralCertificates.lean` is in
    `GQ2.lean` (lane protocol forbade editing it).  A later wave should add both.
+   **[W77-HOUSE, ticket 3, STALENESS: DONE, and half of it was already done when this item was
+   written.**  At `1d3d5a84` both are registered: `GQ2.lean:857` `import GQ2.Dyadic.GeneralAssembly`
+   and `GQ2.lean:858` `import GQ2.Dyadic.GeneralCertificates`.  `GeneralAssembly` was registered by
+   `a19fac5a` at 04:18, and this lane's base is `97d51e93` (04:59), so **the registration was
+   already in the lane's own base** and the word "Neither" was wrong when written, not merely
+   overtaken.  `GeneralCertificates` was registered by `b1bc9d48` at 05:35, one minute after this
+   note was committed (`edd7dd7a`, 05:34) and immediately after the lane merged.  The sibling
+   module `SqCore/GradedJoinBase.lean` was likewise registered at 05:37 (`681ce981`,
+   `GQ2.lean:777`).  **Nothing is left of this item.**  For the wave-78 checklist: "is my module
+   registered" is a one-line grep of `GQ2.lean` and belongs in the staleness pass, since the
+   owner registers modules within the hour and lane notes are written against a frozen base.]**
 5. **The canonical `L` marking.**  Comparing `genCertLNu` with `Instances.LSquareCore.lNu 0`
    would let `genAsm_branch_of_oddSq_canonical` and the `L`-row certificate meet at one marking.

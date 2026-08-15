@@ -20,6 +20,14 @@ in-place correction that silently desynchronised two verbatim wave-74 quotations
 **Ticket 1 (the refuted-condition trail).**  The predecessor annotated seven sites; four more
 were found by the tree-wide grep, and three of them carry the sweep's real result:
 
+**[W77-HOUSE, ticket 2(c): "seven sites" should read "seven files, nineteen sites".**  §2's own
+enumeration of what the predecessor covered lists **seven files** and, adding up its own
+sub-counts, **nineteen sites**: `GradedClassFiveJoin.lean` (1), `GradedClassFourCompose.lean` (5),
+`owner-items-2026-08-05.md` wave-73 block (1), `w72-defects-note.md` §4 (1), `w72-five-note.md`
+queue item 1 (1), `w73-five-note.md` (3), `w73-knob-note.md` (7).  "Four more" is right as
+written, because §2's second list really is four sites in four files.  A reader comparing 7
+against 4 is comparing files against sites.]**
+
 > **The correct diagnosis was in the tree at wave 70 and was lost.**
 > `w70-cfour-note.md` §4's paragraph "What `K` misses" says the knob subgroup misses `V^{[4]}`,
 > represented by `σ^{[4]}` and `x₀^{[4]}`, and wave 71 §2 explicitly endorsed it as "not wrong
@@ -74,11 +82,11 @@ comments, docstrings and line comments removed, blank lines dropped), and each p
 | inherited file | disposition | why |
 | --- | --- | --- |
 | `SqCore/GradedClassFiveJoin.lean` | **committed** (`aa8b9f65`) | round 11 §4.2(a),(b),(c),(f),(j).  All five verified.  §4.2(c)'s applied text is *better* than the finding; see §3.2. |
-| `SqCore/GradedClassFourCompose.lean` | **committed, amended** (`aa8b9f65`) | round 11 §4.2(d),(e),(g),(h),(i),(k).  Amended twice: one added line was 108 characters, and the `LamFrames.lean:301` citation is one line past the definition it cites (`:300`). |
+| `SqCore/GradedClassFourCompose.lean` | **committed, amended** (`aa8b9f65`) | round 11 §4.2(d),(e),(g),(h),(i),(k).  Amended twice: one added line was 108 characters, and the `LamFrames.lean:301` citation is one line past the definition it cites (`:300`). **[W77-HOUSE: the second amendment was wrong; `:300` is a `variable` line. Repaired to `:303` (`sqEichU`). See §4.2(e)'s W77 annotation.]** |
 | `Instances/EvenStratumShift.lean` | **committed, amended** (`aa8b9f65`) | round 11 §4.3(a)-(g).  Amended once: §4.3(f)'s "literal shift" survived inside the very docstring §4.3(a)'s fix rewrote, so the fix was half-applied within one declaration. |
 | `docs/dyadic/w72-stratum-note.md` | **committed** (`aa8b9f65`) | §4.3(e), two sites, both verified. |
 | `docs/dyadic/w73-five-note.md` | **committed** (`aa8b9f65`) | §4.2(a) second site, verified against `GradedLimit.lean:236` and `GradedGammaFourFive.lean:726`. |
-| `docs/dyadic/w73-knob-note.md` | **committed, amended** (`aa8b9f65`) | §4.2(e),(g) second sites.  Same `:301` → `:300` amendment. |
+| `docs/dyadic/w73-knob-note.md` | **committed, amended** (`aa8b9f65`) | §4.2(e),(g) second sites.  Same `:301` → `:300` amendment. **[W77-HOUSE: likewise wrong; repaired to `:303`/`:295`.]** |
 | `docs/dyadic/w73-stratum-note.md` | **committed, one hunk REVERTED to an annotation** (`aa8b9f65`) | §4.3(b),(e),(g) kept; §4.3(h) reverted and re-applied as an annotation.  See below. |
 
 **The one revert, and it is the inherited edits' only real defect.**  Round 11 §4.3(h) asks for
@@ -142,6 +150,17 @@ refutation does not reach them, and annotating them would over-claim.
 | §4.5 first two | 2 | `GQ2/AxiomLedger.lean`, `StageAbstractionEvenRawSpan.lean` | `0012ce42` |
 | §4.5 third | 1 | **reported only** (Lean source: the unused `private abbrev evenStratumPlane`, round 11's `EvenStratumShift.lean:416`, now `:423`) | - |
 
+**[W77-HOUSE, ticket 2(c): the "29" is right and THIS TABLE is the thing that is one short.**
+The table's findings column sums to **28** (5 + 6 + 7 + 7 + 2 + 1; the fourth row is marked "(same
+7)" and correctly adds nothing).  Round 11's own enumeration in `w74-house-note.md` §4 is §4.2
+**(a)-(k)** = 11, §4.3 **(a)-(h)** = 8, §4.4 (a)-(g) = 7 and §4.5's three background bullets = 3,
+which is **29**.  (§4.1's four are excluded correctly: round 11 applied those itself.)  The row
+that is short is **`§4.3(a)-(g) | 7`**, which should be `§4.3(a)-(g) | 7` plus `§4.3(h) | 1`:
+§4.3(h) is a finding round 11 raised in its own right, about `w73-stratum-note.md:225`, and §2's
+disposition table above records it separately as "reverted and re-applied as an annotation".  It
+is currently absorbed into the "(same 7)" second-sites row, where it is not a second site of
+anything.  **The headline "29 findings" needs no change.**]**
+
 ### 3.2  Corrections to the findings themselves
 
 * **§4.2(c)'s proposed correction is incomplete.**  It names only §6's
@@ -156,6 +175,18 @@ refutation does not reach them, and annotating them would over-claim.
 * **§4.2(e)'s second citation does not resolve.**  `LamFrames.lean:301` is the second line of the
   cleared-`u` docstring; the two definitions are at `:293` (`V_j = v_j·w^{−ν'(v_j)}`) and `:300`
   (`U_j = w^{−ν'(u_j)}·u_j`).  Corrected in both the module and `w73-knob-note.md`.
+  **[W77-HOUSE, ticket 2(b): THIS FINDING IS WRONG, and the correction it shipped is wrong.**
+  Verified at `1d3d5a84`, where `LamFrames.lean` is unchanged in this region since wave 73.
+  `:300` is a bare `variable (h) in` line, so it is not a definition and cites nothing; `:301` is
+  the **first** line of the cleared-`u` docstring, not the second; and `:293` is the cleared-**`v`**
+  docstring's first line, not a definition either.  The actual definitions are `sqEichV` at
+  **`:295`** and `sqEichU` at **`:303`**, so the consistent pairs are `:293`/`:301` for the two
+  docstrings and `:295`/`:303` for the two definitions, and this bullet mixes one of each.  The
+  `:301` it replaced was in fact the better of the two readings.  Both shipped sites are repaired
+  to the definitions, named and in each sentence's own `U_j`, `V_j` order:
+  `GradedClassFourCompose.lean:420` and `w73-knob-note.md:91`.  `w74-func-note.md:139` already
+  carried `295,303` correctly, and `w76-base-note.md:153`'s range `:295-306` is also right; this
+  note is the only source of the bad pair.]**
 * **§4.5's second finding under-reports by three.**  `StageAbstractionEvenRawSpan.lean`'s
   Contents list has **four** defects, not one: seven items against six sections and one section
   high from §3 onwards (reported); "five exact coordinate rows" where §5's own subheading and its
@@ -456,6 +487,11 @@ unreachable module is `GQ2.AxiomLedger`, which is deliberate.
 * **`GQ2.Dyadic.Main`'s closure is 427**, recomputed by walking the `import` graph.  Nothing
   matching `EvenStratum*`, `EvenAlphaOne` or `NFrameAlphaOne` is in it, and **no
   `SqCore/Graded*` module** is in it, exactly as `w74-critical-path.md` §2.1 says.
+  **[W77-HOUSE, ticket 1.**  Re-verified: 427 at `4fff1592`, at this note's own `f0a71688`, and
+  at `1d3d5a84`, the same set each time.  This subsection's own module recount (932 / 933 / 932
+  reachable, sole unreachable `GQ2.AxiomLedger`) also reproduces exactly at `f0a71688`.  A
+  redundant count-audit reported 325 instead; that is the plain-`^import` figure and it is wrong.
+  See `w77-house-note.md` §1.]**
 
 **Counts, independently recounted at this tree:**
 
@@ -479,6 +515,29 @@ unreachable module is `GQ2.AxiomLedger`, which is deliberate.
   `w74-even-note.md:194-196` describes ("all 46 named public declarations ... together with
   eight ...").
 
+**[W77-HOUSE, ticket 2(c): the three line counts in this subsection are correct as-of `f0a71688`
+and have since drifted; the as-of hash is what was missing, not the arithmetic.**  Recounted at
+`1d3d5a84`:
+
+| figure | as recorded (`f0a71688`) | at `1d3d5a84` |
+| --- | --- | --- |
+| `GradedUniformTower.lean` pins | 94 | **94**, unchanged (file 1895 lines) |
+| `GradedDeltaFunctionals.lean` lines | 1749 | **1757** |
+| `GradedDeltaFunctionals.lean` pins | 103 | **103**, unchanged |
+| `EvenStratumRowFrame.lean` lines | 1077 | **1088** |
+
+Every one of the recorded figures reproduces exactly at `f0a71688`, so this subsection measured
+correctly and only its tree moved.  The declaration-to-pin bijection that the wave-76 round-13
+annotation established for `GradedDeltaFunctionals.lean` still holds exactly: **103 declarations,
+103 pins, no declaration unpinned, no pin naming anything outside the file, no duplicate.**
+
+⚠ **A counting trap that is new since `f0a71688`, for whoever recounts next.**  `grep -c '#print
+axioms'` on `GradedDeltaFunctionals.lean` now returns **104**, one more than the true 103.  The
+extra hit is **prose**: `:111`, a module-docstring bullet reading "**§9 Axiom pins.** One `#print
+axioms` for each of the file's declarations", added after this note's tree.  Anchor the count at
+column zero (`grep -c '^#print axioms'`) or a recount will report a phantom 104th pin and read
+the bijection as broken.]**
+
 ## 5.  Ticket 4: the FUNC handoff's two loose ends, scoped for W76
 
 Both come from `w74-func-note.md` §4.4.  **Nothing was built.**
@@ -487,6 +546,12 @@ Both come from `w74-func-note.md` §4.4.  **Nothing was built.**
 
 **What exists.**  `gDelta_chiSq_sq_of_nuLam` and `gDelta_chiSq_of_nuLam`
 (`GradedDeltaFunctionals.lean:1190`): a `λ`-trivial dressing slot has `χ_sq = ±1`.
+**[W77-HOUSE, ticket 2(c): one line number is given for two declarations, and it resolves to only
+the second.**  At this note's own `f0a71688`, `gDelta_chiSq_sq_of_nuLam` is at **`:1180`** and
+`gDelta_chiSq_of_nuLam` at `:1190`; read the citation as `:1180`/`:1190`.  As of `1d3d5a84` the
+file has grown by 8 lines and both have moved, to **`:1188`** and **`:1198`**.  The other site of
+the same declaration, `:304` of this note, cites `:1190` for that declaration alone and was
+correct when written; it is likewise `:1198` today.]**
 `GDeltaDefectVanishing h` (`:1005`) with `gDeltaDefectVanishing_holds` (`:1012`): the `+1` branch,
 proved outright.  `gDelta_relWord_dvd_of_chi_mod` (`:1464`): the mod-8 branch, as a
 `2^3`-divisibility rather than a vanishing.  `gDelta_chi_gammaTwo_dvd` (`:1448`) and
@@ -597,6 +662,12 @@ proved only at `h = 0`.]**
 
 * Lane `claude/w75-house`, base `f0a71688`, inheriting `47094a9c`.  Five further commits, all
   path-limited.  Not pushed.
+  **[W77-HOUSE, ticket 2(c): "Five" is SEVEN.**  `git rev-list --count f0a71688..0add6034^2` is
+  **8**, of which `47094a9c` is the inherited one, leaving **seven further**: `aa8b9f65`,
+  `0012ce42`, `e22752e4`, `f03b6d1c`, `6eceb48c`, `e3e05329`, `314c5bb2`.  The last two landed
+  after this sentence was written, which is how the count went stale.  The wave-76 lane hit the
+  same defect in its own record and corrected it there (`11fbbd75`, four to seven); this is the
+  wave-75 instance, which that pass did not reach.]**
 * **No `lake` command was run.**  `scripts/check_dyadic.sh` was not run either.
 * `scripts/mirror.sh sweep` once at lane start (5863 artifacts), then `scripts/mirror.sh check` on
   every edited module after every edit and again at the final state.  **All six modules `OK`.**
