@@ -873,3 +873,4 @@ import GQ2.Dyadic.Instances.OddIdentification
 import GQ2.Dyadic.Instances.MpcNormValues
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
+import GQ2.Dyadic.Instances.OddSeam
