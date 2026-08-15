@@ -1557,7 +1557,194 @@ theorem gTower_layerReach_of_base
 
 end LayerStep
 
-/-! ## Axiom pins (§1 and §2) -/
+/-! ## §8 The conditional assembly
+
+The interface for the sibling FUNC lane, and the recursion that closes the whole residual
+from it.  Two named hypotheses:
+
+* `GTowerDefectVanishing h` - his Lemma 4 target: at every level, the defect of every
+  admissible frame lies in the **knob span** (equivalently, by §7's tower theorem, its
+  coefficients along the admissible towers vanish; its coefficients along the two
+  non-admissible towers vanish automatically, the defect being exactly row-trivial by
+  `gTower_frame_row_nuLam`/`gTower_frame_row_nu`).
+* `GTowerKnobRealizable h` - the extraction: a knob-span class of the defect is realized by an
+  admissible correction tuple of the frame.  This is where wave 73's multi-handle flag lives:
+  at corrections one layer down the cross-slot terms all die (`gTower_dress_core` is the
+  three-core-slot case), and the far-slot content of the accumulated dressing is blind beyond
+  its mod-2 class, but the general-`h` bookkeeping is a lane of its own and is **not** proved
+  here.
+
+`gTower_supply_of_vanishing` then closes `SqClassClearingSupply h k` for **every** `k` by
+recursion from the committed class-three witness, and `gTower_markTransitivity_of_vanishing`
+closes the whole `h ≥ 1` residual through the committed compactness assembly. -/
+
+section DefectRows
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- **The defect is exactly `λ`-trivial**: the `λ`-row of the relator value of any frame with
+`λ`-trivial dressings is `λ(ρ_sq) = -4·λ(x₀) + 2·λ(x₁) = -4 + 4 = 0`. -/
+theorem gTower_frame_row_nuLam (j : Fin h) {a : Fin (sqRank h) → (DSq h : Type)}
+    (ha : ∀ i, nuLam h (a i) = 1) :
+    nuLam h (sqRelWord (sqArbFrame h nu' j a)) = 1 := by
+  rw [map_sqRelWord, sqRelWord_comm]
+  have h1 : nuLam h (sqArbFrame h nu' j a 1) = ofAdd (1 : ℤ_[2]) := by
+    show nuLam h (sqArbBase h nu' j 1 * a 1) = ofAdd (1 : ℤ_[2])
+    rw [map_mul, ha 1, mul_one, sqArbBase_one, nuLam_x0]
+  have h2 : nuLam h (sqArbFrame h nu' j a 2) = ofAdd (2 : ℤ_[2]) := by
+    show nuLam h (sqArbBase h nu' j 2 * a 2) = ofAdd (2 : ℤ_[2])
+    rw [map_mul, ha 2, mul_one, sqArbBase_two, nuLam_x1]
+  rw [h1, h2]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_mul, toAdd_inv, toAdd_pow, toAdd_pow, toAdd_ofAdd, toAdd_ofAdd, toAdd_one]
+  ring
+
+/-- **The defect is exactly `ν'`-trivial at a selected marking**: `ν'(x₀) = 0` by selection and
+`ν'(x₁) = 0` is forced (`gTower_nu_x1`), so `ν'(ρ_sq) = 0`. -/
+theorem gTower_frame_row_nu (j : Fin h)
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {a : Fin (sqRank h) → (DSq h : Type)}
+    (ha : ∀ i, nu' (a i) = 1) :
+    nu' (sqRelWord (sqArbFrame h nu' j a)) = 1 := by
+  rw [map_sqRelWord, sqRelWord_comm]
+  have h1 : nu' (sqArbFrame h nu' j a 1) = ofAdd (0 : ℤ_[2]) := by
+    show nu' (sqArbBase h nu' j 1 * a 1) = ofAdd (0 : ℤ_[2])
+    rw [map_mul, ha 1, mul_one, sqArbBase_one, hx0]
+  have h2 : nu' (sqArbFrame h nu' j a 2) = ofAdd (0 : ℤ_[2]) := by
+    show nu' (sqArbBase h nu' j 2 * a 2) = ofAdd (0 : ℤ_[2])
+    rw [map_mul, ha 2, mul_one, sqArbBase_two, gTower_nu_x1 nu' hx0, ofAdd_zero]
+  rw [h1, h2]
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_mul, toAdd_inv, toAdd_pow, toAdd_pow, toAdd_ofAdd, toAdd_one]
+  ring
+
+/-- ⭐⭐ **Conditionally on the class-four base, the defect always lies in the reach**: it is a
+row-trivial layer element, so §7's tower theorem places it in the span of the knobs and the
+admissible towers.  `GTowerDefectVanishing` below therefore asks *exactly* that its
+coefficients along the admissible towers vanish - the campaign form of his Lemma 4 target
+`Im(δ) = ⋂ ker Δ`. -/
+theorem gTower_defect_reach_of_base (hbase : GTowerLayerReach h nu' 2)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (j : Fin h) {k : ℕ} (hk : 2 ≤ k)
+    {a : Fin (sqRank h) → (DSq h : Type)} (hal : ∀ i, nuLam h (a i) = 1)
+    (han : ∀ i, nu' (a i) = 1)
+    (hrel : sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) (k + 1)) :
+    levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
+      ∈ gTowerReach h nu' k :=
+  gTower_layerReach_of_base hsigma hx0 hbase k hk _ hrel
+    (gTower_frame_row_nuLam j hal) (gTower_frame_row_nu j hx0 han)
+
+end DefectRows
+
+section Assembly
+
+variable {h : ℕ}
+
+variable (h) in
+/-- ⭐⭐ **The defect-vanishing interface** (his Lemma 4, campaign form; the FUNC lane's
+target): at every selected marking, handle, level `k ≥ 2` and admissible frame whose relator
+has died to `γ_{k+1}`, the defect's class lies in the span of the admissible **knobs** alone -
+no admissible-tower coefficients.  By `gTower_defect_reach_of_base` this is, conditionally on
+the class-four base, precisely the vanishing of the tower coefficients of the defect. -/
+def GTowerDefectVanishing : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+    ∀ k, 2 ≤ k → ∀ a : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a i) = 1) → (∀ i, nu' (a i) = 1) →
+      SqModTwoIndep (sqArbFrame h nu' j a) →
+      sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) (k + 1) →
+      levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
+        ∈ Subgroup.closure (gTowerKnobSet h nu' k)
+
+variable (h) in
+/-- ⭐⭐ **The extraction interface**: a knob-span defect class is killed by an admissible
+correction tuple one layer down.  The three-core-slot instance is `gTower_kills` over
+`gTower_dress_core`; the general statement carries the multi-handle and accumulated-dressing
+bookkeeping that wave 73 flagged (`docs/dyadic/w73-knob-note.md` §"the multi-handle
+composition lemma"), which is deliberately **not** discharged in this lane. -/
+def GTowerKnobRealizable : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+    ∀ k, 2 ≤ k → ∀ a : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a i) = 1) → (∀ i, nu' (a i) = 1) →
+      SqModTwoIndep (sqArbFrame h nu' j a) →
+      sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) (k + 1) →
+      levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
+        ∈ Subgroup.closure (gTowerKnobSet h nu' k) →
+      ∃ d : Fin (sqRank h) → (DSq h : Type),
+        (∀ i, d i ∈ twoCentralSeries (DSq h : Type) k) ∧
+          (∀ i, nuLam h (d i) = 1) ∧ (∀ i, nu' (d i) = 1) ∧
+            sqRelWord (sqArbFrame h nu' j (fun i => a i * d i))
+              ∈ twoCentralSeries (DSq h : Type) (k + 2)
+
+/-- Dressing a dressed frame is dressing by the product. -/
+theorem gTower_frame_mul {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+    (j : Fin h) (a d : Fin (sqRank h) → (DSq h : Type)) :
+    sqArbFrame h nu' j (fun i => a i * d i) = fun i => sqArbFrame h nu' j a i * d i := by
+  funext i
+  simp only [sqArbFrame, mul_assoc]
+
+/-- ⭐⭐ **One clearing step**: under the two interfaces, an admissible frame whose relator has
+died to `γ_{k+1}` (`k ≥ 2`) extends, by an admissible depth-`k` correction of its dressing, to
+an admissible frame whose relator has died to `γ_{k+2}`. -/
+theorem gTower_clear_step (HV : GTowerDefectVanishing h) (HR : GTowerKnobRealizable h)
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {k : ℕ} (hk : 2 ≤ k)
+    {a : Fin (sqRank h) → (DSq h : Type)} (hal : ∀ i, nuLam h (a i) = 1)
+    (han : ∀ i, nu' (a i) = 1) (hai : SqModTwoIndep (sqArbFrame h nu' j a))
+    (hrel : sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) (k + 1)) :
+    ∃ a' : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a' i) = 1) ∧ (∀ i, nu' (a' i) = 1) ∧
+        SqModTwoIndep (sqArbFrame h nu' j a') ∧
+          sqRelWord (sqArbFrame h nu' j a') ∈ twoCentralSeries (DSq h : Type) (k + 2) := by
+  have hknob := HV nu' j hsigma hx0 k hk a hal han hai hrel
+  obtain ⟨d, hd, hdl, hdn, hrel'⟩ := HR nu' j hsigma hx0 k hk a hal han hai hrel hknob
+  refine ⟨fun i => a i * d i, ?_, ?_, ?_, hrel'⟩
+  · intro i
+    rw [map_mul, hal i, hdl i, one_mul]
+  · intro i
+    rw [map_mul, han i, hdn i, one_mul]
+  · rw [gTower_frame_mul]
+    exact cfourId_modTwoIndep_mul hai
+      (fun i => twoCentralSeries_antitone (G := (DSq h : Type)) hk (hd i))
+
+/-- ⭐⭐⭐ **The supply at every class, from the two interfaces** (the assembly that replaces
+the one-class-per-wave ladder): recursion on the class from the committed class-three witness,
+one `gTower_clear_step` per level. -/
+theorem gTower_supply_of_vanishing (HV : GTowerDefectVanishing h)
+    (HR : GTowerKnobRealizable h) : ∀ k, SqClassClearingSupply h k := by
+  have hmain : ∀ K, SqClassClearingSupply h (K + 3) := by
+    intro K
+    induction K with
+    | zero => exact sqClassThree_supply h
+    | succ K ih =>
+      intro nu' j hsigma hx0
+      obtain ⟨a, hal, han, hai, hrel⟩ := ih nu' j hsigma hx0
+      have hrel' : sqRelWord (sqArbFrame h nu' j a)
+          ∈ twoCentralSeries (DSq h : Type) ((K + 2) + 1) := by
+        rwa [(by omega : K + 2 + 1 = K + 3)]
+      obtain ⟨a', h1, h2, h3, h4⟩ := gTower_clear_step HV HR hsigma hx0
+        (by omega : 2 ≤ K + 2) hal han hai hrel'
+      refine ⟨a', h1, h2, h3, ?_⟩
+      rwa [(by omega : K + 1 + 3 = K + 2 + 2)]
+  intro k
+  rcases Nat.lt_or_ge k 3 with hk | hk
+  · exact sqClassClearingSupply_of_le (by omega) (sqClassThree_supply h)
+  · obtain ⟨K, rfl⟩ : ∃ K, k = K + 3 := ⟨k - 3, by omega⟩
+    exact hmain K
+
+/-- ⭐⭐⭐ **The residual closes from the two interfaces**: through the committed compactness
+assembly (`limFinal_markTransitivity`), `GTowerDefectVanishing` and `GTowerKnobRealizable`
+together imply the full `h ≥ 1` residual `SqLamMarkTransitivity h`.  After this file, what
+remains of the campaign's graded route is exactly the two named interfaces - both uniform in
+the class. -/
+theorem gTower_markTransitivity_of_vanishing (HV : GTowerDefectVanishing h)
+    (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
+  limFinal_markTransitivity (gTower_supply_of_vanishing HV HR)
+
+end Assembly
+
+/-! ## §9 Axiom pins -/
 
 section AxiomPinsOne
 
@@ -1646,6 +1833,15 @@ section AxiomPinsOne
 #print axioms gTower_cut
 #print axioms gTower_layerReach_step
 #print axioms gTower_layerReach_of_base
+#print axioms gTower_frame_row_nuLam
+#print axioms gTower_frame_row_nu
+#print axioms gTower_defect_reach_of_base
+#print axioms GTowerDefectVanishing
+#print axioms GTowerKnobRealizable
+#print axioms gTower_frame_mul
+#print axioms gTower_clear_step
+#print axioms gTower_supply_of_vanishing
+#print axioms gTower_markTransitivity_of_vanishing
 
 end AxiomPinsOne
 
