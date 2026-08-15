@@ -21,7 +21,8 @@ at the **prescribed** table `vN 1`.  §4 of this file builds that one.
 3. §3 the `α = 1` model equivalence carrying the `ω` class to the `x₁` coordinate vector.
 4. §4 the frame at `vN 1`, cup-adapted for `evenStratumGramOne h`.
 5. §5 the `α = 1` shift supply, and the climb that consumes it.
-6. §6 axiom pins.
+6. §6 the `M` twin: the `α = 1` `M` shift gains an atom, and the committed supply is false.
+7. §7 axiom pins.
 
 ## What is claimed and what is not
 
@@ -668,9 +669,196 @@ theorem evenStratumRow_climb_defectReachable_one (hk : 3 ≤ k)
 
 end ShiftOne
 
+/-! ## §6 The `M` twin: the `α = 1` shift word gains an atom
+
+Wave 73's queue item 3, run.  `MarkedCore.mWord α a b c d = a²[a,b]·c^(2^α)[c,d]`, and
+`evenRawMWord_mul_lambdaImage` needs `2 ≤ α` because only then does `2 ^ α = 2 · 2^(α−1)` have an
+**even** half, so that `evenRawPow_of_even_half` kills the third letter's diagonal atom.  At
+`α = 1` the exponent is `2 = 2 · 1` with an **odd** half, so `evenRawPow_of_odd_half` applies
+instead and the atom `w₂² · [w₂, base 2]` *survives*.
+
+So the two even rows fail at `α = 1` in mirror-image ways, and the prediction is confirmed:
+
+* `N`: the exponent is `2 + 2 ^ 1 = 4 = 2 · 2`, even half, and the coordinate-`0` atom **drops
+  out** — the `α ≥ 2` word overshoots (wave 73 §1-§2).
+* `M`: the exponent is `2 ^ 1 = 2 = 2 · 1`, odd half, and the coordinate-`2` atom **appears** —
+  the `α ≥ 2` word undershoots.
+
+**Scope, as wave 73 scoped the `N` side.**  §6.3 refutes `EvenSharpDbarShiftSupply` at the `M`
+word *quantified over profinite groups*, which is the form `evenRawStageShift_m` and
+`evenSharpDbarShiftSupply_m` have.  It does **not** decide it at `maxProPQuotient 2 (GalK K)` for
+any particular field; §6.2 reduces that question to whether the coordinate-`2` atom vanishes
+there, and nothing here says it does or does not. -/
+
+section MTwin
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] {h k : ℕ}
+
+private theorem evenStratumRowAssembleM {H' : Type*} [Group H'] (X P Y Y₂ Q A B C : H')
+    (hA : ∀ t : H', Commute A t) (hAB : ∀ t : H', Commute (A * B) t)
+    (hY₂ : ∀ t : H', Commute Y₂ t) :
+    X * A * (P * B) * (Y * Y₂) * (Q * C) = X * P * Y * Q * (Y₂ * (A * B * C)) := by
+  calc
+    X * A * (P * B) * (Y * Y₂) * (Q * C) = X * (A * P) * (B * (Y * (Y₂ * (Q * C)))) := by group
+    _ = X * (P * A) * (B * (Y * (Y₂ * (Q * C)))) := by rw [(hA P).eq]
+    _ = X * P * (A * B * (Y * (Y₂ * Q))) * C := by group
+    _ = X * P * (Y * (Y₂ * Q) * (A * B)) * C := by rw [(hAB (Y * (Y₂ * Q))).eq]
+    _ = X * P * Y * (Y₂ * Q) * (A * B * C) := by group
+    _ = X * P * Y * (Q * Y₂) * (A * B * C) := by rw [(hY₂ Q).eq]
+    _ = X * P * Y * Q * (Y₂ * (A * B * C)) := by group
+
+private theorem evenStratumRowShiftAssemble {H' : Type*} [Group H'] (C Hh d D : H')
+    (hd : ∀ t : H', Commute d t) : (C * Hh)⁻¹ * (C * d * (Hh * D)) = d * D := by
+  calc
+    (C * Hh)⁻¹ * (C * d * (Hh * D)) = (C * Hh)⁻¹ * (C * (d * Hh) * D) := by group
+    _ = (C * Hh)⁻¹ * (C * (Hh * d) * D) := by rw [(hd Hh).eq]
+    _ = d * D := by group
+
+/-! ### §6.1 The `α = 1` `M` core block and the literal factorization -/
+
+/-- **The `α = 1` `M` core block**: `evenRawCoreDbarWord` with the coordinate-`2` diagonal atom
+prefixed.  Mirror image of `evenStratumShiftCoreOne`, which is `evenRawCoreDbarWord` with the
+coordinate-`0` atom deleted. -/
+def evenStratumRowMCoreOne
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  correction 2 ^ 2 * commP (correction 2) (base 2) * evenRawCoreDbarWord base correction
+
+/-- **The `α = 1` `M` shift word**: the `α = 1` `M` core block times the handle block. -/
+def evenStratumRowMWordOne
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)) :
+    levelQuot G (k + 1) :=
+  evenStratumRowMCoreOne base correction * evenRawHandleDbarWord base correction
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The `α = 1` `M` core block lands in the central involutive layer. -/
+theorem evenStratumRow_mCoreOne_mem_zLayer (k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    evenStratumRowMCoreOne base correction ∈ zLayer G k :=
+  Subgroup.mul_mem _ (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 2) (base 2))
+    (evenRawCoreDbarWord_mem_zLayer k hk base correction hdepth)
+
+/-- **The `M₁` core factorization.**  The `α = 1` analogue of `evenRawMWord_mul_lambdaImage`:
+the third letter's exponent is `2 ^ 1 = 2 = 2 * 1`, whose half `1` is **odd**, so
+`evenRawPow_of_odd_half` applies where `evenRawPow_of_even_half` applies at `2 ≤ α` and the
+coordinate-`2` diagonal atom survives. -/
+theorem evenStratumRow_mWordOne_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    MarkedCore.mWord 1 (base 0 * correction 0) (base 1 * correction 1)
+        (base 2 * correction 2) (base 3 * correction 3) =
+      MarkedCore.mWord 1 (base 0) (base 1) (base 2) (base 3) *
+        evenStratumRowMCoreOne base correction := by
+  have hexp : (2 : ℕ) ^ 1 = 2 * 1 := by norm_num
+  simp only [MarkedCore.mWord, evenStratumRowMCoreOne, evenRawCoreDbarWord, hexp]
+  rw [evenRawSq_mul k hk (hdepth 0) (base 0),
+    evenRawPow_of_odd_half k hk (hdepth 2) (base 2) odd_one,
+    evenRawHandlePair_mul k hk (base 0) (base 1) (hdepth 0) (hdepth 1),
+    evenRawHandlePair_mul k hk (base 2) (base 3) (hdepth 2) (hdepth 3)]
+  exact evenStratumRowAssembleM _ _ _ _ _ _ _ _
+    (zLayer_commute (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _))
+    (zLayer_commute (Subgroup.mul_mem _
+      (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 0) _)
+      (Subgroup.mul_mem _ (commP_mem_zLayer k hk (hdepth 1) _)
+        (commP_mem_zLayer k hk (hdepth 0) _))))
+    (zLayer_commute (evenRawDiagonalAtom_mem_zLayer k hk (hdepth 2) _))
+
+/-- **The `M₁` relator shift, literally.**  The `α = 1` replacement for `evenRawStageShift_m`:
+an equality in `Q_{k+1}` with **no** `2 ≤ α` hypothesis, whose right-hand side is
+`evenStratumRowMWordOne` rather than `evenRawDbarWord`. -/
+theorem evenStratumRow_mShift_one (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    stageShift (mStageWord 1 h (le_refl 1)) base correction =
+      evenStratumRowMWordOne base correction := by
+  show (MarkedCore.mRelWord 1 base)⁻¹ *
+    MarkedCore.mRelWord 1 (fun i ↦ base i * correction i) = _
+  simp only [MarkedCore.mRelWord]
+  rw [evenStratumRow_mWordOne_mul_lambdaImage k hk base correction hdepth,
+    evenRawHandleWord_mul_lambdaImage h k hk base correction hdepth, evenStratumRowMWordOne]
+  exact evenStratumRowShiftAssemble _ _ _ _
+    (zLayer_commute (evenStratumRow_mCoreOne_mem_zLayer k hk base correction hdepth))
+
+/-! ### §6.2 The exact discrepancy -/
+
+/-- **The measured gap on the `M` row.**  At `α = 1` the true shift is the coordinate-`2`
+diagonal atom times the `α ≥ 2` shift word.  Note the atom is on the **other side** of the
+equation from the `N` case (`evenStratumShift_dbarWord_eq_diagonalAtom_mul`), because the `M`
+word gains an atom where the `N` word loses one. -/
+theorem evenStratumRow_mShift_eq_atom_mul (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    stageShift (mStageWord 1 h (le_refl 1)) base correction =
+      correction 2 ^ 2 * commP (correction 2) (base 2) *
+        evenRawDbarWord base correction := by
+  rw [evenStratumRow_mShift_one h k hk base correction hdepth, evenStratumRowMWordOne,
+    evenStratumRowMCoreOne, evenRawDbarWord]
+  group
+
+/-- **The conditional consequence on the `M` row.**  If the `α ≥ 2` factorization did hold at
+`α = 1` for some data, the coordinate-`2` diagonal atom of that data would be trivial. -/
+theorem evenStratumRow_mAtom_eq_one_of_rawShift (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1))
+    (hshift : stageShift (mStageWord 1 h (le_refl 1)) base correction =
+      evenRawDbarWord base correction) :
+    correction 2 ^ 2 * commP (correction 2) (base 2) = 1 := by
+  have h1 := evenStratumRow_mShift_eq_atom_mul h k hk base correction hdepth
+  rw [hshift] at h1
+  refine mul_right_cancel (b := evenRawDbarWord base correction) ?_
+  rw [one_mul, ← h1]
+
+/-! ### §6.3 The refutation, at the same witness group
+
+Wave 73's cyclic group of order eight, with the correction moved from coordinate `0` to
+coordinate `2`.  Nothing else changes: the atom is the same square of the same element. -/
+
+/-- **THE COMMITTED SHIFT SUPPLY IS FALSE AT `α = 1` ON THE `M` ROW TOO.**  The `M` twin of
+`evenStratum_not_dbarShiftSupply_one`, at the same group, the same `k`, and the same element,
+with the correction supported at coordinate `2` instead of coordinate `0`. -/
+theorem evenStratumRow_not_dbarShiftSupply_m_one :
+    ¬ EvenSharpDbarShiftSupply (mStageWord 1 0 (le_refl 1)) EvenStratumShiftWitness 3 := by
+  intro hall
+  have hdepth : ∀ i : Fin (MarkedCore.coreRank 0),
+      (if i = 2 then evenStratumShiftWitnessP else 1) ∈
+        lambdaImage EvenStratumShiftWitness (3 - 1) (3 + 1) := by
+    intro i
+    by_cases hi : i = 2
+    · rw [if_pos hi]
+      exact evenStratumShiftWitnessP_mem
+    · rw [if_neg hi]
+      exact Subgroup.one_mem _
+  have hatom := evenStratumRow_mAtom_eq_one_of_rawShift
+    (G := EvenStratumShiftWitness) 0 3 (by omega) (fun _ ↦ 1)
+    (fun i ↦ if i = 2 then evenStratumShiftWitnessP else 1) hdepth
+    (hall (fun _ ↦ 1) (fun i ↦ if i = 2 then evenStratumShiftWitnessP else 1) hdepth)
+  refine evenStratumShiftWitnessP_sq_ne_one ?_
+  simpa [commP] using hatom
+
+/-- **`evenRawStageShift_m`'s conclusion is false at `α = 1`**, in its own shape.  The `M` twin
+of `evenStratum_no_rawStageShift_one`.
+
+So neither even row's committed crossed-derivation comparison survives the drop to `α = 1`, and
+they fail for opposite reasons: the `N` word loses the coordinate-`0` atom, the `M` word gains
+the coordinate-`2` one. -/
+theorem evenStratumRow_no_rawStageShift_m_one :
+    ¬ ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+        [T2Space G] [TotallyDisconnectedSpace G] (h k : ℕ), 3 ≤ k →
+        ∀ (base correction : Fin (MarkedCore.coreRank h) → levelQuot G (k + 1)),
+        (∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) →
+        stageShift (mStageWord 1 h (le_refl 1)) base correction =
+          evenRawDbarWord base correction := by
+  intro hall
+  exact evenStratumRow_not_dbarShiftSupply_m_one fun base correction hdepth ↦
+    hall EvenStratumShiftWitness 0 3 (by omega) base correction hdepth
+
+end MTwin
+
 end
 
-/-! ## §6 Axiom pins -/
+/-! ## §7 Axiom pins -/
 
 section Pins
 
@@ -708,12 +896,23 @@ section Pins
 #print axioms EvenStratumRowClimbResidualOne
 #print axioms evenStratumRow_climb_defectReachable_one
 
+#print axioms evenStratumRowMCoreOne
+#print axioms evenStratumRowMWordOne
+#print axioms evenStratumRow_mCoreOne_mem_zLayer
+#print axioms evenStratumRow_mWordOne_mul_lambdaImage
+#print axioms evenStratumRow_mShift_one
+#print axioms evenStratumRow_mShift_eq_atom_mul
+#print axioms evenStratumRow_mAtom_eq_one_of_rawShift
+#print axioms evenStratumRow_not_dbarShiftSupply_m_one
+#print axioms evenStratumRow_no_rawStageShift_m_one
+
 -- The statements §4 stands against and beside, printed with it.
 #print axioms GQ2.Dyadic.EvenStratumFrame.evenStratum_no_cupAdaptedFrame
 #print axioms evenStratum_exists_gramOne_adaptedFrame
 #print axioms evenDegreeNCyclotomicFrattiniFrameSupply_holds
 #print axioms evenClimb_defectReachable
 #print axioms evenStratum_not_dbarShiftSupply_one
+#print axioms evenSharpDbarShiftSupply_m
 
 end Pins
 
