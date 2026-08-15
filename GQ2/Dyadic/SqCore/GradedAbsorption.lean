@@ -1323,7 +1323,18 @@ The `k = 2` instance of the defect-vanishing interface follows from T2 plus the 
 separation bookkeeping alone; with wave 74's extraction it yields the class-4 supply witness
 that wave 77 identified as the missing seed.  The full interface then follows from the OPEN
 depth-3 base (`GDecideBaseThree`, untouched by the `Q₁₆` refutation) plus separation, and
-the committed recursion closes the residual from there. -/
+the committed recursion closes the residual from there.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: the depth-3 base is NOT open.  It is FALSE at every `h`**,
+by `gDeep_not_baseThree` (`SqCore/GradedDepthThree.lean`, merged at `9fb4869b`), and so is
+`GTowerLayerReach h nu' k` at every depth `k ≥ 2` and every marking (`gDeep_not_layerReach`).
+So the three `_of_baseThree` theorems at the end of this section are TRUE WITH UNSATISFIABLE
+HYPOTHESES.  What is unaffected is everything this section proves *without* that input:
+`GAbsVanishingTwo`, `gAbs_vanishingTwo_of_sep`, `gAbs_clear_step_two`, `gAbs_chiSupply_four`
+and `gAbs_supply_four` are theorems and are on the live route, which is the sibling module's
+kill ladder (`gDeep_markTransitivity_of_kills`, `gDeep_supply_five`).  The wave-79 merge marked
+the corresponding `gExt_*_of_baseThree` composites in `GradedExtraction.lean` and left this
+file unmarked; that is the omission repaired here, comment-only.]** -/
 
 section Reseed
 
@@ -1403,7 +1414,13 @@ theorem gAbs_supply_four (HV : GAbsVanishingTwo h) (HR : GTowerKnobRealizable h)
 
 /-- ⭐⭐⭐ **The re-seeded vanishing interface**: `GJoinDefectVanishing h` from the OPEN
 depth-3 base plus separation.  The `k = 2` instance is the absorption mechanism; the
-`k ≥ 3` instances are the committed tower driven from depth 3. -/
+`k ≥ 3` instances are the committed tower driven from depth 3.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: VACUOUS.**  `gDeep_not_baseThree` refutes `H3` at every `h`.
+Superseded by `gDeep_defectVanishing_of_kills`, which replaces the layer input by the
+defect-restricted kill ladder `GDeepKillAt h k` and consumes this file's own
+`gAbs_vanishingTwo_of_sep` as rung 2.  Read "the OPEN depth-3 base" as "the refuted depth-3
+base".]** -/
 theorem gAbs_defectVanishing_of_baseThree (H3 : GDecideBaseThree h)
     (hsep : GJoinSeparationAll h) : GJoinDefectVanishing h := by
   intro nu' j hsigma hx0 k hk a hal han hac hai hrel
@@ -1426,7 +1443,12 @@ theorem gAbs_defectVanishing_of_baseThree (H3 : GDecideBaseThree h)
 /-- ⭐⭐⭐ **The supply at every class, from the re-seeded route**: depth-3 base plus
 separation plus extraction.  Wave 77's costing ("depth 3 alone does not restart the chain;
 a class-four witness must be produced in addition") is discharged: the class-four seed now
-comes from the absorption mechanism, at no cost beyond the separation already carried. -/
+comes from the absorption mechanism, at no cost beyond the separation already carried.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: VACUOUS** (`gDeep_not_baseThree`).  The class-four seed
+sentence is still true and is `gAbs_supply_four`, which carries no layer input; it is only the
+`∀ k` conclusion that dies with `H3`.  The live successor is `gDeep_supply_five`, which reaches
+class 5 from separation plus extraction alone.]** -/
 theorem gAbs_supply_of_baseThree (H3 : GDecideBaseThree h) (hsep : GJoinSeparationAll h)
     (HR : GTowerKnobRealizable h) : ∀ k, SqClassClearingSupply h k :=
   gJoin_supply_of_vanishing (gAbs_defectVanishing_of_baseThree H3 hsep) HR
@@ -1434,7 +1456,19 @@ theorem gAbs_supply_of_baseThree (H3 : GDecideBaseThree h) (hsep : GJoinSeparati
 /-- ⭐⭐⭐ **The `h ≥ 1` residual, from three named inputs**: the OPEN depth-3 base (in place
 of the REFUTED depth-2 base), the separation bookkeeping, and the extraction interface.
 Same three-input shape as wave 75's endpoint, with the refuted input replaced by an open
-one. -/
+one.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: VACUOUS, and the sentence above is exactly wrong.**  The
+replacement input was refuted too: `gDeep_not_baseThree` (`SqCore/GradedDepthThree.lean`) at
+every `h`, and `gDeep_not_layerReach` kills the layer statement at every depth, so no depth-`k`
+re-seed of this shape can revive it.  The vacuous set now has three families, not the one
+`docs/dyadic/w79-house-note.md` §3.2 enumerated: the six from `GJoinBase`/`GBaseResidual`; the
+six `_of_baseThree` composites (three here, three in `GradedExtraction.lean`); and everything
+hypothesising `GTowerLayerReach h nu' k` with `2 ≤ k`, which is the whole §6/§7 layer family of
+`GradedUniformTower.lean` plus `gDecide_layerReach_of_baseAt`.  Only the third family is new in
+kind: before wave 79 the layer statement was refuted at one marking and one depth, now at all of
+both.  Live successor: `gDeep_markTransitivity_of_kills`, same three-input shape with the kill
+ladder in place of the layer statement.]** -/
 theorem gAbs_markTransitivity_of_baseThree (H3 : GDecideBaseThree h)
     (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
   gJoin_markTransitivity_of_vanishing (gAbs_defectVanishing_of_baseThree H3 hsep) HR

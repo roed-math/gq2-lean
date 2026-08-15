@@ -1119,7 +1119,23 @@ variable {h : ℕ}
 
 variable (h) in
 /-- **The layer statement at correction depth `k`** (his Lemma 3 conclusion for the layer
-`γ_{k+1}/γ_{k+2}`): every exactly row-trivial `γ_{k+1}`-element reaches. -/
+`γ_{k+1}/γ_{k+2}`): every exactly row-trivial `γ_{k+1}`-element reaches.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: FALSE for every `k ≥ 2`, every `h`, and EVERY marking.**
+`gDeep_not_layerReach (k) (nu') : ¬ GTowerLayerReach h nu' (k + 2)`
+(`SqCore/GradedDepthThree.lean`, merged at `9fb4869b`).  The witness is `⁅⁅x₁,σ⁆,x₁⁆^{2^k}`,
+exactly row-trivial in `γ_{k+3}`, reading `2^{k+2}·unit` at the corrected `σ`-row while the
+depth-`(k+2)` reach reads `2^{k+3}`-divisibly.  Wave 77's `gDecide_not_layerReach` was the same
+statement at the single marking `gDecideNu h` and at depth `2` only; this supersedes it in both
+quantifiers.  **Consequence for this file**: every theorem below hypothesising
+`GTowerLayerReach h nu' k` with `2 ≤ k` is TRUE WITH AN UNSATISFIABLE HYPOTHESIS, namely all of
+§6's step obligations (`gTower_comm_adm_step`, `gTower_comm_tower_step`, `gTower_sq_step`,
+`gTower_comm_step`, `gTower_full_layer_step`) and §7's `gTower_layerReach_step` and
+`gTower_layerReach_of_base`.  The proofs are sound and are not deleted; what has gone is any
+base to run them from.  **Untouched**: `SqClassClearingSupply h k`, `GTowerDefectVanishing h`,
+`GTowerKnobRealizable h`, `gTower_clear_step`, `gTower_supply_of_vanishing` and
+`limFinal_markTransitivity_iff` do not mention this `Prop`.  The live layer-side input is the
+defect-restricted kill ladder `GDeepKillAt h k`.]** -/
 def GTowerLayerReach (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
     (k : ℕ) : Prop :=
   ∀ g ∈ twoCentralSeries (DSq h : Type) (k + 1), nuLam h g = 1 → nu' g = 1 →
