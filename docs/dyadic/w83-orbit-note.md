@@ -128,11 +128,15 @@ Lyndon basis of the free Lie ring together with the χ-legal degree-one frame mo
   modulo the torsion element `t`, χ preserved on all four letters.  This is level `γ₃` of §4.3
   independently reconfirmed, plus one level more.
 * **Beyond that the search is not conclusive, in either direction.**  At `T = 4` and `T = 5` the
-  degree-by-degree search failed to close `M6`, but it also failed to close `M3` (`C̄₀ ↦ C̄₀^5`),
-  which *is* realized in the tree from axiom B8 (`MScaling.lean`), and `M4`/`M7` behaved the same
-  way.  The failures are the known weakness of a greedy obstruction walk (the choice of solution
-  at one degree can block the next), not evidence of an obstruction.  **No conclusion may be
-  drawn from them, and none is drawn here.**
+  degree-by-degree search failed to close `M6` at degree 4, but in the same run it also failed to
+  close `M3` (`C̄₀ ↦ C̄₀^5`) at degree 4, and `M3` *is* realized in the tree from axiom B8
+  (`MScaling.lean`).  Two search variants were tried, and the calibration fails in both: in the
+  looser one `M4` and `M7` close at `T = 4` while `M3` and `M6` do not; in the stage-exact one
+  (each step restricted to corrections whose leading effect is at the current degree, so that the
+  linearisation is exact) only `M5` closes and `M3`, `M4`, `M7`, `M6` all stop at degree 4.  The
+  failures are the known weakness of a greedy obstruction walk, where the choice of solution at
+  one degree can block the next, and they land on a move that is known to exist.  **No conclusion
+  may be drawn from them about `M6`, and none is drawn here.**
 
 So the state of the evidence is: no obstruction at depth ≤ 3, no reliable information at depth
 ≥ 4, and no invariant known that could separate the two cases.
