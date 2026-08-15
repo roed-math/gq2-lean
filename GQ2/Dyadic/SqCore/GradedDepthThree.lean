@@ -550,6 +550,344 @@ theorem gDeep_zLayer_le_wideFull (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]
 
 end WideChain
 
+/-! ## §6 The cut and the depth-3 leftover normal form (T1)
+
+Wave 78's §6 one level up: the realization of the widened full reach factors through wave
+74's `gTower_fullReach_realize` at depth 3 because the coker is central; the cut is verbatim,
+one index deeper; and the result is the depth-3 leftover normal form: every exactly
+row-trivial `γ₄`-element is a depth-3 reach element times `(B²)^{e₁}(C²)^{e₂}` with
+`𝔽₂`-exponents. -/
+
+section Cut
+
+open scoped Pointwise
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- The row-triviality of the squared coker classes. -/
+theorem gDeep_B_sq_nuLam : nuLam h (gAbsB h ^ 2) = 1 := by
+  rw [gAbsB, map_pow, gTower_row_commP, one_pow]
+
+theorem gDeep_B_sq_nu : nu' (gAbsB h ^ 2) = 1 := by
+  rw [gAbsB, map_pow, gTower_row_commP, one_pow]
+
+theorem gDeep_C_sq_nuLam : nuLam h (gAbsC h ^ 2) = 1 := by
+  rw [gAbsC, map_pow, gTower_row_commP, one_pow]
+
+theorem gDeep_C_sq_nu : nu' (gAbsC h ^ 2) = 1 := by
+  rw [gAbsC, map_pow, gTower_row_commP, one_pow]
+
+/-- The realization of the widened full reach at depth 3: a row-trivial `γ₄`-element whose
+class lies in the widened reach, times a two-tower image with `8`-divisible exponents. -/
+theorem gDeep_wideFull_realize (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {z : levelQuot (DSq h : Type) 5}
+    (hz : z ∈ gDeepWideFull h nu') :
+    ∃ r A B, r ∈ twoCentralSeries (DSq h : Type) 4 ∧ nuLam h r = 1 ∧ nu' r = 1 ∧
+      levelMk (DSq h : Type) 5 r ∈ gDeepWide h nu' ∧
+        (2 ^ 3 : ℤ_[2]) ∣ A ∧ (2 ^ 3 : ℤ_[2]) ∣ B ∧
+          z = levelMk (DSq h : Type) 5 r * levelMk (DSq h : Type) 5 (gTowerTower h A B) := by
+  rw [gDeep_wideFull_eq] at hz
+  haveI := gDeep_coker_normal (h := h)
+  have hmem : z ∈ ((gTowerFullReach h nu' 3 : Subgroup (levelQuot (DSq h : Type) 5)) :
+      Set (levelQuot (DSq h : Type) 5)) *
+      ((gDeepCoker h : Subgroup (levelQuot (DSq h : Type) 5)) :
+        Set (levelQuot (DSq h : Type) 5)) := by
+    rw [← Subgroup.mul_normal]
+    exact hz
+  obtain ⟨f, hf, n, hn, heq⟩ := hmem
+  obtain ⟨r, A, B, hrm, hrl, hrn, hrR, hA, hB, hfeq⟩ := gTower_fullReach_realize hsigma hx0 hf
+  obtain ⟨e₁, e₂, he₁, he₂, hneq⟩ := gDeep_coker_form hn
+  refine ⟨r * (gAbsB h ^ 2) ^ e₁ * (gAbsC h ^ 2) ^ e₂, A, B, ?_, ?_, ?_, ?_, hA, hB, ?_⟩
+  · exact Subgroup.mul_mem _ (Subgroup.mul_mem _ hrm
+      (Subgroup.pow_mem _ gDeep_B_sq_mem_four e₁)) (Subgroup.pow_mem _ gDeep_C_sq_mem_four e₂)
+  · have hB1 : nuLam h (gAbsB h) = 1 := by rw [gAbsB]; exact gTower_row_commP _ _ _
+    have hC1 : nuLam h (gAbsC h) = 1 := by rw [gAbsC]; exact gTower_row_commP _ _ _
+    simp only [map_mul, map_pow, hrl, hB1, hC1, one_pow, one_mul]
+  · have hB1 : nu' (gAbsB h) = 1 := by rw [gAbsB]; exact gTower_row_commP _ _ _
+    have hC1 : nu' (gAbsC h) = 1 := by rw [gAbsC]; exact gTower_row_commP _ _ _
+    simp only [map_mul, map_pow, hrn, hB1, hC1, one_pow, one_mul]
+  · have hBcMem : levelMk (DSq h : Type) 5 (gAbsB h ^ 2) ∈ gDeepCoker h :=
+      Subgroup.subset_closure (Set.mem_insert _ _)
+    have hCcMem : levelMk (DSq h : Type) 5 (gAbsC h ^ 2) ∈ gDeepCoker h :=
+      Subgroup.subset_closure (Set.mem_insert_of_mem _ rfl)
+    rw [map_mul, map_mul, map_pow, map_pow]
+    refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (gDeep_reach_le_wide hrR) ?_) ?_
+    · exact Subgroup.mem_sup_right ((gDeepCoker h).pow_mem hBcMem e₁)
+    · exact Subgroup.mem_sup_right ((gDeepCoker h).pow_mem hCcMem e₂)
+  · have hcen : ∀ g : levelQuot (DSq h : Type) 5, g * n = n * g :=
+      fun g => Subgroup.mem_center_iff.1 (gDeep_coker_central hn) g
+    calc z = f * n := heq.symm
+      _ = levelMk (DSq h : Type) 5 r * levelMk (DSq h : Type) 5 (gTowerTower h A B) * n := by
+          rw [hfeq]
+      _ = levelMk (DSq h : Type) 5 r *
+          (levelMk (DSq h : Type) 5 (gTowerTower h A B) * n) := by rw [mul_assoc]
+      _ = levelMk (DSq h : Type) 5 r *
+          (n * levelMk (DSq h : Type) 5 (gTowerTower h A B)) := by rw [hcen]
+      _ = levelMk (DSq h : Type) 5 r * n * levelMk (DSq h : Type) 5 (gTowerTower h A B) := by
+          rw [mul_assoc]
+      _ = levelMk (DSq h : Type) 5 (r * (gAbsB h ^ 2) ^ e₁ * (gAbsC h ^ 2) ^ e₂) *
+          levelMk (DSq h : Type) 5 (gTowerTower h A B) := by
+          rw [hneq]
+          simp only [map_mul, map_pow, mul_assoc]
+
+/-- ⭐⭐ **The cut for the widened depth-3 reach**: an exactly row-trivial element whose class
+lies in the widened full reach already lies in the widened reach. -/
+theorem gDeep_wide_cut (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)} (hgl : nuLam h g = 1)
+    (hgn : nu' g = 1)
+    (hfull : levelMk (DSq h : Type) 5 g ∈ gDeepWideFull h nu') :
+    levelMk (DSq h : Type) 5 g ∈ gDeepWide h nu' := by
+  obtain ⟨r, A, B, hrmem, hrl, hrn, hrW, hA, hB, heq⟩ :=
+    gDeep_wideFull_realize hsigma hx0 hfull
+  have hAmem : zpowZtwo (isProP_DSq h) (dsqX0 h) A ∈ twoCentralSeries (DSq h : Type) 4 :=
+    gTower_zpow_dvd_mem (by omega) (by simpa using hA) _
+  have hBmem : zpowZtwo (isProP_DSq h) (sqPivot h) B ∈ twoCentralSeries (DSq h : Type) 4 :=
+    gTower_zpow_dvd_mem (by omega) (by simpa using hB) _
+  have htmem : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) 4 :=
+    Subgroup.mul_mem _ hAmem hBmem
+  set u := (r * gTowerTower h A B)⁻¹ * g with hu
+  have humem : u ∈ twoCentralSeries (DSq h : Type) 5 := by
+    rw [lim_mem_twoCentralSeries_iff_levelMk]
+    show levelMk (DSq h : Type) 5 ((r * gTowerTower h A B)⁻¹ * g) = 1
+    rw [map_mul, map_inv, map_mul, heq]
+    group
+  have hgform : g = r * gTowerTower h A B * u := by
+    rw [hu, mul_inv_cancel_left]
+  have hrowA : toAdd (nuLam h g) = A + toAdd (nuLam h u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrl, toAdd_one, gTower_tower_nuLam,
+      zero_add]
+  have hrowB : toAdd (nu' g) = B + toAdd (nu' u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrn, toAdd_one,
+      gTower_tower_nu nu' hsigma hx0, zero_add]
+  have hAdeep : (2 ^ 4 : ℤ_[2]) ∣ A := by
+    have hud := gTower_row_dvd (nuLam h) humem
+    rw [show (5 : ℕ) - 1 = 4 from rfl] at hud
+    have hAeq : A = -toAdd (nuLam h u) := by
+      have h0 := hrowA
+      rw [hgl, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [hAeq]
+    exact hud.neg_right
+  have hBdeep : (2 ^ 4 : ℤ_[2]) ∣ B := by
+    have hud := gTower_row_dvd nu' humem
+    rw [show (5 : ℕ) - 1 = 4 from rfl] at hud
+    have hBeq : B = -toAdd (nu' u) := by
+      have h0 := hrowB
+      rw [hgn, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [hBeq]
+    exact hud.neg_right
+  have htdeep : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) 5 :=
+    gTower_tower_mem (by omega)
+      (by rw [show (5 : ℕ) - 1 = 4 from rfl]; exact hAdeep)
+      (by rw [show (5 : ℕ) - 1 = 4 from rfl]; exact hBdeep)
+  have htimg : levelMk (DSq h : Type) 5 (gTowerTower h A B) = 1 :=
+    (lim_mem_twoCentralSeries_iff_levelMk 5 _).mp htdeep
+  rw [heq, htimg, mul_one]
+  exact hrW
+
+/-- ⭐⭐⭐ **The wide layer statement at depth 3**: every exactly row-trivial `γ₄`-element
+reaches the widened span, unconditionally.  This is the REFUTED `GTowerLayerReach h ν' 3`
+with the squared two-class coker adjoined: the exact unconditional content of the depth-3
+base. -/
+theorem gDeep_layer_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) 4) (hgl : nuLam h g = 1) (hgn : nu' g = 1) :
+    levelMk (DSq h : Type) 5 g ∈ gDeepWide h nu' := by
+  refine gDeep_wide_cut hsigma hx0 hgl hgn ?_
+  exact gDeep_zLayer_le_wideFull hsigma hx0 ⟨g, hg, rfl⟩
+
+/-- ⭐⭐⭐ **T1 at depth 3: the leftover normal form.**  Every exactly row-trivial
+`γ₄`-element is an element whose class lies in the admissible depth-3 reach, times the two
+SQUARED coker classes with explicit `𝔽₂`-exponents: Labute's Theorem 5 leftover
+decomposition at level 3, with the `π^{j-1}ξ`-towers appearing exactly as predicted. -/
+theorem gDeep_leftover_decomp (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) 4) (hgl : nuLam h g = 1) (hgn : nu' g = 1) :
+    ∃ p e₁ e₂, p ∈ twoCentralSeries (DSq h : Type) 4 ∧
+      levelMk (DSq h : Type) 5 p ∈ gTowerReach h nu' 3 ∧ e₁ ≤ 1 ∧ e₂ ≤ 1 ∧
+        g = p * (gAbsB h ^ 2) ^ e₁ * (gAbsC h ^ 2) ^ e₂ := by
+  have hw := gDeep_layer_wide hsigma hx0 hg hgl hgn
+  haveI := gDeep_coker_normal (h := h)
+  have hmem : levelMk (DSq h : Type) 5 g ∈
+      ((gTowerReach h nu' 3 : Subgroup (levelQuot (DSq h : Type) 5)) :
+        Set (levelQuot (DSq h : Type) 5)) *
+      ((gDeepCoker h : Subgroup (levelQuot (DSq h : Type) 5)) :
+        Set (levelQuot (DSq h : Type) 5)) := by
+    rw [← Subgroup.mul_normal]
+    exact hw
+  obtain ⟨ρ, hρ, n, hn, heq⟩ := hmem
+  obtain ⟨e₁, e₂, he₁, he₂, hneq⟩ := gDeep_coker_form hn
+  refine ⟨g * ((gAbsB h ^ 2) ^ e₁ * (gAbsC h ^ 2) ^ e₂)⁻¹, e₁, e₂, ?_, ?_, he₁, he₂,
+    by group⟩
+  · exact Subgroup.mul_mem _ hg (Subgroup.inv_mem _ (Subgroup.mul_mem _
+      (Subgroup.pow_mem _ gDeep_B_sq_mem_four e₁)
+      (Subgroup.pow_mem _ gDeep_C_sq_mem_four e₂)))
+  · have hn' : n = (levelMk (DSq h : Type) 5 (gAbsB h) ^ 2) ^ e₁ *
+        (levelMk (DSq h : Type) 5 (gAbsC h) ^ 2) ^ e₂ := by
+      rw [hneq]
+      simp only [map_pow]
+    have hzeq : ρ * n = levelMk (DSq h : Type) 5 g := heq
+    have himg : levelMk (DSq h : Type) 5
+        (g * ((gAbsB h ^ 2) ^ e₁ * (gAbsC h ^ 2) ^ e₂)⁻¹) = ρ := by
+      simp only [map_mul, map_inv, map_pow]
+      rw [← hn', ← hzeq, mul_inv_cancel_right]
+    rw [himg]
+    exact hρ
+
+end Cut
+
+/-! ## §7 T2 at depth 3: the coefficient kill
+
+The corrected rows read the squared coker classes one bit deeper but still at the depth-3
+layer bit: `B²` reads `2·4·unit = 2³·unit` at the corrected `σ`-row and `0` at the `x₀`-row,
+`C²` conversely, while the whole depth-3 reach reads `2⁴`-divisibly (§2).  A defect reads
+zero at every row, so both `𝔽₂`-exponents die and the class lies in the admissible reach:
+the refuted depth-3 layer statement is recovered exactly on the all-rows-zero elements,
+which is all the tower recursion ever consumes. -/
+
+section Kill
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- Units do not absorb powers of two, at any exponent. -/
+theorem gDeep_unit_mul_dvd {m : ℕ} {w : ℤ_[2]ˣ} {t : ℤ_[2]}
+    (hd : (2 : ℤ_[2]) ^ m ∣ (w : ℤ_[2]) * t) : (2 : ℤ_[2]) ^ m ∣ t := by
+  obtain ⟨s, hs⟩ := hd
+  have hcanc : ((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (w : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  refine ⟨((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * s, ?_⟩
+  linear_combination ((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hs - t * hcanc
+
+/-- The reading of the square of a `χ`-trivial element doubles the reading. -/
+theorem gDeep_delta_sq (c : Fin (sqRank h) → ℤ_[2]) {x : (DSq h : Type)}
+    (hchi : chiSq h x = 1) : gDelta h c (x ^ 2) = 2 * gDelta h c x := by
+  rw [gDelta_pow, hchi, Units.val_one, normSum_one_base]
+  norm_num
+
+theorem gDeep_chiSq_B_sq : chiSq h (gAbsB h ^ 2) = 1 := by
+  rw [map_pow, gAbs_chiSq_B, one_pow]
+
+theorem gDeep_chiSq_C_sq : chiSq h (gAbsC h ^ 2) = 1 := by
+  rw [map_pow, gAbs_chiSq_C, one_pow]
+
+/-- ⭐ **`B²` reads `2³·unit` at the corrected `σ`-row**: one bit deeper than `B`, still
+visible at the depth-3 layer bit. -/
+theorem gDeep_delta_B_sq_rowS :
+    ∃ u : ℤ_[2]ˣ, gDelta h (gAbsRowS h nu') (gAbsB h ^ 2) = 2 ^ 3 * (u : ℤ_[2]) := by
+  obtain ⟨u, hu⟩ := gAbs_delta_B_rowS (h := h) (nu' := nu')
+  refine ⟨u, ?_⟩
+  rw [gDeep_delta_sq _ gAbs_chiSq_B, hu]
+  ring
+
+theorem gDeep_delta_B_sq_rowX : gDelta h (gAbsRowX h nu') (gAbsB h ^ 2) = 0 := by
+  rw [gDeep_delta_sq _ gAbs_chiSq_B, gAbs_delta_B_rowX, mul_zero]
+
+/-- ⭐ **`C²` reads `2³·unit` at the corrected `x₀`-row.** -/
+theorem gDeep_delta_C_sq_rowX :
+    ∃ u : ℤ_[2]ˣ, gDelta h (gAbsRowX h nu') (gAbsC h ^ 2) = 2 ^ 3 * (u : ℤ_[2]) := by
+  obtain ⟨u, hu⟩ := gAbs_delta_C_rowX (h := h) (nu' := nu')
+  refine ⟨u, ?_⟩
+  rw [gDeep_delta_sq _ gAbs_chiSq_C, hu]
+  ring
+
+theorem gDeep_delta_C_sq_rowS : gDelta h (gAbsRowS h nu') (gAbsC h ^ 2) = 0 := by
+  rw [gDeep_delta_sq _ gAbs_chiSq_C, gAbs_delta_C_rowS, mul_zero]
+
+/-- **The middle-exponent kill at depth 3**: head `2⁴`-divisible, middle base `2³·unit`, tail
+base zero, product zero: the middle `𝔽₂`-exponent vanishes. -/
+theorem gDeep_kill_mid {p x y : (DSq h : Type)} {c : Fin (sqRank h) → ℤ_[2]} {e f : ℕ}
+    (he : e ≤ 1) (h16p : (2 : ℤ_[2]) ^ 4 ∣ gDelta h c p)
+    (hx8 : ∃ u : ℤ_[2]ˣ, gDelta h c x = 2 ^ 3 * (u : ℤ_[2]))
+    (hy0 : gDelta h c y = 0) (hchiX : chiSq h x = 1) (hchiY : chiSq h y = 1)
+    (hzero : gDelta h c (p * x ^ e * y ^ f) = 0) : e = 0 := by
+  rw [gDelta_mul, gDelta_mul, gDelta_pow, gDelta_pow, hchiX, hchiY, hy0, mul_zero, mul_zero,
+    add_zero, Units.val_one, normSum_one_base] at hzero
+  match e, he with
+  | 0, _ => rfl
+  | 1, _ =>
+    exfalso
+    have h16 : (2 : ℤ_[2]) ^ 4 ∣ ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c x := by
+      have hneg : ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c x = -gDelta h c p := by
+        push_cast at hzero
+        linear_combination hzero
+      rw [hneg]
+      exact h16p.neg_right
+    obtain ⟨u, hu⟩ := hx8
+    exact gDeep_pow_unit_not_dvd hu (gDeep_unit_mul_dvd h16)
+
+/-- **The tail-exponent kill at depth 3.** -/
+theorem gDeep_kill_last {p x y : (DSq h : Type)} {c : Fin (sqRank h) → ℤ_[2]} {e f : ℕ}
+    (hf : f ≤ 1) (h16p : (2 : ℤ_[2]) ^ 4 ∣ gDelta h c p)
+    (hx0 : gDelta h c x = 0)
+    (hy8 : ∃ u : ℤ_[2]ˣ, gDelta h c y = 2 ^ 3 * (u : ℤ_[2]))
+    (hchiX : chiSq h x = 1) (hchiY : chiSq h y = 1)
+    (hzero : gDelta h c (p * x ^ e * y ^ f) = 0) : f = 0 := by
+  rw [gDelta_mul, gDelta_mul, gDelta_pow, gDelta_pow, hchiX, hchiY, hx0, mul_zero, mul_zero,
+    add_zero, Units.val_one, normSum_one_base, map_mul, map_pow, hchiX, one_pow, mul_one]
+    at hzero
+  match f, hf with
+  | 0, _ => rfl
+  | 1, _ =>
+    exfalso
+    have h16 : (2 : ℤ_[2]) ^ 4 ∣ ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c y := by
+      have hneg : ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c y = -gDelta h c p := by
+        push_cast at hzero
+        linear_combination hzero
+      rw [hneg]
+      exact h16p.neg_right
+    obtain ⟨u, hu⟩ := hy8
+    exact gDeep_pow_unit_not_dvd hu (gDeep_unit_mul_dvd h16)
+
+/-- ⭐⭐⭐ **T2 at depth 3: the coefficient kill.**  An exactly row-trivial `γ₄`-element all
+of whose functional readings vanish has zero coker coefficients: its class lies in the
+admissible depth-3 reach.  The REFUTED depth-3 base is recovered exactly on the
+all-rows-zero elements, which is all the recursion ever needed of it. -/
+theorem gDeep_zero_reader_reach (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) 4) (hgl : nuLam h g = 1) (hgn : nu' g = 1)
+    (hzero : ∀ c : Fin (sqRank h) → ℤ_[2], gDelta h c g = 0) :
+    levelMk (DSq h : Type) 5 g ∈ gTowerReach h nu' 3 := by
+  obtain ⟨p, e₁, e₂, hpm, hpR, he₁, he₂, hgeq⟩ := gDeep_leftover_decomp hsigma hx0 hg hgl hgn
+  have h16pS : (2 : ℤ_[2]) ^ 4 ∣ gDelta h (gAbsRowS h nu') p :=
+    (gJoin_mem_layerDvd (c := gAbsRowS h nu') (k := 3) (x := p)).1
+      (gDeep_reach_le_layerDvd_rowS hpR)
+  have h16pX : (2 : ℤ_[2]) ^ 4 ∣ gDelta h (gAbsRowX h nu') p :=
+    (gJoin_mem_layerDvd (c := gAbsRowX h nu') (k := 3) (x := p)).1
+      (gDeep_reach_le_layerDvd_rowX hpR)
+  have h0S := hzero (gAbsRowS h nu')
+  rw [hgeq] at h0S
+  have h0X := hzero (gAbsRowX h nu')
+  rw [hgeq] at h0X
+  have hBkill : e₁ = 0 :=
+    gDeep_kill_mid he₁ h16pS gDeep_delta_B_sq_rowS gDeep_delta_C_sq_rowS gDeep_chiSq_B_sq
+      gDeep_chiSq_C_sq h0S
+  have hCkill : e₂ = 0 :=
+    gDeep_kill_last he₂ h16pX gDeep_delta_B_sq_rowX gDeep_delta_C_sq_rowX gDeep_chiSq_B_sq
+      gDeep_chiSq_C_sq h0X
+  rw [hgeq, hBkill, hCkill, pow_zero, pow_zero, mul_one, mul_one]
+  exact hpR
+
+/-- The squared `σ`-coker class is outside the depth-3 reach at every marking: the refutation
+core, stated as wave 78 stated its depth-2 twin. -/
+theorem gDeep_B_sq_notMem_reach :
+    levelMk (DSq h : Type) 5 (gAbsB h ^ 2) ∉ gTowerReach h nu' 3 := by
+  intro hmem
+  obtain ⟨u, hu⟩ := gDeep_delta_B_sq_rowS (h := h) (nu' := nu')
+  exact gDeep_pow_unit_not_dvd hu
+    ((gJoin_mem_layerDvd (c := gAbsRowS h nu') (k := 3) (x := gAbsB h ^ 2)).1
+      (gDeep_reach_le_layerDvd_rowS hmem))
+
+theorem gDeep_C_sq_notMem_reach :
+    levelMk (DSq h : Type) 5 (gAbsC h ^ 2) ∉ gTowerReach h nu' 3 := by
+  intro hmem
+  obtain ⟨u, hu⟩ := gDeep_delta_C_sq_rowX (h := h) (nu' := nu')
+  exact gDeep_pow_unit_not_dvd hu
+    ((gJoin_mem_layerDvd (c := gAbsRowX h nu') (k := 3) (x := gAbsC h ^ 2)).1
+      (gDeep_reach_le_layerDvd_rowX hmem))
+
+end Kill
+
 /-! ## Axiom pins -/
 
 section AxiomPins
