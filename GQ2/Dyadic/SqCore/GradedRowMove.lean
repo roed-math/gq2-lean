@@ -128,6 +128,26 @@ theorem gRow_modelMove_of_pair {h : ℕ} {a b d e : ℤ_[2]} (hde : d * e = 1)
       nuLam_x0, toAdd_ofAdd]
     ring
 
+/-- **The converse bridge**: a model move with a chi-preserving automorphism realizes the row
+pair at the corresponding coordinates.  So the pair target is exactly as strong as the model
+move plus lambda-preservation, not stronger: the two sides of the bridge are a change of
+coordinates on the same residual. -/
+theorem gRow_pair_of_modelMove {h : ℕ} {a b d e : ℤ_[2]} (hde : d * e = 1)
+    (hd : d = a - sqPivotExp * b) (H : GClearModelMove h a b) :
+    GRowPair h (e * (1 - sqPivotExp * b)) (-(e * b)) := by
+  obtain ⟨Ψ, hchi, hs, hx⟩ := H
+  have hlam := (chiSq_preserving_iff_nuLam Ψ).mp hchi
+  refine ⟨Ψ, hlam, ?_, ?_⟩
+  · have h1 := congrArg toAdd hs
+    rw [gClear_nuSqOf_eq_twist hde hd, toAdd_nuTwist, toAdd_ofAdd, hlam (dsqSigma h),
+      nuLam_sigma, toAdd_ofAdd] at h1
+    linear_combination e * h1
+      - (toAdd (nuSq h (Ψ (dsqSigma h))) + e * b * sqPivotExp) * hde
+  · have h2 := congrArg toAdd hx
+    rw [gClear_nuSqOf_eq_twist hde hd, toAdd_nuTwist, toAdd_ofAdd, hlam (dsqX0 h),
+      nuLam_x0, toAdd_ofAdd] at h2
+    linear_combination e * h2 - (toAdd (nuSq h (Ψ (dsqX0 h))) + e * b) * hde
+
 /-- **The translation ray in pair coordinates**: rows `(1 - c0 c, -c)`. -/
 def GRowTranslate (h : ℕ) (c : ℤ_[2]) : Prop := GRowPair h (1 - sqPivotExp * c) (-c)
 
@@ -942,6 +962,75 @@ theorem gRow_clearing_of_forall_class
     SqNuOrientedClearAtUnitPivot h :=
   gClear_clearing_of_model fun _ _ hd => gRow_modelMove_of_forall_class H hd
 
+/-- The model moves over the class-`k >= 4` rungs alone. -/
+theorem gRow_modelMove_of_forall_class_four
+    (H : ∀ A B : ℤ_[2], IsUnit (A - sqPivotExp * B) →
+      ∀ k, 4 ≤ k → (gRowSet h A B k).Nonempty)
+    {a b : ℤ_[2]} (hd : IsUnit (a - sqPivotExp * b)) : GClearModelMove h a b := by
+  obtain ⟨u, hu⟩ := hd
+  have hde : (a - sqPivotExp * b) * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← hu, ← Units.val_mul, mul_inv_cancel, Units.val_one]
+  have hunit : IsUnit (((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - sqPivotExp * b)
+      - sqPivotExp * (-(((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * b))) := by
+    rw [show ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - sqPivotExp * b)
+        - sqPivotExp * (-(((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * b)) = ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) by ring]
+    exact ⟨u⁻¹, rfl⟩
+  exact gRow_modelMove_of_pair hde rfl (gRow_pair_of_forall_class_four hunit (H _ _ hunit))
+
+/-- The translation ray over its class-`k >= 4` rungs alone. -/
+theorem gRow_translate_of_forall_class_four {c : ℤ_[2]}
+    (H : ∀ k, 4 ≤ k → (gRowSet h (1 - sqPivotExp * c) (-c) k).Nonempty) :
+    GClearModelTranslate h c := by
+  refine gRow_translate_of_pair (gRow_pair_of_forall_class_four ?_ H)
+  rw [show (1 - sqPivotExp * c) - sqPivotExp * (-c) = (1 : ℤ_[2]) by ring]
+  exact isUnit_one
+
+/-- The scaling ray over its class-`k >= 4` rungs alone. -/
+theorem gRow_scale_of_forall_class_four {d e : ℤ_[2]} (hde : d * e = 1)
+    (H : ∀ k, 4 ≤ k → (gRowSet h e 0 k).Nonempty) : GClearModelScale h d := by
+  refine gRow_scale_of_pair hde (gRow_pair_of_forall_class_four ?_ H)
+  rw [show e - sqPivotExp * 0 = e by ring]
+  exact ⟨⟨e, d, by linear_combination hde, hde⟩, rfl⟩
+
+/-- ⭐⭐⭐ **The sharpest conditional form this lane leaves**: the odd route's last item over
+the class-`k >= 4` rungs of the row-move word on the unit locus, and nothing else.  Classes
+at most three are theorems. -/
+theorem gRow_clearing_of_forall_class_four
+    (H : ∀ A B : ℤ_[2], IsUnit (A - sqPivotExp * B) →
+      ∀ k, 4 ≤ k → (gRowSet h A B k).Nonempty) :
+    SqNuOrientedClearAtUnitPivot h :=
+  gClear_clearing_of_model fun _ _ hd => gRow_modelMove_of_forall_class_four H hd
+
+section DegreeZero
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- **The row pairs are theorems at `h = 0`**, on the whole unit locus, through the converse
+bridge and the committed degree-one model moves (axioms B8 + B3c enter here and only here).
+So the pair target is realized in full at the settled handle count: the coordinates this lane
+chose do not overshoot the committed residual. -/
+theorem gRow_pair_zero {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B)) : GRowPair 0 A B := by
+  obtain ⟨u, hu⟩ := hAB
+  set d : ℤ_[2] := ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) with hdd
+  have hde : d * (A - sqPivotExp * B) = 1 := by
+    rw [hdd, ← hu, ← Units.val_mul, inv_mul_cancel, Units.val_one]
+  have hd1 : (A - sqPivotExp * B) * d = 1 := by
+    rw [mul_comm]
+    exact hde
+  have H0 : GClearModelMove 0 (d + sqPivotExp * (-(B * d))) (-(B * d)) :=
+    gClear_modelMove_zero (by
+      rw [show d + sqPivotExp * (-(B * d)) - sqPivotExp * (-(B * d)) = d by ring]
+      exact ⟨u⁻¹, rfl⟩)
+  have hp := gRow_pair_of_modelMove (e := A - sqPivotExp * B) hde (by ring) H0
+  have e1 : (A - sqPivotExp * B) * (1 - sqPivotExp * (-(B * d))) = A := by
+    linear_combination sqPivotExp * B * hd1
+  have e2 : -((A - sqPivotExp * B) * (-(B * d))) = B := by
+    linear_combination B * hd1
+  rw [e1, e2] at hp
+  exact hp
+
+end DegreeZero
+
 end Composition
 
 /-! ## §7b The seam: the ladder carries the odd-degree classification -/
@@ -1028,11 +1117,17 @@ Verified at generation time (`scripts/mirror.sh gen`):
   `gRow_translate_of_pair`, `gRow_scale_of_pair`, `gRow_modelMove_of_ray_pairs`, `gRowExp`,
   `gRowMark`, `gRowMark_id`, `gRow_pair_of_word`, `gRowFrat`, `gRow_lambdaTwo_le_frat`,
   `gRow_modTwoIndep`, `gRowCorr`, `gRowSet`, `gRowSet_antitone`, `gRow_continuous`,
-  `gRow_isClosed_set`, `gRow_iInter_nonempty`,
-  `gRow_pair_of_forall_class`, `gRow_relWord_mem_two`, `gRow_nonempty_of_le_two`,
-  `gRow_pair_of_forall_class_three`, `gRow_modelMove_of_forall_class`,
-  `gRow_translate_of_forall_class`, `gRow_scale_of_forall_class`,
-  `gRow_clearing_of_forall_class` print **std-3**.
+  `gRow_isClosed_set`, `gRow_iInter_nonempty`, `gRow_pair_of_forall_class`,
+  `gRow_commP_mem_two`, `gRow_commP_mem_three`, `gRow_relWord_mem_two`,
+  `gRow_nonempty_of_le_two`, `gRow_even_of_unit`, `gRow_relWord_bare_mem_three`,
+  `gRow_nonempty_of_le_three`, `gRow_pair_of_forall_class_four`,
+  `gRow_modelMove_of_forall_class`, `gRow_translate_of_forall_class`,
+  `gRow_scale_of_forall_class`, `gRow_clearing_of_forall_class`,
+  `gRow_modelMove_of_forall_class_four`, `gRow_translate_of_forall_class_four`,
+  `gRow_scale_of_forall_class_four`, `gRow_clearing_of_forall_class_four` print **std-3**.
+* `gRow_pair_of_modelMove` prints **std-3**; `gRow_pair_zero` prints std-3 +
+  {`dyadicOrientation` (B3c), `peripheralCyclotomicAction` (B8)}, the committed price of the
+  `h = 0` arithmetic affine family and nothing else.
 * `gRow_supply_of_forall_class`, `gRow_candidateEquiv_of_forall_class` print std-3 +
   {`hilbertSymbol_normCriterion_finiteDyadic`, `tateDualityAt`,
   `Foundations.absGalQ2_isTopologicallyFinitelyGenerated`,
@@ -1044,6 +1139,8 @@ section AxiomPins
 #print axioms GRowPair
 #print axioms gRow_pair_one_zero
 #print axioms gRow_modelMove_of_pair
+#print axioms gRow_pair_of_modelMove
+#print axioms gRow_pair_zero
 #print axioms GRowTranslate
 #print axioms GRowScale
 #print axioms gRow_translate_of_pair
@@ -1075,6 +1172,10 @@ section AxiomPins
 #print axioms gRow_translate_of_forall_class
 #print axioms gRow_scale_of_forall_class
 #print axioms gRow_clearing_of_forall_class
+#print axioms gRow_modelMove_of_forall_class_four
+#print axioms gRow_translate_of_forall_class_four
+#print axioms gRow_scale_of_forall_class_four
+#print axioms gRow_clearing_of_forall_class_four
 #print axioms gRow_supply_of_forall_class
 #print axioms gRow_candidateEquiv_of_forall_class
 
