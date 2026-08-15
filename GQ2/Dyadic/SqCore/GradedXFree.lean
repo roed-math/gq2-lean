@@ -336,7 +336,163 @@ theorem gXf_far_le_of_slots {m : Fin (sqRank h) → (DSq h : Type)} (hm : SqModT
 
 end Half
 
-/-! ## §4 Axiom pins -/
+/-! ## §4 The bracket span, restricted to the far slots
+
+`gTower_commHom_span` reduces a bracket `[v, g]` to the span of the `3 + 2h` letter brackets.
+For the extraction that is one letter too many: the `x₁`-bracket is exactly what the moves do
+not supply unbundled.  The same closure argument run against `gTowerFar`'s own generators gives
+the reduction to the `2 + 2h` far letters. -/
+
+section FarSpan
+
+variable {h : ℕ}
+
+variable (h) in
+/-- The far letter brackets of a fixed correction, as a generating set in `Q_{k+2}`. -/
+def gXfFarKnobs {k : ℕ} (v : (DSq h : Type)) : Set (levelQuot (DSq h : Type) (k + 2)) :=
+  {z | ∃ i : Fin (sqRank h), i ≠ 2 ∧ z = levelMk (DSq h : Type) (k + 2) (commP v (sqGen h i))}
+
+/-- ⭐⭐ **The far-slot letter reduction**: for `v ∈ γ_k` and `q` in the `x₁`-free letter span,
+the bracket class `[v, q]` lies in the span of the **non-`x₁`** letter brackets. -/
+theorem gXf_commHom_far_span {k : ℕ} {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) k) {q : (DSq h : Type)} (hq : q ∈ gTowerFar h) :
+    levelMk (DSq h : Type) (k + 2) (commP v q) ∈ Subgroup.closure (gXfFarKnobs h (k := k) v) := by
+  haveI : DiscreteTopology (levelQuot (DSq h : Type) (k + 2)) := gTower_discrete (k + 2)
+  set S' := Subgroup.closure (gXfFarKnobs h (k := k) v) with hS'
+  have hpre : IsClosed ((Subgroup.comap (cfiveCommHom hv) S' :
+      Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [Subgroup.coe_comap]
+    refine IsClosed.preimage ?_ (isClosed_discrete _)
+    show Continuous fun g => levelMk (DSq h : Type) (k + 2) (commP v g)
+    simp only [commP]
+    exact (continuous_levelMk (DSq h : Type) (k + 2)).comp (by fun_prop)
+  refine Subgroup.topologicalClosure_minimal _ ((Subgroup.closure_le _).2 ?_) hpre hq
+  intro x hx
+  simp only [Set.mem_union, Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_range] at hx
+  rcases hx with ((rfl | rfl) | ⟨j, rfl⟩) | ⟨j, rfl⟩
+  · exact Subgroup.subset_closure ⟨0, gXf_zero_ne_two, rfl⟩
+  · exact Subgroup.subset_closure ⟨1, gXf_one_ne_two, rfl⟩
+  · exact Subgroup.subset_closure
+      ⟨sqHandleIdxU j, SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_two]; omega), rfl⟩
+  · exact Subgroup.subset_closure
+      ⟨sqHandleIdxV j, SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_two]; omega), rfl⟩
+
+end FarSpan
+
+/-! ## §5 The move is a homomorphism of the correction tuple
+
+`gExtMove` reads each slot of the correction through one of three shapes: a bracket in the left
+slot (the `σ`-slot and the `u`-slots), a bracket in the right slot (the `x₀`-slot and the
+`v`-slots), and the square-plus-bracket bundle (the `x₁`-slot).  All three are multiplicative in
+the correction once the correction sits in `γ_k` with `k ≥ 2`: the correction terms of
+`cfour_commP_mul_left`/`_right` are brackets against a top-layer element, and the correction
+term of `cfour_sq_mul` is a bracket of two `γ_k`-slots.  Every value in sight is central, so the
+blocks recombine with no further bookkeeping. -/
+
+section MoveHom
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ}
+
+/-- The bracket is multiplicative in a **correction** left slot. -/
+theorem gXf_commP_left {c c' : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (q : levelQuot G (k + 2)) : commP (c * c') q = commP c q * commP c' q := by
+  rw [cfour_commP_mul_left,
+    cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hc q) c', mul_one]
+
+/-- The bracket is multiplicative in a **correction** right slot. -/
+theorem gXf_commP_right (p : levelQuot G (k + 2)) {c c' : levelQuot G (k + 2)}
+    (hc : c ∈ lambdaImage G k (k + 2)) :
+    commP p (c * c') = commP p c * commP p c' := by
+  rw [cfour_commP_mul_right,
+    cfive_commP_zLayer_left (cfive_commP_mem_zLayer_right p hc) c', mul_one]
+  exact gTower_zLayer_comm (cfive_commP_mem_zLayer_right p hc) (commP p c')
+
+/-- The square is multiplicative on `γ_k`-slots, `k ≥ 2`: the defect of `cfour_sq_mul` is a
+bracket of two `γ_k`-slots, which dies. -/
+theorem gXf_sq_mul (hk : 2 ≤ k) {c c' : levelQuot G (k + 2)} (hc : c ∈ lambdaImage G k (k + 2))
+    (hc' : c' ∈ lambdaImage G k (k + 2)) : (c * c') ^ 2 = c ^ 2 * c' ^ 2 := by
+  rw [cfour_sq_mul, gTower_commP_vanish hc' (gTower_lambdaImage_le hk hc), cfour_one_comm,
+    mul_one, mul_one]
+
+/-- The two-block shuffle, with the second factor of the first block central. -/
+theorem gXf_shuffle {Q : Type*} [Group Q] {a₁ a₂ b₁ b₂ : Q} (ha : a₂ ∈ Subgroup.center Q) :
+    a₁ * a₂ * (b₁ * b₂) = a₁ * b₁ * (a₂ * b₂) := by
+  have hcomm : a₂ * b₁ = b₁ * a₂ := (Subgroup.mem_center_iff.1 ha b₁).symm
+  calc a₁ * a₂ * (b₁ * b₂) = a₁ * (a₂ * b₁) * b₂ := by group
+    _ = a₁ * (b₁ * a₂) * b₂ := by rw [hcomm]
+    _ = a₁ * b₁ * (a₂ * b₂) := by group
+
+/-- The four-block shuffle: three applications of `gXf_shuffle`. -/
+theorem gXf_shuffle4 {Q : Type*} [Group Q] {a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ : Q}
+    (ha : a₂ ∈ Subgroup.center Q) (hb : b₂ ∈ Subgroup.center Q)
+    (hc : c₂ ∈ Subgroup.center Q) :
+    a₁ * a₂ * (b₁ * b₂) * (c₁ * c₂) * (d₁ * d₂)
+      = a₁ * b₁ * c₁ * d₁ * (a₂ * b₂ * c₂ * d₂) := by
+  rw [gXf_shuffle ha, gXf_shuffle (Subgroup.mul_mem _ ha hb),
+    gXf_shuffle (Subgroup.mul_mem _ (Subgroup.mul_mem _ ha hb) hc)]
+
+/-- Every knob value of a correction is central in the layer quotient. -/
+theorem gXf_zLayer_center {z : levelQuot G (k + 2)} (hz : z ∈ zLayer G (k + 1)) :
+    z ∈ Subgroup.center (levelQuot G (k + 2)) := zLayer_le_center G (k + 1) hz
+
+/-- ⭐⭐⭐ **The move is a homomorphism in the correction tuple.**  Slotwise multiplicativity
+plus the four-block shuffle; no hypothesis on the frame `m` at all. -/
+theorem gXf_move_mul (hk : 2 ≤ k) {n : ℕ} (m : Fin (sqRank n) → levelQuot G (k + 2))
+    {c c' : Fin (sqRank n) → levelQuot G (k + 2)}
+    (hc : ∀ i, c i ∈ lambdaImage G k (k + 2)) (hc' : ∀ i, c' i ∈ lambdaImage G k (k + 2)) :
+    gExtMove k m (fun i => c i * c' i) = gExtMove k m c * gExtMove k m c' := by
+  have hA : commP (c 0 * c' 0) (m 1) = commP (c 0) (m 1) * commP (c' 0) (m 1) :=
+    gXf_commP_left (hc 0) (m 1)
+  have hB : commP (m 0) (c 1 * c' 1) = commP (m 0) (c 1) * commP (m 0) (c' 1) :=
+    gXf_commP_right (m 0) (hc 1)
+  have hC : (c 2 * c' 2) ^ 2 * commP (c 2 * c' 2) (m 2)
+      = c 2 ^ 2 * commP (c 2) (m 2) * (c' 2 ^ 2 * commP (c' 2) (m 2)) := by
+    rw [gXf_sq_mul hk (hc 2) (hc' 2), gXf_commP_left (hc 2) (m 2)]
+    exact gXf_shuffle (gXf_zLayer_center (gTower_sq_mem_zLayer (hc' 2)))
+  have hDcen : ∀ i : Fin n, commP (c (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+      commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i))
+        ∈ Subgroup.center (levelQuot G (k + 2)) := fun i =>
+    gXf_zLayer_center (Subgroup.mul_mem _ (cfive_commP_mem_zLayer_left (hc _) _)
+      (cfive_commP_mem_zLayer_right _ (hc _)))
+  have hD : (List.ofFn fun i : Fin n =>
+        commP (c (sqHandleIdxU i) * c' (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+          commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i) * c' (sqHandleIdxV i))).prod
+      = (List.ofFn fun i : Fin n => commP (c (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+            commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i))).prod *
+          (List.ofFn fun i : Fin n => commP (c' (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+            commP (m (sqHandleIdxU i)) (c' (sqHandleIdxV i))).prod := by
+    have hentry : (fun i : Fin n =>
+        commP (c (sqHandleIdxU i) * c' (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+          commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i) * c' (sqHandleIdxV i)))
+        = fun i : Fin n => (commP (c (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+            commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i))) *
+          (commP (c' (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+            commP (m (sqHandleIdxU i)) (c' (sqHandleIdxV i))) := by
+      funext i
+      rw [gXf_commP_left (hc _) _, gXf_commP_right _ (hc _)]
+      exact gXf_shuffle (gXf_zLayer_center (cfive_commP_mem_zLayer_left (hc' _) _))
+    rw [gExt_ofFn_mul _ _ hDcen, hentry]
+  simp only [gExtMove, hA, hB, hC, hD]
+  exact gXf_shuffle4 (gXf_zLayer_center (cfive_commP_mem_zLayer_left (hc' 0) _))
+    (gXf_zLayer_center (cfive_commP_mem_zLayer_right _ (hc' 1)))
+    (gXf_zLayer_center (Subgroup.mul_mem _ (gTower_sq_mem_zLayer (hc' 2))
+      (cfive_commP_mem_zLayer_left (hc' 2) _)))
+
+/-- An ordered product of trivial factors is trivial. -/
+theorem gXf_ofFn_one {Q : Type*} [Group Q] : ∀ n : ℕ,
+    (List.ofFn fun _ : Fin n => (1 : Q)).prod = 1
+  | 0 => by simp
+  | (n + 1) => by rw [List.ofFn_succ, List.prod_cons, gXf_ofFn_one n, one_mul]
+
+/-- The trivial correction moves nothing. -/
+theorem gXf_move_one {n : ℕ} (m : Fin (sqRank n) → levelQuot G (k + 2)) :
+    gExtMove k m (fun _ => 1) = 1 := by
+  simp only [gExtMove, cfour_one_comm, cfour_comm_one, one_pow, one_mul, mul_one]
+  exact gXf_ofFn_one n
+
+end MoveHom
+
+/-! ## §6 Axiom pins -/
 
 section AxiomPinsXFree
 
@@ -364,6 +520,17 @@ section AxiomPinsXFree
 #print axioms gXf_eq_top_of_indep
 #print axioms gXf_normal_of_gammaTwo_le
 #print axioms gXf_far_le_of_slots
+#print axioms gXfFarKnobs
+#print axioms gXf_commHom_far_span
+#print axioms gXf_commP_left
+#print axioms gXf_commP_right
+#print axioms gXf_sq_mul
+#print axioms gXf_shuffle
+#print axioms gXf_shuffle4
+#print axioms gXf_zLayer_center
+#print axioms gXf_move_mul
+#print axioms gXf_ofFn_one
+#print axioms gXf_move_one
 
 end AxiomPinsXFree
 
