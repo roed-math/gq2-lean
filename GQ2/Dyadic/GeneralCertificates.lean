@@ -28,7 +28,7 @@ and because every downstream recursion object factors through the *composite*
 explicit: `genCertBdPull` moves the boundary map backwards along a hom of cores,
 `genCertFramePull` moves the frame backwards, and `genCertFrameMap_pull` says the two moves
 cancel on `frameMap`.  Everything after that is `Equiv.subtypeEquivRight` on
-`BoundaryLiftsK`, which preserves the underlying `ContSurj` **on the nose** — and that is the
+`BoundaryLiftsK`, which preserves the underlying `ContSurj` **on the nose**, and that is the
 reason the four analytic clauses transport at all, since `LiftsOverK`, `rhoPrimeK`,
 `GaussZResidueK` and `mBK` all read `ρ` only through `ρ.1.1`.
 -/
@@ -253,7 +253,7 @@ theorem genCertCompat {tame : ContinuousMonoidHom Gam (Tq q)}
 include hnu in
 /-- **Ledger field 6 transports.**  Here the boundary map is *not* the pulled-back one: it is
 rebuilt from the certificate's own `pro2`, and the transported `pro2` is `e ∘ pro2`.  The two
-`frameMap` composites then agree by `rfl` — no `apply_symm_apply` is needed on this clause,
+`frameMap` composites then agree by `rfl`: no `apply_symm_apply` is needed on this clause,
 which is why §2 is stated at a bare `hfm` rather than at the pullback. -/
 theorem genCert_determinant_pull {tame : ContinuousMonoidHom Gam (Tq q)}
     {pro2 : ContinuousMonoidHom Gam (P₁ : Type)}
@@ -393,7 +393,7 @@ variable {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimen
 `genAsm_candidate_equiv_galK_of_supply` at the `L 0` row no longer asks for a `WordCertificate`:
 the branch datum's marking is pinned to `genCertLNu` and the certificate is supplied by
 `genCert_wordCertificate_nonempty_L_zero`.  What remains is exactly the arithmetic supply `KS`
-and the field-side inputs `F` — i.e. `GenAsmRowResidual`'s three `ASK` fields, not its four.
+and the field-side inputs `F`, i.e. `GenAsmRowResidual`'s three `ASK` fields, not its four.
 
 The residue hypothesis `hq` is the only extra pin: the committed `n = 1` certificate is at
 `q = 2`, and a degree-`1` `K` is `ℚ₂`, so `hq` is a coherence condition rather than a new
@@ -699,5 +699,80 @@ theorem genCertMpc_row_core (alpha r : ℕ) (epsilon : Bool) (dsp : EtaDisplay) 
     genAsmCore (.Mpc alpha r epsilon dsp h) = DM alpha h := rfl
 
 end MpcRow
+
+/-! ## §8 The procyclic-`N` row: the first producer
+
+`docs/dyadic/w75-state-note.md` §3.1 (F2) records `Npc` as the one row with **no** `CAND`
+producer at all, and `Main.lean`'s `no_frozen_Npc` is the frozen-table echo of that.  The row is
+not, however, missing its inputs: `Instances.NProcyclicCore` already carries the `eta = 1`
+dictionary at every handle count (`npcReindexOne`, `npcCoreRelOne`, `npcProTwoWordOne`,
+`npcCorePresentationOne`, `Instances/NpcCore.lean:542-593`), and Gate B and the wild discharge
+are free in every parameter (`Count.tameSpecializes_npcW`, `Count.hwild_npcW`).  So the producer
+exists and this section builds it, at free `(α, r, h, q)` and at the `EtaData` display `⟨1, 1⟩`.
+
+⚠ What is **not** covered: an arbitrary `EtaData`.  `npcCorePresentationUnit`
+(`Instances/NpcCore.lean:501`) is the arbitrary-unit presentation at every `h`, but it is stated
+over `npcWUnit`, and the `Npc` row's word-syntax residual is the exact analogue of
+`GenCertMpcDisplayWordEq`.  Naming it, and the arbitrary-display producer, is W77 work. -/
+
+section NpcRow
+
+open Words Words.Npc Count Instances.NProcyclicCore
+
+/-- **The procyclic-`N` word certificate at `eta = ⟨1, 1⟩`, at free `(α, r, h, q)`.**  The first
+`WordCertificate` producer this row has had.  Same posture as the other three: thirteen fields
+proved, the four analytic clauses as arguments.
+
+No `α` bound is needed, exactly as on the compact-`N` row. -/
+noncomputable def genCertNpcWordCertificate (alpha r h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    {SN : SourceNumerics (2 + 2 * h)}
+    (nuP : ContinuousMonoidHom ((DN alpha h : ProfiniteGrp) : Type) Ztwo)
+    (hnuSigma : nuP ((npcCorePresentationOne alpha r h).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * h + 1),
+      nuP ((npcCorePresentationOne alpha r h).mark (.wild j)) = 1)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * h) q (npcW alpha r h ⟨1, 1⟩))
+      (2 + 2 * h) q (DN alpha h) nuP SN)
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * h) q (npcW alpha r h ⟨1, 1⟩))
+      (2 + 2 * h) q (DN alpha h) nuP SN (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * h) q (npcW alpha r h ⟨1, 1⟩))
+      (2 + 2 * h) SN (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * h) q (npcW alpha r h ⟨1, 1⟩))
+      (2 + 2 * h) q (DN alpha h) nuP SN
+      (tameOfSpec (2 + 2 * h) q (npcW alpha r h ⟨1, 1⟩)
+        (Count.tameSpecializes_npcW hq0 hqe alpha r h ⟨1, 1⟩))
+      (Count.CorePresentation.coreHom (npcCorePresentationOne alpha r h) hq0 hqe)
+      (Count.CorePresentation.nu_compat_coreHom (npcCorePresentationOne alpha r h) hq0 hqe
+        (Count.tameSpecializes_npcW hq0 hqe alpha r h ⟨1, 1⟩) nuP hnuSigma hnuWild)
+      (scalarActionZmodTwo _)) :
+    WordCertificate (2 + 2 * h) q (npcW alpha r h ⟨1, 1⟩) (DN alpha h) (isProP_DN alpha h) nuP
+      SN where
+  tameSpecialization := Count.tameSpecializes_npcW hq0 hqe alpha r h ⟨1, 1⟩
+  coreRel := npcCoreRelOne alpha r h
+  proTwoWord := fun G _ _ _ _ _ t => npcProTwoWordOne alpha r h G t
+  pro2 := Count.CorePresentation.coreHom (npcCorePresentationOne alpha r h) hq0 hqe
+  ker_pro2 := Count.CorePresentation.ker_coreHom (npcCorePresentationOne alpha r h) hq0 hqe
+  hpro2 := Count.CorePresentation.coreHom_surjective (npcCorePresentationOne alpha r h) hq0 hqe
+  compat := Count.CorePresentation.nu_compat_coreHom (npcCorePresentationOne alpha r h) hq0 hqe
+    (Count.tameSpecializes_npcW hq0 hqe alpha r h ⟨1, 1⟩) nuP hnuSigma hnuWild
+  tfg := Count.gammaR_topologicallyFinitelyGenerated _ _ _
+  smulZmod2 := scalarActionZmodTwo _
+  contSMulZmod2 := scalarActionZmodTwo_continuousSMul _
+  htriv := scalarActionZmodTwo_triv _
+  exactLifting := exactLifting
+  stokes := stokes
+  scalar := scalar
+  determinant := determinant
+  htame := Count.htame_of_tameSpecializes _
+  hwild := Count.hwild_npcW _
+
+/-- The producer sits over the general constructor table's `Npc α r h ⟨1, 1⟩` row. -/
+theorem genCertNpc_row_word (alpha r h : ℕ) :
+    (SelectedPresentation.Npc alpha r h ⟨1, 1⟩).word = npcW alpha r h ⟨1, 1⟩ := rfl
+
+/-- …and the same core. -/
+theorem genCertNpc_row_core (alpha r h : ℕ) (eta : EtaData) :
+    genAsmCore (.Npc alpha r h eta) = DN alpha h := rfl
+
+end NpcRow
 
 end GQ2.Dyadic
