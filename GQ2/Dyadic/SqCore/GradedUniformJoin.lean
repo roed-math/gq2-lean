@@ -1040,7 +1040,15 @@ theorem gJoin_supply_of_base (hbase : GJoinBase h) (hsep : GJoinSeparationAll h)
 
 /-- ⭐⭐⭐ **The `h ≥ 1` residual, from three named inputs.**  Two of them are wave 74's own
 open items (the depth-`2` base and the knob realizability); the third is the `𝔽₂`
-bookkeeping of §7.  The functional half of Labute's Lemma 4 is fully discharged. -/
+bookkeeping of §7.  The functional half of Labute's Lemma 4 is fully discharged.
+
+⚠⚠ **[W79-HOUSE, as of `527adf51`: the depth-`2` base is REFUTED, not open.**  `GJoinBase h` is
+false at every `h` (`gDecide_not_joinBase`, `SqCore/GradedBaseDecide.lean`), so this theorem is
+vacuous and the sentence above should read "one of them is wave 74's own open item (the knob
+realizability)".  See the marker on the `GJoinBase` definition and on §8's header.  Wave 78's
+annotation pass marked both of those and left this consumer docstring calling the refuted `Prop`
+an open item.  The live route to the same conclusion is
+`gJoin_markTransitivity_of_vanishing`.]** -/
 theorem gJoin_markTransitivity_of_base (hbase : GJoinBase h) (hsep : GJoinSeparationAll h)
     (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
   limFinal_markTransitivity (gJoin_supply_of_base hbase hsep HR)

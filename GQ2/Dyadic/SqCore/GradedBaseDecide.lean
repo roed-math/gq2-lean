@@ -567,7 +567,18 @@ section DepthThree
 variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
 
 variable (h) in
-/-- **The depth-`3` base**: `GJoinBase` one level up, at every selected marking. -/
+/-- **The depth-`3` base**: `GJoinBase` one level up, at every selected marking.
+
+[W79-HOUSE, as of `527adf51`: clause added so that naming `GJoinBase` here does not read as
+inheriting its status.  `GJoinBase`, the depth-`2` statement, is **refuted** earlier in this file
+(`gDecide_not_joinBase`).  `GDecideBaseThree` is the depth-`3` analogue.  It is **open at this
+tree** (this file's witness is silent about it, and wave 78 made it the sole layer-side input),
+but ⚠⚠ **a refutation is IN FLIGHT and unmerged**: `gDeep_not_baseThree : ¬ GDecideBaseThree h`
+at every `h`, on branch `claude/w79-depth3` at `74d01ee9`, together with
+`gDeep_not_layerReach` killing `GTowerLayerReach h nu' (k + 2)` at **every** depth and every
+marking.  Do not restart this `Prop` as a lane target without checking whether that branch
+landed; if it did, `gAbs_markTransitivity_of_baseThree` (`SqCore/GradedAbsorption.lean`) becomes
+vacuous and needs the same marker the two `gBase_*_of_residual` composites carry.] -/
 def GDecideBaseThree : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →

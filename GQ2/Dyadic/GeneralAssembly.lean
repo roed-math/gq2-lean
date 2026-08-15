@@ -253,6 +253,12 @@ branch datum places on the row.  Two blocks, following the critical-path memo's 
 * `stokes`: ledger field 4 at `G_K`: `tcocycle_card`, separation, nondegeneracy, `#Z¹(V)`.
 * `determinant`: ledger field 6 at `G_K`: the Gauss-`Z` residue at both heads.  ⚠⚠ The
   LG5 ⇒ `GaussZResidueK` rung has no `K` clone and no owner lane.
+  ⚠⚠ **[W79-HOUSE, as of `527adf51`: STALE.  The rung HAS a `K` clone**, `affineDeterminant_galK`
+  in `GQ2/Dyadic/GaussZ/FinalDK.lean` (`GQ2.lean:585`), whose §8 acceptance `example` produces
+  `KSupply.determinant`'s field type verbatim.  The sentence was inherited from
+  `KSupply.lean`'s module docstring, which ticket CB-DET did not edit when it landed the clone.
+  What is owed is the wiring.  The genuinely unowned Gauss-`Z` obligation is the **candidate**
+  side (`SqrtNeg2.PilotDet`), not this one.]**
 
 Ledger field 5 (`ScalarHilbertCertificate` at `G_K`) is **absent by design**: `KSupply.lean`
 §3 proves it (`scalarHilbert_galK`), and the proof is `n`-free, so it stays discharged here.
@@ -281,7 +287,10 @@ structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B 
   /-- **ASK, ledger field 4** at `G_K`. -/
   stokes : StokesDualityCertificate (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
     (standardNumerics G.degree) (smulZmod2GalK K)
-  /-- **ASK, ledger field 6** at `G_K`.  ⚠⚠ No `K` clone of the LG5 ⇒ `GaussZResidueK` rung. -/
+  /-- **ASK, ledger field 6** at `G_K`.  ⚠⚠ No `K` clone of the LG5 ⇒ `GaussZResidueK` rung.
+  ⚠⚠ [W79-HOUSE, as of `527adf51`: STALE, see the module docstring above.  The clone is
+  `affineDeterminant_galK` (`GQ2/Dyadic/GaussZ/FinalDK.lean`); this field is still a binder
+  because nobody wired it, not because the rung is missing.] -/
   determinant : AffineDeterminantCertificate (galKProfinite K) G.degree (qOf K FF) G.core
     G.nuP (standardNumerics G.degree) T.tameFK G.pro2
     (fun g => T.compatF_K G.pro2 G.nuP G.realization.nu_compat g) (smulZmod2GalK K)

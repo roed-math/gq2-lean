@@ -36,6 +36,11 @@ so an oriented equivalence carries it into `ker χ_cyc` on `G_K(2)`; `nu_ker_chi
 by choosing a different equivalence, a different frame, or a different `α`: **on any `M0` or `N0`
 row the residual clause is exactly `B.r = 0`.**
 
+⚠ [W79-HOUSE, as of `527adf51`: that bolded sentence drops the two qualifiers this docstring
+carried correctly twelve lines above.  Read it as **on any `M0 α 0` or `N0 α 0` row with
+`α ≥ 2`**: the `iff`s are proved at `α ≥ 2` and `h = 0`, which is where all five frozen rows
+sit, and not beyond.]
+
 That in turn is what the tree's own selector says: `FieldBranchSelector.lean:464` and `:470`
 match `.M0 β` and `.N0 β` only against `Q.r = 0`.  §1's equivalence is the semantic form of that
 syntactic side condition.
@@ -244,7 +249,10 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
 /-- **The `M0` branch datum at level zero.**  `marked_matching_certificate_KTwoM_of_level_zero`
 in place of `marked_matching_certificate_KTwoM`: the `MDecomposition` binder is filled from
 `mFrameExists_mDecomposition` and `hMix` is gone, so the only inputs are the degree pin, the
-oriented equivalence and `B.r = 0`. -/
+oriented equivalence and `B.r = 0`.
+
+⚠ [W79-HOUSE, as of `527adf51`: four inputs, not three.  `halpha : 2 ≤ alpha` is also carried
+and is not implied by `hdeg`.  The `N0` twin below enumerates nothing and is clean.] -/
 theorem fieldUni_genAsmBranch_of_orientedM_level_zero (alpha : ℕ) (halpha : 2 ≤ alpha)
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.M0 alpha 0).degree)
     (hr : B.r = 0)
@@ -460,7 +468,14 @@ def fieldUni_rootUnit {a : ℚ_[2]} (ha : ¬ IsSquare a) : (↥(quadField a))ˣ 
     (((fieldUni_rootUnit ha : (↥(quadField a))ˣ) : ↥(quadField a)) : ℚ̄₂) = sqrtIn a := by
   rw [fieldUni_rootUnit, Units.val_mk0, fieldUni_quadElt_root_val]
 
-/-- **`√a` is a uniformizer of `ℚ₂(√a)`**, packaged for `nu_ur_recip_of_decomp`. -/
+/-- **`√a` is a uniformizer of `ℚ₂(√a)`**, packaged for `nu_ur_recip_of_decomp`.
+
+⚠ [W79-HOUSE, as of `527adf51`: the headline over-reads this statement, which is the `‖·‖ < 1`
+**half** of the B13 uniformizer spec and nothing more.  The maximality half is
+`fieldUni_rootUnit_max` immediately below, and only the two together say "uniformizer".  §3's
+own prose has it right, calling `fieldUni_sqrtIn_max` "the second half of the B13 uniformizer
+spec"; and §4 puts the same headline on the maximality `Prop` for `2`, which is the correct
+placement.  Read this one as "`√a` lies in the maximal ideal".] -/
 theorem fieldUni_rootUnit_lt_one {a : ℚ_[2]} (ha : ¬ IsSquare a)
     (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) :
     ‖(((fieldUni_rootUnit ha : (↥(quadField a))ˣ) : ↥(quadField a)) : ℚ̄₂)‖ < 1 := by
@@ -666,7 +681,14 @@ theorem fieldUni_genAsmBranch_sqrtFive_of_unramified [T2Space (GalK KSqrtFive)]
     (fieldId_chosenEquivM_sqrtFive B)
 
 /-- **What wave 77's `ℚ₂(√10)` clause says**: it is the level equation, at the very equivalence
-wave 77 chose.  Read against `Main.lean:136`'s `.Mpc 2 1 false 1` (valid only with `1 ≤ r`). -/
+wave 77 chose.  Read against `Main.lean:136`'s `.Mpc 2 1 false 1` (valid only with `1 ≤ r`).
+
+⚠ [W79-HOUSE, as of `527adf51`: "it **is** the level equation" reads as an identity, and this
+statement and the two below it are the forward direction only, `hpivot → B.r = 0`.  Read as
+"the clause **forces** the level equation", the idiom §1 uses.  The converse does hold at these
+three rows and is one application of `fieldUni_pivotM_of_level_zero` away (`α = 2` clears
+`2 ≤ α`); it is simply not stated.  §5's vacuity argument needs only the forward direction, so
+nothing downstream turns on this.] -/
 theorem fieldUni_level_zero_of_hpivot_sqrtTen [T2Space (GalK KSqrtTen)]
     (B : MarkedRecip Rec KSqrtTen)
     (hpivot : IsUnit (Multiplicative.toAdd
@@ -699,6 +721,12 @@ Two sets, both already committed, and the split is exactly where wave 77 left it
   uniformizer, §4's unramified reduction, and the two fields' level equations — is at the
   standard three, `propext, Classical.choice, Quot.sound`.  So the arithmetic discharged here
   costs no axiom.
+  ⚠ [W79-HOUSE, as of `527adf51`: machine-checked, and the 23 declarations the dashes enumerate
+  do all print exactly the standard three.  But "everything about the level" is too wide: §5's
+  `fieldUni_level_zero_of_hpivot_sqrt{Five,Ten,NegTen}` conclude `B.r = 0` and print **seven**
+  axioms each, the four extras coming from the chosen equivalence `fieldId_chosenEquivM_*`, not
+  from the level argument.  The follow-on sentence stays true as written; the quantifier wants
+  "every level statement proved from the field arithmetic here".]
 * The **`M`-row producers and branch data** carry `peripheralCyclotomicAction`, inherited from
   `marked_matching_certificate_KTwoM_of_level_zero` (whose B8 transport supplies the M3 unit
   scaling that `mMixHypothesis` supplied on the non-level-zero route).  The `N` row does not

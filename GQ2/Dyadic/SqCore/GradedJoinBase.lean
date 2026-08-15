@@ -96,6 +96,13 @@ and the sentence "whether they hold is open" is superseded.  The reductions in t
 unaffected and remain correct; what has gone is their input.  `SqClassClearingSupply h k` is
 untouched by that refutation.]**
 
+⚠⚠ **[W79-HOUSE, as of `527adf51`: two amendments to the paragraph above.**  (i) The vacuous set
+is **three** theorems, not two: `gBase_joinBase_of_residual` is vacuous at both ends and was
+missed at all three of its marking sites, including its own ⭐⭐⭐ docstring.  (ii) The sentence
+at the top of this docstring, "wave 75's first named input is **discharged by** the `2 + 2h`
+brackets", is also superseded: nothing is discharged, because the brackets themselves are
+refuted.  Read it as "would be discharged by".]**
+
 Prefix: `gBase`.
 -/
 
@@ -634,7 +641,10 @@ variable (h) in
 /-- **The residual of the depth-two base, at every selected marking.**
 
 ⚠⚠ **FALSE at every `h`**, as of `e6bbd2b9`: `gDecide_not_baseResidual`
-(`SqCore/GradedBaseDecide.lean`).  The two composites below are vacuous. -/
+(`SqCore/GradedBaseDecide.lean`).  **All THREE theorems below are vacuous**, not two:
+`gBase_joinBase_of_residual`, `gBase_markTransitivity_of_residual`, `gBase_supply_of_residual`.
+[W79-HOUSE, as of `527adf51`: corrected from "the two composites below".  The first is an
+implication rather than a composite and the earlier wording excluded it.] -/
 def GBaseResidual : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -645,7 +655,14 @@ def GBaseResidual : Prop :=
 indexed by all `3 + 2h` letters; the `x₁` one is trivial on the nose, `gDecide_triple_self`.)
 
 ⚠ This is the implication `GBaseResidual h → GJoinBase h`, not an equivalence; no converse is
-proved in this file.  See the module docstring. -/
+proved in this file.  See the module docstring.
+
+⚠⚠ **[W79-HOUSE, as of `527adf51`: VACUOUS AT BOTH ENDS, and nothing is discharged.**  Wave 77
+refuted the hypothesis (`gDecide_not_baseResidual`) **and** the conclusion
+(`gDecide_not_joinBase`), both at every `h`, `SqCore/GradedBaseDecide.lean`.  Read the headline
+as "would be discharged by": the reduction is correct and its input does not exist.  Wave 78's
+annotation pass marked `GBaseResidual`, `GJoinBase` and the two composites below, but not this
+theorem, which is the one a reader of the file meets first.]** -/
 theorem gBase_joinBase_of_residual (H : GBaseResidual h) : GJoinBase h :=
   fun nu' hsigma hx0 => gBase_layerReach_of_xOneTriple (H nu' hsigma hx0) hsigma hx0
 

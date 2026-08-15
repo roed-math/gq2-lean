@@ -131,6 +131,50 @@ depth 2 is `x̃₁, U_j, V_j` exactly, as wave 77 stated.
    `cfourCmp_zLayer_le_gens` and the `γ₃`-analogues of the `gThreeFour_*` identities.  If
    the depth-3 coker again lands in the functionals' sight, `GDecideBaseThree` follows and
    the residual reduces to separation + extraction outright.
+
+   > ⚠⚠ **[W79-HOUSE, watch round 16, as of `527adf51`: the umbrella claim in that paragraph is
+   > FALSE, and this item is the one a wave-79 lane is being asked to act on, so the correction
+   > is recorded here rather than only in the house note.]**
+   >
+   > The three ingredients **named** all check out, individually: `gTower_decomp`
+   > (`GradedUniformTower.lean:340`) is universally quantified in `k` with only `hk : 1 ≤ k`;
+   > `gJoin_knob_dvd` (`GradedUniformJoin.lean:509`) and `gJoin_bundle_dvd` (`:523`) carry no
+   > depth literal and at `k := 1` give the `2^4` bound depth 3 wants; and the corrected-row
+   > *objects* (`gAbsRowS`, `gAbsRowX`, `gAbs_delta_eichU/V`, `gAbs_rowS_pivot`, ...) carry no
+   > depth index.
+   >
+   > What is false is "**all**".  Every ingredient carrying **T2, the kill** is hardcoded at
+   > depth 2 and has no depth-3 analogue anywhere in the tree.  Four of them:
+   >
+   > 1. `gAbs_reach_le_layerDvd` (`GradedAbsorption.lean:332`) and its two row instances
+   >    (`:351`, `:355`) are stated at the literal `2` in both indices, and are the only three
+   >    `gTowerReach _ ≤ gJoinLayerDvd _` statements in the tree.
+   > 2. `gAbs_xOne_tower_dvd` (`:308`) **exports `2^3`, one bit too weak**.  Depth 3 uses
+   >    exponent `2^3 * a` and `gJoinLayerDvd _ 3` demands `2^4`; instantiating the exported
+   >    lemma at `a := 2*a` still gives only `2^3`.  The `2^4` **is** proved, but only as the
+   >    internal `have hall` at `:311-326`, never exported.  `gJoin_delta_zpow` is no escape:
+   >    it wants `chiSq h x = 1`, and `χ(x̃₁) ≡ -1 (mod 8)` (`gAbs_chi_xOne_add_one`, `:263`).
+   >    **This is the one concrete blocker, and it is a ~15-line hoist, not a re-instantiation.**
+   > 3. `gAbs_kill_mid` (`:1224`) / `gAbs_kill_last` (`:1246`) bake in `2^3 ∣ ·` and
+   >    `2^2 * unit`; depth 3 needs `2^4` and `2^3 * unit`.  Same for `gAbs_unit_mul_dvd`
+   >    (`:1202`) and `gAbs_four_unit_not_dvd` (`:1211`).
+   > 4. The coker readings (`gAbs_delta_B_rowS` `:440`, `_B_rowX` `:449`, `_C_rowX` `:456`,
+   >    `_C_rowS` `:465`) read the depth-2 elements `gAbsB`/`gAbsC` (`:376`, `:380`).  The
+   >    depth-3 coker this note posits at line 116 has no reading lemma at all.
+   >
+   > So the "new work" list above covers only **T1's wide chain**.  T2 additionally needs a
+   > depth-3 `gAbs_reach_le_layerDvd`, a `2^4`-strength `x̃₁`-tower lemma, depth-3 kill
+   > arithmetic, and depth-3 coker readings.
+   >
+   > Two things are **better** than the paragraph says, and a lane should use them: the knob
+   > half is already packaged depth-generally as `gJoin_knob_le_layerDvd`
+   > (`GradedUniformJoin.lean:596`), which is what to reach for rather than the raw
+   > `gJoin_knob_dvd`/`gJoin_bundle_dvd`; and the Eichler-tower half genuinely is depth-free
+   > via `gJoin_zpow_vanish` (`:327`) from `gAbs_rowS_eichU/V` (`:232`-`:246`).
+   >
+   > Separately, ⚠ **line 72's "in fact `16`-divisible"** (and the module's own `:306`) is true
+   > of the proof and **not** of the exported statement, which is `2^3`.  That is item 2 above,
+   > seen from the note's side.
 2. **Separation at depth 2** (`GJoinTowerSeparation h ν' 2` for `h ≥ 1`): wave 75 §7
    scoped it as ordered-product bookkeeping; it is now on the critical path twice over
    (the seed and the tower).
