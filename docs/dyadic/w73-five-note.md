@@ -149,11 +149,24 @@ Lacks, as named next steps:
    `⁅Y, Y⁆` pairing of §5 a knob?
 2. **A class-five leftover in closed form**, unchanged from wave 72's list.  §3 identifies its
    fourth-power term with family one, but no leftover is evaluated.
-3. **Class four itself**, unchanged.
+3. **Class four itself**, ~~unchanged~~.  **[W74-HOUSE, watch round 11: the same defect the
+   wave-72 five note carried, one wave later, and falsified 4 minutes 41 seconds after this note
+   landed.]**  The *lack* survives: `SqClassClearingSupply h 4` is still neither discharged nor
+   refuted.  But class four did move, in this very wave, in the parallel W73-KNOB lane
+   (`56db0e02` 18:56:31 here, `0063dc8c` 19:01:12 there): `cfourCmp_core_reduce` turns the
+   class-four relator into `cfourDefCore nu' j` on the nose with one admissible correction, and
+   `cfourCmp_zLayer_le_triple` reduces the three uniform questions to one.  See
+   `w73-knob-note.md` §0 and §5.
 
 The class-four lane's wave-72 finding ("class four reduced to ONE x1-free defect") and this
 lane's are the same shape one class apart.  Whether they are the same obstruction is not
-investigated here and should not be assumed.
+investigated here and should not be assumed.  **[W74-HOUSE: the caution is right about this
+lane, and the wave answered the question elsewhere.]**  The owner's wave-73 status
+(`owner-items-2026-08-05.md`, "the wave's result is a convergence") records that both graded
+classes reduce to the same condition, reached independently by the two lanes: this note's
+"is the `⁅Y, Y⁆` pairing of §5 a knob?" and `w73-knob-note.md` §9's "is `⁅y, x₁⁆` (equivalently
+`y²`) a move?".  Read the two together before quoting either "should not be assumed" or the
+convergence alone.
 
 ## 7.  Verification record
 
@@ -161,7 +174,8 @@ investigated here and should not be assumed.
 * Harness: `scripts/mirror.sh sweep` (5833 artifacts) at lane start, then `scripts/mirror.sh
   check` on the source file after every increment, then `scripts/mirror.sh gen
   GQ2.Dyadic.SqCore.GradedClassFiveJoin`.  Clean, no name collisions.  No dependents to check:
-  the module is new and nothing imports it.
+  the module is new and nothing imports it.  (Registered at `959e22aa`, 69 seconds after this
+  note; `GQ2.lean` imports it now.  [W74-HOUSE, watch round 11.])
 * 33 declarations, 33 `#print axioms` pins.  Every one is
   `[propext, Classical.choice, Quot.sound]`.
 * No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`, no linter

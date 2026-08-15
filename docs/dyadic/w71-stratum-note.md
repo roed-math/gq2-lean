@@ -140,7 +140,8 @@ docstring rather than a headline, so it is in the class the era traps say to wat
    property forces `c₀ = 0` for every character, and nondegeneracy of the cup form makes the
    coordinate map injective, so `|H¹| ≤ 2^(coreRank h - 1)`, contradicting
    `card_H1_zmodTwo_maxProTwoGalK`.  That is one lane; the pieces are all committed.
-2. **Wave 69 queue item 2 (the `q`-parametrised frame) should be closed as a non-item**, per §1
+2. **Wave 69 queue item 2 (the `demushkinQ`-parametrised frame) should be closed as a
+   non-item**, per §1
    above, and item 1 is already discharged by wave 70's `evenAlphaOne_residualN_false`.
 3. **Decide what the even route's status prose should now say.**  Wave 69 proposed a sentence
    ending "at `α = 2` the only candidate is `DN 1 h`, for which the frame layer is empty".  That

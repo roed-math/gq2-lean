@@ -13,8 +13,20 @@ declarations have never been in a green build.  It typechecks clean at std-3 tod
 one-line patch in §1(a) is safe.  No duplicate and no dangling import line.  One doc file map
 mismatches the tree in both directions.
 
-**Ticket 2.**  **37** labelled findings (12 high, 13 medium, 3 medium-low, 9 low), plus the known
-item of §2.0 and the two dangling Lean citations of §1(c).  The five worth reading first:
+**Ticket 2.**  **37** labelled findings **in §§2.2, 2.3, 2.4 and 2.4b** (12 high, 13 medium, 3
+medium-low, 9 low), plus the known item of §2.0, **the severity-headed §2.1**, and the two
+dangling Lean citations of §1(c).  The five worth reading first:
+
+> **[W74-HOUSE, background sweep: scope added, figure kept.]**  The 37 is arithmetically exact
+> under its own reading, and wave 73 §3.4(c) recounted it label by label and confirmed the
+> breakdown.  What was missing is the **scope**: the count ranges over §§2.2-2.4b only, and two
+> of the five items "worth reading first" sit outside it (§2.0, disclosed, and §2.1, which was
+> not).  §2.1 is severity-headed ("Severity: high"), so a reader counting severity-headed
+> findings gets **38**; including it would also make the breakdown 13 high, not 12.  Both
+> readings existed in trunk and both are defensible; the scope clause above is what removes the
+> ambiguity.  Note that wave 73 reported a *different* 38 (the 37 plus §2.4(e), which carries no
+> severity), so "38" has meant two different sets and neither is the number to quote without
+> saying which.
 
 1. **A false census claim sitting on top of an axiom block.**
    `EvenStratumPoint.lean:371` says "Every declaration is expected std-3"; `mirror.sh` says five
@@ -66,7 +78,15 @@ The 18 spurious hits were `GQ2.DeepCount.{Bounds,Finale,Transport}`,
 
 ### 1(a)  Physical modules vs reachability
 
-923 `.lean` files under `GQ2/`.  **921 reachable** from `GQ2.lean`.  Two are not.
+> **[W74-HOUSE, background sweep.]  This subsection is DISCHARGED and is now a historical
+> record.**  `GQ2.Dyadic.SqCore.NuSeeds` was registered at `a515b437`, **32 minutes after this
+> note was committed** (`f23d7d3c` 15:46:46, `a515b437` 16:19:13), in exactly the slot the patch
+> below proposes; it lives at `GQ2.lean:692` today.  The present-tense claims below are corrected
+> in place where they would otherwise read as live.  The counts are as of `f23d7d3c` and have
+> since moved for legitimate reasons (see the as-of note in §1(b)).
+
+923 `.lean` files under `GQ2/`, as of this note.  **921 reachable** from `GQ2.lean`.  Two were
+not.
 
 | module | lines | judgement |
 | --- | --- | --- |
@@ -81,15 +101,16 @@ gate, and `docs/adversarial-axioms-review.md:17`, `docs/tickets.md:84`,
 `docs/roe-campaign-summary.md:203,244,273`, `docs/literature-axioms.md:180,435` all cite it as a
 separately-run instrument.  No action.
 
-**`GQ2.Dyadic.SqCore.NuSeeds` is a real wiring omission.**  Facts:
+**`GQ2.Dyadic.SqCore.NuSeeds` was a real wiring omission** (registered at `a515b437`; see the
+banner above).  Facts as of this note:
 
 * It landed 2026-08-05 in `dd2d689b` ("chi-free seed search obstructs at the same weight 4, with
-  an invariant") and has never been registered in `GQ2.lean`.
-* Nothing in the tree imports it.  Its own two imports, `GQ2.Dyadic.SqCore.ChiFreeClearing` and
-  `GQ2.Dyadic.SqCore.EichlerSeeds`, are both registered (`GQ2.lean:691` and `:690`).
-* It is therefore **not built by CI**: `lakefile.toml` declares `defaultTargets = ["GQ2"]` and
+  an invariant") and had not been registered in `GQ2.lean` at any point since.
+* Nothing in the tree imported it.  Its own two imports, `GQ2.Dyadic.SqCore.ChiFreeClearing` and
+  `GQ2.Dyadic.SqCore.EichlerSeeds`, were both registered (`GQ2.lean:691` and `:690`).
+* It was therefore **not built by CI**: `lakefile.toml` declares `defaultTargets = ["GQ2"]` and
   `lean_lib GQ2` with no `globs`, so only `GQ2.lean` is a root and only its transitive closure is
-  built.  Eight declarations in this file have never been in a green build.
+  built.  Eight declarations in this file had never been in a green build.
 * It is **not a stub and not superseded**.  It is the companion module to
   `GQ2/Dyadic/SqCore/ChiFreeClearing.lean` and `docs/dyadic/chifree-clearing-note.md`, and it
   states the forced `x₁`-row (`SqNuSeed.nu_beta2`, `SqNuSeed.nu_x1`) and the exact admissible
@@ -98,10 +119,12 @@ separately-run instrument.  No action.
 * It typechecks clean today.  `scripts/mirror.sh check GQ2/Dyadic/SqCore/NuSeeds.lean` is `OK`,
   and its four `#print axioms` all report `[propext, Classical.choice, Quot.sound]`.  No `sorry`,
   no new axiom.  So the registration is safe to apply as-is.
-* Secondary finding: the string `NuSeeds` appears in **no** `.md`, `.sh`, `.py` or `.yml` file in
+* Secondary finding: the string `NuSeeds` appeared in **no** `.md`, `.sh`, `.py` or `.yml` file in
   the repo.  `docs/dyadic/chifree-clearing-note.md` does not cite the module that formalises its
   balance table.  Flagged, not fixed: the note's prose is a lane record and rewriting it is not
-  this lane's call.
+  this lane's call.  (No longer true of the repo: waves 73 and 74 discuss the module in their
+  house notes, and `owner-items-2026-08-05.md` records it.  The `chifree-clearing-note.md` half
+  stands and is annotated at W74-HOUSE.)
 
 #### The patch to `GQ2.lean` (NOT applied here; for the orchestrator to apply at merge)
 
@@ -137,8 +160,21 @@ line.
 
 Informational, not a defect: 788 of the 836 are *redundant as roots*, in that the module is also
 reachable through another root.  That is expected for an explicit manifest and is not worth
-changing; the 87 modules that are reachable but not listed are exactly the parts re-exported by
-the aggregator files of §1.0, which is the intended pattern.
+changing.
+
+> **[W74-HOUSE, background sweep.]  The next figure was arithmetically wrong and its explanation
+> was false.**  As written this paragraph said "the **87** modules that are reachable but not
+> listed are exactly the parts re-exported by the aggregator files of §1.0".  Two defects.
+> (i) The subtraction used the *physical* count, not the reachable one: `923 − 836 = 87`, but the
+> note's own figures are `921` reachable and `836` listed, so the difference is **85**.  The 87
+> silently counts the two unreachable modules as reachable.  (ii) "Exactly the parts re-exported"
+> is false: recounted at wave 74's tree (929 physical, 843 listed, 928 reachable, 1 unreachable,
+> so **85** reachable-but-not-listed), only **27** of the 85 are `public import` re-exports; the
+> other 58 are ordinary transitive imports, among them `GQ2.Block.Char`,
+> `GQ2.Dyadic.Count.H2Corestriction`, `GQ2.Phase140.GammaA.Foundation`, `GQ2.RStage.Local` and
+> `GQ2.SectionNine.Induction`.  §1.0 itself names only 18 re-exports, which was already
+> inconsistent with "exactly".  All figures in this subsection are **as of `f23d7d3c`**; the
+> wave-74 recount is as of `4fff1592`.
 
 ### 1(c)  Docs that claim to list modules
 
@@ -501,6 +537,15 @@ says they say.
 
 ### 2.4  NEW ITEM TWO, intra-wave staleness
 
+> **[W74-HOUSE, watch round 11.]  This subsection fell through the application passes.**  Wave 73
+> applied §§2.2, 2.3 and 2.4b (33 findings) and said so accurately; **§2.4 was in nobody's scope**,
+> so (a), (b) and (c) sat unapplied for two waves while every other section of this note was
+> cleared.  All three are `EvenAlphaOne.lean` prose and all three were still live at `4fff1592`.
+> **Applied at wave 74**, comment-only.  ((d) and (e) were self-applied by this lane when written
+> and needed nothing.)  The process lesson is the one this subsection is about, turned on the
+> audit itself: a scoped application pass leaves a residue unless the scope is reconciled against
+> the finding list.
+
 Beyond the bracket propagation of §2.0, which is the purest example this round produced:
 
 **(a) HIGH.  `GQ2/Dyadic/Instances/EvenAlphaOne.lean` was left behind by its own wave, where its
@@ -760,8 +805,9 @@ Said plainly, because a watch round that reports only hits is not a check.
 
 ## For the wave-73 queue
 
-1. **Apply the `GQ2.lean` patch** of §1(a).  One line.  Until it lands,
-   `GQ2/Dyadic/SqCore/NuSeeds.lean` is not built by CI.
+1. ~~**Apply the `GQ2.lean` patch** of §1(a).  One line.  Until it lands,
+   `GQ2/Dyadic/SqCore/NuSeeds.lean` is not built by CI.~~  **DISCHARGED at `a515b437`**, 32
+   minutes after this note was committed, in the slot §1(a) proposed.
 2. **The two `sq-design.md` R6 hazards are still live** and are cheap: repoint four docstrings
    from the nonexistent `GQ2/Roe/DRH2.lean` to `GQ2/Roe/DRDemushkin.lean`, and delete
    `GQ2/Roe/Labute/TwoCentralTower.lean:65-66`'s announcement of `sorry`s in a file that has

@@ -5,6 +5,12 @@ files.  Prefix `evenUnram`.
 
 ## 0.  Headline
 
+> **The two `q`s** (gloss added at W74-HOUSE, because this note runs on bare `q` for over a
+> hundred lines).  Every bare `q` below is **`demushkinQ`**, the order of the torsion subgroup
+> of the abelianization (`GQ2/Demushkin.lean:224`).  It is **not** `qOf K FF = 2^f`, the
+> residue cardinality that the presentation relator `tau^sigma = tau^q` and `params.qK` use;
+> that one is written `q_K` throughout the campaign.
+
 The ticket's third option is the true one.  **The presented even cores do not cover the third
 stratum.**  Precisely:
 
@@ -21,7 +27,8 @@ So the entire family of committed core images meets the third stratum in **one p
 > `parityFinal_evenClassification`, stated verbatim, is FALSE.
 
 That is a boundary result, not a gap: **the `hram` binder of the even classification is
-necessary, not convenient.**  The campaign's theorem targets the two `q = 2` Labute families,
+necessary, not convenient.**  The campaign's theorem targets the two `demushkinQ = 2` Labute
+families,
 and the third stratum is exactly where `q >= 4`.
 
 The module has **32** declarations; **31** carry an axiom pin, and all 31 pin inside the standard
@@ -68,7 +75,8 @@ so the exact level of `nUnit a` is `v_2(2 + 2^a)`, which is `1` for `a >= 2` (wh
 * `evenUnram_imChiN_one_eq_prin_two : imChiN 1 = evenRangePrin 2`, by exact-level generation.
 
 **From the relator side (section 3).**  The `N` relator head is `a ^ (2 + 2^alpha)` and the `M`
-head is `a^2` at every `alpha`.  A core can carry `q = 2^b >= 4` only if its head exponent is
+head is `a^2` at every `alpha`.  A core can carry `demushkinQ = 2^b >= 4` only if its head
+exponent is
 that power, and
 
     evenUnram_head_eq_two_pow_iff :  2 + 2^a = 2^b  <->  (a = 1 and b = 2) .

@@ -341,7 +341,8 @@ of an axiom (2026-07-25/26).
 
 **Comparison with the abstract-invariant test the ticket asked for.** Had `bLab` *not* been
 specialized, the test would still pass: `(p, rank, q, im χ) = (2, 3, 2, ℤ₂ˣ)` is exactly the
-Labute odd-rank `q = 2`, `f = 2` type, and MC1 §6.4 records that the *rank-four* analogues
+Labute odd-rank `demushkinQ = 2`, image invariant `f = 2` type (neither is the tame pair), and
+MC1 §6.4 records that the *rank-four* analogues
 `MLabHypothesis`/`NLabHypothesis` must be stated abstractly precisely because their other side
 is `G_K(2)` rather than a presented group. At rank three over `ℚ₂` both sides are presented, so
 the specialized form suffices — and is what we have.

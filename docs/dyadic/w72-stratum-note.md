@@ -5,6 +5,12 @@ files.  Prefix `evenStratum` / `evenStratumFrame`.  23 declarations.  All three 
 
 ## 0.  Headline
 
+> **The two `q`s** (gloss added at W74-HOUSE, because this note runs on bare `q` for over a
+> hundred lines).  Every bare `q` below is **`demushkinQ`**, the order of the torsion subgroup
+> of the abelianization (`GQ2/Demushkin.lean:224`).  It is **not** `qOf K FF = 2^f`, the
+> residue cardinality that the presentation relator `tau^sigma = tau^q` and `params.qK` use;
+> that one is written `q_K` throughout the campaign.
+
 Wave 71 refuted the *coordinate step* of the even frame producers on the third stratum.  This
 lane refutes the object those producers deliver.
 
@@ -75,8 +81,15 @@ refuted; the committed route to it is.
 
 ## 3.  Ticket 2: the surviving point, unfolded
 
-Wave 71 said the whole remaining price is "one `Prop`".  That `Prop` is a **structure with ten
+Wave 71 said the whole remaining price is "one `Prop`".  That `Prop` is a **structure with nine
 fields**, so the phrase understates it.  Unfolded against the committed tree:
+
+> **[W74-HOUSE, watch round 10.]  "ten" was wrong; `NForwardGeneratorData` has nine fields**
+> (`generators`, `relation`, `topGen`, `x0`, `x1`, `sigma`, `x2`, `handleU`, `handleV`), and the
+> breakdown below refutes the count on its own: six row fields plus three others is nine.
+> Corrected here and at the two Lean sites in `EvenStratumFrame.lean`; the owner memo's copy was
+> corrected at `f4a458a8`.  The substance is unaffected, the point being that "one `Prop`"
+> understates the price.
 
 * **Six row fields are free.**  `x0`, `x1`, `sigma`, `x2`, `handleU`, `handleV` are the `vN 1`
   table entry by entry, and `evenClimb_vN_mem_range` carries **no** `2 <= alpha`, so every value
@@ -153,7 +166,8 @@ Wave 69 queue item 4 and wave 71 queue item 4 both recorded this in prose.  Two 
   Hence `evenStratum_demushkinQ_DN_ne_pow_two`: no member of the present `N` family has
   `q = 2^b` with `b >= 3`.
 
-Both are **about the family, not about fields**.  `Q_2(zeta_8)` has `q = 8`; the content is only
+Both are **about the family, not about fields**.  `Q_2(zeta_8)` has `demushkinQ (G_K(2)) = 8`
+(its residue cardinality `q_K` is `2`, the extension being totally ramified); the content is only
 that it is not one of these cores, so reaching it needs a new core family.  Note also that the
 second statement needs no arithmetic: the two committed computations already close the range.
 
@@ -164,8 +178,13 @@ second statement needs no arithmetic: the two committed computations already clo
 run: `OK`, no errors, no warnings, no `sorry`.  No `lake` command was run.  No `sorry`, no new
 axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 
-`#print axioms` is run on all 23 declarations inside the module (§8), together with three
-`alpha >= 2` analogues for comparison.  Measured pins:
+`#print axioms` is run on all 23 declarations inside the module (§8), together with the three
+statements §6 stands against.  **They are not three `alpha >= 2` analogues** (corrected at
+W74-HOUSE): `evenForwardGeneratorDataN_of_base_and_corrections` carries `1 <= alpha`, only
+`evenAlphaTwo_forwardGeneratorDataN_of_residual` carries `2 <= alpha`, and
+`evenStratum_orientedEquivN_one_of_forwardGeneratorData` is wave 71's own statement fixed at
+`alpha = 1`.  The same wrong phrase was in the Lean comment at `EvenStratumFrame.lean:585` and is
+corrected there too.  Measured pins:
 
 | block | set |
 | --- | --- |
@@ -176,8 +195,10 @@ axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 | `evenStratum_forwardGeneratorDataN_one_of_base_and_climb` | std-3 + `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` |
 | `evenStratum_orientedEquivN_one_of_base_and_climb` | std-3 + `tateDualityAt` + both `Foundations` axioms |
 
-Every one of these is a subset of the set printed by the `alpha >= 2` analogue it stands against.
-Specifically `evenAlphaTwo_forwardGeneratorDataN_of_residual` pins exactly
+Per statement, against the three printed beside it (the blanket claim that stood here, "every one
+of these is a subset", was **deleted at W74-HOUSE**: the next sentence refutes it, the composite
+being a strict *superset*, and the fourth table row has no printed comparison at all).
+`evenAlphaTwo_forwardGeneratorDataN_of_residual` pins exactly
 `std-3 + Foundations.absGalQ2_isTopologicallyFinitelyGenerated`, the same as my
 `forwardGeneratorDataN_one_of_base_and_climb`; and
 `evenStratum_orientedEquivN_one_of_forwardGeneratorData` (wave 71) pins
@@ -197,7 +218,14 @@ Commits (branch `claude/w72-stratum`, based on `e2e8917a`), all path-limited:
 
 I edited nothing outside my own module.
 
-1. **Wave 71's `EvenForwardRouteSkeleton.lean:77-80` report stands** and is still unrepaired.
+1. ~~**Wave 71's `EvenForwardRouteSkeleton.lean:77-80` report stands** and is still
+   unrepaired.~~  **[W74-HOUSE: false when written.]**  The orchestrator applied the repair at
+   `e6d10612` (2026-08-12 12:53), **three hours and twelve minutes before this note was committed**
+   (`60bfaab6`, 16:05), and `w72-house-note.md` §2.4b(d) marks it discharged.  Trunk therefore
+   carried two contradicting notes on this item from wave 72 until now.  One residue does survive
+   and is fixed this wave: the applied notice at `EvenForwardRouteSkeleton.lean:81` is headed
+   "Corrected at wave 70", but `e6d10612` sits on `dyadic` after the two wave-71 merges and cites
+   wave 70's landings as its *evidence*, so the correction was applied at **wave 71**.
 2. **Wave 71 queue item 1 is discharged** by §4; item 4 is discharged by §7.  Item 2 (close the
    wave-69 `q`-parametrised frame as a non-item) and item 3 (the even route's status prose) are
    still open, and §4 sharpens what item 3 should say: not merely that the frame step is refuted

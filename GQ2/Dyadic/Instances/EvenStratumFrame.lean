@@ -38,9 +38,9 @@ Three steps, none of them arithmetic.
    f 0`.  So cup-adaptedness forces `P c c = ` the value of `c` at the *zeroth generator*, for
    every continuous mod-two character `c`.
 2. **Hence every character kills the zeroth generator** (§3).  `P c c` is the field cup form on
-   the diagonal, which wave 71 proved is `0` on this stratum.  Through
-   `frattiniFrameEval_characterClass` this says: every degree-one class evaluates to `0` at
-   `F.generators 0`.
+   the diagonal, which wave 71 proved is `0` on this stratum.  Through this file's own
+   `evenStratumFrame_exists_character` (§2, class to character) this says: every degree-one
+   class evaluates to `0` at `F.generators 0`.
 3. **Counting** (§4).  A class evaluating to zero at all of `F.generators` is zero: characters
    kill `λ₂`, so `Frame.levelTwoGen` promotes vanishing on the generators to vanishing
    everywhere (§2).  So the coordinate map `H¹ → (Fin (coreRank h) → 𝔽₂)` is injective; both
@@ -68,7 +68,7 @@ alternating, so a forward-generator tuple there is not required to be cup-adapte
 * **§4** The refutation, and its surviving-point instantiation.
 * **§5** The model field `ℚ₂(i)`, and `[ℚ₂(i) : ℚ₂] = 2`.
 * **§6** The surviving point, unfolded into a base and a climb.
-* **§7** The `q`-invariant of the `N` family stops at `4`.
+* **§7** The `demushkinQ`-invariant of the `N` family stops at `4`.
 * **§8** Axiom pins.
 -/
 
@@ -336,28 +336,33 @@ end ModelField
 /-! ## §6 The surviving point, reduced to a base and a climb
 
 Wave 71 reduced the classification at the surviving point to one `Prop`,
-`Nonempty (NForwardGeneratorData 1 h χ_cyc)`.  That `Prop` is a *structure* with ten fields, so
+`Nonempty (NForwardGeneratorData 1 h χ_cyc)`.  That `Prop` is a *structure* with nine fields, so
 "one `Prop`" understates what is owed; this section unfolds it against the committed tree.
 
-Of the ten fields, the six row fields (`x0`, `x1`, `sigma`, `x2`, `handleU`, `handleV`) are the
+Of the nine fields, the six row fields (`x0`, `x1`, `sigma`, `x2`, `handleU`, `handleV`) are the
 row table `vN 1` entry by entry, and every one of its values is attained by `χ_cyc` as soon as
 the range is `imChiN 1`: `evenClimb_vN_mem_range` carries **no** `2 ≤ α`, so it applies at the
-surviving parameter unchanged (§6.1).  What is not free is the interaction of the rows with the
-other three fields: a tuple must have those values *and* generate *and* kill the relator.
+surviving parameter unchanged (`evenStratum_vN_one_mem_range`).  What is not free is the
+interaction of the rows with the other three fields (`generators`, `relation`, `topGen`): a
+tuple must have those values *and* generate *and* kill the relator.
 
 The committed assembly of exactly that is `evenForwardGeneratorDataN_of_base_and_corrections`,
 whose own binder is `1 ≤ α`.  Its two inputs are a level-three stage tuple and defect
 reachability from level three up, and a level-three stage tuple is a `StageGeneric.Frame` whose
 relator dies modulo `λ₃` (`Frame.toLevelThree`, which converts Frattini generation into
-topological generation).  So §6.2 names those two and §6.3 composes:
+topological generation).  So `section Reduction` below names those two (`EvenStratumBaseN` and
+`EvenStratumClimbN`, in source order *before* the row-field theorem just cited) and then
+composes them:
 
 > **`evenStratum_orientedEquivN_one_of_base_and_climb`**: at degree `2 + 2h`, a frame at the
 > `vN 1` row table whose relator dies modulo `λ₃`, plus defect reachability at every level
 > `≥ 3`, give the oriented equivalence.
 
-§6.4 is the seam with §4: the frame in that base is exactly the kind of object §4 refutes
-cup-adaptedness of, so a lane building it must build it by other means.  That is a statement
-about how the base may be *built*, not about whether it holds. -/
+The section closes with the seam against §4: the frame in that base is exactly the kind of
+object §4 refutes cup-adaptedness of, so a lane building it must build it by other means.  That
+is a statement about how the base may be *built*, not about whether it holds.  (`section
+Reduction` carries no `§6.x` headers; the pointers above are by declaration name because the
+source order does not match any numbering.) -/
 
 section Reduction
 
@@ -467,20 +472,28 @@ end Reduction
 
 /-! ## §7 The `q`-invariant of the `N` family stops at `4`
 
-Wave 69's queue item 4 and wave 71's queue item 4 both record, in prose, that `q ≥ 8` is out of
-reach for the committed core families because no `2 + 2^a` is a power of two above `4`.  Two
-statements, so that it is no longer prose.
+Wave 69's queue item 4 and wave 71's queue item 4 both record that `q ≥ 8` is out of reach for
+the committed core families because no `2 + 2^a` is a power of two above `4`.  Four theorems
+here, of which two are the arithmetic and two the invariant.
 
-The first is the arithmetic: `pAlpha α = 2 + 2^α` is the `x₀` exponent of the `N_α` core, and
-it is a power of two at exactly one parameter.  The second is the invariant itself, composed
-from the two committed computations (`nFrame4_demushkinQ_DN_one` at `α = 1` and
+**The arithmetic half was already committed**, and both cited queue items call it a theorem
+rather than prose: `evenUnram_head_eq_two_pow_iff` (`EvenUnramified.lean:274`) has said
+`2 + 2^a = 2^b ↔ (a = 1 ∧ b = 2)` since wave 69, under the same headline this section reuses.
+`evenStratum_two_add_two_pow_eq_two_pow` is its `mp` direction and
+`evenStratum_pAlpha_eq_pow_two_iff` is it again modulo unfolding `pAlpha α = 2 + 2^α`, the `x₀`
+exponent of the `N_α` core.  The de-duplication would be a statement change and is not made
+here.  **What this section genuinely supplies is the invariant half**, composed from the two
+committed computations (`nFrame4_demushkinQ_DN_one` at `α = 1` and
 `nFrameExists_demushkinQ_DN` at `α ≥ 2`), which needs no arithmetic at all.  Neither says
-anything about fields: `ℚ₂(ζ₈)` has `q = 8`, and the content here is that no member of the
+anything about fields: `ℚ₂(ζ₈)` has `demushkinQ = 8` (not `q_K`, which is `2` there, the
+extension being totally ramified), and the content here is that no member of the
 present `N` family is isomorphic to its maximal pro-`2` quotient. -/
 
 section QInvariant
 
-/-- **`2 + 2^a` is a power of two exactly at `a = 1`**, where it is `4`.  Both `2 ≤ a` and
+/-- **If `2 + 2^a` is a power of two then `a = 1`**, where it is `4`.  (One direction only; the
+`iff` is `evenStratum_pAlpha_eq_pow_two_iff` below, and wave 69's
+`evenUnram_head_eq_two_pow_iff`.)  Both `2 ≤ a` and
 `a = 0` are excluded by a mod-four count: `2 + 2^a` is `2` mod `4` in the first case and odd in
 the second, while a power of two above `2` is `0` mod `4`. -/
 theorem evenStratum_two_add_two_pow_eq_two_pow {a b : ℕ} (hab : 2 + 2 ^ a = 2 ^ b) :
@@ -582,7 +595,9 @@ end
 #print axioms evenStratum_demushkinQ_DN_le_four
 #print axioms evenStratum_demushkinQ_DN_ne_pow_two
 
--- The `α ≥ 2` analogues §6 stands against, printed beside it.
+-- The three statements §6 stands against, printed beside it.  They are not three `α ≥ 2`
+-- analogues: the first carries `1 ≤ α`, only the second carries `2 ≤ α`, and the third is
+-- wave 71's own statement fixed at `α = 1`.
 #print axioms GQ2.Dyadic.StageGeneric.evenForwardGeneratorDataN_of_base_and_corrections
 #print axioms GQ2.Dyadic.EvenAlphaTwo.evenAlphaTwo_forwardGeneratorDataN_of_residual
 #print axioms GQ2.Dyadic.EvenStratum.evenStratum_orientedEquivN_one_of_forwardGeneratorData

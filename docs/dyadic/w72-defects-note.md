@@ -84,13 +84,21 @@ hypotheses).
 (`cfourDef_assemble`, stated with named atoms so the bookkeeping is separate from the
 identification):
 
-| leftover factor | killed by |
+| corrected-relator factor | killed by |
 |---|---|
-| `A⁴` | the `A²`-part of the `x₁`-slot correction |
-| `⁅A, x₀⁆²` | the `⁅A, x₀⁆`-part of the `x₁`-slot correction |
-| `⁅x₁, ⁅x₁, A⁆⁆` | the `⁅A, x₁⁆`-part, through `cfourKnob_dress_pair` |
-| `⁅⁅A, x₁⁆, A⁆` (pairing residue) | the `σ`-slot knob's first bracket `⁅⁅x₁, A⁆, A⁆`, the same element of `Z` (`cfourDef_swap_inner`) |
-| `⁅⁅x₁, A⁆, x₀⁆` (Jacobi residue) | the `σ`-slot knob's second bracket, literally equal |
+| `A⁴` (leftover) | the `A²`-part of the `x₁`-slot correction |
+| `⁅A, x₀⁆²` (leftover) | the `⁅A, x₀⁆`-part of the `x₁`-slot correction |
+| `⁅x₁, ⁅x₁, A⁆⁆` (leftover) | the `⁅A, x₁⁆`-part, through `cfourKnob_dress_pair` |
+| `⁅⁅A, x₁⁆, A⁆` (pairing residue, knob-internal) | the `σ`-slot knob's first bracket `⁅⁅x₁, A⁆, A⁆`, the same element of `Z` (`cfourDef_swap_inner`) |
+| `⁅⁅x₁, A⁆, x₀⁆` (Jacobi residue, knob-internal) | the `σ`-slot knob's second bracket, literally equal |
+
+> **[W74-HOUSE, background sweep: column retitled.]**  The column was headed "leftover factor",
+> and only the first three are.  Read against `cfourKnob_leftover_eq`, whose right-hand side is
+> `⁅σA,x₀A⁆·⁅σ,x₀⁆⁻¹ · cfourEichDefect · (A⁴ · ⁅A,x₀⁆²) · ⁅x₁,⁅x₁,A⁆⁆`, the last two rows appear
+> **nowhere**: they arise from the correction and each occurs twice *inside the knob*.  The
+> module's own `cfourDef_assemble` docstring (`GradedClassFourDefect.lean:360`) has it right,
+> "five of the **eight factors of the corrected relator**"; the module's two wrong copies at
+> `:53` and `:443` are corrected at wave 74 under round 10's §3.1(b).
 
 The `σ`-slot knob is `⁅c, x₀·A⁆ = ⁅c, A⁆ · ⁅c, x₀⁆` at `c = ⁅x₁, A⁆`; that it pays for **two** of
 the five is the reason one correction suffices.
@@ -205,8 +213,12 @@ things are missing, and they are different in kind.
   `scripts/mirror.sh gen GQ2.Dyadic.SqCore.GradedClassFourDefect` at the end.  Clean.  No name
   collisions: `grep -rl cfourDef GQ2/ docs/` returns this file only.
 * One import, `GQ2.Dyadic.SqCore.GradedClassFourKnob`.  No `SqCore → Count` import.
-* **34 declarations, 34 axiom pins, every one `[propext, Classical.choice, Quot.sound]`.**  No
-  `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
+* **38 declarations, 34 axiom pins, every one `[propext, Classical.choice, Quot.sound]`.**  No
+  `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.  (Corrected at
+  W74-HOUSE: the figure read "34 declarations", which is the count of *pinned theorems*.  The
+  module has 34 theorems and 4 unpinned `def`s, disclosed below, so 38 in all.  The disclosure
+  reads "three definitions ... and the `Prop`", four items in a sentence that says three, which is
+  how a reader reconciling the two figures lands on 37.)
 
   `cfourDef_jacobi_solve`, `cfourDef_swap_inner`, `cfourDef_commSq_correction`,
   `cfourDef_shuffle`, `cfourDef_common_dress`, `cfourDef_strip`, `cfourDef_triple_mem_zLayer`,
@@ -220,6 +232,7 @@ things are missing, and they are different in kind.
   `cfourDef_comm_dress_frame_mem`, `cfourDef_core_knob_pair`, `cfourDef_supply_of_residual`,
   `cfourDef_residual_of_vanish`.
 
-  (The three definitions `cfourDefCore`, `cfourDefTriple`, `cfourDefCorr` and the `Prop`
+  (Four unpinned declarations: the three definitions `cfourDefCore`, `cfourDefTriple`,
+  `cfourDefCorr` and the `Prop`
   `CfourDefResidual` carry no proof term and are not pinned.)
 * The element bracket `⁅ , ⁆` is again avoided throughout; everything is written in `commP`.
