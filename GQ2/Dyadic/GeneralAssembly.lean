@@ -311,7 +311,7 @@ stale since wave 76.**  Replacement rows:
 
 | row | producer over the general slot | coverage |
 | --- | --- | --- |
-| `Npc α r η h` | `genCertNpcWordCertificate`, `GeneralCertificates.lean:727` | free `(α, r, h, q)` |
+| `Npc α r η h` | `genCertNpcWordCertificate` (`GeneralCertificates:727`) | free `(α, r, h, q)` |
 | `L h` | `Instances.LRowCand.lCand_wordCertificateCanonical` | free `(h, q)` |
 
 (Both carry the same four analytic clauses `M0` does.)
