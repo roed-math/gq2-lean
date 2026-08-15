@@ -321,6 +321,13 @@ theorem rowCl_nCand_exactLiftingRN (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even 
   NCompact.exactLiftingRN_standard_congr (by omega)
     (NCompact.exactLiftingRN_unconditional hα hq0 hqe nuP)
 
+/-- The compact-`N` candidate carrier is topologically finitely generated. -/
+theorem rowCl_nCand_tfg (α h q : ℕ) :
+    ∃ s : Finset ((NCompact.gamma α h q : Type)),
+      (Subgroup.closure (s : Set ((NCompact.gamma α h q : Type)))).topologicalClosure = ⊤ :=
+  tfg_of_isAdmissibleMarkedPresentation
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (nCompactW α h))
+
 /-- **The `N0` row's `exactLifting` clause, measured** — §2's statement at the `N` twin. -/
 theorem rowCl_nCand_exactLifting_iff (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
     ExactLiftingSemantics (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q P nuP
@@ -520,13 +527,67 @@ theorem rowCl_rn_both_carriers_sqrtFive [T2Space (GalK KSqrtFive)]
 end SqrtFiveRow
 
 
+/-! ## §5 The pilot spelling (ticket T3)
+
+The `√−2` row has two committed `CAND` producers: `genCertNWordCertificateCanonical`, which
+carries the uniform four, and `sqrtNegTwoWordCertificate`, which carries `PilotHsimp`,
+`PilotStageSep`, `PilotStageZ`, `PilotDet` (the W83-HOUSE correction: the pilot's residue is
+*not* the uniform four, it sits one layer below).  The lane was asked to attack `PilotHsimp`
+first.  §4 makes that unnecessary and this section says why.
+
+`PilotStageZ q` is `#RCocycle = RF.zR` at every frame — the **frozen** coefficient, verbatim.
+So the pilot's three recursion residues are not independent of the (136) question: together they
+imply `askCStageVanishing` at the pilot carrier, hence the emptiness of §1.  Meanwhile §4 gives
+the corrected bundle at that same carrier with no residue at all.  **The pilot spelling is
+strictly dominated**: everything it buys, the `genCertN` spelling buys with two fewer residues
+and no coefficient condition.  Attacking `PilotHsimp` would be work spent on the worse of two
+routes to the same row. -/
+
+section Pilot
+
+open GQ2.Dyadic.SqrtNeg2 GQ2.Dyadic.Words
+
+variable {q : ℕ}
+
+/-- **The pilot's three recursion residues imply the coefficient `Prop`.**  Not a refutation of
+any of them; a statement that they are downstream of the same question §2 isolates, and that the
+question is not avoided by choosing the pilot spelling. -/
+theorem rowCl_pilot_stageVanishing (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q)
+    (hsplit : PilotStageSep q) (hZ : PilotStageZ q) :
+    askCStageVanishing (pilotGamma q) q pilotP pilotNuP :=
+  rowCl_stageVanishing_of_exactLifting (n := 2) (by omega)
+    (rowCl_nCand_exactLiftingRN (α := 2) (h := 0) (le_refl 2) hq0 hqe pilotNuP)
+    (sqrtNegTwo_exactLifting hsimp hq0 hqe hsplit hZ)
+
+/-- **What the pilot spelling asserts, in the sharpest form.**  Carrying `PilotStageZ` (with the
+other two) says the pilot candidate group admits no boundary-framed surjection onto any marked
+target with a nontrivial Frattini block.  The recursion exists to count exactly those. -/
+theorem rowCl_pilot_isEmpty_boundaryLifts (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q)
+    (hsplit : PilotStageSep q) (hZ : PilotStageZ q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E) (hR : 1 < Nat.card ↥Blk.frattiniK) :
+    IsEmpty (BoundaryLiftsK b F T) :=
+  rowCl_isEmpty_boundaryLifts_of_exactLifting (n := 2) (by omega)
+    (rowCl_nCand_exactLiftingRN (α := 2) (h := 0) (le_refl 2) hq0 hqe pilotNuP)
+    (sqrtNegTwo_exactLifting hsimp hq0 hqe hsplit hZ)
+    (rowCl_nCand_tfg 2 0 q) hE2 hRK hR2 b F hR
+
+end Pilot
+
 /-! ## §6 Axiom pins
 
-One line per declaration, **21** in all, in declaration order, measured against the mirror.
+One line per declaration, **24** in all, in declaration order, measured against the mirror.
 Three sets occur, and the split is the lane's cleanest reading.
 
-* **std-3** (`propext, Classical.choice, Quot.sound`) on **seventeen**: all of §1, all of §2,
-  all of §4, `rowCl_scalar_standard_congr` and `rowCl_hdeg_sqrtFive`.  So *measuring* the row's
+* **std-3** (`propext, Classical.choice, Quot.sound`) on **twenty**: all of §1, all of §2,
+  all of §4, all of §5, `rowCl_scalar_standard_congr` and `rowCl_hdeg_sqrtFive`.  So *measuring* the row's
   analytic residue costs no campaign axiom at all: the carrier-free coefficient equivalence, the
   reduction of both `M0`/`N0` candidate `exactLifting` clauses to `askCStageVanishing`, the two
   free scalar clauses, and the refutation handle are all std-3.  The axioms in this campaign live
@@ -555,6 +616,7 @@ section AxiomPins
 #print axioms rowCl_mCand_homCard_of_uniformPushed
 #print axioms rowCl_mCand_scalar
 #print axioms rowCl_nCand_exactLiftingRN
+#print axioms rowCl_nCand_tfg
 #print axioms rowCl_nCand_exactLifting_iff
 #print axioms rowCl_nCand_homCard_of_uniformPushed
 #print axioms rowCl_nCand_scalar
@@ -563,6 +625,8 @@ section AxiomPins
 #print axioms rowCl_rowResidual_sqrtFive
 #print axioms rowCl_candidate_equiv_galK_sqrtFive
 #print axioms rowCl_rn_both_carriers_sqrtFive
+#print axioms rowCl_pilot_stageVanishing
+#print axioms rowCl_pilot_isEmpty_boundaryLifts
 
 end AxiomPins
 
