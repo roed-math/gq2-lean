@@ -737,8 +737,12 @@ the three families' hypotheses: `gDelta_cfourCmp_span_hyp_false` refutes the spa
 `V^{[4]}`, so "the whole class-four question along this route is the triple brackets" reads the
 route's difficulty in the wrong place.  The fourth powers were never cheap; they were cheap only
 *relative to `Z`-generation*, which is what this statement measures, and not relative to
-reachability by moves.  See `GradedDeltaFunctionals.lean:1557` and `docs/dyadic/w74-func-note.md`
-§4.1.] -/
+reachability by moves.  Nor is the bundled form here a way round the refutation, which is stated
+against `cfourCmp_residual_of_span`'s bare families: **given `htriple`, `hbSq` and `hbPow` are
+equivalent to `⁅p, q⁆² ∈ S` and `p⁴ ∈ S`** (that equivalence is the first half of the proof
+below), so an all-knob `S` meeting these three clauses meets the bare three as well and the same
+`(levelMk σ)⁴` kills it.  See `GradedDeltaFunctionals.lean:1557` and
+`docs/dyadic/w74-func-note.md` §4.1.] -/
 theorem cfourCmp_zLayer_le_triple {S : Subgroup (levelQuot (DSq h : Type) 4)}
     (t : levelQuot (DSq h : Type) 4)
     (htriple : ∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S)

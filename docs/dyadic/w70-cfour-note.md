@@ -138,6 +138,22 @@ read `λ mod 2`, `ν' mod 2` on the square part.  That is a different, and easie
 > one, the two class-four defects, is a factor this section did not flag as hard at all.  What
 > this wave *committed* is unaffected: its Lean statements are untouched and wave 71 uses them.
 
+> **[W75-HOUSE, wave 74: the OTHER half of this section was right, and is now a theorem.**  The
+> withdrawal above is about the `L₃(V)` spanning claim and the `w⁴` cancellation.  It leaves
+> standing the paragraph "What `K` misses" below, and that paragraph is the wave-74 result four
+> waves early: the knob subgroup misses `V^{[4]}`, represented by `σ^{[4]}` and `x₀^{[4]}`.
+> `gDelta_cfourCmp_span_hyp_false` (`GradedDeltaFunctionals.lean:1575`) proves at every `h ≥ 1`
+> that no subgroup all of whose elements are knobs of this route contains every fourth power,
+> and the element it takes out of the fourth-power clause is exactly `(levelMk σ)⁴`.  Two things
+> for the record.  The mechanism is not the codimension count below but Labute's Lemma 3: every
+> correction of this route is `mod 8` chi-trivial and so invisible at the layer bit to the
+> twisted functionals `gDelta`, while the tower reads `4 · unit`.  And the sentence beginning
+> "So the whole of class four is now one question" is doubly withdrawn: wave 71 withdrew its
+> proposed answer, and wave 74 answered the underlying question the other way.  Wave 73's route
+> (`cfourCmp_residual_of_span`) demanded of the knob subgroup exactly what this section says it
+> misses, which nothing between waves 71 and 74 noticed.  See `docs/dyadic/w74-func-note.md`
+> §4.1 and §4.5, and `w71-cfour-note.md` §2's first bullet.]**
+
 None of this section is formalised.  It is recorded because it is the sharp form of the wave-71
 ticket, and because it rests on tools this wave did commit.
 

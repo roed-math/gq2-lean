@@ -102,6 +102,14 @@ housekeeping turned up something you should know about.
   would have to come from the other four slots.  That is a concrete, checkable question, and it
   is where class four now stands.  One technical lemma is also missing before the reduction is
   fully tight, and its ingredients all exist.
+
+  > **[W75-HOUSE annotation: "where class four now stands" is a wave-72 reading and has moved
+  > twice since.**  Wave 73 replaced this question by a strictly stronger one that does not
+  > mention the defect at all, and wave 74 refuted **that** one (`gDelta_cfourCmp_span_hyp_false`,
+  > `h ≥ 1`).  Read carefully what does not follow: the question *this* bullet asks, is the
+  > `x₁`-free defect a knob, is **still open**, because refuting a stronger statement leaves the
+  > weaker one alone.  What the refutation supplies is the reason to stop looking along this
+  > route and a better place to look, which is the wave-74 block at the top of this file.]**
 * **A module had never been built.**  The manifest audit found `SqCore/NuSeeds.lean`, landed on
   2026-08-05, imported by nothing.  Because the build roots only `GQ2.lean`, its eight
   declarations had never been in a green build, through more than twenty waves of accurate
