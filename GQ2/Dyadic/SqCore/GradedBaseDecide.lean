@@ -16,6 +16,8 @@ class is trivial on the nose, so the residual is exactly two classes.
 Prefix: `gDecide`.
 -/
 
+open Multiplicative
+
 namespace GQ2
 
 open Roe.Labute
@@ -136,36 +138,6 @@ theorem gDecideQ_isProP : IsProP 2 GDecideQ := isProP_of_isPGroup gDecideQ_isPGr
 
 end Witness
 
-/-! ## §3 The marking `σ ↦ 1`, `x₀ ↦ X`, `x₁ ↦ Y`, and the classifying hom -/
-
-section Marking
-
-/-- The marking of `Q₁₆` by the three letters of `D_sq 0`. -/
-def gDecideMark : Fin (sqRank 0) → GDecideQ := ![1, gDecideX, gDecideY]
-
-/-- ⭐ **The relator dies at the marking.**  At `σ = 1` the core word `sqWord σ x₀ x₁`
-collapses to `x₀⁻⁴ · x₁²`, and `Y² = X⁴` in `Q₁₆`. -/
-theorem gDecideMark_rel : sqRelWord gDecideMark = 1 := by
-  rw [sqRelWord_zero]
-  decide
-
-/-- ⭐⭐⭐ **The classifying hom** `D_sq 0 → Q₁₆`, through the presentation's universal
-property `sqLiftHom`. -/
-noncomputable def gDecideHom : ContinuousMonoidHom (DSq 0 : Type) GDecideQ :=
-  sqLiftHom 0 gDecideQ_isProP gDecideMark gDecideMark_rel
-
-@[simp] theorem gDecideHom_gen (i : Fin (sqRank 0)) :
-    gDecideHom (sqGen 0 i) = gDecideMark i :=
-  sqLiftHom_gen 0 gDecideQ_isProP gDecideMark gDecideMark_rel i
-
-@[simp] theorem gDecideHom_sigma : gDecideHom (dsqSigma 0) = 1 := gDecideHom_gen 0
-
-@[simp] theorem gDecideHom_x0 : gDecideHom (dsqX0 0) = gDecideX := gDecideHom_gen 1
-
-@[simp] theorem gDecideHom_x1 : gDecideHom (dsqX1 0) = gDecideY := gDecideHom_gen 2
-
-end Marking
-
 /-! ## §4 The lower `2`-central tower of `Q₁₆` stops at four
 
 `λ₂ = ⟨X²⟩`, `λ₃ = ⟨X⁴⟩`, `λ₄ = 1`, each step a `decide` against an explicit subgroup.  The
@@ -252,7 +224,256 @@ theorem gDecide_lambdaFour : twoCentralSeries GDecideQ 4 = ⊥ := by
 
 end Tower
 
-/-! ## §5 Axiom pins -/
+/-! ## §4 Two markings of `Q₁₆` by the letters of `D_sq 0`
+
+Both send `x₁ ↦ Y` and the two far letters into `⟨X⟩`, and both kill the relator:
+
+* `σ ↦ 1`, `x₀ ↦ X`: the word collapses to `x₀⁻⁴·x₁² = X⁻⁴Y² = 1`;
+* `σ ↦ X`, `x₀ ↦ 1`: the word collapses to `x₁²·⁅x₁, x₁^σ⁆ = Y²·X⁴ = 1`.
+
+The first sees `⁅x₁, x₀⁆`, the second sees `⁅x₁, σ⁆`; between them they cover the whole
+wave-76 residual. -/
+
+section Markings
+
+/-- The marking `σ ↦ 1`, `x₀ ↦ X`, `x₁ ↦ Y`: the one that sees the `x₀` class. -/
+def gDecideMarkX : Fin (sqRank 0) → GDecideQ := ![1, gDecideX, gDecideY]
+
+/-- The marking `σ ↦ X`, `x₀ ↦ 1`, `x₁ ↦ Y`: the one that sees the `σ` class. -/
+def gDecideMarkS : Fin (sqRank 0) → GDecideQ := ![gDecideX, 1, gDecideY]
+
+theorem gDecideMarkX_rel : sqRelWord gDecideMarkX = 1 := by rw [sqRelWord_zero]; decide
+
+theorem gDecideMarkS_rel : sqRelWord gDecideMarkS = 1 := by rw [sqRelWord_zero]; decide
+
+end Markings
+
+/-! ## §5 The classifying hom, and the collapse of the whole depth-two reach
+
+Three families, three collapses, none of them using the row conditions:
+
+* **knobs** `⁅t, q⁆`: the correction `t` lands in `λ₂(Q₁₆) = ⟨X²⟩` and the far slot `q` lands
+  in `⟨X⟩`, which is abelian, so the bracket is `1`;
+* **bundles** `t²·⁅t, x₁⁆`: for `t ↦ X^{2k}` this is `X^{4k}·X^{-4k} = 1`, exactly the
+  cancellation the wave-76 note calls the vacuous bundle;
+* **towers** `x̃₁^{4a}`: `x̃₁ ↦ Y·(m x₀)⁻²`, an element of order four.
+
+Dropping the admissibility hypotheses is deliberate: `GTowerAdm`'s row conditions are never
+used, so the refutation is **stronger** than the wave-76 argument, which needs them to cut
+`W` down to `⟨x₁⟩`. -/
+
+section Model
+
+open scoped commutatorElement
+
+variable {m : Fin (sqRank 0) → GDecideQ} (hrel : sqRelWord m = 1)
+  {nu' : ContinuousMonoidHom (DSq 0 : Type) (Multiplicative ℤ_[2])}
+
+/-- ⭐⭐⭐ **The classifying hom** `D_sq 0 → Q₁₆` at a relator-killing marking, through the
+presentation's universal property `sqLiftHom`. -/
+noncomputable def gDecideHom : ContinuousMonoidHom (DSq 0 : Type) GDecideQ :=
+  sqLiftHom 0 gDecideQ_isProP m hrel
+
+@[simp] theorem gDecideHom_gen (i : Fin (sqRank 0)) : gDecideHom hrel (sqGen 0 i) = m i :=
+  sqLiftHom_gen 0 gDecideQ_isProP m hrel i
+
+@[simp] theorem gDecideHom_sigma : gDecideHom hrel (dsqSigma 0) = m 0 := gDecideHom_gen hrel 0
+
+@[simp] theorem gDecideHom_x0 : gDecideHom hrel (dsqX0 0) = m 1 := gDecideHom_gen hrel 1
+
+@[simp] theorem gDecideHom_x1 : gDecideHom hrel (dsqX1 0) = m 2 := gDecideHom_gen hrel 2
+
+theorem gDecide_map_lambda (k : ℕ) {g : (DSq 0 : Type)}
+    (hg : g ∈ twoCentralSeries (DSq 0 : Type) k) :
+    gDecideHom hrel g ∈ twoCentralSeries GDecideQ k :=
+  map_twoCentralSeries_le (gDecideHom hrel).toMonoidHom (gDecideHom hrel).continuous_toFun k
+    ⟨g, hg, rfl⟩
+
+/-- ⭐ **The descent to `Q₄`**: `λ₄(Q₁₆) = 1`, so the classifying hom factors through the
+level quotient in which the whole depth-`2` reach lives. -/
+noncomputable def gDecideQuot : levelQuot (DSq 0 : Type) 4 →* GDecideQ :=
+  QuotientGroup.lift (twoCentralSeries (DSq 0 : Type) 4) (gDecideHom hrel).toMonoidHom
+    (fun g hg => by
+      have h := gDecide_map_lambda hrel 4 hg
+      rwa [gDecide_lambdaFour, Subgroup.mem_bot] at h)
+
+@[simp] theorem gDecideQuot_levelMk (g : (DSq 0 : Type)) :
+    gDecideQuot hrel (levelMk (DSq 0 : Type) 4 g) = gDecideHom hrel g := rfl
+
+@[simp] theorem gDecideQuot_baseT : gDecideQuot hrel (gBaseT 0) = m 2 := gDecideHom_x1 hrel
+
+@[simp] theorem gDecideQuot_baseX : gDecideQuot hrel (gBaseX 0) = m 1 := gDecideHom_x0 hrel
+
+@[simp] theorem gDecideQuot_baseS : gDecideQuot hrel (gBaseS 0) = m 0 := gDecideHom_sigma hrel
+
+theorem gDecideHom_commP (a b : (DSq 0 : Type)) :
+    gDecideHom hrel (commP a b) = commP (gDecideHom hrel a) (gDecideHom hrel b) := by
+  simp only [commP, map_mul, map_inv]
+
+/-- The image of `γ₂(D_sq 0)` lands in `⟨X²⟩`. -/
+theorem gDecide_gammaTwo_mem {t : (DSq 0 : Type)}
+    (ht : t ∈ twoCentralSeries (DSq 0 : Type) 2) : GDecideInA2 (gDecideHom hrel t) :=
+  gDecide_lambdaTwo (gDecide_map_lambda hrel 2 ht)
+
+/-- The image of the `x₁`-free letter span lands in the abelian `⟨X⟩`, provided both far
+letters do. -/
+theorem gDecide_far_mem (h0 : GDecideInA (m 0)) (h1 : GDecideInA (m 1))
+    {q : (DSq 0 : Type)} (hq : q ∈ gTowerFar 0) : GDecideInA (gDecideHom hrel q) := by
+  have hle : gTowerFar 0 ≤ Subgroup.comap (gDecideHom hrel).toMonoidHom gDecideA := by
+    refine Subgroup.topologicalClosure_minimal _ (Subgroup.closure_le _ |>.2 ?_) ?_
+    · rintro x hx
+      simp only [Set.mem_union, Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_range] at hx
+      rcases hx with ((rfl | rfl) | ⟨j, -⟩) | ⟨j, -⟩
+      · exact show GDecideInA (gDecideHom hrel (dsqSigma 0)) by
+          rw [gDecideHom_sigma]; exact h0
+      · exact show GDecideInA (gDecideHom hrel (dsqX0 0)) by rw [gDecideHom_x0]; exact h1
+      · exact absurd j.isLt (by omega)
+      · exact absurd j.isLt (by omega)
+    · exact (isClosed_discrete (gDecideA : Set GDecideQ)).preimage
+        (gDecideHom hrel).continuous_toFun
+  exact hle hq
+
+/-- ⭐⭐ **The knobs die**: both slots land in the cyclic `⟨X⟩`. -/
+theorem gDecide_knob_one (h0 : GDecideInA (m 0)) (h1 : GDecideInA (m 1))
+    {t q : (DSq 0 : Type)} (ht : t ∈ twoCentralSeries (DSq 0 : Type) 2)
+    (hq : q ∈ gTowerFar 0) : gDecideHom hrel (commP t q) = 1 := by
+  rw [gDecideHom_commP]
+  exact (by decide : ∀ u v : GDecideQ, GDecideInA2 u → GDecideInA v → commP u v = 1) _ _
+    (gDecide_gammaTwo_mem hrel ht) (gDecide_far_mem hrel h0 h1 hq)
+
+/-- ⭐⭐ **The bundles die**: `X^{4k} · X^{-4k} = 1`, the wave-76 cancellation, verified. -/
+theorem gDecide_bundle_one (h2 : m 2 = gDecideY) {t : (DSq 0 : Type)}
+    (ht : t ∈ twoCentralSeries (DSq 0 : Type) 2) :
+    gDecideHom hrel (t ^ 2 * commP t (dsqX1 0)) = 1 := by
+  rw [map_mul, map_pow, gDecideHom_commP, gDecideHom_x1, h2]
+  exact (by decide : ∀ u : GDecideQ, GDecideInA2 u → u ^ 2 * commP u gDecideY = 1) _
+    (gDecide_gammaTwo_mem hrel ht)
+
+/-- The cleared letter `x̃₁ = x₁·x₀⁻²` maps to `Y·(m x₀)⁻²`. -/
+theorem gDecideHom_xOne : gDecideHom hrel (gTowerXOne 0) = m 2 * ((m 1) ^ 2)⁻¹ := by
+  rw [gTowerXOne, map_mul, map_inv, gDecideHom_x1,
+    map_zpowZtwo (isProP_DSq 0) gDecideQ_isProP (gDecideHom hrel) (dsqX0 0) 2, gDecideHom_x0,
+    show ((2 : ℤ_[2])) = ((2 : ℕ) : ℤ_[2]) by norm_num, zpowZtwo_natCast]
+
+/-- ⭐⭐ **The towers die**: `Y·X^{-2k}` has order four for every `k`. -/
+theorem gDecide_tower_one (h1 : GDecideInA (m 1)) (h2 : m 2 = gDecideY)
+    {x : (DSq 0 : Type)} (hx : x ∈ gTowerXLetters 0 nu') (a : ℤ_[2]) :
+    gDecideHom hrel (zpowZtwo (isProP_DSq 0) x ((2 : ℤ_[2]) ^ 2 * a)) = 1 := by
+  have hxeq : x = gTowerXOne 0 := by
+    simp only [gTowerXLetters, Set.mem_union, Set.mem_singleton_iff, Set.mem_range] at hx
+    rcases hx with (hx | ⟨j, -⟩) | ⟨j, -⟩
+    · exact hx
+    · exact absurd j.isLt (by omega)
+    · exact absurd j.isLt (by omega)
+  subst hxeq
+  rw [map_zpowZtwo (isProP_DSq 0) gDecideQ_isProP (gDecideHom hrel) _ _,
+    ← zpowZtwo_zpowZtwo gDecideQ_isProP,
+    show ((2 : ℤ_[2]) ^ 2) = ((4 : ℕ) : ℤ_[2]) by norm_num, zpowZtwo_natCast, gDecideHom_xOne,
+    h2, show ∀ u : GDecideQ, GDecideInA u → (gDecideY * (u ^ 2)⁻¹) ^ 4 = 1 from by decide,
+    zpowZtwo_one_base]
+  exact h1
+
+/-- ⭐⭐⭐ **The whole depth-two reach lies in the kernel.**  No admissibility is used: the
+statement holds for every `γ₂`-correction, not only the exactly row-trivial ones. -/
+theorem gDecide_reach_le_ker (h0 : GDecideInA (m 0)) (h1 : GDecideInA (m 1))
+    (h2 : m 2 = gDecideY) : gTowerReach 0 nu' 2 ≤ MonoidHom.ker (gDecideQuot hrel) := by
+  refine Subgroup.closure_le _ |>.2 ?_
+  rintro z ((⟨t, q, ht, hq, rfl⟩ | ⟨t, ht, rfl⟩) | ⟨x, hx, a, rfl⟩)
+  · exact gDecide_knob_one hrel h0 h1 ht.1 hq
+  · exact gDecide_bundle_one hrel h2 ht.1
+  · exact gDecide_tower_one hrel h1 h2 hx a
+
+include hrel in
+/-- ⭐⭐⭐ **The separation criterion.**  If the marking sees the letter `m i` as `X`, the
+class `⁅⁅x₁, xᵢ⁆, x₁⁆` reads `Z ≠ 1` while the whole reach reads `1`. -/
+theorem gDecide_triple_not_mem (h0 : GDecideInA (m 0)) (h1 : GDecideInA (m 1))
+    (h2 : m 2 = gDecideY) {i : Fin (sqRank 0)} (hi : m i = gDecideX) :
+    commP (commP (gBaseT 0) (levelMk (DSq 0 : Type) 4 (sqGen 0 i))) (gBaseT 0)
+      ∉ gTowerReach 0 nu' 2 := by
+  intro hmem
+  have hker := gDecide_reach_le_ker hrel h0 h1 h2 hmem
+  rw [MonoidHom.mem_ker] at hker
+  rw [show gBaseT 0 = levelMk (DSq 0 : Type) 4 (dsqX1 0) from rfl, ← gBase_levelMk_triple,
+    gDecideQuot_levelMk, gDecideHom_commP, gDecideHom_commP, gDecideHom_x1, gDecideHom_gen,
+    hi, h2] at hker
+  exact absurd hker (by decide)
+
+end Model
+
+/-! ## §6 The decision: both residual classes are unreachable at `h = 0` -/
+
+section Decision
+
+variable {nu' : ContinuousMonoidHom (DSq 0 : Type) (Multiplicative ℤ_[2])}
+
+/-- ⭐⭐⭐ **The `x₀` class is not reachable**: `⁅⁅x₁, x₀⁆, x₁⁆ ∉ gTowerReach 0 ν' 2`. -/
+theorem gDecide_x0_not_mem :
+    commP (commP (gBaseT 0) (gBaseX 0)) (gBaseT 0) ∉ gTowerReach 0 nu' 2 :=
+  gDecide_triple_not_mem gDecideMarkX_rel (by decide) (by decide) (by decide)
+    (i := 1) (by decide)
+
+/-- ⭐⭐⭐ **The `σ` class is not reachable**: `⁅⁅x₁, σ⁆, x₁⁆ ∉ gTowerReach 0 ν' 2`. -/
+theorem gDecide_sigma_not_mem :
+    commP (commP (gBaseT 0) (gBaseS 0)) (gBaseT 0) ∉ gTowerReach 0 nu' 2 :=
+  gDecide_triple_not_mem gDecideMarkS_rel (by decide) (by decide) (by decide)
+    (i := 0) (by decide)
+
+/-- ⭐⭐⭐ **The wave-76 residual is FALSE at `h = 0`, at every marking.**  Both classes fail,
+so the two-dimensional gap of the wave-76 note's §4 is a theorem here, and it needed no
+structure theorem: one group of order sixteen and two markings. -/
+theorem gDecide_not_xOneTriple : ¬ GBaseXOneTriple 0 nu' := fun H => gDecide_x0_not_mem (H 1)
+
+end Decision
+
+/-! ## §7 A selected marking exists, so the named `Prop`s are refuted outright -/
+
+section Selected
+
+/-- The selected marking `ν'(σ) = 1`, `ν'(x₀) = 0` at `h = 0` (and `ν'(x₁) = 0`, which the
+relator forces). -/
+noncomputable def gDecideNu : ContinuousMonoidHom (DSq 0 : Type) (Multiplicative ℤ_[2]) :=
+  sqLiftHom 0 PropOneOne.isProP_two_multPadicInt
+    (![ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2])] :
+      Fin (sqRank 0) → Multiplicative ℤ_[2])
+    (by rw [sqRelWord_comm]; simp)
+
+@[simp] theorem gDecideNu_sigma : gDecideNu (dsqSigma 0) = ofAdd (1 : ℤ_[2]) :=
+  sqLiftHom_gen 0 _ _ _ 0
+
+@[simp] theorem gDecideNu_x0 : gDecideNu (dsqX0 0) = ofAdd (0 : ℤ_[2]) :=
+  sqLiftHom_gen 0 _ _ _ 1
+
+/-- ⭐⭐⭐ **`GBaseResidual 0` is FALSE.** -/
+theorem gDecide_not_baseResidual : ¬ GBaseResidual 0 :=
+  fun H => gDecide_not_xOneTriple (H gDecideNu gDecideNu_sigma gDecideNu_x0)
+
+/-- The `x₀` residual class is an exactly row-trivial `γ₃`-element, so it is inside what
+`GTowerLayerReach 0 ν' 2` quantifies over: the failure is not a quantifier artefact. -/
+theorem gDecide_triple_mem_three :
+    commP (commP (dsqX1 0) (dsqX0 0)) (dsqX1 0) ∈ twoCentralSeries (DSq 0 : Type) 3 :=
+  cfour_commP_mem_three (cfour_commP_mem_two _ _) _
+
+/-- ⭐⭐⭐ **`GTowerLayerReach 0 ν' 2` is FALSE at every marking** — wave 74's depth-`2` layer
+statement itself, not merely wave 76's sufficient condition for it.  The witness class is the
+`x₀` one, and it really is an exactly row-trivial `γ₃`-element, so the failure is not a
+quantifier artefact. -/
+theorem gDecide_not_layerReach
+    (nu' : ContinuousMonoidHom (DSq 0 : Type) (Multiplicative ℤ_[2])) :
+    ¬ GTowerLayerReach 0 nu' 2 := by
+  intro H
+  have hadm := gBase_adm_commP (h := 0) (nu' := nu') (commP (dsqX1 0) (dsqX0 0)) (dsqX1 0)
+  have hmem := H _ gDecide_triple_mem_three hadm.2.1 hadm.2.2
+  rw [gBase_levelMk_triple] at hmem
+  exact gDecide_x0_not_mem hmem
+
+/-- ⭐⭐⭐ **`GJoinBase 0` is FALSE**: wave 75's first named input to `SqLamMarkTransitivity`
+fails at `h = 0`. -/
+theorem gDecide_not_joinBase : ¬ GJoinBase 0 :=
+  fun H => gDecide_not_layerReach gDecideNu (H gDecideNu gDecideNu_sigma gDecideNu_x0)
+
+end Selected
+
+/-! ## §8 Axiom pins -/
 
 section AxiomPins
 
@@ -265,13 +486,9 @@ section AxiomPins
 #print axioms gDecideQ_exp_eight
 #print axioms gDecideQ_isPGroup
 #print axioms gDecideQ_isProP
-#print axioms gDecideMark
-#print axioms gDecideMark_rel
-#print axioms gDecideHom
-#print axioms gDecideHom_gen
-#print axioms gDecideHom_sigma
-#print axioms gDecideHom_x0
-#print axioms gDecideHom_x1
+#print axioms GQ2.Dyadic.SqCore.GDecideInA
+#print axioms GQ2.Dyadic.SqCore.GDecideInA2
+#print axioms GQ2.Dyadic.SqCore.GDecideInZ
 #print axioms gDecideA
 #print axioms gDecideA2
 #print axioms gDecideZsub
@@ -282,6 +499,40 @@ section AxiomPins
 #print axioms gDecide_lambdaTwo
 #print axioms gDecide_lambdaThree
 #print axioms gDecide_lambdaFour
+#print axioms gDecideMarkX
+#print axioms gDecideMarkS
+#print axioms gDecideMarkX_rel
+#print axioms gDecideMarkS_rel
+#print axioms gDecideHom
+#print axioms gDecideHom_gen
+#print axioms gDecideHom_sigma
+#print axioms gDecideHom_x0
+#print axioms gDecideHom_x1
+#print axioms gDecide_map_lambda
+#print axioms gDecideQuot
+#print axioms gDecideQuot_levelMk
+#print axioms gDecideQuot_baseT
+#print axioms gDecideQuot_baseX
+#print axioms gDecideQuot_baseS
+#print axioms gDecideHom_commP
+#print axioms gDecide_gammaTwo_mem
+#print axioms gDecide_far_mem
+#print axioms gDecide_knob_one
+#print axioms gDecide_bundle_one
+#print axioms gDecideHom_xOne
+#print axioms gDecide_tower_one
+#print axioms gDecide_reach_le_ker
+#print axioms gDecide_triple_not_mem
+#print axioms gDecide_x0_not_mem
+#print axioms gDecide_sigma_not_mem
+#print axioms gDecide_not_xOneTriple
+#print axioms gDecideNu
+#print axioms gDecideNu_sigma
+#print axioms gDecideNu_x0
+#print axioms gDecide_not_baseResidual
+#print axioms gDecide_triple_mem_three
+#print axioms gDecide_not_layerReach
+#print axioms gDecide_not_joinBase
 
 end AxiomPins
 
