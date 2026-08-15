@@ -1,5 +1,25 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 83 (2026-08-15)
+
+**Seven items await you** (the five-site fix came off the list, executed under an
+orchestrator edit grant; AB-0 came off, executed; one new item joined): the ASK restatement;
+the pilot spelling; the two even branch producers still forgetting their markings (the
+remaining instances of the defect the grant fixed at five sites); A6 at ten rounds;
+line-length (707 lines over 100, record-or-adopt); whether the ASK coefficient Prop is a fact
+about the Galois group or a wrong ask; and new, the odd-degree bridge's stale inference,
+whose diagnosis stands but whose conclusion wave 83 refuted by computing the invariant from
+the cup form.
+
+**For orientation.**  The odd route's last item is one model statement, the clearing at a
+unit pivot, after the frame lane showed the cup form manufactures on the field side the very
+input the model side provably cannot.  The last selector clause is one explicit identity, the
+sixth mix move, after the orbit lane found the ruling against it unsound and wrote out the
+depth-three solution any construction must extend, with handle-mixing forced.  Four of the
+five rows' branch data are now free with their markings tied.  The campaign runs a
+machine-checkable scoreboard whose first outputs corrected three claims reading had missed,
+including that the pilot row's certificate residue differs from the other rows'.
+
 ## Status at wave 82 (2026-08-15)
 
 **Seven items await you.**  The five from wave 81 (the ASK restatement, the pilot spelling,
