@@ -155,6 +155,28 @@ Group **A** of the memo's closing set is now empty of open mathematics:
 * **A2** (the `KTwoN`/`KTwoM` adapter) was already a restatement; §6/§7 perform it, and the
   reduction is per-row to one unimodularity clause.
 
+**[W78-HOUSE, ticket 3(b): A1 confirmed; A2 is BYPASSED, not discharged, and §6/§7 do not
+perform it.**  Checked against `w74-critical-path.md` §3's Group A and §1.5.
+
+**A1: confirmed.**  All five `fieldId_hrange_*` are equalities over the field's own bundle and
+the standing binders, and the range identities print std-3.  Nothing carried.
+
+**A2: the record this lane produces is not one of the two A2 names.**  A2 is the adapter into
+`Main.lean`'s record spellings, and §1.5's test is "until it is done the even route's output does
+not typecheck into either record".  §6/§7 here produce `∃ G : GenAsmBranch K B`, and
+`GenAsmBranch` is `GeneralAssembly.lean`'s record, introduced in **wave 76**; `GenAsmBranch`
+occurs in exactly two files in the tree, `GeneralAssembly.lean` and this one.  `Main.lean:352`'s
+`ResidualSqrtNegTwo` is untouched and still carries `fLab`, `piAb`, `hpiAb`, `hpiNu` and
+`horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x`, i.e. the abelianization spelling the
+memo says the even route does **not** produce.  What performs the adapter into `KSupply` is
+`KSupply.ofMarkedCoreRealization`, consumed by `genAsm_candidate_equiv_galK`
+(`GeneralAssembly.lean`) and mapped field by field in that module's §4.2; both are wave 76's, not
+this lane's.  This lane's §6/§7 *inhabit* that record, which is a different and also useful thing.
+
+So the accurate sentence is: **Group A is empty of open mathematics on the general-record path.
+On `Main.lean`'s committed path A2 is untouched, and the memo's own typecheck test still fails
+there.**  Which of the two paths ships is an owner call.]**
+
 The nearest remaining item this lane touched is therefore **not** classification at all.  It is:
 
 1. **`hpivot`/`hpair`, the marked-data pair unimodularity**, one clause per row, at the *chosen*
@@ -180,3 +202,12 @@ The nearest remaining item this lane touched is therefore **not** classification
 
 False at every one of the five frozen quadratic rows as of this lane, and false at two of them
 since wave 68.
+
+**[W78-HOUSE, ticket 3(c): DONE.**  Superseded in place, comment-only, with the as-of-hash
+convention: the sentence is kept (it states correctly what `parityFinal_evenClassification`
+itself supplies) and the closing clause "and it stays open" is annotated as false as of
+`e6bbd2b9`, naming the five suppliers, the two wave-67/68 ones and the three from this lane.
+The docstring now says the pin is supplied elsewhere, per field.  One citation note: the quoted
+sentence is at `:539-541`, not `:542`; `:542` is `theorem genAsm_evenRoute_output` itself, the
+declaration the docstring sits on.  Both readings are the same at `1d3d5a84` and at `e6bbd2b9`,
+so this is an off-by-one and not drift.]**

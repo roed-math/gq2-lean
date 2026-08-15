@@ -298,6 +298,11 @@ lane's own base, not merely overtaken.  `GeneralCertificates` was registered by 
 05:35, one minute after the cert note was committed (`edd7dd7a`, 05:34).  At `1d3d5a84` both are
 in `GQ2.lean` (`:857`, `:858`), as is `SqCore/GradedJoinBase.lean` (`:777`, by `681ce981` at
 05:37).  Nothing is left of the item.  Annotated at the cert note.
+**[W78-HOUSE: the finding stands; two of the three line numbers have drifted.**  At `e6bbd2b9`
+`GradedJoinBase` is still `GQ2.lean:777`, but `GeneralAssembly` is `:858` and
+`GeneralCertificates` `:859`, because `7be6d122` inserted `import GQ2.Dyadic.SqCore.GradedBaseDecide`
+at `:778`.  `Instances.FieldBranchIdentification` is `:860` (`f2ae3e20`).  A one-line grep of
+`GQ2.lean` beats a line number here, exactly as this item recommends.]**
 
 **(b) HIGH.  `w76-house-note.md` §4.2 breaks the very rule that note's §4.5 lays down.**
 `:443` verbatim: "`w75-state-note.md` §6, five items, **all still live and none touched this
@@ -348,6 +353,25 @@ prose says `2 + 2h` **with content** rather than simply `2 + 2h`.]**
 two already-closed rows restated; §§1-4 are planned in its docstring but not written.  Flagship
 item 1 is therefore **in flight, not closed**, and wave 78 should not read the w76 queue's
 "still the smallest genuinely-open item" as discharged.
+
+⚠⚠ **[W78-HOUSE, ticket 3, STALENESS: HIGH.  This was already false when it was committed, and
+it is the exact defect §3.1(b) above diagnoses in the predecessor.**  Timeline, all `08-15`:
+
+| time | commit | state of the field module |
+| --- | --- | --- |
+| 06:06 | `62a8c05b` | opened, 126 lines: §0 only.  **This is the state described above.** |
+| 06:14 | `dddd3734` | 398 lines, the residue-5 criterion and the three norm witnesses |
+| 06:16 | `4e4a6541` | 544 lines, **all three remaining rows closed** |
+| 06:22 | `c9881c4c` | 746 lines, the five rows composed into `GenAsmBranch` |
+| 06:25 | `234ff5f1` | **merged into `dyadic`** |
+| 06:28 | `9443a52b` | *this note is committed* |
+
+So the module was complete and **already in `dyadic`** three minutes before this note recorded it
+as unwritten.  The read was taken at lane start and never refreshed, which is precisely what
+§4.5's rule (run staleness before the application pass) exists to prevent; this round applied that
+rule to its own edits and to the w76 queue, and not to its own §3.2/§4.2 sibling readings.  The
+correct finding is the opposite one: **flagship item 1 is closed at all five rows**, and the
+verdict on it is in §4.2's annotation below.]**
 
 ### 3.3  Identity headlines over containments: one found
 
@@ -466,6 +490,34 @@ two rows were already closed at waves 67 and 68.  When it lands, flagship item 1
   (`1 + 2√5`, `2 + √10`, `√−10`);
 * the module is at §0 at `1d3d5a84`.  Wave 78 should confirm §§1-4 landed before treating item 1
   as struck, and should not inherit the w76 queue's description of it.
+
+**[W78-HOUSE, ticket 3: CONFIRMED LANDED, and the second bullet is doubly wrong.**  The module
+does not exist at `1d3d5a84` at all (`git cat-file -e` fails there); it is created by the field
+lane, and by the time this note was written it was at 746 lines with all eight sections written.
+See §3.2(b)'s table.  The first bullet **stands and is the important half**: the pin is per
+field, by explicit witnesses, and gives nothing at a general ramified-`i` `K`.
+
+**Verdict on the memo's Group A, checked item by item against `w74-critical-path.md` §3.**
+
+* **A1 (branch identification per field): DISCHARGED at the five frozen quadratic rows.**
+  `fieldId_hrange_sqrt{Five,Ten,NegTen}` prove `range chiCycKTwo = imChiM 2`, and the two older
+  rows are re-exported.  All five are over the field's own `MarkedRecip` bundle, and the
+  range identities print std-3, so the pin costs no arithmetic axiom.
+* **A2 (the `KTwoN`/`KTwoM` adapter into the two record spellings): BYPASSED, not discharged.**
+  The field lane's producers land in `GenAsmBranch K B`, which is `GeneralAssembly.lean`'s own
+  record from **wave 76**, not in `Main.lean`'s `ResidualSqrtNegTwo` or the four `ResidualSqrt*`
+  records that A2 names.  `Main.lean:352`'s pilot record still carries `fLab`, `piAb`, `hpiAb`,
+  `hpiNu` and `horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x`, the abelianization
+  spelling, exactly as the memo found it at `4fff1592`; `grep` finds `GenAsmBranch` in two files
+  only, `GeneralAssembly.lean` and `FieldBranchIdentification.lean`.  What performs the adapter
+  is `KSupply.ofMarkedCoreRealization` inside `genAsm_candidate_equiv_galK`, plus §4.2's record
+  map, and both predate this lane.  So the memo's own test, "until it is done the even route's
+  output does not typecheck into either record", is **still failing for `Main.lean`'s records**,
+  and A2 is discharged only on the new general-record path.
+* Consequently the field note's "Group A is now empty of open mathematics" is **true on the
+  general path and false on the committed one**.  It is not open *mathematics* either way (A2
+  was always priced as a restatement), so the disagreement is about which records the campaign
+  intends to ship, and that is an owner call, not a lane's.]**
 
 ### 4.3  Separation and realizability: untouched for three waves
 
