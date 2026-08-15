@@ -51,27 +51,33 @@ about `K` and not a modelling choice.  The answer is **not** uniform across the 
 | --- | --- | --- | --- |
 | `sqrtNegTwo` | `ℚ₂(√−2)` | `r = 0` | `fieldUni_level_sqrtNegTwo`, proved |
 | `sqrtTwo` | `ℚ₂(√2)` | `r = 0` | `fieldUni_level_sqrtTwo`, proved |
-| `sqrtFive` | `ℚ₂(√5)` | `r = 0` | reduced to `fieldUni_UnramifiedNormValuation`, §4 |
+| `sqrtFive` | `ℚ₂(√5)` | `r = 0` | reduced to `fieldUni_TwoIsUniformizer`, §4 |
 | `sqrtTen` | `ℚ₂(√10)` | `r = 1` | **false**, see §5 |
 | `sqrtNegTen` | `ℚ₂(√−10)` | `r = 1` | **false**, see §5 |
 
-§5 records the refutation with its proof; it is not formalized here, and the file states nothing
-about those two fields that it has not proved.
+The last two entries are the lane's correction to wave 77.  `ℚ₂(√10)` and `ℚ₂(√−10)` are
+level **one**: `K(√5) ⊆ K(μ₈)` is an unramified quadratic extension at both (`√10·√2 = 2√5`, and
+`√−10·√2 = 2√−5` with `i ∈ K(μ₄)`), so `ν_ur(ker χ) = 2ℤ₂`.  Equivalently on the norm side, `2^k`
+is a norm from `ℚ₂(√10)` only for even `k` (`(2, 10)₂ = −1`), and no element of odd valuation
+there has a norm whose unit part is `1`.  That refutation is a hand computation; it is **not**
+formalized here, and §5 states nothing about those two fields beyond what §1 proves — that their
+residual clause *is* the level equation.  It also matches the frozen table, which puts both rows
+on `.Mpc 2 1 _ 1`, valid only with `1 ≤ r` (`Main.lean:136`, `:137`, `:228`).
 
 ## Numbering
 
 1. the clause is the level: the two `iff`s;
 2. the level-zero branch-datum producers, with no residual clause;
 3. the level criterion from an element of `Kˣ`, and the two ramified fields that meet it;
-4. `ℚ₂(√5)`, reduced to one named valuation Prop;
-5. what the five rows still ask for;
+4. `ℚ₂(√5)`, reduced to one named unramifiedness Prop;
+5. the five rows;
 6. axiom pins.
 -/
 
 namespace GQ2.Dyadic.FieldUnimod
 
 open GQ2 GQ2.Dyadic.MarkedCore
-open GQ2.Dyadic.Fields GQ2.Dyadic.FieldBranchId
+open GQ2.Dyadic.Fields GQ2.Dyadic.FieldBranchId GQ2.Dyadic.EvenRangePolish
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
@@ -411,9 +417,292 @@ theorem fieldUni_sqrtIn_max (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
 
 end Uniformizer
 
+/-! ### §3.3 The two ramified rows whose level is zero
+
+`ℚ₂(√−2)` and `ℚ₂(√2)` both carry an element of odd valuation whose norm is **exactly** a power
+of `2`, and that is what the level asks for: the unit part of the norm is the cyclotomic value,
+so it has to be `1` on the nose, not merely `≡ 1` modulo anything.
+
+| field | `x` | `N(x)` | decomposition |
+| --- | --- | --- | --- |
+| `ℚ₂(√−2)` | `√−2` | `0 − (−2) = 2` | `x = 1 · √−2` |
+| `ℚ₂(√2)` | `2 + √2` | `4 − 2 = 2` | `x = (1 + √2) · √2` |
+
+The `ℚ₂(√2)` row is the one that needs a genuine factorization: `2 + √2` is not itself a `ℚ₂`
+multiple of `√2`, and `√2` alone has norm `−2`, whose unit part `−1` is not `1`. -/
+
+section RamifiedRows
+
+variable {Rec : LocalReciprocity}
+
+open GQ2.Dyadic.LSquare
+
+theorem fieldUni_valuation_neg_two_odd : Odd (-2 : ℚ_[2]).valuation := by
+  rw [valuation_neg, valuation_two]
+  exact ⟨0, by ring⟩
+
+theorem fieldUni_valuation_two_odd : Odd (2 : ℚ_[2]).valuation := by
+  rw [valuation_two]
+  exact ⟨0, by ring⟩
+
+theorem fieldUni_norm_neg_two : ‖(-2 : ℚ_[2])‖ = ‖(2 : ℚ_[2])‖ := norm_neg 2
+
+/-- `√a` read on the closure: `evenPolish_quadElt a 0 1` is literally `√a`. -/
+@[simp] theorem fieldUni_quadElt_root_val (a : ℚ_[2]) :
+    ((evenPolish_quadElt a 0 1 : ↥(quadField a)) : ℚ̄₂) = sqrtIn a := by
+  rw [evenPolish_quadElt_val, map_zero, zero_add, map_one, one_mul]
+
+/-- `√a`, as a unit of `ℚ₂(√a)`. -/
+def fieldUni_rootUnit {a : ℚ_[2]} (ha : ¬ IsSquare a) : (↥(quadField a))ˣ :=
+  Units.mk0 (evenPolish_quadElt a 0 1) (evenPolish_quadElt_ne_zero ha one_ne_zero)
+
+@[simp] theorem fieldUni_rootUnit_val {a : ℚ_[2]} (ha : ¬ IsSquare a) :
+    (((fieldUni_rootUnit ha : (↥(quadField a))ˣ) : ↥(quadField a)) : ℚ̄₂) = sqrtIn a := by
+  rw [fieldUni_rootUnit, Units.val_mk0, fieldUni_quadElt_root_val]
+
+/-- **`√a` is a uniformizer of `ℚ₂(√a)`**, packaged for `nu_ur_recip_of_decomp`. -/
+theorem fieldUni_rootUnit_lt_one {a : ℚ_[2]} (ha : ¬ IsSquare a)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) :
+    ‖(((fieldUni_rootUnit ha : (↥(quadField a))ˣ) : ↥(quadField a)) : ℚ̄₂)‖ < 1 := by
+  rw [fieldUni_rootUnit_val]
+  exact fieldUni_norm_sqrtIn_lt_one hna
+
+theorem fieldUni_rootUnit_max {a : ℚ_[2]} (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) (z : ↥(quadField a)) (hz : z ≠ 0) (h : ‖(z : ℚ̄₂)‖ < 1) :
+    ‖(z : ℚ̄₂)‖ ≤ ‖(((fieldUni_rootUnit ha : (↥(quadField a))ˣ) : ↥(quadField a)) : ℚ̄₂)‖ := by
+  rw [fieldUni_rootUnit_val]
+  exact fieldUni_sqrtIn_max ha hodd hna z hz h
+
+/-- **`√−2`**, as a unit of `ℚ₂(√−2)`; its norm is `2` exactly. -/
+def fieldUni_eltSqrtNegTwo : (↥KSqrtNegTwo)ˣ := fieldUni_rootUnit not_isSquare_neg_two
+
+/-- `N_{ℚ₂(√−2)/ℚ₂}(√−2) = 0 + 2 = 1 · 2`.  The unit part is `1` **on the nose**, which is what
+the level criterion needs. -/
+theorem fieldUni_norm_eltSqrtNegTwo :
+    normUnitsK KSqrtNegTwo fieldUni_eltSqrtNegTwo = unitEmbed (1 : ℤ_[2]ˣ) * uniformizer ^ 1 := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt (-2) 0 1)
+    = algebraMap ℤ_[2] ℚ_[2] ((1 : ℤ_[2]ˣ) : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ 1
+  rw [evenPolish_norm_quadElt not_isSquare_neg_two one_ne_zero]
+  simp only [Units.val_one, map_one, uniformizer_val]
+  norm_num
+
+/-- **THE PILOT ROW IS LEVEL ZERO.**  `√−2` lies in `ker χ` (its norm has unit part `1`) and has
+odd valuation, so `nu_ker_chi_le` collapses `B.r`. -/
+theorem fieldUni_level_sqrtNegTwo (B : MarkedRecip Rec KSqrtNegTwo) : B.r = 0 := by
+  refine fieldUni_level_eq_zero_of_decomp B fieldUni_eltSqrtNegTwo 1 fieldUni_eltSqrtNegTwo
+    ?_ (by rw [zpow_one, one_mul]) ?_
+    (fieldUni_rootUnit_lt_one not_isSquare_neg_two fieldUni_norm_neg_two)
+    (fieldUni_rootUnit_max not_isSquare_neg_two fieldUni_valuation_neg_two_odd
+      fieldUni_norm_neg_two)
+  · rw [fieldUni_chi_recip_of_norm B _ 1 1 fieldUni_norm_eltSqrtNegTwo, inv_one]
+  · rw [Units.val_one]
+    show ‖((1 : ↥KSqrtNegTwo) : ℚ̄₂)‖ = 1
+    rw [show ((1 : ↥KSqrtNegTwo) : ℚ̄₂) = 1 from rfl, norm_one]
+
+/-- **`2 + √2`**, as a unit of `ℚ₂(√2)`; its norm is `2` exactly. -/
+def fieldUni_eltSqrtTwo : (↥KSqrtTwo)ˣ :=
+  Units.mk0 (evenPolish_quadElt 2 2 1) (evenPolish_quadElt_ne_zero not_isSquare_two one_ne_zero)
+
+/-- **`1 + √2`**, the spectral unit of the factorization `2 + √2 = (1 + √2)·√2`. -/
+def fieldUni_cofactorSqrtTwo : (↥KSqrtTwo)ˣ :=
+  Units.mk0 (evenPolish_quadElt 2 1 1) (evenPolish_quadElt_ne_zero not_isSquare_two one_ne_zero)
+
+/-- `N_{ℚ₂(√2)/ℚ₂}(2 + √2) = 4 − 2 = 1 · 2`. -/
+theorem fieldUni_norm_eltSqrtTwo :
+    normUnitsK KSqrtTwo fieldUni_eltSqrtTwo = unitEmbed (1 : ℤ_[2]ˣ) * uniformizer ^ 1 := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt 2 2 1)
+    = algebraMap ℤ_[2] ℚ_[2] ((1 : ℤ_[2]ˣ) : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ 1
+  rw [evenPolish_norm_quadElt not_isSquare_two one_ne_zero]
+  simp only [Units.val_one, map_one, uniformizer_val]
+  norm_num
+
+/-- The factorization `2 + √2 = (1 + √2)·√2`, at the level of units. -/
+theorem fieldUni_eltSqrtTwo_decomp :
+    fieldUni_eltSqrtTwo
+      = fieldUni_cofactorSqrtTwo * (fieldUni_rootUnit not_isSquare_two) ^ (1 : ℤ) := by
+  apply Units.ext
+  rw [zpow_one, Units.val_mul]
+  apply Subtype.ext
+  show algebraMap ℚ_[2] ℚ̄₂ 2 + algebraMap ℚ_[2] ℚ̄₂ 1 * sqrtIn 2
+    = (algebraMap ℚ_[2] ℚ̄₂ 1 + algebraMap ℚ_[2] ℚ̄₂ 1 * sqrtIn 2)
+      * (algebraMap ℚ_[2] ℚ̄₂ 0 + algebraMap ℚ_[2] ℚ̄₂ 1 * sqrtIn 2)
+  rw [map_zero, map_one, zero_add, one_mul]
+  linear_combination (-1 : ℚ̄₂) * sqrtIn_sq 2
+
+/-- `‖1 + √2‖ = 1`: the cofactor is a spectral unit. -/
+theorem fieldUni_norm_cofactorSqrtTwo :
+    ‖((fieldUni_cofactorSqrtTwo : ↥KSqrtTwo) : ℚ̄₂)‖ = 1 := by
+  show ‖(evenPolish_quadElt 2 1 1 : ↥KSqrtTwo).val‖ = 1
+  rw [evenPolish_quadElt_val, norm_add_mul_sqrtIn fieldUni_valuation_two_odd one_ne_zero
+    one_ne_zero, GQ2.Dyadic.Fields.norm_algebraMap, norm_one, norm_mul,
+    GQ2.Dyadic.Fields.norm_algebraMap, norm_one, one_mul]
+  exact max_eq_left (le_of_lt (fieldUni_norm_sqrtIn_lt_one (a := 2) rfl))
+
+/-- **THE `ℚ₂(√2)` ROW IS LEVEL ZERO.** -/
+theorem fieldUni_level_sqrtTwo (B : MarkedRecip Rec KSqrtTwo) : B.r = 0 := by
+  refine fieldUni_level_eq_zero_of_decomp B fieldUni_eltSqrtTwo fieldUni_cofactorSqrtTwo
+    (fieldUni_rootUnit not_isSquare_two) ?_ fieldUni_eltSqrtTwo_decomp
+    fieldUni_norm_cofactorSqrtTwo (fieldUni_rootUnit_lt_one not_isSquare_two rfl)
+    (fieldUni_rootUnit_max not_isSquare_two fieldUni_valuation_two_odd rfl)
+  rw [fieldUni_chi_recip_of_norm B _ 1 1 fieldUni_norm_eltSqrtTwo, inv_one]
+
+end RamifiedRows
+
+/-! ## §4 `ℚ₂(√5)`: level zero from unramifiedness, and nothing else
+
+At the unramified row no element of odd valuation has a norm that is a power of `2`: the residue
+degree is `2`, so `v₂(N x) = 2 v_K(x)` is always even, and §3's criterion cannot be met by a norm
+computation alone.  What replaces it is the scalar `2` itself: `N_{K/ℚ₂}(2) = 2^{[K:ℚ₂]}`, whose
+unit part is `1`, so `2` always lies in `ker χ`, and it has `ν`-value `ofAdd(−1)` exactly when it
+is a **uniformizer** — which is unramifiedness.
+
+So the reduction is sharp and it is one line of arithmetic: at every `K` unramified over `ℚ₂`
+the marked level is zero, and `ℚ₂(√5)` needs precisely `fieldUni_TwoIsUniformizer KSqrtFive`.
+The tree does not carry that fact: `Fields.lean` §4's value-group work all runs under
+`Odd a.valuation`, which fails at `a = 5`, and `Fields.lean:243`'s `q_K = 4` is a docstring
+remark with no proof attached (contrast `qOf_KSqrt{NegTwo,Two,Ten,NegTen}`, which are theorems). -/
+
+section Unramified
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  {Rec : LocalReciprocity}
+
+open GQ2.Dyadic.LSquare
+
+/-- **`2` is a uniformizer of `K`** in the spectral spec of `MarkedRecip.nu_ur_recip_uniformizer`:
+the statement that `K/ℚ₂` is unramified, in the repository's norm-only idiom. -/
+def fieldUni_TwoIsUniformizer (K : IntermediateField ℚ_[2] ℚ̄₂) : Prop :=
+  ∀ z : ↥K, z ≠ 0 → ‖(z : ℚ̄₂)‖ < 1 → ‖(z : ℚ̄₂)‖ ≤ ‖(2 : ℚ̄₂)‖
+
+/-- `2`, as a unit of `K`. -/
+def fieldUni_twoUnit (K : IntermediateField ℚ_[2] ℚ̄₂) : (↥K)ˣ :=
+  Units.mk0 (2 : ↥K) two_ne_zero
+
+@[simp] theorem fieldUni_twoUnit_val (K : IntermediateField ℚ_[2] ℚ̄₂) :
+    (((fieldUni_twoUnit K : (↥K)ˣ) : ↥K) : ℚ̄₂) = (2 : ℚ̄₂) := by
+  rw [fieldUni_twoUnit, Units.val_mk0]
+  rfl
+
+/-- `N_{K/ℚ₂}(2) = 2^{[K:ℚ₂]}`, unit part `1`: the scalar `2` is in `ker χ_K` at every `K`. -/
+theorem fieldUni_norm_twoUnit :
+    normUnitsK K (fieldUni_twoUnit K)
+      = unitEmbed (1 : ℤ_[2]ˣ) * uniformizer ^ (Module.finrank ℚ_[2] K) := by
+  apply Units.ext
+  rw [Units.val_mul, normUnitsK_val, unitEmbed_val]
+  show Algebra.norm ℚ_[2] ((2 : ↥K))
+    = algebraMap ℤ_[2] ℚ_[2] ((1 : ℤ_[2]ˣ) : ℤ_[2]) * ((uniformizer : ℚ_[2]ˣ) : ℚ_[2]) ^ _
+  rw [show ((2 : ↥K)) = algebraMap ℚ_[2] (↥K) 2 by rw [map_ofNat], Algebra.norm_algebraMap]
+  simp only [Units.val_one, map_one, uniformizer_val, one_mul]
+
+variable [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+/-- **Unramified forces level zero.**  The general-`K` companion of
+`MarkedRecip.level_eq_zero_of_odd_finrank`: there the witness class is `rec(π·ũ)` with a scalar
+correction, here it is `rec(2)` with none, because `N(2)` is a power of `2` on the nose. -/
+theorem fieldUni_level_eq_zero_of_twoUniformizer (B : MarkedRecip Rec K)
+    (hmax : fieldUni_TwoIsUniformizer K) : B.r = 0 := by
+  refine fieldUni_level_eq_zero_of_decomp B (fieldUni_twoUnit K) 1 (fieldUni_twoUnit K)
+    ?_ (by rw [zpow_one, one_mul]) ?_ ?_ ?_
+  · rw [fieldUni_chi_recip_of_norm B _ 1 _ fieldUni_norm_twoUnit, inv_one]
+  · rw [Units.val_one]
+    show ‖((1 : ↥K) : ℚ̄₂)‖ = 1
+    rw [show ((1 : ↥K) : ℚ̄₂) = 1 from rfl, norm_one]
+  · rw [fieldUni_twoUnit_val]
+    exact GQ2.norm_two_lt_one
+  · intro z hz hlt
+    rw [fieldUni_twoUnit_val]
+    exact hmax z hz hlt
+
+end Unramified
+
+/-! ## §5 The five rows
+
+Two rows land with **no** clause at all; `ℚ₂(√5)` lands over one named unramifiedness Prop; and
+on the two procyclic rows the residual clause is restated as what §1 proves it to be, the level.
+
+The last point is not a reformulation for its own sake.  `Main.lean:136` puts `ℚ₂(√10)` on
+`.Mpc 2 1 false 1` and `Main.lean:137` puts `ℚ₂(√−10)` on `.Mpc 2 1 true 1`, and
+`Main.lean:228` proves those rows valid **with `1 ≤ r`**.  So the frozen table itself says the
+level is *not* zero at those two fields, and by §1 the `M0 2 0` clause of
+`fieldId_genAsmBranch_sqrt{Ten,NegTen}` is exactly `B.r = 0`.  The two statements are not
+contradictory in Lean (nothing in the tree pins `B.r` at those fields), but they cannot both be
+about the same bundle: whichever way the arithmetic falls, one of the two rows is vacuous.  §5.2
+says which, with the proof, in the module docstring's terms. -/
+
+section Rows
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {Rec : LocalReciprocity}
+
+/-- **THE PILOT ROW'S BRANCH DATUM, CLAUSE-FREE.**  `∃ G : GenAsmBranch, G.pres = .N0 2 0` at
+`ℚ₂(√−2)` over the field's own bundle and the standing instance binders, with nothing carried:
+wave 77's `hpair` is discharged by `fieldUni_level_sqrtNegTwo`. -/
+theorem fieldUni_genAsmBranch_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip Rec KSqrtNegTwo) :
+    ∃ G : GenAsmBranch KSqrtNegTwo B, G.pres = .N0 2 0 :=
+  fieldUni_genAsmBranch_of_orientedN_level_zero 2 (le_refl 2)
+    (by rw [finrank_KSqrtNegTwo]; rfl) (fieldUni_level_sqrtNegTwo B)
+    (fieldId_chosenEquivN_sqrtNegTwo B)
+
+/-- **THE `ℚ₂(√2)` ROW'S BRANCH DATUM, CLAUSE-FREE.**  Wave 77's `hpivot` is discharged by
+`fieldUni_level_sqrtTwo`. -/
+theorem fieldUni_genAsmBranch_sqrtTwo [T2Space (GalK KSqrtTwo)]
+    (B : MarkedRecip Rec KSqrtTwo) :
+    ∃ G : GenAsmBranch KSqrtTwo B, G.pres = .M0 3 0 :=
+  fieldUni_genAsmBranch_of_orientedM_level_zero 3 (by omega)
+    (by rw [finrank_KSqrtTwo]; rfl) (fieldUni_level_sqrtTwo B)
+    (fieldId_chosenEquivM_sqrtTwo B)
+
+/-- **The `ℚ₂(√5)` row's branch datum**, over the unramifiedness Prop alone. -/
+theorem fieldUni_genAsmBranch_sqrtFive_of_unramified [T2Space (GalK KSqrtFive)]
+    (B : MarkedRecip Rec KSqrtFive) (hur : fieldUni_TwoIsUniformizer KSqrtFive) :
+    ∃ G : GenAsmBranch KSqrtFive B, G.pres = .M0 2 0 :=
+  fieldUni_genAsmBranch_of_orientedM_level_zero 2 (le_refl 2)
+    (by rw [finrank_KSqrtFive]; rfl) (fieldUni_level_eq_zero_of_twoUniformizer B hur)
+    (fieldId_chosenEquivM_sqrtFive B)
+
+/-- **What wave 77's `ℚ₂(√10)` clause says**: it is the level equation, at the very equivalence
+wave 77 chose.  Read against `Main.lean:136`'s `.Mpc 2 1 false 1` (valid only with `1 ≤ r`). -/
+theorem fieldUni_level_zero_of_hpivot_sqrtTen [T2Space (GalK KSqrtTen)]
+    (B : MarkedRecip Rec KSqrtTen)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtTen B).1 (dmC 2 0))))) : B.r = 0 :=
+  fieldUni_level_zero_of_pivotM B _ hpivot
+
+/-- **What wave 77's `ℚ₂(√−10)` clause says**, likewise, against `Main.lean:137`. -/
+theorem fieldUni_level_zero_of_hpivot_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip Rec KSqrtNegTen)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtNegTen B).1 (dmC 2 0))))) : B.r = 0 :=
+  fieldUni_level_zero_of_pivotM B _ hpivot
+
+/-- **The `ℚ₂(√5)` clause, likewise**, so all five rows read in the same currency. -/
+theorem fieldUni_level_zero_of_hpivot_sqrtFive [T2Space (GalK KSqrtFive)]
+    (B : MarkedRecip Rec KSqrtFive)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtFive B).1 (dmC 2 0))))) : B.r = 0 :=
+  fieldUni_level_zero_of_pivotM B _ hpivot
+
+end Rows
+
 end
 
-/-! ## §6 Axiom pins -/
+/-! ## §6 Axiom pins
+
+Two sets, both already committed, and the split is exactly where wave 77 left it.
+
+* Everything about the **level** — §1's two equivalences, §3's criterion and the quadratic
+  uniformizer, §4's unramified reduction, and the two fields' level equations — is at the
+  standard three, `propext, Classical.choice, Quot.sound`.  So the arithmetic discharged here
+  costs no axiom.
+* The **`M`-row producers and branch data** carry `peripheralCyclotomicAction`, inherited from
+  `marked_matching_certificate_KTwoM_of_level_zero` (whose B8 transport supplies the M3 unit
+  scaling that `mMixHypothesis` supplied on the non-level-zero route).  The `N` row does not
+  carry it, matching wave 77's split.  The `√−2` pilot datum is therefore at the standard three
+  plus the even route's endpoint set, and nothing else. -/
 
 section AxiomPins
 
@@ -432,6 +721,37 @@ section AxiomPins
 -- §2 the level-zero producers
 #print axioms fieldUni_genAsmBranch_of_orientedM_level_zero
 #print axioms fieldUni_genAsmBranch_of_orientedN_level_zero
+
+-- §3 the level at a field
+#print axioms fieldUni_chi_recip_of_norm
+#print axioms fieldUni_level_eq_zero_of_decomp
+#print axioms fieldUni_norm_sqrtIn_lt_one
+#print axioms fieldUni_norm_two_le_sqrtIn
+#print axioms fieldUni_sqrtIn_max
+#print axioms fieldUni_norm_eltSqrtNegTwo
+#print axioms fieldUni_norm_eltSqrtTwo
+#print axioms fieldUni_eltSqrtTwo_decomp
+#print axioms fieldUni_norm_cofactorSqrtTwo
+#print axioms fieldUni_level_sqrtNegTwo
+#print axioms fieldUni_level_sqrtTwo
+
+-- §4 the unramified reduction
+#print axioms fieldUni_norm_twoUnit
+#print axioms fieldUni_level_eq_zero_of_twoUniformizer
+
+-- §5 the five rows
+#print axioms fieldUni_genAsmBranch_sqrtNegTwo
+#print axioms fieldUni_genAsmBranch_sqrtTwo
+#print axioms fieldUni_genAsmBranch_sqrtFive_of_unramified
+#print axioms fieldUni_level_zero_of_hpivot_sqrtFive
+#print axioms fieldUni_level_zero_of_hpivot_sqrtTen
+#print axioms fieldUni_level_zero_of_hpivot_sqrtNegTen
+
+-- the committed statements consumed, for the side-by-side
+#print axioms GQ2.Dyadic.marked_matching_certificate_KTwoM_of_level_zero
+#print axioms GQ2.Dyadic.marked_matching_certificate_KTwoN_of_level_zero
+#print axioms GQ2.Dyadic.FieldBranchId.fieldId_genAsmBranch_sqrtNegTwo
+#print axioms GQ2.Dyadic.FieldBranchId.fieldId_genAsmBranch_sqrtTwo
 
 end AxiomPins
 
