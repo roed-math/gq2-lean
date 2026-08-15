@@ -474,7 +474,33 @@ theorem mpcPiv_rows_sqrtNegTen (B : MarkedRecip R KSqrtNegTen)
 other input of wave 81 is now a theorem: the level (`mpcNorm_level_sqrtNegTen`), `λ(−1) = 1` and
 `λ(5) = 1` (`mpcNorm_lambdaOne_*_sqrtNegTen`), and the marking triple is discharged at `mpcNu`.
 So the whole `ε = true` row costs exactly one abstract move on `D_M 2 0`, uniform in the field
-and free of arithmetic. -/
+and free of arithmetic.
+
+⚠⚠ **[W84-HOUSE, as of `45f9c42d`: read the headline as a fact about the PROOF, not about the
+STATEMENT, which is the distinction wave 83 exists to enforce.**  The datum this proof builds is
+indeed at `mpcNu 2 1 (p true 1)`, and the producer it routes through
+(`mpcCert_genAsmBranch_of_orientedMpc`) now names that marking.  But the conclusion below is
+
+    `∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0`
+
+and `GenAsmBranch` does not pin `nuP`, so **this statement does not carry the marking**: the
+conjunct is dropped at the `Exists.imp` in the proof.  Consequently this theorem, exactly like
+its unconditional sibling `mpcPiv_genAsmBranch_sqrtNegTen`, is **UNTIED**, and it cannot be fed
+to `Instances.CanonicalRecords.canRec_rowResidual_of_tied`.  The two `√−10` statements differ in
+their hypothesis, not in their tie: one is conditional and untied, the other unconditional and
+untied.  So `ℚ₂(√−10)` has NO tied statement at this tree.
+
+Three prose sites assert the opposite and are wrong at the statement level:
+`Instances/CanonicalRecords.lean`'s per-row table reading 3, `docs/dyadic/w83-records-note.md`
+§0 ("routes through site 5 and therefore does carry `mpcNu`": the "therefore" is the error, since
+routing through a producer that names the marking does not make this conclusion name it), and
+`docs/dyadic/w83-orbit-note.md`'s five-row table ("tied form needs `MpcPivShift 2`").
+
+OWNER ITEM, one line of Lean, not takeable here because it is a statement change: add
+`∧ HEq G.nuP (mpcNu 2 1 (p true 1) _)` to the conclusion and delete the `Exists.imp`, which the
+proof already has in hand.  That would make this the genuine tied statement at the row and admit
+`ℚ₂(√−10)` to `CanonicalRecords` as a fifth row, modulo `MpcPivShift 2`.  Found by W84-HOUSE
+watch round 21.]** -/
 theorem mpcPiv_genAsmBranch_sqrtNegTen_of_shift (hshift : MpcPivShift 2)
     (B : MarkedRecip R KSqrtNegTen) :
     ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 := by

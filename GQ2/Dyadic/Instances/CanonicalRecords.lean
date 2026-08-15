@@ -64,6 +64,17 @@ Three readings worth keeping.
    cannot be tied.  The tied statement at that row is `mpcPiv_genAsmBranch_sqrtNegTen_of_shift`,
    conditional on `MpcPivShift 2`.
 
+   ⚠⚠ **[W84-HOUSE, as of `45f9c42d`: the last sentence is FALSE at the statement level.**
+   `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` concludes
+   `∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0` and nothing more: it routes
+   through the strengthened site 5, which does name `mpcNu 2 1 (p true 1)`, but then **drops the
+   conjunct** with `Exists.imp (fun _ hG => hG.1)`.  So it is untied too, and it cannot be fed to
+   `canRec_rowResidual_of_tied` below.  `ℚ₂(√−10)` has no tied statement at this tree; the two
+   statements it does have differ in hypothesis, not in tie.  This does not change which four
+   rows this module serves, only the reason the fifth is absent: it is not that the marking is
+   wrong, it is that no `√−10` statement carries any marking at all.  The repair is one line at
+   `Instances/MpcPivot.lean` and is an owner item, recorded there.]**
+
 ## Axioms
 
 `#print axioms` runs on every declaration in §6, with the split recorded there.
