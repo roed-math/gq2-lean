@@ -509,7 +509,7 @@ closing the degree-spelling mismatch between `Instances/N0Exact.lean`'s `exactLi
 
 ## Verification record
 
-* Lane `claude/w77-house`, base `1d3d5a84`.  Five commits, all path-limited.  **Not pushed.**
+* Lane `claude/w77-house`, base `1d3d5a84`.  SIX commits, all path-limited.  **Not pushed.**
 * **No `lake` command was run**; `scripts/check_dyadic.sh`, `scripts/check_axioms.sh` and
   `scripts/check_ledger.sh` were not run.
 * `scripts/mirror.sh sweep` once at lane start (**5883 artifacts**), then `scripts/mirror.sh
@@ -522,9 +522,21 @@ closing the degree-spelling mismatch between `Instances/N0Exact.lean`'s `exactLi
   GQ2/Dyadic/SqCore/GradedJoinBase.lean         OK   (48 pins printed)
   ```
 
-* **`GeneralAssembly.lean` is the wave's one non-comment edit, and it is confined to `#print
-  axioms` lines and one section docstring**, per the lane's stated exception.  The other two Lean
-  files are comment-only.
+* **Comment-only discipline, verified mechanically.**  Each edited `.lean` file was
+  comment-stripped (nested block comments, docstrings and line comments removed, string literals
+  respected, whitespace collapsed) and compared against its content at the lane base `1d3d5a84`:
+
+  ```
+  GQ2/Dyadic/SqCore/GradedClassFourCompose.lean   IDENTICAL
+  GQ2/Dyadic/SqCore/GradedJoinBase.lean           IDENTICAL
+  GQ2/Dyadic/GeneralAssembly.lean                 one pure addition, 0 deletions
+  ```
+
+  For `GeneralAssembly.lean`, the wave's one non-comment edit and the lane's stated exception, the
+  stripped diff is a **single addition hunk** with **zero deletions and zero modifications**, and
+  the only tokens it adds besides the 42 `#print axioms` lines and their declaration names are
+  `section`, `AxiomPins` and `end`.  So no statement, term, binder, name or proof changed anywhere
+  in this lane.
 * `GQ2.lean` was not touched.  Nothing under `GQ2/Roe/` was touched (plan A6).  Neither
   `SqCore/GradedBaseDecide.lean` nor `Instances/FieldBranchIdentification.lean` was created or
   touched; both were read from their sibling branches with `git show` only.
