@@ -106,6 +106,201 @@ theorem gGen_record_two : GGenRecord h 2 := by
 
 end RecordDef
 
+/-! ## §2 The record at every level: the engine induction
+
+The step `GGenRecord h j → GGenRecord h (j+1)` runs through the group itself.  The test
+subgroup `gGenTest` holds the `γ_{j+2}`-elements whose square and whose every bracket land
+in the target at level `j+4`; it is a subgroup because squaring and the near bracket slot
+are additive on `γ_{j+2}` modulo `γ_{j+4}` (`gTower_sq_congr`, `gTower_comm_near_add`), and
+it swallows `γ_{j+3}` outright.  The record one level down covers the whole of `γ_{j+2}` by
+the test subgroup: the three family checks are the engine (`gTower_engine_bracket`, one
+squaring peeled from the tower or the bracket), and every Hall-Petrescu correction dies
+because the near slot is at `γ_{j+1}` or deeper (`⁅γ_{j+1}, γ₂⁆ ≤ γ_{j+3}`).  Then the
+one-step generation `gFourFive_zLayer_le_gen` finishes. -/
+
+section RecordStep
+
+variable {h : ℕ}
+
+/-- `commP` commutes with the level projections. -/
+theorem gGen_mk_commP {n : ℕ} (a b : (DSq h : Type)) :
+    levelMk (DSq h : Type) n (commP a b)
+      = commP (levelMk (DSq h : Type) n a) (levelMk (DSq h : Type) n b) := by
+  simp only [commP, map_mul, map_inv]
+
+variable (h) in
+/-- **The test subgroup of the step**: the `γ_{m+2}`-elements whose square and whose every
+bracket land in `S` at level `m+4`.  A subgroup exactly because squaring and the near
+bracket slot are additive on `γ_{m+2}` modulo `γ_{m+4}`. -/
+def gGenTest (m : ℕ) (S : Subgroup (levelQuot (DSq h : Type) (m + 4))) :
+    Subgroup (DSq h : Type) where
+  carrier := {c | c ∈ twoCentralSeries (DSq h : Type) (m + 2) ∧
+    levelMk (DSq h : Type) (m + 4) (c ^ 2) ∈ S ∧
+    ∀ q : (DSq h : Type), levelMk (DSq h : Type) (m + 4) (commP c q) ∈ S}
+  one_mem' := ⟨Subgroup.one_mem _, by rw [one_pow, map_one]; exact S.one_mem, fun q => by
+    rw [cfour_one_comm, map_one]; exact S.one_mem⟩
+  mul_mem' := fun {c c'} hc hc' => ⟨Subgroup.mul_mem _ hc.1 hc'.1, by
+    rw [gTower_sq_congr (k := m + 2) (by omega) hc.1 hc'.1]
+    exact S.mul_mem hc.2.1 hc'.2.1, fun q => by
+    rw [gTower_comm_near_add (k := m + 2) (by omega) hc.1 hc'.1 q]
+    exact S.mul_mem (hc.2.2 q) (hc'.2.2 q)⟩
+  inv_mem' := fun {c} hc => ⟨Subgroup.inv_mem _ hc.1, by
+    rw [inv_pow, map_inv]; exact S.inv_mem hc.2.1, fun q => by
+    have hadd := gTower_comm_near_add (k := m + 2) (by omega) hc.1
+      (Subgroup.inv_mem _ hc.1) q
+    rw [mul_inv_cancel, cfour_one_comm, map_one] at hadd
+    rw [← inv_eq_of_mul_eq_one_right hadd.symm]
+    exact S.inv_mem (hc.2.2 q)⟩
+
+theorem gGen_mem_test {m : ℕ} {S : Subgroup (levelQuot (DSq h : Type) (m + 4))}
+    {c : (DSq h : Type)} :
+    c ∈ gGenTest h m S ↔ c ∈ twoCentralSeries (DSq h : Type) (m + 2) ∧
+      levelMk (DSq h : Type) (m + 4) (c ^ 2) ∈ S ∧
+      ∀ q : (DSq h : Type), levelMk (DSq h : Type) (m + 4) (commP c q) ∈ S := Iff.rfl
+
+/-- The test subgroup swallows `γ_{m+3}`: squares and brackets of `γ_{m+3}`-elements die
+at level `m+4`. -/
+theorem gGen_gammaSucc_le_test {m : ℕ} {S : Subgroup (levelQuot (DSq h : Type) (m + 4))} :
+    twoCentralSeries (DSq h : Type) (m + 3) ≤ gGenTest h m S := by
+  intro c hc
+  refine ⟨twoCentralSeries_antitone (DSq h : Type) (by omega) hc, ?_, fun q => ?_⟩
+  · rw [(lim_mem_twoCentralSeries_iff_levelMk (m + 4) _).mp
+      (sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) hc)]
+    exact S.one_mem
+  · rw [(lim_mem_twoCentralSeries_iff_levelMk (m + 4) _).mp (cfive_commP_mem_succ hc q)]
+    exact S.one_mem
+
+/-- Membership in the test subgroup only depends on the class one level down: the slack is
+a `γ_{m+3}`-element, which the test subgroup swallows. -/
+theorem gGen_mem_test_of_mk {m : ℕ} {S : Subgroup (levelQuot (DSq h : Type) (m + 4))}
+    {c : (DSq h : Type)}
+    (hmk : levelMk (DSq h : Type) (m + 3) c
+      ∈ Subgroup.map (levelMk (DSq h : Type) (m + 3)) (gGenTest h m S)) :
+    c ∈ gGenTest h m S := by
+  obtain ⟨u, hu, huc⟩ := hmk
+  have hz : u⁻¹ * c ∈ twoCentralSeries (DSq h : Type) (m + 3) := by
+    rw [lim_mem_twoCentralSeries_iff_levelMk, map_mul, map_inv, huc, inv_mul_cancel]
+  have hform : c = u * (u⁻¹ * c) := by group
+  rw [hform]
+  exact Subgroup.mul_mem _ hu (gGen_gammaSucc_le_test hz)
+
+/-- ⭐⭐⭐ **The engine step of the record**: `GGenRecord h j → GGenRecord h (j + 1)` for
+`j ≥ 2`.  His Lemma 3 step in one move: the record one level down covers `γ_{j+2}` by the
+test subgroup, whose three family checks each peel one squaring through
+`gTower_engine_bracket`, and the one-step generation finishes.  The Hall-Petrescu
+correction terms die at every application because the near slots sit at `γ_j` or deeper. -/
+theorem gGen_record_step {j : ℕ} (hj : 2 ≤ j) (IH : GGenRecord h j) :
+    GGenRecord h (j + 1) := by
+  intro S hpow hsq hbr
+  set U := gGenTest h j S with hUdef
+  -- §a: the `2^j`-power family lands in the image of the test subgroup
+  have hpow' : ∀ y ∈ lambdaImage (DSq h : Type) 2 (j + 3),
+      y ^ 2 ^ j ∈ Subgroup.map (levelMk (DSq h : Type) (j + 3)) U := by
+    rintro _ ⟨v, hv, rfl⟩
+    refine ⟨v ^ 2 ^ j, ?_, by rw [map_pow]⟩
+    obtain ⟨j', rfl⟩ : ∃ j', j = j' + 1 := ⟨j - 1, by omega⟩
+    have hmem : v ^ 2 ^ (j' + 1) ∈ twoCentralSeries (DSq h : Type) (j' + 3) := by
+      have hp := gDeep_pow_two_pow_mem hv (j' + 1)
+      rwa [(by omega : 2 + (j' + 1) = j' + 3)] at hp
+    refine ⟨hmem, ?_, fun q => ?_⟩
+    · -- the square is the next tower element: the new power family
+      have hsplit : (v ^ 2 ^ (j' + 1)) ^ 2 = v ^ 2 ^ (j' + 1 + 1) := by
+        rw [← pow_mul, ← pow_succ]
+      rw [hsplit, map_pow]
+      exact hpow _ ⟨v, hv, rfl⟩
+    · -- the bracket peels one squaring: engine at the half tower
+      have ht : v ^ 2 ^ j' ∈ twoCentralSeries (DSq h : Type) (j' + 2) := by
+        have hp := gDeep_pow_two_pow_mem hv j'
+        rwa [(by omega : 2 + j' = j' + 2)] at hp
+      have hhalf : v ^ 2 ^ (j' + 1) = (v ^ 2 ^ j') ^ 2 := by
+        rw [← pow_mul, pow_succ]
+      have heng := gTower_engine_bracket (k := j' + 2) (by omega) ht q
+      rw [hhalf, heng, map_pow, gGen_mk_commP]
+      exact hsq _ ⟨v ^ 2 ^ j', ht, rfl⟩ _
+  -- §b: the bracket-square family lands in the image of the test subgroup
+  have hsq' : ∀ w ∈ lambdaImage (DSq h : Type) j (j + 3), ∀ r,
+      (commP w r) ^ 2 ∈ Subgroup.map (levelMk (DSq h : Type) (j + 3)) U := by
+    rintro _ ⟨w, hw, rfl⟩ r
+    obtain ⟨r', rfl⟩ := levelMk_surjective (DSq h : Type) (j + 3) r
+    refine ⟨(commP w r') ^ 2, ?_, by rw [map_pow, gGen_mk_commP]⟩
+    have hb : commP w r' ∈ twoCentralSeries (DSq h : Type) (j + 1) :=
+      cfive_commP_mem_succ hw r'
+    have hw2 : w ^ 2 ∈ twoCentralSeries (DSq h : Type) (j + 1) :=
+      sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) hw
+    have htmem : commP (w ^ 2) r' ∈ twoCentralSeries (DSq h : Type) (j + 2) :=
+      cfive_commP_mem_succ hw2 r'
+    -- the engine identity one level down, as an exact factorization
+    have heng := gTower_engine_bracket (k := j) hj hw r'
+    have hz : (commP (w ^ 2) r')⁻¹ * (commP w r') ^ 2
+        ∈ twoCentralSeries (DSq h : Type) (j + 3) := by
+      rw [lim_mem_twoCentralSeries_iff_levelMk, map_mul, map_inv, heng, inv_mul_cancel]
+    have hfac : (commP w r') ^ 2
+        = commP (w ^ 2) r' * ((commP (w ^ 2) r')⁻¹ * (commP w r') ^ 2) := by group
+    refine ⟨sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) hb, ?_, fun q => ?_⟩
+    · -- the square of the bracket square: slack off the correction, then the new family
+      rw [hfac, gTower_sq_slack (k := j + 2) (by omega) htmem hz, map_pow, gGen_mk_commP]
+      exact hsq _ ⟨w ^ 2, hw2, rfl⟩ _
+    · -- brackets of the bracket square: the engine peels the square outright
+      have heng2 := gTower_engine_bracket (k := j + 1) (by omega) hb q
+      rw [heng2, map_pow, gGen_mk_commP]
+      exact hsq _ ⟨commP w r', hb, rfl⟩ _
+  -- §c: the double-bracket family lands in the image of the test subgroup
+  have hbr' : ∀ w ∈ lambdaImage (DSq h : Type) j (j + 3), ∀ r q,
+      commP (commP w r) q ∈ Subgroup.map (levelMk (DSq h : Type) (j + 3)) U := by
+    rintro _ ⟨w, hw, rfl⟩ r q
+    obtain ⟨r', rfl⟩ := levelMk_surjective (DSq h : Type) (j + 3) r
+    obtain ⟨q', rfl⟩ := levelMk_surjective (DSq h : Type) (j + 3) q
+    refine ⟨commP (commP w r') q', ?_, by rw [gGen_mk_commP, gGen_mk_commP]⟩
+    have hb : commP w r' ∈ twoCentralSeries (DSq h : Type) (j + 1) :=
+      cfive_commP_mem_succ hw r'
+    have hw2 : w ^ 2 ∈ twoCentralSeries (DSq h : Type) (j + 1) :=
+      sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) hw
+    have htmem : commP (w ^ 2) r' ∈ twoCentralSeries (DSq h : Type) (j + 2) :=
+      cfive_commP_mem_succ hw2 r'
+    have heng := gTower_engine_bracket (k := j) hj hw r'
+    have hz : (commP (w ^ 2) r')⁻¹ * (commP w r') ^ 2
+        ∈ twoCentralSeries (DSq h : Type) (j + 3) := by
+      rw [lim_mem_twoCentralSeries_iff_levelMk, map_mul, map_inv, heng, inv_mul_cancel]
+    have hfac : (commP w r') ^ 2
+        = commP (w ^ 2) r' * ((commP (w ^ 2) r')⁻¹ * (commP w r') ^ 2) := by group
+    refine ⟨cfive_commP_mem_succ hb q', ?_, fun q₀ => ?_⟩
+    · -- the square of the double bracket: engine once back to the bracket of the square
+      have heng2 := gTower_engine_bracket (k := j + 1) (by omega) hb q'
+      rw [← heng2, hfac, gTower_comm_near_add (k := j + 2) (by omega) htmem
+        (twoCentralSeries_antitone (DSq h : Type) (by omega) hz) q',
+        (lim_mem_twoCentralSeries_iff_levelMk (j + 4) _).mp (cfive_commP_mem_succ hz q'),
+        mul_one, gGen_mk_commP, gGen_mk_commP]
+      exact hbr _ ⟨w ^ 2, hw2, rfl⟩ _ _
+    · -- brackets of the double bracket: the new double bracket at the bracket slot
+      rw [gGen_mk_commP, gGen_mk_commP]
+      exact hbr _ ⟨commP w r', hb, rfl⟩ _ _
+  -- §d: the record one level down covers `γ_{j+2}` by the test subgroup
+  have hall : ∀ c ∈ twoCentralSeries (DSq h : Type) (j + 2), c ∈ U :=
+    fun c hc => gGen_mem_test_of_mk (IH _ hpow' hsq' hbr' ⟨c, hc, rfl⟩)
+  -- §e: the one-step generation finishes
+  refine gFourFive_zLayer_le_gen (G := (DSq h : Type)) (k := j + 2) (by omega)
+    (gTower_isClosed_subgroup S) ?_ ?_
+  · rintro _ ⟨c, hc, rfl⟩
+    rw [← map_pow]
+    exact (hall c hc).2.1
+  · rintro _ ⟨c, hc, rfl⟩ q
+    obtain ⟨q', rfl⟩ := levelMk_surjective (DSq h : Type) (j + 4) q
+    rw [← gGen_mk_commP]
+    exact (hall c hc).2.2 q'
+
+/-- ⭐⭐⭐ **The uniform generation record, at every level `j ≥ 1`** (Labute's Lemma 3,
+graded shadow): the two committed instances seed the engine induction. -/
+theorem gGen_record {j : ℕ} (hj : 1 ≤ j) : GGenRecord h j := by
+  induction j with
+  | zero => omega
+  | succ n ih =>
+    match n, ih with
+    | 0, _ => exact gGen_record_one
+    | 1, _ => exact gGen_record_two
+    | (n + 2), ih => exact gGen_record_step (by omega) (ih (by omega))
+
+end RecordStep
+
 end SqCore
 
 end Dyadic
