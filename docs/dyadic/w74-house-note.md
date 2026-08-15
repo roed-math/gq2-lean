@@ -27,7 +27,16 @@ the nine background-sweep findings (batch B).  Every one re-verified against the
 history before applying.  **All nine of batch B checked out**, three with corrections to the
 finding itself (§3).  Batch A's applications are tabulated in §2.
 
-**Ticket 3.**  Watch round 11 over the wave-73 landings: **N findings** (see §4).
+**Ticket 3.**  Watch round 11 over the wave-73 landings: **33 findings** (3 high, 6 medium, 12
+medium-low, 9 low, plus 3 background items outside the round's scope).  Four are applied here
+because they are the second half of a ticket-2 fix; the other 29 are **reported for wave 75**,
+which is the campaign's rhythm.  §4.  The one to read first:
+
+> **The ledger gate's fixture hook can make `check_dyadic.sh` print "all checks passed" with no
+> `lake` run**, contradicting both the script's own comment and the wave-73 house note, which say
+> it "can never be used to make the gate appear to pass".  The `SKIP: L1` line is visible in the
+> transcript, but the script still exits 0 and D6 reads only the exit code.  §4.4(a).  Fixing the
+> *script* is a behaviour change and is not proposed; the prose is.
 
 **Ticket 4.**  The two `q`s, `qOf K FF = 2^f` (residue cardinality) against `demushkinQ`
 (abelianization torsion): §5.
@@ -279,3 +288,461 @@ be applied.  In the order given:
    an error on the record), one is the corrected claim itself, and one is
    `w72-house-note.md:707`'s unrelated "all seven wave notes", a different denominator on a
    different subject.  `git log -S'seven waves'` confirms the correction landed at `f4a458a8`.
+
+## 4.  Ticket 3: watch round 11
+
+Scope: the wave-73 landings (`GradedClassFourCompose.lean`, `GradedClassFiveJoin.lean`,
+`EvenStratumShift.lean`, `scripts/check_ledger.sh` with `check_dyadic.sh`'s D6 block, and the
+three w73 lane notes).  The standing checklist was run in full and round 10's proposed fourth
+item, **a docstring can be attached to the wrong declaration**, was run for the first time.
+
+**Findings are REPORTED, not applied**, which is the campaign's rhythm: wave 73 reported round 10
+and this wave applied it.  Four exceptions are applied here and marked, because each is the
+*second half* of a fix this lane made under ticket 2 and leaving it would be the very defect the
+half-a-fix rule exists to catch.
+
+### 4.1  Applied here, because they are half-fixes of ticket 2's own edits
+
+**(a) HIGH.  Wave 72's §2.4 fell through every application pass, and three findings sat unapplied
+for two waves.**  `w72-house-note.md` carries six labelled sections; wave 73's ticket 1 covered
+§2.2, §2.3 and §2.4b (33 findings) and said so accurately.  **§2.4 was in nobody's scope.**  Its
+(d) and (e) were self-applied when written, but (a), (b) and (c) are `EvenAlphaOne.lean` prose and
+all three were still live at `4fff1592`:
+
+* `:668` said computing `demushkinQ` at `α = 1` "is a separate step that this file does not take",
+  with no record that the step **was** taken later in the same wave by
+  `nFrame4_demushkinQ_DN_one`.  Its sibling `EvenDemushkin.lean:252` was updated at the time; this
+  file was not, which is exactly the asymmetry §2.4(a) reported.
+* `:674` recorded the classification at `α = 1` as open in both halves; wave 71's
+  `evenStratum_no_adaptedModelEquiv` closes the **frame** half negatively for the committed route.
+* `:689` cited its own §10.3 for the missing frame inputs; §10.3 is about `MarkedCore.NFrame`, and
+  the classification's frame is `StageGeneric.Frame`, a different structure with no torsion slot.
+  `NFrame` is taken as a *term* by exactly three declarations tree-wide, none in the stage layer.
+
+All three applied, comment-only.  The process lesson is §2.4's own subject turned on the audit:
+**a scoped application pass leaves a residue unless the scope is reconciled against the finding
+list.**  Round 12 should reconcile before it starts.
+
+**(b) HIGH.  "Class four itself, unchanged" recurs at `w73-five-note.md:152`**, one wave after the
+`w72-five-note.md:174` copy this lane corrected under batch B finding 4.  Found by grepping the
+corrected phrase.  It was falsified **4 min 41 s** after the note landed (`56db0e02` 18:56:31,
+`0063dc8c` 19:01:12) by the parallel W73-KNOB lane: `cfourCmp_core_reduce` turns the class-four
+relator into `cfourDefCore nu' j` on the nose, and `cfourCmp_zLayer_le_triple` reduces the three
+uniform questions to one.  The *lack* survives (`SqClassClearingSupply h 4` is still neither
+discharged nor refuted); only "unchanged" is false.  Applied, with the companion sentence
+("whether they are the same obstruction should not be assumed") now read against the owner's
+wave-73 status, which records the convergence the other lane established.
+
+**(c) MEDIUM.  All three wave-73 lane notes reported their module unregistered, and all three were
+registered within about a minute.**  `959e22aa` 69 s after the five note, `5d7ce5c9` 73 s after the
+knob note, `608d3ded` 73 s after the stratum note's final amendment.  So wave 72's `NuSeeds`
+lesson took at the lane level *and* at the orchestrator level; what is missing is only the
+annotation afterwards.  Annotated in all three.  **Null result attached**: recomputed at this tree,
+the import closure of `GQ2.lean` is 928 of 929 modules and the single exclusion is
+`GQ2.AxiomLedger`, which is deliberate.  There is no second `NuSeeds` today.
+
+**(d) MEDIUM.  `w73-house-note.md`'s wave-74 queue item 1 was half-discharged 9 minutes after it
+was written.**  It asked for the ledger gate to be run, because "whether the ledger passes today is
+unverified by me".  The owner's wave-73 status (`4fff1592` 19:23:46, against the house merge
+`78d14ece` 19:14:45) records the gate "exercised for the first time this wave: 32078 declarations,
+no gap-map entries, no alarms, no terminal violations".  So the **ledger** ran and passed, and
+§2.3's third bullet is superseded.  Corroboration that the figure is the wave-73 tree:
+`32078 − 31954 = 124` against the wave's three new modules carrying 55, 35 and 33 declarations.
+**What is not stated is whether it ran through D6**, which is what the item actually asked; if the
+owner invoked `lake env lean GQ2/AxiomLedger.lean` directly, the four `sed` extractors remain
+unexercised.  Annotated, and the item stands in that narrower form.
+
+### 4.2  `GradedClassFiveJoin.lean` and `GradedClassFourCompose.lean`
+
+**(a) MEDIUM.  `SqClassClearingSupply h 5` is said to be "conditional on class four"; it is not.**
+`GradedClassFiveJoin.lean:79-81` and, second site, `w73-five-note.md:31`.  `SqClassClearingSupply
+h k` (`GradedLimit.lean:236`) is a standalone per-class `Prop` and at `k = 5` mentions no
+class-four object; `cfiveKnob_supply_of_reach` (`GradedGammaFourFive.lean:728`) binds only `H`,
+and **its own docstring says the opposite of this file**: "No class-four witness is presupposed:
+the base dressing is existentially quantified."  What is true is about the *assembly*:
+`limFinal_markTransitivity_iff` consumes `∀ k, SqClassClearingSupply h k`, so class five alone
+does not deliver the residual.  Correction: "…presupposing no class-four witness, and which enters
+`limFinal_markTransitivity_iff` only alongside every other class, class four included."
+
+**(b) MEDIUM.  The header says the pairing drives all four square families; two of them use no
+pairing.**  `GradedClassFiveJoin.lean:56-58`.  Only families one and two run through
+`cfiveJoin_pow_four_iff` (`:411`, `:419`); three and four are `cfiveJoin_defect_pt_iff` at a single
+`x₁`-slot knob (`:427`, `:435`).  **The file contradicts its own header twice**, at the §6 section
+docstring (`:374`) and at the family-three docstring (`:422`, "with no pairing"), and the lane note
+has it right (`w73-five-note.md:71`).  Sub-item, LOW: the same sentence cites
+`cfiveSpan_pair_correction` where the proof consumes `cfiveJoin_pair_correction` (`:395`), the §5
+form with the second bracket already evaluated away.
+
+**(c) MEDIUM-LOW.  A section pointer that drifted inside its own wave.**
+`GradedClassFiveJoin.lean:117-119` says "the form the partial results of §5 need"; §5 is the
+pairing and none of its four results touches `cfiveJoin_ad_far_mem`.  The consumers are §6's
+`cfiveJoin_family_five_of_span` and `..._six_of_span`.  At the lane's first commit `bd4fd2a0` the
+file had only §1-§4 and this was a forward reference; `22ad6762` landed the pairing as §5 and
+pushed the families to §6, leaving the pointer one section short.  Worth noting that wave 73 fixed
+two instances of exactly this class in other files (`d484d195`, `77113582`) while creating this
+one.
+
+**(d) MEDIUM-LOW.  "Unconditionally" on a theorem that binds two normalization hypotheses.**
+`GradedClassFourCompose.lean:541`: "`cfourCmp_core_reduce` supplies such a correction
+unconditionally".  It binds `hsigma` and `hx0` (`:493`).  Harmless in effect, because
+`CfourCmpResidual` binds the same two, which is why they feed straight through; but
+"unconditionally" is precisely the word this checklist exists to catch, and the lane note is
+careful where the module is not ("at every selected marking and every handle").
+
+**(e) MEDIUM-LOW.  A sign error in the parity display, which then makes "(mod γ₂)" too weak.**
+`GradedClassFourCompose.lean:38` writes `+ 2·ν'(u_j)·ν'(v_j)·w`.  `bridgeDress` is
+`u_j^{ν'(v_j)}·v_j^{ν'(u_j)}·w^{−2·ν'(u_j)·ν'(v_j)}` (`GradedBridge.lean:337`) and the cleared
+letters are `V_j = v_j·w^{−ν'(v_j)}`, `U_j = w^{−ν'(u_j)}·u_j` (`LamFrames.lean:293`), correctly
+restated **in this same file** at `:374` and `:384`.  With the sign fixed the displayed equality
+holds exactly mod `γ₂`; as printed it holds only modulo squares, which the tag does not license.
+Second site `:399-403` flips both signs again and reverses `U_j`'s factor order, defensible only
+because it hedges with "modulo squares"; the file should not carry two conventions for the same two
+letters.  Third site `w73-knob-note.md` §2 carries the display with the full hedge and is fine.
+
+**(f) MEDIUM-LOW.  "The generation condition **is** mod-2 independence": only one direction is
+committed.**  `GradedClassFiveJoin.lean:71`, and two more sites at `:563` and `:622`.
+`cfiveJoin_topGen_of_modTwoIndep` (`:586`) proves `SqModTwoIndep → topGen` and nothing else.  The
+converse is true mathematically but is nowhere in the tree.  The lane note is careful
+(`w73-five-note.md:113`, "the density hypothesis is therefore `SqModTwoIndep`").  Correction:
+"follows from".
+
+**(g) MEDIUM-LOW, and it is the round's clearest ⚠ do-not-apply.**  `GradedClassFourCompose.lean:32`
+and `:394`: the handle-pair correction's entries are said to be "`1` or `c`".
+`cfourCmp_dress_reach` (`:410`) concludes only that both entries are *admissible*; `a, b ∈ {1, c}`
+is a fact about the proof's four parity branches and **a consumer cannot use it**.  Making the
+prose true would mean strengthening the conclusion, so the prose is what moves.  Second site:
+`w73-knob-note.md` §2 states it as a displayed identity with `a, b ∈ {1, c}` as a side condition.
+
+**(h) LOW.  `GradedClassFourCompose.lean:799` numbers its pins section §9 in a file whose sections
+run §1 to §6.**  Across the 40 `SqCore` modules with a pins block this is the only numbering gap.
+
+**(i) LOW.  An over-broad reason for stating all of §6 at `D_sq h`.**  `:83-85` says the §6 results
+"consume discreteness of `Q₄` through `cfourId_isClosed`".  True of the three layer results, false
+of `cfourCmpTest` (`:607`) and `cfourCmp_mem_test` (`:622`), which consume only lemmas stated over
+an arbitrary topological group.  ⚠ Do not "fix" by generalizing `cfourCmpTest`; that is a statement
+change.
+
+**(j) LOW.  A containment described as an identity.**  `GradedClassFiveJoin.lean:133`: "the reached
+far slots **are** the closed span of `X ∪ Y`".  `cfiveJoin_ad_far_lambdaTwo` proves one direction;
+nothing shows a far slot outside the span is unreached.  The §1 section docstring at `:102` has it
+right.
+
+**(k) LOW.  A wave-71 pairing credited to wave 70's inventory.**  `GradedClassFourCompose.lean:704`.
+`hbPow`'s element is the **product of two** wave-70 `x₁`-slot knobs by `cfourKnob_sq_knob_pair`,
+whose own docstring says "this is the step the wave-70 §4 analysis was missing".  The bullet just
+above names the pairing, so only the summary sentence drifts.
+
+### 4.3  `EvenStratumShift.lean`
+
+**(a) MEDIUM-LOW.  "Exactly the `zLayer`-valued ones" sits on a one-way inclusion.**  `:815-817`,
+on `evenStratum_zLayerNeutral_reaches_iff`.  Only `zLayer`-valued ⇒ 0-neutral is proved
+(`evenStratumNeutralOfZLayer`, `:802`); the converse does not follow, since
+`EvenSharpNeutralCorrection` demands only `correction i ∈ lambdaImage G (k−1) (k+1)` plus a digit
+condition, and a coordinate in `λ_{k−1} \ λ_k` can satisfy both.  **The module's own docstring has
+the safe form at `:34`** ("the neutral corrections depth zero supplies for free all have trivial
+shift word").  The downstream inference uses only the proved direction, so the mathematics is
+sound.
+
+**(b) MEDIUM-LOW.  A use-site pointer names the wrong subsection, in two places.**  `:531` says
+`evenStratum_levelTwoGen_of_realizers`'s hypotheses are "exactly how §5.2 uses it"; its sole call
+is at `:608`, inside §5.1's `evenStratum_frame_of_gramOne_modelEquiv`.  §5.2's only theorem calls
+the two model-equivalence results and never the realizer lemma.  Second site
+`w73-stratum-note.md:110`.
+
+**(c) MEDIUM-LOW.  "Re-declared because the originals are `private`" is true of one helper and
+false of the other.**  `:75`.  `evenStratumShiftAssemble` is statement-identical to the private
+`evenRawShiftAssemble`.  `evenStratumShiftAssembleOne` is **not** a re-declaration: the private
+`evenRawAssembleN` takes six elements with two commutation hypotheses, and the new lemma deletes
+the `A` slot, the diagonal atom, leaving five elements, one hypothesis and a different conclusion.
+That is the lane's own `α = 1` analogue, and calling it a re-declaration hides the one place the
+`α = 1` shape shows up in the plumbing.
+
+**(d) LOW.  §1's headline states the product in the opposite order to the theorem, with no
+centrality to license the swap.**  `:121`: "the `α ≥ 2` core block is the `α = 1` one **times the
+diagonal atom**"; `evenStratumShift_coreDbarWord_eq` puts the atom on the **left**, and carries no
+depth hypothesis, so the atom is not known central.  §2's twin gets it right at `:171`, and the
+theorem name `evenStratumShift_dbarWord_eq_diagonalAtom_mul` encodes that order.
+
+**(e) LOW.  "`StageAbstractionEvenRawSpan.lean` §0" cites a section that does not exist, at five
+sites.**  That file's headers run §1 to §6; the cited material is in its **module docstring**.  The
+line numbers themselves resolve exactly and say what is claimed.  The label misdirects because the
+repo does use `§0` as a real heading elsewhere (`AdmissibleR.lean:77`,
+`OrientedTameBundle.lean:82`).  Sites: `EvenStratumShift.lean:15`, `w72-stratum-note.md:134` and
+`:248` (which additionally cites "lines 44-45", one line short of the sentence),
+`w73-stratum-note.md:16` and `:202`.  Inherited from wave 72 and propagated by wave 73.
+
+**(f) LOW.  "Literal shift" applied to `evenRawDbarWord` inside the module that proves it is not
+the literal shift at `α = 1`.**  `:779` and the §6 header bullet at `:707`.  The term is the repo's
+own (`StageAbstractionEvenSharpHandles.lean:421`), so this is inherited rather than invented, and
+the content is unaffected.  But §2 of this very file measures the gap.
+
+**(g) LOW.  An unproved superlative.**  `:201`, "the smallest one does: the cyclic group of order
+eight".  Nothing proves minimality, and read literally the smallest profinite group is trivial.
+Second site `w73-stratum-note.md:41`.
+
+**(h) MEDIUM-LOW, mine.  A shortened citation that does not resolve.**  `w73-stratum-note.md:225`
+cites `evenRawShiftSpan_eq_zLayer`; the declaration is `evenRawShiftSpan_eq_zLayer_of_pureSquares`.
+**Second site**, and presumably the source: `StageAbstractionEvenRawSpan.lean:57`'s own contents
+list uses the same shortened name.
+
+### 4.4  `scripts/check_ledger.sh` and `check_dyadic.sh`'s D6
+
+**(a) HIGH, and the round's sharpest item.  The fixture hook is documented as unable to make the
+gate pass.  It exits 0 and prints "all checks passed".**  Two sites:
+`check_ledger.sh:66` ("It is not a way to pass the gate: L1 is explicitly marked skipped in the
+output") and `w73-house-note.md:204` ("it can never be used to make the gate appear to pass").
+
+In the fixture branch (`check_ledger.sh:80-86`) `fail` is never set; the branch only echoes
+`SKIP: L1`.  L2/L3/L4 and the scanned count are then parsed **out of the fixture**, so on a clean
+fixture the script prints `check_ledger: all checks passed` and exits **0**.  D6 keys on that exit
+status alone (`check_dyadic.sh:319`), and the environment is inherited by `bash "$LEDGER_SCRIPT"`.
+Therefore
+
+```
+GQ2_LEDGER_GATE=1 GQ2_LEDGER_FIXTURE=passing.txt bash scripts/check_dyadic.sh
+```
+
+prints `OK: scripts/check_ledger.sh passed`, then `check_dyadic: all checks passed`, exit 0, with
+no `lake` run at D6.  An exported stale `GQ2_LEDGER_FIXTURE` green-lights the gate silently, and
+**D6's comments never mention the variable**.  The transcript does carry the `SKIP: L1` line, so a
+*reader* can tell; a script or a person reading the exit code cannot.
+
+⚠ **Do not "fix" the sentence by fixing the script.**  Exiting non-zero under a fixture, or
+refusing the fixture when `GQ2_LEDGER_GATE=1`, is a **behaviour** change.  The prose is what moves:
+say that the skip is visible in the transcript but not in the exit code, that the exit code is what
+D6 reads, and that the variable must never be set in a merge run; and name
+`GQ2_LEDGER_FIXTURE` in D6's own comment as an inherited override that bypasses `lake`.
+
+**(b) MEDIUM.  The `ax1-proposal.md` citation, at three sites: there is no §"Merge gate", and the
+cited text is one *alternative* route's landing checklist.**  `check_ledger.sh:9`,
+`check_dyadic.sh:69`, `w73-house-note.md:146`.  `ax1-proposal.md`'s headings run §1 to §8 with no
+such section; `:489` is item 4 of **Route R** inside §7's census-flip checklist, and the
+**recommended** Route D's gate item (`:468`) lists the full build, `check_axioms.sh` and zero
+sorries, with no ledger.  `plan.md` §7's ten numbered merge gates do not list it either.  The
+line-number citation is exact; only the characterisation over-generalises.  Supporting, and worth
+its own look: that checklist is itself stale, saying "`EXPECTED_AXIOMS` stays **9**" against
+`check_axioms.sh:28`'s `EXPECTED_AXIOMS=11` since the AX3/AX4 flips.
+
+**(c) MEDIUM.  Both scripts justify D6's opt-in status by "lanes must never run `lake`", while the
+default path they describe runs `lake env lean` twice.**  `check_ledger.sh:20-27` and
+`check_dyadic.sh:18-22`, `:311`.  `check_dyadic.sh:173` runs `check_axioms.sh` unconditionally, and
+that script's check 5 (`:280`) and check 5b (`:363`) both invoke `lake env lean`.  Wave 73's house
+note records this as its protocol finding; **neither script does**, and the rule is stated nowhere
+else.  D6 does not add to the exposure, so the prose fix is to say so.
+⚠ Making the default path actually lake-free is a behaviour change to `check_axioms.sh`.
+
+**(d) MEDIUM-LOW.  The note's self-skip description drops a disjunct and the nesting.**
+`w73-house-note.md:211`: "Those blocks skip only when [two oleans] are missing."  Check 5's test is
+`! command -v lake || [ ! -f …Roe/Main.olean ]`, so it also skips when `lake` is off PATH; and
+check 5b sits **inside** check 5's else-branch, so its own olean test is nested, not conjoined.
+("Both are present in this worktree" is correct.)
+
+**(e) MEDIUM-LOW.  "One extra SKIP line" is four lines, and "naming the script and the flag" names
+the environment variable, not the flag.**  `check_ledger.sh:31`, `check_dyadic.sh:26`.  The SKIP
+branch is four `echo`s and never prints `--ledger`, which the same script calls "the flag" at
+`:98`.  Also "exactly the checks it ran before this script landed" is not quite right for a
+non-empty argv: the new argument loop exits 2 on any argument, where the pre-wave-73 script ignored
+them.
+
+**(f) MEDIUM-LOW.  L1's "already means" lists three causes; a nonzero exit has at least five.**
+`check_ledger.sh:39`, repeated at `w73-house-note.md:149`.  `AxiomLedger.lean` also `throwError`s
+on the private-tracking regression (`:88`) and on an unknown declaration (`:154`), and any
+elaboration failure exits nonzero.  **The script's own FAIL text at `:96` already says the honest
+version**, so this is a header/behaviour mismatch inside one file.
+
+**(g) LOW.  D6's one-line summary omits the "missing line is a FAILURE" behaviour.**
+`check_dyadic.sh:67`.  `check_ledger.sh` also fails when any report line is absent or reshaped, a
+property its own header stresses at `:105`.
+
+### 4.5  Background items, outside the round's scope, reported only
+
+* **LOW-MEDIUM.  `GQ2/AxiomLedger.lean:14` and `:49` say "the nine literature axioms"**, against
+  the same file's `:41` ("the axiom census (currently eleven)"), its own eleven `bAxioms` entries,
+  the eleven `axiom` declarations in `GQ2/Foundations/Axioms.lean`, and
+  `check_axioms.sh:28`'s `EXPECTED_AXIOMS=11`.  Eleven is right; the two "nine"s are stale at the
+  AX3/AX4 flips.  **This is the file the new gate audits**, which is why it is worth the
+  orchestrator's minute.
+* **LOW.  `StageAbstractionEvenRawSpan.lean`'s Contents list (`:48-59`) is shifted against its own
+  headers**: seven items against six sections, with its "§7 axiom pins" being the real §6.  Nothing
+  downstream is wrong, because `EvenStratumShift.lean:74`'s citation is against the headers.
+* **LOW, and it is a Lean-source item, not prose.**  `EvenStratumShift.lean:416`'s
+  `private abbrev evenStratumPlane` is used nowhere in the file.  ⚠ Removing it changes the source,
+  so it is reported only.
+
+### 4.6  What came up clean
+
+Said in detail, because a round that reports only hits is not a check.
+
+* **Counts: clean, every one of them, and this is the round's strongest positive result.**
+  Recounted independently at this tree:
+  `GradedClassFiveJoin.lean` **33 declarations, 33 pins**, matching `w73-five-note.md` §7 exactly;
+  `GradedClassFourCompose.lean` **35 and 35**, matching `w73-knob-note.md` §8 exactly;
+  `EvenStratumShift.lean` **55 = 44 named public + 6 private + 5 anonymous instances**, with
+  **47 pins = 44 + 3 comparison statements**, matching `w73-stratum-note.md`'s headline and its
+  §4 sentence *both*.  Note the third of these is the count shape that batch B finding 8 caught
+  wrong in the wave-72 note ("34 declarations" for 34 pinned theorems against 38 declarations), so
+  the obvious question is whether that defect is systemic.  **It is not**: I re-derived
+  `w71-cfour-note.md:199`'s "21 declarations, 21 axiom pins" (exact) and `w70-cfour-note.md:244`'s
+  "46 declarations, 46 pins" (exact, and correctly summed across *two* modules, 14 in
+  `GradedGammaThreeFour` plus 32 in `GradedClassFourIdentity`).  One-off, now corrected.
+* **Lane bases: clean.**  `6a8fbc90` is an ancestor of the first commit of all three wave-73
+  lanes, as all three notes claim.  All three lanes' code commits are single-file, so "New module;
+  no edits to existing files" is exact in all three.
+* **Citations in the three lane notes: clean but for one.**  I extracted every backticked
+  snake_case identifier from the three notes and checked each against a 25 994-name index of the
+  tree's declarations and structure fields.  The only genuine miss is the shortened name of
+  §4.3(h).  Everything else that failed the index was
+  mathematical notation (`U_j`, `u_j`, `c_U`, `Q_4`, `lambda_k`), a Lean tactic (`native_decide`)
+  or a mathlib lemma (`continuous_of_discreteTopology`).  `w73-stratum-note.md`'s five-hash commit
+  list was verified commit by commit and is exact, including that `a4d7ad06` is the stratum lane's
+  own commit and not the house lane's despite sitting immediately below the house merge.
+* **Headline-vs-statement on the two ⭐⭐⭐ headlines I checked by hand: clean.**
+  `cfiveJoin_zLayer_le_iff` really is an `iff` in both directions with the four hypotheses the
+  note's blockquote lists; `cfourCmp_core_reduce` really does conclude
+  `sqRelWord (…) = cfourDefCore nu' j`, and although its §0 blockquote omits `hsigma`/`hx0`, §3 of
+  the same note supplies them ("at every selected marking and every handle").
+* **The docstring-on-the-wrong-declaration check, run for the first time on new landings: clean.**
+  Round 10 found one instance in a wave-72 module and proposed the check; run over both wave-73
+  graded modules it produced no hit.  The three findings it did produce (4.2(b), (c), (j)) are
+  headline-vs-statement and pointer defects, not misattachment.
+* **Hypothesis satisfiability: clean on both graded modules.**  `hgen` is not an unsatisfiable rank
+  demand (it is discharged from `SqModTwoIndep`, which has committed witnesses); the knob clauses
+  are met by the knob subgroup itself; the closedness clauses are genuinely free at `D_sq h`; and
+  `cfourCmp_zLayer_le_gens` fires at `S = ⊤` and is consumed non-vacuously.  This matters because
+  it is the item that produced batch A's §3.1(d).
+
+## 5.  Ticket 4: the two `q`s
+
+`qOf K FF = 2^f` (`OrientedTameBundle.lean:178`), the residue cardinality that the relator
+`τ^σ = τ^q`, `GammaR n q word`, `candidateGroup 2 (qOf K FF) word` and `params.qK` all use, is
+written `q_K` when the campaign is careful.  `demushkinQ` (`Demushkin.lean:224`), the order of the
+torsion subgroup of the abelianization, is the other one.  I swept `docs/dyadic/` and the Lean
+docstrings under `GQ2/Dyadic/` for bare `q` uses ambiguous between them.
+
+**Fourteen sites disambiguated.**  Three are flatly wrong under the other reading, not merely
+unclear:
+
+1. **`Q₂(ζ₈)` "has `q = 8`"**, in two places, one of them a shipped module docstring
+   (`w72-stratum-note.md:163`, `EvenStratumFrame.lean:488`).  True of `demushkinQ`; **false** of
+   `q_K`, which is `2` there, `Q₂(ζ₈)/Q₂` being totally ramified of degree 4.  The sentence's own
+   preceding clause is "about the family, not about fields", which pushes the reader into the
+   field convention one word before contradicting it.  Both now say `demushkinQ` and give `q_K`.
+2. **`SqCore/Rank3.lean:182`** overloads both letters in one clause: "`(p, rank, q, im χ) =
+   (2, 3, 2, ℤ₂ˣ)`, the odd-rank `q = 2`, `f = 2` type".  That `f` is Labute's *image* invariant,
+   not the residue degree of `q_K = 2^f`, so under the tame convention the pair reads `2 = 4`.
+   The same file writes `τ^σ = τ^{q_K}` at `q_K = 2` thirty lines earlier.  Now spelled out.
+3. **`owner-items-2026-08-05.md:165`**, the label "the `q = 4` ramified Arf sign", is the
+   **residue cardinality** (its own §1 proves the Arf statement holds at `q = 2^f` only for `f`
+   odd and is false at `q = 4`), while nineteen lines above, `:146`'s bare `q = 4` is
+   `demushkinQ (D_N 1 h)`.  Two opposite invariants, same spelling, nineteen lines apart, and the
+   label then recurs unglossed five more times several hundred lines later.  Glossed once at the
+   label, which covers all five back-references.
+
+Eleven more where the wording mimics the other invariant's defining formula or sits in a
+Demushkin-primed run: `ev4b-stage-abstraction.md:296`, `w69-unram-note.md:24` and `:71`,
+`NFrameAlphaOne.lean:103`, `EvenStratumFrame.lean:71`, `w71-stratum-note.md:143`,
+`followup/glab-ksupply-plan.md:174`, `tickets.md:1850`, `sq-design.md:344`, `cb-design.md:528`.
+The recurring shape is `q = 2^b` or `q = 2^α`, which is character for character `qOf K FF = 2^f`.
+
+**Structural fix.**  The two notes that spend the most words on `q` (`w69-unram-note.md`,
+`w72-stratum-note.md`) each carry exactly one gloss near the top and then run 100 to 150 lines on
+bare `q`; that is why their tail-end sites are the ones that break.  Both now carry a two-line
+gloss under the headline naming both invariants, which retires the rest of their bare uses at
+once.  I checked before adding it that neither note uses bare `q` for the residue cardinality
+anywhere.
+
+**What came up clean, and it is most of the tree.**  Roughly 93 `q = N` sites and 40 bare
+`` `q` `` sites in the docs, of which 21 were judged ambiguous; about 347 prose `q`-mentions in
+the Lean docstrings, of which 14.  The reason the rest are safe is worth recording, because it is
+a convention that works: on the tame side `q` is a *binder of the declaration the docstring
+heads*, so the statement disambiguates the prose; and on the Demushkin side the campaign's habit
+of putting "Demushkin", "Labute" or "torsion" in the same clause carries the reading.  Four files
+are models of the practice and were left untouched: `followup/demushkin-q-status.md`, which states
+the hazard outright and lists both definitions side by side; `followup/labute-interface-status.md`;
+`ax3-proposal.md`, which writes `q_K` uniformly including in its per-field table; and `plan.md`
+with `literature-axioms-dyadic.md`, whose `:144` even flags the adjacent trap ("never through
+`qK`: `ℚ₂(√5)` has `q_K = 4` yet `i ∉ K`").
+
+**One thing found and not fixed, for the owner.**  `mc-design.md:334` and `:358` use `q ∈ ℤ₂` for
+the N6 automorphism parameter.  That is a **third** `q`, local to one table and unannounced.  It
+is outside this ticket's two-way scope and outside a house lane's remit to rename, so it is
+reported here only.
+
+---
+
+## 6.  Verification record
+
+* Lane `claude/w74-house`, base `4fff1592`, cache at `608d3ded`.  Six commits, all path-limited.
+  Not pushed.
+* **No `lake` command was run.**  `scripts/check_dyadic.sh` was not run either, on wave 73's
+  finding that its default path reaches `lake env lean` twice through `check_axioms.sh` check 5.
+  That finding is confirmed here and is *still* the standing hazard (§4).
+* `scripts/mirror.sh sweep` once at lane start, then `scripts/mirror.sh check` on every edited
+  module after every edit and again at the final state.  **All eight modules `OK` at the final
+  state.**
+* **Comment-only discipline, verified mechanically.**  Every edited `.lean` file was
+  comment-stripped (block comments, docstrings and line comments removed, blank lines dropped) and
+  compared against its content at the lane base `4fff1592`.  **All eight print IDENTICAL**, so no
+  statement, term, binder, name or proof changed anywhere in this lane:
+
+  ```
+  GQ2/Dyadic/Instances/EvenAlphaOne.lean              IDENTICAL
+  GQ2/Dyadic/Instances/EvenForwardRouteSkeleton.lean  IDENTICAL
+  GQ2/Dyadic/Instances/EvenStratumFrame.lean          IDENTICAL
+  GQ2/Dyadic/MarkedCore/NFrameAlphaOne.lean           IDENTICAL
+  GQ2/Dyadic/SqCore/GradedClassFiveKnob.lean          IDENTICAL
+  GQ2/Dyadic/SqCore/GradedClassFourDefect.lean        IDENTICAL
+  GQ2/Dyadic/SqCore/NuSeeds.lean                      IDENTICAL
+  GQ2/Dyadic/SqCore/Rank3.lean                        IDENTICAL
+  ```
+* No new `.lean` file was created; `GQ2.lean` was not touched; nothing under `GQ2/Roe/` was
+  touched (plan A6); nothing under the three sibling lanes' new-module paths was touched.
+* No line over 100 characters was added to any Lean file, and no em-dash was added to any prose.
+* The ticket-1(b) check file is a lane artefact and was deliberately **not** added to the tree.
+  It imports `EvenUnramified` and `EvenParityModel` and needs four `open`s; §1.3 records what it
+  states so it can be rebuilt in one minute.
+
+## 7.  Files edited
+
+**Lean (comment-only, 8):** `Instances/EvenAlphaOne.lean`,
+`Instances/EvenForwardRouteSkeleton.lean`, `Instances/EvenStratumFrame.lean`,
+`MarkedCore/NFrameAlphaOne.lean`, `SqCore/GradedClassFourDefect.lean`,
+`SqCore/GradedClassFiveKnob.lean`, `SqCore/NuSeeds.lean`, `SqCore/Rank3.lean`.
+
+**Docs (19):** `w74-critical-path.md` and `w74-house-note.md` (new); `w69-unram-note.md`,
+`w71-stratum-note.md`, `w72-defects-note.md`, `w72-five-note.md`, `w72-house-note.md`,
+`w72-stratum-note.md`, `w73-five-note.md`, `w73-house-note.md`, `w73-knob-note.md`,
+`w73-stratum-note.md`, `chifree-clearing-note.md`, `cb-design.md`, `ev4b-stage-abstraction.md`,
+`sq-design.md`, `tickets.md`, `followup/glab-ksupply-plan.md`, `owner-items-2026-08-05.md`.
+
+## 8.  For the wave-75 queue
+
+1. **Apply round 11's 29 reported findings** (§4.2 to §4.5).  All are prose-only.  Three carry a
+   ⚠ marker because the *obvious* fix would change a Lean statement or a script's behaviour, and
+   the prose is what must move: §4.2(g) (the handle-pair entries), §4.2(i) (`cfourCmpTest`'s
+   generality) and §4.4(a) (the fixture hook).  Note that ten of the 29 have a **second site**, so
+   the half-a-fix rule applies to nearly a third of the round.
+2. **Decide the fixture hook** (§4.4(a)).  This is the one item that is not a documentation
+   question underneath.  Either the prose changes to say the skip is visible only in the
+   transcript, or the script changes to exit non-zero under a fixture; the second is an owner call
+   because it is a behaviour change to a merge gate.  Whichever way it goes, `GQ2_LEDGER_FIXTURE`
+   should be named in D6's own comment.
+3. **`GQ2/AxiomLedger.lean:14` and `:49` say "nine literature axioms"; the census is eleven**
+   (§4.5).  Two words, in the file the new gate audits, and `check_axioms.sh` has disagreed with
+   it since 2026-07-29.
+4. **Reconcile the finding list before the next application pass** (§4.1(a)).  Wave 72's §2.4 sat
+   unapplied for two waves because wave 73's ticket scoped three sections of a six-section note
+   and nothing checked the complement.  A one-line reconciliation at the top of the pass would
+   have caught it.
+5. **The two `GQ2/Roe/` R6 hazards remain live**, unchanged since round 9: four docstrings citing
+   the nonexistent `GQ2/Roe/DRH2.lean`, and `TwoCentralTower.lean:65-66` announcing `sorry`s in a
+   sorry-free file.  Still frozen by plan A6, still needing an owner nod.  This lane touched
+   nothing under `GQ2/Roe/`.
+6. **Two owner calls carried forward.**  `chifree-clearing-note.md`'s rewrite (§2.4), now
+   annotated but not rewritten; and `mc-design.md`'s **third** `q`, the N6 automorphism parameter
+   at `:334` and `:358` (§5).
+7. **Round 12's checklist.**  Keep all four items, including round 10's fourth
+   (a docstring can be attached to the wrong declaration), which came up clean on the wave-73
+   landings but was cheap.  A fifth to consider, earned by §4.4(a) and §4.3(a): **a claim that
+   something "can never" happen deserves the same reading as a headline that says
+   "unconditionally"**.  Both of this round's HIGH prose findings outside §4.1 are of that shape.

@@ -619,6 +619,18 @@ Said in detail, because a round that reports only hits is not a check.
 1. **Run the ledger gate**: `GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh`.  Its `lake`
    invocation and the real output's shape are the two things this lane could not verify (§2.3).  A
    first run either passes or reports a missing report line, which is the safe direction.
+
+   > **[W74-HOUSE, watch round 11: half discharged, 9 minutes after this note.]**  The owner's
+   > wave-73 status (`owner-items-2026-08-05.md`, added at `4fff1592` 19:23:46 against this lane's
+   > merge `78d14ece` 19:14:45) records the gate "exercised for the first time this wave: 32078
+   > declarations, no gap-map entries, no alarms, no terminal violations".  So the **ledger** ran
+   > and passed, and §2.3's third bullet ("whether the ledger passes today is unverified by me",
+   > last evidence the wave-72 manual run at 31954) is superseded.  Corroboration that the figure
+   > is the wave-73 tree: 32078 - 31954 = 124 against the wave's three new modules carrying 55, 35
+   > and 33 declarations = 123.  **What is not stated is whether it ran through D6**, which is
+   > precisely what this item asked: if the owner invoked `lake env lean GQ2/AxiomLedger.lean`
+   > directly, the four `sed` extractors are still unexercised.  Item stands in that narrower
+   > form.
 2. **Decide on `check_axioms.sh` check 5's `lake env lean`** (§2.4).  Either lanes may run
    `check_dyadic.sh` and the "no `lake`" rule needs restating, or check 5 needs the same opt-in
    treatment D6 got.  This is an owner call, not a lane's.
