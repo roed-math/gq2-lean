@@ -6,11 +6,22 @@
 # ---------------------------------------------------------------------------
 # WHY THIS SCRIPT EXISTS
 # ---------------------------------------------------------------------------
-# `docs/dyadic/ax1-proposal.md` §"Merge gate" prescribes `lake env lean
+# `docs/dyadic/ax1-proposal.md:489` prescribes `lake env lean
 # GQ2/AxiomLedger.lean` as a gate, but until wave 73 nothing ran it: it was not in
 # `scripts/check_dyadic.sh`, so it was a gate on paper only, honoured by whoever
 # remembered to type the command.  This script is that command, with its output
 # turned into pass/fail.
+#
+# [W75-HOUSE, watch round 11 §4.4(b): read that citation narrowly.  `ax1-proposal.md`
+# has no §"Merge gate" - its headings run §0 to §8 - and `:489` is item 4 of **Route R**
+# inside §7's census-flip checklist, one of three alternative routes.  The RECOMMENDED
+# Route D's gate item (`:469`) lists the full build, `check_axioms.sh` and zero sorries,
+# with no ledger, and `docs/dyadic/plan.md` §7's ten numbered merge gates do not list it
+# either.  So the ledger gate is prescribed by one alternative route's checklist, not by
+# the campaign's standing gate list; running it anyway is a strengthening, which is why
+# this script exists.  That checklist is itself stale on a neighbouring line: `:486` says
+# "`EXPECTED_AXIOMS` stays **9**" against `check_axioms.sh:28`'s `EXPECTED_AXIOMS=11`
+# since the AX3/AX4 flips.]
 #
 # `GQ2/AxiomLedger.lean` is deliberately NOT imported by `GQ2.lean` (it does
 # `import GQ2`, so registering it would make a cycle), which is why it cannot be
@@ -28,18 +39,37 @@
 #
 #     GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh     # or:  --ledger
 #
-# and otherwise prints a SKIP line naming this script.  The default path of
-# `check_dyadic.sh` runs exactly the checks it ran before this script landed; the
-# only difference is that one extra SKIP line is printed, so that the gate is
-# discoverable from a default run without being triggered by one.
+# and otherwise prints a four-line SKIP block naming this script.  The default path
+# of `check_dyadic.sh` runs the same CHECKS it ran before this script landed; the
+# differences are that SKIP block and, for a non-empty argv, the new argument loop,
+# which exits 2 on any argument other than `--ledger` where the pre-wave-73 script
+# ignored arguments.  The point of the SKIP block is that the gate is discoverable
+# from a default run without being triggered by one.
+#
+# [W75-HOUSE, watch round 11 §4.4(c): the "lanes must never run `lake`" rule is real
+# but it does NOT describe the default path as it stands.  `check_dyadic.sh`'s D1
+# block runs `scripts/check_axioms.sh` unconditionally, and that script's check 5
+# (`:280`) and check 5b (`:363`) both invoke `lake env lean` whenever `lake` is on
+# PATH and the two probed oleans exist.  So a lane running `check_dyadic.sh` today
+# may already be running `lake` twice.  D6 does not add to that exposure - it is the
+# only check whose `lake` use is opt-in - but the exposure is pre-existing, is stated
+# in no script, and making the default path actually lake-free would be a behaviour
+# change to `check_axioms.sh`, which is an owner call.]
 #
 # ---------------------------------------------------------------------------
 # WHAT IT CHECKS
 # ---------------------------------------------------------------------------
 #   L1  the ledger command itself succeeds.  `AxiomLedger.lean`'s terminal
-#       certificate `throwError`s on a violation, so a nonzero exit here already
-#       means a capstone rests on `sorryAx`, on a non-census axiom, or has
+#       certificate `throwError`s on a violation, so a nonzero exit here MAY mean
+#       that a capstone rests on `sorryAx`, on a non-census axiom, or has
 #       stopped printing identically to its Γ_A twin.
+#       [W75-HOUSE, watch round 11 §4.4(f): those three are not the whole list, and
+#       the FAIL text at the bottom of this file already says the honest version.
+#       `AxiomLedger.lean` also `throwError`s on the private-tracking regression
+#       (`:88`) and on an unknown declaration, renamed or removed (`:154`); and any
+#       elaboration failure, including an unbuilt library, exits nonzero without
+#       reaching the certificate at all.  L1 is "the command failed", and the report
+#       it quotes is what says why.]
 #   L2  gap map empty - no declaration depends on `sorryAx`.  The ledger only
 #       REPORTS this; its own docstring says it is "expected to stay" empty, and
 #       `scripts/check_axioms.sh`'s `SORRY_ALLOWLIST` is the mechanism that lets
@@ -64,7 +94,22 @@
 #                        reported as not-run.  This is how the parsing half is
 #                        testable without a toolchain (and how a saved ledger from
 #                        a CI run can be re-audited).  It is not a way to pass the
-#                        gate: L1 is explicitly marked skipped in the output.
+#                        gate: a clean fixture parse exits **3**, which D6 reads as
+#                        a failure (see the exit-3 branch at the foot of this file).
+#
+# [W75-HOUSE, watch round 11 §4.4(a), and this is the round's one item that was
+# closed by a behaviour change rather than by prose.  As shipped at wave 73 the
+# sentence above read "It is not a way to pass the gate: L1 is explicitly marked
+# skipped in the output", and that reason did not hold: the SKIP line is visible in
+# the transcript, but `fail` was never set in the fixture branch, so a clean fixture
+# printed "check_ledger: all checks passed" and exited 0 - and D6
+# (`check_dyadic.sh`) keys on the exit code alone, with the environment inherited by
+# its `bash "$LEDGER_SCRIPT"` call.  An exported stale `GQ2_LEDGER_FIXTURE` would
+# therefore have green-lit the gate silently, with no `lake` run.  The owner closed
+# it at `2c8af4bd` with the exit-3 branch, so the claim above is now true and true
+# for the stated reason.  The standing lesson: the skip is visible in the
+# transcript, not in the exit code, and the exit code is what D6 reads.  This
+# variable must still never be set in a merge run.]
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

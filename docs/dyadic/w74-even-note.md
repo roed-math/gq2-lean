@@ -239,8 +239,14 @@ I edited nothing outside my own module and `docs/dyadic/w74-even-note.md`.
    base is blocked by the *choice of Gram*, not the stratum.  With the repaired Gram the frame
    exists at the **prescribed** table too, so the base's remaining cost is the level-three
    relation and nothing else.
-3. **`EvenUnramified.lean:70` and `:395`, and `StageAbstractionEvenRawSpan.lean` §0**, hedge the
-   `alpha = 1` failure as attributed rather than proved.  Wave 73 made the `N` half citable; the
+3. **`EvenUnramified.lean:70` and `:395`, and `StageAbstractionEvenRawSpan.lean`'s module
+   docstring (lines 44-46 and 65)**, hedge the
+   `alpha = 1` failure as attributed rather than proved.
+   **[W75-HOUSE, round 11 §4.3(e): "§0" corrected.  That file's headers run §1 to §6 and it has
+   no §0; the cited material is its module docstring.  Round 11 named five sites, all in waves
+   72-73 prose, and this is a sixth, created by wave 74 one wave after the finding.  The label
+   misdirects because the repo does use `§0` as a real heading elsewhere
+   (`AdmissibleR.lean:77`, `OrientedTameBundle.lean:82`).]**  Wave 73 made the `N` half citable; the
    `M` half is now citable too (`evenStratumRow_no_rawStageShift_m_one`).  §4 of
    `StageAbstractionEvenRawSpan.lean` says both factorizations "need `2 <= alpha`"; both halves of
    that sentence are now theorems.
