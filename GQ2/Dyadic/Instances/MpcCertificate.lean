@@ -57,8 +57,8 @@ generalization of the compact clause and not a new kind of assumption.
 alone.  At level `r` the level fixes only that `ν'` is `2^r`-divisible on `ker χ`; the 2-adic
 valuation of `ν'(C̄₀)` and the residues of `ν'(D̄)` and `ν'(B̄)` modulo `2^r` are separate
 invariants of the χ-preserving action (M3 cannot change a valuation, M2 and M5 shift only by
-multiples of the pivot).  At `r = 0` all three are vacuous or automatic — `2^0 ℤ₂ = ℤ₂` makes the
-last two trivial, and `isUnit_nu_dmC_of_chiKer` supplies the first from the level — which is why
+multiples of the pivot).  At `r = 0` all three are vacuous or automatic (`2^0 ℤ₂ = ℤ₂` makes the
+last two trivial, and `isUnit_nu_dmC_of_chiKer` supplies the first from the level), which is why
 the compact rows needed nothing beyond `B.r = 0`.  **At `r ≥ 1` they are genuine extra
 arithmetic**, and §6 carries them, per field, as one named `Prop`.
 
@@ -183,7 +183,7 @@ variable {α r pp nu'}
 
 /-- **The level is an invariance principle.**  A χ-preserving automorphism moves any value of
 the marking only inside `2^r ℤ₂`: the ratio `Ψ g · g⁻¹` lies in `ker χ_M`.  This is what lets
-the correction algorithm below apply M3 first — which says nothing about the `B̄` and `D̄` rows —
+the correction algorithm below apply M3 first, which says nothing about the `B̄` and `D̄` rows,
 without losing their residues. -/
 theorem mpcCert_shift_mem (hlev : MpcChiKerLevel α r nu')
     {Ψ : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type)}
@@ -307,7 +307,7 @@ end Normalization
 
 `MarkedCoreCertificateMpc` is `MarkedCoreCertificateM` with `nuM` replaced by `mpcNu`: same
 abstract Demushkin isomorphism, same orientation clause, same marking-correcting automorphism,
-different normal form for the marking.  The two are *not* interchangeable — see the module
+different normal form for the marking.  The two are *not* interchangeable; see the module
 docstring. -/
 
 section Certificate
@@ -477,7 +477,7 @@ theorem mpcCert_level_le_of_pivot (B : MarkedRecip Rec K) {α : ℕ}
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
 
 /-- **`ℚ₂(√10)`'s remaining input**, at wave 77's chosen oriented equivalence: the level is `1`
-and the marked data sits at `(r, p) = (1, 0)`.  The tree carries none of this — wave 78 §2.3's
+and the marked data sits at `(r, p) = (1, 0)`.  The tree carries none of this: wave 78 §2.3's
 two arguments for `B.r = 1` are hand computations, and the `C̄₀`/`D̄`/`B̄` residues are separate
 invariants of the χ-preserving action. -/
 def MpcRowData_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen) : Prop :=
@@ -507,6 +507,63 @@ theorem mpcCert_genAsmBranch_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
     (mpcCert_chiKerLevel_of_level B hrow.1 _) hrow.2
 
 end Fields
+
+/-! ## §7 Axiom pins
+
+One pin per declaration, in declaration order.  Three sets occur, all already committed; this
+lane introduces no axiom of its own.
+
+* **The standard three** (`propext, Classical.choice, Quot.sound`) on everything in §1, §2, §5's
+  realization, and §6's transport lemmas.  In particular `mpcCert_shift_mem`, the invariance
+  principle, and `mpcCert_level_le_of_pivot`, the necessity direction, cost no axiom: they are
+  bundle arithmetic.
+* **Plus `peripheralCyclotomicAction`** on `mpcCert_markedMatching` and everything downstream of
+  it (both certificate producers, the branch-datum producer, the two field rows).  The single
+  source is `MScaling.mScalingHypothesis_zero`, the M3 row.  This is the same axiom wave 78's
+  `M`-row data carry, so the procyclic route adds nothing on that side.
+* **Plus the even route's endpoint set** (`hilbertSymbol_normCriterion_finiteDyadic`,
+  `tateDualityAt`, `Foundations.absGalQ2_isTopologicallyFinitelyGenerated`,
+  `Foundations.absGalQ2_localEulerCharacteristic`) on `MpcRowData_sqrt{Ten,NegTen}` and the two
+  field theorems, through `fieldId_chosenEquivM_sqrt{Ten,NegTen}`.  Note this set already
+  appears in the *statements* of the two named `Prop`s, because the clause is asserted at wave
+  77's chosen oriented equivalence.
+
+So `mpcCert_genAsmBranch_sqrt{Ten,NegTen}` sit at **exactly** the axiom set of wave 77's
+`fieldId_genAsmBranch_sqrt{Ten,NegTen}`: moving the two fields off the vacuous `M0` row and onto
+the `Mpc` row they belong on costs no axiom. -/
+
+section AxiomPins
+
+#print axioms mpcCert_nuMpc
+#print axioms mpcCert_ztwoIota_mpcNu
+#print axioms mpcCert_toAdd_ztwoIota_zpow
+#print axioms mpcCert_toAdd_nuMpc_gen
+#print axioms mpcCert_toAdd_nuMpc_dmA
+#print axioms mpcCert_toAdd_nuMpc_dmB
+#print axioms mpcCert_toAdd_nuMpc_dmC
+#print axioms mpcCert_toAdd_nuMpc_dmD
+#print axioms MpcChiKerLevel
+#print axioms MpcMarkedData
+#print axioms mpcCert_shift_mem
+#print axioms mpcCert_dmD_shift
+#print axioms mpcCert_dmB_shift
+#print axioms mpcCert_markedMatching
+#print axioms mpcCert_transport
+#print axioms MarkedCoreCertificateMpc
+#print axioms mpcCert_marked_matching_certificate_Mpc
+#print axioms MarkedCoreCertificateKTwoMpc
+#print axioms mpcCert_marked_matching_certificate_KTwoMpc
+#print axioms mpcCert_realization
+#print axioms mpcCert_genAsmBranch_of_orientedMpc
+#print axioms mpcCert_nu_le_of_chiKerTwo
+#print axioms mpcCert_chiKerLevel_of_level
+#print axioms mpcCert_level_le_of_pivot
+#print axioms MpcRowData_sqrtTen
+#print axioms MpcRowData_sqrtNegTen
+#print axioms mpcCert_genAsmBranch_sqrtTen
+#print axioms mpcCert_genAsmBranch_sqrtNegTen
+
+end AxiomPins
 
 end
 
