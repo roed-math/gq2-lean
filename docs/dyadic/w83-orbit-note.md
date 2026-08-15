@@ -1,0 +1,215 @@
+# W83-ORBIT: the M6 question, and why the ruling that closed it does not hold
+
+Lane W83-ORBIT, the last selector clause: decide `MpcPivShift 2`, MC1 §5.3's family `M6` at
+parameter one (`Y_c : C̄₀ ↦ B̄^{2c₁}·C̄₀`, `docs/dyadic/mc-design.md:211`).  Produced against tree
+`23041e0f` on branch `claude/w83-orbit`, shared cache at the wave-82 umbrella (4364 jobs).
+Verification of record: `scripts/mirror.sh` (sweep, gen, check).  **No `lake` command was run.**
+
+One new module: `GQ2/Dyadic/Instances/MpcOrbit.lean`, declaration prefix `mpcOrb` (namespace
+`GQ2.Dyadic.Instances.MpcOrb`).  Nothing else was touched; the module is **not yet registered in
+`GQ2.lean`** (housekeeping owns that).
+
+---
+
+## 1.  The headline: the ticket is not discharged, and the reason it looked discharged is wrong
+
+**`MpcPivShift 2` is still open.**  This lane neither built `M6` nor refuted it.  What it did is
+remove the thing that made the question look already answered, and replace the answer with an
+exact computation.
+
+> `CoreMixM.lean` §7 rules `⟨M4, M6, M7⟩` "structurally obstructed rather than merely unbuilt
+> (they are not symplectic, hence not reachable by any relator-preserving word automorphism), so
+> no widening of the generating set produces them."
+
+**That argument is unsound**, and §4 below says why in one line: the `ℤ₂`-symplectic form is not
+an invariant of this relator.  `mc-design` §5.3's opposite reading ("they *are* in the stabilizer,
+verified by direct isometry computation ... the obstruction, if any, lives in degree ≥ 3 of the
+Zassenhaus filtration") is the correct one, and this lane confirms its first two levels by direct
+computation.  So the two documents are no longer in conflict: `CoreMixM` §7's *conclusion* may
+still be true, but its *reason* is not a proof, and the campaign should stop treating `M6` as
+settled in the negative.
+
+Three things land in Lean, all axiom-free (standard three only).
+
+## 2.  The defect of the M6 substitution, in closed form
+
+`mpcOrb_mWord_shift` (a free-group identity; no relation used, `u` arbitrary):
+
+    mWord 2 a b (u·c) d = (a²[a,b]) · (u · u^{c⁻¹} · u^{c⁻²}) · (c⁴[c,d]) · u^{cd}
+
+The three inserted conjugates are the `u`'s of `(u·c)³ = u·u^{c⁻¹}·u^{c⁻²}·c³`; the trailing one
+is the `u` of `(u·c)^d`.  Inside `D_M 2 0` the head is the inverse of the tail
+(`mpcOrb_head_eq_inv_tail`, from `dm_relation`), so the entire cost collapses
+(`mpcOrb_defect`):
+
+    mWord 2 Ā B̄ (u·C̄₀) D̄ = (u · u^{C̄₀⁻¹} · u^{C̄₀⁻²})^{z} · u^{C̄₀D̄},    z := C̄₀⁴[C̄₀,D̄].
+
+**The M6 defect is a product of exactly four conjugates of `u`.**  At `u = B̄^{2c₁}` this is the
+whole content of the family: `MpcPivShift 2` holds if and only if that element can be cancelled
+by a compensating change of the `Ā`, `B̄`, `D̄` letters.  This replaces "is `M6` symplectic?" by a
+finite, explicit word problem in a 4-generator pro-2 group.
+
+## 3.  The recipe, and what a construction now costs
+
+`mpcOrb_shift_of_marking`: a marking `(a,b,c,d)` of `D_M 2 0` with
+
+* `mWord 2 a b c d = 1`,
+* `(closure {a,b,c,d}).topologicalClosure = ⊤`,
+* `χ_M(a) = 1`, `χ_M(b) = −1`, `χ_M(c) = 1`, `χ_M(d) = mUnit 2`,
+* `ν'(c) = ν'(C̄₀) + 2·ν'(B̄)` at every marking,
+
+yields `MpcPivShift 2`, hence the `√−10` branch datum at the row's own canonical marking through
+`mpcPiv_genAsmBranch_sqrtNegTen_of_shift`.  Surjectivity is the closed range of a continuous map
+out of a compact group; injectivity is `profinite_hopfian`; χ-preservation is hom-extensionality
+against the four values.  So a future construction lane owes **one word identity and nothing
+else**: the other three clauses are routine for any word of the shape `(A·B^{-4}·s, B·t,
+B²·C·m, D·n)` with `s, t, m, n` in the Frattini subgroup.
+
+The converse is routine and is not formalized here: from a `Ψ` witnessing `MpcPivShift 2`, the
+tuple `(Ψ Ā, Ψ B̄, Ψ C̄₀, Ψ D̄)` satisfies all four clauses (relator by naturality of `mWord`,
+generation because `Ψ` is a topological isomorphism).  So the recipe is in fact an equivalence,
+and the residue of the `√−10` row is *exactly* the word problem of §2.
+
+## 4.  Why "not symplectic" is not a proof
+
+The hand check quoted by wave 82 is correct as arithmetic: the abelianised `M6`
+(`C̄₀ ↦ C̄₀ + 2c₁B̄`, forced companion `Ā ↦ Ā − 4c₁B̄`) has `ω(Ā′,C̄₀′) = 2c₁ ≠ 0` for the
+`ℤ₂`-bilinear form with `ω(Ā,B̄) = ω(C̄₀,D̄) = 1`.  The gap is that **`ω` is not an invariant of
+`D_M`**.  Three independent reasons, in increasing strength:
+
+1. **The relator is not a product of commutators.**  `P_M = Ā²[Ā,B̄]C̄₀^{2^α}[C̄₀,D̄]` carries the
+   square `Ā²`, so `D_M` is not a "surface-like" group whose abelianized automorphisms preserve a
+   `ℤ₂`-symplectic form.  Demushkin duality gives a cup pairing into `H²(G, ℤ/q)` with `q = 2`
+   here (`−1 ∈ im χ_M`), i.e. **only mod 2**, and mod 2 the form is the symmetric non-alternating
+   Gram `G_M` of `mc-design` §2.2(iii).  `M6` is the **identity** mod 2, so it is an isometry of
+   the only bilinear invariant there is.
+
+2. **The frame level cannot see it**, and this is in Lean.  `mpcOrb_frame_shift`: the shifted
+   frame satisfies the *same* forced `Ā`-row relation `ν'(Ā) = −2^{α−1}ν'(C̄₀)` (`nu_dmA_eq`) that
+   every marking of `D_M 2 0` satisfies, for every `c₁`; `mpcOrb_chi_shift`: `χ_M(B̄^{2c₁}C̄₀) =
+   χ_M(C̄₀)`, the evenness of the exponent being exactly what χ demands.  The relation vector and
+   χ are the whole of what the frame carries, and `M6` respects both.
+
+3. **The first level where a symplectic defect could bite absorbs it.**  Hand computation in
+   `F/γ₃` (not formalized; `F` free pro-2 of rank 4, `Λ = F^{ab}`, `γ₂/γ₃ = ∧²Λ`), with
+   `Φ: Ā ↦ Ā − 4B̄, C̄₀ ↦ C̄₀ + 2B̄` and `γ₂`-corrections `u_A`, `u_C` on the two letters that
+   carry powers in the relator:
+
+       Φ(R)·R⁻¹  ≡  2u_A + 4u_C + 4(a∧b) − 12(b∧c) + 2(b∧d)   (mod γ₃)
+
+   Every constant coefficient is **even**, and the correction `u_A` enters doubled because the
+   relator contains `Ā²`.  So `u_A = −2(a∧b) + 6(b∧c) − (b∧d)`, `u_C = 0` kills the discrepancy
+   exactly.  Note that the normal-closure slack alone is *not* enough: `ρ∧Λ` (with
+   `ρ = 2Ā + 4C̄₀`) has no `b∧d` component at all.  The absorption is genuinely paid for by the
+   square, which is precisely the term the symplectic reading throws away.
+
+That is the correction to the record: the direction is **not obstructed at the level where the
+quoted argument works**, and the argument's premise (a `ℤ₂`-symplectic invariant) does not exist
+on this core.
+
+## 5.  How far the obstruction is known to vanish, and the honest limits
+
+Beyond `γ₃` the question is a Zassenhaus-filtration computation, and this lane ran it
+numerically rather than proving it.  The model (throwaway scripts, not part of the tree):
+the completed group algebra `ℤ₂[[G]]` truncated at augmentation degree `T`, i.e. Magnus
+`F → ℤ/2^N⟨⟨x_A,x_B,x_C,x_D⟩⟩` modulo the two-sided ideal generated by `μ(R) − 1`.  A word `g`
+dies in `G` modulo the `(T+1)`-st dimension subgroup exactly when `μ(g) − 1` lies in that ideal,
+so the test is exact at each truncation, and corrections were searched degree by degree over a
+Lyndon basis of the free Lie ring together with the χ-legal degree-one frame moves.
+
+* **Controls behave.**  The elementary lift `M1` and the exact `M2` pass trivially.  `M5` (a
+  theorem of the tree, `mMixFamily_coreMix`) is solved with explicit corrections through `T = 5`.
+  Frame-illegal candidates are rejected at the right depth: `C̄₀ ↦ B̄·C̄₀` (odd shift, χ-forbidden)
+  fails at degree 2, and a candidate violating the relation vector fails at degree 1.
+* **`M6` passes the first two nontrivial levels.**  Explicit corrections make the relator die in
+  the class-3 dimension quotient of `D_M 2 0` (`T = 3`), with the `C̄₀` row exactly `C̄₀ + 2B̄`
+  modulo the torsion element `t`, χ preserved on all four letters.  This is level `γ₃` of §4.3
+  independently reconfirmed, plus one level more.
+* **Beyond that the search is not conclusive, in either direction.**  At `T = 4` and `T = 5` the
+  degree-by-degree search failed to close `M6`, but it also failed to close `M3` (`C̄₀ ↦ C̄₀^5`),
+  which *is* realized in the tree from axiom B8 (`MScaling.lean`), and `M4`/`M7` behaved the same
+  way.  The failures are the known weakness of a greedy obstruction walk (the choice of solution
+  at one degree can block the next), not evidence of an obstruction.  **No conclusion may be
+  drawn from them, and none is drawn here.**
+
+So the state of the evidence is: no obstruction at depth ≤ 3, no reliable information at depth
+≥ 4, and no invariant known that could separate the two cases.
+
+## 6.  The fallback invariant `Q`, and why it cannot be the refutation route
+
+Wave 82 proposed `Q = b² + 2d² + 2bc − cd mod 4` (in the frame `b = ν'(B̄)`, `c = ν'(C̄₀)`,
+`d = ν'(D̄)`) as the classifying tool if `M6` is false.  Two facts about it, both computed here
+by hand and neither formalized:
+
+* `Q` is invariant under `M1`, `M2`, `M3` and `M5` **only on the locus `c ≡ 0 mod 2`** (the level
+  locus of this row).  For example `M3` at `γ = 1 + 2k` moves `Q` by `−2kcd`, and `M2` at
+  parameter `e` moves it by `−ec²`; both vanish mod 4 exactly because `c` is even.  On the
+  `√−10` row the value is `Q ≡ 3 − cd mod 4`, i.e. `1` when the pivot holds and `3` when it
+  fails, as wave 82 reported.
+* `M6` at parameter `c₁ = 1` moves `Q` by `−2bd`, which is `2 mod 4` precisely when `b` and `d`
+  are both odd, which is the `√−10` row's own configuration.  So `Q` does separate the two sides.
+
+But proving `Q` invariant is *equivalent* to refuting `M6`, not a route to it: the χ-conditions
+alone permit the general frame map `C̄₀ ↦ 2c₁B̄ + γC̄₀`, `B̄ ↦ τt + βB̄ + B_cC̄₀`,
+`D̄ ↦ τ_D t + 2d₁B̄ + eC̄₀ + D̄`, and `Q` is not invariant under that family (`c₁ ≠ 0` is exactly
+what breaks it).  Its invariance would therefore have to be deduced from knowing which frame maps
+are realized, which is the question.  **A refutation of `M6` needs degree ≥ 3 Zassenhaus
+machinery for `D_M`; the frame level provably cannot supply it (§4.2).**
+
+## 7.  The five-row scoreboard, from the Lean
+
+Elaborated against the mirror (`#check`, not read off the notes).  Every row's statement has the
+same shape: over the field's own bundle `B : MarkedRecip Rec K` and the standing instance
+binders, `∃ G : GenAsmBranch K B, G.pres = …`.
+
+| row | field | `pres` | branch datum over the bundle alone | tied to the canonical marking? |
+| --- | --- | --- | --- | --- |
+| 1 | `ℚ₂(√−2)` | `.N0 2 0` | `fieldUni_genAsmBranch_sqrtNegTwo` | yes |
+| 2 | `ℚ₂(√2)` | `.M0 3 0` | `fieldUni_genAsmBranch_sqrtTwo` | yes |
+| 3 | `ℚ₂(√5)` | `.M0 2 0` | `fieldFive_genAsmBranch_sqrtFive` | yes |
+| 4 | `ℚ₂(√10)` | `.Mpc 2 1 false .one 0` | `mpcNorm_genAsmBranch_sqrtTen` | yes |
+| 5 | `ℚ₂(√−10)` | `.Mpc 2 1 true .one 0` | `mpcPiv_genAsmBranch_sqrtNegTen` | **no**: tied form needs `MpcPivShift 2` |
+
+Two changes against wave 82 §7.  Row 3 is **no longer open**: `fieldFive_genAsmBranch_sqrtFive`
+(`FieldSqrtFiveUnramified.lean`) discharged `fieldUni_TwoIsUniformizer KSqrtFive` after that note
+was written, so the own-base pattern is now at five instances, not four.  Row 5 is unchanged and
+is the only row whose clause-free statement is the **untied** one of wave 82 §4 (the marking is
+not the row's canonical `mpcNu 2 1 1`, so it cannot serve `GenAsmRowResidual.cand`).  The tied
+statement `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` still carries `MpcPivShift 2`, exactly as it
+did.
+
+**The acceptance target of this lane : the `√−10` tied datum with no clause : is therefore not
+met, and no weaker marking substitutes for it**: if `M6` is false then `v₂(ν'(C̄₀))` is a field
+invariant and the row's `r` is not 1 by fiat, so "re-running at a repaired marking" is not
+available without first computing that valuation, which wave 82 §3 shows the norm group cannot do.
+
+## 8.  Axiom pins
+
+Per declaration, recorded in the module's §4 and reproduced by `mirror.sh gen`.  **All seven
+declarations of this module are on the standard three** (`propext`, `Classical.choice`,
+`Quot.sound`): the defect identity is a free-group computation, the recipe is `mLiftHom` plus
+`profinite_hopfian`, and the frame statements are `nu_dmA_eq` and `chiM`.  **This lane introduces
+no axiom.**  In particular a construction of `M6` fed through `mpcOrb_shift_of_marking` would
+carry, on the `√−10` row, exactly wave 81's set (the even route's endpoint set plus
+`peripheralCyclotomicAction`, through `mpcPiv_genAsmBranch_sqrtNegTen_of_shift`) and nothing
+more.
+
+No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
+
+## 9.  What is next
+
+1. **Build `M6`, or refute it at depth ≥ 4.**  The construction target is now one word identity
+   (§2, §3): find `s, t, m, n` in the Frattini subgroup of `D_M 2 0` with
+
+       mWord 2 (Ā·B̄⁻⁴·s) (B̄·t) (B̄²·C̄₀·m) (D̄·n) = 1,
+
+   the `γ₃`-level solution being `s ≡ [Ā,B̄]⁻²[B̄,C̄₀]⁶[B̄,D̄]⁻¹` (§4.3).  Note the `[B̄,D̄]` factor:
+   its exponent must be **odd**, so any construction is forced to mix the two handles : no
+   factor-preserving recipe can work, which is consistent with `mc-design` §5.3's diagnosis and
+   explains why S1 and B8 both miss the family.
+2. **Do not use `CoreMixM` §7's ruling as an input** anywhere else.  It is quoted in
+   `MpcPivot.lean`'s module docstring (wave 82) and in the `CoreMixM` docstring itself; both
+   should be corrected to "unbuilt, and open" when a lane next touches those files (this lane
+   edits no existing module).
+3. **The `√−10` row stays the single open item of the tied five-row selector**, and it is now a
+   `MarkedCore` word problem with no arithmetic content left in it.

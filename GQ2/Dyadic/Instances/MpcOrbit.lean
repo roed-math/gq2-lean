@@ -116,7 +116,7 @@ inverse of its tail, so the whole cost of `C̄₀ ↦ u·C̄₀` is a product of
 
 At `u = B̄^{2c₁}` this is `M6` at parameter `c₁`, and `MpcPivShift 2` (the `√−10` row's whole
 residue, wave 82 §6) holds exactly when this element can be cancelled by a compensating change
-of `Ā`, `B̄` and `D̄` — the shape §2 packages. -/
+of `Ā`, `B̄` and `D̄` : the shape §2 packages. -/
 theorem mpcOrb_defect (u : (DM 2 0 : Type)) :
     mWord 2 (dmA 2 0) (dmB 2 0) (u * dmC 2 0) (dmD 2 0)
       = conjP (u * conjP u (dmC 2 0)⁻¹ * conjP u ((dmC 2 0)⁻¹ * (dmC 2 0)⁻¹))
