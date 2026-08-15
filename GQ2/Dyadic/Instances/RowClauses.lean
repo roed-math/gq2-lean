@@ -91,6 +91,132 @@ theorem rowCl_exactLifting_iff_stageVanishing (hn : 2 ≤ n)
       ↔ askCStageVanishing Γ q P nuP :=
   ⟨rowCl_stageVanishing_of_exactLifting hn hRN, rowCl_exactLifting_of_stageVanishing hRN⟩
 
+/-- **What carrying the frozen bundle costs, at any carrier.**  Carrier-free form of
+`askC_exactImageCount_eq_zero_of_exactLifting`: on every frame with a nontrivial Frattini block
+the boundary-framed exact image count of the target vanishes. -/
+theorem rowCl_exactImageCount_eq_zero_of_exactLifting (hn : 2 ≤ n)
+    (hRN : ExactLiftingSemanticsRN Γ n q P nuP (standardNumerics n))
+    (hfroz : ExactLiftingSemantics Γ n q P nuP (standardNumerics n))
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (hR : 1 < Nat.card ↥Blk.frattiniK) :
+    exactImageCountK b F T = 0 := by
+  have hvan := rowCl_stageVanishing_of_exactLifting hn hRN hfroz hE2 hRK hR2 b F hR
+  have hcorr := hRN.2.2 hE2 hRK hR2 b F
+  rw [hvan, mul_zero] at hcorr
+  letI : Nonempty (blockFrameImpl T Blk hE2).DR := ⟨(blockFrameImpl T Blk hE2).zeroDR⟩
+  have hd : (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) ≠ 0 :=
+    Int.natCast_ne_zero.mpr Nat.card_pos.ne'
+  rcases mul_eq_zero.mp hcorr with hc | hx
+  · exact absurd hc hd
+  · exact Nat.cast_eq_zero.mp hx
+
+/-- **The refutation handle, at any topologically finitely generated carrier.**  Carrier-free
+form of `askC_isEmpty_boundaryLifts_of_exactLifting`.  Contrapositively: *one* boundary-framed
+surjection of `Γ` onto a marked target with `1 < #R` refutes the frozen bundle at `Γ`, and hence
+(by §1) `askCStageVanishing Γ q P νP`.  Wave 81 could not use this at `G_K` because the frame is
+branch data the arithmetic side does not own; at a candidate carrier the frame data are exactly
+what the branch lanes build. -/
+theorem rowCl_isEmpty_boundaryLifts_of_exactLifting (hn : 2 ≤ n)
+    (hRN : ExactLiftingSemanticsRN Γ n q P nuP (standardNumerics n))
+    (hfroz : ExactLiftingSemantics Γ n q P nuP (standardNumerics n))
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (hR : 1 < Nat.card ↥Blk.frattiniK) :
+    IsEmpty (BoundaryLiftsK b F T) := by
+  haveI : Finite (BoundaryLiftsK b F T) := finite_boundaryLiftsK b F T hfg
+  have hzero : Nat.card (BoundaryLiftsK b F T) = 0 :=
+    rowCl_exactImageCount_eq_zero_of_exactLifting hn hRN hfroz hE2 hRK hR2 b F hR
+  rcases Nat.card_eq_zero.mp hzero with he | hi
+  · exact he
+  · exact absurd hi (not_infinite_iff_finite.mpr inferInstance)
+
 end Coefficient
+
+/-! ## §2 The compact-`M` candidate carrier
+
+`MCompact.exactLiftingRN` proves the **corrected** bundle at `GammaR (2+2h) q (mCompactW α h)`
+from `Hsimp α h q` alone, with no `StageSep` and no `StageZ`.  Feeding it to §1 turns the frozen
+clause at that carrier into the *same* residual `Prop` that wave 81 isolated on the arithmetic
+side, and gives the refutation handle there. -/
+
+section MCandidate
+
+open GQ2.Dyadic.MCompact GQ2.Dyadic.Words.MCompact GQ2.CardH2GammaA
+open GQ2.Dyadic.Count.PilotN
+
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+variable {α h q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+
+/-- The corrected bundle at the compact-`M` candidate, respelled at the row table's degree
+`2 + 2h` (`MCompact.exactLiftingRN` states it at `2h + 2`). -/
+theorem rowCl_mCand_exactLiftingRN (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
+    (hqe : Even q) (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
+      (standardNumerics (2 + 2 * h)) :=
+  exactLiftingRN_standard_congr (by omega) (exactLiftingRN hsimp hα hq0 hqe nuP)
+
+/-- **The `M0` row's `exactLifting` clause, measured.**  At the candidate carrier the frozen
+bundle is *equivalent* to `askCStageVanishing` at that carrier, given only `Hsimp`.  So the first
+of W83-RECORDS' "four analytic clauses" is not four clauses' worth of work: it is `Hsimp` plus
+exactly the coefficient `Prop` that the `ASK` block at `G_K` also reduces to.  The two sides of
+the row record carry **one** statement between them, at two carriers. -/
+theorem rowCl_mCand_exactLifting_iff (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
+    (hqe : Even q) :
+    ExactLiftingSemantics (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
+        (standardNumerics (2 + 2 * h))
+      ↔ askCStageVanishing (GammaR (2 + 2 * h) q (mCompactW α h)) q P nuP :=
+  rowCl_exactLifting_iff_stageVanishing (by omega)
+    (rowCl_mCand_exactLiftingRN hsimp hα hq0 hqe nuP)
+
+/-- The candidate carrier is topologically finitely generated: it is an admissible marked
+presentation on finitely many generators. -/
+theorem rowCl_mCand_tfg (α h q : ℕ) :
+    ∃ s : Finset ((gamma α h q : Type)),
+      (Subgroup.closure (s : Set ((gamma α h q : Type)))).topologicalClosure = ⊤ :=
+  tfg_of_isAdmissibleMarkedPresentation
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h))
+
+/-- **The refutation handle at the `M0` candidate.**  If the row's `exactLifting` clause holds,
+then `Γ_R` admits *no* boundary-framed surjection onto any marked target with a nontrivial
+Frattini block.  Contrapositively, exhibiting one such surjection refutes the clause, and by
+`rowCl_mCand_exactLifting_iff` refutes `askCStageVanishing` at the candidate carrier.  Unlike the
+`G_K` form of this statement (`askC_isEmpty_boundaryLifts_of_exactLifting`), whose frames wave 81
+could not build, the frames here are candidate-side data. -/
+theorem rowCl_mCand_isEmpty_boundaryLifts (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
+    (hqe : Even q)
+    (hfroz : ExactLiftingSemantics (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP
+      (standardNumerics (2 + 2 * h)))
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom ((GammaR (2 + 2 * h) q (mCompactW α h) : Type))
+      ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (hR : 1 < Nat.card ↥Blk.frattiniK) :
+    IsEmpty (BoundaryLiftsK b F T) :=
+  rowCl_isEmpty_boundaryLifts_of_exactLifting (by omega)
+    (rowCl_mCand_exactLiftingRN hsimp hα hq0 hqe nuP) hfroz (rowCl_mCand_tfg α h q)
+    hE2 hRK hR2 b F hR
+
+end MCandidate
 
 end GQ2.Dyadic.Instances.RowClauses
