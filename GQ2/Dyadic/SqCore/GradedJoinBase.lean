@@ -134,6 +134,12 @@ theorem gBase_letters_mem {K : Subgroup (levelQuot (DSq h : Type) 4)}
   obtain ⟨g, rfl⟩ := levelMk_surjective (DSq h : Type) 4 p
   exact hsub (by rw [dsq_topGen h]; trivial)
 
+/-- The `levelMk`-image of a bracket, in `Q₄` vocabulary. -/
+theorem gBase_levelMk_commP (a b : (DSq h : Type)) :
+    levelMk (DSq h : Type) 4 (commP a b) =
+      commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b) := by
+  simp only [commP, map_mul, map_inv]
+
 end Letters
 
 /-! ## §2 The relator's degree-three consequence -/
@@ -360,6 +366,38 @@ theorem gBase_triple_far (p q : levelQuot (DSq h : Type) 4) {i : Fin (sqRank h)}
   rw [← gBase_levelMk_triple]
   exact gBase_knob_mem (gTower_letters_mem_far i hi)
 
+/-- The four far letters, as members of the far span. -/
+theorem gBase_sigma_far : dsqSigma h ∈ gTowerFar h :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (Or.inl (Or.inl (Or.inl rfl))))
+
+theorem gBase_x0_far : dsqX0 h ∈ gTowerFar h :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (Or.inl (Or.inl (Or.inr rfl))))
+
+theorem gBase_handleU_far (j : Fin h) : sqGen h (sqHandleIdxU j) ∈ gTowerFar h :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (Or.inl (Or.inr ⟨j, rfl⟩)))
+
+theorem gBase_handleV_far (j : Fin h) : sqGen h (sqHandleIdxV j) ∈ gTowerFar h :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (Or.inr ⟨j, rfl⟩))
+
+/-- ⭐⭐ **Jacobi discharges the `x₁` outer slot for far inner slots**, unconditionally: the two
+rotations put a far element in the outer slot, where both are bracket knobs. -/
+theorem gBase_jacobi_xOne {a b : (DSq h : Type)} (ha : a ∈ gTowerFar h) (hb : b ∈ gTowerFar h) :
+    commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b)) (gBaseT h)
+      ∈ gTowerReach h nu' 2 := by
+  have hjac := gThreeFour_jacobi (levelMk (DSq h : Type) 4 a)
+    (levelMk (DSq h : Type) 4 b) (gBaseT h)
+  have hsol : commP (commP (levelMk (DSq h : Type) 4 a)
+      (levelMk (DSq h : Type) 4 b)) (gBaseT h) =
+      (commP (commP (levelMk (DSq h : Type) 4 b) (gBaseT h)) (levelMk (DSq h : Type) 4 a) *
+        commP (commP (gBaseT h) (levelMk (DSq h : Type) 4 a)) (levelMk (DSq h : Type) 4 b))⁻¹ :=
+    eq_inv_of_mul_eq_one_left (by rw [← mul_assoc]; exact hjac)
+  rw [hsol]
+  refine Subgroup.inv_mem _ (Subgroup.mul_mem _ ?_ ?_)
+  · have hk := gBase_knob_mem (a := b) (b := dsqX1 h) (q := a) (nu' := nu') ha
+    rwa [gBase_levelMk_triple] at hk
+  · have hk := gBase_knob_mem (a := dsqX1 h) (b := a) (q := b) (nu' := nu') hb
+    rwa [gBase_levelMk_triple] at hk
+
 variable (h nu') in
 /-- ⭐⭐⭐ **The residual of the depth-two base**, isolated: the `x₁`-slot triple brackets
 `⁅⁅x₁, letter⁆, x₁⁆`.  These are the only triple brackets Jacobi cannot move out of the `x₁`
@@ -389,18 +427,7 @@ theorem gBase_triple_xOne_letters (H : GBaseXOneTriple h nu') (i i' : Fin (sqRan
       rw [gBase_commP_swap (levelMk (DSq h : Type) 4 (sqGen h i)),
         gThreeFour_ad_inv_left (cfour_commP_mem_lambdaTwo _ _)]
       exact H i
-    · have hjac := gThreeFour_jacobi (levelMk (DSq h : Type) 4 (sqGen h i))
-        (levelMk (DSq h : Type) 4 (sqGen h i')) (gBaseT h)
-      have hsol : commP (commP (levelMk (DSq h : Type) 4 (sqGen h i))
-          (levelMk (DSq h : Type) 4 (sqGen h i'))) (gBaseT h) =
-          (commP (commP (levelMk (DSq h : Type) 4 (sqGen h i')) (gBaseT h))
-              (levelMk (DSq h : Type) 4 (sqGen h i)) *
-            commP (commP (gBaseT h) (levelMk (DSq h : Type) 4 (sqGen h i)))
-              (levelMk (DSq h : Type) 4 (sqGen h i')))⁻¹ :=
-        eq_inv_of_mul_eq_one_left (by rw [← mul_assoc]; exact hjac)
-      rw [hsol]
-      exact Subgroup.inv_mem _ (Subgroup.mul_mem _ (gBase_triple_far _ _ hi)
-        (gBase_triple_far _ _ hi'))
+    · exact gBase_jacobi_xOne (gTower_letters_mem_far i hi) (gTower_letters_mem_far i' hi')
 
 /-- ⭐⭐ **The `x₁` outer slot, in general.**  Both inner slots reduce to letters, the triple
 bracket being additive in each of them. -/
@@ -465,12 +492,6 @@ end Base
 section FourthPowers
 
 variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
-
-/-- The `levelMk`-image of a bracket, in `Q₄` vocabulary. -/
-theorem gBase_levelMk_commP (a b : (DSq h : Type)) :
-    levelMk (DSq h : Type) 4 (commP a b) =
-      commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b) := by
-  simp only [commP, map_mul, map_inv]
 
 variable (h nu') in
 /-- The `Y`-elements whose bracket against `x₁` reaches. -/
@@ -614,7 +635,74 @@ theorem gBase_supply_of_residual (H : GBaseResidual h)
 
 end FourthPowers
 
-/-! ## §5 Axiom pins -/
+
+/-! ## §5 The residual is exactly the `x₁`-slot bracket squares
+
+Both knob terms of the relator identity `gBase_xOne_triple` reach unconditionally, so the
+residual triple bracket and the bracket square `⁅x₁, c⁆²` stand or fall together.  This is the
+sharpest reading of what the depth-two base is missing: the `(Λ²V)^{[2]}`-classes at the `x₁`
+slot, and nothing else. -/
+
+section Residual
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- ⭐⭐ **A triple bracket with two far elements inside reaches unconditionally.**  The outer
+slot reduces to the letters; a far letter there is a bracket knob, and `x₁` there is Jacobi. -/
+theorem gBase_triple_far_inner {a b : (DSq h : Type)} (ha : a ∈ gTowerFar h)
+    (hb : b ∈ gTowerFar h) (r : levelQuot (DSq h : Type) 4) :
+    commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b)) r
+      ∈ gTowerReach h nu' 2 := by
+  obtain ⟨g, rfl⟩ := levelMk_surjective (DSq h : Type) 4 r
+  rw [← gBase_levelMk_triple]
+  have hspan := gTower_commHom_span (h := h) (k := 2) (cfour_commP_mem_two a b) g
+  refine Subgroup.closure_le (K := gTowerReach h nu' 2) |>.2 ?_ hspan
+  rintro _ ⟨i'', rfl⟩
+  by_cases hi'' : i'' = 2
+  · subst hi''
+    have hgoal : levelMk (DSq h : Type) 4 (commP (commP a b) (sqGen h 2))
+        ∈ gTowerReach h nu' 2 := by
+      rw [gBase_levelMk_triple]
+      exact gBase_jacobi_xOne ha hb
+    exact hgoal
+  · exact gBase_knob_mem (gTower_letters_mem_far i'' hi'')
+
+/-- The `⁅σ, x₀⁆`-term of the relator identity reaches, at every slot. -/
+theorem gBase_sigmaX0_mem (c : levelQuot (DSq h : Type) 4) :
+    commP (commP (gBaseS h) (gBaseX h)) c ∈ gTowerReach h nu' 2 :=
+  gBase_triple_far_inner gBase_sigma_far gBase_x0_far c
+
+/-- The handle term of the relator identity reaches, at every slot. -/
+theorem gBase_handleTerm_mem (c : levelQuot (DSq h : Type) 4) :
+    commP (gBaseHandle h) c ∈ gTowerReach h nu' 2 := by
+  rw [gBase_handle_bracket]
+  refine Subgroup.list_prod_mem _ fun z hz => ?_
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hz
+  exact gBase_triple_far_inner (gBase_handleU_far j) (gBase_handleV_far j) c
+
+/-- ⭐⭐⭐ **The residual, in its two equivalent forms.**  By the relator identity of §2 the
+`x₁`-slot triple bracket and the `x₁`-slot bracket square differ by two terms that always
+reach, so the depth-two base is missing exactly the `(Λ²V)^{[2]}`-classes at the `x₁` slot. -/
+theorem gBase_residual_iff (c : levelQuot (DSq h : Type) 4) :
+    commP (commP (gBaseT h) c) (gBaseT h) ∈ gTowerReach h nu' 2 ↔
+      (commP (gBaseT h) c) ^ 2 ∈ gTowerReach h nu' 2 := by
+  have hA := gBase_sigmaX0_mem (nu' := nu') c
+  have hH := gBase_handleTerm_mem (nu' := nu') c
+  rw [gBase_xOne_triple c]
+  constructor
+  · intro hmem
+    have := Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.inv_mem _ hA) hmem)
+      (Subgroup.inv_mem _ hH)
+    rwa [show (commP (commP (gBaseS h) (gBaseX h)) c)⁻¹ *
+        (commP (commP (gBaseS h) (gBaseX h)) c * commP (gBaseT h) c ^ 2 *
+          commP (gBaseHandle h) c) * (commP (gBaseHandle h) c)⁻¹
+        = commP (gBaseT h) c ^ 2 from by group] at this
+  · intro hmem
+    exact Subgroup.mul_mem _ (Subgroup.mul_mem _ hA hmem) hH
+
+end Residual
+
+/-! ## §6 Axiom pins -/
 
 section AxiomPins
 
@@ -623,6 +711,7 @@ section AxiomPins
 #print axioms gBaseT
 #print axioms gBaseHandle
 #print axioms gBase_letters_mem
+#print axioms gBase_levelMk_commP
 #print axioms gBase_relator_four
 #print axioms gBase_handle_mem
 #print axioms gBase_relator_bracket
@@ -641,13 +730,13 @@ section AxiomPins
 #print axioms gBase_bundle_mem
 #print axioms gBase_levelMk_triple
 #print axioms gBase_triple_far
+#print axioms gBase_jacobi_xOne
 #print axioms GQ2.Dyadic.SqCore.GBaseXOneTriple
 #print axioms gBase_triple_xOne_letters
 #print axioms gBase_triple_xOne
 #print axioms gBase_letter_triple_mem
 #print axioms gBase_triple
 #print axioms gBase_bracketSq
-#print axioms gBase_levelMk_commP
 #print axioms gBaseXOneTest
 #print axioms gBase_comm_xOne
 #print axioms gBase_sq_gammaTwo
@@ -657,6 +746,14 @@ section AxiomPins
 #print axioms gBase_joinBase_of_residual
 #print axioms gBase_markTransitivity_of_residual
 #print axioms gBase_supply_of_residual
+#print axioms gBase_sigma_far
+#print axioms gBase_x0_far
+#print axioms gBase_handleU_far
+#print axioms gBase_handleV_far
+#print axioms gBase_triple_far_inner
+#print axioms gBase_sigmaX0_mem
+#print axioms gBase_handleTerm_mem
+#print axioms gBase_residual_iff
 
 end AxiomPins
 
