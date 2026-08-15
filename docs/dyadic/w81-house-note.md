@@ -281,15 +281,223 @@ One naming observation, not an error: `gXf_markTransitivity_of_vanishing`,
 "the `h ≥ 1` residual" or "the `h ≥ 1` stratum", but none of them binds `0 < h` and all cover
 `h = 0`.  The names understate rather than overstate; annotated on the last of them.
 
-## 2.5 (d) The wave-80 merge messages
+## 2.5 (d) The wave-80 merge messages: 36 commits, two defects
 
-Reported separately below once the spot-check completes.
+The range `4f30776b..6f2916f3` is 36 commits.  The narrative is on the whole careful and
+matches the tree: declaration names, signatures, hypothesis lists and every structural count I
+re-checked (four `GenAsmRowResidual` fields, nine sites across five files at `a08e046f`, seven
+vacuous layer-step theorems, 56 pins at `e59a5600`, `B.r ≤ 1` at both procyclic rows,
+`GGenRecord` at `j ≥ 1`) is accurate.  Two defects.
+
+**(i) ⚠⚠ HIGH - `a0b7fa0e` (the W80-FINAL merge) calls `GTowerKnobRealizable` refuted.**
+Verbatim, line 18 of the message:
+
+> the generation lane's own composite still carried the extraction interface that wave 79
+> refuted as quantified
+
+It was not refuted.  `docs/dyadic/w79-extract-note.md:129`, verbatim:
+
+> **This is not a refutation**: nothing here shows that such a frame satisfies
+
+and the same note states elsewhere that the claim "`GTowerKnobRealizable h` is false" is not
+made and is not supported.  There is no `¬ GTowerKnobRealizable` anywhere in the tree, whereas
+the genuinely refuted `Prop`s all have one (`gDeep_not_layerReach`, `gDeep_not_baseThree`,
+`gDecide_not_joinBase`, `gDecide_not_baseResidual`).  This is the merge message borrowing the
+word that belongs to those four.  It matters because the merge messages are the campaign's
+narrative record and this one is the closing merge of the odd route.
+
+The same wave's own W80-XFREE merge (`75498b2b`) gets it exactly right - "the abstract
+interface is **neither proved nor refuted**" - so this is a slip in one message, not a
+misunderstanding in the wave.  It is the same slip as `GradedOddClose.lean:17` (§2.3), one
+notch stronger.
+
+**(ii) ⚠ LOW - `427c4819` (the W80-HOUSE merge) miscounts a list.**  Verbatim:
+
+> marked once at the definition with the five statements it does not touch named
+
+The list at `GradedUniformTower.lean:1135-1137` names **six**: `SqClassClearingSupply h k`,
+`GTowerDefectVanishing h`, `GTowerKnobRealizable h`, `gTower_clear_step`,
+`gTower_supply_of_vanishing`, `limFinal_markTransitivity_iff`.  The adjacent count in the same
+sentence ("seven theorems") is right, so this is an isolated off-by-one.
+
+**Worth recording as a positive.**  `540ad3f7`, the W80-UNIFORM merge, caught the separation
+staleness at merge time and said so, verbatim:
+
+> One staleness note for the record: the lane's list of what remains
+> names separation at h >= 1 as open, but its own base carries
+> gExt_separationAll at every h, a wave-79 theorem.
+
+So the orchestrator did see it.  What did not happen is the follow-through: the note itself was
+left uncorrected, and so was the module docstring that says the same thing.  That is the actual
+process gap - not detection, but the absence of a step that writes a merge-time finding back
+into the artifact it is about.  Both are corrected in this lane (§2.2).
 
 ---
 
 # Ticket 3: the endgame board
 
-Reported below.
+Report-only.  Nothing in this section was acted on.
+
+## 3.0 What the odd closure did and did not move
+
+`gOdd_markTransitivity` closes the odd route's *graded* problem.  It discharges the `hMix`
+binder wherever that binder appears, and **zero of `GenAsmRowResidual`'s four obligation
+fields**: the odd residual feeds the selector one layer earlier than the obligation record, so
+the two never meet.  `GQ2/Dyadic/GeneralAssembly.lean` still calls it "the odd route's residual"
+at `:449`, `:530`, `:609`, `:618`; annotated at `:530` in this lane, comment-only.
+
+## 3.1 (a) The general theorem at every odd-degree ramified-`i` `K`
+
+Two things stand between the tree and it.
+
+**The seam (`oddId`).**  There is no declaration named `oddId` in the tree and no
+`Instances/OddIdentification.lean`; the seam is the binder
+
+```
+e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K))
+```
+
+in `genAsm_branch_of_oddSq` (`GeneralAssembly.lean:621-633`) and its canonical form
+`genAsm_branch_of_oddSq_canonical` (`:650-658`).  This binder **is** the odd-degree
+classification statement; no theorem in the tree produces it at an arbitrary ramified-`i` `K`.
+The canonical form already discharges `nuP`, `hnuP`, `hnuIota` via `lNu h`, and `hMix` is now a
+theorem, so what `genAsm_branch_of_oddSq_canonical` still binds is `hdeg`, `e`, `hsigma`, `hx0`
+- of which only `e` is deep.
+
+Ramifiedness itself is **free** at odd degree:
+`not_hasEqualNormValueGroups_sqrt_neg_one_of_odd_finrank`
+(`GQ2/Dyadic/OddDegreeRamifiedI.lean:60-63`) is a theorem needing only `Odd (finrank ℚ₂ K)`.
+That is the odd side's structural advantage over the even side.
+
+**The three obligation blocks.**  `GenAsmRowResidual` (`GeneralAssembly.lean:283-299`) has
+four fields; wave 80 wired one away, so three remain:
+
+| field | ledger | status |
+|---|---|---|
+| `exactLifting` | ASK field 3 | open at general `K`; ticket ASK, never produced |
+| `stokes` | ASK field 4 | open at general `K`; ticket ASK, never produced |
+| `determinant` | ASK field 6 | **dischargeable**, wave 80: `mpcRow_determinant_of_bridge` over `affineDeterminant_galK` (`GaussZ/FinalDK.lean`) |
+| `cand` | CAND | open; per-row, see §3.1a |
+
+The field's own docstring already carried the wave-79 correction that it was "a binder because
+nobody wired it, not because the rung is missing"; wave 80 wired it, and
+`mpcRow_genAsmRowResidual_of_counting` builds the record with no `determinant` argument.  So
+**the general row residual costs three blocks, not four**, and the two that are genuinely
+unowned are the two ASK analytic clauses.
+
+**§3.1a The `L h` CAND field.**  At `h ≥ 1` there is **no producer**, at any `h`.  At `h = 0`
+it is discharged (`genCert_wordCertificate_nonempty_L_zero`).  With `e` still open, this is the
+odd row's only other campaign-side gap.
+
+**Correction carried forward.**  `GeneralAssembly.lean:273-280`'s CAND coverage table is stale:
+it is a W75-STATE table and `GeneralCertificates.lean` (wave 76) improved three of its five
+rows, including `Npc α r η h`, which the table records as "none | none" but which
+`genCertNpcWordCertificate` (`GeneralCertificates.lean:727`) covers at free `(α, r, h, q)`.
+Flagged in `docs/dyadic/w76-house-note.md` and never absorbed.  Not annotated here: it is a
+five-row table and rewriting it is more than a marker.
+
+## 3.2 (b) The same at even degree
+
+**The classification is a theorem**, and this is the even side's structural advantage:
+`parityFinal_evenClassification` (`Instances/EvenParityModel.lean:156-168`) produces the
+oriented equivalence - the analogue of `e` - as an existential over `alpha ≥ 2`, given
+`hram : ¬ HasEqualNormValueGroups K deltaI` and `hev : finrank ℚ₂ K = 2 + 2h`.  Where the odd
+side has an unproved `e`, the even side has a proved one.
+
+**Its price is `hram`.**  At odd degree ramifiedness is derived; at even degree it is assumed.
+That is the trade.
+
+**The consumers.**  `genAsm_branch_of_evenN` (`:579-590`) and `genAsm_branch_of_evenM`
+(`:594-605`) still bind a raw oriented equivalence `e` plus `hpair` (N-family) or
+`hMix`/`hpivot` (M-family).  The M-family `hMix` is `MMixHypothesis`, **not** the `SqCore` one
+the odd closure discharged, so wave 80 does not reach it.
+
+**`Hfam` / `EvenFamParitySupply`.**  Unchanged by wave 80, and the W65 finding stands: it is
+proved *equivalent in strength* to the even classification at the field's own depth
+(`hfamFinal_parityN_iff_orientedEquiv`, `hfamFinal_parityM_iff_orientedEquiv`,
+`Instances/EvenFamilyStatus.lean:389-422`).  So it can be neither refuted nor discharged by
+soft means: any proof of it at `K` proves the classification at `K`.
+
+**The branch identifications: five, not four.**  The ticket says four exist at the quadratic
+fields; the tree has **all five**, each a theorem:
+
+| field | theorem | file |
+|---|---|---|
+| ℚ₂(√−2) | `hrangeFinal_sqrtNegTwo` | `Instances/EvenRangeModelFields.lean:626` |
+| ℚ₂(√2) | `hrangeFinal_sqrtTwo'` | `Instances/EvenRangePolish.lean:271` |
+| ℚ₂(√5) | `fieldId_hrange_sqrtFive` | `Instances/FieldBranchIdentification.lean:429` |
+| ℚ₂(√10) | `fieldId_hrange_sqrtTen` | `Instances/FieldBranchIdentification.lean:438` |
+| ℚ₂(√−10) | `fieldId_hrange_sqrtNegTen` | `Instances/FieldBranchIdentification.lean:451` |
+
+The "four" is most likely a crossed wire with a different fact -
+`docs/dyadic/literature-axioms-dyadic.md:133`, four rows carrying literal instantiations that
+print byte-identically to their parametrized parents - which is about byte-identity, not branch
+identification.
+
+What is **three of five**, not five, is the full branch *datum* `GenAsmBranch` being
+unconditional: √−2, √2 and √5 carry it outright, while √10 and √−10 carry it only over
+`MpcRowData_sqrt{Ten,NegTen}`.
+
+## 3.3 (c) The quadratic flagship unconditional at all five rows
+
+The five per-row obligation structures are `ResidualSqrtNegTwo` (`Main.lean:352-381`),
+`ResidualSqrtTwo` (`:391-429`), `ResidualSqrtFive` (`:435-473`), `ResidualSqrtTen`
+(`:480-519`), `ResidualSqrtNegTen` (`:524-564`), bundled by `RowResidual` (`:569-574`).
+
+**The norm values (rows 4 and 5).**  Wave 80 broke the two opaque `Prop`s
+`MpcRowData_sqrt{Ten,NegTen}` into named arithmetic, and proved the level's upper half
+outright:
+
+* `B.r ≤ 1` at both fields: **theorem**, `mpcRow_level_le_one_sqrtTen` /
+  `_sqrtNegTen` (`Instances/MpcRowData.lean:214,218`), by the scalar-`2` witness.
+* `B.r = 1`: needs `MpcNoUnitKerChi B` (`:436-437`), **still a binder**.
+* the `λ` clauses `MpcLambdaOne B (−1) p` and `MpcLambdaOne B (mUnit 2) 1` (`:442-443`):
+  **still binders**.
+* the pivot: **still a raw binder**, and the one conjunct with no equivalence-free form.
+
+What remains is arithmetic, not classification: four values of the norm-group character, a
+mod-8 congruence on norms of units plus one descent, and (for the pivot) freeness of `ℤ₂ˣ` as
+`⟨−1⟩ × 5^{ℤ₂}`, of which the tree has only generation.
+
+**The two ASK bundles.**  ASK appears in two shapes, and the asymmetry is real:
+
+1. **bundled** - `structure KSupply` (`Instances/KSupply.lean:309-333`), carried as one field
+   `KS` by the four M-family rows (`Main.lean:427-429`, `:471-473`, `:517-519`, `:562-564`);
+2. **unbundled** - the pilot row spells only `hexact`/`hstokes` directly
+   (`Main.lean:368-373`).  **The pilot record carries no `G_K`-side `determinant` field at
+   all**, where `KSupply` and `GenAsmRowResidual` both do.
+
+`exactLifting`/`stokes` are open struct-level binders at all five rows - ticket ASK, queued and
+never done.  `determinant` is now dischargeable (wave 80).
+
+**`hdet`.**  `ResidualSqrtNegTwo.hdet : SqrtNeg2.PilotDet …` (`Main.lean:381`), **still open**,
+and it is a *different* obligation from `KSupply.determinant`: `hdet` is the **candidate**-side
+Gauss-`Z` clause, only at the pilot row, feeding `sqrtNegTwoWordCertificate`.  Its own docstring
+(`Instances/SqrtNeg2.lean:880-885`) records that the two Gauss-`Z` clauses have no
+candidate-side supplier in the repository.  Wave 80 left a fully worked, dispatchable brief for
+it (`docs/dyadic/w80-house-note.md` Ticket 2) whose acceptance test is that
+`ResidualSqrtNegTwo` loses its `hdet` field.  **Not taken as of this tree.**  The pilot's three
+sibling candidate-side binders `PilotHsimp`, `PilotStageSep`, `PilotStageZ` are likewise open.
+
+**The CAND row.**  Per-row producers exist for M0, Mpc, N0 and Npc (the last three improved by
+`GeneralCertificates.lean` beyond what `GeneralAssembly.lean`'s table records, §3.1); none is
+unconditional - all still take the four analytic clauses as hypotheses.  `L h` at `h ≥ 1` has
+no producer at all.
+
+**Summary of the flagship board.**  To get all five rows unconditional the tree needs: the two
+ASK analytic clauses at all five rows; `hdet` plus three siblings at the pilot; the norm-value
+arithmetic at rows 4 and 5; and a CAND producer that does not re-bind the analytic clauses.
+The odd closure moved none of these, and never claimed to - `GradedOddClose.lean:45-48` says so
+explicitly, and that disclaimer is accurate.
+
+## 3.4 One staleness correction owed elsewhere
+
+`docs/dyadic/w80-rowdata-note.md` §7 items 3 and 4 are both stale as of this tree: item 3 asks
+for `MpcRowData.lean` to be registered in `GQ2.lean`, which `GQ2.lean:870` already does; item 4
+says `fieldUni_TwoIsUniformizer KSqrtFive` "is still open (row 3)", but
+`fieldFive_twoIsUniformizer` (`Instances/FieldSqrtFiveUnramified.lean:209`) proves it with no
+hypotheses, landed wave 79.  Left uncorrected here only because that note is a sibling lane's
+record from a different ticket; flagged for the orchestrator.
 
 ---
 
@@ -297,8 +505,10 @@ Reported below.
 
 Carried forward, unchanged by this lane.
 
-1. **The A6 freeze** - `GQ2/Roe/*` frozen. Round count carried; nothing in this lane touched
-   `GQ2/Roe/` or `GQ2.lean`.
+1. **The A6 freeze** - `GQ2/Roe/*` frozen, now **eight** review rounds without motion (seven at
+   the wave-80 round, per `docs/dyadic/owner-items-2026-08-05.md`).  Nothing in this lane
+   touched `GQ2/Roe/` or `GQ2.lean`.  It remains the only owner item with no motion across the
+   whole run.
 2. **Line length** - the corpus has lines over 100 *bytes* but none over 100 *codepoints*;
    the two measures differ because of `⭐ ⚠ ≥ ₂ γ ν`.  Every file this lane touched is at
    zero over-100-codepoint lines, verified.  If the owner's linter counts bytes, that is a
