@@ -824,6 +824,217 @@ theorem gGen_t1 (m : ℕ) : GGenT1 h m := by
 
 end Cut
 
+/-! ## §6 T2 at every depth: the coefficient kill
+
+The corrected rows are depth-free and each squaring doubles the reading: `B^{2^m}` reads
+`2^{m+2}·unit` at the corrected `σ`-row (committed, `gDeep_delta_B_pow_rowS`) and `0` at
+the `x₀`-row, `C^{2^m}` conversely, while the depth-`(m+2)` reach reads
+`2^{m+3}`-divisibly.  All-readers-zero elements therefore have both `𝔽₂`-exponents killed
+and reach: the ladder rung at every depth. -/
+
+section Kill
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+theorem gGen_delta_B_rowX (m : ℕ) :
+    gDelta h (gAbsRowX h nu') (gAbsB h ^ 2 ^ m) = 0 := by
+  rw [gDeep_delta_pow_two_pow _ gAbs_chiSq_B, gAbs_delta_B_rowX, mul_zero]
+
+theorem gGen_delta_C_rowS (m : ℕ) :
+    gDelta h (gAbsRowS h nu') (gAbsC h ^ 2 ^ m) = 0 := by
+  rw [gDeep_delta_pow_two_pow _ gAbs_chiSq_C, gAbs_delta_C_rowS, mul_zero]
+
+/-- `C^{2^m}` reads `2^{m+2}·unit` at the corrected `x₀`-row: the twin of the committed
+`gDeep_delta_B_pow_rowS`. -/
+theorem gGen_delta_C_rowX (m : ℕ) :
+    ∃ u : ℤ_[2]ˣ,
+      gDelta h (gAbsRowX h nu') (gAbsC h ^ 2 ^ m) = 2 ^ (m + 2) * (u : ℤ_[2]) := by
+  obtain ⟨u, hu⟩ := gAbs_delta_C_rowX (h := h) (nu' := nu')
+  refine ⟨u, ?_⟩
+  rw [gDeep_delta_pow_two_pow _ gAbs_chiSq_C, hu]
+  ring
+
+/-- **The middle-exponent kill at depth `m+2`**: head `2^{m+3}`-divisible, middle base
+`2^{m+2}·unit`, tail base zero, product zero: the middle `𝔽₂`-exponent vanishes. -/
+theorem gGen_kill_mid {m : ℕ} {p x y : (DSq h : Type)} {c : Fin (sqRank h) → ℤ_[2]}
+    {e f : ℕ} (he : e ≤ 1) (hdvdp : (2 : ℤ_[2]) ^ (m + 3) ∣ gDelta h c p)
+    (hx8 : ∃ u : ℤ_[2]ˣ, gDelta h c x = 2 ^ (m + 2) * (u : ℤ_[2]))
+    (hy0 : gDelta h c y = 0) (hchiX : chiSq h x = 1) (hchiY : chiSq h y = 1)
+    (hzero : gDelta h c (p * x ^ e * y ^ f) = 0) : e = 0 := by
+  rw [gDelta_mul, gDelta_mul, gDelta_pow, gDelta_pow, hchiX, hchiY, hy0, mul_zero, mul_zero,
+    add_zero, Units.val_one, normSum_one_base] at hzero
+  match e, he with
+  | 0, _ => rfl
+  | 1, _ =>
+    exfalso
+    have hdvd : (2 : ℤ_[2]) ^ (m + 3) ∣ ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c x := by
+      have hneg : ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c x = -gDelta h c p := by
+        push_cast at hzero
+        linear_combination hzero
+      rw [hneg]
+      exact hdvdp.neg_right
+    obtain ⟨u, hu⟩ := hx8
+    exact gDeep_pow_unit_not_dvd hu (gDeep_unit_mul_dvd hdvd)
+
+/-- **The tail-exponent kill at depth `m+2`.** -/
+theorem gGen_kill_last {m : ℕ} {p x y : (DSq h : Type)} {c : Fin (sqRank h) → ℤ_[2]}
+    {e f : ℕ} (hf : f ≤ 1) (hdvdp : (2 : ℤ_[2]) ^ (m + 3) ∣ gDelta h c p)
+    (hx0 : gDelta h c x = 0)
+    (hy8 : ∃ u : ℤ_[2]ˣ, gDelta h c y = 2 ^ (m + 2) * (u : ℤ_[2]))
+    (hchiX : chiSq h x = 1) (hchiY : chiSq h y = 1)
+    (hzero : gDelta h c (p * x ^ e * y ^ f) = 0) : f = 0 := by
+  rw [gDelta_mul, gDelta_mul, gDelta_pow, gDelta_pow, hchiX, hchiY, hx0, mul_zero, mul_zero,
+    add_zero, Units.val_one, normSum_one_base, map_mul, map_pow, hchiX, one_pow, mul_one]
+    at hzero
+  match f, hf with
+  | 0, _ => rfl
+  | 1, _ =>
+    exfalso
+    have hdvd : (2 : ℤ_[2]) ^ (m + 3) ∣ ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c y := by
+      have hneg : ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c y = -gDelta h c p := by
+        push_cast at hzero
+        linear_combination hzero
+      rw [hneg]
+      exact hdvdp.neg_right
+    obtain ⟨u, hu⟩ := hy8
+    exact gDeep_pow_unit_not_dvd hu (gDeep_unit_mul_dvd hdvd)
+
+/-- ⭐⭐⭐ **T2 at every depth: the coefficient kill.**  An exactly row-trivial
+`γ_{m+3}`-element all of whose functional readings vanish has zero coker coefficients: its
+class lies in the admissible depth-`(m+2)` reach. -/
+theorem gGen_zero_reader_reach {m : ℕ}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) (m + 3)) (hgl : nuLam h g = 1)
+    (hgn : nu' g = 1) (hzero : ∀ c : Fin (sqRank h) → ℤ_[2], gDelta h c g = 0) :
+    levelMk (DSq h : Type) (m + 4) g ∈ gTowerReach h nu' (m + 2) := by
+  obtain ⟨p, e₁, e₂, hpm, hpR, he₁, he₂, hgeq⟩ := gGen_t1 m nu' hsigma hx0 g hg hgl hgn
+  have hpS : (2 : ℤ_[2]) ^ (m + 3) ∣ gDelta h (gAbsRowS h nu') p :=
+    (gJoin_mem_layerDvd (c := gAbsRowS h nu') (k := m + 2) (x := p)).1
+      (gDeep_reach_le_layerDvd_rowS (k := m) hpR)
+  have hpX : (2 : ℤ_[2]) ^ (m + 3) ∣ gDelta h (gAbsRowX h nu') p :=
+    (gJoin_mem_layerDvd (c := gAbsRowX h nu') (k := m + 2) (x := p)).1
+      (gDeep_reach_le_layerDvd_rowX (k := m) hpR)
+  have h0S := hzero (gAbsRowS h nu')
+  rw [hgeq] at h0S
+  have h0X := hzero (gAbsRowX h nu')
+  rw [hgeq] at h0X
+  have hBkill : e₁ = 0 :=
+    gGen_kill_mid he₁ hpS (gDeep_delta_B_pow_rowS m) (gGen_delta_C_rowS m)
+      (gGen_B_pow_chi m) (gGen_C_pow_chi m) h0S
+  have hCkill : e₂ = 0 :=
+    gGen_kill_last he₂ hpX (gGen_delta_B_rowX m) (gGen_delta_C_rowX m)
+      (gGen_B_pow_chi m) (gGen_C_pow_chi m) h0X
+  rw [hgeq, hBkill, hCkill, pow_zero, pow_zero, mul_one, mul_one]
+  exact hpR
+
+end Kill
+
+/-! ## §7 The ladder closed, and the composite
+
+`GDeepKillAt h k` for every `k ≥ 2`: wave 79's sole ladder input, discharged.  Through the
+committed `gDeep_markTransitivity_of_kills`, what now stands between the tree and
+`SqLamMarkTransitivity h` is exactly the two wave-75 interfaces: the separation
+bookkeeping `GJoinSeparationAll h` (vacuous at `h = 0`) and the extraction
+`GTowerKnobRealizable h`. -/
+
+section Ladder
+
+variable {h : ℕ}
+
+/-- ⭐⭐⭐ **The kill ladder at every rung**: wave 79's per-level residual, closed. -/
+theorem gGen_killAt : ∀ k, 2 ≤ k → GDeepKillAt h k := by
+  intro k hk
+  obtain ⟨m, rfl⟩ : ∃ m, k = m + 2 := ⟨k - 2, by omega⟩
+  intro nu' hsigma hx0 g hg hgl hgn hzero
+  exact gGen_zero_reader_reach hsigma hx0 hg hgl hgn hzero
+
+/-- The vanishing interface, from separation alone. -/
+theorem gGen_defectVanishing (hsep : GJoinSeparationAll h) : GJoinDefectVanishing h :=
+  gDeep_defectVanishing_of_kills gGen_killAt hsep
+
+/-- The supply at every class, from separation and extraction alone. -/
+theorem gGen_supply (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
+    ∀ k, SqClassClearingSupply h k :=
+  gDeep_supply_of_kills gGen_killAt hsep HR
+
+/-- ⭐⭐⭐ **The composite**: `SqLamMarkTransitivity h` from separation plus extraction
+alone.  No layer statement, no per-class witness, no per-level generation input remains:
+the whole graded side is theorems. -/
+theorem gGen_markTransitivity (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
+    SqLamMarkTransitivity h :=
+  gDeep_markTransitivity_of_kills gGen_killAt hsep HR
+
+/-- The handle-free case: no separation obligation at all. -/
+theorem gGen_markTransitivity_handleFree (HR : GTowerKnobRealizable 0) :
+    SqLamMarkTransitivity 0 :=
+  gGen_markTransitivity gDeep_separationAll_handleFree HR
+
+end Ladder
+
+/-! ## §8 Axiom pins -/
+
+section AxiomPins
+
+#print axioms gGen_markTransitivity
+#print axioms gGen_killAt
+#print axioms GQ2.Dyadic.SqCore.GGenRecord
+#print axioms gGen_mem_lambdaOne
+#print axioms gGen_sq_mem_lambdaTwo
+#print axioms gGen_record_one
+#print axioms gGen_record_two
+#print axioms gGen_mk_commP
+#print axioms GQ2.Dyadic.SqCore.gGenTest
+#print axioms gGen_mem_test
+#print axioms gGen_gammaSucc_le_test
+#print axioms gGen_mem_test_of_mk
+#print axioms gGen_record_step
+#print axioms gGen_record
+#print axioms GQ2.Dyadic.SqCore.gGenCoker
+#print axioms GQ2.Dyadic.SqCore.gGenWide
+#print axioms GQ2.Dyadic.SqCore.gGenWideFull
+#print axioms gGen_reach_le_wide
+#print axioms gGen_wide_le_wideFull
+#print axioms gGen_wideFull_eq
+#print axioms gGen_B_pow_mem
+#print axioms gGen_C_pow_mem
+#print axioms gGen_B_pow_nuLam
+#print axioms gGen_B_pow_nu
+#print axioms gGen_C_pow_nuLam
+#print axioms gGen_C_pow_nu
+#print axioms gGen_B_pow_chi
+#print axioms gGen_C_pow_chi
+#print axioms gGen_coker_central
+#print axioms gGen_coker_normal
+#print axioms gGen_B_img_sq
+#print axioms gGen_C_img_sq
+#print axioms gGen_coker_form
+#print axioms GQ2.Dyadic.SqCore.GGenDecomp
+#print axioms gGen_pow_sq
+#print axioms gGen_sq_rowTrivial
+#print axioms gGen_defect_rowTrivial
+#print axioms gGen_bracket_wide
+#print axioms gGen_pow_gammaTwo
+#print axioms gGen_zLayer_le_wideFull
+#print axioms gGen_wideFull_realize
+#print axioms gGen_wide_cut
+#print axioms gGen_layer_wide
+#print axioms gGen_leftover_step
+#print axioms GQ2.Dyadic.SqCore.GGenT1
+#print axioms gGen_t1_zero
+#print axioms gGen_t1
+#print axioms gGen_delta_B_rowX
+#print axioms gGen_delta_C_rowS
+#print axioms gGen_delta_C_rowX
+#print axioms gGen_kill_mid
+#print axioms gGen_kill_last
+#print axioms gGen_zero_reader_reach
+#print axioms gGen_defectVanishing
+#print axioms gGen_supply
+#print axioms gGen_markTransitivity_handleFree
+
+end AxiomPins
+
 end SqCore
 
 end Dyadic
