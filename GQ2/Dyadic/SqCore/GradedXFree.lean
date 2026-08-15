@@ -34,6 +34,8 @@ shape:
 
 open Multiplicative
 
+open scoped Pointwise
+
 namespace GQ2
 
 open Roe Roe.Labute FoxH
@@ -127,7 +129,214 @@ theorem gXf_bridgeTuple_free : GXfFree h (bridgeTuple nu' j) := by
 
 end Base
 
-/-! ## §3 Axiom pins -/
+/-! ## §3 The far span is an exact half-space
+
+Wave 79's repair needs one fact the note argued on paper: the `2 + 2h` non-`x₁` frame slots
+**span** the far half-space, not merely sit inside it.  The tool is the characteristic
+character `ε` of the mod-two cup form (`sqEps`, `DsqDemushkin.lean` §2), whose defining property
+is exactly the one wanted: `ε` reads the `x₁`-coordinate of a letter and nothing else
+(`toAdd_sqEps_gen`).  So `ker ε` is a half-space containing the far span, missing `x₁`, and
+containing `γ₂`; and a closed subgroup of `D_sq h` that contains `γ₂` and the `2 + 2h` non-`x₁`
+slots of a mod-two independent frame, and that lies inside `ker ε`, must contain the whole far
+span - otherwise its union with the `x₁`-slot coset would be a proper closed subgroup carrying
+every slot, which `SqModTwoIndep` forbids. -/
+
+section Half
+
+variable {h : ℕ}
+
+variable (h) in
+/-- **The `x₁`-coordinate half-space**: the kernel of the characteristic character of the
+mod-two cup form. -/
+noncomputable def gXfHalf : Subgroup (DSq h : Type) := MonoidHom.ker (sqEps h).toMonoidHom
+
+theorem gXf_mem_half_iff {g : (DSq h : Type)} : g ∈ gXfHalf h ↔ sqEps h g = 1 := Iff.rfl
+
+/-- The half-space is closed: `ε` is continuous into a Hausdorff group. -/
+theorem gXf_half_isClosed :
+    IsClosed ((gXfHalf h : Subgroup (DSq h : Type)) : Set (DSq h : Type)) :=
+  isClosed_singleton.preimage (sqEps h).continuous_toFun
+
+/-- Every element of `Multiplicative (ZMod 2)` squares to `1`. -/
+theorem gXf_sq_one (y : Multiplicative (ZMod 2)) : y ^ 2 = 1 := by
+  refine Multiplicative.toAdd.injective ?_
+  rw [toAdd_pow, toAdd_one]
+  revert y
+  decide
+
+/-- `ε` kills every letter but `x₁`. -/
+theorem gXf_gen_mem_half {i : Fin (sqRank h)} (hne : i ≠ 2) : sqGen h i ∈ gXfHalf h := by
+  have hval : sqEps h (sqGen h i) = 1 := by
+    refine Multiplicative.toAdd.injective ?_
+    rw [toAdd_sqEps_gen, if_neg hne, toAdd_one]
+  exact hval
+
+/-- The `σ`-slot index is not the `x₁`-slot index. -/
+theorem gXf_zero_ne_two : (0 : Fin (sqRank h)) ≠ 2 := by
+  intro hc
+  have hv : ((0 : Fin (sqRank h)) : ℕ) = ((2 : Fin (sqRank h)) : ℕ) := congrArg Fin.val hc
+  rw [sqVal_zero, sqVal_two] at hv
+  omega
+
+/-- The `x₀`-slot index is not the `x₁`-slot index. -/
+theorem gXf_one_ne_two : (1 : Fin (sqRank h)) ≠ 2 := by
+  intro hc
+  have hv : ((1 : Fin (sqRank h)) : ℕ) = ((2 : Fin (sqRank h)) : ℕ) := congrArg Fin.val hc
+  rw [sqVal_one, sqVal_two] at hv
+  omega
+
+/-- `ε` does **not** kill `x₁`: this is the one place the half-space is a *proper* subgroup. -/
+theorem gXf_xOne_notMem_half : dsqX1 h ∉ gXfHalf h := by
+  intro hc
+  have hval := congrArg Multiplicative.toAdd (gXf_mem_half_iff.1 hc)
+  rw [show dsqX1 h = sqGen h 2 from rfl, toAdd_sqEps_gen, if_pos rfl, toAdd_one] at hval
+  exact one_ne_zero hval
+
+/-- ⭐ **The far span lies in the half-space**: the `2 + 2h` far letters do, and the half-space
+is closed. -/
+theorem gXf_far_le_half : gTowerFar h ≤ gXfHalf h := by
+  refine Subgroup.topologicalClosure_minimal _ ((Subgroup.closure_le _).2 ?_) gXf_half_isClosed
+  intro x hx
+  simp only [Set.mem_union, Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_range] at hx
+  rcases hx with ((rfl | rfl) | ⟨j, rfl⟩) | ⟨j, rfl⟩
+  · exact gXf_gen_mem_half (h := h) (i := 0) gXf_zero_ne_two
+  · exact gXf_gen_mem_half (h := h) (i := 1) gXf_one_ne_two
+  · exact gXf_gen_mem_half (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_two]; omega))
+  · exact gXf_gen_mem_half (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_two]; omega))
+
+/-- ⭐ **`γ₂` lies in the half-space**: the target of `ε` is commutative of exponent two, so
+every square and every commutator dies, and the half-space is closed. -/
+theorem gXf_gammaTwo_le_half : twoCentralSeries (DSq h : Type) 2 ≤ gXfHalf h := by
+  rw [cfour_lambda_two, twoCentralSucc]
+  refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) gXf_half_isClosed
+  · refine (Subgroup.closure_le _).2 ?_
+    rintro _ ⟨v, -, rfl⟩
+    show sqEps h (v ^ 2) = 1
+    rw [map_pow]
+    exact gXf_sq_one _
+  · rw [Subgroup.commutator_le]
+    intro g _ k _
+    show sqEps h ⁅g, k⁆ = 1
+    rw [map_commutatorElement]
+    exact commutatorElement_eq_one_iff_commute.2 (Commute.all _ _)
+
+/-- The `x₁`-free span sits inside the half-space: both of its halves do. -/
+theorem gXf_span_le_half : gXfSpan h ≤ gXfHalf h :=
+  sup_le gXf_far_le_half gXf_gammaTwo_le_half
+
+/-- An `x₁`-free dressing slot is killed by `ε`. -/
+theorem gXf_free_mem_half {a : Fin (sqRank h) → (DSq h : Type)} (ha : GXfFree h a)
+    (i : Fin (sqRank h)) : a i ∈ gXfHalf h := gXf_span_le_half (ha i)
+
+/-- **The generation criterion**: a closed subgroup carrying every slot of a mod-two
+independent frame is everything.  This is `SqModTwoIndep` read through the pro-`2` Frattini
+criterion, at the subgroup rather than the endomorphism. -/
+theorem gXf_eq_top_of_indep {m : Fin (sqRank h) → (DSq h : Type)} (hm : SqModTwoIndep m)
+    {T : Subgroup (DSq h : Type)}
+    (hc : IsClosed ((T : Subgroup (DSq h : Type)) : Set (DSq h : Type)))
+    (hmem : ∀ i, m i ∈ T) : T = ⊤ := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  refine eq_top_of_forall_not_le_index_p (isProP_DSq h) hc fun M hM hle => ?_
+  obtain ⟨i, hi⟩ := hm M hM
+  exact hi (hle (hmem i))
+
+/-- A subgroup containing `γ₂` is normal: the quotient by `γ₂` is abelian. -/
+theorem gXf_normal_of_gammaTwo_le {S : Subgroup (DSq h : Type)}
+    (hS : twoCentralSeries (DSq h : Type) 2 ≤ S) : S.Normal := by
+  constructor
+  intro n hn g
+  have hrw : g * n * g⁻¹ = n * ⁅n⁻¹, g⁆ := by
+    rw [commutatorElement_def]
+    group
+  rw [hrw]
+  refine S.mul_mem hn (hS ?_)
+  exact commutator_mem_twoCentralSeries_succ (DSq h : Type) (k := 1) (Subgroup.mem_top _) g
+
+/-- ⭐⭐⭐ **The far span is spanned by the non-`x₁` slots**: let `K` be a closed subgroup
+carrying `γ₂`, carrying the `2 + 2h` non-`x₁` slots of a mod-two independent frame, killed by
+`ε` on those slots, and with the `x₁`-slot **not** killed by `ε`.  Then `K` contains the whole
+far span.
+
+This is the paper dimension count of `docs/dyadic/w79-extract-note.md` ("what repairs it"),
+done with cosets instead of dimensions: `S = K ⊓ ker ε` together with the `x₁`-slot coset
+`m₂·S` is a closed subgroup carrying every slot, hence everything; a far element therefore lies
+in `S` or in `m₂·S`, and `ε` excludes the second. -/
+theorem gXf_far_le_of_slots {m : Fin (sqRank h) → (DSq h : Type)} (hm : SqModTwoIndep m)
+    {K : Subgroup (DSq h : Type)}
+    (hKc : IsClosed ((K : Subgroup (DSq h : Type)) : Set (DSq h : Type)))
+    (hgam : twoCentralSeries (DSq h : Type) 2 ≤ K)
+    (hne : ∀ i, i ≠ (2 : Fin (sqRank h)) → m i ∈ K)
+    (hhalf : ∀ i, i ≠ (2 : Fin (sqRank h)) → m i ∈ gXfHalf h)
+    (h2 : m 2 ∉ gXfHalf h) :
+    gTowerFar h ≤ K := by
+  classical
+  set S : Subgroup (DSq h : Type) := K ⊓ gXfHalf h with hSdef
+  have hgamS : twoCentralSeries (DSq h : Type) 2 ≤ S := le_inf hgam gXf_gammaTwo_le_half
+  haveI hSn : S.Normal := gXf_normal_of_gammaTwo_le hgamS
+  have hSc : IsClosed ((S : Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [Subgroup.coe_inf]
+    exact hKc.inter gXf_half_isClosed
+  have hsq : m 2 ^ 2 ∈ S := hgamS (by
+    have := sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) (k := 1) (Subgroup.mem_top (m 2))
+    exact this)
+  -- the two-coset set
+  set C : Set (DSq h : Type) := (S : Set (DSq h : Type)) ∪ (fun s => m 2 * s) '' S with hCdef
+  set T : Subgroup (DSq h : Type) := Subgroup.closure {m 2} ⊔ S with hTdef
+  have hsqZ : m 2 ^ (2 : ℤ) ∈ S := by
+    rw [zpow_two, ← pow_two]
+    exact hsq
+  have hmul : ((T : Subgroup (DSq h : Type)) : Set (DSq h : Type))
+      = ((Subgroup.closure {m 2} : Subgroup (DSq h : Type)) : Set (DSq h : Type)) *
+        ((S : Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [hTdef, Subgroup.mul_normal]
+  have hTC : (T : Set (DSq h : Type)) = C := by
+    apply Set.Subset.antisymm
+    · rw [hmul]
+      rintro _ ⟨z, hz, s, hs, rfl⟩
+      obtain ⟨n, rfl⟩ := Subgroup.mem_closure_singleton.1 hz
+      rcases Int.even_or_odd n with ⟨t, rfl⟩ | ⟨t, rfl⟩
+      · refine Or.inl (S.mul_mem ?_ hs)
+        have hrw : m 2 ^ (t + t) = (m 2 ^ (2 : ℤ)) ^ t := by
+          rw [← zpow_mul]
+          congr 1
+          ring
+        rw [hrw]
+        exact Subgroup.zpow_mem _ hsqZ t
+      · refine Or.inr ⟨m 2 ^ (2 * t) * s, S.mul_mem ?_ hs, ?_⟩
+        · have hrw : m 2 ^ (2 * t) = (m 2 ^ (2 : ℤ)) ^ t := by rw [← zpow_mul]
+          rw [hrw]
+          exact Subgroup.zpow_mem _ hsqZ t
+        · show m 2 * (m 2 ^ (2 * t) * s) = m 2 ^ (2 * t + 1) * s
+          calc m 2 * (m 2 ^ (2 * t) * s) = m 2 * m 2 ^ (2 * t) * s := by rw [mul_assoc]
+            _ = m 2 ^ (2 * t) * m 2 * s := by
+                rw [((Commute.refl (m 2)).zpow_right (2 * t)).eq]
+            _ = m 2 ^ (2 * t + 1) * s := by rw [zpow_add_one]
+    · rintro x (hx | ⟨s, hs, rfl⟩)
+      · exact (le_sup_right : S ≤ T) hx
+      · exact T.mul_mem ((le_sup_left : Subgroup.closure {m 2} ≤ T)
+          (Subgroup.subset_closure rfl)) ((le_sup_right : S ≤ T) hs)
+  have hTc : IsClosed ((T : Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [hTC, hCdef]
+    exact hSc.union ((Homeomorph.mulLeft (m 2)).isClosedMap _ hSc)
+  have hTtop : T = ⊤ := by
+    refine gXf_eq_top_of_indep hm hTc fun i => ?_
+    by_cases hi : i = 2
+    · subst hi
+      exact (le_sup_left : Subgroup.closure {m 2} ≤ T) (Subgroup.subset_closure rfl)
+    · exact (le_sup_right : S ≤ T) ⟨hne i hi, hhalf i hi⟩
+  intro q hq
+  have hqC : q ∈ C := by rw [← hTC, hTtop]; trivial
+  rcases hqC with hqS | ⟨s, hs, rfl⟩
+  · exact hqS.1
+  · exact absurd (by
+      have hqh : m 2 * s ∈ gXfHalf h := gXf_far_le_half hq
+      have : m 2 = (m 2 * s) * s⁻¹ := by group
+      rw [this]
+      exact (gXfHalf h).mul_mem hqh ((gXfHalf h).inv_mem hs.2)) h2
+
+end Half
+
+/-! ## §4 Axiom pins -/
 
 section AxiomPinsXFree
 
@@ -140,6 +349,21 @@ section AxiomPinsXFree
 #print axioms gXf_free_mul_gamma
 #print axioms gXf_bridgeDress_far
 #print axioms gXf_bridgeTuple_free
+#print axioms gXfHalf
+#print axioms gXf_mem_half_iff
+#print axioms gXf_half_isClosed
+#print axioms gXf_sq_one
+#print axioms gXf_gen_mem_half
+#print axioms gXf_zero_ne_two
+#print axioms gXf_one_ne_two
+#print axioms gXf_xOne_notMem_half
+#print axioms gXf_far_le_half
+#print axioms gXf_gammaTwo_le_half
+#print axioms gXf_span_le_half
+#print axioms gXf_free_mem_half
+#print axioms gXf_eq_top_of_indep
+#print axioms gXf_normal_of_gammaTwo_le
+#print axioms gXf_far_le_of_slots
 
 end AxiomPinsXFree
 
