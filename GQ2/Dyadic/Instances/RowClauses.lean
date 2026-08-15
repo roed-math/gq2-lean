@@ -493,7 +493,77 @@ theorem rowCl_candidate_equiv_galK_sqrtFive [T2Space (GalK KSqrtFive)]
   rowCl_equiv_of_rowResidual F
     (rowCl_rowResidual_sqrtFive B F candStokes candDeterminant hvanCand hvanK)
 
+/-- **The `ASK` coefficient at the row, and the owner call (ticket T2).**  Wave 81 recommended
+restating the row records against `ExactLiftingSemanticsRN` and could not decide
+`askCStageVanishing`, because deciding it needs a concrete frame with `1 < #R` and a nonempty
+`BoundaryLiftsK` and the `ASK` layer owns no frames.  This lane does not decide it either, and
+says so; what it does is remove the asymmetry that made the question look arithmetic.
+
+The corrected bundle is a **theorem at both of the row's carriers**, with no residue on either:
+at `G_K` by `askC_exactLiftingRN_galK`, at `Γ_R` by `MCompact.exactLiftingRN_unconditional`.
+Together with §2 and §3, the whole cost of the frozen spelling at this row is two instances of
+one coefficient `Prop`, and the RN spelling has neither.  So the coefficient question is not a
+fact about `ℚ₂(√5)`, about `G_K`, or about the candidate group: it is a property of the frozen
+(136) coefficient, and the restatement is the answer. -/
+theorem rowCl_rn_both_carriers_sqrtFive [T2Space (GalK KSqrtFive)]
+    {FF : DyadicUnitFiltration KSqrtFive} :
+    ExactLiftingSemanticsRN (galKProfinite KSqrtFive) (SelectedPresentation.M0 2 0).degree
+        (qOf KSqrtFive FF) (genAsmCore (.M0 2 0)) (fieldId_mNuZtwo 2 0 (by omega))
+        (standardNumerics (SelectedPresentation.M0 2 0).degree)
+      ∧ ExactLiftingSemanticsRN (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0))
+        (2 + 2 * 0) (qOf KSqrtFive FF) (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega))
+        (standardNumerics (2 + 2 * 0)) :=
+  ⟨askC_exactLiftingRN_galK rowCl_hdeg_sqrtFive,
+   rowCl_mCand_exactLiftingRN (le_refl 2) (qOf_ne_zero KSqrtFive FF)
+     (even_qOf KSqrtFive FF) _⟩
+
 end SqrtFiveRow
 
+
+/-! ## §6 Axiom pins
+
+One line per declaration, **21** in all, in declaration order, measured against the mirror.
+Three sets occur, and the split is the lane's cleanest reading.
+
+* **std-3** (`propext, Classical.choice, Quot.sound`) on **seventeen**: all of §1, all of §2,
+  all of §4, `rowCl_scalar_standard_congr` and `rowCl_hdeg_sqrtFive`.  So *measuring* the row's
+  analytic residue costs no campaign axiom at all: the carrier-free coefficient equivalence, the
+  reduction of both `M0`/`N0` candidate `exactLifting` clauses to `askCStageVanishing`, the two
+  free scalar clauses, and the refutation handle are all std-3.  The axioms in this campaign live
+  on the arithmetic side, and nothing in the candidate-side measurement reaches them.
+* **`{tateDualityAt, Foundations.absGalQ2_isTopologicallyFinitelyGenerated,
+  Foundations.absGalQ2_localEulerCharacteristic}`** on `rowCl_equiv_of_rowResidual` and
+  `rowCl_rn_both_carriers_sqrtFive`.  The first inherits it from
+  `genAsm_candidate_equiv_galK`'s assembly, the second from `askC_exactLiftingRN_galK`.
+* **that set plus `{hilbertSymbol_normCriterion_finiteDyadic, peripheralCyclotomicAction,
+  relativeStiefelWhitney_dyadic}`** on `rowCl_rowResidual_sqrtFive` and
+  `rowCl_candidate_equiv_galK_sqrtFive`.  This is **exactly** W83-RECORDS' §5 union set, term for
+  term: reducing four of the row's six obligations adds no axiom to the row's record. -/
+
+section AxiomPins
+
+#print axioms rowCl_exactLifting_of_stageVanishing
+#print axioms rowCl_stageVanishing_of_exactLifting
+#print axioms rowCl_exactLifting_iff_stageVanishing
+#print axioms rowCl_exactImageCount_eq_zero_of_exactLifting
+#print axioms rowCl_isEmpty_boundaryLifts_of_exactLifting
+#print axioms rowCl_mCand_exactLiftingRN
+#print axioms rowCl_mCand_exactLifting_iff
+#print axioms rowCl_mCand_tfg
+#print axioms rowCl_mCand_isEmpty_boundaryLifts
+#print axioms rowCl_scalar_standard_congr
+#print axioms rowCl_mCand_homCard_of_uniformPushed
+#print axioms rowCl_mCand_scalar
+#print axioms rowCl_nCand_exactLiftingRN
+#print axioms rowCl_nCand_exactLifting_iff
+#print axioms rowCl_nCand_homCard_of_uniformPushed
+#print axioms rowCl_nCand_scalar
+#print axioms rowCl_equiv_of_rowResidual
+#print axioms rowCl_hdeg_sqrtFive
+#print axioms rowCl_rowResidual_sqrtFive
+#print axioms rowCl_candidate_equiv_galK_sqrtFive
+#print axioms rowCl_rn_both_carriers_sqrtFive
+
+end AxiomPins
 
 end GQ2.Dyadic.Instances.RowClauses
