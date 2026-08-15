@@ -781,6 +781,7 @@ import GQ2.Dyadic.SqCore.GradedDepthThree
 import GQ2.Dyadic.SqCore.GradedExtraction
 import GQ2.Dyadic.SqCore.GradedXFree
 import GQ2.Dyadic.SqCore.GradedUniformGen
+import GQ2.Dyadic.SqCore.GradedOddClose
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
