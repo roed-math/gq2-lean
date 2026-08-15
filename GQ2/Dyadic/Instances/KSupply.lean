@@ -88,6 +88,21 @@ the missing rung is the (83)-evaluation bridge from an Arf/zero-count statement 
 `GaussZResidueK`, whose `ℚ₂` ancestor is `GQ2/GaussZ/FinalD.lean` and which has no `K` clone.
 Pretending otherwise by inlining a hypothesis named after LG5 would have hidden the gap.
 
+⚠⚠ **[W79-HOUSE, as of `527adf51`: STALE since ticket CB-DET.  The `K` clone EXISTS.**
+`GQ2/Dyadic/GaussZ/FinalDK.lean` (registered at `GQ2.lean:585`) carries the two twins
+`gaussZResidueDK_unramified` / `_ramified` and the headline `affineDeterminant_galK`, and its
+§8 `Acceptance` block contains an `example` that produces this file's `determinant` field type
+(`:317`) on the nose.  What is still owed is **the wiring, not the bridge**: `determinant` is
+still a structure field here because nobody replaced it with a call to `affineDeterminant_galK`,
+whose remaining arguments are `params_n`/`params_qK`, `hdeg` (this file's own pin), `hgu`/`hgr`
+(`rfl` at `standardNumerics n`), `htame` (`T.tameFK_surjective`) and `ramifiedData` (already an
+AS1 constructor argument).  CB-DET's own ticket log recorded that it did not edit this file; the
+sentence above is what that omission left behind, and it propagated to
+`GeneralAssembly.lean:255`, `:284` and to `w74-critical-path.md`'s item 5.  The genuinely
+unowned Gauss-`Z` item is the **candidate** side, `SqrtNeg2.PilotDet` (`hdet`), which the
+critical path lists separately as item 7.  Also note: §6 item 4 below cites this file's
+`determinant` field at `:293`; it is at `:317`.]**
+
 ## Import discipline
 
 Plain-import (SD1 memo §5): `GQ2.Dyadic.CertificateMain` is plain-import, and the module rule is

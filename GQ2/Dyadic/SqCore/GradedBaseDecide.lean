@@ -567,7 +567,12 @@ section DepthThree
 variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
 
 variable (h) in
-/-- **The depth-`3` base**: `GJoinBase` one level up, at every selected marking. -/
+/-- **The depth-`3` base**: `GJoinBase` one level up, at every selected marking.
+
+[W79-HOUSE, as of `527adf51`: clause added so that naming `GJoinBase` here does not read as
+inheriting its status.  `GJoinBase`, the depth-`2` statement, is **refuted** earlier in this file
+(`gDecide_not_joinBase`).  `GDecideBaseThree` is the depth-`3` analogue and is **open**: this
+file's witness is silent about it, and wave 78 made it the sole layer-side input.] -/
 def GDecideBaseThree : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
