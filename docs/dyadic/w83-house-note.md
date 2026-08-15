@@ -594,6 +594,15 @@ So the delta below is **read, not elaborated**, and is marked as such.  From
 * **CAND is instantiated at the four tied quadratic rows**, with a uniform four-clause residue,
   which extends S3's corrected reading from the `CorePresentation`-backed rows to the tied set.
   Note that the `√−10` row is not among the four, for the site-8 reason.
+
+  > **[W85-HOUSE, as of `76f21241`: the extension over-reached, on the same axis S3 had just
+  > corrected.]** The four-clause residue is uniform in SHAPE across the four tied rows, and
+  > that much is right. The reduction of those clauses is not: wave 84
+  > (`GQ2/Dyadic/Instances/RowClauses.lean` §2, §4) discharges two of the four at `M0 3 0`,
+  > `M0 2 0` and `N0 2 0` off an unconditional corrected bundle, and `Mpc 2 1 false 1 0` has no
+  > such bundle. Success at one row is success at three, not four. Corrected at the origin
+  > (`docs/dyadic/w83-records-note.md` reading 2) and in the tree
+  > (`GQ2/Dyadic/Instances/CanonicalRecords.lean`).
 * **Two of my ticket-3(f) sites are handed back**: W83-RECORDS §3 item 2 records that
   `GeneralAssembly.lean`'s constructor-table `L h` cell and
   `oddId_candidate_equiv_galK_of_supply`'s docstring still carry their wave-82 text under the

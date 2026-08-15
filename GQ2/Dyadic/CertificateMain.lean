@@ -182,8 +182,27 @@ straggler field that took five waves to sweep:
   equation-(136) coefficient (`RecursionFrame.zR = #R²·#D_R`, where the `G_K` count is
   `#R^{n+1}·#D_R`), equivalent at `2 ≤ n` to the single `Prop` `askCStageVanishing`
   (`Instances/AskCounting.lean`);
-* at the candidate carrier `GammaR n q word`: **genuinely unowned**, and that is AS1
-  divergence 4.  The Fox-to-count sentence above is about this carrier and stands. -/
+* at the candidate carrier `GammaR n q word`: ⚠ SUPERSEDED, see below. **genuinely unowned**,
+  and that is AS1 divergence 4.  The Fox-to-count sentence above is about this carrier and
+  stands.
+
+[W85-HOUSE, as of `76f21241`, superseding the second bullet: **"genuinely unowned" is stale at
+the compact carriers.**  Wave 84 put the corrected bundle at the compact `M` and `N` candidate
+carriers with no analytic residue: `MCompact.exactLiftingRN_unconditional`
+(`Instances/EvenMRamifiedPairing.lean`) and `NCompact.exactLiftingRN_unconditional`
+(`Instances/N0M0CompactBranches.lean`) prove `ExactLiftingSemanticsRN` at
+`GammaR (2 + 2h) q (mCompactW α h)` resp. `nCompactW`, from `2 ≤ α`, `q ≠ 0`, `Even q` and
+nothing else.  Feeding either to the carrier-free coefficient argument
+(`Instances/RowClauses.lean` §1) makes the FROZEN bundle at that carrier *equivalent* to
+`askCStageVanishing` there (`rowCl_mCand_exactLifting_iff`, `rowCl_nCand_exactLifting_iff`).
+
+So the two bullets are no longer in different states at those carriers: on both sides the
+corrected bundle is a theorem and the frozen one adds exactly the equation-(136) coefficient.
+The Fox-to-count sentence describes a gap the RN route does not have.  Two limits on this
+supersession: it covers the compact `M`/`N` carriers at `2 ≤ α`, hence the `M0 3 0`, `M0 2 0`
+and `N0 2 0` rows, but NOT `Mpc`, whose corrected bundle still binds a `Hsimp`-family
+hypothesis (`MProcyclicExact.exactLiftingRN_of_uniformPushed`); and "owned" means the corrected
+bundle, not the frozen one, which is the same sense as in the `G_K` bullet.] -/
 def ExactLiftingSemantics : Prop :=
   (∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
