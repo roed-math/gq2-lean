@@ -276,4 +276,140 @@ theorem genCert_determinant_pull {tame : ContinuousMonoidHom Gam (Tq q)}
 
 end ClauseTransport
 
+/-! ## §4 The `WordCertificate` core transport
+
+The record's seventeen fields split three ways, and it is worth recording the split because
+`docs/dyadic/w75-state-note.md` §3.1 (F1) names six "core-dependent" fields and two of them are
+not: `coreRel` and `proTwoWord` quantify over *every* pro-`2` group and mention no core at all,
+so they move verbatim.  The true split is
+
+* **ten fields mention no core**: `tameSpecialization`, `coreRel`, `proTwoWord`, `tfg`,
+  `smulZmod2`, `contSMulZmod2`, `htriv`, `scalar`, `htame`, `hwild`.  Carried verbatim.
+* **four fields move by naturality of the equivalence**: `pro2` (post-compose with `e`),
+  `ker_pro2` (`e` is injective, so it adds no kernel), `hpro2` (`e` is onto), `compat` (this is
+  where the marking compatibility `hnu` is used, and the only place in the record).
+* **three fields are the analytic clauses** and move by §3.
+
+`hP` is not derived: the transported `IsProP` witness is an argument, since every use site
+already has one (`genAsmCoreIsProP` on the general table). -/
+
+section RecordTransport
+
+variable {n q : ℕ} {R : PWord (Generator n)} {P₁ P₂ : ProfiniteGrp} {hP₁ : IsProP 2 P₁}
+  {nu₁ : ContinuousMonoidHom P₁ Ztwo} {nu₂ : ContinuousMonoidHom P₂ Ztwo}
+  {SN : SourceNumerics n}
+
+/-- **The word-certificate core transport** (the restatement `genAsm_nonempty_equiv_L_core_piBd`'s
+docstring identifies as the whole distance between the committed `n = 1` endpoint and the general
+`L` row).  A `WordCertificate` over the core `P₁` becomes one over `P₂` along a continuous
+equivalence `e : P₁ ≃ P₂` that carries the `Ztwo` marking of `P₂` back to that of `P₁`.
+
+Nothing about the word, the degree, the tame modulus or the numerics moves; only the core does.
+The construction is therefore reusable wherever a classification output lands on a different
+presentation of the same core. -/
+noncomputable def WordCertificate.genCertTransport (W : WordCertificate n q R P₁ hP₁ nu₁ SN)
+    (hP₂ : IsProP 2 P₂) (e : ContinuousMulEquiv (P₁ : Type) (P₂ : Type))
+    (hnu : ∀ x, nu₂ (e x) = nu₁ x) : WordCertificate n q R P₂ hP₂ nu₂ SN where
+  tameSpecialization := W.tameSpecialization
+  coreRel := W.coreRel
+  proTwoWord := W.proTwoWord
+  pro2 := (genCertHomOfEquiv e).comp W.pro2
+  ker_pro2 := by
+    rw [← W.ker_pro2]
+    ext g
+    simp only [MonoidHom.mem_ker]
+    constructor
+    · intro hg
+      have h1 : e (W.pro2 g) = 1 := hg
+      have h2 := congrArg e.symm h1
+      rwa [e.symm_apply_apply, map_one] at h2
+    · intro hg
+      have h1 : W.pro2 g = 1 := hg
+      show e (W.pro2 g) = 1
+      rw [h1, map_one]
+  hpro2 := e.surjective.comp W.hpro2
+  compat := genCertCompat e hnu W.compat
+  tfg := W.tfg
+  smulZmod2 := W.smulZmod2
+  contSMulZmod2 := W.contSMulZmod2
+  htriv := W.htriv
+  exactLifting := genCert_exactLiftingSemantics_pull e hnu W.exactLifting
+  stokes := genCert_stokes_pull e hnu W.smulZmod2 W.stokes
+  scalar := W.scalar
+  determinant := genCert_determinant_pull e hnu W.smulZmod2 W.determinant
+  htame := W.htame
+  hwild := W.hwild
+
+end RecordTransport
+
+/-! ## §5 The acceptance test: the `L` row's certificate over `D_sq 0`
+
+`Main.lean` §6's `wordCertificate_nonempty_lSq` is unconditional but lives over `Π`
+(`GQ2/BoundaryFrame.lean:142`), while the general constructor table's `L` row asks for a
+certificate over `D_sq h`.  `genAsm_nonempty_equiv_L_core_piBd` supplies the equivalence at
+`h = 0`; §4 supplies the transport; together they discharge the `CAND` field of
+`GenAsmRowResidual` on the `L 0` row outright. -/
+
+section LRow
+
+/-- The chosen equivalence `D_sq 0 ≃ Π`, from `genAsm_nonempty_equiv_L_core_piBd`. -/
+noncomputable def genCertLEquiv :
+    ContinuousMulEquiv ((genAsmCore (.L 0) : ProfiniteGrp) : Type) (PiBd : Type) :=
+  genAsm_nonempty_equiv_L_core_piBd.some
+
+/-- The `Ztwo` marking of `D_sq 0` transported from `Π`'s `ν₂`.  ⚠ This is the marking the
+transported certificate carries; it is **not** claimed to be the canonical `lNu 0`, and no such
+claim is available at this tree (`ztwoIota_lNu` compares `lNu` with `nuSq`, not with `nuTwo`
+across `genCertLEquiv`). -/
+noncomputable def genCertLNu :
+    ContinuousMonoidHom ((genAsmCore (.L 0) : ProfiniteGrp) : Type) Ztwo :=
+  nuTwo.comp (genCertHomOfEquiv genCertLEquiv)
+
+theorem genCertLNu_surjective : Function.Surjective genCertLNu :=
+  SectionThree.nuTwo_surjective.comp genCertLEquiv.surjective
+
+/-- The `L` row's degree at `h = 0` is `1`, definitionally. -/
+theorem genCert_L_zero_degree : (SelectedPresentation.L 0).degree = 1 := rfl
+
+/-- **The acceptance test.**  The general constructor table's `L` row at `h = 0` carries an
+unconditional `WordCertificate` over its *own* core `D_sq 0`, at the marking `genCertLNu`.
+
+This is `Main.lean`'s `wordCertificate_nonempty_lSq` moved off `Π` by
+`WordCertificate.genCertTransport` along `genAsm_nonempty_equiv_L_core_piBd`.  It closes item 1
+of `docs/dyadic/w75-state-note.md` §6 at `h = 0`. -/
+theorem genCert_wordCertificate_nonempty_L_zero :
+    Nonempty (WordCertificate (SelectedPresentation.L 0).degree 2
+      (SelectedPresentation.L 0).word (genAsmCore (.L 0)) (genAsmCoreIsProP (.L 0)) genCertLNu
+      (standardNumerics (SelectedPresentation.L 0).degree)) :=
+  ⟨wordCertificate_nonempty_lSq.some.genCertTransport (genAsmCoreIsProP (.L 0))
+    genCertLEquiv.symm
+    (fun x => congrArg nuTwo (genCertLEquiv.apply_symm_apply x))⟩
+
+variable {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- **The `n = 1` case of the general-degree theorem, with its candidate side discharged.**
+`genAsm_candidate_equiv_galK_of_supply` at the `L 0` row no longer asks for a `WordCertificate`:
+the branch datum's marking is pinned to `genCertLNu` and the certificate is supplied by
+`genCert_wordCertificate_nonempty_L_zero`.  What remains is exactly the arithmetic supply `KS`
+and the field-side inputs `F` — i.e. `GenAsmRowResidual`'s three `ASK` fields, not its four.
+
+The residue hypothesis `hq` is the only extra pin: the committed `n = 1` certificate is at
+`q = 2`, and a degree-`1` `K` is `ℚ₂`, so `hq` is a coherence condition rather than a new
+obligation. -/
+theorem genCert_candidate_equiv_galK_L_zero {T : OrientedTameQuotientK B FF}
+    (hq : qOf K FF = 2)
+    (KS : KSupply T (SelectedPresentation.L 0).degree (genAsmCore (.L 0))
+      (genAsmCoreIsProP (.L 0)) genCertLNu (standardNumerics (SelectedPresentation.L 0).degree))
+    (F : GenAsmFieldInputs K B FF (SelectedPresentation.L 0).degree) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.L 0).degree (qOf K FF)
+        (SelectedPresentation.L 0).word : ProfiniteGrp) : Type) (GalK K)) := by
+  obtain ⟨W⟩ := genCert_wordCertificate_nonempty_L_zero
+  exact genAsm_candidate_equiv_galK_of_supply (.L 0) genCertLNu genCertLNu_surjective
+    (by rw [hq]; exact W) KS F
+
+end LRow
+
 end GQ2.Dyadic
