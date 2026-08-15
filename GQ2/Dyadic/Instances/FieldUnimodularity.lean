@@ -269,6 +269,148 @@ theorem fieldUni_genAsmBranch_of_orientedN_level_zero (alpha : ℕ) (halpha : 2 
 
 end Producer
 
+/-! ## §3 The level at a field, from one element of `Kˣ`
+
+`B.r` is a bundle field, so it is not "computed"; it is *pinned* by the two level clauses.  The
+usable half is `nu_ker_chi_le`: one `x : Kˣ` whose class lies in `ker χ` and whose `ν`-value is
+odd forces `r = 0`.  Both halves are read off the same bundle clauses that `EvenRangePolish` and
+`FieldBranchIdentification` use:
+
+* `χ_K(rec_K x) = 1` exactly when `N_{K/ℚ₂}(x)` is a power of `2` **with unit part `1`**
+  (`norm_compat` plus the base bundle's clauses (c) at units and at the uniformizer);
+* `ν_ur(rec_K x) = ofAdd(−1)` when `x` is a uniformizer times a spectral unit
+  (`nu_ur_recip_of_decomp`).
+
+At a quadratic field with `v(a) = 1` the element `√a` *is* a uniformizer, which §3.2 proves from
+`Fields.lean` §4's separation lemma; that is what makes §3.3's two rows unconditional. -/
+
+section FieldLevel
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+  {Rec : LocalReciprocity}
+
+open GQ2.Dyadic.LSquare
+
+omit [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
+/-- **The cyclotomic value at an element of known norm.**  `fieldId_inv_mem_range_of_norm` as an
+equation rather than a membership: `χ_K(rec_K x) = u⁻¹` when `N(x) = u · 2^n`. -/
+theorem fieldUni_chi_recip_of_norm (B : MarkedRecip Rec K) (x : (↥K)ˣ) (u : ℤ_[2]ˣ) (n : ℕ)
+    (hx : normUnitsK K x = unitEmbed u * uniformizer ^ n) :
+    chiCycKAb K (B.recip x) = u⁻¹ := by
+  rw [← chiCycAb_inclAbK, B.norm_compat, hx]
+  simp only [map_mul, map_pow, Rec.chiCyc_recip_unit, Rec.chiCyc_recip_uniformizer, one_pow,
+    mul_one]
+
+omit [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
+/-- **The level from one element.**  `x = u · π` with `u` a spectral unit and `π` a uniformizer
+gives `ν_ur(rec_K x) = ofAdd(−1)`, a unit; with `χ_K(rec_K x) = 1` the level clause collapses. -/
+theorem fieldUni_level_eq_zero_of_decomp (B : MarkedRecip Rec K) (x u pi : (↥K)ˣ)
+    (hchi : chiCycKAb K (B.recip x) = 1) (hx : x = u * pi ^ (1 : ℤ))
+    (hu : ‖((u : ↥K) : ℚ̄₂)‖ = 1) (hpi : ‖((pi : ↥K) : ℚ̄₂)‖ < 1)
+    (hmax : ∀ z : ↥K, z ≠ 0 → ‖(z : ℚ̄₂)‖ < 1 → ‖(z : ℚ̄₂)‖ ≤ ‖((pi : ↥K) : ℚ̄₂)‖) :
+    B.r = 0 := by
+  refine fieldUni_level_eq_zero_of_chiKer B hchi ?_
+  rw [B.nu_ur_recip_of_decomp x u pi 1 hx hu hpi hmax]
+  have hval : Multiplicative.toAdd (Multiplicative.ofAdd (((-1 : ℤ) : ℤ_[2]))) = -1 := by
+    push_cast
+    rfl
+  rw [hval]
+  exact isUnit_one.neg
+
+end FieldLevel
+
+/-! ### §3.2 `√a` is a uniformizer when `v(a) = 1`
+
+`Fields.lean` §4 proves the separation lemma `‖x‖ ≠ ‖y√a‖` for odd `v(a)` and, from it, the exact
+norm `‖x + y√a‖ = max(‖x‖, ‖y√a‖)`.  With `‖a‖ = ‖2‖` that identifies the value group: the
+scalar part is at most `‖2‖ ≤ ‖√a‖` once it is `< 1`, and the `√a` part is at most `‖√a‖` because
+a scalar of norm `> 1` has norm at least `2`, which `√a` cannot absorb.  So `√a` attains the
+maximal norm below `1`, which is exactly the B13 uniformizer spec of
+`MarkedRecip.nu_ur_recip_uniformizer`. -/
+
+section Uniformizer
+
+variable {a : ℚ_[2]}
+
+/-- `‖2‖ = 1/2` on the nose, so the estimates below are ordinary real arithmetic. -/
+theorem fieldUni_norm_two : ‖(2 : ℚ_[2])‖ = (2 : ℝ)⁻¹ := by
+  rw [show (2 : ℚ_[2]) = ((2 : ℕ) : ℚ_[2]) by push_cast; ring, Padic.norm_p]
+  norm_num
+
+/-- `‖√a‖ < 1` when `‖a‖ = ‖2‖`. -/
+theorem fieldUni_norm_sqrtIn_lt_one (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) : ‖sqrtIn a‖ < 1 := by
+  have hsq := norm_sqrtIn_sq a
+  rw [hna, fieldUni_norm_two] at hsq
+  nlinarith [norm_nonneg (sqrtIn a)]
+
+/-- `‖2‖ ≤ ‖√a‖` when `‖a‖ = ‖2‖`: the scalar uniformizer of `ℚ₂` is not maximal upstairs. -/
+theorem fieldUni_norm_two_le_sqrtIn (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) :
+    ‖(2 : ℚ_[2])‖ ≤ ‖sqrtIn a‖ := by
+  have hsq := norm_sqrtIn_sq a
+  rw [hna, fieldUni_norm_two] at hsq
+  rw [fieldUni_norm_two]
+  nlinarith [norm_nonneg (sqrtIn a)]
+
+/-- A scalar of norm `> 1` has norm at least `2`, so it cannot be shrunk below `1` by `√a`. -/
+theorem fieldUni_norm_le_one_of_mul_sqrtIn_lt_one (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {y : ℚ_[2]}
+    (h : ‖y‖ * ‖sqrtIn a‖ < 1) : ‖y‖ ≤ 1 := by
+  by_contra hcon
+  push_neg at hcon
+  have hy0 : y ≠ 0 := by
+    rintro rfl
+    rw [norm_zero] at hcon
+    linarith
+  have hinv : ‖y⁻¹‖ < 1 := by
+    rw [norm_inv]
+    exact inv_lt_one_of_one_lt₀ hcon
+  have hle := norm_le_norm_two_of_lt_one (inv_ne_zero hy0) hinv
+  rw [norm_inv, fieldUni_norm_two] at hle
+  have hy0' : (0 : ℝ) < ‖y‖ := by linarith
+  have hy2 : (2 : ℝ) ≤ ‖y‖ := by
+    have hmul := mul_le_mul_of_nonneg_left hle (le_of_lt hy0')
+    rw [mul_inv_cancel₀ (ne_of_gt hy0')] at hmul
+    linarith
+  have hsq := norm_sqrtIn_sq a
+  rw [hna, fieldUni_norm_two] at hsq
+  nlinarith [norm_nonneg (sqrtIn a)]
+
+/-- **`√a` attains the maximal norm below `1` in `ℚ₂(√a)`**, when `v(a)` is odd and `‖a‖ = ‖2‖`.
+This is the second half of the B13 uniformizer spec, the half that makes
+`MarkedRecip.nu_ur_recip_uniformizer` non-vacuous at the field. -/
+theorem fieldUni_sqrtIn_max (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) (z : ↥(quadField a)) (hz : z ≠ 0)
+    (h : ‖(z : ℚ̄₂)‖ < 1) : ‖(z : ℚ̄₂)‖ ≤ ‖sqrtIn a‖ := by
+  obtain ⟨x, y, hxy⟩ := exists_repr ha z.2
+  have hscalar : ∀ c : ℚ_[2], ‖(algebraMap ℚ_[2] ℚ̄₂ c)‖ < 1 →
+      ‖(algebraMap ℚ_[2] ℚ̄₂ c)‖ ≤ ‖sqrtIn a‖ := by
+    intro c hc
+    rw [GQ2.Dyadic.Fields.norm_algebraMap] at hc ⊢
+    rcases eq_or_ne c 0 with rfl | hc0
+    · rw [norm_zero]
+      exact norm_nonneg _
+    · exact (norm_le_norm_two_of_lt_one hc0 hc).trans (fieldUni_norm_two_le_sqrtIn hna)
+  have hroot : ∀ c : ℚ_[2], ‖(algebraMap ℚ_[2] ℚ̄₂ c) * sqrtIn a‖ < 1 →
+      ‖(algebraMap ℚ_[2] ℚ̄₂ c) * sqrtIn a‖ ≤ ‖sqrtIn a‖ := by
+    intro c hc
+    rw [norm_mul, GQ2.Dyadic.Fields.norm_algebraMap] at hc ⊢
+    have h1 := fieldUni_norm_le_one_of_mul_sqrtIn_lt_one hna hc
+    nlinarith [norm_nonneg (sqrtIn a), norm_nonneg c]
+  rcases eq_or_ne y 0 with rfl | hy
+  · rw [hxy] at h ⊢
+    simp only [map_zero, zero_mul, add_zero] at h ⊢
+    exact hscalar x h
+  rcases eq_or_ne x 0 with rfl | hx
+  · rw [hxy] at h ⊢
+    simp only [map_zero, zero_add] at h ⊢
+    exact hroot y h
+  · rw [hxy] at h ⊢
+    rw [norm_add_mul_sqrtIn hodd hx hy] at h ⊢
+    rw [max_lt_iff] at h
+    exact max_le (hscalar x h.1) (hroot y h.2)
+
+end Uniformizer
+
 end
 
 /-! ## §6 Axiom pins -/
