@@ -888,7 +888,155 @@ theorem gDeep_C_sq_notMem_reach :
 
 end Kill
 
-/-! ## Axiom pins -/
+/-! ## §8 The re-cut: the kill ladder replaces the refuted base
+
+`gAbs_markTransitivity_of_baseThree` is vacuous: its named input is false (§3).  But its
+proof only ever applied the layer statement to the RELATOR WORD, which reads zero at every
+functional.  So the honest layer-side input of the repaired route is the defect-restricted
+ladder `GDeepKillAt h k`: all-rows-zero row-trivial `γ_{k+1}`-elements reach.  Its `k = 2`
+instance is wave 78's T2, its `k = 3` instance is §7, and the whole odd-route residual
+re-cuts onto the ladder at `k ≥ 4` plus the two wave-75 interfaces.  The recursion seeded
+through `k = 2, 3` already yields the class-5 supply outright. -/
+
+section Reseed
+
+variable {h : ℕ}
+
+variable (h) in
+/-- ⭐⭐⭐ **The kill ladder at depth `k`**: the defect-restricted layer statement.  All the
+recursion ever consumes; TRUE at `k = 2, 3`, open at `k ≥ 4`, while the unrestricted
+statement is FALSE at every `k ≥ 2` (§3). -/
+def GDeepKillAt (k : ℕ) : Prop :=
+  ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+    ∀ g ∈ twoCentralSeries (DSq h : Type) (k + 1), nuLam h g = 1 → nu' g = 1 →
+      (∀ c : Fin (sqRank h) → ℤ_[2], gDelta h c g = 0) →
+      levelMk (DSq h : Type) (k + 2) g ∈ gTowerReach h nu' k
+
+/-- The depth-2 rung: wave 78's T2. -/
+theorem gDeep_killAt_two : GDeepKillAt h 2 :=
+  fun _ hsigma hx0 _ hg hgl hgn hzero => gAbs_zero_reader_reach hsigma hx0 hg hgl hgn hzero
+
+/-- ⭐⭐⭐ The depth-3 rung: this file's T2. -/
+theorem gDeep_killAt_three : GDeepKillAt h 3 :=
+  fun _ hsigma hx0 _ hg hgl hgn hzero => gDeep_zero_reader_reach hsigma hx0 hg hgl hgn hzero
+
+/-- ⭐⭐⭐ **The vanishing interface from the kill ladder plus separation**: the honest
+re-cut of `gAbs_defectVanishing_of_baseThree`, with the FALSE base replaced by the
+defect-restricted ladder its proof actually consumed. -/
+theorem gDeep_defectVanishing_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k)
+    (hsep : GJoinSeparationAll h) : GJoinDefectVanishing h := by
+  intro nu' j hsigma hx0 k hk a hal han hac _ hrel
+  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 2 := ⟨k - 2, by omega⟩
+  have hzero : ∀ c, gDelta h c (sqRelWord (sqArbFrame h nu' j a)) = 0 :=
+    fun c => gJoin_reading_zero c nu' j ⟨hal, han, hac⟩
+  have hreach : levelMk (DSq h : Type) (k' + 2 + 2) (sqRelWord (sqArbFrame h nu' j a))
+      ∈ gTowerReach h nu' (k' + 2) :=
+    HK (k' + 2) (by omega) nu' hsigma hx0 _ hrel (gTower_frame_row_nuLam j hal)
+      (gTower_frame_row_nu j hx0 han) hzero
+  refine gJoin_reach_sep hx0 (hsep nu' (k' + 2) (by omega)) hreach
+    (fun jj => ?_) (fun jj => ?_)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+
+/-- The supply at every class, from the ladder plus the two wave-75 interfaces. -/
+theorem gDeep_supply_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k)
+    (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
+    ∀ k, SqClassClearingSupply h k :=
+  gJoin_supply_of_vanishing (gDeep_defectVanishing_of_kills HK hsep) HR
+
+/-- ⭐⭐⭐ **The `h ≥ 1` residual, re-cut**: the kill ladder (rungs `2` and `3` proved, `k ≥ 4`
+open), the separation bookkeeping, and the extraction interface. -/
+theorem gDeep_markTransitivity_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k)
+    (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
+  gJoin_markTransitivity_of_vanishing (gDeep_defectVanishing_of_kills HK hsep) HR
+
+variable (h) in
+/-- **The depth-3 vanishing**: the `k = 3` instance of `GJoinDefectVanishing`, the knob-form
+consumed by the recursion's second step. -/
+def GDeepVanishingThree : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+    ∀ a : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a i) = 1) → (∀ i, nu' (a i) = 1) → (∀ i, chiSq h (a i) = 1) →
+      SqModTwoIndep (sqArbFrame h nu' j a) →
+      sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) 4 →
+      levelMk (DSq h : Type) 5 (sqRelWord (sqArbFrame h nu' j a))
+        ∈ Subgroup.closure (gTowerKnobSet h nu' 3)
+
+/-- ⭐⭐ **The depth-3 vanishing holds, from depth-3 separation alone**: T1 plus T2 replace
+the REFUTED `GTowerLayerReach h ν' 3` outright, exactly as wave 78 did at depth 2. -/
+theorem gDeep_vanishingThree_of_sep
+    (hsep : ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+      GJoinTowerSeparation h nu' 3) : GDeepVanishingThree h := by
+  intro nu' j hsigma hx0 a hal han hac _ hrel
+  have hzero : ∀ c, gDelta h c (sqRelWord (sqArbFrame h nu' j a)) = 0 :=
+    fun c => gJoin_reading_zero c nu' j ⟨hal, han, hac⟩
+  have hreach := gDeep_zero_reader_reach hsigma hx0 hrel (gTower_frame_row_nuLam j hal)
+    (gTower_frame_row_nu j hx0 han) hzero
+  refine gJoin_reach_sep (k := 1) hx0 (hsep nu') hreach (fun jj => ?_) (fun jj => ?_)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+
+/-- **The class-4-to-5 clearing step**: wave 75's step at `k = 3`, with the depth-3 vanishing
+in place of the refuted full-generation statement. -/
+theorem gDeep_clear_step_three (HV : GDeepVanishingThree h) (HR : GTowerKnobRealizable h)
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    {a : Fin (sqRank h) → (DSq h : Type)} (hal : ∀ i, nuLam h (a i) = 1)
+    (han : ∀ i, nu' (a i) = 1) (hac : ∀ i, chiSq h (a i) = 1)
+    (hai : SqModTwoIndep (sqArbFrame h nu' j a))
+    (hrel : sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) 4) :
+    ∃ a' : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a' i) = 1) ∧ (∀ i, nu' (a' i) = 1) ∧ (∀ i, chiSq h (a' i) = 1) ∧
+        SqModTwoIndep (sqArbFrame h nu' j a') ∧
+          sqRelWord (sqArbFrame h nu' j a') ∈ twoCentralSeries (DSq h : Type) 5 := by
+  have hknob := HV nu' j hsigma hx0 a hal han hac hai hrel
+  obtain ⟨d, hd, hdl, hdn, hrel'⟩ := HR nu' j hsigma hx0 3 (by omega) a hal han hai hrel hknob
+  refine ⟨fun i => a i * d i, ?_, ?_, ?_, ?_, hrel'⟩
+  · intro i
+    rw [map_mul, hal i, hdl i, one_mul]
+  · intro i
+    rw [map_mul, han i, hdn i, one_mul]
+  · intro i
+    exact gJoin_chiSq_mul_correction (hac i) (by omega : 2 ≤ 3) (hd i) (hdl i)
+  · rw [gTower_frame_mul]
+    exact cfourId_modTwoIndep_mul hai
+      (fun i => twoCentralSeries_antitone (G := (DSq h : Type)) (by omega : 2 ≤ 3) (hd i))
+
+/-- ⭐⭐⭐ **The class-5 `χ`-supply from separation and extraction alone**: the committed
+class-3 witness driven through the depth-2 and depth-3 absorptions.  No layer statement and
+no per-class witness is consumed: both graded rungs are theorems. -/
+theorem gDeep_chiSupply_five (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
+    GJoinChiSupply h 5 := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, hal, han, hac, hai, hrel⟩ := gJoin_chiSupply_three (h := h) nu' j hsigma hx0
+  obtain ⟨a', h1, h2, h3, h4, h5⟩ := gAbs_clear_step_two
+    (gAbs_vanishingTwo_of_sep fun nu'' => hsep nu'' 2 (le_refl 2)) HR hsigma hx0 hal han hac
+    hai hrel
+  obtain ⟨a'', g1, g2, g3, g4, g5⟩ := gDeep_clear_step_three
+    (gDeep_vanishingThree_of_sep fun nu'' => hsep nu'' 3 (by omega)) HR hsigma hx0 h1 h2 h3
+    h4 h5
+  exact ⟨a'', g1, g2, g3, g4, g5⟩
+
+/-- ⭐⭐⭐ **The class-5 supply**: `SqClassClearingSupply h 5` from separation plus
+extraction.  With wave 78's class 4, the per-class residual now starts at CLASS 6. -/
+theorem gDeep_supply_five (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
+    SqClassClearingSupply h 5 :=
+  gJoin_supply_of_chiSupply (gDeep_chiSupply_five hsep HR)
+
+/-- The handle-free case carries no separation obligation at all. -/
+theorem gDeep_separationAll_handleFree : GJoinSeparationAll 0 :=
+  fun nu' k _ => gJoin_towerSeparation_handleFree nu' k
+
+theorem gDeep_supply_five_handleFree (HR : GTowerKnobRealizable 0) :
+    SqClassClearingSupply 0 5 :=
+  gDeep_supply_five gDeep_separationAll_handleFree HR
+
+end Reseed
+
+/-! ## §9 Axiom pins -/
 
 section AxiomPins
 
@@ -905,6 +1053,62 @@ section AxiomPins
 #print axioms gDeep_not_layerReach
 #print axioms gDeep_not_layerReach_three
 #print axioms gDeep_not_baseThree
+#print axioms GQ2.Dyadic.SqCore.gDeepCoker
+#print axioms GQ2.Dyadic.SqCore.gDeepWide
+#print axioms GQ2.Dyadic.SqCore.gDeepWideFull
+#print axioms gDeep_reach_le_wide
+#print axioms gDeep_wide_le_wideFull
+#print axioms gDeep_wideFull_eq
+#print axioms gDeep_B_sq_mem_four
+#print axioms gDeep_C_sq_mem_four
+#print axioms gDeep_coker_central
+#print axioms gDeep_coker_normal
+#print axioms gDeep_B_img_sq
+#print axioms gDeep_C_img_sq
+#print axioms gDeep_coker_form
+#print axioms gDeep_sq_rowTrivial
+#print axioms gDeep_defect_rowTrivial
+#print axioms gDeep_pow_four_gammaTwo
+#print axioms gDeep_family_pow
+#print axioms gDeep_family_brPow
+#print axioms gDeep_sqBr_mem_three
+#print axioms gDeep_trBr_mem_three
+#print axioms gDeep_bracket_wide
+#print axioms gDeep_zLayer_le_wideFull
+#print axioms gDeep_B_sq_nuLam
+#print axioms gDeep_B_sq_nu
+#print axioms gDeep_C_sq_nuLam
+#print axioms gDeep_C_sq_nu
+#print axioms gDeep_wideFull_realize
+#print axioms gDeep_wide_cut
+#print axioms gDeep_layer_wide
+#print axioms gDeep_leftover_decomp
+#print axioms gDeep_unit_mul_dvd
+#print axioms gDeep_delta_sq
+#print axioms gDeep_chiSq_B_sq
+#print axioms gDeep_chiSq_C_sq
+#print axioms gDeep_delta_B_sq_rowS
+#print axioms gDeep_delta_B_sq_rowX
+#print axioms gDeep_delta_C_sq_rowX
+#print axioms gDeep_delta_C_sq_rowS
+#print axioms gDeep_kill_mid
+#print axioms gDeep_kill_last
+#print axioms gDeep_zero_reader_reach
+#print axioms gDeep_B_sq_notMem_reach
+#print axioms gDeep_C_sq_notMem_reach
+#print axioms GQ2.Dyadic.SqCore.GDeepKillAt
+#print axioms gDeep_killAt_two
+#print axioms gDeep_killAt_three
+#print axioms gDeep_defectVanishing_of_kills
+#print axioms gDeep_supply_of_kills
+#print axioms gDeep_markTransitivity_of_kills
+#print axioms GQ2.Dyadic.SqCore.GDeepVanishingThree
+#print axioms gDeep_vanishingThree_of_sep
+#print axioms gDeep_clear_step_three
+#print axioms gDeep_chiSupply_five
+#print axioms gDeep_supply_five
+#print axioms gDeep_separationAll_handleFree
+#print axioms gDeep_supply_five_handleFree
 
 end AxiomPins
 
