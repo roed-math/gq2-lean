@@ -416,7 +416,7 @@ existence `EvenStratumBaseN` asserts (bar its level-three relation) exists.
 
 The binders are exactly the ones the `α ≥ 2` supply carries, minus two and plus one:
 
-* **gone**: the ramified-`i` binder `κ ≠ 0` (false here — wave 71 proves `κ = 0`) and the
+* **gone**: the ramified-`i` binder `κ ≠ 0` (false here: wave 71 proves `κ = 0`) and the
   mod-eight orientation hypothesis `EvenDegreeNModEightImage`, whose only job at `α ≥ 2` is to pin
   `τ = c • κ`, a pin that says nothing once `κ = 0`;
 * **new**: `nUnit 1 ∈ im χ_cyc`, which is what makes the `ω` class nonzero so that §2's pin has
@@ -582,8 +582,8 @@ structure EvenStratumRowActualDefectOne (s : ℕ)
       (stageDefect (nStageWord 1 h (le_refl 1)) G k T.generators)⁻¹
 
 /-- **THE CROSSED-DERIVATION INPUT IS FREE AT `α = 1`.**  Where
-`EvenSharpActualDefectSupply.toDefectReachable` consumes `EvenSharpDbarShiftSupply` — false at
-`α = 1` by wave 73 — the same passage against the true `α = 1` word consumes **no** shift
+`EvenSharpActualDefectSupply.toDefectReachable` consumes `EvenSharpDbarShiftSupply`, false at
+`α = 1` by wave 73, the same passage against the true `α = 1` word consumes **no** shift
 hypothesis at all: `evenStratumShift_n_one` supplies the comparison outright. -/
 theorem EvenStratumRowActualDefectOne.toDefectReachable
     (S : EvenStratumRowActualDefectOne s T) (hk : 3 ≤ k)
@@ -681,9 +681,9 @@ instead and the atom `w₂² · [w₂, base 2]` *survives*.
 So the two even rows fail at `α = 1` in mirror-image ways, and the prediction is confirmed:
 
 * `N`: the exponent is `2 + 2 ^ 1 = 4 = 2 · 2`, even half, and the coordinate-`0` atom **drops
-  out** — the `α ≥ 2` word overshoots (wave 73 §1-§2).
-* `M`: the exponent is `2 ^ 1 = 2 = 2 · 1`, odd half, and the coordinate-`2` atom **appears** —
-  the `α ≥ 2` word undershoots.
+  out**, so the `α ≥ 2` word overshoots (wave 73 §1-§2).
+* `M`: the exponent is `2 ^ 1 = 2 = 2 · 1`, odd half, and the coordinate-`2` atom **appears**,
+  so the `α ≥ 2` word undershoots.
 
 **Scope, as wave 73 scoped the `N` side.**  §6.3 refutes `EvenSharpDbarShiftSupply` at the `M`
 word *quantified over profinite groups*, which is the form `evenRawStageShift_m` and
@@ -865,13 +865,13 @@ calculus of `StageAbstractionEvenRawSpan.lean` §5 on `evenStratumShiftWordOne` 
 
 It is correct, and §7.3 says exactly how much.  The committed span calculus closes the central
 layer from the rows **plus** `EvenRawPureSquareSpanSupply`, and its coordinate-`0` row
-(`evenRawDepthShiftHom_zero_apply`) is `p² · [p, base 0] · [p, base 1]` — the only place a square
+(`evenRawDepthShiftHom_zero_apply`) is `p² · [p, base 0] · [p, base 1]`, the only place a square
 appears anywhere in the even shift.  At `α = 1` that row is `[p, base 1]` alone (§7.2), and every
 `α = 1` shift whatsoever is a product of brackets (§7.1).
 
 So the failure of `evenRawShiftSpan_eq_zLayer_of_pureSquares` to clone is not a gap in a proof:
 its `Hsq` input cannot be obtained from the `α = 1` rows at all, because they emit no square.  The
-compensation is real but lies elsewhere — at `α ≥ 2` the square and the bracket `[p, base 1]` sit
+compensation is real but lies elsewhere: at `α ≥ 2` the square and the bracket `[p, base 1]` sit
 in one row, so neither is available without the other, while at `α = 1` the bracket half is
 free. -/
 
@@ -983,8 +983,8 @@ omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- **THE PREDICTION IS CORRECT, AND THIS IS ITS EXACT CONTENT.**  If a pure square of a
 depth-`k−1` element is an `α = 1` shift, it is already a product of brackets.
 
-So the `α = 1` analogue of `EvenRawPureSquareSpanSupply` — the hypothesis
-`evenRawShiftSpan_eq_zLayer_of_pureSquares` needs in order to close the central layer — is a
+So the `α = 1` analogue of `EvenRawPureSquareSpanSupply`, the hypothesis
+`evenRawShiftSpan_eq_zLayer_of_pureSquares` needs in order to close the central layer, is a
 statement *purely about brackets*, with no contribution from the shift rows at all.  At `α ≥ 2`
 that is not so: the coordinate-`0` row does emit `p²`, bundled with two brackets, so there the
 supply and the rows are entangled.
