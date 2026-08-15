@@ -55,6 +55,22 @@ Note also that `SqMarkedForwardSupply B h` is *not* a new residual: at odd degre
 `MarkedFrame.SqCupAdaptedFramePresentation K` (`sqMarkedForwardSupply_oddDegree`), which the
 grand assembly already carries.
 
+⚠⚠ **[W83-HOUSE, as of `db6fcedf`: the diagnosis above is right and the conclusion drawn from
+it is now STALE.**  "No amount of *model-side* work can supply that control" stands: the pivot
+parity is an invariant of the target, and `PivotClimb` §4 is unrefuted.  What does not follow,
+and what the paragraph goes on to assert, is that the repair must therefore be P3's supply.
+W83-FRAME **computed** the invariant instead.  `oddFrame_isUnit_transported_sqPivot`
+(`Instances/OddFrame.lean`, std-3 plus {B1, B6, B11a}) shows `sqPivotExp` is a unit, so the
+transported pivot row's parity *is* the `ν̄`-row sum, and the cup form pins that sum to `1` at
+every odd-degree `K` (`oddFrame_nuRowSum_of_isCupAdapted`).  The unit pivot therefore holds at
+**every** oriented equivalence, unconditionally, with no supply and no frame clause.
+
+Consequently `oddFrame_supply` derives `SqMarkedForwardSupply B h` from
+`SqCore.SqNuOrientedClearAtUnitPivot h` and the bundle plus filtration alone, and the consumers
+below that take `hclear` **and** `hsupply` together can be re-cut over `hclear` alone.  That
+re-cut is a statement change and is left to an owner.  Handed over by
+`docs/dyadic/w83-frame-note.md` item 3.]**
+
 This file is that bridge, in three lines of mathematics:
 
 * **§1** `exists_orientedEquiv_fullNu_of_orientedClear` — take `f` oriented, put

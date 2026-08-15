@@ -73,6 +73,22 @@ from `BRDecomposition`, and `MarkedCore/N.lean`'s `demushkinQ_DN_nFrame` from an
 (a `ContinuousMulEquiv (topAbelianization G) (NFrameModel h)`) — and the square family has no
 such frame yet.  Nothing below uses it.
 
+⚠⚠ **[W83-HOUSE, as of `23041e0f`: the paragraph above is STALE, and the diagnosis in it was
+exactly right.**  `oddSeam_demushkinQ_DSq (h) : demushkinQ (D_sq h) = 2`
+(`Instances/OddSeam.lean`, W82-SEAM, `96b7808b`) proves it at **every** handle count, and it
+does so by building precisely the missing object: `oddSeamAbEquiv h`, a
+`MulEquiv (topAbelianization (D_sq h)) (ZMod 2 × ℤ₂ × ℤ₂ × ℤ₂^{2h})`, then reading the count
+off the same generic `MarkedCore.demushkinQ_of_torsionEquivZMod` the `N` precedent uses.  Two
+things forced by the square relator distinguish that frame from the `N` clone: the free
+`x̄₀`-coordinate is the two-slot functional `x̄₀ ↦ 1, x̄₁ ↦ 2` (the relation vector
+`ρ_sq = −4x̄₀ + 2x̄₁` pairs the two wild letters, where the `N` relation vector is supported at
+one slot), and the torsion coordinate sits at `x̄₁` rather than at the marked letter.
+
+The pin is **std-3**, so the odd row's third Demushkin invariant costs no census axiom, and the
+odd invariant triple `(im χ, rank, q) = (ℤ₂ˣ, [K : ℚ₂] + 2, 2)` is closed over the bundle.  The
+last sentence, "nothing below uses it", is still true of this file.  Flagged for supersession by
+W82-SEAM's own handover (`docs/dyadic/w82-seam-note.md` item 3).]**
+
 ## What this file does **not** settle
 
 `SqLamNuClearHypothesis h` at `h ≥ 1` is open, exactly as `SqChiNuClearHypothesis h` was — the

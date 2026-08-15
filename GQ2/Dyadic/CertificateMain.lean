@@ -163,30 +163,27 @@ props 5.15/5.16), `.lem86` (ii.4, ⟦lem-radicaledge⟧) and `.stageR136` (ii.5 
 verbatim at an abstract carrier `Γ` so that both sides of the comparison can use one
 vocabulary.
 
-**What the branch lanes proved:** the Fox layer — `GQ2/Dyadic/Certificates/{N0Fox, M0Fox,
-NpcFox, MpcFox, LFox}.lean` — closed the *first-order* content (universal rows, elementary
-row/column certificates, replay).  **What is missing:** the passage from a Fox certificate to
-`#LiftsOver(ρ) = SN.mMult #M_B`.  At `ℚ₂` that passage is `GQ2/MStageCount.lean` +
-`GQ2/RadicalEdge/`; at general `K` it has no owner.  AS2–AS5 supply this field per branch.
+**What the branch lanes proved:** the Fox layer (`GQ2/Dyadic/Certificates/{N0Fox, M0Fox,
+NpcFox, MpcFox, LFox}.lean`) closed the *first-order* content (universal rows, elementary
+row/column certificates, replay).  **What is missing** is the passage from a Fox certificate to
+`#LiftsOver(ρ) = SN.mMult #M_B`.  At `ℚ₂` that passage is `GQ2/MStageCount.lean` plus
+`GQ2/RadicalEdge/`.  AS2 to AS5 supply this field per branch.
 
-⚠⚠ **[W82-HOUSE, as of `a45bc557`: "at general `K` it has no owner" needs splitting by side,
-and on the ARITHMETIC side it is stale.**  This `Prop` is instantiated at two carriers, and
-they are in different states.
+**Status by carrier, as of `23041e0f`** (AB-0 of
+`docs/dyadic/followup/analytic-bridges-plan.md` §6, lane W83-HOUSE).  The wave-77 form of the
+paragraph above ended "at general `K` it has no owner", a claim about *both* carriers this
+`Prop` is instantiated at.  They are in different states, and lumping them is what seeded a
+straggler field that took five waves to sweep:
 
-* At `Γ = galKProfinite K` (the arithmetic side, `KSupply.exactLifting`): owned.
-  `liftsOver_card_galK` (`Instances/KExactLiftingGalK.lean:86`) is exactly this passage, and
-  with `lem86_galK_of_noDescent` and `correctedRStageSemantics_galK` gives the corrected bundle
+* at `Γ = galKProfinite K` (the arithmetic side, `KSupply.exactLifting`): **owned.**
+  `liftsOver_card_galK` (`Instances/KExactLiftingGalK.lean`) is exactly this passage, and with
+  `lem86_galK_of_noDescent` and `correctedRStageSemantics_galK` it gives the corrected bundle
   `ExactLiftingSemanticsRN` at every degree.  What the frozen `Prop` defined below adds is the
-  equation-(136) coefficient (`RecursionFrame.zR = #R²·#D_R` where the `G_K` count is
+  equation-(136) coefficient (`RecursionFrame.zR = #R²·#D_R`, where the `G_K` count is
   `#R^{n+1}·#D_R`), equivalent at `2 ≤ n` to the single `Prop` `askCStageVanishing`
-  (`Instances/AskCounting.lean:184`).
-* At the candidate carrier `GammaR n q word`: genuinely unowned, and that is AS1 divergence 4.
-  The Fox-to-count bridge sentence above is right there and should stay.
-
-The obligation table at §5 of this module inherits the same split and is stale in the same way;
-`docs/dyadic/followup/analytic-bridges-plan.md` §6's AB-0 asked for that table to be
-truth-synced and AB-0 was never done.  Annotating rather than rewriting here, since rewriting an
-inventory table is more than a marker.]** -/
+  (`Instances/AskCounting.lean`);
+* at the candidate carrier `GammaR n q word`: **genuinely unowned**, and that is AS1
+  divergence 4.  The Fox-to-count sentence above is about this carrier and stands. -/
 def ExactLiftingSemantics : Prop :=
   (∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -447,13 +444,31 @@ This does **not** close the general-`K` obligation: the *transport route* needs 
 on some carrier to start from, and outside `n = 1` there is none — so the four bridges above stay
 owed as **generic** constructions.
 
-⚠ They are no longer the only way to a certificate, though.  Recorded as status (this file
-imports neither module, and neither claim is checked here): AS2's
-`GQ2.Dyadic.SqrtNeg2.sqrtNegTwoWordCertificate` (`Instances/SqrtNeg2.lean`) is the first complete
-`WordCertificate` at a *branch* row and prints exactly the standard three; AS3's four
-compact-`M`/procyclic-`M` producers (`Instances/Cores.lean` §6, §11) fill thirteen of seventeen
-fields and take the four analytic clauses as explicit arguments, which is the posture this table
-describes.
+### The producer inventory, as of `23041e0f`
+
+AB-0 of `docs/dyadic/followup/analytic-bridges-plan.md` §6, lane W83-HOUSE.  The table above is
+about the *bridges*, and on that it is current: none of the four generic bridges exists.  What
+went stale is the count of rows that reach a `WordCertificate` without one, which the wave-77
+text put at two.  It is five, over all five `SelectedPresentation` rows, and this file imports
+none of them, so the list is status rather than a checked claim:
+
+| row | producer | free in |
+|---|---|---|
+| `M0 α h` | `Instances.MCompactCore.mWordCertificate` | `(α, h, q)` |
+| `Mpc α r ε η h` | `Instances.MProcyclicCore.mpcWordCertificate` | `(α, r, p, q)` at `h = 0` |
+| `Npc α r η h` | `genCertNpcWordCertificate` (`GeneralCertificates.lean`) | `(α, r, h, q)` |
+| `L h` | `Instances.LRowCand.lCand_wordCertificateCanonical` | `(h, q)` |
+| `N0 α h` | `SqrtNeg2.sqrtNegTwoWordCertificate` | `q` only, at `(α, h) = (2, 0)` |
+
+Every one of them fills the non-analytic fields and carries the analytic clauses as explicit
+arguments, which is the posture the table above describes; all five print exactly the standard
+three.  **But their residues are not the same object**, and reading them as one is a mistake
+the record has made before.  `M0`, `Mpc`, `Npc` and `L` carry the four bundles verbatim
+(`ExactLiftingSemantics`, `StokesDualityCertificate`, `ScalarHilbertCertificate`,
+`AffineDeterminantCertificate`).  `N0` carries `PilotHsimp`, `PilotStageSep`, `PilotStageZ` and
+`PilotDet`: only the last of those is one of the four bundles, and the first three sit *below*
+them, so the `√−2` row's residue is strictly narrower and is not interchangeable with the
+others'.  `scripts/scoreboard.sh` prints this split by elaboration.
 -/
 structure WordCertificate (n q : ℕ) (R : PWord (Generator n)) (P : ProfiniteGrp)
     (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n) where
