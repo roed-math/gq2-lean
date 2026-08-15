@@ -332,7 +332,25 @@ Two cautions from that lane, worth carrying at this record: the existential bran
 `fieldId_genAsmBranch_*` family) return `∃ G, G.pres = …` and so **forget** `G.nuP`, while this
 record's `cand` field is stated at `G.nuP`; and the committed `h = 0` L-row closure lives at a
 different marking from `lNu 0`, with no comparison available at this tree.  Both are statement
-changes and are owner items.]** -/
+changes and are owner items.]**
+
+⚠ **[W83-RECORDS, as of `23041e0f`: the first caution is DISCHARGED AT FIVE SITES, and the
+census it gives is incomplete.**  The forgetting is a property of each site that *constructs*
+the datum, and there are eight of those, not four: `genAsm_branch_of_evenN`,
+`genAsm_branch_of_evenM`, `genAsm_branch_of_oddSq`, `genAsm_branch_of_oddSq_canonical`,
+`Instances.MpcCertificate.mpcCert_genAsmBranch_of_orientedMpc`,
+`Instances.FieldUnimodularity.fieldUni_genAsmBranch_of_orientedM_level_zero` and its `N` twin,
+and `Instances.MpcPivot.mpcPiv_genAsmBranch_sqrtNegTen`.  Everything else, the whole
+`fieldId_genAsmBranch_*` family included, is a re-export that inherits whatever its producer
+states.
+
+Five of the eight now carry `∧ HEq G.nuP <the marking>`: the two odd producers here, the two
+level-zero producers, and the procyclic producer.  Two (`genAsm_branch_of_evenN`,
+`genAsm_branch_of_evenM`) still forget, and are the remaining owner item.  The eighth,
+`mpcPiv_genAsmBranch_sqrtNegTen`, is at the *transported* marking by construction and cannot be
+strengthened to a canonical one at this tree; its own docstring already says so.
+
+The second caution stands unchanged.]** -/
 structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B FF) where
   /-- **ASK, ledger field 3** at `G_K`.  ⚠ [W82-HOUSE, as of `a45bc557`: this is the *frozen*
   bundle.  Its `RN` companion is a theorem at every degree (`exactLiftingSemanticsRN_galK`);
@@ -729,7 +747,17 @@ theorem genAsm_oddResidual_gives_mix {h : ℕ} (hh : 0 < h) {c : ℤ_[2]} (hc : 
 /-- **The `L`-row branch datum**, through the one-binder direct producer.  With
 `genAsm_oddResidual_gives_mix` the `hMix` input is the odd route's residual, so the odd side of
 the general statement's selector reduces to `SqLamMarkTransitivity h` plus the oriented
-equivalence and the two `ν` normalizations. -/
+equivalence and the two `ν` normalizations.
+
+**[W83-RECORDS: the conclusion now carries the marking.**  It used to be
+`∃ G, G.pres = .L h` alone, which *forgets* which `Ztwo` marking the datum was built at, while
+`GenAsmRowResidual.cand` and all three `ASK` fields are stated at `G.nuP` and every committed
+`WordCertificate` producer lives at a fixed canonical marking.  A consumer of the old form could
+therefore never reach the `cand` field.  The added conjunct is `HEq` rather than `Eq` because
+`G.nuP`'s type is `ContinuousMonoidHom (genAsmCore G.pres) Ztwo`, which depends on `G.pres`; a
+consumer recovers the honest equation by destructuring `G` and substituting the row equation,
+after which `eq_of_heq` applies.  The proof is unchanged apart from the extra `HEq.rfl`: the
+marking was already being read off the construction.]** -/
 theorem genAsm_branch_of_oddSq (h : ℕ) (c : ℤ_[2])
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
     (nuP : ContinuousMonoidHom ((SqCore.DSq h : ProfiniteGrp) : Type) Ztwo)
@@ -739,10 +767,10 @@ theorem genAsm_branch_of_oddSq (h : ℕ) (c : ℤ_[2])
     (hMix : SqCore.SqHandleMixFixesCore h c)
     (hsigma : nuUrKTwo B (e.1 (SqCore.dsqSigma h)) = Multiplicative.ofAdd (1 : ℤ_[2]))
     (hx0 : nuUrKTwo B (e.1 (SqCore.dsqX0 h)) = Multiplicative.ofAdd (0 : ℤ_[2])) :
-    ∃ G : GenAsmBranch K B, G.pres = .L h := by
+    ∃ G : GenAsmBranch K B, G.pres = .L h ∧ HEq G.nuP nuP := by
   obtain ⟨C⟩ := marked_matching_certificate_KTwoSq_of_fixesCore B h c e.1 e.2 hMix hsigma hx0
   exact ⟨{ pres := .L h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
-           realization := MarkedCoreRealization.ofCertificateSq nuP hnuIota C }, rfl⟩
+           realization := MarkedCoreRealization.ofCertificateSq nuP hnuIota C }, rfl, HEq.rfl⟩
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
@@ -758,14 +786,21 @@ theorem genAsm_lNu_surjective (h : ℕ) :
 (`genAsm_lNu_surjective` and `LSquare.ztwoIota_lNu`), so what remains on the odd side of the
 general selector is exactly: the degree pin, the oriented equivalence `D_sq h ≃ G_K(2)`, the
 handle-mix input (which `genAsm_oddResidual_gives_mix` reads off `SqLamMarkTransitivity h` at
-every `h ≥ 1`), and the two `ν` normalizations at `σ` and `x₀`. -/
+every `h ≥ 1`), and the two `ν` normalizations at `σ` and `x₀`.
+
+**[W83-RECORDS: the conclusion now names the marking, `lNu h`.**  See the note on
+`genAsm_branch_of_oddSq` for why the conjunct is `HEq`.  This is the statement that lets a
+consumer of the odd row reach `GenAsmRowResidual.cand`, whose committed producer
+`Instances.LRowCand.lCand_wordCertificateCanonical` sits at exactly `lNu h`; before the
+strengthening the only route was to rebuild the datum as a definition, which is what
+`Instances.LRowCand.lCandBranch` does.]** -/
 theorem genAsm_branch_of_oddSq_canonical (h : ℕ) (c : ℤ_[2])
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
     (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K)))
     (hMix : SqCore.SqHandleMixFixesCore h c)
     (hsigma : nuUrKTwo B (e.1 (SqCore.dsqSigma h)) = Multiplicative.ofAdd (1 : ℤ_[2]))
     (hx0 : nuUrKTwo B (e.1 (SqCore.dsqX0 h)) = Multiplicative.ofAdd (0 : ℤ_[2])) :
-    ∃ G : GenAsmBranch K B, G.pres = .L h :=
+    ∃ G : GenAsmBranch K B, G.pres = .L h ∧ HEq G.nuP (Instances.LSquareCore.lNu h) :=
   genAsm_branch_of_oddSq h c hdeg (Instances.LSquareCore.lNu h) (genAsm_lNu_surjective h)
     (LSquare.ztwoIota_lNu h) e hMix hsigma hx0
 

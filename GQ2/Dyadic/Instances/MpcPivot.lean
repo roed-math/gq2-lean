@@ -459,9 +459,12 @@ theorem mpcPiv_genAsmBranch_sqrtNegTen_of_shift (hshift : MpcPivShift 2)
   obtain ⟨hC, hB⟩ := mpcPiv_rows_sqrtNegTen B (fieldId_chosenEquivM_sqrtNegTen B)
   obtain ⟨Psi, hchi, γ, hγ⟩ := mpcPiv_orbit_of_shift hshift _ hC hB
   set e := mpcPiv_comp (fieldId_chosenEquivM_sqrtNegTen B) Psi hchi with he
-  refine mpcCert_genAsmBranch_of_orientedMpc 1 (p true 1) true .one (le_refl 2) (by omega)
-    (by rw [finrank_KSqrtNegTen]; rfl) e
-    (mpcCert_chiKerLevel_of_level B (mpcNorm_level_sqrtNegTen B) e) ⟨⟨γ, hγ⟩, ?_, ?_⟩
+  -- [W83-RECORDS: the producer now also names the marking `mpcNu 2 1 (p true 1)`; this
+  -- statement keeps the weaker form and drops the conjunct here.]
+  refine Exists.imp (fun _ hG => hG.1)
+    (mpcCert_genAsmBranch_of_orientedMpc 1 (p true 1) true .one (le_refl 2) (by omega)
+      (by rw [finrank_KSqrtNegTen]; rfl) e
+      (mpcCert_chiKerLevel_of_level B (mpcNorm_level_sqrtNegTen B) e) ⟨⟨γ, hγ⟩, ?_, ?_⟩)
   · obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda e (mpcNorm_lambdaOne_mUnit_sqrtNegTen B)
       (chiM_dmD 2 0)
     exact ⟨y, by rw [hy, pow_one]⟩
