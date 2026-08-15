@@ -6,16 +6,30 @@ Authors: David Roe, roed@mit.edu, using Claude Fable 5
 import GQ2.Dyadic.SqCore.GradedAbsorption
 
 /-!
-# W79-DEPTH3: the depth-3 base by absorption
+# W79-DEPTH3: the depth-3 base refuted; the absorption transported; the ladder re-cut
 
-Wave 78 formalized Labute's Theorem 5 absorption at depth 2 and re-seeded the odd-route
-reduction so that its sole remaining layer-side input is the depth-3 base
-`GDecideBaseThree h`: at every selected marking, every exactly row-trivial `γ₄`-element
-reaches at depth 3.  This file attempts that base by the same absorption one level up:
+Wave 78 re-seeded the odd-route reduction so that its sole remaining layer-side input was
+the depth-3 base `GDecideBaseThree h`: at every selected marking, every exactly row-trivial
+`γ₄`-element reaches at depth 3.  This file settles that input and repairs the route:
 
-* the depth-3 leftover normal form (reach times explicit coker classes with
-  `𝔽₂`-coefficients), and
-* the coefficient kill on the handle-corrected rows.
+* **The refutation (§3)**: `GDecideBaseThree h` is FALSE at every `h`, and so is
+  `GTowerLayerReach h ν' k` at EVERY depth `k ≥ 2` and every marking: the `2^{k-2}`-th power
+  of wave 78's coker class `B = ⁅⁅x₁,σ⁆,x₁⁆` is row-trivial in `γ_{k+1}` and reads
+  `2^k·unit` at the corrected `σ`-row, while the depth-`k` reach reads `2^{k+1}`-divisibly
+  (§2).  No deeper re-seed of the same shape can ever work.
+* **T1 at depth 3 (§4-§6)**: the absorption transports.  The depth-3 coker is the SQUARES
+  `B², C²` (Labute's `π^{j-1}ξ`-towers of the two excluded classes), and every exactly
+  row-trivial `γ₄`-element is a depth-3 reach element times `(B²)^{e₁}(C²)^{e₂}` with
+  `𝔽₂`-exponents (`gDeep_leftover_decomp`).
+* **T2 at depth 3 (§7)**: the corrected rows read `B², C²` as `2³·unit` at their own slots,
+  zero at the other's, so all-rows-zero elements have both exponents killed and reach
+  (`gDeep_zero_reader_reach`).
+* **The re-cut (§8)**: the route's proofs only ever applied the layer statement to the
+  relator word, which reads zero everywhere; the honest layer-side input is therefore the
+  defect-restricted KILL LADDER `GDeepKillAt h k`, whose rungs `k = 2, 3` are now theorems.
+  The vanishing interface and `SqLamMarkTransitivity h` follow from the ladder plus the two
+  wave-75 interfaces, and the recursion seeded through the proved rungs yields the class-5
+  supply from separation and extraction alone (`gDeep_supply_five`).
 -/
 
 open Multiplicative
