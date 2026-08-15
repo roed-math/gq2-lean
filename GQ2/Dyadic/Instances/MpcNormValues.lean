@@ -619,6 +619,154 @@ theorem mpcNorm_w_negTen : ((mpcNorm_unitFive : ℤ_[2]) : ℚ_[2]) * 2 = -(-10 
 
 end FieldData
 
+/-! ## §8 The four values
+
+Wave 80 §4.1's table, formalized.  Each entry is one run of §6's parity criterion against §7's
+residues, and the excluded parity is a three-line `decide` in `ℤ/8`.
+
+| input | field | says | excluded parity |
+| --- | --- | --- | --- |
+| `MpcNoUnitKerChi` | `ℚ₂(√10)` | `(2, 10)₂ = −1` | `n` odd: `w·3 ∈ {3, 5}`, never `1` |
+| `λ(−1) = 0` | `ℚ₂(√10)` | `(−2, 10)₂ = −1` | `n` odd: `7·w·3 ∈ {5, 3}`, never `1` |
+| `MpcNoUnitKerChi` | `ℚ₂(√−10)` | `(2, −10)₂ = −1` | `n` odd: `w·5 ∈ {5, 7}`, never `1` |
+| `λ(−1) = 1` | `ℚ₂(√−10)` | `(−2, −10)₂ = +1`, `(−1, −10)₂ = −1` | `n` even: `7·w ∈ {7, 5}`, never `1` |
+| `λ(5) = 1` | `ℚ₂(√−10)` | `(5, −10)₂ = −1` | `n` even: `5·w ∈ {5, 7}`, never `1` |
+
+**Every value agrees with wave 80's hand computation and with the frozen rows.**  The `ε = false`
+row wants `p = 0` and gets `λ(−1) = 0`; the `ε = true` row wants `p = 1` and `η = .one` and gets
+`λ(−1) = 1` and `λ(mUnit 2) = 1`. -/
+
+section Values
+
+variable {R : LocalReciprocity}
+
+/-- **`2` IS NOT A NORM FROM `ℚ₂(√10)`.**  `(2, 10)₂ = −1`, in the bundle's vocabulary: no class
+of `ker χ_K` has a unimodular `ν_ur`-value.  With `mpcRow_level_le_one_sqrtTen` this is `B.r = 1`
+at `ℚ₂(√10)`. -/
+theorem mpcNorm_noUnitKerChi_sqrtTen (B : MarkedRecip R KSqrtTen) : MpcNoUnitKerChi B := by
+  intro g hg hunit
+  have hcheck : ∀ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 ((10 : ℤ_[2])) ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 ((10 : ℤ_[2]))) →
+      PadicInt.toZModPow 3 (((1 : ℤ_[2]ˣ) : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((mpcNorm_unitNegFive ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 →
+      (((-n : ℤ)) : ZMod (2 ^ 1)) = 0 := by
+    intro w n hres hprod
+    rcases Int.even_or_odd n with hn | hn
+    · exact mpcNorm_cast_even hn
+    · exfalso
+      rw [mpcNorm_residue_one, one_mul, mpcNorm_residue_zpow_odd _ hn,
+        mpcNorm_residue_negFive] at hprod
+      rw [mpcNorm_residue_ten] at hres
+      rcases hres with h | h | h <;> rw [h] at hprod <;> revert hprod <;> decide
+  have h := mpcNorm_parity not_isSquare_ten mpcRow_valuation_ten_odd mpcRow_norm_ten
+    mpcNorm_cast_ten mpcNorm_w_ten B hcheck g hg
+  rw [mpcNorm_residue_of_isUnit hunit] at h
+  exact absurd h (by decide)
+
+/-- **`λ(−1) = 0` AT `ℚ₂(√10)`.**  `(−2, 10)₂ = −1`: a class of cyclotomic value `−1` has even
+`ν_ur`-value, which is the `B̄` congruence of the `ε = false` row (`p false 1 = 0`). -/
+theorem mpcNorm_lambdaOne_negOne_sqrtTen (B : MarkedRecip R KSqrtTen) :
+    MpcLambdaOne B (-1) 0 := by
+  refine mpcNorm_lambdaOne_of_residue B (-1) 0 fun g hg => ?_
+  have hcheck : ∀ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 ((10 : ℤ_[2])) ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 ((10 : ℤ_[2]))) →
+      PadicInt.toZModPow 3 (((-1 : ℤ_[2]ˣ) : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((mpcNorm_unitNegFive ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 →
+      (((-n : ℤ)) : ZMod (2 ^ 1)) = 0 := by
+    intro w n hres hprod
+    rcases Int.even_or_odd n with hn | hn
+    · exact mpcNorm_cast_even hn
+    · exfalso
+      rw [mpcNorm_residue_negOne, mpcNorm_residue_zpow_odd _ hn,
+        mpcNorm_residue_negFive] at hprod
+      rw [mpcNorm_residue_ten] at hres
+      rcases hres with h | h | h <;> rw [h] at hprod <;> revert hprod <;> decide
+  rw [map_zero]
+  exact mpcNorm_parity not_isSquare_ten mpcRow_valuation_ten_odd mpcRow_norm_ten
+    mpcNorm_cast_ten mpcNorm_w_ten B hcheck g hg
+
+/-- **`2` IS NOT A NORM FROM `ℚ₂(√−10)`.**  `(2, −10)₂ = −1`. -/
+theorem mpcNorm_noUnitKerChi_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) : MpcNoUnitKerChi B := by
+  intro g hg hunit
+  have hcheck : ∀ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 ((-10 : ℤ_[2])) ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 ((-10 : ℤ_[2]))) →
+      PadicInt.toZModPow 3 (((1 : ℤ_[2]ˣ) : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((mpcNorm_unitFive ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 →
+      (((-n : ℤ)) : ZMod (2 ^ 1)) = 0 := by
+    intro w n hres hprod
+    rcases Int.even_or_odd n with hn | hn
+    · exact mpcNorm_cast_even hn
+    · exfalso
+      rw [mpcNorm_residue_one, one_mul, mpcNorm_residue_zpow_odd _ hn,
+        mpcNorm_residue_five] at hprod
+      rw [mpcNorm_residue_negTen] at hres
+      rcases hres with h | h | h <;> rw [h] at hprod <;> revert hprod <;> decide
+  have h := mpcNorm_parity not_isSquare_neg_ten mpcRow_valuation_neg_ten_odd mpcRow_norm_neg_ten
+    mpcNorm_cast_negTen mpcNorm_w_negTen B hcheck g hg
+  rw [mpcNorm_residue_of_isUnit hunit] at h
+  exact absurd h (by decide)
+
+/-- **`λ(−1) = 1` AT `ℚ₂(√−10)`.**  `(−2, −10)₂ = +1` while `(−1, −10)₂ = −1`: a class of
+cyclotomic value `−1` has **odd** `ν_ur`-value, the `B̄` congruence of the `ε = true` row
+(`p true 1 = 1`).  The parity inverts relative to `ℚ₂(√10)`, and this is where. -/
+theorem mpcNorm_lambdaOne_negOne_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) :
+    MpcLambdaOne B (-1) 1 := by
+  refine mpcNorm_lambdaOne_of_residue B (-1) 1 fun g hg => ?_
+  have hcheck : ∀ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 ((-10 : ℤ_[2])) ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 ((-10 : ℤ_[2]))) →
+      PadicInt.toZModPow 3 (((-1 : ℤ_[2]ˣ) : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((mpcNorm_unitFive ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 →
+      (((-n : ℤ)) : ZMod (2 ^ 1)) = 1 := by
+    intro w n hres hprod
+    rcases Int.even_or_odd n with hn | hn
+    · exfalso
+      rw [mpcNorm_residue_negOne, mpcNorm_residue_zpow_even _ hn, mul_one] at hprod
+      rw [mpcNorm_residue_negTen] at hres
+      rcases hres with h | h | h <;> rw [h] at hprod <;> revert hprod <;> decide
+    · exact mpcNorm_cast_odd hn
+  rw [map_one]
+  exact mpcNorm_parity not_isSquare_neg_ten mpcRow_valuation_neg_ten_odd mpcRow_norm_neg_ten
+    mpcNorm_cast_negTen mpcNorm_w_negTen B hcheck g hg
+
+/-- **`λ(5) = 1` AT `ℚ₂(√−10)`.**  `(5, −10)₂ = −1`: a class of cyclotomic value `mUnit 2`, which
+is `5` modulo `8`, has odd `ν_ur`-value.  This is the `D̄` congruence, the one the rigidity
+argument of wave 80 §2 cannot supply on the `ε = true` row. -/
+theorem mpcNorm_lambdaOne_mUnit_sqrtNegTen (B : MarkedRecip R KSqrtNegTen) :
+    MpcLambdaOne B (mUnit 2) 1 := by
+  refine mpcNorm_lambdaOne_of_residue B (mUnit 2) 1 fun g hg => ?_
+  have hcheck : ∀ (w : ℤ_[2]ˣ) (n : ℤ),
+      (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 ((-10 : ℤ_[2])) ∨
+        PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 ((-10 : ℤ_[2]))) →
+      PadicInt.toZModPow 3 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]))
+          * (PadicInt.toZModPow 3 (w : ℤ_[2])
+            * PadicInt.toZModPow 3 ((mpcNorm_unitFive ^ n : ℤ_[2]ˣ) : ℤ_[2])) = 1 →
+      (((-n : ℤ)) : ZMod (2 ^ 1)) = 1 := by
+    intro w n hres hprod
+    rcases Int.even_or_odd n with hn | hn
+    · exfalso
+      rw [mpcNorm_residue_mUnitTwo, mpcNorm_residue_zpow_even _ hn, mul_one] at hprod
+      rw [mpcNorm_residue_negTen] at hres
+      rcases hres with h | h | h <;> rw [h] at hprod <;> revert hprod <;> decide
+    · exact mpcNorm_cast_odd hn
+  rw [map_one]
+  exact mpcNorm_parity not_isSquare_neg_ten mpcRow_valuation_neg_ten_odd mpcRow_norm_neg_ten
+    mpcNorm_cast_negTen mpcNorm_w_negTen B hcheck g hg
+
+end Values
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
