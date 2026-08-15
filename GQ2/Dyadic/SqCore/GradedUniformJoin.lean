@@ -187,7 +187,15 @@ variable (h) in
 /-- ⭐⭐ **The `χ`-restricted defect-vanishing interface**: `GTowerDefectVanishing h` with the
 extra hypothesis that the dressing is `χ`-trivial at every slot.  Strictly weaker than
 `GTowerDefectVanishing h`, and strictly closer to what `GDeltaDefectVanishing h` (proved)
-delivers: the functional side speaks *exactly* on this family. -/
+delivers: the functional side speaks *exactly* on this family.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THIS `Prop` IS A THEOREM at every `h`** -
+`gOdd_defectVanishing` (`SqCore/GradedOddClose.lean`), which is
+`gGen_defectVanishing (gExt_separationAll h)`: the kill ladder at every rung plus wave 79's
+separation.  Its two per-class instances `GAbsVanishingTwo h` and `GDeepVanishingThree h` are
+theorems for the same reason.  Still open, and NOT implied by this: the strictly stronger
+`GTowerDefectVanishing h`, which drops the `χ`-triviality clause and which nothing in the tree
+proves or refutes.]** -/
 def GJoinDefectVanishing : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -198,14 +206,24 @@ def GJoinDefectVanishing : Prop :=
       levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a))
         ∈ Subgroup.closure (gTowerKnobSet h nu' k)
 
-/-- `GTowerDefectVanishing` is the stronger hypothesis. -/
+/-- `GTowerDefectVanishing` is the stronger hypothesis.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: SUPERSEDED - the conclusion is now a theorem outright
+(`gOdd_defectVanishing`), so this reduction is no longer a way of getting it.  The
+hypothesis `GTowerDefectVanishing h` remains open; this theorem is what would make it
+useful if it were ever proved.]** -/
 theorem gJoin_defectVanishing_of_tower (H : GTowerDefectVanishing h) :
     GJoinDefectVanishing h :=
   fun nu' j hs hx k hk a hal han _ hai hrel => H nu' j hs hx k hk a hal han hai hrel
 
 variable (h) in
 /-- The supply with the `χ`-clause carried: the clearing sets, restricted to `χ`-trivial
-dressings.  §2 makes this restriction free. -/
+dressings.  §2 makes this restriction free.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THIS `Prop` IS A THEOREM at every `h` and every `k`** -
+`gXf_chiSupply_le (gOdd_chiSupply h k)`, the `x₁`-free refinement `GXfChiSupply h k`
+(`SqCore/GradedXFree.lean`) weakened.  No standalone unconditional `gJoin_chiSupply` is
+recorded in the tree; the one-step composition above is the route.]** -/
 def GJoinChiSupply (k : ℕ) : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -256,7 +274,17 @@ theorem gJoin_clear_step (HV : GJoinDefectVanishing h) (HR : GTowerKnobRealizabl
       (fun i => twoCentralSeries_antitone (G := (DSq h : Type)) hk (hd i))
 
 /-- ⭐⭐⭐ **The supply at every class, from the `χ`-restricted interface**: wave 74's
-`gTower_supply_of_vanishing` with the torsion gap of its FUNC sibling closed. -/
+`gTower_supply_of_vanishing` with the torsion gap of its FUNC sibling closed.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: the `_of_vanishing` FAMILY here (`gJoin_clear_step`,
+`gJoin_supply_of_vanishing`, `gJoin_markTransitivity_of_vanishing`) has a PROVED `HV` and an
+UNPROVED `HR`.**  `HV : GJoinDefectVanishing h` is `gOdd_defectVanishing`;
+`HR : GTowerKnobRealizable h` is the interface wave 79 found the route does not prove as
+quantified, and it is bypassed rather than discharged.  The live route to the same conclusions
+is the `x₁`-free re-run in `SqCore/GradedXFree.lean` §8 (`gXf_supply_of_vanishing`,
+`gXf_markTransitivity_of_vanishing`), which needs `HV` alone; both conclusions are then
+unconditional in `SqCore/GradedOddClose.lean` (`gOdd_supply`, `gOdd_markTransitivity`).
+Statements unchanged.]** -/
 theorem gJoin_supply_of_vanishing (HV : GJoinDefectVanishing h)
     (HR : GTowerKnobRealizable h) : ∀ k, SqClassClearingSupply h k := by
   have hmain : ∀ K, GJoinChiSupply h (K + 3) := by
@@ -878,7 +906,13 @@ Concretely what remains is: write a class of the handle-tower span in the normal
 `∏_j U_j^{2^k f_j} · V_j^{2^k g_j}`, read off `f_j` and `g_j` by `gJoinRowU j`/`gJoinRowV j`,
 and conclude `2 ∣ f_j`, `2 ∣ g_j`, hence triviality in the layer.  No new mathematics; the
 friction is that the layer is written inside a non-commutative quotient, so the normal form
-needs an ordered product and its exponent-addition law. -/
+needs an ordered product and its exponent-addition law.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: DISCHARGED.**  `gExt_towerSeparation : GJoinTowerSeparation
+h nu' k` (`SqCore/GradedExtraction.lean`, wave 79) proves it at every `h`, every marking and
+every `k`, and `gExt_separationAll` bundles it as `GJoinSeparationAll h`.  "What remains" in
+the paragraph above is a completed work item, not an open one; the ordered-product normal form
+it describes is what that proof builds.]** -/
 def GJoinTowerSeparation
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ) : Prop :=
   ∀ z ∈ Subgroup.closure (gJoinEichSet h nu' k),
@@ -993,14 +1027,33 @@ the two-input sentence, contradicting that theorem 45 lines further down inside 
 
 Nothing else is left of the functional side: the vanishing itself is a theorem
 (`gDeltaDefectVanishing_holds`), the torsion gap is closed (§2), the knobs are invisible
-(§5), the invisible tower is a knob (§6), and the visible towers are read on the nose (§7). -/
+(§5), the invisible tower is a knob (§6), and the visible towers are read on the nose (§7).
+
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: EVERY ITEM THIS HEADER LEAVES OPEN IS NOW SETTLED, and
+the three-input framing is superseded.**  Taking the three named inputs in turn:
+`GJoinBase h` is REFUTED (already marked above, `gDecide_not_joinBase`);
+`GJoinSeparationAll h` is a THEOREM (`gExt_separationAll`, `SqCore/GradedExtraction.lean`,
+wave 79); `GTowerKnobRealizable h` is neither - it is unproved as quantified (wave 79) and was
+BYPASSED, by re-running the recursion in `SqCore/GradedXFree.lean` §8 under an `x₁`-freeness
+clause on which the weakened `GXfKnobRealizable h` is a theorem.  Both conclusions this header
+tracks are now unconditional at every `h`: `SqClassClearingSupply h k` at every class is
+`gOdd_supply`, and `SqLamMarkTransitivity h` is `gOdd_markTransitivity`, both in
+`SqCore/GradedOddClose.lean`.  What is **not** superseded: everything this file actually
+proves - §§1-7, the join itself, and the refutation record above - stands unchanged, and the
+`Prop`s it defines are still the names the rest of the corpus uses.]** -/
 
 section Assembly
 
 variable {h : ℕ}
 
 variable (h) in
-/-- The separation bookkeeping of §7, at every selected marking and every depth `k ≥ 2`. -/
+/-- The separation bookkeeping of §7, at every selected marking and every depth `k ≥ 2`.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: DISCHARGED, at every `h`** - `gExt_separationAll (h : ℕ) :
+GJoinSeparationAll h` (`SqCore/GradedExtraction.lean`, wave 79), unconditional.  Every
+`hsep : GJoinSeparationAll h` binder anywhere in the graded corpus is therefore satisfiable and
+routinely satisfied; treating it as an open item is a wave-80-era error (see
+`SqCore/GradedUniformGen.lean` §7 and `docs/dyadic/w80-uniform-note.md`, both annotated).]** -/
 def GJoinSeparationAll : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ),
     2 ≤ k → GJoinTowerSeparation h nu' k

@@ -1702,7 +1702,15 @@ variable (h) in
 target): at every selected marking, handle, level `k ≥ 2` and admissible frame whose relator
 has died to `γ_{k+1}`, the defect's class lies in the span of the admissible **knobs** alone -
 no admissible-tower coefficients.  By `gTower_defect_reach_of_base` this is, conditionally on
-the class-four base, precisely the vanishing of the tower coefficients of the defect. -/
+the class-four base, precisely the vanishing of the tower coefficients of the defect.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: STILL OPEN, and now bypassed.**  Nothing in the tree proves
+or refutes this `Prop`.  What IS proved is its `χ`-restricted weakening
+`GJoinDefectVanishing h` (`gOdd_defectVanishing`, `SqCore/GradedOddClose.lean`), and that is
+all the closed odd route ever consumed - `gJoin_defectVanishing_of_tower` records that this one
+would imply it, but it is no longer needed for it.  The conditional chain below
+(`gTower_clear_step`, `gTower_supply_of_vanishing`, `gTower_markTransitivity_of_vanishing`) is
+intact and superseded.]** -/
 def GTowerDefectVanishing : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -1719,7 +1727,26 @@ correction tuple one layer down.  The three-core-slot instance is `gTower_kills`
 `gTower_dress_core`; the general statement carries the multi-handle and accumulated-dressing
 bookkeeping that wave 73 flagged (`docs/dyadic/w73-knob-note.md` §9, wave-74 queue item 2,
 "the multi-handle composition lemma"; it is a queue item, not a section), which is
-deliberately **not** discharged in this lane. -/
+deliberately **not** discharged in this lane.
+
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: NOT DISCHARGED IN ANY LANE, AND NOT A RESIDUAL EITHER.
+The two failure modes are easy to conflate, so read this one carefully.**
+
+Wave 79 (`docs/dyadic/w79-extract-note.md`) found that the campaign's recursion does not prove
+this `Prop` AS QUANTIFIED: an admissible dressing may carry an `x₁`-component, and the far
+letters then need the bracket against the `x₁`-slot frame value, which the moves supply only
+bundled with a square.  That is a failure of the ROUTE.  It is **not** a refutation: no
+counterexample to the `Prop` itself is in the tree, and it must not be described as false, the
+way `GTowerLayerReach`, `GDecideBaseThree` and `GJoinBase` correctly are.
+
+Wave 80 BYPASSED it rather than proving it.  `SqCore/GradedXFree.lean` §8 re-runs the same
+recursion carrying an `x₁`-freeness clause on the dressing, and the correspondingly weakened
+interface `GXfKnobRealizable h` IS a theorem (`gXf_knobRealizable`).  So every
+`HR : GTowerKnobRealizable h` binder in the corpus is an unsatisfied-but-not-refuted hypothesis
+on a superseded route, and every conclusion those composites reach is available unconditionally
+through the `x₁`-free chain: `gOdd_supply`, `gOdd_markTransitivity`
+(`SqCore/GradedOddClose.lean`).  Do not restart this `Prop` as a lane target; nothing
+downstream needs it.]** -/
 def GTowerKnobRealizable : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
