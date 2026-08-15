@@ -16,11 +16,21 @@ generation: at each level the leftover decomposes as a knob image times coker cl
 with `𝔽₂`-coefficients, and in the character-pinned regime (his Theorem 5) those
 coefficients are killed by the Δ-functional constraint rather than absorbed.
 
-This file formalizes that mechanism.  Contents to be built in this lane:
+This file formalizes that mechanism.
 
-* the leftover normal form at depth 2 (T1);
-* the coefficient-killing constraint for the supply's actual defects (T2);
-* the re-seeded clearing recursion (T3).
+* **T1** (`gAbs_layer_wide`, `gAbs_leftover_decomp`): the leftover normal form.  Adjoining
+  the two refuted classes `B = [[x1,sigma],x1]` and `C = [[x1,x0],x1]` to the depth-2 reach
+  absorbs the whole layer: every exactly row-trivial `γ₃`-element is a reach element times
+  `B^{e₁}C^{e₂}` with `𝔽₂`-exponents.  Unconditional; wave 76's chain re-run against the
+  widened reach, the handle instances reduced through the Eichler bracket squares.
+* **T2** (`gAbs_zero_reader_reach`): the coefficient kill.  Two handle-corrected rows make
+  the whole depth-2 reach read `8`-divisibly while `B` and `C` read `4·unit` each at its own
+  row and `0` at the other's; a defect reads `0` at every row, so `e₁ = e₂ = 0`.  The
+  refuted layer statement is recovered exactly on the all-rows-zero elements.
+* **T3** (`gAbs_vanishingTwo_of_sep` through `gAbs_markTransitivity_of_baseThree`): the
+  repaired class-3-to-4 step, the class-4 supply witness wave 77 costed the re-cut at
+  (`gAbs_supply_four`), and the re-seeded recursion: the residual from the OPEN depth-3 base
+  plus the two wave-75 interfaces, the refuted input replaced by an open one.
 -/
 
 open Multiplicative
@@ -1174,7 +1184,264 @@ theorem gAbs_leftover_decomp (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
 
 end Cut
 
-/-! ## Axiom pins (§§1-6) -/
+/-! ## §7 T2: the coefficient kill
+
+The defect of a `χ`-trivial admissible dressing reads zero at every row
+(`gDeltaDefectVanishing`, proved in wave 74).  Against the normal form of §6 the two
+corrected rows then read the two `𝔽₂`-coefficients directly: the reach part is
+`8`-divisible (§2), each coker class reads `4·unit` at its own row (§3), so both exponents
+vanish and the defect class lies in the admissible reach.  This is Labute's Theorem 5
+constraint `0 = Δᵢ(ε_j) = aᵢπ^j`, at the two coordinates his printed argument does not
+spell out. -/
+
+section Kill
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- Units do not absorb powers of two. -/
+theorem gAbs_unit_mul_dvd {w : ℤ_[2]ˣ} {t : ℤ_[2]}
+    (hd : (2 : ℤ_[2]) ^ 3 ∣ (w : ℤ_[2]) * t) : (2 : ℤ_[2]) ^ 3 ∣ t := by
+  obtain ⟨s, hs⟩ := hd
+  have hcanc : ((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (w : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  refine ⟨((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * s, ?_⟩
+  linear_combination ((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hs - t * hcanc
+
+/-- A `4·unit` value is not `8`-divisible. -/
+theorem gAbs_four_unit_not_dvd {t : ℤ_[2]} {u : ℤ_[2]ˣ} (ht : t = 2 ^ 2 * (u : ℤ_[2])) :
+    ¬ (2 : ℤ_[2]) ^ 3 ∣ t := by
+  intro hdvd
+  obtain ⟨s, hs⟩ := hdvd
+  rw [ht] at hs
+  refine gDelta_not_two_dvd_unit u ⟨s, ?_⟩
+  have h4 : ((2 : ℤ_[2]) ^ 2) ≠ 0 := pow_ne_zero _ two_ne_zero
+  refine mul_left_cancel₀ h4 ?_
+  linear_combination hs
+
+/-- **The middle-exponent kill**: if the head reads `8`-divisibly, the middle base reads
+`4·unit`, the tail base reads zero, and the whole product reads zero, the middle
+`𝔽₂`-exponent vanishes. -/
+theorem gAbs_kill_mid {p x y : (DSq h : Type)} {c : Fin (sqRank h) → ℤ_[2]} {e f : ℕ}
+    (he : e ≤ 1) (h8p : (2 : ℤ_[2]) ^ 3 ∣ gDelta h c p)
+    (hx4 : ∃ u : ℤ_[2]ˣ, gDelta h c x = 2 ^ 2 * (u : ℤ_[2]))
+    (hy0 : gDelta h c y = 0) (hchiX : chiSq h x = 1) (hchiY : chiSq h y = 1)
+    (hzero : gDelta h c (p * x ^ e * y ^ f) = 0) : e = 0 := by
+  rw [gDelta_mul, gDelta_mul, gDelta_pow, gDelta_pow, hchiX, hchiY, hy0, mul_zero, mul_zero,
+    add_zero, Units.val_one, normSum_one_base] at hzero
+  match e, he with
+  | 0, _ => rfl
+  | 1, _ =>
+    exfalso
+    have h8 : (2 : ℤ_[2]) ^ 3 ∣ ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c x := by
+      have hneg : ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c x = -gDelta h c p := by
+        push_cast at hzero
+        linear_combination hzero
+      rw [hneg]
+      exact h8p.neg_right
+    obtain ⟨u, hu⟩ := hx4
+    exact gAbs_four_unit_not_dvd hu (gAbs_unit_mul_dvd h8)
+
+/-- **The tail-exponent kill**: same reading pattern with the roles of the two bases
+swapped. -/
+theorem gAbs_kill_last {p x y : (DSq h : Type)} {c : Fin (sqRank h) → ℤ_[2]} {e f : ℕ}
+    (hf : f ≤ 1) (h8p : (2 : ℤ_[2]) ^ 3 ∣ gDelta h c p)
+    (hx0 : gDelta h c x = 0)
+    (hy4 : ∃ u : ℤ_[2]ˣ, gDelta h c y = 2 ^ 2 * (u : ℤ_[2]))
+    (hchiX : chiSq h x = 1) (hchiY : chiSq h y = 1)
+    (hzero : gDelta h c (p * x ^ e * y ^ f) = 0) : f = 0 := by
+  rw [gDelta_mul, gDelta_mul, gDelta_pow, gDelta_pow, hchiX, hchiY, hx0, mul_zero, mul_zero,
+    add_zero, Units.val_one, normSum_one_base, map_mul, map_pow, hchiX, one_pow, mul_one]
+    at hzero
+  match f, hf with
+  | 0, _ => rfl
+  | 1, _ =>
+    exfalso
+    have h8 : (2 : ℤ_[2]) ^ 3 ∣ ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c y := by
+      have hneg : ((chiSq h p : ℤ_[2]ˣ) : ℤ_[2]) * gDelta h c y = -gDelta h c p := by
+        push_cast at hzero
+        linear_combination hzero
+      rw [hneg]
+      exact h8p.neg_right
+    obtain ⟨u, hu⟩ := hy4
+    exact gAbs_four_unit_not_dvd hu (gAbs_unit_mul_dvd h8)
+
+/-- ⭐⭐⭐ **T2: the coefficient kill.**  An exactly row-trivial `γ₃`-element all of whose
+functional readings vanish has zero coker coefficients: its class lies in the admissible
+depth-2 reach.  The refuted layer statement is recovered for the all-rows-zero elements,
+which is all Labute's Theorem 5 ever needs of it. -/
+theorem gAbs_zero_reader_reach (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) 3) (hgl : nuLam h g = 1) (hgn : nu' g = 1)
+    (hzero : ∀ c : Fin (sqRank h) → ℤ_[2], gDelta h c g = 0) :
+    levelMk (DSq h : Type) 4 g ∈ gTowerReach h nu' 2 := by
+  obtain ⟨p, e₁, e₂, hpm, hpR, he₁, he₂, hgeq⟩ := gAbs_leftover_decomp hsigma hx0 hg hgl hgn
+  have h8pS : (2 : ℤ_[2]) ^ 3 ∣ gDelta h (gAbsRowS h nu') p :=
+    (gJoin_mem_layerDvd (c := gAbsRowS h nu') (k := 2) (x := p)).1
+      (gAbs_reach_le_layerDvd_rowS hpR)
+  have h8pX : (2 : ℤ_[2]) ^ 3 ∣ gDelta h (gAbsRowX h nu') p :=
+    (gJoin_mem_layerDvd (c := gAbsRowX h nu') (k := 2) (x := p)).1
+      (gAbs_reach_le_layerDvd_rowX hpR)
+  have h0S := hzero (gAbsRowS h nu')
+  rw [hgeq] at h0S
+  have h0X := hzero (gAbsRowX h nu')
+  rw [hgeq] at h0X
+  have hBkill : e₁ = 0 :=
+    gAbs_kill_mid he₁ h8pS gAbs_delta_B_rowS gAbs_delta_C_rowS gAbs_chiSq_B gAbs_chiSq_C h0S
+  have hCkill : e₂ = 0 :=
+    gAbs_kill_last he₂ h8pX gAbs_delta_B_rowX gAbs_delta_C_rowX gAbs_chiSq_B gAbs_chiSq_C h0X
+  rw [hgeq, hBkill, hCkill, pow_zero, pow_zero, mul_one, mul_one]
+  exact hpR
+
+/-- ⭐⭐ **The wave-77 refutation, re-proved functionally**: the `σ`-coker class is outside
+the depth-2 reach at every marking, because the reach reads `8`-divisibly at the corrected
+`σ`-row while the class reads `4·unit`.  No finite witness group is needed, and no marking
+selection: the corrected rows exist at every `ν'`.  (Wave 76's honesty marker "a functional
+refutation is not available" computed the reading only at the `x₁`-row; the `σ`- and
+`x₀`-rows see the classes at the layer bit.) -/
+theorem gAbs_B_notMem_reach :
+    levelMk (DSq h : Type) 4 (gAbsB h) ∉ gTowerReach h nu' 2 := by
+  intro hmem
+  obtain ⟨u, hu⟩ := gAbs_delta_B_rowS (h := h) (nu' := nu')
+  exact gAbs_four_unit_not_dvd hu
+    ((gJoin_mem_layerDvd (c := gAbsRowS h nu') (k := 2) (x := gAbsB h)).1
+      (gAbs_reach_le_layerDvd_rowS hmem))
+
+/-- The `x₀`-coker class is outside the depth-2 reach at every marking. -/
+theorem gAbs_C_notMem_reach :
+    levelMk (DSq h : Type) 4 (gAbsC h) ∉ gTowerReach h nu' 2 := by
+  intro hmem
+  obtain ⟨u, hu⟩ := gAbs_delta_C_rowX (h := h) (nu' := nu')
+  exact gAbs_four_unit_not_dvd hu
+    ((gJoin_mem_layerDvd (c := gAbsRowX h nu') (k := 2) (x := gAbsC h)).1
+      (gAbs_reach_le_layerDvd_rowX hmem))
+
+end Kill
+
+/-! ## §8 T3: the repaired step and the re-seeded recursion
+
+The `k = 2` instance of the defect-vanishing interface follows from T2 plus the depth-2
+separation bookkeeping alone; with wave 74's extraction it yields the class-4 supply witness
+that wave 77 identified as the missing seed.  The full interface then follows from the OPEN
+depth-3 base (`GDecideBaseThree`, untouched by the `Q₁₆` refutation) plus separation, and
+the committed recursion closes the residual from there. -/
+
+section Reseed
+
+variable {h : ℕ}
+
+variable (h) in
+/-- ⭐⭐⭐ **The repaired depth-2 vanishing**: the `k = 2` instance of
+`GJoinDefectVanishing`, exactly the statement whose wave-75 derivation consumed the refuted
+depth-2 base. -/
+def GAbsVanishingTwo : Prop :=
+  ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+    ∀ a : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a i) = 1) → (∀ i, nu' (a i) = 1) → (∀ i, chiSq h (a i) = 1) →
+      SqModTwoIndep (sqArbFrame h nu' j a) →
+      sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) 3 →
+      levelMk (DSq h : Type) 4 (sqRelWord (sqArbFrame h nu' j a))
+        ∈ Subgroup.closure (gTowerKnobSet h nu' 2)
+
+/-- ⭐⭐⭐ **The repaired vanishing holds, from depth-2 separation alone**: T1's normal form
+plus T2's kill replace the refuted `GTowerLayerReach h ν' 2` outright. -/
+theorem gAbs_vanishingTwo_of_sep
+    (hsep : ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+      GJoinTowerSeparation h nu' 2) : GAbsVanishingTwo h := by
+  intro nu' j hsigma hx0 a hal han hac hai hrel
+  have hzero : ∀ c, gDelta h c (sqRelWord (sqArbFrame h nu' j a)) = 0 :=
+    fun c => gJoin_reading_zero c nu' j ⟨hal, han, hac⟩
+  have hreach := gAbs_zero_reader_reach hsigma hx0 hrel (gTower_frame_row_nuLam j hal)
+    (gTower_frame_row_nu j hx0 han) hzero
+  refine gJoin_reach_sep (k := 0) hx0 (hsep nu') hreach (fun jj => ?_) (fun jj => ?_)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+  · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+
+/-- The handle-free case needs no input at all: the separation is vacuous at `h = 0`. -/
+theorem gAbs_vanishingTwo_handleFree : GAbsVanishingTwo 0 :=
+  gAbs_vanishingTwo_of_sep fun nu' => gJoin_towerSeparation_handleFree nu' 2
+
+/-- ⭐⭐⭐ **The repaired class-3-to-4 clearing step**: wave 75's `gJoin_clear_step` at
+`k = 2`, with the repaired vanishing in place of the refuted full-generation statement. -/
+theorem gAbs_clear_step_two (HV : GAbsVanishingTwo h) (HR : GTowerKnobRealizable h)
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {j : Fin h}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]))
+    {a : Fin (sqRank h) → (DSq h : Type)} (hal : ∀ i, nuLam h (a i) = 1)
+    (han : ∀ i, nu' (a i) = 1) (hac : ∀ i, chiSq h (a i) = 1)
+    (hai : SqModTwoIndep (sqArbFrame h nu' j a))
+    (hrel : sqRelWord (sqArbFrame h nu' j a) ∈ twoCentralSeries (DSq h : Type) 3) :
+    ∃ a' : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, nuLam h (a' i) = 1) ∧ (∀ i, nu' (a' i) = 1) ∧ (∀ i, chiSq h (a' i) = 1) ∧
+        SqModTwoIndep (sqArbFrame h nu' j a') ∧
+          sqRelWord (sqArbFrame h nu' j a') ∈ twoCentralSeries (DSq h : Type) 4 := by
+  have hknob := HV nu' j hsigma hx0 a hal han hac hai hrel
+  obtain ⟨d, hd, hdl, hdn, hrel'⟩ := HR nu' j hsigma hx0 2 (le_refl 2) a hal han hai hrel hknob
+  refine ⟨fun i => a i * d i, ?_, ?_, ?_, ?_, hrel'⟩
+  · intro i
+    rw [map_mul, hal i, hdl i, one_mul]
+  · intro i
+    rw [map_mul, han i, hdn i, one_mul]
+  · intro i
+    exact gJoin_chiSq_mul_correction (hac i) (le_refl 2) (hd i) (hdl i)
+  · rw [gTower_frame_mul]
+    exact cfourId_modTwoIndep_mul hai
+      (fun i => twoCentralSeries_antitone (G := (DSq h : Type)) (le_refl 2) (hd i))
+
+/-- ⭐⭐⭐ **The class-4 supply witness**: exactly the seed wave 77 costed the depth-3 re-cut
+at.  From the committed class-3 witness through the repaired step. -/
+theorem gAbs_chiSupply_four (HV : GAbsVanishingTwo h) (HR : GTowerKnobRealizable h) :
+    GJoinChiSupply h 4 := by
+  intro nu' j hsigma hx0
+  obtain ⟨a, hal, han, hac, hai, hrel⟩ := gJoin_chiSupply_three (h := h) nu' j hsigma hx0
+  obtain ⟨a', h1, h2, h3, h4, h5⟩ := gAbs_clear_step_two HV HR hsigma hx0 hal han hac hai hrel
+  exact ⟨a', h1, h2, h3, h4, h5⟩
+
+theorem gAbs_supply_four (HV : GAbsVanishingTwo h) (HR : GTowerKnobRealizable h) :
+    SqClassClearingSupply h 4 :=
+  gJoin_supply_of_chiSupply (gAbs_chiSupply_four HV HR)
+
+/-- ⭐⭐⭐ **The re-seeded vanishing interface**: `GJoinDefectVanishing h` from the OPEN
+depth-3 base plus separation.  The `k = 2` instance is the absorption mechanism; the
+`k ≥ 3` instances are the committed tower driven from depth 3. -/
+theorem gAbs_defectVanishing_of_baseThree (H3 : GDecideBaseThree h)
+    (hsep : GJoinSeparationAll h) : GJoinDefectVanishing h := by
+  intro nu' j hsigma hx0 k hk a hal han hac hai hrel
+  rcases eq_or_lt_of_le hk with rfl | hk3
+  · exact gAbs_vanishingTwo_of_sep (fun nu'' => hsep nu'' 2 (le_refl 2)) nu' j hsigma hx0 a
+      hal han hac hai hrel
+  · have hlayer : GTowerLayerReach h nu' k :=
+      gDecide_tower_of_baseThree H3 hsigma hx0 k (by omega)
+    obtain ⟨k', rfl⟩ : ∃ k', k = k' + 2 := ⟨k - 2, by omega⟩
+    have hzero : ∀ c, gDelta h c (sqRelWord (sqArbFrame h nu' j a)) = 0 :=
+      fun c => gJoin_reading_zero c nu' j ⟨hal, han, hac⟩
+    have hreach : levelMk (DSq h : Type) (k' + 2 + 2) (sqRelWord (sqArbFrame h nu' j a))
+        ∈ gTowerReach h nu' (k' + 2) :=
+      hlayer _ hrel (gTower_frame_row_nuLam j hal) (gTower_frame_row_nu j hx0 han)
+    refine gJoin_reach_sep hx0 (hsep nu' (k' + 2) (by omega)) hreach
+      (fun jj => ?_) (fun jj => ?_)
+    · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+    · exact gJoin_mem_layerDvd.2 (by rw [hzero]; exact dvd_zero _)
+
+/-- ⭐⭐⭐ **The supply at every class, from the re-seeded route**: depth-3 base plus
+separation plus extraction.  Wave 77's costing ("depth 3 alone does not restart the chain;
+a class-four witness must be produced in addition") is discharged: the class-four seed now
+comes from the absorption mechanism, at no cost beyond the separation already carried. -/
+theorem gAbs_supply_of_baseThree (H3 : GDecideBaseThree h) (hsep : GJoinSeparationAll h)
+    (HR : GTowerKnobRealizable h) : ∀ k, SqClassClearingSupply h k :=
+  gJoin_supply_of_vanishing (gAbs_defectVanishing_of_baseThree H3 hsep) HR
+
+/-- ⭐⭐⭐ **The `h ≥ 1` residual, from three named inputs**: the OPEN depth-3 base (in place
+of the REFUTED depth-2 base), the separation bookkeeping, and the extraction interface.
+Same three-input shape as wave 75's endpoint, with the refuted input replaced by an open
+one. -/
+theorem gAbs_markTransitivity_of_baseThree (H3 : GDecideBaseThree h)
+    (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
+  gJoin_markTransitivity_of_vanishing (gAbs_defectVanishing_of_baseThree H3 hsep) HR
+
+end Reseed
+
+/-! ## Axiom pins -/
 
 section AxiomPinsA
 
@@ -1265,6 +1532,22 @@ section AxiomPinsA
 #print axioms gAbs_wide_cut
 #print axioms gAbs_layer_wide
 #print axioms gAbs_leftover_decomp
+#print axioms gAbs_unit_mul_dvd
+#print axioms gAbs_four_unit_not_dvd
+#print axioms gAbs_kill_mid
+#print axioms gAbs_kill_last
+#print axioms gAbs_zero_reader_reach
+#print axioms gAbs_B_notMem_reach
+#print axioms gAbs_C_notMem_reach
+#print axioms GQ2.Dyadic.SqCore.GAbsVanishingTwo
+#print axioms gAbs_vanishingTwo_of_sep
+#print axioms gAbs_vanishingTwo_handleFree
+#print axioms gAbs_clear_step_two
+#print axioms gAbs_chiSupply_four
+#print axioms gAbs_supply_four
+#print axioms gAbs_defectVanishing_of_baseThree
+#print axioms gAbs_supply_of_baseThree
+#print axioms gAbs_markTransitivity_of_baseThree
 
 end AxiomPinsA
 
