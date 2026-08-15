@@ -1,5 +1,30 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 74 (2026-08-15)
+
+**One item still awaits you**: the plan-A6 freeze question from wave 73 (two stale docstrings
+under `GQ2/Roe/`; costs both ways and a recommendation are in the wave-73 block below).
+
+**For orientation.**  The wave imported the published proof.  Labute's Classification of
+Demushkin groups turned out to be the uniform argument the graded route had been re-deriving
+one class at a time, and two Fable lanes formalized its two halves:
+
+* **The tower**: every graded class now reduces to a single depth-2 base behind two named
+  interfaces, and with them the supply at every class and mark transitivity behind it.  One of
+  the two interfaces is already proved.
+* **A refutation that is good news**: wave 73's "one condition" (the x1-bracket as a move) is
+  unsatisfiable at the committed knob subgroup.  The Frobenius towers are simply not in the
+  move image, exactly as in Labute; their defect components die by the functional calculus
+  instead, and that calculus is now committed with the vanishing statement proved.
+* **Scope, corrected after you pressed on it**: the committed final theorem is the quadratic
+  instance; the goal is arbitrary degree; the general-degree final statement does not yet
+  exist and will be stated in its own wave so that progress is measured against the real goal.
+  The honest inventory: presentations and identification machinery are general-degree;
+  end-to-end assembly exists at degrees 1 and 2 only.
+* The even surviving point's base is one relation from closed, and the quadratic flagship's
+  remaining work is eight items, one of them unowned (the Gauss-Z determinant bridge).
+
+
 ## ONE ITEM AWAITS YOU (wave 73, 2026-08-12)
 
 **The plan-A6 freeze on `GQ2/Roe/*`, for two stale docstrings.**  Plan §3 A6
