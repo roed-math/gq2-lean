@@ -40,6 +40,7 @@ open GQ2.HilbertSymbol
 open GQ2.Dyadic.Certificates.LSqStokes
 open GQ2.Dyadic.LSquare
 open GQ2.Dyadic.LSquare.FrattiniFrameSupply
+open GQ2.Dyadic.EvenCyclotomicRange
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
@@ -214,6 +215,120 @@ theorem evenStratumRow_symplectic_pin [Finite W] (b : W → W → ZMod 2) (hb : 
     rfl
 
 end Pin
+
+/-! ## §3 The `α = 1` model equivalence, with the `ω` class at the letter `x₁`
+
+Wave 73's `evenStratum_exists_gramOne_modelEquiv` produces *an* isomorphism onto the `α = 1`
+model; §4 needs one that also places the mod-eight `ω` class of `K` at the coordinate vector of
+`x₁`, because `evenFrameExactLift` matches its lift targets against the row table's `ω` values and
+§1 says those are the indicator of `x₁`.
+
+At `α ≥ 2` the corresponding placement is not a choice at all: the model's Gram is
+non-alternating, its Labute vector is `evenDualVec 0 = e₁`, and the mod-four class `κ` is forced
+onto it (`StageAbstractionEvenFrameCore.lean` §1.5).  On the third stratum that mechanism is gone
+with the diagonal: `κ = 0` (wave 71) and the `α = 1` Gram is alternating, so **nothing** forces
+the placement and §2's pin does it by hand.  The cost is that the `ω` class must be nonzero, which
+is exactly what `nUnit 1 ≡ 5 (mod 8)` supplies once that value is attained. -/
+
+section ModelPin
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+
+local instance evenStratumRowScalar :
+    DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) := scalarActionZmodTwo _
+
+local instance evenStratumRowContinuousScalar :
+    ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
+  scalarActionZmodTwo_continuousSMul _
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **The `ω` class is nonzero once the `α = 1` row unit is attained.**  `nUnit 1 ≡ 5 (mod 8)`
+and `ω(5) = 1`, so any element whose cyclotomic value is `nUnit 1` witnesses it.
+
+Compare the `α ≥ 2` route, which needs `κ ≠ 0` (the ramified-`i` binder) and gets nothing from
+`ω`: at `α = 1` the two are exchanged, and this one is *derived* rather than carried. -/
+theorem evenStratumRow_omegaClass_ne_zero
+    (hnun : MarkedCore.nUnit 1 ∈ Set.range (chiCycKTwo (K := K))) :
+    cyclotomicModEightOmegaClassKTwo (K := K) ≠ 0 := by
+  obtain ⟨g, hg⟩ := hnun
+  intro h0
+  have hval : frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) g = 1 := by
+    rw [frattiniFrameEval_modEight, hg, evenStratumRow_omega_nUnit]
+  rw [h0, frattiniFrameEval_zero] at hval
+  exact zero_ne_one hval
+
+/-- The coordinates of the model vector `((0,1), 0)` are the indicator of the letter `x₁`. -/
+theorem evenStratumRow_coord_headSecond {h : ℕ} (i : Fin (MarkedCore.coreRank h)) :
+    evenFrameCoord i (((0 : ZMod 2), (1 : ZMod 2)), (fun _ ↦ 0 : Fin (h + 1) → ZMod 2 × ZMod 2)) =
+      if (i : ℕ) = 1 then 1 else 0 := by
+  refine evenIndex_cases
+    (P := fun i ↦ evenFrameCoord i (((0 : ZMod 2), (1 : ZMod 2)),
+      (fun _ ↦ 0 : Fin (h + 1) → ZMod 2 × ZMod 2)) = if (i : ℕ) = 1 then 1 else 0)
+    ?_ ?_ ?_ ?_ ?_ ?_ i
+  · rw [evenFrameCoord_zero, if_neg (by rw [MarkedCore.coreVal_zero]; omega)]
+  · rw [evenFrameCoord_one, if_pos (MarkedCore.coreVal_one h)]
+  · rw [evenFrameCoord_two, if_neg (by rw [MarkedCore.coreVal_two]; omega)]
+    rfl
+  · rw [evenFrameCoord_three, if_neg (by rw [MarkedCore.coreVal_three]; omega)]
+    rfl
+  · intro j
+    rw [evenFrameCoord_handleU, if_neg (by rw [MarkedCore.handleIdxU_val]; omega)]
+    rfl
+  · intro j
+    rw [evenFrameCoord_handleV, if_neg (by rw [MarkedCore.handleIdxV_val]; omega)]
+    rfl
+
+/-- **AN ADAPTED COORDINATE SYSTEM FOR THE `α = 1` GRAM WITH THE `ω` CLASS PINNED.**  On the third
+stratum, at degree `2 + 2h` and with the `ω` class nonzero, there is a linear isomorphism
+`H¹(G_K(2), 𝔽₂) ≃ evenFrameModel h` carrying the field cup form to `evenStratumGramOneModel h`
+**and** the mod-eight `ω` class to the coordinate vector of the letter `x₁`.
+
+This is wave 73's `evenStratum_exists_gramOne_modelEquiv` with §2's pin inserted at the first
+plane; the plane count is pinned by the same degree computation. -/
+theorem evenStratumRow_exists_gramOne_modelEquiv_pin {h : ℕ}
+    (hle : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (hom : cyclotomicModEightOmegaClassKTwo (K := K) ≠ 0) :
+    ∃ Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h,
+      (∀ x y, frattiniFrameCup (K := K) x y = evenStratumGramOneModel h (Φ x) (Φ y)) ∧
+        ∀ i, evenFrameCoord i (Φ (cyclotomicModEightOmegaClassKTwo (K := K))) =
+          if (i : ℕ) = 1 then 1 else 0 := by
+  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (4 + 2 * h) := by
+    rw [card_H1_zmodTwo_maxProTwoGalK, hev]
+    congr 1
+    omega
+  haveI : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :=
+    Nat.finite_of_card_ne_zero (by rw [hcard]; positivity)
+  obtain ⟨m, φ, hφ, hpin0, hpins⟩ := evenStratumRow_symplectic_pin
+    (frattiniFrameCup (K := K))
+    (GQ2.Dyadic.FieldDataEven.isSymplecticFp2_of_labute_eq_zero
+      (isCupFormFp2_frattiniFrameCup (K := K)) (nondegFp2_frattiniFrameCup (K := K))
+      (fun w ↦ frattiniFrameCup_kappa (K := K) w)
+      (GQ2.Dyadic.EvenStratum.evenStratum_kappa_eq_zero hle))
+    (cyclotomicModEightOmegaClassKTwo (K := K)) hom
+  have hm : m + 1 = h + 2 := by
+    have h1 : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 4 ^ (m + 1) := by
+      rw [Nat.card_congr φ.toEquiv]
+      simp
+    have h2 : (2 : ℕ) ^ (2 * (m + 1)) = 2 ^ (4 + 2 * h) := by
+      rw [← hcard, h1, show (4 : ℕ) = 2 ^ 2 from rfl, ← pow_mul]
+    have h3 := Nat.pow_right_injective (le_refl 2) h2
+    omega
+  obtain rfl : m = h + 1 := by omega
+  refine ⟨φ.trans (evenStratumModelEquiv h), fun x y ↦ ?_, fun i ↦ ?_⟩
+  · rw [hφ x y]
+    exact (evenStratumGramOneModel_hypGram h (φ x) (φ y)).symm
+  · have hvec : evenStratumModelEquiv h (φ (cyclotomicModEightOmegaClassKTwo (K := K))) =
+        (((0 : ZMod 2), (1 : ZMod 2)), (fun _ ↦ 0 : Fin (h + 1) → ZMod 2 × ZMod 2)) := by
+      rw [evenStratumModelEquiv_apply]
+      exact Prod.ext hpin0 (funext hpins)
+    show evenFrameCoord i (evenStratumModelEquiv h
+      (φ (cyclotomicModEightOmegaClassKTwo (K := K)))) = _
+    rw [hvec]
+    exact evenStratumRow_coord_headSecond i
+
+end ModelPin
 
 end
 
