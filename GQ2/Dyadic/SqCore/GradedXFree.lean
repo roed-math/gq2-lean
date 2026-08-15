@@ -171,19 +171,30 @@ theorem gXf_gen_mem_half {i : Fin (sqRank h)} (hne : i ≠ 2) : sqGen h i ∈ gX
     rw [toAdd_sqEps_gen, if_neg hne, toAdd_one]
   exact hval
 
+/-- Slot indices with different values are different. -/
+theorem gXf_ne_of_val_ne {i i' : Fin (sqRank h)} (hne : (i : ℕ) ≠ (i' : ℕ)) : i ≠ i' :=
+  fun hc => hne (congrArg Fin.val hc)
+
 /-- The `σ`-slot index is not the `x₁`-slot index. -/
-theorem gXf_zero_ne_two : (0 : Fin (sqRank h)) ≠ 2 := by
-  intro hc
-  have hv : ((0 : Fin (sqRank h)) : ℕ) = ((2 : Fin (sqRank h)) : ℕ) := congrArg Fin.val hc
-  rw [sqVal_zero, sqVal_two] at hv
-  omega
+theorem gXf_zero_ne_two : (0 : Fin (sqRank h)) ≠ 2 :=
+  gXf_ne_of_val_ne (by rw [sqVal_zero, sqVal_two]; omega)
 
 /-- The `x₀`-slot index is not the `x₁`-slot index. -/
-theorem gXf_one_ne_two : (1 : Fin (sqRank h)) ≠ 2 := by
-  intro hc
-  have hv : ((1 : Fin (sqRank h)) : ℕ) = ((2 : Fin (sqRank h)) : ℕ) := congrArg Fin.val hc
-  rw [sqVal_one, sqVal_two] at hv
-  omega
+theorem gXf_one_ne_two : (1 : Fin (sqRank h)) ≠ 2 :=
+  gXf_ne_of_val_ne (by rw [sqVal_one, sqVal_two]; omega)
+
+/-- The `σ`-slot index is not the `x₀`-slot index. -/
+theorem gXf_zero_ne_one : (0 : Fin (sqRank h)) ≠ 1 :=
+  gXf_ne_of_val_ne (by rw [sqVal_zero, sqVal_one]; omega)
+
+/-- The `x₀`-slot index is not the `σ`-slot index. -/
+theorem gXf_one_ne_zero : (1 : Fin (sqRank h)) ≠ 0 := gXf_zero_ne_one.symm
+
+/-- The `x₁`-slot index is not the `σ`-slot index. -/
+theorem gXf_two_ne_zero : (2 : Fin (sqRank h)) ≠ 0 := gXf_zero_ne_two.symm
+
+/-- The `x₁`-slot index is not the `x₀`-slot index. -/
+theorem gXf_two_ne_one : (2 : Fin (sqRank h)) ≠ 1 := gXf_one_ne_two.symm
 
 /-- `ε` does **not** kill `x₁`: this is the one place the half-space is a *proper* subgroup. -/
 theorem gXf_xOne_notMem_half : dsqX1 h ∉ gXfHalf h := by
@@ -492,7 +503,203 @@ theorem gXf_move_one {n : ℕ} (m : Fin (sqRank n) → levelQuot G (k + 2)) :
 
 end MoveHom
 
-/-! ## §6 Axiom pins -/
+/-! ## §6 The single-slot moves -/
+
+section Slots
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ} {n : ℕ}
+
+/-- The move of a correction with no handle content: the three core knobs alone. -/
+theorem gXf_move_core (m c : Fin (sqRank n) → levelQuot G (k + 2))
+    (hU : ∀ i, c (sqHandleIdxU i) = 1) (hV : ∀ i, c (sqHandleIdxV i) = 1) :
+    gExtMove k m c = commP (c 0) (m 1) * commP (m 0) (c 1) * (c 2 ^ 2 * commP (c 2) (m 2)) := by
+  have hfun : (fun i : Fin n => commP (c (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+      commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i)))
+      = fun _ : Fin n => (1 : levelQuot G (k + 2)) := by
+    funext i
+    rw [hU i, hV i, cfour_one_comm, cfour_comm_one, one_mul]
+  rw [gExtMove, hfun, gXf_ofFn_one, mul_one]
+
+/-- The move of a correction with no core content: the handle knobs alone. -/
+theorem gXf_move_handles (m c : Fin (sqRank n) → levelQuot G (k + 2))
+    (h0 : c 0 = 1) (h1 : c 1 = 1) (h2 : c 2 = 1) :
+    gExtMove k m c = (List.ofFn fun i : Fin n => commP (c (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+      commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i))).prod := by
+  simp only [gExtMove, h0, h1, h2, cfour_one_comm, cfour_comm_one, one_pow, one_mul, mul_one]
+
+/-- The `σ`-slot move: the bracket against the `x₀`-slot frame value. -/
+theorem gXf_move_zero (m c : Fin (sqRank n) → levelQuot G (k + 2)) (h1 : c 1 = 1) (h2 : c 2 = 1)
+    (hU : ∀ i, c (sqHandleIdxU i) = 1) (hV : ∀ i, c (sqHandleIdxV i) = 1) :
+    gExtMove k m c = commP (c 0) (m 1) := by
+  rw [gXf_move_core m c hU hV]
+  simp only [h1, h2, cfour_one_comm, cfour_comm_one, one_pow, mul_one]
+
+/-- The `x₀`-slot move: the bracket against the `σ`-slot frame value, on the other side. -/
+theorem gXf_move_one_slot (m c : Fin (sqRank n) → levelQuot G (k + 2)) (h0 : c 0 = 1)
+    (h2 : c 2 = 1) (hU : ∀ i, c (sqHandleIdxU i) = 1) (hV : ∀ i, c (sqHandleIdxV i) = 1) :
+    gExtMove k m c = commP (m 0) (c 1) := by
+  rw [gXf_move_core m c hU hV]
+  simp only [h0, h2, cfour_one_comm, one_pow, one_mul, mul_one]
+
+/-- The `x₁`-slot move: the square-plus-bracket bundle. -/
+theorem gXf_move_two (m c : Fin (sqRank n) → levelQuot G (k + 2)) (h0 : c 0 = 1) (h1 : c 1 = 1)
+    (hU : ∀ i, c (sqHandleIdxU i) = 1) (hV : ∀ i, c (sqHandleIdxV i) = 1) :
+    gExtMove k m c = c 2 ^ 2 * commP (c 2) (m 2) := by
+  rw [gXf_move_core m c hU hV]
+  simp only [h0, h1, cfour_one_comm, cfour_comm_one, one_mul, mul_one]
+
+/-- The `u_{j}`-slot move: the bracket against the partner `v_j`-slot frame value. -/
+theorem gXf_move_handleU (m c : Fin (sqRank n) → levelQuot G (k + 2)) (j : Fin n) (h0 : c 0 = 1)
+    (h1 : c 1 = 1) (h2 : c 2 = 1) (hU : ∀ i, i ≠ j → c (sqHandleIdxU i) = 1)
+    (hV : ∀ i, c (sqHandleIdxV i) = 1) :
+    gExtMove k m c = commP (c (sqHandleIdxU j)) (m (sqHandleIdxV j)) := by
+  rw [gXf_move_handles m c h0 h1 h2, gExt_ofFn_single _ j]
+  · simp only [hV j, cfour_comm_one, mul_one]
+  · intro i hij
+    simp only [hU i hij, hV i, cfour_one_comm, cfour_comm_one, one_mul]
+
+/-- The `v_{j}`-slot move: the bracket against the partner `u_j`-slot frame value. -/
+theorem gXf_move_handleV (m c : Fin (sqRank n) → levelQuot G (k + 2)) (j : Fin n) (h0 : c 0 = 1)
+    (h1 : c 1 = 1) (h2 : c 2 = 1) (hU : ∀ i, c (sqHandleIdxU i) = 1)
+    (hV : ∀ i, i ≠ j → c (sqHandleIdxV i) = 1) :
+    gExtMove k m c = commP (m (sqHandleIdxU j)) (c (sqHandleIdxV j)) := by
+  rw [gXf_move_handles m c h0 h1 h2, gExt_ofFn_single _ j]
+  · simp only [hU j, cfour_one_comm, one_mul]
+  · intro i hij
+    simp only [hU i, hV i hij, cfour_one_comm, cfour_comm_one, one_mul]
+
+end Slots
+
+/-! ## §7 The move subgroup, and the extraction on `x₁`-free dressings -/
+
+section Extraction
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ}
+
+variable (h) in
+/-- The correction tuple carrying `t` on slot `i₀` and nothing anywhere else. -/
+noncomputable def gXfSlot (i₀ : Fin (sqRank h)) (t : (DSq h : Type)) :
+    Fin (sqRank h) → (DSq h : Type) := fun i => if i = i₀ then t else 1
+
+@[simp] theorem gXfSlot_self (i₀ : Fin (sqRank h)) (t : (DSq h : Type)) :
+    gXfSlot h i₀ t i₀ = t := if_pos rfl
+
+theorem gXfSlot_ne {i i₀ : Fin (sqRank h)} (hne : i ≠ i₀) (t : (DSq h : Type)) :
+    gXfSlot h i₀ t i = 1 := if_neg hne
+
+/-- The trivial correction is admissible at every depth. -/
+theorem gXf_adm_one : GTowerAdm h nu' k 1 :=
+  ⟨Subgroup.one_mem _, map_one _, map_one _⟩
+
+/-- A single-slot correction tuple is admissible when its one entry is. -/
+theorem gXf_slot_adm {t : (DSq h : Type)} (ht : GTowerAdm h nu' k t) (i₀ i : Fin (sqRank h)) :
+    GTowerAdm h nu' k (gXfSlot h i₀ t i) := by
+  by_cases hi : i = i₀
+  · rw [hi, gXfSlot_self]
+    exact ht
+  · rw [gXfSlot_ne hi]
+    exact gXf_adm_one
+
+variable (nu') in
+/-- ⭐⭐ **The move subgroup of a frame**: the layer classes by which an admissible depth-`k`
+correction tuple multiplies the relator.  It is a subgroup precisely because `gExtMove` is a
+homomorphism in the correction tuple (`gXf_move_mul`). -/
+noncomputable def gXfMove (hk : 2 ≤ k)
+    (m : Fin (sqRank h) → levelQuot (DSq h : Type) (k + 2)) :
+    Subgroup (levelQuot (DSq h : Type) (k + 2)) where
+  carrier := {z | ∃ d : Fin (sqRank h) → (DSq h : Type), (∀ i, GTowerAdm h nu' k (d i)) ∧
+    z = gExtMove k m (fun i => levelMk (DSq h : Type) (k + 2) (d i))}
+  one_mem' := by
+    refine ⟨fun _ => 1, fun _ => gXf_adm_one, ?_⟩
+    simp only [map_one]
+    exact (gXf_move_one m).symm
+  mul_mem' := by
+    rintro _ _ ⟨d, hd, rfl⟩ ⟨d', hd', rfl⟩
+    refine ⟨fun i => d i * d' i, fun i => ⟨Subgroup.mul_mem _ (hd i).1 (hd' i).1, ?_, ?_⟩, ?_⟩
+    · rw [map_mul, (hd i).2.1, (hd' i).2.1, one_mul]
+    · rw [map_mul, (hd i).2.2, (hd' i).2.2, one_mul]
+    · simp only [map_mul]
+      exact (gXf_move_mul hk m (fun i => ⟨d i, (hd i).1, rfl⟩)
+        (fun i => ⟨d' i, (hd' i).1, rfl⟩)).symm
+  inv_mem' := by
+    rintro _ ⟨d, hd, rfl⟩
+    refine ⟨fun i => (d i)⁻¹, fun i => ⟨Subgroup.inv_mem _ (hd i).1, ?_, ?_⟩, ?_⟩
+    · rw [map_inv, (hd i).2.1, inv_one]
+    · rw [map_inv, (hd i).2.2, inv_one]
+    · have hfun : (fun i => levelMk (DSq h : Type) (k + 2) (d i) *
+          levelMk (DSq h : Type) (k + 2) ((d i)⁻¹))
+          = fun _ : Fin (sqRank h) => (1 : levelQuot (DSq h : Type) (k + 2)) := by
+        funext i
+        rw [map_inv, mul_inv_cancel]
+      have hmul := gXf_move_mul hk m (fun i => ⟨d i, (hd i).1, rfl⟩)
+        (fun i => ⟨(d i)⁻¹, Subgroup.inv_mem _ (hd i).1, rfl⟩)
+      rw [hfun, gXf_move_one] at hmul
+      exact inv_eq_of_mul_eq_one_right hmul.symm
+
+theorem gXf_mem_move {hk : 2 ≤ k} {m : Fin (sqRank h) → levelQuot (DSq h : Type) (k + 2)}
+    {z : levelQuot (DSq h : Type) (k + 2)} :
+    z ∈ gXfMove nu' hk m ↔ ∃ d : Fin (sqRank h) → (DSq h : Type),
+      (∀ i, GTowerAdm h nu' k (d i)) ∧
+        z = gExtMove k m (fun i => levelMk (DSq h : Type) (k + 2) (d i)) := Iff.rfl
+
+/-- The bracket swaps its slots up to inversion, exactly. -/
+theorem gXf_commP_swap (p q : levelQuot (DSq h : Type) (k + 2)) :
+    commP p q = (commP q p)⁻¹ := by
+  simp only [commP]
+  group
+
+/-- ⭐⭐ **The bracket against a non-`x₁` frame slot is a move.**  Slot `0` supplies the bracket
+against `m 1`, slot `1` the bracket against `m 0` (on the other side, so its inverse), and the
+handle slots pair up the same way: slot `u_j` supplies the bracket against `m (v_j)` and slot
+`v_j` the bracket against `m (u_j)`.  The `x₁`-slot is the one index left out - there the move
+is the bundle, not the bare bracket. -/
+theorem gXf_frame_mem_move {hk : 2 ≤ k}
+    {m : Fin (sqRank h) → levelQuot (DSq h : Type) (k + 2)} {t : (DSq h : Type)}
+    (ht : GTowerAdm h nu' k t) {i : Fin (sqRank h)} (hi : i ≠ 2) :
+    commP (levelMk (DSq h : Type) (k + 2) t) (m i) ∈ gXfMove nu' hk m := by
+  have hcls : ∀ i₀ i : Fin (sqRank h), i ≠ i₀ →
+      levelMk (DSq h : Type) (k + 2) (gXfSlot h i₀ t i) = 1 := by
+    intro i₀ i hne
+    rw [gXfSlot_ne hne, map_one]
+  have hself : ∀ i₀ : Fin (sqRank h),
+      levelMk (DSq h : Type) (k + 2) (gXfSlot h i₀ t i₀)
+        = levelMk (DSq h : Type) (k + 2) t := by
+    intro i₀
+    rw [gXfSlot_self]
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+  · -- the `σ`-slot value: dress the `x₀`-slot
+    rw [gXf_commP_swap]
+    refine Subgroup.inv_mem _ ⟨gXfSlot h 1 t, gXf_slot_adm ht 1, ?_⟩
+    rw [gXf_move_one_slot _ _ (hcls 1 0 gXf_zero_ne_one) (hcls 1 2 gXf_two_ne_one)
+      (fun i => hcls 1 _ (SqHandleIdx.u_ne_of_val_lt i (by rw [sqVal_one]; omega)))
+      (fun i => hcls 1 _ (SqHandleIdx.v_ne_of_val_lt i (by rw [sqVal_one]; omega))), hself 1]
+  · -- the `x₀`-slot value: dress the `σ`-slot
+    refine ⟨gXfSlot h 0 t, gXf_slot_adm ht 0, ?_⟩
+    rw [gXf_move_zero _ _ (hcls 0 1 gXf_one_ne_zero) (hcls 0 2 gXf_two_ne_zero)
+      (fun i => hcls 0 _ (SqHandleIdx.u_ne_of_val_lt i (by rw [sqVal_zero]; omega)))
+      (fun i => hcls 0 _ (SqHandleIdx.v_ne_of_val_lt i (by rw [sqVal_zero]; omega))), hself 0]
+  · exact absurd rfl hi
+  · -- the `u_j`-slot value: dress the `v_j`-slot
+    rw [gXf_commP_swap]
+    refine Subgroup.inv_mem _ ⟨gXfSlot h (sqHandleIdxV j) t, gXf_slot_adm ht _, ?_⟩
+    rw [gXf_move_handleV _ _ j
+      (hcls _ 0 (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_zero]; omega)).symm)
+      (hcls _ 1 (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_one]; omega)).symm)
+      (hcls _ 2 (SqHandleIdx.v_ne_of_val_lt j (by rw [sqVal_two]; omega)).symm)
+      (fun i => hcls _ _ (SqHandleIdx.u_ne_v i j))
+      (fun i hij => hcls _ _ (fun hc => hij (SqHandleIdx.v_injective hc))), hself _]
+  · -- the `v_j`-slot value: dress the `u_j`-slot
+    refine ⟨gXfSlot h (sqHandleIdxU j) t, gXf_slot_adm ht _, ?_⟩
+    rw [gXf_move_handleU _ _ j
+      (hcls _ 0 (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_zero]; omega)).symm)
+      (hcls _ 1 (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_one]; omega)).symm)
+      (hcls _ 2 (SqHandleIdx.u_ne_of_val_lt j (by rw [sqVal_two]; omega)).symm)
+      (fun i hij => hcls _ _ (fun hc => hij (SqHandleIdx.u_injective hc)))
+      (fun i => hcls _ _ (SqHandleIdx.v_ne_u i j)), hself _]
+
+end Extraction
+
+/-! ## §8 Axiom pins -/
 
 section AxiomPinsXFree
 
@@ -531,6 +738,27 @@ section AxiomPinsXFree
 #print axioms gXf_move_mul
 #print axioms gXf_ofFn_one
 #print axioms gXf_move_one
+#print axioms gXf_ne_of_val_ne
+#print axioms gXf_zero_ne_one
+#print axioms gXf_one_ne_zero
+#print axioms gXf_two_ne_zero
+#print axioms gXf_two_ne_one
+#print axioms gXf_move_core
+#print axioms gXf_move_handles
+#print axioms gXf_move_zero
+#print axioms gXf_move_one_slot
+#print axioms gXf_move_two
+#print axioms gXf_move_handleU
+#print axioms gXf_move_handleV
+#print axioms gXfSlot
+#print axioms gXfSlot_self
+#print axioms gXfSlot_ne
+#print axioms gXf_adm_one
+#print axioms gXf_slot_adm
+#print axioms gXfMove
+#print axioms gXf_mem_move
+#print axioms gXf_commP_swap
+#print axioms gXf_frame_mem_move
 
 end AxiomPinsXFree
 
