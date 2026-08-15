@@ -813,7 +813,368 @@ theorem gAbs_triple_xOne_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
 
 end Wide
 
-/-! ## Axiom pins (§§1-4) -/
+/-! ## §5 The wide chain: the full layer lands in the widened full reach
+
+Wave 76's §§3-4 chain (`gBase_triple` through `gBase_layerReach_of_xOneTriple`) re-run with
+the widened reach in place of the reach, and the unconditional §4 family in place of the
+refuted hypothesis `GBaseXOneTriple`. -/
+
+section WideChain
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- The `x₁`-outer triples at arbitrary inner pairs land in the widened reach. -/
+theorem gAbs_triple_xOne_pair_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (p q : levelQuot (DSq h : Type) 4) :
+    commP (commP p q) (gBaseT h) ∈ gAbsWide h nu' := by
+  have hleft : p ∈ gBaseTripleLeft (DSq h : Type) (gAbsWide h nu') (gBaseT h) := by
+    refine gBase_letters_mem (fun i => ?_) p
+    intro q'
+    refine gBase_letters_mem (K := gBaseTripleRight (DSq h : Type) (gAbsWide h nu')
+      (levelMk (DSq h : Type) 4 (sqGen h i)) (gBaseT h)) (fun i' => ?_) q'
+    show commP (commP (levelMk (DSq h : Type) 4 (sqGen h i))
+      (levelMk (DSq h : Type) 4 (sqGen h i'))) (gBaseT h) ∈ gAbsWide h nu'
+    by_cases hi : i = 2
+    · subst hi
+      exact gAbs_triple_xOne_wide hsigma hx0 _
+    · by_cases hi' : i' = 2
+      · subst hi'
+        rw [gBase_commP_swap (levelMk (DSq h : Type) 4 (sqGen h i)),
+          gThreeFour_ad_inv_left (cfour_commP_mem_lambdaTwo _ _)]
+        exact gAbs_triple_xOne_wide hsigma hx0 _
+      · exact Subgroup.mem_sup_left (gBase_jacobi_xOne (gTower_letters_mem_far i hi)
+          (gTower_letters_mem_far i' hi'))
+  exact hleft q
+
+/-- A triple bracket of letters against the outer letter slot, packaged. -/
+theorem gAbs_letter_triple_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (a b : (DSq h : Type)) (i : Fin (sqRank h)) :
+    levelMk (DSq h : Type) 4 (commP (commP a b) (sqGen h i)) ∈ gAbsWide h nu' := by
+  by_cases hi : i = 2
+  · subst hi
+    rw [gBase_levelMk_triple]
+    exact gAbs_triple_xOne_pair_wide hsigma hx0 _ _
+  · exact Subgroup.mem_sup_left (gBase_knob_mem (gTower_letters_mem_far i hi))
+
+/-- ⭐⭐ **Every triple bracket lands in the widened reach.** -/
+theorem gAbs_triple_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (p q r : levelQuot (DSq h : Type) 4) :
+    commP (commP p q) r ∈ gAbsWide h nu' := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective (DSq h : Type) 4 p
+  obtain ⟨b, rfl⟩ := levelMk_surjective (DSq h : Type) 4 q
+  obtain ⟨g, rfl⟩ := levelMk_surjective (DSq h : Type) 4 r
+  rw [← gBase_levelMk_triple]
+  have hspan := gTower_commHom_span (h := h) (k := 2) (cfour_commP_mem_two a b) g
+  refine Subgroup.closure_le (K := gAbsWide h nu') |>.2 ?_ hspan
+  rintro _ ⟨i, rfl⟩
+  exact gAbs_letter_triple_wide hsigma hx0 a b i
+
+/-- ⭐⭐ **Every bracket square lands in the widened reach.** -/
+theorem gAbs_bracketSq_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (p q : levelQuot (DSq h : Type) 4) :
+    commP p q ^ 2 ∈ gAbsWide h nu' := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective (DSq h : Type) 4 p
+  obtain ⟨b, rfl⟩ := levelMk_surjective (DSq h : Type) 4 q
+  have hbundle := gBase_bundle_mem (nu' := nu') a b
+  rw [map_mul, map_pow, gBase_levelMk_triple] at hbundle
+  have hsplit : commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b) ^ 2 =
+      (levelMk (DSq h : Type) 4 (commP a b) ^ 2 *
+        commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b))
+          (levelMk (DSq h : Type) 4 (dsqX1 h))) *
+      (commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b))
+          (levelMk (DSq h : Type) 4 (dsqX1 h)))⁻¹ := by
+    rw [mul_inv_cancel_right]
+    simp only [commP, map_mul, map_inv]
+  rw [hsplit]
+  exact Subgroup.mul_mem _ (Subgroup.mem_sup_left hbundle)
+    (Subgroup.inv_mem _ (gAbs_triple_wide hsigma hx0 _ _ _))
+
+variable (h nu') in
+/-- The `Y`-elements whose bracket against `x₁` lands in the widened reach. -/
+noncomputable def gAbsXOneTest : Subgroup (levelQuot (DSq h : Type) 4) where
+  carrier := {y | y ∈ lambdaImage (DSq h : Type) 2 4 ∧
+    commP y (gBaseT h) ∈ gAbsWide h nu'}
+  one_mem' := ⟨Subgroup.one_mem _, by rw [cfour_one_comm]; exact Subgroup.one_mem _⟩
+  mul_mem' := fun {_ _} hy hy' => ⟨Subgroup.mul_mem _ hy.1 hy'.1, by
+    rw [gThreeFour_ad_left hy.1]; exact Subgroup.mul_mem _ hy.2 hy'.2⟩
+  inv_mem' := fun {_} hy => ⟨Subgroup.inv_mem _ hy.1, by
+    rw [gThreeFour_ad_inv_left hy.1]; exact hy.2⟩
+
+/-- ⭐⭐ **The `x₁`-bracket of any `γ₂`-element lands in the widened reach.** -/
+theorem gAbs_comm_xOne_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) 2) :
+    levelMk (DSq h : Type) 4 (commP v (dsqX1 h)) ∈ gAbsWide h nu' := by
+  haveI : DiscreteTopology (levelQuot (DSq h : Type) 4) := gTower_discrete 4
+  have hpre : IsClosed ((Subgroup.comap (levelMk (DSq h : Type) 4) (gAbsXOneTest h nu') :
+      Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [Subgroup.coe_comap]
+    exact (isClosed_discrete _).preimage (continuous_levelMk (DSq h : Type) 4)
+  have hsub : twoCentralSeries (DSq h : Type) 2 ≤
+      Subgroup.comap (levelMk (DSq h : Type) 4) (gAbsXOneTest h nu') := by
+    rw [cfour_lambda_two, twoCentralSucc]
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) hpre
+    · refine (Subgroup.closure_le _).2 ?_
+      rintro _ ⟨g, -, rfl⟩
+      refine ⟨?_, ?_⟩
+      · show levelMk (DSq h : Type) 4 (g ^ 2) ∈ lambdaImage (DSq h : Type) 2 4
+        rw [map_pow]
+        exact cfour_sq_mem_lambdaTwo _
+      · show commP (levelMk (DSq h : Type) 4 (g ^ 2)) (gBaseT h) ∈ gAbsWide h nu'
+        rw [map_pow, gThreeFour_commP_sq_left]
+        exact Subgroup.mul_mem _ (gAbs_bracketSq_wide hsigma hx0 _ _)
+          (gAbs_triple_wide hsigma hx0 _ _ _)
+    · refine Subgroup.commutator_le.2 fun a _ b _ => ?_
+      rw [commutatorElement_def]
+      refine ⟨?_, ?_⟩
+      · show levelMk (DSq h : Type) 4 (a * b * a⁻¹ * b⁻¹) ∈ lambdaImage (DSq h : Type) 2 4
+        rw [gThreeFour_levelMk_commutator]
+        exact cfour_commP_mem_lambdaTwo _ _
+      · show commP (levelMk (DSq h : Type) 4 (a * b * a⁻¹ * b⁻¹)) (gBaseT h)
+          ∈ gAbsWide h nu'
+        rw [gThreeFour_levelMk_commutator]
+        exact gAbs_triple_wide hsigma hx0 _ _ _
+  rw [gBase_levelMk_commP]
+  exact (hsub hv).2
+
+variable (h) in
+/-- **The widened full reach**: the widened reach with the two complement towers. -/
+noncomputable def gAbsWideFull
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) :
+    Subgroup (levelQuot (DSq h : Type) 4) :=
+  gAbsWide h nu' ⊔ gTowerTowXW h 2
+
+theorem gAbs_wide_le_wideFull : gAbsWide h nu' ≤ gAbsWideFull h nu' := le_sup_left
+
+/-- The widened full reach is the full reach with the coker adjoined. -/
+theorem gAbs_wideFull_eq :
+    gAbsWideFull h nu' = gTowerFullReach h nu' 2 ⊔ gAbsCoker h := by
+  rw [gAbsWideFull, gAbsWide, gTowerFullReach, sup_right_comm]
+
+/-- The square of any `γ₂`-element lands in the widened full reach. -/
+theorem gAbs_sq_gammaTwo_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) 2) :
+    levelMk (DSq h : Type) 4 (v ^ 2) ∈ gAbsWideFull h nu' := by
+  obtain ⟨d, hdmem, hdl, hdn, hdec⟩ := gTower_decomp nu' hsigma hx0 (by omega) hv
+  set a := toAdd (nuLam h v) with ha
+  set b := toAdd (nu' v) with hb
+  have hda : (2 ^ (2 - 1) : ℤ_[2]) ∣ a := gTower_row_dvd (nuLam h) hv
+  have hdb : (2 ^ (2 - 1) : ℤ_[2]) ∣ b := gTower_row_dvd nu' hv
+  have hxa : zpowZtwo (isProP_DSq h) (dsqX0 h) a ∈ twoCentralSeries (DSq h : Type) 2 :=
+    gTower_zpow_dvd_mem (by omega) hda _
+  have hwb : zpowZtwo (isProP_DSq h) (sqPivot h) b ∈ twoCentralSeries (DSq h : Type) 2 :=
+    gTower_zpow_dvd_mem (by omega) hdb _
+  have htow : gTowerTower h a b ∈ twoCentralSeries (DSq h : Type) 2 :=
+    Subgroup.mul_mem _ hxa hwb
+  rw [hdec, gTower_sq_congr (le_refl 2) hdmem htow]
+  refine Subgroup.mul_mem _ ?_ ?_
+  · have hbundle : levelMk (DSq h : Type) 4 (d ^ 2 * commP d (dsqX1 h))
+        ∈ gTowerReach h nu' 2 :=
+      Subgroup.subset_closure (Or.inl (Or.inr ⟨d, ⟨hdmem, hdl, hdn⟩, rfl⟩))
+    have hsplit : levelMk (DSq h : Type) 4 (d ^ 2)
+        = levelMk (DSq h : Type) 4 (d ^ 2 * commP d (dsqX1 h)) *
+          (levelMk (DSq h : Type) 4 (commP d (dsqX1 h)))⁻¹ := by
+      rw [map_mul, mul_inv_cancel_right]
+    rw [hsplit]
+    exact gAbs_wide_le_wideFull (Subgroup.mul_mem _ (gAbs_reach_le_wide hbundle)
+      (Subgroup.inv_mem _ (gAbs_comm_xOne_wide hsigma hx0 hdmem)))
+  · rw [gTowerTower, gTower_sq_congr (le_refl 2) hxa hwb, gTower_zpow_sq, gTower_zpow_sq,
+      ← map_mul]
+    refine le_sup_right (α := Subgroup _) ?_
+    refine Subgroup.subset_closure ⟨2 * a, 2 * b, ?_, ?_, ?_⟩
+    · obtain ⟨c, hc⟩ := hda
+      exact ⟨c, by rw [hc]; ring⟩
+    · obtain ⟨c, hc⟩ := hdb
+      exact ⟨c, by rw [hc]; ring⟩
+    · rw [gTowerTower]
+
+/-- Every fourth power lands in the widened full reach. -/
+theorem gAbs_pow_four_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (p : levelQuot (DSq h : Type) 4) :
+    p ^ 4 ∈ gAbsWideFull h nu' := by
+  obtain ⟨v, hv, hveq⟩ := cfour_sq_mem_lambdaTwo p
+  have hfour : p ^ 4 = (p ^ 2) ^ 2 := by rw [← pow_mul]
+  rw [hfour, ← hveq, ← map_pow]
+  exact gAbs_sq_gammaTwo_wide hsigma hx0 hv
+
+/-- ⭐⭐⭐ **The whole layer lands in the widened full reach**, unconditionally. -/
+theorem gAbs_zLayer_le_wideFull (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    zLayer (DSq h : Type) 3 ≤ gAbsWideFull h nu' :=
+  cfourCmp_zLayer_le_gens (gAbs_pow_four_wide hsigma hx0)
+    (fun p q => gAbs_wide_le_wideFull (gAbs_bracketSq_wide hsigma hx0 p q))
+    (fun p q r => gAbs_wide_le_wideFull (gAbs_triple_wide hsigma hx0 p q r))
+
+end WideChain
+
+/-! ## §6 The cut, the wide layer statement, and the leftover normal form (T1)
+
+The realization of the widened full reach factors through wave 74's own
+`gTower_fullReach_realize`: the coker is central, so its contribution moves into the
+row-trivial part.  The cut is then verbatim wave 74's, and the result is the depth-2 layer
+statement for the widened reach, with the two-class coker carrying explicit `𝔽₂`-exponents:
+Labute's Theorem 5 leftover decomposition at level 2, in the campaign's vocabulary. -/
+
+section Cut
+
+open scoped Pointwise
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- The realization of the widened full reach: a row-trivial `γ₃`-element whose class lies in
+the widened reach, times a two-tower image with `4`-divisible exponents. -/
+theorem gAbs_wideFull_realize (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {z : levelQuot (DSq h : Type) 4}
+    (hz : z ∈ gAbsWideFull h nu') :
+    ∃ r A B, r ∈ twoCentralSeries (DSq h : Type) 3 ∧ nuLam h r = 1 ∧ nu' r = 1 ∧
+      levelMk (DSq h : Type) 4 r ∈ gAbsWide h nu' ∧
+        (2 ^ 2 : ℤ_[2]) ∣ A ∧ (2 ^ 2 : ℤ_[2]) ∣ B ∧
+          z = levelMk (DSq h : Type) 4 r * levelMk (DSq h : Type) 4 (gTowerTower h A B) := by
+  rw [gAbs_wideFull_eq] at hz
+  haveI := gAbs_coker_normal (h := h)
+  have hmem : z ∈ ((gTowerFullReach h nu' 2 : Subgroup (levelQuot (DSq h : Type) 4)) :
+      Set (levelQuot (DSq h : Type) 4)) *
+      ((gAbsCoker h : Subgroup (levelQuot (DSq h : Type) 4)) :
+        Set (levelQuot (DSq h : Type) 4)) := by
+    rw [← Subgroup.mul_normal]
+    exact hz
+  obtain ⟨f, hf, n, hn, heq⟩ := hmem
+  obtain ⟨r, A, B, hrm, hrl, hrn, hrR, hA, hB, hfeq⟩ := gTower_fullReach_realize hsigma hx0 hf
+  obtain ⟨e₁, e₂, he₁, he₂, hneq⟩ := gAbs_coker_form hn
+  have hBl : nuLam h (gAbsB h) = 1 := gTower_row_commP _ _ _
+  have hBn : nu' (gAbsB h) = 1 := gTower_row_commP _ _ _
+  have hCl : nuLam h (gAbsC h) = 1 := gTower_row_commP _ _ _
+  have hCn : nu' (gAbsC h) = 1 := gTower_row_commP _ _ _
+  refine ⟨r * gAbsB h ^ e₁ * gAbsC h ^ e₂, A, B, ?_, ?_, ?_, ?_, hA, hB, ?_⟩
+  · exact Subgroup.mul_mem _ (Subgroup.mul_mem _ hrm
+      (Subgroup.pow_mem _ gAbs_B_mem_three e₁)) (Subgroup.pow_mem _ gAbs_C_mem_three e₂)
+  · rw [map_mul, map_mul, map_pow, map_pow, hrl, hBl, hCl, one_pow, one_pow, one_mul,
+      one_mul]
+  · rw [map_mul, map_mul, map_pow, map_pow, hrn, hBn, hCn, one_pow, one_pow, one_mul,
+      one_mul]
+  · have hBcMem : levelMk (DSq h : Type) 4 (gAbsB h) ∈ gAbsCoker h :=
+      Subgroup.subset_closure (Set.mem_insert _ _)
+    have hCcMem : levelMk (DSq h : Type) 4 (gAbsC h) ∈ gAbsCoker h :=
+      Subgroup.subset_closure (Set.mem_insert_of_mem _ rfl)
+    rw [map_mul, map_mul, map_pow, map_pow]
+    refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (gAbs_reach_le_wide hrR) ?_) ?_
+    · exact Subgroup.mem_sup_right ((gAbsCoker h).pow_mem hBcMem e₁)
+    · exact Subgroup.mem_sup_right ((gAbsCoker h).pow_mem hCcMem e₂)
+  · have hcen : ∀ g : levelQuot (DSq h : Type) 4, g * n = n * g :=
+      fun g => Subgroup.mem_center_iff.1 (gAbs_coker_central hn) g
+    calc z = f * n := heq.symm
+      _ = levelMk (DSq h : Type) 4 r * levelMk (DSq h : Type) 4 (gTowerTower h A B) * n := by
+          rw [hfeq]
+      _ = levelMk (DSq h : Type) 4 r *
+          (levelMk (DSq h : Type) 4 (gTowerTower h A B) * n) := by rw [mul_assoc]
+      _ = levelMk (DSq h : Type) 4 r *
+          (n * levelMk (DSq h : Type) 4 (gTowerTower h A B)) := by rw [hcen]
+      _ = levelMk (DSq h : Type) 4 r * n * levelMk (DSq h : Type) 4 (gTowerTower h A B) := by
+          rw [mul_assoc]
+      _ = levelMk (DSq h : Type) 4 (r * gAbsB h ^ e₁ * gAbsC h ^ e₂) *
+          levelMk (DSq h : Type) 4 (gTowerTower h A B) := by
+          rw [hneq, map_mul, map_mul, map_pow, map_pow]
+          simp only [mul_assoc]
+
+/-- ⭐⭐ **The cut for the widened reach**: an exactly row-trivial element whose class lies in
+the widened full reach already lies in the widened reach.  Verbatim wave 74's `gTower_cut`
+at depth `2`, over the widened realization. -/
+theorem gAbs_wide_cut (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)} (hgl : nuLam h g = 1)
+    (hgn : nu' g = 1)
+    (hfull : levelMk (DSq h : Type) 4 g ∈ gAbsWideFull h nu') :
+    levelMk (DSq h : Type) 4 g ∈ gAbsWide h nu' := by
+  obtain ⟨r, A, B, hrmem, hrl, hrn, hrW, hA, hB, heq⟩ :=
+    gAbs_wideFull_realize hsigma hx0 hfull
+  have hAmem : zpowZtwo (isProP_DSq h) (dsqX0 h) A ∈ twoCentralSeries (DSq h : Type) 3 :=
+    gTower_zpow_dvd_mem (by omega) (by simpa using hA) _
+  have hBmem : zpowZtwo (isProP_DSq h) (sqPivot h) B ∈ twoCentralSeries (DSq h : Type) 3 :=
+    gTower_zpow_dvd_mem (by omega) (by simpa using hB) _
+  have htmem : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) 3 :=
+    Subgroup.mul_mem _ hAmem hBmem
+  set u := (r * gTowerTower h A B)⁻¹ * g with hu
+  have humem : u ∈ twoCentralSeries (DSq h : Type) 4 := by
+    rw [lim_mem_twoCentralSeries_iff_levelMk]
+    show levelMk (DSq h : Type) 4 ((r * gTowerTower h A B)⁻¹ * g) = 1
+    rw [map_mul, map_inv, map_mul, heq]
+    group
+  have hgform : g = r * gTowerTower h A B * u := by
+    rw [hu, mul_inv_cancel_left]
+  have hrowA : toAdd (nuLam h g) = A + toAdd (nuLam h u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrl, toAdd_one, gTower_tower_nuLam,
+      zero_add]
+  have hrowB : toAdd (nu' g) = B + toAdd (nu' u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrn, toAdd_one,
+      gTower_tower_nu nu' hsigma hx0, zero_add]
+  have hAdeep : (2 ^ 3 : ℤ_[2]) ∣ A := by
+    have hud := gTower_row_dvd (nuLam h) humem
+    rw [show (4 : ℕ) - 1 = 3 from rfl] at hud
+    have hAeq : A = -toAdd (nuLam h u) := by
+      have h0 := hrowA
+      rw [hgl, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [hAeq]
+    exact hud.neg_right
+  have hBdeep : (2 ^ 3 : ℤ_[2]) ∣ B := by
+    have hud := gTower_row_dvd nu' humem
+    rw [show (4 : ℕ) - 1 = 3 from rfl] at hud
+    have hBeq : B = -toAdd (nu' u) := by
+      have h0 := hrowB
+      rw [hgn, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [hBeq]
+    exact hud.neg_right
+  have htdeep : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) 4 :=
+    gTower_tower_mem (by omega)
+      (by rw [show (4 : ℕ) - 1 = 3 from rfl]; exact hAdeep)
+      (by rw [show (4 : ℕ) - 1 = 3 from rfl]; exact hBdeep)
+  have htimg : levelMk (DSq h : Type) 4 (gTowerTower h A B) = 1 :=
+    (lim_mem_twoCentralSeries_iff_levelMk 4 _).mp htdeep
+  rw [heq, htimg, mul_one]
+  exact hrW
+
+/-- ⭐⭐⭐ **The wide layer statement at depth 2**: every exactly row-trivial `γ₃`-element
+reaches the widened span, unconditionally.  This is the refuted `GTowerLayerReach h ν' 2`
+with the two-class coker adjoined: the exact unconditional content of the depth-2 base. -/
+theorem gAbs_layer_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) 3) (hgl : nuLam h g = 1) (hgn : nu' g = 1) :
+    levelMk (DSq h : Type) 4 g ∈ gAbsWide h nu' := by
+  refine gAbs_wide_cut hsigma hx0 hgl hgn ?_
+  exact gAbs_zLayer_le_wideFull hsigma hx0 ⟨g, hg, rfl⟩
+
+/-- ⭐⭐⭐ **T1: the leftover normal form.**  Every exactly row-trivial `γ₃`-element is an
+element whose class lies in the admissible depth-2 reach, times the two coker classes with
+explicit `𝔽₂`-exponents.  Labute's Theorem 5 leftover decomposition at level 2. -/
+theorem gAbs_leftover_decomp (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) 3) (hgl : nuLam h g = 1) (hgn : nu' g = 1) :
+    ∃ p e₁ e₂, p ∈ twoCentralSeries (DSq h : Type) 3 ∧
+      levelMk (DSq h : Type) 4 p ∈ gTowerReach h nu' 2 ∧ e₁ ≤ 1 ∧ e₂ ≤ 1 ∧
+        g = p * gAbsB h ^ e₁ * gAbsC h ^ e₂ := by
+  have hw := gAbs_layer_wide hsigma hx0 hg hgl hgn
+  haveI := gAbs_coker_normal (h := h)
+  have hmem : levelMk (DSq h : Type) 4 g ∈
+      ((gTowerReach h nu' 2 : Subgroup (levelQuot (DSq h : Type) 4)) :
+        Set (levelQuot (DSq h : Type) 4)) *
+      ((gAbsCoker h : Subgroup (levelQuot (DSq h : Type) 4)) :
+        Set (levelQuot (DSq h : Type) 4)) := by
+    rw [← Subgroup.mul_normal]
+    exact hw
+  obtain ⟨ρ, hρ, n, hn, heq⟩ := hmem
+  obtain ⟨e₁, e₂, he₁, he₂, hneq⟩ := gAbs_coker_form hn
+  refine ⟨g * (gAbsB h ^ e₁ * gAbsC h ^ e₂)⁻¹, e₁, e₂, ?_, ?_, he₁, he₂, by group⟩
+  · exact Subgroup.mul_mem _ hg (Subgroup.inv_mem _ (Subgroup.mul_mem _
+      (Subgroup.pow_mem _ gAbs_B_mem_three e₁) (Subgroup.pow_mem _ gAbs_C_mem_three e₂)))
+  · have himg : levelMk (DSq h : Type) 4 (g * (gAbsB h ^ e₁ * gAbsC h ^ e₂)⁻¹) = ρ := by
+      rw [map_mul, map_inv, map_mul, map_pow, map_pow, ← hneq, ← heq, mul_inv_cancel_right]
+    rw [himg]
+    exact hρ
+
+end Cut
+
+/-! ## Axiom pins (§§1-6) -/
 
 section AxiomPinsA
 
@@ -888,6 +1249,22 @@ section AxiomPinsA
 #print axioms gAbs_tripleTest_handleU
 #print axioms gAbs_tripleTest_handleV
 #print axioms gAbs_triple_xOne_wide
+#print axioms gAbs_triple_xOne_pair_wide
+#print axioms gAbs_letter_triple_wide
+#print axioms gAbs_triple_wide
+#print axioms gAbs_bracketSq_wide
+#print axioms GQ2.Dyadic.SqCore.gAbsXOneTest
+#print axioms gAbs_comm_xOne_wide
+#print axioms GQ2.Dyadic.SqCore.gAbsWideFull
+#print axioms gAbs_wide_le_wideFull
+#print axioms gAbs_wideFull_eq
+#print axioms gAbs_sq_gammaTwo_wide
+#print axioms gAbs_pow_four_wide
+#print axioms gAbs_zLayer_le_wideFull
+#print axioms gAbs_wideFull_realize
+#print axioms gAbs_wide_cut
+#print axioms gAbs_layer_wide
+#print axioms gAbs_leftover_decomp
 
 end AxiomPinsA
 
