@@ -1,5 +1,24 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 85 (2026-08-15)
+
+**Nine items await you; one became concrete this wave.**  The frozen quadratic flagship
+record is now the only consumer in the tree of the pilot clause spelling that the tree has
+proved strictly dominated: every other path runs through the canonical producers.  So the
+pilot-record decision (modernize the frozen record, or declare the general record canonical)
+is no longer hygiene; it is the difference between the flagship consuming the campaign's
+results directly or through a spelling nothing else uses.  A6 stands at twelve review rounds.
+
+**For orientation.**  The two remaining constructions have converged: the row-moving
+automorphisms (the odd route's last item) and the sixth mix move (the last selector clause)
+both now sit at class four of per-class ladders, each with a decision principle saying a
+false statement fails in a finite 2-group, closed-form defects, and exact linear-algebra
+rungs; the M6 ladder's class four is already a theorem with the residue starting at class
+five.  Stokes and the procyclic lifting bundle closed; the determinant is one even-degree
+word-phase construction; the coefficient's proposed refutation strategy was itself refuted,
+usefully, re-fencing the search to non-nilpotent targets.  The sqrt(-10) row's tied branch
+datum exists at last, over exactly the one move.
+
 ## Status at wave 84 (2026-08-15)
 
 **Nine items await you** (unchanged list from wave 83's close plus the wave-84 additions
