@@ -364,6 +364,36 @@ The canonical form already discharges `nuP`, `hnuP`, `hnuIota` via `lNu h`, and 
 theorem, so what `genAsm_branch_of_oddSq_canonical` still binds is `hdeg`, `e`, `hsigma`, `hx0`
 - of which only `e` is deep.
 
+**[W82-HOUSE, as of `a45bc557`: "no theorem in the tree produces it at an arbitrary ramified-`i`
+`K`" IS FALSE, and was false at this lane's own base `6f2916f3`.**
+`LSquare.nonempty_orientedEquiv_oddDegree`
+(`Instances/GammaLSylowPreimageFieldLabuteCubicNeutral.lean:249`, landed 2026-08-05, i.e. ten
+days before this note) gives `Nonempty (OrientedContinuousMulEquiv (chiSq (([K : ℚ₂] - 1) / 2))
+chiCycKTwo)` from `B : MarkedRecip Rec K` and `Odd [K : ℚ₂]` and nothing else, at census
+{B1, B6, B7, B11a}, verified here by elaborating its re-indexed form `oddId_orientedEquiv`.
+Ramifiedness at odd degree is free (the next paragraph in this section says so), so `e` is free
+at every odd-degree ramified-`i` `K`.
+
+**The ranking in the last clause is inverted.**  What is deep is not `e` but the PAIR
+`hsigma`, `hx0` AT the equivalence: the transported pivot row's parity is an invariant of the
+target (`SqCore/PivotClimb.lean` §9) and the rows do not follow from orientation
+(`Instances/GammaLSylowPreimagePivotNu.lean` §5, a refutation).  The seam is
+`LSquare.SqMarkedForwardSupply B h`, which packages exactly the triple, and
+`oddId_supply_iff_certificate` shows it is interchangeable with the `L`-row marked-core
+certificate with no side binder.  So: the odd residual is the ROWS, not the EQUIVALENCE.
+
+Two things this correction does NOT say.  It does not say the odd row is closed: the seam at
+`h ≥ 1` is open, and §3.1a's `L h` CAND gap is untouched.  And it does not fault the adjacent
+sentence "there is no declaration named `oddId` in the tree": that was true of `dyadic` when
+this lane merged (a8c8ade6 precedes 21d9a8c8), and the `e` claim is independent of it.
+
+The diagnosis is worth keeping with the correction, because this note's own headline is that
+the wave-80 lanes "ran blind to each other and to their own base".  This sentence is the same
+error one wave later, from the lane auditing for it: own-base blindness (the theorem predates
+the base) compounded by sibling blindness (W81-ODDID was building on that theorem, off this
+same base, in this same wave).  The in-tree copy at `GeneralAssembly.lean` is corrected at its
+site.]**
+
 Ramifiedness itself is **free** at odd degree:
 `not_hasEqualNormValueGroups_sqrt_neg_one_of_odd_finrank`
 (`GQ2/Dyadic/OddDegreeRamifiedI.lean:60-63`) is a theorem needing only `Odd (finrank ℚ₂ K)`.
@@ -436,6 +466,14 @@ identification.
 What is **three of five**, not five, is the full branch *datum* `GenAsmBranch` being
 unconditional: √−2, √2 and √5 carry it outright, while √10 and √−10 carry it only over
 `MpcRowData_sqrt{Ten,NegTen}`.
+
+**[W82-HOUSE, as of `a45bc557`: FOUR of five, not three.**  W81-NORMS landed
+`mpcNorm_genAsmBranch_sqrtTen` (`Instances/MpcNormValues.lean:1215`) unconditionally, at
+exactly the axiom set of `mpcRow_genAsmBranch_sqrtTen` (both measured here: B1, B6, B7, B11a,
+`peripheralCyclotomicAction`).  Only √−10 still carries a clause, and it is the `ε = true`
+pivot alone (`mpcNorm_genAsmBranch_sqrtNegTen_of_pivot`), the level and all three congruences
+having become theorems.  This lane merged before that one, so the count is a dated fact rather
+than an error; recorded because the endgame board is read forward.]**
 
 ## 3.3 (c) The quadratic flagship unconditional at all five rows
 
@@ -548,4 +586,14 @@ Carried forward, unchanged by this lane.
    the two measures differ because of `⭐ ⚠ ≥ ₂ γ ν`.  Every file this lane touched is at
    zero over-100-codepoint lines, verified.  If the owner's linter counts bytes, that is a
    standing pre-existing divergence and not a wave-81 regression.
+
+   **[W82-HOUSE, as of `a45bc557`: the per-file half is right, the corpus half is wrong.**
+   Counting codepoints, `GQ2/` carries **707** lines over 100 in **250** files, not zero.  The
+   worst single line in the ASK chain was `Instances/KSupply.lean:275` at **135** codepoints
+   (fixed in passing this round, since the sentence on it was also stale).  Wave 81 did
+   regress the measure: `Instances/AskCounting.lean` lands **6** over-100-codepoint lines
+   (`:20` at 121, `:21` at 112, `:22` at 109, `:23` at 104, `:442` at 101, `:450` at 129), all
+   of them markdown table rows inside docstrings.  The other two wave-81 modules are clean
+   (`OddIdentification.lean` 0, `MpcNormValues.lean` 0), so the claim held for the files this
+   lane checked and was over-generalized to the corpus.]**
 3. **Pilot record** - unchanged.
