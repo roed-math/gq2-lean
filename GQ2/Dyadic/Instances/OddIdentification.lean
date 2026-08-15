@@ -231,7 +231,22 @@ the LG5 ramified data) and the residual record `S : GenAsmRowResidual G F.T` (ob
 two ASK counting fields `exactLifting` and `stokes`, the ASK `determinant` field, and the CAND
 `WordCertificate` over `D_sq h`, which has no producer at free `h` in this tree).  Stated as
 one theorem so that the odd slot's remaining distance to the general theorem is a checkable
-object. -/
+object.
+
+⚠⚠ **[W82-HOUSE, as of `db50b7a4`: the parenthetical is stale in both halves; the theorem is
+not.**  On CAND, `Instances.LRowCand.lCand_wordCertificateCanonical` (W82-CAND, `b465ffdc`)
+produces the certificate at **free `(h, q)`**, thirteen of its seventeen fields proved and the
+four analytic clauses carried, out of `Instances.LSquareCore.lCorePresentation h`, which has
+existed at every `h` since the Cores layer.  On ASK, `stokes` is a theorem
+(`stokesDualityCertificate_galK`) and `determinant` is a theorem given the packet's
+`ramifiedData` (`affineDeterminant_galK`), leaving `exactLifting`, whose corrected form is a
+theorem at every degree and whose frozen form is equivalent at `2 ≤ n` to the single `Prop`
+`askCStageVanishing`.
+
+So the odd slot's remaining distance is: **the seam at `h ≥ 1`** (this theorem's own hypothesis
+`H`), one ASK `Prop` whose desirability is itself open, and the four CAND analytic clauses at
+`Γ_R (2h+1) q_K (lSqW h)`, which are the same four the `M0` and `N0` rows carry.  The theorem's
+statement and proof are unaffected; only the inventory in this docstring was.]** -/
 theorem oddId_candidate_equiv_galK_of_supply (B : MarkedRecip Rec K)
     {FF : DyadicUnitFiltration K} {h : ℕ}
     (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)

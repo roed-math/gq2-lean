@@ -303,7 +303,36 @@ free parameters on exactly one of the five rows:
 | `L h` | none over `D_sq h` | see `genAsm_nonempty_equiv_L_core_piBd` |
 
 So the CAND field is not a placeholder for a solved problem: on three of the five rows the
-campaign has no producer at free parameters at all. -/
+campaign has no producer at free parameters at all.
+
+⚠⚠ **[W82-HOUSE, as of `db50b7a4` (this lane's base is `a45bc557`; the `L h` row moved on
+`dyadic` mid-round): TWO OF THE FIVE ROWS OF THIS TABLE ARE STALE, and one of them has been
+stale since wave 76.**  Replacement rows:
+
+| row | producer over the general slot | coverage |
+| --- | --- | --- |
+| `Npc α r η h` | `genCertNpcWordCertificate`, `GeneralCertificates.lean:727` | free `(α, r, h, q)` |
+| `L h` | `Instances.LRowCand.lCand_wordCertificateCanonical` | free `(h, q)` |
+
+(Both carry the same four analytic clauses `M0` does.)
+
+The `Npc` correction is wave 76's and was flagged in `docs/dyadic/w76-house-note.md` and again
+in `docs/dyadic/w81-house-note.md` §3.1a without ever being marked here.  The `L h` correction
+is W82-CAND's, landed at `b465ffdc`: `lCorePresentation h` (`Instances/Cores.lean:146`) has
+existed at every `h` all along, so the row was plumbing rather than "new mathematics", and the
+`genAsm_nonempty_equiv_L_core_piBd` transport this cell points at was never the only route.
+
+So the closing sentence is wrong in both directions.  Corrected: **four of the five rows have a
+free-parameter producer** (`M0`, `Npc`, `L`, and `M0`'s `Mpc` sibling at `h = 0`), all of them
+carrying the same four analytic clauses, and the residue is uniform rather than per-row.  The
+one row with no free-parameter producer is `N0 α h`, covered only at `(α, h) = (2, 0)`.
+
+Two cautions from that lane, worth carrying at this record: the existential branch producers
+(`genAsm_branch_of_oddSq_canonical`, `genAsm_branch_of_evenN`, `genAsm_branch_of_evenM`, the
+`fieldId_genAsmBranch_*` family) return `∃ G, G.pres = …` and so **forget** `G.nuP`, while this
+record's `cand` field is stated at `G.nuP`; and the committed `h = 0` L-row closure lives at a
+different marking from `lNu 0`, with no comparison available at this tree.  Both are statement
+changes and are owner items.]** -/
 structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B FF) where
   /-- **ASK, ledger field 3** at `G_K`.  ⚠ [W82-HOUSE, as of `a45bc557`: this is the *frozen*
   bundle.  Its `RN` companion is a theorem at every degree (`exactLiftingSemanticsRN_galK`);
