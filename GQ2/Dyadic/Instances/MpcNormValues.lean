@@ -943,6 +943,233 @@ theorem mpcNorm_free_unique {s t : ℤ_[2]}
 
 end Freeness
 
+/-! ## §11 The pivot at `ℚ₂(√10)`
+
+With freeness in hand the pivot follows on the `ε = false` row, exactly as wave 80 §3.3
+predicted, and by exactly its argument, run without ever naming `ker χ_M`:
+
+Suppose `ν'(C̄₀) ∈ 4ℤ₂`.  Look at the continuous hom `Φ = (χ_M, ν') : D_M → ℤ₂ˣ × ℤ₂` and at
+the closed subgroup
+
+    H = { ((−1)^s·(mUnit 2)^t, s·ν'(B̄) + t·ν'(D̄) + 4u) : s, t, u ∈ ℤ₂ },
+
+the range of a continuous hom on the compact `ℤ₂³`.  All four marked generators land in `H`: `B̄`
+and `D̄` by construction, and `Ā` and `C̄₀` because their `ν'`-values lie in `4ℤ₂` (the frame
+relation `nu_dmA_eq` and the assumption).  So `dm_topGen` puts **everything** in `H`.  But the
+lower half of the level supplies a class `x` with `χ_M(x) = 1` and `ν'(x) = 2`, and
+`(1, 2) ∉ H`: freeness forces `s` even and `t = 0`, and then the second coordinate is
+`2y·ν'(B̄) + 4u`, which lies in `4ℤ₂` because `ν'(B̄)` is even on this row.  Contradiction.
+
+**The `ε = true` row is genuinely different**, and the difference is visible in this proof: at
+`ℚ₂(√−10)` the `λ`-value is `1`, so `ν'(B̄)` is *odd* and `2y·ν'(B̄)` is only in `2ℤ₂`.  The
+argument breaks, and wave 80 §3.3's hand counterexample `(−8, 1, 4, 1)` says it must. -/
+
+section Pivot
+
+/-- **Generation transport at an arbitrary target.**  `mpcRow_mem_of_gens` with the target
+freed: the proof never used `Multiplicative ℤ₂`. -/
+theorem mpcNorm_mem_of_gens {T : Type} [Group T] [TopologicalSpace T] {α h : ℕ}
+    (f : ContinuousMonoidHom (DM α h : Type) T) {H : Subgroup T}
+    (hH : IsClosed (H : Set T)) (hgen : ∀ i, f (dmGen α h i) ∈ H) (x : (DM α h : Type)) :
+    f x ∈ H := by
+  have hle : Subgroup.closure (Set.range (dmGen α h)) ≤ H.comap f.toMonoidHom := by
+    rw [Subgroup.closure_le]
+    rintro _ ⟨i, rfl⟩
+    exact hgen i
+  have hcl : IsClosed ((H.comap f.toMonoidHom : Subgroup (DM α h : Type)) :
+      Set (DM α h : Type)) := hH.preimage f.continuous_toFun
+  have hall := Subgroup.topologicalClosure_minimal _ hle hcl
+  rw [dm_topGen α h] at hall
+  exact hall (Subgroup.mem_top x)
+
+/-- `x ^ (0 : ℤ₂) = 1`. -/
+theorem mpcNorm_zpowZtwo_zero (x : ℤ_[2]ˣ) :
+    GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt x 0 = 1 := by
+  rw [show ((0 : ℤ_[2])) = (((0 : ℕ)) : ℤ_[2]) by norm_cast, GQ2.zpowZtwo_natCast, pow_zero]
+
+theorem mpcNorm_zpowZtwo_neg (x : ℤ_[2]ˣ) (s : ℤ_[2]) :
+    GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt x (-s)
+      = (GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt x s)⁻¹ := by
+  refine eq_inv_of_mul_eq_one_left ?_
+  rw [← GQ2.zpowZtwo_add, neg_add_cancel, mpcNorm_zpowZtwo_zero]
+
+/-- **The comparison subgroup** `H` of `ℤ₂ˣ × ℤ₂`: the `ℤ₂`-span of `(−1, b₁)`, `(mUnit 2, b₂)`
+and `(1, 4)`.  A range of a continuous hom on a compact group, hence closed. -/
+def mpcNorm_compSub (b₁ b₂ : ℤ_[2]) : Subgroup (ℤ_[2]ˣ × Multiplicative ℤ_[2]) where
+  carrier := Set.range fun p : ℤ_[2] × ℤ_[2] × ℤ_[2] =>
+    (GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) p.1
+        * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) p.2.1,
+      ofAdd (p.1 * b₁ + p.2.1 * b₂ + 4 * p.2.2))
+  mul_mem' := by
+    rintro _ _ ⟨⟨s, t, u⟩, rfl⟩ ⟨⟨s', t', u'⟩, rfl⟩
+    refine ⟨(s + s', t + t', u + u'), Prod.ext ?_ ?_⟩ <;>
+      dsimp only [Prod.fst_mul, Prod.snd_mul]
+    · rw [GQ2.zpowZtwo_add, GQ2.zpowZtwo_add]
+      exact mul_mul_mul_comm _ _ _ _
+    · rw [← ofAdd_add]
+      congr 1
+      ring
+  one_mem' := by
+    refine ⟨(0, 0, 0), Prod.ext ?_ ?_⟩ <;> dsimp only [Prod.fst_one, Prod.snd_one]
+    · rw [mpcNorm_zpowZtwo_zero, mpcNorm_zpowZtwo_zero, one_mul]
+    · rw [show ((0 : ℤ_[2]) * b₁ + (0 : ℤ_[2]) * b₂ + 4 * (0 : ℤ_[2])) = 0 by ring]
+      rfl
+  inv_mem' := by
+    rintro _ ⟨⟨s, t, u⟩, rfl⟩
+    refine ⟨(-s, -t, -u), Prod.ext ?_ ?_⟩ <;> dsimp only [Prod.fst_inv, Prod.snd_inv]
+    · rw [mpcNorm_zpowZtwo_neg, mpcNorm_zpowZtwo_neg, ← mul_inv]
+    · rw [← ofAdd_neg]
+      congr 1
+      ring
+
+theorem mpcNorm_isClosed_compSub (b₁ b₂ : ℤ_[2]) :
+    IsClosed (mpcNorm_compSub b₁ b₂ : Set (ℤ_[2]ˣ × Multiplicative ℤ_[2])) := by
+  have hcont : Continuous fun p : ℤ_[2] × ℤ_[2] × ℤ_[2] =>
+      ((GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) p.1
+          * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) p.2.1 : ℤ_[2]ˣ),
+        (ofAdd (p.1 * b₁ + p.2.1 * b₂ + 4 * p.2.2) : Multiplicative ℤ_[2])) := by
+    refine Continuous.prodMk (Continuous.mul ?_ ?_) ?_
+    · exact (GQ2.continuous_zpowZtwo _ _).comp continuous_fst
+    · exact (GQ2.continuous_zpowZtwo _ _).comp (continuous_fst.comp continuous_snd)
+    · exact continuous_ofAdd.comp
+        ((((continuous_fst.mul continuous_const).add
+          ((continuous_fst.comp continuous_snd).mul continuous_const)).add
+          (continuous_const.mul (continuous_snd.comp continuous_snd))))
+  exact (isCompact_range hcont).isClosed
+
+/-- **The lower half of the level, transported to the core.**  `nu_ker_chi_ge` says
+`ν_ur(ker χ_K) ⊇ 2^r ℤ₂`; through the oriented equivalence that becomes a class of `D_M` with
+trivial cyclotomic value and prescribed `ν'`.  The `≥` companion of
+`mpcCert_chiKerLevel_of_level`. -/
+theorem mpcNorm_exists_kerChiM {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] {Rec : LocalReciprocity}
+    (B : MarkedRecip Rec K) {alpha : ℕ}
+    (e : OrientedContinuousMulEquiv (chiM alpha 0) (chiCycKTwo (K := K))) (y : ℤ_[2]) :
+    ∃ x : (DM alpha 0 : Type), chiM alpha 0 x = 1 ∧
+      toAdd (fieldUni_nuPullbackM B e x) = 2 ^ B.r * y := by
+  obtain ⟨gbar, hgchi, hgnu⟩ := B.nu_ker_chi_ge y
+  obtain ⟨g, rfl⟩ := surjective_toAbK K gbar
+  refine ⟨e.1.symm (maxProPMk 2 (GalK K) g), ?_, ?_⟩
+  · have h : chiCycKTwo (K := K) (e.1 (e.1.symm (maxProPMk 2 (GalK K) g)))
+        = chiM alpha 0 (e.1.symm (maxProPMk 2 (GalK K) g)) := e.2 _
+    rw [e.1.apply_symm_apply, chiCycKTwo_maxProPMk, ← chiCycKAb_toAbK] at h
+    exact h.symm.trans hgchi
+  · show toAdd (nuUrKTwo B (e.1 (e.1.symm (maxProPMk 2 (GalK K) g)))) = _
+    rw [e.1.apply_symm_apply, nuUrKTwo_maxProPMk, hgnu]
+
+/-- The comparison hom `(χ_M, ν') : D_M → ℤ₂ˣ × ℤ₂`, whose image the subgroup above traps. -/
+def mpcNorm_compPhi {α : ℕ} (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2])) :
+    ContinuousMonoidHom (DM α 0 : Type) (ℤ_[2]ˣ × Multiplicative ℤ_[2]) where
+  toFun x := (chiM α 0 x, nu' x)
+  map_one' := by rw [map_one, map_one]; rfl
+  map_mul' x y := by rw [map_mul, map_mul]; rfl
+  continuous_toFun := (chiM α 0).continuous_toFun.prodMk nu'.continuous_toFun
+
+/-- **THE PIVOT, ABSTRACTLY.**  At the `α = 2` marked core: a transported marking whose `C̄₀`
+value is even (the level), whose `B̄` value is even (the `ε = false` row's `λ`-value) and which
+attains `2` somewhere on `ker χ_M` (the lower half of the level) has `ν'(C̄₀)` of `2`-adic
+valuation **exactly** one.
+
+The evenness of `ν'(B̄)` is the only place the `ε = false` row is used, and it is exactly where
+the `ε = true` row fails: there `ν'(B̄)` is odd and the last step breaks. -/
+theorem mpcNorm_pivot_of_even_dmB
+    (nu' : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]))
+    (hC : ∃ c : ℤ_[2], toAdd (nu' (dmC 2 0)) = 2 * c)
+    (hB : ∃ β : ℤ_[2], toAdd (nu' (dmB 2 0)) = 2 * β)
+    (hex : ∃ x : (DM 2 0 : Type), chiM 2 0 x = 1 ∧ toAdd (nu' x) = 2) :
+    ∃ γ : ℤ_[2]ˣ, toAdd (nu' (dmC 2 0)) = (γ : ℤ_[2]) * 2 ^ 1 := by
+  obtain ⟨c, hc⟩ := hC
+  obtain ⟨β, hβ⟩ := hB
+  rcases mpcRow_even_or_odd c with ⟨z, hz⟩ | ⟨w, hw⟩
+  · exfalso
+    obtain ⟨x, hxchi, hxnu⟩ := hex
+    have hgen : ∀ i, mpcNorm_compPhi nu' (dmGen 2 0 i)
+        ∈ mpcNorm_compSub (toAdd (nu' (dmB 2 0))) (toAdd (nu' (dmD 2 0))) := by
+      intro i
+      rcases mCoreIdx_cases i with rfl | rfl | rfl | rfl
+      · refine ⟨(0, 0, -(2 * z)), Prod.ext ?_ ?_⟩
+        · show GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) 0
+              * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) 0 = chiM 2 0 (dmA 2 0)
+          rw [mpcNorm_zpowZtwo_zero, mpcNorm_zpowZtwo_zero, one_mul, chiM_dmA]
+        · have hval : (0 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (0 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+              + 4 * (-(2 * z)) = toAdd (nu' (dmA 2 0)) := by
+            rw [nu_dmA_eq 2 0 one_le_two nu', hc, hz]
+            norm_num
+            ring
+          show ofAdd ((0 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (0 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+            + 4 * (-(2 * z))) = nu' (dmA 2 0)
+          rw [hval]
+          rfl
+      · refine ⟨(1, 0, 0), Prod.ext ?_ ?_⟩
+        · show GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) 1
+              * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) 0 = chiM 2 0 (dmB 2 0)
+          rw [GQ2.zpowZtwo_one_exp, mpcNorm_zpowZtwo_zero, mul_one, chiM_dmB]
+        · have hval : (1 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (0 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+              + 4 * (0 : ℤ_[2]) = toAdd (nu' (dmB 2 0)) := by ring
+          show ofAdd ((1 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (0 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+            + 4 * (0 : ℤ_[2])) = nu' (dmB 2 0)
+          rw [hval]
+          rfl
+      · refine ⟨(0, 0, z), Prod.ext ?_ ?_⟩
+        · show GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) 0
+              * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) 0 = chiM 2 0 (dmC 2 0)
+          rw [mpcNorm_zpowZtwo_zero, mpcNorm_zpowZtwo_zero, one_mul, chiM_dmC]
+        · have hval : (0 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (0 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+              + 4 * z = toAdd (nu' (dmC 2 0)) := by
+            rw [hc, hz]
+            ring
+          show ofAdd ((0 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (0 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+            + 4 * z) = nu' (dmC 2 0)
+          rw [hval]
+          rfl
+      · refine ⟨(0, 1, 0), Prod.ext ?_ ?_⟩
+        · show GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) 0
+              * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) 1 = chiM 2 0 (dmD 2 0)
+          rw [mpcNorm_zpowZtwo_zero, GQ2.zpowZtwo_one_exp, one_mul, chiM_dmD]
+        · have hval : (0 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (1 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+              + 4 * (0 : ℤ_[2]) = toAdd (nu' (dmD 2 0)) := by ring
+          show ofAdd ((0 : ℤ_[2]) * toAdd (nu' (dmB 2 0)) + (1 : ℤ_[2]) * toAdd (nu' (dmD 2 0))
+            + 4 * (0 : ℤ_[2])) = nu' (dmD 2 0)
+          rw [hval]
+          rfl
+    obtain ⟨⟨s, t, u⟩, hst⟩ := mpcNorm_mem_of_gens (mpcNorm_compPhi nu')
+      (mpcNorm_isClosed_compSub _ _) hgen x
+    have hfst : GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) s
+        * GQ2.zpowZtwo GQ2.isProP_two_unitsPadicInt (mUnit 2) t = 1 := by
+      have h := congrArg Prod.fst hst
+      exact h.trans hxchi
+    have hsnd : s * toAdd (nu' (dmB 2 0)) + t * toAdd (nu' (dmD 2 0)) + 4 * u = toAdd (nu' x) :=
+      congrArg (fun q : ℤ_[2]ˣ × Multiplicative ℤ_[2] => toAdd q.2) hst
+    obtain ⟨⟨y, hy⟩, rfl⟩ := mpcNorm_free_unique hfst
+    rw [hxnu, hy, hβ] at hsnd
+    have hcancel : (2 : ℤ_[2]) * (2 * y * β + 2 * u) = 2 * 1 := by linear_combination hsnd
+    have hone := mul_left_cancel₀ (by norm_num : (2 : ℤ_[2]) ≠ 0) hcancel
+    exact mpcRow_not_even_and_odd (z := (1 : ℤ_[2])) ⟨y * β + u, by linear_combination -hone⟩
+      ⟨0, by ring⟩
+  · refine ⟨(GQ2.isUnit_one_add_two_mul w).unit, ?_⟩
+    rw [hc, hw, IsUnit.unit_spec, pow_one]
+    ring
+
+/-- **THE PIVOT AT `ℚ₂(√10)`.**  `ν'(C̄₀)` has `2`-adic valuation exactly one at wave 77's chosen
+oriented equivalence: the last clause of the `ε = false` row, discharged. -/
+theorem mpcNorm_pivot_sqrtTen [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    [T2Space (GalK KSqrtTen)] {R : LocalReciprocity} (B : MarkedRecip R KSqrtTen) :
+    ∃ γ : ℤ_[2]ˣ,
+      toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
+        = (γ : ℤ_[2]) * 2 ^ 1 := by
+  have hr : B.r = 1 := mpcNorm_level_sqrtTen B
+  refine mpcNorm_pivot_of_even_dmB _ ?_ ?_ ?_
+  · obtain ⟨y, hy⟩ := mpcCert_chiKerLevel_of_level B hr (fieldId_chosenEquivM_sqrtTen B)
+      (dmC 2 0) (chiM_dmC 2 0)
+    exact ⟨y, by rw [hy, pow_one]⟩
+  · obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda (fieldId_chosenEquivM_sqrtTen B)
+      (mpcNorm_lambdaOne_negOne_sqrtTen B) (chiM_dmB 2 0)
+    exact ⟨y, by rw [hy]; ring⟩
+  · obtain ⟨x, hxchi, hxnu⟩ := mpcNorm_exists_kerChiM B (fieldId_chosenEquivM_sqrtTen B) 1
+    exact ⟨x, hxchi, by rw [hxnu, hr, pow_one, mul_one]⟩
+
+end Pivot
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
