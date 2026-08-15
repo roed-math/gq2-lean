@@ -618,6 +618,212 @@ theorem gGen_zLayer_le_wideFull {m : ℕ} (HT : GGenDecomp h nu' m)
 
 end Supplies
 
+/-! ## §5 The cut and T1 at every depth
+
+Wave 79's §6 with the depth freed: the realization of the widened full reach factors
+through `gTower_fullReach_realize` because the coker is central, the cut is verbatim one
+index deeper, and the induction on the tower index yields the leftover normal form at
+every depth, seeded by wave 78's depth-2 record. -/
+
+section Cut
+
+open scoped Pointwise
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- The realization of the widened full reach at depth `m+3`: a row-trivial
+`γ_{m+4}`-element whose class lies in the widened reach, times a two-tower image with
+`2^{m+3}`-divisible exponents. -/
+theorem gGen_wideFull_realize {m : ℕ}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {z : levelQuot (DSq h : Type) (m + 5)}
+    (hz : z ∈ gGenWideFull h nu' (m + 1)) :
+    ∃ r A B, r ∈ twoCentralSeries (DSq h : Type) (m + 4) ∧ nuLam h r = 1 ∧ nu' r = 1 ∧
+      levelMk (DSq h : Type) (m + 5) r ∈ gGenWide h nu' (m + 1) ∧
+        (2 ^ (m + 3) : ℤ_[2]) ∣ A ∧ (2 ^ (m + 3) : ℤ_[2]) ∣ B ∧
+          z = levelMk (DSq h : Type) (m + 5) r *
+            levelMk (DSq h : Type) (m + 5) (gTowerTower h A B) := by
+  rw [gGen_wideFull_eq] at hz
+  haveI := gGen_coker_normal (h := h) (m + 1)
+  have hmem : z ∈ ((gTowerFullReach h nu' (m + 3) :
+      Subgroup (levelQuot (DSq h : Type) (m + 5))) :
+      Set (levelQuot (DSq h : Type) (m + 5))) *
+      ((gGenCoker h (m + 1) : Subgroup (levelQuot (DSq h : Type) (m + 5))) :
+        Set (levelQuot (DSq h : Type) (m + 5))) := by
+    rw [← Subgroup.mul_normal]
+    exact hz
+  obtain ⟨f, hf, n, hn, heq⟩ := hmem
+  obtain ⟨r, A, B, hrm, hrl, hrn, hrR, hA, hB, hfeq⟩ := gTower_fullReach_realize hsigma hx0 hf
+  obtain ⟨e₁, e₂, he₁, he₂, hneq⟩ := gGen_coker_form hn
+  refine ⟨r * (gAbsB h ^ 2 ^ (m + 1)) ^ e₁ * (gAbsC h ^ 2 ^ (m + 1)) ^ e₂, A, B, ?_, ?_, ?_,
+    ?_, hA, hB, ?_⟩
+  · exact Subgroup.mul_mem _ (Subgroup.mul_mem _ hrm
+      (Subgroup.pow_mem _ (gGen_B_pow_mem (m + 1)) e₁))
+      (Subgroup.pow_mem _ (gGen_C_pow_mem (m + 1)) e₂)
+  · have hB1 : nuLam h (gAbsB h) = 1 := by rw [gAbsB]; exact gTower_row_commP _ _ _
+    have hC1 : nuLam h (gAbsC h) = 1 := by rw [gAbsC]; exact gTower_row_commP _ _ _
+    simp only [map_mul, map_pow, hrl, hB1, hC1, one_pow, one_mul]
+  · have hB1 : nu' (gAbsB h) = 1 := by rw [gAbsB]; exact gTower_row_commP _ _ _
+    have hC1 : nu' (gAbsC h) = 1 := by rw [gAbsC]; exact gTower_row_commP _ _ _
+    simp only [map_mul, map_pow, hrn, hB1, hC1, one_pow, one_mul]
+  · have hBcMem : levelMk (DSq h : Type) (m + 5) (gAbsB h ^ 2 ^ (m + 1))
+        ∈ gGenCoker h (m + 1) :=
+      Subgroup.subset_closure (Set.mem_insert _ _)
+    have hCcMem : levelMk (DSq h : Type) (m + 5) (gAbsC h ^ 2 ^ (m + 1))
+        ∈ gGenCoker h (m + 1) :=
+      Subgroup.subset_closure (Set.mem_insert_of_mem _ rfl)
+    rw [map_mul, map_mul, map_pow, map_pow]
+    refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (gGen_reach_le_wide hrR) ?_) ?_
+    · exact Subgroup.mem_sup_right ((gGenCoker h (m + 1)).pow_mem hBcMem e₁)
+    · exact Subgroup.mem_sup_right ((gGenCoker h (m + 1)).pow_mem hCcMem e₂)
+  · have hcen : ∀ g : levelQuot (DSq h : Type) (m + 5), g * n = n * g :=
+      fun g => Subgroup.mem_center_iff.1 (gGen_coker_central hn) g
+    calc z = f * n := heq.symm
+      _ = levelMk (DSq h : Type) (m + 5) r *
+          levelMk (DSq h : Type) (m + 5) (gTowerTower h A B) * n := by
+          rw [hfeq]
+      _ = levelMk (DSq h : Type) (m + 5) r *
+          (levelMk (DSq h : Type) (m + 5) (gTowerTower h A B) * n) := by rw [mul_assoc]
+      _ = levelMk (DSq h : Type) (m + 5) r *
+          (n * levelMk (DSq h : Type) (m + 5) (gTowerTower h A B)) := by rw [hcen]
+      _ = levelMk (DSq h : Type) (m + 5) r * n *
+          levelMk (DSq h : Type) (m + 5) (gTowerTower h A B) := by rw [mul_assoc]
+      _ = levelMk (DSq h : Type) (m + 5)
+            (r * (gAbsB h ^ 2 ^ (m + 1)) ^ e₁ * (gAbsC h ^ 2 ^ (m + 1)) ^ e₂) *
+          levelMk (DSq h : Type) (m + 5) (gTowerTower h A B) := by
+          rw [hneq]
+          simp only [map_mul, map_pow, mul_assoc]
+
+/-- ⭐⭐ **The cut for the widened depth-`(m+3)` reach**: an exactly row-trivial element
+whose class lies in the widened full reach already lies in the widened reach. -/
+theorem gGen_wide_cut {m : ℕ}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)} (hgl : nuLam h g = 1)
+    (hgn : nu' g = 1)
+    (hfull : levelMk (DSq h : Type) (m + 5) g ∈ gGenWideFull h nu' (m + 1)) :
+    levelMk (DSq h : Type) (m + 5) g ∈ gGenWide h nu' (m + 1) := by
+  obtain ⟨r, A, B, hrmem, hrl, hrn, hrW, hA, hB, heq⟩ :=
+    gGen_wideFull_realize hsigma hx0 hfull
+  have hAmem : zpowZtwo (isProP_DSq h) (dsqX0 h) A
+      ∈ twoCentralSeries (DSq h : Type) (m + 4) :=
+    gTower_zpow_dvd_mem (by omega) (by rw [show m + 4 - 1 = m + 3 from rfl]; exact hA) _
+  have hBmem : zpowZtwo (isProP_DSq h) (sqPivot h) B
+      ∈ twoCentralSeries (DSq h : Type) (m + 4) :=
+    gTower_zpow_dvd_mem (by omega) (by rw [show m + 4 - 1 = m + 3 from rfl]; exact hB) _
+  have htmem : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) (m + 4) :=
+    Subgroup.mul_mem _ hAmem hBmem
+  set u := (r * gTowerTower h A B)⁻¹ * g with hu
+  have humem : u ∈ twoCentralSeries (DSq h : Type) (m + 5) := by
+    rw [lim_mem_twoCentralSeries_iff_levelMk]
+    show levelMk (DSq h : Type) (m + 5) ((r * gTowerTower h A B)⁻¹ * g) = 1
+    rw [map_mul, map_inv, map_mul, heq]
+    group
+  have hgform : g = r * gTowerTower h A B * u := by
+    rw [hu, mul_inv_cancel_left]
+  have hrowA : toAdd (nuLam h g) = A + toAdd (nuLam h u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrl, toAdd_one, gTower_tower_nuLam,
+      zero_add]
+  have hrowB : toAdd (nu' g) = B + toAdd (nu' u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrn, toAdd_one,
+      gTower_tower_nu nu' hsigma hx0, zero_add]
+  have hAdeep : (2 ^ (m + 4) : ℤ_[2]) ∣ A := by
+    have hud := gTower_row_dvd (nuLam h) humem
+    rw [show m + 5 - 1 = m + 4 from rfl] at hud
+    have hAeq : A = -toAdd (nuLam h u) := by
+      have h0 := hrowA
+      rw [hgl, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [hAeq]
+    exact hud.neg_right
+  have hBdeep : (2 ^ (m + 4) : ℤ_[2]) ∣ B := by
+    have hud := gTower_row_dvd nu' humem
+    rw [show m + 5 - 1 = m + 4 from rfl] at hud
+    have hBeq : B = -toAdd (nu' u) := by
+      have h0 := hrowB
+      rw [hgn, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [hBeq]
+    exact hud.neg_right
+  have htdeep : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) (m + 5) :=
+    gTower_tower_mem (by omega)
+      (by rw [show m + 5 - 1 = m + 4 from rfl]; exact hAdeep)
+      (by rw [show m + 5 - 1 = m + 4 from rfl]; exact hBdeep)
+  have htimg : levelMk (DSq h : Type) (m + 5) (gTowerTower h A B) = 1 :=
+    (lim_mem_twoCentralSeries_iff_levelMk (m + 5) _).mp htdeep
+  rw [heq, htimg, mul_one]
+  exact hrW
+
+/-- ⭐⭐⭐ **The wide layer statement at depth `m+3`**: every exactly row-trivial
+`γ_{m+4}`-element reaches the widened span, given the leftover normal form one depth
+down. -/
+theorem gGen_layer_wide {m : ℕ} (HT : GGenDecomp h nu' m)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) (m + 4)) (hgl : nuLam h g = 1)
+    (hgn : nu' g = 1) :
+    levelMk (DSq h : Type) (m + 5) g ∈ gGenWide h nu' (m + 1) := by
+  refine gGen_wide_cut hsigma hx0 hgl hgn ?_
+  exact gGen_zLayer_le_wideFull HT hsigma hx0 ⟨g, hg, rfl⟩
+
+/-- **The leftover normal form transported one depth up**: the T1 induction step. -/
+theorem gGen_leftover_step {m : ℕ} (HT : GGenDecomp h nu' m)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) : GGenDecomp h nu' (m + 1) := by
+  intro g hg hgl hgn
+  have hw := gGen_layer_wide HT hsigma hx0 hg hgl hgn
+  haveI := gGen_coker_normal (h := h) (m + 1)
+  have hmem : levelMk (DSq h : Type) (m + 5) g ∈
+      ((gTowerReach h nu' (m + 3) : Subgroup (levelQuot (DSq h : Type) (m + 5))) :
+        Set (levelQuot (DSq h : Type) (m + 5))) *
+      ((gGenCoker h (m + 1) : Subgroup (levelQuot (DSq h : Type) (m + 5))) :
+        Set (levelQuot (DSq h : Type) (m + 5))) := by
+    rw [← Subgroup.mul_normal]
+    exact hw
+  obtain ⟨ρ, hρ, n, hn, heq⟩ := hmem
+  obtain ⟨e₁, e₂, he₁, he₂, hneq⟩ := gGen_coker_form hn
+  refine ⟨g * ((gAbsB h ^ 2 ^ (m + 1)) ^ e₁ * (gAbsC h ^ 2 ^ (m + 1)) ^ e₂)⁻¹, e₁, e₂,
+    ?_, ?_, he₁, he₂, by group⟩
+  · exact Subgroup.mul_mem _ hg (Subgroup.inv_mem _ (Subgroup.mul_mem _
+      (Subgroup.pow_mem _ (gGen_B_pow_mem (m + 1)) e₁)
+      (Subgroup.pow_mem _ (gGen_C_pow_mem (m + 1)) e₂)))
+  · have hn' : n = ((levelMk (DSq h : Type) (m + 5) (gAbsB h)) ^ 2 ^ (m + 1)) ^ e₁ *
+        ((levelMk (DSq h : Type) (m + 5) (gAbsC h)) ^ 2 ^ (m + 1)) ^ e₂ := by
+      rw [hneq]
+      simp only [map_pow]
+    have hzeq : ρ * n = levelMk (DSq h : Type) (m + 5) g := heq
+    have himg : levelMk (DSq h : Type) (m + 5)
+        (g * ((gAbsB h ^ 2 ^ (m + 1)) ^ e₁ * (gAbsC h ^ 2 ^ (m + 1)) ^ e₂)⁻¹) = ρ := by
+      simp only [map_mul, map_inv, map_pow]
+      rw [← hn', ← hzeq, mul_inv_cancel_right]
+    rw [himg]
+    exact hρ
+
+variable (h) in
+/-- ⭐⭐⭐ **T1 at depth `m+2`**: the leftover normal form holds at every selected
+marking. -/
+def GGenT1 (m : ℕ) : Prop :=
+  ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+    nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+      GGenDecomp h nu' m
+
+/-- The base of the tower induction: wave 78's depth-2 leftover normal form. -/
+theorem gGen_t1_zero : GGenT1 h 0 := by
+  intro nu' hsigma hx0 g hg hgl hgn
+  obtain ⟨p, e₁, e₂, hpm, hpR, he₁, he₂, hgeq⟩ := gAbs_leftover_decomp hsigma hx0 hg hgl hgn
+  exact ⟨p, e₁, e₂, hpm, hpR, he₁, he₂, by rw [pow_zero, pow_one, pow_one]; exact hgeq⟩
+
+/-- ⭐⭐⭐ **T1 at every depth**: the leftover normal form at every tower index, by
+induction with wave 78's depth-2 record as base and the uniform record feeding each
+step. -/
+theorem gGen_t1 (m : ℕ) : GGenT1 h m := by
+  induction m with
+  | zero => exact gGen_t1_zero
+  | succ m ih =>
+    intro nu' hsigma hx0
+    exact gGen_leftover_step (ih nu' hsigma hx0) hsigma hx0
+
+end Cut
+
 end SqCore
 
 end Dyadic
