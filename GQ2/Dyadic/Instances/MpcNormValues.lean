@@ -779,7 +779,7 @@ section Rows
 variable {R : LocalReciprocity} [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 /-- **`MpcRowData_sqrtTen` FROM THE PIVOT ALONE.** -/
-theorem mpcNorm_rowData_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+theorem mpcNorm_rowData_sqrtTen_of_pivot [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
     (hpivot : ∃ γ : ℤ_[2]ˣ,
       toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
         = (γ : ℤ_[2]) * 2 ^ 1) :
@@ -789,7 +789,7 @@ theorem mpcNorm_rowData_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSq
 
 /-- **THE `sqrtTen` BRANCH DATUM OVER THE PIVOT ALONE.**  Compare
 `mpcRow_genAsmBranch_sqrtTen`, which carried three inputs. -/
-theorem mpcNorm_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+theorem mpcNorm_genAsmBranch_sqrtTen_of_pivot [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
     (hpivot : ∃ γ : ℤ_[2]ˣ,
       toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtTen B) (dmC 2 0))
         = (γ : ℤ_[2]) * 2 ^ 1) :
@@ -798,7 +798,8 @@ theorem mpcNorm_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip 
     (mpcNorm_lambdaOne_negOne_sqrtTen B) hpivot
 
 /-- **`MpcRowData_sqrtNegTen` FROM THE PIVOT ALONE.** -/
-theorem mpcNorm_rowData_sqrtNegTen [T2Space (GalK KSqrtNegTen)] (B : MarkedRecip R KSqrtNegTen)
+theorem mpcNorm_rowData_sqrtNegTen_of_pivot [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip R KSqrtNegTen)
     (hpivot : ∃ γ : ℤ_[2]ˣ,
       toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtNegTen B) (dmC 2 0))
         = (γ : ℤ_[2]) * 2 ^ 1) :
@@ -808,7 +809,7 @@ theorem mpcNorm_rowData_sqrtNegTen [T2Space (GalK KSqrtNegTen)] (B : MarkedRecip
 
 /-- **THE `sqrtNegTen` BRANCH DATUM OVER THE PIVOT ALONE.**  Compare
 `mpcRow_genAsmBranch_sqrtNegTen`, which carried four inputs. -/
-theorem mpcNorm_genAsmBranch_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+theorem mpcNorm_genAsmBranch_sqrtNegTen_of_pivot [T2Space (GalK KSqrtNegTen)]
     (B : MarkedRecip R KSqrtNegTen)
     (hpivot : ∃ γ : ℤ_[2]ˣ,
       toAdd (fieldUni_nuPullbackM B (fieldId_chosenEquivM_sqrtNegTen B) (dmC 2 0))
@@ -1167,6 +1168,26 @@ theorem mpcNorm_pivot_sqrtTen [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace 
     exact ⟨y, by rw [hy]; ring⟩
   · obtain ⟨x, hxchi, hxnu⟩ := mpcNorm_exists_kerChiM B (fieldId_chosenEquivM_sqrtTen B) 1
     exact ⟨x, hxchi, by rw [hxnu, hr, pow_one, mul_one]⟩
+
+/-! ### §11.1 T3: the `ε = false` row, with no remaining clause -/
+
+section Acceptance
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **`MpcRowData_sqrtTen`, UNCONDITIONALLY.** -/
+theorem mpcNorm_rowData_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen) :
+    MpcRowData_sqrtTen B :=
+  mpcNorm_rowData_sqrtTen_of_pivot B (mpcNorm_pivot_sqrtTen B)
+
+/-- **THE `ℚ₂(√10)` BRANCH DATUM, WITH NO REMAINING CLAUSE.**  Wave 80 carried
+`MpcNoUnitKerChi` + `λ(−1) = 0` + the pivot; all three are now theorems, so the row joins
+`ℚ₂(√−2)` and `ℚ₂(√2)` as a branch datum over the bundles alone. -/
+theorem mpcNorm_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen) :
+    ∃ G : GenAsmBranch KSqrtTen B, G.pres = .Mpc 2 1 false .one 0 :=
+  mpcNorm_genAsmBranch_sqrtTen_of_pivot B (mpcNorm_pivot_sqrtTen B)
+
+end Acceptance
 
 end Pivot
 
