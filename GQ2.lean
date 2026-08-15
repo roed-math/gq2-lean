@@ -776,6 +776,7 @@ import GQ2.Dyadic.SqCore.GradedDeltaFunctionals
 import GQ2.Dyadic.SqCore.GradedUniformJoin
 import GQ2.Dyadic.SqCore.GradedJoinBase
 import GQ2.Dyadic.SqCore.GradedBaseDecide
+import GQ2.Dyadic.SqCore.GradedAbsorption
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
