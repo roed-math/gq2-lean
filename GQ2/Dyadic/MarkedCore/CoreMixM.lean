@@ -326,7 +326,13 @@ end Payoff
 /-! ## §5 The marking correction needs only the M3 scaling face
 
 The family audit above has a sharper consequence than family-level stabilizer generation.  To
-correct one particular marking, the non-symplectic M4/M6/M7 directions are unnecessary:
+correct one particular marking, the M4/M6/M7 directions are unnecessary:
+
+⚠ [W84-HOUSE, as of `45f9c42d`: this sentence read "the **non-symplectic** M4/M6/M7 directions".
+The epithet is dropped because it is the superseded reason of §7, not a fact: `ω` is not an
+invariant of `D_M` (see §7's W84-HOUSE entry).  The claim the section actually makes, that these
+directions are **unnecessary for a particular marking**, is untouched by that correction: it is
+`mMixHypothesis_of_scaling`, which is a theorem and depends on the epithet nowhere.]
 
 * M3 normalizes the unit `C̄₀`-value to `1`;
 * the handle theorem clears every handle row while preserving `C̄₀`;
@@ -495,6 +501,32 @@ remains is:
   by any relator-preserving word automorphism), so no widening of the generating set produces
   them.  `MCoreMixHypothesisWide α h ⟨M4, M6, M7⟩` therefore stays a binder, with MC1 §8
   Decision 2(A)'s levelwise/graded-Lie price and its "unknown risk" label intact.
+
+  ⚠⚠ **[W84-HOUSE, as of `45f9c42d`: the parenthetical reason is SUPERSEDED, and with it the
+  words "structurally obstructed rather than merely unbuilt".**  The binder itself stands, and so
+  may the ruling's conclusion; what does not stand is the argument for it.  W83-ORBIT
+  (`Instances/MpcOrbit.lean`, `docs/dyadic/w83-orbit-note.md` §4) showed that "they are not
+  symplectic" cannot obstruct anything here, because **`ω` is not an invariant of `D_M`**: the
+  relator `P_M = Ā²[Ā,B̄]C̄₀^{2^α}[C̄₀,D̄]` carries the square `Ā²`, so `D_M` is not a surface-like
+  group whose abelianized automorphisms preserve a `ℤ₂`-symplectic form.  Demushkin duality here
+  pairs into `H²(G, ℤ/q)` with `q = 2`, i.e. only mod 2, where the invariant is the symmetric
+  non-alternating Gram `G_M` of `mc-design` §2.2(iii) and `M6` is the identity, hence an isometry.
+
+  Two Lean statements confirm this one level down, and are the citation to prefer over the
+  ruling: `MpcOrb.mpcOrb_frame_shift` proves the `M6`-shifted frame satisfies the *same* forced
+  `Ā`-row relation `ν'(Ā) = −2^{α−1}ν'(C̄₀)` that every marking of `D_M 2 0` satisfies, for every
+  parameter, and `MpcOrb.mpcOrb_chi_shift` proves the shift is χ-neutral on the moved row.  The
+  relation vector and χ are the whole of what the frame carries, and `M6` respects both.  The
+  lane note's §4 also records a hand computation in `F/γ₃` (not formalized) in which the
+  discrepancy is absorbed exactly, the correction on `Ā` entering doubled precisely because of
+  the square the symplectic reading throws away.
+
+  For `M6` specifically the status is now **open, and reduced to a word problem**: at `α = 2`,
+  `h = 0` it is `MpcPivShift 2` (`Instances/MpcPivot.lean` §5), and `MpcOrb.mpcOrb_shift_iff_marking`
+  makes that **equivalent** to the existence of a four-letter marking of `D_M 2 0` killing the
+  `M_2` core word with the four χ-values and the shifted `C̄₀` row.  `M4` and `M7` were not
+  examined by that lane and inherit only the loss of the reason, not a new status.  This entry is
+  comment-only: no statement in this file changed, and the binder is untouched.]**
 * **The S2 unit-scaling binder** — the S2 half of `MNielsenScalingHypothesis`
   (`HandleMixClear.lean:1154`), i.e. MC3's family `M3` (`Σ_γ : C₀ ↦ C₀^γ`), which runs through the
   *existing* axiom B8 exactly as its `N`-side counterpart does.  It is untouched in this file,

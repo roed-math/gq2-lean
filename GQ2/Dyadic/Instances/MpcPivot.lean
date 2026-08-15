@@ -63,6 +63,28 @@ hence not reachable by any relator-preserving word automorphism)".  If that ruli
 and the pivot has to be computed, not normalized.  §4 is what makes that fork sharp: the pivot
 holds at some oriented equivalence *if and only if* the orbit reaches valuation one.
 
+⚠⚠ **[W84-HOUSE, as of `45f9c42d`: the quoted ruling is now known to be UNSOUND AS AN ARGUMENT,
+so the conditional above must not be read as evidence either way.**  W83-ORBIT
+(`Instances/MpcOrbit.lean`, `docs/dyadic/w83-orbit-note.md` §4) showed that the premise the
+ruling rests on does not exist on this core: there is no `ℤ₂`-symplectic invariant of `D_M` to
+violate, because the relator `P_M = Ā²[Ā,B̄]C̄₀^{2^α}[C̄₀,D̄]` carries the square `Ā²` and is
+therefore not a product of commutators.  Demushkin duality pairs into `H²(G, ℤ/q)` with `q = 2`
+here, i.e. only mod 2, and mod 2 `M6` is the **identity**, hence an isometry of the only bilinear
+invariant there is.  Two Lean statements pin the same conclusion one level down:
+`mpcOrb_frame_shift` shows the `M6`-shifted frame satisfies the *same* forced `Ā`-row relation
+`ν'(Ā) = −2^{α−1}ν'(C̄₀)` that every marking of `D_M 2 0` satisfies, and `mpcOrb_chi_shift` shows
+the shift is χ-neutral on the moved row.  So the frame level, where the quoted reason lives,
+cannot obstruct `M6` at all.
+
+What replaces the fork: `mpcOrb_shift_iff_marking` makes `MpcPivShift 2` **equivalent** to an
+explicit word problem in `D_M 2 0` (a four-letter marking killing the `M_2` core word, generating
+topologically, carrying the four χ-values, and moving the `C̄₀` row by `2B̄`), and `mpcOrb_defect`
+computes the cost of the substitution in closed form as a product of four conjugates of `u`.
+`MpcPivShift 2` is **open**: neither built nor refuted.  `CoreMixM` §7's *conclusion* may still be
+true; its *reason* is not a proof, and the campaign should stop treating `M6` as settled in the
+negative.  The producer that now exists for `MpcPivShift`, `mpcOrb_shift_of_marking`, lives in
+`Instances/MpcOrbit.lean`, which no scoreboard row imports; see the W84-HOUSE note.]**
+
 Declaration prefix `mpcPiv` (namespace `GQ2.Dyadic.Instances.MpcPiv`).  No `sorry`, no new
 axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 -/
