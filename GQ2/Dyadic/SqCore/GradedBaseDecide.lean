@@ -8,8 +8,10 @@ import GQ2.Dyadic.SqCore.GradedJoinBase
 /-!
 # W77-DECIDE: the depth-two residual is false, at every `h`
 
-Wave 76 reduced `GJoinBase h` to `GBaseResidual h`, the `3 + 2h` layer classes
-`⁅⁅x₁, xᵢ⁆, x₁⁆ ∈ gTowerReach h ν' 2`, and argued **outside the tree**, from Labute's
+Wave 76 reduced `GJoinBase h` to `GBaseResidual h`, the `2 + 2h` layer classes with content
+`⁅⁅x₁, xᵢ⁆, x₁⁆ ∈ gTowerReach h ν' 2` (the family is indexed by all `sqRank h = 3 + 2h` letters,
+but `gDecide_triple_self` below puts the `x₁` one in the reach for free at every `h`), and
+argued **outside the tree**, from Labute's
 structure theorem for `gr(D_sq h)`, that two of them are unreachable.  This file proves that,
 inside the tree and with no structure theorem, from a single finite group:
 

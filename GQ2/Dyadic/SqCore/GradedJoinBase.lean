@@ -69,7 +69,13 @@ GBaseXOneTriple h ν' :  ∀ i, ⁅⁅x₁, letter i⁆, x₁⁆ ∈ gTowerReach
 
 The conclusion is `gBase_joinBase_of_residual : GBaseResidual h → GJoinBase h`, and with it
 `gBase_markTransitivity_of_residual`.  So wave 75's first named input is **discharged by** the
-`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, and by nothing else in this file.
+`2 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, and by nothing else in this file.
+
+⚠ **`2 + 2h`, not `3 + 2h`.**  `GBaseXOneTriple` is *indexed* by all `sqRank h = 3 + 2h`
+letters, but one of them is `x₁` itself and `⁅⁅x₁, x₁⁆, x₁⁆` is trivial on the nose, so it is in
+the reach for free at every `h` and carries no content.  Proved downstream as
+`gDecide_triple_self` (`SqCore/GradedBaseDecide.lean`, wave 77), by `cfour_comm_self` and
+`cfour_one_comm`.
 
 ⚠ **One direction only.**  What is proved here is `GBaseResidual h → GJoinBase h`.  The converse
 is *not* in this file, so "wave 75's first named input **is** the brackets" would be an
@@ -624,7 +630,8 @@ def GBaseResidual : Prop :=
       GBaseXOneTriple h nu'
 
 /-- ⭐⭐⭐ **`GJoinBase h` from the residual.**  Wave 75's first named input is discharged by the
-`3 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆`, at every selected marking.
+`2 + 2h` brackets `⁅⁅x₁, letter⁆, x₁⁆` with content, at every selected marking.  (The family is
+indexed by all `3 + 2h` letters; the `x₁` one is trivial on the nose, `gDecide_triple_self`.)
 
 ⚠ This is the implication `GBaseResidual h → GJoinBase h`, not an equivalence; no converse is
 proved in this file.  See the module docstring. -/

@@ -170,7 +170,11 @@ identified with `G_K`.**  Had the block gone in with a blanket claim it would ha
 ⚠ **Reported, not applied: `GeneralCertificates.lean` has the same defect and I was not permitted
 to fix it.**  48 declarations, **zero** `#print axioms`, while `w76-cert-note.md` §6 reports a
 full measurement of all 48 (1 + 1 + 44 + 1 + 1, which sums correctly).  The measurement exists
-only in the note.  This is a wave-78 one-liner of exactly the shape applied here.  For
+only in the note.  **[W78-HOUSE, ticket 1: APPLIED, and "48" is wrong.**  The file has **44**
+declarations, and 44 pins are now recorded (`d19eb316`).  48 is the cert note's arithmetic taken
+at face value: its "the other 44" should read "the other 40".  The four exceptional declarations
+it names, and their four axiom sets, reproduce here **exactly**.  The right check was
+declaration-count against the file, not internal consistency of the sum.]**  This is a wave-78 one-liner of exactly the shape applied here.  For
 calibration: six of the seven modules added since `4fff1592` carry pins (42, 54, 103, 48, 65, 94);
 `GeneralCertificates.lean` is the only one that does not.  The convention is a *landing*
 convention, not a tree-wide one, since 350 of 626 `GQ2/Dyadic` modules carry no pins.
@@ -331,6 +335,15 @@ decide lane proves exactly this, at every `h`, in one line
 flagged for wave 78 to reconcile when the sibling lands.  §4 and "What W77 needs" already use the
 right number ("two layer classes"); it is the headline and the module that carry `3 + 2h`.
 
+**[W78-HOUSE, ticket 2: RECONCILED, and this round's prediction was exact.**  The sibling landed
+at `7be6d122` (merge `294a197a`).  `gDecide_triple_self` is at `GradedBaseDecide.lean:54`, at
+every `h`, proved by `cfour_comm_self` then `cfour_one_comm`, and
+`gDecide_residual_zero_iff` (`:64`) is the `h = 0` equivalence with the two classes at `σ` and
+`x₀`.  Corrected in the tree at `GradedJoinBase.lean:72`, `:627` and `GradedBaseDecide.lean:11`;
+annotated at `w76-base-note.md:18` and its item 2.  One qualification the fix carries that this
+round's wording did not: `GBaseXOneTriple` is *indexed* by all `3 + 2h` letters, so the corrected
+prose says `2 + 2h` **with content** rather than simply `2 + 2h`.]**
+
 **(b) Recorded.**  The field lane's `Instances/FieldBranchIdentification.lean` is at §0 only, the
 two already-closed rows restated; §§1-4 are planned in its docstring but not written.  Flagship
 item 1 is therefore **in flight, not closed**, and wave 78 should not read the w76 queue's
@@ -398,6 +411,11 @@ Said in detail, because a round that reports only hits is not a check.
   and every one prints exactly `[propext, Classical.choice, Quot.sound]`.
 * `w76-cert-note.md` §6's axiom posture accounts for 1 + 1 + 44 + 1 + 1 = **48**, matching the
   file's 48 declarations.  (The pins themselves are not in the file; see §2(a).)
+  ⚠ **[W78-HOUSE: WRONG, and it is a miss of this checklist item.**  The file has **44**
+  declarations.  The sum was checked for internal consistency and never against the file, so a
+  bad summand ("the other 44", which should be "the other 40") was ratified as a count.  The
+  *content* of §6 is right: the same four declarations, the same four axiom sets, confirmed by
+  the 44 pins now in the file.  A sum that agrees with itself is not a count.]**
 * `w76-house-note.md`'s verification record is exact: 10 commits, 5 Lean modules, 10 docs, all
   three confirmed against `git diff --stat 97d51e93 e9f4d79f^2`.
 * `w76-cert-note.md` §5's coverage table agrees with the tree row by row, including the two
@@ -500,6 +518,11 @@ closing the degree-spelling mismatch between `Instances/N0Exact.lean`'s `exactLi
   scoping corrections.
 * **New, small, and mine**: `GeneralCertificates.lean`'s 48 unrecorded pins (§2(a)), and the
   `3 + 2h` versus `2 + 2h` reconciliation once the decide lane lands (§3.2(a)).
+  **[W78-HOUSE: BOTH STRUCK.**  The pins are recorded (`d19eb316`) and the reconciliation is
+  applied (§3.2(a)'s annotation).  ⚠ **The pin figure was wrong**: the file has **44**
+  declarations and now carries 44 pins, not 48.  48 is `w76-cert-note.md` §6's
+  `1 + 1 + 44 + 1 + 1`, whose "other 44" should read "other 40"; this round checked that the sum
+  was internally consistent and did not check it against the file.  See §3.6's third bullet.]**
 * **New process suggestion, from ticket 1.**  Two independent auditors have now fallen into the
   `public import` trap.  The walk that avoids it is fifteen lines of Python.  Committing it under
   `scripts/` would make the next reachability audit mechanical rather than a matter of remembering

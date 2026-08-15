@@ -200,6 +200,13 @@ Every declaration measured with `#print axioms` against the mirror.  No new axio
 So the whole lane costs no census movement: the two arithmetic-facing declarations print the
 union of their inputs' sets, and everything else is std-3.
 
+**[W78-HOUSE, ticket 1: the sets are all confirmed, one count is wrong.**  "The other 44" should
+read "the other **40**": the file has **44** declarations in all, and the four named above leave
+40.  Every axiom set this section states reproduces exactly, verified by the 44 `#print axioms`
+lines now recorded in the file (`GeneralCertificates.lean` §9, `d19eb316`).  The bad summand
+propagated: `w77-house-note.md` §2(a) and §3.6 both report "48 declarations" for this file, on
+the strength of `1 + 1 + 44 + 1 + 1` summing to itself correctly.]**
+
 ## 7.  What is left, for W77
 
 1. **`L h` at `h ≥ 1`.**  The transport is general; what is missing is the equivalence.
