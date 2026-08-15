@@ -34,9 +34,11 @@ every `h` already**, with its `Ztwo` normalization `lNu h` and both normalizatio
 It settles the *producer* hole: the `L h` row now has a free-`h` `CAND` constructor, so all
 three of the campaign's `CorePresentation`-backed rows (`L`, `N0`, `M0`) are uniform in the
 handle count, and the general theorem's `L` rows no longer need a per-`h` classification input
-on the candidate side.
+on the candidate side.  The producer is also **std-3** where the committed `h = 0` closure is
+not (§6): the transport route drags in three campaign axioms that the core-presentation route
+does not touch.
 
-It does **not** discharge the four analytic clauses, and §4 records honestly that the wave-80/81
+It does **not** discharge the four analytic clauses, and §4 records that the wave-80/81
 odd machinery does **not** discharge them either.  That check is worth stating because the lane
 brief hypothesised the opposite.  `SqCore.gOdd_certificate` and
 `Instances.OddIdentification.oddId_supply_iff_certificate` are about the *classification* input
@@ -48,15 +50,16 @@ field.  §4 pins the separation as a Lean statement rather than a remark.
 
 ## Section guide
 
-* §1 the eight core-free fields and the four `CorePresentation` fields, at free `h`;
+* §1 the seven row-specific non-analytic fields at free `h` (the other six are generic and are
+  filled inline in §2);
 * §2 `lCand_wordCertificate`, the producer, and `lCand_wordCertificateCanonical` at `lNu h`;
 * §3 the `h = 0` sanity check against the committed `n = 1` endpoint;
-* §4 what the odd rows of the general theorem still need, stated at the row.
+* §4 the feed into `GenAsmRowResidual.cand`, and the separation from the odd machinery;
+* §5 the odd row from the seam alone, and the total remaining list.
 
 ## Axioms
 
-`#print axioms` runs on every declaration at the end of the file, with the split recorded
-there.
+`#print axioms` runs on every declaration in §6, with the split recorded there.
 -/
 
 namespace GQ2.Dyadic.Instances.LRowCand
@@ -67,7 +70,11 @@ open TameSpec MarkedCore
 open GQ2.Dyadic.Count GQ2.Dyadic.Words GQ2.Dyadic.Words.LSq
 open GQ2.Dyadic.Instances.LSquareCore
 
-/-! ## §1 The twelve non-analytic fields at free `h`
+/-! ## §1 The seven row-specific non-analytic fields at free `h`
+
+Thirteen of the record's seventeen fields are proved by this module.  Six of the thirteen
+(`tfg`, `smulZmod2`, `contSMulZmod2`, `htriv`, `htame`, `hwild`) are generic in `(n, q, R)` and
+are filled inline in §2 from `Count`; the seven stated here are the row-specific ones.
 
 Nothing here is new mathematics.  The point of writing it out is that every input is already
 stated at free `h` in the tree, which is the fact wave 76 did not have.  The four
@@ -159,7 +166,7 @@ not only `h = 0`.
 Thirteen fields are proved; the four arguments are AS1's analytic clauses.  ⚠ The four are
 **not** discharged here and are not discharged anywhere at this tree for a general row: the
 certificate ⇒ count bridge does not exist at the candidate carrier `GammaR` (AS1 divergence 4).
-At `h = 0` they *are* available, by a route that does not generalize — see §3. -/
+At `h = 0` they *are* available, by a route that does not generalize (see §3). -/
 noncomputable def lCand_wordCertificate (h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
     {SN : SourceNumerics (2 * h + 1)}
     (nuP : ContinuousMonoidHom ((SqCore.DSq h : ProfiniteGrp) : Type) Ztwo)
@@ -289,7 +296,7 @@ end ZeroCheck
 
 `GenAsmRowResidual.cand` is stated at the branch datum's own marking `G.nuP`, so a producer at
 the canonical `lNu h` reaches it only if the branch datum is *known* to be at `lNu h`.  The
-odd route's producer `genAsm_branch_of_oddSq_canonical` does build the datum at `lNu h` — but it
+odd route's producer `genAsm_branch_of_oddSq_canonical` does build the datum at `lNu h`, but it
 states `∃ G : GenAsmBranch K B, G.pres = .L h`, and the existential drops the marking.  So the
 first thing §4 does is rebuild the same datum as a **definition** rather than an existential
 (`lCandBranch`), which is a pure repackaging of `genAsm_branch_of_oddSq` with the two canonical
@@ -303,12 +310,12 @@ and `lCandRowResidual` assembles the whole residual record.
 Reading `oddId_candidate_equiv_galK_of_supply` and `genAsm_candidate_equiv_galK` against what
 is now producible:
 
-1. **the selector** — an oriented equivalence `D_sq h ≃ G_K(2)` with the two `ν` normalizations,
+1. **the selector**, an oriented equivalence `D_sq h ≃ G_K(2)` with the two `ν` normalizations,
    i.e. wave 81's seam `SqMarkedForwardSupply B h`.  Discharged at `h = 0`
    (`oddId_markedSupply_degreeOne`), open at `h ≥ 1`;
 2. **the three ASK clauses** at the carrier `G_K` (`exactLifting`, `stokes`, `determinant`),
    which are row-independent and are `KSupply`'s business, not this lane's;
-3. **the four CAND analytic clauses** at the candidate carrier `GammaR (2h+1) q (lSqW h)` —
+3. **the four CAND analytic clauses** at the candidate carrier `GammaR (2h+1) q (lSqW h)`:
    what is left of `cand` after this module.
 
 ⚠ Item 3 is the honest residue, and the lane brief's hypothesis that the wave-80/81 odd
@@ -442,7 +449,7 @@ end Row
 §4's `lCandBranch` still carries the handle-mix binder `hMix` and the correction exponent `c`.
 Wave 80 removed both at every `h`: `SqCore.gOdd_pivotFix h : SqHandleMixFixesCore h sqPivotExp`
 is a theorem free in `h`, which is exactly what `oddId_genAsmBranch_L_of_supply` uses.  So the
-branch datum is a function of the seam `SqMarkedForwardSupply B h` and the degree pin alone —
+branch datum is a function of the seam `SqMarkedForwardSupply B h` and the degree pin alone,
 and, unlike the committed existential form, the definition below remembers that its marking is
 `lNu h`, which is what lets §2's canonical producer reach the `cand` field.
 
@@ -481,8 +488,8 @@ conclusion on the `L h` row follows from
 * three `ASK` clauses at the arithmetic carrier `G_K`, and
 * four `CAND` clauses at the candidate carrier `Γ_R (2h+1) q_K (lSqW h)`.
 
-Before this lane the list had a fifth candidate-side item — a `WordCertificate` over `D_sq h`
-with no producer at `h ≥ 1` — and `oddId_candidate_equiv_galK_of_supply`'s docstring names it
+Before this lane the list had a fifth candidate-side item, a `WordCertificate` over `D_sq h`
+with no producer at `h ≥ 1`, and `oddId_candidate_equiv_galK_of_supply`'s docstring names it
 ("the CAND `WordCertificate` over `D_sq h`, which has no producer at free `h` in this tree").
 That sentence is what this module retires. -/
 theorem lCand_oddRow_of_supply (T : OrientedTameQuotientK B FF)
@@ -522,5 +529,63 @@ theorem lCand_oddRow_of_supply (T : OrientedTameQuotientK B FF)
       candExactLifting candStokes candScalar candDeterminant)
 
 end Seam
+
+/-! ## §6 Axiom pins
+
+One pin per declaration, **27** in all, in declaration order.  Measured against the mirror at
+`a45bc557`:
+
+* **25 of the 27 print at most the std-3 set** `propext, Classical.choice, Quot.sound`, and
+  `lCand_row_degree` prints none at all.  That includes the producer `lCand_wordCertificate`,
+  the canonical form, the whole `GenAsmRowResidual` feed of §4, and the branch datum of §5:
+  building the `L`-row certificate out of the core presentation, and placing `K` on the row,
+  introduce **no campaign axiom**.  This matches `GeneralAssembly` §5's reading of its own
+  branch-datum layer.
+* **`lCand_oddRow_of_supply` adds three**: `tateDualityAt`,
+  `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` and
+  `Foundations.absGalQ2_localEulerCharacteristic`, exactly
+  `genAsm_candidate_equiv_galK`'s pin, inherited and nothing more.
+* ⚠ **`lCand_zero_nonempty` adds three others**, namely `dyadicOrientation`, `localReciprocity`
+  and `peripheralCyclotomicAction`, and they come from the *committed* `h = 0` closure, not from
+  this module: `genCert_wordCertificate_nonempty_L_zero` transports off `Π` through
+  `genAsm_nonempty_equiv_L_core_piBd`, which is where those three enter.  So the free-`h`
+  producer is **strictly narrower in axioms than the `h = 0` route it generalizes**, which is a
+  second reason (beyond the marking mismatch of §3) not to read the committed `h = 0` closure
+  as the `h = 0` case of this one.
+
+The reading a consumer should take is the one `GeneralAssembly` asks for: **the candidate side
+is axiom-free**, and the campaign axioms enter only at the identification with `G_K`. -/
+
+section AxiomPins
+
+#print axioms lCandCoreRel
+#print axioms lCandProTwoWord
+#print axioms lCandTameSpecializes
+#print axioms lCandPro2
+#print axioms lCand_ker_pro2
+#print axioms lCandPro2_surjective
+#print axioms lCandCompat
+#print axioms lCand_wordCertificate
+#print axioms lCand_wordCertificateCanonical
+#print axioms lCandNu_surjective
+#print axioms lCand_row_degree
+#print axioms lCand_row_word
+#print axioms lCand_row_core
+#print axioms lCand_row_isProP
+#print axioms lCand_zero_coreRel
+#print axioms lCand_zero_proTwoWord
+#print axioms lCand_zero_nonempty
+#print axioms lCandBranch
+#print axioms lCandBranch_pres
+#print axioms lCandBranch_nuP
+#print axioms lCandBranch_exists
+#print axioms lCandCand
+#print axioms lCandRowResidual
+#print axioms lCandBranchOfSupply
+#print axioms lCandBranchOfSupply_pres
+#print axioms lCandBranchOfSupply_nuP
+#print axioms lCand_oddRow_of_supply
+
+end AxiomPins
 
 end GQ2.Dyadic.Instances.LRowCand
