@@ -333,9 +333,10 @@ theorem evenStratumRow_exists_gramOne_modelEquiv_pin {h : ℕ}
 
 /-! ## §4 The frame at the prescribed row table
 
-`evenFrame_of_adapted` (`StageAbstractionEvenFrameCore.lean` §4.1) is the committed assembly, and
+`evenFrame_of_adapted` (`StageAbstractionEvenFrameCore.lean` §4; that file's §4 prose names a
+"§4.1" its headings do not carry) is the committed assembly, and
 it is Gram-generic in everything except the last two lines, where it contracts the model Gram
-against the coordinate products.  §4.1 is that theorem with `evenStratumGramOne` in place of
+against the coordinate products.  §4.1 below is that theorem with `evenStratumGramOne` in place of
 `evenFrameGram`, reusing wave 73's `evenStratum_levelTwoGen_of_realizers` for the generation half.
 The row table stays a parameter, so the `M` row could consume it unchanged.
 

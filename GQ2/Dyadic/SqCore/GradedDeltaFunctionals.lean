@@ -61,8 +61,8 @@ bit.
   gDelta h c x` with `N` the committed `normSum`; at `σ` and `x₀` the geometric sum is
   `2^m · unit` (⭐ `gDelta_sigma_tower`, `gDelta_x0_tower`; the mod-16 congruences `S ≡
   13`, `X ≡ 5` give `v₂(S−1) = v₂(X−1) = 2`), at a handle letter it is exactly `2^m`
-  (`gDelta_handle_tower`), and the tower nonvanishing corollaries
-  ⭐⭐ `gDelta_sigma_tower_notMem`/`gDelta_x0_tower_notMem`/`gDelta_handle_tower_notMem`
+  (`gDelta_handleU_tower`), and the tower nonvanishing corollaries
+  ⭐⭐ `gDelta_sigma_tower_notMem`/`gDelta_x0_tower_notMem`/`gDelta_handleU_tower_notMem`
   place `gen^{2^m}` outside `λ_{m+2}`: the towers are nontrivial layer classes at
   every level, and the functionals separate them.  The excluded letter is `x₁`
   (`χ(x₁) = Y ≡ 3 mod 4`): ⭐⭐ `gDelta_x1_tower_dvd` gives `2^{m+2} ∣ gDelta (x₁^{2^m})`
@@ -101,6 +101,14 @@ bit.
   (`gDelta_chiSq_of_nuLam`); the `-1` branch evades the §5 kill and is the exact gap
   between `GDeltaDefectVanishing` and the supply's full dressing space.  Recorded for
   the W75 assembly.
+
+* **§8 The tower obstruction.**  ⭐⭐⭐ `gDelta_cfourCmp_span_hyp_false`: the wave-73
+  class-four span hypothesis is unsatisfiable.  Along the committed route every knob is
+  invisible to every functional at the layer bit, while the `σ` tower carries a set bit,
+  so the tower is not a knob.  The section header at `:1210` gives the argument and its
+  Labute reading.
+
+* **§9 Axiom pins.**  One `#print axioms` for each of the file's declarations.
 
 Lane W74-FUNC.  New file; no edits to existing files.  Prefix `gDelta`.
 -/
