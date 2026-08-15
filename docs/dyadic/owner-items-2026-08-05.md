@@ -1,5 +1,30 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 82 (2026-08-15)
+
+**Seven items await you.**  The five from wave 81 (the ASK restatement, the pilot spelling,
+A6 now at nine rounds, line-length with its premise corrected: the corpus carries 707 lines
+over 100 characters, so the call is whether to record that there is no limit), plus two new:
+
+* **AB-0** (new, and a root cause): the analytic-bridges plan's first item, correcting the
+  obligation inventories, was queued six waves ago and never executed while every later item
+  landed; eleven stale sites this wave traced to it.  It is prose, but it sits in files the
+  campaign reads for pricing, so it keeps generating false work items.  Recommend executing
+  it as a named housekeeping ticket.
+* **The five-site marking fix** (new, mechanical): the branch existentials forget the
+  marking, blocking every canonical certificate feed; strengthening five existentials to
+  carry the marking conjunct unblocks all of them.  A statement change, strictly
+  strengthening conclusions, no axiom movement expected.  Recommend taking it.
+
+**For orientation.**  The torsion computation landed axiom-free at every handle count, so the
+odd invariant triple is complete at every odd-degree field.  The seam is priced to exactly
+one cup-adapted frame with two mod-2 rows per field; the last selector clause is one orbit
+move with a candidate invariant ready if the answer is no; the L-row certificate producer
+turned out to be plumbing and now exists at every handle count.  A record correction: wave
+81's headline equivalence had been a theorem for ten days when wave 81 re-derived it.  The
+campaign's status tables are being replaced by a machine-checkable scoreboard after the
+own-base staleness pattern reached five instances.
+
 ## Status at wave 81 (2026-08-15)
 
 **Five items await you, and two are new record-modernization calls:**
