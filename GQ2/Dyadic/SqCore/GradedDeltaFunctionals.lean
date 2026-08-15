@@ -40,12 +40,12 @@ bit.
 
 * **§2 The functionals.**  For every row `c : Fin (sqRank h) → ℤ₂`,
   ⭐⭐⭐ `gDeltaHom h c : ContinuousMonoidHom (DSq h) (WordLift ℤ₂ ℤ₂ˣ)` with generator
-  values `⟨c i, χ-mark i⟩` — the continuous crossed homomorphism `gDelta h c` with
+  values `⟨c i, χ-mark i⟩` - the continuous crossed homomorphism `gDelta h c` with
   `gDelta (sqGen i) = c i`, twisted by exactly `χ_sq` (`gDeltaHom_g`).  The relator
   dies by the committed datum theorem (`isLabuteOrientationDatum_of_root`, i.e.
   Labute's Théorème 4 computation, plus the handle lemma `handleWord_wordLift_one`);
   this is the quotient-side existence that Labute gets from freeness, and it holds at
-  **every** row — strictly more than the corank-1 lattice of untwisted rows (the
+  **every** row - strictly more than the corank-1 lattice of untwisted rows (the
   committed `nuSq`/`nuLam`/`nu'` markings).  Crossed product/inverse/power/commutator
   rules follow (`gDelta_mul`, `gDelta_inv`, `gDelta_pow`, `gDelta_commP`,
   `gDelta_commutatorElement`).
@@ -66,7 +66,7 @@ bit.
   place `gen^{2^m}` outside `λ_{m+2}`: the towers are nontrivial layer classes at
   every level, and the functionals separate them.  The excluded letter is `x₁`
   (`χ(x₁) = Y ≡ 3 mod 4`): ⭐⭐ `gDelta_x1_tower_dvd` gives `2^{m+2} ∣ gDelta (x₁^{2^m})`
-  for `m ≥ 1` and every row — **no** functional sees the `x₁` tower.  This is
+  for `m ≥ 1` and every row - **no** functional sees the `x₁` tower.  This is
   Labute's `k ≠ 2` side condition, and it is the functional-side face of the graded
   campaign's finding that the `x₁`-slot square knob is the delicate direction.
 
@@ -74,7 +74,7 @@ bit.
   The chi-triviality inventory (`gDelta_chiSq_sqEichU/V`, `gDelta_chiSq_bridgeDress`,
   from the committed `chiSq_sqPivot`), then the master kill
   ⭐⭐⭐ `gDelta_relWord_of_chiFrame`: any frame with the standard chi-values has
-  `gDeltaHom h c (sqRelWord m) = 1` — the level-generic defect shape of
+  `gDeltaHom h c (sqRelWord m) = 1` - the level-generic defect shape of
   `SqClassClearingSupply`, killed at every class at once.  Instances: the wave-68
   leftover lift dies exactly (⭐⭐⭐ `gDelta_leftover_lift`), every lift of
   `cfourIdLeftover` and of `cfourEichDefect` satisfies `2^3 ∣ gDelta`
@@ -381,7 +381,7 @@ theorem gDelta_relWord_mark (c : Fin (sqRank h) → ℤ_[2]) :
 universal property `sqLiftHom` against the pro-2 structure of §1.  Its character
 component is exactly `χ_sq` (`gDeltaHom_g`), so its derivation component `gDelta h c`
 is a continuous crossed homomorphism `D` with `D(x y) = D x + χ_sq(x) D y` and
-`D(sqGen i) = c i` — Labute's `D` with arbitrarily prescribed generator values,
+`D(sqGen i) = c i` - Labute's `D` with arbitrarily prescribed generator values,
 existing on the *quotient* because the twisted Fox row of the relator vanishes
 (`gDelta_relWord_mark`). -/
 noncomputable def gDeltaHom (h : ℕ) (c : Fin (sqRank h) → ℤ_[2]) :
@@ -418,7 +418,7 @@ noncomputable def gDeltaBase :
   map_mul' _ _ := rfl
   continuous_toFun := gDelta_continuous_g
 
-/-- ⭐⭐ **The twist of `gDeltaHom` is exactly `χ_sq`** — hom-extensionality on the
+/-- ⭐⭐ **The twist of `gDeltaHom` is exactly `χ_sq`** - hom-extensionality on the
 generators, where both sides carry the same mark. -/
 theorem gDeltaHom_g (c : Fin (sqRank h) → ℤ_[2]) (x : (DSq h : Type)) :
     (gDeltaHom h c x).g = chiSq h x := by
@@ -481,7 +481,7 @@ theorem gDelta_commP (c : Fin (sqRank h) → ℤ_[2]) (x y : (DSq h : Type)) :
   rw [gDelta_map_commP, gDeltaHom_apply, gDeltaHom_apply, commP_wordLift]
 
 /-- **The commutator rule for the mathlib bracket** `⁅x, y⁆ = x y x⁻¹ y⁻¹`:
-`D⁅x,y⁆ = (1 − χ(y)) · Dx + (χ(x) − 1) · Dy` — the clean form, with no prefactor. -/
+`D⁅x,y⁆ = (1 − χ(y)) · Dx + (χ(x) − 1) · Dy` - the clean form, with no prefactor. -/
 theorem gDelta_commutatorElement (c : Fin (sqRank h) → ℤ_[2]) (x y : (DSq h : Type)) :
     gDelta h c ⁅x, y⁆
       = (1 - (chiSq h y : ℤ_[2])) * gDelta h c x
@@ -545,7 +545,7 @@ theorem gDelta_chi_sub_one_dvd {k : ℕ} {v : (DSq h : Type)}
 /-- ⭐⭐ **The filtration compatibility** (Labute Lemma 4(1), value-normalized):
 `λ_{k+1}`-elements have `2^k`-divisible functional values, for every row.  Squares
 double the value against the even factor `1 + χ`, and mathlib-brackets contribute
-`(1 − χ(g)) Dv + (χ(v) − 1) Dg` with both factors controlled — the first by oddness
+`(1 − χ(g)) Dv + (χ(v) − 1) Dg` with both factors controlled - the first by oddness
 and induction, the second by the chi-shadow. -/
 theorem gDelta_dvd_of_mem_twoCentral (c : Fin (sqRank h) → ℤ_[2]) (k : ℕ) :
     ∀ {x : (DSq h : Type)}, x ∈ twoCentralSeries (DSq h : Type) (k + 1) →
@@ -657,7 +657,7 @@ theorem gDelta_sub_one_mul_normSum (u : ℤ_[2]) (n : ℕ) :
     linear_combination ih
 
 /-- **The unit-valuation of the tower coefficient**: if `v₂(u − 1) = s` exactly with
-`2 ≤ s`, then `N_{2^m}(u) = 2^m · unit` — the level grows by exactly one per
+`2 ≤ s`, then `N_{2^m}(u) = 2^m · unit` - the level grows by exactly one per
 squaring (the committed `exists_unit_pow_two_pow_sub_one_of_level`). -/
 theorem gDelta_normSum_unit {u a : ℤ_[2]ˣ} {s : ℕ} (hs : 2 ≤ s)
     (hu : (u : ℤ_[2]) - 1 = 2 ^ s * a) (m : ℕ) :
@@ -703,7 +703,7 @@ theorem gDelta_Sval_sub_one : ∃ a : ℤ_[2]ˣ, Sval - 1 = 2 ^ 2 * a := by
   rw [h2] at ht
   linear_combination ht
 
-/-- `S − X = 8 · unit` (`S − X ≡ 8 mod 16`) — the congruence behind the core
+/-- `S − X = 8 · unit` (`S − X ≡ 8 mod 16`) - the congruence behind the core
 defect's exact reading in §6. -/
 theorem gDelta_Sval_sub_rootX : ∃ w : ℤ_[2]ˣ, Sval - rootX = 2 ^ 3 * w := by
   have h8 : PadicInt.toZModPow 4 (Sval - rootX - 8) = 0 := by
@@ -742,7 +742,7 @@ theorem gDelta_x0_tower (c : Fin (sqRank h) → ℤ_[2]) (m : ℕ) :
   have hval : gDelta h c (dsqX0 h) = c 1 := gDelta_gen c 1
   rw [hval]
 
-/-- **The handle-tower formula, exact**: `gDelta h c (u_j^{2^m}) = 2^m · c(u_j)` —
+/-- **The handle-tower formula, exact**: `gDelta h c (u_j^{2^m}) = 2^m · c(u_j)` -
 the chi-trivial letters have geometric sum exactly `2^m`. -/
 theorem gDelta_handleU_tower (c : Fin (sqRank h) → ℤ_[2]) (j : Fin h) (m : ℕ) :
     gDelta h c (sqGen h (sqHandleIdxU j) ^ 2 ^ m) = 2 ^ m * c (sqHandleIdxU j) := by
@@ -763,7 +763,7 @@ theorem gDelta_not_two_dvd_unit (w : ℤ_[2]ˣ) : ¬ (2 : ℤ_[2]) ∣ (w : ℤ_
   rw [← h2, PadicInt.norm_p] at hnorm
   norm_num at hnorm
 
-/-- ⭐⭐ **The `σ`-tower survives every level**: `σ^{2^m} ∉ λ_{m+2}` — the row `e₀`
+/-- ⭐⭐ **The `σ`-tower survives every level**: `σ^{2^m} ∉ λ_{m+2}` - the row `e₀`
 reads the tower at exactly the layer bit, against the filtration bound. -/
 theorem gDelta_sigma_tower_notMem (m : ℕ) :
     dsqSigma h ^ 2 ^ m ∉ twoCentralSeries (DSq h : Type) (m + 2) := by
@@ -817,7 +817,7 @@ theorem gDelta_handleU_tower_notMem (j : Fin h) (m : ℕ) :
     linear_combination ht
   exact gDelta_not_two_dvd_unit 1 (by rw [Units.val_one]; exact ⟨t, hcancel⟩)
 
-/-- `X² + 1 = 2 · unit` — the first step of the `Y`-column collapse (`Y = −X²`). -/
+/-- `X² + 1 = 2 · unit` - the first step of the `Y`-column collapse (`Y = −X²`). -/
 theorem gDelta_rootX_sq_add_one : ∃ a : ℤ_[2]ˣ, rootX ^ 2 + 1 = 2 * a := by
   obtain ⟨b, hb⟩ := gDelta_rootX_sub_one
   refine ⟨(isUnit_one_add_two_mul (2 * (b : ℤ_[2]) + 4 * (b : ℤ_[2]) ^ 2)).unit, ?_⟩
@@ -838,7 +838,7 @@ theorem gDelta_Yval_sq_sub_one : ∃ a : ℤ_[2]ˣ, Yval ^ 2 - 1 = 2 ^ 4 * a := 
   ring
 
 /-- ⭐⭐ **The excluded letter** (Labute's `k ≠ 2` side condition): the `x₁`-tower is
-invisible to *every* functional, two levels deeper than the reading bit —
+invisible to *every* functional, two levels deeper than the reading bit -
 `2^{m+2} ∣ gDelta h c (x₁^{2^m})` for `m ≥ 1` and every row `c`.  The mechanism is
 `χ(x₁) = Y ≡ 3 mod 4`: the geometric sum `N_{2^m}(Y) = (Y^{2^m} − 1)/(Y − 1)` has
 valuation `(m − 1) + 4 − 1 = m + 2`. -/
@@ -914,7 +914,7 @@ theorem gDelta_chiSq_sqEichV
   rw [sqEichV, map_mul, map_inv, gDelta_chiSq_zpow_pivot, inv_one, mul_one,
     chiSq_handleV]
 
-/-- ⭐ **The wave-68 dressing is a kernel-of-chi element** — the pivot factor and both
+/-- ⭐ **The wave-68 dressing is a kernel-of-chi element** - the pivot factor and both
 handle factors are chi-trivial.  This is the committed-side form of Labute's dressing
 by elements of `X = ker χ`, and it is what makes the §5 kills apply to the committed
 route. -/
@@ -965,7 +965,7 @@ theorem gDelta_chiFrame_dressed
   exact gDelta_chiFrame_arbBase nu' j i
 
 /-- ⭐⭐⭐ **The master kill** (Labute Lemma 4(2): a dressed relator is a relator):
-any frame with the standard chi-values has relator value invisible to `gDeltaHom` —
+any frame with the standard chi-values has relator value invisible to `gDeltaHom` -
 the lifted relator value is `1` on the nose, because the lifted frame is again a lift
 marking and the datum theorem applies verbatim. -/
 theorem gDelta_relWord_of_chiFrame (c : Fin (sqRank h) → ℤ_[2])
@@ -990,7 +990,7 @@ theorem gDelta_relWord_of_chiFrame_eq_zero (c : Fin (sqRank h) → ℤ_[2])
   rfl
 
 /-- ⭐⭐⭐ **The wave-68 leftover lift dies exactly**: the relator value of the
-bridge-dressed frame is invisible to every functional — Labute's `D e₁ = 0` for the
+bridge-dressed frame is invisible to every functional - Labute's `D e₁ = 0` for the
 committed class-four defect, at the group level (hence at every class at once). -/
 theorem gDelta_leftover_lift (c : Fin (sqRank h) → ℤ_[2])
     (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) :
@@ -999,7 +999,7 @@ theorem gDelta_leftover_lift (c : Fin (sqRank h) → ℤ_[2])
     (gDelta_chiFrame_dressed nu' j (gDelta_chiSq_bridgeTuple nu' j))
 
 /-- ⭐⭐⭐ **The interface Prop of the lane** (for the W75 assembly): every functional
-kills the relator value of every kernel-of-chi dressing of every frame — the
+kills the relator value of every kernel-of-chi dressing of every frame - the
 level-generic defect shape that `SqClassClearingSupply` produces, for the dressings
 the chi-trivial route provides.  Proved outright below. -/
 def GDeltaDefectVanishing (h : ℕ) : Prop :=
