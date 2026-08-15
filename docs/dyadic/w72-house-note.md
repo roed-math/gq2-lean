@@ -537,6 +537,15 @@ says they say.
 
 ### 2.4  NEW ITEM TWO, intra-wave staleness
 
+> **[W74-HOUSE, watch round 11.]  This subsection fell through the application passes.**  Wave 73
+> applied §§2.2, 2.3 and 2.4b (33 findings) and said so accurately; **§2.4 was in nobody's scope**,
+> so (a), (b) and (c) sat unapplied for two waves while every other section of this note was
+> cleared.  All three are `EvenAlphaOne.lean` prose and all three were still live at `4fff1592`.
+> **Applied at wave 74**, comment-only.  ((d) and (e) were self-applied by this lane when written
+> and needed nothing.)  The process lesson is the one this subsection is about, turned on the
+> audit itself: a scoped application pass leaves a residue unless the scope is reconciled against
+> the finding list.
+
 Beyond the bracket propagation of §2.0, which is the purest example this round produced:
 
 **(a) HIGH.  `GQ2/Dyadic/Instances/EvenAlphaOne.lean` was left behind by its own wave, where its

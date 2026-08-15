@@ -665,14 +665,28 @@ statement about the cores.
    not `2`, not because there is no invariant.
 
 Section §3's alternating theorem is the sharp form of point 3, and is the only part of it this
-file proves.  The identification of the invariant as `q = 4` is **not** proved here: `demushkinQ`
-is a torsion count on the abelianization, and computing it at `α = 1` is a separate step that this
-file does not take.  What is proved is that the Demushkin property holds, which is what the two
-residuals were about.
+file proves.  The identification of the invariant as `demushkinQ = 4` is **not** proved here:
+`demushkinQ` is a torsion count on the abelianization, and computing it at `α = 1` is a separate
+step that this file does not take.  What is proved is that the Demushkin property holds, which is
+what the two residuals were about.
+
+**It was taken, later in the same wave** (added at wave 74; the sibling `EvenDemushkin.lean:252`
+was updated at the time and this file was not).  `MarkedCore/NFrameAlphaOne.lean`'s
+`nFrame4_demushkinQ_DN_one` computes `demushkinQ (D_N 1 h) = 4` at every handle count with no
+frame hypothesis, by replacing `NFrame` with a `ℤ/4`-slotted twin rather than repairing it; the
+package with the rank and the Demushkin property is
+`Instances/NFrameAlphaOneInvariants.lean`.  So point 3's `q` is identified, not merely bounded.
 
 The `α ≥ 2` hypothesis on the even *classification* is therefore not forced by a failure at
 `α = 1` on either row.  Whether the classification extends to `α = 1` is a question about the
-frame and stage layers above the model, and stays open. -/
+frame and stage layers above the model.  **The frame half of that question is closed, negatively,
+for the committed route** (added at wave 74): wave 71's
+`Instances/EvenStratumPoint.lean` proves `evenStratum_no_adaptedModelEquiv`, that on the whole
+third stratum and at every handle count no isomorphism carries the field cup form to
+`evenFrameGramModel h`, and that is the shared step of all three even frame producers.  The
+`α = 1` `N` core sits on that stratum, at the one surviving point of §11.  What remains open is
+the stage half, and wave 73's `Instances/EvenStratumShift.lean` splits it into a base and a climb.
+-/
 
 /-! ## §11 The third stratum's surviving point
 
@@ -686,7 +700,16 @@ The surviving point is a point of the *range* stratification, and the core sitti
 `DN 1 h`.  Before this file, that core's Demushkin-ness was unasserted in both directions, so the
 one surviving point had no candidate answer that was known to be a Demushkin group at all.  It now
 does: §8.  That removes the obstruction; it does **not** by itself prove the classification there,
-which needs the frame and stage inputs that §10.3 says are missing at `α = 1`. -/
+which needs the frame and stage inputs of the *stage* layer.
+
+Corrected at wave 74: this sentence used to cite §10.3 for those inputs.  §10.3 is about
+`MarkedCore.NFrame` being empty, and the classification's frame is `StageGeneric.Frame`
+(`Instances/StageAbstraction.lean`), a different structure carrying generators, character rows
+and level-two generation and **no torsion slot at all**.  `NFrame` is taken as a term by exactly
+three declarations tree-wide (`NFrame.toNDecomposition`, `demushkinQ_DN_nFrame`,
+`demushkinQ_DN_one_nFrame4`), none of them in the stage layer, so the emptiness of `NFrame 1 h`
+was never a stage-level obstruction.  What §10.3 does say about `α = 1` is the `q`-invariant
+statement of point 3. -/
 
 /-- **The third stratum's surviving point carries a Demushkin core.**  The wave-69 point
 `imChiN 1 = evenRangePrin 2` is the branch depth `α = 1` of the `N` row, and the core there is
