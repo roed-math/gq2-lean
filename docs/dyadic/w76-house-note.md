@@ -442,6 +442,30 @@ functional half of Labute's Lemma 4 is finished; nothing on that side remains.
 
 `w75-state-note.md` §6, five items, all still live and none touched this wave:
 
+**[W77-HOUSE, ticket 3, STALENESS: "all still live and none touched this wave" is wrong about
+items 1 and 2, and this note's own §4.5 is the rule it breaks.**  The sibling lane's
+`GQ2/Dyadic/GeneralCertificates.lean` merged into `dyadic` at `13791421` (05:35), **five minutes
+before this note was committed** (`bcd27b83`, 05:40), and it supplies both:
+
+* **item 1**, the core transport, is `WordCertificate.genCertTransport`
+  (`GeneralCertificates.lean:310`), which moves a `WordCertificate` along a continuous core
+  equivalence carrying the `Ztwo` marking back.  Exactly F1's "one restatement, and reusable".
+* **item 2**, the compact-`N` certificate, is `genCertNWordCertificate` (`:499`, free `(α, h, q)`)
+  with its canonical twin (`:553`); the procyclic-`M` lift off `h = 0` is
+  `genCertMpcWordCertificate` (`:645`); and the `Npc` row's producer, said here to be needed
+  "from scratch", is `genCertNpcWordCertificate` (`:727`), at free `(α, r, h, q)` and the display
+  `⟨1, 1⟩`.  So "the `nWordCertificate` sibling of `mWordCertificate`, **which does not exist**"
+  names a declaration that did exist when the sentence was written.
+
+Item 3 is correctly identified as the same item as flagship item 1, and it is the subject of a
+lane this wave.  Item 4's "done, `a19fac5a`, struck" is right, and note that `w76-cert-note.md`
+§7 item 4 simultaneously reported the *opposite* about the same file: **the two wave-76 notes
+contradict each other on registration, and this one is the correct side.**
+
+The residue after wave 76 is therefore not five items but **one and a half**: item 3 (in flight),
+plus what `w76-cert-note.md` §7 lists as genuinely left, of which the sharp one is the `L` row at
+`h ≥ 1` (no `Π_h`, so new mathematics rather than plumbing).]**
+
 1. a `WordCertificate` core transport along a marked core equivalence (F1) - one restatement,
    and reusable;
 2. the compact-`N` word certificate at free `(α, h)` (F2), the `nWordCertificate` sibling of
