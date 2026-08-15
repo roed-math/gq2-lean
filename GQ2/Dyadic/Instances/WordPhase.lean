@@ -67,7 +67,8 @@ attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
 variable {α h q : ℕ}
 
 /-- **Conjunct 1 at the compact-`N` candidate**: the `T`-cocycle count at every recursion frame.
-Transcription of `LSquare.tcocycle_of_uniformPushed`. -/
+Transcription of `RecordBlocks.recBl_mCand_tcocycle`, itself the `M` twin of
+`LSquare.tcocycle_of_uniformPushed`.  `1 ≤ α` is new here: the `N` uniform resolver takes it. -/
 theorem wPh_nCand_tcocycle (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
@@ -117,7 +118,8 @@ theorem wPh_nCand_tcocycle (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) 
     (hsimp (RF.YB ⧸ D.M) rho (Additive ↥D.T) (radT_add_self D)) hb.2
 
 /-- **Conjunct 2 at the compact-`N` candidate**: the `(T^∨)^C` separation clause, via the
-word-side marking route.  Transcription of `LSquare.hsep_of_uniformPushed`. -/
+word-side marking route.  Transcription of `RecordBlocks.recBl_mCand_hsep`.  `1 ≤ α` is new
+here, from the `N` uniform resolver. -/
 theorem wPh_nCand_hsep (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
@@ -163,7 +165,8 @@ theorem wPh_nCand_hsep (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hqe
     hb.2 c hvan
 
 /-- Right separation for the descent module at the compact-`N` candidate: the fork feeding
-conjunct 3.  Transcription of `LSquare.hrsep_of_uniformPushed`. -/
+conjunct 3.  Transcription of `RecordBlocks.recBl_mCand_hrsep`.  `1 ≤ α` is new here, from the
+`N` uniform resolver. -/
 theorem wPh_nCand_hrsep (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
@@ -246,8 +249,8 @@ theorem wPh_nCand_hrsep (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hq
     hresS hresP hresD hb.1 hsd hb.2 (Vmod_exp2 DD)
 
 /-- **Conjunct 3 at the compact-`N` candidate**: the nonzero-character obstruction.
-Transcription of `LSquare.hpartial_of_uniformPushed`; `1 ≤ α` and `q ≠ 0` enter here, through
-`MCompact.cardH2_of_uniformPushed`. -/
+Transcription of `RecordBlocks.recBl_mCand_hpartial`; `1 ≤ α` and `q ≠ 0` enter here through
+`NCompact.cardH2_of_uniformPushed`, exactly as on the `M` side. -/
 theorem wPh_nCand_hpartial (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0)
     (hqe : Even q) {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
@@ -270,8 +273,9 @@ theorem wPh_nCand_hpartial (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) 
     (wPh_nCand_hrsep hsimp hα hqe b F En l hl ρ) chi hchi
 
 /-- **Conjunct 4 at the compact-`N` candidate**: the simple nontrivial `V`-cocycle count.
-Transcription of `LSquare.hZcard_of_uniformPushed`.  This one is also what the determinant
-bridge needs for its finiteness step, so §4 consumes it too. -/
+Transcription of `RecordBlocks.recBl_mCand_hZcard`.  This one is also what the determinant
+bridge needs for its finiteness step, so §2 consumes it too.  `1 ≤ α` is new here, from the `N`
+uniform resolver. -/
 theorem wPh_nCand_hZcard (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
     {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
@@ -328,8 +332,8 @@ theorem wPh_nCand_hZcard (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α) (h
     (Vmod_exp2 DD) (isWildTwo_of_gammaGen ρ.1.1 ρ.1.2 (fun _ => rfl)) ρ.1.2
     (NCompact.degree h) (hsimp RF.YC ρ.1.1 DD.Vmod (Vmod_exp2 DD)) hb.2 hsimple' hnt
 
-/-- **The Stokes certificate at the compact-`N` candidate, from the uniform residue.**  The `M`
-twin of `LSquare.stokesDualityCertificate_of_uniformPushed`, at the count lane's degree
+/-- **The Stokes certificate at the compact-`N` candidate, from the uniform residue.**  The `N`
+twin of `RecordBlocks.recBl_mCand_stokes_of_uniformPushed`, at the count lane's degree
 spelling. -/
 theorem wPh_nCand_stokes_of_uniformPushed (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α)
     (hq0 : q ≠ 0) (hqe : Even q) {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
@@ -343,9 +347,10 @@ theorem wPh_nCand_stokes_of_uniformPushed (hsimp : UniformPushedHsimp α h q) (h
    fun b F En l hl hsimple hVne hnt ρ =>
     wPh_nCand_hZcard hsimp hα hqe b F En l hl hsimple hVne hnt ρ⟩
 
-/-- **The `M0` row's `stokes` clause is a theorem, unconditionally at `2 ≤ α`**, at the degree
-spelling the row records use.  This is the clause W84-CLAUSES left open, and it closes with no
-new hypothesis: `MCompact.uniformPushedHsimp` is already unconditional at `2 ≤ α`. -/
+/-- **The `N0` row's `stokes` clause is a theorem, unconditionally at `2 ≤ α`**, at the degree
+spelling the row records use.  W85-BLOCKS' per-clause table marks this cell "not attempted here";
+it closes with no new hypothesis, because `NCompact.uniformPushedHsimp` is unconditional at
+`2 ≤ α` and `2 ≤ α` also discharges the resolver's `1 ≤ α`. -/
 theorem wPh_nCand_stokes (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
     StokesDualityCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q P nuP
@@ -355,5 +360,144 @@ theorem wPh_nCand_stokes (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
     (wPh_nCand_stokes_of_uniformPushed (uniformPushedHsimp hα hqe) (by omega) hq0 hqe)
 
 end NStokes
+
+/-! ## §2 The determinant reduction at the compact-`N` candidate (ticket T1)
+
+The same transcription, of `RecordBlocks` §4.  The trap it names holds verbatim here: the
+`G_K`-side clone `affineDeterminant_galK` discharges both Gauss-`Z` clauses internally through
+`gaussZResidueDK_{unramified,ramified}`, each of which takes a `TateDualityG` produced only by
+`FieldData.tateDualityGalK` and hence gated on an open finite-index embedding into the absolute
+Galois group, which is what this campaign is trying to prove.  **No declaration in this module
+takes a `TateDualityG`, a `LocalEulerChar` or a `RamifiedCertificate`**, and the words do not
+occur in this file outside this paragraph.  The route used is `gaussZResidueK_of_wordPhase`,
+which takes no duality at all.
+
+What lands is the reduction, not the supply: after §2 the `N0` row's `determinant` clause
+follows from `wPhWordPhaseSupplyN`.  §3 says what that supply would cost. -/
+
+section NDeterminant
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Words GQ2.Dyadic.NCompact
+open GQ2.Dyadic.Certificates GQ2.QuadraticFp2
+
+variable {α h q : ℕ}
+
+set_option linter.unusedVariables false in
+/-- **The compact-`N` word-phase supply**: the `N` twin of `RecordBlocks.recBlWordPhaseSupply`,
+itself the even-degree analogue of `LSquare.DeterminantWordPhaseSupply`.  Binder for binder the two clauses of
+`AffineDeterminantCertificate`, with the already-summed `GaussZResidueK` conclusion replaced by
+a word-phase model whose Gauss sum has the required value.  Stated as a conjunction rather than
+a structure because both clauses are `Prop`. -/
+def wPhWordPhaseSupplyN {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (gamma α h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (gamma α h q) P)
+    (compat : ∀ g : (gamma α h q : Type), nuTq q (tame g) = nuP (pro2 g)) : Prop :=
+  (letI := scalarActionZmodTwo ((gamma α h q : Type))
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+      [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+      (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+      (F : BoundaryFrameK q P H E)
+      (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) →
+          W = ⊥ ∨ W = ⊤)
+      (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+      (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+        (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+      (m : ℕ) (hm : 1 ≤ m)
+      (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+      (l : (SectionNine.blockFrame T Blk hE2).DR)
+      (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+      (hunram :
+        letI := blockPS_commGroup Blk
+        letI := SectionNine.headAct T Blk
+        ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau q) • v = v),
+      LSquare.WordPhaseResidueK (sourceBoundaryMapK tame pro2 compat) F
+        (blockEnrichmentDK T Blk hE2 hq0 hqe F) l hl
+        (scalarActionZmodTwo_triv _)
+        ((standardNumerics (2 * h + 2)).gaussUnram m))
+  ∧ (letI := scalarActionZmodTwo ((gamma α h q : Type))
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+      [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+      (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+      (F : BoundaryFrameK q P H E)
+      (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) →
+          W = ⊥ ∨ W = ⊤)
+      (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+      (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+        (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+      (m : ℕ) (hm : 1 ≤ m)
+      (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+      (l : (SectionNine.blockFrame T Blk hE2).DR)
+      (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+      (hram :
+        letI := blockPS_commGroup Blk
+        letI := SectionNine.headAct T Blk
+        ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau q) • v ≠ v),
+      LSquare.WordPhaseResidueK (sourceBoundaryMapK tame pro2 compat) F
+        (blockEnrichmentDK T Blk hE2 hq0 hqe F) l hl
+        (scalarActionZmodTwo_triv _)
+        ((standardNumerics (2 * h + 2)).gaussRam m))
+
+/-- **The determinant certificate at the compact-`N` candidate, from a word-phase supply.**  The
+`N` twin of `RecordBlocks.recBl_mCand_determinant_of_wordPhaseSupply`.  §1's
+`wPh_nCand_hZcard` supplies the finiteness of the cocycle group (the `L` proof calls
+`hZcard_of_uniformPushed`, which had no `M` counterpart until §3); simplicity and nontriviality
+kill the fixed vectors through the generic `hfix_of_simple_nt`; the phase is the only input left.
+`2 ≤ α` enters through `NCompact.uniformPushedHsimp`, and also discharges the `1 ≤ α` the `N`
+resolver adds. -/
+theorem wPh_nCand_determinant_of_wordPhaseSupply (hα : 2 ≤ α) {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (gamma α h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (gamma α h q) P)
+    (compat : ∀ g : (gamma α h q : Type), nuTq q (tame g) = nuP (pro2 g))
+    (S : wPhWordPhaseSupplyN nuP tame pro2 compat) :
+    AffineDeterminantCertificate (gamma α h q) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) tame pro2 compat
+      (scalarActionZmodTwo ((gamma α h q : Type))) := by
+  letI := scalarActionZmodTwo ((gamma α h q : Type))
+  haveI := scalarActionZmodTwo_continuousSMul ((gamma α h q : Type))
+  constructor
+  · exact fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hunram ↦ by
+      let En := blockEnrichmentDK T Blk hE2 hq0 hqe F
+      apply LSquare.gaussZResidueK_of_wordPhase
+        (sourceBoundaryMapK tame pro2 compat) F En l hl (scalarActionZmodTwo_triv _)
+      · intro rho
+        apply (Nat.card_ne_zero.mp ?_).2
+        rw [wPh_nCand_hZcard (uniformPushedHsimp hα hqe) (by omega) hqe
+          (sourceBoundaryMapK tame pro2 compat) F En l hl hsimple hVne hnt rho]
+        exact Nat.mul_ne_zero Nat.card_pos.ne' (Nat.pow_pos Nat.card_pos).ne'
+      · intro rho v hfixed
+        apply hfix_of_simple_nt (hsimple := hsimple) (hnt := hnt) ?_ v hfixed
+        intro c0
+        obtain ⟨g, hg⟩ := rho.1.2 c0
+        exact ⟨g, (rho0_descData_rhoPrimeK
+          (sourceBoundaryMapK tame pro2 compat) F En l hl rho g).trans hg⟩
+      · exact S.1 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hunram
+  · exact fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hram ↦ by
+      let En := blockEnrichmentDK T Blk hE2 hq0 hqe F
+      apply LSquare.gaussZResidueK_of_wordPhase
+        (sourceBoundaryMapK tame pro2 compat) F En l hl (scalarActionZmodTwo_triv _)
+      · intro rho
+        apply (Nat.card_ne_zero.mp ?_).2
+        rw [wPh_nCand_hZcard (uniformPushedHsimp hα hqe) (by omega) hqe
+          (sourceBoundaryMapK tame pro2 compat) F En l hl hsimple hVne hnt rho]
+        exact Nat.mul_ne_zero Nat.card_pos.ne' (Nat.pow_pos Nat.card_pos).ne'
+      · intro rho v hfixed
+        apply hfix_of_simple_nt (hsimple := hsimple) (hnt := hnt) ?_ v hfixed
+        intro c0
+        obtain ⟨g, hg⟩ := rho.1.2 c0
+        exact ⟨g, (rho0_descData_rhoPrimeK
+          (sourceBoundaryMapK tame pro2 compat) F En l hl rho g).trans hg⟩
+      · exact S.2 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hram
+
+end NDeterminant
 
 end GQ2.Dyadic.Instances.WordPhase
