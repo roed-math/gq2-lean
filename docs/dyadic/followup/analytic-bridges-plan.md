@@ -41,8 +41,13 @@ done**, and that is exactly why the stale inventories persisted for six waves:
 `CertificateMain.lean` and `KSupply.lean` are annotated as of this round, but the truth-sync
 AB-0 asked for is a statement-level edit and remains an owner item.]**
 
+**[W83-HOUSE, as of `23041e0f`: AB-0 is DONE.**  It was comment-only after all: the inventories
+themselves are rewritten, the pointer annotations superseded, and both files carry the as-of
+hash.  See §6 item 1.  The third bullet above still stands.]**
+
 The old statements that `prop_5_16` must still be generalized and that the arithmetic
 determinant bridge is absent are stale and should be corrected in a documentation-only PR.
+**(As of `23041e0f` that correction is made, by AB-0.)**
 
 ## 2. Mandatory degree correction
 
@@ -347,6 +352,19 @@ generic `G_K` theorems.
 1. **AB-0: truth-sync documentation.**  Correct the stale obligation inventories in
    `CertificateMain.lean` and `KSupply.lean`: mark `prop_5_16_gen`, the candidate count lane, and
    `affineDeterminant_galK` landed.  No code changes.
+   **DONE, lane W83-HOUSE, as of `23041e0f`.  Comment-only, as specified.**  What landed:
+   `KSupply.lean`'s field inventory, its "what this file does not do" paragraph, its
+   `lem86_galK` docstring and its §6 handover are rewritten to the current truth and carry the
+   as-of hash; the pointer annotations waves 79 and 82 stacked on those sites are removed and
+   their content folded in.  `CertificateMain.lean`'s `ExactLiftingSemantics` docstring now
+   splits "no owner" by carrier (owned at `galKProfinite K`, genuinely unowned at
+   `GammaR n q word`, and running the two together is what seeded the straggler field), and its
+   §2b carries a five-row producer inventory in place of the two-producer sentence.
+   Two facts the sweep turned up, both new: `KSupply.toSourceN`'s docstring said "nine
+   projected" where the record projects eleven, and the five row producers do **not** all carry
+   the same four clauses (`N0` carries the pilot `Prop`s, three of which sit below the four
+   bundles, so its residue is strictly narrower).  Neither inventory should be hand-maintained
+   again; `scripts/scoreboard.sh` re-derives both by elaboration.
 2. **AB-1: bundle cardinality API.**  The `TateDualityG.card_H*_dual` refactor implemented in
    this branch.  Small, std-3, no downstream statement changes.
 3. **AB-2: local cocycle counts.**  Add `Count/LocalDuality.lean` with the generic
