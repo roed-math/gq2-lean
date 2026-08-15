@@ -373,7 +373,152 @@ theorem gJoin_chiSq_zpow {x : (DSq h : Type)} (hx : chiSq h x = 1) (A : ℤ_[2])
 
 end Readings
 
-/-! ## §5 Axiom pins -/
+/-! ## §5 Knob invisibility: the knobs are one bit deeper than the layer
+
+The generic filtration bound puts a `γ_{k+1}`-element's reading in `2^kℤ₂`
+(`gDelta_dvd_of_mem_twoCentral`), which is exactly the tower bit: the towers `x^{2^k a}` read
+`2^k·a·unit`.  The knobs are **one bit deeper**, and for a structural reason:
+
+* the far span is the `x₁`-free letter span, and every `x₁`-free letter has `χ ≡ 1 (mod 4)`
+  (`S ≡ 13`, `X ≡ 5`, handles `= 1`), while `χ(x₁) = Y ≡ 3 (mod 4)`.  So a bracket knob
+  `⁅t, q⁆` picks up a factor `χ(q)⁻¹ − 1 ∈ 4ℤ₂`;
+* the `x₁`-slot **bundle** `t²·⁅t, x₁⁆` reads `(1 + Y⁻¹)·Dt`, and `Y + 1 = 1 − X²` has
+  valuation exactly `3`: the `2` from the square cancels the odd part of `Y − 1`.  This is
+  precisely why the inventory bundles the square with the `x₁`-bracket instead of carrying
+  either alone.
+
+Both knob families are therefore `2^{k+1}`-invisible, and the correction slot's exact
+`χ`-triviality (§2) is what removes the second commutator term outright. -/
+
+section KnobInvisibility
+
+variable {h : ℕ}
+
+/-- `Y + 1 = 1 − X²` has valuation at least `3`: `X − 1 = 4a` gives `1 − X² = −8a(1 + 2a)`. -/
+theorem gJoin_Yval_add_one : (2 : ℤ_[2]) ^ 3 ∣ Yval + 1 := by
+  obtain ⟨a, ha⟩ := gDelta_rootX_sub_one
+  refine ⟨-((a : ℤ_[2]) + 2 * (a : ℤ_[2]) ^ 2), ?_⟩
+  rw [Yval_eq]
+  linear_combination (-(rootX + 1 + 4 * (a : ℤ_[2]))) * ha
+
+/-- The `x₁`-slot bundle factor `1 + Y⁻¹` has valuation at least `3`. -/
+theorem gJoin_one_add_Yval_inv : (2 : ℤ_[2]) ^ 3 ∣ 1 + ((YvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) := by
+  obtain ⟨a, ha⟩ := gJoin_Yval_add_one
+  refine ⟨((YvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * a, ?_⟩
+  have hinv : ((YvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * Yval = 1 := by
+    rw [← val_YvalUnit, ← Units.val_mul, inv_mul_cancel, Units.val_one]
+  linear_combination ((YvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ha - hinv
+
+variable (h) in
+/-- The subgroup of elements with `χ ≡ 1 (mod 4)`: closed, because `χ_sq` is continuous and
+the divisibility set is closed. -/
+def gJoinChiFour : Subgroup (DSq h : Type) where
+  carrier := {x | (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h x : ℤ_[2]ˣ) : ℤ_[2]) - 1}
+  one_mem' := by simp
+  mul_mem' := fun {a b} ha hb => by
+    simp only [Set.mem_setOf_eq, map_mul, Units.val_mul] at ha hb ⊢
+    obtain ⟨u, hu⟩ := ha
+    obtain ⟨v, hv⟩ := hb
+    refine ⟨u + ((chiSq h a : ℤ_[2]ˣ) : ℤ_[2]) * v, ?_⟩
+    linear_combination hu + ((chiSq h a : ℤ_[2]ˣ) : ℤ_[2]) * hv
+  inv_mem' := fun {a} ha => by
+    simp only [Set.mem_setOf_eq, map_inv] at ha ⊢
+    obtain ⟨u, hu⟩ := ha
+    have hinv : (((chiSq h a)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((chiSq h a : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+      rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+    refine ⟨-((((chiSq h a)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * u), ?_⟩
+    linear_combination -(((chiSq h a)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hu + hinv
+
+theorem gJoin_isClosed_chiFour :
+    IsClosed ((gJoinChiFour h : Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+  have hcont : Continuous fun x : (DSq h : Type) => ((chiSq h x : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+    (Units.continuous_val.comp (chiSq h).continuous_toFun).sub continuous_const
+  exact (gDelta_isClosed_dvd_set 2).preimage hcont
+
+/-- ⭐ **The far span is `χ ≡ 1 (mod 4)`**: `χ(σ) = S ≡ 13`, `χ(x₀) = X ≡ 5`, handles `= 1`.
+The excluded letter `x₁` (`χ = Y ≡ 7`) is exactly the one the far span leaves out. -/
+theorem gJoin_chi_far {q : (DSq h : Type)} (hq : q ∈ gTowerFar h) :
+    (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h q : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  have hle : gTowerFar h ≤ gJoinChiFour h := by
+    refine Subgroup.topologicalClosure_minimal _ ((Subgroup.closure_le _).2 ?_)
+      gJoin_isClosed_chiFour
+    rintro x (((rfl | rfl) | hx) | hx)
+    · show (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h (dsqSigma h) : ℤ_[2]ˣ) : ℤ_[2]) - 1
+      rw [chiSq_sigma, val_SvalUnit]
+      obtain ⟨a, ha⟩ := gDelta_Sval_sub_one
+      exact ⟨a, ha⟩
+    · show (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h (dsqX0 h) : ℤ_[2]ˣ) : ℤ_[2]) - 1
+      rw [chiSq_x0, val_rootXUnit]
+      obtain ⟨a, ha⟩ := gDelta_rootX_sub_one
+      exact ⟨a, ha⟩
+    · obtain ⟨j, rfl⟩ := hx
+      show (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h (sqGen h (sqHandleIdxU j)) : ℤ_[2]ˣ) : ℤ_[2]) - 1
+      rw [chiSq_handleU, Units.val_one, sub_self]
+      exact dvd_zero _
+    · obtain ⟨j, rfl⟩ := hx
+      show (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h (sqGen h (sqHandleIdxV j)) : ℤ_[2]ˣ) : ℤ_[2]) - 1
+      rw [chiSq_handleV, Units.val_one, sub_self]
+      exact dvd_zero _
+  exact hle hq
+
+/-- The inverse form of the far bound. -/
+theorem gJoin_chi_far_inv {q : (DSq h : Type)} (hq : q ∈ gTowerFar h) :
+    (2 : ℤ_[2]) ^ 2 ∣ (((chiSq h q)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  obtain ⟨a, ha⟩ := gJoin_chi_far hq
+  have hinv : (((chiSq h q)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((chiSq h q : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  exact ⟨-((((chiSq h q)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * a), by
+    linear_combination -(((chiSq h q)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ha + hinv⟩
+
+/-- An admissible correction at depth `k + 2 ≥ 2` is exactly `χ`-trivial (§2) and has
+`2^{k+1}`-divisible reading (the filtration bound). -/
+theorem gJoin_adm_reading {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+    {k : ℕ} {t : (DSq h : Type)} (ht : GTowerAdm h nu' (k + 2) t)
+    (c : Fin (sqRank h) → ℤ_[2]) :
+    chiSq h t = 1 ∧ (2 : ℤ_[2]) ^ (k + 1) ∣ gDelta h c t := by
+  refine ⟨gJoin_chiSq_of_gammaTwo ?_ ht.2.1, gDelta_dvd_of_mem_twoCentral c (k + 1) ht.1⟩
+  exact twoCentralSeries_antitone (G := (DSq h : Type)) (by omega : 2 ≤ k + 2) ht.1
+
+/-- ⭐⭐ **The bracket knobs are one bit deeper than the layer**: at correction depth `k + 2`
+the layer bit is `2^{k+2}` and the knob reading is `2^{k+3}`-divisible.  The correction slot
+is exactly `χ`-trivial, which kills the second commutator term outright, and the far slot
+contributes `χ(q)⁻¹ − 1 ∈ 4ℤ₂`. -/
+theorem gJoin_knob_dvd {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+    {k : ℕ} {t : (DSq h : Type)} (ht : GTowerAdm h nu' (k + 2) t)
+    {q : (DSq h : Type)} (hq : q ∈ gTowerFar h) (c : Fin (sqRank h) → ℤ_[2]) :
+    (2 : ℤ_[2]) ^ (k + 3) ∣ gDelta h c (commP t q) := by
+  obtain ⟨hchi, hdvd⟩ := gJoin_adm_reading ht c
+  rw [gDelta_commP, hchi]
+  simp only [inv_one, Units.val_one, one_mul, sub_self, zero_mul, mul_zero, add_zero]
+  rw [(by omega : k + 3 = 2 + (k + 1)), pow_add]
+  exact mul_dvd_mul (gJoin_chi_far_inv hq) hdvd
+
+/-- ⭐⭐ **The `x₁`-slot bundles are one bit deeper than the layer**:
+`D(t²·⁅t, x₁⁆) = (1 + Y⁻¹)·Dt`, and `v₂(1 + Y⁻¹) = v₂(Y + 1) = 3`.  The square contributes
+the `2` that cancels the odd part of `Y − 1`; neither factor is invisible on its own, which
+is exactly why the inventory bundles them. -/
+theorem gJoin_bundle_dvd {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+    {k : ℕ} {t : (DSq h : Type)} (ht : GTowerAdm h nu' (k + 2) t)
+    (c : Fin (sqRank h) → ℤ_[2]) :
+    (2 : ℤ_[2]) ^ (k + 3) ∣ gDelta h c (t ^ 2 * commP t (dsqX1 h)) := by
+  obtain ⟨hchi, hdvd⟩ := gJoin_adm_reading ht c
+  have hsq : chiSq h (t ^ 2) = 1 := by rw [map_pow, hchi, one_pow]
+  have hval : gDelta h c (t ^ 2 * commP t (dsqX1 h))
+      = (1 + ((YvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) * gDelta h c t := by
+    rw [gDelta_mul, hsq, Units.val_one, one_mul, gDelta_pow, hchi, Units.val_one,
+      normSum_one_base, gDelta_commP, hchi, chiSq_x1]
+    simp only [inv_one, Units.val_one, one_mul, sub_self, zero_mul, mul_zero, add_zero]
+    push_cast
+    ring
+  rw [hval]
+  have hstep : (2 : ℤ_[2]) ^ (k + 3) ∣ (2 : ℤ_[2]) ^ 3 * (2 : ℤ_[2]) ^ (k + 1) := by
+    rw [← pow_add]
+    exact pow_dvd_pow _ (by omega : k + 3 ≤ 3 + (k + 1))
+  exact hstep.trans (mul_dvd_mul gJoin_one_add_Yval_inv hdvd)
+
+end KnobInvisibility
+
+/-! ## §6 Axiom pins -/
 
 section AxiomPins
 
@@ -402,6 +547,15 @@ section AxiomPins
 #print axioms gJoin_delta_eichV
 #print axioms gJoin_delta_zpow
 #print axioms gJoin_chiSq_zpow
+#print axioms gJoin_Yval_add_one
+#print axioms gJoin_one_add_Yval_inv
+#print axioms GQ2.Dyadic.SqCore.gJoinChiFour
+#print axioms gJoin_isClosed_chiFour
+#print axioms gJoin_chi_far
+#print axioms gJoin_chi_far_inv
+#print axioms gJoin_adm_reading
+#print axioms gJoin_knob_dvd
+#print axioms gJoin_bundle_dvd
 
 end AxiomPins
 
