@@ -578,7 +578,20 @@ at every `h`, on branch `claude/w79-depth3` at `74d01ee9`, together with
 `gDeep_not_layerReach` killing `GTowerLayerReach h nu' (k + 2)` at **every** depth and every
 marking.  Do not restart this `Prop` as a lane target without checking whether that branch
 landed; if it did, `gAbs_markTransitivity_of_baseThree` (`SqCore/GradedAbsorption.lean`) becomes
-vacuous and needs the same marker the two `gBase_*_of_residual` composites carry.] -/
+vacuous and needs the same marker the two `gBase_*_of_residual` composites carry.]
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: IT LANDED.  This `Prop` is FALSE at every `h`**, by
+`gDeep_not_baseThree` (`SqCore/GradedDepthThree.lean`), merged at `9fb4869b`.  The paragraph
+above is superseded twice over: "open at this tree" is wrong, and "IN FLIGHT and unmerged" is
+wrong.  Its own instruction was carried out only in part at the merge: the three
+`gExt_*_of_baseThree` composites were marked (`GradedExtraction.lean` §5, `bddf838b`), the three
+`gAbs_*_of_baseThree` composites were not, and are marked now.  The companion refutation
+`gDeep_not_layerReach (k) (nu') : ¬ GTowerLayerReach h nu' (k + 2)` holds at **every** depth and
+**every** marking, so it also strictly generalizes this file's own `gDecide_not_layerReach`,
+which is stated at the single marking `gDecideNu h` and at depth `2` only.  Consequence for this
+file: `gDecide_layerReach_of_baseAt` and `gDecide_tower_of_baseThree` below are vacuous.  Do not
+restart this `Prop`, or a depth-`k` re-seed of the same shape, as a lane target: the live
+layer-side input is the defect-restricted kill ladder `GDeepKillAt h k`.]** -/
 def GDecideBaseThree : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -586,7 +599,13 @@ def GDecideBaseThree : Prop :=
 
 /-- ⭐⭐ **The engine restarts from any base depth `k₀ ≥ 2`.**  The committed
 `gTower_layerReach_of_base` is the `k₀ = 2` case; the induction step itself only ever needs
-`2 ≤ k`. -/
+`2 ≤ k`.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: VACUOUS, and it will never be fed.**  The hypothesis
+`GTowerLayerReach h nu' k0` with `2 ≤ k0` is FALSE at every `k0`, every `h` and every marking
+(`gDeep_not_layerReach`, `SqCore/GradedDepthThree.lean`).  The engine is sound and the
+restart mechanism is correct; what does not exist is any base to restart it from.  Read the
+headline as "would restart".]** -/
 theorem gDecide_layerReach_of_baseAt {k0 : ℕ} (hk0 : 2 ≤ k0)
     (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
     (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (hbase : GTowerLayerReach h nu' k0) :
@@ -596,7 +615,11 @@ theorem gDecide_layerReach_of_baseAt {k0 : ℕ} (hk0 : 2 ≤ k0)
   | base => exact hbase
   | succ k hk ih => exact gTower_layerReach_step (le_trans hk0 hk) hsigma hx0 ih
 
-/-- The depth-`3` base drives the tower from depth `3` upwards. -/
+/-- The depth-`3` base drives the tower from depth `3` upwards.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: VACUOUS AT BOTH ENDS.**  `gDeep_not_baseThree` refutes the
+hypothesis and `gDeep_not_layerReach` refutes the conclusion, both at every `h` and every
+marking (`SqCore/GradedDepthThree.lean`).]** -/
 theorem gDecide_tower_of_baseThree (H : GDecideBaseThree h)
     (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
     (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :

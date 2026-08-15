@@ -98,7 +98,12 @@ theorem gDeep_xOne_pow_dvd (c : Fin (sqRank h) → ℤ_[2]) (k : ℕ) :
     linear_combination (2 ^ (k + 4) * s) * ht
 
 /-- **The `x̃₁`-tower at depth `k + 2` reads `2^{k+3}`-divisibly at every row** (in fact
-`2^{k+4}`-divisibly): the `ℤ₂`-exponent statement, by density of `ℕ`. -/
+`2^{k+4}`-divisibly): the `ℤ₂`-exponent statement, by density of `ℕ`.
+
+⚠ **[W80-HOUSE, as of `4f30776b`: the parenthetical is about the PROOF, not the statement.**
+The conclusion is `2^{k+3} ∣ …`; the `2^{k+4}` bound lives in the local `hall` and is weakened
+by `pow_dvd_pow` on the last line.  A caller who cites this lemma for `2^{k+4}` will not get
+it; the sharp form has to be re-extracted.]** -/
 theorem gDeep_xOne_tower_dvd (c : Fin (sqRank h) → ℤ_[2]) (k : ℕ) (a : ℤ_[2]) :
     (2 : ℤ_[2]) ^ (k + 3) ∣
       gDelta h c (zpowZtwo (isProP_DSq h) (gTowerXOne h) (2 ^ (k + 2) * a)) := by
@@ -703,7 +708,16 @@ theorem gDeep_wide_cut (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
 /-- ⭐⭐⭐ **The wide layer statement at depth 3**: every exactly row-trivial `γ₄`-element
 reaches the widened span, unconditionally.  This is the REFUTED `GTowerLayerReach h ν' 3`
 with the squared two-class coker adjoined: the exact unconditional content of the depth-3
-base. -/
+base.
+
+⚠ **[W80-HOUSE, as of `4f30776b`: two scope corrections to the headline.**  (i) "Unconditionally"
+means "with no layer-statement input"; the theorem does carry the marking selection `hsigma`,
+`hx0`, whereas `GTowerLayerReach h ν' 3` (`GradedUniformTower.lean`) carries none.  So what is
+widened here is the body of `GDecideBaseThree h` (the layer statement AT A SELECTED MARKING),
+not `GTowerLayerReach` itself.  (ii) "The exact content" overstates a containment: what is
+proved is a membership in the join `gDeepWide h nu'`, an upper bound on the defect.  The two
+generators are each shown to be outside the reach (`gDeep_B_sq_notMem_reach`,
+`gDeep_C_sq_notMem_reach`), which is minimality generator by generator, not of the span.]** -/
 theorem gDeep_layer_wide (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
     (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
     (hg : g ∈ twoCentralSeries (DSq h : Type) 4) (hgl : nuLam h g = 1) (hgn : nu' g = 1) :

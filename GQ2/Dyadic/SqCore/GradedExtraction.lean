@@ -47,6 +47,11 @@ into a statement about the span.  Everything in this file is unconditional.
 `GTowerKnobRealizable h` itself is **not** discharged: the far-slot change of basis (wave
 74's extraction item (ii)) does not close it at the interface's quantifier, and
 `docs/dyadic/w79-extract-note.md` says exactly why and what repairs it.
+
+⚠ **[W80-HOUSE, as of `4f30776b`: "Everything in this file is unconditional" is true of §1-§4
+and false of §5-§6.**  §5's three `_of_baseThree` composites carry two named `Prop` inputs (and
+are now vacuous, see the §5 marker), and every substantive §6 dressing lemma carries
+`hk : 2 ≤ k`.  Read the sentence as scoped to the separation, which is what it is about.]**
 -/
 
 open Multiplicative
@@ -537,7 +542,12 @@ theorem gExt_defectVanishing_of_baseThree (H3 : GDecideBaseThree h) :
     GJoinDefectVanishing h :=
   gAbs_defectVanishing_of_baseThree H3 (gExt_separationAll h)
 
-/-- ⭐⭐ **The per-class supply from two inputs**: the OPEN depth-3 base and the extraction. -/
+/-- ⭐⭐ **The per-class supply from two inputs**: the OPEN depth-3 base and the extraction.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: the base is REFUTED, not open** (`gDeep_not_baseThree`),
+so this is vacuous.  The §5 marker above was applied at the merge to the section header only;
+this docstring and `gExt_markTransitivity_of_baseThree`'s below still said "open", which is the
+half-a-fix pattern inside the very module that carries the marker.]** -/
 theorem gExt_supply_of_baseThree (H3 : GDecideBaseThree h) (HR : GTowerKnobRealizable h) :
     ∀ k, SqClassClearingSupply h k :=
   gAbs_supply_of_baseThree H3 (gExt_separationAll h) HR
@@ -545,7 +555,13 @@ theorem gExt_supply_of_baseThree (H3 : GDecideBaseThree h) (HR : GTowerKnobReali
 /-- ⭐⭐⭐ **The `h ≥ 1` residual from two named inputs.**  Wave 78 needed three:
 `GDecideBaseThree h`, `GJoinSeparationAll h`, `GTowerKnobRealizable h`.  The middle one is
 now a theorem (`gExt_separationAll`), so the odd route hangs on the depth-3 base and the
-extraction only. -/
+extraction only.
+
+⚠⚠ **[W80-HOUSE, as of `4f30776b`: VACUOUS, and the last sentence is superseded.**  The odd
+route does not hang on the depth-3 base: that base is FALSE (`gDeep_not_baseThree`).  It hangs
+on the kill ladder `GDeepKillAt h k` plus the extraction, through
+`gDeep_markTransitivity_of_kills`, which consumes this file's `gExt_separationAll` as its
+separation input.]** -/
 theorem gExt_markTransitivity_of_baseThree (H3 : GDecideBaseThree h)
     (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
   gAbs_markTransitivity_of_baseThree H3 (gExt_separationAll h) HR
