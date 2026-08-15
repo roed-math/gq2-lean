@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.Instances.EvenParityModel
+import GQ2.Dyadic.Instances.GammaLSylowPreimageRealizationBypass
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.Main
 import GQ2.Dyadic.OrientationCorrection
@@ -260,8 +261,19 @@ a selector), and `hhom` is `rfl` at `standardNumerics` in every degree.
 
 **CAND**, the candidate-side clause layer at the general candidate carrier: one field, the
 `WordCertificate` over the row's own slot.  It is carried whole rather than split into the four
-analytic clauses because the four-clause producers are per-branch and do not exist on every
-row; see §4 for exactly which rows have one. -/
+analytic clauses because the four-clause producers are per-branch and, at this tree, exist at
+free parameters on exactly one of the five rows:
+
+| row | producer over the general slot | coverage |
+| --- | --- | --- |
+| `M0 α h` | `Instances.MCompactCore.mWordCertificate α h q` | free `(α, h)`, four clauses carried |
+| `Mpc α r ε η h` | `Instances.MProcyclicCore.mpcWordCertificate α r p q` | `h = 0` only |
+| `N0 α h` | `SqrtNeg2.sqrtNegTwoWordCertificate` | `(α, h) = (2, 0)` only |
+| `Npc α r η h` | none | none |
+| `L h` | none over `D_sq h` | see `genAsm_nonempty_equiv_L_core_piBd` |
+
+So the CAND field is not a placeholder for a solved problem: on three of the five rows the
+campaign has no producer at free parameters at all. -/
 structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B FF) where
   /-- **ASK, ledger field 3** at `G_K`. -/
   exactLifting : ExactLiftingSemantics (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
@@ -595,6 +607,31 @@ theorem genAsm_branch_of_oddSq (h : ℕ) (c : ℤ_[2])
   obtain ⟨C⟩ := marked_matching_certificate_KTwoSq_of_fixesCore B h c e.1 e.2 hMix hsigma hx0
   exact ⟨{ pres := .L h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
            realization := MarkedCoreRealization.ofCertificateSq nuP hnuIota C }, rfl⟩
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
+/-- The `L` row's canonical `Ztwo` marking is onto: it takes `ztwoOne` at `σ` and `D_sq h` is
+compact. -/
+theorem genAsm_lNu_surjective (h : ℕ) :
+    Function.Surjective (Instances.LSquareCore.lNu h) :=
+  Instances.NuWitness.surjective_of_ztwoOne_mem_range _
+    ⟨_, Instances.LSquareCore.lNu_sigma h⟩
+
+/-- **The `L`-row branch datum at the canonical marking.**  Specialising
+`genAsm_branch_of_oddSq` to `nuP := lNu h` discharges both marking binders
+(`genAsm_lNu_surjective` and `LSquare.ztwoIota_lNu`), so what remains on the odd side of the
+general selector is exactly: the degree pin, the oriented equivalence `D_sq h ≃ G_K(2)`, the
+handle-mix input (which `genAsm_oddResidual_gives_mix` reads off `SqLamMarkTransitivity h` at
+every `h ≥ 1`), and the two `ν` normalizations at `σ` and `x₀`. -/
+theorem genAsm_branch_of_oddSq_canonical (h : ℕ) (c : ℤ_[2])
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
+    (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K)))
+    (hMix : SqCore.SqHandleMixFixesCore h c)
+    (hsigma : nuUrKTwo B (e.1 (SqCore.dsqSigma h)) = Multiplicative.ofAdd (1 : ℤ_[2]))
+    (hx0 : nuUrKTwo B (e.1 (SqCore.dsqX0 h)) = Multiplicative.ofAdd (0 : ℤ_[2])) :
+    ∃ G : GenAsmBranch K B, G.pres = .L h :=
+  genAsm_branch_of_oddSq h c hdeg (Instances.LSquareCore.lNu h) (genAsm_lNu_surjective h)
+    (LSquare.ztwoIota_lNu h) e hMix hsigma hx0
 
 end ClassificationJoin
 
