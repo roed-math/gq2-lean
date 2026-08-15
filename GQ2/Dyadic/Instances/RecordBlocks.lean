@@ -615,7 +615,8 @@ anywhere" to "two even-degree wall-handle phase computations", which is a strict
 purely combinatorial object.
 
 Two things named in the refined brief are confirmed by construction: the duality-carrying
-determinant clone is not reused (nothing here mentions `TateDualityG` or `LocalEulerChar`), and
+determinant clone is not reused (no declaration in this module takes a `TateDualityG` or a
+`LocalEulerChar`, and neither occurs anywhere in this module outside this paragraph), and
 the two `n = 2` numerics facts really are absent -- `Recursion/Numerics.lean` has a `NEqOne`
 section and no `NEqTwo`, and no `standardNumerics_two_*` exists in the tree.  §4 routes around
 them rather than building them: `gaussUnram` and `gaussRam` are carried symbolically as

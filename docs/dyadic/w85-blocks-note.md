@@ -162,8 +162,10 @@ discharges both Gauss-`Z` clauses internally, through `gaussZResidueDK_unramifie
 finite-index embedding into the absolute Galois group.  A word group has no such embedding
 without the presentation theorem this campaign is trying to prove, so using it here is circular;
 `GammaLDualityBoundary`'s module docstring already says exactly this about `GammaL`.  The
-ramified branch additionally wants a `RamifiedCertificate` indexed by the field.  **Neither
-appears anywhere in the new module.**
+ramified branch additionally wants a `RamifiedCertificate` indexed by the field.  **No
+declaration in the new module takes any of the three.**  (`recBl_candidate_equiv_galK_sqrtFive`
+does pin the `tateDualityAt` *axiom*, but through the general theorem and the row's arithmetic
+inputs, exactly as `rowCl_candidate_equiv_galK_sqrtFive` already did, not through §5.)
 
 **The route taken.**  `LSquare.gaussZResidueK_of_wordPhase` takes no duality at all: only
 finiteness of the cocycle group, absence of nonzero fixed vectors, and a `WordPhaseResidueK`.
