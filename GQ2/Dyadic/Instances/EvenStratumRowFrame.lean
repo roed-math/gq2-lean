@@ -328,8 +328,175 @@ theorem evenStratumRow_exists_gramOne_modelEquiv_pin {h : ℕ}
     rw [hvec]
     exact evenStratumRow_coord_headSecond i
 
+/-! ## §4 The frame at the prescribed row table
+
+`evenFrame_of_adapted` (`StageAbstractionEvenFrameCore.lean` §4.1) is the committed assembly, and
+it is Gram-generic in everything except the last two lines, where it contracts the model Gram
+against the coordinate products.  §4.1 is that theorem with `evenStratumGramOne` in place of
+`evenFrameGram`, reusing wave 73's `evenStratum_levelTwoGen_of_realizers` for the generation half.
+The row table stays a parameter, so the `M` row could consume it unchanged.
+
+§4.2 instantiates at `vN 1`.  Its two match tables are §1's, and they are discharged from opposite
+directions: the parity table because *both* sides vanish (`κ = 0` on the stratum, and
+`nUnit 1 ≡ 1 mod 4`), the `ω` table because §3 placed the `ω` class exactly where `nUnit 1 ≡ 5 mod
+8` demands. -/
+
+/-! ### §4.1 The Gram-swapped assembly -/
+
+/-- **The `α = 1` frame assembly.**  `evenFrame_of_adapted` with the `α = 1` Gram: given an adapted
+coordinate system for `evenStratumGramOneModel h` whose mod-four and `ω` classes have the row
+table's shadows as coordinates, the dual family, corrected to exact cyclotomic values inside its
+Frattini cosets, is a `StageGeneric.Frame` at the row table, cup-adapted for
+`evenStratumGramOne h`.
+
+Row-table-generic, exactly as the committed theorem is. -/
+theorem evenStratumRow_frame_of_gramOne_adapted {h : ℕ}
+    (v : Fin (MarkedCore.coreRank h) → ℤ_[2]ˣ)
+    (hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)))
+    (Φ : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2) ≃ₗ[ZMod 2] evenFrameModel h)
+    (hGram : ∀ x y, frattiniFrameCup (K := K) x y = evenStratumGramOneModel h (Φ x) (Φ y))
+    (supply : RowExactLevelFibreLiftSupply v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)))
+    (hpar : ∀ i, evenFrameCoord i (Φ (cyclotomicModFourClassKTwo (K := K))) =
+      Multiplicative.toAdd (unitsModFourParity
+        (Units.map (PadicInt.toZModPow 2).toMonoidHom (v i))))
+    (homega : ∀ i, evenFrameCoord i (Φ (cyclotomicModEightOmegaClassKTwo (K := K))) =
+      Multiplicative.toAdd (unitsModEightOmega
+        (Units.map (PadicInt.toZModPow 3).toMonoidHom (v i)))) :
+    ∃ F : Frame v (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+      F.IsCupAdapted (evenStratumGramOne h) (evenFramePairing (K := K)) := by
+  classical
+  haveI := hfin
+  choose gens' hgens' using fun i : Fin (MarkedCore.coreRank h) ↦
+    frattiniFrameEval_realizable (K := K) hfin ((evenFrameCoordL i).comp Φ.toLinearMap)
+  have hD : ∀ (i : Fin (MarkedCore.coreRank h))
+      (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
+      frattiniFrameEval x (gens' i) = evenFrameCoord i (Φ x) := fun i x ↦ hgens' i x
+  have hmatch4 : ∀ i : Fin (MarkedCore.coreRank h),
+      frattiniFrameEval (cyclotomicModFourClassKTwo (K := K)) (gens' i) =
+        Multiplicative.toAdd (unitsModFourParity
+          (Units.map (PadicInt.toZModPow 2).toMonoidHom (v i))) := by
+    intro i
+    rw [hD i]
+    exact hpar i
+  have hmatch8 : ∀ i : Fin (MarkedCore.coreRank h),
+      frattiniFrameEval (cyclotomicModEightOmegaClassKTwo (K := K)) (gens' i) =
+        Multiplicative.toAdd (unitsModEightOmega
+          (Units.map (PadicInt.toZModPow 3).toMonoidHom (v i))) := by
+    intro i
+    rw [hD i]
+    exact homega i
+  choose gens hχ hlevel using fun i : Fin (MarkedCore.coreRank h) ↦
+    evenFrameExactLift supply i (gens' i) (hmatch4 i) (hmatch8 i)
+  have hD2 : ∀ (i : Fin (MarkedCore.coreRank h))
+      (x : H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)),
+      frattiniFrameEval x (gens i) = evenFrameCoord i (Φ x) := fun i x ↦
+    (frattiniFrameEval_eq_of_levelMk_eq x (hlevel i)).trans (hD i x)
+  refine ⟨⟨gens, hχ, evenStratum_levelTwoGen_of_realizers Φ gens hD2⟩, ?_⟩
+  intro c d
+  show frattiniFrameCup (K := K) (SqCyclotomicFrattiniFrame.characterClass (K := K) c)
+      (SqCyclotomicFrattiniFrame.characterClass (K := K) d) =
+    evenStratumGramOne h (fun i j ↦ Multiplicative.toAdd (c (gens i)) *
+      Multiplicative.toAdd (d (gens j)))
+  rw [hGram, ← evenStratumGramOne_modelCoord]
+  congr 1
+  funext i j
+  rw [← hD2 i (SqCyclotomicFrattiniFrame.characterClass (K := K) c),
+    ← hD2 j (SqCyclotomicFrattiniFrame.characterClass (K := K) d),
+    frattiniFrameEval_characterClass, frattiniFrameEval_characterClass]
+
+/-! ### §4.2 The frame at `vN 1` -/
+
+/-- **A FRAME AT THE PRESCRIBED ROW TABLE `vN 1`, CUP-ADAPTED FOR THE `α = 1` GRAM.**  This is
+wave 73 §5.3's first missing piece: on the third stratum, at degree `2 + 2h`, with the `α = 1`
+row unit attained and the EV-4a row lift supply at `vN 1`, the `StageGeneric.Frame` whose
+existence `EvenStratumBaseN` asserts (bar its level-three relation) exists.
+
+The binders are exactly the ones the `α ≥ 2` supply carries, minus two and plus one:
+
+* **gone**: the ramified-`i` binder `κ ≠ 0` (false here — wave 71 proves `κ = 0`) and the
+  mod-eight orientation hypothesis `EvenDegreeNModEightImage`, whose only job at `α ≥ 2` is to pin
+  `τ = c • κ`, a pin that says nothing once `κ = 0`;
+* **new**: `nUnit 1 ∈ im χ_cyc`, which is what makes the `ω` class nonzero so that §2's pin has
+  something to move.  It is implied by the range identity (§4.3).
+
+Read against `evenStratum_no_cupAdaptedFrame`, which refutes the same object for `evenFrameGram h`
+at every row table: the two Grams differ in one entry, and that entry is the whole difference
+between a frame that cannot exist and one that does. -/
+theorem evenStratumRow_exists_adaptedFrame_vN_one {h : ℕ}
+    (hle : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom ≤ evenRangePrin 2)
+    (hnun : MarkedCore.nUnit 1 ∈ Set.range (chiCycKTwo (K := K)))
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (supply : RowExactLevelFibreLiftSupply (vN (h := h) 1) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K))) :
+    ∃ F : Frame (vN (h := h) 1) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+      F.IsCupAdapted (evenStratumGramOne h) (evenFramePairing (K := K)) := by
+  have hcard : Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (4 + 2 * h) := by
+    rw [card_H1_zmodTwo_maxProTwoGalK, hev]
+    congr 1
+    omega
+  haveI hfin : Finite (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) :=
+    Nat.finite_of_card_ne_zero (by rw [hcard]; positivity)
+  obtain ⟨Φ, hGram, hpin⟩ := evenStratumRow_exists_gramOne_modelEquiv_pin hle hev
+    (evenStratumRow_omegaClass_ne_zero hnun)
+  refine evenStratumRow_frame_of_gramOne_adapted _ hfin Φ hGram supply (fun i ↦ ?_) (fun i ↦ ?_)
+  · rw [GQ2.Dyadic.EvenStratum.evenStratum_kappa_eq_zero hle, map_zero, evenFrameCoord_zero_vec,
+      evenStratumRow_parity_table]
+  · rw [hpin i, evenStratumRow_omega_table]
+
+/-! ### §4.3 From the range identity -/
+
+/-- **The frame at `vN 1` from the surviving point's own hypothesis.**  The range identity
+`im χ_cyc = imChiN 1` supplies both the principal-unit bound (wave 71) and the row value (the
+committed `evenClimb_vN_mem_range`, which carries no `2 ≤ α`), so the only binder left is the
+EV-4a row lift supply. -/
+theorem evenStratumRow_exists_adaptedFrame_of_rangeN_one {h : ℕ}
+    (hrange : MonoidHom.range (chiCycKTwo (K := K)).toMonoidHom = MarkedCore.imChiN 1)
+    (hev : Module.finrank ℚ_[2] K = 2 + 2 * h)
+    (supply : RowExactLevelFibreLiftSupply (vN (h := h) 1) (maxProPQuotient 2 (GalK K))
+      (chiCycKTwo (K := K))) :
+    ∃ F : Frame (vN (h := h) 1) (maxProPQuotient 2 (GalK K)) (chiCycKTwo (K := K)),
+      F.IsCupAdapted (evenStratumGramOne h) (evenFramePairing (K := K)) := by
+  have hnun : MarkedCore.nUnit 1 ∈ Set.range (chiCycKTwo (K := K)) := by
+    have hmem := evenClimb_vN_mem_range (chi := chiCycKTwo (K := K)) (h := h) hrange 1
+    rwa [vN_one] at hmem
+  exact evenStratumRow_exists_adaptedFrame_vN_one
+    (GQ2.Dyadic.EvenStratum.evenStratum_range_le_prin_of_rangeN_one hrange) hnun hev supply
+
 end ModelPin
 
 end
+
+/-! ## §5 Axiom pins -/
+
+section Pins
+
+#print axioms evenStratumRow_solve_modFour
+#print axioms evenStratumRow_solve_modEight
+#print axioms evenStratumRow_solve_modSixteen
+#print axioms evenStratumRow_nUnit_modFour
+#print axioms evenStratumRow_nUnit_modEight
+#print axioms evenStratumRow_nUnit_modSixteen
+#print axioms evenStratumRow_parity_nUnit
+#print axioms evenStratumRow_omega_nUnit
+#print axioms evenStratumRow_parity_table
+#print axioms evenStratumRow_omega_table
+
+#print axioms evenStratumRow_symplectic_pin
+
+#print axioms evenStratumRowScalar
+#print axioms evenStratumRowContinuousScalar
+#print axioms evenStratumRow_omegaClass_ne_zero
+#print axioms evenStratumRow_coord_headSecond
+#print axioms evenStratumRow_exists_gramOne_modelEquiv_pin
+#print axioms evenStratumRow_frame_of_gramOne_adapted
+#print axioms evenStratumRow_exists_adaptedFrame_vN_one
+#print axioms evenStratumRow_exists_adaptedFrame_of_rangeN_one
+
+-- The statements §4 stands against and beside, printed with it.
+#print axioms GQ2.Dyadic.EvenStratumFrame.evenStratum_no_cupAdaptedFrame
+#print axioms evenStratum_exists_gramOne_adaptedFrame
+#print axioms evenDegreeNCyclotomicFrattiniFrameSupply_holds
+
+end Pins
 
 end GQ2.Dyadic.StageGeneric
