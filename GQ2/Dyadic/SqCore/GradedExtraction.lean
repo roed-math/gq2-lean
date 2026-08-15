@@ -255,6 +255,299 @@ theorem gExt_rowV_word (f g : Fin h → ℤ_[2]) (j₀ : Fin h) :
 
 end Words
 
+/-! ## §3 The normal form
+
+Every element of the handle-tower span is a word.  The tower classes are central in
+`Q_{k+2}` (they are images of `γ_{k+1}`-elements), so §1's slotwise multiplication applies
+and the words form a subgroup; the generators are the single-slot words. -/
+
+section NormalForm
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ}
+
+/-- A tower class is central in the level quotient. -/
+theorem gExt_towU_center (j : Fin h) (a : ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtTowU h nu' k j a)
+      ∈ Subgroup.center (levelQuot (DSq h : Type) (k + 2)) :=
+  Subgroup.mem_center_iff.2 fun x =>
+    gTower_img_central (gTower_zpow_dvd_mem (by omega) ⟨a, by rw [Nat.add_sub_cancel]⟩ _) x
+
+theorem gExt_towV_center (j : Fin h) (a : ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtTowV h nu' k j a)
+      ∈ Subgroup.center (levelQuot (DSq h : Type) (k + 2)) :=
+  Subgroup.mem_center_iff.2 fun x =>
+    gTower_img_central (gTower_zpow_dvd_mem (by omega) ⟨a, by rw [Nat.add_sub_cancel]⟩ _) x
+
+/-- The class of a `u`-word is the ordered product of the tower classes. -/
+theorem gExt_wordU_class (f : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWordU h nu' k f)
+      = (List.ofFn fun j =>
+          levelMk (DSq h : Type) (k + 2) (gExtTowU h nu' k j (f j))).prod := by
+  rw [gExtWordU, map_list_prod, List.map_ofFn]
+  rfl
+
+theorem gExt_wordV_class (g : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWordV h nu' k g)
+      = (List.ofFn fun j =>
+          levelMk (DSq h : Type) (k + 2) (gExtTowV h nu' k j (g j))).prod := by
+  rw [gExtWordV, map_list_prod, List.map_ofFn]
+  rfl
+
+theorem gExt_wordU_center (f : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWordU h nu' k f)
+      ∈ Subgroup.center (levelQuot (DSq h : Type) (k + 2)) := by
+  rw [gExt_wordU_class]
+  exact gExt_ofFn_center fun j => gExt_towU_center j (f j)
+
+theorem gExt_wordV_center (g : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWordV h nu' k g)
+      ∈ Subgroup.center (levelQuot (DSq h : Type) (k + 2)) := by
+  rw [gExt_wordV_class]
+  exact gExt_ofFn_center fun j => gExt_towV_center j (g j)
+
+/-- Exponents add slotwise on a single tower. -/
+theorem gExt_towU_add (j : Fin h) (a b : ℤ_[2]) :
+    gExtTowU h nu' k j a * gExtTowU h nu' k j b = gExtTowU h nu' k j (a + b) := by
+  rw [gExtTowU, gExtTowU, gExtTowU, ← zpowZtwo_add, mul_add]
+
+theorem gExt_towV_add (j : Fin h) (a b : ℤ_[2]) :
+    gExtTowV h nu' k j a * gExtTowV h nu' k j b = gExtTowV h nu' k j (a + b) := by
+  rw [gExtTowV, gExtTowV, gExtTowV, ← zpowZtwo_add, mul_add]
+
+theorem gExt_wordU_mul (f₁ f₂ : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWordU h nu' k f₁) *
+        levelMk (DSq h : Type) (k + 2) (gExtWordU h nu' k f₂)
+      = levelMk (DSq h : Type) (k + 2) (gExtWordU h nu' k (f₁ + f₂)) := by
+  have hfam : (fun j => levelMk (DSq h : Type) (k + 2) (gExtTowU h nu' k j (f₁ j)) *
+      levelMk (DSq h : Type) (k + 2) (gExtTowU h nu' k j (f₂ j)))
+      = fun j => levelMk (DSq h : Type) (k + 2) (gExtTowU h nu' k j ((f₁ + f₂) j)) := by
+    funext j
+    rw [← map_mul, gExt_towU_add]
+    rfl
+  rw [gExt_wordU_class, gExt_wordU_class, gExt_wordU_class,
+    gExt_ofFn_mul _ _ fun j => gExt_towU_center j (f₁ j), hfam]
+
+theorem gExt_wordV_mul (g₁ g₂ : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWordV h nu' k g₁) *
+        levelMk (DSq h : Type) (k + 2) (gExtWordV h nu' k g₂)
+      = levelMk (DSq h : Type) (k + 2) (gExtWordV h nu' k (g₁ + g₂)) := by
+  have hfam : (fun j => levelMk (DSq h : Type) (k + 2) (gExtTowV h nu' k j (g₁ j)) *
+      levelMk (DSq h : Type) (k + 2) (gExtTowV h nu' k j (g₂ j)))
+      = fun j => levelMk (DSq h : Type) (k + 2) (gExtTowV h nu' k j ((g₁ + g₂) j)) := by
+    funext j
+    rw [← map_mul, gExt_towV_add]
+    rfl
+  rw [gExt_wordV_class, gExt_wordV_class, gExt_wordV_class,
+    gExt_ofFn_mul _ _ fun j => gExt_towV_center j (g₁ j), hfam]
+
+/-- Two words multiply by adding exponents: the `v`-half of the first commutes past the
+`u`-half of the second because it is central. -/
+theorem gExt_swap {Q : Type*} [Group Q] (u₁ v₁ u₂ v₂ : Q)
+    (hv : v₁ ∈ Subgroup.center Q) : u₁ * v₁ * (u₂ * v₂) = u₁ * u₂ * (v₁ * v₂) := by
+  have hc : u₂ * v₁ = v₁ * u₂ := Subgroup.mem_center_iff.1 hv u₂
+  calc u₁ * v₁ * (u₂ * v₂) = u₁ * (v₁ * u₂) * v₂ := by simp only [mul_assoc]
+    _ = u₁ * (u₂ * v₁) * v₂ := by rw [hc]
+    _ = u₁ * u₂ * (v₁ * v₂) := by simp only [mul_assoc]
+
+theorem gExt_word_mul (f₁ g₁ f₂ g₂ : Fin h → ℤ_[2]) :
+    levelMk (DSq h : Type) (k + 2) (gExtWord h nu' k f₁ g₁) *
+        levelMk (DSq h : Type) (k + 2) (gExtWord h nu' k f₂ g₂)
+      = levelMk (DSq h : Type) (k + 2) (gExtWord h nu' k (f₁ + f₂) (g₁ + g₂)) := by
+  simp only [gExtWord, map_mul]
+  rw [gExt_swap _ _ _ _ (gExt_wordV_center g₁), gExt_wordU_mul, gExt_wordV_mul]
+
+theorem gExt_towU_zero (j : Fin h) : gExtTowU h nu' k j 0 = 1 := by
+  rw [gExtTowU, mul_zero, zpowZtwo_zero_exp]
+
+theorem gExt_towV_zero (j : Fin h) : gExtTowV h nu' k j 0 = 1 := by
+  rw [gExtTowV, mul_zero, zpowZtwo_zero_exp]
+
+theorem gExt_wordU_zero : gExtWordU h nu' k 0 = 1 := by
+  refine List.prod_eq_one ?_
+  intro x hx
+  obtain ⟨j, rfl⟩ : ∃ j, gExtTowU h nu' k j ((0 : Fin h → ℤ_[2]) j) = x := by simpa using hx
+  exact gExt_towU_zero j
+
+theorem gExt_wordV_zero : gExtWordV h nu' k 0 = 1 := by
+  refine List.prod_eq_one ?_
+  intro x hx
+  obtain ⟨j, rfl⟩ : ∃ j, gExtTowV h nu' k j ((0 : Fin h → ℤ_[2]) j) = x := by simpa using hx
+  exact gExt_towV_zero j
+
+theorem gExt_word_zero : gExtWord h nu' k 0 0 = 1 := by
+  rw [gExtWord, gExt_wordU_zero, gExt_wordV_zero, mul_one]
+
+/-- A single-slot `u`-word is the tower of that slot. -/
+theorem gExt_wordU_single (j₀ : Fin h) (a : ℤ_[2]) :
+    gExtWordU h nu' k (Pi.single j₀ a) = gExtTowU h nu' k j₀ a := by
+  rw [gExtWordU, gExt_ofFn_single _ j₀ fun j hj => by
+    rw [Pi.single_eq_of_ne hj, gExt_towU_zero], Pi.single_eq_same]
+
+theorem gExt_wordV_single (j₀ : Fin h) (a : ℤ_[2]) :
+    gExtWordV h nu' k (Pi.single j₀ a) = gExtTowV h nu' k j₀ a := by
+  rw [gExtWordV, gExt_ofFn_single _ j₀ fun j hj => by
+    rw [Pi.single_eq_of_ne hj, gExt_towV_zero], Pi.single_eq_same]
+
+variable (h) in
+/-- **The word span**: the classes of the handle-tower words, as a subgroup of `Q_{k+2}`.
+Closure under multiplication and inversion is §1's exponent-addition law. -/
+noncomputable def gExtSpan (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (k : ℕ) : Subgroup (levelQuot (DSq h : Type) (k + 2)) where
+  carrier := {z | ∃ f g : Fin h → ℤ_[2],
+    z = levelMk (DSq h : Type) (k + 2) (gExtWord h nu' k f g)}
+  one_mem' := ⟨0, 0, by rw [gExt_word_zero, map_one]⟩
+  mul_mem' := by
+    rintro _ _ ⟨f₁, g₁, rfl⟩ ⟨f₂, g₂, rfl⟩
+    exact ⟨f₁ + f₂, g₁ + g₂, gExt_word_mul f₁ g₁ f₂ g₂⟩
+  inv_mem' := by
+    rintro _ ⟨f, g, rfl⟩
+    refine ⟨-f, -g, inv_eq_of_mul_eq_one_right ?_⟩
+    rw [gExt_word_mul, add_neg_cancel, add_neg_cancel, gExt_word_zero, map_one]
+
+/-- Every handle-tower generator is a single-slot word. -/
+theorem gExt_eichSet_subset :
+    gJoinEichSet h nu' k ⊆ (gExtSpan h nu' k : Set (levelQuot (DSq h : Type) (k + 2))) := by
+  rintro z ⟨j₀, a, (rfl | rfl)⟩
+  · exact ⟨Pi.single j₀ a, 0, by
+      rw [gExtWord, gExt_wordU_single, gExt_wordV_zero, mul_one, gExtTowU]⟩
+  · exact ⟨0, Pi.single j₀ a, by
+      rw [gExtWord, gExt_wordU_zero, gExt_wordV_single, one_mul, gExtTowV]⟩
+
+/-- ⭐⭐ **The normal form**: every element of the handle-tower span is a word
+`∏_j U_j^{2^k f_j} · ∏_j V_j^{2^k g_j}`. -/
+theorem gExt_mem_span {z : levelQuot (DSq h : Type) (k + 2)}
+    (hz : z ∈ Subgroup.closure (gJoinEichSet h nu' k)) :
+    ∃ f g : Fin h → ℤ_[2], z = levelMk (DSq h : Type) (k + 2) (gExtWord h nu' k f g) :=
+  (Subgroup.closure_le (gExtSpan h nu' k)).2 gExt_eichSet_subset hz
+
+end NormalForm
+
+/-! ## §4 The separation, at every handle count and every depth
+
+The normal form of §3 and the readings of §2 together discharge wave 75's bookkeeping
+obligation outright: an element of the handle-tower span whose every handle row reads
+`2^{k+1}`-divisibly has every exponent even, hence is a `2^{k+1}`-tower in every slot, hence
+dies in `Q_{k+2}`.  No hypothesis on `k`, and none on `h`. -/
+
+section Separation
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ}
+
+/-- An even exponent vector makes the `u`-word die one layer up. -/
+theorem gExt_wordU_mem_of_even {f : Fin h → ℤ_[2]} (hf : ∀ j, (2 : ℤ_[2]) ∣ f j) :
+    gExtWordU h nu' k f ∈ twoCentralSeries (DSq h : Type) (k + 2) := by
+  refine (twoCentralSeries (DSq h : Type) (k + 2)).list_prod_mem ?_
+  intro x hx
+  obtain ⟨j, rfl⟩ : ∃ j, gExtTowU h nu' k j (f j) = x := by simpa using hx
+  obtain ⟨b, hb⟩ := hf j
+  rw [gExtTowU]
+  refine gTower_zpow_dvd_mem (by omega) ⟨b, ?_⟩ _
+  have hkk : k + 2 - 1 = k + 1 := by omega
+  rw [hkk, hb, pow_succ]
+  ring
+
+theorem gExt_wordV_mem_of_even {g : Fin h → ℤ_[2]} (hg : ∀ j, (2 : ℤ_[2]) ∣ g j) :
+    gExtWordV h nu' k g ∈ twoCentralSeries (DSq h : Type) (k + 2) := by
+  refine (twoCentralSeries (DSq h : Type) (k + 2)).list_prod_mem ?_
+  intro x hx
+  obtain ⟨j, rfl⟩ : ∃ j, gExtTowV h nu' k j (g j) = x := by simpa using hx
+  obtain ⟨b, hb⟩ := hg j
+  rw [gExtTowV]
+  refine gTower_zpow_dvd_mem (by omega) ⟨b, ?_⟩ _
+  have hkk : k + 2 - 1 = k + 1 := by omega
+  rw [hkk, hb, pow_succ]
+  ring
+
+/-- A row reading that is `2^{k+1}`-divisible has an even exponent. -/
+theorem gExt_even_of_dvd {a : ℤ_[2]} (ha : (2 : ℤ_[2]) ^ (k + 1) ∣ 2 ^ k * a) :
+    (2 : ℤ_[2]) ∣ a := by
+  obtain ⟨y, hy⟩ := ha
+  refine ⟨y, ?_⟩
+  have h2 : ((2 : ℤ_[2]) ^ k) ≠ 0 := pow_ne_zero _ two_ne_zero
+  refine mul_left_cancel₀ h2 ?_
+  rw [pow_succ] at hy
+  linear_combination hy
+
+/-- ⭐⭐⭐ **The separation, at every `h` and every `k`**: an element of the handle-tower
+span all of whose handle rows read `2^{k+1}`-divisibly is trivial in the layer.  This is
+wave 75's `GJoinTowerSeparation`, proved; wave 75 had it at `h = 0` only. -/
+theorem gExt_towerSeparation : GJoinTowerSeparation h nu' k := by
+  intro z hz hU hV
+  obtain ⟨f, g, rfl⟩ := gExt_mem_span hz
+  have hf : ∀ j₀ : Fin h, (2 : ℤ_[2]) ∣ f j₀ := by
+    intro j₀
+    have hmem := hU j₀
+    rw [gJoin_mem_layerDvd, gExt_rowU_word] at hmem
+    exact gExt_even_of_dvd hmem
+  have hg : ∀ j₀ : Fin h, (2 : ℤ_[2]) ∣ g j₀ := by
+    intro j₀
+    have hmem := hV j₀
+    rw [gJoin_mem_layerDvd, gExt_rowV_word] at hmem
+    exact gExt_even_of_dvd hmem
+  have hU1 : levelMk (DSq h : Type) (k + 2) (gExtWordU h nu' k f) = 1 :=
+    (QuotientGroup.eq_one_iff _).mpr (gExt_wordU_mem_of_even hf)
+  have hV1 : levelMk (DSq h : Type) (k + 2) (gExtWordV h nu' k g) = 1 :=
+    (QuotientGroup.eq_one_iff _).mpr (gExt_wordV_mem_of_even hg)
+  rw [gExtWord, map_mul, hU1, hV1, one_mul]
+
+/-- ⭐⭐⭐ **`GJoinSeparationAll h`, discharged**: the second of the three inputs of wave
+78's repaired reduction `gAbs_markTransitivity_of_baseThree` is a theorem, at every handle
+count. -/
+theorem gExt_separationAll (h : ℕ) : GJoinSeparationAll h :=
+  fun _ _ _ => gExt_towerSeparation
+
+end Separation
+
+/-! ## §5 Axiom pins -/
+
+section AxiomPinsSep
+
+#print axioms gExt_ofFn_center
+#print axioms gExt_ofFn_mul
+#print axioms gExt_ofFn_single
+#print axioms gExtTowU
+#print axioms gExtTowV
+#print axioms gExtWordU
+#print axioms gExtWordV
+#print axioms gExtWord
+#print axioms gExt_chiSq_towU
+#print axioms gExt_chiSq_towV
+#print axioms gExt_delta_prod
+#print axioms gExt_delta_wordU
+#print axioms gExt_delta_wordV
+#print axioms gExt_chiSq_wordU
+#print axioms gExt_rowU_word
+#print axioms gExt_rowV_word
+#print axioms gExt_towU_center
+#print axioms gExt_towV_center
+#print axioms gExt_wordU_class
+#print axioms gExt_wordV_class
+#print axioms gExt_wordU_center
+#print axioms gExt_wordV_center
+#print axioms gExt_towU_add
+#print axioms gExt_towV_add
+#print axioms gExt_wordU_mul
+#print axioms gExt_wordV_mul
+#print axioms gExt_swap
+#print axioms gExt_word_mul
+#print axioms gExt_towU_zero
+#print axioms gExt_towV_zero
+#print axioms gExt_wordU_zero
+#print axioms gExt_wordV_zero
+#print axioms gExt_word_zero
+#print axioms gExt_wordU_single
+#print axioms gExt_wordV_single
+#print axioms gExtSpan
+#print axioms gExt_eichSet_subset
+#print axioms gExt_mem_span
+#print axioms gExt_wordU_mem_of_even
+#print axioms gExt_wordV_mem_of_even
+#print axioms gExt_even_of_dvd
+#print axioms gExt_towerSeparation
+#print axioms gExt_separationAll
+
+end AxiomPinsSep
+
 end SqCore
 
 end Dyadic
