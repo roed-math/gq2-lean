@@ -1,5 +1,31 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 78 (2026-08-15)
+
+**Three items await you.**  The standing two (the plan-A6 freeze; the line-length policy), and
+one new:
+
+* **The pilot record's spelling.**  The committed `ResidualSqrtNegTwo` in `Main.lean` still
+  asks for the classification datum through the abelianization producer, carrying three fields
+  the direct spelling does not need.  The general record and this wave's field modules use the
+  direct spelling, so the two paths have diverged: every new result lands clause-free on the
+  general side while the committed flagship record cannot consume it without an adapter.  The
+  call: modernize the committed record (a statement change to the flagship theorem's
+  hypothesis, strictly weakening it by removing three fields and respelling a fourth), or
+  declare the general-degree record the canonical target and leave the quadratic statement as
+  the frozen historical form.  My recommendation is the first: it is a hypothesis weakening,
+  the anti-drift theorems prove the conclusions unchanged, and it keeps one record shape
+  rather than two.
+
+**For orientation.**  The wave repaired what wave 77 broke, by the published proof's own
+mechanism: the absorption is formalized, the class-3-to-4 clearing step goes through without
+the refuted statement, and the class-four supply witness that the depth-3 shortcut was priced
+at now exists.  The odd route's reduction stands again with three open inputs, the sole
+layer-side one being the depth-3 base.  On the flagship's selector side, the unimodularity
+clause was proved to be exactly the marked level; it is discharged outright at two fields, one
+Prop from discharged at a third, and false at the two procyclic fields, which turn out to need
+a certificate producer shape the tree has never had.
+
 ## Status at wave 77 (2026-08-15)
 
 **Two items await you** (unchanged): the plan-A6 freeze, and the minor line-length policy call.
