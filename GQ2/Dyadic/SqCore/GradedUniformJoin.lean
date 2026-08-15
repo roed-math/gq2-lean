@@ -839,12 +839,20 @@ noncomputable def gJoinEichSet
       z = levelMk (DSq h : Type) (k + 2)
         (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 ^ k * a))}
 
-/-- ⭐⭐⭐ **The reach is the knob span together with the handle towers.**  Wave 74's reach
-adds three families of admissible towers to the knobs; §6 absorbs the `x̃₁`-tower into the
-knobs outright, so what is left over the knob span is exactly the `2h` **handle** towers -
-and every one of those is read as a unit by its own row (§7).  This is the precise form of
+/-- ⭐⭐⭐ **The reach lands inside the knob span joined with the handle towers.**  Wave 74's
+reach adds three families of admissible towers to the knobs; §6 absorbs the `x̃₁`-tower into
+the knobs outright, so what is left over the knob span is the `2h` **handle** towers - and
+every one of those is read as a unit by its own row (§7).  This is the precise form of
 Labute's Lemma 3/Theorem 5 division of labour for the sq core: moves span the
-functional-invisible part, and the functionals kill the rest. -/
+functional-invisible part, and the functionals kill the rest.
+
+[W76-HOUSE, watch round 13: the headline read "the reach **is** the knob span together with
+the handle towers", an equality where only `≤` is proved, as the declaration's own `_le`
+suffix says.  The reverse containment is true and cheap - `gJoinEichSet` generators are
+`gTowerTowSet` members by definition, `gTowerXLetters` containing both Eichler ranges - but it
+is not stated anywhere, so nothing may cite an equality here.  The *sharpness* the summaries
+want is a different statement and it is proved: `gJoin_eichU_tower_notMem` puts an odd-exponent
+handle tower outside the knob span, so the join is not redundant.] -/
 theorem gJoin_reach_le
     {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} (hk : 1 ≤ k)
     (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :

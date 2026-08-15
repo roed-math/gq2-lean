@@ -204,7 +204,14 @@ The join lane's answer was not to join at mod-8 at all but at the **exact** clau
 recording the implication.  No committed statement changed.  The ⚠ that round 12 raised was
 raised correctly and was routed around rather than paid.
 
-### 3.2  MEDIUM.  Headline-versus-statement, three sites
+### 3.2  MEDIUM.  Headline-versus-statement, four sites, three of them the same defect
+
+The recurring shape in `GradedUniformJoin.lean` is **an identity headline over a one-way
+containment**, three times in one module, each time on a theorem whose own name or proof says
+`≤`.  Round 12's proposed sixth checklist item ("a summary sentence about a theorem is a
+separate claim from the theorem's own docstring, and the summary is where the over-reach
+lands") is confirmed and should be sharpened: here the over-reach lands in the **docstring**
+too, not only in the file summary and the note.
 
 * **`GradedUniformJoin.lean` §8's header contradicts its own theorem, 45 lines apart, inside
   one file.**  The header said the `χ`-restricted vanishing interface "*and with it*
@@ -222,6 +229,17 @@ raised correctly and was routed around rather than paid.
   `gJoin_chi_far` proves `gTowerFar h ≤ gJoinChiFour h` and nothing shows the converse.  The
   note's form was stronger still: "**The far span's *definition* is exactly the `chi = 1 mod 4`
   condition**".  Both corrected; the containment is all the argument needs.
+* **"The reach **is** the knob span together with the handle towers" is the same defect on
+  `gJoin_reach_le`**, whose `_le` suffix says what it proves: `gTowerReach h nu' k ≤
+  closure (gTowerKnobSet) ⊔ closure (gJoinEichSet)`.  The reverse containment is true and cheap
+  (the `gJoinEichSet` generators are `gTowerTowSet` members by definition, `gTowerXLetters`
+  containing both Eichler ranges) but it is stated nowhere, so nothing may cite an equality.
+  The ⭐⭐⭐ docstring is corrected and now records both the gap and the fact that the
+  *sharpness* the summaries want is a different, proved statement:
+  `gJoin_eichU_tower_notMem` puts an odd-exponent handle tower outside the knob span, so the
+  join is not redundant.  The module summary's and the note's "exceeds the knob span by
+  **exactly** the `2h` handle towers" is defensible on those two theorems together and is left
+  standing.
 * **"`GTowerLayerReach h nu' 1` is false" is bolded as a fact and is an argument**
   (`w75-join-note.md`'s T2 warning).  Nothing in the tree refutes it.  The argument is also
   incomplete as given: showing that neither *generator family* produces `[σ, x₀]` does not show
@@ -439,7 +457,7 @@ line drift; it needs to think that way about content.
 
 ## 5.  Verification record
 
-* Lane `claude/w76-house`, base `97d51e93`.  Seven commits, all path-limited.  **Not pushed.**
+* Lane `claude/w76-house`, base `97d51e93`.  Nine commits, all path-limited.  **Not pushed.**
 * **No `lake` command was run**; `scripts/check_dyadic.sh` and `scripts/check_axioms.sh` were
   not run.
 * `scripts/mirror.sh sweep` once at lane start (5873 artifacts), then `scripts/mirror.sh check`
