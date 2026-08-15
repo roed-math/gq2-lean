@@ -687,7 +687,251 @@ theorem gJoin_xOne_tower_knob
 
 end XOneAbsorption
 
-/-! ## §7 Axiom pins -/
+/-! ## §7 Tower detection, and where the reach and the knob span actually differ
+
+The other half of Labute's Lemma 4(3).  For each handle slot there is a coefficient vector
+that reads **that slot's cleared letter and nothing else**, so its tower is visible at the
+layer bit exactly when its exponent is odd.  Combined with §5-§6 this pins the difference
+between the reach and the knob span precisely: it is spanned by the `2h` handle towers, every
+one of which is functional-visible.  (The `x̃₁` tower, the one the functionals cannot see, is
+already a knob by §6.  The two non-admissible towers `x₀`, `w` never enter, the defect being
+exactly row-trivial.) -/
+
+section Detection
+
+variable {h : ℕ}
+
+/-- The coefficient vector supported on the `u_j` slot. -/
+noncomputable def gJoinRowU (j : Fin h) : Fin (sqRank h) → ℤ_[2] :=
+  fun i => if i = sqHandleIdxU j then 1 else 0
+
+/-- The coefficient vector supported on the `v_j` slot. -/
+noncomputable def gJoinRowV (j : Fin h) : Fin (sqRank h) → ℤ_[2] :=
+  fun i => if i = sqHandleIdxV j then 1 else 0
+
+theorem gJoin_rowU_core (j : Fin h) : gJoinRowU (h := h) j 0 = 0 ∧ gJoinRowU (h := h) j 1 = 0 :=
+  ⟨if_neg (Ne.symm (sqHandleIdxU_ne_of_val_lt j (by rw [sqVal_zero]; omega))),
+    if_neg (Ne.symm (sqHandleIdxU_ne_of_val_lt j (by rw [sqVal_one]; omega)))⟩
+
+theorem gJoin_rowV_core (j : Fin h) : gJoinRowV (h := h) j 0 = 0 ∧ gJoinRowV (h := h) j 1 = 0 :=
+  ⟨if_neg (Ne.symm (sqHandleIdxV_ne_of_val_lt j (by rw [sqVal_zero]; omega))),
+    if_neg (Ne.symm (sqHandleIdxV_ne_of_val_lt j (by rw [sqVal_one]; omega)))⟩
+
+/-- ⭐ **The `u`-row reads its own cleared letter as a unit**, and every other cleared letter
+as zero.  This is Labute's `Δ_i(π^{j-1} ξ_k) = π^j δ_{ik}` for the campaign's cleared
+basis. -/
+theorem gJoin_rowU_eichU (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (j j' : Fin h) :
+    gDelta h (gJoinRowU j) (sqEichU h nu' j') = if j' = j then 1 else 0 := by
+  obtain ⟨h0, h1⟩ := gJoin_rowU_core (h := h) j
+  rw [gJoin_delta_eichU h0 h1]
+  by_cases hjj : j' = j
+  · subst hjj
+    simp only [gJoinRowU]
+  · rw [if_neg hjj]
+    exact if_neg fun hcon => hjj (sqHandleIdxU_injective hcon)
+
+theorem gJoin_rowU_eichV (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (j j' : Fin h) : gDelta h (gJoinRowU j) (sqEichV h nu' j') = 0 := by
+  obtain ⟨h0, h1⟩ := gJoin_rowU_core (h := h) j
+  rw [gJoin_delta_eichV h0 h1]
+  exact if_neg (sqHandleIdxU_ne_sqHandleIdxV j j').symm
+
+theorem gJoin_rowU_xOne (j : Fin h) : gDelta h (gJoinRowU j) (gTowerXOne h) = 0 := by
+  rw [gJoin_delta_xOne (gJoin_rowU_core (h := h) j).2]
+  exact if_neg (Ne.symm (sqHandleIdxU_ne_of_val_lt j (by rw [sqVal_two]; omega)))
+
+theorem gJoin_rowV_eichV (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (j j' : Fin h) :
+    gDelta h (gJoinRowV j) (sqEichV h nu' j') = if j' = j then 1 else 0 := by
+  obtain ⟨h0, h1⟩ := gJoin_rowV_core (h := h) j
+  rw [gJoin_delta_eichV h0 h1]
+  by_cases hjj : j' = j
+  · subst hjj
+    simp only [gJoinRowV]
+  · rw [if_neg hjj]
+    exact if_neg fun hcon => hjj (sqHandleIdxV_injective hcon)
+
+theorem gJoin_rowV_eichU (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (j j' : Fin h) : gDelta h (gJoinRowV j) (sqEichU h nu' j') = 0 := by
+  obtain ⟨h0, h1⟩ := gJoin_rowV_core (h := h) j
+  rw [gJoin_delta_eichU h0 h1]
+  exact if_neg (sqHandleIdxU_ne_sqHandleIdxV j' j)
+
+/-- ⭐⭐ **The handle towers are detected on the nose**: the `u_j`-tower at exponent `2^k a`
+reads `2^k a`, so its layer bit is the parity of `a`.  Contrapositive of Labute's Theorem 5
+step `0 = Δ_i(ε_j) = a_i π^j`: a knob-span class cannot carry an odd handle-tower
+coefficient. -/
+theorem gJoin_eichU_tower_reading
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) (k : ℕ)
+    (a : ℤ_[2]) :
+    gDelta h (gJoinRowU j) (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) (2 ^ k * a))
+      = 2 ^ k * a := by
+  rw [gJoin_delta_zpow _ (gDelta_chiSq_sqEichU nu' j), gJoin_rowU_eichU nu' j j, if_pos rfl,
+    mul_one]
+
+theorem gJoin_eichV_tower_reading
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) (k : ℕ)
+    (a : ℤ_[2]) :
+    gDelta h (gJoinRowV j) (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 ^ k * a))
+      = 2 ^ k * a := by
+  rw [gJoin_delta_zpow _ (gDelta_chiSq_sqEichV nu' j), gJoin_rowV_eichV nu' j j, if_pos rfl,
+    mul_one]
+
+/-- ⭐⭐ **An odd-exponent handle tower is outside the layer kernel** - hence, by §6, outside
+the knob span.  This is the exact obstruction that `gDelta_cfourCmp_span_hyp_false` exhibited
+at `σ`, now at the *admissible* towers where it actually bites the join. -/
+theorem gJoin_eichU_tower_notMem
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) {k : ℕ}
+    {a : ℤ_[2]} (ha : ¬ (2 : ℤ_[2]) ∣ a) :
+    levelMk (DSq h : Type) (k + 2)
+        (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) (2 ^ k * a))
+      ∉ gJoinLayerDvd h (gJoinRowU j) k := by
+  intro hmem
+  rw [gJoin_mem_layerDvd, gJoin_eichU_tower_reading] at hmem
+  obtain ⟨y, hy⟩ := hmem
+  refine ha ⟨y, ?_⟩
+  have h2 : ((2 : ℤ_[2]) ^ k) ≠ 0 := pow_ne_zero _ two_ne_zero
+  refine mul_left_cancel₀ h2 ?_
+  rw [pow_succ] at hy
+  linear_combination hy
+
+end Detection
+
+section ReachSplit
+
+open scoped Pointwise
+
+variable {h : ℕ}
+
+variable (h) in
+/-- **The handle-tower generators at correction depth `k`**: the admissible towers *other*
+than the `x̃₁`-tower, i.e. the ones the functionals detect. -/
+noncomputable def gJoinEichSet
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ) :
+    Set (levelQuot (DSq h : Type) (k + 2)) :=
+  {z | ∃ j : Fin h, ∃ a : ℤ_[2],
+      z = levelMk (DSq h : Type) (k + 2)
+        (zpowZtwo (isProP_DSq h) (sqEichU h nu' j) (2 ^ k * a)) ∨
+      z = levelMk (DSq h : Type) (k + 2)
+        (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 ^ k * a))}
+
+/-- ⭐⭐⭐ **The reach is the knob span together with the handle towers.**  Wave 74's reach
+adds three families of admissible towers to the knobs; §6 absorbs the `x̃₁`-tower into the
+knobs outright, so what is left over the knob span is exactly the `2h` **handle** towers -
+and every one of those is read as a unit by its own row (§7).  This is the precise form of
+Labute's Lemma 3/Theorem 5 division of labour for the sq core: moves span the
+functional-invisible part, and the functionals kill the rest. -/
+theorem gJoin_reach_le
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} (hk : 1 ≤ k)
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    gTowerReach h nu' k ≤
+      Subgroup.closure (gTowerKnobSet h nu' k) ⊔ Subgroup.closure (gJoinEichSet h nu' k) := by
+  refine (Subgroup.closure_le _).2 ?_
+  rintro z (hz | ⟨x, hx, a, rfl⟩)
+  · exact Subgroup.mem_sup_left (Subgroup.subset_closure hz)
+  · simp only [gTowerXLetters, Set.mem_union, Set.mem_singleton_iff, Set.mem_range] at hx
+    obtain (rfl | ⟨j, rfl⟩) | ⟨j, rfl⟩ := hx
+    · exact Subgroup.mem_sup_left (gJoin_xOne_tower_knob hk hx0 a)
+    · exact Subgroup.mem_sup_right (Subgroup.subset_closure ⟨j, a, Or.inl rfl⟩)
+    · exact Subgroup.mem_sup_right (Subgroup.subset_closure ⟨j, a, Or.inr rfl⟩)
+
+variable (h) in
+/-- ⭐⭐ **The residual separation obligation**, isolated.  Everything Labute's Lemma 4 asks
+of the join is proved above *except* one bookkeeping step: that the `2h` handle towers are
+`𝔽₂`-independent modulo the knob span, as their readings say they are.  Stated pointwise so
+that a consumer can check satisfiability: at `h = 0` it holds vacuously
+(`gJoin_towerSeparation_handleFree`), and §7's readings give each generator's own row.
+
+Concretely what remains is: write a class of the handle-tower span in the normal form
+`∏_j U_j^{2^k f_j} · V_j^{2^k g_j}`, read off `f_j` and `g_j` by `gJoinRowU j`/`gJoinRowV j`,
+and conclude `2 ∣ f_j`, `2 ∣ g_j`, hence triviality in the layer.  No new mathematics; the
+friction is that the layer is written inside a non-commutative quotient, so the normal form
+needs an ordered product and its exponent-addition law. -/
+def GJoinTowerSeparation
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ) : Prop :=
+  ∀ z ∈ Subgroup.closure (gJoinEichSet h nu' k),
+    (∀ j : Fin h, z ∈ gJoinLayerDvd h (gJoinRowU j) k) →
+      (∀ j : Fin h, z ∈ gJoinLayerDvd h (gJoinRowV j) k) → z = 1
+
+/-- The separation is vacuous in the handle-free case. -/
+theorem gJoin_towerSeparation_handleFree
+    (nu' : ContinuousMonoidHom (DSq 0 : Type) (Multiplicative ℤ_[2])) (k : ℕ) :
+    GJoinTowerSeparation 0 nu' k := by
+  intro z hz _ _
+  have hempty : gJoinEichSet 0 nu' k = (∅ : Set (levelQuot (DSq 0 : Type) (k + 2))) := by
+    ext w
+    simp only [gJoinEichSet, Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+    rintro ⟨j, -, -⟩
+    exact absurd j.isLt (by omega)
+  rw [hempty, Subgroup.closure_empty] at hz
+  exact hz
+
+/-- The handle-tower generators are central in the level quotient (they are images of
+`γ_{k+1}`-elements), so their span is normal. -/
+theorem gJoin_eichSet_central
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} :
+    Subgroup.closure (gJoinEichSet h nu' k)
+      ≤ Subgroup.center (levelQuot (DSq h : Type) (k + 2)) := by
+  refine (Subgroup.closure_le _).2 ?_
+  rintro z ⟨j, a, (rfl | rfl)⟩
+  · refine Subgroup.mem_center_iff.2 fun x => ?_
+    exact gTower_img_central
+      (gTower_zpow_dvd_mem (by omega) ⟨a, by rw [Nat.add_sub_cancel]⟩ _) x
+  · refine Subgroup.mem_center_iff.2 fun x => ?_
+    exact gTower_img_central
+      (gTower_zpow_dvd_mem (by omega) ⟨a, by rw [Nat.add_sub_cancel]⟩ _) x
+
+theorem gJoin_eichSub_normal
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} :
+    (Subgroup.closure (gJoinEichSet h nu' k)).Normal := by
+  constructor
+  intro n hn g
+  have hc : g * n = n * g := Subgroup.mem_center_iff.1 (gJoin_eichSet_central hn) g
+  rw [hc, mul_assoc, mul_inv_cancel, mul_one]
+  exact hn
+
+/-- ⭐⭐⭐ **The separation, granted the bookkeeping**: a reach class all of whose handle rows
+read `2^{k+1}`-divisibly lies in the knob span.  This is Labute's `Im δ = ⋂ ker Δ` in the
+campaign's vocabulary, and it is the *whole* of what `GTowerDefectVanishing` needs beyond the
+depth-`2` base. -/
+theorem gJoin_reach_sep
+    {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ}
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (HS : GJoinTowerSeparation h nu' (k + 2))
+    {z : levelQuot (DSq h : Type) (k + 2 + 2)} (hz : z ∈ gTowerReach h nu' (k + 2))
+    (hU : ∀ j : Fin h, z ∈ gJoinLayerDvd h (gJoinRowU j) (k + 2))
+    (hV : ∀ j : Fin h, z ∈ gJoinLayerDvd h (gJoinRowV j) (k + 2)) :
+    z ∈ Subgroup.closure (gTowerKnobSet h nu' (k + 2)) := by
+  haveI := gJoin_eichSub_normal (h := h) (nu' := nu') (k := k + 2)
+  have hmem : z ∈
+      ((Subgroup.closure (gTowerKnobSet h nu' (k + 2)) :
+        Subgroup (levelQuot (DSq h : Type) (k + 2 + 2))) :
+          Set (levelQuot (DSq h : Type) (k + 2 + 2))) *
+      ((Subgroup.closure (gJoinEichSet h nu' (k + 2)) :
+        Subgroup (levelQuot (DSq h : Type) (k + 2 + 2))) :
+          Set (levelQuot (DSq h : Type) (k + 2 + 2))) := by
+    rw [← Subgroup.mul_normal]
+    exact gJoin_reach_le (by omega) hx0 hz
+  obtain ⟨n, hn, t, ht, rfl⟩ := hmem
+  have hn' : n ∈ Subgroup.closure (gTowerKnobSet h nu' (k + 2)) := hn
+  have ht' : t ∈ Subgroup.closure (gJoinEichSet h nu' (k + 2)) := ht
+  have hprod : (fun x1 x2 => x1 * x2) n t = n * t := rfl
+  rw [hprod] at hU hV ⊢
+  have hteq : t = n⁻¹ * (n * t) := by group
+  have hone : t = 1 := by
+    refine HS t ht' (fun j => ?_) (fun j => ?_)
+    · rw [hteq]
+      exact Subgroup.mul_mem _
+        (Subgroup.inv_mem _ (gJoin_knob_le_layerDvd (gJoinRowU j) hn')) (hU j)
+    · rw [hteq]
+      exact Subgroup.mul_mem _
+        (Subgroup.inv_mem _ (gJoin_knob_le_layerDvd (gJoinRowV j) hn')) (hV j)
+  rw [hone, mul_one]
+  exact hn'
+
+end ReachSplit
+
+/-! ## §8 Axiom pins -/
 
 
 section AxiomPins
@@ -735,6 +979,23 @@ section AxiomPins
 #print axioms gJoin_x1_eq
 #print axioms gJoin_xOne_tower_adm
 #print axioms gJoin_xOne_tower_knob
+#print axioms GQ2.Dyadic.SqCore.gJoinRowU
+#print axioms GQ2.Dyadic.SqCore.gJoinRowV
+#print axioms gJoin_rowU_eichU
+#print axioms gJoin_rowU_eichV
+#print axioms gJoin_rowU_xOne
+#print axioms gJoin_rowV_eichV
+#print axioms gJoin_rowV_eichU
+#print axioms gJoin_eichU_tower_reading
+#print axioms gJoin_eichV_tower_reading
+#print axioms gJoin_eichU_tower_notMem
+#print axioms GQ2.Dyadic.SqCore.gJoinEichSet
+#print axioms gJoin_reach_le
+#print axioms GQ2.Dyadic.SqCore.GJoinTowerSeparation
+#print axioms gJoin_towerSeparation_handleFree
+#print axioms gJoin_eichSet_central
+#print axioms gJoin_eichSub_normal
+#print axioms gJoin_reach_sep
 
 end AxiomPins
 
