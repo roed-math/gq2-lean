@@ -106,7 +106,7 @@ Two directions were landed so the row shape is not merely assumed:
   `mpcCert_isEmpty_certificateM_of_level`: the same argument run at the *compact* certificate,
   where the corrected `C̄₀`-value is `1`, gives §1's headline.
 
-Both at the standard three axioms.  The reverse inequality is not a theorem about the
+All three at the standard three axioms.  The reverse inequality is not a theorem about the
 certificate (the level can be smaller than the row's `r` only if the field sits on a different
 row), and it is part of what the per-field `Prop` asserts.
 
