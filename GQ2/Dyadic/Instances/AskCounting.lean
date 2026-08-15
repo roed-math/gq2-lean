@@ -46,12 +46,17 @@ difference between two coefficients on the same identity, and §2 measures it ex
 * `askC_exactLifting_iff_stageVanishing` is therefore an equivalence at `2 ≤ n`: at the degree
   the campaign runs at, the frozen bundle and `askCStageVanishing` are the same statement.
 
-The necessity direction is the sharp half, and it is a warning, not a convenience: at `2 ≤ n`
-the frozen field forces `#D_R · e_Γ(B) = 0` on every nontrivial-`R` frame
-(`askC_exactImageCount_eq_zero_of_exactLifting`).  Either that vanishing is a true fact about
-`G_K` and wants a proof, or the row records are asking for something no arithmetic supports and
-want restating against `ExactLiftingSemanticsRN`, which is already a theorem here at every
-degree.  This file does not make that statement change; it prices it.
+The necessity direction is the sharp half, and it is a warning rather than a convenience.  At
+`2 ≤ n` the frozen field forces `e_Γ(B) = 0` on every nontrivial-`R` frame
+(`askC_exactImageCount_eq_zero_of_exactLifting`), and that count is `#BoundaryLiftsK`, which is
+finite because `G_K` is topologically finitely generated.  So the frozen field asserts that
+`G_K` admits **no** boundary-framed surjection whatever onto any marked target with a nontrivial
+Frattini block (`askC_isEmpty_boundaryLifts_of_exactLifting`).  The recursion exists to count
+those surjections.
+
+The lane's recommendation therefore is to restate the row records against
+`ExactLiftingSemanticsRN`, which `askC_exactLiftingRN_galK` proves at every degree with nothing
+carried.  This file does not make that statement change; it prices it.
 
 ## What §3 delivers
 
@@ -288,6 +293,39 @@ theorem askC_exactImageCount_eq_zero_of_exactLifting {n q : ℕ} {P : ProfiniteG
   · exact absurd hc hd
   · exact Nat.cast_eq_zero.mp hx
 
+/-- **The finding in its sharpest form.**  `exactImageCountK b F T` is `#BoundaryLiftsK b F T`,
+the number of boundary-framed surjections `G_K ↠ Y` (`Recursion/Frame.lean`), and `G_K` is
+topologically finitely generated, so that count is finite.  A finite count of zero is emptiness.
+
+So carrying the frozen `ExactLiftingSemantics` at `2 ≤ n` asserts that `G_K` admits **no**
+boundary-framed surjection at all onto any marked target whose Frattini block is nontrivial.
+The recursion exists to count exactly those surjections, so this is not a harmless binder: on
+every nontrivial-`R` frame it makes the object being counted empty.
+
+This is stated, not resolved.  It is the reason the lane's recommendation is to restate the row
+records against `ExactLiftingSemanticsRN`, which `askC_exactLiftingRN_galK` already proves at
+every degree with nothing carried. -/
+theorem askC_isEmpty_boundaryLifts_of_exactLifting {n q : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo} (hdeg : Module.finrank ℚ_[2] K = n) (hn : 2 ≤ n)
+    (hfroz : ExactLiftingSemantics (galKProfinite K) n q P nuP (standardNumerics n))
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom (galKProfinite K) ↥(boundarySubgroupQ q nuP))
+    (F : BoundaryFrameK q P H E) (hR : 1 < Nat.card ↥Blk.frattiniK) :
+    IsEmpty (BoundaryLiftsK b F T) := by
+  haveI : Finite (BoundaryLiftsK b F T) :=
+    finite_boundaryLiftsK b F T (tfg_galK K)
+  have hzero : Nat.card (BoundaryLiftsK b F T) = 0 :=
+    askC_exactImageCount_eq_zero_of_exactLifting hdeg hn hfroz hE2 hRK hR2 b F hR
+  rcases Nat.card_eq_zero.mp hzero with he | hi
+  · exact he
+  · exact absurd hi (not_infinite_iff_finite.mpr inferInstance)
+
 end Residual
 
 /-! ## §3 The record consequence  (ticket T3)
@@ -406,6 +444,7 @@ below.  `std-3` abbreviates `propext, Classical.choice, Quot.sound`.
 | `askC_stageVanishing_of_exactLifting` | same union |
 | `askC_exactLifting_iff_stageVanishing` | same union |
 | `askC_exactImageCount_eq_zero_of_exactLifting` | same union |
+| `askC_isEmpty_boundaryLifts_of_exactLifting` | same union |
 | `askCKExactSupply_of_markedCore` | same union |
 | `askCKSupply_of_markedCore` | same union **plus** `hilbertSymbol_normCriterion_finiteDyadic`, `relativeStiefelWhitney_dyadic` |
 
@@ -421,7 +460,7 @@ Three readings worth recording.
   `affineDeterminant_galK`, i.e. through the *determinant* field, not through anything this file
   proves.  They are the price of ledger field 6, and they are already paid at head.
 
-No declaration in this file introduces an axiom of its own, and none of the eleven uses `sorry`
+No declaration in this file introduces an axiom of its own, and none of the twelve uses `sorry`
 or `native_decide`. -/
 
 #print axioms askC_stokes_galK
@@ -433,6 +472,7 @@ or `native_decide`. -/
 #print axioms askC_stageVanishing_of_exactLifting
 #print axioms askC_exactLifting_iff_stageVanishing
 #print axioms askC_exactImageCount_eq_zero_of_exactLifting
+#print axioms askC_isEmpty_boundaryLifts_of_exactLifting
 #print axioms askCKExactSupply_of_markedCore
 #print axioms askCKSupply_of_markedCore
 
