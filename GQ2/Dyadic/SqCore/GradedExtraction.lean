@@ -648,7 +648,45 @@ theorem gExt_dress_full (hk : 2 ≤ k) {n : ℕ} (m m' : Fin (sqRank n) → leve
   rw [hhand, hcore]
   simp only [hAU, hAV, mul_assoc]
 
+variable (k) in
+/-- **The move of a dressing**: the layer element by which dressing every slot of `m` by the
+corrections `c` multiplies the relator.  Three core knobs (the `σ`-slot bracket, the
+`x₀`-slot bracket, the `x₁`-slot bundle) and `2h` handle knobs. -/
+def gExtMove {n : ℕ} (m c : Fin (sqRank n) → levelQuot G (k + 2)) : levelQuot G (k + 2) :=
+  commP (c 0) (m 1) * commP (m 0) (c 1) * (c 2 ^ 2 * commP (c 2) (m 2)) *
+    (List.ofFn fun i => commP (c (sqHandleIdxU i)) (m (sqHandleIdxV i)) *
+      commP (m (sqHandleIdxU i)) (c (sqHandleIdxV i))).prod
+
+/-- ⭐⭐ **The dressing identity**, in the form the extraction consumes: dressing by an
+admissible tuple multiplies the relator by that tuple's move. -/
+theorem gExt_dress_move (hk : 2 ≤ k) {n : ℕ} (m c : Fin (sqRank n) → levelQuot G (k + 2))
+    (hc : ∀ i, c i ∈ lambdaImage G k (k + 2)) :
+    sqRelWord (fun i => m i * c i) = sqRelWord m * gExtMove k m c :=
+  gExt_dress_full hk m _ (hc 0) (hc 1) (hc 2) (fun _ => hc _) (fun _ => hc _)
+    rfl rfl rfl (fun _ => rfl) (fun _ => rfl)
+
 end Handles
+
+section FrameMove
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ}
+
+/-- ⭐⭐ **The dressing identity at the arbitrary frame**, in the vocabulary of
+`GTowerKnobRealizable`: correcting the dressing `a` by an admissible depth-`k` tuple `d`
+multiplies the relator's class in `Q_{k+2}` by the move of `d` against the *current frame
+values*.  This is the exact hand-off point for the extraction: what has to be produced is a
+`d` whose move inverts the defect. -/
+theorem gExt_frame_move (j : Fin h) (hk : 2 ≤ k) (a d : Fin (sqRank h) → (DSq h : Type))
+    (hd : ∀ i, d i ∈ twoCentralSeries (DSq h : Type) k) :
+    levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j fun i => a i * d i))
+      = levelMk (DSq h : Type) (k + 2) (sqRelWord (sqArbFrame h nu' j a)) *
+        gExtMove k (fun i => levelMk (DSq h : Type) (k + 2) (sqArbFrame h nu' j a i))
+          (fun i => levelMk (DSq h : Type) (k + 2) (d i)) := by
+  rw [gTower_frame_mul, map_sqRelWord, map_sqRelWord]
+  simp only [map_mul]
+  exact gExt_dress_move hk _ _ fun i => ⟨d i, hd i, rfl⟩
+
+end FrameMove
 
 /-! ## §7 Axiom pins -/
 
@@ -705,6 +743,9 @@ section AxiomPinsSep
 #print axioms gExt_handleWord_dress
 #print axioms gExt_dress_handles
 #print axioms gExt_dress_full
+#print axioms gExtMove
+#print axioms gExt_dress_move
+#print axioms gExt_frame_move
 
 end AxiomPinsSep
 
