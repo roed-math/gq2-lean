@@ -209,8 +209,138 @@ T3 (reconciliation): section 4 below, after the landings.
 
 ## 3  Landing report
 
-(filled at the end of the lane)
+Module `GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean`, 1749 lines, 105 declarations,
+103 axiom pins all within std-3 (`gDelta_map_commP` and `gDelta_dvd_mul_sub_mul`
+print with subsets).  Commits `3c0674d6` (T1/T2) and `1023470d` (T3 Lean), on
+`9e7c243d` (this note's T0), base `4fff1592`.  Verified by `scripts/mirror.sh`
+(sweep at lane start, `check` green, `gen` regenerated into the mirror).  No edits
+to any existing file; the sibling `GradedUniformTower.lean` untouched and unimported.
+
+T1 landed in full: `gDeltaHom h c` and `gDelta h c` exist for every row `c` at every
+handle count, twist proved equal to `chi_sq` (`gDeltaHom_g`), with crossed
+product/inverse/power/commutator rules; the filtration
+(`gDelta_dvd_of_mem_twoCentral`, `gDelta_two_dvd`); the tower formulas
+(`gDelta_sigma_tower`, `gDelta_x0_tower`, `gDelta_handleU_tower`), the survival
+corollaries (`gDelta_*_tower_notMem`), and the excluded-letter theorem
+(`gDelta_x1_tower_dvd`).  The tower formula in the layer encoding reads: for the
+delta-row at a non-excluded generator, `gDelta (gen^{2^m}) = 2^m * unit`, so the
+class of `gen^{2^m}` in `zLayer (m+1)` is nontrivial and is separated from
+`lambda_{m+2}` by the functional; Labute's `Delta_i(pi^{j-1} xi_k) = pi^j delta_ik`
+is the statement at the `2I`-normalized rows (`c` in `2Z2`), where every bound
+sharpens by one power.
+
+T2 landed in full: the chi-triviality inventory, the master kill
+(`gDelta_relWord_of_chiFrame`), the exact death of the wave-68 leftover lift
+(`gDelta_leftover_lift`), lift-independent `2^3`-divisibility on `cfourIdLeftover`
+and `cfourEichDefect` classes, the closed-form reading of `cfourDefCore`
+(`gDelta_coreLift_eq`, with `v2(S - X) = 3` exactly), and the interface Prop
+`GDeltaDefectVanishing h`, **proved** (`gDeltaDefectVanishing_holds`).  The ENGINE
+lane's suggested `GTowerDefectVanishing h` could not be shape-matched without
+importing the sibling; `GDeltaDefectVanishing h` is this side's sharpest form, and
+W75 should join the two at the dressing-class hypotheses (see the gap ledger, 4.4).
+
+T3's Lean half landed beyond the brief: the tower obstruction
+(`gDelta_relWord_dvd_of_chi_mod`, `gDelta_sigma_tower_not_reached`) and the
+refutation `gDelta_cfourCmp_span_hyp_false`.
 
 ## 4  The reconciliation with waves 70-73 (T3)
 
-(filled at the end of the lane)
+### 4.1  The wave-73 span hypothesis is dead
+
+`cfourCmp_residual_of_span` (GradedClassFourCompose.lean:748) reduces the class-four
+residual to: some subgroup `S` of `Q4` containing every `p^4`, every bracket square
+and every triple bracket, all of whose elements are knobs of the committed route.
+Its honesty marker left "whether the knob subgroup contains the three families"
+open.  **Answer: no; the hypothesis is unsatisfiable** (`gDelta_cfourCmp_span_hyp_false`,
+`h >= 1`).  The failing family is the fourth powers: `S` must contain the sigma
+tower `(levelMk sigma)^4`, but every correction of the route (gamma2-valued, hence
+`chi = 1 mod 8` by the sharp shadow; the bridge dressing, `chi = 1` exactly) leaves
+the relator's functional readings in `8Z2` (the perturbed Fox coefficients stay in
+`8Z2`, `gDelta_csR_dvd`/`gDelta_cxR_dvd`/`gDelta_cyR_dvd`), while
+`cfourDefCore * sigma^4` reads `4 * unit` at the sigma row.  The theorem
+`cfourCmp_residual_of_span` remains true and untouched; it is its hypothesis that no
+lane can ever supply.  `cfourCmp_zLayer_le_gens` (the relations half) also stands;
+what died is instantiating it at `S :=` the knob subgroup.
+
+This is Labute-consistent, and it is the honest redirection of the route: his
+Lemma 3 lists the towers **separately** from the image of `delta` when generating
+`gr_i(X)`, and his Theorem 5 endgame kills the defect's tower components with the
+functionals (`0 = Delta_i(eps_j) = a_i pi^j`, p. 126), never by reaching towers with
+moves.  Moves do not span the layer; they span (at most) the functional-invisible
+part of it.
+
+### 4.2  Reading `cfiveJoin_zLayer_le_iff` in the functional light
+
+The wave-73 join (GradedClassFiveJoin.lean:286) is an equivalence for arbitrary
+closed `S`: `zLayer G 4 <= S` iff every `x1`-bracket `[c, x1]` of a `T`-element is
+in `S`.  The equivalence stands.  But at `S :=` the class-five knob subgroup of the
+committed route its left side is unsatisfiable by the same tower mechanism one level
+up: `zLayer 4` contains the sigma-tower class `sigma^{2^3}` (nontrivial by
+`gDelta_sigma_tower_notMem` at `m = 3`, functional reading `2^3 * unit`), while
+class-five corrections are gamma2-valued at best gamma3-valued, with `chi = 1 mod
+2^4` (units shadow at `k = 3`), so the mod-16 analogue of the coefficient bounds
+puts every class-five knob reading in `2^4 Z2`.  Hence, by the join's own
+equivalence read contrapositively, **the wave-73 "one condition" (is the x1-bracket
+of a correction-layer element a move?) has answer no along the committed route** -
+not because the x1-direction is hard, but because granting it would force the
+functional-visible towers into the knob subgroup.  The mod-16 coefficient variant is
+not committed (this lane committed mod-8, which class four consumes); it is the same
+congruence kit run at `2^4` and is the cheapest way for W75 to make the class-five
+half of this paragraph a theorem.
+
+### 4.3  What the uniform view says the residual needs
+
+The corrected shape of the class-four (and class-five) attack, per Labute:
+
+1. **Defect invisibility** (this lane, committed): the defect classes lie in the
+   common kernel of the functionals - exactly for the ker-chi dressings
+   (`GDeltaDefectVanishing`), at the layer bit for the whole committed calculus
+   (`gDelta_relWord_dvd_of_chi_mod`, `gDelta_dvd_of_levelMk_eq_defCore`).
+2. **The Lemma 3 analogue** (open; the ENGINE-shaped statement): the
+   functional-invisible part of the layer is spanned by knobs -
+   `zLayer(k) ∩ (all rows' kernels) <= knob subgroup`.  Equivalently: the knob
+   subgroup and the towers together span the layer, with the towers detected and
+   separated by the functionals.  This replaces both the span hypothesis (too
+   strong, now refuted) and the raw x1-bracket condition (equivalent to it through
+   the join).
+3. **The assembly**: 1 + 2 give `cfourDefCore ∈ knobs`, hence
+   `CfourCmpResidual h` through `cfourCmp_residual_of_core_vanish`-style
+   composition, hence `SqClassClearingSupply h 4` - all committed plumbing.
+
+### 4.4  The gap ledger for W75
+
+* **The torsion gap** (committed as `gDelta_chiSq_of_nuLam`): the supply's row
+  clauses force only `chi_sq(a) = ±1`.  All vanishing statements here are exact on
+  the `+1` class and mod-8 on the gamma2 class; a supply dressing with a genuine
+  `-1` slot is outside both.  Either the assembly restricts to the `+1` class (the
+  committed route lives there), or a sign-corrected variant of the master identity
+  is needed (the datum at `(-S, -X, Y)`-type values, a finite check against the
+  same three ChiR identities).
+* **The interface join**: this side exports `GDeltaDefectVanishing h` (proved) and
+  the quantitative forms; the ENGINE's tower statement should be joined at the
+  hypothesis "dressing slots mod-8 chi-trivial", which covers the whole committed
+  correction calculus (`gDelta_chi_gammaTwo_dvd`, `gDelta_chiSq_bridgeTuple`).
+* **The class-five mod-16 kit** (4.2), one congruence pass.
+* **Untwisted rows are not functionals** (1.2-1.3, committed as
+  `gDelta_row_reading`): any lane tempted to work with `nuSq`/`nuLam`/handle-row
+  characters at the layers should read 1.3 first; the twist is load-bearing.
+
+### 4.5  Statements of waves 70-73 read against the uniform view
+
+* `cfourDef_defect_eq` / the "two defects whose class-three images cancel"
+  (W72): sharpened, not corrected - the cancellation is exactly `v2(S - X) = 3`,
+  and the pair's functional reading is `(X^{-1} - S^{-1}) * gDelta(bridgeDress)` on
+  the nose (`gDelta_coreLift_eq`).
+* `cfourDefCore` x1-freeness (W72): consistent; x1-freeness is why the core
+  defect's reading is computable from the bracket rules alone, and why it lands in
+  `8Z2` rather than vanishing exactly (the sigma/x0 slots are chi-active).
+* `cfourCmp_zLayer_le_gens`, `cfiveJoin_zLayer_le_iff` (W73): both stand as
+  equivalences/implications about arbitrary subgroups; both are unsatisfiable at
+  the committed knob subgroup by the tower obstruction (4.1, 4.2).
+* The W71/W72 knob inventory (squares bundled with brackets at the x1 slot): the
+  functional face is the excluded-letter theorem `gDelta_x1_tower_dvd` - the x1
+  tower is the one tower the functionals do not protect, which is exactly why the
+  x1-slot square knob (`c^2 * [c, x1]`) is the only knob that can deliver
+  tower-type elements, and why every other tower is out of reach (4.1).
+* Nothing in waves 70-73 is falsified; one open question (the span hypothesis) is
+  answered negatively, and one route is redirected (4.3).
