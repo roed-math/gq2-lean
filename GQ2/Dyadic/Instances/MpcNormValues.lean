@@ -536,6 +536,89 @@ theorem mpcNorm_parity (ha : ¬ IsSquare a) (hodd : Odd a.valuation)
 
 end Collision
 
+/-! ## §7 The data at the two procyclic fields
+
+`N(√10) = −10 = (−5)·2` and `N(√−10) = 10 = 5·2`, so the unit `w₀` of §6 is `−5` at `ℚ₂(√10)`
+and `5` at `ℚ₂(√−10)`.  With the ramified scalars `az = ±10` that fixes every residue the
+criterion needs:
+
+| field | `az mod 8` | `w₀ mod 8` | `w mod 8` | `χ` if `n` even | `χ` if `n` odd |
+| --- | --- | --- | --- | --- | --- |
+| `ℚ₂(√10)` | `2` | `3` | `{1, 7}` | `{1, 7}` | `{3, 5}` |
+| `ℚ₂(√−10)` | `6` | `5` | `{1, 3}` | `{1, 3}` | `{5, 7}` |
+
+The four values of wave 80 §4.1 are the four readings of these two rows. -/
+
+section FieldData
+
+/-- The residue modulo `8` of an integer-valued `2`-adic integer. -/
+theorem mpcNorm_residue_intCast {z : ℤ_[2]} {m : ℤ} (h : z = ((m : ℤ_[2]))) :
+    PadicInt.toZModPow 3 z = ((m : ZMod (2 ^ 3))) := by
+  rw [h, map_intCast]
+
+/-- `−5`, as a `2`-adic unit: the unit part of `N(√10) = −10`. -/
+def mpcNorm_unitNegFive : ℤ_[2]ˣ := (GQ2.isUnit_one_add_two_mul (-3)).unit
+
+@[simp] theorem mpcNorm_unitNegFive_val :
+    ((mpcNorm_unitNegFive : ℤ_[2]ˣ) : ℤ_[2]) = -5 := by
+  rw [mpcNorm_unitNegFive, IsUnit.unit_spec]
+  norm_num
+
+/-- `5`, as a `2`-adic unit: the unit part of `N(√−10) = 10`. -/
+def mpcNorm_unitFive : ℤ_[2]ˣ := (GQ2.isUnit_one_add_two_mul 2).unit
+
+@[simp] theorem mpcNorm_unitFive_val : ((mpcNorm_unitFive : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+  rw [mpcNorm_unitFive, IsUnit.unit_spec]
+  norm_num
+
+theorem mpcNorm_residue_negFive :
+    PadicInt.toZModPow 3 ((mpcNorm_unitNegFive : ℤ_[2]ˣ) : ℤ_[2]) = 3 :=
+  (mpcNorm_residue_intCast (m := -5) (by rw [mpcNorm_unitNegFive_val]; norm_cast)).trans (by decide)
+
+theorem mpcNorm_residue_five :
+    PadicInt.toZModPow 3 ((mpcNorm_unitFive : ℤ_[2]ˣ) : ℤ_[2]) = 5 :=
+  (mpcNorm_residue_intCast (m := 5) (by rw [mpcNorm_unitFive_val]; norm_cast)).trans (by decide)
+
+theorem mpcNorm_residue_ten : PadicInt.toZModPow 3 ((10 : ℤ_[2])) = 2 :=
+  (mpcNorm_residue_intCast (m := 10) (by norm_cast)).trans (by decide)
+
+theorem mpcNorm_residue_negTen : PadicInt.toZModPow 3 ((-10 : ℤ_[2])) = 6 :=
+  (mpcNorm_residue_intCast (m := -10) (by norm_cast)).trans (by decide)
+
+theorem mpcNorm_residue_negOne : PadicInt.toZModPow 3 (((-1 : ℤ_[2]ˣ) : ℤ_[2])) = 7 :=
+  (mpcNorm_residue_intCast (m := -1) (by norm_cast)).trans (by decide)
+
+theorem mpcNorm_residue_one : PadicInt.toZModPow 3 (((1 : ℤ_[2]ˣ) : ℤ_[2])) = 1 := by
+  rw [Units.val_one, map_one]
+
+/-- `mUnit 2 = (1 − 4)⁻¹ = (−3)⁻¹ ≡ 5 (mod 8)`: the cyclotomic value in the `D̄` congruence is
+the square class of `5`. -/
+theorem mpcNorm_residue_mUnitTwo :
+    PadicInt.toZModPow 3 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2])) = 5 := by
+  have hres : PadicInt.toZModPow 3 ((1 : ℤ_[2]) - 2 ^ 2) = 5 :=
+    (mpcNorm_residue_intCast (m := -3) (by norm_cast)).trans (by decide)
+  have h1 : PadicInt.toZModPow 3 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2])) * 5 = 1 := by
+    rw [← hres, ← map_mul, mUnit_mul (α := 2) one_le_two, map_one]
+  have h5 : ((5 : ZMod (2 ^ 3))) * 5 = 1 := by decide
+  calc PadicInt.toZModPow 3 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]))
+      = PadicInt.toZModPow 3 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2])) * (5 * 5) := by rw [h5, mul_one]
+    _ = PadicInt.toZModPow 3 (((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2])) * 5 * 5 := by ring
+    _ = 5 := by rw [h1, one_mul]
+
+theorem mpcNorm_cast_ten : (((10 : ℤ_[2]) : ℚ_[2])) = (10 : ℚ_[2]) := by norm_cast
+
+theorem mpcNorm_cast_negTen : (((-10 : ℤ_[2]) : ℚ_[2])) = (-10 : ℚ_[2]) := by norm_cast
+
+theorem mpcNorm_w_ten : ((mpcNorm_unitNegFive : ℤ_[2]) : ℚ_[2]) * 2 = -(10 : ℚ_[2]) := by
+  rw [mpcNorm_unitNegFive_val, show (((-5 : ℤ_[2])) : ℚ_[2]) = (-5 : ℚ_[2]) by norm_cast]
+  ring
+
+theorem mpcNorm_w_negTen : ((mpcNorm_unitFive : ℤ_[2]) : ℚ_[2]) * 2 = -(-10 : ℚ_[2]) := by
+  rw [mpcNorm_unitFive_val, show (((5 : ℤ_[2])) : ℚ_[2]) = (5 : ℚ_[2]) by norm_cast]
+  ring
+
+end FieldData
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
