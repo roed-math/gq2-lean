@@ -78,7 +78,9 @@ Two thresholds, not one: `1 ≤ α` is the Frattini/rank threshold, `2 ≤ α` t
 (at `α = 1` the `N` relator exponent is `2 + 2 = 4`, so the head diagonal entry dies and the
 two rows stop sharing one Gram; the shared Gram costs `α ≥ 2` downstream).
 
-⚠ **Corrected at wave 70.**  This paragraph used to continue "and the `N` core is not
+⚠ **Corrected at wave 71**, against wave 70's landings.  (The heading here read "wave 70" until
+wave 74; the correcting commit `e6d10612` sits on `dyadic` after the wave-71 merges and cites the
+wave-70 modules as its evidence.)  This paragraph used to continue "and the `N` core is not
 Demushkin".  That is **false**: `Instances/EvenAlphaOne.lean` proves `IsDemushkin 2 (DN 1 h)`
 at every handle count, because the `α = 1` `N` Gram is two hyperbolic blocks, which is
 *alternating* and **nondegenerate**, not degenerate.  The `M` row is also Demushkin there.

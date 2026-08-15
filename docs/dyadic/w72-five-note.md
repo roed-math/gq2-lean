@@ -171,7 +171,16 @@ Lacks, as named next steps:
    (`cfourKnob_leftover_eq`) and found that its hard terms were not the ones the analysis had
    predicted.  No class-five analogue exists, and `cfiveKnob_supply_of_reach` deliberately
    existentially quantifies its base frame, so there is nothing yet to evaluate against.
-3. **Class four itself**, unchanged from wave 71's list.
+3. **Class four itself**, ~~unchanged from wave 71's list~~.  **[W74-HOUSE: "unchanged" was
+   falsified the same wave, 8 minutes after this note.]**  The *lack* survives:
+   `SqClassClearingSupply h 4` is still neither discharged nor refuted, and no class-four-clearing
+   frame is committed, which is what `w71-five-note.md`'s item 3 actually says.  But all three of
+   wave 71's class-four leftover sub-items moved in wave 72, per `w72-defects-note.md`'s
+   disposition table: item 1 (the two defects) **expanded and split** by `cfourDef_defect_eq`,
+   item 2 (`⁅A, x₀⁆²`) **committed** by `cfourDef_commSq_correction`, and item 3 (the pairing
+   residue `⁅⁅A, x₁⁆, A⁆`) **committed**, cancelling against the `σ`-slot knob of `⁅x₁, A⁆`.
+   Read the two notes together: this one was committed at `74739c37` (16:01:55), the defects note
+   at `e6f2f9bf` (16:10:15), parallel lanes.
 
 ## 6.  Verification record
 

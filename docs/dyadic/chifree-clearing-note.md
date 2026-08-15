@@ -6,6 +6,20 @@ Companion to `GQ2/Dyadic/SqCore/ChiFreeClearing.lean` and
 `eichler-reduction-note.md`: the search target has **changed** from `SqEichlerSeed` to
 `SqNuSeed`.
 
+> **[W74-HOUSE, watch round 10.  STALE: this note is a 2026-08-05 proposal and reads as though
+> the search were still ahead of it.]**  Two modules have landed against it since and neither is
+> cited here.  `GQ2/Dyadic/SqCore/NuSeeds.lean` (`dd2d689b`, 22:31 the same day) formalises this
+> note's balance table and states the forced `x₁`-row; `GQ2/Dyadic/SqCore/NuSeedWide.lean`
+> (`5a802bee`, 23:56) then widens the ansatz, releasing the `v_j`-slot the four-slot scaffold
+> fixed literally, and records that the class-4 obstruction is an artifact of the linearization
+> rather than an invariant of the group.  So the imperatives below ("Target `SqNuSeed 1 0 1`
+> first", `:101`; "On failure with the widened family", `:116`) describe a search that has been
+> run and re-read, and the status ledger's last row ("**open** - the retargeted seed search",
+> `:131`) is open only in the sense that `SqNuClearHypothesis h` is still not proved for `h ≥ 1`.
+> Round 9 flagged this as a secondary finding and left the rewrite as an owner call; round 10
+> found the second unreferenced module.  **Still an owner call**: annotated here rather than
+> rewritten, because the body is a lane record of what was proposed on 2026-08-05.
+
 ## The adjudication (routes 0 / A / 3, settled)
 
 **Route 0 (pure bypass).**  Half true, and the true half is decisive.

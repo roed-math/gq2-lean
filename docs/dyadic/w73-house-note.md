@@ -504,6 +504,17 @@ medium, 3 medium-low, 9 low)".  Recounted here label by label: §2.2 contributes
 extra being §2.4(e), which carries no severity, so "labelled findings" is the right reading of its
 own figure.  Commit `8e58b2cf` did make it exact.
 
+> **[W74-HOUSE, background sweep: exact, but only within an unstated scope.]**  The recount above
+> is right and is not disturbed.  What it did not say is that the 37 ranges over §§2.2-2.4b only,
+> and that the note's **§2.1** is severity-headed ("Severity: high") and is promoted into the five
+> "worth reading first" while sitting outside the count.  A reader counting severity-headed
+> findings therefore gets **38**, with 13 high rather than 12.  That is a *different* 38 from the
+> one this paragraph names (37 plus the unsevered §2.4(e)), so the two readings of "38" have
+> different membership and the same total, which is exactly why the figure needed a scope rather
+> than a correction.  Both readings existed in trunk from wave 72 to wave 74.  Adjudication: the
+> figure stays **37** and `w72-house-note.md:16` now states the scope and names §2.1 among its
+> exclusions.
+
 ### 3.5  What came up clean
 
 Said in detail, because a round that reports only hits is not a check.

@@ -50,8 +50,9 @@ class-four relator of wave 68's frame into
   cfourDefCore nu' j · ⁅⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆, A⁆ .
 ```
 
-Five of the leftover's factors annihilate against the knob (`cfourDef_assemble`).  The relator
-identity itself needs **no** hypothesis on the marking; only admissibility does.
+Five factors of the corrected relator occur twice and annihilate (`cfourDef_assemble`): three of
+the leftover's, and two pairs internal to the knob.  The relator identity itself needs **no**
+hypothesis on the marking; only admissibility does.
 
 ## §8 What is left
 
@@ -237,8 +238,11 @@ class-three images cancel: `⁅σ, A⁆ · ⁅A, x₀⁆` projects to `⁅σ·x�
 `σ·x₀` being the pivot modulo `γ₂` (`bridge_sigma_x0_eq_pivot`), and `cfourEichDefect` projects to
 `bridgeDefect nu' j` as well (`cfourId_eichDefect_levelProj`).
 
-**This is the wave-72 residue.**  It is `x₁`-free: every letter in it is `σ`, `x₀`, a handle
-letter or the pivot. -/
+**This is the `x₁`-free first factor of the wave-72 residue**, not the residue itself: the
+wave's residual `CfourDefResidual` (§8) is the two-factor product
+`cfourDefCore nu' j · ⁅⁅σ, A⁆ · ⁅A, x₀⁆ · ⁅x₀, x₁⁆, A⁆`, which is `x₁`-free only apart from the
+near slot `⁅x₀, x₁⁆`.  `cfourDefCore` on its own **is** `x₁`-free outright: every letter in it is
+`σ`, `x₀`, a handle letter or the pivot. -/
 noncomputable def cfourDefCore : levelQuot (DSq h : Type) 4 :=
   commP (levelMk (DSq h : Type) 4 (dsqSigma h)) (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) *
       commP (levelMk (DSq h : Type) 4 (bridgeDress nu' j)) (levelMk (DSq h : Type) 4 (dsqX0 h)) *
@@ -359,9 +363,12 @@ theorem cfourDef_z_cancel {z : levelQuot G 4} (hz : z ∈ zLayer G 3) (x : level
 
 /-- ⭐ **The wave-72 assembly.**  Five of the eight factors of the corrected relator occur twice
 and annihilate, `Z` being central of exponent two: the fourth power `q`, the commutator square
-`s`, the `ad(x₁)²`-term `t`, the residue `r` of the pairing, and the `x₀`-slot bracket `p`.  What
-survives is the triple part `tri` and the Jacobi term `n`.  Stated with named atoms so the
-bookkeeping is separated from the identification of the atoms. -/
+`s`, the `ad(x₁)²`-term `t`, the pairing residue `r`, and the Jacobi residue `p`
+(`⁅⁅x₁, A⁆, x₀⁆`, which cancels against the `σ`-slot's second bracket; it is **not** an
+`x₀`-slot bracket, `cfourDefCorr` putting `1` on that slot by `cfourDefCorr_one`).  What survives
+is the core `c`, the triple part `tri`, and the surviving Jacobi term `n` (`⁅⁅x₀, x₁⁆, A⁆`),
+the right-hand side being `c * (tri * n)`.  Stated with named atoms so the bookkeeping is
+separated from the identification of the atoms. -/
 theorem cfourDef_assemble {q s t r p : levelQuot G 4} (hq : q ∈ zLayer G 3)
     (hs : s ∈ zLayer G 3) (ht : t ∈ zLayer G 3) (hr : r ∈ zLayer G 3) (hp : p ∈ zLayer G 3)
     (c tri n : levelQuot G 4) :
@@ -432,27 +439,18 @@ theorem cfourDefCorr_admissible (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2])
   · exact cfourKnob_mul_admissible nu' hm4 hm3 hl4 hl3 hn4 hn3
   · exact ⟨Subgroup.one_mem _, map_one _, map_one _⟩
 
-/-- ⭐⭐⭐ **The wave-68 leftover, reduced to the two defects.**  One admissible correction of
-wave 68's class-three witness - `cfourDefCorr`, supported on the `σ`-slot and the `x₁`-slot -
-turns the class-four relator into
+/-- **The correction pushed through, and nothing yet evaluated.**  `cfourDefCorr` is applied to
+wave 68's class-three witness and the relator is rewritten by `cfourId_dress_core` and then by
+`cfourId_leftover_eq`.  The right-hand side is therefore the wave-68 leftover times the three
+factors the correction contributes (the `σ`-slot bracket, the `x₀`-slot's trivial pair, and the
+`x₁`-slot's square-and-bracket bundle), each still in its unevaluated form.
 
-```text
-  cfourDefCore nu' j · (cfourDefTriple nu' j · ⁅⁅x₀, x₁⁆, A⁆) .
-```
-
-Five of the leftover's factors annihilate against the knob (`cfourDef_assemble`): the fourth
-power `A⁴` and the commutator square `⁅A, x₀⁆²` against the `x₁`-slot bundle of `A²·⁅A, x₁⁆` and
-of `⁅A, x₀⁆`, the `ad(x₁)²`-term `⁅x₁, ⁅x₁, A⁆⁆` against the same bundle, the pairing residue
-`⁅⁅A, x₁⁆, A⁆` against the `σ`-slot bracket `⁅⁅x₁, A⁆, A⁆` (the same element of `Z`,
-`cfourDef_swap_inner`), and the Jacobi residue `⁅⁅x₁, A⁆, x₀⁆` against the `σ`-slot's second
-bracket.
+Nothing is cancelled here: neither `cfourDefCore` nor `cfourDefTriple` appears, and
+`cfourDef_assemble` is not used.  The evaluation is `cfourDef_leftover_reduce` below, which
+consumes this statement.
 
 **No hypothesis on the marking is needed**: admissibility of the correction needs `hsigma` and
-`hx0` (`cfourDefCorr_admissible`), the relator identity does not.
-
-What is left is the two class-four defects, plus one bracket whose **outer** slot is the
-dressing: by `cfourDef_triple_mul_jacobi` the whole tail is `⁅y, A⁆` for a single `Y`-element
-`y`, and every other slot of the frame is still free. -/
+`hx0` (`cfourDefCorr_admissible`), the relator identity does not. -/
 theorem cfourDef_relator_step :
     sqRelWord (fun i => levelMk (DSq h : Type) 4
         (sqArbFrame h nu' j (bridgeTuple nu' j) i * cfourDefCorr nu' j i))
@@ -482,6 +480,29 @@ theorem cfourDef_relator_step :
     (fun i => by rw [cfourDefCorr_handleV, mul_one])
   rw [hstep, cfourId_leftover_eq]
 
+/-- ⭐⭐⭐ **The wave-68 leftover, reduced to the two defects.**  One admissible correction of
+wave 68's class-three witness - `cfourDefCorr`, supported on the `σ`-slot and the `x₁`-slot -
+turns the class-four relator into
+
+```text
+  cfourDefCore nu' j · (cfourDefTriple nu' j · ⁅⁅x₀, x₁⁆, A⁆) .
+```
+
+Five factors of the **corrected relator** occur twice and annihilate (`cfourDef_assemble`), and
+they are of two kinds.  Three are factors of the leftover itself: the fourth power `A⁴` and the
+commutator square `⁅A, x₀⁆²` against the `x₁`-slot bundle of `A²·⁅A, x₁⁆` and of `⁅A, x₀⁆`, and
+the `ad(x₁)²`-term `⁅x₁, ⁅x₁, A⁆⁆` against the same bundle.  The other two are **internal to the
+knob**, each occurring twice inside it and not a factor of the leftover at all: the pairing
+residue `⁅⁅A, x₁⁆, A⁆` against the `σ`-slot bracket `⁅⁅x₁, A⁆, A⁆` (the same element of `Z`,
+`cfourDef_swap_inner`), and the Jacobi residue `⁅⁅x₁, A⁆, x₀⁆` against the `σ`-slot's second
+bracket.  `cfourKnob_leftover_eq` is the reference for which is which.
+
+**No hypothesis on the marking is needed**: this is `cfourDef_relator_step` evaluated, and that
+step needs none either.
+
+What is left is the two class-four defects, plus one bracket whose **outer** slot is the
+dressing: by `cfourDef_triple_mul_jacobi` the whole tail is `⁅y, A⁆` for a single `Y`-element
+`y`, and every other slot of the frame is still free. -/
 theorem cfourDef_leftover_reduce :
     sqRelWord (fun i => levelMk (DSq h : Type) 4
         (sqArbFrame h nu' j (bridgeTuple nu' j) i * cfourDefCorr nu' j i))
@@ -690,10 +711,14 @@ theorem cfourDef_comm_genV_mem {y : levelQuot (DSq h : Type) 4}
 **cleared** handle letters at `j`, which are the letters wave 68's frame actually carries in its
 `j`-th handle slots.
 
-Those three brackets are the knob **expressions** of the frame's remaining slots: `⁅y, V_j⁆` is
-the `u_j`-slot knob of `cfourId_dress_handleU`, `⁅U_j, y⁆ = ⁅y, U_j⁆` (`cfourDef_comm_swap`) is
-the `v_j`-slot knob of `cfourId_dress_handleV`, and `⁅y, w⁆` is the product of the two core knobs
-by `cfourDef_core_knob_pair`.  What is **not** committed here is the frame surgery that composes
+Those three brackets are knob expressions on the frame's other slots: `⁅y, V_j⁆` is the
+`u_j`-slot knob of `cfourId_dress_handleU`, `⁅U_j, y⁆ = ⁅y, U_j⁆` (`cfourDef_comm_swap`) is the
+`v_j`-slot knob of `cfourId_dress_handleV`, and `⁅y, w⁆` is the product of the two core knobs by
+`cfourDef_core_knob_pair`.  The third is more than an expression: `cfourId_dress_core` **does**
+compose core slots `0` and `1`, so `⁅y, w⁆` is available as an actual correction, which is what
+`cfourDef_core_knob_pair`'s own docstring records.  Note also that slot `0` is not free at this
+point, already carrying `cfourDefCorr`'s `⁅x₁, A⁆`.  What is **not** committed here is the frame
+surgery that composes
 a handle-slot correction with a core-slot correction: `cfourId_dress_core` composes the three
 core slots only, and `cfourId_dress_handleU`/`cfourId_dress_handleV` move one handle slot with
 the core slots fixed. -/
