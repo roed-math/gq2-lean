@@ -1207,7 +1207,432 @@ theorem gDelta_chiSq_of_nuLam {a : (DSq h : Type)} (hl : nuLam h a = 1) :
 
 end Honesty
 
-/-! ## §8 Axiom pins -/
+/-! ## §8 The tower obstruction: the class-four span hypothesis is unsatisfiable
+
+Wave 73 replaced "is `cfourDefCore` a knob" by the three uniform families of
+`cfourCmp_residual_of_span` and left "whether the knob subgroup contains the three
+families" open (its honesty markers).  The functionals close that question, negatively:
+along the committed route every knob is invisible to every functional at the layer bit
+(the chi-values of admissible corrections are `1 mod 8`, so the perturbed Fox
+coefficients stay in `8ℤ₂`), while the sigma tower `σ⁴` carries a set bit.  So the
+tower is not a knob, and the span hypothesis - which forces `p⁴ ∈ S` at `p = σ` with
+every element of `S` a knob - is false.  This is Labute-consistent: his Lemma 3 lists
+the towers *separately* from the move image, and his Theorem 5 kills tower components
+of the defect by the functionals (`0 = Δ_i(ε_j) = a_i π^j`), never by reaching towers
+with moves.  The route the residual needs is the Lemma 3 decomposition, not the span. -/
+
+section TowerObstruction
+
+variable {h : ℕ}
+
+/-- Congruence kit: differences of products. -/
+theorem gDelta_dvd_mul_sub_mul {n a a' b b' : ℤ_[2]} (ha : n ∣ a - a') (hb : n ∣ b - b') :
+    n ∣ a * b - a' * b' := by
+  have hkey : a * b - a' * b' = a * (b - b') + (a - a') * b' := by ring
+  rw [hkey]
+  exact dvd_add (hb.mul_left a) (ha.mul_right b')
+
+/-- Congruence kit: differences of powers. -/
+theorem gDelta_dvd_pow_sub_pow {n a a' : ℤ_[2]} (hd : n ∣ a - a') (k : ℕ) :
+    n ∣ a ^ k - a' ^ k := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    have hkey : a ^ (k + 1) - a' ^ (k + 1)
+        = a * (a ^ k - a' ^ k) + (a - a') * a' ^ k := by ring
+    rw [hkey]
+    exact dvd_add (ih.mul_left a) (hd.mul_right _)
+
+/-- Congruence kit: unit inverses respect congruences. -/
+theorem gDelta_dvd_val_inv_sub {n : ℤ_[2]} {u v : ℤ_[2]ˣ}
+    (huv : n ∣ (u : ℤ_[2]) - (v : ℤ_[2])) :
+    n ∣ ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - ((v⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) := by
+  obtain ⟨t, ht⟩ := huv
+  have hu : ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (u : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  have hv : ((v⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (v : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  refine ⟨((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((v⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * -t, ?_⟩
+  linear_combination
+    (-((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((v⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) * ht
+    - ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hv + ((v⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hu
+
+theorem gDelta_dvd_val_inv_sub_one {n : ℤ_[2]} {u : ℤ_[2]ˣ}
+    (hu : n ∣ (u : ℤ_[2]) - 1) : n ∣ ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  have hmk : n ∣ (u : ℤ_[2]) - ((1 : ℤ_[2]ˣ) : ℤ_[2]) := by simpa using hu
+  simpa using gDelta_dvd_val_inv_sub hmk
+
+/-- Congruence kit: products of near-one units are near one. -/
+theorem gDelta_dvd_val_mul_sub_one {n : ℤ_[2]} {u v : ℤ_[2]ˣ}
+    (hu : n ∣ (u : ℤ_[2]) - 1) (hv : n ∣ (v : ℤ_[2]) - 1) :
+    n ∣ ((u * v : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  rw [Units.val_mul]
+  obtain ⟨s, hs⟩ := hu
+  obtain ⟨t, ht⟩ := hv
+  exact ⟨s * (v : ℤ_[2]) + t, by linear_combination ((v : ℤ_[2])) * hs + ht⟩
+
+/-- The three Fox coefficients vanish at the standard orientation values (read off the
+committed datum theorem through `isLabuteOrientationDatum_iff`). -/
+theorem gDelta_coeffs_std :
+    cxR SvalUnit rootXUnit = 0 ∧ csR SvalUnit rootXUnit YvalUnit = 0 ∧
+      cyR SvalUnit rootXUnit YvalUnit = 0 :=
+  ((isLabuteOrientationDatum_iff SvalUnit rootXUnit YvalUnit).mp gDelta_datum).2
+
+/-- **The `Dx`-coefficient at mod-8-perturbed orientation values lies in `8ℤ₂`.** -/
+theorem gDelta_cxR_dvd {u₀ u₁ : ℤ_[2]ˣ}
+    (h₀ : (2 : ℤ_[2]) ^ 3 ∣ (u₀ : ℤ_[2]) - (SvalUnit : ℤ_[2]))
+    (h₁ : (2 : ℤ_[2]) ^ 3 ∣ (u₁ : ℤ_[2]) - (rootXUnit : ℤ_[2])) :
+    (2 : ℤ_[2]) ^ 3 ∣ cxR u₀ u₁ := by
+  have hinv₀ := gDelta_dvd_val_inv_sub h₀
+  have hinv₁ := gDelta_dvd_val_inv_sub h₁
+  have key : (2 : ℤ_[2]) ^ 3 ∣ cxR u₀ u₁ - cxR SvalUnit rootXUnit := by
+    have hbridge : cxR u₀ u₁ - cxR SvalUnit rootXUnit
+        = -((((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+              - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]))
+            + (((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 2 - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 2)
+            + (((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 3 - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 3)
+            + (((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4 - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4)) := by
+      simp only [cxR]
+      ring
+    rw [hbridge]
+    exact dvd_neg.mpr (dvd_add (dvd_add (dvd_add
+      (gDelta_dvd_mul_sub_mul hinv₁ hinv₀)
+      (gDelta_dvd_pow_sub_pow hinv₁ 2))
+      (gDelta_dvd_pow_sub_pow hinv₁ 3))
+      (gDelta_dvd_pow_sub_pow hinv₁ 4))
+  have hstd := gDelta_coeffs_std.1
+  rwa [hstd, sub_zero] at key
+
+/-- **The `Ds`-coefficient at mod-8-perturbed orientation values lies in `8ℤ₂`.** -/
+theorem gDelta_csR_dvd {u₀ u₁ u₂ : ℤ_[2]ˣ}
+    (h₀ : (2 : ℤ_[2]) ^ 3 ∣ (u₀ : ℤ_[2]) - (SvalUnit : ℤ_[2]))
+    (h₁ : (2 : ℤ_[2]) ^ 3 ∣ (u₁ : ℤ_[2]) - (rootXUnit : ℤ_[2]))
+    (h₂ : (2 : ℤ_[2]) ^ 3 ∣ (u₂ : ℤ_[2]) - (YvalUnit : ℤ_[2])) :
+    (2 : ℤ_[2]) ^ 3 ∣ csR u₀ u₁ u₂ := by
+  have hinv₀ := gDelta_dvd_val_inv_sub h₀
+  have hinv₁ := gDelta_dvd_val_inv_sub h₁
+  have h₁' : (2 : ℤ_[2]) ^ 3 ∣ ((u₁ : ℤ_[2]) - 1) - ((rootXUnit : ℤ_[2]) - 1) := by
+    simpa using h₁
+  have h₂' : (2 : ℤ_[2]) ^ 3 ∣ ((u₂ : ℤ_[2]) - 1) - ((YvalUnit : ℤ_[2]) - 1) := by
+    simpa using h₂
+  have hP := gDelta_dvd_mul_sub_mul hinv₁ h₁'
+  have hQ := gDelta_dvd_mul_sub_mul (gDelta_dvd_pow_sub_pow hinv₁ 4)
+    (gDelta_dvd_pow_sub_pow h₂' 2)
+  have key : (2 : ℤ_[2]) ^ 3 ∣ csR u₀ u₁ u₂ - csR SvalUnit rootXUnit YvalUnit := by
+    have hbridge : csR u₀ u₁ u₂ - csR SvalUnit rootXUnit YvalUnit
+        = (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - ((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]))
+            * (-(((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((u₁ : ℤ_[2]) - 1))
+              + ((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4 * ((u₂ : ℤ_[2]) - 1) ^ 2)
+          + ((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+            * ((((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4 * ((u₂ : ℤ_[2]) - 1) ^ 2
+                - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4 * ((YvalUnit : ℤ_[2]) - 1) ^ 2)
+              - (((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((u₁ : ℤ_[2]) - 1)
+                - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((rootXUnit : ℤ_[2]) - 1))) := by
+      simp only [csR]
+      ring
+    rw [hbridge]
+    exact dvd_add (hinv₀.mul_right _) ((dvd_sub hQ hP).mul_left _)
+  have hstd := gDelta_coeffs_std.2.1
+  rwa [hstd, sub_zero] at key
+
+/-- **The `Dy`-coefficient at mod-8-perturbed orientation values lies in `8ℤ₂`.** -/
+theorem gDelta_cyR_dvd {u₀ u₁ u₂ : ℤ_[2]ˣ}
+    (h₀ : (2 : ℤ_[2]) ^ 3 ∣ (u₀ : ℤ_[2]) - (SvalUnit : ℤ_[2]))
+    (h₁ : (2 : ℤ_[2]) ^ 3 ∣ (u₁ : ℤ_[2]) - (rootXUnit : ℤ_[2]))
+    (h₂ : (2 : ℤ_[2]) ^ 3 ∣ (u₂ : ℤ_[2]) - (YvalUnit : ℤ_[2])) :
+    (2 : ℤ_[2]) ^ 3 ∣ cyR u₀ u₁ u₂ := by
+  have hinv₀ := gDelta_dvd_val_inv_sub h₀
+  have hinv₁ := gDelta_dvd_val_inv_sub h₁
+  have h₂' : (2 : ℤ_[2]) ^ 3 ∣ ((u₂ : ℤ_[2]) - 1) - ((YvalUnit : ℤ_[2]) - 1) := by
+    simpa using h₂
+  have h₀' : (2 : ℤ_[2]) ^ 3 ∣ (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+      - (((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1) := by
+    simpa using hinv₀
+  have hG : (2 : ℤ_[2]) ^ 3 ∣
+      ((1 + (u₂ : ℤ_[2])) + ((u₂ : ℤ_[2]) - 1) * (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1))
+        - ((1 + (YvalUnit : ℤ_[2]))
+          + ((YvalUnit : ℤ_[2]) - 1) * (((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1)) := by
+    have h1 : (2 : ℤ_[2]) ^ 3 ∣ (1 + (u₂ : ℤ_[2])) - (1 + (YvalUnit : ℤ_[2])) := by
+      simpa using h₂
+    have hkey : ((1 + (u₂ : ℤ_[2])) + ((u₂ : ℤ_[2]) - 1) * (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1))
+        - ((1 + (YvalUnit : ℤ_[2]))
+          + ((YvalUnit : ℤ_[2]) - 1) * (((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1))
+        = ((1 + (u₂ : ℤ_[2])) - (1 + (YvalUnit : ℤ_[2])))
+          + (((u₂ : ℤ_[2]) - 1) * (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1)
+            - ((YvalUnit : ℤ_[2]) - 1) * (((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1)) := by
+      ring
+    rw [hkey]
+    exact dvd_add h1 (gDelta_dvd_mul_sub_mul h₂' h₀')
+  have key : (2 : ℤ_[2]) ^ 3 ∣ cyR u₀ u₁ u₂ - cyR SvalUnit rootXUnit YvalUnit := by
+    have hbridge : cyR u₀ u₁ u₂ - cyR SvalUnit rootXUnit YvalUnit
+        = (((u₁⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4 - ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4)
+            * ((1 + (u₂ : ℤ_[2]))
+              + ((u₂ : ℤ_[2]) - 1) * (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1))
+          + ((rootXUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4
+            * (((1 + (u₂ : ℤ_[2]))
+                + ((u₂ : ℤ_[2]) - 1) * (((u₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1))
+              - ((1 + (YvalUnit : ℤ_[2]))
+                + ((YvalUnit : ℤ_[2]) - 1) * (((SvalUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1))) := by
+      simp only [cyR]
+      ring
+    rw [hbridge]
+    exact dvd_add ((gDelta_dvd_pow_sub_pow hinv₁ 4).mul_right _) (hG.mul_left _)
+  have hstd := gDelta_coeffs_std.2.2
+  rwa [hstd, sub_zero] at key
+
+/-- The elements of the lift group with `n`-divisible derivation component form a
+subgroup. -/
+def gDeltaUDvd (n : ℤ_[2]) : Subgroup (WordLift ℤ_[2] ℤ_[2]ˣ) where
+  carrier := {p | n ∣ p.u}
+  one_mem' := by
+    simp only [Set.mem_setOf_eq, WordLift.one_u]
+    exact dvd_zero n
+  mul_mem' := fun {p q} hp hq => by
+    simp only [Set.mem_setOf_eq, WordLift.mul_u, Units.smul_def, smul_eq_mul] at hp hq ⊢
+    exact dvd_add hp (hq.mul_left _)
+  inv_mem' := fun {p} hp => by
+    simp only [Set.mem_setOf_eq, WordLift.inv_u, Units.smul_def, smul_eq_mul] at hp ⊢
+    exact dvd_neg.mpr (hp.mul_left _)
+
+/-- ⭐⭐ **The perturbed master bound, in the lift group**: at slots whose character
+components are `mod 8` congruent to the standard orientation values, the relator's
+derivation component lies in `8ℤ₂` - the Fox coefficients are `8`-divisible and the
+handle brackets live in the divisibility subgroup. -/
+theorem gDelta_relWord_u_dvd {k : ℕ} (m : Fin (sqRank k) → WordLift ℤ_[2] ℤ_[2]ˣ)
+    (h₀ : (2 : ℤ_[2]) ^ 3 ∣ ((m 0).g : ℤ_[2]) - (SvalUnit : ℤ_[2]))
+    (h₁ : (2 : ℤ_[2]) ^ 3 ∣ ((m 1).g : ℤ_[2]) - (rootXUnit : ℤ_[2]))
+    (h₂ : (2 : ℤ_[2]) ^ 3 ∣ ((m 2).g : ℤ_[2]) - (YvalUnit : ℤ_[2]))
+    (hU : ∀ j : Fin k, (2 : ℤ_[2]) ^ 3 ∣ ((m (sqHandleIdxU j)).g : ℤ_[2]) - 1)
+    (hV : ∀ j : Fin k, (2 : ℤ_[2]) ^ 3 ∣ ((m (sqHandleIdxV j)).g : ℤ_[2]) - 1) :
+    (2 : ℤ_[2]) ^ 3 ∣ (sqRelWord m).u := by
+  have hcore : (2 : ℤ_[2]) ^ 3 ∣ (sqWord (m 0) (m 1) (m 2)).u := by
+    have hw := drWord_wordLift ((m 0).g) ((m 1).g) ((m 2).g) ((m 0).u) ((m 1).u) ((m 2).u)
+    have hm0 : (⟨(m 0).u, (m 0).g⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) = m 0 := rfl
+    have hm1 : (⟨(m 1).u, (m 1).g⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) = m 1 := rfl
+    have hm2 : (⟨(m 2).u, (m 2).g⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) = m 2 := rfl
+    rw [hm0, hm1, hm2] at hw
+    rw [sqWord_eq_drWord, hw]
+    exact dvd_add (dvd_add ((gDelta_csR_dvd h₀ h₁ h₂).mul_right _)
+      ((gDelta_cxR_dvd h₀ h₁).mul_right _)) ((gDelta_cyR_dvd h₀ h₁ h₂).mul_right _)
+  have hhandle : handleWord (fun j => m (sqHandleIdxU j)) (fun j => m (sqHandleIdxV j))
+      ∈ gDeltaUDvd ((2 : ℤ_[2]) ^ 3) := by
+    rw [handleWord]
+    refine Subgroup.list_prod_mem _ fun x hx => ?_
+    obtain ⟨j, -, rfl⟩ := List.mem_map.mp hx
+    show (2 : ℤ_[2]) ^ 3 ∣ (commP (m (sqHandleIdxU j)) (m (sqHandleIdxV j))).u
+    have hc := commP_wordLift ((m (sqHandleIdxU j)).g) ((m (sqHandleIdxV j)).g)
+      ((m (sqHandleIdxU j)).u) ((m (sqHandleIdxV j)).u)
+    have hmU : (⟨(m (sqHandleIdxU j)).u, (m (sqHandleIdxU j)).g⟩ :
+        WordLift ℤ_[2] ℤ_[2]ˣ) = m (sqHandleIdxU j) := rfl
+    have hmV : (⟨(m (sqHandleIdxV j)).u, (m (sqHandleIdxV j)).g⟩ :
+        WordLift ℤ_[2] ℤ_[2]ˣ) = m (sqHandleIdxV j) := rfl
+    rw [hmU, hmV] at hc
+    rw [hc]
+    have hGi := gDelta_dvd_val_inv_sub_one (hU j)
+    have hHi := gDelta_dvd_val_inv_sub_one (hV j)
+    have h1G : (2 : ℤ_[2]) ^ 3 ∣
+        1 - (((m (sqHandleIdxU j)).g⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) := by
+      simpa [neg_sub] using dvd_neg.mpr hGi
+    have hHm : (2 : ℤ_[2]) ^ 3 ∣
+        (((m (sqHandleIdxV j)).g⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := hHi
+    exact dvd_add ((hHm.mul_left _).mul_right _) ((h1G.mul_left _).mul_right _)
+  have hsplit : (sqRelWord m).u
+      = (sqWord (m 0) (m 1) (m 2)).u
+        + ((sqWord (m 0) (m 1) (m 2)).g : ℤ_[2])
+          * (handleWord (fun j => m (sqHandleIdxU j)) (fun j => m (sqHandleIdxV j))).u := by
+    simp only [sqRelWord, WordLift.mul_u, Units.smul_def, smul_eq_mul]
+  rw [hsplit]
+  exact dvd_add hcore (Dvd.dvd.mul_left hhandle _)
+
+/-- The chi-shadow of `γ₂`, sharp: a `γ₂`-element's orientation value is `1 mod 8`. -/
+theorem gDelta_chi_gammaTwo_dvd {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) 2) :
+    (2 : ℤ_[2]) ^ 3 ∣ ((chiSq h v : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  have hmem : chiSq h v ∈ twoCentralSeries ℤ_[2]ˣ 2 :=
+    map_twoCentralSeries_le (chiSq h).toMonoidHom (chiSq h).continuous_toFun 2
+      (Subgroup.mem_map_of_mem _ hv)
+  have hdvd := mem_ker_units_toZModPow_iff.mp (twoCentralSeries_units_le 2 le_rfl hmem)
+  have h2 : ((2 : ℕ) : ℤ_[2]) = (2 : ℤ_[2]) := by norm_num
+  rwa [h2] at hdvd
+
+/-- ⭐⭐⭐ **The perturbed master bound, on the group**: for any dressing whose slots
+have orientation values `1 mod 8` - in particular any `γ₂`-valued dressing, any
+kernel-of-chi dressing, and any product of the two, so the entire correction calculus
+of waves 68-73 - the relator value of the dressed frame has `8`-divisible reading
+under every functional.  Together with the filtration this makes every class-four
+knob of the committed route invisible at the layer-three bit. -/
+theorem gDelta_relWord_dvd_of_chi_mod (c : Fin (sqRank h) → ℤ_[2])
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+    {a : Fin (sqRank h) → (DSq h : Type)}
+    (ha : ∀ i, (2 : ℤ_[2]) ^ 3 ∣ ((chiSq h (a i) : ℤ_[2]ˣ) : ℤ_[2]) - 1) :
+    (2 : ℤ_[2]) ^ 3 ∣ gDelta h c (sqRelWord (sqArbFrame h nu' j a)) := by
+  show (2 : ℤ_[2]) ^ 3 ∣ (gDeltaHom h c (sqRelWord (sqArbFrame h nu' j a))).u
+  rw [map_sqRelWord]
+  have hslot : ∀ i, ((gDeltaHom h c (sqArbFrame h nu' j a i)).g : ℤ_[2])
+      = ((sqMark SvalUnit rootXUnit YvalUnit i : ℤ_[2]ˣ) : ℤ_[2])
+        * ((chiSq h (a i) : ℤ_[2]ˣ) : ℤ_[2]) := by
+    intro i
+    rw [gDeltaHom_g]
+    show ((chiSq h (sqArbFrame h nu' j a i) : ℤ_[2]ˣ) : ℤ_[2]) = _
+    rw [show sqArbFrame h nu' j a i = sqArbBase h nu' j i * a i from rfl, map_mul,
+      Units.val_mul, gDelta_chiFrame_arbBase nu' j i]
+  have hshift : ∀ (i : Fin (sqRank h)) (w : ℤ_[2]ˣ),
+      chiSq h (sqArbBase h nu' j i) = w →
+        (2 : ℤ_[2]) ^ 3 ∣ ((gDeltaHom h c (sqArbFrame h nu' j a i)).g : ℤ_[2])
+          - (w : ℤ_[2]) := by
+    intro i w hw
+    rw [hslot i, ← gDelta_chiFrame_arbBase nu' j i, hw]
+    obtain ⟨t, ht⟩ := ha i
+    exact ⟨(w : ℤ_[2]) * t, by linear_combination ((w : ℤ_[2])) * ht⟩
+  refine gDelta_relWord_u_dvd _ ?_ ?_ ?_ ?_ ?_
+  · refine hshift 0 SvalUnit ?_
+    rw [sqArbBase_zero]
+    exact chiSq_sigma h
+  · refine hshift 1 rootXUnit ?_
+    rw [sqArbBase_one]
+    exact chiSq_x0 h
+  · refine hshift 2 YvalUnit ?_
+    rw [sqArbBase_two]
+    exact chiSq_x1 h
+  · intro j'
+    refine hshift (sqHandleIdxU j') 1 ?_
+    by_cases hjj : j' = j
+    · subst hjj
+      rw [sqArbBase_handleU]
+      exact gDelta_chiSq_sqEichU nu' j'
+    · rw [sqArbBase_handleU_ne hjj]
+      exact chiSq_handleU h j'
+  · intro j'
+    refine hshift (sqHandleIdxV j') 1 ?_
+    by_cases hjj : j' = j
+    · subst hjj
+      rw [sqArbBase_handleV]
+      exact gDelta_chiSq_sqEichV nu' j'
+    · rw [sqArbBase_handleV_ne hjj]
+      exact chiSq_handleV h j'
+
+/-- ⭐⭐⭐ **The sigma tower is not reachable**: no dressing with `mod 8` chi-trivial
+slots - hence no correction of the waves 68-73 calculus - can move the class-four
+relator to `cfourDefCore · σ⁴`.  The reading under the `σ`-row functional is
+`8`-divisible on the left (the perturbed master bound) but exactly `4 · unit` on the
+right (the tower formula), and the layer reading is lift-independent. -/
+theorem gDelta_sigma_tower_not_reached
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h)
+    {a : Fin (sqRank h) → (DSq h : Type)}
+    (ha : ∀ i, (2 : ℤ_[2]) ^ 3 ∣ ((chiSq h (a i) : ℤ_[2]ˣ) : ℤ_[2]) - 1) :
+    sqRelWord (fun i => levelMk (DSq h : Type) 4 (sqArbFrame h nu' j a i))
+      ≠ cfourDefCore nu' j * levelMk (DSq h : Type) 4 (dsqSigma h ^ 4) := by
+  intro heq
+  classical
+  set crow : Fin (sqRank h) → ℤ_[2] := fun i => if i = 0 then 1 else 0 with hcrow
+  have hlift : levelMk (DSq h : Type) 4 (gDeltaCoreLift nu' j * dsqSigma h ^ 4)
+      = levelMk (DSq h : Type) 4 (sqRelWord (sqArbFrame h nu' j a)) := by
+    rw [map_mul, gDelta_coreLift_levelMk, ← heq, map_sqRelWord]
+  have hdvd : (2 : ℤ_[2]) ^ 3 ∣ gDelta h crow (gDeltaCoreLift nu' j * dsqSigma h ^ 4) :=
+    gDelta_dvd_of_levelMk_eq crow (k := 3) hlift
+      (gDelta_relWord_dvd_of_chi_mod crow nu' j ha)
+  rw [gDelta_mul] at hdvd
+  have hcore : (2 : ℤ_[2]) ^ 3 ∣ gDelta h crow (gDeltaCoreLift nu' j) := by
+    rw [gDelta_coreLift_eq]
+    obtain ⟨w, hw⟩ := gDelta_inv_sub_inv
+    rw [hw]
+    exact (Dvd.intro _ rfl).mul_right _
+  have hsig : (2 : ℤ_[2]) ^ 3 ∣
+      ((chiSq h (gDeltaCoreLift nu' j) : ℤ_[2]ˣ) : ℤ_[2])
+        * gDelta h crow (dsqSigma h ^ 4) := (dvd_add_right hcore).mp hdvd
+  have h4 : dsqSigma h ^ (4 : ℕ) = dsqSigma h ^ 2 ^ 2 := by norm_num
+  obtain ⟨w, hw⟩ := gDelta_sigma_tower crow 2
+  have hc0 : crow 0 = 1 := by simp [hcrow]
+  rw [h4, hw, hc0, mul_one] at hsig
+  obtain ⟨t, ht⟩ := hsig
+  have hne : (2 : ℤ_[2]) ^ 2 ≠ 0 := pow_ne_zero _ (by norm_num)
+  have hcancel : ((chiSq h (gDeltaCoreLift nu' j) : ℤ_[2]ˣ) : ℤ_[2]) * (w : ℤ_[2])
+      = 2 * t := by
+    apply mul_left_cancel₀ hne
+    linear_combination ht
+  refine gDelta_not_two_dvd_unit (chiSq h (gDeltaCoreLift nu' j) * w) ?_
+  rw [Units.val_mul]
+  exact ⟨t, hcancel⟩
+
+/-- ⭐⭐⭐ **The class-four span hypothesis is unsatisfiable** (`h ≥ 1`): the hypothesis
+of `cfourCmp_residual_of_span` - some subgroup of `Q₄` containing every fourth power,
+every bracket square and every triple bracket, all of whose elements are knobs of the
+committed route - is **false**.  The baseline correction exists
+(`cfourCmp_core_reduce`, at the selected marking `nuSq`), the subgroup must contain
+the sigma tower `(levelMk σ)⁴`, and reaching it would contradict
+`gDelta_sigma_tower_not_reached`: every correction of the route has `mod 8`
+chi-trivial slots, so its knobs are functional-invisible at the layer bit, while the
+tower is functional-visible.
+
+Wave 73's honesty marker asked exactly this question ("whether the knob subgroup
+contains the three families is open").  The answer is no, and the failing family is
+the towers.  This does **not** touch `SqClassClearingSupply h 4` (the route is one
+sufficient strategy), and it is Labute-consistent: his Lemma 3 keeps the towers
+outside the move image, and his Theorem 5 kills the defect's tower components with
+the functionals, not with moves.  What the class-four residual needs is the
+Lemma 3 decomposition (moves span the functional-invisible part of the layer), not
+the span of the whole layer. -/
+theorem gDelta_cfourCmp_span_hyp_false (hh : 1 ≤ h) :
+    ¬ (∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
+      nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
+        ∀ c : Fin (sqRank h) → (DSq h : Type),
+          (∀ i, c i ∈ twoCentralSeries (DSq h : Type) 2) → (∀ i, nuLam h (c i) = 1) →
+            (∀ i, nu' (c i) = 1) →
+              sqRelWord (fun i => levelMk (DSq h : Type) 4
+                  (sqArbFrame h nu' j (bridgeTuple nu' j) i * c i)) = cfourDefCore nu' j →
+                ∃ S : Subgroup (levelQuot (DSq h : Type) 4),
+                  (∀ p : levelQuot (DSq h : Type) 4, p ^ 4 ∈ S) ∧
+                    (∀ p q : levelQuot (DSq h : Type) 4, commP p q ^ 2 ∈ S) ∧
+                      (∀ p q r : levelQuot (DSq h : Type) 4,
+                        commP (commP p q) r ∈ S) ∧
+                        ∀ z ∈ S, ∃ d : Fin (sqRank h) → (DSq h : Type),
+                          (∀ i, d i ∈ twoCentralSeries (DSq h : Type) 2) ∧
+                            (∀ i, nuLam h (d i) = 1) ∧ (∀ i, nu' (d i) = 1) ∧
+                              sqRelWord (fun i => levelMk (DSq h : Type) 4
+                                  (sqArbFrame h nu' j (bridgeTuple nu' j) i * c i * d i))
+                                = cfourDefCore nu' j * z) := by
+  intro H
+  have hj : (0 : ℕ) < h := hh
+  set j : Fin h := ⟨0, hj⟩
+  obtain ⟨c, hcm, hcl, hcn, hcrel⟩ :=
+    cfourCmp_core_reduce (nuSq h) j (nuSq_sigma h) (nuSq_x0 h)
+  obtain ⟨S, hpow, -, -, hreach⟩ :=
+    H (nuSq h) j (nuSq_sigma h) (nuSq_x0 h) c hcm hcl hcn hcrel
+  obtain ⟨d, hdm, -, -, hdrel⟩ :=
+    hreach ((levelMk (DSq h : Type) 4 (dsqSigma h)) ^ 4) (hpow _)
+  have hz : (levelMk (DSq h : Type) 4 (dsqSigma h)) ^ 4
+      = levelMk (DSq h : Type) 4 (dsqSigma h ^ 4) := (map_pow _ _ _).symm
+  rw [hz] at hdrel
+  have hfr : (fun i => levelMk (DSq h : Type) 4
+        (sqArbFrame h (nuSq h) j (bridgeTuple (nuSq h) j) i * c i * d i))
+      = fun i => levelMk (DSq h : Type) 4
+        (sqArbFrame h (nuSq h) j
+          (fun i' => bridgeTuple (nuSq h) j i' * c i' * d i') i) := by
+    funext i
+    simp only [sqArbFrame]
+    rw [mul_assoc, mul_assoc, mul_assoc]
+  rw [hfr] at hdrel
+  refine gDelta_sigma_tower_not_reached (nuSq h) j ?_ hdrel
+  intro i
+  have hbridge : (2 : ℤ_[2]) ^ 3 ∣
+      ((chiSq h (bridgeTuple (nuSq h) j i) : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    rw [gDelta_chiSq_bridgeTuple]
+    simp
+  have hc' := gDelta_chi_gammaTwo_dvd (hcm i)
+  have hd' := gDelta_chi_gammaTwo_dvd (hdm i)
+  have hmul1 : (2 : ℤ_[2]) ^ 3 ∣
+      ((chiSq h (bridgeTuple (nuSq h) j i) * chiSq h (c i) : ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+    gDelta_dvd_val_mul_sub_one hbridge hc'
+  have hmul2 : (2 : ℤ_[2]) ^ 3 ∣
+      ((chiSq h (bridgeTuple (nuSq h) j i) * chiSq h (c i) * chiSq h (d i) :
+        ℤ_[2]ˣ) : ℤ_[2]) - 1 :=
+    gDelta_dvd_val_mul_sub_one hmul1 hd'
+  rw [map_mul, map_mul]
+  exact hmul2
+
+end TowerObstruction
+
+/-! ## §9 Axiom pins -/
 
 section AxiomPins
 
@@ -1299,6 +1724,21 @@ section AxiomPins
 #print axioms gDelta_row_reading
 #print axioms gDelta_chiSq_sq_of_nuLam
 #print axioms gDelta_chiSq_of_nuLam
+#print axioms gDelta_dvd_mul_sub_mul
+#print axioms gDelta_dvd_pow_sub_pow
+#print axioms gDelta_dvd_val_inv_sub
+#print axioms gDelta_dvd_val_inv_sub_one
+#print axioms gDelta_dvd_val_mul_sub_one
+#print axioms gDelta_coeffs_std
+#print axioms gDelta_cxR_dvd
+#print axioms gDelta_csR_dvd
+#print axioms gDelta_cyR_dvd
+#print axioms gDeltaUDvd
+#print axioms gDelta_relWord_u_dvd
+#print axioms gDelta_chi_gammaTwo_dvd
+#print axioms gDelta_relWord_dvd_of_chi_mod
+#print axioms gDelta_sigma_tower_not_reached
+#print axioms gDelta_cfourCmp_span_hyp_false
 
 end AxiomPins
 
