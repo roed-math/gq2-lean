@@ -45,8 +45,11 @@ brief hypothesised the opposite.  `SqCore.gOdd_certificate` and
 of the `L` row (the oriented identification `D_sq h ≅ G_K`, i.e. the branch datum
 `genAsm_branch_of_oddSq_canonical` consumes), which is a different field of the general
 assembly from `CAND`.  Concretely: `oddId_supply_iff_certificate` is an equivalence between the
-odd seam and a `MarkedMatchingCertificate`, not a `WordCertificate`; the two records share no
-field.  §4 pins the separation as a Lean statement rather than a remark.
+odd seam and `Nonempty (MarkedCoreCertificateKTwoSq B h)`, whose five fields are
+`abstractEquiv`, `orientation`, `correction`, `correction_chi`, `correction_nu`; not one of them
+is a `WordCertificate` field.  §4 and §5 pin the separation as Lean statements rather than a
+remark: the odd supply enters through `lCandBranch`/`lCandBranchOfSupply` and the four analytic
+clauses enter through `lCandCand`, and no argument of either is derivable from the other.
 
 ## Section guide
 
@@ -318,11 +321,12 @@ is now producible:
 3. **the four CAND analytic clauses** at the candidate carrier `GammaR (2h+1) q (lSqW h)`:
    what is left of `cand` after this module.
 
-⚠ Item 3 is the honest residue, and the lane brief's hypothesis that the wave-80/81 odd
-machinery would discharge it is **refuted by inspection of the statements**: `gOdd_certificate`
-and `oddId_supply_iff_certificate` produce a `MarkedCoreCertificateKTwoSq` / a
-`SqMarkedForwardSupply`, which are inputs to item 1, and neither record shares a single field
-with `WordCertificate`.  The odd supply is consumed by the *selector*, not by the certificate's
+⚠ Item 3 is the honest residue, and the hypothesis that the wave-80/81 odd machinery would
+discharge it is **refuted by inspection of the statements**: `gOdd_certificate` produces a
+`MarkedCoreCertificateSq` and `oddId_supply_iff_certificate` relates the seam to a
+`MarkedCoreCertificateKTwoSq`, both of which are inputs to item 1, and neither record shares a
+single field with `WordCertificate` (its five are `abstractEquiv`, `orientation`, `correction`,
+`correction_chi`, `correction_nu`).  The odd supply is consumed by the *selector*, not by the certificate's
 recursion.  §4's `lCandRowResidual` makes the separation checkable: item 1 enters through
 `lCandBranch`'s arguments and item 3 enters through `lCandRowResidual`'s, and no argument of
 either is derivable from the other. -/
