@@ -45,12 +45,16 @@ W84-WORD lane built for the `M6` move, with the low rungs proved rather than obs
    pair outright (`gRow_pair_of_forall_class`).  Contrapositively, if a row move is false it
    fails at a finite class, in a finite 2-group, with no inverse-limit step to hide in.
 
-5. **The low rungs are theorems** (section 6).  `gRow_relWord_mem_two`: EVERY frame kills
-   the relator to class 2 (the word is a product of squares and commutators up to conjugacy),
-   so `gRowSet h A B k` is nonempty for `k <= 2` with bare corrections, at every `(A, B)`.
-   The residue starts at class 3.  This subsumes the committed prose-only class-two balance
-   (`PivotCoreMoves` module docstring) in the two-central metric: on the unit locus nothing
-   obstructs below class 3.
+5. **The low rungs are theorems** (sections 5b, 6).  `gRow_relWord_mem_two`: EVERY frame
+   kills the relator to class 2 (the word is a product of squares and commutators up to
+   conjugacy), at every `(A, B)`.  `gRow_relWord_bare_mem_three`: on the unit locus the BARE
+   frame kills the relator to class 3.  In the class-three quotient every commutator is
+   central of order two (section 5b's calculus), the twisted word collapses onto the standard
+   relator times the defect `[x0, w^B] * [w^B, sigma]`, and the defect dies by parity: even
+   `B` makes the pivot power a square, odd `B` makes both factors `[x0, sigma]`.  So the
+   residue starts at class 4, the same threshold as the `M6` ladder, and the committed
+   prose-only class-two balance (`PivotCoreMoves` module docstring, lower-central metric) is
+   subsumed one rung up (`gRow_pair_of_forall_class_four`).
 
 6. **The composition** (section 7).  `gRow_clearing_of_forall_class`: per-class solvability
    on the unit locus discharges `SqNuOrientedClearAtUnitPivot h` through wave 84's
@@ -60,7 +64,7 @@ W84-WORD lane built for the `M6` move, with the low rungs proved rather than obs
 ## What does not land
 
 The moves themselves.  `GClearModelTranslate h c` and `GClearModelScale h d` at `h >= 1`
-remain open at classes `k >= 3`: the obstruction is now in closed form (the class-`k`
+remain open at classes `k >= 4`: the obstruction is now in closed form (the class-`k`
 solvability of one explicit word with corrections in one explicit closed carrier), and the
 honest record of the remaining distance is `docs/dyadic/w85-rowmove-note.md`.
 
@@ -330,6 +334,18 @@ private theorem gRow_strip {M : Subgroup (DSq h : Type)} {x y : (DSq h : Type)}
   have hp := M.mul_mem hxy (M.inv_mem hy)
   rwa [mul_inv_cancel_right] at hp
 
+/-- **The unit locus is the even locus of `A - 1 - B`**: the parity bookkeeping both the
+generation argument and the class-three rung consume. -/
+theorem gRow_even_of_unit {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B)) :
+    (2 : ℤ_[2]) ∣ A - 1 - B := by
+  have hoddAB : IsUnit (A - B) := by
+    refine isUnit_iff_not_two_dvd.mpr fun hdvd => ?_
+    obtain ⟨q, hq⟩ := hdvd
+    obtain ⟨r, hr⟩ := two_dvd_sub_of_isUnit isUnit_sqPivotExp isUnit_one
+    exact (isUnit_iff_not_two_dvd.mp hAB) ⟨q - r * B, by linear_combination hq - B * hr⟩
+  obtain ⟨q, hq⟩ := two_dvd_sub_of_isUnit hoddAB isUnit_one
+  exact ⟨q, by linear_combination hq⟩
+
 /-- **The ansatz spans `H_1` on the unit locus**, for any Frattini corrections. -/
 theorem gRow_modTwoIndep {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
     {c : Fin (sqRank h) → (DSq h : Type)} (hc : ∀ i, c i ∈ gRowFrat h) :
@@ -339,15 +355,7 @@ theorem gRow_modTwoIndep {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
   have hmem : ∀ i, gRowMark h A B c i ∈ M.toSubgroup :=
     fun i => not_not.mp fun hni => hcon ⟨i, hni⟩
   have hcM : ∀ i, c i ∈ M.toSubgroup := fun i => (gRow_mem_frat_iff.mp (hc i)) M hM
-  -- parity bookkeeping: on the unit locus `A - 1 - B` is even
-  have hoddAB : IsUnit (A - B) := by
-    refine isUnit_iff_not_two_dvd.mpr fun hdvd => ?_
-    obtain ⟨q, hq⟩ := hdvd
-    obtain ⟨r, hr⟩ := two_dvd_sub_of_isUnit isUnit_sqPivotExp isUnit_one
-    exact (isUnit_iff_not_two_dvd.mp hAB) ⟨q - r * B, by linear_combination hq - B * hr⟩
-  have heven : (2 : ℤ_[2]) ∣ A - 1 - B := by
-    obtain ⟨q, hq⟩ := two_dvd_sub_of_isUnit hoddAB isUnit_one
-    exact ⟨q, by linear_combination hq⟩
+  have heven : (2 : ℤ_[2]) ∣ A - 1 - B := gRow_even_of_unit hAB
   -- the `x1`-slot and the handle slots strip
   have hx1 : dsqX1 h ∈ M.toSubgroup := by
     have h2 := hmem 2
@@ -512,6 +520,182 @@ theorem gRow_isClosed_set (A B : ℤ_[2]) (k : ℕ) : IsClosed (gRowSet h A B k)
 
 end Sets
 
+/-! ## §5b The class-two commutator calculus
+
+The generic identities of a group in which every `commP`-value is central of order two: the
+exact laws of the class-three quotient.  They are stated with explicit centrality and
+involution hypotheses and instantiated at `Q_3 = D_sq h / lambda_3` in section 6, where both
+hypotheses are theorems.  All private: this is proof infrastructure. -/
+
+section Class2Calculus
+
+variable {G : Type*} [Group G]
+
+private theorem gRow_cswap (a b : G) : b * a = a * b * commP b a := by
+  rw [commP]
+  group
+
+private theorem gRow_cconj (a s : G) : conjP a s = a * commP a s := by
+  rw [conjP, commP]
+  group
+
+private theorem gRow_cP_comm_inv (a b : G) : (commP a b)⁻¹ = commP b a := by
+  rw [commP, commP]
+  group
+
+private theorem gRow_cmul_left (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (a b c : G) : commP (a * b) c = commP a c * commP b c := by
+  have hexact : commP (a * b) c = b⁻¹ * (commP a c * b) * commP b c := by
+    rw [commP, commP, commP]
+    group
+  rw [hexact, hcen a c b, inv_mul_cancel_left]
+
+private theorem gRow_cmul_right (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (a b c : G) : commP a (b * c) = commP a c * commP a b := by
+  have hexact : commP a (b * c) = commP a c * (c⁻¹ * (commP a b * c)) := by
+    rw [commP, commP, commP]
+    group
+  rw [hexact, hcen a b c, inv_mul_cancel_left]
+
+private theorem gRow_cinv_eq (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (a b : G) :
+    (commP a b)⁻¹ = commP a b := by
+  have h := hc2 a b
+  rw [pow_two] at h
+  exact inv_eq_of_mul_eq_one_left h
+
+private theorem gRow_ccentral_right {z : G} (hz : ∀ w, z * w = w * z) (a : G) :
+    commP a z = 1 := by
+  rw [commP, mul_assoc, ← hz a]
+  group
+
+private theorem gRow_csq_right (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (a b : G) : commP a (b ^ 2) = 1 := by
+  rw [pow_two, gRow_cmul_right hcen a b b, ← pow_two, hc2]
+
+private theorem gRow_csq_left (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (a b : G) : commP (b ^ 2) a = 1 := by
+  rw [pow_two, gRow_cmul_left hcen b b a, ← pow_two, hc2]
+
+private theorem gRow_central_of_sq (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (b w : G) : b ^ 2 * w = w * b ^ 2 := by
+  have h := gRow_cswap w (b ^ 2)
+  rw [gRow_csq_left hcen hc2 w b, mul_one] at h
+  exact h
+
+private theorem gRow_cinv_right (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (a b : G) : commP a b⁻¹ = commP a b := by
+  have hexact : commP a b⁻¹ = b * (commP b a * b⁻¹) := by
+    rw [commP, commP]
+    group
+  rw [hexact, hcen b a b⁻¹, mul_inv_cancel_left, ← gRow_cP_comm_inv, gRow_cinv_eq hc2]
+
+private theorem gRow_cinv_left (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (a b : G) : commP a⁻¹ b = commP a b := by
+  have hexact : commP a⁻¹ b = a * (commP b a * a⁻¹) := by
+    rw [commP, commP]
+    group
+  rw [hexact, hcen b a a⁻¹, mul_inv_cancel_left, ← gRow_cP_comm_inv, gRow_cinv_eq hc2]
+
+private theorem gRow_commP_conjP_self (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (a s : G) : commP a (conjP a s) = 1 := by
+  have hself : commP a a = 1 := by
+    rw [commP]
+    group
+  rw [gRow_cconj, gRow_cmul_right hcen a a (commP a s),
+    gRow_ccentral_right (hcen a s) a, hself, one_mul]
+
+private theorem gRow_conjP_inv (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (a s : G) :
+    (conjP a s)⁻¹ = commP a s * a⁻¹ := by
+  rw [gRow_cconj, mul_inv_rev, gRow_cinv_eq hc2]
+
+private theorem gRow_sq_expand (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (x p : G) : (x * p) ^ 2 = x ^ 2 * p ^ 2 * commP p x := by
+  have h := gRow_cswap x p
+  rw [pow_two, pow_two, pow_two]
+  calc x * p * (x * p) = x * (p * x) * p := by group
+    _ = x * (x * p * commP p x) * p := by rw [h]
+    _ = x * x * p * (commP p x * p) := by group
+    _ = x * x * p * (p * commP p x) := by rw [hcen p x p]
+    _ = x * x * (p * p) * commP p x := by group
+
+private theorem gRow_pow_four (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) {p : G} (hp4 : p ^ 4 = 1) (x : G) :
+    (x * p) ^ 4 = x ^ 4 := by
+  have h2 := gRow_sq_expand hcen x p
+  have hk : ∀ w, p ^ 2 * commP p x * w = w * (p ^ 2 * commP p x) := by
+    intro w
+    rw [mul_assoc, hcen p x w, ← mul_assoc, gRow_central_of_sq hcen hc2 p w, mul_assoc]
+  calc (x * p) ^ 4 = ((x * p) ^ 2) ^ 2 := by
+        rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul]
+    _ = (x ^ 2 * (p ^ 2 * commP p x)) ^ 2 := by rw [h2, mul_assoc]
+    _ = (x ^ 2) ^ 2 * (p ^ 2 * commP p x) ^ 2 := Commute.mul_pow ((hk (x ^ 2)).symm) 2
+    _ = x ^ 4 * (p ^ 2 * commP p x) ^ 2 := by
+        rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul]
+    _ = x ^ 4 := by
+        have hsplit : (p ^ 2 * commP p x) ^ 2 = (p ^ 2) ^ 2 * commP p x ^ 2 :=
+          Commute.mul_pow ((hcen p x (p ^ 2)).symm) 2
+        rw [hsplit, hc2, mul_one, ← pow_mul, show (2 * 2 : ℕ) = 4 from rfl, hp4, mul_one]
+
+/-- **The base normal form**: in the class-two calculus, `sqWord s x y` is
+`[x,s] * x^-4 * y^2`. -/
+private theorem gRow_sqWord_base (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (s x y : G) :
+    sqWord s x y = commP x s * ((x ^ 4)⁻¹ * y ^ 2) := by
+  rw [sqWord, gRow_conjP_inv hc2 x s, gRow_commP_conjP_self hcen y s, mul_one]
+  group
+
+/-- **The twisted normal form**: dressing the three letters by `p * z` (central `z`),
+`p`, `p^2` with `p^4 = 1` costs exactly the two commutators `[x,p]` and `[p,s]`. -/
+private theorem gRow_sqWord_twist (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) {p z : G} (hz : ∀ w, z * w = w * z)
+    (hp4 : p ^ 4 = 1) (s x y : G) :
+    sqWord (s * (p * z)) (x * p) (y * p ^ 2)
+      = commP x p * (commP p s * (commP x s * ((x ^ 4)⁻¹ * y ^ 2))) := by
+  have hpp : commP p p = 1 := by
+    rw [commP]
+    group
+  have hb : commP (x * p) (s * (p * z)) = commP x p * (commP x s * commP p s) := by
+    rw [gRow_cmul_right hcen (x * p) s (p * z), gRow_cmul_right hcen (x * p) p z,
+      gRow_ccentral_right hz (x * p), one_mul, gRow_cmul_left hcen x p p, hpp, mul_one,
+      gRow_cmul_left hcen x p s]
+  have hd : (y * p ^ 2) ^ 2 = y ^ 2 := by
+    rw [gRow_sq_expand hcen y (p ^ 2), gRow_csq_left hcen hc2 y p, mul_one, ← pow_mul,
+      show (2 * 2 : ℕ) = 4 from rfl, hp4, mul_one]
+  have hfour : (x * p)⁻¹ * ((x * p) ^ 3)⁻¹ = (x ^ 4)⁻¹ := by
+    have hgen : ∀ a : G, a⁻¹ * (a ^ 3)⁻¹ = (a ^ 4)⁻¹ := fun a => by group
+    rw [hgen (x * p), gRow_pow_four hcen hc2 hp4 x]
+  rw [sqWord, gRow_commP_conjP_self hcen (y * p ^ 2) (s * (p * z)), mul_one,
+    gRow_conjP_inv hc2 (x * p) (s * (p * z)), hb, hd,
+    mul_assoc (commP x p * (commP x s * commP p s)) (x * p)⁻¹ ((x * p) ^ 3)⁻¹, hfour,
+    hcen x s (commP p s)]
+  group
+
+/-- **The defect at an odd pivot power dies**: with `p = (s * (x * ex^2)⁻¹) * e^2` the two
+defect commutators collapse onto `[x,s]^2 = 1`. -/
+private theorem gRow_defect_odd (hcen : ∀ u v w : G, commP u v * w = w * commP u v)
+    (hc2 : ∀ u v : G, commP u v ^ 2 = 1) (s x e ex : G) :
+    commP x (s * (x * ex ^ 2)⁻¹ * e ^ 2) * commP (s * (x * ex ^ 2)⁻¹ * e ^ 2) s = 1 := by
+  have hselfinv : commP x (x * ex ^ 2) = 1 := by
+    have hself : commP x x = 1 := by
+      rw [commP]
+      group
+    rw [gRow_cmul_right hcen x x (ex ^ 2), gRow_csq_right hcen hc2 x ex, one_mul, hself]
+  have hX : commP x (s * (x * ex ^ 2)⁻¹ * e ^ 2) = commP x s := by
+    rw [gRow_cmul_right hcen x (s * (x * ex ^ 2)⁻¹) (e ^ 2), gRow_csq_right hcen hc2 x e,
+      one_mul, gRow_cmul_right hcen x s ((x * ex ^ 2)⁻¹),
+      gRow_cinv_right hcen hc2 x (x * ex ^ 2), hselfinv, one_mul]
+  have hS : commP (s * (x * ex ^ 2)⁻¹ * e ^ 2) s = commP x s := by
+    have hss : commP s s = 1 := by
+      rw [commP]
+      group
+    rw [gRow_cmul_left hcen (s * (x * ex ^ 2)⁻¹) (e ^ 2) s, gRow_csq_left hcen hc2 s e,
+      mul_one, gRow_cmul_left hcen s ((x * ex ^ 2)⁻¹) s, hss, one_mul,
+      gRow_cinv_left hcen hc2 (x * ex ^ 2) s, gRow_cmul_left hcen x (ex ^ 2) s,
+      gRow_csq_left hcen hc2 s ex, mul_one]
+  rw [hX, hS, ← pow_two, hc2]
+
+end Class2Calculus
+
 /-! ## §6 The compactness assembly, and the free rungs -/
 
 section Assembly
@@ -548,21 +732,47 @@ theorem gRow_pair_of_forall_class {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp 
     (gRow_modTwoIndep hAB fun i => gRow_lambdaTwo_le_frat (gRow_mem_corr.mp (hcorr i)).1.1)
     hall
 
+/-- Every `commP`-value lies in `lambda_2`. -/
+theorem gRow_commP_mem_two (z w : (DSq h : Type)) :
+    commP z w ∈ twoCentralSeries (DSq h : Type) 2 := by
+  have hrw : commP z w = ⁅z⁻¹, w⁻¹⁆ := by
+    rw [commP, commutatorElement_def]
+    group
+  rw [hrw]
+  exact commutator_mem_twoCentralSeries_succ _ (Subgroup.mem_top z⁻¹) w⁻¹
+
+/-- A `commP`-value with a `lambda_2`-argument lies in `lambda_3`. -/
+theorem gRow_commP_mem_three {z : (DSq h : Type)}
+    (hz : z ∈ twoCentralSeries (DSq h : Type) 2) (g : (DSq h : Type)) :
+    commP z g ∈ twoCentralSeries (DSq h : Type) 3 := by
+  have hrw : commP z g = ⁅z⁻¹, g⁻¹⁆ := by
+    rw [commP, commutatorElement_def]
+    group
+  rw [hrw]
+  exact commutator_mem_twoCentralSeries_succ _
+    ((twoCentralSeries (DSq h : Type) 2).inv_mem hz) g⁻¹
+
+private theorem gRow_levelMk_eq_one {k : ℕ} {x : (DSq h : Type)}
+    (hx : x ∈ twoCentralSeries (DSq h : Type) k) : levelMk (DSq h : Type) k x = 1 :=
+  (QuotientGroup.eq_one_iff x).mpr hx
+
+private theorem gRow_mem_of_levelMk {k : ℕ} {x : (DSq h : Type)}
+    (hx : levelMk (DSq h : Type) k x = 1) : x ∈ twoCentralSeries (DSq h : Type) k :=
+  (QuotientGroup.eq_one_iff x).mp hx
+
+private theorem gRow_map_commP {G' H' : Type*} [Group G'] [Group H'] (f : G' →* H')
+    (x y : G') : f (commP x y) = commP (f x) (f y) := by
+  rw [commP, commP, map_mul, map_mul, map_mul, map_inv, map_inv]
+
 /-- ⭐ **CLASS TWO IS FREE, FOR EVERY FRAME.**  The relator word on any marking is a product
 of squares, commutators, and a conjugate of a commutator, so it lies in `lambda_2` outright.
-In particular the bare ansatz solves every rung `k <= 2` at every `(A, B)`, and the residue
-of the row moves starts at class 3. -/
+In particular the bare ansatz solves every rung `k <= 2` at every `(A, B)`. -/
 theorem gRow_relWord_mem_two (m : Fin (sqRank h) → (DSq h : Type)) :
     sqRelWord m ∈ twoCentralSeries (DSq h : Type) 2 := by
   have hsq2 : ∀ z : (DSq h : Type), z ^ 2 ∈ twoCentralSeries (DSq h : Type) 2 := fun z =>
     sq_mem_twoCentralSeries_succ _ (Subgroup.mem_top z)
-  have hcm : ∀ z w : (DSq h : Type), commP z w ∈ twoCentralSeries (DSq h : Type) 2 := by
-    intro z w
-    have hrw : commP z w = ⁅z⁻¹, w⁻¹⁆ := by
-      rw [commP, commutatorElement_def]
-      group
-    rw [hrw]
-    exact commutator_mem_twoCentralSeries_succ _ (Subgroup.mem_top z⁻¹) w⁻¹
+  have hcm : ∀ z w : (DSq h : Type), commP z w ∈ twoCentralSeries (DSq h : Type) 2 :=
+    gRow_commP_mem_two
   have hword : sqWord (m 0) (m 1) (m 2)
       = ((m 1)⁻¹ ^ 2) ^ 2
         * ((m 1) ^ 3 * commP (m 1)⁻¹ (m 0) * ((m 1) ^ 3)⁻¹)
@@ -586,14 +796,106 @@ theorem gRow_nonempty_of_le_two {A B : ℤ_[2]} {k : ℕ} (hk : k ≤ 2) :
   ⟨fun _ => 1, fun _ => one_mem _,
     twoCentralSeries_antitone (G := (DSq h : Type)) hk (gRow_relWord_mem_two _)⟩
 
-/-- **The residue, exactly**: the row pair follows from class-`k` solvability at `k >= 3`
-alone. -/
-theorem gRow_pair_of_forall_class_three {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
-    (H : ∀ k, 3 ≤ k → (gRowSet h A B k).Nonempty) : GRowPair h A B := by
+/-- ⭐⭐ **CLASS THREE IS FREE ON THE UNIT LOCUS, WITH THE BARE FRAME.**  In the class-three
+quotient every commutator is central of order two, so the twisted word collapses onto the
+standard relator times the two defect commutators `[x0, w^B] * [w^B, sigma]`.  At an even `B`
+the pivot power is a square, hence class-three central, and both die; at an odd `B` the pivot
+power is the pivot times a square, both defects read `[x0, sigma]`, and their product is a
+commutator square.  Either way the defect dies, so the bare ansatz solves rung 3 everywhere
+on the unit locus: the committed class-two balance (`PivotCoreMoves` docstring, prose only,
+lower-central metric) is subsumed one rung up, in Lean, in the two-central metric. -/
+theorem gRow_relWord_bare_mem_three {A B : ℤ_[2]} (hAB : (2 : ℤ_[2]) ∣ A - 1 - B) :
+    sqRelWord (gRowMark h A B fun _ => 1) ∈ twoCentralSeries (DSq h : Type) 3 := by
+  obtain ⟨t, ht⟩ := hAB
+  have hA1 : A - 1 = B + 2 * t := by linear_combination ht
+  -- the class-three quotient is a class-two calculus
+  have hcen : ∀ a b w : levelQuot (DSq h : Type) 3, commP a b * w = w * commP a b := by
+    intro a b w
+    obtain ⟨a', rfl⟩ := levelMk_surjective (DSq h : Type) 3 a
+    obtain ⟨b', rfl⟩ := levelMk_surjective (DSq h : Type) 3 b
+    obtain ⟨w', rfl⟩ := levelMk_surjective (DSq h : Type) 3 w
+    rw [← gRow_map_commP, ← map_mul, ← map_mul, gRow_cswap w' (commP a' b'), map_mul,
+      gRow_levelMk_eq_one (gRow_commP_mem_three (gRow_commP_mem_two a' b') w'), mul_one]
+  have hc2 : ∀ a b : levelQuot (DSq h : Type) 3, commP a b ^ 2 = 1 := by
+    intro a b
+    obtain ⟨a', rfl⟩ := levelMk_surjective (DSq h : Type) 3 a
+    obtain ⟨b', rfl⟩ := levelMk_surjective (DSq h : Type) 3 b
+    rw [← gRow_map_commP, ← map_pow]
+    exact gRow_levelMk_eq_one
+      (sq_mem_twoCentralSeries_succ _ (gRow_commP_mem_two a' b'))
+  have hp4 : levelMk (DSq h : Type) 3 (zpowZtwo (isProP_DSq h) (sqPivot h) B) ^ 4 = 1 := by
+    rw [← map_pow]
+    refine gRow_levelMk_eq_one ?_
+    have h1 : zpowZtwo (isProP_DSq h) (sqPivot h) B ^ 2
+        ∈ twoCentralSeries (DSq h : Type) 2 :=
+      sq_mem_twoCentralSeries_succ _ (Subgroup.mem_top _)
+    have h2 := sq_mem_twoCentralSeries_succ _ h1
+    rwa [← pow_mul, show (2 * 2 : ℕ) = 4 from rfl] at h2
+  -- the image of the standard relator
+  have hrel0 : sqWord (levelMk (DSq h : Type) 3 (dsqSigma h))
+      (levelMk (DSq h : Type) 3 (dsqX0 h)) (levelMk (DSq h : Type) 3 (dsqX1 h))
+      * handleWord (fun j => levelMk (DSq h : Type) 3 (sqGen h (sqHandleIdxU j)))
+        (fun j => levelMk (DSq h : Type) 3 (sqGen h (sqHandleIdxV j))) = 1 := by
+    have h1 : levelMk (DSq h : Type) 3 (sqRelWord (sqGen h)) = 1 := by
+      rw [dsq_relation h, map_one]
+    rw [map_sqRelWord] at h1
+    exact h1
+  -- membership through the level projection
+  refine gRow_mem_of_levelMk ?_
+  rw [sqRelWord]
+  simp only [gRowMark_zero, gRowMark_one, gRowMark_two, gRowMark_handleU, gRowMark_handleV,
+    mul_one]
+  rw [hA1, zpowZtwo_add]
+  simp only [zpowZtwo_two_mul]
+  rw [map_mul, map_sqWord, map_handleWord]
+  simp only [map_mul, map_pow]
+  rw [gRow_sqWord_twist hcen hc2
+    (fun w => gRow_central_of_sq hcen hc2
+      (levelMk (DSq h : Type) 3 (zpowZtwo (isProP_DSq h) (sqPivot h) t)) w) hp4,
+    ← gRow_sqWord_base hcen hc2 (levelMk (DSq h : Type) 3 (dsqSigma h))
+      (levelMk (DSq h : Type) 3 (dsqX0 h)) (levelMk (DSq h : Type) 3 (dsqX1 h))]
+  have hassoc : ∀ q1 q2 q3 q4 : levelQuot (DSq h : Type) 3,
+      q1 * (q2 * q3) * q4 = q1 * q2 * (q3 * q4) := by
+    intro q1 q2 q3 q4
+    group
+  rw [hassoc, hrel0, mul_one]
+  -- the defect: `[x0, w^B] * [w^B, sigma]` dies by parity
+  by_cases hB : (2 : ℤ_[2]) ∣ B
+  · obtain ⟨u2, hu2⟩ := hB
+    rw [hu2, zpowZtwo_two_mul, map_pow, gRow_csq_right hcen hc2, gRow_csq_left hcen hc2,
+      one_mul]
+  · obtain ⟨r, hr⟩ := two_dvd_sub_of_isUnit (isUnit_iff_not_two_dvd.mpr hB) isUnit_one
+    obtain ⟨r0, hr0⟩ := two_dvd_sub_of_isUnit isUnit_sqPivotExp isUnit_one
+    have hwsplit : zpowZtwo (isProP_DSq h) (sqPivot h) B
+        = sqPivot h * zpowZtwo (isProP_DSq h) (sqPivot h) r ^ 2 := by
+      rw [show B = 1 + 2 * r by linear_combination hr, zpowZtwo_add, zpowZtwo_one_exp,
+        zpowZtwo_two_mul]
+    have hpivsplit : sqPivot h = dsqSigma h *
+        (dsqX0 h * zpowZtwo (isProP_DSq h) (dsqX0 h) r0 ^ 2)⁻¹ := by
+      rw [sqPivot, sqMixPivotElem]
+      congr 2
+      rw [show sqPivotExp = 1 + 2 * r0 by linear_combination hr0, zpowZtwo_add,
+        zpowZtwo_one_exp, zpowZtwo_two_mul]
+    rw [hwsplit, hpivsplit]
+    simp only [map_mul, map_inv, map_pow]
+    exact gRow_defect_odd hcen hc2 _ _ _ _
+
+/-- The rungs `k <= 3` are nonempty with bare corrections, on the unit locus. -/
+theorem gRow_nonempty_of_le_three {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B)) {k : ℕ}
+    (hk : k ≤ 3) : (gRowSet h A B k).Nonempty :=
+  ⟨fun _ => 1, fun _ => one_mem _,
+    twoCentralSeries_antitone (G := (DSq h : Type)) hk
+      (gRow_relWord_bare_mem_three (gRow_even_of_unit hAB))⟩
+
+/-- ⭐ **The residue, exactly**: on the unit locus the row pair follows from class-`k`
+solvability at `k >= 4` alone.  Classes at most three are theorems, so the first class that
+can obstruct a row move is class four: the same threshold the `M6` ladder starts at. -/
+theorem gRow_pair_of_forall_class_four {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
+    (H : ∀ k, 4 ≤ k → (gRowSet h A B k).Nonempty) : GRowPair h A B := by
   refine gRow_pair_of_forall_class hAB fun k => ?_
-  by_cases hk : 3 ≤ k
+  by_cases hk : 4 ≤ k
   · exact H k hk
-  · exact gRow_nonempty_of_le_two (by omega)
+  · exact gRow_nonempty_of_le_three hAB (by omega)
 
 end Assembly
 
@@ -699,9 +1001,15 @@ example (h : ℕ) : GRowTranslate h 0 ∧ GRowScale h 1 := by
     exact gRow_pair_one_zero h
   · exact gRow_pair_one_zero h
 
-/-- The free rungs, at an arbitrary row pair. -/
+/-- The free rungs: class 2 everywhere, class 3 on the unit locus. -/
 example (h : ℕ) (A B : ℤ_[2]) : (gRowSet h A B 2).Nonempty :=
   gRow_nonempty_of_le_two le_rfl
+
+/-- The class-three rung at the two rays. -/
+example (h : ℕ) (c : ℤ_[2]) : (gRowSet h (1 - sqPivotExp * c) (-c) 3).Nonempty :=
+  gRow_nonempty_of_le_three (by
+    rw [show (1 - sqPivotExp * c) - sqPivotExp * (-c) = (1 : ℤ_[2]) by ring]
+    exact isUnit_one) le_rfl
 
 /-- The pair route lands on the committed model-move statement through the committed ray
 decomposition. -/
@@ -755,9 +1063,14 @@ section AxiomPins
 #print axioms gRow_isClosed_set
 #print axioms gRow_iInter_nonempty
 #print axioms gRow_pair_of_forall_class
+#print axioms gRow_commP_mem_two
+#print axioms gRow_commP_mem_three
 #print axioms gRow_relWord_mem_two
 #print axioms gRow_nonempty_of_le_two
-#print axioms gRow_pair_of_forall_class_three
+#print axioms gRow_even_of_unit
+#print axioms gRow_relWord_bare_mem_three
+#print axioms gRow_nonempty_of_le_three
+#print axioms gRow_pair_of_forall_class_four
 #print axioms gRow_modelMove_of_forall_class
 #print axioms gRow_translate_of_forall_class
 #print axioms gRow_scale_of_forall_class
