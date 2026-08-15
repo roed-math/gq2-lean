@@ -1,0 +1,194 @@
+# W75-JOIN: joining the uniform tower to the delta functionals
+
+**Lane W75-JOIN, branch `claude/w75-join`, base `f0a71688`.**  One new module,
+`GQ2/Dyadic/SqCore/GradedUniformJoin.lean` (prefix `gJoin`), 67 declarations, all 65 pinned
+declarations on `[propext, Classical.choice, Quot.sound]`.  No edits to existing files, no
+`sorry`, no new axiom, no `native_decide`, no heartbeat or recursion-depth options.
+
+Source: Labute, *Classification of Demushkin groups*, CJM 19 (1967), Lemma 3 and Lemma 4
+(pp. 125-126) and the Theorem 5 endgame.
+
+Commits: `1bdbc2cd` (the shape mismatch), `5d589184` (the torsion gap closes), `4246f0d0`
+(the letter readings), `c517ec5d` (knob invisibility), `20cd4121` (the layer kernel and the
+`x1` absorption), `b5849b40` (tower detection and the reach split), `87003e9d` (the join).
+
+## Headline
+
+**The functional half of Labute's Lemma 4 is discharged.**  What was two blind interfaces
+after wave 74 is now one theorem with three named inputs:
+
+```
+gJoin_markTransitivity_of_base :
+  GJoinBase h -> GJoinSeparationAll h -> GTowerKnobRealizable h -> SqLamMarkTransitivity h
+```
+
+* `GJoinBase h` is exactly wave 74's depth-2 base `GTowerLayerReach h nu' 2` (T2).  **Not
+  discharged this lane.**
+* `GTowerKnobRealizable h` is wave 74's extraction interface (T3).  **Not attempted this
+  lane.**
+* `GJoinSeparationAll h` is a new, small bookkeeping item created by this lane's own
+  reduction (see "what is left" below); proved outright at `h = 0`.
+
+Nothing else remains on the functional side.  The composite does **not** close the odd
+route's residual, because `GJoinBase` and `GTowerKnobRealizable` are open.
+
+## T1: the vanishing shape-match
+
+The FUNC note's expectation was right that the two interfaces do not match.  The mismatch is
+on **both** sides, and both halves are now settled.
+
+### Hypothesis side: the torsion gap is not a gap (a correction to the FUNC note)
+
+`GDeltaDefectVanishing h` speaks for dressings with `chi_sq = 1` at every slot;
+`GTowerDefectVanishing h` quantifies over dressings with the supply's two row clauses, which
+by `gDelta_chiSq_of_nuLam` force only `chi_sq = +-1`.  The FUNC note's §4.4 listed the `-1`
+branch as an open gap ("the exact gap between this lane's vanishing statement and the
+supply's full dressing space").
+
+It is not a gap for anything the clearing recursion produces.  `gJoin_chiSq_of_gammaTwo`: a
+`gamma_2`-valued admissible correction has `chi_sq = 1 mod 8` (`gDelta_chi_gammaTwo_dvd`) and
+`chi_sq = +-1`, and `-2` is not `8`-divisible in `Z_2`, so `chi_sq = 1` exactly.  Since the
+recursion's base is `bridgeTuple` (already `chi`-trivial, `gDelta_chiSq_bridgeTuple`) and
+every step multiplies by a `gamma_k`-correction with `k >= 2`, the `chi`-clause is free.
+`gJoin_supply_of_vanishing`/`gJoin_markTransitivity_of_vanishing` re-run wave 74's recursion
+carrying the clause, so the **weaker** interface `GJoinDefectVanishing h` (= wave 74's, with
+the `chi`-clause added as a hypothesis) suffices for `SqClassClearingSupply h k` at every `k`
+and for the whole `h >= 1` residual.
+
+No statement of either wave 74 lane had to change.
+
+### Conclusion side: `Im delta = cap ker Delta`, in four steps
+
+The functional side gives a *reading*, the tower side wants a *membership*.  Four results
+bridge them.
+
+1. **Knob invisibility** (`gJoin_knob_dvd`, `gJoin_bundle_dvd`).  The generic filtration
+   bound puts a `gamma_{k+1}`-element's reading in `2^k Z_2`, which is exactly the tower bit.
+   Both knob families are one bit deeper, for two separate arithmetic reasons:
+   * a bracket knob is `commP t q` with `t` **exactly** `chi`-trivial (the §2 result), which
+     kills the second term of `gDelta_commP` outright, leaving
+     `(chi(q)^{-1} - 1) * D t`; and `gTowerFar` is precisely the span on which
+     `chi = 1 mod 4` (`S = 13`, `X = 5`, handles `= 1`), the excluded letter `x1` having
+     `chi = Y = 3 mod 4`.  So the far factor contributes `4` and the reading is
+     `2^{k+1}`-divisible.  **The far span's definition is exactly the `chi = 1 mod 4`
+     condition**; that is why the inventory excludes `x1` from it.
+   * the `x1`-slot bundle reads `(1 + Y^{-1}) * D t` on the nose, and
+     `v2(Y + 1) = v2(1 - X^2) = 3`.  The `2` from the square cancels the odd part of `Y - 1`.
+     **Neither the bare square nor the bare `x1`-bracket is invisible**; this is the
+     arithmetic reason the inventory bundles them, and it is new information about an
+     inventory that has been in the tree since wave 70.
+2. **The layer kernel** (`gJoinLayerDvd`).  `{x | 2^{k+1} | gDelta c x}` is a subgroup and
+   descends to `Q_{k+2}` by `gDelta_dvd_of_levelMk_eq`; by (1) it contains the whole knob
+   span (`gJoin_knob_le_layerDvd`).
+3. **The invisible tower is a knob** (`gJoin_xOne_tower_knob`).  `x1tilde` is the one tower
+   no functional detects (`gDelta_x1_tower_dvd`, Labute's `k != 2` side condition), so it has
+   to be reached by moves, and it is: take `t = x1tilde^{2^{k-1}a}`, admissible at depth `k`;
+   the bundle supplies `t^2 * [t, x1]`, and `[t, x1]` splits through `cfiveCommHom` as
+   `[t, x1tilde] * [t, x0^2]`, whose first factor is trivial (`t` is a power of `x1tilde`) and
+   whose second is a far-span knob.  Hence `x1tilde^{2^k a}` is in the knob span at every
+   depth `k >= 1`.
+4. **Tower detection** (`gJoin_rowU_eichU` and friends, `gJoin_eichU_tower_notMem`).  The
+   coefficient vector supported on the `u_j` slot reads `U_j` as a unit and every other
+   cleared letter as zero (this is Labute's `Delta_i(pi^{j-1} xi_k) = pi^j delta_{ik}` in the
+   campaign's cleared basis).  So the `U_j`-tower at exponent `2^k a` has layer bit the parity
+   of `a`, and an odd one lies outside the layer kernel, hence outside the knob span.
+
+The consequence is the sharp statement `gJoin_reach_le`:
+
+> **the reach exceeds the knob span by exactly the `2h` handle towers**, and every one of
+> those is functional-visible.
+
+(The `x1tilde` tower is absorbed by (3); the two non-admissible towers `x0`, `w` never enter,
+the defect being exactly row-trivial by `gTower_frame_row_nuLam`/`gTower_frame_row_nu`.)
+This is Labute's division of labour made exact for the sq core: moves span the
+functional-invisible part of the layer, and the functionals kill the rest.
+
+### What is left of T1
+
+`GJoinTowerSeparation h nu' k`: an element of the handle-tower span whose every handle row
+reads `2^{k+1}`-divisibly is trivial.  Mathematically this is the `F_2`-independence that
+step (4)'s readings already exhibit generator by generator; the friction is purely that the
+layer sits inside a **non-commutative** quotient `Q_{k+2}`, so writing a span element in the
+normal form `prod_j U_j^{2^k f_j} V_j^{2^k g_j}` needs an ordered product plus its
+exponent-addition law (all the factors are central, so this is bookkeeping, not mathematics).
+Two routes were scoped and both are a lane-sized chunk on their own:
+
+* an ordered `List.finRange h` product in `Q_{k+2}`, with the exponent-addition law proved by
+  list induction using centrality (the friction is the "all but one factor trivial" step
+  needed to see each generator inside the range);
+* peeling one generator at a time over a `Finset` of the `2h` slots: if `M <= K_i`,
+  `e_i notin K_i` and `e_i^2 = 1`, then `z in M * <e_i>` with `z in K_i` forces `z in M`.
+  Shorter per step, but needs the `Finset` induction and the `sup`-decomposition each time.
+
+Proved outright at `h = 0` (`gJoin_towerSeparation_handleFree`).
+
+## T2 (the depth-2 base): not discharged, but scoped, and it is true
+
+Not reached.  The analysis, for W76:
+
+`GTowerLayerReach h nu' 2` reduces, through `gTower_cut` at `k = 2`, to
+`zLayer (DSq h) 3 <= gTowerFullReach h nu' 2`, which `cfourCmp_zLayer_le_gens` reduces to the
+three families `p^4`, `[p,q]^2`, `[[p,q],r]` (equivalently, through the verbal generation of
+`gamma_3`, to squares of `gamma_2`-elements and brackets `[gamma_2, G]`).  In the graded
+picture `gr_3 = L_3(V) + (Lambda^2 V)^{[2]} + V^{[4]}`, and:
+
+* `V^{[4]}` is covered: the admissible towers give `x1tilde^4`, `U_j^4`, `V_j^4` and `TowXW`
+  gives `x0^4`, `w^4`, and `{x1tilde, U_j, V_j, x0, w}` is an `F_2`-basis of `V` **because
+  `w = sqPivot h = sigma * x0^{-c}`** (`sqMixPivotElem`), so `w = sigma + c x0 mod 2` and the
+  pair `{x0, w}` spans `{x0, sigma}`.  In particular the `sigma^4` worry is empty: `sigma^4`
+  is `w^4 x0^{4c}` modulo the layer, so the refutation
+  `gDelta_cfourCmp_span_hyp_false` does not bite the reach (it bites the knob subgroup, which
+  has no towers at all).
+* `L_3(V)` is covered by knobs `[t, far]` **except** for `[[b, x1], x1]`, `b` a far letter.
+  Jacobi in characteristic two reduces every other `[[a,b],x1]` to `[Lambda^2 V, far]`; the
+  outer-`x1` case does not reduce in the free algebra.
+* the resolution is the **relator**.  `gr(D_sq h)` is the free restricted algebra modulo the
+  ideal generated by the relator's leading form
+  `R = x1^{[2]} + [x0, sigma] + sum_j [u_j, v_j]` (degree 2; from `sqRelWord_comm`, the
+  `x0^{-4}` factor being degree 3).  Bracketing with `c` gives
+  `[[c, x1], x1] = [[x0, sigma], c] + sum_j [[u_j, v_j], c]`, whose right-hand side is
+  `[Lambda^2 V, c]` and so a knob for every `c` in the far span.  **This is the pairing the
+  briefing named**, and it is what the campaign's `gThreeFour_jacobi` and
+  `cfourKnob_sq_knob_pair` should be fed.
+* `(Lambda^2 V)^{[2]}` then costs nothing, by the committed `cfourCmp_zLayer_le_triple`
+  ("modulo the triple brackets the bundle is as good as the square").
+
+So the base is true and the route is: relator leading form, Jacobi, then
+`cfourCmp_zLayer_le_gens` at `S = gTowerFullReach h nu' 2`, then `gTower_cut`.  The one piece
+the tree does not appear to have committed in usable form is the degree-3 consequence of the
+relator's leading form, `[[c, x1], x1] in [Lambda^2 V, far]`.
+
+A warning for W76: **`GTowerLayerReach h nu' 1` is false** (`[sigma, x0]` is row-trivial but
+neither slot is admissible and neither knob family produces it), so there is no cheap
+induction down to depth 1; the base really is depth 2.
+
+## T3 (realizability): not attempted
+
+`GTowerKnobRealizable h` was not touched.  The ENGINE note's mod-2 far-slot route stands
+unexamined by this lane.  §5's `gJoin_chi_far` (the far span is exactly the `chi = 1 mod 4`
+span) is likely useful there.
+
+## Honesty markers
+
+* Nothing here is evidence about whether `SqClassClearingSupply h k` holds; every negative
+  statement in this file is about one inventory.  `gJoin_eichU_tower_notMem` says a handle
+  tower with odd exponent is not in the **knob span**, which is why the functionals are
+  needed; it is not an obstruction to the supply.
+* `GJoinTowerSeparation` and `GJoinBase` are hypotheses, not claims.  `GJoinTowerSeparation`
+  is proved at `h = 0`; `GJoinBase` is wave 74's own open item and the analysis above argues
+  it is true, but arguing is not proving.
+* `gJoin_reach_le` needs `k >= 1` and a selected marking (through `gTower_xOne_nu`); the
+  assembly uses it at `k >= 2` only.
+* The `chi`-restricted interface `GJoinDefectVanishing` is **weaker** than wave 74's
+  `GTowerDefectVanishing` (`gJoin_defectVanishing_of_tower` records the implication), and §3
+  shows the weaker one is enough.  Anyone quoting "the residual reduces to
+  `GTowerDefectVanishing` + `GTowerKnobRealizable`" should quote `GJoinDefectVanishing`
+  instead: it is the smaller ask.
+
+## Verification of record
+
+`scripts/mirror.sh sweep` at lane start (5863 artifacts); `scripts/mirror.sh gen
+GQ2.Dyadic.SqCore.GradedUniformJoin` green after every commit; zero warnings, zero sorries,
+no new axioms; all 65 `#print axioms` lines print
+`[propext, Classical.choice, Quot.sound]`.  New leaf module, no dependents, `GQ2.lean`
+untouched per protocol.
