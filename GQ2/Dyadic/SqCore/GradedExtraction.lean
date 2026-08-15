@@ -498,7 +498,36 @@ theorem gExt_separationAll (h : ℕ) : GJoinSeparationAll h :=
 
 end Separation
 
-/-! ## §5 Axiom pins -/
+/-! ## §5 The reduction with the separation removed
+
+Wave 78's repaired reduction took three inputs.  §4 discharges the second, so what is left
+of the odd route is the depth-3 base and the extraction. -/
+
+section Collapse
+
+variable {h : ℕ}
+
+/-- ⭐⭐ **The vanishing interface from the depth-3 base alone.** -/
+theorem gExt_defectVanishing_of_baseThree (H3 : GDecideBaseThree h) :
+    GJoinDefectVanishing h :=
+  gAbs_defectVanishing_of_baseThree H3 (gExt_separationAll h)
+
+/-- ⭐⭐ **The per-class supply from two inputs**: the OPEN depth-3 base and the extraction. -/
+theorem gExt_supply_of_baseThree (H3 : GDecideBaseThree h) (HR : GTowerKnobRealizable h) :
+    ∀ k, SqClassClearingSupply h k :=
+  gAbs_supply_of_baseThree H3 (gExt_separationAll h) HR
+
+/-- ⭐⭐⭐ **The `h ≥ 1` residual from two named inputs.**  Wave 78 needed three:
+`GDecideBaseThree h`, `GJoinSeparationAll h`, `GTowerKnobRealizable h`.  The middle one is
+now a theorem (`gExt_separationAll`), so the odd route hangs on the depth-3 base and the
+extraction only. -/
+theorem gExt_markTransitivity_of_baseThree (H3 : GDecideBaseThree h)
+    (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
+  gAbs_markTransitivity_of_baseThree H3 (gExt_separationAll h) HR
+
+end Collapse
+
+/-! ## §6 Axiom pins -/
 
 section AxiomPinsSep
 
@@ -545,6 +574,9 @@ section AxiomPinsSep
 #print axioms gExt_even_of_dvd
 #print axioms gExt_towerSeparation
 #print axioms gExt_separationAll
+#print axioms gExt_defectVanishing_of_baseThree
+#print axioms gExt_supply_of_baseThree
+#print axioms gExt_markTransitivity_of_baseThree
 
 end AxiomPinsSep
 
