@@ -150,6 +150,71 @@ theorem evenStratumRow_omega_table {h : ℕ} (i : Fin (MarkedCore.coreRank h)) :
 
 end BridgeOne
 
+/-! ## §2 The symplectic normal form with one vector pinned
+
+`exists_symplectic_equiv` (`Certificates/L.lean` §1.2) chooses the first hyperbolic pair by
+`by_cases` on whether the space is trivial and then takes *any* nonzero vector.  What §3 needs is
+the same theorem with that first vector prescribed: a nonzero `t` must land on the second
+coordinate of the zeroth plane, because that is where the `x₁` letter sits.
+
+The proof is the outer step of `exists_symplectic_equiv_aux`, run once with `v` and `w` in the
+order that puts `t` in the second slot (`hypSplitEquiv` reads `x ↦ (b w x, b v x)`, so `t` goes in
+the `v` position), and `exists_symplectic_equiv` itself on the complement.  `t`'s own component in
+the complement is `t + t = 0`, which is what makes the pin come out as a single plane. -/
+
+section Pin
+
+universe u
+
+variable {W : Type u} [AddCommGroup W] [Module (ZMod 2) W]
+
+/-- **The pinned symplectic normal form.**  A nondegenerate alternating `𝔽₂` form on a finite
+space is an orthogonal sum of hyperbolic planes in which a prescribed nonzero vector is the
+second basis vector of the zeroth plane.
+
+The plane count is `m + 1`, so the statement also records that a space carrying a nonzero vector
+has at least one plane. -/
+theorem evenStratumRow_symplectic_pin [Finite W] (b : W → W → ZMod 2) (hb : IsSymplecticFp2 b)
+    (t : W) (ht : t ≠ 0) :
+    ∃ (m : ℕ) (φ : W ≃ₗ[ZMod 2] (Fin (m + 1) → ZMod 2 × ZMod 2)),
+      (∀ x y, b x y = hypGram (φ x) (φ y)) ∧
+        φ t 0 = (0, 1) ∧ ∀ j : Fin m, φ t j.succ = 0 := by
+  classical
+  have h2 : ∀ x : W, x + x = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+  obtain ⟨u, hu⟩ : ∃ u, b t u ≠ 0 := by
+    by_contra hcon
+    push Not at hcon
+    exact ht (hb.nondeg t hcon)
+  have hut : b u t = 1 := by
+    rw [← hb.symm]
+    rcases ZMod.eq_zero_or_eq_one (b t u) with h | h
+    · exact absurd h hu
+    · exact h
+  obtain ⟨m, φ', hφ'⟩ :=
+    exists_symplectic_equiv (fun x y : hypPerp b hb u t ↦ b (x : W) (y : W))
+      (isSymplectic_restrict hb hut)
+  have hzero : (⟨t + (b t t) • u + (b u t) • t, hypProj_mem hb hut t⟩ :
+      hypPerp b hb u t) = 0 := by
+    refine Subtype.ext ?_
+    show t + (b t t) • u + (b u t) • t = 0
+    rw [hb.alt t, hut, zero_smul, one_smul, add_zero, h2]
+  refine ⟨m, (hypSplitEquiv hb hut).trans
+    (((LinearEquiv.refl (ZMod 2) (ZMod 2 × ZMod 2)).prodCongr φ').trans
+      (consLinearEquiv m (ZMod 2 × ZMod 2))), fun x y ↦ ?_, ?_, fun j ↦ ?_⟩
+  · show b x y = hypGram (Fin.cons (b t x, b u x) (φ' _)) (Fin.cons (b t y, b u y) (φ' _))
+    rw [hypGram_cons, ← hφ']
+    exact hypSplit_gram hb hut x y
+  · show Fin.cons (α := fun _ : Fin (m + 1) ↦ ZMod 2 × ZMod 2) (b t t, b u t)
+      (φ' ⟨t + (b t t) • u + (b u t) • t, hypProj_mem hb hut t⟩) 0 =
+        ((0 : ZMod 2), (1 : ZMod 2))
+    rw [Fin.cons_zero, hb.alt t, hut]
+  · show Fin.cons (α := fun _ : Fin (m + 1) ↦ ZMod 2 × ZMod 2) (b t t, b u t)
+      (φ' ⟨t + (b t t) • u + (b u t) • t, hypProj_mem hb hut t⟩) j.succ = 0
+    rw [Fin.cons_succ, hzero, map_zero]
+    rfl
+
+end Pin
+
 end
 
 end GQ2.Dyadic.StageGeneric
