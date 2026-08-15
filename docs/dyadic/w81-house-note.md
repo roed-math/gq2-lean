@@ -374,16 +374,15 @@ four fields; wave 80 wired one away, so three remain:
 
 | field | ledger | status |
 |---|---|---|
-| `exactLifting` | ASK field 3 | open at general `K`; ticket ASK, never produced |
-| `stokes` | ASK field 4 | open at general `K`; ticket ASK, never produced |
+| `exactLifting` | ASK field 3 | one named `Prop` (`askCStageVanishing`); the corrected bundle is closed - see the update below |
+| `stokes` | ASK field 4 | **CLOSED** at general degree, `askC_stokes_galK` - see the update below |
 | `determinant` | ASK field 6 | **dischargeable**, wave 80: `mpcRow_determinant_of_bridge` over `affineDeterminant_galK` (`GaussZ/FinalDK.lean`) |
 | `cand` | CAND | open; per-row, see §3.1a |
 
-The field's own docstring already carried the wave-79 correction that it was "a binder because
-nobody wired it, not because the rung is missing"; wave 80 wired it, and
-`mpcRow_genAsmRowResidual_of_counting` builds the record with no `determinant` argument.  So
-**the general row residual costs three blocks, not four**, and the two that are genuinely
-unowned are the two ASK analytic clauses.
+The `determinant` field's own docstring already carried the wave-79 correction that it was "a
+binder because nobody wired it, not because the rung is missing"; wave 80 wired it, and
+`mpcRow_genAsmRowResidual_of_counting` builds the record with no `determinant` argument.  With
+the W81-ASK landing below, **the general row residual costs one block, not three**.
 
 **§3.1a The `L h` CAND field.**  At `h ≥ 1` there is **no producer**, at any `h`.  At `h = 0`
 it is discharged (`genCert_wordCertificate_nonempty_L_zero`).  With `e` still open, this is the
@@ -467,8 +466,9 @@ mod-8 congruence on norms of units plus one descent, and (for the pivot) freenes
    (`Main.lean:368-373`).  **The pilot record carries no `G_K`-side `determinant` field at
    all**, where `KSupply` and `GenAsmRowResidual` both do.
 
-`exactLifting`/`stokes` are open struct-level binders at all five rows - ticket ASK, queued and
-never done.  `determinant` is now dischargeable (wave 80).
+`exactLifting`/`stokes` were open struct-level binders at all five rows - ticket ASK, queued
+and never done.  `determinant` became dischargeable at wave 80, and the ASK block moved again
+during this lane; see the commit-time update below.
 
 **`hdet`.**  `ResidualSqrtNegTwo.hdet : SqrtNeg2.PilotDet …` (`Main.lean:381`), **still open**,
 and it is a *different* obligation from `KSupply.determinant`: `hdet` is the **candidate**-side
@@ -484,13 +484,48 @@ sibling candidate-side binders `PilotHsimp`, `PilotStageSep`, `PilotStageZ` are 
 unconditional - all still take the four analytic clauses as hypotheses.  `L h` at `h ≥ 1` has
 no producer at all.
 
-**Summary of the flagship board.**  To get all five rows unconditional the tree needs: the two
-ASK analytic clauses at all five rows; `hdet` plus three siblings at the pilot; the norm-value
-arithmetic at rows 4 and 5; and a CAND producer that does not re-bind the analytic clauses.
-The odd closure moved none of these, and never claimed to - `GradedOddClose.lean:45-48` says so
-explicitly, and that disclaimer is accurate.
+**Summary of the flagship board.**  To get all five rows unconditional the tree needs: the one
+surviving ASK clause `askCStageVanishing` (§3.4, down from three); `hdet` plus three siblings
+at the pilot; the norm-value arithmetic at rows 4 and 5; and a CAND producer that does not
+re-bind the analytic clauses.  The odd closure moved none of these, and never claimed to -
+`GradedOddClose.lean:45-48` says so explicitly, and that disclaimer is accurate.
 
-## 3.4 One staleness correction owed elsewhere
+## 3.4 COMMIT-TIME UPDATE: W81-ASK landed mid-lane and moved the ASK block
+
+Caught by the standing re-check of status words at commit time.  `dyadic` advanced past this
+lane's base `6f2916f3` while the lane was running: `091ea7f0` (merge of `claude/w81-ask`) and
+`5a55cb57` (registration), adding `GQ2/Dyadic/Instances/AskCounting.lean`, 481 lines.  I read
+the module rather than the merge message, per §2.5's own discipline.  The claims hold:
+
+* **`stokes` is CLOSED at general degree.**  `askC_stokes_galK` (`AskCounting.lean:101`) proves
+  `StokesDualityCertificate (galKProfinite K) n (qOf K FF) P nuP (standardNumerics n)
+  (smulZmod2GalK K)` from `hdeg : finrank ℚ₂ K = n` alone, in the exact spelling
+  `KSupply.stokes` and `GenAsmRowResidual.stokes` are written at.  All four clauses.
+* **The half-torsor existential is owned.**  `askC_halfTorsor_galK` (`:112`) - the conjunct
+  `KSupply.lean` §4 calls "the `K` analogue of `RadicalEdgeLocal.exists_good_twist`, unowned".
+  It was owned: `Count.exists_nonzero_varCoc_of_tateDualityG` plus `Count.lem86N`.
+* **The corrected exact-lifting bundle is closed at every degree.**
+  `askC_exactLiftingRN_galK` (`:121`) gives `ExactLiftingSemanticsRN` at every degree; only the
+  *frozen* bundle's third conjunct is open, and it is measured, not hand-waved, by the named
+  `askCStageVanishing` (`:184`) with `askC_exactLifting_iff_stageVanishing` (`:259`) an
+  equivalence at the campaign's degree.
+* **The record consequence.**  `askCKSupply_of_markedCore` (`:372`) builds a whole `KSupply` at
+  general degree taking `hvan` and no `stokes` or `determinant` argument.
+
+**So §3.1's and §3.3's "the two ASK analytic clauses are unowned" is wrong as of `091ea7f0`,
+and the general row residual costs ONE block, not three.**  I am recording this rather than
+quietly rewriting the sections above, because the shape of the error is the one this whole
+lane is about: I wrote a remains-list, and a sibling had already closed two of its items.
+The difference from the wave-80 instances in §2.2 is only that this one was caught before
+merge, by the re-check the protocol mandates and not by luck.
+
+Two further consequences the sibling reports and I did not re-derive: the recommended repair
+(restating the rows against the degree-free bundle) is a **statement change**, reported and not
+made; and the sharp finding that carrying the frozen field at degree two asserts the Galois
+group admits no boundary-framed surjection onto any marked target with nontrivial Frattini
+block.  Both belong to that lane's note, `docs/dyadic/w81-ask-note.md`.
+
+## 3.5 One staleness correction owed elsewhere
 
 `docs/dyadic/w80-rowdata-note.md` §7 items 3 and 4 are both stale as of this tree: item 3 asks
 for `MpcRowData.lean` to be registered in `GQ2.lean`, which `GQ2.lean:870` already does; item 4
