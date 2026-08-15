@@ -29,7 +29,7 @@ corrections to that pricing follow.
 ## 2.  Correction 1: the item was already discharged on two of the five rows
 
 The memo (produced at `4fff1592`) lists the branch identification as open, and
-`GeneralAssembly.lean:540`'s `genAsm_evenRoute_output` docstring still says, in a committed
+`GeneralAssembly.lean:542`'s `genAsm_evenRoute_output` docstring still says, in a committed
 module, "⚠ What the route does **not** supply is the `alpha` pin ... and it stays open."  That
 sentence and the memo's item A1 were **already partly false when written**:
 
@@ -87,7 +87,11 @@ the unit norms there are exactly the units `≡ ±1 (mod 8)` (Hilbert symbol `(u
 (−1)^{ω(u)}`), all of which lie in `imChiM 3` and so exclude nothing.  The residue-`5` value at
 those two fields necessarily comes from an element of **odd valuation**, and `χ(rec 2) = 1`
 (`LocalReciprocity.chiCyc_recip_uniformizer`) is what converts its norm into a cyclotomic value.
-This is the first use in the campaign of that clause to produce a value at a named `K`.
+The tree's earlier uses of that clause are at `⊥ = ℚ₂` (`MarkedRecipBundle.lean:949`) and inside
+the `ℚ₂`-side assembly (`PropOneOneAssembly.lean:248`); this is its first use to produce a value
+at a proper extension.  The Hilbert-symbol computation of the unit-norm group is a hand
+computation used to motivate the choice of witness; **nothing in the Lean depends on it**, since
+the witnesses are exhibited outright.
 
 **(b) `ℚ₂(√5)` cannot use the ramified entry, and does not need to.**  It is the one unramified
 row (`Fields.lean:243`, `q_K = 4`), and the tree's only ramification supplier
@@ -168,7 +172,7 @@ The nearest remaining item this lane touched is therefore **not** classification
 
 ## 8.  One docstring to supersede at the merge
 
-`GQ2/Dyadic/GeneralAssembly.lean:540`, `genAsm_evenRoute_output`:
+`GQ2/Dyadic/GeneralAssembly.lean:542`, `genAsm_evenRoute_output`:
 
 > "⚠ What the route does **not** supply is the `alpha` pin: it produces an existential
 > `∃ alpha ≥ 2`, and the branch datum asks for the row.  That is the critical-path memo's item A1,

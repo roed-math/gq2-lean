@@ -68,10 +68,12 @@ three witnesses are
 | `ℚ₂(√−10)` | `√−10` | `10 = 2 · 5` | `5⁻¹` | `5` |
 
 and the norms are `evenPolish_norm_quadElt`'s `t² − a u²` at `(a, t, u) = (5, 1, 2)`, `(10, 2, 1)`,
-`(−10, 0, 1)`.  Two of the three are **not** unit norms, which is not an accident: at `ℚ₂(√10)`
-and `ℚ₂(√−10)` the unit norms are exactly the units `≡ ±1 (mod 8)` (Hilbert symbol `(u, ±10)₂`),
-so no unit-norm witness of the kind wave 68 used at `ℚ₂(√2)` exists there, and the uniformizer
-clause `chiCyc_recip_uniformizer` is doing real work.
+`(−10, 0, 1)`.  Two of the three are **not** unit norms, and the uniformizer clause
+`chiCyc_recip_uniformizer` is therefore doing real work.  (Why no unit-norm witness exists at
+`ℚ₂(√10)` and `ℚ₂(√−10)`: the Hilbert symbol `(u, ±10)₂ = (−1)^{ω(u)}` makes the unit norms there
+exactly the units `≡ ±1 (mod 8)`, all of which lie in `imChiM 3`.  That is a hand computation
+recorded to explain the choice of witness; **nothing below depends on it**, the witnesses being
+exhibited outright.)
 
 ## What is carried, and what is not
 
@@ -259,9 +261,9 @@ end QuadraticIdentity
 `EvenRangePolish` §2 read `χ_K(rec_K x) = N_{K/ℚ₂}(x)⁻¹` off the bundle's norm clause and the
 base bundle's clause (c) on **units**.  Two of the three fields here need the same reading at an
 element whose norm is `2` times a unit, so the base bundle's other cyclotomic clause,
-`chiCyc_recip_uniformizer : χ(rec 2) = 1`, enters as well.  That clause is not decoration: at
-`ℚ₂(√10)` and `ℚ₂(√−10)` the *unit* norms are exactly the units `≡ ±1 (mod 8)`, so no unit-norm
-element of either field carries a residue-`5` value. -/
+`chiCyc_recip_uniformizer : χ(rec 2) = 1`, enters as well.  That clause is not decoration: by the
+hand computation recorded in the header (Hilbert symbol, **not** formalized and **not** used
+below), no unit-norm element of `ℚ₂(√10)` or `ℚ₂(√−10)` carries a residue-`5` value. -/
 
 section NormValues
 
