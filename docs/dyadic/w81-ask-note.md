@@ -3,7 +3,7 @@
 Worktree `claude/w81-ask`, based on `6f2916f3`.  Verification of record: `scripts/mirror.sh`
 (sweep, gen, check).  **No `lake` command was run.**
 
-One new module, `GQ2/Dyadic/Instances/AskCounting.lean`, prefix `askC`.  Twelve declarations,
+One new module, `GQ2/Dyadic/Instances/AskCounting.lean`, prefix `askC`.  Thirteen declarations,
 no `sorry`, no new axiom, no `native_decide`, per-declaration `#print axioms` recorded in the
 file with the measured split.  Not registered in `GQ2.lean` (the housekeeping sibling owns it).
 

@@ -435,6 +435,7 @@ below.  `std-3` abbreviates `propext, Classical.choice, Quot.sound`.
 
 | declaration | beyond std-3 |
 |---|---|
+| `askCStageVanishing` (the residual `Prop`) | **nothing** |
 | `askC_zRN_eq_zR_of_card_one` | **nothing** |
 | `askC_zRN_ne_zR` | **nothing** |
 | `askC_stokes_galK` | `tateDualityAt`, `Foundations.absGalQ2_localEulerCharacteristic` |
@@ -460,12 +461,13 @@ Three readings worth recording.
   `affineDeterminant_galK`, i.e. through the *determinant* field, not through anything this file
   proves.  They are the price of ledger field 6, and they are already paid at head.
 
-No declaration in this file introduces an axiom of its own, and none of the twelve uses `sorry`
-or `native_decide`. -/
+No declaration in this file introduces an axiom of its own, and none of the thirteen uses
+`sorry` or `native_decide`. -/
 
 #print axioms askC_stokes_galK
 #print axioms askC_halfTorsor_galK
 #print axioms askC_exactLiftingRN_galK
+#print axioms askCStageVanishing
 #print axioms askC_zRN_eq_zR_of_card_one
 #print axioms askC_zRN_ne_zR
 #print axioms askC_exactLiftingSemantics_galK
