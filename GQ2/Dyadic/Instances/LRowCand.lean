@@ -134,4 +134,111 @@ theorem lCandCompat (h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
 
 end Fields
 
+/-! ## §2 The producer
+
+The `L`-row twin of `MCompactCore.mWordCertificate` and `genCertNWordCertificate`: thirteen
+fields proved, the four analytic clauses as explicit arguments at exactly the record's types, so
+the elaborator is the acceptance check.
+
+Two differences from the `M` template, both checked here rather than assumed:
+
+* **no `1 ≤ α`**, and indeed no `α` at all: the `L` row carries no `α`, and none of
+  `lCorePresentation`, `eval_pro2_lSqW_eq_sqRelWord`, `tameSpecializes_lSq` or `hwild_lSq` has a
+  threshold hypothesis.  The only arithmetic binders are `q ≠ 0` and `Even q`.
+* **the `coreRel`/`proTwoWord` pair is a one-liner** rather than a re-derivation, for the binder
+  reason recorded on `lCandCoreRel`. -/
+
+section Producer
+
+/-- **The `L`-row word certificate at free handle count.**  This is the producer the general
+constructor table's `L h` row was missing: `GQ2/Dyadic/GeneralAssembly.lean`'s table entry
+"`L h` | none over `D_sq h`" and item 1 of `docs/dyadic/w75-state-note.md` §6 at every `h`,
+not only `h = 0`.
+
+Thirteen fields are proved; the four arguments are AS1's analytic clauses.  ⚠ The four are
+**not** discharged here and are not discharged anywhere at this tree for a general row: the
+certificate ⇒ count bridge does not exist at the candidate carrier `GammaR` (AS1 divergence 4).
+At `h = 0` they *are* available, by a route that does not generalize — see §3. -/
+noncomputable def lCand_wordCertificate (h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    {SN : SourceNumerics (2 * h + 1)}
+    (nuP : ContinuousMonoidHom ((SqCore.DSq h : ProfiniteGrp) : Type) Ztwo)
+    (hnuSigma : nuP ((lCorePresentation h).mark .sigma) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 * h + 1 + 1), nuP ((lCorePresentation h).mark (.wild j)) = 1)
+    (exactLifting : ExactLiftingSemantics (GammaR (2 * h + 1) q (lSqW h))
+      (2 * h + 1) q (SqCore.DSq h) nuP SN)
+    (stokes : StokesDualityCertificate (GammaR (2 * h + 1) q (lSqW h)) (2 * h + 1) q
+      (SqCore.DSq h) nuP SN (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 * h + 1) q (lSqW h)) (2 * h + 1) SN
+      (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 * h + 1) q (lSqW h))
+      (2 * h + 1) q (SqCore.DSq h) nuP SN
+      (tameOfSpec (2 * h + 1) q (lSqW h) (lCandTameSpecializes h q hq0 hqe))
+      (lCandPro2 h q hq0 hqe)
+      (lCandCompat h q hq0 hqe (lCandTameSpecializes h q hq0 hqe) nuP hnuSigma hnuWild)
+      (scalarActionZmodTwo _)) :
+    WordCertificate (2 * h + 1) q (lSqW h) (SqCore.DSq h) (SqCore.isProP_DSq h) nuP SN where
+  tameSpecialization := lCandTameSpecializes h q hq0 hqe
+  coreRel := lCandCoreRel h
+  proTwoWord := fun G _ _ _ _ _ t => lCandProTwoWord h G t
+  pro2 := lCandPro2 h q hq0 hqe
+  ker_pro2 := lCand_ker_pro2 h q hq0 hqe
+  hpro2 := lCandPro2_surjective h q hq0 hqe
+  compat := lCandCompat h q hq0 hqe (lCandTameSpecializes h q hq0 hqe) nuP hnuSigma hnuWild
+  tfg := Count.gammaR_topologicallyFinitelyGenerated _ _ _
+  smulZmod2 := scalarActionZmodTwo _
+  contSMulZmod2 := scalarActionZmodTwo_continuousSMul _
+  htriv := scalarActionZmodTwo_triv _
+  exactLifting := exactLifting
+  stokes := stokes
+  scalar := scalar
+  determinant := determinant
+  htame := Count.htame_of_tameSpecializes _
+  hwild := Count.hwild_lSq _
+
+/-- **The producer at the canonical marking.**  `lNu h` is the core's own unramified `Ztwo`
+coordinate, and its two normalization clauses are already theorems at free `h`
+(`LSquareCore.lNu_sigma`, `LSquareCore.lNu_wild`), so all three marking binders vanish: the `L h`
+row's `CAND` producer takes free `(h, q)`, the two `q`-conditions, and AS1's four analytic
+clauses, and nothing else.
+
+This is the exact shape of `genCertNWordCertificateCanonical` on the `N0` row. -/
+noncomputable def lCand_wordCertificateCanonical (h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    {SN : SourceNumerics (2 * h + 1)}
+    (exactLifting : ExactLiftingSemantics (GammaR (2 * h + 1) q (lSqW h))
+      (2 * h + 1) q (SqCore.DSq h) (lNu h) SN)
+    (stokes : StokesDualityCertificate (GammaR (2 * h + 1) q (lSqW h)) (2 * h + 1) q
+      (SqCore.DSq h) (lNu h) SN (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 * h + 1) q (lSqW h)) (2 * h + 1) SN
+      (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 * h + 1) q (lSqW h))
+      (2 * h + 1) q (SqCore.DSq h) (lNu h) SN
+      (tameOfSpec (2 * h + 1) q (lSqW h) (lCandTameSpecializes h q hq0 hqe))
+      (lCandPro2 h q hq0 hqe)
+      (lCandCompat h q hq0 hqe (lCandTameSpecializes h q hq0 hqe) (lNu h) (lNu_sigma h)
+        (lNu_wild h))
+      (scalarActionZmodTwo _)) :
+    WordCertificate (2 * h + 1) q (lSqW h) (SqCore.DSq h) (SqCore.isProP_DSq h) (lNu h) SN :=
+  lCand_wordCertificate h q hq0 hqe (lNu h) (lNu_sigma h) (lNu_wild h)
+    exactLifting stokes scalar determinant
+
+/-- The canonical `L`-row marking is onto, the twin of `genCertNNuZtwo_surjective` on the `N`
+row.  (`KSupply` and `genAsm_candidate_equiv_galK_of_supply` both take a surjectivity binder on
+the row's `ν`; this is what fills it at the `L` row.) -/
+theorem lCandNu_surjective (h : ℕ) : Function.Surjective (lNu h) :=
+  Instances.NuWitness.surjective_of_ztwoOne_mem_range _ ⟨_, lNu_sigma h⟩
+
+/-- The producer sits over the general constructor table's `L h` row: same degree, … -/
+theorem lCand_row_degree (h : ℕ) : (SelectedPresentation.L h).degree = 2 * h + 1 := rfl
+
+/-- … same word, … -/
+theorem lCand_row_word (h : ℕ) : (SelectedPresentation.L h).word = lSqW h := rfl
+
+/-- … and same core. -/
+theorem lCand_row_core (h : ℕ) : genAsmCore (.L h) = SqCore.DSq h := rfl
+
+/-- …and the row's `IsProP` witness is the one the producer uses. -/
+theorem lCand_row_isProP (h : ℕ) : genAsmCoreIsProP (.L h) = SqCore.isProP_DSq h := rfl
+
+end Producer
+
 end GQ2.Dyadic.Instances.LRowCand
