@@ -96,6 +96,14 @@ theorem gExt_ofFn_mul : ∀ {n : ℕ} (A B : Fin n → Q), (∀ j, A j ∈ Subgr
             * (List.ofFn fun i : Fin n => B i.succ).prod) := by
           simp only [mul_assoc]
 
+/-- The same, with the *second* family central. -/
+theorem gExt_ofFn_mul' {n : ℕ} (A B : Fin n → Q) (hB : ∀ j, B j ∈ Subgroup.center Q) :
+    (List.ofFn A).prod * (List.ofFn B).prod = (List.ofFn fun j => A j * B j).prod := by
+  have hfam : (fun j => B j * A j) = fun j => A j * B j :=
+    funext fun j => (Subgroup.mem_center_iff.1 (hB j) (A j)).symm
+  rw [Subgroup.mem_center_iff.1 (gExt_ofFn_center hB) ((List.ofFn A).prod),
+    gExt_ofFn_mul B A hB, hfam]
+
 /-- **The single-slot product**: an ordered product all but one of whose factors is trivial
 is that factor.  This is the step that sees each tower generator inside the normal form. -/
 theorem gExt_ofFn_single : ∀ {n : ℕ} (A : Fin n → Q) (j₀ : Fin n), (∀ j, j ≠ j₀ → A j = 1) →
@@ -527,12 +535,128 @@ theorem gExt_markTransitivity_of_baseThree (H3 : GDecideBaseThree h)
 
 end Collapse
 
-/-! ## §6 Axiom pins -/
+/-! ## §6 The multi-slot dressing
+
+Toward the third input, `GTowerKnobRealizable h`.  Wave 74 recorded the extraction's two
+missing pieces (`docs/dyadic/w74-engine-note.md`, "Where wave 73's `h ≥ 2` flag actually
+lives"): (i) the multi-slot composition across all `2h + 3` slots, and (ii) the far-slot
+change of basis from the letters to the accumulated frame values.
+
+This section discharges (i), unconditionally and at every `h`.  `gTower_dress_core` did the
+three core slots with the handles held fixed; `gExt_dress_handles` does the `2h` handle slots
+with the core held fixed, and `gExt_dress_full` composes them.  The two blocks compose with no
+cross-term bookkeeping at all, because the core move reads only `m 0, m 1, m 2` and the handle
+move reads only the handle values, and each block leaves the other's slots alone.
+
+(For (ii) see the lane note: the moves available at the non-`x₁` slots read the *frame*
+values, and matching them against the knob set's far span needs the far span to lie in the
+span of the non-`x₁` frame slots modulo `γ₂`.  That is a property of the frame which the
+interface's hypotheses do not supply.) -/
+
+section Handles
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ}
+
+/-- **The two-sided handle bracket update**: dressing both letters of a handle by corrections
+one layer down moves the handle bracket by the two knobs, the cross term `⁅c, c'⁆` dying in
+`⁅γ_k, γ_k⁆ ≤ ⁅γ₂, γ_k⁆ ≤ γ_{k+2}`. -/
+theorem gExt_comm_dress (hk : 2 ≤ k) (u v : levelQuot G (k + 2))
+    {a b : levelQuot G (k + 2)} (ha : a ∈ lambdaImage G k (k + 2))
+    (hb : b ∈ lambdaImage G k (k + 2)) :
+    commP (u * a) (v * b) = commP u v * (commP a v * commP u b) := by
+  have hL : commP (u * a) v = commP u v * commP a v := by
+    rw [cfour_commP_mul_left, gTower_commP_vanish' (gTower_commP_mem_lambdaTwo u v) ha, mul_one]
+  have hR : commP (u * a) b = commP u b := by
+    rw [cfour_commP_mul_left, gTower_commP_vanish' (gTower_commP_mem_lambdaTwo u b) ha, mul_one,
+      gTower_commP_vanish' (gTower_lambdaImage_le hk ha) hb, mul_one]
+  have hz : commP u b ∈ zLayer G (k + 1) := cfive_commP_mem_zLayer_right u hb
+  rw [cfour_commP_mul_right, gTower_commP_vanish' (gTower_commP_mem_lambdaTwo (u * a) v) hb,
+    mul_one, hL, hR, ← gTower_zLayer_comm hz, mul_assoc]
+
+/-- **The handle block, dressed all at once**: the handle word moves by the ordered product of
+the per-handle knobs, which are central. -/
+theorem gExt_handleWord_dress {Q : Type*} [Group Q] {n : ℕ} (u v : Fin n → Q)
+    {u' v' z : Fin n → Q} (hz : ∀ i, z i ∈ Subgroup.center Q)
+    (hi : ∀ i, commP (u' i) (v' i) = commP (u i) (v i) * z i) :
+    handleWord u' v' = handleWord u v * (List.ofFn z).prod := by
+  rw [handleWord, handleWord, ← List.ofFn_eq_map, ← List.ofFn_eq_map, gExt_ofFn_mul' _ _ hz]
+  simp only [hi]
+
+/-- ⭐⭐ **The `2h` handle slots, dressed at once** (the multi-handle composition lemma wave 73
+flagged and wave 74 queued): with the core held fixed, dressing every handle slot by a
+correction one layer down moves the relator by the ordered product of the `2h` handle knobs. -/
+theorem gExt_dress_handles (hk : 2 ≤ k) {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {cU cV : Fin n → levelQuot G (k + 2)}
+    (hcU : ∀ i, cU i ∈ lambdaImage G k (k + 2))
+    (hcV : ∀ i, cV i ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0) (h1 : m' 1 = m 1) (h2 : m' 2 = m 2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i) * cU i)
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i) * cV i) :
+    sqRelWord m' = sqRelWord m * (List.ofFn fun i =>
+      commP (cU i) (m (sqHandleIdxV i)) * commP (m (sqHandleIdxU i)) (cV i)).prod := by
+  have hzc : ∀ i, (commP (cU i) (m (sqHandleIdxV i)) * commP (m (sqHandleIdxU i)) (cV i))
+      ∈ Subgroup.center (levelQuot G (k + 2)) := fun i =>
+    zLayer_le_center G (k + 1) (Subgroup.mul_mem _
+      (cfive_commP_mem_zLayer_left (hcU i) _) (cfive_commP_mem_zLayer_right _ (hcV i)))
+  have hsweep := gExt_handleWord_dress (fun i => m (sqHandleIdxU i))
+    (fun i => m (sqHandleIdxV i)) (u' := fun i => m' (sqHandleIdxU i))
+    (v' := fun i => m' (sqHandleIdxV i)) hzc
+    (fun i => by rw [hU i, hV i, gExt_comm_dress hk _ _ (hcU i) (hcV i)])
+  rw [sqRelWord, sqRelWord, h0, h1, h2, hsweep, ← mul_assoc]
+
+/-- ⭐⭐⭐ **The full multi-slot dressing**: dressing *every* slot of the frame by a correction
+one layer down moves the relator by the three core knobs times the `2h` handle knobs.  The two
+blocks compose without cross terms: the core move reads `m 0, m 1, m 2` only, and the handle
+block leaves those alone; the handle move reads the handle values only, and the core block
+leaves those alone. -/
+theorem gExt_dress_full (hk : 2 ≤ k) {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G (k + 2))
+    {c0 c1 c2 : levelQuot G (k + 2)} {cU cV : Fin n → levelQuot G (k + 2)}
+    (hc0 : c0 ∈ lambdaImage G k (k + 2)) (hc1 : c1 ∈ lambdaImage G k (k + 2))
+    (hc2 : c2 ∈ lambdaImage G k (k + 2))
+    (hcU : ∀ i, cU i ∈ lambdaImage G k (k + 2))
+    (hcV : ∀ i, cV i ∈ lambdaImage G k (k + 2))
+    (h0 : m' 0 = m 0 * c0) (h1 : m' 1 = m 1 * c1) (h2 : m' 2 = m 2 * c2)
+    (hU : ∀ i, m' (sqHandleIdxU i) = m (sqHandleIdxU i) * cU i)
+    (hV : ∀ i, m' (sqHandleIdxV i) = m (sqHandleIdxV i) * cV i) :
+    sqRelWord m' = sqRelWord m *
+      (commP c0 (m 1) * commP (m 0) c1 * (c2 ^ 2 * commP c2 (m 2)) *
+        (List.ofFn fun i => commP (cU i) (m (sqHandleIdxV i)) *
+          commP (m (sqHandleIdxU i)) (cV i)).prod) := by
+  classical
+  obtain ⟨mA, hA0, hA1, hA2, hAU, hAV⟩ :
+      ∃ mA : Fin (sqRank n) → levelQuot G (k + 2),
+        mA 0 = m 0 * c0 ∧ mA 1 = m 1 * c1 ∧ mA 2 = m 2 * c2 ∧
+          (∀ i, mA (sqHandleIdxU i) = m (sqHandleIdxU i)) ∧
+            (∀ i, mA (sqHandleIdxV i) = m (sqHandleIdxV i)) := by
+    refine ⟨fun i => if (i : ℕ) = 0 then m 0 * c0 else if (i : ℕ) = 1 then m 1 * c1
+      else if (i : ℕ) = 2 then m 2 * c2 else m i, ?_, ?_, ?_, ?_, ?_⟩
+    · simp only [sqVal_zero]
+      norm_num
+    · simp only [sqVal_one]
+      norm_num
+    · simp only [sqVal_two]
+      norm_num
+    · intro i
+      simp only [sqHandleIdxU_val]
+      rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+    · intro i
+      simp only [sqHandleIdxV_val]
+      rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+  have hcore := gTower_dress_core hk m mA hc0 hc1 hc2 hA0 hA1 hA2 hAU hAV
+  have hhand := gExt_dress_handles hk mA m' hcU hcV (by rw [h0, hA0]) (by rw [h1, hA1])
+    (by rw [h2, hA2]) (fun i => by rw [hU i, hAU i]) (fun i => by rw [hV i, hAV i])
+  rw [hhand, hcore]
+  simp only [hAU, hAV, mul_assoc]
+
+end Handles
+
+/-! ## §7 Axiom pins -/
 
 section AxiomPinsSep
 
 #print axioms gExt_ofFn_center
 #print axioms gExt_ofFn_mul
+#print axioms gExt_ofFn_mul'
 #print axioms gExt_ofFn_single
 #print axioms gExtTowU
 #print axioms gExtTowV
@@ -577,6 +701,10 @@ section AxiomPinsSep
 #print axioms gExt_defectVanishing_of_baseThree
 #print axioms gExt_supply_of_baseThree
 #print axioms gExt_markTransitivity_of_baseThree
+#print axioms gExt_comm_dress
+#print axioms gExt_handleWord_dress
+#print axioms gExt_dress_handles
+#print axioms gExt_dress_full
 
 end AxiomPinsSep
 
