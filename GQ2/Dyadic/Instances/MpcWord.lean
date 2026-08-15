@@ -4,6 +4,7 @@ Released under the Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.MpcOrbit
+import GQ2.Dyadic.SqCore.GradedClassFive
 
 /-!
 # W84-WORD: the `M6` identity, stripped to one equation
@@ -21,6 +22,7 @@ namespace GQ2.Dyadic.Instances.MpcWord
 
 open GQ2 GQ2.Dyadic GQ2.Dyadic.MarkedCore Multiplicative
 open GQ2.Dyadic.Instances.MpcPiv GQ2.Dyadic.Instances.MpcOrb
+open GQ2.Roe.Labute
 
 noncomputable section
 
@@ -184,6 +186,172 @@ theorem mpcWord_shift_of_word (s t m n : (DM 2 0 : Type))
     rw [hfC, toAdd_mul, toAdd_mul]
     ring
 
+/-! ## §4 The tower carrier: `λ₂` feeds the ansatz -/
+
+/-- The second level of the two-central tower lands in the Frattini carrier: `λ₂` is generated
+by squares and commutators, and an index-two quotient kills both. -/
+theorem mpcWord_lambdaTwo_le_frat :
+    twoCentralSeries (DM 2 0 : Type) 2 ≤ mpcWordFrat := by
+  intro x hx
+  rw [mpcWord_mem_frat_iff]
+  intro M hM
+  have hsq := mpcWord_quot_sq M hM
+  have hcomm : ∀ z w : (DM 2 0 : Type) ⧸ M.toSubgroup, z * w = w * z := by
+    intro z w
+    have hinv : ∀ y : (DM 2 0 : Type) ⧸ M.toSubgroup, y⁻¹ = y := by
+      intro y
+      have := hsq y
+      rw [sq] at this
+      exact inv_eq_of_mul_eq_one_left this
+    calc z * w = (z * w)⁻¹ := (hinv _).symm
+      _ = w⁻¹ * z⁻¹ := mul_inv_rev z w
+      _ = w * z := by rw [hinv, hinv]
+  have hle : twoCentralSeries (DM 2 0 : Type) 2 ≤ M.toSubgroup := by
+    rw [twoCentralSeries_succ (G := (DM 2 0 : Type)) (k := 1) le_rfl]
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) M.toOpenSubgroup.isClosed
+    · refine (Subgroup.closure_le _).2 ?_
+      rintro _ ⟨v, -, rfl⟩
+      have h := hsq (QuotientGroup.mk' M.toSubgroup v)
+      rw [← map_pow] at h
+      exact (QuotientGroup.eq_one_iff _).mp h
+    · rw [Subgroup.commutator_le]
+      intro g _ h _
+      rw [commutatorElement_def]
+      refine (QuotientGroup.eq_one_iff _).mp ?_
+      show (QuotientGroup.mk' M.toSubgroup) (g * h * g⁻¹ * h⁻¹) = 1
+      rw [map_mul, map_mul, map_mul, map_inv, map_inv,
+        hcomm (QuotientGroup.mk' M.toSubgroup g) (QuotientGroup.mk' M.toSubgroup h)]
+      group
+  exact hle hx
+
+/-! ## §5 The per-class solution sets -/
+
+/-- The correction carrier for the three free slots: `λ₂ ∩ ker χ_M`. -/
+def mpcWordCorr : Subgroup (DM 2 0 : Type) :=
+  twoCentralSeries (DM 2 0 : Type) 2 ⊓ (chiM 2 0).toMonoidHom.ker
+
+/-- The row-invisible subgroup: the elements no `ℤ₂`-character sees. -/
+def mpcWordRowKer : Subgroup (DM 2 0 : Type) :=
+  ⨅ f : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]), f.toMonoidHom.ker
+
+/-- The correction carrier for the pivot slot: `λ₂ ∩ ker χ_M` and row-invisible. -/
+def mpcWordCorrC : Subgroup (DM 2 0 : Type) := mpcWordCorr ⊓ mpcWordRowKer
+
+theorem mpcWord_mem_corr {x : (DM 2 0 : Type)} :
+    x ∈ mpcWordCorr ↔ x ∈ twoCentralSeries (DM 2 0 : Type) 2 ∧ chiM 2 0 x = 1 :=
+  Iff.rfl
+
+theorem mpcWord_mem_rowKer {x : (DM 2 0 : Type)} :
+    x ∈ mpcWordRowKer ↔
+      ∀ f : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]), f x = 1 := by
+  simp [mpcWordRowKer, Subgroup.mem_iInf, MonoidHom.mem_ker]
+
+/-- **The class-`k` solution set of the `M6` ansatz**: quadruples of corrections in the two
+carriers whose core-word value has died to class `k` of the two-central tower.  Only the last
+clause depends on `k`. -/
+def mpcWordSet (k : ℕ) :
+    Set ((DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type)) :=
+  {p | p.1 ∈ mpcWordCorr ∧ p.2.1 ∈ mpcWordCorr ∧ p.2.2.1 ∈ mpcWordCorrC ∧
+    p.2.2.2 ∈ mpcWordCorr ∧
+      mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+          (mpcWordLetD p.2.2.2) ∈ twoCentralSeries (DM 2 0 : Type) k}
+
+theorem mpcWordSet_antitone {k k' : ℕ} (hkk : k' ≤ k) : mpcWordSet k ⊆ mpcWordSet k' :=
+  fun _ ⟨h1, h2, h3, h4, h5⟩ =>
+    ⟨h1, h2, h3, h4, twoCentralSeries_antitone (G := (DM 2 0 : Type)) hkk h5⟩
+
+/-- The core word of the ansatz varies continuously in the four corrections. -/
+theorem mpcWord_continuous :
+    Continuous fun p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) =>
+      mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+        (mpcWordLetD p.2.2.2) := by
+  simp only [mWord, commP, mpcWordLetA, mpcWordLetB, mpcWordLetC, mpcWordLetD]
+  fun_prop
+
+theorem mpcWord_isClosed_corr : IsClosed ((mpcWordCorr : Subgroup (DM 2 0 : Type)) :
+    Set (DM 2 0 : Type)) := by
+  have h1 : IsClosed ((twoCentralSeries (DM 2 0 : Type) 2 : Subgroup (DM 2 0 : Type)) :
+      Set (DM 2 0 : Type)) := isClosed_twoCentralSeries _ 2
+  have h2 : IsClosed (((chiM 2 0).toMonoidHom.ker : Subgroup (DM 2 0 : Type)) :
+      Set (DM 2 0 : Type)) := by
+    have : (((chiM 2 0).toMonoidHom.ker : Subgroup (DM 2 0 : Type)) : Set (DM 2 0 : Type))
+        = {x | chiM 2 0 x = 1} := rfl
+    rw [this]
+    exact isClosed_eq (chiM 2 0).continuous_toFun continuous_const
+  exact h1.inter h2
+
+theorem mpcWord_isClosed_rowKer : IsClosed ((mpcWordRowKer : Subgroup (DM 2 0 : Type)) :
+    Set (DM 2 0 : Type)) := by
+  have hset : ((mpcWordRowKer : Subgroup (DM 2 0 : Type)) : Set (DM 2 0 : Type))
+      = ⋂ f : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]), {x | f x = 1} := by
+    ext x
+    simp [mpcWord_mem_rowKer]
+  rw [hset]
+  exact isClosed_iInter fun f => isClosed_eq f.continuous_toFun continuous_const
+
+theorem mpcWord_isClosed_corrC : IsClosed ((mpcWordCorrC : Subgroup (DM 2 0 : Type)) :
+    Set (DM 2 0 : Type)) := by
+  have hset : ((mpcWordCorrC : Subgroup (DM 2 0 : Type)) : Set (DM 2 0 : Type))
+      = ((mpcWordCorr : Subgroup (DM 2 0 : Type)) : Set (DM 2 0 : Type)) ∩
+        ((mpcWordRowKer : Subgroup (DM 2 0 : Type)) : Set (DM 2 0 : Type)) := rfl
+  rw [hset]
+  exact mpcWord_isClosed_corr.inter mpcWord_isClosed_rowKer
+
+/-- **The class-`k` solution set is closed** - all five clauses are. -/
+theorem mpcWord_isClosed_set (k : ℕ) : IsClosed (mpcWordSet k) := by
+  have hA : IsClosed {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) ×
+      (DM 2 0 : Type) | p.1 ∈ mpcWordCorr} :=
+    mpcWord_isClosed_corr.preimage continuous_fst
+  have hB : IsClosed {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) ×
+      (DM 2 0 : Type) | p.2.1 ∈ mpcWordCorr} :=
+    mpcWord_isClosed_corr.preimage (continuous_fst.comp continuous_snd)
+  have hC : IsClosed {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) ×
+      (DM 2 0 : Type) | p.2.2.1 ∈ mpcWordCorrC} :=
+    mpcWord_isClosed_corrC.preimage (continuous_fst.comp (continuous_snd.comp continuous_snd))
+  have hD : IsClosed {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) ×
+      (DM 2 0 : Type) | p.2.2.2 ∈ mpcWordCorr} :=
+    mpcWord_isClosed_corr.preimage (continuous_snd.comp (continuous_snd.comp continuous_snd))
+  exact hA.inter (hB.inter (hC.inter (hD.inter
+    ((isClosed_twoCentralSeries (G := (DM 2 0 : Type)) k).preimage mpcWord_continuous))))
+
+/-! ## §6 The compactness assembly -/
+
+/-- **The compactness core**: the nested nonempty closed solution sets meet, by the
+finite-intersection property in the compact space of corrections. -/
+theorem mpcWord_iInter_nonempty (hne : ∀ k, (mpcWordSet k).Nonempty) :
+    (⋂ k, mpcWordSet k).Nonempty := by
+  apply IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed
+  · intro k k'
+    exact ⟨max k k', mpcWordSet_antitone (le_max_left k k'),
+      mpcWordSet_antitone (le_max_right k k')⟩
+  · exact hne
+  · exact fun k => (mpcWord_isClosed_set k).isCompact
+  · exact fun k => mpcWord_isClosed_set k
+
+/-- The tower separates points on `D_M 2 0`. -/
+theorem mpcWord_iInf_twoCentralSeries :
+    ⨅ k, twoCentralSeries (DM 2 0 : Type) k = ⊥ :=
+  iInf_twoCentralSeries (G := (DM 2 0 : Type)) (dm_topologicallyFinGen_zero 2) (isProP_DM 2 0)
+
+/-- ⭐ **THE PER-CLASS CRITERION.**  If the `M6` ansatz can be solved to every class of the
+two-central tower - the campaign's per-class discipline, one finite quotient at a time - then
+it can be solved outright, and `MpcPivShift 2` follows.  There is no inverse-limit step to
+lose: nestedness, closedness, compactness of the correction space and the tower separation
+`mpcWord_iInf_twoCentralSeries` are the whole argument.  Contrapositively, **if `M6` is false
+then it fails at a finite class**, with a finite 2-group as the witness. -/
+theorem mpcWord_shift_of_forall_class (H : ∀ k, (mpcWordSet k).Nonempty) : MpcPivShift 2 := by
+  obtain ⟨p, hp⟩ := mpcWord_iInter_nonempty H
+  have hmem : ∀ k, p ∈ mpcWordSet k := Set.mem_iInter.mp hp
+  obtain ⟨h1, h2, h3, h4, -⟩ := hmem 0
+  have hall : mWord 2 (mpcWordLetA p.1) (mpcWordLetB p.2.1) (mpcWordLetC p.2.2.1)
+      (mpcWordLetD p.2.2.2) ∈ ⨅ k, twoCentralSeries (DM 2 0 : Type) k :=
+    Subgroup.mem_iInf.mpr fun k => (hmem k).2.2.2.2
+  rw [mpcWord_iInf_twoCentralSeries, Subgroup.mem_bot] at hall
+  exact mpcWord_shift_of_word p.1 p.2.1 p.2.2.1 p.2.2.2
+    (mpcWord_lambdaTwo_le_frat h1.1) (mpcWord_lambdaTwo_le_frat h2.1)
+    (mpcWord_lambdaTwo_le_frat h3.1.1) (mpcWord_lambdaTwo_le_frat h4.1)
+    h1.2 h2.2 h3.1.2 h4.2 (fun f => (mpcWord_mem_rowKer.mp h3.2) f) hall
+
 /-! ## §9 Axiom pins
 
 One line per declaration, measured against the mirror. -/
@@ -200,6 +368,22 @@ section AxiomPins
 #print axioms mpcWordLetD
 #print axioms mpcWord_gen
 #print axioms mpcWord_shift_of_word
+#print axioms mpcWord_lambdaTwo_le_frat
+#print axioms mpcWordCorr
+#print axioms mpcWordRowKer
+#print axioms mpcWordCorrC
+#print axioms mpcWord_mem_corr
+#print axioms mpcWord_mem_rowKer
+#print axioms mpcWordSet
+#print axioms mpcWordSet_antitone
+#print axioms mpcWord_continuous
+#print axioms mpcWord_isClosed_corr
+#print axioms mpcWord_isClosed_rowKer
+#print axioms mpcWord_isClosed_corrC
+#print axioms mpcWord_isClosed_set
+#print axioms mpcWord_iInter_nonempty
+#print axioms mpcWord_iInf_twoCentralSeries
+#print axioms mpcWord_shift_of_forall_class
 
 end AxiomPins
 
