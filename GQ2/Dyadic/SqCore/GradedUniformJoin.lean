@@ -453,8 +453,13 @@ theorem gJoin_isClosed_chiFour :
     (Units.continuous_val.comp (chiSq h).continuous_toFun).sub continuous_const
   exact (gDelta_isClosed_dvd_set 2).preimage hcont
 
-/-- ⭐ **The far span is `χ ≡ 1 (mod 4)`**: `χ(σ) = S ≡ 13`, `χ(x₀) = X ≡ 5`, handles `= 1`.
-The excluded letter `x₁` (`χ = Y ≡ 7`) is exactly the one the far span leaves out. -/
+/-- ⭐ **The far span lies inside `χ ≡ 1 (mod 4)`**: `χ(σ) = S ≡ 13`, `χ(x₀) = X ≡ 5`,
+handles `= 1`.  The excluded letter `x₁` (`χ = Y ≡ 7`) is exactly the one the far span leaves
+out.  [W76-HOUSE, watch round 13: the headline read "the far span **is** `χ ≡ 1 (mod 4)`",
+which is an identity on a one-way containment.  `gTowerFar` is defined by *generators* (every
+letter but `x₁`); what is proved here is `gTowerFar h ≤ gJoinChiFour h`, and nothing shows the
+converse.  Second site, corrected there: `docs/dyadic/w75-join-note.md`'s T1 conclusion-side
+item 1.] -/
 theorem gJoin_chi_far {q : (DSq h : Type)} (hq : q ∈ gTowerFar h) :
     (2 : ℤ_[2]) ^ 2 ∣ ((chiSq h q : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
   have hle : gTowerFar h ≤ gJoinChiFour h := by
@@ -834,12 +839,20 @@ noncomputable def gJoinEichSet
       z = levelMk (DSq h : Type) (k + 2)
         (zpowZtwo (isProP_DSq h) (sqEichV h nu' j) (2 ^ k * a))}
 
-/-- ⭐⭐⭐ **The reach is the knob span together with the handle towers.**  Wave 74's reach
-adds three families of admissible towers to the knobs; §6 absorbs the `x̃₁`-tower into the
-knobs outright, so what is left over the knob span is exactly the `2h` **handle** towers -
-and every one of those is read as a unit by its own row (§7).  This is the precise form of
+/-- ⭐⭐⭐ **The reach lands inside the knob span joined with the handle towers.**  Wave 74's
+reach adds three families of admissible towers to the knobs; §6 absorbs the `x̃₁`-tower into
+the knobs outright, so what is left over the knob span is the `2h` **handle** towers - and
+every one of those is read as a unit by its own row (§7).  This is the precise form of
 Labute's Lemma 3/Theorem 5 division of labour for the sq core: moves span the
-functional-invisible part, and the functionals kill the rest. -/
+functional-invisible part, and the functionals kill the rest.
+
+[W76-HOUSE, watch round 13: the headline read "the reach **is** the knob span together with
+the handle towers", an equality where only `≤` is proved, as the declaration's own `_le`
+suffix says.  The reverse containment is true and cheap - `gJoinEichSet` generators are
+`gTowerTowSet` members by definition, `gTowerXLetters` containing both Eichler ranges - but it
+is not stated anywhere, so nothing may cite an equality here.  The *sharpness* the summaries
+want is a different statement and it is proved: `gJoin_eichU_tower_notMem` puts an odd-exponent
+handle tower outside the knob span, so the join is not redundant.] -/
 theorem gJoin_reach_le
     {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])} {k : ℕ} (hk : 1 ≤ k)
     (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
@@ -951,14 +964,22 @@ end ReachSplit
 
 /-! ## §8 The join
 
-Everything above assembles.  The `χ`-restricted vanishing interface - and with it
-`SqClassClearingSupply h k` at **every** class, and the whole `h ≥ 1` residual - follows from
-exactly two further inputs, both uniform in the class:
+Everything above assembles.  The `χ`-restricted vanishing interface `GJoinDefectVanishing h`
+follows from exactly two further inputs, both uniform in the class:
 
-* `GTowerLayerReach h ν' 2`, wave 74's depth-`2` base (the class-four layer, from the
-  committed per-class record).  This is the ENGINE lane's stated W75 item and is **not**
-  discharged here;
-* `GJoinTowerSeparation`, the `𝔽₂`-independence bookkeeping of §7.
+* `GJoinBase h`, wave 74's depth-`2` base `GTowerLayerReach h ν' 2` at every selected marking
+  (the class-four layer, from the committed per-class record).  This is the ENGINE lane's
+  stated W75 item and is **not** discharged here;
+* `GJoinSeparationAll h`, the `𝔽₂`-independence bookkeeping `GJoinTowerSeparation` of §7 at
+  every marking and every depth `k ≥ 2`.
+
+`SqClassClearingSupply h k` at **every** class, and with it the whole `h ≥ 1` residual, needs
+a **third**: `GTowerKnobRealizable h`, wave 74's extraction interface, which the recursion of
+§3 consumes and which is likewise not discharged here.  See
+`gJoin_markTransitivity_of_base`'s own statement below, and `w75-join-note.md`'s headline,
+both of which name three inputs.
+[W76-HOUSE, watch round 13: this header previously wrote "the whole `h ≥ 1` residual" into
+the two-input sentence, contradicting that theorem 45 lines further down inside one file.]
 
 Nothing else is left of the functional side: the vanishing itself is a theorem
 (`gDeltaDefectVanishing_holds`), the torsion gap is closed (§2), the knobs are invisible

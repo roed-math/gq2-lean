@@ -132,9 +132,21 @@ Not in it:
 
 * `GQ2.Dyadic.Instances.EvenStratumPoint`, `...EvenStratumFrame`, `...EvenStratumShift`, all
   three `alpha = 1` stratum modules;
-* the whole `SqCore/Graded*` family (68 modules), including `SqLamMarkTransitivity` and
+* the whole `SqCore/Graded*` family (66 modules), including `SqLamMarkTransitivity` and
   `SqClassClearingSupply`;
 * `MarkedCore/NFrameAlphaOne.lean` and `Instances/EvenAlphaOne.lean`.
+
+**[W76-HOUSE, sweep items 10 and 14, two count repairs to this subsection.**  (i) The
+`SqCore/Graded*` figure was **68** and is corrected above to **66**.  This memo's preamble
+says every number is as-of `4fff1592`; at that commit the family is 66, and the two that make
+the difference are wave 74's own `GradedUniformTower.lean` and `GradedDeltaFunctionals.lean`,
+which landed on `dyadic` after this memo's tree.  The conclusion strengthens rather than
+weakens: 66 then, 68 at the wave-74 close, 69 now, and **zero** of them in the closure at any
+of those trees.  Second site of the same figure, `w74-house-note.md:79`, corrected there.
+(ii) "930 `GQ2` modules" is right only with the convention stated: `GQ2/` holds **929** `.lean`
+files at `4fff1592`, and 930 counts the root `GQ2.lean` as well.  `w74-house-note.md:246`'s
+"929 physical" is the same tree under the other convention.  The numerator 427 is exact under
+both, since `GQ2.lean` is not in `GQ2.Dyadic.Main`'s closure.]**
 
 Only four `SqCore` modules are in the closure (`Certificate`, `Cores`, `PivotLemma`, `Rank3`) and
 no `Instances/Even*` module at all.  A module outside the closure cannot be consumed by the
@@ -205,8 +217,8 @@ model field): `imChiM a` contains `-1` for every `a` and `evenRangePrin alpha` o
 
 Confirmed: **the `alpha = 1` stratum work is classification-completeness, not load-bearing for
 the final theorem.**  It decides what the even classification *says* at the one field family the
-five frozen rows exclude by hypothesis.  `EvenUnramified.lean:519` states the same thing from the
-other side, and is worth quoting because it is the tree's own sentence on this point:
+five frozen rows exclude by hypothesis.  `EvenUnramified.lean:517-519` states the same thing from
+the other side, and is worth quoting because it is the tree's own sentence on this point:
 
 > This is the tree's first named field on the third stratum; the five committed quadratic rows
 > (`±2, 5, ±10`) all carry odd valuation and are ramified-`i` fields.

@@ -143,10 +143,46 @@ interface isolates it exactly.
 
 1. **The base** `GTowerLayerReach h nu' 2` (class-four layer = knobs + towers), from the
    committed class-four record.  With it, `gTower_defect_reach_of_base` is unconditional.
+   **[W76-HOUSE, round 12 §4.3(b) and (c), two corrections to one item.**  (b) "Unconditional"
+   means only "no longer conditional on the base hypothesis": the theorem still binds `hsigma`,
+   `hx0`, `2 <= k`, the two row clauses and the relator clause, six binders in all.  (c) "From
+   the committed class-four record" is a construction, not a citation.  The committed record
+   `cfourCmp_zLayer_le_gens` quantifies its three families over **all** of `Q_4`, while
+   `GTowerLayerReach` asks only about exactly row-trivial elements, so the reduction needs a
+   row-restricted form that nothing in the tree states.  That restriction is not an
+   inconvenience: it is precisely what keeps this item clear of wave 74's own refutation
+   `gDelta_cfourCmp_span_hyp_false`, which kills the wave-73 route because that route quantified
+   over all of `Q_4`.  This is the wave's largest open item.]**
 2. **`GTowerKnobRealizable h`** by the mod-2 far-slot route above.
 3. **`GTowerDefectVanishing h`** from the FUNC lane's delta-functionals (his Lemma 4:
    `Delta o delta = 0`, `Im delta = cap ker Delta`); note the FUNC file
    (`GradedDeltaFunctionals.lean`) was being written by a sibling lane this same wave.
+   **[W76-HOUSE, round 12 §4.1(a), and it is the sharpest thing round 12 found.**  This item is
+   **not obtainable from the delta-functionals**, and the obstruction is a theorem in the FUNC
+   lane's own file.  `GTowerDefectVanishing` concludes membership in the **knob span alone**;
+   since `gTower_defect_reach_of_base` already places the defect in
+   `gTowerReach` = closure(knobs together with admissible towers), the Prop is exactly "the
+   admissible tower coefficients vanish".  The admissible towers are those of
+   `gTowerXLetters = {gTowerXOne} ∪ range (sqEichU) ∪ range (sqEichV)`, and `gTowerXOne` is the
+   cleared `x_1` letter.  `gDelta_x1_tower_dvd` proves `2^{m+2} | gDelta h c (x_1^{2^m})` for
+   every row `c`: **no functional sees the `x_1` tower.**  So the functionals can kill the two
+   Eichler-tower coefficients and provably cannot kill the third.  Either
+   `GTowerDefectVanishing` is weakened to allow an `x_1`-tower coefficient, with
+   `GTowerKnobRealizable` extended to realize it (note that `gTowerKnobSet`'s second clause, the
+   `x_1`-slot bundle, is the one knob that produces tower-type elements), or that coefficient is
+   killed structurally rather than functionally.
+   **W76-HOUSE round 13, and this settles it: wave 75 took the second option and it works.**
+   `gJoin_xOne_tower_knob` (`GradedUniformJoin.lean` §6, landed `20cd4121`) proves that
+   `x_1tilde^{2^k a}` lies in the knob span at every depth `k >= 1`: the `x_1`-slot bundle at
+   `t = x_1tilde^{2^{k-1}a}` supplies `t^2 * [t, x_1]`, the bracket splits through the bracket
+   homomorphism as `[t, x_1tilde] * [t, x_0^2]`, the first factor is trivial because `t` is a
+   power of `x_1tilde`, and the second is a far-span knob.  So the one tower the functionals
+   cannot see is precisely the one the moves manufacture, at no cost, and no weakening of the
+   Prop was needed.  §7 of the same module then pins the residue exactly: the reach exceeds the
+   knob span by exactly the `2h` handle towers, every one of them functional-visible.  This is
+   Labute's division of labour made exact for the sq core.  The item that remains from this
+   analysis is the `F_2`-independence bookkeeping `GJoinSeparationAll`, proved at `h = 0`
+   only.]**
 
 `gTower_markTransitivity_of_vanishing` then closes the residual.  No statement in the module
 depends on the class; the one-class-per-wave ladder is replaced by (1) + (2) + (3).
@@ -156,4 +192,12 @@ depends on the class; the one-class-per-wave ladder is replaced by (1) + (2) + (
 `scripts/mirror.sh sweep` at lane start (5848 artifacts); `gen GQ2.Dyadic.SqCore.GradedUniformTower`
 green after every commit; zero warnings, zero sorries, no new axioms; `#print axioms` on all 94
 declarations prints `[propext, Classical.choice, Quot.sound]`.  No dependents exist (new leaf
-module; `GQ2.lean` untouched per protocol).
+module; `GQ2.lean` untouched per protocol **as of this lane's last commit**).
+
+**[W76-HOUSE, round 12 §4.2(a), and the convention that retires this finding.**  "`GQ2.lean`
+untouched per protocol" is true of the lane and false of the tree within minutes: the
+orchestrator registered this module at `1bf8c40a` (01:02:13), **7 min 5 s** after the lane's
+last commit.  The lane-level and orchestrator-level behaviour is right; only the annotation was
+missing, for the third wave running.  Convention, adopted here: a lane note's claim about
+`GQ2.lean` or about a module being unwired is written **as of** the lane's last commit, since
+that is the only tree the lane can speak for.]**

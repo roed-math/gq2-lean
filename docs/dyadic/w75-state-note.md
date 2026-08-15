@@ -15,8 +15,14 @@ It **stated** the `n`-free analogue of `ramifiedI_candidate_equiv_galK` and sepa
 hypotheses into selectors and obligations.  It did **not** prove the general theorem, and the
 module says so in its own docstring.  The one thing proved outright is the assembly step: that
 the obligations, once supplied, compose to the conclusion.  That step was already `n`-free in
-the tree (`KSupply.candidate_equiv_galK_of_supply`); what was missing was a general branch
-datum to instantiate it at, and a place to name what is owed.
+the tree (`candidate_equiv_galK_of_supply`, `KSupply.lean:451`); what was missing was a general
+branch datum to instantiate it at, and a place to name what is owed.
+**[W76-HOUSE, watch round 13: written here as `KSupply.candidate_equiv_galK_of_supply`, which
+is not a name in the tree.  That theorem sits *after* `end KSupply` (`:380`), in
+`namespace GQ2.Dyadic`, and all eight of its call sites write it bare.  The qualifier reads as
+a namespace because this note uses real ones elsewhere (`KSupply.scalarHilbert_galK`,
+`KSupply.ofMarkedCoreRealization`).  The file reference is what was meant and is now given as
+one.]**
 
 ## 1.  What landed
 
@@ -40,7 +46,8 @@ Three records over `K`, `B`, `FF`:
   freed to `params.n = n`.  Six fields, every other one verbatim.
 * `GenAsmBranch K B`: the **selector**.  Five fields: `pres`, `hdeg`, `nuP`, `hnuP`,
   `realization`.  `realization : MarkedCoreRealization (genAsmCore pres) nuP` is the direct
-  `G_K(2)` spelling (`LabuteInterface.lean:308`), i.e. the `KTwoN`/`KTwoM`/`KTwoSq` clause the
+  `G_K(2)` spelling (`LabuteInterface.lean:313`; cited as `:308`, which is a `variable` line
+  five above, W76-HOUSE round 13), i.e. the `KTwoN`/`KTwoM`/`KTwoSq` clause the
   critical-path memo §1.5 says the classification workstream actually produces.
 * `GenAsmRowResidual G T`: the **obligations**.  Four fields: `exactLifting`, `stokes`,
   `determinant` at `galKProfinite K` (ASK, names taken from `KSupply`), and `cand`, the
@@ -202,7 +209,7 @@ and `genAsm_branch_of_oddSq` shows it is exactly the `hMix` binder of
 `marked_matching_certificate_KTwoSq_of_fixesCore`, hence of the `L`-row branch datum.
 `genAsm_branch_of_oddSq_canonical` then fixes the marking to the canonical `lNu h`, discharging
 both marking binders (`genAsm_lNu_surjective`, and `LSquare.ztwoIota_lNu`, which already existed
-in `Instances/GammaLSylowPreimageRealizationBypass.lean:83`).  So on the odd side the general
+in `Instances/GammaLSylowPreimageRealizationBypass.lean:82`).  So on the odd side the general
 selector reduces to exactly four things: the degree pin, an oriented equivalence
 `D_sq h ≃ G_K(2)`, `SqLamMarkTransitivity h`, and the two `ν` normalizations at `σ` and `x₀`.
 
@@ -245,8 +252,14 @@ census movement.
    procyclic-`M` one needs lifting off `h = 0`.
 3. **The `α` pin** (memo item 1, unchanged): `range chiCycKTwo = imChiN α` per field, which
    turns the even route's existential into the row.  Nothing in this lane moves it.
-4. **Registration.**  `GQ2/Dyadic/GeneralAssembly.lean` is not in `GQ2.lean` (lane protocol
-   forbade editing it).  A later wave should add it so the umbrella carries the statement.
+4. ~~**Registration.**  `GQ2/Dyadic/GeneralAssembly.lean` is not in `GQ2.lean` (lane protocol
+   forbade editing it).  A later wave should add it so the umbrella carries the statement.~~
+   **[W76-HOUSE, watch round 13: DONE, in this wave, `1 min 28 s` after this note.**  The
+   orchestrator registered the module at `a19fac5a` (04:18:12), against the lane's last commit
+   `88a29ef7` (04:16:44).  The item was stale as written, which is the fourth wave running for
+   this exact finding; the convention adopted in W76 is that a lane note's claim about
+   `GQ2.lean` is written **as of** the lane's last commit, and §0's "`GQ2.lean` was not edited"
+   should be read that way.]**
 5. Nothing on the `L`-row marking: the bridge `ztwoIota (lNu h x) = nuSq h x` already existed
    (`LSquare.ztwoIota_lNu`) and this lane wires it in, so `genAsm_branch_of_oddSq_canonical`
    carries no marking binder at all.

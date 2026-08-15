@@ -32,7 +32,8 @@ the complement is TWO named towers at **every** level `k ≥ 1`:
   `g = d · x₀^{λ(g)} · w^{ν'(g)}` with `d ∈ γ_k` exactly row-trivial and `w = sqPivot h` the
   pivot.  The two tower exponents are the two rows, `2^{k-1}`-divisible by the row bound, so
   both tower factors are honest `γ_k`-elements.
-* `gTower_tower_rows` / `gTower_tower_row_trivial_iff` / `gTower_tower_mem_succ_dvd`: the tower
+* `gTower_tower_nuLam` / `gTower_tower_nu` / `gTower_tower_row_trivial_iff` /
+  `gTower_tower_mem_succ_dvd`: the tower
   coordinates are read off by the rows, so the complement is exactly two-dimensional at every
   level: an `x₀`/`w`-tower product is row-trivial iff both exponents vanish, and it lies in
   `γ_{k+1}` only if both exponents are `2^k`-divisible.
@@ -79,6 +80,47 @@ statements `gTower_commP_vanish`/`gTower_commP_vanish'` (`⁅γ₂, γ_k⁆ ≤ 
 `Q_{k+2}`), which at `k = 2` degenerate to the abelianness of `Y` that the class-four proofs
 used.  ⭐ `gTower_dress_core` composes the three core knobs and `gTower_kills` is the identity
 form, both level-free.
+
+## §4 The reachable subgroups (his ℌ_i, §4 Lemma 3)
+
+At correction depth `k`, read in `Q_{k+2}`: `gTowerKnobSet` is the knob generators (brackets
+`commP t q` of an admissible correction against the `x₁`-free span `gTowerFar`, and the
+`x₁`-slot bundles `t²·commP t x₁`; the bracket against `x₁` alone is deliberately **not** a
+generator, being the open defect of waves 71-73), `gTowerTowSet` is the admissible towers of
+§1, `gTowerReach` is their span, and `gTowerFullReach` adds the two non-admissible towers
+`gTowerTowXW`.  `GTowerAdm` is the admissible-correction predicate (his `X ∩ F_k`).
+
+## §5 The engine step: `π` carries reach into reach
+
+The subgroup-level consequence of §2 (`gTower_reach_step`): if the class of an admissible
+`t ∈ γ_k` lies in the depth-`(k-1)` reach, the class of `t²` lies in the depth-`k` reach.  A
+closure induction whose three generator cases are the three engine identities of §2.
+
+## §6 The two step obligations
+
+His Lemma 2 and Lemma 3 step (b).  `GTowerLayerReach h nu' k` is the layer hypothesis (every
+exactly row-trivial `γ_{k+1}`-element reaches); under it every square (`gTower_sq_step`) and
+every bracket (`gTower_comm_step`) of a `γ_{k+1}`-element lands in the depth-`(k+1)` full
+reach.  The `x₁`-bracket of an admissible correction is manufactured here by the engine, out
+of `[d, x₁] = (d²·[d, x₁])·(d²)⁻¹`.
+
+## §7 The layer step and the tower induction
+
+⭐⭐ `gTower_full_layer_step`: the full layer maps into the full reach.  ⭐⭐ `gTower_cut`: the
+row grading cuts the admissible part back to `gTowerReach`.  ⭐⭐⭐ `gTower_layerReach_of_base`:
+the two together push `GTowerLayerReach` up the tower from the base index `k = 2`, the layer
+`γ₃/γ₄` of class four, which is where the committed per-class record stops being needed.
+
+## §8 The conditional assembly
+
+Two named hypotheses, the interface for the sibling FUNC lane: `GTowerDefectVanishing h` (his
+Lemma 4 target: the defect of every admissible frame lies in the knob span) and
+`GTowerKnobRealizable h` (the extraction; wave 73's multi-handle flag lives here and it is
+**not** proved).  From them ⭐⭐⭐ `gTower_supply_of_vanishing` closes
+`SqClassClearingSupply h k` for **every** `k` by recursion from the committed class-three
+witness, and
+⭐⭐⭐ `gTower_markTransitivity_of_vanishing` closes the whole `h ≥ 1` residual through the
+committed compactness assembly.
 
 ## Dictionary against the committed classes
 
@@ -875,16 +917,16 @@ def gTowerKnobSet (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_
 variable (h) in
 /-- **The admissible tower generators at correction depth `k`**: `2^k`-divisible `ℤ₂`-powers
 of the cleared letters, as layer classes in `Q_{k+2}`. -/
-noncomputable def gTowerTowSet (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ) :
-    Set (levelQuot (DSq h : Type) (k + 2)) :=
+noncomputable def gTowerTowSet (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (k : ℕ) : Set (levelQuot (DSq h : Type) (k + 2)) :=
   {z | ∃ x ∈ gTowerXLetters h nu', ∃ a : ℤ_[2],
     z = levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) x (2 ^ k * a))}
 
 variable (h) in
 /-- ⭐ **The reachable subgroup at correction depth `k`** (his ℌ_{k+1}): the span of the knob
 values and the admissible towers, inside `Q_{k+2}`. -/
-noncomputable def gTowerReach (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (k : ℕ) :
-    Subgroup (levelQuot (DSq h : Type) (k + 2)) :=
+noncomputable def gTowerReach (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (k : ℕ) : Subgroup (levelQuot (DSq h : Type) (k + 2)) :=
   Subgroup.closure (gTowerKnobSet h nu' k ∪ gTowerTowSet h nu' k)
 
 variable (h) in
@@ -896,7 +938,7 @@ noncomputable def gTowerTowXW (k : ℕ) : Subgroup (levelQuot (DSq h : Type) (k 
 
 variable (h) in
 /-- **The full reach**: admissible knobs and towers together with the §1 complement towers.
-The *full* layer lands here (`gTower_layer_step`); the admissible part lands in
+The *full* layer lands here (`gTower_full_layer_step`); the admissible part lands in
 `gTowerReach` alone (`gTower_cut`). -/
 noncomputable def gTowerFullReach (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
     (k : ℕ) : Subgroup (levelQuot (DSq h : Type) (k + 2)) :=
@@ -1659,8 +1701,9 @@ variable (h) in
 /-- ⭐⭐ **The extraction interface**: a knob-span defect class is killed by an admissible
 correction tuple one layer down.  The three-core-slot instance is `gTower_kills` over
 `gTower_dress_core`; the general statement carries the multi-handle and accumulated-dressing
-bookkeeping that wave 73 flagged (`docs/dyadic/w73-knob-note.md` §"the multi-handle
-composition lemma"), which is deliberately **not** discharged in this lane. -/
+bookkeeping that wave 73 flagged (`docs/dyadic/w73-knob-note.md` §9, wave-74 queue item 2,
+"the multi-handle composition lemma"; it is a queue item, not a section), which is
+deliberately **not** discharged in this lane. -/
 def GTowerKnobRealizable : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →

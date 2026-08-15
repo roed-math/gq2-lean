@@ -148,10 +148,21 @@ smaller, since the slot-zero square is gone, so `evenRawShiftSpan_eq_zLayer` may
   is already a product of brackets.
 
 So `evenRawShiftSpan_eq_zLayer_of_pureSquares` fails to clone not because a proof is missing but
-because its `Hsq` input **cannot come from the `alpha = 1` rows at all**.  The compensation is real
+because its `Hsq` input **is not supplied by the `alpha = 1` rows**, no such row emitting a
+square.  The compensation is real
 and lies on the other side: at `alpha >= 2` the square and the bracket `[p, base 1]` sit in one
 row, so neither is available without the other, which is why `evenRawBracket_base_mem_shiftSpan`
 carries `Hsq`; at `alpha = 1` the bracket half is free.
+
+**[W76-HOUSE, round 12 §4.3(a).**  This sentence read "cannot come from the `alpha = 1` rows at
+all", an impossibility claim standing on a containment theorem.  What
+`evenStratumRow_sq_mem_bracketSpan_of_isShift` proves is: *if* a pure square is an `alpha = 1`
+shift then it lies in the bracket span.  Nothing rules out a **product** of shift values being a
+square, and `EvenRawPureSquareSpanSupply` asks for membership in a *span*, not for a row value.
+This note is careful about exactly this two paragraphs down ("proved in one direction only
+(`<=`)"), and the Lean declaration's own docstring is careful too; the summary sentence is where
+it over-reached.  First site, corrected there:
+`GQ2/Dyadic/Instances/EvenStratumRowFrame.lean` §7.3 header.]**
 
 I did **not** build the bundled span homomorphism or the six coordinate-row computations, so the
 identity "the `alpha = 1` span equals the bracket subgroup" is proved in one direction only
@@ -198,7 +209,7 @@ as in wave 73.  Measured:
 
 | block | set |
 | --- | --- |
-| §1, §2, §5, §6, §7 and the two local scalar instances (42 declarations) | std-3 |
+| §1, §2, §5, §6, §7, §3's `omegaClass_ne_zero` and `coord_headSecond`, and the two local scalar instances (42 declarations) | std-3 |
 | `evenStratumRow_exists_gramOne_modelEquiv_pin` | std-3 + `tateDualityAt` + `hilbertSymbol_normCriterion_finiteDyadic` + `absGalQ2_localEulerCharacteristic` |
 | `evenStratumRow_frame_of_gramOne_adapted` | std-3 + `tateDualityAt` + `absGalQ2_isTopologicallyFinitelyGenerated` |
 | the two `exists_adaptedFrame` headlines | the union of the previous two |
@@ -214,6 +225,30 @@ committed sets, and the comparison is exact on both halves:
 Tickets 2 and 3 and the span section are entirely arithmetic-free (std-3), matching
 `evenClimb_defectReachable`, `evenSharpDbarShiftSupply_m` and
 `evenRawShiftSpan_eq_zLayer_of_pureSquares`.
+
+**[W76-HOUSE, sweep items 16, 17 and 18, three repairs to this verification block.**
+
+*Item 16, the std-3 row.*  The 42 is right, but the blocks the row named summed to **40**:
+§1 (10 pins), §2 (1), §5 (11), §6 (9), §7 (7) and the two scalar instances (2).  The two
+missing are §3's `evenStratumRow_omegaClass_ne_zero` and `evenStratumRow_coord_headSecond`,
+now named in the row above.  With them the table accounts for all 46: 42 + 1 + 1 + 2.
+
+*Item 17, the comparison statements.*  Seven of the eight do date to waves 51, 72 and 73.
+The eighth, `evenDegreeNCyclotomicFrattiniFrameSupply_holds`, is older: its declaration
+landed at `61c51c9e`, **2026-08-07** ("land the even-degree N-row Frattini frame supply
+(EV-3c1)"), before the wave-51 window; the name first appears two days earlier still, at
+`de1b361f`, as a planned statement in the EV-3c skeleton.  Nothing about the axiom comparison
+changes; only the provenance sentence does.
+
+*Item 18, the private helpers.*  "Re-declared because the originals are `private`" is true of
+`evenStratumRowRegroup` and `evenStratumRowShiftAssemble` and **false** of
+`evenStratumRowAssembleM`, which is not a re-declaration of `evenRawAssembleM`
+(`StageAbstractionEvenRawSpan.lean:558`): that one takes seven elements and two commutation
+hypotheses and concludes `X*P*Y*Q*(A*B*C)`; this one takes **eight** elements and **three**
+hypotheses and concludes `X*P*Y*Q*(Y₂*(A*B*C))`.  The extra slot `Y₂` is the coordinate-2
+atom, which is the whole point of the `M` twin, so calling it a re-declaration hides the one
+place the `M` shape shows up in the plumbing.  Round 11 §4.3(c) reported the same wording
+defect one wave earlier at `EvenStratumShift.lean:75`, about a different pair.]**
 
 Commits (branch `claude/w74-even`, based on `4fff1592`), all path-limited:
 
@@ -235,6 +270,13 @@ I edited nothing outside my own module and `docs/dyadic/w74-even-note.md`.
 1. **`GQ2/Dyadic/Instances/EvenStratumRowFrame.lean` is unwired.**  Nothing imports it and it is
    not in `GQ2.lean`, exactly as `EvenStratumShift.lean` was left by wave 73.  Both are now
    unwired; the new module imports the old one, so registering them is one decision, not two.
+   **[W76-HOUSE, round 12 §4.2(a), and the convention that retires this finding.**  Read
+   **as of the lane's last commit**: the orchestrator registered the module at `a1579dcc`
+   (00:23:38), **1 min 51 s** later, so the claim was stale almost as soon as it was written.
+   Round 11 §4.1(c) annotated all three wave-73 notes for the same thing and proposed nothing to
+   stop it; round 12 found it again on all three wave-74 notes.  Convention, adopted here: a
+   lane note's unwired claim is written "unwired **as of** `<hash>`", so that a claim about a
+   file the lane is forbidden to touch carries the timestamp that makes it checkable.]**
 2. **Wave 72's §3.1 first bullet should now be corrected a second time.**  Wave 73 already said the
    base is blocked by the *choice of Gram*, not the stratum.  With the repaired Gram the frame
    exists at the **prescribed** table too, so the base's remaining cost is the level-three

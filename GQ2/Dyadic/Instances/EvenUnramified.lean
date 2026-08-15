@@ -67,8 +67,11 @@ Wave 70 corrected this line, which used to read `a = 1`, and only there: the cit
 concludes `a ≤ 1`, and `a = 0` is not excluded by the image, `imChiN 0` and `imChiN 1` being the
 same subgroup.  It is §3's head-exponent criterion, not §2's image criterion, that singles out
 `a = 1`.  The proof does not transport with it: the `N` endpoint chain
-needs `2 ≤ α` at five independent leaves, one of which (`evenRawStageShift_n`) is documented
-false at `α = 1`, and the frame layer records `IsEmpty (NFrame 1 h)`.  §5 states that
+needs `2 ≤ α` at five independent leaves, one of which (`evenRawStageShift_n`) is **proved**
+false at `α = 1` (`evenStratum_no_rawStageShift_one`, `EvenStratumShift.lean:333`, at the
+profinite-group quantifier `evenRawStageShift_n` carries; the `M` twin is
+`evenStratumRow_no_rawStageShift_m_one`, `EvenStratumRowFrame.lean:848`), and the frame layer
+records `IsEmpty (NFrame 1 h)`.  §5 states that
 obstruction in the form it takes here: any core admitting an oriented equivalence with a
 third-stratum `G_K(2)` has an empty `N` frame.
 
@@ -392,7 +395,13 @@ end Verdict
 The surviving parameter is exactly the one at which the committed frame layer has nothing.
 `nFrameExists_nonempty_iff` reads `Nonempty (NFrame α h) ↔ 2 ≤ α`, so the `N` frame is empty at
 `a ≤ 1`; and the `N` endpoint chain consumes `2 ≤ α` at five independent leaves, one of which
-(`evenRawStageShift_n`, `StageAbstractionEvenRawSpan.lean:625`) is recorded false at `α = 1`.
+(`evenRawStageShift_n`, `StageAbstractionEvenRawSpan.lean:625`) is **proved** false at `α = 1`:
+`evenStratum_no_rawStageShift_one` (`EvenStratumShift.lean:333`) refutes it at the
+profinite-group quantifier that lemma carries, on the cyclic group of order eight, and
+`evenStratumRow_no_rawStageShift_m_one` (`EvenStratumRowFrame.lean:848`) does the same for the
+`M` twin.  Neither decides the supply at any *particular* field, which is a separate question
+`evenStratumShift_diagonalAtom_eq_one_of_rawShift` reduces to the vanishing of the diagonal
+atom there.
 
 The statement below is the form that obstruction takes on this stratum, and it is uniform in the
 depth: a core matching a third-stratum `G_K(2)` has no `N` frame, so no transport of the wave-58

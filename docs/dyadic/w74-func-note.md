@@ -61,8 +61,8 @@ the delicate direction.
 
 ### 1.2  The campaign's rows versus Labute's functionals
 
-**Brief correction 3.**  `cfourKnob_sq_nu` and `cfourKnob_sq_nuLam`
-(`GradedClassFourKnob.lean:145,150`) are not row functionals; they are lemmas
+**Brief correction 3.**  `cfourKnob_sq_nuLam` and `cfourKnob_sq_nu`
+(`GradedClassFourKnob.lean:145,150` respectively) are not row functionals; they are lemmas
 ("an exactly row-trivial element has an exactly row-trivial square").  The committed
 row objects are the markings themselves:
 
@@ -136,7 +136,7 @@ standard chi-values and the vanishing Fox row applies.  Committed as
 * `SqClassClearingSupply h k` (GradedLimit.lean:236) is stated **on `DSq h`**:
   dressings `a : Fin (sqRank h) -> DSq h`, frame `sqArbFrame h nu' j a`
   (ArbFrames.lean:442, base `sqArbBase` with the Eichler-cleared handle letters
-  `sqEichU/V`, LamFrames.lean:295,303), relator clause
+  `sqEichV/U`, LamFrames.lean:295,303 respectively), relator clause
   `sqRelWord (frame) ∈ twoCentralSeries (DSq h) k`.
 * All wave 68-73 defect objects (`cfourEichDefect` GradedClassFour.lean:628,
   `cfourIdLeftover` GradedClassFourIdentity.lean:241, `cfourDefCore`
@@ -209,9 +209,15 @@ T3 (reconciliation): section 4 below, after the landings.
 
 ## 3  Landing report
 
-Module `GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean`, 1749 lines, 105 declarations,
+Module `GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean`, 1749 lines, 103 declarations,
 103 axiom pins all within std-3 (`gDelta_map_commP` and `gDelta_dvd_mul_sub_mul`
-print with subsets).  Commits `3c0674d6` (T1/T2) and `1023470d` (T3 Lean), on
+print with subsets).
+**[W76-HOUSE, sweep item 9.**  "105 declarations" corrected to **103**, recounted
+here as a bijection: 103 declaration headers, 103 `#print axioms` lines, every
+declaration pinned exactly once and no pin naming anything outside the file.  The
+103 pins figure was always right.  Note for readers of `w75-house-note.md:443-444`,
+which inferred "the two unpinned declarations" from the difference: there are
+none.]**  Commits `3c0674d6` (T1/T2) and `1023470d` (T3 Lean), on
 `9e7c243d` (this note's T0), base `4fff1592`.  Verified by `scripts/mirror.sh`
 (sweep at lane start, `check` green, `gen` regenerated into the mirror).  No edits
 to any existing file; the sibling `GradedUniformTower.lean` untouched and unimported.
@@ -238,6 +244,19 @@ and `cfourEichDefect` classes, the closed-form reading of `cfourDefCore`
 lane's suggested `GTowerDefectVanishing h` could not be shape-matched without
 importing the sibling; `GDeltaDefectVanishing h` is this side's sharpest form, and
 W75 should join the two at the dressing-class hypotheses (see the gap ledger, 4.4).
+**[W76-HOUSE, round 12 §4.1(f).**  "Sharpest form" is the wrong ordering and invites
+the join lane to reach for the wrong statement.  `GDeltaDefectVanishing`'s hypothesis
+(`chi_sq = 1` exactly) is strictly **stronger** than the mod-8 one and its conclusion
+(`= 0`) strictly stronger than `2^3 |`, so it and `gDelta_relWord_dvd_of_chi_mod` are
+**incomparable**, not ordered.  Round 12 added "and for the assembly the mod-8 form
+is the applicable one"; **that half is amended in lane by W76-HOUSE round 13**, since
+wave 75's `gJoin_chiSq_of_gammaTwo` makes the `chi`-clause free along the clearing
+recursion, so it is the **exact** form the assembly consumes and the mod-8 form it
+does not need (see the annotation on 4.4 below).  What survives is the ordering point:
+"sharpest" is not a relation these two statements stand in.  The same sentence's "could
+not be shape-matched without importing the sibling" is correct: `gTowerKnobSet` lives
+in the ENGINE file, and the module that did import both is
+`GQ2/Dyadic/SqCore/GradedUniformJoin.lean`.]**
 
 T3's Lean half landed beyond the brief: the tower obstruction
 (`gDelta_relWord_dvd_of_chi_mod`, `gDelta_sigma_tower_not_reached`) and the
@@ -303,9 +322,26 @@ The corrected shape of the class-four (and class-five) attack, per Labute:
    separated by the functionals.  This replaces both the span hypothesis (too
    strong, now refuted) and the raw x1-bracket condition (equivalent to it through
    the join).
+   **[W76-HOUSE, round 12 §4.1(c).**  The first sentence and the second disagree,
+   and the second is the right one.  The ENGINE's statement is
+   `GTowerLayerReach h nu' k` (`GradedUniformTower.lean`), whose right-hand side is
+   `gTowerReach` = **knobs together with the admissible towers**, not the knob
+   subgroup alone.  And it is open only at the base `k = 2`:
+   `gTower_layerReach_step` inducts `k` to `k+1` and `gTower_layerReach_of_base`
+   closes every `k >= 2` from that base.  So the open item is **one base case with a
+   larger target**, not a uniform statement about a smaller one.]**
 3. **The assembly**: 1 + 2 give `cfourDefCore ∈ knobs`, hence
    `CfourCmpResidual h` through `cfourCmp_residual_of_core_vanish`-style
    composition, hence `SqClassClearingSupply h 4` - all committed plumbing.
+   **[W76-HOUSE, round 12 §4.1(d).**  "All committed plumbing" is not committed.
+   `cfourCmp_residual_of_core_vanish` (`GradedClassFourCompose.lean:601`) takes
+   `cfourDefCore nu' j = 1`, the **vanishing** of the core defect, not its
+   membership in the knob span; `GradedClassFourCompose.lean`'s three routes are
+   `_of_span` (refuted in 4.1 above), `_of_core_vanish` (vanishing) and
+   `_of_residual`, and none of them starts from "the core defect is a knob".  The
+   step this item needs is the ENGINE's `GTowerKnobRealizable`, which that lane
+   explicitly does not prove.  Step 3 therefore carries an unproved interface and
+   this bullet prices it at zero.]**
 
 ### 4.4  The gap ledger for W75
 
@@ -320,6 +356,36 @@ The corrected shape of the class-four (and class-five) attack, per Labute:
   the quantitative forms; the ENGINE's tower statement should be joined at the
   hypothesis "dressing slots mod-8 chi-trivial", which covers the whole committed
   correction calculus (`gDelta_chi_gammaTwo_dvd`, `gDelta_chiSq_bridgeTuple`).
+  **[W76-HOUSE, round 12 §4.1(e).**  The proposed join hypothesis matches neither
+  Prop's.  `GTowerDefectVanishing` binds `nuLam h (a i) = 1`, `nu' (a i) = 1` and
+  `SqModTwoIndep`; `GDeltaDefectVanishing` binds `chiSq h (a i) = 1` **exactly**.
+  The three conditions are strictly ordered - `chiSq = 1` implies mod-8
+  chi-trivial implies nothing - while the ENGINE's binder gives only `chiSq = ±1`
+  (`gDelta_chiSq_of_nuLam`), and `-1` is not `1 mod 8`.  Two consequences for the
+  join lane: joining at mod-8 proves something strictly **weaker** than
+  `GTowerDefectVanishing`, so `gTower_clear_step` cannot consume it as stated
+  (threading a mod-8 invariant through that recursion is a **statement change** to
+  `GTowerDefectVanishing`, an owner call, reported and not made); and
+  `GDeltaDefectVanishing` as committed appeared to serve only the **base** of the
+  recursion, since `gTower_supply_of_vanishing` starts at `bridgeTuple`
+  (`chiSq = 1` exactly) and every clearing step multiplies by a `d i` in `gamma_k`,
+  which `gDelta_chi_gammaTwo_dvd` puts only at `1 mod 8`.
+  **AMENDED IN LANE, W76-HOUSE round 13: the second consequence is wrong, and wave
+  75 had already refuted it before round 12 wrote it down.**
+  `GradedUniformJoin.lean` §2 (`gJoin_chiSq_of_gammaTwo`, landed `5d589184`,
+  03:12:01, merged `71975be8` 04:33:51, both before the round-12 note `6eceb48c`
+  04:46:17) proves that a `gamma_2`-valued admissible correction is `chiSq = 1`
+  **exactly**: the `lambda`-row gives `chiSq = ±1` and `gamma_2`-membership gives
+  `chiSq ≡ 1 mod 8`, and `-2` is not `8`-divisible in `Z_2`, so the two together
+  force `+1`.  `gJoin_chiSq_mul_correction` then carries the clause through every
+  step.  So the exact hypothesis does **not** fail after one step; it is free along
+  the whole recursion, and `GDeltaDefectVanishing` speaks for every dressing the
+  recursion produces.  The mod-8 statement `gDelta_relWord_dvd_of_chi_mod` is not
+  what the assembly needs after all.  The first consequence stands: the join is
+  made at the **exact** clause, in the new Prop `GJoinDefectVanishing` (wave 74's
+  with `∀ i, chiSq h (a i) = 1` added), which sits **beside** `GTowerDefectVanishing`
+  in a new module rather than replacing it, so the statement change the ⚠ above
+  guarded against did not have to happen.]**
 * **The class-five mod-16 kit** (4.2), one congruence pass.
 * **Untwisted rows are not functionals** (1.2-1.3, committed as
   `gDelta_row_reading`): any lane tempted to work with `nuSq`/`nuLam`/handle-row
