@@ -85,8 +85,8 @@ The frozen third conjunct pins the equation-(136) coefficient to
 `zRN RF (standardNumerics n) = #R^{n+1} · #D_R` (`correctedRStage_hZcount_galK`).  Both clauses
 evaluate the same left-hand side, so:
 
-* `askC_zRN_eq_zR_of_card_one` — the coefficients agree when `#R = 1`, in every degree;
-* `askC_zRN_ne_zR` — they differ whenever `#R > 1` and `2 ≤ n`.
+* `askC_zRN_eq_zR_of_card_one`: the coefficients agree when `#R = 1`, in every degree;
+* `askC_zRN_ne_zR`: they differ whenever `#R > 1` and `2 ≤ n`.
 
 Both print **std-3 and nothing else**.  That measurement is the point: the gap between what is
 proved and what is asked is not arithmetic.
