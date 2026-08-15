@@ -11,10 +11,13 @@ Verification of record: `scripts/mirror.sh sweep` at lane start (5973 artifacts)
 module, all green.  `scripts/mirror.sh check GQ2/AxiomLedger.lean` green, exit `0`, **0 terminal
 violations**.  **No `lake` command was run.**
 
-**`dyadic` advanced past this lane's base mid-round**, to `db6fcedf` (W83-FRAME's
-`Instances/OddFrame.lean` plus its registration).  This lane merged it, regenerated the two
-oleans and **re-measured**, rather than reporting a board it knew was stale; §4 is at
-`db6fcedf`, and every annotation says which tree it is as of.
+**`dyadic` advanced past this lane's base twice mid-round.**  First to `db6fcedf` (W83-FRAME's
+`Instances/OddFrame.lean`): merged, both oleans regenerated, and **everything re-measured**,
+rather than reporting a board known to be stale.  Then again to `9f05fb98` (W83-RECORDS), after
+the board was taken and with the shared cache still at `db6fcedf`; that one is reported as a
+read-not-elaborated delta in §4 rather than merged, for the reason given there.  So: §4's board
+is as of `db6fcedf`, its delta subsection is as of `9f05fb98`, and every tree annotation says
+which tree it is as of.
 
 ---
 
@@ -559,6 +562,49 @@ Three further things the board does not say, which the round establishes:
   image-level argument can decide it;
 * the **even route is unchanged since wave 74**, and nothing this round touched it.
 
+## ⚠ The base advanced a SECOND time, after the board was measured
+
+At commit time `dyadic` is at **`9f05fb98`** (W83-RECORDS: `Instances/CanonicalRecords.lean`
+plus edits to `GeneralAssembly.lean`, `FieldUnimodularity.lean`, `MpcCertificate.lean`,
+`MpcPivot.lean`, `OddIdentification.lean`).  **The board above is as of `db6fcedf` and does not
+include it.**  This lane did not merge it: the shared olean cache has not advanced past
+`db6fcedf`, five of the touched modules are central, and regenerating a central module without
+its dependents is precisely the false-clean trap `mirror.sh`'s header documents.  Running `lake`
+is out of protocol.
+
+So the delta below is **read, not elaborated**, and is marked as such.  From
+`docs/dyadic/w83-records-note.md` and that lane's diff:
+
+* **FROZEN ROWS: substance unchanged.**  Ticket A of that lane strengthened five branch-producer
+  existentials to carry the marking, and its §1 records that *every re-export keeps its old
+  statement*, the extra conjunct being dropped at the call site.  The five names this board
+  prints are re-exports, so their binder lists and censuses should re-measure identically.
+  **Unverified here.**
+* **Owner item 5 narrows, and W82-HOUSE's census of it was wrong.**  That item's site count was
+  recorded as four; it is **eight**, verified against the Lean by W83-RECORDS §0.  Five are now
+  taken, sites 6 and 7 (the free-`h` even producers `genAsm_branch_of_evenN` / `_evenM`) remain,
+  and site 8 (`mpcPiv_genAsmBranch_sqrtNegTen`) **cannot** be taken, because its datum is built
+  at the transported marking and no comparison with `mpcNu 2 1 1` exists at this tree.  Item 5
+  below is stated in its wave-82 form because that is the form this lane measured; read it
+  against W83-RECORDS.
+* **The ASK block per tied row drops from three to two.**  `canRec_rowResidual_*` assembles
+  `determinant` through `mpcRow_genAsmRowResidual_of_counting` out of `affineDeterminant_galK`,
+  so it is no longer a binder.  That closes, at the general record, the wiring W79-HOUSE and
+  W82-HOUSE both called a wiring job.  The board's ASK section does not know this.
+* **CAND is instantiated at the four tied quadratic rows**, with a uniform four-clause residue,
+  which extends S3's corrected reading from the `CorePresentation`-backed rows to the tied set.
+  Note that the `√−10` row is not among the four, for the site-8 reason.
+* **Two of my ticket-3(f) sites are handed back**: W83-RECORDS §3 item 2 records that
+  `GeneralAssembly.lean`'s constructor-table `L h` cell and
+  `oddId_candidate_equiv_galK_of_supply`'s docstring still carry their wave-82 text under the
+  W82-HOUSE annotation, i.e. annotated but not rewritten.  Rewriting them is the AB-0 treatment
+  applied to those two sites; it belongs to whoever holds `GeneralAssembly.lean` next, and this
+  lane could not do it without merging a tree it cannot elaborate.
+
+**The fix is one command.**  `bash scripts/scoreboard.sh` once the shared cache advances past
+`9f05fb98` reprints every row above from the tree.  That is what the tool is for, and this
+subsection is the last hand-written status delta this note contains.
+
 ## Owner items: seven standing, one closed and one opened
 
 **AB-0 comes off the list**, closed this round; it was comment-only all along.  One new item
@@ -569,7 +615,9 @@ opens, so the count is unchanged at seven.  The list is numbered so that the sco
    `askCStageVanishing`.  Statement change.  The board shows the RN bundle carrying only `hdeg`.
 2. **Pilot spelling** (`w74-critical-path.md` §1.5).  Unchanged.
 3. **The A6 freeze** (`GQ2/Roe/*`): **ten** review rounds without motion.  Nothing in this lane
-   touched `GQ2/Roe/` or `GQ2.lean`; `git diff 23041e0f HEAD` on both paths is empty.  The board
+   touched `GQ2/Roe/` or `GQ2.lean`: `git diff db6fcedf HEAD` on both paths is empty, which is
+   the honest form of the check after the mid-round merge (`git diff 23041e0f HEAD` shows one
+   `GQ2.lean` line, W83-FRAME's registration, which arrived through that merge).  The board
    prints this UNVERIFIED with the checkable substitute beside it (last commit `4341a1a3`,
    2026-08-10, comment-only; eleven house notes added since), because the count runs from the A6
    adoption wave, which is not recorded in git.
