@@ -89,7 +89,13 @@ FROZEN ROWS|Q2(v10)  .Mpc F|decl|mpcNorm_genAsmBranch_sqrtTen
 FROZEN ROWS|Q2(v-10) .Mpc T|decl|mpcNorm_genAsmBranch_sqrtNegTen_of_pivot
 FROZEN ROWS|Q2(v-10) via shift|decl|mpcPiv_genAsmBranch_sqrtNegTen_of_shift
 FROZEN ROWS|Q2(v-10) untied|decl|mpcPiv_genAsmBranch_sqrtNegTen
+FROZEN ROWS|v-10 residue = word prob|decl|mpcOrb_shift_iff_marking
 FROZEN ROWS|v-10 residual move|prod|MpcPivShift
+RECORD BLOCKS|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
+RECORD BLOCKS|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
+RECORD BLOCKS|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
+RECORD BLOCKS|Q2(v10)  .Mpc F|decl|canRec_rowResidual_sqrtTen
+RECORD BLOCKS|the tied transport|decl|canRec_rowResidual_of_tied
 ODD SEAM|the seam Prop|decl|SqMarkedForwardSupply
 ODD SEAM|every seam producer|prod|SqMarkedForwardSupply
 ODD SEAM|seam = marked-core cert|decl|oddId_supply_iff_certificate
@@ -418,5 +424,17 @@ echo "  * producers in modules no row imports.  A \`prod\` scan reads the"
 echo "    ENVIRONMENT, so it sees exactly the modules the rows above pull in."
 echo "    A new module with a new producer is invisible until some row names a"
 echo "    declaration in it.  This is the one way the board can be stale."
+echo "    THIS HAS FIRED ONCE, on the wave it was written to watch: W84-HOUSE"
+echo "    found this board printing \`producers: 0\` for MpcPivShift while"
+echo "    MpcOrb.mpcOrb_shift_of_marking (wave 83) produced it.  The fix is the"
+echo "    documented one, a row naming a declaration in the new module; the"
+echo "    REGISTRATION section has the same import-set horizon, so a module no"
+echo "    row reaches is neither confirmed nor denied there, only absent."
+echo "  * producers stated in a shape other than the head.  \`prod\` matches the"
+echo "    conclusion's HEAD constant, so a theorem concluding \`A <-> P ...\`,"
+echo "    \`Nonempty (P ...)\` or a structure field of type \`P ...\` is NOT"
+echo "    counted.  mpcOrb_shift_iff_marking is such a statement.  Read"
+echo "    \`producers: 0\` as \"nothing concludes it directly\", never as"
+echo "    \"nothing in the tree bears on it\"."
 echo "  * prose.  Every headline, table and inventory in the tree and in"
 echo "    docs/dyadic/ is outside this tool and stales on its own."

@@ -63,6 +63,28 @@ hence not reachable by any relator-preserving word automorphism)".  If that ruli
 and the pivot has to be computed, not normalized.  §4 is what makes that fork sharp: the pivot
 holds at some oriented equivalence *if and only if* the orbit reaches valuation one.
 
+⚠⚠ **[W84-HOUSE, as of `45f9c42d`: the quoted ruling is now known to be UNSOUND AS AN ARGUMENT,
+so the conditional above must not be read as evidence either way.**  W83-ORBIT
+(`Instances/MpcOrbit.lean`, `docs/dyadic/w83-orbit-note.md` §4) showed that the premise the
+ruling rests on does not exist on this core: there is no `ℤ₂`-symplectic invariant of `D_M` to
+violate, because the relator `P_M = Ā²[Ā,B̄]C̄₀^{2^α}[C̄₀,D̄]` carries the square `Ā²` and is
+therefore not a product of commutators.  Demushkin duality pairs into `H²(G, ℤ/q)` with `q = 2`
+here, i.e. only mod 2, and mod 2 `M6` is the **identity**, hence an isometry of the only bilinear
+invariant there is.  Two Lean statements pin the same conclusion one level down:
+`mpcOrb_frame_shift` shows the `M6`-shifted frame satisfies the *same* forced `Ā`-row relation
+`ν'(Ā) = −2^{α−1}ν'(C̄₀)` that every marking of `D_M 2 0` satisfies, and `mpcOrb_chi_shift` shows
+the shift is χ-neutral on the moved row.  So the frame level, where the quoted reason lives,
+cannot obstruct `M6` at all.
+
+What replaces the fork: `mpcOrb_shift_iff_marking` makes `MpcPivShift 2` **equivalent** to an
+explicit word problem in `D_M 2 0` (a four-letter marking killing the `M_2` core word, generating
+topologically, carrying the four χ-values, and moving the `C̄₀` row by `2B̄`), and `mpcOrb_defect`
+computes the cost of the substitution in closed form as a product of four conjugates of `u`.
+`MpcPivShift 2` is **open**: neither built nor refuted.  `CoreMixM` §7's *conclusion* may still be
+true; its *reason* is not a proof, and the campaign should stop treating `M6` as settled in the
+negative.  The producer that now exists for `MpcPivShift`, `mpcOrb_shift_of_marking`, lives in
+`Instances/MpcOrbit.lean`, which no scoreboard row imports; see the W84-HOUSE note.]**
+
 Declaration prefix `mpcPiv` (namespace `GQ2.Dyadic.Instances.MpcPiv`).  No `sorry`, no new
 axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 -/
@@ -452,7 +474,33 @@ theorem mpcPiv_rows_sqrtNegTen (B : MarkedRecip R KSqrtNegTen)
 other input of wave 81 is now a theorem: the level (`mpcNorm_level_sqrtNegTen`), `λ(−1) = 1` and
 `λ(5) = 1` (`mpcNorm_lambdaOne_*_sqrtNegTen`), and the marking triple is discharged at `mpcNu`.
 So the whole `ε = true` row costs exactly one abstract move on `D_M 2 0`, uniform in the field
-and free of arithmetic. -/
+and free of arithmetic.
+
+⚠⚠ **[W84-HOUSE, as of `45f9c42d`: read the headline as a fact about the PROOF, not about the
+STATEMENT, which is the distinction wave 83 exists to enforce.**  The datum this proof builds is
+indeed at `mpcNu 2 1 (p true 1)`, and the producer it routes through
+(`mpcCert_genAsmBranch_of_orientedMpc`) now names that marking.  But the conclusion below is
+
+    `∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0`
+
+and `GenAsmBranch` does not pin `nuP`, so **this statement does not carry the marking**: the
+conjunct is dropped at the `Exists.imp` in the proof.  Consequently this theorem, exactly like
+its unconditional sibling `mpcPiv_genAsmBranch_sqrtNegTen`, is **UNTIED**, and it cannot be fed
+to `Instances.CanonicalRecords.canRec_rowResidual_of_tied`.  The two `√−10` statements differ in
+their hypothesis, not in their tie: one is conditional and untied, the other unconditional and
+untied.  So `ℚ₂(√−10)` has NO tied statement at this tree.
+
+Three prose sites assert the opposite and are wrong at the statement level:
+`Instances/CanonicalRecords.lean`'s per-row table reading 3, `docs/dyadic/w83-records-note.md`
+§0 ("routes through site 5 and therefore does carry `mpcNu`": the "therefore" is the error, since
+routing through a producer that names the marking does not make this conclusion name it), and
+`docs/dyadic/w83-orbit-note.md`'s five-row table ("tied form needs `MpcPivShift 2`").
+
+OWNER ITEM, one line of Lean, not takeable here because it is a statement change: add
+`∧ HEq G.nuP (mpcNu 2 1 (p true 1) _)` to the conclusion and delete the `Exists.imp`, which the
+proof already has in hand.  That would make this the genuine tied statement at the row and admit
+`ℚ₂(√−10)` to `CanonicalRecords` as a fifth row, modulo `MpcPivShift 2`.  Found by W84-HOUSE
+watch round 21.]** -/
 theorem mpcPiv_genAsmBranch_sqrtNegTen_of_shift (hshift : MpcPivShift 2)
     (B : MarkedRecip R KSqrtNegTen) :
     ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 := by

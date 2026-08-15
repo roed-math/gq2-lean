@@ -56,6 +56,19 @@ Three readings worth keeping.
    residual is assembled through `Instances.MpcRow.mpcRow_genAsmRowResidual_of_counting`, which
    derives it from `affineDeterminant_galK` and the field inputs' `ramifiedData`, with the two
    Gauss pins `rfl` at `standardNumerics`.  So the record costs **two** `ASK` blocks, not three.
+
+   [W84-HOUSE, as of `45f9c42d`: verified by elaboration, and one precision note for a reader
+   who greps rather than elaborates.  "Not a binder of any statement in §4 or §5" is about the
+   `ASK` determinant, the one at the carrier `galKProfinite K`, and that is exactly right: the
+   two `ASK` binders of both templates are `ExactLiftingSemantics` and `StokesDualityCertificate`
+   at `galKProfinite K`, and there is no third.  But `AffineDeterminantCertificate` DOES occur as
+   a binder in §5, in the analytic template `canRec_analytic_*`, at the carrier
+   `GammaR deg q word`: it is one of the four Γ-side analytic clauses, not an `ASK` block.  Both
+   templates measured: `canRec_rowResidual_<field>` carries `B`, `F`, `cand`, and the two `ASK`
+   blocks; `canRec_analytic_<field>` carries `B`, `FF`, `F`, the four Γ-side clauses
+   (`ExactLiftingSemantics`, `StokesDualityCertificate`, `ScalarHilbertCertificate`,
+   `AffineDeterminantCertificate`), and the same two `ASK` blocks.  Identical across all four
+   rows, which is reading 2 confirmed.]
 2. **The residue is uniform.**  The four analytic clauses are the same four on every row, at
    the row's own candidate carrier; there is no per-row analytic obligation left.
 3. **`ℚ₂(√−10)` is not here, and the reason is a statement.**  Its clause-free branch datum
@@ -63,6 +76,17 @@ Three readings worth keeping.
    `mpcPiv_nuZtwo`, not at `mpcNu`, and no comparison of the two exists at this tree, so it
    cannot be tied.  The tied statement at that row is `mpcPiv_genAsmBranch_sqrtNegTen_of_shift`,
    conditional on `MpcPivShift 2`.
+
+   ⚠⚠ **[W84-HOUSE, as of `45f9c42d`: the last sentence is FALSE at the statement level.**
+   `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` concludes
+   `∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0` and nothing more: it routes
+   through the strengthened site 5, which does name `mpcNu 2 1 (p true 1)`, but then **drops the
+   conjunct** with `Exists.imp (fun _ hG => hG.1)`.  So it is untied too, and it cannot be fed to
+   `canRec_rowResidual_of_tied` below.  `ℚ₂(√−10)` has no tied statement at this tree; the two
+   statements it does have differ in hypothesis, not in tie.  This does not change which four
+   rows this module serves, only the reason the fifth is absent: it is not that the marking is
+   wrong, it is that no `√−10` statement carries any marking at all.  The repair is one line at
+   `Instances/MpcPivot.lean` and is an owner item, recorded there.]**
 
 ## Axioms
 
