@@ -26,11 +26,15 @@ carries `s = 2^r` at the boundary letter `C̄₀`, where the compact marking `nu
 whose `C̄₀`-value is a unit, and wave 78's `fieldUni_pivotM_iff_level_zero` proved that being a
 unit is the same thing as `B.r = 0`.  So:
 
-> **No `MarkedCoreCertificateM` can exist at a field of level `r ≥ 1`.**
+> **No `MarkedCoreCertificateM` can exist at a field of level `r ≥ 1`**
+> (`mpcCert_isEmpty_certificateM_of_level`, proved, standard three axioms; the underlying
+> statement is `mpcCert_level_zero_of_certificateM`, "a compact `M` certificate forces
+> `B.r = 0`").
 
-That is the sharp form of wave 78 §2.3's finding.  Wave 77's `fieldId_genAsmBranch_sqrt{Ten,
-NegTen}` are not merely on the wrong row; the certificate type they produce is uninhabited at
-those fields.  The fix is a certificate against `mpcNu`, which is `MarkedCoreCertificateMpc`.
+That is the sharp form of wave 78 §2.3's finding, and it is now a theorem rather than a reading
+of one.  Wave 77's `fieldId_genAsmBranch_sqrt{Ten,NegTen}` are not merely on the wrong row: at
+level one the certificate type they produce is **uninhabited**.  The fix is a certificate against
+`mpcNu`, which is `MarkedCoreCertificateMpc`.
 
 ## 2.  T1: the producer
 
@@ -98,6 +102,9 @@ Two directions were landed so the row shape is not merely assumed:
 * `mpcCert_level_le_of_certificate`: **the certificate alone** forces `B.r ≤ r`, with no clause
   carried, because the corrected image of `C̄₀` lies in `ker χ_cyc` and carries `2^r` on the
   nose.
+* `mpcCert_level_zero_of_certificateM` and its contrapositive
+  `mpcCert_isEmpty_certificateM_of_level`: the same argument run at the *compact* certificate,
+  where the corrected `C̄₀`-value is `1`, gives §1's headline.
 
 Both at the standard three axioms.  The reverse inequality is not a theorem about the
 certificate (the level can be smaller than the row's `r` only if the field sits on a different

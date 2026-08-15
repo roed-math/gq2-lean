@@ -31,8 +31,9 @@ where the compact marking `mNu` carries `1`.  A `MarkedCoreCertificateM` is by d
 normalization of the transported marking to `nuM`, whose `C̄₀`-value is a **unit**; wave 78's
 `fieldUni_pivotM_iff_level_zero` says that is the same thing as `B.r = 0`.  Hence:
 
-> **No `MarkedCoreCertificateM` can exist at a field of level `r ≥ 1`.**  The procyclic rows
-> need a certificate against `mpcNu`, and that is what `MarkedCoreCertificateMpc` below is.
+> **No `MarkedCoreCertificateM` can exist at a field of level `r ≥ 1`**
+> (`mpcCert_isEmpty_certificateM_of_level`, §6).  The procyclic rows need a certificate against
+> `mpcNu`, and that is what `MarkedCoreCertificateMpc` below is.
 
 ## What is proved here
 
@@ -78,7 +79,8 @@ congruence of `MpcMarkedData` is the second of those read on the core (`χ_M(B̄
 * §5 the realization and the branch datum at `pres = .Mpc α r ε η 0`;
 * §6 the transport of the bundle's level onto the core, the two necessity directions
   (`mpcCert_level_le_of_pivot`, `mpcCert_level_le_of_certificate`: both the clause and the
-  certificate force `B.r ≤ r`), and the two fields;
+  certificate force `B.r ≤ r`), the uninhabitedness of the compact certificate at positive level
+  (`mpcCert_isEmpty_certificateM_of_level`), and the two fields;
 * §7 axiom pins.
 
 No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
@@ -493,6 +495,27 @@ theorem mpcCert_level_le_of_certificate {B : MarkedRecip Rec K} {α r pp : ℕ} 
     exact hy
   exact mpcCert_le_of_two_pow_eq isUnit_one hval
 
+/-- **A compact `M` certificate forces level zero.**  Its correction normalizes the transported
+marking to `nuM`, whose `C̄₀`-value is `1`, and `C̄₀` lies in `ker χ_M`; wave 78's criterion then
+collapses the level.  This is the sharp form of wave 78 §2.3: it is not that wave 77's `M0`
+branch data at `ℚ₂(√10)` and `ℚ₂(√−10)` sit on the wrong row, but that the certificate type
+they produce is **uninhabited** at any field of positive level. -/
+theorem mpcCert_level_zero_of_certificateM {B : MarkedRecip Rec K} {α h : ℕ} {hα1 : 1 ≤ α}
+    (C : MarkedCoreCertificateKTwoM B α h hα1) : B.r = 0 := by
+  have hchi : chiCycKTwo (K := K) (C.abstractEquiv (C.correction (dmC α h))) = 1 :=
+    (C.orientation _).trans ((C.correction_chi _).trans (chiM_dmC α h))
+  have hnu : toAdd (nuUrKTwo B (C.abstractEquiv (C.correction (dmC α h)))) = 1 := by
+    rw [show nuUrKTwo B (C.abstractEquiv (C.correction (dmC α h)))
+      = nuM α h hα1 (dmC α h) from C.correction_nu (dmC α h), nuM_dmC, toAdd_ofAdd]
+  exact fieldUni_level_eq_zero_of_chiKerTwo B hchi (hnu ▸ isUnit_one)
+
+/-- **No compact `M` certificate exists at a field of positive level.**  The contrapositive of
+`mpcCert_level_zero_of_certificateM`, and the reason this module exists: at `B.r = 1` the
+procyclic certificate is the only marked-core certificate available on an `M`-family row. -/
+theorem mpcCert_isEmpty_certificateM_of_level {B : MarkedRecip Rec K} {α h : ℕ} {hα1 : 1 ≤ α}
+    (hr : B.r ≠ 0) : IsEmpty (MarkedCoreCertificateKTwoM B α h hα1) :=
+  ⟨fun C => hr (mpcCert_level_zero_of_certificateM C)⟩
+
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
 
 /-- **`ℚ₂(√10)`'s remaining input**, at wave 77's chosen oriented equivalence: the level is `1`
@@ -536,7 +559,8 @@ lane introduces no axiom of its own.
   realization, and §6's transport lemmas.  In particular `mpcCert_shift_mem`, the invariance
   principle, costs no axiom: it is
   bundle arithmetic; so do `mpcCert_level_le_of_pivot` and
-  `mpcCert_level_le_of_certificate`, the two necessity directions.
+  `mpcCert_level_le_of_certificate`, the two necessity directions, and
+  `mpcCert_isEmpty_certificateM_of_level`.
 * **Plus `peripheralCyclotomicAction`** on `mpcCert_markedMatching` and everything downstream of
   it (both certificate producers, the branch-datum producer, the two field rows).  The single
   source is `MScaling.mScalingHypothesis_zero`, the M3 row.  This is the same axiom wave 78's
@@ -580,6 +604,8 @@ section AxiomPins
 #print axioms mpcCert_le_of_two_pow_eq
 #print axioms mpcCert_level_le_of_pivot
 #print axioms mpcCert_level_le_of_certificate
+#print axioms mpcCert_level_zero_of_certificateM
+#print axioms mpcCert_isEmpty_certificateM_of_level
 #print axioms MpcRowData_sqrtTen
 #print axioms MpcRowData_sqrtNegTen
 #print axioms mpcCert_genAsmBranch_sqrtTen
