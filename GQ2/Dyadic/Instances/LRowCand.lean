@@ -241,4 +241,47 @@ theorem lCand_row_isProP (h : ℕ) : genAsmCoreIsProP (.L h) = SqCore.isProP_DSq
 
 end Producer
 
+/-! ## §3 The `h = 0` sanity check
+
+The producer must not have drifted off the committed `n = 1` endpoint.  Three checks, all of
+which the elaborator performs:
+
+1. the **word-layer fields recover verbatim**: `lCandCoreRel 0` and `lCandProTwoWord 0` are the
+   committed `QTwo.coreRelLSq` and `QTwo.proTwoWord_lSq` on the nose (both sides are
+   `SqCore.sqRelWord ∘ sqIdxMark` and Gate C's headline at `h = 0`);
+2. the producer's **output type at `h = 0` is the type the committed `L 0` closure inhabits**,
+   so `genCert_wordCertificate_nonempty_L_zero` typechecks against it directly;
+3. the row pins of §2 hold at `h = 0` by the same `rfl`s.
+
+⚠ **What the check does not say, and this is a finding worth carrying.**  The committed `h = 0`
+closure lives at the marking `genCertLNu = ν₂ ∘ genCertLEquiv`, i.e. at the *transported* `Π`
+marking, and `GeneralCertificates` §5's own docstring records that this is **not** claimed to be
+the canonical `lNu 0` and that no comparison is available at this tree.  So check 2 is at
+`genCertLNu`, not at `lNu 0`: the unconditional `h = 0` certificate and the canonical-marking
+producer `lCand_wordCertificateCanonical` are at *different* markings, and the composite
+"unconditional certificate at `lNu 0`" is **not** available even at `h = 0`.  That matters
+downstream, because the branch datum the odd route builds
+(`genAsm_branch_of_oddSq_canonical`) is at `lNu h`; see §4. -/
+
+section ZeroCheck
+
+/-- **Check 1a**: the `coreRel` field recovers the committed `n = 1` one verbatim. -/
+theorem lCand_zero_coreRel : lCandCoreRel 0 = QTwo.coreRelLSq := rfl
+
+/-- **Check 1b**: and so does `proTwoWord` (both are Gate C's headline at `h = 0`). -/
+theorem lCand_zero_proTwoWord (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking 1 G) :
+    lCandProTwoWord 0 G t = QTwo.proTwoWord_lSq G t := rfl
+
+/-- **Check 2**: the producer's target type at `h = 0` is exactly the type of the committed
+`L 0` closure, so the committed theorem typechecks against it with no massaging.  (This is the
+`h = 0` regression the lane owes: it fails the moment the degree, the word, the core or the
+`IsProP` witness drifts.) -/
+theorem lCand_zero_nonempty :
+    Nonempty (WordCertificate (2 * 0 + 1) 2 (lSqW 0) (SqCore.DSq 0) (SqCore.isProP_DSq 0)
+      genCertLNu (standardNumerics (2 * 0 + 1))) :=
+  genCert_wordCertificate_nonempty_L_zero
+
+end ZeroCheck
+
 end GQ2.Dyadic.Instances.LRowCand
