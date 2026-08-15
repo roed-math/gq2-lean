@@ -136,6 +136,14 @@ all fix the `C̄₀`-row.  One nonzero `γ₁` is enough, and only one:
 > equivalence already has the pivot; if it is even, one application adds `2b` with `b` odd and
 > lands on valuation exactly one.
 
+That move is also **necessary**, not merely sufficient, and this is what makes the reduction
+sharp.  `mpcPiv_orbit_shape` is `mpcPiv_kerChi_le` read at `Ψ(C̄₀)` (which lies in `ker χ_M`
+because `Ψ` preserves `χ_M`): *every* χ-preserving automorphism moves the pivot row inside
+`ν'(C̄₀)ℤ₂ + 2ν'(B̄)ℤ₂`.  And `mpcPiv_shift_necessary`: if the chosen marking misses the pivot
+outright (`ν'(C̄₀) ∈ 4ℤ₂`) then any `Ψ` achieving it has an **odd** `B̄`-coefficient on its
+`C̄₀`-row.  So the row lands **iff** the `M6` direction is available at some odd parameter: the
+first summand above is M3 scaling, which the tree has and which cannot change a valuation.
+
 `MpcPivShift` **is** MC1 §5.3's `M6` at `c₁ = 1` (`docs/dyadic/mc-design.md:211`,
 `Y_c : C̄₀ ↦ B̄^{2c₁}·C̄₀`).  The tree's own ruling on it is negative and explicit
 (`CoreMixM.lean` §7): `⟨M4, M6, M7⟩` are "structurally obstructed rather than merely unbuilt

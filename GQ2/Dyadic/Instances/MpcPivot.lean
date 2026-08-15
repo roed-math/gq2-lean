@@ -41,7 +41,9 @@ give.
 4. **The named residual, and the branch datum over it** (§5).  `MpcPivShift`, MC1 §5.3's family
    `M6` (`Y_c : C̄₀ ↦ B̄^{2c₁}·C̄₀`, `docs/dyadic/mc-design.md:211`) at parameter one, is enough:
    `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` produces the `√−10` branch datum **at the row's own
-   canonical marking** over it and nothing else.
+   canonical marking** over it and nothing else.  It is also *necessary*: every χ-preserving
+   automorphism moves the pivot row inside `ν'(C̄₀)ℤ₂ + 2ν'(B̄)ℤ₂` (`mpcPiv_orbit_shape`), and in
+   the failing case only an odd `B̄`-coefficient can rescue it (`mpcPiv_shift_necessary`).
 
 5. **The branch datum, unconditionally, but untied** (§6).  `GenAsmBranch` does not pin `nuP` to
    the row's canonical marking: the field is "a construction, not an obligation"
@@ -380,6 +382,46 @@ theorem mpcPiv_orbit_of_shift (hshift : MpcPivShift 2)
       by rw [show (ContinuousMulEquiv.refl (DM 2 0 : Type)) (dmC 2 0) = dmC 2 0 from rfl, hc, hw,
         IsUnit.unit_spec, pow_one]; ring⟩
 
+/-- **The orbit of `C̄₀` has exactly one free direction.**  `mpcPiv_kerChi_le` at `Ψ(C̄₀)`, which
+lies in `ker χ_M` because `Ψ` preserves `χ_M` and `χ_M(C̄₀) = 1`: *every* χ-preserving
+automorphism moves the pivot row inside `ν'(C̄₀)·ℤ₂ + 2·ν'(B̄)·ℤ₂`.  The first summand is M3
+scaling, which the tree has; the second is `M6`, which it does not. -/
+theorem mpcPiv_orbit_shape (nu' : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]))
+    (Psi : ContinuousMulEquiv (DM 2 0 : Type) (DM 2 0 : Type))
+    (hPsi : ∀ x, chiM 2 0 (Psi x) = chiM 2 0 x) :
+    ∃ m y : ℤ_[2], toAdd (nu' (Psi (dmC 2 0)))
+      = m * toAdd (nu' (dmC 2 0)) + 2 * y * toAdd (nu' (dmB 2 0)) :=
+  mpcPiv_kerChi_le nu' (by rw [hPsi]; exact chiM_dmC 2 0)
+
+/-- **`M6` IS NECESSARY, NOT MERELY SUFFICIENT.**  Suppose the marking misses the pivot outright
+(`ν'(C̄₀) ∈ 4ℤ₂`) on an `ε = true` row (`ν'(B̄)` odd).  Then any χ-preserving automorphism that
+*does* achieve the pivot has an **odd** `B̄`-coefficient on its `C̄₀`-row: it is `M6` at an odd
+parameter, composed with whatever the tree already has.  Together with `mpcPiv_orbit_of_shift`
+this pins the residual exactly: the `√−10` row lands if and only if the `M6` direction is
+available at some odd parameter. -/
+theorem mpcPiv_shift_necessary (nu' : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2]))
+    {z β : ℤ_[2]} (hC : toAdd (nu' (dmC 2 0)) = 4 * z)
+    (hB : toAdd (nu' (dmB 2 0)) = 1 + 2 * β)
+    (Psi : ContinuousMulEquiv (DM 2 0 : Type) (DM 2 0 : Type))
+    (hPsi : ∀ x, chiM 2 0 (Psi x) = chiM 2 0 x)
+    (hpiv : ∃ γ : ℤ_[2]ˣ, toAdd (nu' (Psi (dmC 2 0))) = (γ : ℤ_[2]) * 2 ^ 1) :
+    ∃ m y w : ℤ_[2], toAdd (nu' (Psi (dmC 2 0)))
+        = m * toAdd (nu' (dmC 2 0)) + 2 * y * toAdd (nu' (dmB 2 0)) ∧ y = 1 + 2 * w := by
+  obtain ⟨γ, hγ⟩ := hpiv
+  obtain ⟨m, y, hmy⟩ := mpcPiv_orbit_shape nu' Psi hPsi
+  refine ⟨m, y, ?_⟩
+  rcases mpcRow_even_or_odd y with ⟨y', hy'⟩ | ⟨w, hw⟩
+  · exfalso
+    rw [hγ, hC, hB, hy'] at hmy
+    have h2 : (2 : ℤ_[2]) * (γ : ℤ_[2])
+        = 2 * (2 * (m * z) + 2 * y' + 4 * (y' * β)) := by linear_combination hmy
+    have hcancel := mul_left_cancel₀ (by norm_num : (2 : ℤ_[2]) ≠ 0) h2
+    have hval : (γ : ℤ_[2]) * 2 ^ 0 = 2 ^ 1 * (m * z + y' + 2 * (y' * β)) := by
+      rw [pow_zero, mul_one, pow_one]
+      linear_combination hcancel
+    exact absurd (mpcCert_le_of_two_pow_eq γ.isUnit hval) (by omega)
+  · exact ⟨w, hmy, hw⟩
+
 end Shift
 
 /-! ## §6 The two `√−10` statements
@@ -503,6 +545,8 @@ section AxiomPins
 #print axioms mpcPiv_pivot_iff_orbit
 #print axioms MpcPivShift
 #print axioms mpcPiv_orbit_of_shift
+#print axioms mpcPiv_orbit_shape
+#print axioms mpcPiv_shift_necessary
 #print axioms mpcPiv_rows_sqrtNegTen
 #print axioms mpcPiv_genAsmBranch_sqrtNegTen_of_shift
 #print axioms mpcPiv_nuZtwo
