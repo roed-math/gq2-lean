@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
+import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.Main
 
 /-!
@@ -131,5 +132,207 @@ theorem genAsm_degree_parity (S : SelectedPresentation) :
   | Mpc _ _ _ _ h => simpa [genAsmIsEven, SelectedPresentation.degree] using ⟨1 + h, by ring⟩
 
 end Column
+
+/-! ## §2 The selector / obligation split
+
+`Main.lean`'s five records mix two kinds of field.  Some are **obligations**: statements the
+campaign owes at every field on the row.  Others are **selectors**: they assert that `G_K(2)`
+*is* this row's core at this row's parameters, which no theorem can supply at an arbitrary
+ramified-`i` `K` because a `K` of the wrong degree or the wrong branch is simply not on the
+row.  The critical-path memo counts seven selector fields in the pilot record
+(`hdeg`, `fLab`, `piAb`, `hpiAb`, `hpiNu`, `horient`, `hpair`).
+
+Here the two are separate types.  `GenAsmBranch` is the selector; `GenAsmRowResidual` is the
+obligation surface; `GenAsmFieldInputs` is the row-independent field-side block, `n`-free.
+
+The selector is carried in the **direct `G_K(2)` spelling** (`MarkedCoreRealization`, whose
+`nu_equiv` clause is stated at `nuUrKTwo B` on `maxProPQuotient 2 (GalK K)`), not in the
+pilot's abelianization spelling.  That is the memo's §1.5 finding acted on: the even route
+delivers `OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K))`, which unpacks to
+the `marked_matching_certificate_KTwoN` clause and not to the pilot's, and the three
+abelianization fields `piAb`/`hpiAb`/`hpiNu` do not exist in this spelling at all. -/
+
+section Split
+
+variable (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
+
+/-- **The row-independent field-side inputs, `n`-free** — `Main.lean`'s `FieldInputs` with
+`params_n : params.n = 2` replaced by `params_n : params.n = n`.  Every other field is already
+degree-free and is reproduced verbatim; in particular `ramified` is the standing hypothesis
+that *selects* `K` and is never to be discharged. -/
+structure GenAsmFieldInputs (n : ℕ) where
+  /-- AX4's oriented tame quotient of `G_K` at `q_K` (bundle, not axiom). -/
+  T : OrientedTameQuotientK B FF
+  /-- F1's field-parameter package for `K`. -/
+  params : FieldParameters
+  /-- The slot's degree is the family member's degree (`2` in the frozen table). -/
+  params_n : params.n = n
+  /-- The slot's tame modulus is the residue cardinality `q_K = 2^f`. -/
+  params_qK : params.qK = qOf K FF
+  /-- The standing ramified-`i` hypothesis (AX3 memo Q4 field-language spelling). -/
+  ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi
+  /-- LG5's ramified-marking input (packet §12). -/
+  ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+    (V : Type) [AddCommGroup V] [DistribMulAction D V]
+    (c : ContinuousMonoidHom (Tq params.qK) D)
+    (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+    (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+      Nonempty (RamifiedCertificate params (GalKsub K) V c rho)
+
+/-- **The general branch datum**: the family member `K` sits on, together with the
+identification that places it there.
+
+* `pres` — the R5 constructor-table row at free `(α, r, ε, η, h)`.  It carries the branch
+  (`L`/`N0`/`Npc`/`M0`/`Mpc`), the parameters, the handle count, the degree, and the word.
+* `hdeg` — degree coherence: `[K : ℚ₂]` is the row's degree, hence `1 + 2h` odd on the `L` row
+  and `2 + 2h` even on the other four (`genAsm_degree_odd`, `genAsm_degree_even`).
+* `nuP`/`hnuP` — the core's `Ztwo` marking.  Not an obligation: it is a *construction*, landed
+  at `lNu h`, `mNu α h`, `mpcNu α r p` (the memo's item 8), with surjectivity from
+  `dmNu_surjective`-style arguments.
+* `realization` — the classification output in the direct `G_K(2)` spelling: a continuous
+  equivalence `core ≃ G_K(2)` whose `Ztwo` coordinate is the canonical unramified character.
+  This single field is what the pilot record spends six fields on, and it is exactly what
+  `KSupply.ofMarkedCoreRealization` consumes.
+
+⚠ **Not an obligation record.**  A `GenAsmBranch` is a *hypothesis about which family member
+`K` is*, and no theorem produces one at an arbitrary ramified-`i` `K`. -/
+structure GenAsmBranch where
+  /-- The R5 constructor-table row: branch, parameters, handle count, degree, word. -/
+  pres : SelectedPresentation
+  /-- Degree coherence: `[K : ℚ₂]` is the row's degree. -/
+  hdeg : Module.finrank ℚ_[2] K = pres.degree
+  /-- The core's `Ztwo` marking (a construction, not an obligation). -/
+  nuP : ContinuousMonoidHom ((genAsmCore pres : ProfiniteGrp) : Type) Ztwo
+  /-- The marking is onto (landed at every canonical marking). -/
+  hnuP : Function.Surjective nuP
+  /-- **The classification selector**, `KTwoN`/`KTwoM`/`KTwoSq` spelling: `core ≃ G_K(2)`,
+  `Ztwo`-compatibly. -/
+  realization : MarkedCoreRealization (K := K) (B := B) (genAsmCore pres) nuP
+
+variable {K B FF}
+
+namespace GenAsmBranch
+
+variable (G : GenAsmBranch K B)
+
+/-- The degree of the row `K` sits on. -/
+abbrev degree : ℕ := G.pres.degree
+
+/-- The frozen word of the row `K` sits on. -/
+noncomputable abbrev word : PWord (Generator G.degree) := G.pres.word
+
+/-- The presented pro-`2` core of the row `K` sits on. -/
+noncomputable abbrev core : ProfiniteGrp := genAsmCore G.pres
+
+/-- The core is pro-`2`. -/
+theorem coreIsProP : IsProP 2 ((G.core : ProfiniteGrp) : Type) := genAsmCoreIsProP G.pres
+
+/-- The pro-`2` coordinate `G_K ↠ core` induced by the selector — the composite
+`G_K ↠ G_K(2) ≃ core`.  This is `KSupply`'s `pro2` field, *derived* rather than assumed. -/
+noncomputable abbrev pro2 : ContinuousMonoidHom (GalK K) G.core := G.realization.pro2
+
+end GenAsmBranch
+
+/-- **The general residual record**: what the campaign owes at every ramified-`i` `K` that the
+branch datum places on the row.  Two blocks, following the critical-path memo's taxonomy.
+
+**ASK** (`GQ2/Dyadic/Instances/KSupply.lean`), the arithmetic counting pack at the carrier
+`galKProfinite K`, field names taken from the committed `KSupply`:
+
+* `exactLifting` — ledger field 3 at `G_K`: `#LiftsOver`, the half-torsor count, stage (136).
+  The `ℚ₂` ancestors are `liftsOver_card_local` and `lemma_8_6_local`; `KSupply.lean` narrows
+  the second to one existential, the `K` analogue of `half_torsor_local`.
+* `stokes` — ledger field 4 at `G_K`: `tcocycle_card`, separation, nondegeneracy, `#Z¹(V)`.
+* `determinant` — ledger field 6 at `G_K`: the Gauss-`Z` residue at both heads.  ⚠⚠ The
+  LG5 ⇒ `GaussZResidueK` rung has no `K` clone and no owner lane.
+
+Ledger field 5 (`ScalarHilbertCertificate` at `G_K`) is **absent by design**: `KSupply.lean`
+§3 proves it (`scalarHilbert_galK`), and the proof is `n`-free, so it stays discharged here.
+The `hdeg`/`hhom` pins are absent too: `hdeg` moved to the branch datum where it belongs (it is
+a selector), and `hhom` is `rfl` at `standardNumerics` in every degree.
+
+**CAND**, the candidate-side clause layer at the general candidate carrier: one field, the
+`WordCertificate` over the row's own slot.  It is carried whole rather than split into the four
+analytic clauses because the four-clause producers are per-branch and do not exist on every
+row; see §4 for exactly which rows have one. -/
+structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B FF) where
+  /-- **ASK, ledger field 3** at `G_K`. -/
+  exactLifting : ExactLiftingSemantics (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
+    (standardNumerics G.degree)
+  /-- **ASK, ledger field 4** at `G_K`. -/
+  stokes : StokesDualityCertificate (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
+    (standardNumerics G.degree) (smulZmod2GalK K)
+  /-- **ASK, ledger field 6** at `G_K`.  ⚠⚠ No `K` clone of the LG5 ⇒ `GaussZResidueK` rung. -/
+  determinant : AffineDeterminantCertificate (galKProfinite K) G.degree (qOf K FF) G.core
+    G.nuP (standardNumerics G.degree) T.tameFK G.pro2
+    (fun g => T.compatF_K G.pro2 G.nuP G.realization.nu_compat g) (smulZmod2GalK K)
+  /-- **CAND**: the candidate-side certificate over the row's own slot. -/
+  cand : WordCertificate G.degree (qOf K FF) G.word G.core G.coreIsProP G.nuP
+    (standardNumerics G.degree)
+
+end Split
+
+/-! ## §3 The general-degree statement
+
+The `n`-free analogue of `Main.lean`'s `ramifiedI_candidate_equiv_galK`.  Two forms: the
+classification-facing one, whose selector is the `KTwoN`-spelled equivalence, and the
+supply-facing one, which is `Main.lean` §6's row-uniform theorem lifted off `n = 2` and onto
+the whole constructor table.
+
+Neither theorem proves anything new.  Both are the assembly step: `candidate_equiv_galK_of_supply`
+(`KSupply.lean:451`, already `n`-free) at the general slot.  What is new is that the slot is
+now free and the obligations are named. -/
+
+section Statement
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- **The supply-facing general theorem** — `Main.lean` §6's
+`candidate_equiv_galK_of_frozenRow_certificates` with the frozen quadratic table replaced by
+the whole R5 constructor table at free `(α, r, ε, η, h)`, and `n = 2` replaced by the row's own
+degree.  One statement, no case analysis, uniform in the row *and* in the degree. -/
+theorem genAsm_candidate_equiv_galK_of_supply (S : SelectedPresentation)
+    {T : OrientedTameQuotientK B FF}
+    (nuP : ContinuousMonoidHom ((genAsmCore S : ProfiniteGrp) : Type) Ztwo)
+    (hnuP : Function.Surjective nuP)
+    (W : WordCertificate S.degree (qOf K FF) S.word (genAsmCore S) (genAsmCoreIsProP S) nuP
+      (standardNumerics S.degree))
+    (KS : KSupply T S.degree (genAsmCore S) (genAsmCoreIsProP S) nuP
+      (standardNumerics S.degree))
+    (F : GenAsmFieldInputs K B FF S.degree) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup S.degree (qOf K FF) S.word : ProfiniteGrp) : Type) (GalK K)) :=
+  candidate_equiv_galK_of_supply W KS F.params F.params_n F.params_qK F.ramified
+    F.ramifiedData hnuP
+
+/-- **The general-degree final theorem** (the `n`-free analogue of
+`ramifiedI_candidate_equiv_galK`).
+
+For a finite `K/ℚ₂` carrying the ramified-`i` hypothesis (`F.ramified`) and a branch datum `G`
+placing `K` on a member of the R5 family — its degree, its `(α, h)` or `h`, its branch and
+sign, and the identification of `G_K(2)` with that member's core — the candidate group at
+`q_K` over the member's word presents `G_K`, given the general residual record:
+
+`Γ_{R_S} = ⟨σ, τ, x₀ … x_n ∣ τ^σ = τ^{q_K}, R_S = 1, ⟪x⟫ pro-2⟩_prof ≅ G_K`.
+
+⚠ **This is a statement, not a closed result.**  Every genuinely open item is a field of
+`GenAsmRowResidual` or a field of `GenAsmFieldInputs`; nothing here is claimed proved that is
+not.  What the proof *does* is the assembly: the branch datum's `realization` supplies
+`KSupply`'s four pro-`2` data fields (`KSupply.ofMarkedCoreRealization`, already committed) and
+the residual supplies its three clause fields, after which `candidate_equiv_galK_of_supply`
+closes.  §4 reconciles the record field by field against `Main.lean`'s five. -/
+theorem genAsm_candidate_equiv_galK (G : GenAsmBranch K B)
+    (F : GenAsmFieldInputs K B FF G.degree) (S : GenAsmRowResidual G F.T) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup G.degree (qOf K FF) G.word : ProfiniteGrp) : Type) (GalK K)) :=
+  genAsm_candidate_equiv_galK_of_supply G.pres G.nuP G.hnuP S.cand
+    (KSupply.ofMarkedCoreRealization G.hdeg rfl G.realization S.exactLifting S.stokes
+      S.determinant) F
+
+end Statement
 
 end GQ2.Dyadic
