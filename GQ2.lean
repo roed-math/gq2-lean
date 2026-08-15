@@ -858,3 +858,4 @@ import GQ2.Dyadic.Main
 import GQ2.Dyadic.GeneralAssembly
 import GQ2.Dyadic.GeneralCertificates
 import GQ2.Dyadic.Instances.FieldBranchIdentification
+import GQ2.Dyadic.Instances.FieldUnimodularity
