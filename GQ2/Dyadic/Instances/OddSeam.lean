@@ -952,6 +952,10 @@ section AxiomPins
 
 #print axioms oddSeamT
 #print axioms oddSeamHandleIdx
+#print axioms oddSeamHandleIdx_val
+#print axioms OddSeamModel
+#print axioms oddSeam_nsmul_eq_zero
+#print axioms oddSeamFinOrder_model
 #print axioms oddSeamOne_ne_handleIdx
 #print axioms oddSeamTwo_ne_handleIdx
 #print axioms oddSeamCoreMark
