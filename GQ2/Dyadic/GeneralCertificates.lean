@@ -775,4 +775,83 @@ theorem genCertNpc_row_core (alpha r h : ℕ) (eta : EtaData) :
 
 end NpcRow
 
+/-! ## §9 Axiom pins
+
+One pin per declaration of this file, **44** in all, in declaration order.  The pins were
+measured when the module landed (`docs/dyadic/w76-cert-note.md` §6) but were never recorded
+here; this block is the record.  Adding these lines changes no statement.
+
+⚠ **This file is not uniformly std-3, and the split is the point.**  Measured against the mirror
+at `e6bbd2b9`:
+
+* **42 of the 44** print at most the std-3 set `propext, Classical.choice, Quot.sound`.  That is
+  every §1 to §4 transport, `WordCertificate.genCertTransport` itself, and all four row
+  producers.  Two of the 42 print less than std-3: `genCert_L_zero_degree` prints **no** axioms
+  at all, and `genCertNCoreMark` prints `propext, Quot.sound`.
+* **2 carry campaign axioms**, and both are in §5, the `L`-row acceptance test, which is the one
+  place this module touches arithmetic rather than plumbing:
+  - `genCert_wordCertificate_nonempty_L_zero` adds `dyadicOrientation`, `localReciprocity` and
+    `peripheralCyclotomicAction`;
+  - `genCert_candidate_equiv_galK_L_zero` adds those three plus `tateDualityAt`,
+    `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` and
+    `Foundations.absGalQ2_localEulerCharacteristic`, the widest pin in the file.
+
+Each of the two is exactly the print of its own input (`wordCertificate_nonempty_lSq`; that set
+united with `genAsm_candidate_equiv_galK_of_supply`'s), so the transports cost **zero** axiom
+movement.  The reading a consumer should take: **the certificate plumbing and all four row
+producers are axiom-free, and the campaign axioms enter only at the acceptance test.**
+
+⚠ **Count correction.**  `w76-cert-note.md` §6 groups the same four exceptional declarations
+correctly but calls the std-3 remainder "the other 44"; the remainder is **40** and the file has
+**44** declarations, not 48.  The four sets it names reproduce here exactly. -/
+
+section AxiomPins
+
+#print axioms genCertBdHom
+#print axioms genCertFramePull
+#print axioms genCertHomOfEquiv
+#print axioms genCertBdPull
+#print axioms genCertFrameMap_pull
+#print axioms genCert_isBoundaryLiftK_congr
+#print axioms genCertBdLiftEquiv
+#print axioms genCert_exactImageCountK_congr
+#print axioms genCert_mBK_congr
+#print axioms genCert_gaussZResidueK_congr
+#print axioms genCert_exactLiftingSemantics_pull
+#print axioms genCert_stokes_pull
+#print axioms genCertCompat
+#print axioms genCert_determinant_pull
+#print axioms WordCertificate.genCertTransport
+#print axioms genCertLEquiv
+#print axioms genCertLNu
+#print axioms genCertLNu_surjective
+#print axioms genCert_L_zero_degree
+#print axioms genCert_wordCertificate_nonempty_L_zero
+#print axioms genCert_candidate_equiv_galK_L_zero
+#print axioms genCertNCoreMark
+#print axioms genCertNCoreRel
+#print axioms genCertNProTwoWord
+#print axioms genCertNPro2
+#print axioms genCertN_ker_pro2
+#print axioms genCertNPro2_surjective
+#print axioms genCertNTameSpecializes
+#print axioms genCertNCompat
+#print axioms genCertNWordCertificate
+#print axioms genCertNNuZtwo_surjective
+#print axioms genCertNWordCertificateCanonical
+#print axioms genCertN_row_word
+#print axioms genCertN_row_core
+#print axioms WordCertificate.genCertWordTransport
+#print axioms GenCertMpcDisplayWordEq
+#print axioms genCertMpcDisplayWordEq_hat
+#print axioms genCertMpcCore
+#print axioms genCertMpcWordCertificate
+#print axioms genCertMpc_row_word
+#print axioms genCertMpc_row_core
+#print axioms genCertNpcWordCertificate
+#print axioms genCertNpc_row_word
+#print axioms genCertNpc_row_core
+
+end AxiomPins
+
 end GQ2.Dyadic
