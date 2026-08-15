@@ -487,13 +487,17 @@ theorem gDecideMarkS_good : GDecideGoodMark (gDecideMarkS h) :=
     by rw [gDecideMarkS, sqMark_two], fun j => by rw [gDecideMarkS, sqMark_handleU],
     fun j => by rw [gDecideMarkS, sqMark_handleV]⟩
 
-/-- ⭐⭐⭐ **The `x₀` class is not reachable**: `⁅⁅x₁, x₀⁆, x₁⁆ ∉ gTowerReach h ν' 2`. -/
+/-- ⭐⭐⭐ **The `x₀` class is not reachable**:
+`⁅⁅x₁, x₀⁆, x₁⁆ ∉ gTowerReach h (gDecideNu h) 2`, at the selected marking of §6.  (One marking
+is all a refutation of the marking-quantified `GBaseResidual h` needs; §7's last theorem gives
+`h = 0` at every marking.) -/
 theorem gDecide_x0_not_mem :
     commP (commP (gBaseT h) (gBaseX h)) (gBaseT h) ∉ gTowerReach h (gDecideNu h) 2 :=
   gDecide_triple_not_mem (gDecideMarkX_rel h) (gDecideMarkX_good h) (gDecideNu_handleU h)
     (gDecideNu_handleV h) (i := 1) (by rw [gDecideMarkX, sqMark_one])
 
-/-- ⭐⭐⭐ **The `σ` class is not reachable**: `⁅⁅x₁, σ⁆, x₁⁆ ∉ gTowerReach h ν' 2`. -/
+/-- ⭐⭐⭐ **The `σ` class is not reachable**:
+`⁅⁅x₁, σ⁆, x₁⁆ ∉ gTowerReach h (gDecideNu h) 2`, at the same selected marking. -/
 theorem gDecide_sigma_not_mem :
     commP (commP (gBaseT h) (gBaseS h)) (gBaseT h) ∉ gTowerReach h (gDecideNu h) 2 :=
   gDecide_triple_not_mem (gDecideMarkS_rel h) (gDecideMarkS_good h) (gDecideNu_handleU h)
