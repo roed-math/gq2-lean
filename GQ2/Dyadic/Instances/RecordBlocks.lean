@@ -170,6 +170,7 @@ private theorem yLower_le_lcs (P : Subgroup Y) :
       rw [Subgroup.lowerCentralSeries_succ, Subgroup.commutator_comm]
       exact Subgroup.commutator_mono le_rfl (yLower_le_lcs P n)
 
+omit [Finite Y] in
 /-- **No nilpotent group carries a §7 minimal block.**
 
 The block asks for a chief factor `P/S` of `Y` inside the marked kernel on which `Y` acts
@@ -181,7 +182,6 @@ the last step `S ⊔ ⊥ = P` reads `S = P`, against `S < P`.
 This is what closes the cheap route to ticket T1: every finite 2-group is nilpotent, so no
 surjection of the candidate carrier onto a finite 2-group can carry a refuting frame, whatever
 `H`, `E`, `b` and `F` are chosen alongside it. -/
-omit [Finite Y] in
 theorem recBl_minimalBlock_isEmpty_of_nilpotent [Group.IsNilpotent Y] (L : Subgroup Y) :
     IsEmpty (MinimalBlock L) := by
   refine ⟨fun B => ?_⟩
@@ -224,6 +224,7 @@ theorem recBl_minimalBlock_isEmpty_of_isPGroup {p : ℕ} [Fact (Nat.Prime p)] (h
   haveI := hY.isNilpotent
   recBl_minimalBlock_isEmpty_of_nilpotent L
 
+omit [Finite Y] in
 /-- **No exponent-2 group carries a §7 minimal block.**  Exponent 2 forces commutativity, and a
 commutative group is nilpotent of class at most one.  This is the form that applies to
 `Base ⧸ datum.M`, the target of every `datumRho`. -/
@@ -293,7 +294,6 @@ theorem recBl_stokes_standard_congr {Gam : ProfiniteGrp} {n m : ℕ} {P : Profin
     StokesDualityCertificate Gam m q P nuP (standardNumerics m) smul := by
   subst hnm; exact S
 
-set_option maxHeartbeats 1200000 in
 /-- **Conjunct 1 at the compact-`M` candidate**: the `T`-cocycle count at every recursion frame.
 Transcription of `LSquare.tcocycle_of_uniformPushed`. -/
 theorem recBl_mCand_tcocycle (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
@@ -344,7 +344,6 @@ theorem recBl_mCand_tcocycle (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
     (rhoPrimeK_surjective RF b F D rfl ρ) (MCompact.degree h)
     (hsimp (RF.YB ⧸ D.M) rho (Additive ↥D.T) (radT_add_self D)) hb.2
 
-set_option maxHeartbeats 1200000 in
 /-- **Conjunct 2 at the compact-`M` candidate**: the `(T^∨)^C` separation clause, via the
 word-side marking route.  Transcription of `LSquare.hsep_of_uniformPushed`. -/
 theorem recBl_mCand_hsep (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
@@ -391,7 +390,6 @@ theorem recBl_mCand_hsep (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
     hres2 hresT (hsimp (RF.YB ⧸ D.M) rho (Additive ↥D.T) (radT_add_self D))
     hb.2 c hvan
 
-set_option maxHeartbeats 1600000 in
 /-- Right separation for the descent module at the compact-`M` candidate: the fork feeding
 conjunct 3.  Transcription of `LSquare.hrsep_of_uniformPushed`. -/
 theorem recBl_mCand_hrsep (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
@@ -475,7 +473,6 @@ theorem recBl_mCand_hrsep (hsimp : UniformPushedHsimp α h q) (hqe : Even q)
     (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hwild
     hresS hresP hresD hb.1 hsd hb.2 (Vmod_exp2 DD)
 
-set_option maxHeartbeats 1600000 in
 /-- **Conjunct 3 at the compact-`M` candidate**: the nonzero-character obstruction.
 Transcription of `LSquare.hpartial_of_uniformPushed`; `1 ≤ α` and `q ≠ 0` enter here, through
 `MCompact.cardH2_of_uniformPushed`. -/
@@ -500,7 +497,6 @@ theorem recBl_mCand_hpartial (hsimp : UniformPushedHsimp α h q) (hα : 1 ≤ α
     (scalarActionZmodTwo_triv _) (cardH2_of_uniformPushed hsimp hα hq0 hqe)
     (recBl_mCand_hrsep hsimp hqe b F En l hl ρ) chi hchi
 
-set_option maxHeartbeats 1200000 in
 /-- **Conjunct 4 at the compact-`M` candidate**: the simple nontrivial `V`-cocycle count.
 Transcription of `LSquare.hZcard_of_uniformPushed`.  This one is also what the determinant
 bridge needs for its finiteness step, so §4 consumes it too. -/
@@ -588,10 +584,285 @@ theorem recBl_mCand_stokes (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
 
 end MStokes
 
-/-! ## Axiom audit -/
+/-! ## §4 The candidate determinant (ticket T3)
+
+`SqrtNeg2.lean:893`'s docstring says the two Gauss-`Z` clauses "have no candidate-side supplier
+in the repository", and W84-CLAUSES repeated it.  That was accurate for every carrier except the
+`L` row, where `LSquare.affineDeterminantCertificate_of_wordPhaseSupply` reduces the whole
+certificate to a **word-phase supply** carrying no duality input at all.  §4 puts the same
+reduction at the compact-`M` candidate.
+
+**The trap, stated.**  There is a second route, and it must not be taken.  The `G_K`-side clone
+`affineDeterminant_galK` discharges both clauses internally through
+`gaussZResidueDK_{unramified,ramified}`, each of which takes `D : TateDualityG ↥U 2` and, on the
+ramified branch, a `RamifiedCertificate` indexed by the field.  `TateDualityG` is produced only
+by `FieldData.tateDualityGalK`, which is gated on `IsLocalDualizingGroup` and so on an open
+finite-index embedding into the absolute Galois group.  A word group has no such embedding
+without the presentation theorem this campaign is trying to prove, so routing the candidate
+determinant through it is circular; `GammaLDualityBoundary`'s docstring says exactly this.  The
+word-phase bridge `gaussZResidueK_of_wordPhase` takes **no** duality, and that is the route §4
+uses.
+
+**What §4 lands and what it does not.**  It lands the reduction: the `M0` row's `determinant`
+clause follows from `recBlWordPhaseSupply`, a statement purely about the Gauss sum of a
+word-phase model, given the finiteness that §3's `recBl_mCand_hZcard` now supplies.  It does
+**not** land the supply.  The `L` producers `wordPhaseResidueK_unramified_lSq` and
+`wordPhaseResidueK_ramified_lSq` run through `lSqWallHandlePhase_gaussSum_standardUnram` and
+`…Ram`, which exist only at odd degree `2h + 1`; the compact-`M` word offers only the unsigned
+magnitude (`Certificates.MCompact.mCompact_gauss_pow`), and the even-degree sign pins do not
+exist.  So the row's residual moves from "the whole determinant certificate, with no supplier
+anywhere" to "two even-degree wall-handle phase computations", which is a strictly smaller and
+purely combinatorial object.
+
+Two things named in the refined brief are confirmed by construction: the duality-carrying
+determinant clone is not reused (nothing here mentions `TateDualityG` or `LocalEulerChar`), and
+the two `n = 2` numerics facts really are absent -- `Recursion/Numerics.lean` has a `NEqOne`
+section and no `NEqTwo`, and no `standardNumerics_two_*` exists in the tree.  §4 routes around
+them rather than building them: `gaussUnram` and `gaussRam` are carried symbolically as
+`(standardNumerics (2 * h + 2)).gauss…` and never evaluated, so no even-degree sign collapse is
+needed at this layer.  It will be needed by whoever builds the supply. -/
+
+section MDeterminant
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Words GQ2.Dyadic.Words.MCompact GQ2.Dyadic.MCompact
+open GQ2.Dyadic.Certificates GQ2.QuadraticFp2
+
+variable {α h q : ℕ}
+
+set_option linter.unusedVariables false in
+/-- **The compact-`M` word-phase supply**: the `M` twin of
+`LSquare.DeterminantWordPhaseSupply`.  Binder for binder the two clauses of
+`AffineDeterminantCertificate`, with the already-summed `GaussZResidueK` conclusion replaced by
+a word-phase model whose Gauss sum has the required value.  Stated as a conjunction rather than
+a structure because both clauses are `Prop`. -/
+def recBlWordPhaseSupply {P : ProfiniteGrp} (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (gamma α h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (gamma α h q) P)
+    (compat : ∀ g : (gamma α h q : Type), nuTq q (tame g) = nuP (pro2 g)) : Prop :=
+  (letI := scalarActionZmodTwo ((gamma α h q : Type))
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+      [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+      (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+      (F : BoundaryFrameK q P H E)
+      (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) →
+          W = ⊥ ∨ W = ⊤)
+      (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+      (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+        (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+      (m : ℕ) (hm : 1 ≤ m)
+      (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+      (l : (SectionNine.blockFrame T Blk hE2).DR)
+      (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+      (hunram :
+        letI := blockPS_commGroup Blk
+        letI := SectionNine.headAct T Blk
+        ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau q) • v = v),
+      LSquare.WordPhaseResidueK (sourceBoundaryMapK tame pro2 compat) F
+        (blockEnrichmentDK T Blk hE2 hq0 hqe F) l hl
+        (scalarActionZmodTwo_triv _)
+        ((standardNumerics (2 * h + 2)).gaussUnram m))
+  ∧ (letI := scalarActionZmodTwo ((gamma α h q : Type))
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+      [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+      (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+      (F : BoundaryFrameK q P H E)
+      (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) →
+          W = ⊥ ∨ W = ⊤)
+      (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+      (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+        (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+      (m : ℕ) (hm : 1 ≤ m)
+      (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+      (l : (SectionNine.blockFrame T Blk hE2).DR)
+      (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+      (hram :
+        letI := blockPS_commGroup Blk
+        letI := SectionNine.headAct T Blk
+        ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), F.alpha (tqTau q) • v ≠ v),
+      LSquare.WordPhaseResidueK (sourceBoundaryMapK tame pro2 compat) F
+        (blockEnrichmentDK T Blk hE2 hq0 hqe F) l hl
+        (scalarActionZmodTwo_triv _)
+        ((standardNumerics (2 * h + 2)).gaussRam m))
+
+/-- **The determinant certificate at the compact-`M` candidate, from a word-phase supply.**  The
+`M` twin of `LSquare.affineDeterminantCertificate_of_wordPhaseSupply`.  §3's
+`recBl_mCand_hZcard` supplies the finiteness of the cocycle group (the `L` proof calls
+`hZcard_of_uniformPushed`, which had no `M` counterpart until §3); simplicity and nontriviality
+kill the fixed vectors through the generic `hfix_of_simple_nt`; the phase is the only input left.
+`2 ≤ α` enters through `MCompact.uniformPushedHsimp`. -/
+theorem recBl_mCand_determinant_of_wordPhaseSupply (hα : 2 ≤ α) {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (gamma α h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (gamma α h q) P)
+    (compat : ∀ g : (gamma α h q : Type), nuTq q (tame g) = nuP (pro2 g))
+    (S : recBlWordPhaseSupply nuP tame pro2 compat) :
+    AffineDeterminantCertificate (gamma α h q) (2 * h + 2) q P nuP
+      (standardNumerics (2 * h + 2)) tame pro2 compat
+      (scalarActionZmodTwo ((gamma α h q : Type))) := by
+  letI := scalarActionZmodTwo ((gamma α h q : Type))
+  haveI := scalarActionZmodTwo_continuousSMul ((gamma α h q : Type))
+  constructor
+  · exact fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hunram ↦ by
+      let En := blockEnrichmentDK T Blk hE2 hq0 hqe F
+      apply LSquare.gaussZResidueK_of_wordPhase
+        (sourceBoundaryMapK tame pro2 compat) F En l hl (scalarActionZmodTwo_triv _)
+      · intro rho
+        apply (Nat.card_ne_zero.mp ?_).2
+        rw [recBl_mCand_hZcard (uniformPushedHsimp hα hqe) hqe
+          (sourceBoundaryMapK tame pro2 compat) F En l hl hsimple hVne hnt rho]
+        exact Nat.mul_ne_zero Nat.card_pos.ne' (Nat.pow_pos Nat.card_pos).ne'
+      · intro rho v hfixed
+        apply hfix_of_simple_nt (hsimple := hsimple) (hnt := hnt) ?_ v hfixed
+        intro c0
+        obtain ⟨g, hg⟩ := rho.1.2 c0
+        exact ⟨g, (rho0_descData_rhoPrimeK
+          (sourceBoundaryMapK tame pro2 compat) F En l hl rho g).trans hg⟩
+      · exact S.1 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hunram
+  · exact fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hram ↦ by
+      let En := blockEnrichmentDK T Blk hE2 hq0 hqe F
+      apply LSquare.gaussZResidueK_of_wordPhase
+        (sourceBoundaryMapK tame pro2 compat) F En l hl (scalarActionZmodTwo_triv _)
+      · intro rho
+        apply (Nat.card_ne_zero.mp ?_).2
+        rw [recBl_mCand_hZcard (uniformPushedHsimp hα hqe) hqe
+          (sourceBoundaryMapK tame pro2 compat) F En l hl hsimple hVne hnt rho]
+        exact Nat.mul_ne_zero Nat.card_pos.ne' (Nat.pow_pos Nat.card_pos).ne'
+      · intro rho v hfixed
+        apply hfix_of_simple_nt (hsimple := hsimple) (hnt := hnt) ?_ v hfixed
+        intro c0
+        obtain ⟨g, hg⟩ := rho.1.2 c0
+        exact ⟨g, (rho0_descData_rhoPrimeK
+          (sourceBoundaryMapK tame pro2 compat) F En l hl rho g).trans hg⟩
+      · exact S.2 T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl hram
+
+/-- Degree transport for a determinant certificate, the twin of `recBl_stokes_standard_congr`. -/
+theorem recBl_determinant_standard_congr {Gam : ProfiniteGrp} {n m : ℕ} {P : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom P Ztwo} {tame : ContinuousMonoidHom Gam (Tq q)}
+    {pro2 : ContinuousMonoidHom Gam P}
+    {compat : ∀ g : (Gam : Type), nuTq q (tame g) = nuP (pro2 g)}
+    {smul : DistribMulAction ↥Gam (ZMod 2)} (hnm : n = m)
+    (S : AffineDeterminantCertificate Gam n q P nuP (standardNumerics n) tame pro2 compat smul) :
+    AffineDeterminantCertificate Gam m q P nuP (standardNumerics m) tame pro2 compat smul := by
+  subst hnm; exact S
+
+end MDeterminant
+
+/-! ## §5 The row, restated
+
+`rowCl_candidate_equiv_galK_sqrtFive` carried four binders after W84-CLAUSES: the `stokes` and
+`determinant` certificates at the candidate carrier, and `askCStageVanishing` at each of the
+row's two carriers.  §3 discharges the first outright.  §4 replaces the second by the word-phase
+supply.  The two coefficient `Prop`s are untouched, and §2 says why the cheap way to refute them
+does not exist.
+
+| W83-RECORDS obligation | after W84-CLAUSES | after this lane |
+| --- | --- | --- |
+| `cand` `exactLifting` at `Γ_R` | `askCStageVanishing` at `Γ_R` | unchanged (§2 narrows the refutation route) |
+| `cand` `scalar` at `Γ_R` | discharged | discharged |
+| `cand` `stokes` at `Γ_R` | **open** | **discharged**, `recBl_mCand_stokes`, no new hypothesis |
+| `cand` `determinant` at `Γ_R` | **open**, no supplier anywhere | `recBlWordPhaseSupply`, two even-degree phase computations |
+| `ASK` `exactLifting` at `G_K` | `askCStageVanishing` at `G_K` | unchanged |
+| `ASK` `stokes` at `G_K` | discharged | discharged |
+
+So the row's residue is now **one word-phase supply and two instances of one coefficient
+`Prop`**, and the coefficient `Prop` is the same statement at both carriers, which is the finding
+W84-CLAUSES built its module around. -/
+
+section SqrtFiveRow
+
+open GQ2.Dyadic.Instances.CanonicalRecords GQ2.Dyadic.FieldBranchId GQ2.Dyadic.Fields
+open GQ2.Dyadic.FieldSqrtFive GQ2.Dyadic.Instances.MCompactCore
+open GQ2.Dyadic.MCompact GQ2.Dyadic.Words.MCompact TameSpec MarkedCore
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **The acceptance statement, with every binder this lane discharged removed.**  Compare
+`rowCl_candidate_equiv_galK_sqrtFive`, whose binder list is `candStokes`, `candDeterminant`,
+`hvanCand`, `hvanK`.  The `stokes` certificate is gone entirely (§3 proves it at `2 ≤ α` with
+nothing but `Even q` and `q ≠ 0`, both already available at the row), and the determinant
+certificate is replaced by the word-phase supply of §4.  What is left is that supply and the two
+coefficient `Prop`s. -/
+theorem recBl_candidate_equiv_galK_sqrtFive [T2Space (GalK KSqrtFive)]
+    (B : MarkedRecip R KSqrtFive) {FF : DyadicUnitFiltration KSqrtFive}
+    (F : GenAsmFieldInputs KSqrtFive B FF (SelectedPresentation.M0 2 0).degree)
+    (Sdet : recBlWordPhaseSupply (α := 2) (h := 0) (q := qOf KSqrtFive FF)
+      (fieldId_mNuZtwo 2 0 (by omega))
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF)))
+      (mPro2 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF))
+      (mCompat 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF))
+        (fieldId_mNuZtwo 2 0 (by omega)) (canRec_mNuZtwo_sigma 2 0 (by omega))
+        (canRec_mNuZtwo_wild 2 0 (by omega))))
+    (hvanCand : askCStageVanishing (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0))
+      (qOf KSqrtFive FF) (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtFive) (qOf KSqrtFive FF)
+      (genAsmCore (.M0 2 0)) (fieldId_mNuZtwo 2 0 (by omega))) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.M0 2 0).degree (qOf KSqrtFive FF)
+        (SelectedPresentation.M0 2 0).word : ProfiniteGrp) : Type) (GalK KSqrtFive)) :=
+  RowClauses.rowCl_candidate_equiv_galK_sqrtFive B F
+    (recBl_mCand_stokes (le_refl 2) (qOf_ne_zero KSqrtFive FF) (even_qOf KSqrtFive FF))
+    (recBl_determinant_standard_congr (by omega)
+      (recBl_mCand_determinant_of_wordPhaseSupply (le_refl 2) _ _ _ _ Sdet))
+    hvanCand hvanK
+
+end SqrtFiveRow
+
+
+
+/-! ## Axiom audit
+
+**The honest split, read off the pins below.**
+
+* **Twenty-three of the twenty-four declarations are std-3**: `propext`, `Classical.choice`,
+  `Quot.sound` and nothing else.  That covers every one of this lane's own results: the `Mpc`
+  bundle, the nilpotency obstruction and its two corollaries, all five Stokes leaves, the packed
+  Stokes certificate at both degree spellings, the determinant bridge, and the two degree
+  transports.
+* **One declaration carries campaign axioms**: `recBl_candidate_equiv_galK_sqrtFive`, which pins
+  std-3 together with `{tateDualityAt, absGalQ2_isTopologicallyFinitelyGenerated,
+  absGalQ2_localEulerCharacteristic, hilbertSymbol_normCriterion_finiteDyadic,
+  peripheralCyclotomicAction, relativeStiefelWhitney_dyadic}`.  That is **term for term** the set
+  already on `rowCl_candidate_equiv_galK_sqrtFive`, so discharging the row's `stokes` clause and
+  reducing its `determinant` clause **adds no axiom to the row's record**.  The six come in
+  through the general theorem and the row's arithmetic inputs, not through anything here.
+
+**Elaboration cost.**  Nothing in this module raises `maxHeartbeats`.  That is worth recording,
+because the `L` originals do: `GammaLAnalyticLeaves` carries `1200000` on the `tcocycle` and
+`hZcard` leaves and `1600000` on `hrsep` and `hpartial`, and
+`GammaLDeterminantBridge.affineDeterminantCertificate_of_wordPhaseSupply` carries `1200000`.
+The compact-`M` transcriptions of all five elaborate inside the default budget.  The one option
+this module does set is `linter.unusedVariables`, on `recBlWordPhaseSupply`, for the same reason
+the `L` structure sets it: `hm`, `hcard` and `hVne` are binders of
+`AffineDeterminantCertificate` that the word-phase conclusion does not mention, and they are kept
+so the supply is binder-for-binder the certificate. -/
 
 section AxiomPins
 
+#print axioms centralMod
+#print axioms mem_centralMod
+#print axioms le_centralMod_self
+#print axioms yLower
+#print axioms yLower_normal
+#print axioms yLower_le
+#print axioms yLower_le_lcs
+#print axioms recBlWordPhaseSupply
 #print axioms recBl_mpc_uniformPushedHsimp
 #print axioms recBl_mpc_exactLiftingRN
 #print axioms recBl_minimalBlock_isEmpty_of_nilpotent
@@ -605,6 +876,9 @@ section AxiomPins
 #print axioms recBl_mCand_hZcard
 #print axioms recBl_mCand_stokes_of_uniformPushed
 #print axioms recBl_mCand_stokes
+#print axioms recBl_mCand_determinant_of_wordPhaseSupply
+#print axioms recBl_determinant_standard_congr
+#print axioms recBl_candidate_equiv_galK_sqrtFive
 
 end AxiomPins
 
