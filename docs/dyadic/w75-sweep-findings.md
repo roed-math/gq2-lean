@@ -1,5 +1,25 @@
 # W75 supplementary sweep: counts and citations over the wave-74 artefacts
 
+**[W76-HOUSE, and this file is now closed.**  All 23 items were re-verified at `97d51e93` and
+then applied, except item 7, which is declined with reason.  Four of the sweep's own figures
+needed amending in the course of applying them, and the amended values are what landed:
+
+* **item 6**: "two lines exceed 100 characters" undercounts.  `GradedUniformTower.lean` has 25
+  such lines, 8 of them Lean source rather than comment.  The two named are rewrapped; the rest
+  are left, because the campaign enforces no 100-character limit anywhere (25 `SqCore` modules
+  carry 19 or more).  That is now an owner call on the W77 queue.
+* **item 11**: "43 carry a numbered pins heading" is the complement of the true reading.  At
+  `4fff1592`, of 91 `SqCore` modules 88 contain `#print axioms`; **45** carry a numbered pins
+  heading and **43** carry the pins with no numbered heading.
+* **item 17**: `evenDegreeNCyclotomicFrattiniFrameSupply_holds`'s declaration landed
+  **2026-08-07** (`61c51c9e`), not 08-05; the 08-05 commit carries the name only as a planned
+  statement in the EV-3c skeleton.  The substance (before the wave-51 window) stands.
+* **item 22**: the `Q_2(zeta_8)` sentence in `w72-stratum-note.md` is at **`:170`**, not `:169`.
+
+One disagreement with the sibling W75 document is resolved in this file's favour: item 10's
+`w74-critical-path.md:135` is right and `w75-house-note.md` §4.5(b)'s `:134` is the line above.
+See `docs/dyadic/w76-house-note.md` §1 for the item-by-item accounting.]**
+
 Recorded by the orchestrator at the W75 close.  The W75-HOUSE lane dispatched an exhaustive
 count-and-citation sweep as a background agent; it returned after the lane's branch had merged,
 so its findings are recorded here for the W76 house lane to apply.  Method: every citation was
