@@ -18,9 +18,11 @@ the smallest named residual it still costs (T2), and the acceptance composites (
 
 ## T1: the form at odd degree
 
-`H¹(G_K(2), 𝔽₂)` has odd dimension `2h + 3` at `[K : ℚ₂] = 2h + 1` (§1, from the committed
-census `card_H1_zmodTwo_maxProTwoGalK`).  The cup form is the symmetric non-alternating form
-with Labute diagonal `b(κ, x) = b(x, x)`; its odd normal form `⟨1⟩ ⊥ H ⊥ H^{⊥h}` (the improved
+`H¹(G_K(2), 𝔽₂)` has `2^{2h+3}` elements at `[K : ℚ₂] = 2h + 1`, i.e. odd `𝔽₂`-dimension
+`2h + 3` (§1 formalizes the CARDINALITY, from the committed census
+`card_H1_zmodTwo_maxProTwoGalK`; the passage to the dimension is read, not proved).  The cup
+form is the symmetric non-alternating form with Labute diagonal `b(κ, x) = b(x, x)`; its odd
+normal form `⟨1⟩ ⊥ H ⊥ H^{⊥h}` (the improved
 relator's quadratic initial Gram, `⟨1⟩`-slot at `x₁`, first plane at `(σ, x₀)`) is REALIZED by
 actual frames: `oddDegreeSqCyclotomicFrattiniFrameSupply_holds` produces a cup-adapted frame at
 every odd-degree `K`, so the committed machinery covers the odd-dimensional case and no odd
@@ -40,26 +42,38 @@ unramified class `ν̄ = [u]` has a pinned shape, and this is the lane's T1 cont
 
 ## T2: the frame, and the one residual that remains
 
+Throughout T2 and T3, "unconditional" means: no hypothesis beyond the DATA binders, which are
+the bundle `B : MarkedRecip Rec K`, the unit filtration `FF : DyadicUnitFiltration K` and the
+degree equation.  `FF` is load-bearing (it supplies `B.r = 0`), and it is a binder of every T2
+and T3 statement below except `oddFrame_supply_iff_clearInstance`.
+
 The presenting frame `frameOfOrientedEquiv` of the unconditional oriented equivalence
 `orientedEquiv_of_oddDegree` is cup-adapted and kills the improved relator GLOBALLY with no
 hypothesis; T1's row shape applies to it.  So a cup-adapted frame with the relator and the two
-mod-2 rows correct UP TO ONE SHARED BIT exists unconditionally
-(§2, `oddFrame_presenting_relator_rowSum`): row sum `1` at `(σ, x₀)`, row `0` at `x₁`.
+MOD-2 rows correct UP TO ONE SHARED BIT exists over the data alone
+(§2, `oddFrame_presenting_relator_rowSum`): row sum `1` at `(σ, x₀)`, row `0` at `x₁`.  These
+are the mod-2 rows and nothing more; the ticket's target object has the EXACT `ℤ₂` rows
+`ν(σ) = 1`, `ν(x₀) = 0`, and that object appears only in §4
+(`oddFrame_cupAdaptedFrame_of_clear`), over the model clearing.
 
 The bit is then absorbed by the pivot, and this is the lane's T2 discovery.  The pivot exponent
 `sqPivotExp` is a UNIT (odd), so the parity of the transported pivot row
 `ν(f(σ·x₀^{−c₀}))` equals the row SUM, which T1 pins to `1`.  Hence at EVERY oriented
-equivalence the transported marking's pivot row is a unit, unconditionally
+equivalence the transported marking's pivot row is a unit, over the data alone
 (§3, `oddFrame_isUnit_transported_sqPivot`).  This is precisely the arithmetic input that
 `SqCore.SqNuOrientedClearAtUnitPivot h` consumes and that
-`GammaLOddDegreeBridge` §9 proved no choice of `f` and no model automorphism can manufacture;
-the cup form manufactures it.  Consequently the whole seam costs exactly the MODEL-side
+`PivotClimb` §9 proved no choice of `f` and no model automorphism can manufacture;
+the cup form manufactures it.  Consequently the whole seam is BOUGHT BY the MODEL-side
 clearing statement (§4, `oddFrame_supply`):
 
   `SqCore.SqNuOrientedClearAtUnitPivot h  →  SqMarkedForwardSupply B h`
 
-with no other input beyond the bundle, the filtration, and the degree.  The named residual
-Prop is therefore `SqCore.SqNuOrientedClearAtUnitPivot h`: a statement about `D_sq(h)`,
+with no other input beyond the bundle, the filtration, and the degree.  Only that implication
+is proved: the clearing overshoots the seam by its marking quantifier
+(§4, `oddFrame_supply_iff_clearInstance`), so "costs exactly" would be wrong here.
+
+The named residual Prop is therefore `SqCore.SqNuOrientedClearAtUnitPivot h`: a statement about
+`D_sq(h)`,
 `χ_sq`, `ν_sq` and continuous automorphisms, with no field, no bundle, no frame and no cup
 form in it.  PivotClimb §8 shows it is the strongest unrefuted statement of its shape and
 derives it from the handle stratum plus the two one-parameter pivot subgroups
@@ -80,6 +94,18 @@ two record blocks.
 No `sorry`, no new axiom, no `native_decide`.  §6 pins every declaration; the measured split is
 recorded there.  `B` is a binder throughout; neither `B5 localReciprocity` nor
 `B5-K markedRecipAt` occurs in any pin.
+
+## Known linter noise (W85-HOUSE, from the W84 audit)
+
+Five `linter.unusedSectionVars` warnings stand, at `oddFrame_card_H1` and
+`oddFrame_nu_notin_kappaTau_span` (`[T2Space (GalK K)]`), and at
+`oddFrame_presenting_relator_rowSum`, `oddFrame_isUnit_transported_sqPivot` and
+`oddFrame_supply_iff_clearInstance` (`[CompactSpace AbsGalQ2]`,
+`[TotallyDisconnectedSpace AbsGalQ2]`; `oddFrame_supply_iff_clearInstance` also
+`[T2Space (GalK K)]`).  So those last three theorems ADVERTISE a hypothesis on the absolute
+Galois group of `ℚ₂` that they do not use.  They are left as they are on purpose: `omit`ting the
+instances would change three signatures, which is not a housekeeping edit.  Read the three as
+holding without any `AbsGalQ2` hypothesis.
 -/
 
 namespace GQ2.Dyadic
@@ -112,9 +138,10 @@ local instance : DistribMulAction (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
 local instance : ContinuousSMul (maxProPQuotient 2 (GalK K)) (ZMod 2) :=
   scalarActionZmodTwo_continuousSMul _
 
-/-- **The dimension at odd degree**: `H¹(G_K(2), 𝔽₂)` has `2^{2h+3}` elements at
-`[K : ℚ₂] = 2h + 1`, i.e. odd `𝔽₂`-dimension `2h + 3`.  The committed census
-`card_H1_zmodTwo_maxProTwoGalK`, read at the odd degree. -/
+/-- **The `H¹` count at odd degree**: `H¹(G_K(2), 𝔽₂)` has `2^{2h+3}` elements at
+`[K : ℚ₂] = 2h + 1`.  The committed census `card_H1_zmodTwo_maxProTwoGalK`, read at the odd
+degree.  The reading "odd `𝔽₂`-dimension `2h + 3`" is the intended one but is NOT formalized
+here: the statement is a cardinality, and the step to a dimension is unformalized. -/
 theorem oddFrame_card_H1 {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1) :
     Nat.card (H1 (maxProPQuotient 2 (GalK K)) (ZMod 2)) = 2 ^ (2 * h + 3) := by
   rw [card_H1_zmodTwo_maxProTwoGalK (K := K), hdeg]
@@ -157,8 +184,10 @@ theorem oddFrame_nuRowSum_of_isCupAdapted (B : MarkedRecip Rec K)
   exact NuKummer.nuUrOmegaCupOne_of_odd B hodd hr
 
 /-- **The row dichotomy.**  In every cup-adapted frame at every odd-degree `K` the two selected
-mod-2 rows of `ν̄` are `(1, 0)` or `(0, 1)`: the seam's row pattern is correct up to one shared
-bit, and the patterns `(0, 0)` and `(1, 1)` are excluded by the cup form alone. -/
+MOD-2 rows of `ν̄` are `(1, 0)` or `(0, 1)`: the patterns `(0, 0)` and `(1, 1)` are excluded by
+the cup form alone.  This pins the mod-2 rows up to one shared bit.  It is weaker than the
+seam's row pattern, which is the pair of EXACT `ℤ₂` values `ν(σ) = 1`, `ν(x₀) = 0`; those
+require, besides the bit, the whole lift of each row out of `2ℤ₂`. -/
 theorem oddFrame_nuRow_dichotomy_of_isCupAdapted (B : MarkedRecip Rec K)
     (FF : DyadicUnitFiltration K) {h : ℕ} (hodd : Odd (Module.finrank ℚ_[2] K))
     (F : SqCyclotomicFrattiniFrame K h) (hcup : F.IsCupAdapted) :
@@ -184,12 +213,17 @@ theorem oddFrame_nu_notin_kappaTau_span (B : MarkedRecip Rec K)
 
 end FormStructure
 
-/-! ## §2 T2, unconditional half: relator plus the mod-2 rows up to one bit
+/-! ## §2 T2, the data-only half: relator plus the MOD-2 rows up to one bit
 
 The presenting frame of the unconditional oriented equivalence kills the improved relator
-globally and is cup-adapted, so §1's row shape applies to it: the ticket's target object,
-cup-adapted frame + relator + two mod-2 rows, exists unconditionally with the rows correct up
-to the single shared bit (which of `(1, 0)`, `(0, 1)` the pattern is). -/
+globally and is cup-adapted, so §1's row shape applies to it: the MOD-2 SHADOW of the ticket's
+target object, cup-adapted frame + relator + two mod-2 rows, exists over the data alone
+(bundle, filtration, degree), with the rows correct up to the single shared bit (which of
+`(1, 0)`, `(0, 1)` the pattern is).
+
+The ticket's target object itself carries the EXACT `ℤ₂` rows and is §4's
+`oddFrame_cupAdaptedFrame_of_clear`, over the model clearing.  Nothing in this section produces
+an exact row. -/
 
 section PresentingFrame
 
@@ -224,11 +258,13 @@ end PresentingFrame
 
 /-! ## §3 T2, the discovery: the cup form pays the unit-pivot hypothesis
 
-`GammaLOddDegreeBridge` §9 proved the parity of the transported pivot row is an invariant of
+`PivotClimb` §9 (`SqCore/PivotClimb.lean`, cited by `GammaLOddDegreeBridge`, which has no §9 of
+its own) proved the parity of the transported pivot row is an invariant of
 the target that no choice of oriented equivalence and no model automorphism can arrange, and
-concluded that the `h ≥ 1` bridge needs the arithmetic input carried by the marked supply
-itself.  The conclusion overshot: the pivot exponent is odd, so the pivot-row parity IS the
-`ν̄`-row sum, and §1 computes that sum from the cup form.  The invariant is a unit, always. -/
+`GammaLOddDegreeBridge` concluded that the `h ≥ 1` bridge needs the arithmetic input carried by
+the marked supply itself.  The conclusion overshot: the pivot exponent is odd, so the pivot-row
+parity IS the `ν̄`-row sum, and §1 computes that sum from the cup form.  The invariant is a
+unit, always. -/
 
 section PivotParity
 
@@ -289,7 +325,9 @@ variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [Fini
 about `D_sq(h)` with no field in it, implies `SqMarkedForwardSupply B h` at every odd-degree
 `K` over the bundle and filtration alone.  Before this lane the clearing statement was known to
 suffice only TOGETHER with the supply's own rows (`GammaLOddDegreeBridge` §1′); the cup form
-pays the unit-pivot input, so the clearing is now the seam's whole remaining cost. -/
+pays the unit-pivot input, so the clearing is now everything the seam still asks for.  One
+implication, not an equivalence: the clearing is strictly stronger than the seam, which is only
+its instance at the transported marking (`oddFrame_supply_iff_clearInstance`). -/
 theorem oddFrame_supply (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) {h : ℕ}
     (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
     (hclear : SqCore.SqNuOrientedClearAtUnitPivot h) : SqMarkedForwardSupply B h := by
@@ -401,7 +439,12 @@ theorem oddFrame_realization_of_clear (B : MarkedRecip Rec K) (FF : DyadicUnitFi
 
 /-- **The full chain over the model clearing**: what the general theorem still needs at an
 odd-degree `K`, beyond `SqCore.SqNuOrientedClearAtUnitPivot h`, is exactly the two record
-blocks `GenAsmFieldInputs` and `GenAsmRowResidual`. -/
+blocks `GenAsmFieldInputs` and `GenAsmRowResidual`.
+
+Binder note: `FF` is IMPLICIT here, where all seven §4 siblings take it explicitly.  It is
+determined by the conclusion (`GenAsmFieldInputs K B FF _` and `qOf K FF` both mention it), so
+nothing is hidden from the elaborator; but it is still load-bearing data, and "exactly the two
+record blocks" is to be read on top of the bundle, the filtration and the degree. -/
 theorem oddFrame_candidate_equiv_galK_of_clear (B : MarkedRecip Rec K)
     {FF : DyadicUnitFiltration K} {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
     (hclear : SqCore.SqNuOrientedClearAtUnitPivot h) :
@@ -435,8 +478,9 @@ variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂} [Fini
   [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 /-- Stress: the pivot exponent is odd.  This is the one bit of model arithmetic that makes the
-pivot parity equal the row sum, hence makes §3 possible; if `c₀` were even the pivot argument
-would instead pin the rows outright and the dichotomy would collapse. -/
+pivot parity equal the row sum, hence makes §3 possible.  If `c₀` were even the pivot row would
+reduce mod 2 to `ν(f σ)` alone, the row SUM would no longer determine it, and the argument of §3
+would conclude nothing: the split the dichotomy leaves open would become load-bearing. -/
 example : MarkedFrame.redTwo sqPivotExp = 1 :=
   (MarkedFrame.redTwo_eq_one_iff _).mpr isUnit_sqPivotExp
 
