@@ -4,6 +4,9 @@ Released under the Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.EvenRangePolish
+import GQ2.Dyadic.GeneralAssembly
+import GQ2.Dyadic.GeneralCertificates
+import GQ2.Dyadic.MarkedCore.MScalingHandles
 
 /-!
 # W77-FIELD: the branch identification at the five committed quadratic model fields
@@ -93,7 +96,9 @@ everything else here.  The `ℚ₂(√5)` row therefore costs one extra element,
 3. cyclotomic values from norms, including at an element of odd valuation;
 4. the three fields' elements, units and norms;
 5. the three range identities and the three oriented endpoints;
-6. axiom pins.
+6. the composition into the `KTwoM`/`KTwoN` producer spelling;
+7. the five rows' branch data, one clause each;
+8. axiom pins.
 -/
 
 namespace GQ2.Dyadic.FieldBranchId
@@ -475,7 +480,181 @@ theorem fieldId_orientedEquivM_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
 
 end Endpoints
 
-/-! ## §6 Axiom pins
+/-! ## §6 The composition into the producer spelling
+
+The critical-path memo's §1.5 point: the even route delivers
+`OrientedContinuousMulEquiv (chi{M,N} alpha h) chiCycKTwo`, which is *definitionally* the
+`(f, horient)` pair the direct `G_K(2)` producers `marked_matching_certificate_KTwo{M,N}`
+consume, and `GeneralAssembly.genAsm_branch_of_even{M,N}` already packages that into a
+`GenAsmBranch`.  With §5's identity supplying the `alpha` pin, the composition goes through at
+each of the five fields, and this section records exactly what is left over at each.
+
+Three of `genAsm_branch_of_evenM`'s six remaining inputs are discharged here:
+
+* `hdeg`, from the field's `finrank`;
+* `hMix`, from `MarkedCore.mMixHypothesis`, which is unconditional at `alpha >= 2`;
+* the marking triple `nuP`/`hnuP`/`hnuIota`, from the canonical `Ztwo` marking.  The tree
+  carried `CertificateSupplyRN.nNuZtwo` for the `N` core and `LSquareCore.lNu` for the `L` core
+  but **no `M` counterpart**; §6.1 builds it, the same three lines.
+
+What is left at each field is then **one clause**, and it is the same clause the memo's §1.2 and
+§1.3 tables call marked-data pair unimodularity: `hpivot` on the `M` rows (`nu_ur` is a unit at
+the image of `C_0`), `hpair` on the pilot (at the image of `sigma` or of `x_2`).  That clause is
+arithmetic about `K` and the bundle, not classification, and it is not attacked here. -/
+
+section Producer
+
+open MarkedCore
+
+/-- **The canonical `Ztwo` marking of the compact-`M` core**, the `M` counterpart of
+`CertificateSupplyRN.nNuZtwo`: `nuM` read back through the boundary seam `ztwoIota`.  It
+introduces no new orientation. -/
+noncomputable def fieldId_mNuZtwo (alpha h : ℕ) (halpha : 1 ≤ alpha) :
+    ContinuousMonoidHom (DM alpha h : Type) Ztwo :=
+  ⟨(ztwoIota.symm.toMulEquiv.toMonoidHom).comp (nuM alpha h halpha).toMonoidHom,
+    ztwoIota.symm.continuous_toFun.comp (nuM alpha h halpha).continuous_toFun⟩
+
+@[simp] theorem fieldId_mNuZtwo_apply (alpha h : ℕ) (halpha : 1 ≤ alpha) (x : (DM alpha h : Type)) :
+    fieldId_mNuZtwo alpha h halpha x = ztwoIota.symm (nuM alpha h halpha x) := rfl
+
+/-- The seam inverts. -/
+theorem fieldId_ztwoIota_mNuZtwo (alpha h : ℕ) (halpha : 1 ≤ alpha) (x : (DM alpha h : Type)) :
+    ztwoIota (fieldId_mNuZtwo alpha h halpha x) = nuM alpha h halpha x :=
+  ztwoIota.apply_symm_apply _
+
+/-- The marking takes `ztwoOne` at the pivot `C_0`. -/
+theorem fieldId_mNuZtwo_dmC (alpha h : ℕ) (halpha : 1 ≤ alpha) :
+    fieldId_mNuZtwo alpha h halpha (dmC alpha h) = ztwoOne := by
+  rw [fieldId_mNuZtwo_apply, nuM_dmC, ← ztwoIota_ztwoOne]
+  exact ztwoIota.symm_apply_apply ztwoOne
+
+/-- The marking is onto: `D_M` is compact and `ztwoOne` is in the image. -/
+theorem fieldId_mNuZtwo_surjective (alpha h : ℕ) (halpha : 1 ≤ alpha) :
+    Function.Surjective (fieldId_mNuZtwo alpha h halpha) :=
+  GQ2.Dyadic.Instances.NuWitness.surjective_of_ztwoOne_mem_range _
+    ⟨_, fieldId_mNuZtwo_dmC alpha h halpha⟩
+
+/-- The seam inverts for the `N` core too, at the tree's canonical marking. -/
+theorem fieldId_ztwoIota_nNuZtwo (alpha h : ℕ) (x : (DN alpha h : Type)) :
+    ztwoIota (GQ2.Dyadic.SelectedCoreLeavesRN.nNuZtwo alpha h x) = nuN alpha h x :=
+  ztwoIota.apply_symm_apply _
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K}
+
+/-- **The `M` branch datum from an oriented equivalence at `alpha >= 2`**, with the marking
+triple and `hMix` discharged.  Only the pivot clause remains. -/
+theorem fieldId_genAsmBranch_of_orientedM (alpha h : ℕ) (halpha : 2 ≤ alpha)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.M0 alpha h).degree)
+    (e : OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K)))
+    (hpivot : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dmC alpha h))))) :
+    ∃ G : GenAsmBranch K B, G.pres = .M0 alpha h :=
+  genAsm_branch_of_evenM alpha h (by omega) hdeg (fieldId_mNuZtwo alpha h (by omega))
+    (fieldId_mNuZtwo_surjective alpha h (by omega))
+    (fieldId_ztwoIota_mNuZtwo alpha h (by omega)) e (mMixHypothesis alpha h halpha) hpivot
+
+/-- **The `N` branch datum from an oriented equivalence**, with the marking triple discharged at
+the tree's canonical `N` marking.  Only the marked-pair clause remains. -/
+theorem fieldId_genAsmBranch_of_orientedN (alpha h : ℕ)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.N0 alpha h).degree)
+    (e : OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K)))
+    (hpair : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnSigma alpha h)))) ∨
+      IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnX2 alpha h))))) :
+    ∃ G : GenAsmBranch K B, G.pres = .N0 alpha h :=
+  genAsm_branch_of_evenN alpha h hdeg (GQ2.Dyadic.SelectedCoreLeavesRN.nNuZtwo alpha h)
+    (GQ2.Dyadic.genCertNNuZtwo_surjective alpha h) (fieldId_ztwoIota_nNuZtwo alpha h) e hpair
+
+end Producer
+
+/-! ## §7 The five rows' branch data, one clause each
+
+A chosen oriented equivalence per field (`Nonempty.some` on §5's output, respectively on wave
+67's and wave 68's), and the branch datum over the single remaining clause at that equivalence.
+`ℚ₂(√2)` sits at `alpha = 3` and the other four at `alpha = 2`; `mMixHypothesis` covers both. -/
+
+section Rows
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- A chosen oriented equivalence at `ℚ₂(√−2)`. -/
+noncomputable def fieldId_chosenEquivN_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip R KSqrtNegTwo) :
+    OrientedContinuousMulEquiv (chiN 2 0) (chiCycKTwo (K := KSqrtNegTwo)) :=
+  (GQ2.Dyadic.EvenRangeModel.hrangeFinal_orientedEquivN_sqrtNegTwo B).some
+
+/-- A chosen oriented equivalence at `ℚ₂(√2)`. -/
+noncomputable def fieldId_chosenEquivM_sqrtTwo [T2Space (GalK KSqrtTwo)]
+    (B : MarkedRecip R KSqrtTwo) :
+    OrientedContinuousMulEquiv (chiM 3 0) (chiCycKTwo (K := KSqrtTwo)) :=
+  (hrangeFinal_orientedEquivM_sqrtTwo' B).some
+
+/-- A chosen oriented equivalence at `ℚ₂(√5)`. -/
+noncomputable def fieldId_chosenEquivM_sqrtFive [T2Space (GalK KSqrtFive)]
+    (B : MarkedRecip R KSqrtFive) :
+    OrientedContinuousMulEquiv (chiM 2 0) (chiCycKTwo (K := KSqrtFive)) :=
+  (fieldId_orientedEquivM_sqrtFive B).some
+
+/-- A chosen oriented equivalence at `ℚ₂(√10)`. -/
+noncomputable def fieldId_chosenEquivM_sqrtTen [T2Space (GalK KSqrtTen)]
+    (B : MarkedRecip R KSqrtTen) :
+    OrientedContinuousMulEquiv (chiM 2 0) (chiCycKTwo (K := KSqrtTen)) :=
+  (fieldId_orientedEquivM_sqrtTen B).some
+
+/-- A chosen oriented equivalence at `ℚ₂(√−10)`. -/
+noncomputable def fieldId_chosenEquivM_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip R KSqrtNegTen) :
+    OrientedContinuousMulEquiv (chiM 2 0) (chiCycKTwo (K := KSqrtNegTen)) :=
+  (fieldId_orientedEquivM_sqrtNegTen B).some
+
+/-- **THE PILOT ROW'S BRANCH DATUM**, over the marked-pair clause alone. -/
+theorem fieldId_genAsmBranch_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip R KSqrtNegTwo)
+    (hpair : IsUnit (Multiplicative.toAdd
+        (nuUrKTwo B ((fieldId_chosenEquivN_sqrtNegTwo B).1 (dnSigma 2 0)))) ∨
+      IsUnit (Multiplicative.toAdd
+        (nuUrKTwo B ((fieldId_chosenEquivN_sqrtNegTwo B).1 (dnX2 2 0))))) :
+    ∃ G : GenAsmBranch KSqrtNegTwo B, G.pres = .N0 2 0 :=
+  fieldId_genAsmBranch_of_orientedN 2 0 (by rw [finrank_KSqrtNegTwo]; rfl)
+    (fieldId_chosenEquivN_sqrtNegTwo B) hpair
+
+/-- **THE `sqrtTwo` ROW'S BRANCH DATUM**, over the pivot clause alone. -/
+theorem fieldId_genAsmBranch_sqrtTwo [T2Space (GalK KSqrtTwo)] (B : MarkedRecip R KSqrtTwo)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtTwo B).1 (dmC 3 0))))) :
+    ∃ G : GenAsmBranch KSqrtTwo B, G.pres = .M0 3 0 :=
+  fieldId_genAsmBranch_of_orientedM 3 0 (by omega) (by rw [finrank_KSqrtTwo]; rfl)
+    (fieldId_chosenEquivM_sqrtTwo B) hpivot
+
+/-- **THE `sqrtFive` ROW'S BRANCH DATUM**, over the pivot clause alone. -/
+theorem fieldId_genAsmBranch_sqrtFive [T2Space (GalK KSqrtFive)] (B : MarkedRecip R KSqrtFive)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtFive B).1 (dmC 2 0))))) :
+    ∃ G : GenAsmBranch KSqrtFive B, G.pres = .M0 2 0 :=
+  fieldId_genAsmBranch_of_orientedM 2 0 (le_refl 2) (by rw [finrank_KSqrtFive]; rfl)
+    (fieldId_chosenEquivM_sqrtFive B) hpivot
+
+/-- **THE `sqrtTen` ROW'S BRANCH DATUM**, over the pivot clause alone. -/
+theorem fieldId_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtTen B).1 (dmC 2 0))))) :
+    ∃ G : GenAsmBranch KSqrtTen B, G.pres = .M0 2 0 :=
+  fieldId_genAsmBranch_of_orientedM 2 0 (le_refl 2) (by rw [finrank_KSqrtTen]; rfl)
+    (fieldId_chosenEquivM_sqrtTen B) hpivot
+
+/-- **THE `sqrtNegTen` ROW'S BRANCH DATUM**, over the pivot clause alone. -/
+theorem fieldId_genAsmBranch_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
+    (B : MarkedRecip R KSqrtNegTen)
+    (hpivot : IsUnit (Multiplicative.toAdd
+      (nuUrKTwo B ((fieldId_chosenEquivM_sqrtNegTen B).1 (dmC 2 0))))) :
+    ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .M0 2 0 :=
+  fieldId_genAsmBranch_of_orientedM 2 0 (le_refl 2) (by rw [finrank_KSqrtNegTen]; rfl)
+    (fieldId_chosenEquivM_sqrtNegTen B) hpivot
+
+end Rows
+
+/-! ## §8 Axiom pins
 
 Every declaration of this file, printed beside the committed even-route endpoints it consumes.
 Two sets appear, and both are already committed.
@@ -489,7 +668,12 @@ Two sets appear, and both are already committed.
   `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` and
   `Foundations.absGalQ2_localEulerCharacteristic`.  That is exactly the set of
   `EvenParity.parityFinal_orientedEquivM_of_range`, the committed endpoint they call: the three
-  new endpoints add nothing to it. -/
+  new endpoints add nothing to it.
+* The **`M`-row branch data** of §7 carry one axiom more, `peripheralCyclotomicAction`, and it
+  enters at exactly one place: `MarkedCore.mMixHypothesis`, the committed unconditional discharge
+  of the `M` producer's `hMix` binder, whose own set is the standard three plus that axiom.  It
+  is pinned below beside `fieldId_genAsmBranch_of_orientedM` so the inheritance is visible.  The
+  pilot's `N` branch datum does not carry it, the `N` producer having no `hMix`. -/
 
 section AxiomPins
 
@@ -532,7 +716,25 @@ section AxiomPins
 #print axioms fieldId_orientedEquivM_sqrtTen
 #print axioms fieldId_orientedEquivM_sqrtNegTen
 
+-- §6 the producer composition
+#print axioms fieldId_ztwoIota_mNuZtwo
+#print axioms fieldId_mNuZtwo_dmC
+#print axioms fieldId_mNuZtwo_surjective
+#print axioms fieldId_ztwoIota_nNuZtwo
+#print axioms fieldId_genAsmBranch_of_orientedM
+#print axioms fieldId_genAsmBranch_of_orientedN
+
+-- §7 the five rows' branch data
+#print axioms fieldId_genAsmBranch_sqrtNegTwo
+#print axioms fieldId_genAsmBranch_sqrtTwo
+#print axioms fieldId_genAsmBranch_sqrtFive
+#print axioms fieldId_genAsmBranch_sqrtTen
+#print axioms fieldId_genAsmBranch_sqrtNegTen
+
 -- the committed endpoints consumed, for the side-by-side
+#print axioms GQ2.Dyadic.MarkedCore.mMixHypothesis
+#print axioms GQ2.Dyadic.genAsm_branch_of_evenM
+#print axioms GQ2.Dyadic.genAsm_branch_of_evenN
 #print axioms GQ2.Dyadic.EvenParity.parityFinal_orientedEquivM_of_range
 #print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq
 #print axioms GQ2.Dyadic.EvenCyclotomicRange.evenRange_range_eq_imChiM
