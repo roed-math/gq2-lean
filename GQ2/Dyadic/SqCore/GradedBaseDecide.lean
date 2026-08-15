@@ -528,6 +528,18 @@ theorem gDecide_not_layerReach : ¬ GTowerLayerReach h (gDecideNu h) 2 := by
 theorem gDecide_not_joinBase : ¬ GJoinBase h :=
   fun H => gDecide_not_layerReach h (H (gDecideNu h) (gDecideNu_sigma h) (gDecideNu_x0 h))
 
+/-- ⭐⭐ **At `h = 0` the layer statement fails at every marking**, selected or not: there are
+no handle letters, so the two hypotheses on `ν'` are vacuous. -/
+theorem gDecide_not_layerReach_zero
+    (nu' : ContinuousMonoidHom (DSq 0 : Type) (Multiplicative ℤ_[2])) :
+    ¬ GTowerLayerReach 0 nu' 2 := by
+  intro H
+  have hadm := gBase_adm_commP (h := 0) (nu' := nu') (commP (dsqX1 0) (dsqX0 0)) (dsqX1 0)
+  have hmem := H _ (gDecide_triple_mem_three 0) hadm.2.1 hadm.2.2
+  rw [gBase_levelMk_triple] at hmem
+  exact gDecide_triple_not_mem (gDecideMarkX_rel 0) (gDecideMarkX_good 0) (fun j => j.elim0)
+    (fun j => j.elim0) (i := 1) (by rw [gDecideMarkX, sqMark_one]) hmem
+
 end Decision
 
 /-! ## §8 The depth-three re-cut, stated
@@ -639,6 +651,7 @@ section AxiomPins
 #print axioms gDecide_triple_mem_three
 #print axioms gDecide_not_layerReach
 #print axioms gDecide_not_joinBase
+#print axioms gDecide_not_layerReach_zero
 #print axioms GQ2.Dyadic.SqCore.GDecideBaseThree
 #print axioms gDecide_layerReach_of_baseAt
 #print axioms gDecide_tower_of_baseThree
