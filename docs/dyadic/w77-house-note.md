@@ -509,7 +509,8 @@ closing the degree-spelling mismatch between `Instances/N0Exact.lean`'s `exactLi
 
 ## Verification record
 
-* Lane `claude/w77-house`, base `1d3d5a84`.  SIX commits, all path-limited.  **Not pushed.**
+* Lane `claude/w77-house`, base `1d3d5a84`.  **Seven commits**, all path-limited, the last of
+  them the one that sets this figure.  **Not pushed.**
 * **No `lake` command was run**; `scripts/check_dyadic.sh`, `scripts/check_axioms.sh` and
   `scripts/check_ledger.sh` were not run.
 * `scripts/mirror.sh sweep` once at lane start (**5883 artifacts**), then `scripts/mirror.sh
