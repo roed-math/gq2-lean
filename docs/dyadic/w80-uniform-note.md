@@ -141,3 +141,35 @@ group, or per-level generation input survives anywhere.
    unchanged, now THE residual at `h = 0`.
 3. Nothing else: no level-6 record, no rung 4, no per-class witnesses; the ladder fork of
    wave 79 is resolved on the uniform branch.
+
+### CORRECTION [W81-HOUSE, watch round 18, as of `6f2916f3`]
+
+**Items 1 and 2 above are both wrong, and item 1 was wrong when it was written.**  This is
+the wave-80 lesson repeating verbatim: a lane listed as open a theorem its own base carried.
+
+**Item 1 is retracted.**  `GJoinSeparationAll h` was already a theorem in this lane's own
+base.  `gExt_separationAll (h : Nat) : GJoinSeparationAll h` sits at
+`GQ2/Dyadic/SqCore/GradedExtraction.lean:514` in commit `4f30776b`, which is the base this
+note names in its own first line; wave 79 proved it unconditionally at every `h`, not just
+at `h = 0`.  It was never "the last graded-side interface" and it was never something W81
+needed.  Verified by `git show 4f30776b:GQ2/Dyadic/SqCore/GradedExtraction.lean`.
+
+**Item 2 is retracted in its status, not in its content.**  `GTowerKnobRealizable h` is
+indeed not proved, but it is not "THE residual" at `h = 0` or anywhere else, because the
+route no longer passes through it.  Wave 79 found that the campaign's recursion does not
+prove it AS QUANTIFIED (an admissible dressing may carry an `x_1`-component); wave 80's
+sibling lane `GQ2/Dyadic/SqCore/GradedXFree.lean` responded by re-running the same
+recursion with an `x_1`-freeness clause carried through the supply, on which the weakened
+interface `GXfKnobRealizable h` IS a theorem (`gXf_knobRealizable`).  The extraction was
+bypassed, not discharged.
+
+**Item 3 stands, and understates the result.**  Nothing else was needed at all.
+`SqLamMarkTransitivity h` is now a theorem at every `h` with no hypothesis of any kind:
+`gOdd_markTransitivity` in `GQ2/Dyadic/SqCore/GradedOddClose.lean`, whose proof consumes
+THIS LANE's `gGen_killAt` through `gXf_markTransitivity_of_residual`.  The headline of this
+note (Section "Headline") is correspondingly stale in its second and third sentences; its
+first sentence, that the ladder is closed at every rung, is correct and is what closed the
+route.
+
+The same two errors appear in this lane's module docstring at
+`GQ2/Dyadic/SqCore/GradedUniformGen.lean` Section 7; annotated there in the same pass.

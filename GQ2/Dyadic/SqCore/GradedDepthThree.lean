@@ -924,7 +924,20 @@ functional.  So the honest layer-side input of the repaired route is the defect-
 ladder `GDeepKillAt h k`: all-rows-zero row-trivial `γ_{k+1}`-elements reach.  Its `k = 2`
 instance is wave 78's T2, its `k = 3` instance is §7, and the whole odd-route residual
 re-cuts onto the ladder at `k ≥ 4` plus the two wave-75 interfaces.  The recursion seeded
-through `k = 2, 3` already yields the class-5 supply outright. -/
+through `k = 2, 3` already yields the class-5 supply outright.
+
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: THE RE-CUT RESIDUAL IS DISCHARGED IN FULL; this header
+names three open items and none of them is open.**  (i) the ladder at `k ≥ 4`:
+`gGen_killAt` (`SqCore/GradedUniformGen.lean`) proves `GDeepKillAt h k` at every `k ≥ 2`;
+(ii) the separation: `gExt_separationAll` (`SqCore/GradedExtraction.lean`, wave 79) proves
+`GJoinSeparationAll h` at every `h`; (iii) the extraction `GTowerKnobRealizable h` is not
+proved and not needed - the route no longer passes through it, having been re-run in
+`SqCore/GradedXFree.lean` §8 with the `x₁`-freeness clause carried, on which the weakened
+`GXfKnobRealizable h` IS a theorem (`gXf_knobRealizable`).  The target itself,
+`SqLamMarkTransitivity h`, is now a theorem at every `h` (`gOdd_markTransitivity`,
+`SqCore/GradedOddClose.lean`).  What is **not** superseded: every refutation this section
+rests on - `gDeep_not_layerReach`, `gDeep_not_baseThree`, `gDecide_not_joinBase` - stands
+unchanged, and the defect restriction remains essential.]** -/
 
 section Reseed
 
@@ -933,7 +946,15 @@ variable {h : ℕ}
 variable (h) in
 /-- ⭐⭐⭐ **The kill ladder at depth `k`**: the defect-restricted layer statement.  All the
 recursion ever consumes; TRUE at `k = 2, 3`, open at `k ≥ 4`, while the unrestricted
-statement is FALSE at every `k ≥ 2` (§3). -/
+statement is FALSE at every `k ≥ 2` (§3).
+
+⚠⚠ **[W81-HOUSE, as of `6f2916f3`: "open at `k ≥ 4`" is SETTLED, affirmatively.**
+`gGen_killAt : ∀ k, 2 ≤ k → GDeepKillAt h k` (`SqCore/GradedUniformGen.lean`, wave 80) proves
+this `Prop` at EVERY rung `k ≥ 2`, at every `h`, from the uniform generation record; the two
+rungs below re-prove its `k = 2, 3` cases.  Read the sentence as "TRUE at every `k ≥ 2`".
+What is **not** settled by that, and is not weakened: the unrestricted `GTowerLayerReach h ν' k`
+stays FALSE at every `k ≥ 2` and every marking (`gDeep_not_layerReach`, §3), so the
+defect restriction is exactly what makes the ladder true and cannot be dropped.]** -/
 def GDeepKillAt (k : ℕ) : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -951,7 +972,19 @@ theorem gDeep_killAt_three : GDeepKillAt h 3 :=
 
 /-- ⭐⭐⭐ **The vanishing interface from the kill ladder plus separation**: the honest
 re-cut of `gAbs_defectVanishing_of_baseThree`, with the FALSE base replaced by the
-defect-restricted ladder its proof actually consumed. -/
+defect-restricted ladder its proof actually consumed.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: BOTH HYPOTHESES OF THE `_of_kills` FAMILY ARE THEOREMS**, so
+the three composites here (`gDeep_defectVanishing_of_kills`, `gDeep_supply_of_kills`,
+`gDeep_markTransitivity_of_kills`) are conditionals with proved antecedents rather than open
+reductions.  `HK` is `gGen_killAt` (`SqCore/GradedUniformGen.lean`); `hsep` is
+`gExt_separationAll` (`SqCore/GradedExtraction.lean`).  The third hypothesis of the latter two,
+`HR : GTowerKnobRealizable h`, is NOT a theorem and is not expected to become one - it is the
+interface wave 79 found the route does not prove as quantified - which is why the closing
+route does not run through them: it runs through `SqCore/GradedXFree.lean` §8, whose weakened
+`GXfKnobRealizable h` is proved.  The conclusions are all available unconditionally downstream:
+`gOdd_defectVanishing`, `gOdd_supply`, `gOdd_markTransitivity` (`SqCore/GradedOddClose.lean`).
+Statements unchanged; these remain the honest record of what the depth-3 re-cut consumed.]** -/
 theorem gDeep_defectVanishing_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k)
     (hsep : GJoinSeparationAll h) : GJoinDefectVanishing h := by
   intro nu' j hsigma hx0 k hk a hal han hac _ hrel
@@ -974,14 +1007,28 @@ theorem gDeep_supply_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k)
   gJoin_supply_of_vanishing (gDeep_defectVanishing_of_kills HK hsep) HR
 
 /-- ⭐⭐⭐ **The `h ≥ 1` residual, re-cut**: the kill ladder (rungs `2` and `3` proved, `k ≥ 4`
-open), the separation bookkeeping, and the extraction interface. -/
+open), the separation bookkeeping, and the extraction interface.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: "rungs `2` and `3` proved, `k ≥ 4` open" is STALE - the
+ladder is proved at every rung (`gGen_killAt`) and the separation bookkeeping is proved at
+every `h` (`gExt_separationAll`).  Only `HR` remains unproved; see the annotation on
+`gDeep_defectVanishing_of_kills` for why that does not leave the conclusion open.]** -/
 theorem gDeep_markTransitivity_of_kills (HK : ∀ k, 2 ≤ k → GDeepKillAt h k)
     (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) : SqLamMarkTransitivity h :=
   gJoin_markTransitivity_of_vanishing (gDeep_defectVanishing_of_kills HK hsep) HR
 
 variable (h) in
 /-- **The depth-3 vanishing**: the `k = 3` instance of `GJoinDefectVanishing`, the knob-form
-consumed by the recursion's second step. -/
+consumed by the recursion's second step.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THIS `Prop` IS A THEOREM at every `h`.**  Its only input,
+`gDeep_vanishingThree_of_sep`'s depth-3 separation, is `gExt_towerSeparation`
+(`SqCore/GradedExtraction.lean`, wave 79), which holds at every `h`, marking and depth; so
+`gDeep_vanishingThree_of_sep (fun _ => gExt_towerSeparation)` proves it outright, and that is
+how `SqCore/GradedXFree.lean`'s `gXf_chiSupply_five` consumes it.  Its `k = 2` twin
+`GAbsVanishingTwo h` (`SqCore/GradedAbsorption.lean`) is a theorem for the same reason, and the
+whole-family form `GJoinDefectVanishing h` is `gOdd_defectVanishing`.  Not superseded: the
+`Prop` is still the honest name for what the second recursion step consumes.]** -/
 def GDeepVanishingThree : Prop :=
   ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -1049,7 +1096,15 @@ theorem gDeep_chiSupply_five (hsep : GJoinSeparationAll h) (HR : GTowerKnobReali
   exact ⟨a'', g1, g2, g3, g4, g5⟩
 
 /-- ⭐⭐⭐ **The class-5 supply**: `SqClassClearingSupply h 5` from separation plus
-extraction.  With wave 78's class 4, the per-class residual now starts at CLASS 6. -/
+extraction.  With wave 78's class 4, the per-class residual now starts at CLASS 6.
+
+⚠ **[W81-HOUSE, as of `6f2916f3`: THERE IS NO PER-CLASS RESIDUAL.**  `gOdd_supply (h k) :
+SqClassClearingSupply h k` (`SqCore/GradedOddClose.lean`) holds at EVERY class and every `h`,
+with no hypothesis; the sentence "now starts at CLASS 6" is stale.  Both hypotheses of this
+`_five` family are also settled asymmetrically: `hsep` is a theorem (`gExt_separationAll`),
+`HR` is not and is bypassed rather than proved (see `gDeep_defectVanishing_of_kills`).  The
+unconditional class-5 statement in the tree is `gXf_supply_five`
+(`SqCore/GradedXFree.lean`, wave 80), which is this one with both hypotheses discharged.]** -/
 theorem gDeep_supply_five (hsep : GJoinSeparationAll h) (HR : GTowerKnobRealizable h) :
     SqClassClearingSupply h 5 :=
   gJoin_supply_of_chiSupply (gDeep_chiSupply_five hsep HR)
