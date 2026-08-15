@@ -1,5 +1,26 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 75 (2026-08-15)
+
+**One item still awaits you**: the plan-A6 freeze question (wave 73; costs both ways and a
+recommendation in that block).
+
+**For orientation.**  Two structural results and one process lesson:
+
+* **The general-degree final theorem now exists in the tree** (`GQ2/Dyadic/GeneralAssembly.lean`),
+  with its obligations as named record fields and the committed quadratic conclusions
+  re-derived through it unchanged.  Stating it surfaced that the n = 1 case is not
+  unconditional in the general shape (one reusable restatement fixes it) and that the graded
+  programme is a named input to the general theorem's L row at every h, settling the
+  on/off-path question in the tree's own terms.
+* **The odd residual is down to three named inputs.**  Base, separation, realizability imply
+  mark transitivity and the per-class supply at every class.  The base's one gap closes by the
+  relator's own degree-2 leading form; the depth-1 shortcut is proved false, so depth 2 is the
+  floor.
+* **The process lesson**: the correct diagnosis of the tower obstruction was written in wave
+  70's withdrawn analysis, discarded with it, re-demanded by wave 73, and refuted by wave 74.
+  Withdrawn analysis should be labelled with what was wrong in it, not withdrawn whole.
+
 ## Status at wave 74 (2026-08-15)
 
 **One item still awaits you**: the plan-A6 freeze question from wave 73 (two stale docstrings
