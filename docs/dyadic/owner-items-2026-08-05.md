@@ -1,5 +1,23 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 80 (2026-08-15)
+
+**Three items await you** (unchanged): the plan-A6 freeze, now seven review rounds without
+motion; the line-length policy; the pilot-record spelling call.
+
+**For orientation.  The odd route is closed.**  Mark transitivity holds unconditionally at
+every handle count, on the standard three axioms, and behind it the per-class clearing supply
+holds at every class.  The residual you and I inherited at wave 51 as the odd/L frontier is a
+theorem, thirty waves later, assembled from two lanes that each removed what the other could
+not and a seam check that found no binder mismatch.  What this does and does not settle is
+recorded exactly: the odd row's certificate now needs only an oriented identification and two
+normalizations; that identification is the odd-degree classification statement itself and is
+the next target.  Separately, the determinant obligation is wired away, so the general
+residual record costs three blocks rather than four, and the two procyclic rows' arithmetic
+is reduced to four norm-character values that were hand-checked against the frozen table and
+agree, an independent consistency check between the table and the fields that had never been
+run.
+
 ## Status at wave 79 (2026-08-15)
 
 **Three items await you** (unchanged): the plan-A6 freeze; the line-length policy; the
