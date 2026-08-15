@@ -246,3 +246,23 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
    description of which markings `D_M 2 0` admits.
 3. **Register `GQ2/Dyadic/Instances/MpcRowData.lean`** in `GQ2.lean` (housekeeping).
 4. **`fieldUni_TwoIsUniformizer KSqrtFive`** is still open (row 3), unchanged by this lane.
+
+**[W82-HOUSE, as of `a45bc557`: ALL FOUR ITEMS ARE SETTLED, and §4's table above is
+superseded.**  `docs/dyadic/w81-house-note.md` §3.5 flagged items 3 and 4 for the orchestrator
+and nothing marked them in this file; doing that now, with 1 and 2.
+
+* **Items 1 and 2 landed in wave 81**, along exactly the route this section predicted and with
+  no Hilbert-symbol calculator: `mpcNorm_noUnitKerChi_sqrt{Ten,NegTen}`,
+  `mpcNorm_lambdaOne_negOne_sqrt{Ten,NegTen}`, `mpcNorm_lambdaOne_mUnit_sqrtNegTen` and
+  `mpcNorm_free_unique` (`Instances/MpcNormValues.lean`), all at the standard three axioms.
+  The `ε = false` pivot followed (`mpcNorm_pivot_sqrtTen`), making row 4's branch datum
+  unconditional (`mpcNorm_genAsmBranch_sqrtTen`).  Item 2's prediction about `ℚ₂(√−10)` held
+  too: that pivot is still open and still needs the certificate side or a classification of the
+  markings `D_M 2 0` admits.
+* **Item 3 is done**, `GQ2.lean:870`.
+* **Item 4 was never open after wave 79**: `fieldFive_twoIsUniformizer`
+  (`Instances/FieldSqrtFiveUnramified.lean:209`, `b1bd2e64`), with
+  `fieldFive_genAsmBranch_sqrtFive` (`:235`) the clause-free row-3 datum.
+
+Corrected §4 table: rows 1, 2, 3 and 4 carry **nothing**; row 5 carries the pivot alone
+(`mpcNorm_genAsmBranch_sqrtNegTen_of_pivot`).  One clause on the whole frozen table.]**

@@ -94,6 +94,23 @@ The record's nine:
 | `pro2`, `hpro2`, `ker_pro2`, `nu_compat` | **CLASS** | the pro-`2` coordinate of eq. (27): the marked-core certificate's output.  This is the *same* classification datum as the pilot's `fLab`, in a different spelling (§1.5) |
 | `exactLifting`, `stokes`, `determinant` | **ASK** | the K-clones of the `ℚ₂` counting pack.  `KSupply.lean` names precisely what is owed: `GQ2/Phase140/Local.lean`, `GQ2/RStage/Local.lean`, `liftsOver_card_local`, `lemma_8_6_local`, and the LG5 ⇒ `GaussZResidueK` bridge, whose `ℚ₂` ancestor is `GQ2/GaussZ/FinalD.lean` and **which has no `K` clone** |
 
+**[W82-HOUSE, as of `a45bc557`: THAT ROW IS SUPERSEDED IN FULL.  All three named `ℚ₂` objects
+have `K`-side successors, and none of the three is a clone.**  Replacement row:
+
+| field | owes | supplier at `G_K` |
+| --- | --- | --- |
+| `stokes` | **nothing** | `stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`) from `hdeg` alone, over the `Γ`-generic `Count/LocalDuality.lean` layer (`:152`, `:178`, `:210`, `:252`) rather than a clone of `Phase140/Local.lean` |
+| `determinant` | **the wiring only** | `affineDeterminant_galK` (`GQ2/Dyadic/GaussZ/FinalDK.lean`); flagged already by W79-HOUSE, which corrected item 5 of §3 below but not this row |
+| `exactLifting` | **one `Prop`**, `askCStageVanishing` | `liftsOver_card_galK` and `lem86_galK_of_noDescent` (`Instances/KExactLiftingGalK.lean:86`, `:106`) plus `correctedRStageSemantics_galK` give `ExactLiftingSemanticsRN` at every degree; the *frozen* bundle these records ask for differs by the equation-(136) coefficient (`zR = #R²·#D_R` versus `#R^{n+1}·#D_R`) and is equivalent to `askCStageVanishing` at `2 ≤ n`, which is every row's degree |
+
+So the ASK block of this memo's residual surface is **one** `Prop`, not three counting theorems,
+and the `Prop` is a coefficient condition.  W81-ASK also showed it is not clearly the right
+thing to want: carrying the frozen field at `2 ≤ n` forces `#BoundaryLiftsK = 0` on every frame
+with nontrivial Frattini block, i.e. asserts `G_K` has no boundary-framed surjection onto any
+such marked target.  The recommended statement change, restating the row records against
+`ExactLiftingSemanticsRN`, is an owner item.  See `docs/dyadic/w81-ask-note.md` for the
+per-clause tables and `Instances/AskCounting.lean` for the checked restatements.]**
+
 Note `ScalarHilbertCertificate` is *not* a `KSupply` field: `KSupply.lean` §3 proves it
 (`scalarHilbert_galK`).  It is the only `SourceDataN` clause discharged at `G_K` by arithmetic.
 
@@ -285,6 +302,20 @@ item that makes the difference explicit.
    `KSupply.lean` is explicit that this has **no `K` clone** and that inlining a hypothesis named
    after LG5 would have hidden the gap.  ⚠⚠
 
+**[W82-HOUSE, as of `a45bc557`: GROUP B IS DOWN TO ONE `Prop`, and it is not any of items 3-5
+as stated.**  Item 4 is a theorem (`stokesDualityCertificate_galK`), item 5 is a theorem
+(`affineDeterminant_galK`, W79-HOUSE), and item 3's named existential is a theorem
+(`lem86_galK_of_noDescent`) as is its companion (`liftsOver_card_galK`), which together with
+`correctedRStageSemantics_galK` give `ExactLiftingSemanticsRN` at every degree.  The residue is
+the coefficient by which the **frozen** `ExactLiftingSemantics` differs from the corrected one,
+and `askC_exactLifting_iff_stageVanishing` identifies it exactly, at `2 ≤ n`, with the single
+`Prop` `askCStageVanishing`.  Two footnotes.  (i) Item 3 cites `KSupply.lean:256`-`260` for the
+narrowing sentence; at those lines sits `scalarHilbert_galK`, and the sentence is in the
+`lem86_galK` docstring further down (now annotated there).  (ii) The remaining `Prop` may be
+the wrong thing to want: it is equivalent, at the campaign's degree, to `G_K` admitting no
+boundary-framed surjection onto any marked target with nontrivial Frattini block.  The
+recommended restatement against `ExactLiftingSemanticsRN` is an owner item.]**
+
 **C.  The candidate-side clause layer (group CAND).**
 
 6. The four analytic clauses at `GammaR n q word`, `exactLifting`, `stokes`, `scalar`,
@@ -310,6 +341,22 @@ item that makes the difference explicit.
 residue is the only place where *both* sides of the two-sided architecture are carried and
 neither has a supplier lane.  Everything else is either owned, or a restatement, or arithmetic
 about a specific quadratic field.
+
+**[W82-HOUSE, as of `a45bc557`: the scoreboard and the "sharpest statement" verdict have both
+moved, in group A as well as group B.**  Replacement scoreboard:
+
+| group | statements | status |
+| --- | --- | --- |
+| A | item 1 is **closed at four of the five rows** | `fieldUni_genAsmBranch_sqrtNegTwo` / `_sqrtTwo` and `mpcNorm_genAsmBranch_sqrtTen` / `_sqrtNegTen_of_pivot` are branch data over the bundles alone (rows 1, 2, 4) or over one clause (row 5, the `ε = true` pivot); row 3 (`ℚ₂(√5)`) carries `fieldUni_TwoIsUniformizer KSqrtFive`.  Item 2, the `KTwo*` adapter, is the standing "pilot spelling" owner item |
+| B | **one `Prop`**, `askCStageVanishing` | items 4 and 5 are theorems; item 3 is one coefficient, see the annotation above |
+| C | 4 + 4 + 1 construction | unchanged by waves 79-81; `hdet` / `SqrtNeg2.PilotDet` is still unowned |
+
+The half of the verdict that survives is the half about `hdet`: the **candidate** side of the
+Gauss-`Z` determinant residue is still the only clause with no supplier lane.  The half that
+does not survive is "item 5": the arithmetic side has one.  The genuinely sharpest OPEN item on
+the board is no longer on this list at all, it is the odd seam
+(`LSquare.SqMarkedForwardSupply B h` at `h ≥ 1`, `docs/dyadic/w81-oddid-note.md`), which serves
+the `L` row that §3's own closing bullets set aside as already unconditional.]**
 
 ### What is NOT on the list, and should be said out loud
 

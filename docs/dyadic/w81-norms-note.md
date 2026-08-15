@@ -175,6 +175,29 @@ items are of completely different kinds: row 3 wants the unramifiedness of `ℚ�
 repository's norm-only idiom (`Fields.lean` §4's value-group work all runs under
 `Odd a.valuation`, which fails at `a = 5`), and row 5 wants the `ε = true` pivot of §5.
 
+**[W82-HOUSE, as of `a45bc557`: ROW 3 IS NOT OPEN, and has not been since wave 79.**
+`fieldFive_twoIsUniformizer : fieldUni_TwoIsUniformizer KSqrtFive`
+(`Instances/FieldSqrtFiveUnramified.lean:209`, commit `b1bd2e64`) proves it with no hypotheses,
+and `fieldFive_genAsmBranch_sqrtFive` (`:235`) is the `ℚ₂(√5)` branch datum with no clause at
+all.  The module is registered (`GQ2.lean:868`) and was present at this lane's own base
+`6f2916f3`.  The route the paragraph says is unavailable is the one that was not taken: the
+proof does not use `Fields.lean` §4's `Odd a.valuation` machinery, it shows the value group does
+not grow, via `‖N(z)‖ = ‖z‖²` and a `decide` that `s² - 5` has norm `‖4‖` when `‖s‖ = 1`.
+
+So the corrected scoreboard is `√−2`, `√2`, `√5`, `√10` over the bundles alone and **one** open
+item, the `ε = true` pivot at `√−10`.  Three notes on the shape of the error.
+
+1. The headline count "four of the five" is **right**, but not for the reason given, and it
+   contradicts this section's own table, which lists only three rows carrying nothing (1, 2, 4).
+   Four plus "the two open items" is six.  The internal inconsistency is the tell.
+2. The table's row-3 cell (`fieldUni_genAsmBranch_sqrtFive_of_unramified` / still carried
+   `fieldUni_TwoIsUniformizer KSqrtFive`) names the wave-78 producer; wave 79 discharged its
+   hypothesis and gave the clause-free consumer, and nothing cited the newer name.
+3. This lane's own wave sibling had already caught it: `docs/dyadic/w81-house-note.md` §3.5
+   records the same fact and flags `w80-rowdata-note.md` §7 item 4 for the orchestrator.  So
+   the same fact was known, in the same wave, off the same base.  §8 item 2 below repeats the
+   error and is annotated there.]**
+
 ### What the flagship still needs, per row
 
 Given a row's branch datum `G` and an oriented tame quotient `T`, `GenAsmRowResidual G T` has
@@ -217,6 +240,21 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
 3. **Register `GQ2/Dyadic/Instances/MpcNormValues.lean`** in `GQ2.lean` (housekeeping).
 4. **The three obligation blocks** (§6), which are now the whole of what the general row residual
    owes at every row.
+
+**[W82-HOUSE, as of `a45bc557`: items 2 and 4 of this list are stale; item 3 is done.**
+
+* **Item 2 is not open.**  `fieldFive_twoIsUniformizer` (`Instances/FieldSqrtFiveUnramified.lean:209`)
+  proved it in wave 79, before this lane's base.  See the annotation at §6.
+* **Item 4 is one block, not three.**  W81-ASK merged during this lane (`091ea7f0`) and closed
+  two of the three: `stokes` is a theorem at general degree (`askC_stokes_galK`,
+  `Instances/AskCounting.lean:101`), and `exactLifting`'s corrected bundle is a theorem at every
+  degree, the frozen one differing by the equation-(136) coefficient and equivalent at `2 ≤ n`
+  to the single `Prop` `askCStageVanishing`.  So the general row residual owes, per row, that
+  one `Prop` plus `cand`.  ⚠ And the `Prop` may be the wrong thing to want: carrying it at
+  `2 ≤ n` asserts `G_K` admits no boundary-framed surjection onto any marked target with
+  nontrivial Frattini block.  Item 3 (the registration) landed at `6bb08e2e`.
+* **Item 1, the `ε = true` pivot, is the one that stands**, and with row 3 corrected it is the
+  last clause on the whole frozen quadratic table.]**
 5. Reusable beyond the two rows: `mpcNorm_exists_decomp`, `mpcNorm_repr_of_norm_one` and
    `mpcNorm_residue_spectral_unit` are stated for **every** ramified quadratic `ℚ₂(√a)` with
    `v(a)` odd and `‖a‖ = ‖2‖`, so `ℚ₂(√±2)`'s norm groups are one instantiation away should any

@@ -103,6 +103,29 @@ unowned Gauss-`Z` item is the **candidate** side, `SqrtNeg2.PilotDet` (`hdet`), 
 critical path lists separately as item 7.  Also note: §6 item 4 below cites this file's
 `determinant` field at `:293`; it is at `:317`.]**
 
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: the OTHER half of that sentence is STALE too, since wave
+81.  The `*Local` counting pack is no longer owed at `K` either**, and the fix was never a
+clone: the four `Phase140/Local.lean` residues have carrier-generic twins over
+`TateDualityG Γ 2` plus `LocalEulerChar Γ d` (`Count/LocalDuality.lean:152`, `:178`, `:210`,
+`:252`), exactly the shape §6 item 3 predicted, and both inputs exist at `G_K`.  So:
+
+* `stokes` (all four clauses) is `stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`)
+  from the degree pin alone, restated at the row spelling as `askC_stokes_galK`;
+* `liftsOver_card_local` has `liftsOver_card_galK` (`Instances/KExactLiftingGalK.lean:86`) and
+  `lemma_8_6_local` has `lem86_galK_of_noDescent` (`:106`), so `ExactLiftingSemanticsRN` is a
+  theorem at **every** degree (`exactLiftingSemanticsRN_galK`, `:130`);
+* `RStage/Local.lean`'s stage (136) has `correctedRStageSemantics_galK`
+  (`Instances/KAnalytic.lean:740`), at the corrected coefficient.
+
+What survives is one coefficient, not one clone.  The **frozen** `ExactLiftingSemantics` this
+file's §4 asks for pins equation (136) at `RecursionFrame.zR = #R²·#D_R` while the `G_K`
+R-cocycle count is `#R^{n+1}·#D_R`; W81-ASK proved the two bundles equivalent at `2 ≤ n` to the
+named `Prop` `askCStageVanishing` (`Instances/AskCounting.lean:184`), and proved that carrying
+the frozen field at `2 ≤ n` forces `#BoundaryLiftsK = 0` on every nontrivial-`R` frame
+(`askC_isEmpty_boundaryLifts_of_exactLifting`).  That is a warning about the statement, not a
+missing theorem, and it is the open owner item.  §6 items 2, 3 and 4 below are stale in the
+same way and are annotated there.]**
+
 ## Import discipline
 
 Plain-import (SD1 memo §5): `GQ2.Dyadic.CertificateMain` is plain-import, and the module rule is
@@ -272,8 +295,20 @@ it converts the record's half-torsor field into the single per-source residue `h
 existence of a nonzero variation class.  At `G_ℚ₂` that residue is
 `RadicalEdgeLocal.exists_good_twist` (`GQ2/RadicalEdge/Local.lean:475`, `private` — its public
 entry point is `half_torsor_local`, which is what `lemma_8_6_local` actually calls); at `K` it is
-unowned, which is why `ExactLiftingSemantics` is carried whole in §4 rather than split.  Recorded here so the owed piece is exactly one
-existential and not a counting theorem. -/
+unowned, which is why `ExactLiftingSemantics` is carried whole in §4 rather than split.
+Recorded here so the owed piece is exactly one existential and not a counting theorem.
+
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: STALE since wave 81.  The `K` residue IS owned.**
+`Count.exists_nonzero_varCoc_of_tateDualityG` (`Instances/KExactLiftingVar.lean:109`) is the
+carrier-generic twin of `exists_good_twist`, and `lem86_galK_of_noDescent`
+(`Instances/KExactLiftingGalK.lean:106`) is the resulting half-torsor count at `G_K`: it takes
+`D.NoDescent` and a surjective `ρ` and nothing else, so the `hvar` binder this theorem carries
+is discharged there rather than owed.  W81-ASK restated it at the row shape as
+`askC_halfTorsor_galK` (`Instances/AskCounting.lean:112`), measured at std-3 plus B6 plus B1
+and **no B7**, the half-torsor clause being degree-free.  `lem86_galK` below is kept as the
+reduction it always was; only the word "unowned" was wrong.  Note also that the ASK lane's own
+handover cites this docstring as `KSupply.lean:256-260` (`w81-ask-note.md` §1): at those lines
+sits `scalarHilbert_galK`, not this one.]** -/
 theorem lem86_galK {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
     (D : RadicalCoverData Bg) (ρ : ContinuousMonoidHom (GalK K) (Bg ⧸ D.M))
     (S : TComplement D) (u : TCocycle D ρ)
@@ -515,6 +550,34 @@ This list is the residue of the ASK ticket and should be read as its handover.
    is finished — LG-K is closed — and whose *plumbing* is not.  ⚠ SD1 memo §9's flag lands here:
    the `ℚ₂` chain pins `#Z¹ = |V|²` (`GQ2/GaussZ/Reduction.lean:287`), and the `K` bridge must be
    stated at `|V| * SN.h1Mult |V|` from the start.
+
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: ITEMS 2, 3 AND 4 OF THIS HANDOVER ARE DISCHARGED.**  Read
+the list above as the wave-77 record it is; the current state is:
+
+* **item 2, `exactLifting`**: `liftsOver_card_galK` and `lem86_galK_of_noDescent`
+  (`Instances/KExactLiftingGalK.lean:86`, `:106`) are the two "natural first targets", landed,
+  and `correctedRStageSemantics_galK` (`Instances/KAnalytic.lean:740`) is stage (136).  So
+  `ExactLiftingSemanticsRN` at `G_K` is a theorem at every degree
+  (`exactLiftingSemanticsRN_galK`).  The **frozen** bundle this file's §4 field asks for is a
+  different statement: its (136) coefficient is `zR = #R²·#D_R` against the `G_K` count
+  `#R^{n+1}·#D_R`, and W81-ASK proved the two equivalent at `2 ≤ n` to `askCStageVanishing`
+  (`Instances/AskCounting.lean:184`).  Every live row sits at `n = 2`, so that one `Prop` is
+  the whole of what field `exactLifting` still costs.
+* **item 3, `stokes`**: the prediction was right and was carried out.  The `Γ`-generic layer
+  over `TateDualityG Γ 2` plus `LocalEulerChar Γ d` is `Count/LocalDuality.lean` (`:152`,
+  `:178`, `:210`, `:252`), and `stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`)
+  assembles all four clauses at `G_K` from the degree pin alone.  Field `stokes` is free.
+* **item 4, `determinant`**: see the W79-HOUSE block in the module docstring.  The bridge is
+  `affineDeterminant_galK`; only the wiring in this file is outstanding.
+
+The one arithmetic thing still open is neither a clone nor a count: it is whether
+`askCStageVanishing` should be **wanted**.  Carrying the frozen field at `2 ≤ n` forces
+`IsEmpty (BoundaryLiftsK b F T)` on every frame with nontrivial Frattini block
+(`askC_isEmpty_boundaryLifts_of_exactLifting`), and the recursion exists to count exactly those
+surjections.  W81-ASK's recommendation, which is a statement change and therefore reported
+rather than made, is to restate the row records against `ExactLiftingSemanticsRN`, which
+`askC_exactLiftingRN_galK` proves at every degree with nothing carried.  That is the standing
+owner item.  Item 1 (the four pro-`2` data) is unaffected and remains CLASS work.]**
 
 None of these is one of the nine campaign obligations, and none of them may become an axiom. -/
 

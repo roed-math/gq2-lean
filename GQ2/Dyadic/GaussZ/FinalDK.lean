@@ -165,7 +165,15 @@ the `SourceDataN.hZcard` clause `#Z¹ = #V * SN.h1Mult #V` is the correct genera
 The corollary `finite_vcocycleG` replaces the `ℚ₂` chain's use of `hZcard_local` for `Z¹`
 finiteness: it needs only that `#V` and `#H¹` are nonzero, and at `K` the latter is LG5's Euler
 clause.  This is what makes the bridge independent of the (unowned) `K`-clone of
-`GQ2/Phase140/Local.lean`. -/
+`GQ2/Phase140/Local.lean`.
+
+⚠ **[W82-HOUSE, as of `a45bc557`: the parenthetical is stale, the sentence is still worth
+keeping.**  There is no `K`-clone of `GQ2/Phase140/Local.lean` and there never will be, but the
+four residues it carries are closed at `G_K` by the carrier-generic route
+(`Count/LocalDuality.lean` over `TateDualityG` plus `LocalEulerChar`, assembled as
+`stokesDualityCertificate_galK`).  Read "unowned" as "not on this bridge's dependency path",
+which is the architectural point and remains true: `finite_vcocycleG` does not consume the
+Stokes bundle.]** -/
 
 section ZCount
 
@@ -198,7 +206,12 @@ theorem card_vcocycle_eq_mul_card_H1
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
 /-- **`Z¹` is finite** as soon as `V` and `H¹(Γ, V)` are — the replacement for the `ℚ₂` chain's
 `hZcard_local`-based `haveI hfinZ`, which is unavailable at `K` (the `Phase140/Local.lean` clone
-is unowned; CB-SG owns its generic successor).  At `K` the `H¹`-input is LG5's Euler clause. -/
+is unowned; CB-SG owns its generic successor).  At `K` the `H¹`-input is LG5's Euler clause.
+
+⚠ [W82-HOUSE, as of `a45bc557`: CB-SG's generic successor landed, as
+`GQ2/Dyadic/Count/LocalDuality.lean`, and its `G_K` consumer is `stokesDualityCertificate_galK`.
+This theorem's independence from it is by design and unchanged; only the word "unowned" is
+stale.] -/
 theorem finite_vcocycleG
     (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
     (hfix : ∀ v : DD.Vmod, (∀ γ : Γ, rho0 DD ρ γ • v = v) → v = 0)

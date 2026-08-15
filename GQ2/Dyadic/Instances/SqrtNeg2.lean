@@ -57,6 +57,18 @@ obligations appears.  In dependency order:
 * `hexact`/`hstokes` (§6) — the `K`-side `ExactLiftingSemantics` and
   `StokesDualityCertificate` at `G_K`: ASK's carried leaves 2–3 (`KSupply` §6), still owed by
   the `Phase140/Local`-successor lane (CB-SG built the substrate).
+  ⚠⚠ **[W82-HOUSE, as of `a45bc557`: STALE.  That lane finished.**  CB-SG's generic successor
+  is `GQ2/Dyadic/Count/LocalDuality.lean`, and its `G_K` consumer is
+  `stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`), so `hstokes` is **free**
+  from `hdeg` alone at this row's numerics slot; `askC_stokes_galK` is the same theorem at the
+  row's `q`.  For `hexact`, `liftsOver_card_galK` and `lem86_galK_of_noDescent`
+  (`Instances/KExactLiftingGalK.lean:86`, `:106`) plus `correctedRStageSemantics_galK` give
+  `ExactLiftingSemanticsRN` at every degree; what the **frozen** field this row spells adds is
+  the equation-(136) coefficient, equivalent at `2 ≤ n` to the single `Prop`
+  `askCStageVanishing` (`Instances/AskCounting.lean:184`).  This row sits at `n = 2`.  So the
+  pair costs one `Prop`, not two counting bundles, and ⚠ that `Prop` is itself questionable:
+  carrying it forces `IsEmpty (BoundaryLiftsK b F T)` on every frame with nontrivial Frattini
+  block.  The pilot's genuinely unowned clause is still `hdet` (`PilotDet`), candidate side.]**
 * `params`/`ramified`/`ramifiedData` (§6–§7) — packet §12's field-side inputs at the concrete
   `K`, in AS1's own shapes (`DyadicLocalInput`); `ramifiedData`'s intended constructor is
   LG5's `ramifiedCertificateOfSubtype`.

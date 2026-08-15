@@ -260,6 +260,30 @@ branch datum places on the row.  Two blocks, following the critical-path memo's 
   What is owed is the wiring.  The genuinely unowned Gauss-`Z` obligation is the **candidate**
   side (`SqrtNeg2.PilotDet`), not this one.]**
 
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: the FIRST TWO bullets are stale in the same way as the
+third was, and nobody had annotated them.**  Wave 81 verified both against the Lean:
+
+* `stokes` is **free**.  `stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`) proves
+  all four clauses at `G_K` from the degree pin alone, at `standardNumerics n`, which is the
+  numerics this record's field is written at; `askC_stokes_galK`
+  (`Instances/AskCounting.lean:101`) is the restatement at `q := qOf K FF`, this field's own
+  spelling.  Measured at std-3 plus B6 plus B7.
+* `exactLifting`'s bullet sentence is wrong twice over.  The `K` analogue of
+  `half_torsor_local` is not owed: it is `lem86_galK_of_noDescent`
+  (`Instances/KExactLiftingGalK.lean:106`), and `liftsOver_card_local`'s analogue is
+  `liftsOver_card_galK` (`:86`), so `ExactLiftingSemanticsRN` at `G_K` is a theorem at every
+  degree.  What the **frozen** bundle this field asks for adds is one coefficient: its
+  equation-(136) clause pins `zR = #R²·#D_R` where the `G_K` count is `#R^{n+1}·#D_R`, and
+  `askC_exactLifting_iff_stageVanishing` shows the two are the same statement at `2 ≤ n` as the
+  named `Prop` `askCStageVanishing`.  Every committed row sits at `n = 2`.
+
+So the ASK block of this record is **one** `Prop` and two free fields, not three carried
+clauses.  ⚠ And that `Prop` is not obviously wanted: `askC_isEmpty_boundaryLifts_of_exactLifting`
+derives from the frozen field, at `2 ≤ n`, that `G_K` admits no boundary-framed surjection at
+all onto any marked target with a nontrivial Frattini block.  The standing recommendation
+(W81-ASK §3.1) is to restate `exactLifting` against `ExactLiftingSemanticsRN`; that is a
+statement change to this record and is an owner item, not done here.]**
+
 Ledger field 5 (`ScalarHilbertCertificate` at `G_K`) is **absent by design**: `KSupply.lean`
 §3 proves it (`scalarHilbert_galK`), and the proof is `n`-free, so it stays discharged here.
 The `hdeg`/`hhom` pins are absent too: `hdeg` moved to the branch datum where it belongs (it is
@@ -279,12 +303,46 @@ free parameters on exactly one of the five rows:
 | `L h` | none over `D_sq h` | see `genAsm_nonempty_equiv_L_core_piBd` |
 
 So the CAND field is not a placeholder for a solved problem: on three of the five rows the
-campaign has no producer at free parameters at all. -/
+campaign has no producer at free parameters at all.
+
+⚠⚠ **[W82-HOUSE, as of `db50b7a4` (this lane's base is `a45bc557`; the `L h` row moved on
+`dyadic` mid-round): TWO OF THE FIVE ROWS OF THIS TABLE ARE STALE, and one of them has been
+stale since wave 76.**  Replacement rows:
+
+| row | producer over the general slot | coverage |
+| --- | --- | --- |
+| `Npc α r η h` | `genCertNpcWordCertificate` (`GeneralCertificates:727`) | free `(α, r, h, q)` |
+| `L h` | `Instances.LRowCand.lCand_wordCertificateCanonical` | free `(h, q)` |
+
+(Both carry the same four analytic clauses `M0` does.)
+
+The `Npc` correction is wave 76's and was flagged in `docs/dyadic/w76-house-note.md` and again
+in `docs/dyadic/w81-house-note.md` §3.1a without ever being marked here.  The `L h` correction
+is W82-CAND's, landed at `b465ffdc`: `lCorePresentation h` (`Instances/Cores.lean:146`) has
+existed at every `h` all along, so the row was plumbing rather than "new mathematics", and the
+`genAsm_nonempty_equiv_L_core_piBd` transport this cell points at was never the only route.
+
+So the closing sentence is wrong in both directions.  Corrected: **four of the five rows have a
+free-parameter producer** (`M0`, `Npc`, `L`, and `M0`'s `Mpc` sibling at `h = 0`), all of them
+carrying the same four analytic clauses, and the residue is uniform rather than per-row.  The
+one row with no free-parameter producer is `N0 α h`, covered only at `(α, h) = (2, 0)`.
+
+Two cautions from that lane, worth carrying at this record: the existential branch producers
+(`genAsm_branch_of_oddSq_canonical`, `genAsm_branch_of_evenN`, `genAsm_branch_of_evenM`, the
+`fieldId_genAsmBranch_*` family) return `∃ G, G.pres = …` and so **forget** `G.nuP`, while this
+record's `cand` field is stated at `G.nuP`; and the committed `h = 0` L-row closure lives at a
+different marking from `lNu 0`, with no comparison available at this tree.  Both are statement
+changes and are owner items.]** -/
 structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B FF) where
-  /-- **ASK, ledger field 3** at `G_K`. -/
+  /-- **ASK, ledger field 3** at `G_K`.  ⚠ [W82-HOUSE, as of `a45bc557`: this is the *frozen*
+  bundle.  Its `RN` companion is a theorem at every degree (`exactLiftingSemanticsRN_galK`);
+  the difference is the equation-(136) coefficient, and at `2 ≤ n` this field is equivalent to
+  `askCStageVanishing` alone.  See the module docstring above.] -/
   exactLifting : ExactLiftingSemantics (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
     (standardNumerics G.degree)
-  /-- **ASK, ledger field 4** at `G_K`. -/
+  /-- **ASK, ledger field 4** at `G_K`.  ⚠ [W82-HOUSE, as of `a45bc557`: this field is a binder
+  only because nobody wired it.  `stokesDualityCertificate_galK` produces it at this exact
+  numerics slot from `G.hdeg`, and `askC_stokes_galK` at this exact `q`.] -/
   stokes : StokesDualityCertificate (galKProfinite K) G.degree (qOf K FF) G.core G.nuP
     (standardNumerics G.degree) (smulZmod2GalK K)
   /-- **ASK, ledger field 6** at `G_K`.  ⚠⚠ No `K` clone of the LG5 ⇒ `GaussZResidueK` rung.
@@ -544,7 +602,35 @@ be a statement change to an existing file and is the standing owner item recorde
 `docs/dyadic/w80-final-note.md` §6 item 1.  What does NOT change with the closure: the
 `L`-row's other open binder `e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo)`,
 which IS the odd-degree classification statement and which no theorem in this tree produces at
-an arbitrary ramified-`i` `K`; and zero of `GenAsmRowResidual`'s four fields.]** -/
+an arbitrary ramified-`i` `K`; and zero of `GenAsmRowResidual`'s four fields.]**
+
+⚠⚠ **[W82-HOUSE, as of `a45bc557`: THE LAST SENTENCE OF THAT ANNOTATION IS FALSE, and was
+false at its own base `6f2916f3`.**  `e` alone IS produced, at every odd-degree `K`, over the
+marked bundle and nothing else:
+
+  `LSquare.nonempty_orientedEquiv_oddDegree (B : MarkedRecip Rec K) (hodd : Odd [K : ℚ₂]) :`
+  `  Nonempty (OrientedContinuousMulEquiv (SqCore.chiSq (([K : ℚ₂] - 1) / 2)) chiCycKTwo)`
+
+(`Instances/GammaLSylowPreimageFieldLabuteCubicNeutral.lean:249`, landed 2026-08-05, i.e. ten
+days before the annotation above was written).  Its re-indexed form at an explicit handle count
+is `oddId_orientedEquiv` (`Instances/OddIdentification.lean:90`), which the sibling lane
+W81-ODDID landed in the same wave off the same base; census {B1, B6, B7, B11a}, verified here
+by elaboration.  So `hodd` is the only input, and at a ramified-`i` `K` of odd degree `2h + 1`
+the binder `e` is free.
+
+What is genuinely NOT free is the **pair of selected `ν`-rows at `e`**: `SqCore/PivotClimb.lean`
+§9 makes the transported pivot row's parity an invariant of the target and
+`Instances/GammaLSylowPreimagePivotNu.lean` §5 refutes reading the rows off orientation.  The
+honest odd seam is therefore `LSquare.SqMarkedForwardSupply B h` (some oriented equivalence
+carries `ν(f σ) = 1`, `ν(f x₀) = 0`), which is exactly the `(e, hσ, hx₀)` triple the `L`-row
+producer consumes and which `oddId_supply_iff_certificate` shows is interchangeable with the
+`L`-row marked-core certificate with no side binder at all.  Restated: the odd residual is the
+ROWS, not the EQUIVALENCE.
+
+Recording the diagnosis as well as the correction, because it is the fourth instance of the
+named pattern and the first from a lane that was auditing for it: the annotation is
+own-base blindness (the theorem predates the base) compounded by sibling blindness (a lane of
+the same wave was consuming that theorem while this one was declaring it absent).]** -/
 
 section ClassificationJoin
 
@@ -578,7 +664,17 @@ The five re-exports and the five branch-datum producers `fieldId_genAsmBranch_*`
 module; each producer discharges everything but one marked-data unimodularity clause (`hpivot`
 on the four `M` rows, `hpair` on the pilot).  The sentence above is kept, not deleted, because
 it states correctly what `parityFinal_evenClassification` *itself* supplies; what is false is
-the closing clause.  Read it as "and it is supplied elsewhere, per field".]** -/
+the closing clause.  Read it as "and it is supplied elsewhere, per field".]**
+
+⚠ **[W82-HOUSE, as of `a45bc557`: "one marked-data unimodularity clause" per row is now
+FOUR-OF-FIVE-FREE.**  The clause is discharged outright at `ℚ₂(√−2)`, `ℚ₂(√2)`
+(`fieldUni_genAsmBranch_sqrt{NegTwo,Two}`, wave 78), `ℚ₂(√5)` (`fieldFive_genAsmBranch_sqrtFive`,
+`Instances/FieldSqrtFiveUnramified.lean:235`, wave 79) and `ℚ₂(√10)`
+(`mpcNorm_genAsmBranch_sqrtTen`, `Instances/MpcNormValues.lean:1215`, wave 81).  Only
+`ℚ₂(√−10)` still carries one, the `ε = true` pivot, and W81-NORMS §5 shows the obstruction is
+real rather than an argument gap: wave 80's counterexample `(−8, 1, 4, 1)` makes that pivot
+independent of the level, both `λ`-values and surjectivity, so it must come from the
+certificate side or from a classification of the markings `D_M 2 0` admits.]** -/
 theorem genAsm_evenRoute_output [T2Space (GalK K)] (B : MarkedRecip Rec K) (deltaI : ℚ̄₂)
     (hdeltaI : deltaI ^ 2 = -1)
     (hram : ¬ HasEqualNormValueGroups K deltaI) {h : ℕ}

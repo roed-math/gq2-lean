@@ -29,6 +29,18 @@ The next actual analytic consumer gaps are therefore:
   the candidate Hessian-to-`GaussZResidueK` bridge.  These are not generic local-duality gaps and
   should remain on their branch/candidate tracks.
 
+**[W82-HOUSE, as of `a45bc557`: the first two bullets are CLOSED, off this plan's own AB
+sequence; the third stands.**  `StokesDualityCertificate` at `G_K`, all four fields:
+`stokesDualityCertificate_galK` (`Instances/KAnalytic.lean:82`) from the degree pin alone, over
+the `Γ`-generic `Count/LocalDuality.lean` layer AB-2..AB-7 built.  `ExactLiftingSemantics` at
+`G_K`: `liftsOver_card_galK`, `lem86_galK_of_noDescent` and `correctedRStageSemantics_galK`
+give the corrected bundle `ExactLiftingSemanticsRN` at every degree; the *frozen* bundle the
+row records spell differs by the equation-(136) coefficient and is equivalent, at `2 ≤ n`, to
+the single `Prop` `askCStageVanishing` (`Instances/AskCounting.lean:184`).  ⚠ **AB-0 was never
+done**, and that is exactly why the stale inventories persisted for six waves:
+`CertificateMain.lean` and `KSupply.lean` are annotated as of this round, but the truth-sync
+AB-0 asked for is a statement-level edit and remains an owner item.]**
+
 The old statements that `prop_5_16` must still be generalized and that the arithmetic
 determinant bridge is absent are stale and should be corrected in a documentation-only PR.
 
