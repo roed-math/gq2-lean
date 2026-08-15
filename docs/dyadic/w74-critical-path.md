@@ -148,6 +148,19 @@ files at `4fff1592`, and 930 counts the root `GQ2.lean` as well.  `w74-house-not
 "929 physical" is the same tree under the other convention.  The numerator 427 is exact under
 both, since `GQ2.lean` is not in `GQ2.Dyadic.Main`'s closure.]**
 
+**[W77-HOUSE, ticket 1: a rival figure of 325 is refuted; the denominator is dated, the
+numerator is not.**  A redundant count-audit reported this closure as **325**, not 427.
+Recomputed with the regex of record (`w72-house-note.md` §1.0, which admits `public import`):
+**427** at `4fff1592` and **427** at `1d3d5a84`, and the two closures are the *same set*.
+**325 is exactly what a plain `^import ` grep returns**, because that grep drops the 586
+`public import` lines the aggregators use; the rival number is the wave-72 method trap
+reproduced verbatim.  Only the denominator has moved: **936** `.lean` files under `GQ2/` at
+`1d3d5a84`, **937** counting the root.  Read line 130 as **427 of 930 as of `4fff1592`**.  The
+seven modules added since that tree are reached from `GQ2.lean` alone and never from
+`GQ2.Dyadic.Main`, which is why the numerator did not move and why the bullet list above still
+holds verbatim.  The `SqCore/Graded*` family is **70** at `1d3d5a84` (annotation (i) above says
+"69 now", as of the wave-76 lane's base), and **zero** of the 70 are in the closure.]**
+
 Only four `SqCore` modules are in the closure (`Certificate`, `Cores`, `PivotLemma`, `Rank3`) and
 no `Instances/Even*` module at all.  A module outside the closure cannot be consumed by the
 theorem, so this settles "consume" in the literal sense.  It does **not** by itself settle the

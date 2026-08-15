@@ -456,6 +456,11 @@ unreachable module is `GQ2.AxiomLedger`, which is deliberate.
 * **`GQ2.Dyadic.Main`'s closure is 427**, recomputed by walking the `import` graph.  Nothing
   matching `EvenStratum*`, `EvenAlphaOne` or `NFrameAlphaOne` is in it, and **no
   `SqCore/Graded*` module** is in it, exactly as `w74-critical-path.md` §2.1 says.
+  **[W77-HOUSE, ticket 1.**  Re-verified: 427 at `4fff1592`, at this note's own `f0a71688`, and
+  at `1d3d5a84`, the same set each time.  This subsection's own module recount (932 / 933 / 932
+  reachable, sole unreachable `GQ2.AxiomLedger`) also reproduces exactly at `f0a71688`.  A
+  redundant count-audit reported 325 instead; that is the plain-`^import` figure and it is wrong.
+  See `w77-house-note.md` §1.]**
 
 **Counts, independently recounted at this tree:**
 
