@@ -432,7 +432,7 @@ line drift; it needs to think that way about content.
 
 ## 5.  Verification record
 
-* Lane `claude/w76-house`, base `97d51e93`.  Four commits, all path-limited.  **Not pushed.**
+* Lane `claude/w76-house`, base `97d51e93`.  Seven commits, all path-limited.  **Not pushed.**
 * **No `lake` command was run**; `scripts/check_dyadic.sh` and `scripts/check_axioms.sh` were
   not run.
 * `scripts/mirror.sh sweep` once at lane start (5873 artifacts), then `scripts/mirror.sh check`
@@ -466,9 +466,10 @@ line drift; it needs to think that way about content.
 `Dyadic/Instances/EvenUnramified.lean`, `Dyadic/SqCore/GradedDeltaFunctionals.lean`,
 `Dyadic/SqCore/GradedUniformJoin.lean`, `Dyadic/SqCore/GradedUniformTower.lean`.
 
-**Docs (8):** `w76-house-note.md` (new); `w74-critical-path.md`, `w74-engine-note.md`,
+**Docs (10):** `w76-house-note.md` (new); `w74-critical-path.md`, `w74-engine-note.md`,
 `w74-even-note.md`, `w74-func-note.md`, `w74-house-note.md`, `w75-house-note.md`,
-`w75-join-note.md`, `w75-state-note.md`.
+`w75-join-note.md`, `w75-state-note.md`, `w75-sweep-findings.md` (closed, with its four
+amendments named at its head).
 
 ## 7.  For the wave-77 queue
 
