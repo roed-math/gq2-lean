@@ -3,8 +3,13 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
+import GQ2.Dyadic.Instances.EvenParityModel
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.Main
+import GQ2.Dyadic.OrientationCorrection
+import GQ2.Dyadic.SqCore.DsqDemushkin
+import GQ2.Dyadic.SqCore.PivotSeedD0
+import GQ2.DyadicNielsen
 
 /-!
 # The general-degree assembly statement  (dyadic campaign, lane W75-STATE)
@@ -69,7 +74,7 @@ section Column
 /-- **The presented pro-`2` core of a selected presentation.**  `L` takes the
 square-commutator core `D_sq h` (`lCorePresentation h : CorePresentation (2*h+1) (lSqW h)
 (DSq h)`); the two `N` rows take `D_N α h` (`nCorePresentation`, `npcCorePresentationUnit`);
-the two `M` rows take `D_M α h` (`mCorePresentation`, `mpcCorePresentation` — both branches
+the two `M` rows take `D_M α h` (`mCorePresentation`, `mpcCorePresentation`: both branches
 present the *same* core, the dictionaries differ). -/
 noncomputable def genAsmCore : SelectedPresentation → ProfiniteGrp
   | .L h => SqCore.DSq h
@@ -158,7 +163,7 @@ variable (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
   [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   {Rec : LocalReciprocity} (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K)
 
-/-- **The row-independent field-side inputs, `n`-free** — `Main.lean`'s `FieldInputs` with
+/-- **The row-independent field-side inputs, `n`-free**.  `Main.lean`'s `FieldInputs` with
 `params_n : params.n = 2` replaced by `params_n : params.n = n`.  Every other field is already
 degree-free and is reproduced verbatim; in particular `ramified` is the standing hypothesis
 that *selects* `K` and is never to be discharged. -/
@@ -184,14 +189,14 @@ structure GenAsmFieldInputs (n : ℕ) where
 /-- **The general branch datum**: the family member `K` sits on, together with the
 identification that places it there.
 
-* `pres` — the R5 constructor-table row at free `(α, r, ε, η, h)`.  It carries the branch
+* `pres`: the R5 constructor-table row at free `(α, r, ε, η, h)`.  It carries the branch
   (`L`/`N0`/`Npc`/`M0`/`Mpc`), the parameters, the handle count, the degree, and the word.
-* `hdeg` — degree coherence: `[K : ℚ₂]` is the row's degree, hence `1 + 2h` odd on the `L` row
+* `hdeg`: degree coherence: `[K : ℚ₂]` is the row's degree, hence `1 + 2h` odd on the `L` row
   and `2 + 2h` even on the other four (`genAsm_degree_odd`, `genAsm_degree_even`).
-* `nuP`/`hnuP` — the core's `Ztwo` marking.  Not an obligation: it is a *construction*, landed
+* `nuP`/`hnuP`: the core's `Ztwo` marking.  Not an obligation: it is a *construction*, landed
   at `lNu h`, `mNu α h`, `mpcNu α r p` (the memo's item 8), with surjectivity from
   `dmNu_surjective`-style arguments.
-* `realization` — the classification output in the direct `G_K(2)` spelling: a continuous
+* `realization`: the classification output in the direct `G_K(2)` spelling: a continuous
   equivalence `core ≃ G_K(2)` whose `Ztwo` coordinate is the canonical unramified character.
   This single field is what the pilot record spends six fields on, and it is exactly what
   `KSupply.ofMarkedCoreRealization` consumes.
@@ -229,7 +234,7 @@ noncomputable abbrev core : ProfiniteGrp := genAsmCore G.pres
 /-- The core is pro-`2`. -/
 theorem coreIsProP : IsProP 2 ((G.core : ProfiniteGrp) : Type) := genAsmCoreIsProP G.pres
 
-/-- The pro-`2` coordinate `G_K ↠ core` induced by the selector — the composite
+/-- The pro-`2` coordinate `G_K ↠ core` induced by the selector, i.e. the composite
 `G_K ↠ G_K(2) ≃ core`.  This is `KSupply`'s `pro2` field, *derived* rather than assumed. -/
 noncomputable abbrev pro2 : ContinuousMonoidHom (GalK K) G.core := G.realization.pro2
 
@@ -241,11 +246,11 @@ branch datum places on the row.  Two blocks, following the critical-path memo's 
 **ASK** (`GQ2/Dyadic/Instances/KSupply.lean`), the arithmetic counting pack at the carrier
 `galKProfinite K`, field names taken from the committed `KSupply`:
 
-* `exactLifting` — ledger field 3 at `G_K`: `#LiftsOver`, the half-torsor count, stage (136).
+* `exactLifting`: ledger field 3 at `G_K`: `#LiftsOver`, the half-torsor count, stage (136).
   The `ℚ₂` ancestors are `liftsOver_card_local` and `lemma_8_6_local`; `KSupply.lean` narrows
   the second to one existential, the `K` analogue of `half_torsor_local`.
-* `stokes` — ledger field 4 at `G_K`: `tcocycle_card`, separation, nondegeneracy, `#Z¹(V)`.
-* `determinant` — ledger field 6 at `G_K`: the Gauss-`Z` residue at both heads.  ⚠⚠ The
+* `stokes`: ledger field 4 at `G_K`: `tcocycle_card`, separation, nondegeneracy, `#Z¹(V)`.
+* `determinant`: ledger field 6 at `G_K`: the Gauss-`Z` residue at both heads.  ⚠⚠ The
   LG5 ⇒ `GaussZResidueK` rung has no `K` clone and no owner lane.
 
 Ledger field 5 (`ScalarHilbertCertificate` at `G_K`) is **absent by design**: `KSupply.lean`
@@ -291,7 +296,7 @@ variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
   [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
 
-/-- **The supply-facing general theorem** — `Main.lean` §6's
+/-- **The supply-facing general theorem**.  `Main.lean` §6's
 `candidate_equiv_galK_of_frozenRow_certificates` with the frozen quadratic table replaced by
 the whole R5 constructor table at free `(α, r, ε, η, h)`, and `n = 2` replaced by the row's own
 degree.  One statement, no case analysis, uniform in the row *and* in the degree. -/
@@ -313,8 +318,8 @@ theorem genAsm_candidate_equiv_galK_of_supply (S : SelectedPresentation)
 `ramifiedI_candidate_equiv_galK`).
 
 For a finite `K/ℚ₂` carrying the ramified-`i` hypothesis (`F.ramified`) and a branch datum `G`
-placing `K` on a member of the R5 family — its degree, its `(α, h)` or `h`, its branch and
-sign, and the identification of `G_K(2)` with that member's core — the candidate group at
+placing `K` on a member of the R5 family (its degree, its `(α, h)` or `h`, its branch and
+sign, and the identification of `G_K(2)` with that member's core), the candidate group at
 `q_K` over the member's word presents `G_K`, given the general residual record:
 
 `Γ_{R_S} = ⟨σ, τ, x₀ … x_n ∣ τ^σ = τ^{q_K}, R_S = 1, ⟪x⟫ pro-2⟩_prof ≅ G_K`.
@@ -353,10 +358,10 @@ theorem's conclusion at that pin is literally the committed `rowEquiv_*` conclus
 | `FieldInputs.params_n : params.n = 2` | `GenAsmFieldInputs.params_n : params.n = n` |
 | pilot `hdeg`, `M`-row `KSupply.hdeg` | `GenAsmBranch.hdeg`, at the row's own degree |
 | pilot `fLab`/`horient`/`hpair` | `GenAsmBranch.realization` (one field) |
-| pilot `piAb`/`hpiAb`/`hpiNu` | **retired** — the abelianization slot exists only in the
+| pilot `piAb`/`hpiAb`/`hpiNu` | **retired**: the abelianization slot exists only in the
   older `marked_matching_certificate_KN` spelling |
 | `KSupply.pro2`/`hpro2`/`ker_pro2`/`nu_compat` | **derived** from `GenAsmBranch.realization` |
-| `KSupply.hhom` | **retired** — `rfl` at `standardNumerics` in every degree |
+| `KSupply.hhom` | **retired**: `rfl` at `standardNumerics` in every degree |
 | `KSupply.exactLifting`/`stokes`/`determinant` | `GenAsmRowResidual.exactLifting`/`stokes`/`determinant` |
 | pilot `hexact`/`hstokes` | the same two ASK fields |
 | pilot `hsimp`/`hsplit`/`hZcount`/`hdet` | inside `GenAsmRowResidual.cand` |
@@ -412,6 +417,30 @@ theorem genAsm_core_sqrtNegTen :
 theorem genAsm_degree_frozen (r : FrozenQuadRow) : r.selectedPresentation.degree = 2 :=
   FrozenQuadRow.selectedPresentation_degree r
 
+/-- The general table's odd row takes the square-commutator core, at every handle count. -/
+theorem genAsm_core_L (h : ℕ) : genAsmCore (.L h) = SqCore.DSq h := rfl
+
+/-- ⚠ **Finding (the `n = 1` row does not come out unconditional).**  `Main.lean` §6's
+`wordCertificate_nonempty_lSq` is unconditional, but it is a
+`WordCertificate 1 2 (lSqW 0) PiBd _ nuTwo _`: its core is `Π` (`GQ2/BoundaryFrame.lean:142`,
+relator `x₀^{σ²} x₀ [x₁,σ]`), **not** the constructor table's `D_sq 0`.  The `L` core presentation
+`lCorePresentation`, the direct producer `marked_matching_certificate_KTwoSq` and the odd route's
+residual `SqLamMarkTransitivity h` all live over `D_sq h` instead, so the general statement's `L`
+slot asks for a certificate over `D_sq h` and the landed unconditional one does not fit it.
+
+The two cores *are* equivalent at `h = 0`, and this theorem builds the equivalence from committed
+pieces: `D_sq 0 ≃ D_R` (`SqCore.sqEquivDRMarked`), `D_R ≃ D₀` (`nonempty_equiv_DR_D0`, the
+rank-three Labute equivalence with `bLab`'s four antecedents discharged), `D₀ ≃ Π`
+(`d0PiEquiv`, paper Cor. 3.12).  What is missing is a **`WordCertificate` core transport** along
+such an equivalence: the tree has none, and `WordCertificate`'s core-dependent fields
+(`coreRel`, `proTwoWord`, `pro2`, `ker_pro2`, `hpro2`, `compat`) do not move on their own.  That
+one restatement is the whole distance between the committed `n = 1` endpoint and the general
+statement's `L` row at `h = 0`. -/
+theorem genAsm_nonempty_equiv_L_core_piBd :
+    Nonempty (ContinuousMulEquiv ((genAsmCore (.L 0) : ProfiniteGrp) : Type) (PiBd : Type)) := by
+  obtain ⟨f⟩ := SqCore.nonempty_equiv_DR_D0
+  exact ⟨SqCore.sqEquivDRMarked.trans (f.trans SectionThree.d0PiEquiv)⟩
+
 end FrozenContainment
 
 /-! ### 4.2 The committed rows prove the general-shaped conclusion
@@ -464,5 +493,109 @@ theorem genAsm_rowEquiv_sqrtNegTen (F : FieldInputs K B FF)
   rowEquiv_sqrtNegTen F S
 
 end FrozenRows
+
+/-! ### 4.3 The classification join
+
+What the two classification routes discharge, stated against the general branch datum.  These
+are the theorems that make the join visible: they take the routes' *own output shapes* and
+produce a `GenAsmBranch`, so no adapter is left implicit.
+
+The even route (`parityFinal_evenClassification`, `Instances/EvenParityModel.lean:156`) gives,
+at a ramified-`i` `K` of degree `2 + 2h`, an `alpha ≥ 2` and an
+`OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo)` or the `chiN` analogue.  That is
+exactly the pair `(f, horient)` the `KTwo*` producers consume, which is the memo's §1.5 point
+and the reason the branch datum is spelled this way.
+
+The odd route's residual `SqLamMarkTransitivity h` (`SqCore/GradedLimit.lean`, the target of
+waves 68-73) discharges the `hMix` binder of the `L`-row producer at every `h ≥ 1`. -/
+
+section ClassificationJoin
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K}
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **The even route's output, restated on the general slot.**  `parityFinal_evenClassification`
+(`Instances/EvenParityModel.lean:156`) is already `n`-free at even degree; the point of this
+re-export is that its degree hypothesis `[K : ℚ₂] = 2 + 2h` is *definitionally* the general
+branch datum's `hdeg` on any even row, and its conclusion is *definitionally* the `(f, horient)`
+pair that `genAsm_branch_of_evenM`/`genAsm_branch_of_evenN` consume.  So the even route's join to
+the general statement costs nothing beyond those two theorems' remaining binders.
+
+⚠ What the route does **not** supply is the `alpha` pin: it produces an existential `∃ alpha ≥ 2`,
+and the branch datum asks for the row.  That is the critical-path memo's item A1, the branch
+identification `range chiCycKTwo = imChiN alpha` per field, and it stays open. -/
+theorem genAsm_evenRoute_output [T2Space (GalK K)] (B : MarkedRecip Rec K) (deltaI : ℚ̄₂)
+    (hdeltaI : deltaI ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K deltaI) {h : ℕ}
+    (hev : Module.finrank ℚ_[2] K = (SelectedPresentation.N0 2 h).degree) :
+    ∃ alpha : ℕ, 2 ≤ alpha ∧
+      (Nonempty (OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K))) ∨
+        Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K)))) :=
+  EvenParity.parityFinal_evenClassification B deltaI hdeltaI hram hev
+
+/-- **The even route's `N` output builds the branch datum.**  Inputs: the degree pin, a `Ztwo`
+marking of the core agreeing with `nuN`, and the even classification's own output at the row
+(`OrientedContinuousMulEquiv (chiN alpha h) chiCycKTwo`), plus the marked-pair unimodularity
+clause the compact producer takes.  Output: a `GenAsmBranch` sitting on `N0 alpha h`. -/
+theorem genAsm_branch_of_evenN (alpha h : ℕ)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.N0 alpha h).degree)
+    (nuP : ContinuousMonoidHom ((DN alpha h : ProfiniteGrp) : Type) Ztwo)
+    (hnuP : Function.Surjective nuP)
+    (hnuIota : ∀ x, ztwoIota (nuP x) = nuN alpha h x)
+    (e : OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K)))
+    (hpair : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnSigma alpha h)))) ∨
+      IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnX2 alpha h))))) :
+    ∃ G : GenAsmBranch K B, G.pres = .N0 alpha h := by
+  obtain ⟨C⟩ := marked_matching_certificate_KTwoN B alpha h e.1 e.2 hpair
+  exact ⟨{ pres := .N0 alpha h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
+           realization := MarkedCoreRealization.ofCertificateN nuP hnuIota C }, rfl⟩
+
+/-- **The even route's `M` output builds the branch datum.**  Same shape, through
+`marked_matching_certificate_KTwoM`; `hMix` and `hpivot` are that producer's own binders. -/
+theorem genAsm_branch_of_evenM (alpha h : ℕ) (halpha : 1 ≤ alpha)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.M0 alpha h).degree)
+    (nuP : ContinuousMonoidHom ((DM alpha h : ProfiniteGrp) : Type) Ztwo)
+    (hnuP : Function.Surjective nuP)
+    (hnuIota : ∀ x, ztwoIota (nuP x) = nuM alpha h halpha x)
+    (e : OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K)))
+    (hMix : MMixHypothesis alpha h halpha)
+    (hpivot : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dmC alpha h))))) :
+    ∃ G : GenAsmBranch K B, G.pres = .M0 alpha h := by
+  obtain ⟨C⟩ := marked_matching_certificate_KTwoM B alpha h halpha e.1 e.2 hMix hpivot
+  exact ⟨{ pres := .M0 alpha h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
+           realization := MarkedCoreRealization.ofCertificateM nuP hnuIota C }, rfl⟩
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
+/-- **What the odd route's residual discharges.**  `SqLamMarkTransitivity h` gives
+`SqHandleMixFixesCore h c` at every `h ≥ 1` and every unit `c`
+(`sqHandleMixFixesCore_of_lamMarkTransitivity`), which is exactly the `hMix` binder of the
+`L`-row branch-datum producer below.  Restated here so the join is one step. -/
+theorem genAsm_oddResidual_gives_mix {h : ℕ} (hh : 0 < h) {c : ℤ_[2]} (hc : IsUnit c)
+    (H : SqCore.SqLamMarkTransitivity h) : SqCore.SqHandleMixFixesCore h c :=
+  SqCore.sqHandleMixFixesCore_of_lamMarkTransitivity hc hh H
+
+/-- **The `L`-row branch datum**, through the one-binder direct producer.  With
+`genAsm_oddResidual_gives_mix` the `hMix` input is the odd route's residual, so the odd side of
+the general statement's selector reduces to `SqLamMarkTransitivity h` plus the oriented
+equivalence and the two `ν` normalizations. -/
+theorem genAsm_branch_of_oddSq (h : ℕ) (c : ℤ_[2])
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
+    (nuP : ContinuousMonoidHom ((SqCore.DSq h : ProfiniteGrp) : Type) Ztwo)
+    (hnuP : Function.Surjective nuP)
+    (hnuIota : ∀ x, ztwoIota (nuP x) = SqCore.nuSq h x)
+    (e : OrientedContinuousMulEquiv (SqCore.chiSq h) (chiCycKTwo (K := K)))
+    (hMix : SqCore.SqHandleMixFixesCore h c)
+    (hsigma : nuUrKTwo B (e.1 (SqCore.dsqSigma h)) = Multiplicative.ofAdd (1 : ℤ_[2]))
+    (hx0 : nuUrKTwo B (e.1 (SqCore.dsqX0 h)) = Multiplicative.ofAdd (0 : ℤ_[2])) :
+    ∃ G : GenAsmBranch K B, G.pres = .L h := by
+  obtain ⟨C⟩ := marked_matching_certificate_KTwoSq_of_fixesCore B h c e.1 e.2 hMix hsigma hx0
+  exact ⟨{ pres := .L h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
+           realization := MarkedCoreRealization.ofCertificateSq nuP hnuIota C }, rfl⟩
+
+end ClassificationJoin
 
 end GQ2.Dyadic
