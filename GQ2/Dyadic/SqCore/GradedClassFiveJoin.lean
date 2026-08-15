@@ -87,7 +87,7 @@ class, class four included.
 
 **[W75-HOUSE, wave-74 update, and read the qualifier.**  One class down, the analogous span
 hypothesis is now **refuted** as a theorem (`gDelta_cfourCmp_span_hyp_false`,
-`GradedDeltaFunctionals.lean:1575`): the committed route's corrections cannot reach the Frobenius
+`GradedDeltaFunctionals.lean:1583`): the committed route's corrections cannot reach the Frobenius
 towers, which the twisted functionals detect and the moves do not move.  At class five the same
 mechanism is argued in `docs/dyadic/w74-func-note.md` §4.2 -- `zLayer 4` contains the tower class
 `σ^{2^3}` while class-five knob readings sit in `2^4 ℤ₂` -- so `zLayer G 4 ≤ S` is expected to
