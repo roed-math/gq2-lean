@@ -288,6 +288,86 @@ theorem rowCl_mCand_scalar (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
 
 end MCandidate
 
+/-! ## §4 The uniformity claim, checked
+
+W83-RECORDS asserted that the residue is *uniform* across the four tied rows.  The clause
+**shapes** are indeed uniform, but the reductions of §2 are not automatic: they run on
+`MCompact`'s own unconditional resolver package.  The `N0` twin exists and is the same shape
+(`NCompact.exactLiftingRN_unconditional`, `NCompact.uniformPushedHsimp`, both at `2 ≤ α`,
+`Instances/N0M0CompactBranches.lean`), so `N0 2 0` at `ℚ₂(√−2)` gets the identical treatment
+and this section states it.  `M0 3 0` at `ℚ₂(√2)` is `α = 3` in §2 and needs nothing new.
+
+**The fourth row is not covered.**  `Mpc 2 1 false 1 0` at `ℚ₂(√10)` runs on
+`MProcyclicExact`, which has no `exactLiftingRN_unconditional`; its corrected bundle still
+carries a `Hsimp`-family hypothesis.  So "success at one row is success at three" is the honest
+form of the uniformity claim at this tree, and the three are `M0 3 0`, `M0 2 0`, `N0 2 0`. -/
+
+section NCandidate
+
+open GQ2.Dyadic.NCompact GQ2.Dyadic.Words GQ2.CardH2GammaA
+open GQ2.Dyadic.Count.PilotN GQ2.SectionEight.CentralObstruction FoxH ContCoh
+
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+variable {α h q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+
+/-- The corrected bundle at the compact-`N` candidate, at the row table's degree spelling.
+**Unconditional** at `2 ≤ α`. -/
+theorem rowCl_nCand_exactLiftingRN (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
+    (nuP : ContinuousMonoidHom P Ztwo) :
+    ExactLiftingSemanticsRN (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q P nuP
+      (standardNumerics (2 + 2 * h)) :=
+  NCompact.exactLiftingRN_standard_congr (by omega)
+    (NCompact.exactLiftingRN_unconditional hα hq0 hqe nuP)
+
+/-- **The `N0` row's `exactLifting` clause, measured** — §2's statement at the `N` twin. -/
+theorem rowCl_nCand_exactLifting_iff (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+    ExactLiftingSemantics (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q P nuP
+        (standardNumerics (2 + 2 * h))
+      ↔ askCStageVanishing (GammaR (2 + 2 * h) q (nCompactW α h)) q P nuP :=
+  rowCl_exactLifting_iff_stageVanishing (by omega)
+    (rowCl_nCand_exactLiftingRN hα hq0 hqe nuP)
+
+/-- **The scalar character count at the compact-`N` candidate**, from the uniform pushed
+residue.  `Count.nCompact_homCard` at `NCompact.datumRho`. -/
+theorem rowCl_nCand_homCard_of_uniformPushed (hsimp : NCompact.UniformPushedHsimp α h q)
+    (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+    Nat.card (ContinuousMonoidHom ((NCompact.gamma α h q : Type)) (Multiplicative (ZMod 2)))
+      = (standardNumerics (2 * h + 2)).homScalar := by
+  letI : TopologicalSpace Base := ⊥
+  letI : DiscreteTopology Base := ⟨rfl⟩
+  letI : DiscreteTopology (Base ⧸ datum.M) := discreteTopology_quotient datum
+  letI := scalarActionZmodTwo (Base ⧸ datum.M)
+  set rho := NCompact.datumRho α h q hq0 hqe with hrho
+  have hb := resolvesAt_and_endpoint_nCompactFam_uniformHeis
+    (C := Base ⧸ datum.M) (A := ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0)
+    (α := α) (h := h) (q := q) hα hqe
+  have hres : ResolvesAt (gammaFam (2 + 2 * h) q (nCompactW α h))
+      (Certificates.nCompactFam α h q (omega2Exp (4 * Monoid.exponent (Base ⧸ datum.M))))
+      (WordLift (ZMod 2) (Base ⧸ datum.M)) := by
+    let incl : ContinuousMonoidHom (WordLift (ZMod 2) (Base ⧸ datum.M))
+        (HeisLift (ZMod 2) (Base ⧸ datum.M)) :=
+      ⟨Count.heisPrim, continuous_of_discreteTopology⟩
+    exact hb.1.pullback incl Count.heisPrim_injective
+  exact nCompact_homCard (t := ⟨fun i => rho (gammaGen (2 + 2 * h) q (nCompactW α h) i)⟩)
+    rho (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (nCompactW α h)) hres
+    (isWildTwo_of_gammaGen rho (NCompact.datumRho_surjective α h q hq0 hqe) (fun _ => rfl))
+    (hsimp (Base ⧸ datum.M) rho (ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0))
+    hb.2
+
+/-- **The `N0` row's `scalar` clause is a theorem, unconditionally at `2 ≤ α`.** -/
+theorem rowCl_nCand_scalar (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+    ScalarHilbertCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h)
+      (standardNumerics (2 + 2 * h)) (scalarActionZmodTwo _) :=
+  rowCl_scalar_standard_congr _ (by omega)
+    ⟨rowCl_nCand_homCard_of_uniformPushed (NCompact.uniformPushedHsimp hα hqe) (by omega)
+      hq0 hqe,
+     NCompact.cardH2_of_uniformPushed (NCompact.uniformPushedHsimp hα hqe) (by omega) hq0 hqe⟩
+
+end NCandidate
+
 /-! ## §3 The row: `ℚ₂(√5)` on `M0 2 0`
 
 W83-RECORDS' table left this row carrying six things: the four analytic clauses at
