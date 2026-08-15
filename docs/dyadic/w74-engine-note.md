@@ -170,8 +170,19 @@ interface isolates it exactly.
    `GTowerDefectVanishing` is weakened to allow an `x_1`-tower coefficient, with
    `GTowerKnobRealizable` extended to realize it (note that `gTowerKnobSet`'s second clause, the
    `x_1`-slot bundle, is the one knob that produces tower-type elements), or that coefficient is
-   killed structurally rather than functionally.  Weakening the Prop is a **statement change**
-   and an owner call; reported, not made.  See also `w75-house-note.md` §5.3.]**
+   killed structurally rather than functionally.
+   **W76-HOUSE round 13, and this settles it: wave 75 took the second option and it works.**
+   `gJoin_xOne_tower_knob` (`GradedUniformJoin.lean` §6, landed `20cd4121`) proves that
+   `x_1tilde^{2^k a}` lies in the knob span at every depth `k >= 1`: the `x_1`-slot bundle at
+   `t = x_1tilde^{2^{k-1}a}` supplies `t^2 * [t, x_1]`, the bracket splits through the bracket
+   homomorphism as `[t, x_1tilde] * [t, x_0^2]`, the first factor is trivial because `t` is a
+   power of `x_1tilde`, and the second is a far-span knob.  So the one tower the functionals
+   cannot see is precisely the one the moves manufacture, at no cost, and no weakening of the
+   Prop was needed.  §7 of the same module then pins the residue exactly: the reach exceeds the
+   knob span by exactly the `2h` handle towers, every one of them functional-visible.  This is
+   Labute's division of labour made exact for the sq core.  The item that remains from this
+   analysis is the `F_2`-independence bookkeeping `GJoinSeparationAll`, proved at `h = 0`
+   only.]**
 
 `gTower_markTransitivity_of_vanishing` then closes the residual.  No statement in the module
 depends on the class; the one-class-per-wave ladder is replaced by (1) + (2) + (3).

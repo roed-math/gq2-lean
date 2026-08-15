@@ -292,12 +292,25 @@ Two consequences the join lane should have in front of it:
   `gTower_clear_step` (`:1689`) cannot consume it as stated.  ⚠ Threading a mod-8 invariant
   through the recursion is a **statement change** to `GTowerDefectVanishing` and
   `gTower_clear_step`; reported, not made.
-* **`GDeltaDefectVanishing` as committed serves only the base of the recursion.**
+* ~~**`GDeltaDefectVanishing` as committed serves only the base of the recursion.**
   `gTower_supply_of_vanishing` (`:1714`) starts from `sqClassThree_supply`, whose witness is
   `bridgeTuple` with `chiSq = 1` exactly (`gDelta_chiSq_bridgeTuple`, `:927`); each clearing step
   multiplies by `d i ∈ γ_k`, which is only `1 mod 8` (`gDelta_chi_gammaTwo_dvd`, `:1448`).  So the
   exact hypothesis fails from the first correction onwards.  The applicable committed statement is
-  `gDelta_relWord_dvd_of_chi_mod` (`:1464`), which is a divisibility and not a vanishing.
+  `gDelta_relWord_dvd_of_chi_mod` (`:1464`), which is a divisibility and not a vanishing.~~
+  **[W76-HOUSE, watch round 13.  REFUTED, and it was already refuted when this bullet was
+  written.**  `gJoin_chiSq_of_gammaTwo` (`GradedUniformJoin.lean` §2) proves a `γ₂`-valued
+  admissible correction is `chiSq = 1` **exactly**: the two available facts pin opposite
+  residues (`chiSq = ±1` from the `λ`-row, `chiSq ≡ 1 mod 8` from `γ₂`) and `-2` is not
+  `8`-divisible in `ℤ₂`, so `-1` is excluded.  `gJoin_chiSq_mul_correction` carries the clause
+  through every step, so the exact hypothesis is **free along the whole recursion**, not lost
+  after one step, and `gDelta_relWord_dvd_of_chi_mod` is not what the assembly needs.  The
+  timing is the point: that theorem landed at `5d589184` (03:12:01) and merged into `dyadic`
+  at `71975be8` (04:33:51), **12 min 26 s** before this note's own commit `6eceb48c`
+  (04:46:17).  This is the intra-wave staleness item on the standing checklist, from a sibling
+  lane's *merged* work rather than an unmerged branch.  The first bullet stands: the join was
+  made at the exact clause, in `GJoinDefectVanishing`, which sits **beside**
+  `GTowerDefectVanishing` in a new module, so the ⚠ statement change never had to be made.]**
 
 **(f) LOW.  "This side's sharpest form" is the wrong ordering.**  `w74-func-note.md:239`.
 `GDeltaDefectVanishing`'s hypothesis (`chiSq = 1` exactly) is strictly stronger than the mod-8
@@ -411,8 +424,11 @@ no `handleV` one, which the summary's unsuffixed name papers over.
 
 **(b) MEDIUM.  The dependency memo's `SqCore/Graded*` count is the wave's own two landings too
 high, in a memo whose preamble says every number is as-of `4fff1592`.**
-`w74-critical-path.md:134` ("the whole `SqCore/Graded*` family (**68** modules)") and second site
-`w74-house-note.md:79` ("any `SqCore/Graded*` module (68 of them)").  Counted from the git tree:
+`w74-critical-path.md:135` ("the whole `SqCore/Graded*` family (**68** modules)") and second site
+`w74-house-note.md:79` ("any `SqCore/Graded*` module (68 of them)").
+**[W76-HOUSE, watch round 13: cited here as `:134`, which is the line above; at this note's own
+base `f0a71688` the sentence is at `:135`, as `w75-sweep-findings.md` item 10 has it.  The two
+W75 documents disagree by one about the same site.  Both corrections applied at the sources.]**  Counted from the git tree:
 `4fff1592` has **66**, `f0a71688` has 68.  The two that make the difference are the wave's own
 `GradedUniformTower.lean` and `GradedDeltaFunctionals.lean`, which landed **after** the house
 lane's merge (`0933f189` 00:36:45, against `1bf8c40a` 01:02:13 and `1ef86cea` 01:16:09), so at
@@ -442,6 +458,16 @@ unreachable module is `GQ2.AxiomLedger`, which is deliberate.
 * `GradedDeltaFunctionals.lean`: **1749 lines** and **103 `#print axioms`**, matching
   `w74-func-note.md:212-213` exactly ("1749 lines, 105 declarations, 103 axiom pins"); the two
   unpinned declarations and the two subset prints are as the note describes.
+  **[W76-HOUSE, watch round 13.**  The lines and the pins verify; "105 declarations" does not,
+  and the inference from it does not either.  The file has **103** declarations, and the map to
+  the 103 pins is a bijection: every declaration is pinned exactly once and no pin names anything
+  outside the file.  So there are **no** unpinned declarations, and this bullet's "the two
+  unpinned declarations ... are as the note describes" describes two objects that do not exist.
+  Method, because a naive count is what produced the 105: a line-start grep on `theorem|def|...`
+  overcounts by matching prose words ("defect", "classes") and undercounts by missing the nine
+  `@[simp]`/`@[reducible]`-prefixed declarations; the ERE that gets it right allows an optional
+  same-line attribute.  The two **subset prints** are real and are as described.  Corrected at
+  the source, `w74-func-note.md:212`, which is sweep item 9.]**
 * `EvenStratumRowFrame.lean`: **1077 lines**; the pin block runs past the file's own declaration
   count because it re-pins comparison statements from other modules, which is the shape
   `w74-even-note.md:194-196` describes ("all 46 named public declarations ... together with
@@ -470,18 +496,39 @@ identity at the sign-twisted datum, which is a finite check of the three definin
 that consumes this is `gTower_supply_of_vanishing`, whose recursion starts at `bridgeTuple`
 (`χ_sq = 1` exactly) and multiplies by `γ_k`-corrections (`χ_sq ≡ 1 mod 8`).  Every frame it ever
 holds is therefore in the mod-8 branch, and `-1 ≢ 1 (mod 8)`: **the `-1` branch never arises in
-the recursion.**  What *does* bite is the mismatch of §4.1(e): the recursion leaves the exact `+1`
-class after one step, so `GDeltaDefectVanishing` covers only the base.
+the recursion.**  ~~What *does* bite is the mismatch of §4.1(e): the recursion leaves the exact
+`+1` class after one step, so `GDeltaDefectVanishing` covers only the base.~~
 
-**W76 ticket, and it is a different ticket from the one §4.4 names.**  Package the mod-8 statement
-as the interface Prop, and thread the mod-8 chi invariant through the clearing recursion so the
-ENGINE can consume it.  Where it would live: a new `GQ2/Dyadic/SqCore/GradedDeltaTowerJoin.lean`
+~~**W76 ticket, and it is a different ticket from the one §4.4 names.**  Package the mod-8
+statement as the interface Prop, and thread the mod-8 chi invariant through the clearing recursion
+so the ENGINE can consume it.  Where it would live: a new
+`GQ2/Dyadic/SqCore/GradedDeltaTowerJoin.lean`
 importing both wave-74 modules (no cycle: neither imports the other), carrying (i) the mod-8
 invariant of the accumulated dressing as a lemma, and (ii) a restatement of
 `GTowerDefectVanishing` with a mod-8 chi clause.  ⚠ (ii) changes a committed statement in
 `GradedUniformTower.lean`, so it is an owner call whether the new Prop replaces it or sits beside
 it.  The sign-twisted datum check is then **optional**, needed only if a lane wants
-`GTowerDefectVanishing` at its present full binder.
+`GTowerDefectVanishing` at its present full binder.~~
+
+**[W76-HOUSE, watch round 13.  BUILT, better, and in this section's own wave.**  The first
+paragraph's conclusion is right and is exactly what the join lane proved; the sentence after it
+and the whole W76 ticket are struck, because `GQ2/Dyadic/SqCore/GradedUniformJoin.lean` had
+already landed (`87003e9d` 04:31:24) and merged (`71975be8` 04:33:51) when this section was
+written (`6eceb48c` 04:46:17).  Point by point:
+
+* the module exists, importing both wave-74 modules with no cycle, exactly as predicted; the
+  name is `GradedUniformJoin.lean`, not `GradedDeltaTowerJoin.lean`;
+* it threads the **exact** `χ`-clause rather than the mod-8 one, which is strictly better and
+  is available because `gJoin_chiSq_of_gammaTwo` shows a `γ₂`-valued admissible correction is
+  `χ`-trivial on the nose;
+* item (i), the invariant of the accumulated dressing, is `gJoin_chiSq_mul_correction`;
+* item (ii)'s ⚠ owner call did not arise: `GJoinDefectVanishing` sits **beside**
+  `GTowerDefectVanishing`, with `gJoin_defectVanishing_of_tower` recording the implication, and
+  no committed statement in `GradedUniformTower.lean` changed;
+* the sign-twisted datum check is indeed **optional** and was not done, for the reason given.
+
+What is genuinely left of §5.1 is nothing.  §5.2's mod-16 kit is untouched by the join lane and
+carries forward.]**
 
 ### 5.2  The class-five mod-16 kit: the wrong shape for the assembly that needs it
 
@@ -524,6 +571,21 @@ lane's.
 wave 69 found in the bundle, wave 71 re-diagnosed, wave 73 named as its one condition and wave 74
 met as Labute's `k ≠ 2` exclusion; it is now visible from three sides at once and has never been
 attacked directly.
+
+**[W76-HOUSE, watch round 13.  ATTACKED DIRECTLY, and closed, in this section's own wave.**  The
+diagnosis is exactly right and the last clause is not: `gJoin_xOne_tower_knob`
+(`GradedUniformJoin.lean` §6, `20cd4121` 04:22:53, merged `71975be8` 04:33:51, before this note's
+`6eceb48c` 04:46:17) proves the structural argument this paragraph asks for.  The `x̃₁` tower is a
+**knob**: at `t = x̃₁^{2^{k-1}a}` the `x₁`-slot bundle supplies `t²·⁅t, x₁⁆`, the bracket splits
+through the bracket homomorphism as `⁅t, x̃₁⁆·⁅t, x₀²⁆`, the first factor is trivial because `t` is
+a power of `x̃₁`, and the second is a far-span knob.  So the one tower no functional detects is
+precisely the one the moves manufacture, at every depth `k ≥ 1` and at no cost.  The paragraph's
+premise survives intact and is what makes the result inevitable rather than lucky: it is because
+`x̃₁` is invisible that it *has* to be a knob, which is Labute's own division of labour.  §7 of
+the same module completes the accounting: the reach exceeds the knob span by exactly the `2h`
+handle towers, and every one of those **is** functional-visible.  What survives as an open item
+is not the `x₁` coefficient at all but the `𝔽₂`-independence bookkeeping `GJoinSeparationAll`,
+proved only at `h = 0`.]**
 
 ## 6.  Verification record
 

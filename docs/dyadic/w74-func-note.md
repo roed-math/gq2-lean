@@ -248,10 +248,15 @@ W75 should join the two at the dressing-class hypotheses (see the gap ledger, 4.
 the join lane to reach for the wrong statement.  `GDeltaDefectVanishing`'s hypothesis
 (`chi_sq = 1` exactly) is strictly **stronger** than the mod-8 one and its conclusion
 (`= 0`) strictly stronger than `2^3 |`, so it and `gDelta_relWord_dvd_of_chi_mod` are
-**incomparable**, not ordered; for the assembly the mod-8 form is the applicable one
-(see the annotation on 4.4 below).  The same sentence's "could not be shape-matched
-without importing the sibling" is correct: `gTowerKnobSet` lives in the ENGINE
-file.]**
+**incomparable**, not ordered.  Round 12 added "and for the assembly the mod-8 form
+is the applicable one"; **that half is amended in lane by W76-HOUSE round 13**, since
+wave 75's `gJoin_chiSq_of_gammaTwo` makes the `chi`-clause free along the clearing
+recursion, so it is the **exact** form the assembly consumes and the mod-8 form it
+does not need (see the annotation on 4.4 below).  What survives is the ordering point:
+"sharpest" is not a relation these two statements stand in.  The same sentence's "could
+not be shape-matched without importing the sibling" is correct: `gTowerKnobSet` lives
+in the ENGINE file, and the module that did import both is
+`GQ2/Dyadic/SqCore/GradedUniformJoin.lean`.]**
 
 T3's Lean half landed beyond the brief: the tower obstruction
 (`gDelta_relWord_dvd_of_chi_mod`, `gDelta_sigma_tower_not_reached`) and the
@@ -361,11 +366,26 @@ The corrected shape of the class-four (and class-five) attack, per Labute:
   `GTowerDefectVanishing`, so `gTower_clear_step` cannot consume it as stated
   (threading a mod-8 invariant through that recursion is a **statement change** to
   `GTowerDefectVanishing`, an owner call, reported and not made); and
-  `GDeltaDefectVanishing` as committed serves only the **base** of the recursion,
-  since `gTower_supply_of_vanishing` starts at `bridgeTuple` (`chiSq = 1` exactly)
-  and every clearing step multiplies by a `d i` in `gamma_k`, which is only
-  `1 mod 8`.  The applicable committed statement from the first correction onwards
-  is `gDelta_relWord_dvd_of_chi_mod`, a divisibility and not a vanishing.]**
+  `GDeltaDefectVanishing` as committed appeared to serve only the **base** of the
+  recursion, since `gTower_supply_of_vanishing` starts at `bridgeTuple`
+  (`chiSq = 1` exactly) and every clearing step multiplies by a `d i` in `gamma_k`,
+  which `gDelta_chi_gammaTwo_dvd` puts only at `1 mod 8`.
+  **AMENDED IN LANE, W76-HOUSE round 13: the second consequence is wrong, and wave
+  75 had already refuted it before round 12 wrote it down.**
+  `GradedUniformJoin.lean` §2 (`gJoin_chiSq_of_gammaTwo`, landed `5d589184`,
+  03:12:01, merged `71975be8` 04:33:51, both before the round-12 note `6eceb48c`
+  04:46:17) proves that a `gamma_2`-valued admissible correction is `chiSq = 1`
+  **exactly**: the `lambda`-row gives `chiSq = ±1` and `gamma_2`-membership gives
+  `chiSq ≡ 1 mod 8`, and `-2` is not `8`-divisible in `Z_2`, so the two together
+  force `+1`.  `gJoin_chiSq_mul_correction` then carries the clause through every
+  step.  So the exact hypothesis does **not** fail after one step; it is free along
+  the whole recursion, and `GDeltaDefectVanishing` speaks for every dressing the
+  recursion produces.  The mod-8 statement `gDelta_relWord_dvd_of_chi_mod` is not
+  what the assembly needs after all.  The first consequence stands: the join is
+  made at the **exact** clause, in the new Prop `GJoinDefectVanishing` (wave 74's
+  with `∀ i, chiSq h (a i) = 1` added), which sits **beside** `GTowerDefectVanishing`
+  in a new module rather than replacing it, so the statement change the ⚠ above
+  guarded against did not have to happen.]**
 * **The class-five mod-16 kit** (4.2), one congruence pass.
 * **Untwisted rows are not functionals** (1.2-1.3, committed as
   `gDelta_row_reading`): any lane tempted to work with `nuSq`/`nuLam`/handle-row

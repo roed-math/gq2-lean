@@ -245,8 +245,14 @@ census movement.
    procyclic-`M` one needs lifting off `h = 0`.
 3. **The `α` pin** (memo item 1, unchanged): `range chiCycKTwo = imChiN α` per field, which
    turns the even route's existential into the row.  Nothing in this lane moves it.
-4. **Registration.**  `GQ2/Dyadic/GeneralAssembly.lean` is not in `GQ2.lean` (lane protocol
-   forbade editing it).  A later wave should add it so the umbrella carries the statement.
+4. ~~**Registration.**  `GQ2/Dyadic/GeneralAssembly.lean` is not in `GQ2.lean` (lane protocol
+   forbade editing it).  A later wave should add it so the umbrella carries the statement.~~
+   **[W76-HOUSE, watch round 13: DONE, in this wave, `1 min 28 s` after this note.**  The
+   orchestrator registered the module at `a19fac5a` (04:18:12), against the lane's last commit
+   `88a29ef7` (04:16:44).  The item was stale as written, which is the fourth wave running for
+   this exact finding; the convention adopted in W76 is that a lane note's claim about
+   `GQ2.lean` is written **as of** the lane's last commit, and §0's "`GQ2.lean` was not edited"
+   should be read that way.]**
 5. Nothing on the `L`-row marking: the bridge `ztwoIota (lNu h x) = nuSq h x` already existed
    (`LSquare.ztwoIota_lNu`) and this lane wires it in, so `genAsm_branch_of_oddSq_canonical`
    carries no marking binder at all.
