@@ -6,25 +6,26 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 import GQ2.Dyadic.SqCore.GradedAbsorption
 
 /-!
-# W79-EXTRACT: the handle-tower separation, at every handle count
+# W79-EXTRACT: the handle-tower separation, and the multi-slot dressing
 
 Wave 78's repaired reduction (`GradedAbsorption.lean`) reads
 
 `GDecideBaseThree h → GJoinSeparationAll h → GTowerKnobRealizable h → SqLamMarkTransitivity h`
 (`gAbs_markTransitivity_of_baseThree`).
 
-This file attacks the second input.  `GJoinSeparationAll h` is the `𝔽₂`-independence
-bookkeeping of `GradedUniformJoin.lean` §7: an element of the span of the `2h` handle
-towers whose every handle row reads `2^{k+1}`-divisibly is trivial in the layer.  Wave 75
-proved it at `h = 0` only (`gJoin_towerSeparation_handleFree`, vacuous), and scoped two
-routes for the general case; this file takes the first of them, the ordered `List.ofFn`
-product in `Q_{k+2}`.
+This file discharges the second input and works towards the third.
+
+`GJoinSeparationAll h` is the `𝔽₂`-independence bookkeeping of `GradedUniformJoin.lean` §7:
+an element of the span of the `2h` handle towers whose every handle row reads
+`2^{k+1}`-divisibly is trivial in the layer.  Wave 75 proved it at `h = 0` only
+(`gJoin_towerSeparation_handleFree`, vacuous), and scoped two routes for the general case;
+§1-§4 take the first of them, the ordered `List.ofFn` product in `Q_{k+2}`.
 
 ## What is here
 
-* §1, the two list facts the ordered product needs: slotwise multiplication of two
-  `List.ofFn` products when the first family is central, and the value of a `List.ofFn`
-  product all but one of whose factors is trivial.  Both are stated for an arbitrary group.
+* §1, the list facts the ordered product needs: slotwise multiplication of two `List.ofFn`
+  products when either family is central, and the value of a `List.ofFn` product all but one
+  of whose factors is trivial.  All stated for an arbitrary group.
 * §2, the handle-tower words `gExtWord`: the ordered product
   `∏_j U_j^{2^k f_j} · ∏_j V_j^{2^k g_j}`, and its readings.  Because `χ_sq` is trivial on
   the cleared handle letters, `gDelta` is *additive* along these words, so the `u_{j₀}`-row
@@ -33,10 +34,19 @@ product in `Q_{k+2}`.
   generators, so every element of the span is a word (`gExt_mem_span`).
 * §4, the separation at every `h` and every `k` (`gExt_towerSeparation`,
   `gExt_separationAll`), which discharges `GJoinSeparationAll h` outright.
+* §5, wave 78's reduction with that input removed: the odd route from two named inputs
+  (`gExt_markTransitivity_of_baseThree`).
+* §6, towards the third input: the multi-slot dressing.  `gExt_dress_handles` dresses the
+  `2h` handle slots at once (wave 74's extraction item (i), the multi-handle composition
+  lemma wave 73 flagged), `gExt_dress_full` composes it with `gTower_dress_core`, and
+  `gExtMove`/`gExt_frame_move` state the dressing identity at `sqArbFrame`.
 
-The mathematics is Labute's: the readings of §7 already separate the generators, and what
-was missing was only the normal form that turns generatorwise readings into a statement
-about the span.  Nothing here is conditional.
+The separation is Labute's mathematics: the readings of the join's §7 already separate the
+generators, and what was missing was only the normal form that turns generatorwise readings
+into a statement about the span.  Everything in this file is unconditional.
+`GTowerKnobRealizable h` itself is **not** discharged: the far-slot change of basis (wave
+74's extraction item (ii)) does not close it at the interface's quantifier, and
+`docs/dyadic/w79-extract-note.md` says exactly why and what repairs it.
 -/
 
 open Multiplicative
