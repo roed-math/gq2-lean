@@ -335,4 +335,134 @@ theorem genAsm_candidate_equiv_galK (G : GenAsmBranch K B)
 
 end Statement
 
+/-! ## §4 Reconciliation against the committed quadratic statement
+
+Three things are checked here, in order.
+
+**4.1 The frozen table is inside the general table.**  Ten `rfl`s: each frozen row's word and
+core are *definitionally* the general table's at the row's pin.  Consequently the general
+theorem's conclusion at that pin is literally the committed `rowEquiv_*` conclusion, which
+§4.2 exhibits by proving the general-shaped statement with the committed theorem.
+
+**4.2 The record map.**  Field by field (the table is repeated in
+`docs/dyadic/w75-state-note.md`):
+
+| `Main.lean` field | general counterpart |
+| --- | --- |
+| `FieldInputs.T`/`params`/`params_qK`/`ramified`/`ramifiedData` | same, verbatim |
+| `FieldInputs.params_n : params.n = 2` | `GenAsmFieldInputs.params_n : params.n = n` |
+| pilot `hdeg`, `M`-row `KSupply.hdeg` | `GenAsmBranch.hdeg`, at the row's own degree |
+| pilot `fLab`/`horient`/`hpair` | `GenAsmBranch.realization` (one field) |
+| pilot `piAb`/`hpiAb`/`hpiNu` | **retired** — the abelianization slot exists only in the
+  older `marked_matching_certificate_KN` spelling |
+| `KSupply.pro2`/`hpro2`/`ker_pro2`/`nu_compat` | **derived** from `GenAsmBranch.realization` |
+| `KSupply.hhom` | **retired** — `rfl` at `standardNumerics` in every degree |
+| `KSupply.exactLifting`/`stokes`/`determinant` | `GenAsmRowResidual.exactLifting`/`stokes`/`determinant` |
+| pilot `hexact`/`hstokes` | the same two ASK fields |
+| pilot `hsimp`/`hsplit`/`hZcount`/`hdet` | inside `GenAsmRowResidual.cand` |
+| `M`-row `exactLifting`/`stokes`/`scalar`/`determinant` | inside `GenAsmRowResidual.cand` |
+| `M`-row `nuP`/`hnuSigma`/`hnuWild`/`hnuP` | `GenAsmBranch.nuP`/`hnuP` plus the branch's own
+  core dictionary (the normalization clauses are inputs to the per-branch certificate
+  producers, not to the assembly) |
+
+**4.3 The classification join.**  What the two classification routes discharge, stated. -/
+
+/-! ### 4.1 The frozen table is inside the general table -/
+
+section FrozenContainment
+
+/-- The general table's `N0 2 0` row carries the pilot's frozen word. -/
+theorem genAsm_word_sqrtNegTwo :
+    (SelectedPresentation.N0 2 0).word = FrozenQuadRow.sqrtNegTwo.word := rfl
+
+/-- …and the pilot's presented core. -/
+theorem genAsm_core_sqrtNegTwo : genAsmCore (.N0 2 0) = SqrtNeg2.pilotP := rfl
+
+/-- The general table's `M0 3 0` row carries `ℚ₂(√2)`'s frozen word. -/
+theorem genAsm_word_sqrtTwo :
+    (SelectedPresentation.M0 3 0).word = FrozenQuadRow.sqrtTwo.word := rfl
+
+/-- …and its presented core. -/
+theorem genAsm_core_sqrtTwo : genAsmCore (.M0 3 0) = Instances.Sqrt2.core := rfl
+
+/-- The general table's `M0 2 0` row carries `ℚ₂(√5)`'s frozen word. -/
+theorem genAsm_word_sqrtFive :
+    (SelectedPresentation.M0 2 0).word = FrozenQuadRow.sqrtFive.word := rfl
+
+/-- …and its presented core. -/
+theorem genAsm_core_sqrtFive : genAsmCore (.M0 2 0) = Instances.Sqrt5.core := rfl
+
+/-- The general table's `Mpc 2 1 false .one 0` row carries `ℚ₂(√10)`'s frozen word. -/
+theorem genAsm_word_sqrtTen :
+    (SelectedPresentation.Mpc 2 1 false .one 0).word = FrozenQuadRow.sqrtTen.word := rfl
+
+/-- …and its presented core. -/
+theorem genAsm_core_sqrtTen :
+    genAsmCore (.Mpc 2 1 false .one 0) = Instances.Sqrt10.core := rfl
+
+/-- The general table's `Mpc 2 1 true .one 0` row carries `ℚ₂(√−10)`'s frozen word. -/
+theorem genAsm_word_sqrtNegTen :
+    (SelectedPresentation.Mpc 2 1 true .one 0).word = FrozenQuadRow.sqrtNegTen.word := rfl
+
+/-- …and its presented core. -/
+theorem genAsm_core_sqrtNegTen :
+    genAsmCore (.Mpc 2 1 true .one 0) = Instances.SqrtNeg10.core := rfl
+
+/-- Every frozen row's degree is the general table's `2 + 2*0`. -/
+theorem genAsm_degree_frozen (r : FrozenQuadRow) : r.selectedPresentation.degree = 2 :=
+  FrozenQuadRow.selectedPresentation_degree r
+
+end FrozenContainment
+
+/-! ### 4.2 The committed rows prove the general-shaped conclusion
+
+Each statement below is the conclusion of `genAsm_candidate_equiv_galK` at the row's pin,
+proved by the committed `rowEquiv_*` theorem.  That the committed proof term typechecks against
+the general-shaped statement is the check: the general statement does not drift from the
+landed one at the quadratic slot. -/
+
+section FrozenRows
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- Pilot row, general-shaped conclusion. -/
+theorem genAsm_rowEquiv_sqrtNegTwo (F : FieldInputs K B FF) (S : ResidualSqrtNegTwo K B FF) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.N0 2 0).degree (qOf K FF)
+        (SelectedPresentation.N0 2 0).word : ProfiniteGrp) : Type) (GalK K)) :=
+  rowEquiv_sqrtNegTwo F S
+
+/-- `ℚ₂(√2)` row, general-shaped conclusion. -/
+theorem genAsm_rowEquiv_sqrtTwo (F : FieldInputs K B FF) (S : ResidualSqrtTwo K B FF F.T) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.M0 3 0).degree (qOf K FF)
+        (SelectedPresentation.M0 3 0).word : ProfiniteGrp) : Type) (GalK K)) :=
+  rowEquiv_sqrtTwo F S
+
+/-- `ℚ₂(√5)` row, general-shaped conclusion. -/
+theorem genAsm_rowEquiv_sqrtFive (F : FieldInputs K B FF) (S : ResidualSqrtFive K B FF F.T) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.M0 2 0).degree (qOf K FF)
+        (SelectedPresentation.M0 2 0).word : ProfiniteGrp) : Type) (GalK K)) :=
+  rowEquiv_sqrtFive F S
+
+/-- `ℚ₂(√10)` row, general-shaped conclusion. -/
+theorem genAsm_rowEquiv_sqrtTen (F : FieldInputs K B FF) (S : ResidualSqrtTen K B FF F.T) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.Mpc 2 1 false .one 0).degree (qOf K FF)
+        (SelectedPresentation.Mpc 2 1 false .one 0).word : ProfiniteGrp) : Type) (GalK K)) :=
+  rowEquiv_sqrtTen F S
+
+/-- `ℚ₂(√−10)` row, general-shaped conclusion. -/
+theorem genAsm_rowEquiv_sqrtNegTen (F : FieldInputs K B FF)
+    (S : ResidualSqrtNegTen K B FF F.T) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.Mpc 2 1 true .one 0).degree (qOf K FF)
+        (SelectedPresentation.Mpc 2 1 true .one 0).word : ProfiniteGrp) : Type) (GalK K)) :=
+  rowEquiv_sqrtNegTen F S
+
+end FrozenRows
+
 end GQ2.Dyadic
