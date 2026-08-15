@@ -56,6 +56,19 @@ Three readings worth keeping.
    residual is assembled through `Instances.MpcRow.mpcRow_genAsmRowResidual_of_counting`, which
    derives it from `affineDeterminant_galK` and the field inputs' `ramifiedData`, with the two
    Gauss pins `rfl` at `standardNumerics`.  So the record costs **two** `ASK` blocks, not three.
+
+   [W84-HOUSE, as of `45f9c42d`: verified by elaboration, and one precision note for a reader
+   who greps rather than elaborates.  "Not a binder of any statement in §4 or §5" is about the
+   `ASK` determinant, the one at the carrier `galKProfinite K`, and that is exactly right: the
+   two `ASK` binders of both templates are `ExactLiftingSemantics` and `StokesDualityCertificate`
+   at `galKProfinite K`, and there is no third.  But `AffineDeterminantCertificate` DOES occur as
+   a binder in §5, in the analytic template `canRec_analytic_*`, at the carrier
+   `GammaR deg q word`: it is one of the four Γ-side analytic clauses, not an `ASK` block.  Both
+   templates measured: `canRec_rowResidual_<field>` carries `B`, `F`, `cand`, and the two `ASK`
+   blocks; `canRec_analytic_<field>` carries `B`, `FF`, `F`, the four Γ-side clauses
+   (`ExactLiftingSemantics`, `StokesDualityCertificate`, `ScalarHilbertCertificate`,
+   `AffineDeterminantCertificate`), and the same two `ASK` blocks.  Identical across all four
+   rows, which is reading 2 confirmed.]
 2. **The residue is uniform.**  The four analytic clauses are the same four on every row, at
    the row's own candidate carrier; there is no per-row analytic obligation left.
 3. **`ℚ₂(√−10)` is not here, and the reason is a statement.**  Its clause-free branch datum

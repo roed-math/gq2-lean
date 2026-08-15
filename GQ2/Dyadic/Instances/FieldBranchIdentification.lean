@@ -101,6 +101,13 @@ everything else here.  The `ℚ₂(√5)` row therefore costs one extra element,
 6. the composition into the `KTwoM`/`KTwoN` producer spelling;
 7. the five rows' branch data, one clause each;
 8. axiom pins.
+
+⚠ [W84-HOUSE, as of `45f9c42d`: item 7's "one clause each" is STALE, in the conservative
+direction: it understates the tree rather than overstating it.  Four of the five rows now carry
+**nothing** beyond the field's own bundle (`GeneralAssembly.lean`'s FOUR-OF-FIVE-FREE annotation,
+and `Instances/CanonicalRecords.lean` §2, where all four are unconditional); only `ℚ₂(√−10)`
+still carries a clause, the `ε = true` pivot.  What this file contributes at item 7 is unchanged;
+only the summary count moved on under it.]
 -/
 
 namespace GQ2.Dyadic.FieldBranchId
