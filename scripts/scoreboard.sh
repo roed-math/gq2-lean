@@ -90,12 +90,15 @@ FROZEN ROWS|Q2(v-10) .Mpc T|decl|mpcNorm_genAsmBranch_sqrtNegTen_of_pivot
 FROZEN ROWS|Q2(v-10) via shift|decl|mpcPiv_genAsmBranch_sqrtNegTen_of_shift
 FROZEN ROWS|Q2(v-10) untied|decl|mpcPiv_genAsmBranch_sqrtNegTen
 FROZEN ROWS|v-10 residue = word prob|decl|mpcOrb_shift_iff_marking
+FROZEN ROWS|v-10 finite-class route|decl|mpcWord_shift_of_forall_class_four
 FROZEN ROWS|v-10 residual move|prod|MpcPivShift
 RECORD BLOCKS|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
 RECORD BLOCKS|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
 RECORD BLOCKS|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
 RECORD BLOCKS|Q2(v10)  .Mpc F|decl|canRec_rowResidual_sqrtTen
 RECORD BLOCKS|the tied transport|decl|canRec_rowResidual_of_tied
+RECORD BLOCKS|v5 cand clause = coeff|decl|rowCl_mCand_exactLifting_iff
+RECORD BLOCKS|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifting_iff
 ODD SEAM|the seam Prop|decl|SqMarkedForwardSupply
 ODD SEAM|every seam producer|prod|SqMarkedForwardSupply
 ODD SEAM|seam = marked-core cert|decl|oddId_supply_iff_certificate
@@ -103,7 +106,9 @@ ODD SEAM|seam = one cup-adapted frame|decl|oddSeam_supply_iff_cupAdaptedFrame
 ODD SEAM|seam = the full marking|decl|oddSeam_supply_iff_fullMarking
 ODD SEAM|halved relator clause|prod|SqCupAdaptedFrameRelator
 ODD SEAM|frame presentation clause|prod|SqCupAdaptedFramePresentation
+ODD SEAM|clearing = row-plane family|decl|gClear_clearing_of_model
 ODD SEAM|model clearing clause|prod|SqNuOrientedClearAtUnitPivot
+ODD SEAM|row-plane move clause|prod|GClearModelMove
 ODD SEAM|seam = clearing instance|decl|oddFrame_supply_iff_clearInstance
 ODD SEAM|q-invariant of D_sq h|decl|oddSeam_demushkinQ_DSq
 ODD SEAM|odd oriented equivalence|decl|nonempty_orientedEquiv_oddDegree
@@ -424,12 +429,20 @@ echo "  * producers in modules no row imports.  A \`prod\` scan reads the"
 echo "    ENVIRONMENT, so it sees exactly the modules the rows above pull in."
 echo "    A new module with a new producer is invisible until some row names a"
 echo "    declaration in it.  This is the one way the board can be stale."
-echo "    THIS HAS FIRED ONCE, on the wave it was written to watch: W84-HOUSE"
-echo "    found this board printing \`producers: 0\` for MpcPivShift while"
-echo "    MpcOrb.mpcOrb_shift_of_marking (wave 83) produced it.  The fix is the"
-echo "    documented one, a row naming a declaration in the new module; the"
-echo "    REGISTRATION section has the same import-set horizon, so a module no"
-echo "    row reaches is neither confirmed nor denied there, only absent."
+echo "    THIS HAS NOW FIRED TWICE, both times on the wave that landed the"
+echo "    module.  (1) W84-HOUSE found this board printing \`producers: 0\` for"
+echo "    MpcPivShift while MpcOrb.mpcOrb_shift_of_marking (wave 83) produced"
+echo "    it.  (2) W85-HOUSE found it printing 1 for MpcPivShift against a true"
+echo "    4, 3 for SqNuOrientedClearAtUnitPivot against a true 6, and 14 for"
+echo "    SqMarkedForwardSupply against a true 16, because wave 84's own three"
+echo "    modules (SqCore/GradedClearing, Instances/MpcWord,"
+echo "    Instances/RowClauses) were reached by no row.  Both times the fix is"
+echo "    the documented one, a row naming a declaration in the new module."
+echo "    THE LESSON, for the lane that lands the next module: a new module is"
+echo "    invisible here until a row names something in it, so add the row in"
+echo "    the SAME wave.  The REGISTRATION section has the same import-set"
+echo "    horizon, so a module no row reaches is neither confirmed nor denied"
+echo "    there, only absent; never read absence there as unregistered."
 echo "  * producers stated in a shape other than the head.  \`prod\` matches the"
 echo "    conclusion's HEAD constant, so a theorem concluding \`A <-> P ...\`,"
 echo "    \`Nonempty (P ...)\` or a structure field of type \`P ...\` is NOT"
