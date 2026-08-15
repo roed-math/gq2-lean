@@ -239,7 +239,15 @@ environment could not see it.  The same horizon silently omitted `Instances.Cano
 
 Fixed at the script's own documented extension point, one `decl` row naming
 `mpcOrb_shift_iff_marking`, which pulls the module into the import set.  The board now prints
-`producers: 1` and confirms both modules registered.  Two blind-spot entries added: the incident
+`producers: 1` and confirms both modules registered.
+
+**Two wave-83 housekeeping items are thereby discharged and can come off the list.**
+`w83-frame-note.md` item 3 asked for `Instances.OddFrame` to be registered and
+`w83-orbit-note.md` §0 records `Instances.MpcOrbit` as "**not yet registered in `GQ2.lean`**";
+`w83-records-note.md` §3 says the same of `Instances.CanonicalRecords`.  All three are registered
+(`GQ2.lean:879`, `875`, `874`, by commits `9f05fb98` and `f5fa858b`), and after this round's row
+addition the board confirms all three rather than two.  The W72 trap ("a module never in any green
+build") does not apply to any of them.  Two blind-spot entries added: the incident
 itself, and the fact that a `prod` scan matches only the conclusion's **head** constant, so an
 `Iff`-shaped or `Nonempty`-shaped producer is never counted, `mpcOrb_shift_iff_marking` being
 exactly such a statement.  `producers: 0` must be read as "nothing concludes it directly", never
