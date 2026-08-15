@@ -476,43 +476,33 @@ other input of wave 81 is now a theorem: the level (`mpcNorm_level_sqrtNegTen`),
 So the whole `ε = true` row costs exactly one abstract move on `D_M 2 0`, uniform in the field
 and free of arithmetic.
 
-⚠⚠ **[W84-HOUSE, as of `45f9c42d`: read the headline as a fact about the PROOF, not about the
-STATEMENT, which is the distinction wave 83 exists to enforce.**  The datum this proof builds is
-indeed at `mpcNu 2 1 (p true 1)`, and the producer it routes through
-(`mpcCert_genAsmBranch_of_orientedMpc`) now names that marking.  But the conclusion below is
+**[W85-M6BUILD, as of `76f21241`: this statement is now TIED.**  The conclusion carries
+`∧ HEq G.nuP (mpcNu 2 1 (p true 1) _)`, the marking the producer
+(`mpcCert_genAsmBranch_of_orientedMpc`) has named since wave 83; the proof previously dropped
+that conjunct at an `Exists.imp` and the `Exists.imp` is gone.  W84-HOUSE watch round 21 found
+the drop and priced the repair at one line; this is that line, taken under an orchestrator edit
+grant.  So `ℚ₂(√−10)` now has a genuine tied statement, modulo `MpcPivShift 2`, and it can be fed
+to `Instances.CanonicalRecords.canRec_rowResidual_of_tied`.  The conjunct is `HEq` rather than
+`Eq` because `G.nuP`'s type depends on `G.pres`; see `GeneralAssembly.genAsm_branch_of_oddSq` for
+how a consumer turns it back into an equation.
 
-    `∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0`
+The unconditional sibling `mpcPiv_genAsmBranch_sqrtNegTen` remains UNTIED, and deliberately so:
+it is built at the *transported* marking `mpcPiv_nuZtwo`, and no comparison of that with `mpcNu`
+exists at this tree.  The two `√−10` statements now differ in both hypothesis and tie.
 
-and `GenAsmBranch` does not pin `nuP`, so **this statement does not carry the marking**: the
-conjunct is dropped at the `Exists.imp` in the proof.  Consequently this theorem, exactly like
-its unconditional sibling `mpcPiv_genAsmBranch_sqrtNegTen`, is **UNTIED**, and it cannot be fed
-to `Instances.CanonicalRecords.canRec_rowResidual_of_tied`.  The two `√−10` statements differ in
-their hypothesis, not in their tie: one is conditional and untied, the other unconditional and
-untied.  So `ℚ₂(√−10)` has NO tied statement at this tree.
-
-Three prose sites assert the opposite and are wrong at the statement level:
-`Instances/CanonicalRecords.lean`'s per-row table reading 3, `docs/dyadic/w83-records-note.md`
-§0 ("routes through site 5 and therefore does carry `mpcNu`": the "therefore" is the error, since
-routing through a producer that names the marking does not make this conclusion name it), and
-`docs/dyadic/w83-orbit-note.md`'s five-row table ("tied form needs `MpcPivShift 2`").
-
-OWNER ITEM, one line of Lean, not takeable here because it is a statement change: add
-`∧ HEq G.nuP (mpcNu 2 1 (p true 1) _)` to the conclusion and delete the `Exists.imp`, which the
-proof already has in hand.  That would make this the genuine tied statement at the row and admit
-`ℚ₂(√−10)` to `CanonicalRecords` as a fifth row, modulo `MpcPivShift 2`.  Found by W84-HOUSE
-watch round 21.]** -/
+One prose site still records the pre-repair state and is stale as of this edit (housekeeping
+owns it): `Instances/CanonicalRecords.lean`'s per-row table reading 3, whose ⚠⚠ W84-HOUSE block
+says `ℚ₂(√−10)` "has no tied statement at this tree".]** -/
 theorem mpcPiv_genAsmBranch_sqrtNegTen_of_shift (hshift : MpcPivShift 2)
     (B : MarkedRecip R KSqrtNegTen) :
-    ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 := by
+    ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 ∧
+      HEq G.nuP (MProcyclicCore.mpcNu 2 1 (p true 1) (by omega)) := by
   obtain ⟨hC, hB⟩ := mpcPiv_rows_sqrtNegTen B (fieldId_chosenEquivM_sqrtNegTen B)
   obtain ⟨Psi, hchi, γ, hγ⟩ := mpcPiv_orbit_of_shift hshift _ hC hB
   set e := mpcPiv_comp (fieldId_chosenEquivM_sqrtNegTen B) Psi hchi with he
-  -- [W83-RECORDS: the producer now also names the marking `mpcNu 2 1 (p true 1)`; this
-  -- statement keeps the weaker form and drops the conjunct here.]
-  refine Exists.imp (fun _ hG => hG.1)
-    (mpcCert_genAsmBranch_of_orientedMpc 1 (p true 1) true .one (le_refl 2) (by omega)
+  refine mpcCert_genAsmBranch_of_orientedMpc 1 (p true 1) true .one (le_refl 2) (by omega)
       (by rw [finrank_KSqrtNegTen]; rfl) e
-      (mpcCert_chiKerLevel_of_level B (mpcNorm_level_sqrtNegTen B) e) ⟨⟨γ, hγ⟩, ?_, ?_⟩)
+      (mpcCert_chiKerLevel_of_level B (mpcNorm_level_sqrtNegTen B) e) ⟨⟨γ, hγ⟩, ?_, ?_⟩
   · obtain ⟨y, hy⟩ := mpcRow_congr_of_lambda e (mpcNorm_lambdaOne_mUnit_sqrtNegTen B)
       (chiM_dmD 2 0)
     exact ⟨y, by rw [hy, pow_one]⟩
