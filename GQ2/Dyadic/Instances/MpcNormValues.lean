@@ -292,6 +292,77 @@ theorem mpcNorm_residue_spectral_unit (ha : ¬ IsSquare a) (hodd : Odd a.valuati
 
 end SpectralUnit
 
+/-! ## §4 The norm-group character on `Kˣ`
+
+§2 and §3 combine into one statement about the reciprocity map: for every `x : Kˣ` there are a
+`2`-adic unit `w` of known residue and an integer `n` with
+
+    χ_K(rec_K x) = (w · w₀^n)⁻¹      and      ν_ur(rec_K x) = −n,
+
+where `w₀` is the unit part of `−a = N(√a)`.  The parity of `ν_ur(rec_K x)` and the residue of
+`χ_K(rec_K x)` modulo `8` are therefore locked together, and that lock is the whole content of
+the four values. -/
+
+section RecipValues
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K] {Rec : LocalReciprocity}
+
+/-- **`fieldUni_chi_recip_of_norm` at an integer exponent.**  The `ℕ`-version cannot see the
+negative powers of `√a` that `Kˣ` actually contains. -/
+theorem mpcNorm_chi_recip_of_norm (B : MarkedRecip Rec K) (x : (↥K)ˣ) (u : ℤ_[2]ˣ) (n : ℤ)
+    (hx : normUnitsK K x = unitEmbed u * uniformizer ^ n) :
+    chiCycKAb K (B.recip x) = u⁻¹ := by
+  rw [← chiCycAb_inclAbK, B.norm_compat, hx]
+  simp only [map_mul, map_zpow, Rec.chiCyc_recip_unit, Rec.chiCyc_recip_uniformizer, one_zpow,
+    mul_one]
+
+end RecipValues
+
+section QuadRecip
+
+variable {a : ℚ_[2]} {Rec : LocalReciprocity}
+
+/-- `N(√a) = −a`: the second half of the norm-group computation. -/
+theorem mpcNorm_normUnits_rootUnit (ha : ¬ IsSquare a) :
+    ((normUnitsK (quadField a) (fieldUni_rootUnit ha) : ℚ_[2]ˣ) : ℚ_[2]) = -a := by
+  rw [normUnitsK_val]
+  show Algebra.norm ℚ_[2] (evenPolish_quadElt a 0 1) = -a
+  rw [mpcNorm_norm_quadElt ha]
+  ring
+
+/-- **THE MASTER IDENTITY.**  For every `x : Kˣ` at a ramified quadratic field, the cyclotomic
+value and the unramified value of `rec_K x` are computed by a single integer `n` and a single
+spectral-unit norm `w`: `χ = (w·w₀ⁿ)⁻¹` and `ν = −n`, with `w` one of three residues modulo `8`.
+Every statement of §5 and §6 is a mod-`8` reading of this. -/
+theorem mpcNorm_recip_values [FiniteDimensional ℚ_[2] (quadField a)] (ha : ¬ IsSquare a)
+    (hodd : Odd a.valuation) (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) {az : ℤ_[2]} (haz : ((az : ℚ_[2])) = a)
+    {w₀ : ℤ_[2]ˣ} (hw₀ : ((w₀ : ℤ_[2]) : ℚ_[2]) * 2 = -a)
+    (B : MarkedRecip Rec (quadField a)) (x : (↥(quadField a))ˣ) :
+    ∃ (w : ℤ_[2]ˣ) (n : ℤ),
+      chiCycKAb (quadField a) (B.recip x) = (w * w₀ ^ n)⁻¹ ∧
+        toAdd (B.nu_ur (B.recip x)) = ((-n : ℤ) : ℤ_[2]) ∧
+        (PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 ∨
+          PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - PadicInt.toZModPow 3 az ∨
+          PadicInt.toZModPow 3 (w : ℤ_[2]) = 1 - 4 * PadicInt.toZModPow 3 az) := by
+  obtain ⟨u, n, hxn, hu⟩ := mpcNorm_exists_decomp ha hodd hna x
+  obtain ⟨w, hwval, hwres⟩ := mpcNorm_residue_spectral_unit ha hodd hna haz hu
+  refine ⟨w, n, ?_, ?_, hwres⟩
+  · refine mpcNorm_chi_recip_of_norm B x (w * w₀ ^ n) n ?_
+    have hroot : normUnitsK (quadField a) (fieldUni_rootUnit ha) = unitEmbed w₀ * uniformizer := by
+      apply Units.ext
+      rw [Units.val_mul, unitEmbed_val, uniformizer_val, mpcNorm_normUnits_rootUnit ha, ← hw₀]
+      rfl
+    have hu' : normUnitsK (quadField a) u = unitEmbed w := by
+      apply Units.ext
+      rw [normUnitsK_val, unitEmbed_val, hwval]
+      rfl
+    rw [hxn, map_mul, map_zpow, hroot, hu', mul_zpow, ← map_zpow unitEmbed, map_mul unitEmbed,
+      ← mul_assoc]
+  · rw [B.nu_ur_recip_of_decomp x u (fieldUni_rootUnit ha) n hxn hu
+      (fieldUni_rootUnit_lt_one ha hna) (fieldUni_rootUnit_max ha hodd hna), toAdd_ofAdd]
+
+end QuadRecip
+
 end
 
 end GQ2.Dyadic.Instances.MpcNorm
