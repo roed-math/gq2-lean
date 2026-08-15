@@ -1,11 +1,10 @@
 # W86-PHASE lane note
 
-Ticket source: `docs/dyadic/w85-blocks-note.md`.
-
-Scope: the word-phase supply at the compact rows (`recBlWordPhaseSupply`) plus the `N`-row twins
-of the Stokes and determinant reductions.  One new module,
-`GQ2/Dyadic/Instances/WordPhase.lean`, prefix `wPh`.
+Ticket source: `docs/dyadic/w85-blocks-note.md` §7 items 1 and 2.  One new module,
+`GQ2/Dyadic/Instances/WordPhase.lean`, prefix `wPh`.  Nothing outside that module and this note
+is touched.
 
 ## Status
 
-Lane opened.  Skeleton banked before any long read, so an interruption loses nothing.
+**T1 landed.**  The `N`-row twins of the Stokes conjuncts and of the determinant reduction, plus
+the `ℚ₂(√−2)` acceptance statement, which the tree did not have in the reduced shape.

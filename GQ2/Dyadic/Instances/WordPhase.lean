@@ -500,4 +500,102 @@ theorem wPh_nCand_determinant_of_wordPhaseSupply (hα : 2 ≤ α) {P : Profinite
 
 end NDeterminant
 
+
+/-! ## §3 The row: `ℚ₂(√−2)` on `N0 2 0`
+
+`RowClauses` §3 states the acceptance shape at `ℚ₂(√5)` and `RecordBlocks` §5 restates it with
+the two discharged binders removed.  This section does the same at the pilot row, which is the
+`N0 2 0` row `RowClauses` §4 says gets "the identical treatment" but never instantiated.
+
+| `N0 2 0` obligation | before this lane | after |
+| --- | --- | --- |
+| `cand` `exactLifting` at `Γ_R` | `askCStageVanishing` at `Γ_R` (`rowCl_nCand_exactLifting_iff`) | unchanged |
+| `cand` `scalar` at `Γ_R` | discharged (`rowCl_nCand_scalar`) | discharged |
+| `cand` `stokes` at `Γ_R` | **open**, never attempted | **discharged**, §1, no new hypothesis |
+| `cand` `determinant` at `Γ_R` | **open**, no supplier anywhere | `wPhWordPhaseSupplyN`, §2 |
+| `ASK` `exactLifting` at `G_K` | `askCStageVanishing` at `G_K` | unchanged |
+| `ASK` `stokes` at `G_K` | discharged | discharged |
+
+So after §1 and §2 the pilot row costs exactly what the `ℚ₂(√5)` row costs: **one word-phase
+supply and two instances of one coefficient `Prop`**. -/
+
+section SqrtNegTwoRow
+
+open GQ2.Dyadic.Instances.CanonicalRecords GQ2.Dyadic.Fields
+open GQ2.Dyadic.NCompact GQ2.Dyadic.Words TameSpec MarkedCore
+open GQ2.Dyadic.SelectedCoreLeavesRN
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `[ℚ₂(√−2) : ℚ₂]` is the pilot row's degree.  The `N` twin of `rowCl_hdeg_sqrtFive`. -/
+theorem wPh_hdeg_sqrtNegTwo :
+    Module.finrank ℚ_[2] KSqrtNegTwo = (SelectedPresentation.N0 2 0).degree := by
+  rw [finrank_KSqrtNegTwo]; rfl
+
+/-- **The `ℚ₂(√−2)` row's residual after this lane.**  Compare `canRec_rowResidual_sqrtNegTwo`,
+whose `cand` binder is the whole `CAND` certificate: here the `stokes` and `scalar` clauses are
+gone outright, the `exactLifting` clause is the coefficient `Prop`, and the `determinant` clause
+is the word-phase supply of §2. -/
+theorem wPh_rowResidual_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip R KSqrtNegTwo) {FF : DyadicUnitFiltration KSqrtNegTwo}
+    (F : GenAsmFieldInputs KSqrtNegTwo B FF (SelectedPresentation.N0 2 0).degree)
+    (Sdet : wPhWordPhaseSupplyN (α := 2) (h := 0) (q := qOf KSqrtNegTwo FF)
+      (nNuZtwo 2 0)
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtNegTwo FF) (nCompactW 2 0)
+        (genCertNTameSpecializes 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+          (even_qOf KSqrtNegTwo FF)))
+      (genCertNPro2 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+        (even_qOf KSqrtNegTwo FF))
+      (genCertNCompat 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+        (even_qOf KSqrtNegTwo FF)
+        (genCertNTameSpecializes 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+          (even_qOf KSqrtNegTwo FF))
+        (nNuZtwo 2 0) (nNuZtwo_sigma 2 0) (nNuZtwo_wild 2 0)))
+    (hvanCand : askCStageVanishing (GammaR (2 + 2 * 0) (qOf KSqrtNegTwo FF) (nCompactW 2 0))
+      (qOf KSqrtNegTwo FF) (DN 2 0) (nNuZtwo 2 0))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtNegTwo) (qOf KSqrtNegTwo FF)
+      (genAsmCore (.N0 2 0)) (nNuZtwo 2 0)) :
+    ∃ G : GenAsmBranch KSqrtNegTwo B, G.pres = .N0 2 0 ∧ Nonempty (GenAsmRowResidual G F.T) :=
+  canRec_rowResidual_N0_of_analytic 2 0 (canRec_branch_sqrtNegTwo B) F
+    ((RowClauses.rowCl_nCand_exactLifting_iff (le_refl 2) (qOf_ne_zero KSqrtNegTwo FF)
+      (even_qOf KSqrtNegTwo FF)).mpr hvanCand)
+    (wPh_nCand_stokes (le_refl 2) (qOf_ne_zero KSqrtNegTwo FF) (even_qOf KSqrtNegTwo FF))
+    (RowClauses.rowCl_nCand_scalar (le_refl 2) (qOf_ne_zero KSqrtNegTwo FF)
+      (even_qOf KSqrtNegTwo FF))
+    (recBl_determinant_standard_congr (by omega)
+      (wPh_nCand_determinant_of_wordPhaseSupply (le_refl 2) _ _ _ _ Sdet))
+    (askC_exactLiftingSemantics_galK wPh_hdeg_sqrtNegTwo hvanK)
+    (askC_stokes_galK wPh_hdeg_sqrtNegTwo)
+
+/-- **The acceptance statement at `ℚ₂(√−2)`.**  The candidate group over the `N0 2 0` word at
+`q_K` presents `G_{ℚ₂(√−2)}`, given one word-phase supply and the coefficient `Prop` at each of
+the row's two carriers.  The `N` twin of `RecordBlocks.recBl_candidate_equiv_galK_sqrtFive`. -/
+theorem wPh_candidate_equiv_galK_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip R KSqrtNegTwo) {FF : DyadicUnitFiltration KSqrtNegTwo}
+    (F : GenAsmFieldInputs KSqrtNegTwo B FF (SelectedPresentation.N0 2 0).degree)
+    (Sdet : wPhWordPhaseSupplyN (α := 2) (h := 0) (q := qOf KSqrtNegTwo FF)
+      (nNuZtwo 2 0)
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtNegTwo FF) (nCompactW 2 0)
+        (genCertNTameSpecializes 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+          (even_qOf KSqrtNegTwo FF)))
+      (genCertNPro2 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+        (even_qOf KSqrtNegTwo FF))
+      (genCertNCompat 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+        (even_qOf KSqrtNegTwo FF)
+        (genCertNTameSpecializes 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+          (even_qOf KSqrtNegTwo FF))
+        (nNuZtwo 2 0) (nNuZtwo_sigma 2 0) (nNuZtwo_wild 2 0)))
+    (hvanCand : askCStageVanishing (GammaR (2 + 2 * 0) (qOf KSqrtNegTwo FF) (nCompactW 2 0))
+      (qOf KSqrtNegTwo FF) (DN 2 0) (nNuZtwo 2 0))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtNegTwo) (qOf KSqrtNegTwo FF)
+      (genAsmCore (.N0 2 0)) (nNuZtwo 2 0)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.N0 2 0).degree (qOf KSqrtNegTwo FF)
+        (SelectedPresentation.N0 2 0).word : ProfiniteGrp) : Type) (GalK KSqrtNegTwo)) :=
+  RowClauses.rowCl_equiv_of_rowResidual F
+    (wPh_rowResidual_sqrtNegTwo B F Sdet hvanCand hvanK)
+
+end SqrtNegTwoRow
+
 end GQ2.Dyadic.Instances.WordPhase
