@@ -1,5 +1,23 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 79 (2026-08-15)
+
+**Three items await you** (unchanged): the plan-A6 freeze; the line-length policy; the
+pilot-record spelling call.
+
+**For orientation.**  The wave settled the odd route's architecture, in both directions at
+once.  The layer-generation statement the campaign had been trying to seed is now refuted at
+every depth and every marking, permanently; and the route is repaired anyway, because a binder
+audit showed the endgame only ever needed defects killed, not layers generated.  The
+defect-restricted kill ladder has its first two rungs proved, separation is proved outright at
+every handle count, and the class-five supply now needs exactly one remaining input, the
+extraction, itself diagnosed to a single missing clause with a scoped repair.  The per-class
+residual starts at class six, and one uniform generation record would close the entire ladder
+at once.  On the flagship side, three of five rows carry clause-free branch data, the two
+procyclic rows are one arithmetic Prop each from joining them, and the determinant bridge
+turned out to have been sitting in the tree, registered, since the first of August: what is
+owed there is wiring, not mathematics.
+
 ## Status at wave 78 (2026-08-15)
 
 **Three items await you.**  The standing two (the plan-A6 freeze; the line-length policy), and
