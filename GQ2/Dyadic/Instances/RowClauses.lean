@@ -21,6 +21,8 @@ namespace GQ2.Dyadic.Instances.RowClauses
 
 open GQ2 GQ2.Dyadic GQ2.Dyadic.Count GQ2.Dyadic.Instances
 
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
 /-! ## §1 The frozen (136) coefficient, at an arbitrary carrier
 
 `Instances.AskCounting` measured the gap between the frozen and corrected R-stage coefficients
@@ -285,5 +287,133 @@ theorem rowCl_mCand_scalar (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
      cardH2_of_uniformPushed (uniformPushedHsimp hα hqe) (by omega) hq0 hqe⟩
 
 end MCandidate
+
+/-! ## §3 The row: `ℚ₂(√5)` on `M0 2 0`
+
+W83-RECORDS' table left this row carrying six things: the four analytic clauses at
+`Γ_R = GammaR 2 q_K (mCompactW 2 0)` and two `ASK` blocks at `G_K`.  Four of the six close here.
+
+| W83 obligation | after this lane |
+| --- | --- |
+| `cand` `exactLifting` at `Γ_R` | `askCStageVanishing` at `Γ_R` (§2, an equivalence) |
+| `cand` `scalar` at `Γ_R` | **discharged**, unconditionally (§2) |
+| `cand` `stokes` at `Γ_R` | **open**, and the lane did not narrow it |
+| `cand` `determinant` at `Γ_R` | **open**; no candidate-side Gauss-`Z` supplier exists |
+| `ASK` `exactLifting` at `G_K` | `askCStageVanishing` at `G_K` (wave 81, an equivalence) |
+| `ASK` `stokes` at `G_K` | **discharged** by `askC_stokes_galK` from the degree pin |
+
+So the honest residue is **two open analytic clauses at the candidate carrier, and one
+coefficient `Prop` carried at each of the two carriers**.  The coefficient `Prop` is literally
+the same `askCStageVanishing`, differing only in which group it is instantiated at, which is a
+fact about the record that neither side's lane could see alone. -/
+
+section SqrtFiveRow
+
+open GQ2.Dyadic.Instances.CanonicalRecords GQ2.Dyadic.FieldBranchId GQ2.Dyadic.Fields
+open GQ2.Dyadic.FieldSqrtFive GQ2.Dyadic.Instances.MCompactCore
+open GQ2.Dyadic.MCompact GQ2.Dyadic.Words.MCompact TameSpec MarkedCore
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **The general theorem's conclusion from a row residual.**  `genAsm_candidate_equiv_galK`
+consumed at the shape `canRec_rowResidual_*` produces: the row equation is turned into a
+substitution by destructuring the datum, exactly as in `canRec_rowResidual_of_tied`, after which
+the conclusion is the candidate group over the *row's own* word rather than over `G.word`. -/
+theorem rowCl_equiv_of_rowResidual {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {B : MarkedRecip R K} {FF : DyadicUnitFiltration K} {row : SelectedPresentation}
+    (F : GenAsmFieldInputs K B FF row.degree)
+    (H : ∃ G : GenAsmBranch K B, G.pres = row ∧ Nonempty (GenAsmRowResidual G F.T)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup row.degree (qOf K FF) row.word : ProfiniteGrp) : Type) (GalK K)) := by
+  obtain ⟨G, hp, ⟨S⟩⟩ := H
+  obtain ⟨pres, hdeg, nu, hnuP, realization⟩ := G
+  subst hp
+  exact genAsm_candidate_equiv_galK _ F S
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `[ℚ₂(√5) : ℚ₂]` is the row's degree. -/
+theorem rowCl_hdeg_sqrtFive :
+    Module.finrank ℚ_[2] KSqrtFive = (SelectedPresentation.M0 2 0).degree := by
+  rw [finrank_KSqrtFive]; rfl
+
+/-- **The `ℚ₂(√5)` row's residual after this lane.**  Two open analytic clauses at the candidate
+carrier, and the coefficient `Prop` at each carrier.  Compare `canRec_rowResidual_sqrtFive`,
+whose binder list is the whole `CAND` certificate plus both `ASK` blocks, and
+`canRec_analytic_sqrtFive`, whose elaborated type is the four analytic clauses plus both `ASK`
+blocks. -/
+theorem rowCl_rowResidual_sqrtFive [T2Space (GalK KSqrtFive)] (B : MarkedRecip R KSqrtFive)
+    {FF : DyadicUnitFiltration KSqrtFive}
+    (F : GenAsmFieldInputs KSqrtFive B FF (SelectedPresentation.M0 2 0).degree)
+    (candStokes : StokesDualityCertificate
+      (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)) (2 + 2 * 0) (qOf KSqrtFive FF)
+      (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)) (standardNumerics (2 + 2 * 0))
+      (scalarActionZmodTwo _))
+    (candDeterminant : AffineDeterminantCertificate
+      (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)) (2 + 2 * 0) (qOf KSqrtFive FF)
+      (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)) (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF)))
+      (mPro2 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF))
+      (mCompat 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF))
+        (fieldId_mNuZtwo 2 0 (by omega)) (canRec_mNuZtwo_sigma 2 0 (by omega))
+        (canRec_mNuZtwo_wild 2 0 (by omega)))
+      (scalarActionZmodTwo _))
+    (hvanCand : askCStageVanishing (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0))
+      (qOf KSqrtFive FF) (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtFive) (qOf KSqrtFive FF)
+      (genAsmCore (.M0 2 0)) (fieldId_mNuZtwo 2 0 (by omega))) :
+    ∃ G : GenAsmBranch KSqrtFive B, G.pres = .M0 2 0 ∧ Nonempty (GenAsmRowResidual G F.T) :=
+  canRec_rowResidual_M0_of_analytic 2 0 (by omega) (canRec_branch_sqrtFive B) F
+    ((rowCl_mCand_exactLifting_iff (le_refl 2) (qOf_ne_zero KSqrtFive FF)
+      (even_qOf KSqrtFive FF)).mpr hvanCand)
+    candStokes
+    (rowCl_mCand_scalar (le_refl 2) (qOf_ne_zero KSqrtFive FF) (even_qOf KSqrtFive FF))
+    candDeterminant
+    (askC_exactLiftingSemantics_galK rowCl_hdeg_sqrtFive hvanK)
+    (askC_stokes_galK rowCl_hdeg_sqrtFive)
+
+/-- **The acceptance statement: the general theorem's conclusion at `ℚ₂(√5)`.**  The candidate
+group `Γ_{R}` over the `M0 2 0` word at `q_K` presents `G_{ℚ₂(√5)}`, given the row's residue as
+this lane leaves it: the two open analytic clauses at `Γ_R`, and `askCStageVanishing` at each of
+the two carriers.  Everything else in W83-RECORDS' six-item table is discharged inside. -/
+theorem rowCl_candidate_equiv_galK_sqrtFive [T2Space (GalK KSqrtFive)]
+    (B : MarkedRecip R KSqrtFive) {FF : DyadicUnitFiltration KSqrtFive}
+    (F : GenAsmFieldInputs KSqrtFive B FF (SelectedPresentation.M0 2 0).degree)
+    (candStokes : StokesDualityCertificate
+      (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)) (2 + 2 * 0) (qOf KSqrtFive FF)
+      (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)) (standardNumerics (2 + 2 * 0))
+      (scalarActionZmodTwo _))
+    (candDeterminant : AffineDeterminantCertificate
+      (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)) (2 + 2 * 0) (qOf KSqrtFive FF)
+      (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)) (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF)))
+      (mPro2 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF))
+      (mCompat 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF))
+        (fieldId_mNuZtwo 2 0 (by omega)) (canRec_mNuZtwo_sigma 2 0 (by omega))
+        (canRec_mNuZtwo_wild 2 0 (by omega)))
+      (scalarActionZmodTwo _))
+    (hvanCand : askCStageVanishing (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (mCompactW 2 0))
+      (qOf KSqrtFive FF) (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtFive) (qOf KSqrtFive FF)
+      (genAsmCore (.M0 2 0)) (fieldId_mNuZtwo 2 0 (by omega))) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.M0 2 0).degree (qOf KSqrtFive FF)
+        (SelectedPresentation.M0 2 0).word : ProfiniteGrp) : Type) (GalK KSqrtFive)) :=
+  rowCl_equiv_of_rowResidual F
+    (rowCl_rowResidual_sqrtFive B F candStokes candDeterminant hvanCand hvanK)
+
+end SqrtFiveRow
+
 
 end GQ2.Dyadic.Instances.RowClauses
