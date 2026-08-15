@@ -406,6 +406,32 @@ and the lane note has the right name (`w74-func-note.md:223`), so this is the mo
 alone.  The `U`/`V` asymmetry is worth a glance while fixing it: there is a `handleU` tower and
 no `handleV` one, which the summary's unsuffixed name papers over.
 
+**(b) MEDIUM.  The dependency memo's `SqCore/Graded*` count is the wave's own two landings too
+high, in a memo whose preamble says every number is as-of `4fff1592`.**
+`w74-critical-path.md:134` ("the whole `SqCore/Graded*` family (**68** modules)") and second site
+`w74-house-note.md:79` ("any `SqCore/Graded*` module (68 of them)").  Counted from the git tree:
+`4fff1592` has **66**, `f0a71688` has 68.  The two that make the difference are the wave's own
+`GradedUniformTower.lean` and `GradedDeltaFunctionals.lean`, which landed **after** the house
+lane's merge (`0933f189` 00:36:45, against `1bf8c40a` 01:02:13 and `1ef86cea` 01:16:09), so at
+the memo's stated tree they did not exist on `dyadic` at all.  The memo's own preamble says
+"Everything numeric below was recounted at this tree and is stated as-of `4fff1592`."  ⚠ The
+*conclusion* is unaffected and gets stronger with the correction: 66 then, 68 now, and **zero**
+of them in the closure either way.
+
+**(c) MEDIUM-LOW.  Two denominators for "GQ2 modules" in one wave, differing by one, neither
+stating its convention.**  `w74-critical-path.md:130` and `w74-house-note.md:77` say "427 of
+930"; `w74-house-note.md:246` says "929 physical, 843 listed, 928 reachable, 1 unreachable",
+recounted at the same commit.  Both are right: **929 excludes `GQ2.lean` itself and 930 includes
+it.**  A reader reconciling the two documents cannot tell.  Recomputed here at `f0a71688` plus
+this lane: 932 excluding `GQ2.lean`, 933 including, 932 reachable from `GQ2.lean`, and the single
+unreachable module is `GQ2.AxiomLedger`, which is deliberate.
+
+**Counts that verify exactly:**
+
+* **`GQ2.Dyadic.Main`'s closure is 427**, recomputed by walking the `import` graph.  Nothing
+  matching `EvenStratum*`, `EvenAlphaOne` or `NFrameAlphaOne` is in it, and **no
+  `SqCore/Graded*` module** is in it, exactly as `w74-critical-path.md` §2.1 says.
+
 **Counts, independently recounted at this tree:**
 
 * `GradedUniformTower.lean`: **94 declarations, 94 `#print axioms`**, matching
