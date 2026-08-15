@@ -12,7 +12,41 @@ import GQ2.Dyadic.SqCore.GradedClassFive
 Wave 83 (`GQ2/Dyadic/Instances/MpcOrbit.lean`) reduced the `ℚ₂(√−10)` row to the single move
 `MpcPivShift 2` and proved it equivalent to the existence of a four-letter marking of `D_M 2 0`
 with four clauses: the core-word relation, topological generation, the four χ-values, and the
-`C̄₀`-row shift.  This module removes three of the four.
+`C̄₀`-row shift.  This module removes three of the four, and puts the fourth on a ladder.
+
+## What lands
+
+1. **The residue is one word identity** (§1 to §3).  For the ansatz shape
+   `(Ā·B̄⁻⁴·s, B̄·t, B̄²·C̄₀·m, D̄·n)` with the four corrections in `mpcWordFrat` (the
+   intersection of the index-two open normal subgroups) and in `ker χ_M`, and with `m`
+   invisible to every `ℤ₂`-character, the identity
+
+       mWord 2 (Ā·B̄⁻⁴·s) (B̄·t) (B̄²·C̄₀·m) (D̄·n) = 1
+
+   already gives `MpcPivShift 2` (`mpcWord_shift_of_word`).  Generation is the pro-2 Frattini
+   criterion (`mpcWord_gen`), the χ-values and the row shift are the shape.  `λ₂` feeds the
+   carrier (`mpcWord_lambdaTwo_le_frat`), so a builder may work in the two-central tower and
+   never mention index-two subgroups.
+
+2. **The identity is decided at a finite class** (§5, §6).  The class-`k` solution sets
+   `mpcWordSet k` are nested, closed, and live in a compact space, and the tower separates
+   points, so class-`k` solvability for every `k` gives the identity outright
+   (`mpcWord_shift_of_forall_class`).  Contrapositively: **if `M6` is false it fails at a
+   finite class, in a finite 2-group**, with no inverse-limit step to hide in.
+
+3. **Classes at most three are free** (§7).  Every quadruple of `λ₂`-corrections already
+   solves the identity to class three (`mpcWord_mem_three`): modulo `λ₃` the letters are the
+   marked generators times central involutions and the word collapses onto `mpcOrb_relation`.
+   Hence the residue is the class-`k` solvability for `k ≥ 4` alone
+   (`mpcWord_shift_of_forall_class_four`).
+
+## What does not land
+
+**The decision.**  `MpcPivShift 2` is neither proved nor refuted here.  Off-tree exact `𝔽₂`
+computation in the Magnus model climbs the ladder through class six without meeting an
+obstruction (class four is killed by `s = t = commP D̄ B̄`), and the class-by-class walk is
+shown to produce false stalls on `M5`, which is a theorem of the tree.  The lane note
+(`docs/dyadic/w84-word-note.md`) records both, and draws no conclusion in either direction.
 
 Declaration prefix `mpcWord` (namespace `GQ2.Dyadic.Instances.MpcWord`).  No `sorry`, no new
 axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
