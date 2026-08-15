@@ -136,7 +136,123 @@ theorem gDecideQ_isProP : IsProP 2 GDecideQ := isProP_of_isPGroup gDecideQ_isPGr
 
 end Witness
 
-/-! ## §3 Axiom pins -/
+/-! ## §3 The marking `σ ↦ 1`, `x₀ ↦ X`, `x₁ ↦ Y`, and the classifying hom -/
+
+section Marking
+
+/-- The marking of `Q₁₆` by the three letters of `D_sq 0`. -/
+def gDecideMark : Fin (sqRank 0) → GDecideQ := ![1, gDecideX, gDecideY]
+
+/-- ⭐ **The relator dies at the marking.**  At `σ = 1` the core word `sqWord σ x₀ x₁`
+collapses to `x₀⁻⁴ · x₁²`, and `Y² = X⁴` in `Q₁₆`. -/
+theorem gDecideMark_rel : sqRelWord gDecideMark = 1 := by
+  rw [sqRelWord_zero]
+  decide
+
+/-- ⭐⭐⭐ **The classifying hom** `D_sq 0 → Q₁₆`, through the presentation's universal
+property `sqLiftHom`. -/
+noncomputable def gDecideHom : ContinuousMonoidHom (DSq 0 : Type) GDecideQ :=
+  sqLiftHom 0 gDecideQ_isProP gDecideMark gDecideMark_rel
+
+@[simp] theorem gDecideHom_gen (i : Fin (sqRank 0)) :
+    gDecideHom (sqGen 0 i) = gDecideMark i :=
+  sqLiftHom_gen 0 gDecideQ_isProP gDecideMark gDecideMark_rel i
+
+@[simp] theorem gDecideHom_sigma : gDecideHom (dsqSigma 0) = 1 := gDecideHom_gen 0
+
+@[simp] theorem gDecideHom_x0 : gDecideHom (dsqX0 0) = gDecideX := gDecideHom_gen 1
+
+@[simp] theorem gDecideHom_x1 : gDecideHom (dsqX1 0) = gDecideY := gDecideHom_gen 2
+
+end Marking
+
+/-! ## §4 The lower `2`-central tower of `Q₁₆` stops at four
+
+`λ₂ = ⟨X²⟩`, `λ₃ = ⟨X⁴⟩`, `λ₄ = 1`, each step a `decide` against an explicit subgroup.  The
+last one is what lets `gDecideHom` descend to `Q₄ = levelQuot (D_sq 0) 4`. -/
+
+section Tower
+
+open scoped commutatorElement
+
+/-- Membership in `⟨X⟩`, as a decidable predicate. -/
+abbrev GDecideInA (g : GDecideQ) : Prop :=
+  g = 1 ∨ g = gDecideX ∨ g = gDecideX ^ 2 ∨ g = gDecideX ^ 3 ∨
+    g = gDecideX ^ 4 ∨ g = gDecideX ^ 5 ∨ g = gDecideX ^ 6 ∨ g = gDecideX ^ 7
+
+/-- Membership in `⟨X²⟩`, as a decidable predicate. -/
+abbrev GDecideInA2 (g : GDecideQ) : Prop :=
+  g = 1 ∨ g = gDecideX ^ 2 ∨ g = gDecideX ^ 4 ∨ g = gDecideX ^ 6
+
+/-- Membership in `⟨X⁴⟩ = ⟨Z⟩`, as a decidable predicate. -/
+abbrev GDecideInZ (g : GDecideQ) : Prop := g = 1 ∨ g = gDecideZ
+
+/-- `⟨X⟩ ≤ Q₁₆`, the cyclic subgroup of order eight.  It is abelian and receives the far
+span. -/
+def gDecideA : Subgroup GDecideQ where
+  carrier := {g | GDecideInA g}
+  mul_mem' := fun ha hb => (by decide : ∀ x y : GDecideQ,
+    GDecideInA x → GDecideInA y → GDecideInA (x * y)) _ _ ha hb
+  one_mem' := by decide
+  inv_mem' := fun ha => (by decide : ∀ x : GDecideQ, GDecideInA x → GDecideInA x⁻¹) _ ha
+
+/-- `⟨X²⟩ ≤ Q₁₆`, the second term of the lower `2`-central series. -/
+def gDecideA2 : Subgroup GDecideQ where
+  carrier := {g | GDecideInA2 g}
+  mul_mem' := fun ha hb => (by decide : ∀ x y : GDecideQ,
+    GDecideInA2 x → GDecideInA2 y → GDecideInA2 (x * y)) _ _ ha hb
+  one_mem' := by decide
+  inv_mem' := fun ha => (by decide : ∀ x : GDecideQ, GDecideInA2 x → GDecideInA2 x⁻¹) _ ha
+
+/-- `⟨X⁴⟩ = ⟨Z⟩ ≤ Q₁₆`, the third term of the lower `2`-central series, and the centre. -/
+def gDecideZsub : Subgroup GDecideQ where
+  carrier := {g | GDecideInZ g}
+  mul_mem' := fun ha hb => (by decide : ∀ x y : GDecideQ,
+    GDecideInZ x → GDecideInZ y → GDecideInZ (x * y)) _ _ ha hb
+  one_mem' := by decide
+  inv_mem' := fun ha => (by decide : ∀ x : GDecideQ, GDecideInZ x → GDecideInZ x⁻¹) _ ha
+
+@[simp] theorem gDecide_mem_A {g : GDecideQ} : g ∈ gDecideA ↔ GDecideInA g := Iff.rfl
+
+@[simp] theorem gDecide_mem_A2 {g : GDecideQ} : g ∈ gDecideA2 ↔ GDecideInA2 g := Iff.rfl
+
+@[simp] theorem gDecide_mem_Zsub {g : GDecideQ} : g ∈ gDecideZsub ↔ GDecideInZ g := Iff.rfl
+
+/-- One step of the tower, bounded against an explicit subgroup. -/
+theorem gDecide_succ_le {H K : Subgroup GDecideQ}
+    (hsq : ∀ v ∈ H, v ^ 2 ∈ K) (hcomm : ∀ v ∈ H, ∀ g : GDecideQ, ⁅v, g⁆ ∈ K) :
+    twoCentralSucc H ≤ K := by
+  refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) (isClosed_discrete _)
+  · refine Subgroup.closure_le _ |>.2 ?_
+    rintro _ ⟨v, hv, rfl⟩
+    exact hsq v hv
+  · exact Subgroup.commutator_le.2 fun v hv g _ => hcomm v hv g
+
+theorem gDecide_lambdaTwo : twoCentralSeries GDecideQ 2 ≤ gDecideA2 := by
+  rw [twoCentralSeries_succ GDecideQ le_rfl]
+  refine gDecide_succ_le (fun v _ => ?_) (fun v _ g => ?_)
+  · exact (by decide : ∀ w : GDecideQ, GDecideInA2 (w ^ 2)) v
+  · exact (by decide : ∀ w u : GDecideQ, GDecideInA2 ⁅w, u⁆) v g
+
+theorem gDecide_lambdaThree : twoCentralSeries GDecideQ 3 ≤ gDecideZsub := by
+  rw [twoCentralSeries_succ GDecideQ (by norm_num)]
+  refine le_trans (twoCentralSucc_mono gDecide_lambdaTwo) (gDecide_succ_le
+    (fun v hv => ?_) (fun v hv g => ?_))
+  · exact (by decide : ∀ w : GDecideQ, GDecideInA2 w → GDecideInZ (w ^ 2)) v hv
+  · exact (by decide : ∀ w u : GDecideQ, GDecideInA2 w → GDecideInZ ⁅w, u⁆) v g hv
+
+/-- ⭐⭐ **`λ₄(Q₁₆) = 1`**, so `gDecideHom` descends to `Q₄ = levelQuot (D_sq 0) 4`. -/
+theorem gDecide_lambdaFour : twoCentralSeries GDecideQ 4 = ⊥ := by
+  refine le_antisymm ?_ bot_le
+  rw [twoCentralSeries_succ GDecideQ (by norm_num)]
+  refine le_trans (twoCentralSucc_mono gDecide_lambdaThree) (gDecide_succ_le
+    (fun v hv => ?_) (fun v hv g => ?_))
+  · exact (by decide : ∀ w : GDecideQ, GDecideInZ w → w ^ 2 = 1) v hv
+  · exact (by decide : ∀ w u : GDecideQ, GDecideInZ w → ⁅w, u⁆ = 1) v g hv
+
+end Tower
+
+/-! ## §5 Axiom pins -/
 
 section AxiomPins
 
@@ -149,6 +265,23 @@ section AxiomPins
 #print axioms gDecideQ_exp_eight
 #print axioms gDecideQ_isPGroup
 #print axioms gDecideQ_isProP
+#print axioms gDecideMark
+#print axioms gDecideMark_rel
+#print axioms gDecideHom
+#print axioms gDecideHom_gen
+#print axioms gDecideHom_sigma
+#print axioms gDecideHom_x0
+#print axioms gDecideHom_x1
+#print axioms gDecideA
+#print axioms gDecideA2
+#print axioms gDecideZsub
+#print axioms gDecide_mem_A
+#print axioms gDecide_mem_A2
+#print axioms gDecide_mem_Zsub
+#print axioms gDecide_succ_le
+#print axioms gDecide_lambdaTwo
+#print axioms gDecide_lambdaThree
+#print axioms gDecide_lambdaFour
 
 end AxiomPins
 
