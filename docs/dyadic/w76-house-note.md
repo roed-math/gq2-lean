@@ -262,6 +262,13 @@ commit, because that is the only tree a lane can speak for.
   `w75-house-note.md` §4.5(b) cites `w74-critical-path.md:134` for the "68 modules" sentence;
   `w75-sweep-findings.md` item 10 cites `:135`.  At the W75 base `f0a71688` it is `:135`.  Both
   corrected, and the disagreement recorded at the house note's site.
+* **`w75-state-note.md:43` cites `LabuteInterface.lean:308` for `MarkedCoreRealization`**,
+  which is a `variable` line; the structure is at `:313` and its docstring at `:311`.
+  Corrected.  Every other line citation in that note resolves exactly, including the four that
+  carry the most weight (`KSupply.lean:451` for `candidate_equiv_galK_of_supply`,
+  `DsqDemushkin.lean:424` for `SqLamMarkTransitivity`, `Recursion/Numerics.lean:79` for
+  `homScalar := 2 ^ (n + 2)`, and `GammaLSylowPreimageRealizationBypass.lean:83` for
+  `ztwoIota_lNu`).
 * **`w75-join-note.md`'s "67 declarations, all 65 pinned declarations" is exact**, and the
   phrasing is honest (it does not claim all 67 are pinned).  For the record, the two unpinned
   are `gJoin_rowU_core` and `gJoin_rowV_core`, both small `if`-index helpers.  Compare

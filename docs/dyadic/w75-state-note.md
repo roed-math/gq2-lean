@@ -40,7 +40,8 @@ Three records over `K`, `B`, `FF`:
   freed to `params.n = n`.  Six fields, every other one verbatim.
 * `GenAsmBranch K B`: the **selector**.  Five fields: `pres`, `hdeg`, `nuP`, `hnuP`,
   `realization`.  `realization : MarkedCoreRealization (genAsmCore pres) nuP` is the direct
-  `G_K(2)` spelling (`LabuteInterface.lean:308`), i.e. the `KTwoN`/`KTwoM`/`KTwoSq` clause the
+  `G_K(2)` spelling (`LabuteInterface.lean:313`; cited as `:308`, which is a `variable` line
+  five above, W76-HOUSE round 13), i.e. the `KTwoN`/`KTwoM`/`KTwoSq` clause the
   critical-path memo §1.5 says the classification workstream actually produces.
 * `GenAsmRowResidual G T`: the **obligations**.  Four fields: `exactLifting`, `stokes`,
   `determinant` at `galKProfinite K` (ASK, names taken from `KSupply`), and `cand`, the
