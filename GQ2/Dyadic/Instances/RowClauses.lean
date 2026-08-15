@@ -156,7 +156,7 @@ side, and gives the refutation handle there. -/
 section MCandidate
 
 open GQ2.Dyadic.MCompact GQ2.Dyadic.Words.MCompact GQ2.CardH2GammaA
-open GQ2.Dyadic.Count.PilotN
+open GQ2.Dyadic.Count.PilotN GQ2.SectionEight.CentralObstruction FoxH ContCoh
 
 attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
   GQ2.Dyadic.Count.heisDiscreteTopology
@@ -216,6 +216,53 @@ theorem rowCl_mCand_isEmpty_boundaryLifts (hsimp : Hsimp α h q) (hα : 1 ≤ α
   rowCl_isEmpty_boundaryLifts_of_exactLifting (by omega)
     (rowCl_mCand_exactLiftingRN hsimp hα hq0 hqe nuP) hfroz (rowCl_mCand_tfg α h q)
     hE2 hRK hR2 b F hR
+
+/-! ### The `scalar` clause
+
+`ScalarHilbertCertificate` is `#Hom_c(Γ, 𝔽₂) = SN.homScalar` and `#H²(Γ, 𝔽₂) = 2`.  The second
+conjunct is `MCompact.cardH2`, already a theorem given `Hsimp`.  The first is the generic scalar
+count `Count.homCard_field_goal` fed the same handle-uniform datum surjection `MCompact.datumRho`
+that `cardH2` uses; this is the compact-`M` twin of `LSquare.homCard_of_uniformPushed`, which the
+`L` row has had since `GammaLAnalyticLeaves`.  Neither half was stated at the `M` candidate. -/
+
+/-- Transport only the numerical degree of a scalar certificate, keeping its carrier fixed.
+Twin of `MCompact.exactLifting_standard_congr`. -/
+theorem rowCl_scalar_standard_congr {Gam : ProfiniteGrp} {n m : ℕ}
+    (smul : DistribMulAction ↥Gam (ZMod 2)) (hn : n = m) :
+    ScalarHilbertCertificate Gam n (standardNumerics n) smul →
+      ScalarHilbertCertificate Gam m (standardNumerics m) smul := by
+  subst m
+  exact id
+
+/-- **The scalar character count at the compact-`M` candidate.**  `Count.homCard_field_goal` at
+`MCompact.datumRho`, with the resolver/endpoint pair and the per-simple Stokes upgrade the row
+already owns. -/
+theorem rowCl_mCand_homCard (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+    Nat.card (ContinuousMonoidHom ((gamma α h q : Type)) (Multiplicative (ZMod 2)))
+      = (standardNumerics (2 * h + 2)).homScalar := by
+  letI : TopologicalSpace Base := ⊥
+  letI : DiscreteTopology Base := ⟨rfl⟩
+  letI : DiscreteTopology (Base ⧸ datum.M) := discreteTopology_quotient datum
+  letI := scalarActionZmodTwo (Base ⧸ datum.M)
+  set rho := datumRho α h q hα hq0 hqe with hrho
+  have hb := resolvesAt_and_endpoint_mCompactFam
+    (Q := WordLift (ZMod 2) (Base ⧸ datum.M)) heisLevel_ne_zero heisLevel_even
+    orderOf_dvd_heisLevel_scal (α := α) (h := h) (q := q) hqe
+  exact homCard_field_goal rho (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (mCompactW α h)) hb.1
+    (isWildTwo_of_gammaGen rho (datumRho_surjective α h q hα hq0 hqe) (fun _ => rfl))
+    (degree h)
+    (stokesDuality hsimp hqe rho (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hb.1
+      (ZMod 2) (by decide : ∀ a : ZMod 2, a + a = 0))
+    hb.2
+
+/-- **The `M0` row's `scalar` clause is a theorem given `Hsimp`.**  So the second of
+W83-RECORDS' four analytic clauses costs nothing that the first does not already cost. -/
+theorem rowCl_mCand_scalar (hsimp : Hsimp α h q) (hα : 1 ≤ α) (hq0 : q ≠ 0) (hqe : Even q) :
+    ScalarHilbertCertificate (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h)
+      (standardNumerics (2 + 2 * h)) (scalarActionZmodTwo _) :=
+  rowCl_scalar_standard_congr _ (by omega)
+    ⟨rowCl_mCand_homCard hsimp hα hq0 hqe, cardH2 hsimp hα hq0 hqe⟩
 
 end MCandidate
 
