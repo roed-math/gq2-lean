@@ -598,4 +598,107 @@ theorem wPh_candidate_equiv_galK_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
 
 end SqrtNegTwoRow
 
+
+/-! ## §4 The even-degree wall-handle phase (ticket T2)
+
+W85-BLOCKS left the supply itself open with a precise diagnosis: the `L` producers
+`wordPhaseResidueK_{unramified,ramified}_lSq` run through
+`lSqWallHandlePhase_gaussSum_standard{Unram,Ram}`, "which exist only at odd degree `2h + 1`";
+the compact word "offers only the unsigned magnitude", and "there are no even-degree sign
+pins".  This section builds the missing pins, and in doing so **corrects the shape of the
+ticket**.
+
+### The correction: at even degree there is one value, not two
+
+`standardNumerics n` has `gaussUnram m = (-1)^n · 2^(n·m)` and `gaussRam m = 2^(n·m)`.  On the
+odd rows these differ in sign, which is why the `L` supply is two computations with two
+different targets and why `GammaLUnramifiedPhase` has to compute an Arf invariant (`arf q = 1`
+on the unramified branch) to get the minus sign.  **At even degree they are the same integer**
+(`wPh_gaussUnram_eq_gaussRam_of_even`).  So W85-BLOCKS §5's "two even-degree wall-handle phase
+computations" is one computation consumed twice, and the branch hypotheses `hunram` and `hram`
+of `recBlWordPhaseSupply` are not needed to state the target.
+
+### The pin: the even endpoint value is a theorem
+
+The even-degree endpoint normal form is a `plusFormD` head and `h` hyperbolic handle planes,
+on `(V × V) × (Fin h → V × V)` rather than the odd rows' `V × (Fin h → V × V)`.  Its Gauss sum
+is `Certificates.nCompact_handle_form_gaussSum`, which is form-theoretic (its proof is
+`gaussSum_plusFormD` plus `gaussSum_pi_sum`; it takes no word and no handle datum), so it serves
+both compact rows.  At `Fintype.card V = 2 ^ (2 * m)` it lands exactly on
+`(standardNumerics (2 * h + 2)).gaussRam m`.
+
+The sign is `+1` for a structural reason, not a computation: the head is `plusFormD q q`, whose
+second slot is a full polar character sum, so the head is split and its Arf invariant is `0` on
+**both** branches.  There is no even-degree analogue of `arf_eq_one_of_zeroCount_sub`, and none
+is needed.  This is what makes `gaussUnram = gaussRam` true on the nose at even degree rather
+than by accident.
+
+The sign collapse `(-1)^(2h+2) = 1` that W85-BLOCKS §5 named as missing (`Even.neg_one_pow`
+"never used anywhere under `GQ2/`") is `wPh_neg_one_pow_even` below. -/
+
+section EvenPhase
+
+open GQ2.QuadraticFp2 GQ2.Dyadic.Certificates
+
+/-- The sign collapse W85-BLOCKS §5 named as absent from the tree. -/
+theorem wPh_neg_one_pow_even {n : ℕ} (hn : Even n) : (-1 : ℤ) ^ n = 1 :=
+  hn.neg_one_pow
+
+/-- **At even degree the two Gauss targets coincide.**  This is the structural correction to
+W85-BLOCKS §5: the even-degree supply carries one value, not two, and the unramified branch
+needs no Arf computation. -/
+theorem wPh_gaussUnram_eq_gaussRam_of_even {n : ℕ} (hn : Even n) (m : ℕ) :
+    (standardNumerics n).gaussUnram m = (standardNumerics n).gaussRam m := by
+  show (-1 : ℤ) ^ n * 2 ^ (n * m) = 2 ^ (n * m)
+  rw [wPh_neg_one_pow_even hn, one_mul]
+
+/-- The compact rows' degree is even. -/
+theorem wPh_even_two_mul_add_two (h : ℕ) : Even (2 * h + 2) := ⟨h + 1, by ring⟩
+
+/-- The two Gauss targets at the compact rows' degree, in the spelling the count lane
+produces. -/
+theorem wPh_gauss_targets_eq (h m : ℕ) :
+    (standardNumerics (2 * h + 2)).gaussUnram m
+      = (standardNumerics (2 * h + 2)).gaussRam m :=
+  wPh_gaussUnram_eq_gaussRam_of_even (wPh_even_two_mul_add_two h) m
+
+/-- **The even-degree wall-handle phase**: a `plusFormD` head and `h` hyperbolic handle planes.
+The even twin of `LSquare.lSqWallHandlePhase`, whose head is a Wall doubling `qDouble q U` on a
+single copy of `V`.  The even head takes two copies and carries no Wall operator, which is the
+whole reason the even sign is unconditional. -/
+def wPhCompactWallHandlePhase {V : Type} [AddCommGroup V] (q : V → ZMod 2) (h : ℕ) :
+    (V × V) × (Fin h → V × V) → ZMod 2 :=
+  fun p ↦ plusFormD q q p.1 + ∑ j, polar q (p.2 j).1 (p.2 j).2
+
+/-- **The even-degree endpoint value, ramified spelling.**  The even twin of
+`LSquare.lSqWallHandlePhase_gaussSum_standardRam`.  No Arf hypothesis and no Wall operator
+appear, unlike both odd-degree twins. -/
+theorem wPh_compactWallHandlePhase_gaussSum_standardRam
+    {V : Type} [AddCommGroup V] [Fintype V] {q : V → ZMod 2}
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {m : ℕ}
+    (hcard : Fintype.card V = 2 ^ (2 * m)) (h : ℕ) :
+    gaussSum (wPhCompactWallHandlePhase q h)
+      = (standardNumerics (2 * h + 2)).gaussRam m := by
+  have hb := nCompact_handle_form_gaussSum (V := V) (q := q) hq hns hcard h
+  show gaussSum (fun p : (V × V) × (Fin h → V × V) =>
+    plusFormD q q p.1 + ∑ j, polar q (p.2 j).1 (p.2 j).2) = _
+  rw [hb]
+  show (2 : ℤ) ^ (2 * m * (h + 1)) = 2 ^ ((2 * h + 2) * m)
+  congr 1
+  ring
+
+/-- **The even-degree endpoint value, unramified spelling.**  The even twin of
+`LSquare.lSqWallHandlePhase_gaussSum_standardUnram`.  Same form, same value: at even degree the
+unramified target is the ramified one. -/
+theorem wPh_compactWallHandlePhase_gaussSum_standardUnram
+    {V : Type} [AddCommGroup V] [Fintype V] {q : V → ZMod 2}
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {m : ℕ}
+    (hcard : Fintype.card V = 2 ^ (2 * m)) (h : ℕ) :
+    gaussSum (wPhCompactWallHandlePhase q h)
+      = (standardNumerics (2 * h + 2)).gaussUnram m :=
+  (wPh_compactWallHandlePhase_gaussSum_standardRam hq hns hcard h).trans
+    (wPh_gauss_targets_eq h m).symm
+
+end EvenPhase
+
 end GQ2.Dyadic.Instances.WordPhase
