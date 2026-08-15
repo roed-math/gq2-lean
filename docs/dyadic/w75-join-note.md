@@ -140,7 +140,9 @@ three families `p^4`, `[p,q]^2`, `[[p,q],r]` (equivalently, through the verbal g
 `gamma_3`, to squares of `gamma_2`-elements and brackets `[gamma_2, G]`).  In the graded
 picture `gr_3 = L_3(V) + (Lambda^2 V)^{[2]} + V^{[4]}`, and:
 
-* `V^{[4]}` is covered: the admissible towers give `x1tilde^4`, `U_j^4`, `V_j^4` and `TowXW`
+* `V^{[4]}` is covered: the admissible towers give `x1tilde^4`, `U_j^4`, `V_j^4` and
+  `gTowerTowXW` (written `TowXW` here before W76-HOUSE round 13; no declaration of that short
+  name exists, and `w75-house-note.md` writes it in full)
   gives `x0^4`, `w^4`, and `{x1tilde, U_j, V_j, x0, w}` is an `F_2`-basis of `V` **because
   `w = sqPivot h = sigma * x0^{-c}`** (`sqMixPivotElem`), so `w = sigma + c x0 mod 2` and the
   pair `{x0, w}` spans `{x0, sigma}`.  In particular the `sigma^4` worry is empty: `sigma^4`

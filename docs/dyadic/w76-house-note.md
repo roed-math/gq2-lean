@@ -280,13 +280,37 @@ commit, because that is the only tree a lane can speak for.
   `w75-house-note.md` §4.5(b) cites `w74-critical-path.md:134` for the "68 modules" sentence;
   `w75-sweep-findings.md` item 10 cites `:135`.  At the W75 base `f0a71688` it is `:135`.  Both
   corrected, and the disagreement recorded at the house note's site.
-* **`w75-state-note.md:43` cites `LabuteInterface.lean:308` for `MarkedCoreRealization`**,
-  which is a `variable` line; the structure is at `:313` and its docstring at `:311`.
-  Corrected.  Every other line citation in that note resolves exactly, including the four that
-  carry the most weight (`KSupply.lean:451` for `candidate_equiv_galK_of_supply`,
-  `DsqDemushkin.lean:424` for `SqLamMarkTransitivity`, `Recursion/Numerics.lean:79` for
-  `homScalar := 2 ^ (n + 2)`, and `GammaLSylowPreimageRealizationBypass.lean:83` for
-  `ztwoIota_lNu`).
+* **Five citation defects across the three W75 notes, none of them drift.**  An exhaustive pass
+  over ~115 `File:NNN` citations and 305 backticked identifiers, checked both at this tree and
+  at `0add6034` (the last commit before this lane started editing), so that drift caused by
+  this lane's own comment additions is separated from defect.  **Every citation in all four
+  documents resolved exactly at `0add6034`**, so nothing was wrong at the wave-75 tree and
+  masked by drift; the five below were wrong when written.
+
+  1. `w75-house-note.md` §4.2(c)'s correction cites `cfiveJoin_ad_far_lambdaTwo` at `:164` and
+     `cfiveJoin_ad_far_all` at `:285`, which are the lines *inside* each proof where
+     `cfiveJoin_ad_far_mem` is applied.  The declarations are at `:157` and `:278`.  Every
+     other declaration citation in that note gives the declaration line, so these two read as
+     declaration lines.  Corrected.
+  2. `w75-state-note.md:43` cites `LabuteInterface.lean:308` for `MarkedCoreRealization`, which
+     is a `variable` continuation line; the structure is at `:313`, its docstring at `:311`.
+     Corrected.
+  3. `w75-state-note.md:18` writes `KSupply.candidate_equiv_galK_of_supply`, which is not a
+     name in the tree: that theorem sits **after** `end KSupply` (`KSupply.lean:380`), in
+     `namespace GQ2.Dyadic`, and all eight of its call sites write it bare.  The qualifier
+     reads as a namespace because the same note uses two real ones
+     (`KSupply.scalarHilbert_galK`, `KSupply.ofMarkedCoreRealization`).  Rewritten as a file
+     reference, which is what was meant.
+  4. `w75-join-note.md`'s T2 writes `TowXW`; no declaration of that name exists, the definition
+     being `gTowerTowXW` (`GradedUniformTower.lean:935`), which `w75-house-note.md` writes in
+     full.  Corrected.
+  5. `w75-state-note.md:206` cites `GammaLSylowPreimageRealizationBypass.lean:83` for
+     `ztwoIota_lNu`; the declaration is at `:82` and `:83` is its statement line.  The mildest
+     item here, and corrected for uniformity.
+
+  One further half-line item is **left alone**: `w75-sweep-findings.md` item 18 cites
+  `w74-even-note.md:195` for a phrase whose sentence begins on `:195` and whose quoted words
+  are on `:196`.  The sentence citation is the convention elsewhere in that file.
 * **`w75-join-note.md`'s "67 declarations, all 65 pinned declarations" is exact**, and the
   phrasing is honest (it does not claim all 67 are pinned).  For the record, the two unpinned
   are `gJoin_rowU_core` and `gJoin_rowV_core`, both small `if`-index helpers.  Compare
@@ -336,14 +360,39 @@ and statement agree.
   member `K` is, with the ⚠ "no theorem produces one at an arbitrary ramified-`i` `K`".  None
   of the new Props is refuted by anything in the tree, including by wave 74's own refutation,
   for the row-triviality reason round 12 §4.1(b) gave.
+* **Citations, otherwise: clean, and exhaustively so.**  Beyond §3.4's five, every one of the
+  ~115 line citations in the three W75 notes and the sweep file resolves exactly, and all 305
+  backticked identifiers resolve to declarations (excluding mathematical notation and Lean
+  features).  Verified block by block: the whole `GradedUniformTower.lean` run
+  (`:298`, `:408`, `:490`, `:861`, `:1081`, `:1538`, `:1549`, `:1562`, `:1587`, `:1648`,
+  `:1662`, `:1664`, `:1689`, `:1714`), the whole `GradedDeltaFunctionals.lean` run (eighteen
+  citations), the `ax1-proposal.md` Route D/R triple `:468`/`:469`/`:489` verbatim,
+  `GQ2.lean:774-775`, `Roe/ChiR.lean:110`, and the sweep file's own four "does not exist"
+  claims (`gDelta_handle_tower`, `gDelta_handle_tower_notMem`, `gTower_tower_rows`,
+  `gTower_layer_step`), which are correct at zero hits each even on a plain grep.
+  `w75-join-note.md` carries **no** line citations at all, which is why it came through with a
+  single identifier defect.
 * **Cross-module names: clean.**  Every declaration name `w75-join-note.md` uses for the two
   wave-74 modules exists there with the shape described, including the ones its analysis leans
   on hardest (`cfiveCommHom`, `sqMixPivotElem`, `gThreeFour_jacobi`, `cfourKnob_sq_knob_pair`,
   `cfourCmp_zLayer_le_triple`, `sqClassThree_supply`).  `w = sqPivot h = σ·x₀^{-c}` checks out:
   `sqPivot h = sqMixPivotElem h sqPivotExp` and `sqMixPivotElem h c = σ·(x₀^c)⁻¹`.  The one
   name that does not resolve, `nWordCertificate`, is correctly presented as something to build.
-* **Record field counts: clean.**  `GenAsmFieldInputs` six fields, `GenAsmBranch` five,
-  `GenAsmRowResidual` four, exactly as `w75-state-note.md` §1.2 says.
+* **Counts: clean, apart from §3.4's one.**  Recounted independently: `GradedUniformJoin.lean`
+  **67** declarations and **65** pins, exactly as `w75-join-note.md` says, with the two
+  unpinned identified; `GeneralAssembly.lean` 638 lines and 42 declarations;
+  `GradedDeltaFunctionals.lean` 103 and 103; `GradedUniformTower.lean` 94 and 94, matching
+  `w74-engine-note.md`'s "every one pinned".  Record fields: `GenAsmFieldInputs` **six**,
+  `GenAsmBranch` **five**, `GenAsmRowResidual` **four**, exactly as `w75-state-note.md` §1.2
+  says.  Every spelled-out enumeration was matched against what it enumerates: the state note's
+  "ten `rfl`s" (five words plus five cores, with `genAsm_core_L` correctly counted separately),
+  its "five theorems" in §4.2, its seven classification-join theorems; the join note's "in four
+  steps", "three named inputs", "two separate arithmetic reasons".  All exact.  Note that
+  `GeneralAssembly.lean` carries **no** `#print axioms` block, so `w75-state-note.md` §5's
+  axiom posture is recorded only in prose and cannot be re-run from the source.  That is not a
+  defect against tree convention - 658 of the tree's 934 modules carry no pins, `Main.lean`
+  among them - but it does mean §5 is the only record of that measurement, and the global bound
+  is the ledger run above.
 * **Both ledger-gate scripts: clean as behaviour and as prose.**  `bash -n` clean on both.  The
   exit-3 branch sits after the `fail` test and before the success line, so a failing fixture
   still exits 1 and a parsing fixture exits 3; the annotation at `check_ledger.sh:100-113`
@@ -419,17 +468,24 @@ mathematics:
 * **item 1**, the branch identification `range chiCycKTwo = imChiN α` per field.  Still the
   smallest genuinely-open item, still gating all five rows, and still the one that turns the
   even route's existential into a row.  Duplicated at §4.2 item 3.
-* **item 5 / item 7's `hdet`**, the Gauss-`Z` determinant residue.  The sharpest statement on
-  the list: the only place where **both** sides of the two-sided architecture are carried and
+* **item 5 together with `hdet`, the one named residual of item 7**: the Gauss-`Z` determinant
+  residue.  The sharpest statement on the list, and the reason to schedule these two as one:
+  it is the only place where **both** sides of the two-sided architecture are carried and
   neither has a supplier lane.  ⚠⚠ on both sides.
 * **item 3**, `ExactLiftingSemantics` at `G_K`, narrowed by `KSupply.lean` to one existential
   (the `K` analogue of `exists_good_twist`).
 * **item 4**, `StokesDualityCertificate` at `G_K`.
 * **item 6**, the four certificate ⇒ count bridges at `GammaR n q word` - four statements, not
   sixteen, being uniform in the row.
+* **item 7's other three residuals**: `hsimp` (`PilotHsimp`) and `hsplit`/`hZcount`
+  (`stageR136`).  `hsimp` is the high-leverage one: a single binder from which the module
+  derives every duality payload the count lane consumes.
 * **item 2**, the `KTwoN`/`KTwoM` adapter - a restatement, and §4.2 item 1's transport is
   adjacent to it.
 * **item 8**, the `nuP` construction for the four `M` rows - a build, hand-verified satisfiable.
+
+Seven bullets for eight items, item 5 and item 7 being split across the first and fifth: the
+determinant half of item 7 belongs with item 5, and the other three residuals stand alone.
 
 ### 4.4  The owner items
 
@@ -457,7 +513,7 @@ line drift; it needs to think that way about content.
 
 ## 5.  Verification record
 
-* Lane `claude/w76-house`, base `97d51e93`.  Nine commits, all path-limited.  **Not pushed.**
+* Lane `claude/w76-house`, base `97d51e93`.  Ten commits, all path-limited.  **Not pushed.**
 * **No `lake` command was run**; `scripts/check_dyadic.sh` and `scripts/check_axioms.sh` were
   not run.
 * `scripts/mirror.sh sweep` once at lane start (5873 artifacts), then `scripts/mirror.sh check`

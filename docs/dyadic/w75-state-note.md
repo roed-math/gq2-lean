@@ -15,8 +15,14 @@ It **stated** the `n`-free analogue of `ramifiedI_candidate_equiv_galK` and sepa
 hypotheses into selectors and obligations.  It did **not** prove the general theorem, and the
 module says so in its own docstring.  The one thing proved outright is the assembly step: that
 the obligations, once supplied, compose to the conclusion.  That step was already `n`-free in
-the tree (`KSupply.candidate_equiv_galK_of_supply`); what was missing was a general branch
-datum to instantiate it at, and a place to name what is owed.
+the tree (`candidate_equiv_galK_of_supply`, `KSupply.lean:451`); what was missing was a general
+branch datum to instantiate it at, and a place to name what is owed.
+**[W76-HOUSE, watch round 13: written here as `KSupply.candidate_equiv_galK_of_supply`, which
+is not a name in the tree.  That theorem sits *after* `end KSupply` (`:380`), in
+`namespace GQ2.Dyadic`, and all eight of its call sites write it bare.  The qualifier reads as
+a namespace because this note uses real ones elsewhere (`KSupply.scalarHilbert_galK`,
+`KSupply.ofMarkedCoreRealization`).  The file reference is what was meant and is now given as
+one.]**
 
 ## 1.  What landed
 
@@ -203,7 +209,7 @@ and `genAsm_branch_of_oddSq` shows it is exactly the `hMix` binder of
 `marked_matching_certificate_KTwoSq_of_fixesCore`, hence of the `L`-row branch datum.
 `genAsm_branch_of_oddSq_canonical` then fixes the marking to the canonical `lNu h`, discharging
 both marking binders (`genAsm_lNu_surjective`, and `LSquare.ztwoIota_lNu`, which already existed
-in `Instances/GammaLSylowPreimageRealizationBypass.lean:83`).  So on the odd side the general
+in `Instances/GammaLSylowPreimageRealizationBypass.lean:82`).  So on the odd side the general
 selector reduces to exactly four things: the degree pin, an oriented equivalence
 `D_sq h ≃ G_K(2)`, `SqLamMarkTransitivity h`, and the two `ν` normalizations at `σ` and `x₀`.
 

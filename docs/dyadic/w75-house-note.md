@@ -146,9 +146,13 @@ refutation does not reach them, and annotating them would over-claim.
 
 * **§4.2(c)'s proposed correction is incomplete.**  It names only §6's
   `cfiveJoin_family_five_of_span` and `..._six_of_span` as the consumers of
-  `cfiveJoin_ad_far_mem`.  The **direct** consumers are `cfiveJoin_ad_far_lambdaTwo` (`:164`) and
-  §4's `cfiveJoin_ad_far_all` (`:285`); the §6 pair reaches it only through the former.  Applied
+  `cfiveJoin_ad_far_mem`.  The **direct** consumers are `cfiveJoin_ad_far_lambdaTwo` (`:157`) and
+  §4's `cfiveJoin_ad_far_all` (`:278`); the §6 pair reaches it only through the former.  Applied
   in the fuller form.
+  **[W76-HOUSE, watch round 13: cited here as `:164` and `:285`, which are the lines *inside*
+  each proof where `cfiveJoin_ad_far_mem` is applied, not the declarations.  Every other
+  declaration citation in this note gives the declaration line, so these two read as
+  declaration lines and do not resolve.  Corrected to `:157` and `:278`.]**
 * **§4.2(e)'s second citation does not resolve.**  `LamFrames.lean:301` is the second line of the
   cleared-`u` docstring; the two definitions are at `:293` (`V_j = v_j·w^{−ν'(v_j)}`) and `:300`
   (`U_j = w^{−ν'(u_j)}·u_j`).  Corrected in both the module and `w73-knob-note.md`.
@@ -425,10 +429,7 @@ no `handleV` one, which the summary's unsuffixed name papers over.
 **(b) MEDIUM.  The dependency memo's `SqCore/Graded*` count is the wave's own two landings too
 high, in a memo whose preamble says every number is as-of `4fff1592`.**
 `w74-critical-path.md:135` ("the whole `SqCore/Graded*` family (**68** modules)") and second site
-`w74-house-note.md:79` ("any `SqCore/Graded*` module (68 of them)").
-**[W76-HOUSE, watch round 13: cited here as `:134`, which is the line above; at this note's own
-base `f0a71688` the sentence is at `:135`, as `w75-sweep-findings.md` item 10 has it.  The two
-W75 documents disagree by one about the same site.  Both corrections applied at the sources.]**  Counted from the git tree:
+`w74-house-note.md:79` ("any `SqCore/Graded*` module (68 of them)").  Counted from the git tree:
 `4fff1592` has **66**, `f0a71688` has 68.  The two that make the difference are the wave's own
 `GradedUniformTower.lean` and `GradedDeltaFunctionals.lean`, which landed **after** the house
 lane's merge (`0933f189` 00:36:45, against `1bf8c40a` 01:02:13 and `1ef86cea` 01:16:09), so at
@@ -436,6 +437,11 @@ the memo's stated tree they did not exist on `dyadic` at all.  The memo's own pr
 "Everything numeric below was recounted at this tree and is stated as-of `4fff1592`."  ⚠ The
 *conclusion* is unaffected and gets stronger with the correction: 66 then, 68 now, and **zero**
 of them in the closure either way.
+
+**[W76-HOUSE, watch round 13: the first citation above read `:134`, which is the line before
+the sentence; at this note's own base `f0a71688` it is `:135`, as `w75-sweep-findings.md`
+item 10 has it.  The two W75 documents disagreed by one about the same site.  Both count
+corrections are applied at their sources.]**
 
 **(c) MEDIUM-LOW.  Two denominators for "GQ2 modules" in one wave, differing by one, neither
 stating its convention.**  `w74-critical-path.md:130` and `w74-house-note.md:77` say "427 of
