@@ -1063,6 +1063,500 @@ theorem gTower_reach_step {k : ℕ} (hk : 2 ≤ k) {t : (DSq h : Type)}
 
 end EngineStep
 
+/-! ## §6 The two step obligations: squares and brackets of the full layer
+
+His Lemma 2 and Lemma 3 step (b), campaign form.  Under the layer hypothesis one depth down
+(`GTowerLayerReach k`: every exactly row-trivial `γ_{k+1}`-element reaches), every square and
+every bracket of a `γ_{k+1}`-element lands in the depth-`(k+1)` full reach.  The `x₁`-bracket
+of an admissible correction - the waves-71-to-73 open defect - is manufactured here by the
+engine: `[d, x₁] = (d²·[d, x₁]) · (d²)⁻¹`, the bundle knob times the engine-step square. -/
+
+section LayerHypothesis
+
+variable {h : ℕ}
+
+variable (h) in
+/-- **The layer statement at correction depth `k`** (his Lemma 3 conclusion for the layer
+`γ_{k+1}/γ_{k+2}`): every exactly row-trivial `γ_{k+1}`-element reaches. -/
+def GTowerLayerReach (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (k : ℕ) : Prop :=
+  ∀ g ∈ twoCentralSeries (DSq h : Type) (k + 1), nuLam h g = 1 → nu' g = 1 →
+    levelMk (DSq h : Type) (k + 2) g ∈ gTowerReach h nu' k
+
+end LayerHypothesis
+
+section StepObligations
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- The level quotients of `D_sq h` are discrete, at every level. -/
+theorem gTower_discrete (m : ℕ) : DiscreteTopology (levelQuot (DSq h : Type) m) :=
+  discreteTopology_levelQuot (DSq h : Type) (lim_dsq_finsetGen h) (isProP_DSq h) m
+
+/-- Every subgroup of a level quotient of `D_sq h` is closed. -/
+theorem gTower_isClosed_subgroup {m : ℕ} (S : Subgroup (levelQuot (DSq h : Type) m)) :
+    IsClosed ((S : Subgroup (levelQuot (DSq h : Type) m)) : Set (levelQuot (DSq h : Type) m)) := by
+  haveI : DiscreteTopology (levelQuot (DSq h : Type) m) := gTower_discrete m
+  exact isClosed_discrete _
+
+/-- **The far-slot letter reduction**: for `v ∈ γ_k` the bracket class `[v, g]` lies, for
+*every* `g`, in the span of the letter brackets `[v, letters]`.  The bracket against a fixed
+`γ_k`-element is the committed homomorphism `cfiveCommHom`; its kernel-side is closed because
+the level quotients are discrete, so topological generation by the letters transfers. -/
+theorem gTower_commHom_span {k : ℕ} {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) k) (g : (DSq h : Type)) :
+    levelMk (DSq h : Type) (k + 2) (commP v g) ∈
+      Subgroup.closure
+        (Set.range (fun i => levelMk (DSq h : Type) (k + 2) (commP v (sqGen h i)))) := by
+  haveI : DiscreteTopology (levelQuot (DSq h : Type) (k + 2)) := gTower_discrete (k + 2)
+  set S' := Subgroup.closure
+    (Set.range (fun i => levelMk (DSq h : Type) (k + 2) (commP v (sqGen h i)))) with hS'
+  have hpre : IsClosed ((Subgroup.comap (cfiveCommHom hv) S' :
+      Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+    rw [Subgroup.coe_comap]
+    refine IsClosed.preimage ?_ (isClosed_discrete _)
+    show Continuous fun g => levelMk (DSq h : Type) (k + 2) (commP v g)
+    simp only [commP]
+    exact (continuous_levelMk (DSq h : Type) (k + 2)).comp (by fun_prop)
+  have hsub : (Subgroup.closure (Set.range (sqGen h))).topologicalClosure ≤
+      Subgroup.comap (cfiveCommHom hv) S' := by
+    refine Subgroup.topologicalClosure_minimal _ ((Subgroup.closure_le _).2 ?_) hpre
+    rintro _ ⟨i, rfl⟩
+    exact Subgroup.subset_closure ⟨i, rfl⟩
+  have hg : g ∈ (Subgroup.closure (Set.range (sqGen h))).topologicalClosure := by
+    rw [dsq_topGen h]
+    trivial
+  exact hsub hg
+
+/-- The non-`x₁` letters lie in the far span. -/
+theorem gTower_letters_mem_far (i : Fin (sqRank h)) (hne : i ≠ 2) :
+    sqGen h i ∈ gTowerFar h := by
+  refine Subgroup.le_topologicalClosure _ (Subgroup.subset_closure ?_)
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+  · exact Or.inl (Or.inl (Or.inl rfl))
+  · exact Or.inl (Or.inl (Or.inr rfl))
+  · exact absurd rfl hne
+  · exact Or.inl (Or.inr ⟨j, rfl⟩)
+  · exact Or.inr ⟨j, rfl⟩
+
+/-- ⭐ **The engine manufactures the `x₁`-defect**: for an admissible `d` at depth `k + 1`
+(`k ≥ 2`) whose class reaches at depth `k`, the bare bracket class `[d, x₁]` lies in the
+depth-`(k+1)` reach: it is the bundle knob times the inverse of the engine-step square.  This
+is the statement waves 71, 72 and 73 could not commit at any single class: the split of the
+`x₁`-slot bundle costs one level of the tower, not a new idea per class. -/
+theorem gTower_comm_x1_split {k : ℕ} (hk : 2 ≤ k) {d : (DSq h : Type)}
+    (hd : GTowerAdm h nu' (k + 1) d)
+    (hreach : levelMk (DSq h : Type) (k + 2) d ∈ gTowerReach h nu' k) :
+    levelMk (DSq h : Type) (k + 1 + 2) (commP d (dsqX1 h)) ∈ gTowerReach h nu' (k + 1) := by
+  have hbundle : levelMk (DSq h : Type) (k + 1 + 2) (d ^ 2 * commP d (dsqX1 h))
+      ∈ gTowerReach h nu' (k + 1) :=
+    Subgroup.subset_closure (Or.inl (Or.inr ⟨d, hd, rfl⟩))
+  have hsq : levelMk (DSq h : Type) (k + 1 + 2) (d ^ 2) ∈ gTowerReach h nu' (k + 1) :=
+    gTower_reach_step hk hd.1 hreach
+  have hsplit : levelMk (DSq h : Type) (k + 1 + 2) (commP d (dsqX1 h))
+      = (levelMk (DSq h : Type) (k + 1 + 2) (d ^ 2))⁻¹ *
+        levelMk (DSq h : Type) (k + 1 + 2) (d ^ 2 * commP d (dsqX1 h)) := by
+    rw [map_mul, ← mul_assoc, inv_mul_cancel, one_mul]
+  rw [hsplit]
+  exact Subgroup.mul_mem _ (Subgroup.inv_mem _ hsq) hbundle
+
+/-- ⭐⭐ **The bracket obligation for admissible elements**: under the layer hypothesis at
+depth `k ≥ 2`, the bracket class of an admissible `γ_{k+1}`-element against **any** element
+lies in the depth-`(k+1)` reach.  Letter reduction, then per letter: the four non-`x₁`
+letters are far-span knobs, and the `x₁`-letter is the engine split. -/
+theorem gTower_comm_adm_step {k : ℕ} (hk : 2 ≤ k) (HL : GTowerLayerReach h nu' k)
+    {d : (DSq h : Type)} (hd : GTowerAdm h nu' (k + 1) d) (g : (DSq h : Type)) :
+    levelMk (DSq h : Type) (k + 1 + 2) (commP d g) ∈ gTowerReach h nu' (k + 1) := by
+  have hspan := gTower_commHom_span (k := k + 1) hd.1 g
+  refine Subgroup.closure_le (K := gTowerReach h nu' (k + 1)) |>.2 ?_ hspan
+  rintro _ ⟨i, rfl⟩
+  by_cases hi : i = 2
+  · subst hi
+    have hreach : levelMk (DSq h : Type) (k + 2) d ∈ gTowerReach h nu' k :=
+      HL d hd.1 hd.2.1 hd.2.2
+    exact gTower_comm_x1_split hk hd hreach
+  · exact Subgroup.subset_closure
+      (Or.inl (Or.inl ⟨d, sqGen h i, hd, gTower_letters_mem_far i hi, rfl⟩))
+
+/-- ⭐⭐ **The bracket obligation for tower parts**: under the layer hypothesis at depth
+`k ≥ 2`, the bracket class of a `2^k`-divisible `ℤ₂`-power of any element against any element
+lies in the depth-`(k+1)` reach.  The tower power is the square of its half (his
+`π^{j-1}·ξ = π(π^{j-2}·ξ)`), the engine turns the bracket of the square into the square of
+the bracket, and the bracket of the half is exactly row-trivial and one depth down, where the
+layer hypothesis applies. -/
+theorem gTower_comm_tower_step {k : ℕ} (hk : 2 ≤ k) (HL : GTowerLayerReach h nu' k)
+    (x : (DSq h : Type)) {a : ℤ_[2]} (ha : (2 ^ k : ℤ_[2]) ∣ a) (g : (DSq h : Type)) :
+    levelMk (DSq h : Type) (k + 1 + 2) (commP (zpowZtwo (isProP_DSq h) x a) g)
+      ∈ gTowerReach h nu' (k + 1) := by
+  obtain ⟨t, htmem, hteq⟩ := gTower_zpow_half x (by omega) ha
+  rw [hteq]
+  have hcomm : commP t g ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    cfive_commP_mem_succ htmem g
+  have hrows : nuLam h (commP t g) = 1 ∧ nu' (commP t g) = 1 :=
+    ⟨gTower_row_commP _ t g, gTower_row_commP nu' t g⟩
+  have hreach : levelMk (DSq h : Type) (k + 2) (commP t g) ∈ gTowerReach h nu' k :=
+    HL _ hcomm hrows.1 hrows.2
+  have hstep := gTower_reach_step hk hcomm hreach
+  have hengine := gTower_engine_bracket hk htmem g
+  rw [(by omega : k + 3 = k + 1 + 2)] at hengine
+  rw [hengine]
+  exact hstep
+
+/-- ⭐⭐ **The square obligation** (his Lemma 3 step (a) assembled over the §1 grading): under
+the layer hypothesis at depth `k ≥ 2` and a selected marking, the square class of **any**
+`γ_{k+1}`-element lies in the depth-`(k+1)` full reach: the admissible part squares into the
+reach by the engine step, and the two §1 towers square into the complement towers. -/
+theorem gTower_sq_step {k : ℕ} (hk : 2 ≤ k) (HL : GTowerLayerReach h nu' k)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) (k + 1)) :
+    levelMk (DSq h : Type) (k + 1 + 2) (v ^ 2) ∈ gTowerFullReach h nu' (k + 1) := by
+  obtain ⟨d, hdmem, hdl, hdn, hdec⟩ := gTower_decomp nu' hsigma hx0 (by omega) hv
+  set a := toAdd (nuLam h v) with ha
+  set b := toAdd (nu' v) with hb
+  have hda : (2 ^ k : ℤ_[2]) ∣ a := by
+    have := gTower_row_dvd (nuLam h) hv
+    rwa [Nat.add_sub_cancel] at this
+  have hdb : (2 ^ k : ℤ_[2]) ∣ b := by
+    have := gTower_row_dvd nu' hv
+    rwa [Nat.add_sub_cancel] at this
+  have hxa : zpowZtwo (isProP_DSq h) (dsqX0 h) a ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  have hwb : zpowZtwo (isProP_DSq h) (sqPivot h) b ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  have htow : gTowerTower h a b ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    Subgroup.mul_mem _ hxa hwb
+  rw [hdec, gTower_sq_congr (by omega) hdmem htow]
+  refine Subgroup.mul_mem _ ?_ ?_
+  · -- the admissible part squares into the reach
+    have hreach : levelMk (DSq h : Type) (k + 2) d ∈ gTowerReach h nu' k :=
+      HL d hdmem hdl hdn
+    exact gTower_reach_le_fullReach (gTower_reach_step hk hdmem hreach)
+  · -- the tower part squares into the complement towers
+    rw [gTowerTower, gTower_sq_congr (by omega) hxa hwb, gTower_zpow_sq, gTower_zpow_sq,
+      ← map_mul]
+    refine le_sup_right (α := Subgroup _) ?_
+    refine Subgroup.subset_closure ⟨2 * a, 2 * b, ?_, ?_, ?_⟩
+    · obtain ⟨c, hc⟩ := hda
+      exact ⟨c, by rw [hc]; ring⟩
+    · obtain ⟨c, hc⟩ := hdb
+      exact ⟨c, by rw [hc]; ring⟩
+    · rw [gTowerTower]
+
+/-- ⭐⭐ **The bracket obligation assembled** (his Lemma 2, campaign form): under the layer
+hypothesis at depth `k ≥ 2` and a selected marking, the bracket class of **any**
+`γ_{k+1}`-element against any element lies in the depth-`(k+1)` full reach. -/
+theorem gTower_comm_step {k : ℕ} (hk : 2 ≤ k) (HL : GTowerLayerReach h nu' k)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {v : (DSq h : Type)}
+    (hv : v ∈ twoCentralSeries (DSq h : Type) (k + 1)) (g : (DSq h : Type)) :
+    levelMk (DSq h : Type) (k + 1 + 2) (commP v g) ∈ gTowerFullReach h nu' (k + 1) := by
+  obtain ⟨d, hdmem, hdl, hdn, hdec⟩ := gTower_decomp nu' hsigma hx0 (by omega) hv
+  set a := toAdd (nuLam h v) with ha
+  set b := toAdd (nu' v) with hb
+  have hda : (2 ^ k : ℤ_[2]) ∣ a := by
+    have := gTower_row_dvd (nuLam h) hv
+    rwa [Nat.add_sub_cancel] at this
+  have hdb : (2 ^ k : ℤ_[2]) ∣ b := by
+    have := gTower_row_dvd nu' hv
+    rwa [Nat.add_sub_cancel] at this
+  have hxa : zpowZtwo (isProP_DSq h) (dsqX0 h) a ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  have hwb : zpowZtwo (isProP_DSq h) (sqPivot h) b ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  rw [hdec, gTowerTower, gTower_comm_near_add (by omega) hdmem (Subgroup.mul_mem _ hxa hwb) g,
+    gTower_comm_near_add (by omega) hxa hwb g]
+  refine Subgroup.mul_mem _ ?_ (Subgroup.mul_mem _ ?_ ?_)
+  · exact gTower_reach_le_fullReach (gTower_comm_adm_step hk HL ⟨hdmem, hdl, hdn⟩ g)
+  · exact gTower_reach_le_fullReach (gTower_comm_tower_step hk HL _ hda g)
+  · exact gTower_reach_le_fullReach (gTower_comm_tower_step hk HL _ hdb g)
+
+end StepObligations
+
+/-! ## §7 The layer step and the tower induction
+
+His Lemma 3, assembled: the full layer maps into the full reach (`gTower_full_layer_step`),
+the row grading cuts the admissible part back to the admissible reach (`gTower_cut`), and the
+two together push the layer statement up the tower from any base (`gTower_layerReach_of_base`).
+The base index is `k = 2`: the layer `γ₃/γ₄` of class four, which is where the committed
+per-class record stops being needed. -/
+
+section LayerStep
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- ⭐⭐ **The full layer maps into the full reach** (his Lemma 3, generation half): under the
+layer hypothesis at depth `k ≥ 2` and a selected marking, every `γ_{k+2}`-element lands, at
+level `k+3`, in the depth-`(k+1)` full reach.  The verbal generation of `γ_{k+2}` is matched
+clause by clause: squares by `gTower_sq_step`, commutators by `gTower_comm_step`, closure by
+discreteness of the level quotient. -/
+theorem gTower_full_layer_step {k : ℕ} (hk : 2 ≤ k) (HL : GTowerLayerReach h nu' k)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)}
+    (hg : g ∈ twoCentralSeries (DSq h : Type) (k + 2)) :
+    levelMk (DSq h : Type) (k + 1 + 2) g ∈ gTowerFullReach h nu' (k + 1) := by
+  have hsub : twoCentralSeries (DSq h : Type) (k + 2) ≤
+      Subgroup.comap (levelMk (DSq h : Type) (k + 1 + 2)) (gTowerFullReach h nu' (k + 1)) := by
+    have hrec : twoCentralSeries (DSq h : Type) (k + 2)
+        = twoCentralSucc (twoCentralSeries (DSq h : Type) (k + 1)) :=
+      twoCentralSeries_succ (G := (DSq h : Type)) (by omega)
+    rw [hrec, twoCentralSucc]
+    have hpre : IsClosed ((Subgroup.comap (levelMk (DSq h : Type) (k + 1 + 2))
+        (gTowerFullReach h nu' (k + 1)) : Subgroup (DSq h : Type)) : Set (DSq h : Type)) := by
+      rw [Subgroup.coe_comap]
+      exact (gTower_isClosed_subgroup _).preimage (continuous_levelMk (DSq h : Type) (k + 1 + 2))
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) hpre
+    · refine (Subgroup.closure_le _).2 ?_
+      rintro _ ⟨v, hv, rfl⟩
+      show levelMk (DSq h : Type) (k + 1 + 2) (v ^ 2) ∈ gTowerFullReach h nu' (k + 1)
+      exact gTower_sq_step hk HL hsigma hx0 hv
+    · refine Subgroup.commutator_le.2 fun v hv g' _ => ?_
+      rw [commutatorElement_def]
+      show levelMk (DSq h : Type) (k + 1 + 2) (v * g' * v⁻¹ * g'⁻¹)
+        ∈ gTowerFullReach h nu' (k + 1)
+      have hshape : v * g' * v⁻¹ * g'⁻¹ = commP v⁻¹ g'⁻¹ := by
+        simp only [commP]
+        group
+      rw [hshape]
+      exact gTower_comm_step hk HL hsigma hx0 (Subgroup.inv_mem _ hv) g'⁻¹
+  exact hsub hg
+
+/-- The two-tower correction at exponents `(0, 0)` is the identity. -/
+theorem gTower_tower_zero : gTowerTower h 0 0 = 1 := by
+  rw [gTowerTower, zpowZtwo_zero_exp, zpowZtwo_zero_exp, mul_one]
+
+/-- The image of a `γ_{k+1}`-element is central in `Q_{k+2}`. -/
+theorem gTower_img_central {k : ℕ} {r : (DSq h : Type)}
+    (hr : r ∈ twoCentralSeries (DSq h : Type) (k + 1))
+    (x : levelQuot (DSq h : Type) (k + 2)) :
+    x * levelMk (DSq h : Type) (k + 2) r = levelMk (DSq h : Type) (k + 2) r * x := by
+  have hz : levelMk (DSq h : Type) (k + 2) r ∈ zLayer (DSq h : Type) (k + 1) := ⟨r, hr, rfl⟩
+  exact Subgroup.mem_center_iff.mp (zLayer_le_center (DSq h : Type) (k + 1) hz) x
+
+/-- **Tower images add in the exponents** (for `2^k`-divisible exponents, whose zpow factors
+are central at level `k+2`). -/
+theorem gTower_towXW_img_mul {k : ℕ} {A₁ B₁ A₂ B₂ : ℤ_[2]}
+    (hB₁ : (2 ^ k : ℤ_[2]) ∣ B₁) :
+    levelMk (DSq h : Type) (k + 2) (gTowerTower h A₁ B₁) *
+      levelMk (DSq h : Type) (k + 2) (gTowerTower h A₂ B₂)
+      = levelMk (DSq h : Type) (k + 2) (gTowerTower h (A₁ + A₂) (B₁ + B₂)) := by
+  have hwmem : ∀ {C : ℤ_[2]}, (2 ^ k : ℤ_[2]) ∣ C →
+      zpowZtwo (isProP_DSq h) (sqPivot h) C ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    fun hC => gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  simp only [gTowerTower, map_mul]
+  set a1 := levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (dsqX0 h) A₁) with ha1
+  set b1 := levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (sqPivot h) B₁) with hb1
+  set a2 := levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (dsqX0 h) A₂) with ha2
+  have hswap : b1 * a2 = a2 * b1 := (gTower_img_central (hwmem hB₁) a2).symm
+  calc a1 * b1 * (a2 * levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (sqPivot h) B₂))
+      = a1 * (b1 * a2) * levelMk (DSq h : Type) (k + 2)
+          (zpowZtwo (isProP_DSq h) (sqPivot h) B₂) := by
+        simp only [mul_assoc]
+    _ = a1 * (a2 * b1) * levelMk (DSq h : Type) (k + 2)
+          (zpowZtwo (isProP_DSq h) (sqPivot h) B₂) := by rw [hswap]
+    _ = a1 * a2 * (b1 * levelMk (DSq h : Type) (k + 2)
+          (zpowZtwo (isProP_DSq h) (sqPivot h) B₂)) := by
+        simp only [mul_assoc]
+    _ = levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (dsqX0 h) (A₁ + A₂)) *
+        levelMk (DSq h : Type) (k + 2) (zpowZtwo (isProP_DSq h) (sqPivot h) (B₁ + B₂)) := by
+        rw [ha1, hb1, ha2, ← map_mul, ← zpowZtwo_add, ← map_mul, ← zpowZtwo_add]
+
+/-- ⭐⭐ **The realization of the full reach** (the closure induction behind the cut): every
+element of the depth-`k` full reach is the image of an exactly row-trivial `γ_{k+1}`-element
+whose class already lies in the admissible reach, times a two-tower image with
+`2^k`-divisible exponents. -/
+theorem gTower_fullReach_realize {k : ℕ}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {z : levelQuot (DSq h : Type) (k + 2)}
+    (hz : z ∈ gTowerFullReach h nu' k) :
+    ∃ r A B, r ∈ twoCentralSeries (DSq h : Type) (k + 1) ∧ nuLam h r = 1 ∧ nu' r = 1 ∧
+      levelMk (DSq h : Type) (k + 2) r ∈ gTowerReach h nu' k ∧
+        (2 ^ k : ℤ_[2]) ∣ A ∧ (2 ^ k : ℤ_[2]) ∣ B ∧
+          z = levelMk (DSq h : Type) (k + 2) r *
+            levelMk (DSq h : Type) (k + 2) (gTowerTower h A B) := by
+  have hz' : z ∈ Subgroup.closure ((gTowerKnobSet h nu' k ∪ gTowerTowSet h nu' k) ∪
+      {z | ∃ A B : ℤ_[2], (2 ^ k : ℤ_[2]) ∣ A ∧ (2 ^ k : ℤ_[2]) ∣ B ∧
+        z = levelMk (DSq h : Type) (k + 2) (gTowerTower h A B)}) := by
+    rw [Subgroup.closure_union]
+    exact hz
+  clear hz
+  refine Subgroup.closure_induction ?_ ?_ ?_ ?_ hz'
+  · rintro z (hgen | ⟨A, B, hA, hB, rfl⟩)
+    · -- knob and admissible-tower generators: row-trivial `γ_{k+1}`-realizations, no tower
+      have hreal : ∃ r, r ∈ twoCentralSeries (DSq h : Type) (k + 1) ∧ nuLam h r = 1 ∧
+          nu' r = 1 ∧ z = levelMk (DSq h : Type) (k + 2) r := by
+        simp only [gTowerKnobSet, gTowerTowSet, Set.mem_union, Set.mem_setOf_eq] at hgen
+        obtain (⟨t, q, ht, hq, rfl⟩ | ⟨t, ht, rfl⟩) | ⟨x, hx, a, rfl⟩ := hgen
+        · exact ⟨commP t q, cfive_commP_mem_succ ht.1 q, gTower_row_commP _ t q,
+            gTower_row_commP nu' t q, rfl⟩
+        · refine ⟨t ^ 2 * commP t (dsqX1 h),
+            Subgroup.mul_mem _ (sq_mem_twoCentralSeries_succ (G := (DSq h : Type)) ht.1)
+              (cfive_commP_mem_succ ht.1 _), ?_, ?_, rfl⟩
+          · rw [map_mul, cfourKnob_sq_nuLam ht.2.1, gTower_row_commP _ t _, one_mul]
+          · rw [map_mul, cfourKnob_sq_nu nu' ht.2.2, gTower_row_commP nu' t _, one_mul]
+        · have hxrow : nuLam h x = 1 ∧ nu' x = 1 := by
+            simp only [gTowerXLetters, Set.mem_union, Set.mem_singleton_iff,
+              Set.mem_range] at hx
+            obtain (rfl | ⟨j, rfl⟩) | ⟨j, rfl⟩ := hx
+            · exact ⟨gTower_xOne_nuLam, gTower_xOne_nu nu' hx0⟩
+            · constructor
+              · refine Multiplicative.toAdd.injective ?_
+                rw [toAdd_nuLam_sqEichU, toAdd_one]
+              · refine Multiplicative.toAdd.injective ?_
+                rw [sqEichU, map_mul, map_inv, toAdd_mul, toAdd_inv, toAdd_map_zpowZtwo,
+                  toAdd_nu_sqPivot_selected nu' hsigma hx0, toAdd_one, mul_one]
+                ring
+            · constructor
+              · refine Multiplicative.toAdd.injective ?_
+                rw [toAdd_nuLam_sqEichV, toAdd_one]
+              · refine Multiplicative.toAdd.injective ?_
+                rw [sqEichV, map_mul, map_inv, toAdd_mul, toAdd_inv, toAdd_map_zpowZtwo,
+                  toAdd_nu_sqPivot_selected nu' hsigma hx0, toAdd_one, mul_one]
+                ring
+          refine ⟨zpowZtwo (isProP_DSq h) x (2 ^ k * a),
+            gTower_zpow_dvd_mem (by omega) ⟨a, by rw [Nat.add_sub_cancel]⟩ x, ?_, ?_, rfl⟩
+          · refine Multiplicative.toAdd.injective ?_
+            rw [toAdd_map_zpowZtwo, hxrow.1, toAdd_one, mul_zero]
+          · refine Multiplicative.toAdd.injective ?_
+            rw [toAdd_map_zpowZtwo, hxrow.2, toAdd_one, mul_zero]
+      obtain ⟨r, hrmem, hrl, hrn, rfl⟩ := hreal
+      refine ⟨r, 0, 0, hrmem, hrl, hrn, Subgroup.subset_closure hgen, dvd_zero _, dvd_zero _, ?_⟩
+      rw [gTower_tower_zero, map_one, mul_one]
+    · -- complement-tower generators: trivial admissible part
+      exact ⟨1, A, B, Subgroup.one_mem _, map_one _, map_one _,
+        by rw [map_one]; exact Subgroup.one_mem _, hA, hB, by rw [map_one, one_mul]⟩
+  · exact ⟨1, 0, 0, Subgroup.one_mem _, map_one _, map_one _,
+      by rw [map_one]; exact Subgroup.one_mem _, dvd_zero _, dvd_zero _,
+      by rw [map_one, one_mul, gTower_tower_zero, map_one]⟩
+  · rintro z₁ z₂ - - ⟨r₁, A₁, B₁, hm₁, hl₁, hn₁, hR₁, hA₁, hB₁, rfl⟩
+      ⟨r₂, A₂, B₂, hm₂, hl₂, hn₂, hR₂, hA₂, hB₂, rfl⟩
+    refine ⟨r₁ * r₂, A₁ + A₂, B₁ + B₂, Subgroup.mul_mem _ hm₁ hm₂, ?_, ?_, ?_,
+      dvd_add hA₁ hA₂, dvd_add hB₁ hB₂, ?_⟩
+    · rw [map_mul, hl₁, hl₂, one_mul]
+    · rw [map_mul, hn₁, hn₂, one_mul]
+    · rw [map_mul]
+      exact Subgroup.mul_mem _ hR₁ hR₂
+    · rw [map_mul, ← gTower_towXW_img_mul hB₁]
+      have hcen := gTower_img_central hm₂
+      calc levelMk (DSq h : Type) (k + 2) r₁ *
+            levelMk (DSq h : Type) (k + 2) (gTowerTower h A₁ B₁) *
+            (levelMk (DSq h : Type) (k + 2) r₂ *
+              levelMk (DSq h : Type) (k + 2) (gTowerTower h A₂ B₂))
+          = levelMk (DSq h : Type) (k + 2) r₁ *
+            (levelMk (DSq h : Type) (k + 2) (gTowerTower h A₁ B₁) *
+              levelMk (DSq h : Type) (k + 2) r₂) *
+              levelMk (DSq h : Type) (k + 2) (gTowerTower h A₂ B₂) := by
+            simp only [mul_assoc]
+        _ = levelMk (DSq h : Type) (k + 2) r₁ *
+            (levelMk (DSq h : Type) (k + 2) r₂ *
+              levelMk (DSq h : Type) (k + 2) (gTowerTower h A₁ B₁)) *
+              levelMk (DSq h : Type) (k + 2) (gTowerTower h A₂ B₂) := by
+            rw [hcen]
+        _ = levelMk (DSq h : Type) (k + 2) r₁ * levelMk (DSq h : Type) (k + 2) r₂ *
+            (levelMk (DSq h : Type) (k + 2) (gTowerTower h A₁ B₁) *
+              levelMk (DSq h : Type) (k + 2) (gTowerTower h A₂ B₂)) := by
+            simp only [mul_assoc]
+  · rintro z - ⟨r, A, B, hm, hl, hn, hR, hA, hB, rfl⟩
+    refine ⟨r⁻¹, -A, -B, Subgroup.inv_mem _ hm, ?_, ?_, ?_, hA.neg_right, hB.neg_right, ?_⟩
+    · rw [map_inv, hl, inv_one]
+    · rw [map_inv, hn, inv_one]
+    · rw [map_inv]
+      exact Subgroup.inv_mem _ hR
+    · have hTinv : (levelMk (DSq h : Type) (k + 2) (gTowerTower h A B))⁻¹
+          = levelMk (DSq h : Type) (k + 2) (gTowerTower h (-A) (-B)) := by
+        refine inv_eq_of_mul_eq_one_left ?_
+        rw [gTower_towXW_img_mul (hB.neg_right), neg_add_cancel,
+          neg_add_cancel, gTower_tower_zero, map_one]
+      rw [mul_inv_rev, hTinv, ← map_inv]
+      exact gTower_img_central (Subgroup.inv_mem _ hm) _
+
+/-- ⭐⭐ **The cut** (his Lemma 3, row half): at a selected marking, an exactly row-trivial
+`γ_{k+1}`-element whose class lies in the full reach already lies in the admissible reach.
+The realization writes the class as an admissible image times a two-tower image; the rows of
+the element read off the tower exponents modulo `2^{k+1}`, so row-triviality pushes the tower
+factor into `γ_{k+2}`, where it is invisible. -/
+theorem gTower_cut {k : ℕ}
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) {g : (DSq h : Type)} (hgl : nuLam h g = 1)
+    (hgn : nu' g = 1)
+    (hfull : levelMk (DSq h : Type) (k + 2) g ∈ gTowerFullReach h nu' k) :
+    levelMk (DSq h : Type) (k + 2) g ∈ gTowerReach h nu' k := by
+  obtain ⟨r, A, B, hrmem, hrl, hrn, hrReach, hA, hB, heq⟩ :=
+    gTower_fullReach_realize hsigma hx0 hfull
+  have hAmem : zpowZtwo (isProP_DSq h) (dsqX0 h) A ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  have hBmem : zpowZtwo (isProP_DSq h) (sqPivot h) B ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    gTower_zpow_dvd_mem (by omega) (by rwa [Nat.add_sub_cancel]) _
+  have htmem : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) (k + 1) :=
+    Subgroup.mul_mem _ hAmem hBmem
+  -- the slack element
+  set u := (r * gTowerTower h A B)⁻¹ * g with hu
+  have humem : u ∈ twoCentralSeries (DSq h : Type) (k + 2) := by
+    rw [lim_mem_twoCentralSeries_iff_levelMk]
+    show levelMk (DSq h : Type) (k + 2) ((r * gTowerTower h A B)⁻¹ * g) = 1
+    rw [map_mul, map_inv, map_mul, heq]
+    group
+  have hgform : g = r * gTowerTower h A B * u := by
+    rw [hu, mul_inv_cancel_left]
+  -- the rows read off the tower exponents
+  have hrowA : toAdd (nuLam h g) = A + toAdd (nuLam h u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrl, toAdd_one, gTower_tower_nuLam,
+      zero_add]
+  have hrowB : toAdd (nu' g) = B + toAdd (nu' u) := by
+    rw [hgform, map_mul, toAdd_mul, map_mul, toAdd_mul, hrn, toAdd_one,
+      gTower_tower_nu nu' hsigma hx0, zero_add]
+  have hAdeep : (2 ^ (k + 1) : ℤ_[2]) ∣ A := by
+    have hud := gTower_row_dvd (nuLam h) humem
+    rw [show k + 2 - 1 = k + 1 from by omega] at hud
+    have : A = -toAdd (nuLam h u) := by
+      have h0 := hrowA
+      rw [hgl, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [this]
+    exact hud.neg_right
+  have hBdeep : (2 ^ (k + 1) : ℤ_[2]) ∣ B := by
+    have hud := gTower_row_dvd nu' humem
+    rw [show k + 2 - 1 = k + 1 from by omega] at hud
+    have : B = -toAdd (nu' u) := by
+      have h0 := hrowB
+      rw [hgn, toAdd_one] at h0
+      exact eq_neg_of_add_eq_zero_left h0.symm
+    rw [this]
+    exact hud.neg_right
+  -- the tower factor is `γ_{k+2}`-deep, hence invisible at level `k+2`
+  have htdeep : gTowerTower h A B ∈ twoCentralSeries (DSq h : Type) (k + 2) :=
+    gTower_tower_mem (by omega)
+      (by rw [show k + 2 - 1 = k + 1 from by omega]; exact hAdeep)
+      (by rw [show k + 2 - 1 = k + 1 from by omega]; exact hBdeep)
+  have htimg : levelMk (DSq h : Type) (k + 2) (gTowerTower h A B) = 1 :=
+    (lim_mem_twoCentralSeries_iff_levelMk (k + 2) _).mp htdeep
+  rw [heq, htimg, mul_one]
+  exact hrReach
+
+/-- ⭐⭐⭐ **The tower induction step**: at a selected marking and `k ≥ 2`, the layer statement
+at depth `k` implies it at depth `k + 1`. -/
+theorem gTower_layerReach_step {k : ℕ} (hk : 2 ≤ k)
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (HL : GTowerLayerReach h nu' k) :
+    GTowerLayerReach h nu' (k + 1) := by
+  intro g hg hgl hgn
+  exact gTower_cut hsigma hx0 hgl hgn (gTower_full_layer_step hk HL hsigma hx0 hg)
+
+/-- ⭐⭐⭐ **The tower follows from the base** (his §4, the uniform-in-class statement): at a
+selected marking, the depth-`2` layer statement - the class-four instance, over the committed
+per-class record - implies the layer statement at **every** depth `k ≥ 2`.  This replaces the
+one-class-per-wave ladder: no statement below depends on the class. -/
+theorem gTower_layerReach_of_base
+    (hsigma : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) (hbase : GTowerLayerReach h nu' 2) :
+    ∀ k, 2 ≤ k → GTowerLayerReach h nu' k := by
+  intro k hk
+  induction k, hk using Nat.le_induction with
+  | base => exact hbase
+  | succ k hk ih => exact gTower_layerReach_step hk hsigma hx0 ih
+
+end LayerStep
+
 /-! ## Axiom pins (§1 and §2) -/
 
 section AxiomPinsOne
@@ -1134,6 +1628,24 @@ section AxiomPinsOne
 #print axioms gTower_step_bundle
 #print axioms gTower_step_tower
 #print axioms gTower_reach_step
+#print axioms GTowerLayerReach
+#print axioms gTower_discrete
+#print axioms gTower_isClosed_subgroup
+#print axioms gTower_commHom_span
+#print axioms gTower_letters_mem_far
+#print axioms gTower_comm_x1_split
+#print axioms gTower_comm_adm_step
+#print axioms gTower_comm_tower_step
+#print axioms gTower_sq_step
+#print axioms gTower_comm_step
+#print axioms gTower_full_layer_step
+#print axioms gTower_tower_zero
+#print axioms gTower_img_central
+#print axioms gTower_towXW_img_mul
+#print axioms gTower_fullReach_realize
+#print axioms gTower_cut
+#print axioms gTower_layerReach_step
+#print axioms gTower_layerReach_of_base
 
 end AxiomPinsOne
 
