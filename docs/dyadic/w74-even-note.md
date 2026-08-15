@@ -198,7 +198,7 @@ as in wave 73.  Measured:
 
 | block | set |
 | --- | --- |
-| §1, §2, §5, §6, §7 and the two local scalar instances (42 declarations) | std-3 |
+| §1, §2, §5, §6, §7, §3's `omegaClass_ne_zero` and `coord_headSecond`, and the two local scalar instances (42 declarations) | std-3 |
 | `evenStratumRow_exists_gramOne_modelEquiv_pin` | std-3 + `tateDualityAt` + `hilbertSymbol_normCriterion_finiteDyadic` + `absGalQ2_localEulerCharacteristic` |
 | `evenStratumRow_frame_of_gramOne_adapted` | std-3 + `tateDualityAt` + `absGalQ2_isTopologicallyFinitelyGenerated` |
 | the two `exists_adaptedFrame` headlines | the union of the previous two |
@@ -214,6 +214,30 @@ committed sets, and the comparison is exact on both halves:
 Tickets 2 and 3 and the span section are entirely arithmetic-free (std-3), matching
 `evenClimb_defectReachable`, `evenSharpDbarShiftSupply_m` and
 `evenRawShiftSpan_eq_zLayer_of_pureSquares`.
+
+**[W76-HOUSE, sweep items 16, 17 and 18, three repairs to this verification block.**
+
+*Item 16, the std-3 row.*  The 42 is right, but the blocks the row named summed to **40**:
+§1 (10 pins), §2 (1), §5 (11), §6 (9), §7 (7) and the two scalar instances (2).  The two
+missing are §3's `evenStratumRow_omegaClass_ne_zero` and `evenStratumRow_coord_headSecond`,
+now named in the row above.  With them the table accounts for all 46: 42 + 1 + 1 + 2.
+
+*Item 17, the comparison statements.*  Seven of the eight do date to waves 51, 72 and 73.
+The eighth, `evenDegreeNCyclotomicFrattiniFrameSupply_holds`, is older: its declaration
+landed at `61c51c9e`, **2026-08-07** ("land the even-degree N-row Frattini frame supply
+(EV-3c1)"), before the wave-51 window; the name first appears two days earlier still, at
+`de1b361f`, as a planned statement in the EV-3c skeleton.  Nothing about the axiom comparison
+changes; only the provenance sentence does.
+
+*Item 18, the private helpers.*  "Re-declared because the originals are `private`" is true of
+`evenStratumRowRegroup` and `evenStratumRowShiftAssemble` and **false** of
+`evenStratumRowAssembleM`, which is not a re-declaration of `evenRawAssembleM`
+(`StageAbstractionEvenRawSpan.lean:558`): that one takes seven elements and two commutation
+hypotheses and concludes `X*P*Y*Q*(A*B*C)`; this one takes **eight** elements and **three**
+hypotheses and concludes `X*P*Y*Q*(Y₂*(A*B*C))`.  The extra slot `Y₂` is the coordinate-2
+atom, which is the whole point of the `M` twin, so calling it a re-declaration hides the one
+place the `M` shape shows up in the plumbing.  Round 11 §4.3(c) reported the same wording
+defect one wave earlier at `EvenStratumShift.lean:75`, about a different pair.]**
 
 Commits (branch `claude/w74-even`, based on `4fff1592`), all path-limited:
 

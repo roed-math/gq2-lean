@@ -76,7 +76,9 @@ Four workstreams.  Condensed:
 
 **Mechanically**: `GQ2.Dyadic.Main`'s transitive import closure is **427 of 930** `GQ2` modules,
 and it contains none of `EvenStratumPoint`, `EvenStratumFrame`, `EvenStratumShift`,
-`NFrameAlphaOne`, `EvenAlphaOne`, or any `SqCore/Graded*` module (68 of them).  That settles
+`NFrameAlphaOne`, `EvenAlphaOne`, or any `SqCore/Graded*` module (66 of them at `4fff1592`,
+68 at the wave-74 close, 69 now; the correction is sweep item 10, and none of them is in the
+closure at any of those trees).  That settles
 "consume" literally but not usefully, since the records are hypotheses the classification
 workstreams exist to discharge from outside.
 
@@ -251,7 +253,8 @@ be applied.  In the order given:
 3. **VERIFIED in all three parts.**  The three statements printed beside §6 carry `1 ≤ α`,
    `2 ≤ α`, and no `α` at all (fixed at `α = 1`, and it is wave 71's own statement rather than an
    analogue in another regime).  Corrected in the note and in the Lean comment at
-   `EvenStratumFrame.lean:585`.  The blanket "every one of these is a subset" is deleted: the very
+   `EvenStratumFrame.lean:598-600` (cited as `:585` here; the lane's own edit moved it, sweep
+   item 19).  The blanket "every one of these is a subset" is deleted: the very
    next sentence computes a strict **superset**, and one table row (four statements) has no
    printed comparison at all.  The accurate per-statement comparison is kept.
 4. **PARTIALLY CORRECT, and corrected in two notes.**  `w72-five-note.md:174`'s "unchanged from
@@ -286,8 +289,9 @@ be applied.  In the order given:
    none is a straggler: two are the self-correction record in `owner-items-2026-08-05.md` (where
    "seven waves" appears in quotation marks as the retracted text, which is the right way to keep
    an error on the record), one is the corrected claim itself, and one is
-   `w72-house-note.md:707`'s unrelated "all seven wave notes", a different denominator on a
-   different subject.  `git log -S'seven waves'` confirms the correction landed at `f4a458a8`.
+   `w72-house-note.md:752`'s unrelated "all seven wave notes", a different denominator on a
+   different subject (cited as `:707` here; that note's own lane edits moved it, sweep item 20).
+   `git log -S'seven waves'` confirms the correction landed at `f4a458a8`.
 
 ## 4.  Ticket 3: watch round 11
 
@@ -348,6 +352,10 @@ unverified by me".  The owner's wave-73 status (`4fff1592` 19:23:46, against the
 no gap-map entries, no alarms, no terminal violations".  So the **ledger** ran and passed, and
 §2.3's third bullet is superseded.  Corroboration that the figure is the wave-73 tree:
 `32078 − 31954 = 124` against the wave's three new modules carrying 55, 35 and 33 declarations.
+**[W76-HOUSE, sweep item 13.**  `55 + 35 + 33 = 123`, against a ledger delta of **124**.  One
+declaration of slack was presented as exact agreement.  The corroboration survives as
+corroboration - the ledger counts declarations the module scan does not, so a delta of one is
+what a match looks like - but it is not the arithmetic identity the sentence reads as.]**
 **What is not stated is whether it ran through D6**, which is what the item actually asked; if the
 owner invoked `lake env lean GQ2/AxiomLedger.lean` directly, the four `sed` extractors remain
 unexercised.  Annotated, and the item stands in that narrower form.
@@ -414,7 +422,13 @@ prose true would mean strengthening the conclusion, so the prose is what moves. 
 `w73-knob-note.md` §2 states it as a displayed identity with `a, b ∈ {1, c}` as a side condition.
 
 **(h) LOW.  `GradedClassFourCompose.lean:799` numbers its pins section §9 in a file whose sections
-run §1 to §6.**  Across the 40 `SqCore` modules with a pins block this is the only numbering gap.
+run §1 to §6.**  Across the `SqCore` modules with a pins block this is the only numbering gap.
+**[W76-HOUSE, sweep item 11.**  "The 40 `SqCore` modules with a pins block" had no supporting
+reading and the figure is struck.  Recounted at `4fff1592`: of the tree's **91** `SqCore`
+modules, **88** contain a `#print axioms` line; of those, **45** carry a numbered pins heading
+(**42** labelled "Axiom pins", 3 "Stress pins") and **43** carry the pins with no numbered
+heading at all.  The finding's substance is unaffected: `GradedClassFourCompose` is still the
+only file whose pins heading is numbered outside its own section run.]**
 
 **(i) LOW.  An over-broad reason for stating all of §6 at `D_sq h`.**  `:83-85` says the §6 results
 "consume discreteness of `Q₄` through `cfourId_isClosed`".  True of the three layer results, false
@@ -478,7 +492,7 @@ the content is unaffected.  But §2 of this very file measures the gap.
 
 **(g) LOW.  An unproved superlative.**  `:201`, "the smallest one does: the cyclic group of order
 eight".  Nothing proves minimality, and read literally the smallest profinite group is trivial.
-Second site `w73-stratum-note.md:41`.
+Second site `w73-stratum-note.md:47` (cited as `:41` here; sweep item 21).
 
 **(h) MEDIUM-LOW, mine.  A shortened citation that does not resolve.**  `w73-stratum-note.md:225`
 cites `evenRawShiftSpan_eq_zLayer`; the declaration is `evenRawShiftSpan_eq_zLayer_of_pureSquares`.
@@ -623,7 +637,8 @@ docstrings under `GQ2/Dyadic/` for bare `q` uses ambiguous between them.
 unclear:
 
 1. **`Q₂(ζ₈)` "has `q = 8`"**, in two places, one of them a shipped module docstring
-   (`w72-stratum-note.md:163`, `EvenStratumFrame.lean:488`).  True of `demushkinQ`; **false** of
+   (`w72-stratum-note.md:170`, `EvenStratumFrame.lean:488`; the first was cited as `:163` here
+   and moved by that note's own lane edits, sweep item 22).  True of `demushkinQ`; **false** of
    `q_K`, which is `2` there, `Q₂(ζ₈)/Q₂` being totally ramified of degree 4.  The sentence's own
    preceding clause is "about the family, not about fields", which pushes the reader into the
    field convention one word before contradicting it.  Both now say `demushkinQ` and give `q_K`.
@@ -638,11 +653,17 @@ unclear:
    label then recurs unglossed five more times several hundred lines later.  Glossed once at the
    label, which covers all five back-references.
 
-Eleven more where the wording mimics the other invariant's defining formula or sits in a
+Ten more where the wording mimics the other invariant's defining formula or sits in a
 Demushkin-primed run: `ev4b-stage-abstraction.md:296`, `w69-unram-note.md:24` and `:71`,
 `NFrameAlphaOne.lean:103`, `EvenStratumFrame.lean:71`, `w71-stratum-note.md:143`,
-`followup/glab-ksupply-plan.md:174`, `tickets.md:1850`, `sq-design.md:344`, `cb-design.md:528`.
+`followup/glab-ksupply-plan.md:174`, `docs/dyadic/tickets.md:1850`, `sq-design.md:344`,
+`cb-design.md:528`.
 The recurring shape is `q = 2^b` or `q = 2^α`, which is character for character `qOf K FF = 2^f`.
+**[W76-HOUSE, sweep items 12 and 23.**  "Eleven more" enumerated **ten** sites and is corrected.
+The headline "Fourteen sites disambiguated" still reconciles, but only by counting item 1 at
+both of its two places: 2 + 1 + 1 + 10 = 14.  Separately, the bare `tickets.md:1850` is now
+written out: three files of that name exist (`docs/`, `docs/dyadic/`, `docs/orchestration/`)
+and only `docs/dyadic/tickets.md` reaches line 1850.]**
 
 **Structural fix.**  The two notes that spend the most words on `q` (`w69-unram-note.md`,
 `w72-stratum-note.md`) each carry exactly one gloss near the top and then run 100 to 150 lines on
@@ -720,8 +741,12 @@ reported here only.
 1. **Apply round 11's 29 reported findings** (§4.2 to §4.5).  All are prose-only.  Three carry a
    ⚠ marker because the *obvious* fix would change a Lean statement or a script's behaviour, and
    the prose is what must move: §4.2(g) (the handle-pair entries), §4.2(i) (`cfourCmpTest`'s
-   generality) and §4.4(a) (the fixture hook).  Note that ten of the 29 have a **second site**, so
-   the half-a-fix rule applies to nearly a third of the round.
+   generality) and §4.4(a) (the fixture hook).  Note that fifteen of the 29 have a **second
+   site**, so the half-a-fix rule applies to more than half the round.
+   **[W76-HOUSE, sweep item 15.**  "Ten of the 29" undercounted; recounted finding by finding,
+   **fifteen** name a site beyond the first: §4.2(a),(e),(f),(g); §4.3(b),(e),(f),(g),(h);
+   §4.4(a),(b),(c),(e),(f); and §4.5's first bullet.  §4.3(e) alone has five.  The total 29 is
+   right.]**
 2. ~~**Decide the fixture hook** (§4.4(a)).  This is the one item that is not a documentation
    question underneath.  Either the prose changes to say the skip is visible only in the
    transcript, or the script changes to exit non-zero under a fixture; the second is an owner call
