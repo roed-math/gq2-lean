@@ -200,8 +200,10 @@ theorem oddId_genAsmBranch_L_of_supply (B : MarkedRecip Rec K) {h : ℕ}
     (H : SqMarkedForwardSupply B h) :
     ∃ G : GenAsmBranch K B, G.pres = .L h := by
   obtain ⟨f, horient, hsigma, hx0⟩ := H
-  exact genAsm_branch_of_oddSq_canonical h sqPivotExp hdeg ⟨f, horient⟩ (gOdd_pivotFix h)
-    hsigma hx0
+  -- [W83-RECORDS: the producer now also names the marking `lNu h`; this statement keeps the
+  -- weaker form, and `Instances.CanonicalRecords` restates the tied one.]
+  exact (genAsm_branch_of_oddSq_canonical h sqPivotExp hdeg ⟨f, horient⟩ (gOdd_pivotFix h)
+    hsigma hx0).imp fun _ hG => hG.1
 
 /-- **T3, over the frame residual**: the branch datum at every odd-degree `K` from
 `MarkedFrame.SqCupAdaptedFramePresentation K` alone. -/

@@ -403,17 +403,27 @@ def mpcCert_realization {B : MarkedRecip Rec K} {α r pp : ℕ} {hα : 1 ≤ α}
 /-- **THE PROCYCLIC BRANCH DATUM.**  A `GenAsmBranch` sitting on the `.Mpc α r ε η 0` row, from
 an oriented equivalence and the two level-`r` clauses.  The marking triple is discharged at the
 row's own canonical marking (`mpcNu_surjective`, and the seam is `rfl`), so nothing about `nuP`
-is carried. -/
+is carried.
+
+**[W83-RECORDS: the last clause is now false, and deliberately so.**  The conclusion carries
+`∧ HEq G.nuP (mpcNu α r pp hα1)`: it was exactly the *not carrying* that stopped a consumer
+from reaching `GenAsmRowResidual.cand`, whose committed producer at this row
+(`Instances.MProcyclicCore.mpcWordCertificate`) takes the marking and its two normalization
+clauses as arguments.  The conjunct is `HEq` because `G.nuP`'s type depends on `G.pres`; see
+`GeneralAssembly.genAsm_branch_of_oddSq`.  The proof is unchanged apart from the extra
+`HEq.rfl`.]** -/
 theorem mpcCert_genAsmBranch_of_orientedMpc {B : MarkedRecip Rec K} {α : ℕ} (r pp : ℕ)
     (epsilon : Bool) (eta : Words.Mpc.EtaDisplay) (hα : 2 ≤ α) (hα1 : 1 ≤ α)
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.Mpc α r epsilon eta 0).degree)
     (e : OrientedContinuousMulEquiv (chiM α 0) (chiCycKTwo (K := K)))
     (hlev : MpcChiKerLevel α r (fieldUni_nuPullbackM B e))
     (hdata : MpcMarkedData α r pp (fieldUni_nuPullbackM B e)) :
-    ∃ G : GenAsmBranch K B, G.pres = .Mpc α r epsilon eta 0 := by
+    ∃ G : GenAsmBranch K B, G.pres = .Mpc α r epsilon eta 0 ∧
+      HEq G.nuP (mpcNu α r pp hα1) := by
   obtain ⟨C⟩ := mpcCert_marked_matching_certificate_KTwoMpc B r pp hα hα1 e hlev hdata
   exact ⟨{ pres := .Mpc α r epsilon eta 0, hdeg := hdeg, nuP := mpcNu α r pp hα1,
-           hnuP := mpcNu_surjective α r pp hα1, realization := mpcCert_realization C }, rfl⟩
+           hnuP := mpcNu_surjective α r pp hα1, realization := mpcCert_realization C },
+         rfl, HEq.rfl⟩
 
 end KTwo
 
@@ -536,17 +546,19 @@ field's own reciprocity bundle, the standing instance binders, and `MpcRowData_s
 theorem mpcCert_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip R KSqrtTen)
     (hrow : MpcRowData_sqrtTen B) :
     ∃ G : GenAsmBranch KSqrtTen B, G.pres = .Mpc 2 1 false .one 0 :=
-  mpcCert_genAsmBranch_of_orientedMpc 1 (p false 1) false .one (le_refl 2) (by omega)
+  -- [W83-RECORDS: the producer now also names the marking; this statement keeps the weaker
+  -- form, and `Instances.CanonicalRecords` restates the tied one.]
+  (mpcCert_genAsmBranch_of_orientedMpc 1 (p false 1) false .one (le_refl 2) (by omega)
     (by rw [finrank_KSqrtTen]; rfl) (fieldId_chosenEquivM_sqrtTen B)
-    (mpcCert_chiKerLevel_of_level B hrow.1 _) hrow.2
+    (mpcCert_chiKerLevel_of_level B hrow.1 _) hrow.2).imp fun _ hG => hG.1
 
 /-- **THE `sqrtNegTen` ROW'S BRANCH DATUM**, on the row `Main.lean` actually assigns it. -/
 theorem mpcCert_genAsmBranch_sqrtNegTen [T2Space (GalK KSqrtNegTen)]
     (B : MarkedRecip R KSqrtNegTen) (hrow : MpcRowData_sqrtNegTen B) :
     ∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0 :=
-  mpcCert_genAsmBranch_of_orientedMpc 1 (p true 1) true .one (le_refl 2) (by omega)
+  (mpcCert_genAsmBranch_of_orientedMpc 1 (p true 1) true .one (le_refl 2) (by omega)
     (by rw [finrank_KSqrtNegTen]; rfl) (fieldId_chosenEquivM_sqrtNegTen B)
-    (mpcCert_chiKerLevel_of_level B hrow.1 _) hrow.2
+    (mpcCert_chiKerLevel_of_level B hrow.1 _) hrow.2).imp fun _ hG => hG.1
 
 end Fields
 

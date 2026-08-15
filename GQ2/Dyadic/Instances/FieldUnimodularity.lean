@@ -252,34 +252,46 @@ in place of `marked_matching_certificate_KTwoM`: the `MDecomposition` binder is 
 oriented equivalence and `B.r = 0`.
 
 ⚠ [W79-HOUSE, as of `527adf51`: four inputs, not three.  `halpha : 2 ≤ alpha` is also carried
-and is not implied by `hdeg`.  The `N0` twin below enumerates nothing and is clean.] -/
+and is not implied by `hdeg`.  The `N0` twin below enumerates nothing and is clean.]
+
+**[W83-RECORDS: the conclusion now carries the marking**, `fieldId_mNuZtwo alpha 0`.  This is
+one of the five sites of that lane; see `GeneralAssembly.genAsm_branch_of_oddSq` for why the
+conjunct is `HEq` and how a consumer turns it back into an equation.  Without it no consumer of
+this producer could reach `GenAsmRowResidual.cand`, whose committed producer on this row
+(`Instances.MCompactCore.mWordCertificate`) is stated at a *named* marking.  The proof is
+unchanged apart from the extra `HEq.rfl`.]** -/
 theorem fieldUni_genAsmBranch_of_orientedM_level_zero (alpha : ℕ) (halpha : 2 ≤ alpha)
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.M0 alpha 0).degree)
     (hr : B.r = 0)
     (e : OrientedContinuousMulEquiv (chiM alpha 0) (chiCycKTwo (K := K))) :
-    ∃ G : GenAsmBranch K B, G.pres = .M0 alpha 0 := by
+    ∃ G : GenAsmBranch K B, G.pres = .M0 alpha 0 ∧
+      HEq G.nuP (fieldId_mNuZtwo alpha 0 (by omega)) := by
   obtain ⟨D⟩ := mFrameExists_mDecomposition (α := alpha) (by omega)
   obtain ⟨C⟩ := marked_matching_certificate_KTwoM_of_level_zero B alpha halpha D hr e.1 e.2
   exact ⟨{ pres := .M0 alpha 0, hdeg := hdeg,
            nuP := fieldId_mNuZtwo alpha 0 (by omega),
            hnuP := fieldId_mNuZtwo_surjective alpha 0 (by omega),
            realization := MarkedCoreRealization.ofCertificateM _
-             (fieldId_ztwoIota_mNuZtwo alpha 0 (by omega)) C }, rfl⟩
+             (fieldId_ztwoIota_mNuZtwo alpha 0 (by omega)) C }, rfl, HEq.rfl⟩
 
 /-- **The `N0` branch datum at level zero**, through
-`marked_matching_certificate_KTwoN_of_level_zero` and `nFrameExists_nDecomposition`. -/
+`marked_matching_certificate_KTwoN_of_level_zero` and `nFrameExists_nDecomposition`.
+
+**[W83-RECORDS: the conclusion now carries the marking**, `nNuZtwo alpha 0`, for the reason
+recorded on the `M0` twin above.]** -/
 theorem fieldUni_genAsmBranch_of_orientedN_level_zero (alpha : ℕ) (halpha : 2 ≤ alpha)
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.N0 alpha 0).degree)
     (hr : B.r = 0)
     (e : OrientedContinuousMulEquiv (chiN alpha 0) (chiCycKTwo (K := K))) :
-    ∃ G : GenAsmBranch K B, G.pres = .N0 alpha 0 := by
+    ∃ G : GenAsmBranch K B, G.pres = .N0 alpha 0 ∧
+      HEq G.nuP (GQ2.Dyadic.SelectedCoreLeavesRN.nNuZtwo alpha 0) := by
   obtain ⟨D⟩ := nFrameExists_nDecomposition (α := alpha) halpha
   obtain ⟨C⟩ := marked_matching_certificate_KTwoN_of_level_zero B alpha halpha D hr e.1 e.2
   exact ⟨{ pres := .N0 alpha 0, hdeg := hdeg,
            nuP := GQ2.Dyadic.SelectedCoreLeavesRN.nNuZtwo alpha 0,
            hnuP := GQ2.Dyadic.genCertNNuZtwo_surjective alpha 0,
            realization := MarkedCoreRealization.ofCertificateN _
-             (fieldId_ztwoIota_nNuZtwo alpha 0) C }, rfl⟩
+             (fieldId_ztwoIota_nNuZtwo alpha 0) C }, rfl, HEq.rfl⟩
 
 end Producer
 
@@ -659,26 +671,28 @@ wave 77's `hpair` is discharged by `fieldUni_level_sqrtNegTwo`. -/
 theorem fieldUni_genAsmBranch_sqrtNegTwo [T2Space (GalK KSqrtNegTwo)]
     (B : MarkedRecip Rec KSqrtNegTwo) :
     ∃ G : GenAsmBranch KSqrtNegTwo B, G.pres = .N0 2 0 :=
-  fieldUni_genAsmBranch_of_orientedN_level_zero 2 (le_refl 2)
+  -- [W83-RECORDS: the producer now also names the marking; this statement keeps the
+  -- weaker form, and `Instances.CanonicalRecords` restates the tied one.]
+  (fieldUni_genAsmBranch_of_orientedN_level_zero 2 (le_refl 2)
     (by rw [finrank_KSqrtNegTwo]; rfl) (fieldUni_level_sqrtNegTwo B)
-    (fieldId_chosenEquivN_sqrtNegTwo B)
+    (fieldId_chosenEquivN_sqrtNegTwo B)).imp fun _ hG => hG.1
 
 /-- **THE `ℚ₂(√2)` ROW'S BRANCH DATUM, CLAUSE-FREE.**  Wave 77's `hpivot` is discharged by
 `fieldUni_level_sqrtTwo`. -/
 theorem fieldUni_genAsmBranch_sqrtTwo [T2Space (GalK KSqrtTwo)]
     (B : MarkedRecip Rec KSqrtTwo) :
     ∃ G : GenAsmBranch KSqrtTwo B, G.pres = .M0 3 0 :=
-  fieldUni_genAsmBranch_of_orientedM_level_zero 3 (by omega)
+  (fieldUni_genAsmBranch_of_orientedM_level_zero 3 (by omega)
     (by rw [finrank_KSqrtTwo]; rfl) (fieldUni_level_sqrtTwo B)
-    (fieldId_chosenEquivM_sqrtTwo B)
+    (fieldId_chosenEquivM_sqrtTwo B)).imp fun _ hG => hG.1
 
 /-- **The `ℚ₂(√5)` row's branch datum**, over the unramifiedness Prop alone. -/
 theorem fieldUni_genAsmBranch_sqrtFive_of_unramified [T2Space (GalK KSqrtFive)]
     (B : MarkedRecip Rec KSqrtFive) (hur : fieldUni_TwoIsUniformizer KSqrtFive) :
     ∃ G : GenAsmBranch KSqrtFive B, G.pres = .M0 2 0 :=
-  fieldUni_genAsmBranch_of_orientedM_level_zero 2 (le_refl 2)
+  (fieldUni_genAsmBranch_of_orientedM_level_zero 2 (le_refl 2)
     (by rw [finrank_KSqrtFive]; rfl) (fieldUni_level_eq_zero_of_twoUniformizer B hur)
-    (fieldId_chosenEquivM_sqrtFive B)
+    (fieldId_chosenEquivM_sqrtFive B)).imp fun _ hG => hG.1
 
 /-- **What wave 77's `ℚ₂(√10)` clause says**: it is the level equation, at the very equivalence
 wave 77 chose.  Read against `Main.lean:136`'s `.Mpc 2 1 false 1` (valid only with `1 ≤ r`).
