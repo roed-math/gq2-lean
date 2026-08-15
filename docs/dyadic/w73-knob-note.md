@@ -22,6 +22,23 @@ files.  Prefix `cfourCmp`.  Base `6a8fbc90`, lane branch `claude/w73-knob`.
 `cfourDefCore` is not a knob, and nothing says it is.  What the wave produces is a replacement of
 the question by a sharper one and one further named condition (§5).
 
+> **[W75-HOUSE, wave-74 refutation: the sharper question was answered, and the answer is NO.**
+> `gDelta_cfourCmp_span_hyp_false` (`GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean:1575`) proves
+> the hypothesis of `cfourCmp_residual_of_span` **unsatisfiable at every `h ≥ 1`**.  So §4's
+> payoff and §5's named condition are dead as a *route*, and this note's own honesty markers (§0
+> "Scope, in the required words", §7 bullet 2) are exactly what came true: the failure is a
+> statement about the knob subgroup of one inventory, and `SqClassClearingSupply h 4` is still
+> neither discharged nor refuted.
+>
+> **The failing family is family 1, the fourth powers -- not family 3, the triple brackets this
+> note expects to be the whole remaining obligation** (§4, §5).  Any subgroup satisfying the
+> hypothesis must contain the sigma tower `(levelMk σ)⁴`; every correction of wave 70's
+> `CfourIdReachable` route has `mod 8` chi-trivial slots and is therefore invisible at the layer
+> bit to the twisted functionals `gDelta`, while the tower reads `4 · unit` there.  Moves do not
+> span the layer; they span at most its functional-invisible part, which is Labute's Lemma 3, and
+> the defect's tower components die by the functionals (his Theorem 5), not by being reached.
+> Read `docs/dyadic/w74-func-note.md` §4.1 and §4.3 before using anything below as a target.]**
+
 **Scope, in the required words.**  Everything below concerns ONE sufficient route, wave 70's
 `CfourIdReachable`: `γ₂`-valued corrections of wave 68's frame.  Any negative reachable from this
 material would be a negative about that route.  It would be a statement about the knob subgroup of
@@ -51,19 +68,29 @@ left alone, and `cfourCmp_handle_knob` packages it against an explicit correctio
 ⭐⭐⭐ `cfourCmp_dress_reach`.  For **every** admissible `γ₂`-correction `c`,
 
 ```text
-  ⁅c, A⁆ = ⁅a, V_j⁆ · ⁅U_j, b⁆ ,     a, b ∈ {1, c} ,
+  ⁅c, A⁆ = ⁅a, V_j⁆ · ⁅U_j, b⁆ ,     a, b admissible ,
 ```
 
 an exact identity, not a subgroup membership.  The mechanism is a two-way parity count.  Modulo
 `γ₂` and modulo squares, which is all `⁅c, ·⁆` sees,
 
 ```text
-  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j + 2·ν'(u_j)·ν'(v_j)·w = A ,
+  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j - 2·ν'(u_j)·ν'(v_j)·w = A ,
 ```
 
 the two pivot contributions cancelling because their total exponent is even.  `a` is `c` exactly
 when `ν'(u_j)` is odd and `b` is `c` exactly when `ν'(v_j)` is odd; the four parity cases are the
 four branches of the proof.
+
+**[W75-HOUSE, round 11 §4.2(g) and §4.2(e).**  Two corrections to the display above.  `a, b ∈
+{1, c}` was written as a side condition of the identity; the theorem concludes only that `a` and
+`b` are **admissible**, and the `{1, c}` reading is a fact about the four parity branches that a
+consumer cannot use.  Strengthening the conclusion would be a statement change, so the display is
+what moved.  And the pivot coefficient is `- 2·ν'(u_j)·ν'(v_j)·w`, not `+`: `bridgeDress` is
+`u_j^{ν'(v_j)}·v_j^{ν'(u_j)}·w^{-2·ν'(u_j)·ν'(v_j)}` (`GradedBridge.lean:337`) and the cleared
+letters are `U_j = w^{-ν'(u_j)}·u_j`, `V_j = v_j·w^{-ν'(v_j)}` (`LamFrames.lean:293`, `:300`).
+The sign is invisible under this paragraph's own "modulo squares" hedge, which is why it survived;
+it is **not** invisible in the module, where the same display carries only a "(mod γ₂)" tag.]**
 
 **Correction to wave 72 §3, and it is an improvement rather than a retraction.**  Wave 72 routed
 `⁅y, A⁆` through the pivot (`cfourDef_comm_dress_frame_mem` needs `⁅y, w⁆`, and
@@ -126,6 +153,12 @@ knob).
 as soon as there is a subgroup, all of whose elements are knobs, containing the three families.
 **The statement no longer mentions `cfourDefCore`.**
 
+> **[W75-HOUSE: both theorems stand and are unedited; their hypothesis is now known false at
+> `h ≥ 1`** (`gDelta_cfourCmp_span_hyp_false`), **so neither is instantiable.**  Note which half
+> of this paragraph did the damage: not "containing the three families" as a generation statement
+> -- `cfourCmp_zLayer_le_gens` is untouched -- but "all of whose elements are knobs", which the
+> fourth-power family cannot meet.]**
+
 ## 5.  What is left, exactly, and one named condition
 
 The remaining obligation is family 3, the triple brackets `⁅⁅p, q⁆, r⁆`, as moves of the collapsed
@@ -159,6 +192,21 @@ Given that one condition, families 1, 2 and 3 all follow for `h = 1`, and
 `cfourCmp_residual_of_span` closes the route.  This is one `𝔽₂`-linear condition on one layer, and
 it is the whole of what is left along this route.
 
+> **[W75-HOUSE, wave-74: this condition is dead, and the inference chain matters.**  What is
+> *proved* is `¬ H` for `cfourCmp_residual_of_span`'s hypothesis at `h ≥ 1`
+> (`gDelta_cfourCmp_span_hyp_false`).  The step from there to "the named condition is false" runs
+> **backwards through the very implication displayed above** -- "given that one condition,
+> families 1, 2 and 3 all follow for `h = 1`, and `cfourCmp_residual_of_span` closes the route" --
+> which is this section's own analysis and is **not in the tree** (the paragraph above says so:
+> "Analysis, not proved anywhere in the tree").  So: the condition is false at `h = 1` *granted
+> this note's span argument*, and unconditionally the route it was meant to close is shut.  A lane
+> wanting the condition refuted as a Lean statement in its own right does not have it yet.
+>
+> The owner memo (`owner-items-2026-08-05.md`, wave-74 status) states the short form, "wave 73's
+> 'one condition' (the x1-bracket as a move) is unsatisfiable at the committed knob subgroup";
+> that is the composite, not the committed theorem.  The committed theorem is about the span
+> hypothesis.]**
+
 **Two caveats on that reduction, both honest.**
 
 * The span argument above uses the far slots of **one** handle.  For `h ≥ 2` the directions
@@ -190,6 +238,9 @@ in `Z` (`cfourDef_core_mem_zLayer`).  **No claim is made here that no presentati
 * `cfourCmp_residual_of_span`'s hypothesis is **not** claimed to hold, and §5 records precisely
   where it is delicate.  If it fails, that is a statement about the knob subgroup of one
   inventory, not a refutation of the residual.
+  **[W75-HOUSE: it fails (wave 74), and this marker is why the failure cost nothing.  The one
+  thing the marker got wrong is *where* it is delicate: §5 puts the delicacy at the `x₁`-slot
+  triple brackets, and the refutation runs through the fourth powers.]**
 * `cfourCmp_dress_all`, `cfourCmp_dress_handles` and `cfourCmp_z_pair` are stated over
   `levelQuot G 4` for an arbitrary topological group.  They are **class-four, not
   layer-agnostic**, and the hypotheses were checked for satisfiability rather than for general
@@ -234,14 +285,26 @@ in `Z` (`cfourDef_core_mem_zLayer`).  **No claim is made here that no presentati
 
 ## 9.  Wave-74 queue
 
-1. **The named condition of §5**: is `⁅y, x₁⁆` (equivalently `y²`) a move?  One `𝔽₂`-linear
-   condition, and the whole of what is left along this route.
+1. ~~**The named condition of §5**: is `⁅y, x₁⁆` (equivalently `y²`) a move?  One `𝔽₂`-linear
+   condition, and the whole of what is left along this route.~~  **[W75-HOUSE: OVERTAKEN at wave
+   74.  The route this condition was to close is refuted at `h ≥ 1`
+   (`gDelta_cfourCmp_span_hyp_false`), so the item is withdrawn as a target.  Its replacement is
+   the Lemma 3 analogue of `w74-func-note.md` §4.3(2): the functional-invisible part of the layer
+   is spanned by knobs.  See §5's annotation for what is and is not committed.]**
 2. **The multi-handle composition lemma**: `cfourCmp_dress_all` with the handle pair replaced by a
    set of handles, so that the far-slot span argument of §5 covers `h ≥ 2`.  Same argument, one
    induction inside `cfour_handleWord_update`.
+   **[W75-HOUSE: the *motive* is gone (the §5 span argument no longer leads anywhere), but the
+   lemma is tooling and would still be needed by the Lemma 3 analogue, which also has to see every
+   handle.  Re-scope rather than withdraw.]**
 3. **The knob subgroup as a `Subgroup`**, so that §5's span argument becomes a theorem.  The
    ingredient is that a `γ₂`-valued correction is invisible to every knob entry, which follows
    from `cfour_commP_lambdaTwo` and `cfourCmp_dress_all`.
+   **[W75-HOUSE: still wanted, and now for the opposite purpose.  Wave 74 refuted the span
+   hypothesis without ever building the knob subgroup as an object -- it refuted the *existence*
+   of any subgroup meeting the clauses.  A named knob `Subgroup` is what the Lemma 3 analogue
+   (`w74-func-note.md` §4.3(2)) needs on its right-hand side, so the item survives its original
+   motive.]**
 4. ~~**Register the module.**  `GQ2/Dyadic/SqCore/GradedClassFourCompose.lean` is not wired into
    `GQ2.lean`; the orchestrator owns that file.  (Wave 72's `NuSeeds` finding is the standing
    reminder that an unregistered module has never been in a green build.)~~  **DISCHARGED at

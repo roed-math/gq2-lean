@@ -51,12 +51,24 @@ initial form dies".  So `2 ≤ α` is load-bearing, not conventional.
 * §2 the handle block `evenRawHandleDbarWord` (`_mem_zLayer`, `_one`, `_mul`) and the handle
   factorization, cloned from the committed `sqHandleDbarWord` material at
   `MarkedCore.handleIdxU/V`.
-* §3 the even crossed-derivation word `evenRawDbarWord` and the two literal factorizations
-  `evenRawStageShift_n` / `evenRawStageShift_m`.
-* §4 the raw depth corrections, their shift homomorphism, and the five exact coordinate rows.
-* §5 the raw shift span, the pure-square supply, and `evenRawShiftSpan_eq_zLayer`.
-* §6 the `Tuple`-level bridge to the generic `rawDefectReachable`.
-* §7 axiom pins.
+* §3 the even crossed-derivation word `evenRawDbarWord`.
+* §4 the two literal factorizations `evenRawStageShift_n` / `evenRawStageShift_m`.
+* §5 the raw depth corrections, their shift homomorphism, the six exact coordinate rows, the
+  raw shift span, and the pure-square supply with
+  `evenRawShiftSpan_eq_zLayer_of_pureSquares`.
+* §6 axiom pins.
+
+[W75-HOUSE, applying watch round 11 §4.5 and §4.3(h).  Four defects in this list, all in the
+five lines above, all comment-only.  It ran to seven items against six sections and was one
+section high from §3 onwards; it said "five exact coordinate rows" where §5's own subheading
+and its six `evenRawDepthShiftHom_*_apply` theorems say six; it shortened
+`evenRawShiftSpan_eq_zLayer_of_pureSquares`; and its `Tuple`-level bridge to
+`rawDefectReachable` is not in this file and never has been, but in the sibling module
+`StageAbstractionEvenRawSpanStep.lean` §1, where `rawDefectReachable` does appear.  The
+numbering did not propagate, since `EvenStratumShift.lean:74` cites the headers; the shortened
+name did, into `w73-stratum-note.md` and from there into two verbatim wave-74 quotations
+(`EvenStratumRowFrame.lean:864`, `docs/dyadic/w74-even-note.md:139`), which are left alone as
+quotations.]
 
 ## The `α` hypothesis, per declaration
 

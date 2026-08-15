@@ -23,9 +23,26 @@
 #
 #     GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh     # or:  bash scripts/check_dyadic.sh --ledger
 #
-# With it off, D6 prints a SKIP line naming the script and the flag, so the gate is visible
-# even when it is not running.  See `scripts/check_ledger.sh` for what it checks and why the
-# separation exists.
+# With it off, D6 prints a four-line SKIP block naming this script and the environment
+# variable, so the gate is visible even when it is not running.  See
+# `scripts/check_ledger.sh` for what it checks and why the separation exists.
+#
+# [W75-HOUSE, watch round 11 §4.4(c) and §4.4(e).  Two precisions.  (1) The SKIP block does
+# not print `--ledger`, which this script's own argument loop calls the flag; it prints the
+# `GQ2_LEDGER_GATE=1` form and the standalone command.  (2) "Lanes must never run `lake`" is
+# the rule, but D1 below runs `scripts/check_axioms.sh` unconditionally, and that script's
+# check 5 (`:280`) and check 5b (`:363`) both invoke `lake env lean` when `lake` is on PATH
+# and the probed oleans exist.  D6 does not add to that exposure, and it is the only check
+# here whose `lake` use is opt-in, but the default path is not lake-free today.  Making it so
+# is a behaviour change to `check_axioms.sh` and an owner call.]
+#
+# [W75-HOUSE, watch round 11 §4.4(a): `GQ2_LEDGER_FIXTURE` is an INHERITED override.  The
+# environment passes straight through D6's `bash "$LEDGER_SCRIPT"` call, and D6 keys on that
+# script's exit code alone.  Before `2c8af4bd` a clean fixture parse exited 0, so an exported
+# stale `GQ2_LEDGER_FIXTURE` made D6 print OK with no `lake` run at all: the `SKIP: L1` line
+# was in the transcript but not in the exit code, and the exit code is what D6 reads.
+# `check_ledger.sh` now exits 3 on a clean fixture parse, which D6 treats as a failure.  The
+# variable must never be set in a merge run.]
 #
 # ---------------------------------------------------------------------------
 # The per-ticket SORRY_ALLOWLIST workflow
@@ -66,8 +83,15 @@
 #       → evidence for merge gates 5 and 9 (regressions only, never cited by a proof).
 #   D6  Axiom ledger, OPT-IN (see above): delegate to `scripts/check_ledger.sh`, which runs
 #       `lake env lean GQ2/AxiomLedger.lean` and fails on a non-empty gap map, a non-empty
-#       ALARM, or a terminal-certificate violation.  → docs/dyadic/ax1-proposal.md's merge
-#       gate, which until wave 73 was prescribed but never wired to anything.
+#       ALARM, a terminal-certificate violation, or a MISSING report line, which it treats
+#       as a failure rather than a pass so that a change of output format cannot leave the
+#       gate auditing nothing.  → docs/dyadic/ax1-proposal.md:489, which until wave 73 was
+#       prescribed but never wired to anything.
+#       [W75-HOUSE, watch round 11 §4.4(b) and §4.4(g): the missing-line behaviour is added
+#       above, and the citation is narrowed.  `ax1-proposal.md` has no §"Merge gate"; `:489`
+#       is item 4 of Route R's checklist in its §7, one of three alternative routes, and the
+#       recommended Route D's gate item (`:469`) does not list the ledger.  Neither does
+#       `docs/dyadic/plan.md` §7's ten numbered merge gates.]
 #
 # NOT mechanized here, and still reviewed by hand at every merge: gate 5 (no field-specific
 # presentation-isomorphism axiom; no theorem proved by finite-target testing), gate 6 (full
@@ -302,10 +326,17 @@ else
   echo "SKIP: dyadic sanity harness not yet ported (ticket F5, gated on word freeze)"
 fi
 
-# -- D6. axiom ledger, OPT-IN (ax1-proposal.md's merge gate) -----------------
-# OFF by default: it runs `lake`, and lanes must never run `lake`.  See this script's header
-# and `scripts/check_ledger.sh`.  The SKIP branch is what every lane sees, and it names the
-# command so that "the gate exists" is discoverable from a default run.
+# -- D6. axiom ledger, OPT-IN (ax1-proposal.md:489, Route R's checklist item 4) ----------
+# OFF by default: it is the only check here whose `lake` use is opt-in, and lanes must never
+# run `lake`.  (The default path is not lake-free today: D1 above reaches `lake env lean`
+# twice through `check_axioms.sh` checks 5 and 5b.  See this script's header.)  The SKIP
+# branch is what every lane sees, and it names the command so that "the gate exists" is
+# discoverable from a default run.
+#
+# The environment is inherited by the `bash "$LEDGER_SCRIPT"` call below, and this block
+# reads only its exit code.  `GQ2_LEDGER_FIXTURE` therefore bypasses `lake` entirely inside
+# that script; since `2c8af4bd` a clean fixture parse exits 3, which the `if` below treats as
+# a failure.  Never set that variable in a merge run.
 LEDGER_SCRIPT='scripts/check_ledger.sh'
 if [ "$LEDGER_GATE" != "1" ]; then
   echo "SKIP: axiom-ledger gate - off by default because it runs \`lake\` and lanes must not."

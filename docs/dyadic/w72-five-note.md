@@ -167,6 +167,11 @@ Lacks, as named next steps:
    `γ₃`-valued corrections?  The pairing settles the shape of the `x₁`-slot contribution; what is
    missing is a term-by-term reading, in the shape of wave 71's `cfourKnob_leftover_eq` but for
    the knob subgroup rather than the leftover.
+   **[W75-HOUSE: wave 73 reduced all six families to one (`w73-five-note.md` §2), and wave 74
+   answered the class-four analogue of that one **negatively**, as a theorem
+   (`gDelta_cfourCmp_span_hyp_false`, `GradedDeltaFunctionals.lean:1575`).  The class-five answer
+   is argued but not committed (`w74-func-note.md` §4.2, needing the mod-16 kit).  Expect "no" on
+   the square families: the towers they contain are functional-visible and the knobs are not.]**
 2. **A class-five leftover in closed form.**  Wave 71's class-four lane evaluated the leftover
    (`cfourKnob_leftover_eq`) and found that its hard terms were not the ones the analysis had
    predicted.  No class-five analogue exists, and `cfiveKnob_supply_of_reach` deliberately

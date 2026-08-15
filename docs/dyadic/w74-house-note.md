@@ -722,11 +722,18 @@ reported here only.
    the prose is what must move: §4.2(g) (the handle-pair entries), §4.2(i) (`cfourCmpTest`'s
    generality) and §4.4(a) (the fixture hook).  Note that ten of the 29 have a **second site**, so
    the half-a-fix rule applies to nearly a third of the round.
-2. **Decide the fixture hook** (§4.4(a)).  This is the one item that is not a documentation
+2. ~~**Decide the fixture hook** (§4.4(a)).  This is the one item that is not a documentation
    question underneath.  Either the prose changes to say the skip is visible only in the
    transcript, or the script changes to exit non-zero under a fixture; the second is an owner call
    because it is a behaviour change to a merge gate.  Whichever way it goes, `GQ2_LEDGER_FIXTURE`
-   should be named in D6's own comment.
+   should be named in D6's own comment.~~
+   **[W75-HOUSE: DECIDED, and inside this wave.**  The owner took the second option at `2c8af4bd`
+   (02:19:33), **1 h 43 min** after the house merge `0933f189` (00:36:45) and 20 minutes before
+   the wave's own owner memo `f0a71688`: a clean fixture parse now exits **3**, which D6 treats as
+   a failure.  So this item was stale when it was written down, in the same wave, and no note said
+   so.  W75 applied the prose half: both scripts now state the real mechanism, `GQ2_LEDGER_FIXTURE`
+   is named in D6's own comment, and `w73-house-note.md`'s "it can never be used to make the gate
+   appear to pass" carries its retraction.]**
 3. **`GQ2/AxiomLedger.lean:14` and `:49` say "nine literature axioms"; the census is eleven**
    (§4.5).  Two words, in the file the new gate audits, and `check_axioms.sh` has disagreed with
    it since 2026-07-29.

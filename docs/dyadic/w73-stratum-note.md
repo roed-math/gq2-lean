@@ -13,7 +13,8 @@ blocks, and they come out differently.
 > **The climb's block is real.**  `evenStratum_not_dbarShiftSupply_one`: the committed
 > `EvenSharpDbarShiftSupply` is **false** at `alpha = 1` at a named profinite group, so
 > `evenRawStageShift_n`'s conclusion is false there and not merely unproved.  The prose in
-> `StageAbstractionEvenRawSpan.lean` §0 is correct, and the failure is exactly one atom wide.
+> `StageAbstractionEvenRawSpan.lean`'s module docstring is correct, and the failure is exactly
+> one atom wide.
 >
 > **The base's block is an aiming error.**  `evenStratum_exists_gramOne_adaptedFrame`: on the
 > third stratum, at degree `2 + 2h`, a `StageGeneric.Frame` cup-adapted for the `alpha = 1`
@@ -44,7 +45,8 @@ The diagonal atom `w0^2 * [w0, base 0]` never appears.
   So the `alpha >= 2` conclusion holds at `alpha = 1` for given data **iff** that atom is `1`.
 * **`evenStratum_not_dbarShiftSupply_one`** refutes it, at the committed `Prop` itself:
   `EvenSharpDbarShiftSupply (nStageWord 1 0 _) EvenStratumShiftWitness 3` is false.  The witness
-  is the smallest possible one: the cyclic group of order eight with its discrete topology,
+  is a small one: the cyclic group of order eight with its discrete topology (no minimality is
+  proved, and the smallest profinite group is the trivial one),
   `k = 3`, `h = 0`, trivial base, and the correction supported at coordinate `0` by the image of
   the square of a generator.  That element lies in `lambdaImage G 2 4` by
   `sq_mem_twoCentralSeries_succ`, and its square is nontrivial in `Q_4` because `lambda_4 = bot`
@@ -107,7 +109,8 @@ Then the positive half, which is the actual answer:
 `evenStratum_levelTwoGen_of_realizers` is extracted from the middle of `evenFrame_of_adapted` as
 reusable, Gram-free tooling: realizers of a coordinate system generate the Frattini quotient.  Its
 hypotheses are discharged by the realizers of any linear isomorphism onto `evenFrameModel h`,
-which is how §5.2 uses it.
+which is how §5.1's own `evenStratum_frame_of_gramOne_modelEquiv` uses it; §5.2 reaches it only
+through that.
 
 ### 2.1  What §5.2 does not give
 
@@ -199,7 +202,8 @@ I edited nothing outside my own module and `docs/dyadic/w73-stratum-note.md`.
    not in `GQ2.lean`; the same state `NuSeeds.lean` was in before `a515b437`.~~  **DISCHARGED at
    `608d3ded`, 73 seconds after this note's final amendment** (`3f6aabb4` 19:16:57, `608d3ded`
    19:18:10).  [W74-HOUSE, watch round 11.]
-2. **`StageAbstractionEvenRawSpan.lean` §0 lines 44-46 and 65 are now backed by a theorem.**  The
+2. **`StageAbstractionEvenRawSpan.lean`'s module docstring, lines 44-46 and 65, is now backed by
+   a theorem.**  The
    prose is correct and can cite `evenStratum_no_rawStageShift_one`.  Two downstream files hedge
    the same claim as attributed rather than proved and can be sharpened:
    `EvenUnramified.lean:70` ("documented false at `alpha = 1`") and `EvenUnramified.lean:395`
@@ -221,10 +225,21 @@ I edited nothing outside my own module and `docs/dyadic/w73-stratum-note.md`.
    question about forms.
 2. **The `alpha = 1` shift supply.**  Rebuild `EvenSharpDbarShiftSupply` around
    `evenStratumShiftWordOne` instead of `evenRawDbarWord`, and re-run the span calculus of
-   `StageAbstractionEvenRawSpan.lean` §5 on it.  That file's own §0 says its §1 and §2 are
-   `alpha`-free, and §1 of this module supplies the replacement for the one `alpha`-dependent
-   row.  **Prediction, not a claim**: the span should come out *smaller*, since the slot-zero
-   square is gone, so `evenRawShiftSpan_eq_zLayer` may not clone.  I did not test this.
+   `StageAbstractionEvenRawSpan.lean` §5 on it.  That file's own module docstring says its §1
+   and §2 are `alpha`-free, and §1 of this module supplies the replacement for the one
+   `alpha`-dependent row.  **Prediction, not a claim**: the span should come out *smaller*,
+   since the slot-zero square is gone, so `evenRawShiftSpan_eq_zLayer` may not clone.  I did
+   not test this.
+   **[W75-HOUSE, round 11 §4.3(e) and §4.3(h).**  Two citation fixes, one made in place and one
+   deliberately not.  "§0" is corrected above: that file's headers run §1 to §6, and the cited
+   material is its module docstring.  The declaration in the prediction is
+   `evenRawShiftSpan_eq_zLayer_of_pureSquares`; the short form is inherited from
+   `StageAbstractionEvenRawSpan.lean`'s own Contents list and is corrected **there** rather than
+   here, because wave 74 quotes this sentence verbatim, short name and all, at
+   `EvenStratumRowFrame.lean:864` and `docs/dyadic/w74-even-note.md:139`.  Wave 74 also tested
+   the prediction and found it right, and sharper: the `alpha = 1` rows emit no square anywhere,
+   so the `Hsq` input cannot be obtained at all rather than merely being unproved
+   (`w74-even-note.md` §2.1).]**
 3. **The `M` twin of ticket 1.**  `evenRawStageShift_m` needs `2 <= alpha` for the opposite
    reason - `M`'s third letter has exponent `2^alpha`, whose half is odd at `alpha = 1`, so the
    `M` word at `alpha = 1` gains an atom where `N` loses one (wave 70's

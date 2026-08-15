@@ -131,7 +131,8 @@ someone else's file.
 * **The climb.**  `evenClimb_defectReachable` has three inputs, all supplied on the `N` row only
   under `2 <= alpha`: the residual supply at depth `alpha - 1`, the `d-bar` shift supply
   `evenSharpDbarShiftSupply_n`, and the deep row supply `evenClimb_deepRowSupply_n`.  The middle
-  one is `evenRawStageShift_n`, and `StageAbstractionEvenRawSpan.lean` §0 records **in prose**
+  one is `evenRawStageShift_n`, and `StageAbstractionEvenRawSpan.lean`'s module docstring
+  records **in prose**
   that the factorization's coordinate-`0` row is *false* at `alpha = 1`.  I did not verify that
   claim; I am reporting it as an attributed prose claim, and it agrees with wave 71 §1(b).
 
@@ -245,7 +246,8 @@ I edited nothing outside my own module.
    `0`.  Half a lane of reading decides whether that half of `EvenStratumClimbN` is degenerate,
    free, or false, and it is the cheapest remaining question about the surviving point.
 3. **Verify or refute the prose claim** that `evenRawStageShift_n`'s coordinate-`0` row is false
-   at `alpha = 1` (`StageAbstractionEvenRawSpan.lean` §0, lines 44-45 and 65).  If it is false,
+   at `alpha = 1` (`StageAbstractionEvenRawSpan.lean`, module docstring, lines 44-46 and 65).
+   If it is false,
    `EvenStratumClimbN` is blocked at a *named* step and the surviving point's cost is two
    genuinely new constructions; if the prose is stale (this era's recurring trap), one of the two
    halves may be cheaper than advertised.

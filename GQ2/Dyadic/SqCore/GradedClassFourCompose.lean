@@ -31,11 +31,12 @@ is abelian in `Q₄`.  `cfourCmp_dress_handles` is the instance with the core sl
 
 ⭐⭐⭐ `cfourCmp_dress_reach`: for **every** admissible `γ₂`-correction `c`, the bracket `⁅c, A⁆`
 against wave 68's dressing is exactly the knob of a handle-pair correction of the `j`-th handle,
-both of whose entries are `1` or `c`.  The mechanism is a two-way parity count on `ν'(u_j)` and
-`ν'(v_j)`:
+both of whose entries are admissible.  (Reading the proof, each entry is in fact `1` or `c`, one
+per parity branch, but the theorem concludes only admissibility and a consumer cannot use more.)
+The mechanism is a two-way parity count on `ν'(u_j)` and `ν'(v_j)`:
 
 ```text
-  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j + 2·ν'(u_j)·ν'(v_j)·w = A  (mod γ₂) ,
+  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j - 2·ν'(u_j)·ν'(v_j)·w = A  (mod γ₂) ,
 ```
 
 the two pivot contributions cancelling because their total exponent is even.  **The pivot is not
@@ -70,6 +71,17 @@ nothing once `L₃(V)` is paid for**.
 implied by "some subgroup all of whose elements are knobs contains the three families", a
 statement that no longer mentions `cfourDefCore` at all.
 
+**[W75-HOUSE, wave-74 update.  That hypothesis is now known FALSE at every `h ≥ 1`**
+(`gDelta_cfourCmp_span_hyp_false`, `GradedDeltaFunctionals.lean:1575`), so the two theorems here
+are true but not instantiable: no lane can supply their `H`.  The failing family is the **fourth
+powers**, not the triple brackets this file expects to be delicate: `S` must contain the sigma
+tower `(levelMk σ)⁴`, and every correction of this route has `mod 8` chi-trivial slots, hence is
+invisible at the layer bit to the twisted functionals `gDelta`, while the tower reads `4 · unit`.
+`cfourCmp_zLayer_le_gens` and everything in §6 stand; what died is instantiating them at the knob
+subgroup.  The redirection is Labute's own: moves span at most the functional-invisible part of
+the layer, and the tower components of the defect die by the functionals instead.  See
+`GQ2/Dyadic/SqCore/GradedDeltaFunctionals.lean` §8 and `docs/dyadic/w74-func-note.md` §4.1, §4.3.]
+
 ## Honesty markers
 
 * Everything here concerns **one route**, `γ₂`-valued corrections of wave 68's frame, wave 70's
@@ -81,12 +93,17 @@ statement that no longer mentions `cfourDefCore` at all.
   `levelQuot G 4` for an arbitrary topological group, and they are **class-four, not
   layer-agnostic**: `cfourCmp_dress_all` rests on `Y` being abelian (that is what kills the
   `c_U`-`c_V` cross term), and one layer up it would acquire that term.  The §6 results are
-  stated at `D_sq h` only, because they consume discreteness of `Q₄` through `cfourId_isClosed`;
-  `cfourCmpTest` is a subgroup for the same class-four reason.  Their hypotheses are satisfiable
-  and not merely generally bound: `cfourCmp_zLayer_le_gens` fires at `S = ⊤`, and it is consumed
-  non-vacuously by `cfourCmp_residual_of_span`.
+  stated at `D_sq h` only.  The three layer results consume discreteness of `Q₄` through
+  `cfourId_isClosed`; `cfourCmpTest` and `cfourCmp_mem_test` do not, resting only on lemmas
+  stated over an arbitrary topological group, and are at `D_sq h` for uniformity with their
+  consumers.  `cfourCmpTest` is a subgroup for the same class-four reason.  Their hypotheses
+  are satisfiable and not merely generally bound: `cfourCmp_zLayer_le_gens` fires at `S = ⊤`,
+  and it is consumed non-vacuously by `cfourCmp_residual_of_span`.
 * `cfourCmp_residual_of_span`'s hypothesis is **not** claimed to hold.  Whether the knob subgroup
   contains the three families is open, and the note records where it is delicate.
+  **[W75-HOUSE: answered at wave 74, negatively -- `gDelta_cfourCmp_span_hyp_false` at `h ≥ 1`.
+  This marker did its job: the failure is exactly what it said it would be, a statement about the
+  knob subgroup of one inventory, and `SqClassClearingSupply h 4` is untouched by it.]**
 
 Lane W73-KNOB.  New file; no edits to existing files.  Prefix `cfourCmp`.
 -/
@@ -393,14 +410,17 @@ theorem cfourCmp_comm_eichV {y : levelQuot (DSq h : Type) 4}
 
 /-- ⭐⭐⭐ **The tail of wave 72 is a knob.**  For every admissible `γ₂`-correction `c`, the
 bracket `⁅c, A⁆` against wave 68's dressing is *exactly* the knob of a handle-pair correction of
-the `j`-th handle, both of whose entries are `1` or `c` and hence admissible.
+the `j`-th handle, both of whose entries are admissible.  The conclusion below states exactly
+that.  The proof's four parity branches take each entry to be `1` or `c`, which is a fact about
+the proof and not part of what a consumer may use.
 
 The mechanism is a two-way parity count.  Modulo `γ₂` and modulo squares, which is all a bracket
 with a `Y`-element in the near slot sees, `A = u_j^{ν'(v_j)}·v_j^{ν'(u_j)}·w^{even}` and the two
-cleared letters are `U_j = u_j·w^{ν'(u_j)}`, `V_j = v_j·w^{ν'(v_j)}`.  So
+cleared letters are `U_j = w^{-ν'(u_j)}·u_j`, `V_j = v_j·w^{-ν'(v_j)}` (the same convention as
+`cfourCmp_comm_eichU`/`cfourCmp_comm_eichV` above, and as `LamFrames.lean:293`, `:300`).  So
 
 ```text
-  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j + 2·ν'(u_j)·ν'(v_j)·w = A ,
+  ν'(v_j)·U_j + ν'(u_j)·V_j = ν'(v_j)·u_j + ν'(u_j)·v_j - 2·ν'(u_j)·ν'(v_j)·w = A ,
 ```
 
 the two pivot contributions cancelling because their total exponent is even.  **The pivot is
@@ -538,8 +558,9 @@ variable {h : ℕ}
 
 /-- ⭐⭐ **The wave-73 residual**: from *any* admissible `γ₂`-valued correction of wave 68's frame
 whose class-four relator is exactly the core defect, a further admissible correction kills it.
-`cfourCmp_core_reduce` supplies such a correction unconditionally, so this Prop is the whole of
-what is left of wave 70's `CfourIdReachable`.
+`cfourCmp_core_reduce` supplies such a correction at every selected marking and every handle (it
+binds the two normalization hypotheses `hsigma` and `hx0`, which this Prop binds too, so they feed
+straight through), so this Prop is the whole of what is left of wave 70's `CfourIdReachable`.
 
 **Honesty marker.**  This is a residual of the *route* (wave 70's `CfourIdReachable`, `γ₂`-valued
 corrections of wave 68's frame), not of `SqClassClearingSupply h 4`.  A failure of this Prop would
@@ -701,12 +722,27 @@ theorem cfourCmp_zLayer_le_bundle {S : Subgroup (levelQuot (DSq h : Type) 4)}
 * the `x₁`-slot bundle at a bracket correction, `⁅p, q⁆² · ⁅⁅p, q⁆, t⁆`, and
 * the paired `x₁`-slot knob of `cfourKnob_sq_knob_pair`, `p⁴ · ⁅⁅p, t⁆, p⁆ · ⁅⁅p, t⁆, t⁆`,
 
-contains the whole of `Z`.  The last two are exactly the forms wave 70's inventory delivers on the
-`x₁`-slot, and against the triple brackets both collapse to their square parts.  So **the two
-restricted summands `V^{[4]}` and `(Λ²V)^{[2]}` of `γ₃/γ₄` cost nothing once `L₃(V)` is paid
+contains the whole of `Z`.  The last two are exactly the forms available on the `x₁`-slot: the
+bundle is wave 70's inventory read directly, and the paired knob is wave 71's
+`cfourKnob_sq_knob_pair`, a product of **two** wave-70 knobs, which is the step wave 70's own §4
+analysis was missing.  Against the triple brackets both collapse to their square parts.  So **the
+two restricted summands `V^{[4]}` and `(Λ²V)^{[2]}` of `γ₃/γ₄` cost nothing once `L₃(V)` is paid
 for**: the whole class-four question along this route is the triple brackets, and among those the
 delicate ones are those whose far slot is the `x₁`-letter, since every other frame letter is
-reachable in the far slot without a square attached. -/
+reachable in the far slot without a square attached.
+
+**[W75-HOUSE, wave-74 update.**  This theorem is unaffected -- it is a statement about generating
+`Z` from families, and it stands.  What is now known is that the *knob subgroup* satisfies none of
+the three families' hypotheses: `gDelta_cfourCmp_span_hyp_false` refutes the span hypothesis by
+`V^{[4]}`, so "the whole class-four question along this route is the triple brackets" reads the
+route's difficulty in the wrong place.  The fourth powers were never cheap; they were cheap only
+*relative to `Z`-generation*, which is what this statement measures, and not relative to
+reachability by moves.  Nor is the bundled form here a way round the refutation, which is stated
+against `cfourCmp_residual_of_span`'s bare families: **given `htriple`, `hbSq` and `hbPow` are
+equivalent to `⁅p, q⁆² ∈ S` and `p⁴ ∈ S`** (that equivalence is the first half of the proof
+below), so an all-knob `S` meeting these three clauses meets the bare three as well and the same
+`(levelMk σ)⁴` kills it.  See `GradedDeltaFunctionals.lean:1557` and
+`docs/dyadic/w74-func-note.md` §4.1.] -/
 theorem cfourCmp_zLayer_le_triple {S : Subgroup (levelQuot (DSq h : Type) 4)}
     (t : levelQuot (DSq h : Type) 4)
     (htriple : ∀ p q r : levelQuot (DSq h : Type) 4, commP (commP p q) r ∈ S)
@@ -742,9 +778,22 @@ Then `CfourCmpResidual h`, hence `SqClassClearingSupply h 4`.  The mechanism is
 The question "is the core defect a knob" is replaced by the three uniform questions "are fourth
 powers, bracket squares and triple brackets knobs".
 
+**[W75-HOUSE: DECIDED at wave 74, and the answer is no.**  `gDelta_cfourCmp_span_hyp_false`
+(`GradedDeltaFunctionals.lean:1575`) proves `¬ H` for this exact `H` at every `h ≥ 1`, by
+instantiating it at the selected marking `nuSq h`, the handle `j = 0` and the correction
+`cfourCmp_core_reduce` supplies, then taking `z := (levelMk σ)⁴` out of the fourth-power clause.
+This theorem remains **true and untouched**; it is its hypothesis that no lane can ever supply, so
+it is no longer a route to `CfourCmpResidual h`.  The replacement obligation is Labute's Lemma 3
+analogue -- the functional-*invisible* part of the layer is spanned by knobs, the towers being
+separated by the functionals rather than reached by moves.  `docs/dyadic/w74-func-note.md` §4.3
+states it.]**
+
 **Honesty marker.**  A failure of this hypothesis is a statement about the knob subgroup of one
 inventory along one route (wave 70's `CfourIdReachable`).  It is not a statement about
-`SqClassClearingSupply h 4`, and it would not refute the residual. -/
+`SqClassClearingSupply h 4`, and it would not refute the residual.
+**[W75-HOUSE: this held up exactly.  The wave-74 refutation is a statement about the knob
+subgroup; `SqClassClearingSupply h 4` is neither discharged nor refuted, and the refutation's own
+docstring says so.]** -/
 theorem cfourCmp_residual_of_span
     (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
       nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -772,7 +821,9 @@ theorem cfourCmp_residual_of_span
     rw [hdrel, cfourDef_z_sq (cfourDef_core_mem_zLayer nu' j)]⟩
 
 /-- **The class-four supply, from the three families.**  `cfourCmp_residual_of_span` composed with
-`cfourCmp_supply_of_residual`. -/
+`cfourCmp_supply_of_residual`.
+**[W75-HOUSE: carries the same hypothesis, hence the same wave-74 verdict -- true, and not
+instantiable at `h ≥ 1` (`gDelta_cfourCmp_span_hyp_false`).]** -/
 theorem cfourCmp_supply_of_span
     (H : ∀ (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h),
       nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
@@ -796,7 +847,7 @@ theorem cfourCmp_supply_of_span
 
 end Relations
 
-/-! ## §9 Axiom pins -/
+/-! ## §7 Axiom pins -/
 
 section AxiomPins
 

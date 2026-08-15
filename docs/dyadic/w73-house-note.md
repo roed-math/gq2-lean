@@ -146,9 +146,26 @@ was false.
 `ax1-proposal.md:489` prescribes `lake env lean GQ2/AxiomLedger.lean` as a merge gate.  It was in
 no script.  The new script runs it and turns its report into pass/fail:
 
+> **[W75-HOUSE, applying watch round 11 §4.4(b): the line number is exact, the
+> characterisation over-generalises.**  `ax1-proposal.md:489` is item 4 of **Route R**'s
+> checklist inside its §7, one of three alternative routes; the file has no §"Merge gate" (its
+> headings run §0 to §8), the **recommended** Route D's gate item (`:469`) lists the full build,
+> `check_axioms.sh` and zero sorries with no ledger, and `plan.md` §7's ten numbered merge gates
+> do not list it either.  So the gate is prescribed by one alternative route's checklist, not by
+> the campaign's standing gate list, and wiring it up is a strengthening rather than a repair.
+> Worth its own look: that checklist is stale three lines up, where `:486` says
+> "`EXPECTED_AXIOMS` stays **9**" against `check_axioms.sh:28`'s `EXPECTED_AXIOMS=11` since the
+> AX3/AX4 flips.  Both scripts carried the same over-generalisation and are corrected.]**
+
 * **L1** the command's own exit code.  `AxiomLedger.lean`'s terminal certificate `throwError`s, so
   a nonzero exit already means a capstone rests on `sorryAx`, on a non-census axiom, or has stopped
   printing identically to its `Γ_A` twin.
+  **[W75-HOUSE, round 11 §4.4(f): those three are not the whole list.  `AxiomLedger.lean` also
+  `throwError`s on the private-tracking regression (`:88`) and on an unknown declaration
+  (`:154`), and any elaboration failure, an unbuilt library included, exits nonzero without
+  reaching the certificate at all.  The script's own FAIL text (`check_ledger.sh:96` as
+  shipped) already said the honest version, so this was a header-versus-behaviour mismatch
+  inside one file; the header is corrected.]**
 * **L2** gap map empty.
 * **L3** ALARM empty.
 * **L4** terminal violations `= 0`, **read back from the printed count**.  Redundant with L1 by
@@ -204,6 +221,19 @@ argument exits 2 before anything runs.
 It is explicit about what it does: it marks L1 **skipped** in the output, so it can never be used
 to make the gate appear to pass.
 
+> **[W75-HOUSE, applying watch round 11 §4.4(a): that last clause was FALSE when written, and
+> was made true four days later by a behaviour change.**  `fail` was never set in the fixture
+> branch, so on a clean fixture the script printed `check_ledger: all checks passed` and exited
+> **0**; D6 (`check_dyadic.sh`) keys on the exit code alone and inherits the environment through
+> its `bash "$LEDGER_SCRIPT"` call, so
+> `GQ2_LEDGER_GATE=1 GQ2_LEDGER_FIXTURE=passing.txt bash scripts/check_dyadic.sh` printed
+> `OK: scripts/check_ledger.sh passed`, then `check_dyadic: all checks passed`, exit 0, with no
+> `lake` run at D6.  The `SKIP: L1` line was in the transcript, which is what "explicit about
+> what it does" was reading, but not in the exit code, and the exit code is what D6 reads.  The
+> owner closed it at `2c8af4bd` (2026-08-15): a clean fixture parse now exits **3**.  The
+> standing lesson, and round 11's proposed fifth checklist item: a claim that something "can
+> never" happen deserves the same reading as a headline that says "unconditionally".]**
+
 ### 2.4  The protocol finding
 
 Repeating it from the headline because it is the part an orchestrator should act on:
@@ -212,6 +242,13 @@ check 5 (`:280`) and check 5b (`:363`).  Those blocks skip only when
 `.lake/build/lib/lean/GQ2/Roe/Main.olean` and `.lake/build/lib/lean/GQ2.olean` are missing.  Both
 are present in this worktree.  D6 is opt-in and does not add to that exposure, but the existing
 exposure is real and is not something this lane should change unasked.
+
+> **[W75-HOUSE, round 11 §4.4(d): the skip description drops a disjunct and the nesting.**
+> Check 5's test is `! command -v lake || [ ! -f …/GQ2/Roe/Main.olean ]` (`check_axioms.sh:254`),
+> so it also skips when `lake` is off PATH, olean or no olean; and check 5b sits **inside** check
+> 5's else-branch, so its own `GQ2.olean` test (`:341`) is nested, not conjoined with the first.
+> "Both are present in this worktree" is correct.  The finding itself is now recorded in both
+> scripts, which said it nowhere.]**
 
 ---
 

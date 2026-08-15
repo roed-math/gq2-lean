@@ -63,6 +63,15 @@ Two things follow for the record.
 * §4's "the missing part of `Z` sits in `V^{[4]}`, represented by `σ^{[4]}` and `x₀^{[4]}`" is
   not wrong as a statement about the knob subgroup - it is simply not about the leftover, which
   has no component there.
+  **[W75-HOUSE, wave 74: "not wrong" is now "proved", for the `σ^{[4]}` half.**
+  `gDelta_cfourCmp_span_hyp_false` (`GradedDeltaFunctionals.lean:1575`) refutes, at every
+  `h ≥ 1`, the existence of a subgroup all of whose elements are knobs of this route and which
+  contains every fourth power; the witness it extracts is `(levelMk σ)⁴`.  This bullet is
+  therefore the last place before wave 74 where the tree said the right thing about the fourth
+  powers, and it says it while setting it aside as "not about the leftover".  Wave 73's
+  `cfourCmp_residual_of_span` then demanded of the knob subgroup precisely what this bullet
+  grants it misses, and priced the difficulty at the triple brackets instead.  See
+  `docs/dyadic/w74-func-note.md` §4.1 and `w70-cfour-note.md` §4's second banner.]**
 * §4's proposed closure, wave 69's `w⁴`-cancellation, is not needed.  It should not be carried
   forward as a pending sub-step.
 

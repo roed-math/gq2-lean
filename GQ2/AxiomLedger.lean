@@ -11,7 +11,7 @@ import GQ2
 A batch `#print axioms` over **every** declaration under the `GQ2` namespace — the App. D
 *certificate check*, done repo-wide rather than per-session.  For each theorem/def it collects the
 axioms it transitively depends on, drops the standard three (`propext`, `Classical.choice`,
-`Quot.sound`), maps the nine literature axioms (`GQ2/Foundations/Axioms.lean`) to their
+`Quot.sound`), maps the eleven literature axioms (`GQ2/Foundations/Axioms.lean`) to their
 B-labels, and reports:
 
 * **certificate** — which declarations consume each B-axiom.  Compare this with the App. D rows in
@@ -46,9 +46,15 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The nine literature axioms and their B-labels; see `GQ2/Foundations/Axioms.lean` for their
+/-- The eleven literature axioms and their B-labels; see `GQ2/Foundations/Axioms.lean` for their
 statements, citations, and encoding notes.  The quoted names make this file fail to compile if an
-axiom is renamed or removed, keeping the ledger synchronized with the declarations it audits. -/
+axiom is renamed or removed, keeping the ledger synchronized with the declarations it audits.
+
+[W75-HOUSE, applying watch round 11 §4.5.  This docstring and the module docstring above both
+said "nine", against this file's own `:41` ("the axiom census (currently eleven)"), the eleven
+entries listed below, the eleven `axiom` declarations in `GQ2/Foundations/Axioms.lean`, and
+`scripts/check_axioms.sh:28`'s `EXPECTED_AXIOMS=11`.  Eleven is right; the two "nine"s were
+stale at the AX3/AX4 census flips of 2026-07-29, which added B5-K and B10-K.  Comment-only.] -/
 def bAxioms : List (Name × String) :=
   [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
   , (``GQ2.dyadicOrientation,                                     "B3c")
