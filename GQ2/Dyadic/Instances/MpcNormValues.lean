@@ -8,12 +8,40 @@ import GQ2.Dyadic.Instances.MpcRowData
 /-!
 # W81-NORMS: the four norm-character values at the two procyclic fields
 
-Wave 80 reduced the two procyclic quadratic rows to four named inputs, of which three are
-values of the norm-group character of `ℚ₂(√±10)` and the fourth is the pivot.  This module
-computes the three, from the **mod-8 congruence on norms of spectral units** and nothing else:
-no Hilbert-symbol calculator is used, and none is needed.
+Wave 80 reduced the two procyclic quadratic rows to four named inputs: three values of the
+norm-group character of `ℚ₂(√±10)`, and the pivot.  All of them land here, and the pivot lands at
+`ℚ₂(√10)` too, so the `ε = false` row becomes a branch datum over the bundles alone.
 
-Declaration prefix `mpcNorm`, namespace `GQ2.Dyadic.Instances.MpcNorm`.
+## What lands
+
+1. **The value group and the norm form** (§2, §3).  Every unit of `ℚ₂(√a)` with `v(a)` odd and
+   `‖a‖ = ‖2‖` is a spectral unit times an integer power of `√a`, and a spectral unit is
+   `t + s√a` with `t : ℤ₂ˣ` and `s : ℤ₂`, of norm `t² − a s² ≡ 1, 1 − a, 1 − 4a (mod 8)`.
+   **This replaces the Hilbert symbol**: no symbol calculator is used, and the tree's
+   `hilbertSymbol_*` kit is never invoked by the arithmetic.
+2. **The master identity** (§4).  One integer `n` carries both values of `rec_K x`:
+   `χ_K(rec_K x) = (w·w₀ⁿ)⁻¹` and `ν_ur(rec_K x) = −n`, with `w₀` the unit part of `N(√a) = −a`.
+3. **The descent** (§5).  `χ_K` on `G_K^{ab}` is continuous, so `rec_K`'s dense image matches any
+   class in `χ` modulo `8` *and* in `ν_ur` modulo `2` at once.  That `ker χ` is only closed is no
+   obstacle: both target `Prop`s are congruences.
+4. **The four values** (§8), each a three-line `decide` in `ℤ/8` against §6's collision.  All four
+   agree with wave 80's hand computation and with the frozen rows.
+5. **`B.r = 1` at both fields, unconditionally** (§9), closing wave 78 §2.3's first claim.
+6. **The freeness of `ℤ₂ˣ`** as `⟨−1⟩ × (mUnit 2)^{ℤ₂}` (§10): wave 80 §3.3's named missing
+   input, in the uniqueness form the pivot actually consumes.
+7. **The pivot at `ℚ₂(√10)`** (§11), hence `mpcNorm_genAsmBranch_sqrtTen` with **no** remaining
+   clause.
+
+## What does not land, and why
+
+The pivot at `ℚ₂(√−10)`.  §11's argument traps the image of `(χ_M, ν')` in a `ℤ₂`-span and needs
+`ν'(B̄)` **even** at the last step; on the `ε = true` row `λ(−1) = 1` makes it odd.  That is not
+an artefact: wave 80 §3.3 exhibits a marking satisfying everything else and failing the pivot, so
+the `ε = true` pivot has to come from the certificate side or from a sharper description of the
+markings `D_M 2 0` admits.
+
+Declaration prefix `mpcNorm`, namespace `GQ2.Dyadic.Instances.MpcNorm`.  No `sorry`, no new
+axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 -/
 
 namespace GQ2.Dyadic.Instances.MpcNorm
@@ -401,7 +429,8 @@ theorem mpcNorm_recip_approx (B : MarkedRecip Rec K) (g : GalKab K) :
   have hnu : Continuous fun h : GalKab K => toAdd (B.nu_ur h) :=
     continuous_toAdd.comp B.continuous_nu_ur
   have hopen : IsOpen {h : GalKab K |
-      PadicInt.toZModPow 3 ((chiCycKAb K h : ℤ_[2])) = PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))
+      PadicInt.toZModPow 3 ((chiCycKAb K h : ℤ_[2]))
+          = PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))
         ∧ PadicInt.toZModPow 1 (toAdd (B.nu_ur h))
             = PadicInt.toZModPow 1 (toAdd (B.nu_ur g))} := by
     refine IsOpen.inter ?_ ?_
@@ -629,7 +658,7 @@ residues, and the excluded parity is a three-line `decide` in `ℤ/8`.
 | `MpcNoUnitKerChi` | `ℚ₂(√10)` | `(2, 10)₂ = −1` | `n` odd: `w·3 ∈ {3, 5}`, never `1` |
 | `λ(−1) = 0` | `ℚ₂(√10)` | `(−2, 10)₂ = −1` | `n` odd: `7·w·3 ∈ {5, 3}`, never `1` |
 | `MpcNoUnitKerChi` | `ℚ₂(√−10)` | `(2, −10)₂ = −1` | `n` odd: `w·5 ∈ {5, 7}`, never `1` |
-| `λ(−1) = 1` | `ℚ₂(√−10)` | `(−2, −10)₂ = +1`, `(−1, −10)₂ = −1` | `n` even: `7·w ∈ {7, 5}`, never `1` |
+| `λ(−1) = 1` | `ℚ₂(√−10)` | `(−2, −10)₂ = +1`, `(−1, −10)₂ = −1` | `n` even: `7·w ∈ {7, 5}` |
 | `λ(5) = 1` | `ℚ₂(√−10)` | `(5, −10)₂ = −1` | `n` even: `5·w ∈ {5, 7}`, never `1` |
 
 **Every value agrees with wave 80's hand computation and with the frozen rows.**  The `ε = false`
@@ -1190,6 +1219,105 @@ theorem mpcNorm_genAsmBranch_sqrtTen [T2Space (GalK KSqrtTen)] (B : MarkedRecip 
 end Acceptance
 
 end Pivot
+
+/-! ## §12 Axiom pins
+
+One line per declaration, in declaration order, measured against the mirror.  Three sets occur,
+all already committed; this lane introduces **no axiom**.
+
+* **The standard three** (`propext, Classical.choice, Quot.sound`) on **§1 through §8, §10 and
+  §11's abstract pivot**, and on `mpcNorm_level_sqrt{Ten,NegTen}`.  So the whole arithmetic is
+  axiom-free: the four norm-character values, `B.r = 1` at both procyclic fields, the freeness of
+  `ℤ₂ˣ`, and the pivot criterion `mpcNorm_pivot_of_even_dmB` cost nothing.  In particular
+  `hilbertSymbol_normCriterion_finiteDyadic` does **not** appear: the mod-`8` route is genuinely
+  independent of the symbol axiom.
+* **Plus the even route's endpoint set** (`hilbertSymbol_normCriterion_finiteDyadic`,
+  `tateDualityAt`, `Foundations.absGalQ2_isTopologicallyFinitelyGenerated`,
+  `Foundations.absGalQ2_localEulerCharacteristic`) on `mpcNorm_pivot_sqrtTen` and the four
+  `rowData`/`genAsmBranch` declarations, through `fieldId_chosenEquivM_sqrt*`, which occurs in
+  the *statement*.  Identical to wave 80's `mpcRow_rowData_sqrt*`.
+* **Plus `peripheralCyclotomicAction`** on the branch data, from `mpcCert_markedMatching`.  So
+  `mpcNorm_genAsmBranch_sqrtTen` sits at **exactly** the axiom set of
+  `mpcRow_genAsmBranch_sqrtTen`: removing all three of its inputs costs no axiom.
+
+No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`. -/
+
+section AxiomPins
+
+#print axioms mpcNorm_unit_sq_mod_eight
+#print axioms mpcNorm_sq_mod_eight
+#print axioms mpcNorm_coe_zpow
+#print axioms mpcNorm_norm_sqrtIn_pos
+#print axioms mpcNorm_norm_scalar
+#print axioms mpcNorm_norm_scalar_root
+#print axioms mpcNorm_exists_zpow_norm
+#print axioms mpcNorm_exists_decomp
+#print axioms mpcNorm_norm_quadElt
+#print axioms mpcNorm_root_mul_ne_one
+#print axioms mpcNorm_repr_of_norm_one
+#print axioms mpcNorm_norm_spectral_unit
+#print axioms mpcNorm_two_dvd
+#print axioms mpcNorm_isUnit_form
+#print axioms mpcNorm_residue_spectral_unit
+#print axioms mpcNorm_chi_recip_of_norm
+#print axioms mpcNorm_normUnits_rootUnit
+#print axioms mpcNorm_recip_values
+#print axioms mpcNorm_continuous_chiCycKAb
+#print axioms mpcNorm_recip_approx
+#print axioms mpcNorm_lambdaOne_of_residue
+#print axioms mpcNorm_residue_of_isUnit
+#print axioms mpcNorm_residue_zpow_even
+#print axioms mpcNorm_residue_zpow_odd
+#print axioms mpcNorm_cast_even
+#print axioms mpcNorm_cast_odd
+#print axioms mpcNorm_collision
+#print axioms mpcNorm_parity
+#print axioms mpcNorm_residue_intCast
+#print axioms mpcNorm_unitNegFive
+#print axioms mpcNorm_unitFive
+#print axioms mpcNorm_residue_negFive
+#print axioms mpcNorm_residue_five
+#print axioms mpcNorm_residue_ten
+#print axioms mpcNorm_residue_negTen
+#print axioms mpcNorm_residue_negOne
+#print axioms mpcNorm_residue_one
+#print axioms mpcNorm_residue_mUnitTwo
+#print axioms mpcNorm_cast_ten
+#print axioms mpcNorm_cast_negTen
+#print axioms mpcNorm_w_ten
+#print axioms mpcNorm_w_negTen
+#print axioms mpcNorm_noUnitKerChi_sqrtTen
+#print axioms mpcNorm_lambdaOne_negOne_sqrtTen
+#print axioms mpcNorm_noUnitKerChi_sqrtNegTen
+#print axioms mpcNorm_lambdaOne_negOne_sqrtNegTen
+#print axioms mpcNorm_lambdaOne_mUnit_sqrtNegTen
+#print axioms mpcNorm_rowData_sqrtTen_of_pivot
+#print axioms mpcNorm_genAsmBranch_sqrtTen_of_pivot
+#print axioms mpcNorm_rowData_sqrtNegTen_of_pivot
+#print axioms mpcNorm_genAsmBranch_sqrtNegTen_of_pivot
+#print axioms mpcNorm_level_sqrtTen
+#print axioms mpcNorm_level_sqrtNegTen
+#print axioms mpcNorm_oneModFour
+#print axioms mpcNorm_isClosed_oneModFour
+#print axioms mpcNorm_mUnitTwo_mem_oneModFour
+#print axioms mpcNorm_zpow_mUnitTwo_mem
+#print axioms mpcNorm_zpow_negOne_even
+#print axioms mpcNorm_zpow_negOne_odd
+#print axioms mpcNorm_zpow_mUnitTwo_injective
+#print axioms mpcNorm_free_unique
+#print axioms mpcNorm_mem_of_gens
+#print axioms mpcNorm_zpowZtwo_zero
+#print axioms mpcNorm_zpowZtwo_neg
+#print axioms mpcNorm_compSub
+#print axioms mpcNorm_isClosed_compSub
+#print axioms mpcNorm_exists_kerChiM
+#print axioms mpcNorm_compPhi
+#print axioms mpcNorm_pivot_of_even_dmB
+#print axioms mpcNorm_pivot_sqrtTen
+#print axioms mpcNorm_rowData_sqrtTen
+#print axioms mpcNorm_genAsmBranch_sqrtTen
+
+end AxiomPins
 
 end
 
