@@ -946,7 +946,25 @@ and neither `B5 localReciprocity` nor `B5-K markedRecipAt` occurs in any pin.  T
 * **std-3 + {B1, B6, B7, B11a}** (adding `hilbertSymbol_normCriterion_finiteDyadic`): the two
   `K`-facing T1 composites (`oddSeam_torsionPremise`, `oddSeam_demushkinQ_galK`), the relator
   producer `oddSeam_supply_of_relator`, and all three §4 composites: exactly the census of
-  the committed free oriented equivalence, unchanged. -/
+  the committed free oriented equivalence, unchanged.
+
+⚠ **[W83-HOUSE, as of `23041e0f`: the four-way split re-measured, and it is exact.**  All 63
+pins were re-elaborated against the mirror at this tree rather than at `a45bc557`, and every
+one falls in the bucket claimed above.  Two precision items, neither an error:
+
+1. "**std-3 only**" is read here as "no census axiom", which is what it is for.  Seven §1
+   declarations print a strict *subset*: `oddSeamCoreMark` and `oddSeamCoreMark_eq_one` print
+   `[propext]` alone, and `oddSeamHandleIdx`, `oddSeamHandleIdx_val`, `oddSeamHandleMark`,
+   `oddSeamHandleMark_self`, `oddSeamHandleMark_of_ne` print `[propext, Quot.sound]`.
+2. §3's reading that the halved clause "overshoots the seam by exactly its quantifier" is one
+   quantifier short of the whole difference.  `SqCupAdaptedFrameRelator K` is
+   `∀ h, ∀ F cup-adapted, sqRelWord F.generators = 1`; the seam's frame form is `∃ F` at ONE
+   `h`, with **three** conjuncts under the `∃` (cup-adapted, relator, the two `ν`-rows).  So
+   the two differ in the `h`-quantifier as well as in the `F`-quantifier, and the clause says
+   nothing at all about the rows: `oddSeam_supply_of_relator` pays for those out of `B` and
+   `FF` through the committed `ν`-endpoint wiring, which is why it binds a filtration where
+   `oddSeam_supply_iff_cupAdaptedFrame` binds none.  The substantive claim, that the seam is
+   the smallest frame-shaped statement in this file, is unaffected.]** -/
 
 section AxiomPins
 

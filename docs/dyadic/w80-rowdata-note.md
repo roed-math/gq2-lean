@@ -132,6 +132,23 @@ generation.  The tree has generation (`imChiM 2 = ⊤`, and `fieldId_hrange_sqrt
 range is all of it); it does not have freeness.  That is the single missing input, and it is a
 statement about `ℤ₂ˣ` alone, so it is cleanly ticketable.
 
+⚠ **[W83-HOUSE, as of `23041e0f`: SUPERSEDED, and the ticket this paragraph wrote was taken and
+closed.**  Wave 81 landed the freeness (`mpcNorm_free_unique`) and wave 82 landed the identity,
+in **both** directions, at **every** marking of `D_M 2 0` and with no level hypothesis:
+`mpcPiv_kerChi_le` and `mpcPiv_kerChi_ge` (`Instances/MpcPivot.lean:200`, `:216`), both **std-3**.
+Checked against this note's displayed form: `le` concludes
+`∃ m y, ν'(x) = m·ν'(C̄₀) + 2y·ν'(B̄)` from `χ_M(x) = 1`, `ge` attains every such combination by
+the explicit class `C̄₀^m·B̄^{2y}`, and together they are exactly the ℤ₂-span `⟨ν'(C̄₀), 2·ν'(B̄)⟩`.
+The `ν'(Ā)` term this note drops by `nu_dmA_eq` is dropped the same way in the proof
+(`mpcPiv_gens_mem`), and `ν'(D̄)` falls out because freeness kills the `(mUnit 2)`-exponent, so
+the identity holds with no hypothesis on the marking at all.
+
+The two conclusions this note drew from it survive intact, and one is now a theorem rather than a
+hand check: `mpcPiv_pivot_of_even_dmB` is the `ε = false` pivot in one line, and
+`mpcPiv_kerChi_full_of_odd_dmB` promotes the `(−8, 1, 4, 1)` counterexample from one marking to
+the whole technique, so **no argument that sees only the image of `(χ_M, ν')` can decide the
+`ε = true` pivot**.]**
+
 ## 4.  T-A3: acceptance does not land, and exactly what is left
 
 `mpcRow_genAsmBranch_sqrt{Ten,NegTen}` are landed over the reduced inputs, so the row scoreboard

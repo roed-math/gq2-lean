@@ -202,6 +202,24 @@ alone; row 3 carries none (unchanged by this lane: it wants the unramifiedness o
 repository's norm-only idiom); and row 5 now carries an untied one unconditionally plus a tied one
 over a single abstract move.
 
+⚠⚠ **[W83-HOUSE, as of `23041e0f`: ROW 3 IS WRONG, AND IT WAS WRONG AT THIS LANE'S OWN BASE.**
+`ℚ₂(√5)` carries **nothing**.  `fieldFive_twoIsUniformizer : fieldUni_TwoIsUniformizer KSqrtFive`
+(`Instances/FieldSqrtFiveUnramified.lean:209`, wave 79, `b1bd2e64`) proves the clause with no
+hypotheses, and `fieldFive_genAsmBranch_sqrtFive` (`:235`) is the row-3 branch datum with no
+explicit binder beyond `B : MarkedRecip Rec KSqrtFive`, elaborated.  Item 3 of §9 below
+("`fieldUni_TwoIsUniformizer KSqrtFive` (row 3), still open") is the same error.
+
+Corrected, the sentence reads: **five of the five rows carry a branch datum over the bundles
+alone**, four of them at the row's canonical marking, and row 5's is untied.
+
+This is the **third consecutive note** to make this exact claim (`w80-rowdata-note.md` §7 item 4,
+`w81-norms-note.md` §6 and §8, and here) and the **sixth** recorded instance of the own-base
+pattern.  It is also the sharpest: `w81-house-note.md` §3.5 records the correction and is in this
+lane's own base `a45bc557`, and `w82-house-note.md` §S2 re-recorded it two minutes before this
+note was committed, from the same base, in the same wave.  Reading only the branches that merged
+before you is half a check; the tree was right for five waves while three notes in a row said
+otherwise.  `scripts/scoreboard.sh` prints this row by elaborating it.]**
+
 ### What the flagship still needs
 
 Unchanged from wave 81 §6, and this lane touches none of it.  Per row, given the branch datum `G`
@@ -247,6 +265,8 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
    it cannot come from the norm group alone.  This is the only place in the five rows where the
    remaining mathematics is not already localized.
 3. **`fieldUni_TwoIsUniformizer KSqrtFive`** (row 3), still open and unchanged by this lane.
+   ⚠⚠ **[W83-HOUSE, as of `23041e0f`: FALSE, and false at this lane's base.  Not open since
+   wave 79: `fieldFive_twoIsUniformizer` proves it with no hypotheses.  See the block under §7.]**
 4. **Register `GQ2/Dyadic/Instances/MpcPivot.lean`** in `GQ2.lean` (housekeeping), together with
    wave 81's `MpcNormValues.lean` if that is still pending.
 5. **Do not build on `mpcPiv_genAsmBranch_sqrtNegTen`** without reading §4.

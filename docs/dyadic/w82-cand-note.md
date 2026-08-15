@@ -95,6 +95,26 @@ hypothesis anywhere in its chain.
    same residue the `M0` and `N0` rows carry, so it is now uniform across all three
    `CorePresentation`-backed rows.
 
+⚠ **[W83-HOUSE, as of `23041e0f`: the `M0` half is right, the `N0` half is not, so "uniform
+across all three" overstates it.**  Elaborated explicit binders, four producers side by side:
+
+* `MCompactCore.mWordCertificate`, `MProcyclicCore.mpcWordCertificate`,
+  `genCertNpcWordCertificate` and this lane's `lCand_wordCertificateCanonical` all carry the
+  four bundles verbatim: `ExactLiftingSemantics`, `StokesDualityCertificate`,
+  `ScalarHilbertCertificate`, `AffineDeterminantCertificate`;
+* `SqrtNeg2.sqrtNegTwoWordCertificate` carries `PilotHsimp`, `PilotStageSep`, `PilotStageZ`,
+  `PilotDet`.  Only `PilotDet` is one of the four (it **is**
+  `AffineDeterminantCertificate ... (pilotGamma q) ...`).  `PilotHsimp` is a per-simple-module
+  `StokesDuality` statement, i.e. an *input* to the count rather than the count, and
+  `PilotStageSep` / `PilotStageZ` are `stageR136`'s two recursion-side residues.
+
+So the `√−2` row's residue is **strictly narrower** and lives one layer below the others': three
+of its four sit under the bundles that `M0`, `Mpc`, `Npc` and `L` still carry whole.  A lane
+that reads the two as interchangeable will price the `N0` row wrong in either direction.  The
+uniform claim is true across **`M0`, `Mpc`, `Npc` and `L`** (four rows, not three), which is the
+correct form of the statement and is what `GeneralAssembly.lean`'s constructor table now says.
+`scripts/scoreboard.sh` prints this split by elaboration.]**
+
 Item 5 on the pre-lane list, "a `WordCertificate` over `D_sq h` with no producer at free `h`",
 is gone. `oddId_candidate_equiv_galK_of_supply`'s docstring still says
 "which has no producer at free `h` in this tree"; that sentence is now stale, and a housekeeping
