@@ -237,7 +237,216 @@ theorem gBase_handle_bracket (c : levelQuot (DSq h : Type) 4) :
 
 end Relator
 
-/-! ## §3 Axiom pins -/
+/-! ## §3 The triple brackets and the bracket squares at the depth-two reach -/
+
+section Triples
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- The bracket is antisymmetric on the nose. -/
+theorem gBase_commP_swap (p q : levelQuot G 4) : commP p q = (commP q p)⁻¹ := by
+  simp only [commP]; group
+
+/-- ⭐ **The triple bracket is additive in its inner-left slot.**  The correction term of
+`cfour_commP_mul_left` is already central, so the outer bracket kills it. -/
+theorem gBase_triple_mul_left (p p' q r : levelQuot G 4) :
+    commP (commP (p * p') q) r = commP (commP p q) r * commP (commP p' q) r := by
+  have hX : commP p q ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo p q
+  have hY : commP (commP p q) p' ∈ zLayer G 3 := cfour_commP_mem_zLayer_left hX p'
+  rw [cfour_commP_mul_left p p' q,
+    gThreeFour_ad_left (Subgroup.mul_mem _ hX (cfour_zLayer_le_lambdaTwo hY)),
+    gThreeFour_ad_left hX, cfour_commP_zLayer_left hY r, mul_one]
+
+/-- ⭐ **The triple bracket is additive in its inner-right slot.** -/
+theorem gBase_triple_mul_right (p q q' r : levelQuot G 4) :
+    commP (commP p (q * q')) r = commP (commP p q') r * commP (commP p q) r := by
+  have hX : commP p q' ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo p q'
+  have hY : commP p q ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo p q
+  have hZ : commP (commP p q) q' ∈ zLayer G 3 := cfour_commP_mem_zLayer_left hY q'
+  rw [cfour_commP_mul_right p q q',
+    gThreeFour_ad_left (Subgroup.mul_mem _ hX hY),
+    gThreeFour_ad_left hX, cfour_commP_zLayer_left hZ r, mul_one]
+
+/-- The inner-left slot of a triple bracket, at an inverse. -/
+theorem gBase_triple_inv_left (p q r : levelQuot G 4) :
+    commP (commP p⁻¹ q) r = (commP (commP p q) r)⁻¹ := by
+  have hh := gBase_triple_mul_left p p⁻¹ q r
+  rw [mul_inv_cancel, cfour_one_comm, cfour_one_comm] at hh
+  exact eq_inv_of_mul_eq_one_right hh.symm
+
+/-- The inner-right slot of a triple bracket, at an inverse. -/
+theorem gBase_triple_inv_right (p q r : levelQuot G 4) :
+    commP (commP p q⁻¹) r = (commP (commP p q) r)⁻¹ := by
+  have hh := gBase_triple_mul_right p q q⁻¹ r
+  rw [mul_inv_cancel, cfour_comm_one, cfour_one_comm] at hh
+  exact eq_inv_of_mul_eq_one_left hh.symm
+
+variable (G) in
+/-- The inner-left test subgroup of a triple-bracket family. -/
+def gBaseTripleLeft (S : Subgroup (levelQuot G 4)) (r : levelQuot G 4) :
+    Subgroup (levelQuot G 4) where
+  carrier := {p | ∀ q, commP (commP p q) r ∈ S}
+  one_mem' := fun q => by rw [cfour_one_comm, cfour_one_comm]; exact Subgroup.one_mem _
+  mul_mem' := fun {_ _} hp hp' q => by
+    rw [gBase_triple_mul_left]; exact Subgroup.mul_mem _ (hp q) (hp' q)
+  inv_mem' := fun {_} hp q => by
+    rw [gBase_triple_inv_left]; exact Subgroup.inv_mem _ (hp q)
+
+variable (G) in
+/-- The inner-right test subgroup of a triple-bracket family. -/
+def gBaseTripleRight (S : Subgroup (levelQuot G 4)) (p r : levelQuot G 4) :
+    Subgroup (levelQuot G 4) where
+  carrier := {q | commP (commP p q) r ∈ S}
+  one_mem' := by
+    show commP (commP p 1) r ∈ S
+    rw [cfour_comm_one, cfour_one_comm]; exact Subgroup.one_mem _
+  mul_mem' := fun {_ _} hq hq' => by
+    show commP (commP p (_ * _)) r ∈ S
+    rw [gBase_triple_mul_right]; exact Subgroup.mul_mem _ hq' hq
+  inv_mem' := fun {_} hq => by
+    show commP (commP p _⁻¹) r ∈ S
+    rw [gBase_triple_inv_right]; exact Subgroup.inv_mem _ hq
+
+end Triples
+
+section Base
+
+variable {h : ℕ} {nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])}
+
+/-- ⭐ **Every bracket is an admissible depth-`2` correction.**  Both rows are characters into
+an abelian group, so they kill every commutator outright; this is what makes the whole
+`L₃(V)`-half of the base a knob question rather than a row question. -/
+theorem gBase_adm_commP (a b : (DSq h : Type)) : GTowerAdm h nu' 2 (commP a b) :=
+  ⟨cfour_commP_mem_two a b, gTower_row_commP _ a b, gTower_row_commP nu' a b⟩
+
+/-- A bracket knob at depth `2`: `⁅⁅a, b⁆, q⁆` for `q` in the far span. -/
+theorem gBase_knob_mem {a b q : (DSq h : Type)} (hq : q ∈ gTowerFar h) :
+    levelMk (DSq h : Type) 4 (commP (commP a b) q) ∈ gTowerReach h nu' 2 :=
+  Subgroup.subset_closure (Or.inl (Or.inl ⟨commP a b, q, gBase_adm_commP a b, hq, rfl⟩))
+
+/-- The `x₁`-slot bundle knob at depth `2`, at a bracket correction. -/
+theorem gBase_bundle_mem (a b : (DSq h : Type)) :
+    levelMk (DSq h : Type) 4 (commP a b ^ 2 * commP (commP a b) (dsqX1 h))
+      ∈ gTowerReach h nu' 2 :=
+  Subgroup.subset_closure (Or.inl (Or.inr ⟨commP a b, gBase_adm_commP a b, rfl⟩))
+
+/-- The `levelMk`-image of a triple bracket, in `Q₄` vocabulary. -/
+theorem gBase_levelMk_triple (a b g : (DSq h : Type)) :
+    levelMk (DSq h : Type) 4 (commP (commP a b) g) =
+      commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b))
+        (levelMk (DSq h : Type) 4 g) := by
+  simp only [commP, map_mul, map_inv]
+
+/-- ⭐ **Triple brackets with a non-`x₁` letter in the outer slot reach**: they are bracket
+knobs of the admissible correction `⁅a, b⁆`. -/
+theorem gBase_triple_far (p q : levelQuot (DSq h : Type) 4) {i : Fin (sqRank h)} (hi : i ≠ 2) :
+    commP (commP p q) (levelMk (DSq h : Type) 4 (sqGen h i)) ∈ gTowerReach h nu' 2 := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective (DSq h : Type) 4 p
+  obtain ⟨b, rfl⟩ := levelMk_surjective (DSq h : Type) 4 q
+  rw [← gBase_levelMk_triple]
+  exact gBase_knob_mem (gTower_letters_mem_far i hi)
+
+variable (h nu') in
+/-- ⭐⭐⭐ **The residual of the depth-two base**, isolated: the `x₁`-slot triple brackets
+`⁅⁅x₁, letter⁆, x₁⁆`.  These are the only triple brackets Jacobi cannot move out of the `x₁`
+outer slot, and by `gBase_xOne_triple` they are interchangeable with the bracket squares
+`⁅x₁, letter⁆²`, the `(Λ²V)^{[2]}`-classes at the `x₁` slot. -/
+def GBaseXOneTriple : Prop :=
+  ∀ i : Fin (sqRank h),
+    commP (commP (gBaseT h) (levelMk (DSq h : Type) 4 (sqGen h i))) (gBaseT h)
+      ∈ gTowerReach h nu' 2
+
+/-- ⭐⭐ **The `x₁` outer slot, at letter pairs.**  Jacobi moves `x₁` out of the outer slot
+whenever neither inner slot is `x₁`; when one of them is, the bracket is the residual; when
+both are, the bracket is trivial. -/
+theorem gBase_triple_xOne_letters (H : GBaseXOneTriple h nu') (i i' : Fin (sqRank h)) :
+    commP (commP (levelMk (DSq h : Type) 4 (sqGen h i))
+      (levelMk (DSq h : Type) 4 (sqGen h i'))) (gBaseT h) ∈ gTowerReach h nu' 2 := by
+  by_cases hi : i = 2
+  · subst hi
+    by_cases hi' : i' = 2
+    · subst hi'
+      rw [show levelMk (DSq h : Type) 4 (sqGen h 2) = gBaseT h from rfl, cfour_comm_self,
+        cfour_one_comm]
+      exact Subgroup.one_mem _
+    · exact H i'
+  · by_cases hi' : i' = 2
+    · subst hi'
+      rw [gBase_commP_swap (levelMk (DSq h : Type) 4 (sqGen h i)),
+        gThreeFour_ad_inv_left (cfour_commP_mem_lambdaTwo _ _)]
+      exact H i
+    · have hjac := gThreeFour_jacobi (levelMk (DSq h : Type) 4 (sqGen h i))
+        (levelMk (DSq h : Type) 4 (sqGen h i')) (gBaseT h)
+      have hsol : commP (commP (levelMk (DSq h : Type) 4 (sqGen h i))
+          (levelMk (DSq h : Type) 4 (sqGen h i'))) (gBaseT h) =
+          (commP (commP (levelMk (DSq h : Type) 4 (sqGen h i')) (gBaseT h))
+              (levelMk (DSq h : Type) 4 (sqGen h i)) *
+            commP (commP (gBaseT h) (levelMk (DSq h : Type) 4 (sqGen h i)))
+              (levelMk (DSq h : Type) 4 (sqGen h i')))⁻¹ :=
+        eq_inv_of_mul_eq_one_left (by rw [← mul_assoc]; exact hjac)
+      rw [hsol]
+      exact Subgroup.inv_mem _ (Subgroup.mul_mem _ (gBase_triple_far _ _ hi)
+        (gBase_triple_far _ _ hi'))
+
+/-- ⭐⭐ **The `x₁` outer slot, in general.**  Both inner slots reduce to letters, the triple
+bracket being additive in each of them. -/
+theorem gBase_triple_xOne (H : GBaseXOneTriple h nu') (p q : levelQuot (DSq h : Type) 4) :
+    commP (commP p q) (gBaseT h) ∈ gTowerReach h nu' 2 := by
+  have hleft : p ∈ gBaseTripleLeft (DSq h : Type) (gTowerReach h nu' 2) (gBaseT h) := by
+    refine gBase_letters_mem (fun i => ?_) p
+    intro q
+    exact gBase_letters_mem (K := gBaseTripleRight (DSq h : Type)
+      (gTowerReach h nu' 2) (levelMk (DSq h : Type) 4 (sqGen h i)) (gBaseT h))
+      (fun i' => gBase_triple_xOne_letters H i i') q
+  exact hleft q
+
+/-- A triple bracket of letters against the outer letter slot, packaged for the closure
+induction of `gBase_triple`. -/
+theorem gBase_letter_triple_mem (H : GBaseXOneTriple h nu') (a b : (DSq h : Type))
+    (i : Fin (sqRank h)) :
+    levelMk (DSq h : Type) 4 (commP (commP a b) (sqGen h i)) ∈ gTowerReach h nu' 2 := by
+  by_cases hi : i = 2
+  · subst hi
+    rw [gBase_levelMk_triple]
+    exact gBase_triple_xOne H _ _
+  · exact gBase_knob_mem (gTower_letters_mem_far i hi)
+
+/-- ⭐⭐⭐ **Every triple bracket reaches**, granted the residual.  The outer slot reduces to
+the letters by the committed `gTower_commHom_span`; the non-`x₁` letters are far-span knobs and
+the `x₁` letter is the previous theorem. -/
+theorem gBase_triple (H : GBaseXOneTriple h nu') (p q r : levelQuot (DSq h : Type) 4) :
+    commP (commP p q) r ∈ gTowerReach h nu' 2 := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective (DSq h : Type) 4 p
+  obtain ⟨b, rfl⟩ := levelMk_surjective (DSq h : Type) 4 q
+  obtain ⟨g, rfl⟩ := levelMk_surjective (DSq h : Type) 4 r
+  rw [← gBase_levelMk_triple]
+  have hspan := gTower_commHom_span (h := h) (k := 2) (cfour_commP_mem_two a b) g
+  refine Subgroup.closure_le (K := gTowerReach h nu' 2) |>.2 ?_ hspan
+  rintro _ ⟨i, rfl⟩
+  exact gBase_letter_triple_mem H a b i
+
+/-- ⭐⭐ **Every bracket square reaches**, granted the residual: the `x₁`-slot bundle knob is
+the square times the `x₁`-outer triple bracket, and the latter reaches by `gBase_triple`. -/
+theorem gBase_bracketSq (H : GBaseXOneTriple h nu') (p q : levelQuot (DSq h : Type) 4) :
+    commP p q ^ 2 ∈ gTowerReach h nu' 2 := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective (DSq h : Type) 4 p
+  obtain ⟨b, rfl⟩ := levelMk_surjective (DSq h : Type) 4 q
+  have hbundle := gBase_bundle_mem (nu' := nu') a b
+  rw [map_mul, map_pow, gBase_levelMk_triple] at hbundle
+  have hsplit : commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b) ^ 2 =
+      (levelMk (DSq h : Type) 4 (commP a b) ^ 2 *
+        commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b))
+          (levelMk (DSq h : Type) 4 (dsqX1 h))) *
+      (commP (commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b))
+          (levelMk (DSq h : Type) 4 (dsqX1 h)))⁻¹ := by
+    rw [mul_inv_cancel_right]
+    simp only [commP, map_mul, map_inv]
+  rw [hsplit]
+  exact Subgroup.mul_mem _ hbundle (Subgroup.inv_mem _ (gBase_triple H _ _ _))
+
+end Base
+
+/-! ## §5 Axiom pins -/
 
 section AxiomPins
 
@@ -252,6 +461,24 @@ section AxiomPins
 #print axioms gBase_xOne_triple
 #print axioms gBase_ad_listProd
 #print axioms gBase_handle_bracket
+#print axioms gBase_commP_swap
+#print axioms gBase_triple_mul_left
+#print axioms gBase_triple_mul_right
+#print axioms gBase_triple_inv_left
+#print axioms gBase_triple_inv_right
+#print axioms gBaseTripleLeft
+#print axioms gBaseTripleRight
+#print axioms gBase_adm_commP
+#print axioms gBase_knob_mem
+#print axioms gBase_bundle_mem
+#print axioms gBase_levelMk_triple
+#print axioms gBase_triple_far
+#print axioms GQ2.Dyadic.SqCore.GBaseXOneTriple
+#print axioms gBase_triple_xOne_letters
+#print axioms gBase_triple_xOne
+#print axioms gBase_letter_triple_mem
+#print axioms gBase_triple
+#print axioms gBase_bracketSq
 
 end AxiomPins
 
