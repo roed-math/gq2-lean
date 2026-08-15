@@ -384,7 +384,10 @@ Said in detail, because a round that reports only hits is not a check.
   towers, so it is not the refuted span statement one class up.  Separately, the only candidate
   survivor of the refuted route - the bundled hypothesis set of `cfourCmp_zLayer_le_triple` - is
   **equivalent** to the bare families given the triple family, so it is refuted too (§2, item 4).
-* **The docstring-on-the-wrong-declaration check: clean** on all three wave-74 modules.
+* **The docstring-on-the-wrong-declaration check: clean** on all three wave-74 modules.  Every
+  ⭐⭐⭐ docstring sits on the declaration its headline names: eight in
+  `GradedDeltaFunctionals.lean`, seven in `GradedUniformTower.lean`, and **none** in
+  `EvenStratumRowFrame.lean`, which is unusual for the campaign but is not a defect.
 * **Both ledger-gate scripts after `2c8af4bd`: clean as behaviour.**  `bash -n` clean on both;
   the exit-3 branch is placed after the `fail` test and before the success line, so a fixture that
   *fails* still exits 1 and a fixture that parses exits 3; D6's `if` treats both as failure.  The
