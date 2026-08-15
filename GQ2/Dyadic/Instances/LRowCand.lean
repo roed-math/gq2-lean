@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.GeneralCertificates
+import GQ2.Dyadic.SqCore.GradedOddClose
 
 /-!
 # The `L`-row word certificate at free handle count  (dyadic campaign, lane W82-CAND)
@@ -435,5 +436,91 @@ noncomputable def lCandRowResidual (T : OrientedTameQuotientK B FF)
     candExactLifting candStokes candScalar candDeterminant
 
 end Row
+
+/-! ## §5 The odd row from the seam alone
+
+§4's `lCandBranch` still carries the handle-mix binder `hMix` and the correction exponent `c`.
+Wave 80 removed both at every `h`: `SqCore.gOdd_pivotFix h : SqHandleMixFixesCore h sqPivotExp`
+is a theorem free in `h`, which is exactly what `oddId_genAsmBranch_L_of_supply` uses.  So the
+branch datum is a function of the seam `SqMarkedForwardSupply B h` and the degree pin alone —
+and, unlike the committed existential form, the definition below remembers that its marking is
+`lNu h`, which is what lets §2's canonical producer reach the `cand` field.
+
+`lCand_oddRow_of_supply` is then the lane's headline, and it is the honest statement of what the
+odd rows of the general theorem need in total: the seam, the row-independent field inputs, three
+`ASK` clauses at `G_K`, and four `CAND` clauses at `Γ_R`.  Nothing else, at any handle count. -/
+
+section Seam
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+  [FiniteDimensional ℚ_[2] K] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- **The `L h` branch datum from the seam**, as a definition.  The marking-forgetting
+existential of `oddId_genAsmBranch_L_of_supply`, made into a term. -/
+noncomputable def lCandBranchOfSupply (h : ℕ)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
+    (H : LSquare.SqMarkedForwardSupply B h) : GenAsmBranch K B :=
+  lCandBranch h SqCore.sqPivotExp hdeg ⟨H.choose, H.choose_spec.1⟩ (SqCore.gOdd_pivotFix h)
+    H.choose_spec.2.1 H.choose_spec.2.2
+
+variable (h : ℕ) (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.L h).degree)
+  (H : LSquare.SqMarkedForwardSupply B h)
+
+/-- It sits on the `L h` row… -/
+theorem lCandBranchOfSupply_pres : (lCandBranchOfSupply h hdeg H).pres = .L h := rfl
+
+/-- …at the canonical marking, which is the fact the existential form loses. -/
+theorem lCandBranchOfSupply_nuP : (lCandBranchOfSupply h hdeg H).nuP = lNu h := rfl
+
+/-- **The lane's headline.**  At every odd degree and every handle count, the general theorem's
+conclusion on the `L h` row follows from
+
+* the wave-81 seam `H : SqMarkedForwardSupply B h` (the selector, open at `h ≥ 1`),
+* the row-independent field inputs `F`,
+* three `ASK` clauses at the arithmetic carrier `G_K`, and
+* four `CAND` clauses at the candidate carrier `Γ_R (2h+1) q_K (lSqW h)`.
+
+Before this lane the list had a fifth candidate-side item — a `WordCertificate` over `D_sq h`
+with no producer at `h ≥ 1` — and `oddId_candidate_equiv_galK_of_supply`'s docstring names it
+("the CAND `WordCertificate` over `D_sq h`, which has no producer at free `h` in this tree").
+That sentence is what this module retires. -/
+theorem lCand_oddRow_of_supply (T : OrientedTameQuotientK B FF)
+    (F : GenAsmFieldInputs K B FF (lCandBranchOfSupply h hdeg H).degree)
+    (hT : F.T = T)
+    (askExactLifting : ExactLiftingSemantics (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)))
+    (askStokes : StokesDualityCertificate (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) (smulZmod2GalK K))
+    (askDeterminant : AffineDeterminantCertificate (galKProfinite K) (2 * h + 1) (qOf K FF)
+      (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) T.tameFK
+      (lCandBranchOfSupply h hdeg H).pro2
+      (fun g => T.compatF_K (lCandBranchOfSupply h hdeg H).pro2 (lNu h)
+        (lCandBranchOfSupply h hdeg H).realization.nu_compat g)
+      (smulZmod2GalK K))
+    (candExactLifting : ExactLiftingSemantics (GammaR (2 * h + 1) (qOf K FF) (lSqW h))
+      (2 * h + 1) (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)))
+    (candStokes : StokesDualityCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h)) (2 * h + 1)
+      (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1)) (scalarActionZmodTwo _))
+    (candScalar : ScalarHilbertCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h)) (2 * h + 1)
+      (standardNumerics (2 * h + 1)) (scalarActionZmodTwo _))
+    (candDeterminant : AffineDeterminantCertificate (GammaR (2 * h + 1) (qOf K FF) (lSqW h))
+      (2 * h + 1) (qOf K FF) (SqCore.DSq h) (lNu h) (standardNumerics (2 * h + 1))
+      (tameOfSpec (2 * h + 1) (qOf K FF) (lSqW h)
+        (lCandTameSpecializes h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)))
+      (lCandPro2 h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF))
+      (lCandCompat h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)
+        (lCandTameSpecializes h (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF)) (lNu h)
+        (lNu_sigma h) (lNu_wild h))
+      (scalarActionZmodTwo _)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (2 * h + 1) (qOf K FF) (lSqW h) : ProfiniteGrp) : Type) (GalK K)) :=
+  genAsm_candidate_equiv_galK (lCandBranchOfSupply h hdeg H) F
+    (hT ▸ lCandRowResidual h SqCore.sqPivotExp hdeg ⟨H.choose, H.choose_spec.1⟩
+      (SqCore.gOdd_pivotFix h) H.choose_spec.2.1 H.choose_spec.2.2 T
+      askExactLifting askStokes askDeterminant
+      candExactLifting candStokes candScalar candDeterminant)
+
+end Seam
 
 end GQ2.Dyadic.Instances.LRowCand
