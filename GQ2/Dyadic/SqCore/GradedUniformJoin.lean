@@ -268,7 +268,112 @@ theorem gJoin_markTransitivity_of_vanishing (HV : GJoinDefectVanishing h)
 
 end ChiRecursion
 
-/-! ## §4 Axiom pins -/
+/-! ## §4 Reading the tower letters
+
+Labute's Lemma 4(3) says the functionals detect the Frobenius towers.  Wave 74 committed that
+for the **letters** `σ`, `x₀`, `u_j` at `2^m`-powers.  The tower generators of the reach are
+`ℤ₂`-powers of the **cleared** letters `x̃₁`, `U_j`, `V_j`, so this section extends the reading
+to `ℤ₂`-exponents and computes it at the cleared letters.
+
+The key device is the vanishing subgroup of a functional.  Because `gDelta` is a crossed
+homomorphism, `{x | gDelta c x = 0}` is a closed subgroup; a coefficient vector supported on a
+single handle slot therefore kills the whole core (`σ`, `x₀`, `x₁`, the pivot) and every other
+handle, and reads the cleared letter of its own slot on the nose. -/
+
+section Readings
+
+variable {h : ℕ}
+
+variable (h) in
+/-- **The vanishing subgroup of a functional.**  `gDelta` is a crossed homomorphism, so its
+zero set is a subgroup (`D(xy) = Dx + χ(x)·Dy`), and it is closed by continuity. -/
+def gJoinVanish (c : Fin (sqRank h) → ℤ_[2]) : Subgroup (DSq h : Type) where
+  carrier := {x | gDelta h c x = 0}
+  one_mem' := gDelta_one c
+  mul_mem' := fun {a b} ha hb => by
+    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    rw [gDelta_mul, ha, hb, mul_zero, add_zero]
+  inv_mem' := fun {a} ha => by
+    simp only [Set.mem_setOf_eq] at ha ⊢
+    rw [gDelta_inv, ha, mul_zero, neg_zero]
+
+theorem gJoin_mem_vanish {c : Fin (sqRank h) → ℤ_[2]} {x : (DSq h : Type)} :
+    x ∈ gJoinVanish h c ↔ gDelta h c x = 0 := Iff.rfl
+
+theorem gJoin_isClosed_vanish (c : Fin (sqRank h) → ℤ_[2]) :
+    IsClosed ((gJoinVanish h c : Subgroup (DSq h : Type)) : Set (DSq h : Type)) :=
+  IsClosed.preimage (gDelta_continuous c) isClosed_singleton
+
+/-- **`ℤ₂`-powers stay in the vanishing subgroup**: the procyclic closure of a killed element
+is killed. -/
+theorem gJoin_zpow_vanish {c : Fin (sqRank h) → ℤ_[2]} {x : (DSq h : Type)}
+    (hx : gDelta h c x = 0) (A : ℤ_[2]) :
+    gDelta h c (zpowZtwo (isProP_DSq h) x A) = 0 := by
+  have hle : (Subgroup.closure ({x} : Set (DSq h : Type))).topologicalClosure
+      ≤ gJoinVanish h c :=
+    Subgroup.topologicalClosure_minimal _
+      ((Subgroup.closure_le _).2 (by rintro _ rfl; exact hx)) (gJoin_isClosed_vanish c)
+  exact hle (zpowZtwo_mem_topologicalClosure (isProP_DSq h) x A)
+
+/-- The pivot `w = σ·x₀^{-c}` is read by the two core rows alone. -/
+theorem gJoin_delta_pivot {c : Fin (sqRank h) → ℤ_[2]} (h0 : c 0 = 0) (h1 : c 1 = 0) :
+    gDelta h c (sqPivot h) = 0 := by
+  have hx0 : gDelta h c (dsqX0 h) = 0 := by rw [dsqX0, gDelta_gen, h1]
+  have hzp : gDelta h c (zpowZtwo (isProP_DSq h) (dsqX0 h) sqPivotExp) = 0 :=
+    gJoin_zpow_vanish hx0 _
+  rw [sqPivot, sqMixPivotElem, gDelta_mul, gDelta_inv, hzp, mul_zero, neg_zero, mul_zero,
+    add_zero, dsqSigma, gDelta_gen, h0]
+
+/-- The cleared `x₁`-letter is read by the `x₁`-row alone. -/
+theorem gJoin_delta_xOne {c : Fin (sqRank h) → ℤ_[2]} (h1 : c 1 = 0) :
+    gDelta h c (gTowerXOne h) = c 2 := by
+  have hx0 : gDelta h c (dsqX0 h) = 0 := by rw [dsqX0, gDelta_gen, h1]
+  have hzp : gDelta h c (zpowZtwo (isProP_DSq h) (dsqX0 h) 2) = 0 := gJoin_zpow_vanish hx0 _
+  rw [gTowerXOne, gDelta_mul, gDelta_inv, hzp, mul_zero, neg_zero, mul_zero, add_zero,
+    dsqX1, gDelta_gen]
+
+/-- ⭐ **The cleared `u`-letter is read by its own slot alone**, once the two core rows are
+switched off: the pivot factor is invisible and chi-trivial. -/
+theorem gJoin_delta_eichU {c : Fin (sqRank h) → ℤ_[2]} (h0 : c 0 = 0) (h1 : c 1 = 0)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) :
+    gDelta h c (sqEichU h nu' j) = c (sqHandleIdxU j) := by
+  have hzp : gDelta h c (zpowZtwo (isProP_DSq h) (sqPivot h)
+      (toAdd (nu' (sqGen h (sqHandleIdxU j))))) = 0 :=
+    gJoin_zpow_vanish (gJoin_delta_pivot h0 h1) _
+  rw [sqEichU, gDelta_mul, gDelta_inv, hzp, mul_zero, neg_zero, zero_add, gDelta_gen,
+    map_inv, gDelta_chiSq_zpow_pivot, inv_one, Units.val_one, one_mul]
+
+/-- ⭐ The cleared `v`-letter is read by its own slot alone. -/
+theorem gJoin_delta_eichV {c : Fin (sqRank h) → ℤ_[2]} (h0 : c 0 = 0) (h1 : c 1 = 0)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (j : Fin h) :
+    gDelta h c (sqEichV h nu' j) = c (sqHandleIdxV j) := by
+  have hzp : gDelta h c (zpowZtwo (isProP_DSq h) (sqPivot h)
+      (toAdd (nu' (sqGen h (sqHandleIdxV j))))) = 0 :=
+    gJoin_zpow_vanish (gJoin_delta_pivot h0 h1) _
+  rw [sqEichV, gDelta_mul, gDelta_inv, hzp, mul_zero, neg_zero, mul_zero, add_zero,
+    gDelta_gen]
+
+/-- ⭐⭐ **The `ℤ₂`-tower formula at a chi-trivial base**: `D(x^A) = A·Dx`.  Wave 74's
+`gDelta_sigma_tower`/`gDelta_handleU_tower` are the `A = 2^m` instances at the letters; the
+reach's tower generators carry genuine `ℤ₂`-exponents, so the formula is pushed to `ℤ₂` by
+density of `ℕ` and continuity of both sides. -/
+theorem gJoin_delta_zpow (c : Fin (sqRank h) → ℤ_[2]) {x : (DSq h : Type)}
+    (hx : chiSq h x = 1) (A : ℤ_[2]) :
+    gDelta h c (zpowZtwo (isProP_DSq h) x A) = A * gDelta h c x := by
+  refine PadicInt.denseRange_natCast.induction_on A ?_ ?_
+  · exact isClosed_eq ((gDelta_continuous c).comp (continuous_zpowZtwo (isProP_DSq h) x))
+      (continuous_id.mul continuous_const)
+  · intro n
+    rw [zpowZtwo_natCast, gDelta_pow, hx, Units.val_one, normSum_one_base]
+
+/-- `ℤ₂`-powers of a chi-trivial element are chi-trivial. -/
+theorem gJoin_chiSq_zpow {x : (DSq h : Type)} (hx : chiSq h x = 1) (A : ℤ_[2]) :
+    chiSq h (zpowZtwo (isProP_DSq h) x A) = 1 := by
+  rw [map_zpowZtwo (isProP_DSq h) isProP_two_unitsPadicInt (chiSq h), hx, zpowZtwo_one_base]
+
+end Readings
+
+/-! ## §5 Axiom pins -/
 
 section AxiomPins
 
@@ -287,6 +392,16 @@ section AxiomPins
 #print axioms gJoin_clear_step
 #print axioms gJoin_supply_of_vanishing
 #print axioms gJoin_markTransitivity_of_vanishing
+#print axioms GQ2.Dyadic.SqCore.gJoinVanish
+#print axioms gJoin_mem_vanish
+#print axioms gJoin_isClosed_vanish
+#print axioms gJoin_zpow_vanish
+#print axioms gJoin_delta_pivot
+#print axioms gJoin_delta_xOne
+#print axioms gJoin_delta_eichU
+#print axioms gJoin_delta_eichV
+#print axioms gJoin_delta_zpow
+#print axioms gJoin_chiSq_zpow
 
 end AxiomPins
 
