@@ -538,7 +538,22 @@ the general statement costs nothing beyond those two theorems' remaining binders
 
 ⚠ What the route does **not** supply is the `alpha` pin: it produces an existential `∃ alpha ≥ 2`,
 and the branch datum asks for the row.  That is the critical-path memo's item A1, the branch
-identification `range chiCycKTwo = imChiN alpha` per field, and it stays open. -/
+identification `range chiCycKTwo = imChiN alpha` per field, and it stays open.
+
+**[W78-HOUSE: SUPERSEDED.  "it stays open" is false, and was already false at two rows when it
+was written.**  As of `e6bbd2b9` the `alpha` pin is closed at **all five** frozen quadratic
+rows, each over the field's own `MarkedRecip` bundle and the standing instance binders:
+
+* `ℚ₂(√−2)`, wave 67, `EvenRangeModel.hrangeFinal_sqrtNegTwo`;
+* `ℚ₂(√2)`, wave 68, `EvenRangePolish.hrangeFinal_sqrtTwo'`;
+* `ℚ₂(√5)`, `ℚ₂(√10)`, `ℚ₂(√−10)`, wave 77,
+  `fieldId_hrange_sqrt{Five,Ten,NegTen}` (`Instances/FieldBranchIdentification.lean` §5).
+
+The five re-exports and the five branch-datum producers `fieldId_genAsmBranch_*` are in that
+module; each producer discharges everything but one marked-data unimodularity clause (`hpivot`
+on the four `M` rows, `hpair` on the pilot).  The sentence above is kept, not deleted, because
+it states correctly what `parityFinal_evenClassification` *itself* supplies; what is false is
+the closing clause.  Read it as "and it is supplied elsewhere, per field".]** -/
 theorem genAsm_evenRoute_output [T2Space (GalK K)] (B : MarkedRecip Rec K) (deltaI : ℚ̄₂)
     (hdeltaI : deltaI ^ 2 = -1)
     (hram : ¬ HasEqualNormValueGroups K deltaI) {h : ℕ}

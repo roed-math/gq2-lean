@@ -88,6 +88,14 @@ converse to `gBase_joinBase_of_residual`.
 evidence either way: every statement here is a reduction, and `GBaseXOneTriple` is a
 hypothesis.  See `docs/dyadic/w76-base-note.md`.
 
+⚠⚠ **[W78-HOUSE, as of `e6bbd2b9`: no longer open.  They do not hold.**  `gDecide_not_baseResidual`
+and `gDecide_not_joinBase` (`SqCore/GradedBaseDecide.lean`, wave 77) refute `GBaseResidual h`
+and `GJoinBase h` at every `h`, from a group of order sixteen and with no structure theorem.
+So `gBase_markTransitivity_of_residual` and `gBase_supply_of_residual` below are **vacuous**,
+and the sentence "whether they hold is open" is superseded.  The reductions in this file are
+unaffected and remain correct; what has gone is their input.  `SqClassClearingSupply h k` is
+untouched by that refutation.]**
+
 Prefix: `gBase`.
 -/
 
@@ -623,7 +631,10 @@ theorem gBase_layerReach_of_xOneTriple (H : GBaseXOneTriple h nu')
     (fun p q r => gTower_reach_le_fullReach (gBase_triple H p q r)) ⟨g, hg, rfl⟩
 
 variable (h) in
-/-- **The residual of the depth-two base, at every selected marking.** -/
+/-- **The residual of the depth-two base, at every selected marking.**
+
+⚠⚠ **FALSE at every `h`**, as of `e6bbd2b9`: `gDecide_not_baseResidual`
+(`SqCore/GradedBaseDecide.lean`).  The two composites below are vacuous. -/
 def GBaseResidual : Prop :=
   ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
     nu' (dsqSigma h) = ofAdd (1 : ℤ_[2]) → nu' (dsqX0 h) = ofAdd (0 : ℤ_[2]) →
