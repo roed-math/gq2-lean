@@ -24,10 +24,12 @@ names the class-six rung, and formalizes the pattern both climbed rungs have fol
    (`μ = 1`), the scope stated at §3's head; both climbed witnesses have `m = 1`, so the pivot
    slot has never been used by the ladder.  General `μ` is open.
 
-3. ⭐⭐⭐ **The class-six defect in closed form** (§5, `mpcSx_mWord_six`), and **the assembly is
-   no longer free**: the two `L`-valued corrections each pay one central bracket against the
-   marked block still to their right.  `MpcFive` §4's "the assembly costs nothing" is a
-   class-five fact, and the two collection costs `C₁`, `C₂` are terms of no letter.
+3. ⭐⭐⭐ **The class-six defect in closed form** (§5, `mpcSx_mWord_six`), **with two collection
+   terms that are terms of no letter**.  `MpcFive` §4's "the assembly costs nothing" rests on
+   `⁅L, Y⁆ = 1`, which is a class-five fact; one class up that argument is unavailable, and the
+   exact class-six identity carries `C₁ = ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆` and `C₂ = ⁅E₂, r⁴·⁅r,w⁆⁆`.
+   **Whether `C₁` and `C₂` vanish in `D_M 2 0` is not decided here**; what is committed is that
+   the class-five reason for dropping them is gone and the identity is exact as written.
 
 4. ⭐⭐ **The class-six defect of the wave-87 witness** (§6, `mpcSx_w5_defect`).
 
@@ -74,13 +76,17 @@ Everything is read in `Q₆ = G/λ₆`, with four layers in play instead of clas
 
 **What changes from class five.**  At class five the correction layer `L` was abelian and
 commuted with `Y`, so the four factors of `mWord` assembled with nothing incurred (`MpcFive` §4).
-At class six that is false: `⁅L, Y⁆ ⊆ Z` is not trivial, so `L` is not abelian and does not
-commute with `Y`.  What survives one layer deeper is `⁅M, Y⁆ = 1` (`mpcSx_vanish_four`, the
-instance `k = 4` of `cfive_commutator_lambdaTwo`), and that single fact is what every cancellation
-below reduces to, together with the centrality of `Z`.
+At class six that argument is unavailable: `⁅L, Y⁆` is only known to land in `Z`, and `Z` is not
+trivial in `Q₆`, so neither `L`-abelianness nor `⁅L, Y⁆ = 1` is on hand.  (Nothing below asserts
+that `⁅L, Y⁆ ≠ 1`; what is committed is that the class-five proof delivers nothing there, the
+scope wave 70's `GradedClassFive` header uses for the same kind of statement.)  What survives one
+layer deeper is `⁅M, Y⁆ = 1` (`mpcSx_vanish_four`, the instance `k = 4` of
+`cfive_commutator_lambdaTwo`), and that single fact is what every cancellation below reduces to,
+together with the centrality of `Z`.
 
 So the class-six discipline is: `M`-valued factors move freely through `Y`, `Z`-valued factors
-move freely through everything, and `L`-valued factors move only at the cost of a `Z`-term. -/
+move freely through everything, and an `L`-valued factor moves only by paying an explicit
+`Z`-term, which the identities below carry rather than drop. -/
 
 section Calculus
 
@@ -475,10 +481,10 @@ end LetterA
     ⁅p·z·σ, q·τ⁆ = ⁅p,q⁆ · (⁅p,τ⁆·⁅σ,q⁆) · (⁅σ,τ⁆·⁅z,q⁆·⁅⁅p,q⁆,σ⁆·⁅⁅p,q⁆,τ⁆)
 
 in `Q₅`, where the third group is central.  At class six that group sinks to `M` and six further
-terms survive in `Z`.  **Five of the six are genuine new bracket terms; the sixth is a
-reordering cost**, `⁅⁅p,τ⁆, ⁅p,q⁆⁆`, incurred when the marked bracket `⁅p,q⁆` is carried to the
-front past the `L`-term `⁅p,τ⁆`.  That is the class-six failure of `MpcFive` §4's "the assembly
-costs nothing", visible already in one letter. -/
+terms survive in `Z`.  **Five of the six are new bracket terms; the sixth is a reordering
+term**, `⁅⁅p,τ⁆, ⁅p,q⁆⁆`, carried when the marked bracket `⁅p,q⁆` is moved to the front past the
+`L`-term `⁅p,τ⁆`.  Class five drops that move for free because `⁅L, Y⁆ = 1` there; here the move
+is priced instead.  Whether the price is nontrivial in any particular group is not claimed. -/
 
 section LetterAB
 
@@ -590,8 +596,9 @@ end LetterAB
 /-! ## §3 The pivot letter's fourth power, and the `C̄₀`/`D̄` bracket
 
 **Scope, carried by §3 AND §4 and repeated at §4's own head and in both theorem docstrings, so
-that no site inherits it from a block it cannot see: the pivot correction is trivial.**  `mpcLad_pow_letC_five` and `mpcFv_comm_letCD` carry a general `μ ∈ Y`; §3 and §4 take
-`μ = 1`.  That is not a loss for the class-six rung, because **both climbed witnesses have a
+that no site inherits it from a block it cannot see: the pivot correction is trivial.**
+`mpcLad_pow_letC_five` and `mpcFv_comm_letCD` carry a general `μ ∈ Y`; §3 and §4 take `μ = 1`.
+That is not a loss for the class-six rung, because **both climbed witnesses have a
 trivial pivot correction**: `mpcLadW4 = (W, W, 1, 1)` and `mpcFvW5 = (W, W·B̄⁴, 1, B̄⁴·⁅B̄²,D̄⁆)`,
 so the pivot slot has never been used by the ladder.  The general-`μ` class-six statement is
 open, and nothing below is evidence about it either way.
@@ -687,10 +694,12 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
                         · (⁅⁅r,ν⁆,⁅r,w⁆⁆·⁅⁅q²,w⁆,⁅r,w⁆⁆·⁅⁅q²,ν⁆,r⁆·⁅⁅q²,w⁆,ν⁆) .
 
 The first three groups are `mpcFv_comm_letCD` at `μ = 1` (with the two `L`-terms in the opposite
-order, which is free at class five and not here); the fourth is central of exponent two and
-vanishes at class five.  **Its first two factors are reordering costs**, incurred carrying the
-marked bracket `⁅r,w⁆` to the front past the two `L`-terms; the other two are genuine new bracket
-terms. -/
+order, an exchange class five performs for free and this identity prices); the fourth group is
+central of exponent two and
+vanishes at class five.  **Its first two factors are reordering terms**, carried when the marked
+bracket `⁅r,w⁆` is moved to the front past the two `L`-terms; the other two are new bracket
+terms.  Class five performs those two moves for free; this identity prices them, and does not
+claim the price is nonzero. -/
 theorem mpcSx_comm_letCD {q r w ν : levelQuot G 6} (hν : ν ∈ lambdaImage G 2 6) :
     commP (q ^ 2 * r) (w * ν)
       = commP r w * (commP r ν * commP (q ^ 2) w) *
@@ -743,19 +752,24 @@ end LetterCD
 
 /-! ## §5 The class-six defect of the `M6` ansatz, in closed form
 
-`MpcFive` §4 records that at class five "the assembly costs nothing", because every correction
-lies in `L`, `L` is abelian, and `L` commutes with `Y`.  **At class six the assembly costs
-exactly two central brackets.**  The three marked parts a correction has to pass are still
-`⁅p,q⁆ ∈ Y`, `r⁴ ∈ L` and `⁅r,w⁆ ∈ Y`; what has changed is that `⁅L, Y⁆ ⊆ Z` is no longer
-trivial, so the two `L`-valued corrections `E₁` and `E₂` each pay one bracket against the marked
-block still to their right.  The pivot correction `E₃` is `M`-valued and still passes free.
+`MpcFive` §4 records that at class five "the assembly costs nothing", and gives the reason: every
+correction lies in `L`, `L` is abelian, and `L` commutes with `Y`.  **The reason is exactly
+class-five**, resting on `⁅L, Y⁆ = 1`, so one class up it is unavailable and the assembly has to
+be priced instead of dropped.
 
-So the class-six defect is the class-five shape with three additions: each correction acquires
-its own new central terms (§1 to §4), and the assembly acquires the two collection costs
+The three marked parts a correction has to pass are still `⁅p,q⁆ ∈ Y`, `r⁴ ∈ L` and `⁅r,w⁆ ∈ Y`.
+The pivot correction `E₃` is `M`-valued and still passes free (`mpcSx_e3_mem` with
+`mpcSx_vanish_four`).  The two `L`-valued corrections `E₁` and `E₂` are priced, at
 
-    ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆   and   ⁅E₂, r⁴·⁅r,w⁆⁆ ,
+    C₁ = ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆   and   C₂ = ⁅E₂, r⁴·⁅r,w⁆⁆ ,
 
-which are not terms of any letter. -/
+**which are terms of no letter**: a builder who computes the four factors of §1 to §4 and
+multiplies them has not computed the defect.
+
+**Scope.**  `C₁` and `C₂` are `⁅L, Y⁆`-terms and therefore land in `Z`.  Whether they are
+nontrivial, in `D_M 2 0` or in any other group, is **not** decided here and is not needed: the
+identity below is exact with them present, and it is the class-five *argument* for dropping them
+that is gone, not (on any evidence collected here) their value. -/
 
 section Assembly
 
@@ -863,10 +877,11 @@ with the four corrections `mpcSxE1` … `mpcSxE4` read off §1 to §4, and
 
     C₁ = ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆ ,   C₂ = ⁅E₂, r⁴·⁅r,w⁆⁆
 
-the two **collection costs**.  Setting `z ∈ M` and dropping every term that `⁅L, Y⁆ = 1` kills
-recovers `mpcFv_mWord_five` at `μ = 1` exactly, and kills `C₁` and `C₂` with it: those two are
-the class-six correction to `MpcFive` §4's "the assembly costs nothing", and they are terms of no
-letter.
+the two **collection terms**.  Setting `z ∈ M` and dropping every term that `⁅L, Y⁆ = 1` kills
+recovers `mpcFv_mWord_five` at `μ = 1` exactly, and kills `C₁` and `C₂` with it.  They are terms
+of **no letter**, so the four factors of §1 to §4 do not multiply to the defect.  Whether they
+vanish in a given group is not decided here; `MpcFive` §4's reason for their absence is a
+class-five fact and is what has gone, not necessarily their value.
 
 `C₁` and `C₂` are central and expand additively in either slot (`mpcSx_commP_add_left_three`,
 `mpcSx_commP_add_right_three`), so a builder who wants them term by term can have them; they are

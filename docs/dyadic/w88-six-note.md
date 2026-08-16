@@ -57,9 +57,11 @@ Four layers instead of class five's three, read in `Q₆`:
 ⭐⭐ The single fact every cancellation reduces to is `mpcSx_vanish_four`: **`⁅M, Y⁆ = 1` in
 `Q₆`**, the instance `k = 4` of `cfive_commutator_lambdaTwo`.  It replaces class five's
 `⁅L, Y⁆ = 1` one layer deeper, and the displacement is the whole difference between the two
-waves: at class six `L` is neither abelian nor `Y`-central, so an `L`-valued factor moves only at
-the cost of a `Z`-term.  A useful consequence recorded on the way: `M` is abelian in `Q₆`
-(`mpcSx_mcomm'`).
+waves: at class six the class-five proofs of `L`-abelianness and `⁅L, Y⁆ = 1` are unavailable, so
+an `L`-valued factor is moved by paying an explicit `Z`-term instead of for free.  **This is a
+statement about the available proof, not about `L`**: nothing in the lane asserts `⁅L, Y⁆ ≠ 1`,
+and the scope is the one `GradedClassFive`'s own header uses for the same kind of claim.  A useful
+consequence recorded on the way: `M` is abelian in `Q₆` (`mpcSx_mcomm'`).
 
 Both hazards the wave-87 note predicted are confirmed and located.  `q⁸` stops being central: it
 is an `M`-element (`mpcSx_pow_eight_mem`) and `q¹⁶` is what is central (`mpcSx_pow_sixteen_mem`).
@@ -90,12 +92,16 @@ dies at class five for one reason, `⁅L, Y⁆ = 1`.
     ⁅q²·r, w·ν⁆ = ⁅r,w⁆·(⁅r,ν⁆·⁅q²,w⁆)·(⁅q²,ν⁆·⁅⁅q²,w⁆,r⁆·⁅⁅r,w⁆,ν⁆)
                        ·(⁅⁅r,ν⁆,⁅r,w⁆⁆·⁅⁅q²,w⁆,⁅r,w⁆⁆·⁅⁅q²,ν⁆,r⁆·⁅⁅q²,w⁆,ν⁆) .
 
-**Three of these new terms are not bracket terms at all, they are reordering costs**: the last
-term of `mpcSx_comm_letAB` and the first two of `mpcSx_comm_letCD`, each incurred carrying the
-marked bracket to the front of its own factor past an `L`-term.  The `C̄₀`/`D̄` statement also
-lists its two `L`-terms in the order `⁅r,ν⁆·⁅q²,w⁆`, the opposite of `mpcFv_comm_letCD`'s; the
-exchange is free at class five and costs a `Z`-term here, so the order was chosen to spend two
-swaps rather than three.
+**Three of these new terms are not bracket terms at all, they are reordering terms**: the last
+term of `mpcSx_comm_letAB` and the first two of `mpcSx_comm_letCD`, each carried when the marked
+bracket is moved to the front of its own factor past an `L`-term.  Class five performs those
+moves for free; these identities price them.  **No claim is made that the price is nonzero** in
+`D_M 2 0` or anywhere else; what is committed is that the class-five reason for dropping the
+terms is a class-five fact.
+
+The `C̄₀`/`D̄` statement also lists its two `L`-terms in the order `⁅r,ν⁆·⁅q²,w⁆`, the opposite of
+`mpcFv_comm_letCD`'s; the exchange is free at class five and is priced here, so the order was
+chosen to spend two swaps rather than three.
 
 ## 5.  The assembly, and why it is no longer free (§5)
 
@@ -107,16 +113,24 @@ with `E₁` to `E₄` the four corrections above and
 
     C₁ = ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆ ,   C₂ = ⁅E₂, r⁴·⁅r,w⁆⁆ .
 
-**A correction to `MpcFive` §4.**  That section records "the assembly costs nothing", and the
-reason it gives is exact and exactly class-five: every correction lies in `L`, `L` is abelian,
-`L` commutes with `Y`.  One class up the reason fails and so does the conclusion.  The two
-`L`-valued corrections `E₁` and `E₂` each pay one central bracket against the marked block still
-to their right; the pivot correction `E₃` is `M`-valued and still passes free.  `C₁` and `C₂` are
-terms of **no letter**, which is why a builder computing the four factors and multiplying them
-would get the wrong answer.
+**A correction to `MpcFive` §4, carefully scoped.**  That section records "the assembly costs
+nothing", and the reason it gives is exact and exactly class-five: every correction lies in `L`,
+`L` is abelian, `L` commutes with `Y`.  All three rest on `⁅L, Y⁆ = 1`, which is a class-five
+fact, so **one class up the reason is unavailable** and the assembly has to be priced rather than
+dropped.  The pivot correction `E₃` is `M`-valued and still passes free; the two `L`-valued
+corrections `E₁` and `E₂` are priced at `C₁` and `C₂`.
+
+Two things are claimed and a third is not.  Claimed: `C₁` and `C₂` are terms of **no letter**, so
+a builder who computes the four factors of §4 and multiplies them has not computed the defect;
+and the identity is exact with them present.  **Not claimed: that `C₁` and `C₂` are nonzero.**
+They are `⁅L, Y⁆`-terms and land in `Z`; whether they vanish in `D_M 2 0` is not decided here and
+was not needed.  The distinction is the one wave 70's `GradedClassFive` header draws for its own
+"not surviving" group, and it is the distinction between "the class-five proof delivers nothing
+here" and "the class-five conclusion is false here".
 
 The wave-87 note's §8 item 4 anticipated the shape of this ("the general defect is only
-`L`-valued") but not the consequence; the consequence is that the assembly itself acquires terms.
+`L`-valued") but not the consequence; the consequence is that the assembly itself acquires terms
+that no letter contains.
 
 ## 6.  The witness's class-six defect (§6)
 
@@ -206,8 +220,10 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
    and needed for any emptiness claim.
 4. **Housekeeping**: `MpcSix.lean` needs registering in `GQ2.lean`, as do `MpcFive.lean` and
    `MpcLadder.lean` if those items are still open.
-5. **Do not read the assembly as free.**  §5 is the second time in three waves that a class-five
-   convenience has been carried one class up without checking (wave 87 corrected wave 86's
-   reordering claim in the other direction).  The general rule the two corrections share: at
-   class `c` the free layer is `λ_{c-2}`, and every statement that says "this commutes" should
-   name the layer it is commuting in.
+5. **Do not read the assembly as free.**  §5 is the second time in three waves that a
+   class-five convenience has been at issue at a neighbouring class (wave 87 corrected wave 86's
+   reordering claim in the other direction, finding that no commutator is incurred at class
+   five).  The general rule the two share: at class `c` the layer that commutes freely with `Y`
+   is `λ_{c-2}`, and every statement that says "this commutes" should name the layer it is
+   commuting in.  A continuation that wants `C₁ = C₂ = 1` has to prove it; it is not in the
+   tree.
