@@ -720,6 +720,113 @@ theorem gLad_qtwist_commslot (s y q : levelQuot G 4) :
   rw [gLad_commP_conj_self (y * q ^ 2) (s * q), houter, hk, hinner,
     gLad_commP_conj_self y s]
 
+/-- ⭐⭐⭐ **THE PIVOT TWIST IN CLOSED FORM**: twisting the three core letters by `q`, `q`,
+`q²` costs the `λ₂`-part `[s,q]·[q,x]` and five central classes, exactly, in `Q₄`, for
+arbitrary letters `s x y q`.  On the unit locus this is the whole class-4 content of the
+bare row frame beyond its `λ₂`-corrections. -/
+theorem gLad_qtwist (s x y q : levelQuot G 4) :
+    sqWord (s * q) (x * q) (y * q ^ 2)
+      = commP s q * commP q x * sqWord s x y
+        * (commP (commP x q) q * commP (commP q s) q * commP q x ^ 2
+          * commP (q ^ 2) y * commP y (commP y q)) := by
+  have hAm : commP x q ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo x q
+  have hBm : commP x s ∈ lambdaImage G 2 4 := cfour_commP_mem_lambdaTwo x s
+  have hz₁ : commP (commP x q) q ∈ zLayer G 3 := cfour_commP_mem_zLayer_left hAm q
+  have hz₂ : commP (commP q s) q ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo q s) q
+  have hz₁₂ : commP (commP x q) q * commP (commP q s) q ∈ zLayer G 3 :=
+    Subgroup.mul_mem _ hz₁ hz₂
+  have hz₃ : (commP x q)⁻¹ ^ 2 ∈ zLayer G 3 :=
+    cfour_sq_mem_zLayer ((lambdaImage G 2 4).inv_mem hAm)
+  have hz₄ : commP (q ^ 2) y ∈ zLayer G 3 := cfour_commP_mem_zLayer_left (gLad_sq_mem_two q) y
+  have hq4 : ((q ^ 4)⁻¹ : levelQuot G 4) ∈ zLayer G 3 :=
+    (zLayer G 3).inv_mem (cfour_pow_four_mem_zLayer q)
+  have hA4 : (commP x q) ^ 4 = 1 := gLad_pow_four (j := 2) hAm
+  have hL : sqWord (s * q) (x * q) (y * q ^ 2)
+      = (commP (x * q) (s * q))⁻¹ * ((x * q) ^ 4)⁻¹ * ((y * q ^ 2) ^ 2)
+        * commP (y * q ^ 2) (conjP (y * q ^ 2) (s * q)) := by
+    rw [sqWord]
+    rw [show (conjP (x * q) (s * q))⁻¹
+        = (commP (x * q) (s * q))⁻¹ * (x * q)⁻¹ from by rw [gLad_conjP_eq, mul_inv_rev]]
+    rw [mul_assoc ((commP (x * q) (s * q))⁻¹) ((x * q)⁻¹) (((x * q) ^ 3)⁻¹),
+      ← mul_inv_rev, ← pow_succ]
+  rw [hL, gLad_qtwist_four, gLad_qtwist_comm, gLad_qtwist_sqslot, gLad_qtwist_commslot,
+    show sqWord s x y = (commP x s)⁻¹ * ((x ^ 4)⁻¹ * (y ^ 2 * commP y (conjP y s))) from by
+      rw [sqWord]
+      rw [show (conjP x s)⁻¹ = (commP x s)⁻¹ * x⁻¹ from by rw [gLad_conjP_eq, mul_inv_rev]]
+      group,
+    show commP s q = (commP q s)⁻¹ from (gLad_commP_inv q s).symm,
+    show commP q x = (commP x q)⁻¹ from (gLad_commP_inv x q).symm]
+  -- both sides reduce to one canonical form by central slides and `[x,q]⁴ = 1`
+  calc (commP x q * commP x s * commP q s * (commP (commP x q) q * commP (commP q s) q))⁻¹
+        * (x ^ 4 * q ^ 4 * (commP x q)⁻¹ ^ 2)⁻¹ * (y ^ 2 * (q ^ 4 * commP (q ^ 2) y))
+        * (commP y (conjP y s) * commP y (commP y q))
+      = (commP (commP x q) q * commP (commP q s) q)⁻¹
+        * ((commP q s)⁻¹ * ((commP x s)⁻¹ * commP x q))
+        * (((q ^ 4)⁻¹ * ((x ^ 4)⁻¹ * y ^ 2)) * (q ^ 4
+          * (commP (q ^ 2) y * (commP y (conjP y s) * commP y (commP y q))))) := by
+        group
+    _ = (commP (commP x q) q * commP (commP q s) q)⁻¹
+        * ((commP q s)⁻¹ * ((commP x s)⁻¹ * commP x q))
+        * ((((x ^ 4)⁻¹ * y ^ 2) * (q ^ 4)⁻¹) * (q ^ 4
+          * (commP (q ^ 2) y * (commP y (conjP y s) * commP y (commP y q))))) := by
+        rw [(zLayer_commute hq4 ((x ^ 4)⁻¹ * y ^ 2)).eq]
+    _ = (commP (commP x q) q * commP (commP q s) q)⁻¹
+        * ((commP q s)⁻¹ * ((commP x s)⁻¹ * commP x q))
+        * (((x ^ 4)⁻¹ * y ^ 2)
+          * (commP (q ^ 2) y * (commP y (conjP y s) * commP y (commP y q)))) := by
+        rw [mul_assoc ((x ^ 4)⁻¹ * y ^ 2) ((q ^ 4)⁻¹), inv_mul_cancel_left]
+    _ = (commP (commP x q) q * commP (commP q s) q)⁻¹
+        * ((commP q s)⁻¹ * ((commP x s)⁻¹ * commP x q))
+        * (((x ^ 4)⁻¹ * y ^ 2)
+          * (commP y (conjP y s) * (commP (q ^ 2) y * commP y (commP y q)))) := by
+        rw [show commP (q ^ 2) y * (commP y (conjP y s) * commP y (commP y q))
+            = commP y (conjP y s) * (commP (q ^ 2) y * commP y (commP y q)) from by
+          rw [← mul_assoc, (zLayer_commute hz₄ (commP y (conjP y s))).eq, mul_assoc]]
+    _ = (commP (commP x q) q * commP (commP q s) q)
+        * ((commP q s)⁻¹ * ((commP x s)⁻¹ * ((commP x q)⁻¹ * (commP x q)⁻¹ ^ 2)))
+        * (((x ^ 4)⁻¹ * y ^ 2)
+          * (commP y (conjP y s) * (commP (q ^ 2) y * commP y (commP y q)))) := by
+        have hAA : (commP x q : levelQuot G 4) = (commP x q)⁻¹ * (commP x q)⁻¹ ^ 2 := by
+          calc (commP x q : levelQuot G 4)
+              = commP x q ^ 4 * ((commP x q)⁻¹ * (commP x q)⁻¹ ^ 2) := by group
+            _ = (commP x q)⁻¹ * (commP x q)⁻¹ ^ 2 := by rw [hA4, one_mul]
+        rw [show ((commP (commP x q) q * commP (commP q s) q) : levelQuot G 4)⁻¹
+            = commP (commP x q) q * commP (commP q s) q from by
+          rw [mul_inv_rev, zLayer_inv_self hz₂, zLayer_inv_self hz₁,
+            (zLayer_commute hz₂ (commP (commP x q) q)).eq],
+          show ((commP x s)⁻¹ * commP x q : levelQuot G 4)
+              = (commP x s)⁻¹ * ((commP x q)⁻¹ * (commP x q)⁻¹ ^ 2) from
+            congrArg (fun w => (commP x s)⁻¹ * w) hAA]
+    _ = (commP (commP x q) q * commP (commP q s) q)
+        * ((commP q s)⁻¹ * ((commP x q)⁻¹ * ((commP x s)⁻¹ * (commP x q)⁻¹ ^ 2)))
+        * (((x ^ 4)⁻¹ * y ^ 2)
+          * (commP y (conjP y s) * (commP (q ^ 2) y * commP y (commP y q)))) := by
+        rw [show (commP x s)⁻¹ * ((commP x q)⁻¹ * (commP x q)⁻¹ ^ 2)
+            = (commP x q)⁻¹ * ((commP x s)⁻¹ * (commP x q)⁻¹ ^ 2) from by
+          rw [← mul_assoc, ← mul_assoc,
+            (((commute_iff_eq _ _).mpr (gLad_two_comm hBm hAm)).inv_inv).eq]]
+    _ = (commP (commP x q) q * commP (commP q s) q)
+        * ((commP q s)⁻¹ * ((commP x q)⁻¹ * ((commP x s)⁻¹
+          * (((x ^ 4)⁻¹ * (y ^ 2 * commP y (conjP y s))) * (commP x q)⁻¹ ^ 2))))
+        * (commP (q ^ 2) y * commP y (commP y q)) := by
+        rw [← (zLayer_commute hz₃ ((x ^ 4)⁻¹ * (y ^ 2 * commP y (conjP y s)))).eq]
+        group
+    _ = ((commP q s)⁻¹ * ((commP x q)⁻¹ * ((commP x s)⁻¹
+          * (((x ^ 4)⁻¹ * (y ^ 2 * commP y (conjP y s))) * (commP x q)⁻¹ ^ 2))))
+        * ((commP (commP x q) q * commP (commP q s) q)
+          * (commP (q ^ 2) y * commP y (commP y q))) := by
+        rw [(zLayer_commute hz₁₂ ((commP q s)⁻¹ * ((commP x q)⁻¹ * ((commP x s)⁻¹
+          * (((x ^ 4)⁻¹ * (y ^ 2 * commP y (conjP y s)))
+            * (commP x q)⁻¹ ^ 2))))).eq]
+        group
+    _ = (commP q s)⁻¹ * (commP x q)⁻¹
+        * ((commP x s)⁻¹ * ((x ^ 4)⁻¹ * (y ^ 2 * commP y (conjP y s))))
+        * (commP (commP x q) q * commP (commP q s) q * (commP x q)⁻¹ ^ 2
+          * commP (q ^ 2) y * commP y (commP y q)) := by
+        rw [← (zLayer_commute hz₃ (commP (commP x q) q * commP (commP q s) q)).eq]
+        group
+
 end QTwist
 
 end SqCore
