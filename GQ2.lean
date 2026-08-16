@@ -916,6 +916,7 @@ import GQ2.Dyadic.Instances.MpcC6WeightedRelationSupport
 import GQ2.Dyadic.Instances.MpcMarkedRange
 import GQ2.Dyadic.Instances.MpcMarkedSuccessor
 import GQ2.Dyadic.Instances.MpcMarkedSecondary
+import GQ2.Dyadic.Instances.MpcMarkedObstructions
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
 import GQ2.Dyadic.Instances.OddSeam
