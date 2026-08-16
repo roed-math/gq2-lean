@@ -12,7 +12,7 @@ checked by `git diff f0de6ad5 HEAD` on both paths (empty).
 **⚠ BASE STALENESS AT CLOSE.** `dyadic` advanced to `0a479c6e` between this lane's last commit
 and its close, merging two siblings, W86-PHASE (`Instances/WordPhase.lean`) and W86-LADDER5
 (`Instances/MpcLadder.lean`). Both are files this lane was told not to touch, and it did not.
-Every finding below was re-checked against `0a479c6e`; §0 records what moved. Nothing in this
+Every finding below was re-checked against `0a479c6e` and, at the last, against `aa31e767`; §0 records what moved. Nothing in this
 note is stated as of the merged tree except where §0 says so.
 
 **The round's headline is that the blind spot fired a THIRD time, and the fix is now structural.**
@@ -21,7 +21,7 @@ board was undercounting four producer sets at once, the worst by a factor of 2.5
 next merge the fix earned itself: **neither wave-86 sibling registered its module** (§0.1).
 Second in severity: the tree states a refutation route for `MpcPivShift 2` that it does not have.
 This round found it in two places in `Instances/MpcBuild.lean`; by close it had propagated into a
-third module, as a headline (§0.2).
+third module as a headline (§0.2) and into a fourth site written during this lane's close (§0.4).
 
 ---
 
@@ -71,7 +71,37 @@ therefore correct only at a SINGLE quadruple from `0a479c6e` onward; the annotat
 to say so and to point at `mpcLad_nonempty_iff`, rather than left to go stale on the merge. This
 is the one place in this round where a wave-85 gap I recorded was closed by a wave-86 sibling.
 
-### 0.4 What did not move
+### 0.4 A FOURTH site of the inversion, added by `aa31e767` itself, and one merge conflict
+
+`dyadic` advanced a second time during this lane's close, to `aa31e767`, "annotate the wave-85
+sites superseded by W86-PHASE and W86-LADDER5". It annotates two of the same files this lane
+annotated, and its `mpcBld_shift_of_full_supply` block says
+`mpcLad_eq_empty_of_no_supply` "gives the refutation route this paragraph says does not exist".
+
+That block is right about the premise it corrects and repeats the inversion in the same
+sentence. It is right that the caution's premise is false as written: `mpcWordSet` is antitone, a
+class-`(j+2)` solution IS a class-`(j+1)` solution, and it is the identity move from itself, so
+"need not be a `λ_j`-move away from one" does not hold. It is wrong that what results is a
+refutation ROUTE: what `mpcLad_eq_empty_of_no_supply` concludes is `mpcWordSet (j+2) = ∅`, and
+the step from there to `¬ MpcPivShift 2` is the missing one (§0.2, §3.1). So the count is four
+sites across three modules, and the newest was written after the correction.
+
+**The merge conflict, characterised.** `git merge-tree HEAD aa31e767` conflicts in exactly one
+file, `GQ2/Dyadic/Instances/MpcBuild.lean`; `Instances/RecordBlocks.lean` auto-merges (their
+hunks are at §4 and §5, this lane's at `recBl_mCand_stokes`). The conflict is at
+`mpcBld_shift_of_full_supply`'s docstring, where both sides append a block after the same
+sentence.
+
+**Resolution: keep both blocks, `aa31e767`'s first and this lane's second**, because they correct
+different halves of the same paragraph and this lane's is the narrower claim: theirs corrects the
+premise (antitonicity, identity move), this lane's corrects the conclusion (an empty rung refutes
+the ansatz, not `MpcPivShift 2`). Taking either alone leaves the paragraph half wrong, and taking
+them in the other order leaves the file asserting the refutation route and then denying it. One
+sentence in `aa31e767`'s block should also lose the words "the refutation route this paragraph
+says does not exist" in favour of "the empty rung this paragraph names", which is what its own
+theorem gives.
+
+### 0.5 What did not move
 
 `§3.2` (`mpcBld_shift_of_bracket_supply`'s over-strong hypothesis) stands: `MpcLadder.lean` adds
 `mpcLad_shift_of_exists_supply`, a strictly weaker ask than either wave-85 form, but it does not
