@@ -899,6 +899,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactMBoundary
 import GQ2.Dyadic.Instances.WordPhaseCompactMFinalBase
 import GQ2.Dyadic.Instances.WordPhaseCompactMFinal
 import GQ2.Dyadic.Instances.MpcCandidateScalar
+import GQ2.Dyadic.Instances.MpcCandidateStokes
 import GQ2.Dyadic.Instances.MpcCandidateRN
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix

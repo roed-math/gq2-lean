@@ -1,4 +1,5 @@
 import GQ2.Dyadic.Instances.MpcCandidateScalar
+import GQ2.Dyadic.Instances.MpcCandidateStokes
 
 /-!
 # Corrected procyclic-M candidate scaffolding
@@ -21,6 +22,7 @@ open GQ2.Dyadic.Count.PilotN
 open GQ2.CardH2GammaA
 open GQ2.Dyadic.Instances.MProcyclicCore
 open GQ2.Dyadic.Instances.MpcCandidateScalar
+open GQ2.Dyadic.Instances.MpcCandidateStokes
 open GQ2.Dyadic.MarkedCore GQ2.Dyadic.TameSpec
 
 /-- A corrected procyclic-M word certificate with exact lifting and scalar count discharged. -/
@@ -85,6 +87,28 @@ noncomputable def mpcWordCertificateRN_of_stokes_determinant
   hwild := Count.hwild_of_tameSpecializes
     (mpcTameSpecializes alpha r (p epsilon r) q hα1 hq0 hqe)
 
+/-- A corrected procyclic-M word certificate whose only remaining input is its determinant. -/
+noncomputable def mpcWordCertificateRN_of_determinant
+    (alpha r q : ℕ) (epsilon : Bool) (hα : 2 ≤ alpha) (hα1 : 1 ≤ alpha) (hr : 1 ≤ r)
+    (hq0 : q ≠ 0) (hqe : Even q)
+    (determinant : AffineDeterminantCertificate
+      (GammaR 2 q (mpcW alpha r (p epsilon r) .one 0)) 2 q (DM alpha 0)
+      (mpcNu alpha r (p epsilon r) hα1) (standardNumerics 2)
+      (tameOfSpec 2 q (mpcW alpha r (p epsilon r) .one 0)
+        (mpcTameSpecializes alpha r (p epsilon r) q hα1 hq0 hqe))
+      (mpcPro2 alpha r (p epsilon r) q hα1 hq0 hqe)
+      (mpcCompat alpha r (p epsilon r) q hα1 hq0 hqe
+        (mpcTameSpecializes alpha r (p epsilon r) q hα1 hq0 hqe)
+        (mpcNu alpha r (p epsilon r) hα1)
+        (mpcNu_sigma alpha r (p epsilon r) hα1)
+        (mpcNu_wild alpha r (p epsilon r) hα1))
+      (scalarActionZmodTwo _)) :
+    WordCertificateRN 2 q (mpcW alpha r (p epsilon r) .one 0) (DM alpha 0)
+      (isProP_DM alpha 0) (mpcNu alpha r (p epsilon r) hα1)
+      (standardNumerics 2) :=
+  mpcWordCertificateRN_of_stokes_determinant alpha r q epsilon hα hα1 hr hq0 hqe
+    (mpcCand_stokes_one epsilon hα hr hqe) determinant
+
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   {R : LocalReciprocity}
 
@@ -123,8 +147,38 @@ theorem mpcRowResidualRN_of_tied
   exact ⟨⟨mpcWordCertificateRN_of_stokes_determinant alpha r (qOf K FF) epsilon
     hα hα1 hr (qOf_ne_zero K FF) (even_qOf K FF) stokes determinant⟩⟩
 
+/-- A tied procyclic-M branch gets the corrected residual from determinant data alone. -/
+theorem mpcRowResidualRN_of_tied_determinant
+    {alpha r : ℕ} {epsilon : Bool}
+    {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [FiniteDimensional ℚ_[2] K]
+    (B : MarkedRecip R K) {FF : DyadicUnitFiltration K} (G : GenAsmBranch K B)
+    (hα : 2 ≤ alpha) (hα1 : 1 ≤ alpha) (hr : 1 ≤ r)
+    (hp : G.pres = .Mpc alpha r epsilon .one 0)
+    (hnu : HEq G.nuP (mpcNu alpha r (p epsilon r) hα1))
+    (determinant : AffineDeterminantCertificate
+      (GammaR 2 (qOf K FF) (mpcW alpha r (p epsilon r) .one 0)) 2 (qOf K FF)
+      (DM alpha 0) (mpcNu alpha r (p epsilon r) hα1) (standardNumerics 2)
+      (tameOfSpec 2 (qOf K FF) (mpcW alpha r (p epsilon r) .one 0)
+        (mpcTameSpecializes alpha r (p epsilon r) (qOf K FF) hα1
+          (qOf_ne_zero K FF) (even_qOf K FF)))
+      (mpcPro2 alpha r (p epsilon r) (qOf K FF) hα1
+        (qOf_ne_zero K FF) (even_qOf K FF))
+      (mpcCompat alpha r (p epsilon r) (qOf K FF) hα1
+        (qOf_ne_zero K FF) (even_qOf K FF)
+        (mpcTameSpecializes alpha r (p epsilon r) (qOf K FF) hα1
+          (qOf_ne_zero K FF) (even_qOf K FF))
+        (mpcNu alpha r (p epsilon r) hα1)
+        (mpcNu_sigma alpha r (p epsilon r) hα1)
+        (mpcNu_wild alpha r (p epsilon r) hα1))
+      (scalarActionZmodTwo _)) :
+    Nonempty (GenAsmRowResidualRN (FF := FF) G) :=
+  mpcRowResidualRN_of_tied B G hα hα1 hr hp hnu
+    (mpcCand_stokes_one epsilon hα hr (even_qOf K FF)) determinant
+
 #print axioms mpcWordCertificateRN_of_stokes_determinant
+#print axioms mpcWordCertificateRN_of_determinant
 #print axioms mpcRowResidualRN_of_tied
+#print axioms mpcRowResidualRN_of_tied_determinant
 
 end
 
