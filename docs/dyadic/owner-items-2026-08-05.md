@@ -1,6 +1,25 @@
 # Owner decision items — wave 37 (2026-08-05)
 
-## Status at wave 86 (2026-08-15)
+## Status at wave 87 (2026-08-15)
+
+**Nine items await you, unchanged from wave 86's standing list** (items 1 to 9 of
+`docs/dyadic/w86-house-note.md`; whether ansatz-exhaustiveness becomes a stated tenth is
+itself your call, it currently exists only as prose at three sites).  A6 stands at fourteen
+review rounds.  The wave-83 line-length figure (707 lines over 100) was measured in bytes and
+needs re-measuring in codepoints before the record-or-adopt policy call; the three wave-86
+modules measure 0/0/7 in codepoints.
+
+**For orientation.**  Both per-class ladders climbed a rung this wave by small explicit
+witnesses and now stand at class five (odd row move, whole unit locus, after the wave-86
+guard clause fell to a Hall-Witt rotation) and class six (M6, hit inside the wave-84
+witness's own orbit).  The chain from all-rungs-at-five-and-up to the odd clearing is one
+std-3 theorem.  The strategic target both ladders now share is a uniform-in-class supply
+argument, which the rung-by-rung successes increasingly suggest exists.  On the records, the
+even-degree determinant gap re-measured to ONE trace seam (a compact twin of one L-row
+equivalence, raw material present), after the wave-86 ingredient table proved to have
+measured naming rather than content; all three h = 0 rows take literally the same branch-free
+supply binder.  Watch 24 caught a fifth ansatz-inversion site inside one of the
+orchestrator's own commits and fixed the scoreboard's owner-items contract board-side.
 
 **Nine items await you** (wave-84 item 8 was discharged by wave 85's landings, and the house
 opened two: the `mpcBld_shift_of_bracket_supply` hypothesis quantifies over every element of
