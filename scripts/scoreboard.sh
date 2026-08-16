@@ -157,6 +157,7 @@ CORRECTED RN RECORDS|M0 certificate (from supply)|decl|wPcMWordCertificateRN_of_
 CORRECTED RN ANALYTIC|M0 arbitrary-h ramified head phase|decl|wPcM_QZero_eq_ramifiedHandlePhase_of_headMark
 CORRECTED RN ANALYTIC|M0 arbitrary-h unramified comparison|decl|wPcMComparison_unramifiedHead_handles
 CORRECTED RN ANALYTIC|M0 arbitrary-h ramified comparison|decl|wPcMComparison_ramifiedHead_handles
+CORRECTED RN ANALYTIC|M0 arbitrary-h branch-free supply|decl|wPcM_branchFreeSupply_handles
 CORRECTED RN RECORDS|Mpc certificate (from determinant)|decl|mpcWordCertificateRN_of_determinant
 CORRECTED RN ANALYTIC|Npc branch-free supply (all a,r,h)|decl|wPnpc_branchFreeSupply
 CORRECTED RN ANALYTIC|Npc affine determinant (selected eta)|decl|npcAffineDeterminantCertificate
