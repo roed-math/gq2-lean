@@ -798,4 +798,154 @@ theorem wPh_wordPhaseSupplyN_of_branchFree {P : ProfiniteGrp}
 
 end BranchFree
 
+/-! ## §6 What is left: the phase comparison, named
+
+After §5 the whole even-degree determinant residual is `wPhBranchFreeSupply`.  This section
+strips it to its irreducible core.  `WordPhaseResidueK` asks, per boundary lift, for three
+things: a finite model type `W`, a form `Q` on it, and a `SourceWordPhaseComparison` matching
+`QZeroBar` with `Q`, together with the value of `gaussSum Q`.  §4 supplies the last three of
+those outright once `W` and `Q` are taken to be the even endpoint: `DescData` already carries
+`hquad` and `hns` for `qbar`, and the supply's own `hcard` is the remaining input.  So the only
+thing still owed is **the comparison itself**, and `wPhCompactPhaseModel` is exactly that.
+
+### Why this one is genuinely even-degree work
+
+On the odd row the comparison is `sourceWordPhaseComparison_of_lSqUnramifiedHead`, assembled
+from three ingredients, and each of the three is word-specific:
+
+* `lSqPhaseNormal h`, the normal cochain coordinates, built from `lSqRamifiedNormal`;
+* `heisD1_lSqPhaseNormal_eq_zero_unramified`, that those coordinates are `d¹`-closed;
+* `lSqFam_unramified_phaseNormalForm`, that every `d¹`-closed cochain is uniquely one of them
+  modulo `d⁰`.
+
+None of the three has a compact-word counterpart anywhere in the tree; `grep` for
+`phaseNormalForm` and `PhaseNormal` returns `lSq` hits only.  The generic assembler
+`sourceWordPhaseComparison_of_lSqHeadNormalForm` that consumes them is itself stated at
+`LSquare.gamma h q`, `lSqW h` and `lSqFam h q e`, so it cannot be instantiated at a compact word
+either, for the same reason W85-BLOCKS §5 gives for `DeterminantWordPhaseSupply`: the word is in
+the types.
+
+What §4 changes is the *shape* of the target, and it changes it in the direction that makes the
+missing normal form easier rather than harder.  The odd comparison must produce a model with a
+Wall head `qDouble q U`, carrying the operator `U = smulAddEquiv (s ^ ω₂(...))⁻¹` built from the
+`sigma`-image, and the unramified branch then has to prove `arf = 1` for that head.  The even
+model has no operator and no Arf condition: its head is `plusFormD qbar qbar` on two coordinates.
+So the even-degree normal form to be built is the statement that the compact word's `d¹`-closed
+cochains are, modulo `d⁰`, two free head coordinates and `h` handle pairs, with no branch split.
+
+That is one named object, and it is the whole distance between this lane's endpoint and a
+determinant certificate for the compact rows. -/
+
+section PhaseModel
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Certificates GQ2.QuadraticFp2 GQ2.Dyadic.LSquare
+
+set_option linter.unusedVariables false in
+/-- **The one thing still owed**: a source-to-word phase comparison against the even endpoint
+form of §4, at every boundary lift of a compact-word carrier.  No Gauss value appears: §4 already
+computed it, and `DescData.hquad`/`.hns` already supply that computation's hypotheses. -/
+def wPhCompactPhaseModel {Gam : ProfiniteGrp} {q : ℕ} (h : ℕ) {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom Gam (Tq q))
+    (pro2 : ContinuousMonoidHom Gam P)
+    (compat : ∀ g : (Gam : Type), nuTq q (tame g) = nuP (pro2 g)) : Prop :=
+  letI := scalarActionZmodTwo ((Gam : Type))
+  ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+    (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+    (F : BoundaryFrameK q P H E)
+    (l : (SectionNine.blockFrame T Blk hE2).DR)
+    (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR)
+    (rho : BoundaryLiftsK (sourceBoundaryMapK tame pro2 compat) F
+      (SectionNine.blockFrame T Blk hE2).TC),
+    letI : Fintype ((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl).Vmod :=
+      Fintype.ofFinite _
+    Nonempty (SourceWordPhaseComparison
+      ((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl)
+      (rhoPrimeK (SectionNine.blockFrame T Blk hE2)
+        (sourceBoundaryMapK tame pro2 compat) F
+        ((blockEnrichmentDK T Blk hE2 hq0 hqe F).radData l hl) rfl rho)
+      (scalarActionZmodTwo_triv _)
+      ((((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl).Vmod ×
+          ((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl).Vmod) ×
+        (Fin h → ((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl).Vmod ×
+          ((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl).Vmod))
+      (wPhCompactWallHandlePhase
+        ((blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl).qbar h))
+
+/-- **The branch-free supply from the phase comparison alone.**  Everything except the
+comparison is discharged here: the model type and form are §4's even endpoint, its Gauss value
+is `wPh_compactWallHandlePhase_gaussSum_standardRam`, and that value's two hypotheses are the
+`DescData` fields `hquad` and `hns`. -/
+theorem wPh_branchFree_of_phaseModel {Gam : ProfiniteGrp} {q : ℕ} (h : ℕ) {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom Gam (Tq q))
+    (pro2 : ContinuousMonoidHom Gam P)
+    (compat : ∀ g : (Gam : Type), nuTq q (tame g) = nuP (pro2 g))
+    (M : wPhCompactPhaseModel h nuP tame pro2 compat) :
+    wPhBranchFreeSupply (2 * h + 2) nuP tame pro2 compat := by
+  intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl
+    rho
+  set DD := (blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl with hDD
+  letI : Fintype DD.Vmod := Fintype.ofFinite _
+  refine ⟨(DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod), inferInstance,
+    wPhCompactWallHandlePhase DD.qbar h, M T Blk hE2 hq0 hqe F l hl rho, ?_⟩
+  exact wPh_compactWallHandlePhase_gaussSum_standardRam DD.hquad DD.hns
+    ((Nat.card_eq_fintype_card (α := DD.Vmod)).symm.trans hcard) h
+
+end PhaseModel
+
+/-! ## Axiom audit
+
+24 declarations, `#print axioms` on each, recorded in the file.
+
+* **22 std-3** (`propext`, `Classical.choice`, `Quot.sound`), and `wPh_even_two_mul_add_two`
+  pins `propext` alone: everything this lane proves, including all of §1, §2, §4, §5 and §6.
+  In particular **the whole even-degree phase layer is std-3**, and so is the reduction of both
+  compact supplies to one branch-free statement.
+* **2 with campaign axioms**: `wPh_rowResidual_sqrtNegTwo` and
+  `wPh_candidate_equiv_galK_sqrtNegTwo`, each carrying std-3 plus
+  `{tateDualityAt, absGalQ2_isTopologicallyFinitelyGenerated,
+  absGalQ2_localEulerCharacteristic, hilbertSymbol_normCriterion_finiteDyadic,
+  relativeStiefelWhitney_dyadic}`, through the general theorem and the row's arithmetic inputs.
+
+**Observation, recorded because it was not expected.**  That set is the `ℚ₂(√5)` row's set
+(`RecordBlocks.recBl_candidate_equiv_galK_sqrtFive`) **minus `peripheralCyclotomicAction`**.  The
+pilot row's record reaches the same conclusion on five campaign axioms where the `M0 2 0` row
+needs six.  Nothing in this lane was aimed at that; it falls out of the `N` branch producer, and
+it is stated here as a measurement, not as a claim about why. -/
+
+section AxiomPins
+
+#print axioms wPh_nCand_tcocycle
+#print axioms wPh_nCand_hsep
+#print axioms wPh_nCand_hrsep
+#print axioms wPh_nCand_hpartial
+#print axioms wPh_nCand_hZcard
+#print axioms wPh_nCand_stokes_of_uniformPushed
+#print axioms wPh_nCand_stokes
+#print axioms wPhWordPhaseSupplyN
+#print axioms wPh_nCand_determinant_of_wordPhaseSupply
+#print axioms wPh_hdeg_sqrtNegTwo
+#print axioms wPh_rowResidual_sqrtNegTwo
+#print axioms wPh_candidate_equiv_galK_sqrtNegTwo
+#print axioms wPh_neg_one_pow_even
+#print axioms wPh_gaussUnram_eq_gaussRam_of_even
+#print axioms wPh_even_two_mul_add_two
+#print axioms wPh_gauss_targets_eq
+#print axioms wPhCompactWallHandlePhase
+#print axioms wPh_compactWallHandlePhase_gaussSum_standardRam
+#print axioms wPh_compactWallHandlePhase_gaussSum_standardUnram
+#print axioms wPhBranchFreeSupply
+#print axioms wPh_recBlWordPhaseSupply_of_branchFree
+#print axioms wPh_wordPhaseSupplyN_of_branchFree
+#print axioms wPhCompactPhaseModel
+#print axioms wPh_branchFree_of_phaseModel
+
+end AxiomPins
+
 end GQ2.Dyadic.Instances.WordPhase
