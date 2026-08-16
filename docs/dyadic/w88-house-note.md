@@ -156,7 +156,7 @@ previous round's numbers:
 | `Instances/MpcWord.lean:499` (`mpcWord_mem_three`) | class five | class SIX |
 | `Instances/MpcWord.lean:556` (`mpcWord_shift_of_forall_class_four`) | `k >= 5` | `k >= 6` |
 | `SqCore/GradedRowMove.lean:67` (module docstring) | row 4 against M6 five | five against six |
-| `SqCore/GradedRowMove.lean:943` (`gRow_pair_of_forall_class_four`) | row 4, M6 five | five vs six |
+| `SqCore/GradedRowMove.lean:943` (`gRow_pair_of_forall_class_four`) | row 4, M6 5 | 5 vs 6 |
 
 None of the five theorems is affected; in every case the theorem is exactly true and only the
 superlative moved, which is what the wave-86 annotations themselves said about wave 85.
