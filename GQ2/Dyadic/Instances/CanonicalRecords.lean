@@ -102,14 +102,33 @@ Three readings worth keeping.
    at this tree is SUCCESS AT ONE ROW IS SUCCESS AT THREE, and W83-RECORDS' reading 2, which
    said four, is superseded here and in `docs/dyadic/w83-records-note.md`.  Bringing the fourth
    row in is the wave-85 ticket `MProcyclicExact.exactLiftingRN_unconditional`.]
+
+   [W86-HOUSE, as of `f0de6ad5`: **that ticket landed, so the count goes back to FOUR, with one
+   caveat that is not the old one.**  Wave 85's `Instances/RecordBlocks.lean` §1 supplies the
+   missing bundle as `recBl_mpc_exactLiftingRN`, binding a display package `d : MpcDisplayFor
+   eta`, `2 ≤ α`, `1 ≤ r`, `Even q` and the marking, and nothing else; the `Hsimp`-family
+   hypothesis is gone, discharged through `recBl_mpc_uniformPushedHsimp` off
+   `MpcRamifiedRow.ramifiedNormalPairingSeparates`.  Composing it with the carrier-free
+   `rowCl_exactLifting_iff_stageVanishing` gives the `Mpc` row the same equivalence the other
+   three have; checked here by elaborating that composition off-tree, `std-3` axioms only.
+
+   The caveat, and it is a real one: "unconditional" on the `Mpc` row means UNCONDITIONAL GIVEN
+   THE DISPLAY PACKAGE.  `MCompact`/`NCompact` quantify over `(α, h, q)` and nothing else; the
+   `Mpc` carrier is indexed by a display of the field unit `η`, and well-formedness plus
+   representation are fields of `MpcDisplayFor η`.  The field seam presents exactly that, and
+   `1 ≤ r` comes from `FieldBranchSelection.valid`, so at the frozen `√10` row nothing is
+   owed; the caveat bites only if someone reads the four rows as uniform in the literal sense.
+   `RecordBlocks.lean` §1 states this correctly at its own site.
+
+   Note also that this is `q ≠ 0`-free where the `M`/`N` twins bind it.]
 3. **`ℚ₂(√−10)` is not here, and the reason is a statement.**  Its clause-free branch datum
    `Instances.MpcPivot.mpcPiv_genAsmBranch_sqrtNegTen` is built at the *transported* marking
    `mpcPiv_nuZtwo`, not at `mpcNu`, and no comparison of the two exists at this tree, so it
    cannot be tied.  The tied statement at that row is `mpcPiv_genAsmBranch_sqrtNegTen_of_shift`,
    conditional on `MpcPivShift 2`.
 
-   ⚠⚠ **[W84-HOUSE, as of `45f9c42d`: the last sentence is FALSE at the statement level.**
-   `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` concludes
+   ⚠ SUPERSEDED **[W84-HOUSE, as of `45f9c42d`: the last sentence is FALSE at the statement
+   level.**  `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` concludes
    `∃ G : GenAsmBranch KSqrtNegTen B, G.pres = .Mpc 2 1 true .one 0` and nothing more: it routes
    through the strengthened site 5, which does name `mpcNu 2 1 (p true 1)`, but then **drops the
    conjunct** with `Exists.imp (fun _ hG => hG.1)`.  So it is untied too, and it cannot be fed to
@@ -118,6 +137,27 @@ Three readings worth keeping.
    rows this module serves, only the reason the fifth is absent: it is not that the marking is
    wrong, it is that no `√−10` statement carries any marking at all.  The repair is one line at
    `Instances/MpcPivot.lean` and is an owner item, recorded there.]**
+
+   **[W86-HOUSE, as of `f0de6ad5`: the block above is SUPERSEDED, and reading 3 as originally
+   written is right again.**  Wave 85 took that one-line owner item (`8c0aab35`, under an
+   orchestrator edit grant): `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` now concludes
+   `∃ G, G.pres = .Mpc 2 1 true .one 0 ∧ HEq G.nuP (mpcNu 2 1 (p true 1) _)`, and the
+   `Exists.imp` is gone.  So `ℚ₂(√−10)` DOES have a tied statement here, over `MpcPivShift 2`.
+
+   Checked by elaboration rather than read off the wave-85 note: an off-tree probe feeds that
+   theorem to `canRec_rowResidual_of_tied` and gets the fifth row,
+   `∃ G, G.pres = .Mpc 2 1 true .one 0 ∧ Nonempty (GenAsmRowResidual G F.T)`, over the same five
+   explicit binders the four rows in §5 carry (`B`, `F`, `cand`, `askExactLifting`, `askStokes`)
+   plus `MpcPivShift 2`.  Its axiom set is `std-3 + hilbertSymbol_normCriterion_finiteDyadic,
+   peripheralCyclotomicAction, relativeStiefelWhitney_dyadic, tateDualityAt,
+   absGalQ2_isTopologicallyFinitelyGenerated, absGalQ2_localEulerCharacteristic`: the `√2`,
+   `√5` and `√10` rows' set exactly, and the `√−2` row's set plus `peripheralCyclotomicAction`.
+
+   So what keeps the fifth row out of §5 is no longer the tie and no longer the transport: it is
+   `MpcPivShift 2`, together with a `cand` and the two `ASK` blocks at that carrier.  The
+   unconditional sibling `mpcPiv_genAsmBranch_sqrtNegTen` stays untied, deliberately: it is
+   built at the transported marking `mpcPiv_nuZtwo` and no comparison of that with `mpcNu`
+   exists at this tree.]
 
 ## Axioms
 

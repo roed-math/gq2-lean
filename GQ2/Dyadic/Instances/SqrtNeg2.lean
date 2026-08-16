@@ -894,7 +894,29 @@ theorem pilotCompat (hq0 : q ≠ 0) (hqe : Even q) (g : ((pilotGamma q : Type)))
 clauses on the candidate side; the two Gauss-`Z` clauses have **no candidate-side supplier in
 the repository** (CB-DET's `GaussZ/FinalDK.lean` is the `K`-side bridge; WN0-c's word-side
 Hessian layer exists but the Hessian ⇒ `GaussZResidueK` bridge does not).  **Owner:** CB1
-memo's "gauss 1900" candidate-side ticket, unopened. -/
+memo's "gauss 1900" candidate-side ticket, unopened.
+
+**[W86-HOUSE, as of `f0de6ad5`: PARTLY SUPERSEDED: the parenthesis is wrong and the
+repository-wide claim over-scopes; the `N0`-row claim it is attached to still holds.**
+
+* "the Hessian ⇒ `GaussZResidueK` bridge does not [exist]" is stale.
+  `Instances/GammaLDeterminantBridge.lean`'s `gaussZResidueK_of_wordPhase` converts a proved
+  word Gauss sum into the source residue, and it is what both candidate-side determinant
+  producers run on.
+* "no candidate-side supplier in the repository" is stale as written. There are now two
+  candidate-side `AffineDeterminantCertificate` producers at a `Γ_R` carrier:
+  `LSquare.affineDeterminantCertificate_of_wordPhaseSupply` (the `L` row) and wave 85's
+  `Instances/RecordBlocks.lean` `recBl_mCand_determinant_of_wordPhaseSupply` (the compact-`M`
+  rows, at `2 ≤ α`). Both TRADE the two Gauss-`Z` clauses for a word-phase supply rather than
+  discharging them, so neither is a discharge; but neither is nothing, and the sentence as
+  written denies their existence.
+* What is still exactly true is the claim at THIS row: no `N`-side twin exists. There is no
+  `recBl_nCand_determinant_*` and no other producer at `nCompactW`, so `PilotDet` and the
+  `genCertN` spelling's `determinant` clause are both unsupplied here. The `N` transcription of
+  the `M` twin is W85-M6BUILD's first named W86 item.
+
+Read the ⚠ paragraph as scoped to `nCompactW`, `mpcW` and `npcW`, which is where it is right.]
+-/
 def PilotDet (q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) : Prop :=
   AffineDeterminantCertificate (pilotGamma q) 2 q pilotP pilotNuP (standardNumerics 2)
     (tameOfSpec 2 q pilotW (pilotTameSpec hq0 hqe)) (pilotPro2 hq0 hqe)

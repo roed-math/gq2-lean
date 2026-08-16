@@ -23,7 +23,7 @@
 #
 #   Needs the same shared olean cache `scripts/mirror.sh` needs; run
 #   `scripts/mirror.sh sweep` first if the cache has advanced.  It invokes
-#   `mirror.sh check` on generated probe files and runs NO `lake` command.
+#   `mirror.sh check` on ONE generated probe file and runs NO `lake` command.
 #
 # ----------------------------------------------------------------------------
 # HOW TO ADD A ROW
@@ -60,7 +60,9 @@
 #          `Prop`/type in the tree -- each with its explicit binders.  This is
 #          the row type that catches "no theorem in this tree produces X":
 #          the machine enumerates the producers, so the claim cannot be made
-#          against a stale memory of the tree.
+#          against a stale memory of the tree.  The scan runs against the
+#          UMBRELLA environment (see "THE PROBE" below), so it does NOT depend
+#          on which modules the rows happen to name.
 #
 # WHAT THIS SCRIPT WILL NOT DO
 #
@@ -174,7 +176,7 @@ resolve() {  # $1 = short name; echoes "module<TAB>fullname" or nothing
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
-# Resolve every row once; build the import set and the probe's request list.
+# Resolve every row once into the probe's request list.
 declare -a REQ=()
 while IFS='|' read -r grp lab kind short; do
   [ -z "${grp:-}" ] && continue
@@ -186,18 +188,33 @@ while IFS='|' read -r grp lab kind short; do
   fi
 done <<< "$ROWS"
 
-{
-  for rec in "${REQ[@]}"; do
-    m=$(echo "$rec" | cut -d'|' -f5)
-    [ "$m" != "-" ] && echo "$m"
-  done
-} | sort -u > "$TMP/imports"
+# EVERY module under GQ2/, from the filesystem, for the registration scan.  Not
+# the rows' modules: the point of the scan is to catch a module NO row reaches,
+# so deriving its input from the rows would defeat it.
+find "$WT/GQ2" -name '*.lean' |
+  sed -e "s|^$WT/||" -e 's|\.lean$||' | tr '/' '.' | sort > "$TMP/allmods"
 
 # ----------------------------------------------------------------------------
-# Probe A: types, explicit binders, axiom censuses, producer scans.
+# THE PROBE.  Types, explicit binders, axiom censuses, producer scans and the
+# registration check, all in ONE file, all against the UMBRELLA environment.
+#
+# `import GQ2` and nothing else.  This is structural, not cosmetic.  A `prod`
+# scan reads the ENVIRONMENT; while the probe imported the rows' own modules,
+# every producer count was a function of which modules the rows happened to
+# reach, so a module reached by no row was invisible and the count printed
+# silently low.  That fired on wave 84 (MpcPivShift) and again on wave 85
+# (three counts at once).  Importing the umbrella makes the environment
+# exactly what an `import GQ2` consumer sees, so the only producer this board
+# can now miss is one in a module the umbrella does not import -- which is
+# precisely what the REGISTRATION section flags, in the same environment.
+#
+# Consequence to read correctly: a row whose declaration lives OUTSIDE the
+# umbrella now reports MISSING rather than EXISTS.  That is the intended
+# reading (no `import GQ2` consumer can use it either), and the row prints the
+# registration verdict for its module alongside so the two are never confused.
 # ----------------------------------------------------------------------------
 {
-  while read -r m; do echo "import $m"; done < "$TMP/imports"
+  echo 'import GQ2'
   cat <<'LEAN'
 open Lean Elab Command Meta
 
@@ -280,29 +297,29 @@ PROD
       echo "  sbRender \"$i\" \`$full"
     fi
   done
-} > "$TMP/probeA.lean"
+  # Registration, in the same environment: a module NOT in `import GQ2`'s
+  # transitive closure is a module no consumer can see.  Every module under
+  # GQ2/ is checked, as one string membership pass -- emitting a Lean
+  # statement per module instead blows the elaborator's heartbeat limit at
+  # this repository's size, which is how this was first written and why it
+  # is not written that way.
+  echo '  let sbPresent := env.header.moduleNames.map (·.toString)'
+  printf '  let sbAll := "'
+  tr '\n' ' ' < "$TMP/allmods"
+  printf '"\n'
+  cat <<'REG'
+  let sbMods := (sbAll.splitOn " ").filter (· ≠ "")
+  for m in sbMods do
+    if !sbPresent.contains m then IO.println s!"OUTSIDE|{m}"
+  IO.println s!"SCANNED|{sbMods.length}"
+REG
+} > "$TMP/probe.lean"
 
-# ----------------------------------------------------------------------------
-# Probe B: registration.  Imports ONLY the umbrella, so a name it cannot see
-# is a name no `import GQ2` consumer can see -- i.e. an unregistered module.
-# ----------------------------------------------------------------------------
-{
-  echo 'import GQ2'
-  echo 'open Lean Elab Command'
-  echo 'run_cmd do'
-  echo '  let env ← getEnv'
-  while read -r m; do
-    echo "  IO.println s!\"REGMOD|$m|{env.header.moduleNames.contains \`$m}\""
-  done < "$TMP/imports"
-} > "$TMP/probeB.lean"
-
-bash "$MIRROR" check "$TMP/probeA.lean" > "$TMP/outA" 2> "$TMP/errA"
-RCA=$?
-bash "$MIRROR" check "$TMP/probeB.lean" > "$TMP/outB" 2> "$TMP/errB"
-RCB=$?
+bash "$MIRROR" check "$TMP/probe.lean" > "$TMP/out" 2> "$TMP/err"
+RC=$?
 
 if [ "$RAW" = "1" ]; then
-  cat "$TMP/outA" "$TMP/outB"
+  cat "$TMP/out"
   exit 0
 fi
 
@@ -318,10 +335,10 @@ echo " tree $HEAD   branch $BR   generated $(date '+%Y-%m-%d %H:%M')"
 echo " every EXISTS / binder / axiom line below was elaborated by this run"
 echo "======================================================================="
 
-if [ "$RCA" != "0" ]; then
+if [ "$RC" != "0" ]; then
   echo
-  echo "!! probe A did not elaborate; every row below is UNVERIFIED"
-  sed -n '1,20p' "$TMP/errA"
+  echo "!! the probe did not elaborate; every row below is UNVERIFIED"
+  sed -n '1,20p' "$TMP/err"
 fi
 
 lastgrp=""
@@ -332,13 +349,14 @@ for rec in "${REQ[@]}"; do
   lab=$(echo "$rec" | cut -d'|' -f2)
   kind=$(echo "$rec" | cut -d'|' -f3)
   short=$(echo "$rec" | cut -d'|' -f4)
+  mod=$(echo "$rec" | cut -d'|' -f5)
   full=$(echo "$rec" | cut -d'|' -f6)
   if [ "$grp" != "$lastgrp" ]; then
     echo
     echo "## $grp"
     lastgrp=$grp
   fi
-  line=$(grep -m1 "^SB|$i|" "$TMP/outA" 2>/dev/null)
+  line=$(grep -m1 "^SB|$i|" "$TMP/out" 2>/dev/null)
   if [ -z "$line" ]; then
     printf '  %-30s UNVERIFIED (probe produced no record)\n' "$lab"
     continue
@@ -348,12 +366,20 @@ for rec in "${REQ[@]}"; do
   heads=$(echo "$line" | cut -d'|' -f5)
   ax=$(echo "$line" | cut -d'|' -f6)
   if [ "$st" != "EXISTS" ]; then
-    printf '  %-30s %s   [%s]\n' "$lab" "$st" "$short"
+    # The probe sees only the umbrella, so a MISSING row is either a name that
+    # is not in the tree or a name in a module the umbrella does not reach.
+    # Print which, rather than leaving the reader to guess.
+    if grep -qx "OUTSIDE|$mod" "$TMP/out" 2>/dev/null; then
+      printf '  %-30s %s   [%s; its module %s is OUTSIDE the umbrella]\n' \
+        "$lab" "$st" "$short" "$mod"
+    else
+      printf '  %-30s %s   [%s]\n' "$lab" "$st" "$short"
+    fi
     continue
   fi
   if [ "$kind" = "prod" ]; then
     printf '  %-30s producers: %s   [%s]\n' "$lab" "$cnt" "$short"
-    grep "^SB|$i\." "$TMP/outA" 2>/dev/null |
+    grep "^SB|$i\." "$TMP/out" 2>/dev/null |
       while IFS='|' read -r _ tag _ c h a _; do
         printf '      %s\n' "${tag#*.}"
         if [ "$c" = "0" ]; then
@@ -375,19 +401,31 @@ for rec in "${REQ[@]}"; do
 done
 
 echo
-echo "## REGISTRATION (visible to an \`import GQ2\` consumer)"
-if [ "$RCB" != "0" ]; then
-  echo "  UNVERIFIED (probe B did not elaborate)"
-  sed -n '1,10p' "$TMP/errB"
+echo "## REGISTRATION (EVERY module under GQ2/, against \`import GQ2\`)"
+if [ "$RC" != "0" ]; then
+  echo "  UNVERIFIED (the probe did not elaborate)"
+  sed -n '1,10p' "$TMP/err"
 else
-  while IFS='|' read -r _ m v; do
+  SCANNED=$(grep -m1 '^SCANNED|' "$TMP/out" | cut -d'|' -f2)
+  printf '  modules on disk under GQ2/   %s\n' "${SCANNED:-UNVERIFIED}"
+  n=0
+  while IFS='|' read -r _ m; do
     [ -z "${m:-}" ] && continue
-    if [ "$v" = "true" ]; then
-      printf '  %-58s registered\n' "$m"
+    n=$((n + 1))
+    # A module that itself does `import GQ2` CANNOT be registered: that is a
+    # cycle, not an oversight.  Derived by reading the file, not asserted here.
+    f=$WT/$(echo "$m" | tr '.' '/').lean
+    if [ -f "$f" ] && grep -qx 'import GQ2' "$f"; then
+      printf '  OUTSIDE the umbrella         %s   (it imports GQ2 itself:\n' "$m"
+      printf '%s\n' "                               registering it would cycle)"
     else
-      printf '  %-58s NOT REGISTERED\n' "$m"
+      printf '  OUTSIDE the umbrella         %s\n' "$m"
     fi
-  done < <(grep '^REGMOD|' "$TMP/outB")
+  done < <(grep '^OUTSIDE|' "$TMP/out")
+  [ "$n" = "0" ] && echo "  OUTSIDE the umbrella         none"
+  echo "  (outside = not in \`import GQ2\`'s transitive closure, so invisible"
+  echo "   to every consumer AND to the producer scans above.  This is now the"
+  echo "   board's only blind spot, and this line is the check for it.)"
 fi
 
 echo
@@ -425,24 +463,27 @@ echo "  * STRENGTH.  The carries column counts binders, and fewer binders is"
 echo "    not a weaker hypothesis: sqNuOrientedClearAtUnitPivot_of_pivotMoves"
 echo "    carries 2 against _of_families' 3, and is the STRONGER ask (the whole"
 echo "    unit-determinant pivot family, against two one-parameter ones)."
-echo "  * producers in modules no row imports.  A \`prod\` scan reads the"
-echo "    ENVIRONMENT, so it sees exactly the modules the rows above pull in."
-echo "    A new module with a new producer is invisible until some row names a"
-echo "    declaration in it.  This is the one way the board can be stale."
-echo "    THIS HAS NOW FIRED TWICE, both times on the wave that landed the"
-echo "    module.  (1) W84-HOUSE found this board printing \`producers: 0\` for"
-echo "    MpcPivShift while MpcOrb.mpcOrb_shift_of_marking (wave 83) produced"
-echo "    it.  (2) W85-HOUSE found it printing 1 for MpcPivShift against a true"
-echo "    4, 3 for SqNuOrientedClearAtUnitPivot against a true 6, and 14 for"
+echo "  * producers in modules OUTSIDE THE UMBRELLA, and only those.  The probe"
+echo "    imports \`GQ2\` and nothing else, so a \`prod\` scan sees every module"
+echo "    in that import's transitive closure, whether or not any row names a"
+echo "    declaration in it.  A module OUTSIDE the closure is still invisible"
+echo "    to the scan -- but it is invisible to every consumer too, and the"
+echo "    REGISTRATION section above enumerates the whole of GQ2/ from disk,"
+echo "    so it names any such module rather than leaving it unremarked."
+echo "    HISTORY, because this was the board's one standing defect and the"
+echo "    fix is structural (W86-HOUSE), not another row: while the probe"
+echo "    imported the ROWS' modules, the counts were a function of which"
+echo "    modules the rows happened to reach.  (1) W84-HOUSE found the board"
+echo "    printing \`producers: 0\` for MpcPivShift while wave 83's"
+echo "    MpcOrb.mpcOrb_shift_of_marking produced it.  (2) W85-HOUSE found it"
+echo "    printing 1 for MpcPivShift against a true 4, 3 for"
+echo "    SqNuOrientedClearAtUnitPivot against a true 6, and 14 for"
 echo "    SqMarkedForwardSupply against a true 16, because wave 84's own three"
-echo "    modules (SqCore/GradedClearing, Instances/MpcWord,"
-echo "    Instances/RowClauses) were reached by no row.  Both times the fix is"
-echo "    the documented one, a row naming a declaration in the new module."
-echo "    THE LESSON, for the lane that lands the next module: a new module is"
-echo "    invisible here until a row names something in it, so add the row in"
-echo "    the SAME wave.  The REGISTRATION section has the same import-set"
-echo "    horizon, so a module no row reaches is neither confirmed nor denied"
-echo "    there, only absent; never read absence there as unregistered."
+echo "    modules were reached by no row.  Both were patched by adding rows;"
+echo "    the patch does not generalise and wave 85 landed three more modules,"
+echo "    so the import set is now the umbrella.  A row is still the way to"
+echo "    put a NAMED declaration on the board; it is no longer what makes a"
+echo "    module's producers countable."
 echo "  * producers stated in a shape other than the head.  \`prod\` matches the"
 echo "    conclusion's HEAD constant, so a theorem concluding \`A <-> P ...\`,"
 echo "    \`Nonempty (P ...)\` or a structure field of type \`P ...\` is NOT"

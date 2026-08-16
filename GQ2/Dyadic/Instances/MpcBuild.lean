@@ -36,6 +36,15 @@ and `C̄₀` factors.  This module lands both.
    (`mpcBld_shift_of_forall_class`, `mpcBld_shift_of_forall_class_five`).  The widened rungs
    below five are free for the same reason the narrow ones are (`mpcBld_wide_nonempty_four`).
 
+   [W86-HOUSE, as of `f0de6ad5`: two name slips in this bullet, both checked by elaboration.
+   `mpcBld_shift_of_forall_class_five` is the NARROW criterion (its hypothesis is over
+   `mpcWordSet`); the widened one is `mpcBld_wide_shift_of_forall_class_five`, over `mpcBldSet`.
+   And `mpcBld_wide_nonempty_four` does not exist; the declaration is
+   `mpcBld_wide_nonempty_of_le_four`.  The mathematics of the bullet is right: `mpcWordSet k ⊆
+   mpcBldSet k` (`mpcBld_wordSet_subset`), so the widened hypothesis is the weaker one and the
+   widened criterion is the stronger theorem.  §4's "strictly more room at every rung" is the
+   one word to discount: only the non-strict `mpcWordCorr ≤ mpcBldCorrW` is proved.]
+
 ## What does not land
 
 **The decision.**  `MpcPivShift 2` is still neither proved nor refuted.  What moved is the
@@ -832,7 +841,22 @@ def mpcBldIncr (t n us ut um un : (DM 2 0 : Type)) : (DM 2 0 : Type) :=
     commP (dmA 2 0) ut * commP (dmC 2 0) un
 
 /-- ⭐⭐⭐ **ONE RUNG, WITH EVERY SLOT.**  A class-`(j+1)` solution whose defect is killed by a
-reachable increment gives a class-`(j+2)` solution, explicitly. -/
+reachable increment gives a class-`(j+2)` solution, explicitly.
+
+[W86-HOUSE, as of `f0de6ad5`, amended at `0a479c6e`: the engine is SUFFICIENT, and this is the
+site a builder reaches first, so the caveat belongs here too.  As of this module's own wave it
+is stated once, at `mpcBld_shift_of_full_supply`: a class-`(j+2)` solution need not be a
+`λ_j`-move away from a class-`(j+1)` one, so failing the supply at ONE quadruple does not show
+the rung unreachable.  `mpcBldIncr`'s "the whole effect of a `λ_j`-move" is completeness over
+MOVES, a different statement, and is what is proved here.
+
+The completeness half landed one wave later, in `Instances/MpcLadder.lean`:
+`mpcLad_nonempty_iff` makes the rung an IFF (a class-`(j+2)` solution exists exactly when SOME
+class-`(j+1)` solution has one-step supply, the forward direction being the identity move), so
+a failure proved over the WHOLE class-`(j+1)` solution set does empty the rung
+(`mpcLad_eq_empty_of_no_supply`).  Read the caveat as scoped to a single quadruple from that
+tree onward.  What is still NOT available at either wave is a refutation of `MpcPivShift 2`
+from an empty rung; see `mpcBld_shift_of_bracket_supply`'s block.] -/
 theorem mpcBld_step {j : ℕ}
     {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type)}
     (hp : p ∈ mpcWordSet (j + 1)) (us ut um un : (DM 2 0 : Type))
@@ -873,7 +897,38 @@ class-`(j+1)` solution can be cleared by one `Ā`-bracket and one `C̄₀`-brack
 This is the ladder with the guesswork removed: the increments are exact, the target layer is an
 `𝔽₂`-vector space, and the hypothesis is a linear-algebra question in a finite 2-group at each
 class.  Read contrapositively with wave 84's `mpcWord_shift_of_forall_class`, a *proven empty*
-solution set at one class would refute `M6`; a stall of a greedy walk still proves nothing. -/
+solution set at one class would refute `M6`; a stall of a greedy walk still proves nothing.
+
+⚠⚠ **[W86-HOUSE, as of `f0de6ad5`: two corrections to this docstring, both against the
+statement below it.**
+
+(1) **The refutation sentence runs the wrong way, and "contrapositively" is where it goes
+wrong.**  `mpcWord_shift_of_forall_class` is `(∀ k, (mpcWordSet k).Nonempty) → MpcPivShift 2`.
+Its contrapositive is `¬ MpcPivShift 2 → ∃ k, mpcWordSet k = ∅`, which is the direction wave 84
+states and this sentence needs the CONVERSE of.  Getting from an empty rung to a refutation
+needs `MpcPivShift 2 → ∀ k, (mpcWordSet k).Nonempty`, i.e. that the ansatz is EXHAUSTIVE among
+the markings, and the tree does not have that: `MpcOrbit.mpcOrb_shift_iff_marking` characterises
+`MpcPivShift 2` by an arbitrary four-letter marking `(a, b, c, d)` with the four χ-values,
+whereas `mpcWordSet` fixes the shape `(Ā·B̄⁻⁴·s, B̄·t, B̄²·C̄₀·m, D̄·n)` with corrections in
+`mpcWordFrat ⊓ ker χ_M`.  Nothing forces a marking into that shape.  The sentence IS sound on
+the other reading of "M6", the ansatz itself: a solution of the identity lies in every
+`mpcWordSet k`, so an empty rung refutes the ANSATZ.  Read it that way and no further; the same
+substitution is needed at `mpcBld_shift_of_full_supply`'s closing sentence, which says "the
+refutation route remains wave 84's, a proven empty `mpcWordSet k`", and, as of `0a479c6e`, at
+`Instances/MpcLadder.lean`'s `mpcLad_eq_empty_of_no_supply`, whose headline is "THE REFUTATION
+ROUTE, NOW REACHABLE BY THE ENGINE".  That theorem is exactly right (it concludes
+`mpcWordSet (j+2) = ∅`) and its headline inherits this reading; the ladder still has no
+`MpcPivShift 2 → _` in either direction, its only shift-producer being
+`mpcLad_shift_of_exists_supply`.
+
+(2) **The hypothesis below is stronger than this docstring advertises**, in the direction that
+misleads a builder.  "the defect of a class-`(j+1)` solution can be cleared" describes
+`mpcBld_shift_of_full_supply`'s `H`, which quantifies over `p ∈ mpcWordSet (j+1)`.  This `H`
+quantifies over EVERY `g ∈ λ_{j+1}`, so it asks for the two-bracket map to hit the whole layer,
+not just the defects that arise.  The proof consumes it only at the defect (`H j _ _ hp5`), so
+the gap is in the statement, not the argument.  A builder who can clear defects but not the
+whole layer should use `mpcBld_shift_of_full_supply`, which is the honest per-solution form and
+says so at its own site.]** -/
 theorem mpcBld_shift_of_bracket_supply
     (H : ∀ j, 3 ≤ j → ∀ g ∈ twoCentralSeries (DM 2 0 : Type) (j + 1),
       ∃ u v, u ∈ mpcWordCorr ∧ u ∈ twoCentralSeries (DM 2 0 : Type) j ∧
@@ -911,7 +966,14 @@ is antitone, so a class-`(j+2)` solution IS a class-`(j+1)` solution and is the 
 hypothesis, and `mpcLad_eq_empty_of_no_supply` gives the refutation route this paragraph says
 does not exist: a supply failure proved over the WHOLE class-`(j+1)` solution set empties
 `mpcWordSet (j+2)`.  The true content the caution protected survives in the correct form:
-failure at ONE chosen `p` is no evidence.  See `MpcLadder.lean`.] -/
+failure at ONE chosen `p` is no evidence.  See `MpcLadder.lean`.]
+
+[W86-HOUSE, as of `f0de6ad5`: the caution is right and the clause after the semicolon is not.
+An empty `mpcWordSet k` refutes the ANSATZ, not `MpcPivShift 2`: that step needs the ansatz to
+be exhaustive among the markings `mpcOrb_shift_iff_marking` quantifies over, and no such result
+exists.  Full argument at `mpcBld_shift_of_bracket_supply`'s W86-HOUSE block.  So the tree
+currently has NO route to refuting `MpcPivShift 2` through this ladder, only a route to
+refuting this ansatz, and the two are not known to be the same question.] -/
 theorem mpcBld_shift_of_full_supply
     (H : ∀ j, 3 ≤ j → ∀ p ∈ mpcWordSet (j + 1), ∃ us ut um un,
       us ∈ mpcWordCorr ∧ us ∈ twoCentralSeries (DM 2 0 : Type) j ∧

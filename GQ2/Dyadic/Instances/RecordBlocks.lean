@@ -573,7 +573,13 @@ theorem recBl_mCand_stokes_of_uniformPushed (hsimp : UniformPushedHsimp α h q) 
 
 /-- **The `M0` row's `stokes` clause is a theorem, unconditionally at `2 ≤ α`**, at the degree
 spelling the row records use.  This is the clause W84-CLAUSES left open, and it closes with no
-new hypothesis: `MCompact.uniformPushedHsimp` is already unconditional at `2 ≤ α`. -/
+new hypothesis: `MCompact.uniformPushedHsimp` is already unconditional at `2 ≤ α`.
+
+[W86-HOUSE, as of `f0de6ad5`: read "unconditionally at `2 ≤ α`" as this module's shorthand for
+"no hypothesis beyond the row's standing three".  The statement below binds `2 ≤ α`, `q ≠ 0`
+AND `Even q`, and so does `MCompact.uniformPushedHsimp` (`Even q`).  Nothing is owed at either
+frozen `M0` row, where all three are available, and §5's docstring spells the three out
+correctly; the shorthand is only a hazard for a reader who greps this line alone.] -/
 theorem recBl_mCand_stokes (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
     StokesDualityCertificate (GammaR (2 + 2 * h) q (mCompactW α h)) (2 + 2 * h) q P nuP

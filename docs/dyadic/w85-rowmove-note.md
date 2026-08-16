@@ -16,6 +16,14 @@ at which the M6 ladder's residue starts. The odd route's last item now reads: so
 explicit word to every class k >= 4 of the two-central tower, with corrections drawn from one
 explicit closed carrier.
 
+> **[W86-HOUSE, as of `f0de6ad5`:** "the same threshold at which the M6 ladder's residue starts"
+> is stale, and was already stale when this note was written. This lane's own claim is exact and
+> unaffected: the row-move residue starts at class four. But `Instances/MpcBuild.lean` merged
+> into `dyadic` at `ee22161b`, earlier in the same wave, carrying
+> `mpcBld_nonempty_four : (mpcWordSet 4).Nonempty`, so the M6 ladder's residue starts at class
+> FIVE. The two ladders are one rung apart, not level. Corrected at both in-tree copies,
+> `SqCore/GradedRowMove.lean`'s module doc item 5 and `gRow_pair_of_forall_class_four`.**]**
+
 ## The chain (all in the one module)
 
 1. **The row pair.** `GRowPair h A B`: a lambda-preserving automorphism of `D_sq h` whose

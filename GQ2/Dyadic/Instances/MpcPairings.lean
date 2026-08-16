@@ -83,6 +83,23 @@ value is
 for `p = (a,λ,z,g)`, `r = (b,μ,w,k)` in characteristic two, which specializes correctly to
 `heisCommR_of_trivial_right` at `k = 1`.
 
+**[W86-HOUSE, as of `f0de6ad5`: the paragraph above is SUPERSEDED as a statement of what is
+open.**  "Not here" is still literally true (the theorem is in another file), but the
+obstruction it describes was removed, exactly as it predicted and on the same day (2026-08-06),
+and nothing revisited this docstring for nine waves.  The fully general commutator law is
+`Instances/MpcRamifiedPairing.lean`'s `heisCommR_general`, whose central value is the eight-term
+expression displayed above; `heisCommR_general_right` is the specialization.  On top of it,
+`Instances/MpcRamifiedRow.lean`'s `MProcyclicExact.ramifiedNormalPairingSeparates` proves
+`RamifiedNormalPairingSeparates alpha r pp h q d` for **every** display `d`, binding `1 ≤ alpha`
+and nothing else.
+
+Read this file's "residual" language accordingly: the ramified separation is a theorem, not a
+residue, and wave 85's `Instances/RecordBlocks.lean` composes it with
+`Instances/MpcSelectedScalar.lean`'s reduction to give `MProcyclicExact.uniformPushedHsimp` and
+`exactLiftingRN` on the procyclic-`M` row.  What remains genuinely conditional there is the
+display package (`MpcDisplayFor η`), not the pairing.  Found by W85-M6BUILD §2, verified here by
+elaboration.]
+
 The two-copy cancellation of WMP-c is *not* used anywhere here: on both readings the hat copy is
 silent factor by factor, which is stronger and needs no `Sh_M` transport.
 -/

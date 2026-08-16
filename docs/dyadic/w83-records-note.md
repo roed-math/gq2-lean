@@ -48,6 +48,15 @@ ones"). Two findings on the three not taken:
   carry `mpcNu`, but it is conditional on `MpcPivShift 2`. That is why `ℚ₂(√−10)` is not one of
   the four rows of ticket B.
 
+  > **[W86-HOUSE, as of `f0de6ad5`:** the conclusion is right, the "therefore" never was, and
+  > this site was named as wrong by W84-HOUSE and then never corrected, so a reader following
+  > that pointer lands here with nothing to see. The history in one line: routing through a
+  > producer that names the marking does NOT make one's own conclusion name it, and W84-HOUSE
+  > round 21 found that `mpcPiv_genAsmBranch_sqrtNegTen_of_shift` dropped the conjunct at an
+  > `Exists.imp`, leaving it untied. Wave 85 (`8c0aab35`) put the conjunct in the conclusion,
+  > so the sentence's claim holds again, now for the right reason. Read the "therefore" as
+  > "and, since wave 85, does".**]**
+
 ## §1 Ticket A: the strengthening
 
 At each of the five sites the conclusion gained one conjunct,
