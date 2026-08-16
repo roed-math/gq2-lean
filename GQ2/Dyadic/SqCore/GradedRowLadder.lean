@@ -609,7 +609,25 @@ theorem gLad_defect_mem {A B : ℤ_[2]} {j : ℕ} {c : Fin (sqRank h) → (DSq h
 correction tuple `ε` in the carrier whose cost kills the defect in `Q_{j+2}` produce the
 rung-`(j+2)` solution `c · ε`.  Together with the engine this reduces every rung to exact
 linear algebra in the layer `λ_{j+1}/λ_{j+2}`: the defect is a central class, the reachable
-costs are the bracket images and the `x₁`-bundles of the carrier, and nothing else moves. -/
+costs are the bracket images and the `x₁`-bundles of the carrier, and nothing else moves.
+
+[W87-HOUSE, as of `1541635f`: **"and nothing else moves" is a converse this module does not
+prove**, and the module docstring's chain item makes the same claim in the same words.  What
+is proved here is one implication: a cost tuple killing the defect YIELDS a rung-`(j+2)`
+solution.  The converse, that every rung-`(j+2)` solution is `c · ε` for a rung-`(j+1)`
+solution `c` and some `ε ∈ λ_j`, is what would make the rung an iff and the reduction
+exhaustive, and nothing in this file supplies it: for two solutions `c`, `c'` of the carrier,
+`c'c⁻¹` is only known to lie in `λ₂` (`GradedRowMove.gRowCorr`), not in `λ_j`.
+
+The claim is nonetheless close, and the ingredients are in cone.  One lane over in this same
+wave, W86-LADDER5 settled exactly this converse for the `M6` ladder
+(`Instances/MpcLadder.mpcLad_supply_of_mem`, then `mpcLad_nonempty_iff`) out of two facts:
+the solution sets are antitone, so a class-`(j+2)` solution IS a class-`(j+1)` solution; and
+the identity move has trivial increment.  Both have row-side analogues available here,
+`GradedRowMove.gRowSet_antitone` being already in the cone, so what is missing is the
+identity-move computation `gLadCost m (fun _ => 1) = 1` and the packaging.  Until that lands,
+read the sentence above as "every rung is at most this much linear algebra", never as "the
+rung is solvable iff this linear algebra is".  A statement change, so not taken here.] -/
 theorem gLad_step {A B : ℤ_[2]} {j : ℕ} (hj : 2 ≤ j)
     {c ε : Fin (sqRank h) → (DSq h : Type)} (hc : c ∈ gRowSet h A B (j + 1))
     (hεmem : ∀ i, ε i ∈ twoCentralSeries (DSq h : Type) j)
