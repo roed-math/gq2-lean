@@ -706,7 +706,11 @@ The residue of `MpcPivShift 2` starts at class five (`mpcBld_shift_of_forall_cla
 §2 the class-five rung is an iff against the class-four solution set, whose nonemptiness is a
 theorem (`mpcBld_nonempty_four`, witness `mpcLadW4`).  So the next question in the campaign has a
 name and a shape: **is there a class-four solution whose defect lies in the `𝔽₂`-subspace
-`mpcLadReach 3`?**  Neither answer is claimed here. -/
+`mpcLadReach 3`?**  Neither answer is claimed here.
+
+[W87-FIVE: answered YES, inside `mpcLadW4`'s own orbit (`mpcFv_supply_witness`, move
+`(1, B̄⁴, 1, B̄⁴·⁅B̄²,D̄⁆)`); hence `mpcFv_nonempty_five` via this section's iff, and the residue
+starts at class SIX.  See `MpcFive.lean`.] -/
 
 section RungFive
 

@@ -142,6 +142,18 @@ class-five defect is a product of central brackets including `⁅q⁴,p⁆`, `�
 commutators incurred while reordering; **none of that is formalized and none of it is claimed
 here**.  Finishing it is the obvious next lane, and §4's calculus is what it needs.
 
+⚠ **[W87-FIVE, as of the wave-87 merge: formalized, and the hand derivation was wrong in two
+of its three readings.**  No commutator is incurred while reordering (the third survivor is a
+term of the `C̄₀`/`D̄` bracket, `⁅⁅B̄²,D̄⁆,C̄₀⁆`); "every `λ₃`-valued term cancels and the residue
+is central" is correct AT THE WITNESS only, because the witness is a class-four solution, and
+false of the general defect, which is `L = λ₃/λ₅`-valued and NOT central (so class four's "a
+rung is one `𝔽₂`-linear equation" does not lift to defects; `mpcLad_defect_orbit` restores
+linearity through increments).  Of the two predicted terms only `⁅C̄₀,B̄²⁆²` survives (`B̄⁸`
+cancels against the head's `z²`); the witness defect is
+`⁅B̄⁴,Ā⁆·⁅C̄₀,B̄²⁆²·⁅⁅B̄²,D̄⁆,C̄₀⁆` (`mpcFv_witness_defect`).  The §5 question was answered YES
+inside the witness's own orbit: `mpcFv_supply_witness`, hence `mpcFv_nonempty_five` and the
+`M6` residue starts at class SIX.  See `MpcFive.lean` and `docs/dyadic/w87-five-note.md`.]
+
 **Ticket T3 does not apply.**  `M6` did not close and no rung was proved empty, so no
 `mpcLad_shift : MpcPivShift 2` exists, the fifth row's clause-free tied branch datum was not
 composed, and the scoreboard was not re-run.  Nothing in this lane changes any producer, binder

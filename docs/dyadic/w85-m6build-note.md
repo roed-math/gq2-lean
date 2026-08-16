@@ -23,7 +23,8 @@ One grant-covered edit to `GQ2/Dyadic/Instances/MpcPivot.lean`.
 2. **The class-four rung is a theorem, not a hand computation.**  Wave 84 §4.2's witness
    `s = t = ⁅D̄, B̄⁆`, `m = n = 1` is formalized (`mpcBld_mem_four_witness`), so
    `(mpcWordSet 4).Nonempty` and the residue of `MpcPivShift 2` now **starts at class five**
-   (`mpcBld_shift_of_forall_class_five`).
+   (`mpcBld_shift_of_forall_class_five`).  [W87-FIVE: class five is also climbed
+   (`mpcFv_nonempty_five`); the residue starts at class SIX.]
 
 3. **The class-four defect is in closed form** (`mpcBld_mWord_four`), for *arbitrary* corrections,
    not just the witness.  Every factor lies in the central involutive layer, so the rung is a
