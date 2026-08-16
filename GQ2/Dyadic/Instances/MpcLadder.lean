@@ -243,11 +243,18 @@ it becomes one as soon as the failure is proved over the whole class-`(j+1)` sol
 `mpcWordSet (j+2)` is empty, which is the shape wave 84 named as the only admissible negative
 claim.
 
-[W86-HOUSE scope, as of `f0de6ad5`: "refutation" throughout this docstring means refuting the
+[W86-HOUSE scope, as of `0a479c6e`: "refutation" throughout this docstring means refuting the
 ANSATZ.  An empty `mpcWordSet` refutes `MpcPivShift 2` itself only if the ansatz is exhaustive
 among the markings `mpcOrb_shift_iff_marking` quantifies over, which is not proved; wave 84's
 "only admissible negative claim" carried the same inversion.  The statement below is exact as
-written.  See `mpcBld_shift_of_bracket_supply`'s W86-HOUSE block.] -/
+written.  See `mpcBld_shift_of_bracket_supply`'s W86-HOUSE block.
+
+W87-HOUSE, as of `1541635f`: the hash above read `f0de6ad5` and is corrected here.  This file
+does not exist at `f0de6ad5` (`git cat-file -e f0de6ad5:GQ2/Dyadic/Instances/MpcLadder.lean`
+fails); it is created at `d18f840e` and this block was written by `1d286428`, after the house
+lane closed, which carried the lane's own base hash onto a file the lane never saw.
+`MpcBuild.lean`'s block stamps this same site `0a479c6e`, correctly, so the tree carried two
+hashes for one finding and one of them could not be checked out.] -/
 theorem mpcLad_eq_empty_of_no_supply {j : ℕ}
     (H : ∀ p ∈ mpcWordSet (j + 1), ¬ MpcLadSupply j p) : mpcWordSet (j + 2) = ∅ := by
   rw [Set.eq_empty_iff_forall_notMem]
@@ -709,9 +716,26 @@ theorem mpcLad_nonempty_five_iff :
     (mpcWordSet 5).Nonempty ↔ ∃ p ∈ mpcWordSet 4, MpcLadSupply 3 p :=
   mpcLad_nonempty_iff 3
 
-/-- **The class-five refutation, spelled out.**  If no class-four solution has one-step supply
-at class three, the class-five solution set is empty, and by `mpcWord_shift_of_forall_class` that
-is the only shape a negative claim about the `M6` ansatz may take. -/
+/-- **The class-five ANSATZ refutation, spelled out.**  If no class-four solution has one-step
+supply at class three, the class-five solution set is empty, which refutes the `M6` ansatz.
+
+[W87-HOUSE, as of `1541635f`: two corrections, neither touching the statement.
+
+(1) **The headline said "the class-five refutation" unqualified.**  The scope block at
+`mpcLad_eq_empty_of_no_supply` says "throughout this docstring", so it does not reach here, and
+this was the fourth site of wave 86's inversion, 470 lines below the three that were scoped.
+Emptying `mpcWordSet 5` refutes the ANSATZ; it refutes `MpcPivShift 2` only if the ansatz is
+exhaustive among the markings `mpcOrb_shift_iff_marking` quantifies over, which is not proved.
+
+(2) **The citation ran the wrong way and is dropped.**  This claim was attributed to
+`mpcWord_shift_of_forall_class`, which is `(∀ k, (mpcWordSet k).Nonempty) → MpcPivShift 2`
+(`MpcWord.lean`).  Its contrapositive gives `¬ MpcPivShift 2 → ∃ k, mpcWordSet k = ∅`, i.e.
+emptiness FROM a refutation, never a refutation from emptiness, so it supports neither reading.
+That an empty rung refutes the ansatz needs no citation at all: a quadruple of corrections
+solving `mWord ... = 1` lies in every `mpcWordSet k`, since every `twoCentralSeries` term
+contains `1`, so a single empty rung leaves no solution anywhere.  The separate
+normative claim, that a PROVEN empty rung is the only admissible negative evidence and a stalled
+walk is none, is wave 84 §5's control and is not a consequence of that theorem either.] -/
 theorem mpcLad_five_empty_of_no_supply
     (H : ∀ p ∈ mpcWordSet 4, ¬ MpcLadSupply 3 p) : mpcWordSet 5 = ∅ :=
   mpcLad_eq_empty_of_no_supply H
