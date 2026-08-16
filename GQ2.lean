@@ -947,6 +947,7 @@ import GQ2.Dyadic.Instances.MpcMarkedCarrierAudit
 import GQ2.Dyadic.Instances.MpcMarkedDelta
 import GQ2.Dyadic.Instances.MpcMarkedExactness
 import GQ2.Dyadic.Instances.MpcMarkedHeadCompletion
+import GQ2.Dyadic.Instances.MpcInitialRelatorAbsorption
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
 import GQ2.Dyadic.Instances.OddSeam

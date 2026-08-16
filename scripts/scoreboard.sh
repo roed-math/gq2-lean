@@ -143,7 +143,7 @@ FROZEN ROWS|Q2(v-10) untied|decl|mpcPiv_genAsmBranch_sqrtNegTen
 FROZEN ROWS|v-10 residue = word prob|decl|mpcOrb_shift_iff_marking
 FROZEN ROWS|v-10 finite-class route|decl|mpcWord_shift_of_forall_class_four
 FROZEN ROWS|v-10 residual move|prod|MpcPivShift
-FROZEN ROWS|v-10 exact uniform blocker|decl|MpcMkInitialRelatorAbsorption
+FROZEN ROWS|v-10 initial-relator absorption|decl|mpcMk_initialRelatorAbsorption
 LEGACY RECORDS (COMPAT ONLY)|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
 LEGACY RECORDS (COMPAT ONLY)|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
 LEGACY RECORDS (COMPAT ONLY)|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
