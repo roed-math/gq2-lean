@@ -540,9 +540,88 @@ theorem mpcFv_mWord_five {p q r w σ τ μ ν z : levelQuot G 5}
     (mpcFv_lycomm hrw hE₁) (mpcFv_lycomm (mpcFv_three_le_two hr4) hE₂)
     (mpcFv_lycomm hrw hE₂) (mpcFv_lycomm hrw hE₃)
 
+/-- The ansatz's head shift `z = (q⁴)⁻¹` squares to `q⁸`, because `q⁸` is a central
+involution. -/
+theorem mpcFv_z_sq (q : levelQuot G 5) : ((q ^ 4)⁻¹) ^ 2 = q ^ 8 := by
+  have e : (q ^ 4) ^ 2 = q ^ 8 := by rw [← pow_mul]
+  rw [inv_pow, e]
+  exact zLayer_inv_self (cfive_pow_eight_mem_zLayer q)
+
+/-- The head shift is invisible to inversion inside a bracket: `⁅z, x⁆ = ⁅q⁴, x⁆`, both being
+central involutions. -/
+theorem mpcFv_z_commP (q x : levelQuot G 5) : commP (q ^ 4)⁻¹ x = commP (q ^ 4) x := by
+  have h4 : q ^ 4 ∈ lambdaImage G 3 5 := cfive_pow_four_mem_lambdaThree q
+  rw [mpcFv_commP_inv_left h4 x]
+  exact zLayer_inv_self (mpcFv_commP_mem_zLayer_left h4 x)
+
+/-- A power commutes with its own base, so the head shift is invisible against `B̄`. -/
+theorem mpcFv_pow_four_commP_self (q : levelQuot G 5) : commP (q ^ 4) q = 1 :=
+  bridge_comm_of_commute ((Commute.refl q).pow_left 4).eq
+
 end Assembly
 
-/-! ## §5 Axiom pins
+/-! ## §5 The defect on `D_M 2 0`, and the class-four witness
+
+§4 transported through `levelMk` and with the marked relator killed by `mpcOrb_relation`, exactly
+as `mpcBld_defect_four` does one class down.  The head shift `z = (B̄⁴)⁻¹` is simplified on the
+way: `z² = B̄⁸`, `⁅z, Ā⁆ = ⁅B̄⁴, Ā⁆`, and `⁅z, B̄⁆ = 1` because a power commutes with its base.
+
+Evaluated at the wave-84 witness `s = t = ⁅D̄, B̄⁆`, `m = n = 1`, every `λ₃`-valued term cancels -
+as it must, the witness being a class-four solution - and three central involutions survive. -/
+
+section Downstairs
+
+/-- ⭐⭐ **THE CLASS-FIVE DEFECT ON `D_M 2 0`.**  The analogue of `mpcBld_defect_four`: the `M6`
+ansatz's core word, modulo `λ₅`, is exactly this twenty-two-term product.  Dropping every factor
+that dies at class four leaves `mpcBld_defect_four`'s eight-term product. -/
+theorem mpcFv_defect_five (s t m n : (DM 2 0 : Type))
+    (hs : s ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (ht : t ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hm : m ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hn : n ∈ twoCentralSeries (DM 2 0 : Type) 2) :
+    levelMk (DM 2 0 : Type) 5
+        (mWord 2 (mpcWordLetA s) (mpcWordLetB t) (mpcWordLetC m) (mpcWordLetD n))
+      = levelMk (DM 2 0 : Type) 5
+        (s ^ 2 * commP s (dmA 2 0) * (dmB 2 0 ^ 8 * commP (dmB 2 0 ^ 4) (dmA 2 0)) *
+          (commP (dmA 2 0) t * commP s (dmB 2 0) *
+            (commP s t * commP (commP (dmA 2 0) (dmB 2 0)) s *
+              commP (commP (dmA 2 0) (dmB 2 0)) t)) *
+          (dmB 2 0 ^ 8 *
+            (m ^ 4 * (commP m (dmC 2 0) ^ 2 * commP (dmC 2 0) (dmB 2 0 ^ 2) ^ 2))) *
+          (commP (dmB 2 0) (dmD 2 0) ^ 2 * commP (commP (dmB 2 0) (dmD 2 0)) (dmB 2 0) *
+            commP (dmC 2 0) n * commP m (dmD 2 0) *
+            (commP (dmB 2 0 ^ 2) n * commP m n *
+              commP (commP (dmB 2 0 ^ 2) (dmD 2 0)) (dmC 2 0) *
+              commP (commP (dmC 2 0) (dmD 2 0)) m *
+              commP (commP (dmC 2 0) (dmD 2 0)) n))) := by
+  have hrel : mWord 2 (levelMk (DM 2 0 : Type) 5 (dmA 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+      (levelMk (DM 2 0 : Type) 5 (dmC 2 0)) (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) = 1 := by
+    rw [← map_mWord, mpcOrb_relation, map_one]
+  have hz : (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4)⁻¹ ∈ lambdaImage (DM 2 0 : Type) 3 5 :=
+    Subgroup.inv_mem _ (cfive_pow_four_mem_lambdaThree _)
+  have hA : levelMk (DM 2 0 : Type) 5 (mpcWordLetA s)
+      = levelMk (DM 2 0 : Type) 5 (dmA 2 0) * (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4)⁻¹ *
+        levelMk (DM 2 0 : Type) 5 s := by
+    rw [mpcWordLetA, map_mul, map_mul, map_inv, map_pow]
+  have hB : levelMk (DM 2 0 : Type) 5 (mpcWordLetB t)
+      = levelMk (DM 2 0 : Type) 5 (dmB 2 0) * levelMk (DM 2 0 : Type) 5 t := by
+    rw [mpcWordLetB, map_mul]
+  have hC : levelMk (DM 2 0 : Type) 5 (mpcWordLetC m)
+      = levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2 * levelMk (DM 2 0 : Type) 5 (dmC 2 0) *
+        levelMk (DM 2 0 : Type) 5 m := by
+    rw [mpcWordLetC, map_mul, map_mul, map_pow]
+  have hD : levelMk (DM 2 0 : Type) 5 (mpcWordLetD n)
+      = levelMk (DM 2 0 : Type) 5 (dmD 2 0) * levelMk (DM 2 0 : Type) 5 n := by
+    rw [mpcWordLetD, map_mul]
+  rw [map_mWord, hA, hB, hC, hD,
+    mpcFv_mWord_five (G := (DM 2 0 : Type)) ⟨s, hs, rfl⟩ ⟨t, ht, rfl⟩ ⟨m, hm, rfl⟩ ⟨n, hn, rfl⟩
+      hz, hrel, one_mul, mpcFv_z_sq]
+  simp only [mpcFv_z_commP, mpcFv_pow_four_commP_self, mul_one]
+  simp only [map_mul, map_pow, commP, map_inv]
+
+end Downstairs
+
+/-! ## §6 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -573,6 +652,10 @@ section AxiomPins
 #print axioms mpcFv_comm_letAB
 #print axioms mpcFv_comm_letCD
 #print axioms mpcFv_mWord_five
+#print axioms mpcFv_z_sq
+#print axioms mpcFv_z_commP
+#print axioms mpcFv_pow_four_commP_self
+#print axioms mpcFv_defect_five
 
 end AxiomPins
 
