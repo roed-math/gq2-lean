@@ -30,9 +30,11 @@ the quantifier shape required by that conditional endpoint.
 ## Exact remaining theorem
 
 The unproved content is now isolated: for every `j >= 4`, a class-`(j+1)` solution must
-have its top-layer defect in the image of the full marked cost map.  A natural proof would
-identify that image with, or prove that it contains, the relevant chi-twisted Fox kernel
-and then show that the M6 defect belongs to the kernel.
+have its top-layer defect in the image of the full marked cost map.  W94's subsequent exact
+class-six calculation shows that this image has corank five and contains the actual defect.
+It therefore rules out the initially suggested blanket containment of a codimension-one
+chi-twisted Fox kernel.  The uniform theorem must target the M6 defect family more narrowly
+or enlarge the correction carriers.
 
 The repository has the exact increment formula and generic layer calculus, but it does not
 yet contain this graded/Fox exactness theorem for `D_M 2 0`.  The earlier Fox-ideal
