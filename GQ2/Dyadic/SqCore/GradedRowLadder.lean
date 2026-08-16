@@ -12,19 +12,50 @@ Wave 85 (`GradedRowMove.lean`) reduced the row-move pair, hence the clearing
 `SqNuOrientedClearAtUnitPivot h` and through it the odd-degree classification, to the rungs
 `(gRowSet h A B k).Nonempty` for `k ≥ 4` on the unit locus `IsUnit (A - c0 B)`.  Rungs
 `k ≤ 3` are proved there: `k ≤ 2` free for every frame, `k = 3` free with the bare frame.
+This module climbs the first open rung and equips every higher one.
 
-This module extends the ladder with the increment engine, the wave-85 M6 pattern
-(`mpcBld_incr_*`) transferred to the row word:
+## The chain
 
-* **The slot increments, uniform in the class** (section 2): a `λ_j`-factor on a slot of
-  `sqWord` costs, in `Q_{j+2}`, exactly one central element: `commP ε x` on the sigma slot,
-  `commP s ε` on the `x₀`-slot, the bundle `ε² · commP ε y` on the `x₁`-slot, and single
-  brackets on the handle slots.  The `x₀`-slot's own fourth power is invisible (`ε⁻⁴ = 1`).
-* **The master increment** (section 3): `gLad_relWord_incr` prices a full correction tuple on
-  the relator word in closed form (`gLadCost`), and `gLad_step` turns a rung-`(j+1)` solution
-  plus a cost tuple killing the defect into a rung-`(j+2)` solution of `gRowSet`.
+1. **The increment engine, uniform in the class** (sections 1 to 3): the wave-85 M6 pattern
+   (`mpcBld_incr_*`) transferred to the row word.  A `λ_j`-factor on a slot of `sqWord`
+   costs, in `Q_{j+2}`, exactly one central element: `commP ε x` on the sigma slot,
+   `commP s ε` on the `x₀`-slot (its own fourth power dies, `ε⁻⁴ = 1`), the knob bundle
+   `ε² · commP ε y` on the `x₁`-slot, and single brackets on the handle slots.
+   `gLad_relWord_incr` prices a full tuple in closed form (`gLadCost`), and `gLad_step`
+   turns a rung-`(j+1)` solution plus a cost tuple killing the defect into a rung-`(j+2)`
+   solution: every rung of the ladder is exact linear algebra in the elementary abelian
+   layer `λ_{j+1}/λ_{j+2}`, and nothing else.
 
-All declarations carry `#print axioms` pins recorded at the end of the file.
+2. **The pivot twist in closed form** (section 5): `gLad_qtwist`.  For arbitrary letters of
+   `Q₄`, `sqWord (sq) (xq) (yq²) = [s,q]·[q,x] · sqWord s x y` times five central classes
+   (`[[x,q],q]`, `[[q,s],q]`, `[q,x]²`, `[q²,y]`, `[y,[y,q]]`), exactly.  The proof runs on
+   `(xq)⁴ = x⁴q⁴[q,x]²` and the twisted-bracket expansion; no parity is consumed.
+
+3. **The class-4 defect of the bare frame, exactly** (section 6): `gLad_defect_bare`.  On
+   the unit locus write `A - 1 = B + 2t`; with `Q` the `B`-th pivot power the `Q₄`-residue
+   of the bare relator word is `[S,Q]·[Q,X]` times the five twist classes and the excess
+   cost `[(w^t)², X·Q]`.  This is the increment of wave 85's class-3 parity argument one
+   rung up: what died mod `λ₃` by parity is now the exact defect mod `λ₄`.
+
+4. **Rung 4** (section 7): on the quarter locus `4 ∣ A - 1`, `4 ∣ B` every letter of the
+   defect is a square of a square and the closed form collapses to `1`: the BARE frame
+   solves rung 4 (`gLad_nonempty_four_quarter`), containing the scaling ray at every
+   `e ≡ 1 mod 4` (`gLad_nonempty_four_scale`).  Off the quarter locus the rung is the exact
+   equation `defect · gLadCost = 1` in `λ₃/λ₄` (`gLad_relWord_four`,
+   `gLad_nonempty_four_of_kill`), with the defect in closed form and the reachable costs the
+   carrier's bracket images and `x₁`-bundles.
+
+## What does not land
+
+The rungs off the quarter locus, hence `gLad_clearing`.  The honest record of the remaining
+distance, including the reachability analysis of the closed-form defect (which cost shapes
+match which defect terms, and where the first genuine linear-algebra question sits), is
+`docs/dyadic/w86-ladder4-note.md`.
+
+## Axiom hygiene
+
+No `sorry`, no new axiom, no `native_decide`.  Every declaration prints **std-3** or a
+subset of it; the census is untouched.  Pins in section 9.
 -/
 
 open Multiplicative
@@ -1086,6 +1117,108 @@ theorem gLad_relWord_four {A B : ℤ_[2]} (c : Fin (sqRank h) → (DSq h : Type)
   rw [hmk, gLad_relWord_incr (j := 2) le_rfl _ _ fun i => ⟨c i, hc i, rfl⟩, ← map_sqRelWord]
 
 end QuarterLocus
+
+/-! ## §8 Stress pins -/
+
+section StressPins
+
+/-- The engine cost of the trivial tuple is trivial: the increment table is calibrated. -/
+example {Q : Type*} [Group Q] {n : ℕ} (m : Fin (sqRank n) → Q) :
+    gLadCost m (fun _ => 1) = 1 := by
+  rw [gLadCost]
+  simp only [cfour_one_comm, cfour_comm_one, one_pow, one_mul, mul_one]
+  exact List.prod_eq_one (by simp)
+
+/-- The base point sits on the quarter locus: rung 4 is free there. -/
+example (h : ℕ) : (gRowSet h 1 0 4).Nonempty :=
+  gLad_nonempty_four_quarter ⟨0, by ring⟩ ⟨0, by ring⟩
+
+/-- The quarter-locus rung feeds the wave-85 per-class shape: at `4 ∣ A - 1`, `4 ∣ B` every
+rung up to 4 is nonempty with the bare frame. -/
+example (h : ℕ) {A B : ℤ_[2]} (hA : (4 : ℤ_[2]) ∣ A - 1) (hB : (4 : ℤ_[2]) ∣ B) {k : ℕ}
+    (hk : k ≤ 4) : (gRowSet h A B k).Nonempty :=
+  ⟨fun _ => 1, fun _ => one_mem _,
+    twoCentralSeries_antitone (G := (DSq h : Type)) hk
+      ((QuotientGroup.eq_one_iff _).mp (gLad_defect_bare_quarter hA hB))⟩
+
+/-- The defect of a rung-3 bare frame is central in `Q₄`: the criterion's two sides live in
+the same elementary abelian layer. -/
+example (h : ℕ) {A B : ℤ_[2]} (hAB : (2 : ℤ_[2]) ∣ A - 1 - B) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+      ∈ zLayer (DSq h : Type) 3 :=
+  gLad_defect_mem (j := 2) (gLad_bare_mem_three hAB)
+
+end StressPins
+
+/-! ## §9 Axiom pins
+
+Verified at generation time (`scripts/mirror.sh gen`): every declaration below prints
+**std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a subset of it (the exact word
+identities use `propext` alone or nothing).  Nothing in this module touches the census
+axioms: the engine, the twist, the defect, and the rungs are pure graded group theory over
+the committed presentation. -/
+
+section AxiomPins
+
+#print axioms gLad_swap
+#print axioms gLad_commP_inv
+#print axioms gLad_conjP_eq
+#print axioms gLad_conjP_mul
+#print axioms gLad_conjP_conjP
+#print axioms gLad_zmove4
+#print axioms gLad_commP_mem_two
+#print axioms gLad_vanish
+#print axioms gLad_vanish'
+#print axioms gLad_zLayer_le
+#print axioms gLad_le_two
+#print axioms gLad_sq_mem_zLayer
+#print axioms gLad_pow_four
+#print axioms gLad_commP_zLayer_right
+#print axioms gLad_commP_inv_left
+#print axioms gLad_commP_inv_right
+#print axioms gLad_commP_cube_left
+#print axioms gLad_commP_absorb_right
+#print axioms gLad_commP_conj
+#print axioms gLad_incr_s
+#print axioms gLad_incr_x
+#print axioms gLad_incr_y
+#print axioms gLad_incr_pair
+#print axioms gLadCost
+#print axioms gLad_incr_handle
+#print axioms gLad_sqWord_incr
+#print axioms gLad_cost_mem
+#print axioms gLad_relWord_incr
+#print axioms gLad_mark_mul
+#print axioms gLad_defect_mem
+#print axioms gLad_step
+#print axioms gLad_sq_mem_two
+#print axioms gLad_vanish4
+#print axioms gLad_two_comm
+#print axioms gLad_commP_mul_left_two
+#print axioms gLad_commP_self_absorb
+#print axioms gLad_commP_conj_self
+#print axioms gLad_qtwist_four
+#print axioms gLad_qtwist_comm
+#print axioms gLad_qtwist_sqslot
+#print axioms gLad_qtwist_commslot
+#print axioms gLad_qtwist
+#print axioms gLadS
+#print axioms gLadX
+#print axioms gLadY
+#print axioms gLadQ
+#print axioms gLadQ_two_mul
+#print axioms gLadQ_sq_mem
+#print axioms gLad_defect_bare
+#print axioms gLadQ_mem_zLayer_of_four
+#print axioms gLad_defect_bare_quarter
+#print axioms gLad_nonempty_four_quarter
+#print axioms gLad_nonempty_four_scale
+#print axioms gLad_bare_mem_three
+#print axioms gLad_nonempty_four_of_kill
+#print axioms gLad_mark_eq_bare_mul
+#print axioms gLad_relWord_four
+
+end AxiomPins
 
 end SqCore
 
