@@ -22,18 +22,28 @@ carrier element modulo the open subgroup `λ_(r+1)`.  The resulting correction r
 `λ_r`.  Finally, changing any of the four unrestricted inputs modulo `λ_(r+1)` does not change
 its cost in `Q_(r+2)`.
 
-## Exact remaining graded theorem
+## Corrected remaining graded theorem
 
 These reductions do not prove marked carrier reflection.  Let
 `R_r = (λ_r / λ_(r+1))^4`, let `c_r` be the graded unrestricted cost, and let `M_r` be the
 mixed source subspace whose four abelian residues lie in
-`(B̄²-line, B̄²-line, 0, B̄²-line)`.  The remaining theorem is the source exactness equation
+`(B̄²-line, B̄²-line, 0, B̄²-line)`.  Exact finite `2`-quotient evaluation
+shows that the previously proposed cyclotomic source coordinate is wrong: `chi ∘ c_r` is
+zero in the tested graded rungs and
 
-`ker ((nu, chi) ∘ c_r) = M_r + ker c_r`.
+`ker ((nu, chi) ∘ c_r) = M_r + ker c_r`
 
-The left side says that the two secondary obstruction digits vanish.  The right side says
-that the same cost has a representative in the marked source subspace.  Once that equation is
-proved, the density and congruence theorems below turn the graded representative into actual
+is false already at `r = 2`.  The missing source annihilator is instead the additive
+`D̄`-coordinate `deltaD` from the canonical M-frame.  The corrected candidate exactness
+equation is
+
+`ker ((nu, deltaD) ∘ c_r) = M_r + ker c_r`.
+
+It has been checked exactly in finite quotients for `r = 2, 3, 4`, but that computation is not
+a proof and this module does not assume the equation.  The existing one-deeper `chi` vanishing
+theorem remains a valid extra necessary condition on the recursively arising secondary defect;
+it is not a source carrier-annihilator coordinate.  Once the corrected equation is proved, the
+density and congruence theorems below turn the graded representative into actual
 members of `mpcSxKill r`, `mpcSxKill r`, `mpcMkPivotKill r`, and `mpcSxKill r` without
 changing the cost.  No existing neutral-span theorem proves this mixed four-slot kernel
 identity, and it is not introduced here as an axiom or proposition-valued placeholder.

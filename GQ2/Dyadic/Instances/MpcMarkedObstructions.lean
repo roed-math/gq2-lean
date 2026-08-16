@@ -10,11 +10,12 @@ import GQ2.Dyadic.Instances.EvenStratumShift
 /-!
 # Five necessary obstruction coordinates for the marked Mpc successor
 
-The exact class-six computation leaves five missing cost directions.  The canonical maps in the
-tree identify the corresponding candidate obstruction coordinates: the three independent
-chi-twisted crossed-derivation offsets at `A`, `C`, and `D`, the top digit of `nuM`, and the
-one-deeper digit of `chiM`.  This module defines those five kernels and proves that the explicit
-secondary defect from `MpcMarkedSecondary.lean` lies in their intersection.
+This module packages five necessary vanishings: the three independent chi-twisted
+crossed-derivation offsets at `A`, `C`, and `D`, the top digit of `nuM`, and the one-deeper digit
+of `chiM`.  It proves that the explicit secondary defect from `MpcMarkedSecondary.lean` lies in
+their intersection.  A later exact carrier audit shows that `chiM` is an additional necessary
+vanishing, not the second carrier-annihilator coordinate; that role belongs to the additive
+`D`-coordinate formalized in `MpcMarkedDelta.lean`.
 
 The additive coordinate exposes a genuine recursive invariant.  Every full marked move is
 nu-trivial, so it preserves a nu-neutral head correction, but the existing `MpcMkGood` predicate

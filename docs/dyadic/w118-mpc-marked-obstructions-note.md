@@ -12,5 +12,7 @@ For such a witness, the explicit secondary defect lies in five canonical kernels
 3. the one-deeper cyclotomic digit detected by `chiM`.
 
 These are necessary vanishings only.  The module does not identify their common kernel with the
-marked cost range and does not assert successor propagation.  The remaining uniform theorem is
-therefore a reflection statement for this specific five-kernel fiber, not generic surjectivity.
+marked cost range and does not assert successor propagation.  A later exact carrier audit showed
+that the cyclotomic digit is an extra necessary vanishing but not a sufficiency coordinate: the
+second carrier-annihilator is the additive `D`-coordinate defined in W134.  Thus the W118
+five-kernel remains valid, but it is not the fiber used by the corrected source-exactness theorem.

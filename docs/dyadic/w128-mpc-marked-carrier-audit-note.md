@@ -9,9 +9,18 @@ The routine carrier issues in the uniform Mpc successor are now closed.
   modulo the next filtration rung.
 - Such rounding does not change the top cost class.
 
-The sole remaining theorem is therefore algebraic graded exactness:
+The carrier reductions remain valid, but the initially proposed graded equation was not.
+Exact finite `2`-quotient evaluation gives `rank (chi o c_r) = 0` for `r = 2, 3, 4`, and
 
 `ker ((nu, chi) o c_r) = M_r + ker c_r`.
 
-It is documented but not assumed.  All seven exported declarations use exactly the standard
-three axioms.
+is false already at `r = 2`.  The missing source coordinate is the additive `D`-coordinate
+`deltaD` from the canonical M-frame.  The corrected candidate is
+
+`ker ((nu, deltaD) o c_r) = M_r + ker c_r`.
+
+It holds in the exact finite calculations for `r = 2, 3, 4`, but no finite calculation is
+banked as proof and the all-degree equality remains open.  The older `chi` vanishing theorem
+is still a true extra necessary condition on the recursive secondary defect; it is not a
+sufficiency coordinate for marked carrier reflection.  All seven declarations exported by
+the audit module use exactly the standard three axioms.
