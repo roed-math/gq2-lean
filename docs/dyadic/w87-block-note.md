@@ -14,6 +14,14 @@ residual of the row ladder now starts at class FIVE, level with the M6 ladder af
 classification now rest on the rungs `k >= 5` alone (`gRsd_clearing_of_forall_class_five`,
 `gRsd_supply_of_forall_class_five`, `gRsd_candidateEquiv_of_forall_class_five`).
 
+> **[W88-HOUSE, as of `ad8c2b62`: "level with the M6 ladder" is stale.]**  W87-FIVE merged
+> ahead of this lane in the same wave (`55c9173f` against this lane's `f56465a5`) and proved
+> `mpcFv_nonempty_five : (mpcWordSet 5).Nonempty`, so the M6 ladder's residue starts at class
+> SIX.  The two ladders are one rung apart with M6 ahead.  Everything else in this paragraph
+> is exact.  Note the asymmetry the comparison hides: this lane's `k >= 5` chain is a
+> PRODUCER, while the M6 side's sharp producer is still `mpcBld_shift_of_forall_class_five`
+> and no class-six producer exists.
+
 The decisive move is one Jacobi rotation.  The wave-86 note held that y-legged triples are
 "reachable ONLY inside bundles", making the block a `sq(ker bY)`-membership question.  That
 clause is FALSE for triples whose two inner letters are not `x_1`: Hall-Witt in `Q_4`

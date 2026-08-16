@@ -44,6 +44,18 @@ locus: rung 4 of the row ladder is a theorem wherever the consumer asks for it.
    FIVE, the same threshold as the M6 ladder after `mpcBld_nonempty_four`.  The sharpened
    conditional chain to the odd-degree classification is sections 9 and 9b.
 
+   [W88-HOUSE, as of `ad8c2b62`: the class-five claim about THIS ladder is exact and is what
+   section 8 proves; the comparison clause is stale, and was already stale when this module
+   merged.  `Instances/MpcFive.lean` landed on `dyadic` earlier in the same wave (merge
+   `55c9173f`, against this module's `f56465a5`) and proves `mpcFv_nonempty_five :
+   (mpcWordSet 5).Nonempty`, so the M6 ladder's residue starts at class SIX, not five.  The
+   two ladders are ONE RUNG APART with M6 ahead, not level.  `mpcBld_nonempty_four` is no
+   longer the M6 ladder's frontier.  Note that the M6 side has no class-six PRODUCER: the
+   sharp shift-producer is still `mpcBld_shift_of_forall_class_five`, so "starts at class
+   six" there is a statement about solution sets, while this module's class-five chain
+   (`gRsd_pair_of_forall_class_five` and its two siblings) is a producer.  Same correction at
+   `gRsd_nonempty_four` and in `docs/dyadic/w87-block-note.md`.]
+
 ## Honesty
 
 The wave-86 note's framing of the block ("reachable only inside bundles", membership in
@@ -1406,7 +1418,12 @@ theorem gRsd_nonempty_four_odd_odd {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t
 mod-4 residues of `(A - 1, B)` are the half locus (bare frame), the even locus at odd
 excess, and the two odd-locus parities; each has an explicit carrier witness.  The wave-86
 bracket-square block is decided POSITIVELY everywhere: the residual of the row ladder now
-starts at class FIVE, the same threshold as the M6 ladder. -/
+starts at class FIVE, the same threshold as the M6 ladder.
+
+[W88-HOUSE, as of `ad8c2b62`: everything through "class FIVE" is exact and is what this
+theorem gives; the last clause is stale.  `MpcFive.mpcFv_nonempty_five`, merged earlier in
+this same wave, puts the M6 ladder's residue at class SIX.  The ladders are one rung apart,
+M6 ahead.  See the module docstring's W88-HOUSE block.] -/
 theorem gRsd_nonempty_four {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B)) :
     (gRowSet h A B 4).Nonempty := by
   obtain ⟨t, ht⟩ := gRow_even_of_unit hAB

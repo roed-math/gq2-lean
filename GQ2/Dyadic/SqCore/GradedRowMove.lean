@@ -72,6 +72,13 @@ W84-WORD lane built for the `M6` move, with the low rungs proved rather than obs
    that gap is now the interesting comparison rather than the equality.  Same correction at
    `gRow_pair_of_forall_class_four` and in `docs/dyadic/w85-rowmove-note.md`.]
 
+   [W88-HOUSE, as of `ad8c2b62`: both numbers in the block above have moved by one, and the
+   one-rung gap survives.  Wave 87 climbed both ladders: `SqCore/GradedRowResidue.lean`'s
+   `gRsd_nonempty_four` puts THIS ladder's residue at class five, on the whole unit locus and
+   not just the quarter locus, and `Instances/MpcFive.lean`'s `mpcFv_nonempty_five` puts the
+   `M6` ladder's at class SIX.  The reading is now five against six: still one rung apart,
+   still `M6` ahead.]
+
 6. **The composition** (section 7).  `gRow_clearing_of_forall_class`: per-class solvability
    on the unit locus discharges `SqNuOrientedClearAtUnitPivot h` through wave 84's
    `gClear_clearing_of_model`, and the seam composites carry it to `SqMarkedForwardSupply`
@@ -936,7 +943,13 @@ can obstruct a row move is class four: the same threshold the `M6` ladder starts
 [W86-HOUSE, as of `f0de6ad5`: everything through the colon is exact and is what this theorem
 says; the clause after it is stale.  `Instances/MpcBuild.lean`'s `mpcBld_nonempty_four` solves
 the `M6` ladder's class four, so that ladder starts at class FIVE and this one starts at class
-four.  The two are one rung apart, not level.] -/
+four.  The two are one rung apart, not level.]
+
+[W88-HOUSE, as of `ad8c2b62`: this theorem is still exactly true and is still the route, but
+both numbers above have moved by one.  Wave 87's `GradedRowResidue.gRsd_nonempty_four` pays
+class four here on the whole unit locus, so THIS ladder now starts at class five and the
+sharp form is `gRsd_pair_of_forall_class_five`; `MpcFive.mpcFv_nonempty_five` puts the `M6`
+ladder at class SIX.  Five against six, still one rung apart.] -/
 theorem gRow_pair_of_forall_class_four {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
     (H : ∀ k, 4 ≤ k → (gRowSet h A B k).Nonempty) : GRowPair h A B := by
   refine gRow_pair_of_forall_class hAB fun k => ?_
