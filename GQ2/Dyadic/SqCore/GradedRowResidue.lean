@@ -1399,7 +1399,110 @@ theorem gRsd_nonempty_four_odd_odd {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t
   rw [gRsd_defect_odd_odd_t hsplit hB ht, gRsd_cost_odd_odd_t hB hA1, ← pow_two]
   exact zLayer_sq (DSq h : Type) gRsdKillO'_mem
 
+/-- ⭐⭐⭐ **RUNG 4 OF THE ROW LADDER IS A THEOREM ON THE WHOLE UNIT LOCUS.**  The four
+mod-4 residues of `(A - 1, B)` are the half locus (bare frame), the even locus at odd
+excess, and the two odd-locus parities; each has an explicit carrier witness.  The wave-86
+bracket-square block is decided POSITIVELY everywhere: the residual of the row ladder now
+starts at class FIVE, the same threshold as the M6 ladder. -/
+theorem gRsd_nonempty_four {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B)) :
+    (gRowSet h A B 4).Nonempty := by
+  obtain ⟨t, ht⟩ := gRow_even_of_unit hAB
+  have hsplit : A - 1 = B + 2 * t := by linear_combination ht
+  by_cases hB : (2 : ℤ_[2]) ∣ B
+  · by_cases ht2 : (2 : ℤ_[2]) ∣ t
+    · obtain ⟨u, rfl⟩ := ht2
+      exact gRsd_nonempty_four_half hB ⟨u, by linear_combination ht⟩
+    · exact gRsd_nonempty_four_even_odd hsplit hB ht2
+  · by_cases ht2 : (2 : ℤ_[2]) ∣ t
+    · exact gRsd_nonempty_four_odd_even hsplit hB ht2
+    · exact gRsd_nonempty_four_odd_odd hsplit hB ht2
+
+/-- Every rung `k ≤ 4` is nonempty on the unit locus. -/
+theorem gRsd_nonempty_of_le_four {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B)) {k : ℕ}
+    (hk : k ≤ 4) : (gRowSet h A B k).Nonempty := by
+  obtain ⟨c, hc⟩ := gRsd_nonempty_four (h := h) hAB
+  exact ⟨c, gRowSet_antitone hk hc⟩
+
 end Kills
+
+/-! ## §9 The sharpened chain: the residual starts at class five
+
+`gRow_pair_of_forall_class_four` consumed the rungs `k ≥ 4`; rung 4 is now a theorem, so
+the whole committed chain to the odd-degree classification rests on the rungs `k ≥ 5`
+alone.  The engine (`gLad_step` at `j ≥ 3`) prices each of them as one linear-algebra
+question in `lambda_{k-1}/lambda_k`, one level above the one this module solved. -/
+
+section Chain
+
+variable {h : ℕ}
+
+/-- The row pair over the class-`k ≥ 5` rungs alone. -/
+theorem gRsd_pair_of_forall_class_five {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
+    (H : ∀ k, 5 ≤ k → (gRowSet h A B k).Nonempty) : GRowPair h A B := by
+  refine gRow_pair_of_forall_class_four hAB fun k hk => ?_
+  by_cases hk5 : 5 ≤ k
+  · exact H k hk5
+  · have hk4 : k = 4 := by omega
+    subst hk4
+    exact gRsd_nonempty_four hAB
+
+/-- ⭐⭐⭐ **The odd route's last item over the class-`k ≥ 5` rungs alone**: rung 4 is paid,
+so the oriented clearing at every unit-pivot marking follows from the rungs the residual
+actually still owes. -/
+theorem gRsd_clearing_of_forall_class_five
+    (H : ∀ A B : ℤ_[2], IsUnit (A - sqPivotExp * B) →
+      ∀ k, 5 ≤ k → (gRowSet h A B k).Nonempty) :
+    SqNuOrientedClearAtUnitPivot h := by
+  refine gRow_clearing_of_forall_class_four fun A B hAB k hk => ?_
+  by_cases hk5 : 5 ≤ k
+  · exact H A B hAB k hk5
+  · have hk4 : k = 4 := by omega
+    subst hk4
+    exact gRsd_nonempty_four hAB
+
+end Chain
+
+/-! ## §10 Stress pins -/
+
+section StressPins
+
+/-- The half-locus result contains the quarter-locus result of wave 86. -/
+example (h : ℕ) {A B : ℤ_[2]} (hA : (4 : ℤ_[2]) ∣ A - 1) (hB : (4 : ℤ_[2]) ∣ B) :
+    (gRowSet h A B 4).Nonempty := by
+  obtain ⟨a, ha⟩ := hA
+  obtain ⟨b, hb⟩ := hB
+  exact gRsd_nonempty_four_half ⟨2 * b, by linear_combination hb⟩
+    ⟨a - b, by linear_combination ha - hb⟩
+
+/-- The translation ray carries rung 4 at every `c`: the residue that guards the odd route's
+translation moves is paid. -/
+example (h : ℕ) (c : ℤ_[2]) : (gRowSet h (1 - sqPivotExp * c) (-c) 4).Nonempty := by
+  refine gRsd_nonempty_four ?_
+  rw [show (1 - sqPivotExp * c) - sqPivotExp * (-c) = (1 : ℤ_[2]) by ring]
+  exact isUnit_one
+
+/-- The scaling ray carries rung 4 at every unit `e`, including `e = 3 mod 4` where the
+quarter-locus result was silent. -/
+example (h : ℕ) {e : ℤ_[2]} (he : IsUnit e) : (gRowSet h e 0 4).Nonempty := by
+  refine gRsd_nonempty_four ?_
+  rw [show e - sqPivotExp * 0 = e by ring]
+  exact he
+
+/-- The rung-4 statement composes with the wave-85 criterion: the pair at `(3, 0)` (the
+first scaling point off the quarter locus) needs only the rungs `k ≥ 5`. -/
+example (h : ℕ) (H : ∀ k, 5 ≤ k → (gRowSet h 3 0 k).Nonempty) : GRowPair h 3 0 := by
+  refine gRsd_pair_of_forall_class_five ?_ H
+  rw [show (3 : ℤ_[2]) - sqPivotExp * 0 = 3 by ring]
+  refine isUnit_iff_not_two_dvd.mpr fun ⟨k, hk⟩ => ?_
+  have h21 : (2 : ℤ_[2]) ∣ 1 := ⟨k - 1, by linear_combination hk⟩
+  exact (isUnit_iff_not_two_dvd.mp (isUnit_of_dvd_one h21)) ⟨1, (mul_one 2).symm⟩
+
+/-- The two kill elements of the odd locus differ by exactly the even kill element: the
+excess cost is the same involution at every `B`. -/
+example (h : ℕ) : gRsdKillO' h = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadS h)
+    * (gRsdKillY h * gRsdYY h)) := rfl
+
+end StressPins
 
 end SqCore
 
