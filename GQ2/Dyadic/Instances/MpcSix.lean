@@ -116,6 +116,55 @@ private theorem mpcSx_shuffleAB {Q : Type*} [Group Q] {x₁ x₂ e₁ e₂ e₃ 
     _ = x₁ * x₂ * e₁ * e₂ * e₃ := by rw [mpcSx_mv h₁₂ x₁ e₂]
     _ = x₁ * x₂ * (e₁ * e₂ * e₃) := by group
 
+/-- Pushing two central factors past three that commute with each other. -/
+private theorem mpcSx_zout2 {Q : Type*} [Group Q] {z₃ z₄ : Q}
+    (h₃ : ∀ x : Q, z₃ * x = x * z₃) (h₄ : ∀ x : Q, z₄ * x = x * z₄)
+    (A m₁ m₂ m₃ z₁ z₂ : Q) :
+    A * z₃ * z₄ * m₁ * m₂ * m₃ * z₁ * z₂ = A * m₁ * m₂ * m₃ * (z₃ * z₄ * z₁ * z₂) := by
+  calc A * z₃ * z₄ * m₁ * m₂ * m₃ * z₁ * z₂
+      = A * z₃ * m₁ * z₄ * m₂ * m₃ * z₁ * z₂ := by rw [mpcSx_cmove h₄ (A * z₃) m₁]
+    _ = A * m₁ * z₃ * z₄ * m₂ * m₃ * z₁ * z₂ := by rw [mpcSx_cmove h₃ A m₁]
+    _ = A * m₁ * z₃ * m₂ * z₄ * m₃ * z₁ * z₂ := by rw [mpcSx_cmove h₄ (A * m₁ * z₃) m₂]
+    _ = A * m₁ * m₂ * z₃ * z₄ * m₃ * z₁ * z₂ := by rw [mpcSx_cmove h₃ (A * m₁) m₂]
+    _ = A * m₁ * m₂ * z₃ * m₃ * z₄ * z₁ * z₂ := by rw [mpcSx_cmove h₄ (A * m₁ * m₂ * z₃) m₃]
+    _ = A * m₁ * m₂ * m₃ * z₃ * z₄ * z₁ * z₂ := by rw [mpcSx_cmove h₃ (A * m₁ * m₂) m₃]
+    _ = A * m₁ * m₂ * m₃ * (z₃ * z₄ * z₁ * z₂) := by group
+
+/-- **The `C̄₀`/`D̄` collection at class six.**  Three `M`-factors move right through the two
+`L`-factors and the marked bracket `y`; then `y` moves to the front past both `L`-factors, at the
+cost of the two central brackets `z₃`, `z₄`. -/
+private theorem mpcSx_shuffleCD {Q : Type*} [Group Q] {m₁ m₂ m₃ l₁ l₂ y z₁ z₂ z₃ z₄ : Q}
+    (hz₁ : ∀ x : Q, z₁ * x = x * z₁) (hz₂ : ∀ x : Q, z₂ * x = x * z₂)
+    (hz₃ : ∀ x : Q, z₃ * x = x * z₃) (hz₄ : ∀ x : Q, z₄ * x = x * z₄)
+    (h₁₁ : m₁ * l₁ = l₁ * m₁) (h₁₂ : m₁ * l₂ = l₂ * m₁) (h₁y : m₁ * y = y * m₁)
+    (h₂y : m₂ * y = y * m₂)
+    (hs₁ : l₁ * y = y * l₁ * z₃) (hs₂ : l₂ * y = y * l₂ * z₄) :
+    m₁ * z₁ * l₁ * (l₂ * m₂ * y) * (z₂ * m₃)
+      = y * (l₁ * l₂) * (m₁ * m₂ * m₃) * (z₃ * z₄ * z₁ * z₂) := by
+  have hy2 : l₁ * l₂ * y = y * l₁ * l₂ * z₃ * z₄ := by
+    calc l₁ * l₂ * y = l₁ * (l₂ * y) := by group
+      _ = l₁ * (y * l₂ * z₄) := by rw [hs₂]
+      _ = l₁ * y * l₂ * z₄ := by group
+      _ = y * l₁ * z₃ * l₂ * z₄ := by rw [hs₁]
+      _ = y * l₁ * l₂ * z₃ * z₄ := by rw [mpcSx_cmove hz₃ (y * l₁) l₂]
+  calc m₁ * z₁ * l₁ * (l₂ * m₂ * y) * (z₂ * m₃)
+      = m₁ * z₁ * l₁ * l₂ * m₂ * y * z₂ * m₃ := by group
+    _ = m₁ * z₁ * l₁ * l₂ * m₂ * y * m₃ * z₂ := by
+        rw [mpcSx_cmove hz₂ (m₁ * z₁ * l₁ * l₂ * m₂ * y) m₃]
+    _ = m₁ * l₁ * l₂ * m₂ * y * m₃ * z₁ * z₂ := by
+        rw [mpcSx_cmove hz₁ m₁ l₁, mpcSx_cmove hz₁ (m₁ * l₁) l₂,
+          mpcSx_cmove hz₁ (m₁ * l₁ * l₂) m₂, mpcSx_cmove hz₁ (m₁ * l₁ * l₂ * m₂) y,
+          mpcSx_cmove hz₁ (m₁ * l₁ * l₂ * m₂ * y) m₃]
+    _ = l₁ * l₂ * m₁ * m₂ * y * m₃ * z₁ * z₂ := by rw [h₁₁, mpcSx_mv h₁₂ l₁ m₂]
+    _ = l₁ * l₂ * y * m₁ * m₂ * m₃ * z₁ * z₂ := by
+        rw [mpcSx_mv h₂y (l₁ * l₂ * m₁) m₃, mpcSx_mv h₁y (l₁ * l₂) m₂]
+    _ = y * l₁ * l₂ * z₃ * z₄ * m₁ * m₂ * m₃ * z₁ * z₂ := by rw [hy2]
+    _ = y * (l₁ * l₂) * (m₁ * m₂ * m₃) * (z₃ * z₄ * z₁ * z₂) := by
+        rw [show y * l₁ * l₂ * z₃ * z₄ * m₁ * m₂ * m₃ * z₁ * z₂
+            = y * l₁ * l₂ * z₃ * z₄ * m₁ * m₂ * m₃ * z₁ * z₂ from rfl,
+          mpcSx_zout2 hz₃ hz₄ (y * l₁ * l₂) m₁ m₂ m₃ z₁ z₂]
+        group
+
 /-- The head swap of §2: two `Y`-factors exchange at the cost of one central bracket. -/
 private theorem mpcSx_headswap {Q : Type*} [Group Q] (a b c E : Q) {z : Q}
     (hz : ∀ x : Q, z * x = x * z) (hzdef : a * b = b * a * z) :
@@ -471,7 +520,157 @@ theorem mpcSx_comm_letAB {p q σ τ z : levelQuot G 6} (hσ : σ ∈ lambdaImage
 
 end LetterAB
 
-/-! ## §3 Axiom pins
+/-! ## §3 The pivot letter's fourth power, and the `C̄₀`/`D̄` bracket
+
+**Scope, stated once and carried by both lemmas of this section: the pivot correction is
+trivial.**  `mpcLad_pow_letC_five` and `mpcFv_comm_letCD` carry a general `μ ∈ Y`; §3 and §4 take
+`μ = 1`.  That is not a loss for the class-six rung, because **both climbed witnesses have a
+trivial pivot correction**: `mpcLadW4 = (W, W, 1, 1)` and `mpcFvW5 = (W, W·B̄⁴, 1, B̄⁴·⁅B̄²,D̄⁆)`,
+so the pivot slot has never been used by the ladder.  The general-`μ` class-six statement is
+open, and nothing below is evidence about it either way.
+
+`mpcLad_pow_letC_five` at `μ = 1` reads `(q²·r)⁴ = r⁴·(q⁸·⁅r,q²⁆²)` in `Q₅`.  At class six five
+more terms survive: `q⁸` and `⁅r,q²⁆²` sink from `Z` to `M`, and four `Z`-terms appear, three of
+them brackets against the `L`-element `⁅r,q²⁆` and one the square of the second-order term
+`⁅⁅r,q²⁆,r⁆` that class five could drop outright. -/
+
+section LetterC
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **THE PIVOT LETTER'S FOURTH POWER AT CLASS SIX**, at trivial pivot correction:
+
+    (q²·r)⁴ = r⁴ · (q⁸·⁅r,q²⁆²) · (⁅r²,q⁴⁆·⁅⁅r,q²⁆,r²⁆·⁅⁅r,q²⁆,q⁴⁆·⁅⁅r,q²⁆,r⁆²) .
+
+The first two groups are `mpcLad_pow_letC_five` at `μ = 1`; the third is central of exponent two
+and vanishes at class five, where each factor is a bracket against an `L`-element or the square
+of one. -/
+theorem mpcSx_pow_letC (q r : levelQuot G 6) :
+    (q ^ 2 * r) ^ 4
+      = r ^ 4 * (q ^ 8 * commP r (q ^ 2) ^ 2) *
+        (commP (r ^ 2) (q ^ 4) * commP (commP r (q ^ 2)) (r ^ 2) *
+          commP (commP r (q ^ 2)) (q ^ 4) * commP (commP r (q ^ 2)) r ^ 2) := by
+  have e4 : (q ^ 2) ^ 2 = q ^ 4 := by rw [← pow_mul]
+  have e8 : (q ^ 4) ^ 2 = q ^ 8 := by rw [← pow_mul]
+  have er4 : (r ^ 2) ^ 2 = r ^ 4 := by rw [← pow_mul]
+  have hq2 : q ^ 2 ∈ lambdaImage G 2 6 := mpcSx_pow_two_mem q
+  have hq4 : q ^ 4 ∈ lambdaImage G 3 6 := mpcSx_pow_four_mem q
+  have hq4Y : q ^ 4 ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hq4
+  have hq8 : q ^ 8 ∈ lambdaImage G 4 6 := mpcSx_pow_eight_mem q
+  have hr2 : r ^ 2 ∈ lambdaImage G 2 6 := mpcSx_pow_two_mem r
+  have hr4 : r ^ 4 ∈ lambdaImage G 3 6 := mpcSx_pow_four_mem r
+  have hr4Y : r ^ 4 ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hr4
+  have hT : commP r (q ^ 2) ∈ lambdaImage G 3 6 := mpcSx_commP_step' r hq2
+  have hTY : commP r (q ^ 2) ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hT
+  have hT2 : commP r (q ^ 2) ^ 2 ∈ lambdaImage G 4 6 := mpcSx_sq_step hT
+  have hK : commP (commP r (q ^ 2)) r ∈ lambdaImage G 4 6 := mpcSx_commP_step hT r
+  have hK2 : commP (commP r (q ^ 2)) r ^ 2 ∈ zLayer G 5 := mpcSx_sq_step hK
+  have hZ1 : commP (r ^ 2) (q ^ 4) ∈ zLayer G 5 := mpcSx_commP_lam' hq4 hr2
+  have hZ2 : commP (commP r (q ^ 2)) (r ^ 2) ∈ zLayer G 5 := mpcSx_commP_lam hT hr2
+  have hZ3 : commP (commP r (q ^ 2)) (q ^ 4) ∈ zLayer G 5 := mpcSx_commP_lam hT hq4Y
+  -- the square of the row-shifted pivot
+  have hsq2 : (q ^ 2 * r) ^ 2
+      = q ^ 4 * r ^ 2 * commP r (q ^ 2) * commP (commP r (q ^ 2)) r := by
+    rw [cfour_sq_mul, e4]
+  -- the second-order term is an `M`-element, so it separates from the square
+  have hSK : ∀ S : levelQuot G 6, S ∈ lambdaImage G 2 6 →
+      (S * commP (commP r (q ^ 2)) r) ^ 2 = S ^ 2 * commP (commP r (q ^ 2)) r ^ 2 := by
+    intro S hS
+    rw [cfour_sq_mul, mpcSx_vanish_four hK hS, cfour_one_comm, mul_one, mul_one]
+  -- the square of the `Y`-part
+  have hXY : (q ^ 4 * r ^ 2) ^ 2 = q ^ 8 * r ^ 4 * commP (r ^ 2) (q ^ 4) := by
+    rw [cfour_sq_mul, mpcSx_commP_zLayer_left hZ1 (r ^ 2), mul_one, e8, er4]
+  have hbr : commP (commP r (q ^ 2)) (q ^ 4 * r ^ 2)
+      = commP (commP r (q ^ 2)) (r ^ 2) * commP (commP r (q ^ 2)) (q ^ 4) :=
+    mpcSx_commP_add_right_three _ hq4 hr2
+  have hS2 : (q ^ 4 * r ^ 2 * commP r (q ^ 2)) ^ 2
+      = q ^ 8 * r ^ 4 * commP (r ^ 2) (q ^ 4) * commP r (q ^ 2) ^ 2 *
+        (commP (commP r (q ^ 2)) (r ^ 2) * commP (commP r (q ^ 2)) (q ^ 4)) := by
+    rw [cfour_sq_mul, mpcSx_commP_zLayer_left (mpcSx_commP_lam hT
+      (Subgroup.mul_mem _ hq4Y hr2)) (commP r (q ^ 2)), mul_one, hXY, hbr]
+  calc (q ^ 2 * r) ^ 4
+      = ((q ^ 2 * r) ^ 2) ^ 2 := by rw [← pow_mul]
+    _ = (q ^ 4 * r ^ 2 * commP r (q ^ 2)) ^ 2 * commP (commP r (q ^ 2)) r ^ 2 := by
+        rw [hsq2, hSK _ (Subgroup.mul_mem _ (Subgroup.mul_mem _ hq4Y hr2) hTY)]
+    _ = q ^ 8 * r ^ 4 * commP (r ^ 2) (q ^ 4) * commP r (q ^ 2) ^ 2 *
+          (commP (commP r (q ^ 2)) (r ^ 2) * commP (commP r (q ^ 2)) (q ^ 4)) *
+          commP (commP r (q ^ 2)) r ^ 2 := by rw [hS2]
+    _ = r ^ 4 * (q ^ 8 * commP r (q ^ 2) ^ 2) *
+          (commP (r ^ 2) (q ^ 4) * commP (commP r (q ^ 2)) (r ^ 2) *
+            commP (commP r (q ^ 2)) (q ^ 4) * commP (commP r (q ^ 2)) r ^ 2) := by
+        rw [mpcSx_cmove (mpcSx_zcomm hZ1) (q ^ 8 * r ^ 4) (commP r (q ^ 2) ^ 2),
+          show q ^ 8 * r ^ 4 = r ^ 4 * q ^ 8 from mpcSx_mcomm hq8 hr4Y]
+        group
+
+end LetterC
+
+/-! ## §4 The `C̄₀`/`D̄` bracket at class six -/
+
+section LetterCD
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **THE `C̄₀`/`D̄` BRACKET AT CLASS SIX**, at trivial pivot correction:
+
+    ⁅q²·r, w·ν⁆ = ⁅r,w⁆ · (⁅r,ν⁆·⁅q²,w⁆) · (⁅q²,ν⁆·⁅⁅q²,w⁆,r⁆·⁅⁅r,w⁆,ν⁆)
+                        · (⁅⁅r,ν⁆,⁅r,w⁆⁆·⁅⁅q²,w⁆,⁅r,w⁆⁆·⁅⁅q²,ν⁆,r⁆·⁅⁅q²,w⁆,ν⁆) .
+
+The first three groups are `mpcFv_comm_letCD` at `μ = 1` (with the two `L`-terms in the opposite
+order, which is free at class five and not here); the fourth is central of exponent two and
+vanishes at class five.  **Its first two factors are reordering costs**, incurred carrying the
+marked bracket `⁅r,w⁆` to the front past the two `L`-terms; the other two are genuine new bracket
+terms. -/
+theorem mpcSx_comm_letCD {q r w ν : levelQuot G 6} (hν : ν ∈ lambdaImage G 2 6) :
+    commP (q ^ 2 * r) (w * ν)
+      = commP r w * (commP r ν * commP (q ^ 2) w) *
+        (commP (q ^ 2) ν * commP (commP (q ^ 2) w) r * commP (commP r w) ν) *
+        (commP (commP r ν) (commP r w) * commP (commP (q ^ 2) w) (commP r w) *
+          commP (commP (q ^ 2) ν) r * commP (commP (q ^ 2) w) ν) := by
+  have hq2 : q ^ 2 ∈ lambdaImage G 2 6 := mpcSx_pow_two_mem q
+  have hrw : commP r w ∈ lambdaImage G 2 6 := mpcSx_commP_mem_two r w
+  have hrν : commP r ν ∈ lambdaImage G 3 6 := mpcSx_commP_step' r hν
+  have hrνY : commP r ν ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hrν
+  have hq2w : commP (q ^ 2) w ∈ lambdaImage G 3 6 := mpcSx_commP_step hq2 w
+  have hq2wY : commP (q ^ 2) w ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hq2w
+  have hq2ν : commP (q ^ 2) ν ∈ lambdaImage G 4 6 := mpcSx_commP_lam hq2 hν
+  have hq2wr : commP (commP (q ^ 2) w) r ∈ lambdaImage G 4 6 := mpcSx_commP_step hq2w r
+  have hrwν : commP (commP r w) ν ∈ lambdaImage G 4 6 := mpcSx_commP_lam hrw hν
+  have hZ1 : commP (commP (q ^ 2) ν) r ∈ zLayer G 5 := mpcSx_commP_step hq2ν r
+  have hZ2 : commP (commP (q ^ 2) w) ν ∈ zLayer G 5 := mpcSx_commP_lam hq2w hν
+  have hZ3 : commP (commP r ν) (commP r w) ∈ zLayer G 5 := mpcSx_commP_lam hrν hrw
+  have hZ4 : commP (commP (q ^ 2) w) (commP r w) ∈ zLayer G 5 := mpcSx_commP_lam hq2w hrw
+  -- the pivot letter against the `D̄`-correction
+  have ha : commP (q ^ 2 * r) ν
+      = commP (q ^ 2) ν * commP (commP (q ^ 2) ν) r * commP r ν :=
+    cfour_commP_mul_left _ _ _
+  -- the pivot letter against the marked `D̄`
+  have hb : commP (q ^ 2 * r) w
+      = commP (q ^ 2) w * commP (commP (q ^ 2) w) r * commP r w :=
+    cfour_commP_mul_left _ _ _
+  -- the second-order correction sees the shift bracket and the marked bracket
+  have hc : commP (commP (q ^ 2 * r) w) ν
+      = commP (commP (q ^ 2) w) ν * commP (commP r w) ν := by
+    rw [hb, cfour_commP_mul_left (commP (q ^ 2) w * commP (commP (q ^ 2) w) r) (commP r w) ν,
+      mpcSx_commP_drop_left_tail_four hq2wY hq2wr hν,
+      mpcSx_commP_zLayer_left hZ2 (commP r w), mul_one]
+  calc commP (q ^ 2 * r) (w * ν)
+      = commP (q ^ 2 * r) ν * commP (q ^ 2 * r) w * commP (commP (q ^ 2 * r) w) ν :=
+        cfour_commP_mul_right _ _ _
+    _ = commP (q ^ 2) ν * commP (commP (q ^ 2) ν) r * commP r ν *
+          (commP (q ^ 2) w * commP (commP (q ^ 2) w) r * commP r w) *
+          (commP (commP (q ^ 2) w) ν * commP (commP r w) ν) := by rw [hc, hb, ha]
+    _ = commP r w * (commP r ν * commP (q ^ 2) w) *
+          (commP (q ^ 2) ν * commP (commP (q ^ 2) w) r * commP (commP r w) ν) *
+          (commP (commP r ν) (commP r w) * commP (commP (q ^ 2) w) (commP r w) *
+            commP (commP (q ^ 2) ν) r * commP (commP (q ^ 2) w) ν) :=
+        mpcSx_shuffleCD (mpcSx_zcomm hZ1) (mpcSx_zcomm hZ2) (mpcSx_zcomm hZ3)
+          (mpcSx_zcomm hZ4) (mpcSx_mcomm hq2ν hrνY) (mpcSx_mcomm hq2ν hq2wY)
+          (mpcSx_mcomm hq2ν hrw) (mpcSx_mcomm hq2wr hrw)
+          (cfive_swap_free _ _) (cfive_swap_free _ _)
+
+end LetterCD
+
+/-! ## §5 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -507,6 +706,8 @@ section AxiomPins
 #print axioms mpcSx_commP_add_right_three
 #print axioms mpcSx_sq_letA
 #print axioms mpcSx_comm_letAB
+#print axioms mpcSx_pow_letC
+#print axioms mpcSx_comm_letCD
 
 end AxiomPins
 
