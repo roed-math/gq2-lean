@@ -26,13 +26,14 @@ The class-five rung is already an instance of this full marked supply.
 
 This API does not assert the missing mathematics.  To finish `MpcPivShift 2` through it one
 must prove, for every `j ≥ 4`, that some class-`(j+1)` solution has its top-layer defect in
-the image of the full marked cost map.  Equivalently, one needs the graded/Fox exactness
-statement that the four marked correction slots cover the relevant chi-twisted Fox kernel,
-and that the `M6` defect lies in that kernel.  The tree contains the exact increment map and
-the generic layer calculus, but no such cost-image theorem for `D_M 2 0`; the Fox-ideal
-calculation in `docs/dyadic/w84-word-note.md` is off-tree prose.  The conditional endpoint
-below names this gap without turning it into an axiom or a hypothesis attached to the public
-classification theorem.
+the image of the full marked cost map.  The exact class-six calculation recorded in W94 shows
+that this image has corank five.  It therefore cannot equal or contain the codimension-one
+chi-Fox kernel initially suggested here, nor the intersection of four coordinate derivation
+kernels, which has codimension at most four.  The honest uniform target is narrower: the
+specific recursively arising M6 defects must remain in the appropriate fiberwise cost range.
+The tree contains the exact increment map and generic layer calculus, but not that propagation
+theorem.  The conditional endpoint below names this gap without turning it into an axiom or a
+hypothesis attached to the public classification theorem.
 
 Declaration prefix `mpcMk` (namespace `GQ2.Dyadic.Instances.MpcMk`).  No `sorry`, no new
 axiom, no `native_decide`, and no heartbeat or recursion override.
