@@ -853,7 +853,90 @@ theorem mpcSx_mWord_six {p q r w σ τ ν z : levelQuot G 6}
 
 end Assembly
 
-/-! ## §6 Axiom pins
+/-! ## §6 The class-six defect of the wave-87 class-five witness
+
+§5 transported to `D_M 2 0` and evaluated at `mpcFvW5 = (W, W·B̄⁴, 1, B̄⁴·⁅B̄²,D̄⁆)`, whose pivot
+correction is trivial, so §3 and §4 apply as they stand.  The marked relator is killed on the way
+by `mpcOrb_relation`, exactly as `mpcFv_defect_five` does one class down. -/
+
+section Witness
+
+/-- `Ā` in `Q₆`. -/
+def mpcSxA : levelQuot (DM 2 0 : Type) 6 := levelMk (DM 2 0 : Type) 6 (dmA 2 0)
+
+/-- `B̄` in `Q₆`. -/
+def mpcSxB : levelQuot (DM 2 0 : Type) 6 := levelMk (DM 2 0 : Type) 6 (dmB 2 0)
+
+/-- `C̄₀` in `Q₆`. -/
+def mpcSxC : levelQuot (DM 2 0 : Type) 6 := levelMk (DM 2 0 : Type) 6 (dmC 2 0)
+
+/-- `D̄` in `Q₆`. -/
+def mpcSxD : levelQuot (DM 2 0 : Type) 6 := levelMk (DM 2 0 : Type) 6 (dmD 2 0)
+
+/-- The ansatz's head shift `z = (B̄⁴)⁻¹`, in `Q₆`.  At class five its square was `B̄⁸`, a central
+involution; at class six `B̄⁸` is only an `M`-element, so the inverse does not simplify. -/
+def mpcSxZ : levelQuot (DM 2 0 : Type) 6 := (mpcSxB ^ 4)⁻¹
+
+/-- The wave-84 correction `W = ⁅D̄, B̄⁆`, in `Q₆`. -/
+def mpcSxW : levelQuot (DM 2 0 : Type) 6 := commP mpcSxD mpcSxB
+
+/-- The wave-87 witness's `D̄`-correction `B̄⁴·⁅B̄², D̄⁆`, in `Q₆`. -/
+def mpcSxN : levelQuot (DM 2 0 : Type) 6 := mpcSxB ^ 4 * commP (mpcSxB ^ 2) mpcSxD
+
+theorem mpcSx_z_mem : mpcSxZ ∈ lambdaImage (DM 2 0 : Type) 3 6 :=
+  Subgroup.inv_mem _ (mpcSx_pow_four_mem _)
+
+theorem mpcSx_w_mem : mpcSxW ∈ lambdaImage (DM 2 0 : Type) 2 6 :=
+  mpcSx_commP_mem_two _ _
+
+theorem mpcSx_n_mem : mpcSxN ∈ lambdaImage (DM 2 0 : Type) 2 6 :=
+  Subgroup.mul_mem _ (mpcSx_lam_le (by omega) (mpcSx_pow_four_mem _))
+    (mpcSx_commP_mem_two _ _)
+
+/-- ⭐⭐⭐ **THE CLASS-SIX DEFECT OF THE WAVE-87 CLASS-FIVE WITNESS, IN CLOSED FORM.**  The
+analogue of `mpcFv_witness_defect` one class up, and the input the class-six rung consumes.
+
+Unlike its class-five counterpart this is **not** collapsed to a short product of survivors: at
+class five the witness's defect had to lie in `λ₄/λ₅` and the collapse was forced, whereas here
+the a-priori bound is only `λ₅/λ₆` and the cancellation among the four corrections has not been
+carried out.  What is proved is the exact value, in the closed form of §5. -/
+theorem mpcSx_w5_defect :
+    levelMk (DM 2 0 : Type) 6 (mpcLadDefect mpcFvW5)
+      = mpcSxE1 mpcSxA mpcSxW mpcSxZ *
+        mpcSxE2 mpcSxA mpcSxB mpcSxW (mpcSxW * mpcSxB ^ 4) mpcSxZ *
+        mpcSxE3 mpcSxB mpcSxC * mpcSxE4 mpcSxB mpcSxC mpcSxD mpcSxN *
+        (commP (mpcSxE1 mpcSxA mpcSxW mpcSxZ)
+            (commP mpcSxA mpcSxB * mpcSxC ^ 4 * commP mpcSxC mpcSxD) *
+          commP (mpcSxE2 mpcSxA mpcSxB mpcSxW (mpcSxW * mpcSxB ^ 4) mpcSxZ)
+            (mpcSxC ^ 4 * commP mpcSxC mpcSxD)) := by
+  have hrel : mWord 2 mpcSxA mpcSxB mpcSxC mpcSxD = 1 := by
+    simp only [mpcSxA, mpcSxB, mpcSxC, mpcSxD]
+    rw [← map_mWord, mpcOrb_relation, map_one]
+  have hτ : levelMk (DM 2 0 : Type) 6 (mpcBldW * mpcFvUt) = mpcSxW * mpcSxB ^ 4 := by
+    rw [mpcBldW, mpcFvUt, map_mul, map_pow, mpcBld_map_commP]; rfl
+  have hν : levelMk (DM 2 0 : Type) 6 mpcFvUn = mpcSxN := by
+    rw [mpcFvUn, mpcSxN, map_mul, map_pow, mpcBld_map_commP, map_pow]; rfl
+  have hA : levelMk (DM 2 0 : Type) 6 (mpcWordLetA (mpcBldW * 1))
+      = mpcSxA * mpcSxZ * mpcSxW := by
+    rw [mul_one, mpcWordLetA, mpcSxZ, map_mul, map_mul, map_inv, map_pow, mpcBldW,
+      mpcBld_map_commP]; rfl
+  have hB : levelMk (DM 2 0 : Type) 6 (mpcWordLetB (mpcBldW * mpcFvUt))
+      = mpcSxB * (mpcSxW * mpcSxB ^ 4) := by rw [mpcWordLetB, map_mul, hτ]; rfl
+  have hC : levelMk (DM 2 0 : Type) 6 (mpcWordLetC (1 * 1)) = mpcSxB ^ 2 * mpcSxC := by
+    rw [mpcWordLetC, mul_one, mul_one, map_mul, map_pow]; rfl
+  have hD : levelMk (DM 2 0 : Type) 6 (mpcWordLetD (1 * mpcFvUn)) = mpcSxD * mpcSxN := by
+    rw [mpcWordLetD, one_mul, map_mul, hν]; rfl
+  have hdef : mpcLadDefect mpcFvW5
+      = mWord 2 (mpcWordLetA (mpcBldW * 1)) (mpcWordLetB (mpcBldW * mpcFvUt))
+          (mpcWordLetC (1 * 1)) (mpcWordLetD (1 * mpcFvUn)) := rfl
+  rw [hdef, map_mWord, hA, hB, hC, hD,
+    mpcSx_mWord_six (G := (DM 2 0 : Type)) mpcSx_w_mem
+      (Subgroup.mul_mem _ mpcSx_w_mem (mpcSx_lam_le (by omega) (mpcSx_pow_four_mem _)))
+      mpcSx_n_mem mpcSx_z_mem, hrel, one_mul]
+
+end Witness
+
+/-! ## §7 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -903,6 +986,17 @@ section AxiomPins
 #print axioms mpcSx_pow_letC'
 #print axioms mpcSx_comm_letCD'
 #print axioms mpcSx_mWord_six
+#print axioms mpcSxA
+#print axioms mpcSxB
+#print axioms mpcSxC
+#print axioms mpcSxD
+#print axioms mpcSxZ
+#print axioms mpcSxW
+#print axioms mpcSxN
+#print axioms mpcSx_z_mem
+#print axioms mpcSx_w_mem
+#print axioms mpcSx_n_mem
+#print axioms mpcSx_w5_defect
 
 end AxiomPins
 
