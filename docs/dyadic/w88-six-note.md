@@ -159,8 +159,10 @@ and `mpcSx_w4_marked`, `mpcSx_ut_marked`, `mpcSx_un_marked` are the three checks
 The χ-half of legality is the one depth does not give, and this lane proves it does not:
 `mpcSx_dmD_sq_not_corr` exhibits `D̄² ∈ λ₂` with `χ_M(D̄²) = mUnit 2 ^ 2 ≠ 1`
 (`mpcSx_chi_dmD_sq`, from `mUnit 2 · (1 − 2²) = 1` and `9 ≠ 1` in `ℤ₂`).  So `λ₂ ⊄ mpcWordCorr`,
-and the legality lemma has content.  This corrects a natural guess a continuation might make, that
-the χ-condition is free once one is deep enough in the tower.
+and the legality lemma has content.  This blocks a natural guess a continuation might make, that
+the χ-condition comes free from the tower.  It is blocked **at depth two**, which is where the
+correction carriers start; whether `λ_j ⊄ ker χ_M` at every `j` was not checked and is not
+needed.
 
 ⭐⭐ **(ii) The marked supply never runs out** (`mpcSx_pow_mem_kill`): `B̄^(2^(k+1))` is marked and
 lies `k+2` layers down, so `mpcSxKill j` carries a `B̄`-power at every class from two up.  This is
