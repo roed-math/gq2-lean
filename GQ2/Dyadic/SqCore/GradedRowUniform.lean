@@ -230,6 +230,375 @@ theorem gUni_defect_knob {A B : ℤ_[2]} {j : ℕ} (hj : 3 ≤ j)
 
 end UniformDefect
 
+/-! ## §4 Single-slot tuples and their engine costs
+
+The engine cost of a carrier tuple supported on one slot is one marked-letter bracket, or
+the `x₁`-bundle: the five cases of `gLadCost`, evaluated. -/
+
+section SlotTuples
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {j : ℕ}
+
+private theorem gUni_listProd_succ {M : Type*} [Monoid M] {n : ℕ} (f : Fin (n + 1) → M) :
+    ((List.finRange (n + 1)).map f).prod
+      = f 0 * ((List.finRange n).map fun i => f i.succ).prod := by
+  rw [List.finRange_succ, List.map_cons, List.prod_cons, List.map_map]
+  rfl
+
+private theorem gUni_listProd_one {M : Type*} [Monoid M] {n : ℕ} {f : Fin n → M}
+    (hf : ∀ i, f i = 1) : ((List.finRange n).map f).prod = 1 :=
+  List.prod_eq_one (by
+    intro x hx
+    rw [List.mem_map] at hx
+    obtain ⟨i, -, rfl⟩ := hx
+    exact hf i)
+
+private theorem gUni_listProd_single {M : Type*} [Monoid M] :
+    ∀ {n : ℕ} (f : Fin n → M) (j₀ : Fin n), (∀ i, i ≠ j₀ → f i = 1) →
+      ((List.finRange n).map f).prod = f j₀ := by
+  intro n
+  induction n with
+  | zero => exact fun _ j₀ _ => j₀.elim0
+  | succ n ih =>
+    intro f j₀ hf
+    rw [gUni_listProd_succ]
+    rcases Fin.eq_zero_or_eq_succ j₀ with rfl | ⟨j', rfl⟩
+    · rw [gUni_listProd_one (f := fun i => f i.succ)
+        (fun i => hf i.succ (Fin.succ_ne_zero i)), mul_one]
+    · rw [hf 0 (Fin.succ_ne_zero j').symm, one_mul]
+      exact ih (fun i => f i.succ) j'
+        (fun i hi => hf i.succ (fun hcon => hi (Fin.succ_inj.mp hcon)))
+
+/-- The all-but-one-trivial handle product collapses onto the `U`-bracket of the marked
+slot. -/
+private theorem gUni_handleProd_singleU {n : ℕ} (m εq : Fin (sqRank n) → levelQuot G (j + 2))
+    (j₀ : Fin n) (hU : ∀ i, i ≠ j₀ → εq (sqHandleIdxU i) = 1)
+    (hV : ∀ i, εq (sqHandleIdxV i) = 1) :
+    ((List.finRange n).map fun i => commP (εq (sqHandleIdxU i)) (m (sqHandleIdxV i))
+        * commP (m (sqHandleIdxU i)) (εq (sqHandleIdxV i))).prod
+      = commP (εq (sqHandleIdxU j₀)) (m (sqHandleIdxV j₀)) := by
+  rw [gUni_listProd_single _ j₀ (fun i hi => by
+    rw [hU i hi, hV i, cfour_one_comm, cfour_comm_one, one_mul])]
+  show commP (εq (sqHandleIdxU j₀)) (m (sqHandleIdxV j₀))
+      * commP (m (sqHandleIdxU j₀)) (εq (sqHandleIdxV j₀)) = _
+  rw [hV j₀, cfour_comm_one, mul_one]
+
+/-- The all-but-one-trivial handle product collapses onto the `V`-bracket of the marked
+slot. -/
+private theorem gUni_handleProd_singleV {n : ℕ} (m εq : Fin (sqRank n) → levelQuot G (j + 2))
+    (j₀ : Fin n) (hU : ∀ i, εq (sqHandleIdxU i) = 1)
+    (hV : ∀ i, i ≠ j₀ → εq (sqHandleIdxV i) = 1) :
+    ((List.finRange n).map fun i => commP (εq (sqHandleIdxU i)) (m (sqHandleIdxV i))
+        * commP (m (sqHandleIdxU i)) (εq (sqHandleIdxV i))).prod
+      = commP (m (sqHandleIdxU j₀)) (εq (sqHandleIdxV j₀)) := by
+  rw [gUni_listProd_single _ j₀ (fun i hi => by
+    rw [hU i, hV i hi, cfour_one_comm, cfour_comm_one, one_mul])]
+  show commP (εq (sqHandleIdxU j₀)) (m (sqHandleIdxV j₀))
+      * commP (m (sqHandleIdxU j₀)) (εq (sqHandleIdxV j₀)) = _
+  rw [hU j₀, cfour_one_comm, one_mul]
+
+end SlotTuples
+
+section SlotTuplesD
+
+variable {h : ℕ}
+
+/-- **The single-slot tuple**: the carrier word `t` on slot `i₀`, `1` everywhere else. -/
+noncomputable def gUniSlot (i₀ : Fin (sqRank h)) (t : (DSq h : Type)) :
+    Fin (sqRank h) → (DSq h : Type) :=
+  fun i => if (i : ℕ) = (i₀ : ℕ) then t else 1
+
+theorem gUniSlot_same (i₀ : Fin (sqRank h)) (t : (DSq h : Type)) : gUniSlot i₀ t i₀ = t :=
+  if_pos rfl
+
+theorem gUniSlot_ne {i i₀ : Fin (sqRank h)} (hne : (i : ℕ) ≠ (i₀ : ℕ)) (t : (DSq h : Type)) :
+    gUniSlot i₀ t i = 1 :=
+  if_neg hne
+
+theorem gUniSlot_mem {j : ℕ} {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (i₀ : Fin (sqRank h)) :
+    ∀ i, gUniSlot i₀ t i ∈ twoCentralSeries (DSq h : Type) j := by
+  intro i
+  simp only [gUniSlot]
+  split
+  · exact ht
+  · exact one_mem _
+
+theorem gUniSlot_nuLam {t : (DSq h : Type)} (ht : nuLam h t = 1) (i₀ : Fin (sqRank h)) :
+    ∀ i, nuLam h (gUniSlot i₀ t i) = 1 := by
+  intro i
+  simp only [gUniSlot]
+  split
+  · exact ht
+  · exact map_one _
+
+theorem gUniSlot_nuSq {t : (DSq h : Type)} (ht : nuSq h t = 1) (i₀ : Fin (sqRank h)) :
+    ∀ i, nuSq h (gUniSlot i₀ t i) = 1 := by
+  intro i
+  simp only [gUniSlot]
+  split
+  · exact ht
+  · exact map_one _
+
+variable {j : ℕ}
+
+/-- The `σ`-slot cost: the bracket against the marked `x₀`-letter. -/
+theorem gUni_cost_slot0 (m : Fin (sqRank h) → levelQuot (DSq h : Type) (j + 2))
+    (t : (DSq h : Type)) :
+    gLadCost m (fun i => levelMk (DSq h : Type) (j + 2) (gUniSlot 0 t i))
+      = commP (levelMk (DSq h : Type) (j + 2) t) (m 1) := by
+  have h0 : gUniSlot (0 : Fin (sqRank h)) t 0 = t := gUniSlot_same _ _
+  have h1 : gUniSlot (0 : Fin (sqRank h)) t 1 = 1 :=
+    gUniSlot_ne (by rw [sqVal_one, sqVal_zero]; omega) t
+  have h2 : gUniSlot (0 : Fin (sqRank h)) t 2 = 1 :=
+    gUniSlot_ne (by rw [sqVal_two, sqVal_zero]; omega) t
+  have hU : ∀ i : Fin h, gUniSlot (0 : Fin (sqRank h)) t (sqHandleIdxU i) = 1 :=
+    fun i => gUniSlot_ne (by rw [sqHandleIdxU_val, sqVal_zero]; omega) t
+  have hV : ∀ i : Fin h, gUniSlot (0 : Fin (sqRank h)) t (sqHandleIdxV i) = 1 :=
+    fun i => gUniSlot_ne (by rw [sqHandleIdxV_val, sqVal_zero]; omega) t
+  simp only [gLadCost, h0, h1, h2, hU, hV, map_one, cfour_one_comm, cfour_comm_one,
+    one_pow, one_mul, mul_one]
+  rw [gUni_listProd_one (fun i => by rw [one_mul]), mul_one]
+
+/-- The `x₀`-slot cost: the bracket of the marked `σ`-letter. -/
+theorem gUni_cost_slot1 (m : Fin (sqRank h) → levelQuot (DSq h : Type) (j + 2))
+    (t : (DSq h : Type)) :
+    gLadCost m (fun i => levelMk (DSq h : Type) (j + 2) (gUniSlot 1 t i))
+      = commP (m 0) (levelMk (DSq h : Type) (j + 2) t) := by
+  have h0 : gUniSlot (1 : Fin (sqRank h)) t 0 = 1 :=
+    gUniSlot_ne (by rw [sqVal_one, sqVal_zero]; omega) t
+  have h1 : gUniSlot (1 : Fin (sqRank h)) t 1 = t := gUniSlot_same _ _
+  have h2 : gUniSlot (1 : Fin (sqRank h)) t 2 = 1 :=
+    gUniSlot_ne (by rw [sqVal_two, sqVal_one]; omega) t
+  have hU : ∀ i : Fin h, gUniSlot (1 : Fin (sqRank h)) t (sqHandleIdxU i) = 1 :=
+    fun i => gUniSlot_ne (by rw [sqHandleIdxU_val, sqVal_one]; omega) t
+  have hV : ∀ i : Fin h, gUniSlot (1 : Fin (sqRank h)) t (sqHandleIdxV i) = 1 :=
+    fun i => gUniSlot_ne (by rw [sqHandleIdxV_val, sqVal_one]; omega) t
+  simp only [gLadCost, h0, h1, h2, hU, hV, map_one, cfour_one_comm, cfour_comm_one,
+    one_pow, one_mul, mul_one]
+  rw [gUni_listProd_one (fun i => by rw [one_mul]), mul_one]
+
+/-- The `x₁`-slot cost: the bundle against the marked `x₁`-letter. -/
+theorem gUni_cost_slot2 (m : Fin (sqRank h) → levelQuot (DSq h : Type) (j + 2))
+    (t : (DSq h : Type)) :
+    gLadCost m (fun i => levelMk (DSq h : Type) (j + 2) (gUniSlot 2 t i))
+      = levelMk (DSq h : Type) (j + 2) t ^ 2
+        * commP (levelMk (DSq h : Type) (j + 2) t) (m 2) := by
+  have h0 : gUniSlot (2 : Fin (sqRank h)) t 0 = 1 :=
+    gUniSlot_ne (by rw [sqVal_two, sqVal_zero]; omega) t
+  have h1 : gUniSlot (2 : Fin (sqRank h)) t 1 = 1 :=
+    gUniSlot_ne (by rw [sqVal_two, sqVal_one]; omega) t
+  have h2 : gUniSlot (2 : Fin (sqRank h)) t 2 = t := gUniSlot_same _ _
+  have hU : ∀ i : Fin h, gUniSlot (2 : Fin (sqRank h)) t (sqHandleIdxU i) = 1 :=
+    fun i => gUniSlot_ne (by rw [sqHandleIdxU_val, sqVal_two]; omega) t
+  have hV : ∀ i : Fin h, gUniSlot (2 : Fin (sqRank h)) t (sqHandleIdxV i) = 1 :=
+    fun i => gUniSlot_ne (by rw [sqHandleIdxV_val, sqVal_two]; omega) t
+  simp only [gLadCost, h0, h1, h2, hU, hV, map_one, cfour_one_comm, cfour_comm_one,
+    one_pow, one_mul, mul_one]
+  rw [gUni_listProd_one (fun i => by rw [one_mul]), mul_one]
+
+/-- The `u`-handle cost: the bracket against the marked partner `v`-letter. -/
+theorem gUni_cost_slotU (m : Fin (sqRank h) → levelQuot (DSq h : Type) (j + 2))
+    (t : (DSq h : Type)) (j₀ : Fin h) :
+    gLadCost m (fun i => levelMk (DSq h : Type) (j + 2) (gUniSlot (sqHandleIdxU j₀) t i))
+      = commP (levelMk (DSq h : Type) (j + 2) t) (m (sqHandleIdxV j₀)) := by
+  have h0 : gUniSlot (sqHandleIdxU j₀) t 0 = 1 :=
+    gUniSlot_ne (by rw [sqVal_zero, sqHandleIdxU_val]; omega) t
+  have h1 : gUniSlot (sqHandleIdxU j₀) t 1 = 1 :=
+    gUniSlot_ne (by rw [sqVal_one, sqHandleIdxU_val]; omega) t
+  have h2 : gUniSlot (sqHandleIdxU j₀) t 2 = 1 :=
+    gUniSlot_ne (by rw [sqVal_two, sqHandleIdxU_val]; omega) t
+  have hV : ∀ i : Fin h,
+      levelMk (DSq h : Type) (j + 2) (gUniSlot (sqHandleIdxU j₀) t (sqHandleIdxV i)) = 1 :=
+    fun i => by
+      rw [gUniSlot_ne (by rw [sqHandleIdxV_val, sqHandleIdxU_val]; omega) t, map_one]
+  have hU : ∀ i : Fin h, i ≠ j₀ →
+      levelMk (DSq h : Type) (j + 2) (gUniSlot (sqHandleIdxU j₀) t (sqHandleIdxU i)) = 1 :=
+    fun i hi => by
+      rw [gUniSlot_ne (by
+        rw [sqHandleIdxU_val, sqHandleIdxU_val]
+        intro hcon
+        exact hi (Fin.ext (by omega))) t, map_one]
+  simp only [gLadCost, h0, h1, h2, map_one, cfour_one_comm, cfour_comm_one,
+    one_pow, one_mul, mul_one]
+  rw [gUni_handleProd_singleU m _ j₀ hU hV, gUniSlot_same]
+
+/-- The `v`-handle cost: the bracket of the marked partner `u`-letter. -/
+theorem gUni_cost_slotV (m : Fin (sqRank h) → levelQuot (DSq h : Type) (j + 2))
+    (t : (DSq h : Type)) (j₀ : Fin h) :
+    gLadCost m (fun i => levelMk (DSq h : Type) (j + 2) (gUniSlot (sqHandleIdxV j₀) t i))
+      = commP (m (sqHandleIdxU j₀)) (levelMk (DSq h : Type) (j + 2) t) := by
+  have h0 : gUniSlot (sqHandleIdxV j₀) t 0 = 1 :=
+    gUniSlot_ne (by rw [sqVal_zero, sqHandleIdxV_val]; omega) t
+  have h1 : gUniSlot (sqHandleIdxV j₀) t 1 = 1 :=
+    gUniSlot_ne (by rw [sqVal_one, sqHandleIdxV_val]; omega) t
+  have h2 : gUniSlot (sqHandleIdxV j₀) t 2 = 1 :=
+    gUniSlot_ne (by rw [sqVal_two, sqHandleIdxV_val]; omega) t
+  have hU : ∀ i : Fin h,
+      levelMk (DSq h : Type) (j + 2) (gUniSlot (sqHandleIdxV j₀) t (sqHandleIdxU i)) = 1 :=
+    fun i => by
+      rw [gUniSlot_ne (by rw [sqHandleIdxU_val, sqHandleIdxV_val]; omega) t, map_one]
+  have hV : ∀ i : Fin h, i ≠ j₀ →
+      levelMk (DSq h : Type) (j + 2) (gUniSlot (sqHandleIdxV j₀) t (sqHandleIdxV i)) = 1 :=
+    fun i hi => by
+      rw [gUniSlot_ne (by
+        rw [sqHandleIdxV_val, sqHandleIdxV_val]
+        intro hcon
+        exact hi (Fin.ext (by omega))) t, map_one]
+  simp only [gLadCost, h0, h1, h2, map_one, cfour_one_comm, cfour_comm_one,
+    one_pow, one_mul, mul_one]
+  rw [gUni_handleProd_singleV m _ j₀ hU hV, gUniSlot_same]
+
+end SlotTuplesD
+
+/-! ## §5 The letter brackets of the marked slots, on the unit locus
+
+For an admissible correction `t` at depth `j`, the bracket of `t` against a marked letter
+reads only the letter and the PARITY of the pivot exponent, and on the unit locus exactly
+one of the two core exponents is odd: the odd twist swaps the `σ`- and `x₀`-legs, so both
+letter brackets are marked-slot brackets. -/
+
+section LetterBrackets
+
+variable {h : ℕ} {j : ℕ}
+
+/-- Corrections are invisible to admissible brackets. -/
+theorem gUni_t_corr {t x : (DSq h : Type)} (ht : t ∈ twoCentralSeries (DSq h : Type) j)
+    (hx : x ∈ gRowCorr h) :
+    commP (levelMk (DSq h : Type) (j + 2) t) (levelMk (DSq h : Type) (j + 2) x) = 1 :=
+  gLad_vanish' ⟨x, (gRow_mem_corr.mp hx).1.1, rfl⟩ ⟨t, ht, rfl⟩
+
+/-- Even `ℤ₂`-powers are invisible to admissible brackets. -/
+theorem gUni_t_zpow_even {t : (DSq h : Type)} (ht : t ∈ twoCentralSeries (DSq h : Type) j)
+    (g : (DSq h : Type)) {e : ℤ_[2]} (he : (2 : ℤ_[2]) ∣ e) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+      (levelMk (DSq h : Type) (j + 2) (zpowZtwo (isProP_DSq h) g e)) = 1 := by
+  obtain ⟨s, rfl⟩ := he
+  rw [zpowZtwo_two_mul, map_pow]
+  exact gLad_vanish' (gUni_sq_mem_two _) ⟨t, ht, rfl⟩
+
+/-- Odd `ℤ₂`-powers bracket like their base against admissible corrections. -/
+theorem gUni_t_zpow_odd {t : (DSq h : Type)} (ht : t ∈ twoCentralSeries (DSq h : Type) j)
+    (g : (DSq h : Type)) {e : ℤ_[2]} (he : ¬ (2 : ℤ_[2]) ∣ e) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (zpowZtwo (isProP_DSq h) g e))
+      = commP (levelMk (DSq h : Type) (j + 2) t) (levelMk (DSq h : Type) (j + 2) g) := by
+  obtain ⟨s, hs⟩ := two_dvd_sub_of_isUnit (isUnit_iff_not_two_dvd.mpr he) isUnit_one
+  have hsplit : zpowZtwo (isProP_DSq h) g e
+      = zpowZtwo (isProP_DSq h) g 1 * zpowZtwo (isProP_DSq h) g (2 * s) := by
+    rw [← zpowZtwo_add]
+    congr 1
+    linear_combination hs
+  rw [hsplit, zpowZtwo_one_exp, zpowZtwo_two_mul, map_mul, map_pow,
+    cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gLad_vanish' (gUni_sq_mem_two _) ⟨t, ht, rfl⟩, one_mul]
+
+/-- **The pivot bracket splits over the two core letters**: `[t, w] = [t, x₀] [t, σ]` for
+every admissible `t` (the `x₀`-leg keeps its inverse only up to the layer involution). -/
+theorem gUni_t_pivot {t : (DSq h : Type)} (ht : t ∈ twoCentralSeries (DSq h : Type) j) :
+    commP (levelMk (DSq h : Type) (j + 2) t) (levelMk (DSq h : Type) (j + 2) (sqPivot h))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (dsqX0 h))
+        * commP (levelMk (DSq h : Type) (j + 2) t)
+            (levelMk (DSq h : Type) (j + 2) (dsqSigma h)) := by
+  have hX : commP (levelMk (DSq h : Type) (j + 2) t)
+      (levelMk (DSq h : Type) (j + 2) (dsqX0 h)) ∈ zLayer (DSq h : Type) (j + 1) :=
+    cfive_commP_mem_zLayer_left ⟨t, ht, rfl⟩ _
+  rw [sqPivot, sqMixPivotElem, map_mul, map_inv,
+    cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gLad_commP_inv_right ⟨t, ht, rfl⟩,
+    gUni_t_zpow_odd ht (dsqX0 h) (isUnit_iff_not_two_dvd.mp isUnit_sqPivotExp),
+    zLayer_inv_self hX]
+
+variable {A B : ℤ_[2]} {c : Fin (sqRank h) → (DSq h : Type)}
+
+/-- The marked `x₀`-slot at even `B`: the bare `x₀`-bracket. -/
+theorem gUni_t_slot1_even (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (hB : (2 : ℤ_[2]) ∣ B) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c 1))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (dsqX0 h)) := by
+  rw [gRowMark_one, map_mul, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc 1), one_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_zpow_even ht (sqPivot h) hB, one_mul]
+
+/-- The marked `x₀`-slot at odd `B`: the legs swap onto the `σ`-bracket. -/
+theorem gUni_t_slot1_odd (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (hB : ¬ (2 : ℤ_[2]) ∣ B) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c 1))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (dsqSigma h)) := by
+  have hX : commP (levelMk (DSq h : Type) (j + 2) t)
+      (levelMk (DSq h : Type) (j + 2) (dsqX0 h)) ∈ zLayer (DSq h : Type) (j + 1) :=
+    cfive_commP_mem_zLayer_left ⟨t, ht, rfl⟩ _
+  rw [gRowMark_one, map_mul, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc 1), one_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_zpow_odd ht (sqPivot h) hB, gUni_t_pivot ht,
+    (zLayer_commute hX (commP (levelMk (DSq h : Type) (j + 2) t)
+      (levelMk (DSq h : Type) (j + 2) (dsqSigma h)))).eq,
+    mul_assoc, ← pow_two, zLayer_sq (DSq h : Type) hX, mul_one]
+
+/-- The marked `σ`-slot at even `A - 1`: the bare `σ`-bracket. -/
+theorem gUni_t_slot0_even (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (hA : (2 : ℤ_[2]) ∣ A - 1) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c 0))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (dsqSigma h)) := by
+  rw [gRowMark_zero, map_mul, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc 0), one_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_zpow_even ht (sqPivot h) hA, one_mul]
+
+/-- The marked `σ`-slot at odd `A - 1`: the legs swap onto the `x₀`-bracket. -/
+theorem gUni_t_slot0_odd (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (hA : ¬ (2 : ℤ_[2]) ∣ A - 1) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c 0))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (dsqX0 h)) := by
+  have hS : commP (levelMk (DSq h : Type) (j + 2) t)
+      (levelMk (DSq h : Type) (j + 2) (dsqSigma h)) ∈ zLayer (DSq h : Type) (j + 1) :=
+    cfive_commP_mem_zLayer_left ⟨t, ht, rfl⟩ _
+  rw [gRowMark_zero, map_mul, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc 0), one_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_zpow_odd ht (sqPivot h) hA, gUni_t_pivot ht,
+    mul_assoc, ← pow_two, zLayer_sq (DSq h : Type) hS, mul_one]
+
+/-- The marked `x₁`-slot: always the bare `x₁`-bracket (its exponent `2B` is even). -/
+theorem gUni_t_slot2 (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c 2))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (dsqX1 h)) := by
+  rw [gRowMark_two, map_mul, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc 2), one_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_zpow_even ht (sqPivot h) ⟨B, rfl⟩, one_mul]
+
+/-- The marked `u`-handle slots: the bare handle brackets. -/
+theorem gUni_t_slotU (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (j₀ : Fin h) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c (sqHandleIdxU j₀)))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (sqGen h (sqHandleIdxU j₀))) := by
+  rw [gRowMark_handleU, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc _), one_mul]
+
+/-- The marked `v`-handle slots: the bare handle brackets. -/
+theorem gUni_t_slotV (hc : ∀ i, c i ∈ gRowCorr h) {t : (DSq h : Type)}
+    (ht : t ∈ twoCentralSeries (DSq h : Type) j) (j₀ : Fin h) :
+    commP (levelMk (DSq h : Type) (j + 2) t)
+        (levelMk (DSq h : Type) (j + 2) (gRowMark h A B c (sqHandleIdxV j₀)))
+      = commP (levelMk (DSq h : Type) (j + 2) t)
+          (levelMk (DSq h : Type) (j + 2) (sqGen h (sqHandleIdxV j₀))) := by
+  rw [gRowMark_handleV, map_mul, cfive_commP_right_hom ⟨t, ht, rfl⟩,
+    gUni_t_corr ht (hc _), one_mul]
+
+end LetterBrackets
+
 end SqCore
 
 end Dyadic
