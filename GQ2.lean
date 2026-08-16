@@ -913,6 +913,7 @@ import GQ2.Dyadic.Instances.MpcC6WeightedCertificate
 import GQ2.Dyadic.Instances.MpcC6WeightedTracePrefix
 import GQ2.Dyadic.Instances.MpcC6WeightedTraceLow
 import GQ2.Dyadic.Instances.MpcC6WeightedRelationSupport
+import GQ2.Dyadic.Instances.MpcC6WeightedTraceFinal
 import GQ2.Dyadic.Instances.MpcMarkedRange
 import GQ2.Dyadic.Instances.MpcMarkedSuccessor
 import GQ2.Dyadic.Instances.MpcMarkedSecondary
