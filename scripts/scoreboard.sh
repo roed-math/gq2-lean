@@ -168,6 +168,7 @@ CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
 CORRECTED RN SELECTOR BOUNDARY|Npc realization (oriented + row data)|decl|npcMarkedCoreRealization_of_oriented
+CORRECTED RN SELECTOR BOUNDARY|Npc realization (family + primitive plane)|decl|npcMarkedCoreRealization_of_familySelection
 CORRECTED RN CLOSED ROWS|Q2(v-2) residual|decl|wPcN_rowResidualRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v-2) endpoint|decl|wPcN_candidate_equiv_galKRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v2) residual|decl|wPcM_rowResidualRN_sqrtTwo
