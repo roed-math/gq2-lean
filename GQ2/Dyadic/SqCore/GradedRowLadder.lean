@@ -979,6 +979,114 @@ theorem gLad_defect_bare {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t) :
 
 end DefectFour
 
+/-! ## §7 Rung 4 on the quarter locus, and the rung criterion
+
+Where `4 ∣ A - 1` and `4 ∣ B` every letter of the defect is a square of a square, the whole
+closed form collapses to `1`, and the BARE frame solves rung 4: the first rung the carrier
+was built for opens exactly where the mod-4 data of `(A, B)` is trivial.  This contains the
+scaling ray at every `e ≡ 1 mod 4`.  Off the quarter locus the defect is the §6 closed form
+and rung 4 is the exact linear-algebra question `defect ∈ image (gLadCost)`, packaged here as
+`gLad_nonempty_four_of_kill`. -/
+
+section QuarterLocus
+
+variable {h : ℕ}
+
+/-- Pivot powers at exponents divisible by 4 are central-layer classes of `Q₄`. -/
+theorem gLadQ_mem_zLayer_of_four {c : ℤ_[2]} (hc : (4 : ℤ_[2]) ∣ c) :
+    gLadQ h c ∈ zLayer (DSq h : Type) 3 := by
+  obtain ⟨c', rfl⟩ := hc
+  have hmem : gLadQ h (2 * c') ∈ lambdaImage (DSq h : Type) 2 4 := by
+    rw [gLadQ_two_mul]
+    exact gLadQ_sq_mem c'
+  have h4 : (4 : ℤ_[2]) * c' = 2 * (2 * c') := by ring
+  rw [h4, gLadQ_two_mul]
+  exact gLad_sq_mem_zLayer (j := 2) hmem
+
+/-- ⭐⭐ **THE DEFECT COLLAPSES ON THE QUARTER LOCUS**: at `4 ∣ A - 1` and `4 ∣ B` the bare
+relator word already lies in `λ₄`. -/
+theorem gLad_defect_bare_quarter {A B : ℤ_[2]} (hA : (4 : ℤ_[2]) ∣ A - 1)
+    (hB : (4 : ℤ_[2]) ∣ B) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1)) = 1 := by
+  obtain ⟨t', ht'⟩ : (4 : ℤ_[2]) ∣ A - 1 - B := by
+    obtain ⟨a', ha'⟩ := hA
+    obtain ⟨b', hb'⟩ := hB
+    exact ⟨a' - b', by linear_combination ha' - hb'⟩
+  have hsplit : A - 1 = B + 2 * (2 * t') := by linear_combination ht'
+  have hQ : gLadQ h B ∈ zLayer (DSq h : Type) 3 := gLadQ_mem_zLayer_of_four hB
+  have hZT : commP (gLadQ h (2 * t') ^ 2) (gLadX h * gLadQ h B) = 1 := by
+    have hmem : gLadQ h (2 * t') ∈ lambdaImage (DSq h : Type) 2 4 := by
+      rw [gLadQ_two_mul]
+      exact gLadQ_sq_mem t'
+    exact cfive_commP_zLayer_left (gLad_sq_mem_zLayer (j := 2) hmem) _
+  have hSQ : commP (gLadS h) (gLadQ h B) = 1 := gLad_commP_zLayer_right (gLadS h) hQ
+  have hQX : commP (gLadQ h B) (gLadX h) = 1 := cfive_commP_zLayer_left hQ (gLadX h)
+  have hQS : commP (gLadQ h B) (gLadS h) = 1 := cfive_commP_zLayer_left hQ (gLadS h)
+  have hXQ : commP (gLadX h) (gLadQ h B) = 1 := gLad_commP_zLayer_right (gLadX h) hQ
+  have hYQ : commP (gLadY h) (gLadQ h B) = 1 := gLad_commP_zLayer_right (gLadY h) hQ
+  have hQ2 : (gLadQ h B : levelQuot (DSq h : Type) 4) ^ 2 = 1 := zLayer_sq _ hQ
+  rw [gLad_defect_bare hsplit, hSQ, hQX, hQS, hXQ, hYQ, hZT, hQ2, cfour_one_comm,
+    cfour_one_comm, cfour_comm_one, one_pow]
+  simp only [mul_one]
+
+/-- ⭐⭐ **RUNG 4 IS FREE ON THE QUARTER LOCUS**, with the bare frame. -/
+theorem gLad_nonempty_four_quarter {A B : ℤ_[2]} (hA : (4 : ℤ_[2]) ∣ A - 1)
+    (hB : (4 : ℤ_[2]) ∣ B) : (gRowSet h A B 4).Nonempty :=
+  ⟨fun _ => 1, fun _ => one_mem _,
+    (QuotientGroup.eq_one_iff _).mp (gLad_defect_bare_quarter hA hB)⟩
+
+/-- The scaling ray solves rung 4 at every `e ≡ 1 mod 4`. -/
+theorem gLad_nonempty_four_scale {e : ℤ_[2]} (he : (4 : ℤ_[2]) ∣ e - 1) :
+    (gRowSet h e 0 4).Nonempty :=
+  gLad_nonempty_four_quarter he ⟨0, by ring⟩
+
+/-- The bare frame is a rung-3 point of the ladder on the even locus. -/
+theorem gLad_bare_mem_three {A B : ℤ_[2]} (hAB : (2 : ℤ_[2]) ∣ A - 1 - B) :
+    (fun _ => 1) ∈ gRowSet h A B 3 :=
+  ⟨fun _ => one_mem _, gRow_relWord_bare_mem_three hAB⟩
+
+/-- ⭐⭐ **THE RUNG-4 CRITERION**: rung 4 is nonempty as soon as some carrier tuple's cost
+kills the §6 defect.  This is the exact linear-algebra form of the first open rung: the
+defect is the closed form of `gLad_defect_bare`, the reachable costs are `gLadCost` on the
+marked letters, both live in the elementary abelian layer `λ₃/λ₄`. -/
+theorem gLad_nonempty_four_of_kill {A B : ℤ_[2]} (hAB : (2 : ℤ_[2]) ∣ A - 1 - B)
+    {ε : Fin (sqRank h) → (DSq h : Type)}
+    (hεmem : ∀ i, ε i ∈ twoCentralSeries (DSq h : Type) 2)
+    (hεlam : ∀ i, nuLam h (ε i) = 1) (hεnu : ∀ i, nuSq h (ε i) = 1)
+    (hkill : levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+        * gLadCost
+          (fun i => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) i))
+          (fun i => levelMk (DSq h : Type) 4 (ε i)) = 1) :
+    (gRowSet h A B 4).Nonempty := by
+  refine ⟨fun i => 1 * ε i, ?_⟩
+  exact gLad_step le_rfl (gLad_bare_mem_three hAB) hεmem hεlam hεnu hkill
+
+/-- The row ansatz is the bare ansatz with the correction tuple multiplied in slotwise. -/
+theorem gLad_mark_eq_bare_mul (A B : ℤ_[2]) (c : Fin (sqRank h) → (DSq h : Type)) :
+    gRowMark h A B c = fun i => gRowMark h A B (fun _ => 1) i * c i := by
+  funext i
+  simp only [gRowMark_apply]
+  group
+
+/-- ⭐⭐⭐ **THE RUNG-4 MASTER EQUATION**: for every `λ₂`-correction tuple the `Q₄`-residue of
+the marked relator word is the bare defect of §6 times the engine cost of the tuple against
+the bare marked letters.  Rung 4 of the row ladder is exactly the solvability of
+`defect · cost = 1` in the elementary abelian layer `λ₃/λ₄`. -/
+theorem gLad_relWord_four {A B : ℤ_[2]} (c : Fin (sqRank h) → (DSq h : Type))
+    (hc : ∀ i, c i ∈ twoCentralSeries (DSq h : Type) 2) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B c))
+      = levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+        * gLadCost (fun i => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) i))
+          (fun i => levelMk (DSq h : Type) 4 (c i)) := by
+  have hmk : levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B c))
+      = sqRelWord fun i => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) i)
+          * levelMk (DSq h : Type) 4 (c i) := by
+    rw [gLad_mark_eq_bare_mul, map_sqRelWord]
+    simp only [map_mul]
+  rw [hmk, gLad_relWord_incr (j := 2) le_rfl _ _ fun i => ⟨c i, hc i, rfl⟩, ← map_sqRelWord]
+
+end QuarterLocus
+
 end SqCore
 
 end Dyadic
