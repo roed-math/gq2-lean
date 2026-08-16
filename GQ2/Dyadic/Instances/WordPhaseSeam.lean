@@ -600,6 +600,134 @@ theorem wPs_QZero_eq_nCompact_graphHessianTrace {α h q : ℕ}
 
 end TraceSeam
 
+/-! ## §7 The compact head-factored phase
+
+§6 plus two word-generic steps gives the compact twin of
+`LSquare.QZero_eq_lSqWallHandlePhase_of_headMark`: push the graph marking down along
+`LSquare.semiProdProjHom` (using `LSquare.kappa0Cocycle_comap_semiProdProjHom` and
+`hessRelZ_comap`, both word-generic), kill the tame coordinate on the `C`-line, and read the
+compact endpoint value off `WordPhaseModel.wPm_hessRelZ_nCompact_eq_compactWallHandlePhase`.
+
+**The scope correction this forces.**  W87 §3 states the residual of `wPmCompactHeadPhase` as
+"only the trace seam".  That is right about the *analysis* and short by one *hypothesis*: the
+odd twin `QZero_eq_lSqWallHandlePhase_of_headMark` also carries a head factorization
+(`base`, `π`, `hpi`, `hf`, `hm`) and the wild-head condition `π (rho0 (x_i)) = 1`, and no
+argument removes them at the compact word either.  `wPmCompactHeadPhase` as literally stated
+quantifies over every cocycle in normal coordinates with **no** condition on `rho0`, so it is
+not what §6 proves; what §6 proves is the theorem below, which is the statement the odd route
+actually consumes.  Supplying the head factorization at a branch is W87 §6 item 3, untouched
+here. -/
+
+section HeadPhase
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Count GQ2.Dyadic.Words GQ2.Dyadic.LSquare
+open GQ2.Dyadic.Instances.WordPhase GQ2.Dyadic.Instances.WordPhaseModel
+open GQ2.QuadraticFp2
+
+/-- **The tame Hessian vanishes at every compact graph-type marking.**  The compact twin of
+`LSquare.hessRelZ_tameRelW_lSqHessMark_eq_zero`: the `sigma` and `tau` lifts of
+`Certificates.hessMark` sit on the `kappa0`-free `C`-line, which is the image of a
+homomorphism, so the tame relator's fibre coordinate is zero.  Neither tame letter has to be
+the identity. -/
+theorem wPs_hessRelZ_tameRelW_hessMark_eq_zero
+    {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+    {q0 : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q0 dat)
+    {h q : ℕ} (s u : C) (v : Fin (2 + 2 * h + 1) → V)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    hessRelZ (Certificates.hessMark s u v) (kappa0Cocycle dat hdat) E E₂
+      (tameRelW (2 + 2 * h) q) = 0 := by
+  rw [hessRelZ, hessEvalZ, tameRelW, PWord.evalZ_mul, PWord.evalZ_conj,
+    PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_inv, PWord.evalZ_zpow,
+    PWord.evalZ_gen]
+  change WordCoh.CentExt.fib
+    (conjR (hessLine dat hdat u) (hessLine dat hdat s) *
+      (hessLine dat hdat u ^ (q : ℤ))⁻¹) = 0
+  rw [show hessLine dat hdat u = hessLineHom dat hdat u from rfl,
+    show hessLine dat hdat s = hessLineHom dat hdat s from rfl,
+    ← map_conjR, ← map_zpow, ← map_inv, ← map_mul]
+  exact hessLine_fib dat hdat _
+
+/-- **The compact source phase from a head-level graph normal form.**  The compact-`N` twin of
+`LSquare.QZero_eq_lSqWallHandlePhase_of_headMark`, and the statement W87 §3 was reaching for.
+
+A crossed cocycle whose generator values are §3-of-`WordPhaseModel`'s normal representative of
+`p`, and whose wild letters die *after* the head factorization `π`, has source phase
+`wPhCompactWallHandlePhase` at `p` on the nose.  Note what the compact conclusion does not
+carry, unlike the odd one: no Wall head operator, because
+`wPm_hessRelZ_nCompact_eq_compactWallHandlePhase` holds at every `(s, u)`. -/
+theorem wPs_QZero_eq_compactWallHandlePhase_of_headMark {α h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    {Cbar : Type} [Group Cbar] [DistribMulAction Cbar DD.Vmod]
+    (base : FactorSet Cbar DD.Vmod) (hbase : IsEquivariantFactorSet DD.qbar base)
+    (π : DD.C0 →* Cbar) (hpi : ∀ (cc : DD.C0) (v : DD.Vmod), cc • v = π cc • v)
+    (hf : ∀ a b : DD.Vmod, DD.dat.f a b = base.f a b)
+    (hm : ∀ (cc : DD.C0) (v : DD.Vmod), DD.dat.m cc v = base.m (π cc) v)
+    (hq : Even q) (hq0 : q ≠ 0) (hα : 2 ≤ α) (c : VCocycle DD rho)
+    (hwildHead : ∀ i : Fin (2 + 2 * h + 1),
+      π (rho0 DD rho (gammaGen (2 + 2 * h) q (Words.nCompactW α h) (.wild i))) = 1)
+    (p : (DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod))
+    (hc : (fun i ↦ c.c (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i))
+      = wPmCompactPhaseNormal h p) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction
+        ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+      scalarActionZmodTwo _
+    letI : ContinuousSMul
+        ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul _
+    QZero DD rho c = wPhCompactWallHandlePhase DD.qbar h p := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    scalarActionZmodTwo _
+  letI : ContinuousSMul
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    scalarActionZmodTwo_continuousSMul _
+  set E : Zhat → ℤ :=
+    fun _ ↦ (omega2Exp (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ) with hE
+  set E₂ : ℤ_[2] → ℤ :=
+    fun _ ↦ (omega2Exp (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ) with hE₂
+  set φ := semiProdProjHom (V := DD.Vmod) π hpi with hφ
+  have hcval : ∀ i, c.c (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i)
+      = wPmCompactPhaseNormal h p i := fun i ↦ congrFun hc i
+  have hmark :
+      (fun i ↦ φ (graphSemiProdHom c (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i)))
+        = Certificates.hessMark
+            (π (rho0 DD rho (gammaGen (2 + 2 * h) q (Words.nCompactW α h) .sigma)))
+            (π (rho0 DD rho (gammaGen (2 + 2 * h) q (Words.nCompactW α h) .tau)))
+            (fun i ↦ wPmCompactPhaseNormal h p (Generator.wild i)) := by
+    funext i
+    cases i with
+    | sigma =>
+        exact Prod.ext ((hcval _).trans (wPmCompactPhaseNormal_sigma h p)) rfl
+    | tau =>
+        exact Prod.ext ((hcval _).trans (wPmCompactPhaseNormal_tau h p)) rfl
+    | wild i => exact Prod.ext (hcval _) (hwildHead i)
+  rw [wPs_QZero_eq_nCompact_graphHessianTrace rho DD.hdat hq hq0 hα c,
+    kappa0Cocycle_comap_semiProdProjHom base hbase DD.dat DD.hdat π hpi hf hm]
+  rw [show (fun _ : Zhat ↦ (omega2Exp
+        (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ)) = E from rfl,
+    show (fun _ : ℤ_[2] ↦ (omega2Exp
+        (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ)) = E₂ from rfl,
+    ← hessRelZ_comap (GQ2.Dyadic.kappa0Cocycle base hbase) E E₂
+      (fun i ↦ graphSemiProdHom c (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i)) φ
+      (tameRelW (2 + 2 * h) q),
+    ← hessRelZ_comap (GQ2.Dyadic.kappa0Cocycle base hbase) E E₂
+      (fun i ↦ graphSemiProdHom c (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i)) φ
+      (Words.nCompactW α h),
+    hmark, wPs_hessRelZ_tameRelW_hessMark_eq_zero base hbase _ _ _ E E₂, zero_add,
+    wPm_hessRelZ_nCompact_eq_compactWallHandlePhase base hbase (Vmod_exp2 DD) hα _ _ p E E₂]
+
+end HeadPhase
+
 /-! ## Axiom audit
 
 Every declaration in this file is pinned below.  The honest split: **all of them are std-3**
@@ -641,6 +769,8 @@ section AxiomPins
 #print axioms wPsNCompactScalarH2TraceEquiv_of_surjective_mk
 #print axioms wPsNCompactScalarH2WordFlexible_surjective
 #print axioms wPs_QZero_eq_nCompact_graphHessianTrace
+#print axioms wPs_hessRelZ_tameRelW_hessMark_eq_zero
+#print axioms wPs_QZero_eq_compactWallHandlePhase_of_headMark
 
 end AxiomPins
 
