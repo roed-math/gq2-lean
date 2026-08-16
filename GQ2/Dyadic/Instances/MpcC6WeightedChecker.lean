@@ -159,6 +159,10 @@ inductive Deriv where
   | inv_sq (x : CWord)
   | inv_comm (x y : CWord)
   | mul_self (x : CWord)
+  | one_comm (x : CWord)
+  | comm_one (x : CWord)
+  | sq_one
+  | inv_one
   deriving Repr
 
 namespace Deriv
@@ -188,6 +192,10 @@ mutual
     | .inv_sq x => .inv (.sq x)
     | .inv_comm x y => .inv (.comm x y)
     | .mul_self x => .mul x x
+    | .one_comm x => .comm .one x
+    | .comm_one x => .comm x .one
+    | .sq_one => .sq .one
+    | .inv_one => .inv .one
 
   def rhs : Deriv → CWord
     | .refl w => w
@@ -216,13 +224,15 @@ mutual
     | .inv_sq x => .sq (.inv x)
     | .inv_comm x y => .comm y x
     | .mul_self x => .sq x
+    | .one_comm _ | .comm_one _ | .sq_one | .inv_one => .one
 end
 
 def check : Deriv → Bool
   | .refl _ | .rel | .assoc _ _ _ | .one_mul _ | .mul_one _ | .inv_mul _ |
       .mul_inv _ | .swap _ _ | .comm_mul_left _ _ _ | .comm_mul_right _ _ _ |
       .sq_mul _ _ | .comm_inv_left _ _ | .comm_inv_right _ _ | .comm_self _ |
-      .inv_sq _ | .inv_comm _ _ | .mul_self _ => true
+      .inv_sq _ | .inv_comm _ _ | .mul_self _ | .one_comm _ | .comm_one _ |
+      .sq_one | .inv_one => true
   | .deep w => decide (6 ≤ w.depth)
   | .symm d | .inv d | .sq d => d.check
   | .trans d e => d.check && e.check && decide (d.rhs = e.lhs)
@@ -292,6 +302,16 @@ theorem sound {Q : Type*} [Group Q] (M : Model Q) :
       group
   | mul_self x =>
       simp only [lhs, rhs, eval, pow_two]
+  | one_comm x =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_one x =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | sq_one => simp only [lhs, rhs, eval, one_pow]
+  | inv_one =>
+      simp only [lhs, rhs, eval]
+      group
 
 /-! One nontrivial checked derivation: a weight-five term commuted with a generator is erased
 in `Q₆`, and the deletion is valid inside a surrounding product. -/
