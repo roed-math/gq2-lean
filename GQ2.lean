@@ -902,6 +902,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactMFinal
 import GQ2.Dyadic.Instances.MpcCandidateScalar
 import GQ2.Dyadic.Instances.MpcCandidateStokes
 import GQ2.Dyadic.Instances.MpcCandidateRN
+import GQ2.Dyadic.Instances.MpcCandidateFinal
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
