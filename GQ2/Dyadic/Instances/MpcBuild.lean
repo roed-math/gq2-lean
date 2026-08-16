@@ -838,13 +838,20 @@ def mpcBldIncr (t n us ut um un : (DM 2 0 : Type)) : (DM 2 0 : Type) :=
 /-- ⭐⭐⭐ **ONE RUNG, WITH EVERY SLOT.**  A class-`(j+1)` solution whose defect is killed by a
 reachable increment gives a class-`(j+2)` solution, explicitly.
 
-[W86-HOUSE, as of `f0de6ad5`: the engine is SUFFICIENT and is not known to be complete over
-solutions, and this is the site a builder reaches first, so the caveat belongs here too.  It is
-stated once in the module, at `mpcBld_shift_of_full_supply`: a class-`(j+2)` solution need not
-be a `λ_j`-move away from a class-`(j+1)` one, so a walk that exhausts every increment at depth
-`j` and finds none that kills the defect has NOT shown the rung unreachable.  `mpcBldIncr`'s
-"the whole effect of a `λ_j`-move" is completeness over MOVES, which is a different statement
-and is what is proved.] -/
+[W86-HOUSE, as of `f0de6ad5`, amended at `0a479c6e`: the engine is SUFFICIENT, and this is the
+site a builder reaches first, so the caveat belongs here too.  As of this module's own wave it
+is stated once, at `mpcBld_shift_of_full_supply`: a class-`(j+2)` solution need not be a
+`λ_j`-move away from a class-`(j+1)` one, so failing the supply at ONE quadruple does not show
+the rung unreachable.  `mpcBldIncr`'s "the whole effect of a `λ_j`-move" is completeness over
+MOVES, a different statement, and is what is proved here.
+
+The completeness half landed one wave later, in `Instances/MpcLadder.lean`:
+`mpcLad_nonempty_iff` makes the rung an IFF (a class-`(j+2)` solution exists exactly when SOME
+class-`(j+1)` solution has one-step supply, the forward direction being the identity move), so
+a failure proved over the WHOLE class-`(j+1)` solution set does empty the rung
+(`mpcLad_eq_empty_of_no_supply`).  Read the caveat as scoped to a single quadruple from that
+tree onward.  What is still NOT available at either wave is a refutation of `MpcPivShift 2`
+from an empty rung; see `mpcBld_shift_of_bracket_supply`'s block.] -/
 theorem mpcBld_step {j : ℕ}
     {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type)}
     (hp : p ∈ mpcWordSet (j + 1)) (us ut um un : (DM 2 0 : Type))
@@ -902,7 +909,12 @@ whereas `mpcWordSet` fixes the shape `(Ā·B̄⁻⁴·s, B̄·t, B̄²·C̄₀·
 the other reading of "M6", the ansatz itself: a solution of the identity lies in every
 `mpcWordSet k`, so an empty rung refutes the ANSATZ.  Read it that way and no further; the same
 substitution is needed at `mpcBld_shift_of_full_supply`'s closing sentence, which says "the
-refutation route remains wave 84's, a proven empty `mpcWordSet k`".
+refutation route remains wave 84's, a proven empty `mpcWordSet k`", and, as of `0a479c6e`, at
+`Instances/MpcLadder.lean`'s `mpcLad_eq_empty_of_no_supply`, whose headline is "THE REFUTATION
+ROUTE, NOW REACHABLE BY THE ENGINE".  That theorem is exactly right (it concludes
+`mpcWordSet (j+2) = ∅`) and its headline inherits this reading; the ladder still has no
+`MpcPivShift 2 → _` in either direction, its only shift-producer being
+`mpcLad_shift_of_exists_supply`.
 
 (2) **The hypothesis below is stronger than this docstring advertises**, in the direction that
 misleads a builder.  "the defect of a class-`(j+1)` solution can be cleared" describes

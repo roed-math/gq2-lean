@@ -1,20 +1,85 @@
 # W86-HOUSE lane note (watch round 23)
 
-Standing verification lane. Base `f0de6ad5`, `dyadic`'s tip at lane start and still its tip at
-lane close (no sibling merged during the round; re-checked at close). Mirror swept at start
+Standing verification lane. Base `f0de6ad5`, `dyadic`'s tip at lane start. Mirror swept at start
 (6018 artifacts). Scoreboard run before the round, after each stage of the tool fix, and at
-close; all four captured. Five commits: one tooling change in `scripts/scoreboard.sh`, four
+close; all four captured. Six commits: one tooling change in `scripts/scoreboard.sh`, the rest
 comment-only in `GQ2/` plus frozen-note annotations. Every edited Lean module re-elaborates green
 against the mirror: `Instances/CanonicalRecords.lean`, `Instances/MpcPairings.lean`,
 `Instances/SqrtNeg2.lean`, `Instances/MpcWord.lean`, `Instances/MpcBuild.lean`,
 `Instances/RecordBlocks.lean`, `SqCore/GradedRowMove.lean`. `GQ2.lean` and `GQ2/Roe/*` untouched,
 checked by `git diff f0de6ad5 HEAD` on both paths (empty).
 
+**⚠ BASE STALENESS AT CLOSE.** `dyadic` advanced to `0a479c6e` between this lane's last commit
+and its close, merging two siblings, W86-PHASE (`Instances/WordPhase.lean`) and W86-LADDER5
+(`Instances/MpcLadder.lean`). Both are files this lane was told not to touch, and it did not.
+Every finding below was re-checked against `0a479c6e`; §0 records what moved. Nothing in this
+note is stated as of the merged tree except where §0 says so.
+
 **The round's headline is that the blind spot fired a THIRD time, and the fix is now structural.**
 Ticket 1's change to the scoreboard exposed it in the act: on wave 85's own three landings the
-board was undercounting four producer sets at once, the worst by a factor of 2.5. Second in
-severity: `Instances/MpcBuild.lean` states a refutation route for `MpcPivShift 2` that the tree
-does not have, in two places, and the error is an inverted implication rather than a stale fact.
+board was undercounting four producer sets at once, the worst by a factor of 2.5. And on the very
+next merge the fix earned itself: **neither wave-86 sibling registered its module** (§0.1).
+Second in severity: the tree states a refutation route for `MpcPivShift 2` that it does not have.
+This round found it in two places in `Instances/MpcBuild.lean`; by close it had propagated into a
+third module, as a headline (§0.2).
+
+---
+
+## 0 What the mid-round merge changed
+
+Two siblings merged at `0a479c6e` after this lane's last code commit. Both bear on findings
+below, one confirming and one superseding.
+
+### 0.1 HIGH, NEW: neither wave-86 module is registered in `GQ2.lean`
+
+`git diff f0de6ad5 0a479c6e -- GQ2.lean` is **empty**, and nothing else in that range imports the
+new files. So `GQ2/Dyadic/Instances/MpcLadder.lean` (773 lines) and
+`GQ2/Dyadic/Instances/WordPhase.lean` (1033 lines) are OUTSIDE `import GQ2`'s transitive closure:
+invisible to every consumer, to `Main.lean`, to the umbrella build, and to this board's producer
+scans. 2171 lines of wave-86 mathematics that no `import GQ2` consumer can reach.
+
+This is the first live test of Ticket 1's registration scan and it fires correctly: the board run
+on the merged tree will print them under `OUTSIDE the umbrella`, next to `GQ2/AxiomLedger.lean`
+which is outside by necessity. Note the shape of the campaign's learning curve here: wave 85's
+recorded lesson was "add the SCOREBOARD ROW in the same wave", the narrower version of the real
+lesson, and both wave-86 lanes missed the wider one. With the scan in place the board now says so
+without anyone remembering to look.
+
+**Fix: two `import` lines in `GQ2.lean`.** Owner's, since `GQ2.lean` is not this lane's to edit.
+
+### 0.2 §3.1 is CONFIRMED and has propagated, not superseded
+
+W86-LADDER5's headline is "the M6 engine is an iff at every class", which sounded like it might
+supply the missing direction. It does not. `mpcLad_eq_empty_of_no_supply` is titled
+**"⭐⭐ THE REFUTATION ROUTE, NOW REACHABLE BY THE ENGINE"** and closes "which is the shape wave 84
+named as the only admissible negative claim". The theorem is exactly right, concluding
+`mpcWordSet (j+2) = ∅`; the headline inherits wave 85's inversion, since an empty rung refutes
+the ANSATZ and not `MpcPivShift 2`. Checked on the merged tree: `MpcLadder.lean` mentions
+`MpcPivShift` three times, of which one is a theorem, `mpcLad_shift_of_exists_supply`, in the
+sufficiency direction. There is still no `MpcPivShift 2 → _` anywhere, so there is still no
+exhaustiveness of the ansatz among the markings of `mpcOrb_shift_iff_marking`, so there is still
+no refutation route. Three modules now say otherwise. Recorded at `MpcBuild.lean` with the
+pointer; the `MpcLadder.lean` site is a sibling's and is left for its owner.
+
+### 0.3 §3.6 is PART-SUPERSEDED, and the annotation was amended before close
+
+`mpcLad_nonempty_iff` makes the rung an iff: a class-`(j+2)` solution exists exactly when SOME
+class-`(j+1)` solution has one-step supply, the forward direction being the identity move on the
+solution itself. So the engine IS complete over rungs, and a supply failure proved over the whole
+class-`(j+1)` solution set does empty the rung. The caveat I carried to `mpcBld_step` is
+therefore correct only at a SINGLE quadruple from `0a479c6e` onward; the annotation was rewritten
+to say so and to point at `mpcLad_nonempty_iff`, rather than left to go stale on the merge. This
+is the one place in this round where a wave-85 gap I recorded was closed by a wave-86 sibling.
+
+### 0.4 What did not move
+
+`§3.2` (`mpcBld_shift_of_bracket_supply`'s over-strong hypothesis) stands: `MpcLadder.lean` adds
+`mpcLad_shift_of_exists_supply`, a strictly weaker ask than either wave-85 form, but it does not
+restate the wave-85 theorem, so the statement-versus-headline gap at that declaration is
+unchanged. Owner item 9 stands, and is now arguably better served by deprecating the theorem in
+favour of `mpcLad_shift_of_exists_supply` than by weakening it. Everything in §1, §2, §3.3 to
+§3.5 and §3.7 is untouched by the merge; §4's ladder table is superseded on the `M6` side only in
+that the sharp form is now `mpcLad_shift_of_exists_supply`, at the same class five.
 
 ---
 
@@ -408,9 +473,9 @@ cannot be inside it (§1.1).
 
 ## Owner items
 
-**Eight standing, one discharged this wave, one opened.** None takeable by a comment-only lane; all
-are statement changes or policy calls. The count is EIGHT, not the nine carried since wave 83: item
-8 of the wave-84 list landed in wave 85 and no list has been renumbered since.
+**Nine standing, one discharged this wave, two opened.** None takeable by a comment-only lane; all
+are statement changes or policy calls. Items 1 to 8 are the wave-84 list with its item 8 discharged
+and renumbered, so the inherited count is EIGHT, not the nine carried since wave 83; items 9 and 10 are new this round.
 
 1. **ASK restatement.** Restate the row records against `ExactLiftingSemanticsRN`, or prove
    `askCStageVanishing`. Unchanged, and `rowCl_rn_both_carriers_sqrtFive` still supports it at both
@@ -436,6 +501,12 @@ are statement changes or policy calls. The count is EIGHT, not the nine carried 
    `LRowCand.lCandBranch` rebuilds the datum definitionally to get it back. A design question.
 9. **NEW: weaken `mpcBld_shift_of_bracket_supply`'s hypothesis** to the per-solution form the
    docstring advertises and the proof uses (§3.2). One line of Lean, but a statement change.
+   As of `0a479c6e` the better disposition may be to deprecate it in favour of
+   `MpcLadder.mpcLad_shift_of_exists_supply`, which is weaker than either wave-85 form.
+10. **NEW, at `0a479c6e`, and the cheapest on the list: register the two wave-86 modules.**
+   `GQ2/Dyadic/Instances/MpcLadder.lean` and `GQ2/Dyadic/Instances/WordPhase.lean` are outside
+   `import GQ2`'s closure (§0.1), so 2171 lines of wave-86 mathematics are invisible to every
+   consumer. Two `import` lines in `GQ2.lean`, which no lane may edit.
 
 **Discharged this wave:** wave-84 item 8, tie the `√−10` shift statement. Taken by W85-M6BUILD at
 `8c0aab35` under an orchestrator edit grant, verified here end to end (§3.3).
