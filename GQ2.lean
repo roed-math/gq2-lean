@@ -912,6 +912,7 @@ import GQ2.Dyadic.Instances.NpcWordPhaseModel
 import GQ2.Dyadic.Instances.NpcDeterminantBase
 import GQ2.Dyadic.Instances.NpcRamifiedComparisonBase
 import GQ2.Dyadic.Instances.NpcRamifiedFullOffsetHessian
+import GQ2.Dyadic.Instances.NpcRamifiedPowCharge
 import GQ2.Dyadic.Instances.NpcWordPhaseTrace
 import GQ2.Dyadic.Instances.NpcWordPhaseSeam
 import GQ2.Dyadic.Instances.NpcUnramifiedFullOffsetHessian
