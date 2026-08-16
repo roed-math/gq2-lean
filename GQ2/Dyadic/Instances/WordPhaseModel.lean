@@ -490,6 +490,42 @@ noncomputable def wPmCompactPhaseComparison_of_headPhase {α h q : ℕ}
     (wPm_compactPhaseNormalForm t (nCompactFam α h q e) hrow hwildAct htauAct hsfpf hr)
     htriv (wPhCompactWallHandlePhase DD.qbar h) hphase
 
+/-- **The compact word's evaluated Hessian at §3's normal coordinates IS §4-of-`WordPhase`'s
+even endpoint form.**  This is the mathematical heart of `wPmCompactHeadPhase`, and it was
+already in the tree at general `(α, h)`: `Certificates.hessRelZ_nCompact` evaluates the frozen
+compact-`N` word at the graph-type marking to `q(x₀) + b_q(x₀, x₁) + Σ_j b_q(u_j, v_j)`, and
+`plusFormD q q (a, b) = q a + b_q(a, b)`, so the two agree on the nose.
+
+What separates this from `wPmCompactHeadPhase` is therefore **not** the phase computation: it is
+only the trace seam `QZero = hessRelZ(tame) + hessRelZ(word)` at the compact word, the compact
+twin of `LSquare.QZero_eq_lUniform_graphHessianTrace`. -/
+theorem wPm_hessRelZ_nCompact_eq_compactWallHandlePhase
+    {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+    {q0 : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q0 dat)
+    (hV2 : ∀ v : V, v + v = 0) {α h : ℕ} (hα : 2 ≤ α) (s u : C)
+    (p : (V × V) × (Fin h → V × V)) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    hessRelZ
+        (Certificates.hessMark s u
+          (fun i ↦ wPmCompactPhaseNormal h p (Generator.wild i)))
+        (kappa0Cocycle dat hdat) E E₂ (nCompactW α h)
+      = wPhCompactWallHandlePhase q0 h p := by
+  rw [Certificates.hessRelZ_nCompact dat hdat hV2 hα s u
+    (fun i ↦ wPmCompactPhaseNormal h p (Generator.wild i))
+    (by
+      show wPmCompactPhaseNormal h p (coreLetter h 2) = 0
+      rw [wPmCompactPhaseNormal_coreLetter]
+      rfl) E E₂]
+  show q0 (wPmCompactPhaseNormal h p (coreLetter h 0))
+      + polar q0 (wPmCompactPhaseNormal h p (coreLetter h 0))
+        (wPmCompactPhaseNormal h p (coreLetter h 1))
+      + ∑ j, polar q0 (wPmCompactPhaseNormal h p (handleU j))
+        (wPmCompactPhaseNormal h p (handleV j))
+    = _
+  rw [wPmCompactPhaseNormal_coreLetter, wPmCompactPhaseNormal_coreLetter]
+  simp only [wPmCompactPhaseNormal_handleU, wPmCompactPhaseNormal_handleV,
+    Matrix.cons_val_zero, Matrix.cons_val_one]
+  rfl
+
 end CompactComparison
 
 /-! ## Axiom audit
@@ -514,6 +550,7 @@ section AxiomPins
 #print axioms wPm_compactPhaseNormalForm
 #print axioms wPmCompactHeadPhase
 #print axioms wPmCompactPhaseComparison_of_headPhase
+#print axioms wPm_hessRelZ_nCompact_eq_compactWallHandlePhase
 
 end AxiomPins
 
