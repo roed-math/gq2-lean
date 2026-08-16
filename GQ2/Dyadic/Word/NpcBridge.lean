@@ -55,9 +55,8 @@ and no axiom beyond the standard three is used.
   anywhere in the statement.  `hVu_of_simple` needs no transport — it is a statement about the
   `C`-module `V` alone and was already carrier-free; `hVu_of_simple_restated` records that.
 * **§7 `HessRelZTarget`** — WW4 gap item 5.  `npc_hessRelZTarget` **discharges** the target on
-  the procyclic-`N` row, which is the proof that the target's shape is right; and
-  `mpcHessRelZTarget` states it, fully instantiated, on the procyclic-`M` row.  See the caveat
-  below: the bridge makes the `M` statement *nameable*, but it is not what proves it.
+  the procyclic-`N` row, and `mpcHessRelZTarget` states it on the procyclic-`M` row.  This
+  bridge only makes the `M` statement nameable; the later Mpc jet modules prove it.
 
 ## What the bridge does and does not buy for WMP-c's successor
 
@@ -68,17 +67,15 @@ The gap WMP-c recorded had two components, and they are not the same size.
    §3–§6 move every NC-lane value into `Word/` vocabulary, and §7 shows the target type is
    inhabited by exhibiting a proof of it on the `N` row.
 
-2. **The missing `M`-row jet theorem.**  `HessRelZTarget` for the procyclic-`M` row needs
-   `hessRelZ (hessMark …) … (mpcW α r p η 0) = plusFormD d₀ q (c₀, c₁)` — the
-   `npc_cross_operators` *analogue for `mpcW`*.  No such theorem exists anywhere: the NC lane
-   proved the identity for `npcWord`, and `Certificates/Mpc.lean` never evaluates `mpcW` at a
-   graph-type κ⁰-marking at all (its only `Marking.eval` of `mpcW`, `eval_sqrtNeg10_factored`,
-   is a value-level factorization).  **The bridge does not supply that, and cannot**: it is a
-   transport, and there is nothing on the `M` row to transport.
+2. **The `M`-row jet theorem, closed downstream.**  This bridge module only names
+   `mpcHessRelZTarget`; it deliberately does not import the later jet lane.
+   `Certificates/MpcJet.lean` proves `MpcJet.mpc_hessRelZTarget` at `h = 0`, and
+   `Instances/MpcJetGeneral.lean` proves `MpcJet.mpcW_hessRelZTarget_handles` for every handle
+   count, with endpoint `plusFormD q q` plus the hyperbolic handle sum.
 
-So the honest statement of the residue is: item 5 was blocked on *two* things, the bridge and an
-`M`-row jet computation; the bridge is now landed and the jet computation is what remains.  What
-the successor gains concretely is listed at `mpcHessRelZTarget`.
+Thus WW4 gap item 5 is no longer open: this file supplied the vocabulary bridge and the
+downstream Mpc jet modules supplied the missing computation.  Any remaining Mpc obligation
+belongs to determinant/record assembly, not to `HessRelZTarget`.
 
 ## The de-duplication WWH recorded: costed, not performed
 

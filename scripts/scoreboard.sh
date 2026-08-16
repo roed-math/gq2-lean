@@ -138,13 +138,25 @@ FROZEN ROWS|Q2(v-10) untied|decl|mpcPiv_genAsmBranch_sqrtNegTen
 FROZEN ROWS|v-10 residue = word prob|decl|mpcOrb_shift_iff_marking
 FROZEN ROWS|v-10 finite-class route|decl|mpcWord_shift_of_forall_class_four
 FROZEN ROWS|v-10 residual move|prod|MpcPivShift
-RECORD BLOCKS|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
-RECORD BLOCKS|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
-RECORD BLOCKS|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
-RECORD BLOCKS|Q2(v10)  .Mpc F|decl|canRec_rowResidual_sqrtTen
-RECORD BLOCKS|the tied transport|decl|canRec_rowResidual_of_tied
-RECORD BLOCKS|v5 cand clause = coeff|decl|rowCl_mCand_exactLifting_iff
-RECORD BLOCKS|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifting_iff
+LEGACY RECORDS (COMPAT ONLY)|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
+LEGACY RECORDS (COMPAT ONLY)|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
+LEGACY RECORDS (COMPAT ONLY)|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
+LEGACY RECORDS (COMPAT ONLY)|Q2(v10)  .Mpc F|decl|canRec_rowResidual_sqrtTen
+LEGACY RECORDS (COMPAT ONLY)|the tied transport|decl|canRec_rowResidual_of_tied
+LEGACY RECORDS (COMPAT ONLY)|v5 cand clause = coeff|decl|rowCl_mCand_exactLifting_iff
+LEGACY RECORDS (COMPAT ONLY)|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifting_iff
+CORRECTED RN RECORDS|N0 certificate (all a,h)|decl|wPcNWordCertificateRN
+CORRECTED RN RECORDS|M0 certificate (from supply)|decl|wPcMWordCertificateRN_of_supply
+CORRECTED RN TIED|N0 residual (all a,h)|decl|wPcN_rowResidualRN_of_tied
+CORRECTED RN TIED|N0 endpoint (all a,h)|decl|wPcN_candidate_equiv_galKRN_of_tied
+CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
+CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
+CORRECTED RN CLOSED ROWS|Q2(v-2) residual|decl|wPcN_rowResidualRN_sqrtNegTwo
+CORRECTED RN CLOSED ROWS|Q2(v-2) endpoint|decl|wPcN_candidate_equiv_galKRN_sqrtNegTwo
+CORRECTED RN CLOSED ROWS|Q2(v2) residual|decl|wPcM_rowResidualRN_sqrtTwo
+CORRECTED RN CLOSED ROWS|Q2(v2) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtTwo
+CORRECTED RN CLOSED ROWS|Q2(v5) residual|decl|wPcM_rowResidualRN_sqrtFive
+CORRECTED RN CLOSED ROWS|Q2(v5) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtFive
 ODD SEAM|the seam Prop|decl|SqMarkedForwardSupply
 ODD SEAM|every seam producer|prod|SqMarkedForwardSupply
 ODD SEAM|seam = marked-core cert|decl|oddId_supply_iff_certificate

@@ -281,9 +281,9 @@ duality and kernel-`decide` Grams.  **What is missing:** every one of those is a
 about the *word's* second-order behaviour; the four clauses here are *counts*.  WMP's row on
 the obligation tracker names the residuals that survive even at the word level and that AS2–AS5
 must therefore still supply or assume: `hsimp` (per-simple-module Stokes duality), WW4 gap
-items **3** (per-χ shifts) and **5** (`HessRelZTarget`, which needs the unowned NpcJet ↔ WordCoh
-bridge), the cited gate-F witness, and **P4's central clause per module** (assumed — the parity
-escape is not expressible at the `PWord` layer). -/
+item **3** (per-χ shifts), the cited gate-F witness, and **P4's central clause per module**
+(assumed; the parity escape is not expressible at the `PWord` layer).  WW4 gap item 5 is now
+closed downstream by the general-h Mpc jet theorem. -/
 def StokesDualityCertificate (smul : DistribMulAction ↥Γ (ZMod 2)) : Prop :=
   (∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -355,11 +355,11 @@ the clause the whole `LocalGauss` lane exists to discharge on the arithmetic sid
 branch fed by `ramifiedCertificateOfSubtype`.
 
 **On the candidate side** the branch lanes closed the Hessian/phase layer — WNP's
-`npc_word_eq_certQ`, WM0's two projector branches, WMP's `mpc_isStokesEndpoint` and the
-one-entry linear row, WL's `exists_cupFormK_normalForm` meeting `sqRelWord_centLift_fib` on the
-same normal form.  WL-c deliberately did **not** build its `HessianCertificate` record: its
-`affinePhase` needs the Arf-dependent Gauss value, which SD1 §6.3's row-5 rule makes an
-*input* — i.e. this field. -/
+`npc_word_eq_certQ`, WM0's two projector branches, the Mpc Hessian targets at zero and general
+handle count, and WL's `exists_cupFormK_normalForm` meeting `sqRelWord_centLift_fib` on the
+same normal form.  What remains on Mpc is the Hessian ⇒ `GaussZResidueK` bridge and downstream
+determinant/record integration.  WL-c deliberately did **not** build its `HessianCertificate`
+record: its endpoint is `qDouble`, not `plusFormD`. -/
 def AffineDeterminantCertificate (tame : ContinuousMonoidHom Γ (Tq q))
     (pro2 : ContinuousMonoidHom Γ P) (compat : ∀ g : Γ, nuTq q (tame g) = nuP (pro2 g))
     (smul : DistribMulAction ↥Γ (ZMod 2)) : Prop :=
@@ -434,17 +434,19 @@ Per branch, the instantiating ticket must produce:
 | `exactLifting` | `FoxCertificate`/`FoxRowCertificate` per branch; **at `n = 1` discharged outright** (CB-TRN, below) | the Fox ⇒ `#LiftsOver` bridge |
 | `stokes` | `IsStokesEndpoint` (all five, unconditional); `StokesDuality` **only modulo `hsimp`**; **at `n = 1` discharged outright** (CB-TRN, below) | `hsimp` per simple module, then the duality ⇒ count bridge |
 | `scalar` | `stokesGram` kernel-`decide` pins; **at `n = 1` discharged outright** (CB-TRN, below) | the Gram ⇒ `#Hom` bridge |
-| `determinant` | `HessianCertificate` (4 of 5); **at `n = 1` discharged outright** (CB-TRN, below) | the Hessian ⇒ `GaussZResidueK` bridge; **and L has no `HessianCertificate` at all** (its endpoint is `qDouble`, not `plusFormD`) and **Mpc has no word-side equation** (`HessRelZTarget` is a stated-open `Prop`) |
+| `determinant` | `HessianCertificate` (4 of 5); **at `n = 1` discharged outright** (CB-TRN, below) | the Hessian ⇒ `GaussZResidueK` bridge; **L has no `HessianCertificate` at all** (its endpoint is `qDouble`, not `plusFormD`).  The Mpc word-side equation is closed by `MpcJet.mpc_hessRelZTarget` and `mpcW_hessRelZTarget_handles`; its downstream determinant/record integration remains. |
 
 Named residuals that no lane owns and that AS2–AS5 must supply or assume, flagged here so the
 G3 census sign-off sees them in one place: **`hsimp`** (per-simple-module Stokes duality — the
-single biggest one, carried by all five branches), **WW4 gap items 3** (per-χ shifts) **and 5**
-(`HessRelZTarget`, blocked on the unowned `NpcJet ↔ WordCoh` bridge), **the cited gate-F
-witness**, **P4's central clause per module** (assumed; not expressible at the `PWord` layer),
+single biggest one, carried by all five branches), **WW4 gap item 3** (per-χ shifts), **the
+cited gate-F witness**, **P4's central clause per module** (assumed; not expressible at the
+`PWord` layer),
 and **`Mpc.hlinrow`** at general `(α, r, p, η)` (closed only at the `√−10` instance, by
 `MpcStokes.sqrtNeg10ProductCert`).  The `α`-threshold mismatch is also live: the Fox layers need
 `1 ≤ α`, the Stokes/Hessian layers need `2 ≤ α`, and compact `M`'s endpoint needs no `α` bound
-at all.
+at all.  WW4 gap item 5 (`HessRelZTarget`) is closed on the Mpc row by
+`MpcJet.mpc_hessRelZTarget` at `h = 0` and `mpcW_hessRelZTarget_handles` at general `h`; it is
+no longer a named residual.
 
 ### ⚠ The `n = 1` row is fully discharged, and by a route the table does not describe
 
