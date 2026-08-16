@@ -829,6 +829,156 @@ theorem gLad_qtwist (s x y q : levelQuot G 4) :
 
 end QTwist
 
+/-! ## §6 The class-4 defect of the bare frame, in closed form
+
+On the unit locus write `A - 1 = B + 2t`.  The bare marked letters are `σ·q·z`, `x₀·q`,
+`x₁·q²` with `q` the `B`-th pivot power and `z = (w^t)²` a square, so the `Q₄`-residue of the
+bare relator word is the pivot twist of §5 times the engine cost of the single `λ₂`-increment
+`z`, and the base relator dies.  The result is the exact class-4 defect: the ladder's rung 4
+asks for corrections whose `gLadCost` kills it. -/
+
+section DefectFour
+
+variable {h : ℕ}
+
+/-- The sigma letter in `Q₄`. -/
+noncomputable def gLadS (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  levelMk (DSq h : Type) 4 (dsqSigma h)
+
+/-- The `x₀`-letter in `Q₄`. -/
+noncomputable def gLadX (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  levelMk (DSq h : Type) 4 (dsqX0 h)
+
+/-- The `x₁`-letter in `Q₄`. -/
+noncomputable def gLadY (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  levelMk (DSq h : Type) 4 (dsqX1 h)
+
+/-- The `c`-th pivot power in `Q₄`. -/
+noncomputable def gLadQ (h : ℕ) (c : ℤ_[2]) : levelQuot (DSq h : Type) 4 :=
+  levelMk (DSq h : Type) 4 (zpowZtwo (isProP_DSq h) (sqPivot h) c)
+
+/-- Pivot powers at even exponent are squares of pivot powers. -/
+theorem gLadQ_two_mul (c : ℤ_[2]) : gLadQ h (2 * c) = gLadQ h c ^ 2 := by
+  rw [gLadQ, gLadQ, zpowZtwo_two_mul, map_pow]
+
+/-- Pivot powers lie in the `λ₂`-image at even exponents. -/
+theorem gLadQ_sq_mem (c : ℤ_[2]) : gLadQ h c ^ 2 ∈ lambdaImage (DSq h : Type) 2 4 :=
+  ⟨zpowZtwo (isProP_DSq h) (sqPivot h) c ^ 2,
+    sq_mem_twoCentralSeries_succ _ (Subgroup.mem_top _), by rw [map_pow]; rfl⟩
+
+/-- ⭐⭐⭐ **THE CLASS-4 DEFECT OF THE BARE FRAME, EXACTLY.**  With `A - 1 = B + 2t` the
+`Q₄`-residue of the bare relator word is the `λ₂`-part `[S,Q]·[Q,X]` times six central
+classes: the five pivot-twist classes and the cost `[z, X·Q]` of the excess square
+`z = (w^t)²`.  No parity case split: this is the exact defect at every `(A, B)` on the unit
+locus, and rung 4 of the ladder asks exactly for a carrier cost tuple killing it. -/
+theorem gLad_defect_bare {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+      = commP (gLadS h) (gLadQ h B) * commP (gLadQ h B) (gLadX h)
+        * (commP (commP (gLadX h) (gLadQ h B)) (gLadQ h B)
+          * commP (commP (gLadQ h B) (gLadS h)) (gLadQ h B)
+          * commP (gLadQ h B) (gLadX h) ^ 2
+          * commP (gLadQ h B ^ 2) (gLadY h)
+          * commP (gLadY h) (commP (gLadY h) (gLadQ h B))
+          * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B)) := by
+  have hZT : gLadQ h t ^ 2 ∈ lambdaImage (DSq h : Type) 2 4 := gLadQ_sq_mem t
+  -- the marked letters in `Q₄`
+  have hm0 : levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 0)
+      = gLadS h * gLadQ h B * gLadQ h t ^ 2 := by
+    rw [gRowMark_zero, mul_one, hsplit, zpowZtwo_add, zpowZtwo_two_mul, map_mul, map_mul,
+      map_pow, ← mul_assoc]
+    rfl
+  have hm1 : levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 1)
+      = gLadX h * gLadQ h B := by
+    rw [gRowMark_one, mul_one, map_mul]
+    rfl
+  have hm2 : levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 2)
+      = gLadY h * gLadQ h B ^ 2 := by
+    rw [gRowMark_two, mul_one, zpowZtwo_two_mul, map_mul, map_pow]
+    rfl
+  have hU : (fun j => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) (sqHandleIdxU j)))
+      = fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)) := by
+    funext j
+    rw [gRowMark_handleU, mul_one]
+  have hV : (fun j => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) (sqHandleIdxV j)))
+      = fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j)) := by
+    funext j
+    rw [gRowMark_handleV, mul_one]
+  -- the base relator dies in `Q₄`
+  have hrel : sqWord (gLadS h) (gLadX h) (gLadY h)
+      * handleWord (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+        (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) = 1 := by
+    have h1 : levelMk (DSq h : Type) 4 (sqRelWord (sqGen h)) = 1 := by
+      rw [dsq_relation h, map_one]
+    rw [map_sqRelWord] at h1
+    exact h1
+  -- the central block of the twist, and the increment cost, slide past the handles
+  have hZB : commP (commP (gLadX h) (gLadQ h B)) (gLadQ h B)
+      * commP (commP (gLadQ h B) (gLadS h)) (gLadQ h B)
+      * commP (gLadQ h B) (gLadX h) ^ 2 * commP (gLadQ h B ^ 2) (gLadY h)
+      * commP (gLadY h) (commP (gLadY h) (gLadQ h B))
+      * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B) ∈ zLayer (DSq h : Type) 3 := by
+    refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (Subgroup.mul_mem _ ?_ ?_) ?_) ?_) ?_) ?_
+    · exact cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo _ _) _
+    · exact cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo _ _) _
+    · exact cfour_sq_mem_zLayer (cfour_commP_mem_lambdaTwo _ _)
+    · exact cfour_commP_mem_zLayer_left (gLad_sq_mem_two _) _
+    · exact cfour_commP_mem_zLayer_right _ (cfour_commP_mem_lambdaTwo _ _)
+    · exact cfour_commP_mem_zLayer_left hZT _
+  calc levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+      = sqWord (gLadS h * gLadQ h B * gLadQ h t ^ 2) (gLadX h * gLadQ h B)
+          (gLadY h * gLadQ h B ^ 2)
+        * handleWord (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+          (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) := by
+        rw [map_sqRelWord]
+        show sqWord (levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 0))
+            (levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 1))
+            (levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 2))
+          * handleWord
+            (fun j => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) (sqHandleIdxU j)))
+            (fun j => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) (sqHandleIdxV j)))
+          = _
+        rw [hm0, hm1, hm2, hU, hV]
+    _ = sqWord (gLadS h * gLadQ h B) (gLadX h * gLadQ h B) (gLadY h * gLadQ h B ^ 2)
+        * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B)
+        * handleWord (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+          (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) := by
+        rw [gLad_incr_s (j := 2) (gLadS h * gLadQ h B) (gLadX h * gLadQ h B)
+          (gLadY h * gLadQ h B ^ 2) hZT]
+    _ = commP (gLadS h) (gLadQ h B) * commP (gLadQ h B) (gLadX h)
+        * sqWord (gLadS h) (gLadX h) (gLadY h)
+        * (commP (commP (gLadX h) (gLadQ h B)) (gLadQ h B)
+          * commP (commP (gLadQ h B) (gLadS h)) (gLadQ h B)
+          * commP (gLadQ h B) (gLadX h) ^ 2 * commP (gLadQ h B ^ 2) (gLadY h)
+          * commP (gLadY h) (commP (gLadY h) (gLadQ h B))
+          * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B))
+        * handleWord (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+          (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))) := by
+        rw [gLad_qtwist]
+        group
+    _ = commP (gLadS h) (gLadQ h B) * commP (gLadQ h B) (gLadX h)
+        * (sqWord (gLadS h) (gLadX h) (gLadY h)
+          * handleWord (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+            (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))))
+        * (commP (commP (gLadX h) (gLadQ h B)) (gLadQ h B)
+          * commP (commP (gLadQ h B) (gLadS h)) (gLadQ h B)
+          * commP (gLadQ h B) (gLadX h) ^ 2 * commP (gLadQ h B ^ 2) (gLadY h)
+          * commP (gLadY h) (commP (gLadY h) (gLadQ h B))
+          * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B)) := by
+        rw [mul_assoc, (zLayer_commute hZB (handleWord
+          (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxU j)))
+          (fun j => levelMk (DSq h : Type) 4 (sqGen h (sqHandleIdxV j))))).eq]
+        group
+    _ = commP (gLadS h) (gLadQ h B) * commP (gLadQ h B) (gLadX h)
+        * (commP (commP (gLadX h) (gLadQ h B)) (gLadQ h B)
+          * commP (commP (gLadQ h B) (gLadS h)) (gLadQ h B)
+          * commP (gLadQ h B) (gLadX h) ^ 2 * commP (gLadQ h B ^ 2) (gLadY h)
+          * commP (gLadY h) (commP (gLadY h) (gLadQ h B))
+          * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B)) := by
+        rw [hrel, mul_one]
+
+end DefectFour
+
 end SqCore
 
 end Dyadic
