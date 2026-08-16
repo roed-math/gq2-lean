@@ -130,9 +130,9 @@ noncomputable def dmModel : Model (levelQuot (DM 2 0 : Type) 6) :=
     (fun | .A => dmA 2 0 | .B => dmB 2 0 | .C => dmC 2 0 | .D => dmD 2 0) (by
       rw [eval_mRel, mpcOrb_relation, map_one])
 
-/-! A tiny proof-producing checker.  Congruence is recursive; `swap` and the three exact free
-collection identities expand a commutator or square over a product with every correction term
-retained, and `deep` deletes a term only after the Boolean depth check. -/
+/-! A tiny proof-producing checker.  Congruence is recursive; `swap`, the exact free collection
+identities, and the inverse/cleanup identities used by the generated trace are proved from group
+laws.  `deep` deletes a term only after the Boolean depth check. -/
 
 inductive Deriv where
   | refl (w : CWord)
@@ -153,6 +153,12 @@ inductive Deriv where
   | comm_mul_left (x z y : CWord)
   | comm_mul_right (x y z : CWord)
   | sq_mul (x y : CWord)
+  | comm_inv_left (x y : CWord)
+  | comm_inv_right (x y : CWord)
+  | comm_self (x : CWord)
+  | inv_sq (x : CWord)
+  | inv_comm (x y : CWord)
+  | mul_self (x : CWord)
   deriving Repr
 
 namespace Deriv
@@ -176,6 +182,12 @@ mutual
     | .comm_mul_left x z y => .comm (.mul x z) y
     | .comm_mul_right x y z => .comm x (.mul y z)
     | .sq_mul x y => .sq (.mul x y)
+    | .comm_inv_left x y => .comm (.inv x) y
+    | .comm_inv_right x y => .comm x (.inv y)
+    | .comm_self x => .comm x x
+    | .inv_sq x => .inv (.sq x)
+    | .inv_comm x y => .inv (.comm x y)
+    | .mul_self x => .mul x x
 
   def rhs : Deriv → CWord
     | .refl w => w
@@ -196,12 +208,21 @@ mutual
         .mul (.mul (.comm x z) (.comm x y)) (.comm (.comm x y) z)
     | .sq_mul x y =>
         .mul (.mul (.mul (.sq x) (.sq y)) (.comm y x)) (.comm (.comm y x) y)
+    | .comm_inv_left x y =>
+        .mul (.inv (.comm x y)) (.comm (.inv (.comm x y)) (.inv x))
+    | .comm_inv_right x y =>
+        .mul (.inv (.comm x y)) (.comm (.inv (.comm x y)) (.inv y))
+    | .comm_self _ => .one
+    | .inv_sq x => .sq (.inv x)
+    | .inv_comm x y => .comm y x
+    | .mul_self x => .sq x
 end
 
 def check : Deriv → Bool
   | .refl _ | .rel | .assoc _ _ _ | .one_mul _ | .mul_one _ | .inv_mul _ |
       .mul_inv _ | .swap _ _ | .comm_mul_left _ _ _ | .comm_mul_right _ _ _ |
-      .sq_mul _ _ => true
+      .sq_mul _ _ | .comm_inv_left _ _ | .comm_inv_right _ _ | .comm_self _ |
+      .inv_sq _ | .inv_comm _ _ | .mul_self _ => true
   | .deep w => decide (6 ≤ w.depth)
   | .symm d | .inv d | .sq d => d.check
   | .trans d e => d.check && e.check && decide (d.rhs = e.lhs)
@@ -254,6 +275,23 @@ theorem sound {Q : Type*} [Group Q] (M : Model Q) :
   | sq_mul x y =>
       simp only [lhs, rhs, eval, commP, pow_two]
       group
+  | comm_inv_left x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_inv_right x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_self x =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | inv_sq x =>
+      simp only [lhs, rhs, eval, pow_two]
+      group
+  | inv_comm x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | mul_self x =>
+      simp only [lhs, rhs, eval, pow_two]
 
 /-! One nontrivial checked derivation: a weight-five term commuted with a generator is erased
 in `Q₆`, and the deletion is valid inside a surrounding product. -/
