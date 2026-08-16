@@ -378,7 +378,95 @@ theorem wPsNCompactScalarH2WordFlexible_injective
     rho hcompatScalar (fun V ↦ hwildLevel_gammaR V) (by decide)
     (wPsNCompactScalarFlexibleResolverSystem rho hq hα he)
 
+/-- The compact-`N` scalar orientation, from map-level surjectivity and §3's word trace.  The
+twin of `LSquare.lScalarH2TraceEquiv_of_surjective`; it takes no `TateDualityG`. -/
+def wPsNCompactScalarH2TraceEquiv_of_surjective
+    (rho : ContinuousMonoidHom GammaN C)
+    (hcompatScalar : ∀ (g : GammaN) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genN i)) (nCompactFam α h q e k) = 1)
+    (hsurj : Function.Surjective
+      (wPsNCompactScalarH2WordFlexible rho hcompatScalar hq hα he)) :
+    H2 GammaN (ZMod 2) ≃+ ZMod 2 :=
+  (AddEquiv.ofBijective (wPsNCompactScalarH2WordFlexible rho hcompatScalar hq hα he)
+    ⟨wPsNCompactScalarH2WordFlexible_injective rho hcompatScalar hq hα he, hsurj⟩).trans
+      (wPsNCompactWordH2TraceEquiv (fun i ↦ rho (genN i)) hq hα he hr)
+
+/-- **The representative formula.**  The compact scalar orientation reads the trace of the
+global relator obstruction, exactly as `LSquare.lScalarH2TraceEquiv_of_surjective_mk` does. -/
+@[simp] theorem wPsNCompactScalarH2TraceEquiv_of_surjective_mk
+    (rho : ContinuousMonoidHom GammaN C)
+    (hcompatScalar : ∀ (g : GammaN) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genN i)) (nCompactFam α h q e k) = 1)
+    (hsurj : Function.Surjective
+      (wPsNCompactScalarH2WordFlexible rho hcompatScalar hq hα he))
+    (f : Z2 GammaN (ZMod 2)) :
+    wPsNCompactScalarH2TraceEquiv_of_surjective rho hcompatScalar hq hα he hr hsurj
+        (H2mk GammaN (ZMod 2) f) =
+      ∑ k, moduleObsFun WN genN rho hcompatScalar f k := rfl
+
 end Orientation
+
+/-! ## §5 The compact scalar orientation is an equivalence
+
+The `H²` count on the continuous side is `NCompact.cardH2_of_uniformPushed` fed by
+`NCompact.uniformPushedHsimp`, which is unconditional at `2 ≤ α`, `Even q`; the count on the
+word side is §3's trace.  The flexible map is already injective, so it is bijective, and
+composing with the trace gives the scalar orientation `H² Γ 𝔽₂ ≃+ 𝔽₂` on the nose.
+
+This is the compact twin of `LSquare.lUniform_scalarH2WordFlexible_surjective_of_actionImage`
+and `LSquare.lScalarH2TraceEquiv_of_surjective`.  Like them, and unlike
+`LSquare.lScalarH2TraceEquiv`, it takes **no** `TateDualityG`. -/
+
+section OrientationEquiv
+
+open GQ2.Dyadic.Count ContCoh
+
+variable {α h q e : ℕ} {C : Type}
+  [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+local notation "GammaN" => ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type)
+local notation "genN" => gammaGen (2 + 2 * h) q (Words.nCompactW α h)
+
+/-- **The compact-`N` scalar flexible map is surjective**, hence bijective. -/
+theorem wPsNCompactScalarH2WordFlexible_surjective
+    (rho : ContinuousMonoidHom GammaN C)
+    (hq : Even q) (hα : 2 ≤ α) (hq0 : q ≠ 0) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genN i)) (nCompactFam α h q e k) = 1) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+    letI : DistribMulAction GammaN (ZMod 2) := scalarActionZmodTwo GammaN
+    letI : ContinuousSMul GammaN (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaN
+    Function.Surjective
+      (wPsNCompactScalarH2WordFlexible rho (fun _ _ ↦ rfl) hq (by omega) he) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+  letI : DistribMulAction GammaN (ZMod 2) := scalarActionZmodTwo GammaN
+  letI : ContinuousSMul GammaN (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaN
+  let f := wPsNCompactScalarH2WordFlexible rho (fun _ _ ↦ rfl) hq (by omega : 1 ≤ α) he
+  have hinj : Function.Injective f :=
+    wPsNCompactScalarH2WordFlexible_injective rho (fun _ _ ↦ rfl) hq (by omega) he
+  letI : Finite (H2 GammaN (ZMod 2)) := Finite.of_injective f hinj
+  letI : Fintype (H2 GammaN (ZMod 2)) := Fintype.ofFinite _
+  letI : Fintype (WordH2 (fun i ↦ rho (genN i)) (nCompactFam α h q e) (ZMod 2)) :=
+    Fintype.ofFinite _
+  have hcard : Nat.card (H2 GammaN (ZMod 2)) =
+      Nat.card (WordH2 (fun i ↦ rho (genN i)) (nCompactFam α h q e) (ZMod 2)) := by
+    calc
+      Nat.card (H2 GammaN (ZMod 2)) = 2 :=
+        NCompact.cardH2_of_uniformPushed (NCompact.uniformPushedHsimp hα hq)
+          (by omega) hq0 hq
+      _ = Nat.card (ZMod 2) := (Nat.card_zmod 2).symm
+      _ = Nat.card (WordH2 (fun i ↦ rho (genN i)) (nCompactFam α h q e) (ZMod 2)) :=
+        (Nat.card_congr (wPsNCompactWordH2TraceEquiv (fun i ↦ rho (genN i)) hq
+          (by omega) he hr).toEquiv).symm
+  exact ((Fintype.bijective_iff_injective_and_card f).mpr
+    ⟨hinj, by simpa only [Nat.card_eq_fintype_card] using hcard⟩).2
+
+end OrientationEquiv
 
 /-! ## Axiom audit
 
@@ -417,6 +505,9 @@ section AxiomPins
 #print axioms wPsNCompactScalarH2WordFlexible
 #print axioms wPsNCompactScalarH2WordFlexible_mk
 #print axioms wPsNCompactScalarH2WordFlexible_injective
+#print axioms wPsNCompactScalarH2TraceEquiv_of_surjective
+#print axioms wPsNCompactScalarH2TraceEquiv_of_surjective_mk
+#print axioms wPsNCompactScalarH2WordFlexible_surjective
 
 end AxiomPins
 
