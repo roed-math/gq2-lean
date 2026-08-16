@@ -6,7 +6,7 @@ umbrella (4379 jobs).  Verification of record: `scripts/mirror.sh` (sweep, gen, 
 
 One new module: `GQ2/Dyadic/Instances/MpcSix.lean`, declaration prefix `mpcSx` (namespace
 `GQ2.Dyadic.Instances.MpcSx`), **not registered in `GQ2.lean`** (housekeeping owns that).  No
-existing module was edited.  Seventy-eight public declarations.
+existing module was edited.  Eighty public declarations.
 
 ---
 
@@ -61,9 +61,11 @@ waves: at class six `L` is neither abelian nor `Y`-central, so an `L`-valued fac
 the cost of a `Z`-term.  A useful consequence recorded on the way: `M` is abelian in `Q₆`
 (`mpcSx_mcomm'`).
 
-Both hazards the wave-87 note predicted are confirmed and located: `q⁸` stops being central
-(`mpcSx_pow_eight_mem`, it is an `M`-element, and `q¹⁶` is what is central) and `p⁴` sinks a
-layer relative to what the class-five proofs assumed.
+Both hazards the wave-87 note predicted are confirmed and located.  `q⁸` stops being central: it
+is an `M`-element (`mpcSx_pow_eight_mem`) and `q¹⁶` is what is central (`mpcSx_pow_sixteen_mem`).
+And `p⁴` "sinks a layer" in the sense that matters: its index is still `λ₃` (`mpcSx_pow_four_mem`)
+but `λ₃` is now two layers above the bottom instead of one, so the class-five collapses that used
+`⁅λ₃, λ₂⁆ = 1` are gone.
 
 ## 4.  The four factors (§1 to §4)
 
@@ -92,8 +94,8 @@ dies at class five for one reason, `⁅L, Y⁆ = 1`.
 term of `mpcSx_comm_letAB` and the first two of `mpcSx_comm_letCD`, each incurred carrying the
 marked bracket to the front of its own factor past an `L`-term.  The `C̄₀`/`D̄` statement also
 lists its two `L`-terms in the order `⁅r,ν⁆·⁅q²,w⁆`, the opposite of `mpcFv_comm_letCD`'s; the
-exchange is free at class five and costs a `Z`-term here, so the order was chosen to spend one
-swap rather than three.
+exchange is free at class five and costs a `Z`-term here, so the order was chosen to spend two
+swaps rather than three.
 
 ## 5.  The assembly, and why it is no longer free (§5)
 
@@ -171,7 +173,9 @@ Outcome (c) of the ticket.  Two Props, the second sufficient for the first:
 * `MpcSxRungSix`: the class-six defect of `mpcFvW5` lies in `mpcLadReach 4`.  By
   `mpcLad_defect_orbit` this is the whole question inside `mpcFvW5`'s own `λ₄`-orbit, and its
   left-hand side is `mpcSx_w5_defect`'s closed form.
-* `MpcSxMarkedSix`: §7's pattern at `j = 4`, the shape both climbed rungs took.
+* `MpcSxMarkedSix`: §7's pattern at `j = 4`, the shape both climbed rungs took.  It is the
+  narrower of the two in the strong sense: `mpcSx_rungSix_of_markedSix` derives the membership
+  itself, through `mpcSx_marked_mem_reach`, and not only the supply.
 
 `mpcSx_nonempty_six_of_rungSix` and `mpcSx_nonempty_six_of_markedSix` climb the rung from either.
 
@@ -181,8 +185,8 @@ would not empty `mpcWordSet 6` and would not even refute the ansatz.
 
 ## 9.  Axiom pins
 
-Per declaration, in the module's §9 and reproduced by `mirror.sh gen`.  **All seventy-eight**
-public declarations are on the standard three (`propext`, `Classical.choice`, `Quot.sound`);
+Per declaration, in the module's §9 and reproduced by `mirror.sh gen`.  **All eighty** public
+declarations are on the standard three (`propext`, `Classical.choice`, `Quot.sound`);
 there is no split this wave, unlike `MpcFive` §7 where `mpcFv_commP_self` came out on `propext`
 alone.  **This lane introduces no axiom.**
 
@@ -193,7 +197,7 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
 1. **The class-six decision.**  `MpcSxMarkedSix` first, since it is narrower and is the shape
    both climbed rungs took; `MpcSxRungSix` if that fails.  The work is the evaluation of
    `mpcSx_w5_defect`'s closed form at the witness, and the two things that make it easier than it
-   looks are that `⁅z, B̄⁆ = 1` (powers of the same letter commute, which kills several terms
+   looks are that `⁅z, B̄⁆ = 1` (powers of the same letter commute, which kills `E₂`'s `⁅z,q⁆`
    outright) and that the answer is known in advance to lie in `λ₅/λ₆`.
 2. **General `μ`.**  §3 and §4 are at trivial pivot correction.  Lifting them is bounded work in
    the same style and would make `mpcSx_mWord_six` the full class-six analogue of

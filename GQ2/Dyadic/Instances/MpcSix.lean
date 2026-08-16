@@ -589,8 +589,8 @@ end LetterAB
 
 /-! ## §3 The pivot letter's fourth power, and the `C̄₀`/`D̄` bracket
 
-**Scope, stated once and carried by both lemmas of this section: the pivot correction is
-trivial.**  `mpcLad_pow_letC_five` and `mpcFv_comm_letCD` carry a general `μ ∈ Y`; §3 and §4 take
+**Scope, carried by §3 AND §4 and repeated at §4's own head and in both theorem docstrings, so
+that no site inherits it from a block it cannot see: the pivot correction is trivial.**  `mpcLad_pow_letC_five` and `mpcFv_comm_letCD` carry a general `μ ∈ Y`; §3 and §4 take
 `μ = 1`.  That is not a loss for the class-six rung, because **both climbed witnesses have a
 trivial pivot correction**: `mpcLadW4 = (W, W, 1, 1)` and `mpcFvW5 = (W, W·B̄⁴, 1, B̄⁴·⁅B̄²,D̄⁆)`,
 so the pivot slot has never been used by the ladder.  The general-`μ` class-six statement is
@@ -671,7 +671,11 @@ theorem mpcSx_pow_letC (q r : levelQuot G 6) :
 
 end LetterC
 
-/-! ## §4 The `C̄₀`/`D̄` bracket at class six -/
+/-! ## §4 The `C̄₀`/`D̄` bracket at class six
+
+**Scope, repeated from §3: the pivot correction is trivial** (`μ = 1`).  `mpcFv_comm_letCD`
+carries a general `μ ∈ Y`; this section does not, and the general-`μ` class-six statement is
+open. -/
 
 section LetterCD
 
@@ -1106,6 +1110,17 @@ theorem mpcSx_supply_of_marked {j : ℕ} (hj : 2 ≤ j)
   rw [mpcSx_incr_bracket, ← mul_assoc]
   exact hkill
 
+/-- ⭐ **THE MARKED KILLS ARE REACHABLE.**  The two-bracket increment of a marked move lies in
+wave 86's reachable `𝔽₂`-subspace, at every class and every base point.  This is the bridge
+between §7's language and `mpcLadReach`. -/
+theorem mpcSx_marked_mem_reach {j : ℕ} (hj : 2 ≤ j) (t n : (DM 2 0 : Type))
+    {u v : (DM 2 0 : Type)} (hu : u ∈ mpcSxKill j) (hv : v ∈ mpcSxKill j) :
+    levelMk (DM 2 0 : Type) (j + 2) (commP (dmA 2 0) u * commP (dmC 2 0) v)
+      ∈ mpcLadReach j t n :=
+  ⟨1, u, 1, v, ⟨⟨one_mem _, one_mem _⟩, ⟨mpcSx_kill_le_corr hj hu, hu.2⟩,
+    ⟨one_mem _, one_mem _⟩, ⟨mpcSx_kill_le_corr hj hv, hv.2⟩⟩,
+    by rw [mpcSx_incr_bracket]⟩
+
 /-- ⭐⭐⭐ **THE SHIFT FROM MARKED SUPPLY ALONE.**  If at every class from three up **some**
 class-`(j+1)` solution's defect is killed by one `Ā`-bracket and one `C̄₀`-bracket of **marked**
 elements `j` layers down, then `MpcPivShift 2`.
@@ -1173,6 +1188,25 @@ theorem mpcSx_supply_of_markedSix (h : MpcSxMarkedSix) : MpcLadSupply 4 mpcFvW5 
   obtain ⟨u, hu, v, hv, hkill⟩ := h
   exact mpcSx_supply_of_marked (by omega) hu hv hkill
 
+/-- ⭐ **THE MARKED QUESTION IMPLIES THE RUNG**, directly and not only through supply: a marked
+kill exhibits the defect as a reachable increment, the layer having exponent two.  So
+`MpcSxMarkedSix` is the narrower of the two Props in the strong sense. -/
+theorem mpcSx_rungSix_of_markedSix (h : MpcSxMarkedSix) : MpcSxRungSix := by
+  obtain ⟨u, hu, v, hv, hkill⟩ := h
+  have hmem := mpcSx_marked_mem_reach (j := 4) (by omega) mpcFvW5.2.1 mpcFvW5.2.2.2 hu hv
+  have hz : levelMk (DM 2 0 : Type) 6 (commP (dmA 2 0) u * commP (dmC 2 0) v)
+      ∈ zLayer (DM 2 0 : Type) 5 := mpcLad_reach_subset_zLayer 4 _ _ hmem
+  have hone : levelMk (DM 2 0 : Type) 6 (mpcLadDefect mpcFvW5) *
+      levelMk (DM 2 0 : Type) 6 (commP (dmA 2 0) u * commP (dmC 2 0) v) = 1 := by
+    rw [← map_mul]
+    exact (mpcWord_mem_iff_levelMk 6 _).mp (by rw [← mul_assoc]; exact hkill)
+  have hd : levelMk (DM 2 0 : Type) 6 (mpcLadDefect mpcFvW5)
+      = levelMk (DM 2 0 : Type) 6 (commP (dmA 2 0) u * commP (dmC 2 0) v) := by
+    rw [eq_inv_of_mul_eq_one_left hone, zLayer_inv_self hz]
+  show levelMk (DM 2 0 : Type) 6 (mpcLadDefect mpcFvW5) ∈ mpcLadReach 4 _ _
+  rw [hd]
+  exact hmem
+
 /-- ⭐⭐ **SUPPLY AT THE WITNESS CLIMBS THE CLASS-SIX RUNG**, through `mpcFv_w5_mem` and
 `mpcLad_nonempty_iff 4`. -/
 theorem mpcSx_nonempty_six_of_supply (h : MpcLadSupply 4 mpcFvW5) : (mpcWordSet 6).Nonempty :=
@@ -1201,7 +1235,7 @@ end RungSix
 
 One line per public declaration, in declaration order, measured against the mirror.
 
-**The honest split.**  There is none this wave: **all seventy-eight** public declarations are on
+**The honest split.**  There is none this wave: **all eighty** public declarations are on
 the standard three (`propext`, `Classical.choice`, `Quot.sound`), with no strict subset among
 them.  That differs from `MpcFive` §7, where `mpcFv_commP_self` came out on `propext` alone; the
 class-six analogue of that lemma is not a public declaration here, so no split arises.  **This
@@ -1280,11 +1314,13 @@ section AxiomPins
 #print axioms mpcSx_un_marked
 #print axioms mpcSx_incr_bracket
 #print axioms mpcSx_supply_of_marked
+#print axioms mpcSx_marked_mem_reach
 #print axioms mpcSx_shift_of_marked_supply
 #print axioms mpcSx_marked_supply_three
 #print axioms MpcSxRungSix
 #print axioms MpcSxMarkedSix
 #print axioms mpcSx_supply_of_markedSix
+#print axioms mpcSx_rungSix_of_markedSix
 #print axioms mpcSx_nonempty_six_of_supply
 #print axioms mpcSx_nonempty_six_of_markedSix
 #print axioms mpcSx_supply_of_rungSix
