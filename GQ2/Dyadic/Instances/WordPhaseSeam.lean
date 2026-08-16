@@ -36,12 +36,19 @@ rows of the resolved compact family read off the `tau` coordinate, so the `tau` 
 is carried to `(1,1)` on the nose.  This is the compact counterpart of
 `LSquare.lSq_heisD1_tauColumn`, and it holds for both compact words.
 
+## §2b The mod-2 exponent row at every odd resolver
+
+§2 is pinned at the uniform exponent because its raw material is.  §2b removes both pins with
+an argument the ticket did not anticipate: the tame row is the `tau` indicator at *every*
+resolver once `q` is even, and `IsStokesEndpoint` already says the two rows sum to zero, so in
+characteristic two the wild row **equals** the tame one.  No branch word is touched.  The
+outcome is the whole scalar `d¹` of either compact family, at every odd resolver and every
+marking: `x ↦ (x_τ, x_τ)`.
+
 ## §3 The compact word traces
 
 `wPsNCompactWordH2TraceEquiv` and `wPsMCompactWordH2TraceEquiv`: the objects W87 §6 item 1
-asked for.  Both are stated at the uniform exponent `omega2Exp (4 * Monoid.exponent C)`, which
-is the exponent every downstream consumer uses (`Count.resolvesAt_{n,m}CompactFam_uniformHeis`,
-`wPmCompactPhaseComparison_of_headPhase`).
+asked for, at every odd resolver.
 -/
 
 namespace GQ2.Dyadic.Instances.WordPhaseSeam
@@ -121,35 +128,161 @@ theorem wPs_heisD1_mCompactFam_tauColumn (t : Marking (2 + 2 * h) C) (hq : Even 
 
 end PairColumn
 
-/-! ## §3 The compact word traces -/
+/-! ## §2b The compact mod-2 exponent row, at every odd resolver
+
+§2 is pinned at the uniform exponent because its raw material is.  For the flexible resolver
+system (§4) the same row is needed at the *quotient-level* exponent, so it has to be known at
+every odd resolver and at every marking.  It is, and the proof is two lines of arithmetic on
+top of the endpoint theorem: the tame row is the `tau` indicator (independently of the
+resolver, once `q` is even), and `IsStokesEndpoint` says the two rows sum to zero, so in
+characteristic two the wild row **equals** the tame one.  The compact twin of
+`LSquare.lSqFam_heisEps_eq_of_odd`, obtained without touching the branch word at all. -/
+
+section ExponentRow
+
+variable {α h q e e' : ℕ}
+
+/-- In characteristic two a vanishing sum identifies its two summands. -/
+theorem wPs_eq_of_add_eq_zero : ∀ a b : ZMod 2, a + b = 0 → b = a := by decide
+
+/-- The traced mod-2 exponent vector of the resolved tame relator is the `tau` indicator, at
+every resolver value and every even `q`.  Degree- and word-generic. -/
+theorem wPs_toAdd_heisEps_tameRelW {n : ℕ} (hq : Even q) (e : ℕ) (i : Generator n) :
+    Multiplicative.toAdd (heisEps i
+        (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW n q)))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 := by
+  rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+    PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+    conjR_eq_self_of_comm, map_inv, map_zpow]
+  simp only [heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, neg_zero, add_zero]
+
+/-- **Both rows of the resolved compact-`N` family are the `tau` indicator**, at every odd
+resolver, every even `q` and every `α ≥ 1`.  The wild row costs nothing: the endpoint theorem
+already says the two rows sum to zero. -/
+theorem wPs_toAdd_heisEps_nCompactFam (hq : Even q) (hα : 1 ≤ α) (he : Odd e) (k : Fin 2)
+    (i : Generator (2 + 2 * h)) :
+    Multiplicative.toAdd (heisEps i (nCompactFam α h q e k))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 := by
+  have hzero : Multiplicative.toAdd (heisEps i (nCompactFam α h q e 0))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 :=
+    wPs_toAdd_heisEps_tameRelW hq e i
+  have hend := nCompact_isStokesEndpoint (α := α) (h := h) (q := q) (e := e) hα hq he i
+  rw [Fin.sum_univ_two, hzero] at hend
+  have hone : Multiplicative.toAdd (heisEps i (nCompactFam α h q e 1))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 :=
+    wPs_eq_of_add_eq_zero _ _ hend
+  fin_cases k
+  · exact hzero
+  · exact hone
+
+/-- **Both rows of the resolved compact-`M` family are the `tau` indicator.**  Same argument;
+the compact-`M` endpoint theorem needs no `α` hypothesis. -/
+theorem wPs_toAdd_heisEps_mCompactFam (hq : Even q) (he : Odd e) (k : Fin 2)
+    (i : Generator (2 + 2 * h)) :
+    Multiplicative.toAdd (heisEps i (MCompact.mCompactFam α h q e k))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 := by
+  have hzero : Multiplicative.toAdd (heisEps i (MCompact.mCompactFam α h q e 0))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 :=
+    wPs_toAdd_heisEps_tameRelW hq e i
+  have hend := MCompact.mCompact_isStokesEndpoint
+    (α := α) (h := h) (q := q) (e := e) hq he i
+  rw [Fin.sum_univ_two, hzero] at hend
+  have hone : Multiplicative.toAdd (heisEps i (MCompact.mCompactFam α h q e 1))
+      = if Generator.tau = i then (1 : ZMod 2) else 0 :=
+    wPs_eq_of_add_eq_zero _ _ hend
+  fin_cases k
+  · exact hzero
+  · exact hone
+
+/-- All odd compact-`N` resolvers have the same mod-2 exponent matrix.  The compact twin of
+`LSquare.lSqFam_heisEps_eq_of_odd`. -/
+theorem wPs_heisEps_nCompactFam_eq_of_odd (hq : Even q) (hα : 1 ≤ α) (he : Odd e) (he' : Odd e')
+    (k : Fin 2) (i : Generator (2 + 2 * h)) :
+    heisEps i (nCompactFam α h q e k) = heisEps i (nCompactFam α h q e' k) :=
+  Multiplicative.toAdd.injective
+    ((wPs_toAdd_heisEps_nCompactFam hq hα he k i).trans
+      (wPs_toAdd_heisEps_nCompactFam hq hα he' k i).symm)
+
+/-- All odd compact-`M` resolvers have the same mod-2 exponent matrix. -/
+theorem wPs_heisEps_mCompactFam_eq_of_odd (hq : Even q) (he : Odd e) (he' : Odd e')
+    (k : Fin 2) (i : Generator (2 + 2 * h)) :
+    heisEps i (MCompact.mCompactFam α h q e k)
+      = heisEps i (MCompact.mCompactFam α h q e' k) :=
+  Multiplicative.toAdd.injective
+    ((wPs_toAdd_heisEps_mCompactFam (α := α) hq he k i).trans
+      (wPs_toAdd_heisEps_mCompactFam (α := α) hq he' k i).symm)
+
+variable {C : Type*} [Group C] [DistribMulAction C (ZMod 2)]
+
+/-- **The scalar compact-`N` differential reads off the `tau` coordinate, twice.**  This is the
+marking-free, resolver-free form of §2's tau column: the whole scalar `d¹` of the compact-`N`
+family is `x ↦ (x_τ, x_τ)` at every odd resolver and every marking. -/
+theorem wPs_heisD1_zmod2_nCompactFam_apply (c : Generator (2 + 2 * h) → C)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e) (x : Generator (2 + 2 * h) → ZMod 2) :
+    heisD1 (A := ZMod 2) c (nCompactFam α h q e) x = ![x Generator.tau, x Generator.tau] := by
+  funext k
+  rw [heisD1_zmod2_apply_eq_eps]
+  have hsum : ∀ i : Generator (2 + 2 * h),
+      Multiplicative.toAdd (heisEps i (nCompactFam α h q e k)) * x i
+        = if Generator.tau = i then x i else 0 := by
+    intro i
+    rw [wPs_toAdd_heisEps_nCompactFam hq hα he k i]
+    split <;> simp
+  rw [Finset.sum_congr rfl (fun i _ ↦ hsum i), Finset.sum_ite_eq,
+    if_pos (Finset.mem_univ Generator.tau)]
+  fin_cases k <;> simp
+
+/-- **The scalar compact-`M` differential reads off the `tau` coordinate, twice.** -/
+theorem wPs_heisD1_zmod2_mCompactFam_apply (c : Generator (2 + 2 * h) → C)
+    (hq : Even q) (he : Odd e) (x : Generator (2 + 2 * h) → ZMod 2) :
+    heisD1 (A := ZMod 2) c (MCompact.mCompactFam α h q e) x
+      = ![x Generator.tau, x Generator.tau] := by
+  funext k
+  rw [heisD1_zmod2_apply_eq_eps]
+  have hsum : ∀ i : Generator (2 + 2 * h),
+      Multiplicative.toAdd (heisEps i (MCompact.mCompactFam α h q e k)) * x i
+        = if Generator.tau = i then x i else 0 := by
+    intro i
+    rw [wPs_toAdd_heisEps_mCompactFam (α := α) hq he k i]
+    split <;> simp
+  rw [Finset.sum_congr rfl (fun i _ ↦ hsum i), Finset.sum_ite_eq,
+    if_pos (Finset.mem_univ Generator.tau)]
+  fin_cases k <;> simp
+
+end ExponentRow
+
+/-! ## §3 The compact word traces
+
+The objects W87 §6 item 1 asked for.  §2b lets them be stated at **every** odd resolver and
+every marking, not only at the uniform exponent and not only at a `Marking` into a finite
+group: the pair column is `wPsCompactTauBasis` in all cases.  §2 is the direct instantiation
+of the raw material the ticket named, and is subsumed by this. -/
 
 section CompactTrace
 
-variable {α h q : ℕ} {C : Type*} [Group C] [Finite C] [DistribMulAction C (ZMod 2)]
+variable {α h q e : ℕ} {C : Type*} [Group C] [DistribMulAction C (ZMod 2)]
 
-/-- **The scalar word trace at the uniform compact-`N` family.**  The object W87 §6 item 1
-asked for: the `NCompact` twin of `LSquare.lWordH2TraceEquiv`. -/
-def wPsNCompactWordH2TraceEquiv (t : Marking (2 + 2 * h) C) (hq : Even q) (hα : 1 ≤ α)
-    (hr : ∀ k, FreeGroup.lift ⇑t
-      (nCompactFam α h q (omega2Exp (4 * Monoid.exponent C)) k) = 1) :
-    WordH2 ⇑t (nCompactFam α h q (omega2Exp (4 * Monoid.exponent C))) (ZMod 2) ≃+ ZMod 2 :=
-  wPsWordH2TraceEquiv ⇑t _ hr
-    (nCompact_isStokesEndpoint hα hq
-      (odd_omega2Exp (Count.fourMulExponent_ne_zero_and_even C).1
-        (Count.fourMulExponent_ne_zero_and_even C).2))
-    ⟨wPsCompactTauBasis h, wPs_heisD1_nCompactFam_tauColumn t hq hα⟩
+/-- **The scalar word trace at the compact-`N` family**, at every odd resolver.  The
+`NCompact` twin of `LSquare.lWordH2TraceEquiv`. -/
+def wPsNCompactWordH2TraceEquiv (c : Generator (2 + 2 * h) → C)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift c (nCompactFam α h q e k) = 1) :
+    WordH2 c (nCompactFam α h q e) (ZMod 2) ≃+ ZMod 2 :=
+  wPsWordH2TraceEquiv c _ hr (nCompact_isStokesEndpoint hα hq he)
+    ⟨wPsCompactTauBasis h, by
+      rw [wPs_heisD1_zmod2_nCompactFam_apply c hq hα he]
+      simp [wPsCompactTauBasis]⟩
 
-/-- **The scalar word trace at the uniform compact-`M` family.** -/
-def wPsMCompactWordH2TraceEquiv (t : Marking (2 + 2 * h) C) (hq : Even q)
-    (hr : ∀ k, FreeGroup.lift ⇑t
-      (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent C)) k) = 1) :
-    WordH2 ⇑t (MCompact.mCompactFam α h q (omega2Exp (4 * Monoid.exponent C)))
-      (ZMod 2) ≃+ ZMod 2 :=
-  wPsWordH2TraceEquiv ⇑t _ hr
-    (MCompact.mCompact_isStokesEndpoint hq
-      (odd_omega2Exp (Count.fourMulExponent_ne_zero_and_even C).1
-        (Count.fourMulExponent_ne_zero_and_even C).2))
-    ⟨wPsCompactTauBasis h, wPs_heisD1_mCompactFam_tauColumn t hq⟩
+/-- **The scalar word trace at the compact-`M` family**, at every odd resolver. -/
+def wPsMCompactWordH2TraceEquiv (c : Generator (2 + 2 * h) → C)
+    (hq : Even q) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift c (MCompact.mCompactFam α h q e k) = 1) :
+    WordH2 c (MCompact.mCompactFam α h q e) (ZMod 2) ≃+ ZMod 2 :=
+  wPsWordH2TraceEquiv c _ hr (MCompact.mCompact_isStokesEndpoint hq he)
+    ⟨wPsCompactTauBasis h, by
+      rw [wPs_heisD1_zmod2_mCompactFam_apply (α := α) c hq he]
+      simp [wPsCompactTauBasis]⟩
 
 end CompactTrace
 
@@ -176,6 +309,14 @@ section AxiomPins
 #print axioms wPsCompactTauBasis_tau
 #print axioms wPs_heisD1_nCompactFam_tauColumn
 #print axioms wPs_heisD1_mCompactFam_tauColumn
+#print axioms wPs_eq_of_add_eq_zero
+#print axioms wPs_toAdd_heisEps_tameRelW
+#print axioms wPs_toAdd_heisEps_nCompactFam
+#print axioms wPs_toAdd_heisEps_mCompactFam
+#print axioms wPs_heisEps_nCompactFam_eq_of_odd
+#print axioms wPs_heisEps_mCompactFam_eq_of_odd
+#print axioms wPs_heisD1_zmod2_nCompactFam_apply
+#print axioms wPs_heisD1_zmod2_mCompactFam_apply
 #print axioms wPsNCompactWordH2TraceEquiv
 #print axioms wPsMCompactWordH2TraceEquiv
 
