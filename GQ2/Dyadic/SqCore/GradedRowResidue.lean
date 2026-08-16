@@ -578,6 +578,223 @@ theorem gRsd_SQ_QX_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
       _ = gRsdZeta h ^ 2 * commP (gRsdZeta h) (gLadX h) := by
           rw [← mul_assoc, ← pow_two]
 
+/-- The inner normalization: `[[X,S], X] [[X,S], S] = [zeta,X] [zeta,S]`, through the
+inverse-invisibility of the near slot. -/
+private theorem gRsd_XS_normalize :
+    commP (commP (gLadX h) (gLadS h)) (gLadX h) * commP (commP (gLadX h) (gLadS h)) (gLadS h)
+      = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) := by
+  have hXS : commP (gLadX h) (gLadS h) = (gRsdZeta h)⁻¹ :=
+    (gLad_commP_inv (gLadS h) (gLadX h)).symm
+  rw [hXS, gThreeFour_ad_inv_left gRsdZeta_mem (gLadX h),
+    gThreeFour_ad_inv_left gRsdZeta_mem (gLadS h)]
+
+/-- ⭐ **The first rotated triple**: `[[X,Q],Q] = [zeta,X] [zeta,S]` at every odd `B`. -/
+theorem gRsd_XQQ_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP (commP (gLadX h) (gLadQ h c)) (gLadQ h c)
+      = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) := by
+  have hXS : commP (gLadX h) (gLadS h) ∈ lambdaImage (DSq h : Type) 2 4 :=
+    cfour_commP_mem_lambdaTwo _ _
+  have hXSX : commP (commP (gLadX h) (gLadS h)) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hXS _
+  have hcore :
+      commP (commP (gLadX h) (gLadS h) * commP (commP (gLadX h) (gLadS h)) (gLadX h))
+        (gLadQ h c) = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) := by
+    rw [cfour_commP_mul_left (commP (gLadX h) (gLadS h))
+        (commP (commP (gLadX h) (gLadS h)) (gLadX h)) (gLadQ h c),
+      cfive_commP_zLayer_left hXSX (gLadQ h c), mul_one,
+      gRsd_lam_Q_odd hXS hc,
+      cfive_commP_zLayer_left (Subgroup.mul_mem _ (cfour_commP_mem_zLayer_left hXS _)
+        (cfour_commP_mem_zLayer_left hXS _)) (commP (commP (gLadX h) (gLadS h)) (gLadX h)),
+      mul_one, gRsd_XS_normalize]
+  rcases gRsd_Q_odd_cases (h := h) hc with ⟨V, hV, hQ⟩ | ⟨V, hV, hQ⟩
+  · rw [show commP (gLadX h) (gLadQ h c)
+        = commP (gLadX h) (gLadS h) * commP (commP (gLadX h) (gLadS h)) (gLadX h) from by
+      rw [hQ]; exact gRsd_X_shape hV]
+    exact hcore
+  · have hXQ2 : commP (gLadX h) (gLadQ h 2) ∈ zLayer (DSq h : Type) 3 :=
+      cfour_commP_mem_zLayer_right (gLadX h) gRsd_Wsq_mem
+    rw [show commP (gLadX h) (gLadQ h c)
+        = commP (gLadX h) (gLadS h) * commP (commP (gLadX h) (gLadS h)) (gLadX h)
+          * commP (gLadX h) (gLadQ h 2) from by
+      rw [hQ, cfour_commP_mul_right (gLadX h) (gLadQ h 2) (gLadS h * (gLadX h * V)),
+        gRsd_X_shape hV, cfive_commP_zLayer_left hXQ2 (gLadS h * (gLadX h * V)), mul_one],
+      cfour_commP_mul_left (commP (gLadX h) (gLadS h)
+        * commP (commP (gLadX h) (gLadS h)) (gLadX h)) (commP (gLadX h) (gLadQ h 2))
+        (gLadQ h c),
+      cfive_commP_zLayer_left hXQ2 (gLadQ h c), mul_one, hcore,
+      gLad_commP_zLayer_right _ hXQ2, mul_one]
+
+/-- The pivot square against the sigma letter: the same involution. -/
+theorem gRsd_Wsq_S : commP (gLadQ h 2) (gLadS h) = gRsdKillE h := by
+  rw [← gLad_commP_inv (gLadS h) (gLadQ h 2), gRsd_S_Wsq]
+  exact zLayer_inv_self gRsdKillE_mem
+
+/-- ⭐ **The second rotated triple**: `[[Q,S],Q] = [zeta,X] [zeta,S]` at every odd `B`. -/
+theorem gRsd_QSQ_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP (commP (gLadQ h c) (gLadS h)) (gLadQ h c)
+      = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) := by
+  have hXS : commP (gLadX h) (gLadS h) ∈ lambdaImage (DSq h : Type) 2 4 :=
+    cfour_commP_mem_lambdaTwo _ _
+  have hcore : commP (commP (gLadX h) (gLadS h)) (gLadQ h c)
+      = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) := by
+    rw [gRsd_lam_Q_odd hXS hc, gRsd_XS_normalize]
+  rcases gRsd_Q_odd_cases (h := h) hc with ⟨V, hV, hQ⟩ | ⟨V, hV, hQ⟩
+  · rw [show commP (gLadQ h c) (gLadS h) = commP (gLadX h) (gLadS h) from by
+      rw [hQ]; exact gRsd_shape_S hV]
+    exact hcore
+  · rw [show commP (gLadQ h c) (gLadS h)
+        = gRsdKillE h * commP (gLadX h) (gLadS h) from by
+      rw [hQ, cfour_commP_mul_left (gLadQ h 2) (gLadS h * (gLadX h * V)) (gLadS h),
+        gRsd_Wsq_S, cfive_commP_zLayer_left gRsdKillE_mem (gLadS h * (gLadX h * V)),
+        mul_one, gRsd_shape_S hV],
+      cfour_commP_mul_left (gRsdKillE h) (commP (gLadX h) (gLadS h)) (gLadQ h c),
+      cfive_commP_zLayer_left gRsdKillE_mem (gLadQ h c), cfour_one_comm, one_mul, one_mul,
+      hcore]
+
+/-- The block square, extracted: `(zeta [zeta,X])^2 = zeta^2`. -/
+private theorem gRsd_zeta_ZX_sq :
+    (gRsdZeta h * commP (gRsdZeta h) (gLadX h)) ^ 2 = gRsdZeta h ^ 2 := by
+  rw [cfour_sq_mul (gRsdZeta h) (commP (gRsdZeta h) (gLadX h)),
+    zLayer_sq (DSq h : Type) gRsdZetaX_mem, mul_one,
+    cfive_commP_zLayer_left gRsdZetaX_mem (gRsdZeta h), cfour_one_comm, mul_one, mul_one]
+
+/-- ⭐ **The bracket square**: `[Q,X]^2 = zeta^2` at every odd `B`. -/
+theorem gRsd_QX_sq_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP (gLadQ h c) (gLadX h) ^ 2 = gRsdZeta h ^ 2 := by
+  rcases gRsd_Q_odd_cases (h := h) hc with ⟨V, hV, hQ⟩ | ⟨V, hV, hQ⟩
+  · rw [hQ, gRsd_shape_X hV, gRsd_zeta_ZX_sq]
+  · have hQX : commP (gLadQ h c) (gLadX h)
+        = gRsdKillE h * (gRsdZeta h * commP (gRsdZeta h) (gLadX h)) := by
+      rw [hQ, cfour_commP_mul_left (gLadQ h 2) (gLadS h * (gLadX h * V)) (gLadX h),
+        gRsd_Wsq_X, cfive_commP_zLayer_left gRsdKillE_mem (gLadS h * (gLadX h * V)),
+        mul_one, gRsd_shape_X hV]
+    rw [hQX, cfour_sq_mul (gRsdKillE h) (gRsdZeta h * commP (gRsdZeta h) (gLadX h)),
+      zLayer_sq (DSq h : Type) gRsdKillE_mem, one_mul, gRsd_zeta_ZX_sq,
+      gLad_commP_zLayer_right (gRsdZeta h * commP (gRsdZeta h) (gLadX h)) gRsdKillE_mem,
+      cfour_one_comm, mul_one, mul_one]
+
+/-- The y-bracket of the base pivot: `[W, Y] = xiS [[S,Y],X] xiX`, exactly. -/
+private theorem gRsd_W_Y : commP (gLadQ h 1) (gLadY h)
+    = gRsdXiS h * commP (gRsdXiS h) (gLadX h) * gRsdXiX h := by
+  rw [gRsd_W_split, cfour_commP_mul_left (gLadS h) (gLadX h * gRsdZ h) (gLadY h),
+    show commP (gLadS h) (gLadY h) = gRsdXiS h from rfl,
+    cfive_commP_right_hom gRsdXiS_mem (gLadX h) (gRsdZ h),
+    gLad_commP_zLayer_right (gRsdXiS h) gRsdZ_mem, one_mul,
+    cfour_commP_mul_left (gLadX h) (gRsdZ h) (gLadY h),
+    cfive_commP_zLayer_left gRsdZ_mem (gLadY h), mul_one,
+    gLad_commP_zLayer_right (commP (gLadX h) (gLadY h)) gRsdZ_mem, mul_one]
+  rfl
+
+/-- ⭐ **The y-block of the pivot square**: `[W^2, Y] = gRsdKillY`. -/
+theorem gRsd_Wsq_Y : commP (gLadQ h 2) (gLadY h) = gRsdKillY h := by
+  have h2 : gLadQ h 2 = gLadQ h 1 ^ 2 := by
+    rw [← gLadQ_two_mul]
+    norm_num
+  have humem : commP (gRsdXiS h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiS_mem _
+  have hxiSW : commP (gRsdXiS h) (gLadQ h 1)
+      = commP (gRsdXiS h) (gLadX h) * commP (gRsdXiS h) (gLadS h) := by
+    rw [gRsd_W_split]
+    exact gRsd_lam_shape gRsdXiS_mem gRsdZ_mem
+  have hxiXW : commP (gRsdXiX h) (gLadQ h 1)
+      = commP (gRsdXiX h) (gLadX h) * commP (gRsdXiX h) (gLadS h) := by
+    rw [gRsd_W_split]
+    exact gRsd_lam_shape gRsdXiX_mem gRsdZ_mem
+  have hXcross : commP (gRsdXiX h) (gRsdXiS h * commP (gRsdXiS h) (gLadX h)) = 1 := by
+    rw [cfour_commP_mul_right (gRsdXiX h) (gRsdXiS h) (commP (gRsdXiS h) (gLadX h)),
+      gLad_commP_zLayer_right (gRsdXiX h) humem, one_mul,
+      gLad_vanish4 gRsdXiX_mem gRsdXiS_mem, cfour_one_comm, mul_one]
+  have hSu : (gRsdXiS h * commP (gRsdXiS h) (gLadX h)) ^ 2 = gRsdXiS h ^ 2 := by
+    rw [cfour_sq_mul (gRsdXiS h) (commP (gRsdXiS h) (gLadX h)),
+      zLayer_sq (DSq h : Type) humem, mul_one,
+      cfive_commP_zLayer_left humem (gRsdXiS h), cfour_one_comm, mul_one, mul_one]
+  have hSuW : commP (gRsdXiS h * commP (gRsdXiS h) (gLadX h)) (gLadQ h 1)
+      = commP (gRsdXiS h) (gLadX h) * commP (gRsdXiS h) (gLadS h) := by
+    rw [cfour_commP_mul_left (gRsdXiS h) (commP (gRsdXiS h) (gLadX h)) (gLadQ h 1), hxiSW,
+      gLad_commP_zLayer_right _ humem, mul_one,
+      cfive_commP_zLayer_left humem (gLadQ h 1), mul_one]
+  rw [h2, gThreeFour_commP_sq_left (gLadQ h 1) (gLadY h), gRsd_W_Y,
+    cfour_sq_mul (gRsdXiS h * commP (gRsdXiS h) (gLadX h)) (gRsdXiX h), hSu, hXcross,
+    cfour_one_comm, mul_one, mul_one,
+    cfour_commP_mul_left (gRsdXiS h * commP (gRsdXiS h) (gLadX h)) (gRsdXiX h) (gLadQ h 1),
+    hSuW, hxiXW,
+    cfive_commP_zLayer_left
+      (Subgroup.mul_mem _ humem (cfour_commP_mem_zLayer_left gRsdXiS_mem _))
+      (gRsdXiX h), mul_one]
+  rfl
+
+/-- The y-block of every even pivot power at odd half. -/
+theorem gRsd_Qeven_Y {b : ℤ_[2]} (hb : ¬ (2 : ℤ_[2]) ∣ b) :
+    commP (gLadQ h (2 * b)) (gLadY h) = gRsdKillY h := by
+  rw [gRsd_Qeven_split, cfour_commP_mul_left (gLadQ h 2) (gLadQ h (2 * b - 2)) (gLadY h),
+    gRsd_Wsq_Y, gLad_commP_zLayer_right (gRsdKillY h) (gRsd_Qeven_tail_zLayer hb), mul_one,
+    cfive_commP_zLayer_left (gRsd_Qeven_tail_zLayer hb) (gLadY h), mul_one]
+
+/-- The two-y core: the outer y-bracket of the odd-shape value is the canonical pair. -/
+private theorem gRsd_YY_core :
+    commP (gLadY h) (commP (gLadY h) (gLadX h) * commP (gLadY h) (gLadS h)
+      * commP (commP (gLadY h) (gLadS h)) (gLadX h)) = gRsdYY h := by
+  have haL : commP (gLadY h) (gLadX h) ∈ lambdaImage (DSq h : Type) 2 4 :=
+    cfour_commP_mem_lambdaTwo _ _
+  have hbL : commP (gLadY h) (gLadS h) ∈ lambdaImage (DSq h : Type) 2 4 :=
+    cfour_commP_mem_lambdaTwo _ _
+  have hu₂ : commP (commP (gLadY h) (gLadS h)) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hbL _
+  have hYa : commP (gLadY h) (commP (gLadY h) (gLadX h)) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_right _ haL
+  rw [cfour_commP_mul_right (gLadY h)
+      (commP (gLadY h) (gLadX h) * commP (gLadY h) (gLadS h))
+      (commP (commP (gLadY h) (gLadS h)) (gLadX h)),
+    gLad_commP_zLayer_right (gLadY h) hu₂, one_mul,
+    cfour_commP_mul_right (gLadY h) (commP (gLadY h) (gLadX h))
+      (commP (gLadY h) (gLadS h)),
+    cfive_commP_zLayer_left hYa (commP (gLadY h) (gLadS h)), mul_one,
+    gLad_commP_zLayer_right _ hu₂, mul_one,
+    ← gLad_commP_inv (commP (gLadY h) (gLadS h)) (gLadY h),
+    zLayer_inv_self (cfour_commP_mem_zLayer_left hbL (gLadY h)),
+    ← gLad_commP_inv (commP (gLadY h) (gLadX h)) (gLadY h),
+    zLayer_inv_self (cfour_commP_mem_zLayer_left haL (gLadY h)),
+    ← gLad_commP_inv (gLadS h) (gLadY h),
+    gThreeFour_ad_inv_left (cfour_commP_mem_lambdaTwo (gLadS h) (gLadY h)) (gLadY h),
+    ← gLad_commP_inv (gLadX h) (gLadY h),
+    gThreeFour_ad_inv_left (cfour_commP_mem_lambdaTwo (gLadX h) (gLadY h)) (gLadY h)]
+  rfl
+
+/-- ⭐ **The two-y triples**: `[Y,[Y,Q]] = [[S,Y],Y] [[X,Y],Y]` at every odd `B`. -/
+theorem gRsd_YYQ_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP (gLadY h) (commP (gLadY h) (gLadQ h c)) = gRsdYY h := by
+  rcases gRsd_Q_odd_cases (h := h) hc with ⟨V, hV, hQ⟩ | ⟨V, hV, hQ⟩
+  · rw [hQ, gRsd_Y_shape hV, gRsd_YY_core]
+  · have hz₂ : commP (gLadY h) (gLadQ h 2) ∈ zLayer (DSq h : Type) 3 :=
+      cfour_commP_mem_zLayer_right _ gRsd_Wsq_mem
+    have hinner : commP (gLadY h) (gLadQ h c)
+        = commP (gLadY h) (gLadX h) * commP (gLadY h) (gLadS h)
+          * commP (commP (gLadY h) (gLadS h)) (gLadX h)
+          * commP (gLadY h) (gLadQ h 2) := by
+      rw [hQ, cfour_commP_mul_right (gLadY h) (gLadQ h 2) (gLadS h * (gLadX h * V)),
+        gRsd_Y_shape hV, cfive_commP_zLayer_left hz₂ (gLadS h * (gLadX h * V)), mul_one]
+    rw [hinner, cfour_commP_mul_right (gLadY h)
+        (commP (gLadY h) (gLadX h) * commP (gLadY h) (gLadS h)
+          * commP (commP (gLadY h) (gLadS h)) (gLadX h))
+        (commP (gLadY h) (gLadQ h 2)),
+      gLad_commP_zLayer_right (gLadY h) hz₂, one_mul, gRsd_YY_core,
+      gLad_commP_zLayer_right (gRsdYY h) hz₂, mul_one]
+
+/-- The excess cost dies at even `t`. -/
+theorem gRsd_Zcost_even_t {B t : ℤ_[2]} (ht : (2 : ℤ_[2]) ∣ t) :
+    commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B) = 1 := by
+  obtain ⟨u, rfl⟩ := ht
+  have hz : gLadQ h (2 * u) ^ 2 ∈ zLayer (DSq h : Type) 3 := by
+    rw [← gLadQ_two_mul]
+    exact gLadQ_mem_zLayer_of_four ⟨u, by ring⟩
+  exact cfive_commP_zLayer_left hz _
+
+/-- ⭐ The excess cost at odd `t` is the even kill element, at EVERY `B`. -/
+theorem gRsd_Zcost_odd_t {B t : ℤ_[2]} (ht : ¬ (2 : ℤ_[2]) ∣ t) :
+    commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B) = gRsdKillE h := by
+  rw [cfive_commP_right_hom (gLadQ_sq_mem t) (gLadX h) (gLadQ h B), ← gLadQ_two_mul,
+    gRsdQ_commP, one_mul, gRsd_Qeven_X ht]
+
 end OddPowers
 
 end SqCore
