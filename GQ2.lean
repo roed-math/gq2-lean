@@ -280,6 +280,7 @@ import GQ2.Dyadic.Certificates.M0
 import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.Certificates.Npc
 import GQ2.Dyadic.Certificates.M0Assembly
+import GQ2.Dyadic.Certificates.M0Ramified
 import GQ2.Dyadic.Certificates.Mpc
 import GQ2.Dyadic.Certificates.MpcStokes
 import GQ2.Dyadic.FieldData
