@@ -13,8 +13,10 @@
 #   base six times (W78 through W83 house notes).  The failure is always the
 #   same shape: a note asserts "X is open" or "row R carries clause C", the
 #   theorem that refutes it predates the note, and no reader re-elaborates.
-#   Every fact this script prints is re-derived from the tree on each run, so
-#   it cannot go stale; the only thing it can be is INCOMPLETE.
+#   Every fact this script prints is re-derived from the imported environment
+#   on each run.  The probe also checks that environment against every direct
+#   source import in GQ2.lean, so a stale umbrella olean makes the board
+#   UNVERIFIED instead of silently producing stale rows.
 #
 # RUNNING
 #
@@ -22,8 +24,11 @@
 #   bash scripts/scoreboard.sh --raw      the probe's records, unformatted
 #
 #   Needs the same shared olean cache `scripts/mirror.sh` needs; run
-#   `scripts/mirror.sh sweep` first if the cache has advanced.  It invokes
-#   `mirror.sh check` on ONE generated probe file and runs NO `lake` command.
+#   `scripts/mirror.sh sweep` first if the cache has advanced.  After changing
+#   direct imports in GQ2.lean, also run `scripts/mirror.sh gen GQ2`.  A missed
+#   umbrella regeneration is detected and reported as STALE_UMBRELLA.  The
+#   board invokes `mirror.sh check` on ONE generated probe and no `lake`
+#   command.
 #
 # ----------------------------------------------------------------------------
 # HOW TO ADD A ROW
@@ -138,6 +143,7 @@ FROZEN ROWS|Q2(v-10) untied|decl|mpcPiv_genAsmBranch_sqrtNegTen
 FROZEN ROWS|v-10 residue = word prob|decl|mpcOrb_shift_iff_marking
 FROZEN ROWS|v-10 finite-class route|decl|mpcWord_shift_of_forall_class_four
 FROZEN ROWS|v-10 residual move|prod|MpcPivShift
+FROZEN ROWS|v-10 exact uniform blocker|decl|MpcMkInitialRelatorAbsorption
 LEGACY RECORDS (COMPAT ONLY)|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
 LEGACY RECORDS (COMPAT ONLY)|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
 LEGACY RECORDS (COMPAT ONLY)|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
@@ -147,16 +153,24 @@ LEGACY RECORDS (COMPAT ONLY)|v5 cand clause = coeff|decl|rowCl_mCand_exactLiftin
 LEGACY RECORDS (COMPAT ONLY)|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifting_iff
 CORRECTED RN RECORDS|N0 certificate (all a,h)|decl|wPcNWordCertificateRN
 CORRECTED RN RECORDS|M0 certificate (from supply)|decl|wPcMWordCertificateRN_of_supply
+CORRECTED RN RECORDS|Mpc certificate (from determinant)|decl|mpcWordCertificateRN_of_determinant
+CORRECTED RN RECORDS|Npc certificate (from determinant)|decl|npcWordCertificateRN_of_determinant
 CORRECTED RN TIED|N0 residual (all a,h)|decl|wPcN_rowResidualRN_of_tied
 CORRECTED RN TIED|N0 endpoint (all a,h)|decl|wPcN_candidate_equiv_galKRN_of_tied
 CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
 CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
+CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
+CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
+CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
+CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN CLOSED ROWS|Q2(v-2) residual|decl|wPcN_rowResidualRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v-2) endpoint|decl|wPcN_candidate_equiv_galKRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v2) residual|decl|wPcM_rowResidualRN_sqrtTwo
 CORRECTED RN CLOSED ROWS|Q2(v2) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtTwo
 CORRECTED RN CLOSED ROWS|Q2(v5) residual|decl|wPcM_rowResidualRN_sqrtFive
 CORRECTED RN CLOSED ROWS|Q2(v5) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtFive
+CORRECTED RN CLOSED ROWS|Q2(v10) endpoint|decl|mpcSqrtTen_candidate_equiv_galKRN
+CORRECTED RN CLOSED ROWS|Q2(v-10) endpoint (from shift)|decl|mpcSqrtNegTen_candidate_equiv_galKRN
 ODD SEAM|the seam Prop|decl|SqMarkedForwardSupply
 ODD SEAM|every seam producer|prod|SqMarkedForwardSupply
 ODD SEAM|seam = marked-core cert|decl|oddId_supply_iff_certificate
@@ -170,17 +184,18 @@ ODD SEAM|row-plane move clause|prod|GClearModelMove
 ODD SEAM|seam = clearing instance|decl|oddFrame_supply_iff_clearInstance
 ODD SEAM|q-invariant of D_sq h|decl|oddSeam_demushkinQ_DSq
 ODD SEAM|odd oriented equivalence|decl|nonempty_orientedEquiv_oddDegree
-ASK BLOCK|frozen: surviving Prop|decl|askCStageVanishing
-ASK BLOCK|frozen <-> stageVanishing|decl|askC_exactLifting_iff_stageVanishing
-ASK BLOCK|corrected RN at G_K|decl|exactLiftingSemanticsRN_galK
-ASK BLOCK|stokes at G_K|decl|stokesDualityCertificate_galK
-ASK BLOCK|determinant at G_K|decl|affineDeterminant_galK
-ASK BLOCK|scalar at G_K|decl|scalarHilbert_galK
-CAND BLOCK|M0 a h|decl|mWordCertificate
-CAND BLOCK|Mpc a r p q|decl|mpcWordCertificate
-CAND BLOCK|N0 a h|decl|sqrtNegTwoWordCertificate
-CAND BLOCK|Npc a r h q|decl|genCertNpcWordCertificate
-CAND BLOCK|L h|decl|lCand_wordCertificateCanonical
+ODD SEAM|closed corrected RN endpoint|decl|gUni_gammaR_lSq_equiv_galK
+LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
+LEGACY ASK (COMPAT ONLY)|frozen <-> stageVanishing|decl|askC_exactLifting_iff_stageVanishing
+LEGACY ASK (COMPAT ONLY)|corrected RN at G_K|decl|exactLiftingSemanticsRN_galK
+LEGACY ASK (COMPAT ONLY)|stokes at G_K|decl|stokesDualityCertificate_galK
+LEGACY ASK (COMPAT ONLY)|determinant at G_K|decl|affineDeterminant_galK
+LEGACY ASK (COMPAT ONLY)|scalar at G_K|decl|scalarHilbert_galK
+LEGACY CAND RECORDS (COMPAT ONLY)|M0 a h|decl|mWordCertificate
+LEGACY CAND RECORDS (COMPAT ONLY)|Mpc a r p q|decl|mpcWordCertificate
+LEGACY CAND RECORDS (COMPAT ONLY)|N0 a h|decl|sqrtNegTwoWordCertificate
+LEGACY CAND RECORDS (COMPAT ONLY)|Npc a r h q|decl|genCertNpcWordCertificate
+LEGACY CAND RECORDS (COMPAT ONLY)|L h|decl|lCand_wordCertificateCanonical
 TABLE
 )
 
@@ -231,6 +246,16 @@ resolve() {  # $1 = short name; echoes "module<TAB>fullname" or nothing
 
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
+
+# The direct source imports are the freshness witness for the umbrella olean.
+# If even one is absent from `import GQ2`'s environment, every row and producer
+# count is potentially stale and the report must not present it as verified.
+awk '/^import[ \t]+/ {
+    for (i = 2; i <= NF; i++) {
+      if ($i ~ /^--/) break
+      print $i
+    }
+  }' "$WT/GQ2.lean" | sort -u > "$TMP/directimports"
 
 # Resolve every row once into the probe's request list.
 declare -a REQ=()
@@ -360,6 +385,14 @@ PROD
   # this repository's size, which is how this was first written and why it
   # is not written that way.
   echo '  let sbPresent := env.header.moduleNames.map (·.toString)'
+  printf '  let sbDirect := "'
+  tr '\n' ' ' < "$TMP/directimports"
+  printf '"\n'
+  cat <<'FRESH'
+  let sbDirectMods := (sbDirect.splitOn " ").filter (· ≠ "")
+  for m in sbDirectMods do
+    if !sbPresent.contains m then IO.println s!"STALE_UMBRELLA|{m}"
+FRESH
   printf '  let sbAll := "'
   tr '\n' ' ' < "$TMP/allmods"
   printf '"\n'
@@ -373,10 +406,15 @@ REG
 
 bash "$MIRROR" check "$TMP/probe.lean" > "$TMP/out" 2> "$TMP/err"
 RC=$?
+STALE=0
+if [ "$RC" = "0" ] && grep -q '^STALE_UMBRELLA|' "$TMP/out"; then
+  STALE=1
+fi
 
 if [ "$RAW" = "1" ]; then
   cat "$TMP/out"
-  exit 0
+  [ "$STALE" = "1" ] && exit 3
+  exit "$RC"
 fi
 
 # ----------------------------------------------------------------------------
@@ -395,6 +433,12 @@ if [ "$RC" != "0" ]; then
   echo
   echo "!! the probe did not elaborate; every row below is UNVERIFIED"
   sed -n '1,20p' "$TMP/err"
+elif [ "$STALE" = "1" ]; then
+  echo
+  echo "!! STALE_UMBRELLA: source GQ2.lean directly imports modules absent"
+  echo "   from the imported GQ2 environment; every row below is UNVERIFIED"
+  grep '^STALE_UMBRELLA|' "$TMP/out" | sed 's/^/   /'
+  echo "   remedy: scripts/mirror.sh gen GQ2"
 fi
 
 lastgrp=""
@@ -411,6 +455,10 @@ for rec in "${REQ[@]}"; do
     echo
     echo "## $grp"
     lastgrp=$grp
+  fi
+  if [ "$STALE" = "1" ]; then
+    printf '  %-30s UNVERIFIED (STALE_UMBRELLA)\n' "$lab"
+    continue
   fi
   line=$(grep -m1 "^SB|$i|" "$TMP/out" 2>/dev/null)
   if [ -z "$line" ]; then
@@ -461,6 +509,8 @@ echo "## REGISTRATION (EVERY module under GQ2/, against \`import GQ2\`)"
 if [ "$RC" != "0" ]; then
   echo "  UNVERIFIED (the probe did not elaborate)"
   sed -n '1,10p' "$TMP/err"
+elif [ "$STALE" = "1" ]; then
+  echo "  UNVERIFIED (STALE_UMBRELLA; run scripts/mirror.sh gen GQ2)"
 else
   SCANNED=$(grep -m1 '^SCANNED|' "$TMP/out" | cut -d'|' -f2)
   printf '  modules on disk under GQ2/   %s\n' "${SCANNED:-UNVERIFIED}"
