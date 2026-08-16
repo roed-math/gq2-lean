@@ -62,8 +62,8 @@ over a subgroup both families give the same step — the **translation lemma** i
 `commP_mem_twoCentralSucc` below (proved, not sorried).  λ-series statements are
 convention-independent; only element-level formulas care, and those are all `commP`.
 
-Skeleton discipline: `sorry`s below are the L2 fill contract (exact inventory in the
-design memo); the non-`sorry` lemmas are L1 smoke tests.
+The former L2 fill contract is complete.  Every declaration below is proved; the design memo
+retains the historical inventory.
 -/
 
 namespace GQ2.Roe.Labute

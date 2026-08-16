@@ -495,9 +495,9 @@ if [ -n "$MEMO" ] && [ -f "$WT/$MEMO" ]; then
         exit
       }' "$WT/$MEMO")
     MCOUNT=$(awk -v w="$MWORD" 'BEGIN {
-        n = split("one two three four five six seven eight nine ten eleven twelve \
+        n = split("zero one two three four five six seven eight nine ten eleven twelve \
 thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty", a, /[ \t\n]+/)
-        for (i = 1; i <= n; i++) if (a[i] == w) { print i; exit }
+        for (i = 1; i <= n; i++) if (a[i] == w) { print i - 1; exit }
       }')
   fi
 fi

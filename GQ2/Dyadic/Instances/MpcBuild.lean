@@ -930,6 +930,9 @@ not just the defects that arise.  The proof consumes it only at the defect (`H j
 the gap is in the statement, not the argument.  A builder who can clear defects but not the
 whole layer should use `mpcBld_shift_of_full_supply`, which is the honest per-solution form and
 says so at its own site.]** -/
+@[deprecated "use `MpcLad.mpcLad_shift_of_exists_supply`: it asks only for one supplied \
+solution per rung; this theorem quantifies over every element of the layer"
+  (since := "2026-08-16")]
 theorem mpcBld_shift_of_bracket_supply
     (H : ∀ j, 3 ≤ j → ∀ g ∈ twoCentralSeries (DM 2 0 : Type) (j + 1),
       ∃ u v, u ∈ mpcWordCorr ∧ u ∈ twoCentralSeries (DM 2 0 : Type) j ∧

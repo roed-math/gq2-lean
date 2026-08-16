@@ -1,5 +1,50 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 89 (2026-08-16)
+
+**Zero items await you.**  The nine-item W88 decision docket is closed.  The owner approved the
+recommended package on 2026-08-16.  Historical wave blocks below remain unchanged as the record
+of what was open at their closes.  The active rulings are:
+
+1. **Corrected RN semantics are canonical.**  New general-degree assembly uses
+   `GenAsmRowResidualRN` and `genAsm_candidate_equiv_galKRN`.  The frozen
+   `GenAsmRowResidual` and `genAsm_candidate_equiv_galK` remain regression and compatibility
+   surfaces.  `askCStageVanishing` is not an active campaign obligation; no claim that it is
+   false is made.
+2. **The pilot flagship stays frozen.**  `ResidualSqrtNegTwo` remains historical regression
+   coverage.  New work uses the canonical N record and corrected RN certificate spelling.
+3. **A6 has one named documentation exception.**  The false `DRH2.lean` references and the
+   stale `sorry` announcement under `GQ2/Roe/*` are corrected.  Statements and proofs remain
+   frozen, and this does not authorize future Roe-tree edits.
+4. **Line length is prospective.**  New or substantively modified lines target at most 100
+   Unicode codepoints where readable.  The measured baseline, 720 lines in 254 files, is not
+   retroactively reflowed merely for conformance.
+5. **Even branch markings are preserved.**  `genAsm_branch_of_evenN_tied` and
+   `genAsm_branch_of_evenM_tied` are the dependent-consumer APIs.  The original weak theorems
+   remain wrappers that discard the marking.
+6. **The odd public closer takes `hclear` alone.**
+   `oddFrame_gammaR_lSq_equiv_galK_of_clear` derives the marked supply internally.  The older
+   two-input bridge remains a low-level compatibility theorem.
+7. **The L-row idioms are temporarily retained.**  Tied producers are the convention;
+   `lCandBranch` stays until a unified marking-API cleanup after even integration.
+8. **The over-strong Mpc theorem is deprecated.**  `mpcBld_shift_of_bracket_supply` points
+   callers to `mpcLad_shift_of_exists_supply`.  No ansatz-exhaustiveness owner item is opened;
+   it will be reconsidered only if the positive marked-supply route fails.
+9. **Same-wave bookkeeping is explicit.**  An item opened and discharged in one wave is
+   recorded under "Discharged this wave" and excluded from the standing count.
+
+Two dispositions are also settled.  `/work/` is ignored without deleting its recoverable
+artifacts.  The scoreboard's A6 self-count remains an ordinary script ticket, not an owner
+decision.
+
+**Discharged this wave:** the scoreboard owner-count parser learned the word `zero`; this
+ordinary script ticket never entered the standing owner count.
+
+The implementation wave also closed the odd route: `gUni_clearing` proves the model clearing
+without a residual binder, `gUni_supply` produces the marked supply at every odd degree, and
+`gUni_gammaR_lSq_equiv_galK` reaches the public `Γ_L` equivalence.  This is a technical
+campaign result, not an additional owner decision.
+
 ## Status at wave 88 (2026-08-15)
 
 **Nine items await you, plus two dispositions this wave surfaced.**  A6 stands at fifteen

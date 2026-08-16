@@ -1331,7 +1331,7 @@ The `drWord`/`Fin 3` instantiation of this file reproduces the `ℚ₂` developm
 are the ticket's acceptance pins; each names the exact `DRWordCoh` declaration it is pinned
 against.  Nothing above depends on this section — it is the only place `GQ2.Roe.DRWordCoh` is
 used, and it exists so that a future edit to the generic layer cannot silently drift from the
-`D_R` values that `GQ2/Roe/DRH2.lean` and `GQ2/Roe/DRDemushkin.lean` consume. -/
+`D_R` values that `GQ2/Roe/DRDemushkin.lean` consumes. -/
 
 section Pins
 
@@ -1460,9 +1460,9 @@ noncomputable def presentedBy_DR : PresentedBy GQ2.DRT drNatWord GQ2.drGens wher
 The strongest regression pin available: the *generic* `H²` obstruction of this file, instantiated
 at `D_R` with its marked generators, is literally `GQ2.obsH2_DR`.  Everything the `ℚ₂` development
 proves about `obsH2_DR` — injectivity (`GQ2.obsH2_DR_injective`), the factoring bridge
-(`GQ2.obsH2_DR_eq_of_factor`), and the `#H²(D_R) ≤ 2` conclusion that `GQ2/Roe/DRH2.lean` and
-`GQ2/Roe/DRDemushkin.lean` consume — therefore transfers, and a drift in the generic layer cannot
-go unnoticed. -/
+(`GQ2.obsH2_DR_eq_of_factor`), and the `#H²(D_R) ≤ 2` conclusion that
+`GQ2/Roe/DRDemushkin.lean` consumes.  It therefore transfers, and a drift in the generic layer
+cannot go unnoticed. -/
 
 section DRPin
 

@@ -32,7 +32,7 @@ namespace.  On top of that:
 * the injectivity keystone: when `obs = 0` the relator dies exactly, so `drLiftHom` directly builds a
   splitting section `D_R → CentExt c` and the pulled-back cocycle is a continuous coboundary;
 * `obsH2_DR : H²(D_R, 𝔽₂) →+ 𝔽₂`, its injectivity, and the bridge `obsFun_DR_eq_of_factor` computing
-  the obstruction at *any* finite quotient — consumed by `GQ2/Roe/DRH2.lean` and `DRDemushkin.lean`.
+  the obstruction at *any* finite quotient, consumed by `GQ2/Roe/DRDemushkin.lean`.
 -/
 
 namespace GQ2
@@ -910,7 +910,8 @@ theorem obsH2_DR_injective : Function.Injective (obsH2_DR htriv) := by
 omit [ContinuousSMul DRT (ZMod 2)] in
 /-- **The obstruction at an explicit factoring.**  For a continuous 2-cocycle `φ` factoring through
 a finite quotient `L` as `φ (g, h) = c.κ (ρ g) (ρ h)`, the obstruction is the single-relator
-obstruction `drRelZ (ρ ∘ (s, x, y)) c` — the hook the Gram matrix of `GQ2/Roe/DRH2.lean` consumes. -/
+obstruction `drRelZ (ρ ∘ (s, x, y)) c`, the hook the Gram matrix of
+`GQ2/Roe/DRDemushkin.lean` consumes. -/
 theorem obsH2_DR_eq_of_factor {L : Type} [Group L] [Finite L]
     (φ : Z2 DRT (ZMod 2)) (ρ : DRT →* L) (c : TwoCocycle L)
     (hfact : ∀ g h : DRT, φ.1 (g, h) = c.κ (ρ g) (ρ h)) :

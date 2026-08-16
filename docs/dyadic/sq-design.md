@@ -427,6 +427,10 @@ genuinely new is the h-generic layer (SQ2) plus the certificate shaping (SQ3/SQ4
 * **plan §3 A6 (ℚ₂ path frozen).** SQ2–SQ5 add files only. **No edit to any `GQ2/Roe/*` or
   `GQ2/SectionThree.lean` file.** `dsq_zero` goes in the *new* file and points at the frozen
   names; the frozen capstones keep printing byte-identical axiom sets.
+  **Named W89 owner exception, 2026-08-16:** docstring-only corrections are authorized at
+  `GQ2/Roe/DRWordCoh.lean` and `GQ2/Roe/Labute/TwoCentralTower.lean` to remove references to
+  the nonexistent `DRH2.lean` and to completed `sorry` placeholders.  This is not a general
+  relaxation of A6; statements and proofs under `GQ2/Roe/*` remain frozen.
 * **B8 threading.** MC2 deliberately threaded B8 as an explicit `PeripheralCyclotomicAction`
   hypothesis rather than consuming the axiom (board 2026-07-29 MC2 note (iii)). At rank 3 the
   discharge route runs through `prop_3_8_lift` (`GQ2/AnabelianBridge/Construction.lean:1089`,
@@ -679,8 +683,12 @@ unblocked *today*; SQ4 waits on MC5; SQ5 is parallel to SQ4.
 | **R3** | **`DSq 0 = DR` is an `Eq` of `ProfiniteGrp`, not an equivalence**, so transporting statements along it uses `▸`/`cast`, which is brittle under later refactors of `presPro2` or `DRFull`. | Mitigated two ways: (i) `dsqEquivDR` is provided as the *only* sanctioned consumer-facing form (spike (b4) — it typechecks); (ii) SQ3 states every rank-3 fact **directly about `DR`** (the frozen names) rather than about `DSq 0`, so the `cast` appears once, in `dsqEquivDR`, and nowhere else. Spike-verified: `SqDecomposition` is stated on `DR` and discharged with no cast at all. |
 | **R4** | **B8 enters the rank-3 discharge** (through `prop_3_8_lift`), whereas MC2 deliberately avoided consuming it. A reviewer comparing the two lanes will see an inconsistency. | Deliberate and defensible (§3.4): at rank 3 over ℚ₂, B8 *is* the relevant published ℚ₂ input and is already in the census; MC2's threading exists because the rank-four cores need general-`K` analogues. Documented in SQ3's module docstring. Owner question Q2. |
 | **R5** | **`MarkedCoreCertificate` and `StandardCore` do not exist**, so SQ4's exact field-by-field match to MC5 is unverifiable today; the `MarkedSqCoreRank3` bundle of §4.2 is my reconstruction from mc-design.md §6.3 + the packet field list. | SQ3's bundle is chosen to be *field-wise a superset* of mc-design.md §6.3's five fields (`abstractEquiv`/`orientation`/`correction`/`correction_chi`/`correction_nu`), with `correction` already absorbed into `markedEquiv` — which is how `markedPro2_R` delivers it. If MC5 wants the correction split out, `exists_matching_iso` (`MarkedMatching.lean:1112`) supplies it separately. Budget SQ4 for a re-shaping pass rather than a re-proof. |
-| **R6** | **Stale-docstring hazard**: `GQ2/Roe/DRWordCoh.lean:913` points the Gram matrix at a nonexistent `GQ2/Roe/DRH2.lean`; `GQ2/Roe/Labute/TwoCentralTower.lean:65-66` still describes the file as carrying L2 fill `sorry`s that the L-campaign removed. | Cosmetic, no mathematical consequence, and **outside this lane's file ownership** (plan A6 freezes `GQ2/Roe/*`). Recorded for whoever owns a ℚ₂ docs pass. |
+| **R6** | **Resolved by W89's named A6 exception.** | Docstrings only. |
 | **R7** | **The harness↔Lean identification rests on my factor-by-factor reading** of `q2.py:414` against `DRPresentation.lean:83`, not on a machine check. | The reading is short (four factors) and is reproduced in §1.2 for audit; the conventions are stated verbatim in both sources; and the identification's *consequences* are independently corroborated by four independent data matches (frame, Gram, form class, `C_mark` pricing) in §1.8. A cheap machine check is available and is folded into **SQ5**: emit `q2.pro2_core_square_commutator`'s normalized form and compare against a Lean-side printed `sqWord` spelling. |
+
+R6 details: the nonexistent `DRH2.lean` references now point to `DRDemushkin.lean`.
+`TwoCentralTower.lean` records that its former fill contract is complete.  No statement or
+proof changed.
 
 ### 7.2 Does anything make `L_tw`'s fallback preferable after all? — No.
 

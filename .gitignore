@@ -2,6 +2,7 @@
 references/
 .DS_Store
 /scratch/
+/work/
 /atlas-graph.json
 /atlas-graph.json.cache
 .mcp.json

@@ -351,6 +351,25 @@ theorem oddFrame_supply (B : MarkedRecip Rec K) (FF : DyadicUnitFiltration K) {h
     rw [hval]
     exact nuSq_x0 h
 
+/-- **The canonical odd-degree public closer over `hclear` alone.**  The older bridge endpoint
+`gammaR_lSq_equiv_galK_oddDegree_of_orientedClearAtUnitPivot` takes both the model clearing
+and the marked supply.  At an odd-degree field the supply is a consequence of the clearing by
+`oddFrame_supply`, so new callers should use this one-input form. -/
+theorem oddFrame_gammaR_lSq_equiv_galK_of_clear (B : MarkedRecip Rec K)
+    (FF : DyadicUnitFiltration K) (T : OrientedTameQuotientK B FF)
+    (D : FiniteDyadicParameters K FF) {h : ℕ}
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (hclear : SqCore.SqNuOrientedClearAtUnitPivot h)
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq D.params.qK) Dg)
+      (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau D.params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate D.params (GalKsub K) W cc rho)) :
+    Nonempty (ContinuousMulEquiv (LSquare.gamma h (qOf K FF) : Type) (GalK K)) :=
+  LSquare.NuAdapted.gammaR_lSq_equiv_galK_oddDegree_of_orientedClearAtUnitPivot
+    B FF T D hdeg hclear (oddFrame_supply B FF hdeg hclear) ramifiedData
+
 /-- **The reduction is exact at a point.**  For ANY fixed oriented equivalence `f`, the seam is
 equivalent to the single instance of the clearing at the transported marking `ν_ur ∘ f`: a
 χ-preserving automorphism of `D_sq(h)` carrying that one marking onto `ν_sq`.  So the
@@ -551,6 +570,7 @@ degree-one seed identification `D_R ≅ D_sq(0)`.  Neither `B5 localReciprocity`
 #print axioms GQ2.Dyadic.oddFrame_presenting_relator_rowSum
 #print axioms GQ2.Dyadic.oddFrame_isUnit_transported_sqPivot
 #print axioms GQ2.Dyadic.oddFrame_supply
+#print axioms GQ2.Dyadic.oddFrame_gammaR_lSq_equiv_galK_of_clear
 #print axioms GQ2.Dyadic.oddFrame_supply_iff_clearInstance
 #print axioms GQ2.Dyadic.oddFrame_supply_of_families
 #print axioms GQ2.Dyadic.oddFrame_fullMarking_of_clear

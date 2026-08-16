@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.Instances.EvenParityModel
+import GQ2.Dyadic.Instances.CandidateEquivGalKRN
 import GQ2.Dyadic.Instances.GammaLSylowPreimageRealizationBypass
+import GQ2.Dyadic.Instances.KExactLiftingGalK
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.Main
 import GQ2.Dyadic.OrientationCorrection
@@ -350,13 +352,18 @@ and `Instances.MpcPivot.mpcPiv_genAsmBranch_sqrtNegTen`.  Everything else, the w
 `fieldId_genAsmBranch_*` family included, is a re-export that inherits whatever its producer
 states.
 
-Five of the eight now carry `∧ HEq G.nuP <the marking>`: the two odd producers here, the two
-level-zero producers, and the procyclic producer.  Two (`genAsm_branch_of_evenN`,
-`genAsm_branch_of_evenM`) still forget, and are the remaining owner item.  The eighth,
+**[W89-OWNER: the two even producers now have tied canonical siblings.**
+`genAsm_branch_of_evenN_tied` and `genAsm_branch_of_evenM_tied` preserve the construction
+marking; the old names remain compatibility wrappers that deliberately discard it.  Seven of
+the eight construction sites therefore have a tied surface.  The eighth,
 `mpcPiv_genAsmBranch_sqrtNegTen`, is at the *transported* marking by construction and cannot be
 strengthened to a canonical one at this tree; its own docstring already says so.
 
 The second caution stands unchanged.]** -/
+/- **Legacy frozen residual record.**  This remains the compatibility surface for
+`genAsm_candidate_equiv_galK` and the committed quadratic flagship.  New general-degree work
+uses `GenAsmRowResidualRN` below: its corrected degree-indexed R-stage coefficient removes the
+extra `askCStageVanishing` obligation. -/
 structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B FF) where
   /-- **ASK, ledger field 3** at `G_K`.  ⚠ [W82-HOUSE, as of `a45bc557`: this is the *frozen*
   bundle.  Its `RN` companion is a theorem at every degree (`exactLiftingSemanticsRN_galK`);
@@ -378,6 +385,15 @@ structure GenAsmRowResidual (G : GenAsmBranch K B) (T : OrientedTameQuotientK B 
     (fun g => T.compatF_K G.pro2 G.nuP G.realization.nu_compat g) (smulZmod2GalK K)
   /-- **CAND**: the candidate-side certificate over the row's own slot. -/
   cand : WordCertificate G.degree (qOf K FF) G.word G.core G.coreIsProP G.nuP
+    (standardNumerics G.degree)
+
+/-- **The canonical corrected general residual.**  The arithmetic RN source is a theorem from
+the branch realization and the field inputs, so the only row-dependent obligation is a
+corrected word certificate at the candidate carrier.  In particular this record has no
+`askCStageVanishing` field.  The frozen `GenAsmRowResidual` remains available for regression
+and compatibility. -/
+structure GenAsmRowResidualRN (G : GenAsmBranch K B) where
+  cand : WordCertificateRN G.degree (qOf K FF) G.word G.core G.coreIsProP G.nuP
     (standardNumerics G.degree)
 
 end Split
@@ -440,6 +456,28 @@ theorem genAsm_candidate_equiv_galK (G : GenAsmBranch K B)
   genAsm_candidate_equiv_galK_of_supply G.pres G.nuP G.hnuP S.cand
     (KSupply.ofMarkedCoreRealization G.hdeg rfl G.realization S.exactLifting S.stokes
       S.determinant) F
+
+/-- **The canonical corrected general-degree assembly.**  The branch realization supplies the
+marked pro-`2` quotient of `G_K`; `sourceRN_of_markedCore` supplies its corrected arithmetic
+source with the degree-indexed R-stage coefficient; the residual supplies only the corrected
+candidate word certificate.  This is the active campaign endpoint.  The frozen theorem above
+is retained as regression coverage. -/
+theorem genAsm_candidate_equiv_galKRN (G : GenAsmBranch K B)
+    (F : GenAsmFieldInputs K B FF G.degree) (S : GenAsmRowResidualRN (FF := FF) G) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup G.degree (qOf K FF) G.word : ProfiniteGrp) : Type) (GalK K)) := by
+  let source : SourceDataRN G.degree (qOf K FF) G.core G.coreIsProP G.nuP
+      (standardNumerics G.degree) :=
+    sourceRN_of_markedCore (hP := G.coreIsProP) F.T G.hdeg G.pro2
+      G.realization.pro2_surjective G.realization.ker_pro2 G.realization.nu_compat F.params
+      F.params_n F.params_qK F.ramifiedData
+  let A : GalKArithmeticSourceRN G.degree (qOf K FF) G.core G.coreIsProP G.nuP
+      (standardNumerics G.degree) K :=
+    { source := source
+      equivGalK := ContinuousMulEquiv.refl (GalK K)
+      tame_surjective := F.T.tameFK_surjective
+      wild_isProP := F.T.ker_tameFK ▸ F.T.isProP }
+  exact candidate_equiv_galK_of_supplyRN S.cand A (two_le_qOf K FF) (even_qOf K FF) G.hnuP
 
 end Statement
 
@@ -708,10 +746,26 @@ theorem genAsm_evenRoute_output [T2Space (GalK K)] (B : MarkedRecip Rec K) (delt
         Nonempty (OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K)))) :=
   EvenParity.parityFinal_evenClassification B deltaI hdeltaI hram hev
 
-/-- **The even route's `N` output builds the branch datum.**  Inputs: the degree pin, a `Ztwo`
+/-- **The even route's tied `N` output builds the branch datum.**  Inputs: the degree pin, a `Ztwo`
 marking of the core agreeing with `nuN`, and the even classification's own output at the row
 (`OrientedContinuousMulEquiv (chiN alpha h) chiCycKTwo`), plus the marked-pair unimodularity
-clause the compact producer takes.  Output: a `GenAsmBranch` sitting on `N0 alpha h`. -/
+clause the compact producer takes.  The conclusion preserves the marking used to construct the
+dependent branch datum. -/
+theorem genAsm_branch_of_evenN_tied (alpha h : ℕ)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.N0 alpha h).degree)
+    (nuP : ContinuousMonoidHom ((DN alpha h : ProfiniteGrp) : Type) Ztwo)
+    (hnuP : Function.Surjective nuP)
+    (hnuIota : ∀ x, ztwoIota (nuP x) = nuN alpha h x)
+    (e : OrientedContinuousMulEquiv (chiN alpha h) (chiCycKTwo (K := K)))
+    (hpair : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnSigma alpha h)))) ∨
+      IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnX2 alpha h))))) :
+    ∃ G : GenAsmBranch K B, G.pres = .N0 alpha h ∧ HEq G.nuP nuP := by
+  obtain ⟨C⟩ := marked_matching_certificate_KTwoN B alpha h e.1 e.2 hpair
+  exact ⟨{ pres := .N0 alpha h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
+           realization := MarkedCoreRealization.ofCertificateN nuP hnuIota C }, rfl, HEq.rfl⟩
+
+/-- Compatibility wrapper for callers which do not need the `N` marking.  New dependent
+consumers should use `genAsm_branch_of_evenN_tied`. -/
 theorem genAsm_branch_of_evenN (alpha h : ℕ)
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.N0 alpha h).degree)
     (nuP : ContinuousMonoidHom ((DN alpha h : ProfiniteGrp) : Type) Ztwo)
@@ -721,12 +775,27 @@ theorem genAsm_branch_of_evenN (alpha h : ℕ)
     (hpair : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnSigma alpha h)))) ∨
       IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dnX2 alpha h))))) :
     ∃ G : GenAsmBranch K B, G.pres = .N0 alpha h := by
-  obtain ⟨C⟩ := marked_matching_certificate_KTwoN B alpha h e.1 e.2 hpair
-  exact ⟨{ pres := .N0 alpha h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
-           realization := MarkedCoreRealization.ofCertificateN nuP hnuIota C }, rfl⟩
+  obtain ⟨G, hG, -⟩ := genAsm_branch_of_evenN_tied alpha h hdeg nuP hnuP hnuIota e hpair
+  exact ⟨G, hG⟩
 
-/-- **The even route's `M` output builds the branch datum.**  Same shape, through
-`marked_matching_certificate_KTwoM`; `hMix` and `hpivot` are that producer's own binders. -/
+/-- **The even route's tied `M` output builds the branch datum.**  Same shape, through
+`marked_matching_certificate_KTwoM`; `hMix` and `hpivot` are that producer's own binders, and
+the conclusion preserves the marking. -/
+theorem genAsm_branch_of_evenM_tied (alpha h : ℕ) (halpha : 1 ≤ alpha)
+    (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.M0 alpha h).degree)
+    (nuP : ContinuousMonoidHom ((DM alpha h : ProfiniteGrp) : Type) Ztwo)
+    (hnuP : Function.Surjective nuP)
+    (hnuIota : ∀ x, ztwoIota (nuP x) = nuM alpha h halpha x)
+    (e : OrientedContinuousMulEquiv (chiM alpha h) (chiCycKTwo (K := K)))
+    (hMix : MMixHypothesis alpha h halpha)
+    (hpivot : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dmC alpha h))))) :
+    ∃ G : GenAsmBranch K B, G.pres = .M0 alpha h ∧ HEq G.nuP nuP := by
+  obtain ⟨C⟩ := marked_matching_certificate_KTwoM B alpha h halpha e.1 e.2 hMix hpivot
+  exact ⟨{ pres := .M0 alpha h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
+           realization := MarkedCoreRealization.ofCertificateM nuP hnuIota C }, rfl, HEq.rfl⟩
+
+/-- Compatibility wrapper for callers which do not need the `M` marking.  New dependent
+consumers should use `genAsm_branch_of_evenM_tied`. -/
 theorem genAsm_branch_of_evenM (alpha h : ℕ) (halpha : 1 ≤ alpha)
     (hdeg : Module.finrank ℚ_[2] K = (SelectedPresentation.M0 alpha h).degree)
     (nuP : ContinuousMonoidHom ((DM alpha h : ProfiniteGrp) : Type) Ztwo)
@@ -736,9 +805,9 @@ theorem genAsm_branch_of_evenM (alpha h : ℕ) (halpha : 1 ≤ alpha)
     (hMix : MMixHypothesis alpha h halpha)
     (hpivot : IsUnit (Multiplicative.toAdd (nuUrKTwo B (e.1 (dmC alpha h))))) :
     ∃ G : GenAsmBranch K B, G.pres = .M0 alpha h := by
-  obtain ⟨C⟩ := marked_matching_certificate_KTwoM B alpha h halpha e.1 e.2 hMix hpivot
-  exact ⟨{ pres := .M0 alpha h, hdeg := hdeg, nuP := nuP, hnuP := hnuP,
-           realization := MarkedCoreRealization.ofCertificateM nuP hnuIota C }, rfl⟩
+  obtain ⟨G, hG, -⟩ :=
+    genAsm_branch_of_evenM_tied alpha h halpha hdeg nuP hnuP hnuIota e hMix hpivot
+  exact ⟨G, hG⟩
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [CompactSpace (GalK K)] [TotallyDisconnectedSpace (GalK K)] in
@@ -814,7 +883,7 @@ end ClassificationJoin
 
 /-! ## §5 Axiom pins
 
-One pin per declaration of this file, **42** in all, in declaration order.  The pins were
+One pin per declaration of this file, in declaration order.  The original pins were
 measured when the module landed but were never recorded here; this block is the record.  Adding
 these lines changes no statement.
 
@@ -856,8 +925,10 @@ section AxiomPins
 #print axioms GenAsmBranch.coreIsProP
 #print axioms GenAsmBranch.pro2
 #print axioms GenAsmRowResidual
+#print axioms GenAsmRowResidualRN
 #print axioms genAsm_candidate_equiv_galK_of_supply
 #print axioms genAsm_candidate_equiv_galK
+#print axioms genAsm_candidate_equiv_galKRN
 #print axioms genAsm_word_sqrtNegTwo
 #print axioms genAsm_core_sqrtNegTwo
 #print axioms genAsm_word_sqrtTwo
@@ -877,7 +948,9 @@ section AxiomPins
 #print axioms genAsm_rowEquiv_sqrtTen
 #print axioms genAsm_rowEquiv_sqrtNegTen
 #print axioms genAsm_evenRoute_output
+#print axioms genAsm_branch_of_evenN_tied
 #print axioms genAsm_branch_of_evenN
+#print axioms genAsm_branch_of_evenM_tied
 #print axioms genAsm_branch_of_evenM
 #print axioms genAsm_oddResidual_gives_mix
 #print axioms genAsm_branch_of_oddSq
