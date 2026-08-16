@@ -911,6 +911,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactMFinal
 import GQ2.Dyadic.Instances.WordPhaseCompactMHandleData
 import GQ2.Dyadic.Instances.WordPhaseCompactMHandleComparison
 import GQ2.Dyadic.Instances.WordPhaseCompactMHandleBoundary
+import GQ2.Dyadic.Instances.M0FamilyFinal
 import GQ2.Dyadic.Instances.NpcCandidateScalar
 import GQ2.Dyadic.Instances.NpcCandidateStokes
 import GQ2.Dyadic.Instances.NpcCandidateRN

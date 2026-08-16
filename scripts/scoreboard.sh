@@ -154,6 +154,8 @@ LEGACY RECORDS (COMPAT ONLY)|v5 cand clause = coeff|decl|rowCl_mCand_exactLiftin
 LEGACY RECORDS (COMPAT ONLY)|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifting_iff
 CORRECTED RN RECORDS|N0 certificate (all a,h)|decl|wPcNWordCertificateRN
 CORRECTED RN RECORDS|M0 certificate (from supply)|decl|wPcMWordCertificateRN_of_supply
+CORRECTED RN ANALYTIC|M0 affine determinant (all a,h)|decl|wPcMAffineDeterminantCertificate_handles
+CORRECTED RN RECORDS|M0 certificate (all a,h)|decl|wPcMWordCertificateRN_handles
 CORRECTED RN ANALYTIC|M0 arbitrary-h ramified head phase|decl|wPcM_QZero_eq_ramifiedHandlePhase_of_headMark
 CORRECTED RN ANALYTIC|M0 arbitrary-h unramified comparison|decl|wPcMComparison_unramifiedHead_handles
 CORRECTED RN ANALYTIC|M0 arbitrary-h ramified comparison|decl|wPcMComparison_ramifiedHead_handles
@@ -171,6 +173,7 @@ CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
 CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
 CORRECTED RN SELECTOR BOUNDARY|M0 level-zero chi-kernel unit|decl|mChiKerUnimodular_of_level_zero_general
 CORRECTED RN SELECTOR BOUNDARY|M0 selected tied branch (needs C0 pivot)|decl|m0GenAsmBranch_of_familySelection_tied
+CORRECTED RN SELECTOR BOUNDARY|M0 selected RN residual (needs C0 pivot)|decl|m0RowResidualRN_of_familySelection
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
