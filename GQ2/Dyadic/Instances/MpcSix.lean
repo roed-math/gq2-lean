@@ -76,6 +76,56 @@ private theorem mpcSx_collect3 {Q : Type*} [Group Q] {c₁ mz s : Q}
     _ = P * mz * s * (c₁ * c₂ * c₃) := by group
     _ = P * s * mz * (c₁ * c₂ * c₃) := by rw [mul_assoc P mz s, hms]; group
 
+/-- Pulling three central factors out of the pattern the two bracket blocks produce. -/
+private theorem mpcSx_zpull3 {Q : Type*} [Group Q] {e₁ e₂ e₃ : Q}
+    (h₁ : ∀ x : Q, e₁ * x = x * e₁) (h₂ : ∀ x : Q, e₂ * x = x * e₂) (A B C D : Q) :
+    A * e₁ * (B * C * e₂) * (D * e₃) = A * B * C * D * (e₁ * e₂ * e₃) := by
+  calc A * e₁ * (B * C * e₂) * (D * e₃) = A * e₁ * B * C * e₂ * D * e₃ := by group
+    _ = A * B * e₁ * C * e₂ * D * e₃ := by rw [mpcSx_cmove h₁ A B]
+    _ = A * B * C * e₁ * e₂ * D * e₃ := by rw [mpcSx_cmove h₁ (A * B) C]
+    _ = A * B * C * e₁ * D * e₂ * e₃ := by rw [mpcSx_cmove h₂ (A * B * C * e₁) D]
+    _ = A * B * C * D * e₁ * e₂ * e₃ := by rw [mpcSx_cmove h₁ (A * B * C) D]
+    _ = A * B * C * D * (e₁ * e₂ * e₃) := by group
+
+/-- Pushing three central factors past one non-central one. -/
+private theorem mpcSx_zout3 {Q : Type*} [Group Q] {z₁ z₂ z₃ : Q}
+    (h₁ : ∀ x : Q, z₁ * x = x * z₁) (h₂ : ∀ x : Q, z₂ * x = x * z₂)
+    (h₃ : ∀ x : Q, z₃ * x = x * z₃) (a m : Q) :
+    a * z₁ * z₂ * z₃ * m = a * m * (z₁ * z₂ * z₃) := by
+  calc a * z₁ * z₂ * z₃ * m = a * z₁ * z₂ * m * z₃ := by rw [mpcSx_cmove h₃ (a * z₁ * z₂) m]
+    _ = a * z₁ * m * z₂ * z₃ := by rw [mpcSx_cmove h₂ (a * z₁) m]
+    _ = a * m * z₁ * z₂ * z₃ := by rw [mpcSx_cmove h₁ a m]
+    _ = a * m * (z₁ * z₂ * z₃) := by group
+
+/-- Moving an `L`-factor left past two `M`-factors and a central one. -/
+private theorem mpcSx_lswap {Q : Type*} [Group Q] {m₁ m₂ l : Q}
+    (h₁ : m₁ * l = l * m₁) (h₂ : m₂ * l = l * m₂) {z : Q} (hz : ∀ x : Q, z * x = x * z) (A : Q) :
+    A * z * m₁ * m₂ * l = A * l * (m₁ * m₂ * z) := by
+  calc A * z * m₁ * m₂ * l = A * m₁ * z * m₂ * l := by rw [mpcSx_cmove hz A m₁]
+    _ = A * m₁ * m₂ * z * l := by rw [mpcSx_cmove hz (A * m₁) m₂]
+    _ = A * m₁ * m₂ * l * z := by rw [mpcSx_cmove hz (A * m₁ * m₂) l]
+    _ = A * m₁ * l * m₂ * z := by rw [mpcSx_mv h₂ (A * m₁) z]
+    _ = A * l * m₁ * m₂ * z := by rw [mpcSx_mv h₁ A m₂]
+    _ = A * l * (m₁ * m₂ * z) := by group
+
+/-- The two-block collection: one block's correction passes the next block's marked part. -/
+private theorem mpcSx_shuffleAB {Q : Type*} [Group Q] {x₁ x₂ e₁ e₂ e₃ : Q}
+    (h₁₂ : e₁ * x₂ = x₂ * e₁) :
+    x₁ * e₁ * (x₂ * e₂) * e₃ = x₁ * x₂ * (e₁ * e₂ * e₃) := by
+  calc x₁ * e₁ * (x₂ * e₂) * e₃ = x₁ * e₁ * x₂ * e₂ * e₃ := by group
+    _ = x₁ * x₂ * e₁ * e₂ * e₃ := by rw [mpcSx_mv h₁₂ x₁ e₂]
+    _ = x₁ * x₂ * (e₁ * e₂ * e₃) := by group
+
+/-- The head swap of §2: two `Y`-factors exchange at the cost of one central bracket. -/
+private theorem mpcSx_headswap {Q : Type*} [Group Q] (a b c E : Q) {z : Q}
+    (hz : ∀ x : Q, z * x = x * z) (hzdef : a * b = b * a * z) :
+    a * (b * c) * E = b * (a * c) * (E * z) := by
+  calc a * (b * c) * E = a * b * c * E := by group
+    _ = b * a * z * c * E := by rw [hzdef]
+    _ = b * a * c * z * E := by rw [mpcSx_cmove hz (b * a) c]
+    _ = b * a * c * E * z := by rw [mpcSx_cmove hz (b * a * c) E]
+    _ = b * (a * c) * (E * z) := by group
+
 /-- The layers of `Q₆` are nested. -/
 theorem mpcSx_lam_le {j k : ℕ} (h : k ≤ j) {y : levelQuot G 6} (hy : y ∈ lambdaImage G j 6) :
     y ∈ lambdaImage G k 6 := by
@@ -136,6 +186,15 @@ theorem mpcSx_mcomm {m y : levelQuot G 6} (hm : m ∈ lambdaImage G 4 6)
     (hy : y ∈ lambdaImage G 2 6) : m * y = y * m :=
   (cfour_commute_of_comm (mpcSx_vanish_four hm hy)).eq
 
+/-- ⭐ **`M` is abelian in `Q₆`**, since `M ⊆ Y`. -/
+theorem mpcSx_mcomm' {m m' : levelQuot G 6} (hm : m ∈ lambdaImage G 4 6)
+    (hm' : m' ∈ lambdaImage G 4 6) : m * m' = m' * m :=
+  mpcSx_mcomm hm (mpcSx_lam_le (by omega) hm')
+
+/-- Every bracket of `Q₆` is a `Y`-element. -/
+theorem mpcSx_commP_mem_two (x y : levelQuot G 6) : commP x y ∈ lambdaImage G 2 6 :=
+  mpcLad_commP_mem_two (j := 4) x y
+
 /-- Moving an `M`-factor one place to the right past a `Y`-factor. -/
 private theorem mpcSx_mmove {m y : levelQuot G 6} (hm : m ∈ lambdaImage G 4 6)
     (hy : y ∈ lambdaImage G 2 6) (x : levelQuot G 6) : x * m * y = x * y * m := by
@@ -186,6 +245,22 @@ theorem mpcSx_commP_add_left_three {a b : levelQuot G 6} (ha : a ∈ lambdaImage
     (hb : b ∈ lambdaImage G 2 6) (c : levelQuot G 6) :
     commP (a * b) c = commP a c * commP b c := by
   rw [cfour_commP_mul_left, mpcSx_vanish_four (mpcSx_commP_step ha c) hb, mul_one]
+
+/-- **Left-slot additivity for three `Y`-elements**: the correction is a bracket of an
+`M`-element against a `Y`-element.  This is the class-six form of
+`cfive_commP_lambdaTwo_hom_left`. -/
+theorem mpcSx_commP_add_left_two {a b c : levelQuot G 6} (ha : a ∈ lambdaImage G 2 6)
+    (hb : b ∈ lambdaImage G 2 6) (hc : c ∈ lambdaImage G 2 6) :
+    commP (a * b) c = commP a c * commP b c := by
+  rw [cfour_commP_mul_left, mpcSx_vanish_four (mpcSx_commP_lam ha hc) hb, mul_one]
+
+/-- **A trailing `M`-factor is invisible in the left slot against a `Y`-slot**, provided the head
+is a `Y`-element: both corrections are `⁅M, Y⁆`-terms. -/
+theorem mpcSx_commP_drop_left_tail_four {b c y : levelQuot G 6} (hb : b ∈ lambdaImage G 2 6)
+    (hc : c ∈ lambdaImage G 4 6) (hy : y ∈ lambdaImage G 2 6) :
+    commP (b * c) y = commP b y := by
+  rw [cfour_commP_mul_left, mpcSx_vanish_four hc hy,
+    mpcSx_vanish_four (mpcSx_commP_lam hb hy) (mpcSx_lam_le (by omega) hc), mul_one, mul_one]
 
 /-- **Left-slot additivity against an `M`-factor**: the correction is a bracket of a
 `Z`-element. -/
@@ -277,7 +352,126 @@ theorem mpcSx_sq_letA {p σ z : levelQuot G 6} (hσ : σ ∈ lambdaImage G 2 6)
 
 end LetterA
 
-/-! ## §2 Axiom pins
+/-! ## §2 The `Ā`/`B̄` bracket
+
+`mpcFv_comm_letAB` reads
+
+    ⁅p·z·σ, q·τ⁆ = ⁅p,q⁆ · (⁅p,τ⁆·⁅σ,q⁆) · (⁅σ,τ⁆·⁅z,q⁆·⁅⁅p,q⁆,σ⁆·⁅⁅p,q⁆,τ⁆)
+
+in `Q₅`, where the third group is central.  At class six that group sinks to `M` and six further
+terms survive in `Z`.  **Five of the six are genuine new bracket terms; the sixth is a
+reordering cost**, `⁅⁅p,τ⁆, ⁅p,q⁆⁆`, incurred when the marked bracket `⁅p,q⁆` is carried to the
+front past the `L`-term `⁅p,τ⁆`.  That is the class-six failure of `MpcFive` §4's "the assembly
+costs nothing", visible already in one letter. -/
+
+section LetterAB
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **THE `Ā`/`B̄` BRACKET AT CLASS SIX.**
+
+    ⁅p·z·σ, q·τ⁆ = ⁅p,q⁆ · (⁅p,τ⁆·⁅σ,q⁆) · (⁅σ,τ⁆·⁅z,q⁆·⁅⁅p,q⁆,σ⁆·⁅⁅p,q⁆,τ⁆)
+                        · (⁅⁅p,τ⁆,z⁆·⁅z,τ⁆·⁅⁅p,τ⁆,σ⁆·⁅⁅p,q⁆,z⁆·⁅⁅σ,q⁆,τ⁆·⁅⁅p,τ⁆,⁅p,q⁆⁆) .
+
+The first three groups are `mpcFv_comm_letAB`; the fourth is central of exponent two and is `1`
+in `Q₅`, where every one of its six factors is a bracket of an `L`-element against a
+`Y`-element. -/
+theorem mpcSx_comm_letAB {p q σ τ z : levelQuot G 6} (hσ : σ ∈ lambdaImage G 2 6)
+    (hτ : τ ∈ lambdaImage G 2 6) (hz : z ∈ lambdaImage G 3 6) :
+    commP (p * z * σ) (q * τ)
+      = commP p q * (commP p τ * commP σ q) *
+        (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ) *
+        (commP (commP p τ) z * commP z τ * commP (commP p τ) σ * commP (commP p q) z *
+          commP (commP σ q) τ * commP (commP p τ) (commP p q)) := by
+  have hzY : z ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hz
+  have hpq : commP p q ∈ lambdaImage G 2 6 := mpcSx_commP_mem_two p q
+  have hpτ : commP p τ ∈ lambdaImage G 3 6 := mpcSx_commP_step' p hτ
+  have hσq : commP σ q ∈ lambdaImage G 3 6 := mpcSx_commP_step hσ q
+  have hσqY : commP σ q ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hσq
+  have hστ : commP σ τ ∈ lambdaImage G 4 6 := mpcSx_commP_lam hσ hτ
+  have hzq : commP z q ∈ lambdaImage G 4 6 := mpcSx_commP_step hz q
+  have hpqσ : commP (commP p q) σ ∈ lambdaImage G 4 6 := mpcSx_commP_lam hpq hσ
+  have hpqτ : commP (commP p q) τ ∈ lambdaImage G 4 6 := mpcSx_commP_lam hpq hτ
+  have hpτz : commP (commP p τ) z ∈ zLayer G 5 := mpcSx_commP_lam hpτ hzY
+  have hzτ : commP z τ ∈ zLayer G 5 := mpcSx_commP_lam hz hτ
+  have hpτσ : commP (commP p τ) σ ∈ zLayer G 5 := mpcSx_commP_lam hpτ hσ
+  have hpqz : commP (commP p q) z ∈ zLayer G 5 := mpcSx_commP_lam' hz hpq
+  have hσqτ : commP (commP σ q) τ ∈ zLayer G 5 := mpcSx_commP_lam hσq hτ
+  have hswap : commP (commP p τ) (commP p q) ∈ zLayer G 5 := mpcSx_commP_lam hpτ hpq
+  -- the `Ā`-letter against the `B̄`-correction
+  have e1 : commP (p * z) τ = commP p τ * commP (commP p τ) z * commP z τ :=
+    cfour_commP_mul_left p z τ
+  have e2 : commP (commP (p * z) τ) σ = commP (commP p τ) σ := by
+    rw [e1, mpcSx_commP_drop_left_tail hzτ, mpcSx_commP_drop_left_tail hpτz]
+  have h2 : commP (p * z * σ) τ
+      = commP p τ * (commP σ τ *
+          (commP (commP p τ) z * commP z τ * commP (commP p τ) σ)) := by
+    calc commP (p * z * σ) τ
+        = commP (p * z) τ * commP (commP (p * z) τ) σ * commP σ τ :=
+          cfour_commP_mul_left _ _ _
+      _ = commP p τ * commP (commP p τ) z * commP z τ * commP (commP p τ) σ * commP σ τ := by
+          rw [e2, e1]
+      _ = commP p τ * (commP σ τ *
+            (commP (commP p τ) z * commP z τ * commP (commP p τ) σ)) := by
+          rw [mpcSx_zout3 (mpcSx_zcomm hpτz) (mpcSx_zcomm hzτ) (mpcSx_zcomm hpτσ)]
+          group
+  -- the `Ā`-letter against the marked `B̄`
+  have f1 : commP (p * z) q = commP p q * commP (commP p q) z * commP z q :=
+    cfour_commP_mul_left p z q
+  have f2 : commP (commP (p * z) q) σ = commP (commP p q) σ := by
+    rw [f1, mpcSx_commP_drop_left_tail_four (Subgroup.mul_mem _ hpq
+      (mpcSx_lam_le (by omega) hpqz)) hzq hσ, mpcSx_commP_drop_left_tail hpqz]
+  have h4 : commP (p * z * σ) q
+      = commP p q * commP σ q *
+        (commP z q * commP (commP p q) σ * commP (commP p q) z) := by
+    calc commP (p * z * σ) q
+        = commP (p * z) q * commP (commP (p * z) q) σ * commP σ q :=
+          cfour_commP_mul_left _ _ _
+      _ = commP p q * commP (commP p q) z * commP z q * commP (commP p q) σ * commP σ q := by
+          rw [f2, f1]
+      _ = commP p q * commP σ q *
+            (commP z q * commP (commP p q) σ * commP (commP p q) z) :=
+          mpcSx_lswap (mpcSx_mcomm hzq hσqY) (mpcSx_mcomm hpqσ hσqY) (mpcSx_zcomm hpqz) _
+  -- the second-order correction sees the marked bracket and the `σ`-bracket
+  have h5 : commP (commP (p * z * σ) q) τ
+      = commP (commP p q) τ * commP (commP σ q) τ := by
+    rw [h4, mpcSx_commP_drop_left_tail_four (Subgroup.mul_mem _ hpq hσqY)
+      (Subgroup.mul_mem _ (Subgroup.mul_mem _ hzq hpqσ) (mpcSx_lam_le (by omega) hpqz)) hτ,
+      mpcSx_commP_add_left_two hpq hσqY hτ]
+  calc commP (p * z * σ) (q * τ)
+      = commP (p * z * σ) τ * commP (p * z * σ) q * commP (commP (p * z * σ) q) τ :=
+        cfour_commP_mul_right _ _ _
+    _ = commP p τ * (commP σ τ *
+            (commP (commP p τ) z * commP z τ * commP (commP p τ) σ)) *
+          (commP p q * commP σ q *
+            (commP z q * commP (commP p q) σ * commP (commP p q) z)) *
+          (commP (commP p q) τ * commP (commP σ q) τ) := by rw [h5, h4, h2]
+    _ = commP p τ * (commP p q * commP σ q) *
+          ((commP σ τ * (commP (commP p τ) z * commP z τ * commP (commP p τ) σ)) *
+            (commP z q * commP (commP p q) σ * commP (commP p q) z) *
+            (commP (commP p q) τ * commP (commP σ q) τ)) :=
+        mpcSx_shuffleAB (mpcSx_mcomm (Subgroup.mul_mem _ hστ (mpcSx_lam_le (by omega)
+          (Subgroup.mul_mem _ (Subgroup.mul_mem _ hpτz hzτ) hpτσ)))
+          (Subgroup.mul_mem _ hpq hσqY))
+    _ = commP p q * (commP p τ * commP σ q) *
+          (((commP σ τ * (commP (commP p τ) z * commP z τ * commP (commP p τ) σ)) *
+            (commP z q * commP (commP p q) σ * commP (commP p q) z) *
+            (commP (commP p q) τ * commP (commP σ q) τ)) *
+            commP (commP p τ) (commP p q)) :=
+        mpcSx_headswap _ _ _ _ (mpcSx_zcomm hswap) (cfive_swap_free _ _)
+    _ = commP p q * (commP p τ * commP σ q) *
+          (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ) *
+          (commP (commP p τ) z * commP z τ * commP (commP p τ) σ * commP (commP p q) z *
+            commP (commP σ q) τ * commP (commP p τ) (commP p q)) := by
+        rw [mpcSx_zpull3
+          (mpcSx_zcomm (Subgroup.mul_mem _ (Subgroup.mul_mem _ hpτz hzτ) hpτσ))
+          (mpcSx_zcomm hpqz) (commP σ τ) (commP z q) (commP (commP p q) σ)
+          (commP (commP p q) τ)]
+        group
+
+end LetterAB
+
+/-! ## §3 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -294,6 +488,8 @@ section AxiomPins
 #print axioms mpcSx_vanish_four
 #print axioms mpcSx_vanish_four'
 #print axioms mpcSx_mcomm
+#print axioms mpcSx_mcomm'
+#print axioms mpcSx_commP_mem_two
 #print axioms mpcSx_zcomm
 #print axioms mpcSx_commP_zLayer_left
 #print axioms mpcSx_commP_zLayer_right
@@ -301,6 +497,8 @@ section AxiomPins
 #print axioms mpcSx_pow_four_mem
 #print axioms mpcSx_pow_eight_mem
 #print axioms mpcSx_pow_sixteen_mem
+#print axioms mpcSx_commP_add_left_two
+#print axioms mpcSx_commP_drop_left_tail_four
 #print axioms mpcSx_commP_add_left_three
 #print axioms mpcSx_commP_add_left_four
 #print axioms mpcSx_commP_drop_left
@@ -308,6 +506,7 @@ section AxiomPins
 #print axioms mpcSx_commP_drop_right
 #print axioms mpcSx_commP_add_right_three
 #print axioms mpcSx_sq_letA
+#print axioms mpcSx_comm_letAB
 
 end AxiomPins
 
