@@ -890,6 +890,8 @@ import GQ2.Dyadic.Instances.WordPhaseSeam
 import GQ2.Dyadic.Instances.WordPhaseCompactNData
 import GQ2.Dyadic.Instances.WordPhaseCompactNFinal
 import GQ2.Dyadic.Instances.WordPhaseCompactMUnramifiedBoundary
+import GQ2.Dyadic.Instances.KappaResolverTransport
+import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
