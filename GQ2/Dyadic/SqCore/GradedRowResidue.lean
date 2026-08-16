@@ -24,7 +24,7 @@ locus: rung 4 of the row ladder is a theorem wherever the consumer asks for it.
    `Z_2^x`.  Consequently the pivot splits as `w = sigma * (x_0 * z)` with `z` a CENTRAL
    class of `Q_4` (section 2): every pivot-power bracket collapses onto the two core letters.
 
-2. **The defect in closed form at every residue** (sections 3 to 5).  With
+2. **The defect in closed form at every residue** (sections 3 to 6).  With
    `zeta = [S, X]` the whole class-4 defect of the bare frame is built from five atoms:
    `zeta^2`, `[zeta, X]`, `[zeta, S]`, the y-squares `[S,Y]^2 [X,Y]^2`, and eight triples.
    On the even locus `2 | B` the defect is `1` for `t` even, so the free locus of rung 4
@@ -32,16 +32,17 @@ locus: rung 4 of the row ladder is a theorem wherever the consumer asks for it.
    element `gRsdKillE = zeta^2 [zeta,X] [zeta,S]` for `t` odd.  At odd `B` the y-block
    appears and the two-y triples `[[S,Y],Y]`, `[[X,Y],Y]` enter.
 
-3. **The block is reachable** (section 6).  The engine costs of explicit carrier tuples
-   built from the three commutators `[sigma, x_0]`, `[sigma, x_1]`, `[x_0, x_1]` evaluate to
-   EXACTLY the defect: the bracket square rides the `x_1`-bundle, and the guarding y-triple
-   `[zeta, Y]` Jacobi-rotates onto an s-legged and an x-legged triple, which are slot costs.
-   The kill equation is then `defect * cost = cost^2 = 1`, an involution of the layer.
+3. **The block is reachable** (sections 7 and 8).  The engine costs of explicit carrier
+   tuples built from the three commutators `[sigma, x_0]`, `[sigma, x_1]`, `[x_0, x_1]`
+   evaluate to EXACTLY the defect: the bracket square rides the `x_1`-bundle, and the
+   guarding y-triple `[zeta, Y]` Jacobi-rotates onto an s-legged and an x-legged triple,
+   which are slot costs (`gRsd_zeta_Y`).  The kill equation is then
+   `defect * cost = cost^2 = 1`, an involution of the layer.
 
-4. **Rung 4 everywhere** (section 7): `(gRowSet h A B 4).Nonempty` at every `(A, B)` on the
+4. **Rung 4 everywhere** (section 8): `(gRowSet h A B 4).Nonempty` at every `(A, B)` on the
    unit locus (`gRsd_nonempty_four`), so the residual of the row ladder starts at class
    FIVE, the same threshold as the M6 ladder after `mpcBld_nonempty_four`.  The sharpened
-   conditional chain to the odd-degree classification is recorded in section 8.
+   conditional chain to the odd-degree classification is sections 9 and 9b.
 
 ## Honesty
 
@@ -54,8 +55,10 @@ linear-algebra question one layer up, reachable by the same engine.
 
 ## Axiom hygiene
 
-No `sorry`, no new axiom, no `native_decide`.  Every declaration prints **std-3**
-(`propext`, `Classical.choice`, `Quot.sound`) or a subset.  Pins in section 10.
+No `sorry`, no new axiom, no `native_decide`.  Everything through section 9, the rung-4
+decision included, prints **std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a
+subset; the two section-9b seam composites add the four census members the wave-83 seam
+always costs.  Pins in section 11.
 -/
 
 open Multiplicative
@@ -1446,6 +1449,18 @@ theorem gRsd_pair_of_forall_class_five {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivo
     subst hk4
     exact gRsd_nonempty_four hAB
 
+/-- The model moves over the class-`k ≥ 5` rungs alone. -/
+theorem gRsd_modelMove_of_forall_class_five
+    (H : ∀ A B : ℤ_[2], IsUnit (A - sqPivotExp * B) →
+      ∀ k, 5 ≤ k → (gRowSet h A B k).Nonempty)
+    {a b : ℤ_[2]} (hd : IsUnit (a - sqPivotExp * b)) : GClearModelMove h a b := by
+  refine gRow_modelMove_of_forall_class_four (fun A B hAB k hk => ?_) hd
+  by_cases hk5 : 5 ≤ k
+  · exact H A B hAB k hk5
+  · have hk4 : k = 4 := by omega
+    subst hk4
+    exact gRsd_nonempty_four hAB
+
 /-- ⭐⭐⭐ **The odd route's last item over the class-`k ≥ 5` rungs alone**: rung 4 is paid,
 so the oriented clearing at every unit-pivot marking follows from the rungs the residual
 actually still owes. -/
@@ -1461,6 +1476,44 @@ theorem gRsd_clearing_of_forall_class_five
     exact gRsd_nonempty_four hAB
 
 end Chain
+
+/-! ## §9b The seam: the class-five rungs carry the odd-degree classification -/
+
+section Seam
+
+open ContCoh LSquare
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {Rec : LocalReciprocity} {K : IntermediateField ℚ_[2] ℚ̄₂}
+  [FiniteDimensional ℚ_[2] K] [CompactSpace (GalK K)] [T2Space (GalK K)]
+  [TotallyDisconnectedSpace (GalK K)] [CompactSpace AbsGalQ2]
+  [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- The seam over the paid rung: class-`k ≥ 5` solvability implies
+`SqMarkedForwardSupply B h` at every odd-degree `K`. -/
+theorem gRsd_supply_of_forall_class_five (B : MarkedRecip Rec K)
+    (FF : DyadicUnitFiltration K) {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (H : ∀ A B' : ℤ_[2], IsUnit (A - sqPivotExp * B') →
+      ∀ k, 5 ≤ k → (gRowSet h A B' k).Nonempty) :
+    SqMarkedForwardSupply B h :=
+  gClear_supply_of_model B FF hdeg fun _ _ hd => gRsd_modelMove_of_forall_class_five H hd
+
+/-- The general theorem over the paid rung: at every odd-degree `K`, what remains of the
+odd-degree classification beyond the class-`k ≥ 5` rungs is exactly the two record
+blocks. -/
+theorem gRsd_candidateEquiv_of_forall_class_five (B : MarkedRecip Rec K)
+    {FF : DyadicUnitFiltration K} {h : ℕ} (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (H : ∀ A B' : ℤ_[2], IsUnit (A - sqPivotExp * B') →
+      ∀ k, 5 ≤ k → (gRowSet h A B' k).Nonempty) :
+    ∃ G : GenAsmBranch K B, G.pres = .L h ∧
+      ∀ F : GenAsmFieldInputs K B FF G.degree, GenAsmRowResidual G F.T →
+        Nonempty (ContinuousMulEquiv
+          ((candidateGroup G.degree (qOf K FF) G.word : ProfiniteGrp) : Type) (GalK K)) :=
+  gClear_candidateEquiv_of_model B hdeg fun _ _ hd =>
+    gRsd_modelMove_of_forall_class_five H hd
+
+end Seam
 
 /-! ## §10 Stress pins -/
 
@@ -1503,6 +1556,130 @@ example (h : ℕ) : gRsdKillO' h = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadS h
     * (gRsdKillY h * gRsdYY h)) := rfl
 
 end StressPins
+
+/-! ## §11 Axiom pins
+
+Verified at generation time (`scripts/mirror.sh gen`), honest split:
+
+* Everything through §9 (the congruence, the pivot split, the atoms, the power brackets,
+  the defect forms, the carrier tuples, the four kills, `gRsd_nonempty_four`,
+  `gRsd_nonempty_of_le_four`, `gRsd_pair_of_forall_class_five`,
+  `gRsd_modelMove_of_forall_class_five`, `gRsd_clearing_of_forall_class_five`) prints
+  **std-3** (`propext`, `Classical.choice`, `Quot.sound`) or a subset of it.  No census
+  axiom enters the rung-4 decision anywhere: it is pure graded group theory plus dyadic
+  arithmetic over the committed presentation.
+* The two §9b seam composites `gRsd_supply_of_forall_class_five` and
+  `gRsd_candidateEquiv_of_forall_class_five` print std-3 plus the four census members the
+  wave-83 seam always costs: `hilbertSymbol_normCriterion_finiteDyadic`, `tateDualityAt`,
+  `Foundations.absGalQ2_isTopologicallyFinitelyGenerated`,
+  `Foundations.absGalQ2_localEulerCharacteristic` (`localReciprocity` and `markedRecipAt`
+  stay binders).  The census is unchanged. -/
+
+section AxiomPins
+
+#print axioms gRsdSixteen
+#print axioms gRsd_mem_sixteen_iff
+#print axioms gRsd_isClosed_sixteen
+#print axioms gRsd_rootX_four_mem
+#print axioms gRsd_Sval_sub_rootX
+#print axioms gRsd_pivotExp_congr
+#print axioms gRsd_zpow_commute
+#print axioms gRsd_zpow_mem_zLayer_of_four
+#print axioms gRsdZ
+#print axioms gRsdZ_mem
+#print axioms gRsd_W_split
+#print axioms gRsdQ_add
+#print axioms gRsdQ_commP
+#print axioms gRsd_Q_even_mem
+#print axioms gRsdZeta
+#print axioms gRsdXiS
+#print axioms gRsdXiX
+#print axioms gRsdZeta_mem
+#print axioms gRsdXiS_mem
+#print axioms gRsdXiX_mem
+#print axioms gRsdZetaX_mem
+#print axioms gRsdZetaS_mem
+#print axioms gRsdKillE
+#print axioms gRsdKillE_mem
+#print axioms gRsd_lam_shape
+#print axioms gRsd_S_shape
+#print axioms gRsd_shape_X
+#print axioms gRsd_shape_S
+#print axioms gRsd_X_shape
+#print axioms gRsd_Y_shape
+#print axioms gRsd_S_W
+#print axioms gRsd_W_X
+#print axioms gRsd_zeta_W
+#print axioms gRsd_S_Wsq
+#print axioms gRsd_Wsq_X
+#print axioms gRsd_Qeven_tail_zLayer
+#print axioms gRsd_Qeven_split
+#print axioms gRsd_Qeven_X
+#print axioms gRsd_S_Qeven
+#print axioms gRsd_SQ_QX_even
+#print axioms gRsdYSq
+#print axioms gRsdYTrip
+#print axioms gRsdKillY
+#print axioms gRsdYY
+#print axioms gRsdYSq_mem
+#print axioms gRsdYTrip_mem
+#print axioms gRsdKillY_mem
+#print axioms gRsdYY_mem
+#print axioms gRsd_Wsq_mem
+#print axioms gRsd_Q_odd_cases
+#print axioms gRsd_lam_Q_odd
+#print axioms gRsd_zeta_Q_odd
+#print axioms gRsd_SQ_QX_odd
+#print axioms gRsd_XQQ_odd
+#print axioms gRsd_Wsq_S
+#print axioms gRsd_QSQ_odd
+#print axioms gRsd_QX_sq_odd
+#print axioms gRsd_Wsq_Y
+#print axioms gRsd_Qeven_Y
+#print axioms gRsd_YYQ_odd
+#print axioms gRsd_Zcost_even_t
+#print axioms gRsd_Zcost_odd_t
+#print axioms gRsd_defect_even
+#print axioms gRsd_defect_even_even_t
+#print axioms gRsd_defect_even_odd_t
+#print axioms gRsdKillO
+#print axioms gRsdKillO'
+#print axioms gRsdKillO_mem
+#print axioms gRsdKillO'_mem
+#print axioms gRsd_defect_odd_raw
+#print axioms gRsd_defect_odd_even_t
+#print axioms gRsd_defect_odd_odd_t
+#print axioms gRsd_commP_mem_corr
+#print axioms gRsdTuple
+#print axioms gRsdTuple_zero
+#print axioms gRsdTuple_one
+#print axioms gRsdTuple_two
+#print axioms gRsdTuple_handleU
+#print axioms gRsdTuple_handleV
+#print axioms gRsdTuple_mem_corr
+#print axioms gRsd_cost_tuple
+#print axioms gRsd_bare_zero
+#print axioms gRsd_bare_one
+#print axioms gRsd_bare_two
+#print axioms gRsd_cost0_even
+#print axioms gRsd_cost0_odd
+#print axioms gRsd_cost1_even
+#print axioms gRsd_cost1_odd
+#print axioms gRsd_cost2
+#print axioms gRsd_zeta_Y
+#print axioms gRsd_nonempty_four_half
+#print axioms gRsd_nonempty_four_even_odd
+#print axioms gRsd_nonempty_four_odd_even
+#print axioms gRsd_nonempty_four_odd_odd
+#print axioms gRsd_nonempty_four
+#print axioms gRsd_nonempty_of_le_four
+#print axioms gRsd_pair_of_forall_class_five
+#print axioms gRsd_modelMove_of_forall_class_five
+#print axioms gRsd_clearing_of_forall_class_five
+#print axioms gRsd_supply_of_forall_class_five
+#print axioms gRsd_candidateEquiv_of_forall_class_five
+
+end AxiomPins
 
 end SqCore
 
