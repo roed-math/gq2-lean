@@ -255,6 +255,243 @@ noncomputable def wPmPhaseComparison_of_normalForm
 
 end GenericAssembler
 
+/-! ## §3 The compact normal coordinates (ticket T2)
+
+W86-PHASE §5 lists four `L`-side ingredients and reports "none" for the first three compact
+counterparts, on the evidence that "`grep` for `phaseNormalForm` and `PhaseNormal` across `GQ2/`
+returns `lSq` hits only".  **That grep measured the naming, not the tree.**  All three exist,
+under `even` names:
+
+| `L` ingredient | compact counterpart |
+| --- | --- |
+| `lSqPhaseNormal h` | `evenNormal h` (`Instances/N0RamifiedStokes.lean:73`) |
+| `heisD1_lSqPhaseNormal_eq_zero_unramified` | `heisD1_evenNormal_eq_zero_of_unramified_row` (`Instances/N0M0UnramifiedStokes.lean:318`) |
+| `lSqFam_unramified_phaseNormalForm` | `evenNormalForm_of_unramified_row` (`…:331`) |
+| `sourceWordPhaseComparison_of_lSqHeadNormalForm` | §2 of this module |
+
+`evenNormal h d₀ d₁ z` is the compact word's normal cochain: `σ`, `τ` and `x₂` are zero, `x₀`
+and `x₁` are free, and the handles carry `z`.  That is exactly W86-PHASE §5's prediction, "two
+free head coordinates and `h` handle pairs", already proved -- and proved for *both* compact
+words at once, since the two share one Fox row (`heisD1_nCompactFam_unramified_apply`,
+`heisD1_mCompactFam_unramified_apply`).
+
+The one thing genuinely missing is the bracketing: the Stokes files carry the handles as
+`Fin h × Fin 2 → A` and W86-PHASE §4's endpoint form wants `Fin h → A × A`.  This section does
+the rebracketing, the twin of `LSquare.lSqPhaseCoordsEquiv`. -/
+
+section CompactNormal
+
+open GQ2.Dyadic.Certificates GQ2.Dyadic.Words GQ2.Dyadic.Count
+
+/-- Rebracket the compact normal-form coordinates into the endpoint pairs of
+`wPhCompactWallHandlePhase`.  The even twin of `LSquare.lSqPhaseCoordsEquiv`, with two head
+coordinates in place of one. -/
+def wPmCompactCoordsEquiv (h : ℕ) (A : Type*) [AddCommGroup A] :
+    (A × A × (Fin h × Fin 2 → A)) ≃ ((A × A) × (Fin h → A × A)) where
+  toFun p := ((p.1, p.2.1), fun j ↦ finTwoProdAddEquiv (fun k ↦ p.2.2 (j, k)))
+  invFun p := (p.1.1, p.1.2, fun jk ↦ (finTwoProdAddEquiv.symm (p.2 jk.1)) jk.2)
+  left_inv p := by
+    apply Prod.ext
+    · rfl
+    · apply Prod.ext
+      · rfl
+      · funext jk
+        rcases jk with ⟨j, k⟩
+        fin_cases k <;> rfl
+  right_inv p := by
+    apply Prod.ext
+    · rfl
+    · funext j
+      apply Prod.ext <;> rfl
+
+/-- **The compact phase normal cochain**, in the endpoint bracketing.  The even twin of
+`LSquare.lSqPhaseNormal`: `σ`, `τ` and `x₂` are zero, `x₀` and `x₁` are the two free head
+coordinates, and the `h` handle pairs are free.  No Wall operator and no branch split appear,
+which is what W86-PHASE §4 says makes the even model simpler than the odd one. -/
+def wPmCompactPhaseNormal (h : ℕ) {A : Type*} [AddCommGroup A]
+    (p : (A × A) × (Fin h → A × A)) : Generator (2 + 2 * h) → A :=
+  evenNormal h ((wPmCompactCoordsEquiv h A).symm p).1
+    ((wPmCompactCoordsEquiv h A).symm p).2.1 ((wPmCompactCoordsEquiv h A).symm p).2.2
+
+@[simp] theorem wPmCompactPhaseNormal_sigma (h : ℕ) {A : Type*} [AddCommGroup A]
+    (p : (A × A) × (Fin h → A × A)) : wPmCompactPhaseNormal h p .sigma = 0 :=
+  evenNormal_sigma _ _ _ _
+
+@[simp] theorem wPmCompactPhaseNormal_tau (h : ℕ) {A : Type*} [AddCommGroup A]
+    (p : (A × A) × (Fin h → A × A)) : wPmCompactPhaseNormal h p .tau = 0 :=
+  evenNormal_tau _ _ _ _
+
+@[simp] theorem wPmCompactPhaseNormal_coreLetter (h : ℕ) {A : Type*} [AddCommGroup A]
+    (p : (A × A) × (Fin h → A × A)) (i : Fin 3) :
+    wPmCompactPhaseNormal h p (coreLetter h i) = ![p.1.1, p.1.2, 0] i :=
+  evenNormal_coreLetter _ _ _ _ i
+
+@[simp] theorem wPmCompactPhaseNormal_handleU {h : ℕ} {A : Type*} [AddCommGroup A]
+    (p : (A × A) × (Fin h → A × A)) (j : Fin h) :
+    wPmCompactPhaseNormal h p (handleU j) = (p.2 j).1 := by
+  show evenNormal h _ _ _ (handleU j) = (p.2 j).1
+  rw [evenNormal_handleU]
+  rfl
+
+@[simp] theorem wPmCompactPhaseNormal_handleV {h : ℕ} {A : Type*} [AddCommGroup A]
+    (p : (A × A) × (Fin h → A × A)) (j : Fin h) :
+    wPmCompactPhaseNormal h p (handleV j) = (p.2 j).2 := by
+  show evenNormal h _ _ _ (handleV j) = (p.2 j).2
+  rw [evenNormal_handleV]
+  rfl
+
+theorem wPmCompactPhaseNormal_coordsEquiv (h : ℕ) {A : Type*} [AddCommGroup A]
+    (r : A × A × (Fin h × Fin 2 → A)) :
+    wPmCompactPhaseNormal h (wPmCompactCoordsEquiv h A r) = evenNormal h r.1 r.2.1 r.2.2 := by
+  rw [wPmCompactPhaseNormal, Equiv.symm_apply_apply]
+
+variable {h α q : ℕ} {C A : Type*} [Group C] [AddCommGroup A] [DistribMulAction C A]
+
+/-- **`d¹`-closedness of the compact normal cochain**, in the endpoint bracketing: the
+rebracketing of `heisD1_evenNormal_eq_zero_of_unramified_row`. -/
+theorem wPm_heisD1_compactPhaseNormal_eq_zero
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h)))
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • x .tau, x .tau + (x (coreLetter h 2) - t.σ⁻¹ • x (coreLetter h 2))])
+    (p : (A × A) × (Fin h → A × A)) :
+    heisD1 (A := A) ⇑t w (wPmCompactPhaseNormal h p) = 0 :=
+  heisD1_evenNormal_eq_zero_of_unramified_row t w hrow _ _ _
+
+/-- **Uniqueness of the compact normal representative**, in the endpoint bracketing: the
+rebracketing of `evenNormalForm_of_unramified_row`.  The compact twin of
+`lSqFam_unramified_phaseNormalForm`. -/
+theorem wPm_compactPhaseNormalForm [Finite A]
+    (t : Marking (2 + 2 * h) C) (w : Fin 2 → FreeGroup (Generator (2 + 2 * h)))
+    (hrow : ∀ x : Generator (2 + 2 * h) → A, heisD1 ⇑t w x
+      = ![t.σ⁻¹ • x .tau, x .tau + (x (coreLetter h 2) - t.σ⁻¹ • x (coreLetter h 2))])
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+    (hτ : ∀ a : A, t.τ • a = a)
+    (hσfpf : ∀ a : A, t.σ • a = a → a = 0)
+    (hr : ∀ k, FreeGroup.lift ⇑t (w k) = 1) :
+    ∀ x, heisD1 (A := A) ⇑t w x = 0 →
+      ∃! p : (A × A) × (Fin h → A × A),
+        x - wPmCompactPhaseNormal h p ∈ Set.range (heisD0 ⇑t) := by
+  intro x hx
+  obtain ⟨r, hr0, hu⟩ :=
+    evenNormalForm_of_unramified_row t w hrow hwild hτ hσfpf hr x hx
+  refine ⟨wPmCompactCoordsEquiv h A r, ?_, ?_⟩
+  · show x - wPmCompactPhaseNormal h (wPmCompactCoordsEquiv h A r) ∈ _
+    rw [wPmCompactPhaseNormal_coordsEquiv]
+    exact hr0
+  · intro p hp
+    have hpr : (wPmCompactCoordsEquiv h A).symm p = r := by
+      refine hu _ ?_
+      show x - evenNormal h ((wPmCompactCoordsEquiv h A).symm p).1
+        ((wPmCompactCoordsEquiv h A).symm p).2.1
+        ((wPmCompactCoordsEquiv h A).symm p).2.2 ∈ _
+      exact hp
+    rw [← hpr, Equiv.apply_symm_apply]
+
+end CompactNormal
+
+/-! ## §4 The compact comparison, modulo one phase identity
+
+§2 and §3 together leave exactly one thing between W86-PHASE's endpoint and a
+`SourceWordPhaseComparison` at the compact word: the phase computation.  This section names it
+and proves that it is the only thing left.
+
+`wPmCompactHeadPhase` is the compact twin of `QZero_eq_lSqWallHandlePhase_of_headMark`: it says
+that a source cocycle whose generator values are §3's normal representative of `p` has source
+phase `wPhCompactWallHandlePhase q̄ h p`.  Everything in the odd-degree producer
+`sourceWordPhaseComparison_of_lSqUnramifiedHead` other than its phase formula is reproduced
+below at the compact word.
+
+Note what is *not* a hypothesis here, unlike the odd row: no Arf condition, no Wall operator
+built from the `sigma`-image, and no branch split.  That is W86-PHASE §4's correction showing up
+in the shape of the residual. -/
+
+section CompactComparison
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Certificates GQ2.QuadraticFp2
+open GQ2.Dyadic.Count GQ2.Dyadic.Words GQ2.Dyadic.LSquare
+
+/-- **The compact head phase: the one statement still owed.**  The even twin of
+`LSquare.QZero_eq_lSqWallHandlePhase_of_headMark`, at the compact-`N` word.  A source cocycle in
+§3's normal coordinates has source phase §4-of-`WordPhase`'s even endpoint form. -/
+def wPmCompactHeadPhase {α h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} (DD : DescData D)
+    (rho : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) (Bg ⧸ D.M))
+    [DistribMulAction ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)] :
+    Prop :=
+  ∀ (p : (DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod)) (c : VCocycle DD rho),
+    (fun i ↦ c.c (gammaGen (2 + 2 * h) q (nCompactW α h) i)) = wPmCompactPhaseNormal h p →
+      QZero DD rho c = wPhCompactWallHandlePhase DD.qbar h p
+
+/-- **The compact source-to-word phase comparison, modulo the head phase.**  The compact-`N`
+twin of `LSquare.sourceWordPhaseComparison_of_lSqUnramifiedHead`, assembled from §2 and §3.
+
+Every hypothesis except `hphase` is either the odd producer's own (`hcompat`, `hA2`,
+`hwildTwo`, and the three head-marking conditions after the module action) or discharged from
+the tree: the resolver is `Count.resolvesAt_nCompactFam` at the uniform level, the Fox row is
+`heisD1_nCompactFam_unramified_apply`, and the normal form is §3. -/
+noncomputable def wPmCompactPhaseComparison_of_headPhase {α h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [IsTopologicalAddGroup DD.Vmod] [DiscreteTopology DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    [DistribMulAction ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) DD.Vmod]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) DD.Vmod]
+    (hcompat : ∀ (g : ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type))
+      (v : DD.Vmod), g • v = rho0 DD rho g • v)
+    (hA2 : ∀ v : DD.Vmod, v + v = 0)
+    (hwildTwo : IsWildTwo (wildAlphabet (2 + 2 * h))
+      (fun i ↦ Count.rho0Continuous DD rho (gammaGen (2 + 2 * h) q (nCompactW α h) i)))
+    (hq : Even q) (hα : 1 ≤ α)
+    (htauAct : ∀ v : DD.Vmod,
+      rho0 DD rho (gammaGen (2 + 2 * h) q (nCompactW α h) .tau) • v = v)
+    (hwildAct : ∀ (i : Fin (2 + 2 * h + 1)) (v : DD.Vmod),
+      rho0 DD rho (gammaGen (2 + 2 * h) q (nCompactW α h) (.wild i)) • v = v)
+    (hsfpf : ∀ v : DD.Vmod,
+      rho0 DD rho (gammaGen (2 + 2 * h) q (nCompactW α h) .sigma) • v = v → v = 0)
+    [DistribMulAction ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+    [ContinuousSMul ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+    (htriv : ∀ (g : ((GammaR (2 + 2 * h) q (nCompactW α h) : ProfiniteGrp) : Type))
+      (a : ZMod 2), g • a = a)
+    (hphase : wPmCompactHeadPhase DD rho) :
+    letI : Fintype ((DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod)) := Fintype.ofFinite _
+    SourceWordPhaseComparison DD rho htriv
+      ((DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod))
+      (wPhCompactWallHandlePhase DD.qbar h) := by
+  letI : Fintype ((DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod)) := Fintype.ofFinite _
+  let e := omega2Exp (4 * Monoid.exponent DD.C0)
+  let theta := Count.rho0Continuous DD rho
+  let t : Marking (2 + 2 * h) DD.C0 :=
+    ⟨fun i ↦ theta (gammaGen (2 + 2 * h) q (nCompactW α h) i)⟩
+  have hbaseOrd : ∀ g : DD.C0, orderOf g ∣ Monoid.exponent DD.C0 :=
+    fun g ↦ Monoid.order_dvd_exponent g
+  have horder : ∀ p : WordLift DD.Vmod DD.C0,
+      orderOf p ∣ 4 * Monoid.exponent DD.C0 := fun p ↦
+    (WordLift.orderOf_dvd_two_mul hA2 hbaseOrd p).trans ⟨2, by ring⟩
+  have hres : ResolvesAt (gammaFam (2 + 2 * h) q (nCompactW α h))
+      (nCompactFam α h q e) (WordLift DD.Vmod DD.C0) :=
+    Count.resolvesAt_nCompactFam (Count.fourMulExponent_ne_zero_and_even DD.C0).1 horder α h q
+  have hrow : ∀ x : Generator (2 + 2 * h) → DD.Vmod,
+      heisD1 ⇑t (nCompactFam α h q e) x
+        = ![t.σ⁻¹ • x .tau,
+            x .tau + (x (coreLetter h 2) - t.σ⁻¹ • x (coreLetter h 2))] :=
+    heisD1_nCompactFam_unramified_apply t hA2 hwildAct htauAct hq hα
+  have hr : ∀ k, FreeGroup.lift ⇑t (nCompactFam α h q e k) = 1 := fun k ↦
+    Count.lower_rel (A := DD.Vmod) theta (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (nCompactW α h)) hres k
+  exact wPmPhaseComparison_of_normalForm rho hcompat hres hA2 hwildTwo
+    (wPmCompactPhaseNormal h)
+    (wPm_heisD1_compactPhaseNormal_eq_zero t (nCompactFam α h q e) hrow)
+    (wPm_compactPhaseNormalForm t (nCompactFam α h q e) hrow hwildAct htauAct hsfpf hr)
+    htriv (wPhCompactWallHandlePhase DD.qbar h) hphase
+
+end CompactComparison
+
 /-! ## Axiom audit
 
 One `#print axioms` line per declaration, measured against the mirror. -/
@@ -265,6 +502,18 @@ section AxiomPins
 #print axioms wPm_rowResidual_sqrtTwo
 #print axioms wPm_candidate_equiv_galK_sqrtTwo_branchFree
 #print axioms wPmPhaseComparison_of_normalForm
+#print axioms wPmCompactCoordsEquiv
+#print axioms wPmCompactPhaseNormal
+#print axioms wPmCompactPhaseNormal_sigma
+#print axioms wPmCompactPhaseNormal_tau
+#print axioms wPmCompactPhaseNormal_coreLetter
+#print axioms wPmCompactPhaseNormal_handleU
+#print axioms wPmCompactPhaseNormal_handleV
+#print axioms wPmCompactPhaseNormal_coordsEquiv
+#print axioms wPm_heisD1_compactPhaseNormal_eq_zero
+#print axioms wPm_compactPhaseNormalForm
+#print axioms wPmCompactHeadPhase
+#print axioms wPmCompactPhaseComparison_of_headPhase
 
 end AxiomPins
 
