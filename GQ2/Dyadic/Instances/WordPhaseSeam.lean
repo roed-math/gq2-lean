@@ -726,6 +726,38 @@ theorem wPs_QZero_eq_compactWallHandlePhase_of_headMark {α h q : ℕ}
     hmark, wPs_hessRelZ_tameRelW_hessMark_eq_zero base hbase _ _ _ E E₂, zero_add,
     wPm_hessRelZ_nCompact_eq_compactWallHandlePhase base hbase (Vmod_exp2 DD) hα _ _ p E E₂]
 
+
+/-- **`wPmCompactHeadPhase`, produced.**  The ticket's target, with the head factorization and
+the wild-head condition made explicit.  Given those, the residual `Prop` W87 §3 left open is a
+theorem; everything downstream of it in `wPmCompactPhaseComparison_of_headPhase` is already
+discharged there. -/
+theorem wPs_wPmCompactHeadPhase_of_headFactorization {α h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    {Cbar : Type} [Group Cbar] [DistribMulAction Cbar DD.Vmod]
+    (base : FactorSet Cbar DD.Vmod) (hbase : IsEquivariantFactorSet DD.qbar base)
+    (π : DD.C0 →* Cbar) (hpi : ∀ (cc : DD.C0) (v : DD.Vmod), cc • v = π cc • v)
+    (hf : ∀ a b : DD.Vmod, DD.dat.f a b = base.f a b)
+    (hm : ∀ (cc : DD.C0) (v : DD.Vmod), DD.dat.m cc v = base.m (π cc) v)
+    (hq : Even q) (hq0 : q ≠ 0) (hα : 2 ≤ α)
+    (hwildHead : ∀ i : Fin (2 + 2 * h + 1),
+      π (rho0 DD rho (gammaGen (2 + 2 * h) q (Words.nCompactW α h) (.wild i))) = 1) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction
+        ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+      scalarActionZmodTwo _
+    letI : ContinuousSMul
+        ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul _
+    wPmCompactHeadPhase DD rho := fun p c hc ↦
+  wPs_QZero_eq_compactWallHandlePhase_of_headMark rho base hbase π hpi hf hm hq hq0 hα c
+    hwildHead p hc
+
 end HeadPhase
 
 /-! ## Axiom audit
@@ -771,6 +803,7 @@ section AxiomPins
 #print axioms wPs_QZero_eq_nCompact_graphHessianTrace
 #print axioms wPs_hessRelZ_tameRelW_hessMark_eq_zero
 #print axioms wPs_QZero_eq_compactWallHandlePhase_of_headMark
+#print axioms wPs_wPmCompactHeadPhase_of_headFactorization
 
 end AxiomPins
 
