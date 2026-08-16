@@ -903,6 +903,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactMBoundary
 import GQ2.Dyadic.Instances.WordPhaseCompactMFinalBase
 import GQ2.Dyadic.Instances.WordPhaseCompactMFinal
 import GQ2.Dyadic.Instances.NpcCandidateScalar
+import GQ2.Dyadic.Instances.NpcCandidateStokes
 import GQ2.Dyadic.Instances.MpcCandidateScalar
 import GQ2.Dyadic.Instances.MpcCandidateStokes
 import GQ2.Dyadic.Instances.MpcCandidateRN
