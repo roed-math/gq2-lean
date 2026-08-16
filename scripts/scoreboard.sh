@@ -192,6 +192,15 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc full general-h correction from scaling|decl|m
 CORRECTED RN SELECTOR BOUNDARY|Mpc family certificate from C pivot and scaling|decl|certificate_of_familySelection
 CORRECTED RN SELECTOR BOUNDARY|Mpc selected realization from C pivot and scaling|decl|realization_of_familySelection
 CORRECTED RN ANALYTIC|Mpc projected display FPF resolved row|decl|exists_resolvedFamily_unramified_smul_row_fpf_of_projected
+CORRECTED RN ANALYTIC|Mpc projected unramified QZero|decl|wPmpc_QZero_eq_unramifiedCompactPhase_of_projectedHeadMark
+CORRECTED RN ANALYTIC|Mpc projected unramified comparison|decl|exists_comparison_unramified_of_projectedHead_handles
+CORRECTED RN ANALYTIC|Mpc projected ramified QZero|decl|wPmpc_QZero_eq_ramifiedCompactPhase_of_projectedHeadMark
+CORRECTED RN ANALYTIC|Mpc projected ramified comparison|decl|exists_comparison_ramified_of_projectedHead_handles
+CORRECTED RN ANALYTIC|Mpc arbitrary-display boundary comparison|decl|wPmpcComparison_boundary_handles
+CORRECTED RN ANALYTIC|Mpc arbitrary-display branch-free supply|decl|wPmpc_branchFreeSupply_handles
+CORRECTED RN RECORDS|Mpc arbitrary-display certificate from determinant|decl|mpcWordCertificateRN_of_display_determinant
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected tied branch from C pivot and scaling|decl|mpcGenAsmBranch_of_familySelection_tied
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected RN residual from determinant|decl|mpcRowResidualRN_of_familySelection
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -226,11 +235,15 @@ ODD SEAM|q-invariant of D_sq h|decl|oddSeam_demushkinQ_DSq
 ODD SEAM|odd oriented equivalence|decl|nonempty_orientedEquiv_oddDegree
 ODD FINAL|full nu supply iff two rows|decl|sqNuForwardSupply_iff_full
 ODD FINAL|odd endpoint from two nu rows|decl|gammaR_lSq_equiv_galK_oddDegree_of_nuRows_final
+ODD FINAL|odd endpoint from compatible ramified data|decl|gammaR_lSq_equiv_galK_oddDegree_compatible
 ODD SEAM|closed corrected RN endpoint|decl|gUni_gammaR_lSq_equiv_galK
 ODD RAMIFIED DATA|canonical anchored splitting field|decl|anchoredSplitField
 ODD RAMIFIED DATA|certificate from anchored lift and involution packet|decl|ramifiedCertificateOfAnchoredSplit
 ODD RAMIFIED DATA|compatibility-aware ramified packet|decl|CompatibleRamifiedData
 ODD RAMIFIED DATA|compatible packet from two anchored atoms|decl|compatibleRamifiedData_of_anchoredResidual
+ODD RAMIFIED DATA|instance-aware compatible packet|decl|CompatibleRamifiedDataAt
+ODD RAMIFIED DATA|compatible ramified Gauss residue|decl|gaussZResidueDK_ramified_compatible
+ODD RAMIFIED DATA|compatible affine determinant|decl|affineDeterminant_galK_compatible
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
 LEGACY ASK (COMPAT ONLY)|frozen <-> stageVanishing|decl|askC_exactLifting_iff_stageVanishing
 LEGACY ASK (COMPAT ONLY)|corrected RN at G_K|decl|exactLiftingSemanticsRN_galK
@@ -320,6 +333,7 @@ done <<< "$ROWS"
 # so deriving its input from the rows would defeat it.
 find "$WT/GQ2" -name '*.lean' |
   sed -e "s|^$WT/||" -e 's|\.lean$||' | tr '/' '.' | sort > "$TMP/allmods"
+split -l 64 "$TMP/allmods" "$TMP/allmods.chunk."
 
 # ----------------------------------------------------------------------------
 # THE PROBE.  Types, explicit binders, axiom censuses, producer scans and the
@@ -385,6 +399,42 @@ def sbAxioms (n : Name) : CoreM String := do
   if extra.isEmpty then return base
   return base ++ " + " ++ ", ".intercalate (extra.map (fun a => a.getString!))
 
+/-- `Array.contains` is recursive and the umbrella now has more modules than
+Lean's default recursion depth.  Search fixed shallow slices instead. -/
+def sbModulePresent (a : Array String) (m : String) : Bool :=
+  (a.extract 0 256).contains m ||
+  (a.extract 256 512).contains m ||
+  (a.extract 512 768).contains m ||
+  (a.extract 768 1024).contains m ||
+  (a.extract 1024 1280).contains m ||
+  (a.extract 1280 1536).contains m ||
+  (a.extract 1536 1792).contains m ||
+  (a.extract 1792 2048).contains m ||
+  (a.extract 2048 2304).contains m ||
+  (a.extract 2304 2560).contains m ||
+  (a.extract 2560 2816).contains m ||
+  (a.extract 2816 3072).contains m ||
+  (a.extract 3072 3328).contains m ||
+  (a.extract 3328 3584).contains m ||
+  (a.extract 3584 3840).contains m ||
+  (a.extract 3840 4096).contains m ||
+  (a.extract 4096 4352).contains m ||
+  (a.extract 4352 4608).contains m ||
+  (a.extract 4608 4864).contains m ||
+  (a.extract 4864 5120).contains m ||
+  (a.extract 5120 5376).contains m ||
+  (a.extract 5376 5632).contains m ||
+  (a.extract 5632 5888).contains m ||
+  (a.extract 5888 6144).contains m ||
+  (a.extract 6144 6400).contains m ||
+  (a.extract 6400 6656).contains m ||
+  (a.extract 6656 6912).contains m ||
+  (a.extract 6912 7168).contains m ||
+  (a.extract 7168 7424).contains m ||
+  (a.extract 7424 7680).contains m ||
+  (a.extract 7680 7936).contains m ||
+  (a.extract 7936 8192).contains m
+
 def sbRender (tag : String) (n : Name) : CommandElabM Unit := do
   if !(← getEnv).contains n then
     IO.println s!"SB|{tag}|MISSING||||"
@@ -426,28 +476,31 @@ PROD
   done
   # Registration, in the same environment: a module NOT in `import GQ2`'s
   # transitive closure is a module no consumer can see.  Every module under
-  # GQ2/ is checked, as one string membership pass -- emitting a Lean
-  # statement per module instead blows the elaborator's heartbeat limit at
-  # this repository's size, which is how this was first written and why it
-  # is not written that way.
+  # GQ2/ is checked in bounded command chunks.  One monolithic interpreted
+  # loop crossed Lean's default recursion depth at 1067 modules; one command
+  # per module previously crossed the heartbeat limit.  Bounded commands
+  # avoid both failure modes without an option override.
   echo '  let sbPresent := env.header.moduleNames.map (·.toString)'
   printf '  let sbDirect := "'
   tr '\n' ' ' < "$TMP/directimports"
   printf '"\n'
   cat <<'FRESH'
-  let sbDirectMods := (sbDirect.splitOn " ").filter (· ≠ "")
+  let sbDirectMods := ((sbDirect.splitOn " ").filter (· ≠ "")).toArray
   for m in sbDirectMods do
-    if !sbPresent.contains m then IO.println s!"STALE_UMBRELLA|{m}"
+    if !sbModulePresent sbPresent m then IO.println s!"STALE_UMBRELLA|{m}"
 FRESH
-  printf '  let sbAll := "'
-  tr '\n' ' ' < "$TMP/allmods"
-  printf '"\n'
-  cat <<'REG'
-  let sbMods := (sbAll.splitOn " ").filter (· ≠ "")
-  for m in sbMods do
-    if !sbPresent.contains m then IO.println s!"OUTSIDE|{m}"
-  IO.println s!"SCANNED|{sbMods.length}"
-REG
+  # Reset the command elaborator between bounded source-module chunks.
+  for part in "$TMP"/allmods.chunk.*; do
+    echo 'run_cmd do'
+    echo '  let env ← getEnv'
+    echo '  let sbPresent := env.header.moduleNames.map (·.toString)'
+    while IFS= read -r mod; do
+      printf '  if !sbModulePresent sbPresent "%s" then IO.println "OUTSIDE|%s"\n' \
+        "$mod" "$mod"
+    done < "$part"
+  done
+  printf 'run_cmd do IO.println "SCANNED|%s"\n' \
+    "$(wc -l < "$TMP/allmods" | tr -d ' ')"
 } > "$TMP/probe.lean"
 
 bash "$MIRROR" check "$TMP/probe.lean" > "$TMP/out" 2> "$TMP/err"

@@ -950,6 +950,10 @@ import GQ2.Dyadic.Instances.MpcGeneralHandleRealization
 import GQ2.Dyadic.Instances.MpcGeneralHandleCertificate
 import GQ2.Dyadic.Instances.MpcGeneralHandleFamily
 import GQ2.Dyadic.Instances.MpcUnramifiedProjectedData
+import GQ2.Dyadic.Instances.MpcGeneralHandleFamilyFinal
+import GQ2.Dyadic.Instances.MpcUnramifiedProjectedComparison
+import GQ2.Dyadic.Instances.MpcRamifiedProjectedComparison
+import GQ2.Dyadic.Instances.MpcHandleBoundary
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
@@ -978,3 +982,4 @@ import GQ2.Dyadic.Instances.OddFrame
 import GQ2.Dyadic.Instances.GammaLOddNuRowsFinal
 import GQ2.Dyadic.Instances.RamifiedCertificateAnchoredSplit
 import GQ2.Dyadic.Instances.RamifiedCertificateCompatible
+import GQ2.Dyadic.Instances.GammaLOddCompatibleRamified
