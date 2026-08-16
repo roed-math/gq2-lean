@@ -900,6 +900,7 @@ import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
 import GQ2.Dyadic.Instances.MpcMarkedSixCertificate
+import GQ2.Dyadic.Instances.MpcC6WeightedChecker
 import GQ2.Dyadic.Instances.MpcMarkedRange
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
