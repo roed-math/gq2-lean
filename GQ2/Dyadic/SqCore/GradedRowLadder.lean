@@ -55,6 +55,11 @@ distance, including the reachability analysis of the closed-form defect (which c
 match which defect terms, and where the first genuine linear-algebra question sits), is
 `docs/dyadic/w86-ladder4-note.md`.
 
+[W87-BLOCK: the rungs off the quarter locus are now climbed at class four on the whole unit
+locus (`gRsd_nonempty_four`, `GradedRowResidue.lean`; the note's y-legged guard clause was
+false as stated, by a Hall-Witt rotation).  The residual starts at class five;
+`gRsd_clearing_of_forall_class_five` is the sharpened chain to the clearing.]
+
 ## Axiom hygiene
 
 No `sorry`, no new axiom, no `native_decide`.  Every declaration prints **std-3** or a

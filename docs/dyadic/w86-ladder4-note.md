@@ -93,6 +93,20 @@ into pivot letters and squares, to three species in `lambda_3/lambda_4`:
   carrier-enlargement fallback (`ker lambda ∩ ker nuSq`, with handle content and the torsion
   letter, at the price of redoing generation with a determinant condition) activates.
 
+⚠ **[W87-BLOCK, as of the wave-87 merge: DECIDED, positively, at all three residues, and the
+y-legged clause above is FALSE as stated.**  Triples with both inner letters distinct from
+`x₁` are reachable OUTSIDE bundles: Hall-Witt in `Q₄` (the committed `cfourDef_jacobi_solve`)
+rotates the guarding triple `[ζ,Y] = [[σ,x₀],x₁]` onto `[[X,Y],S]·[[S,Y],X]` (`gRsd_zeta_Y`),
+which are slot costs, and the bundle `ζ²[ζ,Y]` then closes the square with no leftover.  The
+other two species clauses were right.  Neither `gGen_record_one` nor the `gDelta` functionals
+were needed (the functionals are provably blind at the layer bit); the decision is by explicit
+witness, with the new arithmetic `4 ∣ sqPivotExp + 1` (`gRsd_pivotExp_congr`) splitting the
+pivot as `W = S(XZ)`, `Z` central.  The defect is `1` on the HALF locus `2∣B, 2∣t` (doubling
+the quarter locus), and killed by pure commutator words elsewhere: `gRsd_nonempty_four` on the
+whole unit locus.  The residual starts at class five; the chain to the clearing is
+`gRsd_clearing_of_forall_class_five`.  See `GradedRowResidue.lean` and
+`docs/dyadic/w87-block-note.md`.]
+
 ## What W87 needs
 
 Either (a) decide `defect in image(gLadCost)` at the three remaining mod-4 residue classes of
