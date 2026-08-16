@@ -166,6 +166,8 @@ CORRECTED RN SELECTOR CLOSED|N0 selected tied branch (oriented)|decl|n0GenAsmBra
 CORRECTED RN SELECTOR CLOSED|N0 selected RN residual (oriented)|decl|n0RowResidualRN_of_familySelection
 CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
 CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
+CORRECTED RN SELECTOR BOUNDARY|M0 level-zero chi-kernel unit|decl|mChiKerUnimodular_of_level_zero_general
+CORRECTED RN SELECTOR BOUNDARY|M0 selected tied branch (needs C0 pivot)|decl|m0GenAsmBranch_of_familySelection_tied
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
