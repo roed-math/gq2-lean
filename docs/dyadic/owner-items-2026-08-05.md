@@ -1,6 +1,27 @@
 # Owner decision items — wave 37 (2026-08-05)
 
-## Status at wave 85 (2026-08-15)
+## Status at wave 86 (2026-08-15)
+
+**Nine items await you** (wave-84 item 8 was discharged by wave 85's landings, and the house
+opened two: the `mpcBld_shift_of_bracket_supply` hypothesis quantifies over every element of
+the layer rather than over a solution's defect, an over-strong ask a consumer could mistake
+for the priced one; and the ansatz-exhaustiveness question, namely whether the M6 word shape
+with corrections is exhaustive among the markings `mpcOrb_shift_iff_marking` quantifies over,
+which is now the exact distance between "the ansatz is refuted" and "`MpcPivShift 2` is
+refuted").  A6 stands at thirteen review rounds.
+
+**For orientation.**  Both per-class ladders now have their increment engines with exact
+per-slot costs, so every rung on both sides is finite linear algebra.  The odd route's last
+item is priced at one closed-form equation on three mod-4 residues (rung 4 is free on the
+quarter locus); the named question is whether the bracket-square block lies in `sq(ker bY)`,
+and it is decidable against the graded supply already in the tree.  The M6 engine became an
+iff at every rung, which also exposed a discipline point the house caught the same wave: the
+tree's only negative routes refute the ansatz, not the shift itself, and four sites (one the
+orchestrator's own fresh annotation) said otherwise and are now scoped.  The record blocks'
+determinant collapsed to one branch-free supply at both compact rows after the phase lane
+found wave 85's diagnosis had missed an existing signed endpoint; Stokes is a theorem at
+three of four rows.  The scoreboard now elaborates the umbrella itself, closing the
+invisible-module blind spot that had fired three times.
 
 **Nine items await you; one became concrete this wave.**  The frozen quadratic flagship
 record is now the only consumer in the tree of the pilot clause spelling that the tree has
