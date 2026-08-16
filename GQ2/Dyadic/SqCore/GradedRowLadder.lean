@@ -340,6 +340,221 @@ theorem gLad_incr_pair (hj : 2 ≤ j) (u v : levelQuot G (j + 2)) {εu εv : lev
 
 end Increments
 
+/-! ## §3 The master increment, and the rung step
+
+The per-slot costs assemble into one closed cost `gLadCost` for a full correction tuple on
+the relator word, and the cost turns rung-`(j+1)` solutions of `gRowSet` into rung-`(j+2)`
+solutions: the ladder climbs by exact linear algebra in `λ_{j+1}/λ_{j+2}` and nothing else. -/
+
+section Master
+
+/-- **The increment cost of a full correction tuple on the relator word**: the three slot
+costs of the core word followed by the handle brackets, in engine order. -/
+def gLadCost {Q : Type*} [Group Q] {n : ℕ} (m ε : Fin (sqRank n) → Q) : Q :=
+  commP (ε 0) (m 1) * commP (m 0) (ε 1) * (ε 2 ^ 2 * commP (ε 2) (m 2))
+    * ((List.finRange n).map fun i =>
+        commP (ε (sqHandleIdxU i)) (m (sqHandleIdxV i))
+          * commP (m (sqHandleIdxU i)) (ε (sqHandleIdxV i))).prod
+
+private theorem gLad_listProd_succ {Q : Type*} [Monoid Q] {n : ℕ} (f : Fin (n + 1) → Q) :
+    ((List.finRange (n + 1)).map f).prod
+      = f 0 * ((List.finRange n).map fun i => f i.succ).prod := by
+  rw [List.finRange_succ, List.map_cons, List.prod_cons, List.map_map]
+  rfl
+
+/-- Peeling the first handle off the handle word (local copy of the class-five kit's
+`handleWord_succ`, which is outside this module's import cone). -/
+private theorem gLad_handleWord_succ {Q : Type*} [Group Q] {n : ℕ} (u v : Fin (n + 1) → Q) :
+    handleWord u v
+      = commP (u 0) (v 0) * handleWord (fun i => u i.succ) (fun i => v i.succ) := by
+  rw [handleWord, handleWord, List.finRange_succ, List.map_cons, List.prod_cons, List.map_map]
+  rfl
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {j : ℕ}
+
+/-- ⭐⭐ **The handle word's increment**: `λ_j`-factors on all handle letters cost the product
+of the single brackets, in `Q_{j+2}`. -/
+theorem gLad_incr_handle (hj : 2 ≤ j) {n : ℕ} (u v εu εv : Fin n → levelQuot G (j + 2))
+    (hεu : ∀ i, εu i ∈ lambdaImage G j (j + 2))
+    (hεv : ∀ i, εv i ∈ lambdaImage G j (j + 2)) :
+    handleWord (fun i => u i * εu i) (fun i => v i * εv i)
+      = handleWord u v
+        * ((List.finRange n).map fun i => commP (εu i) (v i) * commP (u i) (εv i)).prod := by
+  induction n with
+  | zero =>
+    rw [handleWord_zero, handleWord_zero, List.finRange_zero, List.map_nil, List.prod_nil,
+      mul_one]
+  | succ n ih =>
+    have hhead : commP (u 0 * εu 0) (v 0 * εv 0)
+        = commP (u 0) (v 0) * (commP (εu 0) (v 0) * commP (u 0) (εv 0)) :=
+      gLad_incr_pair hj (u 0) (v 0) (hεu 0) (hεv 0)
+    have htail := ih (fun i => u i.succ) (fun i => v i.succ) (fun i => εu i.succ)
+      (fun i => εv i.succ) (fun i => hεu i.succ) (fun i => hεv i.succ)
+    have hz : commP (εu 0) (v 0) * commP (u 0) (εv 0) ∈ zLayer G (j + 1) :=
+      Subgroup.mul_mem _ (cfive_commP_mem_zLayer_left (hεu 0) (v 0))
+        (cfive_commP_mem_zLayer_right (u 0) (hεv 0))
+    calc handleWord (fun i => u i * εu i) (fun i => v i * εv i)
+        = commP (u 0 * εu 0) (v 0 * εv 0)
+          * handleWord (fun i => u i.succ * εu i.succ) (fun i => v i.succ * εv i.succ) :=
+          gLad_handleWord_succ _ _
+      _ = commP (u 0) (v 0) * (commP (εu 0) (v 0) * commP (u 0) (εv 0))
+          * (handleWord (fun i => u i.succ) (fun i => v i.succ)
+            * ((List.finRange n).map fun i =>
+                commP (εu i.succ) (v i.succ) * commP (u i.succ) (εv i.succ)).prod) := by
+          rw [hhead, htail]
+      _ = commP (u 0) (v 0)
+          * ((commP (εu 0) (v 0) * commP (u 0) (εv 0))
+            * handleWord (fun i => u i.succ) (fun i => v i.succ))
+          * ((List.finRange n).map fun i =>
+              commP (εu i.succ) (v i.succ) * commP (u i.succ) (εv i.succ)).prod := by
+          group
+      _ = commP (u 0) (v 0)
+          * (handleWord (fun i => u i.succ) (fun i => v i.succ)
+            * (commP (εu 0) (v 0) * commP (u 0) (εv 0)))
+          * ((List.finRange n).map fun i =>
+              commP (εu i.succ) (v i.succ) * commP (u i.succ) (εv i.succ)).prod := by
+          rw [(zLayer_commute hz (handleWord (fun i => u i.succ) (fun i => v i.succ))).eq]
+      _ = (commP (u 0) (v 0) * handleWord (fun i => u i.succ) (fun i => v i.succ))
+          * ((commP (εu 0) (v 0) * commP (u 0) (εv 0))
+            * ((List.finRange n).map fun i =>
+                commP (εu i.succ) (v i.succ) * commP (u i.succ) (εv i.succ)).prod) := by
+          group
+      _ = handleWord u v
+          * ((List.finRange (n + 1)).map fun i =>
+              commP (εu i) (v i) * commP (u i) (εv i)).prod := by
+          rw [← gLad_handleWord_succ, ← gLad_listProd_succ fun i => commP (εu i) (v i)
+            * commP (u i) (εv i)]
+
+/-- ⭐⭐ **The core word's increment**: `λ_j`-factors on all three core slots cost the three
+slot costs, in `Q_{j+2}`. -/
+theorem gLad_sqWord_incr (hj : 2 ≤ j) (s x y : levelQuot G (j + 2))
+    {εs εx εy : levelQuot G (j + 2)} (hεs : εs ∈ lambdaImage G j (j + 2))
+    (hεx : εx ∈ lambdaImage G j (j + 2)) (hεy : εy ∈ lambdaImage G j (j + 2)) :
+    sqWord (s * εs) (x * εx) (y * εy)
+      = sqWord s x y * (commP εs x * commP s εx * (εy ^ 2 * commP εy y)) := by
+  rw [gLad_incr_y (s * εs) (x * εx) y hεy, gLad_incr_x (s * εs) x y hεx,
+    cfive_commP_left_hom s εs hεx, gLad_vanish (gLad_le_two hj hεs) hεx, mul_one,
+    gLad_incr_s s x y hεs]
+  group
+
+/-- The full cost lies in the central layer of `Q_{j+2}`. -/
+theorem gLad_cost_mem {n : ℕ} (m ε : Fin (sqRank n) → levelQuot G (j + 2))
+    (hε : ∀ i, ε i ∈ lambdaImage G j (j + 2)) :
+    gLadCost m ε ∈ zLayer G (j + 1) := by
+  refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _ ?_ ?_) ?_) ?_
+  · exact cfive_commP_mem_zLayer_left (hε 0) (m 1)
+  · exact cfive_commP_mem_zLayer_right (m 0) (hε 1)
+  · exact Subgroup.mul_mem _ (gLad_sq_mem_zLayer (hε 2))
+      (cfive_commP_mem_zLayer_left (hε 2) (m 2))
+  · refine list_prod_mem fun w hw => ?_
+    rw [List.mem_map] at hw
+    obtain ⟨i, -, rfl⟩ := hw
+    exact Subgroup.mul_mem _ (cfive_commP_mem_zLayer_left (hε _) (m _))
+      (cfive_commP_mem_zLayer_right (m _) (hε _))
+
+/-- ⭐⭐⭐ **THE MASTER INCREMENT**: a full `λ_j`-correction tuple on the letters of the
+relator word costs exactly `gLadCost` in `Q_{j+2}`, uniformly in the class.  This is the
+per-slot increment table of the row-move ansatz, the deliverable pattern of the M6 ladder
+(`mpcBld_incr_*`) at the square-commutator core. -/
+theorem gLad_relWord_incr (hj : 2 ≤ j) {n : ℕ} (m ε : Fin (sqRank n) → levelQuot G (j + 2))
+    (hε : ∀ i, ε i ∈ lambdaImage G j (j + 2)) :
+    sqRelWord (fun i => m i * ε i) = sqRelWord m * gLadCost m ε := by
+  have hcore := gLad_sqWord_incr hj (m 0) (m 1) (m 2) (hε 0) (hε 1) (hε 2)
+  have hhandle := gLad_incr_handle hj (fun i => m (sqHandleIdxU i))
+    (fun i => m (sqHandleIdxV i)) (fun i => ε (sqHandleIdxU i))
+    (fun i => ε (sqHandleIdxV i)) (fun i => hε _) (fun i => hε _)
+  have hC : commP (ε 0) (m 1) * commP (m 0) (ε 1) * (ε 2 ^ 2 * commP (ε 2) (m 2))
+      ∈ zLayer G (j + 1) := by
+    refine Subgroup.mul_mem _ (Subgroup.mul_mem _ ?_ ?_) ?_
+    · exact cfive_commP_mem_zLayer_left (hε 0) (m 1)
+    · exact cfive_commP_mem_zLayer_right (m 0) (hε 1)
+    · exact Subgroup.mul_mem _ (gLad_sq_mem_zLayer (hε 2))
+        (cfive_commP_mem_zLayer_left (hε 2) (m 2))
+  calc sqRelWord (fun i => m i * ε i)
+      = sqWord (m 0 * ε 0) (m 1 * ε 1) (m 2 * ε 2)
+        * handleWord (fun i => m (sqHandleIdxU i) * ε (sqHandleIdxU i))
+          (fun i => m (sqHandleIdxV i) * ε (sqHandleIdxV i)) := rfl
+    _ = (sqWord (m 0) (m 1) (m 2)
+          * (commP (ε 0) (m 1) * commP (m 0) (ε 1) * (ε 2 ^ 2 * commP (ε 2) (m 2))))
+        * (handleWord (fun i => m (sqHandleIdxU i)) (fun i => m (sqHandleIdxV i))
+          * ((List.finRange n).map fun i =>
+              commP (ε (sqHandleIdxU i)) (m (sqHandleIdxV i))
+                * commP (m (sqHandleIdxU i)) (ε (sqHandleIdxV i))).prod) := by
+        rw [hcore, hhandle]
+    _ = sqWord (m 0) (m 1) (m 2)
+        * ((commP (ε 0) (m 1) * commP (m 0) (ε 1) * (ε 2 ^ 2 * commP (ε 2) (m 2)))
+          * handleWord (fun i => m (sqHandleIdxU i)) (fun i => m (sqHandleIdxV i)))
+        * ((List.finRange n).map fun i =>
+            commP (ε (sqHandleIdxU i)) (m (sqHandleIdxV i))
+              * commP (m (sqHandleIdxU i)) (ε (sqHandleIdxV i))).prod := by
+        group
+    _ = sqWord (m 0) (m 1) (m 2)
+        * (handleWord (fun i => m (sqHandleIdxU i)) (fun i => m (sqHandleIdxV i))
+          * (commP (ε 0) (m 1) * commP (m 0) (ε 1) * (ε 2 ^ 2 * commP (ε 2) (m 2))))
+        * ((List.finRange n).map fun i =>
+            commP (ε (sqHandleIdxU i)) (m (sqHandleIdxV i))
+              * commP (m (sqHandleIdxU i)) (ε (sqHandleIdxV i))).prod := by
+        rw [(zLayer_commute hC (handleWord (fun i => m (sqHandleIdxU i))
+          (fun i => m (sqHandleIdxV i)))).eq]
+    _ = sqRelWord m * gLadCost m ε := by
+        rw [sqRelWord, gLadCost]
+        group
+
+end Master
+
+/-! ## §4 The rung step on the row ladder -/
+
+section Step
+
+variable {h : ℕ}
+
+/-- The ansatz is multiplicative in the correction tuple. -/
+theorem gLad_mark_mul (A B : ℤ_[2]) (c ε : Fin (sqRank h) → (DSq h : Type)) :
+    gRowMark h A B (fun i => c i * ε i) = fun i => gRowMark h A B c i * ε i := by
+  funext i
+  simp only [gRowMark_apply]
+  group
+
+/-- The defect of a rung-`(j+1)` solution is a central-layer class of `Q_{j+2}`. -/
+theorem gLad_defect_mem {A B : ℤ_[2]} {j : ℕ} {c : Fin (sqRank h) → (DSq h : Type)}
+    (hc : c ∈ gRowSet h A B (j + 1)) :
+    levelMk (DSq h : Type) (j + 2) (sqRelWord (gRowMark h A B c))
+      ∈ zLayer (DSq h : Type) (j + 1) :=
+  ⟨_, hc.2, rfl⟩
+
+/-- ⭐⭐⭐ **THE RUNG STEP.**  A rung-`(j+1)` solution `c` of the row ladder and a depth-`j`
+correction tuple `ε` in the carrier whose cost kills the defect in `Q_{j+2}` produce the
+rung-`(j+2)` solution `c · ε`.  Together with the engine this reduces every rung to exact
+linear algebra in the layer `λ_{j+1}/λ_{j+2}`: the defect is a central class, the reachable
+costs are the bracket images and the `x₁`-bundles of the carrier, and nothing else moves. -/
+theorem gLad_step {A B : ℤ_[2]} {j : ℕ} (hj : 2 ≤ j)
+    {c ε : Fin (sqRank h) → (DSq h : Type)} (hc : c ∈ gRowSet h A B (j + 1))
+    (hεmem : ∀ i, ε i ∈ twoCentralSeries (DSq h : Type) j)
+    (hεlam : ∀ i, nuLam h (ε i) = 1) (hεnu : ∀ i, nuSq h (ε i) = 1)
+    (hkill : levelMk (DSq h : Type) (j + 2) (sqRelWord (gRowMark h A B c))
+        * gLadCost (fun i => levelMk (DSq h : Type) (j + 2) (gRowMark h A B c i))
+          (fun i => levelMk (DSq h : Type) (j + 2) (ε i)) = 1) :
+    (fun i => c i * ε i) ∈ gRowSet h A B (j + 2) := by
+  refine ⟨fun i => ?_, ?_⟩
+  · obtain ⟨⟨hc2, hclam⟩, hcnu⟩ := gRow_mem_corr.mp (hc.1 i)
+    refine gRow_mem_corr.mpr ⟨⟨Subgroup.mul_mem _ hc2 ?_, ?_⟩, ?_⟩
+    · exact twoCentralSeries_antitone (DSq h : Type) hj (hεmem i)
+    · rw [map_mul, hclam, hεlam i, mul_one]
+    · rw [map_mul, hcnu, hεnu i, mul_one]
+  · have hone : levelMk (DSq h : Type) (j + 2)
+        (sqRelWord (gRowMark h A B fun i => c i * ε i)) = 1 := by
+      have hmk : levelMk (DSq h : Type) (j + 2)
+          (sqRelWord (gRowMark h A B fun i => c i * ε i))
+          = sqRelWord fun i => levelMk (DSq h : Type) (j + 2) (gRowMark h A B c i)
+              * levelMk (DSq h : Type) (j + 2) (ε i) := by
+        rw [gLad_mark_mul, map_sqRelWord]
+        simp only [map_mul]
+      rw [hmk, gLad_relWord_incr hj _ _ fun i => ⟨ε i, hεmem i, rfl⟩, ← map_sqRelWord]
+      exact hkill
+    exact (QuotientGroup.eq_one_iff _).mp hone
+
+end Step
+
 end SqCore
 
 end Dyadic
