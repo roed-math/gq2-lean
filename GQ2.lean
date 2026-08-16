@@ -947,6 +947,9 @@ import GQ2.Dyadic.Instances.MpcHandlePhaseData
 import GQ2.Dyadic.Instances.MpcUnramifiedHandleHessian
 import GQ2.Dyadic.Instances.MpcUnramifiedHandleComparison
 import GQ2.Dyadic.Instances.MpcGeneralHandleRealization
+import GQ2.Dyadic.Instances.MpcGeneralHandleCertificate
+import GQ2.Dyadic.Instances.MpcGeneralHandleFamily
+import GQ2.Dyadic.Instances.MpcUnramifiedProjectedData
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
@@ -974,3 +977,4 @@ import GQ2.Dyadic.Instances.OddSeam
 import GQ2.Dyadic.Instances.OddFrame
 import GQ2.Dyadic.Instances.GammaLOddNuRowsFinal
 import GQ2.Dyadic.Instances.RamifiedCertificateAnchoredSplit
+import GQ2.Dyadic.Instances.RamifiedCertificateCompatible

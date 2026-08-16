@@ -188,6 +188,10 @@ CORRECTED RN ANALYTIC|Mpc arbitrary-h unramified compact phase|decl|hessRelZ_mpc
 CORRECTED RN ANALYTIC|Mpc unramified comparison from scaled head phase|decl|exists_comparison_unramified_of_headPhase_handles
 CORRECTED RN SELECTOR BOUNDARY|Mpc scaled general-h handle correction|decl|exists_scaled_handle_correction
 CORRECTED RN SELECTOR BOUNDARY|Mpc general-h tied branch from certificate|decl|genAsmBranch_of_certificate
+CORRECTED RN SELECTOR BOUNDARY|Mpc full general-h correction from scaling|decl|markedMatching_of_scaling
+CORRECTED RN SELECTOR BOUNDARY|Mpc family certificate from C pivot and scaling|decl|certificate_of_familySelection
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected realization from C pivot and scaling|decl|realization_of_familySelection
+CORRECTED RN ANALYTIC|Mpc projected display FPF resolved row|decl|exists_resolvedFamily_unramified_smul_row_fpf_of_projected
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -225,6 +229,8 @@ ODD FINAL|odd endpoint from two nu rows|decl|gammaR_lSq_equiv_galK_oddDegree_of_
 ODD SEAM|closed corrected RN endpoint|decl|gUni_gammaR_lSq_equiv_galK
 ODD RAMIFIED DATA|canonical anchored splitting field|decl|anchoredSplitField
 ODD RAMIFIED DATA|certificate from anchored lift and involution packet|decl|ramifiedCertificateOfAnchoredSplit
+ODD RAMIFIED DATA|compatibility-aware ramified packet|decl|CompatibleRamifiedData
+ODD RAMIFIED DATA|compatible packet from two anchored atoms|decl|compatibleRamifiedData_of_anchoredResidual
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
 LEGACY ASK (COMPAT ONLY)|frozen <-> stageVanishing|decl|askC_exactLifting_iff_stageVanishing
 LEGACY ASK (COMPAT ONLY)|corrected RN at G_K|decl|exactLiftingSemanticsRN_galK
