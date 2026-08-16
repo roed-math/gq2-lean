@@ -785,6 +785,7 @@ import GQ2.Dyadic.SqCore.GradedOddClose
 import GQ2.Dyadic.SqCore.GradedClearing
 import GQ2.Dyadic.SqCore.GradedRowMove
 import GQ2.Dyadic.SqCore.GradedRowLadder
+import GQ2.Dyadic.SqCore.GradedRowResidue
 import GQ2.Dyadic.LabuteInterface
 import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
@@ -882,6 +883,8 @@ import GQ2.Dyadic.Instances.RecordBlocks
 import GQ2.Dyadic.Instances.MpcBuild
 import GQ2.Dyadic.Instances.MpcLadder
 import GQ2.Dyadic.Instances.WordPhase
+import GQ2.Dyadic.Instances.WordPhaseModel
+import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
 import GQ2.Dyadic.Instances.OddSeam
