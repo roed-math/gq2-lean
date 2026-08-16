@@ -893,6 +893,7 @@ import GQ2.Dyadic.Instances.MpcUnramifiedHessian
 import GQ2.Dyadic.Instances.PlusFormLinearShift
 import GQ2.Dyadic.Instances.MpcWordPhaseData
 import GQ2.Dyadic.Instances.MpcSqrtTenDeterminant
+import GQ2.Dyadic.Instances.MpcSqrtNegTenWordPhaseData
 import GQ2.Dyadic.Instances.WordPhaseCompactNData
 import GQ2.Dyadic.Instances.WordPhaseCompactNFinal
 import GQ2.Dyadic.Instances.WordPhaseCompactNGeneric
