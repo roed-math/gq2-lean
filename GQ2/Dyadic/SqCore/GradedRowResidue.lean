@@ -797,6 +797,142 @@ theorem gRsd_Zcost_odd_t {B t : ℤ_[2]} (ht : ¬ (2 : ℤ_[2]) ∣ t) :
 
 end OddPowers
 
+/-! ## §6 The defect at every residue, in closed atomic form
+
+`gLad_defect_bare` times the atom table.  On the even locus the whole defect IS the excess
+cost: `1` at even `t` (the free locus of rung 4 grows from the quarter to the half locus),
+and the involution `gRsdKillE` at odd `t`.  At odd `B` the y-block enters, and the defect
+collapses to `gRsdKillO` (even `t`) or `gRsdKillO'` (odd `t`). -/
+
+section DefectForms
+
+variable {h : ℕ}
+
+/-- ⭐⭐ **The even-locus defect is the excess cost alone**: at `2 | B` every twist class of
+the bare defect dies and the lambda_2-part cancels, leaving `[(w^t)^2, X Q]`. -/
+theorem gRsd_defect_even {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : (2 : ℤ_[2]) ∣ B) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+      = commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B) := by
+  have hQmem : gLadQ h B ∈ lambdaImage (DSq h : Type) 2 4 := gRsd_Q_even_mem hB
+  rw [gLad_defect_bare hsplit, gRsd_SQ_QX_even hB,
+    cfive_commP_zLayer_left (cfour_commP_mem_zLayer_right (gLadX h) hQmem) (gLadQ h B),
+    cfive_commP_zLayer_left (cfour_commP_mem_zLayer_left hQmem (gLadS h)) (gLadQ h B),
+    zLayer_sq (DSq h : Type) (cfour_commP_mem_zLayer_left hQmem (gLadX h)),
+    cfive_commP_zLayer_left (cfour_sq_mem_zLayer hQmem) (gLadY h),
+    gLad_commP_zLayer_right (gLadY h) (cfour_commP_mem_zLayer_right (gLadY h) hQmem)]
+  simp only [one_mul]
+
+/-- ⭐⭐ **RUNG 4 IS FREE ON THE HALF LOCUS**: at `2 | B` and `4 | A - 1 - B` the bare
+relator word already lies in `lambda_4`.  This extends `gLad_defect_bare_quarter` from the
+quarter locus to the whole even locus with even excess. -/
+theorem gRsd_defect_even_even_t {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : (2 : ℤ_[2]) ∣ B) (ht : (2 : ℤ_[2]) ∣ t) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1)) = 1 := by
+  rw [gRsd_defect_even hsplit hB, gRsd_Zcost_even_t ht]
+
+/-- ⭐⭐ **The even-locus defect at odd excess is the single involution `gRsdKillE`**. -/
+theorem gRsd_defect_even_odd_t {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : (2 : ℤ_[2]) ∣ B) (ht : ¬ (2 : ℤ_[2]) ∣ t) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1)) = gRsdKillE h := by
+  rw [gRsd_defect_even hsplit hB, gRsd_Zcost_odd_t ht]
+
+/-- The odd-locus kill element at even excess: `[zeta,X]` times the y-block. -/
+noncomputable def gRsdKillO (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  commP (gRsdZeta h) (gLadX h) * (gRsdKillY h * gRsdYY h)
+
+/-- The odd-locus kill element at odd excess: `zeta^2 [zeta,S]` times the y-block. -/
+noncomputable def gRsdKillO' (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadS h) * (gRsdKillY h * gRsdYY h))
+
+theorem gRsdKillO_mem : gRsdKillO h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _ gRsdZetaX_mem (Subgroup.mul_mem _ gRsdKillY_mem gRsdYY_mem)
+
+theorem gRsdKillO'_mem : gRsdKillO' h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _ (cfour_sq_mem_zLayer gRsdZeta_mem)
+    (Subgroup.mul_mem _ gRsdZetaS_mem (Subgroup.mul_mem _ gRsdKillY_mem gRsdYY_mem))
+
+/-- The raw odd-locus defect: the atom table substituted into `gLad_defect_bare`. -/
+theorem gRsd_defect_odd_raw {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : ¬ (2 : ℤ_[2]) ∣ B) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1))
+      = gRsdZeta h ^ 2 * commP (gRsdZeta h) (gLadX h)
+        * (commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h)
+          * (commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h))
+          * gRsdZeta h ^ 2 * gRsdKillY h * gRsdYY h
+          * commP (gLadQ h t ^ 2) (gLadX h * gLadQ h B)) := by
+  rw [gLad_defect_bare hsplit, gRsd_SQ_QX_odd hB, gRsd_XQQ_odd hB, gRsd_QSQ_odd hB,
+    gRsd_QX_sq_odd hB, show gLadQ h B ^ 2 = gLadQ h (2 * B) from (gLadQ_two_mul B).symm,
+    gRsd_Qeven_Y hB, gRsd_YYQ_odd hB]
+
+/-- Bubble a central involution to the front: `a (z b) = z (a b)`. -/
+private theorem gRsd_swap {z : levelQuot (DSq h : Type) 4}
+    (hz : z ∈ zLayer (DSq h : Type) 3) (a b : levelQuot (DSq h : Type) 4) :
+    a * (z * b) = z * (a * b) := by
+  rw [← mul_assoc, ((zLayer_commute hz a).eq).symm, mul_assoc]
+
+/-- Collapse an adjacent central pair: `z (z b) = b`. -/
+private theorem gRsd_pair_collapse {z : levelQuot (DSq h : Type) 4}
+    (hz : z ∈ zLayer (DSq h : Type) 3) (b : levelQuot (DSq h : Type) 4) :
+    z * (z * b) = b := by
+  rw [← mul_assoc, ← pow_two, zLayer_sq (DSq h : Type) hz, one_mul]
+
+/-- ⭐⭐ **The odd-locus defect at even excess**. -/
+theorem gRsd_defect_odd_even_t {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : ¬ (2 : ℤ_[2]) ∣ B) (ht : (2 : ℤ_[2]) ∣ t) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1)) = gRsdKillO h := by
+  have hζ₂ : gRsdZeta h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdZeta_mem
+  rw [gRsd_defect_odd_raw hsplit hB, gRsd_Zcost_even_t ht, ← pow_two,
+    zLayer_sq (DSq h : Type) (Subgroup.mul_mem _ gRsdZetaX_mem gRsdZetaS_mem), one_mul,
+    mul_one]
+  calc gRsdZeta h ^ 2 * commP (gRsdZeta h) (gLadX h)
+      * (gRsdZeta h ^ 2 * gRsdKillY h * gRsdYY h)
+      = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h)
+        * (gRsdZeta h ^ 2 * (gRsdKillY h * gRsdYY h))) := by group
+    _ = gRsdZeta h ^ 2 * (gRsdZeta h ^ 2
+        * (commP (gRsdZeta h) (gLadX h) * (gRsdKillY h * gRsdYY h))) := by
+        rw [gRsd_swap hζ₂ (commP (gRsdZeta h) (gLadX h)) (gRsdKillY h * gRsdYY h)]
+    _ = gRsdKillO h := gRsd_pair_collapse hζ₂ _
+
+/-- ⭐⭐ **The odd-locus defect at odd excess**. -/
+theorem gRsd_defect_odd_odd_t {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : ¬ (2 : ℤ_[2]) ∣ B) (ht : ¬ (2 : ℤ_[2]) ∣ t) :
+    levelMk (DSq h : Type) 4 (sqRelWord (gRowMark h A B fun _ => 1)) = gRsdKillO' h := by
+  have hζ₂ : gRsdZeta h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdZeta_mem
+  rw [gRsd_defect_odd_raw hsplit hB, gRsd_Zcost_odd_t ht, ← pow_two,
+    zLayer_sq (DSq h : Type) (Subgroup.mul_mem _ gRsdZetaX_mem gRsdZetaS_mem), one_mul,
+    gRsdKillE]
+  calc gRsdZeta h ^ 2 * commP (gRsdZeta h) (gLadX h)
+      * (gRsdZeta h ^ 2 * gRsdKillY h * gRsdYY h
+        * (gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h))))
+      = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (gRsdZeta h ^ 2 * (gRsdKillY h
+        * (gRsdYY h * (gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h)
+          * commP (gRsdZeta h) (gLadS h))))))) := by group
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (gRsdZeta h ^ 2 * (gRsdZeta h ^ 2
+        * (gRsdKillY h * (gRsdYY h * (commP (gRsdZeta h) (gLadX h)
+          * commP (gRsdZeta h) (gLadS h))))))) := by
+        rw [gRsd_swap hζ₂ (gRsdYY h) (commP (gRsdZeta h) (gLadX h)
+            * commP (gRsdZeta h) (gLadS h)),
+          gRsd_swap hζ₂ (gRsdKillY h) (gRsdYY h * (commP (gRsdZeta h) (gLadX h)
+            * commP (gRsdZeta h) (gLadS h)))]
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (gRsdKillY h
+        * (gRsdYY h * (commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h))))) := by
+        rw [gRsd_pair_collapse hζ₂ (gRsdKillY h * (gRsdYY h * (commP (gRsdZeta h) (gLadX h)
+          * commP (gRsdZeta h) (gLadS h))))]
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (commP (gRsdZeta h) (gLadX h)
+        * (gRsdKillY h * (gRsdYY h * commP (gRsdZeta h) (gLadS h))))) := by
+        rw [gRsd_swap gRsdZetaX_mem (gRsdYY h) (commP (gRsdZeta h) (gLadS h)),
+          gRsd_swap gRsdZetaX_mem (gRsdKillY h) (gRsdYY h * commP (gRsdZeta h) (gLadS h))]
+    _ = gRsdZeta h ^ 2 * (gRsdKillY h * (gRsdYY h * commP (gRsdZeta h) (gLadS h))) := by
+        rw [gRsd_pair_collapse gRsdZetaX_mem (gRsdKillY h
+          * (gRsdYY h * commP (gRsdZeta h) (gLadS h)))]
+    _ = gRsdKillO' h := by
+        rw [((zLayer_commute gRsdZetaS_mem (gRsdYY h)).eq).symm,
+          gRsd_swap gRsdZetaS_mem (gRsdKillY h) (gRsdYY h)]
+        rfl
+
+end DefectForms
+
 end SqCore
 
 end Dyadic
