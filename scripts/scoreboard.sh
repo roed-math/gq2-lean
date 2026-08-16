@@ -209,6 +209,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc selected RN residual from determinant|decl|mp
 CORRECTED RN SELECTOR BOUNDARY|Mpc selected RN residual (C pivot and scaling)|decl|mpcRowResidualRN_of_familySelection_closed
 CORRECTED RN SELECTOR BOUNDARY|Mpc selected RN residual (canonical scaling)|decl|mpcRowResidualRN_of_familySelection_canonicalScaling
 CORRECTED RN SELECTOR BOUNDARY|Mpc exact pivot has zero ordinary cup|decl|mpcPivotCupValue_eq_zero_of_exactPivot
+CORRECTED RN SELECTOR BOUNDARY|Mpc exact pivot iff filtered digit|decl|mpcExactPivot_iff_filteredPivotDigit
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected level and filtered pivot audit|decl|mpc_familySelection_level_exact_and_pivot_iff_digit
+CORRECTED RN SELECTOR BOUNDARY|Mpc exact-level counterexample to C pivot|decl|mpcFilteredLevelCounterexample_not_exactPivot
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -253,6 +256,11 @@ ODD RAMIFIED DATA|instance-aware compatible packet|decl|CompatibleRamifiedDataAt
 ODD RAMIFIED DATA|compatible residue-trivial lift residual|decl|CompatibleResidueLiftAt
 ODD RAMIFIED DATA|anchored involution-field residual|decl|AnchoredInvolutionFieldDataAt
 ODD RAMIFIED DATA|instance-aware packet from exact residuals|decl|compatibleRamifiedDataAt_of_residuals
+ODD RAMIFIED DATA|residue lift from detected commutators|decl|compatibleResidueLiftAt_of_detected_commutators
+ODD RAMIFIED DATA|residue lift at qK=2|decl|compatibleResidueLiftAt_of_qK_eq_two
+ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
+ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
+ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
 ODD RAMIFIED DATA|compatible ramified Gauss residue|decl|gaussZResidueDK_ramified_compatible
 ODD RAMIFIED DATA|compatible affine determinant|decl|affineDeterminant_galK_compatible
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
