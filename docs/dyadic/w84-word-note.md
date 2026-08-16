@@ -207,6 +207,13 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
    the computation is a `λ₄` calculation of the kind `gTower_*` already supports
    (`gTower_sq_congr`, `gTower_comm_near_add`, `cfive_commutator_lambdaTwo`).  That would turn
    §4.2 from a checked hand computation into `(mpcWordSet 4).Nonempty`.
+
+   > **[W86-HOUSE, as of `f0de6ad5`:** DONE, by wave 85's `Instances/MpcBuild.lean`
+   > (`mpcBld_mem_four_witness`, `mpcBld_nonempty_four`), with exactly this witness. So this
+   > note's present-tense claims that "the residual starts at class four" (§1 item 3, §4.1's
+   > starred line) and that §4.2's computation is "not formalized" (§4.2 preamble) are all
+   > superseded: the residue starts at class FIVE
+   > (`mpcBld_shift_of_forall_class_five`).**]**
 3. **Do not read a class-by-class stall as evidence.**  §5 shows the walk kills `M5`, which is
    a theorem.  Any future negative claim must come either from an invariant or from an
    exhaustive class-`k` search, not from a greedy ladder; and by §3 an exhaustive class-`k`

@@ -56,6 +56,14 @@ W84-WORD lane built for the `M6` move, with the low rungs proved rather than obs
    prose-only class-two balance (`PivotCoreMoves` module docstring, lower-central metric) is
    subsumed one rung up (`gRow_pair_of_forall_class_four`).
 
+   [W86-HOUSE, as of `f0de6ad5`: **"the same threshold as the `M6` ladder" is stale, and was
+   already stale when this module merged.**  This module's own claim is exact and unaffected:
+   the row-move residue does start at class 4.  But `Instances/MpcBuild.lean`, which landed on
+   `dyadic` earlier in the same wave, proves `mpcBld_nonempty_four : (mpcWordSet 4).Nonempty`,
+   so the `M6` ladder's residue starts at class FIVE.  The two ladders are one rung apart, and
+   that gap is now the interesting comparison rather than the equality.  Same correction at
+   `gRow_pair_of_forall_class_four` and in `docs/dyadic/w85-rowmove-note.md`.]
+
 6. **The composition** (section 7).  `gRow_clearing_of_forall_class`: per-class solvability
    on the unit locus discharges `SqNuOrientedClearAtUnitPivot h` through wave 84's
    `gClear_clearing_of_model`, and the seam composites carry it to `SqMarkedForwardSupply`
@@ -909,7 +917,12 @@ theorem gRow_nonempty_of_le_three {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp 
 
 /-- ⭐ **The residue, exactly**: on the unit locus the row pair follows from class-`k`
 solvability at `k >= 4` alone.  Classes at most three are theorems, so the first class that
-can obstruct a row move is class four: the same threshold the `M6` ladder starts at. -/
+can obstruct a row move is class four: the same threshold the `M6` ladder starts at.
+
+[W86-HOUSE, as of `f0de6ad5`: everything through the colon is exact and is what this theorem
+says; the clause after it is stale.  `Instances/MpcBuild.lean`'s `mpcBld_nonempty_four` solves
+the `M6` ladder's class four, so that ladder starts at class FIVE and this one starts at class
+four.  The two are one rung apart, not level.] -/
 theorem gRow_pair_of_forall_class_four {A B : ℤ_[2]} (hAB : IsUnit (A - sqPivotExp * B))
     (H : ∀ k, 4 ≤ k → (gRowSet h A B k).Nonempty) : GRowPair h A B := by
   refine gRow_pair_of_forall_class hAB fun k => ?_

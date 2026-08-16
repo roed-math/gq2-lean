@@ -40,6 +40,16 @@ with four clauses: the core-word relation, topological generation, the four χ-v
    Hence the residue is the class-`k` solvability for `k ≥ 4` alone
    (`mpcWord_shift_of_forall_class_four`).
 
+**[W86-HOUSE, as of `f0de6ad5`: read every "class four" in this module as THIS MODULE'S
+residue, not the campaign's.**  Wave 85's `Instances/MpcBuild.lean` (which imports this one, so
+nothing here can name it) proves `mpcBld_nonempty_four : (mpcWordSet 4).Nonempty`, on this very
+set, with the witness the off-tree walk below predicted.  The campaign's `M6` residue therefore
+starts at CLASS FIVE now (`mpcBld_shift_of_forall_class_five`), and each sentence below saying
+"the first class that can obstruct is class four" describes the state before that theorem.  No
+theorem here is affected and all are still consumed: `mpcBld_shift_of_forall_class_five` runs
+through `mpcWord_shift_of_forall_class_four`, and `mpcWord_mem_three` is what makes the low
+rungs free on both ladders.]
+
 ## What does not land
 
 **The decision.**  `MpcPivShift 2` is neither proved nor refuted here.  Off-tree exact `𝔽₂`
@@ -47,6 +57,10 @@ computation in the Magnus model climbs the ladder through class six without meet
 obstruction (class four is killed by `s = t = commP D̄ B̄`), and the class-by-class walk is
 shown to produce false stalls on `M5`, which is a theorem of the tree.  The lane note
 (`docs/dyadic/w84-word-note.md`) records both, and draws no conclusion in either direction.
+
+[W86-HOUSE, as of `f0de6ad5`: the parenthetical is no longer off-tree.  That exact class-four
+witness is `MpcBuild.mpcBld_mem_four_witness` and `mpcBld_nonempty_four` is its conclusion.
+Classes five and six remain off-tree, so the qualifier still holds for the rest of the walk.]
 
 Declaration prefix `mpcWord` (namespace `GQ2.Dyadic.Instances.MpcWord`).  No `sorry`, no new
 axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
@@ -390,7 +404,11 @@ theorem mpcWord_shift_of_forall_class (H : ∀ k, (mpcWordSet k).Nonempty) : Mpc
 
 The first rungs of the ladder cost nothing: *every* quadruple of `λ₂`-corrections solves the
 `M6` identity to class three.  So the whole residue of the ansatz sits at classes `k ≥ 4`, and
-the first class that can obstruct is class four. -/
+the first class that can obstruct is class four.
+
+[W86-HOUSE, as of `f0de6ad5`: the last clause is this module's state, superseded by wave 85.
+`MpcBuild.mpcBld_nonempty_four` solves class four on this set, so the first class that can
+obstruct is class FIVE.  See the module docstring's W86-HOUSE block.] -/
 
 section Central
 
@@ -472,7 +490,11 @@ end LevelThree
 core word already dies at class three: modulo `λ₃` the letters are the marked generators times
 central involutions, `B̄⁴` and the corrections all vanish, and the word collapses onto
 `mpcOrb_relation`.  So the ansatz imposes no condition below class four, and the first class
-that can obstruct is class four. -/
+that can obstruct is class four.
+
+[W86-HOUSE, as of `f0de6ad5`: the first clause is exact and is what this theorem says; the
+second is superseded, `MpcBuild.mpcBld_nonempty_four` having solved class four.  The first
+class that can obstruct is class five.] -/
 theorem mpcWord_mem_three (s t m n : (DM 2 0 : Type))
     (hs : s ∈ twoCentralSeries (DM 2 0 : Type) 2)
     (ht : t ∈ twoCentralSeries (DM 2 0 : Type) 2)
@@ -522,7 +544,12 @@ theorem mpcWord_nonempty_of_le_three {k : ℕ} (hk : k ≤ 3) : (mpcWordSet k).N
     (mpcWord_mem_three 1 1 1 1 (one_mem _) (one_mem _) (one_mem _) (one_mem _))
 
 /-- ⭐ **THE RESIDUE, EXACTLY.**  `MpcPivShift 2` follows from the class-`k` solvability of the
-`M6` ansatz for `k ≥ 4` alone: classes at most three are theorems. -/
+`M6` ansatz for `k ≥ 4` alone: classes at most three are theorems.
+
+[W86-HOUSE, as of `f0de6ad5`: the theorem is unchanged, still true and still the route every
+sharper form takes; only the superlative has moved.  Class four is a theorem too now
+(`MpcBuild.mpcBld_nonempty_four`), so the exact residue is `k ≥ 5`, and the sharp form is
+`MpcBuild.mpcBld_shift_of_forall_class_five`, which is proved through THIS theorem.] -/
 theorem mpcWord_shift_of_forall_class_four
     (H : ∀ k, 4 ≤ k → (mpcWordSet k).Nonempty) : MpcPivShift 2 := by
   refine mpcWord_shift_of_forall_class fun k => ?_
