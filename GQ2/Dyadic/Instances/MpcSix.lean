@@ -165,6 +165,35 @@ private theorem mpcSx_shuffleCD {Q : Type*} [Group Q] {m₁ m₂ m₃ l₁ l₂ 
           mpcSx_zout2 hz₃ hz₄ (y * l₁ * l₂) m₁ m₂ m₃ z₁ z₂]
         group
 
+/-- ⭐ **THE FOUR-LETTER SHUFFLE AT CLASS SIX.**  Each of `mWord`'s four factors splits as a
+marked part times a correction.  At class five every correction commuted with every marked part
+to its right and the four collected for free (`mpcFv_shuffle4`).  At class six only the third
+does: the first two corrections are `L`-valued and the marked parts they have to pass are
+`Y`-valued, so each pass costs one central bracket.  Two costs, not five, because a correction
+passes the whole remaining marked block in one step. -/
+private theorem mpcSx_shuffle4 {Q : Type*} [Group Q] {x₁ x₂ x₃ x₄ e₁ e₂ e₃ e₄ c₁ c₂ : Q}
+    (h₁ : e₁ * (x₂ * x₃ * x₄) = x₂ * x₃ * x₄ * e₁ * c₁)
+    (h₂ : e₂ * (x₃ * x₄) = x₃ * x₄ * e₂ * c₂) (h₃ : e₃ * x₄ = x₄ * e₃)
+    (k₁ : ∀ x : Q, c₁ * x = x * c₁) (k₂ : ∀ x : Q, c₂ * x = x * c₂) :
+    x₁ * e₁ * (x₂ * e₂) * (x₃ * e₃) * (x₄ * e₄)
+      = x₁ * x₂ * x₃ * x₄ * (e₁ * e₂ * e₃ * e₄ * (c₁ * c₂)) := by
+  calc x₁ * e₁ * (x₂ * e₂) * (x₃ * e₃) * (x₄ * e₄)
+      = x₁ * e₁ * x₂ * e₂ * x₃ * (e₃ * x₄) * e₄ := by group
+    _ = x₁ * e₁ * x₂ * (e₂ * (x₃ * x₄)) * e₃ * e₄ := by rw [h₃]; group
+    _ = x₁ * (e₁ * (x₂ * x₃ * x₄)) * e₂ * c₂ * e₃ * e₄ := by rw [h₂]; group
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * c₁ * e₂ * c₂ * e₃ * e₄ := by rw [h₁]; group
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * c₁ * e₂ * e₃ * c₂ * e₄ := by
+        rw [mpcSx_cmove k₂ (x₁ * x₂ * x₃ * x₄ * e₁ * c₁ * e₂) e₃]
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * c₁ * e₂ * e₃ * e₄ * c₂ := by
+        rw [mpcSx_cmove k₂ (x₁ * x₂ * x₃ * x₄ * e₁ * c₁ * e₂ * e₃) e₄]
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * e₂ * c₁ * e₃ * e₄ * c₂ := by
+        rw [mpcSx_cmove k₁ (x₁ * x₂ * x₃ * x₄ * e₁) e₂]
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * e₂ * e₃ * c₁ * e₄ * c₂ := by
+        rw [mpcSx_cmove k₁ (x₁ * x₂ * x₃ * x₄ * e₁ * e₂) e₃]
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * e₂ * e₃ * e₄ * c₁ * c₂ := by
+        rw [mpcSx_cmove k₁ (x₁ * x₂ * x₃ * x₄ * e₁ * e₂ * e₃) e₄]
+    _ = x₁ * x₂ * x₃ * x₄ * (e₁ * e₂ * e₃ * e₄ * (c₁ * c₂)) := by group
+
 /-- The head swap of §2: two `Y`-factors exchange at the cost of one central bracket. -/
 private theorem mpcSx_headswap {Q : Type*} [Group Q] (a b c E : Q) {z : Q}
     (hz : ∀ x : Q, z * x = x * z) (hzdef : a * b = b * a * z) :
@@ -670,7 +699,161 @@ theorem mpcSx_comm_letCD {q r w ν : levelQuot G 6} (hν : ν ∈ lambdaImage G 
 
 end LetterCD
 
-/-! ## §5 Axiom pins
+/-! ## §5 The class-six defect of the `M6` ansatz, in closed form
+
+`MpcFive` §4 records that at class five "the assembly costs nothing", because every correction
+lies in `L`, `L` is abelian, and `L` commutes with `Y`.  **At class six the assembly costs
+exactly two central brackets.**  The three marked parts a correction has to pass are still
+`⁅p,q⁆ ∈ Y`, `r⁴ ∈ L` and `⁅r,w⁆ ∈ Y`; what has changed is that `⁅L, Y⁆ ⊆ Z` is no longer
+trivial, so the two `L`-valued corrections `E₁` and `E₂` each pay one bracket against the marked
+block still to their right.  The pivot correction `E₃` is `M`-valued and still passes free.
+
+So the class-six defect is the class-five shape with three additions: each correction acquires
+its own new central terms (§1 to §4), and the assembly acquires the two collection costs
+
+    ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆   and   ⁅E₂, r⁴·⁅r,w⁆⁆ ,
+
+which are not terms of any letter. -/
+
+section Assembly
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- The `Ā`-letter's class-six correction, as one element (`mpcSx_sq_letA`). -/
+def mpcSxE1 (p σ z : levelQuot G 6) : levelQuot G 6 :=
+  σ ^ 2 * commP σ p * (z ^ 2 * commP z p) *
+    (commP σ z * commP (commP σ p) z * commP (commP σ p) σ)
+
+/-- The `Ā`/`B̄` bracket's class-six correction (`mpcSx_comm_letAB`). -/
+def mpcSxE2 (p q σ τ z : levelQuot G 6) : levelQuot G 6 :=
+  commP p τ * commP σ q *
+    (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ) *
+    (commP (commP p τ) z * commP z τ * commP (commP p τ) σ * commP (commP p q) z *
+      commP (commP σ q) τ * commP (commP p τ) (commP p q))
+
+/-- The pivot letter's class-six correction (`mpcSx_pow_letC`). -/
+def mpcSxE3 (q r : levelQuot G 6) : levelQuot G 6 :=
+  q ^ 8 * commP r (q ^ 2) ^ 2 *
+    (commP (r ^ 2) (q ^ 4) * commP (commP r (q ^ 2)) (r ^ 2) *
+      commP (commP r (q ^ 2)) (q ^ 4) * commP (commP r (q ^ 2)) r ^ 2)
+
+/-- The `C̄₀`/`D̄` bracket's class-six correction (`mpcSx_comm_letCD`). -/
+def mpcSxE4 (q r w ν : levelQuot G 6) : levelQuot G 6 :=
+  commP r ν * commP (q ^ 2) w *
+    (commP (q ^ 2) ν * commP (commP (q ^ 2) w) r * commP (commP r w) ν) *
+    (commP (commP r ν) (commP r w) * commP (commP (q ^ 2) w) (commP r w) *
+      commP (commP (q ^ 2) ν) r * commP (commP (q ^ 2) w) ν)
+
+/-- `E₁` is an `L`-element: it is what has to be carried past the marked block. -/
+theorem mpcSx_e1_mem {p σ z : levelQuot G 6} (hσ : σ ∈ lambdaImage G 2 6)
+    (hz : z ∈ lambdaImage G 3 6) : mpcSxE1 p σ z ∈ lambdaImage G 3 6 := by
+  have hzY : z ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hz
+  have hσp : commP σ p ∈ lambdaImage G 3 6 := mpcSx_commP_step hσ p
+  exact Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (mpcSx_sq_step hσ) hσp)
+      (mpcSx_lam_le (by omega) (Subgroup.mul_mem _ (mpcSx_sq_step hz)
+        (mpcSx_commP_step hz p))))
+    (mpcSx_lam_le (by omega) (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (mpcSx_commP_lam' hz hσ) (mpcSx_commP_lam hσp hzY)) (mpcSx_commP_lam hσp hσ)))
+
+/-- `E₂` is an `L`-element. -/
+theorem mpcSx_e2_mem {p q σ τ z : levelQuot G 6} (hσ : σ ∈ lambdaImage G 2 6)
+    (hτ : τ ∈ lambdaImage G 2 6) (hz : z ∈ lambdaImage G 3 6) :
+    mpcSxE2 p q σ τ z ∈ lambdaImage G 3 6 := by
+  have hzY : z ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) hz
+  have hpq : commP p q ∈ lambdaImage G 2 6 := mpcSx_commP_mem_two p q
+  have hpτ : commP p τ ∈ lambdaImage G 3 6 := mpcSx_commP_step' p hτ
+  have hσq : commP σ q ∈ lambdaImage G 3 6 := mpcSx_commP_step hσ q
+  have hM : commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ
+      ∈ lambdaImage G 4 6 :=
+    Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (mpcSx_commP_lam hσ hτ) (mpcSx_commP_step hz q)) (mpcSx_commP_lam hpq hσ))
+      (mpcSx_commP_lam hpq hτ)
+  have hZ : commP (commP p τ) z * commP z τ * commP (commP p τ) σ * commP (commP p q) z *
+      commP (commP σ q) τ * commP (commP p τ) (commP p q) ∈ lambdaImage G 5 6 :=
+    Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (Subgroup.mul_mem _ (Subgroup.mul_mem _ (mpcSx_commP_lam hpτ hzY)
+        (mpcSx_commP_lam hz hτ)) (mpcSx_commP_lam hpτ hσ))
+      (mpcSx_commP_lam' hz hpq)) (mpcSx_commP_lam hσq hτ)) (mpcSx_commP_lam hpτ hpq)
+  exact Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _ hpτ hσq)
+    (mpcSx_lam_le (by omega) hM)) (mpcSx_lam_le (by omega) hZ)
+
+/-- `E₃` is an `M`-element, which is why the pivot correction still passes the marked block for
+free. -/
+theorem mpcSx_e3_mem (q r : levelQuot G 6) : mpcSxE3 q r ∈ lambdaImage G 4 6 := by
+  have hq2 : q ^ 2 ∈ lambdaImage G 2 6 := mpcSx_pow_two_mem q
+  have hq4 : q ^ 4 ∈ lambdaImage G 3 6 := mpcSx_pow_four_mem q
+  have hr2 : r ^ 2 ∈ lambdaImage G 2 6 := mpcSx_pow_two_mem r
+  have hT : commP r (q ^ 2) ∈ lambdaImage G 3 6 := mpcSx_commP_step' r hq2
+  exact Subgroup.mul_mem _ (Subgroup.mul_mem _ (mpcSx_pow_eight_mem q) (mpcSx_sq_step hT))
+    (mpcSx_lam_le (by omega) (Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+      (mpcSx_commP_lam' hq4 hr2) (mpcSx_commP_lam hT hr2))
+      (mpcSx_commP_lam hT (mpcSx_lam_le (by omega) hq4)))
+      (mpcSx_sq_step (mpcSx_commP_step hT r))))
+
+/-- The `Ā`-letter's square, restated against `mpcSxE1`. -/
+theorem mpcSx_sq_letA' {p σ z : levelQuot G 6} (hσ : σ ∈ lambdaImage G 2 6)
+    (hz : z ∈ lambdaImage G 3 6) : (p * z * σ) ^ 2 = p ^ 2 * mpcSxE1 p σ z := by
+  rw [mpcSx_sq_letA hσ hz]; simp only [mpcSxE1]; group
+
+/-- The `Ā`/`B̄` bracket, restated against `mpcSxE2`. -/
+theorem mpcSx_comm_letAB' {p q σ τ z : levelQuot G 6} (hσ : σ ∈ lambdaImage G 2 6)
+    (hτ : τ ∈ lambdaImage G 2 6) (hz : z ∈ lambdaImage G 3 6) :
+    commP (p * z * σ) (q * τ) = commP p q * mpcSxE2 p q σ τ z := by
+  rw [mpcSx_comm_letAB hσ hτ hz]; simp only [mpcSxE2]; group
+
+/-- The pivot letter's fourth power, restated against `mpcSxE3`. -/
+theorem mpcSx_pow_letC' (q r : levelQuot G 6) :
+    (q ^ 2 * r) ^ 4 = r ^ 4 * mpcSxE3 q r := by
+  rw [mpcSx_pow_letC]; simp only [mpcSxE3]; group
+
+/-- The `C̄₀`/`D̄` bracket, restated against `mpcSxE4`. -/
+theorem mpcSx_comm_letCD' {q r w ν : levelQuot G 6} (hν : ν ∈ lambdaImage G 2 6) :
+    commP (q ^ 2 * r) (w * ν) = commP r w * mpcSxE4 q r w ν := by
+  rw [mpcSx_comm_letCD hν]; simp only [mpcSxE4]; group
+
+/-- ⭐⭐⭐ **THE CLASS-SIX DEFECT OF THE `M6` ANSATZ, IN CLOSED FORM**, at trivial pivot
+correction.  The analogue of `mpcFv_mWord_five` one class up:
+
+    mWord 2 (p·z·σ) (q·τ) (q²·r) (w·ν) = mWord 2 p q r w · (E₁·E₂·E₃·E₄·(C₁·C₂))
+
+with the four corrections `mpcSxE1` … `mpcSxE4` read off §1 to §4, and
+
+    C₁ = ⁅E₁, ⁅p,q⁆·r⁴·⁅r,w⁆⁆ ,   C₂ = ⁅E₂, r⁴·⁅r,w⁆⁆
+
+the two **collection costs**.  Setting `z ∈ M` and dropping every term that `⁅L, Y⁆ = 1` kills
+recovers `mpcFv_mWord_five` at `μ = 1` exactly, and kills `C₁` and `C₂` with it: those two are
+the class-six correction to `MpcFive` §4's "the assembly costs nothing", and they are terms of no
+letter.
+
+`C₁` and `C₂` are central and expand additively in either slot (`mpcSx_commP_add_left_three`,
+`mpcSx_commP_add_right_three`), so a builder who wants them term by term can have them; they are
+left folded here because the folded form is what the rung consumes. -/
+theorem mpcSx_mWord_six {p q r w σ τ ν z : levelQuot G 6}
+    (hσ : σ ∈ lambdaImage G 2 6) (hτ : τ ∈ lambdaImage G 2 6)
+    (hν : ν ∈ lambdaImage G 2 6) (hz : z ∈ lambdaImage G 3 6) :
+    mWord 2 (p * z * σ) (q * τ) (q ^ 2 * r) (w * ν)
+      = mWord 2 p q r w *
+        (mpcSxE1 p σ z * mpcSxE2 p q σ τ z * mpcSxE3 q r * mpcSxE4 q r w ν *
+          (commP (mpcSxE1 p σ z) (commP p q * r ^ 4 * commP r w) *
+            commP (mpcSxE2 p q σ τ z) (r ^ 4 * commP r w))) := by
+  have hpq : commP p q ∈ lambdaImage G 2 6 := mpcSx_commP_mem_two p q
+  have hrw : commP r w ∈ lambdaImage G 2 6 := mpcSx_commP_mem_two r w
+  have hr4 : r ^ 4 ∈ lambdaImage G 2 6 := mpcSx_lam_le (by omega) (mpcSx_pow_four_mem r)
+  have hblk1 : commP p q * r ^ 4 * commP r w ∈ lambdaImage G 2 6 :=
+    Subgroup.mul_mem _ (Subgroup.mul_mem _ hpq hr4) hrw
+  have hblk2 : r ^ 4 * commP r w ∈ lambdaImage G 2 6 := Subgroup.mul_mem _ hr4 hrw
+  simp only [mWord, show (2 : ℕ) ^ 2 = 4 from rfl]
+  rw [mpcSx_sq_letA' hσ hz, mpcSx_comm_letAB' hσ hτ hz, mpcSx_pow_letC' q r,
+    mpcSx_comm_letCD' hν]
+  exact mpcSx_shuffle4 (cfive_swap_free _ _) (cfive_swap_free _ _)
+    (mpcSx_mcomm (mpcSx_e3_mem q r) hrw)
+    (mpcSx_zcomm (mpcSx_commP_lam (mpcSx_e1_mem hσ hz) hblk1))
+    (mpcSx_zcomm (mpcSx_commP_lam (mpcSx_e2_mem hσ hτ hz) hblk2))
+
+end Assembly
+
+/-! ## §6 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -708,6 +891,18 @@ section AxiomPins
 #print axioms mpcSx_comm_letAB
 #print axioms mpcSx_pow_letC
 #print axioms mpcSx_comm_letCD
+#print axioms mpcSxE1
+#print axioms mpcSxE2
+#print axioms mpcSxE3
+#print axioms mpcSxE4
+#print axioms mpcSx_e1_mem
+#print axioms mpcSx_e2_mem
+#print axioms mpcSx_e3_mem
+#print axioms mpcSx_sq_letA'
+#print axioms mpcSx_comm_letAB'
+#print axioms mpcSx_pow_letC'
+#print axioms mpcSx_comm_letCD'
+#print axioms mpcSx_mWord_six
 
 end AxiomPins
 
