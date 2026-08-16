@@ -31,6 +31,42 @@ The degree transports `recBl_stokes_standard_congr` and `recBl_determinant_stand
 reused from `RecordBlocks`; they are word-agnostic and were already stated at general `Gam`.
 
 Sections are added as the lane lands them; the axiom pins at the end carry the honest split.
+
+## W87-HOUSE, watch round 24, as of `1541635f`
+
+Four corrections to prose in this module, none touching a statement.  Elaborated at this base:
+26 declarations, 26 pins, one each, no dangling pin.  Two more corrections are recorded at
+their own sites, `wPh_nCand_stokes` and `wPh_candidate_equiv_galK_sqrtNegTwo_branchFree`.
+
+1. **The section map above is wrong.**  The bullet headed "§3, the word-phase supply itself"
+   describes content that is not in §3.  §3 is the `ℚ₂(√−2)` row on `N0 2 0`; the even-degree
+   wall-handle phase is §4, the branch-free reduction is §5, and what the tree still owes is
+   named in §6.  The bullet is also stale in the other direction: it says §3 "records what the
+   even-degree wall analysis needs and where the tree stops short of it", whereas the module
+   BUILDS the phase (§4) and reduces both compact supplies to the single residual
+   `wPhCompactPhaseModel` (§5, §6).  The lane note's own map (`docs/dyadic/w86-phase-note.md`)
+   has the sections right.
+
+2. **`wPh_branchFree_of_phaseModel`'s docstring undercounts by one.**  It says the Gauss value
+   `wPh_compactWallHandlePhase_gaussSum_standardRam` has "two hypotheses", the `DescData`
+   fields `hquad` and `hns`.  That theorem binds three, `hq`, `hns` and `hcard`, and the proof
+   discharges `hcard` separately from the enrichment's card equation, not from `DescData`.
+   §6's own header says so correctly ("the supply's own `hcard` is the remaining input").
+
+3. **§4's docstring has the dependency backwards.**  "This is what makes `gaussUnram =
+   gaussRam` true on the nose at even degree" attributes that equality to the head being split
+   with Arf invariant `0` on both branches.  `wPh_gaussUnram_eq_gaussRam_of_even` is proved
+   from `(-1)^n = 1` for even `n` and nothing else: it names no form, no Arf and no
+   `plusFormD`, and holds for every even `n` and every `m` straight from `standardNumerics`.
+   The Arf-`0` structure is why the endpoint FORM attains that common value with no Arf
+   hypothesis, which is `wPh_compactWallHandlePhase_gaussSum_standardRam`, a different fact.
+
+4. **The axiom audit's arithmetic does not close.**  It reads "22 std-3 ... and
+   `wPh_even_two_mul_add_two` pins `propext` alone" plus "4 with campaign axioms", and
+   `22 + 4 = 26` only if the `propext`-only declaration is counted inside the 22, which would
+   make one of the 22 not std-3.  Elaborated here, the split is **21 std-3, one `propext`
+   alone, four with campaign axioms**.  Everything else in that audit checks out exactly,
+   including the five-versus-six campaign-axiom gap between the `√−2` and `√5` rows.
 -/
 
 namespace GQ2.Dyadic.Instances.WordPhase
@@ -350,7 +386,18 @@ theorem wPh_nCand_stokes_of_uniformPushed (hsimp : UniformPushedHsimp α h q) (h
 /-- **The `N0` row's `stokes` clause is a theorem, unconditionally at `2 ≤ α`**, at the degree
 spelling the row records use.  W85-BLOCKS' per-clause table marks this cell "not attempted here";
 it closes with no new hypothesis, because `NCompact.uniformPushedHsimp` is unconditional at
-`2 ≤ α` and `2 ≤ α` also discharges the resolver's `1 ≤ α`. -/
+`2 ≤ α` and `2 ≤ α` also discharges the resolver's `1 ≤ α`.
+
+[W87-HOUSE, as of `1541635f`: read "unconditionally at `2 ≤ α`" as this module's shorthand for
+"no hypothesis beyond the row's standing three".  The statement below binds `2 ≤ α`, `q ≠ 0`
+AND `Even q`, and `NCompact.uniformPushedHsimp` binds `2 ≤ α` and `Even q`, so neither is
+unconditional in the literal sense; the proof below passes `hqe` to it.  Nothing is owed at the
+frozen `N0` row, where all three are available, and §3's table row states them correctly.
+
+This is the SAME defect W86-HOUSE annotated on the `M` twin one module over, at
+`RecordBlocks.recBl_mCand_stokes`, whose headline is this one word for word.  The `N` twin
+landed in the same wave carrying the uncorrected headline, so the correction is carried across
+here rather than left to the next reader who greps this line alone.] -/
 theorem wPh_nCand_stokes (hα : 2 ≤ α) (hq0 : q ≠ 0) (hqe : Even q)
     {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo} :
     StokesDualityCertificate (GammaR (2 + 2 * h) q (nCompactW α h)) (2 + 2 * h) q P nuP
@@ -945,7 +992,22 @@ theorem wPh_candidate_equiv_galK_sqrtFive_branchFree [T2Space (GalK KSqrtFive)]
     (wPh_recBlWordPhaseSupply_of_branchFree _ _ _ _ Sdet) hvanCand hvanK
 
 /-- **`ℚ₂(√−2)` over the same branch-free supply.**  §3 with its `wPhWordPhaseSupplyN` binder
-replaced by §5's, which is literally the same statement as the one the `√5` row now takes. -/
+replaced by §5's, which is the same `Prop`-former as the one the `√5` row now takes, at this
+row's own arguments.
+
+[W87-HOUSE, as of `1541635f`: this sentence read "which is **literally the same statement** as
+the one the `√5` row now takes", and that is false.  Compare the two `Sdet` binders: this one
+is `wPhBranchFreeSupply` at `q := qOf KSqrtNegTwo FF`, `nNuZtwo 2 0` (on `DN 2 0`) and
+`nCompactW 2 0`; `wPh_candidate_equiv_galK_sqrtFive_branchFree`'s is at
+`q := qOf KSqrtFive FF`, `fieldId_mNuZtwo 2 0 _` (on `DM 2 0`) and `mCompactW 2 0`.  Four
+arguments differ, so these are two INSTANCES of one definition, not one statement.  What is
+true, and is the actual advance, is that the definition carries no branch binder and mentions
+the word only through `tame`, `pro2` and `compat`, so the same clause SHAPE now serves every
+even-degree row; §5's own header states it that way and is right.  The practical difference:
+discharging this binder once does NOT discharge the `√5` row's, and the endgame count is two
+obligations of one shape, not one obligation.  The same escalation is at §7's header ("one
+`Prop`, shared by both") and at `wPh_wordPhaseSupplyN_of_branchFree` ("at the same
+statement").] -/
 theorem wPh_candidate_equiv_galK_sqrtNegTwo_branchFree [T2Space (GalK KSqrtNegTwo)]
     (B : MarkedRecip R KSqrtNegTwo) {FF : DyadicUnitFiltration KSqrtNegTwo}
     (F : GenAsmFieldInputs KSqrtNegTwo B FF (SelectedPresentation.N0 2 0).degree)
