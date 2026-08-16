@@ -130,7 +130,12 @@ theorem mpcBld_comm_letAB {p q σ τ z : levelQuot G 4} (hσ : σ ∈ lambdaImag
     mpcBld_zcomm (cfour_commP_mem_zLayer_right p hτ) (commP p q), mul_assoc]
 
 /-- **The `C̄₀`-letter's fourth power is blind to the whole shift**: `(q²·r·μ)⁴ = r⁴`.  Both the
-`B̄²` prefix and the `Y`-correction contribute only `Z`-squares, and `Z` has exponent two. -/
+`B̄²` prefix and the `Y`-correction contribute only `Z`-squares, and `Z` has exponent two.
+
+[W86-LADDER5: true at THIS carrier (`levelQuot G 4`) and the collapse does NOT lift; at class
+five the same power is `r⁴` times four central order-dividing-two extras
+(`mpcLad_pow_letC_five`).  Do not conflate with `mpcBld_incr_pivot`, which is class-uniform
+and stands.] -/
 theorem mpcBld_pow_letC (q r : levelQuot G 4) {μ : levelQuot G 4}
     (hμ : μ ∈ lambdaImage G 2 4) : (q ^ 2 * r * μ) ^ 4 = r ^ 4 := by
   have hq2 : q ^ 2 ∈ lambdaImage G 2 4 := cfour_sq_mem_lambdaTwo q
@@ -898,7 +903,15 @@ a stall about the ansatz rather than about the walk.
 
 One caution, load bearing.  The hypothesis quantifies over a class-`(j+1)` *solution*, and a
 class-`(j+2)` solution need not be a `λ_j`-move away from one, so failing it does **not** refute
-`M6`; the refutation route remains wave 84's, a proven empty `mpcWordSet k`. -/
+`M6`; the refutation route remains wave 84's, a proven empty `mpcWordSet k`.
+
+⚠ [W86-LADDER5, as of `0a479c6e`: **the caution's premise is FALSE as written.**  `mpcWordSet`
+is antitone, so a class-`(j+2)` solution IS a class-`(j+1)` solution and is the identity
+`λ_j`-move from itself (`mpcLad_incr_one`); `mpcLad_nonempty_iff` makes the rung an iff with no
+hypothesis, and `mpcLad_eq_empty_of_no_supply` gives the refutation route this paragraph says
+does not exist: a supply failure proved over the WHOLE class-`(j+1)` solution set empties
+`mpcWordSet (j+2)`.  The true content the caution protected survives in the correct form:
+failure at ONE chosen `p` is no evidence.  See `MpcLadder.lean`.] -/
 theorem mpcBld_shift_of_full_supply
     (H : ∀ j, 3 ≤ j → ∀ p ∈ mpcWordSet (j + 1), ∃ us ut um un,
       us ∈ mpcWordCorr ∧ us ∈ twoCentralSeries (DM 2 0 : Type) j ∧

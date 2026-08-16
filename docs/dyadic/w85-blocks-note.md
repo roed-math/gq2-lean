@@ -16,7 +16,7 @@ out to be a **correction to the ticket** rather than a discharge.
 | `cand` `exactLifting` at `Γ_R` | `askCStageVanishing` at `Γ_R`, an equivalence | unchanged; §4 narrows how it could be refuted |
 | `cand` `scalar` at `Γ_R` | discharged | discharged |
 | `cand` `stokes` at `Γ_R` | **open**, "the lane did not narrow it" | **discharged**: `recBl_mCand_stokes`, unconditional at `2 ≤ α` |
-| `cand` `determinant` at `Γ_R` | **open**, "no candidate-side Gauss-`Z` supplier exists anywhere outside the `L` row" | reduced to `recBlWordPhaseSupply`, two even-degree wall-handle phase computations |
+| `cand` `determinant` at `Γ_R` | **open**, "no candidate-side Gauss-`Z` supplier exists anywhere outside the `L` row" | reduced to `recBlWordPhaseSupply`, two even-degree wall-handle phase computations [W86-PHASE: one, not two; see the §5 annotation] |
 | `ASK` `exactLifting` at `G_K` | `askCStageVanishing` at `G_K` | unchanged |
 | `ASK` `stokes` at `G_K` | discharged | discharged |
 
@@ -189,6 +189,14 @@ The compact-`M` word offers only the unsigned magnitude
 row's residual moved from "the whole determinant certificate, with no supplier anywhere" to "two
 even-degree wall-handle phase computations", which is strictly smaller and purely combinatorial.
 
+⚠ **[W86-PHASE, as of `70af2cf2`: two of this paragraph's three readings are superseded.**  A
+signed even-degree endpoint DID exist, `Certificates.nCompact_handle_form_gaussSum`
+(`Certificates/N0.lean:1067`; this note consulted the unsigned `mCompact_gauss_pow` and missed
+it), and at even degree `gaussUnram = gaussRam` (`wPh_gaussUnram_eq_gaussRam_of_even`), so the
+"two computations" are one consumed twice.  `WordPhase.lean` builds the phase and reduces both
+compact supplies to `wPhBranchFreeSupply`; the residual is `wPhCompactPhaseModel`.  What
+survives: the `L` producers are indeed odd-degree-only.  See `docs/dyadic/w86-phase-note.md`.]
+
 **The two `n = 2` numerics lemmas: confirmed absent, and routed around.**
 `Recursion/Numerics.lean` has a `section NEqOne` with six lemmas and there is no `NEqTwo`;
 `standardNumerics_two_*` does not exist anywhere in the tree.  What is genuinely missing is the
@@ -196,7 +204,8 @@ even-degree sign collapse `(-1)^(2h+2) = 1` that would reduce `gaussUnram m` to 
 (`Even.neg_one_pow` is never used anywhere under `GQ2/`).  This lane routes around it: `gaussUnram`
 and `gaussRam` are carried symbolically as `(standardNumerics (2*h+2)).gauss…` and never
 evaluated, so no numerics fact is needed at the bridge layer.  Whoever builds the supply will
-need both.
+need both.  [W86-PHASE: built, in `WordPhase.lean`; the collapse was needed, the second
+even-degree computation was not.]
 
 ---
 
@@ -227,6 +236,8 @@ structure sets it.
 2. **The even-degree wall-handle phase**, `recBlWordPhaseSupply`'s two clauses.  This is now the
    single largest analytic item on the `M` rows, and it is combinatorial: an even-degree twin of
    `GammaLUnramifiedPhase`/`GammaLRamifiedPhase`, plus the `n = 2` numerics sign collapse.
+   [W86-PHASE, as of `70af2cf2`: DONE, with the diagnosis corrected (one computation, not two;
+   the signed endpoint already existed).  The surviving residual is `wPhCompactPhaseModel`.]
 3. **A non-nilpotent frame**, if anyone still wants to refute the frozen coefficient by
    counterexample.  §4 says what shape it must have; the hard part is the boundary equation, not
    the block.  The alternative, and W81-ASK's and W84-CLAUSES' shared recommendation, is to

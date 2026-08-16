@@ -614,6 +614,18 @@ exist.  So the row's residual moves from "the whole determinant certificate, wit
 anywhere" to "two even-degree wall-handle phase computations", which is a strictly smaller and
 purely combinatorial object.
 
+⚠ [W86-PHASE, as of `70af2cf2`: **two of this paragraph's three readings are superseded.**  The
+tree DID hold a signed even-degree endpoint, `Certificates.nCompact_handle_form_gaussSum`
+(`Certificates/N0.lean:1067`, pure form theory; this paragraph consulted the unsigned
+`mCompact_gauss_pow` and missed it).  And at even degree `gaussUnram = gaussRam`
+(`wPh_gaussUnram_eq_gaussRam_of_even`: the even head is `plusFormD qbar qbar` on both branches,
+so no even analogue of the odd `arf = 1` split exists), hence the "two computations" are ONE
+consumed twice and the supply's `hunram`/`hram` binders carry no independent information.
+`WordPhase.lean` builds the phase (`wPhCompactWallHandlePhase`) and reduces both compact
+supplies (the `M` and `N` words) to the branch-free `wPhBranchFreeSupply`; the residual is
+exactly `wPhCompactPhaseModel`.  What survives of this paragraph: the `L` producers are indeed
+odd-degree-only, and the reduction §4 lands is untouched.]
+
 Two things named in the refined brief are confirmed by construction: the duality-carrying
 determinant clone is not reused (no declaration in this module takes a `TateDualityG` or a
 `LocalEulerChar`, and neither occurs anywhere in this module outside this paragraph), and
@@ -621,7 +633,9 @@ the two `n = 2` numerics facts really are absent -- `Recursion/Numerics.lean` ha
 section and no `NEqTwo`, and no `standardNumerics_two_*` exists in the tree.  §4 routes around
 them rather than building them: `gaussUnram` and `gaussRam` are carried symbolically as
 `(standardNumerics (2 * h + 2)).gauss…` and never evaluated, so no even-degree sign collapse is
-needed at this layer.  It will be needed by whoever builds the supply. -/
+needed at this layer.  It will be needed by whoever builds the supply.
+[W86-PHASE: built; the `(-1)^(2h+2) = 1` collapse and both `SourceNumerics` spellings of the
+phase value are in `WordPhase.lean`.] -/
 
 section MDeterminant
 
@@ -776,7 +790,13 @@ does not exist.
 
 So the row's residue is now **one word-phase supply and two instances of one coefficient
 `Prop`**, and the coefficient `Prop` is the same statement at both carriers, which is the finding
-W84-CLAUSES built its module around. -/
+W84-CLAUSES built its module around.
+
+[W86-PHASE, as of `70af2cf2`: the determinant line of the table is superseded, in the row's
+favour.  The supply is implied by the branch-free `wPhBranchFreeSupply` (one computation, not
+two; see the §4 annotation above), and the acceptance statement is restated over that binder as
+`wPh_candidate_equiv_galK_sqrtFive_branchFree`, axiom-neutral against
+`recBl_candidate_equiv_galK_sqrtFive`.] -/
 
 section SqrtFiveRow
 

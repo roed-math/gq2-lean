@@ -54,7 +54,9 @@ for any four `Y`-corrections and any `z ∈ Z` (the ansatz uses `z = (q⁴)⁻¹
 
 * `mpcBld_sq_letA`: `(p·z·σ)² = p²·(σ²·⁅σ,p⁆)`;
 * `mpcBld_comm_letAB`: `⁅p·z·σ, q·τ⁆ = ⁅p,q⁆·(⁅p,τ⁆·⁅σ,q⁆)`;
-* `mpcBld_pow_letC`: `(q²·r·μ)⁴ = r⁴`, the fourth power is blind to the whole shift;
+* `mpcBld_pow_letC`: `(q²·r·μ)⁴ = r⁴`, the fourth power is blind to the whole shift
+  [W86-LADDER5: at class four only; the collapse does not lift (`mpcLad_pow_letC_five` has four
+  central extras)];
 * `mpcBld_comm_letCD`: `⁅q²·r·μ, w·ν⁆ = ⁅r,w⁆·(⁅q,w⁆²·⁅⁅q,w⁆,q⁆·⁅r,ν⁆·⁅μ,w⁆)`.
 
 The two terms `⁅q,w⁆²·⁅⁅q,w⁆,q⁆` are the `B̄²` prefix's own cost, the Hall-Petrescu expansion of
@@ -97,6 +99,8 @@ letter and not against a marked generator.
 ⭐⭐ `mpcBld_incr_m`: the pivot slot buys exactly `⁅u, d⁆`.  Worth recording separately: the
 row-shifted fourth power `(q²·r·μ)⁴` does **not** see the increment at all, uniformly in the
 class, so the pivot slot is as cheap above class four as it was at class four.
+[W86-LADDER5: this sentence is about `mpcBld_incr_pivot` and STANDS at every class; it is the
+*absolute* collapse `mpcBld_pow_letC` (§2's bullet) that fails to lift.  Two different claims.]
 
 All four are exact, class-uniform, and stated in an arbitrary topological group first
 (`mpcBld_incr_far`, `mpcBld_incr_near`, `mpcBld_incr_head`, `mpcBld_incr_pivot`).  Because the
@@ -117,6 +121,12 @@ conditions.  The hypothesis of the full form quantifies over a class-`(j+1)` sol
 class-`(j+2)` solution need not be a `λ_j`-move away from one, so failing it does not refute
 `M6`.  The refutation route is unchanged: by `mpcWord_shift_of_forall_class`, a **proven empty**
 `mpcWordSet k` at one class would refute `M6` outright, and nothing weaker will do.
+
+⚠ **[W86-LADDER5, as of `0a479c6e`: the "need not be" premise is FALSE**; `mpcWordSet` is
+antitone, so it is one via the identity move, `mpcLad_nonempty_iff` is an iff at every class,
+and `mpcLad_eq_empty_of_no_supply` is a refutation route strictly weaker than a proven empty
+class ("nothing weaker will do" is also superseded).  What survives: failure at one chosen `p`
+is no evidence.  See `docs/dyadic/w86-ladder5-note.md`.]
 
 ## 5.  The tie (`MpcPivot.lean`, under the edit grant)
 
@@ -211,6 +221,13 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
    `mpcWordSet k`.  Whether the solution sets are `λ_j`-connected in this sense is a question
    nobody in the campaign has asked yet, and it is what would turn the engine into a decision
    procedure.
+
+   ⚠ **[W86-LADDER5, as of `0a479c6e`: ANSWERED, affirmatively, and "it need not be" is FALSE**:
+   `mpcWordSet` is antitone, so the converse holds via the identity move and the engine IS the
+   decision procedure this item asked for (`mpcLad_nonempty_iff`, an iff at every class;
+   `mpcLad_eq_empty_of_no_supply` the resulting refutation route).  Within a `λ_j`-orbit the
+   rung is one `𝔽₂`-linear membership test (`mpcLad_defect_orbit`); the surviving gap is the
+   orbit space of `mpcWordSet (j+1)`, not connectivity.]
 3. **The widened carrier is available but unused above class four.**  `mpcBldSet` and its
    compactness assembly are in place; wave 84's off-tree walk got one class further in the widened
    shape than the narrow one, and the Lean side is now ready for whichever a builder wants.
