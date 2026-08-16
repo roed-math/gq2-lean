@@ -701,4 +701,101 @@ theorem wPh_compactWallHandlePhase_gaussSum_standardUnram
 
 end EvenPhase
 
+
+/-! ## §5 The reduction: the even supply is branch-free and word-generic
+
+§4 says the two clauses of `recBlWordPhaseSupply` have the same target.  This section draws the
+consequence: the supply follows from a **single** statement with the branch hypothesis deleted,
+and that statement mentions the word only through `tame`, `pro2` and `compat`, so it is shared
+by every even-degree row rather than being re-stated per word.
+
+That is the honest measure of what W85-BLOCKS §5's residual costs after this lane:
+
+| | odd (`L`) row | even compact rows, before | even compact rows, after |
+| --- | --- | --- | --- |
+| clauses to supply | 2 (different targets) | 2 (assumed different) | **1** |
+| branch hypothesis used | yes (`hunram` forces `arf = 1`) | assumed yes | **no** |
+| endpoint value | `lSqWallHandlePhase_gaussSum_standard*` | **absent** | `wPh_compactWallHandlePhase_gaussSum_standard*` (§4) |
+| endpoint form | Wall head + `h` planes | absent | `wPhCompactWallHandlePhase` (§4) |
+| phase comparison | `sourceWordPhaseComparison_of_lSqUnramifiedHead` | absent | **absent** (§6) |
+
+`wPhBranchFreeSupply` is stated at an arbitrary `Gam : ProfiniteGrp` and an arbitrary degree
+`n`, because nothing in it is word-specific once the tame data is fixed: the `L` supply's
+apparent word-dependence, which W85-BLOCKS §5 correctly identified as blocking any reuse of
+`DeterminantWordPhaseSupply`, lives entirely in the *types* of `tame` and `pro2`, and those are
+this definition's parameters. -/
+
+section BranchFree
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Certificates GQ2.QuadraticFp2
+
+set_option linter.unusedVariables false in
+/-- **The branch-free word-phase supply**, at an arbitrary carrier and degree.  Compare
+`RecordBlocks.recBlWordPhaseSupply`, which is this statement twice, once with `hunram` and the
+`gaussUnram` target and once with `hram` and the `gaussRam` target.  At even degree the two
+targets agree (§4), so the branch hypotheses carry no information and one clause serves. -/
+def wPhBranchFreeSupply {Gam : ProfiniteGrp} {q : ℕ} (n : ℕ) {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom Gam (Tq q))
+    (pro2 : ContinuousMonoidHom Gam P)
+    (compat : ∀ g : (Gam : Type), nuTq q (tame g) = nuP (pro2 g)) : Prop :=
+  letI := scalarActionZmodTwo ((Gam : Type))
+  ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+    (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
+    (F : BoundaryFrameK q P H E)
+    (hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
+      (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) →
+        W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0)
+    (hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
+      (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v)
+    (m : ℕ) (hm : 1 ≤ m)
+    (hcard : Nat.card (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod = 2 ^ (2 * m))
+    (l : (SectionNine.blockFrame T Blk hE2).DR)
+    (hl : l ≠ (SectionNine.blockFrame T Blk hE2).zeroDR),
+    LSquare.WordPhaseResidueK (sourceBoundaryMapK tame pro2 compat) F
+      (blockEnrichmentDK T Blk hE2 hq0 hqe F) l hl
+      (scalarActionZmodTwo_triv _)
+      ((standardNumerics n).gaussRam m)
+
+variable {α h q : ℕ}
+
+/-- **The compact-`M` supply follows from the branch-free one.**  Both clauses of
+`RecordBlocks.recBlWordPhaseSupply` are the single branch-free clause, the unramified one after
+rewriting its target by §4's `wPh_gauss_targets_eq`. -/
+theorem wPh_recBlWordPhaseSupply_of_branchFree {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (MCompact.gamma α h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (MCompact.gamma α h q) P)
+    (compat : ∀ g : (MCompact.gamma α h q : Type), nuTq q (tame g) = nuP (pro2 g))
+    (S : wPhBranchFreeSupply (2 * h + 2) nuP tame pro2 compat) :
+    RecordBlocks.recBlWordPhaseSupply nuP tame pro2 compat :=
+  ⟨fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl _ ↦ by
+    rw [wPh_gauss_targets_eq h m]
+    exact S T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl,
+   fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl _ ↦
+    S T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl⟩
+
+/-- **The compact-`N` supply follows from the same branch-free one.**  The `N` twin of the
+previous theorem, at the same statement: `wPhBranchFreeSupply` does not mention the word. -/
+theorem wPh_wordPhaseSupplyN_of_branchFree {P : ProfiniteGrp}
+    (nuP : ContinuousMonoidHom P Ztwo)
+    (tame : ContinuousMonoidHom (NCompact.gamma α h q) (Tq q))
+    (pro2 : ContinuousMonoidHom (NCompact.gamma α h q) P)
+    (compat : ∀ g : (NCompact.gamma α h q : Type), nuTq q (tame g) = nuP (pro2 g))
+    (S : wPhBranchFreeSupply (2 * h + 2) nuP tame pro2 compat) :
+    wPhWordPhaseSupplyN nuP tame pro2 compat :=
+  ⟨fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl _ ↦ by
+    rw [wPh_gauss_targets_eq h m]
+    exact S T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl,
+   fun T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl _ ↦
+    S T Blk hE2 hq0 hqe F hsimple hVne hnt m hm hcard l hl⟩
+
+end BranchFree
+
 end GQ2.Dyadic.Instances.WordPhase
