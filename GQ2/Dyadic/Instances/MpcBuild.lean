@@ -836,7 +836,15 @@ def mpcBldIncr (t n us ut um un : (DM 2 0 : Type)) : (DM 2 0 : Type) :=
     commP (dmA 2 0) ut * commP (dmC 2 0) un
 
 /-- ⭐⭐⭐ **ONE RUNG, WITH EVERY SLOT.**  A class-`(j+1)` solution whose defect is killed by a
-reachable increment gives a class-`(j+2)` solution, explicitly. -/
+reachable increment gives a class-`(j+2)` solution, explicitly.
+
+[W86-HOUSE, as of `f0de6ad5`: the engine is SUFFICIENT and is not known to be complete over
+solutions, and this is the site a builder reaches first, so the caveat belongs here too.  It is
+stated once in the module, at `mpcBld_shift_of_full_supply`: a class-`(j+2)` solution need not
+be a `λ_j`-move away from a class-`(j+1)` one, so a walk that exhausts every increment at depth
+`j` and finds none that kills the defect has NOT shown the rung unreachable.  `mpcBldIncr`'s
+"the whole effect of a `λ_j`-move" is completeness over MOVES, which is a different statement
+and is what is proved.] -/
 theorem mpcBld_step {j : ℕ}
     {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type)}
     (hp : p ∈ mpcWordSet (j + 1)) (us ut um un : (DM 2 0 : Type))
