@@ -497,7 +497,148 @@ theorem mpcLad_defect_orbit {j : ℕ}
 
 end Reach
 
-/-! ## §4 Axiom pins
+/-! ## §4 The class-five letters
+
+§2 and §3 say what a rung is; this section starts computing the class-five one.  Wave 85's
+class-four calculus rests on two collapses that are exactly class-four facts: `z = (B̄⁴)⁻¹` is
+central in `Q₄`, and a fourth power is central there too.  In `Q₅` neither holds - `q⁴` is only a
+`λ₃`-image and `q⁸` is what is central - so each of the four factors of `mWord` acquires
+corrections.  This section computes the **pivot letter's fourth power**, which is the factor
+wave 85 found completely blind at class four.
+
+⭐⭐ It is **not** blind at class five.  `mpcBld_pow_letC` reads `(q²·r·μ)⁴ = r⁴` in `Q₄`; in `Q₅`
+
+    (q²·r·μ)⁴ = r⁴ · (q⁸ · μ⁴ · ⁅μ,r⁆² · ⁅r,q²⁆²)
+
+with all four extra factors central of order dividing two.  Two of them (`q⁸` and `⁅r,q²⁆²`) come
+from the row shift `B̄²` alone and survive at `μ = 1`, so they are present in the class-four
+witness itself.  That is the first exact class-five term of the `M6` defect. -/
+
+section ClassFive
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Every square is a `λ₂`-image, in `Q₅`. -/
+theorem mpcLad_five_sq_mem_two (p : levelQuot G 5) : p ^ 2 ∈ lambdaImage G 2 5 := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective G 5 p
+  exact ⟨a ^ 2, sq_mem_twoCentralSeries_succ G (Subgroup.mem_top a), by rw [map_pow]⟩
+
+/-- The square of a `λ₂`-image is a `λ₃`-image, in `Q₅`. -/
+theorem mpcLad_five_sq_mem_three {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5) :
+    y ^ 2 ∈ lambdaImage G 3 5 := by
+  obtain ⟨v, hv, rfl⟩ := hy
+  exact ⟨v ^ 2, sq_mem_twoCentralSeries_succ G hv, by rw [map_pow]⟩
+
+theorem mpcLad_five_three_le_two {y : levelQuot G 5} (hy : y ∈ lambdaImage G 3 5) :
+    y ∈ lambdaImage G 2 5 := by
+  obtain ⟨v, hv, rfl⟩ := hy
+  exact ⟨v, twoCentralSeries_antitone (G := G) (by omega : (2 : ℕ) ≤ 3) hv, rfl⟩
+
+/-- ⁅`λ₂`, `λ₃`⁆ dies in `Q₅`: `cfive_commutator_lambdaTwo` at `k = 3`, read downstairs.  This is
+the single fact that replaces class four's "`λ₂` is abelian". -/
+theorem mpcLad_five_vanish {y ε : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (hε : ε ∈ lambdaImage G 3 5) : commP y ε = 1 := by
+  obtain ⟨v, hv, rfl⟩ := hy
+  obtain ⟨w, hw, rfl⟩ := hε
+  have h : commP (levelMk G 5 v) (levelMk G 5 w) = levelMk G 5 (commP v w) := by
+    simp only [commP, map_mul, map_inv]
+  rw [h]
+  exact (lim_mem_twoCentralSeries_iff_levelMk 5 _).mp (cfive_commutator_lambdaTwo_swap hw hv)
+
+/-- The same with the slots exchanged. -/
+theorem mpcLad_five_vanish' {y ε : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (hε : ε ∈ lambdaImage G 3 5) : commP ε y = 1 := by
+  have h : commP ε y = (commP y ε)⁻¹ := by simp only [commP]; group
+  rw [h, mpcLad_five_vanish hy hε, inv_one]
+
+theorem mpcLad_five_commute {y ε : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (hε : ε ∈ lambdaImage G 3 5) : Commute ε y :=
+  cfour_commute_of_comm (mpcLad_five_vanish' hy hε)
+
+/-- A `λ₂`-image in the right slot of a bracket produces a `λ₃`-image. -/
+theorem mpcLad_five_commP_mem_three_right (x : levelQuot G 5) {y : levelQuot G 5}
+    (hy : y ∈ lambdaImage G 2 5) : commP x y ∈ lambdaImage G 3 5 := by
+  have h : commP x y = (commP y x)⁻¹ := by simp only [commP]; group
+  rw [h]
+  exact (lambdaImage G 3 5).inv_mem (cfive_commP_lambdaTwo_mem_lambdaThree hy x)
+
+/-- **The square of a `λ₂`-image times a `λ₃`-image splits**, because the two commute in `Q₅`. -/
+theorem mpcLad_five_sq_split {x y : levelQuot G 5} (hx : x ∈ lambdaImage G 2 5)
+    (hy : y ∈ lambdaImage G 3 5) : (x * y) ^ 2 = x ^ 2 * y ^ 2 :=
+  (mpcLad_five_commute hx hy).symm.mul_pow 2
+
+/-- **A central factor drops out of a square** in `Q₅`, the layer being of exponent two. -/
+theorem mpcLad_five_sq_drop {x z : levelQuot G 5} (hz : z ∈ zLayer G 4) :
+    (x * z) ^ 2 = x ^ 2 := by
+  rw [cfour_sq_mul, cfive_commP_zLayer_left hz x, cfour_one_comm, mul_one, mul_one,
+    zLayer_sq G hz, mul_one]
+
+/-- **The correction is invisible in the squared shift bracket**: the two brackets differ by
+`⁅μ, q²⁆`, which is central of order dividing two, so it dies on squaring. -/
+theorem mpcLad_five_commP_sq_drop {r μ v : levelQuot G 5} (hμ : μ ∈ lambdaImage G 2 5)
+    (hv : v ∈ lambdaImage G 2 5) : commP (r * μ) v ^ 2 = commP r v ^ 2 := by
+  have h1 : commP (r * μ) v = commP r v * commP μ v := by
+    rw [cfour_commP_mul_left,
+      mpcLad_five_vanish' hμ (mpcLad_five_commP_mem_three_right r hv), mul_one]
+  have h2 : commP μ v ∈ zLayer G 4 := cfive_commP_lambdaTwo_mem_zLayer hμ hv
+  rw [h1, (zLayer_commute h2 (commP r v)).symm.mul_pow 2, zLayer_sq G h2, mul_one]
+
+/-- ⭐⭐ **THE PIVOT LETTER'S FOURTH POWER AT CLASS FIVE.**  Wave 85's `mpcBld_pow_letC` reads
+`(q²·r·μ)⁴ = r⁴` in `Q₄`: the fourth power is blind to the whole row shift and to the
+correction.  One class up it is not.  Four central factors survive, and two of them
+(`q⁸` and `⁅r,q²⁆²`) do not involve the correction at all, so they are already present in the
+class-four witness. -/
+theorem mpcLad_pow_letC_five (q r : levelQuot G 5) {μ : levelQuot G 5}
+    (hμ : μ ∈ lambdaImage G 2 5) :
+    (q ^ 2 * r * μ) ^ 4
+      = r ^ 4 * (q ^ 8 * (μ ^ 4 * (commP μ r ^ 2 * commP r (q ^ 2) ^ 2))) := by
+  have e4 : (q ^ 2) ^ 2 = q ^ 4 := by rw [← pow_mul]
+  have e8 : (q ^ 4) ^ 2 = q ^ 8 := by rw [← pow_mul]
+  have hv : q ^ 2 ∈ lambdaImage G 2 5 := mpcLad_five_sq_mem_two q
+  have hq4 : q ^ 4 ∈ lambdaImage G 3 5 := cfive_pow_four_mem_lambdaThree q
+  have hq8 : q ^ 8 ∈ zLayer G 4 := cfive_pow_eight_mem_zLayer q
+  -- Step B: the fourth power of `r * μ`
+  have hcm : commP μ r ∈ lambdaImage G 3 5 := cfive_commP_lambdaTwo_mem_lambdaThree hμ r
+  have hμ2 : μ ^ 2 ∈ lambdaImage G 3 5 := mpcLad_five_sq_mem_three hμ
+  have hT' : μ ^ 2 * commP μ r ∈ lambdaImage G 3 5 := Subgroup.mul_mem _ hμ2 hcm
+  have hB2 : (r * μ) ^ 2 = r ^ 2 * (μ ^ 2 * commP μ r) := by
+    rw [cfour_sq_mul, mpcLad_five_vanish' hμ hcm, mul_one, mul_assoc]
+  have hB4 : (r * μ) ^ 4 = r ^ 4 * (μ ^ 4 * commP μ r ^ 2) := by
+    have h : (r * μ) ^ 4 = ((r * μ) ^ 2) ^ 2 := by rw [← pow_mul]
+    rw [h, hB2, mpcLad_five_sq_split (mpcLad_five_sq_mem_two r) hT',
+      (mpcLad_five_commute (mpcLad_five_three_le_two hcm) hμ2).mul_pow 2,
+      show ((r : levelQuot G 5) ^ 2) ^ 2 = r ^ 4 from by rw [← pow_mul],
+      show ((μ : levelQuot G 5) ^ 2) ^ 2 = μ ^ 4 from by rw [← pow_mul]]
+  -- Step A: the fourth power of the whole letter
+  have hR2 : (r * μ) ^ 2 ∈ lambdaImage G 2 5 := mpcLad_five_sq_mem_two _
+  have hT : commP (r * μ) (q ^ 2) ∈ lambdaImage G 3 5 :=
+    mpcLad_five_commP_mem_three_right _ hv
+  have hM : commP (commP (r * μ) (q ^ 2)) (r * μ) ∈ zLayer G 4 :=
+    cfive_commP_mem_zLayer_left hT _
+  have hS : q ^ 4 * (r * μ) ^ 2 ∈ lambdaImage G 2 5 :=
+    Subgroup.mul_mem _ (mpcLad_five_three_le_two hq4) hR2
+  have hA2 : (q ^ 2 * (r * μ)) ^ 2
+      = q ^ 4 * (r * μ) ^ 2 * commP (r * μ) (q ^ 2) *
+        commP (commP (r * μ) (q ^ 2)) (r * μ) := by
+    rw [cfour_sq_mul, e4]
+  have hA4 : (q ^ 2 * (r * μ)) ^ 4
+      = q ^ 8 * (r * μ) ^ 4 * commP (r * μ) (q ^ 2) ^ 2 := by
+    have h : (q ^ 2 * (r * μ)) ^ 4 = ((q ^ 2 * (r * μ)) ^ 2) ^ 2 := by rw [← pow_mul]
+    rw [h, hA2, mpcLad_five_sq_drop hM, mpcLad_five_sq_split hS hT,
+      (mpcLad_five_commute hR2 hq4).mul_pow 2, e8,
+      show ((r * μ : levelQuot G 5) ^ 2) ^ 2 = (r * μ) ^ 4 from by rw [← pow_mul]]
+  have hq8c : ∀ x : levelQuot G 5, q ^ 8 * x = x * q ^ 8 := fun x => (zLayer_commute hq8 x).eq
+  calc (q ^ 2 * r * μ) ^ 4 = (q ^ 2 * (r * μ)) ^ 4 := by rw [mul_assoc]
+    _ = q ^ 8 * (r * μ) ^ 4 * commP (r * μ) (q ^ 2) ^ 2 := hA4
+    _ = q ^ 8 * (r ^ 4 * (μ ^ 4 * commP μ r ^ 2)) * commP r (q ^ 2) ^ 2 := by
+        rw [hB4, mpcLad_five_commP_sq_drop hμ hv]
+    _ = r ^ 4 * (q ^ 8 * (μ ^ 4 * (commP μ r ^ 2 * commP r (q ^ 2) ^ 2))) := by
+        rw [← mul_assoc (q ^ 8) (r ^ 4), hq8c (r ^ 4)]
+        group
+
+end ClassFive
+
+/-! ## §5 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -538,6 +679,17 @@ section AxiomPins
 #print axioms mpcLad_reach_sq
 #print axioms mpcLad_reach_base_indep
 #print axioms mpcLad_defect_orbit
+#print axioms mpcLad_five_sq_mem_two
+#print axioms mpcLad_five_sq_mem_three
+#print axioms mpcLad_five_three_le_two
+#print axioms mpcLad_five_vanish
+#print axioms mpcLad_five_vanish'
+#print axioms mpcLad_five_commute
+#print axioms mpcLad_five_commP_mem_three_right
+#print axioms mpcLad_five_sq_split
+#print axioms mpcLad_five_sq_drop
+#print axioms mpcLad_five_commP_sq_drop
+#print axioms mpcLad_pow_letC_five
 
 end AxiomPins
 
