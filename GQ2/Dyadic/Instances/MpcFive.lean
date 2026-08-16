@@ -192,6 +192,36 @@ theorem mpcFv_commP_two_add_left {y y' : levelQuot G 5} (hy : y ∈ lambdaImage 
     commP (y * x) y' = commP y y' * commP x y' :=
   cfive_commP_lambdaTwo_hom_left hy hy' x
 
+/-- Moving an `L`-factor one place to the right past a `Y`-factor. -/
+private theorem mpcFv_lmove {y ε : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (hε : ε ∈ lambdaImage G 3 5) (x : levelQuot G 5) : x * ε * y = x * y * ε := by
+  rw [mul_assoc, mpcFv_lycomm hy hε, ← mul_assoc]
+
+/-- **The left slot of a bracket doubles up**, exactly as at class four: the correction
+`⁅⁅q,w⁆,q⁆` is an `L`-element and commutes with the `Y`-element `⁅q,w⁆`.  This is the identity
+that turns `⁅q², w⁆` into the class-four shape `⁅q,w⁆²·⁅⁅q,w⁆,q⁆`. -/
+theorem mpcFv_commP_sq_left (q w : levelQuot G 5) :
+    commP (q ^ 2) w = commP q w ^ 2 * commP (commP q w) q := by
+  have hqw : commP q w ∈ lambdaImage G 2 5 := mpcFv_commP_mem_two q w
+  have hk : commP (commP q w) q ∈ lambdaImage G 3 5 := mpcFv_commP_mem_three_left hqw q
+  rw [pow_two q, cfour_commP_mul_left q q w, mpcFv_lmove hqw hk (commP q w),
+    ← pow_two (commP q w)]
+
+/-- A product `m₁·z₁·(m₂·z₂)·z₃` with `z₁` central collects into `m₁·m₂·(z₁·z₂·z₃)`. -/
+private theorem mpcFv_join3 {Q : Type*} [Group Q] {z₁ : Q} (h₁ : ∀ x : Q, z₁ * x = x * z₁)
+    (m₁ m₂ z₂ z₃ : Q) : m₁ * z₁ * (m₂ * z₂) * z₃ = m₁ * m₂ * (z₁ * z₂ * z₃) := by
+  calc m₁ * z₁ * (m₂ * z₂) * z₃ = m₁ * z₁ * m₂ * z₂ * z₃ := by group
+    _ = m₁ * m₂ * z₁ * z₂ * z₃ := by rw [mpcFv_cmove h₁ m₁ m₂]
+    _ = m₁ * m₂ * (z₁ * z₂ * z₃) := by group
+
+/-- Exchanging the first and third factors of a four-term product, all three commutations
+supplied. -/
+private theorem mpcFv_swap4 {Q : Type*} [Group Q] {x y u : Q} (hxy : x * y = y * x)
+    (hxu : x * u = u * x) (hyu : y * u = u * y) (v : Q) : x * y * u * v = u * y * x * v := by
+  calc x * y * u * v = y * x * u * v := by rw [hxy]
+    _ = y * u * x * v := by rw [mul_assoc y x u, hxu, ← mul_assoc]
+    _ = u * y * x * v := by rw [hyu]
+
 end Calculus
 
 /-! ## §1 The `Ā`-letter's square
@@ -235,7 +265,171 @@ theorem mpcFv_sq_letA {p σ z : levelQuot G 5} (hσ : σ ∈ lambdaImage G 2 5)
 
 end LetterA
 
-/-! ## §2 Axiom pins
+/-! ## §2 The `Ā`/`B̄` bracket
+
+`mpcBld_comm_letAB` reads `⁅p·z·σ, q·τ⁆ = ⁅p,q⁆·(⁅p,τ⁆·⁅σ,q⁆)` in `Q₄`: only the two
+first-order terms survive, because at class four a correction of a correction is a bracket of two
+`Y`-elements and dies.  At class five `⁅Y,Y⁆` is central but not trivial, so three such terms
+survive - `⁅σ,τ⁆` and the two `⁅⁅p,q⁆, ·⁆` - and `z` contributes `⁅z,q⁆`.  All four are central
+of order dividing two. -/
+
+section LetterAB
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **THE `Ā`/`B̄` BRACKET AT CLASS FIVE.**
+
+    ⁅p·z·σ, q·τ⁆ = ⁅p,q⁆ · (⁅p,τ⁆·⁅σ,q⁆) · (⁅σ,τ⁆·⁅z,q⁆·⁅⁅p,q⁆,σ⁆·⁅⁅p,q⁆,τ⁆) .
+
+The first two groups are `mpcBld_comm_letAB`; the third is central of exponent two and is `1` in
+`Q₄`, where `⁅Y,Y⁆ = 1` kills the three bracket-of-bracket terms and `z ∈ Z` kills `⁅z,q⁆`. -/
+theorem mpcFv_comm_letAB {p q σ τ z : levelQuot G 5} (hσ : σ ∈ lambdaImage G 2 5)
+    (hτ : τ ∈ lambdaImage G 2 5) (hz : z ∈ lambdaImage G 3 5) :
+    commP (p * z * σ) (q * τ)
+      = commP p q * (commP p τ * commP σ q) *
+        (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ) := by
+  have hpq : commP p q ∈ lambdaImage G 2 5 := mpcFv_commP_mem_two p q
+  have hpτ : commP p τ ∈ lambdaImage G 3 5 := mpcFv_commP_mem_three_right p hτ
+  have hσq : commP σ q ∈ lambdaImage G 3 5 := mpcFv_commP_mem_three_left hσ q
+  have hzq : commP z q ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_left hz q
+  have hστ : commP σ τ ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_two hσ hτ
+  have hpqσ : commP (commP p q) σ ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_two hpq hσ
+  -- the `Ā`-letter against the `B̄`-correction: `z` is invisible, `σ` is not
+  have h1 : commP (p * z) τ = commP p τ := by
+    rw [cfour_commP_mul_left p z τ, mpcFv_vanish33 hpτ hz, mpcFv_vanish' hτ hz, mul_one, mul_one]
+  have h2 : commP (p * z * σ) τ = commP p τ * commP σ τ := by
+    rw [cfour_commP_mul_left (p * z) σ τ, h1, mpcFv_vanish' hσ hpτ, mul_one]
+  -- the `Ā`-letter against the marked `B̄`
+  have h3 : commP (p * z) q = commP p q * commP z q := by
+    rw [cfour_commP_mul_left p z q, mpcFv_vanish hpq hz, mul_one]
+  have h4 : commP (p * z * σ) q
+      = commP p q * commP σ q * (commP z q * commP (commP p q) σ) := by
+    rw [cfour_commP_mul_left (p * z) σ q, h3,
+      mpcFv_commP_two_add_left hpq hσ (commP z q),
+      mpcFv_commP_zLayer_left hzq σ, mul_one,
+      mpcFv_cmove (mpcFv_zcomm hpqσ) (commP p q * commP z q) (commP σ q),
+      mpcFv_cmove (mpcFv_zcomm hzq) (commP p q) (commP σ q), mul_assoc]
+  -- the second-order correction sees only the marked bracket
+  have h5 : commP (commP (p * z * σ) q) τ = commP (commP p q) τ := by
+    have hY : commP p q * commP σ q ∈ lambdaImage G 2 5 :=
+      Subgroup.mul_mem _ hpq (mpcFv_three_le_two hσq)
+    rw [h4, mpcFv_commP_two_add_left hY hτ (commP z q * commP (commP p q) σ),
+      mpcFv_commP_zLayer_left (Subgroup.mul_mem _ hzq hpqσ) τ, mul_one,
+      mpcFv_commP_two_add_left hpq hτ (commP σ q), mpcFv_vanish' hτ hσq, mul_one]
+  calc commP (p * z * σ) (q * τ)
+      = commP (p * z * σ) τ * commP (p * z * σ) q * commP (commP (p * z * σ) q) τ :=
+        cfour_commP_mul_right _ _ _
+    _ = commP p τ * commP σ τ *
+          (commP p q * commP σ q * (commP z q * commP (commP p q) σ)) *
+        commP (commP p q) τ := by rw [h5, h4, h2]
+    _ = commP p τ * (commP p q * commP σ q) *
+          (commP σ τ * (commP z q * commP (commP p q) σ) * commP (commP p q) τ) :=
+        mpcFv_join3 (mpcFv_zcomm hστ) _ _ _ _
+    _ = commP p q * (commP p τ * commP σ q) *
+          (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ) := by
+        rw [← mul_assoc (commP p τ) (commP p q) (commP σ q), mpcFv_lycomm hpq hpτ]
+        group
+
+end LetterAB
+
+/-! ## §3 The `C̄₀`/`D̄` bracket
+
+`mpcBld_comm_letCD` reads
+
+    ⁅q²·r·μ, w·ν⁆ = ⁅r,w⁆ · (⁅q,w⁆²·⁅⁅q,w⁆,q⁆·⁅r,ν⁆·⁅μ,w⁆)
+
+in `Q₄`, and calls the first two factors of the second group "the `B̄²` prefix's own cost".  At
+class five five more terms survive, all central of order dividing two, and all of them
+bracket-of-bracket or `⁅Y,Y⁆` terms that class four kills for the same single reason. -/
+
+section LetterCD
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐ **THE `C̄₀`/`D̄` BRACKET AT CLASS FIVE.**
+
+    ⁅q²·r·μ, w·ν⁆ = ⁅r,w⁆ · (⁅q,w⁆²·⁅⁅q,w⁆,q⁆·⁅r,ν⁆·⁅μ,w⁆)
+                          · (⁅q²,ν⁆·⁅μ,ν⁆·⁅⁅q²,w⁆,r⁆·⁅⁅r,w⁆,μ⁆·⁅⁅r,w⁆,ν⁆) .
+
+The first two groups are `mpcBld_comm_letCD`; the third is central of exponent two and vanishes
+at class four, where `⁅Y,Y⁆ = 1` kills `⁅q²,ν⁆` and `⁅μ,ν⁆` and the last two, and `⁅q²,w⁆ ∈ Z`
+kills the middle one. -/
+theorem mpcFv_comm_letCD {q r w μ ν : levelQuot G 5} (hμ : μ ∈ lambdaImage G 2 5)
+    (hν : ν ∈ lambdaImage G 2 5) :
+    commP (q ^ 2 * r * μ) (w * ν)
+      = commP r w * (commP q w ^ 2 * commP (commP q w) q * commP r ν * commP μ w) *
+        (commP (q ^ 2) ν * commP μ ν * commP (commP (q ^ 2) w) r * commP (commP r w) μ *
+          commP (commP r w) ν) := by
+  rw [← mpcFv_commP_sq_left q w]
+  have hq2 : q ^ 2 ∈ lambdaImage G 2 5 := mpcLad_five_sq_mem_two q
+  have hq2w : commP (q ^ 2) w ∈ lambdaImage G 3 5 := mpcFv_commP_mem_three_left hq2 w
+  have hq2ν : commP (q ^ 2) ν ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_two hq2 hν
+  have hrν : commP r ν ∈ lambdaImage G 3 5 := mpcFv_commP_mem_three_right r hν
+  have hμν : commP μ ν ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_two hμ hν
+  have hrw : commP r w ∈ lambdaImage G 2 5 := mpcFv_commP_mem_two r w
+  have hμw : commP μ w ∈ lambdaImage G 3 5 := mpcFv_commP_mem_three_left hμ w
+  have hq2wr : commP (commP (q ^ 2) w) r ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_left hq2w r
+  have hrwμ : commP (commP r w) μ ∈ zLayer G 4 := mpcFv_commP_mem_zLayer_two hrw hμ
+  -- the pivot letter against the `D̄`-correction
+  have h1 : commP (q ^ 2 * r) ν = commP (q ^ 2) ν * commP r ν := by
+    rw [cfour_commP_mul_left (q ^ 2) r ν, mpcFv_commP_zLayer_left hq2ν r, mul_one]
+  have h2 : commP (q ^ 2 * r * μ) ν = commP r ν * (commP (q ^ 2) ν * commP μ ν) := by
+    rw [cfour_commP_mul_left (q ^ 2 * r) μ ν, h1,
+      mpcFv_vanish' hμ (Subgroup.mul_mem _ (mpcFv_zLayer_le_three hq2ν) hrν), mul_one,
+      mpcFv_zcomm hq2ν (commP r ν), mul_assoc]
+  -- the pivot letter against the marked `D̄`
+  have h3 : commP (q ^ 2 * r) w
+      = commP (q ^ 2) w * commP r w * commP (commP (q ^ 2) w) r := by
+    rw [cfour_commP_mul_left (q ^ 2) r w,
+      mpcFv_cmove (mpcFv_zcomm hq2wr) (commP (q ^ 2) w) (commP r w)]
+  have h4 : commP (q ^ 2 * r * μ) w
+      = commP (q ^ 2) w * commP r w * commP μ w *
+        (commP (commP (q ^ 2) w) r * commP (commP r w) μ) := by
+    have hY : commP (q ^ 2) w * commP r w ∈ lambdaImage G 2 5 :=
+      Subgroup.mul_mem _ (mpcFv_three_le_two hq2w) hrw
+    rw [cfour_commP_mul_left (q ^ 2 * r) μ w, h3,
+      mpcFv_commP_two_add_left hY hμ (commP (commP (q ^ 2) w) r),
+      mpcFv_commP_zLayer_left hq2wr μ, mul_one,
+      mpcFv_commP_two_add_left (mpcFv_three_le_two hq2w) hμ (commP r w),
+      mpcFv_vanish' hμ hq2w, one_mul,
+      mpcFv_cmove (mpcFv_zcomm hrwμ) (commP (q ^ 2) w * commP r w *
+        commP (commP (q ^ 2) w) r) (commP μ w),
+      mpcFv_cmove (mpcFv_zcomm hq2wr) (commP (q ^ 2) w * commP r w) (commP μ w), mul_assoc]
+  -- the second-order correction sees only the marked bracket
+  have h5 : commP (commP (q ^ 2 * r * μ) w) ν = commP (commP r w) ν := by
+    have hY : commP (q ^ 2) w * commP r w * commP μ w ∈ lambdaImage G 2 5 :=
+      Subgroup.mul_mem _ (Subgroup.mul_mem _ (mpcFv_three_le_two hq2w) hrw)
+        (mpcFv_three_le_two hμw)
+    have hY' : commP (q ^ 2) w * commP r w ∈ lambdaImage G 2 5 :=
+      Subgroup.mul_mem _ (mpcFv_three_le_two hq2w) hrw
+    rw [h4, mpcFv_commP_two_add_left hY hν (commP (commP (q ^ 2) w) r * commP (commP r w) μ),
+      mpcFv_commP_zLayer_left (Subgroup.mul_mem _ hq2wr hrwμ) ν, mul_one,
+      mpcFv_commP_two_add_left hY' hν (commP μ w), mpcFv_vanish' hν hμw, mul_one,
+      mpcFv_commP_two_add_left (mpcFv_three_le_two hq2w) hν (commP r w),
+      mpcFv_vanish' hν hq2w, one_mul]
+  calc commP (q ^ 2 * r * μ) (w * ν)
+      = commP (q ^ 2 * r * μ) ν * commP (q ^ 2 * r * μ) w *
+          commP (commP (q ^ 2 * r * μ) w) ν := cfour_commP_mul_right _ _ _
+    _ = commP r ν * (commP (q ^ 2) ν * commP μ ν) *
+          (commP (q ^ 2) w * commP r w * commP μ w *
+            (commP (commP (q ^ 2) w) r * commP (commP r w) μ)) *
+        commP (commP r w) ν := by rw [h5, h4, h2]
+    _ = commP r ν * (commP (q ^ 2) w * commP r w * commP μ w) *
+          (commP (q ^ 2) ν * commP μ ν *
+            (commP (commP (q ^ 2) w) r * commP (commP r w) μ) * commP (commP r w) ν) :=
+        mpcFv_join3 (mpcFv_zcomm (Subgroup.mul_mem _ hq2ν hμν)) _ _ _ _
+    _ = commP r w * (commP (q ^ 2) w * commP r ν * commP μ w) *
+          (commP (q ^ 2) ν * commP μ ν * commP (commP (q ^ 2) w) r *
+            commP (commP r w) μ * commP (commP r w) ν) := by
+        rw [← mul_assoc (commP r ν) (commP (q ^ 2) w * commP r w) (commP μ w),
+          ← mul_assoc (commP r ν) (commP (q ^ 2) w) (commP r w),
+          mpcFv_swap4 (mpcFv_lycomm (mpcFv_three_le_two hq2w) hrν)
+            (mpcFv_lycomm hrw hrν) (mpcFv_lycomm hrw hq2w) (commP μ w)]
+        group
+
+end LetterCD
+
+/-! ## §4 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -261,7 +455,10 @@ section AxiomPins
 #print axioms mpcFv_commP_right_add
 #print axioms mpcFv_commP_inv_left
 #print axioms mpcFv_commP_two_add_left
+#print axioms mpcFv_commP_sq_left
 #print axioms mpcFv_sq_letA
+#print axioms mpcFv_comm_letAB
+#print axioms mpcFv_comm_letCD
 
 end AxiomPins
 
