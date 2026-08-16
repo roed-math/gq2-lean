@@ -130,8 +130,9 @@ noncomputable def dmModel : Model (levelQuot (DM 2 0 : Type) 6) :=
     (fun | .A => dmA 2 0 | .B => dmB 2 0 | .C => dmC 2 0 | .D => dmD 2 0) (by
       rw [eval_mRel, mpcOrb_relation, map_one])
 
-/-! A tiny proof-producing checker.  Congruence is recursive; the only collection-specific
-primitive is `swap`, and `deep` deletes a term after the Boolean depth check. -/
+/-! A tiny proof-producing checker.  Congruence is recursive; `swap` and the three exact free
+collection identities expand a commutator or square over a product with every correction term
+retained, and `deep` deletes a term only after the Boolean depth check. -/
 
 inductive Deriv where
   | refl (w : CWord)
@@ -149,6 +150,9 @@ inductive Deriv where
   | inv_mul (x : CWord)
   | mul_inv (x : CWord)
   | swap (x y : CWord)
+  | comm_mul_left (x z y : CWord)
+  | comm_mul_right (x y z : CWord)
+  | sq_mul (x y : CWord)
   deriving Repr
 
 namespace Deriv
@@ -169,6 +173,9 @@ mutual
     | .inv_mul x => .mul (.inv x) x
     | .mul_inv x => .mul x (.inv x)
     | .swap x y => .mul x y
+    | .comm_mul_left x z y => .comm (.mul x z) y
+    | .comm_mul_right x y z => .comm x (.mul y z)
+    | .sq_mul x y => .sq (.mul x y)
 
   def rhs : Deriv → CWord
     | .refl w => w
@@ -183,11 +190,18 @@ mutual
     | .one_mul x | .mul_one x => x
     | .inv_mul _ | .mul_inv _ => .one
     | .swap x y => .mul (.mul y x) (.comm x y)
+    | .comm_mul_left x z y =>
+        .mul (.mul (.comm x y) (.comm (.comm x y) z)) (.comm z y)
+    | .comm_mul_right x y z =>
+        .mul (.mul (.comm x z) (.comm x y)) (.comm (.comm x y) z)
+    | .sq_mul x y =>
+        .mul (.mul (.mul (.sq x) (.sq y)) (.comm y x)) (.comm (.comm y x) y)
 end
 
 def check : Deriv → Bool
   | .refl _ | .rel | .assoc _ _ _ | .one_mul _ | .mul_one _ | .inv_mul _ |
-      .mul_inv _ | .swap _ _ => true
+      .mul_inv _ | .swap _ _ | .comm_mul_left _ _ _ | .comm_mul_right _ _ _ |
+      .sq_mul _ _ => true
   | .deep w => decide (6 ≤ w.depth)
   | .symm d | .inv d | .sq d => d.check
   | .trans d e => d.check && e.check && decide (d.rhs = e.lhs)
@@ -230,6 +244,15 @@ theorem sound {Q : Type*} [Group Q] (M : Model Q) :
   | mul_inv x => simp only [lhs, rhs, eval, mul_inv_cancel]
   | swap x y =>
       simp only [lhs, rhs, eval, commP]
+      group
+  | comm_mul_left x z y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_mul_right x y z =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | sq_mul x y =>
+      simp only [lhs, rhs, eval, commP, pow_two]
       group
 
 /-! One nontrivial checked derivation: a weight-five term commuted with a generator is erased
