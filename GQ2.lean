@@ -911,6 +911,7 @@ import GQ2.Dyadic.Instances.NpcCandidateRN
 import GQ2.Dyadic.Instances.NpcCandidateFinal
 import GQ2.Dyadic.Instances.NpcCertificate
 import GQ2.Dyadic.Instances.NpcCertificateLevel
+import GQ2.Dyadic.Instances.NpcPlanePrimitive
 import GQ2.Dyadic.Instances.NpcFamilyFinal
 import GQ2.Dyadic.Instances.NpcFieldSelectorAudit
 import GQ2.Dyadic.Instances.NpcWordPhaseModel
