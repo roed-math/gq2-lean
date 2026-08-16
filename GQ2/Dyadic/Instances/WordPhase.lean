@@ -899,25 +899,105 @@ theorem wPh_branchFree_of_phaseModel {Gam : ProfiniteGrp} {q : ℕ} (h : ℕ) {P
 
 end PhaseModel
 
+/-! ## §7 The two rows at the branch-free binder
+
+§5 lets both acceptance statements be restated over `wPhBranchFreeSupply` instead of over their
+own per-word supplies.  That is the sharpest form of the two rows this lane can state: one
+`Prop`, shared by both, plus the two instances of the coefficient `Prop` that W84-CLAUSES and
+W85-BLOCKS leave standing and that this lane does not touch. -/
+
+section BranchFreeRows
+
+open GQ2.Dyadic.Instances.CanonicalRecords GQ2.Dyadic.FieldBranchId GQ2.Dyadic.Fields
+open GQ2.Dyadic.FieldSqrtFive GQ2.Dyadic.Instances.MCompactCore
+open GQ2.Dyadic.Words TameSpec MarkedCore
+open GQ2.Dyadic.SelectedCoreLeavesRN
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {R : LocalReciprocity}
+
+/-- **`ℚ₂(√5)` over the branch-free supply.**  `RecordBlocks.recBl_candidate_equiv_galK_sqrtFive`
+with its `recBlWordPhaseSupply` binder replaced by §5's. -/
+theorem wPh_candidate_equiv_galK_sqrtFive_branchFree [T2Space (GalK KSqrtFive)]
+    (B : MarkedRecip R KSqrtFive) {FF : DyadicUnitFiltration KSqrtFive}
+    (F : GenAsmFieldInputs KSqrtFive B FF (SelectedPresentation.M0 2 0).degree)
+    (Sdet : wPhBranchFreeSupply (2 * 0 + 2) (q := qOf KSqrtFive FF)
+      (fieldId_mNuZtwo 2 0 (by omega))
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtFive FF) (Words.MCompact.mCompactW 2 0)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF)))
+      (mPro2 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF))
+      (mCompat 2 0 (qOf KSqrtFive FF) (by omega) (qOf_ne_zero KSqrtFive FF)
+        (even_qOf KSqrtFive FF)
+        (mTameSpecializes 2 0 (qOf KSqrtFive FF) (qOf_ne_zero KSqrtFive FF)
+          (even_qOf KSqrtFive FF))
+        (fieldId_mNuZtwo 2 0 (by omega)) (canRec_mNuZtwo_sigma 2 0 (by omega))
+        (canRec_mNuZtwo_wild 2 0 (by omega))))
+    (hvanCand : askCStageVanishing
+      (GammaR (2 + 2 * 0) (qOf KSqrtFive FF) (Words.MCompact.mCompactW 2 0))
+      (qOf KSqrtFive FF) (DM 2 0) (fieldId_mNuZtwo 2 0 (by omega)))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtFive) (qOf KSqrtFive FF)
+      (genAsmCore (.M0 2 0)) (fieldId_mNuZtwo 2 0 (by omega))) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.M0 2 0).degree (qOf KSqrtFive FF)
+        (SelectedPresentation.M0 2 0).word : ProfiniteGrp) : Type) (GalK KSqrtFive)) :=
+  RecordBlocks.recBl_candidate_equiv_galK_sqrtFive B F
+    (wPh_recBlWordPhaseSupply_of_branchFree _ _ _ _ Sdet) hvanCand hvanK
+
+/-- **`ℚ₂(√−2)` over the same branch-free supply.**  §3 with its `wPhWordPhaseSupplyN` binder
+replaced by §5's, which is literally the same statement as the one the `√5` row now takes. -/
+theorem wPh_candidate_equiv_galK_sqrtNegTwo_branchFree [T2Space (GalK KSqrtNegTwo)]
+    (B : MarkedRecip R KSqrtNegTwo) {FF : DyadicUnitFiltration KSqrtNegTwo}
+    (F : GenAsmFieldInputs KSqrtNegTwo B FF (SelectedPresentation.N0 2 0).degree)
+    (Sdet : wPhBranchFreeSupply (2 * 0 + 2) (q := qOf KSqrtNegTwo FF)
+      (nNuZtwo 2 0)
+      (tameOfSpec (2 + 2 * 0) (qOf KSqrtNegTwo FF) (nCompactW 2 0)
+        (genCertNTameSpecializes 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+          (even_qOf KSqrtNegTwo FF)))
+      (genCertNPro2 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+        (even_qOf KSqrtNegTwo FF))
+      (genCertNCompat 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+        (even_qOf KSqrtNegTwo FF)
+        (genCertNTameSpecializes 2 0 (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+          (even_qOf KSqrtNegTwo FF))
+        (nNuZtwo 2 0) (nNuZtwo_sigma 2 0) (nNuZtwo_wild 2 0)))
+    (hvanCand : askCStageVanishing (GammaR (2 + 2 * 0) (qOf KSqrtNegTwo FF) (nCompactW 2 0))
+      (qOf KSqrtNegTwo FF) (DN 2 0) (nNuZtwo 2 0))
+    (hvanK : askCStageVanishing (galKProfinite KSqrtNegTwo) (qOf KSqrtNegTwo FF)
+      (genAsmCore (.N0 2 0)) (nNuZtwo 2 0)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (SelectedPresentation.N0 2 0).degree (qOf KSqrtNegTwo FF)
+        (SelectedPresentation.N0 2 0).word : ProfiniteGrp) : Type) (GalK KSqrtNegTwo)) :=
+  wPh_candidate_equiv_galK_sqrtNegTwo B F
+    (wPh_wordPhaseSupplyN_of_branchFree _ _ _ _ Sdet) hvanCand hvanK
+
+end BranchFreeRows
+
 /-! ## Axiom audit
 
-24 declarations, `#print axioms` on each, recorded in the file.
+26 declarations, `#print axioms` on each, recorded in the file.
 
 * **22 std-3** (`propext`, `Classical.choice`, `Quot.sound`), and `wPh_even_two_mul_add_two`
   pins `propext` alone: everything this lane proves, including all of §1, §2, §4, §5 and §6.
   In particular **the whole even-degree phase layer is std-3**, and so is the reduction of both
   compact supplies to one branch-free statement.
-* **2 with campaign axioms**: `wPh_rowResidual_sqrtNegTwo` and
-  `wPh_candidate_equiv_galK_sqrtNegTwo`, each carrying std-3 plus
+* **4 with campaign axioms**, all of them row statements: the three `ℚ₂(√−2)` ones
+  (`wPh_rowResidual_sqrtNegTwo`, `wPh_candidate_equiv_galK_sqrtNegTwo`,
+  `wPh_candidate_equiv_galK_sqrtNegTwo_branchFree`) carry std-3 plus
   `{tateDualityAt, absGalQ2_isTopologicallyFinitelyGenerated,
   absGalQ2_localEulerCharacteristic, hilbertSymbol_normCriterion_finiteDyadic,
-  relativeStiefelWhitney_dyadic}`, through the general theorem and the row's arithmetic inputs.
+  relativeStiefelWhitney_dyadic}`, and `wPh_candidate_equiv_galK_sqrtFive_branchFree` carries
+  that set **plus `peripheralCyclotomicAction`**.  All of it comes through the general theorem
+  and the rows' arithmetic inputs; §5's reduction adds nothing.
 
-**Observation, recorded because it was not expected.**  That set is the `ℚ₂(√5)` row's set
-(`RecordBlocks.recBl_candidate_equiv_galK_sqrtFive`) **minus `peripheralCyclotomicAction`**.  The
-pilot row's record reaches the same conclusion on five campaign axioms where the `M0 2 0` row
-needs six.  Nothing in this lane was aimed at that; it falls out of the `N` branch producer, and
-it is stated here as a measurement, not as a claim about why. -/
+**Where the five-versus-six comes from.**  The `√5` set is checked against
+`RecordBlocks.recBl_candidate_equiv_galK_sqrtFive`: identical, so restating the determinant
+binder over `wPhBranchFreeSupply` is axiom-neutral.  The pilot row's acceptance statement costs
+five campaign axioms where the `M0 2 0` row costs six.  This is **not** a discovery of this
+lane: `CanonicalRecords.lean`'s own pin prose already records that `canRec_branch_sqrtNegTwo`
+carries the four-axiom even-route endpoint set and "that set plus `peripheralCyclotomicAction`"
+sits on the other three branch data.  What §3 and §7 add is only that the gap survives all the
+way to the row conclusion, which had not been instantiated before. -/
 
 section AxiomPins
 
@@ -945,6 +1025,8 @@ section AxiomPins
 #print axioms wPh_wordPhaseSupplyN_of_branchFree
 #print axioms wPhCompactPhaseModel
 #print axioms wPh_branchFree_of_phaseModel
+#print axioms wPh_candidate_equiv_galK_sqrtFive_branchFree
+#print axioms wPh_candidate_equiv_galK_sqrtNegTwo_branchFree
 
 end AxiomPins
 
