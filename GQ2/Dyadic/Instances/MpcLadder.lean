@@ -17,6 +17,34 @@ class-`(j+1)` one, calling that "what would turn the engine into a decision proc
 
 This module answers that question and takes the consequences.
 
+## What lands
+
+1. **The converse holds** (§2).  A class-`(j+2)` solution *is* a class-`(j+1)` solution, and the
+   identity is a reachable move with trivial increment, so `mpcLad_supply_of_mem` needs no
+   hypothesis.  Hence `mpcLad_nonempty_iff`: a rung is an **iff**, and the engine decides it.
+   Three consequences: the sufficient condition weakens from `∀ p` to `∃ p`
+   (`mpcLad_shift_of_exists_supply`); a supply failure proved over the whole class-`(j+1)`
+   solution set proves `mpcWordSet (j+2) = ∅` (`mpcLad_eq_empty_of_no_supply`); and that
+   emptiness is exactly the negative claim wave 84 named as the only admissible one.
+
+2. **A rung's exact shape** (§3).  The increment map is a homomorphism (`mpcLad_incr_hom`) into
+   the central involutive layer (`mpcLad_incr_mem_zLayer`), so the reachable increments are an
+   `𝔽₂`-subspace (`mpcLadReachSub`) that does not move along the orbit
+   (`mpcLad_reach_base_indep`), and the defects of a `λ_j`-orbit are one coset of it
+   (`mpcLad_defect_orbit`).
+
+3. **The first exact class-five term** (§4).  `mpcLad_pow_letC_five`: the pivot letter's fourth
+   power, blind to everything at class four, carries four central corrections at class five, two
+   of them independent of the correction slot and so present in the class-four witness itself.
+
+## What does not land
+
+**The decision.**  `MpcPivShift 2` is neither proved nor refuted here.  The class-five defect of
+the class-four witness is not computed in full: §4 computes one of the four factors of `mWord`
+exactly, and the other three are open.  No class-five claim is made in either direction, and
+wave 84 §5's control (the greedy ladder kills `M5`, a theorem of the tree) still forbids reading
+a stall as evidence.
+
 Declaration prefix `mpcLad` (namespace `GQ2.Dyadic.Instances.MpcLad`).  No `sorry`, no new
 axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDepth`.
 -/
@@ -141,10 +169,10 @@ therefore holds, at every class, with no hypothesis.
 That settles the question, and the settlement is worth stating carefully, because the trivial
 proof does **not** make the answer vacuous.  What it buys is exactly one thing, and it is the
 thing wave 85 wanted: the one-step supply criterion becomes an **iff**, so the engine decides
-each rung rather than only certifying it.  Three consequences follow, in §2.2, §2.3, §2.4:
-the sufficient condition weakens from `∀ p` to `∃ p`; a per-class *failure* over all `p` becomes
-a proof of emptiness; and, through wave 84's per-class criterion, that emptiness refutes the
-ansatz outright. -/
+each rung rather than only certifying it.  Three consequences follow below: the sufficient
+condition weakens from `∀ p` to `∃ p`; a per-class *failure* proved over all `p` becomes a proof
+of emptiness; and that emptiness is the shape wave 84 named as the only admissible negative
+claim. -/
 
 section Converse
 
@@ -636,9 +664,53 @@ theorem mpcLad_pow_letC_five (q r : levelQuot G 5) {μ : levelQuot G 5}
         rw [← mul_assoc (q ^ 8) (r ^ 4), hq8c (r ^ 4)]
         group
 
+/-- **The pivot letter itself, at class five.**  `mpcLad_pow_letC_five` transported to the `M6`
+`C̄₀`-letter `B̄²·C̄₀·m` on `D_M 2 0`.  Wave 85's class-four reading of this factor is `C̄₀⁴`; the
+class-five reading carries `B̄⁸`, `m⁴`, `⁅m, C̄₀⁆²` and `⁅C̄₀, B̄²⁆²` on top of it. -/
+theorem mpcLad_letC_pow_five (m : (DM 2 0 : Type))
+    (hm : m ∈ twoCentralSeries (DM 2 0 : Type) 2) :
+    levelMk (DM 2 0 : Type) 5 (mpcWordLetC m) ^ 4
+      = levelMk (DM 2 0 : Type) 5 (dmC 2 0) ^ 4 *
+        (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 8 *
+          (levelMk (DM 2 0 : Type) 5 m ^ 4 *
+            (commP (levelMk (DM 2 0 : Type) 5 m) (levelMk (DM 2 0 : Type) 5 (dmC 2 0)) ^ 2 *
+              commP (levelMk (DM 2 0 : Type) 5 (dmC 2 0))
+                (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2) ^ 2))) := by
+  have h : levelMk (DM 2 0 : Type) 5 (mpcWordLetC m)
+      = levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2 * levelMk (DM 2 0 : Type) 5 (dmC 2 0) *
+        levelMk (DM 2 0 : Type) 5 m := by
+    rw [mpcWordLetC, map_mul, map_mul, map_pow]
+  rw [h]
+  exact mpcLad_pow_letC_five _ _ ⟨m, hm, rfl⟩
+
 end ClassFive
 
-/-! ## §5 Axiom pins
+/-! ## §5 The class-five rung, named
+
+The residue of `MpcPivShift 2` starts at class five (`mpcBld_shift_of_forall_class_five`), and by
+§2 the class-five rung is an iff against the class-four solution set, whose nonemptiness is a
+theorem (`mpcBld_nonempty_four`, witness `mpcLadW4`).  So the next question in the campaign has a
+name and a shape: **is there a class-four solution whose defect lies in the `𝔽₂`-subspace
+`mpcLadReach 3`?**  Neither answer is claimed here. -/
+
+section RungFive
+
+/-- ⭐ **THE CLASS-FIVE RUNG.**  `mpcLad_nonempty_iff` at `j = 3`, where the class-`(j+1)`
+solution set is the class-four one and is known nonempty. -/
+theorem mpcLad_nonempty_five_iff :
+    (mpcWordSet 5).Nonempty ↔ ∃ p ∈ mpcWordSet 4, MpcLadSupply 3 p :=
+  mpcLad_nonempty_iff 3
+
+/-- **The class-five refutation, spelled out.**  If no class-four solution has one-step supply
+at class three, the class-five solution set is empty, and by `mpcWord_shift_of_forall_class` that
+is the only shape a negative claim about the `M6` ansatz may take. -/
+theorem mpcLad_five_empty_of_no_supply
+    (H : ∀ p ∈ mpcWordSet 4, ¬ MpcLadSupply 3 p) : mpcWordSet 5 = ∅ :=
+  mpcLad_eq_empty_of_no_supply H
+
+end RungFive
+
+/-! ## §6 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -690,6 +762,9 @@ section AxiomPins
 #print axioms mpcLad_five_sq_drop
 #print axioms mpcLad_five_commP_sq_drop
 #print axioms mpcLad_pow_letC_five
+#print axioms mpcLad_letC_pow_five
+#print axioms mpcLad_nonempty_five_iff
+#print axioms mpcLad_five_empty_of_no_supply
 
 end AxiomPins
 
