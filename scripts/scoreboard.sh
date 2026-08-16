@@ -160,6 +160,7 @@ CORRECTED RN ANALYTIC|Npc affine determinant (selected eta)|decl|npcAffineDeterm
 CORRECTED RN RECORDS|Npc certificate (all a,r,h; selected eta)|decl|npcWordCertificateRN
 CORRECTED RN TIED|N0 residual (all a,h)|decl|wPcN_rowResidualRN_of_tied
 CORRECTED RN TIED|N0 endpoint (all a,h)|decl|wPcN_candidate_equiv_galKRN_of_tied
+CORRECTED RN SELECTOR CLOSED|N0 general-h level-zero realization|decl|markedCoreRealizationN_of_level_zero_general
 CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
 CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant

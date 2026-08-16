@@ -898,6 +898,7 @@ import GQ2.Dyadic.Instances.MpcSqrtNegTenDeterminant
 import GQ2.Dyadic.Instances.WordPhaseCompactNData
 import GQ2.Dyadic.Instances.WordPhaseCompactNFinal
 import GQ2.Dyadic.Instances.WordPhaseCompactNGeneric
+import GQ2.Dyadic.Instances.N0GeneralLevelZero
 import GQ2.Dyadic.Instances.WordPhaseCompactMUnramifiedBoundary
 import GQ2.Dyadic.Instances.KappaResolverTransport
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
