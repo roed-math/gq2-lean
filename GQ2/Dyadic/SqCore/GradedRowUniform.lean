@@ -9,6 +9,19 @@ import GQ2.Dyadic.SqCore.GradedUniformGen
 /-!
 # W88-UNIFORM: the uniform-in-class supply on the row-move ladder
 
+⚠⚠ **[MERGE-TIME NOTICE, W88 close: THIS MODULE IS A PARTIAL SALVAGE, and the plan narrated
+below is the lane's INTENT, not this file's contents.**  The lane was cut off mid-increment
+by a usage limit, not by any mathematical or build failure.  **Present and verified: items 1
+and 2 only** (§1 to §3, through `gUni_defect_reach` and `gUni_defect_knob`).  **Absent: items
+3, 4 and 5** (§4 onward), so there is no `gUni_cost_slot*`, no `gUni_knob_cost`, no
+`gUni_step`, no `gUni_nonempty`, no `gUni_pair`, and in particular **no `gUni_clearing`: the
+odd classification's last input did NOT land in this wave**, and the standing statement of
+record remains wave 87's `gRsd_clearing_of_forall_class_five`, whose per-class hypothesis is
+still open.  The "Axiom hygiene" paragraph below likewise describes the intended file; the
+pins actually verified are in the merge-time pins section at the end.  The lane's further
+369 lines, UNVERIFIED, are preserved as commit `f9753d3d` on branch `claude/w88-uniform`,
+which is deliberately not deleted; resume there with `mirror.sh sweep` then `gen`.]
+
 Wave 87 (`GradedRowResidue.lean`) proved rung 4 of the row-move ladder on the whole unit
 locus and left the rungs `k ≥ 5` as the odd route's last input: each was priced by the
 wave-86 engine as one linear-algebra question in `λ_{k-1}/λ_k`, apparently fresh at every
@@ -235,3 +248,22 @@ end SqCore
 end Dyadic
 
 end GQ2
+
+/-! ## §4 Axiom pins (added at merge; the lane was cut off before writing them)
+
+Every declaration of this file, in order.  **All twelve print exactly the standard three**
+(`propext`, `Classical.choice`, `Quot.sound`), verified at the W88 close.  This section
+replaces the "section 10" the module docstring promises, which the lane never reached. -/
+
+#print axioms GQ2.Dyadic.SqCore.gUni_sq_mem_two
+#print axioms GQ2.Dyadic.SqCore.gUni_mk_commP
+#print axioms GQ2.Dyadic.SqCore.gUni_commP_mul_left_lam
+#print axioms GQ2.Dyadic.SqCore.gUni_commP_mul_right_lam
+#print axioms GQ2.Dyadic.SqCore.gUni_sq_mul_lam
+#print axioms GQ2.Dyadic.SqCore.gUni_central_interchange
+#print axioms GQ2.Dyadic.SqCore.gUni_chi_mark
+#print axioms GQ2.Dyadic.SqCore.gUni_delta_zero
+#print axioms GQ2.Dyadic.SqCore.gUni_nuLam_relWord
+#print axioms GQ2.Dyadic.SqCore.gUni_nuSq_relWord
+#print axioms GQ2.Dyadic.SqCore.gUni_defect_reach
+#print axioms GQ2.Dyadic.SqCore.gUni_defect_knob
