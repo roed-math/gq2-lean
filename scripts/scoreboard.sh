@@ -178,10 +178,16 @@ CORRECTED RN SELECTOR BOUNDARY|M0 C0 cup-isometry obstruction|decl|no_c0_handle_
 CORRECTED RN SELECTOR BOUNDARY|M0 companion orientation obstruction|decl|no_chi_trivial_companion_d_one
 CORRECTED RN SELECTOR BOUNDARY|M0 C0 unit invariant under oriented automorphisms|decl|isUnit_dmC_aut_iff
 CORRECTED RN SELECTOR BOUNDARY|M0 no oriented C0 unitizer|decl|no_oriented_dmC_unitizer
+CORRECTED RN SELECTOR BOUNDARY|M0 intrinsic field pivot condition|decl|M0FieldPivotUnit
+CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from intrinsic pivot|decl|m0RowResidualRN_of_familySelection_of_fieldPivot
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN ANALYTIC|Mpc arbitrary-h ramified compact phase|decl|hessRelZ_mpcW_ramified_compactPhase
 CORRECTED RN ANALYTIC|Mpc ramified comparison from projected head phase|decl|comparison_ramified_of_headPhase_handles
+CORRECTED RN ANALYTIC|Mpc arbitrary-h unramified compact phase|decl|hessRelZ_mpcW_unramified_compactPhase
+CORRECTED RN ANALYTIC|Mpc unramified comparison from scaled head phase|decl|exists_comparison_unramified_of_headPhase_handles
+CORRECTED RN SELECTOR BOUNDARY|Mpc scaled general-h handle correction|decl|exists_scaled_handle_correction
+CORRECTED RN SELECTOR BOUNDARY|Mpc general-h tied branch from certificate|decl|genAsmBranch_of_certificate
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -217,6 +223,8 @@ ODD SEAM|odd oriented equivalence|decl|nonempty_orientedEquiv_oddDegree
 ODD FINAL|full nu supply iff two rows|decl|sqNuForwardSupply_iff_full
 ODD FINAL|odd endpoint from two nu rows|decl|gammaR_lSq_equiv_galK_oddDegree_of_nuRows_final
 ODD SEAM|closed corrected RN endpoint|decl|gUni_gammaR_lSq_equiv_galK
+ODD RAMIFIED DATA|canonical anchored splitting field|decl|anchoredSplitField
+ODD RAMIFIED DATA|certificate from anchored lift and involution packet|decl|ramifiedCertificateOfAnchoredSplit
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
 LEGACY ASK (COMPAT ONLY)|frozen <-> stageVanishing|decl|askC_exactLifting_iff_stageVanishing
 LEGACY ASK (COMPAT ONLY)|corrected RN at G_K|decl|exactLiftingSemanticsRN_galK
