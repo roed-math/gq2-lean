@@ -144,6 +144,7 @@ FROZEN ROWS|v-10 residue = word prob|decl|mpcOrb_shift_iff_marking
 FROZEN ROWS|v-10 finite-class route|decl|mpcWord_shift_of_forall_class_four
 FROZEN ROWS|v-10 residual move|prod|MpcPivShift
 FROZEN ROWS|v-10 initial-relator absorption|decl|mpcMk_initialRelatorAbsorption
+FROZEN ROWS|v-10 pivot shift theorem|decl|mpcMk_pivShift
 LEGACY RECORDS (COMPAT ONLY)|Q2(v-2)  .N0 2 0|decl|canRec_rowResidual_sqrtNegTwo
 LEGACY RECORDS (COMPAT ONLY)|Q2(v2)   .M0 3 0|decl|canRec_rowResidual_sqrtTwo
 LEGACY RECORDS (COMPAT ONLY)|Q2(v5)   .M0 2 0|decl|canRec_rowResidual_sqrtFive
@@ -174,7 +175,7 @@ CORRECTED RN CLOSED ROWS|Q2(v2) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtTw
 CORRECTED RN CLOSED ROWS|Q2(v5) residual|decl|wPcM_rowResidualRN_sqrtFive
 CORRECTED RN CLOSED ROWS|Q2(v5) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtFive
 CORRECTED RN CLOSED ROWS|Q2(v10) endpoint|decl|mpcSqrtTen_candidate_equiv_galKRN
-CORRECTED RN CONDITIONAL ROWS|Q2(v-10) endpoint (needs MpcPivShift)|decl|mpcSqrtNegTen_candidate_equiv_galKRN
+CORRECTED RN CLOSED ROWS|Q2(v-10) endpoint|decl|mpcMk_candidate_equiv_galKRN_sqrtNegTen
 ODD SEAM|the seam Prop|decl|SqMarkedForwardSupply
 ODD SEAM|every seam producer|prod|SqMarkedForwardSupply
 ODD SEAM|seam = marked-core cert|decl|oddId_supply_iff_certificate
