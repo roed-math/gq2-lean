@@ -172,6 +172,9 @@ CORRECTED RN SELECTOR BOUNDARY|Npc realization (family + primitive plane)|decl|n
 CORRECTED RN SELECTOR BOUNDARY|Npc primitive plane from exact level|decl|exists_dnPlanePrimitive_of_level_exact
 CORRECTED RN SELECTOR BOUNDARY|Npc selected tied branch (needs primitive plane)|decl|npcGenAsmBranch_of_familySelection_tied
 CORRECTED RN SELECTOR BOUNDARY|Npc selected RN residual (needs primitive plane)|decl|npcRowResidualRN_of_familySelection
+CORRECTED RN SELECTOR CLOSED|Npc primitive oriented frame|decl|exists_orientedEquiv_npcPlanePrimitive
+CORRECTED RN SELECTOR CLOSED|Npc selected tied branch|decl|npcGenAsmBranch_of_familySelection_tied_exactLevel
+CORRECTED RN SELECTOR CLOSED|Npc selected RN residual|decl|npcRowResidualRN_of_familySelection_exactLevel
 CORRECTED RN CLOSED ROWS|Q2(v-2) residual|decl|wPcN_rowResidualRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v-2) endpoint|decl|wPcN_candidate_equiv_galKRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v2) residual|decl|wPcM_rowResidualRN_sqrtTwo
