@@ -906,6 +906,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactMFinal
 import GQ2.Dyadic.Instances.NpcCandidateScalar
 import GQ2.Dyadic.Instances.NpcCandidateStokes
 import GQ2.Dyadic.Instances.NpcCandidateRN
+import GQ2.Dyadic.Instances.NpcWordPhaseModel
 import GQ2.Dyadic.Instances.MpcCandidateScalar
 import GQ2.Dyadic.Instances.MpcCandidateStokes
 import GQ2.Dyadic.Instances.MpcCandidateRN
