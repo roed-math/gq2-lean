@@ -933,6 +933,159 @@ theorem gRsd_defect_odd_odd_t {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
 
 end DefectForms
 
+/-! ## §7 The carrier tuples and their engine costs
+
+Commutator words lie in the correction carrier outright (both rows are homomorphisms into
+an abelian group).  The witness tuples put one carrier word on each core slot and `1` on
+every handle slot, so the handle block of `gLadCost` dies and the three slot costs evaluate
+against the residue's marked letters. -/
+
+section CarrierCost
+
+variable {h : ℕ}
+
+private theorem gRsd_map_commP_one
+    (f : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2])) (a b : (DSq h : Type)) :
+    f (commP a b) = 1 := by
+  show f (a⁻¹ * b⁻¹ * a * b) = 1
+  rw [map_mul, map_mul, map_mul, map_inv, map_inv,
+    mul_assoc ((f a)⁻¹ * (f b)⁻¹) (f a) (f b), mul_mul_mul_comm, inv_mul_cancel,
+    inv_mul_cancel, one_mul]
+
+/-- ⭐ **Commutators lie in the correction carrier**: both rows are homomorphisms into an
+abelian group, and every bracket is a `lambda_2`-element. -/
+theorem gRsd_commP_mem_corr (a b : (DSq h : Type)) : commP a b ∈ gRowCorr h :=
+  gRow_mem_corr.mpr ⟨⟨gRow_commP_mem_two a b, gRsd_map_commP_one (nuLam h) a b⟩,
+    gRsd_map_commP_one (nuSq h) a b⟩
+
+/-- The witness tuple: three carrier words on the core slots, `1` on the handles. -/
+noncomputable def gRsdTuple (h : ℕ) (e₀ e₁ e₂ : (DSq h : Type)) :
+    Fin (sqRank h) → (DSq h : Type) :=
+  fun i => if (i : ℕ) = 0 then e₀ else if (i : ℕ) = 1 then e₁ else
+    if (i : ℕ) = 2 then e₂ else 1
+
+@[simp] theorem gRsdTuple_zero (e₀ e₁ e₂ : (DSq h : Type)) :
+    gRsdTuple h e₀ e₁ e₂ 0 = e₀ := by
+  simp only [gRsdTuple, sqVal_zero]
+  norm_num
+
+@[simp] theorem gRsdTuple_one (e₀ e₁ e₂ : (DSq h : Type)) :
+    gRsdTuple h e₀ e₁ e₂ 1 = e₁ := by
+  simp only [gRsdTuple, sqVal_one]
+  norm_num
+
+@[simp] theorem gRsdTuple_two (e₀ e₁ e₂ : (DSq h : Type)) :
+    gRsdTuple h e₀ e₁ e₂ 2 = e₂ := by
+  simp only [gRsdTuple, sqVal_two]
+  norm_num
+
+@[simp] theorem gRsdTuple_handleU (e₀ e₁ e₂ : (DSq h : Type)) (j : Fin h) :
+    gRsdTuple h e₀ e₁ e₂ (sqHandleIdxU j) = 1 := by
+  simp only [gRsdTuple, sqHandleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem gRsdTuple_handleV (e₀ e₁ e₂ : (DSq h : Type)) (j : Fin h) :
+    gRsdTuple h e₀ e₁ e₂ (sqHandleIdxV j) = 1 := by
+  simp only [gRsdTuple, sqHandleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+/-- Carrier membership of the tuple, slotwise. -/
+theorem gRsdTuple_mem_corr {e₀ e₁ e₂ : (DSq h : Type)} (h₀ : e₀ ∈ gRowCorr h)
+    (h₁ : e₁ ∈ gRowCorr h) (h₂ : e₂ ∈ gRowCorr h) (i : Fin (sqRank h)) :
+    gRsdTuple h e₀ e₁ e₂ i ∈ gRowCorr h := by
+  rcases sqIdx_cases i with rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+  · rwa [gRsdTuple_zero]
+  · rwa [gRsdTuple_one]
+  · rwa [gRsdTuple_two]
+  · rw [gRsdTuple_handleU]; exact one_mem _
+  · rw [gRsdTuple_handleV]; exact one_mem _
+
+/-- ⭐ **The engine cost of a witness tuple**: the handle block dies, leaving the three slot
+costs. -/
+theorem gRsd_cost_tuple (m : Fin (sqRank h) → levelQuot (DSq h : Type) 4)
+    (e₀ e₁ e₂ : (DSq h : Type)) :
+    gLadCost m (fun i => levelMk (DSq h : Type) 4 (gRsdTuple h e₀ e₁ e₂ i))
+      = commP (levelMk (DSq h : Type) 4 e₀) (m 1)
+        * commP (m 0) (levelMk (DSq h : Type) 4 e₁)
+        * (levelMk (DSq h : Type) 4 e₂ ^ 2 * commP (levelMk (DSq h : Type) 4 e₂) (m 2)) := by
+  rw [gLadCost]
+  simp only [gRsdTuple_zero, gRsdTuple_one, gRsdTuple_two, gRsdTuple_handleU,
+    gRsdTuple_handleV, map_one, cfour_one_comm, cfour_comm_one, one_mul]
+  rw [List.prod_eq_one (by
+    intro x hx
+    rw [List.mem_map] at hx
+    obtain ⟨j, -, rfl⟩ := hx
+    rfl), mul_one]
+
+/-- The bare marked letters in `Q_4`. -/
+theorem gRsd_bare_zero (A B : ℤ_[2]) :
+    levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 0)
+      = gLadS h * gLadQ h (A - 1) := by
+  rw [gRowMark_zero, mul_one, map_mul]
+  rfl
+
+theorem gRsd_bare_one (A B : ℤ_[2]) :
+    levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 1) = gLadX h * gLadQ h B := by
+  rw [gRowMark_one, mul_one, map_mul]
+  rfl
+
+theorem gRsd_bare_two (A B : ℤ_[2]) :
+    levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) 2)
+      = gLadY h * gLadQ h (2 * B) := by
+  rw [gRowMark_two, mul_one, map_mul]
+  rfl
+
+/-- Slot 0 on the even locus: `[E, X Q] = [E, X]`. -/
+theorem gRsd_cost0_even {B : ℤ_[2]} (hB : (2 : ℤ_[2]) ∣ B)
+    {E : levelQuot (DSq h : Type) 4} (hE : E ∈ lambdaImage (DSq h : Type) 2 4) :
+    commP E (gLadX h * gLadQ h B) = commP E (gLadX h) := by
+  rw [cfive_commP_right_hom hE (gLadX h) (gLadQ h B),
+    gLad_vanish4 hE (gRsd_Q_even_mem hB), one_mul]
+
+/-- Slot 0 on the odd locus: the legs swap, `[E, X Q] = [E, S]`. -/
+theorem gRsd_cost0_odd {B : ℤ_[2]} (hB : ¬ (2 : ℤ_[2]) ∣ B)
+    {E : levelQuot (DSq h : Type) 4} (hE : E ∈ lambdaImage (DSq h : Type) 2 4) :
+    commP E (gLadX h * gLadQ h B) = commP E (gLadS h) := by
+  have hEX : commP E (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hE _
+  have hES : commP E (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hE _
+  rw [cfive_commP_right_hom hE (gLadX h) (gLadQ h B), gRsd_lam_Q_odd hE hB, mul_assoc,
+    gRsd_swap hES (commP E (gLadX h)) (commP E (gLadX h)), ← pow_two,
+    zLayer_sq (DSq h : Type) hEX, mul_one]
+
+/-- Slot 1 at even twist: `[S Q, E] = [S, E]`. -/
+theorem gRsd_cost1_even {c : ℤ_[2]} (hc : (2 : ℤ_[2]) ∣ c)
+    {E : levelQuot (DSq h : Type) 4} (hE : E ∈ lambdaImage (DSq h : Type) 2 4) :
+    commP (gLadS h * gLadQ h c) E = commP (gLadS h) E := by
+  rw [cfour_commP_mul_left (gLadS h) (gLadQ h c) E,
+    cfive_commP_zLayer_left (cfour_commP_mem_zLayer_right (gLadS h) hE) (gLadQ h c),
+    mul_one, gLad_vanish4 (gRsd_Q_even_mem hc) hE, mul_one]
+
+/-- Slot 1 at odd twist: the legs swap, `[S Q, E] = [E, X]`. -/
+theorem gRsd_cost1_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c)
+    {E : levelQuot (DSq h : Type) 4} (hE : E ∈ lambdaImage (DSq h : Type) 2 4) :
+    commP (gLadS h * gLadQ h c) E = commP E (gLadX h) := by
+  have hES : commP E (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left hE _
+  rw [cfour_commP_mul_left (gLadS h) (gLadQ h c) E,
+    cfive_commP_zLayer_left (cfour_commP_mem_zLayer_right (gLadS h) hE) (gLadQ h c),
+    mul_one, ← gLad_commP_inv E (gLadQ h c), gRsd_lam_Q_odd hE hc, mul_inv_rev,
+    zLayer_inv_self hES,
+    zLayer_inv_self (cfour_commP_mem_zLayer_left hE (gLadX h) :
+      commP E (gLadX h) ∈ zLayer (DSq h : Type) 3),
+    ← gLad_commP_inv E (gLadS h), zLayer_inv_self hES,
+    gRsd_pair_collapse hES (commP E (gLadX h))]
+
+/-- Slot 2 at every residue: `[E, Y Q^2] = [E, Y]`. -/
+theorem gRsd_cost2 (B : ℤ_[2]) {E : levelQuot (DSq h : Type) 4}
+    (hE : E ∈ lambdaImage (DSq h : Type) 2 4) :
+    commP E (gLadY h * gLadQ h (2 * B)) = commP E (gLadY h) := by
+  rw [cfive_commP_right_hom hE (gLadY h) (gLadQ h (2 * B)),
+    gLad_vanish4 hE (gRsd_Q_even_mem ⟨B, rfl⟩), one_mul]
+
+end CarrierCost
+
 end SqCore
 
 end Dyadic
