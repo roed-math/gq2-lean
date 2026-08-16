@@ -760,6 +760,290 @@ theorem wPs_wPmCompactHeadPhase_of_headFactorization {α h q : ℕ}
 
 end HeadPhase
 
+/-! ## §8 The compact-`M` transcription
+
+§4 to §6 transpose to the compact-`M` word without a single new mathematical input: §2b already
+covers both words, `Count.resolvesAt_mCompactFam`, `Words.MCompact.isOmega2Only_mCompact`,
+`MCompact.cardH2_of_uniformPushed` and `MCompact.uniformPushedHsimp` are the `M` twins of the
+four `N` ingredients, and every other step was word-generic to begin with.  The `M` word needs
+no `1 ≤ α` for the endpoint condition.
+
+What does **not** transpose is §7: the compact-`M` Hessian endpoint is not the compact-`N` one.
+`Certificates.MCompact.hessRelZ_mCompact_P1_plusForm` and `..._P0_swapForm`
+(`Certificates/M0Assembly.lean`, outside `WordPhase`'s import closure) are stated at `h = 0`
+only, they split into two branches (`P = 1` and `P = 0`) rather than giving one uniform value,
+and each carries its own extra hypothesis (`e % 4 = 1`, respectively a per-letter `omega2`-power
+condition) on top of `hS₂ : (s ^ E omega2) • w = w`.  So the exact missing input for a
+compact-`M` head phase is **the `M` twin of
+`WordPhaseModel.wPm_hessRelZ_nCompact_eq_compactWallHandlePhase`**: a general-`h`,
+branch-uniform identification of `hessRelZ (hessMark s u ·) … (mCompactW α h)` with
+`wPhCompactWallHandlePhase`.  Nothing below depends on it. -/
+
+section MOrientation
+
+open GQ2.Dyadic.Count ContCoh
+
+variable {α h q e : ℕ} {C : Type}
+  [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [TopologicalSpace (ZMod 2)] [IsTopologicalAddGroup (ZMod 2)] [DiscreteTopology (ZMod 2)]
+  [DistribMulAction
+    ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+  [ContinuousSMul
+    ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+  [DistribMulAction C (ZMod 2)]
+
+local notation "GammaM" =>
+  ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type)
+local notation "genM" => gammaGen (2 + 2 * h) q (Words.MCompact.mCompactW α h)
+local notation "WM" => gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h)
+
+/-- The compact-`M` scalar flexible resolver system. -/
+def wPsMCompactScalarFlexibleResolverSystem
+    (rho : ContinuousMonoidHom GammaM C) (hq : Even q) (he : Odd e) :
+    ∀ (V : OpenNormalSubgroup GammaM)
+      (hV : V.toSubgroup ≤ rho.toMonoidHom.ker),
+      letI : DistribMulAction (GammaM ⧸ V.toSubgroup) (ZMod 2) :=
+        DistribMulAction.compHom (ZMod 2) (quotientActionHom rho V hV)
+      ModuleFlexibleResolverAt (A := ZMod 2) WM
+        (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e)
+        (fun i ↦ QuotientGroup.mk' V.toSubgroup (genM i)) := by
+  intro V hV
+  letI : DistribMulAction (GammaM ⧸ V.toSubgroup) (ZMod 2) :=
+    DistribMulAction.compHom (ZMod 2) (quotientActionHom rho V hV)
+  have hlevel := twoMulExponent_ne_zero_and_even
+    (WordLift (ZMod 2) (GammaM ⧸ V.toSubgroup))
+  refine
+    { word := MCompact.mCompactFam α h q
+        (omega2Exp (2 * Monoid.exponent (WordLift (ZMod 2) (GammaM ⧸ V.toSubgroup))))
+      resolves := Count.resolvesAt_mCompactFam hlevel.1
+        (fun x ↦ (Monoid.order_dvd_exponent x).trans (dvd_mul_left _ _)) α h q
+      range_eq := ?_ }
+  exact congrArg AddMonoidHom.range
+    (heisD1_zmod2_eq_of_eps _ _ _ _
+      (fun k i ↦ wPs_heisEps_mCompactFam_eq_of_odd (α := α) hq
+        (odd_omega2Exp hlevel.1 hlevel.2) he k i))
+
+/-- The compact-`M` scalar continuous-to-word `H²` map. -/
+def wPsMCompactScalarH2WordFlexible
+    (rho : ContinuousMonoidHom GammaM C)
+    (hcompatScalar : ∀ (g : GammaM) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (he : Odd e) :
+    H2 GammaM (ZMod 2) →+
+      WordH2 (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e) (ZMod 2) :=
+  globalModuleH2WordFlexible
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+    rho hcompatScalar (fun V ↦ hwildLevel_gammaR V) (by decide)
+    (wPsMCompactScalarFlexibleResolverSystem rho hq he)
+
+/-- The compact-`M` scalar flexible map is injective. -/
+theorem wPsMCompactScalarH2WordFlexible_injective
+    (rho : ContinuousMonoidHom GammaM C)
+    (hcompatScalar : ∀ (g : GammaM) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (he : Odd e) :
+    Function.Injective (wPsMCompactScalarH2WordFlexible rho hcompatScalar hq he) :=
+  globalModuleH2WordFlexible_injective
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+    rho hcompatScalar (fun V ↦ hwildLevel_gammaR V) (by decide)
+    (wPsMCompactScalarFlexibleResolverSystem rho hq he)
+
+/-- The compact-`M` scalar orientation, from map-level surjectivity and §3's word trace. -/
+def wPsMCompactScalarH2TraceEquiv_of_surjective
+    (rho : ContinuousMonoidHom GammaM C)
+    (hcompatScalar : ∀ (g : GammaM) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e k) = 1)
+    (hsurj : Function.Surjective
+      (wPsMCompactScalarH2WordFlexible rho hcompatScalar hq he)) :
+    H2 GammaM (ZMod 2) ≃+ ZMod 2 :=
+  (AddEquiv.ofBijective (wPsMCompactScalarH2WordFlexible rho hcompatScalar hq he)
+    ⟨wPsMCompactScalarH2WordFlexible_injective rho hcompatScalar hq he, hsurj⟩).trans
+      (wPsMCompactWordH2TraceEquiv (α := α) (fun i ↦ rho (genM i)) hq he hr)
+
+@[simp] theorem wPsMCompactScalarH2TraceEquiv_of_surjective_mk
+    (rho : ContinuousMonoidHom GammaM C)
+    (hcompatScalar : ∀ (g : GammaM) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e k) = 1)
+    (hsurj : Function.Surjective
+      (wPsMCompactScalarH2WordFlexible rho hcompatScalar hq he))
+    (f : Z2 GammaM (ZMod 2)) :
+    wPsMCompactScalarH2TraceEquiv_of_surjective rho hcompatScalar hq he hr hsurj
+        (H2mk GammaM (ZMod 2) f) =
+      ∑ k, moduleObsFun WM genM rho hcompatScalar f k := rfl
+
+end MOrientation
+
+section MOrientationEquiv
+
+open GQ2.Dyadic.Count ContCoh
+
+variable {α h q e : ℕ} {C : Type}
+  [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+local notation "GammaM" =>
+  ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type)
+local notation "genM" => gammaGen (2 + 2 * h) q (Words.MCompact.mCompactW α h)
+
+/-- **The compact-`M` scalar flexible map is surjective**, hence bijective. -/
+theorem wPsMCompactScalarH2WordFlexible_surjective
+    (rho : ContinuousMonoidHom GammaM C)
+    (hq : Even q) (hα : 2 ≤ α) (hq0 : q ≠ 0) (he : Odd e)
+    (hr : ∀ k, FreeGroup.lift (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e k) = 1) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+    letI : DistribMulAction GammaM (ZMod 2) := scalarActionZmodTwo GammaM
+    letI : ContinuousSMul GammaM (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaM
+    Function.Surjective (wPsMCompactScalarH2WordFlexible rho (fun _ _ ↦ rfl) hq he) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction C (ZMod 2) := scalarActionZmodTwo C
+  letI : DistribMulAction GammaM (ZMod 2) := scalarActionZmodTwo GammaM
+  letI : ContinuousSMul GammaM (ZMod 2) := scalarActionZmodTwo_continuousSMul GammaM
+  let f := wPsMCompactScalarH2WordFlexible rho (fun _ _ ↦ rfl) hq he
+  have hinj : Function.Injective f :=
+    wPsMCompactScalarH2WordFlexible_injective rho (fun _ _ ↦ rfl) hq he
+  letI : Finite (H2 GammaM (ZMod 2)) := Finite.of_injective f hinj
+  letI : Fintype (H2 GammaM (ZMod 2)) := Fintype.ofFinite _
+  letI : Fintype (WordH2 (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e) (ZMod 2)) :=
+    Fintype.ofFinite _
+  have hcard : Nat.card (H2 GammaM (ZMod 2)) =
+      Nat.card (WordH2 (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e) (ZMod 2)) := by
+    calc
+      Nat.card (H2 GammaM (ZMod 2)) = 2 :=
+        MCompact.cardH2_of_uniformPushed (MCompact.uniformPushedHsimp hα hq)
+          (by omega) hq0 hq
+      _ = Nat.card (ZMod 2) := (Nat.card_zmod 2).symm
+      _ = Nat.card (WordH2 (fun i ↦ rho (genM i)) (MCompact.mCompactFam α h q e) (ZMod 2)) :=
+        (Nat.card_congr (wPsMCompactWordH2TraceEquiv (α := α) (fun i ↦ rho (genM i)) hq
+          he hr).toEquiv).symm
+  exact ((Fintype.bijective_iff_injective_and_card f).mpr
+    ⟨hinj, by simpa only [Nat.card_eq_fintype_card] using hcard⟩).2
+
+end MOrientationEquiv
+
+section MTraceSeam
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Count GQ2.Dyadic.Words GQ2.Dyadic.LSquare
+
+/-- **The trace seam at the compact-`M` word.**  Identical to §6 with the four `M` ingredients
+in place of the `N` ones. -/
+theorem wPs_QZero_eq_mCompact_graphHessianTrace {α h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type)
+      (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    [Finite DD.Vmod] [Finite DD.C0]
+    {q0 : DD.Vmod → ZMod 2} (hdat : IsEquivariantFactorSet q0 DD.dat)
+    (hq : Even q) (hq0 : q ≠ 0) (hα : 2 ≤ α) (c : VCocycle DD rho) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction
+        ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type)
+        (ZMod 2) :=
+      scalarActionZmodTwo _
+    letI : ContinuousSMul
+        ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type)
+        (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul _
+    QZero DD rho c =
+      hessRelZ
+          (fun i ↦ graphSemiProdHom c
+            (gammaGen (2 + 2 * h) q (Words.MCompact.mCompactW α h) i))
+          (GQ2.Dyadic.kappa0Cocycle DD.dat hdat)
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (tameRelW (2 + 2 * h) q) +
+        hessRelZ
+          (fun i ↦ graphSemiProdHom c
+            (gammaGen (2 + 2 * h) q (Words.MCompact.mCompactW α h) i))
+          (GQ2.Dyadic.kappa0Cocycle DD.dat hdat)
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (Words.MCompact.mCompactW α h) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction
+      ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    scalarActionZmodTwo _
+  letI : ContinuousSMul
+      ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    scalarActionZmodTwo_continuousSMul _
+  let L := SectionSix.SemiProd DD.C0 DD.Vmod
+  letI : Finite L := inferInstanceAs (Finite (DD.Vmod × DD.C0))
+  let e := omega2Exp (4 * Monoid.exponent L)
+  let W : Fin 2 → PWord (Generator (2 + 2 * h)) :=
+    gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h)
+  let gen : Generator (2 + 2 * h) →
+      ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type) :=
+    gammaGen (2 + 2 * h) q (Words.MCompact.mCompactW α h)
+  let graph : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type) L :=
+    ⟨graphSemiProdHom c, continuous_graphSemiProdHom c⟩
+  let kappa := GQ2.Dyadic.kappa0Cocycle DD.dat hdat
+  let f : Z2 ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type)
+      (ZMod 2) :=
+    ⟨graphPullback DD.dat (fun g ↦ rho0 DD rho g) c.c,
+      graphPullback_mem_Z2_of_cocycle (fun _ _ ↦ rfl) c⟩
+  have he : Odd e :=
+    odd_omega2Exp (fourMulExponent_ne_zero_and_even L).1
+      (fourMulExponent_ne_zero_and_even L).2
+  have hresolve : ResolvesAt W (MCompact.mCompactFam α h q e) (WordLift (ZMod 2) L) :=
+    Count.resolvesAt_mCompactFam (fourMulExponent_ne_zero_and_even L).1
+      (fun x ↦ (WordLift.orderOf_dvd_two_mul (by decide)
+        (fun g ↦ Monoid.order_dvd_exponent g) x).trans ⟨2, by ring⟩) α h q
+  have hr : ∀ k, FreeGroup.lift (fun i ↦ graph (gen i)) (MCompact.mCompactFam α h q e k) = 1 :=
+    lower_rel (A := ZMod 2) graph (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+      hresolve
+  have hsurj : Function.Surjective
+      (wPsMCompactScalarH2WordFlexible graph (fun _ _ ↦ rfl) hq he) :=
+    wPsMCompactScalarH2WordFlexible_surjective graph hq hα hq0 he hr
+  let orient := wPsMCompactScalarH2TraceEquiv_of_surjective graph (fun _ _ ↦ rfl) hq he hr hsurj
+  have htrace : QZero DD rho c =
+      ∑ k, moduleObsFun W gen graph (fun _ _ ↦ rfl) f k := by
+    rw [QZero]
+    change iotaB f.1 = _
+    rw [iotaB_eq_h2Equiv orient f]
+    exact wPsMCompactScalarH2TraceEquiv_of_surjective_mk graph (fun _ _ ↦ rfl) hq he hr hsurj f
+  have hnorm : ∀ x y : ((GammaR (2 + 2 * h) q
+      (Words.MCompact.mCompactW α h) : ProfiniteGrp) : Type),
+      moduleNormalize f.1 (x, y) = kappa.κ (graph x) (graph y) := by
+    intro x y
+    have h11 : f.1 (1, 1) = 0 := by
+      change DD.dat.f (c.c 1) (rho0 DD rho 1 • c.c 1) +
+        DD.dat.m (rho0 DD rho 1) (c.c 1) = 0
+      rw [c.c_one, smul_zero, hdat.f_zero_left, map_one, hdat.m_one, add_zero]
+    rw [moduleNormalize, h11, smul_zero, sub_zero]
+    exact graphPullback_eq_dyadicKappa0_graph hdat c x y
+  have hresolved : ∀ k, PWord.ResolvedAt
+      (WordCoh.lift (fun i ↦ graph (gen i)) kappa)
+        (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (W k) := by
+    intro k
+    fin_cases k
+    · exact kappa0_resolvedAt_uniform DD.dat hdat (Vmod_exp2 DD) _ _
+        (isOmega2Only_tameRelW (2 + 2 * h) q)
+    · exact kappa0_resolvedAt_uniform DD.dat hdat (Vmod_exp2 DD) _ _
+        (Words.MCompact.isOmega2Only_mCompact α h)
+  have hcoord : ∀ k, moduleObsFun W gen graph (fun _ _ ↦ rfl) f k =
+      hessRelZ (fun i ↦ graph (gen i)) kappa
+        (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (W k) := by
+    intro k
+    exact moduleObsFun_eq_hessRelZ_of_normalized_pullback
+      (fun _ _ ↦ rfl) (fun _ _ ↦ rfl) W gen graph f kappa hnorm _ _ k (hresolved k)
+  rw [htrace, Fin.sum_univ_two, hcoord, hcoord]
+  rfl
+
+end MTraceSeam
+
 /-! ## Axiom audit
 
 Every declaration in this file is pinned below.  The honest split: **all of them are std-3**
@@ -804,6 +1088,13 @@ section AxiomPins
 #print axioms wPs_hessRelZ_tameRelW_hessMark_eq_zero
 #print axioms wPs_QZero_eq_compactWallHandlePhase_of_headMark
 #print axioms wPs_wPmCompactHeadPhase_of_headFactorization
+#print axioms wPsMCompactScalarFlexibleResolverSystem
+#print axioms wPsMCompactScalarH2WordFlexible
+#print axioms wPsMCompactScalarH2WordFlexible_injective
+#print axioms wPsMCompactScalarH2TraceEquiv_of_surjective
+#print axioms wPsMCompactScalarH2TraceEquiv_of_surjective_mk
+#print axioms wPsMCompactScalarH2WordFlexible_surjective
+#print axioms wPs_QZero_eq_mCompact_graphHessianTrace
 
 end AxiomPins
 
