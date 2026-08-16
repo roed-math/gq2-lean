@@ -408,7 +408,11 @@ the first class that can obstruct is class four.
 
 [W86-HOUSE, as of `f0de6ad5`: the last clause is this module's state, superseded by wave 85.
 `MpcBuild.mpcBld_nonempty_four` solves class four on this set, so the first class that can
-obstruct is class FIVE.  See the module docstring's W86-HOUSE block.] -/
+obstruct is class FIVE.  See the module docstring's W86-HOUSE block.]
+
+[W88-HOUSE, as of `ad8c2b62`: the annotation above has itself moved one rung.
+`MpcFive.mpcFv_nonempty_five` (wave 87) solves class five on this set too, so the first class
+that can obstruct is class SIX.] -/
 
 section Central
 
@@ -494,7 +498,10 @@ that can obstruct is class four.
 
 [W86-HOUSE, as of `f0de6ad5`: the first clause is exact and is what this theorem says; the
 second is superseded, `MpcBuild.mpcBld_nonempty_four` having solved class four.  The first
-class that can obstruct is class five.] -/
+class that can obstruct is class five.]
+
+[W88-HOUSE, as of `ad8c2b62`: and one rung further.  `MpcFive.mpcFv_nonempty_five` (wave 87)
+solves class five, so the first class that can obstruct is class SIX.] -/
 theorem mpcWord_mem_three (s t m n : (DM 2 0 : Type))
     (hs : s ∈ twoCentralSeries (DM 2 0 : Type) 2)
     (ht : t ∈ twoCentralSeries (DM 2 0 : Type) 2)
@@ -549,7 +556,13 @@ theorem mpcWord_nonempty_of_le_three {k : ℕ} (hk : k ≤ 3) : (mpcWordSet k).N
 [W86-HOUSE, as of `f0de6ad5`: the theorem is unchanged, still true and still the route every
 sharper form takes; only the superlative has moved.  Class four is a theorem too now
 (`MpcBuild.mpcBld_nonempty_four`), so the exact residue is `k ≥ 5`, and the sharp form is
-`MpcBuild.mpcBld_shift_of_forall_class_five`, which is proved through THIS theorem.] -/
+`MpcBuild.mpcBld_shift_of_forall_class_five`, which is proved through THIS theorem.]
+
+[W88-HOUSE, as of `ad8c2b62`: the exact residue has moved again, to `k ≥ 6`, class five
+being a theorem as well (`MpcFive.mpcFv_nonempty_five`).  The sharp PRODUCER has NOT moved
+with it: `mpcBld_shift_of_forall_class_five` is still the sharpest one in the tree, so a
+consumer that wants the `k ≥ 6` residue must compose it with `mpcFv_nonempty_five` itself.
+No `_of_forall_class_six` exists anywhere.] -/
 theorem mpcWord_shift_of_forall_class_four
     (H : ∀ k, 4 ≤ k → (mpcWordSet k).Nonempty) : MpcPivShift 2 := by
   refine mpcWord_shift_of_forall_class fun k => ?_

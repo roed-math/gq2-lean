@@ -314,6 +314,18 @@ modules against the true 0, 0 and 7, because the prose is dense in Unicode. Wave
 figure of "707 lines over 100" should be re-measured in codepoints before the policy is decided,
 or the policy will be adopted against an inflated number.
 
+> **[W88-HOUSE, as of `ad8c2b62`: the first half of this paragraph is right and the inference
+> about wave 83 is wrong.]**  The `awk` observation is real and reproduces.  But 707 was
+> already a codepoint figure: `docs/dyadic/w82-house-note.md` S5 states it as "Counting
+> codepoints, `GQ2/` carries 707 such lines in 250 files", and raised it precisely to correct
+> wave 81's claim that the corpus had lines over 100 bytes but none over 100 codepoints.
+> Re-measuring wave 83's own base `db6fcedf` gives 707 over 100 codepoints in 251 files
+> against 9283 over 100 BYTES in 687 files, so the standing figure cannot have been a byte
+> count: a byte count of this tree has never been within an order of magnitude of 707.  The
+> number was not inflated and the policy was never at risk from it.  Re-measured tree-wide at
+> `ad8c2b62`: 720 in 254 files; method and per-module distribution in
+> `docs/dyadic/w88-house-note.md` S2, memo corrected at its wave-87 block.
+
 Nothing was rewrapped. The item is "record-or-adopt" and adopting is the owner's call, not a
 lane's.
 

@@ -42,6 +42,33 @@ found wave 85's diagnosis had missed an existing signed endpoint; Stokes is a th
 three of four rows.  The scoreboard now elaborates the umbrella itself, closing the
 invisible-module blind spot that had fired three times.
 
+[W88-HOUSE, as of `ad8c2b62`: the line-length sentence above is wrong about its own premise,
+and the re-measurement it asks for is done.
+
+**"Was measured in bytes" is false.**  The 707 figure was a CODEPOINT count from the start.
+`docs/dyadic/w82-house-note.md` S5 states it as "Counting codepoints, `GQ2/` carries 707 such
+lines in 250 files", and it was raised there precisely to correct wave 81's claim that the
+corpus had lines over 100 bytes but none over 100 codepoints.  Re-measuring the wave-83 base
+`db6fcedf` confirms it: 707 lines over 100 codepoints in 251 files, against 9283 lines over
+100 BYTES in 687 files.  A byte count of this tree has never been anywhere near 707, so the
+standing figure cannot have been one.  Wave 87's inference generalized a real local
+observation (its own `awk` pass over three modules inflated 0/0/7 to 6/14/18) into a
+provenance claim about a figure it did not re-derive.
+
+**The honest tree-wide number, at `ad8c2b62`: 720 lines over 100 codepoints in 254 files.**
+Method, stated so the next reader need not guess: every `.lean` file tracked under `GQ2/`
+plus `GQ2.lean` itself (970 files), lines split on `\n`, each line decoded as UTF-8 and
+counted in codepoints, strictly greater than 100.  The same corpus measured in bytes gives
+9481 lines in 701 files, a factor of thirteen, which is the whole reason the method note is
+here.  Growth since wave 83 is 707 -> 720, entirely the four waves of new modules; no wave
+regressed the figure materially.  The distribution is long-tailed and OLD: the worst ten
+modules carry 144 of the 720 and none of them is recent work, while the three wave-87
+modules measure 0 (`SqCore/GradedRowResidue.lean`), 0 (`Instances/MpcFive.lean`) and 3
+(`Instances/WordPhaseModel.lean`).  Per-module table in `docs/dyadic/w88-house-note.md` S2.
+
+This changes nothing about the item, which remains record-or-adopt and remains yours; it
+changes only that the number in front of you is now a measured one with its method attached.]
+
 [W87-HOUSE, as of `1541635f`, two corrections to the block above, neither of which changes
 the number.
 
