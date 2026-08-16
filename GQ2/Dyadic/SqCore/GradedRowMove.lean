@@ -45,6 +45,14 @@ W84-WORD lane built for the `M6` move, with the low rungs proved rather than obs
    pair outright (`gRow_pair_of_forall_class`).  Contrapositively, if a row move is false it
    fails at a finite class, in a finite 2-group, with no inverse-limit step to hide in.
 
+   [W86-HOUSE, as of `f0de6ad5`: this summary drops a binder the theorem carries.
+   `gRow_pair_of_forall_class` also takes `IsUnit (A - sqPivotExp * B)`, and it is load bearing,
+   not bookkeeping: it feeds `gRow_modTwoIndep`, whose generation argument needs `A - 1 - B`
+   even.  The declaration's own docstring says "on the unit locus" correctly; only this line
+   does not.  The contrapositive sentence is exact and runs the right way, which is worth
+   saying because the `M6` twin's `mpcBld_shift_of_bracket_supply` states it the wrong way
+   round.]
+
 5. **The low rungs are theorems** (sections 5b, 6).  `gRow_relWord_mem_two`: EVERY frame
    kills the relator to class 2 (the word is a product of squares and commutators up to
    conjugacy), at every `(A, B)`.  `gRow_relWord_bare_mem_three`: on the unit locus the BARE
@@ -83,6 +91,12 @@ No `sorry`, no new axiom, no `native_decide`.  Sections 1 to 6 print **std-3** (
 census members wave 83's seam always costs (`hilbertSymbol_normCriterion_finiteDyadic`,
 `tateDualityAt`, and the two `Foundations` members); `localReciprocity` and `markedRecipAt`
 stay binders.  Census unchanged.
+
+[W86-HOUSE, as of `f0de6ad5`: this paragraph accounts for two of the three axiom sets in the
+module and omits the third.  `gRow_pair_zero` is in §7 and prints std-3 plus
+`{dyadicOrientation, peripheralCyclotomicAction}`, the `h = 0` pins B3c and B8, which is neither
+"std-3" nor the seam's four.  §9's pin list records it correctly; only this summary skips it.
+Re-measured by elaboration.]
 -/
 
 open Multiplicative
