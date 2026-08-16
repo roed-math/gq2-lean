@@ -945,10 +945,11 @@ the commutators of `D_M 2 0`.  This section makes that a definition and proves t
 that make it useful.
 
 1. **The carrier is legal at every class** (`mpcSx_kill_le_corr`).  Legality has two halves, and
-   the χ-half is the one that is not automatic: `χ_M` is `ℤ₂ˣ`-valued and is **not** trivial on
-   `λ₂` (`χ_M(D̄) = mUnit 2`, so `χ_M(D̄²) = mUnit 2 ^ 2`), so "lies in `λ_j`" does not by itself
-   make an element a legal correction.  It does for the marked carrier: `χ_M(B̄²) = 1` and every
-   commutator is χ-trivial.
+   the χ-half is the one that depth does not give: `χ_M` is `ℤ₂ˣ`-valued, and `λ₂` really does
+   contain elements it sees.  `mpcSx_dmD_sq_not_corr` is the witness: `D̄² ∈ λ₂` but
+   `χ_M(D̄²) = mUnit 2 ^ 2 ≠ 1`, so `D̄²` is **not** a legal correction in any slot at any class.
+   So "lies in `λ_j`" does not by itself make an element usable, and the marked carrier is what
+   supplies the missing half: `χ_M(B̄²) = 1` and every commutator is χ-trivial.
 
 2. **The carrier is never exhausted** (`mpcSx_pow_mem_kill`).  At every class it contains one
    layer-adapted `B̄`-power, and every bracket that happens to lie that deep.  So the supply of
@@ -974,7 +975,7 @@ def mpcSxMarked : Subgroup (DM 2 0 : Type) :=
   Subgroup.closure ({dmB 2 0 ^ 2} ∪ {x | ∃ a b : (DM 2 0 : Type), x = commP a b})
 
 /-- ⭐ **THE MARKED CARRIER IS χ-TRIVIAL.**  This is the half of legality that does not come from
-the tower: `χ_M` is `ℤ₂ˣ`-valued, so `λ_j ≤ ker χ_M` is not available. -/
+the tower: by `mpcSx_dmD_sq_not_corr`, `λ_j ≤ ker χ_M` is false at `j = 2`. -/
 theorem mpcSx_marked_chi {x : (DM 2 0 : Type)} (hx : x ∈ mpcSxMarked) : chiM 2 0 x = 1 := by
   have hle : mpcSxMarked ≤ (chiM 2 0).toMonoidHom.ker := by
     refine (Subgroup.closure_le _).2 ?_
@@ -984,6 +985,27 @@ theorem mpcSx_marked_chi {x : (DM 2 0 : Type)} (hx : x ∈ mpcSxMarked) : chiM 2
       rw [map_pow, chiM_dmB, neg_one_sq]
     · exact MonoidHom.mem_ker.2 (mpcBld_chi_commP a b)
   exact MonoidHom.mem_ker.1 (hle hx)
+
+/-- ⭐⭐ **DEPTH ALONE IS NOT LEGALITY.**  `χ_M(D̄²) = mUnit 2 ^ 2 ≠ 1`, because `mUnit 2` is
+inverse to `1 - 2² = -3` and a square root of one in `ℤ₂` would force `9 = 1`.  So the χ-side
+condition of `mpcWordCorr` is a real constraint on `λ₂` and not a formality. -/
+theorem mpcSx_chi_dmD_sq : chiM 2 0 (dmD 2 0 ^ 2) ≠ 1 := by
+  rw [map_pow, chiM_dmD]
+  intro h
+  have hval : ((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) * ((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    have h2 := congrArg (fun u : ℤ_[2]ˣ => (u : ℤ_[2])) h
+    simpa [pow_two] using h2
+  have hm : ((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) * (1 - 2 ^ 2) = 1 := mUnit_mul (α := 2) (by omega)
+  have heq : ((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) = 1 - 2 ^ 2 :=
+    mul_left_cancel₀ (mUnit 2).ne_zero (hval.trans hm.symm)
+  rw [heq] at hm
+  norm_num at hm
+
+/-- ⭐ **THE WITNESS THAT `λ₂ ⊄ mpcWordCorr`.**  `D̄²` lies two layers down and is still not a
+legal correction.  This is why §7's legality lemma has content. -/
+theorem mpcSx_dmD_sq_not_corr :
+    dmD 2 0 ^ 2 ∈ twoCentralSeries (DM 2 0 : Type) 2 ∧ dmD 2 0 ^ 2 ∉ mpcWordCorr :=
+  ⟨sq_mem_twoCentralSeries_succ _ (Subgroup.mem_top _), fun h => mpcSx_chi_dmD_sq h.2⟩
 
 /-- **The marked kill carrier at class `j`**: the marked elements that lie `j` layers down. -/
 def mpcSxKill (j : ℕ) : Subgroup (DM 2 0 : Type) :=
@@ -1200,6 +1222,8 @@ section AxiomPins
 #print axioms mpcSx_w5_defect
 #print axioms mpcSxMarked
 #print axioms mpcSx_marked_chi
+#print axioms mpcSx_chi_dmD_sq
+#print axioms mpcSx_dmD_sq_not_corr
 #print axioms mpcSxKill
 #print axioms mpcSx_kill_le_corr
 #print axioms mpcSx_kill_le_lambda
