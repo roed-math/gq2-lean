@@ -963,10 +963,11 @@ class-`(j+2)` solution need not be a `λ_j`-move away from one, so failing it do
 ⚠ [W86-LADDER5, as of `0a479c6e`: **the caution's premise is FALSE as written.**  `mpcWordSet`
 is antitone, so a class-`(j+2)` solution IS a class-`(j+1)` solution and is the identity
 `λ_j`-move from itself (`mpcLad_incr_one`); `mpcLad_nonempty_iff` makes the rung an iff with no
-hypothesis, and `mpcLad_eq_empty_of_no_supply` gives the refutation route this paragraph says
-does not exist: a supply failure proved over the WHOLE class-`(j+1)` solution set empties
-`mpcWordSet (j+2)`.  The true content the caution protected survives in the correct form:
-failure at ONE chosen `p` is no evidence.  See `MpcLadder.lean`.]
+hypothesis, and `mpcLad_eq_empty_of_no_supply` gives an emptiness route this paragraph lacked:
+a supply failure proved over the WHOLE class-`(j+1)` solution set empties `mpcWordSet (j+2)`,
+refuting the ANSATZ (not `MpcPivShift 2` itself; the next block scopes that).  The true content
+the caution protected survives in the correct form: failure at ONE chosen `p` is no evidence.
+See `MpcLadder.lean`.]
 
 [W86-HOUSE, as of `f0de6ad5`: the caution is right and the clause after the semicolon is not.
 An empty `mpcWordSet k` refutes the ANSATZ, not `MpcPivShift 2`: that step needs the ansatz to

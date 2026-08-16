@@ -124,9 +124,11 @@ class-`(j+2)` solution need not be a `λ_j`-move away from one, so failing it do
 
 ⚠ **[W86-LADDER5, as of `0a479c6e`: the "need not be" premise is FALSE**; `mpcWordSet` is
 antitone, so it is one via the identity move, `mpcLad_nonempty_iff` is an iff at every class,
-and `mpcLad_eq_empty_of_no_supply` is a refutation route strictly weaker than a proven empty
-class ("nothing weaker will do" is also superseded).  What survives: failure at one chosen `p`
-is no evidence.  See `docs/dyadic/w86-ladder5-note.md`.]
+and `mpcLad_eq_empty_of_no_supply` empties a class from a supply failure proved over the whole
+class-`(j+1)` solution set, so "nothing weaker will do" is superseded.  Per W86-HOUSE, an empty
+class refutes the ANSATZ, not `MpcPivShift 2` itself (ansatz exhaustiveness is not proved).
+What survives: failure at one chosen `p` is no evidence.  See
+`docs/dyadic/w86-ladder5-note.md`.]
 
 ## 5.  The tie (`MpcPivot.lean`, under the edit grant)
 
@@ -154,7 +156,11 @@ the tree) elaborates
 with the same five explicit binders the four frozen rows carry, plus `MpcPivShift 2`, and axioms
 `std-3 + hilbertSymbol_normCriterion_finiteDyadic, peripheralCyclotomicAction,
 relativeStiefelWhitney_dyadic, tateDualityAt, absGalQ2_isTopologicallyFinitelyGenerated,
-absGalQ2_localEulerCharacteristic` - exactly the four frozen record blocks' set.  So the fifth row
+absGalQ2_localEulerCharacteristic` - exactly the four frozen record blocks' set.
+[W86-HOUSE, as of `f0de6ad5`: verified by elaboration, with one correction: the set is exactly
+THREE of the four frozen rows'; the `√−2` row carries one campaign axiom fewer (recorded at the
+branch-datum level in `CanonicalRecords`' pin prose), so "the four frozen record blocks' set"
+overstates by that row.  See `docs/dyadic/w86-house-note.md`.]  So the fifth row
 of `CanonicalRecords` is now assemblable modulo `MpcPivShift 2`; landing it belongs to whoever
 owns `Instances/RecordBlocks.lean`, and this lane did not take it.
 
@@ -224,8 +230,9 @@ No `sorry`, no new axiom, no `native_decide`, no `maxHeartbeats`, no `maxRecDept
 
    ⚠ **[W86-LADDER5, as of `0a479c6e`: ANSWERED, affirmatively, and "it need not be" is FALSE**:
    `mpcWordSet` is antitone, so the converse holds via the identity move and the engine IS the
-   decision procedure this item asked for (`mpcLad_nonempty_iff`, an iff at every class;
-   `mpcLad_eq_empty_of_no_supply` the resulting refutation route).  Within a `λ_j`-orbit the
+   decision procedure this item asked for, rung by rung (`mpcLad_nonempty_iff`, an iff at every
+   class; `mpcLad_eq_empty_of_no_supply` the resulting emptiness route, which per W86-HOUSE
+   refutes the ansatz rather than `MpcPivShift 2` itself).  Within a `λ_j`-orbit the
    rung is one `𝔽₂`-linear membership test (`mpcLad_defect_orbit`); the surviving gap is the
    orbit space of `mpcWordSet (j+1)`, not connectivity.]
 3. **The widened carrier is available but unused above class four.**  `mpcBldSet` and its

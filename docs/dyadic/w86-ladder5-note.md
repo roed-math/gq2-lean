@@ -27,7 +27,11 @@ existing module was edited.
 
 3. **The engine gains a refutation route.**  `mpcLad_eq_empty_of_no_supply`: a supply failure
    proved over the whole class-`(j+1)` solution set proves `mpcWordSet (j+2) = ∅`, which is the
-   only shape wave 84 admits for a negative claim.
+   only shape wave 84 admits for a negative claim.  [W86-HOUSE scope: a negative claim about the
+   ANSATZ.  An empty `mpcWordSet` does not by itself refute `MpcPivShift 2`; that step needs the
+   ansatz to be exhaustive among the markings `mpcOrb_shift_iff_marking` quantifies over, which
+   is not proved.  Wave 84's admissibility naming carried the same inversion.  See
+   `docs/dyadic/w86-house-note.md`.]
 
 4. **A rung has an exact shape, not just an exact price.**  The increment map is a homomorphism
    (`mpcLad_incr_hom`) into the central involutive layer (`mpcLad_incr_mem_zLayer`), so the

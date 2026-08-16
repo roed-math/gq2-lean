@@ -25,7 +25,9 @@ This module answers that question and takes the consequences.
    Three consequences: the sufficient condition weakens from `∀ p` to `∃ p`
    (`mpcLad_shift_of_exists_supply`); a supply failure proved over the whole class-`(j+1)`
    solution set proves `mpcWordSet (j+2) = ∅` (`mpcLad_eq_empty_of_no_supply`); and that
-   emptiness is exactly the negative claim wave 84 named as the only admissible one.
+   emptiness is exactly the negative claim wave 84 named as the only admissible one
+   [W86-HOUSE scope: a negative claim about the ANSATZ; see the
+   `mpcLad_eq_empty_of_no_supply` docstring's block].
 
 2. **A rung's exact shape** (§3).  The increment map is a homomorphism (`mpcLad_incr_hom`) into
    the central involutive layer (`mpcLad_incr_mem_zLayer`), so the reachable increments are an
@@ -239,7 +241,13 @@ theorem mpcLad_shift_of_exists_supply
 one-step supply is not a refutation, and that is right *at a single quadruple*.  By the converse
 it becomes one as soon as the failure is proved over the whole class-`(j+1)` solution set: then
 `mpcWordSet (j+2)` is empty, which is the shape wave 84 named as the only admissible negative
-claim. -/
+claim.
+
+[W86-HOUSE scope, as of `f0de6ad5`: "refutation" throughout this docstring means refuting the
+ANSATZ.  An empty `mpcWordSet` refutes `MpcPivShift 2` itself only if the ansatz is exhaustive
+among the markings `mpcOrb_shift_iff_marking` quantifies over, which is not proved; wave 84's
+"only admissible negative claim" carried the same inversion.  The statement below is exact as
+written.  See `mpcBld_shift_of_bracket_supply`'s W86-HOUSE block.] -/
 theorem mpcLad_eq_empty_of_no_supply {j : ℕ}
     (H : ∀ p ∈ mpcWordSet (j + 1), ¬ MpcLadSupply j p) : mpcWordSet (j + 2) = ∅ := by
   rw [Set.eq_empty_iff_forall_notMem]
