@@ -1229,6 +1229,176 @@ theorem gRsd_nonempty_four_even_odd {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * 
   rw [gRsd_defect_even_odd_t hsplit hB ht, gRsd_cost_even hB hA1, ← pow_two]
   exact zLayer_sq (DSq h : Type) gRsdKillE_mem
 
+/-- The cost of the odd-locus witness `(xiS xiX, zeta (xiS xiX), xiS xiX)` is exactly the
+odd-locus defect `gRsdKillO`. -/
+private theorem gRsd_cost_odd_even_t {A B : ℤ_[2]} (hB : ¬ (2 : ℤ_[2]) ∣ B)
+    (hA1 : ¬ (2 : ℤ_[2]) ∣ A - 1) :
+    gLadCost (fun i => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) i))
+      (fun i => levelMk (DSq h : Type) 4 (gRsdTuple h
+        (commP (dsqSigma h) (dsqX1 h) * commP (dsqX0 h) (dsqX1 h))
+        (commP (dsqSigma h) (dsqX0 h) * (commP (dsqSigma h) (dsqX1 h)
+          * commP (dsqX0 h) (dsqX1 h)))
+        (commP (dsqSigma h) (dsqX1 h) * commP (dsqX0 h) (dsqX1 h)) i))
+      = gRsdKillO h := by
+  have hζX : commP (gRsdZeta h) (gLadX h) ∈ zLayer (DSq h : Type) 3 := gRsdZetaX_mem
+  have ha₁ : commP (gRsdXiS h) (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiS_mem _
+  have ha₂ : commP (gRsdXiX h) (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiX_mem _
+  have hb₁ : commP (gRsdXiS h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiS_mem _
+  have hb₂ : commP (gRsdXiX h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiX_mem _
+  have hs₁ : gRsdXiS h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdXiS_mem
+  have hs₂ : gRsdXiX h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdXiX_mem
+  rw [gRsd_cost_tuple]
+  simp only [gRsd_bare_zero, gRsd_bare_one, gRsd_bare_two, map_mul, gRsd_mk_zeta,
+    gRsd_mk_xiS, gRsd_mk_xiX]
+  rw [gRsd_cost0_odd hB (Subgroup.mul_mem _ gRsdXiS_mem gRsdXiX_mem),
+    gRsd_cost1_odd hA1 (Subgroup.mul_mem _ gRsdZeta_mem
+      (Subgroup.mul_mem _ gRsdXiS_mem gRsdXiX_mem)),
+    gRsd_cost2 B (Subgroup.mul_mem _ gRsdXiS_mem gRsdXiX_mem),
+    gLad_commP_mul_left_two gRsdXiS_mem (gLadS h),
+    gLad_commP_mul_left_two gRsdZeta_mem (gLadX h),
+    gLad_commP_mul_left_two gRsdXiS_mem (gLadX h),
+    gRsd_sq_split gRsdXiS_mem gRsdXiX_mem,
+    gLad_commP_mul_left_two gRsdXiS_mem (gLadY h)]
+  calc commP (gRsdXiS h) (gLadS h) * commP (gRsdXiX h) (gLadS h)
+      * (commP (gRsdZeta h) (gLadX h)
+        * (commP (gRsdXiS h) (gLadX h) * commP (gRsdXiX h) (gLadX h)))
+      * (gRsdXiS h ^ 2 * gRsdXiX h ^ 2
+        * (commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h)))
+      = commP (gRsdXiS h) (gLadS h) * (commP (gRsdXiX h) (gLadS h)
+        * (commP (gRsdZeta h) (gLadX h) * (commP (gRsdXiS h) (gLadX h)
+          * (commP (gRsdXiX h) (gLadX h) * (gRsdXiS h ^ 2 * (gRsdXiX h ^ 2
+            * (commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h)))))))) := by
+        group
+    _ = commP (gRsdZeta h) (gLadX h) * (gRsdXiS h ^ 2 * (gRsdXiX h ^ 2
+        * (commP (gRsdXiS h) (gLadX h) * (commP (gRsdXiS h) (gLadS h)
+          * (commP (gRsdXiX h) (gLadX h) * (commP (gRsdXiX h) (gLadS h)
+            * (commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h)))))))) := by
+        rw [gRsd_swap hζX (commP (gRsdXiX h) (gLadS h)),
+          gRsd_swap hζX (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hs₁ (commP (gRsdXiX h) (gLadX h)),
+          gRsd_swap hs₁ (commP (gRsdXiS h) (gLadX h)),
+          gRsd_swap hs₁ (commP (gRsdXiX h) (gLadS h)),
+          gRsd_swap hs₁ (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hs₂ (commP (gRsdXiX h) (gLadX h)),
+          gRsd_swap hs₂ (commP (gRsdXiS h) (gLadX h)),
+          gRsd_swap hs₂ (commP (gRsdXiX h) (gLadS h)),
+          gRsd_swap hs₂ (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hb₁ (commP (gRsdXiX h) (gLadS h)),
+          gRsd_swap hb₁ (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hb₂ (commP (gRsdXiX h) (gLadS h))]
+    _ = gRsdKillO h := by
+        rw [gRsdKillO, gRsdKillY, gRsdYSq, gRsdYTrip, gRsdYY]
+        group
+
+/-- ⭐⭐ **RUNG 4 ON THE ODD LOCUS AT EVEN EXCESS**. -/
+theorem gRsd_nonempty_four_odd_even {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : ¬ (2 : ℤ_[2]) ∣ B) (ht : (2 : ℤ_[2]) ∣ t) : (gRowSet h A B 4).Nonempty := by
+  have hA1 : ¬ (2 : ℤ_[2]) ∣ A - 1 := fun ⟨k, hk⟩ =>
+    hB ⟨k - t, by linear_combination hk - hsplit⟩
+  have hc : ∀ i, gRsdTuple h
+      (commP (dsqSigma h) (dsqX1 h) * commP (dsqX0 h) (dsqX1 h))
+      (commP (dsqSigma h) (dsqX0 h) * (commP (dsqSigma h) (dsqX1 h)
+        * commP (dsqX0 h) (dsqX1 h)))
+      (commP (dsqSigma h) (dsqX1 h) * commP (dsqX0 h) (dsqX1 h)) i ∈ gRowCorr h :=
+    gRsdTuple_mem_corr
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _))
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _)
+        (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _)))
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _))
+  refine gLad_nonempty_four_of_kill (by exact ⟨t, by linear_combination hsplit⟩)
+    (fun i => ((gRow_mem_corr.mp (hc i)).1).1) (fun i => ((gRow_mem_corr.mp (hc i)).1).2)
+    (fun i => (gRow_mem_corr.mp (hc i)).2) ?_
+  rw [gRsd_defect_odd_even_t hsplit hB ht, gRsd_cost_odd_even_t hB hA1, ← pow_two]
+  exact zLayer_sq (DSq h : Type) gRsdKillO_mem
+
+/-- The cost of the odd-locus witness `(zeta xiS, xiX, zeta (xiS xiX))` is exactly the
+odd-locus defect `gRsdKillO'`. -/
+private theorem gRsd_cost_odd_odd_t {A B : ℤ_[2]} (hB : ¬ (2 : ℤ_[2]) ∣ B)
+    (hA1 : ¬ (2 : ℤ_[2]) ∣ A - 1) :
+    gLadCost (fun i => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) i))
+      (fun i => levelMk (DSq h : Type) 4 (gRsdTuple h
+        (commP (dsqSigma h) (dsqX0 h) * commP (dsqSigma h) (dsqX1 h))
+        (commP (dsqX0 h) (dsqX1 h))
+        (commP (dsqSigma h) (dsqX0 h) * (commP (dsqSigma h) (dsqX1 h)
+          * commP (dsqX0 h) (dsqX1 h))) i))
+      = gRsdKillO' h := by
+  have hζ₂ : gRsdZeta h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdZeta_mem
+  have ha₁ : commP (gRsdXiS h) (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiS_mem _
+  have ha₂ : commP (gRsdXiX h) (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiX_mem _
+  have hb₁ : commP (gRsdXiS h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiS_mem _
+  have hb₂ : commP (gRsdXiX h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiX_mem _
+  have hs₁ : gRsdXiS h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdXiS_mem
+  have hs₂ : gRsdXiX h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdXiX_mem
+  rw [gRsd_cost_tuple]
+  simp only [gRsd_bare_zero, gRsd_bare_one, gRsd_bare_two, map_mul, gRsd_mk_zeta,
+    gRsd_mk_xiS, gRsd_mk_xiX]
+  rw [gRsd_cost0_odd hB (Subgroup.mul_mem _ gRsdZeta_mem gRsdXiS_mem),
+    gRsd_cost1_odd hA1 gRsdXiX_mem,
+    gRsd_cost2 B (Subgroup.mul_mem _ gRsdZeta_mem
+      (Subgroup.mul_mem _ gRsdXiS_mem gRsdXiX_mem)),
+    gLad_commP_mul_left_two gRsdZeta_mem (gLadS h),
+    gRsd_sq_split gRsdZeta_mem (Subgroup.mul_mem _ gRsdXiS_mem gRsdXiX_mem),
+    gRsd_sq_split gRsdXiS_mem gRsdXiX_mem,
+    gLad_commP_mul_left_two gRsdZeta_mem (gLadY h),
+    gLad_commP_mul_left_two gRsdXiS_mem (gLadY h),
+    gRsd_zeta_Y]
+  calc commP (gRsdZeta h) (gLadS h) * commP (gRsdXiS h) (gLadS h)
+      * commP (gRsdXiX h) (gLadX h)
+      * (gRsdZeta h ^ 2 * (gRsdXiS h ^ 2 * gRsdXiX h ^ 2)
+        * (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h)
+          * (commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h))))
+      = commP (gRsdZeta h) (gLadS h) * (commP (gRsdXiS h) (gLadS h)
+        * (commP (gRsdXiX h) (gLadX h) * (gRsdZeta h ^ 2 * (gRsdXiS h ^ 2
+          * (gRsdXiX h ^ 2 * (commP (gRsdXiX h) (gLadS h) * (commP (gRsdXiS h) (gLadX h)
+            * (commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h))))))))) := by
+        group
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadS h) * (gRsdXiS h ^ 2 * (gRsdXiX h ^ 2
+        * (commP (gRsdXiS h) (gLadX h) * (commP (gRsdXiS h) (gLadS h)
+          * (commP (gRsdXiX h) (gLadX h) * (commP (gRsdXiX h) (gLadS h)
+            * (commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h))))))))) := by
+        rw [gRsd_swap hζ₂ (commP (gRsdXiX h) (gLadX h)),
+          gRsd_swap hζ₂ (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hζ₂ (commP (gRsdZeta h) (gLadS h)),
+          gRsd_swap hs₁ (commP (gRsdXiX h) (gLadX h)),
+          gRsd_swap hs₁ (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hs₂ (commP (gRsdXiX h) (gLadX h)),
+          gRsd_swap hs₂ (commP (gRsdXiS h) (gLadS h)),
+          gRsd_swap hb₁ (commP (gRsdXiX h) (gLadS h)),
+          gRsd_swap hb₁ (commP (gRsdXiX h) (gLadX h)),
+          gRsd_swap hb₁ (commP (gRsdXiS h) (gLadS h))]
+    _ = gRsdKillO' h := by
+        rw [gRsdKillO', gRsdKillY, gRsdYSq, gRsdYTrip, gRsdYY]
+        group
+
+/-- ⭐⭐ **RUNG 4 ON THE ODD LOCUS AT ODD EXCESS**. -/
+theorem gRsd_nonempty_four_odd_odd {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : ¬ (2 : ℤ_[2]) ∣ B) (ht : ¬ (2 : ℤ_[2]) ∣ t) : (gRowSet h A B 4).Nonempty := by
+  have hA1 : ¬ (2 : ℤ_[2]) ∣ A - 1 := fun ⟨k, hk⟩ =>
+    hB ⟨k - t, by linear_combination hk - hsplit⟩
+  have hc : ∀ i, gRsdTuple h
+      (commP (dsqSigma h) (dsqX0 h) * commP (dsqSigma h) (dsqX1 h))
+      (commP (dsqX0 h) (dsqX1 h))
+      (commP (dsqSigma h) (dsqX0 h) * (commP (dsqSigma h) (dsqX1 h)
+        * commP (dsqX0 h) (dsqX1 h))) i ∈ gRowCorr h :=
+    gRsdTuple_mem_corr
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _))
+      (gRsd_commP_mem_corr _ _)
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _)
+        (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _)))
+  refine gLad_nonempty_four_of_kill (by exact ⟨t, by linear_combination hsplit⟩)
+    (fun i => ((gRow_mem_corr.mp (hc i)).1).1) (fun i => ((gRow_mem_corr.mp (hc i)).1).2)
+    (fun i => (gRow_mem_corr.mp (hc i)).2) ?_
+  rw [gRsd_defect_odd_odd_t hsplit hB ht, gRsd_cost_odd_odd_t hB hA1, ← pow_two]
+  exact zLayer_sq (DSq h : Type) gRsdKillO'_mem
+
 end Kills
 
 end SqCore
