@@ -466,6 +466,120 @@ theorem gRsd_SQ_QX_even {B : ℤ_[2]} (hB : (2 : ℤ_[2]) ∣ B) :
 
 end PowerBrackets
 
+/-! ## §5 The odd pivot powers
+
+Every odd power is `S(XV)` with `V` central, possibly with one factor `W^2` peeled off; the
+peeled factor is invisible in every slot the defect uses (it brackets to the involution
+`gRsdKillE`, which squares away, or dies outright).  The atoms of the odd-`B` defect follow:
+the pair `[S,Q][Q,X]`, the two rotated triples, the bracket square, the y-block of `Q^2`,
+and the two-y triples of `[Y,[Y,Q]]`. -/
+
+section OddPowers
+
+variable {h : ℕ}
+
+/-- The y-block squares: `[S,Y]^2 [X,Y]^2`. -/
+noncomputable def gRsdYSq (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  gRsdXiS h ^ 2 * gRsdXiX h ^ 2
+
+/-- The y-block triples: `[[S,Y],X] [[S,Y],S] [[X,Y],X] [[X,Y],S]`. -/
+noncomputable def gRsdYTrip (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  commP (gRsdXiS h) (gLadX h) * commP (gRsdXiS h) (gLadS h)
+    * (commP (gRsdXiX h) (gLadX h) * commP (gRsdXiX h) (gLadS h))
+
+/-- The y-block of the even pivot powers: `[W^2, Y]`. -/
+noncomputable def gRsdKillY (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  gRsdYSq h * gRsdYTrip h
+
+/-- The two-y triples: `[[S,Y],Y] [[X,Y],Y]`. -/
+noncomputable def gRsdYY (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  commP (gRsdXiS h) (gLadY h) * commP (gRsdXiX h) (gLadY h)
+
+theorem gRsdYSq_mem : gRsdYSq h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _ (cfour_sq_mem_zLayer gRsdXiS_mem) (cfour_sq_mem_zLayer gRsdXiX_mem)
+
+theorem gRsdYTrip_mem : gRsdYTrip h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _
+    (Subgroup.mul_mem _ (cfour_commP_mem_zLayer_left gRsdXiS_mem _)
+      (cfour_commP_mem_zLayer_left gRsdXiS_mem _))
+    (Subgroup.mul_mem _ (cfour_commP_mem_zLayer_left gRsdXiX_mem _)
+      (cfour_commP_mem_zLayer_left gRsdXiX_mem _))
+
+theorem gRsdKillY_mem : gRsdKillY h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _ gRsdYSq_mem gRsdYTrip_mem
+
+theorem gRsdYY_mem : gRsdYY h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _ (cfour_commP_mem_zLayer_left gRsdXiS_mem _)
+    (cfour_commP_mem_zLayer_left gRsdXiX_mem _)
+
+/-- `W^2` is a `lambda_2`-class. -/
+theorem gRsd_Wsq_mem : gLadQ h 2 ∈ lambdaImage (DSq h : Type) 2 4 :=
+  gRsd_Q_even_mem ⟨1, by norm_num⟩
+
+/-- ⭐ **The odd-power dichotomy**: every odd pivot power is `S(XV)` with `V` central, or
+`W^2` times such a shape. -/
+theorem gRsd_Q_odd_cases {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    (∃ V ∈ zLayer (DSq h : Type) 3, gLadQ h c = gLadS h * (gLadX h * V)) ∨
+    (∃ V ∈ zLayer (DSq h : Type) 3,
+      gLadQ h c = gLadQ h 2 * (gLadS h * (gLadX h * V))) := by
+  obtain ⟨d, hd⟩ := two_dvd_sub_of_isUnit (isUnit_iff_not_two_dvd.mpr hc) isUnit_one
+  by_cases hdpar : (2 : ℤ_[2]) ∣ d
+  · obtain ⟨e, he⟩ := hdpar
+    have hc1 : (4 : ℤ_[2]) ∣ c - 1 := ⟨e, by linear_combination hd + 2 * he⟩
+    refine Or.inl ⟨gRsdZ h * gLadQ h (c - 1),
+      Subgroup.mul_mem _ gRsdZ_mem (gLadQ_mem_zLayer_of_four hc1), ?_⟩
+    have hsplit : gLadQ h c = gLadQ h 1 * gLadQ h (c - 1) := by
+      rw [← gRsdQ_add, show (1 : ℤ_[2]) + (c - 1) = c from by ring]
+    rw [hsplit, gRsd_W_split, mul_assoc, mul_assoc]
+  · obtain ⟨f, hf⟩ := two_dvd_sub_of_isUnit (isUnit_iff_not_two_dvd.mpr hdpar) isUnit_one
+    have hc3 : (4 : ℤ_[2]) ∣ c - 3 := ⟨f, by linear_combination hd + 2 * hf⟩
+    refine Or.inr ⟨gRsdZ h * gLadQ h (c - 3),
+      Subgroup.mul_mem _ gRsdZ_mem (gLadQ_mem_zLayer_of_four hc3), ?_⟩
+    have hsplit : gLadQ h c = gLadQ h 2 * (gLadQ h 1 * gLadQ h (c - 3)) := by
+      rw [← gRsdQ_add, ← gRsdQ_add, show (1 : ℤ_[2]) + (c - 3) = c - 2 from by ring,
+        show (2 : ℤ_[2]) + (c - 2) = c from by ring]
+    rw [hsplit, gRsd_W_split, mul_assoc, mul_assoc]
+
+/-- A `lambda_2`-class brackets EVERY odd pivot power through the two core letters. -/
+theorem gRsd_lam_Q_odd {E : levelQuot (DSq h : Type) 4}
+    (hE : E ∈ lambdaImage (DSq h : Type) 2 4) {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP E (gLadQ h c) = commP E (gLadX h) * commP E (gLadS h) := by
+  rcases gRsd_Q_odd_cases (h := h) hc with ⟨V, hV, hQ⟩ | ⟨V, hV, hQ⟩
+  · rw [hQ]
+    exact gRsd_lam_shape hE hV
+  · rw [hQ, cfive_commP_right_hom hE (gLadQ h 2) (gLadS h * (gLadX h * V)),
+      gLad_vanish4 hE gRsd_Wsq_mem, mul_one]
+    exact gRsd_lam_shape hE hV
+
+/-- The zeta bracket of every odd pivot power: the canonical triple pair. -/
+theorem gRsd_zeta_Q_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP (gRsdZeta h) (gLadQ h c)
+      = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) :=
+  gRsd_lam_Q_odd gRsdZeta_mem hc
+
+/-- ⭐ **The pair atom**: `[S,Q] [Q,X] = zeta^2 [zeta,X]` at every odd `B`. -/
+theorem gRsd_SQ_QX_odd {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    commP (gLadS h) (gLadQ h c) * commP (gLadQ h c) (gLadX h)
+      = gRsdZeta h ^ 2 * commP (gRsdZeta h) (gLadX h) := by
+  rcases gRsd_Q_odd_cases (h := h) hc with ⟨V, hV, hQ⟩ | ⟨V, hV, hQ⟩
+  · rw [hQ, gRsd_S_shape hV, gRsd_shape_X hV, ← mul_assoc, ← pow_two]
+  · rw [hQ, cfour_commP_mul_right (gLadS h) (gLadQ h 2) (gLadS h * (gLadX h * V)),
+      gRsd_S_shape hV, gRsd_S_Wsq,
+      cfive_commP_zLayer_left gRsdKillE_mem (gLadS h * (gLadX h * V)), mul_one,
+      cfour_commP_mul_left (gLadQ h 2) (gLadS h * (gLadX h * V)) (gLadX h),
+      gRsd_Wsq_X, cfive_commP_zLayer_left gRsdKillE_mem (gLadS h * (gLadX h * V)), mul_one,
+      gRsd_shape_X hV]
+    calc gRsdZeta h * gRsdKillE h
+          * (gRsdKillE h * (gRsdZeta h * commP (gRsdZeta h) (gLadX h)))
+        = gRsdZeta h * (gRsdKillE h * gRsdKillE h)
+          * (gRsdZeta h * commP (gRsdZeta h) (gLadX h)) := by group
+      _ = gRsdZeta h * (gRsdZeta h * commP (gRsdZeta h) (gLadX h)) := by
+          rw [← pow_two, zLayer_sq (DSq h : Type) gRsdKillE_mem, mul_one]
+      _ = gRsdZeta h ^ 2 * commP (gRsdZeta h) (gLadX h) := by
+          rw [← mul_assoc, ← pow_two]
+
+end OddPowers
+
 end SqCore
 
 end Dyadic
