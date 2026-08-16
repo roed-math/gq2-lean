@@ -886,6 +886,7 @@ import GQ2.Dyadic.Instances.MpcLadder
 import GQ2.Dyadic.Instances.WordPhase
 import GQ2.Dyadic.Instances.WordPhaseModel
 import GQ2.Dyadic.Instances.WordPhaseSeam
+import GQ2.Dyadic.Instances.WordPhaseCompactNData
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.LRowCand
