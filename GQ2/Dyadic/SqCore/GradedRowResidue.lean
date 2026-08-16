@@ -271,6 +271,201 @@ theorem gRsd_Q_even_mem {c : ℤ_[2]} (hc : (2 : ℤ_[2]) ∣ c) :
 
 end PivotSplit
 
+/-! ## §3 The five atoms, and the bracket calculus of pivot powers
+
+The whole class-4 content of the residues is built from `zeta = [S, X]`, its two triples
+`[zeta, X]`, `[zeta, S]`, the two y-brackets `xiS = [S, Y]`, `xiX = [X, Y]`, their squares,
+their s/x-triples, and their two-y triples.  This section evaluates every pivot-power
+bracket the defect contains against those atoms, exactly, in `Q_4`. -/
+
+section Atoms
+
+variable {h : ℕ}
+
+/-- The block atom: `zeta = [S, X]` in `Q_4`. -/
+noncomputable def gRsdZeta (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  commP (gLadS h) (gLadX h)
+
+/-- The y-atoms: `xiS = [S, Y]` and `xiX = [X, Y]` in `Q_4`. -/
+noncomputable def gRsdXiS (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  commP (gLadS h) (gLadY h)
+
+noncomputable def gRsdXiX (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  commP (gLadX h) (gLadY h)
+
+theorem gRsdZeta_mem : gRsdZeta h ∈ lambdaImage (DSq h : Type) 2 4 :=
+  cfour_commP_mem_lambdaTwo _ _
+
+theorem gRsdXiS_mem : gRsdXiS h ∈ lambdaImage (DSq h : Type) 2 4 :=
+  cfour_commP_mem_lambdaTwo _ _
+
+theorem gRsdXiX_mem : gRsdXiX h ∈ lambdaImage (DSq h : Type) 2 4 :=
+  cfour_commP_mem_lambdaTwo _ _
+
+theorem gRsdZetaX_mem : commP (gRsdZeta h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+  cfour_commP_mem_zLayer_left gRsdZeta_mem _
+
+theorem gRsdZetaS_mem : commP (gRsdZeta h) (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+  cfour_commP_mem_zLayer_left gRsdZeta_mem _
+
+/-- The even-locus kill element: `zeta^2 [zeta,X] [zeta,S]`. -/
+noncomputable def gRsdKillE (h : ℕ) : levelQuot (DSq h : Type) 4 :=
+  gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h))
+
+theorem gRsdKillE_mem : gRsdKillE h ∈ zLayer (DSq h : Type) 3 :=
+  Subgroup.mul_mem _ (cfour_sq_mem_zLayer gRsdZeta_mem)
+    (Subgroup.mul_mem _ gRsdZetaX_mem gRsdZetaS_mem)
+
+/-- A `lambda_2`-class brackets an odd-shaped power through the two core letters. -/
+theorem gRsd_lam_shape {E V : levelQuot (DSq h : Type) 4}
+    (hE : E ∈ lambdaImage (DSq h : Type) 2 4) (hV : V ∈ zLayer (DSq h : Type) 3) :
+    commP E (gLadS h * (gLadX h * V)) = commP E (gLadX h) * commP E (gLadS h) := by
+  rw [cfive_commP_right_hom hE (gLadS h) (gLadX h * V),
+    cfive_commP_right_hom hE (gLadX h) V, gLad_commP_zLayer_right E hV, one_mul]
+
+/-- The sigma bracket of an odd-shaped power is exactly `zeta`. -/
+theorem gRsd_S_shape {V : levelQuot (DSq h : Type) 4} (hV : V ∈ zLayer (DSq h : Type) 3) :
+    commP (gLadS h) (gLadS h * (gLadX h * V)) = gRsdZeta h := by
+  rw [cfour_commP_mul_right (gLadS h) (gLadS h) (gLadX h * V), cfour_comm_self,
+    cfour_one_comm, mul_one, mul_one, cfour_commP_mul_right (gLadS h) (gLadX h) V,
+    gLad_commP_zLayer_right (gLadS h) hV, one_mul,
+    gLad_commP_zLayer_right (commP (gLadS h) (gLadX h)) hV, mul_one]
+  rfl
+
+/-- The x-bracket of an odd-shaped power is exactly `zeta * [zeta, X]`. -/
+theorem gRsd_shape_X {V : levelQuot (DSq h : Type) 4} (hV : V ∈ zLayer (DSq h : Type) 3) :
+    commP (gLadS h * (gLadX h * V)) (gLadX h)
+      = gRsdZeta h * commP (gRsdZeta h) (gLadX h) := by
+  rw [cfour_commP_mul_left (gLadS h) (gLadX h * V) (gLadX h),
+    show commP (gLadS h) (gLadX h) = gRsdZeta h from rfl,
+    cfive_commP_right_hom gRsdZeta_mem (gLadX h) V,
+    gLad_commP_zLayer_right (gRsdZeta h) hV, one_mul,
+    cfour_commP_mul_left (gLadX h) V (gLadX h), cfour_comm_self, cfour_one_comm, one_mul,
+    one_mul, cfive_commP_zLayer_left hV (gLadX h), mul_one]
+
+/-- The inverse-sigma bracket of an odd-shaped power: `[Q, S] = [X, S]`. -/
+theorem gRsd_shape_S {V : levelQuot (DSq h : Type) 4} (hV : V ∈ zLayer (DSq h : Type) 3) :
+    commP (gLadS h * (gLadX h * V)) (gLadS h) = commP (gLadX h) (gLadS h) := by
+  rw [cfour_commP_mul_left (gLadS h) (gLadX h * V) (gLadS h), cfour_comm_self,
+    cfour_one_comm, one_mul, one_mul,
+    cfour_commP_mul_left (gLadX h) V (gLadS h),
+    gLad_commP_zLayer_right (commP (gLadX h) (gLadS h)) hV, mul_one,
+    cfive_commP_zLayer_left hV (gLadS h), mul_one]
+
+/-- The x-side self bracket of an odd-shaped power: `[X, Q] = [X, S] * [[X, S], X]`. -/
+theorem gRsd_X_shape {V : levelQuot (DSq h : Type) 4} (hV : V ∈ zLayer (DSq h : Type) 3) :
+    commP (gLadX h) (gLadS h * (gLadX h * V))
+      = commP (gLadX h) (gLadS h) * commP (commP (gLadX h) (gLadS h)) (gLadX h) := by
+  rw [cfour_commP_mul_right (gLadX h) (gLadS h) (gLadX h * V),
+    cfour_commP_mul_right (gLadX h) (gLadX h) V, cfour_comm_self, cfour_one_comm, mul_one,
+    mul_one, gLad_commP_zLayer_right (gLadX h) hV, one_mul,
+    cfive_commP_right_hom (cfour_commP_mem_lambdaTwo (gLadX h) (gLadS h)) (gLadX h) V,
+    gLad_commP_zLayer_right (commP (gLadX h) (gLadS h)) hV, one_mul]
+
+/-- The y-bracket of an odd-shaped power: `[Y, Q] = [Y, X] * [Y, S] * [[Y, S], X]`. -/
+theorem gRsd_Y_shape {V : levelQuot (DSq h : Type) 4} (hV : V ∈ zLayer (DSq h : Type) 3) :
+    commP (gLadY h) (gLadS h * (gLadX h * V))
+      = commP (gLadY h) (gLadX h) * commP (gLadY h) (gLadS h)
+        * commP (commP (gLadY h) (gLadS h)) (gLadX h) := by
+  rw [cfour_commP_mul_right (gLadY h) (gLadS h) (gLadX h * V),
+    cfour_commP_mul_right (gLadY h) (gLadX h) V,
+    gLad_commP_zLayer_right (gLadY h) hV, one_mul,
+    gLad_commP_zLayer_right (commP (gLadY h) (gLadX h)) hV, mul_one,
+    cfive_commP_right_hom (cfour_commP_mem_lambdaTwo (gLadY h) (gLadS h)) (gLadX h) V,
+    gLad_commP_zLayer_right (commP (gLadY h) (gLadS h)) hV, one_mul]
+
+end Atoms
+
+/-! ## §4 The pivot-power brackets, at every parity
+
+`W = S(XZ)` gives the base values; additivity in the exponent and the central `4 Z_2`-powers
+extend them to every even power `2b` with `b` odd, which is all the defect consumes. -/
+
+section PowerBrackets
+
+variable {h : ℕ}
+
+theorem gRsd_S_W : commP (gLadS h) (gLadQ h 1) = gRsdZeta h := by
+  rw [gRsd_W_split]
+  exact gRsd_S_shape gRsdZ_mem
+
+theorem gRsd_W_X :
+    commP (gLadQ h 1) (gLadX h) = gRsdZeta h * commP (gRsdZeta h) (gLadX h) := by
+  rw [gRsd_W_split]
+  exact gRsd_shape_X gRsdZ_mem
+
+theorem gRsd_zeta_W :
+    commP (gRsdZeta h) (gLadQ h 1)
+      = commP (gRsdZeta h) (gLadX h) * commP (gRsdZeta h) (gLadS h) := by
+  rw [gRsd_W_split]
+  exact gRsd_lam_shape gRsdZeta_mem gRsdZ_mem
+
+/-- The sigma bracket of the pivot square is the even kill element. -/
+theorem gRsd_S_Wsq : commP (gLadS h) (gLadQ h 2) = gRsdKillE h := by
+  have h2 : gLadQ h 2 = gLadQ h 1 * gLadQ h 1 := by
+    rw [← gRsdQ_add]
+    norm_num
+  rw [h2, cfour_commP_mul_right (gLadS h) (gLadQ h 1) (gLadQ h 1), gRsd_S_W, gRsd_zeta_W,
+    ← pow_two]
+  rfl
+
+/-- The x-bracket of the pivot square is the SAME even kill element. -/
+theorem gRsd_Wsq_X : commP (gLadQ h 2) (gLadX h) = gRsdKillE h := by
+  have h2 : gLadQ h 2 = gLadQ h 1 ^ 2 := by
+    rw [← gLadQ_two_mul]
+    norm_num
+  rw [h2, gThreeFour_commP_sq_left (gLadQ h 1) (gLadX h), gRsd_W_X,
+    cfour_sq_mul (gRsdZeta h) (commP (gRsdZeta h) (gLadX h)),
+    zLayer_sq (DSq h : Type) gRsdZetaX_mem, mul_one,
+    cfive_commP_zLayer_left gRsdZetaX_mem (gRsdZeta h), cfour_one_comm, mul_one, mul_one,
+    cfour_commP_mul_left (gRsdZeta h) (commP (gRsdZeta h) (gLadX h)) (gLadQ h 1),
+    gRsd_zeta_W,
+    cfive_commP_zLayer_left (Subgroup.mul_mem _ gRsdZetaX_mem gRsdZetaS_mem)
+      (commP (gRsdZeta h) (gLadX h)), mul_one,
+    cfive_commP_zLayer_left gRsdZetaX_mem (gLadQ h 1), mul_one]
+  rfl
+
+/-- The central complement of an even power `2b` at odd `b`. -/
+theorem gRsd_Qeven_tail_zLayer {b : ℤ_[2]} (hb : ¬ (2 : ℤ_[2]) ∣ b) :
+    gLadQ h (2 * b - 2) ∈ zLayer (DSq h : Type) 3 := by
+  refine gLadQ_mem_zLayer_of_four ?_
+  obtain ⟨d, hd⟩ := two_dvd_sub_of_isUnit (isUnit_iff_not_two_dvd.mpr hb) isUnit_one
+  exact ⟨d, by linear_combination 2 * hd⟩
+
+theorem gRsd_Qeven_split {b : ℤ_[2]} :
+    gLadQ h (2 * b) = gLadQ h 2 * gLadQ h (2 * b - 2) := by
+  rw [← gRsdQ_add, show (2 : ℤ_[2]) + (2 * b - 2) = 2 * b from by ring]
+
+/-- ⭐ The x-bracket of EVERY even pivot power at odd half: the even kill element. -/
+theorem gRsd_Qeven_X {b : ℤ_[2]} (hb : ¬ (2 : ℤ_[2]) ∣ b) :
+    commP (gLadQ h (2 * b)) (gLadX h) = gRsdKillE h := by
+  rw [gRsd_Qeven_split, cfour_commP_mul_left (gLadQ h 2) (gLadQ h (2 * b - 2)) (gLadX h),
+    gRsd_Wsq_X, gLad_commP_zLayer_right (gRsdKillE h) (gRsd_Qeven_tail_zLayer hb), mul_one,
+    cfive_commP_zLayer_left (gRsd_Qeven_tail_zLayer hb) (gLadX h), mul_one]
+
+/-- ⭐ The sigma bracket of EVERY even pivot power at odd half: the SAME element. -/
+theorem gRsd_S_Qeven {b : ℤ_[2]} (hb : ¬ (2 : ℤ_[2]) ∣ b) :
+    commP (gLadS h) (gLadQ h (2 * b)) = gRsdKillE h := by
+  rw [gRsd_Qeven_split, cfour_commP_mul_right (gLadS h) (gLadQ h 2) (gLadQ h (2 * b - 2)),
+    gLad_commP_zLayer_right (gLadS h) (gRsd_Qeven_tail_zLayer hb), one_mul, gRsd_S_Wsq,
+    gLad_commP_zLayer_right (gRsdKillE h) (gRsd_Qeven_tail_zLayer hb), mul_one]
+
+/-- ⭐⭐ **The lambda_2-part of the defect dies on the whole even locus**: at every even `B`
+the product `[S, Q] [Q, X]` is `1` in `Q_4`, either because `Q` is central (`4 | B`) or
+because the two factors are the SAME involution (`B = 2 mod 4`). -/
+theorem gRsd_SQ_QX_even {B : ℤ_[2]} (hB : (2 : ℤ_[2]) ∣ B) :
+    commP (gLadS h) (gLadQ h B) * commP (gLadQ h B) (gLadX h) = 1 := by
+  obtain ⟨b, rfl⟩ := hB
+  by_cases hb : (2 : ℤ_[2]) ∣ b
+  · obtain ⟨e, rfl⟩ := hb
+    have hz : gLadQ h (2 * (2 * e)) ∈ zLayer (DSq h : Type) 3 :=
+      gLadQ_mem_zLayer_of_four ⟨e, by ring⟩
+    rw [gLad_commP_zLayer_right (gLadS h) hz, cfive_commP_zLayer_left hz (gLadX h), one_mul]
+  · rw [gRsd_S_Qeven hb, gRsd_Qeven_X hb, ← pow_two,
+      zLayer_sq (DSq h : Type) gRsdKillE_mem]
+
+end PowerBrackets
+
 end SqCore
 
 end Dyadic
