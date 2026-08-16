@@ -71,6 +71,50 @@
 #   be machine-checked cheaply it prints UNVERIFIED and, next to it, the
 #   nearest thing that CAN be checked.  Do not "fix" an UNVERIFIED by writing
 #   the answer in here; either make it checkable or leave it.
+#
+# ----------------------------------------------------------------------------
+# THE OWNER-ITEMS CONTRACT  (W87-HOUSE)
+#
+# The OWNER ITEMS section is the one place this board reads PROSE, because
+# owner items are prose and there is nothing in the environment to elaborate.
+# It therefore does not certify a count; it reads two files that each assert
+# one, prints both, and prints whether they agree.  A disagreement is the
+# product, not a failure.
+#
+#   AUTHORITY  `docs/dyadic/owner-items-*.md`, the owner's own memo (newest by
+#              name if the glob ever matches more than one, and it says so).
+#              Contract: status blocks newest-first, each headed
+#                  `## Status at wave N (YYYY-MM-DD)`
+#              and the newest block containing, in bold, the phrase
+#                  `**<Word> items await you**`
+#              with the count as an English number word (one..twenty).  The
+#              word is mapped, never parsed; an unmapped word prints
+#              UNVERIFIED rather than a guess.
+#
+#   ARTIFACT   the highest-numbered `docs/dyadic/wNN-house-note.md`.  Contract:
+#              a heading matching, case-insensitively, an optional section
+#              number, an optional leading "The", then "Owner items", with any
+#              trailing gloss after a colon; the items are the lines under it
+#              beginning `N.` up to the next heading.
+#
+# WHY BOTH.  A house note is FROZEN at its lane's close, so an item discharged
+# after that close still counts in the note.  That is not hypothetical: wave
+# 86's note listed ten items, the tenth being "register the two wave-86
+# modules", which `ed382b2e` then discharged, and the wave-86 memo block
+# accordingly says nine.  Reading only the note prints the pre-discharge
+# number; reading only the memo hides which item moved.
+#
+# WHY TOLERANT.  Until W87 this section matched `^#+ +Owner items` against the
+# note alone.  Six of the ten house notes w77..w86 do not meet that shape
+# ("### 4.5  The owner items", "## OWNER ITEMS", "## 4  Owner items: nine
+# standing", and w85 with no such heading at all), and the strict match
+# reported the miss as the number 0 -- indistinguishable from a note that
+# genuinely lists no items.  The board printed `numbered items in it  0` for
+# waves 84 and 85 and no reader queried it.  A missing heading now prints as
+# NOT FOUND, with the heading it did match echoed back so the reader can see
+# what was counted.
+#
+# DO NOT respond to a DISAGREE line by editing a number into this script.
 # ============================================================================
 set -uo pipefail
 
@@ -430,17 +474,98 @@ fi
 
 echo
 echo "## OWNER ITEMS"
+# See "THE OWNER-ITEMS CONTRACT" in the header for what this section reads and
+# why it reads two files instead of one.  Neither number below is verified; both
+# are counted off prose, and the row exists to make them face each other.
+
+# ---- the authority: the owner memo, newest status block first ----
+MEMO=$(cd "$WT" && ls docs/dyadic/owner-items-*.md 2>/dev/null | sort | tail -1)
+MEMON=$(cd "$WT" && ls docs/dyadic/owner-items-*.md 2>/dev/null | wc -l | tr -d ' ')
+MCOUNT=""
+MBLOCK=""
+if [ -n "$MEMO" ] && [ -f "$WT/$MEMO" ]; then
+  MBLOCK=$(grep -m1 '^## Status at wave ' "$WT/$MEMO" 2>/dev/null)
+  if [ -n "$MBLOCK" ]; then
+    # The first "N items await you" phrase at or after that heading.  The memo
+    # writes the count as an English word, so it is mapped, not parsed as a
+    # number; an unmapped word prints as UNVERIFIED rather than as a guess.
+    MWORD=$(awk '/^## Status at wave /{f++} f==1 && /items await you/ {
+        for (i = 1; i <= NF; i++)
+          if ($i ~ /^\*\*[A-Za-z]+$/) { print tolower(substr($i, 3)); exit }
+        exit
+      }' "$WT/$MEMO")
+    MCOUNT=$(awk -v w="$MWORD" 'BEGIN {
+        n = split("one two three four five six seven eight nine ten eleven twelve \
+thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty", a, /[ \t\n]+/)
+        for (i = 1; i <= n; i++) if (a[i] == w) { print i; exit }
+      }')
+  fi
+fi
+if [ -z "$MEMO" ]; then
+  echo "  owner memo (AUTHORITY)   NOT FOUND (docs/dyadic/owner-items-*.md)"
+else
+  printf '  owner memo (AUTHORITY)   %s\n' "$MEMO"
+  [ "$MEMON" != "1" ] &&
+    printf '    !! %s memos match the glob; the newest by name was read\n' "$MEMON"
+  if [ -z "$MBLOCK" ]; then
+    echo "    latest status block    NOT FOUND (no '## Status at wave N' heading)"
+  else
+    printf '    latest status block    %s\n' "$MBLOCK"
+    if [ -n "$MCOUNT" ]; then
+      printf '    count it asserts       %s   (PROSE, off "N items await you")\n' "$MCOUNT"
+    else
+      echo "    count it asserts       UNVERIFIED (no 'N items await you' phrase"
+      echo "                           in that block, or its number word is unmapped)"
+    fi
+  fi
+fi
+
+# ---- the lane artifact: the latest house note ----
 NOTE=$(cd "$WT" && ls docs/dyadic/w*-house-note.md 2>/dev/null |
   sed 's/.*\/w\([0-9]*\)-house-note.md/\1 &/' | sort -n | tail -1 | cut -d' ' -f2)
+NCOUNT=""
+NHEAD=""
 if [ -n "$NOTE" ] && [ -f "$WT/$NOTE" ]; then
-  N=$(awk '/^#+ +Owner items/{f=1;next} f&&/^#/{exit} f&&/^[0-9]+\./{c++} END{print c+0}' \
-    "$WT/$NOTE")
-  printf '  latest house note        %s\n' "$NOTE"
-  printf '  numbered items in it     %s\n' "$N"
-  echo "  status of each           UNVERIFIED (prose; not machine-checkable)"
-else
-  echo "  UNVERIFIED (no house note found)"
+  # Deliberately TOLERANT: case-insensitive, an optional section number, an
+  # optional leading "The", an optional trailing ": ..." gloss.  The strict
+  # match this replaces scored zero on six of the last ten house notes and said
+  # so as "0" rather than as "not found"; see the header.
+  NHEAD=$(grep -n -m1 -E '^#+[ \t]+([0-9]+(\.[0-9]+)*[ \t]+)?(The[ \t]+)?[Oo][Ww][Nn][Ee][Rr][ \t]+[Ii][Tt][Ee][Mm][Ss]' \
+    "$WT/$NOTE" 2>/dev/null)
+  if [ -n "$NHEAD" ]; then
+    NCOUNT=$(awk -v start="${NHEAD%%:*}" 'NR > start && /^#/ {exit}
+      NR > start && /^[0-9]+\./ {c++} END {print c + 0}' "$WT/$NOTE")
+  fi
 fi
+if [ -z "$NOTE" ]; then
+  echo "  latest house note        NOT FOUND (docs/dyadic/w*-house-note.md)"
+else
+  printf '  latest house note        %s\n' "$NOTE"
+  if [ -z "$NHEAD" ]; then
+    echo "    owner-items heading    NOT FOUND in it (so no count; this is the"
+    echo "                           signal, not a zero)"
+  else
+    printf '    owner-items heading    line %s: %s\n' "${NHEAD%%:*}" "${NHEAD#*:}"
+    printf '    numbered items under   %s\n' "$NCOUNT"
+  fi
+fi
+
+# ---- the comparison, which is the whole point of printing both ----
+if [ -n "$MCOUNT" ] && [ -n "$NCOUNT" ]; then
+  if [ "$MCOUNT" = "$NCOUNT" ]; then
+    printf '  memo and note AGREE      %s\n' "$MCOUNT"
+  else
+    printf '  !! memo and note DISAGREE  memo %s, note %s.  The memo is the\n' \
+      "$MCOUNT" "$NCOUNT"
+    echo "                             owner's record and the note is frozen at"
+    echo "                             its own close, so a note item discharged"
+    echo "                             after that close still counts in the note."
+    echo "                             Read both; this board decides neither."
+  fi
+else
+  echo "  memo vs note             NOT COMPARED (one side is missing above)"
+fi
+echo "  status of each item      UNVERIFIED (prose; not machine-checkable)"
 
 echo
 echo "## THE A6 FREEZE (GQ2/Roe/)"

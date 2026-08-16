@@ -23,6 +23,28 @@ found wave 85's diagnosis had missed an existing signed endpoint; Stokes is a th
 three of four rows.  The scoreboard now elaborates the umbrella itself, closing the
 invisible-module blind spot that had fired three times.
 
+[W87-HOUSE, as of `1541635f`, two corrections to the block above, neither of which changes
+the number.
+
+(1) **The `## Status at wave 85` heading below was deleted, not superseded.**  `1541635f`
+wrote this block by REPLACING that heading rather than inserting above it, so wave 85's
+record was left orphaned inside wave 86's block and this section appeared to assert "nine
+items await you" twice with A6 at thirteen rounds and at twelve.  The heading is restored
+below; nothing in either block's text was altered.
+
+(2) **The count is right and the arithmetic quoted for it is not.**  "Nine" is correct at
+`1541635f`, but not by the route this block gives: from wave 84's nine, discharging one and
+opening two is ten, not nine.  The missing step is that W86-HOUSE opened a TENTH item,
+"register the two wave-86 modules" (2171 lines outside `import GQ2`), and `ed382b2e`
+discharged it in the same wave; nine is what remains.  This block records neither the
+opening nor the discharge, and puts the ansatz-exhaustiveness question in the vacated slot,
+which W86-HOUSE had NOT opened as an owner item (its §3.1 carries it as a consequence, and
+its own "not opened as owner items" list does not name it).  So the standing nine are items
+1 to 9 of `docs/dyadic/w86-house-note.md`; whether ansatz-exhaustiveness joins them as a
+tenth is itself an owner call, and this lane does not take it.]
+
+## Status at wave 85 (2026-08-15)
+
 **Nine items await you; one became concrete this wave.**  The frozen quadratic flagship
 record is now the only consumer in the tree of the pilot clause spelling that the tree has
 proved strictly dominated: every other path runs through the canonical producers.  So the
