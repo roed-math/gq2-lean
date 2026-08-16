@@ -19,7 +19,8 @@ decision needs and the pattern the decision should follow:
    pivot correction;
 2. the class-six defect of the wave-87 class-five witness (`mpcSx_w5_defect`);
 3. **the marked carrier**, a uniform-in-class formalization of where both climbed kills live,
-   with a shift-producer sharper than the one in the tree (`mpcSx_shift_of_marked_supply`).
+   with a shift-producer over it (`mpcSx_shift_of_marked_supply`) that is a specialization of
+   wave 86's, not a strengthening of it.
 
 `MpcPivShift 2` is untouched, and this lane makes **no negative claim of any kind**.  In
 particular nothing here is evidence that the class-six rung is unreachable; the computation was
@@ -165,15 +166,22 @@ the χ-condition is free once one is deep enough in the tower.
 lies `k+2` layers down, so `mpcSxKill j` carries a `B̄`-power at every class from two up.  This is
 what a uniform-in-class argument needs and it is what the two climbed moves used.
 
-⭐⭐⭐ **(iii) The narrowed shift-producer** (`mpcSx_shift_of_marked_supply`):
+⭐⭐⭐ **(iii) The marked shift-producer** (`mpcSx_shift_of_marked_supply`):
 
     (∀ j ≥ 3, ∃ p ∈ mpcWordSet (j+1), ∃ u v ∈ mpcSxKill j,
        mpcLadDefect p · ⁅Ā,u⁆ · ⁅C̄₀,v⁆ ∈ λ_{j+2})  →  MpcPivShift 2 .
 
-Two narrowings against `mpcBld_shift_of_bracket_supply`, both easing the hypothesis: that one
-quantifies over **every** `g ∈ λ_{j+1}` (its own W86-HOUSE block records the gap) and over
-arbitrary corrections in `mpcWordCorr ⊓ λ_j`; this one asks for the defect of one solution and
-for marked corrections only.  It is **not vacuous**: `mpcSx_marked_supply_three` is wave 87's own
+**This is a specialization, not a sharpening, and the note is careful about the direction.**
+Its hypothesis is strictly **stronger** than `mpcLad_shift_of_exists_supply`'s, which allows all
+four slots and every legal `λ_j` correction; the proof is one application of that theorem.
+Against `mpcBld_shift_of_bracket_supply` the comparison is mixed and neither implies the other:
+weaker in the quantifier (the defect of one solution per class, against every `g ∈ λ_{j+1}`, the
+gap that theorem's own W86-HOUSE block records) and stronger in the carrier (marked corrections
+only).
+
+What it buys is not logical strength but a **concrete uniform search space**: the elements are
+exhibited at every class (`mpcSx_pow_mem_kill`), legality is proved once for all classes
+(`mpcSx_kill_le_corr`), and it is **not vacuous** - `mpcSx_marked_supply_three` is wave 87's own
 move read in this form, so the criterion is met at `j = 3`.
 
 **What §7 does not claim.**  It does not claim the defect lies in the marked span at every class,
