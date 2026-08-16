@@ -555,6 +555,173 @@ theorem gLad_step {A B : ℤ_[2]} {j : ℕ} (hj : 2 ≤ j)
 
 end Step
 
+/-! ## §5 The pivot twist in `Q₄`, exactly
+
+The bare rung-4 defect.  On the unit locus the marked letters are `s·q·z`, `x·q`, `y·q²`
+with `q` the `B`-th pivot power and `z` a square; the `z`-part and the corrections are `λ₂`
+and priced by the engine, so the whole class-4 content of the bare frame is the `q`-twist of
+the core word by an arbitrary letter `q`.  This section computes it in closed form: the
+`λ₂`-part `[s,q]·[q,x]` and five central classes.  Everything is exact in `Q₄`; no parity is
+consumed here. -/
+
+section QTwist
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Squares of `Q₄` lie in the `λ₂`-image. -/
+theorem gLad_sq_mem_two (p : levelQuot G 4) : p ^ 2 ∈ lambdaImage G 2 4 := by
+  obtain ⟨v, rfl⟩ := levelMk_surjective G 4 p
+  exact ⟨v ^ 2, sq_mem_twoCentralSeries_succ G (Subgroup.mem_top v), by rw [map_pow]⟩
+
+/-- `⁅λ₂, λ₂⁆` dies in `Q₄` (the depth-two instance of the vanishing). -/
+theorem gLad_vanish4 {e f : levelQuot G 4} (he : e ∈ lambdaImage G 2 4)
+    (hf : f ∈ lambdaImage G 2 4) : commP e f = 1 :=
+  gLad_vanish (j := 2) he hf
+
+/-- `λ₂`-images commute in `Q₄`. -/
+theorem gLad_two_comm {e f : levelQuot G 4} (he : e ∈ lambdaImage G 2 4)
+    (hf : f ∈ lambdaImage G 2 4) : e * f = f * e := by
+  have h := gLad_swap e f
+  rwa [gLad_vanish4 he hf, mul_one] at h
+
+/-- Brackets out of a `λ₂`-product split, in `Q₄`. -/
+theorem gLad_commP_mul_left_two {e f : levelQuot G 4} (he : e ∈ lambdaImage G 2 4)
+    (g : levelQuot G 4) : commP (e * f) g = commP e g * commP f g := by
+  rw [cfour_commP_mul_left, cfive_commP_zLayer_left (cfour_commP_mem_zLayer_left he g) f,
+    mul_one]
+
+/-- A letter absorbs itself in its own bracket, exactly. -/
+theorem gLad_commP_self_absorb {Q : Type*} [Group Q] (a k : Q) :
+    commP a (a * k) = commP a k := by
+  rw [cfour_commP_mul_right, bridge_comm_self, cfour_one_comm, mul_one, mul_one]
+
+/-- The commutator factor of the core word reads the bracket, exactly. -/
+theorem gLad_commP_conj_self {Q : Type*} [Group Q] (a u : Q) :
+    commP a (conjP a u) = commP a (commP a u) := by
+  rw [gLad_conjP_eq, gLad_commP_self_absorb]
+
+/-- **The fourth power of a twisted letter**: `(xq)⁴ = x⁴ q⁴ [q,x]²` in `Q₄`. -/
+theorem gLad_qtwist_four (x q : levelQuot G 4) :
+    (x * q) ^ 4 = x ^ 4 * q ^ 4 * commP q x ^ 2 := by
+  have hz : commP (commP q x) q ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo q x) q
+  have hsq : (x * q) ^ 2 = x ^ 2 * q ^ 2 * commP q x * commP (commP q x) q := cfour_sq_mul x q
+  have hA : (x ^ 2 * q ^ 2 * commP q x * commP (commP q x) q) ^ 2
+      = (x ^ 2 * q ^ 2 * commP q x) ^ 2 := by
+    rw [cfour_sq_mul (x ^ 2 * q ^ 2 * commP q x) (commP (commP q x) q),
+      cfive_commP_zLayer_left hz, cfour_one_comm, mul_one, mul_one, zLayer_sq G hz, mul_one]
+  have hcm : commP (commP q x) (x ^ 2 * q ^ 2) = 1 := by
+    rw [cfive_commP_right_hom (gLad_le_two le_rfl (cfour_commP_mem_lambdaTwo q x)) (x ^ 2)
+      (q ^ 2), gLad_vanish4 (cfour_commP_mem_lambdaTwo q x) (gLad_sq_mem_two q),
+      gLad_vanish4 (cfour_commP_mem_lambdaTwo q x) (gLad_sq_mem_two x), mul_one]
+  have hB : (x ^ 2 * q ^ 2 * commP q x) ^ 2 = (x ^ 2 * q ^ 2) ^ 2 * commP q x ^ 2 := by
+    rw [cfour_sq_mul (x ^ 2 * q ^ 2) (commP q x), hcm, cfour_one_comm, mul_one, mul_one]
+  have hC : (x ^ 2 * q ^ 2) ^ 2 = x ^ 4 * q ^ 4 := by
+    rw [cfour_sq_mul (x ^ 2) (q ^ 2), gLad_vanish4 (gLad_sq_mem_two q) (gLad_sq_mem_two x),
+      cfour_one_comm, mul_one, mul_one, ← pow_mul, ← pow_mul]
+  calc (x * q) ^ 4 = ((x * q) ^ 2) ^ 2 := by rw [← pow_mul]
+    _ = x ^ 4 * q ^ 4 * commP q x ^ 2 := by rw [hsq, hA, hB, hC]
+
+/-- **The twisted bracket**: `[xq, sq] = [x,q][x,s][q,s]` up to two central classes, in
+`Q₄`. -/
+theorem gLad_qtwist_comm (s x q : levelQuot G 4) :
+    commP (x * q) (s * q)
+      = commP x q * commP x s * commP q s
+        * (commP (commP x q) q * commP (commP q s) q) := by
+  have hξ : commP (commP x s) q ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo x s) q
+  have hζ₁ : commP (commP x q) q ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo x q) q
+  have hζ₂ : commP (commP q s) q ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo q s) q
+  have h1 : commP x (s * q) = commP x q * commP x s * commP (commP x s) q :=
+    cfour_commP_mul_right x s q
+  have h2 : commP q (s * q) = commP q s * commP (commP q s) q := by
+    rw [cfour_commP_mul_right, bridge_comm_self, one_mul]
+  have h3 : commP (commP x (s * q)) q
+      = commP (commP x q) q * commP (commP x s) q := by
+    rw [h1, gLad_commP_mul_left_two (Subgroup.mul_mem _ (cfour_commP_mem_lambdaTwo x q)
+        (cfour_commP_mem_lambdaTwo x s)) q,
+      gLad_commP_mul_left_two (cfour_commP_mem_lambdaTwo x q) q,
+      cfive_commP_zLayer_left hξ q, mul_one]
+  rw [cfour_commP_mul_left x q (s * q), h3, h1, h2]
+  calc commP x q * commP x s * commP (commP x s) q
+        * (commP (commP x q) q * commP (commP x s) q) * (commP q s * commP (commP q s) q)
+      = commP x q * commP x s
+        * (commP (commP x s) q * (commP (commP x q) q * commP (commP x s) q) * commP q s)
+        * commP (commP q s) q := by group
+    _ = commP x q * commP x s
+        * (commP q s * (commP (commP x s) q * (commP (commP x q) q * commP (commP x s) q)))
+        * commP (commP q s) q := by
+        rw [(zLayer_commute (Subgroup.mul_mem _ hξ (Subgroup.mul_mem _ hζ₁ hξ))
+          (commP q s)).eq]
+    _ = commP x q * commP x s * commP q s
+        * (commP (commP x s) q * commP (commP x q) q * commP (commP x s) q)
+        * commP (commP q s) q := by group
+    _ = commP x q * commP x s * commP q s
+        * (commP (commP x q) q * commP (commP x s) q * commP (commP x s) q)
+        * commP (commP q s) q := by
+        rw [(zLayer_commute hξ (commP (commP x q) q)).eq]
+    _ = commP x q * commP x s * commP q s
+        * (commP (commP x q) q * commP (commP x s) q ^ 2) * commP (commP q s) q := by
+        rw [mul_assoc (commP (commP x q) q), ← pow_two]
+    _ = commP x q * commP x s * commP q s
+        * (commP (commP x q) q * commP (commP q s) q) := by
+        rw [zLayer_sq G hξ, mul_one]
+        group
+
+/-- **The twisted square slot**: `(y q²)² = y² · q⁴ [q², y]` in `Q₄`. -/
+theorem gLad_qtwist_sqslot (y q : levelQuot G 4) :
+    (y * q ^ 2) ^ 2 = y ^ 2 * (q ^ 4 * commP (q ^ 2) y) := by
+  have hz : commP (q ^ 2) y ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (gLad_sq_mem_two q) y
+  rw [cfour_sq_mul y (q ^ 2), cfive_commP_zLayer_left hz, mul_one, ← pow_mul]
+  group
+
+/-- **The twisted commutator slot is blind up to one class**:
+`[yq², (yq²)^{sq}] = [y, y^s] · [y,[y,q]]` in `Q₄`. -/
+theorem gLad_qtwist_commslot (s y q : levelQuot G 4) :
+    commP (y * q ^ 2) (conjP (y * q ^ 2) (s * q))
+      = commP y (conjP y s) * commP y (commP y q) := by
+  have hq2 : (q ^ 2 : levelQuot G 4) ∈ lambdaImage G 2 4 := gLad_sq_mem_two q
+  have hξ : commP (commP y s) q ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left (cfour_commP_mem_lambdaTwo y s) q
+  have hζ : commP (q ^ 2) (s * q) ∈ zLayer G 3 :=
+    cfour_commP_mem_zLayer_left hq2 (s * q)
+  -- the bracket of the twisted letter against the twisted `s`-letter
+  have hk : commP (y * q ^ 2) (s * q)
+      = commP y q * commP y s * (commP (commP y s) q * commP (q ^ 2) (s * q)) := by
+    rw [cfour_commP_mul_left y (q ^ 2) (s * q),
+      gLad_vanish4 (cfour_commP_mem_lambdaTwo y (s * q)) hq2, mul_one,
+      cfour_commP_mul_right y s q]
+    group
+  have hkmem : commP (y * q ^ 2) (s * q) ∈ lambdaImage G 2 4 :=
+    cfour_commP_mem_lambdaTwo _ _
+  -- the outer bracket collapses onto the `y`-letter
+  have houter : commP (y * q ^ 2) (commP (y * q ^ 2) (s * q))
+      = commP y (commP (y * q ^ 2) (s * q)) := by
+    rw [cfour_commP_mul_left y (q ^ 2) (commP (y * q ^ 2) (s * q)),
+      cfive_commP_zLayer_left (cfour_commP_mem_zLayer_right y hkmem) (q ^ 2), mul_one,
+      gLad_vanish4 hq2 hkmem, mul_one]
+  -- the inner value reads the two `y`-brackets
+  have hinner : commP y (commP y q * commP y s * (commP (commP y s) q * commP (q ^ 2) (s * q)))
+      = commP y (commP y s) * commP y (commP y q) := by
+    have hzz : commP (commP y s) q * commP (q ^ 2) (s * q) ∈ zLayer G 3 :=
+      Subgroup.mul_mem _ hξ hζ
+    rw [cfour_commP_mul_right y (commP y q * commP y s)
+        (commP (commP y s) q * commP (q ^ 2) (s * q)),
+      gLad_commP_zLayer_right y hzz, one_mul,
+      cfive_commP_zLayer_left (cfour_commP_mem_zLayer_right y
+        (Subgroup.mul_mem _ (cfour_commP_mem_lambdaTwo y q)
+          (cfour_commP_mem_lambdaTwo y s))) _, mul_one,
+      cfour_commP_mul_right y (commP y q) (commP y s),
+      cfive_commP_zLayer_left (cfour_commP_mem_zLayer_right y
+        (cfour_commP_mem_lambdaTwo y q)) (commP y s), mul_one]
+  rw [gLad_commP_conj_self (y * q ^ 2) (s * q), houter, hk, hinner,
+    gLad_commP_conj_self y s]
+
+end QTwist
+
 end SqCore
 
 end Dyadic
