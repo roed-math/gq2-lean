@@ -154,7 +154,9 @@ LEGACY RECORDS (COMPAT ONLY)|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifti
 CORRECTED RN RECORDS|N0 certificate (all a,h)|decl|wPcNWordCertificateRN
 CORRECTED RN RECORDS|M0 certificate (from supply)|decl|wPcMWordCertificateRN_of_supply
 CORRECTED RN RECORDS|Mpc certificate (from determinant)|decl|mpcWordCertificateRN_of_determinant
-CORRECTED RN RECORDS|Npc certificate (from determinant)|decl|npcWordCertificateRN_of_determinant
+CORRECTED RN ANALYTIC|Npc branch-free supply (all a,r,h)|decl|wPnpc_branchFreeSupply
+CORRECTED RN ANALYTIC|Npc affine determinant (selected eta)|decl|npcAffineDeterminantCertificate
+CORRECTED RN RECORDS|Npc certificate (all a,r,h; selected eta)|decl|npcWordCertificateRN
 CORRECTED RN TIED|N0 residual (all a,h)|decl|wPcN_rowResidualRN_of_tied
 CORRECTED RN TIED|N0 endpoint (all a,h)|decl|wPcN_candidate_equiv_galKRN_of_tied
 CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
@@ -163,6 +165,7 @@ CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
+CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
 CORRECTED RN CLOSED ROWS|Q2(v-2) residual|decl|wPcN_rowResidualRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v-2) endpoint|decl|wPcN_candidate_equiv_galKRN_sqrtNegTwo
 CORRECTED RN CLOSED ROWS|Q2(v2) residual|decl|wPcM_rowResidualRN_sqrtTwo
@@ -170,7 +173,7 @@ CORRECTED RN CLOSED ROWS|Q2(v2) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtTw
 CORRECTED RN CLOSED ROWS|Q2(v5) residual|decl|wPcM_rowResidualRN_sqrtFive
 CORRECTED RN CLOSED ROWS|Q2(v5) endpoint|decl|wPcM_candidate_equiv_galKRN_sqrtFive
 CORRECTED RN CLOSED ROWS|Q2(v10) endpoint|decl|mpcSqrtTen_candidate_equiv_galKRN
-CORRECTED RN CLOSED ROWS|Q2(v-10) endpoint (from shift)|decl|mpcSqrtNegTen_candidate_equiv_galKRN
+CORRECTED RN CONDITIONAL ROWS|Q2(v-10) endpoint (needs MpcPivShift)|decl|mpcSqrtNegTen_candidate_equiv_galKRN
 ODD SEAM|the seam Prop|decl|SqMarkedForwardSupply
 ODD SEAM|every seam producer|prod|SqMarkedForwardSupply
 ODD SEAM|seam = marked-core cert|decl|oddId_supply_iff_certificate
