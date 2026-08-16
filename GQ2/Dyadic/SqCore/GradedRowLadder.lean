@@ -12,7 +12,10 @@ Wave 85 (`GradedRowMove.lean`) reduced the row-move pair, hence the clearing
 `SqNuOrientedClearAtUnitPivot h` and through it the odd-degree classification, to the rungs
 `(gRowSet h A B k).Nonempty` for `k ≥ 4` on the unit locus `IsUnit (A - c0 B)`.  Rungs
 `k ≤ 3` are proved there: `k ≤ 2` free for every frame, `k = 3` free with the bare frame.
-This module climbs the first open rung and equips every higher one.
+This module climbs the first open rung **on the quarter locus** `4 ∣ A - 1`, `4 ∣ B` and
+equips every higher one.  (W87-HOUSE, as of `1541635f`: the sentence read "climbs the first
+open rung and equips every higher one", which the quarter-locus hypothesis of the only
+rung-4 theorem does not support.  See §"W87-HOUSE" below, item 1.)
 
 ## The chain
 
@@ -56,6 +59,55 @@ match which defect terms, and where the first genuine linear-algebra question si
 
 No `sorry`, no new axiom, no `native_decide`.  Every declaration prints **std-3** or a
 subset of it; the census is untouched.  Pins in section 9.
+
+## W87-HOUSE, watch round 24, as of `1541635f`
+
+Five corrections to the prose above and below, none touching a statement.  Elaborated at
+this base: 57 public declarations, 57 pins, one per declaration, every pin std-3 or a
+subset (four print `[propext]` alone, one prints no axioms at all), and the two unpinned
+names are the `private` helpers `gLad_listProd_succ` and `gLad_handleWord_succ`, correctly
+excluded.  So "every declaration" in the paragraph above means every PUBLIC declaration.
+
+1. **Rung 4 is climbed on a quarter of the locus the rungs are stated on.**  The lead
+   sentence has been corrected in place.  The only rung-4 nonemptiness theorem is
+   `gLad_nonempty_four_quarter`, which binds `4 ∣ A - 1` and `4 ∣ B`; the reduction at the
+   head of this docstring is stated on the unit locus `IsUnit (A - c0 B)`, and the quarter
+   locus is a proper sub-locus of it.  "What does not land" already said so.
+
+2. **The increment engine's provenance is misattributed, at three sites** (the ⭐⭐⭐ chain
+   item, §2's opening, and `gLad_relWord_incr`'s docstring, which credit the wave-85
+   `mpcBld_incr_*` pattern of `Instances/MpcBuild.lean`).  That module is NOT in this
+   module's import cone (737 modules; checked).  An in-cone equivalent has existed on this
+   very relator since wave 79: `GradedExtraction.gExt_dress_move` reads
+   `sqRelWord (fun i => m i * c i) = sqRelWord m * gExtMove k m c` under `2 ≤ k`, which is
+   `gLad_relWord_incr` with `gExtMove` for `gLadCost`, and the two cost terms agree factor
+   for factor, differing only as `List.ofFn f` against `(List.finRange n).map f`.
+   `gLadCost` is the more general definition (an arbitrary group, not `levelQuot`), but
+   `gLad_relWord_incr` instantiates it exactly where `gExt_dress_move` already lives.
+   Whether the two should be deduplicated is a statement question and is left open here.
+
+3. **"and nothing else" is a converse this module does not prove.**  Full argument at
+   `gLad_step`, where the claim is made twice.
+
+4. **"opens exactly where the mod-4 data of `(A, B)` is trivial"** (§7's opening) states an
+   iff.  Only one direction is proved, `gLad_defect_bare_quarter`: on the quarter locus the
+   defect collapses.  Nothing here shows the defect nontrivial, or rung 4 unsolvable, off
+   it, and the lane note is explicit that the rungs off the quarter locus are neither
+   discharged nor refuted.  Read "opens where", not "exactly where".
+
+5. **Two binders are elided by prose that reads unconditional.**  (a) `2 ≤ j`: five results
+   carry it (`gLad_incr_pair`, `gLad_incr_handle`, `gLad_sqWord_incr`, `gLad_relWord_incr`,
+   `gLad_step`) and three genuinely do not (`gLad_incr_s`, `gLad_incr_x`, `gLad_incr_y`),
+   while "uniform in the class" and "stated at the uniform depth `j`" treat all eight
+   alike.  The floor is harmless in use, since the ladder starts at rung 4, but it is a
+   binder and it is never named.  (b) `gLad_nonempty_four_of_kill` binds
+   `2 ∣ A - 1 - B`, which its ⭐⭐ headline does not mention; on the unit locus this is free
+   by `GradedRowMove.gRow_even_of_unit`, so the criterion is unconditional exactly where
+   the module works, and saying so is better than eliding it.
+
+One more, minor: `gLad_clearing` at "What does not land" resolves to nothing in the tree.
+That is correct in intent, since it names what the lane did not build, but it is written as
+a backticked declaration name and no such declaration exists.
 -/
 
 open Multiplicative
