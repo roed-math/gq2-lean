@@ -890,6 +890,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactNData
 import GQ2.Dyadic.Instances.WordPhaseCompactMUnramifiedBoundary
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
+import GQ2.Dyadic.Instances.MpcMarkedSupply
 import GQ2.Dyadic.Instances.LRowCand
 import GQ2.Dyadic.Instances.MpcPivot
 import GQ2.Dyadic.Instances.OddSeam
