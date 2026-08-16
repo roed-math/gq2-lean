@@ -905,6 +905,8 @@ import GQ2.Dyadic.Instances.M0FamilyField
 import GQ2.Dyadic.Instances.M0C0PivotAudit
 import GQ2.Dyadic.Instances.M0C0PivotAutomorphism
 import GQ2.Dyadic.Instances.M0FieldPivotInvariant
+import GQ2.Dyadic.Instances.M0FieldPivotCup
+import GQ2.Dyadic.Instances.M0FieldPivotHilbert
 import GQ2.Dyadic.Instances.KappaResolverTransport
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedComparison
@@ -954,6 +956,9 @@ import GQ2.Dyadic.Instances.MpcGeneralHandleFamilyFinal
 import GQ2.Dyadic.Instances.MpcUnramifiedProjectedComparison
 import GQ2.Dyadic.Instances.MpcRamifiedProjectedComparison
 import GQ2.Dyadic.Instances.MpcHandleBoundary
+import GQ2.Dyadic.Instances.MpcHandleDeterminant
+import GQ2.Dyadic.Instances.MpcGeneralHandleFamilyClosed
+import GQ2.Dyadic.Instances.MpcGeneralHandleFamilyCanonical
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
@@ -983,3 +988,4 @@ import GQ2.Dyadic.Instances.GammaLOddNuRowsFinal
 import GQ2.Dyadic.Instances.RamifiedCertificateAnchoredSplit
 import GQ2.Dyadic.Instances.RamifiedCertificateCompatible
 import GQ2.Dyadic.Instances.GammaLOddCompatibleRamified
+import GQ2.Dyadic.Instances.RamifiedCertificateCompatibleAt
