@@ -468,6 +468,138 @@ theorem wPsNCompactScalarH2WordFlexible_surjective
 
 end OrientationEquiv
 
+/-! ## §6 The trace seam
+
+The compact twin of `LSquare.QZero_eq_lUniform_graphHessianTrace`: the source scalar
+obstruction of a crossed cocycle is the sum of the evaluated `kappa0` Hessians of the two
+compact-`N` relators at its graph marking.  Everything in the odd proof other than the
+orientation is word-generic — `Count.kappa0_resolvedAt_uniform` takes any `IsOmega2Only` word,
+`Words.isOmega2Only_nCompact` supplies that, `Count.resolvesAt_nCompactFam` supplies the
+resolver, and `moduleObsFun_eq_hessRelZ_of_normalized_pullback` is word-generic — so §5's
+orientation is the whole of what was missing.
+
+This is the statement W87 §3 named as the residual of `wPmCompactHeadPhase`. -/
+
+section TraceSeam
+
+open GQ2.SectionEight SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Count GQ2.Dyadic.Words GQ2.Dyadic.LSquare
+
+/-- **The trace seam at the compact-`N` word.**  `QZero` of a crossed cocycle is exactly the
+sum of the evaluated word Hessians of the tame relator and the compact-`N` relator at its
+graph marking.  No Tate duality, no Euler characteristic, no field realization. -/
+theorem wPs_QZero_eq_nCompact_graphHessianTrace {α h q : ℕ}
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg} {DD : DescData D}
+    (rho : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (Bg ⧸ D.M))
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+    [Finite DD.Vmod] [Finite DD.C0]
+    {q0 : DD.Vmod → ZMod 2} (hdat : IsEquivariantFactorSet q0 DD.dat)
+    (hq : Even q) (hq0 : q ≠ 0) (hα : 2 ≤ α) (c : VCocycle DD rho) :
+    letI : TopologicalSpace (ZMod 2) := ⊥
+    letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+    letI : DistribMulAction
+        ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+      scalarActionZmodTwo _
+    letI : ContinuousSMul
+        ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+      scalarActionZmodTwo_continuousSMul _
+    QZero DD rho c =
+      hessRelZ
+          (fun i ↦ graphSemiProdHom c
+            (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i))
+          (GQ2.Dyadic.kappa0Cocycle DD.dat hdat)
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (tameRelW (2 + 2 * h) q) +
+        hessRelZ
+          (fun i ↦ graphSemiProdHom c
+            (gammaGen (2 + 2 * h) q (Words.nCompactW α h) i))
+          (GQ2.Dyadic.kappa0Cocycle DD.dat hdat)
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (fun _ ↦ (omega2Exp
+            (4 * Monoid.exponent (SectionSix.SemiProd DD.C0 DD.Vmod)) : ℤ))
+          (Words.nCompactW α h) := by
+  letI : TopologicalSpace (ZMod 2) := ⊥
+  letI : DiscreteTopology (ZMod 2) := ⟨rfl⟩
+  letI : DistribMulAction
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    scalarActionZmodTwo _
+  letI : ContinuousSMul
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    scalarActionZmodTwo_continuousSMul _
+  let L := SectionSix.SemiProd DD.C0 DD.Vmod
+  letI : Finite L := inferInstanceAs (Finite (DD.Vmod × DD.C0))
+  let N := 4 * Monoid.exponent L
+  let e := omega2Exp N
+  let W : Fin 2 → PWord (Generator (2 + 2 * h)) :=
+    gammaFam (2 + 2 * h) q (Words.nCompactW α h)
+  let gen : Generator (2 + 2 * h) →
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) :=
+    gammaGen (2 + 2 * h) q (Words.nCompactW α h)
+  let graph : ContinuousMonoidHom
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) L :=
+    ⟨graphSemiProdHom c, continuous_graphSemiProdHom c⟩
+  let kappa := GQ2.Dyadic.kappa0Cocycle DD.dat hdat
+  let f : Z2 ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2) :=
+    ⟨graphPullback DD.dat (fun g ↦ rho0 DD rho g) c.c,
+      graphPullback_mem_Z2_of_cocycle (fun _ _ ↦ rfl) c⟩
+  have he : Odd e :=
+    odd_omega2Exp (fourMulExponent_ne_zero_and_even L).1
+      (fourMulExponent_ne_zero_and_even L).2
+  have hresolve : ResolvesAt W (nCompactFam α h q e) (WordLift (ZMod 2) L) :=
+    Count.resolvesAt_nCompactFam (fourMulExponent_ne_zero_and_even L).1
+      (fun x ↦ (WordLift.orderOf_dvd_two_mul (by decide)
+        (fun g ↦ Monoid.order_dvd_exponent g) x).trans ⟨2, by ring⟩) α h q
+  have hr : ∀ k, FreeGroup.lift (fun i ↦ graph (gen i)) (nCompactFam α h q e k) = 1 :=
+    lower_rel (A := ZMod 2) graph (fun _ ↦ rfl)
+      (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (Words.nCompactW α h)) hresolve
+  have hsurj : Function.Surjective
+      (wPsNCompactScalarH2WordFlexible graph (fun _ _ ↦ rfl) hq (by omega) he) :=
+    wPsNCompactScalarH2WordFlexible_surjective graph hq hα hq0 he hr
+  let orient := wPsNCompactScalarH2TraceEquiv_of_surjective graph (fun _ _ ↦ rfl) hq
+    (by omega) he hr hsurj
+  have htrace : QZero DD rho c =
+      ∑ k, moduleObsFun W gen graph (fun _ _ ↦ rfl) f k := by
+    rw [QZero]
+    change iotaB f.1 = _
+    rw [iotaB_eq_h2Equiv orient f]
+    exact wPsNCompactScalarH2TraceEquiv_of_surjective_mk graph (fun _ _ ↦ rfl) hq
+      (by omega) he hr hsurj f
+  have hnorm : ∀ x y : ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type),
+      moduleNormalize f.1 (x, y) = kappa.κ (graph x) (graph y) := by
+    intro x y
+    have h11 : f.1 (1, 1) = 0 := by
+      change DD.dat.f (c.c 1) (rho0 DD rho 1 • c.c 1) +
+        DD.dat.m (rho0 DD rho 1) (c.c 1) = 0
+      rw [c.c_one, smul_zero, hdat.f_zero_left, map_one, hdat.m_one, add_zero]
+    rw [moduleNormalize, h11, smul_zero, sub_zero]
+    exact graphPullback_eq_dyadicKappa0_graph hdat c x y
+  have hresolved : ∀ k, PWord.ResolvedAt
+      (WordCoh.lift (fun i ↦ graph (gen i)) kappa)
+        (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (W k) := by
+    intro k
+    fin_cases k
+    · exact kappa0_resolvedAt_uniform DD.dat hdat (Vmod_exp2 DD) _ _
+        (isOmega2Only_tameRelW (2 + 2 * h) q)
+    · exact kappa0_resolvedAt_uniform DD.dat hdat (Vmod_exp2 DD) _ _
+        (Words.isOmega2Only_nCompact α h)
+  have hcoord : ∀ k, moduleObsFun W gen graph (fun _ _ ↦ rfl) f k =
+      hessRelZ (fun i ↦ graph (gen i)) kappa
+        (fun _ ↦ (e : ℤ)) (fun _ ↦ (e : ℤ)) (W k) := by
+    intro k
+    exact moduleObsFun_eq_hessRelZ_of_normalized_pullback
+      (fun _ _ ↦ rfl) (fun _ _ ↦ rfl) W gen graph f kappa hnorm _ _ k (hresolved k)
+  rw [htrace, Fin.sum_univ_two, hcoord, hcoord]
+  rfl
+
+end TraceSeam
+
 /-! ## Axiom audit
 
 Every declaration in this file is pinned below.  The honest split: **all of them are std-3**
@@ -508,6 +640,7 @@ section AxiomPins
 #print axioms wPsNCompactScalarH2TraceEquiv_of_surjective
 #print axioms wPsNCompactScalarH2TraceEquiv_of_surjective_mk
 #print axioms wPsNCompactScalarH2WordFlexible_surjective
+#print axioms wPs_QZero_eq_nCompact_graphHessianTrace
 
 end AxiomPins
 
