@@ -149,6 +149,18 @@ is one named object: **the compact word's `d¹`-closed cochains are, modulo `d�
 coordinates and `h` handle pairs.**  §3's correction makes that object simpler than its odd
 counterpart, not harder: no Wall operator built from the `sigma`-image, and no branch split.
 
+⚠ **[W87-NORMAL, as of the wave-87 merge: the three "none" rows are FALSE; the grep measured
+the naming.**  The counterparts exist as `evenNormal` (`N0RamifiedStokes.lean:73`),
+`heisD1_evenNormal_eq_zero_of_unramified_row` and `evenNormalForm_of_unramified_row`
+(`N0M0UnramifiedStokes.lean:318`, `:331`), stated for any family with the shared unramified Fox
+row, hence serving both compact words; the predicted object in bold above is exactly
+`evenNormal`, already proved at general `h`.  The assembler row is true of the declaration only;
+its proof is word-generic and `wPmPhaseComparison_of_normalForm` (`WordPhaseModel.lean`)
+restates it with the phase formula as the single analytic hypothesis.  The residual after
+W87-NORMAL is the trace seam alone: one compact twin of `lWordH2TraceEquiv`
+(`LScalarTrace.lean:253`), the same object for both compact words.  See
+`docs/dyadic/w87-normal-note.md`.]
+
 ---
 
 ## §6 Axioms

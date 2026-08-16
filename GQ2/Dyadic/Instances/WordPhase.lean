@@ -872,6 +872,22 @@ None of the three has a compact-word counterpart anywhere in the tree; `grep` fo
 either, for the same reason W85-BLOCKS §5 gives for `DeterminantWordPhaseSupply`: the word is in
 the types.
 
+⚠ [W87-NORMAL, as of the wave-87 merge: **the "none of the three" claim is FALSE; the grep
+measured the NAMING.**  All three counterparts exist under the `evenNormal` name, stated for an
+arbitrary family with the shared unramified Fox row and so serving both compact words:
+`evenNormal` (`Instances/N0RamifiedStokes.lean:73`, exactly the two-free-head-coordinates and
+`h`-handle-pairs object this section predicts),
+`heisD1_evenNormal_eq_zero_of_unramified_row` and `evenNormalForm_of_unramified_row`
+(`Instances/N0M0UnramifiedStokes.lean:318`, `:331`).  The assembler sentence is true of the
+DECLARATION and false of its PROOF: only `QZero_eq_lSqWallHandlePhase_of_headMark` is
+word-specific, and `wPmPhaseComparison_of_normalForm` (`WordPhaseModel.lean`) restates the
+construction at arbitrary `n`, `q`, `Rw`, `w` with the phase formula as its single analytic
+hypothesis.  The surviving residual is `wPmCompactHeadPhase` (the `QZero` value on normal
+coordinates), and the phase VALUE is not the gap
+(`wPm_hessRelZ_nCompact_eq_compactWallHandlePhase`); what remains is the trace seam, whose one
+missing input is a compact twin of `lWordH2TraceEquiv` (`LScalarTrace.lean:253`).  See
+`docs/dyadic/w87-normal-note.md`.]
+
 What §4 changes is the *shape* of the target, and it changes it in the direction that makes the
 missing normal form easier rather than harder.  The odd comparison must produce a model with a
 Wall head `qDouble q U`, carrying the operator `U = smulAddEquiv (s ^ ω₂(...))⁻¹` built from the
