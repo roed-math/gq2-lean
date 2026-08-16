@@ -286,6 +286,100 @@ def wPsMCompactWordH2TraceEquiv (c : Generator (2 + 2 * h) → C)
 
 end CompactTrace
 
+/-! ## §4 The compact scalar orientation
+
+With §2b and §3 the whole `L` orientation chain transposes.  Every other ingredient of
+`LSquare.lScalarH2WordFlexible` and `LSquare.lScalarH2WordFlexible_surjective_of_actionImage`
+is word-generic already: the engine `Count.globalModuleH2WordFlexible`, the admissibility
+`Count.isAdmissibleMarkedPresentation_gammaR`, the wild-level condition
+`Count.hwildLevel_gammaR`, and the resolver `Count.resolvesAt_nCompactFam`.  The only
+word-specific inputs were the exponent invariance (§2b) and the word trace (§3).
+
+The `H²` count on the continuous side is `NCompact.cardH2_of_uniformPushed` fed by
+`NCompact.uniformPushedHsimp`, which is unconditional at `2 ≤ α`, `Even q`.  No Tate duality,
+no Euler characteristic, no ramified certificate enters. -/
+
+section Orientation
+
+open GQ2.Dyadic.Count ContCoh
+
+variable {α h q e : ℕ} {C : Type}
+  [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [TopologicalSpace (ZMod 2)] [IsTopologicalAddGroup (ZMod 2)] [DiscreteTopology (ZMod 2)]
+  [DistribMulAction
+    ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+  [ContinuousSMul
+    ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type) (ZMod 2)]
+  [DistribMulAction C (ZMod 2)]
+
+local notation "GammaN" => ((GammaR (2 + 2 * h) q (Words.nCompactW α h) : ProfiniteGrp) : Type)
+local notation "genN" => gammaGen (2 + 2 * h) q (Words.nCompactW α h)
+local notation "WN" => gammaFam (2 + 2 * h) q (Words.nCompactW α h)
+
+/-- **The compact-`N` scalar flexible resolver system.**  The twin of
+`LSquare.lScalarFlexibleResolverSystem`: at each finite level the quotient-dependent resolver
+`omega2Exp (2 * exponent Q)` is odd, so §2b says its scalar differential is the fixed word's. -/
+def wPsNCompactScalarFlexibleResolverSystem
+    (rho : ContinuousMonoidHom GammaN C) (hq : Even q) (hα : 1 ≤ α) (he : Odd e) :
+    ∀ (V : OpenNormalSubgroup GammaN)
+      (hV : V.toSubgroup ≤ rho.toMonoidHom.ker),
+      letI : DistribMulAction (GammaN ⧸ V.toSubgroup) (ZMod 2) :=
+        DistribMulAction.compHom (ZMod 2) (quotientActionHom rho V hV)
+      ModuleFlexibleResolverAt (A := ZMod 2) WN
+        (fun i ↦ rho (genN i)) (nCompactFam α h q e)
+        (fun i ↦ QuotientGroup.mk' V.toSubgroup (genN i)) := by
+  intro V hV
+  letI : DistribMulAction (GammaN ⧸ V.toSubgroup) (ZMod 2) :=
+    DistribMulAction.compHom (ZMod 2) (quotientActionHom rho V hV)
+  have hlevel := twoMulExponent_ne_zero_and_even
+    (WordLift (ZMod 2) (GammaN ⧸ V.toSubgroup))
+  refine
+    { word := nCompactFam α h q
+        (omega2Exp (2 * Monoid.exponent (WordLift (ZMod 2) (GammaN ⧸ V.toSubgroup))))
+      resolves := Count.resolvesAt_nCompactFam hlevel.1
+        (fun x ↦ (Monoid.order_dvd_exponent x).trans (dvd_mul_left _ _)) α h q
+      range_eq := ?_ }
+  exact congrArg AddMonoidHom.range
+    (heisD1_zmod2_eq_of_eps _ _ _ _
+      (fun k i ↦ wPs_heisEps_nCompactFam_eq_of_odd hq hα
+        (odd_omega2Exp hlevel.1 hlevel.2) he k i))
+
+/-- **The compact-`N` scalar continuous-to-word `H²` map.**  The twin of
+`LSquare.lScalarH2WordFlexible`, built on the word-generic engine. -/
+def wPsNCompactScalarH2WordFlexible
+    (rho : ContinuousMonoidHom GammaN C)
+    (hcompatScalar : ∀ (g : GammaN) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e) :
+    H2 GammaN (ZMod 2) →+
+      WordH2 (fun i ↦ rho (genN i)) (nCompactFam α h q e) (ZMod 2) :=
+  globalModuleH2WordFlexible
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (Words.nCompactW α h))
+    rho hcompatScalar (fun V ↦ hwildLevel_gammaR V) (by decide)
+    (wPsNCompactScalarFlexibleResolverSystem rho hq hα he)
+
+@[simp] theorem wPsNCompactScalarH2WordFlexible_mk
+    (rho : ContinuousMonoidHom GammaN C)
+    (hcompatScalar : ∀ (g : GammaN) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e) (f : Z2 GammaN (ZMod 2)) :
+    wPsNCompactScalarH2WordFlexible rho hcompatScalar hq hα he
+        (H2mk GammaN (ZMod 2) f) =
+      QuotientAddGroup.mk'
+        (heisD1 (A := ZMod 2) (fun i ↦ rho (genN i)) (nCompactFam α h q e)).range
+        (moduleObsFam WN genN rho hcompatScalar f) := rfl
+
+/-- The compact-`N` scalar flexible map is injective. -/
+theorem wPsNCompactScalarH2WordFlexible_injective
+    (rho : ContinuousMonoidHom GammaN C)
+    (hcompatScalar : ∀ (g : GammaN) (s : ZMod 2), g • s = rho g • s)
+    (hq : Even q) (hα : 1 ≤ α) (he : Odd e) :
+    Function.Injective (wPsNCompactScalarH2WordFlexible rho hcompatScalar hq hα he) :=
+  globalModuleH2WordFlexible_injective
+    (isAdmissibleMarkedPresentation_gammaR (2 + 2 * h) q (Words.nCompactW α h))
+    rho hcompatScalar (fun V ↦ hwildLevel_gammaR V) (by decide)
+    (wPsNCompactScalarFlexibleResolverSystem rho hq hα he)
+
+end Orientation
+
 /-! ## Axiom audit
 
 Every declaration in this file is pinned below.  The honest split: **all of them are std-3**
@@ -319,6 +413,10 @@ section AxiomPins
 #print axioms wPs_heisD1_zmod2_mCompactFam_apply
 #print axioms wPsNCompactWordH2TraceEquiv
 #print axioms wPsMCompactWordH2TraceEquiv
+#print axioms wPsNCompactScalarFlexibleResolverSystem
+#print axioms wPsNCompactScalarH2WordFlexible
+#print axioms wPsNCompactScalarH2WordFlexible_mk
+#print axioms wPsNCompactScalarH2WordFlexible_injective
 
 end AxiomPins
 
