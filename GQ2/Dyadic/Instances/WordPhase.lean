@@ -886,7 +886,11 @@ hypothesis.  The surviving residual is `wPmCompactHeadPhase` (the `QZero` value 
 coordinates), and the phase VALUE is not the gap
 (`wPm_hessRelZ_nCompact_eq_compactWallHandlePhase`); what remains is the trace seam, whose one
 missing input is a compact twin of `lWordH2TraceEquiv` (`LScalarTrace.lean:253`).  See
-`docs/dyadic/w87-normal-note.md`.]
+`docs/dyadic/w87-normal-note.md`.
+[W88-SEAM: the twin landed at both words and `wPmCompactHeadPhase` is discharged at `N`
+(`WordPhaseSeam.lean`, all std-3); the remaining distance to `wPhCompactPhaseModel` is the
+compact twin of `GammaLDeterminant{Unramified,Ramified}Data.lean`, wave-sized, every analytic
+input now in the tree.]]
 
 What §4 changes is the *shape* of the target, and it changes it in the direction that makes the
 missing normal form easier rather than harder.  The odd comparison must produce a model with a

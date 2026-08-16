@@ -185,6 +185,22 @@ So the honest measure of the remaining analytic distance is: **one scalar word-t
 at the compact family.**  That is a smaller and much more concrete object than "a
 `SourceWordPhaseComparison` per boundary lift", and it is the same object for both compact words.
 
+⚠ **[W88-SEAM, as of the wave-88 merge: the equivalence LANDED at both words**
+(`wPs{N,M}CompactWordH2TraceEquiv`, all std-3), by a stronger route than mapped here (the whole
+scalar `d¹` of either compact family is `x ↦ (x_τ, x_τ)`), and `wPmCompactHeadPhase` is
+DISCHARGED at the `N` word (`wPs_wPmCompactHeadPhase_of_headFactorization`).  Two of this
+section's readings corrected: `cardH2_of_uniformPushed` feeds the ORIENTATION, not the trace
+(surjectivity is the explicit `(z,0)` representative), and the head phase does not follow from
+the seam alone (it costs the head factorization plus `π(rho0(xᵢ)) = 1`, exactly the odd twin's
+hypotheses, supplied by the producer).  This paragraph's "smaller than a
+`SourceWordPhaseComparison` per boundary lift" remains true but is no longer the endgame
+measure: with the seam landed, the remaining distance to `wPhCompactPhaseModel` is exactly the
+compact twin of the odd side's TWO BRANCH-SPLIT DATA FILES
+(`GammaLDeterminant{Unramified,Ramified}Data.lean`, 530 + 633 lines), a wave-sized
+construction whose every analytic input is now in the tree; the compact-`M` head phase
+additionally needs the `M` twin of the Hessian evaluation (blocked by the `h = 0`-only
+branch-split endpoints, not by the `M0Assembly` import).  See `docs/dyadic/w88-seam-note.md`.]
+
 ---
 
 ## §4 Scope limits, stated plainly

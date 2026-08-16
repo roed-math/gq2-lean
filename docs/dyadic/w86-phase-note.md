@@ -157,7 +157,10 @@ row, hence serving both compact words; the predicted object in bold above is exa
 `evenNormal`, already proved at general `h`.  The assembler row is true of the declaration only;
 its proof is word-generic and `wPmPhaseComparison_of_normalForm` (`WordPhaseModel.lean`)
 restates it with the phase formula as the single analytic hypothesis.  The residual after
-W87-NORMAL is the trace seam alone: one compact twin of `lWordH2TraceEquiv`
+W87-NORMAL is the trace seam alone [W88-SEAM: landed at both words, and the head phase
+discharged at `N`; the remaining distance is the compact twin of the two branch-split
+determinant-data files, see the w87-normal note's W88 annotation]: one compact twin of
+`lWordH2TraceEquiv`
 (`LScalarTrace.lean:253`), the same object for both compact words.  See
 `docs/dyadic/w87-normal-note.md`.]
 
