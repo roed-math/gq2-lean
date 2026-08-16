@@ -154,6 +154,7 @@ LEGACY RECORDS (COMPAT ONLY)|v5 cand clause = coeff|decl|rowCl_mCand_exactLiftin
 LEGACY RECORDS (COMPAT ONLY)|v-2 cand clause = coeff|decl|rowCl_nCand_exactLifting_iff
 CORRECTED RN RECORDS|N0 certificate (all a,h)|decl|wPcNWordCertificateRN
 CORRECTED RN RECORDS|M0 certificate (from supply)|decl|wPcMWordCertificateRN_of_supply
+CORRECTED RN ANALYTIC|M0 arbitrary-h ramified head phase|decl|wPcM_QZero_eq_ramifiedHandlePhase_of_headMark
 CORRECTED RN RECORDS|Mpc certificate (from determinant)|decl|mpcWordCertificateRN_of_determinant
 CORRECTED RN ANALYTIC|Npc branch-free supply (all a,r,h)|decl|wPnpc_branchFreeSupply
 CORRECTED RN ANALYTIC|Npc affine determinant (selected eta)|decl|npcAffineDeterminantCertificate
