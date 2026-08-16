@@ -895,6 +895,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedComparison
 import GQ2.Dyadic.Instances.WordPhaseCompactMBoundary
 import GQ2.Dyadic.Instances.WordPhaseCompactMFinalBase
+import GQ2.Dyadic.Instances.WordPhaseCompactMFinal
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
