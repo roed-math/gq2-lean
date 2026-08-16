@@ -1084,7 +1084,152 @@ theorem gRsd_cost2 (B : ℤ_[2]) {E : levelQuot (DSq h : Type) 4}
   rw [cfive_commP_right_hom hE (gLadY h) (gLadQ h (2 * B)),
     gLad_vanish4 hE (gRsd_Q_even_mem ⟨B, rfl⟩), one_mul]
 
+/-- Projection of a bracket word. -/
+private theorem gRsd_mk_commP (a b : (DSq h : Type)) :
+    levelMk (DSq h : Type) 4 (commP a b)
+      = commP (levelMk (DSq h : Type) 4 a) (levelMk (DSq h : Type) 4 b) := by
+  simp only [commP, map_mul, map_inv]
+
+private theorem gRsd_mk_zeta :
+    levelMk (DSq h : Type) 4 (commP (dsqSigma h) (dsqX0 h)) = gRsdZeta h :=
+  gRsd_mk_commP _ _
+
+private theorem gRsd_mk_xiS :
+    levelMk (DSq h : Type) 4 (commP (dsqSigma h) (dsqX1 h)) = gRsdXiS h :=
+  gRsd_mk_commP _ _
+
+private theorem gRsd_mk_xiX :
+    levelMk (DSq h : Type) 4 (commP (dsqX0 h) (dsqX1 h)) = gRsdXiX h :=
+  gRsd_mk_commP _ _
+
+/-- ⭐⭐⭐ **THE JACOBI ROTATION OF THE GUARDING TRIPLE**: `[zeta, Y] = [[X,Y],S] [[S,Y],X]`
+in `Q_4`.  The y-legged triple that guards the bracket-square block rotates onto an s-legged
+and an x-legged triple, which are slot costs of the engine.  This is the single move the
+wave-86 reachability analysis missed, and it is what decides the block POSITIVELY. -/
+theorem gRsd_zeta_Y :
+    commP (gRsdZeta h) (gLadY h)
+      = commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h) := by
+  show commP (commP (gLadS h) (gLadX h)) (gLadY h) = _
+  rw [cfourDef_jacobi_solve (gLadS h) (gLadX h) (gLadY h),
+    ← gLad_commP_inv (gLadS h) (gLadY h),
+    gThreeFour_ad_inv_left (cfour_commP_mem_lambdaTwo (gLadS h) (gLadY h)) (gLadX h)]
+  rfl
+
+/-- Squares split over `lambda_2`-factors. -/
+private theorem gRsd_sq_split {a b : levelQuot (DSq h : Type) 4}
+    (ha : a ∈ lambdaImage (DSq h : Type) 2 4) (hb : b ∈ lambdaImage (DSq h : Type) 2 4) :
+    (a * b) ^ 2 = a ^ 2 * b ^ 2 := by
+  rw [cfour_sq_mul a b, gLad_vanish4 hb ha, cfour_one_comm, mul_one, mul_one]
+
 end CarrierCost
+
+/-! ## §8 The kills: rung 4 at every residue
+
+Each residue's witness tuple is built from the three commutators `[sigma, x_0]`,
+`[sigma, x_1]`, `[x_0, x_1]`; its engine cost evaluates to EXACTLY the residue's defect,
+so the kill equation is `defect * cost = cost^2 = 1`, an involution of the central layer. -/
+
+section Kills
+
+variable {h : ℕ}
+
+/-- ⭐⭐ **RUNG 4 IS FREE ON THE HALF LOCUS** `2 | B`, `4 | A - 1 - B`, with the bare frame:
+the quarter-locus result of wave 86, doubled. -/
+theorem gRsd_nonempty_four_half {A B : ℤ_[2]} (hB : (2 : ℤ_[2]) ∣ B)
+    (hAB : (4 : ℤ_[2]) ∣ A - 1 - B) : (gRowSet h A B 4).Nonempty := by
+  obtain ⟨t', ht'⟩ := hAB
+  have hsplit : A - 1 = B + 2 * (2 * t') := by linear_combination ht'
+  exact ⟨fun _ => 1, fun _ => one_mem _,
+    (QuotientGroup.eq_one_iff _).mp (gRsd_defect_even_even_t hsplit hB ⟨t', rfl⟩)⟩
+
+/-- The cost of the even-locus witness `(zeta xiS, zeta xiX, zeta)` is exactly the
+even-locus defect `gRsdKillE`. -/
+private theorem gRsd_cost_even {A B : ℤ_[2]} (hB : (2 : ℤ_[2]) ∣ B)
+    (hA1 : (2 : ℤ_[2]) ∣ A - 1) :
+    gLadCost (fun i => levelMk (DSq h : Type) 4 (gRowMark h A B (fun _ => 1) i))
+      (fun i => levelMk (DSq h : Type) 4 (gRsdTuple h
+        (commP (dsqSigma h) (dsqX0 h) * commP (dsqSigma h) (dsqX1 h))
+        (commP (dsqSigma h) (dsqX0 h) * commP (dsqX0 h) (dsqX1 h))
+        (commP (dsqSigma h) (dsqX0 h)) i)) = gRsdKillE h := by
+  have hζ₂ : gRsdZeta h ^ 2 ∈ zLayer (DSq h : Type) 3 := cfour_sq_mem_zLayer gRsdZeta_mem
+  have hu₁ : commP (gRsdXiS h) (gLadX h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiS_mem _
+  have hu₂ : commP (gRsdXiX h) (gLadS h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_left gRsdXiX_mem _
+  have hSζ : commP (gLadS h) (gRsdZeta h) ∈ zLayer (DSq h : Type) 3 :=
+    cfour_commP_mem_zLayer_right _ gRsdZeta_mem
+  rw [gRsd_cost_tuple]
+  simp only [gRsd_bare_zero, gRsd_bare_one, gRsd_bare_two, map_mul, gRsd_mk_zeta,
+    gRsd_mk_xiS, gRsd_mk_xiX]
+  rw [gRsd_cost0_even hB (Subgroup.mul_mem _ gRsdZeta_mem gRsdXiS_mem),
+    gRsd_cost1_even hA1 (Subgroup.mul_mem _ gRsdZeta_mem gRsdXiX_mem),
+    gRsd_cost2 B gRsdZeta_mem,
+    gLad_commP_mul_left_two gRsdZeta_mem (gLadX h),
+    cfour_commP_mul_right (gLadS h) (gRsdZeta h) (gRsdXiX h),
+    cfive_commP_zLayer_left hSζ (gRsdXiX h), mul_one,
+    ← gLad_commP_inv (gRsdZeta h) (gLadS h), zLayer_inv_self gRsdZetaS_mem,
+    ← gLad_commP_inv (gRsdXiX h) (gLadS h), zLayer_inv_self hu₂,
+    gRsd_zeta_Y]
+  calc commP (gRsdZeta h) (gLadX h) * commP (gRsdXiS h) (gLadX h)
+      * (commP (gRsdXiX h) (gLadS h) * commP (gRsdZeta h) (gLadS h))
+      * (gRsdZeta h ^ 2
+        * (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h)))
+      = commP (gRsdZeta h) (gLadX h) * (commP (gRsdXiS h) (gLadX h)
+        * (commP (gRsdXiX h) (gLadS h) * (commP (gRsdZeta h) (gLadS h) * (gRsdZeta h ^ 2
+          * (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h)))))) := by group
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (commP (gRsdXiS h) (gLadX h)
+        * (commP (gRsdXiX h) (gLadS h) * (commP (gRsdZeta h) (gLadS h)
+          * (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h)))))) := by
+        rw [gRsd_swap hζ₂ (commP (gRsdZeta h) (gLadS h))
+            (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h)),
+          gRsd_swap hζ₂ (commP (gRsdXiX h) (gLadS h))
+            (commP (gRsdZeta h) (gLadS h)
+              * (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h))),
+          gRsd_swap hζ₂ (commP (gRsdXiS h) (gLadX h))
+            (commP (gRsdXiX h) (gLadS h) * (commP (gRsdZeta h) (gLadS h)
+              * (commP (gRsdXiX h) (gLadS h) * commP (gRsdXiS h) (gLadX h)))),
+          gRsd_swap hζ₂ (commP (gRsdZeta h) (gLadX h))
+            (commP (gRsdXiS h) (gLadX h) * (commP (gRsdXiX h) (gLadS h)
+              * (commP (gRsdZeta h) (gLadS h) * (commP (gRsdXiX h) (gLadS h)
+                * commP (gRsdXiS h) (gLadX h)))))]
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (commP (gRsdXiS h) (gLadX h)
+        * (commP (gRsdXiX h) (gLadS h) * (commP (gRsdXiX h) (gLadS h)
+          * (commP (gRsdZeta h) (gLadS h) * commP (gRsdXiS h) (gLadX h)))))) := by
+        rw [gRsd_swap hu₂ (commP (gRsdZeta h) (gLadS h)) (commP (gRsdXiS h) (gLadX h))]
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (commP (gRsdXiS h) (gLadX h)
+        * (commP (gRsdZeta h) (gLadS h) * commP (gRsdXiS h) (gLadX h)))) := by
+        rw [gRsd_pair_collapse hu₂
+          (commP (gRsdZeta h) (gLadS h) * commP (gRsdXiS h) (gLadX h))]
+    _ = gRsdZeta h ^ 2 * (commP (gRsdZeta h) (gLadX h) * (commP (gRsdZeta h) (gLadS h)
+        * (commP (gRsdXiS h) (gLadX h) * commP (gRsdXiS h) (gLadX h)))) := by
+        rw [gRsd_swap gRsdZetaS_mem (commP (gRsdXiS h) (gLadX h))
+          (commP (gRsdXiS h) (gLadX h))]
+    _ = gRsdKillE h := by
+        rw [← pow_two, zLayer_sq (DSq h : Type) hu₁, mul_one]
+        rfl
+
+/-- ⭐⭐ **RUNG 4 ON THE EVEN LOCUS AT ODD EXCESS**: the witness
+`(zeta xiS, zeta xiX, zeta)` kills the defect. -/
+theorem gRsd_nonempty_four_even_odd {A B t : ℤ_[2]} (hsplit : A - 1 = B + 2 * t)
+    (hB : (2 : ℤ_[2]) ∣ B) (ht : ¬ (2 : ℤ_[2]) ∣ t) : (gRowSet h A B 4).Nonempty := by
+  have hA1 : (2 : ℤ_[2]) ∣ A - 1 := by
+    obtain ⟨b, hb⟩ := hB
+    exact ⟨b + t, by linear_combination hsplit + hb⟩
+  have hc : ∀ i, gRsdTuple h
+      (commP (dsqSigma h) (dsqX0 h) * commP (dsqSigma h) (dsqX1 h))
+      (commP (dsqSigma h) (dsqX0 h) * commP (dsqX0 h) (dsqX1 h))
+      (commP (dsqSigma h) (dsqX0 h)) i ∈ gRowCorr h :=
+    gRsdTuple_mem_corr
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _))
+      (Subgroup.mul_mem _ (gRsd_commP_mem_corr _ _) (gRsd_commP_mem_corr _ _))
+      (gRsd_commP_mem_corr _ _)
+  refine gLad_nonempty_four_of_kill (by exact ⟨t, by linear_combination hsplit⟩)
+    (fun i => ((gRow_mem_corr.mp (hc i)).1).1) (fun i => ((gRow_mem_corr.mp (hc i)).1).2)
+    (fun i => (gRow_mem_corr.mp (hc i)).2) ?_
+  rw [gRsd_defect_even_odd_t hsplit hB ht, gRsd_cost_even hB hA1, ← pow_two]
+  exact zLayer_sq (DSq h : Type) gRsdKillE_mem
+
+end Kills
 
 end SqCore
 
