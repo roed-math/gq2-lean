@@ -473,9 +473,9 @@ end OrientationEquiv
 The compact twin of `LSquare.QZero_eq_lUniform_graphHessianTrace`: the source scalar
 obstruction of a crossed cocycle is the sum of the evaluated `kappa0` Hessians of the two
 compact-`N` relators at its graph marking.  Everything in the odd proof other than the
-orientation is word-generic — `Count.kappa0_resolvedAt_uniform` takes any `IsOmega2Only` word,
+orientation is word-generic (`Count.kappa0_resolvedAt_uniform` takes any `IsOmega2Only` word,
 `Words.isOmega2Only_nCompact` supplies that, `Count.resolvesAt_nCompactFam` supplies the
-resolver, and `moduleObsFun_eq_hessRelZ_of_normalized_pullback` is word-generic — so §5's
+resolver, and `moduleObsFun_eq_hessRelZ_of_normalized_pullback` is word-generic), so §5's
 orientation is the whole of what was missing.
 
 This is the statement W87 §3 named as the residual of `wPmCompactHeadPhase`. -/
