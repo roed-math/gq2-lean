@@ -892,6 +892,7 @@ import GQ2.Dyadic.Instances.WordPhaseCompactNFinal
 import GQ2.Dyadic.Instances.WordPhaseCompactMUnramifiedBoundary
 import GQ2.Dyadic.Instances.KappaResolverTransport
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
+import GQ2.Dyadic.Instances.WordPhaseCompactMFinalBase
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
