@@ -222,6 +222,29 @@ private theorem mpcFv_swap4 {Q : Type*} [Group Q] {x y u : Q} (hxy : x * y = y *
     _ = y * u * x * v := by rw [mul_assoc y x u, hxu, ← mul_assoc]
     _ = u * y * x * v := by rw [hyu]
 
+/-- Moving one factor one place to the right past another it commutes with. -/
+private theorem mpcFv_mv {Q : Type*} [Group Q] {e x : Q} (h : e * x = x * e) (u v : Q) :
+    u * e * x * v = u * x * e * v := by rw [mul_assoc u e x, h, ← mul_assoc]
+
+/-- **The four-letter shuffle.**  Each of `mWord`'s four factors splits as a marked part times a
+correction, and every correction commutes with every marked part to its right, so the four
+corrections collect at the end with nothing incurred. -/
+private theorem mpcFv_shuffle4 {Q : Type*} [Group Q] {x₁ x₂ x₃ x₄ e₁ e₂ e₃ e₄ : Q}
+    (h₁₂ : e₁ * x₂ = x₂ * e₁) (h₁₃ : e₁ * x₃ = x₃ * e₁) (h₁₄ : e₁ * x₄ = x₄ * e₁)
+    (h₂₃ : e₂ * x₃ = x₃ * e₂) (h₂₄ : e₂ * x₄ = x₄ * e₂) (h₃₄ : e₃ * x₄ = x₄ * e₃) :
+    x₁ * e₁ * (x₂ * e₂) * (x₃ * e₃) * (x₄ * e₄)
+      = x₁ * x₂ * x₃ * x₄ * (e₁ * e₂ * e₃ * e₄) := by
+  calc x₁ * e₁ * (x₂ * e₂) * (x₃ * e₃) * (x₄ * e₄)
+      = x₁ * e₁ * x₂ * e₂ * x₃ * e₃ * x₄ * e₄ := by group
+    _ = x₁ * x₂ * e₁ * e₂ * x₃ * e₃ * x₄ * e₄ := by rw [mpcFv_mv h₁₂ x₁ e₂]
+    _ = x₁ * x₂ * e₁ * x₃ * e₂ * e₃ * x₄ * e₄ := by rw [mpcFv_mv h₂₃ (x₁ * x₂ * e₁) e₃]
+    _ = x₁ * x₂ * x₃ * e₁ * e₂ * e₃ * x₄ * e₄ := by rw [mpcFv_mv h₁₃ (x₁ * x₂) e₂]
+    _ = x₁ * x₂ * x₃ * e₁ * e₂ * x₄ * e₃ * e₄ := by
+        rw [mpcFv_mv h₃₄ (x₁ * x₂ * x₃ * e₁ * e₂) e₄]
+    _ = x₁ * x₂ * x₃ * e₁ * x₄ * e₂ * e₃ * e₄ := by rw [mpcFv_mv h₂₄ (x₁ * x₂ * x₃ * e₁) e₃]
+    _ = x₁ * x₂ * x₃ * x₄ * e₁ * e₂ * e₃ * e₄ := by rw [mpcFv_mv h₁₄ (x₁ * x₂ * x₃) e₂]
+    _ = x₁ * x₂ * x₃ * x₄ * (e₁ * e₂ * e₃ * e₄) := by group
+
 end Calculus
 
 /-! ## §1 The `Ā`-letter's square
@@ -429,7 +452,97 @@ theorem mpcFv_comm_letCD {q r w μ ν : levelQuot G 5} (hμ : μ ∈ lambdaImage
 
 end LetterCD
 
-/-! ## §4 Axiom pins
+/-! ## §4 The class-five defect of the `M6` ansatz, in closed form
+
+The four factors assemble with nothing incurred, and the reason is the one recorded in §0: every
+correction lies in `L = λ₃/λ₅`, `L` is abelian, and `L` commutes with `Y = λ₂/λ₅`.  The three
+marked parts a correction has to pass are `⁅p,q⁆ ∈ Y`, `r⁴ ∈ L` and `⁅r,w⁆ ∈ Y`, so each pass is
+free.  At class four the same statement is `mpcBld_mWord_four`, where all four corrections are
+central and the assembly is free for the cruder reason. -/
+
+section Assembly
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- ⭐⭐⭐ **THE CLASS-FIVE DEFECT OF THE `M6` ANSATZ, IN CLOSED FORM.**  In `Q₅`, for `Y`-
+corrections `σ, τ, μ, ν` and an `L`-element `z` (the ansatz uses `z = (q⁴)⁻¹`, which at class four
+was central and here is not),
+
+    mWord 2 (p·z·σ) (q·τ) (q²·r·μ) (w·ν) = mWord 2 p q r w · (E₁·E₂·E₃·E₄)
+
+with the four corrections
+
+    E₁ = σ²·⁅σ,p⁆ · (z²·⁅z,p⁆)
+    E₂ = ⁅p,τ⁆·⁅σ,q⁆ · (⁅σ,τ⁆·⁅z,q⁆·⁅⁅p,q⁆,σ⁆·⁅⁅p,q⁆,τ⁆)
+    E₃ = q⁸·(μ⁴·(⁅μ,r⁆²·⁅r,q²⁆²))
+    E₄ = ⁅q,w⁆²·⁅⁅q,w⁆,q⁆·⁅r,ν⁆·⁅μ,w⁆ · (⁅q²,ν⁆·⁅μ,ν⁆·⁅⁅q²,w⁆,r⁆·⁅⁅r,w⁆,μ⁆·⁅⁅r,w⁆,ν⁆) .
+
+Setting `z ∈ Z` and dropping every term that `⁅Y,Y⁆ = 1` kills recovers `mpcBld_mWord_four`
+exactly, where the whole defect is central and the rung is one `𝔽₂`-linear equation.  **At class
+five the defect is only `L`-valued**, so the rung is not linear in the same cheap sense; what
+makes it linear again is `mpcLad_defect_orbit`, which is a statement about increments and not
+about defects. -/
+theorem mpcFv_mWord_five {p q r w σ τ μ ν z : levelQuot G 5}
+    (hσ : σ ∈ lambdaImage G 2 5) (hτ : τ ∈ lambdaImage G 2 5)
+    (hμ : μ ∈ lambdaImage G 2 5) (hν : ν ∈ lambdaImage G 2 5)
+    (hz : z ∈ lambdaImage G 3 5) :
+    mWord 2 (p * z * σ) (q * τ) (q ^ 2 * r * μ) (w * ν)
+      = mWord 2 p q r w *
+        (σ ^ 2 * commP σ p * (z ^ 2 * commP z p) *
+          (commP p τ * commP σ q *
+            (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ)) *
+          (q ^ 8 * (μ ^ 4 * (commP μ r ^ 2 * commP r (q ^ 2) ^ 2))) *
+          (commP q w ^ 2 * commP (commP q w) q * commP r ν * commP μ w *
+            (commP (q ^ 2) ν * commP μ ν * commP (commP (q ^ 2) w) r *
+              commP (commP r w) μ * commP (commP r w) ν))) := by
+  have hpq : commP p q ∈ lambdaImage G 2 5 := mpcFv_commP_mem_two p q
+  have hrw : commP r w ∈ lambdaImage G 2 5 := mpcFv_commP_mem_two r w
+  have hr4 : r ^ 4 ∈ lambdaImage G 3 5 := cfive_pow_four_mem_lambdaThree r
+  have hq2 : q ^ 2 ∈ lambdaImage G 2 5 := mpcLad_five_sq_mem_two q
+  have hμsq : (μ ^ 2) ^ 2 = μ ^ 4 := by rw [← pow_mul]
+  have hE₁ : σ ^ 2 * commP σ p * (z ^ 2 * commP z p) ∈ lambdaImage G 3 5 :=
+    Subgroup.mul_mem _
+      (Subgroup.mul_mem _ (mpcFv_sq_mem_three hσ) (mpcFv_commP_mem_three_left hσ p))
+      (Subgroup.mul_mem _ (mpcFv_zLayer_le_three (mpcFv_sq_mem_zLayer hz))
+        (mpcFv_zLayer_le_three (mpcFv_commP_mem_zLayer_left hz p)))
+  have hE₂ : commP p τ * commP σ q *
+      (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ)
+        ∈ lambdaImage G 3 5 :=
+    Subgroup.mul_mem _
+      (Subgroup.mul_mem _ (mpcFv_commP_mem_three_right p hτ)
+        (mpcFv_commP_mem_three_left hσ q))
+      (Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+        (mpcFv_zLayer_le_three (mpcFv_commP_mem_zLayer_two hσ hτ))
+        (mpcFv_zLayer_le_three (mpcFv_commP_mem_zLayer_left hz q)))
+        (mpcFv_zLayer_le_three (mpcFv_commP_mem_zLayer_two hpq hσ)))
+        (mpcFv_zLayer_le_three (mpcFv_commP_mem_zLayer_two hpq hτ)))
+  have hE₃ : q ^ 8 * (μ ^ 4 * (commP μ r ^ 2 * commP r (q ^ 2) ^ 2)) ∈ lambdaImage G 3 5 :=
+    Subgroup.mul_mem _ (mpcFv_zLayer_le_three (cfive_pow_eight_mem_zLayer q))
+      (Subgroup.mul_mem _
+        (mpcFv_zLayer_le_three (hμsq ▸ mpcFv_sq_mem_zLayer (mpcFv_sq_mem_three hμ)))
+        (Subgroup.mul_mem _
+          (mpcFv_zLayer_le_three (mpcFv_sq_mem_zLayer (mpcFv_commP_mem_three_left hμ r)))
+          (mpcFv_zLayer_le_three (mpcFv_sq_mem_zLayer (mpcFv_commP_mem_three_right r hq2)))))
+  have hA : (p * z * σ) ^ 2 = p ^ 2 * (σ ^ 2 * commP σ p * (z ^ 2 * commP z p)) := by
+    rw [mpcFv_sq_letA hσ hz, mul_assoc]
+  have hB : commP (p * z * σ) (q * τ)
+      = commP p q * (commP p τ * commP σ q *
+          (commP σ τ * commP z q * commP (commP p q) σ * commP (commP p q) τ)) := by
+    rw [mpcFv_comm_letAB hσ hτ hz, mul_assoc]
+  have hD : commP (q ^ 2 * r * μ) (w * ν)
+      = commP r w * (commP q w ^ 2 * commP (commP q w) q * commP r ν * commP μ w *
+          (commP (q ^ 2) ν * commP μ ν * commP (commP (q ^ 2) w) r *
+            commP (commP r w) μ * commP (commP r w) ν)) := by
+    rw [mpcFv_comm_letCD hμ hν, mul_assoc]
+  simp only [mWord, show (2 : ℕ) ^ 2 = 4 from rfl]
+  rw [hA, hB, mpcLad_pow_letC_five q r hμ, hD]
+  exact mpcFv_shuffle4 (mpcFv_lycomm hpq hE₁) (mpcFv_lycomm (mpcFv_three_le_two hr4) hE₁)
+    (mpcFv_lycomm hrw hE₁) (mpcFv_lycomm (mpcFv_three_le_two hr4) hE₂)
+    (mpcFv_lycomm hrw hE₂) (mpcFv_lycomm hrw hE₃)
+
+end Assembly
+
+/-! ## §5 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -459,6 +572,7 @@ section AxiomPins
 #print axioms mpcFv_sq_letA
 #print axioms mpcFv_comm_letAB
 #print axioms mpcFv_comm_letCD
+#print axioms mpcFv_mWord_five
 
 end AxiomPins
 
