@@ -1,5 +1,30 @@
 # Owner decision items — wave 37 (2026-08-05)
 
+## Status at wave 88 (2026-08-15)
+
+**Nine items await you, plus two dispositions this wave surfaced.**  A6 stands at fifteen
+review rounds (the formula is round = wave number minus 73).  New for you: the `work/`
+directory at the repo root is 822 MB of dead scaffolding whose newest file dates to wave 50,
+untracked and NOT in `.gitignore`, so it appears on every `git status` in the main clone;
+either ignore it or delete the six superseded olean trees that are essentially all of it.
+And the line-length figure is now honest: **720 lines over 100 codepoints in 254 files**, a
+long tail in old code (top ten files are 144 of the 720, the median offending file has two
+lines, and 113 files have exactly one), so the record-or-adopt call has real data.  The
+earlier "707, measured in bytes" was wrong in its provenance, not its number: it was a
+codepoint count from the start.
+
+**For orientation.**  The odd route is the closest to done and its last input now has a
+written-out argument with two of five steps verified in the tree
+(`GradedRowUniform.lean`: every functional and both rows read zero on the row relator at
+every class, and the defect lands in the knob span at every depth); the lane building it was
+cut off by a usage limit, and its draft of the third step is preserved on the branch
+`claude/w88-uniform`.  On the records, the seam under the determinant is closed at both
+compact words and the head phase is discharged at the N word, leaving one wave-sized
+branch-split construction whose every input is present.  On the selector, class six is
+computed but undecided, and the promising thread is that both climbed rungs used corrections
+from one small marked subgroup.  A campaign-wide handoff document was written this wave at
+`~/claude/handoffs/gq2-general-k-campaign-handoff-2026-08-15.md`.
+
 ## Status at wave 87 (2026-08-15)
 
 **Nine items await you, unchanged from wave 86's standing list** (items 1 to 9 of
