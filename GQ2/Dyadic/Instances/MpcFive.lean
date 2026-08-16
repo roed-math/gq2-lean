@@ -23,7 +23,7 @@ evaluates it at the wave-84 class-four witness, and decides the class-five rung.
    Each is the class-four lemma of `MpcBuild.lean` times an explicit product of central
    corrections, and each correction vanishes at class four for a stated reason.
 
-2. **The class-five defect in closed form** (§4).  `mpcFv_mWord_five`, the analogue of
+2. **The class-five defect in closed form** (§4-§5).  `mpcFv_mWord_five`, the analogue of
    `mpcBld_mWord_four` one class up, and `mpcFv_defect_five`, its reading on `D_M 2 0`.  The
    assembly is clean for a reason worth recording: every correction factor lies in `λ₃/λ₅`, and
    `λ₃/λ₅` commutes with both `λ₂/λ₅` and itself in `Q₅`, so nothing has to be moved past the
@@ -225,6 +225,59 @@ private theorem mpcFv_swap4 {Q : Type*} [Group Q] {x y u : Q} (hxy : x * y = y *
 /-- Moving one factor one place to the right past another it commutes with. -/
 private theorem mpcFv_mv {Q : Type*} [Group Q] {e x : Q} (h : e * x = x * e) (u v : Q) :
     u * e * x * v = u * x * e * v := by rw [mul_assoc u e x, h, ← mul_assoc]
+
+/-- Moving a central factor one place to the left. -/
+private theorem mpcFv_cmoveL {Q : Type*} [Group Q] {z : Q} (hz : ∀ x : Q, z * x = x * z)
+    (x y : Q) : x * y * z = x * z * y := (mpcFv_cmove hz x y).symm
+
+/-- A bracket of an element with itself is trivial. -/
+theorem mpcFv_commP_self {Q : Type*} [Group Q] (x : Q) : commP x x = 1 := by
+  simp only [commP]; group
+
+/-- **The left slot of a bracket inverts on `Y`**: the correction is a bracket of an `L`-element
+against a `Y`-element. -/
+theorem mpcFv_commP_inv_left_two {y : levelQuot G 5} (hy : y ∈ lambdaImage G 2 5)
+    (x : levelQuot G 5) : commP y⁻¹ x = (commP y x)⁻¹ := by
+  have hyi : y⁻¹ ∈ lambdaImage G 2 5 := Subgroup.inv_mem _ hy
+  have h : commP (y⁻¹ * y) x
+      = commP y⁻¹ x * commP (commP y⁻¹ x) y * commP y x := cfour_commP_mul_left _ _ _
+  rw [inv_mul_cancel, cfour_one_comm,
+    mpcFv_vanish' hy (mpcFv_commP_mem_three_left hyi x), mul_one] at h
+  exact mul_eq_one_iff_eq_inv.mp h.symm
+
+/-- Three central involutions in the pattern the class-five kill produces multiply to `1`. -/
+private theorem mpcFv_kill3 {Q : Type*} [Group Q] {a b c : Q}
+    (ha : ∀ x : Q, a * x = x * a) (hb : ∀ x : Q, b * x = x * b)
+    (ea : a * a = 1) (eb : b * b = 1) (ec : c * c = 1) : a * b * c * (a * (b * c)) = 1 := by
+  calc a * b * c * (a * (b * c)) = a * b * c * a * b * c := by group
+    _ = a * b * a * c * b * c := by rw [mpcFv_cmoveL ha (a * b) c]
+    _ = a * a * b * c * b * c := by rw [mpcFv_cmoveL ha a b]
+    _ = a * a * b * b * c * c := by rw [mpcFv_cmoveL hb (a * a * b) c]
+    _ = 1 := by rw [ea, one_mul, eb, one_mul, ec]
+
+/-- **The cancellation at the class-four witness.**  Three `L`-valued pairs cancel - the two
+`⁅W, Ā⁆`-brackets, the two `B̄⁸`-factors, and the pair `W²·⁅q,w⁆²` together with `⁅W,B̄⁆·⁅⁅q,w⁆,B̄⁆`
+- and the three central survivors are left in order. -/
+private theorem mpcFv_witness_kill {Q : Type*} [Group Q] {x y zc dc f gc jc : Q}
+    (hz : ∀ u : Q, zc * u = u * zc) (hd : ∀ u : Q, dc * u = u * dc)
+    (hg : ∀ u : Q, gc * u = u * gc) (hzz : zc * zc = 1) (hxf : x * f = f * x) :
+    x * y * (zc * dc) * (y⁻¹ * f) * (zc * gc) * (x⁻¹ * f⁻¹ * jc) = dc * gc * jc := by
+  have hcomm : x * f * x⁻¹ * f⁻¹ = 1 := by rw [hxf]; group
+  calc x * y * (zc * dc) * (y⁻¹ * f) * (zc * gc) * (x⁻¹ * f⁻¹ * jc)
+      = x * y * zc * dc * y⁻¹ * f * zc * gc * x⁻¹ * f⁻¹ * jc := by group
+    _ = x * zc * y * dc * y⁻¹ * f * zc * gc * x⁻¹ * f⁻¹ * jc := by rw [mpcFv_cmoveL hz x y]
+    _ = x * zc * dc * y * y⁻¹ * f * zc * gc * x⁻¹ * f⁻¹ * jc := by
+        rw [mpcFv_cmoveL hd (x * zc) y]
+    _ = x * zc * dc * f * zc * gc * x⁻¹ * f⁻¹ * jc := by group
+    _ = x * zc * dc * zc * f * gc * x⁻¹ * f⁻¹ * jc := by rw [mpcFv_cmoveL hz (x * zc * dc) f]
+    _ = x * zc * dc * zc * gc * f * x⁻¹ * f⁻¹ * jc := by
+        rw [mpcFv_cmoveL hg (x * zc * dc * zc) f]
+    _ = x * zc * zc * dc * gc * f * x⁻¹ * f⁻¹ * jc := by rw [mpcFv_cmove hd (x * zc) zc]
+    _ = x * dc * gc * f * x⁻¹ * f⁻¹ * jc := by rw [mul_assoc x zc zc, hzz, mul_one]
+    _ = dc * x * gc * f * x⁻¹ * f⁻¹ * jc := by rw [← hd x]
+    _ = dc * gc * x * f * x⁻¹ * f⁻¹ * jc := by rw [mpcFv_cmoveL hg dc x]
+    _ = dc * gc * (x * f * x⁻¹ * f⁻¹) * jc := by group
+    _ = dc * gc * jc := by rw [hcomm, mul_one]
 
 /-- **The four-letter shuffle.**  Each of `mWord`'s four factors splits as a marked part times a
 correction, and every correction commutes with every marked part to its right, so the four
@@ -619,11 +672,231 @@ theorem mpcFv_defect_five (s t m n : (DM 2 0 : Type))
   simp only [mpcFv_z_commP, mpcFv_pow_four_commP_self, mul_one]
   simp only [map_mul, map_pow, commP, map_inv]
 
+/-- ⭐⭐⭐ **THE CLASS-FIVE DEFECT OF THE CLASS-FOUR WITNESS.**  At `s = t = ⁅D̄, B̄⁆`, `m = n = 1`
+the twenty-two terms of `mpcFv_defect_five` collapse to three central involutions:
+
+    ⁅B̄⁴, Ā⁆ · ⁅C̄₀, B̄²⁆² · ⁅⁅B̄², D̄⁆, C̄₀⁆ .
+
+Every `λ₃`-valued term cancels, as it must: the witness is a class-four solution, so its defect
+already lies in `λ₄/λ₅`.  Two of the three survivors are the ones wave 86 predicted from the
+pivot letter's fourth power alone (`⁅B̄⁴, Ā⁆` is `z²`'s partner from the head, `⁅C̄₀, B̄²⁆²` is the
+row shift's own); the third comes from the `C̄₀`/`D̄` bracket and is new here. -/
+theorem mpcFv_witness_defect :
+    levelMk (DM 2 0 : Type) 5
+        (mWord 2 (mpcWordLetA mpcBldW) (mpcWordLetB mpcBldW) (mpcWordLetC 1) (mpcWordLetD 1))
+      = levelMk (DM 2 0 : Type) 5
+          (commP (dmB 2 0 ^ 4) (dmA 2 0) * commP (dmC 2 0) (dmB 2 0 ^ 2) ^ 2 *
+            commP (commP (dmB 2 0 ^ 2) (dmD 2 0)) (dmC 2 0)) := by
+  rw [mpcFv_defect_five mpcBldW mpcBldW 1 1 mpcBld_w_mem mpcBld_w_mem (one_mem _) (one_mem _)]
+  simp only [mpcBldW, map_mul, map_pow, mpcBld_map_commP, cfour_comm_one,
+    cfour_one_comm, mpcFv_commP_self, one_pow, one_mul, mul_one]
+  have hq2 : levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2 ∈ lambdaImage (DM 2 0 : Type) 2 5 :=
+    mpcLad_five_sq_mem_two _
+  have hq4 : levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4 ∈ lambdaImage (DM 2 0 : Type) 3 5 :=
+    cfive_pow_four_mem_lambdaThree _
+  have hW : commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+      ∈ lambdaImage (DM 2 0 : Type) 2 5 := mpcFv_commP_mem_two _ _
+  have hpq : commP (levelMk (DM 2 0 : Type) 5 (dmA 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+      ∈ lambdaImage (DM 2 0 : Type) 2 5 := mpcFv_commP_mem_two _ _
+  have hWsq : commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+      ^ 2 ∈ lambdaImage (DM 2 0 : Type) 3 5 := mpcFv_sq_mem_three hW
+  have hWq : commP (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0))
+      (levelMk (DM 2 0 : Type) 5 (dmB 2 0))) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+      ∈ lambdaImage (DM 2 0 : Type) 3 5 := mpcFv_commP_mem_three_left hW _
+  -- the two `⁅⁅Ā,B̄⁆, W⁆` factors are one central involution squared
+  have hK : commP (commP (levelMk (DM 2 0 : Type) 5 (dmA 2 0))
+        (levelMk (DM 2 0 : Type) 5 (dmB 2 0)))
+        (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))) *
+      commP (commP (levelMk (DM 2 0 : Type) 5 (dmA 2 0))
+        (levelMk (DM 2 0 : Type) 5 (dmB 2 0)))
+        (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0)))
+      = 1 := by
+    rw [← pow_two]
+    exact zLayer_sq _ (mpcFv_commP_mem_zLayer_two hpq hW)
+  -- the two `Ā`-brackets are inverse to each other
+  have hY : commP (levelMk (DM 2 0 : Type) 5 (dmA 2 0))
+      (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0)))
+      = (commP (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0))
+          (levelMk (DM 2 0 : Type) 5 (dmB 2 0))) (levelMk (DM 2 0 : Type) 5 (dmA 2 0)))⁻¹ :=
+    mpcFv_swap _ _
+  -- the `⁅B̄, D̄⁆`-terms are inverse to the `W`-terms
+  have hH : commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0)) (levelMk (DM 2 0 : Type) 5 (dmD 2 0))
+      ^ 2 = (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0))
+        (levelMk (DM 2 0 : Type) 5 (dmB 2 0)) ^ 2)⁻¹ := by
+    rw [mpcFv_swap (levelMk (DM 2 0 : Type) 5 (dmB 2 0)) (levelMk (DM 2 0 : Type) 5 (dmD 2 0)),
+      inv_pow]
+  have hI : commP (commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+        (levelMk (DM 2 0 : Type) 5 (dmD 2 0))) (levelMk (DM 2 0 : Type) 5 (dmB 2 0))
+      = (commP (commP (levelMk (DM 2 0 : Type) 5 (dmD 2 0))
+          (levelMk (DM 2 0 : Type) 5 (dmB 2 0))) (levelMk (DM 2 0 : Type) 5 (dmB 2 0)))⁻¹ := by
+    rw [mpcFv_swap (levelMk (DM 2 0 : Type) 5 (dmB 2 0)) (levelMk (DM 2 0 : Type) 5 (dmD 2 0)),
+      mpcFv_commP_inv_left_two hW]
+  rw [hK, mul_one, hY, hH, hI]
+  exact mpcFv_witness_kill (mpcFv_zcomm (cfive_pow_eight_mem_zLayer _))
+    (mpcFv_zcomm (mpcFv_commP_mem_zLayer_left hq4 _))
+    (mpcFv_zcomm (mpcFv_sq_mem_zLayer (mpcFv_commP_mem_three_right _ hq2)))
+    (by rw [← pow_two]; exact zLayer_sq _ (cfive_pow_eight_mem_zLayer _))
+    (mpcFv_lycomm (mpcFv_three_le_two hWq) hWsq)
+
 end Downstairs
 
-/-! ## §6 Axiom pins
+/-! ## §6 The class-five rung, climbed
 
-One line per public declaration, in declaration order, measured against the mirror. -/
+The defect of §5 is hit by an explicit `λ₃`-move, so the class-five rung of the ladder is
+climbed and the residue of `MpcPivShift 2` starts at class six.
+
+The move is read straight off the three survivors.  `mpcBldIncr`'s `B̄`-slot buys `⁅Ā, u⁆` and
+its `D̄`-slot buys `⁅C̄₀, v⁆`, so it suffices that
+
+* `⁅B̄⁴, Ā⁆ = ⁅Ā, B̄⁴⁆`, giving `ut = B̄⁴`;
+* `⁅C̄₀, B̄²⁆² = ⁅C̄₀, B̄⁴⁆` and `⁅⁅B̄², D̄⁆, C̄₀⁆ = ⁅C̄₀, ⁅B̄², D̄⁆⁆`, giving
+  `un = B̄⁴·⁅B̄², D̄⁆`;
+
+with the head and pivot slots left alone.  Both `ut` and `un` are legal corrections: they lie in
+`λ₃`, and they are χ-trivial because `χ_M(B̄) = -1` has order two, so `χ_M(B̄⁴) = 1`, and every
+bracket is χ-trivial. -/
+
+section Decision
+
+/-- The class-five `B̄`-slot move: `B̄⁴`, which is exactly what `⁅Ā, -⁆` needs to hit `⁅B̄⁴, Ā⁆`. -/
+def mpcFvUt : (DM 2 0 : Type) := dmB 2 0 ^ 4
+
+/-- The class-five `D̄`-slot move: `B̄⁴·⁅B̄², D̄⁆`, whose `⁅C̄₀, -⁆`-bracket is the product of the
+two remaining survivors. -/
+def mpcFvUn : (DM 2 0 : Type) := dmB 2 0 ^ 4 * commP (dmB 2 0 ^ 2) (dmD 2 0)
+
+theorem mpcFv_b2_mem_two : dmB 2 0 ^ 2 ∈ twoCentralSeries (DM 2 0 : Type) 2 :=
+  sq_mem_twoCentralSeries_succ _ (Subgroup.mem_top _)
+
+theorem mpcFv_ut_mem_three : mpcFvUt ∈ twoCentralSeries (DM 2 0 : Type) 3 := by
+  have h : mpcFvUt = (dmB 2 0 ^ 2) ^ 2 := by rw [mpcFvUt, ← pow_mul]
+  rw [h]
+  exact sq_mem_twoCentralSeries_succ _ mpcFv_b2_mem_two
+
+theorem mpcFv_chi_b4 : chiM 2 0 (dmB 2 0 ^ 4) = 1 := by
+  rw [map_pow, chiM_dmB, show (4 : ℕ) = 2 * 2 from rfl, pow_mul, neg_one_sq, one_pow]
+
+theorem mpcFv_chi_ut : chiM 2 0 mpcFvUt = 1 := mpcFv_chi_b4
+
+theorem mpcFv_chi_un : chiM 2 0 mpcFvUn = 1 := by
+  rw [mpcFvUn, map_mul, mpcFv_chi_b4, mpcBld_chi_commP, one_mul]
+
+theorem mpcFv_ut_mem_corr : mpcFvUt ∈ mpcWordCorr :=
+  ⟨twoCentralSeries_antitone (G := (DM 2 0 : Type)) (by omega : (2 : ℕ) ≤ 3)
+    mpcFv_ut_mem_three, mpcFv_chi_ut⟩
+
+theorem mpcFv_un_mem_three : mpcFvUn ∈ twoCentralSeries (DM 2 0 : Type) 3 :=
+  Subgroup.mul_mem _ mpcFv_ut_mem_three (cfour_commP_mem_three mpcFv_b2_mem_two _)
+
+theorem mpcFv_un_mem_corr : mpcFvUn ∈ mpcWordCorr :=
+  ⟨twoCentralSeries_antitone (G := (DM 2 0 : Type)) (by omega : (2 : ℕ) ≤ 3)
+    mpcFv_un_mem_three, mpcFv_chi_un⟩
+
+/-- The class-five move of the four corrections: identity in the head and pivot slots, `B̄⁴` in
+the `B̄`-slot and `B̄⁴·⁅B̄², D̄⁆` in the `D̄`-slot. -/
+theorem mpcFv_move : MpcLadMove 3 1 mpcFvUt 1 mpcFvUn :=
+  ⟨⟨one_mem _, one_mem _⟩, ⟨mpcFv_ut_mem_corr, mpcFv_ut_mem_three⟩, ⟨one_mem _, one_mem _⟩,
+    ⟨mpcFv_un_mem_corr, mpcFv_un_mem_three⟩⟩
+
+/-- `⁅C̄₀, B̄⁴⁆ = ⁅C̄₀, B̄²⁆²` in `Q₅`: the second-order term of the expansion is a bracket of an
+`L`-element against a `Y`-element. -/
+theorem mpcFv_commP_pow_four_right (r q : levelQuot (DM 2 0 : Type) 5) :
+    commP r (q ^ 4) = commP r (q ^ 2) ^ 2 := by
+  have hq2 : q ^ 2 ∈ lambdaImage (DM 2 0 : Type) 2 5 := mpcLad_five_sq_mem_two q
+  have e : q ^ 4 = q ^ 2 * q ^ 2 := by rw [← pow_add]
+  rw [e, cfour_commP_mul_right, mpcFv_vanish' hq2 (mpcFv_commP_mem_three_right r hq2), mul_one,
+    ← pow_two]
+
+/-- ⭐⭐ **THE MOVE KILLS THE DEFECT.**  All six factors are central involutions and they pair
+off: `⁅Ā, B̄⁴⁆` against `⁅B̄⁴, Ā⁆`, and the two halves of `⁅C̄₀, B̄⁴·⁅B̄²,D̄⁆⁆` against
+`⁅C̄₀, B̄²⁆²` and `⁅⁅B̄², D̄⁆, C̄₀⁆`. -/
+theorem mpcFv_supply_kill :
+    mpcLadDefect mpcLadW4 * mpcBldIncr mpcLadW4.2.1 mpcLadW4.2.2.2 1 mpcFvUt 1 mpcFvUn
+      ∈ twoCentralSeries (DM 2 0 : Type) 5 := by
+  rw [mpcWord_mem_iff_levelMk]
+  have hdef : mpcLadDefect mpcLadW4
+      = mWord 2 (mpcWordLetA mpcBldW) (mpcWordLetB mpcBldW) (mpcWordLetC 1) (mpcWordLetD 1) :=
+    rfl
+  rw [hdef, map_mul, mpcFv_witness_defect]
+  simp only [mpcBldIncr, mpcFvUt, mpcFvUn, map_mul, map_pow, mpcBld_map_commP,
+    cfour_one_comm, one_pow, one_mul, mul_one]
+  have hq2 : levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2 ∈ lambdaImage (DM 2 0 : Type) 2 5 :=
+    mpcLad_five_sq_mem_two _
+  have hq4 : levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4 ∈ lambdaImage (DM 2 0 : Type) 3 5 :=
+    cfive_pow_four_mem_lambdaThree _
+  have hbr : commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2)
+      (levelMk (DM 2 0 : Type) 5 (dmD 2 0)) ∈ lambdaImage (DM 2 0 : Type) 3 5 :=
+    mpcFv_commP_mem_three_left hq2 _
+  -- the `Ā`-slot bracket is the first survivor
+  have hA : commP (levelMk (DM 2 0 : Type) 5 (dmA 2 0)) (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4)
+      = commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4)
+        (levelMk (DM 2 0 : Type) 5 (dmA 2 0)) := by
+    rw [mpcFv_swap (levelMk (DM 2 0 : Type) 5 (dmA 2 0))
+      (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4)]
+    exact zLayer_inv_self (mpcFv_commP_mem_zLayer_left hq4 _)
+  have hbrswap : commP (levelMk (DM 2 0 : Type) 5 (dmC 2 0))
+        (commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2) (levelMk (DM 2 0 : Type) 5 (dmD 2 0)))
+      = commP (commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2)
+          (levelMk (DM 2 0 : Type) 5 (dmD 2 0))) (levelMk (DM 2 0 : Type) 5 (dmC 2 0)) := by
+    rw [mpcFv_swap (levelMk (DM 2 0 : Type) 5 (dmC 2 0))
+      (commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2) (levelMk (DM 2 0 : Type) 5 (dmD 2 0)))]
+    exact zLayer_inv_self (mpcFv_commP_mem_zLayer_left hbr _)
+  -- the `D̄`-slot bracket is the product of the other two
+  have hC : commP (levelMk (DM 2 0 : Type) 5 (dmC 2 0))
+        (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 4 *
+          commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2) (levelMk (DM 2 0 : Type) 5 (dmD 2 0)))
+      = commP (levelMk (DM 2 0 : Type) 5 (dmC 2 0))
+          (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2) ^ 2 *
+        commP (commP (levelMk (DM 2 0 : Type) 5 (dmB 2 0) ^ 2)
+          (levelMk (DM 2 0 : Type) 5 (dmD 2 0))) (levelMk (DM 2 0 : Type) 5 (dmC 2 0)) := by
+    rw [mpcFv_commP_right_add _ hq4 hbr, mpcFv_commP_pow_four_right, hbrswap]
+  rw [hA, hC]
+  exact mpcFv_kill3 (mpcFv_zcomm (mpcFv_commP_mem_zLayer_left hq4 _))
+    (mpcFv_zcomm (mpcFv_sq_mem_zLayer (mpcFv_commP_mem_three_right _ hq2)))
+    (by rw [← pow_two]; exact zLayer_sq _ (mpcFv_commP_mem_zLayer_left hq4 _))
+    (by rw [← pow_two]
+        exact zLayer_sq _ (mpcFv_sq_mem_zLayer (mpcFv_commP_mem_three_right _ hq2)))
+    (by rw [← pow_two]; exact zLayer_sq _ (mpcFv_commP_mem_zLayer_left hbr _))
+
+/-- ⭐⭐⭐ **THE CLASS-FIVE RUNG IS CLIMBED.**  The wave-84 class-four witness has one-step supply
+at class three, witnessed by `mpcFv_move`.  Combined with `mpcLad_nonempty_five_iff` this decides
+wave 86's open question in the affirmative. -/
+theorem mpcFv_supply_witness : MpcLadSupply 3 mpcLadW4 :=
+  ⟨1, mpcFvUt, 1, mpcFvUn, mpcFv_move, mpcFv_supply_kill⟩
+
+/-- The class-five correction quadruple: the wave-84 witness moved by `mpcFv_move`. -/
+def mpcFvW5 : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) :=
+  (mpcBldW * 1, mpcBldW * mpcFvUt, 1 * 1, 1 * mpcFvUn)
+
+/-- ⭐⭐⭐ **THE CLASS-FIVE SOLUTION SET OF THE `M6` ANSATZ IS NONEMPTY**, with the explicit
+witness `mpcFvW5`.  Wave 86's `mpcLad_nonempty_five_iff` asked whether some class-four solution's
+defect lies in the reachable `𝔽₂`-subspace `mpcLadReach 3`; it does, at the wave-84 witness's own
+orbit, so no orbit-space input was needed.
+
+[Scope, following W86-HOUSE.  This is a statement about the **ansatz**: `mpcWordSet 5` is the
+class-five solution set of the fixed shape `(Ā·B̄⁻⁴·s, B̄·t, B̄²·C̄₀·m, D̄·n)`.  It says nothing
+about `MpcPivShift 2` on its own; the ladder's only shift-producer is
+`mpcLad_shift_of_exists_supply`, which needs supply at **every** class from three up.] -/
+theorem mpcFv_nonempty_five : (mpcWordSet 5).Nonempty :=
+  mpcLad_nonempty_five_iff.mpr ⟨mpcLadW4, mpcLad_w4_mem, mpcFv_supply_witness⟩
+
+/-- The class-five witness, explicitly: `s = ⁅D̄,B̄⁆`, `t = ⁅D̄,B̄⁆·B̄⁴`, `m = 1`,
+`n = B̄⁴·⁅B̄², D̄⁆`. -/
+theorem mpcFv_w5_mem : mpcFvW5 ∈ mpcWordSet 5 :=
+  mpcBld_step (j := 3) mpcLad_w4_mem 1 mpcFvUt 1 mpcFvUn mpcFv_move.1.1 mpcFv_move.1.2
+    mpcFv_move.2.1.1 mpcFv_move.2.1.2 mpcFv_move.2.2.1.1 mpcFv_move.2.2.1.2
+    mpcFv_move.2.2.2.1 mpcFv_move.2.2.2.2 mpcFv_supply_kill
+
+end Decision
+
+/-! ## §7 Axiom pins
+
+One line per public declaration, in declaration order, measured against the mirror.
+
+**The honest split.**  Forty-eight of the forty-nine public declarations are on the standard
+three (`propext`, `Classical.choice`, `Quot.sound`).  The forty-ninth, `mpcFv_commP_self`, is on
+`propext` alone, which is a strict subset: it is a `group`-closed identity in an abstract group
+and touches no quotient.  **This lane introduces no axiom.** -/
 
 section AxiomPins
 
@@ -648,6 +921,8 @@ section AxiomPins
 #print axioms mpcFv_commP_inv_left
 #print axioms mpcFv_commP_two_add_left
 #print axioms mpcFv_commP_sq_left
+#print axioms mpcFv_commP_self
+#print axioms mpcFv_commP_inv_left_two
 #print axioms mpcFv_sq_letA
 #print axioms mpcFv_comm_letAB
 #print axioms mpcFv_comm_letCD
@@ -656,6 +931,24 @@ section AxiomPins
 #print axioms mpcFv_z_commP
 #print axioms mpcFv_pow_four_commP_self
 #print axioms mpcFv_defect_five
+#print axioms mpcFv_witness_defect
+#print axioms mpcFvUt
+#print axioms mpcFvUn
+#print axioms mpcFv_b2_mem_two
+#print axioms mpcFv_ut_mem_three
+#print axioms mpcFv_chi_b4
+#print axioms mpcFv_chi_ut
+#print axioms mpcFv_chi_un
+#print axioms mpcFv_ut_mem_corr
+#print axioms mpcFv_un_mem_three
+#print axioms mpcFv_un_mem_corr
+#print axioms mpcFv_move
+#print axioms mpcFv_commP_pow_four_right
+#print axioms mpcFv_supply_kill
+#print axioms mpcFv_supply_witness
+#print axioms mpcFvW5
+#print axioms mpcFv_nonempty_five
+#print axioms mpcFv_w5_mem
 
 end AxiomPins
 
