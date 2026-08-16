@@ -226,7 +226,278 @@ theorem mpcLad_not_nonempty_of_no_supply {j : ℕ}
 
 end Converse
 
-/-! ## §3 Axiom pins
+/-! ## §3 The exact structure of a rung
+
+§2 makes the rung an iff, but leaves the search space as a set.  This section says what shape it
+has.  Every factor of `mpcBldIncr` lands in the central involutive layer `Z_{j+1} = λ_{j+1}/λ_{j+2}`
+of `Q_{j+2}` (`mpcLad_incr_mem_zLayer`), and the increment map is a **homomorphism** in the four
+correction factors (`mpcLad_incr_hom`).  Hence the reachable increments are a subgroup - an
+`𝔽₂`-subspace, since `Z_{j+1}` has exponent two - and the defects reachable from a quadruple by
+`λ_j`-moves are exactly one **coset** of it (`mpcLad_defect_orbit`).
+
+The `λ₂`-side conditions that make this work come free from the carriers: `mpcWordCorr` and
+`mpcWordCorrC` both sit inside `λ₂`, so no lower bound on `j` is needed anywhere below. -/
+
+section LayerFive
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {j : ℕ}
+
+/-- A `λ₂`-image and a `λ_j`-image commute in `Q_{j+2}`: wave 85's private `mpcBld_vanish`,
+re-proved because the structure theorems need it in public. -/
+theorem mpcLad_vanish {y ε : levelQuot G (j + 2)}
+    (hy : y ∈ lambdaImage G 2 (j + 2)) (hε : ε ∈ lambdaImage G j (j + 2)) : commP y ε = 1 := by
+  obtain ⟨v, hv, rfl⟩ := hy
+  obtain ⟨w, hw, rfl⟩ := hε
+  have h : commP (levelMk G (j + 2) v) (levelMk G (j + 2) w)
+      = levelMk G (j + 2) (commP v w) := by simp only [commP, map_mul, map_inv]
+  rw [h]
+  exact (lim_mem_twoCentralSeries_iff_levelMk (j + 2) _).mp
+    (cfive_commutator_lambdaTwo_swap hw hv)
+
+/-- The square of a `λ_j`-image is in the central layer of `Q_{j+2}`. -/
+theorem mpcLad_sq_mem_zLayer {ε : levelQuot G (j + 2)} (hε : ε ∈ lambdaImage G j (j + 2)) :
+    ε ^ 2 ∈ zLayer G (j + 1) := by
+  obtain ⟨v, hv, rfl⟩ := hε
+  exact ⟨v ^ 2, sq_mem_twoCentralSeries_succ G hv, by rw [map_pow]⟩
+
+/-- **Left-slot additivity against a `λ_j`-image**: the correction term of
+`cfour_commP_mul_left` is a bracket with a central element.  The right slot is unrestricted;
+this is the mirror image of `cfive_commP_left_hom`, which restricts the right slot instead. -/
+theorem mpcLad_commP_left_add {α α' : levelQuot G (j + 2)}
+    (hα : α ∈ lambdaImage G j (j + 2)) (ξ : levelQuot G (j + 2)) :
+    commP (α * α') ξ = commP α ξ * commP α' ξ := by
+  rw [cfour_commP_mul_left,
+    cfive_commP_zLayer_left (cfive_commP_mem_zLayer_left hα ξ) α', mul_one]
+
+/-- **Right-slot additivity against `λ_j`-images**, in the unreversed order: the two factors are
+central, so they may be written either way round. -/
+theorem mpcLad_commP_right_add (ξ : levelQuot G (j + 2)) {α α' : levelQuot G (j + 2)}
+    (hα : α ∈ lambdaImage G j (j + 2)) (hα' : α' ∈ lambdaImage G j (j + 2)) :
+    commP ξ (α * α') = commP ξ α * commP ξ α' := by
+  rw [cfour_commP_mul_right,
+    cfive_commP_zLayer_left (cfive_commP_mem_zLayer_right ξ hα) α', mul_one]
+  exact (zLayer_commute (cfive_commP_mem_zLayer_right ξ hα') _).eq
+
+/-- **The square of a product of `λ`-images splits**: the correction of `cfour_sq_mul` is a
+bracket of a `λ₂`-image against a `λ_j`-image, which dies in `Q_{j+2}`. -/
+theorem mpcLad_sq_add {α α' : levelQuot G (j + 2)} (hα : α ∈ lambdaImage G j (j + 2))
+    (hα' : α' ∈ lambdaImage G 2 (j + 2)) : (α * α') ^ 2 = α ^ 2 * α' ^ 2 := by
+  rw [cfour_sq_mul, mpcLad_vanish hα' hα, cfour_one_comm, mul_one, mul_one]
+
+/-- Every bracket of `Q_{j+2}` is a `λ₂`-image. -/
+theorem mpcLad_commP_mem_two (p q : levelQuot G (j + 2)) :
+    commP p q ∈ lambdaImage G 2 (j + 2) := by
+  obtain ⟨a, rfl⟩ := levelMk_surjective G (j + 2) p
+  obtain ⟨b, rfl⟩ := levelMk_surjective G (j + 2) q
+  exact ⟨commP a b, cfour_commP_mem_two a b, by simp only [commP, map_mul, map_inv]⟩
+
+/-- **A trailing `λ_j`-factor in the far slot of a bracket is invisible** when the near slot is a
+`λ₂`-image: this is why the reachable set does not depend on where in a `λ_j`-orbit it is read
+(`mpcLad_reach_base_indep`). -/
+theorem mpcLad_commP_drop (ξ : levelQuot G (j + 2)) {α : levelQuot G (j + 2)}
+    (hα : α ∈ lambdaImage G 2 (j + 2)) {ε : levelQuot G (j + 2)}
+    (hε : ε ∈ lambdaImage G j (j + 2)) : commP α (ξ * ε) = commP α ξ := by
+  rw [cfour_commP_mul_right, mpcLad_vanish hα hε,
+    mpcLad_vanish (mpcLad_commP_mem_two α ξ) hε, one_mul, mul_one]
+
+/-- Six central factors may be paired off two by two. -/
+private theorem mpcLad_shuffle6 {Q : Type*} [Group Q]
+    {a₁ a₂ a₃ a₄ a₅ a₆ b₁ b₂ b₃ b₄ b₅ b₆ : Q}
+    (h₁ : ∀ x : Q, b₁ * x = x * b₁) (h₂ : ∀ x : Q, b₂ * x = x * b₂)
+    (h₃ : ∀ x : Q, b₃ * x = x * b₃) (h₄ : ∀ x : Q, b₄ * x = x * b₄)
+    (h₅ : ∀ x : Q, b₅ * x = x * b₅) :
+    a₁ * b₁ * (a₂ * b₂) * (a₃ * b₃) * (a₄ * b₄) * (a₅ * b₅) * (a₆ * b₆)
+      = a₁ * a₂ * a₃ * a₄ * a₅ * a₆ * (b₁ * b₂ * b₃ * b₄ * b₅ * b₆) := by
+  have hc : ∀ {u v : Q}, (∀ x : Q, u * x = x * u) → (∀ x : Q, v * x = x * v) →
+      ∀ x : Q, u * v * x = x * (u * v) := by
+    intro u v hu hv x
+    rw [mul_assoc, hv x, ← mul_assoc, hu x, mul_assoc]
+  have p : ∀ {a b c d : Q}, (∀ x : Q, b * x = x * b) → a * b * (c * d) = a * c * (b * d) := by
+    intro a b c d hb
+    calc a * b * (c * d) = a * (b * c * d) := by group
+      _ = a * (c * b * d) := by rw [hb c]
+      _ = a * c * (b * d) := by group
+  rw [p h₁, p (hc h₁ h₂), p (hc (hc h₁ h₂) h₃), p (hc (hc (hc h₁ h₂) h₃) h₄),
+    p (hc (hc (hc (hc h₁ h₂) h₃) h₄) h₅)]
+
+end LayerFive
+
+section Reach
+
+/-- Every factor of a reachable increment, and so the increment itself, lies in the central
+involutive layer `Z_{j+1}` of `Q_{j+2}`.  This is what makes the reachable set an
+`𝔽₂`-subspace rather than merely a subgroup. -/
+theorem mpcLad_incr_mem_zLayer {j : ℕ} (t n : (DM 2 0 : Type)) {us ut um un : (DM 2 0 : Type)}
+    (husj : us ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hutj : ut ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (humj : um ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hunj : un ∈ twoCentralSeries (DM 2 0 : Type) j) :
+    levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr t n us ut um un)
+      ∈ zLayer (DM 2 0 : Type) (j + 1) := by
+  simp only [mpcBldIncr, map_mul, map_pow, mpcBld_map_commP]
+  refine Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
+    (Subgroup.mul_mem _ (mpcLad_sq_mem_zLayer ⟨us, husj, rfl⟩)
+      (cfive_commP_mem_zLayer_left ⟨us, husj, rfl⟩ _))
+    (cfive_commP_mem_zLayer_left ⟨us, husj, rfl⟩ _))
+    (cfive_commP_mem_zLayer_left ⟨um, humj, rfl⟩ _))
+    (cfive_commP_mem_zLayer_right _ ⟨ut, hutj, rfl⟩))
+    (cfive_commP_mem_zLayer_right _ ⟨un, hunj, rfl⟩)
+
+/-- ⭐⭐⭐ **THE INCREMENT MAP IS A HOMOMORPHISM.**  Composing two reachable `λ_j`-moves adds
+their increments, exactly, in `λ_{j+1}/λ_{j+2}`.  The four slots contribute a square and four
+brackets, and each is additive because its correction term is a bracket against a central
+element or a bracket of two `λ`-images that dies two layers down.
+
+With `mpcLad_incr_mem_zLayer` this says the reachable increments form an `𝔽₂`-subspace of
+`λ_{j+1}/λ_{j+2}`, which is `mpcLadReach` below. -/
+theorem mpcLad_incr_hom {j : ℕ} (t n : (DM 2 0 : Type))
+    {us ut um un us' ut' um' un' : (DM 2 0 : Type)}
+    (h : MpcLadMove j us ut um un) (h' : MpcLadMove j us' ut' um' un') :
+    levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr t n (us * us') (ut * ut') (um * um') (un * un'))
+      = levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr t n us ut um un) *
+        levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr t n us' ut' um' un') := by
+  obtain ⟨⟨-, husj⟩, ⟨-, hutj⟩, ⟨-, humj⟩, ⟨-, hunj⟩⟩ := h
+  obtain ⟨⟨hus', husj'⟩, ⟨-, hutj'⟩, ⟨hum', humj'⟩, ⟨-, hunj'⟩⟩ := h'
+  have mσ : levelMk (DM 2 0 : Type) (j + 2) us ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨us, husj, rfl⟩
+  have mμ : levelMk (DM 2 0 : Type) (j + 2) um ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨um, humj, rfl⟩
+  have mτ : levelMk (DM 2 0 : Type) (j + 2) ut ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨ut, hutj, rfl⟩
+  have mν : levelMk (DM 2 0 : Type) (j + 2) un ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨un, hunj, rfl⟩
+  have mσ' : levelMk (DM 2 0 : Type) (j + 2) us' ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨us', husj', rfl⟩
+  have mμ' : levelMk (DM 2 0 : Type) (j + 2) um' ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨um', humj', rfl⟩
+  have mτ' : levelMk (DM 2 0 : Type) (j + 2) ut' ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨ut', hutj', rfl⟩
+  have mν' : levelMk (DM 2 0 : Type) (j + 2) un' ∈ lambdaImage (DM 2 0 : Type) j (j + 2) :=
+    ⟨un', hunj', rfl⟩
+  have mσ'2 : levelMk (DM 2 0 : Type) (j + 2) us' ∈ lambdaImage (DM 2 0 : Type) 2 (j + 2) :=
+    ⟨us', hus'.1, rfl⟩
+  simp only [mpcBldIncr, map_mul, map_pow, mpcBld_map_commP]
+  rw [mpcLad_sq_add mσ mσ'2, mpcLad_commP_left_add mσ, mpcLad_commP_left_add mσ,
+    mpcLad_commP_left_add mμ, mpcLad_commP_right_add _ mτ mτ',
+    mpcLad_commP_right_add _ mν mν']
+  exact mpcLad_shuffle6
+    (fun x => (zLayer_commute (mpcLad_sq_mem_zLayer mσ') x).eq)
+    (fun x => (zLayer_commute (cfive_commP_mem_zLayer_left mσ' _) x).eq)
+    (fun x => (zLayer_commute (cfive_commP_mem_zLayer_left mσ' _) x).eq)
+    (fun x => (zLayer_commute (cfive_commP_mem_zLayer_left mμ' _) x).eq)
+    (fun x => (zLayer_commute (cfive_commP_mem_zLayer_right _ mτ') x).eq)
+
+/-- **The reachable increment set at class `j`**, read in `Q_{j+2}`: the values `mpcBldIncr`
+takes on reachable `λ_j`-moves of the four corrections. -/
+def mpcLadReach (j : ℕ) (t n : (DM 2 0 : Type)) : Set (levelQuot (DM 2 0 : Type) (j + 2)) :=
+  {x | ∃ us ut um un, MpcLadMove j us ut um un ∧
+    x = levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr t n us ut um un)}
+
+theorem mpcLad_reach_subset_zLayer (j : ℕ) (t n : (DM 2 0 : Type)) :
+    mpcLadReach j t n ⊆ (zLayer (DM 2 0 : Type) (j + 1) : Set (levelQuot (DM 2 0 : Type) (j + 2)))
+    := by
+  rintro x ⟨us, ut, um, un, ⟨⟨-, husj⟩, ⟨-, hutj⟩, ⟨-, humj⟩, ⟨-, hunj⟩⟩, rfl⟩
+  exact mpcLad_incr_mem_zLayer t n husj hutj humj hunj
+
+/-- ⭐⭐ **THE REACHABLE INCREMENTS ARE A SUBGROUP.**  Closed under products by
+`mpcLad_incr_hom`, containing `1` by `mpcLad_incr_one`, and closed under inverses because it sits
+inside the exponent-two layer, where every element is its own inverse.  So the reachable set is
+an `𝔽₂`-subspace of `λ_{j+1}/λ_{j+2}` and each rung is honest linear algebra. -/
+theorem mpcLad_reach_one_mem (j : ℕ) (t n : (DM 2 0 : Type)) :
+    (1 : levelQuot (DM 2 0 : Type) (j + 2)) ∈ mpcLadReach j t n :=
+  ⟨1, 1, 1, 1, mpcLad_move_one j, by rw [mpcLad_incr_one, map_one]⟩
+
+theorem mpcLad_reach_mul_mem {j : ℕ} {t n : (DM 2 0 : Type)}
+    {x y : levelQuot (DM 2 0 : Type) (j + 2)} (hx : x ∈ mpcLadReach j t n)
+    (hy : y ∈ mpcLadReach j t n) : x * y ∈ mpcLadReach j t n := by
+  obtain ⟨us, ut, um, un, hm, rfl⟩ := hx
+  obtain ⟨us', ut', um', un', hm', rfl⟩ := hy
+  exact ⟨us * us', ut * ut', um * um', un * un', mpcLad_move_mul hm hm',
+    (mpcLad_incr_hom t n hm hm').symm⟩
+
+theorem mpcLad_reach_inv_mem {j : ℕ} {t n : (DM 2 0 : Type)}
+    {x : levelQuot (DM 2 0 : Type) (j + 2)} (hx : x ∈ mpcLadReach j t n) :
+    x⁻¹ ∈ mpcLadReach j t n := by
+  obtain ⟨us, ut, um, un, hm, rfl⟩ := hx
+  exact ⟨us, ut, um, un, hm, zLayer_inv_self
+    (mpcLad_incr_mem_zLayer t n hm.1.2 hm.2.1.2 hm.2.2.1.2 hm.2.2.2.2)⟩
+
+def mpcLadReachSub (j : ℕ) (t n : (DM 2 0 : Type)) :
+    Subgroup (levelQuot (DM 2 0 : Type) (j + 2)) where
+  carrier := mpcLadReach j t n
+  mul_mem' := mpcLad_reach_mul_mem
+  one_mem' := mpcLad_reach_one_mem j t n
+  inv_mem' := mpcLad_reach_inv_mem
+
+@[simp] theorem mpcLadReachSub_coe (j : ℕ) (t n : (DM 2 0 : Type)) :
+    ((mpcLadReachSub j t n : Subgroup (levelQuot (DM 2 0 : Type) (j + 2))) :
+      Set (levelQuot (DM 2 0 : Type) (j + 2))) = mpcLadReach j t n := rfl
+
+/-- **Every reachable increment is an involution**: the subgroup is elementary abelian, so a rung
+is an `𝔽₂`-linear question and not merely a group-theoretic one. -/
+theorem mpcLad_reach_sq {j : ℕ} {t n : (DM 2 0 : Type)}
+    {x : levelQuot (DM 2 0 : Type) (j + 2)} (hx : x ∈ mpcLadReach j t n) : x ^ 2 = 1 :=
+  zLayer_sq (DM 2 0 : Type) (mpcLad_reach_subset_zLayer j t n hx)
+
+/-- **The reachable set does not move along the orbit.**  Rebasing `t` and `n` by a `λ_j`-move
+changes no increment: the two slots that see the base point see it through a bracket whose other
+slot is a `λ₂`-image, and a trailing `λ_j`-factor there is invisible. -/
+theorem mpcLad_reach_base_indep {j : ℕ} (t n : (DM 2 0 : Type))
+    {ut un : (DM 2 0 : Type)}
+    (hutj : ut ∈ twoCentralSeries (DM 2 0 : Type) j)
+    (hunj : un ∈ twoCentralSeries (DM 2 0 : Type) j)
+    {us' ut' um' un' : (DM 2 0 : Type)}
+    (hus' : us' ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hum' : um' ∈ twoCentralSeries (DM 2 0 : Type) 2) :
+    levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr (t * ut) (n * un) us' ut' um' un')
+      = levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr t n us' ut' um' un') := by
+  have hB : mpcWordLetB (t * ut) = mpcWordLetB t * ut := by
+    rw [mpcWordLetB, mpcWordLetB, mul_assoc]
+  have hD : mpcWordLetD (n * un) = mpcWordLetD n * un := by
+    rw [mpcWordLetD, mpcWordLetD, mul_assoc]
+  simp only [mpcBldIncr, hB, hD, map_mul, map_pow, mpcBld_map_commP]
+  rw [mpcLad_commP_drop _ ⟨us', hus', rfl⟩ ⟨ut, hutj, rfl⟩,
+    mpcLad_commP_drop _ ⟨um', hum', rfl⟩ ⟨un, hunj, rfl⟩]
+
+/-- ⭐⭐⭐ **THE DEFECTS OF A `λ_j`-ORBIT ARE ONE COSET.**  Read in `Q_{j+2}`, the defects of the
+quadruples reachable from `p` by a `λ_j`-move are exactly the coset of `mpcLadReach` through
+`p`'s own defect.  Together with §2's iff this is the whole geometry of a rung:
+
+* `mpcWordSet (j+2)` is nonempty **iff** some `λ_j`-orbit of `mpcWordSet (j+1)` has `1` in its
+  coset, i.e. iff some class-`(j+1)` defect lies in the subgroup `mpcLadReach`;
+* within one orbit the question is a single `𝔽₂`-linear membership test, decided by
+  `mpcLadReach` alone (which by `mpcLad_reach_base_indep` does not move along the orbit);
+* **between orbits nothing is claimed.**  This is where the search still lives: the orbit space
+  of `mpcWordSet (j+1)` under `λ_j`-moves is not shown to be a single point, and two orbits can
+  carry different cosets.  §2's `∃ p` quantifier cannot be reduced further by this argument. -/
+theorem mpcLad_defect_orbit {j : ℕ}
+    {p : (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type) × (DM 2 0 : Type)}
+    (hp1 : p.1 ∈ twoCentralSeries (DM 2 0 : Type) 2)
+    (hp3 : p.2.2.1 ∈ twoCentralSeries (DM 2 0 : Type) 2) :
+    {x | ∃ us ut um un, MpcLadMove j us ut um un ∧
+        x = levelMk (DM 2 0 : Type) (j + 2)
+          (mpcLadDefect (p.1 * us, p.2.1 * ut, p.2.2.1 * um, p.2.2.2 * un))}
+      = (fun v => levelMk (DM 2 0 : Type) (j + 2) (mpcLadDefect p) * v) ''
+          mpcLadReach j p.2.1 p.2.2.2 := by
+  ext x
+  constructor
+  · rintro ⟨us, ut, um, un, hm, rfl⟩
+    refine ⟨levelMk (DM 2 0 : Type) (j + 2) (mpcBldIncr p.2.1 p.2.2.2 us ut um un),
+      ⟨us, ut, um, un, hm, rfl⟩, ?_⟩
+    exact (map_mul (levelMk (DM 2 0 : Type) (j + 2)) (mpcLadDefect p)
+        (mpcBldIncr p.2.1 p.2.2.2 us ut um un)).symm.trans
+      (mpcLad_defect_move hp1 hp3 hm.1.1.1 hm.1.2 hm.2.1.2 hm.2.2.1.1.1.1 hm.2.2.1.2
+        hm.2.2.2.2).symm
+  · rintro ⟨v, ⟨us, ut, um, un, hm, rfl⟩, rfl⟩
+    refine ⟨us, ut, um, un, hm, ?_⟩
+    exact (map_mul (levelMk (DM 2 0 : Type) (j + 2)) (mpcLadDefect p)
+        (mpcBldIncr p.2.1 p.2.2.2 us ut um un)).symm.trans
+      (mpcLad_defect_move hp1 hp3 hm.1.1.1 hm.1.2 hm.2.1.2 hm.2.2.1.1.1.1 hm.2.2.1.2
+        hm.2.2.2.2).symm
+
+end Reach
+
+/-! ## §4 Axiom pins
 
 One line per public declaration, in declaration order, measured against the mirror. -/
 
@@ -248,6 +519,25 @@ section AxiomPins
 #print axioms mpcLad_shift_of_exists_supply
 #print axioms mpcLad_eq_empty_of_no_supply
 #print axioms mpcLad_not_nonempty_of_no_supply
+#print axioms mpcLad_vanish
+#print axioms mpcLad_sq_mem_zLayer
+#print axioms mpcLad_commP_left_add
+#print axioms mpcLad_commP_right_add
+#print axioms mpcLad_sq_add
+#print axioms mpcLad_commP_mem_two
+#print axioms mpcLad_commP_drop
+#print axioms mpcLad_incr_mem_zLayer
+#print axioms mpcLad_incr_hom
+#print axioms mpcLadReach
+#print axioms mpcLad_reach_subset_zLayer
+#print axioms mpcLad_reach_one_mem
+#print axioms mpcLad_reach_mul_mem
+#print axioms mpcLad_reach_inv_mem
+#print axioms mpcLadReachSub
+#print axioms mpcLadReachSub_coe
+#print axioms mpcLad_reach_sq
+#print axioms mpcLad_reach_base_indep
+#print axioms mpcLad_defect_orbit
 
 end AxiomPins
 
