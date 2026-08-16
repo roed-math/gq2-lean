@@ -678,9 +678,14 @@ the twenty-two terms of `mpcFv_defect_five` collapse to three central involution
     ⁅B̄⁴, Ā⁆ · ⁅C̄₀, B̄²⁆² · ⁅⁅B̄², D̄⁆, C̄₀⁆ .
 
 Every `λ₃`-valued term cancels, as it must: the witness is a class-four solution, so its defect
-already lies in `λ₄/λ₅`.  Two of the three survivors are the ones wave 86 predicted from the
-pivot letter's fourth power alone (`⁅B̄⁴, Ā⁆` is `z²`'s partner from the head, `⁅C̄₀, B̄²⁆²` is the
-row shift's own); the third comes from the `C̄₀`/`D̄` bracket and is new here. -/
+already lies in `λ₄/λ₅`.  The three cancelling pairs are the two `Ā`-brackets against `W`, the
+`W`-square against `⁅B̄,D̄⁆²`, and `⁅W, B̄⁆` against `⁅⁅B̄,D̄⁆, B̄⁆`.
+
+Which survivors wave 86 could see.  `mpcLad_pow_letC_five` predicted two terms present already
+at `m = 1`, namely `B̄⁸` and `⁅C̄₀, B̄²⁆²`.  Only the second survives: `B̄⁸` cancels against the
+head letter's `z² = ((B̄⁴)⁻¹)²`, which is the same central involution.  The other two survivors
+come from factors wave 86 did not compute, the head's `⁅z, Ā⁆ = ⁅B̄⁴, Ā⁆` and the `C̄₀`/`D̄`
+bracket's `⁅⁅B̄², D̄⁆, C̄₀⁆`. -/
 theorem mpcFv_witness_defect :
     levelMk (DM 2 0 : Type) 5
         (mWord 2 (mpcWordLetA mpcBldW) (mpcWordLetB mpcBldW) (mpcWordLetC 1) (mpcWordLetD 1))
