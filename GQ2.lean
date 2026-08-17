@@ -1003,6 +1003,7 @@ import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityAdditive
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityLinearSystem
+import GQ2.Dyadic.Instances.MpcBalancedNeutralityZModFour
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply

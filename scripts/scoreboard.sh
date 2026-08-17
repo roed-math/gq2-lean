@@ -335,6 +335,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc additive CABD solution kernel|decl|oneHandleB
 CORRECTED RN SELECTOR CLOSED|Mpc combined CABD finite system|decl|oneHandleBalancedCABDAddSystem
 CORRECTED RN SELECTOR CLOSED|Mpc combined CABD literal range criterion|decl|mem_oneHandleBalancedCABDSystem_range_iff
 CORRECTED RN SELECTOR BOUNDARY|Mpc neutrality as additive target-in-range|decl|neutralityObstruction_eq_one_iff_mem_CABDAddSystem_range
+CORRECTED RN SELECTOR CLOSED|Mpc CABD source exponent four|decl|oneHandleBalancedCABDData_four_nsmul
+CORRECTED RN SELECTOR CLOSED|Mpc CABD ZMod-four linear system|decl|oneHandleBalancedCABDZModFourSystem
+CORRECTED RN SELECTOR BOUNDARY|Mpc neutrality as ZMod-four target-in-range|decl|neutralityObstruction_eq_one_iff_mem_CABDZModFourSystem_range
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
