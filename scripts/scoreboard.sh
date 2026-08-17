@@ -379,6 +379,8 @@ ODD RAMIFIED DATA|relative Frobenius reduced to uniformizer|decl|orientedAbsolut
 ODD RAMIFIED DATA|relative Frobenius from full normalizations|decl|orientedAbsoluteResidueFrobeniusCompatibility_of_normalizations
 ODD RAMIFIED AUDIT|Zhat maximal pro-two projection noninjective|decl|maxProPMk_zhat_not_injective
 ODD RAMIFIED AUDIT|geometric pro-two target has distinct Zhat lifts|decl|exists_distinct_lifts_ztwoOne_inv
+ODD RAMIFIED DATA|Zhat equality from pro-two and remaining finite rows|decl|zhat_eq_iff_maxProTwo_and_nonProTwoRows
+ODD RAMIFIED DATA|abstract uniformizer iff non-pro-two finite rows|decl|abstractTameUniformizerNormalization_iff_nonProTwoRows
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
