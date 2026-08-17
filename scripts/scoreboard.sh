@@ -273,6 +273,8 @@ CORRECTED RN SELECTOR CLOSED|Mpc balanced finite sets nonempty through depth two
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle cup-adapted seed|decl|OneHandleCupAdaptedSeed
 CORRECTED RN SELECTOR CLOSED|Mpc cup-adapted relator vanishes through depth three|decl|mRelWord_mem_three_of_cupAdapted
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced depth-three set (from cup-adapted seed)|decl|oneHandleBalancedSet_three_nonempty_of_cupAdaptedSeed
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle cup-adapted seed exists|decl|exists_oneHandleCupAdaptedSeed
+CORRECTED RN SELECTOR CLOSED|Mpc balanced finite set nonempty through depth three|decl|oneHandleBalancedSet_three_nonempty
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
