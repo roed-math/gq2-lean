@@ -999,6 +999,7 @@ import GQ2.Dyadic.Instances.MpcBalancedCoordinateCokernel
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityCokernel
 import GQ2.Dyadic.Instances.MpcBalancedNeutralitySpan
 import GQ2.Dyadic.Instances.MpcBalancedNeutralitySourceQuotient
+import GQ2.Dyadic.Instances.MpcBalancedNeutralityHandleRange
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
