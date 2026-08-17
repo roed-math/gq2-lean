@@ -386,6 +386,9 @@ ODD RAMIFIED DATA|full abstract normalization iff QurQ row|decl|abstractTameUnif
 ODD RAMIFIED DATA|actual uniformizer action is residue Frobenius|decl|AbsoluteResidueUniformizerFrobeniusRow
 ODD RAMIFIED DATA|full actual normalization iff Frobenius row|decl|absoluteResidueUniformizerNormalization_iff_frobeniusRow
 ODD RAMIFIED DATA|relative comparison from natural uniformizer rows|decl|orientedAbsoluteResidueFrobeniusCompatibility_of_uniformizerRows
+ODD RAMIFIED DATA|absolute-residue local reciprocity law|decl|AbsoluteResidueLocalReciprocityLaw
+ODD RAMIFIED DATA|absolute reciprocity iff unit and Frobenius rows|decl|absoluteResidueLocalReciprocityLaw_iff_rows
+ODD RAMIFIED DATA|relative comparison from field reciprocity law|decl|orientedAbsoluteResidueFrobeniusCompatibility_of_localReciprocityLaw
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
