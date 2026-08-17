@@ -292,6 +292,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc finite four-core correction type|decl|OneHandle
 CORRECTED RN SELECTOR CLOSED|Mpc group correction iff finite four-core equation|decl|nonempty_coreShiftCorrection_iff_exists_levelCorrection
 CORRECTED RN SELECTOR BOUNDARY|Mpc finite constrained four-core supply|decl|OneHandleBalancedCoreLevelSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from finite four-core equation)|decl|mpcPivShiftH_two_one_of_balancedCoreLevel
+CORRECTED RN SELECTOR CLOSED|Mpc finite four-core shift homomorphism|decl|oneHandleBalancedCoreLevelShiftHom
+CORRECTED RN SELECTOR CLOSED|Mpc finite equation iff target lies in range|decl|exists_levelCorrection_iff_target_mem_range
+CORRECTED RN SELECTOR BOUNDARY|Mpc finite four-core range supply|decl|OneHandleBalancedCoreRangeSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from finite four-core range)|decl|mpcPivShiftH_two_one_of_balancedCoreRange
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
