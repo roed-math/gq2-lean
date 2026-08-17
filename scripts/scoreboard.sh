@@ -339,6 +339,7 @@ ODD RAMIFIED DATA|absolute residue surjectivity iff Frobenius lift|decl|absolute
 ODD RAMIFIED DATA|absolute residue Frobenius iff odd-root squaring|decl|squaresOddRootsOfUnity_iff_residueFrobenius
 ODD RAMIFIED DATA|finite odd cyclotomic Frobenius locus|decl|oddRootFrobeniusSet
 ODD RAMIFIED DATA|global odd-root Frobenius iff finite levels|decl|exists_squaresOddRoots_iff_finite_cyclotomic_lifts
+ODD RAMIFIED DATA|global odd-root Frobenius iff local minpolys|decl|exists_squaresOddRoots_iff_minpoly_square
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
