@@ -357,6 +357,15 @@ ODD RAMIFIED DATA|absolute residue Galois equivalence with Zhat|decl|absoluteRes
 ODD RAMIFIED DATA|absolute residue Frobenius coordinate|decl|absoluteResidueGalEquivZhat_frobenius
 ODD RAMIFIED DATA|absolute inertia quotient equals residue Galois|decl|absoluteInertiaQuotientEquivResidueGal
 ODD RAMIFIED DATA|absolute inertia quotient coordinate with Zhat|decl|absoluteInertiaQuotientEquivZhat
+ODD RAMIFIED DATA|absolute residue coordinate restricted to GalK|decl|absoluteResidueCoordinateK
+ODD RAMIFIED DATA|restricted absolute coordinate exact kernel|decl|absoluteResidueCoordinateK_ker
+ODD RAMIFIED DATA|canonical GalK inertia is closed|decl|absoluteInertiaK_isClosed_unconditional
+ODD RAMIFIED DATA|actual unramified quotient coordinate|decl|absoluteUnramifiedCoordinateK
+ODD RAMIFIED DATA|actual unramified quotient coordinate injective|decl|absoluteUnramifiedCoordinateK_injective
+ODD RAMIFIED DATA|actual unramified coordinate closed image|decl|absoluteUnramifiedCoordinateK_range_isClosed
+ODD RAMIFIED DATA|actual unramified quotient equals coordinate image|decl|absoluteUnramifiedCoordinateKEquivRange
+ODD RAMIFIED DATA|relative signed Frobenius square|decl|OrientedAbsoluteResidueFrobeniusCompatibility
+ODD RAMIFIED DATA|residue lift from relative Frobenius square|decl|OrientedAbsoluteResidueFrobeniusCompatibility.compatibleResidueLiftAt
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
