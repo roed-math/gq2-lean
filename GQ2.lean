@@ -982,6 +982,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleDefectObstruction
 import GQ2.Dyadic.Instances.MpcOneHandleBalancedLimit
 import GQ2.Dyadic.Instances.MpcFixedCRelativeBracketObstruction
 import GQ2.Dyadic.Instances.MpcFixedCNeutralBracketObstruction
+import GQ2.Dyadic.Instances.MpcBalancedRowLift
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply

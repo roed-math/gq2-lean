@@ -264,6 +264,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C full bracket surjectivity is false|de
 CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C neutral bracket residual|decl|FixedCRelativeNeutralBracketSurjective
 CORRECTED RN SELECTOR AUDIT|Mpc fixed-C neutral bracket surjectivity is uniformly false|decl|not_fixedCRelativeNeutralBracketSurjective
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced fixed-C neutral absorber|decl|oneHandleDAbsorbable_of_balanced_fixedC_neutral
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle universal row lift|decl|exists_rowCorrectedLift
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle fibre Frattini independence|decl|oneHandleModTwoIndep_of_fibers
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle balanced seed|decl|exists_oneHandleBalancedSeed
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
