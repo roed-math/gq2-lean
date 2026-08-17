@@ -909,6 +909,7 @@ import GQ2.Dyadic.Instances.M0FieldPivotCup
 import GQ2.Dyadic.Instances.M0FieldPivotHilbert
 import GQ2.Dyadic.Instances.M0FieldPivotUniformizer
 import GQ2.Dyadic.Instances.M0FieldPivotArtin
+import GQ2.Dyadic.Instances.M0FieldPivotArtinValue
 import GQ2.Dyadic.Instances.KappaResolverTransport
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedComparison
@@ -963,6 +964,7 @@ import GQ2.Dyadic.Instances.MpcGeneralHandleFamilyClosed
 import GQ2.Dyadic.Instances.MpcGeneralHandleFamilyCanonical
 import GQ2.Dyadic.Instances.MpcFieldPivotFiltered
 import GQ2.Dyadic.Instances.MpcFieldPivotDigitProducer
+import GQ2.Dyadic.Instances.MpcTrueFilteredPlacement
 import GQ2.Dyadic.Instances.MpcFalseRankFourResidual
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
@@ -997,6 +999,8 @@ import GQ2.Dyadic.Instances.RamifiedCertificateCompatibleAt
 import GQ2.Dyadic.Instances.RamifiedCertificateResidueLift
 import GQ2.Dyadic.Instances.RamifiedCertificateResidueInertia
 import GQ2.Dyadic.Instances.RamifiedCertificateResidueReciprocity
+import GQ2.Dyadic.Instances.RamifiedCertificateResidueFullInertia
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex
+import GQ2.Dyadic.Instances.AnchoredTameInertiaRelativeIndex

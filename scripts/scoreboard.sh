@@ -188,6 +188,8 @@ CORRECTED RN SELECTOR BOUNDARY|M0 explicit uniformizer-Kummer packet|decl|M0Unif
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from D and unramified Kummer classes|decl|m0RowResidualRN_of_familySelection_of_uniformizerD
 CORRECTED RN SELECTOR BOUNDARY|M0 pivot from uniformizer D and Artin-Kummer|decl|m0FieldPivotUnit_of_uniformizerD_of_artin
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from uniformizer D and Artin-Kummer|decl|m0RowResidualRN_of_familySelection_of_uniformizerD_artin
+CORRECTED RN SELECTOR BOUNDARY|M0 pointwise uniformizer Artin residual|decl|M0UniformizerArtinCompatibility
+CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from pointwise Artin value|decl|m0RowResidualRN_of_familySelection_of_uniformizerD_artinValue
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN ANALYTIC|Mpc arbitrary-h ramified compact phase|decl|hessRelZ_mpcW_ramified_compactPhase
@@ -221,6 +223,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc filtered digit iff not one level deeper|decl|
 CORRECTED RN SELECTOR CLOSED|Mpc epsilon-false rank-four digit|decl|mpc_familySelection_false_rankFour_digit_all
 CORRECTED RN SELECTOR CLOSED|Mpc epsilon-false rank-four residual|decl|mpcRowResidualRN_of_familySelection_false_rankFour
 CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true full-schema counterexample|decl|mpcFilteredLevelCounterexample_true_selector_schema
+CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true exact B row|decl|mpc_familySelection_true_rankFour_B_exact
+CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true exact kernel from B square|decl|mpc_familySelection_true_rankFour_B_sq_exactKernel
+CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true digit-or-odd-shear criterion|decl|mpc_familySelection_true_rankFour_exists_digit_iff
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -271,6 +276,10 @@ ODD RAMIFIED DATA|residue lift from absolute tame inertia|decl|compatibleResidue
 ODD RAMIFIED DATA|q4 detected-commutator no-go|decl|no_tqFourPin_detected_commutator
 ODD RAMIFIED DATA|unramified-kernel residue-action residual|decl|NuUrAbsoluteResidueKernelAt
 ODD RAMIFIED DATA|residue lift from unramified-kernel residue action|decl|compatibleResidueLiftAt_of_nuUrKernel
+ODD RAMIFIED DATA|full-inertia residue-action residual|decl|TameFullInertiaAbsoluteResidueTrivialAt
+ODD RAMIFIED DATA|residue lift from full tame inertia|decl|compatibleResidueLiftAt_of_fullInertia
+ODD RAMIFIED DATA|selected tau odd-root residual|decl|TameTauFixesOddRootsLiftAt
+ODD RAMIFIED DATA|2-primary kernel is larger than full inertia|decl|ker_nuTq_not_le_inertiaPartQ
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
@@ -278,6 +287,10 @@ ODD RAMIFIED DATA|canonical anchored tame-inertia field|decl|anchoredTameInertia
 ODD RAMIFIED DATA|equal norms from odd tame-inertia index|decl|anchoredInvolutionEqualNormValueGroupsAt_of_oddTameInertia
 ODD RAMIFIED DATA|relative odd tame-inertia residual|decl|AnchoredTameInertiaRelativeOddDataAt
 ODD RAMIFIED DATA|equal norms from relative odd tame-inertia index|decl|anchoredInvolutionEqualNormValueGroupsAt_of_relativeOddTameInertia
+ODD RAMIFIED DATA|anchored tame-inertia visible range index|decl|anchoredTameInertiaField_fixing_index_eq_relIndex_range
+ODD RAMIFIED DATA|relative ramification divides visible range index|decl|anchoredTameInertiaField_relE_dvd_relIndex_range
+ODD RAMIFIED DATA|odd tame-range index residual|decl|AnchoredTameInertiaOddRangeIndexAt
+ODD RAMIFIED DATA|equal norms from odd tame-range index|decl|anchoredInvolutionEqualNormValueGroupsAt_of_oddTameRangeIndex
 ODD RAMIFIED DATA|compatible ramified Gauss residue|decl|gaussZResidueDK_ramified_compatible
 ODD RAMIFIED DATA|compatible affine determinant|decl|affineDeterminant_galK_compatible
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
