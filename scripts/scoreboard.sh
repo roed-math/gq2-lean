@@ -383,6 +383,9 @@ ODD RAMIFIED DATA|Zhat equality from pro-two and remaining finite rows|decl|zhat
 ODD RAMIFIED DATA|abstract uniformizer iff non-pro-two finite rows|decl|abstractTameUniformizerNormalization_iff_nonProTwoRows
 ODD RAMIFIED DATA|abstract geometric uniformizer row in QurQ|decl|AbstractTameUniformizerQurRow
 ODD RAMIFIED DATA|full abstract normalization iff QurQ row|decl|abstractTameUniformizerNormalization_iff_qurRow
+ODD RAMIFIED DATA|actual uniformizer action is residue Frobenius|decl|AbsoluteResidueUniformizerFrobeniusRow
+ODD RAMIFIED DATA|full actual normalization iff Frobenius row|decl|absoluteResidueUniformizerNormalization_iff_frobeniusRow
+ODD RAMIFIED DATA|relative comparison from natural uniformizer rows|decl|orientedAbsoluteResidueFrobeniusCompatibility_of_uniformizerRows
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
