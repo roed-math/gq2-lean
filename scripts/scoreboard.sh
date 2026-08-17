@@ -193,6 +193,12 @@ CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from pointwise Artin value|d
 CORRECTED RN SELECTOR BOUNDARY|M0 pivot iff pointwise Artin value|decl|m0FieldPivotUnit_iff_uniformizerArtinValue
 CORRECTED RN SELECTOR BOUNDARY|M0 transported D character is intrinsic|decl|m0FieldDCharacter_congr_oriented
 CORRECTED RN SELECTOR BOUNDARY|M0 intrinsic uniformizer D placement|decl|M0UniformizerDPlacement
+CORRECTED RN SELECTOR AUDIT|M0 transported D equals deep cyclotomic class|decl|m0FieldDCharacter_eq_evenDeepDigitChar
+CORRECTED RN SELECTOR AUDIT|M0 depth-two placement iff 2/pi is square|decl|m0UniformizerDPlacement_two_iff_squareClass
+CORRECTED RN SELECTOR AUDIT|M0 depth-two placement forces odd ramification|decl|odd_ramificationIndex_of_uniformizerTwoSquareClass
+CORRECTED RN SELECTOR AUDIT|M0 selected depth-two odd-residue placement no-go|decl|not_m0UniformizerDPlacement_two_of_familySelection_odd_residue
+CORRECTED RN SELECTOR AUDIT|M0 even-e unramified norm form represents 2|decl|exists_normForm_two_of_unramified_even_ramification
+CORRECTED RN SELECTOR AUDIT|M0 selected depth-two odd-residue pivot no-go|decl|not_m0FieldPivotUnit_two_of_familySelection_odd_residue
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from intrinsic uniformizer data|decl|m0RowResidualRN_of_familySelection_of_intrinsic_uniformizer_data
 CORRECTED RN SELECTOR BOUNDARY|M0 Artin value as exact quadratic non-norm|decl|exists_kummerRepresentative_m0UniformizerArtinBoundary
 CORRECTED RN SELECTOR BOUNDARY|M0 Artin value from unramified Kummer realization|decl|m0UniformizerArtinCompatibility_of_nuUrUnramifiedKummerClass

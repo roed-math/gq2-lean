@@ -912,6 +912,8 @@ import GQ2.Dyadic.Instances.M0FieldPivotArtin
 import GQ2.Dyadic.Instances.M0FieldPivotArtinValue
 import GQ2.Dyadic.Instances.M0FieldPivotArtinExact
 import GQ2.Dyadic.Instances.M0FieldUniformizerDInvariant
+import GQ2.Dyadic.Instances.M0FieldUniformizerDeepClass
+import GQ2.Dyadic.Instances.M0FieldPivotParityNoGo
 import GQ2.Dyadic.Instances.M0FieldNuUnramifiedBridge
 import GQ2.Dyadic.Instances.M0FieldNuOddResidue
 import GQ2.Dyadic.Instances.M0FieldNuOddResidueSpectral
