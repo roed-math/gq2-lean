@@ -237,6 +237,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc unit scaling preserves exact pivot|decl|exact
 CORRECTED RN SELECTOR BOUNDARY|Mpc existing clear monoid fixes C|decl|dmClearAutsWide_fixes_C
 CORRECTED RN SELECTOR BOUNDARY|Mpc shift lies outside existing clear monoid|decl|not_shiftRow_of_mem_dmClearAutsWide
 CORRECTED RN SELECTOR BOUNDARY|Mpc general-h shift iff full relator marking|decl|mpcPivShiftH_iff_marking
+CORRECTED RN SELECTOR BOUNDARY|Mpc standard-handle extension|decl|MpcStandardHandleExtension
+CORRECTED RN SELECTOR BOUNDARY|Mpc compact shift stabilization|decl|MpcPivShiftStandardStabilization
+CORRECTED RN SELECTOR BOUNDARY|Mpc general-h shift from standard stabilization|decl|mpcPivShiftH_of_standardStabilization
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -300,6 +303,9 @@ ODD RAMIFIED DATA|oriented full tame inertia containment|decl|OrientedFullTameIn
 ODD RAMIFIED DATA|residue lift from canonical absolute inertia|decl|compatibleResidueLiftAt_of_orientedFullTameInertiaInAbsoluteInertia
 ODD RAMIFIED DATA|residue-compatible oriented tame quotient|decl|AbsoluteResidueCompatibleOrientedTameQuotientK
 ODD RAMIFIED DATA|compatible gamma endpoint from residue-compatible tame quotient|decl|gammaR_lSq_equiv_galK_oddDegree_of_absoluteResidueCompatible
+ODD RAMIFIED DATA|absolute unramified quotient comparison|decl|OrientedAbsoluteUnramifiedQuotientComparison
+ODD RAMIFIED DATA|full tame kernel equals absolute inertia|decl|fullTameInertia_comap_eq_absoluteInertiaK
+ODD RAMIFIED DATA|residue lift from quotient comparison|decl|compatibleResidueLiftAt
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
