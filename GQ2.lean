@@ -913,6 +913,8 @@ import GQ2.Dyadic.Instances.M0FieldPivotArtinValue
 import GQ2.Dyadic.Instances.M0FieldPivotArtinExact
 import GQ2.Dyadic.Instances.M0FieldUniformizerDInvariant
 import GQ2.Dyadic.Instances.M0FieldNuUnramifiedBridge
+import GQ2.Dyadic.Instances.M0FieldNuOddResidue
+import GQ2.Dyadic.Instances.M0FieldNuOddResidueSpectral
 import GQ2.Dyadic.Instances.KappaResolverTransport
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedComparison
@@ -976,6 +978,7 @@ import GQ2.Dyadic.Instances.MpcGeneralHandleStandardStabilization
 import GQ2.Dyadic.Instances.MpcGeneralHandleDefectAbsorption
 import GQ2.Dyadic.Instances.MpcOneHandleDefectObstruction
 import GQ2.Dyadic.Instances.MpcOneHandleBalancedLimit
+import GQ2.Dyadic.Instances.MpcFixedCRelativeBracketObstruction
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
@@ -1017,6 +1020,7 @@ import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteUnramifiedQuotientCompari
 import GQ2.Dyadic.Instances.RamifiedCertificateQurZhatFrobeniusComparison
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueFiniteFrobenius
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueAlgebraicClosure
+import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueExactSequence
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex

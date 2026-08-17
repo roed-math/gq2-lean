@@ -196,6 +196,9 @@ CORRECTED RN SELECTOR BOUNDARY|M0 intrinsic uniformizer D placement|decl|M0Unifo
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from intrinsic uniformizer data|decl|m0RowResidualRN_of_familySelection_of_intrinsic_uniformizer_data
 CORRECTED RN SELECTOR BOUNDARY|M0 Artin value as exact quadratic non-norm|decl|exists_kummerRepresentative_m0UniformizerArtinBoundary
 CORRECTED RN SELECTOR BOUNDARY|M0 Artin value from unramified Kummer realization|decl|m0UniformizerArtinCompatibility_of_nuUrUnramifiedKummerClass
+CORRECTED RN SELECTOR BOUNDARY|M0 mod-two descent in odd residue degree|decl|redTwo_nuUr_restrict_of_odd_residueDegree
+CORRECTED RN SELECTOR BOUNDARY|M0 sqrt(-3) preserves values in odd residue degree|decl|hasEqualNormValueGroups_of_sq_eq_neg_three_of_odd_residueDegree
+CORRECTED RN SELECTOR BOUNDARY|M0 selected residual in odd residue degree|decl|m0RowResidualRN_of_familySelection_of_oddResidueDegree
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN ANALYTIC|Mpc arbitrary-h ramified compact phase|decl|hessRelZ_mpcW_ramified_compactPhase
@@ -251,7 +254,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift from defect absorption|decl|
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle equation-only absorption|decl|MpcOneHandleDAbsorbable
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle lift-choice obstruction|decl|exists_nonabsorbable_with_same_lift_gen_row
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced finite-class one-handle shift|decl|mpcPivShiftH_two_one_of_balanced_forall_class
-CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C graded bracket residual|decl|FixedCRelativeBracketSurjective
+CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C full bracket surjectivity is false|decl|not_fixedCRelativeBracketSurjective
+CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C neutral bracket residual|decl|FixedCRelativeNeutralBracketSurjective
+CORRECTED RN SELECTOR BOUNDARY|Mpc balanced fixed-C neutral absorber|decl|oneHandleDAbsorbable_of_balanced_fixedC_neutral
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -326,6 +331,9 @@ ODD RAMIFIED DATA|finite residue Frobenius powers generate|decl|finiteResidue_fr
 ODD RAMIFIED DATA|absolute residue field algebraically closed|decl|absoluteResidueField_isAlgClosed
 ODD RAMIFIED DATA|absolute residue field is algebraic closure|decl|absoluteResidueField_isAlgClosure
 ODD RAMIFIED DATA|global absolute residue square Frobenius|decl|absoluteResidueFrobenius
+ODD RAMIFIED DATA|absolute residue action exact kernel|decl|absoluteResidueAlgAction_ker
+ODD RAMIFIED DATA|absolute residue quotient equals action image|decl|absoluteInertiaQuotientEquivResidueRange
+ODD RAMIFIED DATA|absolute residue surjectivity iff finite lifts|decl|absoluteResidueAlgAction_surjective_iff_finite_lifts
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
