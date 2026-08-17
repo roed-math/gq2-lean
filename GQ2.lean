@@ -989,6 +989,7 @@ import GQ2.Dyadic.Instances.MpcCupAdaptedSeed
 import GQ2.Dyadic.Instances.MpcBalancedClimb
 import GQ2.Dyadic.Instances.MpcBalancedStageShift
 import GQ2.Dyadic.Instances.MpcBalancedCoreShift
+import GQ2.Dyadic.Instances.MpcBalancedRelativeLift
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
