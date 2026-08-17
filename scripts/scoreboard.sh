@@ -288,6 +288,10 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from four core rows)|decl|m
 CORRECTED RN SELECTOR CLOSED|Mpc exact relative representative lift|decl|exists_exact_relativeRepresentative
 CORRECTED RN SELECTOR CLOSED|Mpc relative layer equals exact-kernel image|decl|oneHandleRelativeLambdaImage_eq_exactImage
 CORRECTED RN SELECTOR CLOSED|Mpc relative-layer exact representative iff|decl|mem_oneHandleRelativeLambdaImage_iff_exists_exact
+CORRECTED RN SELECTOR CLOSED|Mpc finite four-core correction type|decl|OneHandleBalancedCoreLevelCorrection
+CORRECTED RN SELECTOR CLOSED|Mpc group correction iff finite four-core equation|decl|nonempty_coreShiftCorrection_iff_exists_levelCorrection
+CORRECTED RN SELECTOR BOUNDARY|Mpc finite constrained four-core supply|decl|OneHandleBalancedCoreLevelSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from finite four-core equation)|decl|mpcPivShiftH_two_one_of_balancedCoreLevel
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
