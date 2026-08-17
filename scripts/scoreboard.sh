@@ -350,6 +350,13 @@ ODD RAMIFIED DATA|absolute norm valuation ring is Henselian|decl|absoluteNormInt
 ODD RAMIFIED DATA|primitive odd root is conjugate to its square|decl|primitiveOddRoot_isConjRoot_square
 ODD RAMIFIED DATA|global odd-root Frobenius exists|decl|exists_squaresOddRootsOfUnity
 ODD RAMIFIED DATA|absolute residue action is surjective|decl|absoluteResidueAlgAction_surjective
+ODD RAMIFIED DATA|Zhat to absolute residue Galois map|decl|zhatToAbsoluteResidueGal
+ODD RAMIFIED DATA|Zhat generates absolute residue Galois|decl|zhatToAbsoluteResidueGal_surjective
+ODD RAMIFIED DATA|Zhat faithfully acts by residue Frobenius|decl|zhatToAbsoluteResidueGal_injective
+ODD RAMIFIED DATA|absolute residue Galois equivalence with Zhat|decl|absoluteResidueGalEquivZhat
+ODD RAMIFIED DATA|absolute residue Frobenius coordinate|decl|absoluteResidueGalEquivZhat_frobenius
+ODD RAMIFIED DATA|absolute inertia quotient equals residue Galois|decl|absoluteInertiaQuotientEquivResidueGal
+ODD RAMIFIED DATA|absolute inertia quotient coordinate with Zhat|decl|absoluteInertiaQuotientEquivZhat
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups

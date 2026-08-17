@@ -1027,6 +1027,7 @@ import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueFrobeniusLift
 import GQ2.Dyadic.Instances.RamifiedCertificateOddRootFrobeniusCompactness
 import GQ2.Dyadic.Instances.RamifiedCertificateOddRootFrobeniusConjugacy
 import GQ2.Dyadic.Instances.RamifiedCertificateOddRootLocalConjugacy
+import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueZhat
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex
