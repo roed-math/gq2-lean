@@ -296,6 +296,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc finite four-core shift homomorphism|decl|oneHan
 CORRECTED RN SELECTOR CLOSED|Mpc finite equation iff target lies in range|decl|exists_levelCorrection_iff_target_mem_range
 CORRECTED RN SELECTOR BOUNDARY|Mpc finite four-core range supply|decl|OneHandleBalancedCoreRangeSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from finite four-core range)|decl|mpcPivShiftH_two_one_of_balancedCoreRange
+CORRECTED RN SELECTOR CLOSED|Mpc finite shift lands in relative central layer|decl|oneHandleBalancedCoreRelativeShiftHom
+CORRECTED RN SELECTOR CLOSED|Mpc balanced relator target is handle-relative|decl|oneHandleBalancedCoreRelativeTarget
+CORRECTED RN SELECTOR BOUNDARY|Mpc relative finite target-range supply|decl|OneHandleBalancedCoreRelativeRangeSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc relative finite surjectivity supply|decl|OneHandleBalancedCoreRelativeSurjectiveSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from relative surjectivity)|decl|mpcPivShiftH_two_one_of_balancedRelativeSurjective
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
