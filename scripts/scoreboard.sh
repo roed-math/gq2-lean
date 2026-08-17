@@ -309,6 +309,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc constrained coordinate span lies in raw shift s
 CORRECTED RN SELECTOR CLOSED|Mpc finite balanced coordinate cokernel|decl|OneHandleBalancedCoreCoordinateCokernel
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced coordinate obstruction vanishing|decl|OneHandleBalancedCoreCoordinateObstructionVanishing
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from coordinate obstruction)|decl|mpcPivShiftH_two_one_of_balancedCoordinateObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc relaxed relative C-row formula|decl|oneHandleBalancedCoreRelativeShiftCRelaxed_apply
+CORRECTED RN SELECTOR CLOSED|Mpc constrained span lies in relaxed relative span|decl|oneHandleBalancedCoreCoordinateSpan_le_relativeCoordinateSpan
+CORRECTED RN SELECTOR BOUNDARY|Mpc ordinary-relative coordinate coverage|decl|OneHandleBalancedCoreRelativeCoordinateSpanSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc neutral-C obstruction vanishing|decl|OneHandleBalancedCoreNeutralityObstructionVanishing
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate supply iff relative plus neutral|decl|coordinateSpanSupply_iff_relative_and_neutrality
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
