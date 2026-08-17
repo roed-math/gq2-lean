@@ -262,6 +262,7 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle lift-choice obstruction|decl|exist
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced finite-class one-handle shift|decl|mpcPivShiftH_two_one_of_balanced_forall_class
 CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C full bracket surjectivity is false|decl|not_fixedCRelativeBracketSurjective
 CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C neutral bracket residual|decl|FixedCRelativeNeutralBracketSurjective
+CORRECTED RN SELECTOR AUDIT|Mpc fixed-C neutral bracket surjectivity is uniformly false|decl|not_fixedCRelativeNeutralBracketSurjective
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced fixed-C neutral absorber|decl|oneHandleDAbsorbable_of_balanced_fixedC_neutral
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
