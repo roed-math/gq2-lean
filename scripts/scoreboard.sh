@@ -373,6 +373,10 @@ ODD RAMIFIED DATA|relative Frobenius square iff reciprocity rows|decl|orientedAb
 ODD RAMIFIED DATA|absolute residue unit-inertia residual|decl|AbsoluteResidueUnitInertia
 ODD RAMIFIED DATA|relative Frobenius uniformizer row|decl|RelativeFrobeniusUniformizerRow
 ODD RAMIFIED DATA|relative Frobenius split into unit and uniformizer|decl|orientedAbsoluteResidueFrobeniusCompatibility_iff_unit_uniformizer
+ODD RAMIFIED DATA|absolute uniformizer Frobenius normalization|decl|AbsoluteResidueUniformizerNormalization
+ODD RAMIFIED DATA|abstract geometric uniformizer normalization|decl|AbstractTameUniformizerNormalization
+ODD RAMIFIED DATA|relative Frobenius reduced to uniformizer|decl|orientedAbsoluteResidueFrobeniusCompatibility_iff_uniformizer
+ODD RAMIFIED DATA|relative Frobenius from full normalizations|decl|orientedAbsoluteResidueFrobeniusCompatibility_of_normalizations
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
