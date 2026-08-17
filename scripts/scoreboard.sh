@@ -278,6 +278,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc balanced finite set nonempty through depth thre
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced multi-slot climb supply|decl|OneHandleBalancedClimbSupply
 CORRECTED RN SELECTOR CLOSED|Mpc balanced one-step climb|decl|oneHandleBalancedSet_succ_of_correction
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from balanced climb)|decl|mpcPivShiftH_two_one_of_balancedClimb
+CORRECTED RN SELECTOR CLOSED|Mpc balanced correction shift equals even raw word|decl|oneHandleBalancedRelatorShift_eq_evenRawDbarWord
+CORRECTED RN SELECTOR CLOSED|Mpc balanced shift iff nonlinear correction|decl|nonempty_shiftCorrection_iff_correction
+CORRECTED RN SELECTOR BOUNDARY|Mpc balanced finite-quotient shift supply|decl|OneHandleBalancedShiftSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from finite-quotient shift)|decl|mpcPivShiftH_two_one_of_balancedShift
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
