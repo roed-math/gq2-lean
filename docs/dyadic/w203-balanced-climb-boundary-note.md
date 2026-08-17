@@ -5,11 +5,11 @@ isolates the exact honest successor needed to propagate that seed without revivi
 disproved fixed-`C` bracket-surjectivity statement.
 
 `MpcBalancedClimb.OneHandleBalancedCorrection p k` moves all five variables of a balanced
-point by factors in `lambda_k` and in the handle-forgetting kernel.  The `C` factor is killed
+point by factors in `lambda_(k-1)` and in the handle-forgetting kernel.  The `C` factor is killed
 by every continuous `Z_2`-valued character, preserving the fixed universal row
 `C_std + 2 B_std`.  The sole nonlinear field says that the corrected defect lies in
 `lambda_(k+1)`.  The theorem `levelMk_balancedCorrectedMark_modify` verifies that the entire
-corrected marking is unchanged modulo `lambda_k`.
+corrected marking is unchanged modulo `lambda_(k-1)`, matching the generic stage depth.
 
 `oneHandleBalancedSet_succ_of_correction` proves that such a correction preserves the four
 compact fibres, the correction fibre, the universal row, and mod-two independence, and

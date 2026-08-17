@@ -13,7 +13,7 @@ of the fixed-`C`, one-slot bracket-surjectivity predicates: both have explicit c
 This module instead records the honest multi-slot correction interface.
 
 A correction moves all five variables of a balanced point inside the handle-forgetting kernel
-and at depth `k`.  Its `C` move is exactly abelian-neutral, as required to preserve the fixed
+and at depth `k - 1`.  Its `C` move is exactly abelian-neutral, as required to preserve the fixed
 universal row `C_std + 2 B_std`, and its only nonlinear clause is that the defect lies one rung
 deeper.  The four prescribed fibres, the correction fibre, the universal row, and mod-two
 independence are then automatic.  Thus a correction advances `oneHandleBalancedSet` by one.
@@ -61,17 +61,17 @@ def oneHandleBalancedModify (p e : OneHandleBalancedPoint) : OneHandleBalancedPo
 @[simp] theorem balancedZ_modify (p e : OneHandleBalancedPoint) :
     balancedZ (oneHandleBalancedModify p e) = balancedZ p * balancedZ e := rfl
 
-/-- A genuine depth-`k`, five-slot balanced correction.  All linear invariants are stated
+/-- A genuine depth-`k - 1`, five-slot balanced correction.  All linear invariants are stated
 separately from the single nonlinear next-defect clause. -/
 structure OneHandleBalancedCorrection (p : OneHandleBalancedPoint) (k : ℕ) where
   /-- The five coordinatewise correction factors. -/
   factors : OneHandleBalancedPoint
   /-- Every factor starts at the current two-central depth. -/
-  depthA : balancedA factors ∈ twoCentralSeries (DM 2 1) k
-  depthB : balancedB factors ∈ twoCentralSeries (DM 2 1) k
-  depthC : balancedC factors ∈ twoCentralSeries (DM 2 1) k
-  depthD : balancedD factors ∈ twoCentralSeries (DM 2 1) k
-  depthZ : balancedZ factors ∈ twoCentralSeries (DM 2 1) k
+  depthA : balancedA factors ∈ twoCentralSeries (DM 2 1) (k - 1)
+  depthB : balancedB factors ∈ twoCentralSeries (DM 2 1) (k - 1)
+  depthC : balancedC factors ∈ twoCentralSeries (DM 2 1) (k - 1)
+  depthD : balancedD factors ∈ twoCentralSeries (DM 2 1) (k - 1)
+  depthZ : balancedZ factors ∈ twoCentralSeries (DM 2 1) (k - 1)
   /-- Every factor is invisible after forgetting the standard handle. -/
   forgetA : dmForgetHandles 2 1 (balancedA factors) = 1
   forgetB : dmForgetHandles 2 1 (balancedB factors) = 1
@@ -99,14 +99,14 @@ def OneHandleBalancedClimbSupply
   ∀ (k : ℕ), 3 ≤ k → ∀ p ∈ oneHandleBalancedSet Psi0 k,
     Nonempty (OneHandleBalancedCorrection p k)
 
-/-- A depth-`k` balanced correction is invisible on the entire corrected marking modulo
-`λ_k`.  This is the stage-compatibility check behind the successor interface. -/
+/-- A depth-`k - 1` balanced correction is invisible on the entire corrected marking modulo
+`λ_(k-1)`.  This is the stage-compatibility check behind the successor interface. -/
 theorem levelMk_balancedCorrectedMark_modify
     {p : OneHandleBalancedPoint} {k : ℕ}
     (E : OneHandleBalancedCorrection p k) (i : Fin (coreRank 1)) :
-    levelMk (DM 2 1) k
+    levelMk (DM 2 1) (k - 1)
         (balancedCorrectedMark (oneHandleBalancedModify p E.factors) i) =
-      levelMk (DM 2 1) k (balancedCorrectedMark p i) := by
+      levelMk (DM 2 1) (k - 1) (balancedCorrectedMark p i) := by
   have ha := E.depthA
   have hb := E.depthB
   have hc := E.depthC
