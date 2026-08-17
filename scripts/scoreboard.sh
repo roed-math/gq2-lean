@@ -341,6 +341,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc neutrality as ZMod-four target-in-range|decl|
 CORRECTED RN SELECTOR CLOSED|Mpc finite ZMod-four CABD cokernel|decl|OneHandleBalancedCABDZModFourCokernel
 CORRECTED RN SELECTOR CLOSED|Mpc canonical linear CABD obstruction|decl|oneHandleBalancedCABDZModFourObstruction
 CORRECTED RN SELECTOR BOUNDARY|Mpc neutrality as linear obstruction vanishing|decl|neutralityObstruction_eq_one_iff_CABDZModFourObstruction_eq_zero
+CORRECTED RN SELECTOR CLOSED|Mpc row neutrality iff abelian square one|decl|mem_oneHandleRowKer_iff_abMk_sq_eq_one
+CORRECTED RN SELECTOR CLOSED|Mpc relative row neutrality iff abelianization trivial|decl|mem_oneHandleRowKer_iff_abMk_eq_one_of_forget
+CORRECTED RN SELECTOR CLOSED|Mpc neutral relative source as abelianization kernel|decl|oneHandleNeutralRelativeLambdaImage_eq_abMkKernel
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
