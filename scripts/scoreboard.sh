@@ -329,6 +329,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc interaction source iff literal CABD equation|de
 CORRECTED RN SELECTOR BOUNDARY|Mpc target neutralization by literal CABD equation|decl|neutralityObstruction_eq_one_iff_CABD
 CORRECTED RN SELECTOR CLOSED|Mpc CABD square-commutator expansion|decl|balancedCABD_eq_iff_expanded
 CORRECTED RN SELECTOR BOUNDARY|Mpc expanded neutral-C target equation|decl|neutralityObstruction_eq_one_iff_expanded_CABD
+CORRECTED RN SELECTOR CLOSED|Mpc multiplicative CABD defect row|decl|oneHandleBalancedCABDDefect
+CORRECTED RN SELECTOR CLOSED|Mpc CABD equation as additive zero row|decl|balancedCABD_eq_iff_addRow_eq_zero
+CORRECTED RN SELECTOR BOUNDARY|Mpc additive CABD solution kernel|decl|oneHandleBalancedCABDAddKernel
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
