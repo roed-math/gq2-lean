@@ -997,6 +997,7 @@ import GQ2.Dyadic.Instances.MpcBalancedCoordinateSpan
 import GQ2.Dyadic.Instances.MpcBalancedCoordinateCokernel
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityCokernel
 import GQ2.Dyadic.Instances.MpcBalancedNeutralitySpan
+import GQ2.Dyadic.Instances.MpcBalancedNeutralitySourceQuotient
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
