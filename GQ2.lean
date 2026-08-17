@@ -969,6 +969,7 @@ import GQ2.Dyadic.Instances.MpcTrueFilteredPlacement
 import GQ2.Dyadic.Instances.MpcFalseRankFourResidual
 import GQ2.Dyadic.Instances.MpcTrueRankFourResidual
 import GQ2.Dyadic.Instances.MpcGeneralHandlePivotBoundary
+import GQ2.Dyadic.Instances.MpcGeneralHandleShiftRecipe
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
@@ -1005,6 +1006,7 @@ import GQ2.Dyadic.Instances.RamifiedCertificateResidueReciprocity
 import GQ2.Dyadic.Instances.RamifiedCertificateResidueFullInertia
 import GQ2.Dyadic.Instances.RamifiedCertificateResidueQurCompatibility
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueAction
+import GQ2.Dyadic.Instances.RamifiedCertificateResidueCompatibleOrientedTame
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex

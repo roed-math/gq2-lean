@@ -234,6 +234,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc general-h odd-shear shift|decl|MpcPivShiftH
 CORRECTED RN SELECTOR CLOSED|Mpc rank-four general shift|decl|mpcPivShiftH_two_zero
 CORRECTED RN SELECTOR BOUNDARY|Mpc general-h epsilon-true residual from shift|decl|mpcRowResidualRN_of_familySelection_true_of_shiftH
 CORRECTED RN SELECTOR BOUNDARY|Mpc unit scaling preserves exact pivot|decl|exactPivot_comp_iff_of_unit_C
+CORRECTED RN SELECTOR BOUNDARY|Mpc existing clear monoid fixes C|decl|dmClearAutsWide_fixes_C
+CORRECTED RN SELECTOR BOUNDARY|Mpc shift lies outside existing clear monoid|decl|not_shiftRow_of_mem_dmClearAutsWide
+CORRECTED RN SELECTOR BOUNDARY|Mpc general-h shift iff full relator marking|decl|mpcPivShiftH_iff_marking
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -295,6 +298,8 @@ ODD RAMIFIED DATA|canonical absolute residue action|decl|absoluteResidueAction
 ODD RAMIFIED DATA|absolute inertia iff residue trivial|decl|mem_absoluteInertiaSubgroup_iff_isResidueTrivial_bot
 ODD RAMIFIED DATA|oriented full tame inertia containment|decl|OrientedFullTameInertiaLiesInAbsoluteInertiaAt
 ODD RAMIFIED DATA|residue lift from canonical absolute inertia|decl|compatibleResidueLiftAt_of_orientedFullTameInertiaInAbsoluteInertia
+ODD RAMIFIED DATA|residue-compatible oriented tame quotient|decl|AbsoluteResidueCompatibleOrientedTameQuotientK
+ODD RAMIFIED DATA|compatible gamma endpoint from residue-compatible tame quotient|decl|gammaR_lSq_equiv_galK_oddDegree_of_absoluteResidueCompatible
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
