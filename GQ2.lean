@@ -911,6 +911,7 @@ import GQ2.Dyadic.Instances.M0FieldPivotUniformizer
 import GQ2.Dyadic.Instances.M0FieldPivotArtin
 import GQ2.Dyadic.Instances.M0FieldPivotArtinValue
 import GQ2.Dyadic.Instances.M0FieldPivotArtinExact
+import GQ2.Dyadic.Instances.M0FieldUniformizerDInvariant
 import GQ2.Dyadic.Instances.KappaResolverTransport
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedData
 import GQ2.Dyadic.Instances.WordPhaseCompactMRamifiedComparison
@@ -972,6 +973,7 @@ import GQ2.Dyadic.Instances.MpcGeneralHandlePivotBoundary
 import GQ2.Dyadic.Instances.MpcGeneralHandleShiftRecipe
 import GQ2.Dyadic.Instances.MpcGeneralHandleStandardStabilization
 import GQ2.Dyadic.Instances.MpcGeneralHandleDefectAbsorption
+import GQ2.Dyadic.Instances.MpcOneHandleDefectObstruction
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
@@ -1011,6 +1013,7 @@ import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueAction
 import GQ2.Dyadic.Instances.RamifiedCertificateResidueCompatibleOrientedTame
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteUnramifiedQuotientComparison
 import GQ2.Dyadic.Instances.RamifiedCertificateQurZhatFrobeniusComparison
+import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueFiniteFrobenius
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex
