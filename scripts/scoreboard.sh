@@ -370,6 +370,9 @@ ODD RAMIFIED DATA|absolute residue coordinate on GalKab|decl|absoluteResidueCoor
 ODD RAMIFIED DATA|abstract tame coordinate on GalKab|decl|orientedTameQurCoordinateKAb
 ODD RAMIFIED DATA|relative Frobenius reciprocity rows|decl|RelativeFrobeniusReciprocityRows
 ODD RAMIFIED DATA|relative Frobenius square iff reciprocity rows|decl|orientedAbsoluteResidueFrobeniusCompatibility_iff_rows
+ODD RAMIFIED DATA|absolute residue unit-inertia residual|decl|AbsoluteResidueUnitInertia
+ODD RAMIFIED DATA|relative Frobenius uniformizer row|decl|RelativeFrobeniusUniformizerRow
+ODD RAMIFIED DATA|relative Frobenius split into unit and uniformizer|decl|orientedAbsoluteResidueFrobeniusCompatibility_iff_unit_uniformizer
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
