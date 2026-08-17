@@ -321,6 +321,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc relative C modulo neutral source|decl|OneHandle
 CORRECTED RN SELECTOR CLOSED|Mpc C-mod-neutral source surjects|decl|oneHandleBalancedCoreNeutralitySourceFactor_surjective
 CORRECTED RN SELECTOR BOUNDARY|Mpc C-mod-neutral interaction kernel|decl|oneHandleBalancedCoreNeutralitySourceFactor_eq_one_iff
 CORRECTED RN SELECTOR CLOSED|Mpc neutrality cokernel exact source quotient|decl|oneHandleBalancedCoreNeutralityCokernelEquiv
+CORRECTED RN SELECTOR CLOSED|Mpc constrained span equals ABD plus neutral C|decl|oneHandleBalancedCoreCoordinateSpan_eq_other_sup_C
+CORRECTED RN SELECTOR CLOSED|Mpc interaction kernel equals C-versus-ABD image|decl|oneHandleBalancedCoreNeutralityInteraction_range_eq
+CORRECTED RN SELECTOR BOUNDARY|Mpc finite C-versus-ABD relation source|decl|oneHandleBalancedCoreNeutralityInteractionSource
+CORRECTED RN SELECTOR CLOSED|Mpc neutrality cokernel modulo C-versus-ABD|decl|oneHandleBalancedCoreNeutralityCokernelEquivInteraction
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
