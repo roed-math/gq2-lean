@@ -346,6 +346,8 @@ CORRECTED RN SELECTOR CLOSED|Mpc relative row neutrality iff abelianization triv
 CORRECTED RN SELECTOR CLOSED|Mpc neutral relative source as abelianization kernel|decl|oneHandleNeutralRelativeLambdaImage_eq_abMkKernel
 CORRECTED RN SELECTOR CLOSED|Mpc neutral source equals handle-digit kernel|decl|oneHandleRelativeUVLevel_ker_eq_neutralRange
 CORRECTED RN SELECTOR CLOSED|Mpc C-mod-neutral source equals handle-digit range|decl|oneHandleRelativeCModuloNeutralEquivUVRange
+CORRECTED RN SELECTOR CLOSED|Mpc C-mod-neutral source is ZMod-four squared|decl|oneHandleRelativeCModuloNeutralEquivZModFourSq
+CORRECTED RN SELECTOR CLOSED|Mpc C-mod-neutral source has cardinality sixteen|decl|natCard_oneHandleRelativeCModuloNeutral
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
