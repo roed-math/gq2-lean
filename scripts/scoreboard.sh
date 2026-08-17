@@ -282,6 +282,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc balanced correction shift equals even raw word|
 CORRECTED RN SELECTOR CLOSED|Mpc balanced shift iff nonlinear correction|decl|nonempty_shiftCorrection_iff_correction
 CORRECTED RN SELECTOR BOUNDARY|Mpc balanced finite-quotient shift supply|decl|OneHandleBalancedShiftSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from finite-quotient shift)|decl|mpcPivShiftH_two_one_of_balancedShift
+CORRECTED RN SELECTOR CLOSED|Mpc balanced five-factor to four-core shift equivalence|decl|nonempty_coreShiftCorrection_iff_shiftCorrection
+CORRECTED RN SELECTOR BOUNDARY|Mpc balanced constrained four-core shift supply|decl|OneHandleBalancedCoreShiftSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from four core rows)|decl|mpcPivShiftH_two_one_of_balancedCoreShift
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
