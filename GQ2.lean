@@ -993,6 +993,7 @@ import GQ2.Dyadic.Instances.MpcBalancedRelativeLift
 import GQ2.Dyadic.Instances.MpcBalancedFiniteCore
 import GQ2.Dyadic.Instances.MpcBalancedFiniteSpan
 import GQ2.Dyadic.Instances.MpcBalancedRelativeSpan
+import GQ2.Dyadic.Instances.MpcBalancedCoordinateSpan
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply

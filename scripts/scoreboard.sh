@@ -301,6 +301,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc balanced relator target is handle-relative|decl
 CORRECTED RN SELECTOR BOUNDARY|Mpc relative finite target-range supply|decl|OneHandleBalancedCoreRelativeRangeSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc relative finite surjectivity supply|decl|OneHandleBalancedCoreRelativeSurjectiveSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from relative surjectivity)|decl|mpcPivShiftH_two_one_of_balancedRelativeSurjective
+CORRECTED RN SELECTOR CLOSED|Mpc relative shift range equals four-coordinate span|decl|oneHandleBalancedCoreRelativeShift_range_eq_coordinateSpan
+CORRECTED RN SELECTOR CLOSED|Mpc four constrained coordinate row formulas|decl|oneHandleBalancedCoreRelativeShiftA_apply
+CORRECTED RN SELECTOR BOUNDARY|Mpc four-coordinate target-span supply|decl|OneHandleBalancedCoreCoordinateSpanSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from coordinate span)|decl|mpcPivShiftH_two_one_of_balancedCoordinateSpan
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
