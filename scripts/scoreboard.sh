@@ -366,6 +366,10 @@ ODD RAMIFIED DATA|actual unramified coordinate closed image|decl|absoluteUnramif
 ODD RAMIFIED DATA|actual unramified quotient equals coordinate image|decl|absoluteUnramifiedCoordinateKEquivRange
 ODD RAMIFIED DATA|relative signed Frobenius square|decl|OrientedAbsoluteResidueFrobeniusCompatibility
 ODD RAMIFIED DATA|residue lift from relative Frobenius square|decl|OrientedAbsoluteResidueFrobeniusCompatibility.compatibleResidueLiftAt
+ODD RAMIFIED DATA|absolute residue coordinate on GalKab|decl|absoluteResidueCoordinateKAb
+ODD RAMIFIED DATA|abstract tame coordinate on GalKab|decl|orientedTameQurCoordinateKAb
+ODD RAMIFIED DATA|relative Frobenius reciprocity rows|decl|RelativeFrobeniusReciprocityRows
+ODD RAMIFIED DATA|relative Frobenius square iff reciprocity rows|decl|orientedAbsoluteResidueFrobeniusCompatibility_iff_rows
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
