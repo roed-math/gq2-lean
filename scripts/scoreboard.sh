@@ -270,6 +270,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc one-handle balanced seed|decl|exists_oneHandleB
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle core word starts in lambda2|decl|mWord_mem_two
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle defect starts in lambda2|decl|oneHandleDDefect_mem_two
 CORRECTED RN SELECTOR CLOSED|Mpc balanced finite sets nonempty through depth two|decl|oneHandleBalancedSet_nonempty_of_le_two
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle cup-adapted seed|decl|OneHandleCupAdaptedSeed
+CORRECTED RN SELECTOR CLOSED|Mpc cup-adapted relator vanishes through depth three|decl|mRelWord_mem_three_of_cupAdapted
+CORRECTED RN SELECTOR BOUNDARY|Mpc balanced depth-three set (from cup-adapted seed)|decl|oneHandleBalancedSet_three_nonempty_of_cupAdaptedSeed
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
