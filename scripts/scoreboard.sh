@@ -392,6 +392,8 @@ ODD RAMIFIED DATA|relative comparison from field reciprocity law|decl|orientedAb
 ODD RAMIFIED DATA|abstract tame local reciprocity law|decl|AbstractTameLocalReciprocityLaw
 ODD RAMIFIED DATA|abstract reciprocity iff unit and geometric rows|decl|abstractTameLocalReciprocityLaw_iff_rows
 ODD RAMIFIED DATA|relative comparison from both reciprocity laws|decl|orientedAbsoluteResidueFrobeniusCompatibility_of_reciprocityLaws
+ODD RAMIFIED DATA|compatible packet from reciprocity laws and equal norms|decl|compatibleRamifiedDataAt_of_reciprocityLaws
+CORRECTED RN CONDITIONAL ROWS|odd L endpoint from reciprocity laws and equal norms|decl|gammaR_lSq_equiv_galK_oddDegree_of_reciprocityLaws
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
