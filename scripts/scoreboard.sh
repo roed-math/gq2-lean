@@ -334,6 +334,9 @@ ODD RAMIFIED DATA|global absolute residue square Frobenius|decl|absoluteResidueF
 ODD RAMIFIED DATA|absolute residue action exact kernel|decl|absoluteResidueAlgAction_ker
 ODD RAMIFIED DATA|absolute residue quotient equals action image|decl|absoluteInertiaQuotientEquivResidueRange
 ODD RAMIFIED DATA|absolute residue surjectivity iff finite lifts|decl|absoluteResidueAlgAction_surjective_iff_finite_lifts
+ODD RAMIFIED DATA|absolute residue square Frobenius lift|decl|AbsoluteResidueFrobeniusLift
+ODD RAMIFIED DATA|absolute residue surjectivity iff Frobenius lift|decl|absoluteResidueAlgAction_surjective_iff_frobeniusLift
+ODD RAMIFIED DATA|absolute residue Frobenius iff odd-root squaring|decl|squaresOddRootsOfUnity_iff_residueFrobenius
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups

@@ -1021,6 +1021,7 @@ import GQ2.Dyadic.Instances.RamifiedCertificateQurZhatFrobeniusComparison
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueFiniteFrobenius
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueAlgebraicClosure
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueExactSequence
+import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueFrobeniusLift
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex
