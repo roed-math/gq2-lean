@@ -194,6 +194,8 @@ CORRECTED RN SELECTOR BOUNDARY|M0 pivot iff pointwise Artin value|decl|m0FieldPi
 CORRECTED RN SELECTOR BOUNDARY|M0 transported D character is intrinsic|decl|m0FieldDCharacter_congr_oriented
 CORRECTED RN SELECTOR BOUNDARY|M0 intrinsic uniformizer D placement|decl|M0UniformizerDPlacement
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from intrinsic uniformizer data|decl|m0RowResidualRN_of_familySelection_of_intrinsic_uniformizer_data
+CORRECTED RN SELECTOR BOUNDARY|M0 Artin value as exact quadratic non-norm|decl|exists_kummerRepresentative_m0UniformizerArtinBoundary
+CORRECTED RN SELECTOR BOUNDARY|M0 Artin value from unramified Kummer realization|decl|m0UniformizerArtinCompatibility_of_nuUrUnramifiedKummerClass
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN ANALYTIC|Mpc arbitrary-h ramified compact phase|decl|hessRelZ_mpcW_ramified_compactPhase
@@ -248,6 +250,8 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle D-defect absorption|decl|MpcOneHan
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift from defect absorption|decl|mpcPivShiftH_two_one_of_compact_DDefectAbsorption
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle equation-only absorption|decl|MpcOneHandleDAbsorbable
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle lift-choice obstruction|decl|exists_nonabsorbable_with_same_lift_gen_row
+CORRECTED RN SELECTOR BOUNDARY|Mpc balanced finite-class one-handle shift|decl|mpcPivShiftH_two_one_of_balanced_forall_class
+CORRECTED RN SELECTOR BOUNDARY|Mpc fixed-C graded bracket residual|decl|FixedCRelativeBracketSurjective
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -319,6 +323,9 @@ ODD RAMIFIED DATA|nuTq is the pro-two projection|decl|maxProPMk_qurQEquivZhat_qM
 ODD RAMIFIED DATA|absolute unramified Frobenius coordinate|decl|AbsoluteUnramifiedFrobeniusCoordinate
 ODD RAMIFIED DATA|absolute residue field algebraic over F2|decl|absoluteResidueField_isAlgebraic
 ODD RAMIFIED DATA|finite residue Frobenius powers generate|decl|finiteResidue_frobeniusPowers_bijective
+ODD RAMIFIED DATA|absolute residue field algebraically closed|decl|absoluteResidueField_isAlgClosed
+ODD RAMIFIED DATA|absolute residue field is algebraic closure|decl|absoluteResidueField_isAlgClosure
+ODD RAMIFIED DATA|global absolute residue square Frobenius|decl|absoluteResidueFrobenius
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
