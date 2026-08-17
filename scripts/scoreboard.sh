@@ -190,6 +190,7 @@ CORRECTED RN SELECTOR BOUNDARY|M0 pivot from uniformizer D and Artin-Kummer|decl
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from uniformizer D and Artin-Kummer|decl|m0RowResidualRN_of_familySelection_of_uniformizerD_artin
 CORRECTED RN SELECTOR BOUNDARY|M0 pointwise uniformizer Artin residual|decl|M0UniformizerArtinCompatibility
 CORRECTED RN SELECTOR BOUNDARY|M0 selected residual from pointwise Artin value|decl|m0RowResidualRN_of_familySelection_of_uniformizerD_artinValue
+CORRECTED RN SELECTOR BOUNDARY|M0 pivot iff pointwise Artin value|decl|m0FieldPivotUnit_iff_uniformizerArtinValue
 CORRECTED RN TIED|Mpc residual (from determinant)|decl|mpcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Mpc endpoint (from determinant)|decl|mpc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN ANALYTIC|Mpc arbitrary-h ramified compact phase|decl|hessRelZ_mpcW_ramified_compactPhase
@@ -229,6 +230,10 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true digit-or-odd-shear criterion|dec
 CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true adjusted digit|decl|mpc_familySelection_true_rankFour_exists_digit
 CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true exact pivot|decl|mpc_familySelection_true_rankFour_exists_exactPivot
 CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true rank-four residual|decl|mpcRowResidualRN_of_familySelection_true_rankFour
+CORRECTED RN SELECTOR BOUNDARY|Mpc general-h odd-shear shift|decl|MpcPivShiftH
+CORRECTED RN SELECTOR CLOSED|Mpc rank-four general shift|decl|mpcPivShiftH_two_zero
+CORRECTED RN SELECTOR BOUNDARY|Mpc general-h epsilon-true residual from shift|decl|mpcRowResidualRN_of_familySelection_true_of_shiftH
+CORRECTED RN SELECTOR BOUNDARY|Mpc unit scaling preserves exact pivot|decl|exactPivot_comp_iff_of_unit_C
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -286,6 +291,10 @@ ODD RAMIFIED DATA|2-primary kernel is larger than full inertia|decl|ker_nuTq_not
 ODD RAMIFIED DATA|full inertia iff qMkQ-kernel|decl|tame_mem_inertiaPartQ_iff_qMkQ_eq_one
 ODD RAMIFIED DATA|odd-root action factors through qMkQ|decl|OddRootActionFactorsThroughQurAt
 ODD RAMIFIED DATA|residue lift from qMkQ action factorization|decl|compatibleResidueLiftAt_of_oddRootActionFactorsThroughQur
+ODD RAMIFIED DATA|canonical absolute residue action|decl|absoluteResidueAction
+ODD RAMIFIED DATA|absolute inertia iff residue trivial|decl|mem_absoluteInertiaSubgroup_iff_isResidueTrivial_bot
+ODD RAMIFIED DATA|oriented full tame inertia containment|decl|OrientedFullTameInertiaLiesInAbsoluteInertiaAt
+ODD RAMIFIED DATA|residue lift from canonical absolute inertia|decl|compatibleResidueLiftAt_of_orientedFullTameInertiaInAbsoluteInertia
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
@@ -302,6 +311,10 @@ ODD RAMIFIED DATA|tame unit full-inertia refinement|decl|TameUnitInertiaRefineme
 ODD RAMIFIED DATA|prescribed relative-unramified residual|decl|AnchoredTameInertiaRelativeUnramifiedDataAt
 ODD RAMIFIED DATA|relative unramified iff spectral equal norms|decl|anchoredTameInertiaRelativeUnramifiedDataAt_iff_equalNormValues
 ODD RAMIFIED DATA|equal norms from prescribed unramified field|decl|anchoredInvolutionEqualNormValueGroupsAt_of_prescribedTameUnramified
+ODD RAMIFIED DATA|unit spectral reciprocity residual|decl|AnchoredUnitSpectralReciprocity
+ODD RAMIFIED DATA|instance-aware full-inertia unit refinement|decl|TameUnitInertiaRefinementAt
+ODD RAMIFIED DATA|prescribed unramified field from spectral reciprocity|decl|anchoredTameInertiaRelativeUnramifiedDataAt_of_unitSpectralReciprocity
+ODD RAMIFIED DATA|equal norms from unit spectral reciprocity|decl|anchoredInvolutionEqualNormValueGroupsAt_of_unitSpectralReciprocity
 ODD RAMIFIED DATA|compatible ramified Gauss residue|decl|gaussZResidueDK_ramified_compatible
 ODD RAMIFIED DATA|compatible affine determinant|decl|affineDeterminant_galK_compatible
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
