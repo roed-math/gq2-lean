@@ -305,6 +305,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc relative shift range equals four-coordinate spa
 CORRECTED RN SELECTOR CLOSED|Mpc four constrained coordinate row formulas|decl|oneHandleBalancedCoreRelativeShiftA_apply
 CORRECTED RN SELECTOR BOUNDARY|Mpc four-coordinate target-span supply|decl|OneHandleBalancedCoreCoordinateSpanSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from coordinate span)|decl|mpcPivShiftH_two_one_of_balancedCoordinateSpan
+CORRECTED RN SELECTOR CLOSED|Mpc constrained coordinate span lies in raw shift span|decl|oneHandleBalancedCoreCoordinateAmbientSpan_le_rawShiftSpan
+CORRECTED RN SELECTOR CLOSED|Mpc finite balanced coordinate cokernel|decl|OneHandleBalancedCoreCoordinateCokernel
+CORRECTED RN SELECTOR BOUNDARY|Mpc balanced coordinate obstruction vanishing|decl|OneHandleBalancedCoreCoordinateObstructionVanishing
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift (from coordinate obstruction)|decl|mpcPivShiftH_two_one_of_balancedCoordinateObstruction
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
