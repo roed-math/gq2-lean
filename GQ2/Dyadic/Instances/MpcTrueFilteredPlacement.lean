@@ -23,9 +23,10 @@ if and only if the current digit is already one or such an odd shear exists.  Th
 is independent of which base equivalence is used because its left side is existential over the
 whole orbit.
 
-The repository's open `MpcPivShift 2` supplies the odd shear uniformly, but no unconditional
-producer of that shift is known.  Thus the selector, norm, lambda, and exact kernel APIs reduce
-the true branch to this orbit problem; they do not solve it.
+The predicate `MpcPivShift 2` supplies the odd shear uniformly.  The later M6 theorem
+`MpcMk.mpcMk_pivShift` proves that predicate unconditionally; the separate final consumer lives
+downstream of this reduction module.  Thus this file identifies the exact orbit mechanism, while
+the downstream composition closes it.
 -/
 
 namespace GQ2.Dyadic.Instances.MpcTrueFilteredPlacement
@@ -55,7 +56,7 @@ def MpcOddShearOrbit
             m * toAdd (nu (dmC 2 0)) + 2 * y * toAdd (nu (dmB 2 0)) ∧
           y = 1 + 2 * w
 
-/-- The unresolved uniform `M6` shift supplies an odd shear for every marking. -/
+/-- The uniform `M6` shift supplies an odd shear for every marking. -/
 theorem mpcOddShearOrbit_of_shift (hshift : MpcPivShift 2)
     (nu : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2])) :
     MpcOddShearOrbit nu := by

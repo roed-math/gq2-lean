@@ -226,6 +226,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true full-schema counterexample|decl|
 CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true exact B row|decl|mpc_familySelection_true_rankFour_B_exact
 CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true exact kernel from B square|decl|mpc_familySelection_true_rankFour_B_sq_exactKernel
 CORRECTED RN SELECTOR BOUNDARY|Mpc epsilon-true digit-or-odd-shear criterion|decl|mpc_familySelection_true_rankFour_exists_digit_iff
+CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true adjusted digit|decl|mpc_familySelection_true_rankFour_exists_digit
+CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true exact pivot|decl|mpc_familySelection_true_rankFour_exists_exactPivot
+CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true rank-four residual|decl|mpcRowResidualRN_of_familySelection_true_rankFour
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -280,6 +283,9 @@ ODD RAMIFIED DATA|full-inertia residue-action residual|decl|TameFullInertiaAbsol
 ODD RAMIFIED DATA|residue lift from full tame inertia|decl|compatibleResidueLiftAt_of_fullInertia
 ODD RAMIFIED DATA|selected tau odd-root residual|decl|TameTauFixesOddRootsLiftAt
 ODD RAMIFIED DATA|2-primary kernel is larger than full inertia|decl|ker_nuTq_not_le_inertiaPartQ
+ODD RAMIFIED DATA|full inertia iff qMkQ-kernel|decl|tame_mem_inertiaPartQ_iff_qMkQ_eq_one
+ODD RAMIFIED DATA|odd-root action factors through qMkQ|decl|OddRootActionFactorsThroughQurAt
+ODD RAMIFIED DATA|residue lift from qMkQ action factorization|decl|compatibleResidueLiftAt_of_oddRootActionFactorsThroughQur
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
@@ -291,6 +297,11 @@ ODD RAMIFIED DATA|anchored tame-inertia visible range index|decl|anchoredTameIne
 ODD RAMIFIED DATA|relative ramification divides visible range index|decl|anchoredTameInertiaField_relE_dvd_relIndex_range
 ODD RAMIFIED DATA|odd tame-range index residual|decl|AnchoredTameInertiaOddRangeIndexAt
 ODD RAMIFIED DATA|equal norms from odd tame-range index|decl|anchoredInvolutionEqualNormValueGroupsAt_of_oddTameRangeIndex
+ODD RAMIFIED DATA|prescribed quotient kills full inertia|decl|inertiaPartQ_le_comap_zpowers_tqTau
+ODD RAMIFIED DATA|tame unit full-inertia refinement|decl|TameUnitInertiaRefinement
+ODD RAMIFIED DATA|prescribed relative-unramified residual|decl|AnchoredTameInertiaRelativeUnramifiedDataAt
+ODD RAMIFIED DATA|relative unramified iff spectral equal norms|decl|anchoredTameInertiaRelativeUnramifiedDataAt_iff_equalNormValues
+ODD RAMIFIED DATA|equal norms from prescribed unramified field|decl|anchoredInvolutionEqualNormValueGroupsAt_of_prescribedTameUnramified
 ODD RAMIFIED DATA|compatible ramified Gauss residue|decl|gaussZResidueDK_ramified_compatible
 ODD RAMIFIED DATA|compatible affine determinant|decl|affineDeterminant_galK_compatible
 LEGACY ASK (COMPAT ONLY)|frozen: surviving Prop|decl|askCStageVanishing
