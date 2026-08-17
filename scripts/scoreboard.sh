@@ -267,6 +267,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc balanced fixed-C neutral absorber|decl|oneHan
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle universal row lift|decl|exists_rowCorrectedLift
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle fibre Frattini independence|decl|oneHandleModTwoIndep_of_fibers
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle balanced seed|decl|exists_oneHandleBalancedSeed
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle core word starts in lambda2|decl|mWord_mem_two
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle defect starts in lambda2|decl|oneHandleDDefect_mem_two
+CORRECTED RN SELECTOR CLOSED|Mpc balanced finite sets nonempty through depth two|decl|oneHandleBalancedSet_nonempty_of_le_two
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
