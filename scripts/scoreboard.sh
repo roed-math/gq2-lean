@@ -240,6 +240,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc general-h shift iff full relator marking|decl
 CORRECTED RN SELECTOR BOUNDARY|Mpc standard-handle extension|decl|MpcStandardHandleExtension
 CORRECTED RN SELECTOR BOUNDARY|Mpc compact shift stabilization|decl|MpcPivShiftStandardStabilization
 CORRECTED RN SELECTOR BOUNDARY|Mpc general-h shift from standard stabilization|decl|mpcPivShiftH_of_standardStabilization
+CORRECTED RN SELECTOR BOUNDARY|Mpc standard D-defect absorption|decl|MpcStandardDDefectAbsorption
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle D-defect absorption|decl|MpcOneHandleDDefectAbsorption
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle shift from defect absorption|decl|mpcPivShiftH_two_one_of_compact_DDefectAbsorption
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
@@ -306,6 +309,9 @@ ODD RAMIFIED DATA|compatible gamma endpoint from residue-compatible tame quotien
 ODD RAMIFIED DATA|absolute unramified quotient comparison|decl|OrientedAbsoluteUnramifiedQuotientComparison
 ODD RAMIFIED DATA|full tame kernel equals absolute inertia|decl|fullTameInertia_comap_eq_absoluteInertiaK
 ODD RAMIFIED DATA|residue lift from quotient comparison|decl|compatibleResidueLiftAt
+ODD RAMIFIED DATA|full unramified quotient is Zhat|decl|qurQEquivZhat
+ODD RAMIFIED DATA|nuTq is the pro-two projection|decl|maxProPMk_qurQEquivZhat_qMkQ
+ODD RAMIFIED DATA|absolute unramified Frobenius coordinate|decl|AbsoluteUnramifiedFrobeniusCoordinate
 ODD RAMIFIED DATA|canonical anchored involution field|decl|anchoredInvolutionField
 ODD RAMIFIED DATA|anchored equal-norm residual|decl|AnchoredInvolutionEqualNormValueGroupsAt
 ODD RAMIFIED DATA|involution packet from equal norms|decl|anchoredInvolutionFieldDataAt_of_equalNormValueGroups
