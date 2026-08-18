@@ -532,6 +532,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc explicit one-handle W4 correction|decl|oneHandl
 CORRECTED RN SELECTOR CLOSED|Mpc direct one-handle fifth stage is nonempty|decl|oneHandleDirectSet_five_nonempty
 CORRECTED RN SELECTOR CLOSED|Mpc W4 direct augmented rank does not jump|decl|oneHandleW4Mark_augmentedTranspose_finrank_eq
 CORRECTED RN SELECTOR CLOSED|Mpc W4 direct target row coefficients|decl|oneHandleW4Mark_targetRowCoefficients
+CORRECTED RN SELECTOR CLOSED|Mpc exact one-handle W5 class-six defect|decl|oneHandleW5Mark_defect_six
+CORRECTED RN SELECTOR CLOSED|Mpc W5 correction target is explicit|decl|oneHandleW5_target_value
+CORRECTED RN SELECTOR CLOSED|Mpc W5 correctability iff no rank jump|decl|oneHandleW5Correctable_iff_finrank_eq
+CORRECTED RN SELECTOR BOUNDARY|Mpc explicit W5-to-W6 correction|decl|OneHandleW5Correctable
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
