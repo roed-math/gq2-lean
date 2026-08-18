@@ -1035,6 +1035,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleDirectAugmentedTranspose
 import GQ2.Dyadic.Instances.MpcOneHandleDirectRankTest
 import GQ2.Dyadic.Instances.MpcOneHandleDirectImageRank
 import GQ2.Dyadic.Instances.MpcOneHandleDirectFinrank
+import GQ2.Dyadic.Instances.MpcOneHandleDirectRankJump
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

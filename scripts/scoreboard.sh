@@ -502,6 +502,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff equal finranks|decl|nonem
 CORRECTED RN SELECTOR CLOSED|Mpc unequal finranks detect failure|decl|directTargetTransposeDetected_iff_finrank_ne
 CORRECTED RN SELECTOR BOUNDARY|Mpc augmented-transpose finrank supply|decl|OneHandleDirectAugmentedTransposeFinrankSupply
 CORRECTED RN SELECTOR CLOSED|Mpc augmented finranks give shift|decl|mpcPivShiftH_two_one_of_augmentedTransposeFinranks
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate rank is at most augmented rank|decl|coordinateTransposeRank_le_augmentedTransposeRank
+CORRECTED RN SELECTOR CLOSED|Mpc augmented rank rises by at most one|decl|augmentedTransposeRank_le_coordinateTransposeRank_add_one
+CORRECTED RN SELECTOR CLOSED|Mpc augmented rank has zero-or-one jump|decl|augmentedTransposeRank_eq_or_eq_add_one
+CORRECTED RN SELECTOR CLOSED|Mpc direct obstruction iff rank jumps by one|decl|directTargetTransposeDetected_iff_finrank_jump_one
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
