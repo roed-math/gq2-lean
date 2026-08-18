@@ -360,6 +360,10 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from relative coverage and t
 CORRECTED RN SELECTOR CLOSED|Mpc parity image fills iff full digit image fills|decl|oneHandleBalancedCoreNeutralityParityRow_range_eq_top_iff
 CORRECTED RN SELECTOR BOUNDARY|Mpc parity interaction supply|decl|OneHandleBalancedCoreNeutralityParitySupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from relative coverage and parity|decl|mpcPivShiftH_two_one_of_balancedRelative_and_parity
+CORRECTED RN SELECTOR CLOSED|Mpc parity plane detected by three scalar characters|decl|paritySubgroup_eq_top_iff_characterMaps
+CORRECTED RN SELECTOR CLOSED|Mpc parity failure iff a scalar annihilates every CABD row|decl|oneHandleBalancedCoreNeutralityParityRow_ne_top_iff_scalarAnnihilator
+CORRECTED RN SELECTOR BOUNDARY|Mpc three-character neutrality supply|decl|OneHandleBalancedCoreNeutralityCharacterSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from relative coverage and characters|decl|mpcPivShiftH_two_one_of_balancedRelative_and_characters
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied

@@ -1005,6 +1005,7 @@ import GQ2.Dyadic.Instances.MpcBalancedNeutralityHandleCoordinates
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityCoordinateCokernel
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityCoordinateGenerators
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityParity
+import GQ2.Dyadic.Instances.MpcBalancedNeutralityDual
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
