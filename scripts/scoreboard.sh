@@ -364,6 +364,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc parity plane detected by three scalar character
 CORRECTED RN SELECTOR CLOSED|Mpc parity failure iff a scalar annihilates every CABD row|decl|oneHandleBalancedCoreNeutralityParityRow_ne_top_iff_scalarAnnihilator
 CORRECTED RN SELECTOR BOUNDARY|Mpc three-character neutrality supply|decl|OneHandleBalancedCoreNeutralityCharacterSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from relative coverage and characters|decl|mpcPivShiftH_two_one_of_balancedRelative_and_characters
+CORRECTED RN SELECTOR CLOSED|Mpc next balanced stage iff one selected target is covered|decl|oneHandleBalancedSet_succ_nonempty_iff_exists_coordinateSpan
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected coordinate-span supply|decl|OneHandleBalancedCoreCoordinateSelectableSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected relative and three-character supply|decl|OneHandleBalancedCoreRelativeCharacterSelectableSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from selected character points|decl|mpcPivShiftH_two_one_of_selectableCharacters
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
