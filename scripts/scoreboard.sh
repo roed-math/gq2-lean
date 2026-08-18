@@ -579,6 +579,11 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-hom triviality|decl|On
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven compact-kernel range coverage|decl|OneHandleCompactKernelCovered
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting trivial iff range covered|decl|compactConnectingTrivial_iff_range_le_relaxed
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven finite connecting-value set|decl|compactConnectingValues
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact-kernel F2 transpose|decl|oneHandleCompactKernelTranspose
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting transpose vanishing|decl|OneHandleCompactKernelTransposeVanishing
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting trivial iff transpose kernels equal|decl|compactConnectingTrivial_iff_transpose_ker_eq
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact augmented transpose rank|decl|oneHandleCompactAugmentedTransposeRank
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting trivial iff transpose ranks equal|decl|compactConnectingTrivial_iff_transpose_finrank_eq
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant

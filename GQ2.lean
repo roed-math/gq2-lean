@@ -1062,6 +1062,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleClassSevenFinitePacket
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactCostFiber
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingHom
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingCriterion
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingTranspose
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
