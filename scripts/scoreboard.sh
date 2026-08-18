@@ -388,6 +388,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc nonzero mod-four coefficients split into nine d
 CORRECTED RN SELECTOR BOUNDARY|Mpc finite nine-direction target detector|decl|OneHandleBalancedCoreTargetDirectionCaseDetected
 CORRECTED RN SELECTOR CLOSED|Mpc nine-direction detector iff selected coordinate failure|decl|targetDirectionCaseDetected_iff_not_coordinateSpan
 CORRECTED RN SELECTOR CLOSED|Mpc next-stage emptiness iff pointwise nine-direction obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_directionCaseObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc parity target nonmembership iff one of three characters detects|decl|parityTarget_not_mem_iff_directionCharacter
+CORRECTED RN SELECTOR CLOSED|Mpc even direction detector iff target parity misses interaction range|decl|parityDirectionDetected_iff_targetParity_not_mem
+CORRECTED RN SELECTOR BOUNDARY|Mpc primitive order-four target case|decl|OneHandleBalancedCoreTargetPrimitiveCaseDetected
+CORRECTED RN SELECTOR BOUNDARY|Mpc parity-visible target case|decl|OneHandleBalancedCoreTargetParityCaseDetected
+CORRECTED RN SELECTOR CLOSED|Mpc selected coordinate failure iff primitive or parity case|decl|target_not_coordinateSpan_iff_primitive_or_parity
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
