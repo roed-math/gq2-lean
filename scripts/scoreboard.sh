@@ -476,6 +476,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc coordinate F2 vanishing iff correction exists|d
 CORRECTED RN SELECTOR CLOSED|Mpc coordinate F2 detector iff no correction|decl|directTargetCoordinateF2Detected_iff_no_correction
 CORRECTED RN SELECTOR BOUNDARY|Mpc coordinate F2 target-vanishing supply|decl|OneHandleDirectTargetCoordinateF2VanishingSupply
 CORRECTED RN SELECTOR CLOSED|Mpc coordinate F2 dual gives shift|decl|mpcPivShiftH_two_one_of_directTargetCoordinateF2
+CORRECTED RN SELECTOR CLOSED|Mpc direct transpose kernel equals four equations|decl|coordinateTranspose_eq_zero_iff_rowsAnnihilate
+CORRECTED RN SELECTOR CLOSED|Mpc transpose target vanishing iff correction exists|decl|directTargetTransposeVanishing_iff_nonempty_correction
+CORRECTED RN SELECTOR CLOSED|Mpc transpose detector iff no correction|decl|directTargetTransposeDetected_iff_no_correction
+CORRECTED RN SELECTOR BOUNDARY|Mpc transpose target-vanishing supply|decl|OneHandleDirectTargetTransposeVanishingSupply
+CORRECTED RN SELECTOR CLOSED|Mpc transpose target vanishing gives shift|decl|mpcPivShiftH_two_one_of_directTargetTranspose
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
