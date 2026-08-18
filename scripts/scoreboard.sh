@@ -496,6 +496,12 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff equal image ranks|decl|no
 CORRECTED RN SELECTOR CLOSED|Mpc unequal image ranks detect failure|decl|directTargetTransposeDetected_iff_rangeCard_ne
 CORRECTED RN SELECTOR BOUNDARY|Mpc augmented-transpose image-rank supply|decl|OneHandleDirectAugmentedTransposeImageRankSupply
 CORRECTED RN SELECTOR CLOSED|Mpc augmented image ranks give shift|decl|mpcPivShiftH_two_one_of_augmentedTransposeImageRanks
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate transpose image cardinality from finrank|decl|coordinateTranspose_rangeCard_eq_pow_rank
+CORRECTED RN SELECTOR CLOSED|Mpc augmented transpose image cardinality from finrank|decl|augmentedTranspose_rangeCard_eq_pow_rank
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff equal finranks|decl|nonempty_directCorrection_iff_augmentedTranspose_finrank_eq
+CORRECTED RN SELECTOR CLOSED|Mpc unequal finranks detect failure|decl|directTargetTransposeDetected_iff_finrank_ne
+CORRECTED RN SELECTOR BOUNDARY|Mpc augmented-transpose finrank supply|decl|OneHandleDirectAugmentedTransposeFinrankSupply
+CORRECTED RN SELECTOR CLOSED|Mpc augmented finranks give shift|decl|mpcPivShiftH_two_one_of_augmentedTransposeFinranks
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
