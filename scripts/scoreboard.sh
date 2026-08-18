@@ -374,6 +374,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc target-character selection iff balanced success
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from target characters|decl|mpcPivShiftH_two_one_of_targetCharacters
 CORRECTED RN SELECTOR CLOSED|Mpc target detected iff selected coordinate failure|decl|targetCharacterDetected_iff_not_coordinateSpan
 CORRECTED RN SELECTOR CLOSED|Mpc next-stage emptiness iff pointwise character obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_characterObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc mod-four plane characters have two coefficients|decl|exists_eq_oneHandleZModFourPlaneCharacter
+CORRECTED RN SELECTOR BOUNDARY|Mpc finite target-coefficient detector|decl|OneHandleBalancedCoreTargetCoefficientDetected
+CORRECTED RN SELECTOR CLOSED|Mpc coefficient detector iff character detector|decl|targetCoefficientDetected_iff_characterDetected
+CORRECTED RN SELECTOR CLOSED|Mpc coefficient detector iff selected coordinate failure|decl|targetCoefficientDetected_iff_not_coordinateSpan
+CORRECTED RN SELECTOR CLOSED|Mpc next-stage emptiness iff pointwise coefficient obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_coefficientObstruction
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
