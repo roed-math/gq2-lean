@@ -1013,6 +1013,7 @@ import GQ2.Dyadic.Instances.MpcBalancedTargetCharacterCoordinates
 import GQ2.Dyadic.Instances.MpcBalancedTargetCharacterDot
 import GQ2.Dyadic.Instances.MpcBalancedTargetDirectionCases
 import GQ2.Dyadic.Instances.MpcBalancedTargetParityDirections
+import GQ2.Dyadic.Instances.MpcBalancedTargetParityCoverage
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

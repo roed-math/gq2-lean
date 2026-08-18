@@ -393,6 +393,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc even direction detector iff target parity misse
 CORRECTED RN SELECTOR BOUNDARY|Mpc primitive order-four target case|decl|OneHandleBalancedCoreTargetPrimitiveCaseDetected
 CORRECTED RN SELECTOR BOUNDARY|Mpc parity-visible target case|decl|OneHandleBalancedCoreTargetParityCaseDetected
 CORRECTED RN SELECTOR CLOSED|Mpc selected coordinate failure iff primitive or parity case|decl|target_not_coordinateSpan_iff_primitive_or_parity
+CORRECTED RN SELECTOR BOUNDARY|Mpc selected target parity coverage|decl|OneHandleBalancedCoreTargetParityCovered
+CORRECTED RN SELECTOR CLOSED|Mpc target parity coverage is lift-independent|decl|targetParityCovered_preimage_iff
+CORRECTED RN SELECTOR CLOSED|Mpc parity case iff target parity coverage fails|decl|targetParityCaseDetected_iff_not_parityCovered
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate failure iff primitive or parity coverage fails|decl|target_not_coordinateSpan_iff_primitive_or_not_parityCovered
+CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
