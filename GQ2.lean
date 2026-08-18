@@ -1027,6 +1027,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleDirectFiniteSpan
 import GQ2.Dyadic.Instances.MpcOneHandleDirectCoordinateSpan
 import GQ2.Dyadic.Instances.MpcOneHandleDirectCokernel
 import GQ2.Dyadic.Instances.MpcOneHandleDirectCharacters
+import GQ2.Dyadic.Instances.MpcOneHandleDirectF2Dual
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
