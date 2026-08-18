@@ -528,6 +528,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc next direct stage iff some row coefficients exi
 CORRECTED RN SELECTOR CLOSED|Mpc selectable correction iff direct successor|decl|selectableCorrectionSupply_iff_successorSupply
 CORRECTED RN SELECTOR CLOSED|Mpc selectable finranks iff direct successor|decl|selectableFinrankSupply_iff_successorSupply
 CORRECTED RN SELECTOR CLOSED|Mpc selectable row coefficients iff direct successor|decl|selectableRowCoefficientSupply_iff_successorSupply
+CORRECTED RN SELECTOR CLOSED|Mpc explicit one-handle W4 correction|decl|oneHandleW4Correction
+CORRECTED RN SELECTOR CLOSED|Mpc direct one-handle fifth stage is nonempty|decl|oneHandleDirectSet_five_nonempty
+CORRECTED RN SELECTOR CLOSED|Mpc W4 direct augmented rank does not jump|decl|oneHandleW4Mark_augmentedTranspose_finrank_eq
+CORRECTED RN SELECTOR CLOSED|Mpc W4 direct target row coefficients|decl|oneHandleW4Mark_targetRowCoefficients
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
