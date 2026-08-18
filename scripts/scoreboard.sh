@@ -522,6 +522,12 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc selectable zero-finrank-jump supply|decl|OneH
 CORRECTED RN SELECTOR BOUNDARY|Mpc selectable row-coefficient supply|decl|OneHandleDirectSelectableRowCoefficientSupply
 CORRECTED RN SELECTOR CLOSED|Mpc selectable row coefficients iff finranks|decl|selectableRowCoefficientSupply_iff_selectableFinrankSupply
 CORRECTED RN SELECTOR CLOSED|Mpc selectable row coefficients give shift|decl|mpcPivShiftH_two_one_of_selectableRowCoefficients
+CORRECTED RN SELECTOR CLOSED|Mpc next direct stage iff some point corrects|decl|oneHandleDirectSet_succ_nonempty_iff_exists_correction
+CORRECTED RN SELECTOR CLOSED|Mpc next direct stage iff some rank jump vanishes|decl|oneHandleDirectSet_succ_nonempty_iff_exists_finrank_eq
+CORRECTED RN SELECTOR CLOSED|Mpc next direct stage iff some row coefficients exist|decl|oneHandleDirectSet_succ_nonempty_iff_exists_rowCoefficients
+CORRECTED RN SELECTOR CLOSED|Mpc selectable correction iff direct successor|decl|selectableCorrectionSupply_iff_successorSupply
+CORRECTED RN SELECTOR CLOSED|Mpc selectable finranks iff direct successor|decl|selectableFinrankSupply_iff_successorSupply
+CORRECTED RN SELECTOR CLOSED|Mpc selectable row coefficients iff direct successor|decl|selectableRowCoefficientSupply_iff_successorSupply
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
