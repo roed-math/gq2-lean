@@ -440,6 +440,13 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct correction preserves independence|decl|o
 CORRECTED RN SELECTOR CLOSED|Mpc direct correction produces successor|decl|OneHandleDirectCorrection.toSuccessor
 CORRECTED RN SELECTOR BOUNDARY|Mpc direct correction supply|decl|OneHandleDirectCorrectionSupply
 CORRECTED RN SELECTOR CLOSED|Mpc direct correction supply gives shift|decl|mpcPivShiftH_two_one_of_direct_correctionSupply
+CORRECTED RN SELECTOR CLOSED|Mpc direct chi-neutral finite coordinate image|decl|oneHandleDirectLambdaImage
+CORRECTED RN SELECTOR CLOSED|Mpc direct finite four-coordinate source|decl|OneHandleDirectLevelCorrection
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff finite equation|decl|nonempty_directCorrection_iff_exists_levelCorrection
+CORRECTED RN SELECTOR CLOSED|Mpc direct finite crossed-derivation homomorphism|decl|oneHandleDirectLevelShiftHom
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff target in finite range|decl|nonempty_directCorrection_iff_target_mem_range
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct finite range supply|decl|OneHandleDirectFiniteRangeSupply
+CORRECTED RN SELECTOR CLOSED|Mpc direct finite range gives shift|decl|mpcPivShiftH_two_one_of_directFiniteRange
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
