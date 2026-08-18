@@ -422,6 +422,12 @@ CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply gives one-handle shift|decl|mp
 CORRECTED RN SELECTOR BOUNDARY|Mpc literal one-of-nine CABD target detector|decl|OneHandleBalancedCoreTargetCABDDetected
 CORRECTED RN SELECTOR CLOSED|Mpc CABD detection iff nine-check failure|decl|targetCABDDetected_iff_not_compatible
 CORRECTED RN SELECTOR CLOSED|Mpc successor failure iff pointwise CABD obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_CABDObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 relator lies in lambda four|decl|oneHandleW4Mark_relator_mem_four
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking is mod-two independent|decl|oneHandleW4Mark_modTwoIndep
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking topologically generates|decl|oneHandleW4Mark_topGen
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking preserves chi|decl|oneHandleW4Mark_chi
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking has C plus two B row|decl|oneHandleW4Mark_C_row
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 static seed packet|decl|oneHandleW4Mark_seed
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
