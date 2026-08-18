@@ -1038,6 +1038,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleDirectFinrank
 import GQ2.Dyadic.Instances.MpcOneHandleDirectRankJump
 import GQ2.Dyadic.Instances.MpcOneHandleDirectRowSpan
 import GQ2.Dyadic.Instances.MpcOneHandleDirectRowCoefficients
+import GQ2.Dyadic.Instances.MpcOneHandleDirectSelectable
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

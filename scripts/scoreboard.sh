@@ -516,6 +516,12 @@ CORRECTED RN SELECTOR CLOSED|Mpc scalar row coefficients iff correction|decl|tar
 CORRECTED RN SELECTOR CLOSED|Mpc scalar row coefficients iff no rank jump|decl|targetRowCoefficients_iff_no_finrank_jump
 CORRECTED RN SELECTOR BOUNDARY|Mpc direct target row-coefficient supply|decl|OneHandleDirectTargetRowCoefficientSupply
 CORRECTED RN SELECTOR CLOSED|Mpc target row coefficients give shift|decl|mpcPivShiftH_two_one_of_targetRowCoefficients
+CORRECTED RN SELECTOR BOUNDARY|Mpc selectable direct correction supply|decl|OneHandleDirectSelectableCorrectionSupply
+CORRECTED RN SELECTOR CLOSED|Mpc selectable correction gives direct successor|decl|directSuccessorSupply_of_selectableCorrectionSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc selectable zero-finrank-jump supply|decl|OneHandleDirectSelectableFinrankSupply
+CORRECTED RN SELECTOR BOUNDARY|Mpc selectable row-coefficient supply|decl|OneHandleDirectSelectableRowCoefficientSupply
+CORRECTED RN SELECTOR CLOSED|Mpc selectable row coefficients iff finranks|decl|selectableRowCoefficientSupply_iff_selectableFinrankSupply
+CORRECTED RN SELECTOR CLOSED|Mpc selectable row coefficients give shift|decl|mpcPivShiftH_two_one_of_selectableRowCoefficients
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
