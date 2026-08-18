@@ -458,6 +458,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct coordinate cokernel is finite|decl|oneHa
 CORRECTED RN SELECTOR CLOSED|Mpc direct obstruction vanishes iff target is spanned|decl|oneHandleDirectCoordinateObstruction_eq_one_iff
 CORRECTED RN SELECTOR BOUNDARY|Mpc direct finite obstruction vanishing|decl|OneHandleDirectCoordinateObstructionVanishing
 CORRECTED RN SELECTOR CLOSED|Mpc direct obstruction vanishing gives shift|decl|mpcPivShiftH_two_one_of_directCoordinateObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc direct characters vanish iff correction exists|decl|directTargetCharacterVanishing_iff_nonempty_correction
+CORRECTED RN SELECTOR CLOSED|Mpc direct detecting character iff no correction|decl|directTargetCharacterDetected_iff_no_correction
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct target-character vanishing supply|decl|OneHandleDirectTargetCharacterVanishingSupply
+CORRECTED RN SELECTOR CLOSED|Mpc direct target characters give shift|decl|mpcPivShiftH_two_one_of_directTargetCharacters
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
