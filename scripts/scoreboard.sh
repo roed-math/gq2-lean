@@ -414,6 +414,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc parity coverage iff scalar CABD compatibility|d
 CORRECTED RN SELECTOR BOUNDARY|Mpc six primitive target CABD implications|decl|OneHandleBalancedCoreTargetPrimitiveCABDCompatible
 CORRECTED RN SELECTOR CLOSED|Mpc primitive detection iff primitive CABD failure|decl|targetPrimitiveCaseDetected_iff_not_CABDCompatible
 CORRECTED RN SELECTOR CLOSED|Mpc target span iff nine scalar CABD implications|decl|target_mem_coordinateSpan_iff_parity_and_primitive_CABD
+CORRECTED RN SELECTOR BOUNDARY|Mpc stagewise nine-CABD selectable supply|decl|OneHandleBalancedCoreTargetCABDSelectableSupply
+CORRECTED RN SELECTOR CLOSED|Mpc successor iff a nine-CABD target exists|decl|oneHandleBalancedSet_succ_nonempty_iff_exists_targetCABD
+CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply iff coordinate supply|decl|targetCABDSelectableSupply_iff_coordinateSelectableSupply
+CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply gives every finite stage|decl|oneHandleBalancedSet_nonempty_all_of_targetCABDSelectable
+CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply gives one-handle shift|decl|mpcPivShiftH_two_one_of_targetCABDSelectable
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant

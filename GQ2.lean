@@ -1018,6 +1018,7 @@ import GQ2.Dyadic.Instances.MpcBalancedTargetParityObstruction
 import GQ2.Dyadic.Instances.MpcBalancedTargetParityDual
 import GQ2.Dyadic.Instances.MpcBalancedTargetParityCABD
 import GQ2.Dyadic.Instances.MpcBalancedTargetPrimitiveCABD
+import GQ2.Dyadic.Instances.MpcBalancedTargetCABDSelectable
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
