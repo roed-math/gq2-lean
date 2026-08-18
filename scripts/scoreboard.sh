@@ -447,6 +447,13 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct finite crossed-derivation homomorphism|d
 CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff target in finite range|decl|nonempty_directCorrection_iff_target_mem_range
 CORRECTED RN SELECTOR BOUNDARY|Mpc direct finite range supply|decl|OneHandleDirectFiniteRangeSupply
 CORRECTED RN SELECTOR CLOSED|Mpc direct finite range gives shift|decl|mpcPivShiftH_two_one_of_directFiniteRange
+CORRECTED RN SELECTOR CLOSED|Mpc direct finite range equals four-row span|decl|oneHandleDirectLevelShift_range_eq_coordinateSpan
+CORRECTED RN SELECTOR CLOSED|Mpc direct A square-and-two-brackets row|decl|oneHandleDirectShiftA_apply
+CORRECTED RN SELECTOR CLOSED|Mpc direct B bracket row|decl|oneHandleDirectShiftB_apply
+CORRECTED RN SELECTOR CLOSED|Mpc direct C bracket row|decl|oneHandleDirectShiftC_apply
+CORRECTED RN SELECTOR CLOSED|Mpc direct D bracket row|decl|oneHandleDirectShiftD_apply
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct four-row coordinate span supply|decl|OneHandleDirectCoordinateSpanSupply
+CORRECTED RN SELECTOR CLOSED|Mpc direct coordinate span gives shift|decl|mpcPivShiftH_two_one_of_directCoordinateSpan
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
