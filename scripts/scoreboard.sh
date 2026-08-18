@@ -573,6 +573,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc W6 finite compact obstruction-value set|decl|co
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 finite compact identity-value criterion|decl|one_mem_compactPacketObstructionValues_iff
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact packet has fixed raw cost|decl|compactRawCost_eq_defect
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact packet differences lie in cost kernel|decl|compactRawDifference_mem_costKernel
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact-kernel connecting hom|decl|oneHandleCompactConnectingHom
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven packet obstruction cocycle|decl|relativeObstruction_eq_connecting_inv_mul
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-hom triviality|decl|OneHandleCompactConnectingTrivial
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
