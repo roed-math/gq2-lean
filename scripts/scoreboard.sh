@@ -604,6 +604,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven finite connecting fiber|decl|comp
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting fiber nonempty iff ordinary solvable|decl|compactConnectingFiber_nonempty_iff
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven finite full correction candidates|decl|compactFullCorrectionCandidates
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven full candidate set nonempty iff W6 correctable|decl|compactFullCorrectionCandidates_nonempty_iff
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral connecting hom|decl|oneHandleCompactNeutralConnectingHom
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven finite neutral connecting values|decl|compactNeutralConnectingValues
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full solvability iff neutral value lies in image|decl|oneHandleW6Correctable_iff_neutrality_mem_connectingValues
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
