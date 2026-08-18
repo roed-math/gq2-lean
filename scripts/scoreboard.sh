@@ -554,6 +554,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc W6-to-W7 relative residual criterion|decl|one
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6-to-W7 finite relative range criterion|decl|oneHandleW6Correctable_iff_exists_relativeCorrectable
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 relative shift homomorphism|decl|oneHandleW6RelativeShiftHom
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 relative target range membership|decl|relativeCorrectable_iff_target_mem_range
+CORRECTED RN SELECTOR CLOSED|Mpc W6 relative shift is standard-base shift|decl|oneHandleW6RelativeShiftHom_eq_standard
+CORRECTED RN SELECTOR CLOSED|Mpc W6 relative range is four standard rows|decl|oneHandleStandardRelativeShift_range_eq_coordinateSpan
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6 relative target is relaxed coverage plus neutral C|decl|relativeCorrectable_iff_relaxed_and_neutrality
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
