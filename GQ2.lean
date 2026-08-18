@@ -1065,6 +1065,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingCriterion
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingTranspose
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactObstructionCoset
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingRealization
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactConnectingTarget
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

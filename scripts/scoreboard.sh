@@ -590,6 +590,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc class-seven packet set equals coset iff image r
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven every connecting value is legally realized|decl|compactConnectingRealizedAt
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven packet obstruction set is connecting coset|decl|compactPacketObstructionValues_eq_connectingCoset
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven solvability iff reference obstruction in connecting image|decl|ordinaryRelativeSolvable_iff_obstruction_mem_connectingValues
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting-image F2 transpose|decl|oneHandleCompactConnectingImageTranspose
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-target transpose vanishing|decl|OneHandleCompactConnectingTargetTransposeVanishing
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven solvability iff connecting-target transpose kernels equal|decl|ordinaryRelativeSolvable_iff_connectingTarget_ker_eq
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
