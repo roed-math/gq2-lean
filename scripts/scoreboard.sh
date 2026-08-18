@@ -428,6 +428,12 @@ CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking topologically generates|d
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking preserves chi|decl|oneHandleW4Mark_chi
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 marking has C plus two B row|decl|oneHandleW4Mark_C_row
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle W4 static seed packet|decl|oneHandleW4Mark_seed
+CORRECTED RN SELECTOR CLOSED|Mpc direct one-handle fourth stage is nonempty|decl|oneHandleDirectSet_four_nonempty
+CORRECTED RN SELECTOR CLOSED|Mpc direct one-handle stages are closed|decl|oneHandleDirectSet_isClosed
+CORRECTED RN SELECTOR CLOSED|Mpc direct finite stages give one-handle shift|decl|mpcPivShiftH_two_one_of_direct_finite_stages
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct one-handle successor supply|decl|OneHandleDirectSuccessorSupply
+CORRECTED RN SELECTOR CLOSED|Mpc direct successor gives every finite stage|decl|oneHandleDirectSet_nonempty_all
+CORRECTED RN SELECTOR CLOSED|Mpc direct successor gives one-handle shift|decl|mpcPivShiftH_two_one_of_direct_successor
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
