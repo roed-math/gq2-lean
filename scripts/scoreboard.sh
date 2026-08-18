@@ -559,6 +559,8 @@ CORRECTED RN SELECTOR CLOSED|Mpc W6 relative range is four standard rows|decl|on
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 relative target is relaxed coverage plus neutral C|decl|relativeCorrectable_iff_relaxed_and_neutrality
 CORRECTED RN SELECTOR CLOSED|Mpc W6 ordinary relative span has four F2 rows|decl|standardRelativeRowsAnnihilate_iff_spanAnnihilates
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 ordinary relative target transpose|decl|standardRelativeTargetTransposeVanishing_iff_target_mem_relaxed
+CORRECTED RN SELECTOR CLOSED|Mpc W6 ordinary relative target vanishing iff equal kernels|decl|standardRelativeTargetTransposeVanishing_iff_ker_eq
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6 ordinary relative target iff no F2 rank jump|decl|standardRelativeTarget_mem_relaxed_iff_finrank_eq
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
