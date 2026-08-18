@@ -471,6 +471,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc ambient F2 vanishing iff correction exists|decl
 CORRECTED RN SELECTOR CLOSED|Mpc ambient F2 detector iff no correction|decl|directTargetAmbientF2Detected_iff_no_correction
 CORRECTED RN SELECTOR BOUNDARY|Mpc ambient F2 target-vanishing supply|decl|OneHandleDirectTargetAmbientF2VanishingSupply
 CORRECTED RN SELECTOR CLOSED|Mpc ambient F2 dual gives shift|decl|mpcPivShiftH_two_one_of_directTargetAmbientF2
+CORRECTED RN SELECTOR CLOSED|Mpc four coordinate rows equal span annihilation|decl|coordinateRowsAnnihilate_iff_spanAnnihilates
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate F2 vanishing iff correction exists|decl|directTargetCoordinateF2Vanishing_iff_nonempty_correction
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate F2 detector iff no correction|decl|directTargetCoordinateF2Detected_iff_no_correction
+CORRECTED RN SELECTOR BOUNDARY|Mpc coordinate F2 target-vanishing supply|decl|OneHandleDirectTargetCoordinateF2VanishingSupply
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate F2 dual gives shift|decl|mpcPivShiftH_two_one_of_directTargetCoordinateF2
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
