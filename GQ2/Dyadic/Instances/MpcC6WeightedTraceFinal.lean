@@ -32,6 +32,10 @@ open GQ2.Dyadic.Instances.MpcMkC6
 def evalList {Q : Type*} [Group Q] (M : Model Q) (xs : List CWord) : Q :=
   (xs.map (eval M.val)).prod
 
+/-- Evaluate a list of certificate words without assuming the marked relator. -/
+def evalListDeep {Q : Type*} [Group Q] (M : DeepModel Q) (xs : List CWord) : Q :=
+  (xs.map (eval M.val)).prod
+
 theorem eval_rightProduct {Q : Type*} [Group Q] (M : Model Q) :
     ∀ xs, eval M.val (MpcC6WeightedTracePrefix.rightProduct xs) = evalList M xs := by
   intro xs
@@ -48,9 +52,30 @@ theorem eval_rightProduct {Q : Type*} [Group Q] (M : Model Q) :
             eval M.val x * evalList M (y :: ys)
           rw [ih]
 
+theorem eval_rightProductDeep {Q : Type*} [Group Q] (M : DeepModel Q) :
+    ∀ xs, eval M.val (MpcC6WeightedTracePrefix.rightProduct xs) = evalListDeep M xs := by
+  intro xs
+  induction xs with
+  | nil => rfl
+  | cons x xs ih =>
+      cases xs with
+      | nil =>
+          simp only [MpcC6WeightedTracePrefix.rightProduct, evalListDeep, List.map_cons,
+            List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+      | cons y ys =>
+          change eval M.val x *
+              eval M.val (MpcC6WeightedTracePrefix.rightProduct (y :: ys)) =
+            eval M.val x * evalListDeep M (y :: ys)
+          rw [ih]
+
 theorem evalList_append {Q : Type*} [Group Q] (M : Model Q) (xs ys : List CWord) :
     evalList M (xs ++ ys) = evalList M xs * evalList M ys := by
   simp only [evalList, List.map_append, List.prod_append]
+
+theorem evalListDeep_append {Q : Type*} [Group Q] (M : DeepModel Q)
+    (xs ys : List CWord) :
+    evalListDeep M (xs ++ ys) = evalListDeep M xs * evalListDeep M ys := by
+  simp only [evalListDeep, List.map_append, List.prod_append]
 
 private theorem commute_of_commP_eq_one {Q : Type*} [Group Q] {a b : Q}
     (h : commP a b = 1) : Commute a b := by
@@ -65,6 +90,14 @@ private theorem commute_of_commP_eq_one {Q : Type*} [Group Q] {a b : Q}
     _ = b * a := by rw [hc]
 
 private theorem top_commute {Q : Type*} [Group Q] (M : Model Q)
+    (x y : CWord) (hx : 5 ≤ x.depth) (hy : 5 ≤ y.depth) :
+    Commute (eval M.val x) (eval M.val y) := by
+  apply commute_of_commP_eq_one
+  simpa only [eval] using M.deep (.comm x y) (by
+    simp only [depth]
+    omega)
+
+private theorem top_commuteDeep {Q : Type*} [Group Q] (M : DeepModel Q)
     (x y : CWord) (hx : 5 ≤ x.depth) (hy : 5 ≤ y.depth) :
     Commute (eval M.val x) (eval M.val y) := by
   apply commute_of_commP_eq_one
@@ -88,6 +121,22 @@ theorem evalList_perm {Q : Type*} [Group Q] (M : Model Q) {xs ys : List CWord}
   | trans hp hq ihp ihq =>
       exact (ihp hxs).trans (ihq fun z hz => hxs z (hp.symm.mem_iff.mp hz))
 
+theorem evalListDeep_perm {Q : Type*} [Group Q] (M : DeepModel Q)
+    {xs ys : List CWord} (hxs : ∀ x ∈ xs, 5 ≤ x.depth) (hp : xs.Perm ys) :
+    evalListDeep M xs = evalListDeep M ys := by
+  induction hp with
+  | nil => rfl
+  | cons x hp ih =>
+      simp only [evalListDeep, List.map_cons, List.prod_cons]
+      change eval M.val x * evalListDeep M _ = eval M.val x * evalListDeep M _
+      rw [ih (fun z hz => hxs z (List.mem_cons_of_mem x hz))]
+  | swap x y l =>
+      simp only [evalListDeep, List.map_cons, List.prod_cons]
+      rw [← mul_assoc,
+        (top_commuteDeep M y x (hxs y (by simp)) (hxs x (by simp))).eq, mul_assoc]
+  | trans hp hq ihp ihq =>
+      exact (ihp hxs).trans (ihq fun z hz => hxs z (hp.symm.mem_iff.mp hz))
+
 def pairs : List CWord → List CWord
   | [] => []
   | x :: xs => x :: x :: pairs xs
@@ -102,6 +151,20 @@ theorem evalList_pairs {Q : Type*} [Group Q] (M : Model Q) (xs : List CWord)
           simp only [depth]
           exact Nat.succ_le_succ (hxs x (by simp)))
       change eval M.val x * (eval M.val x * evalList M (pairs xs)) = 1
+      rw [← mul_assoc, ← pow_two, hx, one_mul]
+      exact ih (fun z hz => hxs z (List.mem_cons_of_mem x hz))
+
+theorem evalListDeep_pairs {Q : Type*} [Group Q] (M : DeepModel Q)
+    (xs : List CWord) (hxs : ∀ x ∈ xs, 5 ≤ x.depth) :
+    evalListDeep M (pairs xs) = 1 := by
+  induction xs with
+  | nil => rfl
+  | cons x xs ih =>
+      have hx : eval M.val x ^ 2 = 1 := by
+        simpa only [eval] using M.deep (.sq x) (by
+          simp only [depth]
+          exact Nat.succ_le_succ (hxs x (by simp)))
+      change eval M.val x * (eval M.val x * evalListDeep M (pairs xs)) = 1
       rw [← mul_assoc, ← pow_two, hx, one_mul]
       exact ih (fun z hz => hxs z (List.mem_cons_of_mem x hz))
 
@@ -13048,6 +13111,8 @@ private def endpointPairBases : List CWord :=
 
 private theorem endpointTrace_checked : endpointTrace.check = true := by decide
 
+private theorem endpointTrace_noRel : endpointTrace.noRel = true := by decide
+
 private theorem endpointTrace_sound :
     eval dmModel.val endpointTrace.lhs = eval dmModel.val endpointTrace.rhs :=
   Deriv.sound dmModel endpointTrace endpointTrace_checked
@@ -13090,6 +13155,20 @@ private theorem eval_endpoint_eq_canonical :
     _ = evalList dmModel canonicalEndpointFactors :=
       eval_rightProduct dmModel canonicalEndpointFactors
 
+private theorem eval_endpoint_eq_canonical_noRel {Q : Type*} [Group Q]
+    (M : DeepModel Q) :
+    eval M.val MpcC6WeightedRelationSupport.endpoint =
+      evalListDeep M canonicalEndpointFactors := by
+  calc
+    _ = eval M.val endpointTrace.lhs := by rw [endpointTrace_lhs]
+    _ = eval M.val endpointTrace.rhs :=
+      Deriv.soundNoRel M endpointTrace endpointTrace_checked endpointTrace_noRel
+    _ = eval M.val
+        (MpcC6WeightedTracePrefix.rightProduct canonicalEndpointFactors) := by
+      rw [endpointTrace_rhs]
+    _ = evalListDeep M canonicalEndpointFactors :=
+      eval_rightProductDeep M canonicalEndpointFactors
+
 private theorem eval_canonicalEndpointFactors_eq_support :
     evalList dmModel canonicalEndpointFactors = evalList dmModel endpointSupport := by
   calc
@@ -13103,6 +13182,21 @@ private theorem eval_canonicalEndpointFactors_eq_support :
       rw [evalList_pairs dmModel endpointPairBases
         (depth_of_all endpointPairBases endpointPairBases_all_depth_five)]
     _ = evalList dmModel endpointSupport := mul_one _
+
+private theorem eval_canonicalEndpointFactors_eq_support_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    evalListDeep M canonicalEndpointFactors = evalListDeep M endpointSupport := by
+  calc
+    _ = evalListDeep M (endpointSupport ++ pairs endpointPairBases) :=
+      evalListDeep_perm M
+        (depth_of_all canonicalEndpointFactors
+          canonicalEndpointFactors_all_depth_ge_five) endpoint_perm
+    _ = evalListDeep M endpointSupport * evalListDeep M (pairs endpointPairBases) :=
+      evalListDeep_append M endpointSupport (pairs endpointPairBases)
+    _ = evalListDeep M endpointSupport * 1 := by
+      rw [evalListDeep_pairs M endpointPairBases
+        (depth_of_all endpointPairBases endpointPairBases_all_depth_five)]
+    _ = evalListDeep M endpointSupport := mul_one _
 
 /-! Each selected relation row below is independently checker-replayed. -/
 
@@ -59255,6 +59349,112 @@ structure CheckedRow where
   factors : List CWord
   kill : evalList dmModel factors = 1
 
+private def rowSpecValid (p : Deriv × List CWord) : Bool :=
+  p.1.check && p.1.noRel &&
+    decide (p.1.lhs = MpcC6WeightedTracePrefix.rightProduct p.2) &&
+    decide (p.1.rhs = (.one : CWord))
+
+private def rowSpecsBlock0 : List (Deriv × List CWord) :=
+  [ (rowTrace0, rowFactors0), (rowTrace1, rowFactors1),
+    (rowTrace2, rowFactors2), (rowTrace3, rowFactors3),
+    (rowTrace4, rowFactors4), (rowTrace5, rowFactors5),
+    (rowTrace6, rowFactors6), (rowTrace7, rowFactors7) ]
+
+private def rowSpecsBlock1 : List (Deriv × List CWord) :=
+  [ (rowTrace8, rowFactors8), (rowTrace9, rowFactors9),
+    (rowTrace10, rowFactors10), (rowTrace11, rowFactors11),
+    (rowTrace12, rowFactors12), (rowTrace13, rowFactors13),
+    (rowTrace14, rowFactors14), (rowTrace15, rowFactors15) ]
+
+private def rowSpecsBlock2 : List (Deriv × List CWord) :=
+  [ (rowTrace16, rowFactors16), (rowTrace17, rowFactors17),
+    (rowTrace18, rowFactors18), (rowTrace19, rowFactors19),
+    (rowTrace20, rowFactors20), (rowTrace21, rowFactors21),
+    (rowTrace22, rowFactors22), (rowTrace23, rowFactors23) ]
+
+private def rowSpecsBlock3 : List (Deriv × List CWord) :=
+  [ (rowTrace24, rowFactors24), (rowTrace25, rowFactors25),
+    (rowTrace26, rowFactors26), (rowTrace27, rowFactors27),
+    (rowTrace28, rowFactors28), (rowTrace29, rowFactors29),
+    (rowTrace30, rowFactors30), (rowTrace31, rowFactors31) ]
+
+private def rowSpecsBlock4 : List (Deriv × List CWord) :=
+  [ (rowTrace32, rowFactors32), (rowTrace33, rowFactors33),
+    (rowTrace34, rowFactors34), (rowTrace35, rowFactors35),
+    (rowTrace36, rowFactors36), (rowTrace37, rowFactors37),
+    (rowTrace38, rowFactors38), (rowTrace39, rowFactors39) ]
+
+private def rowSpecsBlock5 : List (Deriv × List CWord) :=
+  [ (rowTrace40, rowFactors40), (rowTrace41, rowFactors41),
+    (rowTrace42, rowFactors42), (rowTrace43, rowFactors43),
+    (rowTrace44, rowFactors44), (rowTrace45, rowFactors45),
+    (rowTrace46, rowFactors46), (rowTrace47, rowFactors47) ]
+
+private def rowSpecsBlock6 : List (Deriv × List CWord) :=
+  [ (rowTrace48, rowFactors48), (rowTrace49, rowFactors49),
+    (rowTrace50, rowFactors50), (rowTrace51, rowFactors51),
+    (rowTrace52, rowFactors52), (rowTrace53, rowFactors53),
+    (rowTrace54, rowFactors54), (rowTrace55, rowFactors55) ]
+
+private def rowSpecsBlock7 : List (Deriv × List CWord) :=
+  [ (rowTrace56, rowFactors56), (rowTrace57, rowFactors57),
+    (rowTrace58, rowFactors58), (rowTrace59, rowFactors59),
+    (rowTrace60, rowFactors60), (rowTrace61, rowFactors61),
+    (rowTrace62, rowFactors62), (rowTrace63, rowFactors63) ]
+
+private def rowSpecsBlock8 : List (Deriv × List CWord) :=
+  [ (rowTrace64, rowFactors64) ]
+
+private theorem rowSpecsBlock0_valid : rowSpecsBlock0.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock1_valid : rowSpecsBlock1.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock2_valid : rowSpecsBlock2.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock3_valid : rowSpecsBlock3.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock4_valid : rowSpecsBlock4.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock5_valid : rowSpecsBlock5.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock6_valid : rowSpecsBlock6.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock7_valid : rowSpecsBlock7.all rowSpecValid = true := by decide
+private theorem rowSpecsBlock8_valid : rowSpecsBlock8.all rowSpecValid = true := by decide
+
+private def rowSpecs : List (Deriv × List CWord) :=
+  rowSpecsBlock0 ++ rowSpecsBlock1 ++ rowSpecsBlock2 ++ rowSpecsBlock3 ++
+    rowSpecsBlock4 ++ rowSpecsBlock5 ++ rowSpecsBlock6 ++ rowSpecsBlock7 ++
+    rowSpecsBlock8
+
+private theorem rowSpecs_valid : rowSpecs.all rowSpecValid = true := by
+  simp only [rowSpecs, List.all_append, rowSpecsBlock0_valid, rowSpecsBlock1_valid,
+    rowSpecsBlock2_valid, rowSpecsBlock3_valid, rowSpecsBlock4_valid,
+    rowSpecsBlock5_valid, rowSpecsBlock6_valid, rowSpecsBlock7_valid,
+    rowSpecsBlock8_valid, Bool.true_and]
+
+private theorem eval_rowSpec {Q : Type*} [Group Q] (M : DeepModel Q)
+    (p : Deriv × List CWord) (hp : rowSpecValid p = true) :
+    evalListDeep M p.2 = 1 := by
+  rcases p with ⟨t, fs⟩
+  simp only [rowSpecValid] at hp ⊢
+  have h0 := Bool.and_eq_true_iff.mp hp
+  have h1 := Bool.and_eq_true_iff.mp h0.1
+  have h2 := Bool.and_eq_true_iff.mp h1.1
+  have hlhs : t.lhs = MpcC6WeightedTracePrefix.rightProduct fs :=
+    of_decide_eq_true h1.2
+  have hrhs : t.rhs = (.one : CWord) := of_decide_eq_true h0.2
+  calc
+    evalListDeep M fs =
+        eval M.val (MpcC6WeightedTracePrefix.rightProduct fs) :=
+      (eval_rightProductDeep M fs).symm
+    _ = eval M.val t.lhs := by rw [hlhs]
+    _ = eval M.val t.rhs := Deriv.soundNoRel M t h2.1 h2.2
+    _ = 1 := by rw [hrhs]; rfl
+
+private theorem eval_rowSpecs {Q : Type*} [Group Q] (M : DeepModel Q)
+    (ps : List (Deriv × List CWord)) (hp : ps.all rowSpecValid = true) :
+    evalListDeep M (ps.flatMap Prod.snd) = 1 := by
+  induction ps with
+  | nil => rfl
+  | cons p ps ih =>
+      have hs := Bool.and_eq_true_iff.mp hp
+      rw [List.flatMap_cons, evalListDeep_append, eval_rowSpec M p hs.1,
+        ih hs.2, one_mul]
+
 private def checkedRows : List CheckedRow :=
   [ ⟨rowFactors0, rowTrace0_kill⟩, ⟨rowFactors1, rowTrace1_kill⟩,
     ⟨rowFactors2, rowTrace2_kill⟩, ⟨rowFactors3, rowTrace3_kill⟩,
@@ -59352,6 +59552,9 @@ private theorem relationPairBases_all_depth_five :
 private theorem checkedRows_factors :
     checkedRows.flatMap CheckedRow.factors = relationOccurrences := by decide
 
+private theorem rowSpecs_factors :
+    rowSpecs.flatMap Prod.snd = relationOccurrences := by decide
+
 private theorem eval_checkedRows (rs : List CheckedRow) :
     evalList dmModel (rs.flatMap CheckedRow.factors) = 1 := by
   induction rs with
@@ -59362,6 +59565,11 @@ private theorem eval_checkedRows (rs : List CheckedRow) :
 theorem eval_relationOccurrences_eq_one : evalList dmModel relationOccurrences = 1 := by
   rw [← checkedRows_factors]
   exact eval_checkedRows checkedRows
+
+theorem eval_relationOccurrences_eq_one_noRel {Q : Type*} [Group Q]
+    (M : DeepModel Q) : evalListDeep M relationOccurrences = 1 := by
+  rw [← rowSpecs_factors]
+  exact eval_rowSpecs M rowSpecs rowSpecs_valid
 
 private def relationOrder0 : List CWord :=
   [ w240, w236, w247, w167, w257,
@@ -63265,14 +63473,47 @@ private theorem eval_relationOccurrences_eq_support :
         (depth_of_all relationPairBases relationPairBases_all_depth_five)]
     _ = evalList dmModel endpointSupport := mul_one _
 
+private theorem eval_relationOccurrences_eq_support_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    evalListDeep M relationOccurrences = evalListDeep M endpointSupport := by
+  calc
+    _ = evalListDeep M (endpointSupport ++ pairs relationPairBases) :=
+      evalListDeep_perm M
+        (depth_of_all relationOccurrences relationOccurrences_all_depth_ge_five)
+        relation_perm
+    _ = evalListDeep M endpointSupport * evalListDeep M (pairs relationPairBases) :=
+      evalListDeep_append M endpointSupport (pairs relationPairBases)
+    _ = evalListDeep M endpointSupport * 1 := by
+      rw [evalListDeep_pairs M relationPairBases
+        (depth_of_all relationPairBases relationPairBases_all_depth_five)]
+    _ = evalListDeep M endpointSupport := mul_one _
+
 theorem eval_endpointSupport_eq_one : evalList dmModel endpointSupport = 1 := by
   rw [← eval_relationOccurrences_eq_support]
   exact eval_relationOccurrences_eq_one
+
+theorem eval_endpointSupport_eq_one_noRel {Q : Type*} [Group Q]
+    (M : DeepModel Q) : evalListDeep M endpointSupport = 1 := by
+  rw [← eval_relationOccurrences_eq_support_noRel M]
+  exact eval_relationOccurrences_eq_one_noRel M
 
 theorem eval_endpoint_eq_one :
     eval dmModel.val MpcC6WeightedRelationSupport.endpoint = 1 :=
   eval_endpoint_eq_canonical.trans
     (eval_canonicalEndpointFactors_eq_support.trans eval_endpointSupport_eq_one)
+
+theorem eval_endpoint_eq_one_noRel {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val MpcC6WeightedRelationSupport.endpoint = 1 :=
+  eval_endpoint_eq_canonical_noRel M |>.trans
+    (eval_canonicalEndpointFactors_eq_support_noRel M |>.trans
+      (eval_endpointSupport_eq_one_noRel M))
+
+theorem eval_certificateWord_mul_relationProduct_eq_one_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val (.mul MpcC6WeightedCertificate.Bridge.certificateWord
+      MpcC6WeightedRelationSupport.relationProduct) = 1 :=
+  MpcC6WeightedRelationSupport.eval_certificateWord_mul_relationProduct_eq_endpoint_noRel M
+    |>.trans (eval_endpoint_eq_one_noRel M)
 
 theorem eval_certificateWord_eq_one :
     eval dmModel.val MpcC6WeightedCertificate.Bridge.certificateWord = 1 :=
@@ -63288,6 +63529,9 @@ theorem mpcMkC6_fullSupply :
   mpcMkC6_fullSupply_of_certificateKill mpcMkC6_certificateKill
 
 #print axioms relationTraces_all_checked
+#print axioms eval_relationOccurrences_eq_one_noRel
+#print axioms eval_endpoint_eq_one_noRel
+#print axioms eval_certificateWord_mul_relationProduct_eq_one_noRel
 #print axioms canonicalEndpointFactors_all_depth_five
 #print axioms endpointSupport_all_depth_five
 #print axioms relationOccurrences_all_depth_five

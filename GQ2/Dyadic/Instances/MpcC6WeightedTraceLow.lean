@@ -2218,9 +2218,48 @@ theorem eval_certificateWord_eq_endpoint :
   MpcC6WeightedTracePrefix.eval_certificateWord_eq_endpoint.trans
     eval_prefix_endpoint_eq_endpoint
 
+private def checkedLowBlock0 : Deriv :=
+  Deriv.chain [trace0, trace1, trace2, trace3, trace4, trace5, trace6, trace7]
+
+private def checkedLowBlock1 : Deriv :=
+  Deriv.chain [trace8, trace9, trace10, trace11, trace12, trace13, trace14, trace15]
+
+private def checkedLowBlock2 : Deriv :=
+  Deriv.chain [trace16, trace17, trace18, trace19, trace20, trace21, trace22, trace23]
+
+private def checkedLowBlock3 : Deriv := Deriv.chain [trace24]
+
+private def checkedLowChain : Deriv :=
+  Deriv.chain [checkedLowBlock0, checkedLowBlock1, checkedLowBlock2, checkedLowBlock3]
+
+private theorem checkedLowChain_checked : checkedLowChain.check = true := by decide
+
+private theorem checkedLowChain_noRel : checkedLowChain.noRel = true := by decide
+
+private theorem checkedLowChain_lhs :
+    checkedLowChain.lhs = MpcC6WeightedTracePrefix.endpoint := by decide
+
+private theorem checkedLowChain_rhs : checkedLowChain.rhs = endpoint := by decide
+
+/-- The low-weight collection uses no presentation relation. -/
+theorem eval_prefix_endpoint_eq_endpoint_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val MpcC6WeightedTracePrefix.endpoint = eval M.val endpoint := by
+  rw [← checkedLowChain_lhs, ← checkedLowChain_rhs]
+  exact Deriv.soundNoRel M checkedLowChain checkedLowChain_checked checkedLowChain_noRel
+
+/-- The complete low-weight prefix is relation-free. -/
+theorem eval_certificateWord_eq_endpoint_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val MpcC6WeightedCertificate.Bridge.certificateWord = eval M.val endpoint :=
+  (MpcC6WeightedTracePrefix.eval_certificateWord_eq_endpoint_noRel M).trans
+    (eval_prefix_endpoint_eq_endpoint_noRel M)
+
 #print axioms checkedLowTrace_all_checked
 #print axioms endpointFactors_all_depth_five
 #print axioms eval_prefix_endpoint_eq_endpoint
 #print axioms eval_certificateWord_eq_endpoint
+#print axioms eval_prefix_endpoint_eq_endpoint_noRel
+#print axioms eval_certificateWord_eq_endpoint_noRel
 
 end GQ2.Dyadic.Instances.MpcC6WeightedTraceLow

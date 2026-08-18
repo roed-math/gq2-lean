@@ -535,12 +535,16 @@ CORRECTED RN SELECTOR CLOSED|Mpc W4 direct target row coefficients|decl|oneHandl
 CORRECTED RN SELECTOR CLOSED|Mpc exact one-handle W5 class-six defect|decl|oneHandleW5Mark_defect_six
 CORRECTED RN SELECTOR CLOSED|Mpc W5 correction target is explicit|decl|oneHandleW5_target_value
 CORRECTED RN SELECTOR CLOSED|Mpc W5 correctability iff no rank jump|decl|oneHandleW5Correctable_iff_finrank_eq
-CORRECTED RN SELECTOR BOUNDARY|Mpc explicit W5-to-W6 correction|decl|OneHandleW5Correctable
+CORRECTED RN SELECTOR BOUNDARY|Mpc W5-to-W6 correction interface|decl|OneHandleW5Correctable
 CORRECTED RN SELECTOR CLOSED|Mpc lifted compact C6 factors are legal|decl|oneHandleC6Factors_depth
 CORRECTED RN SELECTOR CLOSED|Mpc lifted compact C6 relator forgets to zero|decl|dmForgetHandles_oneHandleC6Relator_mem
 CORRECTED RN SELECTOR CLOSED|Mpc lifted C6 residual lies in relative layer|decl|oneHandleC6Residual_mem_relativeLayer
 CORRECTED RN SELECTOR CLOSED|Mpc compact C6 candidate kills iff residual vanishes|decl|oneHandleC6CertificateKill_iff_residual_eq_one
 CORRECTED RN SELECTOR BOUNDARY|Mpc compact-lift one-handle C6 certificate|decl|OneHandleC6CertificateKill
+CORRECTED RN SELECTOR CLOSED|Mpc relation-free C6 certificate cancellation|decl|eval_certificateWord_mul_relationProduct_eq_one_noRel
+CORRECTED RN SELECTOR CLOSED|Mpc explicit one-handle W5-to-W6 correction|decl|oneHandleW5ClassSixCorrection
+CORRECTED RN SELECTOR CLOSED|Mpc one-handle W5 marking is correctable|decl|oneHandleW5Correctable
+CORRECTED RN SELECTOR CLOSED|Mpc direct one-handle sixth stage is nonempty|decl|oneHandleDirectSet_six_nonempty
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant

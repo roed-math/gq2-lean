@@ -108,6 +108,16 @@ structure Model (Q : Type*) [Group Q] where
   rel : eval val mRel = 1
   deep : ∀ w, 6 ≤ w.depth → eval val w = 1
 
+/-- The relation-free part of a class-six model.  This is the exact interface needed by
+derivations which never invoke `Deriv.rel`. -/
+structure DeepModel (Q : Type*) [Group Q] where
+  val : Gen4 → Q
+  deep : ∀ w, 6 ≤ w.depth → eval val w = 1
+
+def Model.toDeepModel {Q : Type*} [Group Q] (M : Model Q) : DeepModel Q where
+  val := M.val
+  deep := M.deep
+
 /-- Any topological group, mapped to its sixth level quotient, supplies the deep-term rule.
 Only the fixed relation remains as an input. -/
 noncomputable def towerModel
@@ -142,13 +152,13 @@ private theorem commute_of_commP_eq_one {Q : Type*} [Group Q] {a b : Q}
     a * b = b * (b⁻¹ * a * b) := by group
     _ = b * a := by rw [hc]
 
-private theorem deep_commute {Q : Type*} [Group Q] (M : Model Q)
+private theorem deep_commute {Q : Type*} [Group Q] (M : DeepModel Q)
     (x y : CWord) (h : 6 ≤ x.depth + y.depth) :
     Commute (eval M.val x) (eval M.val y) := by
   apply commute_of_commP_eq_one
   simpa only [eval] using M.deep (.comm x y) (by simpa only [depth] using h)
 
-private theorem deep_inv_self {Q : Type*} [Group Q] (M : Model Q)
+private theorem deep_inv_self {Q : Type*} [Group Q] (M : DeepModel Q)
     (x : CWord) (h : 5 ≤ x.depth) : (eval M.val x)⁻¹ = eval M.val x := by
   have hs : eval M.val x ^ 2 = 1 := by
     simpa only [eval] using M.deep (.sq x) (by simpa only [depth] using Nat.succ_le_succ h)
@@ -167,7 +177,7 @@ private theorem conj_eq_self_of_commute {Q : Type*} [Group Q] {a b : Q}
     _ = b⁻¹ * (b * a) := by rw [h.eq]
     _ = a := by group
 
-private theorem comm_inv_snd_sound {Q : Type*} [Group Q] (M : Model Q)
+private theorem comm_inv_snd_sound {Q : Type*} [Group Q] (M : DeepModel Q)
     (x y z : CWord) (h : 5 ≤ x.depth + y.depth + z.depth) :
     commP (commP (eval M.val x) (eval M.val y)⁻¹) (eval M.val z) =
       commP (commP (eval M.val x) (eval M.val y)) (eval M.val z) := by
@@ -217,7 +227,7 @@ private theorem hallWitt {Q : Type*} [Group Q] (a b c : Q) :
   simp only [commP]
   group
 
-private theorem jacobi_sound {Q : Type*} [Group Q] (M : Model Q)
+private theorem jacobi_sound {Q : Type*} [Group Q] (M : DeepModel Q)
     (x y z : CWord) (h : 5 ≤ x.depth + y.depth + z.depth) :
     eval M.val (.mul (.mul (.comm (.comm x y) z) (.comm (.comm y z) x))
       (.comm (.comm z x) y)) = 1 := by
@@ -363,6 +373,97 @@ def check : Deriv → Bool
   | .trans d e => d.check && e.check && decide (d.rhs = e.lhs)
   | .mul d e | .comm d e => d.check && e.check
 
+/-- Whether a derivation avoids the presentation-relation rule. -/
+def noRel : Deriv → Bool
+  | .rel => false
+  | .symm d | .inv d | .sq d => d.noRel
+  | .trans d e | .mul d e | .comm d e => d.noRel && e.noRel
+  | _ => true
+
+/-- Compose a nonempty generated trace into one reflected derivation. -/
+def chain : List Deriv → Deriv
+  | [] => .refl .one
+  | [d] => d
+  | d :: ds => .trans d (chain ds)
+
+/-- Soundness for relation-free derivations in an arbitrary class-six deep model. -/
+theorem soundNoRel {Q : Type*} [Group Q] (M : DeepModel Q) :
+    ∀ d : Deriv, d.check = true → d.noRel = true →
+      eval M.val d.lhs = eval M.val d.rhs := by
+  intro d hd hn
+  induction d with
+  | refl w => rfl
+  | deep w => exact M.deep w (of_decide_eq_true hd)
+  | rel => simp [noRel] at hn
+  | symm d ih => exact (ih hd hn).symm
+  | trans d e ihd ihe =>
+      have hs := Bool.and_eq_true_iff.mp hd
+      have hs' := Bool.and_eq_true_iff.mp hs.1
+      have hnr := Bool.and_eq_true_iff.mp hn
+      have hmid : d.rhs = e.lhs := of_decide_eq_true hs.2
+      exact (ihd hs'.1 hnr.1).trans
+        ((congrArg (eval M.val) hmid).trans (ihe hs'.2 hnr.2))
+  | mul d e ihd ihe =>
+      have hs := Bool.and_eq_true_iff.mp hd
+      have hnr := Bool.and_eq_true_iff.mp hn
+      simp only [lhs, rhs, eval]
+      rw [ihd hs.1 hnr.1, ihe hs.2 hnr.2]
+  | inv d ih =>
+      simp only [lhs, rhs, eval]
+      rw [ih hd hn]
+  | sq d ih =>
+      simp only [lhs, rhs, eval]
+      rw [ih hd hn]
+  | comm d e ihd ihe =>
+      have hs := Bool.and_eq_true_iff.mp hd
+      have hnr := Bool.and_eq_true_iff.mp hn
+      simp only [lhs, rhs, eval]
+      rw [ihd hs.1 hnr.1, ihe hs.2 hnr.2]
+  | assoc x y z => simp only [lhs, rhs, eval, mul_assoc]
+  | one_mul x => exact _root_.one_mul (eval M.val x)
+  | mul_one x => exact _root_.mul_one (eval M.val x)
+  | inv_mul x => simp only [lhs, rhs, eval, inv_mul_cancel]
+  | mul_inv x => simp only [lhs, rhs, eval, mul_inv_cancel]
+  | swap x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_mul_left x z y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_mul_right x y z =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | sq_mul x y =>
+      simp only [lhs, rhs, eval, commP, pow_two]
+      group
+  | comm_inv_left x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_inv_right x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_self x =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | inv_sq x =>
+      simp only [lhs, rhs, eval, pow_two]
+      group
+  | inv_comm x y =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | mul_self x => simp only [lhs, rhs, eval, pow_two]
+  | one_comm x =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | comm_one x =>
+      simp only [lhs, rhs, eval, commP]
+      group
+  | sq_one => simp only [lhs, rhs, eval, one_pow]
+  | inv_one =>
+      simp only [lhs, rhs, eval]
+      group
+  | jacobi x y z => exact jacobi_sound M x y z (of_decide_eq_true hd)
+
 /-- Soundness of the reflected derivation checker.  In particular, no result of an external
 collector is trusted: it must be replayed as a `Deriv` whose Boolean check reduces to `true`. -/
 theorem sound {Q : Type*} [Group Q] (M : Model Q) :
@@ -437,7 +538,7 @@ theorem sound {Q : Type*} [Group Q] (M : Model Q) :
   | inv_one =>
       simp only [lhs, rhs, eval]
       group
-  | jacobi x y z => exact jacobi_sound M x y z (of_decide_eq_true hd)
+  | jacobi x y z => exact jacobi_sound M.toDeepModel x y z (of_decide_eq_true hd)
 
 /-! One nontrivial checked derivation: a weight-five term commuted with a generator is erased
 in `Q₆`, and the deletion is valid inside a surrounding product. -/

@@ -14999,9 +14999,69 @@ theorem eval_certificateWord_eq_endpoint :
   rw [← trace0_lhs]
   exact generatedPrefix_sound
 
+private def checkedPrefixBlock0 : Deriv :=
+  Deriv.chain [trace0, trace1, trace2, trace3, trace4, trace5, trace6, trace7]
+
+private def checkedPrefixBlock1 : Deriv :=
+  Deriv.chain [trace8, trace9, trace10, trace11, trace12, trace13, trace14, trace15]
+
+private def checkedPrefixBlock2 : Deriv :=
+  Deriv.chain [trace16, trace17, trace18, trace19, trace20, trace21, trace22, trace23]
+
+private def checkedPrefixBlock3 : Deriv :=
+  Deriv.chain [trace24, trace25, trace26, trace27, trace28, trace29, trace30, trace31]
+
+private def checkedPrefixBlock4 : Deriv :=
+  Deriv.chain [trace32, trace33, trace34, trace35, trace36, trace37, trace38, trace39]
+
+private def checkedPrefixBlock5 : Deriv :=
+  Deriv.chain [trace40, trace41, trace42, trace43, trace44, trace45, trace46, trace47]
+
+private def checkedPrefixBlock6 : Deriv :=
+  Deriv.chain [trace48, trace49, trace50, trace51, trace52, trace53, trace54, trace55]
+
+private def checkedPrefixBlock7 : Deriv :=
+  Deriv.chain [trace56, trace57, trace58, trace59, trace60, trace61, trace62, trace63]
+
+private def checkedPrefixBlock8 : Deriv :=
+  Deriv.chain [trace64, trace65, trace66, trace67, trace68, trace69, trace70, trace71]
+
+private def checkedPrefixBlock9 : Deriv :=
+  Deriv.chain [trace72, trace73, trace74, trace75, trace76, trace77, trace78, trace79]
+
+private def checkedPrefixBlock10 : Deriv :=
+  Deriv.chain [trace80, trace81, trace82, trace83, trace84, trace85, trace86, trace87]
+
+private def checkedPrefixBlock11 : Deriv :=
+  Deriv.chain [trace88, trace89, trace90, trace91]
+
+private def checkedPrefixChain : Deriv :=
+  Deriv.chain [checkedPrefixBlock0, checkedPrefixBlock1, checkedPrefixBlock2,
+    checkedPrefixBlock3, checkedPrefixBlock4, checkedPrefixBlock5,
+    checkedPrefixBlock6, checkedPrefixBlock7, checkedPrefixBlock8,
+    checkedPrefixBlock9, checkedPrefixBlock10, checkedPrefixBlock11]
+
+
+private theorem checkedPrefixChain_checked : checkedPrefixChain.check = true := by decide
+
+private theorem checkedPrefixChain_noRel : checkedPrefixChain.noRel = true := by decide
+
+private theorem checkedPrefixChain_lhs : checkedPrefixChain.lhs = certificateWord := by decide
+
+private theorem checkedPrefixChain_rhs : checkedPrefixChain.rhs = endpoint := by decide
+
+/-- The generated collection prefix uses no presentation relation. -/
+theorem eval_certificateWord_eq_endpoint_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val certificateWord = eval M.val endpoint := by
+  rw [← checkedPrefixChain_lhs, ← checkedPrefixChain_rhs]
+  exact Deriv.soundNoRel M checkedPrefixChain checkedPrefixChain_checked
+    checkedPrefixChain_noRel
+
 #print axioms checkedPrefix_all_checked
 #print axioms endpoint_depthThreeFactors
 #print axioms generatedPrefix_sound
 #print axioms eval_certificateWord_eq_endpoint
+#print axioms eval_certificateWord_eq_endpoint_noRel
 
 end GQ2.Dyadic.Instances.MpcC6WeightedTracePrefix

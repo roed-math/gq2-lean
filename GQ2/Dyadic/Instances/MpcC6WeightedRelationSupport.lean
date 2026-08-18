@@ -3123,6 +3123,23 @@ def relationConsequences : List CWord :=
 def relationProduct : CWord :=
   MpcC6WeightedTracePrefix.rightProduct relationConsequences
 
+/-- The six relation-support factors, exposed without the generated collector names. -/
+theorem eval_relationProduct_shape {Q : Type*} [Group Q] (val : Gen4 → Q) :
+    let R := eval val mRel
+    let K := commP R (val .B)
+    let L := commP R (val .D)
+    eval val relationProduct =
+      K ^ 4 * commP K (val .B) ^ 2 * commP L (val .B) ^ 2 *
+        commP K (val .D) ^ 2 * commP (commP L (val .B)) (val .B) *
+        commP (commP K (val .B)) (val .D) := by
+  simp only [relationProduct, relationConsequences, relSqSqB, relSqBB,
+    relSqDB, relSqBD, relDBB, relBBD,
+    MpcC6WeightedTracePrefix.rightProduct, eval, w362, w364, w367,
+    w369, w361, w366, w360, w27, w28, w23, w26, w25, w21, w22,
+    w20, w24, w0, w7, mRel]
+  norm_num [← pow_mul]
+  group
+
 def expandedRelationFactors : List CWord :=
   [ w70, w71, w78, w99, w100,
     w107, w149, w150, w157, w178,
@@ -3269,6 +3286,51 @@ theorem certificateKill_of_jacobiEndpoint
     eval dmModel.val MpcC6WeightedCertificate.Bridge.certificateWord = 1 :=
   eval_certificateWord_eq_endpoint.trans hJacobi
 
+private def expandChain : Deriv :=
+  Deriv.chain [expandTrace0, expandTrace1, expandTrace2, expandTrace3]
+
+private theorem expandChain_checked : expandChain.check = true := by decide
+
+private theorem expandChain_noRel : expandChain.noRel = true := by decide
+
+private theorem expandChain_lhs : expandChain.lhs = relationProduct := by decide
+
+private theorem expandChain_rhs : expandChain.rhs = expandedRelationProduct := by decide
+
+/-- Expanding the six relation consequences is itself relation-free. -/
+theorem eval_relationProduct_eq_expanded_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val relationProduct = eval M.val expandedRelationProduct := by
+  rw [← expandChain_lhs, ← expandChain_rhs]
+  exact Deriv.soundNoRel M expandChain expandChain_checked expandChain_noRel
+
+private theorem joinTrace_noRel : joinTrace.noRel = true := by decide
+
+/-- Joining the low and relation-support blocks is relation-free. -/
+theorem eval_low_mul_expanded_eq_endpoint_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val (.mul MpcC6WeightedTraceLow.endpoint expandedRelationProduct) =
+      eval M.val endpoint := by
+  rw [← joinTrace_lhs, ← joinTrace_rhs]
+  exact Deriv.soundNoRel M joinTrace joinTrace_checked joinTrace_noRel
+
+/-- Universal checked identity: the compact certificate times its six relation consequences
+is the final Jacobi endpoint. -/
+theorem eval_certificateWord_mul_relationProduct_eq_endpoint_noRel
+    {Q : Type*} [Group Q] (M : DeepModel Q) :
+    eval M.val MpcC6WeightedCertificate.Bridge.certificateWord *
+        eval M.val relationProduct = eval M.val endpoint := by
+  calc
+    _ = eval M.val MpcC6WeightedTraceLow.endpoint *
+        eval M.val relationProduct := by
+      rw [MpcC6WeightedTraceLow.eval_certificateWord_eq_endpoint_noRel M]
+    _ = eval M.val MpcC6WeightedTraceLow.endpoint *
+        eval M.val expandedRelationProduct := by
+      rw [eval_relationProduct_eq_expanded_noRel M]
+    _ = eval M.val
+        (.mul MpcC6WeightedTraceLow.endpoint expandedRelationProduct) := rfl
+    _ = eval M.val endpoint := eval_low_mul_expanded_eq_endpoint_noRel M
+
 #print axioms consequenceTraces_all_checked
 #print axioms relationConsequences_all_depth_five
 #print axioms eval_relSqSqB_eq_one
@@ -3282,5 +3344,8 @@ theorem certificateKill_of_jacobiEndpoint
 #print axioms eval_expandedRelationProduct_eq_one
 #print axioms eval_certificateWord_eq_endpoint
 #print axioms certificateKill_of_jacobiEndpoint
+#print axioms eval_relationProduct_eq_expanded_noRel
+#print axioms eval_low_mul_expanded_eq_endpoint_noRel
+#print axioms eval_certificateWord_mul_relationProduct_eq_endpoint_noRel
 
 end GQ2.Dyadic.Instances.MpcC6WeightedRelationSupport
