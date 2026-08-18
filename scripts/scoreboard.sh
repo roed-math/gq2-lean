@@ -402,6 +402,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc canonical target parity obstruction|decl|oneHan
 CORRECTED RN SELECTOR CLOSED|Mpc parity obstruction is independent of the chosen lift|decl|oneHandleBalancedCoreTargetParityObstruction_eq_mk_of_factor
 CORRECTED RN SELECTOR CLOSED|Mpc target parity coverage iff obstruction vanishes|decl|targetParityCovered_iff_obstruction_eq_one
 CORRECTED RN SELECTOR CLOSED|Mpc coordinate failure iff primitive or parity obstruction|decl|target_not_coordinateSpan_iff_primitive_or_parityObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc parity character value is lift-independent|decl|targetParityCharacter_eq_of_factor_eq
+CORRECTED RN SELECTOR BOUNDARY|Mpc target parity character compatibility|decl|OneHandleBalancedCoreTargetParityCharacterCompatible
+CORRECTED RN SELECTOR CLOSED|Mpc parity obstruction iff one of three characters detects|decl|targetParityObstruction_ne_one_iff_characterDetected
+CORRECTED RN SELECTOR CLOSED|Mpc parity coverage iff all three characters are compatible|decl|targetParityCovered_iff_characterCompatible
+CORRECTED RN SELECTOR CLOSED|Mpc coordinate failure iff primitive or parity character|decl|target_not_coordinateSpan_iff_primitive_or_characterDetected
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
