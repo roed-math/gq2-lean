@@ -565,6 +565,8 @@ CORRECTED RN SELECTOR CLOSED|Mpc W6 ordinary relative augmented rank has two cas
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 ordinary relative failure iff one-bit rank jump|decl|standardRelativeTargetDetected_iff_rankJump_one
 CORRECTED RN SELECTOR CLOSED|Mpc W6 ordinary relative span iff literal row equation|decl|standardRelativeTarget_mem_relaxed_iff_rowEquation
 CORRECTED RN SELECTOR BOUNDARY|Mpc W6 ordinary relative rank jump zero iff row equation|decl|standardRelativeRankJump_zero_iff_rowEquation
+CORRECTED RN SELECTOR CLOSED|Mpc W6 relative target changes by standard shift under relift|decl|relativeTarget_eq_standardShift_inv_mul
+CORRECTED RN SELECTOR CLOSED|Mpc W6 relative rank jump is lift-independent over compact packet|decl|relativeRankJump_eq_of_compactFactors_eq
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant

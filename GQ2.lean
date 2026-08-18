@@ -1056,6 +1056,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeF2
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeRank
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeRankJump
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeEquation
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeLiftIndependence
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
