@@ -368,6 +368,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc next balanced stage iff one selected target is 
 CORRECTED RN SELECTOR BOUNDARY|Mpc selected coordinate-span supply|decl|OneHandleBalancedCoreCoordinateSelectableSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc selected relative and three-character supply|decl|OneHandleBalancedCoreRelativeCharacterSelectableSupply
 CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from selected character points|decl|mpcPivShiftH_two_one_of_selectableCharacters
+CORRECTED RN SELECTOR CLOSED|Mpc target vanishing iff every cokernel character kills it|decl|targetCharacterVanishing_iff_coordinateSpan
+CORRECTED RN SELECTOR BOUNDARY|Mpc target-character selectable supply|decl|OneHandleBalancedCoreTargetCharacterSelectableSupply
+CORRECTED RN SELECTOR CLOSED|Mpc target-character selection iff balanced successor|decl|targetCharacterSelectableSupply_iff_successor
+CORRECTED RN SELECTOR BOUNDARY|Mpc one-handle pivot from target characters|decl|mpcPivShiftH_two_one_of_targetCharacters
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied

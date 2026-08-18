@@ -1007,6 +1007,7 @@ import GQ2.Dyadic.Instances.MpcBalancedNeutralityCoordinateGenerators
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityParity
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityDual
 import GQ2.Dyadic.Instances.MpcBalancedSelectableCharacters
+import GQ2.Dyadic.Instances.MpcBalancedTargetCharacters
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
