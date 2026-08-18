@@ -545,6 +545,15 @@ CORRECTED RN SELECTOR CLOSED|Mpc relation-free C6 certificate cancellation|decl|
 CORRECTED RN SELECTOR CLOSED|Mpc explicit one-handle W5-to-W6 correction|decl|oneHandleW5ClassSixCorrection
 CORRECTED RN SELECTOR CLOSED|Mpc one-handle W5 marking is correctable|decl|oneHandleW5Correctable
 CORRECTED RN SELECTOR CLOSED|Mpc direct one-handle sixth stage is nonempty|decl|oneHandleDirectSet_six_nonempty
+CORRECTED RN SELECTOR CLOSED|Mpc exact one-handle W6 class-seven defect|decl|oneHandleW6Mark_defect_seven
+CORRECTED RN SELECTOR CLOSED|Mpc compact W6 marking has class-seven supply|decl|compactC7_fullSupply
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven pivot factor lifts to one handle|decl|exists_oneHandlePivotLift
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact correction lifts to one handle|decl|exists_oneHandleC7RelativeLift
+CORRECTED RN SELECTOR CLOSED|Mpc lifted class-seven defect is purely relative|decl|OneHandleC7RelativeLift.residual_mem_relativeLayer
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6-to-W7 relative residual criterion|decl|oneHandleW6Correctable_iff_relativeResidual
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6-to-W7 finite relative range criterion|decl|oneHandleW6Correctable_iff_exists_relativeCorrectable
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6 relative shift homomorphism|decl|oneHandleW6RelativeShiftHom
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6 relative target range membership|decl|relativeCorrectable_iff_target_mem_range
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant

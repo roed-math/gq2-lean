@@ -1044,6 +1044,11 @@ import GQ2.Dyadic.Instances.MpcOneHandleClassFiveSeed
 import GQ2.Dyadic.Instances.MpcOneHandleClassSixTarget
 import GQ2.Dyadic.Instances.MpcOneHandleClassSixCompactLift
 import GQ2.Dyadic.Instances.MpcOneHandleClassSixCorrection
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenTarget
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactSupply
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenPivotLift
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeTarget
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeCorrection
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
