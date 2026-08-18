@@ -1022,6 +1022,7 @@ import GQ2.Dyadic.Instances.MpcBalancedTargetCABDSelectable
 import GQ2.Dyadic.Instances.MpcBalancedTargetCABDObstruction
 import GQ2.Dyadic.Instances.MpcOneHandleClassFourSeed
 import GQ2.Dyadic.Instances.MpcOneHandleDirectLimit
+import GQ2.Dyadic.Instances.MpcOneHandleDirectSuccessor
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

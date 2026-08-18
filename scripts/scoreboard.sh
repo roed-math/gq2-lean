@@ -434,6 +434,12 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct finite stages give one-handle shift|decl
 CORRECTED RN SELECTOR BOUNDARY|Mpc direct one-handle successor supply|decl|OneHandleDirectSuccessorSupply
 CORRECTED RN SELECTOR CLOSED|Mpc direct successor gives every finite stage|decl|oneHandleDirectSet_nonempty_all
 CORRECTED RN SELECTOR CLOSED|Mpc direct successor gives one-handle shift|decl|mpcPivShiftH_two_one_of_direct_successor
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct four-core correction|decl|OneHandleDirectCorrection
+CORRECTED RN SELECTOR CLOSED|Mpc direct relator shift formula|decl|oneHandleDirectRelatorShift_eq
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction preserves independence|decl|oneHandleDirectModify_modTwoIndep
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction produces successor|decl|OneHandleDirectCorrection.toSuccessor
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct correction supply|decl|OneHandleDirectCorrectionSupply
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction supply gives shift|decl|mpcPivShiftH_two_one_of_direct_correctionSupply
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
