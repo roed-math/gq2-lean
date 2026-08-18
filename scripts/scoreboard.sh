@@ -569,6 +569,8 @@ CORRECTED RN SELECTOR CLOSED|Mpc W6 relative target changes by standard shift un
 CORRECTED RN SELECTOR CLOSED|Mpc W6 relative rank jump is lift-independent over compact packet|decl|relativeRankJump_eq_of_compactFactors_eq
 CORRECTED RN SELECTOR CLOSED|Mpc W6 relaxed obstruction descends to compact factors mod lambda7|decl|relativeObstruction_eq_of_sameCompactLevelSeven
 CORRECTED RN SELECTOR CLOSED|Mpc W6 row equation descends to compact factors mod lambda7|decl|relativeRowEquation_iff_of_sameCompactLevelSeven
+CORRECTED RN SELECTOR CLOSED|Mpc W6 finite compact obstruction-value set|decl|compactPacketObstructionValues
+CORRECTED RN SELECTOR BOUNDARY|Mpc W6 finite compact identity-value criterion|decl|one_mem_compactPacketObstructionValues_iff
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
