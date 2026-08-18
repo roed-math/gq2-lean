@@ -506,6 +506,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc coordinate rank is at most augmented rank|decl|
 CORRECTED RN SELECTOR CLOSED|Mpc augmented rank rises by at most one|decl|augmentedTransposeRank_le_coordinateTransposeRank_add_one
 CORRECTED RN SELECTOR CLOSED|Mpc augmented rank has zero-or-one jump|decl|augmentedTransposeRank_eq_or_eq_add_one
 CORRECTED RN SELECTOR CLOSED|Mpc direct obstruction iff rank jumps by one|decl|directTargetTransposeDetected_iff_finrank_jump_one
+CORRECTED RN SELECTOR CLOSED|Mpc target row span iff direct correction|decl|targetRowSpan_iff_nonempty_directCorrection
+CORRECTED RN SELECTOR CLOSED|Mpc target row span iff no rank jump|decl|targetRowSpan_iff_no_finrank_jump
+CORRECTED RN SELECTOR CLOSED|Mpc target outside row span iff obstruction|decl|directTargetTransposeDetected_iff_not_rowSpan
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct target row-span supply|decl|OneHandleDirectTargetRowSpanSupply
+CORRECTED RN SELECTOR CLOSED|Mpc target row-span supply gives shift|decl|mpcPivShiftH_two_one_of_targetRowSpan
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
