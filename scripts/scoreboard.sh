@@ -454,6 +454,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc direct C bracket row|decl|oneHandleDirectShiftC
 CORRECTED RN SELECTOR CLOSED|Mpc direct D bracket row|decl|oneHandleDirectShiftD_apply
 CORRECTED RN SELECTOR BOUNDARY|Mpc direct four-row coordinate span supply|decl|OneHandleDirectCoordinateSpanSupply
 CORRECTED RN SELECTOR CLOSED|Mpc direct coordinate span gives shift|decl|mpcPivShiftH_two_one_of_directCoordinateSpan
+CORRECTED RN SELECTOR CLOSED|Mpc direct coordinate cokernel is finite|decl|oneHandleDirectCoordinateCokernel_finite
+CORRECTED RN SELECTOR CLOSED|Mpc direct obstruction vanishes iff target is spanned|decl|oneHandleDirectCoordinateObstruction_eq_one_iff
+CORRECTED RN SELECTOR BOUNDARY|Mpc direct finite obstruction vanishing|decl|OneHandleDirectCoordinateObstructionVanishing
+CORRECTED RN SELECTOR CLOSED|Mpc direct obstruction vanishing gives shift|decl|mpcPivShiftH_two_one_of_directCoordinateObstruction
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
