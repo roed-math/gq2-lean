@@ -1002,6 +1002,7 @@ import GQ2.Dyadic.Instances.MpcBalancedNeutralitySourceQuotient
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityHandleRange
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityHandleZModFour
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityHandleCoordinates
+import GQ2.Dyadic.Instances.MpcBalancedNeutralityCoordinateCokernel
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

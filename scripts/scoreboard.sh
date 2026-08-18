@@ -351,6 +351,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc C-mod-neutral source has cardinality sixteen|de
 CORRECTED RN SELECTOR CLOSED|Mpc handle-coordinate kernel equals neutral range|decl|oneHandleRelativeCCoordinates_ker_eq_neutralRange
 CORRECTED RN SELECTOR CLOSED|Mpc unique deep-handle normal form|decl|existsUnique_deepRelativeClass_mod_neutral
 CORRECTED RN SELECTOR BOUNDARY|Mpc CABD obstruction in explicit handle coordinates|decl|neutralityObstruction_eq_one_iff_CABD_coordinates
+CORRECTED RN SELECTOR CLOSED|Mpc neutrality cokernel is coordinate-interaction quotient|decl|oneHandleBalancedCoreNeutralityCokernelEquivCoordinates
+CORRECTED RN SELECTOR CLOSED|Mpc neutrality cokernel order divides sixteen|decl|natCard_oneHandleBalancedCoreNeutralityCokernel_dvd_sixteen
+CORRECTED RN SELECTOR BOUNDARY|Mpc neutrality vanishes iff its digit pair is an interaction row|decl|neutralityObstruction_eq_one_iff_coordinateInteraction
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
