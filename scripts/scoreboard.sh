@@ -576,6 +576,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact packet differences lie in c
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact-kernel connecting hom|decl|oneHandleCompactConnectingHom
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven packet obstruction cocycle|decl|relativeObstruction_eq_connecting_inv_mul
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-hom triviality|decl|OneHandleCompactConnectingTrivial
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven compact-kernel range coverage|decl|OneHandleCompactKernelCovered
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting trivial iff range covered|decl|compactConnectingTrivial_iff_range_le_relaxed
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven finite connecting-value set|decl|compactConnectingValues
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
