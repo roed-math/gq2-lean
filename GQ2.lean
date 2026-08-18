@@ -1031,6 +1031,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleDirectF2Dual
 import GQ2.Dyadic.Instances.MpcOneHandleDirectAmbientF2
 import GQ2.Dyadic.Instances.MpcOneHandleDirectCoordinateF2
 import GQ2.Dyadic.Instances.MpcOneHandleDirectTranspose
+import GQ2.Dyadic.Instances.MpcOneHandleDirectAugmentedTranspose
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded

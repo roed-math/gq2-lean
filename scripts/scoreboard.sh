@@ -481,6 +481,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc transpose target vanishing iff correction exist
 CORRECTED RN SELECTOR CLOSED|Mpc transpose detector iff no correction|decl|directTargetTransposeDetected_iff_no_correction
 CORRECTED RN SELECTOR BOUNDARY|Mpc transpose target-vanishing supply|decl|OneHandleDirectTargetTransposeVanishingSupply
 CORRECTED RN SELECTOR CLOSED|Mpc transpose target vanishing gives shift|decl|mpcPivShiftH_two_one_of_directTargetTranspose
+CORRECTED RN SELECTOR CLOSED|Mpc augmented transpose kernel lies in row kernel|decl|augmentedTranspose_ker_le_coordinateTranspose_ker
+CORRECTED RN SELECTOR CLOSED|Mpc augmented kernel equality iff correction exists|decl|nonempty_directCorrection_iff_augmentedTranspose_ker_eq
+CORRECTED RN SELECTOR CLOSED|Mpc strict augmented kernel detects failure|decl|directTargetTransposeDetected_iff_ker_lt
+CORRECTED RN SELECTOR BOUNDARY|Mpc augmented-transpose kernel supply|decl|OneHandleDirectAugmentedTransposeKernelSupply
+CORRECTED RN SELECTOR CLOSED|Mpc augmented-transpose kernels give shift|decl|mpcPivShiftH_two_one_of_augmentedTransposeKernels
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
