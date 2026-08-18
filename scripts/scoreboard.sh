@@ -593,6 +593,11 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven solvability iff reference obstruc
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting-image F2 transpose|decl|oneHandleCompactConnectingImageTranspose
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-target transpose vanishing|decl|OneHandleCompactConnectingTargetTransposeVanishing
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven solvability iff connecting-target transpose kernels equal|decl|ordinaryRelativeSolvable_iff_connectingTarget_ker_eq
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting-image transpose rank|decl|oneHandleCompactConnectingImageTransposeRank
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting-target augmented rank|decl|oneHandleCompactConnectingTargetAugmentedTransposeRank
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven solvability iff connecting-target ranks equal|decl|ordinaryRelativeSolvable_iff_connectingTarget_finrank_eq
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting-target rank has two cases|decl|connectingTargetAugmentedRank_eq_or_eq_add_one
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-target one-bit failure certificate|decl|connectingTargetDetected_iff_rankJump_one
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
