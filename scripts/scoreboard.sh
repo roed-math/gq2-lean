@@ -379,6 +379,11 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc finite target-coefficient detector|decl|OneHa
 CORRECTED RN SELECTOR CLOSED|Mpc coefficient detector iff character detector|decl|targetCoefficientDetected_iff_characterDetected
 CORRECTED RN SELECTOR CLOSED|Mpc coefficient detector iff selected coordinate failure|decl|targetCoefficientDetected_iff_not_coordinateSpan
 CORRECTED RN SELECTOR CLOSED|Mpc next-stage emptiness iff pointwise coefficient obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_coefficientObstruction
+CORRECTED RN SELECTOR CLOSED|Mpc plane character equals primitive character of dot product|decl|oneHandleZModFourPlaneCharacter_eq_zmod_dot
+CORRECTED RN SELECTOR CLOSED|Mpc plane character is one iff dot product vanishes|decl|oneHandleZModFourPlaneCharacter_eq_one_iff_dot_eq_zero
+CORRECTED RN SELECTOR BOUNDARY|Mpc finite target dot-product detector|decl|OneHandleBalancedCoreTargetDotDetected
+CORRECTED RN SELECTOR CLOSED|Mpc dot detector iff selected coordinate failure|decl|targetDotDetected_iff_not_coordinateSpan
+CORRECTED RN SELECTOR CLOSED|Mpc next-stage emptiness iff pointwise dot obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_dotObstruction
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
 CORRECTED RN SELECTOR BOUNDARY|Npc tied branch (needs realization)|decl|familyNpc_branch_of_realization_tied
