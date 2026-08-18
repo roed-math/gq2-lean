@@ -584,6 +584,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting transpose vanishing|de
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting trivial iff transpose kernels equal|decl|compactConnectingTrivial_iff_transpose_ker_eq
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven compact augmented transpose rank|decl|oneHandleCompactAugmentedTransposeRank
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven connecting trivial iff transpose ranks equal|decl|compactConnectingTrivial_iff_transpose_finrank_eq
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven packet obstructions lie in connecting coset|decl|compactPacketObstructionValues_subset_connectingCoset
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven connecting-image realization at a lift|decl|OneHandleCompactConnectingRealizedAt
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven packet set equals coset iff image realized|decl|compactPacketObstructionValues_eq_connectingCoset_iff
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
