@@ -1052,6 +1052,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeCorrection
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenBaseReduction
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeCoordinates
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenNeutrality
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenRelativeF2
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
