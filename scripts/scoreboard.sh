@@ -486,6 +486,11 @@ CORRECTED RN SELECTOR CLOSED|Mpc augmented kernel equality iff correction exists
 CORRECTED RN SELECTOR CLOSED|Mpc strict augmented kernel detects failure|decl|directTargetTransposeDetected_iff_ker_lt
 CORRECTED RN SELECTOR BOUNDARY|Mpc augmented-transpose kernel supply|decl|OneHandleDirectAugmentedTransposeKernelSupply
 CORRECTED RN SELECTOR CLOSED|Mpc augmented-transpose kernels give shift|decl|mpcPivShiftH_two_one_of_augmentedTransposeKernels
+CORRECTED RN SELECTOR CLOSED|Mpc augmented kernel equality iff equal cardinality|decl|augmentedTranspose_ker_eq_iff_card_eq
+CORRECTED RN SELECTOR CLOSED|Mpc direct correction iff equal kernel cardinalities|decl|nonempty_directCorrection_iff_augmentedTranspose_kernelCard_eq
+CORRECTED RN SELECTOR CLOSED|Mpc unequal kernel cardinalities detect failure|decl|directTargetTransposeDetected_iff_kernelCard_ne
+CORRECTED RN SELECTOR BOUNDARY|Mpc augmented-transpose rank supply|decl|OneHandleDirectAugmentedTransposeRankSupply
+CORRECTED RN SELECTOR CLOSED|Mpc augmented-transpose ranks give shift|decl|mpcPivShiftH_two_one_of_augmentedTransposeRanks
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
