@@ -419,6 +419,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc successor iff a nine-CABD target exists|decl|on
 CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply iff coordinate supply|decl|targetCABDSelectableSupply_iff_coordinateSelectableSupply
 CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply gives every finite stage|decl|oneHandleBalancedSet_nonempty_all_of_targetCABDSelectable
 CORRECTED RN SELECTOR CLOSED|Mpc nine-CABD supply gives one-handle shift|decl|mpcPivShiftH_two_one_of_targetCABDSelectable
+CORRECTED RN SELECTOR BOUNDARY|Mpc literal one-of-nine CABD target detector|decl|OneHandleBalancedCoreTargetCABDDetected
+CORRECTED RN SELECTOR CLOSED|Mpc CABD detection iff nine-check failure|decl|targetCABDDetected_iff_not_compatible
+CORRECTED RN SELECTOR CLOSED|Mpc successor failure iff pointwise CABD obstruction|decl|oneHandleBalancedSet_succ_empty_iff_pointwise_CABDObstruction
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
