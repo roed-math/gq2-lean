@@ -206,6 +206,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|procyclic-M boundary iff full marking orbit|decl|
 CORRECTED RN CAMPAIGN BOUNDARY|surjective M Ztwo marking transitivity|decl|MZtwoMarkingTransitivity
 CORRECTED RN CAMPAIGN BOUNDARY|all-degree residual from M marking transitivity|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_markingTransitivity
 CORRECTED RN SELECTOR AUDIT|oriented M marking transitivity impossible with handles|decl|not_mOrientedZtwoMarkingTransitivity
+CORRECTED RN CAMPAIGN BOUNDARY|characteristic M core orientation|decl|MCoreOrientationCharacteristic
+CORRECTED RN CAMPAIGN BOUNDARY|field M orientation rigidity|decl|MFieldOrientationRigidityAt
+CORRECTED RN SELECTOR AUDIT|characteristic orientation forbids M marking transitivity|decl|not_mZtwoMarkingTransitivity_of_orientationCharacteristic
+CORRECTED RN CAMPAIGN BOUNDARY|realization plus orientation rigidity forces exact pivot|decl|evenCanonicalMarkingBoundary_of_realization_of_orientationRigidity
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
