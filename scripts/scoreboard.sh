@@ -621,6 +621,9 @@ CORRECTED RN SELECTOR CLOSED|Mpc class-seven standard neutral target has F2-rank
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-image transpose rank is at most two|decl|neutralImageTransposeRank_le_two
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven augmented transpose rank is at most two|decl|neutralTargetAugmentedTransposeRank_le_two
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full solvability from neutral-image rank two|decl|oneHandleW6Correctable_of_neutralImageTransposeRank_eq_two
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral target exact parity quotient|decl|oneHandleC7StandardNeutralityCokernelEquivParity
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral/parity-interaction cardinal product|decl|natCard_standardNeutrality_mul_parityInteraction_eq_four
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven neutral target trivial iff parity row fills plane|decl|oneHandleC7StandardNeutralityCokernel_trivial_iff_parityRow_range_eq_top
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
