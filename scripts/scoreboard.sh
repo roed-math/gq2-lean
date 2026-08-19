@@ -169,6 +169,14 @@ CORRECTED RN TIED|N0 endpoint (all a,h)|decl|wPcN_candidate_equiv_galKRN_of_tied
 CORRECTED RN SELECTOR CLOSED|N0 general-h level-zero realization|decl|markedCoreRealizationN_of_level_zero_general
 CORRECTED RN SELECTOR CLOSED|N0 selected tied branch (oriented)|decl|n0GenAsmBranch_of_familySelection_tied
 CORRECTED RN SELECTOR CLOSED|N0 selected RN residual (oriented)|decl|n0RowResidualRN_of_familySelection
+CORRECTED RN RANGE BRIDGE|N0 selected residual (intrinsic N range)|decl|n0RowResidualRN_of_familySelection_range
+CORRECTED RN RANGE BRIDGE|Npc selected residual (intrinsic N range)|decl|npcRowResidualRN_of_familySelection_range
+CORRECTED RN RANGE BRIDGE|Mpc true selected residual (sharp M depth)|decl|mpcRowResidualRN_of_familySelection_true_range
+CORRECTED RN RANGE BRIDGE|M0 selected orientation (sharp M depth)|decl|orientedEquivM_of_familySelection_m0
+CORRECTED RN RANGE BRIDGE|N range iff intrinsic separator|decl|range_eq_imChiN_iff_neg_one_notMem
+CORRECTED RN RANGE BRIDGE|M range iff adjacent depth is sharp|decl|range_eq_imChiM_iff_marked_sharp
+ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
+ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
 CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
 CORRECTED RN SELECTOR BOUNDARY|M0 level-zero chi-kernel unit|decl|mChiKerUnimodular_of_level_zero_general
