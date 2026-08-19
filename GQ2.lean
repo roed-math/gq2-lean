@@ -1091,6 +1091,7 @@ import GQ2.Dyadic.Instances.EvenFamilyGeneratorData
 import GQ2.Dyadic.Instances.FieldFamilyWitnessFromRange
 import GQ2.Dyadic.Instances.FieldFamilySelectionRangeFinal
 import GQ2.Dyadic.Instances.FieldFamilyCampaignBoundary
+import GQ2.Dyadic.Instances.MFieldMobilePivotBoundary
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
