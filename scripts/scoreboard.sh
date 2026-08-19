@@ -177,6 +177,7 @@ CORRECTED RN RANGE BRIDGE|N range iff intrinsic separator|decl|range_eq_imChiN_i
 CORRECTED RN RANGE BRIDGE|M range iff adjacent depth is sharp|decl|range_eq_imChiM_iff_marked_sharp
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
+ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
 CORRECTED RN TIED|M0 residual (all a,h)|decl|wPcM_rowResidualRN_of_tied
 CORRECTED RN TIED|M0 endpoint (all a,h)|decl|wPcM_candidate_equiv_galKRN_of_tied
 CORRECTED RN SELECTOR BOUNDARY|M0 level-zero chi-kernel unit|decl|mChiKerUnimodular_of_level_zero_general

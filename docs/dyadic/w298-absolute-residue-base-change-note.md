@@ -21,6 +21,14 @@ uniform odd-degree reconstruction.  Its remaining arithmetic inputs are now:
 - the abstract tame local-reciprocity law for the selected oriented tame quotient; and
 - equal norm-value groups for the compatible anchored involution fields.
 
+The stronger
+`gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity` removes the last per-action item.
+The abstract tame law supplies full-inertia control of reciprocity units, and the single
+field-level `AnchoredUnitSpectralReciprocity K B FF` then produces equal norm-value groups for
+every compatible anchored involution field.  Its arithmetic boundary is therefore exactly one
+base-`Q_2` residue law, one abstract tame law at `K`, and one relative unit-reciprocity law at
+`K`.
+
 The first three declarations in the module use only `propext`, `Classical.choice`, and
 `Quot.sound`.  The final endpoint inherits the existing Hilbert, Stiefel--Whitney, Tate-duality,
 finite-generation, and Euler-characteristic axioms and adds none.  No presentation class,

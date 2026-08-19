@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLOddReciprocityFinal
 import GQ2.Dyadic.Instances.GammaLNuKummerIdentification
+import GQ2.Dyadic.Instances.AnchoredTameInertiaSpectralReciprocity
 
 /-!
 # Base change for the absolute-residue reciprocity law
@@ -99,10 +100,36 @@ theorem LSquare.gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
   gammaR_lSq_equiv_galK_oddDegree_of_reciprocityLaws B FF T D hdeg
     (absoluteResidueLocalReciprocityLaw_of_base B FF Hbase) Htame hNorm
 
+/-- The strongest general wrapper replaces the per-action anchored norm premise by one relative
+unit-spectral reciprocity law for `K`.  The abstract tame law supplies the required full-inertia
+unit row for every compatible finite action. -/
+theorem LSquare.gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
+    (B : MarkedRecip R K) (FF : DyadicUnitFiltration K)
+    (T : OrientedTameQuotientK B FF)
+    (D : FiniteDyadicParameters K FF) {h : ℕ}
+    [CompactSpace (GalK K)] [T2Space (GalK K)]
+    [TotallyDisconnectedSpace (GalK K)] [CompactSpace AbsGalQ2]
+    [TotallyDisconnectedSpace AbsGalQ2]
+    (hdeg : Module.finrank ℚ_[2] K = 2 * h + 1)
+    (Hbase : AbsoluteResidueBaseReciprocityLaw R)
+    (Htame : AbstractTameLocalReciprocityLaw T)
+    (Hspec : AnchoredUnitSpectralReciprocity K B FF) :
+    Nonempty (ContinuousMulEquiv (gamma h (qOf K FF) : Type) (GalK K)) := by
+  have hodd : Odd (Module.finrank ℚ_[2] K) := Nat.odd_iff.mpr (by omega)
+  have Hunit : TameUnitInertiaRefinement B FF T :=
+    (abstractTameLocalReciprocityLaw_iff_rows T |>.mp Htame).1
+  have hNorm : AnchoredInvolutionEqualNormValueGroupsAt D.params (GalKsub K)
+      (tameAtParams D.params D.qK_eq_qOf T.tameFK) :=
+    anchoredInvolutionEqualNormValueGroupsAt_tameAtParams_of_unitSpectralReciprocity
+      D.params K B FF T D.qK_eq_qOf hodd Hunit Hspec
+  exact gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
+    B FF T D hdeg Hbase Htame hNorm
+
 #print axioms AbsoluteResidueBaseReciprocityLaw
 #print axioms v2_normUnitsK_eq_f_mul_dyadicValuation
 #print axioms absoluteResidueLocalReciprocityLaw_of_base
 #print axioms LSquare.gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
+#print axioms LSquare.gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
 
 end
 end GQ2.Dyadic
