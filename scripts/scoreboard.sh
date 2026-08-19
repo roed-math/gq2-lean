@@ -175,6 +175,12 @@ CORRECTED RN RANGE BRIDGE|Mpc true selected residual (sharp M depth)|decl|mpcRow
 CORRECTED RN RANGE BRIDGE|M0 selected orientation (sharp M depth)|decl|orientedEquivM_of_familySelection_m0
 CORRECTED RN RANGE BRIDGE|N range iff intrinsic separator|decl|range_eq_imChiN_iff_neg_one_notMem
 CORRECTED RN RANGE BRIDGE|M range iff adjacent depth is sharp|decl|range_eq_imChiM_iff_marked_sharp
+CORRECTED RN RANGE BRIDGE|field marking lambda is continuous|decl|fieldMarkedPair_lambda_continuous
+CORRECTED RN RANGE BRIDGE|N generator packet from actual range|decl|procyclicMarkedGeneratorData_of_range_eq_imChiN
+CORRECTED RN RANGE BRIDGE|M generator packet from actual range|decl|markedGeneratorData_of_range_eq_imChiM
+CORRECTED RN SELECTOR CLOSED|even family witness from actual range|decl|evenDegreeFamilyFieldBranchWitness
+CORRECTED RN SELECTOR CLOSED|all-degree family witness from actual range|decl|fieldFamilyWitnessFromRange
+CORRECTED RN SELECTOR CLOSED|all-degree family selection from actual range|decl|selectFieldBranchFamilyFromRange
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
