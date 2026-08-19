@@ -630,6 +630,10 @@ CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-image rank bounded by neutr
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven maximal neutral transpose is injective|decl|neutralImageTranspose_injective_of_rank_eq_standardNeutralityFinrank
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full correction from maximal neutral-image rank|decl|oneHandleW6Correctable_of_neutralImageTransposeRank_eq_standard
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full correction from image-plus-parity rank two|decl|oneHandleW6Correctable_of_imageRank_add_parityRank_eq_two
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven parity plane covered by compact corrections|decl|oneHandleC7StandardCoveredParity
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven maximal neutral rank iff compact range is top|decl|neutralImageTransposeRank_eq_standardNeutralityFinrank_iff_range_top
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven image-plus-parity rank two iff covered plane is top|decl|imageRank_add_parityRank_eq_two_iff_coveredParity_eq_top
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full correction from covered parity plane|decl|oneHandleW6Correctable_of_coveredParity_eq_top
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
