@@ -210,6 +210,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|characteristic M core orientation|decl|MCoreOrien
 CORRECTED RN CAMPAIGN BOUNDARY|field M orientation rigidity|decl|MFieldOrientationRigidityAt
 CORRECTED RN SELECTOR AUDIT|characteristic orientation forbids M marking transitivity|decl|not_mZtwoMarkingTransitivity_of_orientationCharacteristic
 CORRECTED RN CAMPAIGN BOUNDARY|realization plus orientation rigidity forces exact pivot|decl|evenCanonicalMarkingBoundary_of_realization_of_orientationRigidity
+CORRECTED RN CAMPAIGN BOUNDARY|general M unit lies on C or a handle|decl|isUnit_C_or_handle_of_chiKer
+CORRECTED RN CAMPAIGN BOUNDARY|field M exact handle-pivot condition|decl|MFieldHandlePivotAtLevel
+CORRECTED RN CAMPAIGN BOUNDARY|level-zero field pivot or handle pivot|decl|mFieldCPivot_or_handlePivotAtLevel_zero
+CORRECTED RN CAMPAIGN BOUNDARY|selected M0 pivot-or-handle dichotomy|decl|m0_cPivot_or_handlePivot_of_familySelection
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
