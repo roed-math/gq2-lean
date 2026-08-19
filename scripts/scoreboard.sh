@@ -229,6 +229,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|canonical-or-strict-handle M boundary|decl|EvenCa
 CORRECTED RN CAMPAIGN BOUNDARY|all selected rows satisfy strict M boundary|decl|evenCanonicalOrStrictHandleBoundary_of_familySelection
 CORRECTED RN CAMPAIGN BOUNDARY|sole strict-handle residual supply|decl|StrictNormalizedMHandleResidualSupply
 CORRECTED RN CAMPAIGN BOUNDARY|all-degree residual from strict-handle supply|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_strictHandleSupply
+CORRECTED RN CAMPAIGN BOUNDARY|same-kernel profinite target automorphism|decl|exists_continuousMulEquiv_of_surjective_of_ker_eq
+CORRECTED RN CAMPAIGN BOUNDARY|word-certificate marking orbit|decl|wordCertificateRN_markingOrbit
+CORRECTED RN CAMPAIGN BOUNDARY|compact-M canonical marking orbit|decl|mCompact_markingOrbit_of_wordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|strict compact-M certificate obstruction|decl|no_mCompact_wordCertificateRN_mFieldTransportZ_of_strictHandle
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
