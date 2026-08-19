@@ -627,6 +627,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven neutral target trivial iff parity
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven standard parity-interaction rank|decl|oneHandleC7StandardParityInteractionRank
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral plus parity-interaction ranks equal two|decl|standardNeutralityFinrank_add_parityInteractionRank
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-image rank bounded by neutral-target rank|decl|neutralImageTransposeRank_le_standardNeutralityFinrank
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven maximal neutral transpose is injective|decl|neutralImageTranspose_injective_of_rank_eq_standardNeutralityFinrank
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full correction from maximal neutral-image rank|decl|oneHandleW6Correctable_of_neutralImageTransposeRank_eq_standard
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full correction from image-plus-parity rank two|decl|oneHandleW6Correctable_of_imageRank_add_parityRank_eq_two
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
