@@ -199,6 +199,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|compact-M canonical marked-core realization|decl|
 CORRECTED RN CAMPAIGN BOUNDARY|procyclic-M canonical marked-core realization|decl|MpcCanonicalMarkedCoreRealization
 CORRECTED RN CAMPAIGN BOUNDARY|sharp even canonical realization boundary|decl|EvenCanonicalRealizationBoundary
 CORRECTED RN CAMPAIGN BOUNDARY|all-degree corrected residual from canonical realization|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_realizationBoundary
+CORRECTED RN CAMPAIGN BOUNDARY|full canonical marking orbit|decl|MarkedCoreMarkingOrbitAt
+CORRECTED RN CAMPAIGN BOUNDARY|realization iff full marking orbit|decl|markedCoreRealization_iff_markingOrbitAt
+CORRECTED RN CAMPAIGN BOUNDARY|compact-M boundary iff full marking orbit|decl|m0CanonicalMarkedCoreRealization_iff_markingOrbitAt
+CORRECTED RN CAMPAIGN BOUNDARY|procyclic-M boundary iff full marking orbit|decl|mpcCanonicalMarkedCoreRealization_iff_markingOrbitAt
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity

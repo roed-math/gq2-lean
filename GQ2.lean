@@ -1093,6 +1093,7 @@ import GQ2.Dyadic.Instances.FieldFamilySelectionRangeFinal
 import GQ2.Dyadic.Instances.FieldFamilyCampaignBoundary
 import GQ2.Dyadic.Instances.MFieldMobilePivotBoundary
 import GQ2.Dyadic.Instances.MFieldCanonicalRealizationBoundary
+import GQ2.Dyadic.Instances.MFieldCanonicalMarkingOrbit
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply
