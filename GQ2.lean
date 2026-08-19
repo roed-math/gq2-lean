@@ -1098,6 +1098,7 @@ import GQ2.Dyadic.Instances.MFieldCanonicalMarkingTransitivity
 import GQ2.Dyadic.Instances.MFieldCanonicalOrientationBoundary
 import GQ2.Dyadic.Instances.MFieldMobileHandleDichotomy
 import GQ2.Dyadic.Instances.MFieldPositiveHandleDichotomy
+import GQ2.Dyadic.Instances.MFieldHandlePivotNormalForm
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply

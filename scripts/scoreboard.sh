@@ -216,6 +216,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|level-zero field pivot or handle pivot|decl|mFiel
 CORRECTED RN CAMPAIGN BOUNDARY|selected M0 pivot-or-handle dichotomy|decl|m0_cPivot_or_handlePivot_of_familySelection
 CORRECTED RN CAMPAIGN BOUNDARY|positive-level deep-B pivot-or-handle theorem|decl|exactLevel_C_or_handle_of_deepB
 CORRECTED RN CAMPAIGN BOUNDARY|selected Mpc-false pivot-or-handle dichotomy|decl|mpcFalse_cPivot_or_handlePivot_of_familySelection
+CORRECTED RN CAMPAIGN BOUNDARY|normalized exact U handle pivot|decl|exists_normalizedHandlePivot_of_U
+CORRECTED RN CAMPAIGN BOUNDARY|normalized exact V handle pivot|decl|exists_normalizedHandlePivot_of_V
+CORRECTED RN CAMPAIGN BOUNDARY|normalized M handle-pivot condition|decl|MFieldNormalizedHandlePivotAtLevel
+CORRECTED RN CAMPAIGN BOUNDARY|field handle pivot normalizes|decl|mFieldNormalizedHandlePivotAtLevel_of_handlePivot
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
