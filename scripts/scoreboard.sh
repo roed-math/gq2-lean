@@ -624,6 +624,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full solvability from neutral-ima
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral target exact parity quotient|decl|oneHandleC7StandardNeutralityCokernelEquivParity
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral/parity-interaction cardinal product|decl|natCard_standardNeutrality_mul_parityInteraction_eq_four
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven neutral target trivial iff parity row fills plane|decl|oneHandleC7StandardNeutralityCokernel_trivial_iff_parityRow_range_eq_top
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven standard parity-interaction rank|decl|oneHandleC7StandardParityInteractionRank
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral plus parity-interaction ranks equal two|decl|standardNeutralityFinrank_add_parityInteractionRank
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-image rank bounded by neutral-target rank|decl|neutralImageTransposeRank_le_standardNeutralityFinrank
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
