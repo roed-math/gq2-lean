@@ -1147,6 +1147,7 @@ import GQ2.Dyadic.Instances.RamifiedCertificateAbstractTameReciprocityLaw
 import GQ2.Dyadic.Instances.GammaLOddReciprocityFinal
 import GQ2.Dyadic.Instances.RamifiedCertificateAbsoluteResidueBaseChange
 import GQ2.Dyadic.Instances.RamifiedCertificateRelativeUnitIndex
+import GQ2.Dyadic.Instances.RamifiedCertificateRelativeNormReciprocity
 import GQ2.Dyadic.Instances.AnchoredInvolutionFieldNorm
 import GQ2.Dyadic.Instances.AnchoredInvolutionNormOddness
 import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex
