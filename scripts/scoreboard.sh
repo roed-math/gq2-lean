@@ -181,6 +181,12 @@ CORRECTED RN RANGE BRIDGE|M generator packet from actual range|decl|markedGenera
 CORRECTED RN SELECTOR CLOSED|even family witness from actual range|decl|evenDegreeFamilyFieldBranchWitness
 CORRECTED RN SELECTOR CLOSED|all-degree family witness from actual range|decl|fieldFamilyWitnessFromRange
 CORRECTED RN SELECTOR CLOSED|all-degree family selection from actual range|decl|selectFieldBranchFamilyFromRange
+CORRECTED RN RANGE BRIDGE|canonical witness carries actual range|decl|fieldFamilyWitnessFromRange_matchesCyclotomicRange
+CORRECTED RN RANGE BRIDGE|M orientation from carried range|decl|orientedEquivM_of_familySelection_of_matchesRange_mpc
+CORRECTED RN RANGE BRIDGE|N orientation from carried range|decl|orientedEquivN_of_familySelection_of_matchesRange_npc
+CORRECTED RN SELECTOR CLOSED|canonical range selection N0 residual|decl|n0RowResidualRN_of_fieldSelectionFromRange
+CORRECTED RN SELECTOR CLOSED|canonical range selection Npc residual|decl|npcRowResidualRN_of_fieldSelectionFromRange
+CORRECTED RN SELECTOR CLOSED|canonical range selection Mpc-true residual|decl|mpcRowResidualRN_of_fieldSelectionFromRange_true
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
