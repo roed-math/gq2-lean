@@ -612,6 +612,9 @@ CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven neutral-target transpose vanishin
 CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full solvability iff neutral transpose kernels equal|decl|oneHandleW6Correctable_iff_neutralTarget_ker_eq
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-image transpose rank|decl|oneHandleCompactNeutralImageTransposeRank
 CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-target augmented rank|decl|oneHandleCompactNeutralTargetAugmentedTransposeRank
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven full solvability iff neutral-target ranks equal|decl|oneHandleW6Correctable_iff_neutralTarget_finrank_eq
+CORRECTED RN SELECTOR CLOSED|Mpc class-seven neutral-target rank has two cases|decl|neutralTargetAugmentedRank_eq_or_eq_add_one
+CORRECTED RN SELECTOR BOUNDARY|Mpc class-seven neutral-target one-bit failure certificate|decl|neutralTargetDetected_iff_rankJump_one
 CORRECTED RN SELECTOR CLOSED|Mpc parity-covered coordinate failure iff primitive case|decl|target_not_coordinateSpan_iff_primitive_of_parityCovered
 CORRECTED RN TIED|Npc residual (from determinant)|decl|npcRowResidualRN_of_tied_determinant
 CORRECTED RN TIED|Npc endpoint (from determinant)|decl|npc_candidate_equiv_galKRN_of_tied_determinant
