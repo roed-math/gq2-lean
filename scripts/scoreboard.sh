@@ -187,6 +187,11 @@ CORRECTED RN RANGE BRIDGE|N orientation from carried range|decl|orientedEquivN_o
 CORRECTED RN SELECTOR CLOSED|canonical range selection N0 residual|decl|n0RowResidualRN_of_fieldSelectionFromRange
 CORRECTED RN SELECTOR CLOSED|canonical range selection Npc residual|decl|npcRowResidualRN_of_fieldSelectionFromRange
 CORRECTED RN SELECTOR CLOSED|canonical range selection Mpc-true residual|decl|mpcRowResidualRN_of_fieldSelectionFromRange_true
+CORRECTED RN CAMPAIGN BOUNDARY|common M exact-C field condition|decl|MFieldCPivotAtLevel
+CORRECTED RN CAMPAIGN BOUNDARY|all-degree canonical marking boundary|decl|EvenCanonicalMarkingBoundary
+CORRECTED RN SELECTOR CLOSED|odd L selected corrected residual|decl|hasSelectedRowResidualRN_l
+CORRECTED RN SELECTOR CLOSED|Mpc-true exact-C placement|decl|mFieldCPivotAtLevel_mpc_true
+CORRECTED RN CAMPAIGN BOUNDARY|all-degree corrected residual from exact boundary|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_boundary
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
