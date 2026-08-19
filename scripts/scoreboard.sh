@@ -220,6 +220,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|normalized exact U handle pivot|decl|exists_norma
 CORRECTED RN CAMPAIGN BOUNDARY|normalized exact V handle pivot|decl|exists_normalizedHandlePivot_of_V
 CORRECTED RN CAMPAIGN BOUNDARY|normalized M handle-pivot condition|decl|MFieldNormalizedHandlePivotAtLevel
 CORRECTED RN CAMPAIGN BOUNDARY|field handle pivot normalizes|decl|mFieldNormalizedHandlePivotAtLevel_of_handlePivot
+CORRECTED RN CAMPAIGN BOUNDARY|canonical-or-normalized M boundary|decl|EvenCanonicalOrNormalizedHandleBoundary
+CORRECTED RN CAMPAIGN BOUNDARY|all selected rows satisfy normalized M boundary|decl|evenCanonicalOrNormalizedHandleBoundary_of_familySelection
+CORRECTED RN CAMPAIGN BOUNDARY|sole normalized-handle residual supply|decl|NormalizedMHandleResidualSupply
+CORRECTED RN CAMPAIGN BOUNDARY|all-degree residual from normalized-handle supply|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_normalizedHandleSupply
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
