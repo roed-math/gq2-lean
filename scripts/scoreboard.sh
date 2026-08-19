@@ -195,6 +195,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|all-degree corrected residual from exact boundary
 CORRECTED RN CAMPAIGN BOUNDARY|coordinate-free exact-level M pivot|decl|MFieldMobilePivotAtLevel
 CORRECTED RN CAMPAIGN BOUNDARY|canonical M pivot placement defect|decl|MFieldPivotPlacementDefect
 CORRECTED RN CAMPAIGN BOUNDARY|all selected M rows have mobile pivots|decl|canonicalMobilePivotBoundary_fieldSelectionFromRange
+CORRECTED RN CAMPAIGN BOUNDARY|compact-M canonical marked-core realization|decl|M0CanonicalMarkedCoreRealization
+CORRECTED RN CAMPAIGN BOUNDARY|procyclic-M canonical marked-core realization|decl|MpcCanonicalMarkedCoreRealization
+CORRECTED RN CAMPAIGN BOUNDARY|sharp even canonical realization boundary|decl|EvenCanonicalRealizationBoundary
+CORRECTED RN CAMPAIGN BOUNDARY|all-degree corrected residual from canonical realization|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_realizationBoundary
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
