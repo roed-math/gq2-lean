@@ -1072,6 +1072,7 @@ import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactFullSearch
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactNeutralConnecting
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactNeutralTarget
 import GQ2.Dyadic.Instances.MpcOneHandleClassSevenCompactNeutralTargetRank
+import GQ2.Dyadic.Instances.MpcOneHandleClassSevenNeutralCoordinateBound
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityInteraction
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityEquation
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityExpanded
