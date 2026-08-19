@@ -1085,6 +1085,7 @@ import GQ2.Dyadic.Instances.MpcBalancedNeutralityAdditive
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityLinearSystem
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityZModFour
 import GQ2.Dyadic.Instances.MpcBalancedNeutralityLinearCokernel
+import GQ2.Dyadic.Instances.MpcGeneralTowerFinal
 import GQ2.Dyadic.Instances.MpcFive
 import GQ2.Dyadic.Instances.MpcSix
 import GQ2.Dyadic.Instances.MpcMarkedSupply

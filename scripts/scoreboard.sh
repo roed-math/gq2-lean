@@ -247,6 +247,8 @@ CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true rank-four residual|decl|mpcRowResi
 CORRECTED RN SELECTOR BOUNDARY|Mpc general-h odd-shear shift|decl|MpcPivShiftH
 CORRECTED RN SELECTOR CLOSED|Mpc rank-four general shift|decl|mpcPivShiftH_two_zero
 CORRECTED RN SELECTOR BOUNDARY|Mpc general-h epsilon-true residual from shift|decl|mpcRowResidualRN_of_familySelection_true_of_shiftH
+CORRECTED RN SELECTOR CLOSED|Mpc pivot shift (all alpha,h)|decl|mpcPivShiftH_all
+CORRECTED RN SELECTOR CLOSED|Mpc epsilon-true selected residual (all alpha,h)|decl|mpcRowResidualRN_of_familySelection_true
 CORRECTED RN SELECTOR BOUNDARY|Mpc unit scaling preserves exact pivot|decl|exactPivot_comp_iff_of_unit_C
 CORRECTED RN SELECTOR BOUNDARY|Mpc existing clear monoid fixes C|decl|dmClearAutsWide_fixes_C
 CORRECTED RN SELECTOR BOUNDARY|Mpc shift lies outside existing clear monoid|decl|not_shiftRow_of_mem_dmClearAutsWide
