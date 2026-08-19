@@ -224,6 +224,11 @@ CORRECTED RN CAMPAIGN BOUNDARY|canonical-or-normalized M boundary|decl|EvenCanon
 CORRECTED RN CAMPAIGN BOUNDARY|all selected rows satisfy normalized M boundary|decl|evenCanonicalOrNormalizedHandleBoundary_of_familySelection
 CORRECTED RN CAMPAIGN BOUNDARY|sole normalized-handle residual supply|decl|NormalizedMHandleResidualSupply
 CORRECTED RN CAMPAIGN BOUNDARY|all-degree residual from normalized-handle supply|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_normalizedHandleSupply
+CORRECTED RN CAMPAIGN BOUNDARY|strict normalized M handle pivot|decl|MFieldStrictNormalizedHandlePivotAtLevel
+CORRECTED RN CAMPAIGN BOUNDARY|canonical-or-strict-handle M boundary|decl|EvenCanonicalOrStrictHandleBoundary
+CORRECTED RN CAMPAIGN BOUNDARY|all selected rows satisfy strict M boundary|decl|evenCanonicalOrStrictHandleBoundary_of_familySelection
+CORRECTED RN CAMPAIGN BOUNDARY|sole strict-handle residual supply|decl|StrictNormalizedMHandleResidualSupply
+CORRECTED RN CAMPAIGN BOUNDARY|all-degree residual from strict-handle supply|decl|hasSelectedRowResidualRN_of_fieldSelectionFromRange_of_strictHandleSupply
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
