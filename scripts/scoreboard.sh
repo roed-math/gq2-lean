@@ -258,6 +258,9 @@ CORRECTED RN CAMPAIGN BOUNDARY|selected corrected assembly packet|decl|HasSelect
 CORRECTED RN CAMPAIGN BOUNDARY|compatible general field packet|decl|GenAsmCompatibleFieldInputs
 CORRECTED RN CAMPAIGN BOUNDARY|compatible corrected general assembly|decl|genAsm_candidate_equiv_galKRN_compatible
 CORRECTED RN CAMPAIGN BOUNDARY|general selected assembly iff no placement defect|decl|hasSelectedAssemblyRN_fieldSelectionFromRange_iff_not_placementDefect
+CORRECTED RN SELECTOR AUDIT|M0 two odd-residue placement defect|decl|canonicalPivotPlacementDefect_of_m0_two_odd_residue
+CORRECTED RN SELECTOR AUDIT|M0 two odd-residue canonical residual no-go|decl|not_hasSelectedRowResidualRN_m0_two_odd_residue
+CORRECTED RN SELECTOR AUDIT|M0 two odd-residue canonical assembly no-go|decl|not_hasSelectedAssemblyRN_m0_two_odd_residue
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt

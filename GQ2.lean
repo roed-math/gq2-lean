@@ -1177,3 +1177,4 @@ import GQ2.Dyadic.Instances.MStrictHandleResidualNoGo
 import GQ2.Dyadic.Instances.FieldFamilyCampaignExactBoundary
 import GQ2.Dyadic.Instances.FieldFamilyPlacementDefectExact
 import GQ2.Dyadic.Instances.FieldFamilyGeneralAssemblyExact
+import GQ2.Dyadic.Instances.FieldFamilyCanonicalAssemblyNoGo
