@@ -308,6 +308,12 @@ CORRECTED RN HEAD-HANDLE PAIR|uniform strict-handle pair candidate|decl|headHand
 CORRECTED RN HEAD-HANDLE PAIR|pair candidate tame specialization|decl|tameSpecializes_headHandlePairCompactW
 CORRECTED RN HEAD-HANDLE PAIR|pair candidate pro-2 relator|decl|eval_pro2_headHandlePairCompactW
 CORRECTED RN HEAD-HANDLE PAIR|pair exchange crosses tame/wild partition|decl|headHandlePairSwap_not_preserves_wild
+CORRECTED RN HEAD-HANDLE CORE|pair exchange is involutive|decl|headHandlePairSwap_involutive
+CORRECTED RN HEAD-HANDLE CORE|pair source presents the general M core|decl|headHandlePairCorePresentation
+CORRECTED RN HEAD-HANDLE CORE|promoted handle is the unramified head|decl|headHandlePairCorePresentation_mark_sigma
+CORRECTED RN HEAD-HANDLE CORE|displaced C is the selected wild row|decl|headHandlePairCorePresentation_mark_handleU
+CORRECTED RN HEAD-HANDLE CORE|uniform remaining wild normalization|decl|HeadHandlePairWildNormalized
+CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
