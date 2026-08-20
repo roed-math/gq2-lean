@@ -294,6 +294,9 @@ CORRECTED RN MOBILE NO-GO|pro-2 tame epimorphisms have canonical wild kernel|dec
 CORRECTED RN MOBILE NO-GO|compatible boundaries lie in one marking orbit|decl|exists_boundary_marking_orbit
 CORRECTED RN MOBILE NO-GO|compact-M adapted boundary forces C pivot|decl|mCompact_mobileBoundary_forces_cPivot
 CORRECTED RN MOBILE NO-GO|Mpc adapted boundary forces exact C level|decl|mpc_mobileBoundary_forces_cPivot
+CORRECTED RN MOBILE NO-GO|equivalent model preserves pro-p kernels|decl|isProP_ker_comp_continuousMulEquiv
+CORRECTED RN MOBILE NO-GO|compact-M equivalent model forces C pivot|decl|mCompact_flexibleModelSource_forces_cPivot
+CORRECTED RN MOBILE NO-GO|Mpc equivalent model forces exact C level|decl|mpc_flexibleModelSource_forces_cPivot
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
