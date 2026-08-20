@@ -302,6 +302,13 @@ CORRECTED RN FLEXIBLE EVEN M|compact-M certificate at flexible core|decl|mCompac
 CORRECTED RN FLEXIBLE EVEN M|Mpc determinant at flexible core|decl|mpcAffineDeterminantCertificate_flexible
 CORRECTED RN FLEXIBLE EVEN M|Mpc leaves at flexible core|decl|mpcFlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE EVEN M|Mpc certificate at flexible core|decl|mpcWordCertificateRN_flexible
+CORRECTED RN FIELD FLEXIBLE EVEN M|field-core unramified marking|decl|fieldCoreNuZtwo
+CORRECTED RN FIELD FLEXIBLE EVEN M|field-core marking is surjective|decl|fieldCoreNuZtwo_surjective
+CORRECTED RN FIELD FLEXIBLE EVEN M|tautological field-core realization|decl|fieldCoreRealization
+CORRECTED RN FIELD FLEXIBLE EVEN M|compact-M field-core residual|decl|mCompactFieldFlexibleRowResidualRN
+CORRECTED RN FIELD FLEXIBLE EVEN M|compact-M field-core endpoint|decl|mCompactFieldFlexible_candidate_equiv_galKRN
+CORRECTED RN FIELD FLEXIBLE EVEN M|Mpc field-core residual|decl|mpcFieldFlexibleRowResidualRN
+CORRECTED RN FIELD FLEXIBLE EVEN M|Mpc field-core endpoint|decl|mpcFieldFlexible_candidate_equiv_galKRN
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
