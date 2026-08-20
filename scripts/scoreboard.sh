@@ -270,6 +270,17 @@ CORRECTED RN FLEXIBLE MODEL|word certificates embed as source models|decl|Flexib
 CORRECTED RN FLEXIBLE MODEL|generic model-source reconstruction|decl|candidate_equiv_galK_of_modelSourceRN
 CORRECTED RN FLEXIBLE MODEL|compatible field assembly from model source|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofModelSource
 CORRECTED RN FLEXIBLE MODEL|word-certificate regression through model source|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofWordCertificate
+CORRECTED RN MOBILE BOUNDARY|adapted corrected boundary packet|decl|BoundaryReplacementRN
+CORRECTED RN MOBILE BOUNDARY|boundary-independent analytic core|decl|SourceAnalyticCoreRN
+CORRECTED RN MOBILE BOUNDARY|analytic boundary and determinant|decl|SourceAnalyticBoundaryRN
+CORRECTED RN MOBILE BOUNDARY|assemble source from analytic core and boundary|decl|SourceAnalyticCoreRN.toSource
+CORRECTED RN MOBILE BOUNDARY|forget source to analytic core|decl|SourceDataRN.toAnalyticCore
+CORRECTED RN MOBILE BOUNDARY|replace corrected source boundary|decl|SourceDataRN.replaceBoundary
+CORRECTED RN MOBILE BOUNDARY|surjective marking gives tame surjectivity|decl|SourceDataRN.tame_surjective_of_nuP
+CORRECTED RN MOBILE BOUNDARY|transport boundary-independent word source|decl|FlexibleModelSourceRN.transportedWordSourceRN
+CORRECTED RN MOBILE BOUNDARY|model from analytic core and boundary|decl|FlexibleModelSourceRN.ofAnalyticBoundary
+CORRECTED RN MOBILE BOUNDARY|model from arbitrary word equivalence and boundary|decl|FlexibleModelSourceRN.ofWordEquivBoundaryReplacement
+CORRECTED RN MOBILE BOUNDARY|general-K endpoint from adapted boundary|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofBoundaryReplacement
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
