@@ -265,6 +265,11 @@ CORRECTED RN FLEXIBLE ASSEMBLY|flexible corrected branch|decl|GenAsmFlexibleBran
 CORRECTED RN FLEXIBLE ASSEMBLY|flexible corrected row residual|decl|GenAsmFlexibleRowResidualRN
 CORRECTED RN FLEXIBLE ASSEMBLY|compatible flexible candidate assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible
 CORRECTED RN FLEXIBLE ASSEMBLY|canonical rows embed in flexible assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofCanonical
+CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
+CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
+CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
+CORRECTED RN FLEXIBLE CERTIFICATE|flexible leaves to row residual|decl|GenAsmFlexibleRowResidualRN.ofFlexibleLeaves
+CORRECTED RN FLEXIBLE CERTIFICATE|flexible leaves to compatible assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofFlexibleLeaves
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
