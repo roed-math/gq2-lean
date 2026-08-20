@@ -252,6 +252,8 @@ CORRECTED RN CAMPAIGN BOUNDARY|selected M0 residual iff C pivot|decl|hasSelected
 CORRECTED RN CAMPAIGN BOUNDARY|selected Mpc residual iff C pivot|decl|hasSelectedRowResidualRN_mpc_iff_cPivot
 CORRECTED RN CAMPAIGN BOUNDARY|selected residual forces exact boundary|decl|evenCanonicalMarkingBoundary_of_hasSelectedRowResidualRN
 CORRECTED RN CAMPAIGN BOUNDARY|canonical selection residual iff exact boundary|decl|hasSelectedRowResidualRN_fieldSelectionFromRange_iff_boundary
+CORRECTED RN CAMPAIGN BOUNDARY|canonical M pivot placement defect|decl|CanonicalPivotPlacementDefectBoundary
+CORRECTED RN CAMPAIGN BOUNDARY|canonical selection residual iff no placement defect|decl|hasSelectedRowResidualRN_fieldSelectionFromRange_iff_not_placementDefect
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt

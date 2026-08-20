@@ -1175,3 +1175,4 @@ import GQ2.Dyadic.Instances.MOrientationCharacteristic
 import GQ2.Dyadic.Instances.MOrientationCharacteristicFinal
 import GQ2.Dyadic.Instances.MStrictHandleResidualNoGo
 import GQ2.Dyadic.Instances.FieldFamilyCampaignExactBoundary
+import GQ2.Dyadic.Instances.FieldFamilyPlacementDefectExact
