@@ -278,6 +278,13 @@ CORRECTED RN WORD TRANSPORT|transported flexible certificate leaves|decl|Flexibl
 CORRECTED RN WORD TRANSPORT|transported word certificate|decl|wordCertificateRN_of_transport
 CORRECTED RN WORD TRANSPORT|transported flexible row residual|decl|GenAsmFlexibleRowResidualRN.ofTransport
 CORRECTED RN WORD TRANSPORT|transported compatible assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofTransport
+CORRECTED RN NIELSEN TRANSPORT|restricted free-core clause|decl|FreeWildCore
+CORRECTED RN NIELSEN TRANSPORT|admissible free Nielsen equivalence|decl|AdmissibleFreeNielsenEquiv
+CORRECTED RN NIELSEN TRANSPORT|wild-preserving free Nielsen equivalence|decl|WildPreservingFreeNielsenEquiv
+CORRECTED RN NIELSEN TRANSPORT|wild preservation discharges admissibility|decl|WildPreservingFreeNielsenEquiv.toAdmissible
+CORRECTED RN NIELSEN TRANSPORT|descended corrected presentation equivalence|decl|AdmissibleFreeNielsenEquiv.gammaEquiv
+CORRECTED RN NIELSEN TRANSPORT|finite boundary-row packet|decl|NielsenBoundaryRows
+CORRECTED RN NIELSEN TRANSPORT|Nielsen rows to word transport|decl|BoundaryCompatibleWordEquivRN.ofNielsen
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
