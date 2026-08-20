@@ -321,6 +321,12 @@ CORRECTED RN GENERIC NU NORMALIZATION|all wild rows killed|decl|wildShearNielsen
 CORRECTED RN GENERIC NU NORMALIZATION|arbitrary core normalized leaves|decl|normalizedFlexibleCoreLeaves
 CORRECTED RN HEAD-HANDLE NORMALIZATION|uniform normalized strict-handle word|decl|headHandlePairNormalizedW
 CORRECTED RN HEAD-HANDLE NORMALIZATION|strict-handle core from head row alone|decl|headHandlePairNormalizedFlexibleCore
+CORRECTED RN TAME CORRECTION|tame inertia is the profinite tau line|decl|mem_inertiaPartQ_iff_exists_zpowHat_tqTau
+CORRECTED RN TAME CORRECTION|generic tame-inertia word correction|decl|tameCorrectedWord_specializes
+CORRECTED RN TAME CORRECTION|tame correction preserves core presentation|decl|CorePresentation.ofTameCorrection
+CORRECTED RN TAME CORRECTION|normalized pair tame defect lies in inertia|decl|tame_eval_headHandlePairNormalized_mem_inertia
+CORRECTED RN TAME CORRECTION|corrected normalized pair specializes|decl|headHandlePairTameCorrectedW_specializes
+CORRECTED RN TAME CORRECTION|corrected normalized pair flexible core|decl|headHandlePairTameCorrectedFlexibleCore
 CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN

@@ -1207,3 +1207,5 @@ import GQ2.Dyadic.Instances.EvenMHeadHandlePairCore
 import GQ2.Dyadic.PadicOmegaProTwo
 import GQ2.Dyadic.Instances.GammaRCorePresentationNuNormalize
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairNormalize
+import GQ2.Dyadic.Instances.TameInertiaProcyclic
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairTame
