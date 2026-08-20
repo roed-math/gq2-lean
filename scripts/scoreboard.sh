@@ -304,6 +304,10 @@ CORRECTED RN HEAD-HANDLE SOURCE|uniform strict-handle candidate word|decl|headHa
 CORRECTED RN HEAD-HANDLE SOURCE|strict-handle candidate tame specialization|decl|tameSpecializes_headHandleCompactW
 CORRECTED RN HEAD-HANDLE SOURCE|strict-handle candidate pro-2 relator|decl|eval_pro2_headHandleCompactW
 CORRECTED RN HEAD-HANDLE SOURCE|head-handle exchange crosses tame/wild partition|decl|headHandleSwap_not_preserves_wild
+CORRECTED RN HEAD-HANDLE PAIR|uniform strict-handle pair candidate|decl|headHandlePairCompactW
+CORRECTED RN HEAD-HANDLE PAIR|pair candidate tame specialization|decl|tameSpecializes_headHandlePairCompactW
+CORRECTED RN HEAD-HANDLE PAIR|pair candidate pro-2 relator|decl|eval_pro2_headHandlePairCompactW
+CORRECTED RN HEAD-HANDLE PAIR|pair exchange crosses tame/wild partition|decl|headHandlePairSwap_not_preserves_wild
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
