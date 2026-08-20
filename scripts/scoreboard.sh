@@ -254,6 +254,10 @@ CORRECTED RN CAMPAIGN BOUNDARY|selected residual forces exact boundary|decl|even
 CORRECTED RN CAMPAIGN BOUNDARY|canonical selection residual iff exact boundary|decl|hasSelectedRowResidualRN_fieldSelectionFromRange_iff_boundary
 CORRECTED RN CAMPAIGN BOUNDARY|canonical M pivot placement defect|decl|CanonicalPivotPlacementDefectBoundary
 CORRECTED RN CAMPAIGN BOUNDARY|canonical selection residual iff no placement defect|decl|hasSelectedRowResidualRN_fieldSelectionFromRange_iff_not_placementDefect
+CORRECTED RN CAMPAIGN BOUNDARY|selected corrected assembly packet|decl|HasSelectedAssemblyRN
+CORRECTED RN CAMPAIGN BOUNDARY|compatible general field packet|decl|GenAsmCompatibleFieldInputs
+CORRECTED RN CAMPAIGN BOUNDARY|compatible corrected general assembly|decl|genAsm_candidate_equiv_galKRN_compatible
+CORRECTED RN CAMPAIGN BOUNDARY|general selected assembly iff no placement defect|decl|hasSelectedAssemblyRN_fieldSelectionFromRange_iff_not_placementDefect
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
