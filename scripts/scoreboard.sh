@@ -309,6 +309,16 @@ CORRECTED RN FIELD FLEXIBLE EVEN M|compact-M field-core residual|decl|mCompactFi
 CORRECTED RN FIELD FLEXIBLE EVEN M|compact-M field-core endpoint|decl|mCompactFieldFlexible_candidate_equiv_galKRN
 CORRECTED RN FIELD FLEXIBLE EVEN M|Mpc field-core residual|decl|mpcFieldFlexibleRowResidualRN
 CORRECTED RN FIELD FLEXIBLE EVEN M|Mpc field-core endpoint|decl|mpcFieldFlexible_candidate_equiv_galKRN
+CORRECTED RN CHANGED-WORD EVEN M|compact-M arbitrary-boundary certificate|decl|mCompactWordCertificateRN_of_boundary
+CORRECTED RN CHANGED-WORD EVEN M|compact-M changed-word certificate|decl|mCompactWordCertificateRN_of_wordEquiv
+CORRECTED RN CHANGED-WORD EVEN M|Mpc arbitrary-boundary certificate|decl|mpcWordCertificateRN_of_boundary
+CORRECTED RN CHANGED-WORD EVEN M|Mpc changed-word certificate|decl|mpcWordCertificateRN_of_wordEquiv
+CORRECTED RN CHANGED-WORD EVEN M|compact-M field normal-form packet|decl|MCompactChangedWordFieldData
+CORRECTED RN CHANGED-WORD EVEN M|compact-M changed-word residual|decl|mCompactChangedWordFieldRowResidualRN
+CORRECTED RN CHANGED-WORD EVEN M|compact-M changed-word endpoint|decl|mCompactChangedWordField_candidate_equiv_galKRN
+CORRECTED RN CHANGED-WORD EVEN M|Mpc field normal-form packet|decl|MpcChangedWordFieldData
+CORRECTED RN CHANGED-WORD EVEN M|Mpc changed-word residual|decl|mpcChangedWordFieldRowResidualRN
+CORRECTED RN CHANGED-WORD EVEN M|Mpc changed-word endpoint|decl|mpcChangedWordField_candidate_equiv_galKRN
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt

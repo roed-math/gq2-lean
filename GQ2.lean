@@ -1189,3 +1189,5 @@ import GQ2.Dyadic.WordCertificateRNTransport
 import GQ2.Dyadic.Instances.MCompactFlexibleCertificate
 import GQ2.Dyadic.Instances.MpcFlexibleCertificate
 import GQ2.Dyadic.Instances.FieldFlexibleEvenMFinal
+import GQ2.Dyadic.Instances.EvenMChangedWordCertificate
+import GQ2.Dyadic.Instances.EvenMChangedWordFieldFinal
