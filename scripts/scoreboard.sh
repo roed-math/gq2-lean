@@ -287,6 +287,11 @@ CORRECTED RN MOBILE CORE|compact-M field model from adapted boundary|decl|mCompa
 CORRECTED RN MOBILE CORE|compact-M field endpoint from adapted boundary|decl|mCompactField_candidate_equiv_galKRN_of_mobileBoundary
 CORRECTED RN MOBILE CORE|displayed-Mpc field model from adapted boundary|decl|mpcFieldModelSourceRN
 CORRECTED RN MOBILE CORE|displayed-Mpc field endpoint from adapted boundary|decl|mpcField_candidate_equiv_galKRN_of_mobileBoundary
+CORRECTED RN MOBILE NO-GO|Ztwo automorphisms are unit scalings|decl|exists_unit_scale_ztwoEquiv
+CORRECTED RN MOBILE NO-GO|pro-2 tame epimorphisms have canonical wild kernel|decl|ker_tame_eq_wildPartR_of_surjective_of_isProP
+CORRECTED RN MOBILE NO-GO|compatible boundaries lie in one marking orbit|decl|exists_boundary_marking_orbit
+CORRECTED RN MOBILE NO-GO|compact-M adapted boundary forces C pivot|decl|mCompact_mobileBoundary_forces_cPivot
+CORRECTED RN MOBILE NO-GO|Mpc adapted boundary forces exact C level|decl|mpc_mobileBoundary_forces_cPivot
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
