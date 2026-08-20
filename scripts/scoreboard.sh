@@ -313,6 +313,14 @@ CORRECTED RN HEAD-HANDLE CORE|pair source presents the general M core|decl|headH
 CORRECTED RN HEAD-HANDLE CORE|promoted handle is the unramified head|decl|headHandlePairCorePresentation_mark_sigma
 CORRECTED RN HEAD-HANDLE CORE|displaced C is the selected wild row|decl|headHandlePairCorePresentation_mark_handleU
 CORRECTED RN HEAD-HANDLE CORE|uniform remaining wild normalization|decl|HeadHandlePairWildNormalized
+CORRECTED RN GENERIC NU NORMALIZATION|pro-2 padic exponent bridge|decl|zpowHat_padicOmega2_eq_zpowZtwo
+CORRECTED RN GENERIC NU NORMALIZATION|simultaneous wild shear|decl|wildShearNielsen
+CORRECTED RN GENERIC NU NORMALIZATION|wild row additive coefficient|decl|wildNuCoefficient
+CORRECTED RN GENERIC NU NORMALIZATION|head row preserved|decl|wildShearNielsen_nu_sigma
+CORRECTED RN GENERIC NU NORMALIZATION|all wild rows killed|decl|wildShearNielsen_nu_wild
+CORRECTED RN GENERIC NU NORMALIZATION|arbitrary core normalized leaves|decl|normalizedFlexibleCoreLeaves
+CORRECTED RN HEAD-HANDLE NORMALIZATION|uniform normalized strict-handle word|decl|headHandlePairNormalizedW
+CORRECTED RN HEAD-HANDLE NORMALIZATION|strict-handle core from head row alone|decl|headHandlePairNormalizedFlexibleCore
 CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN

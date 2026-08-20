@@ -1204,3 +1204,6 @@ import GQ2.Dyadic.Instances.EvenMFlexibleSelectorNoGo
 import GQ2.Dyadic.Instances.EvenMHeadHandleSource
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairSource
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairCore
+import GQ2.Dyadic.PadicOmegaProTwo
+import GQ2.Dyadic.Instances.GammaRCorePresentationNuNormalize
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairNormalize
