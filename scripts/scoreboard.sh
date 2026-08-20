@@ -247,6 +247,9 @@ CORRECTED RN CLOSED ROWS|full M Fox descent after automorphism|decl|fullOrientat
 CORRECTED RN CLOSED ROWS|compact M realized certificate forces pivot|decl|mFieldCPivotAtLevel_zero_of_realizedWordCertificateRN_general
 CORRECTED RN CLOSED ROWS|general Mpc realized certificate forces pivot|decl|mFieldCPivotAtLevel_of_mpcRealizedWordCertificateRN_general
 CORRECTED RN CLOSED ROWS|strict M handle excludes realized certificate|decl|no_mCompact_realizedWordCertificateRN_of_strictHandle_general
+CORRECTED RN CAMPAIGN BOUNDARY|strict M0 handle excludes residual|decl|no_hasSelectedRowResidualRN_m0_of_strictHandle
+CORRECTED RN CAMPAIGN BOUNDARY|selected M0 residual iff C pivot|decl|hasSelectedRowResidualRN_m0_iff_cPivot
+CORRECTED RN CAMPAIGN BOUNDARY|selected Mpc residual iff C pivot|decl|hasSelectedRowResidualRN_mpc_iff_cPivot
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
