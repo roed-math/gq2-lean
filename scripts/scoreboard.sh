@@ -300,6 +300,10 @@ CORRECTED RN MOBILE NO-GO|Mpc equivalent model forces exact C level|decl|mpc_fle
 CORRECTED RN SELECTOR NO-GO|M0 two odd-residue equivalent model impossible|decl|not_flexibleModelSourceRN_m0_two_odd_residue
 CORRECTED RN SELECTOR NO-GO|M0 two odd-residue strict handle pivot|decl|strictHandlePivot_m0_two_odd_residue
 CORRECTED RN SELECTOR NO-GO|M0 two odd-residue has positive handle count|decl|handleCount_pos_m0_two_odd_residue
+CORRECTED RN HEAD-HANDLE SOURCE|uniform strict-handle candidate word|decl|headHandleCompactW
+CORRECTED RN HEAD-HANDLE SOURCE|strict-handle candidate tame specialization|decl|tameSpecializes_headHandleCompactW
+CORRECTED RN HEAD-HANDLE SOURCE|strict-handle candidate pro-2 relator|decl|eval_pro2_headHandleCompactW
+CORRECTED RN HEAD-HANDLE SOURCE|head-handle exchange crosses tame/wild partition|decl|headHandleSwap_not_preserves_wild
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
