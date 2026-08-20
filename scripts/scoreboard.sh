@@ -325,6 +325,10 @@ CORRECTED RN ELEMENTARY NIELSEN|composition of substitution pairs|decl|PWordNiel
 CORRECTED RN ELEMENTARY NIELSEN|inverse cancellation at every marking|decl|PWordNielsenPair.backward_forward_eval
 CORRECTED RN ELEMENTARY NIELSEN|profinite right transvection|decl|PWordNielsenPair.rightShear
 CORRECTED RN ELEMENTARY NIELSEN|Z2 right transvection|decl|PWordNielsenPair.rightShearZtwo
+CORRECTED RN NIELSEN CORE|transported marking|decl|PWordNielsenPair.forwardMark
+CORRECTED RN NIELSEN CORE|presentation under substitution|decl|CorePresentation.ofNielsen
+CORRECTED RN NIELSEN CORE|presentation target equivalence|decl|CorePresentation.mapEquiv
+CORRECTED RN NIELSEN CORE|flexible core from Nielsen equivalence|decl|FlexibleCoreLeavesRN.ofNielsenEquiv
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
