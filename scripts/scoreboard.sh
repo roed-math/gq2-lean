@@ -270,6 +270,9 @@ CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible leaves to row residual|decl|GenAsmFlexibleRowResidualRN.ofFlexibleLeaves
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible leaves to compatible assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofFlexibleLeaves
+CORRECTED RN FLEXIBLE TRANSPORT|corrected source transport|decl|SourceDataRN.transport
+CORRECTED RN FLEXIBLE TRANSPORT|boundary pair congruence|decl|sourceBoundaryMapK_congr_pair
+CORRECTED RN FLEXIBLE TRANSPORT|affine determinant congruence|decl|affineDeterminantCertificate_congr
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
