@@ -265,6 +265,11 @@ CORRECTED RN FLEXIBLE ASSEMBLY|flexible corrected branch|decl|GenAsmFlexibleBran
 CORRECTED RN FLEXIBLE ASSEMBLY|flexible corrected row residual|decl|GenAsmFlexibleRowResidualRN
 CORRECTED RN FLEXIBLE ASSEMBLY|compatible flexible candidate assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible
 CORRECTED RN FLEXIBLE ASSEMBLY|canonical rows embed in flexible assembly|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofCanonical
+CORRECTED RN FLEXIBLE MODEL|presentation-independent corrected source model|decl|FlexibleModelSourceRN
+CORRECTED RN FLEXIBLE MODEL|word certificates embed as source models|decl|FlexibleModelSourceRN.ofWordCertificate
+CORRECTED RN FLEXIBLE MODEL|generic model-source reconstruction|decl|candidate_equiv_galK_of_modelSourceRN
+CORRECTED RN FLEXIBLE MODEL|compatible field assembly from model source|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofModelSource
+CORRECTED RN FLEXIBLE MODEL|word-certificate regression through model source|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofWordCertificate
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
