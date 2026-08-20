@@ -233,6 +233,13 @@ CORRECTED RN CAMPAIGN BOUNDARY|same-kernel profinite target automorphism|decl|ex
 CORRECTED RN CAMPAIGN BOUNDARY|word-certificate marking orbit|decl|wordCertificateRN_markingOrbit
 CORRECTED RN CAMPAIGN BOUNDARY|compact-M canonical marking orbit|decl|mCompact_markingOrbit_of_wordCertificateRN
 CORRECTED RN CAMPAIGN BOUNDARY|strict compact-M certificate obstruction|decl|no_mCompact_wordCertificateRN_mFieldTransportZ_of_strictHandle
+CORRECTED RN CAMPAIGN BOUNDARY|compact-M realized certificate packet|decl|M0RealizedWordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|Mpc realized certificate packet|decl|MpcRealizedWordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|compact-M certificate gives canonical realization|decl|m0CanonicalMarkedCoreRealization_of_wordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|Mpc certificate gives canonical realization|decl|mpcCanonicalMarkedCoreRealization_of_wordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|compact-M realized certificate forces pivot|decl|mFieldCPivotAtLevel_zero_of_realizedWordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|Mpc realized certificate forces pivot|decl|mFieldCPivotAtLevel_of_mpcRealizedWordCertificateRN
+CORRECTED RN CAMPAIGN BOUNDARY|strict compact-M realized certificate no-go|decl|no_mCompact_realizedWordCertificateRN_of_strictHandle
 ODD L RECIPROCITY|Absolute residue law base change|decl|absoluteResidueLocalReciprocityLaw_of_base
 ODD L RECIPROCITY|Odd endpoint from one Q2 residue law|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseReciprocity
 ODD L RECIPROCITY|Odd endpoint from base and relative unit laws|decl|gammaR_lSq_equiv_galK_oddDegree_of_baseAndUnitReciprocity
