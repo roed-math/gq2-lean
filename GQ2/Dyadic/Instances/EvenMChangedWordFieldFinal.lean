@@ -16,8 +16,10 @@ and identifies the resulting candidate group with the standard analytic word whi
 the tame quotient.
 
 The changed-word certificate theorem then supplies the corrected residual, and the general
-assembler produces the final field equivalence.  In particular, the sole new mathematical input
-is the changed presentation packet itself; all analytic and reconstruction clauses are closed.
+assembler produces the final field equivalence.  These are conditional consumers: W337 proves
+that existence of either packet already forces the corresponding canonical C pivot.  All
+analytic and reconstruction clauses are closed, but changing the word does not remove the
+underlying pivot-placement problem.
 -/
 
 namespace GQ2.Dyadic.Instances.EvenMChangedWordFieldFinal
@@ -150,4 +152,3 @@ theorem mpcChangedWordField_candidate_equiv_galKRN
 end
 
 end GQ2.Dyadic.Instances.EvenMChangedWordFieldFinal
-

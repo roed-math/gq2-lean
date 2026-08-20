@@ -15,9 +15,10 @@ moves the word as well as the core.  First, the compact-M and displayed Mpc anal
 are packaged over an arbitrary exact pro-2 boundary map.  Then a normalized presentation of
 any tame-compatible equivalent word supplies that boundary map by transport.
 
-Thus the remaining even-M problem is purely a presentation theorem: construct an adapted word,
-a normalized field-core presentation, and the candidate-group equivalence.  No determinant,
-Gauss-sum, or canonical-pivot premise remains.
+This is a conditional transport interface.  The later changed-word no-go theorem shows that a
+field packet containing both the normalized presentation and a tame-compatible equivalence
+already forces the canonical pivot.  Thus no determinant or Gauss-sum premise remains here,
+but existence of the packet does not bypass pivot placement.
 -/
 
 namespace GQ2.Dyadic.Instances.EvenMChangedWordCertificate
@@ -230,4 +231,3 @@ noncomputable def mpcWordCertificateRN_of_wordEquiv
 end
 
 end GQ2.Dyadic.Instances.EvenMChangedWordCertificate
-

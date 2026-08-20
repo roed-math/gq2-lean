@@ -329,6 +329,9 @@ CORRECTED RN NIELSEN CORE|transported marking|decl|PWordNielsenPair.forwardMark
 CORRECTED RN NIELSEN CORE|presentation under substitution|decl|CorePresentation.ofNielsen
 CORRECTED RN NIELSEN CORE|presentation target equivalence|decl|CorePresentation.mapEquiv
 CORRECTED RN NIELSEN CORE|flexible core from Nielsen equivalence|decl|FlexibleCoreLeavesRN.ofNielsenEquiv
+CORRECTED RN CHANGED-WORD BOUNDARY|compact-M packet forces C pivot|decl|mFieldCPivotAtLevel_zero_of_changedWordData
+CORRECTED RN CHANGED-WORD BOUNDARY|Mpc packet forces C pivot|decl|mFieldCPivotAtLevel_of_mpcChangedWordData
+CORRECTED RN CHANGED-WORD BOUNDARY|no compact packet without C pivot|decl|not_mCompactChangedWordFieldData_of_not_cPivot
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
