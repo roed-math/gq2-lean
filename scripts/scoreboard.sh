@@ -292,6 +292,10 @@ CORRECTED RN SYNTACTIC NIELSEN|syntactic checklist to wild preservation|decl|Adm
 CORRECTED RN SYNTACTIC NIELSEN|syntactic corrected presentation equivalence|decl|AdmissiblePWordNielsenEquiv.gammaEquiv
 CORRECTED RN CORE TRANSPORT|corrected exact lifting across core equivalence|decl|genCert_exactLiftingSemanticsRN_pull
 CORRECTED RN CORE TRANSPORT|corrected certificate across marked core equivalence|decl|WordCertificateRN.genCertTransportRN
+CORRECTED RN CORE-WORD TRANSPORT|corrected certificate across word equivalence|decl|WordCertificateRN.transportWordEquiv
+CORRECTED RN CORE-WORD TRANSPORT|independent core and word transport|decl|WordCertificateRN.transportCoreWord
+CORRECTED RN CORE-WORD TRANSPORT|flexible residual from core-word transport|decl|GenAsmFlexibleRowResidualRN.ofCoreWordTransport
+CORRECTED RN CORE-WORD TRANSPORT|general-K assembly from core-word transport|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofCoreWordTransport
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
