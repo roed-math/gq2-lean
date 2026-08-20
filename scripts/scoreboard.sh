@@ -285,6 +285,11 @@ CORRECTED RN NIELSEN TRANSPORT|wild preservation discharges admissibility|decl|W
 CORRECTED RN NIELSEN TRANSPORT|descended corrected presentation equivalence|decl|AdmissibleFreeNielsenEquiv.gammaEquiv
 CORRECTED RN NIELSEN TRANSPORT|finite boundary-row packet|decl|NielsenBoundaryRows
 CORRECTED RN NIELSEN TRANSPORT|Nielsen rows to word transport|decl|BoundaryCompatibleWordEquivRN.ofNielsen
+CORRECTED RN SYNTACTIC NIELSEN|inverse word-substitution pair|decl|PWordNielsenPair
+CORRECTED RN SYNTACTIC NIELSEN|free equivalence from word substitutions|decl|PWordNielsenPair.freeEquiv
+CORRECTED RN SYNTACTIC NIELSEN|finite admissible substitution checklist|decl|AdmissiblePWordNielsenEquiv
+CORRECTED RN SYNTACTIC NIELSEN|syntactic checklist to wild preservation|decl|AdmissiblePWordNielsenEquiv.toWildPreserving
+CORRECTED RN SYNTACTIC NIELSEN|syntactic corrected presentation equivalence|decl|AdmissiblePWordNielsenEquiv.gammaEquiv
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
