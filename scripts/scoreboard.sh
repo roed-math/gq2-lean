@@ -281,6 +281,12 @@ CORRECTED RN MOBILE BOUNDARY|transport boundary-independent word source|decl|Fle
 CORRECTED RN MOBILE BOUNDARY|model from analytic core and boundary|decl|FlexibleModelSourceRN.ofAnalyticBoundary
 CORRECTED RN MOBILE BOUNDARY|model from arbitrary word equivalence and boundary|decl|FlexibleModelSourceRN.ofWordEquivBoundaryReplacement
 CORRECTED RN MOBILE BOUNDARY|general-K endpoint from adapted boundary|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofBoundaryReplacement
+CORRECTED RN MOBILE CORE|compact-M analytic core on arbitrary marking|decl|mCompactAnalyticCoreRN
+CORRECTED RN MOBILE CORE|displayed-Mpc analytic core on arbitrary marking|decl|mpcAnalyticCoreRN
+CORRECTED RN MOBILE CORE|compact-M field model from adapted boundary|decl|mCompactFieldModelSourceRN
+CORRECTED RN MOBILE CORE|compact-M field endpoint from adapted boundary|decl|mCompactField_candidate_equiv_galKRN_of_mobileBoundary
+CORRECTED RN MOBILE CORE|displayed-Mpc field model from adapted boundary|decl|mpcFieldModelSourceRN
+CORRECTED RN MOBILE CORE|displayed-Mpc field endpoint from adapted boundary|decl|mpcField_candidate_equiv_galKRN_of_mobileBoundary
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
