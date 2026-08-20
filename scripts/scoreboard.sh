@@ -297,6 +297,9 @@ CORRECTED RN MOBILE NO-GO|Mpc adapted boundary forces exact C level|decl|mpc_mob
 CORRECTED RN MOBILE NO-GO|equivalent model preserves pro-p kernels|decl|isProP_ker_comp_continuousMulEquiv
 CORRECTED RN MOBILE NO-GO|compact-M equivalent model forces C pivot|decl|mCompact_flexibleModelSource_forces_cPivot
 CORRECTED RN MOBILE NO-GO|Mpc equivalent model forces exact C level|decl|mpc_flexibleModelSource_forces_cPivot
+CORRECTED RN SELECTOR NO-GO|M0 two odd-residue equivalent model impossible|decl|not_flexibleModelSourceRN_m0_two_odd_residue
+CORRECTED RN SELECTOR NO-GO|M0 two odd-residue strict handle pivot|decl|strictHandlePivot_m0_two_odd_residue
+CORRECTED RN SELECTOR NO-GO|M0 two odd-residue has positive handle count|decl|handleCount_pos_m0_two_odd_residue
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|flexible word certificate assembler|decl|wordCertificateRN_of_flexibleLeaves
