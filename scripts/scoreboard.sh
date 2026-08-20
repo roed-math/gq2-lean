@@ -250,6 +250,8 @@ CORRECTED RN CLOSED ROWS|strict M handle excludes realized certificate|decl|no_m
 CORRECTED RN CAMPAIGN BOUNDARY|strict M0 handle excludes residual|decl|no_hasSelectedRowResidualRN_m0_of_strictHandle
 CORRECTED RN CAMPAIGN BOUNDARY|selected M0 residual iff C pivot|decl|hasSelectedRowResidualRN_m0_iff_cPivot
 CORRECTED RN CAMPAIGN BOUNDARY|selected Mpc residual iff C pivot|decl|hasSelectedRowResidualRN_mpc_iff_cPivot
+CORRECTED RN CAMPAIGN BOUNDARY|selected residual forces exact boundary|decl|evenCanonicalMarkingBoundary_of_hasSelectedRowResidualRN
+CORRECTED RN CAMPAIGN BOUNDARY|canonical selection residual iff exact boundary|decl|hasSelectedRowResidualRN_fieldSelectionFromRange_iff_boundary
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
