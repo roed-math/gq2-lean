@@ -290,6 +290,8 @@ CORRECTED RN SYNTACTIC NIELSEN|free equivalence from word substitutions|decl|PWo
 CORRECTED RN SYNTACTIC NIELSEN|finite admissible substitution checklist|decl|AdmissiblePWordNielsenEquiv
 CORRECTED RN SYNTACTIC NIELSEN|syntactic checklist to wild preservation|decl|AdmissiblePWordNielsenEquiv.toWildPreserving
 CORRECTED RN SYNTACTIC NIELSEN|syntactic corrected presentation equivalence|decl|AdmissiblePWordNielsenEquiv.gammaEquiv
+CORRECTED RN CORE TRANSPORT|corrected exact lifting across core equivalence|decl|genCert_exactLiftingSemanticsRN_pull
+CORRECTED RN CORE TRANSPORT|corrected certificate across marked core equivalence|decl|WordCertificateRN.genCertTransportRN
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
