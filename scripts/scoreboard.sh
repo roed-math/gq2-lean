@@ -327,6 +327,13 @@ CORRECTED RN TAME CORRECTION|tame correction preserves core presentation|decl|Co
 CORRECTED RN TAME CORRECTION|normalized pair tame defect lies in inertia|decl|tame_eval_headHandlePairNormalized_mem_inertia
 CORRECTED RN TAME CORRECTION|corrected normalized pair specializes|decl|headHandlePairTameCorrectedW_specializes
 CORRECTED RN TAME CORRECTION|corrected normalized pair flexible core|decl|headHandlePairTameCorrectedFlexibleCore
+CORRECTED RN STOKES RESOLUTION|prime-to-two tame exponent|decl|exists_primeToTwoExponent_tqTau_of_mem_inertiaPartQ
+CORRECTED RN STOKES RESOLUTION|prime-to-two correction preserves core|decl|CorePresentation.ofPrimeToTwoTameCorrection
+CORRECTED RN STOKES RESOLUTION|universal finite-target resolver|decl|resolvesAt_finiteResolvers
+CORRECTED RN STOKES RESOLUTION|arbitrary substitution preserves endpoint|decl|isStokesEndpoint_heisToFree_subst
+CORRECTED RN STOKES RESOLUTION|parity-aware finite resolver|decl|resolvesAt_stokesResolvers
+CORRECTED RN STOKES RESOLUTION|prime-to-two correction preserves endpoint|decl|isStokesEndpoint_primeToTwoCorrection
+CORRECTED RN STOKES RESOLUTION|normalized pair resolved Stokes package|decl|resolvesAt_and_endpoint_headHandlePairPrime
 CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN

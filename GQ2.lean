@@ -1209,3 +1209,9 @@ import GQ2.Dyadic.Instances.GammaRCorePresentationNuNormalize
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairNormalize
 import GQ2.Dyadic.Instances.TameInertiaProcyclic
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairTame
+import GQ2.Dyadic.Instances.TameInertiaPrimeToTwo
+import GQ2.Dyadic.Instances.TameInertiaPrimeToTwoCorrection
+import GQ2.Dyadic.Instances.FiniteProfiniteResolver
+import GQ2.Dyadic.Instances.StokesEndpointSubstitution
+import GQ2.Dyadic.Instances.FiniteStokesResolver
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairStokes
