@@ -319,6 +319,12 @@ CORRECTED RN CHANGED-WORD EVEN M|compact-M changed-word endpoint|decl|mCompactCh
 CORRECTED RN CHANGED-WORD EVEN M|Mpc field normal-form packet|decl|MpcChangedWordFieldData
 CORRECTED RN CHANGED-WORD EVEN M|Mpc changed-word residual|decl|mpcChangedWordFieldRowResidualRN
 CORRECTED RN CHANGED-WORD EVEN M|Mpc changed-word endpoint|decl|mpcChangedWordField_candidate_equiv_galKRN
+CORRECTED RN ELEMENTARY NIELSEN|alphabet relabeling|decl|PWordNielsenPair.ofEquiv
+CORRECTED RN ELEMENTARY NIELSEN|inverse substitution pair|decl|PWordNielsenPair.symm
+CORRECTED RN ELEMENTARY NIELSEN|composition of substitution pairs|decl|PWordNielsenPair.trans
+CORRECTED RN ELEMENTARY NIELSEN|inverse cancellation at every marking|decl|PWordNielsenPair.backward_forward_eval
+CORRECTED RN ELEMENTARY NIELSEN|profinite right transvection|decl|PWordNielsenPair.rightShear
+CORRECTED RN ELEMENTARY NIELSEN|Z2 right transvection|decl|PWordNielsenPair.rightShearZtwo
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
