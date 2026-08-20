@@ -296,6 +296,12 @@ CORRECTED RN CORE-WORD TRANSPORT|corrected certificate across word equivalence|d
 CORRECTED RN CORE-WORD TRANSPORT|independent core and word transport|decl|WordCertificateRN.transportCoreWord
 CORRECTED RN CORE-WORD TRANSPORT|flexible residual from core-word transport|decl|GenAsmFlexibleRowResidualRN.ofCoreWordTransport
 CORRECTED RN CORE-WORD TRANSPORT|general-K assembly from core-word transport|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofCoreWordTransport
+CORRECTED RN FLEXIBLE EVEN M|compact-M determinant at flexible core|decl|wPcMAffineDeterminantCertificate_flexible
+CORRECTED RN FLEXIBLE EVEN M|compact-M leaves at flexible core|decl|mCompactFlexibleCertificateLeavesRN
+CORRECTED RN FLEXIBLE EVEN M|compact-M certificate at flexible core|decl|mCompactWordCertificateRN_flexible
+CORRECTED RN FLEXIBLE EVEN M|Mpc determinant at flexible core|decl|mpcAffineDeterminantCertificate_flexible
+CORRECTED RN FLEXIBLE EVEN M|Mpc leaves at flexible core|decl|mpcFlexibleCertificateLeavesRN
+CORRECTED RN FLEXIBLE EVEN M|Mpc certificate at flexible core|decl|mpcWordCertificateRN_flexible
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
