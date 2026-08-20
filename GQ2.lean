@@ -1171,3 +1171,4 @@ import GQ2.Dyadic.Instances.AnchoredTameInertiaNormIndex
 import GQ2.Dyadic.Instances.AnchoredTameInertiaRelativeIndex
 import GQ2.Dyadic.Instances.AnchoredTameInertiaPrescribedUnramified
 import GQ2.Dyadic.Instances.AnchoredTameInertiaSpectralReciprocity
+import GQ2.Dyadic.Instances.MOrientationCharacteristic

@@ -241,6 +241,9 @@ CORRECTED RN CAMPAIGN BOUNDARY|compact-M realized certificate forces pivot|decl|
 CORRECTED RN CAMPAIGN BOUNDARY|Mpc realized certificate forces pivot|decl|mFieldCPivotAtLevel_of_mpcRealizedWordCertificateRN
 CORRECTED RN CAMPAIGN BOUNDARY|strict compact-M realized certificate no-go|decl|no_mCompact_realizedWordCertificateRN_of_strictHandle
 CORRECTED RN CAMPAIGN BOUNDARY|finite M orientation rows invariant|decl|MCoreOrientationRowsInvariant
+CORRECTED RN CLOSED ROWS|general M characteristic orientation|decl|mCoreOrientationCharacteristic_all
+CORRECTED RN CLOSED ROWS|M master evaluation matrix invertible|decl|isUnit_evalMatrix
+CORRECTED RN CLOSED ROWS|full M Fox descent after automorphism|decl|fullOrientationDatumM_pullback_aut
 CORRECTED RN CAMPAIGN BOUNDARY|presented M orientation naturality|decl|MCorePresentedOrientationNatural
 CORRECTED RN CAMPAIGN BOUNDARY|orientation naturality iff characteristic|decl|mCorePresentedOrientationNatural_iff_characteristic
 CORRECTED RN CAMPAIGN BOUNDARY|finite field cyclotomic M rows|decl|MFieldCyclotomicRowsAt
