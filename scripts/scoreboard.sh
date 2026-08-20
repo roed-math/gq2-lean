@@ -281,6 +281,8 @@ CORRECTED RN MOBILE BOUNDARY|transport boundary-independent word source|decl|Fle
 CORRECTED RN MOBILE BOUNDARY|model from analytic core and boundary|decl|FlexibleModelSourceRN.ofAnalyticBoundary
 CORRECTED RN MOBILE BOUNDARY|model from arbitrary word equivalence and boundary|decl|FlexibleModelSourceRN.ofWordEquivBoundaryReplacement
 CORRECTED RN MOBILE BOUNDARY|general-K endpoint from adapted boundary|decl|genAsmFlexible_candidate_equiv_galKRN_compatible_ofBoundaryReplacement
+CORRECTED RN MOBILE TRANSPORT|transport boundary-independent analytic core|decl|SourceAnalyticCoreRN.transportGamma
+CORRECTED RN MOBILE TRANSPORT|model from transported core and new boundary|decl|FlexibleModelSourceRN.ofTransportedAnalyticBoundary
 CORRECTED RN MOBILE CORE|compact-M analytic core on arbitrary marking|decl|mCompactAnalyticCoreRN
 CORRECTED RN MOBILE CORE|displayed-Mpc analytic core on arbitrary marking|decl|mpcAnalyticCoreRN
 CORRECTED RN MOBILE CORE|compact-M field model from adapted boundary|decl|mCompactFieldModelSourceRN
