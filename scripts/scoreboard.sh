@@ -336,6 +336,16 @@ CORRECTED RN STOKES RESOLUTION|prime-to-two correction preserves endpoint|decl|i
 CORRECTED RN STOKES RESOLUTION|normalized pair resolved Stokes package|decl|resolvesAt_and_endpoint_headHandlePairPrime
 CORRECTED RN STOKES RESOLUTION|coefficient-independent finite-level resolver|decl|resolvesAt_levelStokesResolvers
 CORRECTED RN STOKES RESOLUTION|normalized pair level resolver|decl|headHandlePairPrimeLevelResolver
+CORRECTED RN STOKES TRANSPORT|middle equivalence preserves Stokes quasi-isomorphism|decl|stokesQuasiIso_iff_middle_addEquiv
+CORRECTED RN STOKES TRANSPORT|alphabet equivalence preserves Stokes duality|decl|stokesDuality_freeGroupCongr_iff
+CORRECTED RN STOKES TRANSPORT|invertible free substitution preserves Stokes duality|decl|stokesDuality_freeSubst_iff
+CORRECTED RN STOKES TRANSPORT|resolved PWord substitution preserves Stokes duality|decl|stokesDuality_heisToFree_subst_iff
+CORRECTED RN STOKES TRANSPORT|uniform wild normalization preserves Stokes duality|decl|stokesDuality_wildShearBackward_iff
+CORRECTED RN STRICT-HANDLE FOX|pair-swapped Fox derivative transport|decl|foxD_headHandlePairCompactW_eq
+CORRECTED RN STRICT-HANDLE FOX|general right-trivial handle row|decl|foxD_handlesW_of_right_trivial
+CORRECTED RN STRICT-HANDLE FOX|pair exchange has one displaced-head handle row|decl|foxD_handlesW_headHandlePair
+CORRECTED RN STRICT-HANDLE FOX|pair-source unramified row (all ranks)|decl|foxD_headHandlePairCompactW_unram
+CORRECTED RN STRICT-HANDLE FOX|pair-source ramified unit-handle row (all ranks)|decl|foxD_headHandlePairCompactW_ram
 CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN

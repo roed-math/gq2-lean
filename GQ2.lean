@@ -1217,3 +1217,8 @@ import GQ2.Dyadic.Instances.FiniteStokesResolver
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairStokes
 import GQ2.Dyadic.Instances.FiniteLevelProfiniteResolver
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairLevelResolver
+import GQ2.Dyadic.Instances.StokesMiddleEquiv
+import GQ2.Dyadic.Instances.StokesReindex
+import GQ2.Dyadic.Instances.StokesNielsen
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairNielsenStokes
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairFox
