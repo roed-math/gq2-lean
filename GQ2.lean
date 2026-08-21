@@ -1222,3 +1222,4 @@ import GQ2.Dyadic.Instances.StokesReindex
 import GQ2.Dyadic.Instances.StokesNielsen
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairNielsenStokes
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairFox
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairNormal
