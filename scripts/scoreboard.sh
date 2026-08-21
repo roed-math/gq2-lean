@@ -334,6 +334,8 @@ CORRECTED RN STOKES RESOLUTION|arbitrary substitution preserves endpoint|decl|is
 CORRECTED RN STOKES RESOLUTION|parity-aware finite resolver|decl|resolvesAt_stokesResolvers
 CORRECTED RN STOKES RESOLUTION|prime-to-two correction preserves endpoint|decl|isStokesEndpoint_primeToTwoCorrection
 CORRECTED RN STOKES RESOLUTION|normalized pair resolved Stokes package|decl|resolvesAt_and_endpoint_headHandlePairPrime
+CORRECTED RN STOKES RESOLUTION|coefficient-independent finite-level resolver|decl|resolvesAt_levelStokesResolvers
+CORRECTED RN STOKES RESOLUTION|normalized pair level resolver|decl|headHandlePairPrimeLevelResolver
 CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN

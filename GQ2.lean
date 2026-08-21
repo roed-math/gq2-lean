@@ -1215,3 +1215,5 @@ import GQ2.Dyadic.Instances.FiniteProfiniteResolver
 import GQ2.Dyadic.Instances.StokesEndpointSubstitution
 import GQ2.Dyadic.Instances.FiniteStokesResolver
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairStokes
+import GQ2.Dyadic.Instances.FiniteLevelProfiniteResolver
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairLevelResolver
