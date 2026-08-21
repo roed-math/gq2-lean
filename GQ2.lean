@@ -1228,3 +1228,4 @@ import GQ2.Dyadic.Instances.EvenMHeadHandleMixedNielsen
 import GQ2.Dyadic.Instances.EvenMHeadHandleMixedPairing
 import GQ2.Dyadic.Instances.EvenMHeadHandleHyperbolicPairing
 import GQ2.Dyadic.Instances.EvenMHeadHandleHyperbolicFox
+import GQ2.Dyadic.Instances.EvenMHeadHandleHyperbolicStokes
