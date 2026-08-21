@@ -1223,3 +1223,4 @@ import GQ2.Dyadic.Instances.StokesNielsen
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairNielsenStokes
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairFox
 import GQ2.Dyadic.Instances.EvenMHeadHandlePairNormal
+import GQ2.Dyadic.Instances.EvenMHeadHandlePairStokesNoGo
