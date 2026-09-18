@@ -1451,3 +1451,5 @@ import GQ2.Dyadic.MarkedCore.MFrameCupCoordinates
 import GQ2.Dyadic.MarkedCore.MBasisRowRefinement
 import GQ2.Dyadic.MarkedCore.MPlaneAmbientStage
 import GQ2.Dyadic.MarkedCore.MFullStabilizerLift
+import GQ2.Dyadic.MarkedCore.MNielsenGenerators
+import GQ2.Dyadic.MarkedCore.NNielsenGenerators
