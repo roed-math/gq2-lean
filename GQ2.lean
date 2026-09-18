@@ -888,6 +888,7 @@ import GQ2.Dyadic.Instances.MpcLadder
 import GQ2.Dyadic.Instances.WordPhase
 import GQ2.Dyadic.Instances.WordPhaseModel
 import GQ2.Dyadic.Instances.WordPhaseSeam
+import GQ2.Dyadic.Instances.GaussPhaseValues
 import GQ2.Dyadic.Instances.MpcWordPhaseSeam
 import GQ2.Dyadic.Instances.MpcUnramifiedHessian
 import GQ2.Dyadic.Instances.PlusFormLinearShift
