@@ -1,4 +1,5 @@
 import GQ2.Dyadic.MarkedCore.MBasisRowRefinement
+import GQ2.Dyadic.MarkedCore.MHeadCleanup
 import GQ2.Dyadic.MarkedCore.NPlaneAmbientStage
 
 /-!
@@ -17,10 +18,10 @@ death is imposed on the free tuple itself.
 
 The ambient theorem supplies arbitrary depth corrections improving the actual
 M defect by one level; it does not claim that they preserve orientation or
-ordinary rows. The composition with the closed derivative-kernel interpolation
-is the interface stated at the end: it is proved from the head-cleanup
-statement of the coupled M ordinary head row, which is named as a `Prop` and
-is not proved in this file.
+ordinary rows. The composition with the coupled ordinary-head cleanup of
+`MHeadCleanup` and with the closed derivative-kernel interpolation is the
+one-step stage interface `MBasisStageStep`, proved at the end for every
+`alpha >= 2` and every handle count.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -282,20 +283,21 @@ theorem mBasisAmbientStageSupply {alpha h : ℕ} (halpha : 2 ≤ alpha) :
   have H := mBasis_exists_ambient_stage halpha (by omega : 3 ≤ n+3) e he herr
   simpa only [show n+3-1=n+2 by omega, show n+3+1=n+4 by omega] using H
 
-/-- **The coupled M ordinary-head cleanup, as the input this file consumes.**
+/-- **The coupled M ordinary-head cleanup, in the shape this file consumes.**
 For a depth-`m` correction `t` of a marking `y` agreeing with the target on
 every ordinary character, with corrected defect in `lambda_(m+2)`, the head
 correction has a representative in the same class modulo `lambda_(m+1)` with
 every ordinary character trivial. This is the M twin of
 `exists_freeTwo_nHead_characterZero_same_class`, stated with the weakest
-hypotheses this file needs (all coordinates of depth `m`; only `t 0` and `t 2`
-enter the ordinary row `2 f(t 0) + 2^alpha f(t 2)` of the M defect). It is not
-proved here. -/
+hypotheses this file needs (`m >= 1`, all coordinates of depth `m`; only `t 0`
+and `t 2` enter the ordinary row `2 f(t 0) + 2^alpha f(t 2)` of the M defect).
+It is discharged below from `mHead_exists_freeTwo_characterZero_same_class`. -/
 def MBasisHeadCleanupSupply (alpha h : ℕ) : Prop :=
   ∀ (m : ℕ) (y t : Fin (coreRank h) → FreeTwoRank (coreRank h))
     (target : FreeTwoRank (coreRank h)),
     (∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (Multiplicative ℤ_[2]),
       f (mRelWord alpha y) = f target) →
+    1 ≤ m →
     (∀ i, t i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) m) →
     mRelWord alpha (fun i => y i * t i) * target⁻¹ ∈
       twoCentralSeries (FreeTwoRank (coreRank h) : Type) (m + 2) →
@@ -304,6 +306,14 @@ def MBasisHeadCleanupSupply (alpha h : ℕ) : Prop :=
       (t 0)⁻¹ * t0 ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (m + 1) ∧
       ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (Multiplicative ℤ_[2]),
         f t0 = 1
+
+/-- The head cleanup of `MHeadCleanup` supplies the named input at every
+`alpha >= 2`; only the `A` and `C` depth facts are consumed. -/
+theorem mBasisHeadCleanupSupply {alpha h : ℕ} (halpha : 2 ≤ alpha) :
+    MBasisHeadCleanupSupply alpha h :=
+  fun _ y t target hrow hm ht hdefect =>
+    mHead_exists_freeTwo_characterZero_same_class halpha hm y t target hrow (ht 0) (ht 2)
+      hdefect
 
 /-- Kernel interpolation packaged for the stage lane: a depth correction whose
 head ordinary rows vanish has an all-character-zero, orientation-trivial
@@ -360,12 +370,12 @@ def MBasisStageStep (alpha h : ℕ) : Prop :=
       (∀ i, mBasisOrientation alpha h (s i) = 1) ∧
       (∀ i, ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
         (Multiplicative ℤ_[2]), f (s i) = 1) ∧
-      mRelWord alpha ((fun i => e (freeTwoRankGen (coreRank h) i))*s) *
+      mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i) * s i) *
         (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
           twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4)
 
 /-- Ambient stage, head cleanup and kernel interpolation compose to the
-one-step interface. The head cleanup is the only input not proved here. -/
+one-step interface, from any producer of the head cleanup. -/
 theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
     (hhead : MBasisHeadCleanupSupply alpha h) : MBasisStageStep alpha h := by
   classical
@@ -373,7 +383,7 @@ theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
   let y := fun i => e (freeTwoRankGen (coreRank h) i)
   let target := mRelWord alpha (freeTwoRankGen (coreRank h))
   obtain ⟨t, ht, hterr⟩ := mBasisAmbientStageSupply halpha n e he herr
-  obtain ⟨t0, ht0, hslack0, hzero0⟩ := hhead (n+2) y t target hrow ht hterr
+  obtain ⟨t0, ht0, hslack0, hzero0⟩ := hhead (n+2) y t target hrow (by omega) ht hterr
   let s := Function.update t 0 t0
   have hs : ∀ i, s i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2) := by
     intro i
@@ -392,7 +402,14 @@ theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
   have hsdefect : mRelWord alpha (y*s) * target⁻¹ ∈
       twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4) :=
     (mBasis_mRelWord_correction_defect_mem_iff (by omega) (n+3) y t s target hslack).mpr hterr
-  exact exists_mBasis_allRows_relative_correction halpha n e s target hs hshead hsdefect
+  obtain ⟨t', h1, h2, h3, h4⟩ :=
+    exists_mBasis_allRows_relative_correction halpha n e s target hs hshead hsdefect
+  exact ⟨t', h1, h2, h3, h4⟩
+
+/-- **The one-step M stage interface is a theorem** at every `alpha >= 2` and
+every handle count, with the standard free basis relator as target. -/
+theorem mBasisStageStep {alpha h : ℕ} (halpha : 2 ≤ alpha) : MBasisStageStep alpha h :=
+  mBasisStageStep_of_headCleanup halpha (mBasisHeadCleanupSupply halpha)
 
 #print axioms mBasisProjection
 #print axioms mBasisProjection_gen
@@ -413,9 +430,11 @@ theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
 #print axioms MBasisAmbientStageSupply
 #print axioms mBasisAmbientStageSupply
 #print axioms MBasisHeadCleanupSupply
+#print axioms mBasisHeadCleanupSupply
 #print axioms exists_mBasis_allRows_relative_correction
 #print axioms MBasisStageStep
 #print axioms mBasisStageStep_of_headCleanup
+#print axioms mBasisStageStep
 
 end
 end GQ2.Dyadic.MarkedCore
