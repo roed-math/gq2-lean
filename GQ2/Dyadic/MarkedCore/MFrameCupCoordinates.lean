@@ -30,12 +30,15 @@ Two M-specific points are checked here rather than copied from the N file.
   the generators, so the condition proved below is `Abar G Abar^T = G`.
   `MarkedCore/Variance.lean` is the dictionary: `M.lean` stores frame images in
   rows and therefore states the same condition as `Mbar^T G Mbar = G`. The Gram
-  is literally shared (`mGram_eq_nGram`, `evenCupForm`), so no M-specific Gram
+  itself is shared: at every rank `evenCupForm` is the Gram of both rows
+  (`obsH2_evenModel_mNatWord_characterCup` against its N twin), and at rank four
+  `Variance.lean`'s `mGram_eq_nGram` says so on the nose. No M-specific Gram
   appears.
 
-The converse ingredient is the last section: every continuous automorphism of
-the actual core `D_M` induces a frame cup isometry, through `dmObs` and the
-uniqueness of the one-dimensional degree-two obstruction.
+The converse ingredient is the last section: if a continuous automorphism of
+the actual core `D_M` has frame action `phi`, then `phi` is a cup isometry. It
+goes through `dmObs` and the uniqueness of the one-dimensional degree-two
+obstruction, with no coordinate computation.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
