@@ -355,6 +355,230 @@ theorem nNielsenHdl_cupIsometry {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabPar
   exact nNielsenHdl_cup_head P.rows.mat (fun i j => NStabParam.rows_isCupIsometry hP i j)
     _ _ _ _ _ _ _ _
 
+
+/-! ## The six families, carried to every handle count -/
+
+/-- Family **N1**, with the identity handle tail. -/
+def nNielsenHdlN1 (k : ℤ_[2]) (h : ℕ) : ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  nNielsenHdlEquiv (nFamN1 k) (nFamN1 (-k)) (nNielsenFac_N1_inv k)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N1_inv (-k) v) h
+
+/-- Family **N2**, with the identity handle tail. -/
+def nNielsenHdlN2 (k : ℤ_[2]) (h : ℕ) : ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  nNielsenHdlEquiv (nFamN2 k) (nFamN2 (-k)) (nNielsenFac_N2_inv k)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N2_inv (-k) v) h
+
+/-- Family **N3**, with the identity handle tail. -/
+def nNielsenHdlN3 (k : ℤ_[2]) (h : ℕ) : ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  nNielsenHdlEquiv (nFamN3 k) (nFamN3 (-k)) (nNielsenFac_N3_inv k)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N3_inv (-k) v) h
+
+/-- Family **N4**, with the identity handle tail. -/
+def nNielsenHdlN4 (κ : ℤ_[2]ˣ) (h : ℕ) : ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  nNielsenHdlEquiv (nFamN4 κ) (nFamN4 κ⁻¹) (nNielsenFac_N4_inv κ)
+    (fun v => by simpa only [inv_inv] using nNielsenFac_N4_inv κ⁻¹ v) h
+
+/-- Family **N5**, with the identity handle tail. -/
+def nNielsenHdlN5 (p : ℤ_[2]) (h : ℕ) : ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  nNielsenHdlEquiv (nFamN5 p) (nFamN5 (-p)) (nNielsenFac_N5_inv p)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N5_inv (-p) v) h
+
+/-- Family **N6**, with the identity handle tail. -/
+def nNielsenHdlN6 (q : ℤ_[2]) (h : ℕ) : ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  nNielsenHdlEquiv (nFamN6 q) (nFamN6 (-q)) (nNielsenFac_N6_inv q)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N6_inv (-q) v) h
+
+/-! ## Composition, and the lifts at every handle count -/
+
+/-- `Psi` is an actual `chiN`-preserving continuous automorphism of `D_N` at handle count `h`
+inducing `phi` on the full abelian frame. Verbatim the conclusion of `nFullStabilizer_lift`. -/
+def NNielsenHdlLifts {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ}
+    (phi : ContinuousMulEquiv (NFrameModel h) (NFrameModel h)) : Prop :=
+  ∃ Psi : ContinuousMulEquiv (DN alpha h : Type) (DN alpha h : Type),
+    (∀ x, chiN alpha h (Psi x) = chiN alpha h x) ∧
+    (∀ x, nPhiHom ha h (abMk (Psi x)) = phi (nPhiHom ha h (abMk x)))
+
+theorem nNielsenHdlLifts_refl {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) :
+    NNielsenHdlLifts (alpha := alpha) ha (ContinuousMulEquiv.refl (NFrameModel h)) :=
+  ⟨ContinuousMulEquiv.refl _, fun _ => rfl, fun _ => rfl⟩
+
+theorem nNielsenHdlLifts_trans {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ}
+    {phi psi : ContinuousMulEquiv (NFrameModel h) (NFrameModel h)}
+    (h1 : NNielsenHdlLifts (alpha := alpha) ha phi)
+    (h2 : NNielsenHdlLifts (alpha := alpha) ha psi) :
+    NNielsenHdlLifts (alpha := alpha) ha (phi.trans psi) := by
+  obtain ⟨P, hP1, hP2⟩ := h1
+  obtain ⟨Q, hQ1, hQ2⟩ := h2
+  refine ⟨P.trans Q, fun x => ?_, fun x => ?_⟩
+  · exact (hQ1 (P x)).trans (hP1 x)
+  · show nPhiHom ha h (abMk (Q (P x))) = psi (phi _)
+    rw [hQ2 (P x), hP2 x]
+
+/-- The composite of a finite list of frame automorphisms, leftmost applied first. -/
+def nNielsenHdlCompose {h : ℕ}
+    (L : List (ContinuousMulEquiv (NFrameModel h) (NFrameModel h))) :
+    ContinuousMulEquiv (NFrameModel h) (NFrameModel h) :=
+  L.foldr (fun g e => g.trans e) (ContinuousMulEquiv.refl _)
+
+theorem nNielsenHdlLifts_compose {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ}
+    (L : List (ContinuousMulEquiv (NFrameModel h) (NFrameModel h)))
+    (hL : ∀ g ∈ L, NNielsenHdlLifts (alpha := alpha) ha g) :
+    NNielsenHdlLifts (alpha := alpha) ha (nNielsenHdlCompose L) := by
+  induction L with
+  | nil => exact nNielsenHdlLifts_refl ha h
+  | cons g L ih =>
+      exact nNielsenHdlLifts_trans ha (hL g (List.mem_cons_self))
+        (ih fun x hx => hL x (List.mem_cons_of_mem g hx))
+
+/-- **Every identity-tail extension of an admissible rank-four `N` stabilizer parameter lifts,
+at every handle count.** -/
+theorem nNielsenHdlLifts_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hP : P.Admissible) (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v)
+    (h : ℕ) : NNielsenHdlLifts (alpha := alpha) ha (nNielsenHdlEquiv P Q hPQ hQP h) :=
+  nFullStabilizer_lift ha (nNielsenHdlEquiv P Q hPQ hQP h)
+    (nNielsenHdl_orientation ha P Q hPQ hQP h) (nNielsenHdl_cupIsometry ha P Q hP hPQ hQP h)
+
+/-! ## The packet's eight-slot list, at every handle count -/
+
+/-- **The eight-slot Nielsen list at handle count `h`**, in `NNielsenFactorization`'s order,
+each slot with the identity handle tail. -/
+def nNielsenHdlList (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]) (h : ℕ) :
+    List (ContinuousMulEquiv (NFrameModel h) (NFrameModel h)) :=
+  [nNielsenHdlN2 z h, nNielsenHdlN3 y h, nNielsenHdlN2 x h, nNielsenHdlN4 κ h,
+    nNielsenHdlN3 w h, nNielsenHdlN5 p h, nNielsenHdlN6 q h, nNielsenHdlN1 k h]
+
+theorem nNielsenHdlList_length (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]) (h : ℕ) :
+    (nNielsenHdlList z y x κ w p q k h).length = 8 := rfl
+
+theorem nNielsenHdlCompose_list (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]) (h : ℕ)
+    (v : NFrameModel h) :
+    nNielsenHdlCompose (nNielsenHdlList z y x κ w p q k h) v =
+      nNielsenHdlLift ((nFamN1 k).act ∘ (nFamN6 q).act ∘ (nFamN5 p).act ∘ (nFamN3 w).act ∘
+        (nFamN4 κ).act ∘ (nFamN2 x).act ∘ (nFamN3 y).act ∘ (nFamN2 z).act) v := rfl
+
+/-- Each generator preserves the orientation, is a cup isometry, and lifts, at every `h`. -/
+theorem nNielsenHdl_props_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hP : P.Admissible) (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v)
+    (h : ℕ) :
+    (∀ z, nFrameOrientation ha h (nNielsenHdlEquiv P Q hPQ hQP h z)
+        = nFrameOrientation ha h z) ∧
+      NFrameCupIsometry ha (nNielsenHdlEquiv P Q hPQ hQP h) ∧
+      NNielsenHdlLifts (alpha := alpha) ha (nNielsenHdlEquiv P Q hPQ hQP h) :=
+  ⟨nNielsenHdl_orientation ha P Q hPQ hQP h, nNielsenHdl_cupIsometry ha P Q hP hPQ hQP h,
+    nNielsenHdlLifts_of_param ha P Q hP hPQ hQP h⟩
+
+theorem nNielsenHdlList_props {alpha : ℕ} (ha : 2 ≤ alpha) (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ)
+    (w p q k : ℤ_[2]) (h : ℕ) :
+    ∀ g ∈ nNielsenHdlList z y x κ w p q k h,
+      (∀ v, nFrameOrientation ha h (g v) = nFrameOrientation ha h v) ∧
+        NFrameCupIsometry ha g ∧ NNielsenHdlLifts (alpha := alpha) ha g := by
+  intro g hg
+  simp only [nNielsenHdlList, List.mem_cons, List.not_mem_nil, or_false] at hg
+  rcases hg with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN2_admissible z) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN3_admissible y) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN2_admissible x) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN4_admissible κ) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN3_admissible w) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN5_admissible p) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN6_admissible q) _ _ h
+  · exact nNielsenHdl_props_of_param ha _ _ (nFamN1_admissible k) _ _ h
+
+/-- **The MC-N finite-list artifact at every handle count** (`alpha >= 2`), for the
+identity-handle-tail extensions.
+
+For every admissible rank-four parameter `P : NStabParam` and every handle count `h` there is
+an explicit list of **eight** frame automorphisms of `NFrameModel h`, each a member of memo
+§3.4's six families at an explicit parameter extended by the identity on the `2h` handle
+coordinates, each preserving the orientation and the full mod-two cup form and therefore
+lifting to an actual `chiN`-preserving continuous automorphism of `D_N α h`, whose composite
+is the identity-tail extension of the frame action of `P`, and whose lifts compose to a lift
+of that composite.
+
+**This is not a handle-mixing classification.** The parameter `P` is a *rank-four* stabilizer
+parameter, and every map produced here is the identity on the handle block. -/
+theorem nNielsenHdl_finite_list {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) (P : NStabParam)
+    (hP : P.Admissible) :
+    ∃ (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]),
+      (nNielsenHdlList z y x κ w p q k h).length = 8 ∧
+      (∀ g ∈ nNielsenHdlList z y x κ w p q k h,
+        (∀ v, nFrameOrientation ha h (g v) = nFrameOrientation ha h v) ∧
+          NFrameCupIsometry ha g ∧ NNielsenHdlLifts (alpha := alpha) ha g) ∧
+      (∀ v, nNielsenHdlCompose (nNielsenHdlList z y x κ w p q k h) v = nNielsenHdlMap P v) ∧
+      NNielsenHdlLifts (alpha := alpha) ha
+        (nNielsenHdlCompose (nNielsenHdlList z y x κ w p q k h)) := by
+  obtain ⟨k, q, p, w, x, y, z, κ, -, -, hfac⟩ := nNielsen_factorization P hP
+  refine ⟨z, y, x, κ, w, p, q, k, nNielsenHdlList_length _ _ _ _ _ _ _ _ h,
+    nNielsenHdlList_props ha _ _ _ _ _ _ _ _ h, fun v => ?_, ?_⟩
+  · rw [nNielsenHdlCompose_list, nNielsenHdlMap_eq_lift, hfac]
+  · exact nNielsenHdlLifts_compose ha _
+      (fun g hg => (nNielsenHdlList_props ha _ _ _ _ _ _ _ _ h g hg).2.2)
+
+/-- **Every identity-tail extension of an admissible rank-four parameter is realized by an
+actual automorphism of `D_N α h`**, as the composite of the eight generators' lifts. -/
+theorem nNielsenHdl_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) (P : NStabParam)
+    (hP : P.Admissible) :
+    ∃ Psi : ContinuousMulEquiv (DN alpha h : Type) (DN alpha h : Type),
+      (∀ x, chiN alpha h (Psi x) = chiN alpha h x) ∧
+      (∀ x, nPhiHom ha h (abMk (Psi x)) = nNielsenHdlMap P (nPhiHom ha h (abMk x))) := by
+  obtain ⟨z, y, x, κ, w, p, q, k, -, -, hcomp, Psi, hchi, hsq⟩ :=
+    nNielsenHdl_finite_list ha h P hP
+  exact ⟨Psi, hchi, fun u => (hsq u).trans (hcomp _)⟩
+
+/-! ## The closure in the identity-tail form -/
+
+/-- The two block conditions pin the map. -/
+theorem nNielsenHdl_eq_of_blocks {h : ℕ} (P : NStabParam)
+    (phi : ContinuousMulEquiv (NFrameModel h) (NFrameModel h))
+    (hcore : ∀ z, nNielsenHdlCore (phi z) = nNielsenFacMap P (nNielsenHdlCore z))
+    (hhandle : ∀ z, (phi z).toAdd.2.2.2.2 = z.toAdd.2.2.2.2) (z : NFrameModel h) :
+    phi z = nNielsenHdlMap P z := by
+  have h1 := congrArg (fun w : NFrameModel 0 => w.toAdd.1) (hcore z)
+  have h2 := congrArg (fun w : NFrameModel 0 => w.toAdd.2.1) (hcore z)
+  have h3 := congrArg (fun w : NFrameModel 0 => w.toAdd.2.2.1) (hcore z)
+  have h4 := congrArg (fun w : NFrameModel 0 => w.toAdd.2.2.2.1) (hcore z)
+  exact Multiplicative.toAdd.injective
+    (Prod.ext h1 (Prod.ext h2 (Prod.ext h3 (Prod.ext h4 (hhandle z)))))
+
+/-- **T2, the closure at every handle count.** Every continuous automorphism of the full `N`
+frame at handle count `h` that acts on the rank-four core block by an admissible Smith-Witt
+stabilizer parameter and by the **identity** on the `2h` handle coordinates is induced by an
+actual `chiN`-preserving continuous automorphism of `D_N α h`, with the exact all-element
+commuting frame square. An automorphism that mixes handles satisfies neither hypothesis and
+is not covered. -/
+theorem nNielsenHdl_stabilizer_induced {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (P : NStabParam)
+    (hP : P.Admissible) (phi : ContinuousMulEquiv (NFrameModel h) (NFrameModel h))
+    (hcore : ∀ z, nNielsenHdlCore (phi z) = nNielsenFacMap P (nNielsenHdlCore z))
+    (hhandle : ∀ z, (phi z).toAdd.2.2.2.2 = z.toAdd.2.2.2.2) :
+    ∃ Psi : ContinuousMulEquiv (DN alpha h : Type) (DN alpha h : Type),
+      (∀ x, chiN alpha h (Psi x) = chiN alpha h x) ∧
+      (∀ x, nPhiHom ha h (abMk (Psi x)) = phi (nPhiHom ha h (abMk x))) := by
+  obtain ⟨Psi, hchi, hsq⟩ := nNielsenHdl_param_realized ha h P hP
+  exact ⟨Psi, hchi, fun x => (hsq x).trans
+    (nNielsenHdl_eq_of_blocks P phi hcore hhandle _).symm⟩
+
+#print axioms nNielsenHdlN1
+#print axioms nNielsenHdlN2
+#print axioms nNielsenHdlN3
+#print axioms nNielsenHdlN4
+#print axioms nNielsenHdlN5
+#print axioms nNielsenHdlN6
+#print axioms NNielsenHdlLifts
+#print axioms nNielsenHdlLifts_refl
+#print axioms nNielsenHdlLifts_trans
+#print axioms nNielsenHdlCompose
+#print axioms nNielsenHdlLifts_compose
+#print axioms nNielsenHdlLifts_of_param
+#print axioms nNielsenHdlList
+#print axioms nNielsenHdlList_length
+#print axioms nNielsenHdlCompose_list
+#print axioms nNielsenHdl_props_of_param
+#print axioms nNielsenHdlList_props
+#print axioms nNielsenHdl_finite_list
+#print axioms nNielsenHdl_param_realized
+#print axioms nNielsenHdl_eq_of_blocks
+#print axioms nNielsenHdl_stabilizer_induced
+
 #print axioms nNielsenHdl_coord_handle
 #print axioms nNielsenHdl_char_of_core
 #print axioms nNielsenHdl_char_coreMark
