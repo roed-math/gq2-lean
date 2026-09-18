@@ -90,11 +90,13 @@ it in the shape the sibling MKERNEL lane asked for:
 need `[CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]` on `G`, unlike
 T1 and T2. MKERNEL must supply those.
 
-**Import cost:** T3 is why this module imports
-`GQ2.Dyadic.Instances.StageAbstractionEvenRawSpan`. The transitive source
-closure of the module is 558 modules; without that one import it would be small.
-If the orchestrator prefers the head cleanup to stay light, T3's two statements
-are the natural thing to move into MKERNEL's own module.
+**Import cost, measured:** T3 is the only reason this module imports
+`GQ2.Dyadic.Instances.StageAbstractionEvenRawSpan`. That single import takes the
+module's transitive `GQ2` source closure from **73** modules to **558**. T1 and
+T2 are foundational and every later M stage lemma will import them, so if the
+orchestrator prefers the head cleanup to stay light, T3's two statements are the
+natural thing to move into MKERNEL's own module; nothing in T1 or T2 uses
+them.
 
 ## What this lane is NOT
 
