@@ -20,9 +20,10 @@ No Lean, no `generated/`, no packet TeX, no ledger, no W361 amendment/readiness 
 - [x] Inputs read (packet obligations, ledger, completion audit section 3, the six
       theorems read verbatim from the Lean, the two W363 audits, the W363/W364 notes,
       the owner memo wave-362 block).
-- [ ] T1 amendment drafted.
-- [ ] T2 readiness drafted.
-- [ ] Contradictions in the inputs recorded.
+- [x] T1 amendment drafted (`w364-proof-packet-amendment-mc.md`, 543 lines).
+- [x] T2 readiness drafted (`w364-acceptance-readiness-mc.md`).
+- [x] Contradictions in the inputs recorded (amendment section 6, five of them).
+- [x] One dated pointer line added at the top of each W361 MC record.
 
 ## Inputs, as actually found
 
@@ -50,7 +51,28 @@ No Lean, no `generated/`, no packet TeX, no ledger, no W361 amendment/readiness 
 3. Which M families have group-level lifts: three sources disagree. See the
    amendment's verified-facts section.
 
+## Verification this lane performed
+
+`bash scripts/w361_lean_runner.sh` on four modules at
+`leanprover/lean4:v4.31.0-rc2` against the shared dependency cache. `lake` was
+never invoked, `scripts/check_dyadic.sh` was never run, nothing was written.
+
+| Module | pins | result | exit |
+| --- | --- | --- | --- |
+| `MarkedCore/MFullStabilizerLift.lean` | 10 | all std-3 | 0 |
+| `MarkedCore/NFullStabilizerLift.lean` | 6 | all std-3 | 0 |
+| `MarkedCore/MNielsenGenerators.lean` | 70 | all std-3 | 0 |
+| `MarkedCore/NNielsenFactorization.lean` | 94 | all std-3 | 0 |
+
+180 pins, no exceptions, no errors, no warnings. Incremental against a shared
+cache: not a source-only transitive build, not a whole-tree gate.
+
 ## Log
 
 - Commit 1: skeleton, before reading any input.
 - Commit 2: inputs read and recorded, with three input discrepancies logged.
+- Commit 3: T1, the amendment, with the lane's own pin measurement.
+- Commit 4: T2, the readiness rows and the owner-decision list.
+- Commit 5: the two W361 pointer lines.
+- Commits 6 and 7: precision repairs to T1 (construction files, the Definition
+  8.1 clause, the cup/orientation quantifiers).
