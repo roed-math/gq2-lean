@@ -42,7 +42,7 @@ Everything else is reachable from those two.
 | --- | --- |
 | `w361-claude-code-verification-report.json` | The durable replay report binding the 1,552-module state; SHA-256 `aad5d041...`, verified in place. |
 | `w361-final-verification-report.json` | The historical 1,541-module report; SHA-256 `bb20e991...`, verified in place. Does not cover the eleven N modules. |
-| `w361-final-verification.md` | The 17:30 UTC source-bound verification contract and record. Historical relative to the Claude handoff. |
+| `w361-final-verification.md` | The 17:30 UTC source-bound verification contract and record, for the superseded 1,541-module state. **See flag 0: it says it is current and is not, and thirteen documents point at it.** |
 | `w361-overnight-progress.md` | The 978-line running log of the 09:10-17:34 UTC pass. See flag 1: a forward-written log, not a current-state record. |
 | `w361-compact-n-boundary-hessian-record.md` | Branch-free original compact-N Hessian record at every actual boundary lift. |
 | `w361-npc-boundary-hessian-record.md` | Branch-free original Npc Hessian record at every actual boundary lift of the displayed source. |
@@ -143,7 +143,43 @@ already counted under Audits and Verified records, and are not recounted.
 The docstring-outruns-statement rule applied to prose. The corpus is unusually
 disciplined -- almost every document states its own limits in its first
 paragraph, and every `GQ2/*.lean` and `scripts/*` path cited anywhere in the
-corpus resolves in the tree at `6770a87e`. Four items still deserve a marker.
+corpus resolves in the tree at `6770a87e`. Five items still deserve a
+marker, and the first of them is the one to act on.
+
+**Flag 0 (the highest severity here) -- `w361-final-verification.md` asserts
+a currency it no longer has, and thirteen documents point at it.**
+Its opening words are "Final verified checkpoint, 2026-09-17 17:30 UTC", and
+line 141 says in as many words "This is the current final snapshot". That
+snapshot is the 1,541-module / 573-pin one. It was superseded five hours later
+by the 1,552-module / 691-pin replay that finished at 22:53:05 UTC, which is
+the state this tree is in. The document carries no marker saying so, although
+the corpus plainly knows how to add one: `w361-restart-handoff.md` opens with
+a bold "Historical checkpoint." and sends the reader on.
+
+This matters because it is the most-linked verification record here. Thirteen
+other documents reference it, and four of them
+(`w361-n-plane-compactness.md`, `w361-n-plane-filtered-bridge-audit.md`,
+`w361-n-plane-strong-scaling-research.md`, `w361-n-general-scaling-audit.md`)
+send the reader there in the exact words "current verification status" or
+"current final clean-build and replay status". Following any of those four
+lands on a record that says it is current and is not. Only
+`w361-claude-code-handoff.md` frames it correctly, in its section 5: "The
+prior 1,541-module / 573-pin checkpoint remains historical".
+
+The corpus leans the same way in bulk: 13 documents cite 1,541 and 9 cite the
+573-pin figure, against 5 and 5 for the current 1,552 and 691. Five of the
+thirteen carry no forward pointer at all (`w361-final-verification.md`,
+`w361-final-endpoint-scope-audit.md`, `w361-compositional-certificate-map.md`,
+`w361-n-full-row-independent-audit.md`,
+`w361-pair-mobile-certificate-appendix.md`). A reader who greps this corpus
+for the module count is more likely to find the superseded number than the
+current one.
+
+The fix is one paragraph at the head of `w361-final-verification.md`, in the
+shape `w361-restart-handoff.md` already uses, and a matching correction to the
+four "current verification status" pointers. This lane is the housekeeping
+lane and has not edited another wave's verification record; that is the
+orchestrator's call.
 
 **Flag 1 (medium) -- `w361-overnight-progress.md` is a log, not a record.**
 978 lines, the longest document here, with a title that reads like a campaign
