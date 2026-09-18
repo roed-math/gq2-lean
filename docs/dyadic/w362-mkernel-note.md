@@ -76,13 +76,25 @@ basis lift; MCUP: the depth-three comparison from full cup preservation).
 
 ## Status
 
-Opened 2026-09-17. `MBasisRowRefinement.lean` verified by the runner of
-record: exit 0, 9 pins, all `[propext, Classical.choice, Quot.sound]`, no
-warnings. `MPlaneAmbientStage.lean` verified through the mirror harness
-(sweep; gen `MHeadCleanup`, `MFullFrameCompactness`, `MFullFrameStages`,
-`MBasisRowRefinement`; check `MPlaneAmbientStage`): exit 0, 18 pins, all
-std-3, no warnings. Both `claude/w362-mhead` and `claude/w362-mstages` are
-merged into this branch (same-history merges, no conflicts).
+Opened and closed 2026-09-17. Verification of record, after the
+orchestrator's umbrella rebuild of the shared cache completed
+(`Build completed successfully (5174 jobs)`):
+
+- `bash scripts/w361_lean_runner.sh GQ2/Dyadic/MarkedCore/MBasisRowRefinement.lean`:
+  exit 0, 9 pins, all `[propext, Classical.choice, Quot.sound]`, no warnings.
+- `scripts/mirror.sh sweep`, then `gen` of `MHeadCleanup` (7 pins),
+  `MFullFrameCompactness` (25), `MFullFrameStages` (12), `MBasisRowRefinement`
+  (9), `MPlaneAmbientStage` (18): every gen exit 0, every pin std-3, no
+  warnings.
+
+Both `claude/w362-mhead` and `claude/w362-mstages` are merged into this branch
+(same-history merges, no conflicts). `GQ2.lean` is untouched; the orchestrator
+adds the two new modules there. Nothing is pushed.
+
+What remains for the M full-stabilizer route is outside this lane:
+`MStageInitialLift ha h phi` (the MINIT/MCUP initial lift with the torsion
+word fixed, the orientation preserved, the frame square on generators and the
+relator error in `lambda_3`). No `alpha = 1` statement is made anywhere here.
 
 ## Log
 
@@ -98,3 +110,4 @@ merged into this branch (same-history merges, no conflicts).
 - Commit 7: `MPlaneAmbientStage` rewritten onto the landed `mStageOrientation`;
   `mStageStep_holds : MStageStep alpha h` and the initial-lift-only
   full-stabilizer corollary; mirror check 18 pins, std-3.
+- Commit 8: verification of record repeated after the cache advance; lane closed.
