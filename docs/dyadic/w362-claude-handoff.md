@@ -1,10 +1,11 @@
 # W362 handoff
 
 **SKELETON. Drafted by the W362-HOUSE lane at the open of the wave, against
-base `6770a87e`.** Sections 1, 3 and 5 depend on this wave's mathematics lanes
-and are marked `[ORCHESTRATOR]` where they must be filled at the close. The
-housekeeping lane cannot fill them and has not guessed at them. Sections 2, 4
-(in part), 6 and 7 are complete as written and were verified in this lane.
+base `6770a87e`.** Sections 1, 3, 5 and 8 depend on this wave's mathematics
+lanes and are marked `[ORCHESTRATOR]` where they must be filled at the close.
+The housekeeping lane cannot fill them and has not guessed at them. Sections
+2, 4 (in part), 6 and 7 are complete as written and were verified in this
+lane.
 
 Structure follows `w361-claude-code-handoff.md` deliberately, so a reader who
 has read that one can skip to the section they want.
@@ -53,9 +54,15 @@ Wave base:   6770a87e  "checkpoint the verified W361 state left uncommitted
 Lane worktrees: /Users/roed/claude/cla/worktrees/<lane>
 ```
 
-`6770a87e` is the commit that first tracked the 309 files the Codex pass left
-untracked. It changes no source. The W362-HOUSE lane verified that it records
-the replayed state byte for byte: see section 4.
+`6770a87e` is the commit that first tracked what the Codex pass left
+untracked. It changes no source in the sense that matters: the W362-HOUSE lane
+verified that it records the replayed state byte for byte (section 4, item 4).
+
+Its message says "309 untracked files"; the commit adds **365** files and
+modifies three. Both numbers are right about different things. 309 counts
+`git status --porcelain` entries, and three wholly new directories under
+`generated/` collapse to one entry each; 307 of those entries were committed
+and the two excluded build products `tmp/` and `output/` make up the rest.
 
 Standing prohibitions, unchanged: no `sorry`, `admit`, `native_decide`, new
 axiom or raised resource limit. Existing settings are 200,000 heartbeats,
