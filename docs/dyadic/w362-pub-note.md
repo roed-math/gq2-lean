@@ -211,17 +211,23 @@ item 2. Standard-three analytic word certificates do not make the field theorem 
 and folding these three into the standard-three count would have been the exact error the
 readiness note warns about.
 
-Staged packets, all passing full Lean replay:
+Staged packets, all passing full Lean replay. Three sit at exactly the parameters the
+frozen L/N appendix skeletons use, and three sit beyond them, so the set is not a fixture
+battery in disguise:
 
 | Packet | Word | Packet hash (first 16) |
 |---|---|---|
-| `packet-L-h0` | `lSqW 0` | `75d982653e62624e` |
-| `packet-L-h4` | `lSqW 4` | `dd733b4c15870541` |
-| `packet-N0-alpha5-h3` | `nCompactW 5 3` | `ef940a33c757a739` |
-| `packet-Npc-alpha2-r1-h0-num1-den1` | `npcW 2 1 0 (1/1)` | `bec5cf063326ed49`* |
-| `packet-Npc-alpha3-r2-h3-num3-den9` | `npcW 3 2 3 (3/9)` | `b15cdb2ecd97683b` |
+| `packet-L-h0` | `lSqW 0`, the frozen L appendix rank | `c40f695590b4c2f2` |
+| `packet-L-h4` | `lSqW 4`, beyond the frozen rank | `74cc82d4c2c72c2e` |
+| `packet-N0-alpha2-h0` | `nCompactW 2 0`, the frozen N0 appendix parameters | `76e3dff2a1df2868` |
+| `packet-N0-alpha5-h3` | `nCompactW 5 3`, beyond them | `9d2c62d4653eeaa9` |
+| `packet-Npc-alpha2-r1-h0-num1-den1` | `npcW 2 1 0 (1/1)`, the frozen Npc appendix display | `a34987572fadabe0` |
+| `packet-Npc-alpha3-r2-h3-num3-den9` | `npcW 3 2 3 (3/9)`, a nonreduced odd display | `a65a17cc464ee7e9` |
 
-(*the exact values are in each `.files.json`; the table is a locator, not the authority.)
+The hashes above are a locator. Each packet's `.files.json` is the authority for its own
+four files, and the packet hash is recomputed on every check.
+
+---
 
 ### T2.d The honest TODO list
 
@@ -275,10 +281,11 @@ decision concrete enough to be taken or refused.
    `rawLsq 0`, `rawNCompact 2 0` and `rawNpc 2 1 0 1 1`. Any new entry must decide which of
    these two things its `declaration` field names.
 4. **The staged packets at the frozen parameters carry the frozen word hashes.** Checked
-   directly against the manifest: `L-h0` has word hash `d129037c...`, identical to
-   `rawLsq_n1`; `Npc-alpha2-r1-h0-num1-den1` has `08b7742c...`, identical to
-   `rawNpc_a2_r1_eta1_1_h0`; `N0-alpha2-h0` has `a940b6ad...`, identical to
-   `rawNCompact_alpha2_h0`. So entering the parameter-matched packets changes **no** frozen
+   directly against the manifest, by replaying the exporter and comparing:
+   `packet-L-h0` has word hash `d129037c...`, identical to `rawLsq_n1`;
+   `packet-N0-alpha2-h0` has `a940b6ad...`, identical to `rawNCompact_alpha2_h0`;
+   `packet-Npc-alpha2-r1-h0-num1-den1` has `08b7742c...`, identical to
+   `rawNpc_a2_r1_eta1_1_h0`. So entering the parameter-matched packets changes **no** frozen
    identifier or hash. This is the single most important fact for the decision.
 5. Every staged artifact embeds `status: "STAGED"`, and every validator **refuses** any other
    value. Adoption cannot be performed by editing that string.
@@ -294,7 +301,8 @@ replace the items 4 and 5 `dyadicAppendixTODO` slots with the corresponding stag
 display, and re-point the items 2, 3, 6, 7, 8 and 9 slots at their checked declarations
 while keeping them marked TODO. The manifest is untouched: same names, same `word_hash`,
 same `hash_constant`, gate 7 unchanged. Recorded TODO invocations for those three files drop
-from 24 to 18, and the remaining 18 gain declaration pointers.
+from 24 to 18, and the remaining 18 gain declaration pointers. A parameter-matched packet
+already exists for each of the three.
 *Cost:* `dyadic_word_tex.py` must learn to emit those two slots, or the two generators must
 be composed. *Benefit:* no schema change, no new frozen constant, no gate change.
 

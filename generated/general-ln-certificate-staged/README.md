@@ -44,7 +44,7 @@ theorems in `scripts/w362_ln_fox_export.lean`:
 | Artifact | Sectors |
 |---|---|
 | `L-fox-h0-q2`, `L-fox-h4-q2` | unramified, ramified, scalar |
-| `N0-fox-h3-q2` | unramified, ramified |
+| `N0-fox-h0-q2`, `N0-fox-h3-q2` | unramified, ramified |
 | `Npc-fox-h0-q2-r1`, `Npc-fox-h3-q2-r2` | unramified, ramified |
 
 Packets, one per word instance, each with `.packet.json`, `.appendix.tex`,
@@ -52,11 +52,16 @@ Packets, one per word instance, each with `.packet.json`, `.appendix.tex`,
 
 | Packet | Word |
 |---|---|
-| `packet-L-h0` | `lSqW 0`, the frozen L rank |
+| `packet-L-h0` | `lSqW 0`, the frozen L appendix rank |
 | `packet-L-h4` | `lSqW 4`, beyond the frozen rank |
-| `packet-N0-alpha5-h3` | `nCompactW 5 3` |
-| `packet-Npc-alpha2-r1-h0-num1-den1` | `npcW 2 1 0 (1/1)`, the frozen Npc display |
+| `packet-N0-alpha2-h0` | `nCompactW 2 0`, the frozen N0 appendix parameters |
+| `packet-N0-alpha5-h3` | `nCompactW 5 3`, beyond them |
+| `packet-Npc-alpha2-r1-h0-num1-den1` | `npcW 2 1 0 (1/1)`, the frozen Npc appendix display |
 | `packet-Npc-alpha3-r2-h3-num3-den9` | `npcW 3 2 3 (3/9)`, a nonreduced odd display |
+
+The three packets at frozen appendix parameters carry exactly the frozen word hashes
+`d129037c...`, `a940b6ad...` and `08b7742c...` from `generated/hash-manifest.json`. They are
+staged proposals all the same: carrying a frozen hash is not entering the manifest.
 
 The Fox export instantiates `q` (and `r`) because `tameRow _ q` really contains `q`
 norm terms and `npcRamOps h r` really contains the exponents `2^r`. `q = 2` is used

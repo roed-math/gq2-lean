@@ -319,12 +319,12 @@ def sections(family):
                 "TODO: this section has NO generated display. The checked declarations below "
                 "carry the item, and their elaborated statements are stored in the packet's "
                 "proofs transcript, but no exporter serializes them into synchronized TeX. The "
-                "declaration that would do so is `" + MISSING_EXPORTERS[number] + "`, which "
+                "declaration that would do so is " + MISSING_EXPORTERS[number] + ", which "
                 + MISSING + ". No formula is substituted for it here.")
         if number == 4:
             todos.append(
                 "TODO: the rfl signature theorems that bind the exported lists to the records "
-                "live in the exporter driver `scripts/w362_ln_fox_export.lean`, which has no "
+                "live in the exporter driver scripts/w362_ln_fox_export.lean, which has no "
                 "olean and therefore cannot be cited by the declaration probe. They are checked "
                 "only by the Fox replay, which recompiles that driver.")
         if number == 5 and family == "Npc":
@@ -620,9 +620,13 @@ def self_test():
     return count
 
 
+# Two kinds of instance are staged: the three parameters that the frozen L/N appendix
+# skeletons already use (so a packet exists carrying exactly the frozen word hash), and
+# ranks beyond them (so the packets are not a fixture battery in disguise).
 REQUESTS = [
     ("L", {"h": 0}, 2),
     ("L", {"h": 4}, 2),
+    ("N0", {"alpha": 2, "h": 0}, 2),
     ("N0", {"alpha": 5, "h": 3}, 2),
     ("Npc", {"alpha": 2, "r": 1, "h": 0, "num": 1, "den": 1}, 2),
     ("Npc", {"alpha": 3, "r": 2, "h": 3, "num": 3, "den": 9}, 2),

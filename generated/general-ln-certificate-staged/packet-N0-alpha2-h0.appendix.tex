@@ -1,0 +1,145 @@
+% STAGED generated ten-item L/N appendix. No owner approval, manifest entry, gate activation or migration of the frozen appendix skeletons.
+% ln-packet-sha256: 76e3dff2a1df28688a9c86ee5b796c0957ac626a91f0f385f57ad006b1136e1f
+\section*{STAGED certificate: packet-N0-alpha2-h0}
+Family N0, word structure \{"alpha":2,"h":0\}, Fox structure \{"h":0,"q":2\}.
+
+\noindent Exact semantic binding: \path{GQ2.Dyadic.Words.denoteCtx}. Semantic target: \path{GQ2.Dyadic.Words.nCompactW}. Uniform denotation bridge: \path{GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNCompact}.
+\par\noindent The N0 Fox records need 1 <= alpha; the complete N0 certificate requires alpha >= 2 and nonzero even q.
+
+\subsection*{1. Exact syntax tree and semantic binding}
+The word below is rendered from the exact Lean-exported canonical tree. Its conjugator is sigma, not sigma2, and its degree is 2+2h. The zero-count handle node is retained at rank zero and denotes the empty product.
+
+\begin{verbatim}
+% STAGED unchanged legacy L/N factory export, not a ten-item certificate packet.
+% envelope-hash: 0ba90d4d5ceb723250d6cad60c9ec8a0285cad3f0ebcabbb47718a327ce856aa
+% ast-hash: a940b6ad06d9728a6b0b5d20f27c76994d83103e65accc6b844fe6174755fc10
+% factory: GQ2.Dyadic.Words.rawNCompact
+% binding: GQ2.Dyadic.Words.denoteCtx
+% exact bridge: GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNCompact
+% requested parameters: {"alpha":2,"h":0}
+% Hashes include the unexpanded handle/auxiliary tree, not only the displayed formula.
+\[R=x_0^6[x_0,x_1](x_2^\sigma)^{-1}(x_2\tau)^{\omega_2}\prod_{j=0}^{-1}[x_{3+2j},x_{4+2j}].\]
+% Syntax allows every natural alpha,h; the complete N0 certificate requires alpha>=2 and nonzero even q.
+% A zero-count handle product is empty, equal to one; L omits that node at h=0.
+\end{verbatim}
+\par\noindent\emph{Generated display source: the L/N word exporter.}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.GeneralTemplateLN.canon_rawNCompact}
+\item \path{GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNCompact}
+\item \path{GQ2.Dyadic.GeneralTemplateLN.denote_rawNCompact}
+\item \path{GQ2.Dyadic.Words.nCompactW}
+\item \path{GQ2.Dyadic.Words.rawNCompact}
+\item \path{GQ2.Dyadic.Words.wf_rawNCompact}
+\end{itemize}
+
+\subsection*{2. The two specialization reductions}
+Pro-two evaluation and the canonical tame specialization both hold at every rank and are the certificate's own fields. The complete certificate requires alpha >= 2 and nonzero even q; the word syntax alone allows every natural alpha and h.
+
+The field-selection adapter below is NOT standard-three: it inherits the documented standing arithmetic and reciprocity inputs, and the probe prints its full axiom list rather than gating it. Standard-three analytic word certificates do not make the field theorem axiom-free.
+
+\par\noindent\textbf{[TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. The declaration that would do so is GQ2.Dyadic.W362LNSpecialization.specializationTemplate, which does not exist in this tree. No formula is substituted for it here.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Instances.WordPhaseCompactNFinal.wPcNWordCertificateRN}
+\item \path{GQ2.Dyadic.Words.eval_pro2_nCompact}
+\item \path{GQ2.Dyadic.Words.pro2_nCompact}
+\item \path{GQ2.Dyadic.genCertNProTwoWord}
+\item \path{GQ2.Dyadic.genCertNTameSpecializes}
+\end{itemize}
+\paragraph{Checked declarations carrying documented standing inputs}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Instances.FieldFamilyCampaignBoundary.hasSelectedRowResidualRN_n0}
+\end{itemize}
+
+\subsection*{3. The evaluated Fox Jacobian}
+Unramified wild row a\_tau + (1-S\textasciicircum{}-1) a\_x2; ramified wild row -S\textasciicircum{}-1 a\_x2. The rows need only 1 <= alpha for their parity calculation, which does not weaken the final certificate's alpha >= 2 requirement.
+
+\par\noindent\textbf{[TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. The declaration that would do so is GQ2.Dyadic.W362LNFox.inputRowsTemplate, which does not exist in this tree. No formula is substituted for it here.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Certificates.foxD_nCompact_ram}
+\item \path{GQ2.Dyadic.Certificates.foxD_nCompact_unram}
+\end{itemize}
+
+\subsection*{4. Ordered invertible operations and carried inverses}
+Unramified: one row operation wild += S*tame. Ramified: one column scaling of the x2 column by S with carried inverse S\textasciicircum{}-1. Both lists are the records' own fields.
+
+\paragraph{unramified sector}
+\[\begin{aligned}\mathcal R_{1}&:\quad R_2\leftarrow R_2+S\circ R_1\\\mathcal C&=\mathrm{id}\end{aligned}\]
+\paragraph{ramified sector}
+\[\begin{aligned}\mathcal R&=\mathrm{id}\\\mathcal C_{1}&:\quad a_{x_{2}}\leftarrow S\bigl(a_{x_{2}}\bigr)\quad[\text{carried inverse: }S^{-1}]\end{aligned}\]
+\par\noindent\emph{Generated display source: the L/N Fox exporter.}
+\par\noindent\textbf{[TODO: the rfl signature theorems that bind the exported lists to the records live in the exporter driver scripts/w362\_ln\_fox\_export.lean, which has no olean and therefore cannot be cited by the declaration probe. They are checked only by the Fox replay, which recompiles that driver.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Certificates.nCompactJacobianCertRam}
+\item \path{GQ2.Dyadic.Certificates.nCompactJacobianCertUnram}
+\end{itemize}
+
+\subsection*{5. The reduced normal matrix}
+Unramified leaves the diagonal pivots S\textasciicircum{}-1 on tau and 1-S\textasciicircum{}-1 on x2. Ramified leaves the universal tame row intact and the wild row an x2 unit pivot.
+
+\paragraph{unramified sector}
+\[\begin{pmatrix}S^{-1}\bigl(a_{\tau}\bigr)\\\bigl(I-S^{-1}\bigr)\bigl(a_{x_{2}}\bigr)\end{pmatrix}\]
+\paragraph{ramified sector}
+\[\begin{pmatrix}S^{-1}\circ \bigl(T-I\bigr)\bigl(a_{\sigma}\bigr)+\bigl(S^{-1}-\bigl(\bigl(0+T^{0}\bigr)+T\bigr)\bigr)\bigl(a_{\tau}\bigr)\\I\bigl(a_{x_{2}}\bigr)\end{pmatrix}\]
+\par\noindent\emph{Generated display source: the L/N Fox exporter.}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Certificates.nCompactRamNormalForm}
+\item \path{GQ2.Dyadic.Certificates.nCompactRamOps}
+\item \path{GQ2.Dyadic.Certificates.nCompactUnramNormalForm}
+\item \path{GQ2.Dyadic.Certificates.nCompactUnramOps}
+\end{itemize}
+
+\subsection*{6. The Stokes chain identity}
+The certificate's stokes field is supplied uniformly in alpha, h and q from the compact-N phase route.
+
+\par\noindent\textbf{[TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. The declaration that would do so is GQ2.Dyadic.W362LNStokes.chainTemplate, which does not exist in this tree. No formula is substituted for it here.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Instances.WordPhase.wPh_nCand_stokes}
+\end{itemize}
+
+\subsection*{7. The extraspecial Hessian}
+At x2 = 0 and 2 <= alpha the evaluated value is q\_V(c0) + B\_V(c0,c1) plus the handle planes. The branch-free supply connects this to the actual source quotient at every h.
+
+\par\noindent\textbf{[TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. The declaration that would do so is GQ2.Dyadic.W362LNPhase.hessianTemplate, which does not exist in this tree. No formula is substituted for it here.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Certificates.hessRelZ_nCompact}
+\end{itemize}
+
+\subsection*{8. Change of variables to quadratic normal form}
+The all-rank original source Hessian records carry the actual comparison map, proved additive and then F2-linear, together with the full quadratic identity and the original affine phase fields.
+
+\par\noindent\textbf{[TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. The declaration that would do so is GQ2.Dyadic.W362LNPhase.coordinateTemplate, which does not exist in this tree. No formula is substituted for it here.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedComparison_add}
+\item \path{GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedHessian}
+\item \path{GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedComparison_add}
+\item \path{GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedHessian}
+\end{itemize}
+
+\subsection*{9. The affine phase-cover certificate}
+The boundary producer derives all head-sector premises at every actual relevant boundary lift, and the affine determinant certificate is a separate theorem for every required cover and character.
+
+\par\noindent\textbf{[TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. The declaration that would do so is GQ2.Dyadic.W362LNCover.phaseCoverTemplate, which does not exist in this tree. No formula is substituted for it here.]}
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Instances.CompactNBoundaryHessianCertificates.compactNBoundaryHessian}
+\item \path{GQ2.Dyadic.Instances.WordPhaseCompactNFinal.wPcN_affineDeterminantCertificate}
+\end{itemize}
+
+\subsection*{10. Same-tree hashes, replay and trust boundary}
+The word hash identifies the unexpanded canonical AST; the Fox hash identifies the serialized operation lists and normal matrices at the stated discrete parameters; the packet hash additionally binds the generated section content, the cited declaration names and the direct source bytes. None of them hashes a coefficient module, a marking, a field, a resolver, an eta value, or a completed certificate.
+
+Strong checking re-emits both Lean exports, checks that every cited declaration exists with at most the standard three axioms, and compares the stored declaration transcript against a fresh replay. It does not assert independently authored expected signatures, and a matching declaration NAME is not a word-identity proof. The probe imports existing olean artifacts, so direct source hashes alone do not prove that those bytes produced those artifacts or came from an atomic filesystem snapshot; a separate isolated build is required. This STAGED packet does not enter the frozen five-fixture manifest, complete or supersede the five old appendix skeletons, activate a merge gate, or approve any release.
+
+word template: \path{0ba90d4d5ceb723250d6cad60c9ec8a0285cad3f0ebcabbb47718a327ce856aa}.
+Fox template: \path{ede1c9b79ad0ef2c033861980794ec685adc216de1f96bc246835c3b2974feec}.
+legacy one-tree word hash: \path{a940b6ad06d9728a6b0b5d20f27c76994d83103e65accc6b844fe6174755fc10}.
+\par Combined packet: \path{76e3dff2a1df28688a9c86ee5b796c0957ac626a91f0f385f57ad006b1136e1f}.
+\par\noindent\emph{Generated display source: the packet hashes.}
