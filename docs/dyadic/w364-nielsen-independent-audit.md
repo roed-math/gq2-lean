@@ -596,9 +596,15 @@ Exhaustive grep over `GQ2/` for every spelling in the rename map:
 | `mBasis_mFullStabilizer_lift_of_initialLift` | `MPlaneAmbientStage.lean:384` | unchanged |
 
 No occurrence of `mFullStabilizer_lift` anywhere in the tree still names the
-composition shape: the four `MFullFrameStages.lean` hits and the three
-`MFrameCupCoordinates.lean` hits are all the `_of_interfaces` spelling. The alias is
-definitionally the theorem, checked by this lane's probe:
+composition shape. Every hit of the plain spelling that is not a longer name was
+inspected individually: there are nine, all of them docstring prose, all of them in
+the six other M modules, and every one points at
+`MFullStabilizerLift.mFullStabilizer_lift`, the new unconditional theorem
+(`MInitialCupDepth:34`, `MFrameCupCoordinates:44`, `MFullFrameStages:36,250`,
+`MFrameMatrixLift:21,1103`, `MPlaneAmbientStage:31,383`,
+`MFullFrameCompactness:27`). Every code reference to the composition shape carries
+the `_of_interfaces` spelling. The alias is definitionally the theorem, checked by
+this lane's probe:
 
 ```lean
 example : @mFullStabilizer_lift = @mFullStabilizer_lift_of_frame := rfl
@@ -751,7 +757,13 @@ opposite about M3:
 > anywhere in the repo. If the owner reads the packet sentence as demanding
 > generator-level lifts, the outstanding work is exactly those four families.
 
-The note is closer to the truth. `GQ2/Dyadic/MarkedCore/MScaling.lean:497` has
+The note is itself in tension with its own opening sentence, "Two of the seven
+families do have honest independent group-level lifts", and then concludes that
+the outstanding work is *four* families, not five. So the tree currently offers
+three different answers to the same question, in two documents.
+
+The note's body is closest to the truth. `GQ2/Dyadic/MarkedCore/MScaling.lean:497`
+has
 
 ```lean
 noncomputable def mScaleEquiv : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type)
