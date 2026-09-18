@@ -349,6 +349,191 @@ CORRECTED RN STRICT-HANDLE FOX|pair-source ramified unit-handle row (all ranks)|
 CORRECTED RN STRICT-HANDLE NORMAL|ramified pair-row differential is onto|decl|heisD1_surjective_of_headHandlePairRamRow
 CORRECTED RN STRICT-HANDLE NORMAL|ramified pair normal form (all ranks)|decl|headHandlePairRamNormalForm_of_row
 CORRECTED RN STRICT-HANDLE NORMAL|ramified pair Stokes reduction to separation|decl|headHandlePairRamStokesDuality_of_row
+RAW HYPERBOLIC SOURCE (W360)|ramified Fox row, arbitrary sigma action|decl|foxD_headHandleHyperbolicW_ram_general
+RAW HYPERBOLIC SOURCE (W360)|normal pairing on the zero-V subspace|decl|heisEta1_headHandleHyperbolicRawFamily_normal_zeroV
+RAW HYPERBOLIC SOURCE (W360)|pure dual-U detects the selected V coordinate|decl|heisEta1_headHandleHyperbolicRawFamily_normal_pureU
+RAW HYPERBOLIC SOURCE (W360)|transpose symmetry on pointwise-orthogonal cocycles|decl|heisEta1_swap_of_pointwise_zero_of_cocycle
+RAW HYPERBOLIC SOURCE (W360)|ramified Stokes with the uniform finite resolver|decl|stokesDuality_headHandleHyperbolicRawFamily_ramified_uniform
+RAW HYPERBOLIC SOURCE (W360)|unit-handle adjustment normalizes the new head|decl|exists_hyperbolicUnitHead_of_strictHandle
+GENERAL TAME SPLICE (W361)|splice preserves the pro-2 relation|decl|eval_pro2_tameSplice
+GENERAL TAME SPLICE (W361)|splice preserves tame specialization|decl|tameSpecializes_tameSplice
+GENERAL TAME SPLICE (W361)|ramified splice agrees with the template on all cochains|decl|heisEvalZ_tameSplice_ramified
+GENERAL TAME SPLICE (W361)|strict M0 source analytic core|decl|headHandlePairSplice_analyticCore
+GENERAL TAME SPLICE (W361)|arbitrary-unit Mpc source analytic core|decl|mpcMobileSplice_analyticCore
+GENERAL CERTIFICATE PIPELINE (W361)|uniform finite-coefficient Stokes interface|decl|UniformStokesSupply
+GENERAL CERTIFICATE PIPELINE (W361)|scalar trace on the actual source|decl|scalarH2TraceEquiv
+GENERAL CERTIFICATE PIPELINE (W361)|fully resolved quadratic source trace|decl|QZero_eq_pinned_graphHessianTrace
+GENERAL CERTIFICATE PIPELINE (W361)|even determinant from actual branch-free phase|decl|determinant_of_branchFree
+GENERAL CERTIFICATE PIPELINE (W361)|full flexible leaves from actual branch-free phase|decl|certificateLeaves_of_branchFree
+CHANGED-SOURCE FIELD COVERAGE (W361)|strict M0 selected source with explicit orientation|decl|exists_spliceData_of_selected_m0_strict
+CHANGED-SOURCE FIELD COVERAGE (W361)|both positive Mpc signs and all handle ranks|decl|exists_spliceData_of_selected_mpc_oriented
+CHANGED-SOURCE FIELD COVERAGE (W361)|rank-zero strict M0 forces canonical C|decl|cPivot_of_strict_boundary_zero_handles
+GENERAL RESIDUE ARITHMETIC (W361)|odd-root finite residue action is faithful|decl|finiteGaloisResidueAlgAction_injective_of_odd_root
+GENERAL RESIDUE ARITHMETIC (W361)|odd-root finite extension has ramification one|decl|filtration_e_eq_one_of_odd_root
+GENERAL RESIDUE ARITHMETIC (W361)|actual inertia fixed field is odd-cyclotomic|decl|fixedField_absoluteInertia_eq_oddCyclotomicCompositum
+GENERAL RESIDUE ARITHMETIC (W361)|relative inertia-fixed element lies in odd compositum|decl|exists_odd_primitive_root_of_inertia_fixed
+GENERAL RESIDUE ARITHMETIC (W361)|omega-two fixed part detected by maximal pro-two|decl|eq_one_of_omegaTwo_fixed_of_maxProTwo_eq_one
+GENERAL RESIDUE ARITHMETIC (W361)|finite-index Zhat endomorphism is injective|decl|Zhat.endomorphism_injective_of_finiteIndex_range
+RECIPROCITY NORMALIZATION AUDIT (W361)|odd reflection preserves the entire base bundle|decl|LocalReciprocity.oddReflected
+EXTRASPECIAL PHASE TRANSPORT (W361)|ramified splice preserves the full quadratic extension|decl|hessEvalZ_tameSplice_ramified
+EXTRASPECIAL PHASE TRANSPORT (W361)|boundary equations give actual wild base one|decl|projectedHead_marking
+GENERAL EVEN-M COMPLETE (W361)|pair-splice determinant with actual boundary|decl|headHandlePairSplice_determinant
+GENERAL EVEN-M COMPLETE (W361)|pair-splice full certificate leaves|decl|headHandlePairSplice_flexibleCertificateLeaves
+GENERAL EVEN-M COMPLETE (W361)|pair-splice full corrected word certificate|decl|headHandlePairSplice_wordCertificate
+GENERAL FIELD ARITHMETIC (W361)|odd reflection preserves every reciprocity clause|decl|LocalReciprocity.oddReflected
+GENERAL FIELD ARITHMETIC (W361)|signed full residue law is not forced by the bundle|decl|LocalReciprocity.not_every_bundle_has_base_law
+GENERAL FIELD ARITHMETIC (W361)|full profinite integers are torsion-free|decl|Zhat.eq_one_of_pow_eq_one
+GENERAL FIELD ARITHMETIC (W361)|actual and full tame inertia agree|decl|fullTameInertia_comap_eq_absoluteInertiaK
+GENERAL FIELD ARITHMETIC (W361)|canonical residue lift with no comparison premise|decl|compatibleResidueLiftAt_of_norm_reciprocity
+GENERAL FIELD ARITHMETIC (W361)|relative anchored tame fields are unramified|decl|anchoredTameInertiaRelativeUnramifiedDataAt_of_norm_reciprocity
+GENERAL FIELD ARITHMETIC (W361)|anchored involution norm values in all degrees|decl|anchoredInvolutionEqualNormValueGroupsAt_of_norm_reciprocity
+GENERAL FIELD ARITHMETIC (W361)|complete compatible field packet in all degrees|decl|compatibleRamifiedDataAt_of_norm_reciprocity
+GENERAL SELECTED CLOSURE (W361)|all range-matching families have a flexible source|decl|hasSelectedFlexibleRowResidualRN_of_matchesRange
+GENERAL SELECTED CLOSURE (W361)|actual selected family has a flexible source|decl|hasSelectedFlexibleRowResidualRN_fieldSelectionFromRange
+GENERAL SELECTED CLOSURE (W361)|shared field input with no extra arithmetic premise|decl|genAsmCompatibleFieldInputs_of_norm_reciprocity
+GENERAL SELECTED CLOSURE (W361)|general ramified-i flexible presentation|decl|hasSelectedFlexibleAssemblyRN_fieldSelectionFromRange
+GENERAL SELECTED CLOSURE (W361)|bare ramified-i field endpoint|decl|hasSelectedFlexibleAssemblyRN_ramifiedI
+GENERAL SELECTED CLOSURE (W361)|bare certified changed-word presentation|decl|exists_certifiedFlexiblePresentation_ramifiedI
+GENERAL MARKED RECONSTRUCTION (W361)|relative profinite reconstruction|decl|nonempty_markedEquiv_of_quotient_lifts
+GENERAL MARKED RECONSTRUCTION (W361)|finite tame-marked lifts without frame summation|decl|exists_tameCompatible_finiteSurj_of_sourcesRN
+GENERAL MARKED RECONSTRUCTION (W361)|source equivalence preserves tame and full nu|decl|exists_tameNuCompatible_equiv_of_sourcesRN
+GENERAL MARKED RECONSTRUCTION (W361)|source equivalence preserves all elementary characters|decl|exists_tameElementaryNuCompatible_equiv_of_sourcesRN
+GENERAL MARKED RECONSTRUCTION (W361)|bare field tame-marked certified presentation|decl|exists_certifiedTameMarkedFlexiblePresentation_ramifiedI
+GENERAL MARKED RECONSTRUCTION (W361)|nonscalar minimal block killed by every two-group map|decl|MinimalBlock.le_ker_of_isPGroup
+GENERAL MARKED RECONSTRUCTION (W361)|N orientation characteristic in every rank|decl|nCoreOrientationCharacteristic_all
+GENERAL MARKED RECONSTRUCTION (W361)|L orientation characteristic in every rank|decl|sqCoreOrientationCharacteristic_all
+GENERAL MARKED RECONSTRUCTION (W361)|field cyclotomic orientation is characteristic|decl|chiCycKTwo_characteristic_ramifiedI
+GENERAL MARKED RECONSTRUCTION (W361)|existentially aligned full core square|decl|hasSelectedAlignedFlexibleAssemblyRN_fieldSelectionFromRange
+GENERAL FULLY MARKED PRESENTATION (W361)|alignment preserves the original cyclotomic character|decl|alignedRealization_chi_eq_original
+GENERAL FULLY MARKED PRESENTATION (W361)|one equivalence with every marking equation|decl|AlignedMarkedFieldEquiv
+GENERAL FULLY MARKED PRESENTATION (W361)|selected all-degree fully marked field endpoint|decl|hasSelectedFullyMarkedFlexibleAssemblyRN_fieldSelectionFromRange
+GENERAL FULLY MARKED PRESENTATION (W361)|bare finite-field fully marked certified presentation|decl|exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI
+GENERAL FULLY MARKED PRESENTATION (W361)|odd degree supplies the ramified-i hypothesis|decl|hasSelectedFullyMarkedFlexibleAssemblyRN_oddDegree
+GENERAL EXPLICIT SOURCE PRESENTATION (W361)|exact word and core constructor profile|decl|SelectedWordProfile
+GENERAL EXPLICIT SOURCE PRESENTATION (W361)|source certificate with exact selected constructor|decl|hasSelectedWordCertificate_fieldSelectionFromRange
+GENERAL EXPLICIT SOURCE PRESENTATION (W361)|exact constructor survives realization calibration|decl|selectedWordProfile_alignedBranch
+GENERAL EXPLICIT SOURCE PRESENTATION (W361)|bare fully marked field endpoint with exact word profile|decl|nonempty_selectedWordMarkedFieldData_ramifiedI
+GENERAL EXPLICIT SOURCE PRESENTATION (W361)|exact source plus original character retained in one endpoint|decl|hasSelectedOriginalMarkedWordPresentationRN_ramifiedI
+GENERAL EXPLICIT ARTIFACTS (W361)|all-cochain unramified Fox elimination|decl|heisD1_reduced_of_normal
+GENERAL EXPLICIT ARTIFACTS (W361)|actual pair-splice reduced Fox matrix|decl|pairSplice_reducedFox
+GENERAL EXPLICIT ARTIFACTS (W361)|actual mobile-splice reduced Fox matrix|decl|mobileSplice_reducedFox
+GENERAL ORIGINAL RECORDS (W361)|pair splice original scalar Fox certificate|decl|pairSplice_FoxCertificate_scalar
+GENERAL ORIGINAL RECORDS (W361)|pair splice original unramified Fox certificate|decl|pairSplice_FoxCertificate_unramified
+GENERAL ORIGINAL RECORDS (W361)|pair splice original ramified Fox certificate|decl|pairSplice_FoxCertificate_ramified
+GENERAL ORIGINAL RECORDS (W361)|mobile splice original scalar Fox certificate|decl|mobileSplice_FoxCertificate_scalar
+GENERAL ORIGINAL RECORDS (W361)|mobile splice original unramified Fox certificate|decl|mobileSplice_FoxCertificate_unramified
+GENERAL ORIGINAL RECORDS (W361)|mobile splice original ramified Fox certificate|decl|mobileSplice_FoxCertificate_ramified
+GENERAL ORIGINAL RECORDS (W361)|L original scalar two-row Fox certificate|decl|lSqJacobianCertScalar
+GENERAL ORIGINAL RECORDS (W361)|L original unramified two-row Fox certificate|decl|lSqJacobianCertUnram
+GENERAL ORIGINAL RECORDS (W361)|L original ramified two-row Fox certificate|decl|lSqJacobianCertRam
+GENERAL ORIGINAL RECORDS (W361)|all-rank L original-tree denotation|decl|GQ2.Dyadic.GeneralTemplateLN.denote_rawLsq
+GENERAL ORIGINAL RECORDS (W361)|all-rank N0 original-tree denotation|decl|GQ2.Dyadic.GeneralTemplateLN.denote_rawNCompact
+GENERAL ORIGINAL RECORDS (W361)|all-parameter Npc original-tree denotation|decl|GQ2.Dyadic.GeneralTemplateLN.denote_rawNpc
+GENERAL ORIGINAL RECORDS (W361)|exact Npc unit-display denotation|decl|denote_rawNpc_display
+GENERAL ORIGINAL RECORDS (W361)|pair unramified identity-pivot polynomial Fox record|decl|pairSplice_FoxCertificate_unramified_identity
+GENERAL ORIGINAL RECORDS (W361)|mobile unramified identity-pivot polynomial Fox record|decl|mobileSplice_FoxCertificate_unramified_identity
+GENERAL ORIGINAL RECORDS (W361)|pair ramified identity-pivot polynomial Fox record|decl|pairSplice_FoxCertificate_ramified_identity
+GENERAL ORIGINAL RECORDS (W361)|mobile ramified identity-pivot polynomial Fox record|decl|mobileSplice_FoxCertificate_ramified_identity
+GENERAL ORIGINAL RECORDS (W361)|same additive source map upgraded to original Hessian record|decl|sourceCompactHessianOfComparison
+GENERAL ORIGINAL RECORDS (W361)|pair unramified original Hessian record|decl|pairUnramifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|pair ramified original Hessian record|decl|pairRamifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|mobile unramified original Hessian record|decl|nonempty_mobileUnramifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|mobile ramified original Hessian record|decl|mobileRamifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|arbitrary-diagonal original phase-cover record|decl|wallHandlePhaseCover
+GENERAL ORIGINAL RECORDS (W361)|Npc actual full-offset unramified original Hessian record|decl|npcUnramifiedHeadHessian
+GENERAL ORIGINAL RECORDS (W361)|Npc actual full-offset ramified original Hessian record|decl|nonempty_npcRamifiedHeadHessian
+GENERAL ORIGINAL RECORDS (W361)|compact N unramified original Hessian record|decl|compactNUnramifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|compact N ramified original Hessian record|decl|compactNRamifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|Npc boundary original full-offset Hessian record|decl|npcBoundaryHessian
+GENERAL ORIGINAL RECORDS (W361)|compact N boundary original Hessian record|decl|compactNBoundaryHessian
+GENERAL ORIGINAL RECORDS (W361)|pair boundary original Hessian record|decl|pairBoundaryHessian
+GENERAL ORIGINAL RECORDS (W361)|mobile boundary original Hessian record|decl|mobileBoundaryHessian
+GENERAL ORIGINAL RECORDS (W361)|L boundary original signed Hessian record|decl|lBoundaryHessian
+GENERAL EXPLICIT ARTIFACTS (W361)|odd head inverse as a finite polynomial|decl|wallPolarEquiv_symm_eq_sum
+GENERAL EXPLICIT ARTIFACTS (W361)|exact typed phase tree denotes all-rank compact phase|decl|GQ2.Dyadic.GeneralPhaseTemplate.denote_compactPhase
+GENERAL EXPLICIT ARTIFACTS (W361)|typed phase tree retains original source linear coordinates|decl|sourceHessian_cov_eq_denote
+GENERAL EXPLICIT ARTIFACTS (W361)|typed Fox lists equal actual pair unramified certificate|decl|unramified_pair_signature
+GENERAL EXPLICIT ARTIFACTS (W361)|typed Fox lists equal actual mobile ramified certificate|decl|ramified_mobile_signature
+GENERAL EXPLICIT ARTIFACTS (W361)|typed Fox input equals actual pair scalar Jacobian|decl|scalar_pair_input
+GENERAL EXPLICIT ARTIFACTS (W361)|typed Fox input equals actual mobile unramified Jacobian|decl|unramified_mobile_input
+GENERAL EXPLICIT ARTIFACTS (W361)|typed Fox input equals actual pair ramified Jacobian|decl|ramified_pair_input
+GENERAL EXPLICIT ARTIFACTS (W361)|typed cover data agrees with original phase-cover record|decl|GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate_agrees
+GENERAL ORIGINAL RECORDS (W361)|L unramified original signed Hessian record|decl|GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian
+GENERAL ORIGINAL RECORDS (W361)|L ramified original signed Hessian record|decl|GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian
+GENERAL EXPLICIT ARTIFACTS (W361)|canonical arbitrary-diagonal wall polar operator|decl|canonicalWallPolarEquiv
+GENERAL EXPLICIT ARTIFACTS (W361)|canonical arbitrary-diagonal wall inverse formula|decl|canonicalWallPolarEquiv_symm_apply
+GENERAL SCALING AUDIT (W361)|weak N scaling proved uniformly by SL2|decl|nScalingHypothesis_of_sl2
+GENERAL SCALING AUDIT (W361)|candidate handle-scaling fails simultaneous plane predicate|decl|not_nPlaneRealizes_of_handleU_conj_power
+GENERAL SCALING AUDIT (W361)|exact N plane correction under central commutator hypothesis|decl|exists_nWord_planeScale_of_central_comm
+GENERAL SCALING AUDIT (W361)|integral orientation-point unit interpolation|decl|exists_nOrientation_affine_unit
+GENERAL SCALING AUDIT (W361)|explicit all-rank two-evaluation shadow isometry|decl|nShadowFullPair_planeScale
+GENERAL SCALING AUDIT (W361)|actual continuous completed-ring involution|decl|nSeriesStar_involutive
+GENERAL SCALING AUDIT (W361)|all-rank completed-ring unitary automorphism with exact ordinary plane scale|decl|exists_nSeriesFullPlaneScale
+GENERAL SCALING AUDIT (W361)|all-rank free pro-two commutator shear fixes every ordinary character|decl|freeTwoCommutatorShearEquiv_character
+GENERAL SCALING AUDIT (W361)|exact character-zero representative of a zero-row filtered class|decl|exists_freeTwo_characterZero_same_twoCentralClass
+GENERAL SCALING AUDIT (W361)|ordinary character-zero also preserves all commutative pro-two characters|decl|freeTwo_characterZero_commutative
+GENERAL SCALING AUDIT (W361)|abstract finite-rank mixed-Lie derivative kernel vector|decl|nMixedDerivative_kernelVector
+GENERAL SCALING AUDIT (W361)|generic continuous additive character filtration bound|decl|twoCentralSeries_z2_character_dvd
+GENERAL SCALING AUDIT (W361)|strong N-plane scaling exactly equivalent to upstairs stage supply|decl|nPlaneScalingHypothesis_iff_stages
+GENERAL SCALING AUDIT (W361)|actual N defect forces the needed extra ordinary head digit|decl|nRelWord_correction_head_dvd
+GENERAL SCALING AUDIT (W361)|initial unit-power N error has depth three|decl|nInitialUnitPowerError_mem_three
+GENERAL SCALING AUDIT (W361)|uniform actual-group mixed-power commutator identity|decl|commP_pow_two_level
+GENERAL SCALING AUDIT (W361)|actual full N relator derivative at arbitrary rank and depth|decl|nFiltered_nRelWord
+GENERAL SCALING AUDIT (W361)|free N orientation kernel equals the exact ordinary b-coordinate kernel|decl|freeNOrientation_ker
+GENERAL SCALING AUDIT (W361)|same-class correction replacement preserves the next relator defect|decl|nRelWord_correction_defect_mem_iff
+GENERAL SCALING AUDIT (W361)|actual arbitrary-rank filtered N derivative is multiplicative|decl|nFilteredDerivative_mul
+GENERAL SCALING AUDIT (W361)|actual mixed correction has exact requested ordinary row|decl|nPlaneKernelTuple_character
+GENERAL SCALING AUDIT (W361)|uniform actual group mixed correction cancellation|decl|nMixedCorrectionWord_level
+GENERAL SCALING AUDIT (W361)|actual kernel tuple preserves full N relator at the required depth|decl|nPlaneKernelTuple_nRelWord
+GENERAL SCALING AUDIT (W361)|exact orientation automatically kills every crossed defect|decl|freeNRelatorDefect_crossed
+GENERAL SCALING AUDIT (W361)|finite exact row interpolation inside a closed pro-two subgroup|decl|exists_closedSubgroup_rowZero_same_coset
+GENERAL SCALING AUDIT (W361)|arbitrary finite row enumeration is constructed|decl|exists_closedSubgroup_rowZero_same_coset_fintype
+GENERAL SCALING AUDIT (W361)|actual N correction kernel is closed|decl|isClosed_nPlaneCorrectionKernel
+GENERAL SCALING AUDIT (W361)|kernel multiplication preserves arbitrary next-level relator defect|decl|nRelWord_defect_mul_correctionKernel_iff
+GENERAL SCALING AUDIT (W361)|kernel diagonal retains current marking unit weights|decl|nPlaneKernelTuple_coordinate_diagonal
+GENERAL SCALING AUDIT (W361)|actual free N tuple group is pro-two|decl|isProTwo_freeN_tuple
+GENERAL SCALING AUDIT (W361)|existing N correction admits exact simultaneous ordinary-row refinement|decl|exists_nPlane_relative_correction
+GENERAL SCALING AUDIT (W361)|deep correction preserves actual free basis|decl|exists_freeTwoBasisCorrection
+GENERAL SCALING AUDIT (W361)|exact free stages transfer to actual DN compactness stages|decl|nPlaneStageSet_of_free_exact_stage
+GENERAL SCALING AUDIT (W361)|older sufficient orientation-kernel stage input|decl|NUnrestrictedStageSupply
+GENERAL SCALING AUDIT (W361)|strong N scaling follows from unrestricted stage supply|decl|nPlaneScalingHypothesis_of_unrestrictedStageSupply
+GENERAL SCALING AUDIT (W361)|actual kernel witnesses include every coordinate, including b|decl|nPlaneKernelTuple_mem_correctionKernel_all
+GENERAL SCALING AUDIT (W361)|arbitrary ambient N correction admits exact all-row refinement|decl|exists_nPlane_full_relative_correction
+GENERAL SCALING AUDIT (W361)|uniform ambient correction supply from the generic image criterion|decl|nAmbientStageSupply
+GENERAL SCALING AUDIT (W361)|unconditional strong N-plane scaling at every handle rank|decl|nPlaneScalingHypothesis_general
+GENERAL SCALING AUDIT (W361)|unconditional simultaneous integral N-plane GL2 lift|decl|nCorePlane_gl2_lift_general
+GENERAL SCALING AUDIT (W361)|unconditional admissible N stabilizer ordinary-character action|decl|nStabParam_lift_general
+GENERAL SCALING AUDIT (W361)|actual DN automorphisms preserve the full mod-two cup form|decl|evenCupForm_comp_dn_aut
+GENERAL SCALING AUDIT (W361)|N1 precomposition adjusts the torsion row without changing ordinary rows|decl|nTorsionAdjust_torsion_target
+GENERAL SCALING AUDIT (W361)|free mod-two characters determined by reduced ordinary coordinates|decl|freeTwo_modTwo_character_eq_of_coordinate_modTwo
+GENERAL SCALING AUDIT (W361)|cup invariance recovers every prescribed N torsion and full coordinate row|decl|nPhiHom_aut_fullFrameMark
+GENERAL SCALING AUDIT (W361)|unconditional torsion-inclusive N core stabilizer lift with identity handles|decl|nStabParam_fullFrame_lift_general
+GENERAL SCALING AUDIT (W361)|exact nonlinear relative N boundary criterion|decl|nWord_handle_eq_one_iff_relativeBoundary
+GENERAL EXPLICIT ARTIFACTS (W361)|canonical legacy L export denotes exact all-rank word|decl|denote_canon_rawLsq
+GENERAL EXPLICIT ARTIFACTS (W361)|canonical legacy N0 export denotes exact all-rank word|decl|denote_canon_rawNCompact
+GENERAL EXPLICIT ARTIFACTS (W361)|canonical legacy Npc export retains exact unit display|decl|denote_canon_rawNpc_display
+GENERAL EXPLICIT ARTIFACTS (W361)|rank-uniform literal polar matrix|decl|polar_compactPhase_reducedMatrix
+GENERAL EXPLICIT ARTIFACTS (W361)|rank-uniform polar matrix inverse|decl|reducedCoefficientMatrix_mul_inverse
+GENERAL EXPLICIT ARTIFACTS (W361)|symbolic template exact pair word|decl|denote_pairSplice
+GENERAL EXPLICIT ARTIFACTS (W361)|symbolic template exact mobile word|decl|denote_mobileSplice
+GENERAL EXPLICIT ARTIFACTS (W361)|symbolic tree pinned finite evaluation|decl|Tree.eval_eq_pinned
+GENERAL EXPLICIT ARTIFACTS (W361)|ramified invertible Fox column and row operations|decl|reduced_rows_of_action_row
+GENERAL EXPLICIT ARTIFACTS (W361)|actual pair-splice ramified Fox matrix|decl|pairSplice_ramified_reducedFox
+GENERAL EXPLICIT ARTIFACTS (W361)|actual mobile-splice ramified Fox matrix|decl|mobileSplice_ramified_reducedFox
+GENERAL EXPLICIT ARTIFACTS (W361)|closed polynomial inverse for unramified Fox pivot|decl|oneSubInvAction_symm_eq_actionPolynomial
+GENERAL EXPLICIT ARTIFACTS (W361)|closed polynomial inverse for ramified Fox pivot|decl|sigmaPivot_symm_eq_actionPolynomial
+GENERAL EXPLICIT ARTIFACTS (W361)|actual pair-splice scalar Fox matrix|decl|pairSplice_scalar_reducedFox
+GENERAL EXPLICIT ARTIFACTS (W361)|actual mobile-splice scalar Fox matrix|decl|mobileSplice_scalar_reducedFox
+GENERAL EXPLICIT ARTIFACTS (W361)|literal changed-splice tau column|decl|compactSplice_tauColumn
+GENERAL EXPLICIT ARTIFACTS (W361)|fully expanded actual pair-splice unramified matrix|decl|pairSplice_unramified_rows
+GENERAL EXPLICIT ARTIFACTS (W361)|fully expanded actual mobile-splice unramified matrix|decl|mobileSplice_unramified_rows
+GENERAL EXPLICIT ARTIFACTS (W361)|exact source comparison upgraded to additive coordinates|decl|sourceNormalAddEquiv_toEquiv
+GENERAL EXPLICIT ARTIFACTS (W361)|actual source polar matrix congruence|decl|phaseComparison_polar_reducedMatrix
+GENERAL EXPLICIT ARTIFACTS (W361)|actual pair-splice phase coordinates additive|decl|headHandlePairSplice_unramifiedComparison_add
+GENERAL EXPLICIT ARTIFACTS (W361)|actual ramified-splice phase coordinates additive|decl|phaseComparison_tameSplice_mCompact_ramified_add
+GENERAL EXPLICIT ARTIFACTS (W361)|actual mobile-splice additive phase coordinates exist|decl|exists_mpcMobile_unramified_additive_comparison
+GENERAL EVEN-M COMPLETE (W361)|arbitrary-unit Mpc full certificate leaves|decl|mpcMobileTameSplice_flexibleCertificateLeaves
+GENERAL EVEN-M COMPLETE (W361)|selected even-M changed-word dispatcher|decl|hasSelectedFlexibleRowResidualRN_of_evenMInputs
 CORRECTED RN HEAD-HANDLE CORE|normalized pair source gives flexible core|decl|headHandlePairFlexibleCore
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free normalized core leaves|decl|FlexibleCoreLeavesRN
 CORRECTED RN FLEXIBLE CERTIFICATE|table-free nonroutine certificate leaves|decl|FlexibleCertificateLeavesRN
@@ -1100,10 +1285,11 @@ AWKEOF
 )
 
 resolve() {  # $1 = short name; echoes "module<TAB>fullname" or nothing
-  local short=$1 hit file line full mod
-  hit=$(grep -rn -m1 \
-    "^\(theorem\|lemma\|def\|abbrev\|structure\|noncomputable def\|opaque\)[ ]$short\b" \
-    "$WT/GQ2" --include='*.lean' 2>/dev/null | head -1)
+  local short=$1 hit file line full mod escaped
+  escaped=${short//./\\.}
+  hit=$(rg -n --no-heading -m1 --glob '*.lean' \
+    "^(theorem|lemma|def|abbrev|structure|noncomputable def|opaque)[ ]$escaped([[:space:]:({]|$)" \
+    "$WT/GQ2" 2>/dev/null | head -1)
   [ -z "$hit" ] && return 0
   file=${hit%%:*}
   line=${hit#*:}; line=${line%%:*}

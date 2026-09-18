@@ -1,5 +1,10 @@
 # Trust boundary for the dyadic campaign (ramified-`i` case) — census and residual surface
 
+**Current general endpoint (W361, 2026-09-17): see §W361 immediately below.**
+The older §§A–D are preserved as the AS5/frozen-quadratic audit snapshot, not as
+the binder or axiom inventory of the new general theorem. In particular, the
+canonical W361 endpoint does consume `markedRecipAt` and `orientedTameQuotientAt`.
+
 **Purpose.**  This document is the dyadic campaign's counterpart of
 [`docs/literature-axioms.md`](../literature-axioms.md), written for the owner's **G3 census
 sign-off**.  It answers, in one place: *what exactly is assumed, where, when the final
@@ -19,11 +24,115 @@ is accepted?*  Three layers, kept strictly separate:
   protocol; `scripts/check_dyadic.sh` D2 enforces it textually).
 
 **Citation-status discipline** (owner ruling G-AX Q7, 2026-07-29): the two K-side axiom rows
-(B5-K, B10-K) carry citations **UNVERIFIED against source PDFs** — the owner approved the
-citation *targets* without a detail-check, and the house "verified against PDFs" phrasing must
-not be written for them.  The nine ℚ₂-side rows keep the verification markers they already
+(B5-K, B10-K) historically carried citations **UNVERIFIED against source PDFs** — the owner
+approved the citation *targets* without a detail-check. Those historical annotations and
+approval records are preserved below. The W361 [clause-level source audit](w361-axiom-source-verification.md)
+now records the primary pages actually checked and the remaining composite translations;
+it does not authorize a blanket "entire bundle verified" label. The nine ℚ₂-side rows keep the verification markers they already
 have in `docs/literature-axioms.md` (many are `[✓ source-audited]` from the T-20/B9-A passes);
 those markers are *quoted*, not re-audited here.
+
+---
+
+## W361. Current general fully marked endpoint
+
+The public entry point is
+[`GQ2/Dyadic/GeneralMain.lean`](../../GQ2/Dyadic/GeneralMain.lean).
+It exports
+`GQ2.Dyadic.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI`, proved in
+[`FieldFamilySpliceMarkedCanonical.lean`](../../GQ2/Dyadic/Instances/FieldFamilySpliceMarkedCanonical.lean).
+The statement takes a finite intermediate field `K/ℚ₂` and
+`RI : RamifiedIData K`. It returns an actual source word at degree `[K : ℚ₂]`,
+its complete corrected `WordCertificateRN`, a core realization, and one continuous
+group isomorphism to `GalK K` with tame, maximal-pro-two, cyclotomic, and **full
+two-adic** unramified compatibility. The generic bundled endpoint is
+`FieldFamilySpliceMarkedFinal.hasSelectedFullyMarkedFlexibleAssemblyRN_fieldSelectionFromRange`
+in [the marked assembly module](../../GQ2/Dyadic/Instances/FieldFamilySpliceMarkedFinal.lean).
+
+This covers every degree and every selected family **within the standing
+ramified-`i` scope**. It does not assert `RamifiedIData K` for every finite K.
+The odd-degree corollary discharges this hypothesis by the existing norm
+obstruction; it is not a restriction of the main endpoint to odd degrees.
+
+### W361.1 Exact measured axiom sets
+
+These are the default-limit `#print axioms` sets of the actual new declarations,
+not a union guessed from their imported files. `std-3` means `propext`,
+`Classical.choice`, and `Quot.sound`; B-labels remain those of historical §B.
+
+| New declaration | Exact axiom set |
+| --- | --- |
+| `FieldFamilySpliceMarkedFinal.hasSelectedFullyMarkedFlexibleAssemblyRN_fieldSelectionFromRange` | std-3 ∪ {B1, B6, B7, B8, B9, B11a} |
+| `FieldFamilySpliceMarkedCanonical.hasSelectedFullyMarkedFlexibleAssemblyRN_canonicalParameters` | std-3 ∪ {B1, B6, B7, B8, B9, B11a} |
+| `FieldFamilySpliceMarkedCanonical.hasSelectedFullyMarkedFlexibleAssemblyRN_ramifiedI` | std-3 ∪ {B1, B5, B5-K, B6, B7, B8, B9, B10-K, B11a} |
+| `FieldFamilySpliceMarkedCanonical.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI` | the same std-3 plus nine set |
+| `FieldFamilySpliceMarkedCanonical.hasSelectedFullyMarkedFlexibleAssemblyRN_oddDegree` | the same std-3 plus nine set |
+
+Spelled out, the bare field endpoint's nine nonstandard names are:
+
+- `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated`;
+- `GQ2.localReciprocity`;
+- `GQ2.markedRecipAt`;
+- `GQ2.tateDualityAt`;
+- `GQ2.Foundations.absGalQ2_localEulerCharacteristic`;
+- `GQ2.peripheralCyclotomicAction`;
+- `GQ2.relativeStiefelWhitney_dyadic`;
+- `GQ2.orientedTameQuotientAt`;
+- `GQ2.hilbertSymbol_normCriterion_finiteDyadic`.
+
+The generic-bundle endpoint omits precisely `localReciprocity`, `markedRecipAt`,
+and `orientedTameQuotientAt`: it is supplied the corresponding bundles instead.
+The bare wrapper invokes those established producers. **No new axiom is added**;
+the foundational declaration census remains eleven, while this endpoint uses nine
+of them (plus std-3). This is not a standard-three-only theorem of local fields.
+The old Q2 and frozen-row prints in §A have not been changed by this new endpoint.
+
+The new concrete pair/mobile splice certificates, generic tame-marked reconstruction,
+and abstract character-calibration lemmas are standard-three. The canonical shared
+field packet `compatibleRamifiedDataAt_of_norm_reciprocity` is a theorem from the
+existing bundles and Tate duality; the formerly carried signed-Frobenius,
+relative-norm, and odd-degree proof premises are not new axioms or remaining inputs
+to the general field endpoint.
+
+### W361.2 What is fixed and what is existential
+
+The actual source word, core, degree, `nuP`, and certificate survive marking
+calibration definitionally. Only the **existential realization** of the core in
+the field's maximal pro-two quotient is calibrated to the reconstructed tame-marked
+equivalence. This gives the literal pro-two squares on the same equivalence.
+It is not a claim that reconstruction preserves any arbitrarily prescribed prior
+realization pointwise.
+
+The cyclotomic character is fixed using the original realization **before**
+reconstruction: `AlignedMarkedFieldEquiv` retains that original character, and
+`alignedRealization_chi_eq_original` proves that calibration does not change it.
+`chiCycKTwo_characteristic_ramifiedI` supplies the needed intrinsic character
+rigidity for all selected families. Thus cyclotomic compatibility is not obtained
+by silently defining a new character after choosing the isomorphism.
+
+The words are those carried by the flexible construction. M0 may use the new
+promoted-handle pair splice; Mpc uses the normalized mobile tame splice. This
+does **not** prove the universal old frozen M-word presentation. The historical
+`GQ2/Dyadic/Main.lean` remains the frozen-quadratic entry point; `GeneralMain.lean`
+is the additive general endpoint, with the changed-word qualification explicit.
+
+### W361.3 Citation and acceptance status
+
+This section records new proof/axiom measurements, not a new owner G-AX or G3
+approval. The original refresh did not verify literature. The subsequent
+[W361 source audit](w361-axiom-source-verification.md) now verifies the principal
+AX3/AX4 primary-source statements and explains the finite-r and K(i) derivations;
+it also flags the old AX3 proposal's overbroad `1+8Ztwo` claim. It leaves the
+formal axioms, historical annotations, and approvals unchanged. Existing
+source-audited markers on other rows are preserved, not independently
+re-certified here.
+
+The remaining specification and release work is recorded in
+[w361-completion-audit.md](w361-completion-audit.md): revised M-word/source/marking
+statements, the distinction between required marking corrections and stronger
+historical stabilizer lifts, actual splice-word TeX/hash and certificate artifacts,
+fresh integrated checks, and owner G3 sign-off. The old hash manifest and older
+seventeen-capstone audit do not by themselves audit the new words or new headlines.
 
 ---
 
@@ -69,11 +178,12 @@ All three `n = 1` routes print **byte-identically** to
 
 ### A.3 Global invariants (measured, and gate-enforced)
 
-* **B5-K and B10-K appear in NO print above.**  They enter the development only through the
+* **B5-K and B10-K appear in no historical §A print above.** At that snapshot they entered only through the
   *types* of the arithmetic-bundle binders (`B : MarkedRecip Rec K`,
   `FF : DyadicUnitFiltration K`, `T : OrientedTameQuotientK B FF`) that every K-side statement
   quantifies over; the axioms exist so that a caller *can* produce such bundles at a concrete
-  `K` (see §B rows B5-K/B10-K and §C.0).
+  `K` (see §B rows B5-K/B10-K and §C.0). The W361 canonical wrappers now invoke those
+  producers, so both appear in the new bare field endpoint's print (§W361.1).
 * **No `sorryAx` anywhere**; zero sorries repo-wide (check 2, allowlist empty).
 * **Census = 11** (`EXPECTED_AXIOMS`, check 3); the frozen ℚ₂ capstone audit (check 5's
   original block) is untouched and still passes with its 9-set byte-identical.
@@ -107,8 +217,8 @@ enters *this* campaign's tree; "print appearances" is measured (§A).
 
 | # | Lean axiom | Statement (one line) | Citation — **UNVERIFIED** (owner Q7: targets approved, PDFs not checked) | Dyadic role |
 |---|---|---|---|---|
-| B5-K | `GQ2.markedRecipAt` | for every finite `K/ℚ₂` (as `IntermediateField ℚ_[2] ℚ̄₂`): a `MarkedRecip Rec K` — marked local reciprocity with full `ℤ₂`-valued `ν_ur^K`, unit/uniformizer normalization, norm functoriality, `ki_unramified` clause | NSW (7.1.1)/(7.1.5) at base `K`; Serre LF Ch. XI §3 (norm functoriality), Ch. XIII §4 Prop. 13 + corollary (unit normalization); cyclotomic-tower ramification Serre LF Ch. IV / NSW VII §7.5 — **all UNVERIFIED** (proposal `docs/dyadic/ax3-proposal.md` §6) | **producer of the `B` binder.**  Consumed by *no* theorem in the tree today (measured: appears in no print).  Its purpose is instantiation: a caller at a literal `K` uses it to supply `B : MarkedRecip Rec K` |
-| B10-K | `GQ2.orientedTameQuotientAt` | for every finite `K/ℚ₂` with a `MarkedRecip` and a `DyadicUnitFiltration`: an `OrientedTameQuotientK B FF` — `G_K/W_K ≅ T_{q_K}` with orientation clauses at `q_K = 2^{f_K}` | NSW (7.5.3) (Iwasawa) at base `K`, with (7.5.2); Serre LF Ch. IV (wild part), Ch. XIII §4 Prop. 13 (orientation) — **all UNVERIFIED** (proposal `docs/dyadic/ax4-proposal.md` §§5–6) | **producer of the `T` binder** (`FieldInputs.T`).  Same posture: appears in no print; exists for instantiation at a literal `K` (ticket AS-F's lane) |
+| B5-K | `GQ2.markedRecipAt` | for every finite `K/ℚ₂` (as `IntermediateField ℚ_[2] ℚ̄₂`): a `MarkedRecip Rec K` — marked local reciprocity with full `ℤ₂`-valued `ν_ur^K`, unit/uniformizer normalization, norm functoriality, `ki_unramified` clause | NSW (7.1.1)/(7.1.5) at base `K`; Serre LF Ch. XI §3 (norm functoriality), Ch. XIII §4 Prop. 13 + corollary (unit normalization); cyclotomic-tower ramification Serre LF Ch. IV / NSW VII §7.5 — **all UNVERIFIED** (proposal `docs/dyadic/ax3-proposal.md` §6) | **producer of the `B` binder.** Absent from the historical §A headline prints; consumed by the W361 canonical bare-field endpoints (§W361.1). |
+| B10-K | `GQ2.orientedTameQuotientAt` | for every finite `K/ℚ₂` with a `MarkedRecip` and a `DyadicUnitFiltration`: an `OrientedTameQuotientK B FF` — `G_K/W_K ≅ T_{q_K}` with orientation clauses at `q_K = 2^{f_K}` | NSW (7.5.3) (Iwasawa) at base `K`, with (7.5.2); Serre LF Ch. IV (wild part), Ch. XIII §4 Prop. 13 (orientation) — **all UNVERIFIED** (proposal `docs/dyadic/ax4-proposal.md` §§5–6) | **producer of the `T` binder** (`FieldInputs.T`). Absent from the historical §A headline prints; consumed by the W361 canonical bare-field endpoints (§W361.1). |
 
 ⚠ **The soundness-critical parametrization** (AX4 Q2, owner-confirmed): B10-K is quantified
 over the `DyadicUnitFiltration` bundle `FF`, so `q_K` enters as `qOf K FF = 2^{FF.f}` — the
@@ -132,7 +242,7 @@ instance files, `KSupply.lean`).
 |---|---|---|---|
 | `K` | `IntermediateField ℚ_[2] ℚ̄₂` + `[FiniteDimensional ℚ_[2] K]` | caller (AS-F probing literal fields) | **superseded 2026-08-02 (AS-F/AS-F2 — see §C.7)**: concrete quadratic fields now exist (`Fields.quadField a = ℚ_[2]⟮√a⟯`; rows `KSqrtNegTwo` … `KSqrtNegTen`) and four rows carry literal instantiations printing byte-identically to their parametrized parents; the parametrized-over-`K` headlines remain the primary form |
 | `Rec` | `LocalReciprocity` | B5 (`GQ2.localReciprocity`) or abstract | slot only |
-| `B` | `MarkedRecip Rec K` | **B5-K** at a literal `K`; abstract otherwise | never consumed as an axiom by the landed theorems |
+| `B` | `MarkedRecip Rec K` | **B5-K** at a literal `K`; abstract otherwise | not consumed as an axiom by the historical §A headlines; invoked by the W361 canonical wrappers |
 | `FF` | `DyadicUnitFiltration K` | B13's discharged construction at ℚ₂; caller at `K` | fixes `q_K = qOf K FF` |
 | `T` | `OrientedTameQuotientK B FF` | **B10-K** at a literal `K`; abstract otherwise | = `FieldInputs.T` |
 
@@ -278,14 +388,17 @@ the degree enters only inside a package nobody has built yet.  `Fields.finrank_K
 
 ---
 
-## D. What G3 signs
+## D. Historical AS5 G3 checklist
+
+This is the preserved AS5 checklist. For the new general endpoint use §W361 and
+the completion audit; this historical list is not a recorded W361 owner approval.
 
 1. **Census 11** (§B): 9 frozen ℚ₂ + B5-K + B10-K; `EXPECTED_AXIOMS = 11`; K-side citations
    remain UNVERIFIED per Q7; no obligation appears as an axiom (D2 guard green).
 2. **Measured prints** (§A): final theorem = std-3 ∪ {B1, B6, B7, B9, B11a}; `M`-rows and
    the uniform gate = std-3 ∪ {B1, B6, B7}; `n = 1` = the frozen ℚ₂ 9-set byte-identical to
    the capstone; certificates at std-3 (pilot) and std-3 ∪ {B3c, B5, B8} (`n = 1`); B5-K and
-   B10-K in **no** print.  All of these are now check-5 entries (`AUDIT_DYADIC`), so any
+   B10-K in **none of those historical prints**. All of these are check-5 entries (`AUDIT_DYADIC`), so any
    growth fails `scripts/check_axioms.sh` mechanically.
 3. **The residual surface** (§C) is the complete distance to packet Thm 1.1's prose form:
    bundles (C.0), packet §12 inputs (C.1), the pilot's 14 named binders (C.2), the M rows'

@@ -1,0 +1,493 @@
+PACKET_PIN_OK|GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_input|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_signature|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_input|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_signature|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_input|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_signature|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate_agrees|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralPhaseTemplate.compactPhaseCover_tree|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralPhaseTemplate.denote_compactPhase|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralPhaseTemplate.polar_denote_compactPhase|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralPhaseTemplate.sourceHessian_cov_eq_denote|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralPhaseTemplate.sourcePhase_eq_denote|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralTemplate.Tree.eval_eq_pinned|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralTemplate.denote_mobileSplice|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW_specializes|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.MpcMobileSpliceBoundary.mpcMobileTameSplice_determinant|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.MpcMobileSpliceSupply.mpcMobileTameSplice_core|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.MpcMobileSpliceSupply.mpcMobileTameSplice_uniformStokesSupply|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.MpcMobileUnramifiedPhase.hessRelZ_mpcUnit_unramified_compactPhase_of_sigma2_one|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.TameSpliceBoundaryHessianCertificates.mobileBoundaryHessian|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.TameSpliceRamifiedFoxNormal.tameSplice_ramified_rows|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal.mobileSplice_scalar_rows|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.TameSpliceUnramifiedFoxRows.mobileSplice_unramified_rows|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.WordPhaseCompactCertificates.compactPhaseCover|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianOfComparison_cov_apply|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedCoefficientMatrix_mul_inverse|3
+PACKET_PIN_OK|GQ2.Dyadic.eval_pro2_tameSplice|3
+PACKET_PIN_OK|GQ2.Dyadic.hessEvalZ_tameSplice_ramified|3
+PACKET_PIN_OK|GQ2.Dyadic.tameSpecializes_tameSplice|3
+PACKET_PROOF_REPLAY_PASS|29
+GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_input {alpha h q : ℕ} {C A : Type} [Group C] [Finite C] [AddCommGroup A]
+  [Finite A] [DistribMulAction C A] (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha) (hq0 : q ≠ 0)
+  (hqe : Even q) (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) {D : Type} [Group D] [Finite D] [DistribMulAction D A] (pi : C →* D)
+  (hpi : ∀ (c : C) (a : A), c • a = pi c • a) (hsurj : Function.Surjective ⇑pi) (ht : t.TameRelAt q)
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)), pi (t.x i) = 1) (hfpf : ∀ (a : A), t.τ • a = a → a = 0)
+  (hodd : ∀ (a : A), GQ2.powOmega2 t.τ • a = a) {r p : ℕ} (eta : ℤ_[2]ˣ) :
+  GQ2.Dyadic.FoxNormalForm.toHom (GQ2.Dyadic.TameSym.ramifiedEnd t)
+      (GQ2.Dyadic.GeneralFoxTemplate.Profile.inputMatrix q
+        (GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tauActionHalfPeriod t)
+        (GQ2.Dyadic.GeneralFoxTemplate.ramified (GQ2.Dyadic.Certificates.x2Idx h))) =
+    GQ2.Dyadic.foxJacobian (⇑t) (GQ2.Dyadic.omegaPinnedLevelZhatResolver (4 * Monoid.exponent C))
+      (GQ2.Dyadic.omegaPinnedLevelZtwoResolver (4 * Monoid.exponent C)) (GQ2.Dyadic.Certificates.tameRelW (2 + 2 * h) q)
+      (GQ2.Dyadic.tameSplice
+        (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+        (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_signature {alpha h q : ℕ} {C A : Type} [Group C] [Finite C]
+  [AddCommGroup A] [Finite A] [DistribMulAction C A] (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha)
+  (hq0 : q ≠ 0) (hqe : Even q)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) {D : Type} [Group D] [Finite D] [DistribMulAction D A] (pi : C →* D)
+  (hpi : ∀ (c : C) (a : A), c • a = pi c • a) (hsurj : Function.Surjective ⇑pi) (ht : t.TameRelAt q)
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)), pi (t.x i) = 1) (hfpf : ∀ (a : A), t.τ • a = a → a = 0)
+  (hodd : ∀ (a : A), GQ2.powOmega2 t.τ • a = a) {r p : ℕ} (eta : ℤ_[2]ˣ) :
+  GQ2.Dyadic.GeneralFoxTemplate.Profile.denote q
+      (GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tauActionHalfPeriod t)
+      (GQ2.Dyadic.GeneralFoxTemplate.ramified (GQ2.Dyadic.Certificates.x2Idx h)) =
+    GQ2.Dyadic.GeneralFoxTemplate.Signature.ofCertificate
+      (GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.mobileSplice_FoxCertificate_ramified_identity t
+        halpha hq0 hqe eta nuP hA2 pi hpi hsurj ht hwild hfpf hodd)
+GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_input {alpha h q : ℕ} {C A : Type} [Group C] [Finite C] [AddCommGroup A]
+  [Finite A] [DistribMulAction C A] (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha) (hq0 : q ≠ 0)
+  (hqe : Even q) (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) {r p : ℕ} (eta : ℤ_[2]ˣ)
+  (htriv : ∀ (g : GQ2.Dyadic.Generator (2 + 2 * h)) (a : A), t g • a = a) :
+  GQ2.Dyadic.FoxNormalForm.toHom (GQ2.Dyadic.TameSym.splitEnd t)
+      (GQ2.Dyadic.GeneralFoxTemplate.Profile.inputMatrix q 0 (GQ2.Dyadic.GeneralFoxTemplate.scalar (2 + 2 * h))) =
+    GQ2.Dyadic.foxJacobian (⇑t) (GQ2.Dyadic.omegaPinnedLevelZhatResolver (4 * Monoid.exponent C))
+      (GQ2.Dyadic.omegaPinnedLevelZtwoResolver (4 * Monoid.exponent C)) (GQ2.Dyadic.Certificates.tameRelW (2 + 2 * h) q)
+      (GQ2.Dyadic.tameSplice
+        (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+        (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_signature {alpha h q : ℕ} {C A : Type} [Group C] [Finite C] [AddCommGroup A]
+  [Finite A] [DistribMulAction C A] (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha) (hq0 : q ≠ 0)
+  (hqe : Even q) (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) {r p : ℕ} (eta : ℤ_[2]ˣ)
+  (htriv : ∀ (g : GQ2.Dyadic.Generator (2 + 2 * h)) (a : A), t g • a = a) :
+  GQ2.Dyadic.GeneralFoxTemplate.Profile.denote q 0 (GQ2.Dyadic.GeneralFoxTemplate.scalar (2 + 2 * h)) =
+    GQ2.Dyadic.GeneralFoxTemplate.Signature.ofCertificate
+      (GQ2.Dyadic.Instances.TameSpliceFoxCertificates.mobileSplice_FoxCertificate_scalar t halpha hq0 hqe eta nuP hA2
+        htriv)
+GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_input {alpha h q : ℕ} {C A : Type} [Group C] [Finite C] [AddCommGroup A]
+  [Finite A] [DistribMulAction C A] (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha) (hq0 : q ≠ 0)
+  (hqe : Even q) (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) [TopologicalSpace C] [DiscreteTopology C]
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a) (htau : ∀ (a : A), t.τ • a = a)
+  (hsigma : ∀ (a : A), t.σ • a = a → a = 0) (hsigma2 : ∀ (a : A), GQ2.powOmega2 t.σ • a = a) {r p : ℕ} (eta : ℤ_[2]ˣ)
+  (hr :
+    ∀ (l : Fin 2),
+      (FreeGroup.lift ⇑t)
+          (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+            (GQ2.Dyadic.tameSplice
+              (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+              (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+            (4 * Monoid.exponent C) l) =
+        1) :
+  GQ2.Dyadic.FoxNormalForm.toHom (GQ2.Dyadic.TameSym.splitEnd t)
+      (GQ2.Dyadic.GeneralFoxTemplate.Profile.inputMatrix q
+        (GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.sigmaActionHalfPeriod t)
+        (GQ2.Dyadic.GeneralFoxTemplate.unramified (GQ2.Dyadic.Certificates.x2Idx h))) =
+    GQ2.Dyadic.foxJacobian (⇑t) (GQ2.Dyadic.omegaPinnedLevelZhatResolver (4 * Monoid.exponent C))
+      (GQ2.Dyadic.omegaPinnedLevelZtwoResolver (4 * Monoid.exponent C)) (GQ2.Dyadic.Certificates.tameRelW (2 + 2 * h) q)
+      (GQ2.Dyadic.tameSplice
+        (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+        (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_signature {alpha h q : ℕ} {C A : Type} [Group C] [Finite C]
+  [AddCommGroup A] [Finite A] [DistribMulAction C A] (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha)
+  (hq0 : q ≠ 0) (hqe : Even q)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) [TopologicalSpace C] [DiscreteTopology C]
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a) (htau : ∀ (a : A), t.τ • a = a)
+  (hsigma : ∀ (a : A), t.σ • a = a → a = 0) (hsigma2 : ∀ (a : A), GQ2.powOmega2 t.σ • a = a) {r p : ℕ} (eta : ℤ_[2]ˣ)
+  (hr :
+    ∀ (l : Fin 2),
+      (FreeGroup.lift ⇑t)
+          (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+            (GQ2.Dyadic.tameSplice
+              (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+              (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+            (4 * Monoid.exponent C) l) =
+        1) :
+  GQ2.Dyadic.GeneralFoxTemplate.Profile.denote q
+      (GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.sigmaActionHalfPeriod t)
+      (GQ2.Dyadic.GeneralFoxTemplate.unramified (GQ2.Dyadic.Certificates.x2Idx h)) =
+    GQ2.Dyadic.GeneralFoxTemplate.Signature.ofCertificate
+      (GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.mobileSplice_FoxCertificate_unramified_identity t halpha
+        hq0 hqe eta nuP hA2 hwild htau hsigma hsigma2 hr)
+GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate_agrees {C V : Type} [Group C] [AddCommGroup V]
+  [DistribMulAction C V] [Fintype V] {q : V → ZMod 2} (dat : GQ2.FactorSet C V)
+  (hdat : GQ2.IsEquivariantFactorSet q dat) (hq : GQ2.QuadraticFp2.IsQuadraticFp2 q)
+  (hns : GQ2.QuadraticFp2.Nonsingular q) {d : ℕ} (hcard : Fintype.card V = 2 ^ d) (h : ℕ) :
+  (∀ (p : GQ2.Dyadic.Instances.WordPhasePolarNormal.CompactCoordinates V h),
+      GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote q p (GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate h).phase =
+        GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase q h p) ∧
+    (∀ (v : V),
+        (GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate h).j0.denote v =
+          (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.headDiagonal h) v) ∧
+      (∀ (v : V),
+          (GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate h).j1.denote v =
+            (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.headCross h) v) ∧
+        (∀ (v : V),
+            GQ2.Dyadic.GeneralPhaseCoverTemplate.DiagonalTerm.denote q v
+                (GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate h).diagonal =
+              dat.f v v) ∧
+          GQ2.Dyadic.GeneralPhaseCoverTemplate.DimensionTerm.denote d
+                (GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate h).baseDim =
+              (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.compactPhaseCover dat hdat hq hns hcard h).baseDim ∧
+            (GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate h).baseSign =
+              (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.compactPhaseCover dat hdat hq hns hcard h).baseSign
+GQ2.Dyadic.GeneralPhaseTemplate.compactPhaseCover_tree {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [Fintype V] {q : V → ZMod 2} (dat : GQ2.FactorSet C V) (hdat : GQ2.IsEquivariantFactorSet q dat)
+  (hq : GQ2.QuadraticFp2.IsQuadraticFp2 q) (hns : GQ2.QuadraticFp2.Nonsingular q) {d : ℕ}
+  (hcard : Fintype.card V = 2 ^ d) (h : ℕ) :
+  GQ2.Dyadic.PhaseCoverCertificate dat (fun v ↦ dat.f v v)
+    (fun p ↦ GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote q p (GQ2.Dyadic.GeneralPhaseTemplate.compactPhase h))
+    (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.headDiagonal h)
+    (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.headCross h)
+GQ2.Dyadic.GeneralPhaseTemplate.denote_compactPhase {V : Type} [AddCommGroup V] (q : V → ZMod 2) (h : ℕ)
+  (p : GQ2.Dyadic.Instances.WordPhasePolarNormal.CompactCoordinates V h) :
+  GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote q p (GQ2.Dyadic.GeneralPhaseTemplate.compactPhase h) =
+    GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase q h p
+GQ2.Dyadic.GeneralPhaseTemplate.polar_denote_compactPhase {V : Type} [AddCommGroup V] (q : V → ZMod 2)
+  (hq : GQ2.QuadraticFp2.IsQuadraticFp2 q) (h : ℕ)
+  (x y : GQ2.Dyadic.Instances.WordPhasePolarNormal.CompactCoordinates V h) :
+  GQ2.QuadraticFp2.polar
+      (fun p ↦ GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote q p (GQ2.Dyadic.GeneralPhaseTemplate.compactPhase h)) x y =
+    ∑ i,
+      ∑ j,
+        GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedCoefficientMatrix h i j *
+          GQ2.QuadraticFp2.polar q (GQ2.Dyadic.Instances.WordPhasePolarNormal.blockCoordinates h x i)
+            (GQ2.Dyadic.Instances.WordPhasePolarNormal.blockCoordinates h y j)
+GQ2.Dyadic.GeneralPhaseTemplate.sourceHessian_cov_eq_denote {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg]
+  [DiscreteTopology Bg] {D : GQ2.SectionEight.RadicalCoverData Bg} {DD : GQ2.SectionEight.AffineTLift.DescData D}
+  {Gamma : Type} [Group Gamma] [TopologicalSpace Gamma] {rho : Gamma →ₜ* Bg ⧸ D.M} [DistribMulAction Gamma (ZMod 2)]
+  {htriv : ∀ (g : Gamma) (a : ZMod 2), g • a = a} {h : ℕ} [Fintype DD.Vmod]
+  (C :
+    GQ2.Dyadic.LSquare.SourceWordPhaseComparison DD rho htriv
+      (GQ2.Dyadic.Instances.WordPhasePolarNormal.CompactCoordinates DD.Vmod h)
+      (GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase DD.qbar h))
+  (hadd :
+    ∀ (x y : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho),
+      C.phaseEquiv (x + y) = C.phaseEquiv x + C.phaseEquiv y)
+  (x : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho) :
+  GQ2.SectionEight.AffineTLift.QZeroBar DD rho htriv x =
+    GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote DD.qbar
+      ((GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianOfComparison DD rho htriv C hadd).cov x)
+      (GQ2.Dyadic.GeneralPhaseTemplate.compactPhase h)
+GQ2.Dyadic.GeneralPhaseTemplate.sourcePhase_eq_denote {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg]
+  [DiscreteTopology Bg] {D : GQ2.SectionEight.RadicalCoverData Bg} {DD : GQ2.SectionEight.AffineTLift.DescData D}
+  {Gamma : Type} [Group Gamma] [TopologicalSpace Gamma] {rho : Gamma →ₜ* Bg ⧸ D.M} [DistribMulAction Gamma (ZMod 2)]
+  {htriv : ∀ (g : Gamma) (a : ZMod 2), g • a = a} {h : ℕ} [Fintype DD.Vmod]
+  (C :
+    GQ2.Dyadic.LSquare.SourceWordPhaseComparison DD rho htriv
+      (GQ2.Dyadic.Instances.WordPhasePolarNormal.CompactCoordinates DD.Vmod h)
+      (GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase DD.qbar h))
+  (x : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho) :
+  GQ2.SectionEight.AffineTLift.QZeroBar DD rho htriv x =
+    GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote DD.qbar (C.phaseEquiv x)
+      (GQ2.Dyadic.GeneralPhaseTemplate.compactPhase h)
+GQ2.Dyadic.GeneralTemplate.Tree.eval_eq_pinned {Gen Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q]
+  [Finite Q] {N : ℕ} (hN : N ≠ 0) (hord : ∀ (x : Q), orderOf x ∣ N) (env : GQ2.Dyadic.GeneralTemplate.Environment)
+  (mu : Gen → Q) (w : GQ2.Dyadic.GeneralTemplate.Tree Gen) :
+  GQ2.Dyadic.PWord.eval mu (GQ2.Dyadic.GeneralTemplate.Tree.denote env w) =
+    GQ2.Dyadic.GeneralTemplate.Tree.evalZ mu
+      (fun e ↦ GQ2.Dyadic.omegaPinnedLevelZhatResolver N (GQ2.Dyadic.GeneralTemplate.ProfiniteTerm.denote env e))
+      (fun e ↦ GQ2.Dyadic.omegaPinnedLevelZtwoResolver N (GQ2.Dyadic.GeneralTemplate.PadicTerm.denote env e)) w
+GQ2.Dyadic.GeneralTemplate.denote_mobileSplice (alpha r p h q : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) (hq0 : q ≠ 0)
+  (hqe : Even q) (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop) :
+  GQ2.Dyadic.GeneralTemplate.Tree.denote
+      (GQ2.Dyadic.GeneralTemplate.mobileEnvironment alpha r p h q eta halpha hq0 hqe nuP)
+      (GQ2.Dyadic.GeneralTemplate.mobileSplice alpha r p h) =
+    GQ2.Dyadic.tameSplice
+      (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+      (GQ2.Dyadic.Words.MCompact.mCompactW alpha h)
+GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW_specializes {alpha r p h q : ℕ} (hq0 : q ≠ 0)
+  (hqe : Even q) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop) :
+  GQ2.Dyadic.TameSpec.TameSpecializes (2 + 2 * h) q
+    (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+GQ2.Dyadic.Instances.MpcMobileSpliceBoundary.mpcMobileTameSplice_determinant {alpha r p h q : ℕ} (hq0 : q ≠ 0)
+  (hqe : Even q) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) (halpha2 : 2 ≤ alpha)
+  (nuM : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop) {P : ProfiniteGrp.{0}}
+  (nuP : ↑P.toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (tame :
+    ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+              (GQ2.Dyadic.tameSplice
+                (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop →ₜ*
+      ↑(GQ2.Dyadic.Tq q).toProfinite.toTop)
+  (pro2 :
+    ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+              (GQ2.Dyadic.tameSplice
+                (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop →ₜ*
+      ↑P.toProfinite.toTop)
+  (compat :
+    ∀
+      (g :
+        ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                (GQ2.Dyadic.tameSplice
+                  (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                  (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop),
+      (GQ2.Dyadic.nuTq q) (tame g) = nuP (pro2 g))
+  (htameSigma :
+    tame
+        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice
+            (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+            (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+          GQ2.Dyadic.Generator.sigma) =
+      GQ2.Dyadic.tqSigma q)
+  (htameTau :
+    tame
+        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice
+            (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+            (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+          GQ2.Dyadic.Generator.tau) =
+      GQ2.Dyadic.tqTau q)
+  (htameWild :
+    ∀ (i : Fin (2 + 2 * h + 1)),
+      tame
+          (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+            (GQ2.Dyadic.tameSplice
+              (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+              (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+            (GQ2.Dyadic.Generator.wild i)) =
+        1) :
+  GQ2.Dyadic.AffineDeterminantCertificate
+    (GQ2.Dyadic.GammaR (2 + 2 * h) q
+      (GQ2.Dyadic.tameSplice
+        (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+        (GQ2.Dyadic.Words.MCompact.mCompactW alpha h)))
+    (2 + 2 * h) q P nuP (GQ2.Dyadic.standardNumerics (2 + 2 * h)) tame pro2 compat
+    (GQ2.Dyadic.scalarActionZmodTwo
+      ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+              (GQ2.Dyadic.tameSplice
+                (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop)
+GQ2.Dyadic.Instances.MpcMobileSpliceSupply.mpcMobileTameSplice_core {q : ℕ} (hq0 : q ≠ 0) (hqe : Even q)
+  (alpha r p h : ℕ) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hD : GQ2.Dyadic.ztwoIota (nuP (GQ2.Dyadic.MarkedCore.dmD alpha h)) = Multiplicative.ofAdd ↑eta) :
+  GQ2.Dyadic.Instances.FieldFamilyFlexibleCertificate.FlexibleCoreLeavesRN (2 + 2 * h)
+    (GQ2.Dyadic.tameSplice
+      (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+      (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+    (GQ2.Dyadic.MarkedCore.DM alpha h) nuP
+GQ2.Dyadic.Instances.MpcMobileSpliceSupply.mpcMobileTameSplice_uniformStokesSupply {alpha r p h q : ℕ} (hq0 : q ≠ 0)
+  (hqe : Even q) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) (halpha2 : 2 ≤ alpha)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop) :
+  GQ2.Dyadic.UniformStokesSupply (2 + 2 * h) q
+    (GQ2.Dyadic.tameSplice
+      (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+      (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+    (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+      (GQ2.Dyadic.tameSplice
+        (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+        (GQ2.Dyadic.Words.MCompact.mCompactW alpha h)))
+GQ2.Dyadic.Instances.MpcMobileUnramifiedPhase.hessRelZ_mpcUnit_unramified_compactPhase_of_sigma2_one {C V : Type}
+  [Group C] [AddCommGroup V] [DistribMulAction C V] {q0 : V → ZMod 2} (dat : GQ2.FactorSet C V)
+  (hdat : GQ2.IsEquivariantFactorSet q0 dat) {h : ℕ} (s : C) (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) (E₂ : ℤ_[2] → ℤ)
+  [Finite C] [Finite V] (hV₂ : ∀ (v : V), v + v = 0) {alpha : ℕ} (halpha : 2 ≤ alpha) (r p : ℕ) (eta : ℤ_[2]ˣ)
+  (z : (V × V) × (Fin h → V × V)) (hS₂ : s ^ E GQ2.omega2 = 1) {e : ℕ} (hE : E GQ2.omega2 = ↑e) (he : e % 4 = 1) :
+  GQ2.Dyadic.hessRelZ
+      (GQ2.Dyadic.Certificates.hessMark s 1 fun i ↦
+        GQ2.Dyadic.Instances.WordPhaseModel.wPmCompactPhaseNormal h z (GQ2.Dyadic.Generator.wild i))
+      (GQ2.Dyadic.kappa0Cocycle dat hdat) E E₂ (GQ2.Dyadic.Words.Mpc.mpcWUnit alpha r p eta h) =
+    GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase q0 h z
+GQ2.Dyadic.Instances.TameSpliceBoundaryHessianCertificates.mobileBoundaryHessian {alpha r p h q : ℕ} (hq0 : q ≠ 0)
+  (hqe : Even q) (eta : ℤ_[2]ˣ) (halpha : 1 ≤ alpha) (halpha2 : 2 ≤ alpha)
+  (nuM : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop) {P : ProfiniteGrp.{0}}
+  {nuP : ↑P.toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop} {H E : Type} [Group H] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E] {Y : Type}
+  [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : GQ2.MarkedTarget H E Y)
+  (Blk : GQ2.SectionSeven.MinimalBlock T.LY) [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+  (hE2 : ∀ (e : E), e ^ 2 = 1) (F : GQ2.Dyadic.BoundaryFrameK q P H E)
+  (tame :
+    ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+              (GQ2.Dyadic.tameSplice
+                (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop →ₜ*
+      ↑(GQ2.Dyadic.Tq q).toProfinite.toTop)
+  (pro2 :
+    ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+              (GQ2.Dyadic.tameSplice
+                (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop →ₜ*
+      ↑P.toProfinite.toTop)
+  (compat :
+    ∀
+      (g :
+        ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                (GQ2.Dyadic.tameSplice
+                  (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+                  (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))).toProfinite.toTop),
+      (GQ2.Dyadic.nuTq q) (tame g) = nuP (pro2 g))
+  (htameSigma :
+    tame
+        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice
+            (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+            (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+          GQ2.Dyadic.Generator.sigma) =
+      GQ2.Dyadic.tqSigma q)
+  (htameTau :
+    tame
+        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice
+            (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+            (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+          GQ2.Dyadic.Generator.tau) =
+      GQ2.Dyadic.tqTau q)
+  (htameWild :
+    ∀ (i : Fin (2 + 2 * h + 1)),
+      tame
+          (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+            (GQ2.Dyadic.tameSplice
+              (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuM)
+              (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+            (GQ2.Dyadic.Generator.wild i)) =
+        1)
+  (hVne : ∃ v, v ≠ 0) (hnt : ∃ g v, g • v ≠ v) (l : (GQ2.SectionNine.blockFrame T Blk hE2).DR)
+  (hl : l ≠ (GQ2.SectionNine.blockFrame T Blk hE2).zeroDR)
+  (rho :
+    GQ2.Dyadic.BoundaryLiftsK (GQ2.Dyadic.sourceBoundaryMapK tame pro2 compat) F
+      (GQ2.SectionNine.blockFrame T Blk hE2).TC) :
+  have DD := (GQ2.Dyadic.blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl;
+  have rhoM :=
+    GQ2.Dyadic.rhoPrimeK (GQ2.SectionNine.blockFrame T Blk hE2) (GQ2.Dyadic.sourceBoundaryMapK tame pro2 compat) F
+      ((GQ2.Dyadic.blockEnrichmentDK T Blk hE2 hq0 hqe F).radData l hl) ⋯ rho;
+  Nonempty (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.SourceCompactHessian DD rhoM ⋯ h)
+GQ2.Dyadic.Instances.TameSpliceRamifiedFoxNormal.tameSplice_ramified_rows {C D A : Type} [Group C] [Finite C] [Group D]
+  [Finite D] [AddCommGroup A] [Finite A] [DistribMulAction C A] [DistribMulAction D A] {alpha h q : ℕ}
+  (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (pi : C →* D) (hpi : ∀ (c : C) (a : A), c • a = pi c • a)
+  (hsurj : Function.Surjective ⇑pi) (hA2 : ∀ (a : A), a + a = 0) (ht : t.TameRelAt q) (hq0 : q ≠ 0) (hqe : Even q)
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)), pi (t.x i) = 1) (hfpf : ∀ (a : A), t.τ • a = a → a = 0)
+  (hodd : ∀ (a : A), GQ2.powOmega2 t.τ • a = a) (R : GQ2.Dyadic.PWord (GQ2.Dyadic.Generator (2 + 2 * h)))
+  (hspec : GQ2.Dyadic.TameSpec.TameSpecializes (2 + 2 * h) q R)
+  (hend : GQ2.Dyadic.IsStokesEndpoint (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q R (4 * Monoid.exponent C)))
+  (x : GQ2.Dyadic.Generator (2 + 2 * h) → A) :
+  (GQ2.Dyadic.heisD1 (⇑t)
+        (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice R (GQ2.Dyadic.Words.MCompact.mCompactW alpha h)) (4 * Monoid.exponent C)))
+      x =
+    ![t.σ⁻¹ • (x GQ2.Dyadic.Generator.tau + t.τ • x GQ2.Dyadic.Generator.sigma - x GQ2.Dyadic.Generator.sigma) -
+        ∑ i ∈ Finset.range q, t.τ ^ i • x GQ2.Dyadic.Generator.tau,
+      -(t.σ⁻¹ • x (GQ2.Dyadic.Generator.wild (GQ2.Dyadic.Certificates.x2Idx h)))]
+GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal.mobileSplice_scalar_rows {alpha h q : ℕ} {C A : Type} [Group C]
+  [Finite C] [AddCommGroup A] [DistribMulAction C A] {r p : ℕ} (t : GQ2.Dyadic.Marking (2 + 2 * h) C)
+  (halpha : 1 ≤ alpha) (hq0 : q ≠ 0) (hqe : Even q) (eta : ℤ_[2]ˣ)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) (htriv : ∀ (g : GQ2.Dyadic.Generator (2 + 2 * h)) (a : A), t g • a = a)
+  (x : GQ2.Dyadic.Generator (2 + 2 * h) → A) :
+  (GQ2.Dyadic.heisD1 (⇑t)
+        (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice
+            (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+            (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+          (4 * Monoid.exponent C)))
+      x =
+    ![x GQ2.Dyadic.Generator.tau, x GQ2.Dyadic.Generator.tau]
+GQ2.Dyadic.Instances.TameSpliceUnramifiedFoxRows.mobileSplice_unramified_rows {alpha h q : ℕ} {C A : Type} [Group C]
+  [Finite C] [AddCommGroup A] [Finite A] [DistribMulAction C A] [TopologicalSpace C] [DiscreteTopology C] {r p : ℕ}
+  (t : GQ2.Dyadic.Marking (2 + 2 * h) C) (halpha : 1 ≤ alpha) (hq0 : q ≠ 0) (hqe : Even q) (eta : ℤ_[2]ˣ)
+  (nuP : ↑(GQ2.Dyadic.MarkedCore.DM alpha h).toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop)
+  (hA2 : ∀ (a : A), a + a = 0) (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (a : A), t.x i • a = a)
+  (htau : ∀ (a : A), t.τ • a = a) (hsigma : ∀ (a : A), t.σ • a = a → a = 0)
+  (hsigma2 : ∀ (a : A), GQ2.powOmega2 t.σ • a = a)
+  (hr :
+    ∀ (l : Fin 2),
+      (FreeGroup.lift ⇑t)
+          (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+            (GQ2.Dyadic.tameSplice
+              (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+              (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+            (4 * Monoid.exponent C) l) =
+        1)
+  (x : GQ2.Dyadic.Generator (2 + 2 * h) → A) :
+  (GQ2.Dyadic.heisD1 (⇑t)
+        (GQ2.Dyadic.pinnedResolvedFamily (2 + 2 * h) q
+          (GQ2.Dyadic.tameSplice
+            (GQ2.Dyadic.Instances.MpcMobileNuSource.mpcMobileTameCorrectedW hq0 hqe alpha r p h eta halpha nuP)
+            (GQ2.Dyadic.Words.MCompact.mCompactW alpha h))
+          (4 * Monoid.exponent C)))
+      x =
+    ![t.σ⁻¹ • x GQ2.Dyadic.Generator.tau,
+      x GQ2.Dyadic.Generator.tau +
+        (x (GQ2.Dyadic.Generator.wild (GQ2.Dyadic.Certificates.x2Idx h)) -
+          t.σ⁻¹ • x (GQ2.Dyadic.Generator.wild (GQ2.Dyadic.Certificates.x2Idx h)))]
+GQ2.Dyadic.Instances.WordPhaseCompactCertificates.compactPhaseCover {C V : Type} [Group C] [AddCommGroup V]
+  [DistribMulAction C V] [Fintype V] {q : V → ZMod 2} (dat : GQ2.FactorSet C V)
+  (hdat : GQ2.IsEquivariantFactorSet q dat) (hq : GQ2.QuadraticFp2.IsQuadraticFp2 q)
+  (hns : GQ2.QuadraticFp2.Nonsingular q) {d : ℕ} (hcard : Fintype.card V = 2 ^ d) (h : ℕ) :
+  GQ2.Dyadic.PhaseCoverCertificate dat (fun v ↦ dat.f v v)
+    (GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase q h)
+    (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.headDiagonal h)
+    (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.headCross h)
+GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianOfComparison_cov_apply {Bg : Type} [Group Bg]
+  [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] {D : GQ2.SectionEight.RadicalCoverData Bg}
+  (DD : GQ2.SectionEight.AffineTLift.DescData D) {Gamma : Type} [Group Gamma] [TopologicalSpace Gamma]
+  (rho : Gamma →ₜ* Bg ⧸ D.M) [DistribMulAction Gamma (ZMod 2)] (htriv : ∀ (g : Gamma) (a : ZMod 2), g • a = a)
+  [Fintype DD.Vmod] {h : ℕ}
+  (C :
+    GQ2.Dyadic.LSquare.SourceWordPhaseComparison DD rho htriv
+      (GQ2.Dyadic.Instances.WordPhasePolarNormal.CompactCoordinates DD.Vmod h)
+      (GQ2.Dyadic.Instances.WordPhase.wPhCompactWallHandlePhase DD.qbar h))
+  (hadd :
+    ∀ (x y : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho),
+      C.phaseEquiv (x + y) = C.phaseEquiv x + C.phaseEquiv y)
+  (x : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho) :
+  (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianOfComparison DD rho htriv C hadd).cov x =
+    C.phaseEquiv x
+GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedCoefficientMatrix_mul_inverse (h : ℕ) :
+  GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedCoefficientMatrix h *
+      GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedInverseMatrix h =
+    1
+GQ2.Dyadic.eval_pro2_tameSplice {n : ℕ} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G] (t : GQ2.Dyadic.Marking n G) (hG : GQ2.IsProP 2 G) (htau : t.τ = 1)
+  (R H : GQ2.Dyadic.PWord (GQ2.Dyadic.Generator n)) :
+  t.eval (GQ2.Dyadic.pro2 (GQ2.Dyadic.tameSplice R H)) = t.eval (GQ2.Dyadic.pro2 R)
+GQ2.Dyadic.hessEvalZ_tameSplice_ramified {n q : ℕ} {C V : Type} [Group C] [Finite C] [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] {q0 : V → ZMod 2} (dat : GQ2.FactorSet C V) (hdat : GQ2.IsEquivariantFactorSet q0 dat)
+  (mu : GQ2.Dyadic.Generator n → GQ2.SectionSix.SemiProd C V) (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (R H : GQ2.Dyadic.PWord (GQ2.Dyadic.Generator n))
+  (hres : GQ2.Dyadic.Certificates.MProcyclic.ResolverLifts E (GQ2.FoxH.WordLift V C))
+  (hwild : ∀ (i : Fin (n + 1)), (mu (GQ2.Dyadic.Generator.wild i)).2 = 1)
+  (hfpf : ∀ (v : V), (mu GQ2.Dyadic.Generator.tau).2 • v = v → v = 0)
+  (hodd : ∀ (v : V), GQ2.powOmega2 (mu GQ2.Dyadic.Generator.tau).2 • v = v)
+  (hendR : GQ2.Dyadic.IsStokesEndpoint fun k ↦ GQ2.Dyadic.heisToFree E E₂ (GQ2.Dyadic.Count.gammaFam n q R k))
+  (hendH : GQ2.Dyadic.IsStokesEndpoint fun k ↦ GQ2.Dyadic.heisToFree E E₂ (GQ2.Dyadic.Count.gammaFam n q H k))
+  (hspecR : GQ2.Dyadic.TameSpec.TameSpecializes n q R) (hspecH : GQ2.Dyadic.TameSpec.TameSpecializes n q H)
+  (hresolveR :
+    ∀ (p : GQ2.Dyadic.WordCoh.CentExt (GQ2.Dyadic.kappa0Cocycle dat hdat)),
+      GQ2.Dyadic.PWord.ResolvedAt
+        (fun g ↦
+          match g with
+          | GQ2.Dyadic.Generator.sigma => p
+          | x => 1)
+        E E₂ R)
+  (hresolveH :
+    ∀ (p : GQ2.Dyadic.WordCoh.CentExt (GQ2.Dyadic.kappa0Cocycle dat hdat)),
+      GQ2.Dyadic.PWord.ResolvedAt
+        (fun g ↦
+          match g with
+          | GQ2.Dyadic.Generator.sigma => p
+          | x => 1)
+        E E₂ H) :
+  GQ2.Dyadic.hessEvalZ mu (GQ2.Dyadic.kappa0Cocycle dat hdat) E E₂ (GQ2.Dyadic.tameSplice R H) =
+    GQ2.Dyadic.hessEvalZ mu (GQ2.Dyadic.kappa0Cocycle dat hdat) E E₂ H
+GQ2.Dyadic.tameSpecializes_tameSplice {n q : ℕ} {R H : GQ2.Dyadic.PWord (GQ2.Dyadic.Generator n)}
+  (hR : GQ2.Dyadic.TameSpec.TameSpecializes n q R) (hH : GQ2.Dyadic.TameSpec.TameSpecializes n q H) :
+  GQ2.Dyadic.TameSpec.TameSpecializes n q (GQ2.Dyadic.tameSplice R H)

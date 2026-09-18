@@ -1,0 +1,124 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under the Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, and OpenAI Codex
+-/
+import GQ2.Dyadic.Instances.RamifiedCertificateOddCyclotomicUnramified
+
+/-!
+# Odd cyclotomic extensions have ramification index one
+
+Reduction is injective on roots of unity of odd order. Thus, when one such root generates a
+finite dyadic Galois field, its residue action is faithful. The field degree is consequently at
+most the residue degree; the proved fundamental identity forces ramification index one.
+No local reciprocity or norm-reciprocity compatibility is assumed.
+-/
+
+namespace GQ2.Dyadic
+noncomputable section
+open GQ2 SpectralLocalField
+open scoped NNReal Pointwise
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+local notation "k₀" => IsLocalRing.ResidueField BaseInteger
+
+variable (L : IntermediateField ℚ_[2] ℚ̄₂)
+  [FiniteDimensional ℚ_[2] L] [IsGalois ℚ_[2] L]
+
+local instance : (NormedField.valuation (K := ℚ_[2])).HasExtension
+    (NormedField.valuation (K := L)) := normValuation_hasExtension L
+local instance : Algebra BaseInteger (finiteNormInteger L) :=
+  Valuation.HasExtension.instAlgebra_valuationSubring
+    (NormedField.valuation (K := ℚ_[2])) (NormedField.valuation (K := L))
+local instance : IsLocalHom (algebraMap BaseInteger (finiteNormInteger L)) :=
+  Valuation.HasExtension.instIsLocalHomValuationInteger
+
+omit [FiniteDimensional ℚ_[2] L] [IsGalois ℚ_[2] L] in
+private theorem residue_norm_sub_lt_one
+    (x y : finiteNormInteger L)
+    (hxy : IsLocalRing.residue (finiteNormInteger L) x =
+      IsLocalRing.residue (finiteNormInteger L) y) :
+    ‖(x : L) - (y : L)‖ < 1 := by
+  have hz : IsLocalRing.residue (finiteNormInteger L) (x - y) = 0 := by
+    rw [map_sub, hxy, sub_self]
+  rw [IsLocalRing.residue_eq_zero_iff, Valuation.mem_maximalIdeal_iff] at hz
+  change ‖(x : L) - (y : L)‖₊ < 1 at hz
+  exact_mod_cast hz
+
+/-- Odd roots remain separated on reduction; if one generates the field, the residue action
+is faithful. -/
+theorem finiteGaloisResidueAlgAction_injective_of_odd_root
+    (m : ℕ) (hm : Odd m) (x : L) (hx : x ^ m = 1)
+    (hgen : Algebra.adjoin ℚ_[2] {x} = ⊤) :
+    Function.Injective (finiteGaloisResidueAlgAction L) := by
+  intro g h hgh
+  have hnorm : ‖x‖ = 1 :=
+    (isOfFinOrder_iff_pow_eq_one.mpr ⟨m, hm.pos, hx⟩).norm_eq_one
+  let xO : finiteNormInteger L := ⟨x, by
+    change ‖x‖₊ ≤ 1
+    exact_mod_cast hnorm.le⟩
+  have hres : IsLocalRing.residue (finiteNormInteger L)
+        (finiteGaloisNormDecomposition L g • xO) =
+      IsLocalRing.residue (finiteNormInteger L)
+        (finiteGaloisNormDecomposition L h • xO) := by
+    rw [← finiteGaloisResidueAction_residue, ← finiteGaloisResidueAction_residue]
+    exact DFunLike.congr_fun hgh _
+  have hclose := residue_norm_sub_lt_one L _ _ hres
+  have hcoeg : ((finiteGaloisNormDecomposition L g • xO : finiteNormInteger L) : L) =
+      g x := rfl
+  have hcoeh : ((finiteGaloisNormDecomposition L h • xO : finiteNormInteger L) : L) =
+      h x := rfl
+  rw [hcoeg, hcoeh] at hclose
+  have heq : g x = h x := by
+    by_contra hne
+    have hgroot : ((g x : L) : ℚ̄₂) ^ m = 1 := by
+      exact_mod_cast (show (g x) ^ m = 1 by rw [← map_pow, hx, map_one])
+    have hhroot : ((h x : L) : ℚ̄₂) ^ m = 1 := by
+      exact_mod_cast (show (h x) ^ m = 1 by rw [← map_pow, hx, map_one])
+    have hsep := TeichmullerLift.norm_sub_eq_one_of_pow_eq_one hm hgroot hhroot
+      (fun hc ↦ hne (Subtype.ext hc))
+    change ‖((g x : L) : ℚ̄₂) - ((h x : L) : ℚ̄₂)‖ < 1 at hclose
+    rw [hsep] at hclose
+    exact lt_irrefl 1 hclose
+  have hhom : g.toAlgHom = h.toAlgHom := AlgHom.ext_of_adjoin_eq_top hgen (by
+    intro z hz
+    rw [Set.mem_singleton_iff] at hz
+    subst z
+    exact heq)
+  apply AlgEquiv.ext
+  intro z
+  exact congrArg (fun f : L →ₐ[ℚ_[2]] L ↦ f z) hhom
+
+/-- A faithful action on the residue field forces the ramification index to be one. -/
+theorem filtration_e_eq_one_of_residueAction_injective
+    (FF : DyadicUnitFiltration L)
+    (hinj : Function.Injective (finiteGaloisResidueAlgAction L)) : FF.e = 1 := by
+  let kL := IsLocalRing.ResidueField (finiteNormInteger L)
+  have hcard : Nat.card kL = 2 ^ FF.f := normInteger_residueField_card_eq_pow_f L FF
+  letI : Finite kL := (Nat.card_ne_zero.mp (by rw [hcard]; positivity)).2
+  letI : Finite k₀ := (Nat.card_ne_zero.mp (by rw [baseInteger_residue_card]; decide)).2
+  have hdim : Module.finrank k₀ kL = FF.f := by
+    apply Nat.pow_right_injective (le_refl 2)
+    have hc := Module.natCard_eq_pow_finrank (K := k₀) (V := kL)
+    rw [baseInteger_residue_card, hcard] at hc
+    exact hc.symm
+  have hle := Nat.card_le_card_of_injective _ hinj
+  rw [IsGalois.card_aut_eq_finrank, IsGalois.card_aut_eq_finrank,
+    hdim, field_finrank_eq_e_mul_f (FF := FF)] at hle
+  have hpos := FF.hf_pos
+  have hepos := FF.he_pos
+  nlinarith
+
+/-- Every finite dyadic Galois field generated by an odd root of unity is unramified. -/
+theorem filtration_e_eq_one_of_odd_root
+    (FF : DyadicUnitFiltration L) (m : ℕ) (hm : Odd m)
+    (x : L) (hx : x ^ m = 1) (hgen : Algebra.adjoin ℚ_[2] {x} = ⊤) :
+    FF.e = 1 :=
+  filtration_e_eq_one_of_residueAction_injective L FF
+    (finiteGaloisResidueAlgAction_injective_of_odd_root L m hm x hx hgen)
+
+#print axioms finiteGaloisResidueAlgAction_injective_of_odd_root
+#print axioms filtration_e_eq_one_of_residueAction_injective
+#print axioms filtration_e_eq_one_of_odd_root
+end
+end GQ2.Dyadic
+

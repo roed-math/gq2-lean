@@ -1,0 +1,40 @@
+% STAGED symbolic Fox template; no concrete word/action/resolver/parameter values are hashed.
+% fox-template-hash: 2d37d38f6aa9e5f3c9febe98547f04b1cd22269645ca6a6d0754941268ca454f
+% Syntax/hash/render agreement alone is NOT Lean synchronization. Replay Lean for strong checking.
+% Symbolic template identity only; no q, k, finite coefficient space, marking, or source exponent values are selected.
+% Actual pair/mobile splice certificates under their stated hypotheses; pair also requires a selected handle.
+% comp(outer,inner) applies inner first; row list applies head first; column list denotes head composed with tail.
+% q: Source residue size, nonzero and even in certified uses; norm sum has q terms.
+% k: Coefficient-action-dependent half-period: actual odd action order equals 2*k+1. Not handle rank.
+% alphabet: {"h":4,"n":10,"wild_count":11,"x2":2}
+% S,T,W_i denote generator actions; S_2 denotes the omega2 action, not S squared.
+% Rows below are full-cochain formulas; unlisted columns are zero. Empty finite sums are zero.
+% Row list applies head first. Column list is C_1 composed with ... composed with C_m.
+% Printed column arrows are input substitutions; the rightmost substitution acts first.
+% sector: scalar
+% interpretation: TameSym.splitEnd
+% k binding: unused (certificate bridge chooses 0)
+% input evaluation: GQ2.Dyadic.GeneralFoxTemplate.scalar_input_apply
+% operation denotation: GQ2.Dyadic.GeneralFoxTemplate.denote_scalar
+% actual certificate fields: {"mobile":"GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_signature","pair":"GQ2.Dyadic.GeneralFoxTemplate.scalar_pair_signature"}
+\[D_{\mathrm{scalar}}(x)=\begin{pmatrix}x_{\tau}\\x_{\tau}\end{pmatrix}.\]
+\[\begin{aligned}\mathcal R_{1}&:\quad R_2 \leftarrow R_2+\bigl(-I\bigr)\circ R_1\\\mathcal C&=\mathrm{id}\end{aligned}.\]
+\[D_{\mathrm{scalar}}^{\mathrm{reduced}}(x)=\begin{pmatrix}x_{\tau}\\0\end{pmatrix}.\]
+% sector: unramified
+% interpretation: TameSym.splitEnd
+% k binding: sigmaActionHalfPeriod(t,A) = orderOf(actual sigma action)/2
+% input evaluation: GQ2.Dyadic.GeneralFoxTemplate.unramified_input_apply
+% operation denotation: GQ2.Dyadic.GeneralFoxTemplate.denote_unramified
+% actual certificate fields: {"mobile":"GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_signature","pair":"GQ2.Dyadic.GeneralFoxTemplate.unramified_pair_signature"}
+\[D_{\mathrm{unramified}}(x)=\begin{pmatrix}S^{-1}\bigl(x_{\tau}\bigr)\\\bigl(x_{\tau}+\bigl(I+\bigl(-S^{-1}\bigr)\bigr)\bigl(x_{2}\bigr)\bigr)\end{pmatrix}.\]
+\[\begin{aligned}\mathcal R_{1}&:\quad R_1 \leftarrow S\circ R_1\quad[\text{carried inverse: }S^{-1}]\\\mathcal R_{2}&:\quad R_2 \leftarrow R_2+\bigl(-I\bigr)\circ R_1\\\mathcal R_{3}&:\quad R_2 \leftarrow \left(\sum_{j=0}^{k-1}S^{-(2j+1)}\right)\circ R_2\quad[\text{carried inverse: }\bigl(I+\bigl(-S^{-1}\bigr)\bigr)]\\\mathcal C&=\mathrm{id}\end{aligned}.\]
+\[D_{\mathrm{unramified}}^{\mathrm{reduced}}(x)=\begin{pmatrix}x_{\tau}\\x_{2}\end{pmatrix}.\]
+% sector: ramified
+% interpretation: TameSym.ramifiedEnd
+% k binding: tauActionHalfPeriod(t,A) = orderOf(actual tau action)/2
+% input evaluation: GQ2.Dyadic.GeneralFoxTemplate.ramified_input_apply
+% operation denotation: GQ2.Dyadic.GeneralFoxTemplate.denote_ramified
+% actual certificate fields: {"mobile":"GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_signature","pair":"GQ2.Dyadic.GeneralFoxTemplate.ramified_pair_signature"}
+\[D_{\mathrm{ramified}}(x)=\begin{pmatrix}\bigl(\bigl(S^{-1}\circ \bigl(T+\bigl(-I\bigr)\bigr)\bigr)\bigl(x_{\sigma}\bigr)+\bigl(S^{-1}+\bigl(-\left(\sum_{j=0}^{q-1}T^{j}\right)\bigr)\bigr)\bigl(x_{\tau}\bigr)\bigr)\\\bigl(-S^{-1}\bigr)\bigl(x_{2}\bigr)\end{pmatrix}.\]
+\[\begin{aligned}\mathcal R_{1}&:\quad R_1 \leftarrow \bigl(\left(\sum_{j=0}^{k-1}T^{2j+1}\right)\circ S\bigr)\circ R_1\quad[\text{carried inverse: }\bigl(S^{-1}\circ \bigl(T+\bigl(-I\bigr)\bigr)\bigr)]\\\mathcal R_{2}&:\quad R_2 \leftarrow \bigl(-S\bigr)\circ R_2\quad[\text{carried inverse: }\bigl(-S^{-1}\bigr)]\\\mathcal C_{1}&:\quad x_{\sigma}\leftarrow x_{\sigma}+\bigl(-\bigl(\bigl(\left(\sum_{j=0}^{k-1}T^{2j+1}\right)\circ S\bigr)\circ \bigl(S^{-1}+\bigl(-\left(\sum_{j=0}^{q-1}T^{j}\right)\bigr)\bigr)\bigr)\bigr)\bigl(x_{\tau}\bigr)\end{aligned}.\]
+\[D_{\mathrm{ramified}}^{\mathrm{reduced}}(x)=\begin{pmatrix}x_{\sigma}\\x_{2}\end{pmatrix}.\]

@@ -1,0 +1,811 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under the Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, and OpenAI Codex
+-/
+import GQ2.Dyadic.Instances.TameSpliceFoxNormal
+import GQ2.Dyadic.Instances.TameSpliceRamifiedFoxNormal
+import GQ2.Dyadic.Instances.WordPhasePolarNormal
+import GQ2.Dyadic.Word.GeneralTemplateSplice
+import GQ2.Dyadic.Word.GeneralTemplateEval
+import GQ2.Dyadic.SigmaNormalFoxPolynomialInverse
+import GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal
+import GQ2.Dyadic.Instances.WordPhaseSpliceAdditiveNormal
+import GQ2.Dyadic.Instances.TameSpliceUnramifiedFoxRows
+import GQ2.Dyadic.SigmaRamifiedFoxPolynomialInverse
+import GQ2.Dyadic.Instances.TameSpliceFoxCertificates
+import GQ2.Dyadic.Certificates.LJacobian
+import GQ2.Dyadic.Word.GeneralTemplateLN
+import GQ2.Dyadic.Instances.WordPhaseCompactCertificates
+import GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates
+import GQ2.Dyadic.Instances.TameSpliceHessianCertificates
+import GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates
+import GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates
+import GQ2.Dyadic.MarkedCore.NScalingAudit
+import GQ2.Dyadic.Instances.NpcPhaseAdditiveNormal
+import GQ2.Dyadic.Instances.NpcPhaseAdditiveHead
+import GQ2.Dyadic.Instances.NpcHessianCertificates
+import GQ2.Dyadic.Instances.CompactNHessianCertificates
+import GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse
+import GQ2.Dyadic.Instances.WordPhaseOddCertificates
+import GQ2.Dyadic.Instances.LPhaseAdditiveNormal
+import GQ2.Dyadic.Instances.LHessianCertificates
+import GQ2.Dyadic.Instances.NpcBoundaryHessianCertificates
+import GQ2.Dyadic.Instances.CompactNBoundaryHessianCertificates
+import GQ2.Dyadic.Instances.TameSpliceBoundaryHessianCertificates
+import GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse
+import GQ2.Dyadic.Word.GeneralPhaseTemplate
+import GQ2.Dyadic.Word.GeneralFoxTemplate
+import GQ2.Dyadic.Instances.TameSpliceFoxTemplateBinding
+import GQ2.Dyadic.Instances.LBoundaryHessianCertificates
+import GQ2.Dyadic.Word.GeneralPhaseCoverTemplate
+import GQ2.Dyadic.Instances.TameSpliceFoxTemplateInputBinding
+import GQ2.Dyadic.MarkedCore.NPlaneCentralCorrection
+import GQ2.Dyadic.MarkedCore.NPlaneUnitaryShadow
+import GQ2.Dyadic.MarkedCore.NPlanePowerSeries
+import GQ2.Dyadic.MarkedCore.NPlaneRelativeBoundary
+import GQ2.Dyadic.Word.GeneralTemplateLNCanonical
+import GQ2.Dyadic.MarkedCore.FreeProTwoCommutatorShear
+import GQ2.Dyadic.MarkedCore.FreeProTwoCharacterCorrection
+import GQ2.Dyadic.MarkedCore.NPlaneMixedLieKernel
+import GQ2.Roe.Labute.AdditiveCharacters
+import GQ2.Dyadic.MarkedCore.NPlaneCompactness
+import GQ2.Dyadic.MarkedCore.NPlaneOrdinaryHead
+import GQ2.Dyadic.MarkedCore.FreeProTwoUnitPower
+import GQ2.Roe.Labute.MixedPowerCongruence
+import GQ2.Dyadic.MarkedCore.NPlaneFilteredDerivative
+import GQ2.Dyadic.MarkedCore.FreeNOrientation
+import GQ2.Dyadic.MarkedCore.NPlaneFilteredSlack
+import GQ2.Dyadic.MarkedCore.NPlaneFilteredDerivativeLinear
+import GQ2.Dyadic.MarkedCore.NPlaneKernelTuple
+import GQ2.Dyadic.MarkedCore.NPlaneMixedGroupKernel
+import GQ2.Dyadic.MarkedCore.NPlaneFilteredSlots
+import GQ2.Dyadic.MarkedCore.NPlaneKernelTupleDerivative
+import GQ2.Dyadic.MarkedCore.NPlaneCrossedDefect
+import GQ2.Dyadic.MarkedCore.ProTwoRowCorrection
+import GQ2.Dyadic.MarkedCore.NPlaneCorrectionKernel
+import GQ2.Dyadic.MarkedCore.NPlaneKernelDiagonal
+import GQ2.ProTwoFiniteProduct
+import GQ2.Dyadic.MarkedCore.FreeProTwoFiniteProduct
+import GQ2.Dyadic.MarkedCore.NPlaneRowRefinement
+import GQ2.Dyadic.MarkedCore.NPlaneRelativeRefinement
+import GQ2.Dyadic.MarkedCore.FreeProTwoBasisCorrection
+import GQ2.Dyadic.MarkedCore.NPlaneFreeStageTransfer
+import GQ2.Dyadic.MarkedCore.NPlaneUnrestrictedReduction
+import GQ2.Dyadic.MarkedCore.NPlaneKernelAllRows
+import GQ2.Dyadic.MarkedCore.NPlaneFullRowRefinement
+import GQ2.Dyadic.MarkedCore.NPlaneFullRelativeRefinement
+import GQ2.Dyadic.MarkedCore.NPlaneAmbientStage
+import GQ2.Dyadic.MarkedCore.NPlaneGeneralScaling
+import GQ2.Dyadic.Instances.DNAutomorphismCup
+import GQ2.Dyadic.MarkedCore.NTorsionAdjust
+import GQ2.Dyadic.MarkedCore.FreeProTwoModTwoCharacters
+import GQ2.Dyadic.MarkedCore.NStabilizerFullRows
+import GQ2.Dyadic.MarkedCore.NStabilizerFullLift
+import GQ2.Dyadic.MarkedCore.FreeProTwoMatrixBasis
+import GQ2.Dyadic.MarkedCore.NBasisRowRefinement
+import GQ2.Dyadic.MarkedCore.NBasisRelativeRefinement
+import GQ2.Dyadic.MarkedCore.NBasisExactStages
+import GQ2.Dyadic.MarkedCore.NFullFrameCompactness
+import GQ2.Dyadic.MarkedCore.NFullFrameStageTransfer
+import GQ2.Dyadic.MarkedCore.NBasisFullFrameLift
+import GQ2.Dyadic.MarkedCore.NFrameMatrixLift
+import GQ2.Dyadic.MarkedCore.NInitialCupDepth
+import GQ2.Dyadic.MarkedCore.NFrameCupCoordinates
+import GQ2.Dyadic.MarkedCore.NFullStabilizerLift
+
+/-!
+Checked acceptance-artifact dependencies. Every selected pin must exist and depend on no
+axioms beyond Lean's standard three. These are uniform mathematical lemmas, independent of
+the inherited arithmetic/foundation axioms used only when assembling the field theorem.
+This additive audit does not revise the frozen gate or assert owner approval of the artifacts.
+-/
+
+open Lean
+
+private def allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
+
+private def pins : List Name :=
+  [ ``GQ2.Dyadic.SigmaNormalFoxElimination.rowElimination
+  , ``GQ2.Dyadic.SigmaNormalFoxElimination.full_rows_of_normal
+  , ``GQ2.Dyadic.SigmaNormalFoxElimination.reduced_rows_of_normal
+  , ``GQ2.Dyadic.SigmaNormalFoxElimination.oneSubInvAction
+  , ``GQ2.Dyadic.SigmaNormalFoxElimination.sigma_column_zero
+  , ``GQ2.Dyadic.SigmaNormalFoxElimination.heisD1_reduced_of_normal
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxNormal.pairSplice_reducedFox
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxNormal.mobileSplice_reducedFox
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.columnShear
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.rowScaling
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.reduced_rows_of_ramified
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.kernel_columnShear_iff
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.sigmaPivot_symm_apply
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.wildPivot_symm_apply
+  , ``GQ2.Dyadic.SigmaRamifiedFoxElimination.reduced_rows_of_action_row
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedFoxNormal.tameSplice_ramified_rows
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedFoxNormal.pairSplice_ramified_reducedFox
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedFoxNormal.mobileSplice_ramified_reducedFox
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.polarBlockEquiv
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.polar_compactPhase_eq_coordinatePairing
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.isQuadratic_compactPhase
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.nonsingular_compactPhase
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.polar_compactPhase_reducedMatrix
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedCoefficientMatrix_mul_inverse
+  , ``GQ2.Dyadic.Instances.WordPhasePolarNormal.reducedInverseMatrix_mul_coefficient
+  , ``GQ2.Dyadic.GeneralTemplate.denote_pairSplice
+  , ``GQ2.Dyadic.GeneralTemplate.denote_mobileSplice
+  , ``GQ2.Dyadic.GeneralTemplate.Tree.evalZ_eq_denote
+  , ``GQ2.Dyadic.GeneralTemplate.Tree.eval_eq_pinned
+  , ``GQ2.Dyadic.SigmaNormalFoxPolynomialInverse.polynomialPivotEquiv
+  , ``GQ2.Dyadic.SigmaNormalFoxPolynomialInverse.oneSubInvAction_eq_polynomialPivotEquiv
+  , ``GQ2.Dyadic.SigmaNormalFoxPolynomialInverse.oneSubInvAction_symm_eq_actionPolynomial
+  , ``GQ2.Dyadic.SigmaRamifiedFoxPolynomialInverse.tauSubOne_eq_oneSubInvAction_trans
+  , ``GQ2.Dyadic.SigmaRamifiedFoxPolynomialInverse.sigmaPivot_symm_eq_actionPolynomial
+  , ``GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal.scalarFox_rows_of_endpoint
+  , ``GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal.scalarRowElimination
+  , ``GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal.pairSplice_scalar_reducedFox
+  , ``GQ2.Dyadic.Instances.TameSpliceScalarFoxNormal.mobileSplice_scalar_reducedFox
+  , ``GQ2.Dyadic.heisEvalZ_tameShadowSubst_tauOnly
+  , ``GQ2.Dyadic.heisEvalZ_tameShadow_tauOnly
+  , ``GQ2.Dyadic.heisEvalZ_tameSplice_tauOnly
+  , ``GQ2.Dyadic.Instances.TameSpliceUnramifiedFoxRows.compactSplice_tauColumn
+  , ``GQ2.Dyadic.Instances.TameSpliceUnramifiedFoxRows.pairSplice_unramified_rows
+  , ``GQ2.Dyadic.Instances.TameSpliceUnramifiedFoxRows.mobileSplice_unramified_rows
+  , ``GQ2.Dyadic.Instances.WordPhaseAdditiveNormal.sourceNormalAddEquiv_toEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseAdditiveNormal.sourceNormalAddEquiv_polar
+  , ``GQ2.Dyadic.Instances.WordPhaseAdditiveNormal.phaseComparison_polar_reducedMatrix
+  , ``GQ2.Dyadic.Instances.EvenMHeadHandlePairUnramifiedComparison.headHandlePairSplice_unramifiedComparison_add
+  , ``GQ2.Dyadic.phaseComparison_tameSplice_mCompact_ramified_add
+  , ``GQ2.Dyadic.Instances.MpcMobileUnramifiedComparison.exists_mpcMobile_unramified_additive_comparison
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.foxJacobian_pinned_apply
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.foxJacobian_pinned_eq_of_heisD1_eq
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.tameSplice_FoxCertificate_ramified
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.pairSplice_FoxCertificate_scalar
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.pairSplice_FoxCertificate_unramified
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.pairSplice_FoxCertificate_ramified
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.mobileSplice_FoxCertificate_scalar
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.mobileSplice_FoxCertificate_unramified
+  , ``GQ2.Dyadic.Instances.TameSpliceFoxCertificates.mobileSplice_FoxCertificate_ramified
+  , ``GQ2.Dyadic.Certificates.LSq.lSingleCoeffRow_toHom_apply
+  , ``GQ2.Dyadic.Certificates.LSq.lSqJacobianCertUnram
+  , ``GQ2.Dyadic.Certificates.LSq.lSqJacobianCertRam
+  , ``GQ2.Dyadic.Certificates.LSq.lSqJacobianCertScalar
+  , ``GQ2.Dyadic.GeneralTemplateLN.handleFactors_of_generators
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_rawLsq
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_rawNCompact
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_rawNpc
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_rawNpc_display
+  , ``GQ2.Dyadic.GeneralTemplateLN.wf_rawNpc_display
+  , ``GQ2.Dyadic.Instances.WordPhaseCompactCertificates.compactPhaseCover
+  , ``GQ2.Dyadic.Instances.WordPhaseCompactCertificates.fp2LinearEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceQuotientModule
+  , ``GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianCertificate
+  , ``GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianOfComparison
+  , ``GQ2.Dyadic.Instances.WordPhaseCompactCertificates.sourceCompactHessianOfComparison_cov_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.wallHandlePhase_self
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.polar_wallHandlePhase
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.isQuadratic_wallHandlePhase
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.nonsingular_wallHandlePhase
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.gaussSum_wallHandlePhase
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.wallHandlePhaseCover
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.sourceWallHessianOfComparison
+  , ``GQ2.Dyadic.Instances.TameSpliceHessianCertificates.pairUnramifiedHessian
+  , ``GQ2.Dyadic.Instances.TameSpliceHessianCertificates.tameSpliceRamifiedHessian
+  , ``GQ2.Dyadic.Instances.TameSpliceHessianCertificates.nonempty_mobileUnramifiedHessian
+  , ``GQ2.Dyadic.Instances.TameSpliceHessianCertificates.pairRamifiedHessian
+  , ``GQ2.Dyadic.Instances.TameSpliceHessianCertificates.mobileRamifiedHessian
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.oddPowerCoeff
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.oddPowerCoeff_eval
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.oddPowerCoeff_neg_one_eval
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.unramPivotCoeff
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.unramPivotCoeff_eval
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.sigmaActionHalfPeriod
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.sigmaActionHalfPeriod_period
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.unramIdentityOps
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.unramIdentityOps_invertible
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.unramIdentityOps_replay
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.pairSplice_FoxCertificate_unramified_identity
+  , ``GQ2.Dyadic.Instances.TameSplicePolynomialFoxCertificates.mobileSplice_FoxCertificate_unramified_identity
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.normPowerCoeff
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.normPowerCoeff_eval
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.sigmaPivotCoeff
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.sigmaPivotInverseCoeff
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.wildPivotCoeff
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.wildPivotInverseCoeff
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tauColumnCoeff
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tauActionHalfPeriod
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tauActionHalfPeriod_period
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedPivotCoeff_eval
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tauColumnCoeff_eval
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedIdentityRowOps
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedIdentityColOps
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedIdentityRowOps_invertible
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedIdentityColOps_invertible
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedIdentityColOps_eval
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.ramifiedIdentityRowOps_replay
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.tameSplice_FoxCertificate_ramified_identity
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.pairSplice_FoxCertificate_ramified_identity
+  , ``GQ2.Dyadic.Instances.TameSpliceRamifiedPolynomialFoxCertificates.mobileSplice_FoxCertificate_ramified_identity
+  , ``GQ2.Dyadic.MarkedCore.nScalingHypothesis_of_sl2
+  , ``GQ2.Dyadic.MarkedCore.nHandleUCharacter
+  , ``GQ2.Dyadic.MarkedCore.nHandleUCharacter_gen
+  , ``GQ2.Dyadic.MarkedCore.nHandleUCharacter_self
+  , ``GQ2.Dyadic.MarkedCore.NPlaneRealizes.handleU_fixed
+  , ``GQ2.Dyadic.MarkedCore.not_nPlaneRealizes_of_handleU_scaled
+  , ``GQ2.Dyadic.MarkedCore.not_nPlaneRealizes_of_handleU_conj_power
+  , ``GQ2.Dyadic.Instances.NpcPhaseAdditiveNormal.npcPhiNormal_add
+  , ``GQ2.Dyadic.Instances.NpcPhaseAdditiveNormal.npcTwistedNormal_add
+  , ``GQ2.Dyadic.Instances.NpcPhaseAdditiveNormal.npcStandardHeadComparison_add
+  , ``GQ2.Dyadic.Instances.NpcPhaseAdditiveNormal.exists_npcTwistedAdditiveComparison
+  , ``GQ2.Dyadic.Instances.NpcPhaseAdditiveHead.npcUnramifiedHeadComparison_add
+  , ``GQ2.Dyadic.Instances.NpcPhaseAdditiveHead.exists_npcRamifiedHeadAdditiveComparison
+  , ``GQ2.Dyadic.Instances.NpcHessianCertificates.npcUnramifiedHeadHessian
+  , ``GQ2.Dyadic.Instances.NpcHessianCertificates.nonempty_npcRamifiedHeadHessian
+  , ``GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedComparison_add
+  , ``GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedComparison_add
+  , ``GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedHessian
+  , ``GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedHessian
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallPolarBlockEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallPolarBlockEquiv_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallPolarBlockEquiv_symm_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polar_wallHandlePhase_eq_coordinatePairing_of_adjoint
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.coordinatePairing_eq_wallPolar_inverse_of_adjoint
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polarDualHom
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polarDualHom_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polarDualHom_injective
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polarDualEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polarDualEquiv_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.diagonalPolarAdjoint
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.diagonalPolarAdjoint_spec
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.diagonalPolarAdjoint_unique
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.canonicalWallPolarEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.polar_wallHandlePhase_eq_coordinatePairing
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.canonicalWallPolarEquiv_symm_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.coordinatePairing_eq_wallPolar_inverse
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallHeadMatrix
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallHeadInverseMatrix
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallHeadMatrix_mul_inverse
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.wallHeadInverseMatrix_mul_head
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.diagonalPolarAdjoint_self
+  , ``GQ2.Dyadic.Instances.WordPhaseWallHandlePolarInverse.canonicalWallPolarEquiv_self
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.wallPolarEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.polar_oddPhase
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.isQuadratic_oddPhase
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.nonsingular_oddPhase
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.oddPhaseCover
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.oddPhaseCover_unramified
+  , ``GQ2.Dyadic.Instances.WordPhaseOddCertificates.sourceOddHessianOfComparison
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.ramifiedNormal_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.phaseNormal_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.stokesH1NormalEquiv_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.ramifiedWordH1Equiv_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.headNormalComparison_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.unramifiedHeadComparison_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.ramifiedActionH1Equiv_add
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.ramifiedHeadComparison
+  , ``GQ2.Dyadic.Instances.LPhaseAdditiveNormal.ramifiedHeadComparison_add
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.gauss_eq_of_same_source
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.headGauss_of_full
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.headOperator_twoPower
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian_baseSign
+  , ``GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian_baseSign
+  , ``GQ2.Dyadic.Instances.NpcBoundaryHessianCertificates.npcBoundaryHessian
+  , ``GQ2.Dyadic.Instances.CompactNBoundaryHessianCertificates.compactNBoundaryHessian
+  , ``GQ2.Dyadic.Instances.TameSpliceBoundaryHessianCertificates.pairBoundaryHessian
+  , ``GQ2.Dyadic.Instances.TameSpliceBoundaryHessianCertificates.mobileBoundaryHessian
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.nilpotentPart_pow_eq_zero
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.wallPolarHom_pow_eq_one
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.wall_mul_inversePowerPolynomial
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.inversePowerPolynomial_mul_wall
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.wall_mul_inverseSumPolynomial
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.inverseSumPolynomial_mul_wall
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.inversePowerPolynomial_eq_sum
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.inverseSumPolynomial_apply
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.polynomialWallEquiv
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.wallPolarEquiv_symm_eq_sum
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.wallPolarEquiv_symm_eq_power
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.wallPolarEquiv_symm_eq_chosen_sum
+  , ``GQ2.Dyadic.Instances.WordPhaseOddPolynomialInverse.oddCross_eq_polynomial
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Coordinate.denote
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Tree.sumList
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Tree.denote_sumList
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.compactPhase
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.denote_compactPhase
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.polar_denote_compactPhase
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.compactPhaseCover_tree
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.sourcePhase_eq_denote
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.sourceHessian_cov_eq_denote
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Coordinate.blockIndex
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Coordinate.denote_eq_blockCoordinates
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.coordinateList
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.mem_coordinateList
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.coordinateList_length
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Coordinate.toJson
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.Tree.toJson
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.matrixJson
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.stagedSchema
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.hashDomain
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.compactPayload
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.payloadHash
+  , ``GQ2.Dyadic.GeneralPhaseTemplate.envelope
+  , ``GQ2.Dyadic.GeneralFoxTemplate.Coeff.denote
+  , ``GQ2.Dyadic.GeneralFoxTemplate.RowOp.denote
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ColOp.denote
+  , ``GQ2.Dyadic.GeneralFoxTemplate.PivotRow.denote
+  , ``GQ2.Dyadic.GeneralFoxTemplate.LinearRow.denote
+  , ``GQ2.Dyadic.GeneralFoxTemplate.LinearRow.eval
+  , ``GQ2.Dyadic.GeneralFoxTemplate.LinearRow.denote_toHom_apply
+  , ``GQ2.Dyadic.GeneralFoxTemplate.Signature.ofCertificate
+  , ``GQ2.Dyadic.GeneralFoxTemplate.Profile.denote
+  , ``GQ2.Dyadic.GeneralFoxTemplate.Profile.inputMatrix
+  , ``GQ2.Dyadic.GeneralFoxTemplate.scalar
+  , ``GQ2.Dyadic.GeneralFoxTemplate.unramified
+  , ``GQ2.Dyadic.GeneralFoxTemplate.sigmaPivot
+  , ``GQ2.Dyadic.GeneralFoxTemplate.sigmaInverse
+  , ``GQ2.Dyadic.GeneralFoxTemplate.tauColumn
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ramified
+  , ``GQ2.Dyadic.GeneralFoxTemplate.denote_scalar
+  , ``GQ2.Dyadic.GeneralFoxTemplate.denote_unramified
+  , ``GQ2.Dyadic.GeneralFoxTemplate.denote_ramified
+  , ``GQ2.Dyadic.GeneralFoxTemplate.scalar_input_apply
+  , ``GQ2.Dyadic.GeneralFoxTemplate.unramified_input_apply
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ramified_input_apply
+  , ``GQ2.Dyadic.GeneralFoxTemplate.scalar_pair_signature
+  , ``GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_signature
+  , ``GQ2.Dyadic.GeneralFoxTemplate.unramified_pair_signature
+  , ``GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_signature
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ramified_pair_signature
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_signature
+  , ``GQ2.Dyadic.Instances.LBoundaryHessianCertificates.lBoundaryHessian
+  , ``GQ2.Dyadic.GeneralFoxTemplate.scalar_pair_input
+  , ``GQ2.Dyadic.GeneralFoxTemplate.scalar_mobile_input
+  , ``GQ2.Dyadic.GeneralFoxTemplate.unramified_pair_input
+  , ``GQ2.Dyadic.GeneralFoxTemplate.unramified_mobile_input
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ramified_pair_input
+  , ``GQ2.Dyadic.GeneralFoxTemplate.ramified_mobile_input
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.InputTerm.denote
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.Embedding.denote
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.diagonalEmbedding
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.crossEmbedding
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.DimensionTerm.denote
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.DiagonalTerm.denote
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.diagonalEmbedding_denote
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.crossEmbedding_denote
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate_phase
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.compactTemplate_agrees
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.InputTerm.toJson
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.Embedding.toJson
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.DimensionTerm.toJson
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.DiagonalTerm.toJson
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.stagedSchema
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.hashDomain
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.compactPayload
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.payloadHash
+  , ``GQ2.Dyadic.GeneralPhaseCoverTemplate.envelope
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlaneCentralCorrectionExponent
+  , ``GQ2.Dyadic.MarkedCore.nWord_central_plane_correction
+  , ``GQ2.Dyadic.MarkedCore.exists_nWord_planeScale_of_central_comm
+  , ``GQ2.Dyadic.MarkedCore.nPlaneShadowSubring
+  , ``GQ2.Dyadic.MarkedCore.nShadowFirst
+  , ``GQ2.Dyadic.MarkedCore.nShadowSecond
+  , ``GQ2.Dyadic.MarkedCore.nShadowSwap
+  , ``GQ2.Dyadic.MarkedCore.nShadowScalar
+  , ``GQ2.Dyadic.MarkedCore.nShadowUnit
+  , ``GQ2.Dyadic.MarkedCore.exists_nOrientation_affine_unit
+  , ``GQ2.Dyadic.MarkedCore.nShadowOrientation
+  , ``GQ2.Dyadic.MarkedCore.nShadowUnit_affine
+  , ``GQ2.Dyadic.MarkedCore.nShadowSkewPair
+  , ``GQ2.Dyadic.MarkedCore.nShadowPlaneScale
+  , ``GQ2.Dyadic.MarkedCore.nShadowPlaneScale_inverse
+  , ``GQ2.Dyadic.MarkedCore.nShadowPlaneScale_skewPair
+  , ``GQ2.Dyadic.MarkedCore.nShadowPlaneScale_first
+  , ``GQ2.Dyadic.MarkedCore.nShadowPlaneScaleEquiv
+  , ``GQ2.Dyadic.MarkedCore.nShadowFullScaleEquiv
+  , ``GQ2.Dyadic.MarkedCore.nShadowFullPair
+  , ``GQ2.Dyadic.MarkedCore.nShadowFullPair_planeScale
+  , ``GQ2.Dyadic.MarkedCore.NPlaneSeries
+  , ``GQ2.Dyadic.MarkedCore.nSeriesDeck
+  , ``GQ2.Dyadic.MarkedCore.nSeriesDeck_val
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStarPoint
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStarPoint_hasEval
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStar
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStar_continuous
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStar_C
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStar_X
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStar_deck
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStar_involutive
+  , ``GQ2.Dyadic.MarkedCore.nSeriesStarEquiv
+  , ``GQ2.Dyadic.MarkedCore.nSeriesAffineUnit
+  , ``GQ2.Dyadic.MarkedCore.nSeriesAffineUnit_val
+  , ``GQ2.Dyadic.MarkedCore.nSeriesAffineUnit_constantCoeff
+  , ``GQ2.Dyadic.MarkedCore.nSeriesAffineUnit_star_constantCoeff
+  , ``GQ2.Dyadic.MarkedCore.nSeriesSkewPair
+  , ``GQ2.Dyadic.MarkedCore.nSeriesPlaneScale
+  , ``GQ2.Dyadic.MarkedCore.nSeriesPlaneScale_skewPair
+  , ``GQ2.Dyadic.MarkedCore.nSeriesPlaneScale_constantCoeff
+  , ``GQ2.Dyadic.MarkedCore.nSeriesPlaneScale_inverse
+  , ``GQ2.Dyadic.MarkedCore.nSeriesPlaneScaleEquiv
+  , ``GQ2.Dyadic.MarkedCore.nSeriesFullPair
+  , ``GQ2.Dyadic.MarkedCore.exists_nSeriesFullPlaneScale
+  , ``GQ2.Dyadic.MarkedCore.nWord_tail_eq_hnn
+  , ``GQ2.Dyadic.MarkedCore.nWord_tail_eq_one_iff_relativeBoundary
+  , ``GQ2.Dyadic.MarkedCore.nWord_handle_eq_one_iff_relativeBoundary
+  , ``GQ2.Dyadic.GeneralTemplateLN.canon_rawLsq
+  , ``GQ2.Dyadic.GeneralTemplateLN.canon_rawNCompact
+  , ``GQ2.Dyadic.GeneralTemplateLN.canon_rawNpc
+  , ``GQ2.Dyadic.GeneralTemplateLN.npcW_canonicalEtaHat
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawLsq
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNCompact
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNpc
+  , ``GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNpc_display
+  , ``GQ2.Dyadic.MarkedCore.FreeTwoRank
+  , ``GQ2.Dyadic.MarkedCore.freeTwoRankGen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearMark
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearHom
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearHom_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearHom_surjective
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearEquiv
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearEquiv_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCommutatorShearEquiv_character
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinate
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinate_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_character_coordinates
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinateWord
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinateWord_character
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinateWord_mem
+  , ``GQ2.Dyadic.MarkedCore.exists_freeTwo_characterZero_same_coset
+  , ``GQ2.Dyadic.MarkedCore.exists_freeTwo_characterZero_same_twoCentralClass
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_commutative_hom_coordinates
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_characterZero_commutative
+  , ``GQ2.Dyadic.MarkedCore.nMixedLie_jacobi
+  , ``GQ2.Dyadic.MarkedCore.nMixedLie_kernel_identity
+  , ``GQ2.Dyadic.MarkedCore.nMixedDerivative
+  , ``GQ2.Dyadic.MarkedCore.nMixedDerivative_add
+  , ``GQ2.Dyadic.MarkedCore.nMixedDerivative_single
+  , ``GQ2.Dyadic.MarkedCore.nMixedKernelVector
+  , ``GQ2.Dyadic.MarkedCore.nMixedDerivative_kernelVector
+  , ``GQ2.Dyadic.MarkedCore.nMixedKernelVector_row
+  , ``GQ2.Dyadic.MarkedCore.nMixedDerivative_row
+  , ``GQ2.Dyadic.MarkedCore.nMixedDerivative_headRow_eq_zero
+  , ``GQ2.Roe.Labute.twoCentralSeries_eq_powRange
+  , ``GQ2.Roe.Labute.twoCentralSeries_z2_character_dvd_succ
+  , ``GQ2.Roe.Labute.twoCentralSeries_z2_character_dvd
+  , ``GQ2.Roe.Labute.z2_dvd_of_two_unit_mul
+  , ``GQ2.Roe.Labute.twoCentralSeries_z2_character_dvd_of_two_unit
+  , ``GQ2.Dyadic.MarkedCore.NPlaneModTwoIndep
+  , ``GQ2.Dyadic.MarkedCore.nPlane_finsetGen
+  , ``GQ2.Dyadic.MarkedCore.nPlane_iInf_twoCentralSeries
+  , ``GQ2.Dyadic.MarkedCore.nPlaneStageSet
+  , ``GQ2.Dyadic.MarkedCore.nPlaneStageSet_antitone
+  , ``GQ2.Dyadic.MarkedCore.isClosed_nPlaneStageSet
+  , ``GQ2.Dyadic.MarkedCore.nPlaneStageSet_iInter_nonempty
+  , ``GQ2.Dyadic.MarkedCore.nPlaneLift_surjective
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlaneRealizes_of_stages
+  , ``GQ2.Dyadic.MarkedCore.nPlaneModTwoIndep_of_equiv
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlaneRealizes_iff_stages
+  , ``GQ2.Dyadic.MarkedCore.nPlaneScalingHypothesis_iff_stages
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_ordinary_row
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_correction_ordinary_row
+  , ``GQ2.Dyadic.MarkedCore.nHeadExponent_two_unit
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_correction_head_dvd
+  , ``GQ2.Dyadic.MarkedCore.exists_freeTwo_nHead_characterZero_same_class
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerMark
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerHom
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerHom_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerHom_comp_inv
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerEquiv
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerEquiv_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerEquiv_character_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerEquiv_character
+  , ``GQ2.Dyadic.MarkedCore.nInitialUnitPowerError
+  , ``GQ2.Dyadic.MarkedCore.nInitialUnitPowerError_mem_three
+  , ``GQ2.Dyadic.MarkedCore.nInitialUnitPowerError_commutative
+  , ``GQ2.Dyadic.MarkedCore.nInitialUnitPowerError_character
+  , ``GQ2.Roe.Labute.pow_two_pow_mem_twoCentralSeries_add
+  , ``GQ2.Roe.Labute.commP_mem_twoCentralSeries_add
+  , ``GQ2.Roe.Labute.levelMk_sq_eq_of_eq
+  , ``GQ2.Roe.Labute.commP_sq_level_four
+  , ``GQ2.Roe.Labute.commP_pow_two_succ_level
+  , ``GQ2.Roe.Labute.commP_pow_two_level
+  , ``GQ2.Roe.Labute.commP_pow_two_congruence
+  , ``GQ2.Roe.Labute.commP_pow_two_level_of_mem
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_square
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_fourth
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_commutator
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_head_power
+  , ``GQ2.Dyadic.MarkedCore.nFilteredCoreDerivative
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_nWord
+  , ``GQ2.Dyadic.MarkedCore.nFilteredHandleDerivative
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_handleWord
+  , ``GQ2.Dyadic.MarkedCore.nFilteredDerivative
+  , ``GQ2.Dyadic.MarkedCore.nFilteredCoreDerivative_mem
+  , ``GQ2.Dyadic.MarkedCore.nFilteredDerivative_mem
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_nRelWord
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_gen
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_coordinate
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_eq_one_iff
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_ker
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_unitPowerEquiv
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_initialError
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_central_involution_dress
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_zLayer_dress
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_correction_zLayer_congr
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_correction_level_congr
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_correction_defect_mem_iff
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_comm_mul
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_pair_mul
+  , ``GQ2.Dyadic.MarkedCore.nFiltered_head_mul
+  , ``GQ2.Dyadic.MarkedCore.nFilteredCoreDerivative_mul
+  , ``GQ2.Dyadic.MarkedCore.nFilteredHandleDerivative_mul
+  , ``GQ2.Dyadic.MarkedCore.nFilteredDerivative_mul
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_map
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_character
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_map_eq_one
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_mem
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_freeNOrientation
+  , ``GQ2.Dyadic.MarkedCore.nMixedCorrectionWord
+  , ``GQ2.Dyadic.MarkedCore.nMixedCorrectionWord_level_four
+  , ``GQ2.Dyadic.MarkedCore.nMixedCorrectionWord_level
+  , ``GQ2.Dyadic.MarkedCore.nMixedCorrectionWord_mem
+  , ``GQ2.Dyadic.MarkedCore.nMixedCorrectionWord_with_head_level
+  , ``GQ2.Dyadic.MarkedCore.nPartner
+  , ``GQ2.Dyadic.MarkedCore.nPartner_involutive
+  , ``GQ2.Dyadic.MarkedCore.nPartner_zero
+  , ``GQ2.Dyadic.MarkedCore.nPartner_one
+  , ``GQ2.Dyadic.MarkedCore.nPartner_two
+  , ``GQ2.Dyadic.MarkedCore.nPartner_three
+  , ``GQ2.Dyadic.MarkedCore.nPartner_handleU
+  , ``GQ2.Dyadic.MarkedCore.nPartner_handleV
+  , ``GQ2.Dyadic.MarkedCore.nPartner_ne_self
+  , ``GQ2.Dyadic.MarkedCore.nCoreIndex_cases
+  , ``GQ2.Dyadic.MarkedCore.nFilteredDerivative_mulSingle
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_filteredDerivative
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_nRelWord
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_wordLift_eq_one_of_base
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_crossed_eq_one
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_defect_crossed_eq_one
+  , ``GQ2.Dyadic.MarkedCore.freeNRelatorDefect_crossed
+  , ``GQ2.Dyadic.MarkedCore.exists_closedSubgroup_same_rows
+  , ``GQ2.Dyadic.MarkedCore.exists_closedSubgroup_rowZero_same_coset
+  , ``GQ2.Dyadic.MarkedCore.exists_closedSubgroup_same_rows_fintype
+  , ``GQ2.Dyadic.MarkedCore.exists_closedSubgroup_rowZero_same_coset_fintype
+  , ``GQ2.Dyadic.MarkedCore.nPlaneCorrectionKernel
+  , ``GQ2.Dyadic.MarkedCore.mem_nPlaneCorrectionKernel
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_mem_correctionKernel
+  , ``GQ2.Dyadic.MarkedCore.mem_nPlaneCorrectionKernel_iff_error
+  , ``GQ2.Dyadic.MarkedCore.isClosed_nPlaneCorrectionKernel
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_mul_correctionKernel
+  , ``GQ2.Dyadic.MarkedCore.nRelWord_defect_mul_correctionKernel_iff
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_coordinate_diagonal
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_current_orientation
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerWeights
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerMark_coordinate
+  , ``GQ2.Dyadic.MarkedCore.freeTwoUnitPowerMark_orientation
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_unitPower_coordinate
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_unitPower_orientation
+  , ``GQ2.isProP_pi
+  , ``GQ2.isProP_fin_tuple
+  , ``GQ2.Dyadic.MarkedCore.isProTwo_freeTwoRank_tuple
+  , ``GQ2.Dyadic.MarkedCore.isProTwo_freeN_tuple
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlane_rowZero_same_kernelCoset
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlane_characterZero_refinement
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlane_relative_correction
+  , ``GQ2.Dyadic.MarkedCore.twoCentralSeries_two_le_indexTwo
+  , ``GQ2.Dyadic.MarkedCore.freeTwoBasisCorrectionHom
+  , ``GQ2.Dyadic.MarkedCore.freeTwoBasisCorrectionHom_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoBasisCorrectionHom_surjective
+  , ``GQ2.Dyadic.MarkedCore.freeTwoBasisCorrectionEquiv
+  , ``GQ2.Dyadic.MarkedCore.freeTwoBasisCorrectionEquiv_gen
+  , ``GQ2.Dyadic.MarkedCore.exists_freeTwoBasisCorrection
+  , ``GQ2.Dyadic.MarkedCore.freeNProjection
+  , ``GQ2.Dyadic.MarkedCore.freeNProjection_gen
+  , ``GQ2.Dyadic.MarkedCore.freeNProjection_surjective
+  , ``GQ2.Dyadic.MarkedCore.freeNProjection_orientation
+  , ``GQ2.Dyadic.MarkedCore.nPlaneStageSet_of_free_exact_stage
+  , ``GQ2.Dyadic.MarkedCore.NUnrestrictedStageSupply
+  , ``GQ2.Dyadic.MarkedCore.exists_nFree_exact_stage
+  , ``GQ2.Dyadic.MarkedCore.nPlaneScalingHypothesis_of_unrestrictedStageSupply
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_filteredDerivative_b
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_filteredDerivative_all
+  , ``GQ2.Dyadic.MarkedCore.nPlaneKernelTuple_mem_correctionKernel_all
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlane_allRows_same_kernelCoset
+  , ``GQ2.Dyadic.MarkedCore.exists_nPlane_full_relative_correction
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.oneWord
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.orientation_aut
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.coordinateDeriv
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.coordinateDeriv_gen
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.coordinateDeriv_base
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.finite_nRelWord_eq_one
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.orientation_gen_vN
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.coordinateDeriv_defect
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.free_finite_gen
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.basis_generates
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.basisTuple
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.basisFamily
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.defect_mem_rawSpan
+  , ``GQ2.Dyadic.MarkedCore.NPlaneAmbientStage.exists_ambient_stage
+  , ``GQ2.Dyadic.MarkedCore.NAmbientStageSupply
+  , ``GQ2.Dyadic.MarkedCore.exists_nFree_exact_stage_ambient
+  , ``GQ2.Dyadic.MarkedCore.nPlaneScalingHypothesis_of_ambientStageSupply
+  , ``GQ2.Dyadic.MarkedCore.nAmbientStageSupply
+  , ``GQ2.Dyadic.MarkedCore.nPlaneScalingHypothesis_general
+  , ``GQ2.Dyadic.MarkedCore.nCorePlane_gl2_lift_general
+  , ``GQ2.Dyadic.MarkedCore.nStabParam_lift_general
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.markedRelator_dn_aut
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.toZModPow_one_eq_nRed
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.continuous_nRed
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.presentedBy_dn_aut
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.dnAutObs
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.dnAutObs_injective
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.dnObs_eq_dnAutObs
+  , ``GQ2.Dyadic.Instances.DNAutomorphismCup.evenCupForm_comp_dn_aut
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust_gen_of_ne
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust_X1
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust_chi
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust_nuFrame
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust_torsion
+  , ``GQ2.Dyadic.MarkedCore.nTorsionAdjust_torsion_target
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_commutative_expTwo_eq_of_coordinate_modTwo
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_modTwo_character_eq_of_coordinate_modTwo
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_modTwo_character_eq_of_coordinate_even_difference
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.nAbHom
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsionChar
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsionChar_gen
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.ordinaryChar
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.ordinaryChar_gen
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.ordinaryChar_aut
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.nuAction_single_fixed
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.partner_involutive
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.dualVector_partner_eq_single
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.cup_single_right
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.reduceChar
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.reduced_ordinaryChar_gen
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsion_cup_equation
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsion_fixed_partner
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsionChar_aut_zero
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsionChar_aut_handleU
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsionChar_aut_handleV
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.cup_action_two
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.cup_action_three
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.torsionChar_aut_plane
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.fullFrameMark
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.coordHom_aut
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.nPhiHom_aut_coordinates
+  , ``GQ2.Dyadic.MarkedCore.NStabilizerFullRows.nPhiHom_aut_fullFrameMark
+  , ``GQ2.Dyadic.MarkedCore.nStabParam_fullFrame_lift_general
+  , ``GQ2.Dyadic.MarkedCore.nCanonicalFrameHom
+  , ``GQ2.Dyadic.MarkedCore.nCanonicalFrameHom_apply
+  , ``GQ2.Dyadic.MarkedCore.nCanonicalFrameHom_surjective
+  , ``GQ2.Dyadic.MarkedCore.nFrameOrientation_canonicalFrameHom
+  , ``GQ2.Dyadic.MarkedCore.nFullStabilizer_lift
+  , ``GQ2.Dyadic.MarkedCore.nFullStabilizer_lift_iff
+  , ``GQ2.Dyadic.MarkedCore.nFrameCanonicalMark
+  , ``GQ2.Dyadic.MarkedCore.NFrameCupIsometry
+  , ``GQ2.Dyadic.MarkedCore.nFrameModTwoCoordinate
+  , ``GQ2.Dyadic.MarkedCore.nFrameModTwoCoordinate_canonicalMark
+  , ``GQ2.Dyadic.MarkedCore.freeTwoReducedCoordinate
+  , ``GQ2.Dyadic.MarkedCore.nFrameModTwoCoordinate_freeNFrameProjection
+  , ``GQ2.Dyadic.MarkedCore.NFrameCupIsometry.reducedRows_of_projection
+  , ``GQ2.Dyadic.MarkedCore.NFrameCupIsometry.reducedRows_nFrameLiftEquiv
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftEquiv_cup
+  , ``GQ2.Dyadic.MarkedCore.freeNProjection_ab_eq_of_coordinates
+  , ``GQ2.Dyadic.MarkedCore.nPhiHom_freeNProjection_eq_of_coordinates
+  , ``GQ2.Dyadic.MarkedCore.nFullFrame_modTwoIndep_of_freeBasis
+  , ``GQ2.Dyadic.MarkedCore.nFullFrameStageSet_of_free_exact_stage
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_character_eq_of_coordinate_values
+  , ``GQ2.Dyadic.MarkedCore.exists_nBasis_exact_stage
+  , ``GQ2.Dyadic.MarkedCore.exists_nFullFrameRealizes_of_initialBasis
+  , ``GQ2.Dyadic.MarkedCore.exists_nFullFrameRealizes_of_headFixed_initialBasis
+  , ``GQ2.Dyadic.MarkedCore.freeNProjection_ab_coordinateWord
+  , ``GQ2.Dyadic.MarkedCore.exists_nFullFrameRealizes_of_matrix_initial_error
+  , ``GQ2.Dyadic.MarkedCore.freeNAbProjection
+  , ``GQ2.Dyadic.MarkedCore.freeNAbProjection_gen
+  , ``GQ2.Dyadic.MarkedCore.freeNAbProjection_coordinateWord
+  , ``GQ2.Dyadic.MarkedCore.freeNFrameProjection
+  , ``GQ2.Dyadic.MarkedCore.freeNFrameProjection_gen
+  , ``GQ2.Dyadic.MarkedCore.freeNFrameProjection_surjective
+  , ``GQ2.Dyadic.MarkedCore.nFrameOrientation
+  , ``GQ2.Dyadic.MarkedCore.nFrameOrientation_projection
+  , ``GQ2.Dyadic.MarkedCore.nFrameCoordinateSection
+  , ``GQ2.Dyadic.MarkedCore.nPhiHom_coordinateSection
+  , ``GQ2.Dyadic.MarkedCore.nFrameOrientation_apply
+  , ``GQ2.Dyadic.MarkedCore.nFrameOrientation_preserved_iff
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftMatrix
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftHom
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftHom_projection_gen
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftHom_projection
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftHom_surjective
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftEquiv
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftEquiv_projection
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftEquiv_coordinate_gen
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftEquiv_orientation
+  , ``GQ2.Dyadic.MarkedCore.nFrameCoordinateSection_torsion
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftMatrix_column_zero
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftEquiv_gen_zero
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftMatrix_row_one
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftInverseMatrix
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftMatrix_mul_inverse
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftMatrix_inverse_mul
+  , ``GQ2.Dyadic.MarkedCore.nFrameLiftMatrix_isUnit_det
+  , ``GQ2.Dyadic.MarkedCore.exists_nFrame_freeBasis_lift
+  , ``GQ2.Dyadic.MarkedCore.exists_nBasis_full_relative_correction
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.layerTwoCommGroup
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.layerTwoModule
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket_mul_left
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket_mul_right
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket_self
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket_symm
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracketLeftHom
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracketRightHom
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket_list_prod_left
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.bracket_list_prod_right
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.expTwo_character_coordinates
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeBracket
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeBracket_left_coordinates
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeBracket_right_coordinates
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeBracket_coordinates
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.FreeLayerTwo
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.symmetric_contraction_eq_zero
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.tailCoefficient
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.evenCupForm_eq_tailCoefficient
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.tailCoefficient_contraction_eq_of_cup
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeTail
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.reducedRows
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.contract_tailCoefficient
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeTail_coordinates
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeTail_eq_of_cup
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.freeTail_value
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.nRelWord_level_three_eq_of_cup
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.nRelWord_error_mem_three_of_cup
+  , ``GQ2.Dyadic.MarkedCore.NInitialCupDepth.nInitialMatrixError_mem_three
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinateWord_coordinate
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinateWord_single
+  , ``GQ2.Dyadic.MarkedCore.freeTwoCoordinateWord_basis
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_commutative_eq_of_coordinates
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixHom
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixHom_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixHom_coordinate_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixHom_coordinate
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixHom_comp_coordinate_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixHom_surjective_of_rightInverse
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixEquivOfRightInverse
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixEquivOfRightInverse_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixEquivOfRightInverse_coordinate_gen
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixEquivOfRightInverse_coordinate
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixEquivOfRightInverse_gen_of_column
+  , ``GQ2.Dyadic.MarkedCore.freeTwoMatrixEquivOfRightInverse_coordinate_of_row
+  , ``GQ2.Dyadic.MarkedCore.freeNOrientation_matrixEquiv
+  , ``GQ2.Dyadic.MarkedCore.exists_freeTwoMatrixBasis_of_rightInverse
+  , ``GQ2.Dyadic.MarkedCore.exists_freeTwoMatrixBasis_of_isUnit_det
+  , ``GQ2.Dyadic.MarkedCore.NFullFrameRealizes
+  , ``GQ2.Dyadic.MarkedCore.nFullFrameStageSet
+  , ``GQ2.Dyadic.MarkedCore.nFullFrameStageSet_antitone
+  , ``GQ2.Dyadic.MarkedCore.isClosed_nFullFrameStageSet
+  , ``GQ2.Dyadic.MarkedCore.nFullFrameStageSet_iInter_nonempty
+  , ``GQ2.Dyadic.MarkedCore.exists_nFullFrameRealizes_of_stages
+  , ``GQ2.Dyadic.MarkedCore.exists_nFullFrameRealizes_iff_stages
+  , ``GQ2.Dyadic.MarkedCore.freeTwo_basis_inverse_coordinates
+  , ``GQ2.Dyadic.MarkedCore.nBasisTupleRow
+  , ``GQ2.Dyadic.MarkedCore.nBasisKernelWitness
+  , ``GQ2.Dyadic.MarkedCore.nBasisKernelWitness_mem
+  , ``GQ2.Dyadic.MarkedCore.nBasisKernelWitness_row
+  , ``GQ2.Dyadic.MarkedCore.exists_nBasis_allRows_same_kernelCoset ]
+
+run_cmd do
+  let env ← getEnv
+  for decl in pins do
+    unless env.contains decl do
+      throwError "general artifact audit: missing declaration {decl}"
+    let actual ← collectAxioms decl
+    let extra := actual.filter (fun ax => !allowed.contains ax)
+    unless extra.isEmpty do
+      throwError "general artifact audit: {decl}\nnonstandard axioms: {extra}"
+    IO.println s!"ARTIFACT_AXIOMS_OK|{decl}|{actual.size}"
+  IO.println s!"ARTIFACT_AXIOM_AUDIT_PASS|{pins.length}"
