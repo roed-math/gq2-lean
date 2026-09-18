@@ -17,6 +17,17 @@ rather than the first-order-singular expression with \(\sigma_2\).
 The all-fields theorem is still not proved by the uploaded TeX. The missing work is now sharply localized:
 
 1. **Marked rank-four Demuškin automorphism lifting** for the standard \(M_\alpha\) and \(N_\alpha\) cores.
+   [W366, 2026-09-18: **discharged for both cores.**  The owner accepted Option A of
+   [the W364 amendment](../w364-proof-packet-amendment-mc.md) on 2026-09-18
+   ([owner memo item 4](../owner-items-2026-08-05.md)), and the packet's section 14
+   MC-M and MC-N rows were amended accordingly.  The lifting assertion is
+   `GQ2.Dyadic.MarkedCore.mFullStabilizer_lift_iff` and
+   `GQ2.Dyadic.MarkedCore.nFullStabilizer_lift_iff`, an equivalence at every
+   `alpha >= 2` and every handle count, torsion coordinate included; the finite
+   Nielsen-family lists at rank four are `mNielsenGen_finite_list` and
+   `mNielsenGen_stabilizer_induced`, and `nNielsen_factorization`,
+   `nNielsenFac_finite_list` and `nNielsenFac_stabilizer_induced`.  Items 2 to 4
+   of this list are untouched by that decision.]
 2. **Reflected Fox/Stokes/Hessian certificates** for the five genuinely relevant word rows: \(L\), \(N_0\), \(N_{\mathrm{pc}}\), \(M_0\), and \(M_{\mathrm{pc}}\).
 3. **Field-generic packaging** of the already used deep-unit determinant argument.
 4. **Degree-\(n\) parameterization** of the existing source-generic exact-image theorem.
@@ -162,6 +173,22 @@ structure MarkedCoreCertificate
 
 Do not formalize the draft’s larger free-relator theorem unless it becomes useful elsewhere. It is enough to prove that the required abelian marking correction lies in the image of `Aut(P.group)`.
 
+[W366, 2026-09-18: **that image statement is now a theorem for both standard
+cores**, so the `correction` field is supplied rather than assumed.
+`GQ2.Dyadic.MarkedCore.mFullStabilizer_lift_iff`
+(`GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`) and
+`GQ2.Dyadic.MarkedCore.nFullStabilizer_lift_iff`
+(`GQ2/Dyadic/MarkedCore/NFullStabilizerLift.lean`) characterize exactly which
+continuous automorphisms of the full topological abelianization, torsion
+coordinate included, are induced by a `chi`-preserving continuous automorphism
+of the core: precisely those preserving the transported orientation and the
+full mod-2 cup form.  Both directions, every `alpha >= 2`, every handle count,
+standard three axioms.  The correction produced by the marked Smith-Witt data
+satisfies that criterion, which is what `correction` and `correction_chi` ask
+for; `correction_nu` is then the reduction's own transport step.  Accepted by
+the owner as Option A of [the W364 amendment](../w364-proof-packet-amendment-mc.md),
+2026-09-18, and applied to the packet's Proposition 8.2 by lane W366-APPLY.]
+
 ### 5.2 `WordCertificate`
 
 ```lean
@@ -289,6 +316,15 @@ Then define the two source instances from their cohomology packages. The recursi
 4. `Dyadic/LocalGauss.lean`: group-generic determinant construction and arbitrary-degree sign.
 5. `Dyadic/SourceDataN.lean`: parameterize the existing source record and prove the compatibility adapter.
 6. `Dyadic/MarkedCore/M.lean` and `N.lean`: rank-four abelian classification and automorphism lifting.
+   [W366, 2026-09-18: **done, and beyond the rank-four scope of this item.**  The
+   classification halves are `mStabilizer_classification` and
+   `nStabilizer_classification`; the lifting halves are
+   `mFullStabilizer_lift_iff` and `nFullStabilizer_lift_iff`, which are general
+   in the handle count and so are not rank-four statements.  The rank-four
+   Nielsen-family lists that join the two are in
+   `MarkedCore/MNielsenGenerators.lean` and
+   `MarkedCore/NNielsenFactorization.lean`, which are additional modules beyond
+   the two named here.]
 7. `Dyadic/WordSyntax.lean`, `Fox.lean`, `Stokes.lean`, `Hessian.lean`.
 8. Branch certificates in this order: compact \(N_2\), compact \(M_2\), noncompact \(N\), procyclic \(M\), odd \(L\).
 9. Final field theorem, followed by `#print axioms` reports.
@@ -315,3 +351,22 @@ The following theorem is justified by the supplement:
 > For every ramified-\(i\) dyadic field and every proposed branch word, a marked-core certificate plus a reflected word certificate plus the standard local input package implies that the candidate group is the absolute Galois group.
 
 The uploaded TeX does **not yet provide** the two rank-four marked-core certificates or the reflected universal word certificates. Therefore its unconditional Theorems 5.1, 5.3, 5.4, and 1.1 should remain conditional until those artifacts are added.
+
+[W366, 2026-09-18: **the marked-core half of that sentence no longer holds.**
+The two rank-four marked-core lifting obligations are discharged and the
+packet's section 14 MC-M and MC-N rows now say so: the lifting assertion by
+`GQ2.Dyadic.MarkedCore.mFullStabilizer_lift_iff` and
+`GQ2.Dyadic.MarkedCore.nFullStabilizer_lift_iff` at every `alpha >= 2` and
+every handle count, and the finite Nielsen-family lists at rank four by
+`mNielsenGen_finite_list` / `mNielsenGen_stabilizer_induced` and
+`nNielsen_factorization` / `nNielsenFac_finite_list` /
+`nNielsenFac_stabilizer_induced`.  Owner decision: Option A of
+[the W364 amendment](../w364-proof-packet-amendment-mc.md), 2026-09-18.  Two
+scope statements travel with that acceptance and must not be dropped: the
+lists are rank four (`h = 0`) while the lifting halves are general in `h`, and
+“a finite list” means finitely many parameterized families, one member of each
+slot per stabilizer element, since a finite generating set does not exist and
+no finite-word decomposition of the limiting automorphism is produced.  **The
+word-certificate half of the sentence is not adjudicated here**: lane W366-APPLY
+was authorized for the MC rows only, and the WC rows keep whatever status their
+own records give them.]
