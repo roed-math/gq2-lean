@@ -1,5 +1,7 @@
 # W361 acceptance readiness: proofs, artifacts, and owner decisions
 
+*2026-09-17: the MC-M and MC-N rows are carried forward in [w364-acceptance-readiness-mc.md](w364-acceptance-readiness-mc.md).*
+
 2026-09-17. **Readiness review, not acceptance or migration approval.** The
 authoritative standards remain [plan A1 and §7](plan.md),
 [ledger §7 and §10](refs/dyadic-presentations-formalization-ledger.md), and
