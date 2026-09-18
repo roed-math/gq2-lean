@@ -52,7 +52,7 @@ source construction is uniform in rank and parameters. No additional analytic,
 phase, determinant, pivot-placement, shared-field-packet, or marking hypothesis
 is left in the bare field endpoint.
 
-This does **not** prove the original frozen M-word claim. It also does not yet
+This does **not** prove the original frozen M-word claim. [W362: the M full stabilizer lifting IS now proved, `mFullStabilizer_lift_iff`, std-3, alpha >= 2, all h; the frozen M-WORD placement claim remains false and is a different statement; see the section 3 MC-M row annotation.] It also does not yet
 satisfy every publication/merge acceptance item in
 [plan §§0–7](plan.md), the
 [proof packet](refs/dyadic-presentations-formalization-proof.tex), and the
@@ -184,7 +184,7 @@ not an owner-approved relabelling of those historical obligations.
 
 | ID | Current proof status relevant to the general endpoint | Qualification against the original wording |
 | --- | --- | --- |
-| MC-M | Required oriented core matching and marking corrections are supplied. General M scaling/mixing consumers are in `MarkedCore/MScalingHandles.lean`; range-selected field orientations and the canonical-or-strict handle dichotomy feed the source dispatcher. | Do not infer unrestricted transitivity of all `Ztwo` markings, or universal canonical-C placement. The strict-handle alternative is essential. Nor does correction of a particular marking by itself prove every originally proposed pure Nielsen-family lift. |
+| MC-M | Required oriented core matching and marking corrections are supplied. General M scaling/mixing consumers are in `MarkedCore/MScalingHandles.lean`; range-selected field orientations and the canonical-or-strict handle dichotomy feed the source dispatcher. | Do not infer unrestricted transitivity of all `Ztwo` markings, or universal canonical-C placement. The strict-handle alternative is essential. Nor does correction of a particular marking by itself prove every originally proposed pure Nielsen-family lift. [W362: the original mathematical M stabilizer-lifting assertion is now CLOSED by `mFullStabilizer_lift_iff` (every full-frame automorphism preserving the actual orientation and full mod-two cup form lifts, torsion-sensitive, all h, alpha >= 2, std-3); the finite Nielsen-list artifact is separate, as for N.] |
 | MC-N | Required primitive correction, strong plane scaling and core lifting remain proved. The new `nFullStabilizer_lift_iff` additionally characterizes the entire orientation/cup-preserving full-frame image, allowing arbitrary handle mixing and retaining torsion, uniformly in rank. | The original mathematical stabilizer-lifting assertion is closed. The old packet's prescribed finite Nielsen-generator list is not supplied by the filtered/compactness proof; either that presentation artifact or acceptance of the alternative proof method remains. No weakening to primitive correction is needed. |
 | WC-L | Complete source/certificate at every required odd degree: `wordCertificateRN_lSq_qOf` in `GammaLOddDegreeGrandAssembly.lean`, consumed by `hasSelectedRowResidualRN_l`. | The general source, not only the old `n = 1` fixture, is the proof input. New release documentation must link its uniform certificate. |
 | WC-N0 | `hasSelectedRowResidualRN_n0` in `FieldFamilyCampaignBoundary.lean` consumes the complete range-matched compact-N certificate at the selected degree. | The source has no residual Fox/Stokes/Hessian assumption; acceptance should cite its actual normal-form lemmas, not merely the old illustrative matrix. |

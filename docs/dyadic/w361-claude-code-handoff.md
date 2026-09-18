@@ -42,6 +42,8 @@ unproved, original N mathematical obligation. It does **not** prove the
 analogous unrestricted M assertion, restore the obstructed frozen M word
 claim, or finish publication/owner acceptance.
 
+**[W362, 2026-09-17: SUPERSEDED. The analogous M assertion is now proved: `mFullStabilizer_lift_of_frame` and `mFullStabilizer_lift_iff` in `GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`, for every `alpha >= 2` and every handle count `h`, all std-3, following this scaffold's five steps in nine modules (`w362-*-note.md`). Not yet: an independent audit (W363-MAUDIT in flight) and the packet's finite Nielsen-generator artifact (W363-NIELSEN in flight, as a corollary of the full lift plus the existing frame factorization). Owner acceptance of the alternative proof method remains open for M exactly as for N.]**
+
 ## 2. Workspace, ownership and safety
 
 ```text
@@ -255,6 +257,7 @@ Recommended next work, in order:
    still required, formulate its precise artifact separately; do not reopen
    the solved starting-depth, arbitrary-basis or compactness seams.
 2. **Audit and, if retained, tackle the larger M stabilizer assertion.**
+   [W362: DONE as mathematics, see the annotation in section 1; the audit is W363-MAUDIT.]
    Start with the precise next-task map in
    `docs/dyadic/w361-m-next-general-scaffold.md`: the shared high-depth
    derivative is already proved; the first bounded task is coupled M-head
