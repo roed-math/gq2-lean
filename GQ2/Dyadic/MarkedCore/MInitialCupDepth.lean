@@ -53,7 +53,7 @@ theorem mCupSq_eq_of_zLayer {p q : levelQuot G 3} (hz : p * q⁻¹ ∈ zLayer G 
   have hexp : p ^ 2 = (p * q⁻¹) ^ 2 * q ^ 2 := by
     have hre : (p * q⁻¹) ^ 2 * q ^ 2 = (p * q⁻¹) * ((p * q⁻¹) * q) * q := by
       rw [pow_two, pow_two]; group
-    rw [hre, ← hcomm]
+    rw [hre, ← hcomm, pow_two]
     group
   rw [hexp, hsq, one_mul]
 
@@ -74,6 +74,35 @@ theorem mCupPow_eq_one {α : ℕ} (hα : 2 ≤ α) (p : levelQuot G 3) : p ^ 2 ^
     twoCentralSeries_antitone G (show 3 ≤ α + 1 by omega)
       (pow_two_pow_mem_twoCentralSeries_succ G g α)
   exact (QuotientGroup.eq_one_iff _).mpr hm
+
+/-- For `alpha >= 2` the exponent `2 ^ (alpha - 1)` of the M torsion letter is
+already even, so `C ^ (2 ^ (alpha - 1))` lies in lambda-two. This is the exact
+sense in which "the change from `A` to `T = A * C^(2^(alpha-1))` is trivial mod
+two"; it is false at `alpha = 1`. -/
+theorem mCupPowHalf_mem_two {α : ℕ} (hα : 2 ≤ α) (g : G) :
+    g ^ 2 ^ (α - 1) ∈ twoCentralSeries G 2 :=
+  twoCentralSeries_antitone G (show 2 ≤ (α - 1) + 1 by omega)
+    (pow_two_pow_mem_twoCentralSeries_succ G g (α - 1))
+
+/-- **The MINIT interface, discharged.** If a lift fixes the composite letter
+`T = A * C^(2^(alpha-1))` literally, then its `A` image agrees with the
+reference `A` modulo lambda-two, whatever it does to `C`. This is the head
+hypothesis of the initial-depth theorem below, so that theorem does not have to
+assume the mod-two agreement separately. -/
+theorem mCupHead_mem_two_of_fixed_T {α : ℕ} (hα : 2 ≤ α) (a c a' c' : G)
+    (hT : a * c ^ 2 ^ (α - 1) = a' * c' ^ 2 ^ (α - 1)) :
+    a * a'⁻¹ ∈ twoCentralSeries G 2 := by
+  have hc : levelMk G 2 (c ^ 2 ^ (α - 1)) = 1 :=
+    (QuotientGroup.eq_one_iff _).mpr (mCupPowHalf_mem_two hα c)
+  have hc' : levelMk G 2 (c' ^ 2 ^ (α - 1)) = 1 :=
+    (QuotientGroup.eq_one_iff _).mpr (mCupPowHalf_mem_two hα c')
+  have ha : levelMk G 2 a = levelMk G 2 a' := by
+    have hm := congrArg (levelMk G 2) hT
+    rw [map_mul, map_mul, hc, hc', mul_one, mul_one] at hm
+    exact hm
+  apply (QuotientGroup.eq_one_iff _).mp
+  change levelMk G 2 (a * a'⁻¹) = 1
+  rw [map_mul, map_inv, ha, mul_inv_cancel]
 
 end LevelThree
 
@@ -114,12 +143,11 @@ theorem mCupRelWord_level_three_eq {α : ℕ} (hα : 2 ≤ α)
     have hdvd : (2 : ℤ_[2]) ^ 1 ∣
         toAdd (freeTwoCoordinate (coreRank h) i (m 0 * (m' 0)⁻¹)) :=
       twoCentralSeries_z2_character_dvd_succ (freeTwoCoordinate (coreRank h) i) hhead
-    rw [map_mul, map_inv, toAdd_mul, toAdd_inv, pow_one] at hdvd
+    rw [map_mul, map_inv, toAdd_mul, toAdd_inv, ← sub_eq_add_neg, pow_one] at hdvd
     obtain ⟨c, hc⟩ := hdvd
     have htwo : nRed (2 : ℤ_[2]) = 0 := by
-      have h2 : (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) := by push_cast; ring
-      rw [h2, map_natCast]
-      decide
+      have h2 : ((2 : ℕ) : ℤ_[2]) = (2 : ℤ_[2]) := by norm_cast
+      rw [← h2, map_natCast, ZMod.natCast_self]
     have : nRed (toAdd (freeTwoCoordinate (coreRank h) i (m 0))) -
         nRed (toAdd (freeTwoCoordinate (coreRank h) i (m' 0))) = 0 := by
       rw [← map_sub, hc, map_mul, htwo, zero_mul]
@@ -143,14 +171,32 @@ theorem mCupRelWord_error_mem_three {α : ℕ} (hα : 2 ≤ α)
     (mRelWord α m * (mRelWord α m')⁻¹) = 1
   rw [map_mul, map_inv, mCupRelWord_level_three_eq hα m m' hhead hcup, mul_inv_cancel]
 
+/-- **The initial M depth in the shape the route asks for.** The lift fixes the
+composite letter `T = A * C^(2^(alpha-1))` literally and preserves the full
+mod-two cup form; its actual M relator error then lies in lambda-three. Nothing
+is assumed about what the lift does to `C`, `B`, `D` or the handles beyond the
+cup system. -/
+theorem mCupRelWord_error_mem_three_of_fixed_T {α : ℕ} (hα : 2 ≤ α)
+    (m m' : Fin (coreRank h) → FreeTwoRank (coreRank h))
+    (hT : m 0 * m 2 ^ 2 ^ (α - 1) = m' 0 * m' 2 ^ 2 ^ (α - 1))
+    (hcup : ∀ i j, evenCupForm (reducedRows m i) (reducedRows m j) =
+      evenCupForm (reducedRows m' i) (reducedRows m' j)) :
+    mRelWord α m * (mRelWord α m')⁻¹ ∈
+      twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3 :=
+  mCupRelWord_error_mem_three hα m m'
+    (mCupHead_mem_two_of_fixed_T hα (m 0) (m 2) (m' 0) (m' 2) hT) hcup
+
 end MTail
 
 #print axioms mCupSq_eq_of_zLayer
 #print axioms mCupSq_levelMk_eq_of_mem_two
 #print axioms mCupPow_eq_one
+#print axioms mCupPowHalf_mem_two
+#print axioms mCupHead_mem_two_of_fixed_T
 #print axioms mCupRelWord_levelMk_eq_head_mul_tail
 #print axioms mCupRelWord_level_three_eq
 #print axioms mCupRelWord_error_mem_three
+#print axioms mCupRelWord_error_mem_three_of_fixed_T
 
 end
 end GQ2.Dyadic.MarkedCore
