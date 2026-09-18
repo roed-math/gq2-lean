@@ -1,0 +1,20 @@
+% STAGED L/N extraspecial Hessian; ledger item 7 only.
+% ln-hessian-hash: 39707fd42eb2f7f378aa1eff2d9e312a410c466dbf8516fcf00a2e98efa46ca3
+% family: N0; structural: {"h":0,"q":2}; degree: 2
+% Ledger item 7 only: the decomposition of the L/N0/Npc word-side Hessian identity into a leading term, one cross term and the handle planes, together with the hypotheses each sector actually needs. No coefficient module, marking, field, resolver, eta or source certificate is selected: every signature theorem is quantified over all of them.
+% Item 7's carriers are theorems, not records with data fields, so no value is bound by rfl here. The driver restates each identity through the named decomposition hessShape and discharges the restatement by the tree's own theorem, so a wrong decomposition does not compile. What is certified is the decomposition and its three subterms. The human labels below are prose, not Lean, exactly like the item 6 clause roles.
+% Identity of the serialized decomposition, hypothesis list and handle-plane count at the stated discrete parameters. It is not a hash of any proof.
+% The N0 identity is resolver-immune in the same exact sense, reads the x2-slot-zero slice, and uses 2 <= alpha exactly once, through the leading-power law. Its cross term is the plain polar pairing of x0 against x1.
+% decomposition bridge: GQ2.Dyadic.W363LNHessian.hessShape
+% hessShape leading cross planes = leading + cross + sum over j of planes j, with j ranging over the h handle planes.
+\[\mathrm{hess}(R)=\underbrace{L}_{\text{leading}}+\underbrace{X}_{\text{cross}}+\sum_{j=1}^{0}\underbrace{P_j}_{\text{handle plane}}.\]
+\paragraph{slice sector}
+% source: GQ2.Dyadic.Certificates.hessRelZ_nCompact
+% bridge (restated_identity): GQ2.Dyadic.W363LNHessian.n0Hessian_shape
+\begin{description}
+\item[$L$ (quadratic slot)] the quadratic value q at the x0 slot
+\item[$X$] the polar pairing of the x0 slot against the x1 slot
+\item[$P_j$] the polar pairing of the two vectors of handle plane $j$, for the 0 planes
+\item[vanishing slot] x2 is hypothesised zero
+\item[hypotheses] char two: every module element is its own negative; alpha at least two: enters exactly once, through the leading-power law; x2 slot zero: the x2 slot of the offset vector is zero
+\end{description}

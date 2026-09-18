@@ -1,0 +1,30 @@
+% STAGED L/N extraspecial Hessian; ledger item 7 only.
+% ln-hessian-hash: 1cfb9416903cd24f7909bbdbd86fb116cf66b8e7988de291f5cf4b96d45822e1
+% family: Npc; structural: {"h":0,"q":2,"r":1}; degree: 2
+% Ledger item 7 only: the decomposition of the L/N0/Npc word-side Hessian identity into a leading term, one cross term and the handle planes, together with the hypotheses each sector actually needs. No coefficient module, marking, field, resolver, eta or source certificate is selected: every signature theorem is quantified over all of them.
+% Item 7's carriers are theorems, not records with data fields, so no value is bound by rfl here. The driver restates each identity through the named decomposition hessShape and discharges the restatement by the tree's own theorem, so a wrong decomposition does not compile. What is certified is the decomposition and its three subterms. The human labels below are prose, not Lean, exactly like the item 6 clause roles.
+% Identity of the serialized decomposition, hypothesis list and handle-plane count at the stated discrete parameters. It is not a hash of any proof.
+% Both Npc identities are the FULL-OFFSET route, which is the completed proof. The older Gate-E slice with an invertible Lc is not what these bridges name and must not be displayed as the completed normal-coordinate proof. Neither sector hypothesises a vanishing slot, and each needs an input the L and N0 identities do not: a residue pin E(omega2) = e with e congruent to 1 mod 4 unramified, and quadraticity of q with an odd-order fixed-point-free u and a resolver-lifting hypothesis ramified.
+% decomposition bridge: GQ2.Dyadic.W363LNHessian.hessShape
+% hessShape leading cross planes = leading + cross + sum over j of planes j, with j ranging over the h handle planes.
+\[\mathrm{hess}(R)=\underbrace{L}_{\text{leading}}+\underbrace{X}_{\text{cross}}+\sum_{j=1}^{0}\underbrace{P_j}_{\text{handle plane}}.\]
+\paragraph{unramified full offset sector}
+% source: GQ2.Dyadic.Instances.NpcUnramifiedFullOffsetHessian.hessRelZ_npcW_evenPhiNormal
+% bridge (restated_identity): GQ2.Dyadic.W363LNHessian.npcUnramHessian_shape
+\begin{description}
+\item[$L$ (named diagonal)] the named unramified diagonal npcUnramifiedDiagonal, not a bare quadratic value
+\item[$X$] the polar pairing of c1 against the image of c0 under the normal-form operator Phi
+\item[$P_j$] the polar pairing of the two vectors of handle plane $j$, for the 0 planes
+\item[vanishing slot] none: this is the full-offset route, no slot is set to zero
+\item[hypotheses] char two: every module element is its own negative; omega2 residue pin: E omega2 is a natural number congruent to 1 mod 4; finite discrete marking: the marking group is finite and discrete
+\end{description}
+\paragraph{ramified full offset sector}
+% source: GQ2.Dyadic.Instances.NpcRamifiedFullOffsetHessian.hessRelZ_npcW_evenTwistedNormal
+% bridge (restated_identity): GQ2.Dyadic.W363LNHessian.npcRamHessian_shape
+\begin{description}
+\item[$L$ (named diagonal)] the named ramified diagonal npcRamifiedDiagonal, not a bare quadratic value
+\item[$X$] the polar pairing of c1 against the eta-twisted image of c0
+\item[$P_j$] the polar pairing of the two vectors of handle plane $j$, for the 0 planes
+\item[vanishing slot] none: this is the full-offset route, no slot is set to zero
+\item[hypotheses] char two: every module element is its own negative; quadratic form: q is a quadratic form over F2, not merely a function; odd fixed point free u: the tame marking u has odd order and no nonzero fixed vector; resolver lifts: the resolver lifts to the central extension
+\end{description}
