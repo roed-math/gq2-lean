@@ -1,66 +1,114 @@
 # W362-MASSEMBLE lane note
 
 Lane: M full-stabilizer lifting, step 5 of 5 (the assembly: the final theorem
-and its converse). Branch `claude/w362-massemble`, base `da50ba68`.
+and its converse). Branch `claude/w362-massemble`, base `da50ba68`, with
+`claude/w362-mkernel` merged in mid-lane.
 Route item 5 of `docs/dyadic/w361-m-next-general-scaffold.md`.
 
-One new module, `GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`. No existing
-module edited, `GQ2.lean` untouched. Verification of record: `bash
-scripts/w361_lean_runner.sh GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`
-against the shared campaign cache, which already carried all six merged M
-modules of this wave. Default limits (200000 heartbeats), `autoImplicit=false`,
-no `sorry`, no `admit`, no `native_decide`, no new axiom, no resource option.
-All nine declarations are std-3 (`propext`, `Classical.choice`, `Quot.sound`),
-pinned in file by `#print axioms`. No new mathematics about the M tower is
-proved here; the file reconciles three interfaces and records what is owed.
+One new module, `GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`, 9
+declarations. No existing module edited, `GQ2.lean` untouched. Default limits
+(200000 heartbeats), `autoImplicit=false`, no `sorry`, no `admit`, no
+`native_decide`, no new axiom, no resource option. Every declaration is std-3
+(`propext`, `Classical.choice`, `Quot.sound`), pinned in file by
+`#print axioms`.
+
+Verification of record: `scripts/mirror.sh sweep`, then `gen
+GQ2.Dyadic.MarkedCore.MBasisRowRefinement`, `gen
+GQ2.Dyadic.MarkedCore.MPlaneAmbientStage` (the two MKERNEL modules, whose
+oleans were not yet in the shared cache), then `check
+GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`. The six other M modules of the
+wave came from the shared cache via the sweep. `lake` was never invoked. The
+earlier conditional version of the module was additionally checked with `bash
+scripts/w361_lean_runner.sh` directly against the shared cache.
+
+No new mathematics about the M tower is proved here. The file reconciles the
+dialects of the assembled halves and states the theorem.
 
 ## Status of record
 
-**The M full-stabilizer theorem is proved modulo `MStageStep`; the converse is
-unconditional.**
+**The M full-stabilizer lifting theorem is proved. It is not conditional.**
 
-`MStageStep alpha h` is the named depth-step interface defined in
-`GQ2/Dyadic/MarkedCore/MFullFrameStages.lean`. Nothing in this repository
-exhibits an `(alpha, h)` satisfying it. The forward theorem below is therefore
-not a proved lifting theorem, and must not be relayed as one. Do not confuse it
-with the N theorem `nFullStabilizer_lift_iff`
-(`GQ2/Dyadic/MarkedCore/NFullStabilizerLift.lean`), which is unconditional; the
-N file supplied the *shape* that was matched, not a result that was reused.
+The lane was written against `MStageStep alpha h` as an open interface and then
+rewritten when MKERNEL landed `mStageStep_holds` in
+`GQ2/Dyadic/MarkedCore/MPlaneAmbientStage.lean` (std-3, every `alpha >= 2` and
+every rank). `MStageStep` is now discharged, not assumed; this module consumes
+`mStageStep_holds ha` and carries no interface hypothesis of any kind. Both
+directions of the image characterization are unconditional.
 
 `alpha >= 2` throughout. `MFrameMatrixLift`'s fixed-`T` lift needs it (the
-torsion digit is killed by `2 ^ (alpha - 1)` only from `alpha = 2` on), and
-`MCupFrameCupIsometry` carries that binder. `MStageStep` itself is stated
-without an `alpha` bound, but it has no producer anywhere, least of all at
-`alpha = 1`.
+torsion digit is killed by `2 ^ (alpha - 1)` only from `alpha = 2` on),
+`MCupFrameCupIsometry` carries that binder, and so does `mStageStep_holds`.
+Nothing here says anything about `alpha = 1`.
 
-## T1: the forward theorem
+This is the M analogue of `NFullStabilizerLift`, not a copy of it. The M route
+fixes the composite word `T = A * C^(2^(alpha-1))` rather than the single letter
+`A`, its head row is the two-letter `2 f(A) + 2^alpha f(C)`, and its
+orientation sees the `B` coordinate only through its parity. Nothing from the N
+theorem is reused; only its shape is matched.
+
+## A name that had to change
+
+The ticket and the coordinator both asked for `mFullStabilizer_lift`.
+That name is **already taken** in namespace `GQ2.Dyadic.MarkedCore`, by
+`MFullFrameStages.mFullStabilizer_lift`, which is the *conditional composition
+shape* with five interface hypotheses. The lane may not edit existing modules,
+so the landed theorem is
 
 ```
-theorem mFullStabilizer_lift_of_step {alpha h : ℕ} (ha : 2 ≤ alpha)
+mFullStabilizer_lift_of_frame
+```
+
+"of_frame" = from frame-level hypotheses (orientation and cup). The
+characterization keeps the exact N-parallel name `mFullStabilizer_lift_iff`,
+which was free. A later consolidation wave that is allowed to touch
+`MFullFrameStages.lean` could rename the conditional shape (say to
+`mStage_fullStabilizer_lift_of_interfaces`) and free the plain name.
+
+## The two landed theorems
+
+```
+theorem mFullStabilizer_lift_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hchi : ∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z)
-    (hcup : MCupFrameCupIsometry ha phi)
-    (hstep : MStageStep alpha h) :
+    (hcup : MCupFrameCupIsometry ha phi) :
     ∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
       (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
       (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
         phi (mPhiHom (mStageOneLe ha) h (abMk x)))
 ```
 
-`hstep` is the only conditional hypothesis: `hchi` and `hcup` are the actual
-content of the statement, not interfaces. The proof is one composition,
+```
+theorem mFullStabilizer_lift_iff {alpha h : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    (∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
+      (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
+      (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
+        phi (mPhiHom (mStageOneLe ha) h (abMk x)))) ↔
+    (∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z) ∧
+      MCupFrameCupIsometry ha phi
+```
+
+The second matches `nFullStabilizer_lift_iff` line for line with
+`chiN / nPhiHom / nFrameOrientation / NFrameCupIsometry` replaced by
+`chiM / mPhiHom / mFrameOrientation / MCupFrameCupIsometry`. Like its N twin it
+asserts **no** finite explicit Nielsen-generator presentation of the
+stabilizer: the condition is stated entirely on the full abelian frame. Handles
+may mix arbitrarily; the commuting square is on all elements and includes the
+torsion coordinate.
+
+The forward proof is one composition,
 
 ```
 mFullStabilizer_lift_of_fixedHead ha phi hchi
-  (mFullStabilizer_relError_of_cup ha phi hcup) hstep
+  (mFullStabilizer_relError_of_cup ha phi hcup) (mStageStep_holds ha)
 ```
 
-so the assembly is genuinely the whole of this ticket: MINIT already
+so the assembly really is the whole of this ticket: MINIT had already
 discharged the initial-basis obligations of `mFullStabilizer_lift` inside
 `mFullStabilizer_lift_of_fixedHead`, and what was left was its `herror`
-hypothesis.
+hypothesis and the stage step.
 
-That is the second deliverable:
+## Sufficiency: the error, with no orientation input
 
 ```
 theorem mFullStabilizer_relError_of_cup {alpha h : ℕ} (ha : 2 ≤ alpha)
@@ -71,70 +119,12 @@ theorem mFullStabilizer_relError_of_cup {alpha h : ℕ} (ha : 2 ≤ alpha)
         twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3
 ```
 
-It is unconditional, and it carries **no orientation hypothesis**: MCUP's
-`mCupStageError_of_frame` does not use one, so the depth-three relator error of
-the fixed-`T` lift follows from the semantic full-frame cup predicate alone.
+Worth recording: this uses **no orientation hypothesis**. MCUP's
+`mCupStageError_of_frame` does not take one, so cup preservation by itself
+already puts the actual M relator error in lambda-three. The orientation is
+needed only later, by the stage iteration.
 
-## The two reconciliations the ticket asked about
-
-Both dialect mismatches turned out to be already packaged upstream by MINIT, so
-this lane restates neither; the note records which is which.
-
-- **Orientation: not definitionally equal.** `mFrameOrientation hα h`
-  (`MFrameMatrixLift`) is a `ContinuousMonoidHom (MFrameModel h) ℤ_[2]ˣ` on the
-  frame; `mStageOrientation alpha h` (consumed by `MFullFrameStages`) lives on
-  the free pro-two group. There is no definitional identity. The bridge is
-  `mStageOrientation_eq_freeOrientation` composed with
-  `mFrameOrientation_projection`, packaged as
-  `mFrameLiftEquiv_stageOrientation`, which is what `mFullStabilizer_lift_of_fixedHead`
-  consumes. `mFrameOrientation_eq_apiChiModel` further identifies
-  `mFrameOrientation` with `MFrameApi`'s `mFrameApiChiModel` on the nose.
-- **Projection: definitionally equal.** `mFrameProjection hα h`,
-  `mCupFreeFrameProjection ha h` and `mPhiHom (mStageOneLe ha) h ∘ abMk ∘
-  mStageProjection alpha h` are the same composite; `mFrameProjection_apply`,
-  `mCupFreeFrameProjection_apply` and `mStageFrameHom_apply` are all `rfl`, and
-  `mFrameFreeAbProjection_gen` closes the generator case. The packaging is
-  `mFrameLiftEquiv_stageFrame`.
-
-The one bridge genuinely missing upstream was the torsion word, where
-`MFullFrameStages` writes `mStageTorsionWord` and `MFrameCupCoordinates` writes
-the product out. It is the same term up to beta reduction, and this lane names
-it so that the assembly never relies on that silently:
-
-```
-theorem mFullStabilizer_liftEquiv_head {alpha h : ℕ} (ha : 2 ≤ alpha)
-    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
-    mFrameLiftEquiv ha h phi (freeTwoRankGen (coreRank h) 0) *
-        mFrameLiftEquiv ha h phi (freeTwoRankGen (coreRank h) 2) ^ 2 ^ (alpha - 1) =
-      freeTwoRankGen (coreRank h) 0 *
-        freeTwoRankGen (coreRank h) 2 ^ 2 ^ (alpha - 1)
-```
-
-proved by `mFrameLiftEquiv_torsionWord` alone.
-
-## T2: the converse and the image characterization
-
-```
-theorem mFullStabilizer_lift_iff_of_step {alpha h : ℕ} (ha : 2 ≤ alpha)
-    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
-    (hstep : MStageStep alpha h) :
-    (∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
-      (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
-      (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
-        phi (mPhiHom (mStageOneLe ha) h (abMk x)))) ↔
-    (∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z) ∧
-      MCupFrameCupIsometry ha phi
-```
-
-This is the M twin of `nFullStabilizer_lift_iff` and matches its shape line for
-line, with `chiN / nPhiHom / nFrameOrientation / NFrameCupIsometry` replaced by
-`chiM / mPhiHom / mFrameOrientation / MCupFrameCupIsometry` and the extra
-`hstep` binder. Like its N twin it asserts **no** finite explicit
-Nielsen-generator presentation of the stabilizer: the condition is stated
-entirely on the full abelian frame.
-
-`hstep` is consumed by the right-to-left direction only. The left-to-right
-direction is stated separately and is unconditional:
+## Necessity, and the small bridge it needed
 
 ```
 theorem mFullStabilizer_orientation_cup_of_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
@@ -173,83 +163,74 @@ so that an arbitrary frame element can be written as the frame image of a core
 element and `chiM`-preservation on `D_M` becomes orientation-preservation on
 the frame.
 
-## T3: what a proof of `MStageStep alpha h` must look like to plug in
+## The two reconciliations the ticket asked about
 
-The interface is consumed verbatim, with no wrapper, so a producer must land
-exactly this `Prop` from `MFullFrameStages.lean`:
+Both dialect mismatches turned out to be already packaged upstream by MINIT, so
+this lane restates neither; the note records which is which.
+
+- **Orientation: not definitionally equal.** `mFrameOrientation hα h`
+  (`MFrameMatrixLift`) is a `ContinuousMonoidHom (MFrameModel h) ℤ_[2]ˣ` on the
+  frame; `mStageOrientation alpha h` (consumed by `MFullFrameStages`, and by
+  `MStageStep` itself) lives on the free pro-two group. There is no
+  definitional identity. The bridge is `mStageOrientation_eq_freeOrientation`
+  composed with `mFrameOrientation_projection`, packaged as
+  `mFrameLiftEquiv_stageOrientation`, which is what
+  `mFullStabilizer_lift_of_fixedHead` consumes.
+  `mFrameOrientation_eq_apiChiModel` further identifies `mFrameOrientation`
+  with `MFrameApi`'s `mFrameApiChiModel` on the nose.
+- **Projection: definitionally equal.** `mFrameProjection hα h`,
+  `mCupFreeFrameProjection ha h` and `mPhiHom (mStageOneLe ha) h ∘ abMk ∘
+  mStageProjection alpha h` are the same composite; `mFrameProjection_apply`,
+  `mCupFreeFrameProjection_apply` and `mStageFrameHom_apply` are all `rfl`, and
+  `mFrameFreeAbProjection_gen` closes the generator case. The packaging is
+  `mFrameLiftEquiv_stageFrame`.
+
+The one bridge genuinely missing upstream was the torsion word, where
+`MFullFrameStages` writes `mStageTorsionWord` and `MFrameCupCoordinates` writes
+the product out. It is the same term up to beta reduction, and this lane names
+it so that the assembly never relies on that silently:
 
 ```
-def MStageStep (alpha h : ℕ) : Prop :=
-  ∀ n : ℕ, ∀ e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
-      (FreeTwoRank (coreRank h) : Type),
-    (∀ i, mStageOrientation alpha h (e (freeTwoRankGen (coreRank h) i)) =
-      mStageOrientation alpha h (freeTwoRankGen (coreRank h) i)) →
-    (∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
-        (Multiplicative ℤ_[2]),
-      f (mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i))) =
-        f (mRelWord alpha (freeTwoRankGen (coreRank h)))) →
-    mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i)) *
-      (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
-        twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n + 3) →
-    ∃ s : Fin (coreRank h) → FreeTwoRank (coreRank h),
-      (∀ i, s i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n + 2)) ∧
-      (∀ i, mStageOrientation alpha h (s i) = 1) ∧
-      (∀ i, ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
-        (Multiplicative ℤ_[2]), f (s i) = 1) ∧
-      mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i) * s i) *
-        (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
-          twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n + 4)
+theorem mFullStabilizer_liftEquiv_head {alpha h : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    mFrameLiftEquiv ha h phi (freeTwoRankGen (coreRank h) 0) *
+        mFrameLiftEquiv ha h phi (freeTwoRankGen (coreRank h) 2) ^ 2 ^ (alpha - 1) =
+      freeTwoRankGen (coreRank h) 0 *
+        freeTwoRankGen (coreRank h) 2 ^ 2 ^ (alpha - 1)
 ```
 
-Read with `d = n + 2`. What the producer owes, in the order the consumers use
-it:
-
-1. **Universally quantified over `n` and over `e`.** It is applied inside the
-   induction of `exists_mStageBasis_exact_stage` at every depth, to a basis the
-   induction itself produced, never to a fixed or constructed one. A statement
-   proved only for the initial basis, or only for small `n`, does not plug in.
-2. **`e` is an actual `ContinuousMulEquiv` of the free pro-two group**, not a
-   marking, not a matrix, and not an automorphism of a graded or class-`c`
-   quotient. There is no assumed derivative image and no diagonal restriction.
-3. **The three premises are exactly as written.** The orientation premise is on
-   generators and is `mStageOrientation`, the free-group orientation, not
-   `mFrameOrientation`; the row premise is agreement under *every* continuous
-   `Multiplicative ℤ_[2]` character; the error premise is literal membership in
-   `twoCentralSeries _ (n + 3)`, at the level of group elements, not of any
-   quotient.
-4. **The correction `s` is a tuple of group elements, one per generator**, and
-   all four conclusions are needed: depth `n + 2`, orientation-blind,
-   invisible to every ordinary character (this is what keeps the integral
-   coordinate matrix exactly fixed through
-   `mStage_relator_row_transport`), and error pushed to `n + 4`.
-5. **The correction must be a basis change.** The consumer immediately feeds
-   `s` to `exists_freeTwoBasisCorrection`, which needs `s i ∈ twoCentralSeries
-   _ 2`; the interface's `n + 2` gives that for every `n` by
-   `twoCentralSeries_antitone`. A supply at depth `n + 1` would not.
-
-Its N counterpart is the composite of `NAmbientStageSupply` with
-`exists_nBasis_full_relative_correction`. A producer that lands the `Prop`
-above, for a single `(alpha, h)` with `alpha >= 2`, immediately upgrades
-`mFullStabilizer_lift_of_step` and `mFullStabilizer_lift_iff_of_step` at that
-`(alpha, h)` with no edit to this file: `hstep` is a plain hypothesis in both.
-
-The kernel lane owns that producer and `MBasisRowRefinement.lean`; nothing in
-this lane touches either.
+proved by `mFrameLiftEquiv_torsionWord` alone.
 
 ## Deliverables
 
-`GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`, 9 declarations, all std-3:
+`GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`, all std-3:
 
-| declaration | conditional on `MStageStep`? |
+| declaration | role |
 | --- | --- |
-| `mFullStabilizer_liftEquiv_head` | no |
-| `mFullStabilizer_relError_of_cup` | no |
-| `mFullStabilizer_lift_of_step` | **yes** |
-| `mCupFrameOfDM_surjective` | no |
-| `mFrameOrientation_cupFrameOfDM` | no |
-| `mFullStabilizer_orientation_of_lift` | no |
-| `mFullStabilizer_cup_of_lift` | no |
-| `mFullStabilizer_orientation_cup_of_lift` | no |
-| `mFullStabilizer_lift_iff_of_step` | **yes**, right-to-left only |
+| `mFullStabilizer_liftEquiv_head` | torsion-word bridge |
+| `mFullStabilizer_relError_of_cup` | depth-three error from cup alone |
+| `mFullStabilizer_lift_of_frame` | **sufficiency, unconditional** |
+| `mCupFrameOfDM_surjective` | frame quotient is onto |
+| `mFrameOrientation_cupFrameOfDM` | `chiM` to frame orientation |
+| `mFullStabilizer_orientation_of_lift` | necessity, orientation half |
+| `mFullStabilizer_cup_of_lift` | necessity, cup half |
+| `mFullStabilizer_orientation_cup_of_lift` | necessity, packaged |
+| `mFullStabilizer_lift_iff` | **the image characterization** |
 
-Registration in `GQ2.lean` is the orchestrator's, not this lane's.
+Registration in `GQ2.lean` is the orchestrator's, not this lane's; the module
+imports `MFrameCupCoordinates`, `MFrameMatrixLift` and `MPlaneAmbientStage`.
+
+## What remains
+
+Nothing in this lane. Two things a later wave may want:
+
+1. Free the name `mFullStabilizer_lift` by renaming the conditional composition
+   shape in `MFullFrameStages.lean`, then rename `mFullStabilizer_lift_of_frame`
+   onto it for exact N parity.
+2. `MCupFrameCupIsometry` is the semantic predicate, quantified over every
+   continuous mod-two frame character. MCUP's
+   `MCupFrameCupIsometry.reducedRows_of_projection` already converts it to the
+   reduced-coordinate system `Abar G Abar^T = G`; a lane wanting a *decidable*
+   or matrix-level entry point to `mFullStabilizer_lift_iff` would package that
+   direction and its converse as a standalone equivalence. That is a
+   convenience, not a gap: the theorem above is complete as stated.
