@@ -1,5 +1,6 @@
 import GQ2.Dyadic.MarkedCore.FreeProTwoMatrixBasis
 import GQ2.Dyadic.MarkedCore.MFrameApi
+import GQ2.Dyadic.MarkedCore.MFullFrameStages
 import GQ2.Dyadic.MarkedCore.N
 
 /-!
@@ -22,26 +23,12 @@ noncomputable section
 open GQ2 GQ2.SectionThree Multiplicative
 open scoped GQ2.SectionThree.TopAbInstances
 
-/-! ## The free group over D_M and its canonical orientation -/
+/-! ## The free group over D_M and its canonical orientation
 
-def mFrameFreeProjection (α h : ℕ) :
-    ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (DM α h : Type) :=
-  presLiftHom 1 (isProP_DM α h) (dmGen α h) (map_one _)
-
-theorem mFrameFreeProjection_gen (α h : ℕ) (i : Fin (coreRank h)) :
-    mFrameFreeProjection α h (freeTwoRankGen (coreRank h) i) = dmGen α h i :=
-  presLiftHom_gen _ _ _ _ _
-
-theorem mFrameFreeProjection_surjective (α h : ℕ) :
-    Function.Surjective (mFrameFreeProjection α h) := by
-  have hle : Subgroup.closure (Set.range (dmGen α h)) ≤ (mFrameFreeProjection α h).range := by
-    apply (Subgroup.closure_le _).mpr
-    rintro _ ⟨i, rfl⟩
-    exact ⟨freeTwoRankGen (coreRank h) i, mFrameFreeProjection_gen α h i⟩
-  have hh := Subgroup.topologicalClosure_minimal _ hle
-    (isCompact_range (mFrameFreeProjection α h).continuous_toFun).isClosed
-  rw [dm_topGen α h] at hh
-  exact MonoidHom.range_eq_top.mp (top_unique hh)
+The free projection is MSTAGES's `mStageProjection` (`MFullFrameCompactness`),
+and the free orientation is `mStageOrientation = chiM ∘ mStageProjection`; the
+presentation-lifted form `mFrameFreeOrientation` below is the same character,
+with the coordinate formula that exposes the B parity and the integral D slot. -/
 
 /-- The canonical M orientation `(A, B, C, D) ↦ (1, -1, 1, mUnit α)`, trivial on
 every handle letter, read on the free group. -/
@@ -53,15 +40,20 @@ theorem mFrameFreeOrientation_gen (α h : ℕ) (i : Fin (coreRank h)) :
     mFrameFreeOrientation α h (freeTwoRankGen (coreRank h) i) =
       coreMark 1 (-1) 1 (mUnit α) i := presLiftHom_gen _ _ _ _ _
 
-theorem mFrameFreeProjection_orientation (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
-    chiM α h (mFrameFreeProjection α h x) = mFrameFreeOrientation α h x := by
-  have he : (chiM α h).comp (mFrameFreeProjection α h) = mFrameFreeOrientation α h := by
+theorem mStageProjection_freeOrientation (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    chiM α h (mStageProjection α h x) = mFrameFreeOrientation α h x := by
+  have he : (chiM α h).comp (mStageProjection α h) = mFrameFreeOrientation α h := by
     apply presPro2_hom_ext
     intro i
-    change chiM α h (mFrameFreeProjection α h (freeTwoRankGen (coreRank h) i)) =
+    change chiM α h (mStageProjection α h (freeTwoRankGen (coreRank h) i)) =
       mFrameFreeOrientation α h (freeTwoRankGen (coreRank h) i)
-    rw [mFrameFreeProjection_gen, chiM, mLiftHom_gen, mFrameFreeOrientation_gen]
+    rw [mStageProjection_gen, chiM, mLiftHom_gen, mFrameFreeOrientation_gen]
   exact congrArg (fun f : ContinuousMonoidHom _ _ => f x) he
+
+/-- MSTAGES's free orientation is the presentation-lifted canonical orientation. -/
+theorem mStageOrientation_eq_freeOrientation (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    mStageOrientation α h x = mFrameFreeOrientation α h x := by
+  rw [mStageOrientation_apply, mStageProjection_freeOrientation]
 
 /-- The free orientation is the sign of the B coordinate times the unit power of
 the D coordinate: B enters only through its parity. -/
@@ -89,11 +81,11 @@ def mFrameFreeAbProjection (α h : ℕ) :
     ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
       (topAbelianization (DM α h : Type)) :=
   (⟨abMk, continuous_abMk⟩ : ContinuousMonoidHom (DM α h : Type) _).comp
-    (mFrameFreeProjection α h)
+    (mStageProjection α h)
 
 theorem mFrameFreeAbProjection_gen (α h : ℕ) (i : Fin (coreRank h)) :
     mFrameFreeAbProjection α h (freeTwoRankGen (coreRank h) i) = abMk (dmGen α h i) :=
-  congrArg abMk (mFrameFreeProjection_gen α h i)
+  congrArg abMk (mStageProjection_gen α h i)
 
 theorem mFrameFreeAbProjection_coordinateWord (α h : ℕ) (a : Fin (coreRank h) → ℤ_[2]) :
     mFrameFreeAbProjection α h (freeTwoCoordinateWord (coreRank h) a) = mAbWord α h a := by
@@ -104,27 +96,25 @@ theorem mFrameFreeAbProjection_coordinateWord (α h : ℕ) (a : Fin (coreRank h)
     (freeTwoRankGen (coreRank h) i) (a i)) = _
   rw [map_zpowZtwo (isProP_presPro2 1) (mIsProP_two_topAb_DM α h), mFrameFreeAbProjection_gen]
 
-theorem mFrame_one_le {α : ℕ} (hα : 2 ≤ α) : 1 ≤ α := le_trans one_le_two hα
-
 /-- The actual all-rank M frame `mPhiHom` read on the free group. -/
 def mFrameProjection {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (MFrameModel h) :=
-  (⟨(mFrameExists_phiEquiv (mFrame_one_le hα) h).toMulEquiv.toMonoidHom,
-    (mFrameExists_phiEquiv (mFrame_one_le hα) h).continuous_toFun⟩ :
+  (⟨(mFrameExists_phiEquiv (mStageOneLe hα) h).toMulEquiv.toMonoidHom,
+    (mFrameExists_phiEquiv (mStageOneLe hα) h).continuous_toFun⟩ :
       ContinuousMonoidHom _ _).comp (mFrameFreeAbProjection α h)
 
 theorem mFrameProjection_apply {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (x : FreeTwoRank (coreRank h)) :
-    mFrameProjection hα h x = mPhiHom (mFrame_one_le hα) h (mFrameFreeAbProjection α h x) := rfl
+    mFrameProjection hα h x = mPhiHom (mStageOneLe hα) h (mFrameFreeAbProjection α h x) := rfl
 
 theorem mFrameProjection_gen {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (i : Fin (coreRank h)) :
     mFrameProjection hα h (freeTwoRankGen (coreRank h) i) =
-      mPhiHom (mFrame_one_le hα) h (abMk (dmGen α h i)) := by
+      mPhiHom (mStageOneLe hα) h (abMk (dmGen α h i)) := by
   rw [mFrameProjection_apply, mFrameFreeAbProjection_gen]
 
 theorem mFrameProjection_surjective {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     Function.Surjective (mFrameProjection hα h) :=
-  (mFrameExists_phiEquiv (mFrame_one_le hα) h).surjective.comp
-    (abMk_surjective.comp (mFrameFreeProjection_surjective α h))
+  (mFrameExists_phiEquiv (mStageOneLe hα) h).surjective.comp
+    (abMk_surjective.comp (mStageProjection_surjective α h))
 
 /-- The frame projection of a coordinate word: the torsion slot is the A
 coordinate modulo two and the C slot is `a_C - 2^(alpha-1) a_A`. This is the
@@ -163,15 +153,15 @@ theorem mFrameProjection_coordinateSection {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
 def mFrameOrientation {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     ContinuousMonoidHom (MFrameModel h) ℤ_[2]ˣ :=
   (abLiftG (chiM α h)).comp
-    ⟨(mFrameExists_phiEquiv (mFrame_one_le hα) h).symm.toMulEquiv.toMonoidHom,
-      (mFrameExists_phiEquiv (mFrame_one_le hα) h).symm.continuous_toFun⟩
+    ⟨(mFrameExists_phiEquiv (mStageOneLe hα) h).symm.toMulEquiv.toMonoidHom,
+      (mFrameExists_phiEquiv (mStageOneLe hα) h).symm.continuous_toFun⟩
 
 theorem mFrameOrientation_projection {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
     (x : FreeTwoRank (coreRank h)) :
     mFrameOrientation hα h (mFrameProjection hα h x) = mFrameFreeOrientation α h x := by
-  change abLiftG (chiM α h) ((mFrameExists_phiEquiv (mFrame_one_le hα) h).symm
-    (mFrameExists_phiEquiv (mFrame_one_le hα) h (abMk (mFrameFreeProjection α h x)))) = _
-  rw [ContinuousMulEquiv.symm_apply_apply, abLiftG_abMk, mFrameFreeProjection_orientation]
+  change abLiftG (chiM α h) ((mFrameExists_phiEquiv (mStageOneLe hα) h).symm
+    (mFrameExists_phiEquiv (mStageOneLe hα) h (abMk (mStageProjection α h x)))) = _
+  rw [ContinuousMulEquiv.symm_apply_apply, abLiftG_abMk, mStageProjection_freeOrientation]
 
 /-- The transported actual orientation is the sign of the integral B coordinate
 times `mUnit α` to the integral D coordinate. It never sees the torsion, C or
@@ -291,7 +281,7 @@ theorem mFrameProjection_head {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     mFrameProjection hα h (mFrameHead α h) =
       (ofAdd ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
         (0 : Fin (2 * h) → ℤ_[2])) : MFrameModel h) := by
-  have ht := mPhiHom_t (mFrame_one_le hα) h
+  have ht := mPhiHom_t (mStageOneLe hα) h
   rw [map_mul, map_pow, map_mul, map_pow] at ht
   rw [mFrameHead, map_mul, map_pow, mFrameProjection_gen, mFrameProjection_gen]
   exact ht
@@ -516,7 +506,7 @@ theorem mFrameHeadCoordinate_head (α h : ℕ) (j : Fin (coreRank h)) :
   simp only [eq_comm]
 
 theorem mFrameModel_isProP {α : ℕ} (hα : 2 ≤ α) (h : ℕ) : IsProP 2 (MFrameModel h) :=
-  isProP_of_surjective (mPhiHom (mFrame_one_le hα) h) (continuous_mPhiHom _ h)
+  isProP_of_surjective (mPhiHom (mStageOneLe hα) h) (continuous_mPhiHom _ h)
     (mPhiHom_surjective _ h) (mIsProP_two_topAb_DM α h)
 
 /-- The frame projection of an arbitrary free element in the original coordinates. -/
@@ -571,12 +561,12 @@ theorem mFrameProjection_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     mFrameProjection hα h (freeTwoRankGen (coreRank h) 0) =
       ofAdd (1, 0, -(2 : ℤ_[2]) ^ (α - 1), 0, 0) := by
   rw [mFrameProjection_gen]
-  exact mPhiHom_A (mFrame_one_le hα) h
+  exact mPhiHom_A (mStageOneLe hα) h
 
 theorem mFrameProjection_gen_two {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
     mFrameProjection hα h (freeTwoRankGen (coreRank h) 2) = ofAdd (0, 0, 1, 0, 0) := by
   rw [mFrameProjection_gen]
-  exact mPhiHom_C (mFrame_one_le hα) h
+  exact mPhiHom_C (mStageOneLe hα) h
 
 /-- `2^(alpha-1)` kills `ZMod 2` for `alpha ≥ 2`. -/
 theorem mFrame_halfExp_smul_zmod2 {α : ℕ} (hα : 2 ≤ α) (ε : ZMod 2) :
@@ -771,14 +761,14 @@ theorem mFrameLiftHom_surjective : Function.Surjective (mFrameLiftHom hα h φ) 
     rw [hsq, hr, pow_succ, pow_mul, hsq, one_mul]
   let qAb := mCoordHom α h hQ (fun i => q (freeTwoRankGen (coreRank h) i)) hrel
   let qFrame := qAb.comp
-    (⟨(mFrameExists_phiEquiv (mFrame_one_le hα) h).symm.toMulEquiv.toMonoidHom,
-      (mFrameExists_phiEquiv (mFrame_one_le hα) h).symm.continuous_toFun⟩ :
+    (⟨(mFrameExists_phiEquiv (mStageOneLe hα) h).symm.toMulEquiv.toMonoidHom,
+      (mFrameExists_phiEquiv (mStageOneLe hα) h).symm.continuous_toFun⟩ :
         ContinuousMonoidHom _ _)
   have hfactor : qFrame.comp (mFrameProjection hα h) = q := by
     apply presPro2_hom_ext
     intro i
-    change qAb ((mFrameExists_phiEquiv (mFrame_one_le hα) h).symm
-      (mFrameExists_phiEquiv (mFrame_one_le hα) h
+    change qAb ((mFrameExists_phiEquiv (mStageOneLe hα) h).symm
+      (mFrameExists_phiEquiv (mStageOneLe hα) h
         (mFrameFreeAbProjection α h (freeTwoRankGen (coreRank h) i)))) = _
     rw [ContinuousMulEquiv.symm_apply_apply, mFrameFreeAbProjection_gen]
     exact mCoordHom_gen α h hQ _ hrel i
@@ -1030,17 +1020,88 @@ theorem mFrameLiftEquiv_reduced_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
   · exact mFrame_nRed_halfExp hα
   · exact map_zero nRed
 
-#print axioms mFrameFreeProjection
-#print axioms mFrameFreeProjection_gen
-#print axioms mFrameFreeProjection_surjective
+/-! ## The MSTAGES interface
+
+`mFullStabilizer_lift` (`MFullFrameStages`) consumes an initial free basis `e0`
+with the primitive torsion word `T` fixed, the orientation `mStageOrientation`
+preserved on generators and the full frame square through `mPhiHom` on
+generators. The fixed-T lift supplies exactly these. The fourth component of
+`MStageInitialLift`, the depth-three relator error, is MCUP's obligation and is
+carried here as a hypothesis, not proved. -/
+
+/-- The transported orientation on the frame is the existing model character of
+`MFrameApi`, so preserving it is preserving the actual `chiM` through the frame. -/
+theorem mFrameOrientation_eq_apiChiModel {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (z : MFrameModel h) :
+    mFrameOrientation hα h z = mFrameApiChiModel α h z :=
+  mFrameOrientation_apply hα h z
+
+theorem mFrameHead_eq_torsionWord (α h : ℕ) :
+    mFrameHead α h = mStageTorsionWord α (freeTwoRankGen (coreRank h)) := rfl
+
+theorem mFrameLiftEquiv_torsionWord {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    mStageTorsionWord α (fun i => mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) i)) =
+      mStageTorsionWord α (freeTwoRankGen (coreRank h)) := by
+  have hh := mFrameLiftEquiv_head hα h φ
+  rw [mFrameHead_eq_torsionWord, mStageTorsionWord, map_mul, map_pow] at hh
+  exact hh
+
+theorem mFrameLiftEquiv_stageOrientation {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hχ : ∀ z, mFrameOrientation hα h (φ z) = mFrameOrientation hα h z) (i : Fin (coreRank h)) :
+    mStageOrientation α h (mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i) := by
+  rw [mStageOrientation_eq_freeOrientation, mStageOrientation_eq_freeOrientation]
+  exact mFrameLiftEquiv_orientation hα h φ hχ _
+
+theorem mFrameLiftEquiv_stageFrame {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) (i : Fin (coreRank h)) :
+    mPhiHom (mStageOneLe hα) h (abMk (mStageProjection α h
+        (mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) i)))) =
+      φ (mPhiHom (mStageOneLe hα) h (abMk (dmGen α h i))) := by
+  have hp := mFrameLiftEquiv_projection hα h φ (freeTwoRankGen (coreRank h) i)
+  rw [mFrameProjection_apply, mFrameProjection_apply, mFrameFreeAbProjection_gen] at hp
+  exact hp
+
+/-- The packaged initial interface of `MFullFrameStages`, from the fixed-T lift
+and MCUP's depth-three relator error for that same lift. Only the error is a
+hypothesis here; the basis, the fixed torsion word, the orientation and the
+frame square are supplied. -/
+theorem mStageInitialLift_of_fixedHead_error {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hχ : ∀ z, mFrameOrientation hα h (φ z) = mFrameOrientation hα h z)
+    (herror : mRelWord α (fun i => mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) i)) *
+      (mRelWord α (freeTwoRankGen (coreRank h)))⁻¹ ∈
+        Roe.Labute.twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3) :
+    MStageInitialLift hα h φ :=
+  ⟨mFrameLiftEquiv hα h φ, mFrameLiftEquiv_torsionWord hα h φ,
+    mFrameLiftEquiv_stageOrientation hα h φ hχ, mFrameLiftEquiv_stageFrame hα h φ, herror⟩
+
+/-- The composition with `mFullStabilizer_lift`, with the MINIT obligations
+discharged by the fixed-T lift. Still conditional on MCUP's depth-three error
+for this lift and on the `MStageStep` depth interface; it is not a proved lift. -/
+theorem mFullStabilizer_lift_of_fixedHead {α h : ℕ} (hα : 2 ≤ α)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hχ : ∀ z, mFrameOrientation hα h (φ z) = mFrameOrientation hα h z)
+    (herror : mRelWord α (fun i => mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) i)) *
+      (mRelWord α (freeTwoRankGen (coreRank h)))⁻¹ ∈
+        Roe.Labute.twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3)
+    (hstep : MStageStep α h) :
+    ∃ Psi : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      (∀ x, chiM α h (Psi x) = chiM α h x) ∧
+      (∀ x, mPhiHom (mStageOneLe hα) h (abMk (Psi x)) =
+        φ (mPhiHom (mStageOneLe hα) h (abMk x))) :=
+  mFullStabilizer_lift_of_initialLift hα φ
+    (mStageInitialLift_of_fixedHead_error hα h φ hχ herror) hstep
+
 #print axioms mFrameFreeOrientation
 #print axioms mFrameFreeOrientation_gen
-#print axioms mFrameFreeProjection_orientation
+#print axioms mStageProjection_freeOrientation
+#print axioms mStageOrientation_eq_freeOrientation
 #print axioms mFrameFreeOrientation_coordinate
 #print axioms mFrameFreeAbProjection
 #print axioms mFrameFreeAbProjection_gen
 #print axioms mFrameFreeAbProjection_coordinateWord
-#print axioms mFrame_one_le
 #print axioms mFrameProjection
 #print axioms mFrameProjection_apply
 #print axioms mFrameProjection_gen
@@ -1136,6 +1197,13 @@ theorem mFrameLiftEquiv_reduced_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
 #print axioms mFrame_nRed_two
 #print axioms mFrame_nRed_halfExp
 #print axioms mFrameLiftEquiv_reduced_gen_zero
+#print axioms mFrameOrientation_eq_apiChiModel
+#print axioms mFrameHead_eq_torsionWord
+#print axioms mFrameLiftEquiv_torsionWord
+#print axioms mFrameLiftEquiv_stageOrientation
+#print axioms mFrameLiftEquiv_stageFrame
+#print axioms mStageInitialLift_of_fixedHead_error
+#print axioms mFullStabilizer_lift_of_fixedHead
 
 end
 end GQ2.Dyadic.MarkedCore
