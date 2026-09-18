@@ -109,5 +109,105 @@ theorem mNielsenGen_character_apply {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
   rw [mNielsenGen_toAdd_zpowZtwo, mCupFrameModTwoCoordinate_projection ha h j x,
     mNielsenGen_nRed_eq_parity]
 
+/-! ## The frame action of a stabilizer parameter, as a continuous automorphism -/
+
+private theorem mNielsenGen_cancel_two (a b : ZMod 2) : a + b + b = a := by revert a b; decide
+
+/-- `MStabParam.act` written on the rank-four full M frame model `MFrameModel 0`. The empty
+handle tail rides along untouched. -/
+noncomputable def mNielsenGenMap (p : MStabParam) (z : MFrameModel 0) : MFrameModel 0 :=
+  ofAdd (z.toAdd.1 + mParityZ z.toAdd.2.1 * p.tau + mParityZ z.toAdd.2.2.2.1 * mParityZ p.bc,
+    z.toAdd.2.1 * (p.beta : ℤ_[2]) + z.toAdd.2.2.1 * (2 * p.c1) + z.toAdd.2.2.2.1 * (2 * p.d1),
+    z.toAdd.2.1 * p.bc + z.toAdd.2.2.1 * (p.gamma : ℤ_[2]) + z.toAdd.2.2.2.1 * p.e,
+    z.toAdd.2.2.2.1, z.toAdd.2.2.2.2)
+
+/-- The four core slots of `mNielsenGenMap p z` are literally `MStabParam.act`. -/
+theorem mNielsenGenMap_toAdd (p : MStabParam) (z : MFrameModel 0) :
+    (mNielsenGenMap p z).toAdd =
+      ((p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).1,
+        (p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.1,
+        (p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.1,
+        (p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.2,
+        z.toAdd.2.2.2.2) := rfl
+
+theorem mNielsenGenMap_comp_of_act (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (z : MFrameModel 0) :
+    mNielsenGenMap p (mNielsenGenMap q z) = z := by
+  have hl : mNielsenGenMap p (mNielsenGenMap q z) =
+      ofAdd ((p.act (q.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1))).1,
+        (p.act (q.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1))).2.1,
+        (p.act (q.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1))).2.2.1,
+        (p.act (q.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1))).2.2.2,
+        z.toAdd.2.2.2.2) := rfl
+  rw [hl, hpq (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)]
+  rfl
+
+theorem mNielsenGenMap_mul (p : MStabParam) (z w : MFrameModel 0) :
+    mNielsenGenMap p (z * w) = mNielsenGenMap p z * mNielsenGenMap p w := by
+  have hl : mNielsenGenMap p (z * w) = ofAdd
+      (z.toAdd.1 + w.toAdd.1 + mParityZ (z.toAdd.2.1 + w.toAdd.2.1) * p.tau
+         + mParityZ (z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1) * mParityZ p.bc,
+       (z.toAdd.2.1 + w.toAdd.2.1) * (p.beta : ℤ_[2])
+         + (z.toAdd.2.2.1 + w.toAdd.2.2.1) * (2 * p.c1)
+         + (z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1) * (2 * p.d1),
+       (z.toAdd.2.1 + w.toAdd.2.1) * p.bc
+         + (z.toAdd.2.2.1 + w.toAdd.2.2.1) * (p.gamma : ℤ_[2])
+         + (z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1) * p.e,
+       z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1, z.toAdd.2.2.2.2 + w.toAdd.2.2.2.2) := rfl
+  have hr : mNielsenGenMap p z * mNielsenGenMap p w = ofAdd
+      ((z.toAdd.1 + mParityZ z.toAdd.2.1 * p.tau + mParityZ z.toAdd.2.2.2.1 * mParityZ p.bc)
+         + (w.toAdd.1 + mParityZ w.toAdd.2.1 * p.tau
+           + mParityZ w.toAdd.2.2.2.1 * mParityZ p.bc),
+       (z.toAdd.2.1 * (p.beta : ℤ_[2]) + z.toAdd.2.2.1 * (2 * p.c1)
+           + z.toAdd.2.2.2.1 * (2 * p.d1))
+         + (w.toAdd.2.1 * (p.beta : ℤ_[2]) + w.toAdd.2.2.1 * (2 * p.c1)
+           + w.toAdd.2.2.2.1 * (2 * p.d1)),
+       (z.toAdd.2.1 * p.bc + z.toAdd.2.2.1 * (p.gamma : ℤ_[2]) + z.toAdd.2.2.2.1 * p.e)
+         + (w.toAdd.2.1 * p.bc + w.toAdd.2.2.1 * (p.gamma : ℤ_[2]) + w.toAdd.2.2.2.1 * p.e),
+       z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1, z.toAdd.2.2.2.2 + w.toAdd.2.2.2.2) := rfl
+  rw [hl, hr, mParityZ_add, mParityZ_add]
+  exact congrArg ofAdd (Prod.ext (by ring) (Prod.ext (by ring) (Prod.ext (by ring)
+    (Prod.ext rfl rfl))))
+
+theorem mNielsenGenMap_continuous (p : MStabParam) : Continuous (mNielsenGenMap p) := by
+  have hpar : Continuous mParityZ := mFrameParity_continuous
+  have hA : Continuous fun z : MFrameModel 0 => z.toAdd.1 :=
+    continuous_fst.comp continuous_toAdd
+  have hB : Continuous fun z : MFrameModel 0 => z.toAdd.2.1 :=
+    (continuous_fst.comp continuous_snd).comp continuous_toAdd
+  have hC : Continuous fun z : MFrameModel 0 => z.toAdd.2.2.1 :=
+    ((continuous_fst.comp continuous_snd).comp continuous_snd).comp continuous_toAdd
+  have hD : Continuous fun z : MFrameModel 0 => z.toAdd.2.2.2.1 :=
+    ((continuous_fst.comp continuous_snd).comp (continuous_snd.comp continuous_snd)).comp
+      continuous_toAdd
+  have hE : Continuous fun z : MFrameModel 0 => z.toAdd.2.2.2.2 :=
+    ((continuous_snd.comp continuous_snd).comp (continuous_snd.comp continuous_snd)).comp
+      continuous_toAdd
+  refine continuous_ofAdd.comp (Continuous.prodMk ?_ (Continuous.prodMk ?_
+    (Continuous.prodMk ?_ (Continuous.prodMk hD hE))))
+  · exact (hA.add ((hpar.comp hB).mul continuous_const)).add
+      ((hpar.comp hD).mul continuous_const)
+  · exact ((hB.mul continuous_const).add (hC.mul continuous_const)).add
+      (hD.mul continuous_const)
+  · exact ((hB.mul continuous_const).add (hC.mul continuous_const)).add
+      (hD.mul continuous_const)
+
+/-- A pair of mutually inverse stabilizer parameters gives a continuous automorphism of the
+rank-four full M frame. -/
+noncomputable def mNielsenGenEquiv (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) where
+  toFun := mNielsenGenMap p
+  invFun := mNielsenGenMap q
+  left_inv := mNielsenGenMap_comp_of_act q p hqp
+  right_inv := mNielsenGenMap_comp_of_act p q hpq
+  map_mul' := mNielsenGenMap_mul p
+  continuous_toFun := mNielsenGenMap_continuous p
+  continuous_invFun := mNielsenGenMap_continuous q
+
+@[simp] theorem mNielsenGenEquiv_apply (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) (z : MFrameModel 0) :
+    mNielsenGenEquiv p q hpq hqp z = mNielsenGenMap p z := rfl
+
 end
 end GQ2.Dyadic.MarkedCore
