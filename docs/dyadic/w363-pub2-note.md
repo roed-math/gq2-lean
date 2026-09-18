@@ -6,57 +6,86 @@ proposals. No frozen identifier or hash is changed, no historical verification r
 relabelled as current, and no universal frozen-M placement claim is made or revived.
 
 Worktree `cla/worktrees/w363-pub2`, branch `claude/w363-pub2`, base `b87bfa06`,
-Lean 4.31.0-rc2. The frozen `generated/appendix/*.tex`, `generated/hash-manifest.json`,
-`GQ2.lean`, every module under `GQ2/`, `scripts/w361_check_staged.sh` and
-`scripts/w362_check_ln_staged.sh` are out of scope and byte-identical to `b87bfa06`.
-No `lake` invocation at any point in this lane.
+Lean 4.31.0-rc2. Verified byte-identical to `b87bfa06`: `generated/hash-manifest.json`,
+every `generated/appendix/*.tex`, `GQ2.lean`, every module under `GQ2/`,
+`scripts/w361_check_staged.sh`, `scripts/w362_check_ln_staged.sh`,
+`scripts/w362_ln_certificate_packet.py`, `scripts/check_dyadic.sh`, and every W362 staged
+artifact. No `lake` invocation at any point in this lane.
 
-## The ticket
+## The ticket, and the result
 
 `docs/dyadic/w362-pub-note.md` section T2.d lists six ledger items that have a Lean source
-(its T1.a table) but no generated display, each naming an exporter that does not exist in
-this tree. This lane writes them.
+(its T1.a table) but no generated display, each naming an exporter that **does not exist in
+this tree**. **All six now exist**, with six artifacts each, and one extended check runs all
+of them at exit 0.
 
 ---
 
 ## T0. The result in one table
 
-Per item: does a generated display now exist, and **what kind of claim** does its Lean
-bridge make? The kind matters more than the count, because the six items are not in the
-same state and a uniform "exporter exists" row would hide that.
+The count is the least interesting part. What an owner needs is **what kind of claim each
+display's Lean bridge makes**, because the six items are not in the same state and a uniform
+"exporter exists" row would hide that. Five distinct bridge kinds occur; T1 orders them.
 
-| Item | Display | Bridge kind | Strength |
+| Item | Exporter written here | Bridge kind of its display | Strength |
 |---|---|---|---|
-| 1 exact syntax tree | W361 | exported tree + hash | pre-existing |
-| 2 two specializations | **not yet** | measured, see T4.b | |
-| **3 evaluated Fox Jacobian** | **`w363_ln_input_export.lean` + `w363_ln_input_tex.py`** | 9 rows `record_target` (`rfl` against the record's own field), 5 rows `denotation_theorem` (driver states it, proved from the tree's lemmas) | **the same strength as items 4 and 5** |
+| 1 exact syntax tree | W361 | exported tree plus hash | pre-existing |
+| **2 two specializations** | `w363_ln_specialization_*` | pro-2 half `restated_identity`; tame half `field_statement_identity` | **splits: see T5** |
+| **3 evaluated Fox Jacobian** | `w363_ln_input_*` | 9 rows `record_target`, 5 rows `denotation_theorem` | **same as items 4, 5** |
 | 4, 5 operations, normal matrix | W362 | `rfl` record fields | pre-existing |
-| **6 Stokes chain identity** | **`w363_ln_stokes_export.lean` + `w363_ln_stokes_tex.py`** | wiring, clause structure, `rfl` numerics; field binding is `field_statement_identity`, Npc is `degree_normalized_field` | **weaker than items 3, 4 and 5, and the artifact says so** |
-| 7 extraspecial Hessian | **not yet** | measured, see T4.a | |
-| 8 quadratic normal form | **not yet** | measured, see T4.a | |
-| 9 affine phase-cover | **not yet** | measured, see T4.c | |
+| **6 Stokes chain identity** | `w363_ln_stokes_*` | `field_statement_identity`; Npc `degree_normalized_field` | **weakest of the six** |
+| **7 extraspecial Hessian** | `w363_ln_hessian_*` | `restated_identity` | middle |
+| **8 quadratic normal form** | `w363_ln_coordinate_*` | coordinate half `record_target`; records `named_but_unbound` | **splits: see T6** |
+| **9 affine phase-cover** | `w363_ln_cover_*` | `field_statement_identity` | same as item 6 |
 | 10 hashes | W361/W362 | hashes | pre-existing |
-
-Two of the six named exporters now exist. The other four are measured in T4, which is the
-part of this note an owner should read before assuming the remaining work is uniform.
 
 ---
 
-## T1. Item 3, the evaluated Fox Jacobian
+## T1. The five bridge kinds, strongest first
 
-`scripts/w363_ln_input_export.lean` is an exporter driver with a global `main`, so it stays
-outside `GQ2.lean` like the W361 and W362 export executables. It serializes ledger item 3
-for the **same seven sectors** that `scripts/w362_ln_fox_export.lean` serializes items 4 and
-5 for, so the three items can be read side by side: item 3 is the two-row Jacobian before
-any operation, items 4 and 5 are the operations and the reduced target.
+This is the part to read before deciding what may be published. Every artifact carries its
+own bridge kind in a machine-checked field, and **every validator refuses a relabelling in
+either direction**: a weaker bridge cannot be presented as a stronger one, and a stronger one
+cannot be quietly downgraded.
 
-### T1.a Nothing is retyped
+1. **`record_target`.** The serialized value is definitionally the field of an existing
+   record, by `rfl`. Items 3, 4, 5 and item 8's coordinate half. This is the only kind where
+   the display *is* the Lean data.
+2. **`denotation_theorem`.** No record carries the value, so the driver states the
+   denotation itself and proves it from the tree's lemmas, exactly as the neighbouring
+   records prove theirs. Five rows of item 3.
+3. **`restated_identity`.** The carrier is a theorem, not a record. The driver restates the
+   identity through a named decomposition and discharges the restatement by the tree's own
+   theorem, so **a wrong decomposition does not compile**. Item 7, and item 2's pro-2 half.
+4. **`field_statement_identity`.** The carrier is a `Prop` field of a record. Lean has
+   definitional proof irrelevance, so `record.field = producer` is `rfl` for *any* producer
+   whose type is the field's type. What is certified is that the producer proves **exactly
+   the statement the field demands, at the record's own parameters** -- and **not** that the
+   record was built from that proof term. Items 6 and 9, and item 2's tame half.
+5. **`named_but_unbound`.** A declaration is named and nothing is claimed about it. Item 8's
+   normal-form records. **Naming is not binding**, and the validator enforces that the label
+   stays.
 
-Item 3 is already concrete Lean data, exactly as items 4 and 5 were. The evaluated rows are
-`FoxRowNormalForm` values over `FoxCoeff` trees, and for **nine of the fourteen** rows they
-are literally the `target` field of an existing `FoxRowCertificate` whose `colOps` is empty,
-i.e. of a record that certifies the evaluated Fox derivative of the actual word with nothing
-applied to it. Those nine are bound by `rfl` signature theorems:
+One kind is not on the list because no exporter here uses it: nothing in this lane
+substitutes a formula for a value the Lean does not state. Where a display genuinely needed
+something the Lean does not carry, the artifact says so in its own `warning` field, which
+every validator requires to be present and nonempty.
+
+---
+
+## T2. Item 3, the evaluated Fox Jacobian
+
+`scripts/w363_ln_input_export.lean` serializes item 3 for the **same seven sectors** that
+`scripts/w362_ln_fox_export.lean` serializes items 4 and 5 for, so the three items read side
+by side: item 3 is the two-row Jacobian before any operation, items 4 and 5 are the
+operations and the reduced target.
+
+### T2.a Nothing is retyped
+
+Item 3 is already concrete Lean data, exactly as items 4 and 5 were: `FoxRowNormalForm`
+values over `FoxCoeff` trees. For **nine of the fourteen** rows they are literally the
+`target` field of an existing `FoxRowCertificate` whose `colOps` is empty, i.e. of a record
+that certifies the evaluated Fox derivative of the actual word with nothing applied to it:
 
 ```text
 lSqUnramWild_target        LSq.lSqWildRowCertUnram        lSqWildRow h
@@ -73,40 +102,25 @@ npcUnramTame_target        Npc.npcTameRowCertUnram        Npc.tameUnramRow (2+2h
 with a `*_colOps = []` twin for each, because "no operation has been applied" is part of
 what makes the target the *input* row.
 
-### T1.b The five rows that are not record targets, and why
+### T2.b The five rows that are not record targets, and why
 
 The tree carries a tame-row `FoxRowCertificate` only at the unramified sectors of N0 and
 Npc. **The L family has none at any sector**, and **no family has one at the ramified
 sector**, where the tame row is `tameRow n q` and enters through `foxD_tameRelW_of_tameRel`
-inside the two-row `verifies` block. So five of the fourteen rows have no record to be the
-target of. For those the driver states the denotation theorem itself, at general `n`, proved
-from the existing `foxD_tameRelW_*` and `*_toHom_apply` lemmas exactly as the existing
-records prove theirs:
+inside the two-row `verifies` block. For those five the driver states the denotation theorem
+itself, at general `n`, proved from the existing `foxD_tameRelW_*` and `*_toHom_apply`
+lemmas: `tameUnramInput_denote` (L unramified and scalar), `tameRamInput_denote` (L and N0
+ramified), `npcTameRamInput_denote` (Npc ramified). The nine/five count is taken from the
+generated JSON, not by hand.
 
-```text
-tameUnramInput_denote      L unramified and L scalar tame rows
-tameRamInput_denote        L ramified and N0 ramified tame rows
-npcTameRamInput_denote     Npc ramified tame row
-npcTameUnramInput_denote   stated for completeness; the Npc unramified tame row uses the record
-```
-
-The artifact records which kind each row is, in a `bridge_kind` field, and the validator
-**refuses a relabelling in either direction**: a `denotation_theorem` row may not be
-presented as a `record_target`, and a `record_target` row may not be downgraded. The count
-nine and five is taken from the generated JSON, not by hand.
-
-### T1.c The universal-row structure is exported, not described
+### T2.c The universal-row structure is exported, not described
 
 One formal row per family carries the opaque projector atom `P`, and the branch is a
 *specialization* of that one row, not a second row: `P` maps to the identity at the
 unramified and scalar sectors and to zero at the ramified sectors. The driver exports the
-projector value per sector and binds it by `rfl` to `splitEnd` / `ramifiedEnd`, which are
-`toEnd t 1` and `toEnd t 0`. So the rendered ramified sector prints the same universal row
-as the unramified one, followed by `(Pi=0)`, which is what the Lean actually says.
-
-### T1.d What the rendered rows say
-
-Produced from the records, not transcribed from them:
+projector per sector and binds it by `rfl` to `splitEnd` / `ramifiedEnd`, which are
+`toEnd t 1` and `toEnd t 0`. So the rendered ramified sector prints the same universal row as
+the unramified one, followed by `(Pi=0)`, which is what the Lean says.
 
 | Sector | Tame input row | Wild input row |
 |---|---|---|
@@ -118,142 +132,225 @@ Produced from the records, not transcribed from them:
 | Npc unramified | `S^-1 a_tau` | `Pi a_tau + (A^-1 + I) a_x0 + (S^-2^r + Pi) a_x2`, at `Pi = I` |
 | Npc ramified | universal tame row | the same row at `Pi = 0` |
 
-The universal tame row prints as `S^-1 . (T - I) a_sigma + (S^-1 - N_q(T)) a_tau` with
+The universal tame row prints as `S^-1 . (T - I) a_sigma + (S^-1 - N_q(T)) a_tau`, with
 `N_q(T)` the literal left-nested `normCoeff` sum, the same spelling W362 records for item 5.
 
-These agree with items 4 and 5 in a way worth stating, because it is a check across two
-independently generated artifacts rather than a restatement. At L unramified the item-4
-operation is `R2 <- R2 + S R1`; applying it to the item-3 rows above gives
-`a_tau + (I + S^-1) a_x0 + S S^-1 a_tau = (I + S^-1) a_x0` in characteristic two, which is
-item 5's recorded reduced target `(I - S^-1) a_x0`. The same composition works at N0 and at
+### T2.d A cross-check between two independently generated artifacts
+
+At L unramified the item-4 operation is `R2 <- R2 + S R1`; applying it to the item-3 rows
+gives `a_tau + (I + S^-1) a_x0 + S S^-1 a_tau = (I + S^-1) a_x0` in characteristic two, which
+is item 5's recorded reduced target `(I - S^-1) a_x0`. The same composition works at N0 and
 Npc. **This check is done by reading, not by the checker**: no script verifies it, because
-doing so needs the characteristic-two step, and the exporters deliberately carry no
+doing so needs the characteristic-two step and the exporters deliberately carry no
 coefficient module.
 
-### T1.e A third naming trap
+---
 
-`Certificates.Npc.tameRelW` is a **second declaration** of the tame relator, distinct from
-`Certificates.tameRelW`, same spelling in a different namespace. The Npc denotation theorems
-must be stated over the Npc one or the rewrite does not fire. This cost a probe iteration
-and joins the two traps w362-pub-note T1.a records.
+## T3. Item 6, the Stokes chain, and item 9, the phase cover
+
+These two are the same shape and are best read together. Both carriers are `Prop`s defined by
+a conjunction of universally quantified clauses, consumed as a field of the same word
+certificate records. There is no matrix, chain complex object or coefficient tree to
+serialize, and neither driver invents one. Each serializes the part that genuinely is data:
+the wiring, the clause structure, and the `standardNumerics` multipliers its own clauses
+assert, bound by `rfl`.
+
+**The multipliers are split between the two items on purpose.** Item 6 exports `tMult` and
+`h1Mult`, which its four clauses use; item 9 exports `gaussUnram` and `gaussRam`, which its
+two clauses use. Neither exports the other's.
+
+| | item 6, Stokes | item 9, phase cover |
+|---|---|---|
+| clauses | 4: T-cocycle count, separation, nondegeneracy, V-cocycle count | 2: unramified and ramified Gauss residue |
+| multipliers | `tMult T = T^(n+1)`, `h1Mult V = V^n` | `gaussUnram m = (-1)^n 2^(nm)`, `gaussRam m = 2^(nm)` |
+| sign | none | yes, and it follows from the degree parity alone |
+| field | `stokes` | `determinant` |
+
+**The Gauss sign is computed, not asserted.** It is `-1` for L, whose degree `2h+1` is odd,
+and `+1` for N0 and Npc, whose degree `2+2h` is even. The exporter computes it from the `rfl`
+formula and the validator recomputes it, so an independently asserted sign is refused.
+
+### T3.a Proof irrelevance: what a field binding certifies
+
+Both certificates are `Prop`s, so `record.field = producer` is `rfl` for **any** producer
+whose type is the field's type. The binding certifies a **statement identity**, not proof
+identity. This is why the bridge kind is `field_statement_identity` and deliberately not the
+`record_target` that items 3, 4, 5 and item 8's coordinate half use. Treating the two as the
+same strength of claim would be the exact error the readiness note warns about.
+
+### T3.b The Npc degree, in item 6 but not in item 9
+
+The Npc Stokes producer `npcCand_stokes` is stated at degree `2*h+2`; the record's `stokes`
+field is at `2+2*h`. Those spellings **agree at every numeric instance**, so the exported
+degrees look equal at `h = 0` and `h = 3`, but they are **not definitionally equal at a
+variable `h`**, and the record's field is filled by a tactic block that rewrites along the
+equality. The Npc Stokes binding kind is therefore `degree_normalized_field`, it names the
+normalization theorem, and the driver carries `npcStokes_typeNormalization` proving the two
+chain statements are the same `Prop` after normalization. **Item 9 needs none of this**:
+there, producer and record field are both at `2+2h`.
+
+### T3.c Where the proof comes from is a separate axis
+
+Item 9 records it separately from the bridge kind, in a `supply` field, because they are
+different questions. At N0 and Npc the `determinant` field is filled by a theorem of the
+tree. At L it is filled from a **field of an analytic-leaves record supplied as a
+parameter**, and the theorem behind that field, `determinantResidue_lSq_pow`, is available
+only at `q = 2^f` with `f` odd, which is a narrower scope than the `alpha` and `q` conditions
+the even families use. The L supply route is `analytic_leaves_record_field`; N0's and Npc's
+is `theorem`.
 
 ---
 
-## T2. Item 6, the Stokes chain
+## T4. Item 7, the extraspecial Hessian
 
-`scripts/w363_ln_stokes_export.lean` plus `scripts/w363_ln_stokes_tex.py`, six artifacts at
-the same parameters.
+Item 7's carriers are theorems with real algebraic shape but no record, so the driver
+restates each identity through a named decomposition and discharges it by the tree's own
+theorem:
 
-### T2.a The measurement this lane owes on item 6
+```text
+hessShape leading cross planes = leading + cross + sum over j of planes j
+```
 
-**Item 6 is not like items 3, 4 and 5, and an exporter cannot make it so.**
-`StokesDualityCertificate` is a `Prop`: a four-fold conjunction of universally quantified
-counting and separation statements over types that do not exist until a recursion frame is
-supplied. There is no matrix, no chain complex object and no coefficient tree to serialize.
-The driver invents none. What it serializes is the part of item 6 that genuinely is data:
+A wrong decomposition does not compile, so what is certified is the decomposition and its
+three subterms. The human labels for those subterms are prose, and the artifact says so.
 
-* the **wiring**: which declaration proves the chain, which record consumes it, in which
-  field, and at which degree;
-* the **clause structure**: the four conjuncts in the conjunction's own order, each with its
-  role, and which two of them carry a count;
-* the **numeric multipliers the counting clauses assert**, which are literal exponents of
-  the `standardNumerics` record, bound by `rfl`:
-  `tMult |T| = |T|^(n+1)` and `h1Mult |V| = |V|^n`.
+**The content worth publishing is what the four identities do not share**, and the validator
+pins the hypothesis list per sector so a sector cannot silently lose or gain one:
 
-The clause statements themselves stay where W362 put them, in the packet's stored proofs
-transcript. Every artifact says so in its own `warning` field, which the validator requires
-to be present and nonempty.
-
-### T2.b Proof irrelevance: what a field binding certifies
-
-`StokesDualityCertificate` is a `Prop` and Lean has definitional proof irrelevance, so
-`record.stokes = producer` is `rfl` for **any** producer whose type is the field's type.
-The binding therefore certifies a **statement identity**: the producer proves exactly the
-statement the record's `stokes` field demands, at the record's own parameters. It does
-**not** certify that the record was built from that proof term, and nothing in the artifact
-should be read as saying so.
-
-This is why the item-6 bridge kind is `field_statement_identity` and deliberately **not**
-the `record_target` that items 3, 4 and 5 use for a genuine data field. Treating the two as
-the same strength of claim would be the exact error the readiness note warns about, and the
-validator refuses a relabelling in either direction.
-
-### T2.c The Npc degree
-
-The Npc producer `npcCand_stokes` is stated at degree `2*h+2`; the record's `stokes` field
-is at `2+2*h`. Those two spellings **agree at every numeric instance**, so the exported
-degrees look equal at `h = 0` and at `h = 3`, but they are **not definitionally equal at a
-variable `h`**, and the record's own field is filled by a tactic block that rewrites along
-the equality. The Npc binding kind is therefore `degree_normalized_field`, it names the
-normalization theorem, and the driver carries `npcStokes_typeNormalization`, which proves
-that the two chain statements are the same `Prop` once the degree is normalized. That is the
-Npc analogue of the two `rfl` bindings, and it is a different thing from them.
-
-| Family | Producer | Consumer record, field `stokes` | Binding kind |
+| Sector | Leading term | Vanishing slot | Extra input |
 |---|---|---|---|
-| L | `LSquare.stokesDualityCertificate_of_actionImage` | `LSquare.wordCertificateRN_lSq_of_actionImage` | `field_statement_identity` (`rfl`) |
-| N0 | `Instances.WordPhase.wPh_nCand_stokes` | `Instances.WordPhaseCompactNFinal.wPcNWordCertificateRN` | `field_statement_identity` (`rfl`) |
-| Npc | `Instances.NpcCandidateStokes.npcCand_stokes` | `Instances.NpcCandidateRN.npcWordCertificateRN_of_determinant` | `degree_normalized_field` |
+| L | quadratic value at `x1` | `x0` | none: resolver-immune |
+| N0 | quadratic value at `x0` | `x2` | `2 <= alpha`, once, through the leading-power law |
+| Npc unramified | named diagonal | **none**, full offset | residue pin `E(omega2) = e` with `e = 1 mod 4` |
+| Npc ramified | named diagonal | **none**, full offset | `q` quadratic, `u` odd-order fixed-point-free, resolver lifts |
 
-The L and N0 producers are written as direct terms in their records; the Npc one is not.
-`wordCertificateRN_lSq_pow` and `_qOf`, which w362-pub-note T1.a names as the L carriers,
-are specializations of `wordCertificateRN_lSq_of_actionImage`, which is where the field is
-literally written, so that is what the binding names.
+Binding to the full-offset theorems is deliberate. w362-pub-note T3.c decision 11 warns that
+the older Gate-E slice with an invertible `Lc` must not be displayed as the completed
+normal-coordinate proof; the artifact says that in its own text.
 
 ---
 
-## T3. What was staged, and the check
+## T5. Item 2, the two specializations
 
-New files, all under `scripts/w363_*` and `generated/general-ln-certificate-staged/`:
+Item 2 splits and the split is the content, so the artifact keeps the halves apart and pins
+both kinds.
 
-| File | What it is |
-|---|---|
-| `scripts/w363_ln_input_export.lean` | item 3 exporter driver, 27 axiom pins, all standard three or less |
-| `scripts/w363_ln_input_tex.py` | item 3 validator, renderer, generator, checker; self-test 48 |
-| `scripts/w363_ln_stokes_export.lean` | item 6 exporter driver, 7 axiom pins, all standard three or less |
-| `scripts/w363_ln_stokes_tex.py` | item 6 validator, renderer, generator, checker; self-test 51 |
-| `scripts/w363_check_ln_staged.sh` | runs `w362_check_ln_staged.sh` unchanged, then the new checks |
-| 12 artifacts x 3 files | `*.input.{json,tex,provenance.json}`, `*.stokes.{json,tex,provenance.json}` |
+**The pro-2 half** is a syntactic identity between `PWord` values, restated as a factor list
+and discharged by the tree's own theorem. N0 and Npc each have a whole-word equation
+(`pro2_nCompact`, `pro2_npcW`). **L does not**: the tree states the core list
+(`pro2_lSqCore`) and the evaluated form (`eval_pro2_lSqW`) but no whole-word syntactic
+equation, so the driver assembles one from the core list and a one-line handle-tail lemma,
+and the artifact names the assembly rather than presenting it as the tree's own.
 
-Parameters, chosen to match the W362 Fox artifacts exactly so the items can be read
-together: `L h0 q2`, `L h4 q2`, `N0 h0 q2`, `N0 h3 q2`, `Npc h0 q2 r1`, `Npc h3 q2 r2`.
-Three sit at the frozen L/N appendix parameters and three sit beyond them.
+**What Gate C keeps is displayed, not silently expanded.** The pro-2 map removes `tau` and
+collapses every `omega2` power; it does **not** collapse the profinite `eta-hat` power or the
+integer `2^r` conjugator at Npc, and the Npc correction block stays folded in the tree's own
+statement. The factor descriptors say so. The handle tail's description is computed from the
+rank, so it says EMPTY at rank zero, which is the certificate's own convention and not a
+simplification.
+
+**The tame half** is a `Prop` carried as the `tameSpecialization` field of the word
+certificate record, so its binding is a statement identity, kind 4 above.
+
+**The standing-axiom class is untouched.** Item 2 is also where the three field-selection
+adapters `FieldFamilyCampaignBoundary.hasSelectedRowResidualRN_{l,n0,npc}` are pinned. Those
+are **not** standard-three: each carries four documented standing arithmetic and reciprocity
+inputs, and W362 pins them in their own class and prints their full axiom list. Nothing in
+this lane touches them, nothing weakens that class, and every item-2 artifact says so in its
+own `warning` field.
+
+---
+
+## T6. Item 8, the change of variables, and a correction to this lane's own measurement
+
+**An earlier revision of this note said item 8 was out of reach without Lean work first.
+That is true of half of item 8 and false of the other half**, and the half that is reachable
+turned out to carry the strongest bridge of the four items written after T1. The correction
+is recorded here rather than silently dropped.
+
+**The change of variables is data.** It is a genuine `Equiv` with an explicit `toFun` and
+`invFun`, so the eight bindings are `rfl` against the `Equiv`'s own fields: `record_target`
+strength. All four sectors share one handle regrouping, `Fin h x Fin 2 -> A` to
+`Fin h -> A x A` through `finTwoProdAddEquiv`. What differs is the head:
+
+| Sector | Equiv | Head coordinates | Head transform |
+|---|---|---|---|
+| L | `LSquare.lSqPhaseCoordsEquiv` | 1 | identity: a rebracketing |
+| N0 | `WordPhaseModel.wPmCompactCoordsEquiv` | 2 | identity: a rebracketing |
+| Npc unramified | `NpcUnramifiedComparison.wPnpcPhiCoordsEquiv` | 2 | `c0` to `Phi c0` |
+| Npc ramified | `NpcRamifiedComparisonBase.wPnpcRamifiedCoordsEquiv` | 2 | `c0` to `Phi c0` |
+
+**So only the two Npc sectors are a change of variables in the ledger item's sense**; the
+other two are rebracketings, and the artifact says which is which. The inverse applies
+`Phi.symm`, which is why the operator has to be an equivalence and not merely a map.
+
+**What remains out of reach** is the quadratic normal form record itself, `SourceOddHessian`.
+The declarations that build it (`LHessianCertificates.unramifiedHessian` and
+`.ramifiedHessian`, `CompactNHessianCertificates.*`, `NpcHessianCertificates.*`) take a
+descent datum, a factor set, a projection, a coefficient module with its topology and action,
+a simplicity hypothesis and a cardinality. **A `rfl` signature theorem against one requires
+instantiating all of it, which means selecting a coefficient module, which this lane is
+forbidden to do.** Those records are named with the bridge kind `named_but_unbound`.
+
+The piece of item 8 that is data but not yet reachable is the **Gauss sign and exponent**
+those records establish on the way: `gaussSum(lSqWallHandlePhase ...) = (-1) * 2^(m*(2h+1))`
+unramified and `= (+1) * 2^(m*(2h+1))` ramified. Those appear inside the two proofs as a
+`have`, not as named standalone theorems, so an exporter cannot cite them. **Naming them as
+standalone theorems in a module under `GQ2/` is the next piece of work on item 8**, and it is
+outside every exporter lane's mandate as currently drawn: owner decision 16.
+
+---
+
+## T7. What was staged, and the check
+
+Thirteen new files under `scripts/w363_*`, and 108 new artifact files (36 artifacts times
+three) in `generated/general-ln-certificate-staged/`. Nothing else was created or modified.
+
+| Item | Driver | Generator | Axiom pins | Self-test |
+|---|---|---|---|---|
+| 2 | `w363_ln_specialization_export.lean` | `w363_ln_specialization_tex.py` | 8 | 47 |
+| 3 | `w363_ln_input_export.lean` | `w363_ln_input_tex.py` | 27 | 48 |
+| 6 | `w363_ln_stokes_export.lean` | `w363_ln_stokes_tex.py` | 7 | 51 |
+| 7 | `w363_ln_hessian_export.lean` | `w363_ln_hessian_tex.py` | 6 | 49 |
+| 8 | `w363_ln_coordinate_export.lean` | `w363_ln_coordinate_tex.py` | 9 | 43 |
+| 9 | `w363_ln_cover_export.lean` | `w363_ln_cover_tex.py` | 7 | 53 |
+
+Every pin is standard three or less. Every driver carries a global `main` and stays outside
+`GQ2.lean`, like the W361 and W362 export executables.
+
+Parameters, chosen to match the W362 Fox artifacts exactly so all the items read together:
+`L h0 q2`, `L h4 q2`, `N0 h0 q2`, `N0 h3 q2`, `Npc h0 q2 r1`, `Npc h3 q2 r2`. Three sit at
+the frozen L/N appendix parameters and three sit beyond them.
 
 `scripts/w363_check_ln_staged.sh` extends the W362 script the way the W362 script extends the
-W361 one: it runs it unchanged, first, and adds. Neither the W361 nor the W362 check script
-is modified, and neither is `scripts/w362_ln_certificate_packet.py`.
+W361 one: it runs it unchanged, first, and adds. Neither earlier check script is modified,
+and neither is `scripts/w362_ln_certificate_packet.py`.
 
 ### Verification record
 
 `bash scripts/w363_check_ln_staged.sh` from the worktree root, against the shared campaign
-cache at Lean 4.31.0-rc2, **exit 0**, 4 minutes 42 seconds. No `lake` invocation. It
-reproduces, in order, `W361_STAGED_CHECK_PASS`, then every W362 line with **every recorded
-hash identical to the value in w362-pub-note**, including the six Fox hashes and the six
-packet hashes, then:
+cache at Lean 4.31.0-rc2, **exit 0**, 7 minutes 28 seconds. No `lake` invocation. It
+reproduces `W361_STAGED_CHECK_PASS`, then every W362 line, then Lean-replays all 36 new
+artifacts, then `W363_LN_STAGED_CHECK_PASS`.
+
+**Every W362 hash reproduces exactly the value recorded in w362-pub-note**: the six Fox
+hashes `8100f623 2dc399b5 ede1c9b7 7a280f1c 066b3a46 eb4ee748` and the six packet hashes
+`7f19d17e f98de22b 1bb59b94 b54126b5 6cf3a39e 97d13c27`. **The frozen word hashes therefore
+still reproduce**: `d129037c...` for `rawLsq_n1`, `a940b6ad...` for `rawNCompact_alpha2_h0`
+and `08b7742c...` for `rawNpc_a2_r1_eta1_1_h0`, which w362-pub-note T3.a fact 4 identifies as
+the single most important fact for the decision, are carried by the W362 packets, which this
+run replays unchanged and byte for byte.
+
+The 36 new hashes, first eight hex digits, in check order:
 
 ```text
-LN_INPUT_SELF_TEST_PASS|48
-LN_STOKES_SELF_TEST_PASS|51
-STAGED_LN_INPUT_CHECK|Lean-replayed|L-input-h0-q2|fe015c8a...
-STAGED_LN_INPUT_CHECK|Lean-replayed|L-input-h4-q2|98495974...
-STAGED_LN_INPUT_CHECK|Lean-replayed|N0-input-h0-q2|5d939687...
-STAGED_LN_INPUT_CHECK|Lean-replayed|N0-input-h3-q2|7c859f7d...
-STAGED_LN_INPUT_CHECK|Lean-replayed|Npc-input-h0-q2-r1|e838c51b...
-STAGED_LN_INPUT_CHECK|Lean-replayed|Npc-input-h3-q2-r2|f1e45d5d...
-STAGED_LN_STOKES_CHECK|Lean-replayed|L-stokes-h0-q2|cfca77c1...
-STAGED_LN_STOKES_CHECK|Lean-replayed|L-stokes-h4-q2|4b3210d2...
-STAGED_LN_STOKES_CHECK|Lean-replayed|N0-stokes-h0-q2|fd1f94c2...
-STAGED_LN_STOKES_CHECK|Lean-replayed|N0-stokes-h3-q2|eef6d9d9...
-STAGED_LN_STOKES_CHECK|Lean-replayed|Npc-stokes-h0-q2-r1|0c7552df...
-STAGED_LN_STOKES_CHECK|Lean-replayed|Npc-stokes-h3-q2-r2|a7de4aa6...
-W363_LN_STAGED_CHECK_PASS (staged proposals only: not owner approval, not a manifest entry, not a gate)
+specialization  L-h0 2ee6bc2b  L-h4 1e30c529  N0-h0 5b5bbd16  N0-h3 8c67b447  Npc-h0 38aa6ef3  Npc-h3 694ef474
+input           L-h0 fe015c8a  L-h4 98495974  N0-h0 5d939687  N0-h3 7c859f7d  Npc-h0 e838c51b  Npc-h3 f1e45d5d
+stokes          L-h0 cfca77c1  L-h4 4b3210d2  N0-h0 fd1f94c2  N0-h3 eef6d9d9  Npc-h0 0c7552df  Npc-h3 a7de4aa6
+hessian         L-h0 a52160a6  L-h4 f24f6977  N0-h0 39707fd4  N0-h3 3f6e174e  Npc-h0 1cfb9416  Npc-h3 71d0969a
+coordinate      L-h0 352edf53  L-h4 4d1b5d25  N0-h0 0cd8d35d  N0-h3 ca71e4ef  Npc-h0 afcd8f62  Npc-h3 8ce388d9
+cover           L-h0 3de8a619  L-h4 0b3a205f  N0-h0 6ba7ab4c  N0-h3 c70080a0  Npc-h0 fdd7bca1  Npc-h3 72b4cd15
 ```
-
-**The frozen hashes still reproduce.** The three frozen word hashes that w362-pub-note T3.a
-fact 4 identifies as the single most important fact for the decision (`d129037c...` for
-`rawLsq_n1`, `a940b6ad...` for `rawNCompact_alpha2_h0`, `08b7742c...` for
-`rawNpc_a2_r1_eta1_1_h0`) are carried by the W362 packets, which this run replays unchanged
-and byte for byte.
 
 What this run does **not** establish, unchanged from W362: it is not a fresh full-repository
 build, not a transitive build attestation, and not a hash-gate run. The probe imports
@@ -262,138 +359,55 @@ bytes produced those artifacts.
 
 ---
 
-## T4. The four remaining items, measured
+## T8. Naming traps found on the way
 
-This is the part of the ticket that says: if an item's Lean source turns out not to state
-what a display needs, record the exact gap. Here is that record, read from the sources.
+w362-pub-note T1.a records two. This lane adds two more, both of which cost a probe
+iteration:
 
-### T4.a Items 7 and 8 are parameterized over data the lane may not select
+3. **`Certificates.Npc.tameRelW` is a second declaration of the tame relator**, distinct from
+   `Certificates.tameRelW`, same spelling in a different namespace. The Npc denotation
+   theorems must be stated over the Npc one or the rewrite does not fire.
+4. **`wPmCompactCoordsEquiv` has an `m` in its name and lives in `WordPhaseModel`, but it is
+   what the compact-`N` data uses.** The name does not say which family uses it.
 
-Item 7's carriers (`LSqStokes.hessRelZ_lSq`, `hessRelZ_nCompact`,
-`hessRelZ_npcW_evenPhiNormal`, `hessRelZ_npcW_evenTwistedNormal`) are **theorems**, not
-records with data fields. Each states an identity of the shape
-
-```text
-hessRelZ (mark) (kappa0Cocycle dat hdat) E E2 w
-  = q(leading slot) + polar q (slot, slot') + sum over j of polar q (u_j, v_j)
-```
-
-at an arbitrary marking and resolver, with one slot hypothesised zero (`x0` for L, `x2` for
-N0). There is nothing to serialize by `rfl`. A display is still reachable, by a route item 6
-could not use: the driver can **restate the identity in the shape it serializes and
-discharge it by the existing theorem**, so a wrong transcription cannot compile. That is a
-third bridge kind, weaker than `record_target` and stronger than prose, and it is the honest
-shape for item 7. It is not written in this lane.
-
-Item 8's carriers (`LHessianCertificates.unramifiedHessian` / `.ramifiedHessian`,
-`CompactNHessianCertificates.*`, `NpcHessianCertificates.npcUnramifiedHeadHessian`,
-`nonempty_npcRamifiedHeadHessian`, `NpcUnramifiedComparison.wPnpcPhiCoordsEquiv`) are
-records of type `SourceOddHessian`, and they take a descent datum `DD`, a factor set `base`,
-a projection `pi`, a module `DD.Vmod` with its topology and action, a simplicity hypothesis
-and a cardinality `Nat.card DD.Vmod = 2^(2m)`. **A `rfl` signature theorem against such a
-record requires instantiating all of it, which means selecting a coefficient module, which
-this lane is forbidden to do.** A signature theorem quantified over all of them is possible
-and would carry the record's existence, not its content.
-
-The content of item 8 that *is* data is the **Gauss sign and exponent** those two records
-establish on the way: `gaussSum(lSqWallHandlePhase ...) = (-1) * 2^(m*(2h+1))` unramified
-and `= (+1) * 2^(m*(2h+1))` ramified. Those appear inside the two proofs as a `have`, not as
-named standalone theorems, so an exporter would have to name them first. **That is a
-concrete, small piece of Lean work, and it is the thing to do before writing item 8's
-exporter**, not after.
-
-### T4.b Item 2 is data-shaped and is the best of the four
-
-`Words.pro2_nCompact` states that the pro-2 specialization of the compact-N word **is an
-explicit `PWord`**:
-
-```text
-pro2 (nCompactW alpha h) = prodList [ x0^(2+2^alpha), [x0,x1], (x2^sigma)^-1,
-                                      prodList [x2, 1], handlesW h ]
-```
-
-and `Words.Npc.pro2_npcW` is its procyclic twin. The L side is different:
-`eval_pro2_lSqW_eq_sqRelWord` lands on `SqCore.sqRelWord` read through a letter
-correspondence, not on an explicit list. So item 2's pro-2 half is a serializable syntax
-tree of exactly the kind item 1 already renders at N0 and Npc, and a driver can export the
-*value* `pro2 w` rather than a transcription of it; at L it is a different shape and needs
-its own treatment. The tame half is the `tameSpecialization` field of the word certificate
-records, which is the item-6 situation again: a field whose binding is a statement identity.
-
-**Item 2 is therefore the most valuable of the four remaining, and it splits three ways:
-genuine data at N0 and Npc, a correspondence at L, and a field binding for the tame half.**
-A single uniform item-2 display would hide that split.
-
-One caution for whoever writes it: item 2 is also the item that carries the **standing-axiom
-class**. The three field-selection adapters
-`FieldFamilyCampaignBoundary.hasSelectedRowResidualRN_{l,n0,npc}` are not standard-three,
-they carry four documented standing inputs each, and W362 pinned them in their own class and
-printed their full axiom list. Any item-2 exporter must keep them in that class and must not
-fold them into a standard-three count.
-
-### T4.c Item 9 is item 6 again, with the multipliers this lane deliberately left out
-
-`AffineDeterminantCertificate` is, like `StokesDualityCertificate`, a `Prop` defined by a
-conjunction of quantified clauses, consumed as the `determinant` field of the same word
-certificate records. It has **two** clauses, not four: an unramified Gauss residue clause
-using `SN.gaussUnram m` and a ramified one using `SN.gaussRam m`. So the item-9 exporter is
-the item-6 exporter with a different clause table and a different multiplier pair,
-`gaussUnram m = (-1)^n * 2^(n*m)` and `gaussRam m = 2^(n*m)`.
-
-**This lane left those two multipliers out of the item-6 artifact on purpose**: they are
-item 9's numerics, not item 6's, and item 6 exports only the `tMult` and `h1Mult` its own
-clauses use. An item-9 exporter should export them with `rfl` bridges of the same shape, and
-will have to carry a **sign** as well as an exponent, which the item-6 multiplier record
-does not.
-
-### T4.d The honest summary of the remaining work
-
-w362-pub-note T2.d said the six names are "exactly the size of the remaining publication
-work for the L/N families". After writing two of them, that is **half right**. The remaining
-four are not four more of the same:
-
-1. **Item 2** is largely data and should be written next.
-2. **Item 9** is a known shape, item 6's, and is cheap.
-3. **Item 7** needs a restatement-style bridge, a kind no exporter in the tree uses yet.
-4. **Item 8** needs *Lean work first*: the Gauss sign and exponent must be named as
-   standalone theorems before an exporter can cite them, and a full `rfl` binding to its
-   records is out of reach without selecting a coefficient module.
+Both are instances of the same lesson the W362 note drew: citing a declaration by its file
+name, or by the family its name suggests, does not give its Lean name or its user.
 
 ---
 
-## T5. Packets
+## T9. Packets
 
 The six W362 packets are **not regenerated in this lane**, and they still carry their
-original TODO text for items 3 and 6, which now names exporters that exist. This is a known
-staleness and it is deliberate: regenerating them means either modifying
+original TODO text for items 2, 3, 6, 7, 8 and 9, which now names exporters that exist. This
+is a known staleness and it is deliberate: regenerating them means either modifying
 `scripts/w362_ln_certificate_packet.py`, which changes the recorded W362 packet hashes, or
-adding a second composer that owns the same paths, which w362-pub-note T3.a fact 6 rules
-out. **Which of those two the packets take is an owner decision**, number 13 below. Until it
-is taken, the W362 packets and the W363 artifacts are two separate staged sets, both checked
-by `scripts/w363_check_ln_staged.sh`, and the packets' item 3 and item 6 TODO text should be
+adding a second composer that owns the same paths, which w362-pub-note T3.a fact 6 rules out.
+**Which of those two the packets take is an owner decision**, number 13 below. Until it is
+taken, the W362 packets and the W363 artifacts are two separate staged sets, both checked by
+`scripts/w363_check_ln_staged.sh`, and the packets' TODO text for those six items should be
 read as "no display *in this packet*", not as "no display anywhere".
 
 Note for that decision: the W362 packet hashes are **not frozen identifiers**. W362's own
 note calls them "a locator", says each packet's `.files.json` is the authority for its own
 files, and recomputes the packet hash on every check. The frozen identifiers are the three
-word hashes in T3, and those are untouched either way.
+word hashes in T7, and those are untouched either way.
 
-## T6. Owner decisions this lane adds
+## T10. Owner decisions this lane adds
 
-The twelve in w362-pub-note T3.c stand unchanged. This lane adds:
+The twelve in w362-pub-note T3.c stand unchanged. This lane adds five:
 
-13. Whether the W362 packets are regenerated to carry the new item 3 and item 6 displays,
-    and if so by modifying the W362 composer (which changes its recorded packet hashes, none
-    of which is a frozen identifier) or by a new composer with its own paths.
-14. Whether a `field_statement_identity` bridge is acceptable in a published appendix at
-    all, given that proof irrelevance makes it a statement-level and not a proof-level
-    claim, or whether item 6 must instead be published as checked declarations the way W362
-    published it.
-15. Whether the restatement-style bridge sketched in T4.a for item 7 is acceptable, since no
-    exporter in the tree uses that kind yet.
-16. Whether the Gauss sign and exponent for item 8 may be named as new standalone theorems
-    in a module under `GQ2/`, which is outside every exporter lane's mandate as currently
-    drawn.
+13. Whether the W362 packets are regenerated to carry the six new displays, and if so by
+    modifying the W362 composer (which changes its recorded packet hashes, none of which is a
+    frozen identifier) or by a new composer with its own paths.
+14. **Whether a `field_statement_identity` bridge is publishable at all.** Proof irrelevance
+    makes it a statement-level and not a proof-level claim. It is the bridge kind of item 6,
+    item 9 and item 2's tame half, so this decision governs three of the six new displays.
+15. Whether the `restated_identity` kind is acceptable, since no exporter in the tree used it
+    before this lane. It governs item 7 and item 2's pro-2 half.
+16. Whether the Gauss sign and exponent for item 8's normal-form half may be named as new
+    standalone theorems in a module under `GQ2/`, which is outside every exporter lane's
+    mandate as currently drawn. Until that is done, item 8's normal-form records stay
+    `named_but_unbound`.
 17. Whether `scripts/w363_check_ln_staged.sh` is folded into the W361 or W362 script or into
     `scripts/check_dyadic.sh`, and at which gate number. This lane left both earlier scripts
     unmodified so that the recorded W361 and W362 check semantics did not change.
@@ -402,11 +416,13 @@ The twelve in w362-pub-note T3.c stand unchanged. This lane adds:
 
 * It did not modify `generated/hash-manifest.json`, any `generated/appendix/*.tex`,
   `GQ2.lean`, any module under `GQ2/`, `scripts/w361_check_staged.sh`,
-  `scripts/w362_check_ln_staged.sh`, `scripts/w362_ln_certificate_packet.py`, or
-  `scripts/check_dyadic.sh`.
+  `scripts/w362_check_ln_staged.sh`, `scripts/w362_ln_certificate_packet.py`,
+  `scripts/check_dyadic.sh`, or any W362 staged artifact. Verified by diff against `b87bfa06`.
 * It did not run `lake` in any form.
 * It did not relabel any staged artifact as adopted, and every artifact it wrote embeds
   `status: "STAGED"` with a validator that refuses any other value.
 * It did not treat `RawWord.shadow` as W361's semantic `tameShadow`.
 * It did not select a coefficient module, marking, field, resolver, `eta` or source
-  certificate in any exporter.
+  certificate in any exporter: every signature theorem is quantified over them.
+* It did not weaken the standing-axiom class of the three field-selection adapters, and it
+  did not fold them into any standard-three count.
