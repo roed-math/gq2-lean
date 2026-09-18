@@ -1,5 +1,15 @@
 # W361 source-bound verification record
 
+**[W362 annotation, 2026-09-17, orchestrator: this record is the HISTORICAL 1,541-module /
+573-pin checkpoint of 17:29 UTC. It was superseded the same day by the 1,552-module /
+691-pin checkpoint bound in `w361-claude-code-handoff.md` (section 5, report
+`w361-claude-code-verification-report.json`), which covers the eleven N-stabilizer modules
+this record predates. Thirteen documents link here, four of them as "current verification
+status"; read those links as pointing at the historical record. The Claude checkpoint
+commit `6770a87e` reproduces the later report's source-set hash byte for byte
+(`w362-house-note.md`). Wave 362 then added nine M modules; its own verification is in
+`w362-claude-handoff.md`.]**
+
 Final verified checkpoint, 2026-09-17 17:30 UTC. This is not owner acceptance
 or a release certificate. Work continued from 09:10 UTC through the requested
 eight-hour minimum at 17:10 UTC and the successful final replay at 17:29 UTC.
@@ -138,7 +148,7 @@ the replay, rehashing all 1,541 live/snapshot sources and all 3,679 output files
 and compared every returned field with the report. The reviewer separately
 confirmed every replay-source/staged-content hash, all ten new modules' audited
 production hashes, the replay log and the ledger. No mismatch was found.
-This is the current final snapshot, not the historical 1,531-module result.
+This is the current final snapshot [W362: superseded, see the annotation at the top], not the historical 1,531-module result.
 
 ## Stable staged publication artifacts
 
