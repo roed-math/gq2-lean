@@ -451,6 +451,60 @@ does not transfer is stated too: the head row `t 0` is not killed by the kernel
 (the witnesses exist only at `i ≠ 0`), which is precisely why the separate
 coupled head cleanup exists.
 
+## Scope
+
+### `alpha >= 2`: where it is used and what fails at `alpha = 1`
+
+`2 ≤ alpha` is a binder of every public statement of the endpoint module and of
+`mStageStep_holds`. It is genuinely load bearing at four independent places,
+and the audit names the lemmas that are *false* at `alpha = 1`, not merely
+unproved:
+
+| Lemma | Statement | Why `alpha = 1` fails |
+| --- | --- | --- |
+| `MFrameMatrixLift.mFrame_halfExp_smul_zmod2` | `(2 ^ (α - 1)) • ε = 0` for `ε : ZMod 2` | at `α = 1` this is `1 • ε = ε`, false at `ε = 1`; this is the step that kills the torsion digit in `mFrameNaive_image_zero`, so the fixed-`T` lift's `A` column formula collapses |
+| `MInitialCupDepth.mCupPowHalf_mem_two` | `g ^ 2 ^ (α - 1) ∈ twoCentralSeries G 2` | at `α = 1` it reads `g ∈ lambda_2`, false for a generator; the file's own docstring says "it is false at `alpha = 1`" |
+| `MInitialCupDepth.mCupPow_eq_one` | `p ^ 2 ^ α = 1` in `levelQuot G 3` | the proof needs `g ^ 2 ^ α ∈ lambda_(α+1)` with `α + 1 ≥ 3`; at `α = 1` the `C` block survives into the class-two quotient |
+| `MHeadCleanup.mHead_dvd_of_coupled_row` | `2 ^ d ∣ A` from the coupled row | it consumes `alpha = a + 2`; at `α = 1` the `C` summand `2 ^ α * C` is not already divisible by `2 ^ d` |
+
+Two further consumers inherit the binder rather than adding one:
+`MFrameMatrixLift.mFrame_pow_halfExp_mem_two` and `mFrame_nRed_halfExp` (the
+cup-side interface saying the reduced `A` column of the lift is the first
+standard basis vector), and `StageGeneric.evenRawStageShift_m`, whose own
+signature begins `(hα : 2 ≤ α)` and which is the identity the whole kernel
+interpolation rests on.
+
+### The `1 <= alpha` bridges
+
+`mPhiHom`, `mFrameExists_phiEquiv` and the whole of `MFullFrameCompactness`
+need only `1 ≤ alpha`. The wave does not blur this. The bridge is a named
+one-line theorem, `MFullFrameCompactness.lean:31`:
+
+```lean
+theorem mStageOneLe {alpha : ℕ} (ha : 2 ≤ alpha) : 1 ≤ alpha := le_trans one_le_two ha
+```
+
+and it is applied explicitly at every crossing, which is why the endpoint's
+conclusion reads `mPhiHom (mStageOneLe ha) h` rather than carrying a second
+binder. `mStageOneLe` is also the one pin in the wave that prints smaller than
+the standard three (`[propext]`). Distribution of binders across the nine
+modules, by grep: `2 ≤ alpha` appears in all nine; `1 ≤ alpha` appears 13 times
+in `MFullFrameCompactness` and 0 times in `MFrameMatrixLift`,
+`MInitialCupDepth`, `MFrameCupCoordinates` and `MFullStabilizerLift`.
+
+### `h` is arbitrary; nothing assumes `h = 0`
+
+Every statement in all nine modules is binder-general in `h`, over
+`coreRank h`, `Fin (2 * h)` handle indices and `DM alpha h`. Greps for
+`(h := 0)`, `h = 0`, `coreRank 0`, `MModel` and `mFrameModelZero` across the
+nine return exactly one hit, and it is a docstring aside inside
+`MFrameCupCoordinates.lean:34` about where the rank-four Gram identity lives.
+`mStageStep_holds` is `∀ {alpha h : ℕ}, 2 ≤ alpha → MStageStep alpha h`, with no
+constraint on `h` whatsoever, and the handle coordinates are carried through the
+frame explicitly (`MFrame.map_U`, `map_V`, `mFrameRelVec_handle`,
+`mSurjVec_handle`). The rank-four case is `h = 0`; no handle decomposition or
+identity-handle restriction is used to reach larger `h`.
+
 ## Verification performed
 
 Every one of the nine wave-362 modules was read and separately re-elaborated by
