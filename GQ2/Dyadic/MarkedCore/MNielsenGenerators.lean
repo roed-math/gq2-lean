@@ -379,5 +379,112 @@ theorem mNielsenGen_cupIsometry {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabPar
     mNielsenGen_char_mark_two ha p d, mNielsenGen_char_mark_three ha p d]
   exact mNielsenGen_cup_core _ _ _ _ _ _ _ _ _ _ _
 
+/-! ## The seven Nielsen families as frame automorphisms -/
+
+theorem mNielsenGen_M1_inv {alpha : ℕ} (ha : 2 ≤ alpha) (k : ℤ_[2])
+    (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM1 alpha k).act ((mFamM1 alpha (-k)).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM1_act ha, mFamM1_act ha]
+  refine Prod.ext ?_ (Prod.ext rfl (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * mParityZ (-k) + mParityZ b * mParityZ k = v1
+    rw [mParityZ_neg]
+    exact mNielsenGen_cancel_two v1 (mParityZ b * mParityZ k)
+  · show c - -k * 2 ^ (alpha - 1) * b - k * 2 ^ (alpha - 1) * b = c
+    ring
+
+theorem mNielsenGen_M2_inv (e : ℤ_[2]) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM2 e).act ((mFamM2 (-e)).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM2_act, mFamM2_act]
+  refine Prod.ext rfl (Prod.ext rfl (Prod.ext ?_ rfl))
+  show c + d * -e + d * e = c
+  ring
+
+theorem mNielsenGen_M3_inv (gamma : ℤ_[2]ˣ) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM3 gamma).act ((mFamM3 gamma⁻¹).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM3_act, mFamM3_act]
+  refine Prod.ext rfl (Prod.ext rfl (Prod.ext ?_ rfl))
+  show c * ((gamma⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((gamma : ℤ_[2]ˣ) : ℤ_[2]) = c
+  rw [mul_assoc, ← Units.val_mul, inv_mul_cancel, Units.val_one, mul_one]
+
+theorem mNielsenGen_M4_inv (beta : ℤ_[2]ˣ) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM4 beta).act ((mFamM4 beta⁻¹).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM4_act, mFamM4_act]
+  refine Prod.ext rfl (Prod.ext ?_ (Prod.ext rfl rfl))
+  show b * ((beta⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((beta : ℤ_[2]ˣ) : ℤ_[2]) = b
+  rw [mul_assoc, ← Units.val_mul, inv_mul_cancel, Units.val_one, mul_one]
+
+theorem mNielsenGen_M5_inv (bc : ℤ_[2]) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM5 bc).act ((mFamM5 (-bc)).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM5_act, mFamM5_act]
+  refine Prod.ext ?_ (Prod.ext rfl (Prod.ext ?_ rfl))
+  · show v1 + mParityZ d * mParityZ (-bc) + mParityZ d * mParityZ bc = v1
+    rw [mParityZ_neg]
+    exact mNielsenGen_cancel_two v1 (mParityZ d * mParityZ bc)
+  · show b * bc + (b * -bc + c) = c
+    ring
+
+theorem mNielsenGen_M6_inv (c1 : ℤ_[2]) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM6 c1).act ((mFamM6 (-c1)).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM6_act, mFamM6_act]
+  refine Prod.ext rfl (Prod.ext ?_ (Prod.ext rfl rfl))
+  show b + c * (2 * -c1) + c * (2 * c1) = b
+  ring
+
+theorem mNielsenGen_M7_inv (d1 : ℤ_[2]) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (mFamM7 d1).act ((mFamM7 (-d1)).act v) = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [mFamM7_act, mFamM7_act]
+  refine Prod.ext rfl (Prod.ext ?_ (Prod.ext rfl rfl))
+  show b + d * (2 * -d1) + d * (2 * d1) = b
+  ring
+
+/-- Family **M1** `Lambda_k : B -> A^k B` as a frame automorphism. -/
+noncomputable def mNielsenGenM1 {alpha : ℕ} (ha : 2 ≤ alpha) (k : ℤ_[2]) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM1 alpha k) (mFamM1 alpha (-k)) (mNielsenGen_M1_inv ha k)
+    (fun v => by simpa only [neg_neg] using mNielsenGen_M1_inv ha (-k) v)
+
+/-- Family **M2** `E_e : D -> C0^e D` as a frame automorphism. -/
+noncomputable def mNielsenGenM2 (e : ℤ_[2]) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM2 e) (mFamM2 (-e)) (mNielsenGen_M2_inv e)
+    (fun v => by simpa only [neg_neg] using mNielsenGen_M2_inv (-e) v)
+
+/-- Family **M3** `Sigma_gamma : C0 -> C0^gamma` as a frame automorphism. -/
+noncomputable def mNielsenGenM3 (gamma : ℤ_[2]ˣ) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM3 gamma) (mFamM3 gamma⁻¹) (mNielsenGen_M3_inv gamma)
+    (fun v => by simpa only [inv_inv] using mNielsenGen_M3_inv gamma⁻¹ v)
+
+/-- Family **M4** `Sigma_beta : B -> B^beta` as a frame automorphism. -/
+noncomputable def mNielsenGenM4 (beta : ℤ_[2]ˣ) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM4 beta) (mFamM4 beta⁻¹) (mNielsenGen_M4_inv beta)
+    (fun v => by simpa only [inv_inv] using mNielsenGen_M4_inv beta⁻¹ v)
+
+/-- Family **M5** `X_b : B -> B C0^{B_c}`, `D -> t^{B_c} D` as a frame automorphism. -/
+noncomputable def mNielsenGenM5 (bc : ℤ_[2]) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM5 bc) (mFamM5 (-bc)) (mNielsenGen_M5_inv bc)
+    (fun v => by simpa only [neg_neg] using mNielsenGen_M5_inv (-bc) v)
+
+/-- Family **M6** `Y_c : C0 -> B^{2c1} C0` as a frame automorphism. -/
+noncomputable def mNielsenGenM6 (c1 : ℤ_[2]) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM6 c1) (mFamM6 (-c1)) (mNielsenGen_M6_inv c1)
+    (fun v => by simpa only [neg_neg] using mNielsenGen_M6_inv (-c1) v)
+
+/-- Family **M7** `Z_d : D -> B^{2d1} D` as a frame automorphism. -/
+noncomputable def mNielsenGenM7 (d1 : ℤ_[2]) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  mNielsenGenEquiv (mFamM7 d1) (mFamM7 (-d1)) (mNielsenGen_M7_inv d1)
+    (fun v => by simpa only [neg_neg] using mNielsenGen_M7_inv (-d1) v)
+
 end
 end GQ2.Dyadic.MarkedCore
