@@ -99,7 +99,7 @@ Everything else is reachable from those two.
 | `w361-staged-pdf-qa.md` | Review of the 29-page staged certificate PDF, with wrapper and output hashes. |
 | `w361-l-n-certificate-readiness.md` | Family-level readiness audit of the L/N certificate producers against the ledger's ten-item standard. |
 
-## Scope notes (8)
+## Scope notes (7)
 
 | Document | One line |
 | --- | --- |
@@ -110,7 +110,6 @@ Everything else is reachable from those two.
 | `w361-n-plane-strong-scaling-research.md` | Historical research checkpoint: six rank-uniform intermediate modules from when strong N-plane scaling was open. |
 | `w361-tame-splice-mechanism.md` | Why a new source word was necessary and what the rank-uniform construction is. |
 | `w361-compositional-certificate-map.md` | Connects the actual word constructors and checked transformations to the ledger's publication requirements. |
-| `w361-general-ln-export.md` | The staged all-parameter L/N export and replay, and the explicit statement that it does not finish the ten-item appendix. |
 
 ## Proposals, not adopted (5)
 
@@ -122,17 +121,18 @@ Everything else is reachable from those two.
 | `w361-n-plane-relative-graded-correction.md` | A proposed uniform relative mixed-Lie correction identity. Explicitly not a Lean theorem and not an assumed premise. |
 | `w361-general-phase-cover-template.md` | STAGED typed phase-cover export format, with no owner approval or migration status. |
 
-## Templates (2, plus 2 cross-references)
+## Templates (3, plus 2 cross-references)
 
 | Document | One line |
 | --- | --- |
 | `w361-general-phase-template.md` | The staged typed quadratic-phase export: syntax, bindings and hashes. |
 | `w361-symbolic-fox-template.md` | The staged symbolic Fox-operation template: typed rows, carried inverse coefficients, finite-sum templates. |
+| `w361-general-ln-export.md` | The staged all-parameter L/N export and replay, and the explicit statement that it does not finish the ten-item appendix. |
 | `w361-word-template-audit.md` | (listed under Audits; the template it audits is described in `w361-word-template-proposal.md`.) |
 | `w361-fox-input-template-binding.md` | (listed under Verified records; the binding it records belongs to the Fox template.) |
 
 Counting each document once by its own class: 3 handoffs, 24 verified records,
-29 audits, 8 scope notes, 5 proposals and 2 templates. That is 71. The two
+29 audits, 7 scope notes, 5 proposals and 3 templates. That is 71. The two
 parenthesised rows in the Templates section are cross-references to documents
 already counted under Audits and Verified records, and are not recounted.
 
