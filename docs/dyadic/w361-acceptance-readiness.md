@@ -2,6 +2,11 @@
 
 *2026-09-17: the MC-M and MC-N rows are carried forward in [w364-acceptance-readiness-mc.md](w364-acceptance-readiness-mc.md).*
 
+*2026-09-18: **item 4 below is decided.** The owner took Option A: the uniform
+filtered-correction and compactness proof method is accepted for both cores, and the finite
+Nielsen-family lists satisfy the packet's section-14 sentence in the families reading. The
+decision record is item 4 of [owner-items-2026-08-05.md](owner-items-2026-08-05.md).*
+
 2026-09-17. **Readiness review, not acceptance or migration approval.** The
 authoritative standards remain [plan A1 and §7](plan.md),
 [ledger §7 and §10](refs/dyadic-presentations-formalization-ledger.md), and
@@ -140,6 +145,9 @@ The owner must choose whether to adopt the
    `nFullStabilizer_lift_iff`, in addition to the older primitive/core results.
    It is not a finite Nielsen-generator-list artifact; accept the new uniform
    filtered proof method or construct that additional literal presentation.
+   *(2026-09-18: DECIDED, Option A -- the uniform filtered proof method is
+   accepted, at M as well as at N; item 4 of
+   [owner-items-2026-08-05.md](owner-items-2026-08-05.md).)*
 5. An exact symbolic-tree certificate-display format for the new words.
    The original record producers are now available; their generated display
    and acceptance still require an explicit contract.
