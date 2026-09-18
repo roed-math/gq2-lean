@@ -13,8 +13,11 @@ Wave 363, lane MC-N, at the rank-four core (`h = 0`, `alpha >= 2`).
 ## Why this is not the N twin of `MNielsenGenerators`
 
 The packet's **MC-N** row asks for the same finite Nielsen-generator artifact that
-`MNielsenGenerators.lean` produces at M. **It cannot be produced yet**, and the obstruction is
-not on the lifting side: there is no N-side factorization to compose. `N.lean` has the
+`MNielsenGenerators.lean` produces at M. **It cannot be produced yet** [W364: OVERTAKEN the same
+session; `NNielsenFactorization.lean` in this directory builds `nFamN1` to `nFamN6`,
+`nNielsen_factorization` (eight slots) and `nNielsenFac_finite_list`, consuming the lifting half
+below; the paragraph is kept as the record of why this module stops where it does], and the
+obstruction is not on the lifting side: there is no N-side factorization to compose. `N.lean` has the
 classification `nStabilizer_classification`, but there is no `nNielsen_factorization` and there
 are no `nFamN1` through `nFamN6` values anywhere in `GQ2/`. The six N families live only in the
 design memo `docs/dyadic/mc-design.md` section 3.4, as a table, and the completeness argument

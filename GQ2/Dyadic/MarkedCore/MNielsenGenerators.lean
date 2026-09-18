@@ -15,7 +15,7 @@ row **MC-M**) asks for
 > on the abelianization; composition gives every required marking correction.
 
 This file produces that list, at handle rank **zero** (the rank-four core) and for
-`alpha >= 2`, as a corollary of wave 362's `mFullStabilizer_lift_of_frame`.
+`alpha >= 2`, as a corollary of wave 362's `mFullStabilizer_lift`.
 
 ## What is here
 
@@ -24,7 +24,10 @@ This file produces that list, at handle rank **zero** (the rank-four core) and f
   wave 362's lifting theorem wants a `ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)`
   satisfying `mFrameOrientation`-preservation and the semantic `MCupFrameCupIsometry`.
   `mNielsenGenMap` carries `MStabParam.act` onto `MFrameModel 0`; `mNielsenGen_orientation`
-  and `mNielsenGen_cupIsometry` discharge both hypotheses **for every parameter**.
+  and `mNielsenGen_cupIsometry` discharge both hypotheses **for every parameter** (each
+  equivalence takes the parameter together with a supplied inverse parameter, `mNielsenGenEquiv
+  p q hpq hqp`; no inverse or group structure on `MStabParam` exists in the tree, and the seven
+  families supply their own inverses).
 * **The seven families.** Each of `mFamM1` through `mFamM7` has an explicit inverse inside its own
   family, so `mNielsenGenM1` through `mNielsenGenM7` are honest continuous frame automorphisms.
 * **The artifact (T2).** `mNielsenGen_finite_list`: for every stabilizer parameter there is a
@@ -40,7 +43,7 @@ This file produces that list, at handle rank **zero** (the rank-four core) and f
 
 ## What this does *not* do
 
-The lifts of the individual generators come from `mFullStabilizer_lift_of_frame`, i.e. from
+The lifts of the individual generators come from `mFullStabilizer_lift`, i.e. from
 the uniform filtered-correction and compactness argument of waves 361/362. **No generator is
 lifted by an explicit group-level construction here**, and no such construction is claimed.
 Families M1 and M2 do have honest independent group-level lifts elsewhere in the repo
@@ -583,7 +586,7 @@ theorem mNielsenGenLift_comp
 
 /-- `Psi` is an actual `chiM`-preserving continuous automorphism of the rank-four core
 inducing `phi` on the full abelian frame, with the exact all-element commuting square. This
-is verbatim the conclusion of `mFullStabilizer_lift_of_frame` at `h = 0`. -/
+is verbatim the conclusion of `mFullStabilizer_lift` at `h = 0`. -/
 def MNielsenGenLifts {alpha : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)) : Prop :=
   ∃ Psi : ContinuousMulEquiv (DM alpha 0 : Type) (DM alpha 0 : Type),
@@ -625,11 +628,11 @@ theorem mNielsenGenLifts_compose {alpha : ℕ} (ha : 2 ≤ alpha)
         (ih fun x hx => h x (List.mem_cons_of_mem g hx))
 
 /-- Every frame automorphism built from a stabilizer parameter lifts. This is `T1` fed to
-wave 362's unconditional `mFullStabilizer_lift_of_frame`. -/
+wave 362's unconditional `mFullStabilizer_lift`. -/
 theorem mNielsenGenLifts_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
     (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) :
     MNielsenGenLifts ha (mNielsenGenEquiv p q hpq hqp) :=
-  mFullStabilizer_lift_of_frame ha (mNielsenGenEquiv p q hpq hqp)
+  mFullStabilizer_lift ha (mNielsenGenEquiv p q hpq hqp)
     (mNielsenGen_orientation ha p q hpq hqp) (mNielsenGen_cupIsometry ha p q hpq hqp)
 
 /-! ## The packet's finite list -/
@@ -685,7 +688,7 @@ families at an explicit parameter, such that
 2. the composite of the list is the frame action of `p`; and
 3. the composite of the lifts is a lift of that composite.
 
-The lifts in (1) are supplied by wave 362's `mFullStabilizer_lift_of_frame`, i.e. by the
+The lifts in (1) are supplied by wave 362's `mFullStabilizer_lift`, i.e. by the
 uniform filtered-correction and compactness argument, **not** by an explicit
 generator-by-generator group-level construction. -/
 theorem mNielsenGen_finite_list {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam) :
@@ -841,9 +844,11 @@ theorem mNielsenGen_frameAction_of_realizes {alpha : ℕ} (ha : 2 ≤ alpha) (p 
   exact hx.symm.trans (hall (E x))
 
 /-- **Every element of the Smith-Witt stabilizer of the rank-four M abelianization is induced
-by an actual `chiM`-preserving continuous automorphism of `D_M`**, through the seven Nielsen
+by an actual `chiM`-preserving continuous automorphism of `D_M`** (at the canonical frame, with
+the orientation character `chi` pinned to its four generator values, the statement's own
+hypotheses), through the seven Nielsen
 generators: `mStabilizer_classification` gives the parameter, `mNielsen_factorization` splits
-it into the seven families, each lifts by `mFullStabilizer_lift_of_frame`, and the composite
+it into the seven families, each lifts by `mFullStabilizer_lift`, and the composite
 of those lifts is the automorphism produced here.
 
 The conclusion is the exact square `abMk (Psi x) = xi (abMk x)`, so `xi` really is the map
