@@ -7,7 +7,7 @@ Base: `d2056503` (branch `claude/w364-house`, worktree
 `/Users/roed/claude/cla/worktrees/w364-house`, Lean 4.31.0-rc2).
 Round window: `6770a87e..d2056503`, 138 commits.
 
-Status: OPEN. Skeleton banked; tickets in progress.
+Status: CLOSED. T1 to T4 done; four documents changed, no Lean touched.
 
 ## Tickets
 
@@ -317,9 +317,89 @@ is written to cover all thirteen files, with the distinction stated.
   index, on the grounds that two indexes are worse than one long one; if a later
   wave disagrees, the W362-W364 section is a clean cut point.
 
+## T2, T3 and what this lane changed
+
+**T2, the handoff.** `docs/dyadic/w362-claude-handoff.md` keeps its filename and
+is retitled "W362-W364 handoff to the next session". Filled by this lane:
+section 3 in full (twelve registered modules plus the exporter driver, one table
+per mathematics lane in the W361 module / reusable content / public pins shape,
+two plain-text chain diagrams, and fourteen pitfalls collected from the notes);
+section 4's verification record (the per-module pin census, the registration
+check by two routes, the scoreboard invocation and result, the gate invocation
+with its last recorded output, and an explicit statement that no clean-build or
+replay record exists for the session's end state); and section 7's reading list
+(fifteen documents in dependency order, with the two audits placed before the
+notes they judge and `w363-mconsol-note.md` before any `w362-*-note.md`).
+
+Section 5 carries a **draft** remaining-work list assembled from the notes, in
+three groups (mathematics, publication, documentation repairs), under an
+unchanged `[ORCHESTRATOR]` marker. Sections 1 and 8 are untouched and still
+marked, as is the one placeholder in section 2 about the shared-cache
+convention, which was assigned to no lane and which this note records so it is
+not lost.
+
+Section 3's tables were reflowed: the "reusable content" cell is `see below` and
+the content sits in a wrapped bullet under each table, because the W361 cell
+shape does not fit inside 100 columns. Every line the handoff now carries is
+inside 100 codepoints and there are no dashes.
+
+**T3, the index.** `docs/dyadic/w361-index.md` keeps its filename, is retitled
+"Index of the W360-W364 document corpus", and gains a second part covering the
+session's fifteen documents in the same six classes, with each part's base hash
+stated at the head. It also gains the "where the Claude session's records live"
+paragraph (the tree, the owner memo, campaign-log section 198 onward, session
+memory) and two new flags, 5 and 6, for the audit drift and the live
+non-existence docstring.
+
+*One stated exception.* Fifteen of the lines this lane added to the index exceed
+100 codepoints. All fifteen are rows of the index's own one-line-per-document
+table, whose 73 existing rows are the same shape; wrapping them would break the
+format the file is named after. This is a deliberate choice under the memo's
+ruling 4 ("at most 100 Unicode codepoints **where readable**"), recorded here so
+that it reads as a decision rather than as an oversight. Every other line this
+lane added anywhere, in any file, is inside 100.
+
+**What this lane changed in the tree**
+
+| File | Change |
+| --- | --- |
+| `docs/dyadic/w364-house-note.md` | new, this note |
+| `docs/dyadic/w362-claude-handoff.md` | retitled; sections 3, 4, 7 filled; section 5 drafted |
+| `docs/dyadic/w361-index.md` | retitled; part two added; flags 5 and 6 added |
+| `docs/dyadic/w363-nielsen-note.md` | one overtaken-by banner, in the shape W363-MCONSOL used |
+
+No `.lean` file was touched. No script was touched. `generated/` was not touched.
+Nothing was pushed.
+
 ## Verified counts
 
-(to be filled)
+All re-derived at `d2056503` by this lane, not carried from a note.
+
+| Quantity | Value |
+| --- | ---: |
+| Commits in the round (`6770a87e..d2056503`) | 138 |
+| New registered modules under `GQ2/` | 12 |
+| New `.lean` files in total (with the exporter driver) | 13 |
+| Pre-existing `.lean` files modified | 1 (`GQ2.lean`) |
+| Declarations in the twelve modules (380 public + 17 private) | 397 |
+| `#print axioms` pins in the twelve modules | 397 |
+| Declarations unpinned, and pins naming no declaration | 0 and 0 |
+| Pins that are not std-3, across the twelve | 0 |
+| `.lean` files under `GQ2/` | 1,569 |
+| Those in the `GQ2` import closure | 1,564 |
+| Outside it (unchanged exception set) | 6 |
+| `public import` lines tree-wide, of 5,065 import lines | 588 |
+| Em-dashes and en-dashes added in the round | 0 and 0 |
+| Added lines over 100 codepoints, `generated/` excluded | 144 |
+| Of those, in `.lean` sources | 2 |
+| New documents under `docs/dyadic/` | 14 |
+
+Per-module pins: `MHeadCleanup` 5, `MFullFrameCompactness` 25,
+`MFullFrameStages` 12, `MFrameMatrixLift` 111, `MInitialCupDepth` 9,
+`MFrameCupCoordinates` 16, `MBasisRowRefinement` 11, `MPlaneAmbientStage` 18,
+`MFullStabilizerLift` 10 (subtotal 217, matching W363-MCONSOL's own re-elaborated
+figure), `MNielsenGenerators` 70, `NNielsenGenerators` 16,
+`NNielsenFactorization` 94.
 
 ## Owner items
 
@@ -368,6 +448,86 @@ is said inside the item and not by renumbering.
 Nothing in this lane is an owner call of its own. Everything else it found is
 either a verified fact or a proposal, and the two are kept apart below.
 
-## Scoreboard baseline
+## T4, the scoreboard baseline for the next session
 
-(to be filled)
+Run from this worktree, both modes, exit 0 each:
+
+```sh
+GQ2_MIR=/Users/roed/claude/cla/work/main-build-cache/lib/lean \
+GQ2_PKG=/Users/roed/claude/gq2-paper/formalizations/gq2-claude/.lake/packages \
+bash scripts/scoreboard.sh [--raw]
+```
+
+Header of record: `tree 67c7edd7 2026-09-17   branch claude/w364-house`. That is
+the hash of the commit this lane was on when the board ran, not the lane's base;
+`--raw` at the base `d2056503` and the formatted run at `67c7edd7` give identical
+structural rows, the intervening commits being documents only.
+
+| Row | Baseline |
+| --- | --- |
+| `EXISTS` | 1,084 |
+| `MISSING` | 0 |
+| `STALE_UMBRELLA` | 0 |
+| `UNVERIFIED` | 2 |
+| Modules on disk under `GQ2/` | 1,569 |
+| `OUTSIDE` the umbrella | 6 |
+| Raw records emitted (`SB\|`) | 1,172 |
+| Rows printing `std-3` alone | 984 |
+| Rows carrying at least one standing input | 100 |
+| Owner items, memo | 7 |
+| Owner items, newest house note | 7 |
+| Verdict | `memo and note AGREE  7` |
+
+The two `UNVERIFIED` are both prose-level and both expected: the A6 review-round
+count, which is a function of the adoption wave and is not in git, and the
+per-item status of the owner docket, which the board's own contract refuses to
+certify. **Neither is a regression, and neither should be "fixed".**
+
+The six `OUTSIDE` modules are `GQ2.AxiomLedger` (it imports `GQ2`, so registering
+it would cycle) and the five exporter drivers
+`GQ2.Dyadic.Word.General{Fox,PhaseCover,Phase,,LN}...Export`. Unchanged since
+W361. This is the board's only blind spot and the registration section is the
+check for it.
+
+**The OWNER ITEMS row, against the memo's seven.** The memo's newest block is
+"Status at wave 362 (2026-09-17)" reading **Seven items await you**; the board's
+artifact side is now `docs/dyadic/w364-house-note.md`, whose "Owner items"
+heading this board found at line 54 with seven numbered items under it. They
+agree.
+
+Two mechanical facts about that agreement, for whoever reads the board next:
+
+1. **The artifact side moves to the newest house note automatically**, by a
+   numeric sort over `docs/dyadic/w*-house-note.md`. Creating this note displaced
+   `w362-house-note.md`. A house note with no "Owner items" heading makes the
+   board print `NOT FOUND` where it used to print a count, which looks like a
+   regression and is not; this note carries the heading for that reason, and the
+   heading shape the board accepts is documented in the script's own header.
+2. **Agreement at seven is new.** W362-HOUSE predicted a standing disagreement
+   between the memo's zero and its own seven, because the memo had not been
+   touched since wave 89. `6b302efd` folded the docket in. The prediction in
+   `w362-house-note.md` and in section 5 of the W361 handoff is therefore itself
+   now out of date, and the count agreeing does **not** mean the docket stopped
+   moving: item 4's substance changed twice during this session (see "Owner
+   items" above) without changing the count. Read the item text, not the number.
+
+## Method note, for the next housekeeping lane
+
+Three things cost time here and are cheap to avoid.
+
+1. **Diff against your own base before believing any cache-derived number.** The
+   main clone moved to `06daa54a` while this lane ran. The check that made the
+   numbers usable was `git diff --name-status d2056503..06daa54a`, which showed
+   nothing under `GQ2/` and no `GQ2.lean`; that is what licences the transfer,
+   not the smallness of the diff.
+2. **Measure added lines, not files.** A first pass over whole files reported
+   em-dashes in six documents and long lines in fifteen. Restricted to the lines
+   the round actually added, the em-dash count is zero and the long-line count is
+   144, almost all in Markdown tables. Whole-file greps measure the corpus, not
+   the wave.
+3. **When a lane note and the tree disagree on a count, look for a later move
+   before calling it an error.** Every one of the four count mismatches this lane
+   found (`MHeadCleanup` 7 to 5, `MBasisRowRefinement` 9 to 11,
+   `MFullStabilizerLift` 9 to 10, and the audit's 216 to 217) is a W363-MCONSOL
+   edit, and MCONSOL's own note does the arithmetic explicitly. None is a
+   reporting error.
