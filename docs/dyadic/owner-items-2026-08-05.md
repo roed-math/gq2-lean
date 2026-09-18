@@ -1,6 +1,39 @@
 # Owner decision items — wave 37 (2026-08-05)
 
-## Status at wave 89 (2026-08-16)
+## Status at wave 362 (2026-09-17)
+
+**Seven items await you.**  The wave-89 docket was closed on 2026-08-16; the Codex waves
+(89 to 361) then accumulated a docket recorded in `w361-claude-code-handoff.md` section 6
+item 4 and `w361-acceptance-readiness.md` but never folded back into this memo (W362-HOUSE
+finding).  Folded in now, with this wave's additions:
+
+1. **Adoption of the changed M pair/mobile words** (the general endpoint runs on the
+   promoted-pair/mobile tame-splice words, not the frozen self-replicating display).
+2. **The corrected RN source interface** and the existential realization/calibration
+   quantifiers in the general endpoint statement.
+3. **The symbolic display contract and the treatment of the legacy L/N artifacts**
+   (six word-only specimens; five skeletons with 40 `dyadicAppendixTODO` slots; the staged
+   general L/N packets from W362-PUB are proposals).
+4. **Acceptance of the uniform filtered-correction and compactness proof method** for BOTH
+   stabilizer-lifting obligations: MC-N (Codex, `nFullStabilizer_lift_iff`) and, as of this
+   wave, MC-M (`mFullStabilizer_lift_iff`, std-3, `alpha >= 2`, every handle count).  The
+   packet's section 14 finite Nielsen-generator list is a separate artifact; W363-NIELSEN is
+   attempting it as a corollary of the full lifts plus the existing rank-four frame
+   factorizations, which would let you accept the packet wording literally.
+5. **The push.**  GitHub `origin/dyadic` is more than two hundred commits behind the local
+   branch (Codex's 176 plus this session's).  Claude's standing protocol pushes at every wave
+   close; Codex's mandate forbade pushing.  Nothing was pushed this session; say the word.
+6. **The untracked working copy of the QA-pinned 29-page PDF** under `/output/` (now
+   `.gitignore`d; bytes match the pinned hash; reproducible from tracked inputs).
+7. **G3 / release** remains your gate, as before.
+
+**For orientation.**  This wave proved the M full-stabilizer lifting in nine modules by
+following the Codex scaffold's five steps exactly; every headline claim of the Codex handoff
+was independently verified against the tree by the house lane; the 1,541-module verification
+record that presented itself as current is annotated historical.  The general endpoint and
+both stabilizer liftings are now theorems; what remains is artifacts, audits and your
+decisions.
+
 
 **Zero items await you.**  The nine-item W88 decision docket is closed.  The owner approved the
 recommended package on 2026-08-16.  Historical wave blocks below remain unchanged as the record
