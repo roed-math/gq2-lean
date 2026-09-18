@@ -444,15 +444,200 @@ the state this wave starts from. It does not re-run them.
 
 ### This wave
 
-`[ORCHESTRATOR: a clean-build and replay record for the wave's own end state,
-in the W361 section 5 shape, or an explicit statement that none was run and
-that the last binding replay is still the 22:53:05 UTC W361 one. Do not leave
-this section empty: an empty verification section has been read as a pass
-before.]`
+### This session: waves 362 to 364
+
+**Pin census, re-derived by the W364-HOUSE lane over the sources at `d2056503`.**
+This is a `#print axioms` count over the twelve new modules, cross-checked
+against each lane's own runner output. Every pin in the session prints exactly
+`[propext, Classical.choice, Quot.sound]` except one, `mStageOneLe`, which
+prints the strictly smaller `[propext]`.
+
+| Module, under `GQ2/Dyadic/MarkedCore/` | Pins | Lane | Runner record |
+| --- | ---: | --- | --- |
+| `MHeadCleanup.lean` | 5 | W362-MHEAD | direct runner, then the mirror harness |
+| `MFullFrameCompactness.lean` | 25 | W362-MSTAGES | direct runner |
+| `MFullFrameStages.lean` | 12 | W362-MSTAGES | mirror harness |
+| `MFrameMatrixLift.lean` | 111 | W362-MINIT | mirror harness (direct runner before the MSTAGES rewire) |
+| `MInitialCupDepth.lean` | 9 | W362-MCUP | direct runner |
+| `MFrameCupCoordinates.lean` | 16 | W362-MCUP | mirror harness |
+| `MBasisRowRefinement.lean` | 11 | W362-MKERNEL (+2 moved in by W363-MCONSOL) | direct runner |
+| `MPlaneAmbientStage.lean` | 18 | W362-MKERNEL | mirror harness |
+| `MFullStabilizerLift.lean` | 10 | W362-MASSEMBLE (+1 by the W363-MCONSOL rename) | mirror harness |
+| `MNielsenGenerators.lean` | 70 | W363-NIELSEN | direct runner |
+| `NNielsenGenerators.lean` | 16 | W363-NIELSEN | direct runner |
+| `NNielsenFactorization.lean` | 94 | W364-NFACTOR | direct runner and the mirror harness |
+| **Total** | **397** | | |
+
+The first nine are the wave-362 M architecture; W363-MCONSOL re-elaborated all
+nine in dependency order after its renames and recorded `217` pins, `216`
+std-3, which is what this lane's independent count reproduces. `#print axioms`
+coverage is exact and total: 397 declarations, 397 pins, no declaration
+unpinned and no pin naming a declaration that is not there. Unlike the eleven N
+modules, where the pin set matched the *public* declarations, here the 17
+`private` declarations are pinned too.
+
+Two figures in the lane notes are superseded rather than wrong, and both are
+explained by the W363-MCONSOL move: `MHeadCleanup` was 7 at its own close and
+is 5, and `MBasisRowRefinement` was 9 and is 11.
+
+**Registration.** 1,569 `.lean` files under `GQ2/`, plus the root `GQ2.lean`.
+1,564 are in the `GQ2` import closure. The six outside it are unchanged from
+W361: `GQ2/AxiomLedger.lean` (it imports `GQ2`, so registering it would cycle)
+and the five exporter drivers under `GQ2/Dyadic/Word/`. All twelve new modules
+are imported directly by `GQ2.lean`. Verified twice, by independent routes: an
+import-graph walk over the sources, and the scoreboard's own elaborated
+registration scan, which printed `SCANNED|1569` and the same six `OUTSIDE`
+lines.
+
+**The machine scoreboard**, run from this lane's worktree at `d2056503`:
+
+```sh
+GQ2_MIR=/Users/roed/claude/cla/work/main-build-cache/lib/lean \
+GQ2_PKG=/Users/roed/claude/gq2-paper/formalizations/gq2-claude/.lake/packages \
+bash scripts/scoreboard.sh --raw
+```
+
+Exit 0. 1,084 `EXISTS` rows, 0 `MISSING`, 0 `STALE_UMBRELLA`, 2 `UNVERIFIED`
+(both prose-level: the A6 review-round count, which is not in git, and the
+per-item status of the owner docket). Run without `--raw` the board's OWNER
+ITEMS section reads the memo and the newest house note and prints
+**`memo and note AGREE 7`**.
+
+**The full ordinary gate.** The dependency wrapper the Codex handoff described
+as living in `/private/tmp` and warned might vanish is now in the tree, as
+`scripts/w361_run_with_deps.sh` (commit `b87bfa06`). Its invocation is
+
+```sh
+bash scripts/w361_run_with_deps.sh \
+  env -u GQ2_LEDGER_FIXTURE GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh
+```
+
+**Read that invocation carefully before running it from a lane worktree.** The
+wrapper ends with a hard-coded `cd /Users/roed/claude/cla/work/gq2-dyadic-campaign`
+followed by `exec "$@"`, so it gates the **main clone**, whatever worktree you
+launch it from, and it runs `lake` through `check_dyadic.sh`. It is the
+orchestrator's tool at a merge, not a lane's.
+
+Its last recorded output is the wave-362 close, recorded in section 198 of the
+campaign log: `lake build GQ2` green at **5,183 jobs**, and the gate with the
+ledger reporting **51,212 tracked declarations**, **0/0/0** (no `sorryAx`
+dependency, no unknown nonstandard axiom, no terminal violation), **census
+eleven**, and five capstones at the expected axiom set. That figure is
+consistent with the W362-HOUSE ledger reading of 51,203 at `8eff12ab`: the
+difference of nine is `MFullStabilizerLift`, registered between them.
+
+**No clean-build or replay record exists for this session's end state.** The
+last binding whole-tree replay is still the W361 22:53:05 UTC one, durable copy
+`docs/dyadic/w361-claude-code-verification-report.json`. The wave-362 gate run
+above is an ordinary gate against the shared cache, not a source-only
+transitive clean build, and it predates waves 363 and 364 by three module
+additions. `python3 scripts/w361_fresh_build.py --require-live-match` was in
+flight at the close of wave 364; if it completed, its snapshot path and the
+`w361_verify_fresh.py --replay` result belong here, and the orchestrator should
+record them in section 1 as well.
+
+**Every lane in this session verified with the direct runner or the mirror
+harness, and none invoked `lake`.** W363-MCONSOL states explicitly that
+`scripts/check_dyadic.sh` was never run in a lane and the shared cache was never
+written to. Two mechanical audits were run over the nine wave-362 modules at the
+consolidation: pin-block completeness (217 declarations, 217 pins, zero missing,
+zero stale) and hygiene (no em-dash, `sorry`, `native_decide`, `set_option`,
+bare `axiom` or over-100-column line added).
+
+**Hygiene over the whole session**, re-measured by W364-HOUSE over every line
+added in `6770a87e..d2056503`, `generated/` excluded: **zero em-dashes and zero
+en-dashes added**, in any file. 144 added lines exceed 100 codepoints, of which
+**two are in Lean sources** (`MFrameMatrixLift.lean:854` at 101 and
+`MNielsenGenerators.lean:65` at 117, the latter a docstring line), four are in
+scripts, and the remaining 138 are in Markdown tables and citation lines, 73 of
+them in `w361-index.md` alone.
 
 ## 5. Remaining work
 
-`[ORCHESTRATOR: reorder and amend from this wave's outcomes.]`
+`[ORCHESTRATOR: reorder and amend from this session's outcomes. The draft below
+was assembled by the W364-HOUSE lane from the thirteen lane notes and the two
+audits; it is a collection, not a judgement about priority.]`
+
+### Draft, assembled from the notes (W364-HOUSE)
+
+**Mathematics.**
+
+1. **Nothing is owed on either full-stabilizer lift.** `nFullStabilizer_lift_iff`
+   and `mFullStabilizer_lift_iff` are both theorems, std-3, for every
+   `alpha >= 2` and every handle count, with the converse. Do not reopen the
+   starting-depth, arbitrary-basis, compactness or head-cleanup seams at either
+   core, and do not start a class-by-class or rank-by-rank campaign.
+2. **Handles, for the two finite lists.** Both lists are rank four because both
+   rest on a rank-four classification (`mStabilizer_classification`,
+   `nStabilizer_classification`). Extending them needs a classification of the
+   *handle-mixing* stabilizer first: `GL` of the `2h` handle block plus the
+   core-handle shears, on top of the core families. No such classification is in
+   the repo. W363-NIELSEN records a weaker statement that is within easy reach and
+   is deliberately not claimed: the core families extended by the identity on the
+   handle tail still preserve orientation and cup at every `h`, hence still lift,
+   and its coordinate and character machinery is already stated at general `h`.
+   Only the final `evenCupForm` expansion is specialised to `h = 0`.
+3. **Generator-level lifts, if the packet wording is read strictly.** At M:
+   M1 is `mLambdaEquiv`, M2 is `dmTauDEquiv`, M3 is `MScaling` at handle level
+   zero, and **M4, M5, M6, M7 have no group-level construction anywhere in the
+   repo**. At N the per-family route exists
+   (`nNielsenFacLifts_of_param_families`), but its **N4** ingredient
+   `nPlaneScalingHypothesis_general` is itself an N-plane compactness limit. So
+   the residue is four families at M and one at N. This is work only if the owner
+   reads the packet sentence as demanding exhibited generators; see section 5's
+   owner list.
+4. **The minimality of eight slots is not proved.** W364-NFACTOR shows only that
+   the `GL_2` *block* cannot be done in four slots of the `E, F, diag(k,1)`
+   families uniformly. Eight overall is a bound for that slot list.
+5. **The matrix-level entry point at M is not built** (W363-MAUDIT FLAG-3, still
+   open). `MCupFrameCupIsometry` appears only in its defining module and the
+   endpoint module; nothing relates it to `M.lean`'s `mCupIsometry` /
+   `IsMStabilizer`, which is what `mStabilizer_classification` consumes. The
+   semantic predicate is the safer public boundary and should not be replaced;
+   the bridge should be added beside it, and that is where
+   `MarkedCore/Variance.lean`'s row/column dictionary re-enters. W363-NIELSEN
+   supplied the analogous bridge in the cup direction, which is the harder half.
+
+**Publication.**
+
+6. **Six exporters were named as missing by W362-PUB, and W363-PUB2 supplied
+   them.** The W362-PUB note's T2.d table names
+   `specializationTemplate`, `inputRowsTemplate`, `chainTemplate`,
+   `hessianTemplate`, `coordinateTemplate` and `phaseCoverTemplate` as proposals
+   for work not done; `scripts/w363_ln_*_export.lean` are the six drivers.
+   Whoever finalizes this section must re-read that table rather than quote it:
+   it was accurate when written and is not now.
+7. **Five `generated/appendix/` skeletons still carry 40 `\dyadicAppendixTODO`
+   invocations**, eight in each. A grep returns 45 because each file also carries
+   the macro definition on a commented line.
+8. **The twelve owner decisions in W362-PUB section T3.c** are the concrete form
+   of the publication question: which of routes A, B or C the three frozen L/N
+   rows take, whether a ten-item appendix may be published with items carried by
+   checked declarations rather than displays, the manifest schema and
+   `manifest_version` bump, gate 7's `_astHash` constants, how a
+   `status: "STAGED"` artifact is promoted at all, and the two M skeletons that
+   lane did not touch.
+
+**Documentation repairs found by this session's housekeeping.**
+
+9. `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean`'s module docstring says the
+   MC-N artifact "cannot be produced yet" and that `nNielsen_factorization` and
+   `nFamN1` to `nFamN6` exist nowhere under `GQ2/`. W364-NFACTOR landed all of
+   them, in the same directory. Comment-only, and the highest-severity docstring
+   defect in the session.
+10. Several `MNielsenGenerators` and `NNielsenFactorization` docstrings say "for
+    every parameter" where the statement quantifies over a *parameter together
+    with a supplied inverse parameter*; no inverse structure on `MStabParam` or
+    `NStabParam` exists in the tree. The headline theorems are unaffected
+    (the seven and eight families each supply their own inverse), but the
+    intermediate lemmas claim more than they state.
+11. `MNielsenGenerators` refers to the endpoint seven times as
+    `mFullStabilizer_lift_of_frame`, the retained alias, and never by the public
+    name W363-MCONSOL freed for it.
+12. `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` pins nine source
+    SHA-256 with no as-of commit, and all nine are now stale because
+    W363-MCONSOL edited all nine files later the same day. The audit's base is
+    `69b9851c`; the verdict is unaffected.
 
 Carried forward from `w361-claude-code-handoff.md` section 6, in its order:
 
@@ -607,7 +792,55 @@ question out of the orchestrator's own build log.
 8. `docs/dyadic/plan.md` and
    `docs/dyadic/refs/dyadic-presentations-formalization-proof.tex` when
    deciding what remains of M or the finite Nielsen-list artifact.
-9. `[ORCHESTRATOR: this wave's own lane notes, in dependency order.]`
+9. This session's own lane notes, in dependency order. Read the audits before
+   the notes they judge, and read `w363-mconsol-note.md` before any
+   `w362-*-note.md`, because it renamed a public theorem that all six of them
+   were written against.
+
+   *The M architecture, in the order the proof composes:*
+   1. `docs/dyadic/w362-mhead-note.md` -- the coupled head cleanup (step 1).
+   2. `docs/dyadic/w362-mkernel-note.md` -- the derivative-kernel interpolation
+      and `mStageStep_holds` (step 2). Its per-module pin figures of 9 and 18
+      are pre-`MCONSOL`; the first is now 11.
+   3. `docs/dyadic/w362-minit-note.md` -- the initial free lift (step 3).
+   4. `docs/dyadic/w362-mcup-note.md` -- the semantic cup predicate and the
+      depth-three error (step 4).
+   5. `docs/dyadic/w362-mstages-note.md` -- compactness, stage transfer and the
+      conditional composition (step 5).
+   6. `docs/dyadic/w362-massemble-note.md` -- the assembly, and the two landed
+      theorems in full. Not one of the scaffold's five items; its header says so.
+
+   *The audits of that architecture, both worth reading before any new M work:*
+   7. `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` -- the
+      proof-level independent audit. **VERDICT: PROVED AS STATED**, with three
+      flagged items, of which FLAG-3 is still open. Its nine source SHA-256 are
+      as of `69b9851c`, before the consolidation renamed and edited all nine
+      files; the document does not say so.
+   8. `docs/dyadic/w363-m-full-stabilizer-scope.md` -- the twin of
+      `w361-n-full-stabilizer-scope.md`: what the M theorem does and does not
+      settle in the governing packet, and six remaining campaign requirements.
+      It cites the endpoint by its pre-rename spelling `mFullStabilizer_lift_of_frame`.
+
+   *The consolidation, then the two Nielsen lanes:*
+   9. `docs/dyadic/w363-mconsol-note.md` -- the rename map, the import-cost
+      measurement, the nine docstring corrections and the folded audit flags.
+      The one document that reconciles the six W362 notes with the tree.
+   10. `docs/dyadic/w363-nielsen-note.md` -- the MC-M finite list and the N cup
+       bridge. Its section "The N side" is **overtaken by W364-NFACTOR**: what it
+       records as absent now exists.
+   11. `docs/dyadic/w364-nfactor-note.md` -- the N factorization into six
+       families, the bounded `GL_2` factorization, and the MC-N finite list.
+
+   *The publication side and the housekeeping, readable independently:*
+   12. `docs/dyadic/w362-pub-note.md` -- the ten-item inventory, the staged L/N
+       packets, and twelve owner decisions. Its T2.d list of six missing
+       exporters was supplied by W363-PUB2.
+   13. `docs/dyadic/w363-pub2-note.md` -- the six exporters, staged, with the
+       five-kind binding taxonomy.
+   14. `docs/dyadic/w362-house-note.md` -- every Codex headline claim checked
+       against the tree, and the shared-cache staleness lesson.
+   15. `docs/dyadic/w364-house-note.md` -- this session's round, the index
+       extension, and the scoreboard baseline for the next session.
 
 **One trap in that list.** Do not read `docs/dyadic/w361-final-verification.md`
 as a current record. It opens "Final verified checkpoint, 2026-09-17 17:30
