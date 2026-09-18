@@ -551,6 +551,16 @@ outcome is the last line of this section if it finished, otherwise the next sess
 (read-only) as its first act. Its content check already printed `FRESH_CONTENT_CHECK_PASS|1565`
 (all 1,565 snapshot sources and outputs consistent) before the staged replay began.
 **Verifier result: exit 0.** Its complete output was: `FRESH_CONTENT_CHECK_PASS|1565`, `FRESH_VERIFICATION_REPORT|/private/tmp/gq2-w361-fresh-verified-1416wqve/report.json`, `exit=0`. (The heavier multi-hour content-bound staged replay of W361's final record was not repeated; this is the reviewed verifier's own `--replay` run on the new snapshot, and it passed.) Its report is committed beside this document as `w365-fresh-verification-report.json` (SHA-256 `05e3e2c17bbcd3f7260cdf9f068783a5b097f37cf73d3aba71538a4753ea42cb`). Like W361's, this is content consistency with an observed
+
+**W366 end state (after the owner's decisions), tree `fccda098`.** Two more modules registered
+(`MNielsenHandles`, `NNielsenHandles`, 108 declarations, all std-3; 1,567 modules in the fresh
+build's count). `lake build GQ2`: **green, 5,189 jobs**. Full gate with the ledger through
+`scripts/w361_run_with_deps.sh`: **all checks passed**, census **11**, ledger **51,547 tracked
+declarations**, 0 `sorryAx`, 0 unknown axioms, 0 terminal violations. A fresh source-only build
+of this tree was started at 00:2x and its snapshot line follows this paragraph when it finished
+in session; W366's other three lanes changed no Lean under `GQ2/` (the packet TeX, staged
+overlays and docs only), so the W365 snapshot above remains a valid record of every module
+except the two handles modules.
 isolated build, not a signed attestation, and it reuses manifest-matching dependency artifacts.
 
 
