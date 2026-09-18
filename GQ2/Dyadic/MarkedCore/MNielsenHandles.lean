@@ -410,6 +410,73 @@ theorem mNielsenHdl_char_mark_three {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (
     coreVal_three]
   norm_num
 
+/-! ## The handle marks are fixed on the nose -/
+
+/-- The extension is the identity on any frame element with trivial core block. This is
+stronger than "trivial mod two on the core": the four core slots of the image are `0` in
+`ℤ₂`, not merely even. -/
+theorem mNielsenHdlMap_of_core_trivial (p : MStabParam) {h : ℕ} (g : Fin (2 * h) → ℤ_[2]) :
+    mNielsenHdlMap p (ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]), g))
+      = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]), g) := by
+  refine congrArg ofAdd (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext rfl rfl))))
+  · show (0 : ZMod 2) + mParityZ 0 * p.tau + mParityZ 0 * mParityZ p.bc = 0
+    rw [mParityZ_zero]; ring
+  · show (0 : ℤ_[2]) * (p.beta : ℤ_[2]) + 0 * (2 * p.c1) + 0 * (2 * p.d1) = 0
+    ring
+  · show (0 : ℤ_[2]) * p.bc + 0 * (p.gamma : ℤ_[2]) + 0 * p.e = 0
+    ring
+
+/-- The `u`-mark of the `j`-th handle is fixed. -/
+theorem mNielsenHdl_fix_markU {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (j : Fin h) :
+    mNielsenHdlMap p (mCupFrameCanonicalMark ha h (handleIdxU j))
+      = mCupFrameCanonicalMark ha h (handleIdxU j) := by
+  rw [show mCupFrameCanonicalMark ha h (handleIdxU j)
+      = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+          Pi.single (mHandleCoordU j) 1) from mPhiHom_U (mStageOneLe ha) j]
+  exact mNielsenHdlMap_of_core_trivial p _
+
+/-- The `v`-mark of the `j`-th handle is fixed. -/
+theorem mNielsenHdl_fix_markV {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (j : Fin h) :
+    mNielsenHdlMap p (mCupFrameCanonicalMark ha h (handleIdxV j))
+      = mCupFrameCanonicalMark ha h (handleIdxV j) := by
+  rw [show mCupFrameCanonicalMark ha h (handleIdxV j)
+      = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+          Pi.single (mHandleCoordV j) 1) from mPhiHom_V (mStageOneLe ha) j]
+  exact mNielsenHdlMap_of_core_trivial p _
+
+/-- The head block of the even Gram is preserved: the rank-four finite `F2` check, restated
+here because `MNielsenGenerators`' copy is `private`. -/
+theorem mNielsenHdl_cup_core (s m n a0 a1 a2 a3 b0 b1 b2 b3 : ZMod 2) :
+    a0 * b0 + (a0 * (s * b0 + b1 + m * b2) + (s * a0 + a1 + m * a2) * b0)
+        + (a2 * (m * b0 + n * b2 + b3) + (m * a0 + n * a2 + a3) * b2)
+      = a0 * b0 + (a0 * b1 + a1 * b0) + (a2 * b3 + a3 * b2) := by
+  revert s m n a0 a1 a2 a3 b0 b1 b2 b3
+  decide
+
+/-- **T1, cup half, at every handle count.** The identity-handle-tail extension of the frame
+action of every rank-four stabilizer parameter is a full mod-two cup isometry of the actual
+`M` frame at handle count `h`, in the semantic sense that quantifies over all pairs of
+continuous mod-two frame characters. The handle block of `evenCupForm` is untouched because
+the handle marks are fixed on the nose (`mNielsenHdl_fix_markU`, `mNielsenHdl_fix_markV`),
+so only the rank-four head block has to be checked. -/
+theorem mNielsenHdl_cupIsometry {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) (h : ℕ) :
+    MCupFrameCupIsometry ha (mNielsenHdlEquiv p q hpq hqp h) := by
+  intro c d
+  simp only [mNielsenHdlEquiv_apply, evenCupForm, mNielsenHdl_fix_markU ha p,
+    mNielsenHdl_fix_markV ha p, mNielsenHdl_char_mark_zero ha p, mNielsenHdl_char_mark_one ha p,
+    mNielsenHdl_char_mark_two ha p, mNielsenHdl_char_mark_three ha p]
+  congr 1
+  exact mNielsenHdl_cup_core _ _ _ _ _ _ _ _ _ _ _
+
+#print axioms mNielsenHdlMap_of_core_trivial
+#print axioms mNielsenHdl_fix_markU
+#print axioms mNielsenHdl_fix_markV
+#print axioms mNielsenHdl_cup_core
+#print axioms mNielsenHdl_cupIsometry
+
 #print axioms mNielsenHdl_coord_handle
 #print axioms mNielsenHdl_image_coord_zero
 #print axioms mNielsenHdl_image_coord_one
