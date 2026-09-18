@@ -283,19 +283,20 @@ theorem mBasisAmbientStageSupply {alpha h : ℕ} (halpha : 2 ≤ alpha) :
   simpa only [show n+3-1=n+2 by omega, show n+3+1=n+4 by omega] using H
 
 /-- **The coupled M ordinary-head cleanup, as the input this file consumes.**
-For a correction `t` of a marking `y` agreeing with the target on every
-ordinary character, with `t 0` and `t 2` of depth `m` and corrected defect in
-`lambda_(m+2)`, the head correction has a representative in the same class
-modulo `lambda_(m+1)` with every ordinary character trivial. This is the M
-twin of `exists_freeTwo_nHead_characterZero_same_class`; its content is the
-ordinary row `2 f(t 0) + 2^alpha f(t 2)` of the M defect. It is not proved here. -/
+For a depth-`m` correction `t` of a marking `y` agreeing with the target on
+every ordinary character, with corrected defect in `lambda_(m+2)`, the head
+correction has a representative in the same class modulo `lambda_(m+1)` with
+every ordinary character trivial. This is the M twin of
+`exists_freeTwo_nHead_characterZero_same_class`, stated with the weakest
+hypotheses this file needs (all coordinates of depth `m`; only `t 0` and `t 2`
+enter the ordinary row `2 f(t 0) + 2^alpha f(t 2)` of the M defect). It is not
+proved here. -/
 def MBasisHeadCleanupSupply (alpha h : ℕ) : Prop :=
   ∀ (m : ℕ) (y t : Fin (coreRank h) → FreeTwoRank (coreRank h))
     (target : FreeTwoRank (coreRank h)),
     (∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (Multiplicative ℤ_[2]),
       f (mRelWord alpha y) = f target) →
-    t 0 ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) m →
-    t 2 ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) m →
+    (∀ i, t i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) m) →
     mRelWord alpha (fun i => y i * t i) * target⁻¹ ∈
       twoCentralSeries (FreeTwoRank (coreRank h) : Type) (m + 2) →
     ∃ t0 : FreeTwoRank (coreRank h),
@@ -372,7 +373,7 @@ theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
   let y := fun i => e (freeTwoRankGen (coreRank h) i)
   let target := mRelWord alpha (freeTwoRankGen (coreRank h))
   obtain ⟨t, ht, hterr⟩ := mBasisAmbientStageSupply halpha n e he herr
-  obtain ⟨t0, ht0, hslack0, hzero0⟩ := hhead (n+2) y t target hrow (ht 0) (ht 2) hterr
+  obtain ⟨t0, ht0, hslack0, hzero0⟩ := hhead (n+2) y t target hrow ht hterr
   let s := Function.update t 0 t0
   have hs : ∀ i, s i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2) := by
     intro i
