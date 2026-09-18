@@ -17,6 +17,20 @@ No `sorry`, `admit`, `native_decide`, new axiom or resource option.
 
 T1, T2 and T3 all landed.
 
+## Relayed claims checked against the source
+
+* `mRelWord_comm` / `mWord` (`Cores.lean`): the M word really is
+  `A^2 [A,B] C^(2^alpha) [C,D]` times the handles, with `m 0 = A` and
+  `m 2 = C`. Confirmed.
+* `mPhiHom_A` (`MFrameExists.lean`) is literally
+  `ofAdd (1, 0, -(2:Z_2)^(alpha-1), 0, 0)` and `mPhiHom_C` is
+  `ofAdd (0, 0, 1, 0, 0)`. Confirmed, so the brief's `m = 2^(alpha-1)` is the
+  source's exponent. Neither is used below; T1 to T3 are word-level, not
+  frame-level.
+* `evenRawStageShift_m` exists and is already proved (it is not a statement this
+  lane had to supply); it carries three instance hypotheses the brief did not
+  mention. See T3.
+
 ## Why M is not a text substitution for N here
 
 `mRelWord_comm` (`Cores.lean`) gives
@@ -113,9 +127,14 @@ adapter. `alpha >= 2` throughout; nothing here extrapolates to `alpha = 1`.
    licence to try reusing the N witnesses, not a proof that they transfer.
 2. The M relative-refinement wrapper (the analogue of
    `exists_nBasis_full_relative_correction`), which needs both an M
-   `nRelWord_correction_defect_mem_iff` analogue and an M orientation clause;
-   the M orientation is `(1, -1, 1, mUnit alpha)` and fixes B **parity** plus
-   the integral D coordinate, not the integral B row.
+   `nRelWord_correction_defect_mem_iff` analogue and an M orientation clause.
+   Checked against the source while writing this note: `mChiModel_ofAdd`
+   (`M.lean`) gives `mChiModel alpha (ofAdd (eps,b,c,d)) = mSign b * u ^ d`, and
+   `mChi_row_extract` (`alpha >= 2`) turns preservation into `mParityZ b = eps`
+   and `d = w`. So the M orientation clause constrains B only through its
+   **parity**, plus the integral D coordinate; it does not fix the integral B
+   row the way the N clause does. The scaffold's further description of the
+   orientation tuple on `(A,B,C,D)` was not checked by this lane.
 3. The initial primitive relation-vector lift in the free basis
    `(T = A*C^m, B, C, D, handles)` with `m = 2^(alpha-1)`; a separately named
    task, deliberately not assumed anywhere above.
