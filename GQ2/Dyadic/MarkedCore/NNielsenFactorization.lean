@@ -990,6 +990,64 @@ theorem nNielsenFacList_lifts_families {alpha : ℕ} (ha : 2 ≤ alpha) (z y x :
   · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN6_admissible q) _ _
   · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN1_admissible k) _ _
 
+/-! ## Stress pins
+
+Instantiations of the statements above at concrete data, so that a later reshaping cannot
+silently make them vacuous (the convention of `N.lean` §9). -/
+
+section StressPins
+
+/-- The identity parameter is admissible. -/
+theorem nNielsenFac_id_admissible :
+    NStabParam.Admissible ⟨0, 0, 0, 0, 0, (1 : Matrix (Fin 2) (Fin 2) ℤ_[2])⟩ where
+  det := by rw [Matrix.det_one]; exact isUnit_one
+  couple_p := by simp
+  couple_q := by simp
+
+/-- The identity parameter factors through the eight slots. -/
+example : ∃ (k q p w x y z : ℤ_[2]) (κ : ℤ_[2]ˣ), (w = 0 ∨ w = 1) ∧
+    (κ : ℤ_[2]) = (1 : Matrix (Fin 2) (Fin 2) ℤ_[2]).det ∧
+    (⟨0, 0, 0, 0, 0, 1⟩ : NStabParam).act = (nFamN1 k).act ∘ (nFamN6 q).act ∘ (nFamN5 p).act ∘
+      (nFamN3 w).act ∘ (nFamN4 κ).act ∘ (nFamN2 x).act ∘ (nFamN3 y).act ∘ (nFamN2 z).act :=
+  nNielsen_factorization ⟨0, 0, 0, 0, 0, 1⟩ nNielsenFac_id_admissible
+
+/-- **The finite list at `alpha = 2`**, the smallest valid exponent, written out. -/
+example (P : NStabParam) (hP : P.Admissible) :
+    ∃ (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]),
+      (nNielsenFacList z y x κ w p q k).length = 8 ∧
+      (∀ g ∈ nNielsenFacList z y x κ w p q k,
+        (∀ v, nFrameOrientation (by omega : 2 ≤ 2) 0 (g v)
+            = nFrameOrientation (by omega : 2 ≤ 2) 0 v) ∧
+          NFrameCupIsometry (by omega : 2 ≤ 2) g ∧ NNielsenFacLifts (by omega : 2 ≤ 2) g) ∧
+      (∀ v, nNielsenFacCompose (nNielsenFacList z y x κ w p q k) v = nNielsenFacMap P v) ∧
+      NNielsenFacLifts (by omega : 2 ≤ 2) (nNielsenFacCompose (nNielsenFacList z y x κ w p q k)) :=
+  nNielsenFac_finite_list (by omega) P hP
+
+/-- Family N5 at `p = 1` really moves the torsion slot of `x̄₂` (`x̄₂ ↦ t + x̄₂`): the coupled
+`t`-shift is not preserving nothing. -/
+example : (nFamN5 1).act ((0 : ZMod 2), 0, 0, 1) = ((1 : ZMod 2), 0, 0, 1) := by
+  rw [nFamN5_act]; simp
+
+private theorem nNielsenFac_nRed_two : nRed (2 : ℤ_[2]) = 0 := by
+  rw [show (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) by norm_num, map_natCast]
+  decide
+
+/-- And at `p = 2` it does not: the coupled `t`-shift is `p mod 2`. -/
+example : (nFamN5 2).act ((0 : ZMod 2), 0, 0, 1) = ((0 : ZMod 2), 0, 0, 1) := by
+  rw [nFamN5_act, nNielsenFac_nRed_two]; simp
+
+private theorem nNielsenFac_det_one : IsUnit (1 : Matrix (Fin 2) (Fin 2) ℤ_[2]).det := by
+  rw [Matrix.det_one]; exact isUnit_one
+
+/-- The block factorization at the identity matrix, whose `(1,0)` entry is *not* a unit (the
+branch of `nNielsenFac_gl2_factor` where the Boolean slot `N3(w)` does real work). -/
+example : ∃ (w x y z : ℤ_[2]), (w = 0 ∨ w = 1) ∧
+    (1 : Matrix (Fin 2) (Fin 2) ℤ_[2]) = planeElemV w * nPlaneDet nNielsenFac_det_one.unit
+      * planeElemU x * planeElemV y * planeElemU z :=
+  nNielsenFac_gl2_factor 1 nNielsenFac_det_one
+
+end StressPins
+
 #print axioms NStabParam.act
 #print axioms NStabParam.act_apply
 #print axioms NStabParam.act_t
@@ -1084,6 +1142,10 @@ theorem nNielsenFacList_lifts_families {alpha : ℕ} (ha : 2 ≤ alpha) (z y x :
 #print axioms nNielsenFac_fullFrameMark
 #print axioms nNielsenFacLifts_of_param_families
 #print axioms nNielsenFacList_lifts_families
+
+#print axioms nNielsenFac_id_admissible
+#print axioms nNielsenFac_nRed_two
+#print axioms nNielsenFac_det_one
 
 end
 end GQ2.Dyadic.MarkedCore
