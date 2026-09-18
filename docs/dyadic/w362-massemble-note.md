@@ -240,7 +240,7 @@ proved by `mFrameLiftEquiv_torsionWord` alone.
 | --- | --- |
 | `mFullStabilizer_liftEquiv_head` | torsion-word bridge |
 | `mFullStabilizer_relError_of_cup` | depth-three error from cup alone |
-| `mFullStabilizer_lift` (W363; `mFullStabilizer_lift_of_frame` retained as its alias) | **sufficiency, unconditional** |
+| `mFullStabilizer_lift` (W363 rename; alias kept) | **sufficiency, unconditional** |
 | `mCupFrameOfDM_surjective` | frame quotient is onto |
 | `mFrameOrientation_cupFrameOfDM` | `chiM` to frame orientation |
 | `mFullStabilizer_orientation_of_lift` | necessity, orientation half |

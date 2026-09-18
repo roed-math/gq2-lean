@@ -29,7 +29,7 @@ conditional one first. The rename map:
 | --- | --- | --- |
 | `mFullStabilizer_lift` | `mFullStabilizer_lift_of_interfaces` | `MFullFrameStages.lean` |
 | (new declaration) | `mFullStabilizer_lift` | `MFullStabilizerLift.lean` |
-| `mFullStabilizer_lift_of_frame` | kept, now an alias of `mFullStabilizer_lift` | `MFullStabilizerLift.lean` |
+| `mFullStabilizer_lift_of_frame` | kept as an alias of it | `MFullStabilizerLift.lean` |
 
 Nothing else changed name. `mFullStabilizer_lift_of_initialLift`,
 `MStageInitialLift`, `MStageStep`, `mFullStabilizer_lift_of_fixedHead`,
