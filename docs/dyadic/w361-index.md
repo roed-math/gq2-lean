@@ -143,8 +143,11 @@ already counted under Audits and Verified records, and are not recounted.
 The docstring-outruns-statement rule applied to prose. The corpus is unusually
 disciplined -- almost every document states its own limits in its first
 paragraph, and every `GQ2/*.lean` and `scripts/*` path cited anywhere in the
-corpus resolves in the tree at `6770a87e`. Five items still deserve a
-marker, and the first of them is the one to act on.
+corpus resolves in the tree at `6770a87e`. (The single exception is
+`GQ2/Dyadic/MarkedCore/NAME.lean` in
+`w361-n-arbitrary-basis-refinement-audit.md:138`, which is the placeholder in
+a command template, not a reference.) Five items still deserve a marker, and
+the first of them is the one to act on.
 
 **Flag 0 (the highest severity here) -- `w361-final-verification.md` asserts
 a currency it no longer has, and thirteen documents point at it.**
