@@ -544,7 +544,8 @@ snapshot's own records are committed beside this document:
 (`scripts/w361_verify_fresh.py <snapshot> --replay`) was started on it at the close; its
 outcome is the last line of this section if it finished, otherwise the next session runs it
 (read-only) as its first act. Its content check already printed `FRESH_CONTENT_CHECK_PASS|1565`
-(all 1,565 snapshot sources and outputs consistent) before the staged replay began. Like W361's, this is content consistency with an observed
+(all 1,565 snapshot sources and outputs consistent) before the staged replay began.
+**Verifier result: exit 0.** Its complete output was: `FRESH_CONTENT_CHECK_PASS|1565`, `FRESH_VERIFICATION_REPORT|/private/tmp/gq2-w361-fresh-verified-1416wqve/report.json`, `exit=0`. (The heavier multi-hour content-bound staged replay of W361's final record was not repeated; this is the reviewed verifier's own `--replay` run on the new snapshot, and it passed.) Like W361's, this is content consistency with an observed
 isolated build, not a signed attestation, and it reuses manifest-matching dependency artifacts.
 
 
