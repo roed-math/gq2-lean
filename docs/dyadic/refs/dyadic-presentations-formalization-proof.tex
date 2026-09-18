@@ -729,10 +729,32 @@ To construct the automorphism \(u\) in
 per-standard-core statement:
 
 \smallskip
-\emph{Every automorphism of \(D_P^{\mathrm{ab}}\) preserving the canonical
-orientation, the torsion relation vector, and the mod-\(2\) cup form that
-occurs in the marked Smith--Witt classification lifts to an automorphism
-of \(D_P\).}
+% -----------------------------------------------------------------------
+% AMENDED 2026-09-18 (owner decision "Option A", docs/dyadic/owner-items-2026-08-05.md
+% item 4; proposed wording docs/dyadic/w364-proof-packet-amendment-mc.md section 3;
+% applied by lane W366-APPLY).  The statement below is now a theorem of the
+% accompanying Lean development, in both directions and in a stronger form:
+% GQ2.Dyadic.MarkedCore.mFullStabilizer_lift_iff
+%   (GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean:238) and
+% GQ2.Dyadic.MarkedCore.nFullStabilizer_lift_iff
+%   (GQ2/Dyadic/MarkedCore/NFullStabilizerLift.lean:80),
+% with the sufficiency halves mFullStabilizer_lift and nFullStabilizer_lift.
+% ORIGINAL WORDING, July 28 2026 packet, retained here as the record:
+%   \emph{Every automorphism of \(D_P^{\mathrm{ab}}\) preserving the canonical
+%   orientation, the torsion relation vector, and the mod-\(2\) cup form that
+%   occurs in the marked Smith--Witt classification lifts to an automorphism
+%   of \(D_P\).}
+% -----------------------------------------------------------------------
+\emph{For each standard core \(P\in\{M,N\}\), every \(\alpha\ge2\) and every
+handle count \(h\): a continuous automorphism of the full topological
+abelianization \(D_P^{\mathrm{ab}}\), torsion coordinate included, is induced by
+a continuous automorphism of \(D_P\) preserving the canonical orientation
+\(\chi_P\) \textbf{if and only if} it preserves the transported canonical
+orientation and the full mod-\(2\) cup form.  The induced-map equation holds at
+every element of \(D_P\), not only at the marked generators, and handles may mix
+arbitrarily.  The torsion relation vector is not a hypothesis: it is fixed
+automatically by every frame automorphism, and the constructed lift fixes the
+corresponding head word literally.}
 \end{proposition}
 
 \begin{proof}
