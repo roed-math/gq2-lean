@@ -90,12 +90,14 @@ facts, `ht 0` and `ht 2`, because the row is coupled.
 `GQ2.Dyadic.StageGeneric`). This lane adds no mathematics there; it re-exports
 it in the shape the sibling MKERNEL lane asked for:
 
-* `mHead_mRelWord_shift_eq_evenRawDbarWord` -- the literal shift
+* `mHead_mRelWord_shift_eq_evenRawDbarWord` (**moved to
+  `MBasisRowRefinement.lean` in W363-MCONSOL**, same name) -- the literal shift
   `(mRelWord alpha base)^{-1} * mRelWord alpha (fun i => base i * correction i)`
   equals `evenRawDbarWord base correction`, for `alpha >= 2`, `k >= 3`,
   corrections of depth `k-1`. No `StageWord` datum to build, no separate
   `1 <= alpha` argument.
-* `mHead_mRelWord_shift_eq_nRelWord_shift` -- the M and N shifts of the **same**
+* `mHead_mRelWord_shift_eq_nRelWord_shift` (**moved to
+  `MBasisRowRefinement.lean` in W363-MCONSOL**, same name) -- the M and N shifts of the **same**
   base and correction are literally equal in `levelQuot G (k+1)`. This is the
   identification the scaffold's item 1 requires before any N kernel witness may
   be reused on the M side.
