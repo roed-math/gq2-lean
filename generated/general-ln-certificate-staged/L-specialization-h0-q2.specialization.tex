@@ -1,0 +1,23 @@
+% STAGED L/N two specializations; ledger item 2 only.
+% ln-specialization-hash: 2ee6bc2b84d6687a8fcbc7c4d515fd6d3a1763e32af5e9629f6222e5dd1f16fd
+% family: L; structural: {"h":0,"q":2}
+% Ledger item 2 only: the pro-two specialization as a factor list and the tame specialization as a record field. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% The two halves of item 2 are NOT in the same state and are not presented as if they were. The pro-two half is a syntactic identity between PWord values, restated here and discharged by the tree's own theorem, so a wrong factor list does not compile; the factor descriptions themselves are prose. The tame half is a Prop carried as a record field, and proof irrelevance makes its binding a statement identity, not proof identity. Separately: item 2 is also where the three field-selection adapters are pinned, and those are NOT standard-three, each carrying four documented standing arithmetic and reciprocity inputs. Nothing in this artifact touches them or weakens that class.
+% Gate C removes the tau letter and collapses every omega2 power. It does NOT collapse the profinite eta-hat power or the integer two-power conjugator at Npc, and the Npc correction block stays folded in the tree's own statement because what matters about it is its value, not its pro-two syntax.
+% Identity of the serialized factor list, its descriptions and the two bindings at the stated discrete parameters. It is not a hash of any PWord value.
+% The L whole-word pro-two equation is assembled in the exporter driver from the tree's core-list equation and a one-line handle-tail lemma: unlike N0 and Npc, the tree states the core list and the evaluated form but no whole-word syntactic equation of its own. The driver's assembly is named in the bridge, and the handle-tail step is named in the tail description.
+\paragraph{The pro-two specialization}
+% source: GQ2.Dyadic.Words.LSq.pro2_lSqCore
+% bridge (restated_identity): GQ2.Dyadic.W363LNSpecialization.lPro2_shape
+\begin{enumerate}
+\item[(1)] \textbf{inverse conjugate} the inverse sigma-conjugate of x0
+\item[(2)] \textbf{collapsed a letter} x0 to the power minus three, times the unit that is the collapsed tau
+\item[(3)] \textbf{integer power} x1 squared
+\item[(4)] \textbf{commutator} the commutator of x1 with its plain sigma-conjugate: the sigma2 conjugator has become sigma
+\end{enumerate}
+Tail: the handle tail is EMPTY at this rank, which is the certificate's own convention and not a simplification (pro-two invariant by GQ2.Dyadic.W363LNSpecialization.pro2\_lSqHandleTail).
+\paragraph{The tame specialization}
+% producer: GQ2.Dyadic.LSquare.lCanonicalTameSpecialization
+% consumer: GQ2.Dyadic.LSquare.wordCertificateRN_lSq_of_actionImage, field tameSpecialization
+% binding (field_statement_identity): GQ2.Dyadic.W363LNSpecialization.lTame_field
+The tame half is a proposition carried as the \texttt{tameSpecialization} field of the word certificate record, so its binding is a statement identity and not a proof identity.

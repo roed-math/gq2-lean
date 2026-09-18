@@ -1,0 +1,20 @@
+% STAGED L/N affine phase-cover certificate; ledger item 9 only.
+% ln-cover-hash: 72b4cd15795c28a16b94a9adf265e47d9e60e85882050032f129d2c11ef2582e
+% family: Npc; structural: {"h":3,"q":2,"r":2}
+% Ledger item 9 only: the wiring, the two-clause structure and the Gauss multipliers of the L/N0/Npc affine determinant certificate. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% AffineDeterminantCertificate is a Prop, so this display is NOT a rendering of the phase-cover proof and no formula is substituted for one. Lean has definitional proof irrelevance, so a field binding certifies that the producer proves exactly the statement the record's determinant field demands, at the record's own parameters, and NOT that the record was built from that proof term. The clause statements themselves remain in the packet's stored proofs transcript.
+% Identity of the serialized wiring, clause structure and Gauss multiplier sign and exponent at the stated discrete parameters. It is not a hash of any proof.
+% The Npc determinant is a theorem of the tree at 2 <= alpha with q nonzero and even and an exact NpcDisplayFor for the semantic unit. Unlike the Npc Stokes chain, no degree normalization is needed here: producer and record field are both at 2+2h. Its unramified Gauss sign is plus one.
+% clause record: GQ2.Dyadic.AffineDeterminantCertificate
+% producer: GQ2.Dyadic.Instances.NpcDeterminantFinal.npcAffineDeterminantCertificate (degree 8; scope: 2 <= alpha, q nonzero, Even q, and an exact NpcDisplayFor for the semantic unit)
+% consumer: GQ2.Dyadic.Instances.NpcDeterminantFinal.npcWordCertificateRN, field determinant (degree 8)
+% supply route: theorem
+% binding (field_statement_identity): GQ2.Dyadic.W363LNCover.npcDeterminant_field
+% numerics record: GQ2.Dyadic.standardNumerics
+% half-dimension: m, with block order 2^(2m) and 1 <= m
+% gauss_unram bridge: GQ2.Dyadic.W363LNCover.standardNumerics_gaussUnram
+% gauss_ram bridge: GQ2.Dyadic.W363LNCover.standardNumerics_gaussRam
+\begin{enumerate}
+\item[(1)] \textbf{gauss unramified} At every nonzero radical line of a simple nontrivial block enrichment, the Gauss-Z residue of the source boundary map equals the unramified Gauss multiplier at the block's half-dimension. Head condition: the frame element at the tame tau acts trivially on the head quotient. The degree enters only through $\mathrm{gaussUnram}(m)=2^{8m}$.
+\item[(2)] \textbf{gauss ramified} At the same lines, with the opposite head condition, the residue equals the ramified Gauss multiplier at the block's half-dimension. Head condition: the frame element at the tame tau moves some vector of the head quotient. The degree enters only through $\mathrm{gaussRam}(m)=2^{8m}$.
+\end{enumerate}

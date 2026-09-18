@@ -1,0 +1,21 @@
+% STAGED L/N Stokes chain; ledger item 6 only.
+% ln-stokes-hash: 0c7552df3ea6d89b676ee2fcf6cb39bc5eede87989adf07f7316ab1ee989141c
+% family: Npc; structural: {"h":0,"q":2,"r":1}
+% Ledger item 6 only: the wiring, the clause structure and the numeric multipliers of the L/N0/Npc Stokes chain. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% StokesDualityCertificate is a Prop, so this display is NOT a rendering of the chain identity's proof and no formula is substituted for one. Lean has definitional proof irrelevance, so a field binding certifies that the producer proves exactly the statement the record's stokes field demands, at the record's own parameters, and NOT that the record was built from that proof term. The clause statements themselves remain in the packet's stored proofs transcript.
+% Identity of the serialized wiring, clause structure and multiplier exponents at the stated discrete parameters. It is not a hash of any proof.
+% The Npc producer is stated at degree 2h+2 and the record's stokes field at 2+2h. Those two spellings agree at every numeric instance, so the exported degrees look equal, but they are NOT definitionally equal at a variable h: the record's field is filled by rewriting along the normalization named below. That is why the Npc binding kind differs from the L and N0 one.
+% clause record: GQ2.Dyadic.StokesDualityCertificate
+% producer: GQ2.Dyadic.Instances.NpcCandidateStokes.npcCand_stokes (stated at degree 2)
+% consumer: GQ2.Dyadic.Instances.NpcCandidateRN.npcWordCertificateRN_of_determinant, field stokes (at degree 2)
+% binding (degree_normalized_field): GQ2.Dyadic.W363LNStokes.npcStokes_typeNormalization
+% degree normalization: GQ2.Dyadic.W363LNStokes.npcStokes_degreeNormalization
+% numerics record: GQ2.Dyadic.standardNumerics
+% t_mult bridge: GQ2.Dyadic.W363LNStokes.standardNumerics_tMult
+% h1_mult bridge: GQ2.Dyadic.W363LNStokes.standardNumerics_h1Mult
+\begin{enumerate}
+\item[(1)] \textbf{tcocycle count} The number of T-cocycles of the radical data equals the tMult multiplier of the T-order times the number of fixed points of the elementary dual. The degree enters only through $\mathrm{tMult}\bigl(\lvert T\rvert\bigr)=\lvert T\rvert^{3}$.
+\item[(2)] \textbf{separation} A V-cocycle on which every T-character pairing vanishes is T-liftable: the separation half of the duality.
+\item[(3)] \textbf{nondegeneracy} Every nonzero T-character is nondegenerate against the obstruction pairing: some V-cocycle moves it off its value at zero.
+\item[(4)] \textbf{vcocycle count} On a simple nontrivial module the number of V-cocycles equals the module order times the h1Mult multiplier of the module order. The degree enters only through $\mathrm{h1Mult}\bigl(\lvert V\rvert\bigr)=\lvert V\rvert^{2}$.
+\end{enumerate}

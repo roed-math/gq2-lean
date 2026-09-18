@@ -1,0 +1,23 @@
+% STAGED L/N evaluated Fox Jacobian; ledger item 3 only.
+% ln-input-hash: 7c859f7ded5b822a688cc4670657c51a2bfb623e2a24d0f46c6d3e69432cfb4e
+% family: N0; structural: {"h":3,"q":2}
+% Ledger item 3 only, for the existing L/N0/Npc evaluated Fox rows under their own stated hypotheses. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% One universal wild row per family carries the opaque projector atom P. The branch is a specialization of that row: P maps to the identity at the unramified and scalar sectors and to zero at the ramified sectors. The exported projector value is bound by rfl to splitEnd or ramifiedEnd.
+% Identity of the serialized evaluated rows at the stated discrete parameters. Uniformity in h, q and r is carried by the signature theorems, not by this instance.
+% The N0 rows need 1 <= alpha; the complete N0 certificate requires alpha >= 2 and nonzero even q. The ramified tame row has no record and is a denotation theorem.
+% S, T, W_i are generator actions; S_2 is the omega2 action, not S squared; A is the eta-hat conjugator action, not an independently chosen scalar; Pi is the projector atom P.
+% Rows are identities on ALL cochains, not only on the cocycle kernel. Unprinted columns carry the coefficient 0.
+% record_target means the row IS the target field of that record, whose colOps is empty; denotation_theorem means the driver states the denotation itself.
+% Syntax, hash and render agreement is NOT Lean synchronization; replay Lean for strong checking.
+\paragraph{unramified sector}
+% record: GQ2.Dyadic.Certificates.nCompactWildRowCertUnram
+% projector reading: one; bridge: GQ2.Dyadic.W363LNInput.tameSplit_projector
+% tame row bridge (record_target): GQ2.Dyadic.W363LNInput.nCompactUnramTame_target
+% wild row bridge (record_target): GQ2.Dyadic.W363LNInput.nCompactUnramWild_target
+\[\begin{pmatrix}S^{-1}\bigl(a_{\tau}\bigr)\\\Pi\bigl(a_{\tau}\bigr)+\bigl(S^{-1}+\Pi\bigr)\bigl(a_{x_{2}}\bigr)\end{pmatrix}\qquad(\Pi=I).\]
+\paragraph{ramified sector}
+% record: GQ2.Dyadic.Certificates.nCompactWildRowCertRam
+% projector reading: zero; bridge: GQ2.Dyadic.W363LNInput.tameRamified_projector
+% tame row bridge (denotation_theorem): GQ2.Dyadic.W363LNInput.tameRamInput_denote
+% wild row bridge (record_target): GQ2.Dyadic.W363LNInput.nCompactRamWild_target
+\[\begin{pmatrix}S^{-1}\circ \bigl(T-I\bigr)\bigl(a_{\sigma}\bigr)+\bigl(S^{-1}-\bigl(\bigl(0+T^{0}\bigr)+T\bigr)\bigr)\bigl(a_{\tau}\bigr)\\\Pi\bigl(a_{\tau}\bigr)+\bigl(S^{-1}+\Pi\bigr)\bigl(a_{x_{2}}\bigr)\end{pmatrix}\qquad(\Pi=0).\]
