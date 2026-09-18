@@ -543,7 +543,8 @@ snapshot's own records are committed beside this document:
 `1b370cfc...`, manifest `3c3d5e1a...`, driver `21b8f1d7...`). The verifier
 (`scripts/w361_verify_fresh.py <snapshot> --replay`) was started on it at the close; its
 outcome is the last line of this section if it finished, otherwise the next session runs it
-(read-only) as its first act. Like W361's, this is content consistency with an observed
+(read-only) as its first act. Its content check already printed `FRESH_CONTENT_CHECK_PASS|1565`
+(all 1,565 snapshot sources and outputs consistent) before the staged replay began. Like W361's, this is content consistency with an observed
 isolated build, not a signed attestation, and it reuses manifest-matching dependency artifacts.
 
 
