@@ -149,6 +149,21 @@ board print a DISAGREE that is an artifact of two different counting rules. The
 owner-items section below numbers the five that are open and puts the two
 decided ones in prose under their own heading. Both rules then give five.
 
+**Confirmed live at the lane's close.** The board was re-run at `dd98609a`
+(2026-09-18 00:47) after the memo and this note were corrected. The FROZEN ROWS
+block is byte-identical to the baseline above, as it must be since this lane
+touched no `.lean` file, and the owner-items row now reads:
+
+```
+  owner memo (AUTHORITY)   docs/dyadic/owner-items-2026-08-05.md
+    latest status block    ## Status at wave 362 (2026-09-17)
+    count it asserts       5   (PROSE, off "N items await you")
+  latest house note        docs/dyadic/w366-house-note.md
+    owner-items heading    line 400: ## Owner items
+    numbered items under   5
+  memo and note AGREE      5
+```
+
 ## T1, watch 27
 
 Window: `d2056503..9dd8a307`, 145 files. One new Lean module
