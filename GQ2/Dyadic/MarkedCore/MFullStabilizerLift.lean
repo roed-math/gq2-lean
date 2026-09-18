@@ -18,10 +18,10 @@ The conclusion is an all-element commuting square for the full abelianization
 necessary.
 
 **Unconditional.** No stage-supply, group-lift or matrix premise remains. The
-`MStageStep` interface that `MFullFrameStages` left open is discharged by
-`MPlaneAmbientStage.mStageStep_holds` for every `alpha >= 2` and every rank, and
-this file consumes that theorem rather than carrying the interface as a
-hypothesis.
+`MStageStep` interface that `MFullFrameStages` states as a hypothesis is
+discharged by `MPlaneAmbientStage.mStageStep_holds` for every `alpha >= 2` and
+every rank, and this file consumes that theorem rather than carrying the
+interface as a hypothesis.
 
 This is the M analogue of `NFullStabilizerLift`, not a copy of it. The M route
 fixes the composite word `T = A * C^(2^(alpha-1))` rather than the single letter
@@ -34,15 +34,22 @@ Contents:
 * `mFullStabilizer_relError_of_cup`: the depth-three relator error of the
   fixed-`T` lift, from the semantic full-frame cup predicate alone. It uses no
   orientation hypothesis.
-* `mFullStabilizer_lift_of_frame`: sufficiency. The name is `_of_frame` rather
-  than the N-parallel `mFullStabilizer_lift` only because
-  `MFullFrameStages.mFullStabilizer_lift` already occupies that name in this
-  namespace with the conditional composition shape; this is the landed theorem.
+* `mFullStabilizer_lift`: sufficiency, and the public name. Together with
+  `mFullStabilizer_lift_iff` it is the public pair of this module, the exact
+  twin of the pair `nFullStabilizer_lift` / `nFullStabilizer_lift_iff` of
+  `NFullStabilizerLift`.
+* `mFullStabilizer_lift_of_frame`: the same statement under the earlier
+  spelling, retained as an alias so that consumers written against that name
+  keep elaborating. It is definitionally the theorem above, not a weaker one.
 * `mFrameOrientation_cupFrameOfDM`, `mFullStabilizer_orientation_of_lift`,
   `mFullStabilizer_cup_of_lift`, `mFullStabilizer_orientation_cup_of_lift`:
   necessity.
 * `mFullStabilizer_lift_iff`: the exact image characterization, the M twin of
   `nFullStabilizer_lift_iff`.
+
+Neither `mFullStabilizer_lift` nor `mFullStabilizer_lift_iff` asserts a finite
+explicit Nielsen-generator list for the stabilizer, and neither states the
+rank-four packet: those are separate artifacts.
 
 `alpha >= 2` throughout: `MFrameMatrixLift`'s fixed-`T` lift needs it (the
 torsion digit is killed by `2 ^ (alpha - 1)` only from `alpha = 2` on),
@@ -113,17 +120,16 @@ restriction.** A continuous automorphism of the actual full M frame preserving
 the canonical orientation and the full mod-two cup form is induced by a
 continuous automorphism of `D_M` preserving `chiM`.
 
-Unconditional. `MFrameMatrixLift` supplies the initial fixed-`T` free basis with
-the exact frame square and the preserved orientation,
-`mFullStabilizer_relError_of_cup` supplies its depth-three relator error,
-`MFullFrameStages` supplies the iteration and the torsion-sensitive compact
-limit, and `MPlaneAmbientStage.mStageStep_holds` discharges the depth-step
-interface that iteration consumes.
+Unconditional, for every `alpha >= 2` and every handle count.
+`MFrameMatrixLift` supplies the initial fixed-`T` free basis with the exact
+frame square and the preserved orientation, `mFullStabilizer_relError_of_cup`
+supplies its depth-three relator error, `MFullFrameStages` supplies the
+iteration and the torsion-sensitive compact limit, and
+`MPlaneAmbientStage.mStageStep_holds` discharges the depth-step interface that
+iteration consumes.
 
-The name avoids `mFullStabilizer_lift`, which
-`MFullFrameStages.mFullStabilizer_lift` already occupies in this namespace with
-the conditional composition shape. -/
-theorem mFullStabilizer_lift_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
+This is the M twin of `nFullStabilizer_lift`. -/
+theorem mFullStabilizer_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hchi : ∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z)
     (hcup : MCupFrameCupIsometry ha phi) :
@@ -133,6 +139,20 @@ theorem mFullStabilizer_lift_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
         phi (mPhiHom (mStageOneLe ha) h (abMk x))) :=
   mFullStabilizer_lift_of_fixedHead ha phi hchi
     (mFullStabilizer_relError_of_cup ha phi hcup) (mStageStep_holds ha)
+
+/-- The earlier spelling of `mFullStabilizer_lift`, retained as an alias. The
+suffix recorded that `MFullFrameStages` then occupied the plain name with its
+interface-level composition shape; that shape is now
+`mFullStabilizer_lift_of_interfaces`, and the plain name is this module's. -/
+theorem mFullStabilizer_lift_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hchi : ∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z)
+    (hcup : MCupFrameCupIsometry ha phi) :
+    ∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
+      (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
+      (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
+        phi (mPhiHom (mStageOneLe ha) h (abMk x))) :=
+  mFullStabilizer_lift ha phi hchi hcup
 
 /-! ## Necessity -/
 
@@ -199,9 +219,10 @@ A continuous frame automorphism is induced by a `chiM`-preserving continuous
 automorphism of `D_M` exactly when it preserves the canonical orientation and
 the full mod-two cup form.
 
-Unconditional in both directions. Like its N twin `nFullStabilizer_lift_iff`
-this does not assert a finite explicit Nielsen-generator presentation of the
-stabilizer. -/
+Unconditional in both directions, for every `alpha >= 2` and every handle
+count. Like its N twin `nFullStabilizer_lift_iff` this does not assert a finite
+explicit Nielsen-generator presentation of the stabilizer, and it says nothing
+about the rank-four packet. -/
 theorem mFullStabilizer_lift_iff {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
     (∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
@@ -214,10 +235,11 @@ theorem mFullStabilizer_lift_iff {alpha h : ℕ} (ha : 2 ≤ alpha)
   · rintro ⟨Psi, hchi, hframe⟩
     exact mFullStabilizer_orientation_cup_of_lift ha phi Psi hchi hframe
   · rintro ⟨hchi, hcup⟩
-    exact mFullStabilizer_lift_of_frame ha phi hchi hcup
+    exact mFullStabilizer_lift ha phi hchi hcup
 
 #print axioms mFullStabilizer_liftEquiv_head
 #print axioms mFullStabilizer_relError_of_cup
+#print axioms mFullStabilizer_lift
 #print axioms mFullStabilizer_lift_of_frame
 #print axioms mCupFrameOfDM_surjective
 #print axioms mFrameOrientation_cupFrameOfDM
