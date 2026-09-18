@@ -140,3 +140,50 @@ Codex handoff").
    standard three plus nine), over 16 declarations, failing on an extra **or**
    a missing dependency. That matches the handoff's trust-boundary paragraph
    exactly. Elaborating it is queued behind the concurrent umbrella build.
+
+10. **No placeholder and no resource option in the W360/W361 additions.**
+    Stripping block comments and line comments, the tree contains zero
+    `sorry`, zero `admit` and zero `native_decide` outside comments. (A raw
+    grep returns 174 and 166 respectively; every hit is prose.) None of the
+    223 `.lean` files that `6770a87e` first tracked contains a
+    `set_option maxHeartbeats`, `maxRecDepth` or `synthInstance.*`, and the
+    eleven N modules contain no `set_option` of any kind. The handoff's "no
+    ... extra resource settings" is therefore exact for this pass.
+
+    **Scope amendment, proposed.** The handoff sentence "Existing default
+    settings are 200,000 heartbeats, `autoImplicit=false`, and
+    `relaxedAutoImplicit=false`" is true of the *defaults*: `lakefile.toml`
+    sets the two implicit options and no heartbeat option, so 200,000 is
+    Lean's own default rather than a project setting. The tree is not
+    uniformly at 200,000: it carries 224 localised `set_option maxHeartbeats`
+    overrides, 34 `maxRecDepth` and 13 `synthInstance.maxHeartbeats`, the
+    largest being 8,000,000 in `GQ2/Dyadic/SqCore/GradedFiveSepZero.lean`.
+    All of them predate W360. The prohibition a new lane inherits is "do not
+    raise a limit", not "the tree runs at 200,000"; the W362 handoff skeleton
+    says it that way.
+
+11. **The base commit's own file count reconciles, with a nuance.** The
+    message says "309 untracked files and three modified ones". The commit
+    adds **365** files and modifies exactly three (`GQ2.lean`,
+    `docs/dyadic/literature-axioms-dyadic.md`, `scripts/scoreboard.sh`). The
+    309 is a count of `git status --porcelain` *entries*, not files: three
+    wholly new directories under `generated/` collapse to one entry each
+    (`general-certificate-staged` 29 files, `general-ln-template-staged` 19,
+    `general-template-staged` 13), giving 307 committed entries, and the two
+    deliberately excluded build products `tmp/` and `output/` make 309. No
+    file is missing; the two numbers count different things.
+
+## T3: hygiene
+
+Done: `/tmp/` and `/output/` added to `.gitignore`, root-anchored to match the
+existing `/work/` and `/scratch/` style, so a nested `docs/.../tmp/` stays
+visible. Checked against the whole index: no tracked path becomes ignored.
+
+`work/` was already ignored (`.gitignore:5`).
+
+**`.DS_Store`, reported and not acted on.** The pattern is already in
+`.gitignore` at line 3, unanchored, so it matches at every depth. Nothing
+named `.DS_Store` is tracked. Four exist on disk in the main clone
+(`/Users/roed/claude/cla/work/gq2-dyadic-campaign`): at the repo root, under
+`GQ2/`, under `work/`, and inside `.git/`. All four are ignored and none is at
+risk of being committed. No action is required and none was taken.
