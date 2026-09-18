@@ -1,5 +1,7 @@
 # W363 full M stabilizer: original-specification scope
 
+**[W364 annotation: this document pins module hashes and the theorem name `mFullStabilizer_lift_of_frame` from before the W363-MCONSOL consolidation (`acffa057`, `492fe22e`). That pass renamed the conditional shape to `mFullStabilizer_lift_of_interfaces`, introduced the plain-named unconditional `mFullStabilizer_lift` with `_of_frame` kept as an alias, moved two head-module re-exports, and revised docstrings; the packet lane diff-checked zero declaration-line changes in the supporting modules and rename-plus-alias only in the endpoint. The verdict stands at the new hashes; pin count after the pass is 217 for the nine modules.]**
+
 2026-09-17. Independent read-only proof/interface review of the nine wave-362
 `GQ2/Dyadic/MarkedCore/M*` modules, with fresh default-limit elaboration of all
 nine by the auditing lane. This note does not approve a release, amend the

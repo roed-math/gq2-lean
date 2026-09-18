@@ -44,8 +44,13 @@ The lifts of the individual generators come from `mFullStabilizer_lift_of_frame`
 the uniform filtered-correction and compactness argument of waves 361/362. **No generator is
 lifted by an explicit group-level construction here**, and no such construction is claimed.
 Families M1 and M2 do have honest independent group-level lifts elsewhere in the repo
-(`M.lean`'s `mLambdaEquiv` and HM4's `dmTauDEquiv`); families M3 through M7 do not, and this file
-does not supply them. See `docs/dyadic/w363-nielsen-note.md`.
+(`M.lean`'s `mLambdaEquiv` and HM4's `dmTauDEquiv`); this file supplies none for the others. See
+`docs/dyadic/w363-nielsen-note.md`. [W364 correction (packet lane): the inventory of the others is:
+M3 has a group-level construction only through `MScaling`, whose route consumes the standing
+input `peripheralCyclotomicAction` (B8); M5 has `mMixFamily_coreMix` (`CoreMixM.lean:304`), the
+pure M5 move at every parameter and every `h`, stated on `Z_2`-valued characters and so not
+pinning the torsion coordinate; M4, M6, M7 have no group-level construction anywhere in the
+repo.]
 
 Scope of the list: the seven Nielsen *families*, each parameterized by a 2-adic number or unit;
 what the theorem produces for a given stabilizer element is one member of each family. A
@@ -59,7 +64,8 @@ Scope: handle rank **zero** only, since `mStabilizer_classification` and
 
 `MCupFrameCupIsometry` quantifies over *all* continuous mod-two characters of the frame, and
 the repo had no producer for it other than "comes from an actual core automorphism"
-(`mCupFrameCupIsometry_of_aut`), which is exactly what is not available for families M3 through M7.
+(`mCupFrameCupIsometry_of_aut`), which is exactly what is not available for families M4, M6, M7
+(and only conditionally, or on ordinary characters, for M3 and M5; see the inventory above).
 So the semantic condition is reduced here to a finite mod-two matrix identity:
 
 * `mNielsenGen_coord_zero` through `mNielsenGen_coord_three` read the four mod-two frame coordinates off an arbitrary

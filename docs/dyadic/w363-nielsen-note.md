@@ -135,6 +135,12 @@ This is the part the owner has to adjudicate.
    **M4, M5, M6, M7** are the S3 residue and have no group-level construction anywhere in
    the repo. If the owner reads the packet sentence as demanding generator-level lifts,
    the outstanding work is exactly those four families.
+   [W364 correction (packet lane, verified at the Lean): M5 DOES have `mMixFamily_coreMix`
+   (`CoreMixM.lean:304`), the pure M5 move at every parameter and every `h`, though stated on
+   `Z_2`-valued characters and so not pinning the torsion coordinate; and M3's only route
+   (`MScaling`) consumes the standing input B8. The Option-B work list is therefore M4, M6, M7
+   outright, M5's torsion pin, an M assembly theorem, and M3 without B8; see
+   `w364-proof-packet-amendment-mc.md`.]
 
 2. **The orientation character is an abstract one with pinned generator values.**
    `mNielsenGen_stabilizer_induced` takes `chi` together with `hchiA` to `hchiD`, exactly as

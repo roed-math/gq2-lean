@@ -1,5 +1,7 @@
 # W363: independent audit of the full M stabilizer lift
 
+**[W364 annotation: this document pins module hashes and the theorem name `mFullStabilizer_lift_of_frame` from before the W363-MCONSOL consolidation (`acffa057`, `492fe22e`). That pass renamed the conditional shape to `mFullStabilizer_lift_of_interfaces`, introduced the plain-named unconditional `mFullStabilizer_lift` with `_of_frame` kept as an alias, moved two head-module re-exports, and revised docstrings; the packet lane diff-checked zero declaration-line changes in the supporting modules and rename-plus-alias only in the endpoint. The verdict stands at the new hashes; pin count after the pass is 217 for the nine modules.]**
+
 Date: 2026-09-17. Audit lane: `w363-maudit`. No proof, umbrella, or script
 changes are made by this lane; comment-only findings are FLAGGED here for the
 orchestrator.
