@@ -362,6 +362,37 @@ risk of being committed. No action is required and none was taken.
     this lane's base, and all eight new `MarkedCore/M*.lean` modules appear in
     `GQ2.lean`. The six-file exception set is unchanged.
 
+22. **The scoreboard confirms T1e independently.** Run as the brief
+    specifies, from this worktree at base `6770a87e`:
+
+    ```sh
+    GQ2_MIR=/Users/roed/claude/cla/work/main-build-cache/lib/lean \
+    GQ2_PKG=/Users/roed/claude/gq2-paper/formalizations/gq2-claude/.lake/packages \
+    bash scripts/scoreboard.sh --raw
+    ```
+
+    Exit 0. Its registration scan reads the **worktree's** sources, not the
+    main clone's, and ends:
+
+    ```text
+    OUTSIDE|GQ2.AxiomLedger
+    OUTSIDE|GQ2.Dyadic.Word.GeneralFoxTemplateExport
+    OUTSIDE|GQ2.Dyadic.Word.GeneralPhaseCoverTemplateExport
+    OUTSIDE|GQ2.Dyadic.Word.GeneralPhaseTemplateExport
+    OUTSIDE|GQ2.Dyadic.Word.GeneralTemplateExport
+    OUTSIDE|GQ2.Dyadic.Word.GeneralTemplateLNExport
+    SCANNED|1557
+    ```
+
+    That is 1,557 scanned and exactly the same six outside the closure that the
+    independent computation in item 5 found, by a completely different route:
+    the board elaborates, the item-5 script parses imports. Two methods, one
+    answer. No `STALE_UMBRELLA` and no `UNVERIFIED` row appeared.
+
+    Note for whoever runs it next: `--raw` prints the probe's records only. The
+    OWNER ITEMS section, and therefore the memo-versus-note comparison
+    described below, appears only in the formatted board, run without `--raw`.
+
 ## Interaction with the machine scoreboard, flagged before it surprises anyone
 
 Creating this file changes what `scripts/scoreboard.sh` reports. Its OWNER
