@@ -53,12 +53,12 @@ bridge) it is the N twin of `MNielsenGenerators.lean`.
   (`IsNStab`, through `nStabilizer_classification`) rather than over every `NStabParam`: each is
   the composite of the list, and is induced by an actual `chiN`-preserving continuous automorphism
   of `D_N` with the exact square `abMk (Psi x) = xi (abMk x)`.
-
 * **The per-family route.** `nNielsenFacLifts_of_param_families`: every member of the list is
   *also* lifted by the automorphism that `nStabParam_fullFrame_lift_general` assembles from the
   six families' own constructions (N1, N2, N3 the exact `dnTauBEquiv`, `dnTauDEquiv`,
-  `dnTauCEquiv`; N5, N6 from `CoreMix`; N4 from `NPlaneGeneralScaling`; then the exact N1 torsion
-  adjustment), through `nNielsenFac_fullFrameMark`, which identifies
+  `dnTauCEquiv`; N5, N6 from `nMixPairHypothesis_coreMix`; N4 from
+  `nPlaneScalingHypothesis_general`; then the exact N1 torsion adjustment), through
+  `nNielsenFac_fullFrameMark`, which identifies
   `NStabilizerFullRows.fullFrameMark` at `h = 0` with the frame action on the marks. So at N,
   unlike at M, each generator carries two independent lifts.
 
@@ -69,10 +69,10 @@ filtered-correction and compactness argument, exactly as at M. The per-family ro
 genuinely different theorem, but its N4 ingredient (`nPlaneScalingHypothesis_general`) is itself
 a compactness limit of the N-plane stages, so **not every generator is lifted by a closed
 formula**, and none is claimed to be; N1, N2, N3 are (`dnTauBEquiv`, `dnTauDEquiv`,
-`dnTauCEquiv`), and N5, N6 are the `CoreMix` constructions. "Finite list" means finitely many
-*families*, each parameterized by a 2-adic number or unit, and what the theorem produces for a
-given stabilizer element is one member of each slot; a literally finite generating set is
-impossible for a pro-2 group that is not finitely generated as an abstract group.
+`dnTauCEquiv`), and N5, N6 are the `CoreMix`/`ClearWide` constructions. "Finite list" means
+finitely many *families*, each parameterized by a 2-adic number or unit, and what the theorem
+produces for a given stabilizer element is one member of each slot; a literally finite generating
+set is impossible for a pro-2 group that is not finitely generated as an abstract group.
 
 Scope: handle rank **zero** only, since `nStabilizer_classification` is a rank-four statement;
 `alpha >= 2` wherever the actual frame is involved. Every declaration in this file is std-3
@@ -950,8 +950,9 @@ theorem nNielsenFac_fullFrameMark {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabPar
 member of the eight-slot list, is also induced by the automorphism that
 `nStabParam_fullFrame_lift_general` assembles from the six families' *own* constructions (N1, N2,
 N3 the exact closed-form automorphisms `dnTauBEquiv`, `dnTauDEquiv`, `dnTauCEquiv`; N5, N6 the
-core-mixing automorphisms of `CoreMix`; N4 the N-plane scaling limit of `NPlaneGeneralScaling`;
-then the exact N1 torsion adjustment), with the same exact all-element square. This route does
+core-mixing automorphisms behind `nMixPairHypothesis_coreMix`; N4 the N-plane scaling limit
+`nPlaneScalingHypothesis_general`; then the exact N1 torsion adjustment `nTorsionAdjust`), with
+the same exact all-element square. This route does
 not go through the uniform full-frame compactness theorem `nFullStabilizer_lift`, so at N,
 unlike at M, the finite list carries **two independent** lifts of each generator; note that the
 N4 ingredient is itself a compactness limit of the N-plane stages, not a closed formula. -/
