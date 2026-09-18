@@ -1,0 +1,20 @@
+% STAGED L/N Fox operations and reduced matrices; ledger items 4 and 5 only.
+% ln-fox-hash: 066b3a46e473dd1bfb38055dd83a8f691c4406532f1d4e8fa6958dccead1c7fa
+% family: Npc; structural: {"h":0,"q":2,"r":1}
+% Ledger items 4 and 5 only, for the existing L/N0/Npc FoxCertificate records under their own stated hypotheses. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% Row list applies head first; column list denotes head composed with tail; comp(outer,inner) applies inner first. Every scale carries its formal inverse as data.
+% Identity of the serialized operation lists and normal matrices at the stated discrete parameters. Uniformity in h, q and r is carried by the rfl signature theorems, not by this instance.
+% The Npc Fox records need 1 <= alpha; the complete Npc certificate requires alpha >= 2, nonzero even q and an exact NpcDisplayFor for the semantic unit. The unramified target intentionally stops at two blocks and does not claim either block is a unit.
+% S, T, W_i are generator actions; S_2 is the omega2 action, not S squared; A is the eta-hat conjugator action, not an independently chosen scalar.
+% Rows are identities on ALL cochains, not only on the cocycle kernel. Unprinted columns carry the coefficient 0.
+% Syntax, hash and render agreement is NOT Lean synchronization; replay Lean for strong checking.
+\paragraph{unramified sector}
+% record: GQ2.Dyadic.Certificates.Npc.npcJacobianCertUnram
+% signature bridges: GQ2.Dyadic.W362LNFox.npcUnram_rowOps, GQ2.Dyadic.W362LNFox.npcUnram_colOps, GQ2.Dyadic.W362LNFox.npcUnram_target
+\[\begin{aligned}\mathcal R_{1}&:\quad R_2\leftarrow R_2+S\circ R_1\\\mathcal C&=\mathrm{id}\end{aligned}\]
+\[\begin{pmatrix}S^{-1}\bigl(a_{\tau}\bigr)\\\bigl(A^{-1}+I\bigr)\bigl(a_{x_{0}}\bigr)+\bigl(I+S^{-2}\bigr)\bigl(a_{x_{2}}\bigr)\end{pmatrix}.\]
+\paragraph{ramified sector}
+% record: GQ2.Dyadic.Certificates.Npc.npcJacobianCertRam
+% signature bridges: GQ2.Dyadic.W362LNFox.npcRam_rowOps, GQ2.Dyadic.W362LNFox.npcRam_colOps, GQ2.Dyadic.W362LNFox.npcRam_target
+\[\begin{aligned}\mathcal R&=\mathrm{id}\\\mathcal C_{1}&:\quad a_{x_{2}}\leftarrow S^{2}\bigl(a_{x_{2}}\bigr)\quad[\text{carried inverse: }S^{-2}]\\\mathcal C_{2}&:\quad a_{x_{2}}\leftarrow a_{x_{2}}-\bigl(A^{-1}+I\bigr)\bigl(a_{x_{0}}\bigr)\end{aligned}\]
+\[\begin{pmatrix}S^{-1}\circ \bigl(T-I\bigr)\bigl(a_{\sigma}\bigr)+\bigl(S^{-1}-\bigl(\bigl(0+T^{0}\bigr)+T\bigr)\bigr)\bigl(a_{\tau}\bigr)\\I\bigl(a_{x_{2}}\bigr)\end{pmatrix}.\]

@@ -346,11 +346,11 @@ def exportMain (args : List String) : IO Unit := do
     | ["N0", hs, qs] => match hs.toNat?, qs.toNat? with
       | some h, some q => pure (payload "N0" (2+2*h) h (structuralLN h q) (n0Sectors h q))
       | _, _ => throw (IO.userError "N0 H Q: H and Q must be natural numbers")
-    | ["Npc", hs, rs, qs] => match hs.toNat?, rs.toNat?, qs.toNat? with
-      | some h, some r, some q =>
+    | ["Npc", hs, qs, rs] => match hs.toNat?, qs.toNat?, rs.toNat? with
+      | some h, some q, some r =>
           pure (payload "Npc" (2+2*h) h (structuralNpc h q r) (npcSectors h r q))
-      | _, _, _ => throw (IO.userError "Npc H R Q: H, R and Q must be natural numbers")
-    | _ => throw (IO.userError "usage: L H Q | N0 H Q | Npc H R Q")
+      | _, _, _ => throw (IO.userError "Npc H Q R: H, Q and R must be natural numbers")
+    | _ => throw (IO.userError "usage: L H Q | N0 H Q | Npc H Q R")
   IO.println ("W362_LN_FOX_JSON=" ++ envelope p)
 
 #print axioms lSqUnram_rowOps
