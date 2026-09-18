@@ -40,7 +40,7 @@ uniqueness of the one-dimensional degree-two obstruction.
 namespace GQ2.Dyadic.MarkedCore
 noncomputable section
 
-open GQ2 GQ2.SectionThree Multiplicative
+open GQ2 GQ2.SectionThree Multiplicative GQ2.Roe.Labute
 open GQ2.Dyadic.EvenModel
 open NInitialCupDepth
 open scoped GQ2.SectionThree.TopAbInstances
@@ -90,8 +90,11 @@ private theorem mCupFrameCoordinate_head_relation {alpha h : ℕ} (ha : 2 ≤ al
       (ofAdd (if (2 : Fin (coreRank h)) = i then (1 : ZMod 2) else 0)) ^ (2 ^ alpha)
         = 1 := by
   have hs : ∀ z : Multiplicative (ZMod 2), z ^ 2 = 1 := by decide
-  obtain ⟨a, rfl⟩ : ∃ a, alpha = a + 1 := ⟨alpha - 1, by omega⟩
-  rw [pow_succ, pow_mul, hs, hs, one_mul]
+  have hy : ∀ z : Multiplicative (ZMod 2), z ^ 2 ^ alpha = 1 := by
+    obtain ⟨a, rfl⟩ : ∃ a, alpha = a + 1 := ⟨alpha - 1, by omega⟩
+    intro z
+    rw [pow_succ, pow_mul, hs]
+  rw [hs, hy, one_mul]
 
 /-- Coordinate `i` of the full M frame, including its torsion coordinate, as a
 genuine continuous F2 character. -/
