@@ -72,3 +72,71 @@ Codex handoff").
    imports. 427 import lines are spelled `public import`, and a scan that
    matches only `^import ` misses 18 modules and reports 24 unregistered files
    instead of 6.
+
+6. **The statements have exactly the shape the handoff states (T1b).**
+   `GQ2/Dyadic/MarkedCore/NFullStabilizerLift.lean:46`:
+
+   ```lean
+   theorem nFullStabilizer_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
+       (phi : ContinuousMulEquiv (NFrameModel h) (NFrameModel h))
+       (hchi : ∀ z, nFrameOrientation ha h (phi z) = nFrameOrientation ha h z)
+       (hcup : NFrameCupIsometry ha phi) :
+       ∃ Psi : ContinuousMulEquiv (DN alpha h : Type) (DN alpha h : Type),
+         (∀ x, chiN alpha h (Psi x) = chiN alpha h x) ∧
+         (∀ x, nPhiHom ha h (abMk (Psi x)) = phi (nPhiHom ha h (abMk x)))
+   ```
+
+   and `:81`, the same two hypotheses as an iff with that existential:
+
+   ```lean
+   theorem nFullStabilizer_lift_iff {alpha h : ℕ} (ha : 2 ≤ alpha)
+       (phi : ContinuousMulEquiv (NFrameModel h) (NFrameModel h)) :
+       (∃ Psi : ContinuousMulEquiv (DN alpha h : Type) (DN alpha h : Type),
+         (∀ x, chiN alpha h (Psi x) = chiN alpha h x) ∧
+         (∀ x, nPhiHom ha h (abMk (Psi x)) = phi (nPhiHom ha h (abMk x)))) ↔
+       (∀ z, nFrameOrientation ha h (phi z) = nFrameOrientation ha h z) ∧
+         NFrameCupIsometry ha phi
+   ```
+
+   Both quantify `{alpha h : ℕ}` with `ha : 2 ≤ alpha` and no constraint on
+   `h`, so "every alpha >= 2 and every handle count h" is exact. The three
+   supporting claims also hold:
+
+   - `NFrameModel h` is `Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] ×
+     (Fin (2 * h) → ℤ_[2]))` (`GQ2/Dyadic/MarkedCore/N.lean:177`), which is
+     the claimed `Z/2 × Z₂³ × Z₂^(2h)`.
+   - `NFrameCupIsometry` (`NFrameCupCoordinates.lean:31`) quantifies
+     `∀ c d : ContinuousMonoidHom (NFrameModel h) (Multiplicative (ZMod 2))`,
+     so it genuinely ranges over every continuous F₂ character including the
+     torsion one. It carries no orientation and no identity-handle condition.
+   - `nFrameOrientation_preserved_iff` exists (`NFrameMatrixLift.lean:106`)
+     and is exactly the claimed equivalence with preservation of the integral
+     b-coordinate.
+
+7. **All 118 N pins are registered in the 691-pin artifact audit.**
+   `scripts/w361_artifact_axiom_audit.lean` lists 691 names, all distinct, 388
+   of them under `MarkedCore`. Resolving each of the eleven modules' 118 pins
+   against that list under the module's own namespace leaves zero unmatched.
+
+8. **Census eleven, at source level (T1d).** Exactly eleven `axiom`
+   declarations exist in the tree, all in `GQ2/Foundations/Axioms.lean` (lines
+   104, 124, 165, 178, 204, 231, 259, 300, 359, 388, 433). Their names are set
+   equal to `GQ2.AxiomLedger.bAxioms`, and `scripts/check_axioms.sh:28` sets
+   `EXPECTED_AXIOMS=11`. Two further `^axiom ` grep hits, in
+   `GQ2/EvensKahnDerived.lean:32` and
+   `GQ2/Dyadic/Instances/EvenRouteModel.lean:55`, are docstring prose that
+   line-wrapped onto the word.
+
+9. **The general endpoint is exported where the handoff says (T1c).**
+   `GQ2/Dyadic/GeneralMain.lean:54` opens `namespace GQ2.Dyadic`, `:67`
+   `export`s `Instances.FieldFamilySpliceOriginalMarked`, and `:79` pins
+   `hasSelectedOriginalMarkedWordPresentationRN_ramifiedI`. So the short name
+   the handoff gives, `GQ2.Dyadic.hasSelectedOriginalMarkedWordPresentationRN_ramifiedI`,
+   is real; the underlying declaration is
+   `GQ2.Dyadic.Instances.FieldFamilySpliceOriginalMarked.hasSelectedOriginalMarkedWordPresentationRN_ramifiedI`,
+   which is the spelling `scripts/w361_general_axiom_audit.lean` audits. The
+   driver's expected footprints are literal: `standardAxioms` (3),
+   `suppliedFieldAxioms` (3 + 6) and `canonicalFieldAxioms` (3 + 6 + 3 = the
+   standard three plus nine), over 16 declarations, failing on an extra **or**
+   a missing dependency. That matches the handoff's trust-boundary paragraph
+   exactly. Elaborating it is queued behind the concurrent umbrella build.
