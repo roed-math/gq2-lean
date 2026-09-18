@@ -27,6 +27,12 @@ finding).  Folded in now, with this wave's additions:
    `.gitignore`d; bytes match the pinned hash; reproducible from tracked inputs).
 7. **G3 / release** remains your gate, as before.
 
+Added at the end of the session (waves 363 to 365): item 4 now has a written proposal with
+both options costed (`w364-proof-packet-amendment-mc.md`); the publication decisions 13 to 17
+of `w363-pub2-note.md` (packet regeneration, the proof-irrelevant binding kind, the restated
+identity kind, the Gauss facts now named in `Instances/GaussPhaseValues.lean` so decision 16's
+narrow question is answerable, and where the W363 check script folds in) sit under item 3.
+
 **For orientation.**  This wave proved the M full-stabilizer lifting in nine modules by
 following the Codex scaffold's five steps exactly; every headline claim of the Codex handoff
 was independently verified against the tree by the house lane; the 1,541-module verification
