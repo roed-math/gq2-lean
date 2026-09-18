@@ -187,3 +187,39 @@ named `.DS_Store` is tracked. Four exist on disk in the main clone
 (`/Users/roed/claude/cla/work/gq2-dyadic-campaign`): at the repo root, under
 `GQ2/`, under `work/`, and inside `.git/`. All four are ignored and none is at
 risk of being committed. No action is required and none was taken.
+
+## T1 findings, publication artifacts (handoff section 6 item 3)
+
+12. **All four counts in the publication paragraph are exact.**
+
+    - Four pair/mobile ten-item packets:
+      `generated/general-certificate-staged/` holds exactly four packet stems
+      (`pair-alpha2-h1-j0`, `pair-alpha3-h2-j1`, `mobile-alpha2-r1-p0-h0`,
+      `mobile-alpha3-r2-p2-h1`), each with the same five files
+      (`.appendix.tex`, `.files.json`, `.packet.json`, `.proofs.lean`,
+      `.proofs.txt`); 20 files, plus eight cover/phase/fox artifacts and a
+      README, is the directory's 29 entries.
+    - Six legacy L/N specimens, word-only: `general-ln-template-staged/` holds
+      exactly six stems (`L-h0`, `L-h4`, `N0-alpha5-h3`,
+      `Npc-alpha2-r1-h0-num1-den1`, `Npc-alpha3-r2-h3-num3-den9`,
+      `Npc-alpha3-r2-h3-num-3-den9`). "Word-only" is visible in the file
+      shape: each has only `.tex`, `.ln.json` and `.provenance.json`, and none
+      has the `.appendix.tex`, `.packet.json` or `.proofs.lean` that the four
+      pair/mobile packets carry.
+    - The staged PDF is 29 pages and hashes to
+      `3cec56dc3adde9ad9982225cbc376904a9284224f23ba0c1a07c72f17a4b71bb`, and
+      its wrapper `scripts/w361_staged_certificates.tex` to
+      `702e75cbcb6d881ea53c62c0a29d448d04662ad938515fbc668487cadf8c48e5`,
+      both exactly as `w361-staged-pdf-qa.md` records.
+    - Forty `\dyadicAppendixTODO` invocations: eight in each of the five files
+      under `generated/appendix/`. A grep returns 45 because each file also
+      carries the macro's definition on a commented-out line.
+
+    **Owner-facing note, not a decision.** The reviewed PDF lives at
+    `output/pdf/w361-staged-certificates.pdf` in the main clone. That path was
+    untracked at `6770a87e` by the checkpoint's own choice, and T3 has now
+    made the choice permanent by ignoring `/output/`. The artifact whose hash
+    the QA record pins therefore has exactly one copy, in an ignored
+    directory. Its inputs are tracked and it is reproducible from them, so
+    this is a hygiene consequence rather than a loss; whether the reviewed
+    bytes should also be tracked is an owner call, not this lane's.
