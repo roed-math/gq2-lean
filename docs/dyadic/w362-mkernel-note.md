@@ -64,10 +64,19 @@ Imports `MBasisRowRefinement` and `NPlaneAmbientStage` (for the constant-one
 
 ## Status
 
-Opened 2026-09-17. Both modules drafted; verification pending on the shared
-cache rebuild that was running when the lane opened.
+Opened 2026-09-17. `MBasisRowRefinement.lean` verified by the runner of
+record: exit 0, 9 pins, all `[propext, Classical.choice, Quot.sound]`, no
+warnings. `MPlaneAmbientStage.lean` now imports the landed `MHeadCleanup`
+(merged from `claude/w362-mhead`), so the one-step interface `MBasisStageStep`
+is proved unconditionally; its verification goes through the mirror harness
+once the shared cache rebuild that was running when the lane opened finishes.
 
 ## Log
 
 - Commit 1: lane note opened.
 - Commit 2: both modules drafted (unverified).
+- Commit 3: head-cleanup input weakened to the all-coordinate depth form.
+- Merge: `claude/w362-mhead` (landed head cleanup) merged in.
+- Commit 4: `MPlaneAmbientStage` consumes `mHead_exists_freeTwo_characterZero_same_class`;
+  `mBasisHeadCleanupSupply` and `mBasisStageStep` are theorems.
+- Commit 5: `MBasisRowRefinement.lean` verified (9 pins, std-3).
