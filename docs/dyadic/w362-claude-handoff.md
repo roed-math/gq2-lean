@@ -285,7 +285,10 @@ ten declarations and ten pins.
   of continuous automorphisms of `MFrameModel 0`, every member orientation-preserving, an
   `MCupFrameCupIsometry`, and lifting; the composite is the parameter's frame action and the
   composite lifts. `mNielsenGen_param_realized` and `mNielsenGen_stabilizer_induced`, the
-  latter with the packet's own quantifier over every `IsMStabilizer` element. The reusable half
+  latter over every `IsMStabilizer` element, but at the canonical rank-four frame and for an
+  orientation character with four pinned generator values, exactly as
+  `mStabilizer_classification` is stated; its docstring's bare "every element" omits those
+  binders, and section 5 flags that. The reusable half
   is the **cup producer**: `mNielsenGen_coord_zero` .. `_three`, `mNielsenGen_character_apply`
   and `mNielsenGen_cup_core` reduce the semantic predicate to a finite `F_2` matrix check,
   which is what the repo previously had no way to do except from an actual core automorphism.
@@ -755,7 +758,10 @@ audits; it is a collection, not a judgement about priority.]`
     intermediate lemmas claim more than they state.
 11. `MNielsenGenerators` refers to the endpoint seven times as
     `mFullStabilizer_lift_of_frame`, the retained alias, and never by the public
-    name W363-MCONSOL freed for it.
+    name W363-MCONSOL freed for it. Its quantifier-closure docstring also claims
+    "every element of the Smith-Witt stabilizer" where the statement fixes the
+    canonical rank-four frame and pins four generator values of the orientation
+    character; the N twin spells its clause out and the M one does not.
 12. `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` pins nine source
     SHA-256 with no as-of commit, and all nine are now stale because
     W363-MCONSOL edited all nine files later the same day. The audit's base is
