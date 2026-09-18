@@ -60,7 +60,9 @@ closure, hence no fixed slot count). Proof, by hand as the ticket allowed: if `g
 `g = diag(δ, 1)·E((g₀₀ − δ)δ⁻¹g₁₀⁻¹)·F(g₁₀)·E((g₁₁ − 1)g₁₀⁻¹)` outright, a `Matrix.mul_fin_two`
 identity closed by three `linear_combination`s over the unit relations; otherwise `Z_2` being
 local makes `g₀₀` a unit (`ad − bc` is), hence `g₁₀ − g₀₀` a unit, and `F(−1)·g` is in the first
-case. Four slots cannot do it uniformly: any word with a single `F` has `(1,1)` entry `1` when
+case. Four slots cannot do it uniformly (an unformalized side claim, hedged here at W364-AUDIT2's
+request; the auditor verified it by the diag/elementary commutation normalization, and the
+argument below covers only the single-`F` arrangements): any word with a single `F` has `(1,1)` entry `1` when
 its `(0,1)` entry vanishes, so `diag(1, u)`, `u ≠ 1`, needs the fifth.
 
 `nNielsen_factorization (P : NStabParam) (hP : P.Admissible)`:

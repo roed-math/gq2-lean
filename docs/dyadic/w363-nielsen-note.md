@@ -88,8 +88,11 @@ Both are discharged here for **every** `MStabParam`:
     matrix of a parameter straight from the semantics, and `mNielsenGen_cup_core` is the
     resulting finite check (`decide` over `ZMod 2`).
 
-  `MarkedCore/Variance.lean` is therefore **not an input**: nothing here reads `M.lean`'s
-  row-convention `mFrameMatrix`, so no transposition has to be arranged. The matrix that
+  `MarkedCore/Variance.lean` is therefore **not a proof input**: no PROOF here uses the
+  row-convention `mFrameMatrix` (it is in the import closure, and `IsMStabilizer` unfolds to it,
+  so the earlier wording "nothing here reads it" was literally false; W364-AUDIT2 confirmed the
+  substantive claim entry by entry, including the predicted transpose of `mFrameMatrix_of_realizes`),
+  so no transposition has to be arranged. The matrix that
   comes out,
 
   ```
@@ -181,7 +184,9 @@ They do **not** fall out for free, and the packet does not ask for them in this 
 ## The N side (MC-N)
 
 **The N-side finite list cannot be produced, because the N-side factorization does not
-exist in the repo.** This is a finding, not a deferral:
+exist in the repo.** This is a finding, not a deferral [W364: superseded the same session by
+W364-NFACTOR, which built `nNielsen_factorization` (eight slots) and `nNielsenFac_finite_list`
+in `MarkedCore/NNielsenFactorization.lean`; the lifting half delivered below is what it consumes]:
 
 * `N.lean` has `nStabilizer_classification` (`IsNStab alpha R <-> ExistsUnique P,
   P.Admissible /\ P.rows = R`), with parameter type `NStabParam` carrying a full
