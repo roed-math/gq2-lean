@@ -528,11 +528,23 @@ bash scripts/w361_run_with_deps.sh env -u GQ2_LEDGER_FIXTURE GQ2_LEDGER_GATE=1 b
 **all checks passed**: `check_axioms` all-pass, axiom census **11** (= expected), the five
 capstones at the expected census set, the ledger at **51,436 tracked declarations** with **0**
 `sorryAx` dependencies, **0** unknown non-standard axiom uses, **0** terminal violations.
-(The wave-362 tree gated at 51,212; the difference is the W363 to W365 modules.) The fresh
-source-only build of this tree by `scripts/w361_fresh_build.py --require-live-match` was
-started at the close; its result is recorded in the paragraph that follows when it finished
-before the session ended, otherwise the next session runs it first (section 6 has the exact
-command) and it is the only verification artifact this session did not produce.
+(The wave-362 tree gated at 51,212; the difference is the W363 to W365 modules.)
+
+**Fresh source-only build of this tree: PASS.** `scripts/w361_fresh_build.py --packages <gq2-paper
+store> --lean <rc2> --jobs 6 --require-live-match`, snapshot
+`/private/tmp/gq2-w361-fresh-fru2elbj` (1.3 GB; source snapshot taken 2026-09-18 03:28:06 UTC):
+**1,565 / 1,565 local modules** compiled, `failed: []`, `unbuilt: []`, 2,080.2 seconds, no live
+source drift, no live manifest drift, 3,727 output files inventoried. Durable copies of the
+snapshot's own records are committed beside this document:
+`w365-fresh-build-result.json` (SHA-256
+`8c47b4aa93b17009db0715c1944f31194f357cb202380b5fe9f718ac64804920`) and
+`w365-fresh-build-provenance.json` (SHA-256
+`925e22635b17a44b2bbdcc2f064cce07bac611f5eb1ac5657a0fcd56c1b3d941`; pinned compiler
+`1b370cfc...`, manifest `3c3d5e1a...`, driver `21b8f1d7...`). The verifier
+(`scripts/w361_verify_fresh.py <snapshot> --replay`) was started on it at the close; its
+outcome is the last line of this section if it finished, otherwise the next session runs it
+(read-only) as its first act. Like W361's, this is content consistency with an observed
+isolated build, not a signed attestation, and it reuses manifest-matching dependency artifacts.
 
 
 ### Verified in the W362-HOUSE lane against base `6770a87e`
