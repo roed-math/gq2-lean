@@ -4,11 +4,79 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable 5.1
 -/
 import GQ2.Dyadic.MarkedCore.NNielsenGenerators
+import GQ2.Dyadic.MarkedCore.NStabilizerFullLift
 
 /-!
 # The N frame-stabilizer factorization into the six Nielsen families
 
-Wave 364, lane MC-N. Draft head; see the lane note `docs/dyadic/w364-nfactor-note.md`.
+Wave 364, lane MC-N, at the rank-four core (`h = 0`). This is the half of the packet's **MC-N**
+finite-list artifact that wave 363 found absent (`docs/dyadic/w363-nielsen-note.md`): the six N
+Nielsen families of `docs/dyadic/mc-design.md` section 3.4 as frame actions, the completeness
+theorem factoring every admissible `NStabParam` through a **fixed** finite slot list, and the
+resulting finite list of continuous automorphisms of the actual full N frame `NFrameModel 0`,
+each of which lifts to `D_N`. Together with wave 363's `NNielsenGenerators.lean` (the lifting
+bridge) it is the N twin of `MNielsenGenerators.lean`.
+
+## What is here
+
+* **The frame action.** `NStabParam.act` is memo §3.3's closed form as a map on coordinate
+  vectors `(τ_v, a, b, c)` in the basis `(t, x̄₁, σ̄, x̄₂)`, the N twin of `MStabParam.act`; its
+  three basis rows are `NStabParam.rows` on the nose (`act_x1`, `act_sigma`, `act_x2`) and it
+  fixes `t` (`act_t`).
+* **The six families (T1).** `nFamN1` through `nFamN6` as `NStabParam` values, with closed-form
+  actions and admissibility. Families N2, N3, N4 are the pure block parameters
+  `nNielsenFacBlock` at `E(k)`, `F(k)` and `diag(κ, 1)`, and `nNielsenFacBlock_act_comp` says the
+  block action is the matrix action on the column `(b, c)`.
+* **The factorization (T2).** `nNielsenFac_gl2_factor`: every `g ∈ GL₂(ℤ₂)` is
+  `F(w)·diag(det g, 1)·E(x)·F(y)·E(z)` with `w ∈ {0, 1}`, the bounded form of `N.lean`'s
+  `nGL_factor` (`ℤ₂` is local, so one of `g₁₀`, `g₁₀ − g₀₀` is a unit). `nNielsen_factorization`:
+  every admissible parameter's frame action is the composite of the **eight** slots
+  `N2(z), N3(y), N2(x), N4(κ), N3(w), N5(p), N6(q), N1(k)` (leftmost applied first). The two
+  admissibility couplings are used exactly once, to show that the `t`-shifts carried by N5 and N6
+  recombine to `(τ_σ, τ_{x₂})` (`nNielsenFac_couple`). The statement is `α`-free, as the N
+  stabilizer is.
+* **The artifact (T3).** `nNielsenFacMap` carries the action onto `NFrameModel 0`; every parameter
+  fixes the integral `x̄₁` coordinate, hence preserves `nFrameOrientation`
+  (`nNielsenFac_orientation`); every admissible parameter is an `NFrameCupIsometry` through wave
+  363's `nNielsenGen_cup_of_mat` and the bridge `nNielsenFac_mat` (the reduced matrix of the frame
+  action is `NRows.mat` at the rows), hence lifts by `nFullStabilizer_lift`. `nNielsenFacN1`
+  through `nNielsenFacN6` are the families as honest `ContinuousMulEquiv`s (each inverts inside its
+  own family), `nNielsenFacList` is the eight-member list, and `nNielsenFac_finite_list` is the
+  MC-N twin of `mNielsenGen_finite_list`: length eight, every member orientation-preserving, a cup
+  isometry and lifting, the composite equal to the parameter's frame action, the composite
+  lifting. `nNielsenFac_param_realized` projects the list away.
+* **The quantifier closure.** `nNielsenFacRows` reads the `NRows` of a continuous frame
+  automorphism, `nNielsenFac_frameAction_of_rows` identifies an automorphism with a parameter's
+  rows with `nNielsenFacMap` at that parameter (hom-extensionality on the marks plus the automatic
+  `t`-row `nFrameModel_map_t`), so `nNielsenFac_stabilizer_list` and
+  `nNielsenFac_stabilizer_induced` read over *every element of the Smith-Witt stabilizer*
+  (`IsNStab`, through `nStabilizer_classification`) rather than over every `NStabParam`: each is
+  the composite of the list, and is induced by an actual `chiN`-preserving continuous automorphism
+  of `D_N` with the exact square `abMk (Psi x) = xi (abMk x)`.
+
+* **The per-family route.** `nNielsenFacLifts_of_param_families`: every member of the list is
+  *also* lifted by the automorphism that `nStabParam_fullFrame_lift_general` assembles from the
+  six families' own constructions (N1, N2, N3 the exact `dnTauBEquiv`, `dnTauDEquiv`,
+  `dnTauCEquiv`; N5, N6 from `CoreMix`; N4 from `NPlaneGeneralScaling`; then the exact N1 torsion
+  adjustment), through `nNielsenFac_fullFrameMark`, which identifies
+  `NStabilizerFullRows.fullFrameMark` at `h = 0` with the frame action on the marks. So at N,
+  unlike at M, each generator carries two independent lifts.
+
+## What this does *not* do
+
+The lifts in `nNielsenFac_finite_list` come from `nFullStabilizer_lift`, i.e. from the uniform
+filtered-correction and compactness argument, exactly as at M. The per-family route above is a
+genuinely different theorem, but its N4 ingredient (`nPlaneScalingHypothesis_general`) is itself
+a compactness limit of the N-plane stages, so **not every generator is lifted by a closed
+formula**, and none is claimed to be; N1, N2, N3 are (`dnTauBEquiv`, `dnTauDEquiv`,
+`dnTauCEquiv`), and N5, N6 are the `CoreMix` constructions. "Finite list" means finitely many
+*families*, each parameterized by a 2-adic number or unit, and what the theorem produces for a
+given stabilizer element is one member of each slot; a literally finite generating set is
+impossible for a pro-2 group that is not finitely generated as an abstract group.
+
+Scope: handle rank **zero** only, since `nStabilizer_classification` is a rank-four statement;
+`alpha >= 2` wherever the actual frame is involved. Every declaration in this file is std-3
+(`propext`, `Classical.choice`, `Quot.sound`).
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -185,7 +253,7 @@ bounded form of `nGL_factor` (`N.lean`): `ℤ₂` is local, so one of `c`, `c �
 (`c` when `c` is, and otherwise `a` is, because `ad − bc` is), and a matrix with a unit `(1,0)`
 entry is `diag(δ, 1)·E(x)·F(c)·E(z)` outright. -/
 theorem nNielsenFac_gl2_factor (g : Matrix (Fin 2) (Fin 2) ℤ_[2]) (hg : IsUnit g.det) :
-    ∃ (w x y z : ℤ_[2]),
+    ∃ (w x y z : ℤ_[2]), (w = 0 ∨ w = 1) ∧
       g = planeElemV w * nPlaneDet hg.unit * planeElemU x * planeElemV y * planeElemU z := by
   have hδ : ((hg.unit : ℤ_[2]ˣ) : ℤ_[2]) = g.det := hg.unit_spec
   have hδi : g.det * ((hg.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
@@ -219,7 +287,7 @@ theorem nNielsenFac_gl2_factor (g : Matrix (Fin 2) (Fin 2) ℤ_[2]) (hg : IsUnit
     have this := key hc.unit (g 0 0) (g 0 1) (g 1 1) (by rw [hc.unit_spec, hdet])
     rw [hc.unit_spec] at this
     refine ⟨0, (g 0 0 - g.det) * ((hg.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((hc.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]),
-      g 1 0, (g 1 1 - 1) * ((hc.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]), ?_⟩
+      g 1 0, (g 1 1 - 1) * ((hc.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]), Or.inl rfl, ?_⟩
     rw [planeElemV_zero, one_mul, ← this]
     exact hg'
   · -- `c` is not a unit, so `a` is, so `c − a` is; factor `F(−1)·g` instead
@@ -246,7 +314,7 @@ theorem nNielsenFac_gl2_factor (g : Matrix (Fin 2) (Fin 2) ℤ_[2]) (hg : IsUnit
     rw [hca.unit_spec] at this
     rw [hg', this] at hfac
     refine ⟨1, (g 0 0 - g.det) * ((hg.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((hca.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]),
-      g 1 0 - g 0 0, (g 1 1 - g 0 1 - 1) * ((hca.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]), ?_⟩
+      g 1 0 - g 0 0, (g 1 1 - g 0 1 - 1) * ((hca.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]), Or.inr rfl, ?_⟩
     refine hfac.trans ?_
     simp only [Matrix.mul_assoc]
 
@@ -277,20 +345,22 @@ members in the fixed slot list
 N2(z), N3(y), N2(x), N4(κ), N3(w), N5(p), N6(q), N1(k)      (leftmost applied first)
 ```
 
-with `κ = det g`, `w ∈ {0, 1}`, `(x, y, z)` the elementary parameters of
-`nNielsenFac_gl2_factor`, `p, q` the parameters of `P` itself, and `k = τ + p̄·q̄` (read in
-`ℤ₂` through `ZMod.val`). The memo's recipe "kill the block by N2–N4, then `(p, q)` by N5/N6,
-then `τ` by N1" is followed literally: the block is a matrix identity pushed through
-`nNielsenFacBlock_act_comp`, and the `t`-slot closes because the two admissibility couplings
-say exactly that the `t`-shifts carried by N5/N6 recombine to `(τ_σ, τ_{x₂})`
-(`nNielsenFac_couple`). Completely `α`-free, as the N stabilizer is. -/
+with `κ = det g` and `w ∈ {0, 1}` (both recorded in the statement), `(x, y, z)` the elementary
+parameters of `nNielsenFac_gl2_factor`, `p, q` the parameters of `P` itself, and `k = τ + p̄·q̄`
+(read in `ℤ₂` through `ZMod.val`). So seven slots carry a free 2-adic parameter and the eighth,
+`N3(w)`, is a Boolean correction that is the identity when the `(1,0)` block entry is a unit.
+The memo's recipe "kill the block by N2-N4, then `(p, q)` by N5/N6, then `τ` by N1" is followed
+literally: the block is a matrix identity pushed through `nNielsenFacBlock_act_comp`, and the
+`t`-slot closes because the two admissibility couplings say exactly that the `t`-shifts carried
+by N5/N6 recombine to `(τ_σ, τ_{x₂})` (`nNielsenFac_couple`). Completely `α`-free, as the N
+stabilizer is. -/
 theorem nNielsen_factorization (P : NStabParam) (hP : P.Admissible) :
-    ∃ (k q p w x y z : ℤ_[2]) (κ : ℤ_[2]ˣ),
+    ∃ (k q p w x y z : ℤ_[2]) (κ : ℤ_[2]ˣ), (w = 0 ∨ w = 1) ∧ (κ : ℤ_[2]) = P.g.det ∧
       P.act = (nFamN1 k).act ∘ (nFamN6 q).act ∘ (nFamN5 p).act ∘ (nFamN3 w).act ∘
         (nFamN4 κ).act ∘ (nFamN2 x).act ∘ (nFamN3 y).act ∘ (nFamN2 z).act := by
-  obtain ⟨w, x, y, z, hg⟩ := nNielsenFac_gl2_factor P.g hP.det
+  obtain ⟨w, x, y, z, hw, hg⟩ := nNielsenFac_gl2_factor P.g hP.det
   set k : ℤ_[2] := (((P.tau + nRed P.p * nRed P.q).val : ℕ) : ℤ_[2]) with hk
-  refine ⟨k, P.q, P.p, w, x, y, z, hP.det.unit, ?_⟩
+  refine ⟨k, P.q, P.p, w, x, y, z, hP.det.unit, hw, hP.det.unit_spec, ?_⟩
   have hblock : (nFamN3 w).act ∘ (nFamN4 hP.det.unit).act ∘ (nFamN2 x).act ∘ (nFamN3 y).act ∘
       (nFamN2 z).act = (nNielsenFacBlock P.g).act := by
     simp only [Matrix.mul_assoc] at hg
@@ -694,7 +764,7 @@ theorem nNielsenFac_finite_list {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabParam
           NFrameCupIsometry ha g ∧ NNielsenFacLifts ha g) ∧
       (∀ v, nNielsenFacCompose (nNielsenFacList z y x κ w p q k) v = nNielsenFacMap P v) ∧
       NNielsenFacLifts ha (nNielsenFacCompose (nNielsenFacList z y x κ w p q k)) := by
-  obtain ⟨k, q, p, w, x, y, z, κ, hfac⟩ := nNielsen_factorization P hP
+  obtain ⟨k, q, p, w, x, y, z, κ, -, -, hfac⟩ := nNielsen_factorization P hP
   refine ⟨z, y, x, κ, w, p, q, k, nNielsenFacList_length _ _ _ _ _ _ _ _,
     nNielsenFacList_props ha _ _ _ _ _ _ _ _, fun v => ?_, ?_⟩
   · rw [nNielsenFacCompose_list, nNielsenFacMap_eq_lift, hfac]
@@ -855,6 +925,71 @@ theorem nNielsenFac_stabilizer_induced {alpha : ℕ} (ha : 2 ≤ alpha)
     (nFrameExists_phiEquiv ha 0 (abMk x)))) = _
   rw [ContinuousMulEquiv.symm_apply_apply]
 
+/-! ## The per-family route: the same generators lift through the families' own constructions -/
+
+/-- At handle rank zero, `NStabilizerFullRows.fullFrameMark` is the parameter's frame action on
+the canonical marks: the two files' pictures of "the rows of `P` on the full frame" agree. -/
+theorem nNielsenFac_fullFrameMark {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabParam)
+    (i : Fin (coreRank 0)) :
+    NStabilizerFullRows.fullFrameMark P 0 i = nNielsenFacMap P (nFrameCanonicalMark ha 0 i) := by
+  rw [nNielsenFacMap_mark ha P i]
+  have hi4 : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 := by decide +revert
+  have htail : (ofAdd (0, 0, 0, 0, fun k => toAdd (mHandleMark k (ofAdd (1 : ℤ_[2])) i)) :
+      NFrameModel 0) = 1 := by
+    show ofAdd _ = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+      (0 : Fin (2 * 0) → ℤ_[2]))
+    exact congrArg ofAdd (Prod.ext rfl (Prod.ext rfl (Prod.ext rfl (Prod.ext rfl
+      (funext fun k => absurd k.isLt (Nat.not_lt_zero _))))))
+  rcases hi4 with rfl | rfl | rfl | rfl
+  · rw [NStabilizerFullRows.fullFrameMark, coreMark_zero, htail, mul_one]; rfl
+  · rw [NStabilizerFullRows.fullFrameMark, coreMark_one, htail, mul_one]; rfl
+  · rw [NStabilizerFullRows.fullFrameMark, coreMark_two, htail, mul_one]; rfl
+  · rw [NStabilizerFullRows.fullFrameMark, coreMark_three, htail, mul_one]; rfl
+
+/-- **The per-family lift.** Every admissible parameter's frame action, in particular every
+member of the eight-slot list, is also induced by the automorphism that
+`nStabParam_fullFrame_lift_general` assembles from the six families' *own* constructions (N1, N2,
+N3 the exact closed-form automorphisms `dnTauBEquiv`, `dnTauDEquiv`, `dnTauCEquiv`; N5, N6 the
+core-mixing automorphisms of `CoreMix`; N4 the N-plane scaling limit of `NPlaneGeneralScaling`;
+then the exact N1 torsion adjustment), with the same exact all-element square. This route does
+not go through the uniform full-frame compactness theorem `nFullStabilizer_lift`, so at N,
+unlike at M, the finite list carries **two independent** lifts of each generator; note that the
+N4 ingredient is itself a compactness limit of the N-plane stages, not a closed formula. -/
+theorem nNielsenFacLifts_of_param_families {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hP : P.Admissible)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) :
+    NNielsenFacLifts ha (nNielsenFacEquiv P Q hPQ hQP) := by
+  obtain ⟨Psi, hchi, -, hmark⟩ := nStabParam_fullFrame_lift_general ha P hP
+  refine ⟨Psi, hchi, ?_⟩
+  let Ph : ContinuousMonoidHom (DN alpha 0 : Type) (DN alpha 0 : Type) :=
+    ⟨Psi.toMonoidHom, Psi.continuous_toFun⟩
+  have heq : (nCanonicalFrameHom ha 0).comp Ph
+      = (nNielsenFacHom P).comp (nCanonicalFrameHom ha 0) := by
+    apply dn_hom_ext
+    intro i
+    change nPhiHom ha 0 (abMk (Psi (dnGen alpha 0 i)))
+      = nNielsenFacMap P (nPhiHom ha 0 (abMk (dnGen alpha 0 i)))
+    rw [hmark i, nNielsenFac_fullFrameMark ha P i]
+    rfl
+  intro x
+  exact DFunLike.congr_fun heq x
+
+/-- The eight-member list, with every member lifted by the per-family route. -/
+theorem nNielsenFacList_lifts_families {alpha : ℕ} (ha : 2 ≤ alpha) (z y x : ℤ_[2])
+    (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]) :
+    ∀ g ∈ nNielsenFacList z y x κ w p q k, NNielsenFacLifts ha g := by
+  intro g hg
+  simp only [nNielsenFacList, List.mem_cons, List.not_mem_nil, or_false] at hg
+  rcases hg with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN2_admissible z) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN3_admissible y) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN2_admissible x) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN4_admissible κ) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN3_admissible w) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN5_admissible p) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN6_admissible q) _ _
+  · exact nNielsenFacLifts_of_param_families ha _ _ (nFamN1_admissible k) _ _
+
 #print axioms NStabParam.act
 #print axioms NStabParam.act_apply
 #print axioms NStabParam.act_t
@@ -945,6 +1080,10 @@ theorem nNielsenFac_stabilizer_induced {alpha : ℕ} (ha : 2 ≤ alpha)
 #print axioms nNielsenFacTransport_apply
 #print axioms nNielsenFacTransport_mark
 #print axioms nNielsenFac_stabilizer_induced
+
+#print axioms nNielsenFac_fullFrameMark
+#print axioms nNielsenFacLifts_of_param_families
+#print axioms nNielsenFacList_lifts_families
 
 end
 end GQ2.Dyadic.MarkedCore
