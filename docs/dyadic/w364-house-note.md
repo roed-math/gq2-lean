@@ -24,7 +24,7 @@ Status: CLOSED. T1 to T4 done; four documents changed, no Lean touched.
 ran, the main clone
 (`/Users/roed/claude/cla/work/gq2-dyadic-campaign`) was at `06daa54a`
 ("merge W363-PUB2: all six missing L/N exporters, staged, with a five-kind
-binding taxonomy"), two commits past this lane's base `d2056503`. Everything the
+binding taxonomy"), eleven commits past this lane's base `d2056503`. Everything the
 shared cache at `/Users/roed/claude/cla/work/main-build-cache` yields, including
 every scoreboard row, therefore describes `06daa54a`, not `d2056503`. That is the
 same trap the W362-HOUSE lane recorded, and it has not gone away.
@@ -492,8 +492,9 @@ check for it.
 **The OWNER ITEMS row, against the memo's seven.** The memo's newest block is
 "Status at wave 362 (2026-09-17)" reading **Seven items await you**; the board's
 artifact side is now `docs/dyadic/w364-house-note.md`, whose "Owner items"
-heading this board found at line 54 with seven numbered items under it. They
-agree.
+heading the board found, with seven numbered items under it. They agree. (The
+board reported that heading at line 54; this note has grown since that run, so
+the line has moved and the heading has not.)
 
 Two mechanical facts about that agreement, for whoever reads the board next:
 
