@@ -217,8 +217,11 @@ ramified-i hypothesis away.
 
 ## 6. Exact runtime and safe commands
 
-Every path and invocation in this section was exercised by the W362-HOUSE lane
-in a lane worktree at base `6770a87e`.
+Every path below was checked to exist from a lane worktree at base
+`6770a87e`, and the paths are the ones the tools actually resolve, not the
+ones a note says they use. Which commands this lane ran, and which it only
+read, is stated at each one: `w361_fresh_build.py` and `w361_verify_fresh.py`
+were **not** run here, since nothing in this lane changed a source.
 
 ```sh
 GQ2_LEAN=/Users/roed/.elan/toolchains/leanprover--lean4---v4.31.0-rc2/bin/lean
