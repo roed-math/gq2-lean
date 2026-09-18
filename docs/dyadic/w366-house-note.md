@@ -131,9 +131,23 @@ wave-362 status block still said "Seven items await you" after the owner decided
 and did item 5 on 2026-09-18. Expected after the decisions: **5**. Fixed in this lane;
 the board re-reads 5 once the memo's headline is corrected.
 
-The "NOT FOUND" line against this note is the board's own signal, not a defect in it:
-this note had no owner-items heading when the baseline ran. One is supplied below, so
-the next board run compares two numbers instead of one.
+The "NOT FOUND" line against this note is the board's own signal, not a defect in
+it: this note had no owner-items heading when the baseline ran. One is supplied
+below, and both sides now read **five**.
+
+**A trap in supplying it, worth recording.** The board takes the *first* heading
+in the note matching its owner-items pattern, and that pattern also matches the
+heading of this very subsection. Reproducing the board's `## OWNER ITEMS` block
+verbatim under a heading of the same name makes the board parse its own echo --
+a subsection with no numbered lines -- and print `0`, which its own header warns
+is indistinguishable from "not found". The subsection above is therefore headed
+"the board's owner-items row", with a hyphen, which the pattern cannot match.
+The second half of the trap is the count: the memo's five is prose
+("N items await you"), while the note's is a count of lines beginning
+`<digit>.`, so a note that numbers all seven items and strikes two would make the
+board print a DISAGREE that is an artifact of two different counting rules. The
+owner-items section below numbers the five that are open and puts the two
+decided ones in prose under their own heading. Both rules then give five.
 
 ## T1, watch 27
 
