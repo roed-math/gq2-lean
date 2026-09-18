@@ -387,3 +387,49 @@ Every one of these is an owner decision. None is implied by anything in this lan
 * It did not treat `RawWord.shadow` as W361's semantic `tameShadow`, and it treats no
   matching declaration name as a word-identity proof.
 * It did not run `lake` in any form.
+
+---
+
+## Verification record
+
+`bash scripts/w362_check_ln_staged.sh` from the worktree root, against the shared campaign
+cache at Lean 4.31.0-rc2, **exit 0**. No `lake` invocation at any point in this lane. The
+run reproduces, in order:
+
+```text
+W361_STAGED_CHECK_PASS (not owner approval or a transitive fresh-build certificate)
+LN_FOX_SELF_TEST_PASS|44
+LN_PACKET_SELF_TEST_PASS|25
+STAGED_LN_FOX_CHECK|Lean-replayed|L-fox-h0-q2|8100f623...
+STAGED_LN_FOX_CHECK|Lean-replayed|L-fox-h4-q2|2dc399b5...
+STAGED_LN_FOX_CHECK|Lean-replayed|N0-fox-h0-q2|ede1c9b7...
+STAGED_LN_FOX_CHECK|Lean-replayed|N0-fox-h3-q2|7a280f1c...
+STAGED_LN_FOX_CHECK|Lean-replayed|Npc-fox-h0-q2-r1|066b3a46...
+STAGED_LN_FOX_CHECK|Lean-replayed|Npc-fox-h3-q2-r2|eb4ee748...
+STAGED_LN_PACKET_CHECK|Lean-replayed|packet-L-h0|7f19d17e...
+STAGED_LN_PACKET_CHECK|Lean-replayed|packet-L-h4|f98de22b...
+STAGED_LN_PACKET_CHECK|Lean-replayed|packet-N0-alpha2-h0|1bb59b94...
+STAGED_LN_PACKET_CHECK|Lean-replayed|packet-N0-alpha5-h3|b54126b5...
+STAGED_LN_PACKET_CHECK|Lean-replayed|packet-Npc-alpha2-r1-h0-num1-den1|6cf3a39e...
+STAGED_LN_PACKET_CHECK|Lean-replayed|packet-Npc-alpha3-r2-h3-num3-den9|97d13c27...
+W362_LN_STAGED_CHECK_PASS (staged proposals only: not owner approval, not a manifest entry, not a gate)
+```
+
+`W361_STAGED_CHECK_PASS` is the unchanged W361 script run first, on unchanged W361
+artifacts. `Lean-replayed` means the exporters were re-run and their output compared byte
+for byte, and for the packets that the stored declaration transcript was compared against a
+fresh probe. Separately, `scripts/w362_ln_fox_export.lean` compiles warning-free with its
+26 axiom pins at standard three or less, and the three declaration probes report
+`LN_PACKET_PROOF_REPLAY_PASS|27|1`, `|27|1` and `|33|1`.
+
+What this run does **not** establish: it is not a fresh full-repository build, not a
+transitive build attestation, and not a hash-gate run. The probe imports existing olean
+artifacts, so the direct-source provenance sidecars do not prove that those bytes produced
+those artifacts.
+
+## What remains
+
+As **work**: the six exporters named in T2.d, which would turn items 2, 3, 6, 7, 8 and 9
+from checked declarations into generated displays. Nothing in that list is a missing proof.
+
+As **decisions**: the twelve owner decisions in T3.c. None of them is taken here.
