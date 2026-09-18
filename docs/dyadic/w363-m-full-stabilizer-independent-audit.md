@@ -4,10 +4,16 @@ Date: 2026-09-17. Audit lane: `w363-maudit`. No proof, umbrella, or script
 changes are made by this lane; comment-only findings are FLAGGED here for the
 orchestrator.
 
-**VERDICT: proved as stated, with two documentation caveats (FLAG-1, FLAG-2)
-and one interface observation (FLAG-3). No mathematical caveat. No hidden
-premise. No `sorry`, no `native_decide`, no `set_option`, all 216 pins inside
-the standard three.**
+**VERDICT: PROVED AS STATED.**
+
+`mFullStabilizer_lift_of_frame` and `mFullStabilizer_lift_iff` are proved,
+unconditionally, in the generality their docstrings claim. No mathematical
+caveat. No hidden premise: no remaining `Prop` interface, no instance
+hypothesis, no `sorry`, no `native_decide`, no `set_option` anywhere in the
+nine modules, and all 216 axiom pins inside the standard three. The three
+FLAGGED items below are two comment-only documentation defects (FLAG-1,
+FLAG-2) and one missing consumer interface that is not a gap in the theorem
+(FLAG-3); none of them affects what is proved.
 
 ## Verdict and exact scope
 
