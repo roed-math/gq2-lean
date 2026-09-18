@@ -1,0 +1,80 @@
+% STAGED W366 item-8 OVERLAY for packet-L-h4. It is written BESIDE the packet and modifies nothing the packet's own manifest covers.
+% item8-overlay-hash: 89277470d5dded27043ea9d5206f5392dbedea69e9dadb9cba970ddee16c25b4
+% pinned W362 packet hash, unchanged by this lane: f98de22bb3784b27204e7daf1e765e4c0c7c4018b158a3b72da76941ff241432
+% coordinate half: L-coordinate-h4-q2 4d1b5d254d23ca954c7def82c6747724cb7520dcfbec317059e3965a6e868a67
+% normal-form half: L-gauss-h4-q2 8bed029283c7f6502008796ca3ddfac2fc193d1211d705271bf756f360a88824
+% Ledger item 8 only, both halves, for one W362 packet. This is an OVERLAY: it is written beside the packet, it does not modify the packet or any of the four files the packet's own manifest covers, and it does not change the recorded W362 packet hash, which it pins instead. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% The packet this overlay names is NOT regenerated and its hash is NOT recomputed into a new value: the hash below is the packet's own recorded hash, reproduced from the packet's stored payload by the W362 composer's own digest, and the overlay check fails if it ever stops reproducing. The overlay supersedes the packet's item-8 TODO for a reader who has both files; it does not edit the packet's text, so the packet still carries that TODO and should be read together with this file. Whether the packets are instead regenerated in place remains W363-PUB2 owner decision 13. STAGED proposal: not owner approval, not a manifest entry, not a gate.
+\subsection*{8. Change of variables to quadratic normal form}
+The all-rank original source Hessian records retain the actual comparison map, proved additive and then F2-linear, with the full quadratic identity and the original affine phase fields. L uses its actual qDouble/graph operator, not a plus-form substitution. The unramified and ramified base signs are minus and plus respectively.
+
+\par\noindent\textbf{[SUPERSEDED BY THIS OVERLAY: TODO: this section has NO generated display. The checked declarations below carry the item, and their elaborated statements are stored in the packet's proofs transcript, but no exporter serializes them into synchronized TeX. No formula is substituted for one here.]}
+\par\noindent The declaration it named, \path{GQ2.Dyadic.W362LNPhase.coordinateTemplate}, still does not exist. The two displays below come from \path{scripts/w363_ln_coordinate_export.lean} and \path{scripts/w366_ln_gauss_export.lean} instead.
+\paragraph{Item 8, first half: the change of variables (generated)}
+% STAGED L/N change of variables to the quadratic normal form; ledger item 8 only.
+% ln-coordinate-hash: 4d1b5d254d23ca954c7def82c6747724cb7520dcfbec317059e3965a6e868a67
+% family: L; structural: {"h":4,"q":2}
+% Ledger item 8 only: the change of variables to the quadratic normal form, as the explicit components of the tree's own Equiv values. No coefficient module, marking, field, resolver, eta or source certificate is selected: every signature theorem is quantified over the coefficient group.
+% Only the change of variables is bound here. The quadratic normal form RECORD itself, SourceOddHessian, is not: the declarations that build it take a descent datum, a factor set, a projection, a coefficient module with its topology and action, a simplicity hypothesis and a cardinality, so a rfl signature theorem against one would require selecting a coefficient module, which this lane is forbidden to do. Those records are named below with the bridge kind named_but_unbound, and naming is not binding.
+% All four sectors share one handle regrouping, from Fin h times Fin 2 into A to Fin h into A times A, through finTwoProdAddEquiv. What differs is the head: L carries one head coordinate and leaves it alone, N0 carries two and leaves both alone, and both Npc sectors carry two and replace the first by its image under the normal-form operator Phi. Only the Npc sectors are a change of variables in the ledger item's sense; the other two are rebracketings.
+% Identity of the serialized coordinate components and the named normal-form records at the stated handle rank. It is not a hash of any proof, and it says nothing about the normal-form records' content.
+% L is the only family with a single head coordinate, and it carries it through unchanged: this sector is a rebracketing of the handle coordinates, not a change of variables.
+% handle regrouping (record_target) via finTwoProdAddEquiv
+\[\bigl(\mathrm{Fin}\,4\times\mathrm{Fin}\,2\to A\bigr)\;\longrightarrow\;\bigl(\mathrm{Fin}\,4\to A\times A\bigr).\]
+\paragraph{graph normal form}
+% equiv: GQ2.Dyadic.LSquare.lSqPhaseCoordsEquiv
+% forward (record_target): GQ2.Dyadic.W363LNCoordinate.lCoords_toFun
+% inverse (record_target): GQ2.Dyadic.W363LNCoordinate.lCoords_invFun
+\[c_0\mapsto c_0.\]
+Head coordinates: 1. Normal-form records named but NOT bound here (named but unbound): \texttt{GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian}, \texttt{GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian}.
+\paragraph{Item 8, second half: the normal-form Gauss display (generated)}
+% STAGED item-8 normal-form Gauss display; ledger item 8, normal-form half only.
+% ln-gauss-hash: 8bed029283c7f6502008796ca3ddfac2fc193d1211d705271bf756f360a88824
+% family: L; structural: {"h":4,"q":2}
+% Ledger item 8, normal-form half only: the Gauss sign and exponent each item-8 sector row prints, as the fields of the tree's own GaussValCell values, plus the value equation restated through the cell. No coefficient module, marking, field, resolver, eta or source certificate is selected: every signature theorem is quantified over them.
+% Two different bridge kinds live in one artifact and may not be conflated. The printed sign and the printed exponent are record_target: rfl against a field of GaussValCell. The value equation is restated_identity: its carrier is a theorem, not a record, and the driver restates it through the named cell so that a wrong cell does not compile. The normal-form RECORDS remain named_but_unbound, exactly as w363_ln_coordinate_export left them: SourceOddHessian, SourceCompactHessian and SourceWallHessian are still unreachable without instantiating a coefficient module, which this lane is forbidden to do. Naming is not binding.
+% Each row's displayed integer is the cell's two printed fields and nothing else: value c m = c.sign * 2 ^ (m * c.degree), by rfl. There are three cells and five rows because the L branches differ in sign while the three even-degree rows share one cell: at even degree the unramified and the ramified target are the same integer.
+% Identity of the serialized display cells, their bridges and the named normal-form records at the stated handle rank. It is not a hash of any proof, and it says nothing about the normal-form records' content.
+% L is the only family whose two branches print DIFFERENT signs, because its degree 2h+1 is odd: the unramified row prints -1 and the ramified row prints +1. It is also the only family with a second, independent record_target route for the sign, through the pre-existing baseSign theorems, so a validator may check that the two routes agree.
+% cell record (record_target): GQ2.Dyadic.Instances.GaussPhaseValues.GaussValCell; value GQ2.Dyadic.Instances.GaussPhaseValues.GaussValCell.value bound by GQ2.Dyadic.W366LNGauss.cellValue
+\[\mathrm{value}(c,m)=c.\mathrm{sign}\cdot 2^{m\cdot c.\mathrm{degree}}.\]
+\paragraph{graph normal form unramified}
+% cell: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValLUnramCell
+% endpoint: GQ2.Dyadic.LSquare.lSqWallHandlePhase
+% sign (record_target): GQ2.Dyadic.W366LNGauss.lUnramSign
+% exponent (record_target): GQ2.Dyadic.W366LNGauss.lUnramDegree
+% value (restated_identity): GQ2.Dyadic.W366LNGauss.lUnramValue discharged by GQ2.Dyadic.Instances.GaussPhaseValues.gaussValLUnramifiedCell
+% display: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValLUnramifiedDisplay
+\[\mathrm{gaussSum}\bigl(\mathrm{lSqWallHandlePhase}\bigr)=-1\cdot 2^{m\cdot 9}.\]
+Printed sign -1, printed exponent degree 9. Normal-form record named but NOT bound here (named but unbound): \texttt{GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian}.
+Second \texttt{record\_target} route for the sign: \texttt{GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian\_baseSign}. No record route for the exponent in any row.
+\paragraph{graph normal form ramified}
+% cell: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValLRamCell
+% endpoint: GQ2.Dyadic.LSquare.lSqWallHandlePhase
+% sign (record_target): GQ2.Dyadic.W366LNGauss.lRamSign
+% exponent (record_target): GQ2.Dyadic.W366LNGauss.lRamDegree
+% value (restated_identity): GQ2.Dyadic.W366LNGauss.lRamValue discharged by GQ2.Dyadic.Instances.GaussPhaseValues.gaussValLRamifiedCell
+% display: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValLRamifiedDisplay
+\[\mathrm{gaussSum}\bigl(\mathrm{lSqWallHandlePhase}\bigr)=+1\cdot 2^{m\cdot 9}.\]
+Printed sign +1, printed exponent degree 9. Normal-form record named but NOT bound here (named but unbound): \texttt{GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian}.
+Second \texttt{record\_target} route for the sign: \texttt{GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian\_baseSign}. No record route for the exponent in any row.
+\par\noindent\textbf{[TODO: only the L rows have a second, independent record\_target route for the printed sign, through LHessianCertificates.unramifiedHessian\_baseSign and .ramifiedHessian\_baseSign. N0 and Npc have no named baseSign theorem: the fact holds by rfl and is supplied inline as a rfl argument at the certificate call sites, which a driver cannot cite. The Npc ramified head record is nonempty\_npcRamifiedHeadHessian, a Nonempty and not a record value, so that row cannot gain one even if a baseSign theorem were added.]}
+\par\noindent\textbf{[TODO: the printed exponent has NO record-field route in any row, because no named baseDim theorem exists anywhere in the tree. Every degree\_record\_route in every row is therefore null, and the exponent's only binding is the GaussValCell field. Supplying a second route is four small rfl theorems in the three certificate modules, which no exporter lane may add.]}
+\paragraph{Binding kinds, before and after this overlay}
+\begin{itemize}
+\item \texttt{coordinate half}: record target $\to$ record target
+\item \texttt{gauss exponent}: named but unbound $\to$ record target
+\item \texttt{gauss sign}: record target $\to$ record target
+\item \texttt{gauss value equation}: named but unbound $\to$ restated identity
+\item \texttt{normal form records}: named but unbound $\to$ named but unbound
+\end{itemize}
+\par\noindent The before column is per family, not uniform, because W365 corrected W363-PUB2 here: the L rows' printed sign already had a record\_target route through the pre-existing LHessianCertificates.unramifiedHessian\_baseSign and .ramifiedHessian\_baseSign, so for L this lane adds a SECOND, independent route to the display cell rather than a first binding, and a validator may check that the two agree. N0 and Npc had none: no named baseSign theorem exists outside L, and the fact is supplied inline as a rfl argument at the certificate call sites, which a driver cannot cite. The printed exponent had no route in any family, and still has none outside the cell.
+\par\noindent\textbf{[TODO: the quadratic normal form RECORDS themselves are still named\_but\_unbound, and this overlay does not change that. SourceOddHessian, SourceCompactHessian and SourceWallHessian remain unreachable without instantiating a coefficient module, which no exporter lane may do. What changed is that the Gauss cells no longer wait for them: they are supplied by theorems about the endpoint phase function, which is quantified over the coefficient group. Naming is not binding.]}
+\par\noindent The two further residual TODOs, on the absent second sign route and on the absent record route for the exponent, are printed with the normal-form display above and are carried in this overlay's JSON.
+\paragraph{Checked declarations (standard three axioms)}
+\begin{itemize}
+\item \path{GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian}
+\item \path{GQ2.Dyadic.Instances.LHessianCertificates.ramifiedHessian_baseSign}
+\item \path{GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian}
+\item \path{GQ2.Dyadic.Instances.LHessianCertificates.unramifiedHessian_baseSign}
+\end{itemize}
