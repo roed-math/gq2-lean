@@ -223,3 +223,38 @@ risk of being committed. No action is required and none was taken.
     directory. Its inputs are tracked and it is reproducible from them, so
     this is a hygiene consequence rather than a loss; whether the reviewed
     bytes should also be tracked is an owner call, not this lane's.
+
+## T1a completed: the pins are std-3, machine-derived
+
+13. **All 118 pins print exactly `[propext, Classical.choice, Quot.sound]`.**
+    Not a subset and not a superset: 19/6/1/2/7/4/4/30/30/9/6, every one
+    exact. This is elaborated output, not a grep.
+
+    **Where the evidence came from, and why it is better than a re-run.**
+    A concurrent umbrella build was already elaborating the whole tree into
+    the shared cache (see the hazard note in section 2 of the W362 handoff
+    skeleton). A Lean `#print axioms` emits an `info:` line, so that build's
+    log carries the footprint of every pin in the tree as it is elaborated,
+    including all 118 here. Reading it costs nothing and cannot disagree with
+    the build, whereas a separate runner invocation would have raced the same
+    cache. Parse note: a long axiom list wraps across lines, so continuation
+    lines must be rejoined before matching, or wrapped entries read as
+    truncated ones.
+
+14. **Environment-level census check, from the same log (partial but
+    strong).** Across the 9,051 pins elaborated so far, exactly ten distinct
+    nonstandard axioms appear, and all ten are in `AxiomLedger.bAxioms`:
+    `tateDualityAt` (636 consumers), `absGalQ2_localEulerCharacteristic`
+    (503), `absGalQ2_isTopologicallyFinitelyGenerated` (499),
+    `hilbertSymbol_normCriterion_finiteDyadic` (427),
+    `peripheralCyclotomicAction` (78), `relativeStiefelWhitney_dyadic` (77),
+    `dyadicOrientation` (49), `localReciprocity` (26), `markedRecipAt` (21),
+    `tameQuotient` (2). No `sorryAx`. No `Lean.ofReduceBool`, so no
+    `native_decide` is reachable. The eleventh census axiom
+    `orientedTameQuotientAt` had not yet appeared because the build had not
+    reached the canonical K+RI endpoints that consume it.
+
+    That is the ledger's "alarm" and "gap map" reports, derived live from an
+    independent run. It is not a substitute for the ledger itself, which
+    covers the whole `GQ2` namespace including declarations with no pin; that
+    run is queued.
