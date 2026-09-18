@@ -365,9 +365,11 @@ correction. All three clauses are now literal Lean:
    `nNielsenFacList` has `length = 8` by `rfl`. Both are explicit lists of
    continuous automorphisms of the actual full frame, not abstract generating
    sets.
-2. **Orientation-preserving, and cup-preserving.** Proved for every member, and
-   at N for every admissible parameter, by a finite mod-two matrix computation
-   rather than by assuming the member comes from a core automorphism. This is
+2. **Orientation-preserving, and cup-preserving.** Proved for every list
+   member by a finite mod-two matrix computation rather than by assuming the
+   member comes from a core automorphism; at M the two clauses hold for every
+   `MStabParam`, at N orientation holds for every parameter and the cup clause
+   for every admissible one. This is
    the step that was previously impossible: before wave 363 the only producer
    of either semantic cup predicate was "it comes from an actual core
    automorphism", which is exactly what one lacks for a family one is trying to
