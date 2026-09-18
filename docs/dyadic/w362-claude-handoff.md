@@ -41,6 +41,11 @@ finite-family lists at rank four for both cores, the composite lifts composed fr
 the members' lifts, and the Smith-Witt stabilizer quantifier closed literally;
 independently audited WITH CAVEATS, all disclosed (`w364-nielsen-independent-audit.md`).
 
+**Decisions taken by the owner on 2026-09-18, after this document was drafted:** Option A
+(the compactness proof method accepted for both cores; W366 applies the amendment wording to
+the packet and ledger), and the push (`488e7cf2..b9ad374f`, GitHub level with local). The
+paragraph below predates them where it says otherwise.
+
 **What it did NOT close.** The frozen M-word placement claim (a different
 statement, false by the W341-W344 no-go results, untouched). Owner acceptance of
 the uniform filtered-correction and compactness proof method, now for both cores

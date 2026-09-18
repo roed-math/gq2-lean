@@ -14,13 +14,18 @@ finding).  Folded in now, with this wave's additions:
 3. **The symbolic display contract and the treatment of the legacy L/N artifacts**
    (six word-only specimens; five skeletons with 40 `dyadicAppendixTODO` slots; the staged
    general L/N packets from W362-PUB are proposals).
-4. **Acceptance of the uniform filtered-correction and compactness proof method** for BOTH
+4. **DECIDED 2026-09-18: Option A.** The owner accepted the uniform filtered-correction and
+   compactness proof method for both cores; the finite Nielsen-family lists satisfy the
+   section-14 sentence in the families reading. W366 applies the proposed wording of
+   `w364-proof-packet-amendment-mc.md` to the packet and ledger. (Original item text follows.)
+   Acceptance of the uniform filtered-correction and compactness proof method for BOTH
    stabilizer-lifting obligations: MC-N (Codex, `nFullStabilizer_lift_iff`) and, as of this
    wave, MC-M (`mFullStabilizer_lift_iff`, std-3, `alpha >= 2`, every handle count).  The
    packet's section 14 finite Nielsen-generator list is a separate artifact; W363-NIELSEN is
    attempting it as a corollary of the full lifts plus the existing rank-four frame
    factorizations, which would let you accept the packet wording literally.
-5. **The push.**  GitHub `origin/dyadic` is more than two hundred commits behind the local
+5. **DONE 2026-09-18: pushed `488e7cf2..b9ad374f` (370 commits) on the owner's word.**
+   (Original item text follows.)  GitHub `origin/dyadic` was more than two hundred commits behind the local
    branch (Codex's 176 plus this session's).  Claude's standing protocol pushes at every wave
    close; Codex's mandate forbade pushing.  Nothing was pushed this session; say the word.
 6. **The untracked working copy of the QA-pinned 29-page PDF** under `/output/` (now
