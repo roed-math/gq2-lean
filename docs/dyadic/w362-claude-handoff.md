@@ -748,16 +748,30 @@ them in `w361-index.md` alone.
 
 ## 5. Remaining work
 
-**Orchestrator's ordering.** (1) Owner decisions first, because every remaining
-item downstream depends on one: the proof-method acceptance (Option A is
-recommended; see `w364-proof-packet-amendment-mc.md` section on Option B's cost),
-the four Codex adoption items, the push. (2) Publication adoption of the staged
-L/N packets and the pair/mobile packets (decisions 13 to 17 in `w363-pub2-note.md`);
-Route A of `w362-pub-note.md` (fill items 4 and 5 in the three L/N skeletons with
-the manifest untouched) is the frozen-identifier-preserving first step. (3) Only
-then the optional mathematics in the draft below (handles for the lists;
-generator-level lifts if Option B is chosen). The draft that follows is the
-house lane's collection and is accurate at `e34315af`.
+**Orchestrator's ordering** (rewritten 2026-09-18 by W366-HOUSE; the ordering below now
+starts *after* Option A, and the push is off it). The owner took **Option A** on 2026-09-18
+and authorized the push, so of the decisions this ordering used to put first, two are gone:
+the proof-method acceptance is settled for both cores, and `488e7cf2..b9ad374f` is pushed.
+Item 4 of `docs/dyadic/owner-items-2026-08-05.md` is the decision record. What is left, in
+order:
+
+(1) **Apply Option A**, which is a writing task, not a decision: the proposed wording of
+`w364-proof-packet-amendment-mc.md` goes into the packet and the ledger, and the documents
+that state the method as unaccepted get their annotations. W366's APPLY lane owns this.
+(2) **The three remaining owner decisions**, which are the four Codex adoption items minus
+the one Option A settled: the changed M pair/mobile words, the corrected RN interface, and
+the symbolic display contract with the legacy L/N artifacts.
+(3) **Publication adoption** of the staged L/N packets and the pair/mobile packets
+(decisions 13 to 17 in `w363-pub2-note.md`); Route A of `w362-pub-note.md` (fill items 4
+and 5 in the three L/N skeletons with the manifest untouched) is the
+frozen-identifier-preserving first step.
+(4) Only then the optional mathematics in the draft below (handles for the lists). Note that
+**Option A removes the generator-level lift work entirely**: the M4/M5/M6/M7 and N4 residue
+below was Option B's bill, and Option B was not taken.
+
+The draft that follows is the W364-HOUSE lane's collection, and is accurate at **`2c4d0197`**,
+its own base -- *not* at `e34315af`, as it said until 2026-09-18. `e34315af` is the commit
+that repaired three of the four documentation items in it; see the strike-throughs below.
 
 ### Draft, assembled from the notes (W364-HOUSE)
 
@@ -819,29 +833,51 @@ house lane's collection and is accurate at `e34315af`.
    `status: "STAGED"` artifact is promoted at all, and the two M skeletons that
    lane did not touch.
 
-**Documentation repairs found by this session's housekeeping.**
+**Documentation repairs found by this session's housekeeping.** *(W366-HOUSE, 2026-09-18:
+items 9, 11 and the disclosure half of 12 LANDED in this same session, in `e34315af` and
+`eb3089cd`, after the list was written. Item 10 landed at M and stands at N. All four are
+kept with their outcome marked, because the list is cited from section 7.)*
 
-9. `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean`'s module docstring says the
+9. ~~`GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean`'s module docstring says the
    MC-N artifact "cannot be produced yet" and that `nNielsen_factorization` and
    `nFamN1` to `nFamN6` exist nowhere under `GQ2/`. W364-NFACTOR landed all of
    them, in the same directory. Comment-only, and the highest-severity docstring
-   defect in the session.
+   defect in the session.~~ **DONE in `e34315af`**: the paragraph now carries a
+   `[W364: OVERTAKEN the same session ...]` bracket naming
+   `NNielsenFactorization.lean` and the three declarations, and is kept as the
+   record of why that module stops where it does.
 10. Several `MNielsenGenerators` and `NNielsenFactorization` docstrings say "for
     every parameter" where the statement quantifies over a *parameter together
     with a supplied inverse parameter*; no inverse structure on `MStabParam` or
     `NStabParam` exists in the tree. The headline theorems are unaffected
     (the seven and eight families each supply their own inverse), but the
     intermediate lemmas claim more than they state.
-11. `MNielsenGenerators` refers to the endpoint seven times as
+    **HALF DONE.** `e34315af` fixed the M half (`MNielsenGenerators.lean:27` now
+    spells the supplied-inverse shape out). The **N half stands**:
+    `NNielsenFactorization.lean:38-39` still reads "every parameter fixes the
+    integral `x̄₁` coordinate, hence preserves `nFrameOrientation`
+    (`nNielsenFac_orientation`); every admissible parameter is an
+    `NFrameCupIsometry`", while `nNielsenFac_orientation` (`:504`) and
+    `nNielsenFac_cupIsometry` (`:565`) both take `(P Q : NStabParam)` with two
+    mutual-inverse hypotheses. Comment-only; that module was not in
+    `e34315af`'s three.
+11. ~~`MNielsenGenerators` refers to the endpoint seven times as
     `mFullStabilizer_lift_of_frame`, the retained alias, and never by the public
     name W363-MCONSOL freed for it. Its quantifier-closure docstring also claims
     "every element of the Smith-Witt stabilizer" where the statement fixes the
     canonical rank-four frame and pins four generator values of the orientation
-    character; the N twin spells its clause out and the M one does not.
+    character; the N twin spells its clause out and the M one does not.~~
+    **DONE in `e34315af`**: zero occurrences of the alias remain in that module,
+    and the stabilizer claim now states its canonical-frame and pinned-`chi`
+    scope. Re-elaborated at 70 pins, unchanged.
 12. `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` pins nine source
     SHA-256 with no as-of commit, and all nine are now stale because
     W363-MCONSOL edited all nine files later the same day. The audit's base is
     `69b9851c`; the verdict is unaffected.
+    **DISCLOSED in `eb3089cd`/`e34315af`**: the document now opens with a dated
+    W364 annotation naming `69b9851c` as its base, the rename, the diff-check
+    result and the post-pass pin count. The nine hashes are still the old ones
+    and are still not recomputed, which is the remaining half.
 
 Carried forward from `w361-claude-code-handoff.md` section 6, in its order:
 
@@ -865,15 +901,25 @@ Carried forward from `w361-claude-code-handoff.md` section 6, in its order:
    `w361-acceptance-readiness.md` under "Mathematical target decisions" (five,
    overlapping). None was taken at the base of this wave. G3 and release
    remain an owner gate.
+   *(2026-09-18: one of the five, the MC proof-method reconciliation, has since
+   been taken -- Option A. Both lists carry a dated annotation at that item.)*
 
-   **The owner's own memo does not reflect this.**
+   ~~**The owner's own memo does not reflect this.**
    `docs/dyadic/owner-items-2026-08-05.md` has its newest status block at wave
    89 (2026-08-16) reading "Zero items await you". That predates W360 and W361
    by a month, and nobody folded their docket back into it. The W362 house
    note carries the six forward plus one of its own, so
    `scripts/scoreboard.sh` now prints seven against the memo's zero. That
    disagreement is the board working as designed. Only the owner amends the
-   memo; do not resolve the disagreement by editing either number.
+   memo; do not resolve the disagreement by editing either number.~~
+   **OVERTAKEN in this session.** The docket was folded into the memo, which
+   now opens with a "Status at wave 362 (2026-09-17)" block. The board reads
+   the memo as AUTHORITY and the latest house note as the lane artifact, and
+   the two no longer disagree: both read **five** after the owner decided item
+   4 and closed item 5 on 2026-09-18. The standing instruction survives the
+   rest: only the owner decides an item; a lane may correct the memo's *count*
+   to match the owner's own recorded decisions, and W366-HOUSE did exactly that
+   and no more.
 
 Standing "do nots", unchanged: do not resurrect the false universal frozen-M
 placement claim; do not claim an arbitrary external two-adic unit admits a
@@ -1024,7 +1070,9 @@ value.
    `docs/dyadic/w361-final-endpoint-scope-audit.md` for the campaign.
 7. `docs/dyadic/w361-proof-packet-amendment.md` and
    `docs/dyadic/w361-acceptance-readiness.md` for what is proposed but not
-   approved.
+   approved. *(2026-09-18: their MC proof-method item is now approved -- Option
+   A -- and both carry a dated annotation saying so at the head and at the item.
+   Everything else in them is still proposal.)*
 8. `docs/dyadic/plan.md` and
    `docs/dyadic/refs/dyadic-presentations-formalization-proof.tex` when
    deciding what remains of M or the finite Nielsen-list artifact.
@@ -1051,7 +1099,9 @@ value.
       proof-level independent audit. **VERDICT: PROVED AS STATED**, with three
       flagged items, of which FLAG-3 is still open. Its nine source SHA-256 are
       as of `69b9851c`, before the consolidation renamed and edited all nine
-      files; the document does not say so.
+      files. *(2026-09-18: the document does now say so; `eb3089cd` added a
+      dated W364 annotation at its head naming that base. The hashes themselves
+      are still the pre-consolidation ones.)*
    8. `docs/dyadic/w363-m-full-stabilizer-scope.md` -- the twin of
       `w361-n-full-stabilizer-scope.md`: what the M theorem does and does not
       settle in the governing packet, and six remaining campaign requirements.
@@ -1077,6 +1127,28 @@ value.
        against the tree, and the shared-cache staleness lesson.
    15. `docs/dyadic/w364-house-note.md` -- this session's round, the index
        extension, and the scoreboard baseline for the next session.
+   16. `docs/dyadic/w365-gauss-note.md` -- the Gauss sign and exponent of the
+       wall-handle endpoints named as standalone theorems in every sector, with
+       the item-8 cell map. It answers the narrow question of publication
+       decision 16; the decision itself is untaken.
+
+   *Wave 366, the first wave after the owner's decisions of 2026-09-18. Read
+   `owner-items-2026-08-05.md` item 4 before any of them, because all four lanes
+   are downstream of Option A:*
+   17. `docs/dyadic/w366-apply-note.md` -- Option A applied: the amendment
+       wording into the vendored packet and ledger, the MC-M and MC-N rows
+       marked discharged in the completion audit, and the two W364 MC documents
+       marked adopted for the applied parts. This is the lane that turns the
+       decision into the record; read it before citing any MC row.
+   18. `docs/dyadic/w366-gaussexport-note.md` -- the item-8 Gauss exporter
+       driver and its staged artifacts, downstream of `w365-gauss-note.md`.
+   19. `docs/dyadic/w366-handles-note.md` -- `MNielsenHandles`, the handle
+       extension of the M finite list (section 5 item 2 above). Optional
+       mathematics, not owed.
+   20. `docs/dyadic/w366-house-note.md` -- watch 27, the decision's consequences
+       across the docs corpus, this document's post-decision repairs, and the
+       scoreboard baseline. Its "sites the APPLY lane must handle" list is the
+       cross-check on item 17.
 
 **One trap in that list.** Do not read `docs/dyadic/w361-final-verification.md`
 as a current record. It opens "Final verified checkpoint, 2026-09-17 17:30
@@ -1097,10 +1169,13 @@ verification status". `docs/dyadic/w361-index.md` flag 0 has the details.
 > liftings (`nFullStabilizer_lift_iff`, `mFullStabilizer_lift_iff`) and both
 > finite Nielsen-family lists are proved and independently audited; do not
 > reopen those seams and do not start class-by-class or rank-by-rank work.
-> What remains is decisions (the memo's seven items, above all Option A/B on the
-> proof method and the push), publication adoption (all L/N exporters are
-> staged), and hygiene. No new axioms, placeholders, native decisions,
-> resource-limit increases, frozen-word replacement, commit-message rewriting,
-> or release without authorization; the push is an owner item, not a default.
+> The owner took **Option A** on 2026-09-18 -- the compactness proof method is
+> accepted for both cores -- and authorized the push, so neither is open; wave
+> 366 applied Option A to the packet, the ledger and the records. What remains
+> is the memo's five items (the changed M words, the RN interface, the display
+> contract, the untracked PDF, and G3/release), publication adoption (all L/N
+> exporters are staged), and hygiene. No new axioms, placeholders, native
+> decisions, resource-limit increases, frozen-word replacement, commit-message
+> rewriting, or release without authorization.
 > Keep verified facts, proposed scope amendments and owner decisions separate,
 > and maintain a restartable handoff.
