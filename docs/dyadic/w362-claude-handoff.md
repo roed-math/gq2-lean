@@ -4,12 +4,7 @@
 base `6770a87e`; the mechanical sections filled by the W364-HOUSE lane at the
 close of wave 364, against base `d2056503`.** Sections 2, 4, 6 and 7 are
 complete. Section 3 was filled from the thirteen lane notes of waves 362 to 364.
-Sections 1, 5 and 8 remain `[ORCHESTRATOR]`: they are judgements about what the
-session as a whole closed, and the housekeeping lane has not guessed at them.
-Section 5 carries a *draft* remaining-work list, assembled from the notes, for
-the orchestrator to reorder and amend; the placeholder above it stays until it
-does. Section 2 carries one unfilled placeholder, about the shared-cache
-convention, which was assigned to no lane.
+Sections 1, 2, 5 and 8 were filled by the orchestrator at the session close (`3dab414f` and after); section 4's end-state verification record is the last thing written, after the final gate and fresh build. No placeholder remains.
 
 Every number in the sections this lane filled was re-derived against the tree at
 `d2056503`, not carried from a note. Where a note's own figure and the tree's
