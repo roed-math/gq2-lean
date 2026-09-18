@@ -218,6 +218,55 @@ def mFrameRelVec (α : ℕ) {h : ℕ} (j : Fin (coreRank h)) : ℤ_[2] :=
 
 theorem mFrameTwo_ne_zero (h : ℕ) : (2 : Fin (coreRank h)) ≠ 0 := mCoreZero_ne_two.symm
 
+theorem mFrameOne_ne_zero (h : ℕ) : (1 : Fin (coreRank h)) ≠ 0 := fun hc => by
+  have := congrArg Fin.val hc
+  rw [coreVal_one, coreVal_zero] at this
+  omega
+
+theorem mFrameThree_ne_zero (h : ℕ) : (3 : Fin (coreRank h)) ≠ 0 := fun hc => by
+  have := congrArg Fin.val hc
+  rw [coreVal_three, coreVal_zero] at this
+  omega
+
+theorem mFrameOne_ne_two (h : ℕ) : (1 : Fin (coreRank h)) ≠ 2 := fun hc => by
+  have := congrArg Fin.val hc
+  rw [coreVal_one, coreVal_two] at this
+  omega
+
+theorem mFrameThree_ne_two (h : ℕ) : (3 : Fin (coreRank h)) ≠ 2 := fun hc => by
+  have := congrArg Fin.val hc
+  rw [coreVal_three, coreVal_two] at this
+  omega
+
+theorem mFrameHandleIdx_ne_zero {h : ℕ} (k : Fin (2 * h)) : mHandleIdx k ≠ 0 := fun hc => by
+  have := congrArg Fin.val hc
+  rw [mHandleIdx_val, coreVal_zero] at this
+  omega
+
+theorem mFrameHandleIdx_ne_two {h : ℕ} (k : Fin (2 * h)) : mHandleIdx k ≠ 2 := fun hc => by
+  have := congrArg Fin.val hc
+  rw [mHandleIdx_val, coreVal_two] at this
+  omega
+
+@[simp] theorem mFrameRelVec_zero (α h : ℕ) : mFrameRelVec α (0 : Fin (coreRank h)) = 1 := by
+  rw [mFrameRelVec, if_pos rfl]
+
+@[simp] theorem mFrameRelVec_one (α h : ℕ) : mFrameRelVec α (1 : Fin (coreRank h)) = 0 := by
+  rw [mFrameRelVec, if_neg (mFrameOne_ne_zero h), if_neg (mFrameOne_ne_two h)]
+
+@[simp] theorem mFrameRelVec_two (α h : ℕ) :
+    mFrameRelVec α (2 : Fin (coreRank h)) = (2 : ℤ_[2]) ^ (α - 1) := by
+  rw [mFrameRelVec, if_neg (mFrameTwo_ne_zero h), if_pos rfl]
+
+@[simp] theorem mFrameRelVec_three (α h : ℕ) : mFrameRelVec α (3 : Fin (coreRank h)) = 0 := by
+  rw [mFrameRelVec, if_neg (mFrameThree_ne_zero h), if_neg (mFrameThree_ne_two h)]
+
+@[simp] theorem mFrameRelVec_handle (α : ℕ) {h : ℕ} (k : Fin (2 * h)) :
+    mFrameRelVec α (mHandleIdx k) = 0 := by
+  rw [mFrameRelVec, if_neg (mFrameHandleIdx_ne_zero k), if_neg (mFrameHandleIdx_ne_two k)]
+
+theorem mFrameZMod2_val_one : (1 : ZMod 2).val = 1 := by decide
+
 /-- The free element `T = A * C^(2^(alpha-1))`, the free lift of the frame torsion
 generator. Its coordinate vector is the primitive relation vector. -/
 def mFrameHead (α h : ℕ) : FreeTwoRank (coreRank h) :=
@@ -268,6 +317,363 @@ theorem mFrameRelVec_fixed_of_head_fixed (α h : ℕ)
     toAdd_pow, nsmul_eq_mul, mul_comm]
   push_cast
   ring
+
+/-! ## The basis change `(A, B, C, D, handles) ↦ (T, B, C, D, handles)` -/
+
+/-- The substitution `A ↦ T = A * C^m`, every other generator fixed. -/
+def mFrameBasisChangeHom (α h : ℕ) :
+    ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (FreeTwoRank (coreRank h) : Type) :=
+  presLiftHom 1 (isProP_presPro2 1)
+    (fun i => if i = 0 then mFrameHead α h else freeTwoRankGen (coreRank h) i) (map_one _)
+
+/-- The explicit inverse substitution `A ↦ T * C^(-m)`, every other generator fixed. -/
+def mFrameBasisChangeInvHom (α h : ℕ) :
+    ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (FreeTwoRank (coreRank h) : Type) :=
+  presLiftHom 1 (isProP_presPro2 1)
+    (fun i => if i = 0 then
+      freeTwoRankGen (coreRank h) 0 * (freeTwoRankGen (coreRank h) 2 ^ (2 ^ (α - 1)))⁻¹
+      else freeTwoRankGen (coreRank h) i) (map_one _)
+
+theorem mFrameBasisChangeHom_gen (α h : ℕ) (i : Fin (coreRank h)) :
+    mFrameBasisChangeHom α h (freeTwoRankGen (coreRank h) i) =
+      if i = 0 then mFrameHead α h else freeTwoRankGen (coreRank h) i :=
+  presLiftHom_gen _ _ _ _ _
+
+theorem mFrameBasisChangeInvHom_gen (α h : ℕ) (i : Fin (coreRank h)) :
+    mFrameBasisChangeInvHom α h (freeTwoRankGen (coreRank h) i) =
+      if i = 0 then
+        freeTwoRankGen (coreRank h) 0 * (freeTwoRankGen (coreRank h) 2 ^ (2 ^ (α - 1)))⁻¹
+      else freeTwoRankGen (coreRank h) i :=
+  presLiftHom_gen _ _ _ _ _
+
+theorem mFrameBasisChangeHom_gen_zero (α h : ℕ) :
+    mFrameBasisChangeHom α h (freeTwoRankGen (coreRank h) 0) = mFrameHead α h := by
+  rw [mFrameBasisChangeHom_gen, if_pos rfl]
+
+theorem mFrameBasisChangeHom_gen_of_ne (α h : ℕ) {i : Fin (coreRank h)} (hi : i ≠ 0) :
+    mFrameBasisChangeHom α h (freeTwoRankGen (coreRank h) i) = freeTwoRankGen (coreRank h) i := by
+  rw [mFrameBasisChangeHom_gen, if_neg hi]
+
+theorem mFrameBasisChangeInvHom_gen_zero (α h : ℕ) :
+    mFrameBasisChangeInvHom α h (freeTwoRankGen (coreRank h) 0) =
+      freeTwoRankGen (coreRank h) 0 * (freeTwoRankGen (coreRank h) 2 ^ (2 ^ (α - 1)))⁻¹ := by
+  rw [mFrameBasisChangeInvHom_gen, if_pos rfl]
+
+theorem mFrameBasisChangeInvHom_gen_of_ne (α h : ℕ) {i : Fin (coreRank h)} (hi : i ≠ 0) :
+    mFrameBasisChangeInvHom α h (freeTwoRankGen (coreRank h) i) =
+      freeTwoRankGen (coreRank h) i := by
+  rw [mFrameBasisChangeInvHom_gen, if_neg hi]
+
+theorem mFrameBasisChangeHom_comp_inv (α h : ℕ) :
+    (mFrameBasisChangeHom α h).comp (mFrameBasisChangeInvHom α h) =
+      ContinuousMonoidHom.id (FreeTwoRank (coreRank h) : Type) := by
+  apply presPro2_hom_ext
+  intro i
+  change mFrameBasisChangeHom α h (mFrameBasisChangeInvHom α h (freeTwoRankGen (coreRank h) i)) =
+    freeTwoRankGen (coreRank h) i
+  by_cases hi : i = 0
+  · subst hi
+    rw [mFrameBasisChangeInvHom_gen_zero, map_mul, map_inv, map_pow, mFrameBasisChangeHom_gen_zero,
+      mFrameBasisChangeHom_gen_of_ne α h (mFrameTwo_ne_zero h), mFrameHead, mul_inv_cancel_right]
+  · rw [mFrameBasisChangeInvHom_gen_of_ne α h hi, mFrameBasisChangeHom_gen_of_ne α h hi]
+
+theorem mFrameBasisChangeInvHom_comp (α h : ℕ) :
+    (mFrameBasisChangeInvHom α h).comp (mFrameBasisChangeHom α h) =
+      ContinuousMonoidHom.id (FreeTwoRank (coreRank h) : Type) := by
+  apply presPro2_hom_ext
+  intro i
+  change mFrameBasisChangeInvHom α h (mFrameBasisChangeHom α h (freeTwoRankGen (coreRank h) i)) =
+    freeTwoRankGen (coreRank h) i
+  by_cases hi : i = 0
+  · subst hi
+    rw [mFrameBasisChangeHom_gen_zero, mFrameHead, map_mul, map_pow,
+      mFrameBasisChangeInvHom_gen_zero, mFrameBasisChangeInvHom_gen_of_ne α h (mFrameTwo_ne_zero h),
+      inv_mul_cancel_right]
+  · rw [mFrameBasisChangeHom_gen_of_ne α h hi, mFrameBasisChangeInvHom_gen_of_ne α h hi]
+
+theorem mFrameBasisChangeHom_inv_apply (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    mFrameBasisChangeHom α h (mFrameBasisChangeInvHom α h x) = x := by
+  have he := congrArg (fun f : ContinuousMonoidHom _ _ => f x) (mFrameBasisChangeHom_comp_inv α h)
+  exact he
+
+theorem mFrameBasisChangeInvHom_hom_apply (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    mFrameBasisChangeInvHom α h (mFrameBasisChangeHom α h x) = x := by
+  have he := congrArg (fun f : ContinuousMonoidHom _ _ => f x) (mFrameBasisChangeInvHom_comp α h)
+  exact he
+
+/-- The basis change as an actual continuous automorphism of the free pro-two group. -/
+def mFrameBasisChange (α h : ℕ) :
+    ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type) (FreeTwoRank (coreRank h) : Type) :=
+  continuousMulEquivOfBijective (mFrameBasisChangeHom α h)
+    (Function.bijective_iff_has_inverse.mpr ⟨mFrameBasisChangeInvHom α h,
+      mFrameBasisChangeInvHom_hom_apply α h, mFrameBasisChangeHom_inv_apply α h⟩)
+
+theorem mFrameBasisChange_apply (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    mFrameBasisChange α h x = mFrameBasisChangeHom α h x := rfl
+
+theorem mFrameBasisChange_symm_apply (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    (mFrameBasisChange α h).symm x = mFrameBasisChangeInvHom α h x := by
+  apply (mFrameBasisChange α h).injective
+  rw [ContinuousMulEquiv.apply_symm_apply, mFrameBasisChange_apply, mFrameBasisChangeHom_inv_apply]
+
+theorem mFrameBasisChange_gen_zero (α h : ℕ) :
+    mFrameBasisChange α h (freeTwoRankGen (coreRank h) 0) = mFrameHead α h :=
+  mFrameBasisChangeHom_gen_zero α h
+
+theorem mFrameBasisChange_gen_of_ne (α h : ℕ) {i : Fin (coreRank h)} (hi : i ≠ 0) :
+    mFrameBasisChange α h (freeTwoRankGen (coreRank h) i) = freeTwoRankGen (coreRank h) i :=
+  mFrameBasisChangeHom_gen_of_ne α h hi
+
+theorem mFrameBasisChange_symm_gen_zero (α h : ℕ) :
+    (mFrameBasisChange α h).symm (freeTwoRankGen (coreRank h) 0) =
+      freeTwoRankGen (coreRank h) 0 * (freeTwoRankGen (coreRank h) 2 ^ (2 ^ (α - 1)))⁻¹ := by
+  rw [mFrameBasisChange_symm_apply, mFrameBasisChangeInvHom_gen_zero]
+
+/-! ## The coordinate dictionary
+
+`mFrameHeadCoordinate α h j x` is the `j`-th coordinate of `x` in the free basis
+`(T, B, C, D, handles)`: the original coordinate of the inverse substitution
+`A ↦ T * C^(-m)` applied to `x`. In these coordinates the frame projection has the
+N shape (torsion slot = the T coordinate modulo two, every other slot integral). -/
+
+/-- The coordinates in the free basis `(T, B, C, D, handles)`. -/
+def mFrameHeadCoordinate (α h : ℕ) (j : Fin (coreRank h)) (x : FreeTwoRank (coreRank h)) : ℤ_[2] :=
+  toAdd (freeTwoCoordinate (coreRank h) j ((mFrameBasisChange α h).symm x))
+
+theorem mFrameBasisChange_coordinate_gen (α h : ℕ) (j i : Fin (coreRank h)) :
+    toAdd (freeTwoCoordinate (coreRank h) j
+      (mFrameBasisChange α h (freeTwoRankGen (coreRank h) i))) =
+      (if i = j then 1 else 0) + (if i = 0 ∧ j = 2 then (2 : ℤ_[2]) ^ (α - 1) else 0) := by
+  by_cases hi : i = 0
+  · subst hi
+    rw [mFrameBasisChange_gen_zero, mFrameHead_coordinate, mFrameRelVec]
+    by_cases hj : j = 0
+    · subst hj
+      rw [if_pos rfl, if_pos rfl, if_neg (fun hc => mFrameTwo_ne_zero h hc.2.symm), add_zero]
+    · rw [if_neg hj, if_neg (Ne.symm hj), zero_add]
+      by_cases hj2 : j = 2
+      · subst hj2
+        rw [if_pos rfl, if_pos ⟨rfl, rfl⟩]
+      · rw [if_neg hj2, if_neg (fun hc => hj2 hc.2)]
+  · rw [mFrameBasisChange_gen_of_ne α h hi, freeTwoCoordinate_gen, toAdd_ofAdd,
+      if_neg (show ¬(i = 0 ∧ j = 2) from fun hc => hi hc.1), add_zero]
+
+/-- Original coordinates of the substitution `A ↦ T`: only the C coordinate moves,
+by `2^(alpha-1)` times the A coordinate. -/
+theorem mFrameBasisChange_coordinate (α h : ℕ) (x : FreeTwoRank (coreRank h))
+    (j : Fin (coreRank h)) :
+    toAdd (freeTwoCoordinate (coreRank h) j (mFrameBasisChange α h x)) =
+      toAdd (freeTwoCoordinate (coreRank h) j x) +
+        (if j = 2 then (2 : ℤ_[2]) ^ (α - 1) * toAdd (freeTwoCoordinate (coreRank h) 0 x)
+          else 0) := by
+  have he := freeTwo_character_coordinates (coreRank h)
+    ((freeTwoCoordinate (coreRank h) j).comp (autHom (mFrameBasisChange α h))) x
+  change toAdd (freeTwoCoordinate (coreRank h) j (mFrameBasisChange α h x)) = _ at he
+  rw [he]
+  have hterm : ∀ i, toAdd (freeTwoCoordinate (coreRank h) i x) *
+      toAdd (((freeTwoCoordinate (coreRank h) j).comp (autHom (mFrameBasisChange α h)))
+        (freeTwoRankGen (coreRank h) i)) =
+      (if i = j then toAdd (freeTwoCoordinate (coreRank h) i x) else 0) +
+      (if i = 0 ∧ j = 2 then (2 : ℤ_[2]) ^ (α - 1) * toAdd (freeTwoCoordinate (coreRank h) i x)
+        else 0) := by
+    intro i
+    change toAdd (freeTwoCoordinate (coreRank h) i x) *
+      toAdd (freeTwoCoordinate (coreRank h) j
+        (mFrameBasisChange α h (freeTwoRankGen (coreRank h) i))) = _
+    rw [mFrameBasisChange_coordinate_gen, mul_add]
+    congr 1
+    · split_ifs <;> simp
+    · split_ifs <;> simp [mul_comm]
+  simp only [hterm, Finset.sum_add_distrib, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+  congr 1
+  by_cases hj : j = 2
+  · subst hj
+    simp
+  · simp [hj]
+
+/-- The dictionary: the `(T, B, C, D, handles)` coordinates in terms of the original
+ones. Only the C coordinate changes, by `-2^(alpha-1)` times the A coordinate. -/
+theorem mFrameHeadCoordinate_eq (α h : ℕ) (j : Fin (coreRank h)) (x : FreeTwoRank (coreRank h)) :
+    mFrameHeadCoordinate α h j x =
+      toAdd (freeTwoCoordinate (coreRank h) j x) -
+        (if j = 2 then (2 : ℤ_[2]) ^ (α - 1) * toAdd (freeTwoCoordinate (coreRank h) 0 x)
+          else 0) := by
+  have h0 : toAdd (freeTwoCoordinate (coreRank h) 0 ((mFrameBasisChange α h).symm x)) =
+      toAdd (freeTwoCoordinate (coreRank h) 0 x) := by
+    have := mFrameBasisChange_coordinate α h ((mFrameBasisChange α h).symm x) 0
+    rw [ContinuousMulEquiv.apply_symm_apply, if_neg (mFrameTwo_ne_zero h).symm, add_zero] at this
+    exact this.symm
+  have hj := mFrameBasisChange_coordinate α h ((mFrameBasisChange α h).symm x) j
+  rw [ContinuousMulEquiv.apply_symm_apply, h0] at hj
+  rw [mFrameHeadCoordinate, hj]
+  ring
+
+/-- The head `T` has `(T, B, C, D, handles)` coordinates `e_T`. -/
+theorem mFrameHeadCoordinate_head (α h : ℕ) (j : Fin (coreRank h)) :
+    mFrameHeadCoordinate α h j (mFrameHead α h) = if j = 0 then 1 else 0 := by
+  rw [mFrameHeadCoordinate, ← mFrameBasisChange_gen_zero, ContinuousMulEquiv.symm_apply_apply,
+    freeTwoCoordinate_gen, toAdd_ofAdd]
+  simp only [eq_comm]
+
+theorem mFrameModel_isProP {α : ℕ} (hα : 2 ≤ α) (h : ℕ) : IsProP 2 (MFrameModel h) :=
+  isProP_of_surjective (mPhiHom (mFrame_one_le hα) h) (continuous_mPhiHom _ h)
+    (mPhiHom_surjective _ h) (mIsProP_two_topAb_DM α h)
+
+/-- The frame projection of an arbitrary free element in the original coordinates. -/
+theorem mFrameProjection_coordinate {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (x : FreeTwoRank (coreRank h)) :
+    mFrameProjection hα h x =
+      ofAdd ((zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2))
+        (toAdd (freeTwoCoordinate (coreRank h) 0 x))).toAdd,
+        toAdd (freeTwoCoordinate (coreRank h) 1 x),
+        -(2 : ℤ_[2]) ^ (α - 1) * toAdd (freeTwoCoordinate (coreRank h) 0 x) +
+          toAdd (freeTwoCoordinate (coreRank h) 2 x),
+        toAdd (freeTwoCoordinate (coreRank h) 3 x),
+        fun k => toAdd (freeTwoCoordinate (coreRank h) (mHandleIdx k) x)) := by
+  rw [freeTwo_commutative_eq_of_coordinates (mFrameModel_isProP hα h) (coreRank h) x
+    (freeTwoCoordinateWord (coreRank h) (fun i => toAdd (freeTwoCoordinate (coreRank h) i x)))
+    (fun j => by rw [freeTwoCoordinateWord_coordinate]) (mFrameProjection hα h),
+    mFrameProjection_coordinateWord]
+
+/-- In the `(T, B, C, D, handles)` coordinates the frame projection has the N shape:
+the torsion slot is the T coordinate modulo two and every other slot is copied. -/
+theorem mFrameProjection_headCoordinate {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (x : FreeTwoRank (coreRank h)) :
+    mFrameProjection hα h x =
+      ofAdd ((zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2))
+        (mFrameHeadCoordinate α h 0 x)).toAdd,
+        mFrameHeadCoordinate α h 1 x, mFrameHeadCoordinate α h 2 x, mFrameHeadCoordinate α h 3 x,
+        fun k => mFrameHeadCoordinate α h (mHandleIdx k) x) := by
+  rw [mFrameProjection_coordinate]
+  simp only [mFrameHeadCoordinate_eq, if_true, if_neg (mFrameTwo_ne_zero h).symm,
+    if_neg (mFrameOne_ne_two h), if_neg (mFrameThree_ne_two h), if_neg (mFrameHandleIdx_ne_two _),
+    sub_zero]
+  congr 1
+  refine Prod.ext rfl (Prod.ext rfl (Prod.ext ?_ rfl))
+  ring
+
+/-! ## Why independent torsion sections on the A and C columns do not suffice
+
+The literal transcription of the N lift matrix applies the canonical section to
+the frame image of every original generator, A and C included. Its A column is the
+section of `t * φ(Cbar)^(-m)` and its C column the section of `φ(Cbar)`, and the
+two torsion digits are chosen independently. The relation vector is then fixed
+exactly if and only if the torsion coordinate of `φ(Cbar)` vanishes; in general
+the matrix sends `r` to `(1 + m * digit) r`, a unit multiple. -/
+
+/-- The independent-section matrix: the canonical section of the frame image of
+every original generator, including A. -/
+def mFrameNaiveLiftMatrix {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    Matrix (Fin (coreRank h)) (Fin (coreRank h)) ℤ_[2] :=
+  fun j i => mFrameCoordinateSection α (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) i))) j
+
+theorem mFrameProjection_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    mFrameProjection hα h (freeTwoRankGen (coreRank h) 0) =
+      ofAdd (1, 0, -(2 : ℤ_[2]) ^ (α - 1), 0, 0) := by
+  rw [mFrameProjection_gen]
+  exact mPhiHom_A (mFrame_one_le hα) h
+
+theorem mFrameProjection_gen_two {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    mFrameProjection hα h (freeTwoRankGen (coreRank h) 2) = ofAdd (0, 0, 1, 0, 0) := by
+  rw [mFrameProjection_gen]
+  exact mPhiHom_C (mFrame_one_le hα) h
+
+/-- `2^(alpha-1)` kills `ZMod 2` for `alpha ≥ 2`. -/
+theorem mFrame_halfExp_smul_zmod2 {α : ℕ} (hα : 2 ≤ α) (ε : ZMod 2) :
+    (2 ^ (α - 1)) • ε = 0 := by
+  obtain ⟨r, hr⟩ : ∃ r, α - 1 = r + 1 := ⟨α - 2, by omega⟩
+  have h2 : (2 : ℕ) • ε = 0 := by
+    revert ε
+    decide
+  rw [hr, pow_succ', mul_nsmul, h2, nsmul_zero]
+
+/-- The frame image of A under `φ`, from the fixed torsion generator and the image of C. -/
+theorem mFrameNaive_image_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 0))).toAdd =
+      ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : Fin (2 * h) → ℤ_[2])) -
+        (2 ^ (α - 1)) • (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd := by
+  have hA : mFrameProjection hα h (freeTwoRankGen (coreRank h) 0) *
+      mFrameProjection hα h (freeTwoRankGen (coreRank h) 2) ^ (2 ^ (α - 1)) =
+      ofAdd (1, 0, 0, 0, 0) := by
+    have := mFrameProjection_head hα h
+    rwa [mFrameHead, map_mul, map_pow] at this
+  have ht : φ (ofAdd (1, 0, 0, 0, 0)) = ofAdd (1, 0, 0, 0, 0) :=
+    nFrameModel_map_t φ.toMulEquiv
+  have hφ := congrArg (fun z => toAdd (φ z)) hA
+  simp only [map_mul, map_pow, toAdd_mul, toAdd_pow, ht, toAdd_ofAdd] at hφ
+  rw [← hφ]
+  abel
+
+/-- The independent-section matrix fixes the primitive relation vector exactly
+if and only if the torsion coordinate of `φ(Cbar)` vanishes. -/
+theorem mFrameNaiveLiftMatrix_relVec_iff {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    (∀ j, ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i = mFrameRelVec α j) ↔
+      (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1 = 0 := by
+  set γ := φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2)) with hγ
+  have hsum : ∀ j, ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i =
+      mFrameNaiveLiftMatrix hα h φ j 0 +
+        (2 : ℤ_[2]) ^ (α - 1) * mFrameNaiveLiftMatrix hα h φ j 2 := by
+    intro j
+    have hsupp : ∀ i ∈ (Finset.univ : Finset (Fin (coreRank h))),
+        i ∉ ({0, 2} : Finset (Fin (coreRank h))) →
+        mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i = 0 := by
+      intro i _ hi
+      simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hi
+      rw [mFrameRelVec, if_neg hi.1, if_neg hi.2, mul_zero]
+    rw [← Finset.sum_subset (Finset.subset_univ _) hsupp, Finset.sum_pair mCoreZero_ne_two,
+      mFrameRelVec_zero, mul_one, mFrameRelVec_two, mul_comm]
+  have himg := mFrameNaive_image_zero hα h φ
+  rw [← hγ] at himg
+  -- the two columns, slot by slot
+  have hcol0 : ∀ j, mFrameNaiveLiftMatrix hα h φ j 0 =
+      mSurjVec α (1 - (2 ^ (α - 1)) • γ.toAdd.1) (0 - (2 ^ (α - 1)) • γ.toAdd.2.1)
+        (0 - (2 ^ (α - 1)) • γ.toAdd.2.2.1) (0 - (2 ^ (α - 1)) • γ.toAdd.2.2.2.1)
+        (0 - (2 ^ (α - 1)) • γ.toAdd.2.2.2.2) j := by
+    intro j
+    rw [mFrameNaiveLiftMatrix, mFrameCoordinateSection, himg]
+    simp only [Prod.fst_sub, Prod.snd_sub, Prod.smul_fst, Prod.smul_snd]
+  have hcol2 : ∀ j, mFrameNaiveLiftMatrix hα h φ j 2 =
+      mSurjVec α γ.toAdd.1 γ.toAdd.2.1 γ.toAdd.2.2.1 γ.toAdd.2.2.2.1 γ.toAdd.2.2.2.2 j := by
+    intro j
+    rfl
+  have hε : (1 : ZMod 2) - (2 ^ (α - 1)) • γ.toAdd.1 = 1 := by
+    rw [mFrame_halfExp_smul_zmod2 hα, sub_zero]
+  have hm0 : (2 : ℤ_[2]) ^ (α - 1) ≠ 0 := pow_ne_zero _ (by norm_num)
+  constructor
+  · intro hall
+    have h0 := hall 0
+    rw [hsum, hcol0, hcol2, mSurjVec_zero, mSurjVec_zero, hε, mFrameRelVec_zero,
+      mFrameZMod2_val_one] at h0
+    have hv : ((2 : ℤ_[2]) ^ (α - 1)) * ((γ.toAdd.1.val : ℕ) : ℤ_[2]) = 0 := by
+      push_cast at h0
+      linear_combination h0
+    rcases mul_eq_zero.mp hv with hc | hc
+    · exact absurd hc hm0
+    · have : γ.toAdd.1.val = 0 := by exact_mod_cast hc
+      exact (ZMod.val_eq_zero _).mp this
+  · intro h1 j
+    rw [hsum, hcol0, hcol2]
+    rcases mIdx_cases j with rfl | rfl | rfl | rfl | ⟨k, rfl⟩
+    · rw [mSurjVec_zero, mSurjVec_zero, hε, h1, mFrameRelVec_zero, ZMod.val_zero,
+        mFrameZMod2_val_one]
+      push_cast
+      ring
+    · rw [mSurjVec_one, mSurjVec_one, mFrameRelVec_one, nsmul_eq_mul]
+      push_cast
+      ring
+    · rw [mSurjVec_two, mSurjVec_two, hε, h1, mFrameRelVec_two, ZMod.val_zero,
+        mFrameZMod2_val_one, nsmul_eq_mul]
+      push_cast
+      ring
+    · rw [mSurjVec_three, mSurjVec_three, mFrameRelVec_three, nsmul_eq_mul]
+      push_cast
+      ring
+    · rw [mSurjVec_handle, mSurjVec_handle, mFrameRelVec_handle, Pi.sub_apply, Pi.zero_apply,
+        Pi.smul_apply, nsmul_eq_mul]
+      push_cast
+      ring
 
 /-! ## The fixed-T free lift of a frame automorphism -/
 
@@ -499,10 +905,54 @@ theorem exists_mFrame_freeBasis_lift {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
 #print axioms mFrameOrientation_preserved_iff
 #print axioms mFrameRelVec
 #print axioms mFrameTwo_ne_zero
+#print axioms mFrameOne_ne_zero
+#print axioms mFrameThree_ne_zero
+#print axioms mFrameOne_ne_two
+#print axioms mFrameThree_ne_two
+#print axioms mFrameHandleIdx_ne_zero
+#print axioms mFrameHandleIdx_ne_two
+#print axioms mFrameRelVec_zero
+#print axioms mFrameRelVec_one
+#print axioms mFrameRelVec_two
+#print axioms mFrameRelVec_three
+#print axioms mFrameRelVec_handle
+#print axioms mFrameZMod2_val_one
 #print axioms mFrameHead
 #print axioms mFrameHead_coordinate
 #print axioms mFrameProjection_head
 #print axioms mFrameRelVec_fixed_of_head_fixed
+#print axioms mFrameBasisChangeHom
+#print axioms mFrameBasisChangeInvHom
+#print axioms mFrameBasisChangeHom_gen
+#print axioms mFrameBasisChangeInvHom_gen
+#print axioms mFrameBasisChangeHom_gen_zero
+#print axioms mFrameBasisChangeHom_gen_of_ne
+#print axioms mFrameBasisChangeInvHom_gen_zero
+#print axioms mFrameBasisChangeInvHom_gen_of_ne
+#print axioms mFrameBasisChangeHom_comp_inv
+#print axioms mFrameBasisChangeInvHom_comp
+#print axioms mFrameBasisChangeHom_inv_apply
+#print axioms mFrameBasisChangeInvHom_hom_apply
+#print axioms mFrameBasisChange
+#print axioms mFrameBasisChange_apply
+#print axioms mFrameBasisChange_symm_apply
+#print axioms mFrameBasisChange_gen_zero
+#print axioms mFrameBasisChange_gen_of_ne
+#print axioms mFrameBasisChange_symm_gen_zero
+#print axioms mFrameHeadCoordinate
+#print axioms mFrameBasisChange_coordinate_gen
+#print axioms mFrameBasisChange_coordinate
+#print axioms mFrameHeadCoordinate_eq
+#print axioms mFrameHeadCoordinate_head
+#print axioms mFrameModel_isProP
+#print axioms mFrameProjection_coordinate
+#print axioms mFrameProjection_headCoordinate
+#print axioms mFrameNaiveLiftMatrix
+#print axioms mFrameProjection_gen_zero
+#print axioms mFrameProjection_gen_two
+#print axioms mFrame_halfExp_smul_zmod2
+#print axioms mFrameNaive_image_zero
+#print axioms mFrameNaiveLiftMatrix_relVec_iff
 #print axioms mFrameLiftWord
 #print axioms mFrameProjection_liftWord
 #print axioms mFrameLiftMark
@@ -514,6 +964,7 @@ theorem exists_mFrame_freeBasis_lift {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
 #print axioms mFrameLiftHom_projection_gen
 #print axioms mFrameLiftHom_projection
 #print axioms mFrameLiftHom_surjective
+#print axioms mFrameLift_topGen
 #print axioms mFrameLiftEquiv
 #print axioms mFrameLiftEquiv_apply
 #print axioms mFrameLiftEquiv_head
