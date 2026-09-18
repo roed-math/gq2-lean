@@ -130,8 +130,32 @@ tree rather than against the W361 handoff.
    it are exactly `GQ2/AxiomLedger.lean` and the five exporter drivers under
    `GQ2/Dyadic/Word/`. Exporter drivers with a global `main` stay outside
    `GQ2.lean` intentionally.
-6. `[HOUSE: statements of nFullStabilizer_lift / _iff -- see section 4a]`
-7. `[HOUSE: std-3 pin elaboration, general axiom audit, census eleven]`
+6. The two theorem statements have exactly the shape the W361 handoff's
+   section 3 describes, in every binder. Both are quoted in full in
+   `docs/dyadic/w362-house-note.md` item 6. `{alpha h : ℕ}` with
+   `ha : 2 ≤ alpha` and no constraint on `h`, so "every alpha >= 2 and every
+   handle count h" is exact. `NFrameModel h` really is
+   `Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] × (Fin (2*h) → ℤ_[2]))`,
+   `NFrameCupIsometry` really quantifies over every continuous F₂ character of
+   the frame, and `nFrameOrientation_preserved_iff` really is the claimed
+   equivalence with the integral b-coordinate.
+7. All 118 pins print exactly `[propext, Classical.choice, Quot.sound]`,
+   elaborated rather than grepped. All 118 are registered in the 691-name
+   `scripts/w361_artifact_axiom_audit.lean` list.
+8. The axiom census is eleven at source level: exactly eleven `axiom`
+   declarations exist, all in `GQ2/Foundations/Axioms.lean`, and their names
+   are set equal to `GQ2.AxiomLedger.bAxioms`. `scripts/check_axioms.sh:28`
+   sets `EXPECTED_AXIOMS=11`.
+9. There is no `sorry`, `admit` or `native_decide` outside comments anywhere
+   in the tree, and none of the 223 `.lean` files `6770a87e` first tracked
+   carries a `maxHeartbeats`, `maxRecDepth` or `synthInstance` option.
+10. The four publication counts in W361 section 6 item 3 are all exact: four
+    pair/mobile packets, six word-only L/N specimens (confirmed by file shape,
+    not by prose), the 29-page PDF and its wrapper both hashing as the QA
+    record claims, and forty TODO invocations.
+
+Full detail, with the method and the traps, is in
+`docs/dyadic/w362-house-note.md`.
 
 ### Carried from W361, not re-run in this wave
 
