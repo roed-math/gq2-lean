@@ -1,5 +1,5 @@
 % STAGED W366 item-8 OVERLAY for packet-Npc-alpha2-r1-h0-num1-den1. It is written BESIDE the packet and modifies nothing the packet's own manifest covers.
-% item8-overlay-hash: 0e49237b2318ad046309fbc53207776e676e83e0df407deec4cd7aa30c4d718e
+% item8-overlay-hash: d00c9413455d8ae586ce6e4d137fadaedd82419c3b2cc945abac14ab61e50a44
 % pinned W362 packet hash, unchanged by this lane: 6cf3a39e763ab22c5139e7b956f1fc7c447fb4c290dc4307cac7c7c1a517a5a7
 % coordinate half: Npc-coordinate-h0-q2-r1 afcd8f628b03679c89b76a8e0b1002f71da0af025336b689c8e9934a23844c3f
 % normal-form half: Npc-gauss-h0-q2-r1 8abe7ce51fe49f625523429f6d2a8d076cf0430c39456a89f7e8c50d8695a25f
@@ -74,6 +74,7 @@ No second route for the sign in this row. No record route for the exponent in an
 \item \texttt{gauss value equation}: named but unbound $\to$ restated identity
 \item \texttt{normal form records}: named but unbound $\to$ named but unbound
 \end{itemize}
+\par\noindent The before column is per family, not uniform, because W365 corrected W363-PUB2 here: the L rows' printed sign already had a record\_target route through the pre-existing LHessianCertificates.unramifiedHessian\_baseSign and .ramifiedHessian\_baseSign, so for L this lane adds a SECOND, independent route to the display cell rather than a first binding, and a validator may check that the two agree. N0 and Npc had none: no named baseSign theorem exists outside L, and the fact is supplied inline as a rfl argument at the certificate call sites, which a driver cannot cite. The printed exponent had no route in any family, and still has none outside the cell.
 \par\noindent\textbf{[TODO: the quadratic normal form RECORDS themselves are still named\_but\_unbound, and this overlay does not change that. SourceOddHessian, SourceCompactHessian and SourceWallHessian remain unreachable without instantiating a coefficient module, which no exporter lane may do. What changed is that the Gauss cells no longer wait for them: they are supplied by theorems about the endpoint phase function, which is quantified over the coefficient group. Naming is not binding.]}
 \par\noindent The two further residual TODOs, on the absent second sign route and on the absent record route for the exponent, are printed with the normal-form display above and are carried in this overlay's JSON.
 \paragraph{Checked declarations (standard three axioms)}

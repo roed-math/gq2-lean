@@ -49,18 +49,39 @@ UNBOUND = "named_but_unbound"
 
 # Item 8's binding kinds before this lane (W363-PUB2 T6) and after it. The overlay pins both
 # so that the artifact itself, and not only a note, records what changed.
-BRIDGE_KINDS = {
-    "before": {"coordinate_half": RECORD_TARGET,
-               "gauss_exponent": UNBOUND,
-               "gauss_sign": UNBOUND,
-               "gauss_value_equation": UNBOUND,
-               "normal_form_records": UNBOUND},
-    "after": {"coordinate_half": RECORD_TARGET,
-              "gauss_exponent": RECORD_TARGET,
-              "gauss_sign": RECORD_TARGET,
-              "gauss_value_equation": RESTATED,
-              "normal_form_records": UNBOUND},
-}
+#
+# The BEFORE column is per family and deliberately not uniform. W365 corrected W363-PUB2 on
+# exactly this point: the L rows' printed sign already had a record_target route through the
+# pre-existing baseSign theorems, so presenting L's sign as previously unbound would repeat
+# the overstatement W365 found. N0 and Npc genuinely had none.
+PRIOR_SIGN_ROUTE = {"L": RECORD_TARGET, "N0": UNBOUND, "Npc": UNBOUND}
+
+SIGN_ROUTE_NOTE = (
+    "The before column is per family, not uniform, because W365 corrected W363-PUB2 here: "
+    "the L rows' printed sign already had a record_target route through the pre-existing "
+    "LHessianCertificates.unramifiedHessian_baseSign and .ramifiedHessian_baseSign, so for L "
+    "this lane adds a SECOND, independent route to the display cell rather than a first "
+    "binding, and a validator may check that the two agree. N0 and Npc had none: no named "
+    "baseSign theorem exists outside L, and the fact is supplied inline as a rfl argument at "
+    "the certificate call sites, which a driver cannot cite. The printed exponent had no "
+    "route in any family, and still has none outside the cell.")
+
+
+def bridge_kinds(family):
+    if family not in PRIOR_SIGN_ROUTE:
+        raise TemplateError("unknown family for the item-8 binding table")
+    return {
+        "before": {"coordinate_half": RECORD_TARGET,
+                   "gauss_exponent": UNBOUND,
+                   "gauss_sign": PRIOR_SIGN_ROUTE[family],
+                   "gauss_value_equation": UNBOUND,
+                   "normal_form_records": UNBOUND},
+        "after": {"coordinate_half": RECORD_TARGET,
+                  "gauss_exponent": RECORD_TARGET,
+                  "gauss_sign": RECORD_TARGET,
+                  "gauss_value_equation": RESTATED,
+                  "normal_form_records": UNBOUND},
+    }
 
 RECORDS_TODO = (
     "TODO: the quadratic normal form RECORDS themselves are still named_but_unbound, and "
@@ -131,7 +152,7 @@ def build_overlay(directory, stem):
                             "packet")
     payload = {
         "application_scope": SCOPE,
-        "bridge_kinds": BRIDGE_KINDS,
+        "bridge_kinds": bridge_kinds(family),
         "coordinate_artifact": coordinate.artifact_name(coordinate_obj["payload"]),
         "coordinate_hash": coordinate_obj["template_hash"],
         "family": family,
@@ -141,6 +162,7 @@ def build_overlay(directory, stem):
         "packet_hash": packet_obj["packet_hash"],
         "residual_todos": [RECORDS_TODO] + list(gauss_obj["payload"]["todos"]),
         "schema": SCHEMA,
+        "sign_route_note": SIGN_ROUTE_NOTE,
         "section": {"number": ITEM, "paragraphs": section["paragraphs"],
                     "references": section["references"],
                     "standing_axiom_references": section["standing_axiom_references"],
@@ -159,12 +181,15 @@ def validate(envelope, directory):
     p = envelope["payload"]
     fields(p, {"application_scope", "bridge_kinds", "coordinate_artifact", "coordinate_hash",
                "family", "gauss_artifact", "gauss_hash", "packet", "packet_hash",
-               "residual_todos", "schema", "section", "structural", "superseded_todos",
-               "warning"}, "LN item-8 overlay payload")
+               "residual_todos", "schema", "section", "sign_route_note", "structural",
+               "superseded_todos", "warning"}, "LN item-8 overlay payload")
     if p["schema"] != SCHEMA:
         raise TemplateError("LN item-8 overlay schema mismatch")
-    if canonical_json(p["bridge_kinds"]) != canonical_json(BRIDGE_KINDS):
-        raise TemplateError("LN item-8 overlay bridge kinds may not be relabelled")
+    if canonical_json(p["bridge_kinds"]) != canonical_json(bridge_kinds(p["family"])):
+        raise TemplateError("LN item-8 overlay bridge kinds may not be relabelled, and the "
+                            "before column is the family's own")
+    if p["sign_route_note"] != SIGN_ROUTE_NOTE:
+        raise TemplateError("the per-family caveat on the before column may not be dropped")
     if p["bridge_kinds"]["after"]["normal_form_records"] != UNBOUND:
         raise TemplateError("the normal-form records are still unbound after this lane")
     todos = p["residual_todos"]
@@ -230,12 +255,13 @@ def render_tex(envelope, directory):
               gauss.render_tex(gauss_obj).rstrip("\n"),
               r"\paragraph{Binding kinds, before and after this overlay}",
               r"\begin{itemize}"]
-    for key in sorted(BRIDGE_KINDS["before"]):
+    for key in sorted(p["bridge_kinds"]["before"]):
         lines.append(r"\item \texttt{" + tex_escape(key.replace("_", " ")) + "}: "
                      + tex_escape(p["bridge_kinds"]["before"][key].replace("_", " "))
                      + r" $\to$ "
                      + tex_escape(p["bridge_kinds"]["after"][key].replace("_", " ")))
     lines.append(r"\end{itemize}")
+    lines.append(r"\par\noindent " + tex_escape(p["sign_route_note"]))
     # Only the overlay's own residual TODO is printed here: the other two are the
     # normal-form display's own and are already printed with it above. All three are
     # carried in this overlay's JSON, under residual_todos.
@@ -263,15 +289,29 @@ def self_test():
     count = 0
     # The two tables the overlay pins are the content, so check them directly rather than
     # only through a round trip.
-    assert set(BRIDGE_KINDS["before"]) == set(BRIDGE_KINDS["after"])
-    assert BRIDGE_KINDS["before"]["gauss_sign"] == UNBOUND
-    assert BRIDGE_KINDS["after"]["gauss_sign"] == RECORD_TARGET
-    assert BRIDGE_KINDS["after"]["gauss_exponent"] == RECORD_TARGET
-    assert BRIDGE_KINDS["after"]["gauss_value_equation"] == RESTATED
-    assert BRIDGE_KINDS["before"]["normal_form_records"] == UNBOUND
-    assert BRIDGE_KINDS["after"]["normal_form_records"] == UNBOUND
-    assert BRIDGE_KINDS["before"]["coordinate_half"] == RECORD_TARGET
-    count += 8
+    for family in PRIOR_SIGN_ROUTE:
+        table = bridge_kinds(family)
+        assert set(table["before"]) == set(table["after"])
+        assert table["after"]["gauss_sign"] == RECORD_TARGET
+        assert table["after"]["gauss_exponent"] == RECORD_TARGET
+        assert table["after"]["gauss_value_equation"] == RESTATED
+        assert table["before"]["gauss_exponent"] == UNBOUND
+        assert table["before"]["normal_form_records"] == UNBOUND
+        assert table["after"]["normal_form_records"] == UNBOUND
+        assert table["before"]["coordinate_half"] == RECORD_TARGET
+        count += 8
+    # W365's correction: L's sign was already bound, N0's and Npc's were not
+    assert bridge_kinds("L")["before"]["gauss_sign"] == RECORD_TARGET
+    assert bridge_kinds("N0")["before"]["gauss_sign"] == UNBOUND
+    assert bridge_kinds("Npc")["before"]["gauss_sign"] == UNBOUND
+    assert "W365" in SIGN_ROUTE_NOTE and "baseSign" in SIGN_ROUTE_NOTE
+    count += 4
+    try:
+        bridge_kinds("M0")
+    except TemplateError:
+        count += 1
+    else:
+        raise AssertionError("unknown family accepted in the binding table")
     assert RECORDS_TODO.startswith("TODO: ")
     assert "SourceOddHessian" in RECORDS_TODO and "named_but_unbound" in RECORDS_TODO
     assert "is NOT regenerated" in WARNING and "owner decision 13" in WARNING
@@ -282,14 +322,15 @@ def self_test():
     assert LEAN_COORDINATE in PROVENANCE_FILES
     count += 3
 
-    base = {"application_scope": SCOPE, "bridge_kinds": BRIDGE_KINDS,
+    base = {"application_scope": SCOPE, "bridge_kinds": bridge_kinds("L"),
             "coordinate_artifact": "L-coordinate-h0-q2", "coordinate_hash": "0" * 64,
             "family": "L", "gauss_artifact": "L-gauss-h0-q2", "gauss_hash": "1" * 64,
             "packet": "packet-L-h0", "packet_hash": "2" * 64,
             "residual_todos": [RECORDS_TODO, "TODO: a", "TODO: b"], "schema": SCHEMA,
-            "section": {"number": ITEM, "paragraphs": ["p"], "references": ["r"],
+            "sign_route_note": SIGN_ROUTE_NOTE,
+        "section": {"number": ITEM, "paragraphs": ["p"], "references": ["r"],
                         "standing_axiom_references": [], "title": "t"},
-            "structural": {"h": 0, "q": 2},
+            "sign_route_note": SIGN_ROUTE_NOTE, "structural": {"h": 0, "q": 2},
             "superseded_todos": [{"text": "TODO: old", "missing_declaration": "X"}],
             "warning": WARNING}
 
@@ -310,7 +351,10 @@ def self_test():
         lambda p: p.update(bridge_kinds={"before": {}, "after": {}}),
         lambda p: p["bridge_kinds"]["after"].update(normal_form_records=RECORD_TARGET),
         lambda p: p["bridge_kinds"]["after"].update(gauss_value_equation=RECORD_TARGET),
-        lambda p: p["bridge_kinds"]["before"].update(gauss_sign=RECORD_TARGET),
+        lambda p: p["bridge_kinds"]["before"].update(gauss_sign=UNBOUND),
+        lambda p: p.update(bridge_kinds=bridge_kinds("N0")),
+        lambda p: p.update(sign_route_note="see the note"),
+        lambda p: p.pop("sign_route_note"),
         # the residual TODOs may not be dropped, reordered or unmarked
         lambda p: p.update(residual_todos=[RECORDS_TODO, "TODO: a"]),
         lambda p: p.update(residual_todos=["TODO: a", "TODO: b", RECORDS_TODO]),

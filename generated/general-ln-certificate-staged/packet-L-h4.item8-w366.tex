@@ -1,5 +1,5 @@
 % STAGED W366 item-8 OVERLAY for packet-L-h4. It is written BESIDE the packet and modifies nothing the packet's own manifest covers.
-% item8-overlay-hash: c86fcbd54e563148dfdbd95110b77aa23da94dbdf6fc3d09e8042557cfc4be67
+% item8-overlay-hash: 89277470d5dded27043ea9d5206f5392dbedea69e9dadb9cba970ddee16c25b4
 % pinned W362 packet hash, unchanged by this lane: f98de22bb3784b27204e7daf1e765e4c0c7c4018b158a3b72da76941ff241432
 % coordinate half: L-coordinate-h4-q2 4d1b5d254d23ca954c7def82c6747724cb7520dcfbec317059e3965a6e868a67
 % normal-form half: L-gauss-h4-q2 8bed029283c7f6502008796ca3ddfac2fc193d1211d705271bf756f360a88824
@@ -64,10 +64,11 @@ Second \texttt{record\_target} route for the sign: \texttt{GQ2.Dyadic.Instances.
 \begin{itemize}
 \item \texttt{coordinate half}: record target $\to$ record target
 \item \texttt{gauss exponent}: named but unbound $\to$ record target
-\item \texttt{gauss sign}: named but unbound $\to$ record target
+\item \texttt{gauss sign}: record target $\to$ record target
 \item \texttt{gauss value equation}: named but unbound $\to$ restated identity
 \item \texttt{normal form records}: named but unbound $\to$ named but unbound
 \end{itemize}
+\par\noindent The before column is per family, not uniform, because W365 corrected W363-PUB2 here: the L rows' printed sign already had a record\_target route through the pre-existing LHessianCertificates.unramifiedHessian\_baseSign and .ramifiedHessian\_baseSign, so for L this lane adds a SECOND, independent route to the display cell rather than a first binding, and a validator may check that the two agree. N0 and Npc had none: no named baseSign theorem exists outside L, and the fact is supplied inline as a rfl argument at the certificate call sites, which a driver cannot cite. The printed exponent had no route in any family, and still has none outside the cell.
 \par\noindent\textbf{[TODO: the quadratic normal form RECORDS themselves are still named\_but\_unbound, and this overlay does not change that. SourceOddHessian, SourceCompactHessian and SourceWallHessian remain unreachable without instantiating a coefficient module, which no exporter lane may do. What changed is that the Gauss cells no longer wait for them: they are supplied by theorems about the endpoint phase function, which is quantified over the coefficient group. Naming is not binding.]}
 \par\noindent The two further residual TODOs, on the absent second sign route and on the absent record route for the exponent, are printed with the normal-form display above and are carried in this overlay's JSON.
 \paragraph{Checked declarations (standard three axioms)}
