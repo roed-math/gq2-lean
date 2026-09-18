@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.LHessianCertificates
 import GQ2.Dyadic.Instances.WordPhase
+import GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates
 
 /-!
 # The Gauss sign and exponent of the wall-handle endpoints, as standalone theorems
@@ -243,6 +244,44 @@ theorem gaussValCompactDisplayUnram (hq : IsQuadraticFp2 q) (hns : Nonsingular q
 
 end Compact
 
+/-! ## T2 (continued). The `Npc` full-offset sector
+
+The `Npc` normal-form records are `SourceWallHessian`, whose endpoint is
+`Instances.WordPhaseWallHandleCertificates.wallHandlePhase d0 q h`: the same `h` hyperbolic
+handle planes on a `plusFormD d0 q` head whose *first* slot carries the projected diagonal
+`d0` rather than a second copy of `q`.  Its Gauss value is already a standalone theorem
+(`gaussSum_wallHandlePhase`), stated as `(Fintype.card V) ^ (h + 1)` and so carrying the sign
+only implicitly.  Specializing the cardinality to `2 ^ (2 * m)` puts it in the display shape,
+and shows the `Npc` sector prints the same cell as the compact sectors. -/
+
+section Wall
+
+open Instances.WordPhaseWallHandleCertificates
+
+variable {V : Type} [AddCommGroup V] [Fintype V] {d0 q : V → ZMod 2}
+
+/-- **The `Npc` full-offset endpoint Gauss value, in the shape the normal-form display
+prints**: sign `+1`, exponent `m * (2 * h + 2)`.  The sign does not depend on the projected
+diagonal `d0`, which is the content of `gaussSum_wallHandlePhase`. -/
+theorem gaussValNpcDisplay (hd : IsQuadraticFp2 d0) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) {m : ℕ} (hcard : Fintype.card V = 2 ^ (2 * m)) (h : ℕ) :
+    QuadraticFp2.gaussSum (wallHandlePhase d0 q h)
+      = (1 : ℤ) * 2 ^ (m * (2 * h + 2)) := by
+  rw [gaussSum_wallHandlePhase d0 q hd hq hns, hcard, one_mul]
+  push_cast
+  rw [← pow_mul]
+  congr 1
+  ring
+
+/-- **The `Npc` full-offset endpoint Gauss value, bound to its display cell.**  It is the same
+cell as the compact sectors': one cell serves the three even-degree sectors. -/
+theorem gaussValNpcCellEq (hd : IsQuadraticFp2 d0) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) {m : ℕ} (hcard : Fintype.card V = 2 ^ (2 * m)) (h : ℕ) :
+    QuadraticFp2.gaussSum (wallHandlePhase d0 q h) = (gaussValCompactCell h).value m :=
+  gaussValNpcDisplay hd hq hns hcard h
+
+end Wall
+
 /-! ## Axiom audit -/
 
 #print axioms GaussValCell
@@ -268,6 +307,8 @@ end Compact
 #print axioms gaussValCompactDisplay
 #print axioms gaussValCompactCellEq
 #print axioms gaussValCompactDisplayUnram
+#print axioms gaussValNpcDisplay
+#print axioms gaussValNpcCellEq
 
 end
 end GQ2.Dyadic.Instances.GaussPhaseValues
