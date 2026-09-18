@@ -43,9 +43,279 @@ cache. It does not race the probes below.
 `NNielsenFactorization.olean` was present in the shared cache before any probe in
 this lane was run.
 
-## Findings
+## T1, the round (watch 26 in the Claude numbering)
 
-(to be filled)
+Scope: every module and note landed in `6770a87e..d2056503`, 138 commits. The
+window contains **twelve** new registered modules under `GQ2/`, **one** new
+unregistered exporter driver under `scripts/` (so thirteen new `.lean` files),
+fourteen new documents under `docs/dyadic/`, five new scripts, and 43 new files
+under `generated/`. Exactly one pre-existing `.lean` file was modified,
+`GQ2.lean`, and it gained twelve import lines and nothing else.
+
+Findings are ranked by severity. **FIXED** means this lane changed the tree;
+**FLAGGED** means it did not, either because the fix is in a Lean module (the
+audit lane's remit, not this one's) or because it is another lane's frozen
+record.
+
+### HIGH
+
+**H1. `NNielsenGenerators.lean`'s module docstring asserts the non-existence of
+declarations that now sit in the same directory. FLAGGED (Lean, comment-only).**
+
+`GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean:14-22` says, of the packet's
+MC-N finite-list artifact, "**It cannot be produced yet**", and gives as the
+reason "there is no `nNielsen_factorization` and there are no `nFamN1` through
+`nFamN6` values anywhere in `GQ2/`. The six N families live only in the design
+memo."
+
+At `d2056503` all eight named objects exist, in
+`GQ2/Dyadic/MarkedCore/NNielsenFactorization.lean`: `nFamN1` at `:138` through
+`nFamN6` at `:158`, `nNielsen_factorization` at `:357`, and the artifact itself,
+`nNielsenFac_finite_list`, at `:758`. W364-NFACTOR built exactly the thing W363
+recorded as impossible, one wave later, and nothing in `NNielsenGenerators`
+points forward. The whole section headed "Why this is not the N twin of
+`MNielsenGenerators`" is false as written.
+
+The mathematics is untouched: nothing depends on the docstring, and
+`NNielsenFactorization` imports `NNielsenGenerators` and consumes its bridge
+exactly as intended. This is the highest-severity comment defect of the session,
+and it is the one a next reader is most likely to act on, because it reads as a
+research finding rather than as prose.
+
+The same sentence is in `docs/dyadic/w363-nielsen-note.md`, section "The N
+side". A lane note is a frozen record of its own wave, so the sentence was true
+when written; but the note is also the document the reading list sends people to,
+so this lane added an overtaken-by banner in the shape W363-MCONSOL used on the
+six `w362-*-note.md` files. **FIXED (docs).**
+
+### MEDIUM
+
+**M1. The W363-MAUDIT documents pin nine source hashes and twenty-one source
+line numbers, with no as-of commit, and all of them have drifted. FLAGGED.**
+
+`docs/dyadic/w363-m-full-stabilizer-independent-audit.md` carries a
+"Verification performed" table giving a SHA-256 for each of the nine wave-362
+M modules. **All nine are now wrong**, every one. Fifteen of its twenty-one
+`file:line` citations are also wrong, by a fixed per-file offset
+(`MFullFrameCompactness` +6, `MBasisRowRefinement` +4, `MPlaneAmbientStage` +4,
+`MFrameCupCoordinates` +6, `MFrameMatrixLift` +5 and then +9 past line 1100,
+`MFullStabilizerLift` +33). Four examples, checked by hand in this lane:
+
+| Audit says | Truth at `d2056503` |
+| --- | --- |
+| `mFullStabilizer_lift_of_frame` at `MFullStabilizerLift.lean:126` | `:159`; `:126` is mid-type |
+| `mStageOneLe` at `MFullFrameCompactness.lean:31` | `:37`; `:31` is `noncomputable section` |
+| `mBasis_mFiltered_mRelWord` at `MBasisRowRefinement.lean:49` | `:53`; `:49` is blank |
+| `MCupFrameCupIsometry` at `MFrameCupCoordinates.lean:74` | `:80` |
+
+**Every named declaration still exists, with the quoted text intact.** This is
+pure drift, not a content error, and the verdict `PROVED AS STATED` is
+unaffected. The cause is that four commits edited all nine modules *after* the
+audit was written: `acffa057`, `492fe22e`, `20174284` and `6359d12a`, that is,
+the W363-MCONSOL rename and docstring pass plus the copyright-header fix.
+
+The audit's true base is **`69b9851c`**, established in this lane by recomputing
+`MFullStabilizerLift.lean`'s SHA-256 at candidate commits:
+`69b9851c` gives `bac55a1a4268bdc1bac2e647a9c2c6b3c70d1dba8c3483421ea57e9ee36da783`,
+exactly the audit's figure, and `d2056503` gives
+`cf6c7bbd928d8f31f23fa6b9dfe140e2b0d9325ac06ca8b5498779d0a45aebf3`.
+
+This lane did **not** renumber the audit. Rewriting another lane's verdict
+document is not housekeeping, and an audit whose citations are re-pointed by a
+third party is worth less than one that says which tree it measured. The
+repair is one line at the head of the document naming `69b9851c`, plus, if
+anyone wants it, a mechanical renumber; that is the orchestrator's call. The
+`w361-index.md` entry this lane wrote carries the flag so a reader meets it
+before the table.
+
+`docs/dyadic/w363-m-full-stabilizer-scope.md` has the same missing as-of hash
+but no `.lean` line citations at all, so nothing in it has drifted.
+
+**M2. "For every parameter" in the Nielsen modules, where the statement
+quantifies over a parameter *plus a supplied inverse*. FLAGGED (Lean,
+comment-only).**
+
+`MNielsenGenerators.lean:27` says `mNielsenGen_orientation` and
+`mNielsenGen_cupIsometry` "discharge both hypotheses **for every parameter**",
+and the per-declaration docstrings at `:299-302`, `:435-437` and `:621` say
+"every rank-four stabilizer parameter". The statements
+(`:303`, `:438`) read
+
+```lean
+theorem mNielsenGen_orientation {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) ...
+```
+
+that is, over a parameter **together with** an inverse parameter and two
+pointwise inverse proofs, which is what `mNielsenGenEquiv` needs to be a
+`ContinuousMulEquiv`. A grep over the whole of `GQ2/` finds **no** inverse,
+group or `act_comp` structure on `MStabParam` or on `NStabParam`, so "every
+parameter" is not a corollary anyone can currently take. The same pattern is in
+`NNielsenFactorization.lean` at `:39-42`, `:502-503`, `:562-564`, `:686-687`
+and `:949-951`, and there it is sharper, because the underlying
+`nStabParam_fullFrame_lift_general` needs only `2 <= alpha` and `P.Admissible`:
+the `Q` binder is this file's packaging, not the mathematics.
+
+**The landed headline theorems are unaffected**, and that is why this is medium
+and not high: `mNielsenGen_finite_list` and `nNielsenFac_finite_list` route
+through the seven and eight explicit families, each of which supplies its own
+inverse by construction (`mNielsenGen_M1_inv` and its siblings). The gap is
+between the intermediate lemmas' prose and their binders.
+
+**M3. M's quantifier-closure headline omits its own normalization binders.
+FLAGGED (Lean, comment-only).**
+
+`MNielsenGenerators.lean:837-844` claims in bold "**Every element of the
+Smith-Witt stabilizer of the rank-four M abelianization is induced by an actual
+`chiM`-preserving continuous automorphism of `D_M`**". The statement at
+`:845-851` additionally takes an orientation character `chi` with four pinned
+generator values and fixes the decomposition to
+`(mNielsenGenFrame ha).toMDecomposition`. The lane note is honest about this
+(its caveat 2 names it as `M.lean`'s inherited finding 6); the docstring is
+not. The N twin at `NNielsenFactorization.lean:903-910` does spell its clause
+out, so the two sides of the same wave disagree on how much to say.
+
+### LOW
+
+**L1. `MNielsenGenerators` cites the retained alias, never the public name.
+FLAGGED (Lean).** Seven references to `mFullStabilizer_lift_of_frame` and zero
+to `mFullStabilizer_lift`, in a module written after W363-MCONSOL freed the
+plain name for exactly this theorem. Not a broken reference; both names exist
+and `_of_frame` carries the identical statement. It is the rename drifting the
+wrong way in a brand-new file.
+
+**L2. Two added Lean lines exceed 100 codepoints. FLAGGED (Lean).**
+`MFrameMatrixLift.lean:854` at 101 (a proof-term line) and
+`MNielsenGenerators.lean:65` at 117 (a module-docstring prose line). Both are
+comment- or formatting-level. The owner memo's ruling 4 makes the 100-column
+target prospective and readability-qualified, so neither is a violation of a
+freeze; they are simply the two lines the session added over the line.
+
+**L3. Per-declaration docstrings in `NNielsenGenerators` omit the rank-four
+restriction that the module header states. FLAGGED (Lean).** `:173-175`
+(`nNielsenGenMat`) and `:206-209` (`nNielsenGen_cup_of_mat`) speak of "the
+actual N frame"; both statements are at `NFrameModel 0`. The sibling
+`nNielsenGen_lift_of_mat` at `:225-226` does say "rank-four", so this is an
+inconsistency inside one file rather than a general omission.
+
+**L4. Three docstrings describe the proof rather than the statement. FLAGGED
+(Lean).** `MNielsenGenerators.lean:702-703` and
+`NNielsenFactorization.lean:774-775` say the realization is "the composite of
+the seven/eight Nielsen generators' lifts"; both conclusions are bare
+existentials. `NNielsenFactorization.lean:350-351` says the Boolean slot "is the
+identity when the `(1,0)` block entry is a unit"; the statement records only
+`w = 0 \/ w = 1`.
+
+**L5. One side claim in `MNielsenGenerators` is asserted, not proved. FLAGGED
+(Lean).** `:75-77`, "The matrix that comes out is the transpose of
+`mFrameMatrix_of_realizes`'s, as that dictionary predicts." No declaration in
+the file states it; the file deliberately avoids making that comparison (which
+is the point of not needing `Variance.lean`).
+
+**L6. `MASSEMBLE`'s deliverables table has nine rows for ten declarations.
+FLAGGED (docs).** `docs/dyadic/w362-massemble-note.md` row
+"`mFullStabilizer_lift` (W363 rename; alias kept)" covers what are now two
+declarations. The module has ten and is pinned ten times.
+
+**L7. The campaign log's "~190 declarations" for the nine wave-362 modules
+understates by about twelve percent. FLAGGED (docs, outside the repo).**
+Section 198 of `~/claude/cla/outputs/dyadic-general-K-proof-campaign-plan-2026-08-02.md`
+says "Nine new modules, ~190 declarations". The audited figure at the wave's
+close was **216**, and it is **217** now. The log is the orchestrator's file.
+
+**L8. `NNielsenFactorization.lean:4`'s author line differs from its siblings**
+("using Claude Fable 5.1" against "using Claude Opus 5"). That is accurate, not
+a defect; recorded so nobody 'fixes' it.
+
+**L9. The brief this lane was given says thirteen new modules and seven
+`[ORCHESTRATOR]` placeholders.** There are twelve new registered modules (a
+thirteenth new `.lean` file exists, `scripts/w362_ln_fox_export.lean`, an
+exporter driver that intentionally stays outside `GQ2.lean`), and there are
+eight placeholders, not seven: section 1 carries two. Section 3 of the handoff
+is written to cover all thirteen files, with the distinction stated.
+
+### Verified clean, and worth recording because each was a plausible failure
+
+1. **The em-dash scrub is clean, absolutely.** Over every line added in
+   `6770a87e..d2056503`, `generated/` excluded: **zero** em-dashes and **zero**
+   en-dashes. The pre-existing hits (25 em-dashes in the owner memo, four in the
+   W361 handoff, and a handful elsewhere) are all in Codex-era text that no lane
+   of this session added.
+2. **Registration is complete, checked twice by independent routes.** An
+   import-graph walk over the sources and the scoreboard's own elaborated scan
+   both give 1,569 modules under `GQ2/`, 1,564 in the `GQ2` closure, and the same
+   six outside it. All twelve new modules are imported directly by `GQ2.lean`.
+   The `public import` trap the predecessor recorded is still live: 588 of the
+   tree's 5,065 import lines are spelled `public import`, and a scan matching only
+   `^import ` misreads the closure. `GQ2.lean` itself uses none.
+3. **Pin coverage is exact and total.** 397 declarations across the twelve
+   modules, 397 `#print axioms` lines, no declaration unpinned and no pin naming
+   a declaration that is not there. The honesty split is stronger than the N
+   modules': there the pin set matched the **public** declarations, here the 17
+   `private` ones are pinned too (380 public + 17 private = 397).
+4. **Per-module pin counts match the notes, and the two that do not are
+   explained.** 5/25/12/111/9/16/11/18/10/70/16/94. The two exceptions,
+   `MHeadCleanup` (note 7, tree 5) and `MBasisRowRefinement` (note 9, tree 11),
+   are the two-declaration move W363-MCONSOL made and documented; the arithmetic
+   `-2 +2 +1` that note performs on the audit's 216 reproduces the tree's 217
+   exactly.
+5. **The merge messages are accurate.** All eleven were read against their lane
+   notes. Every declaration count, pin count and headline claim in them is either
+   correct at merge time or correct now. **No relay error was found beyond the
+   one already caught.** W362-MHEAD's ticket figure "73 to 558" for the head
+   module's import cost was corrected by W363-MCONSOL to the measured 459 -> 10
+   (with 467 -> 19 and 469 -> 21 downstream), the correction is carried in the
+   MCONSOL merge message itself, and the MHEAD note still carries the original
+   figure as the ticket's, which is the right way round.
+6. **`w362-pub-note.md`'s citations are exact: all 85 of them.** That includes
+   every bare `:NNN` continuation, the four non-declaration "inline at"
+   pointers, and its negative claim that no `mpcJacobianCertUnram`,
+   `_Ram` or `foxD_mpc_unram` exists anywhere under `GQ2/`. It is the
+   best-cited document of the session and the only long one whose line numbers
+   did not drift, because it cites pre-existing files that nobody edited.
+7. **`w364-nfactor-note.md` is clean**: no `file:line` citations to drift, and
+   all 37 declaration names it discusses are present. Its one external reference,
+   `docs/dyadic/mc-design.md` section 3.4, is real (line 349) and contains the
+   N1-N6 table and the completeness recipe the note says it found there.
+8. **The packet citation resolves**, with one nitpick.
+   `docs/dyadic/refs/dyadic-presentations-formalization-proof.tex:732-735` is
+   the lifting proposition's emphasised block, as claimed. The finite-list
+   range cited as "lines 1077-1082" is really 1077-1080 for MC-M and 1081-1082
+   for MC-N; documents that quote the range for one row alone are two lines wide.
+9. **The three Nielsen modules are hygienic.** No `sorry`, `admit`,
+   `native_decide`, `set_option`, bare `axiom` or em-dash in any of them. The
+   `-` characters in `NNielsenFactorization.lean` at `:32` and `:252-253` are
+   U+2212 minus signs inside mathematics, not dashes. All three carry copyright
+   headers, which is more than the N siblings `NFullStabilizerLift.lean` and
+   `NStabilizerFullLift.lean` do.
+10. **The compactness-versus-generator honesty split is present and explicit in
+    both Nielsen modules**, in bold, in the module docstring and again at the
+    headline theorem: `MNielsenGenerators.lean:41-48` and `:682-684`,
+    `NNielsenFactorization.lean:65-75`, `:755-757` and `:955-958`. Both also
+    disclaim "finite generating set" in favour of "finitely many families", and N
+    additionally flags that its independent per-family route's N4 ingredient is
+    itself a compactness limit. Codex's standing warning "do not call the
+    finite-list artifact done" is respected at both cores.
+11. **`MFullFrameStages.lean`'s missing copyright header, which W363-MCONSOL
+    explicitly left open, was closed** by `6359d12a`.
+12. **No `[ORCHESTRATOR]` placeholder was filled by guesswork**, and the three
+    reserved for the orchestrator are still marked.
+
+### Proposals, kept separate from the findings above
+
+- **P1.** Add one line to the head of
+  `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` naming `69b9851c`
+  as the tree it measured. That converts fifteen stale citations and nine stale
+  hashes from errors into a dated record. A mechanical renumber is optional and
+  strictly less valuable.
+- **P2.** The `mHead_` prefix on the two declarations now living in
+  `MBasisRowRefinement.lean` records where they were first stated, not where
+  they live. W363-MCONSOL left this deliberately, with zero consumers. It stays
+  a free change for as long as nothing outside the tree references them.
+- **P3.** `docs/dyadic/w361-index.md` is now an index of a corpus it no longer
+  names. This lane extended it and retitled it rather than starting a second
+  index, on the grounds that two indexes are worse than one long one; if a later
+  wave disagrees, the W362-W364 section is a clean cut point.
 
 ## Verified counts
 
