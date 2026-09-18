@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.MarkedCore.Cores
 import GQ2.Dyadic.MarkedCore.FreeProTwoCharacterCorrection
 import GQ2.Roe.Labute.AdditiveCharacters
+import GQ2.Dyadic.Instances.StageAbstractionEvenRawSpan
 
 /-!
 # The coupled ordinary head row of an actual M-relator correction
@@ -20,8 +21,10 @@ Every declaration here carries the lane prefix `mHead`. That prefix is a naming
 reservation for this module; it is not a claim about the peripheral head word
 `GQ2.Dyadic.MarkedCore.mHead` of `Cores`, which is a different object.
 
-Nothing here constructs the corrections, asserts a derivative image, or
-preserves a relator equation after replacement.
+Nothing in the head-cleanup sections constructs the corrections, asserts a
+derivative image, or preserves a relator equation after replacement. The final
+section is a coordination re-export for the sibling derivative-kernel lane and
+proves no new mathematics.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -105,11 +108,6 @@ theorem mHead_correction_dvd {alpha d : ℕ} (halpha : 2 ≤ alpha) (hd : 1 ≤ 
 
 end HeadDigit
 
-#print axioms mHead_ordinary_row
-#print axioms mHead_correction_ordinary_row
-#print axioms mHead_dvd_of_coupled_row
-#print axioms mHead_correction_dvd
-
 /-- **T2.** The actual coupled defect supplies every coordinate divisibility
 needed for an exact all-ordinary-character-zero `A` column in its current
 two-central class, at arbitrary rank `n`, arbitrary handle count `h` and
@@ -137,7 +135,60 @@ theorem mHead_exists_freeTwo_characterZero_same_class {alpha h n d : ℕ}
   exact mHead_correction_dvd halpha hd (freeTwoCoordinate n i)
     y t target (hrow _) hC hdefect
 
+/-! ## The M derivative-kernel coordination statement
+
+This section is a **coordination statement for the sibling MKERNEL lane**, not
+the adapter itself. It re-exports the already proved
+`GQ2.Dyadic.StageGeneric.evenRawStageShift_m` in the packaging that lane needs:
+the literal `mRelWord` shift, with no `StageWord` datum to construct and no
+separate `1 <= alpha` argument to supply. MKERNEL owns the actual adapter.
+
+Note the instance burden inherited from `evenRawStageShift_m`: `G` must be a
+compact Hausdorff totally disconnected topological group, not merely a
+topological group as in the head-cleanup sections above.
+-/
+
+section MKernelCoordination
+open GQ2.Dyadic.StageGeneric
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- **T3, part 1.** The literal `M_alpha` relator shift in `levelQuot G (k+1)`
+is the even crossed-derivation word, for `alpha >= 2`, `k >= 3` and depth-`(k-1)`
+corrections. This is `evenRawStageShift_m` with the `mStageWord` packaging
+unfolded; the mathematical content is that theorem's, not this lane's. -/
+theorem mHead_mRelWord_shift_eq_evenRawDbarWord {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    (mRelWord alpha base)⁻¹ * mRelWord alpha (fun i => base i * correction i) =
+      evenRawDbarWord base correction :=
+  evenRawStageShift_m halpha (by omega) h k hk base correction hdepth
+
+/-- **T3, part 2.** The `M` and `N` filtered derivatives literally agree, as an
+equation between relator shifts in the actual quotient group `levelQuot G (k+1)`,
+and not merely an associated-graded analogy. This is the identification the scaffold's
+item 1 asks for before any `N` kernel witness may be reused on the `M` side. It
+is **not** a claim that any `N`-relator conclusion is an `M` theorem. -/
+theorem mHead_mRelWord_shift_eq_nRelWord_shift {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    (mRelWord alpha base)⁻¹ * mRelWord alpha (fun i => base i * correction i) =
+      (nRelWord alpha base)⁻¹ * nRelWord alpha (fun i => base i * correction i) := by
+  rw [mHead_mRelWord_shift_eq_evenRawDbarWord halpha h k hk base correction hdepth]
+  exact (evenRawStageShift_n halpha (by omega) h k hk base correction hdepth).symm
+
+end MKernelCoordination
+
+#print axioms mHead_ordinary_row
+#print axioms mHead_correction_ordinary_row
+#print axioms mHead_dvd_of_coupled_row
+#print axioms mHead_correction_dvd
 #print axioms mHead_exists_freeTwo_characterZero_same_class
+#print axioms mHead_mRelWord_shift_eq_evenRawDbarWord
+#print axioms mHead_mRelWord_shift_eq_nRelWord_shift
 
 end
 end GQ2.Dyadic.MarkedCore
