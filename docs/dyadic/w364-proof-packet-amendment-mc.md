@@ -1,5 +1,20 @@
 # W364 proposed packet amendment: the MC-M and MC-N obligations
 
+**STATUS 2026-09-18: sections 3 and 4 ADOPTED (owner decision "Option A");
+sections 1.3 and 6 still PROPOSED.** The owner accepted Option A of section 5 on
+2026-09-18 ([owner memo item 4](owner-items-2026-08-05.md)). Lane W366-APPLY
+applied section 3's per-core wording and section 4's MC-M / MC-N rows to
+`refs/dyadic-presentations-formalization-proof.tex`, recorded the corresponding
+status in `refs/dyadic-presentations-formalization-ledger.md` and in
+[the W361 completion audit](w361-completion-audit.md), and left everything else
+in this note as a proposal: the section 1.3 numbering/README citation repair,
+and the four contradictions of section 6 (the `refs/README.md` section number,
+the ledger pointer, the M family inventory docstrings, and the stale W363 audit
+hashes) are **not** applied and remain open. What W366 applied is recorded in
+[the W366 lane note](w366-apply-note.md). Section 5's Option B is moot.
+
+The original header follows.
+
 **PROPOSAL for the owner. Not approved, not an acceptance record, not an edit to
 the packet.** 2026-09-17, lane W364-PACKET, base `d2056503`. This note proposes
 replacement wording for two places in the vendored proof packet
@@ -443,6 +458,11 @@ and `mNielsenGen_cup_core` (a `decide` over `ZMod 2`), at N through
 
 ## 5. The decision this amendment asks for
 
+**DECIDED 2026-09-18: Option A.** Recorded verbatim in
+[`owner-items-2026-08-05.md`](owner-items-2026-08-05.md) item 4 and applied by
+lane W366-APPLY. The text of this section is left exactly as it was written
+for the decision; Option B below is the road not taken.
+
 The mathematical target need not be weakened either way. The decision is which
 *proof method* the packet's completion criterion accepts.
 
@@ -488,7 +508,14 @@ strongest single argument for Option A.
    rows are adopted (section 6, item 3), since Option B's work list is read
    directly off it.
 
-No owner decision is recorded by this note.
+No owner decision is recorded by this note. [W366, 2026-09-18: the decision
+was subsequently taken, Option A, and is recorded in
+[`owner-items-2026-08-05.md`](owner-items-2026-08-05.md) item 4. Sub-decisions
+1 and 2 above are settled by it (the method is the accepted criterion; the
+rank-four scope of the lists is accepted, and both scope statements are carried
+into the amended packet rows). Sub-decisions 3 and 4, the numbering/README
+citation repair and the M docstring inventory, were **not** in W366's
+authorization and remain open.]
 
 ## 6. Where the inputs contradict each other
 

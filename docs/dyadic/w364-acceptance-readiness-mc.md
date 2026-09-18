@@ -1,5 +1,20 @@
 # W364 acceptance readiness: the MC-M and MC-N rows
 
+**STATUS 2026-09-18: the target decision is TAKEN (Option A) and the rows it
+scores are ADOPTED; the four documentation repairs remain PROPOSED.** The owner
+accepted Option A on 2026-09-18 ([owner memo item 4](owner-items-2026-08-05.md)),
+and lane W366-APPLY applied the amendment's sections 3 and 4 to the packet, with
+the corresponding status in the ledger and in
+[the W361 completion audit](w361-completion-audit.md). In the checklist at the
+foot of this note, the owner's decision and the adoption of the rows are done,
+including the two scope statements, which were carried into the packet rows
+themselves. **Still open and not done by W366:** the four documentation repairs
+(packet citation / `refs/README.md`, ledger pointer, M family inventory
+docstring, stale W363 audit hashes), the final acceptance record, and the
+whole-tree build and axiom gate. See [the W366 lane note](w366-apply-note.md).
+
+The original header follows.
+
 **PROPOSAL and readiness review for the owner. Not acceptance, not approval, not
 a migration or release record.** 2026-09-17, lane W364-PACKET, base `d2056503`,
 toolchain `leanprover/lean4:v4.31.0-rc2`. The authoritative standards remain
@@ -179,13 +194,19 @@ untouched by this wave and keep their existing memo items.
 - [x] A literal finite list at rank four, both cores, with every member
       orientation-preserving, cup-preserving and lifting, and with the literal
       Smith-Witt stabilizer quantifier closed at both.
-- [ ] The owner's proof-method decision on the two rows (memo item 4 as
-      amended above).
-- [ ] If the method is accepted: adopt the amendment's rows, and carry the two
-      scope statements into the acceptance text verbatim.
-- [ ] If it is not: commission the Option B work list, and decide separately
+- [x] The owner's proof-method decision on the two rows (memo item 4 as
+      amended above). **Taken 2026-09-18: Option A, the method is accepted.**
+- [x] If the method is accepted: adopt the amendment's rows, and carry the two
+      scope statements into the acceptance text verbatim. **Done by lane
+      W366-APPLY: the packet's section 14 MC-M and MC-N rows now read
+      "Discharged", and both scope statements (rank four for the lists, general
+      handle count for the lifting halves; the families reading of "finite
+      list", with no finite generating set and no finite-word decomposition of
+      the limiting automorphism) are inside the rows, not in a footnote.**
+- [x] If it is not: commission the Option B work list, and decide separately
       whether a B8-carrying M3 construction is acceptable inside an artifact
-      whose entire point is a standard-three footprint.
+      whose entire point is a standard-three footprint. **Moot: Option A was
+      chosen, so the Option B work list is not commissioned.**
 - [ ] The four documentation repairs above (packet citation, ledger pointer, M
       family inventory, stale audit hashes). All comment-only; none blocks the
       decision.
