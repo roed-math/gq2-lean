@@ -1,0 +1,458 @@
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.foxD_nCompact_ram|3
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.foxD_nCompact_unram|3
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.hessRelZ_nCompact|3
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.nCompactJacobianCertRam|3
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.nCompactJacobianCertUnram|3
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.nCompactRamNormalForm|2
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.nCompactRamOps|2
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.nCompactUnramNormalForm|0
+PACKET_PIN_OK|GQ2.Dyadic.Certificates.nCompactUnramOps|0
+PACKET_PIN_OK|GQ2.Dyadic.GeneralTemplateLN.canon_rawNCompact|1
+PACKET_PIN_OK|GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNCompact|3
+PACKET_PIN_OK|GQ2.Dyadic.GeneralTemplateLN.denote_rawNCompact|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.CompactNBoundaryHessianCertificates.compactNBoundaryHessian|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedComparison_add|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedHessian|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedComparison_add|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedHessian|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.WordPhase.wPh_nCand_stokes|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.WordPhaseCompactNFinal.wPcNWordCertificateRN|3
+PACKET_PIN_OK|GQ2.Dyadic.Instances.WordPhaseCompactNFinal.wPcN_affineDeterminantCertificate|3
+PACKET_PIN_OK|GQ2.Dyadic.Words.eval_pro2_nCompact|3
+PACKET_PIN_OK|GQ2.Dyadic.Words.nCompactW|3
+PACKET_PIN_OK|GQ2.Dyadic.Words.pro2_nCompact|3
+PACKET_PIN_OK|GQ2.Dyadic.Words.rawNCompact|1
+PACKET_PIN_OK|GQ2.Dyadic.Words.wf_rawNCompact|3
+PACKET_PIN_OK|GQ2.Dyadic.genCertNProTwoWord|3
+PACKET_PIN_OK|GQ2.Dyadic.genCertNTameSpecializes|3
+PACKET_STANDING_PIN|GQ2.Dyadic.Instances.FieldFamilyCampaignBoundary.hasSelectedRowResidualRN_n0|4|#[GQ2.hilbertSymbol_normCriterion_finiteDyadic, GQ2.tateDualityAt, GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, GQ2.Foundations.absGalQ2_localEulerCharacteristic]
+LN_PACKET_PROOF_REPLAY_PASS|27|1
+@GQ2.Dyadic.Certificates.foxD_nCompact_ram : ∀ {h α : ℕ} {C : Type u_1} [inst : Group C] [Finite C] {V : Type u_2}
+  [inst_2 : AddCommGroup V] [Finite V] [inst_4 : DistribMulAction C V] (t : GQ2.Dyadic.Marking (2 + 2 * h) C)
+  (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) (E₂ : ℤ_[2] → ℤ),
+  (∀ (v : V), v + v = 0) →
+    (∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) →
+      (∀ (v : V), t.τ • v = v → v = 0) →
+        (∀ (v : V), GQ2.powOmega2 t.τ • v = v) →
+          1 ≤ α →
+            ∀ (a : GQ2.Dyadic.Generator (2 + 2 * h) → V),
+              GQ2.Dyadic.foxD (⇑t) a E E₂ (GQ2.Dyadic.Words.nCompactW α h) =
+                -(t.σ⁻¹ • a (GQ2.Dyadic.Words.coreLetter h 2))
+@GQ2.Dyadic.Certificates.foxD_nCompact_unram : ∀ {h α : ℕ} {C : Type u_1} [inst : Group C] [Finite C] {V : Type u_2}
+  [inst_2 : AddCommGroup V] [Finite V] [inst_4 : DistribMulAction C V] (t : GQ2.Dyadic.Marking (2 + 2 * h) C)
+  (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) (E₂ : ℤ_[2] → ℤ),
+  (∀ (v : V), v + v = 0) →
+    (∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) →
+      (∀ (v : V), t.τ • v = v) →
+        1 ≤ α →
+          ∀ (a : GQ2.Dyadic.Generator (2 + 2 * h) → V),
+            GQ2.Dyadic.foxD (⇑t) a E E₂ (GQ2.Dyadic.Words.nCompactW α h) =
+              a GQ2.Dyadic.Generator.tau +
+                (a (GQ2.Dyadic.Words.coreLetter h 2) - t.σ⁻¹ • a (GQ2.Dyadic.Words.coreLetter h 2))
+@GQ2.Dyadic.Certificates.hessRelZ_nCompact : ∀ {C V : Type} [inst : Group C] [inst_1 : AddCommGroup V]
+  [inst_2 : DistribMulAction C V] {q : V → ZMod 2} (dat : GQ2.FactorSet C V) (hdat : GQ2.IsEquivariantFactorSet q dat)
+  {h α : ℕ},
+  (∀ (v : V), v + v = 0) →
+    2 ≤ α →
+      ∀ (s u : C) (v : Fin (2 + 2 * h + 1) → V),
+        v (GQ2.Dyadic.Certificates.x2Idx h) = 0 →
+          ∀ (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) (E₂ : ℤ_[2] → ℤ),
+            GQ2.Dyadic.hessRelZ (GQ2.Dyadic.Certificates.hessMark s u v) (GQ2.Dyadic.kappa0Cocycle dat hdat) E E₂
+                (GQ2.Dyadic.Words.nCompactW α h) =
+              q (v (GQ2.Dyadic.Certificates.x0Idx h)) +
+                  GQ2.QuadraticFp2.polar q (v (GQ2.Dyadic.Certificates.x0Idx h)) (v (GQ2.Dyadic.Certificates.x1Idx h)) +
+                ∑ j,
+                  GQ2.QuadraticFp2.polar q (v (GQ2.Dyadic.Certificates.hIdxU j)) (v (GQ2.Dyadic.Certificates.hIdxV j))
+@GQ2.Dyadic.Certificates.nCompactJacobianCertRam : {h α q : ℕ} →
+  {C : Type u_1} →
+    [inst : Group C] →
+      [inst_1 : Finite C] →
+        {V : Type u_2} →
+          [inst_2 : AddCommGroup V] →
+            [inst_3 : Finite V] →
+              [inst_4 : DistribMulAction C V] →
+                (t : GQ2.Dyadic.Marking (2 + 2 * h) C) →
+                  (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) →
+                    (E₂ : ℤ_[2] → ℤ) →
+                      (∀ (v : V), v + v = 0) →
+                        (∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) →
+                          (∀ (v : V), t.τ • v = v → v = 0) →
+                            (∀ (v : V), GQ2.powOmega2 t.τ • v = v) →
+                              GQ2.Dyadic.conjR t.τ t.σ = t.τ ^ q →
+                                1 ≤ α →
+                                  GQ2.Dyadic.FoxCertificate (GQ2.Dyadic.TameSym.ramifiedEnd t)
+                                    (GQ2.Dyadic.foxJacobian (⇑t) E E₂ (GQ2.Dyadic.Certificates.tameRelW (2 + 2 * h) q)
+                                      (GQ2.Dyadic.Words.nCompactW α h))
+@GQ2.Dyadic.Certificates.nCompactJacobianCertUnram : {h α q : ℕ} →
+  {C : Type u_1} →
+    [inst : Group C] →
+      [inst_1 : Finite C] →
+        {V : Type u_2} →
+          [inst_2 : AddCommGroup V] →
+            [inst_3 : Finite V] →
+              [inst_4 : DistribMulAction C V] →
+                (t : GQ2.Dyadic.Marking (2 + 2 * h) C) →
+                  (E : ↑GQ2.Zhat.toProfinite.toTop → ℤ) →
+                    (E₂ : ℤ_[2] → ℤ) →
+                      (∀ (v : V), v + v = 0) →
+                        (∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) →
+                          (∀ (v : V), t.τ • v = v) →
+                            Even q →
+                              1 ≤ α →
+                                GQ2.Dyadic.FoxCertificate (GQ2.Dyadic.TameSym.splitEnd t)
+                                  (GQ2.Dyadic.foxJacobian (⇑t) E E₂ (GQ2.Dyadic.Certificates.tameRelW (2 + 2 * h) q)
+                                    (GQ2.Dyadic.Words.nCompactW α h))
+GQ2.Dyadic.Certificates.nCompactRamNormalForm : (h : ℕ) →
+  ℕ → GQ2.Dyadic.FoxNormalForm (GQ2.Dyadic.Generator (2 + 2 * h)) (GQ2.Dyadic.TameSym (2 + 2 * h))
+GQ2.Dyadic.Certificates.nCompactRamOps : (h : ℕ) →
+  List (GQ2.Dyadic.FoxColOp (GQ2.Dyadic.Generator (2 + 2 * h)) (GQ2.Dyadic.TameSym (2 + 2 * h)))
+GQ2.Dyadic.Certificates.nCompactUnramNormalForm : (h : ℕ) →
+  GQ2.Dyadic.FoxNormalForm (GQ2.Dyadic.Generator (2 + 2 * h)) (GQ2.Dyadic.TameSym (2 + 2 * h))
+GQ2.Dyadic.Certificates.nCompactUnramOps : (n : ℕ) → List (GQ2.Dyadic.FoxRowOp (GQ2.Dyadic.TameSym n))
+GQ2.Dyadic.GeneralTemplateLN.canon_rawNCompact : ∀ (alpha h : ℕ),
+  (GQ2.Dyadic.Words.rawNCompact alpha h).canon = GQ2.Dyadic.Words.rawNCompact alpha h
+GQ2.Dyadic.GeneralTemplateLN.denote_canon_rawNCompact : ∀ (alpha h : ℕ),
+  GQ2.Dyadic.Export.denote (GQ2.Dyadic.Words.denoteCtx h) (GQ2.Dyadic.Words.rawNCompact alpha h).canon =
+    some (GQ2.Dyadic.Words.nCompactW alpha h)
+GQ2.Dyadic.GeneralTemplateLN.denote_rawNCompact : ∀ (alpha h : ℕ),
+  GQ2.Dyadic.Export.denote (GQ2.Dyadic.Words.denoteCtx h) (GQ2.Dyadic.Words.rawNCompact alpha h) =
+    some (GQ2.Dyadic.Words.nCompactW alpha h)
+@GQ2.Dyadic.Instances.CompactNBoundaryHessianCertificates.compactNBoundaryHessian : ∀ {alpha h q : ℕ}
+  {P : ProfiniteGrp.{0}} {nuP : ↑P.toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop} {H E : Type} [inst : Group H]
+  [inst_1 : TopologicalSpace H] [inst_2 : DiscreteTopology H] [inst_3 : Finite H] [inst_4 : CommGroup E]
+  [inst_5 : TopologicalSpace E] [inst_6 : DiscreteTopology E] [inst_7 : Finite E] {Y : Type} [inst_8 : Group Y]
+  [inst_9 : TopologicalSpace Y] [inst_10 : DiscreteTopology Y] [inst_11 : Finite Y] (T : GQ2.MarkedTarget H E Y)
+  (Blk : GQ2.SectionSeven.MinimalBlock T.LY) [inst_12 : Blk.frattiniK.Normal]
+  [inst_13 : (Blk.S.subgroupOf Blk.P).Normal] [inst_14 : Blk.K.Normal] (hE2 : ∀ (e : E), e ^ 2 = 1) (hq0 : q ≠ 0)
+  (hqe : Even q) (F : GQ2.Dyadic.BoundaryFrameK q P H E)
+  (tame : ↑(GQ2.Dyadic.NCompact.gamma alpha h q).toProfinite.toTop →ₜ* ↑(GQ2.Dyadic.Tq q).toProfinite.toTop)
+  (pro2 : ↑(GQ2.Dyadic.NCompact.gamma alpha h q).toProfinite.toTop →ₜ* ↑P.toProfinite.toTop)
+  (compat :
+    ∀ (g : ↑(GQ2.Dyadic.NCompact.gamma alpha h q).toProfinite.toTop), (GQ2.Dyadic.nuTq q) (tame g) = nuP (pro2 g)),
+  tame (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) GQ2.Dyadic.Generator.sigma) =
+      GQ2.Dyadic.tqSigma q →
+    tame (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) GQ2.Dyadic.Generator.tau) =
+        GQ2.Dyadic.tqTau q →
+      (∀ (i : Fin (2 + 2 * h + 1)),
+          tame (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) (GQ2.Dyadic.Generator.wild i)) =
+            1) →
+        2 ≤ alpha →
+          (∃ g v, g • v ≠ v) →
+            ∀ (l : (GQ2.SectionNine.blockFrame T Blk hE2).DR) (hl : l ≠ (GQ2.SectionNine.blockFrame T Blk hE2).zeroDR)
+              (rho :
+                GQ2.Dyadic.BoundaryLiftsK (GQ2.Dyadic.sourceBoundaryMapK tame pro2 compat) F
+                  (GQ2.SectionNine.blockFrame T Blk hE2).TC),
+              have DD := (GQ2.Dyadic.blockEnrichmentDK T Blk hE2 hq0 hqe F).descData l hl;
+              have rhoM :=
+                GQ2.Dyadic.rhoPrimeK (GQ2.SectionNine.blockFrame T Blk hE2)
+                  (GQ2.Dyadic.sourceBoundaryMapK tame pro2 compat) F
+                  ((GQ2.Dyadic.blockEnrichmentDK T Blk hE2 hq0 hqe F).radData l hl) ⋯ rho;
+              Nonempty (GQ2.Dyadic.Instances.WordPhaseCompactCertificates.SourceCompactHessian DD rhoM ⋯ h)
+@GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedComparison_add : ∀ {alpha h q : ℕ} {Bg : Type}
+  [inst : Group Bg] [inst_1 : Finite Bg] [inst_2 : TopologicalSpace Bg] [inst_3 : DiscreteTopology Bg]
+  {D : GQ2.SectionEight.RadicalCoverData Bg} {DD : GQ2.SectionEight.AffineTLift.DescData D}
+  (rho : ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop →ₜ* Bg ⧸ D.M)
+  [inst_4 : TopologicalSpace DD.Vmod] [inst_5 : IsTopologicalAddGroup DD.Vmod] [inst_6 : DiscreteTopology DD.Vmod]
+  [inst_7 : TopologicalSpace DD.C0] [inst_8 : DiscreteTopology DD.C0]
+  [inst_9 :
+    DistribMulAction (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+      DD.Vmod]
+  [inst_10 :
+    ContinuousSMul (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop) DD.Vmod]
+  {Cbar : Type} [inst_11 : Group Cbar] [inst_12 : DistribMulAction Cbar DD.Vmod] (base : GQ2.FactorSet Cbar DD.Vmod)
+  (hbase : GQ2.IsEquivariantFactorSet DD.qbar base) (pi : DD.C0 →* Cbar)
+  (hpi : ∀ (cc : DD.C0) (v : DD.Vmod), cc • v = pi cc • v) (hf : ∀ (a b : DD.Vmod), DD.dat.f a b = base.f a b)
+  (hm : ∀ (cc : DD.C0) (v : DD.Vmod), DD.dat.m cc v = base.m (pi cc) v)
+  (hcompat :
+    ∀ (g : ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop) (v : DD.Vmod),
+      g • v = (GQ2.SectionEight.AffineTLift.rho0 DD rho) g • v)
+  (hA2 : ∀ (v : DD.Vmod), v + v = 0)
+  (hwildTwo :
+    GQ2.Dyadic.Count.IsWildTwo (GQ2.Dyadic.Count.wildAlphabet (2 + 2 * h)) fun i ↦
+      (GQ2.Dyadic.Count.rho0Continuous DD rho)
+        (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) i))
+  (hq0 : q ≠ 0) (hqe : Even q) (halpha : 2 ≤ alpha)
+  (hwildHead :
+    ∀ (i : Fin (2 + 2 * h + 1)),
+      pi
+          ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+            (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) (GQ2.Dyadic.Generator.wild i))) =
+        1)
+  (htauFpf :
+    ∀ (v : DD.Vmod),
+      (GQ2.SectionEight.AffineTLift.rho0 DD rho)
+              (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) GQ2.Dyadic.Generator.tau) •
+            v =
+          v →
+        v = 0)
+  (htauOdd :
+    ∀ (v : DD.Vmod),
+      GQ2.powOmega2
+            ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+              (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) GQ2.Dyadic.Generator.tau)) •
+          v =
+        v)
+  (x y : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho),
+  have C :=
+    GQ2.Dyadic.Instances.WordPhaseCompactNData.wPcNComparison_ramifiedHead rho base hbase pi hpi hf hm hcompat hA2
+      hwildTwo hq0 hqe halpha hwildHead htauFpf htauOdd;
+  C.phaseEquiv (x + y) = C.phaseEquiv x + C.phaseEquiv y
+@GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNRamifiedHessian : {alpha h q : ℕ} →
+  {Bg : Type} →
+    [inst : Group Bg] →
+      [inst_1 : Finite Bg] →
+        [inst_2 : TopologicalSpace Bg] →
+          [inst_3 : DiscreteTopology Bg] →
+            {D : GQ2.SectionEight.RadicalCoverData Bg} →
+              {DD : GQ2.SectionEight.AffineTLift.DescData D} →
+                (rho :
+                    ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop →ₜ*
+                      Bg ⧸ D.M) →
+                  [inst_4 : TopologicalSpace DD.Vmod] →
+                    [IsTopologicalAddGroup DD.Vmod] →
+                      [DiscreteTopology DD.Vmod] →
+                        [inst_7 : TopologicalSpace DD.C0] →
+                          [inst_8 : DiscreteTopology DD.C0] →
+                            [inst_9 :
+                                DistribMulAction
+                                  (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                                          (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+                                  DD.Vmod] →
+                              [ContinuousSMul
+                                    (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                                            (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+                                    DD.Vmod] →
+                                {Cbar : Type} →
+                                  [inst_11 : Group Cbar] →
+                                    [inst_12 : DistribMulAction Cbar DD.Vmod] →
+                                      (base : GQ2.FactorSet Cbar DD.Vmod) →
+                                        GQ2.IsEquivariantFactorSet DD.qbar base →
+                                          (pi : DD.C0 →* Cbar) →
+                                            (∀ (cc : DD.C0) (v : DD.Vmod), cc • v = pi cc • v) →
+                                              (∀ (a b : DD.Vmod), DD.dat.f a b = base.f a b) →
+                                                (∀ (cc : DD.C0) (v : DD.Vmod), DD.dat.m cc v = base.m (pi cc) v) →
+                                                  (∀
+                                                      (g :
+                                                        ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                                                                (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+                                                      (v : DD.Vmod),
+                                                      g • v = (GQ2.SectionEight.AffineTLift.rho0 DD rho) g • v) →
+                                                    (∀ (v : DD.Vmod), v + v = 0) →
+                                                      (GQ2.Dyadic.Count.IsWildTwo
+                                                          (GQ2.Dyadic.Count.wildAlphabet (2 + 2 * h)) fun i ↦
+                                                          (GQ2.Dyadic.Count.rho0Continuous DD rho)
+                                                            (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                              (GQ2.Dyadic.Words.nCompactW alpha h) i)) →
+                                                        q ≠ 0 →
+                                                          Even q →
+                                                            2 ≤ alpha →
+                                                              (∀ (i : Fin (2 + 2 * h + 1)),
+                                                                  pi
+                                                                      ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+                                                                        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                                          (GQ2.Dyadic.Words.nCompactW alpha h)
+                                                                          (GQ2.Dyadic.Generator.wild i))) =
+                                                                    1) →
+                                                                (∀ (v : DD.Vmod),
+                                                                    (GQ2.SectionEight.AffineTLift.rho0 DD rho)
+                                                                            (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                                              (GQ2.Dyadic.Words.nCompactW alpha h)
+                                                                              GQ2.Dyadic.Generator.tau) •
+                                                                          v =
+                                                                        v →
+                                                                      v = 0) →
+                                                                  (∀ (v : DD.Vmod),
+                                                                      GQ2.powOmega2
+                                                                            ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+                                                                              (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                                                (GQ2.Dyadic.Words.nCompactW alpha h)
+                                                                                GQ2.Dyadic.Generator.tau)) •
+                                                                          v =
+                                                                        v) →
+                                                                    GQ2.Dyadic.Instances.WordPhaseCompactCertificates.SourceCompactHessian
+                                                                      DD rho ⋯ h
+@GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedComparison_add : ∀ {alpha h q : ℕ} {Bg : Type}
+  [inst : Group Bg] [inst_1 : Finite Bg] [inst_2 : TopologicalSpace Bg] [inst_3 : DiscreteTopology Bg]
+  {D : GQ2.SectionEight.RadicalCoverData Bg} {DD : GQ2.SectionEight.AffineTLift.DescData D}
+  (rho : ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop →ₜ* Bg ⧸ D.M)
+  [inst_4 : TopologicalSpace DD.Vmod] [inst_5 : IsTopologicalAddGroup DD.Vmod] [inst_6 : DiscreteTopology DD.Vmod]
+  [inst_7 : TopologicalSpace DD.C0] [inst_8 : DiscreteTopology DD.C0]
+  [inst_9 :
+    DistribMulAction (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+      DD.Vmod]
+  [inst_10 :
+    ContinuousSMul (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop) DD.Vmod]
+  {Cbar : Type} [inst_11 : Group Cbar] [inst_12 : DistribMulAction Cbar DD.Vmod] (base : GQ2.FactorSet Cbar DD.Vmod)
+  (hbase : GQ2.IsEquivariantFactorSet DD.qbar base) (pi : DD.C0 →* Cbar)
+  (hpi : ∀ (cc : DD.C0) (v : DD.Vmod), cc • v = pi cc • v) (hf : ∀ (a b : DD.Vmod), DD.dat.f a b = base.f a b)
+  (hm : ∀ (cc : DD.C0) (v : DD.Vmod), DD.dat.m cc v = base.m (pi cc) v)
+  (hcompat :
+    ∀ (g : ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop) (v : DD.Vmod),
+      g • v = (GQ2.SectionEight.AffineTLift.rho0 DD rho) g • v)
+  (hA2 : ∀ (v : DD.Vmod), v + v = 0)
+  (hwildTwo :
+    GQ2.Dyadic.Count.IsWildTwo (GQ2.Dyadic.Count.wildAlphabet (2 + 2 * h)) fun i ↦
+      (GQ2.Dyadic.Count.rho0Continuous DD rho)
+        (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) i))
+  (hq0 : q ≠ 0) (hqe : Even q) (halpha : 2 ≤ alpha)
+  (hwildHead :
+    ∀ (i : Fin (2 + 2 * h + 1)),
+      pi
+          ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+            (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) (GQ2.Dyadic.Generator.wild i))) =
+        1)
+  (htauHead :
+    pi
+        ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+          (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) GQ2.Dyadic.Generator.tau)) =
+      1)
+  (hsigmaFpf :
+    ∀ (v : DD.Vmod),
+      pi
+              ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+                (GQ2.Dyadic.gammaGen (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) GQ2.Dyadic.Generator.sigma)) •
+            v =
+          v →
+        v = 0)
+  (x y : GQ2.SectionEight.AffineTLift.VCocycle DD rho ⧸ GQ2.SectionEight.AffineTLift.vCobRange DD rho),
+  have C :=
+    GQ2.Dyadic.Instances.WordPhaseCompactNData.wPcNComparison_unramifiedHead rho base hbase pi hpi hf hm hcompat hA2
+      hwildTwo hq0 hqe halpha htauHead hwildHead hsigmaFpf;
+  C.phaseEquiv (x + y) = C.phaseEquiv x + C.phaseEquiv y
+@GQ2.Dyadic.Instances.CompactNHessianCertificates.compactNUnramifiedHessian : {alpha h q : ℕ} →
+  {Bg : Type} →
+    [inst : Group Bg] →
+      [inst_1 : Finite Bg] →
+        [inst_2 : TopologicalSpace Bg] →
+          [inst_3 : DiscreteTopology Bg] →
+            {D : GQ2.SectionEight.RadicalCoverData Bg} →
+              {DD : GQ2.SectionEight.AffineTLift.DescData D} →
+                (rho :
+                    ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop →ₜ*
+                      Bg ⧸ D.M) →
+                  [inst_4 : TopologicalSpace DD.Vmod] →
+                    [IsTopologicalAddGroup DD.Vmod] →
+                      [DiscreteTopology DD.Vmod] →
+                        [inst_7 : TopologicalSpace DD.C0] →
+                          [inst_8 : DiscreteTopology DD.C0] →
+                            [inst_9 :
+                                DistribMulAction
+                                  (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                                          (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+                                  DD.Vmod] →
+                              [ContinuousSMul
+                                    (↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                                            (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+                                    DD.Vmod] →
+                                {Cbar : Type} →
+                                  [inst_11 : Group Cbar] →
+                                    [inst_12 : DistribMulAction Cbar DD.Vmod] →
+                                      (base : GQ2.FactorSet Cbar DD.Vmod) →
+                                        GQ2.IsEquivariantFactorSet DD.qbar base →
+                                          (pi : DD.C0 →* Cbar) →
+                                            (∀ (cc : DD.C0) (v : DD.Vmod), cc • v = pi cc • v) →
+                                              (∀ (a b : DD.Vmod), DD.dat.f a b = base.f a b) →
+                                                (∀ (cc : DD.C0) (v : DD.Vmod), DD.dat.m cc v = base.m (pi cc) v) →
+                                                  (∀
+                                                      (g :
+                                                        ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q
+                                                                (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+                                                      (v : DD.Vmod),
+                                                      g • v = (GQ2.SectionEight.AffineTLift.rho0 DD rho) g • v) →
+                                                    (∀ (v : DD.Vmod), v + v = 0) →
+                                                      (GQ2.Dyadic.Count.IsWildTwo
+                                                          (GQ2.Dyadic.Count.wildAlphabet (2 + 2 * h)) fun i ↦
+                                                          (GQ2.Dyadic.Count.rho0Continuous DD rho)
+                                                            (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                              (GQ2.Dyadic.Words.nCompactW alpha h) i)) →
+                                                        q ≠ 0 →
+                                                          Even q →
+                                                            2 ≤ alpha →
+                                                              (∀ (i : Fin (2 + 2 * h + 1)),
+                                                                  pi
+                                                                      ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+                                                                        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                                          (GQ2.Dyadic.Words.nCompactW alpha h)
+                                                                          (GQ2.Dyadic.Generator.wild i))) =
+                                                                    1) →
+                                                                pi
+                                                                      ((GQ2.SectionEight.AffineTLift.rho0 DD rho)
+                                                                        (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                                          (GQ2.Dyadic.Words.nCompactW alpha h)
+                                                                          GQ2.Dyadic.Generator.tau)) =
+                                                                    1 →
+                                                                  (∀ (v : DD.Vmod),
+                                                                      pi
+                                                                              ((GQ2.SectionEight.AffineTLift.rho0 DD
+                                                                                  rho)
+                                                                                (GQ2.Dyadic.gammaGen (2 + 2 * h) q
+                                                                                  (GQ2.Dyadic.Words.nCompactW alpha h)
+                                                                                  GQ2.Dyadic.Generator.sigma)) •
+                                                                            v =
+                                                                          v →
+                                                                        v = 0) →
+                                                                    GQ2.Dyadic.Instances.WordPhaseCompactCertificates.SourceCompactHessian
+                                                                      DD rho ⋯ h
+@GQ2.Dyadic.Instances.WordPhase.wPh_nCand_stokes : ∀ {α h q : ℕ},
+  2 ≤ α →
+    q ≠ 0 →
+      Even q →
+        ∀ {P : ProfiniteGrp.{0}} {nuP : ↑P.toProfinite.toTop →ₜ* ↑GQ2.Ztwo.toProfinite.toTop},
+          GQ2.Dyadic.StokesDualityCertificate (GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW α h))
+            (2 + 2 * h) q P nuP (GQ2.Dyadic.standardNumerics (2 + 2 * h))
+            (GQ2.Dyadic.scalarActionZmodTwo
+              ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW α h)).toProfinite.toTop)
+GQ2.Dyadic.Instances.WordPhaseCompactNFinal.wPcNWordCertificateRN : (alpha h q : ℕ) →
+  2 ≤ alpha →
+    q ≠ 0 →
+      Even q →
+        GQ2.Dyadic.WordCertificateRN (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)
+          (GQ2.Dyadic.MarkedCore.DN alpha h) ⋯ (GQ2.Dyadic.SelectedCoreLeavesRN.nNuZtwo alpha h)
+          (GQ2.Dyadic.standardNumerics (2 + 2 * h))
+@GQ2.Dyadic.Instances.WordPhaseCompactNFinal.wPcN_affineDeterminantCertificate : ∀ {alpha h q : ℕ},
+  2 ≤ alpha →
+    ∀ (hq0 : q ≠ 0) (hqe : Even q),
+      GQ2.Dyadic.AffineDeterminantCertificate (GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h))
+        (2 + 2 * h) q (GQ2.Dyadic.MarkedCore.DN alpha h) (GQ2.Dyadic.SelectedCoreLeavesRN.nNuZtwo alpha h)
+        (GQ2.Dyadic.standardNumerics (2 + 2 * h))
+        (GQ2.Dyadic.TameSpec.tameOfSpec (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h) ⋯)
+        (GQ2.Dyadic.genCertNPro2 alpha h q hq0 hqe) ⋯
+        (GQ2.Dyadic.scalarActionZmodTwo
+          ↑(GQ2.Dyadic.GammaR (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW alpha h)).toProfinite.toTop)
+@GQ2.Dyadic.Words.eval_pro2_nCompact : ∀ {G : Type} [inst : Group G] [inst_1 : TopologicalSpace G]
+  [inst_2 : IsTopologicalGroup G] [inst_3 : CompactSpace G] [inst_4 : TotallyDisconnectedSpace G] (α h : ℕ)
+  (t : GQ2.Dyadic.Marking (2 + 2 * h) G),
+  t.eval (GQ2.Dyadic.pro2 (GQ2.Dyadic.Words.nCompactW α h)) =
+    GQ2.Dyadic.MarkedCore.nWord α (t (GQ2.Dyadic.Words.coreLetter h 0)) (t (GQ2.Dyadic.Words.coreLetter h 1)) t.σ
+        (t (GQ2.Dyadic.Words.coreLetter h 2)) *
+      GQ2.Dyadic.MarkedCore.handleWord (fun j ↦ t (GQ2.Dyadic.Words.handleU j)) fun j ↦ t (GQ2.Dyadic.Words.handleV j)
+GQ2.Dyadic.Words.nCompactW : ℕ → (h : ℕ) → GQ2.Dyadic.PWord (GQ2.Dyadic.Generator (2 + 2 * h))
+GQ2.Dyadic.Words.pro2_nCompact : ∀ (α h : ℕ),
+  GQ2.Dyadic.pro2 (GQ2.Dyadic.Words.nCompactW α h) =
+    GQ2.Dyadic.PWord.prodList
+      [(GQ2.Dyadic.PWord.gen (GQ2.Dyadic.Words.coreLetter h 0)).zpow (2 + 2 ^ α),
+        (GQ2.Dyadic.PWord.gen (GQ2.Dyadic.Words.coreLetter h 0)).comm
+          (GQ2.Dyadic.PWord.gen (GQ2.Dyadic.Words.coreLetter h 1)),
+        ((GQ2.Dyadic.PWord.gen (GQ2.Dyadic.Words.coreLetter h 2)).conj
+            (GQ2.Dyadic.PWord.gen GQ2.Dyadic.Generator.sigma)).inv,
+        GQ2.Dyadic.PWord.prodList [GQ2.Dyadic.PWord.gen (GQ2.Dyadic.Words.coreLetter h 2), GQ2.Dyadic.PWord.one],
+        GQ2.Dyadic.Words.handlesW h]
+GQ2.Dyadic.Words.rawNCompact : ℕ → ℕ → GQ2.Dyadic.Export.RawWord
+GQ2.Dyadic.Words.wf_rawNCompact : ∀ (α h : ℕ), (GQ2.Dyadic.Words.rawNCompact α h).wf = true
+GQ2.Dyadic.genCertNProTwoWord : ∀ (α h : ℕ) (G : Type) [inst : Group G] [inst_1 : TopologicalSpace G]
+  [inst_2 : IsTopologicalGroup G] [inst_3 : CompactSpace G] [inst_4 : TotallyDisconnectedSpace G]
+  (t : GQ2.Dyadic.Marking (2 + 2 * h) G),
+  t.eval (GQ2.Dyadic.pro2 (GQ2.Dyadic.Words.nCompactW α h)) = GQ2.Dyadic.genCertNCoreRel α h G t
+GQ2.Dyadic.genCertNTameSpecializes : ∀ (α h q : ℕ),
+  q ≠ 0 → Even q → GQ2.Dyadic.TameSpec.TameSpecializes (2 + 2 * h) q (GQ2.Dyadic.Words.nCompactW α h)
+@GQ2.Dyadic.Instances.FieldFamilyCampaignBoundary.hasSelectedRowResidualRN_n0 : ∀ {R : GQ2.LocalReciprocity}
+  {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])} [inst : FiniteDimensional ℚ_[2] ↥K]
+  [inst_1 : CompactSpace (GQ2.Dyadic.GalK K)] [T2Space (GQ2.Dyadic.GalK K)]
+  [inst_3 : TotallyDisconnectedSpace (GQ2.Dyadic.GalK K)] [inst_4 : CompactSpace GQ2.AbsGalQ2]
+  [inst_5 : TotallyDisconnectedSpace GQ2.AbsGalQ2] (B : GQ2.Dyadic.MarkedRecip R K) (FF : GQ2.DyadicUnitFiltration K)
+  {P : GQ2.Dyadic.FieldParameters} {W : GQ2.Dyadic.FamilyFieldBranchWitness P (B.fieldMarkedPair FF)}
+  (S : GQ2.Dyadic.FamilyFieldBranchSelection K P (B.fieldMarkedPair FF) W),
+  W.MatchesCyclotomicRange →
+    ∀ {alpha : ℕ},
+      S.branch = GQ2.Dyadic.BranchData.N0 alpha →
+        GQ2.Dyadic.Instances.FieldFamilyCampaignBoundary.HasSelectedRowResidualRN B FF S

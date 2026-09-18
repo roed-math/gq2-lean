@@ -1,0 +1,20 @@
+% STAGED L/N Fox operations and reduced matrices; ledger items 4 and 5 only.
+% ln-fox-hash: 7a280f1cb1e6feadabe58f80f2b6b071c4870ea221036ea5cf7c3c526507d025
+% family: N0; structural: {"h":3,"q":2}
+% Ledger items 4 and 5 only, for the existing L/N0/Npc FoxCertificate records under their own stated hypotheses. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% Row list applies head first; column list denotes head composed with tail; comp(outer,inner) applies inner first. Every scale carries its formal inverse as data.
+% Identity of the serialized operation lists and normal matrices at the stated discrete parameters. Uniformity in h, q and r is carried by the rfl signature theorems, not by this instance.
+% The N0 Fox records need 1 <= alpha; the complete N0 certificate requires alpha >= 2 and nonzero even q.
+% S, T, W_i are generator actions; S_2 is the omega2 action, not S squared; A is the eta-hat conjugator action, not an independently chosen scalar.
+% Rows are identities on ALL cochains, not only on the cocycle kernel. Unprinted columns carry the coefficient 0.
+% Syntax, hash and render agreement is NOT Lean synchronization; replay Lean for strong checking.
+\paragraph{unramified sector}
+% record: GQ2.Dyadic.Certificates.nCompactJacobianCertUnram
+% signature bridges: GQ2.Dyadic.W362LNFox.nCompactUnram_rowOps, GQ2.Dyadic.W362LNFox.nCompactUnram_colOps, GQ2.Dyadic.W362LNFox.nCompactUnram_target
+\[\begin{aligned}\mathcal R_{1}&:\quad R_2\leftarrow R_2+S\circ R_1\\\mathcal C&=\mathrm{id}\end{aligned}\]
+\[\begin{pmatrix}S^{-1}\bigl(a_{\tau}\bigr)\\\bigl(I-S^{-1}\bigr)\bigl(a_{x_{2}}\bigr)\end{pmatrix}.\]
+\paragraph{ramified sector}
+% record: GQ2.Dyadic.Certificates.nCompactJacobianCertRam
+% signature bridges: GQ2.Dyadic.W362LNFox.nCompactRam_rowOps, GQ2.Dyadic.W362LNFox.nCompactRam_colOps, GQ2.Dyadic.W362LNFox.nCompactRam_target
+\[\begin{aligned}\mathcal R&=\mathrm{id}\\\mathcal C_{1}&:\quad a_{x_{2}}\leftarrow S\bigl(a_{x_{2}}\bigr)\quad[\text{carried inverse: }S^{-1}]\end{aligned}\]
+\[\begin{pmatrix}S^{-1}\circ \bigl(T-I\bigr)\bigl(a_{\sigma}\bigr)+\bigl(S^{-1}-\bigl(\bigl(0+T^{0}\bigr)+T\bigr)\bigr)\bigl(a_{\tau}\bigr)\\I\bigl(a_{x_{2}}\bigr)\end{pmatrix}.\]
