@@ -33,9 +33,9 @@ Four new files under `scripts/w366_*` and 36 new artifact files in
 
 | file | role |
 |---|---|
-| `scripts/w366_ln_gauss_export.lean` | the driver: 12 declarations, carries the signature theorems and the serialization |
+| `scripts/w366_ln_gauss_export.lean` | the driver: 11 signature theorems plus `exportMain`, and the serialization |
 | `scripts/w366_ln_gauss_tex.py` | the generator: validates and renders the serialization, 63 self-test assertions |
-| `scripts/w366_ln_item8_overlay.py` | the **second composer**: the item-8 overlays, 32 self-test assertions |
+| `scripts/w366_ln_item8_overlay.py` | the **second composer**: the item-8 overlays, 56 self-test assertions |
 | `scripts/w366_check_ln_staged.sh` | the extended check, which runs `w363_check_ln_staged.sh` unchanged first |
 
 Parameters, chosen to match the W362 Fox and W363 item artifacts exactly so that all the
@@ -72,6 +72,12 @@ cellValue                                                              propext
 lUnramValue lRamValue compactValue npcValue exportMain                  standard three
 ```
 
+Those twelve are the eleven theorems and `exportMain`, which is the W363 driver convention:
+the serialization helpers (`schema`, `bracket`, `optString`, `rowJson`, `lRows`, `n0Rows`,
+`npcRows`, `payload`, `envelope`, the namespace-prefix and note strings) are all inside
+`exportMain`'s transitive closure, so the `exportMain` pin covers every one of them and an
+axiom hiding in a helper could not escape it.
+
 Zero errors and zero warnings under `bash scripts/w361_lean_runner.sh
 scripts/w366_ln_gauss_export.lean`.  No `sorry`, no `native_decide`, no new axiom, no
 resource option, no `set_option` of any kind.  The driver carries a global `main` and stays
@@ -95,7 +101,19 @@ refuses, each with its own self-test mutation:
   sign from the row, the exponent from the handle rank, `2h+1` at `L` and `2h+2` at the three
   even-degree rows.  `sign=True` is refused too, since `bool` is not `int` here.
 
-### T1.c The packets: an OVERLAY, not a regeneration. Which, and why
+### T1.c The overlay's before column is per family
+
+The overlay pins item 8's binding kinds before and after, and **the `before` column is a
+function of the family, not a constant**.  W365 corrected w363-pub2-note on exactly this
+point: the `L` rows' printed sign already had a `record_target` route through the pre-existing
+`LHessianCertificates.unramifiedHessian_baseSign` and `.ramifiedHessian_baseSign`, so a
+uniform `named_but_unbound` before column would repeat the overstatement W365 found.  For `L`
+this lane therefore adds a **second, independent** route to the display cell, which a
+validator may check agrees with the first; for `N0` and `Npc` it adds the first.  A constant
+`sign_route_note` carries the caveat, the validator refuses to let it be dropped, and it
+refuses an `L` overlay carrying the `N0` table or the reverse.
+
+### T1.d The packets: an OVERLAY, not a regeneration. Which, and why
 
 **This lane produces `packet-*.item8-w366.tex` overlays.  It does not produce a separate
 `packets-w366/` set, and it does not regenerate the W362 packets.**
@@ -136,7 +154,54 @@ extends the W362 one and the W362 script extends the W361 one: it runs it unchan
 and adds.  None of the three earlier check scripts is modified, and neither is
 `scripts/w362_ln_certificate_packet.py`.
 
-(verification record pending)
+### Verification record
+
+`bash scripts/w366_check_ln_staged.sh` from the worktree root, against the shared campaign
+cache at Lean 4.31.0-rc2, **exit 0**, 7 minutes 56 seconds (476 s).  No `lake` invocation.  It
+reproduces, in order:
+
+```text
+W361_STAGED_CHECK_PASS (not owner approval or a transitive fresh-build certificate)
+W362_LN_STAGED_CHECK_PASS (staged proposals only: ...)
+W363_LN_STAGED_CHECK_PASS (staged proposals only: ...)
+W366_LN_STAGED_CHECK_PASS (staged proposals only: ...)
+```
+
+**Every W362 hash reproduces exactly the value w362-pub-note and w363-pub2-note record.**  The
+six Fox hashes `8100f623 2dc399b5 ede1c9b7 7a280f1c 066b3a46 eb4ee748` and the six packet
+hashes `7f19d17e f98de22b 1bb59b94 b54126b5 6cf3a39e 97d13c27`.  **So the frozen word hashes
+still reproduce**: `d129037c...` for `rawLsq_n1`, `a940b6ad...` for `rawNCompact_alpha2_h0`
+and `08b7742c...` for `rawNpc_a2_r1_eta1_1_h0`.
+
+**Every W363 hash reproduces exactly the value w363-pub2-note T7 records**, all 36, including
+the six `coordinate` hashes `352edf53 4d1b5d25 0cd8d35d ca71e4ef afcd8f62 8ce388d9` that item
+8's other half depends on.
+
+The 12 new hashes, first eight hex digits, in check order:
+
+```text
+gauss    L-h0 bf76ea80  L-h4 8bed0292  N0-h0 f7c643df  N0-h3 d90b2433  Npc-h0 8abe7ce5  Npc-h3 b23d4953
+overlay  L-h0 804d90c8  L-h4 89277470  N0-h0 0211b5d7  N0-h3 2fd8c30d  Npc-h0 d00c9413  Npc-h3 e9552408
+```
+
+Each overlay line also prints the packet hash it pins, followed by `unchanged`:
+
+```text
+STAGED_LN_ITEM8_OVERLAY_CHECK|packet-L-h0|804d90c8...|packet 7f19d17e... unchanged
+```
+
+Self-tests: `LN_GAUSS_SELF_TEST_PASS|63` and `LN_ITEM8_OVERLAY_SELF_TEST_PASS|56`.  All six
+gauss artifacts are `Lean-replayed`, i.e. the driver is recompiled and its bytes compared, not
+merely re-read.  The overlay check is deliberately not Lean-replayed: it has no Lean of its
+own, and everything it could replay is replayed by the two checks it sits behind.
+
+Verified separately, by `git diff` against `9dd8a307`: the lane's diff is **100% additions**.
+No existing file in the repository is modified by any of the six commits.
+
+What this run does **not** establish, unchanged from W362 and W363: it is not a fresh
+full-repository build, not a transitive build attestation, and not a hash-gate run.  The probe
+imports existing olean artifacts, so the direct-source provenance sidecars do not prove that
+those bytes produced those artifacts.
 
 ---
 
